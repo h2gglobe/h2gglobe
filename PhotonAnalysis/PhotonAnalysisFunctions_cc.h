@@ -156,9 +156,6 @@ int LoopAll::myFillReducedVarPhotonAnalysis(Util * ut, int jentry) {
 }
 
 void LoopAll::mySetBranchAddressRedPhotonAnalysis() {
-
-  // PER ME NON CI VUOLE
-  //#include "../branchdef/setbranchaddress.h"
   
   fChain->SetBranchAddress("pho_n", &pho_n, &b_pho_n);
   fChain->SetBranchAddress("pho_p4", &pho_p4, &b_pho_p4);
