@@ -25,6 +25,7 @@ LOOPALLSO = libLoopAll.$(DllSuf)
 LOOPALLO = LoopAll.$(ObjSuf) \
            Util.$(ObjSuf) \
 	   LoopAllDict.$(ObjSuf) \
+	   dict.$(ObjSuf) \
 	   HistoContainer.o
 
 all: $(LOOPALL)
@@ -40,7 +41,7 @@ $(LOOPALL):  $(LOOPALLO)
 	@echo "$(LOOPALLSO) done"
 
 LoopAll.$(ObjSuf): CommonParameters.h LoopAll.h Util.h Tools.h LoopAll_cc.h \
-	branchdef/Limits.h branchdef/treedef.h branchdef/newclonesarray.h \
+	../interface/Limits.h branchdef/treedef.h branchdef/newclonesarray.h \
 	branchdef/treebranch.h branchdef/setbranchaddress.h branchdef/getentry.h branchdef/getbranch.h branchdef/branchdef.h \
 	PhotonAnalysis/PhotonAnalysisFunctions_h.h PhotonAnalysis/PhotonAnalysisFunctions_cc.h \
 	GeneralFunctions_cc.h GeneralFunctions_h.h \
@@ -48,20 +49,21 @@ LoopAll.$(ObjSuf): CommonParameters.h LoopAll.h Util.h Tools.h LoopAll_cc.h \
 
 
 mpUtil.$(ObjSuf): CommonParameters.h LoopAll.h Util.h \
-	branchdef/Limits.h branchdef/treedef.h branchdef/newclonesarray.h \
+	../interface/Limits.h branchdef/treedef.h branchdef/newclonesarray.h \
 	branchdef/treebranch.h branchdef/setbranchaddress.h branchdef/getentry.h branchdef/getbranch.h branchdef/branchdef.h \
 	PhotonAnalysis/PhotonAnalysisFunctions_h.h \
 	GeneralFunctions_h.h \
 	HistoContainer.h 
 
 LoopAllDict.$(SrcSuf): CommonParameters.h LoopAll.h Util.h \
-	branchdef/Limits.h branchdef/treedef.h \
+	../interface/Limits.h branchdef/treedef.h \
 	PhotonAnalysis/PhotonAnalysisFunctions_h.h \
 	GeneralFunctions_h.h \
 	HistoContainer.h 
 
 	@echo "Generating dictionary $@..."
 	@rootcint -f $@ -c LoopAll.h Util.h 
+	@rootcint -f dict.cpp -c -p LinkDef.h 
 
 .$(SrcSuf).$(ObjSuf):
 	$(CXX) $(CXXFLAGS) -g -c $<
