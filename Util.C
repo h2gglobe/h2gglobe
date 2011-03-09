@@ -39,8 +39,10 @@ void Util::SetTypeRun(int t, const char* name) {
   int hasoutputfile=0;
   
   if(typerun == 0 || typerun == 2) {
+  	if(DEBUG) cout<<"typerun is " << typerun <<endl;
     hasoutputfile=0;
   } else if(typerun == 1) {
+  	if(DEBUG) cout<<"typerun is " << typerun <<endl;
 
     hasoutputfile=1;
     outputTree = new TTree("event","Reduced tree"); 
@@ -58,9 +60,24 @@ void Util::SetOutputNames(const char* name, const char* name2) {
   outputFileName = TString(name2);
 }
 
-void Util::AddFile(char* name) {
+void Util::AddFile(char* name,int type) {
+  if(DEBUG) cout << "Adding file:  " << name << " of type " << type << endl;
   files[nfiles] = name;
+  datatype[nfiles] = type;
+  
+  //look in map for type as a key already
+  map<int,int>::iterator it;
+  if(DEBUG) cout << "map ok" << endl;
+  it = type2HistVal.find(type);
+  if(DEBUG) cout << "map checked" << endl;
+  if (it == type2HistVal.end()) { 
+    type2HistVal[type] = ntypes;
+    if(DEBUG) cout << "container to add" << endl;
+    ntypes++;
+    if(DEBUG) cout << "container added" << endl;
+  }
   nfiles++;
+  if(DEBUG) cout << "successful addition" << endl;
 }
 
 void Util::LoopAndFillHistos(TString treename) {
@@ -70,10 +87,13 @@ void Util::LoopAndFillHistos(TString treename) {
   if (DEBUG)
     cout<<"LoopAndFillHistos: calling InitReal "<<endl;
 
-  loops->InitReal(typerun);
+  loops->InitReal(this,typerun);
+  
+  
 
   while (i<nfiles) {
-    
+  
+    this->current = i;
     cout<<"LoopAndFillHistos: opening " << i << " " << files[i]<<endl;
 
     Files[i] = TFile::Open(files[i]);

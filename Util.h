@@ -14,6 +14,7 @@
 #include <TPaveText.h>
 #include <TArrow.h>
 #include <iostream>
+#include <map>
 
 using namespace std;
 
@@ -29,10 +30,12 @@ class Util {
   void WriteHist();  
   void SetTypeRun(int, const char* n);
   void SetOutputNames(const char* n, const char* n2="");
-  void AddFile(char*);
+  void AddFile(char*,int);
 
   char * files[MAXFILES];
+  int datatype[MAXFILES];
   int nfiles;
+  int ntypes;
 
   TFile *Files[MAXFILES];
   TTree *Trees[MAXFILES];
@@ -55,6 +58,9 @@ class Util {
   Int_t typerun;
   Int_t typeread;
 
+  map<int,int> type2HistVal;
+
+  Int_t        current; //current file
   Int_t        tot_events;
   Int_t        sel_events;
 

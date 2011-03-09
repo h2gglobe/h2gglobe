@@ -1,12 +1,14 @@
 #define PADEBUG 0
 
-void LoopAll::InitRealPhotonAnalysis(int typerun) {
+void LoopAll::InitRealPhotonAnalysis(Util * ut, int typerun) {
 
   // Book histos only if not reduce step
-  if (typerun != 1) {    
-    histoContainer->Add("pho_pt", 100, 0, 100);
-    histoContainer->Add("invmass_barrel", 200, 0, 200);
-    histoContainer->Add("invmass_endcap", 200, 0, 200);
+  if (typerun != 1) {   
+    for( int ind=0; ind<ut->ntypes; ind++) {
+      histoContainer[ind]->Add("pho_pt", 100, 0, 100);
+      histoContainer[ind]->Add("invmass_barrel", 200, 0, 200);
+      histoContainer[ind]->Add("invmass_endcap", 200, 0, 200);
+    }
   }
 }
 
@@ -21,12 +23,13 @@ void LoopAll::myFillHistPhotonAnalysis(Util *ut, int jentry) {
 
   counters[0]++;
 
+  int histVal = ut->type2HistVal[ut->datatype[ut->current]];
   b_pho_n->GetEntry(jentry); 
   b_pho_p4->GetEntry(jentry); 
   
   for (int i=0; i<pho_n; i++) {
     TLorentzVector *p4 = (TLorentzVector *) pho_p4->At(i);
-    histoContainer->Fill("pho_pt", p4->Pt());
+    histoContainer[histVal]->Fill("pho_pt", p4->Pt());
   }
   
   Int_t in_endcap = 0;
@@ -48,7 +51,7 @@ void LoopAll::myFillHistPhotonAnalysis(Util *ut, int jentry) {
   }     
 
   if (best_mass != 0) 
-    histoContainer->Fill("invmass", best_mass);
+    histoContainer[histVal]->Fill("invmass", best_mass);
   
   if(PADEBUG) 
     cout<<"myFillHist END"<<endl;
@@ -59,7 +62,9 @@ void LoopAll::myFillHistPhotonAnalysisRed(Util * ut, int jentry) {
 
   if(PADEBUG) 
     cout << "myFillHistRed START"<<endl;
-
+  
+  int histVal = ut->type2HistVal[ut->datatype[ut->current]];
+  
   counters[0]++;
 
   b_pho_n->GetEntry(jentry); 
@@ -67,7 +72,7 @@ void LoopAll::myFillHistPhotonAnalysisRed(Util * ut, int jentry) {
   
   for (int i=0; i<pho_n; i++) {
     TLorentzVector *p4 = (TLorentzVector *) pho_p4->At(i);
-    histoContainer->Fill("pho_pt", p4->Pt());
+    histoContainer[histVal]->Fill("pho_pt", p4->Pt());
   }
   
   Int_t in_endcap = 0;
@@ -90,9 +95,9 @@ void LoopAll::myFillHistPhotonAnalysisRed(Util * ut, int jentry) {
 
   if (best_mass != 0) {
     if (in_endcap == 0)
-      histoContainer->Fill("invmass_barrel", best_mass);
+      histoContainer[histVal]->Fill("invmass_barrel", best_mass);
     else
-      histoContainer->Fill("invmass_endcap", best_mass);
+      histoContainer[histVal]->Fill("invmass_endcap", best_mass);
   }
 
   if(PADEBUG) 

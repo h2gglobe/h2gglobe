@@ -5,26 +5,36 @@
 #include <TH2F.h>
 #include <TProfile.h>
 #include <map>
+#include <string>
 
 class HistoContainer {
 
  public:
   HistoContainer();
+  HistoContainer(int);
   ~HistoContainer();
     
-  void Add(const char*, int, float, float);
-  void Add(const char*, int, float, float, int, float, float);
-  void Add(const char*, int, float, float, float, float);
+  void Add(char*, int, float, float);
+  void Add(char*, int, float, float, int, float, float);
+  void Add(char*, int, float, float, float, float);
 
-  void Fill(const char*, float);
-  void Fill(const char*, float, float);
+  void Fill(char*, float);
+  void Fill(char*, float, float);
+  
+  std::map<std::string, TH1F*>* getMap() { return h1; };
   
   void Save();
-  
+ 
+  int getHistVal();
+  void setHistVal(int);
+  std::string ModifiedName(char*);
+
+
  private:
-  std::map<const char*, TH1F> h1;
-  std::map<const char*, TH2F> h2;
-  std::map<const char*, TProfile> hp;
+  int histVal;
+  std::map<std::string, TH1F*>* h1;
+  std::map<std::string, TH2F> h2;
+  std::map<std::string, TProfile> hp;
 };
 
 #endif

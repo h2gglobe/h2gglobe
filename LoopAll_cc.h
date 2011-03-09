@@ -19,7 +19,7 @@ using namespace std;
 
 #include "PhotonAnalysis/PhotonAnalysisReducedOutputTree.h"
 
-void LoopAll::InitReal(Int_t typerunpass) {
+void LoopAll::InitReal(Util* ut,Int_t typerunpass) {
 
   // Set branch addresses
   typerun=typerunpass;
@@ -27,7 +27,14 @@ void LoopAll::InitReal(Int_t typerunpass) {
   if (hfile) 
     hfile->Close();
 
-  InitRealPhotonAnalysis(typerun);
+  for(int ind=0; ind<ut->ntypes; ind++) {
+    HistoContainer* temp = new HistoContainer(ind);
+    histoContainer.push_back(temp);
+  }
+
+  if(DEBUG) cout << "doing InitRealPhotonAnalysis" << endl;
+  InitRealPhotonAnalysis(ut,typerun);
+  if(DEBUG) cout << "finished InitRealPhotonAnalysis" << endl;
 
   if (UtilInstance->makeOutputTree) 
     UtilInstance->outputFile->cd();
@@ -199,7 +206,9 @@ void LoopAll::myWritePlot(Util * ut) {
 
   hfile->cd();
   hfile->cd();
-  histoContainer->Save();
+  for(int ind=0; ind<ut->ntypes; ind++) {
+    histoContainer[ind]->Save();
+  }
   if (UtilInstance->makeOutputTree) 
     UtilInstance->outputFile->cd();
 }
@@ -207,7 +216,6 @@ void LoopAll::myWritePlot(Util * ut) {
 int LoopAll::FillAndReduce(Util * ut, int jentry) {
 
   int hasoutputfile = 0;
-
   if(ut->typerun == 1) {
     hasoutputfile = 1;
     if(DEBUG) 
@@ -218,7 +226,7 @@ int LoopAll::FillAndReduce(Util * ut, int jentry) {
   } else if (ut->typerun == 0) {
     hasoutputfile = 0;
     if(DEBUG) 
-      cout<<"call myFillHist"<<endl;
+      cout<<"call myFillHist -- really?"<<endl;
     myFillHistPhotonAnalysis(ut, jentry);
     if(DEBUG) 
       cout<<"called myFillHist"<<endl;

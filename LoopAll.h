@@ -48,7 +48,7 @@ class LoopAll {
 #include "branchdef/branchdef.h"
 #include "branchdef/treedef.h"
 
-  HistoContainer* histoContainer;
+  std::vector<HistoContainer*> histoContainer;
   
 
   LoopAll(TTree *tree=0);
@@ -57,7 +57,7 @@ class LoopAll {
   virtual Int_t    GetEntry(Long64_t entry);
   virtual Long64_t LoadTree(Long64_t entry);
   virtual void   Init(Int_t typerunpass, TTree *tree);
-  virtual void   InitReal(Int_t typerunpass);
+  virtual void   InitReal(Util* ut, Int_t typerunpass);
   virtual void   TermReal(Int_t typerunpass);
   virtual void   Loop();
   virtual Bool_t Notify();
@@ -91,7 +91,7 @@ class LoopAll {
 
 #ifdef LoopAll_cxx
 LoopAll::LoopAll(TTree *tree) {
-  histoContainer = new HistoContainer();
+  //histoContainer = new HistoContainer();
 }
 
 LoopAll::~LoopAll() {
