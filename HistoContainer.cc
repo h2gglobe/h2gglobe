@@ -5,14 +5,10 @@
 #define HCDEBUG 1
 
 
-HistoContainer::HistoContainer() {
-  h1 = new std::map<std::string, TH1F*>();
-}
+HistoContainer::HistoContainer() {}
 
-HistoContainer::HistoContainer(int setTo) 
-{
+HistoContainer::HistoContainer(int setTo) {
   setHistVal(setTo);
-  h1 = new std::map<std::string, TH1F*>();
 }
 
 HistoContainer::~HistoContainer() 
@@ -27,80 +23,105 @@ int HistoContainer::getHistVal() {
 }
 
 
-std::string HistoContainer::ModifiedName(char* name) {
+std::string HistoContainer::ModifiedName(char* name, int i) {
   char* modName= new char[500];
-  sprintf(modName, "%s_%d", name, histVal);
+  sprintf(modName, "%s_cat%d_%d", name, i, histVal);
   std::string output(modName);
   return output;
 }
 
-void HistoContainer::Add(char* name, int bins, float xmin, float xmax) {
-  std::string modName = ModifiedName(name);
-  std::pair<std::string, TH1F*> it(modName, new TH1F(modName.c_str(), modName.c_str(), bins, xmin, xmax));
+void HistoContainer::Add(char* name, int categories, int bins, float xmin, float xmax) {
 
-  (*h1)[it.first] = it.second;
+  std::vector<TH1F> temp;
+
+  for (int i=0; i<categories; i++) {
+    std::string modName = ModifiedName(name, i);
+    temp.push_back(TH1F(modName.c_str(), modName.c_str(), bins, xmin, xmax));
+  }
+  
+  h1[std::string(name)] = temp;
 }
 
 
-void HistoContainer::Add( char* name, int binsx, float xmin, float xmax,
+void HistoContainer::Add(char* name, int categories, int binsx, float xmin, float xmax,
 			 int binsy, float ymin, float ymax) {
-		       
-  std::string modName = ModifiedName(name);
-  TH2F temp(modName.c_str(), modName.c_str(), binsx, xmin, xmax, binsy, ymin, ymax);
-  h2.insert(std::pair< std::string, TH2F>(modName, temp));
+  
+  std::vector<TH2F> temp;
+  for (int i=0; i<categories; i++) {
+    std::string modName = ModifiedName(name, i);
+    temp.push_back(TH2F(modName.c_str(), modName.c_str(), binsx, xmin, xmax, binsy, ymin, ymax));
+  }
+  
+  h2[std::string(name)] = temp;
 }
 
-void HistoContainer::Add( char* name, int binsx, float xmin, float xmax,
+void HistoContainer::Add(char* name, int categories, int binsx, 
+			 float xmin, float xmax,
 			 float ymin, float ymax) {
-		       
-  std::string modName = ModifiedName(name);
-  TProfile temp(modName.c_str(), modName.c_str(), binsx, xmin, xmax, ymin, ymax);
-  hp.insert(std::pair< std::string, TProfile>(modName, temp));
+
+  std::vector<TProfile> temp;
+  for (int i=0; i<categories; i++) {
+    std::string modName = ModifiedName(name, i);
+    temp.push_back(TProfile(modName.c_str(), modName.c_str(), binsx, xmin, xmax, ymin, ymax));
+  }
+
+  hp[std::string(name)] = temp;
 } 
 
-void HistoContainer::Fill(char* name, float value) {
-
-  std::string modName = ModifiedName(name);
-  std::map<std::string, TH1F*>::iterator it = h1->find(modName);
- 
-  if (it != h1->end()) {
-    (*h1)[modName]->Fill(value);
-    return;
-  }
-
-  if(HCDEBUG)std::cerr << "ERROR !: histogram " << modName << " is not a TH1F." << std::endl;
+void HistoContainer::Fill(std::string name, int category, float value) {
+  Fill(name, category, value, 1.0);
 }
 
-void HistoContainer::Fill( char* name, float valuex, float valuey) { 
+void HistoContainer::Fill(std::string name, int category, float value, float weight) {
 
-  std::string modName = ModifiedName(name);
-  std::map< std::string, TProfile>::const_iterator itp = hp.find(modName);
+  //std::string modName = ModifiedName(name);
+  std::map<std::string, std::vector<TH1F> >::iterator it = h1.find(std::string(name));
+ 
+  if (it != h1.end()) {
+    (it->second)[category].Fill(value, weight);
+    return;
+  }
+}
+
+void HistoContainer::Fill2D(std::string name, int category, float valuex, float valuey) { 
+  Fill2D(name, category, valuex, valuey, 1.0);
+}
+
+void HistoContainer::Fill2D(std::string name, int category, float valuex, float valuey, float weight) { 
+
+  //std::string modName = ModifiedName(name);
+  std::map<std::string, std::vector<TProfile> >::iterator itp = hp.find(std::string(name));
   if (itp != hp.end()) {
-    hp[modName].Fill(valuex, valuey);
+    (itp->second)[category].Fill(valuex, valuey, weight);
     return;
   }
 
-  std::map< std::string, TH2F>::const_iterator it2 = h2.find(modName);
+  std::map<std::string, std::vector<TH2F> >::iterator it2 = h2.find(std::string(name));
   if (it2 != h2.end()) {
-    h2[modName].Fill(valuex, valuey);
+    (it2->second)[category].Fill(valuex, valuey, weight);
     return;
   }
-
-  if(HCDEBUG)std::cerr << "ERROR !: histogram " << modName << " is nor a TH2F nor a TProfile." << std::endl;
 }
 
 void HistoContainer::Save() {
-  std::map<std::string, TH1F*>::const_iterator it;
-  for (it = h1->begin(); it != h1->end(); ++it) {
-    std::cout << it->second->GetName() << std::endl;
-    it->second->Write();
+  std::map<std::string, std::vector<TH1F> >::const_iterator it;
+  for (it = h1.begin(); it != h1.end(); ++it) {
+    for (unsigned int i=0; i<(it->second).size(); i++) {
+      (it->second)[i].Write();
+    }
   }
 
-  std::map< std::string, TH2F>::const_iterator it2;
-  for (it2 = h2.begin(); it2 != h2.end(); ++it2)
-    it2->second.Write(); 
+  std::map<std::string, std::vector<TH2F> >::const_iterator it2;
+  for (it2 = h2.begin(); it2 != h2.end(); ++it2) {
+    for (unsigned int i=0; i<(it2->second).size(); i++) {
+      (it2->second)[i].Write(); 
+    }
+  }
 
-  std::map< std::string, TProfile>::const_iterator itp;
-  for (itp = hp.begin(); itp != hp.end(); ++itp)
-    itp->second.Write();
+  std::map<std::string, std::vector<TProfile> >::const_iterator itp;
+  for (itp = hp.begin(); itp != hp.end(); ++itp) {
+    for (unsigned int i=0; i<(itp->second).size(); i++) {
+      (itp->second)[i].Write();
+    }
+  }
 }

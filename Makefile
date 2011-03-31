@@ -8,7 +8,7 @@
 
 include Makefile.arch
 
-SrcSuf        = C
+SrcSuf        = cc
 
 #------------------------------------------------------------------------------
 
@@ -22,11 +22,15 @@ LOOPALL = LoopAll
 
 LOOPALLSO = libLoopAll.$(DllSuf)
 
+
 LOOPALLO = LoopAll.$(ObjSuf) \
            Util.$(ObjSuf) \
 	   LoopAllDict.$(ObjSuf) \
 	   dict.$(ObjSuf) \
-	   HistoContainer.o
+	   HistoContainer.o \
+	   CounterContainer.o \
+	   SampleContainer.o \
+	   Cut.o
 
 all: $(LOOPALL)
 
@@ -40,26 +44,34 @@ $(LOOPALL):  $(LOOPALLO)
 	$(LD) $(SOFLAGS) $(LDFLAGS) $(ROOTLIBS)  $(LOOPALLO) $(OutPutOpt) $(LOOPALLSO)
 	@echo "$(LOOPALLSO) done"
 
-LoopAll.$(ObjSuf): CommonParameters.h LoopAll.h Util.h Tools.h LoopAll_cc.h \
-	../interface/Limits.h branchdef/treedef.h branchdef/newclonesarray.h \
+LoopAll.$(ObjSuf): CommonParameters.h LoopAll.h Util.h Tools.h \
+	branchdef/Limits.h branchdef/treedef.h branchdef/newclonesarray.h \
 	branchdef/treebranch.h branchdef/setbranchaddress.h branchdef/getentry.h branchdef/getbranch.h branchdef/branchdef.h \
 	PhotonAnalysis/PhotonAnalysisFunctions_h.h PhotonAnalysis/PhotonAnalysisFunctions_cc.h \
 	GeneralFunctions_cc.h GeneralFunctions_h.h \
-	HistoContainer.cc HistoContainer.h 
-
+	HistoContainer.cc HistoContainer.h \
+	CounterContainer.cc CounterContainer.h \
+	SampleContainer.cc SampleContainer.h \
+	Cut.cc Cut.h
 
 mpUtil.$(ObjSuf): CommonParameters.h LoopAll.h Util.h \
-	../interface/Limits.h branchdef/treedef.h branchdef/newclonesarray.h \
+	branchdef/Limits.h branchdef/treedef.h branchdef/newclonesarray.h \
 	branchdef/treebranch.h branchdef/setbranchaddress.h branchdef/getentry.h branchdef/getbranch.h branchdef/branchdef.h \
 	PhotonAnalysis/PhotonAnalysisFunctions_h.h \
 	GeneralFunctions_h.h \
-	HistoContainer.h 
+	HistoContainer.h \
+	CounterContainer.h \
+	SampleContainer.h \
+	Cut.h
 
 LoopAllDict.$(SrcSuf): CommonParameters.h LoopAll.h Util.h \
-	../interface/Limits.h branchdef/treedef.h \
+	branchdef/Limits.h branchdef/treedef.h \
 	PhotonAnalysis/PhotonAnalysisFunctions_h.h \
 	GeneralFunctions_h.h \
-	HistoContainer.h 
+	HistoContainer.h \
+	CounterContainer.h \
+	SampleContainer.h \
+	Cut.h
 
 	@echo "Generating dictionary $@..."
 	@rootcint -f $@ -c LoopAll.h Util.h 

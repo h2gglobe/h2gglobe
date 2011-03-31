@@ -14,27 +14,28 @@ class HistoContainer {
   HistoContainer(int);
   ~HistoContainer();
     
-  void Add(char*, int, float, float);
-  void Add(char*, int, float, float, int, float, float);
-  void Add(char*, int, float, float, float, float);
+  void Add(char *, int, int, float, float);
+  void Add(char *, int, int, float, float, int, float, float);
+  void Add(char *, int, int, float, float, float, float);
 
-  void Fill(char*, float);
-  void Fill(char*, float, float);
+  void Fill(std::string, int, float);
+  void Fill(std::string, int, float, float);
   
-  std::map<std::string, TH1F*>* getMap() { return h1; };
+  void Fill2D(std::string, int, float, float);
+  void Fill2D(std::string, int, float, float, float);
   
   void Save();
  
   int getHistVal();
   void setHistVal(int);
-  std::string ModifiedName(char*);
+  std::string ModifiedName(char*, int);
 
 
  private:
   int histVal;
-  std::map<std::string, TH1F*>* h1;
-  std::map<std::string, TH2F> h2;
-  std::map<std::string, TProfile> hp;
+  std::map<std::string, std::vector<TH1F> > h1;
+  std::map<std::string, std::vector<TH2F> > h2;
+  std::map<std::string, std::vector<TProfile> > hp;
 };
 
 #endif
