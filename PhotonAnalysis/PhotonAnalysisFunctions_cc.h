@@ -1,35 +1,40 @@
 #define PADEBUG 0
 
-void LoopAll::InitRealPhotonAnalysis(Util * ut, int typerun) {
-
-  // Book histos only if not reduce step
-  if (typerun != 1) {   
-    for( int ind=0; ind<ut->ntypes; ind++) {
-      histoContainer[ind]->Add("pho_pt", 100, 0, 100);
-      histoContainer[ind]->Add("invmass_barrel", 200, 0, 200);
-      histoContainer[ind]->Add("invmass_endcap", 200, 0, 200);
-    }
-  }
-}
-
 void LoopAll::TermRealPhotonAnalysis(int typerun) 
 {}
 
+void LoopAll::InitRealPhotonAnalysis(int typerun) {
+  if(PADEBUG) 
+    cout << "InitRealPhotonAnalysis START"<<endl;
 
-void LoopAll::myFillHistPhotonAnalysis(Util *ut, int jentry) {
+
+  InitCuts();
+  if(PADEBUG) 
+    cout << "finished InitCuts()"<<endl;
+
+  
+  // Book histos only if not reduce step
+  if (typerun != 1) {   
+    BookHistos();
+    InitCounters();
+  }
+  
+  if(PADEBUG) 
+    cout << "InitRealPhotonAnalysis END"<<endl;
+
+}
+
+void LoopAll::myFillHistPhotonAnalysis(Util* ut, int jentry) {
 
   if(PADEBUG) 
     cout << "myFillHist START"<<endl;
 
-  counters[0]++;
-
-  int histVal = ut->type2HistVal[ut->datatype[ut->current]];
   b_pho_n->GetEntry(jentry); 
   b_pho_p4->GetEntry(jentry); 
   
   for (int i=0; i<pho_n; i++) {
     TLorentzVector *p4 = (TLorentzVector *) pho_p4->At(i);
-    histoContainer[histVal]->Fill("pho_pt", p4->Pt());
+    FillHist("pho_pt", p4->Pt());
   }
   
   Int_t in_endcap = 0;
@@ -51,7 +56,7 @@ void LoopAll::myFillHistPhotonAnalysis(Util *ut, int jentry) {
   }     
 
   if (best_mass != 0) 
-    histoContainer[histVal]->Fill("invmass", best_mass);
+    FillHist("invmass", best_mass);
   
   if(PADEBUG) 
     cout<<"myFillHist END"<<endl;
@@ -62,42 +67,39 @@ void LoopAll::myFillHistPhotonAnalysisRed(Util * ut, int jentry) {
 
   if(PADEBUG) 
     cout << "myFillHistRed START"<<endl;
-  
-  int histVal = ut->type2HistVal[ut->datatype[ut->current]];
-  
   counters[0]++;
 
   b_pho_n->GetEntry(jentry); 
   b_pho_p4->GetEntry(jentry); 
+ 
   
+
   for (int i=0; i<pho_n; i++) {
     TLorentzVector *p4 = (TLorentzVector *) pho_p4->At(i);
-    histoContainer[histVal]->Fill("pho_pt", p4->Pt());
+    int testcat = 6*(fabs(p4->Eta())>1.479);
+    if(i==0) FillHist("pho_n",testcat,pho_n);
+    FillHist("pho_pt",testcat,p4->Pt());
   }
   
   Int_t in_endcap = 0;
   Float_t best_mass = 0;
   for (int i=0; i<pho_n-1; i++) {
     TLorentzVector *pg1= (TLorentzVector *) pho_p4->At(i);
-    if (fabs(pg1->Eta()) > 1.479)
-      in_endcap = 1;
+    if (fabs(pg1->Eta()) > 1.479) in_endcap = 1;
 
     for (int j=i+1; j<pho_n; j++) {
       TLorentzVector *pg2= (TLorentzVector *) pho_p4->At(j);
-      if (fabs(pg2->Eta()) > 1.479)
-	in_endcap = 1;
+      if (fabs(pg2->Eta()) > 1.479)	in_endcap = 1;
       TLorentzVector higgs = (*pg1) + (*pg2);
       Float_t mass = higgs.M();
-      if (mass > best_mass)
-	best_mass = mass;
+      if (mass > best_mass)	best_mass = mass;
     }
   }     
 
+  
   if (best_mass != 0) {
-    if (in_endcap == 0)
-      histoContainer[histVal]->Fill("invmass_barrel", best_mass);
-    else
-      histoContainer[histVal]->Fill("invmass_endcap", best_mass);
+    int testcat = 6*in_endcap;
+    FillHist("invmass",testcat,best_mass);
   }
 
   if(PADEBUG) 

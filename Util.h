@@ -28,18 +28,21 @@ class Util {
  
   void LoopAndFillHistos(TString treename="event");
   void WriteHist();  
+  void WriteCounters();  
   void SetTypeRun(int, const char* n);
   void SetOutputNames(const char* n, const char* n2="");
   void AddFile(char*,int);
+  void ReadInput(int t=0);
+  
 
-  char * files[MAXFILES];
-  int datatype[MAXFILES];
+  char* files[MAXFILES];
+  int itype[MAXFILES];
+  //int lumireal[MAXFILES];
   int nfiles;
-  int ntypes;
+  float intlumi;
 
   TFile *Files[MAXFILES];
   TTree *Trees[MAXFILES];
-
   TTree *TreesPar[MAXFILES];
 
   LoopAll * loops;

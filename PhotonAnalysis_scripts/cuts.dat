@@ -1,0 +1,4 @@
+3
+0  number_Event_Trigger_HLT               ncat=1  dir=0 fin=0   1
+1  value_Event_Trigger_HLT                ncat=1  dir=0 fin=0   0
+2  def_ECAL_Barrel                        ncat=1  dir=2 fin=0   0.0      1.4442

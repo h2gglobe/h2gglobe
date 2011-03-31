@@ -1,0 +1,6 @@
+3 plot=2 idummy=1000
+0 htyp=0 plot=-1  ncat=12       100      0       0.0   100.0   0       0       pho_n
+1 htyp=0 plot=-1  ncat=12        50      0       0.0   120.0   0       0       pho_pt
+2 htyp=0 plot=-1  ncat=12       100      0     100.0   150.0   0       0       invmass
+
+

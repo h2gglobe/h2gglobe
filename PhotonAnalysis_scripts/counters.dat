@@ -1,0 +1,4 @@
+3
+0  ncat=1    pri=1  Events     Events -1 -1
+1  ncat=12   pri=1  fr_den_eta -1     -1 -1
+2  ncat=12   pri=1  fr_den_et  -1     -1 -1

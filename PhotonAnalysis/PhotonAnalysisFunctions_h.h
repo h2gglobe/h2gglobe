@@ -7,5 +7,5 @@ int myFillReducedVarPhotonAnalysis(Util * , int );
 void mySetBranchAddressRedPhotonAnalysis();
 int mySelectEventRedPhotonAnalysis(Util * , int);
 
-void InitRealPhotonAnalysis(Util * , int typerun);
-void TermRealPhotonAnalysis(int typerun);
+void InitRealPhotonAnalysis(int);
+void TermRealPhotonAnalysis(int);
