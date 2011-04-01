@@ -483,7 +483,7 @@ void LoopAll::InitCounters() {
      counterContainer.push_back(CounterContainer(i));
 
   int Ncounters, ncounterscat;
-  int iread, counterprint, countersncat;
+  int iread, countersncat;
   float lowlim, highlim, lowlim2, highlim2;
   FILE *file;
   file = fopen("counters.dat", "r"); 
@@ -500,7 +500,7 @@ void LoopAll::InitCounters() {
     //char* denomname1 = new char[1024];
     //char* denomname2 = new char[1024];
     if(DEBUG) cout<<"reading "<<i<<" counter"<< endl; 
-    int dummy = fscanf(file,"%d ncat=%d pri=%d %s %s %s %s",&iread, &countersncat, &counterprint, counternames, denomname0, denomname1, denomname2);
+    int dummy = fscanf(file,"%d ncat=%d %s %s %s %s",&iread, &countersncat, counternames, denomname0, denomname1, denomname2);
     if(DEBUG) cout<<"read "<<i<<" counter and dummy is "<<dummy<< endl; 
     
     std::string* counternames_str = new std::string(counternames);
