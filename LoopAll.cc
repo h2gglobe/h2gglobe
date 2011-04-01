@@ -405,16 +405,16 @@ int LoopAll::FillAndReduce(int jentry) {
 }
 
 void LoopAll::BookHistos() {
-  int typplotall, idummystart;
-  int iread, h2d, typplot, histoncat, nbinsx, nbinsy, Nvar;
+  int typplotall;
+  int h2d, typplot, histoncat, nbinsx, nbinsy, Nvar;
   float lowlim, highlim, lowlim2, highlim2;
   char name[100];
   FILE *file;
   file = fopen("plotvariables.dat", "r");
-  int dummy = fscanf(file,"%d plot=%d idummy=%d", &Nvar, &typplotall, &idummystart);
+  int dummy = fscanf(file,"%d plot=%d", &Nvar, &typplotall);
   
   for (int i=0; i<Nvar; i++) {
-    dummy = fscanf(file,"%d htyp=%d plot=%d ncat=%d %d %d %f %f %f %f %s", &iread, &h2d, &typplot, &histoncat, &nbinsx, &nbinsy, &lowlim, &highlim, &lowlim2, &highlim2, name);
+    dummy = fscanf(file,"htyp=%d plot=%d ncat=%d %d %d %f %f %f %f %s", &h2d, &typplot, &histoncat, &nbinsx, &nbinsy, &lowlim, &highlim, &lowlim2, &highlim2, name);
 
     for(unsigned int ind=0; ind<sampleContainer.size(); ind++) {
       if (nbinsy == 0)
@@ -429,7 +429,7 @@ void LoopAll::InitCuts() {
   if(DEBUG) cout<<"InitCuts START"<<endl;
 
   int Ncuts;
-  int iread=0, ncatstmp, ifromright, ifinalcut;
+  int ncatstmp, ifromright, ifinalcut;
   float cutValuel[100], cutValueh[100], cutValue[100];
   FILE *file;
   char cutnamesc[100];
@@ -438,7 +438,7 @@ void LoopAll::InitCuts() {
   if(DEBUG) cout<<"reading "<<Ncuts<<" cuts"<<endl;
   for (int i=0; i<Ncuts; i++) {
     if(DEBUG) cout<<"reading cut "<<i<<endl;
-    dummy = fscanf(file,"%d  %s  ncat=%d  dir=%d  fin=%d", &iread, cutnamesc, &ncatstmp, &ifromright, &ifinalcut);
+    dummy = fscanf(file,"%s  ncat=%d  dir=%d  fin=%d", cutnamesc, &ncatstmp, &ifromright, &ifinalcut);
     if(DEBUG) cout<<"reading cut:  " << cutnamesc <<endl;
     if(DEBUG) cout<<"ncatstmp: " << ncatstmp <<endl;
     if(DEBUG) cout<<"fromright:  " << ifromright <<endl;
@@ -483,7 +483,7 @@ void LoopAll::InitCounters() {
      counterContainer.push_back(CounterContainer(i));
 
   int Ncounters, ncounterscat;
-  int iread, countersncat;
+  int countersncat;
   float lowlim, highlim, lowlim2, highlim2;
   FILE *file;
   file = fopen("counters.dat", "r"); 
@@ -500,7 +500,7 @@ void LoopAll::InitCounters() {
     //char* denomname1 = new char[1024];
     //char* denomname2 = new char[1024];
     if(DEBUG) cout<<"reading "<<i<<" counter"<< endl; 
-    int dummy = fscanf(file,"%d ncat=%d %s %s %s %s",&iread, &countersncat, counternames, denomname0, denomname1, denomname2);
+    int dummy = fscanf(file,"ncat=%d %s %s %s %s", &countersncat, counternames, denomname0, denomname1, denomname2);
     if(DEBUG) cout<<"read "<<i<<" counter and dummy is "<<dummy<< endl; 
     
     std::string* counternames_str = new std::string(counternames);
