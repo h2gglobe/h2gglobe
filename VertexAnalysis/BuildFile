@@ -1,0 +1,9 @@
+<use name=root>
+<use name=rootrflx>
+<use name=roottmva>
+<export>
+   <lib name=h2gglobe/VertexAnalysis>
+   <use name=root>
+   <use name=rootrflx>   
+   <use name=roottmva>
+</export>
