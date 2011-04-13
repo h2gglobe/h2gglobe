@@ -13,7 +13,7 @@ PrgSuf  =  .cpp
 BinSuf  =  .exe
 LibSuf  =  .so
 
-LIBNAME=libHggVertexAnalyzer
+LIBNAME=libh2gglobeVertexAnalysis
 
 HDRS  =  $(wildcard $(HDR)*$(HdrSuf))
 SRCS  =  $(wildcard $(SRC)*$(SrcSuf))
@@ -36,7 +36,7 @@ CLHEPCFLAGS   =  $(shell clhep-config --include)
 CLHEPLIBS     =  $(shell clhep-config --libs)
 
 ## to use a different TMVA wrt the one shipped with ROOT
-TMVA_ROOT=$(HOME)/Analysis/tools/tmva/V04-01-00_root-5.22.00d-cms28
+TMVA_ROOT=
 ifneq ($(TMVA_ROOT),)
 TMVAFLAGS=-I$(TMVA_ROOT)
 TMVALDD=-L$(TMVA_ROOT)/lib
