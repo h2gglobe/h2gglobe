@@ -263,21 +263,6 @@ public:
 	virtual ~VertexInfoAdapter();
 };
 
-// -------------------------------------------------------------------------------------------------------------------------------------------------------------
-class PhotonInfo
-{
-public:
-	PhotonInfo(const TVector3 & caloPosition, float energy);
-	
-	const TVector3 & caloPosition() const { return caloPosition_; }
-	float      energy()       const { return energy_; }
-	
-	TLorentzVector p4(float vtxx, float vtxy, float vtxz) const;
-	
-protected:
-	TVector3 caloPosition_;
-	float energy_;
-};
 
 // -------------------------------------------------------------------------------------------------------------------------------------------------------------
 class TupleVertexInfo : public VertexInfoAdapter

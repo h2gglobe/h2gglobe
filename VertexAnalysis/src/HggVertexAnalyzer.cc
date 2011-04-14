@@ -1,4 +1,5 @@
 #include "../interface/HggVertexAnalyzer.h"
+#include "../interface/PhotonInfo.h"
 
 #include <algorithm>
 #include <numeric>
@@ -501,25 +502,6 @@ void HggVertexAnalyzer::analyze(const VertexInfoAdapter & e, const PhotonInfo & 
 		
 		preselection_.push_back(i);
 	}
-}
-
-
-// -------------------------------------------------------------------------------------------------------------------------------------------------------------
-PhotonInfo::PhotonInfo(const TVector3 & caloPosition, float energy) :
-	caloPosition_(caloPosition), energy_(energy)
-{
-}
-	
-// -------------------------------------------------------------------------------------------------------------------------------------------------------------
-TLorentzVector PhotonInfo::p4(float vtxx, float vtxy, float vtxz) const
-{
-	TVector3 vPos(vtxx,vtxy,vtxz);
-	TVector3 direction = caloPosition() - vPos;
-	TVector3 p = direction.Unit() * energy();
-
-	TLorentzVector p4(p.x(),p.y(),p.z(),energy());
-	
-	return p4;
 }
 
 
