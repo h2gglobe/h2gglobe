@@ -67,6 +67,9 @@ class Util {
   Int_t        tot_events;
   Int_t        sel_events;
 
+  Int_t        outputParTot_Events, outputParSel_Events, outputParType, outputParVersion, outputParReductions, outputParRed_Events[20];
+  std::vector<std::string>* outputParParameters;
+  std::string* outputParJobMaker;
 };
 #endif
 

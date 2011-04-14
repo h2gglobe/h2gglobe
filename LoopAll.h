@@ -53,7 +53,7 @@ class LoopAll {
   virtual void   Init(Int_t typerunpass, TTree *tree);
   virtual void   InitReal(Int_t typerunpass);
   virtual void   TermReal(Int_t typerunpass);
-  virtual void   Loop(int a);
+  virtual void   Loop(Double_t a);
   virtual Bool_t Notify();
   virtual void   Show(Long64_t entry = -1);
   
@@ -71,7 +71,7 @@ class LoopAll {
   Int_t makeOutputTree;
   Int_t outputEvents;
 
-  void Loop();
+  void Loop(Int_t);
   void setUtilInstance(Util*);
   void myWritePlot();
   void myWriteCounters();

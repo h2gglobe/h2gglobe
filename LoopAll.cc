@@ -73,7 +73,7 @@ void LoopAll::Show(Long64_t entry) {
 }
 
 
-void LoopAll::Loop(int a) {
+void LoopAll::Loop(Double_t a) {
   
   if (fChain == 0) 
     return;
@@ -117,8 +117,12 @@ void LoopAll::TermReal(Int_t typerunpass) {
 
   TermRealPhotonAnalysis(typerun);
   
-  if (utilInstance->makeOutputTree) 
+  if (utilInstance->makeOutputTree) {
     utilInstance->outputFile->cd();
+    utilInstance->outputParReductions++;
+    utilInstance->outputTreePar->Fill();
+    utilInstance->outputTreePar->Write();
+  }
 }
 
 
@@ -143,7 +147,7 @@ void LoopAll::setUtilInstance(Util *ut) {
   utilInstance = ut;
 }
 
-void LoopAll::Loop() {
+void LoopAll::Loop(Int_t a) {
   
   makeOutputTree = utilInstance->makeOutputTree;
   if (makeOutputTree) {
@@ -158,12 +162,10 @@ void LoopAll::Loop() {
     nentries = Int_t(fChain->GetEntriesFast());
 
   Int_t nbytes = 0, nb = 0;
-
   outputEvents=0;
 
   int hasoutputfile=0;
-  for (Int_t jentry=0; jentry<nentries;jentry++) {
-    
+  for (Int_t jentry=0; jentry<nentries; jentry++) {
     if(jentry%10000==0) 
       cout << "Entry: "<<jentry<<endl;
     
@@ -174,17 +176,10 @@ void LoopAll::Loop() {
   
     if (ientry < 0) 
       break;
-   
-    if(DEBUG) 
-      cout<<"Loopall_cc RRRRRRRRRRRR calling GetEntry"<<endl;
-      
+    
     if(utilInstance->typerun == 1) {
       nb = fChain->GetEntry(jentry);
-      
-      if(DEBUG) 
-	cout<<"Loopall_cc RRRRRRRRRRR called GetEntry"<<endl;
     } else {
-      //HERE NEED TO DO A GLOBAL GETENTRY
       nb=0;
     }
 
@@ -194,6 +189,7 @@ void LoopAll::Loop() {
       cout<<"Call FillandReduce "<<endl;
       
     hasoutputfile = FillAndReduce(jentry);
+
     if(DEBUG) 
       cout<<"Called FillandReduce "<<endl;
   }
@@ -203,51 +199,51 @@ void LoopAll::Loop() {
       outputFile->cd();
       if (DEBUG)
 	cout<<"LoopAll_cc writing outputTree"<<endl;
-      outputTree->Write(0,TObject::kWriteDelete);
-    }
+      outputTree->Write(0, TObject::kWriteDelete);
 
-    
-    if(outputFile) {
-      outputFile->cd();
-      if(utilInstance->TreesPar[0]) {
+      if (utilInstance->TreesPar[a]) {
 	std::vector<std::string> *parameters = new std::vector<std::string>;
+	std::string *job_maker = new std::string;
 	Int_t tot_events, sel_events, type, version, reductions;
 	Int_t red_events[20];
-
-	utilInstance->TreesPar[0]->SetBranchAddress("tot_events", &tot_events);
-	utilInstance->TreesPar[0]->SetBranchAddress("sel_events", &sel_events);
-	utilInstance->TreesPar[0]->SetBranchAddress("type", &type);
-	utilInstance->TreesPar[0]->SetBranchAddress("version", &version);
-	utilInstance->TreesPar[0]->SetBranchAddress("parameters", &parameters);
-	if (utilInstance->TreesPar[0]->FindBranch("reductions")) {
-	  utilInstance->TreesPar[0]->SetBranchAddress("reductions", &reductions);
-	  utilInstance->TreesPar[0]->SetBranchAddress("red_events", &red_events);
+	
+	utilInstance->TreesPar[a]->SetBranchAddress("tot_events", &tot_events);
+	utilInstance->TreesPar[a]->SetBranchAddress("sel_events", &sel_events);
+	utilInstance->TreesPar[a]->SetBranchAddress("type", &type);
+	utilInstance->TreesPar[a]->SetBranchAddress("version", &version);
+	utilInstance->TreesPar[a]->SetBranchAddress("parameters", &parameters);
+	utilInstance->TreesPar[a]->SetBranchAddress("job_maker", &job_maker);
+	if (utilInstance->TreesPar[a]->FindBranch("reductions")) {
+	  utilInstance->TreesPar[a]->SetBranchAddress("reductions", &reductions);
+	  utilInstance->TreesPar[a]->SetBranchAddress("red_events", &red_events);
 	}
-	
-	TTree* newtree = new TTree("global_variables", "Global Parameters");
-	newtree->Branch("tot_events", &tot_events, "tot_events/I");
-	newtree->Branch("sel_events", &sel_events, "sel_events/I");
-	newtree->Branch("type", &type, "type/I");
-	newtree->Branch("version", &version, "version/I");
-	newtree->Branch("parameters", "std::vector<string>", &parameters);
-	newtree->Branch("reductions", &reductions, "reductions/I");
-	newtree->Branch("red_events", &red_events, "red_events[reductions]/I");
-	
-	utilInstance->TreesPar[0]->GetEntry(0);
 
-	if (!utilInstance->TreesPar[0]->FindBranch("reductions")) {
-	  reductions = 1;
-	  for (int i=0; i<20; i++) {
-	    red_events[i] = -1;
-	  }
-	  red_events[0] = (int)countersred[1];
+	utilInstance->TreesPar[a]->GetEntry(0);
+
+	if (a == 0) {
+	  utilInstance->outputParTot_Events = tot_events;
+	  utilInstance->outputParSel_Events = sel_events;
 	} else {
-	  red_events[reductions] = (int)countersred[1];
-	  reductions++;
+	  utilInstance->outputParTot_Events += tot_events;
+	  utilInstance->outputParSel_Events += sel_events;
 	}
 
-	newtree->Fill();
-	newtree->Write();
+	utilInstance->outputParType = type;
+	utilInstance->outputParVersion = version;
+	utilInstance->outputParParameters = &(*parameters);
+	utilInstance->outputParJobMaker = job_maker;
+
+	if (!utilInstance->TreesPar[a]->FindBranch("reductions")) {
+	  utilInstance->outputParReductions = 0;
+	  for (int i=0; i<20; i++) {
+	    utilInstance->outputParRed_Events[i] = -1;
+	  }
+	  utilInstance->outputParRed_Events[0] += (int)countersred[1];
+	} else {
+	  utilInstance->outputParReductions = reductions;
+	  utilInstance->outputParRed_Events[reductions] += (int)countersred[1];
+	}
+
       } else {
 	std::cerr << "Cannot write Parameter tree." << std::endl;
       }

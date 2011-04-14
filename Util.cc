@@ -104,6 +104,18 @@ void Util::ReadInput(int t) {
     outputTreePar = new TTree("global_variables","Parameters");
     
     loops->PhotonAnalysisReducedOutputTree();
+
+    outputParParameters = new std::vector<std::string>;
+    outputParJobMaker = new std::string;
+    outputTreePar->Branch("tot_events", &outputParTot_Events, "tot_events/I");
+    outputTreePar->Branch("sel_events", &outputParSel_Events, "sel_events/I");
+    outputTreePar->Branch("type", &outputParType, "type/I");
+    outputTreePar->Branch("version", &outputParVersion, "version/I");
+    outputTreePar->Branch("parameters", "std::vector<string>", &outputParParameters);
+    outputTreePar->Branch("job_maker", &outputParJobMaker, "job_maker/C");
+    //outputTreePar->Branch("job_maker", "std::string", &outputParJobMaker);
+    outputTreePar->Branch("reductions", &outputParReductions, "reductions/I");
+    outputTreePar->Branch("red_events", &outputParRed_Events, "red_events[reductions]/I");
   } 
   
   
@@ -223,7 +235,7 @@ void Util::LoopAndFillHistos(TString treename) {
       loops->Init(typerun, Trees[i]);
     }
 
-    loops->Loop();
+    loops->Loop(i);
 
     if(tot_events != 0) {
       Trees[i]->Delete("");

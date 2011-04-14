@@ -1,8 +1,6 @@
-4 myReduced_Data.root
-typ=2  Fil=/hadoop/cms/store/user/capalmer/h2g_V04_00/Data/Data_Mar29th_20_1_6qt.root
-typ=2  Fil=/hadoop/cms/store/user/capalmer/h2g_V04_00/Data/Data_Mar29th_26_1_zf5.root
-typ=2  Fil=/hadoop/cms/store/user/capalmer/h2g_V04_00/Data/Data_Mar29th_21_1_RAI.root
-typ=2  Fil=/hadoop/cms/store/user/capalmer/h2g_V04_00/Data/Data_Mar29th_27_1_RR2.root
+2 myReduced_Data.root
+typ=2  Fil=/tmp/torimoto/DiPhotonBorn_Pt25to250_11_1_gpF.root
+typ=2  Fil=/tmp/torimoto/DiPhotonBorn_Pt25to250_10_1_gI2.root
 
 Type // File Name
 
