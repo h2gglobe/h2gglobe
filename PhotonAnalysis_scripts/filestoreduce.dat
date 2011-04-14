@@ -1,7 +1,8 @@
-2 myReduced_DiPhoBox.root
-typ=2  Fil=/hadoop/cms/store/user/capalmer/MC/Winter11/HtoGG/DiPhotonBox_Pt25to250_TrackingParticles_7TeV-pythia6_3/DiPhotonBox_Pt25to250_TrackingParticles_7TeV-pythia6_3_22_1_YZm.root
-typ=2  Fil=/hadoop/cms/store/user/capalmer/MC/Winter11/HtoGG/DiPhotonBox_Pt25to250_TrackingParticles_7TeV-pythia6_3/DiPhotonBox_Pt25to250_TrackingParticles_7TeV-pythia6_3_12_1_qEE.root
-
+4 myReduced_Data.root
+typ=2  Fil=/hadoop/cms/store/user/capalmer/h2g_V04_00/Data/Data_Mar29th_20_1_6qt.root
+typ=2  Fil=/hadoop/cms/store/user/capalmer/h2g_V04_00/Data/Data_Mar29th_26_1_zf5.root
+typ=2  Fil=/hadoop/cms/store/user/capalmer/h2g_V04_00/Data/Data_Mar29th_21_1_RAI.root
+typ=2  Fil=/hadoop/cms/store/user/capalmer/h2g_V04_00/Data/Data_Mar29th_27_1_RR2.root
 
 Type // File Name
 
