@@ -1,5 +1,15 @@
-1 intL=36 rtree=0 schif.root fakerate_vbtf_10GeV_noExtraEle.root
-typ=2    ind=10 draw=1  Nam=VBF130       Fil=/home/users/capalmer/CMS/Higgs2gg/3113_test/src/HiggsAnalysis/HiggsTo2photons/h2gglobe/PhotonAnalysis_scripts/myReduced_DiPhoBox.root   tot=109848    red=43107   lum=1.0e+10  xsec=0.022        kfac=1.0  scal=1.
+intL=36 histfile=Data_hist.root output=shifo.root
+
+
+typ=2    ind=10 draw=1  Nam=VBF130       Fil=Data2011_reduced.root   tot=109848    red=43107   lum=1.0e+10  xsec=0.022        kfac=1.0  scal=1.
+
+->
+typ=2    ind=10 draw=1  Nam=VBF130       Dir=some_dir   tot=109848    red=43107   lum=1.0e+10  xsec=0.022        kfac=1.0  scal=1. 
+
+inputfiles.dat
+Comments Here
+add the files, with types you would like to include in the Analysis
+->
 
 
 

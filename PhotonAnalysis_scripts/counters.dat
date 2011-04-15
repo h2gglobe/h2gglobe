@@ -1,4 +1,3 @@
-3
-ncat=1     Events      Events -1 -1
-ncat=12    fr_den_eta  -1     -1 -1
-ncat=12    fr_den_et   -1     -1 -1
+ncat=1   countername=Events     denomname1=Events denomname2=-1 denomname3=-1
+ncat=12  countername=fr_den_eta denomname1=-1     denomname2=-1 denomname3=-1
+ncat=12  countername=fr_den_et  denomname1=-1     denomname2=-1 denomname3=-1

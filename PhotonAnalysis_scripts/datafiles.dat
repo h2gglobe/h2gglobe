@@ -1,0 +1,13 @@
+intL=36 histfile=Stats.root output=shifo.root
+
+typ=2    ind=10 draw=1  Nam=DATA       Fil=Data2011_reduced.root   tot=109848    red=43107   lum=1.0e+10  xsec=0.022        kfac=1.0  scal=1. 
+
+->
+inputfiles.dat
+Comments Here
+add the files, with types you would like to include in the Analysis
+This is for the RooFit type analysis
+->
+
+
+

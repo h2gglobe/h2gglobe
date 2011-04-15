@@ -28,22 +28,32 @@ class Util {
  
   void LoopAndFillHistos(TString treename="event");
   void WriteHist();  
+  void WriteFits();  
   void WriteCounters();  
   void SetTypeRun(int, const char* n);
-  void SetOutputNames(const char* n, const char* n2="");
-  void AddFile(char*,int);
+  //void SetOutputNames(const char* n, const char* n2="");
+  void AddFile(std::string,int);
   void ReadInput(int t=0);
-  
+  void DefineSamples(const char*,int,int,int,int, long long
+		    ,float,float,float,float,float);
 
-  char* files[MAXFILES];
-  int itype[MAXFILES];
+  void CallAddCut(char*,int,int,int,float*,float*);
+  void CallInitHistos();
+  void CallBookHisto(int,int,int,int,int,int
+		    ,float,float,float,float
+		    ,char *);  
+  void CallInitCounters();
+  void CallAddCounter(int,char*,char*,char*,char*);
+
+  std::vector<std::string> files;
+  std::vector<int> itype;
   //int lumireal[MAXFILES];
   int nfiles;
   float intlumi;
 
-  TFile *Files[MAXFILES];
-  TTree *Trees[MAXFILES];
-  TTree *TreesPar[MAXFILES];
+  std::vector<TTree*> Trees;
+  std::vector<TFile*> Files;
+  std::vector<TTree*> TreesPar;
 
   LoopAll * loops;
 

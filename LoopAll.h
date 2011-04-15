@@ -30,8 +30,7 @@ class Util;
 #include "SampleContainer.h"
 #include "Cut.h"
 #include "branchdef/Limits.h"
-#include "VertexAnalysis/interface/HggVertexAnalyzer.h"
-#include "VertexAnalysis/interface/PhotonInfo.h"
+#include "RooContainer.h"
 
 class LoopAll {
  public :
@@ -46,6 +45,7 @@ class LoopAll {
   std::vector<CounterContainer> counterContainer;
   std::vector<SampleContainer> sampleContainer;
   std::vector<Cut> cutContainer;
+  RooContainer *rooContainer;
 
   LoopAll(TTree *tree=0);
   virtual ~LoopAll();
@@ -58,7 +58,11 @@ class LoopAll {
   virtual void   Loop(Double_t a);
   virtual Bool_t Notify();
   virtual void   Show(Long64_t entry = -1);
-  
+  virtual void   InitHistos();
+  virtual void   BookHisto(int,int,int,int,int,int
+			  ,float,float,float,float
+			  ,char*);
+ 
   Util *utilInstance;
   Int_t typerun;
   Int_t currentindexfiles;
@@ -73,19 +77,18 @@ class LoopAll {
   Int_t makeOutputTree;
   Int_t outputEvents;
 
-  VertexAlgoParameters vtxAlgoParams;
-  std::vector<std::string> vtxVarNames;
-
   void Loop(Int_t);
   void setUtilInstance(Util*);
   void myWritePlot();
+  void myWriteFits();
   void myWriteCounters();
   
   int FillAndReduce(int);
   
-  void BookHistos();
-  void InitCuts();
+  //void BookHistos();
+  void AddCut(char*,int,int,int,float*,float*);
   void InitCounters();
+  void AddCounter(int,char*,char*,char*,char*);
   
   int ApplyCut(int, float, int);
   int ApplyCut(std::string, float, int);

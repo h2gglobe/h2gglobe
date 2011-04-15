@@ -1,4 +1,3 @@
-3
-number_Event_Trigger_HLT       ncat=1  dir=0 fin=0   1
-value_Event_Trigger_HLT        ncat=1  dir=0 fin=0   0
-def_ECAL_Barrel                ncat=1  dir=2 fin=0   0.0      1.4442
+cutname=number_Event_Trigger_HLT               ncat=1  dir=0 fin=0   val=1
+cutname=value_Event_Trigger_HLT                ncat=1  dir=0 fin=0   val=0
+cutname=def_ECAL_Barrel                        ncat=1  dir=2 fin=0   minval=0.0   maxval=1.4442

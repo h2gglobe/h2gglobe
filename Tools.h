@@ -6,6 +6,28 @@
 #define PI 3.141592654
 #define TWOPI 6.283185308
 
+//ADDED MJ
+Float_t pho_Et[MAX_PHOTONS];
+
+struct PhotonCandidate{
+    TLorentzVector *p4;
+    TVector3 *calopos;
+    bool pixSeed;
+    double trkIso;
+    double ecalIso;
+    double hcalIso;
+    double sieie;
+    double hoe;
+    double r9;
+};
+
+//Added NCKW
+bool PhoP4greater(PhotonCandidate p1, PhotonCandidate p2){
+	
+     return p1.p4->Pt() > p2.p4->Pt();
+
+}
+
 float DeltaPhi(float phi1, float phi2) {
   float deltaphi;
   if(phi1<0) phi1+=TWOPI;

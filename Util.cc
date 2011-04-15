@@ -13,9 +13,70 @@ Util::Util() {
 #include "branchdef/newclonesarray.h"
 }
 
+void Util::CallAddCut(
+  char  *cutnamesc
+ ,int   ncatstmp 
+ ,int   ifromright 
+ ,int   ifinalcut 
+ ,float *cutValuel
+ ,float *cutValueh
+){ loops->AddCut(
+	 cutnamesc
+ 	,ncatstmp 
+ 	,ifromright
+ 	,ifinalcut 			
+ 	,cutValuel
+ 	,cutValueh	
+   ); 
+}
+
+void Util::CallInitHistos(){ loops->InitHistos(); }
+void Util::CallBookHisto(
+  int h2d
+ ,int typplot
+ ,int typeplotall
+ ,int histoncat
+ ,int nbinsx
+ ,int nbinsy
+ ,float lowlim
+ ,float highlim
+ ,float lowlim2
+ ,float highlim2
+ ,char *name
+){  loops->BookHisto( 
+	h2d
+ 	,typplot
+ 	,typeplotall
+ 	,histoncat
+ 	,nbinsx
+ 	,nbinsy
+ 	,lowlim
+ 	,highlim
+ 	,lowlim2
+ 	,highlim2
+ 	,name
+    );
+
+}
+void Util::CallInitCounters(){ loops->InitCounters(); }
+void Util::CallAddCounter(
+  int countersncat
+ ,char *countername
+ ,char *denomname0
+ ,char *denomname1
+ ,char *denomname2
+){  loops->AddCounter(
+	countersncat	
+	,countername	
+	,denomname0
+	,denomname1
+	,denomname2
+    );
+}
+
 void Util::SetTypeRun(int t, const char* name) {
   typerun = t;
-  
+  cout << "Type Run =" <<t <<endl; 
   if (t == 1) {
     makeOutputTree = 1;
     outputFileName = TString(name);
@@ -48,39 +109,31 @@ void Util::SetTypeRun(int t, const char* name) {
     outputTreePar = new TTree("global_variables","Parameters");
     
     loops->PhotonAnalysisReducedOutputTree();
+
+    outputParParameters = new std::vector<std::string>;
+    outputParJobMaker = new std::string;
+    outputTreePar->Branch("tot_events", &outputParTot_Events, "tot_events/I");
+    outputTreePar->Branch("sel_events", &outputParSel_Events, "sel_events/I");
+    outputTreePar->Branch("type", &outputParType, "type/I");
+    outputTreePar->Branch("version", &outputParVersion, "version/I");
+    outputTreePar->Branch("parameters", "std::vector<string>", &outputParParameters);
+    outputTreePar->Branch("job_maker", &outputParJobMaker, "job_maker/C");
+    //outputTreePar->Branch("job_maker", "std::string", &outputParJobMaker);
+    outputTreePar->Branch("reductions", &outputParReductions, "reductions/I");
+    outputTreePar->Branch("red_events", &outputParRed_Events, "red_events[reductions]/I");
+
   } 
-}
-
-void Util::SetOutputNames(const char* name, const char* name2) {
-
-  if (name2 != "")
-    makeOutputTree = 1;
-  histFileName  = TString(name);
-  outputFileName = TString(name2);
 }
 
 void Util::ReadInput(int t) {
   // FIXME make this variable global ?
-  float intlumi;
   typerun = t;
 
-  char* outFilNam = new char[1024]; 
-  char* histFilName = new char[1024]; 
-  FILE *file;
-  int dummy; 
   
   if (typerun == 1) {
     makeOutputTree = 1;
-    file = fopen("filestoreduce.dat", "r");
-    dummy = fscanf(file, "%d %s\n", &nfiles, outFilNam);
-    outputFileName = TString(outFilNam);
-    histFileName  = TString("");
   } else {
-    file = fopen("inputfiles.dat", "r");
-    dummy = fscanf(file, "%d intL=%f rtree=%d %s %s\n", &nfiles, &intlumi, &makeOutputTree, outFilNam, histFilName);
     makeOutputTree = 0;
-    outputFileName = TString("");
-    histFileName  = TString(histFilName);
   }
   
   if (makeOutputTree) {
@@ -104,40 +157,28 @@ void Util::ReadInput(int t) {
     outputTreePar = new TTree("global_variables","Parameters");
     
     loops->PhotonAnalysisReducedOutputTree();
-
-    outputParParameters = new std::vector<std::string>;
-    outputParJobMaker = new std::string;
-    outputTreePar->Branch("tot_events", &outputParTot_Events, "tot_events/I");
-    outputTreePar->Branch("sel_events", &outputParSel_Events, "sel_events/I");
-    outputTreePar->Branch("type", &outputParType, "type/I");
-    outputTreePar->Branch("version", &outputParVersion, "version/I");
-    outputTreePar->Branch("parameters", "std::vector<string>", &outputParParameters);
-    outputTreePar->Branch("job_maker", &outputParJobMaker, "job_maker/C");
-    //outputTreePar->Branch("job_maker", "std::string", &outputParJobMaker);
-    outputTreePar->Branch("reductions", &outputParReductions, "reductions/I");
-    outputTreePar->Branch("red_events", &outputParRed_Events, "red_events[reductions]/I");
   } 
   
-  
-  for (int i=0; i<nfiles; i++) {
-    //lumireal[i]=0.;
-    files[i] = new char[1024];
-    char* filesshortnam = new char[1024];
-    int histoplotit, nred, histoindfromfiles;
-    long long int ntot;
-    float lumi, xsec, kfactor, scale;
-    if(typerun==1) {
-      dummy = fscanf(file,"typ=%d Fil=%s\n", &itype[i], files[i]);
-    } else {
-      dummy = fscanf(file,"typ=%d ind=%d draw=%d Nam=%s Fil=%s tot=%lld red=%d lum=%f xsec=%f kfac=%f scal=%f\n", &itype[i], &histoindfromfiles, &histoplotit, filesshortnam, files[i], &ntot, &nred, &lumi, &xsec, &kfactor, &scale);
-    }
+} 
+void Util::DefineSamples(
+   const char *filesshortnam
+  ,int type
+  ,int histtoindfromfiles
+  ,int histoplotit
+  ,int nred
+  ,long long ntot
+  ,float intlumi
+  ,float lumi
+  ,float xsec
+  ,float kfactor
+  ,float scale
+  ){
 
-    cout<<"after reading: files[i] "<<i<<" "<<files[i]<<endl;
 
     //look in map for type as a key already
     int sample_is_defined = -1;
     for (unsigned int s=0; s<loops->sampleContainer.size(); s++) {
-      if (itype[i] == loops->sampleContainer[s].itype) {
+      if (type == loops->sampleContainer[s].itype) {
 	sample_is_defined = s;
 	break;
       }
@@ -159,33 +200,19 @@ void Util::ReadInput(int t) {
       loops->sampleContainer.front().scale = scale;
       loops->sampleContainer.front().computeWeight(intlumi);
     }
-  }
   
-  fclose(file);
 }
 
-void Util::AddFile(char* name,int type) {
+void Util::AddFile(std::string name,int type) {
   if(DEBUG) cout << "Adding file:  " << name << " of type " << type << endl;
-  files[nfiles] = name;
-  itype[nfiles] = type;
+  files.push_back(name);
+  itype.push_back(type);
   
-  /*
-  //look in map for type as a key already
-  map<int,int>::iterator it;
-  if(DEBUG) cout << "map ok" << endl;
-  it = type2HistVal.find(type);
-  if(DEBUG) cout << "map checked" << endl;
-  if (it == type2HistVal.end()) { 
-    type2HistVal[type] = ntypes;
-    if(DEBUG) cout << "container to add" << endl;
-    ntypes++;
-    if(DEBUG) cout << "container added" << endl;
-  }
-  */
   nfiles++;
 }
 
 void Util::LoopAndFillHistos(TString treename) {
+
 
   int i=0;
   
@@ -193,31 +220,41 @@ void Util::LoopAndFillHistos(TString treename) {
     cout<<"LoopAndFillHistos: calling InitReal "<<endl;
 
   loops->InitReal(typerun);
-  
-  while (i<nfiles) {
-    
-    // MATTEO CHECK
-    for (unsigned int s=0; s<loops->sampleContainer.size(); s++) {
-      if (loops->sampleContainer[s].itype == itype[i])
-	current = s;
-      break;
-    }
+   
+  Files.resize(files.size());  
+  Trees.resize(files.size());  
+  TreesPar.resize(files.size());  
 
+  std::vector<std::string>::iterator it;
+  std::vector<TTree*>::iterator it_tree;
+  std::vector<TTree*>::iterator it_treepar;
+  std::vector<TFile*>::iterator it_file;
+
+  it 	  	= files.begin();
+  it_file 	= Files.begin();
+  it_tree	= Trees.begin();
+  it_treepar    = TreesPar.begin();  
+
+  for (;it!=files.end()
+       ;it_file++,it_tree++,it_treepar++,it++){ 
+ 
+    this->current = i;
     cout<<"LoopAndFillHistos: opening " << i << " " << files[i]<<endl;
 
-    Files[i] = TFile::Open(files[i]);
+    *it_file = TFile::Open((*it).c_str());
+    //Files[i] = TFile::Open(files[i]);
     tot_events=1;
     sel_events=1;
     if(typerun == 1) { //this is a reduce job
 
-      if(Files[i])
-	TreesPar[i]=(TTree*) Files[i]->Get("global_variables");
+      if(*it_file)
+	*it_treepar=(TTree*) (*it_file)->Get("global_variables");
 
-      if(TreesPar[i]) {
+      if(*it_treepar) {
 	TBranch        *b_tot_events;
 	TBranch        *b_sel_events;
-	TreesPar[i]->SetBranchAddress("tot_events",&tot_events, &b_tot_events);
-	TreesPar[i]->SetBranchAddress("sel_events",&sel_events, &b_sel_events);
+	(*it_treepar)->SetBranchAddress("tot_events",&tot_events, &b_tot_events);
+	(*it_treepar)->SetBranchAddress("sel_events",&sel_events, &b_sel_events);
 	b_tot_events->GetEntry(0);
 	b_sel_events->GetEntry(0);
       } else {
@@ -229,29 +266,37 @@ void Util::LoopAndFillHistos(TString treename) {
 
     if(tot_events!=0) {
 
-      if(Files[i])
-	Trees[i]=(TTree*) Files[i]->Get(treename);
+      if(*it_file)
+	*it_tree=(TTree*) (*it_file)->Get(treename);
 
-      loops->Init(typerun, Trees[i]);
+      loops->Init(typerun, *it_tree);
     }
 
     loops->Loop(i);
 
     if(tot_events != 0) {
-      Trees[i]->Delete("");
+      (*it_tree)->Delete("");
     }
-    
-    if(Files[i])
-      Files[i]->Close();
+   
+    // EDIT - Cannot close the first file since it is in use after 
+    // file 0 
+    if(*it_file && i>0)
+      (*it_file)->Close();
     
     i++;
   }
- 
+  //now close the first File
+  if(Files[0]) Files[0]->Close();
+
   loops->TermReal(typerun);
 }
 
 void Util::WriteHist() {
   loops->myWritePlot();
+}
+
+void Util::WriteFits() {
+  loops->myWriteFits();
 }
 
 void Util::WriteCounters() {

@@ -1,4 +1,4 @@
-#define DEBUG  0
+#define LDEBUG 0 
 
 #include "LoopAll.h"
 
@@ -26,10 +26,13 @@ using namespace std;
 #include "GeneralFunctions_cc.h"
 
 #include "PhotonAnalysis/PhotonAnalysisReducedOutputTree.h"
-
 #include "PhotonAnalysis/PhotonAnalysisFunctions_cc.h"
 
-LoopAll::LoopAll(TTree *tree) {}
+LoopAll::LoopAll(TTree *tree) {
+  
+  rooContainer = new RooContainer();
+
+}
 
 LoopAll::~LoopAll() {
   if (!fChain)
@@ -90,6 +93,15 @@ void LoopAll::Loop(Double_t a) {
   }
 }
 
+void LoopAll::InitHistos(){
+
+  for(int ind=0; ind<sampleContainer.size(); ind++) {
+    HistoContainer temp(ind);
+    histoContainer.push_back(temp);
+  }
+
+}
+
 void LoopAll::InitReal(Int_t typerunpass) {
 
   // Set branch addresses
@@ -98,17 +110,19 @@ void LoopAll::InitReal(Int_t typerunpass) {
   if (hfile) 
     hfile->Close();
 
-  for(int ind=0; ind<sampleContainer.size(); ind++) {
-    HistoContainer temp(ind);
-    histoContainer.push_back(temp);
-  }
+  //for(int ind=0; ind<sampleContainer.size(); ind++) {
+  // HistoContainer temp(ind);
+  //  histoContainer.push_back(temp);
+ // }
 
-  if(DEBUG) cout << "doing InitRealPhotonAnalysis" << endl;
+  if(LDEBUG) cout << "doing InitRealPhotonAnalysis" << endl;
   InitRealPhotonAnalysis(typerun);
-  if(DEBUG) cout << "finished InitRealPhotonAnalysis" << endl;
+  if(LDEBUG) cout << "finished InitRealPhotonAnalysis" << endl;
 
   if (utilInstance->makeOutputTree) 
     utilInstance->outputFile->cd();
+  cout<< "LoopAll::InitReal END" <<endl;
+  
 }
 
 void LoopAll::TermReal(Int_t typerunpass) {
@@ -117,7 +131,7 @@ void LoopAll::TermReal(Int_t typerunpass) {
 
   TermRealPhotonAnalysis(typerun);
   
-  if (utilInstance->makeOutputTree) {
+  if (utilInstance->makeOutputTree){ 
     utilInstance->outputFile->cd();
     utilInstance->outputParReductions++;
     utilInstance->outputTreePar->Fill();
@@ -162,46 +176,58 @@ void LoopAll::Loop(Int_t a) {
     nentries = Int_t(fChain->GetEntriesFast());
 
   Int_t nbytes = 0, nb = 0;
+
   outputEvents=0;
 
   int hasoutputfile=0;
-  for (Int_t jentry=0; jentry<nentries; jentry++) {
+  for (Int_t jentry=0; jentry<nentries;jentry++) {
+    
     if(jentry%10000==0) 
       cout << "Entry: "<<jentry<<endl;
     
-    if(DEBUG) 
+    if(LDEBUG) 
       cout<<"call LoadTree"<<endl;
     
     Int_t ientry = LoadTree(jentry);
   
     if (ientry < 0) 
       break;
-    
+   
+      
     if(utilInstance->typerun == 1) {
-      nb = fChain->GetEntry(jentry);
+
+
+        //nb = fChain->GetEntry(jentry,1);
+	
+      
     } else {
+      //HERE NEED TO DO A GLOBAL GETENTRY
       nb=0;
     }
 
     nbytes += nb;
 
-    if(DEBUG) 
+    if(LDEBUG) 
       cout<<"Call FillandReduce "<<endl;
       
     hasoutputfile = FillAndReduce(jentry);
-
-    if(DEBUG) 
+    if(LDEBUG) 
       cout<<"Called FillandReduce "<<endl;
   }
 
   if(hasoutputfile) {
     if(outputFile) {
       outputFile->cd();
-      if (DEBUG)
+      if (LDEBUG)
 	cout<<"LoopAll_cc writing outputTree"<<endl;
-      outputTree->Write(0, TObject::kWriteDelete);
+      outputTree->Write(0,TObject::kWriteDelete);
+    }
 
-      if (utilInstance->TreesPar[a]) {
+    
+    if(outputFile) {
+      outputFile->cd();
+      if(utilInstance->TreesPar[a]) {
+
 	std::vector<std::string> *parameters = new std::vector<std::string>;
 	std::string *job_maker = new std::string;
 	Int_t tot_events, sel_events, type, version, reductions;
@@ -243,7 +269,6 @@ void LoopAll::Loop(Int_t a) {
 	  utilInstance->outputParReductions = reductions;
 	  utilInstance->outputParRed_Events[reductions] += (int)countersred[1];
 	}
-
       } else {
 	std::cerr << "Cannot write Parameter tree." << std::endl;
       }
@@ -262,6 +287,15 @@ void LoopAll::Loop(Int_t a) {
   }
 }
 
+void LoopAll::myWriteFits() {
+
+  
+  hfile = new TFile(utilInstance->histFileName, "RECREATE", "Globe ROOT file with histograms");
+
+  hfile->cd();
+  hfile->cd();
+  rooContainer->Save();
+}
 void LoopAll::myWritePlot() {
 
   hfile = new TFile(utilInstance->histFileName, "RECREATE", "Globe ROOT file with histograms");
@@ -276,11 +310,11 @@ void LoopAll::myWritePlot() {
 }
 
 void LoopAll::myWriteCounters() {
-  if(DEBUG) std::cout<<"LoopAll::myWriteCounters - START"<<std::endl;
+  if(LDEBUG) std::cout<<"LoopAll::myWriteCounters - START"<<std::endl;
   
   const int samples = sampleContainer.size();
    
-  if(DEBUG) std::cout<<"samples = "<<samples<<std::endl;
+  if(LDEBUG) std::cout<<"samples = "<<samples<<std::endl;
   
   stringstream fileLinesInfo[samples];
   stringstream fileLinesCatFile[samples];
@@ -289,7 +323,7 @@ void LoopAll::myWriteCounters() {
   stringstream fileLinesCatSigma[samples];
   stringstream fileLinesCatEff[samples][3];
   
-  if(DEBUG) std::cout<<"initialize streams"<<std::endl;
+  if(LDEBUG) std::cout<<"initialize streams"<<std::endl;
 
   double counterNumerator_tot[samples];
   double counterDenominator_tot[samples][3];
@@ -304,11 +338,11 @@ void LoopAll::myWriteCounters() {
   TString s2 = msName+".csv";
   file = fopen(s2, "w");
 
-  if(DEBUG) std::cout<<"msName is "<< msName <<std::endl;
-  if(DEBUG) std::cout<<"s2 is "<< s2 <<std::endl;
+  if(LDEBUG) std::cout<<"msName is "<< msName <<std::endl;
+  if(LDEBUG) std::cout<<"s2 is "<< s2 <<std::endl;
   
   for(unsigned int i=0; i<counterContainer[0].mapSize(); i++) {
-    if(DEBUG) std::cout<<"counterContainer[0].mapSize() is "<< counterContainer[0].mapSize() <<std::endl;
+    if(LDEBUG) std::cout<<"counterContainer[0].mapSize() is "<< counterContainer[0].mapSize() <<std::endl;
     fprintf(file, "Number, Sample, Counter Name, Counted, TotalEvents, Sigma, Selection 1, Eff, Selection 2, Eff, Selection 3, Eff");
     fprintf(file, ",indexfiles, namefile, scale, lumi, intlum, weight");
     fprintf(file, "\n");
@@ -335,7 +369,7 @@ void LoopAll::myWriteCounters() {
     fprintf(file, "\n");
     
     for (int c=0; c<ncat; c++) {
-      if(DEBUG) std::cout<<"cat is "<< c <<std::endl;
+      if(LDEBUG) std::cout<<"cat is "<< c <<std::endl;
       for (unsigned int j=0; j<counterContainer.size(); j++) {
         if (c == 0) {
 	  counterNumerator_tot[j] = 0;
@@ -363,12 +397,12 @@ void LoopAll::myWriteCounters() {
 	      counterEvents_tot[j] += counts*weight;
 	      counterSigma_tot[j] += counts*weight/utilInstance->intlumi;
       }
-      if(DEBUG) std::cout<<"end cat loop"<<std::endl;
+      if(LDEBUG) std::cout<<"end cat loop"<<std::endl;
     }
-    if(DEBUG) std::cout<<"end sample loop"<<std::endl;
+    if(LDEBUG) std::cout<<"end sample loop"<<std::endl;
   }
   fclose(file);
-  if(DEBUG) std::cout<<"LoopAll::myWriteCounters - END"<<std::endl;
+  if(LDEBUG) std::cout<<"LoopAll::myWriteCounters - END"<<std::endl;
 }
 
 int LoopAll::FillAndReduce(int jentry) {
@@ -376,41 +410,54 @@ int LoopAll::FillAndReduce(int jentry) {
   int hasoutputfile = 0;
   if(utilInstance->typerun == 1) {
     hasoutputfile = 1;
-    if(DEBUG) 
+    if(LDEBUG) 
       cout<<"call myReduce"<<endl;
+    myGetEntryPhotonRedAnalysis(utilInstance, jentry);
     myReducePhotonAnalysis(utilInstance, jentry);
-    if(DEBUG) 
+    if(LDEBUG) 
       cout<<"called myReduce"<<endl;
   } else if (utilInstance->typerun == 0) {
     hasoutputfile = 0;
-    if(DEBUG) 
+    if(LDEBUG) 
       cout<<"call myFillHist -- really?"<<endl;
     myFillHistPhotonAnalysis(utilInstance, jentry);
-    if(DEBUG) 
+    if(LDEBUG) 
       cout<<"called myFillHist"<<endl;
   } else if (utilInstance->typerun == 2) {
     hasoutputfile = 0;
-    if(DEBUG) 
+    if(LDEBUG) 
       cout<<"call myFillHistRed"<<endl;
+    myGetEntryPhotonRedAnalysis(utilInstance, jentry);
     myFillHistPhotonAnalysisRed(utilInstance, jentry);
-    if(DEBUG) 
+    if(LDEBUG) 
       cout<<"called myFillHistRed"<<endl;
+  } else if (utilInstance->typerun == 3) {
+    hasoutputfile = 0;
+    if(LDEBUG) 
+      cout<<"call myFillHistRed"<<endl;
+    myGetEntryPhotonRedAnalysis(utilInstance, jentry);
+    myStatPhotonAnalysis(utilInstance, jentry);
+    if(LDEBUG) 
+      cout<<"called myFillHistStat"<<endl;
   }
+
   
   return hasoutputfile;
 }
-
-void LoopAll::BookHistos() {
-  int typplotall;
-  int h2d, typplot, histoncat, nbinsx, nbinsy, Nvar;
-  float lowlim, highlim, lowlim2, highlim2;
-  char name[100];
-  FILE *file;
-  file = fopen("plotvariables.dat", "r");
-  int dummy = fscanf(file,"%d plot=%d\n", &Nvar, &typplotall);
-  
-  for (int i=0; i<Nvar; i++) {
-    dummy = fscanf(file,"htyp=%d plot=%d ncat=%d %d %d %f %f %f %f %s\n", &h2d, &typplot, &histoncat, &nbinsx, &nbinsy, &lowlim, &highlim, &lowlim2, &highlim2, name);
+void LoopAll::BookHisto
+(
+  int h2d
+ ,int typplot
+ ,int typeplotall
+ ,int histoncat
+ ,int nbinsx
+ ,int nbinsy
+ ,float lowlim
+ ,float highlim
+ ,float lowlim2
+ ,float highlim2
+ ,char *name
+){
 
     for(unsigned int ind=0; ind<sampleContainer.size(); ind++) {
       if (nbinsy == 0)
@@ -418,35 +465,21 @@ void LoopAll::BookHistos() {
       if (nbinsy != 0)
 	histoContainer[ind].Add(name, histoncat, nbinsx, lowlim, highlim, nbinsy, lowlim2, highlim2);
     }
-  }
 }
 
-void LoopAll::InitCuts() {
-  if(DEBUG) cout<<"InitCuts START"<<endl;
+// ------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------
+void LoopAll::AddCut(
+  char *cutnamesc
+ ,int ncatstmp 
+ ,int ifromright 
+ ,int ifinalcut 
+ ,float *cutValuel
+ ,float *cutValueh
+) {
 
-  int Ncuts;
-  int ncatstmp, ifromright, ifinalcut;
-  float cutValuel[100], cutValueh[100], cutValue[100];
-  FILE *file;
-  char cutnamesc[100];
-  file = fopen("cuts.dat", "r");
-  int dummy = fscanf(file,"%d\n",&Ncuts);
-  if(DEBUG) cout<<"reading "<<Ncuts<<" cuts"<<endl;
-  for (int i=0; i<Ncuts; i++) {
-    if(DEBUG) cout<<"reading cut "<<i<<endl;
-    dummy = fscanf(file,"%s  ncat=%d  dir=%d  fin=%d", cutnamesc, &ncatstmp, &ifromright, &ifinalcut);
-    if(DEBUG) cout<<"reading cut:  " << cutnamesc <<endl;
-    if(DEBUG) cout<<"ncatstmp: " << ncatstmp <<endl;
-    if(DEBUG) cout<<"fromright:  " << ifromright <<endl;
-    if(DEBUG) cout<<"ifinalcut:  " << ifinalcut <<endl;
-    for (int j=0; j<ncatstmp; j++) {
-      if(ifromright == 2) {
-	int dummy = fscanf(file,"%f %f", &cutValuel[j], &cutValueh[j]);
-      } else {
-	int dummy = fscanf(file,"%f", &cutValue[j]);
-  if(DEBUG) cout<<"cutValue[j]:  " << cutValue[j] <<endl;
-      }
-    }
+  if(LDEBUG) cout<<"InitCuts START"<<endl;
 
     Cut* this_cut = new Cut();
     this_cut->name = cutnamesc;
@@ -456,73 +489,66 @@ void LoopAll::InitCuts() {
     this_cut->cut.clear();
     this_cut->cutintervall.clear();
     this_cut->cutintervalh.clear();
-    if(DEBUG) cout<<"this_cut filled  "<<endl;
+    if(LDEBUG) cout<<"this_cut filled  "<<endl;
     for (int j=0; j<ncatstmp; j++) {
       if(ifromright == 2) {
 	this_cut->cutintervall.push_back((float) cutValuel[j]);
 	this_cut->cutintervalh.push_back((float) cutValueh[j]);
       } else {
-	this_cut->cut.push_back((float) cutValue[j]);
+	this_cut->cut.push_back((float) cutValuel[j]);
       }
     }
-    if(DEBUG) cout<<"push back cut  "<<endl;
+    if(LDEBUG) cout<<"push back cut  "<<endl;
     cutContainer.push_back(*this_cut);
-    if(DEBUG) cout<<"pushed back cut  "<<endl;
-  }
-  if(DEBUG) cout<<"InitCuts END"<<endl;
+    if(LDEBUG) cout<<"pushed back cut  "<<endl;
+  if(LDEBUG) cout<<"InitCuts END"<<endl;
 }
 
-void LoopAll::InitCounters() {  
-  if(DEBUG) cout<<"InitCounts BEGIN"<<endl;
+void LoopAll::InitCounters(){
+
+  if(LDEBUG) cout<<"InitCounts BEGIN"<<endl;
 
   for(unsigned int i=0; i<sampleContainer.size(); i++)
      counterContainer.push_back(CounterContainer(i));
 
-  int Ncounters, ncounterscat;
-  int countersncat;
-  float lowlim, highlim, lowlim2, highlim2;
-  FILE *file;
-  file = fopen("counters.dat", "r"); 
-  int dummy = fscanf(file, "%d", &Ncounters);
-  ncounterscat=0;
-  char counternames[100];
-  char denomname0[100];
-  char denomname1[100];
-  char denomname2[100];
-   
-  for(int i=0; i<Ncounters; i++) {
-    //char* counternames = new char[1024];
-    //char* denomname0 = new char[1024];
-    //char* denomname1 = new char[1024];
-    //char* denomname2 = new char[1024];
-    if(DEBUG) cout<<"reading "<<i<<" counter"<< endl; 
-    int dummy = fscanf(file,"ncat=%d %s %s %s %s", &countersncat, counternames, denomname0, denomname1, denomname2);
-    if(DEBUG) cout<<"read "<<i<<" counter and dummy is "<<dummy<< endl; 
+  if(LDEBUG) cout<<"InitCounts END"<<endl;
+}
+void LoopAll::AddCounter
+(
+  int countersncat
+ ,char *countername
+ ,char *denomname0
+ ,char *denomname1
+ ,char *denomname2
+){
+
     
-    std::string* counternames_str = new std::string(counternames);
-    if(DEBUG) cout<<i<<" counternames_str"<<counternames_str<< endl; 
+    std::string* counternames_str = new std::string(countername);
+    if(LDEBUG) cout<<" counternames_str"<<counternames_str<< endl; 
     //counternames_str.assign(counternames);
-    if(DEBUG) cout<<i<<" *counternames_str"<<*counternames_str<< endl; 
+    if(LDEBUG) cout<<" *counternames_str"<<*counternames_str<< endl; 
 
     std::string* denomname0_str = new std::string(denomname0);
-    if(DEBUG) cout<<i<<" denomname0_str"<<denomname0_str<< endl; 
+    if(LDEBUG) cout<<" denomname0_str"<<denomname0_str<< endl; 
 
     //std::string denomname1_str;
     std::string* denomname1_str =new std::string(denomname1);
     //denomname1_str.assign(denomname1);
-    if(DEBUG) cout<<i<<" denomname1_str"<<denomname1_str<< endl; 
+    if(LDEBUG) cout<<" denomname1_str"<<denomname1_str<< endl; 
 
     std::string* denomname2_str = new std::string(denomname2);
-    if(DEBUG) cout<<i<<" denomname2_str"<<denomname2_str<< endl; 
+    if(LDEBUG) cout<<" denomname2_str"<<denomname2_str<< endl; 
 
     for(unsigned int ind=0; ind<sampleContainer.size(); ind++) {
-      if(DEBUG) cout<<"adding to "<<i<<" sampleContainer"<< endl; 
-      counterContainer[ind].Add(*counternames_str, countersncat, *denomname0_str, *denomname1_str, *denomname2_str);
-      //void Add(std::string, int, std::string, std::string, std::string);
-      if(DEBUG) cout<<"added to "<<i<<" sampleContainer"<< endl; 
+      if(LDEBUG) cout<<"adding to "<<ind<<" sampleContainer"<< endl; 
+      counterContainer[ind].Add(*counternames_str
+				,countersncat
+				,*denomname0_str
+				,*denomname1_str
+				,*denomname2_str);
+      if(LDEBUG) cout<<"added to "<<ind<<" sampleContainer"<< endl; 
     }
-  }
-  if(DEBUG) cout<<"InitCounts END"<<endl;
+  //}
 }
 
  

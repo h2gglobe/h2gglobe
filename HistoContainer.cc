@@ -30,7 +30,7 @@ std::string HistoContainer::ModifiedName(char* name, int i) {
   return output;
 }
 
-void HistoContainer::Add(char* name, int categories, int bins, float xmin, float xmax) {
+void HistoContainer::Add(char* name, int categories,int bins, float xmin, float xmax) {
 
   std::vector<TH1F> temp;
 
