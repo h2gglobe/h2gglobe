@@ -407,10 +407,10 @@ void LoopAll::BookHistos() {
   char name[100];
   FILE *file;
   file = fopen("plotvariables.dat", "r");
-  int dummy = fscanf(file,"%d plot=%d", &Nvar, &typplotall);
+  int dummy = fscanf(file,"%d plot=%d\n", &Nvar, &typplotall);
   
   for (int i=0; i<Nvar; i++) {
-    dummy = fscanf(file,"htyp=%d plot=%d ncat=%d %d %d %f %f %f %f %s", &h2d, &typplot, &histoncat, &nbinsx, &nbinsy, &lowlim, &highlim, &lowlim2, &highlim2, name);
+    dummy = fscanf(file,"htyp=%d plot=%d ncat=%d %d %d %f %f %f %f %s\n", &h2d, &typplot, &histoncat, &nbinsx, &nbinsy, &lowlim, &highlim, &lowlim2, &highlim2, name);
 
     for(unsigned int ind=0; ind<sampleContainer.size(); ind++) {
       if (nbinsy == 0)
