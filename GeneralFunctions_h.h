@@ -8,3 +8,6 @@ int ElectronClassification(int);
 std::pair<bool, bool> ElectronId(int, eIDLevel); 
 void eIDInfo(Int_t, Int_t&, Int_t&,Int_t eIDMaxLevel=10);
 Float_t sipCalculator(int);
+
+void vertexAnalysis(int pho1, int pho2);
+

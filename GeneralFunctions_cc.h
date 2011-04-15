@@ -224,3 +224,73 @@ void LoopAll::eIDInfo(Int_t index, Int_t& iso_result, Int_t& id_result, Int_t eI
   }
 }
 
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+// Vertex Analysis
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+class GlobeVertexInfo : public VertexInfoAdapter
+{
+public:
+	GlobeVertexInfo(LoopAll &);
+	
+	virtual int nvtx() const    { return lo_.vtx_std_n; };
+	virtual int ntracks() const { return lo_.tk_n; };
+	
+	virtual float tkpx(int ii) const { return ((TVector3*)lo_.tk_p4->At(ii))->Px(); };
+	virtual float tkpy(int ii) const { return ((TVector3*)lo_.tk_p4->At(ii))->Py(); };
+	virtual float tkpz(int ii) const { return ((TVector3*)lo_.tk_p4->At(ii))->Pz(); };
+	
+	virtual float tkPtErr(int ii) const { return lo_.tk_pterr[ii]; };
+	virtual int   tkVtxId(int ii) const { return -1; }; // FIXME
+
+	virtual float tkWeight(int ii) const { return -1.;}  // FIXME
+	
+	virtual float vtxx(int ii) const { return ((TVector3*)lo_.vtx_std_xyz->At(ii))->X(); };
+	virtual float vtxy(int ii) const { return ((TVector3*)lo_.vtx_std_xyz->At(ii))->Y(); };
+	virtual float vtxz(int ii) const { return ((TVector3*)lo_.vtx_std_xyz->At(ii))->Z(); };
+
+	virtual float tkd0(int ii) const { return 0.; } // FIXME
+	virtual float tkd0Err(int ii) const { return 0.; };  // FIXME
+
+	virtual float tkdz(int ii) const { return 0.; };  // FIXME
+	virtual float tkdzErr(int ii) const { return 0.; };  // FIXME
+
+	virtual bool tkIsHighPurity(int ii) const { return ( lo_.tk_quality[ii] & (1<<2) ) >> 2; };
+
+	virtual ~GlobeVertexInfo();
+	
+private:
+	LoopAll & lo_;
+};
+
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+GlobeVertexInfo::GlobeVertexInfo(LoopAll & lo) : lo_(lo) {};
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+GlobeVertexInfo::~GlobeVertexInfo() {};
+
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+void LoopAll::vertexAnalysis(int p1, int p2)
+{
+	GlobeVertexInfo vinfo(*this);
+	
+	PhotonInfo pho1(*((TVector3*)pho_calopos->At(p1)),((TLorentzVector*)pho_p4->At(p1))->Energy()),pho2(*((TVector3*)pho_calopos->At(p2)),((TLorentzVector*)pho_p4->At(p2))->Energy());
+
+	HggVertexAnalyzer vAna(vtxAlgoParams,vtx_std_n);
+	
+	vAna.analyze(vinfo,pho1,pho2);
+	
+	std::vector<int> rankprod = vAna.rankprod(vtxVarNames);
+	cout << "\n\nRanks product" << endl;
+	cout << "best vertex " << rankprod[0] << endl;
+	for(int ii=0; ii<vtx_std_n; ++ii) {
+		int vtxrank = find(rankprod.begin(), rankprod.end(), ii) - rankprod.begin();
+		cout << "vertx " << ii << " rank " << vtxrank << " " << vAna.ptbal(ii) << " " << vAna.ptasym(ii) << " " << vAna.logsumpt2(ii) << endl;
+		
+	}
+	
+}
+
+
