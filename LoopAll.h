@@ -31,6 +31,8 @@ class Util;
 #include "Cut.h"
 #include "branchdef/Limits.h"
 #include "RooContainer.h"
+#include "VertexAnalysis/interface/HggVertexAnalyzer.h"
+#include "VertexAnalysis/interface/PhotonInfo.h"
 
 class LoopAll {
  public :
@@ -76,6 +78,9 @@ class LoopAll {
   TTree * outputTreePar;
   Int_t makeOutputTree;
   Int_t outputEvents;
+
+  VertexAlgoParameters vtxAlgoParams;	 
+  std::vector<std::string> vtxVarNames;
 
   void Loop(Int_t);
   void setUtilInstance(Util*);
