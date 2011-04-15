@@ -36,7 +36,7 @@ CLHEPCFLAGS   =  $(shell clhep-config --include)
 CLHEPLIBS     =  $(shell clhep-config --libs)
 
 ## to use a different TMVA wrt the one shipped with ROOT
-TMVA_ROOT=
+TMVA_ROOT=$(HOME)/Analysis/tools/tmva/V04-01-00_root-5.22.00d-cms28
 ifneq ($(TMVA_ROOT),)
 TMVAFLAGS=-I$(TMVA_ROOT)
 TMVALDD=-L$(TMVA_ROOT)/lib

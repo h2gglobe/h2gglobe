@@ -298,6 +298,13 @@ class TupleVertexInfo : public VertexInfoAdapter
 
 	virtual bool tkIsHighPurity(int ii) const { return tkIsHighPurity_ != 0 ? tkIsHighPurity_[ii] : 0.; };
 
+	//// virtual float tkWeight(int ii, int jj) const { return -1.;}  // FIXME
+	//// virtual float tkd0(int ii, int jj) const { return 0.; } // FIXME
+	//// virtual float tkd0Err(int ii, int jj) const { return 0.; };  // FIXME
+	//// 
+	//// virtual float tkdz(int ii, int jj) const { return 0.; };  // FIXME
+	//// virtual float tkdzErr(int ii, int jj) const { return 0.; };  // FIXME
+
 
 	virtual ~TupleVertexInfo();
 	
