@@ -22,6 +22,10 @@ LOOPALL = LoopAll
 
 LOOPALLSO = libLoopAll.$(DllSuf)
 
+# integrate VertexAnalysis sub-package
+VTX=VertexAnalysis
+VTXSRC=$(wildcard $(VTX)/src/*.$(SrcSuf))
+VTXOBS=$(patsubst %$(SrcSuf), %$(ObjSuf), $(VTXSRC))
 
 LOOPALLO = LoopAll.$(ObjSuf) \
            Util.$(ObjSuf) \
@@ -30,7 +34,8 @@ LOOPALLO = LoopAll.$(ObjSuf) \
 	   HistoContainer.o \
 	   CounterContainer.o \
 	   SampleContainer.o \
-	   Cut.o
+	   Cut.o \
+           $(VTXOBS)
 
 all: $(LOOPALL)
 
@@ -52,7 +57,7 @@ LoopAll.$(ObjSuf): CommonParameters.h LoopAll.h Util.h Tools.h \
 	HistoContainer.cc HistoContainer.h \
 	CounterContainer.cc CounterContainer.h \
 	SampleContainer.cc SampleContainer.h \
-	Cut.cc Cut.h
+	Cut.cc Cut.h $(VTXSRC)
 
 mpUtil.$(ObjSuf): CommonParameters.h LoopAll.h Util.h \
 	branchdef/Limits.h branchdef/treedef.h branchdef/newclonesarray.h \
@@ -78,5 +83,5 @@ LoopAllDict.$(SrcSuf): CommonParameters.h LoopAll.h Util.h \
 	@rootcint -f dict.cpp -c -p LinkDef.h 
 
 .$(SrcSuf).$(ObjSuf):
-	$(CXX) $(CXXFLAGS) -g -c $<
+	$(CXX) $(CXXFLAGS) -g -c $< -o $@
 
