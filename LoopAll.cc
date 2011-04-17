@@ -30,7 +30,7 @@ using namespace std;
 
 LoopAll::LoopAll(TTree *tree) {
   
-  rooContainer = new RooContainer();
+//  rooContainer = new RooContainer();
 
 }
 
@@ -294,7 +294,7 @@ void LoopAll::myWriteFits() {
 
   hfile->cd();
   hfile->cd();
-  rooContainer->Save();
+ // rooContainer->Save();
 }
 void LoopAll::myWritePlot() {
 

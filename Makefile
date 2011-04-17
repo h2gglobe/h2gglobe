@@ -34,7 +34,6 @@ LOOPALLO = LoopAll.$(ObjSuf) \
 	   HistoContainer.o \
 	   CounterContainer.o \
 	   SampleContainer.o \
-	   RooContainer.o \
 	   Cut.o \
            $(VTXOBS)
 
@@ -58,7 +57,6 @@ LoopAll.$(ObjSuf): CommonParameters.h LoopAll.h Util.h Tools.h \
 	HistoContainer.cc HistoContainer.h \
 	CounterContainer.cc CounterContainer.h \
 	SampleContainer.cc SampleContainer.h \
-	RooContainer.cc RooContainer.h \
 	Cut.cc Cut.h $(VTXSRC)
 
 mpUtil.$(ObjSuf): CommonParameters.h LoopAll.h Util.h \
@@ -69,7 +67,6 @@ mpUtil.$(ObjSuf): CommonParameters.h LoopAll.h Util.h \
 	HistoContainer.h \
 	CounterContainer.h \
 	SampleContainer.h \
-	RooContainer.h \
 	Cut.h
 
 LoopAllDict.$(SrcSuf): CommonParameters.h LoopAll.h Util.h \
@@ -79,7 +76,6 @@ LoopAllDict.$(SrcSuf): CommonParameters.h LoopAll.h Util.h \
 	HistoContainer.h \
 	CounterContainer.h \
 	SampleContainer.h \
-	RooContainer.h \
 	Cut.h
 
 	@echo "Generating dictionary $@..."

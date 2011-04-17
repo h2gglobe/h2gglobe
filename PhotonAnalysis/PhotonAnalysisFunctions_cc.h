@@ -3,7 +3,7 @@
 void LoopAll::TermRealPhotonAnalysis(int typerun) 
 {
    if (typerun==3){	
-      rooContainer->FitToData("exp","mass");
+//      rooContainer->FitToData("exp","mass");
    }
 
 }
@@ -19,7 +19,7 @@ void LoopAll::InitRealPhotonAnalysis(int typerun) {
   
   if (typerun == 3) {  
      //RooFitting type
-
+/*
      rooContainer->AddRealVar("mass",50.,250.);
      rooContainer->AddRealVar("mu",-0.04,-1.,-0.001);
 
@@ -32,8 +32,8 @@ void LoopAll::InitRealPhotonAnalysis(int typerun) {
 	"exp((@0)*(@1))",pars,10);
 
      rooContainer->CreateDataSet("mass");
+*/
   }
-  
   if(PADEBUG) 
     cout << "InitRealPhotonAnalysis END"<<endl;
 
@@ -223,7 +223,6 @@ void LoopAll::myFillHistPhotonAnalysisRed(Util * ut, int jentry) {
               }
 	    }
 
-	     // Histogram used to calculate A = Njy/Nyj
            }
      }
    }
@@ -243,7 +242,7 @@ void LoopAll::myStatPhotonAnalysis(Util * ut, int jentry) {
 
   if(PADEBUG) 
     cout << "myStat START"<<endl;
-
+/*
   counters[0]++;
      
   std::vector<PhotonCandidate> preselected_photons;  
@@ -332,7 +331,7 @@ void LoopAll::myStatPhotonAnalysis(Util * ut, int jentry) {
 	}
     }
   
-
+*/
 }
 
 

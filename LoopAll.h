@@ -30,7 +30,7 @@ class Util;
 #include "SampleContainer.h"
 #include "Cut.h"
 #include "branchdef/Limits.h"
-#include "RooContainer.h"
+//#include "RooContainer.h"
 #include "VertexAnalysis/interface/HggVertexAnalyzer.h"
 #include "VertexAnalysis/interface/PhotonInfo.h"
 
@@ -47,7 +47,7 @@ class LoopAll {
   std::vector<CounterContainer> counterContainer;
   std::vector<SampleContainer> sampleContainer;
   std::vector<Cut> cutContainer;
-  RooContainer *rooContainer;
+  //RooContainer *rooContainer;
 
   LoopAll(TTree *tree=0);
   virtual ~LoopAll();
