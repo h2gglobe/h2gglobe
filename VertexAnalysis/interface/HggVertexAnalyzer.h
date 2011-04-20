@@ -1,6 +1,8 @@
 #ifndef hgg_VertexAnalyzer_h
 #define hgg_VertexAnalyzer_h
 
+#include "PhotonInfo.h"
+
 #include <vector>
 #include <map>
 #include <string>
@@ -10,10 +12,10 @@
 #include "TVector3.h"
 #include "TMatrixDSym.h"
 
+
 namespace TMVA { class Reader; }
 
 class VertexInfoAdapter;
-class PhotonInfo;
 
 // -------------------------------------------------------------------------------------------------------------------------------------------------------------
 struct VertexAlgoParameters {
@@ -267,6 +269,8 @@ public:
 // -------------------------------------------------------------------------------------------------------------------------------------------------------------
 class TupleVertexInfo : public VertexInfoAdapter
 {
+public:
+
 	TupleVertexInfo(int nvtx, float * vtxx, float * vtxy, float * vtxz, 
 			   int ntracks, float * tkpx, float * tkpy, float * tkpz,
 			   float * tkPtErr, int * tkVtxId, float * tkWeight,

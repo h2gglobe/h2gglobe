@@ -1,6 +1,9 @@
 #include "../interface/HggVertexFromConversions.h"
 #include "../interface/PhotonInfo.h"
 
+#include "stdio.h"
+#include "math.h"
+
 #include <algorithm>
 #include <numeric>
 #include <iterator>
