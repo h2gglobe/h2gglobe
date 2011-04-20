@@ -87,5 +87,5 @@ LoopAllDict.$(SrcSuf): CommonParameters.h LoopAll.h Util.h \
 	@rootcint -f dict.cpp -c -p LinkDef.h 
 
 .$(SrcSuf).$(ObjSuf):
-	$(CXX) $(CXXFLAGS) -g -c $< -o $@
+	$(CXX) $(CXXFLAGS) -g -c $< -o $@ -I/afs/cern.ch/cms/slc5_amd64_gcc434/lcg/roofit/5.27.06-cms14/include
 
