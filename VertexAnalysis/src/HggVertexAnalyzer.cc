@@ -1,6 +1,9 @@
 #include "../interface/HggVertexAnalyzer.h"
 #include "../interface/PhotonInfo.h"
 
+#include "stdio.h"
+#include "math.h"
+
 #include <algorithm>
 #include <numeric>
 #include <iterator>
@@ -229,7 +232,8 @@ std::vector<int> HggVertexAnalyzer::ranksum(const vector<string> & vars)
 // -------------------------------------------------------------------------------------------------------------------------------------------------------------
 std::vector<int> HggVertexAnalyzer::rankprod(const vector<string> & vars)
 {
-	std::vector<int> vtxs = preselection_;
+  if( dictionary_.empty() ) { fillDictionary(); }
+  std::vector<int> vtxs = preselection_;
 
 	for(int ii=0; ii<nvtx_; ++ii) {
 		mva_[ii] = 1.;
