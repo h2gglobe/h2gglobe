@@ -96,7 +96,9 @@ void LoopAll::Loop(Double_t a) {
 void LoopAll::InitHistos(){
 
   for(int ind=0; ind<sampleContainer.size(); ind++) {
+    SampleContainer thisSample = (SampleContainer) sampleContainer.at(ind);
     HistoContainer temp(ind);
+    temp.total_scale = thisSample.weight*thisSample.scale*thisSample.kfactor;
     histoContainer.push_back(temp);
   }
 

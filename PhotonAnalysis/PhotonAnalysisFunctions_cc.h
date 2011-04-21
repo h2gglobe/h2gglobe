@@ -155,82 +155,87 @@ void LoopAll::myFillHistPhotonAnalysisRed(Util * ut, int jentry) {
 
   if (n_preselected_pho > 1 ){
 
-     PhotonCandidate leading, nleading;
+    PhotonCandidate leading, nleading;
 
 
-     leading  = preselected_photons[0];
-     nleading = preselected_photons[1];
+    leading  = preselected_photons[0];
+    nleading = preselected_photons[1];
 
 
-  	 if (leading.p4->Pt() > 40.){
-         
+  	if (leading.p4->Pt() > 40.){
 
-         // Determine the Category of the event
-         // -> Which histogram is filled
-         min_r9  = min(leading.r9
-		      ,nleading.r9);
-	 max_eta = max(fabs(leading.calopos->Eta())
-			   ,fabs(nleading.calopos->Eta()));
-	 if (min_r9 < 0.93 && max_eta < 1.4442 ) category = 1;
-	 if (min_r9 > 0.93 && max_eta < 1.4442 ) category = 2;
-	 if (min_r9 < 0.93 && max_eta > 1.566 && max_eta < 2.5) category = 3;
-	 if (min_r9 > 0.93 && max_eta > 1.566 && max_eta < 2.5) category = 4;
-
-         // -------------------------------------------------------
-         TLorentzVector Higgs = (*(preselected_photons[0].p4))
-                                 +(*(preselected_photons[1].p4));
-           float mass = Higgs.M();
-           float h_pt = Higgs.Pt();
-             if (mass > 100. && mass < 150.){
-             //Good event, passes preselection and acceptance cuts
-
-             int pass_selection[2];
-             int pass_isolation[2];
-             int in_iso_gap[2];
-    
-            //Now do selection on leading photon
-             pass_selection[0] = leading.hoe < 0.02
-                	       && (((leading.sieie < 0.01)  && (fabs(leading.calopos->Eta()) < 1.4442)) 
-                		  || (( leading.sieie < 0.028)
-                   	       && ((fabs(leading.calopos->Eta()) < 2.5) && (fabs(leading.calopos->Eta()) > 1.566))) );
-             pass_isolation[0] =  leading.trkIso < (1.5 + 0.001*leading.p4->Pt())		
-                	       && leading.ecalIso < (2.0 + 0.006*leading.p4->Pt())
-                               && leading.hcalIso < (2.0 + 0.0025*leading.p4->Pt());
+      // Determine the Category of the event
+      // -> Which histogram is filled
+      min_r9  = min(leading.r9, nleading.r9);
+	    max_eta = max(fabs(leading.calopos->Eta())
+			              ,fabs(nleading.calopos->Eta()));
 	 
-             //Selection on next to leading photon
-             pass_selection[1] = nleading.hoe < 0.02
-                	       && (((nleading.sieie < 0.01)  && (fabs(nleading.calopos->Eta()) < 1.4442)) 
-                		  || (( nleading.sieie < 0.028)
-                  	       && ((fabs(nleading.calopos->Eta()) < 2.5) && (fabs(nleading.calopos->Eta()) > 1.566))) );
-             pass_isolation[1] =  nleading.trkIso < (1.5 + 0.001*nleading.p4->Pt())
-                	       && (nleading.ecalIso < (2.0 + 0.006*nleading.p4->Pt()))
-                	       && (nleading.hcalIso < (2.0 + 0.0025*nleading.p4->Pt()));
+      if (min_r9 < 0.93 && max_eta < 1.4442 ) category = 1;
+	    if (min_r9 > 0.93 && max_eta < 1.4442 ) category = 2;
+	    if (min_r9 < 0.93 && max_eta > 1.566 && max_eta < 2.5) category = 3;
+	    if (min_r9 > 0.93 && max_eta > 1.566 && max_eta < 2.5) category = 4;
 
-	     if (!in_iso_gap[0]){
+      // -------------------------------------------------------
+      TLorentzVector Higgs = (*(preselected_photons[0].p4))
+                                 +(*(preselected_photons[1].p4));
+           
+      float mass = Higgs.M();
+      float h_pt = Higgs.Pt();
+      cout << "mass is " << mass << " and higgs pt is " << h_pt << endl;
+      if (mass > 100. && mass < 150.){
+        //Good event, passes preselection and acceptance cuts
+
+        int pass_selection[2];
+        int pass_isolation[2];
+        int in_iso_gap[2];
+    
+        //Now do selection on leading photon
+        pass_selection[0] = leading.hoe < 0.02
+           	       && (((leading.sieie < 0.01)  && (fabs(leading.calopos->Eta()) < 1.4442)) 
+           		  || (( leading.sieie < 0.028)
+              	       && ((fabs(leading.calopos->Eta()) < 2.5) && (fabs(leading.calopos->Eta()) > 1.566))) );
+        pass_isolation[0] =  leading.trkIso < (1.5 + 0.001*leading.p4->Pt())		
+           	       && leading.ecalIso < (2.0 + 0.006*leading.p4->Pt())
+                          && leading.hcalIso < (2.0 + 0.0025*leading.p4->Pt());
+	 
+        //Selection on next to leading photon
+        pass_selection[1] = nleading.hoe < 0.02
+           	       && (((nleading.sieie < 0.01)  && (fabs(nleading.calopos->Eta()) < 1.4442)) 
+           		  || (( nleading.sieie < 0.028)
+             	       && ((fabs(nleading.calopos->Eta()) < 2.5) && (fabs(nleading.calopos->Eta()) > 1.566))) );
+        pass_isolation[1] =  nleading.trkIso < (1.5 + 0.001*nleading.p4->Pt())
+           	       && (nleading.ecalIso < (2.0 + 0.006*nleading.p4->Pt()))
+           	       && (nleading.hcalIso < (2.0 + 0.0025*nleading.p4->Pt()));
+
+	      //if (!in_iso_gap[0]){
              // FillHist2D("h_sideband_leading",
                 //                         pass_isolation[0],pass_selection[0]);
               
-	      if (pass_selection[0] && pass_isolation[0] && !in_iso_gap[1]){
+	        //if (pass_selection[0] && pass_isolation[0] && !in_iso_gap[1]){
               // FillHist2D("h_sideband_nleading",
                   //                      pass_isolation[1],pass_selection[1]);
 
-               if (pass_selection[1] && pass_isolation[1]){
-		 FillHist("pho_pt",category,leading.p4->Pt());
-		 FillHist("pho_pt",category,nleading.p4->Pt());
-                 best_mass = mass;
- 		 best_pt   = h_pt;
-               }
-              }
-	    }
-
-           }
-     }
-   }
+            //if (pass_selection[1] && pass_isolation[1]){
+              cout << "mass is " << mass << " and higgs pt is " << h_pt << endl;
+		          FillHist("pho_pt",category,leading.p4->Pt());
+		          FillHist("pho_pt",category,nleading.p4->Pt());
+              best_mass = mass;
+ 		          best_pt   = h_pt;
+              cout << "best mass is " << best_mass << " and best higgs pt is " << best_pt << endl;
+      //      }
+      //    }
+	    //  }
+      }
+    }
+  }
 
   
   FillHist("mass",0, best_mass);
   FillHist("pt",0, best_pt);
   if (category > -1){
+    cout << "category is " << category << endl;
+    cout << "mass is " << best_mass << endl;
+    cout << "pt is " << best_pt << endl;
     FillHist("mass",category, best_mass);
     FillHist("pt",category, best_pt);
   }

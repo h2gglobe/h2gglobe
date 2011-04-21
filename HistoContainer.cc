@@ -104,23 +104,26 @@ void HistoContainer::Fill2D(std::string name, int category, float valuex, float 
 }
 
 void HistoContainer::Save() {
-  std::map<std::string, std::vector<TH1F> >::const_iterator it;
+  std::map<std::string, std::vector<TH1F> >::iterator it;
   for (it = h1.begin(); it != h1.end(); ++it) {
     for (unsigned int i=0; i<(it->second).size(); i++) {
+      (it->second)[i].Scale(total_scale);
       (it->second)[i].Write();
     }
   }
 
-  std::map<std::string, std::vector<TH2F> >::const_iterator it2;
+  std::map<std::string, std::vector<TH2F> >::iterator it2;
   for (it2 = h2.begin(); it2 != h2.end(); ++it2) {
     for (unsigned int i=0; i<(it2->second).size(); i++) {
+      (it2->second)[i].Scale(total_scale);
       (it2->second)[i].Write(); 
     }
   }
 
-  std::map<std::string, std::vector<TProfile> >::const_iterator itp;
+  std::map<std::string, std::vector<TProfile> >::iterator itp;
   for (itp = hp.begin(); itp != hp.end(); ++itp) {
     for (unsigned int i=0; i<(itp->second).size(); i++) {
+      (itp->second)[i].Scale(total_scale);
       (itp->second)[i].Write();
     }
   }
