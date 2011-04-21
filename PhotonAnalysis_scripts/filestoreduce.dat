@@ -1,5 +1,5 @@
 output=Data2011_reduced.root
-Fil=Run2011_29Mar.root typ=1
+Fil=/afs/cern.ch/user/n/nckw/public/data.root typ=1
 
 ->
 filestoreduce.dat

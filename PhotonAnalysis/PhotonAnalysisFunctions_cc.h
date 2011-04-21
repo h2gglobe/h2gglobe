@@ -207,24 +207,24 @@ void LoopAll::myFillHistPhotonAnalysisRed(Util * ut, int jentry) {
            	       && (nleading.ecalIso < (2.0 + 0.006*nleading.p4->Pt()))
            	       && (nleading.hcalIso < (2.0 + 0.0025*nleading.p4->Pt()));
 
-	      //if (!in_iso_gap[0]){
+	      if (!in_iso_gap[0]){
              // FillHist2D("h_sideband_leading",
                 //                         pass_isolation[0],pass_selection[0]);
               
-	        //if (pass_selection[0] && pass_isolation[0] && !in_iso_gap[1]){
+	        if (pass_selection[0] && pass_isolation[0] && !in_iso_gap[1]){
               // FillHist2D("h_sideband_nleading",
                   //                      pass_isolation[1],pass_selection[1]);
 
-            //if (pass_selection[1] && pass_isolation[1]){
+            if (pass_selection[1] && pass_isolation[1]){
               cout << "mass is " << mass << " and higgs pt is " << h_pt << endl;
 		          FillHist("pho_pt",category,leading.p4->Pt());
 		          FillHist("pho_pt",category,nleading.p4->Pt());
               best_mass = mass;
  		          best_pt   = h_pt;
               cout << "best mass is " << best_mass << " and best higgs pt is " << best_pt << endl;
-      //      }
-      //    }
-	    //  }
+            }
+          }
+	      }
       }
     }
   }
@@ -233,9 +233,6 @@ void LoopAll::myFillHistPhotonAnalysisRed(Util * ut, int jentry) {
   FillHist("mass",0, best_mass);
   FillHist("pt",0, best_pt);
   if (category > -1){
-    cout << "category is " << category << endl;
-    cout << "mass is " << best_mass << endl;
-    cout << "pt is " << best_pt << endl;
     FillHist("mass",category, best_mass);
     FillHist("pt",category, best_pt);
   }

@@ -1,7 +1,6 @@
 import ROOT
 from python.configProducer import *
 
-ROOT.gSystem.Load("libRooFit.so")
 ROOT.gSystem.Load("libPhysics.so");
 ROOT.gSystem.Load("libCore.so");
 ROOT.gSystem.Load("../libLoopAll.so");
