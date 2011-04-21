@@ -419,7 +419,7 @@ void HggVertexAnalyzer::analyze(const VertexInfoAdapter & e, const PhotonInfo & 
 		
 		if( ( params_.highPurityOnly && !e.tkIsHighPurity(i)  )
 		    || fabs(e.tkd0(i)/e.tkd0Err(i)) > params_.maxD0Signif 
-		    || fabs(e.tkd0(i)/e.tkd0Err(i)) > params_.maxDzSignif ) { 
+		    || fabs(e.tkdz(i)/e.tkdzErr(i)) > params_.maxDzSignif ) { 
 			continue; 
 		}
 		
