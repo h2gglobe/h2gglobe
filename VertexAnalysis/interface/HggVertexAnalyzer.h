@@ -6,6 +6,7 @@
 #include <vector>
 #include <map>
 #include <string>
+#include <assert.h>
 
 #include "TLorentzVector.h"
 #include "TVector2.h"
@@ -119,14 +120,8 @@ public:
 	typedef double (HggVertexAnalyzer::*getter_t) (int) const;
 	typedef std::map<std::string,std::pair<getter_t,bool> > dict_t;
 	
-	static dict_t dictionary_;
-	static void fillDictionary();
-
-	// TMVA interface
-	static std::vector<getter_t> varmeths_;
+	static dict_t & dictionary();
 #endif
-	static std::vector<float> vars_;
-	
 	static const double spherPwr_;
 	
 	static void bookVariables(TMVA::Reader & reader, const std::vector<std::string> & vars);
@@ -183,6 +178,14 @@ public:
 	double awytwdasym(int i) const { return awytwdasym_[i]; };
 		
 private:
+#ifndef __CINT__	
+	static void fillDictionary(dict_t & dictionary);
+
+	// TMVA interface
+	static std::vector<getter_t> varmeths_;
+	static std::vector<float> vars_;
+#endif
+
 	AlgoParameters params_;
 	int nvtx_;
 	
@@ -243,7 +246,12 @@ public:
 	virtual float vtxz(int) const = 0;
 
 	virtual int ntracks() const = 0;
-	
+
+	virtual bool hasVtxTracks() const = 0;
+	virtual const unsigned short * vtxTracks(int) const = 0;
+	virtual int vtxNTracks(int) const = 0;
+	virtual const float * vtxTkWeights(int) const = 0;
+		
 	virtual float tkpx(int) const = 0;
 	virtual float tkpy(int) const = 0;
 	virtual float tkpz(int) const = 0;
@@ -251,16 +259,15 @@ public:
 	virtual float tkPtErr(int) const = 0;
 	virtual int   tkVtxId(int) const = 0;
 
-	virtual float tkWeight(int) const = 0;
+	virtual float tkWeight(int ii, int jj) const  = 0;
+
+	virtual float tkd0(int ii, int jj) const  = 0;
+	virtual float tkd0Err(int ii, int jj) const  = 0;
+
+	virtual float tkdz(int ii, int jj) const  = 0;
+	virtual float tkdzErr(int ii, int jj) const  = 0;
 	
-	virtual float tkd0(int) const = 0;
-	virtual float tkd0Err(int) const = 0;
-
-	virtual float tkdz(int) const = 0;
-	virtual float tkdzErr(int) const = 0;
-
 	virtual bool tkIsHighPurity(int) const = 0;
-
 
 	virtual ~VertexInfoAdapter();
 };
@@ -280,7 +287,12 @@ public:
 	
 	virtual int nvtx() const    { return nvtx_; };
 	virtual int ntracks() const { return ntracks_; };
-	
+
+	virtual bool hasVtxTracks()  const { return false; };
+	virtual const unsigned short * vtxTracks(int) const { return 0; };
+	virtual int vtxNTracks(int)  const { return 0; };
+	virtual const float * vtxTkWeights(int) const { return 0; };
+
 	virtual float tkpx(int ii) const { return tkpx_ != 0 ? tkpx_[ii] : 0.; };
 	virtual float tkpy(int ii) const { return tkpx_ != 0 ? tkpy_[ii] : 0.; };
 	virtual float tkpz(int ii) const { return tkpx_ != 0 ? tkpz_[ii] : 0.; };
@@ -288,27 +300,19 @@ public:
 	virtual float tkPtErr(int ii) const { return tkPtErr_  != 0 ? tkPtErr_[ii] : 999.; };
 	virtual int   tkVtxId(int ii) const { return tkVtxId_  != 0 ? tkVtxId_[ii] : 999.; };
 
-	virtual float tkWeight(int ii) const { return tkWeight_ != 0 ? tkWeight_[ii] : 0.; };
+	virtual float tkWeight(int ii, int jj) const { return tkWeight_ != 0 ? tkWeight_[ii]*(float)( tkVtxId(ii) == jj) : 0.; };
 	
 	virtual float vtxx(int ii) const { return vtxx_ != 0 ? vtxx_[ii] : 0.; };
 	virtual float vtxy(int ii) const { return vtxy_ != 0 ? vtxy_[ii] : 0.; };
 	virtual float vtxz(int ii) const { return vtxz_ != 0 ? vtxz_[ii] : 0.; };
 
-	virtual float tkd0(int ii) const { return tkd0_ != 0 ? tkd0_[ii] : 0.; };
-	virtual float tkd0Err(int ii) const { return tkd0Err_ != 0 ? tkd0Err_[ii] : 0.; };
+	virtual float tkd0(int ii, int jj) const { assert(tkVtxId(ii) == jj); return tkd0_ != 0 ? tkd0_[ii] : 0.; };
+	virtual float tkd0Err(int ii, int jj) const { assert(tkVtxId(ii) == jj); return tkd0Err_ != 0 ? tkd0Err_[ii] : 0.; };
 
-	virtual float tkdz(int ii) const { return tkdz_ != 0 ? tkdz_[ii] : 0.; };
-	virtual float tkdzErr(int ii) const { return tkdzErr_ != 0 ? tkdzErr_[ii] : 0.; };
+	virtual float tkdz(int ii, int jj) const { assert(tkVtxId(ii) == jj); return tkdz_ != 0 ? tkdz_[ii] : 0.; };
+	virtual float tkdzErr(int ii, int jj) const { assert(tkVtxId(ii) == jj); return tkdzErr_ != 0 ? tkdzErr_[ii] : 0.; };
 
 	virtual bool tkIsHighPurity(int ii) const { return tkIsHighPurity_ != 0 ? tkIsHighPurity_[ii] : 0.; };
-
-	//// virtual float tkWeight(int ii, int jj) const { return -1.;}  // FIXME
-	//// virtual float tkd0(int ii, int jj) const { return 0.; } // FIXME
-	//// virtual float tkd0Err(int ii, int jj) const { return 0.; };  // FIXME
-	//// 
-	//// virtual float tkdz(int ii, int jj) const { return 0.; };  // FIXME
-	//// virtual float tkdzErr(int ii, int jj) const { return 0.; };  // FIXME
-
 
 	virtual ~TupleVertexInfo();
 	
