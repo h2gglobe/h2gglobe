@@ -181,7 +181,6 @@ void LoopAll::myFillHistPhotonAnalysisRed(Util * ut, int jentry) {
            
       float mass = Higgs.M();
       float h_pt = Higgs.Pt();
-      cout << "mass is " << mass << " and higgs pt is " << h_pt << endl;
       if (mass > 100. && mass < 150.){
         //Good event, passes preselection and acceptance cuts
 
