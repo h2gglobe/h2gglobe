@@ -12,7 +12,7 @@ def makeCaFiles(dir):
     files = flist.split('\n')
     for f in files:
 	if '.root' in f:
-	 return_files.append('rfio:'+dir+'/'+f)
+	 return_files.append('rfio://'+dir+'/'+f)
 
    else:
     sys.exit("No Such Directory: %s"%(dir))

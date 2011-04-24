@@ -98,7 +98,7 @@ class configProducer:
     if PYDEBUG: self.conf_.print_conf()
     self.add_files()
     self.ut_.SetTypeRun(self.type_,self.conf_.outfile)
-    self.ut_.ReadInput(self.type_)
+#    self.ut_.ReadInput(self.type_)
 
   def init_loop(self):
     self.read_config_loop(self.conf_filename)
