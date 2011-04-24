@@ -192,7 +192,6 @@
    b_jet_algo1_hadfrac->GetEntry(jentry); 
    b_jet_algo1_ntk->GetEntry(jentry); 
    b_jet_algo1_tkind->GetEntry(jentry); 
-   b_jet_algo1_ncalotw->GetEntry(jentry); 
    b_jet_algo1_calotwind->GetEntry(jentry); 
    b_jet_algo2_n->GetEntry(jentry); 
    b_jet_algo2_p4->GetEntry(jentry); 
@@ -200,7 +199,6 @@
    b_jet_algo2_hadfrac->GetEntry(jentry); 
    b_jet_algo2_ntk->GetEntry(jentry); 
    b_jet_algo2_tkind->GetEntry(jentry); 
-   b_jet_algo2_ncalotw->GetEntry(jentry); 
    b_jet_algo2_calotwind->GetEntry(jentry); 
    b_jet_algo3_n->GetEntry(jentry); 
    b_jet_algo3_p4->GetEntry(jentry); 
@@ -208,7 +206,6 @@
    b_jet_algo3_hadfrac->GetEntry(jentry); 
    b_jet_algo3_ntk->GetEntry(jentry); 
    b_jet_algo3_tkind->GetEntry(jentry); 
-   b_jet_algo3_ncalotw->GetEntry(jentry); 
    b_jet_algo3_calotwind->GetEntry(jentry); 
    b_jet_algoPF1_n->GetEntry(jentry); 
    b_jet_algoPF1_p4->GetEntry(jentry); 
@@ -216,7 +213,6 @@
    b_jet_algoPF1_hadfrac->GetEntry(jentry); 
    b_jet_algoPF1_ntk->GetEntry(jentry); 
    b_jet_algoPF1_tkind->GetEntry(jentry); 
-   b_jet_algoPF1_ncalotw->GetEntry(jentry); 
    b_jet_algoPF1_calotwind->GetEntry(jentry); 
    b_jet_algoPF2_n->GetEntry(jentry); 
    b_jet_algoPF2_p4->GetEntry(jentry); 
@@ -224,7 +220,6 @@
    b_jet_algoPF2_hadfrac->GetEntry(jentry); 
    b_jet_algoPF2_ntk->GetEntry(jentry); 
    b_jet_algoPF2_tkind->GetEntry(jentry); 
-   b_jet_algoPF2_ncalotw->GetEntry(jentry); 
    b_jet_algoPF2_calotwind->GetEntry(jentry); 
    b_jet_algoPF3_n->GetEntry(jentry); 
    b_jet_algoPF3_p4->GetEntry(jentry); 
@@ -232,7 +227,6 @@
    b_jet_algoPF3_hadfrac->GetEntry(jentry); 
    b_jet_algoPF3_ntk->GetEntry(jentry); 
    b_jet_algoPF3_tkind->GetEntry(jentry); 
-   b_jet_algoPF3_ncalotw->GetEntry(jentry); 
    b_jet_algoPF3_calotwind->GetEntry(jentry); 
    b_l1emiso_n->GetEntry(jentry); 
    b_l1emiso_eta->GetEntry(jentry); 
@@ -317,6 +311,9 @@
    b_mu_glo_type->GetEntry(jentry); 
    b_mu_glo_iso->GetEntry(jentry); 
    b_pho_n->GetEntry(jentry); 
+   b_pho_feta->GetEntry(jentry); 
+   b_pho_crackcorr->GetEntry(jentry); 
+   b_pho_localcorr->GetEntry(jentry); 
    b_pho_isEB->GetEntry(jentry); 
    b_pho_isEE->GetEntry(jentry); 
    b_pho_isEBGap->GetEntry(jentry); 
@@ -384,6 +381,25 @@
    b_pho_conv_ch1ch2->GetEntry(jentry); 
    b_pho_conv_validvtx->GetEntry(jentry); 
    b_pho_conv_MVALikelihood->GetEntry(jentry); 
+   b_pho_sipip->GetEntry(jentry); 
+   b_pho_sieip->GetEntry(jentry); 
+   b_pho_zernike20->GetEntry(jentry); 
+   b_pho_zernike42->GetEntry(jentry); 
+   b_pho_e2nd->GetEntry(jentry); 
+   b_pho_e2x5right->GetEntry(jentry); 
+   b_pho_e2x5left->GetEntry(jentry); 
+   b_pho_e2x5Top->GetEntry(jentry); 
+   b_pho_e2x5bottom->GetEntry(jentry); 
+   b_pho_eright->GetEntry(jentry); 
+   b_pho_eleft->GetEntry(jentry); 
+   b_pho_etop->GetEntry(jentry); 
+   b_pho_ebottom->GetEntry(jentry); 
+   b_pho_e2overe9->GetEntry(jentry); 
+   b_pho_seed_severity->GetEntry(jentry); 
+   b_pho_seed_time->GetEntry(jentry); 
+   b_pho_seed_outoftimechi2->GetEntry(jentry); 
+   b_pho_seed_chi2->GetEntry(jentry); 
+   b_pho_seed_recoflag->GetEntry(jentry); 
    b_pho_conv_vtx->GetEntry(jentry); 
    b_pho_conv_pair_momentum->GetEntry(jentry); 
    b_pho_conv_refitted_momentum->GetEntry(jentry); 

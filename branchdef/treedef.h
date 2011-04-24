@@ -71,8 +71,6 @@
   Int_t bc_seed[MAX_BASICCLUSTERS];
   TClonesArray *ecalhit_p4;
   Int_t ecalhit_n;
-  Int_t ecalhit_type[MAX_ECALRECHITS];
-  Int_t ecalhit_flag[MAX_ECALRECHITS];
   Float_t ecalhit_time[MAX_ECALRECHITS];
   UInt_t ecalhit_detid[MAX_ECALRECHITS];
   Int_t el_std_n;
@@ -145,8 +143,7 @@
   Float_t el_std_ip_gsf[MAX_ELECTRONS];
   Float_t el_std_dist[MAX_ELECTRONS];
   Float_t el_std_dcot[MAX_ELECTRONS];
-  std::vector<std::vector<int> >* el_catbased;
-
+  std::vector<std::vector<int> >* el_std_catbased;
   TClonesArray *el_std_sc;
   TClonesArray *el_std_p4;
   TClonesArray *el_std_momvtx;
@@ -182,12 +179,11 @@
   Int_t hc_type[MAX_HCALHITS];
   Int_t hc_n;
   std::vector<unsigned short>* hlt1_bit;
-
   std::vector<unsigned short>* hlt2_bit;
-
   Int_t hlt_n;
   std::vector<std::vector<unsigned short> >* hlt_candpath;
-
+  std::vector<std::string> *hlt_path_names_HLT1;
+  std::vector<std::string> *hlt_path_names_HLT2;
   TClonesArray* hlt_p4;
   Float_t ht_nomet25;
   Float_t ht_nomet35;
@@ -212,48 +208,48 @@
   Float_t jet_algo1_hadfrac[MAX_JETS];
   Int_t jet_algo1_ntk[MAX_JETS];
   Int_t jet_algo1_ncalotw[MAX_JETS];
-  Int_t jet_algo1_calotwind[MAX_JETS][MAX_JET_TOWERS];
-  Int_t jet_algo1_tkind[MAX_JETS][MAX_JET_TRACKS];
+  std::vector<std::vector<unsigned short> >* jet_algo1_calotwind;
+  std::vector<std::vector<unsigned short> >* jet_algo1_tkind;
   TClonesArray *jet_algo1_p4;
   Int_t jet_algo2_n;
   Float_t jet_algo2_emfrac[MAX_JETS];
   Float_t jet_algo2_hadfrac[MAX_JETS];
   Int_t jet_algo2_ntk[MAX_JETS];
   Int_t jet_algo2_ncalotw[MAX_JETS];
-  Int_t jet_algo2_calotwind[MAX_JETS][MAX_JET_TOWERS];
-  Int_t jet_algo2_tkind[MAX_JETS][MAX_JET_TRACKS];
+  std::vector<std::vector<unsigned short> >* jet_algo2_calotwind;
+  std::vector<std::vector<unsigned short> >* jet_algo2_tkind;
   TClonesArray *jet_algo2_p4;
   Int_t jet_algo3_n;
   Float_t jet_algo3_emfrac[MAX_JETS];
   Float_t jet_algo3_hadfrac[MAX_JETS];
   Int_t jet_algo3_ntk[MAX_JETS];
   Int_t jet_algo3_ncalotw[MAX_JETS];
-  Int_t jet_algo3_calotwind[MAX_JETS][MAX_JET_TOWERS];
-  Int_t jet_algo3_tkind[MAX_JETS][MAX_JET_TRACKS];
+  std::vector<std::vector<unsigned short> >* jet_algo3_calotwind;
+  std::vector<std::vector<unsigned short> >* jet_algo3_tkind;
   TClonesArray *jet_algo3_p4;
   Int_t jet_algoPF1_n;
   Float_t jet_algoPF1_emfrac[MAX_JETS];
   Float_t jet_algoPF1_hadfrac[MAX_JETS];
   Int_t jet_algoPF1_ntk[MAX_JETS];
   Int_t jet_algoPF1_ncalotw[MAX_JETS];
-  Int_t jet_algoPF1_calotwind[MAX_JETS][MAX_JET_TOWERS];
-  Int_t jet_algoPF1_tkind[MAX_JETS][MAX_JET_TRACKS];
+  std::vector<std::vector<unsigned short> >* jet_algoPF1_calotwind;
+  std::vector<std::vector<unsigned short> >* jet_algoPF1_tkind;
   TClonesArray *jet_algoPF1_p4;
   Int_t jet_algoPF2_n;
   Float_t jet_algoPF2_emfrac[MAX_JETS];
   Float_t jet_algoPF2_hadfrac[MAX_JETS];
   Int_t jet_algoPF2_ntk[MAX_JETS];
   Int_t jet_algoPF2_ncalotw[MAX_JETS];
-  Int_t jet_algoPF2_calotwind[MAX_JETS][MAX_JET_TOWERS];
-  Int_t jet_algoPF2_tkind[MAX_JETS][MAX_JET_TRACKS];
+  std::vector<std::vector<unsigned short> >* jet_algoPF2_calotwind;
+  std::vector<std::vector<unsigned short> >* jet_algoPF2_tkind;
   TClonesArray *jet_algoPF2_p4;
   Int_t jet_algoPF3_n;
   Float_t jet_algoPF3_emfrac[MAX_JETS];
   Float_t jet_algoPF3_hadfrac[MAX_JETS];
   Int_t jet_algoPF3_ntk[MAX_JETS];
   Int_t jet_algoPF3_ncalotw[MAX_JETS];
-  Int_t jet_algoPF3_calotwind[MAX_JETS][MAX_JET_TOWERS];
-  Int_t jet_algoPF3_tkind[MAX_JETS][MAX_JET_TRACKS];
+  std::vector<std::vector<unsigned short> >* jet_algoPF3_calotwind;
+  std::vector<std::vector<unsigned short> >* jet_algoPF3_tkind;
   TClonesArray *jet_algoPF3_p4;
   Int_t l1emiso_n;
   Float_t l1emiso_et[MAX_L1]; 
@@ -282,9 +278,7 @@
   Float_t l1mu_eta[MAX_L1];
   Float_t l1mu_phi[MAX_L1];
   std::vector<int>* l1bits_phy;
-
   std::vector<int>* l1bits_tec;
-
   std::map<std::string, int>* l1_labels;
 
     Int_t lpt_n;
@@ -341,6 +335,9 @@
   TClonesArray *mu_glo_poshcal;
   TClonesArray *mu_glo_posecal;
   Int_t pho_n;
+  Float_t pho_feta[MAX_PHOTONS][5];
+  Float_t pho_crackcorr[MAX_PHOTONS];
+  Float_t pho_localcorr[MAX_PHOTONS];
   Int_t pho_isEB[MAX_PHOTONS];
   Int_t pho_isEE[MAX_PHOTONS];
   Int_t pho_isEBGap[MAX_PHOTONS];
@@ -348,6 +345,8 @@
   Int_t pho_isEBEEGap[MAX_PHOTONS];
   Float_t pho_see[MAX_PHOTONS];
   Float_t pho_sieie[MAX_PHOTONS];
+  Float_t pho_sipip[MAX_PHOTONS];
+  Float_t pho_sieip[MAX_PHOTONS];
   Float_t pho_e1x5[MAX_PHOTONS];
   Float_t pho_e2x5[MAX_PHOTONS];
   Float_t pho_e3x3[MAX_PHOTONS];
@@ -359,6 +358,23 @@
   Float_t pho_r1x5[MAX_PHOTONS];
   Float_t pho_r2x5[MAX_PHOTONS];
   Float_t pho_r9[MAX_PHOTONS];
+  Float_t pho_zernike20[MAX_PHOTONS];
+  Float_t pho_zernike42[MAX_PHOTONS];
+  Float_t pho_e2nd[MAX_PHOTONS];
+  Float_t pho_e2x5right[MAX_PHOTONS];
+  Float_t pho_e2x5left[MAX_PHOTONS];
+  Float_t pho_e2x5Top[MAX_PHOTONS];
+  Float_t pho_e2x5bottom[MAX_PHOTONS];
+  Float_t pho_eright[MAX_PHOTONS];
+  Float_t pho_eleft[MAX_PHOTONS];
+  Float_t pho_etop[MAX_PHOTONS];
+  Float_t pho_ebottom[MAX_PHOTONS];
+  Float_t pho_e2overe9[MAX_PHOTONS];
+  Float_t pho_seed_time[MAX_PHOTONS];
+  Float_t pho_seed_outoftimechi2[MAX_PHOTONS];
+  Float_t pho_seed_chi2[MAX_PHOTONS];
+  Float_t pho_seed_recoflag[MAX_PHOTONS];
+  Float_t pho_seed_severity[MAX_PHOTONS];
   Float_t pho_ecalsumetconedr04[MAX_PHOTONS];
   Float_t pho_hcalsumetconedr04[MAX_PHOTONS];
   Float_t pho_hcal1sumetconedr04[MAX_PHOTONS];
@@ -502,8 +518,8 @@
   Float_t vtx_x2dof[MAX_VERTICES];
   Float_t vtx_ndof[MAX_VERTICES];
   Int_t vtx_ntks[MAX_VERTICES];
-  Int_t vtx_tkind[MAX_VERTICES][MAX_VERTEX_TRACKS];
-  Float_t vtx_tkweight[MAX_VERTICES][MAX_VERTEX_TRACKS];
+  std::vector<std::vector<unsigned short> >* vtx_tkind;
+  std::vector<std::vector<float> >* vtx_tkweight;
   Int_t vtx_std_n;
   TClonesArray *bs_std_xyz;
   Float_t bs_std_sigmaZ;
@@ -518,5 +534,5 @@
   Float_t vtx_std_x2dof[MAX_VERTICES];
   Float_t vtx_std_ndof[MAX_VERTICES];
   Int_t vtx_std_ntks[MAX_VERTICES];
-  Int_t vtx_std_tkind[MAX_VERTICES][MAX_VERTEX_TRACKS];
-  Float_t vtx_std_tkweight[MAX_VERTICES][MAX_VERTEX_TRACKS];
+  std::vector<std::vector<unsigned short> >* vtx_std_tkind;
+  std::vector<std::vector<float> >* vtx_std_tkweight;

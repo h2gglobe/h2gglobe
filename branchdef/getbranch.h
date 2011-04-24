@@ -192,7 +192,6 @@
    b_jet_algo1_hadfrac = fChain->GetBranch("jet_algo1_hadfrac"); 
    b_jet_algo1_ntk = fChain->GetBranch("jet_algo1_ntk"); 
    b_jet_algo1_tkind = fChain->GetBranch("jet_algo1_tkind"); 
-   b_jet_algo1_ncalotw = fChain->GetBranch("jet_algo1_ncalotw"); 
    b_jet_algo1_calotwind = fChain->GetBranch("jet_algo1_calotwind"); 
    b_jet_algo2_n = fChain->GetBranch("jet_algo2_n"); 
    b_jet_algo2_p4 = fChain->GetBranch("jet_algo2_p4"); 
@@ -200,7 +199,6 @@
    b_jet_algo2_hadfrac = fChain->GetBranch("jet_algo2_hadfrac"); 
    b_jet_algo2_ntk = fChain->GetBranch("jet_algo2_ntk"); 
    b_jet_algo2_tkind = fChain->GetBranch("jet_algo2_tkind"); 
-   b_jet_algo2_ncalotw = fChain->GetBranch("jet_algo2_ncalotw"); 
    b_jet_algo2_calotwind = fChain->GetBranch("jet_algo2_calotwind"); 
    b_jet_algo3_n = fChain->GetBranch("jet_algo3_n"); 
    b_jet_algo3_p4 = fChain->GetBranch("jet_algo3_p4"); 
@@ -208,7 +206,6 @@
    b_jet_algo3_hadfrac = fChain->GetBranch("jet_algo3_hadfrac"); 
    b_jet_algo3_ntk = fChain->GetBranch("jet_algo3_ntk"); 
    b_jet_algo3_tkind = fChain->GetBranch("jet_algo3_tkind"); 
-   b_jet_algo3_ncalotw = fChain->GetBranch("jet_algo3_ncalotw"); 
    b_jet_algo3_calotwind = fChain->GetBranch("jet_algo3_calotwind"); 
    b_jet_algoPF1_n = fChain->GetBranch("jet_algoPF1_n"); 
    b_jet_algoPF1_p4 = fChain->GetBranch("jet_algoPF1_p4"); 
@@ -216,7 +213,6 @@
    b_jet_algoPF1_hadfrac = fChain->GetBranch("jet_algoPF1_hadfrac"); 
    b_jet_algoPF1_ntk = fChain->GetBranch("jet_algoPF1_ntk"); 
    b_jet_algoPF1_tkind = fChain->GetBranch("jet_algoPF1_tkind"); 
-   b_jet_algoPF1_ncalotw = fChain->GetBranch("jet_algoPF1_ncalotw"); 
    b_jet_algoPF1_calotwind = fChain->GetBranch("jet_algoPF1_calotwind"); 
    b_jet_algoPF2_n = fChain->GetBranch("jet_algoPF2_n"); 
    b_jet_algoPF2_p4 = fChain->GetBranch("jet_algoPF2_p4"); 
@@ -224,7 +220,6 @@
    b_jet_algoPF2_hadfrac = fChain->GetBranch("jet_algoPF2_hadfrac"); 
    b_jet_algoPF2_ntk = fChain->GetBranch("jet_algoPF2_ntk"); 
    b_jet_algoPF2_tkind = fChain->GetBranch("jet_algoPF2_tkind"); 
-   b_jet_algoPF2_ncalotw = fChain->GetBranch("jet_algoPF2_ncalotw"); 
    b_jet_algoPF2_calotwind = fChain->GetBranch("jet_algoPF2_calotwind"); 
    b_jet_algoPF3_n = fChain->GetBranch("jet_algoPF3_n"); 
    b_jet_algoPF3_p4 = fChain->GetBranch("jet_algoPF3_p4"); 
@@ -232,7 +227,6 @@
    b_jet_algoPF3_hadfrac = fChain->GetBranch("jet_algoPF3_hadfrac"); 
    b_jet_algoPF3_ntk = fChain->GetBranch("jet_algoPF3_ntk"); 
    b_jet_algoPF3_tkind = fChain->GetBranch("jet_algoPF3_tkind"); 
-   b_jet_algoPF3_ncalotw = fChain->GetBranch("jet_algoPF3_ncalotw"); 
    b_jet_algoPF3_calotwind = fChain->GetBranch("jet_algoPF3_calotwind"); 
    b_l1emiso_n = fChain->GetBranch("l1emiso_n"); 
    b_l1emiso_eta = fChain->GetBranch("l1emiso_eta"); 
@@ -317,6 +311,9 @@
    b_mu_glo_type = fChain->GetBranch("mu_glo_type"); 
    b_mu_glo_iso = fChain->GetBranch("mu_glo_iso"); 
    b_pho_n = fChain->GetBranch("pho_n"); 
+   b_pho_feta = fChain->GetBranch("pho_feta"); 
+   b_pho_crackcorr = fChain->GetBranch("pho_crackcorr"); 
+   b_pho_localcorr = fChain->GetBranch("pho_localcorr"); 
    b_pho_isEB = fChain->GetBranch("pho_isEB"); 
    b_pho_isEE = fChain->GetBranch("pho_isEE"); 
    b_pho_isEBGap = fChain->GetBranch("pho_isEBGap"); 
@@ -384,6 +381,25 @@
    b_pho_conv_ch1ch2 = fChain->GetBranch("pho_conv_ch1ch2"); 
    b_pho_conv_validvtx = fChain->GetBranch("pho_conv_validvtx"); 
    b_pho_conv_MVALikelihood = fChain->GetBranch("pho_conv_MVALikelihood"); 
+   b_pho_sipip = fChain->GetBranch("pho_sipip"); 
+   b_pho_sieip = fChain->GetBranch("pho_sieip"); 
+   b_pho_zernike20 = fChain->GetBranch("pho_zernike20"); 
+   b_pho_zernike42 = fChain->GetBranch("pho_zernike42"); 
+   b_pho_e2nd = fChain->GetBranch("pho_e2nd"); 
+   b_pho_e2x5right = fChain->GetBranch("pho_e2x5right"); 
+   b_pho_e2x5left = fChain->GetBranch("pho_e2x5left"); 
+   b_pho_e2x5Top = fChain->GetBranch("pho_e2x5Top"); 
+   b_pho_e2x5bottom = fChain->GetBranch("pho_e2x5bottom"); 
+   b_pho_eright = fChain->GetBranch("pho_eright"); 
+   b_pho_eleft = fChain->GetBranch("pho_eleft"); 
+   b_pho_etop = fChain->GetBranch("pho_etop"); 
+   b_pho_ebottom = fChain->GetBranch("pho_ebottom"); 
+   b_pho_e2overe9 = fChain->GetBranch("pho_e2overe9"); 
+   b_pho_seed_severity = fChain->GetBranch("pho_seed_severity"); 
+   b_pho_seed_time = fChain->GetBranch("pho_seed_time"); 
+   b_pho_seed_outoftimechi2 = fChain->GetBranch("pho_seed_outoftimechi2"); 
+   b_pho_seed_chi2 = fChain->GetBranch("pho_seed_chi2"); 
+   b_pho_seed_recoflag = fChain->GetBranch("pho_seed_recoflag"); 
    b_pho_conv_vtx = fChain->GetBranch("pho_conv_vtx"); 
    b_pho_conv_pair_momentum = fChain->GetBranch("pho_conv_pair_momentum"); 
    b_pho_conv_refitted_momentum = fChain->GetBranch("pho_conv_refitted_momentum"); 
