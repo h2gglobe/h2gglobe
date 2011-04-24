@@ -1,3 +1,4 @@
+// ---------------------------------------------------------------------------------------------------------------------------------------------
 void LoopAll::GlobeCtIsol(int mode, TLorentzVector* p4, float ptCut, float drCutMin, float drCutMax, Int_t & nIsol, Float_t & ptIsol, Float_t & angle1, Float_t & angle2, Float_t & angle3) {
   nIsol=0;
   ptIsol=0.;
@@ -31,6 +32,7 @@ void LoopAll::GlobeCtIsol(int mode, TLorentzVector* p4, float ptCut, float drCut
 }
 
 
+// ---------------------------------------------------------------------------------------------------------------------------------------------
 int LoopAll::GlobeMatchIsl(TLorentzVector* p4, Float_t & deltaR) {
   deltaR=10.;
   int imatch=-1;
@@ -52,6 +54,7 @@ int LoopAll::GlobeMatchIsl(TLorentzVector* p4, Float_t & deltaR) {
   return imatch;
 }
 
+// ---------------------------------------------------------------------------------------------------------------------------------------------
 #include "eIDCuts.h"
 std::pair<bool, bool> LoopAll::ElectronId(int index, eIDLevel type) { 
 
@@ -158,6 +161,7 @@ std::pair<bool, bool> LoopAll::ElectronId(int index, eIDLevel type) {
   return isoIDResult;
 }
 
+// ---------------------------------------------------------------------------------------------------------------------------------------------
 int LoopAll::ElectronClassification(int index) {
   TLorentzVector* p4 = (TLorentzVector*) el_std_sc->At(index);
 
@@ -183,6 +187,7 @@ int LoopAll::ElectronClassification(int index) {
   return cat;
 }
 
+// ---------------------------------------------------------------------------------------------------------------------------------------------
 Float_t LoopAll::sipCalculator(int index) {
 
   Float_t ip = 0;
@@ -207,6 +212,7 @@ Float_t LoopAll::sipCalculator(int index) {
   return ip;
 }
 
+// ---------------------------------------------------------------------------------------------------------------------------------------------
 void LoopAll::eIDInfo(Int_t index, Int_t& iso_result, Int_t& id_result, Int_t eIDMaxLevel) {
 
   iso_result = 0;
@@ -236,24 +242,29 @@ public:
 	virtual int nvtx() const    { return lo_.vtx_std_n; };
 	virtual int ntracks() const { return lo_.tk_n; };
 	
+	virtual bool hasVtxTracks() const { return true; }
+	virtual const unsigned short * vtxTracks(int ii) const { return &(*lo_.vtx_std_tkind)[ii][0]; };
+	virtual int vtxNTracks(int ii) const { return lo_.vtx_std_ntks[ii]; };
+	virtual const float * vtxTkWeights(int ii) const { return &(*lo_.vtx_std_tkweight)[ii][0]; };
+
 	virtual float tkpx(int ii) const { return ((TVector3*)lo_.tk_p4->At(ii))->Px(); };
 	virtual float tkpy(int ii) const { return ((TVector3*)lo_.tk_p4->At(ii))->Py(); };
 	virtual float tkpz(int ii) const { return ((TVector3*)lo_.tk_p4->At(ii))->Pz(); };
 	
 	virtual float tkPtErr(int ii) const { return lo_.tk_pterr[ii]; };
-	virtual int   tkVtxId(int ii) const { return -1; }; // FIXME
+	virtual int   tkVtxId(int ii) const { return -1; };
 
-	virtual float tkWeight(int ii) const { return -1.;}  // FIXME
+	virtual float tkWeight(int ii, int jj) const { return (*lo_.vtx_std_tkweight)[jj][ii]; };
 	
 	virtual float vtxx(int ii) const { return ((TVector3*)lo_.vtx_std_xyz->At(ii))->X(); };
 	virtual float vtxy(int ii) const { return ((TVector3*)lo_.vtx_std_xyz->At(ii))->Y(); };
 	virtual float vtxz(int ii) const { return ((TVector3*)lo_.vtx_std_xyz->At(ii))->Z(); };
 
-	virtual float tkd0(int ii) const { return 0.; } // FIXME
-	virtual float tkd0Err(int ii) const { return 0.; };  // FIXME
+	virtual float tkd0(int ii, int jj) const { return 0.; } // FIXME
+	virtual float tkd0Err(int ii, int jj) const { return 0.; };  // FIXME
 
-	virtual float tkdz(int ii) const { return 0.; };  // FIXME
-	virtual float tkdzErr(int ii) const { return 0.; };  // FIXME
+	virtual float tkdz(int ii, int jj) const { return 0.; };  // FIXME
+	virtual float tkdzErr(int ii, int jj) const { return 0.; };  // FIXME
 
 	virtual bool tkIsHighPurity(int ii) const { return ( lo_.tk_quality[ii] & (1<<2) ) >> 2; };
 
