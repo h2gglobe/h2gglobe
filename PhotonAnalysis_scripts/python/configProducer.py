@@ -288,6 +288,7 @@ class configProducer:
 
         elif "Fil=" in line or "Dir=" in line:
          directory = ''
+         cas_directory = ''
          fi_name   = ''
          fi_type   = ''
         # We have one of the file def lines
@@ -298,6 +299,8 @@ class configProducer:
            fi_name = str(val[1])
           elif val[0]== "Dir":
            directory=str(val[1])
+          elif val[0]== "CaDir":
+           cas_directory=str(val[1])
 	  elif val[0] == "typ":
 	   fi_type = int(val[1])
           else: sys.exit("Unrecognised Argument:\n ' %s ' in line:\n ' %s '"
@@ -309,6 +312,11 @@ class configProducer:
 	   tuple_n = fi_name, fi_type
 	   self.conf_.files.append(tuple_n)
 	
+         if cas_directory != '':
+           ca_files = makeCaFiles(cas_directory)
+           for file_s in ca_files:
+             self.conf_.files.append((str(directory+'/'+file_s),fi_type))
+
          if os.path.isdir(directory): 
            di_files = os.listdir(directory)
  	   di_files = filter(lambda x: ".root" in x, di_files)
@@ -354,6 +362,7 @@ class configProducer:
         
         elif "Fil=" in line or "Dir=" in line:
          directory = ''
+         cas_directory = ''
          fi_name   = ''
          fi_type   = ''
         # We have one of the file def lines
@@ -364,6 +373,8 @@ class configProducer:
            fi_name = str(val[1])
           elif val[0]== "Dir":
            directory=str(val[1])
+          elif val[0]== "CaDir":
+           cas_directory=str(val[1])
 	  elif val[0] == "typ":
 	   fi_type = int(val[1])
            map_c["typ"] = int(val[1])
@@ -394,6 +405,12 @@ class configProducer:
 	   tuple_n = fi_name, fi_type
 	   self.conf_.files.append(tuple_n)
 	   self.conf_.confs.append(map_c.copy())
+
+         if cas_directory != '':
+           ca_files = makeCaFiles(cas_directory)
+           for file_s in ca_files:
+             self.conf_.files.append((str(directory+'/'+file_s),fi_type))
+             self.conf_.confs.append(map_c.copy())
 	
          if os.path.isdir(directory): 
            di_files = os.listdir(directory)
