@@ -117,7 +117,7 @@ void Util::SetTypeRun(int t, const char* name) {
     outputTreePar->Branch("type", &outputParType, "type/I");
     outputTreePar->Branch("version", &outputParVersion, "version/I");
     outputTreePar->Branch("parameters", "std::vector<string>", &outputParParameters);
-    outputTreePar->Branch("job_maker", &outputParJobMaker, "job_maker/C");
+    outputTreePar->Branch("jobmaker", &outputParJobMaker, "jobmaker/C");
     //outputTreePar->Branch("job_maker", "std::string", &outputParJobMaker);
     outputTreePar->Branch("reductions", &outputParReductions, "reductions/I");
     outputTreePar->Branch("red_events", &outputParRed_Events, "red_events[reductions]/I");
@@ -190,15 +190,15 @@ void Util::DefineSamples(
       loops->sampleContainer[sample_is_defined].computeWeight(intlumi);
     } else {
       loops->sampleContainer.push_back(SampleContainer());
-      loops->sampleContainer.front().ntot = ntot;
-      loops->sampleContainer.front().nred = nred;
-      loops->sampleContainer.front().histoplotit = histoplotit;
-      loops->sampleContainer.front().filesshortnam = filesshortnam;
-      loops->sampleContainer.front().lumi = lumi;
-      loops->sampleContainer.front().xsec = xsec;
-      loops->sampleContainer.front().kfactor = kfactor;
-      loops->sampleContainer.front().scale = scale;
-      loops->sampleContainer.front().computeWeight(intlumi);
+      loops->sampleContainer.back().ntot = ntot;
+      loops->sampleContainer.back().nred = nred;
+      loops->sampleContainer.back().histoplotit = histoplotit;
+      loops->sampleContainer.back().filesshortnam = filesshortnam;
+      loops->sampleContainer.back().lumi = lumi;
+      loops->sampleContainer.back().xsec = xsec;
+      loops->sampleContainer.back().kfactor = kfactor;
+      loops->sampleContainer.back().scale = scale;
+      loops->sampleContainer.back().computeWeight(intlumi);
     }
   
 }
@@ -291,6 +291,13 @@ void Util::LoopAndFillHistos(TString treename) {
   loops->TermReal(typerun);
 }
 
+void Util::Term(){
+ 
+   outputFile->Close();
+   delete loops;
+
+
+}
 void Util::WriteHist() {
   loops->myWritePlot();
 }
