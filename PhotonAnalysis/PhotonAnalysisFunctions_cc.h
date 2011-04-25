@@ -2,9 +2,9 @@
 
 void LoopAll::TermRealPhotonAnalysis(int typerun) 
 {
-   if (typerun==3){	
+//   if (typerun==3){	
 //      rooContainer->FitToData("exp","mass");
-   }
+//   }
 
 }
 
@@ -41,6 +41,8 @@ void LoopAll::InitRealPhotonAnalysis(int typerun) {
 
 void LoopAll::myGetEntryPhotonRedAnalysis(Util *ut, int jentry){
 
+  b_lumis->GetEntry(jentry);
+  b_run->GetEntry(jentry);
   b_pho_n->GetEntry(jentry); 
   b_pho_p4->GetEntry(jentry); 
   b_pho_r9->GetEntry(jentry); 
@@ -171,9 +173,9 @@ void LoopAll::myFillHistPhotonAnalysisRed(Util * ut, int jentry) {
 			              ,fabs(nleading.calopos->Eta()));
 	 
       if (min_r9 < 0.93 && max_eta < 1.4442 ) category = 1;
-	    if (min_r9 > 0.93 && max_eta < 1.4442 ) category = 2;
-	    if (min_r9 < 0.93 && max_eta > 1.566 && max_eta < 2.5) category = 3;
-	    if (min_r9 > 0.93 && max_eta > 1.566 && max_eta < 2.5) category = 4;
+      if (min_r9 > 0.93 && max_eta < 1.4442 ) category = 2;
+      if (min_r9 < 0.93 && max_eta > 1.566 && max_eta < 2.5) category = 3;
+      if (min_r9 > 0.93 && max_eta > 1.566 && max_eta < 2.5) category = 4;
 
       // -------------------------------------------------------
       TLorentzVector Higgs = (*(preselected_photons[0].p4))
@@ -206,30 +208,23 @@ void LoopAll::myFillHistPhotonAnalysisRed(Util * ut, int jentry) {
            	       && (nleading.ecalIso < (2.0 + 0.006*nleading.p4->Pt()))
            	       && (nleading.hcalIso < (2.0 + 0.0025*nleading.p4->Pt()));
 
-	      if (!in_iso_gap[0]){
-             // FillHist2D("h_sideband_leading",
-                //                         pass_isolation[0],pass_selection[0]);
               
-	        if (pass_selection[0] && pass_isolation[0] && !in_iso_gap[1]){
-              // FillHist2D("h_sideband_nleading",
-                  //                      pass_isolation[1],pass_selection[1]);
+	        if (pass_selection[0] && pass_isolation[0] ){
 
-            if (pass_selection[1] && pass_isolation[1]){
-              cout << "mass is " << mass << " and higgs pt is " << h_pt << endl;
+	            if (pass_selection[1] && pass_isolation[1]){
+        	      cout << "mass is " << mass << " and higgs pt is " << h_pt << endl;
 		          FillHist("pho_pt",category,leading.p4->Pt());
 		          FillHist("pho_pt",category,nleading.p4->Pt());
-              best_mass = mass;
+              		  best_mass = mass;
  		          best_pt   = h_pt;
-              cout << "best mass is " << best_mass << " and best higgs pt is " << best_pt << endl;
             }
-          }
 	      }
       }
     }
   }
 
-  
-  FillHist("mass",0, best_mass);
+  if (best_mass > 100)
+    FillHist("mass",0, best_mass);
   FillHist("pt",0, best_pt);
   if (category > -1){
     FillHist("mass",category, best_mass);
@@ -378,6 +373,8 @@ void LoopAll::myReducePhotonAnalysis(Util * ut, int jentry) {
 
 
 void LoopAll::myGetBranchPhotonAnalysis() {
+  b_lumis = fChain->GetBranch("lumis");
+  b_run = fChain->GetBranch("run");
   b_pho_n = fChain->GetBranch("pho_n");
   b_pho_p4 = fChain->GetBranch("pho_p4");
   b_pho_r9 = fChain->GetBranch("pho_r9");
@@ -402,7 +399,10 @@ void LoopAll::myGetBranchPhotonAnalysis() {
 
 
 void LoopAll::mySetBranchAddressRedPhotonAnalysis() {
+
   
+  fChain->SetBranchAddress("lumis", &lumis, &b_lumis);
+  fChain->SetBranchAddress("run", &run, &b_run);
   fChain->SetBranchAddress("pho_n", &pho_n, &b_pho_n);
   fChain->SetBranchAddress("pho_p4", &pho_p4, &b_pho_p4);
   fChain->SetBranchAddress("pho_r9", &pho_r9, &b_pho_r9);

@@ -19,5 +19,8 @@ void LoopAll::PhotonAnalysisReducedOutputTree() {
   utilInstance->outputTree->Branch("pho_r2x5", &pho_r2x5, "pho_r2x5[pho_n]/F");
   utilInstance->outputTree->Branch("pho_scind", &pho_scind, "pho_scind[pho_n]/I");
 
+  utilInstance->outputTree->Branch("lumis",&lumis,"lumis/I");
+  utilInstance->outputTree->Branch("run",&run,"run/I");
+
 }
 
