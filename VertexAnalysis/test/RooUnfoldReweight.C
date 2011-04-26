@@ -12,8 +12,8 @@ using std::endl;
 
 #include "RooUnfoldResponse.h"
 #include "RooUnfoldBayes.h"
-#include "RooUnfoldSvd.h"
-#include "RooUnfoldBinByBin.h"
+//#include "RooUnfoldSvd.h"
+//#include "RooUnfoldBinByBin.h"
 #endif
 
 //==============================================================================
@@ -132,8 +132,6 @@ void RooUnfoldReweight()
   leg1->AddEntry(hUnfolded,"Unfolded","ep");
   leg1->Draw();
 
-//  MCresponse.ApplyToTruth(hMCTrue, "Applied")->Draw("same");
-
   c->cd(4);
   TH1* hWeights = (TH1*) hUnfolded->Clone("Weights");
   hWeights->SetTitle("Weights;;weight");
@@ -142,15 +140,32 @@ void RooUnfoldReweight()
 
   c->cd(5);
   TH1D* hSampled= new TH1D ("Sampled", "Sampled; reco",    30, 1, 30);
-  for (Int_t i=0; i<1000; i++) {
-	  Double_t gen= hMCGen->GetRandom();
-	  Double_t w= gRandom->Gaus(
-			  hWeights->GetBinContent(hWeights->FindBin(gen)),
-			  hWeights->GetBinError(hWeights->FindBin(gen))
-			  );
-	  Double_t reco=smear(gen);
-	  hSampled->Fill(reco, w);
+  TH2D* hPull= new TH2D ("Pulls", "Pulls; pull; ",    30, 1, 30, 100, -5, 5);
+
+  for(Int_t toy=0; toy<1000; ++toy){
+	  hSampled->Reset("ICE");
+	  hSampled->SetEntries(0);
+
+	  for (Int_t i=0; i<1000*10; ++i) {
+		  Double_t gen= hMCGen->GetRandom();
+		  Double_t w= gRandom->Gaus(
+				  hWeights->GetBinContent(hWeights->FindBin(gen)),
+				  hWeights->GetBinError(hWeights->FindBin(gen))
+				  );
+		  Double_t reco=smear(gen);
+		  hSampled->Fill(reco, w/10.);
+	  }
+
+	  for(Int_t bin=1; bin<=hSampled->GetNbinsX(); ++bin){
+		  Double_t data= hSampled->GetBinContent(bin);
+		  Double_t err= hSampled->GetBinError(bin);
+		  Double_t ref= hReco->GetBinContent(bin);
+		  if(err==0) continue;
+
+		  hPull->Fill(hSampled->GetBinCenter(bin), (data-ref)/err);
+	  }
   }
+
   hSampled->Draw("e");
   hReco->Draw("same");
 
@@ -160,13 +175,43 @@ void RooUnfoldReweight()
   leg5->AddEntry(hSampled,"Sampled","ep");
   leg5->Draw();
 
+  TH1D* hMean= new TH1D ("Mean", "Mean;;mean", 30, 1, 30);
+  TH1D* hSigma= new TH1D ("Sigma", "Sigma;;sigma", 30, 1, 30);
+  TF1 *norm= new TF1("normal","gaus",-5,5);
+
+  for(Int_t bin=0; bin<=hPull->GetNbinsX()+1; ++bin){
+	  TH1D *hSlice = hPull->ProjectionY("PullSlice",bin,bin,"e");
+	  norm->SetParameter(0, hSlice->Integral());
+	  norm->SetParameter(1, 0.);
+	  norm->SetParameter(2, 1.);
+
+	  hSlice->Fit(norm, "MINEQ");
+
+	  hMean->SetBinContent(hPull->GetBinCenter(bin), norm->GetParameter(1) );
+	  hMean->SetBinError(hPull->GetBinCenter(bin), norm->GetParError(1) );
+
+	  hSigma->SetBinContent(hPull->GetBinCenter(bin), norm->GetParameter(2) );
+	  hSigma->SetBinError(hPull->GetBinCenter(bin), norm->GetParError(2) );
+  }
+
 
   c->cd(6);
-  TH1* hRatio = (TH1*) hSampled->Clone("Ratio");
-  hRatio->SetTitle("Ratio;;sampled/reco");
-  hRatio->Divide(hReco);
-  hRatio->Fit("pol0");
-  hRatio->Draw("e");
+//  TH1* hRatio = (TH1*) hSampled->Clone("Ratio");
+//  hRatio->SetTitle("Ratio;;sampled/reco");
+//  hRatio->Divide(hReco);
+//  hRatio->Fit("pol0");
+//  hRatio->Draw("e");
+
+  hMean->SetMarkerColor(8);
+  hMean->Draw();
+  hMean->SetMarkerStyle(24);
+  hSigma->Draw("same");
+
+  leg6 = new TLegend(0.7,0.7,0.95,0.95);
+  leg6->SetHeader("Pulls gaus fit");
+  leg6->AddEntry(hMean,"Mean","ep");
+  leg6->AddEntry(hSigma,"Sigma","ep");
+  leg6->Draw();
 
 
 }
