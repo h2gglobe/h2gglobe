@@ -44,6 +44,7 @@ class Util {
 		    ,char *);  
   void CallInitCounters();
   void CallAddCounter(int,char*,char*,char*,char*);
+  void Term(); 
 
   std::vector<std::string> files;
   std::vector<int> itype;
