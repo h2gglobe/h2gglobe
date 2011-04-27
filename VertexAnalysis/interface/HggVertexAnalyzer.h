@@ -24,6 +24,9 @@ struct VertexAlgoParameters {
 	float trackCountThr;
 	bool highPurityOnly;
 	float maxD0Signif, maxDzSignif;
+        bool removeTracksInCone;
+        float coneSize;
+
 	/// float maxD0, maxDz;
 	/// float minPt;
 };
