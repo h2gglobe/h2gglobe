@@ -1,5 +1,6 @@
 #include "../interface/HggVertexAnalyzer.h"
 #include "../interface/PhotonInfo.h"
+#include "../interface/VertexAlgoParameters.h"
 
 #include "stdio.h"
 #include "math.h"
@@ -13,6 +14,8 @@
 #include "TMatrixDSym.h"
 #include "TMatrixDSymEigen.h"
 #include "TVectorD.h"
+#include "TTree.h"
+#include "TBranch.h"
 
 #include "TMVA/Reader.h"
 
@@ -68,7 +71,7 @@ void HggVertexAnalyzer::fillDictionary(HggVertexAnalyzer::dict_t& dictionary)
 }
 
 // -------------------------------------------------------------------------------------------------------------------------------------------------------------
-HggVertexAnalyzer::HggVertexAnalyzer(AlgoParameters ap, int nvtx) :
+HggVertexAnalyzer::HggVertexAnalyzer(AlgoParameters & ap, int nvtx) :
 	params_(ap),
 	nvtx_(nvtx),
 	
@@ -112,7 +115,105 @@ HggVertexAnalyzer::HggVertexAnalyzer(AlgoParameters ap, int nvtx) :
 	
 	awytwdasym_(nvtx)
 {
+}
+
+// -------------------------------------------------------------------------------------------------------------------------------------------------------------
+void HggVertexAnalyzer::branches(TTree * tree, const std::string & pfx)
+{
+	tree->Branch((pfx+"diPhoton").c_str(), "std::vector<TLorentzVector>", &diPhoton_ );
+	tree->Branch((pfx+"nch").c_str(), "std::vector<float>", &nch_ )  ;
+	tree->Branch((pfx+"ptmax").c_str(), "std::vector<float>", &ptmax_ );
+	tree->Branch((pfx+"sumpt").c_str(), "std::vector<float>", &sumpt_ );
+	tree->Branch((pfx+"vtxPt").c_str(), "std::vector<TVector2>", &vtxPt_ );
+	tree->Branch((pfx+"acosA").c_str(), "std::vector<float>", &acosA_ );
+	tree->Branch((pfx+"ptasym").c_str(), "std::vector<float>", &ptasym_ );
+	tree->Branch((pfx+"ptbal").c_str(), "std::vector<float>", &ptbal_ );
 	
+	tree->Branch((pfx+"nchthr").c_str(), "std::vector<float>", &nchthr_ );
+	tree->Branch((pfx+"ptmax3").c_str(), "std::vector<float>", &ptmax3_ );
+	tree->Branch((pfx+"thrust").c_str(), "std::vector<float>", &thrust_ );
+	
+	tree->Branch((pfx+"sumweight").c_str(), "std::vector<float>", &sumweight_ );
+	tree->Branch((pfx+"sumpt2").c_str(), "std::vector<float>", &sumpt2_ );
+	tree->Branch((pfx+"ptratio").c_str(), "std::vector<float>", &ptratio_ );
+	tree->Branch((pfx+"pzasym").c_str(), "std::vector<float>", &pzasym_ );
+	
+	tree->Branch((pfx+"spher").c_str(), "std::vector<float>", &spher_ );
+	tree->Branch((pfx+"aplan").c_str(), "std::vector<float>", &aplan_ );
+	tree->Branch((pfx+"sumpr").c_str(), "std::vector<float>", &sumpr_ );
+	
+	tree->Branch((pfx+"sumawy").c_str(), "std::vector<float>", &sumawy_ );
+	tree->Branch((pfx+"sumtrv").c_str(), "std::vector<float>", &sumtrv_ );
+	tree->Branch((pfx+"sumtwd").c_str(), "std::vector<float>", &sumtwd_ );
+	tree->Branch((pfx+"awytwdasym").c_str(), "std::vector<float>", &awytwdasym_ );
+
+}
+
+// -------------------------------------------------------------------------------------------------------------------------------------------------------------
+void HggVertexAnalyzer::setBranchAdresses(TTree * tree, const std::string & pfx)
+{
+	tree->SetBranchAddress((pfx+"diPhoton").c_str(), &diPhoton_ );
+	tree->SetBranchAddress((pfx+"nch").c_str(), &nch_ )  ;
+	tree->SetBranchAddress((pfx+"ptmax").c_str(), &ptmax_ );
+	tree->SetBranchAddress((pfx+"sumpt").c_str(), &sumpt_ );
+	tree->SetBranchAddress((pfx+"vtxPt").c_str(), &vtxPt_ );
+	tree->SetBranchAddress((pfx+"acosA").c_str(), &acosA_ );
+	tree->SetBranchAddress((pfx+"ptasym").c_str(), &ptasym_ );
+	tree->SetBranchAddress((pfx+"ptbal").c_str(), &ptbal_ );
+	
+	tree->SetBranchAddress((pfx+"nchthr").c_str(), &nchthr_ );
+	tree->SetBranchAddress((pfx+"ptmax3").c_str(), &ptmax3_ );
+	tree->SetBranchAddress((pfx+"thrust").c_str(), &thrust_ );
+	
+	tree->SetBranchAddress((pfx+"sumweight").c_str(), &sumweight_ );
+	tree->SetBranchAddress((pfx+"sumpt2").c_str(), &sumpt2_ );
+	tree->SetBranchAddress((pfx+"ptratio").c_str(), &ptratio_ );
+	tree->SetBranchAddress((pfx+"pzasym").c_str(), &pzasym_ );
+	
+	tree->SetBranchAddress((pfx+"spher").c_str(), &spher_ );
+	tree->SetBranchAddress((pfx+"aplan").c_str(), &aplan_ );
+	tree->SetBranchAddress((pfx+"sumpr").c_str(), &sumpr_ );
+	
+	tree->SetBranchAddress((pfx+"sumawy").c_str(), &sumawy_ );
+	tree->SetBranchAddress((pfx+"sumtrv").c_str(), &sumtrv_ );
+	tree->SetBranchAddress((pfx+"sumtwd").c_str(), &sumtwd_ );
+	tree->SetBranchAddress((pfx+"awytwdasym").c_str(), &awytwdasym_ );
+
+}
+
+// -------------------------------------------------------------------------------------------------------------------------------------------------------------
+std::set<TBranch *> HggVertexAnalyzer::getBranches(TTree * tree, const std::string & pfx)
+{
+	std::set<TBranch *> ret;
+	
+	ret.insert(tree->GetBranch((pfx+"diPhoton").c_str()));
+	ret.insert(tree->GetBranch((pfx+"nch").c_str()));
+	ret.insert(tree->GetBranch((pfx+"ptmax").c_str()));
+	ret.insert(tree->GetBranch((pfx+"sumpt").c_str()));
+	ret.insert(tree->GetBranch((pfx+"vtxPt").c_str()));
+	ret.insert(tree->GetBranch((pfx+"acosA").c_str()));
+	ret.insert(tree->GetBranch((pfx+"ptasym").c_str()));
+	ret.insert(tree->GetBranch((pfx+"ptbal").c_str()));
+	
+	ret.insert(tree->GetBranch((pfx+"nchthr").c_str()));
+	ret.insert(tree->GetBranch((pfx+"ptmax3").c_str()));
+	ret.insert(tree->GetBranch((pfx+"thrust").c_str()));
+	
+	ret.insert(tree->GetBranch((pfx+"sumweight").c_str()));
+	ret.insert(tree->GetBranch((pfx+"sumpt2").c_str()));
+	ret.insert(tree->GetBranch((pfx+"ptratio").c_str()));
+	ret.insert(tree->GetBranch((pfx+"pzasym").c_str()));
+	
+	ret.insert(tree->GetBranch((pfx+"spher").c_str()));
+	ret.insert(tree->GetBranch((pfx+"aplan").c_str()));
+	ret.insert(tree->GetBranch((pfx+"sumpr").c_str()));
+	
+	ret.insert(tree->GetBranch((pfx+"sumawy").c_str()));
+	ret.insert(tree->GetBranch((pfx+"sumtrv").c_str()));
+	ret.insert(tree->GetBranch((pfx+"sumtwd").c_str()));
+	ret.insert(tree->GetBranch((pfx+"awytwdasym").c_str()));
+
+	return ret;
 }
 
 // -------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -292,31 +393,6 @@ std::vector<int> HggVertexAnalyzer::rankreciprocal(const vector<string> & vars)
 }
 
 // -------------------------------------------------------------------------------------------------------------------------------------------------------------
-std::vector<int> HggVertexAnalyzer::rankBorda(const vector<string> & vars)
-{
-	std::vector<int> vtxs = preselection_;
-
-	for(int ii=0; ii<nvtx_; ++ii) {
-		mva_[ii] = 0.;
-	}
-	// fill the rank sum
-	std::vector<int> vrank(nvtx_);
-	std::vector<pair<HggVertexAnalyzer::getter_t, bool> > meths(1,make_pair(&HggVertexAnalyzer::mva,false));
-	for( vector<string>::const_iterator ivar=vars.begin(); ivar!=vars.end(); ++ivar) {
-		meths.push_back(dictionary()[*ivar]);
-		vrank = rank( *ivar );
-		for(size_t ii=0; ii<vtxs.size(); ++ii) {
-			int ivert = vtxs[ii];
-			mva_[ivert] += (double)(vtxs.size() - (find( vrank.begin(), vrank.end(), ivert) - vrank.begin()));
-		}
-	}
-	RankHelper helper(*this,meths);
-	sort(vtxs.begin(),vtxs.end(),helper);
-
-	return vtxs;
-}
-
-// -------------------------------------------------------------------------------------------------------------------------------------------------------------
 vector<int> HggVertexAnalyzer::rankPairwise(const vector<string> & vars)
 {
 	vector<int> vtxs = preselection_;
@@ -430,61 +506,6 @@ void HggVertexAnalyzer::analyze(const VertexInfoAdapter & e, const PhotonInfo & 
 			++ntks;
 		}
 	}
-
-	///////// //calculating loop over tracks
-	///////// for(int i=0; i<e.ntracks(); ++i) {
-	///////// 	
-	///////// 	int vid = e.tkVtxId(i);
-	///////// 	
-	///////// 	if( ( params_.highPurityOnly && !e.tkIsHighPurity(i)  )
-	///////// 	    || fabs(e.tkd0(i,vid)/e.tkd0Err(i,vid)) > params_.maxD0Signif 
-	///////// 	    || fabs(e.tkd0(i,vid)/e.tkdzErr(i,vid)) > params_.maxDzSignif ) { 
-	///////// 		continue; 
-	///////// 	}
-	///////// 	
-	///////// 	const TVector3 tkPVec(e.tkpx(i),e.tkpy(i),e.tkpz(i));
-	///////// 	assert(vid >= 0 && vid < nvtx);
-	///////// 
-	///////// 	TVector2 tkPtVec = tkPVec.XYvector();
-	///////// 	double tkPt = tkPtVec.Mod();
-	///////// 	/// cout << "tkPt "<< tkPt << " tkPtErr " << i << " " << e.tkPtErr(i) << endl;
-	///////// 	const double modpt = tkPt > e.tkPtErr(i) ? tkPt - e.tkPtErr(i)  : 0.;
-	///////// 	if( modpt == 0. ) { continue; }
-	///////// 	
-	///////// 	// correct track pt a la POG
-	///////// 	if( params_.rescaleTkPtByError ) {
-	///////// 		const double ptcorr = modpt/tkPt;
-	///////// 		tkPtVec *= ptcorr;
-	///////// 		tkPt = modpt;
-	///////// 	}
-	///////// 	
-	///////// 	if(tkPt > params_.trackCountThr) nchthr_[vid] += 1;
-	///////// 	nch_[vid] += 1;
-	///////// 	ptbal_[vid] -= tkPtVec * diPhoton_[vid].Vect().XYvector().Unit();
-	///////// 	sumpt_[vid] += tkPt;
-	///////// 	sumpt2_[vid] += tkPtVec.Mod2();
-	///////// 	double cosTk = tkPVec.Unit() * diPhoton_[vid].Vect().Unit();
-	///////// 	double val = tkPtVec.Mod();
-	///////// 	if ( cosTk < -0.5 )	{
-	///////// 		sumawy_[vid] += val;
-	///////// 	} else if ( cosTk > 0.5 ){
-	///////// 		sumtwd_[vid] += val;
-	///////// 	} else {
-	///////// 		sumtrv_[vid] += val;
-	///////// 	}
-	///////// 	sumweight_[vid] += e.tkWeight(i,vid);
-	///////// 	vtxP_[vid] += tkPVec;
-	///////// 	tksPt_[vid].push_back(tkPt);
-	///////// 
-	///////// 	Double_t p[3] = {0.,0.,0.};
-	///////// 	tkPVec.GetXYZ(p);
-	///////// 	for(int j=3; j--;){
-	///////// 		for(int k=j+1; k--;){
-	///////// 			(sphers_[vid])[j][k] += pow(tkPVec.Mag(),spherPwr_-2.) * p[j]*p[k];
-	///////// 		}
-	///////// 	}
-	///////// 	sumpr_[vid] += pow(tkPVec.Mag(),spherPwr_);
-	///////// }
 	
 	preselection_.clear();
 	// filling loop over vertexes

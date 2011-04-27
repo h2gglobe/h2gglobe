@@ -1,5 +1,6 @@
 #include "../interface/HggVertexFromConversions.h"
 #include "../interface/PhotonInfo.h"
+#include "../interface/VertexAlgoParameters.h"
 
 #include "stdio.h"
 #include "math.h"
@@ -16,19 +17,15 @@ using namespace std;
 
 
 
-HggVertexFromConversions::HggVertexFromConversions(float s1, 
-						   float s2, 
-						   float s3, 
-						   float s4, 
-						   float s5, 
-						   float s6 ):
-  sigmaPix_(s1),
-  sigmaTib_(s2),
-  sigmaTob_(s3),
-  sigmaFwd1_(s4),
-  sigmaFwd2_(s5),
-  sigmaFwd3_(s6)  
-{}
+HggVertexFromConversions::HggVertexFromConversions(VertexAlgoParameters &ap):
+  sigmaPix_ (ap.sigmaPix ),
+  sigmaTib_ (ap.sigmaTib ),
+  sigmaTob_ (ap.sigmaTob ),
+  sigmaFwd1_(ap.sigmaFwd1),
+  sigmaFwd2_(ap.sigmaFwd2),
+  sigmaFwd3_(ap.sigmaFwd3)  
+{
+}
 
 
 double HggVertexFromConversions::vtxdZ(const PhotonInfo & pho)

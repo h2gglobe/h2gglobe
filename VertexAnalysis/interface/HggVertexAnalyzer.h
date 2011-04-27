@@ -1,8 +1,8 @@
 #ifndef hgg_VertexAnalyzer_h
 #define hgg_VertexAnalyzer_h
 
-#include "PhotonInfo.h"
 
+#include <set>
 #include <vector>
 #include <map>
 #include <string>
@@ -13,24 +13,14 @@
 #include "TVector3.h"
 #include "TMatrixDSym.h"
 
-
 namespace TMVA { class Reader; }
 
+class VertexAlgoParameters;
+class PhotonInfo;
+
 class VertexInfoAdapter;
-
-// -------------------------------------------------------------------------------------------------------------------------------------------------------------
-struct VertexAlgoParameters {
-	bool rescaleTkPtByError;
-	float trackCountThr;
-	bool highPurityOnly;
-	float maxD0Signif, maxDzSignif;
-        bool removeTracksInCone;
-        float coneSize;
-
-	/// float maxD0, maxDz;
-	/// float minPt;
-};
-
+class TBranch;
+class TTree;
 
 // -------------------------------------------------------------------------------------------------------------------------------------------------------------
 /**
@@ -115,7 +105,7 @@ class HggVertexAnalyzer
 public:
 	typedef VertexAlgoParameters AlgoParameters;
 
-	HggVertexAnalyzer(AlgoParameters ap, int nvtx=40);
+	HggVertexAnalyzer(AlgoParameters & ap, int nvtx=40);
 
 
 // CINT doesn't like function pointers
@@ -138,7 +128,6 @@ public:
 #endif
 	std::vector<int> rank(TMVA::Reader &reader, const std::string & method);
 	std::vector<int> ranksum(const std::vector<std::string> & vars);
-	std::vector<int> rankBorda(const std::vector<std::string> & vars);
 	std::vector<int> rankprod(const std::vector<std::string> & vars);
 	std::vector<int> rankreciprocal(const std::vector<std::string> & vars);
 	std::vector<int> rankPairwise(const std::vector<std::string> & vars);
@@ -179,7 +168,11 @@ public:
 	double sumtrv(int i) const { return 	sumtrv_[i]; };	
 	double sumtwd(int i) const { return 	sumtwd_[i]; };	
 	double awytwdasym(int i) const { return awytwdasym_[i]; };
-		
+
+	void branches(TTree *, const std::string & );
+	void setBranchAdresses(TTree *, const std::string &);
+	std::set<TBranch *> getBranches(TTree *, const std::string &);
+
 private:
 #ifndef __CINT__	
 	static void fillDictionary(dict_t & dictionary);
@@ -189,7 +182,7 @@ private:
 	static std::vector<float> vars_;
 #endif
 
-	AlgoParameters params_;
+	AlgoParameters & params_;
 	int nvtx_;
 	
 	std::vector<int> preselection_;

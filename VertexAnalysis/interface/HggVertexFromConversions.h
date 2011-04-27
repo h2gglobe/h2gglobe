@@ -11,27 +11,24 @@
 #include "TMatrixDSym.h"
 
 class PhotonInfo;
+class VertexAlgoParameters;
 
 class HggVertexFromConversions
 {
 public:
 
-  HggVertexFromConversions(float s1, 
-			   float s2, 
-			   float s3, 
-			   float s4, 
-			   float s5, 
-			   float s6 );
+  HggVertexFromConversions(VertexAlgoParameters & ap);
   
- private:
   double vtxZ(const PhotonInfo & pho);
   double vtxdZ(const PhotonInfo & pho);
-  float sigmaPix_;
-  float sigmaTib_;
-  float sigmaTob_;
-  float sigmaFwd1_;
-  float sigmaFwd2_;
-  float sigmaFwd3_;
+
+ private:
+  float & sigmaPix_;
+  float & sigmaTib_;
+  float & sigmaTob_;
+  float & sigmaFwd1_;
+  float & sigmaFwd2_;
+  float & sigmaFwd3_;
 
 };
 
