@@ -3,27 +3,12 @@
 
 #include "CommonParameters.h"
 
-#include <TROOT.h>
-#include <TChain.h>
-#include <TFile.h>
-#include "TCanvas.h"
+#include "TROOT.h"
+#include "TChain.h"
+#include "TFile.h"
+#include "TClonesArray.h"
 
-#include <TClonesArray.h>
-#include <TLorentzVector.h>
-#include <TVector3.h>
-
-#include <vector>
-#include <string>
 #include <sstream>
-#include <iostream>
-#include <fstream>
-#include <iomanip>
-#include <math.h>
-
-#include <bitset>
-#include <map>
-
-class Util;
 
 #include "HistoContainer.h"
 #include "CounterContainer.h"
@@ -35,6 +20,9 @@ class Util;
 #include "VertexAnalysis/interface/HggVertexFromConversions.h"
 #include "VertexAnalysis/interface/VertexAlgoParameters.h"
 #include "VertexAnalysis/interface/PhotonInfo.h"
+#include "VertexAnalysis/interface/VertexAlgoParameters.h"
+
+#define DEBUG 0
 
 class LoopAll {
  public :
@@ -50,16 +38,16 @@ class LoopAll {
   std::vector<SampleContainer> sampleContainer;
   std::vector<Cut> cutContainer;
   //RooContainer *rooContainer;
-
+  
   LoopAll(TTree *tree=0);
   virtual ~LoopAll();
-  //virtual Int_t  Cut(Long64_t entry);
+  
   virtual Int_t    GetEntry(Long64_t entry);
   virtual Long64_t LoadTree(Long64_t entry);
   virtual void   Init(Int_t typerunpass, TTree *tree);
   virtual void   InitReal(Int_t typerunpass);
   virtual void   TermReal(Int_t typerunpass);
-  virtual void   Loop(Double_t a);
+  //virtual void   Loop(Double_t a);
   virtual Bool_t Notify();
   virtual void   Show(Long64_t entry = -1);
   virtual void   InitHistos();
@@ -67,18 +55,60 @@ class LoopAll {
 			  ,float,float,float,float
 			  ,char*);
  
-  Util *utilInstance;
+  //Util *utilInstance;
+  void LoopAndFillHistos(TString treename="event");
+  void WriteHist();  
+  void WriteFits();  
+  void WriteCounters();  
+  void SetTypeRun(int, const char* n);
+  //void SetOutputNames(const char* n, const char* n2="");
+  void AddFile(std::string,int);
+  void ReadInput(int t=0);
+  void DefineSamples(const char*,int,int,int,int, long long
+		    ,float,float,float,float,float);
+
+  void Term(); 
+
+  std::vector<std::string> files;
+  std::vector<int> itype;
+  //int lumireal[MAXFILES];
+  int nfiles;
+  float intlumi;
+
+  std::vector<TTree*> Trees;
+  std::vector<TFile*> Files;
+  std::vector<TTree*> TreesPar;
+
+  TTree * outputTree;
+  TTree * outputTreePar;
+
+  TFile * outputFile;
+  TString outputFileName;
+  TString histFileName;
+  Int_t makeOutputTree;
+
+  char inputFilesName[1024];
+  char countersName[1024];
+
   Int_t typerun;
+  Int_t typeread;
+
+  std::map<int,int> type2HistVal;
+
+  Int_t        current; //current file
+  Int_t        tot_events;
+  Int_t        sel_events;
+
+  Int_t        outputParTot_Events, outputParSel_Events, outputParType, outputParVersion, outputParReductions, outputParRed_Events[20];
+  std::vector<std::string>* outputParParameters;
+  std::string* outputParJobMaker;
+
   Int_t currentindexfiles;
   
   Float_t counters[2];
   Float_t countersred[2];
    
   TFile *hfile;
-  TFile * outputFile;
-  TTree * outputTree;
-  TTree * outputTreePar;
-  Int_t makeOutputTree;
   Int_t outputEvents;
 
   VertexAlgoParameters vtxAlgoParams;	 
@@ -87,7 +117,6 @@ class LoopAll {
   HggVertexFromConversions vtxConv;
 
   void Loop(Int_t);
-  void setUtilInstance(Util*);
   void myWritePlot();
   void myWriteFits();
   void myWriteCounters();

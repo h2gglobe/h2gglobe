@@ -1,13 +1,13 @@
 void PhotonAnalysisReducedOutputTree();
-void myFillHistPhotonAnalysis(Util*, int );
-void myFillHistPhotonAnalysisRed(Util * , int );
-void myStatPhotonAnalysis(Util * , int );
-void myReducePhotonAnalysis(Util * , int );
+void myFillHistPhotonAnalysis(int);
+void myFillHistPhotonAnalysisRed(int);
+void myStatPhotonAnalysis(int);
+void myReducePhotonAnalysis(int);
 void myGetBranchPhotonAnalysis();
-void myGetEntryPhotonRedAnalysis(Util *, int );
-int myFillReducedVarPhotonAnalysis(Util * , int );
+void myGetEntryPhotonRedAnalysis(int);
+int myFillReducedVarPhotonAnalysis(int);
 void mySetBranchAddressRedPhotonAnalysis();
-int mySelectEventRedPhotonAnalysis(Util * , int);
+int mySelectEventRedPhotonAnalysis(int);
 
 void InitRealPhotonAnalysis(int);
 void TermRealPhotonAnalysis(int);

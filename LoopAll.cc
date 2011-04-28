@@ -1,36 +1,239 @@
 #define LDEBUG 0 
 
 #include "LoopAll.h"
+#include "Tools.h"
 
-#include "TGraph.h"
 #include <iostream>
 #include <math.h>
-
-#include "Util.h"
-#include "TRandom.h"
-
-#include <TLorentzVector.h>
-#include <TVector3.h>
-
 #include "stdlib.h"
 
 using namespace std;
-
-#include "Tools.h"
-
-
-#include "TH2.h"
-#include "TStyle.h" 
-#include "TCanvas.h"
 
 #include "GeneralFunctions_cc.h"
 
 #include "PhotonAnalysis/PhotonAnalysisReducedOutputTree.h"
 #include "PhotonAnalysis/PhotonAnalysisFunctions_cc.h"
 
+void LoopAll::SetTypeRun(int t, const char* name) {
+  typerun = t;
+  cout << "Type Run =" <<t <<endl; 
+  if (t == 1) {
+    makeOutputTree = 1;
+    outputFileName = TString(name);
+    histFileName  = TString("");
+  } else {
+    makeOutputTree = 0;
+    outputFileName = TString("");
+    histFileName  = TString(name);
+  }
+  
+  if (makeOutputTree) {
+    cout << "CREATE " << outputFileName<<endl;
+    outputFile=new TFile(outputFileName,"recreate");
+    outputFile->cd();
+    if(outputFile) 
+      if (DEBUG)
+	cout<<"output file defined"<<endl;
+  }
+  
+  int hasoutputfile=0;
+  
+  if(typerun == 0 || typerun == 2) {
+    if(DEBUG) cout<<"typerun is " << typerun <<endl;
+    hasoutputfile=0;
+  } else if(typerun == 1) {
+    if(DEBUG) cout<<"typerun is " << typerun <<endl;
+    
+    hasoutputfile=1;
+    outputTree = new TTree("event","Reduced tree"); 
+    outputTreePar = new TTree("global_variables","Parameters");
+    
+    PhotonAnalysisReducedOutputTree();
+
+    outputParParameters = new std::vector<std::string>;
+    outputParJobMaker = new std::string;
+    outputTreePar->Branch("tot_events", &outputParTot_Events, "tot_events/I");
+    outputTreePar->Branch("sel_events", &outputParSel_Events, "sel_events/I");
+    outputTreePar->Branch("type", &outputParType, "type/I");
+    outputTreePar->Branch("version", &outputParVersion, "version/I");
+    outputTreePar->Branch("parameters", "std::vector<string>", &outputParParameters);
+    outputTreePar->Branch("jobmaker", &outputParJobMaker, "jobmaker/C");
+    //outputTreePar->Branch("job_maker", "std::string", &outputParJobMaker);
+    outputTreePar->Branch("reductions", &outputParReductions, "reductions/I");
+    outputTreePar->Branch("red_events", &outputParRed_Events, "red_events[reductions]/I");
+
+  } 
+}
+
+void LoopAll::ReadInput(int t) {
+  // FIXME make this variable global ?
+  typerun = t;
+
+  
+  if (typerun == 1) {
+    makeOutputTree = 1;
+  } else {
+    makeOutputTree = 0;
+  }
+  
+  if (makeOutputTree) {
+    cout << "CREATE " << outputFileName<<endl;
+    outputFile=new TFile(outputFileName,"recreate");
+    outputFile->cd();
+    if(outputFile) 
+      if (DEBUG)	cout<<"output file defined"<<endl;
+  }
+  
+  int hasoutputfile=0;
+  
+  if(typerun == 0 || typerun == 2) {
+    if(DEBUG) cout<<"typerun is " << typerun <<endl;
+    hasoutputfile=0;
+  } else if(typerun == 1) {
+    if(DEBUG) cout<<"typerun is " << typerun <<endl;
+    
+    hasoutputfile=1;
+    outputTree = new TTree("event","Reduced tree"); 
+    outputTreePar = new TTree("global_variables","Parameters");
+    
+    PhotonAnalysisReducedOutputTree();
+  } 
+  
+} 
+void LoopAll::DefineSamples(const char *filesshortnam,
+			    int type,
+			    int histtoindfromfiles,
+			    int histoplotit,
+			    int nred,
+			    long long ntot,
+			    float intlumi,
+			    float lumi,
+			    float xsec,
+			    float kfactor,
+			    float scale) {
+
+  //look in map for type as a key already
+  int sample_is_defined = -1;
+  for (unsigned int s=0; s<sampleContainer.size(); s++) {
+    if (type == sampleContainer[s].itype) {
+      sample_is_defined = s;
+      break;
+    }
+  }
+  
+  if (sample_is_defined != -1) {
+    sampleContainer[sample_is_defined].ntot += ntot;
+    sampleContainer[sample_is_defined].nred += nred;
+    sampleContainer[sample_is_defined].computeWeight(intlumi);
+  } else {
+    sampleContainer.push_back(SampleContainer());
+    sampleContainer.back().ntot = ntot;
+    sampleContainer.back().nred = nred;
+    sampleContainer.back().histoplotit = histoplotit;
+    sampleContainer.back().filesshortnam = filesshortnam;
+    sampleContainer.back().lumi = lumi;
+    sampleContainer.back().xsec = xsec;
+    sampleContainer.back().kfactor = kfactor;
+    sampleContainer.back().scale = scale;
+    sampleContainer.back().computeWeight(intlumi);
+  }
+}
+
+void LoopAll::AddFile(std::string name,int type) {
+  if(DEBUG) cout << "Adding file:  " << name << " of type " << type << endl;
+  files.push_back(name);
+  itype.push_back(type);
+  
+  nfiles++;
+}
+
+void LoopAll::LoopAndFillHistos(TString treename) {
+
+  int i=0;
+  
+  if (DEBUG)
+    cout<<"LoopAndFillHistos: calling InitReal "<<endl;
+  
+  InitReal(typerun);
+  
+  Files.resize(files.size());  
+  Trees.resize(files.size());  
+  TreesPar.resize(files.size());  
+
+  std::vector<std::string>::iterator it;
+  std::vector<TTree*>::iterator it_tree;
+  std::vector<TTree*>::iterator it_treepar;
+  std::vector<TFile*>::iterator it_file;
+
+  it 	  	= files.begin();
+  it_file 	= Files.begin();
+  it_tree	= Trees.begin();
+  it_treepar    = TreesPar.begin();  
+
+  for (;it!=files.end()
+       ;it_file++,it_tree++,it_treepar++,it++){ 
+ 
+    this->current = i;
+    cout<<"LoopAndFillHistos: opening " << i << " " << files[i]<<endl;
+
+    *it_file = TFile::Open((*it).c_str());
+    //Files[i] = TFile::Open(files[i]);
+    tot_events=1;
+    sel_events=1;
+    if(typerun == 1) { //this is a reduce job
+
+      if(*it_file)
+	*it_treepar=(TTree*) (*it_file)->Get("global_variables");
+
+      if(*it_treepar) {
+	TBranch        *b_tot_events;
+	TBranch        *b_sel_events;
+	(*it_treepar)->SetBranchAddress("tot_events",&tot_events, &b_tot_events);
+	(*it_treepar)->SetBranchAddress("sel_events",&sel_events, &b_sel_events);
+	b_tot_events->GetEntry(0);
+	b_sel_events->GetEntry(0);
+      } else {
+	cout<<"REDUCE JOB, no global_variables tree ... the C-step job must have crashed ... SKIP THE FILE"<<endl;
+	tot_events=0;
+	sel_events=0;
+      }
+    }
+
+    if(tot_events!=0) {
+
+      if(*it_file)
+	*it_tree=(TTree*) (*it_file)->Get(treename);
+
+      Init(typerun, *it_tree);
+    }
+
+    Loop(i);
+
+    if(tot_events != 0) {
+      (*it_tree)->Delete("");
+    }
+   
+    // EDIT - Cannot close the first file since it is in use after 
+    // file 0 
+    if(*it_file && i>0)
+      (*it_file)->Close();
+    
+    i++;
+  }
+  //now close the first File
+  if(Files[0]) Files[0]->Close();
+
+  TermReal(typerun);
+}
+
+void LoopAll::Term(){
+  outputFile->Close();
+}
+
 LoopAll::LoopAll(TTree *tree) :
     vtxAna(vtxAlgoParams), vtxConv(vtxAlgoParams)
 {  
+#include "branchdef/newclonesarray.h"
 //  rooContainer = new RooContainer();
 }
 
@@ -40,8 +243,6 @@ LoopAll::~LoopAll() {
 
   delete fChain->GetCurrentFile();
 }
-          
-
 
 Int_t LoopAll::GetEntry(Long64_t entry) {
   // Read contents of entry.
@@ -75,7 +276,7 @@ void LoopAll::Show(Long64_t entry) {
   fChain->Show(entry);
 }
 
-
+/*
 void LoopAll::Loop(Double_t a) {
   
   if (fChain == 0) 
@@ -92,6 +293,7 @@ void LoopAll::Loop(Double_t a) {
     nbytes += nb;
   }
 }
+*/
 
 void LoopAll::InitHistos(){
 
@@ -108,7 +310,7 @@ void LoopAll::InitReal(Int_t typerunpass) {
 
   // Set branch addresses
   typerun=typerunpass;
-  hfile = (TFile*)gROOT->FindObject(utilInstance->histFileName); 
+  hfile = (TFile*)gROOT->FindObject(histFileName); 
   if (hfile) 
     hfile->Close();
 
@@ -121,8 +323,8 @@ void LoopAll::InitReal(Int_t typerunpass) {
   InitRealPhotonAnalysis(typerun);
   if(LDEBUG) cout << "finished InitRealPhotonAnalysis" << endl;
 
-  if (utilInstance->makeOutputTree) 
-    utilInstance->outputFile->cd();
+  if (makeOutputTree) 
+    outputFile->cd();
   cout<< "LoopAll::InitReal END" <<endl;
   
 }
@@ -133,11 +335,11 @@ void LoopAll::TermReal(Int_t typerunpass) {
 
   TermRealPhotonAnalysis(typerun);
   
-  if (utilInstance->makeOutputTree){ 
-    utilInstance->outputFile->cd();
-    utilInstance->outputParReductions++;
-    utilInstance->outputTreePar->Fill();
-    utilInstance->outputTreePar->Write();
+  if (makeOutputTree){ 
+    outputFile->cd();
+    outputParReductions++;
+    outputTreePar->Fill();
+    outputTreePar->Write();
   }
 }
 
@@ -159,16 +361,12 @@ void LoopAll::Init(Int_t typerunpass, TTree *tree) {
 }
 
 
-void LoopAll::setUtilInstance(Util *ut) {
-  utilInstance = ut;
-}
-
 void LoopAll::Loop(Int_t a) {
   
-  makeOutputTree = utilInstance->makeOutputTree;
+  makeOutputTree = makeOutputTree;
   if (makeOutputTree) {
-    outputTree = utilInstance->outputTree;
-    outputFile = utilInstance->outputFile;
+    outputTree = outputTree;
+    outputFile = outputFile;
     if(outputFile) 
       outputFile->cd();
   }
@@ -196,7 +394,7 @@ void LoopAll::Loop(Int_t a) {
       break;
    
       
-    if(utilInstance->typerun == 1) {
+    if(typerun == 1) {
 
 
         //nb = fChain->GetEntry(jentry,1);
@@ -227,71 +425,72 @@ void LoopAll::Loop(Int_t a) {
 
     
     if(outputFile) {
-	outputFile->cd();
-	if(utilInstance->TreesPar[a]) {
-	
-	    std::vector<std::string> *parameters = new std::vector<std::string>;
-	    std::string *job_maker = new std::string;
-	    Int_t tot_events, sel_events, type, version, reductions;
-	    Int_t red_events[20];
-	    
-	    utilInstance->TreesPar[a]->SetBranchAddress("tot_events", &tot_events);
-	    utilInstance->TreesPar[a]->SetBranchAddress("sel_events", &sel_events);
-	    utilInstance->TreesPar[a]->SetBranchAddress("type", &type);
-	    utilInstance->TreesPar[a]->SetBranchAddress("version", &version);
-	    utilInstance->TreesPar[a]->SetBranchAddress("parameters", &parameters);
-	    utilInstance->TreesPar[a]->SetBranchAddress("job_maker", &job_maker);
-	    if (utilInstance->TreesPar[a]->FindBranch("reductions")) {
-		utilInstance->TreesPar[a]->SetBranchAddress("reductions", &reductions);
-		utilInstance->TreesPar[a]->SetBranchAddress("red_events", &red_events);
-	    }
-	    
-	    utilInstance->TreesPar[a]->GetEntry(0);
-	    
-	    if (a == 0) {
-		utilInstance->outputParTot_Events = tot_events;
-		utilInstance->outputParSel_Events = sel_events;
-	    } else {
-		utilInstance->outputParTot_Events += tot_events;
-		utilInstance->outputParSel_Events += sel_events;
-	    }
-	    
-	    utilInstance->outputParType = type;
-	    utilInstance->outputParVersion = version;
-	    utilInstance->outputParParameters = &(*parameters);
-	    utilInstance->outputParJobMaker = job_maker;
-	    
-	    if (!utilInstance->TreesPar[a]->FindBranch("reductions")) {
-		utilInstance->outputParReductions = 0;
-		for (int i=0; i<20; i++) {
-		    utilInstance->outputParRed_Events[i] = -1;
-		}
-		utilInstance->outputParRed_Events[0] += (int)countersred[1];
-	    } else {
-		utilInstance->outputParReductions = reductions;
-		utilInstance->outputParRed_Events[reductions] += (int)countersred[1];
-	    }
-	} else {
-	    std::cerr << "Cannot write Parameter tree." << std::endl;
-	}
+      outputFile->cd();
+      if(TreesPar[a]) {
+        
+        std::vector<std::string> *parameters = new std::vector<std::string>;
+        std::string *job_maker = new std::string;
+        Int_t tot_events, sel_events, type, version, reductions;
+        Int_t red_events[20];
+        
+        TreesPar[a]->SetBranchAddress("tot_events", &tot_events);
+        TreesPar[a]->SetBranchAddress("sel_events", &sel_events);
+        TreesPar[a]->SetBranchAddress("type", &type);
+        TreesPar[a]->SetBranchAddress("version", &version);
+        TreesPar[a]->SetBranchAddress("parameters", &parameters);
+        TreesPar[a]->SetBranchAddress("job_maker", &job_maker);
+        if (TreesPar[a]->FindBranch("reductions")) {
+          TreesPar[a]->SetBranchAddress("reductions", &reductions);
+          TreesPar[a]->SetBranchAddress("red_events", &red_events);
+        }
+        
+        TreesPar[a]->GetEntry(0);
+        
+        if (a == 0) {
+          outputParTot_Events = tot_events;
+          outputParSel_Events = sel_events;
+
+        } else {
+          outputParTot_Events += tot_events;
+          outputParSel_Events += sel_events;
+        }
+
+        outputParType = type;
+        outputParVersion = version;
+        outputParParameters = &(*parameters);
+        outputParJobMaker = job_maker;
+        
+        if (!TreesPar[a]->FindBranch("reductions")) {
+          outputParReductions = 0;
+          for (int i=0; i<20; i++) {
+            outputParRed_Events[i] = -1;
+          }
+          outputParRed_Events[0] += (int)countersred[1];
+        } else {
+          outputParReductions = reductions;
+          outputParRed_Events[reductions] += (int)countersred[1];
+        }
+      } else {
+        std::cerr << "Cannot write Parameter tree." << std::endl;
+      }
     }
   }
   
   int oldnentries=nentries;
-  if (nentries == utilInstance->sel_events) {
-      nentries = utilInstance->tot_events;
+  if (nentries == sel_events) {
+    nentries = tot_events;
   }
   
   if(countersred[1] || oldnentries==0) {
-      printf("red: %d_%d \n",(int)countersred[0], (int) countersred[1]);
+    printf("red: %d_%d \n",(int)countersred[0], (int) countersred[1]);
   } else { 
-      printf("norm: %d \n",(int)counters[0]);
+    printf("norm: %d \n",(int)counters[0]);
   }
 }
 
 void LoopAll::myWriteFits() {
   
-  hfile = new TFile(utilInstance->histFileName, "RECREATE", "Globe ROOT file with histograms");
+  hfile = new TFile(histFileName, "RECREATE", "Globe ROOT file with histograms");
 
   hfile->cd();
   hfile->cd();
@@ -299,15 +498,15 @@ void LoopAll::myWriteFits() {
 }
 void LoopAll::myWritePlot() {
 
-  hfile = new TFile(utilInstance->histFileName, "RECREATE", "Globe ROOT file with histograms");
+  hfile = new TFile(histFileName, "RECREATE", "Globe ROOT file with histograms");
 
   hfile->cd();
   hfile->cd();
   for(unsigned int ind=0; ind<sampleContainer.size(); ind++) {
     histoContainer[ind].Save();
   }
-  if (utilInstance->makeOutputTree) 
-    utilInstance->outputFile->cd();
+  if (makeOutputTree) 
+    outputFile->cd();
 }
 
 void LoopAll::myWriteCounters() {
@@ -334,7 +533,7 @@ void LoopAll::myWriteCounters() {
   if (counterContainer.size() < 1)
     return;
 
-  TString msName = utilInstance->histFileName.ReplaceAll(".root", 5, ".csv", 4);
+  TString msName = histFileName.ReplaceAll(".root", 5, ".csv", 4);
   FILE *file;
   TString s2 = msName+".csv";
   file = fopen(s2, "w");
@@ -388,7 +587,7 @@ void LoopAll::myWriteCounters() {
 	      if (c == 0) {
 	        fileLinesCatFile[j] << j << sampleContainer[j].filesshortnam << counterContainer[j].name(i) << ncat;
 	        //fileLinesInfo[j] << indexfiles << files << scale << lumireal << intlumi << weight; // check matteo
-	        fileLinesInfo[j] << indexfiles << sampleContainer[j].scale << sampleContainer[j].lumireal << utilInstance->intlumi << sampleContainer[j].weight;
+	        fileLinesInfo[j] << indexfiles << sampleContainer[j].scale << sampleContainer[j].lumireal << intlumi << sampleContainer[j].weight;
 	      }
 
 	      float counts = counterContainer[j][i][c];
@@ -396,7 +595,7 @@ void LoopAll::myWriteCounters() {
 	      // CHECK MATTEO
 	      counterNumerator_tot[j] += counts;
 	      counterEvents_tot[j] += counts*weight;
-	      counterSigma_tot[j] += counts*weight/utilInstance->intlumi;
+	      counterSigma_tot[j] += counts*weight/intlumi;
       }
       if(LDEBUG) std::cout<<"end cat loop"<<std::endl;
     }
@@ -409,35 +608,35 @@ void LoopAll::myWriteCounters() {
 int LoopAll::FillAndReduce(int jentry) {
 
   int hasoutputfile = 0;
-  if(utilInstance->typerun == 1) {
+  if(typerun == 1) {
     hasoutputfile = 1;
     if(LDEBUG) 
       cout<<"call myReduce"<<endl;
-    myGetEntryPhotonRedAnalysis(utilInstance, jentry);
-    myReducePhotonAnalysis(utilInstance, jentry);
+    myGetEntryPhotonRedAnalysis(jentry);
+    myReducePhotonAnalysis(jentry);
     if(LDEBUG) 
       cout<<"called myReduce"<<endl;
-  } else if (utilInstance->typerun == 0) {
+  } else if (typerun == 0) {
     hasoutputfile = 0;
     if(LDEBUG) 
       cout<<"call myFillHist -- really?"<<endl;
-    myFillHistPhotonAnalysis(utilInstance, jentry);
+    myFillHistPhotonAnalysis(jentry);
     if(LDEBUG) 
       cout<<"called myFillHist"<<endl;
-  } else if (utilInstance->typerun == 2) {
+  } else if (typerun == 2) {
     hasoutputfile = 0;
     if(LDEBUG) 
       cout<<"call myFillHistRed"<<endl;
-    myGetEntryPhotonRedAnalysis(utilInstance, jentry);
-    myFillHistPhotonAnalysisRed(utilInstance, jentry);
+    myGetEntryPhotonRedAnalysis(jentry);
+    myFillHistPhotonAnalysisRed(jentry);
     if(LDEBUG) 
       cout<<"called myFillHistRed"<<endl;
-  } else if (utilInstance->typerun == 3) {
+  } else if (typerun == 3) {
     hasoutputfile = 0;
     if(LDEBUG) 
       cout<<"call myFillHistRed"<<endl;
-    myGetEntryPhotonRedAnalysis(utilInstance, jentry);
-    myStatPhotonAnalysis(utilInstance, jentry);
+    myGetEntryPhotonRedAnalysis(jentry);
+    myStatPhotonAnalysis(jentry);
     if(LDEBUG) 
       cout<<"called myFillHistStat"<<endl;
   }
@@ -445,68 +644,63 @@ int LoopAll::FillAndReduce(int jentry) {
   
   return hasoutputfile;
 }
-void LoopAll::BookHisto
-(
-  int h2d
- ,int typplot
- ,int typeplotall
- ,int histoncat
- ,int nbinsx
- ,int nbinsy
- ,float lowlim
- ,float highlim
- ,float lowlim2
- ,float highlim2
- ,char *name
-){
+void LoopAll::BookHisto(int h2d,
+			int typplot,
+			int typeplotall,
+			int histoncat,
+			int nbinsx,
+			int nbinsy,
+			float lowlim,
+			float highlim,
+			float lowlim2,
+			float highlim2,
+			char *name) {
 
-    for(unsigned int ind=0; ind<sampleContainer.size(); ind++) {
-      if (nbinsy == 0)
-	histoContainer[ind].Add(name, histoncat, nbinsx, lowlim, highlim);
-      if (nbinsy != 0)
-	histoContainer[ind].Add(name, histoncat, nbinsx, lowlim, highlim, nbinsy, lowlim2, highlim2);
-    }
+  for(unsigned int ind=0; ind<sampleContainer.size(); ind++) {
+    if (nbinsy == 0)
+      histoContainer[ind].Add(name, histoncat, nbinsx, lowlim, highlim);
+    if (nbinsy != 0)
+      histoContainer[ind].Add(name, histoncat, nbinsx, lowlim, highlim, nbinsy, lowlim2, highlim2);
+  }
 }
 
+
 // ------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------
-void LoopAll::AddCut(
-  char *cutnamesc
- ,int ncatstmp 
- ,int ifromright 
- ,int ifinalcut 
- ,float *cutValuel
- ,float *cutValueh
-) {
+void LoopAll::AddCut(char *cutnamesc,
+		     int ncatstmp, 
+		     int ifromright ,
+		     int ifinalcut ,
+		     float *cutValuel,
+		     float *cutValueh) {
 
   if(LDEBUG) cout<<"InitCuts START"<<endl;
-
-    Cut* this_cut = new Cut();
-    this_cut->name = cutnamesc;
-    this_cut->fromright = ifromright;
-    this_cut->finalcut = ifinalcut;
-    this_cut->ncat = ncatstmp;
-    this_cut->cut.clear();
-    this_cut->cutintervall.clear();
-    this_cut->cutintervalh.clear();
-    if(LDEBUG) cout<<"this_cut filled  "<<endl;
-    for (int j=0; j<ncatstmp; j++) {
-      if(ifromright == 2) {
-	this_cut->cutintervall.push_back((float) cutValuel[j]);
-	this_cut->cutintervalh.push_back((float) cutValueh[j]);
-      } else {
-	this_cut->cut.push_back((float) cutValuel[j]);
-      }
+  
+  Cut* this_cut = new Cut();
+  this_cut->name = cutnamesc;
+  this_cut->fromright = ifromright;
+  this_cut->finalcut = ifinalcut;
+  this_cut->ncat = ncatstmp;
+  this_cut->cut.clear();
+  this_cut->cutintervall.clear();
+  this_cut->cutintervalh.clear();
+  if(LDEBUG) cout<<"this_cut filled  "<<endl;
+  for (int j=0; j<ncatstmp; j++) {
+    if(ifromright == 2) {
+      this_cut->cutintervall.push_back((float) cutValuel[j]);
+      this_cut->cutintervalh.push_back((float) cutValueh[j]);
+    } else {
+      this_cut->cut.push_back((float) cutValuel[j]);
     }
-    if(LDEBUG) cout<<"push back cut  "<<endl;
-    cutContainer.push_back(*this_cut);
-    if(LDEBUG) cout<<"pushed back cut  "<<endl;
+  }
+  if(LDEBUG) cout<<"push back cut  "<<endl;
+  cutContainer.push_back(*this_cut);
+  if(LDEBUG) cout<<"pushed back cut  "<<endl;
   if(LDEBUG) cout<<"InitCuts END"<<endl;
 }
 
 void LoopAll::InitCounters(){
-
   if(LDEBUG) cout<<"InitCounts BEGIN"<<endl;
 
   for(unsigned int i=0; i<sampleContainer.size(); i++)
@@ -514,42 +708,38 @@ void LoopAll::InitCounters(){
 
   if(LDEBUG) cout<<"InitCounts END"<<endl;
 }
-void LoopAll::AddCounter
-(
-  int countersncat
- ,char *countername
- ,char *denomname0
- ,char *denomname1
- ,char *denomname2
-){
 
+void LoopAll::AddCounter(int countersncat,
+			 char *countername,
+			 char *denomname0,
+			 char *denomname1,
+			 char *denomname2) {
     
-    std::string* counternames_str = new std::string(countername);
-    if(LDEBUG) cout<<" counternames_str"<<counternames_str<< endl; 
-    //counternames_str.assign(counternames);
-    if(LDEBUG) cout<<" *counternames_str"<<*counternames_str<< endl; 
-
-    std::string* denomname0_str = new std::string(denomname0);
-    if(LDEBUG) cout<<" denomname0_str"<<denomname0_str<< endl; 
-
-    //std::string denomname1_str;
-    std::string* denomname1_str =new std::string(denomname1);
-    //denomname1_str.assign(denomname1);
-    if(LDEBUG) cout<<" denomname1_str"<<denomname1_str<< endl; 
-
-    std::string* denomname2_str = new std::string(denomname2);
-    if(LDEBUG) cout<<" denomname2_str"<<denomname2_str<< endl; 
-
-    for(unsigned int ind=0; ind<sampleContainer.size(); ind++) {
-      if(LDEBUG) cout<<"adding to "<<ind<<" sampleContainer"<< endl; 
-      counterContainer[ind].Add(*counternames_str
-				,countersncat
-				,*denomname0_str
-				,*denomname1_str
-				,*denomname2_str);
-      if(LDEBUG) cout<<"added to "<<ind<<" sampleContainer"<< endl; 
-    }
-  //}
+  std::string* counternames_str = new std::string(countername);
+  if(LDEBUG) cout<<" counternames_str"<<counternames_str<< endl; 
+  //counternames_str.assign(counternames);
+  if(LDEBUG) cout<<" *counternames_str"<<*counternames_str<< endl; 
+  
+  std::string* denomname0_str = new std::string(denomname0);
+  if(LDEBUG) cout<<" denomname0_str"<<denomname0_str<< endl; 
+  
+  //std::string denomname1_str;
+  std::string* denomname1_str =new std::string(denomname1);
+  //denomname1_str.assign(denomname1);
+  if(LDEBUG) cout<<" denomname1_str"<<denomname1_str<< endl; 
+  
+  std::string* denomname2_str = new std::string(denomname2);
+  if(LDEBUG) cout<<" denomname2_str"<<denomname2_str<< endl; 
+  
+  for(unsigned int ind=0; ind<sampleContainer.size(); ind++) {
+    if(LDEBUG) cout<<"adding to "<<ind<<" sampleContainer"<< endl; 
+    counterContainer[ind].Add(*counternames_str
+			      ,countersncat
+			      ,*denomname0_str
+			      ,*denomname1_str
+			      ,*denomname2_str);
+    if(LDEBUG) cout<<"added to "<<ind<<" sampleContainer"<< endl; 
+  }
 }
 
  
@@ -557,7 +747,7 @@ int LoopAll::ApplyCut(int icut, float var, int icat) {
   
   //returns 0 if not initialized
   if(cutContainer[icut].useit==0) return 1;
-
+  
   if(cutContainer[icut].fromright==2) {
     if(var<cutContainer[icut].cutintervall[icat] || var>cutContainer[icut].cutintervalh[icat]) return 0;
   }
@@ -576,6 +766,7 @@ int LoopAll::ApplyCut(std::string cutname, float var, int icat) {
       return ApplyCut(i, var, icat);
     }
   }
+  
   //std::cout<<"ApplyCut: attention cutname "<<cutname<<" not found"<<endl;
   return 0;
 }
@@ -589,11 +780,11 @@ void LoopAll::FillHist2D(std::string name, float x, float y) {
 }
 
 void LoopAll::FillHist(std::string name, int category, float y) {
-  histoContainer[utilInstance->current].Fill(name, category, y);
+  histoContainer[current].Fill(name, category, y);
 }
 
 void LoopAll::FillHist2D(std::string name, int category, float x, float y) {
-  histoContainer[utilInstance->current].Fill2D(name, category, x, y);
+  histoContainer[current].Fill2D(name, category, x, y);
 }
 
 void LoopAll::FillCounter(std::string name) {
@@ -601,5 +792,5 @@ void LoopAll::FillCounter(std::string name) {
 }
 
 void LoopAll::FillCounter(std::string name, int category) {
-  counterContainer[utilInstance->current].Fill(name, category);
+  counterContainer[current].Fill(name, category);
 }

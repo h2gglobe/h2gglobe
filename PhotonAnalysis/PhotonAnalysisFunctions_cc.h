@@ -39,7 +39,7 @@ void LoopAll::InitRealPhotonAnalysis(int typerun) {
 
 }
 
-void LoopAll::myGetEntryPhotonRedAnalysis(Util *ut, int jentry){
+void LoopAll::myGetEntryPhotonRedAnalysis(int jentry) {
 
   b_lumis->GetEntry(jentry);
   b_run->GetEntry(jentry);
@@ -60,7 +60,7 @@ void LoopAll::myGetEntryPhotonRedAnalysis(Util *ut, int jentry){
 
 }
 
-void LoopAll::myFillHistPhotonAnalysis(Util* ut, int jentry) {
+void LoopAll::myFillHistPhotonAnalysis(int jentry) {
 
   if(PADEBUG) 
     cout << "myFillHist START"<<endl;
@@ -97,7 +97,7 @@ void LoopAll::myFillHistPhotonAnalysis(Util* ut, int jentry) {
 }
 
 
-void LoopAll::myFillHistPhotonAnalysisRed(Util * ut, int jentry) {
+void LoopAll::myFillHistPhotonAnalysisRed(int jentry) {
 
   if(PADEBUG) 
     cout << "myFillHistRed START"<<endl;
@@ -234,7 +234,7 @@ void LoopAll::myFillHistPhotonAnalysisRed(Util * ut, int jentry) {
     cout<<"myFillHistRed END"<<endl;
 }
 
-void LoopAll::myStatPhotonAnalysis(Util * ut, int jentry) {
+void LoopAll::myStatPhotonAnalysis(int jentry) {
 
   if(PADEBUG) 
     cout << "myStat START"<<endl;
@@ -331,7 +331,7 @@ void LoopAll::myStatPhotonAnalysis(Util * ut, int jentry) {
 }
 
 
-void LoopAll::myReducePhotonAnalysis(Util * ut, int jentry) {
+void LoopAll::myReducePhotonAnalysis(int jentry) {
 
   if(PADEBUG) 
     cout<<"myReducePhotonAnalysis START"<<endl;
@@ -343,11 +343,11 @@ void LoopAll::myReducePhotonAnalysis(Util * ut, int jentry) {
     if(makeOutputTree) {
       
       //first selection and fill output tree
-      if(!myFillReducedVarPhotonAnalysis(ut, jentry)) 
+      if(!myFillReducedVarPhotonAnalysis(jentry)) 
 	return;
       
       //additional selection
-      if(!mySelectEventRedPhotonAnalysis(ut, jentry)) 
+      if(!mySelectEventRedPhotonAnalysis(jentry)) 
 	return;
 
       countersred[1]++;
@@ -450,7 +450,7 @@ void LoopAll::mySetBranchAddressRedPhotonAnalysis() {
 }
 
 
-int LoopAll::myFillReducedVarPhotonAnalysis(Util * ut, int jentry) {
+int LoopAll::myFillReducedVarPhotonAnalysis(int jentry) {
   if(PADEBUG) 
     cout<<"myFillReduceVar START"<<endl;
   
@@ -461,7 +461,7 @@ int LoopAll::myFillReducedVarPhotonAnalysis(Util * ut, int jentry) {
 
 }
 
-int LoopAll::mySelectEventRedPhotonAnalysis(Util * ut, int jentry) {
+int LoopAll::mySelectEventRedPhotonAnalysis(int jentry) {
   
   // preselection at the end
   int selectevent=0;

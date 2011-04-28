@@ -28,7 +28,6 @@ VTXSRC=$(wildcard $(VTX)/src/*.$(SrcSuf))
 VTXOBS=$(patsubst %$(SrcSuf), %$(ObjSuf), $(VTXSRC))
 
 LOOPALLO = LoopAll.$(ObjSuf) \
-           Util.$(ObjSuf) \
 	   LoopAllDict.$(ObjSuf) \
 	   dict.$(ObjSuf) \
 	   HistoContainer.o \
@@ -49,7 +48,7 @@ $(LOOPALL):  $(LOOPALLO)
 	$(LD) $(SOFLAGS) $(LDFLAGS) $(ROOTLIBS)  $(LOOPALLO) $(OutPutOpt) $(LOOPALLSO)
 	@echo "$(LOOPALLSO) done"
 
-LoopAll.$(ObjSuf): CommonParameters.h LoopAll.h Util.h Tools.h \
+LoopAll.$(ObjSuf): CommonParameters.h LoopAll.h Tools.h \
 	branchdef/Limits.h branchdef/treedef.h branchdef/newclonesarray.h \
 	branchdef/treebranch.h branchdef/setbranchaddress.h branchdef/getentry.h branchdef/getbranch.h branchdef/branchdef.h \
 	PhotonAnalysis/PhotonAnalysisFunctions_h.h PhotonAnalysis/PhotonAnalysisFunctions_cc.h \
@@ -59,7 +58,7 @@ LoopAll.$(ObjSuf): CommonParameters.h LoopAll.h Util.h Tools.h \
 	SampleContainer.cc SampleContainer.h \
 	Cut.cc Cut.h $(VTXSRC)
 
-mpUtil.$(ObjSuf): CommonParameters.h LoopAll.h Util.h \
+mpUtil.$(ObjSuf): CommonParameters.h LoopAll.h \
 	branchdef/Limits.h branchdef/treedef.h branchdef/newclonesarray.h \
 	branchdef/treebranch.h branchdef/setbranchaddress.h branchdef/getentry.h branchdef/getbranch.h branchdef/branchdef.h \
 	PhotonAnalysis/PhotonAnalysisFunctions_h.h \
@@ -69,7 +68,7 @@ mpUtil.$(ObjSuf): CommonParameters.h LoopAll.h Util.h \
 	SampleContainer.h \
 	Cut.h
 
-LoopAllDict.$(SrcSuf): CommonParameters.h LoopAll.h Util.h \
+LoopAllDict.$(SrcSuf): CommonParameters.h LoopAll.h \
 	branchdef/Limits.h branchdef/treedef.h \
 	PhotonAnalysis/PhotonAnalysisFunctions_h.h \
 	GeneralFunctions_h.h \
@@ -80,7 +79,7 @@ LoopAllDict.$(SrcSuf): CommonParameters.h LoopAll.h Util.h \
 	VertexAnalysis/interface/VertexAlgoParameters.h
 
 	@echo "Generating dictionary $@..."
-	@rootcint -f $@ -c LoopAll.h Util.h VertexAnalysis/interface/VertexAlgoParameters.h
+	@rootcint -f $@ -c LoopAll.h VertexAnalysis/interface/VertexAlgoParameters.h
 	@rootcint -f dict.cpp -c -p LinkDef.h 
 
 .$(SrcSuf).$(ObjSuf):
