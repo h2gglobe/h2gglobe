@@ -15,8 +15,8 @@ ROOT.gSystem.Load("../libLoopAll.so");
 
 ROOT.gBenchmark.Start("Reduction")
 
-ut = ROOT.Util();
-cfg = configProducer(ut,config_file,1)
+ut = ROOT.LoopAll();
+cfg = configProducer(ut, config_file,1)
 ut.LoopAndFillHistos()
 
 ROOT.gBenchmark.Show("Reduction");

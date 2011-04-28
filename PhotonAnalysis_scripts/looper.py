@@ -7,7 +7,7 @@ ROOT.gSystem.Load("../libLoopAll.so");
 
 ROOT.gBenchmark.Start("Analysis");
 
-ut = ROOT.Util();
+ut = ROOT.LoopAll();
 cfg = configProducer(ut,"inputfiles.dat",2)
   
 ut.LoopAndFillHistos();

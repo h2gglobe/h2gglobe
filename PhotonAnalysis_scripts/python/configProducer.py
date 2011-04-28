@@ -68,43 +68,43 @@ class configProducer:
   def init_cuts(self):
     self.read_dat_cuts('cuts.dat')
     for dum in self.plotvar_.vardef:
-       self.ut_.CallAddCut(
-			  dum['cutname'	  ]
-			 ,dum['ncat' 	  ]
-		         ,dum['dir'  	  ]
-		         ,dum['fin'  	  ]
-		         ,dum['cutValuel' ]
-		         ,dum['cutValueh' ]
-		      )
-
+       self.ut_.AddCut(
+         dum['cutname'	  ]
+         ,dum['ncat' 	  ]
+         ,dum['dir'  	  ]
+         ,dum['fin'  	  ]
+         ,dum['cutValuel' ]
+         ,dum['cutValueh' ]
+         )
+       
   def init_counters(self):
     self.read_dat_counters('counters.dat')
-    self.ut_.CallInitCounters()
+    self.ut_.InitCounters()
     for dum in self.plotvar_.vardef:
-       self.ut_.CallAddCounter(
+      self.ut_.AddCounter(
 			  dum['ncat']
-			 ,dum['countername' ]
-		         ,dum['denomname1'  ]
-		         ,dum['denomname2'  ]
-		         ,dum['denomname3'  ]
-			 )
-   
+        ,dum['countername' ]
+        ,dum['denomname1'  ]
+        ,dum['denomname2'  ]
+        ,dum['denomname3'  ]
+        )
+      
   def init_histos(self):
     self.read_dat_plotvariables('plotvariables.dat')
-    self.ut_.CallInitHistos()
+    self.ut_.InitHistos()
     for dum in self.plotvar_.vardef:
-       self.ut_.CallBookHisto(
-			  dum['htyp'	]
-			 ,dum['plot'	]
-		         ,dum['default'	]
-		         ,dum['ncat'	]
-		         ,dum['xbins'	]
-		         ,dum['ybins'	]
-		         ,dum['xmin'	]
-		         ,dum['xmax'	]
-		         ,dum['ymin'	]
-		         ,dum['ymax'	]
-		         ,dum['name'	]
+       self.ut_.BookHisto(
+         dum['htyp'	]
+         ,dum['plot'	]
+         ,dum['default'	]
+         ,dum['ncat'	]
+         ,dum['xbins'	]
+         ,dum['ybins'	]
+         ,dum['xmin'	]
+         ,dum['xmax'	]
+         ,dum['ymin'	]
+         ,dum['ymax'	]
+         ,dum['name'	]
 			 )
 
   def init_reduce(self):
