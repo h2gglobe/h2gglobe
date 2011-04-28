@@ -10,4 +10,9 @@ void eIDInfo(Int_t, Int_t&, Int_t&,Int_t eIDMaxLevel=10);
 Float_t sipCalculator(int);
 
 void vertexAnalysis(int pho1, int pho2);
+std::vector<int> vertexSelection(int p1, int p2);
+void vertexAnalysisRedGetBranches();
+void vertexAnalysisRedMakeBranches();
+void vertexAnalysisGetBranches();
+
 

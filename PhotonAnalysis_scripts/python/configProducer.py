@@ -44,13 +44,27 @@ class configProducer:
       sys.exit("No Such Type As: %d"%self.type_)
       
     
-  def read_file(self,conf_filename):
+  def read_file(self,conf_filename,lines=None):
+    if lines == None:
+      self.lines_ = [ ]
+      lines = self.lines_
     if not os.path.isfile(conf_filename):
       sys.exit("No Configuration file named - %s"%conf_filename)
     else:
       cf = open(conf_filename,"r")
-      self.lines_ = cf.readlines()
-  
+      comment_status = False
+      for l in cf.readlines():
+        line = l.strip(" ").lstrip(" ")
+        if len(line) < 2: continue
+        if line[0:2] == '->':	
+          if comment_status: comment_status = False
+          else:		  comment_status = True
+          
+        elif not comment_status:
+          lines.append(line)
+        else:
+          self.conf_.comments+=line
+
   def init_cuts(self):
     self.read_dat_cuts('cuts.dat')
     for dum in self.plotvar_.vardef:
@@ -98,7 +112,8 @@ class configProducer:
     if PYDEBUG: self.conf_.print_conf()
     self.add_files()
     self.ut_.SetTypeRun(self.type_,self.conf_.outfile)
-#    self.ut_.ReadInput(self.type_)
+    # self.ut_.ReadInput(self.type_)
+    ## self.read_struct_from_file(self.ut_.loops.vtxAlgoParams,)
 
   def init_loop(self):
     self.read_config_loop(self.conf_filename)
@@ -267,66 +282,62 @@ class configProducer:
      comment_status = False 
 
      for line in self.lines_:
-      if len(line) < 2: continue
-     
-      if line[0:2] == '->':	
-       if comment_status: comment_status = False
-       else:		  comment_status = True
-     
-      else:
-       if not comment_status:     
        # Decide whether this is a define line or a file line:
-        if "output" in line:   
+       if "output" in line:   
          split_line = line.split()
-	# We have the definition line
+         # We have the definition line
          for sp in split_line:
-          val = sp.split("=")
-	  if val[0] == "output":
-	   self.conf_.outfile = str(val[1])
-          else: sys.exit("Unrecognised Argument:\n ' %s ' in line:\n ' %s '"
-			%(val[0],line))
-
-        elif "Fil=" in line or "Dir=" in line:
-         directory = ''
-         cas_directory = ''
-         fi_name   = ''
-         fi_type   = ''
-        # We have one of the file def lines
+           val = sp.split("=")
+           if val[0] == "output":
+             self.conf_.outfile = str(val[1])
+           else: sys.exit("Unrecognised Argument:\n ' %s ' in line:\n ' %s '"
+                          %(val[0],line))
+           
+       elif "Fil=" in line or "Dir=" in line:
+         values = { "CaDir" : "", "Dir" : "", "typ" : -1, "Fil" : ""  }; 
+         # We have one of the file def lines
          split_line = line.split()
          for sp in split_line:
-	  val = sp.split("=")
-          if val[0] == "Fil":
-           fi_name = str(val[1])
-          elif val[0]== "Dir":
-           directory=str(val[1])
-          elif val[0]== "CaDir":
-           cas_directory=str(val[1])
-	  elif val[0] == "typ":
-	   fi_type = int(val[1])
-          else: sys.exit("Unrecognised Argument:\n ' %s ' in line:\n ' %s '"
-			%(val[0],line))
-
-	 if fi_name != '':
+           name,val = sp.split("=")
+           if name in values:
+             values[name] = type(values[name])(val)
+           else:
+             sys.exit( "Unrecognised Argument:\n ' %s ' in line:\n ' %s '"% (name,line) )
+         directory = values["Dir"]
+         cas_directory = values["CaDir"]
+         fi_name   = values["Fil"]
+         fi_type   = values["typ"]
+         
+         if fi_name != '':
 	   if not os.path.isfile(fi_name): 
 	     sys.exit("No Input File Named: %s"%fi_name)
-	   tuple_n = fi_name, fi_type
-	   self.conf_.files.append(tuple_n)
-	
+             tuple_n = fi_name, fi_type
+             self.conf_.files.append(tuple_n)
+             
          if cas_directory != '':
            ca_files = makeCaFiles(cas_directory)
            for file_s in ca_files:
              self.conf_.files.append((str(directory+'/'+file_s),fi_type))
-
+             
          if os.path.isdir(directory): 
            di_files = os.listdir(directory)
  	   di_files = filter(lambda x: ".root" in x, di_files)
            for file_s in di_files:
              self.conf_.files.append((str(directory+'/'+file_s),fi_type))
 
-
-        else: sys.exit("Config Line Unrecognised:\n ' %s '"%line)
-       else: self.conf_.comments+=line
-
+       # read a generic member of the LoopAll class
+       else:
+         split_line = line.split()
+         struct_name = split_line.pop(0)
+         try:
+           struct = self.ut_.loops.__getattribute__(struct_name)            
+           if os.path.isfile(split_line[0]):
+             self.read_struct_from_file(split_line[0],struct)
+           else:
+             self.read_struct(split_line,struct)
+         except:
+           sys.exit("Unkown data member %s at line:\n\n%s\n"% (struct_name, line) )
+           
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def read_config_loop(self,f):
      "Parsing of the looper configuration"        
@@ -425,6 +436,30 @@ class configProducer:
        for cc in  self.conf_.confs:
          cc["intL"] = intL 
 
+  # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  def read_struct(self,lines,struct):
+    print "Reading structure %s" % ( str(struct) )
+    for line in lines:
+      split_line = line.split()
+      for sp in split_line:
+        name,val = [ s.lstrip(" ").rstrip(" ") for s in sp.split("=") ]
+        try:
+          var = struct.__getattribute__(name)
+          var = type(var)(val)
+        except AttributeError:
+          sys.exit( "Error parsing file %s. Unkown attribute: %s\nline: %s" % ( f, name, line ) )
+        except ValueError, e:
+          sys.exit( "Error parsing file %s. Syntax error in line: %s\n%s" % ( f, line, e ) )
+    
 
+  # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  def read_struct_from_file(self,f,struct):
+    lines = []
+    print "Reading structure from file %s %s " % ( str(struct), f )
+    self.read_file(f,lines)
+    
+    self.read_struct(lines,struct)
+    
+    
 #--------------------------------------------------------//
 #EOF 

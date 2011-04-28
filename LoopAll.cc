@@ -28,10 +28,10 @@ using namespace std;
 #include "PhotonAnalysis/PhotonAnalysisReducedOutputTree.h"
 #include "PhotonAnalysis/PhotonAnalysisFunctions_cc.h"
 
-LoopAll::LoopAll(TTree *tree) {
-  
+LoopAll::LoopAll(TTree *tree) :
+    vtxAna(vtxAlgoParams), vtxConv(vtxAlgoParams)
+{  
 //  rooContainer = new RooContainer();
-
 }
 
 LoopAll::~LoopAll() {
@@ -227,70 +227,69 @@ void LoopAll::Loop(Int_t a) {
 
     
     if(outputFile) {
-      outputFile->cd();
-      if(utilInstance->TreesPar[a]) {
-
-	std::vector<std::string> *parameters = new std::vector<std::string>;
-	std::string *job_maker = new std::string;
-	Int_t tot_events, sel_events, type, version, reductions;
-	Int_t red_events[20];
+	outputFile->cd();
+	if(utilInstance->TreesPar[a]) {
 	
-	utilInstance->TreesPar[a]->SetBranchAddress("tot_events", &tot_events);
-	utilInstance->TreesPar[a]->SetBranchAddress("sel_events", &sel_events);
-	utilInstance->TreesPar[a]->SetBranchAddress("type", &type);
-	utilInstance->TreesPar[a]->SetBranchAddress("version", &version);
-	utilInstance->TreesPar[a]->SetBranchAddress("parameters", &parameters);
-	utilInstance->TreesPar[a]->SetBranchAddress("job_maker", &job_maker);
-	if (utilInstance->TreesPar[a]->FindBranch("reductions")) {
-	  utilInstance->TreesPar[a]->SetBranchAddress("reductions", &reductions);
-	  utilInstance->TreesPar[a]->SetBranchAddress("red_events", &red_events);
-	}
-
-	utilInstance->TreesPar[a]->GetEntry(0);
-
-	if (a == 0) {
-	  utilInstance->outputParTot_Events = tot_events;
-	  utilInstance->outputParSel_Events = sel_events;
+	    std::vector<std::string> *parameters = new std::vector<std::string>;
+	    std::string *job_maker = new std::string;
+	    Int_t tot_events, sel_events, type, version, reductions;
+	    Int_t red_events[20];
+	    
+	    utilInstance->TreesPar[a]->SetBranchAddress("tot_events", &tot_events);
+	    utilInstance->TreesPar[a]->SetBranchAddress("sel_events", &sel_events);
+	    utilInstance->TreesPar[a]->SetBranchAddress("type", &type);
+	    utilInstance->TreesPar[a]->SetBranchAddress("version", &version);
+	    utilInstance->TreesPar[a]->SetBranchAddress("parameters", &parameters);
+	    utilInstance->TreesPar[a]->SetBranchAddress("job_maker", &job_maker);
+	    if (utilInstance->TreesPar[a]->FindBranch("reductions")) {
+		utilInstance->TreesPar[a]->SetBranchAddress("reductions", &reductions);
+		utilInstance->TreesPar[a]->SetBranchAddress("red_events", &red_events);
+	    }
+	    
+	    utilInstance->TreesPar[a]->GetEntry(0);
+	    
+	    if (a == 0) {
+		utilInstance->outputParTot_Events = tot_events;
+		utilInstance->outputParSel_Events = sel_events;
+	    } else {
+		utilInstance->outputParTot_Events += tot_events;
+		utilInstance->outputParSel_Events += sel_events;
+	    }
+	    
+	    utilInstance->outputParType = type;
+	    utilInstance->outputParVersion = version;
+	    utilInstance->outputParParameters = &(*parameters);
+	    utilInstance->outputParJobMaker = job_maker;
+	    
+	    if (!utilInstance->TreesPar[a]->FindBranch("reductions")) {
+		utilInstance->outputParReductions = 0;
+		for (int i=0; i<20; i++) {
+		    utilInstance->outputParRed_Events[i] = -1;
+		}
+		utilInstance->outputParRed_Events[0] += (int)countersred[1];
+	    } else {
+		utilInstance->outputParReductions = reductions;
+		utilInstance->outputParRed_Events[reductions] += (int)countersred[1];
+	    }
 	} else {
-	  utilInstance->outputParTot_Events += tot_events;
-	  utilInstance->outputParSel_Events += sel_events;
+	    std::cerr << "Cannot write Parameter tree." << std::endl;
 	}
-
-	utilInstance->outputParType = type;
-	utilInstance->outputParVersion = version;
-	utilInstance->outputParParameters = &(*parameters);
-	utilInstance->outputParJobMaker = job_maker;
-
-	if (!utilInstance->TreesPar[a]->FindBranch("reductions")) {
-	  utilInstance->outputParReductions = 0;
-	  for (int i=0; i<20; i++) {
-	    utilInstance->outputParRed_Events[i] = -1;
-	  }
-	  utilInstance->outputParRed_Events[0] += (int)countersred[1];
-	} else {
-	  utilInstance->outputParReductions = reductions;
-	  utilInstance->outputParRed_Events[reductions] += (int)countersred[1];
-	}
-      } else {
-	std::cerr << "Cannot write Parameter tree." << std::endl;
-      }
     }
   }
   
   int oldnentries=nentries;
   if (nentries == utilInstance->sel_events) {
-    nentries = utilInstance->tot_events;
+      nentries = utilInstance->tot_events;
   }
-
+  
   if(countersred[1] || oldnentries==0) {
-    printf("red: %d_%d \n",(int)countersred[0], (int) countersred[1]);
+      printf("red: %d_%d \n",(int)countersred[0], (int) countersred[1]);
   } else { 
-    printf("norm: %d \n",(int)counters[0]);
+      printf("norm: %d \n",(int)counters[0]);
   }
 }
 
 void LoopAll::myWriteFits() {
-
   
   hfile = new TFile(utilInstance->histFileName, "RECREATE", "Globe ROOT file with histograms");
 

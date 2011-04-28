@@ -281,6 +281,12 @@ GlobeVertexInfo::GlobeVertexInfo(LoopAll & lo) : lo_(lo) {};
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 GlobeVertexInfo::~GlobeVertexInfo() {};
 
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+void LoopAll::vertexAnalysisGetBranches()
+{
+	
+}
+
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 void LoopAll::vertexAnalysis(int p1, int p2)
@@ -289,19 +295,21 @@ void LoopAll::vertexAnalysis(int p1, int p2)
 	
 	PhotonInfo pho1(*((TVector3*)pho_calopos->At(p1)),((TLorentzVector*)pho_p4->At(p1))->Energy()),pho2(*((TVector3*)pho_calopos->At(p2)),((TLorentzVector*)pho_p4->At(p2))->Energy());
 
-	HggVertexAnalyzer vAna(vtxAlgoParams,vtx_std_n);
+	///HggVertexAnalyzer vAna(vtxAlgoParams,vtx_std_n);
 	
-	vAna.analyze(vinfo,pho1,pho2);
-	
-	std::vector<int> rankprod = vAna.rankprod(vtxVarNames);
+	vtxAna.analyze(vinfo,pho1,pho2);
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+std::vector<int> LoopAll::vertexSelection(int p1, int p2)
+{
+	std::vector<int> rankprod = vtxAna.rankprod(vtxVarNames);
 	cout << "\n\nRanks product" << endl;
 	cout << "best vertex " << rankprod[0] << endl;
 	for(int ii=0; ii<vtx_std_n; ++ii) {
 		int vtxrank = find(rankprod.begin(), rankprod.end(), ii) - rankprod.begin();
-		cout << "vertx " << ii << " rank " << vtxrank << " " << vAna.ptbal(ii) << " " << vAna.ptasym(ii) << " " << vAna.logsumpt2(ii) << endl;
-		
+		cout << "vertx " << ii << " rank " << vtxrank << " " << vtxAna.ptbal(ii) << " " << vtxAna.ptasym(ii) << " " << vtxAna.logsumpt2(ii) << endl;
 	}
 	
+	return rankprod;
 }
-
-

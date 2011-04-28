@@ -76,10 +76,11 @@ LoopAllDict.$(SrcSuf): CommonParameters.h LoopAll.h Util.h \
 	HistoContainer.h \
 	CounterContainer.h \
 	SampleContainer.h \
-	Cut.h
+	Cut.h \
+	VertexAnalysis/interface/VertexAlgoParameters.h
 
 	@echo "Generating dictionary $@..."
-	@rootcint -f $@ -c LoopAll.h Util.h 
+	@rootcint -f $@ -c LoopAll.h Util.h VertexAnalysis/interface/VertexAlgoParameters.h
 	@rootcint -f dict.cpp -c -p LinkDef.h 
 
 .$(SrcSuf).$(ObjSuf):

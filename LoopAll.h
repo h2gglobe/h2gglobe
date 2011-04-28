@@ -32,6 +32,8 @@ class Util;
 #include "branchdef/Limits.h"
 //#include "RooContainer.h"
 #include "VertexAnalysis/interface/HggVertexAnalyzer.h"
+#include "VertexAnalysis/interface/HggVertexFromConversions.h"
+#include "VertexAnalysis/interface/VertexAlgoParameters.h"
 #include "VertexAnalysis/interface/PhotonInfo.h"
 
 class LoopAll {
@@ -81,6 +83,8 @@ class LoopAll {
 
   VertexAlgoParameters vtxAlgoParams;	 
   std::vector<std::string> vtxVarNames;
+  HggVertexAnalyzer vtxAna;
+  HggVertexFromConversions vtxConv;
 
   void Loop(Int_t);
   void setUtilInstance(Util*);
@@ -94,7 +98,7 @@ class LoopAll {
   void AddCut(char*,int,int,int,float*,float*);
   void InitCounters();
   void AddCounter(int,char*,char*,char*,char*);
-  
+
   int ApplyCut(int, float, int);
   int ApplyCut(std::string, float, int);
   
@@ -106,6 +110,8 @@ class LoopAll {
   
   void FillCounter(std::string, int);
   void FillCounter(std::string);
+  
+  std::set<TBranch *> branchesToRead; 
 };
 
 #endif

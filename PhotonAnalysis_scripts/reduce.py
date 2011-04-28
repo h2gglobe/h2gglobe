@@ -1,5 +1,12 @@
+#!/usr/bin/env python
+
 import ROOT
 from python.configProducer import *
+
+from sys import argv
+config_file="filestoreduce.dat"
+if len(argv) > 1:
+    config_file = argv[1]
 
 #ROOT.gSystem.Load("libRooFit.so")
 ROOT.gSystem.Load("libPhysics.so");
@@ -9,22 +16,7 @@ ROOT.gSystem.Load("../libLoopAll.so");
 ROOT.gBenchmark.Start("Reduction")
 
 ut = ROOT.Util();
-cfg = configProducer(ut,"filestoreduce.dat",1)
+cfg = configProducer(ut,config_file,1)
 ut.LoopAndFillHistos()
 
 ROOT.gBenchmark.Show("Reduction");
-
-#{
-#  gSystem->Load("libPhysics.so");
-#  gSystem->Load("libCore.so");
-#  gSystem->Load("../libLoopAll.so");
-#
-#  gBenchmark->Start("Reduction");
-#  Util* ut = new Util();
-#
-#  ut->ReadInput(1);
-#  
-#  ut->LoopAndFillHistos();
-#  gBenchmark->Show("Reduction");
-#}
-

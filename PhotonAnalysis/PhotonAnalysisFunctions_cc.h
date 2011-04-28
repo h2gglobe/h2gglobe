@@ -373,6 +373,30 @@ void LoopAll::myReducePhotonAnalysis(Util * ut, int jentry) {
 
 
 void LoopAll::myGetBranchPhotonAnalysis() {
+
+  //////// branchesToRead.insert(fChain->GetBranch("lumis"));
+  //////// branchesToRead.insert(fChain->GetBranch("run"));
+  //////// branchesToRead.insert(fChain->GetBranch("pho_n"));
+  //////// branchesToRead.insert(fChain->GetBranch("pho_p4"));
+  //////// branchesToRead.insert(fChain->GetBranch("pho_r9"));
+  //////// branchesToRead.insert(fChain->GetBranch("pho_calopos"));
+  //////// branchesToRead.insert(fChain->GetBranch("pho_hoe"));
+  //////// branchesToRead.insert(fChain->GetBranch("pho_sieie"));
+  //////// branchesToRead.insert(fChain->GetBranch("pho_ecalsumetconedr03"));
+  //////// branchesToRead.insert(fChain->GetBranch("pho_ecalsumetconedr04"));
+  //////// branchesToRead.insert(fChain->GetBranch("pho_hcalsumetconedr03"));
+  //////// branchesToRead.insert(fChain->GetBranch("pho_hcalsumetconedr04"));
+  //////// branchesToRead.insert(fChain->GetBranch("pho_trksumptsolidconedr03"));
+  //////// branchesToRead.insert(fChain->GetBranch("pho_trksumpthollowconedr04"));
+  //////// branchesToRead.insert(fChain->GetBranch("pho_isEB"));
+  //////// branchesToRead.insert(fChain->GetBranch("pho_isEE"));
+  //////// branchesToRead.insert(fChain->GetBranch("pho_haspixseed"));
+  //////// 
+  //////// branchesToRead.insert(fChain->GetBranch("gp_n"));
+  //////// branchesToRead.insert(fChain->GetBranch("gp_p4"));
+  //////// branchesToRead.insert(fChain->GetBranch("gp_status"));
+  //////// branchesToRead.insert(fChain->GetBranch("gp_pdgid"));
+
   b_lumis = fChain->GetBranch("lumis");
   b_run = fChain->GetBranch("run");
   b_pho_n = fChain->GetBranch("pho_n");
@@ -390,7 +414,7 @@ void LoopAll::myGetBranchPhotonAnalysis() {
   b_pho_isEB = fChain->GetBranch("pho_isEB");
   b_pho_isEE = fChain->GetBranch("pho_isEE");
   b_pho_haspixseed = fChain->GetBranch("pho_haspixseed");
-
+  
   b_gen_n = fChain->GetBranch("gp_n");
   b_gen_p4 = fChain->GetBranch("gp_p4");
   b_gen_status = fChain->GetBranch("gp_status");
