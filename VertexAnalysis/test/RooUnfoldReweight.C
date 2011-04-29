@@ -37,6 +37,28 @@ Double_t smear (Double_t gen)
   return reco;
 }
 
+TH1* Unfold(TH2*hgen_vs_reco, TH1*hgen, TH1*hdata){
+	  RooUnfoldResponse response (hgen_vs_reco->ProjectionX(), hgen, hgen_vs_reco);
+	  RooUnfoldBayes    unfold (&response, hdata, 4);
+	  return (TH1D*) unfold.Hreco(3)->Clone("hunfolded");
+}
+
+/*
+
+.L ../../../h2gglobe/VertexAnalysis/test/RooUnfoldReweight.C
+TFile b("/afs/cern.ch/user/m/malberti/public/xLino/NDataRecoVertices.root");
+TFile a("/afs/cern.ch/user/m/malberti/public/xLino/HistosForPUReweighting.root");
+TH1D *data  = (TH1D*) b.Get("NvtAll");
+TH1D *gen  = (TH1D*) a.Get("hgen");
+TH2D *gen_vs_reco  = (TH2D*) a.Get("hnpugen_vs_nvtxreco");
+TFile f("unfolded.root","RECREATE");
+TH1D *unf = Unfold(gen_vs_reco, gen, data);
+unf->Write();
+f.Close();
+
+*/
+
+
 //==============================================================================
 // Example Unfolding
 //==============================================================================
@@ -49,6 +71,8 @@ void RooUnfoldReweight()
 
   cout << "==================================== TRAIN ====================================" << endl;
   RooUnfoldResponse MCresponse (30, 1, 30);
+  TH2D *hResponse2D= new TH2D("Response2D","Response 2D; reco; gen",30,1,30,30,1,30);
+  TH1D *hResponseGen= new TH1D("ResponseGen","Response Gen; gen",30,1,30);
 
   // Fill response
   for (Int_t i= 0; i<110000; i++) {
@@ -60,12 +84,17 @@ void RooUnfoldReweight()
         gen= 16+10*gRandom->Exp(0.2);
     }
     Double_t reco= smear (gen);
-    if (reco!=cutdummy)
+    if (reco!=cutdummy){
       MCresponse.Fill (reco, gen);
-    else
+      hResponse2D->Fill(reco,gen);
+      hResponseGen->Fill(gen);
+    }else{
       MCresponse.Miss (gen);
+      hResponseGen->Fill(gen);
+    }
   }
 
+  RooUnfoldResponse MChistoResponse (hResponse2D->ProjectionX(), hResponseGen, hResponse2D);
 
   cout << "==================================== TEST =====================================" << endl;
   TH1D* hGen= new TH1D ("Gen", "Generated; gen",    30, 1, 30);
@@ -79,18 +108,26 @@ void RooUnfoldReweight()
   }
 
   cout << "==================================== UNFOLD ===================================" << endl;
-  RooUnfoldBayes    unfold (&MCresponse, hReco, 4);    // OR
-//  RooUnfoldSvd      unfold (&MCresponse, hReco, 6);   // OR
+
+  RooUnfoldBayes    unfold (&MChistoResponse, hReco, 4);    // OR
+//  RooUnfoldBayes    unfold (&MCresponse, hReco, 4);    // OR
+
+  //  RooUnfoldSvd      unfold (&MCresponse, hReco, 6);   // OR
 //  RooUnfoldBinByBin unfold (&MCresponse, hReco);
 //  RooUnfoldTUnfold	unfold (&MCresponse, hReco);
 //  RooUnfoldInvert	unfold (&MCresponse, hReco);
 
-  TH1D* hUnfolded= (TH1D*) unfold.Hreco(3);
+  TH1D* hUnfolded= (TH1D*) unfold.Hreco(2);
 
   unfold.PrintTable (cout, hGen);
 
   TCanvas *c = new TCanvas("unfold test", "unfold test", 1200,600);
   c->Divide(3,2);
+
+  c->cd(1);
+  TH2* r = (TH2*) MCresponse.Hresponse()->Clone("Response");
+  r->SetTitle("Response; reco; gen");
+  r->Draw("box");
 
   c->cd(2);
   TH1 *hMCReco = (TH1*)MCresponse.Hmeasured()->Clone("Reco");
@@ -109,11 +146,6 @@ void RooUnfoldReweight()
   leg2->AddEntry(hMCReco,"Reco","l");
   leg2->AddEntry(hMCGen,"Gen","l");
   leg2->Draw();
-
-  c->cd(1);
-  TH2* r = (TH2*) MCresponse.Hresponse()->Clone("Response");
-  r->SetTitle("Response; reco; gen");
-  r->Draw("box");
 
   c->cd(3);
   hReco->SetLineColor(8);
@@ -140,20 +172,21 @@ void RooUnfoldReweight()
 
   c->cd(5);
   TH1D* hSampled= new TH1D ("Sampled", "Sampled; reco",    30, 1, 30);
-  TH2D* hPull= new TH2D ("Pulls", "Pulls; pull; ",    30, 1, 30, 100, -5, 5);
+  TH2D* hPull= new TH2D ("Pulls", "Pulls; pull; ",    30, 1, 30, 100, -10, 10);
 
-  for(Int_t toy=0; toy<1000; ++toy){
+  for(Int_t toy=0; toy<100; ++toy){
 	  hSampled->Reset("ICE");
 	  hSampled->SetEntries(0);
 
-	  for (Int_t i=0; i<1000*10; ++i) {
+	  Double_t oversampling = 10.;
+	  for (Int_t i=0; i<1000*oversampling; ++i) {
 		  Double_t gen= hMCGen->GetRandom();
 		  Double_t w= gRandom->Gaus(
 				  hWeights->GetBinContent(hWeights->FindBin(gen)),
 				  hWeights->GetBinError(hWeights->FindBin(gen))
 				  );
 		  Double_t reco=smear(gen);
-		  hSampled->Fill(reco, w/10.);
+		  hSampled->Fill(reco, w/oversampling);
 	  }
 
 	  for(Int_t bin=1; bin<=hSampled->GetNbinsX(); ++bin){
@@ -177,15 +210,17 @@ void RooUnfoldReweight()
 
   TH1D* hMean= new TH1D ("Mean", "Mean;;mean", 30, 1, 30);
   TH1D* hSigma= new TH1D ("Sigma", "Sigma;;sigma", 30, 1, 30);
-  TF1 *norm= new TF1("normal","gaus",-5,5);
+  TF1 *norm= new TF1("normal","gaus",-10,10);
 
   for(Int_t bin=0; bin<=hPull->GetNbinsX()+1; ++bin){
 	  TH1D *hSlice = hPull->ProjectionY("PullSlice",bin,bin,"e");
+	  if (hSlice->Integral() == 0) continue;
+
 	  norm->SetParameter(0, hSlice->Integral());
 	  norm->SetParameter(1, 0.);
 	  norm->SetParameter(2, 1.);
 
-	  hSlice->Fit(norm, "MINEQ");
+	  hSlice->Fit(norm, "MINE");
 
 	  hMean->SetBinContent(hPull->GetBinCenter(bin), norm->GetParameter(1) );
 	  hMean->SetBinError(hPull->GetBinCenter(bin), norm->GetParError(1) );
