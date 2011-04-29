@@ -22,7 +22,7 @@
 #include "VertexAnalysis/interface/PhotonInfo.h"
 #include "VertexAnalysis/interface/VertexAlgoParameters.h"
 
-#define DEBUG 0
+#define DEBUG 1
 
 class LoopAll {
  public :
@@ -51,22 +51,19 @@ class LoopAll {
   virtual Bool_t Notify();
   virtual void   Show(Long64_t entry = -1);
   virtual void   InitHistos();
-  virtual void   BookHisto(int,int,int,int,int,int
-			  ,float,float,float,float
-			  ,char*);
+  virtual void   BookHisto(int,int,int,int,int,int,
+                           float,float,float,float,char*);
  
-  //Util *utilInstance;
   void LoopAndFillHistos(TString treename="event");
-  void WriteHist();  
-  void WriteFits();  
-  void WriteCounters();  
+  //void WriteHist();  
+  //void WriteFits();  
+  //void WriteCounters();  
   void SetTypeRun(int, const char* n);
   //void SetOutputNames(const char* n, const char* n2="");
   void AddFile(std::string,int);
   void ReadInput(int t=0);
-  void DefineSamples(const char*,int,int,int,int, long long
-		    ,float,float,float,float,float);
-
+  void DefineSamples(const char*,int,int,int,int, long long,
+                     float,float,float,float,float);
   void Term(); 
 
   std::vector<std::string> files;
@@ -117,9 +114,9 @@ class LoopAll {
   HggVertexFromConversions vtxConv;
 
   void Loop(Int_t);
-  void myWritePlot();
-  void myWriteFits();
-  void myWriteCounters();
+  void WriteHist();
+  void WriteFits();
+  void WriteCounters();
   
   int FillAndReduce(int);
   

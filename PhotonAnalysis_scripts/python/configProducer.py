@@ -15,8 +15,7 @@ class configProducer:
 
   def __init__(self,Ut,conf_filename,Type):
 
-    print "h2gglobe: step %d, with Config %s" \
-	 %(Type,conf_filename)
+    print "h2gglobe: step %d, with Config %s" %(Type,conf_filename)
 
     self.ut_   = Ut;
     self.type_ = Type;
@@ -55,11 +54,13 @@ class configProducer:
       comment_status = False
       for l in cf.readlines():
         line = l.strip(" ").lstrip(" ")
-        if len(line) < 2: continue
+        if len(line) < 2:
+          continue
         if line[0:2] == '->':	
-          if comment_status: comment_status = False
-          else:		  comment_status = True
-          
+          if comment_status:
+            comment_status = False
+          else:
+            comment_status = True
         elif not comment_status:
           lines.append(line)
         else:
@@ -68,48 +69,24 @@ class configProducer:
   def init_cuts(self):
     self.read_dat_cuts('cuts.dat')
     for dum in self.plotvar_.vardef:
-       self.ut_.AddCut(
-         dum['cutname'	  ]
-         ,dum['ncat' 	  ]
-         ,dum['dir'  	  ]
-         ,dum['fin'  	  ]
-         ,dum['cutValuel' ]
-         ,dum['cutValueh' ]
-         )
+       self.ut_.AddCut(dum['cutname'],dum['ncat'],dum['dir'],dum['fin'],dum['cutValuel'],dum['cutValueh'])
        
   def init_counters(self):
     self.read_dat_counters('counters.dat')
     self.ut_.InitCounters()
     for dum in self.plotvar_.vardef:
-      self.ut_.AddCounter(
-			  dum['ncat']
-        ,dum['countername' ]
-        ,dum['denomname1'  ]
-        ,dum['denomname2'  ]
-        ,dum['denomname3'  ]
-        )
+      self.ut_.AddCounter(dum['ncat'] ,dum['countername'], dum['denomname1'], dum['denomname2'], dum['denomname3'])
       
   def init_histos(self):
     self.read_dat_plotvariables('plotvariables.dat')
     self.ut_.InitHistos()
     for dum in self.plotvar_.vardef:
-       self.ut_.BookHisto(
-         dum['htyp'	]
-         ,dum['plot'	]
-         ,dum['default'	]
-         ,dum['ncat'	]
-         ,dum['xbins'	]
-         ,dum['ybins'	]
-         ,dum['xmin'	]
-         ,dum['xmax'	]
-         ,dum['ymin'	]
-         ,dum['ymax'	]
-         ,dum['name'	]
-			 )
-
+      self.ut_.BookHisto(dum['htyp'],dum['plot'],dum['default'],dum['ncat'],dum['xbins'],dum['ybins'],dum['xmin'],dum['xmax'],dum['ymin'],dum['ymax'],dum['name'])
+      
   def init_reduce(self):
     self.read_config_reduce(self.conf_filename)
-    if PYDEBUG: self.conf_.print_conf()
+    if PYDEBUG:
+      self.conf_.print_conf()
     self.add_files()
     self.ut_.SetTypeRun(self.type_,self.conf_.outfile)
     # self.ut_.ReadInput(self.type_)
@@ -117,83 +94,72 @@ class configProducer:
 
   def init_loop(self):
     self.read_config_loop(self.conf_filename)
-    if PYDEBUG: self.conf_.print_conf()
+    if PYDEBUG:
+      self.conf_.print_conf()
     self.add_files()
     self.ut_.SetTypeRun(self.type_,self.conf_.histfile)
     for dum in self.conf_.confs:
-      self.ut_.DefineSamples(dum['Nam'  ] 
-			    ,dum['typ'  ] 
-			    ,dum['ind'  ] 
-			    ,dum['draw' ] 
-			    ,dum['red'  ] 
-			    ,dum['tot'  ] 
-			    ,dum['intL' ] 
-			    ,dum['lum'  ] 
-			    ,dum['xsec' ] 
-			    ,dum['kfac' ] 
-			    ,dum['scal' ]
-			    )
+      self.ut_.DefineSamples(dum['Nam'],dum['typ'],dum['ind'],dum['draw'],dum['red'],dum['tot'],dum['intL'],dum['lum'],dum['xsec'],dum['kfac'],dum['scal'])
  
   def add_files(self):
     for t_f in self.conf_.files:
       self.ut_.AddFile(t_f[0],t_f[1])
-
+      
 # File Parsers ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   def read_dat_plotvariables(self,f): 
-     "Parsing of the plotting variables dat"
-     self.plotvar_.clear()
-     self.read_file(f)
-     map_c   = {}
-     default = 0
-     for line in self.lines_:       
-      if len(line) < 2: continue
-      if (len(line.split()) < 1): continue
-       # Decide whether this is a define line or a file line:
-      if "default" in line:   
+    print "Parsing of the plotting variables dat"
+    self.plotvar_.clear()
+    self.read_file(f)
+    map_c   = {}
+    default = 0
+    for line in self.lines_:       
+      if len(line) < 2:
+        continue
+      if (len(line.split()) < 1):
+        continue
+      # Decide whether this is a define line or a file line:
+      if "default" in line:
         split_line = line.split()
-	# We have the definiion line
+        # We have the definiion line
         for sp in split_line:
           val = sp.split("=")
-	  if val[0] == "default":
-           default = int(val[1])
-          else: sys.exit("Unrecognised Argument:\n ' %s ' in line:\n ' %s '"
-			%(val[0],line))
-
+          if val[0] == "default":
+            default = int(val[1])
+          else:
+            sys.exit("Unrecognised Argument:\n ' %s ' in line:\n ' %s '"%(val[0],line))
       elif "name" in line:
         # We have one of the file def lines
         split_line = line.split()
         for sp in split_line:
-	 val = sp.split("=")
-         if val[0] == "htyp":
-           map_c["htyp"] = int(val[1])
-         elif val[0] == "plot":
-           map_c["plot"] = int(val[1])
-         elif val[0] == "ncat":
-           map_c["ncat"] = int(val[1])
-         elif val[0] == "xbins":
-           map_c["xbins"] = int(val[1])
-         elif val[0] == "ybins":
-           map_c["ybins"] = int(val[1])
-         elif val[0] == "xmin":
-           map_c["xmin"] = float(val[1])
-         elif val[0] == "xmax":
-           map_c["xmax"] = float(val[1])
-         elif val[0] == "ymin":
-           map_c["ymin"] = float(val[1])
-         elif val[0] == "ymax":
-           map_c["ymax"] = float(val[1])
-         elif val[0] == "name":
-           map_c["name"] = str(val[1])
-         
-
-         else: sys.exit("Unrecognised Argument:\n ' %s ' in line:\n ' %s '"
-			%(val[0],line))
-
+          val = sp.split("=")
+          if val[0] == "htyp":
+            map_c["htyp"] = int(val[1])
+          elif val[0] == "plot":
+            map_c["plot"] = int(val[1])
+          elif val[0] == "ncat":
+            map_c["ncat"] = int(val[1])
+          elif val[0] == "xbins":
+            map_c["xbins"] = int(val[1])
+          elif val[0] == "ybins":
+            map_c["ybins"] = int(val[1])
+          elif val[0] == "xmin":
+            map_c["xmin"] = float(val[1])
+          elif val[0] == "xmax":
+            map_c["xmax"] = float(val[1])
+          elif val[0] == "ymin":
+            map_c["ymin"] = float(val[1])
+          elif val[0] == "ymax":
+            map_c["ymax"] = float(val[1])
+          elif val[0] == "name":
+            map_c["name"] = str(val[1])
+          else:
+            sys.exit("Unrecognised Argument:\n ' %s ' in line:\n ' %s '"%(val[0],line))
         self.plotvar_.vardef.append(map_c.copy())
-      else: sys.exit("Config Line Unrecognised:\n ' %s '"%line)
-     for cc in self.plotvar_.vardef:
-	cc["default"] = default
+      else:
+        sys.exit("Config Line Unrecognised:\n ' %s '"%line)
+      for cc in self.plotvar_.vardef:
+        cc["default"] = default
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def read_dat_counters(self,f): 
@@ -277,66 +243,66 @@ class configProducer:
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def read_config_reduce(self,f):
-     "Parsing of the reduction configuration"        
-     self.read_file(f)
-     comment_status = False 
+    print "Parsing of the reduction configuration"        
+    self.read_file(f)
+    comment_status = False 
 
-     for line in self.lines_:
-       # Decide whether this is a define line or a file line:
-       if "output" in line:   
-         split_line = line.split()
-         # We have the definition line
-         for sp in split_line:
-           val = sp.split("=")
-           if val[0] == "output":
-             self.conf_.outfile = str(val[1])
-           else: sys.exit("Unrecognised Argument:\n ' %s ' in line:\n ' %s '"
-                          %(val[0],line))
+    for line in self.lines_:
+      # Decide whether this is a define line or a file line:
+      if "output" in line:   
+        split_line = line.split()
+        # We have the definition line
+        for sp in split_line:
+          val = sp.split("=")
+          if val[0] == "output":
+            self.conf_.outfile = str(val[1])
+          else:
+            sys.exit("Unrecognised Argument:\n ' %s ' in line:\n ' %s '"%(val[0],line))
            
-       elif "Fil=" in line or "Dir=" in line:
-         values = { "CaDir" : "", "Dir" : "", "typ" : -1, "Fil" : ""  }; 
-         # We have one of the file def lines
-         split_line = line.split()
-         for sp in split_line:
-           name,val = sp.split("=")
-           if name in values:
-             values[name] = type(values[name])(val)
-           else:
-             sys.exit( "Unrecognised Argument:\n ' %s ' in line:\n ' %s '"% (name,line) )
-         directory = values["Dir"]
-         cas_directory = values["CaDir"]
-         fi_name   = values["Fil"]
-         fi_type   = values["typ"]
+      elif "Fil=" in line or "Dir=" in line:
+        values = { "CaDir" : "", "Dir" : "", "typ" : -1, "Fil" : ""  }; 
+        # We have one of the file def lines
+        split_line = line.split()
+        for sp in split_line:
+          name,val = sp.split("=")
+          if name in values:
+            values[name] = type(values[name])(val)
+          else:
+            sys.exit( "Unrecognised Argument:\n ' %s ' in line:\n ' %s '"% (name,line) )
+        directory = values["Dir"]
+        cas_directory = values["CaDir"]
+        fi_name   = values["Fil"]
+        fi_type   = values["typ"]
          
-         if fi_name != '':
-	   if not os.path.isfile(fi_name): 
-	     sys.exit("No Input File Named: %s"%fi_name)
-             tuple_n = fi_name, fi_type
-             self.conf_.files.append(tuple_n)
+        if fi_name != '':
+          if not os.path.isfile(fi_name): 
+            sys.exit("No Input File Named: %s"%fi_name)
+          tuple_n = fi_name, fi_type
+          self.conf_.files.append(tuple_n)
              
-         if cas_directory != '':
-           ca_files = makeCaFiles(cas_directory)
-           for file_s in ca_files:
-             self.conf_.files.append((str(directory+'/'+file_s),fi_type))
+        if cas_directory != '':
+          ca_files = makeCaFiles(cas_directory)
+          for file_s in ca_files:
+            self.conf_.files.append((str(directory+'/'+file_s),fi_type))
              
-         if os.path.isdir(directory): 
-           di_files = os.listdir(directory)
- 	   di_files = filter(lambda x: ".root" in x, di_files)
-           for file_s in di_files:
-             self.conf_.files.append((str(directory+'/'+file_s),fi_type))
+        if os.path.isdir(directory): 
+          di_files = os.listdir(directory)
+          di_files = filter(lambda x: ".root" in x, di_files)
+          for file_s in di_files:
+            self.conf_.files.append((str(directory+'/'+file_s),fi_type))
 
-       # read a generic member of the LoopAll class
-       else:
-         split_line = line.split()
-         struct_name = split_line.pop(0)
-         try:
-           struct = self.ut_.loops.__getattribute__(struct_name)            
-           if os.path.isfile(split_line[0]):
-             self.read_struct_from_file(split_line[0],struct)
-           else:
-             self.read_struct(split_line,struct)
-         except:
-           sys.exit("Unkown data member %s at line:\n\n%s\n"% (struct_name, line) )
+      # read a generic member of the LoopAll class
+      else:
+        split_line = line.split()
+        struct_name = split_line.pop(0)
+        try:
+          struct = self.ut_.loops.__getattribute__(struct_name)            
+          if os.path.isfile(split_line[0]):
+            self.read_struct_from_file(split_line[0],struct)
+          else:
+            self.read_struct(split_line,struct)
+        except:
+          sys.exit("Unkown data member %s at line:\n\n%s\n"% (struct_name, line) )
            
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def read_config_loop(self,f):

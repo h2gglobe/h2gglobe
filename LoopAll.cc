@@ -101,17 +101,17 @@ void LoopAll::ReadInput(int t) {
   
 } 
 void LoopAll::DefineSamples(const char *filesshortnam,
-			    int type,
-			    int histtoindfromfiles,
-			    int histoplotit,
-			    int nred,
-			    long long ntot,
-			    float intlumi,
-			    float lumi,
-			    float xsec,
-			    float kfactor,
-			    float scale) {
-
+                            int type,
+                            int histtoindfromfiles,
+                            int histoplotit,
+                            int nred,
+                            long long ntot,
+                            float intlumi,
+                            float lumi,
+                            float xsec,
+                            float kfactor,
+                            float scale) {
+  
   //look in map for type as a key already
   int sample_is_defined = -1;
   for (unsigned int s=0; s<sampleContainer.size(); s++) {
@@ -140,7 +140,8 @@ void LoopAll::DefineSamples(const char *filesshortnam,
 }
 
 void LoopAll::AddFile(std::string name,int type) {
-  if(DEBUG) cout << "Adding file:  " << name << " of type " << type << endl;
+  if(DEBUG) 
+    cout << "Adding file:  " << name << " of type " << type << endl;
   files.push_back(name);
   itype.push_back(type);
   
@@ -152,7 +153,7 @@ void LoopAll::LoopAndFillHistos(TString treename) {
   int i=0;
   
   if (DEBUG)
-    cout<<"LoopAndFillHistos: calling InitReal "<<endl;
+    cout<<"LoopAndFillHistos: calling InitReal " << endl;
   
   InitReal(typerun);
   
@@ -164,46 +165,46 @@ void LoopAll::LoopAndFillHistos(TString treename) {
   std::vector<TTree*>::iterator it_tree;
   std::vector<TTree*>::iterator it_treepar;
   std::vector<TFile*>::iterator it_file;
-
-  it 	  	= files.begin();
-  it_file 	= Files.begin();
+  
+  it = files.begin();
+  it_file = Files.begin();
   it_tree	= Trees.begin();
-  it_treepar    = TreesPar.begin();  
-
+  it_treepar = TreesPar.begin();  
+  
   for (;it!=files.end()
-       ;it_file++,it_tree++,it_treepar++,it++){ 
- 
+         ;it_file++,it_tree++,it_treepar++,it++){ 
+    
     this->current = i;
     cout<<"LoopAndFillHistos: opening " << i << " " << files[i]<<endl;
-
+    
     *it_file = TFile::Open((*it).c_str());
     //Files[i] = TFile::Open(files[i]);
     tot_events=1;
     sel_events=1;
     if(typerun == 1) { //this is a reduce job
-
+      
       if(*it_file)
-	*it_treepar=(TTree*) (*it_file)->Get("global_variables");
-
+        *it_treepar=(TTree*) (*it_file)->Get("global_variables");
+      
       if(*it_treepar) {
-	TBranch        *b_tot_events;
-	TBranch        *b_sel_events;
-	(*it_treepar)->SetBranchAddress("tot_events",&tot_events, &b_tot_events);
-	(*it_treepar)->SetBranchAddress("sel_events",&sel_events, &b_sel_events);
-	b_tot_events->GetEntry(0);
-	b_sel_events->GetEntry(0);
+        TBranch        *b_tot_events;
+        TBranch        *b_sel_events;
+        (*it_treepar)->SetBranchAddress("tot_events",&tot_events, &b_tot_events);
+        (*it_treepar)->SetBranchAddress("sel_events",&sel_events, &b_sel_events);
+        b_tot_events->GetEntry(0);
+        b_sel_events->GetEntry(0);
       } else {
-	cout<<"REDUCE JOB, no global_variables tree ... the C-step job must have crashed ... SKIP THE FILE"<<endl;
-	tot_events=0;
-	sel_events=0;
+        cout<<"REDUCE JOB, no global_variables tree ... the C-step job must have crashed ... SKIP THE FILE"<<endl;
+        tot_events=0;
+        sel_events=0;
       }
     }
-
+    
     if(tot_events!=0) {
-
+      
       if(*it_file)
-	*it_tree=(TTree*) (*it_file)->Get(treename);
-
+        *it_tree=(TTree*) (*it_file)->Get(treename);
+      
       Init(typerun, *it_tree);
     }
 
@@ -220,8 +221,10 @@ void LoopAll::LoopAndFillHistos(TString treename) {
     
     i++;
   }
+  
   //now close the first File
-  if(Files[0]) Files[0]->Close();
+  if(Files[0])
+    Files[0]->Close();
 
   TermReal(typerun);
 }
@@ -240,8 +243,7 @@ LoopAll::LoopAll(TTree *tree) :
 LoopAll::~LoopAll() {
   if (!fChain)
     return;
-
-  delete fChain->GetCurrentFile();
+  //delete fChain->GetCurrentFile();
 }
 
 Int_t LoopAll::GetEntry(Long64_t entry) {
@@ -276,25 +278,6 @@ void LoopAll::Show(Long64_t entry) {
   fChain->Show(entry);
 }
 
-/*
-void LoopAll::Loop(Double_t a) {
-  
-  if (fChain == 0) 
-    return;
-  
-  Int_t nentries = Int_t(fChain->GetEntriesFast());
-  
-  Long64_t nbytes = 0, nb = 0;
-  for (Long64_t jentry=0; jentry<nentries;jentry++) {
-    Long64_t ientry = LoadTree(jentry);
-    if (ientry < 0) 
-      break;
-    nb = fChain->GetEntry(jentry);   
-    nbytes += nb;
-  }
-}
-*/
-
 void LoopAll::InitHistos(){
 
   for(int ind=0; ind<sampleContainer.size(); ind++) {
@@ -309,7 +292,7 @@ void LoopAll::InitHistos(){
 void LoopAll::InitReal(Int_t typerunpass) {
 
   // Set branch addresses
-  typerun=typerunpass;
+  typerun = typerunpass;
   hfile = (TFile*)gROOT->FindObject(histFileName); 
   if (hfile) 
     hfile->Close();
@@ -488,7 +471,7 @@ void LoopAll::Loop(Int_t a) {
   }
 }
 
-void LoopAll::myWriteFits() {
+void LoopAll::WriteFits() {
   
   hfile = new TFile(histFileName, "RECREATE", "Globe ROOT file with histograms");
 
@@ -496,7 +479,7 @@ void LoopAll::myWriteFits() {
   hfile->cd();
  // rooContainer->Save();
 }
-void LoopAll::myWritePlot() {
+void LoopAll::WriteHist() {
 
   hfile = new TFile(histFileName, "RECREATE", "Globe ROOT file with histograms");
 
@@ -509,7 +492,7 @@ void LoopAll::myWritePlot() {
     outputFile->cd();
 }
 
-void LoopAll::myWriteCounters() {
+void LoopAll::WriteCounters() {
   if(LDEBUG) std::cout<<"LoopAll::myWriteCounters - START"<<std::endl;
   
   const int samples = sampleContainer.size();
@@ -668,12 +651,7 @@ void LoopAll::BookHisto(int h2d,
 // ------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------
-void LoopAll::AddCut(char *cutnamesc,
-		     int ncatstmp, 
-		     int ifromright ,
-		     int ifinalcut ,
-		     float *cutValuel,
-		     float *cutValueh) {
+void LoopAll::AddCut(char *cutnamesc, int ncatstmp, int ifromright, int ifinalcut, float *cutValuel, float *cutValueh) {
 
   if(LDEBUG) cout<<"InitCuts START"<<endl;
   
