@@ -110,12 +110,12 @@ public:
 
 // CINT doesn't like function pointers
 #ifndef __CINT__ 
-	typedef double (HggVertexAnalyzer::*getter_t) (int) const;
+	typedef float (HggVertexAnalyzer::*getter_t) (int) const;
 	typedef std::map<std::string,std::pair<getter_t,bool> > dict_t;
 	
 	static dict_t & dictionary();
 #endif
-	static const double spherPwr_;
+	static const float spherPwr_;
 	
 	static void bookVariables(TMVA::Reader & reader, const std::vector<std::string> & vars);
 	static void bookSpectators(TMVA::Reader & reader, const std::vector<std::string> & vars);
@@ -137,37 +137,37 @@ public:
 	void preselection(const std::vector<int> &ps) { preselection_ = ps; }
 
 	// getters
-	double mva(int i)    const { return 	mva_[i]; };	
+	float mva(int i)    const { return 	mva_[i]; };	
 
-	double diphopt(int i)    const { return diPhoton_[i].Pt(); };	
-	double nch(int i)    const { return 	nch_[i]; };	
-	double ptmax(int i)  const { return 	ptmax_[i]; };	
-	double sumpt(int i)  const { return 	sumpt_[i]; };	
-	double ptvtx(int i)  const { return 	vtxPt_[i].Mod(); };	
-	double acosA(int i)  const { return  	acosA_[i]; }; 	
-	double ptasym(int i) const { return 	ptasym_[i]; };	
-	double ptbal(int i)  const { return 	ptbal_[i]; };	
+	float diphopt(int i)    const { return diphopt_[i]; };	
+	float nch(int i)    const { return 	nch_[i]; };	
+	float ptmax(int i)  const { return 	ptmax_[i]; };	
+	float sumpt(int i)  const { return 	sumpt_[i]; };	
+	float ptvtx(int i)  const { return 	ptvtx_[i]; };	
+	float acosA(int i)  const { return  	acosA_[i]; }; 	
+	float ptasym(int i) const { return 	ptasym_[i]; };	
+	float ptbal(int i)  const { return 	ptbal_[i]; };	
 	
-	double nchthr(int i) const { return 	nchthr_[i]; };	
-	double ptmax3(int i) const { return 	ptmax3_[i]; };	
-	double thrust(int i) const { return 	thrust_[i]; };	
+	float nchthr(int i) const { return 	nchthr_[i]; };	
+	float ptmax3(int i) const { return 	ptmax3_[i]; };	
+	float thrust(int i) const { return 	thrust_[i]; };	
 
-	double sumweight(int i) const { return sumweight_[i]; };	
-	double logsumpt2(int i) const { return log(sumpt2_[i]); };	
-	double ptratio(int i)   const { return ptratio_[i]; };	
-	double pzasym(int i)    const { return pzasym_[i]; };	
+	float sumweight(int i) const { return sumweight_[i]; };	
+	float logsumpt2(int i) const { return log(sumpt2_[i]); };	
+	float ptratio(int i)   const { return ptratio_[i]; };	
+	float pzasym(int i)    const { return pzasym_[i]; };	
 	
-	double spher(int i) const { return 	spher_[i]; };	
-	double tspher(int i) const { return 	tspher_[i]; };
-	double aplan(int i) const { return 	aplan_[i]; };	
-	double threejetC(int i) const { return 	threejetC_[i]; };
-	double fourjetD(int i) const { return 	fourjetD_[i]; };
-	double sumpr(int i) const { return 	sumpr_[i]; };	
+	float spher(int i) const { return 	spher_[i]; };	
+	float tspher(int i) const { return 	tspher_[i]; };
+	float aplan(int i) const { return 	aplan_[i]; };	
+	float threejetC(int i) const { return 	threejetC_[i]; };
+	float fourjetD(int i) const { return 	fourjetD_[i]; };
+	float sumpr(int i) const { return 	sumpr_[i]; };	
 	
-	double sumawy(int i) const { return 	sumawy_[i]; };	
-	double sumtrv(int i) const { return 	sumtrv_[i]; };	
-	double sumtwd(int i) const { return 	sumtwd_[i]; };	
-	double awytwdasym(int i) const { return awytwdasym_[i]; };
+	float sumawy(int i) const { return 	sumawy_[i]; };	
+	float sumtrv(int i) const { return 	sumtrv_[i]; };	
+	float sumtwd(int i) const { return 	sumtwd_[i]; };	
+	float awytwdasym(int i) const { return awytwdasym_[i]; };
 
 	void branches(TTree *, const std::string & );
 	void setBranchAdresses(TTree *, const std::string &);
@@ -187,46 +187,48 @@ private:
 	
 	std::vector<int> preselection_;
 
-	std::vector<double> mva_;
+	std::vector<float> mva_;
 	
 	// buffers
 	std::vector<TLorentzVector> diPhoton_;
+	std::vector<float> diphopt_;
 	
-	std::vector<double> ptbal_;
-	std::vector<double> thrust_;
-	std::vector<double> sumpt_;
-	std::vector<double> sumpt2_;
-	std::vector<double> sumawy_;
-	std::vector<double> sumtwd_;
-	std::vector<double> sumtrv_;
-	std::vector<double> sumweight_;
-	std::vector<double> ptmax_;
-	std::vector<double> nchthr_;
-	std::vector<double> nch_;
-	std::vector<std::vector<double> > tksPt_;
+	std::vector<float> ptbal_;
+	std::vector<float> thrust_;
+	std::vector<float> sumpt_;
+	std::vector<float> sumpt2_;
+	std::vector<float> sumawy_;
+	std::vector<float> sumtwd_;
+	std::vector<float> sumtrv_;
+	std::vector<float> sumweight_;
+	std::vector<float> ptmax_;
+	std::vector<float> nchthr_;
+	std::vector<float> nch_;
+	std::vector<std::vector<float> > tksPt_;
 	std::vector<TMatrixDSym> sphers_;
-	std::vector<double> sumpr_;
-	std::vector<double> spher_;
-	std::vector<double> tspher_;
-	std::vector<double> aplan_;
-	std::vector<double> threejetC_;
-	std::vector<double> fourjetD_;
+	std::vector<float> sumpr_;
+	std::vector<float> spher_;
+	std::vector<float> tspher_;
+	std::vector<float> aplan_;
+	std::vector<float> threejetC_;
+	std::vector<float> fourjetD_;
 
 	std::vector<TVector3> vtxP_;
 	std::vector<TVector2> vtxPt_;
+	std::vector<float> ptvtx_;
 
 	std::vector<TVector2> diPhotonPt_;
-	std::vector<double> diPhotonPz_;
+	std::vector<float> diPhotonPz_;
 	
-	std::vector<double> acosA_;
-	std::vector<double> ptasym_;
+	std::vector<float> acosA_;
+	std::vector<float> ptasym_;
 
-	std::vector<double> ptmax3_;
+	std::vector<float> ptmax3_;
 
-	std::vector<double> ptratio_;
-	std::vector<double> pzasym_;
+	std::vector<float> ptratio_;
+	std::vector<float> pzasym_;
 
-	std::vector<double> awytwdasym_;
+	std::vector<float> awytwdasym_;
 
 };
 
