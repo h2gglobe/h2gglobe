@@ -135,11 +135,11 @@
    b_el_std_dcot = fChain->GetBranch("el_std_dcot"); 
    b_el_std_1pxb = fChain->GetBranch("el_std_1pxb"); 
    b_el_std_1pxf = fChain->GetBranch("el_std_1pxf"); 
-   b_gen_n = fChain->GetBranch("gen_n"); 
-   b_gen_p4 = fChain->GetBranch("gen_p4"); 
-   b_gen_status = fChain->GetBranch("gen_status"); 
-   b_gen_pdgid = fChain->GetBranch("gen_pdgid"); 
-   b_gen_mother = fChain->GetBranch("gen_mother"); 
+   b_gp_n = fChain->GetBranch("gp_n"); 
+   b_gp_p4 = fChain->GetBranch("gp_p4"); 
+   b_gp_status = fChain->GetBranch("gp_status"); 
+   b_gp_pdgid = fChain->GetBranch("gp_pdgid"); 
+   b_gp_mother = fChain->GetBranch("gp_mother"); 
    b_genjet_algo1_n = fChain->GetBranch("genjet_algo1_n"); 
    b_genjet_algo1_p4 = fChain->GetBranch("genjet_algo1_p4"); 
    b_genjet_algo1_em = fChain->GetBranch("genjet_algo1_em"); 

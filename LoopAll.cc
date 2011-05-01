@@ -237,6 +237,9 @@ LoopAll::LoopAll(TTree *tree) :
     vtxAna(vtxAlgoParams), vtxConv(vtxAlgoParams)
 {  
 #include "branchdef/newclonesarray.h"
+#ifndef __CINT__
+#include "branchdef/branchdict.h"
+#endif
 //  rooContainer = new RooContainer();
 }
 
@@ -627,6 +630,47 @@ int LoopAll::FillAndReduce(int jentry) {
   
   return hasoutputfile;
 }
+
+// ------------------------------------------------------------------------------------
+void LoopAll::GetBranches(std::set<std::string> & names, std::set<TBranch *> & branches)
+{
+    for(std::set<std::string>::iterator it=names.begin(); it!=names.end(); ++it ) {
+	const std::string & name = *it;
+	branch_info_t & info = branchDict[ name ];
+	assert( info.branch != 0 );
+	*(info.branch) = fChain->GetBranch( name.c_str() );
+	branches.insert( *(info.branch) );
+    }
+}
+
+// ------------------------------------------------------------------------------------
+void LoopAll::SetBranchAddresses(std::set<std::string> & names) {
+    for(std::set<std::string>::iterator it=names.begin(); it!=names.end(); ++it ) {
+	const std::string & name = *it;
+	branch_info_t & info = branchDict[ name ];
+	assert( info.read != 0 );
+	(this->*(info.read)) (fChain);
+    }
+}
+
+// ------------------------------------------------------------------------------------
+void LoopAll::Branches(std::list<std::string> & names) {
+   for(std::list<std::string>::iterator it=names.begin(); it!=names.end(); ++it ) {
+	const std::string & name = *it;
+	branch_info_t & info = branchDict[ name ];
+	assert( info.write != 0 );
+	(this->*(info.write)) (outputTree);
+    }
+}
+
+// ------------------------------------------------------------------------------------
+void LoopAll::GetEntry(std::set<TBranch *> & branches, int jentry)
+{
+   for(std::set<TBranch *>::iterator it=branches.begin(); it!=branches.end(); ++it ) {
+       if( (*it)->GetReadEntry() != jentry ) {  (*it)->GetEntry(jentry); }
+   }
+}
+
 void LoopAll::BookHisto(int h2d,
 			int typplot,
 			int typeplotall,
@@ -648,7 +692,6 @@ void LoopAll::BookHisto(int h2d,
 }
 
 
-// ------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------
 void LoopAll::AddCut(char *cutnamesc, int ncatstmp, int ifromright, int ifinalcut, float *cutValuel, float *cutValueh) {

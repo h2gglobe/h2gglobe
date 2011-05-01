@@ -73,6 +73,8 @@
   Int_t ecalhit_n;
   Float_t ecalhit_time[MAX_ECALRECHITS];
   UInt_t ecalhit_detid[MAX_ECALRECHITS];
+  Short_t ecalhit_type[MAX_ECALRECHITS];
+  Short_t ecalhit_flag[MAX_ECALRECHITS];
   Int_t el_std_n;
   Float_t el_std_enearbcopin[MAX_ELECTRONS];
   Float_t el_std_eseedopout[MAX_ELECTRONS];
@@ -152,11 +154,11 @@
   TClonesArray *el_std_momout;
   TClonesArray *el_std_posvtx;
   TClonesArray *el_std_poscalo;
-  Int_t gen_n;
-  Int_t gen_status[MAX_GENERATOR];
-  Int_t gen_pdgid[MAX_GENERATOR];
-  Int_t gen_mother[MAX_GENERATOR];
-  TClonesArray *gen_p4;
+  Int_t gp_n;
+  Int_t gp_status[MAX_GENERATOR];
+  Int_t gp_pdgid[MAX_GENERATOR];
+  Int_t gp_mother[MAX_GENERATOR];
+  TClonesArray *gp_p4;
   Int_t genjet_algo1_n;
   Float_t genjet_algo1_em[MAX_GENJETS]; 
   Float_t genjet_algo1_had[MAX_GENJETS]; 

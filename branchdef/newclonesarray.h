@@ -14,7 +14,7 @@
   el_std_momout  = new TClonesArray("TVector3", MAX_ELECTRONS);
   el_std_posvtx  = new TClonesArray("TVector3", MAX_ELECTRONS);
   el_std_poscalo  = new TClonesArray("TVector3", MAX_ELECTRONS);
-  gen_p4  = new TClonesArray("TLorentzVector", MAX_GENERATOR);
+  gp_p4  = new TClonesArray("TLorentzVector", MAX_GENERATOR);
   genjet_algo1_p4  = new TClonesArray("TLorentzVector", MAX_GENJETS);
   genjet_algo2_p4  = new TClonesArray("TLorentzVector", MAX_GENJETS);
   genjet_algo3_p4  = new TClonesArray("TLorentzVector", MAX_GENJETS);

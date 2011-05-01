@@ -52,7 +52,7 @@ class configProducer:
     else:
       cf = open(conf_filename,"r")
       comment_status = False
-      for l in cf.readlines():
+      for l in cf.read().split("\n"):
         line = l.strip(" ").lstrip(" ")
         if len(line) < 2:
           continue
@@ -90,7 +90,7 @@ class configProducer:
     self.add_files()
     self.ut_.SetTypeRun(self.type_,self.conf_.outfile)
     # self.ut_.ReadInput(self.type_)
-    ## self.read_struct_from_file(self.ut_.loops.vtxAlgoParams,)
+    ## self.read_struct_from_file(self.ut_.vtxAlgoParams,)
 
   def init_loop(self):
     self.read_config_loop(self.conf_filename)
@@ -243,23 +243,23 @@ class configProducer:
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def read_config_reduce(self,f):
-    print "Parsing of the reduction configuration"        
-    self.read_file(f)
-    comment_status = False 
+     "Parsing of the reduction configuration"        
+     self.read_file(f)
+     comment_status = False 
 
-    for line in self.lines_:
-      # Decide whether this is a define line or a file line:
-      if "output" in line:   
-        split_line = line.split()
-        # We have the definition line
-        for sp in split_line:
-          val = sp.split("=")
-          if val[0] == "output":
-            self.conf_.outfile = str(val[1])
-          else:
-            sys.exit("Unrecognised Argument:\n ' %s ' in line:\n ' %s '"%(val[0],line))
+     for line in self.lines_:
+       # Decide whether this is a define line or a file line:
+       if "output=" in line:   
+         split_line = line.split()
+         # We have the definition line
+         for sp in split_line:
+           val = sp.split("=")
+           if val[0] == "output":
+             self.conf_.outfile = str(val[1])
+           else: sys.exit("Unrecognised Argument:\n ' %s ' in line:\n ' %s '"
+                          %(val[0],line))
            
-      elif "Fil=" in line or "Dir=" in line:
+       elif "Fil=" in line or "Dir=" in line:
         values = { "CaDir" : "", "Dir" : "", "typ" : -1, "Fil" : ""  }; 
         # We have one of the file def lines
         split_line = line.split()
@@ -291,18 +291,45 @@ class configProducer:
           for file_s in di_files:
             self.conf_.files.append((str(directory+'/'+file_s),fi_type))
 
-      # read a generic member of the LoopAll class
-      else:
-        split_line = line.split()
-        struct_name = split_line.pop(0)
-        try:
-          struct = self.ut_.loops.__getattribute__(struct_name)            
-          if os.path.isfile(split_line[0]):
-            self.read_struct_from_file(split_line[0],struct)
-          else:
-            self.read_struct(split_line,struct)
-        except:
-          sys.exit("Unkown data member %s at line:\n\n%s\n"% (struct_name, line) )
+       # input and output branches      
+       elif "inputBranches" in line:
+         a, list = line.split(" ")
+         branches = []
+         if os.path.isfile(list):
+           self.read_file(list,branches)
+         else:
+           branches = list.split(",")
+         for b in branches:
+           self.ut_.InputBranch(b)
+
+       # input and output branches      
+       elif "outputBranches" in line:
+         print line.split(" ")
+         a, list = line.split(" ")
+         print a
+         print list
+         branches = []
+         if os.path.isfile(list):
+           self.read_file(list,branches)
+         else:
+           branches = list.split(",")
+         for b in branches:
+           ## all outputs need to be read  first
+           self.ut_.InputBranch(b)
+           self.ut_.OutputBranch(b)
+
+       # Read a generic member of the LoopAll class
+       else:
+         split_line = line.split()
+         struct_name = split_line.pop(0)
+         struct = self.ut_.__getattribute__(struct_name)
+         try:
+           if os.path.isfile(split_line[0]):
+             self.read_struct_from_file(split_line[0],struct)
+           else:
+             self.read_struct(split_line,struct)
+         except Exception, e:
+           sys.exit("Unkown data member %s at line:\n\n%s\n%s"% (struct_name, line, e) )
            
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def read_config_loop(self,f):

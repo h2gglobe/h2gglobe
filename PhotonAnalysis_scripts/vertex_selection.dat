@@ -1,0 +1,12 @@
+rescaleTkPtByError=0
+trackCountThr=0
+highPurityOnly=0
+maxD0Signif=999.
+maxDzSignif=999.
+
+sigmaPix=1.
+sigmaTib=999.
+sigmaTob=999.
+sigmaFwd1=999.
+sigmaFwd2=999.
+sigmaFwd3=999.

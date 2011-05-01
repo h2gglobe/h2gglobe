@@ -135,11 +135,11 @@
     TBranch *b_el_std_dcot;
     TBranch *b_el_std_1pxb;
     TBranch *b_el_std_1pxf;
-    TBranch *b_gen_n;
-    TBranch *b_gen_p4;
-    TBranch *b_gen_status;
-    TBranch *b_gen_pdgid;
-    TBranch *b_gen_mother;
+    TBranch *b_gp_n;
+    TBranch *b_gp_p4;
+    TBranch *b_gp_status;
+    TBranch *b_gp_pdgid;
+    TBranch *b_gp_mother;
     TBranch *b_genjet_algo1_n;
     TBranch *b_genjet_algo1_p4;
     TBranch *b_genjet_algo1_em;

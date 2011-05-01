@@ -79,11 +79,11 @@
    b_el_gge_tight->GetEntry(jentry); 
    b_el_gge_tkind->GetEntry(jentry); 
 */
-   b_gen_n->GetEntry(jentry); 
-   b_gen_p4->GetEntry(jentry); 
-   b_gen_status->GetEntry(jentry); 
-   b_gen_pdgid->GetEntry(jentry); 
-   b_gen_mother->GetEntry(jentry); 
+   b_gp_n->GetEntry(jentry); 
+   b_gp_p4->GetEntry(jentry); 
+   b_gp_status->GetEntry(jentry); 
+   b_gp_pdgid->GetEntry(jentry); 
+   b_gp_mother->GetEntry(jentry); 
 
    b_genjet_it5_n->GetEntry(jentry); 
    b_genjet_it5_p4->GetEntry(jentry); 

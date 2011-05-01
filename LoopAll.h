@@ -9,6 +9,9 @@
 #include "TClonesArray.h"
 
 #include <sstream>
+#include <set>
+#include <string>
+#include <list>
 
 #include "HistoContainer.h"
 #include "CounterContainer.h"
@@ -22,6 +25,8 @@
 #include "VertexAnalysis/interface/PhotonInfo.h"
 #include "VertexAnalysis/interface/VertexAlgoParameters.h"
 
+#define BRANCH_DICT(NAME) branchDict[# NAME] = branch_info_t(& b ## _ ## NAME, & LoopAll::SetBranchAddress ## _ ## NAME, & LoopAll::Branch ## _ ## NAME )
+
 #define DEBUG 1
 
 class LoopAll {
@@ -30,6 +35,8 @@ class LoopAll {
   
 #include "branchdef/branchdef.h"
 #include "branchdef/treedef.h"
+#include "branchdef/setbranchaddress.h"
+#include "branchdef/treebranch.h"
 #include "GeneralFunctions_h.h"
 #include "PhotonAnalysis/PhotonAnalysisFunctions_h.h"
 
@@ -136,8 +143,35 @@ class LoopAll {
   
   void FillCounter(std::string, int);
   void FillCounter(std::string);
-  
-  std::set<TBranch *> branchesToRead; 
+
+  /// void SkimBranch(const std::string & name)   { skimBranchNames.insert(name);  };
+  void InputBranch(const std::string & name)  { inputBranchNames.insert(name); };
+  void OutputBranch(const std::string & name) { if( find(outputBranchNames.begin(), outputBranchNames.end(), name)==outputBranchNames.end() ) { outputBranchNames.push_back(name); } };
+
+  void GetBranches(std::set<std::string> & names, std::set<TBranch *> & branches);
+  void SetBranchAddresses(std::set<std::string> & names);
+  void Branches(std::list<std::string> & names);
+  void GetEntry(std::set<TBranch *> & branches, int jentry);
+
+#ifndef __CINT__
+  typedef void (LoopAll::*branch_io_t) (TTree *);
+  struct branch_info_t {
+	  branch_info_t(TBranch ** b=0, branch_io_t r=0, branch_io_t w=0 ) :
+		  branch(b), read(r), write(w) 
+		  {};
+	  TBranch ** branch;
+	  branch_io_t read, write;
+  };
+  typedef std::map<std::string, branch_info_t> dict_t;
+  dict_t branchDict;
+#endif
+
+  //// std::set<std::string> skimBranchNames;
+  //// std::set<TBranch *> skimBranches; 
+  std::set<std::string> inputBranchNames;
+  std::set<TBranch *> inputBranches; 
+  std::list<std::string> outputBranchNames;
+
 };
 
 #endif

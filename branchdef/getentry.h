@@ -135,11 +135,11 @@
    b_el_std_dcot->GetEntry(jentry); 
    b_el_std_1pxb->GetEntry(jentry); 
    b_el_std_1pxf->GetEntry(jentry); 
-   b_gen_n->GetEntry(jentry); 
-   b_gen_p4->GetEntry(jentry); 
-   b_gen_status->GetEntry(jentry); 
-   b_gen_pdgid->GetEntry(jentry); 
-   b_gen_mother->GetEntry(jentry); 
+   b_gp_n->GetEntry(jentry); 
+   b_gp_p4->GetEntry(jentry); 
+   b_gp_status->GetEntry(jentry); 
+   b_gp_pdgid->GetEntry(jentry); 
+   b_gp_mother->GetEntry(jentry); 
    b_genjet_algo1_n->GetEntry(jentry); 
    b_genjet_algo1_p4->GetEntry(jentry); 
    b_genjet_algo1_em->GetEntry(jentry); 
