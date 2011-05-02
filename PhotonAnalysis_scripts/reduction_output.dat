@@ -115,23 +115,21 @@ vtx_std_dxdydz
 
 ->
 Beam spot
-->
 bs_std_xyz
 bs_std_sigmaZ
 bs_std_x0Error
 bs_std_y0Error
 bs_std_z0Error
 bs_std_sigmaZ0Error
+->
 
 ->
 Trigger
 ->
 hlt1_bit
-hlt2_bit
 hlt_n
 hlt_candpath
 hlt_path_names_HLT1
-hlt_path_names_HLT2
 hlt_p4
 l1emiso_n
 l1emiso_et
@@ -141,5 +139,5 @@ l1emnoniso_n
 l1emnoniso_et
 l1emnoniso_eta
 l1emnoniso_phi
-l1bits_phy;
+l1bits_phy
 l1_labels
