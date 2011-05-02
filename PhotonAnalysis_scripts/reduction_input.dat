@@ -1,4 +1,12 @@
 ->
+(minimal) photon info
+->
+pho_n
+pho_p4
+pho_r9
+pho_calopos
+
+->
 vertex analysis
 ->
 vtx_std_tkweight
@@ -15,3 +23,4 @@ tk_p4
 tk_p4
 tk_pterr
 tk_quality
+

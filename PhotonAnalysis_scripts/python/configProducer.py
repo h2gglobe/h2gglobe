@@ -304,10 +304,7 @@ class configProducer:
 
        # input and output branches      
        elif "outputBranches" in line:
-         print line.split(" ")
          a, list = line.split(" ")
-         print a
-         print list
          branches = []
          if os.path.isfile(list):
            self.read_file(list,branches)
@@ -431,7 +428,8 @@ class configProducer:
 
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def read_struct(self,lines,struct):
-    print "Reading structure %s" % ( str(struct) )
+    if PYDEBUG:
+      print "Reading structure %s" % ( str(struct) )
     for line in lines:
       split_line = line.split()
       for sp in split_line:
@@ -448,7 +446,8 @@ class configProducer:
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def read_struct_from_file(self,f,struct):
     lines = []
-    print "Reading structure from file %s %s " % ( str(struct), f )
+    if PYDEBUG:
+      print "Reading structure from file %s %s " % ( str(struct), f )
     self.read_file(f,lines)
     
     self.read_struct(lines,struct)

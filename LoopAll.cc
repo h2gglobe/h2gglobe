@@ -666,9 +666,9 @@ void LoopAll::Branches(std::list<std::string> & names) {
 // ------------------------------------------------------------------------------------
 void LoopAll::GetEntry(std::set<TBranch *> & branches, int jentry)
 {
-   for(std::set<TBranch *>::iterator it=branches.begin(); it!=branches.end(); ++it ) {
-       if( (*it)->GetReadEntry() != jentry ) {  (*it)->GetEntry(jentry); }
-   }
+  for(std::set<TBranch *>::iterator it=branches.begin(); it!=branches.end(); ++it ) {
+    if( (*it)->GetReadEntry() != jentry ) {  (*it)->GetEntry(jentry); }
+  }
 }
 
 void LoopAll::BookHisto(int h2d,

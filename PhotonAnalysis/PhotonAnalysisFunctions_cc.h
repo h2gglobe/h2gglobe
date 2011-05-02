@@ -40,24 +40,7 @@ void LoopAll::InitRealPhotonAnalysis(int typerun) {
 }
 
 void LoopAll::myGetEntryPhotonRedAnalysis(int jentry) {
-
-  b_lumis->GetEntry(jentry);
-  b_run->GetEntry(jentry);
-  b_pho_n->GetEntry(jentry); 
-  b_pho_p4->GetEntry(jentry); 
-  b_pho_r9->GetEntry(jentry); 
-  b_pho_calopos->GetEntry(jentry); 
-  b_pho_hoe->GetEntry(jentry); 
-  b_pho_sieie->GetEntry(jentry); 
-  b_pho_ecalsumetconedr03->GetEntry(jentry); 
-  b_pho_ecalsumetconedr04->GetEntry(jentry); 
-  b_pho_hcalsumetconedr03->GetEntry(jentry); 
-  b_pho_hcalsumetconedr04->GetEntry(jentry); 
-  b_pho_trksumptsolidconedr03->GetEntry(jentry); 
-  b_pho_trksumpthollowconedr04->GetEntry(jentry); 
-  b_pho_haspixseed->GetEntry(jentry); 
-
-
+    GetEntry(inputBranches, jentry);
 }
 
 void LoopAll::myFillHistPhotonAnalysis(int jentry) {
@@ -373,80 +356,15 @@ void LoopAll::myReducePhotonAnalysis(int jentry) {
 
 
 void LoopAll::myGetBranchPhotonAnalysis() {
-
-  //////// branchesToRead.insert(fChain->GetBranch("lumis"));
-  //////// branchesToRead.insert(fChain->GetBranch("run"));
-  //////// branchesToRead.insert(fChain->GetBranch("pho_n"));
-  //////// branchesToRead.insert(fChain->GetBranch("pho_p4"));
-  //////// branchesToRead.insert(fChain->GetBranch("pho_r9"));
-  //////// branchesToRead.insert(fChain->GetBranch("pho_calopos"));
-  //////// branchesToRead.insert(fChain->GetBranch("pho_hoe"));
-  //////// branchesToRead.insert(fChain->GetBranch("pho_sieie"));
-  //////// branchesToRead.insert(fChain->GetBranch("pho_ecalsumetconedr03"));
-  //////// branchesToRead.insert(fChain->GetBranch("pho_ecalsumetconedr04"));
-  //////// branchesToRead.insert(fChain->GetBranch("pho_hcalsumetconedr03"));
-  //////// branchesToRead.insert(fChain->GetBranch("pho_hcalsumetconedr04"));
-  //////// branchesToRead.insert(fChain->GetBranch("pho_trksumptsolidconedr03"));
-  //////// branchesToRead.insert(fChain->GetBranch("pho_trksumpthollowconedr04"));
-  //////// branchesToRead.insert(fChain->GetBranch("pho_isEB"));
-  //////// branchesToRead.insert(fChain->GetBranch("pho_isEE"));
-  //////// branchesToRead.insert(fChain->GetBranch("pho_haspixseed"));
-  //////// 
-  //////// branchesToRead.insert(fChain->GetBranch("gp_n"));
-  //////// branchesToRead.insert(fChain->GetBranch("gp_p4"));
-  //////// branchesToRead.insert(fChain->GetBranch("gp_status"));
-  //////// branchesToRead.insert(fChain->GetBranch("gp_pdgid"));
-
-  b_lumis = fChain->GetBranch("lumis");
-  b_run = fChain->GetBranch("run");
-  b_pho_n = fChain->GetBranch("pho_n");
-  b_pho_p4 = fChain->GetBranch("pho_p4");
-  b_pho_r9 = fChain->GetBranch("pho_r9");
-  b_pho_calopos = fChain->GetBranch("pho_calopos");
-  b_pho_hoe = fChain->GetBranch("pho_hoe");
-  b_pho_sieie = fChain->GetBranch("pho_sieie");
-  b_pho_ecalsumetconedr03 = fChain->GetBranch("pho_ecalsumetconedr03");
-  b_pho_ecalsumetconedr04 = fChain->GetBranch("pho_ecalsumetconedr04");
-  b_pho_hcalsumetconedr03 = fChain->GetBranch("pho_hcalsumetconedr03");
-  b_pho_hcalsumetconedr04 = fChain->GetBranch("pho_hcalsumetconedr04");
-  b_pho_trksumptsolidconedr03 = fChain->GetBranch("pho_trksumptsolidconedr03");
-  b_pho_trksumpthollowconedr04 = fChain->GetBranch("pho_trksumpthollowconedr04");
-  b_pho_isEB = fChain->GetBranch("pho_isEB");
-  b_pho_isEE = fChain->GetBranch("pho_isEE");
-  b_pho_haspixseed = fChain->GetBranch("pho_haspixseed");
-  
-  b_gen_n = fChain->GetBranch("gp_n");
-  b_gen_p4 = fChain->GetBranch("gp_p4");
-  b_gen_status = fChain->GetBranch("gp_status");
-  b_gen_pdgid = fChain->GetBranch("gp_pdgid");
+  /// GetBranches(inputBranchNames, inputBranches);
 }
 
 
 void LoopAll::mySetBranchAddressRedPhotonAnalysis() {
-
-  
-  fChain->SetBranchAddress("lumis", &lumis, &b_lumis);
-  fChain->SetBranchAddress("run", &run, &b_run);
-  fChain->SetBranchAddress("pho_n", &pho_n, &b_pho_n);
-  fChain->SetBranchAddress("pho_p4", &pho_p4, &b_pho_p4);
-  fChain->SetBranchAddress("pho_r9", &pho_r9, &b_pho_r9);
-  fChain->SetBranchAddress("pho_calopos", &pho_calopos, &b_pho_calopos);
-  fChain->SetBranchAddress("pho_hoe", &pho_hoe, &b_pho_hoe);
-  fChain->SetBranchAddress("pho_sieie", &pho_sieie, &b_pho_sieie);
-  fChain->SetBranchAddress("pho_ecalsumetconedr03", &pho_ecalsumetconedr03, &b_pho_ecalsumetconedr03);
-  fChain->SetBranchAddress("pho_ecalsumetconedr04", &pho_ecalsumetconedr04, &b_pho_ecalsumetconedr04);
-  fChain->SetBranchAddress("pho_hcalsumetconedr03", &pho_hcalsumetconedr03, &b_pho_hcalsumetconedr03);
-  fChain->SetBranchAddress("pho_hcalsumetconedr04", &pho_hcalsumetconedr04, &b_pho_hcalsumetconedr04);
-  fChain->SetBranchAddress("pho_trksumptsolidconedr03", &pho_trksumptsolidconedr03, &b_pho_trksumptsolidconedr03);
-  fChain->SetBranchAddress("pho_trksumpthollowconedr04", &pho_trksumpthollowconedr04, &b_pho_trksumpthollowconedr04);
-  fChain->SetBranchAddress("pho_isEB", &pho_isEB, &b_pho_isEB);
-  fChain->SetBranchAddress("pho_isEE", &pho_isEE, &b_pho_isEE);
-  fChain->SetBranchAddress("pho_haspixseed", &pho_haspixseed, &b_pho_haspixseed);
-
-  fChain->SetBranchAddress("gp_n", &gen_n, &b_gen_n);
-  fChain->SetBranchAddress("gp_p4", &gen_p4, &b_gen_p4);
-  fChain->SetBranchAddress("gp_status", &gen_status, &b_gen_status);
-  fChain->SetBranchAddress("gp_pdgid", &gen_pdgid, &b_gen_pdgid);
+  std::cerr << "mySetBranchAddressRedPhotonAnalysis" << std::endl;
+  inputBranches.clear();
+  GetBranches(inputBranchNames, inputBranches);
+  SetBranchAddresses(inputBranchNames);
 }
 
 
