@@ -11,12 +11,13 @@
 using namespace std;
 
 
-PhotonInfo::PhotonInfo(const TVector3 & caloPosition, float energy) :
-	caloPosition_(caloPosition), energy_(energy)
+PhotonInfo::PhotonInfo(int id, const TVector3 & caloPosition, float energy) :
+	id_(id), caloPosition_(caloPosition), energy_(energy)
 {
 }
 
-PhotonInfo::PhotonInfo(const TVector3 & caloPosition, 
+PhotonInfo::PhotonInfo(int id,
+		       const TVector3 & caloPosition, 
 		       const TVector3 &  bs, 
 		       const TVector3 &  convVtx, 
 		       float energy,
@@ -26,6 +27,7 @@ PhotonInfo::PhotonInfo(const TVector3 & caloPosition,
 		       float convVtxChi2Prob,
 		       float EoP
  ):
+	id_(id),
   caloPosition_(caloPosition), 
   beamSpot_(bs),
   conversionVertex_(convVtx),

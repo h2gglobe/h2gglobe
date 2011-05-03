@@ -78,6 +78,7 @@ HggVertexAnalyzer::HggVertexAnalyzer(AlgoParameters & ap, int nvtx) :
 	mva_(nvtx),
 
 	diPhoton_(nvtx),
+	diphopt_(nvtx),
 
 	ptbal_(nvtx,0.),
 	thrust_(nvtx,0.),
@@ -105,7 +106,6 @@ HggVertexAnalyzer::HggVertexAnalyzer(AlgoParameters & ap, int nvtx) :
 
 	diPhotonPt_(nvtx),
 	diPhotonPz_(nvtx),
-	diphopt_(nvtx),
 
 	acosA_(nvtx),
 	ptasym_(nvtx),
@@ -115,7 +115,10 @@ HggVertexAnalyzer::HggVertexAnalyzer(AlgoParameters & ap, int nvtx) :
 	ptratio_(nvtx),
 	pzasym_(nvtx),
 	
-	awytwdasym_(nvtx)
+	awytwdasym_(nvtx),
+	pho1_(-1),
+	pho2_(-1),
+	ninvalid_idxs_(0)
 {
 }
 
@@ -149,6 +152,9 @@ void HggVertexAnalyzer::branches(TTree * tree, const std::string & pfx)
 	tree->Branch((pfx+"sumtwd").c_str(), &sumtwd_ );
 	tree->Branch((pfx+"awytwdasym").c_str(), &awytwdasym_ );
 
+	tree->Branch((pfx+"ninvalid_idxs").c_str(), &ninvalid_idxs_, (pfx+"ninvalid_idxs/I").c_str() );
+	tree->Branch((pfx+"pho1").c_str(), &pho1_, (pfx+"pho1/I").c_str() );
+	tree->Branch((pfx+"pho2").c_str(), &pho2_, (pfx+"pho2/I").c_str() );
 }
 
 // -------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -181,6 +187,9 @@ void HggVertexAnalyzer::setBranchAdresses(TTree * tree, const std::string & pfx)
 	tree->SetBranchAddress((pfx+"sumtwd").c_str(), &sumtwd_ );
 	tree->SetBranchAddress((pfx+"awytwdasym").c_str(), &awytwdasym_ );
 
+	tree->SetBranchAddress((pfx+"ninvalid_idxs").c_str(), &ninvalid_idxs_ );
+	tree->SetBranchAddress((pfx+"pho1").c_str(), &pho1_ );
+	tree->SetBranchAddress((pfx+"pho2").c_str(), &pho2_ );
 }
 
 // -------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -450,7 +459,10 @@ void HggVertexAnalyzer::analyze(const VertexInfoAdapter & e, const PhotonInfo & 
 {
 	int const nvtx = e.nvtx();
 	nvtx_ = nvtx;
-	
+	pho1_ = p1.id();
+	pho2_ = p2.id();
+	ninvalid_idxs_=0;
+
 	// initilise
 	mva_.clear(); mva_.resize(nvtx,0.);
 	ptbal_.clear(); ptbal_.resize(nvtx,0.);
@@ -517,12 +529,22 @@ void HggVertexAnalyzer::analyze(const VertexInfoAdapter & e, const PhotonInfo & 
 		
 		const unsigned short * vtxTracks = e.hasVtxTracks() ? e.vtxTracks(vid) : &vtxTracksBuf[ vid*e.ntracks() ];
 		int ntracks = e.hasVtxTracks() ? e.vtxNTracks(vid) : vtxTracksSizeBuf[ vid ];
-
+		// std::cerr << "vertexAnalysis  vid " << vid << " ntracks " <<  ntracks << " : ";
+		
 		//calculating loop over tracks
 		for(int it=0; it<ntracks; ++it) {
 			
-			int tid = vtxTracks[it];
+			unsigned short tid = vtxTracks[it];
+			if( params_.fixTkIndex ) {
+				if( tid == (unsigned short) -1 ) { tid=0; } 
+				else { ++tid; }
+			}
+			if( tid >= e.ntracks() ) {
+				++ninvalid_idxs_;
+				continue;
+			}
 			float tkWeight = e.tkWeight(tid,vid);			
+			// std::cerr << tid << ", "; 
 			
 			if( ( params_.highPurityOnly && !e.tkIsHighPurity(tid)  )
 			    || fabs(e.tkd0(tid,vid)/e.tkd0Err(tid,vid)) > params_.maxD0Signif 
@@ -582,6 +604,7 @@ void HggVertexAnalyzer::analyze(const VertexInfoAdapter & e, const PhotonInfo & 
 			}
 			sumpr_[vid] += pow(tkPVec.Mag(),spherPwr_);
 		}
+		/// std::cerr << std::endl;
 		
 		sphers_[vid] *= 1./sumpr_[vid];
 		

@@ -3,6 +3,7 @@
 
 class VertexAlgoParameters {
 public:
+	bool fixTkIndex;
 
 	bool rescaleTkPtByError;
 	float trackCountThr;

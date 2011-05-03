@@ -137,6 +137,10 @@ public:
 	void preselection(const std::vector<int> &ps) { preselection_ = ps; }
 
 	// getters
+	int pho1() const { return pho1_; };
+	int pho2() const { return pho2_; };
+	int ninvalid_idxs() const { return ninvalid_idxs_; };
+
 	float mva(int i)    const { return 	mva_[i]; };	
 
 	float diphopt(int i)    const { return diphopt_[i]; };	
@@ -230,6 +234,8 @@ private:
 
 	std::vector<float> awytwdasym_;
 
+	int ninvalid_idxs_;
+	int pho1_, pho2_;
 };
 
 // -------------------------------------------------------------------------------------------------------------------------------------------------------------
