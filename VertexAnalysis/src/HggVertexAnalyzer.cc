@@ -548,10 +548,11 @@ void HggVertexAnalyzer::analyze(const VertexInfoAdapter & e, const PhotonInfo & 
 			
 			if( ( params_.highPurityOnly && !e.tkIsHighPurity(tid)  )
 			    || fabs(e.tkd0(tid,vid)/e.tkd0Err(tid,vid)) > params_.maxD0Signif 
-			    || fabs(e.tkd0(tid,vid)/e.tkdzErr(tid,vid)) > params_.maxDzSignif ) { 
+			    || fabs(e.tkdz(tid,vid)/e.tkdzErr(tid,vid)) > params_.maxDzSignif ) {
 				continue; 
 			}
 			
+
 			const TVector3 tkPVec(e.tkpx(tid),e.tkpy(tid),e.tkpz(tid));
 			assert(vid >= 0 && vid < nvtx);
 		
