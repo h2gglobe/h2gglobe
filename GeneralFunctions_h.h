@@ -9,10 +9,7 @@ std::pair<bool, bool> ElectronId(int, eIDLevel);
 void eIDInfo(Int_t, Int_t&, Int_t&,Int_t eIDMaxLevel=10);
 Float_t sipCalculator(int);
 
-void vertexAnalysis(int pho1, int pho2);
-std::vector<int> vertexSelection(int p1, int p2);
-void vertexAnalysisRedGetBranches();
-void vertexAnalysisRedMakeBranches();
-void vertexAnalysisGetBranches();
+void vertexAnalysis(HggVertexAnalyzer & vtxAna, int pho1, int pho2);
+std::vector<int> vertexSelection(HggVertexAnalyzer & vtxAna, int p1, int p2, std::vector<std::string> & vtxVarNames);
 
-
+TLorentzVector get_pho_p4(int ipho, int ivtx);

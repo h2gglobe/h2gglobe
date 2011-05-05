@@ -193,15 +193,13 @@ void HggVertexAnalyzer::setBranchAdresses(TTree * tree, const std::string & pfx)
 }
 
 // -------------------------------------------------------------------------------------------------------------------------------------------------------------
-std::set<TBranch *> HggVertexAnalyzer::getBranches(TTree * tree, const std::string & pfx)
+void HggVertexAnalyzer::getBranches(TTree * tree, const std::string & pfx, std::set<TBranch *> &ret)
 {
-	std::set<TBranch *> ret;
-	
-	ret.insert(tree->GetBranch((pfx+"diPhoton").c_str()));
+	ret.insert(tree->GetBranch((pfx+"diphopt").c_str()));
 	ret.insert(tree->GetBranch((pfx+"nch").c_str()));
 	ret.insert(tree->GetBranch((pfx+"ptmax").c_str()));
 	ret.insert(tree->GetBranch((pfx+"sumpt").c_str()));
-	ret.insert(tree->GetBranch((pfx+"vtxPt").c_str()));
+	ret.insert(tree->GetBranch((pfx+"ptvtx").c_str()));
 	ret.insert(tree->GetBranch((pfx+"acosA").c_str()));
 	ret.insert(tree->GetBranch((pfx+"ptasym").c_str()));
 	ret.insert(tree->GetBranch((pfx+"ptbal").c_str()));
@@ -224,7 +222,9 @@ std::set<TBranch *> HggVertexAnalyzer::getBranches(TTree * tree, const std::stri
 	ret.insert(tree->GetBranch((pfx+"sumtwd").c_str()));
 	ret.insert(tree->GetBranch((pfx+"awytwdasym").c_str()));
 
-	return ret;
+	ret.insert(tree->GetBranch((pfx+"ninvalid_idxs").c_str()));
+	ret.insert(tree->GetBranch((pfx+"pho1").c_str()));
+	ret.insert(tree->GetBranch((pfx+"pho2").c_str()));
 }
 
 // -------------------------------------------------------------------------------------------------------------------------------------------------------------

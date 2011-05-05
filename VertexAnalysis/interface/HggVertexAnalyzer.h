@@ -175,7 +175,7 @@ public:
 
 	void branches(TTree *, const std::string & );
 	void setBranchAdresses(TTree *, const std::string &);
-	std::set<TBranch *> getBranches(TTree *, const std::string &);
+	void getBranches(TTree *, const std::string &, std::set<TBranch *>& );
 
 private:
 #ifndef __CINT__	
@@ -302,7 +302,7 @@ public:
 	virtual float tkpz(int ii) const { return tkpx_ != 0 ? tkpz_[ii] : 0.; };
 	
 	virtual float tkPtErr(int ii) const { return tkPtErr_  != 0 ? tkPtErr_[ii] : 999.; };
-	virtual int   tkVtxId(int ii) const { return tkVtxId_  != 0 ? tkVtxId_[ii] : 999.; };
+	virtual int   tkVtxId(int ii) const { return tkVtxId_  != 0 ? tkVtxId_[ii] : 999; };
 
 	virtual float tkWeight(int ii, int jj) const { return tkWeight_ != 0 ? tkWeight_[ii]*(float)( tkVtxId(ii) == jj) : 0.; };
 	

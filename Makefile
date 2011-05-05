@@ -27,14 +27,19 @@ VTX=VertexAnalysis
 VTXSRC=$(wildcard $(VTX)/src/*.$(SrcSuf))
 VTXOBS=$(patsubst %$(SrcSuf), %$(ObjSuf), $(VTXSRC))
 
+PHO=PhotonAnalysis
+PHOSRC=$(wildcard $(PHO)/src/*.$(SrcSuf))
+PHOOBS=$(patsubst %$(SrcSuf), %$(ObjSuf), $(PHOSRC))
+
 LOOPALLO = LoopAll.$(ObjSuf) \
 	   LoopAllDict.$(ObjSuf) \
 	   dict.$(ObjSuf) \
 	   HistoContainer.o \
+	   BaseAnalysis.o \
 	   CounterContainer.o \
 	   SampleContainer.o \
 	   Cut.o \
-           $(VTXOBS)
+           $(VTXOBS) $(PHOOBS)
 
 all: $(LOOPALL)
 
@@ -43,6 +48,7 @@ clean:
 
 .SUFFIXES: .$(SrcSuf)
 
+CXXFLAGS+=-I$(shell pwd)
 
 $(LOOPALL):  $(LOOPALLO)
 	$(LD) $(SOFLAGS) $(LDFLAGS) $(ROOTLIBS)  $(LOOPALLO) $(OutPutOpt) $(LOOPALLSO)
@@ -51,35 +57,25 @@ $(LOOPALL):  $(LOOPALLO)
 LoopAll.$(ObjSuf): CommonParameters.h LoopAll.h Tools.h \
 	branchdef/Limits.h branchdef/treedef.h branchdef/newclonesarray.h \
 	branchdef/treebranch.h branchdef/setbranchaddress.h branchdef/getentry.h branchdef/getbranch.h branchdef/branchdef.h \
-	PhotonAnalysis/PhotonAnalysisFunctions_h.h PhotonAnalysis/PhotonAnalysisFunctions_cc.h \
 	GeneralFunctions_cc.h GeneralFunctions_h.h \
+	BaseAnalysis.cc BaseAnalysis.h \
 	HistoContainer.cc HistoContainer.h \
 	CounterContainer.cc CounterContainer.h \
 	SampleContainer.cc SampleContainer.h \
-	Cut.cc Cut.h $(VTXSRC)
-
-mpUtil.$(ObjSuf): CommonParameters.h LoopAll.h \
-	branchdef/Limits.h branchdef/treedef.h branchdef/newclonesarray.h \
-	branchdef/treebranch.h branchdef/setbranchaddress.h branchdef/getentry.h branchdef/getbranch.h branchdef/branchdef.h \
-	PhotonAnalysis/PhotonAnalysisFunctions_h.h \
-	GeneralFunctions_h.h \
-	HistoContainer.h \
-	CounterContainer.h \
-	SampleContainer.h \
-	Cut.h
+	Cut.cc Cut.h $(VTXSRC) $(PHOSRC)
 
 LoopAllDict.$(SrcSuf): CommonParameters.h LoopAll.h \
 	branchdef/Limits.h branchdef/treedef.h \
-	PhotonAnalysis/PhotonAnalysisFunctions_h.h \
 	GeneralFunctions_h.h \
+	BaseAnalysis.h \
 	HistoContainer.h \
 	CounterContainer.h \
 	SampleContainer.h \
 	Cut.h \
-	VertexAnalysis/interface/VertexAlgoParameters.h
+	VertexAnalysis/interface/VertexAlgoParameters.h PhotonAnalysis/interface/PhotonAnalysis.h
 
 	@echo "Generating dictionary $@..."
-	@rootcint -f $@ -c LoopAll.h VertexAnalysis/interface/VertexAlgoParameters.h
+	@rootcint -f $@ -c LoopAll.h BaseAnalysis.h VertexAnalysis/interface/VertexAlgoParameters.h PhotonAnalysis/interface/PhotonAnalysis.h
 	@rootcint -f dict.cpp -c -p LinkDef.h 
 
 .$(SrcSuf).$(ObjSuf):

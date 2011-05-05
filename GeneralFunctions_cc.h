@@ -281,28 +281,21 @@ GlobeVertexInfo::GlobeVertexInfo(LoopAll & lo) : lo_(lo) {};
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 GlobeVertexInfo::~GlobeVertexInfo() {};
 
-// ---------------------------------------------------------------------------------------------------------------------------------------------
-void LoopAll::vertexAnalysisGetBranches()
-{
-	
-}
-
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
-void LoopAll::vertexAnalysis(int p1, int p2)
+void LoopAll::vertexAnalysis(HggVertexAnalyzer & vtxAna, int p1, int p2)
 {
 	GlobeVertexInfo vinfo(*this);
-	
-	PhotonInfo pho1(*((TVector3*)pho_calopos->At(p1)),((TLorentzVector*)pho_p4->At(p1))->Energy()),pho2(*((TVector3*)pho_calopos->At(p2)),((TLorentzVector*)pho_p4->At(p2))->Energy());
-
-	///HggVertexAnalyzer vAna(vtxAlgoParams,vtx_std_n);
-	
+	PhotonInfo 
+		pho1(p1,*((TVector3*)pho_calopos->At(p1)),((TLorentzVector*)pho_p4->At(p1))->Energy()),
+		pho2(p2,*((TVector3*)pho_calopos->At(p2)),((TLorentzVector*)pho_p4->At(p2))->Energy());
 	vtxAna.analyze(vinfo,pho1,pho2);
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
-std::vector<int> LoopAll::vertexSelection(int p1, int p2)
+std::vector<int> LoopAll::vertexSelection(HggVertexAnalyzer & vtxAna, int p1, int p2, std::vector<std::string> & vtxVarNames)
 {
+	assert( p1 == vtxAna.pho1() && p2 == vtxAna.pho2() );
 	std::vector<int> rankprod = vtxAna.rankprod(vtxVarNames);
 	cout << "\n\nRanks product" << endl;
 	cout << "best vertex " << rankprod[0] << endl;
@@ -312,4 +305,12 @@ std::vector<int> LoopAll::vertexSelection(int p1, int p2)
 	}
 	
 	return rankprod;
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+TLorentzVector LoopAll::get_pho_p4(int ipho, int ivtx)
+{
+	PhotonInfo p(ipho, *((TVector3*)pho_calopos->At(ipho)),((TLorentzVector*)pho_p4->At(ipho))->Energy());
+	TVector3 * vtx = (TVector3*) vtx_std_xyz->At(ivtx);
+	return p.p4( vtx->X(), vtx->Y(), vtx->Z() );
 }

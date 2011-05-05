@@ -1,4 +1,12 @@
 ->
+File format:
+	<branc_name>[:<branch_type>] 
+where:
+	<branch_type> = 0 for branches to be always read
+	<branch_type> = 1 for branches to be read only for MC
+->
+
+->
 Counters
 ->
 event
@@ -8,7 +16,7 @@ bx
 
 ->
 Photons 
-->
+->5B
 pho_n
 pho_feta
 pho_crackcorr
@@ -97,13 +105,13 @@ pho_conv_vertexcorrected_p4
 ->
 MC truth
 ->
-process_id
-weight
-pthat
-gp_n
-gp_p4
-gp_status
-gp_pdgid
+process_id:1
+weight:1
+pthat:1
+gp_n:1
+gp_p4:1
+gp_status:1
+gp_pdgid:1
 
 ->
 Vertex

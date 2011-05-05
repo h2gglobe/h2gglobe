@@ -13,6 +13,8 @@
 #include <string>
 #include <list>
 
+class BaseAnalysis;
+
 #include "HistoContainer.h"
 #include "CounterContainer.h"
 #include "SampleContainer.h"
@@ -38,7 +40,6 @@ class LoopAll {
 #include "branchdef/setbranchaddress.h"
 #include "branchdef/treebranch.h"
 #include "GeneralFunctions_h.h"
-#include "PhotonAnalysis/PhotonAnalysisFunctions_h.h"
 
   std::vector<HistoContainer> histoContainer;
   std::vector<CounterContainer> counterContainer;
@@ -94,6 +95,7 @@ class LoopAll {
   char inputFilesName[1024];
   char countersName[1024];
 
+  enum runtypes { kFill=0, kReduce=1, kFillReduce=2 };
   Int_t typerun;
   Int_t typeread;
 
@@ -114,11 +116,6 @@ class LoopAll {
    
   TFile *hfile;
   Int_t outputEvents;
-
-  VertexAlgoParameters vtxAlgoParams;	 
-  std::vector<std::string> vtxVarNames;
-  HggVertexAnalyzer vtxAna;
-  HggVertexFromConversions vtxConv;
 
   void Loop(Int_t);
   void WriteHist();
@@ -144,6 +141,13 @@ class LoopAll {
   void FillCounter(std::string, int);
   void FillCounter(std::string);
 
+  BaseAnalysis* AddAnalysis(BaseAnalysis*); 
+  template<class T> T * GetAnalysis( const std::string & name ) {
+	  std::vector<BaseAnalysis*>::iterator it=find( analyses.begin(), analyses.end(), name);
+	  if( it != analyses.end() ) { return dynamic_cast<T*>( *it ); }
+	  return 0;
+  };
+  
   /// void SkimBranch(const std::string & name)   { skimBranchNames.insert(name);  };
   void InputBranch(const std::string & name)  { inputBranchNames.insert(name); };
   void OutputBranch(const std::string & name) { if( find(outputBranchNames.begin(), outputBranchNames.end(), name)==outputBranchNames.end() ) { outputBranchNames.push_back(name); } };
@@ -171,7 +175,8 @@ class LoopAll {
   std::set<std::string> inputBranchNames;
   std::set<TBranch *> inputBranches; 
   std::list<std::string> outputBranchNames;
-
+  
+  std::vector<BaseAnalysis*> analyses;
 };
 
 #endif
