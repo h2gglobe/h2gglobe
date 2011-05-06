@@ -394,8 +394,8 @@ class configProducer:
     if fi_name != '':
       if not os.path.isfile(fi_name): 
         sys.exit("No Input File Named: %s"%fi_name)
-        tuple_n = fi_name, fi_type
-        self.conf_.files.append(tuple_n)
+      tuple_n = fi_name, fi_type
+      self.conf_.files.append(tuple_n)
         
     if cas_directory != '':
       ca_files = makeCaFiles(cas_directory)
