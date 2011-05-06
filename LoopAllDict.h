@@ -32,7 +32,9 @@ extern void G__set_cpp_environmentLoopAllDict();
 #include "TObject.h"
 #include "TMemberInspector.h"
 #include "LoopAll.h"
+#include "BaseAnalysis.h"
 #include "VertexAnalysis/interface/VertexAlgoParameters.h"
+#include "PhotonAnalysis/interface/PhotonAnalysis.h"
 #include <algorithm>
 namespace std { }
 using namespace std;
@@ -42,6 +44,7 @@ using namespace std;
 
 extern G__linked_taginfo G__LoopAllDictLN_TString;
 extern G__linked_taginfo G__LoopAllDictLN_vectorlEunsignedsPshortcOallocatorlEunsignedsPshortgRsPgR;
+extern G__linked_taginfo G__LoopAllDictLN_vectorlEfloatcOallocatorlEfloatgRsPgR;
 extern G__linked_taginfo G__LoopAllDictLN_string;
 extern G__linked_taginfo G__LoopAllDictLN_vectorlEROOTcLcLTSchemaHelpercOallocatorlEROOTcLcLTSchemaHelpergRsPgR;
 extern G__linked_taginfo G__LoopAllDictLN_reverse_iteratorlEvectorlEROOTcLcLTSchemaHelpercOallocatorlEROOTcLcLTSchemaHelpergRsPgRcLcLiteratorgR;
@@ -55,6 +58,7 @@ extern G__linked_taginfo G__LoopAllDictLN_maplEintcOintcOlesslEintgRcOallocatorl
 extern G__linked_taginfo G__LoopAllDictLN_maplEstringcOTObjArraymUcOlesslEstringgRcOallocatorlEpairlEconstsPstringcOTObjArraymUgRsPgRsPgR;
 extern G__linked_taginfo G__LoopAllDictLN_setlEstringcOlesslEstringgRcOallocatorlEstringgRsPgR;
 extern G__linked_taginfo G__LoopAllDictLN_listlEstringcOallocatorlEstringgRsPgR;
+extern G__linked_taginfo G__LoopAllDictLN_BaseAnalysis;
 extern G__linked_taginfo G__LoopAllDictLN_TVectorTlEfloatgR;
 extern G__linked_taginfo G__LoopAllDictLN_TVectorTlEdoublegR;
 extern G__linked_taginfo G__LoopAllDictLN_TMatrixTBaselEfloatgR;
@@ -143,5 +147,9 @@ extern G__linked_taginfo G__LoopAllDictLN_vectorlETTreemUcOallocatorlETTreemUgRs
 extern G__linked_taginfo G__LoopAllDictLN_reverse_iteratorlEvectorlETTreemUcOallocatorlETTreemUgRsPgRcLcLiteratorgR;
 extern G__linked_taginfo G__LoopAllDictLN_vectorlETFilemUcOallocatorlETFilemUgRsPgR;
 extern G__linked_taginfo G__LoopAllDictLN_reverse_iteratorlEvectorlETFilemUcOallocatorlETFilemUgRsPgRcLcLiteratorgR;
+extern G__linked_taginfo G__LoopAllDictLN_LoopAllcLcLruntypes;
+extern G__linked_taginfo G__LoopAllDictLN_vectorlEBaseAnalysismUcOallocatorlEBaseAnalysismUgRsPgR;
+extern G__linked_taginfo G__LoopAllDictLN_reverse_iteratorlEvectorlEBaseAnalysismUcOallocatorlEBaseAnalysismUgRsPgRcLcLiteratorgR;
+extern G__linked_taginfo G__LoopAllDictLN_PhotonAnalysis;
 
 /* STUB derived class for protected member access */

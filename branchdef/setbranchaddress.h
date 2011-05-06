@@ -508,3 +508,4 @@
    void SetBranchAddress_vtx_std_ntks(TTree * tree) { tree->SetBranchAddress("vtx_std_ntks", vtx_std_ntks, &b_vtx_std_ntks); }; 
    void SetBranchAddress_vtx_std_tkind(TTree * tree) { tree->SetBranchAddress("vtx_std_tkind", &vtx_std_tkind, &b_vtx_std_tkind); }; 
    void SetBranchAddress_vtx_std_tkweight(TTree * tree) { tree->SetBranchAddress("vtx_std_tkweight", &vtx_std_tkweight, &b_vtx_std_tkweight); }; 
+   void SetBranchAddress_rho(TTree * tree) { tree->SetBranchAddress("rho", &rho, &b_rho); }; 

@@ -538,3 +538,4 @@
   Int_t vtx_std_ntks[MAX_VERTICES];
   std::vector<std::vector<unsigned short> >* vtx_std_tkind;
   std::vector<std::vector<float> >* vtx_std_tkweight;
+  Float_t rho;

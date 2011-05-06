@@ -508,3 +508,4 @@ void Branch_vtx_std_vectorp3(TTree * tree) { tree->Branch("vtx_std_vectorp3", "T
     void Branch_vtx_std_ntks(TTree * tree) { tree->Branch("vtx_std_ntks",&vtx_std_ntks, "vtx_std_ntks[vtx_std_n]/I"); }; 
    void Branch_vtx_std_tkind(TTree * tree) { tree->Branch("vtx_std_tkind", "std::vector<std::vector<unsigned short> >", &vtx_std_tkind); }; 
    void Branch_vtx_std_tkweight(TTree * tree) { tree->Branch("vtx_std_tkweight", "std::vector<std::vector<float> >", &vtx_std_tkweight); }; 
+   void Branch_rho(TTree * tree) { tree->Branch("rho", &rho, "rho/F"); }; 

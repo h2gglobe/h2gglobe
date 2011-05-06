@@ -120,6 +120,12 @@ vtx_std_n
 vtx_std_x2dof
 vtx_std_xyz
 vtx_std_dxdydz
+vtx_std_ndof
+
+->
+PU correction
+->
+rho
 
 ->
 Beam spot

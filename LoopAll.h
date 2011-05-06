@@ -146,7 +146,7 @@ class LoopAll {
 	  std::vector<BaseAnalysis*>::iterator it=find( analyses.begin(), analyses.end(), name);
 	  if( it != analyses.end() ) { return dynamic_cast<T*>( *it ); }
 	  return 0;
-  };
+  }
   
   /// void SkimBranch(const std::string & name)   { skimBranchNames.insert(name);  };
   void InputBranch(const std::string & name)  { inputBranchNames.insert(name); };

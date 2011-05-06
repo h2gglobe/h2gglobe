@@ -508,3 +508,5 @@ BRANCH_DICT(vtx_std_scalarpt);
 BRANCH_DICT(vtx_std_ntks);
 BRANCH_DICT(vtx_std_tkind);
 BRANCH_DICT(vtx_std_tkweight);
+BRANCH_DICT(vtx_std_tkweight);
+BRANCH_DICT(rho);

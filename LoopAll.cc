@@ -36,7 +36,7 @@ void LoopAll::SetTypeRun(int t, const char* name) {
   
   if (makeOutputTree) {
     cout << "CREATE " << outputFileName<<endl;
-    outputFile=new TFile(outputFileName,"recreate");
+    outputFile=TFile::Open(outputFileName,"recreate");
     outputFile->cd();
     if(outputFile) 
       if (DEBUG)
@@ -90,7 +90,7 @@ void LoopAll::ReadInput(int t) {
   
   if (makeOutputTree) {
     cout << "CREATE " << outputFileName<<endl;
-    outputFile=new TFile(outputFileName,"recreate");
+    outputFile=TFile::Open(outputFileName,"recreate");
     outputFile->cd();
     if(outputFile) 
       if (DEBUG)	cout<<"output file defined"<<endl;
@@ -522,7 +522,7 @@ void LoopAll::Loop(Int_t a) {
 // ------------------------------------------------------------------------------------
 void LoopAll::WriteFits() {
   
-  hfile = new TFile(histFileName, "RECREATE", "Globe ROOT file with histograms");
+	hfile = TFile::Open(histFileName, "RECREATE", "Globe ROOT file with histograms");
 
   hfile->cd();
   hfile->cd();
@@ -532,7 +532,7 @@ void LoopAll::WriteFits() {
 // ------------------------------------------------------------------------------------
 void LoopAll::WriteHist() {
 
-  hfile = new TFile(histFileName, "RECREATE", "Globe ROOT file with histograms");
+	hfile = TFile::Open(histFileName, "RECREATE", "Globe ROOT file with histograms");
 
   hfile->cd();
   hfile->cd();

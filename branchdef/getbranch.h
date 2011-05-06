@@ -508,3 +508,4 @@
    b_vtx_std_ntks = fChain->GetBranch("vtx_std_ntks"); 
    b_vtx_std_tkind = fChain->GetBranch("vtx_std_tkind"); 
    b_vtx_std_tkweight = fChain->GetBranch("vtx_std_tkweight"); 
+   b_rho = fChain->GetBranch("rho");
