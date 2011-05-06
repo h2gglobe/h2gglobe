@@ -1,0 +1,17 @@
+->
+Vertexe analysis parameters 	
+->
+vtxAlgoParams vertex_selection.dat
+
+->
+Preselection cuts
+->
+presel_scet1=25
+presel_scet2=35
+presel_maxeta=2.5
+presel_ecaliso_eb=10.
+presel_ecaliso_ee=10.
+presel_sieie_eb=0.013
+presel_sieie_ee=0.03
+presel_hoe=0.15
+
