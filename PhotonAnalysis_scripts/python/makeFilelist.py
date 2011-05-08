@@ -9,10 +9,13 @@ def makeCaFiles(dir):
    sc,flist = commands.getstatusoutput('nsls %s'%(dir))
 
    if not sc:
-    files = flist.split('\n')
-    for f in files:
-	if '.root' in f:
-	 return_files.append('rfio://'+dir+'/'+f)
+    if ".root" in flist:
+	 return_files.append('rfio://'+flist)
+    else:
+    	files = flist.split('\n')
+    	for f in files:
+	  if '.root' in f:
+	   return_files.append('rfio://'+dir+'/'+f)
 
    else:
     sys.exit("No Such Directory: %s"%(dir))

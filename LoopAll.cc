@@ -237,22 +237,26 @@ void LoopAll::LoopAndFillHistos(TString treename) {
    
     // EDIT - Cannot close the first file since it is in use after 
     // file 0 
-    if(*it_file && i>0)
-      (*it_file)->Close();
+    if (i>0)
+      if((*it_file)->IsOpen())
+        (*it_file)->Close();
     
     i++;
   }
   
   //now close the first File
-  if(Files[0])
+  if(Files[0]->IsOpen())
     Files[0]->Close();
 
   TermReal(typerun);
+  Term();
 }
 
 // ------------------------------------------------------------------------------------
 void LoopAll::Term(){
-  outputFile->Close();
+  if (outputFile)
+   if (outputFile->IsOpen())
+    outputFile->Close();
 }
 
 // ------------------------------------------------------------------------------------
@@ -469,7 +473,7 @@ void LoopAll::Loop(Int_t a) {
         TreesPar[a]->SetBranchAddress("type", &type);
         TreesPar[a]->SetBranchAddress("version", &version);
         TreesPar[a]->SetBranchAddress("parameters", &parameters);
-        TreesPar[a]->SetBranchAddress("job_maker", &job_maker);
+        TreesPar[a]->SetBranchAddress("jobmaker", &job_maker);
         if (TreesPar[a]->FindBranch("reductions")) {
           TreesPar[a]->SetBranchAddress("reductions", &reductions);
           TreesPar[a]->SetBranchAddress("red_events", &red_events);
