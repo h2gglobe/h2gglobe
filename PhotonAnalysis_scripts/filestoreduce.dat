@@ -1,8 +1,10 @@
 output=Data2011_reduced.root
-Fil=/afs/cern.ch/user/n/nckw/public/data.root typ=1
+Fil=/afs/cern.ch/user/n/nckw/public/data.root typ=0
 ->
 filestoreduce.dat
 add the files to be reduced and their types
+
+type should be  0 for data, <0 for backgrounds  >0 for signal
 ->
 
 ->

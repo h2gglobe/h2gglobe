@@ -18,7 +18,7 @@ public:
 	void Init(LoopAll&);
 	void Term(LoopAll&);
 	
-	void ReducedOutputTree(TTree *);
+	void ReducedOutputTree(LoopAll &l, TTree *);
 	void GetBranches(TTree *, std::set<TBranch *>& );
 	
 	void FillReductionVariables(LoopAll& l, int jentry);   
@@ -39,6 +39,9 @@ public:
 	std::vector<int> pho_presel;
 	std::vector<int> pho_presel_lead;
 	std::vector<float> pho_sc_et;
+	
+	// Track isolation computation
+	float tkIso_ptmin,tkIso_outerCone,tkIso_innerCone,tkIso_etaStripHalfW,tkIso_dzmax,tkIso_dxymax;
 
 	// Other options
 	bool runStatAnalysis;

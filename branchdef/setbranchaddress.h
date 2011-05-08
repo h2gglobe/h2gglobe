@@ -509,3 +509,6 @@
    void SetBranchAddress_vtx_std_tkind(TTree * tree) { tree->SetBranchAddress("vtx_std_tkind", &vtx_std_tkind, &b_vtx_std_tkind); }; 
    void SetBranchAddress_vtx_std_tkweight(TTree * tree) { tree->SetBranchAddress("vtx_std_tkweight", &vtx_std_tkweight, &b_vtx_std_tkweight); }; 
    void SetBranchAddress_rho(TTree * tree) { tree->SetBranchAddress("rho", &rho, &b_rho); }; 
+
+   void SetBranchAddress_pho_trksumpthgg(TTree * tree) { tree->SetBranchAddress("pho_trksumpthgg", &pho_trksumpthgg, &b_pho_trksumpthgg); }; 
+   void SetBranchAddress_pho_ntrkhgg(TTree * tree) { tree->SetBranchAddress("pho_ntrkhgg", &pho_ntrkhgg, &b_pho_ntrkhgg); }; 

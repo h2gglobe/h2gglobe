@@ -459,6 +459,7 @@ void HggVertexAnalyzer::analyze(const VertexInfoAdapter & e, const PhotonInfo & 
 {
 	int const nvtx = e.nvtx();
 	nvtx_ = nvtx;
+	/// std::cerr << "HggVertexAnalyzer::analyze " << nvtx_ << std::endl;
 	pho1_ = p1.id();
 	pho2_ = p2.id();
 	ninvalid_idxs_=0;
@@ -529,8 +530,8 @@ void HggVertexAnalyzer::analyze(const VertexInfoAdapter & e, const PhotonInfo & 
 		
 		const unsigned short * vtxTracks = e.hasVtxTracks() ? e.vtxTracks(vid) : &vtxTracksBuf[ vid*e.ntracks() ];
 		int ntracks = e.hasVtxTracks() ? e.vtxNTracks(vid) : vtxTracksSizeBuf[ vid ];
-		// std::cerr << "vertexAnalysis  vid " << vid << " ntracks " <<  ntracks << " : ";
-		
+		//// std::cerr << "vertexAnalysis  vid " << vid << " ntracks " <<  ntracks << " : ";
+
 		//calculating loop over tracks
 		for(int it=0; it<ntracks; ++it) {
 			
@@ -541,38 +542,49 @@ void HggVertexAnalyzer::analyze(const VertexInfoAdapter & e, const PhotonInfo & 
 			}
 			if( tid >= e.ntracks() ) {
 				++ninvalid_idxs_;
+				//// std::cerr << "skipping [line" << __LINE__ << "] ";
 				continue;
 			}
 			float tkWeight = e.tkWeight(tid,vid);			
-			// std::cerr << tid << ", "; 
+			//// std::cerr << tid << ", "; 
 			
 			if( ( params_.highPurityOnly && !e.tkIsHighPurity(tid)  )
 			    || fabs(e.tkd0(tid,vid)/e.tkd0Err(tid,vid)) > params_.maxD0Signif 
 			    || fabs(e.tkdz(tid,vid)/e.tkdzErr(tid,vid)) > params_.maxDzSignif ) {
+				//// std::cerr << "skipping [line" << __LINE__ << "] ";
+				//// std::cerr << (params_.highPurityOnly && !e.tkIsHighPurity(tid)  )
+				//// 	  << " " 
+				//// 	  << (fabs(e.tkd0(tid,vid)/e.tkd0Err(tid,vid)) > params_.maxD0Signif )
+				//// 	  << " " 
+				//// 	  << (fabs(e.tkdz(tid,vid)/e.tkdzErr(tid,vid)) > params_.maxDzSignif) << std::endl;
 				continue; 
 			}
 			
 
 			const TVector3 tkPVec(e.tkpx(tid),e.tkpy(tid),e.tkpz(tid));
 			assert(vid >= 0 && vid < nvtx);
-		
 			
 			// remove tracks in a cone around the photon direction
 			if ( params_.removeTracksInCone ) {
 			  float dr1 = tkPVec.DeltaR(p1.p4(e.vtxx(vid),e.vtxy(vid),e.vtxz(vid)).Vect()); 
 			  float dr2 = tkPVec.DeltaR(p2.p4(e.vtxx(vid),e.vtxy(vid),e.vtxz(vid)).Vect()); 
-			  if ( dr1 < params_.coneSize  || dr2 < params_.coneSize)
-			    continue;
+			  if ( dr1 < params_.coneSize  || dr2 < params_.coneSize) {
+				  //// std::cerr << "skipping [line" << __LINE__ << "] ";
+				  continue;
+			  }
 			}
 		
 	
 			TVector2 tkPtVec = tkPVec.XYvector();
 			float tkPt = tkPtVec.Mod();
 			const float modpt = tkPt > e.tkPtErr(tid) ? tkPt - e.tkPtErr(tid)  : 0.;
-			if( modpt == 0. ) { continue; }
-			
+
 			// correct track pt a la POG
 			if( params_.rescaleTkPtByError ) {
+				if( modpt == 0. ) { 
+					/// std::cerr << "skipping [line" << __LINE__ << "] ";
+					continue; 
+				}
 				const float ptcorr = modpt/tkPt;
 				tkPtVec *= ptcorr;
 				tkPt = modpt;
@@ -605,7 +617,7 @@ void HggVertexAnalyzer::analyze(const VertexInfoAdapter & e, const PhotonInfo & 
 			}
 			sumpr_[vid] += pow(tkPVec.Mag(),spherPwr_);
 		}
-		/// std::cerr << std::endl;
+		//// std::cerr << " nch_[vid] " << nch_[vid] << std::endl;
 		
 		sphers_[vid] *= 1./sumpr_[vid];
 		

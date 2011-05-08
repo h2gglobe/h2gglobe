@@ -9,9 +9,22 @@ Preselection cuts
 presel_scet1=25
 presel_scet2=35
 presel_maxeta=2.5
+
+->
+selection of the di-photon pair to use for vertex analysis
+->
 presel_ecaliso_eb=10.
 presel_ecaliso_ee=10.
 presel_sieie_eb=0.013
 presel_sieie_ee=0.03
 presel_hoe=0.15
 
+->
+track isolation (re-)computation
+->
+tkIso_ptmin=0.
+tkIso_outerCone=0.3
+tkIso_innerCone=0.04
+tkIso_etaStripHalfW=0.015
+tkIso_dzmax=0.2
+tkIso_dxymax=0.1

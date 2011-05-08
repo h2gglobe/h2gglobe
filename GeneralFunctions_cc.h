@@ -314,3 +314,53 @@ TLorentzVector LoopAll::get_pho_p4(int ipho, int ivtx)
 	TVector3 * vtx = (TVector3*) vtx_std_xyz->At(ivtx);
 	return p.p4( vtx->X(), vtx->Y(), vtx->Z() );
 }
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+void LoopAll::fillTrackIsolation(float tkIso_ptmin,float tkIso_outerCone,float tkIso_innerCone,float tkIso_etaStripHalfW,float tkIso_dzmax,float tkIso_dxymax)
+{
+	pho_trksumpthgg->clear(); pho_trksumpthgg->resize(pho_n,std::vector<float>(vtx_std_n,0.));
+	pho_ntrkhgg->clear(); pho_ntrkhgg->resize(pho_n,std::vector<int>(vtx_std_n,0.));
+	
+	for(int ipho=0;ipho<pho_n;++ipho){
+		for(int ivtx=0;ivtx<vtx_std_n;++ivtx){
+			TLorentzVector p4 = get_pho_p4( ipho, ivtx );
+			std::pair<Float_t,Int_t> tkIso = TrackIsoHgg(&p4, ivtx, tkIso_ptmin, tkIso_outerCone, tkIso_innerCone, 
+								     tkIso_etaStripHalfW, tkIso_dzmax, tkIso_dxymax );
+			(*pho_trksumpthgg)[ipho][ivtx] = tkIso.first;
+			(*pho_ntrkhgg)[ipho][ivtx] = tkIso.second;
+		}
+	}
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+std::pair<Float_t,Int_t> LoopAll::TrackIsoHgg(TLorentzVector *photon_p4, Int_t vtxind, Float_t PtMin, Float_t OuterConeRadius, 
+					      Float_t InnerConeRadius, Float_t EtaStripHalfWidth, Float_t dzmax, Float_t dxymax) 
+{
+	// TRACKER Isolation
+	if(vtxind<0)return std::make_pair(-99,-99);
+	TVector3 * vtxpos= (TVector3 *) vtx_std_xyz->At(vtxind);
+	float SumTrackPt=0;
+	int nTks = 0;
+	for(unsigned int itk=0; itk!=tk_n; itk++) {
+		TLorentzVector * tkp4= (TLorentzVector *) tk_p4->At(itk);
+		if(tkp4->Pt() < PtMin)continue;
+		TVector3 * tkpos= (TVector3 *) tk_vtx_pos->At(itk);
+		double deltaz = fabs(vtxpos->Z() - tkpos->Z());
+		if(deltaz > dzmax)continue;
+		double dxy = ( -(tkpos->X() - vtxpos->X())*tkp4->Py() + (tkpos->Y() - vtxpos->Y())*tkp4->Px()) / tkp4->Pt();
+		if(fabs(dxy) > dxymax)continue;
+
+		double tk_eta = tkp4->Eta();
+		double tk_phi = tkp4->Phi();
+		double deta = fabs(photon_p4->Eta() - tk_eta);
+		double dphi = fabs(photon_p4->Phi() - tk_phi);
+		if(dphi > TMath::Pi())dphi = TMath::TwoPi() - dphi;
+		double deltaR = sqrt(deta*deta + dphi*dphi);
+		if(deltaR < OuterConeRadius && deltaR >= InnerConeRadius && deta >= EtaStripHalfWidth) { 
+			SumTrackPt+=tkp4->Pt();
+			++nTks;
+		}
+	}
+
+	return std::make_pair(SumTrackPt,nTks);
+}

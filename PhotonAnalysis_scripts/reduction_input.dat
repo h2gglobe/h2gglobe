@@ -1,6 +1,6 @@
 ->
 File format:
-	<branc_name>[:<branch_type>] 
+	<branch_name>[:<branch_type>] 
 where:
 	<branch_type> = 0 for branches to be always read
 	<branch_type> = 1 for branches to be read only for MC
@@ -19,8 +19,6 @@ vertex analysis
 ->
 vtx_std_tkweight
 vtx_std_xyz
-vtx_std_xyz
-vtx_std_xyz
 vtx_std_n
 vtx_std_tkind
 vtx_std_ntks
@@ -32,3 +30,7 @@ tk_p4
 tk_pterr
 tk_quality
 
+->
+track isolation
+->
+tk_vtx_pos

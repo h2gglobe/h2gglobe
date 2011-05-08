@@ -539,3 +539,7 @@
   std::vector<std::vector<unsigned short> >* vtx_std_tkind;
   std::vector<std::vector<float> >* vtx_std_tkweight;
   Float_t rho;
+
+  std::vector<std::vector<float> >* pho_trksumpthgg;
+  std::vector<std::vector<int> >* pho_ntrkhgg;
+

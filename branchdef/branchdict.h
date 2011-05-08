@@ -510,3 +510,5 @@ BRANCH_DICT(vtx_std_tkind);
 BRANCH_DICT(vtx_std_tkweight);
 BRANCH_DICT(vtx_std_tkweight);
 BRANCH_DICT(rho);
+BRANCH_DICT(pho_trksumpthgg);
+BRANCH_DICT(pho_ntrkhgg);

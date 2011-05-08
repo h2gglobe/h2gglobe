@@ -236,8 +236,8 @@ class configProducer:
        elif line.startswith("inputBranches "):
          self.read_input_branches(line)
 
-       # input and output branches      
-       elif "outputBranches" in line:
+       # input and output branches
+       elif line.startswith("outputBranches "):
          self.read_output_branches(line)
 
        # Read a generic member of the LoopAll class
@@ -267,7 +267,7 @@ class configProducer:
          self.read_input_branches(line)
          
        # input and output branches      
-       elif "outputBranches" in line:
+       elif line.startswith("outputBranches "):
          self.read_output_branches(line)
          
        # Read a generic member of the LoopAll class
@@ -370,7 +370,14 @@ class configProducer:
     for sp in split_line:
       val = sp.split("=")
       if val[0] == "output":
-        self.conf_.outfile = str(val[1])
+        outfile = str(val[1])
+        self.conf_.outfile = outfile
+        outdir=outfile.rsplit("/",1)[0]
+        if outdir != outfile:
+          try:
+            os.system( "mkdir -p %s" % outdir )
+          except Exception, e:
+            print e
       else: sys.exit("Unrecognised Argument:\n ' %s ' in line:\n ' %s '" %(val[0],line))
 
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -392,7 +399,7 @@ class configProducer:
       self.is_data_ = False
     
     if fi_name != '':
-      if not os.path.isfile(fi_name): 
+      if not fi_name.startswith("rfio") and not os.path.isfile(fi_name): 
         sys.exit("No Input File Named: %s"%fi_name)
       tuple_n = fi_name, fi_type
       self.conf_.files.append(tuple_n)
@@ -473,6 +480,7 @@ class configProducer:
           
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def read_input_branches(self,line):
+    print line
     a, list = line.split(" ")
     branches = []
     if os.path.isfile(list):
@@ -480,6 +488,7 @@ class configProducer:
     else:
       branches = list.split(",")
     for b in branches:
+      print b
       bname = b
       btype = 0
       if ":" in b:
@@ -501,6 +510,7 @@ class configProducer:
       bname = b
       btype = 0
       if ":" in b:
+        print b
         bname, sbtype = b.split(":")
         btype = int(sbtype)
       if btype == 0 or not self.is_data_:

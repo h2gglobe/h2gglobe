@@ -509,3 +509,6 @@
    TBranch *b_vtx_std_tkind;
    TBranch *b_vtx_std_tkweight;
    TBranch *b_rho;
+    
+  TBranch* b_pho_trksumpthgg;
+  TBranch* b_pho_ntrkhgg;

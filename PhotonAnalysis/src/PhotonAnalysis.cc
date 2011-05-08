@@ -30,25 +30,24 @@ void PhotonAnalysis::Init(LoopAll& l)
 		cout << "InitRealPhotonAnalysis START"<<endl;
 
 
-	if (l.typerun == 2 || l.typerun == 1)
-	{}
+	if (l.typerun == 2 || l.typerun == 1) {
+	}
   
 	if (runStatAnalysis) {  
-
-/*
-  rooContainer->AddRealVar("mass",50.,250.);
-  rooContainer->AddRealVar("mu",-0.04,-1.,-0.001);
-
-  // -------------------------------------//
-  std::vector<const char*> pars(2,"t");	 
-  pars[0] = "mass";
-  pars[1] = "mu";
-  // -------------------------------------//
-  rooContainer->AddGenericPdf("exp",
-  "exp((@0)*(@1))",pars,10);
-
-  rooContainer->CreateDataSet("mass");
-*/
+		/*
+		  rooContainer->AddRealVar("mass",50.,250.);
+		  rooContainer->AddRealVar("mu",-0.04,-1.,-0.001);
+		  
+		  // -------------------------------------//
+		  std::vector<const char*> pars(2,"t");	 
+		  pars[0] = "mass";
+		  pars[1] = "mu";
+		  // -------------------------------------//
+		  rooContainer->AddGenericPdf("exp",
+		  "exp((@0)*(@1))",pars,10);
+		  
+		  rooContainer->CreateDataSet("mass");
+		*/
 	}
 	if(PADEBUG) 
 		cout << "InitRealPhotonAnalysis END"<<endl;
@@ -283,7 +282,7 @@ void PhotonAnalysis::FillReductionVariables(LoopAll& l, int jentry)
 		cout<<"myFillReduceVar START"<<endl;
   	
 	PreselectPhotons(l,jentry);
-
+	
 	if(PADEBUG) 
 		cout<<"myFillReduceVar END"<<endl;
 
@@ -312,6 +311,9 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
 
         // run vertex analysis
 	l.vertexAnalysis(vtxAna_, ipho1, ipho2 );
+	
+	// fill track isolation
+	l.fillTrackIsolation(tkIso_ptmin,tkIso_outerCone,tkIso_innerCone,tkIso_etaStripHalfW,tkIso_dzmax,tkIso_dxymax);
 
 	return true;
 }
@@ -323,8 +325,15 @@ bool PhotonAnalysis::SelectEvents(LoopAll& l, int jentry)
 }
 
 // ----------------------------------------------------------------------------------------------------
-void PhotonAnalysis::ReducedOutputTree(TTree * outputTree) 
+void PhotonAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree) 
 {
 	vtxAna_.branches(outputTree,"vtx_std_");	
+
+	l.pho_ntrkhgg = new std::vector<std::vector<int> >();
+	l.pho_trksumpthgg = new std::vector<std::vector<float> >();
+	outputTree->Branch("pho_trksumpthgg", &l.pho_trksumpthgg);
+	outputTree->Branch("pho_ntrkhgg", &l.pho_ntrkhgg);
+	
+	outputTree->Print();
 }
 

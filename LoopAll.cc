@@ -58,7 +58,7 @@ void LoopAll::SetTypeRun(int t, const char* name) {
     // book output braches
     Branches(outputBranchNames);
     for (size_t i=0; i<analyses.size(); i++) {
-      analyses[i]->ReducedOutputTree(outputTree);
+	    analyses[i]->ReducedOutputTree(*this,outputTree);
     }
 
     outputParParameters = new std::vector<std::string>;
@@ -109,7 +109,7 @@ void LoopAll::ReadInput(int t) {
     outputTreePar = new TTree("global_variables","Parameters");
     
     for (size_t i=0; i<analyses.size(); i++) {
-      analyses[i]->ReducedOutputTree(outputTree);
+	    analyses[i]->ReducedOutputTree(*this,outputTree);
     }
     
   } 

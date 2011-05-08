@@ -13,7 +13,7 @@ public:
   
   operator const std::string & () const { return this->name(); };
   
-  virtual void ReducedOutputTree(TTree *) = 0;
+  virtual void ReducedOutputTree(LoopAll &, TTree *) = 0;
   virtual void GetBranches(TTree *, std::set<TBranch *>& ) = 0;
   
   virtual void Init(LoopAll&) = 0;
