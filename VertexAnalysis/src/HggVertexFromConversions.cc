@@ -75,7 +75,7 @@ double HggVertexFromConversions::vtxZ(const PhotonInfo & pho)
   double deltaY2 = pho.conversionVertex().Y()-pho.beamSpot().Y();
   double R2 = sqrt(deltaX2*deltaX2+deltaY2*deltaY2);
   double deltaZ2 = R2/tantheta;
-  double higgsZ = pho.conversionVertex().Z()-deltaZ1-deltaZ2;
+  double higgsZ =  pho.caloPosition().Z()-deltaZ1-deltaZ2;
   return higgsZ;
 
 }
