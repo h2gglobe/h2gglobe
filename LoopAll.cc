@@ -729,7 +729,10 @@ void LoopAll::SetBranchAddresses(std::set<std::string> & names) {
     for(std::set<std::string>::iterator it=names.begin(); it!=names.end(); ++it ) {
 	const std::string & name = *it;
 	branch_info_t & info = branchDict[ name ];
-	assert( info.read != 0 );
+	if( info.read == 0 ){
+		std::cerr << "no read function for branch '"<< name << "'" << std::endl;
+		assert( 0 );
+	}
 	(this->*(info.read)) (fChain);
     }
 }
@@ -739,7 +742,10 @@ void LoopAll::Branches(std::list<std::string> & names) {
    for(std::list<std::string>::iterator it=names.begin(); it!=names.end(); ++it ) {
 	const std::string & name = *it;
 	branch_info_t & info = branchDict[ name ];
-	assert( info.write != 0 );
+	if( info.write == 0 ){
+		std::cerr << "no write function for branch '"<< name << "'" << std::endl;
+		assert( 0 );
+	}
 	(this->*(info.write)) (outputTree);
     }
 }

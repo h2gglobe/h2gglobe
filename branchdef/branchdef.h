@@ -509,6 +509,14 @@
    TBranch *b_vtx_std_tkind;
    TBranch *b_vtx_std_tkweight;
    TBranch *b_rho;
-    
+   TBranch *b_gv_n;
+   TBranch *b_gv_pos;
+   TBranch *b_pu_n;
+   TBranch *b_pu_zpos;
+   TBranch *b_pu_sumpt_lowpt;
+   TBranch *b_pu_sumpt_highpt;
+   TBranch *b_pu_ntrks_lowpt;
+   TBranch *b_pu_ntrks_highpt;
+
   TBranch* b_pho_trksumpthgg;
   TBranch* b_pho_ntrkhgg;

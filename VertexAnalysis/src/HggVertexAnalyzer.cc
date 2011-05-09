@@ -160,32 +160,59 @@ void HggVertexAnalyzer::branches(TTree * tree, const std::string & pfx)
 // -------------------------------------------------------------------------------------------------------------------------------------------------------------
 void HggVertexAnalyzer::setBranchAdresses(TTree * tree, const std::string & pfx)
 {
-	tree->SetBranchAddress((pfx+"diphopt").c_str(), &diphopt_ );
-	tree->SetBranchAddress((pfx+"nch").c_str(), &nch_ )  ;
-	tree->SetBranchAddress((pfx+"ptmax").c_str(), &ptmax_ );
-	tree->SetBranchAddress((pfx+"sumpt").c_str(), &sumpt_ );
-	tree->SetBranchAddress((pfx+"ptvtx").c_str(), &ptvtx_ );
-	tree->SetBranchAddress((pfx+"acosA").c_str(), &acosA_ );
-	tree->SetBranchAddress((pfx+"ptasym").c_str(), &ptasym_ );
-	tree->SetBranchAddress((pfx+"ptbal").c_str(), &ptbal_ );
+	static std::vector<float> * diphopt = &diphopt_;
+	static std::vector<float> * nch = &nch_;
+	static std::vector<float> * ptmax = &ptmax_;
+	static std::vector<float> * sumpt = &sumpt_;
+	static std::vector<float> * ptvtx = &ptvtx_;
+	static std::vector<float> * acosA = &acosA_;
+	static std::vector<float> * ptasym = &ptasym_;
+	static std::vector<float> * ptbal = &ptbal_;
 	
-	tree->SetBranchAddress((pfx+"nchthr").c_str(), &nchthr_ );
-	tree->SetBranchAddress((pfx+"ptmax3").c_str(), &ptmax3_ );
-	tree->SetBranchAddress((pfx+"thrust").c_str(), &thrust_ );
+	static std::vector<float> * nchthr = &nchthr_;
+	static std::vector<float> * ptmax3 = &ptmax3_;
+	static std::vector<float> * thrust = &thrust_;
 	
-	tree->SetBranchAddress((pfx+"sumweight").c_str(), &sumweight_ );
-	tree->SetBranchAddress((pfx+"sumpt2").c_str(), &sumpt2_ );
-	tree->SetBranchAddress((pfx+"ptratio").c_str(), &ptratio_ );
-	tree->SetBranchAddress((pfx+"pzasym").c_str(), &pzasym_ );
+	static std::vector<float> * sumweight = &sumweight_;
+	static std::vector<float> * sumpt2 = &sumpt2_;
+	static std::vector<float> * ptratio = &ptratio_;
+	static std::vector<float> * pzasym = &pzasym_;
 	
-	tree->SetBranchAddress((pfx+"spher").c_str(), &spher_ );
-	tree->SetBranchAddress((pfx+"aplan").c_str(), &aplan_ );
-	tree->SetBranchAddress((pfx+"sumpr").c_str(), &sumpr_ );
+	static std::vector<float> * spher = &spher_;
+	static std::vector<float> * aplan = &aplan_;
+	static std::vector<float> * sumpr = &sumpr_;
 	
-	tree->SetBranchAddress((pfx+"sumawy").c_str(), &sumawy_ );
-	tree->SetBranchAddress((pfx+"sumtrv").c_str(), &sumtrv_ );
-	tree->SetBranchAddress((pfx+"sumtwd").c_str(), &sumtwd_ );
-	tree->SetBranchAddress((pfx+"awytwdasym").c_str(), &awytwdasym_ );
+	static std::vector<float> * sumawy = &sumawy_;
+	static std::vector<float> * sumtrv = &sumtrv_;
+	static std::vector<float> * sumtwd = &sumtwd_;
+	static std::vector<float> * awytwdasym = &awytwdasym_;
+	
+	tree->SetBranchAddress((pfx+"diphopt").c_str(), &diphopt );
+	tree->SetBranchAddress((pfx+"nch").c_str(), &nch )  ;
+	tree->SetBranchAddress((pfx+"ptmax").c_str(), &ptmax );
+	tree->SetBranchAddress((pfx+"sumpt").c_str(), &sumpt );
+	tree->SetBranchAddress((pfx+"ptvtx").c_str(), &ptvtx );
+	tree->SetBranchAddress((pfx+"acosA").c_str(), &acosA );
+	tree->SetBranchAddress((pfx+"ptasym").c_str(), &ptasym );
+	tree->SetBranchAddress((pfx+"ptbal").c_str(), &ptbal );
+	
+	tree->SetBranchAddress((pfx+"nchthr").c_str(), &nchthr );
+	tree->SetBranchAddress((pfx+"ptmax3").c_str(), &ptmax3 );
+	tree->SetBranchAddress((pfx+"thrust").c_str(), &thrust );
+	
+	tree->SetBranchAddress((pfx+"sumweight").c_str(), &sumweight );
+	tree->SetBranchAddress((pfx+"sumpt2").c_str(), &sumpt2 );
+	tree->SetBranchAddress((pfx+"ptratio").c_str(), &ptratio );
+	tree->SetBranchAddress((pfx+"pzasym").c_str(), &pzasym );
+	
+	tree->SetBranchAddress((pfx+"spher").c_str(), &spher );
+	tree->SetBranchAddress((pfx+"aplan").c_str(), &aplan );
+	tree->SetBranchAddress((pfx+"sumpr").c_str(), &sumpr );
+	
+	tree->SetBranchAddress((pfx+"sumawy").c_str(), &sumawy );
+	tree->SetBranchAddress((pfx+"sumtrv").c_str(), &sumtrv );
+	tree->SetBranchAddress((pfx+"sumtwd").c_str(), &sumtwd );
+	tree->SetBranchAddress((pfx+"awytwdasym").c_str(), &awytwdasym );
 
 	tree->SetBranchAddress((pfx+"ninvalid_idxs").c_str(), &ninvalid_idxs_ );
 	tree->SetBranchAddress((pfx+"pho1").c_str(), &pho1_ );
@@ -293,6 +320,7 @@ private:
 std::vector<int> HggVertexAnalyzer::rank(HggVertexAnalyzer::getter_t method, bool sign)
 {
 	std::vector<int> vtxs = preselection_;
+	assert( ! vtxs.empty() );
 	RankHelper helper(*this, method, sign );
 	sort(vtxs.begin(),vtxs.end(),helper);
 
@@ -310,6 +338,8 @@ std::vector<int> HggVertexAnalyzer::rank(std::string method)
 std::vector<int> HggVertexAnalyzer::rank(TMVA::Reader &reader, const std::string & method)
 {
 	std::vector<int> vtxs = preselection_;
+	assert( ! vtxs.empty() );
+	mva_.clear(); mva_.resize(sumpt2_.size(),0.);
 	for(int ii=0; ii<nvtx_; ++ii) { 
 		fillVariables(ii);
 		mva_[ii] = reader.EvaluateMVA(method);
@@ -325,10 +355,8 @@ std::vector<int> HggVertexAnalyzer::rank(TMVA::Reader &reader, const std::string
 std::vector<int> HggVertexAnalyzer::ranksum(const vector<string> & vars)
 {
 	std::vector<int> vtxs = preselection_;
-
-	for(int ii=0; ii<nvtx_; ++ii) {
-		mva_[ii] = 0.;
-	}
+	assert( ! vtxs.empty() );
+	mva_.clear(); mva_.resize(sumpt2_.size(),0.);
 	// fill the rank sum
 	std::vector<int> vrank(nvtx_);
 	std::vector<pair<HggVertexAnalyzer::getter_t, bool> > meths(1,make_pair(&HggVertexAnalyzer::mva,true));
@@ -350,10 +378,8 @@ std::vector<int> HggVertexAnalyzer::ranksum(const vector<string> & vars)
 std::vector<int> HggVertexAnalyzer::rankprod(const vector<string> & vars)
 {
 	std::vector<int> vtxs = preselection_;
-
-	for(int ii=0; ii<nvtx_; ++ii) {
-		mva_[ii] = 1.;
-	}
+	assert( ! vtxs.empty() );
+	mva_.clear(); mva_.resize(sumpt2_.size(),1.);
 	// fill the rank sum
 	std::vector<int> vrank(nvtx_);
 	std::vector<pair<HggVertexAnalyzer::getter_t, bool> > meths(1,make_pair(&HggVertexAnalyzer::mva,true));
@@ -382,10 +408,8 @@ std::vector<int> HggVertexAnalyzer::rankprod(const vector<string> & vars)
 std::vector<int> HggVertexAnalyzer::rankreciprocal(const vector<string> & vars)
 {
 	std::vector<int> vtxs = preselection_;
-
-	for(int ii=0; ii<nvtx_; ++ii) {
-		mva_[ii] = 0.;
-	}
+	assert( ! vtxs.empty() );
+	mva_.clear(); mva_.resize(sumpt2_.size(),0.);
 	// fill the rank sum
 	std::vector<int> vrank(nvtx_);
 	std::vector<pair<HggVertexAnalyzer::getter_t, bool> > meths(1,make_pair(&HggVertexAnalyzer::mva,false));
@@ -407,10 +431,8 @@ std::vector<int> HggVertexAnalyzer::rankreciprocal(const vector<string> & vars)
 vector<int> HggVertexAnalyzer::rankPairwise(const vector<string> & vars)
 {
 	vector<int> vtxs = preselection_;
-
-	for(int ii=0; ii<nvtx_; ++ii) {
-		mva_[ii] = 0.;
-	}
+	assert( ! vtxs.empty() );
+	mva_.clear(); mva_.resize(sumpt2_.size(),0.);
 	// fill the rank sum
 	vector<int> vrank(nvtx_);
 	vector<vector<int> > comp(nvtx_,vector<int>(nvtx_,0));

@@ -185,6 +185,7 @@ private:
 	static std::vector<getter_t> varmeths_;
 	static std::vector<float> vars_;
 #endif
+	std::vector<int> preselection();
 
 	AlgoParameters & params_;
 	int nvtx_;

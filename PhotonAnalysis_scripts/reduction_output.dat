@@ -54,6 +54,7 @@ pho_seed_chi2
 pho_seed_recoflag
 pho_seed_severity
 pho_ecalsumetconedr04
+pho_hcalsumetconedr04
 pho_trksumptsolidconedr04
 pho_trksumpthollowconedr04
 pho_ntrksolidconedr04
@@ -102,6 +103,7 @@ pho_conv_pair_momentum
 pho_conv_refitted_momentum
 pho_conv_vertexcorrected_p4
 
+
 ->
 MC truth
 ->
@@ -112,11 +114,21 @@ gp_n:1
 gp_p4:1
 gp_status:1
 gp_pdgid:1
+gp_mother:1
+gv_n:1
+gv_pos:1
+pu_n:1
+pu_zpos:1
+pu_sumpt_lowpt:1
+pu_sumpt_highpt:1
+pu_ntrks_lowpt:1
+pu_ntrks_highpt:1
 
 ->
 Vertex
 ->
 vtx_std_n
+vtx_std_ntks
 vtx_std_x2dof
 vtx_std_xyz
 vtx_std_dxdydz
@@ -129,13 +141,19 @@ rho
 
 ->
 Beam spot
-bs_std_xyz
-bs_std_sigmaZ
-bs_std_x0Error
-bs_std_y0Error
-bs_std_z0Error
-bs_std_sigmaZ0Error
 ->
+bs_xyz
+bs_sigmaZ
+bs_x0Error
+bs_y0Error
+bs_z0Error
+bs_sigmaZ0Error
+
+->
+MET
+->
+met_tcmet
+met_phi_tcmet
 
 ->
 Trigger

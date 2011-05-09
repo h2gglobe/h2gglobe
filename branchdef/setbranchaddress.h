@@ -509,6 +509,15 @@
    void SetBranchAddress_vtx_std_tkind(TTree * tree) { tree->SetBranchAddress("vtx_std_tkind", &vtx_std_tkind, &b_vtx_std_tkind); }; 
    void SetBranchAddress_vtx_std_tkweight(TTree * tree) { tree->SetBranchAddress("vtx_std_tkweight", &vtx_std_tkweight, &b_vtx_std_tkweight); }; 
    void SetBranchAddress_rho(TTree * tree) { tree->SetBranchAddress("rho", &rho, &b_rho); }; 
+   void SetBranchAddress_gv_n(TTree * tree) { tree->SetBranchAddress("gv_n", &gv_n, &b_gv_n); }; 
+   void SetBranchAddress_gv_pos(TTree * tree) { tree->SetBranchAddress("gv_pos", &gv_pos, &b_gv_pos); }; 
+
+void SetBranchAddress_pu_n(TTree * tree) { tree->SetBranchAddress("pu_n", &pu_n, &b_pu_n); };
+void SetBranchAddress_pu_zpos(TTree * tree) { tree->SetBranchAddress("pu_zpos", &pu_zpos, &b_pu_zpos); };
+void SetBranchAddress_pu_sumpt_lowpt(TTree * tree) { tree->SetBranchAddress("pu_sumpt_lowpt", &pu_sumpt_lowpt, &b_pu_sumpt_lowpt); };
+void SetBranchAddress_pu_sumpt_highpt(TTree * tree) { tree->SetBranchAddress("pu_sumpt_highpt", &pu_sumpt_highpt, &b_pu_sumpt_highpt); };
+void SetBranchAddress_pu_ntrks_lowpt(TTree * tree) { tree->SetBranchAddress("pu_ntrks_lowpt", &pu_ntrks_lowpt, &b_pu_ntrks_lowpt); };
+void SetBranchAddress_pu_ntrks_highpt(TTree * tree) { tree->SetBranchAddress("pu_ntrks_highpt", &pu_ntrks_highpt, &b_pu_ntrks_highpt); };
 
    void SetBranchAddress_pho_trksumpthgg(TTree * tree) { tree->SetBranchAddress("pho_trksumpthgg", &pho_trksumpthgg, &b_pho_trksumpthgg); }; 
    void SetBranchAddress_pho_ntrkhgg(TTree * tree) { tree->SetBranchAddress("pho_ntrkhgg", &pho_ntrkhgg, &b_pho_ntrkhgg); }; 
