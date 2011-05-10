@@ -407,7 +407,7 @@ class configProducer:
     if cas_directory != '':
       ca_files = makeCaFiles(cas_directory)
       for file_s in ca_files:
-        self.conf_.files.append((str(directory+'/'+file_s),fi_type))
+        self.conf_.files.append((file_s,fi_type))
         
     if os.path.isdir(directory): 
       di_files = os.listdir(directory)
@@ -467,7 +467,7 @@ class configProducer:
     if cas_directory != '':
       ca_files = makeCaFiles(cas_directory)
       for file_s in ca_files:
-        self.conf_.files.append((str(directory+'/'+file_s),fi_type))
+        self.conf_.files.append((file_s,fi_type))
         self.conf_.confs.append(map_c.copy())
 	
     if os.path.isdir(directory): 
