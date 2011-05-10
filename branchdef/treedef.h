@@ -584,8 +584,8 @@ Int_t pu_n;
 std::vector<float> * pu_zpos;
 std::vector<float> * pu_sumpt_lowpt;
 std::vector<float> * pu_sumpt_highpt;
-std::vector<float> * pu_ntrks_lowpt;
-std::vector<float> * pu_ntrks_highpt;
+std::vector<int> * pu_ntrks_lowpt;
+std::vector<int> * pu_ntrks_highpt;
 std::vector<std::vector<float> >* pho_trksumpthgg;
 std::vector<std::vector<int> >* pho_ntrkhgg;
 

@@ -63,3 +63,4 @@
   vtx_std_xyz  = new TClonesArray("TVector3", MAX_TRACKS);
   vtx_std_dxdydz  = new TClonesArray("TVector3", MAX_TRACKS);
   vtx_std_vectorp3  = new TClonesArray("TVector3", MAX_TRACKS);
+  gv_pos  = new TClonesArray("TVector3", MAX_VERTICES);

@@ -333,7 +333,5 @@ void PhotonAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree)
 	l.pho_trksumpthgg = new std::vector<std::vector<float> >();
 	outputTree->Branch("pho_trksumpthgg", &l.pho_trksumpthgg);
 	outputTree->Branch("pho_ntrkhgg", &l.pho_ntrkhgg);
-	
-	outputTree->Print();
 }
 

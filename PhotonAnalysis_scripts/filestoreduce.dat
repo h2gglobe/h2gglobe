@@ -1,10 +1,20 @@
-output=Data2011_reduced.root
-Fil=/afs/cern.ch/user/n/nckw/public/data.root typ=0
+output=my_reduced_tuple.root
+Fil=rfio:/castor/cern.ch/user/c/cmshgg/processed/h2g_V06_00/Spring11-PU_S1_START311_V1G1/GluGlu_M100_2011PU/GluGlu_M100_2011PU_4_1_XPo.root typ=1
+
 ->
 filestoreduce.dat
-add the files to be reduced and their types
+add the files to be reduced and their types above
 
 type should be  0 for data, <0 for backgrounds  >0 for signal
+
+Fil=rfio:/castor/cern.ch/user/c/cmshgg/processed/h2g_V06_00/Data/Run2010A/Run2010A_11_1_C60.root typ=0
+
+Fil=rfio:/castor/cern.ch/user/c/cmshgg/processed/h2g_V06_00/Spring11-PU_S1_START311_V1G1/GluGlu_M100_2011PU/GluGlu_M100_2011PU_4_1_XPo.root typ=1
+
+To read a full (castor) directory use (Ca)Dir=<path> 
+
+CaDir=/castor/cern.ch/user/c/cmshgg/processed/h2g_V06_00/Data/Run2010A typ=0
+
 ->
 
 ->
