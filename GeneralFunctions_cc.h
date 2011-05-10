@@ -285,17 +285,100 @@ GlobeVertexInfo::~GlobeVertexInfo() {};
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 void LoopAll::vertexAnalysis(HggVertexAnalyzer & vtxAna, int p1, int p2)
 {
-	GlobeVertexInfo vinfo(*this);
-	PhotonInfo 
-		pho1(p1,*((TVector3*)pho_calopos->At(p1)),((TLorentzVector*)pho_p4->At(p1))->Energy()),
-		pho2(p2,*((TVector3*)pho_calopos->At(p2)),((TLorentzVector*)pho_p4->At(p2))->Energy());
+        GlobeVertexInfo vinfo(*this); 
+	PhotonInfo
+	  pho1(p1,*((TVector3*)pho_calopos->At(p1)),((TLorentzVector*)pho_p4->At(p1))->Energy()),
+	  pho2(p2,*((TVector3*)pho_calopos->At(p2)),((TLorentzVector*)pho_p4->At(p2))->Energy());
 	vtxAna.analyze(vinfo,pho1,pho2);
+
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
-std::vector<int> LoopAll::vertexSelection(HggVertexAnalyzer & vtxAna, int p1, int p2, std::vector<std::string> & vtxVarNames)
+std::vector<int> LoopAll::vertexSelection(HggVertexAnalyzer & vtxAna, HggVertexFromConversions & vtxAnaFromConv, int p1, int p2, std::vector<std::string> & vtxVarNames)
 {
 	assert( p1 == vtxAna.pho1() && p2 == vtxAna.pho2() );
+
+	// preselect vertices : all vertices
+        std::vector<int> preselAll;
+        for(int i=0; i<vtx_std_n ; i++) {
+          preselAll.push_back(i); 
+        }
+
+	// conversions infos
+	PhotonInfo pho1(p1,
+			*((TVector3*)pho_calopos->At(p1)),
+			*((TVector3*) bs_xyz),
+			*((TVector3*) pho_conv_vtx->At(p1)),
+			((TLorentzVector*)pho_p4->At(p1))->Energy(),
+			pho_isEB[p1],
+			pho_conv_ntracks[p1],
+			pho_conv_validvtx[p1],
+			pho_conv_chi2_probability[p1] ,
+			pho_conv_eoverp[p1]
+			);
+	
+
+	PhotonInfo pho2(p2,
+			*((TVector3*)pho_calopos->At(p2)),
+			*((TVector3*) bs_xyz),
+			*((TVector3*) pho_conv_vtx->At(p2)),
+			((TLorentzVector*)pho_p4->At(p2))->Energy(),
+			pho_isEB[p2],
+			pho_conv_ntracks[p2],
+			pho_conv_validvtx[p2],
+			pho_conv_chi2_probability[p2] ,
+			pho_conv_eoverp[p2]
+			);
+
+
+		
+        float zconv = 0; 
+        float dzconv = 0;
+        std::vector<int> preselConv;
+
+
+        if ( (pho_r9[p1] <0.93 || pho_r9[p2] <0.93) && (pho1.isAConversion() || pho2.isAConversion()) )  {
+	  
+          if (pho1.isAConversion()  && !pho2.isAConversion() ){
+            zconv  = vtxAnaFromConv.vtxZ(pho1);
+            dzconv = vtxAnaFromConv.vtxdZ(pho1);
+          }
+	  
+          if (pho2.isAConversion() && !pho1.isAConversion()){
+            zconv  = vtxAnaFromConv.vtxZ(pho2);
+            dzconv = vtxAnaFromConv.vtxdZ(pho2);
+          }
+	  
+          if ( pho1.isAConversion() && pho2.isAConversion()){
+            float z1  = vtxAnaFromConv.vtxZ(pho1);
+            float dz1 = vtxAnaFromConv.vtxdZ(pho1);
+            
+            float z2  = vtxAnaFromConv.vtxZ(pho2);
+            float dz2 = vtxAnaFromConv.vtxdZ(pho2);
+            
+            zconv  = sqrt ( 1./(1./dz1/dz1 + 1./dz2/dz2 )*(z1/dz1/dz1 + z2/dz2/dz2) ) ;  // weighted average
+            dzconv = sqrt( 1./(1./dz1/dz1 + 1./dz2/dz2)) ;
+          }
+	  
+	  // preselect vertices : only vertices in a window zconv +/- dzconv
+
+	  for(int i=0; i < vtx_std_n; i++) {
+	    TVector3 * vtxpos= (TVector3 *) vtx_std_xyz->At(i);
+	    if ( fabs(zconv - vtxpos->Z() ) < dzconv ) 
+              preselConv.push_back(i); 
+          }
+	  
+        }
+	
+
+	// preselection 
+	if ( preselConv.size()==0 )
+          vtxAna.preselection(preselAll);
+        else 
+          vtxAna.preselection(preselConv);
+
+	
+
 	std::vector<int> rankprod = vtxAna.rankprod(vtxVarNames);
 	cout << "\n\nRanks product" << endl;
 	cout << "best vertex " << rankprod[0] << endl;
