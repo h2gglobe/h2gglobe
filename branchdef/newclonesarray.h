@@ -15,6 +15,7 @@
   el_std_posvtx  = new TClonesArray("TVector3", MAX_ELECTRONS);
   el_std_poscalo  = new TClonesArray("TVector3", MAX_ELECTRONS);
   gp_p4  = new TClonesArray("TLorentzVector", MAX_GENERATOR);
+  gp_vtx  = new TClonesArray("TVector3", MAX_GENERATOR);
   genjet_algo1_p4  = new TClonesArray("TLorentzVector", MAX_GENJETS);
   genjet_algo2_p4  = new TClonesArray("TLorentzVector", MAX_GENJETS);
   genjet_algo3_p4  = new TClonesArray("TLorentzVector", MAX_GENJETS);
@@ -38,6 +39,10 @@
   pho_conv_pair_momentum  = new TClonesArray("TVector3", MAX_PHOTONS);
   pho_conv_refitted_momentum  = new TClonesArray("TVector3", MAX_PHOTONS);
   pho_conv_vertexcorrected_p4  = new TClonesArray("TLorentzVector", MAX_PHOTONS);
+  conv_p4 = new TClonesArray("TLorentzVector", MAX_PHOTONS);
+  conv_vtx = new TClonesArray("TVector3", MAX_PHOTONS);
+  conv_pair_momentum = new TClonesArray("TVector3", MAX_PHOTONS);
+  conv_refitted_momentum = new TClonesArray("TVector3", MAX_PHOTONS);
   lptgeninfo_p4  = new TClonesArray("TLorentzVector", MAX_GENERATOR);
   lptgen_p4  = new TClonesArray("TLorentzVector", MAX_GENERATOR);
   lptgen_befrad_p4  = new TClonesArray("TLorentzVector", MAX_GENERATOR);
