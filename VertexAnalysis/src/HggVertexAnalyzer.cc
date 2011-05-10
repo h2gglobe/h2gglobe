@@ -585,17 +585,6 @@ void HggVertexAnalyzer::analyze(const VertexInfoAdapter & e, const PhotonInfo & 
 
 			const TVector3 tkPVec(e.tkpx(tid),e.tkpy(tid),e.tkpz(tid));
 			assert(vid >= 0 && vid < nvtx);
-			
-			// remove tracks in a cone around the photon direction
-			if ( params_.removeTracksInCone ) {
-			  float dr1 = tkPVec.DeltaR(p1.p4(e.vtxx(vid),e.vtxy(vid),e.vtxz(vid)).Vect()); 
-			  float dr2 = tkPVec.DeltaR(p2.p4(e.vtxx(vid),e.vtxy(vid),e.vtxz(vid)).Vect()); 
-			  if ( dr1 < params_.coneSize  || dr2 < params_.coneSize) {
-				  //// std::cerr << "skipping [line" << __LINE__ << "] ";
-				  continue;
-			  }
-			}
-		
 	
 			TVector2 tkPtVec = tkPVec.XYvector();
 			float tkPt = tkPtVec.Mod();
@@ -612,11 +601,25 @@ void HggVertexAnalyzer::analyze(const VertexInfoAdapter & e, const PhotonInfo & 
 				tkPt = modpt;
 			}
 			
+
+			sumpt2_[vid] += tkPtVec.Mod2();
+			
+			// remove tracks in a cone around the photon direction
+			if ( params_.removeTracksInCone ) {
+			  float dr1 = tkPVec.DeltaR(p1.p4(e.vtxx(vid),e.vtxy(vid),e.vtxz(vid)).Vect()); 
+			  float dr2 = tkPVec.DeltaR(p2.p4(e.vtxx(vid),e.vtxy(vid),e.vtxz(vid)).Vect()); 
+			  if ( dr1 < params_.coneSize  || dr2 < params_.coneSize) {
+				  //// std::cerr << "skipping [line" << __LINE__ << "] ";
+				  continue;
+			  }
+			}
+		
+
 			if(tkPt > params_.trackCountThr) nchthr_[vid] += 1;
 			nch_[vid] += 1;
 			ptbal_[vid] -= tkPtVec * diPhoton_[vid].Vect().XYvector().Unit();
 			sumpt_[vid] += tkPt;
-			sumpt2_[vid] += tkPtVec.Mod2();
+			//			sumpt2_[vid] += tkPtVec.Mod2();
 			float cosTk = tkPVec.Unit() * diPhoton_[vid].Vect().Unit();
 			float val = tkPtVec.Mod();
 			if ( cosTk < -0.5 )	{
