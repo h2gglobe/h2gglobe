@@ -774,7 +774,7 @@ int LoopAll::PhotonCiCSelectionLevel( int photon_index, std::vector<std::vector<
 	if( cutlevelpassed != iCUTLEVEL - 1 ) {
 	  std::cerr << "photon " << photon_index << " (category " << photon_category << ") in run/event " << run << "/" << event << " passed CiC cut level " 
 		    << iCUTLEVEL << " but not "  << iCUTLEVEL - 1 << ". Did you load your cut values correctly? " << std::endl;
-	    assert( 0 );
+	  //// assert( 0 );
 	}
 	cutlevelpassed=iCUTLEVEL;
       }
