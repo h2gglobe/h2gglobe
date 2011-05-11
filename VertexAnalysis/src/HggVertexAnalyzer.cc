@@ -585,7 +585,10 @@ void HggVertexAnalyzer::analyze(const VertexInfoAdapter & e, const PhotonInfo & 
 
 			const TVector3 tkPVec(e.tkpx(tid),e.tkpy(tid),e.tkpz(tid));
 			assert(vid >= 0 && vid < nvtx);
-	
+			
+
+			//// std::cerr << "( " << e.tkpx(tid) << " " << e.tkpy(tid) << " " << e.tkpz(tid) << ")";
+
 			TVector2 tkPtVec = tkPVec.XYvector();
 			float tkPt = tkPtVec.Mod();
 			const float modpt = tkPt > e.tkPtErr(tid) ? tkPt - e.tkPtErr(tid)  : 0.;
@@ -601,10 +604,13 @@ void HggVertexAnalyzer::analyze(const VertexInfoAdapter & e, const PhotonInfo & 
 				tkPt = modpt;
 			}
 			
-
+			// vertex properties
 			sumpt2_[vid] += tkPtVec.Mod2();
-			
-			// remove tracks in a cone around the photon direction
+			sumpt_[vid] += tkPt;
+			if(tkPt > params_.trackCountThr) nchthr_[vid] += 1;
+			nch_[vid] += 1;
+						
+			// remove tracks in a cone around the photon direction to compute kinematic propeties
 			if ( params_.removeTracksInCone ) {
 			  float dr1 = tkPVec.DeltaR(p1.p4(e.vtxx(vid),e.vtxy(vid),e.vtxz(vid)).Vect()); 
 			  float dr2 = tkPVec.DeltaR(p2.p4(e.vtxx(vid),e.vtxy(vid),e.vtxz(vid)).Vect()); 
@@ -615,11 +621,7 @@ void HggVertexAnalyzer::analyze(const VertexInfoAdapter & e, const PhotonInfo & 
 			}
 		
 
-			if(tkPt > params_.trackCountThr) nchthr_[vid] += 1;
-			nch_[vid] += 1;
 			ptbal_[vid] -= tkPtVec * diPhoton_[vid].Vect().XYvector().Unit();
-			sumpt_[vid] += tkPt;
-			//			sumpt2_[vid] += tkPtVec.Mod2();
 			float cosTk = tkPVec.Unit() * diPhoton_[vid].Vect().Unit();
 			float val = tkPtVec.Mod();
 			if ( cosTk < -0.5 )	{
@@ -642,7 +644,7 @@ void HggVertexAnalyzer::analyze(const VertexInfoAdapter & e, const PhotonInfo & 
 			}
 			sumpr_[vid] += pow(tkPVec.Mag(),spherPwr_);
 		}
-		//// std::cerr << " nch_[vid] " << nch_[vid] << std::endl;
+		//// std::cerr << " nch_[vid] " << nch_[vid] << " sumpt2_[vid] " << sumpt2_[vid] << std::endl;
 		
 		sphers_[vid] *= 1./sumpr_[vid];
 		

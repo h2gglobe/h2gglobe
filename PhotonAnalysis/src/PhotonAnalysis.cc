@@ -13,7 +13,8 @@ PhotonAnalysis::PhotonAnalysis()  :
 	runStatAnalysis(false),
 	name_("PhotonAnalysis"),
 	vtxAna_(vtxAlgoParams), vtxConv_(vtxAlgoParams)
-{}
+{
+}
 
 // ----------------------------------------------------------------------------------------------------
 PhotonAnalysis::~PhotonAnalysis() 
@@ -29,6 +30,37 @@ void PhotonAnalysis::Init(LoopAll& l)
 	if(PADEBUG) 
 		cout << "InitRealPhotonAnalysis START"<<endl;
 
+	if( vtxVarNames.empty() ) {
+		vtxVarNames.push_back("ptbal"), vtxVarNames.push_back("ptasym"), vtxVarNames.push_back("logsumpt2");
+	}
+	// FIXME should move this to GeneralFunctions
+	const int phoNCUTS = LoopAll::phoNCUTS;
+	const int phoNCATEGORIES = LoopAll::phoNCATEGORIES;
+	const int phoNCUTLEVELS = LoopAll::phoNCUTLEVELS;
+
+	for(int iLevel=0; iLevel<phoNCUTLEVELS; ++iLevel) {
+		float cuts_lead[phoNCUTS][phoNCATEGORIES];
+		float cuts_sublead[phoNCUTS][phoNCATEGORIES];
+		l.SetPhotonCutsInCategories((LoopAll::phoCiCIDLevel)iLevel, &cuts_lead[0][0], &cuts_sublead[0][0] );
+		
+		float * cuts_arrays_lead[phoNCUTS] = {
+			&l.cut_lead_isosumoet[0][0], &l.cut_lead_isosumoetbad[0][0], &l.cut_lead_trkisooet[0][0], &l.cut_lead_sieie[0][0],
+			&l.cut_lead_hovere[0][0], &l.cut_lead_r9[0][0], &l.cut_lead_drtotk_25_99[0][0], &l.cut_lead_pixel[0][0] 
+		};
+		
+		float * cuts_arrays_sublead[phoNCUTS] = {
+			&l.cut_sublead_isosumoet[0][0], &l.cut_sublead_isosumoetbad[0][0], &l.cut_sublead_trkisooet[0][0], 
+			&l.cut_sublead_sieie[0][0], &l.cut_sublead_hovere[0][0], &l.cut_sublead_r9[0][0],
+			&l.cut_sublead_drtotk_25_99[0][0], &l.cut_sublead_pixel[0][0]
+		};
+
+		for(int iCut=0; iCut<phoNCUTS; ++iCut) {
+			for(int iCat=0; iCat<phoNCATEGORIES; ++iCat) {
+				cuts_arrays_lead[iCut][iLevel*phoNCATEGORIES+iCat] = cuts_lead[iCut][iCat];
+				cuts_arrays_sublead[iCut][iLevel*phoNCATEGORIES+iCat] = cuts_sublead[iCut][iCat];
+			}
+		}
+	}
 
 	if (l.typerun == 2 || l.typerun == 1) {
 	}
@@ -311,9 +343,21 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
 
         // run vertex analysis
 	l.vertexAnalysis(vtxAna_, ipho1, ipho2 );
+        // select vertex
+	*l.vtx_std_ranked_list = l.vertexSelection(vtxAna_, vtxConv_, ipho1, ipho2, vtxVarNames);
+	if( l.vtx_std_ranked_list->size() != 0 ) {  
+		l.vtx_std_sel = (*l.vtx_std_ranked_list)[0];
+	} else {
+		std::cerr << "NO VERTEX SELECTED " << l.event << " " << l.run << " " << std::endl;
+	}
+	// update the photons' pt
+	for(int ipho=0; ipho<l.pho_n; ++ipho) {
+		l.set_pho_p4(ipho, l.vtx_std_sel);
+	}
 	
-	// fill track isolation
-	l.fillTrackIsolation(tkIso_ptmin,tkIso_outerCone,tkIso_innerCone,tkIso_etaStripHalfW,tkIso_dzmax,tkIso_dxymax);
+	// fill ID variables
+	l.FillCICInputs();
+	l.FillCIC();
 
 	return true;
 }
@@ -328,10 +372,24 @@ bool PhotonAnalysis::SelectEvents(LoopAll& l, int jentry)
 void PhotonAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree) 
 {
 	vtxAna_.branches(outputTree,"vtx_std_");	
+	l.vtx_std_ranked_list = new std::vector<int>();
+	l.pho_tkiso_recvtx_030_002_0000_10_01 = new std::vector<std::vector<float> >();
 
-	l.pho_ntrkhgg = new std::vector<std::vector<int> >();
-	l.pho_trksumpthgg = new std::vector<std::vector<float> >();
-	outputTree->Branch("pho_trksumpthgg", &l.pho_trksumpthgg);
-	outputTree->Branch("pho_ntrkhgg", &l.pho_ntrkhgg);
+	l.pho_cutlevel_lead = new std::vector<Short_t>();
+	l.pho_passcuts_lead = new std::vector<std::vector<UInt_t> >();
+	l.pho_cutlevel_sublead = new std::vector<Short_t>();
+	l.pho_passcuts_sublead = new std::vector<std::vector<UInt_t> >();
+
+	l.Branch_vtx_std_ranked_list(outputTree);
+	l.Branch_vtx_std_sel(outputTree);
+	l.Branch_pho_tkiso_recvtx_030_002_0000_10_01(outputTree);
+	l.Branch_pho_tkiso_badvtx_040_002_0000_10_01(outputTree);
+	l.Branch_pho_drtotk_25_99(outputTree);
+
+	l.Branch_pho_cutlevel_lead( outputTree );
+	l.Branch_pho_passcuts_lead( outputTree );
+	l.Branch_pho_cutlevel_sublead( outputTree );
+	l.Branch_pho_passcuts_sublead( outputTree );
+	
 }
 

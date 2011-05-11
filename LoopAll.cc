@@ -263,9 +263,12 @@ void LoopAll::Term(){
 LoopAll::LoopAll(TTree *tree) 
 {  
 #include "branchdef/newclonesarray.h"
+
 #ifndef __CINT__
 #include "branchdef/branchdict.h"
+	DefineUserBranches();
 #endif
+
 //  rooContainer = new RooContainer();
 }
 

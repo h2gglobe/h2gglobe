@@ -549,14 +549,3 @@ void Branch_vtx_std_scalarpt(TTree * tree) { tree->Branch("vtx_std_scalarpt",&vt
 void Branch_vtx_std_ntks(TTree * tree) { tree->Branch("vtx_std_ntks",&vtx_std_ntks, "vtx_std_ntks[vtx_std_n]/I"); }; 
 void Branch_vtx_std_tkind(TTree * tree) { tree->Branch("vtx_std_tkind", "std::vector<std::vector<unsigned short> >", &vtx_std_tkind); }; 
 void Branch_vtx_std_tkweight(TTree * tree) { tree->Branch("vtx_std_tkweight", "std::vector<std::vector<float> >", &vtx_std_tkweight); }; 
-void Branch_rho(TTree * tree) { tree->Branch("rho", &rho, "rho/F"); }; 
-void Branch_gv_pos(TTree * tree) { tree->Branch("gv_pos", "TClonesArray",&gv_pos, 32000, 0); }; 
-void Branch_gv_n(TTree * tree) { tree->Branch("gv_n",&gv_n, "gv_n/I"); }; 
-void Branch_pu_n(TTree * tree) { tree->Branch("pu_n", &pu_n, "pu_n/I"); };
-void Branch_pu_zpos		(TTree * tree) { tree->Branch("pu_zpos", "std::vector<float>", &pu_zpos		); }; 
-void Branch_pu_sumpt_lowpt	(TTree * tree) { tree->Branch("pu_sumpt_lowpt", "std::vector<float>", &pu_sumpt_lowpt	); }; 
-void Branch_pu_sumpt_highpt	(TTree * tree) { tree->Branch("pu_sumpt_highpt", "std::vector<float>", &pu_sumpt_highpt	); }; 
-void Branch_pu_ntrks_lowpt	(TTree * tree) { tree->Branch("pu_ntrks_lowpt", "std::vector<int>", &pu_ntrks_lowpt	); }; 
-void Branch_pu_ntrks_highpt  (TTree * tree) { tree->Branch("pu_ntrks_highpt" ,  "std::vector<int>", &pu_ntrks_highpt ); }; 
-void Branch_pho_ntrkhgg(TTree * tree) { tree->Branch("pho_trksumpthgg", "std::vector<std::vector<float> >", &pho_trksumpthgg); }; 
-void Branch_pho_trksumpthgg(TTree * tree) { tree->Branch("pho_ntrkhgg", "std::vector<std::vector<int> >", &pho_ntrkhgg); }; 

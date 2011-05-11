@@ -5,6 +5,7 @@
 
 //#pragma link off all classes;
 
+#pragma link C++ class std::vector<std::vector<unsigned int> >+;
 #pragma link C++ class std::vector<std::vector<unsigned short> >+;
 #pragma link C++ class std::vector<std::vector<int> >+;
 #pragma link C++ class std::vector<std::vector<float> >+;

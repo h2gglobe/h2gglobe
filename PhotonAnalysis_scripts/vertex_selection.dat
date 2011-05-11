@@ -1,14 +1,16 @@
 fixTkIndex=1
+
 rescaleTkPtByError=0
 trackCountThr=0
 highPurityOnly=0
+
 maxD0Signif=999.
 maxDzSignif=999.
 
 removeTracksInCone=0
 coneSize=0.
 
-sigmaPix=1.
+sigmaPix=999.
 sigmaTib=999.
 sigmaTob=999.
 sigmaFwd1=999.

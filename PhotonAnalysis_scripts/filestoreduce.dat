@@ -1,5 +1,5 @@
-output=my_reduced_tuple.root
-Fil=rfio:/castor/cern.ch/user/c/cmshgg/processed/h2g_V06_00/Spring11-PU_S1_START311_V1G1/GluGlu_M100_2011PU/GluGlu_M100_2011PU_4_1_XPo.root typ=1
+output=datastore/my_reduced_tuple.root
+Fil=rfio:/castor/cern.ch/user/c/cmshgg/processed/h2g_V06_00/Data/Run2010A/Run2010A_11_1_C60.root typ=0
 
 ->
 filestoreduce.dat

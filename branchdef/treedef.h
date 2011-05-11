@@ -577,15 +577,3 @@ Float_t vtx_std_ndof[MAX_VERTICES];
 Int_t vtx_std_ntks[MAX_VERTICES];
 std::vector<std::vector<unsigned short> >* vtx_std_tkind;
 std::vector<std::vector<float> >* vtx_std_tkweight;
-Float_t rho;
-Int_t gv_n; 
-TClonesArray * gv_pos; 
-Int_t pu_n; 
-std::vector<float> * pu_zpos;
-std::vector<float> * pu_sumpt_lowpt;
-std::vector<float> * pu_sumpt_highpt;
-std::vector<int> * pu_ntrks_lowpt;
-std::vector<int> * pu_ntrks_highpt;
-std::vector<std::vector<float> >* pho_trksumpthgg;
-std::vector<std::vector<int> >* pho_ntrkhgg;
-

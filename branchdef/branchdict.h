@@ -550,15 +550,3 @@ BRANCH_DICT(vtx_std_ntks);
 BRANCH_DICT(vtx_std_tkind);
 BRANCH_DICT(vtx_std_tkweight);
 BRANCH_DICT(vtx_std_tkweight);
-BRANCH_DICT(gv_n  );
-BRANCH_DICT(gv_pos);
-BRANCH_DICT(pu_n);
-BRANCH_DICT(pu_zpos);
-BRANCH_DICT(pu_sumpt_lowpt);
-BRANCH_DICT(pu_sumpt_highpt);
-BRANCH_DICT(pu_ntrks_lowpt);
-BRANCH_DICT(pu_ntrks_highpt);
-
-BRANCH_DICT(rho);
-BRANCH_DICT(pho_trksumpthgg);
-BRANCH_DICT(pho_ntrkhgg);

@@ -40,9 +40,6 @@ public:
 	std::vector<int> pho_presel_lead;
 	std::vector<float> pho_sc_et;
 	
-	// Track isolation computation
-	float tkIso_ptmin,tkIso_outerCone,tkIso_innerCone,tkIso_etaStripHalfW,tkIso_dzmax,tkIso_dxymax;
-
 	// Other options
 	bool runStatAnalysis;
 	
