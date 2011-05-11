@@ -1,0 +1,5 @@
+<use   name="h2gglobe"/>
+<export>
+  <lib   name="1"/>
+</export>
+<Flags CXXFLAGS="-g" />

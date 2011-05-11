@@ -1,0 +1,21 @@
+  <tool name="h2gglobe" version="v0">
+    <lib name="LoopAll"/>
+    <client>
+      <environment name="H2GGLOBE_BASE" default="$CMSSW_BASE/src/h2gglobe"/>
+      <environment name="LIBDIR" default="$H2GGLOBE_BASE"/>
+      <environment name="INCLUDE" default="$H2GGLOBE_BASE"/>
+    </client>
+    <use name="root"/>
+    <use name="rootcore"/>
+    <use name="rootrflx"/>
+    <use name="roothistmatrix"/>
+    <use name="rootcintex"/>
+    <use name="rootmath"/>
+    <use name="rootthread"/>
+    <use name="rootgpad"/>
+    <use name="rootphysics"/>
+    <use name="rootgraphics"/>
+    <use name="rootminuit"/>
+    <use name="rootminuit2"/>
+    <use name="roottmva"/>
+  </tool>
