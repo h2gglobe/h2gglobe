@@ -39,8 +39,8 @@ void PhotonAnalysis::Init(LoopAll& l)
 	const int phoNCUTLEVELS = LoopAll::phoNCUTLEVELS;
 
 	for(int iLevel=0; iLevel<phoNCUTLEVELS; ++iLevel) {
-		float cuts_lead[phoNCUTS][phoNCATEGORIES];
-		float cuts_sublead[phoNCUTS][phoNCATEGORIES];
+		float cuts_lead[phoNCATEGORIES][phoNCUTS];
+		float cuts_sublead[phoNCATEGORIES][phoNCUTS];
 		l.SetPhotonCutsInCategories((LoopAll::phoCiCIDLevel)iLevel, &cuts_lead[0][0], &cuts_sublead[0][0] );
 		
 		float * cuts_arrays_lead[phoNCUTS] = {
@@ -56,8 +56,8 @@ void PhotonAnalysis::Init(LoopAll& l)
 
 		for(int iCut=0; iCut<phoNCUTS; ++iCut) {
 			for(int iCat=0; iCat<phoNCATEGORIES; ++iCat) {
-				cuts_arrays_lead[iCut][iLevel*phoNCATEGORIES+iCat] = cuts_lead[iCut][iCat];
-				cuts_arrays_sublead[iCut][iLevel*phoNCATEGORIES+iCat] = cuts_sublead[iCut][iCat];
+				cuts_arrays_lead[iCut][iLevel*phoNCATEGORIES+iCat] = cuts_lead[iCat][iCut];
+				cuts_arrays_sublead[iCut][iLevel*phoNCATEGORIES+iCat] = cuts_sublead[iCat][iCut];
 			}
 		}
 	}

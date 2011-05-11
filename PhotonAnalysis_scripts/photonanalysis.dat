@@ -21,10 +21,10 @@ presel_hoe=0.15
 
 ->
 track isolation (re-)computation
-->
 tkIso_ptmin=0.
 tkIso_outerCone=0.3
-tkIso_innerCone=0.04
-tkIso_etaStripHalfW=0.015
-tkIso_dzmax=0.2
+tkIso_innerCone=0.02
+tkIso_etaStripHalfW=0.
+tkIso_dzmax=1
 tkIso_dxymax=0.1
+->
