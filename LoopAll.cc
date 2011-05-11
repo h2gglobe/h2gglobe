@@ -196,6 +196,16 @@ void LoopAll::LoopAndFillHistos(TString treename) {
          ;it_file++,it_tree++,it_treepar++,it++){ 
     
     this->current = i;
+	
+    int type = itype[i];
+    int which_sample = -1;
+    for (int sample=0;sample<sampleContainer.size();sample++){
+	if (type == sampleContainer[sample].itype)
+	  which_sample = sample;
+    
+    }
+    this->current_sample_index = which_sample;
+
     cout<<"LoopAndFillHistos: opening " << i << " " << files[i]<<endl;
     
     *it_file = TFile::Open((*it).c_str());
@@ -898,12 +908,12 @@ void LoopAll::FillHist2D(std::string name, float x, float y) {
 
 // ------------------------------------------------------------------------------------
 void LoopAll::FillHist(std::string name, int category, float y) {
-  histoContainer[current].Fill(name, category, y);
+  histoContainer[current_sample_index].Fill(name, category, y);
 }
 
 // ------------------------------------------------------------------------------------
 void LoopAll::FillHist2D(std::string name, int category, float x, float y) {
-  histoContainer[current].Fill2D(name, category, x, y);
+  histoContainer[current_sample_index].Fill2D(name, category, x, y);
 }
 
 // ------------------------------------------------------------------------------------
@@ -913,5 +923,5 @@ void LoopAll::FillCounter(std::string name) {
 
 // ------------------------------------------------------------------------------------
 void LoopAll::FillCounter(std::string name, int category) {
-  counterContainer[current].Fill(name, category);
+  counterContainer[current_sample_index].Fill(name, category);
 }

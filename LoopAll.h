@@ -102,6 +102,7 @@ class LoopAll {
   std::map<int,int> type2HistVal;
 
   Int_t        current; //current file
+  Int_t        current_sample_index; //current file
   Int_t        tot_events;
   Int_t        sel_events;
 
