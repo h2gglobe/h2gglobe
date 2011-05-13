@@ -369,6 +369,7 @@ bool PhotonAnalysis::SkimEvents(LoopAll& l, int jentry)
 	if( l.pho_n < 2 ) {
 		return false;
 	}
+	return true;
 }
 
 // ----------------------------------------------------------------------------------------------------
