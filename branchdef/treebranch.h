@@ -138,9 +138,9 @@ void Branch_el_std_hp_1pxf(TTree * tree) { tree->Branch("el_std_hp_1pxf",&el_std
 void Branch_gp_n(TTree * tree) { tree->Branch("gp_n",&gp_n, "gp_n/I");  }; 
 void Branch_gp_p4(TTree * tree) { tree->Branch("gp_p4", "TClonesArray",&gp_p4, 32000, 0); }; 
 void Branch_gp_vtx(TTree * tree) { tree->Branch("gp_vtx", "TClonesArray",&gp_vtx, 32000, 0); }; 
-void Branch_gp_status(TTree * tree) { tree->Branch("gp_status",&gp_status, "gp_status[gp_n]/I");  }; 
-void Branch_gp_pdgid(TTree * tree) { tree->Branch("gp_pdgid",&gp_pdgid, "gp_pdgid[gp_n]/I");  }; 
-void Branch_gp_mother(TTree * tree) { tree->Branch("gp_mother",&gp_mother, "gp_mother[gp_n]/I");  }; 
+void Branch_gp_status(TTree * tree) { tree->Branch("gp_status",&gp_status, "gp_status[gp_n]/S");  }; 
+void Branch_gp_pdgid(TTree * tree) { tree->Branch("gp_pdgid",&gp_pdgid, "gp_pdgid[gp_n]/S");  }; 
+void Branch_gp_mother(TTree * tree) { tree->Branch("gp_mother",&gp_mother, "gp_mother[gp_n]/S");  }; 
 void Branch_genjet_algo1_n(TTree * tree) { tree->Branch("genjet_algo1_n",&genjet_algo1_n, "genjet_algo1_n/I"); }; 
 void Branch_genjet_algo1_p4(TTree * tree) { tree->Branch("genjet_algo1_p4", "TClonesArray",&genjet_algo1_p4, 32000, 0); }; 
 void Branch_genjet_algo1_em(TTree * tree) { tree->Branch("genjet_algo1_em",&genjet_algo1_em, "genjet_algo1_em[genjet_algo1_n]/F"); }; 
