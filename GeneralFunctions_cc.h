@@ -292,8 +292,42 @@ void LoopAll::vertexAnalysis(HggVertexAnalyzer & vtxAna, int p1, int p2)
 	vtxAna.analyze(vinfo,pho1,pho2);
 }
 
+
+std::pair<PhotonInfo, bool> LoopAll::fillPhotonInfos(int p1) {
+
+if(LDEBUG)  cout << "  LoopAll::fillPhotonInfos with index " << p1 <<  endl;
+  std::pair<PhotonInfo, bool> result;
+  result.second=false;
+
+  int iConv1 = matchPhotonToConversion(p1);
+if(LDEBUG)  cout << " I have matched and the index is " << iConv1 << endl;
+
+
+  if ( iConv1 >= 0) {
+
+	// conversions infos
+    PhotonInfo pho1(p1,
+		    *((TVector3*)pho_calopos->At(p1)),
+		    *((TVector3*) bs_xyz),
+		    *((TVector3*) conv_vtx->At(iConv1)),
+		    ((TLorentzVector*)pho_p4->At(p1))->Energy(),
+		    pho_isEB[p1],
+		    conv_ntracks[iConv1],
+		    conv_validvtx[iConv1],
+		    conv_chi2_probability[iConv1],
+		    conv_eoverp[iConv1]
+		    );
+    result.first = pho1;
+    result.second = true;
+  }
+
+  return result; 
+
+
+}
+
 // ---------------------------------------------------------------------------------------------------------------------------------------------
-std::vector<int> LoopAll::vertexSelection(HggVertexAnalyzer & vtxAna, HggVertexFromConversions & vtxAnaFromConv, int p1, int p2, std::vector<std::string> & vtxVarNames)
+std::vector<int> LoopAll::vertexSelection(HggVertexAnalyzer & vtxAna, HggVertexFromConversions & vtxAnaFromConv, int p1, int p2, PhotonInfo pho1, PhotonInfo pho2, bool b1, bool b2, std::vector<std::string> & vtxVarNames)
 {
 	assert( p1 == vtxAna.pho1() && p2 == vtxAna.pho2() );
 
@@ -303,38 +337,12 @@ std::vector<int> LoopAll::vertexSelection(HggVertexAnalyzer & vtxAna, HggVertexF
           preselAll.push_back(i); 
         }
 
-	// conversions infos
-	PhotonInfo pho1(p1,
-			*((TVector3*)pho_calopos->At(p1)),
-			*((TVector3*) bs_xyz),
-			*((TVector3*) pho_conv_vtx->At(p1)),
-			((TLorentzVector*)pho_p4->At(p1))->Energy(),
-			pho_isEB[p1],
-			pho_conv_ntracks[p1],
-			pho_conv_validvtx[p1],
-			pho_conv_chi2_probability[p1] ,
-			pho_conv_eoverp[p1]
-			);
-	
 
-	PhotonInfo pho2(p2,
-			*((TVector3*)pho_calopos->At(p2)),
-			*((TVector3*) bs_xyz),
-			*((TVector3*) pho_conv_vtx->At(p2)),
-			((TLorentzVector*)pho_p4->At(p2))->Energy(),
-			pho_isEB[p2],
-			pho_conv_ntracks[p2],
-			pho_conv_validvtx[p2],
-			pho_conv_chi2_probability[p2] ,
-			pho_conv_eoverp[p2]
-			);
-		
         float zconv = 0; 
         float dzconv = 0;
         std::vector<int> preselConv;
 
-
-        if ( (pho_r9[p1] <0.93 || pho_r9[p2] <0.93) && (pho1.isAConversion() || pho2.isAConversion()) )  {
+        if ( (pho_r9[p1] <0.93 || pho_r9[p2] <0.93) && (pho1.isAConversion()*b1 || pho2.isAConversion()*b2 ) )  {
 	  
           if (pho1.isAConversion()  && !pho2.isAConversion() ){
             zconv  = vtxAnaFromConv.vtxZ(pho1);
@@ -367,6 +375,8 @@ std::vector<int> LoopAll::vertexSelection(HggVertexAnalyzer & vtxAna, HggVertexF
 	  
         }
 
+
+
 	// preselection 
 	if ( preselConv.size()==0 ) 
           vtxAna.preselection(preselAll);
@@ -383,6 +393,124 @@ std::vector<int> LoopAll::vertexSelection(HggVertexAnalyzer & vtxAna, HggVertexF
 	
 	return rankprod;
 }
+
+
+double LoopAll::phiNorm(float &phi) {
+
+  const float pi = 3.1415927;
+  const float twopi = 2.0*pi;
+
+  if(phi >  pi) {phi = phi - twopi;}
+  if(phi < -pi) {phi = phi + twopi;}
+
+  return phi;
+}
+
+
+double LoopAll::etaTransformation(  float EtaParticle , float Zvertex)  {
+
+  //---Definitions
+  const float pi = 3.1415927;
+
+  //---Definitions for ECAL
+  const float R_ECAL           = 136.5;
+  const float Z_Endcap         = 328.0;
+  const float etaBarrelEndcap  = 1.479; 
+   
+  //---ETA correction
+
+  float Theta = 0.0  ; 
+  float ZEcal = R_ECAL*sinh(EtaParticle)+Zvertex;
+
+  if(ZEcal != 0.0) Theta = atan(R_ECAL/ZEcal);
+  if(Theta<0.0) Theta = Theta+pi ;
+  double ETA = - log(tan(0.5*Theta));
+         
+  if( fabs(ETA) > etaBarrelEndcap )
+    {
+      float Zend = Z_Endcap ;
+      if(EtaParticle<0.0 )  Zend = -Zend ;
+      float Zlen = Zend - Zvertex ;
+      float RR = Zlen/sinh(EtaParticle); 
+      Theta = atan(RR/Zend);
+      if(Theta<0.0) Theta = Theta+pi ;
+      ETA = - log(tan(0.5*Theta));		      
+    } 
+  //---Return the result
+  return ETA;
+  //---end
+}
+
+
+int  LoopAll::matchPhotonToConversion( int lpho) {
+
+  int result=-99;
+  double conv_eta=-999.;
+  double conv_phi=-999.;
+  
+  float sc_eta  = ((TVector3 *) pho_calopos->At(lpho))->Eta();
+  float sc_phi  = ((TVector3 *) pho_calopos->At(lpho))->Phi();
+  
+  TLorentzVector * p4 = (TLorentzVector *) pho_p4->At(lpho);
+  float et = p4->Energy() / cosh(sc_eta);
+  //  cout << " photon index " << lpho << " eta " <<sc_eta<< " phi " << sc_phi << " et " << et << endl; 
+  
+  float detaMin=999.;
+  float dphiMin=999.;   
+  float dRMin = 999.;
+
+  float mconv_pt=-999999;
+  int iMatch=-1;     
+
+  if(LDEBUG)  cout << "   LoopAll::matchPhotonToConversion conv_n " << conv_n << endl; 
+  for(int iconv=0; iconv<conv_n; iconv++) {
+    vector<TVector3> refittedPairMomentum;
+    refittedPairMomentum.push_back(*((TVector3*) conv_refitted_momentum->At(iconv)));
+    float conv_pt =  refittedPairMomentum[iconv].Pt();
+    if (conv_pt < 1 ) continue;    
+    if ( ! conv_validvtx[iconv] ) continue;
+
+    conv_phi  = ((TVector3 *) conv_refitted_momentum->At(iconv))->Phi();
+    float eta  = ((TVector3 *) conv_refitted_momentum->At(iconv))->Eta();
+    conv_eta = etaTransformation(eta, conv_zofprimvtxfromtrks[iconv] );
+
+    //    cout << " conversion index " << iconv << " eta " <<conv_eta<<  " norm phi " << conv_phi << " PT " << conv_pt << endl; 
+
+    float dPhi =conv_phi - sc_phi;       
+    double delta_phi = phiNorm (dPhi);
+    double delta_eta = conv_eta - sc_eta;
+ 
+    //cout << " delta_eta " << delta_eta << " delta_phi " << delta_phi << endl;
+    //delta_phi=pow(delta_phi,2);
+    //delta_eta=pow(delta_eta,2);
+    //float dR = sqrt( delta_phi+delta_eta); 
+    
+    if ( fabs(delta_eta) < detaMin && fabs(delta_phi) < dphiMin ) {
+    //    if ( dR < dRMin ) {
+      detaMin=  fabs(delta_eta);
+      dphiMin=  fabs(delta_phi);
+      //dRMin=dR;
+      iMatch=iconv;
+      mconv_pt = conv_pt;
+    }
+
+  }
+  
+  //  cout << " minimized conversion index " << iMatch << " eta " <<conv_eta<< " phi " << conv_phi <<endl; 
+
+  if ( detaMin < 0.1 && dphiMin < 0.1 ) {
+  //  if ( dRMin< 0.1 ) {
+    if(LDEBUG)    cout << " matched conversion index " << iMatch << " eta " <<conv_eta<< " phi " << conv_phi << " pt " << mconv_pt << endl; 	
+    result = iMatch;
+  } else {
+    result = -1;
+  }
+ 
+  return result;
+  
+
+}
+
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 TLorentzVector LoopAll::get_pho_p4(int ipho, int ivtx)
@@ -735,15 +863,6 @@ int LoopAll::PhotonCiCSelectionLevel( int photon_index, std::vector<std::vector<
   ph_passcut.resize(phoNCUTLEVELS,std::vector<bool>(8,true) );
   if(!doSublead) {
     for(int iCUTLEVEL=0;iCUTLEVEL!=(int)phoNCUTLEVELS;++iCUTLEVEL) {
-      //// cerr << " iCUTLEVEL " << iCUTLEVEL << "val_isosumoet   " << val_isosumoet     << " " <<  cut_lead_isosumoet[iCUTLEVEL][photon_category]     << endl;
-      //// cerr << " iCUTLEVEL " << iCUTLEVEL << "val_isosumoetbad" << val_isosumoetbad  << " " <<  cut_lead_isosumoetbad[iCUTLEVEL][photon_category]  << endl;
-      //// cerr << " iCUTLEVEL " << iCUTLEVEL << "val_trkisooet   " << val_trkisooet     << " " <<  cut_lead_trkisooet[iCUTLEVEL][photon_category]     << endl;
-      //// cerr << " iCUTLEVEL " << iCUTLEVEL << "val_sieie       " << val_sieie         << " " <<  cut_lead_sieie[iCUTLEVEL][photon_category]         << endl;
-      //// cerr << " iCUTLEVEL " << iCUTLEVEL << "val_hoe         " << val_hoe           << " " <<  cut_lead_hovere[iCUTLEVEL][photon_category]        << endl;
-      //// cerr << " iCUTLEVEL " << iCUTLEVEL << "val_r9          " << val_r9            << " " <<  cut_lead_r9[iCUTLEVEL][photon_category]            << endl;// gt cut
-      //// cerr << " iCUTLEVEL " << iCUTLEVEL << "val_drtotk_25_99" << val_drtotk_25_99  << " " <<  cut_lead_drtotk_25_99[iCUTLEVEL][photon_category]  << endl;// gt cut
-      //// cerr << " iCUTLEVEL " << iCUTLEVEL << "val_pixel       " << val_pixel         << " " <<  cut_lead_pixel[iCUTLEVEL][photon_category]         << endl;
-
       ph_passcut[iCUTLEVEL][0] = (val_isosumoet        <   cut_lead_isosumoet[iCUTLEVEL][photon_category]     );
       ph_passcut[iCUTLEVEL][1] = (val_isosumoetbad     <   cut_lead_isosumoetbad[iCUTLEVEL][photon_category]  );
       ph_passcut[iCUTLEVEL][2] = (val_trkisooet        <   cut_lead_trkisooet[iCUTLEVEL][photon_category]     );
@@ -760,7 +879,7 @@ int LoopAll::PhotonCiCSelectionLevel( int photon_index, std::vector<std::vector<
 	if( cutlevelpassed != iCUTLEVEL - 1 ) {
 	  std::cerr << "photon " << photon_index << " (category " << photon_category << ") in run/event " << run << "/" << event << " passed CiC cut level " 
 		    << iCUTLEVEL << " but not "  << iCUTLEVEL - 1 << ". Did you load your cut values correctly? "<< std::endl;
-	  // assert( 0 );
+	  /// assert( 0 );
 	}
 	cutlevelpassed=iCUTLEVEL;
       }
@@ -783,7 +902,7 @@ int LoopAll::PhotonCiCSelectionLevel( int photon_index, std::vector<std::vector<
 	if( cutlevelpassed != iCUTLEVEL - 1 ) {
 	  std::cerr << "photon " << photon_index << " (category " << photon_category << ") in run/event " << run << "/" << event << " passed CiC cut level " 
 		    << iCUTLEVEL << " but not "  << iCUTLEVEL - 1 << ". Did you load your cut values correctly? " << std::endl;
-	  // assert( 0 );
+	  //// assert( 0 );
 	}
 	cutlevelpassed=iCUTLEVEL;
       }
@@ -922,11 +1041,12 @@ void LoopAll::DefineUserBranches()
 	BRANCH_DICT(pho_tkiso_badvtx_040_002_0000_10_01);
 	BRANCH_DICT(pho_drtotk_25_99);
 
-
 	BRANCH_DICT(pho_cutlevel_lead);
 	BRANCH_DICT(pho_passcuts_lead);
 	BRANCH_DICT(pho_cutlevel_sublead);
 	BRANCH_DICT(pho_passcuts_sublead);
+
+	BRANCH_DICT(pho_matchingConv);
 
 #endif
 }

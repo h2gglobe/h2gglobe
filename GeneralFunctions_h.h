@@ -9,9 +9,16 @@ std::pair<bool, bool> ElectronId(int, eIDLevel);
 void eIDInfo(Int_t, Int_t&, Int_t&,Int_t eIDMaxLevel=10);
 Float_t sipCalculator(int);
 
+// Match the Photon with the merged collection of conversions
+std::pair<PhotonInfo,bool> fillPhotonInfos(int p1);
+int matchPhotonToConversion(int); 
+double phiNorm (float &phi);
+double etaTransformation(  float EtaParticle , float Zvertex);
+
 // Vertex analysis
 void vertexAnalysis(HggVertexAnalyzer & vtxAna, int pho1, int pho2);
-std::vector<int> vertexSelection(HggVertexAnalyzer & vtxAna, HggVertexFromConversions & vtxAnaFromConv, int p1, int p2, std::vector<std::string> & vtxVarNames);
+//std::vector<int> vertexSelection(HggVertexAnalyzer & vtxAna, HggVertexFromConversions & vtxAnaFromConv, int p1, int p2, std::vector<std::string> & vtxVarNames);
+std::vector<int> vertexSelection(HggVertexAnalyzer & vtxAna, HggVertexFromConversions & vtxAnaFromConv, int p1, int p2, PhotonInfo pho1, PhotonInfo pho2, bool b1, bool b2, std::vector<std::string> & vtxVarNames);
 
 TLorentzVector get_pho_p4(int ipho, int ivtx);
 void set_pho_p4(int ipho, int ivtx);
@@ -138,6 +145,10 @@ std::vector<std::vector<UInt_t> >* pho_passcuts_lead;
 std::vector<Short_t>* pho_cutlevel_sublead;
 std::vector<std::vector<UInt_t> >* pho_passcuts_sublead;
 
+// Indices of conversions matching the photons
+std::vector<int> * pho_matchingConv;
+TBranch *b_pho_matchingConv;
+
 TBranch *b_rho;
 TBranch *b_gv_n;
 TBranch *b_gv_pos;
@@ -160,6 +171,9 @@ TBranch * b_pho_passcuts_lead;
 TBranch * b_pho_cutlevel_sublead;
 TBranch * b_pho_passcuts_sublead;
 
+
+
+
 void DefineUserBranches();
 
 // I/O
@@ -167,9 +181,14 @@ void DefineUserBranches();
 // vertex branches
 void Branch_vtx_std_sel(TTree * tree) { tree->Branch("vtx_std_sel", &vtx_std_sel, "vtx_std_sel/I"); }; 
 void Branch_vtx_std_ranked_list(TTree * tree) { tree->Branch("vtx_std_ranked_list", "std::vector<int>", &vtx_std_ranked_list); }; 
+void Branch_pho_matchingConv(TTree * tree) { tree->Branch("pho_matchingConv", "std::vector<int>", &pho_matchingConv); }; 
+
 
 void SetBranchAddress_vtx_std_sel(TTree * tree) { tree->SetBranchAddress("vtx_std_sel", &vtx_std_sel, &b_vtx_std_sel); }; 
 void SetBranchAddress_vtx_std_ranked_list(TTree * tree) { tree->SetBranchAddress("std_ranked_list", &vtx_std_ranked_list, &b_vtx_std_ranked_list); }; 
+void SetBranchAddress_pho_matchingConv(TTree * tree) { tree->SetBranchAddress("pho_matchingConv", &pho_matchingConv, &b_pho_matchingConv); }; 
+
+
 
 // ID branches
 void Branch_pho_tkiso_recvtx_030_002_0000_10_01(TTree * tree) { tree->Branch("pho_tkiso_recvtx_030_002_0000_10_01", "std::vector<std::vector<float> >", &pho_tkiso_recvtx_030_002_0000_10_01); }; 
