@@ -7,12 +7,12 @@ highPurityOnly=0
 maxD0Signif=999.
 maxDzSignif=999.
 
-removeTracksInCone=0
-coneSize=0.
+removeTracksInCone=1
+coneSize=0.05
 
-sigmaPix=999.
-sigmaTib=999.
-sigmaTob=999.
-sigmaFwd1=999.
-sigmaFwd2=999.
-sigmaFwd3=999.
+sigmaPix=0.06
+sigmaTib=0.67
+sigmaTob=2.04
+sigmaFwd1=0.18
+sigmaFwd2=0.61
+sigmaFwd3=0.99
