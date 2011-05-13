@@ -120,6 +120,35 @@ HggVertexAnalyzer::HggVertexAnalyzer(AlgoParameters & ap, int nvtx) :
 	pho2_(-1),
 	ninvalid_idxs_(0)
 {
+
+	pdiphopt = &diphopt_;
+	pnch = &nch_;
+	pptmax = &ptmax_;
+	psumpt = &sumpt_;
+	pptvtx = &ptvtx_;
+	pacosA = &acosA_;
+	pptasym = &ptasym_;
+	pptbal = &ptbal_;
+	
+	pnchthr = &nchthr_;
+	pptmax3 = &ptmax3_;
+	pthrust = &thrust_;
+	
+	psumweight = &sumweight_;
+	psumpt2 = &sumpt2_;
+	pptratio = &ptratio_;
+	ppzasym = &pzasym_;
+	
+	pspher = &spher_;
+	paplan = &aplan_;
+	psumpr = &sumpr_;
+	
+	psumawy = &sumawy_;
+	psumtrv = &sumtrv_;
+	psumtwd = &sumtwd_;
+	pawytwdasym = &awytwdasym_;
+
+	
 }
 
 // -------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -160,59 +189,32 @@ void HggVertexAnalyzer::branches(TTree * tree, const std::string & pfx)
 // -------------------------------------------------------------------------------------------------------------------------------------------------------------
 void HggVertexAnalyzer::setBranchAdresses(TTree * tree, const std::string & pfx)
 {
-	static std::vector<float> * diphopt = &diphopt_;
-	static std::vector<float> * nch = &nch_;
-	static std::vector<float> * ptmax = &ptmax_;
-	static std::vector<float> * sumpt = &sumpt_;
-	static std::vector<float> * ptvtx = &ptvtx_;
-	static std::vector<float> * acosA = &acosA_;
-	static std::vector<float> * ptasym = &ptasym_;
-	static std::vector<float> * ptbal = &ptbal_;
-	
-	static std::vector<float> * nchthr = &nchthr_;
-	static std::vector<float> * ptmax3 = &ptmax3_;
-	static std::vector<float> * thrust = &thrust_;
-	
-	static std::vector<float> * sumweight = &sumweight_;
-	static std::vector<float> * sumpt2 = &sumpt2_;
-	static std::vector<float> * ptratio = &ptratio_;
-	static std::vector<float> * pzasym = &pzasym_;
-	
-	static std::vector<float> * spher = &spher_;
-	static std::vector<float> * aplan = &aplan_;
-	static std::vector<float> * sumpr = &sumpr_;
-	
-	static std::vector<float> * sumawy = &sumawy_;
-	static std::vector<float> * sumtrv = &sumtrv_;
-	static std::vector<float> * sumtwd = &sumtwd_;
-	static std::vector<float> * awytwdasym = &awytwdasym_;
-	
-	tree->SetBranchAddress((pfx+"diphopt").c_str(), &diphopt );
-	tree->SetBranchAddress((pfx+"nch").c_str(), &nch )  ;
-	tree->SetBranchAddress((pfx+"ptmax").c_str(), &ptmax );
-	tree->SetBranchAddress((pfx+"sumpt").c_str(), &sumpt );
-	tree->SetBranchAddress((pfx+"ptvtx").c_str(), &ptvtx );
-	tree->SetBranchAddress((pfx+"acosA").c_str(), &acosA );
-	tree->SetBranchAddress((pfx+"ptasym").c_str(), &ptasym );
-	tree->SetBranchAddress((pfx+"ptbal").c_str(), &ptbal );
-	
-	tree->SetBranchAddress((pfx+"nchthr").c_str(), &nchthr );
-	tree->SetBranchAddress((pfx+"ptmax3").c_str(), &ptmax3 );
-	tree->SetBranchAddress((pfx+"thrust").c_str(), &thrust );
-	
-	tree->SetBranchAddress((pfx+"sumweight").c_str(), &sumweight );
-	tree->SetBranchAddress((pfx+"sumpt2").c_str(), &sumpt2 );
-	tree->SetBranchAddress((pfx+"ptratio").c_str(), &ptratio );
-	tree->SetBranchAddress((pfx+"pzasym").c_str(), &pzasym );
-	
-	tree->SetBranchAddress((pfx+"spher").c_str(), &spher );
-	tree->SetBranchAddress((pfx+"aplan").c_str(), &aplan );
-	tree->SetBranchAddress((pfx+"sumpr").c_str(), &sumpr );
-	
-	tree->SetBranchAddress((pfx+"sumawy").c_str(), &sumawy );
-	tree->SetBranchAddress((pfx+"sumtrv").c_str(), &sumtrv );
-	tree->SetBranchAddress((pfx+"sumtwd").c_str(), &sumtwd );
-	tree->SetBranchAddress((pfx+"awytwdasym").c_str(), &awytwdasym );
+	tree->SetBranchAddress((pfx+"diphopt").c_str(), &pdiphopt );
+	tree->SetBranchAddress((pfx+"nch").c_str(), &pnch )  ;
+	tree->SetBranchAddress((pfx+"ptmax").c_str(), &pptmax );
+	tree->SetBranchAddress((pfx+"sumpt").c_str(), &psumpt );
+	tree->SetBranchAddress((pfx+"ptvtx").c_str(), &pptvtx );
+	tree->SetBranchAddress((pfx+"acosA").c_str(), &pacosA );
+	tree->SetBranchAddress((pfx+"ptasym").c_str(), &pptasym );
+	tree->SetBranchAddress((pfx+"ptbal").c_str(), &pptbal );
+								   		  
+	tree->SetBranchAddress((pfx+"nchthr").c_str(), &pnchthr );
+	tree->SetBranchAddress((pfx+"ptmax3").c_str(), &pptmax3 );
+	tree->SetBranchAddress((pfx+"thrust").c_str(), &pthrust );
+
+	tree->SetBranchAddress((pfx+"sumweight").c_str(), &psumweight );
+	tree->SetBranchAddress((pfx+"sumpt2").c_str(), &psumpt2 );
+	tree->SetBranchAddress((pfx+"ptratio").c_str(), &pptratio );
+	tree->SetBranchAddress((pfx+"pzasym").c_str(), &ppzasym );
+
+	tree->SetBranchAddress((pfx+"spher").c_str(), &pspher );
+	tree->SetBranchAddress((pfx+"aplan").c_str(), &paplan );
+	tree->SetBranchAddress((pfx+"sumpr").c_str(), &psumpr );
+
+	tree->SetBranchAddress((pfx+"sumawy").c_str(), &psumawy );
+	tree->SetBranchAddress((pfx+"sumtrv").c_str(), &psumtrv );
+	tree->SetBranchAddress((pfx+"sumtwd").c_str(), &psumtwd );
+	tree->SetBranchAddress((pfx+"awytwdasym").c_str(), &pawytwdasym );
 
 	tree->SetBranchAddress((pfx+"ninvalid_idxs").c_str(), &ninvalid_idxs_ );
 	tree->SetBranchAddress((pfx+"pho1").c_str(), &pho1_ );

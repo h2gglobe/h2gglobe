@@ -24,6 +24,7 @@ public:
 	void FillReductionVariables(LoopAll& l, int jentry);   
 	bool SelectEventsReduction(LoopAll&, int);
 	
+	virtual bool SkimEvents(LoopAll&, int);
 	virtual bool SelectEvents(LoopAll&, int);
 	virtual void Analysis(LoopAll&, Int_t);
 	

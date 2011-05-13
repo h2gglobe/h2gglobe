@@ -237,6 +237,34 @@ private:
 
 	int pho1_, pho2_;
 	int ninvalid_idxs_;
+
+	std::vector<float> * pdiphopt ;
+	std::vector<float> * pnch ;
+	std::vector<float> * pptmax ;
+	std::vector<float> * psumpt ;
+	std::vector<float> * pptvtx ;
+	std::vector<float> * pacosA ;
+	std::vector<float> * pptasym ;
+	std::vector<float> * pptbal ;
+	
+	std::vector<float> * pnchthr ;
+	std::vector<float> * pptmax3 ;
+	std::vector<float> * pthrust ;
+	
+	std::vector<float> * psumweight ;
+	std::vector<float> * psumpt2 ;
+	std::vector<float> * pptratio ;
+	std::vector<float> * ppzasym ;
+	
+	std::vector<float> * pspher ;
+	std::vector<float> * paplan ;
+	std::vector<float> * psumpr ;
+	
+	std::vector<float> * psumawy ;
+	std::vector<float> * psumtrv ;
+	std::vector<float> * psumtwd ;
+	std::vector<float> * pawytwdasym ;
+
 };
 
 // -------------------------------------------------------------------------------------------------------------------------------------------------------------

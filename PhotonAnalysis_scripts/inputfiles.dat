@@ -12,6 +12,7 @@ add the files, with types you would like to include in the Analysis
 ->
 
 inputBranches reduction_output.dat
+inputBranches looper_input.dat
 
 ->
 define analyses to run

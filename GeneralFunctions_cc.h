@@ -735,6 +735,15 @@ int LoopAll::PhotonCiCSelectionLevel( int photon_index, std::vector<std::vector<
   ph_passcut.resize(phoNCUTLEVELS,std::vector<bool>(8,true) );
   if(!doSublead) {
     for(int iCUTLEVEL=0;iCUTLEVEL!=(int)phoNCUTLEVELS;++iCUTLEVEL) {
+      //// cerr << " iCUTLEVEL " << iCUTLEVEL << "val_isosumoet   " << val_isosumoet     << " " <<  cut_lead_isosumoet[iCUTLEVEL][photon_category]     << endl;
+      //// cerr << " iCUTLEVEL " << iCUTLEVEL << "val_isosumoetbad" << val_isosumoetbad  << " " <<  cut_lead_isosumoetbad[iCUTLEVEL][photon_category]  << endl;
+      //// cerr << " iCUTLEVEL " << iCUTLEVEL << "val_trkisooet   " << val_trkisooet     << " " <<  cut_lead_trkisooet[iCUTLEVEL][photon_category]     << endl;
+      //// cerr << " iCUTLEVEL " << iCUTLEVEL << "val_sieie       " << val_sieie         << " " <<  cut_lead_sieie[iCUTLEVEL][photon_category]         << endl;
+      //// cerr << " iCUTLEVEL " << iCUTLEVEL << "val_hoe         " << val_hoe           << " " <<  cut_lead_hovere[iCUTLEVEL][photon_category]        << endl;
+      //// cerr << " iCUTLEVEL " << iCUTLEVEL << "val_r9          " << val_r9            << " " <<  cut_lead_r9[iCUTLEVEL][photon_category]            << endl;// gt cut
+      //// cerr << " iCUTLEVEL " << iCUTLEVEL << "val_drtotk_25_99" << val_drtotk_25_99  << " " <<  cut_lead_drtotk_25_99[iCUTLEVEL][photon_category]  << endl;// gt cut
+      //// cerr << " iCUTLEVEL " << iCUTLEVEL << "val_pixel       " << val_pixel         << " " <<  cut_lead_pixel[iCUTLEVEL][photon_category]         << endl;
+
       ph_passcut[iCUTLEVEL][0] = (val_isosumoet        <   cut_lead_isosumoet[iCUTLEVEL][photon_category]     );
       ph_passcut[iCUTLEVEL][1] = (val_isosumoetbad     <   cut_lead_isosumoetbad[iCUTLEVEL][photon_category]  );
       ph_passcut[iCUTLEVEL][2] = (val_trkisooet        <   cut_lead_trkisooet[iCUTLEVEL][photon_category]     );
@@ -751,7 +760,7 @@ int LoopAll::PhotonCiCSelectionLevel( int photon_index, std::vector<std::vector<
 	if( cutlevelpassed != iCUTLEVEL - 1 ) {
 	  std::cerr << "photon " << photon_index << " (category " << photon_category << ") in run/event " << run << "/" << event << " passed CiC cut level " 
 		    << iCUTLEVEL << " but not "  << iCUTLEVEL - 1 << ". Did you load your cut values correctly? "<< std::endl;
-	  assert( 0 );
+	  // assert( 0 );
 	}
 	cutlevelpassed=iCUTLEVEL;
       }
@@ -774,7 +783,7 @@ int LoopAll::PhotonCiCSelectionLevel( int photon_index, std::vector<std::vector<
 	if( cutlevelpassed != iCUTLEVEL - 1 ) {
 	  std::cerr << "photon " << photon_index << " (category " << photon_category << ") in run/event " << run << "/" << event << " passed CiC cut level " 
 		    << iCUTLEVEL << " but not "  << iCUTLEVEL - 1 << ". Did you load your cut values correctly? " << std::endl;
-	  assert( 0 );
+	  // assert( 0 );
 	}
 	cutlevelpassed=iCUTLEVEL;
       }

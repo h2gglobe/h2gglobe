@@ -663,12 +663,22 @@ int LoopAll::FillAndReduce(int jentry) {
 
   int hasoutputfile = 0;
 
-  //
-  // read inputs 
-  //
-  GetEntry(inputBranches, jentry);
   //count all events
   countersred[0]++;
+
+  // 
+  // call skimming methods before reading data
+  // 
+  if( typerun == kReduce || typerun == kFillReduce ) {
+    for (size_t i=0; i<analyses.size(); i++) {
+      analyses[i]->SkimEvents(*this, jentry);
+    }
+  }
+  
+  //
+  // read all inputs 
+  //
+  GetEntry(inputBranches, jentry);
 
   //
   // reduction step

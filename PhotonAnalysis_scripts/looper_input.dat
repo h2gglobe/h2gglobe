@@ -1,0 +1,20 @@
+->
+Vertex selection
+->
+vtx_std_sel
+vtx_std_ranked_list
+
+->
+Track isolation calculated in the reduction step
+->
+pho_tkiso_recvtx_030_002_0000_10_01
+pho_tkiso_badvtx_040_002_0000_10_01
+pho_drtotk_25_99
+
+->
+CiC
+->
+pho_cutlevel_lead
+pho_passcuts_lead
+pho_cutlevel_sublead
+pho_passcuts_sublead
