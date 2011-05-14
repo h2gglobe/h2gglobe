@@ -13,17 +13,19 @@
 class PhotonInfo
 {
 public:
-	PhotonInfo(int id, const TVector3 & caloPosition, float energy);
-	PhotonInfo(int id, const TVector3 & caloPosition, 
-		   const TVector3 &  bs, 
-		   const TVector3 &  convVtx, 
-		   float energy,
-		   int iDet,
-		   int nTracks,
-		   bool convVtxValid,
-		   float convVtxChi2Prob,
-		   float EoP
-		);
+
+  PhotonInfo(){;}
+  PhotonInfo(int id, const TVector3 & caloPosition, float energy);
+  PhotonInfo(int id, const TVector3 & caloPosition, 
+	     const TVector3 &  bs, 
+	     const TVector3 &  convVtx, 
+	     float energy,
+	     int iDet,
+	     int nTracks,
+	     bool convVtxValid,
+	     float convVtxChi2Prob,
+	     float EoP
+	     );
 	
 	int id() const { return id_; }  
 	const TVector3 & beamSpot() const { return beamSpot_; }
