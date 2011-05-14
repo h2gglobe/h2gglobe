@@ -15,6 +15,20 @@ pho_r9
 pho_calopos
 
 ->
+minimal allconversions info
+->
+conv_n
+conv_eoverp
+conv_p4
+conv_ntracks
+conv_pair_momentum
+conv_refitted_momentum
+conv_validvtx
+conv_chi2_probability
+conv_vtx
+conv_zofprimvtxfromtrks
+
+->
 vertex analysis
 ->
 vtx_std_tkweight
@@ -31,15 +45,4 @@ tk_quality
 ->
 track isolation
 ->
-tk_n
-tk_p4
 tk_vtx_pos
-
-->
-DeltaR to track
-->
-el_std_n
-el_std_hp_expin
-el_std_scind
-el_std_detain
-el_std_dphiin
