@@ -3,6 +3,7 @@
 
 #include "BaseAnalysis.h"
 #include "VertexAnalysis/interface/HggVertexAnalyzer.h"
+#include "VertexAnalysis/interface/PhotonInfo.h"
 
 // ------------------------------------------------------------------------------------
 class PhotonAnalysis : public BaseAnalysis 
@@ -23,7 +24,7 @@ public:
 	
 	void FillReductionVariables(LoopAll& l, int jentry);   
 	bool SelectEventsReduction(LoopAll&, int);
-	
+
 	virtual bool SkimEvents(LoopAll&, int);
 	virtual bool SelectEvents(LoopAll&, int);
 	virtual void Analysis(LoopAll&, Int_t);
@@ -40,7 +41,6 @@ public:
 	std::vector<int> pho_presel;
 	std::vector<int> pho_presel_lead;
 	std::vector<float> pho_sc_et;
-	
 	// Other options
 	bool runStatAnalysis;
 	
