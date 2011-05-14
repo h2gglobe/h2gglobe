@@ -1,5 +1,6 @@
 #include "../interface/PhotonAnalysis.h"
 
+
 #include "Sorters.h"
 #include <iostream>
 #include <algorithm>
@@ -260,6 +261,9 @@ void PhotonAnalysis::StatAnalysis(LoopAll& l, Int_t jentry)
 {
 }
 
+
+
+
 // ----------------------------------------------------------------------------------------------------
 void PhotonAnalysis::GetBranches(TTree *t, std::set<TBranch *>& s ) 
 {
@@ -271,33 +275,47 @@ void PhotonAnalysis::GetBranches(TTree *t, std::set<TBranch *>& s )
 // ----------------------------------------------------------------------------------------------------
 void PhotonAnalysis::PreselectPhotons(LoopAll& l, int jentry) 
 {
+
+
 	// Photon preselection
 	pho_acc.clear();
 	pho_presel.clear();
 	pho_presel_lead.clear();
 	pho_sc_et.clear();
+	l.pho_matchingConv->clear();
+
 	for(int ipho=0; ipho<l.pho_n; ++ipho) {
-		
-		TLorentzVector * p4 = (TLorentzVector *) l.pho_p4->At(ipho);
-		float eta  = fabs(((TVector3 *) l.pho_calopos->At(ipho))->Eta());
-		// photon et wrt 0,0,0
-		float et = p4->Energy() / cosh(eta);
-		pho_sc_et.push_back(et);
-		
-		if( et < presel_scet2 || (eta>1.4442 && eta<1.566) || eta>presel_maxeta ) { 
-			continue;  
-		}
-		pho_acc.push_back(ipho);
-		
-		bool isEB = l.pho_isEB[ipho];
-		float & ecaliso = isEB ? presel_ecaliso_eb : presel_ecaliso_ee;
-		float & sieie = isEB ? presel_ecaliso_eb : presel_ecaliso_ee;
-		if( l.pho_ecalsumetconedr03[ipho] >= ecaliso ||  l.pho_sieie[ipho] >= sieie || l.pho_hoe[ipho] >= presel_hoe ) {
-			continue;
-		}
-		
-		//FIXME trigger matching
-		pho_presel.push_back(ipho);
+
+	  // match all photons in the original tree with the conversions from the merged collection and save the indices
+	  int iConv  =l.matchPhotonToConversion(ipho);
+	  if ( iConv>=0 ) 
+	     (*l.pho_matchingConv).push_back(l.matchPhotonToConversion(ipho));
+	   else
+	     (*l.pho_matchingConv).push_back(-1);
+
+
+
+	  TLorentzVector * p4 = (TLorentzVector *) l.pho_p4->At(ipho);
+	  float eta  = fabs(((TVector3 *) l.pho_calopos->At(ipho))->Eta());
+	  // photon et wrt 0,0,0
+	  float et = p4->Energy() / cosh(eta);
+	  pho_sc_et.push_back(et);
+	  
+	  if( et < presel_scet2 || (eta>1.4442 && eta<1.566) || eta>presel_maxeta ) { 
+	    continue;  
+	  }
+	  pho_acc.push_back(ipho);
+	  
+	  bool isEB = l.pho_isEB[ipho];
+	  float & ecaliso = isEB ? presel_ecaliso_eb : presel_ecaliso_ee;
+	  float & sieie = isEB ? presel_ecaliso_eb : presel_ecaliso_ee;
+	  if( l.pho_ecalsumetconedr03[ipho] >= ecaliso ||  l.pho_sieie[ipho] >= sieie || l.pho_hoe[ipho] >= presel_hoe ) {
+	    continue;
+	  }
+	  
+          
+	  //FIXME trigger matching
+	  pho_presel.push_back(ipho);
 	} 
 
 	// sort preslected photons by et
@@ -314,7 +332,7 @@ void PhotonAnalysis::FillReductionVariables(LoopAll& l, int jentry)
 		cout<<"myFillReduceVar START"<<endl;
   	
 	PreselectPhotons(l,jentry);
-	
+		
 	if(PADEBUG) 
 		cout<<"myFillReduceVar END"<<endl;
 
@@ -323,6 +341,8 @@ void PhotonAnalysis::FillReductionVariables(LoopAll& l, int jentry)
 // ----------------------------------------------------------------------------------------------------
 bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry) 
 {
+
+  if(PADEBUG)  cout << " ****************** SelectEventsReduction " << endl;
 	// require at least two reconstructed photons to store the event
 	if( pho_acc.size() < 2 || pho_sc_et[ pho_acc[0] ] < presel_scet1 ) { return false; }
 	
@@ -341,10 +361,15 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
 	}
 	assert( ipho1 != ipho2 );
 
+	if(PADEBUG)        cout << " SelectEventsReduction going to fill photon info " << endl;
+	std::pair<PhotonInfo,bool> pc1=l.fillPhotonInfos(ipho1);
+        std::pair<PhotonInfo,bool> pc2=l.fillPhotonInfos(ipho2);
+        if(PADEBUG) cout << " SelectEventsReduction done with fill photon info " << endl;
+
         // run vertex analysis
 	l.vertexAnalysis(vtxAna_, ipho1, ipho2 );
-        // select vertex
-	*l.vtx_std_ranked_list = l.vertexSelection(vtxAna_, vtxConv_, ipho1, ipho2, vtxVarNames);
+        // select vertxe
+	*l.vtx_std_ranked_list = l.vertexSelection(vtxAna_, vtxConv_, ipho1, ipho2, pc1.first, pc2.first,  pc1.second, pc2.second, vtxVarNames);
 	if( l.vtx_std_ranked_list->size() != 0 ) {  
 		l.vtx_std_sel = (*l.vtx_std_ranked_list)[0];
 	} else {
@@ -363,6 +388,7 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
 }
 
 // ----------------------------------------------------------------------------------------------------
+
 bool PhotonAnalysis::SkimEvents(LoopAll& l, int jentry)
 {
 	l.b_pho_n->GetEntry(jentry);
@@ -373,6 +399,7 @@ bool PhotonAnalysis::SkimEvents(LoopAll& l, int jentry)
 }
 
 // ----------------------------------------------------------------------------------------------------
+
 bool PhotonAnalysis::SelectEvents(LoopAll& l, int jentry) 
 {
 	return true;
@@ -382,13 +409,18 @@ bool PhotonAnalysis::SelectEvents(LoopAll& l, int jentry)
 void PhotonAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree) 
 {
 	vtxAna_.branches(outputTree,"vtx_std_");	
+
+	l.pho_matchingConv = new  std::vector<int>();
+	l.Branch_pho_matchingConv(outputTree);
+
+
 	l.vtx_std_ranked_list = new std::vector<int>();
 	l.pho_tkiso_recvtx_030_002_0000_10_01 = new std::vector<std::vector<float> >();
-
 	l.pho_cutlevel_lead = new std::vector<Short_t>();
 	l.pho_passcuts_lead = new std::vector<std::vector<UInt_t> >();
 	l.pho_cutlevel_sublead = new std::vector<Short_t>();
 	l.pho_passcuts_sublead = new std::vector<std::vector<UInt_t> >();
+
 
 	l.Branch_vtx_std_ranked_list(outputTree);
 	l.Branch_vtx_std_sel(outputTree);
