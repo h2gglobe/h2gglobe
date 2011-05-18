@@ -23,7 +23,7 @@ StatAnalysis::~StatAnalysis()
 // ----------------------------------------------------------------------------------------------------
 void StatAnalysis::Term(LoopAll& l) 
 {
-      l.rooContainer->FitToData("exp","bkg_mass",95,105,145,200);
+      l.rooContainer->FitToData("exp","bkg_mass");
       l.rooContainer->FitToSystematicSet("exp","bkg_mass","e-scale");
 
       
@@ -62,7 +62,7 @@ void StatAnalysis::Init(LoopAll& l)
 		  
 	// -------------------------------------//
 	std::vector<std::string> pars(2,"t");	 
-	pars[0] = "mass";
+	pars[0] = "bkg_mass";
 	pars[1] = "mu";
 	// -------------------------------------//
 
@@ -77,7 +77,7 @@ void StatAnalysis::Init(LoopAll& l)
 	l.rooContainer->CreateDataSet("sig_mass_m120",30);
 	l.rooContainer->CreateDataSet("sig_mass_m130",30);
 	l.rooContainer->CreateDataSet("sig_mass_m140",30);
-	l.rooContainer->MakeSystematics("mass","e-scale");
+	l.rooContainer->MakeSystematics("bkg_mass","e-scale");
 	
 	if(PADEBUG) 
 		cout << "InitRealStatAnalysis END"<<endl;
