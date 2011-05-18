@@ -1329,6 +1329,16 @@ void LoopAll::DefineUserBranches()
 	BRANCH_DICT(pho_cic6cutlevel_sublead);
 	BRANCH_DICT(pho_cic6passcuts_sublead);
 
+	BRANCH_DICT(pho_cic4cutlevel_lead);
+	BRANCH_DICT(pho_cic4passcuts_lead);
+	BRANCH_DICT(pho_cic4cutlevel_sublead);
+	BRANCH_DICT(pho_cic4passcuts_sublead);
+
+	BRANCH_DICT(pho_cutlevel_lead);
+	BRANCH_DICT(pho_passcuts_lead);
+	BRANCH_DICT(pho_cutlevel_sublead);
+	BRANCH_DICT(pho_passcuts_sublead);
+
 	BRANCH_DICT(pho_matchingConv);
 
   //BRANCH_DICT(dipho_n);

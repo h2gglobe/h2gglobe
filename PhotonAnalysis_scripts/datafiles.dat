@@ -5,16 +5,18 @@ Data 2011  prompt Reco + + 2010
 
 typ=0    ind=0 draw=1  Nam=Data    Fil=/vols/cms02/h2g/ntuples/data_V06_00_02/Run2010A.root    		     tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1.
 typ=0    ind=0 draw=1  Nam=Data    Fil=/vols/cms02/h2g/ntuples/data_V06_00_02/Run2010B.root    		     tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1.
-typ=0    ind=0 draw=1  Nam=Data    Fil=/vols/cms02/h2g/ntuples/data_V06_00_02/promptreco_160404_161474.root  tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1.
-typ=0    ind=0 draw=1  Nam=Data    Fil=/vols/cms02/h2g/ntuples/data_V06_00_02/promptreco_163755_163869.root  tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1.
-typ=0    ind=0 draw=1  Nam=Data    Fil=/vols/cms02/h2g/ntuples/data_V06_00_02/promptreco_161475_163754.root  tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1.
+typ=0    ind=0 draw=1  Nam=Data    Fil=/vols/cms02/h2g/ntuples/data_V06_00_02/promptreco_160404_161474.root  tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions11/7TeV/Prompt/Cert_160404-163869_7TeV_PromptReco_Collisions11_JSON.txt
+typ=0    ind=0 draw=1  Nam=Data    Fil=/vols/cms02/h2g/ntuples/data_V06_00_02/promptreco_163755_163869.root  tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions11/7TeV/Prompt/Cert_160404-163869_7TeV_PromptReco_Collisions11_JSON.txt
+typ=0    ind=0 draw=1  Nam=Data    Fil=/vols/cms02/h2g/ntuples/data_V06_00_02/promptreco_161475_163754.root  tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions11/7TeV/Prompt/Cert_160404-163869_7TeV_PromptReco_Collisions11_JSON.txt
 ->
 
-typ=3    ind=3  draw=1  Nam=GJet    Fil=/vols/cms02/h2g/ntuples/mc_V06_00_02/GJet_Pt20_2011PU.root    		tot=1182075 xsec=493.44    red=1   lum=1.e10     kfac=1.0  scal=1.
+typ=0    ind=0 draw=1  Nam=Data    CaDir=/castor/cern.ch/user/m/musella/Higgs2011/globe_V06_00_red_v7/Data/promptreco_161475_163754  tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions11/7TeV/Prompt/Cert_160404-163869_7TeV_PromptReco_Collisions11_JSON.txt
+
+
 ->
 typ=1    ind=1  draw=1  Nam=QCD30   Fil=/vols/cms02/h2g/ntuples/mc_V06_00_02/QCD_Pt30to40_2011PU.root    		tot=3550408  xsec=9614.0    red=1   lum=1.e10     kfac=1.0  scal=1.
 typ=2    ind=2  draw=1  Nam=QCD40   Fil=/vols/cms02/h2g/ntuples/mc_V06_00_02/QCD_Pt40_2011PU.root     		tot=21301935 xsec=40392.0   red=1   lum=1.e10     kfac=1.0  scal=1.
-
+typ=3    ind=3  draw=1  Nam=GJet    Fil=/vols/cms02/h2g/ntuples/mc_V06_00_02/GJet_Pt20_2011PU.root    		tot=1182075 xsec=493.44    red=1   lum=1.e10     kfac=1.0  scal=1.
 typ=4    ind=4  draw=1  Nam=Dyee20  Fil=/vols/cms02/h2g/ntuples/mc_V06_00_02/DYToEE_powheg_M20_2011PU.root    tot=1998990  xsec=1614    red=1   lum=1.e10     kfac=1.0  scal=1.
 typ=5    ind=5  draw=1  Nam=Dyee10  Fil=/vols/cms02/h2g/ntuples/mc_V06_00_02/DYToEE_M10To20_2011PU.root       tot=1933000  xsec=2659    red=1   lum=1.e10     kfac=1.0  scal=1.
 
@@ -58,6 +60,8 @@ define analyses to run
 	configuration file
 syntax:
 	analyzer <class_name> <config_file>
+
+analyzer PhotonAnalysis photonanalysis.dat	
 ->
 analyzer StatAnalysis photonanalysis.dat
 

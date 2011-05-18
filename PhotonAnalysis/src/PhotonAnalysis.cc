@@ -236,7 +236,7 @@ void PhotonAnalysis::Analysis(LoopAll& l, Int_t jentry)
 				if (pass_selection[0] && pass_isolation[0] ){
 					
 					if (pass_selection[1] && pass_isolation[1]){
-						cout << "mass is " << mass << " and higgs pt is " << h_pt << endl;
+//						cout << "mass is " << mass << " and higgs pt is " << h_pt << endl;
 						l.FillHist("pho_pt",category,leading_p4->Pt());
 						l.FillHist("pho_pt",category,nleading_p4->Pt());
 						best_mass = mass;
@@ -325,7 +325,7 @@ void PhotonAnalysis::PreselectPhotons(LoopAll& l, int jentry)
 
 	  // match all photons in the original tree with the conversions from the merged collection and save the indices
 	  int iConv  =l.matchPhotonToConversion(ipho);
-	  if ( iConv>=0 ) 
+	  if ( iConv>=0 )
 	     (*l.pho_matchingConv).push_back(l.matchPhotonToConversion(ipho));
 	   else
 	     (*l.pho_matchingConv).push_back(-1);

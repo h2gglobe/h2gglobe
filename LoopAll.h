@@ -70,7 +70,7 @@ class LoopAll {
   //void SetOutputNames(const char* n, const char* n2="");
   void AddFile(std::string,int);
   void ReadInput(int t=0);
-  void DefineSamples(const char*,int,int,int,int, long long,
+  SampleContainer & DefineSamples(const char*,int,int,int,int, long long,
                      float,float,float,float,float);
   void Term(); 
 
@@ -157,6 +157,8 @@ class LoopAll {
   void SetBranchAddresses(std::set<std::string> & names);
   void Branches(std::list<std::string> & names);
   void GetEntry(std::set<TBranch *> & branches, int jentry);
+
+  bool CheckLumiSelection( int run, int lumi );
 
 #ifndef __CINT__
   typedef void (LoopAll::*branch_io_t) (TTree *);

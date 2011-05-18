@@ -205,6 +205,12 @@ std::vector<std::vector<UInt_t> >* pho_cic4passcuts_lead;
 std::vector<Short_t>* pho_cic4cutlevel_sublead;
 std::vector<std::vector<UInt_t> >* pho_cic4passcuts_sublead;
 
+std::vector<Short_t>* pho_cutlevel_lead;
+std::vector<std::vector<UInt_t> >* pho_passcuts_lead;
+std::vector<Short_t>* pho_cutlevel_sublead;
+std::vector<std::vector<UInt_t> >* pho_passcuts_sublead;
+
+
 // Indices of conversions matching the photons
 std::vector<int> * pho_matchingConv;
 TBranch *b_pho_matchingConv;
@@ -235,6 +241,10 @@ TBranch * b_pho_cic4passcuts_lead;
 TBranch * b_pho_cic4cutlevel_sublead;
 TBranch * b_pho_cic4passcuts_sublead;
 
+TBranch * b_pho_cutlevel_lead;
+TBranch * b_pho_passcuts_lead;
+TBranch * b_pho_cutlevel_sublead;
+TBranch * b_pho_passcuts_sublead;
 
 
 
@@ -252,7 +262,7 @@ void Branch_pho_matchingConv(TTree * tree) { tree->Branch("pho_matchingConv", "s
 
 
 void SetBranchAddress_vtx_std_sel(TTree * tree) { tree->SetBranchAddress("vtx_std_sel", &vtx_std_sel, &b_vtx_std_sel); }; 
-void SetBranchAddress_vtx_std_ranked_list(TTree * tree) { tree->SetBranchAddress("std_ranked_list", &vtx_std_ranked_list, &b_vtx_std_ranked_list); }; 
+void SetBranchAddress_vtx_std_ranked_list(TTree * tree) { tree->SetBranchAddress("vtx_std_ranked_list", &vtx_std_ranked_list, &b_vtx_std_ranked_list); };
 void SetBranchAddress_pho_matchingConv(TTree * tree) { tree->SetBranchAddress("pho_matchingConv", &pho_matchingConv, &b_pho_matchingConv); }; 
 
 
@@ -325,6 +335,12 @@ void Branch_pho_cic4passcuts_lead(TTree * tree) { tree->Branch("pho_cic4passcuts
 void Branch_pho_cic4cutlevel_sublead(TTree * tree) { tree->Branch("pho_cic4cutlevel_sublead", "std::vector<Short_t>", &pho_cic4cutlevel_sublead); };
 void Branch_pho_cic4passcuts_sublead(TTree * tree) { tree->Branch("pho_cic4passcuts_sublead", "std::vector<std::vector<UInt_t> >", &pho_cic4passcuts_sublead); };
 
+void Branch_pho_cutlevel_lead(TTree * tree) { tree->Branch("pho_cutlevel_lead", "std::vector<Short_t>", &pho_cutlevel_lead); };
+void Branch_pho_passcuts_lead(TTree * tree) { tree->Branch("pho_passcuts_lead", "std::vector<std::vector<UInt_t> >", &pho_passcuts_lead); };
+void Branch_pho_cutlevel_sublead(TTree * tree) { tree->Branch("pho_cutlevel_sublead", "std::vector<Short_t>", &pho_cutlevel_sublead); };
+void Branch_pho_passcuts_sublead(TTree * tree) { tree->Branch("pho_passcuts_sublead", "std::vector<std::vector<UInt_t> >", &pho_passcuts_sublead); };
+
+
 void SetBranchAddress_rho(TTree * tree) { tree->SetBranchAddress("rho", &rho, &b_rho); }; 
 void SetBranchAddress_gv_n(TTree * tree) { tree->SetBranchAddress("gv_n", &gv_n, &b_gv_n); }; 
 void SetBranchAddress_gv_pos(TTree * tree) { tree->SetBranchAddress("gv_pos", &gv_pos, &b_gv_pos); }; 
@@ -344,3 +360,7 @@ void SetBranchAddress_pho_cic4passcuts_lead(TTree * tree) { tree->SetBranchAddre
 void SetBranchAddress_pho_cic4cutlevel_sublead(TTree * tree) { tree->SetBranchAddress("pho_cic4cutlevel_sublead", &pho_cic4cutlevel_sublead, &b_pho_cic4cutlevel_sublead ); };
 void SetBranchAddress_pho_cic4passcuts_sublead(TTree * tree) { tree->SetBranchAddress("pho_cic4passcuts_sublead", &pho_cic4passcuts_sublead, &b_pho_cic4passcuts_sublead ); };
 
+void SetBranchAddress_pho_cutlevel_lead(TTree * tree) { tree->SetBranchAddress("pho_cutlevel_lead", &pho_cutlevel_lead, &b_pho_cutlevel_lead ); };
+void SetBranchAddress_pho_passcuts_lead(TTree * tree) { tree->SetBranchAddress("pho_passcuts_lead", &pho_passcuts_lead, &b_pho_passcuts_lead ); };
+void SetBranchAddress_pho_cutlevel_sublead(TTree * tree) { tree->SetBranchAddress("pho_cutlevel_sublead", &pho_cutlevel_sublead, &b_pho_cutlevel_sublead ); };
+void SetBranchAddress_pho_passcuts_sublead(TTree * tree) { tree->SetBranchAddress("pho_passcuts_sublead", &pho_passcuts_sublead, &b_pho_passcuts_sublead ); };

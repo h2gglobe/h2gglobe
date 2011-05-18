@@ -2,6 +2,8 @@
 #define SAMPLECONTAINER
 
 #include <string>
+#include <map>
+#include <vector>
 
 class SampleContainer {
 
@@ -10,6 +12,8 @@ class SampleContainer {
   ~SampleContainer();
   
   void computeWeight(float);
+  void addGoodLumi(int run, int lumi1, int lumi2 );
+
      
   float weight;
   int itype;
@@ -23,6 +27,9 @@ class SampleContainer {
   float kfactor; 
   float scale;
   float lumireal;
+  bool hasLumiSelection;
+  std::map<int, std::vector<std::pair<int,int> > > goodLumis;
+
   
  private:
 

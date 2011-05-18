@@ -43,6 +43,12 @@ LOOPALLO = LoopAll.$(ObjSuf) \
 	   TriggerSelection.o \
            $(VTXOBS) $(PHOOBS)
 
+DICTS = LoopAll.h BaseAnalysis.h SampleContainer.h\
+ 	VertexAnalysis/interface/VertexAlgoParameters.h\
+ 	PhotonAnalysis/interface/PhotonAnalysis.h\
+  	PhotonAnalysis/interface/StatAnalysis.h\
+
+
 ROOFIT_BASE=$(ROOFITSYS)
 LDFLAGS+=-L$(ROOFIT_BASE)/lib -lRooFitCore
 CXXFLAGS+=-I$(ROOFIT_BASE)/include 
@@ -84,7 +90,9 @@ LoopAllDict.$(SrcSuf): CommonParameters.h LoopAll.h \
 	VertexAnalysis/interface/VertexAlgoParameters.h PhotonAnalysis/interface/PhotonAnalysis.h PhotonAnalysis/interface/StatAnalysis.h
 
 	@echo "Generating dictionary $@..."
-	@rootcint -f $@ -c -I$(ROOFIT_BASE)/include  LoopAll.h BaseAnalysis.h VertexAnalysis/interface/VertexAlgoParameters.h PhotonAnalysis/interface/PhotonAnalysis.h PhotonAnalysis/interface/StatAnalysis.h
+	@rootcint -f $@ -c -I$(ROOFIT_BASE)/include $(DICTS)
+
+dict.cpp:
 	@rootcint -f dict.cpp -c -p LinkDef.h 
 
 .$(SrcSuf).$(ObjSuf):

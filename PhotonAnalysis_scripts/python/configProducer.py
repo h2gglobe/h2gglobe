@@ -4,13 +4,30 @@
 PYDEBUG = 0
 
 # System python imports
-import sys,os
+import sys,os, json
 import array
 import ROOT
 
 # Local python imports
 from datBlocks import *
 from makeFilelist import *
+
+
+def getGoodLumis(fname):
+    try:
+        jstring = open(fname).read()
+    except IOError:
+        jstring = fname
+    return json.loads( jstring )
+
+def defineJsonFilter(fname,dataset):
+    goodlumis = getGoodLumis( fname )
+    
+    for run in goodlumis.keys():
+        for lumis in goodlumis[run]:
+            dataset.addGoodLumi(int(run), int(lumis[0]), int(lumis[1]) )
+  
+ 
 
 class configProducer:
 
@@ -101,8 +118,11 @@ class configProducer:
     self.add_files()
     self.ut_.SetTypeRun(self.type_,self.conf_.histfile)
     for dum in self.conf_.confs:
-      self.ut_.DefineSamples(dum['Nam'],dum['typ'],dum['ind'],dum['draw'],dum['red'],dum['tot'],dum['intL'],dum['lum'],dum['xsec'],dum['kfac'],dum['scal'])
- 
+      dataContainer = self.ut_.DefineSamples(dum['Nam'],dum['typ'],dum['ind'],dum['draw'],dum['red'],dum['tot'],dum['intL'],dum['lum'],dum['xsec'],dum['kfac'],dum['scal'])
+      if("json" in dum and dum["json"] != ""):
+        defineJsonFilter(dum["json"], dataContainer)
+          
+        
   def add_files(self):
     for t_f in self.conf_.files:
       self.ut_.AddFile(t_f[0],t_f[1])
@@ -463,6 +483,8 @@ class configProducer:
         map_c["kfac"] = float(val[1])
       elif val[0] == "scal":
         map_c["scal"] = float(val[1])
+      elif val[0] == "json":
+        map_c["json"] = str(val[1])
       else: sys.exit("Unrecognised Argument:\n ' %s ' in line:\n ' %s '"
                      %(val[0],line))
 

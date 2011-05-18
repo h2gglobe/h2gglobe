@@ -6,18 +6,19 @@ SampleContainer::~SampleContainer()
 {}
 
 SampleContainer::SampleContainer() {
-  float weight = 1;
-  int itype = 0;
-  int ind = 0;
-  int histoplotit = 1;
-  std::string filesshortnam = "";
-  long long int ntot = 0;
-  int nred = 0;
-  float lumi = 0; 
-  float xsec = 0;
-  float kfactor= 1; 
-  float scale = 1;
-  float lumireal = 1;
+  weight = 1;
+  itype = 0;
+  ind = 0;
+  histoplotit = 1;
+  filesshortnam = "";
+  ntot = 0;
+  nred = 0;
+  lumi = 0;
+  xsec = 0;
+  kfactor= 1;
+  scale = 1;
+  lumireal = 1;
+  hasLumiSelection = false;
 }
 
 void SampleContainer::computeWeight(float intL) {
@@ -28,3 +29,10 @@ void SampleContainer::computeWeight(float intL) {
   }
 }
  
+// ----------------------------------------------------------------------------------------------------------------------
+void SampleContainer::addGoodLumi(int run, int lumi1, int lumi2 )
+{
+	hasLumiSelection = true;
+	goodLumis[run].push_back( std::make_pair(lumi1,lumi2) );
+}
+

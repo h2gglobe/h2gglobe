@@ -118,7 +118,7 @@ void LoopAll::ReadInput(int t) {
 } 
 
 // ------------------------------------------------------------------------------------
-void LoopAll::DefineSamples(const char *filesshortnam,
+SampleContainer & LoopAll::DefineSamples(const char *filesshortnam,
                             int type,
                             int histtoindfromfiles,
                             int histoplotit,
@@ -143,19 +143,22 @@ void LoopAll::DefineSamples(const char *filesshortnam,
     sampleContainer[sample_is_defined].ntot += ntot;
     sampleContainer[sample_is_defined].nred += nred;
     sampleContainer[sample_is_defined].computeWeight(intlumi);
-  } else {
-    sampleContainer.push_back(SampleContainer());
-    sampleContainer.back().itype = type;
-    sampleContainer.back().ntot = ntot;
-    sampleContainer.back().nred = nred;
-    sampleContainer.back().histoplotit = histoplotit;
-    sampleContainer.back().filesshortnam = filesshortnam;
-    sampleContainer.back().lumi = lumi;
-    sampleContainer.back().xsec = xsec;
-    sampleContainer.back().kfactor = kfactor;
-    sampleContainer.back().scale = scale;
-    sampleContainer.back().computeWeight(intlumi);
+    return sampleContainer[sample_is_defined];
   }
+
+  sampleContainer.push_back(SampleContainer());
+  sampleContainer.back().itype = type;
+  sampleContainer.back().ntot = ntot;
+  sampleContainer.back().nred = nred;
+  sampleContainer.back().histoplotit = histoplotit;
+  sampleContainer.back().filesshortnam = filesshortnam;
+  sampleContainer.back().lumi = lumi;
+  sampleContainer.back().xsec = xsec;
+  sampleContainer.back().kfactor = kfactor;
+  sampleContainer.back().scale = scale;
+  sampleContainer.back().computeWeight(intlumi);
+
+  return sampleContainer.back();
 }
 
 // ------------------------------------------------------------------------------------
@@ -202,9 +205,9 @@ void LoopAll::LoopAndFillHistos(TString treename) {
     int type = itype[i];
     int which_sample = -1;
     for (int sample=0;sample<sampleContainer.size();sample++){
-	if (type == sampleContainer[sample].itype)
-	  which_sample = sample;
-    
+    	if (type == sampleContainer[sample].itype){
+    		which_sample = sample;
+    	}
     }
     this->current_sample_index = which_sample;
 
@@ -273,7 +276,7 @@ void LoopAll::Term(){
 
 // ------------------------------------------------------------------------------------
 LoopAll::LoopAll(TTree *tree) :
-	counters(2,0.), countersred(2,0.)
+	counters(4,0.), countersred(4,0.)
 {  
 #include "branchdef/newclonesarray.h"
 
@@ -681,15 +684,21 @@ int LoopAll::FillAndReduce(int jentry) {
   if( typerun == kReduce || typerun == kFillReduce ) {
     for (size_t i=0; i<analyses.size(); i++) {
       if( ! analyses[i]->SkimEvents(*this, jentry) ) {
-	return hasoutputfile;
+    	  return hasoutputfile;
       }
     }
   }
+  countersred[1]++;
   
   //
   // read all inputs 
   //
   GetEntry(inputBranches, jentry);
+
+  if(!CheckLumiSelection(run,lumis)){
+	  return hasoutputfile;
+  }
+  countersred[2]++;
 
   //
   // reduction step
@@ -705,11 +714,9 @@ int LoopAll::FillAndReduce(int jentry) {
     // (pre-)select events
     for (size_t i=0; i<analyses.size(); i++) {
       if( ! analyses[i]->SelectEventsReduction(*this, jentry) ) {
-	return hasoutputfile;
+    	  return hasoutputfile;
       }
     }
-    // count selected events
-    countersred[1]++;
 
     // fill output tree
     outputEvents++;
@@ -726,6 +733,9 @@ int LoopAll::FillAndReduce(int jentry) {
 
   }
 
+  // count selected events
+  countersred[3]++;
+
   //
   // analysis step
   //
@@ -733,14 +743,13 @@ int LoopAll::FillAndReduce(int jentry) {
     // event selection
     for (size_t i=0; i<analyses.size(); i++) {
       if( ! analyses[i]->SelectEvents(*this, jentry) ) {
-	return hasoutputfile;
+    	  return hasoutputfile;
       }
     }
     // final analysis
     for (size_t i=0; i<analyses.size(); i++) {
       analyses[i]->Analysis(*this, jentry); 
     }
-    
   }
   
   return hasoutputfile;
@@ -752,7 +761,10 @@ void LoopAll::GetBranches(std::set<std::string> & names, std::set<TBranch *> & b
     for(std::set<std::string>::iterator it=names.begin(); it!=names.end(); ++it ) {
 	const std::string & name = *it;
 	branch_info_t & info = branchDict[ name ];
-	assert( info.branch != 0 );
+	if( info.branch == 0 ) {
+		std::cerr << "no branch '"<< name << "'" << std::endl;
+		assert( 0 );
+	}
 	*(info.branch) = fChain->GetBranch( name.c_str() );
 	branches.insert( *(info.branch) );
     }
@@ -945,4 +957,21 @@ void LoopAll::FillCounter(std::string name) {
 // ------------------------------------------------------------------------------------
 void LoopAll::FillCounter(std::string name, int category) {
   counterContainer[current_sample_index].Fill(name, category);
+}
+
+// ----------------------------------------------------------------------------------------------------------------------
+bool LoopAll::CheckLumiSelection( int run, int lumi )
+{
+	if(! sampleContainer[current_sample_index].hasLumiSelection ){
+		return true;
+	}
+
+	std::vector<std::pair<int,int> > &run_lumis = sampleContainer[current_sample_index].goodLumis[run];
+	for(std::vector<std::pair<int,int> >::iterator it=
+		    run_lumis.begin(); it!=run_lumis.end(); ++it ) {
+		if( lumi >= it->first && lumi <= it->second ) {
+			return true;
+		}
+	}
+	return false;
 }
