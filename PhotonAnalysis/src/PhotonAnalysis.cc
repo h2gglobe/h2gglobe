@@ -9,9 +9,11 @@
 
 using namespace std;
 
+
+
 // ----------------------------------------------------------------------------------------------------
 PhotonAnalysis::PhotonAnalysis()  : 
-	runStatAnalysis(false),
+	runStatAnalysis(false), doTriggerSelection(false),
 	name_("PhotonAnalysis"),
 	vtxAna_(vtxAlgoParams), vtxConv_(vtxAlgoParams)
 {
@@ -34,31 +36,64 @@ void PhotonAnalysis::Init(LoopAll& l)
 	if( vtxVarNames.empty() ) {
 		vtxVarNames.push_back("ptbal"), vtxVarNames.push_back("ptasym"), vtxVarNames.push_back("logsumpt2");
 	}
+	
+	// trigger
+	triggerSelections.push_back(TriggerSelection(-1,147116));
+	triggerSelections.back().addpath("HLT_DoublePhoton15_L1R");
+	triggerSelections.push_back(TriggerSelection(146428,148058));
+	triggerSelections.back().addpath("HLT_DoublePhoton17_L1R");
+	triggerSelections.push_back(TriggerSelection(148822,149294));
+	triggerSelections.back().addpath("HLT_DoublePhoton22_L1R_v1");
+	triggerSelections.push_back(TriggerSelection(160000,-1));
+	triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v");
+
+	trigCounter_ = l.countersred.size();
+	l.countersred.resize(trigCounter_+1);
+
+	// CiC initialization
 	// FIXME should move this to GeneralFunctions
 	const int phoNCUTS = LoopAll::phoNCUTS;
-	const int phoNCATEGORIES = LoopAll::phoNCATEGORIES;
+	const int phoCiC6NCATEGORIES = LoopAll::phoCiC6NCATEGORIES;
+	const int phoCiC4NCATEGORIES = LoopAll::phoCiC4NCATEGORIES;
 	const int phoNCUTLEVELS = LoopAll::phoNCUTLEVELS;
 
 	for(int iLevel=0; iLevel<phoNCUTLEVELS; ++iLevel) {
-		float cuts_lead[phoNCUTS][phoNCATEGORIES];
-		float cuts_sublead[phoNCUTS][phoNCATEGORIES];
-		l.SetPhotonCutsInCategories((LoopAll::phoCiCIDLevel)iLevel, &cuts_lead[0][0], &cuts_sublead[0][0] );
+		float cic6_cuts_lead[phoNCUTS][phoCiC6NCATEGORIES];
+		float cic6_cuts_sublead[phoNCUTS][phoCiC6NCATEGORIES];
+		float cic4_cuts_lead[phoNCUTS][phoCiC4NCATEGORIES];
+		float cic4_cuts_sublead[phoNCUTS][phoCiC4NCATEGORIES];
+		l.SetPhotonCutsInCategories((LoopAll::phoCiCIDLevel)iLevel, &cic6_cuts_lead[0][0], &cic6_cuts_sublead[0][0], &cic4_cuts_lead[0][0], &cic4_cuts_sublead[0][0] );
 		
-		float * cuts_arrays_lead[phoNCUTS] = {
-			&l.cut_lead_isosumoet[0][0], &l.cut_lead_isosumoetbad[0][0], &l.cut_lead_trkisooet[0][0], &l.cut_lead_sieie[0][0],
-			&l.cut_lead_hovere[0][0], &l.cut_lead_r9[0][0], &l.cut_lead_drtotk_25_99[0][0], &l.cut_lead_pixel[0][0] 
+		float * cic6_cuts_arrays_lead[phoNCUTS] = {
+			&l.cic6_cut_lead_isosumoet[0][0], &l.cic6_cut_lead_isosumoetbad[0][0], &l.cic6_cut_lead_trkisooet[0][0], &l.cic6_cut_lead_sieie[0][0],
+			&l.cic6_cut_lead_hovere[0][0], &l.cic6_cut_lead_r9[0][0], &l.cic6_cut_lead_drtotk_25_99[0][0], &l.cic6_cut_lead_pixel[0][0] 
 		};
 		
-		float * cuts_arrays_sublead[phoNCUTS] = {
-			&l.cut_sublead_isosumoet[0][0], &l.cut_sublead_isosumoetbad[0][0], &l.cut_sublead_trkisooet[0][0], 
-			&l.cut_sublead_sieie[0][0], &l.cut_sublead_hovere[0][0], &l.cut_sublead_r9[0][0],
-			&l.cut_sublead_drtotk_25_99[0][0], &l.cut_sublead_pixel[0][0]
+		float * cic6_cuts_arrays_sublead[phoNCUTS] = {
+			&l.cic6_cut_sublead_isosumoet[0][0], &l.cic6_cut_sublead_isosumoetbad[0][0], &l.cic6_cut_sublead_trkisooet[0][0], 
+			&l.cic6_cut_sublead_sieie[0][0], &l.cic6_cut_sublead_hovere[0][0], &l.cic6_cut_sublead_r9[0][0],
+			&l.cic6_cut_sublead_drtotk_25_99[0][0], &l.cic6_cut_sublead_pixel[0][0]
+		};
+
+		float * cic4_cuts_arrays_lead[phoNCUTS] = {
+			&l.cic4_cut_lead_isosumoet[0][0], &l.cic4_cut_lead_isosumoetbad[0][0], &l.cic4_cut_lead_trkisooet[0][0], &l.cic4_cut_lead_sieie[0][0],
+			&l.cic4_cut_lead_hovere[0][0], &l.cic4_cut_lead_r9[0][0], &l.cic4_cut_lead_drtotk_25_99[0][0], &l.cic4_cut_lead_pixel[0][0] 
+		};
+		
+		float * cic4_cuts_arrays_sublead[phoNCUTS] = {
+			&l.cic4_cut_sublead_isosumoet[0][0], &l.cic4_cut_sublead_isosumoetbad[0][0], &l.cic4_cut_sublead_trkisooet[0][0], 
+			&l.cic4_cut_sublead_sieie[0][0], &l.cic4_cut_sublead_hovere[0][0], &l.cic4_cut_sublead_r9[0][0],
+			&l.cic4_cut_sublead_drtotk_25_99[0][0], &l.cic4_cut_sublead_pixel[0][0]
 		};
 
 		for(int iCut=0; iCut<phoNCUTS; ++iCut) {
-			for(int iCat=0; iCat<phoNCATEGORIES; ++iCat) {
-				cuts_arrays_lead[iCut][iLevel*phoNCATEGORIES+iCat] = cuts_lead[iCut][iCat];
-				cuts_arrays_sublead[iCut][iLevel*phoNCATEGORIES+iCat] = cuts_sublead[iCut][iCat];
+			for(int iCat=0; iCat<phoCiC6NCATEGORIES; ++iCat) {
+				cic6_cuts_arrays_lead[iCut][iLevel*phoCiC6NCATEGORIES+iCat] = cic6_cuts_lead[iCut][iCat];
+				cic6_cuts_arrays_sublead[iCut][iLevel*phoCiC6NCATEGORIES+iCat] = cic6_cuts_sublead[iCut][iCat];
+			}
+			for(int iCat=0; iCat<phoCiC4NCATEGORIES; ++iCat) {
+				cic4_cuts_arrays_lead[iCut][iLevel*phoCiC4NCATEGORIES+iCat] = cic4_cuts_lead[iCut][iCat];
+				cic4_cuts_arrays_sublead[iCut][iLevel*phoCiC4NCATEGORIES+iCat] = cic4_cuts_sublead[iCut][iCat];
 			}
 		}
 	}
@@ -364,17 +399,18 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
 	assert( ipho1 != ipho2 );
 
 	if(PADEBUG)        cout << " SelectEventsReduction going to fill photon info " << endl;
-	std::pair<PhotonInfo,bool> pc1=l.fillPhotonInfos(ipho1);
-        std::pair<PhotonInfo,bool> pc2=l.fillPhotonInfos(ipho2);
+	PhotonInfo pho1=l.fillPhotonInfos(ipho1,vtxAlgoParams.useAllConversions);
+        PhotonInfo pho2=l.fillPhotonInfos(ipho2,vtxAlgoParams.useAllConversions);
         if(PADEBUG) cout << " SelectEventsReduction done with fill photon info " << endl;
 
         // run vertex analysis
 	l.vertexAnalysis(vtxAna_, ipho1, ipho2 );
         // select vertxe
-	*l.vtx_std_ranked_list = l.vertexSelection(vtxAna_, vtxConv_, ipho1, ipho2, pc1.first, pc2.first,  pc1.second, pc2.second, vtxVarNames);
+	*l.vtx_std_ranked_list = l.vertexSelection(vtxAna_, vtxConv_, pho1, pho2, vtxVarNames);
 	if( l.vtx_std_ranked_list->size() != 0 ) {  
 		l.vtx_std_sel = (*l.vtx_std_ranked_list)[0];
 	} else {
+		l.vtx_std_sel = 0;
 		std::cerr << "NO VERTEX SELECTED " << l.event << " " << l.run << " " << std::endl;
 	}
 	// update the photons' pt
@@ -395,8 +431,30 @@ bool PhotonAnalysis::SkimEvents(LoopAll& l, int jentry)
 {
 	l.b_pho_n->GetEntry(jentry);
 	if( l.pho_n < 2 ) {
+
 		return false;
 	}
+
+	// do not run trigger selection on MC
+	int filetype = l.itype[l.current];
+	bool skipTrigger = ! doTriggerSelection || filetype != 0 || triggerSelections.empty();
+	if( ! skipTrigger ) {
+		// get the trigger selection for this run 
+		l.b_run->GetEntry(jentry);
+		std::vector<TriggerSelection>::iterator isel = find(triggerSelections.begin(), triggerSelections.end(), l.run );
+		if(isel == triggerSelections.end() ) {
+			std::cerr << "No trigger selection for run " << l.run << "defined" << std::endl;
+			return true;
+		}
+		// get the trigegr data
+		l.b_hlt1_bit->GetEntry(jentry);
+		l.b_hlt_path_names_HLT1->GetEntry(jentry);
+		if( !  isel->pass(*(l.hlt_path_names_HLT1),*(l.hlt1_bit)) ) {
+			return false;
+		}
+		l.countersred[trigCounter_]++;
+	}
+		
 	return true;
 }
 
@@ -418,10 +476,15 @@ void PhotonAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree)
 
 	l.vtx_std_ranked_list = new std::vector<int>();
 	l.pho_tkiso_recvtx_030_002_0000_10_01 = new std::vector<std::vector<float> >();
-	l.pho_cutlevel_lead = new std::vector<Short_t>();
-	l.pho_passcuts_lead = new std::vector<std::vector<UInt_t> >();
-	l.pho_cutlevel_sublead = new std::vector<Short_t>();
-	l.pho_passcuts_sublead = new std::vector<std::vector<UInt_t> >();
+	l.pho_cic6cutlevel_lead = new std::vector<Short_t>();
+	l.pho_cic6passcuts_lead = new std::vector<std::vector<UInt_t> >();
+	l.pho_cic6cutlevel_sublead = new std::vector<Short_t>();
+	l.pho_cic6passcuts_sublead = new std::vector<std::vector<UInt_t> >();
+	l.pho_cic4cutlevel_lead = new std::vector<Short_t>();
+	l.pho_cic4passcuts_lead = new std::vector<std::vector<UInt_t> >();
+	l.pho_cic4cutlevel_sublead = new std::vector<Short_t>();
+	l.pho_cic4passcuts_sublead = new std::vector<std::vector<UInt_t> >();
+
 
 
 	l.Branch_vtx_std_ranked_list(outputTree);
@@ -430,10 +493,33 @@ void PhotonAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree)
 	l.Branch_pho_tkiso_badvtx_040_002_0000_10_01(outputTree);
 	l.Branch_pho_drtotk_25_99(outputTree);
 
-	l.Branch_pho_cutlevel_lead( outputTree );
-	l.Branch_pho_passcuts_lead( outputTree );
-	l.Branch_pho_cutlevel_sublead( outputTree );
-	l.Branch_pho_passcuts_sublead( outputTree );
+
+  //l.Branch_dipho_n(outputTree);
+  //l.Branch_dipho_leadind(outputTree);
+  //l.Branch_dipho_subleadind(outputTree);
+  //l.Branch_dipho_vtxind(outputTree);
+  //l.Branch_dipho_leadet(outputTree);
+  //l.Branch_dipho_subleadet(outputTree);
+  //l.Branch_dipho_leadeta(outputTree);
+  //l.Branch_dipho_subleadeta(outputTree);
+  //l.Branch_dipho_leadci6cindex(outputTree);
+  //l.Branch_dipho_subleadci6cindex(outputTree);
+  //l.Branch_dipho_leadci4cindex(outputTree);
+  //l.Branch_dipho_subleadci4cindex(outputTree);
+  //l.Branch_dipho_mass(outputTree);
+  //l.Branch_dipho_pt(outputTree);
+  //l.Branch_dipho_eta(outputTree);
+  //l.Branch_dipho_phi(outputTree);
+  //l.Branch_dipho_cts(outputTree);
+
+	l.Branch_pho_cic6cutlevel_lead( outputTree );
+	l.Branch_pho_cic6passcuts_lead( outputTree );
+	l.Branch_pho_cic6cutlevel_sublead( outputTree );
+	l.Branch_pho_cic6passcuts_sublead( outputTree );
+	l.Branch_pho_cic4cutlevel_lead( outputTree );
+	l.Branch_pho_cic4passcuts_lead( outputTree );
+	l.Branch_pho_cic4cutlevel_sublead( outputTree );
+	l.Branch_pho_cic4passcuts_sublead( outputTree );
 	
 }
 

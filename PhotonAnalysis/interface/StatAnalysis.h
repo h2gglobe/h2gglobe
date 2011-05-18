@@ -2,11 +2,12 @@
 #define __STATANALYSIS__
 
 #include "BaseAnalysis.h"
+#include "PhotonAnalysis.h"
 #include "RooContainer.h"
 #include "VertexAnalysis/interface/HggVertexAnalyzer.h"
 
 // ------------------------------------------------------------------------------------
-class StatAnalysis : public BaseAnalysis 
+class StatAnalysis : public PhotonAnalysis 
 {
 public:
 	
@@ -19,13 +20,8 @@ public:
 	void Init(LoopAll&);
 	void Term(LoopAll&);
 	
-	void ReducedOutputTree(LoopAll &l, TTree *);
 	void GetBranches(TTree *, std::set<TBranch *>& );
 	
-	void FillReductionVariables(LoopAll& l, int jentry);   
-	bool SelectEventsReduction(LoopAll&, int);
-	
-	virtual bool SkimEvents(LoopAll&, int);
 	virtual bool SelectEvents(LoopAll&, int);
 	virtual void Analysis(LoopAll&, Int_t);
 	

@@ -112,8 +112,8 @@ class LoopAll {
 
   Int_t currentindexfiles;
   
-  Float_t counters[2];
-  Float_t countersred[2];
+  std::vector<Float_t> counters;
+  std::vector<Float_t> countersred;
    
   TFile *hfile;
   Int_t outputEvents;

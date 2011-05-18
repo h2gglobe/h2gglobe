@@ -4,6 +4,7 @@
 #include "Tools.h"
 
 #include <iostream>
+#include <iterator>
 #include <math.h>
 #include "stdlib.h"
 
@@ -271,7 +272,8 @@ void LoopAll::Term(){
 }
 
 // ------------------------------------------------------------------------------------
-LoopAll::LoopAll(TTree *tree) 
+LoopAll::LoopAll(TTree *tree) :
+	counters(2,0.), countersred(2,0.)
 {  
 #include "branchdef/newclonesarray.h"
 
@@ -531,9 +533,15 @@ void LoopAll::Loop(Int_t a) {
   }
   
   if(countersred[1] || oldnentries==0) {
-    printf("red: %d_%d \n",(int)countersred[0], (int) countersred[1]);
+	  //printf("red: %d_%d \n",(int)countersred[0], (int) countersred[1]);
+	  cout << "red: " << countersred[0] << "_";
+	  copy(countersred.begin()+1, countersred.end(), std::ostream_iterator<float>(cout, "_") );
+	  cout << endl;
   } else { 
-    printf("norm: %d \n",(int)counters[0]);
+	  // printf("norm: %d \n",(int)counters[0]);
+	  cout << "norm: " << countersred[0] << "_";
+	  copy(countersred.begin()+1, countersred.end(), std::ostream_iterator<float>(cout, "_") );
+	  cout << endl;
   }
 }
 
@@ -672,7 +680,9 @@ int LoopAll::FillAndReduce(int jentry) {
   // 
   if( typerun == kReduce || typerun == kFillReduce ) {
     for (size_t i=0; i<analyses.size(); i++) {
-      analyses[i]->SkimEvents(*this, jentry);
+      if( ! analyses[i]->SkimEvents(*this, jentry) ) {
+	return hasoutputfile;
+      }
     }
   }
   

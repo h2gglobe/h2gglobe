@@ -1,3 +1,7 @@
+<!--
+To teach scram about h2gglobe 
+scram saetup h2gglobe.xml 
+-->
   <tool name="h2gglobe" version="v0">
     <lib name="LoopAll"/>
     <client>

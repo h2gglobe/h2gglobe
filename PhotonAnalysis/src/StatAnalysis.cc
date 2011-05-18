@@ -42,37 +42,9 @@ void StatAnalysis::Init(LoopAll& l)
 	if(PADEBUG) 
 		cout << "InitRealStatAnalysis START"<<endl;
 
-	if( vtxVarNames.empty() ) {
-		vtxVarNames.push_back("ptbal"), vtxVarNames.push_back("ptasym"), vtxVarNames.push_back("logsumpt2");
-	}
-	// FIXME should move this to GeneralFunctions
-	const int phoNCUTS = LoopAll::phoNCUTS;
-	const int phoNCATEGORIES = LoopAll::phoNCATEGORIES;
-	const int phoNCUTLEVELS = LoopAll::phoNCUTLEVELS;
-
-	for(int iLevel=0; iLevel<phoNCUTLEVELS; ++iLevel) {
-		float cuts_lead[phoNCUTS][phoNCATEGORIES];
-		float cuts_sublead[phoNCUTS][phoNCATEGORIES];
-		l.SetPhotonCutsInCategories((LoopAll::phoCiCIDLevel)iLevel, &cuts_lead[0][0], &cuts_sublead[0][0] );
-		
-		float * cuts_arrays_lead[phoNCUTS] = {
-			&l.cut_lead_isosumoet[0][0], &l.cut_lead_isosumoetbad[0][0], &l.cut_lead_trkisooet[0][0], &l.cut_lead_sieie[0][0],
-			&l.cut_lead_hovere[0][0], &l.cut_lead_r9[0][0], &l.cut_lead_drtotk_25_99[0][0], &l.cut_lead_pixel[0][0] 
-		};
-		
-		float * cuts_arrays_sublead[phoNCUTS] = {
-			&l.cut_sublead_isosumoet[0][0], &l.cut_sublead_isosumoetbad[0][0], &l.cut_sublead_trkisooet[0][0], 
-			&l.cut_sublead_sieie[0][0], &l.cut_sublead_hovere[0][0], &l.cut_sublead_r9[0][0],
-			&l.cut_sublead_drtotk_25_99[0][0], &l.cut_sublead_pixel[0][0]
-		};
-
-		for(int iCut=0; iCut<phoNCUTS; ++iCut) {
-			for(int iCat=0; iCat<phoNCATEGORIES; ++iCat) {
-				cuts_arrays_lead[iCut][iLevel*phoNCATEGORIES+iCat] = cuts_lead[iCut][iCat];
-				cuts_arrays_sublead[iCut][iLevel*phoNCATEGORIES+iCat] = cuts_sublead[iCut][iCat];
-			}
-		}
-	}
+	// call the base class initializer
+	PhotonAnalysis::Init(l);
+	
 	// next three lines should ideally be configured @ run-time 
 	l.rooContainer->SetNCategories(4);
 	std::vector<std::string> sys(1,"e-scale");
@@ -239,75 +211,6 @@ void StatAnalysis::PreselectPhotons(LoopAll& l, int jentry)
 		  SimpleSorter<float,std::greater<float> >(&pho_sc_et[0]));
 }
 
-// ----------------------------------------------------------------------------------------------------
-void StatAnalysis::FillReductionVariables(LoopAll& l, int jentry) 
-{
-	if(PADEBUG) 
-		cout<<"myFillReduceVar START"<<endl;
-  	
-	PreselectPhotons(l,jentry);
-	
-	if(PADEBUG) 
-		cout<<"myFillReduceVar END"<<endl;
-
-}
-
-// ----------------------------------------------------------------------------------------------------
-bool StatAnalysis::SelectEventsReduction(LoopAll& l, int jentry) 
-{
-  if(PADEBUG)  cout << " ****************** SelectEventsReduction " << endl;
-	// require at least two reconstructed photons to store the event
-	if( pho_acc.size() < 2 || pho_sc_et[ pho_acc[0] ] < presel_scet1 ) { return false; }
-	
-	int ipho1 = pho_acc[0];
-	int ipho2 = pho_acc[1];
-	
-	if( pho_presel.size() > 1 ) { 
-		// use the first two preselected photons for the vertex algorithm
-		ipho1 = pho_presel[0]; 
-		ipho2 = pho_presel[1]; 
-	} else if(pho_presel.size() > 0 ) {
-		// if only one photon was preselected use the highest preselected and the higest non preselect photons 
-		//    the event will be discarded by the analysis anyway
-		ipho1 = pho_presel[0]; 
-		ipho2 = pho_acc[0] == ipho1 ? pho_acc[1] : pho_acc[0]; 
-	}
-	assert( ipho1 != ipho2 );
-
-	if(PADEBUG)        cout << " SelectEventsReduction going to fill photon info " << endl;
-	std::pair<PhotonInfo,bool> pc1=l.fillPhotonInfos(ipho1);
-        std::pair<PhotonInfo,bool> pc2=l.fillPhotonInfos(ipho2);
-        if(PADEBUG) cout << " SelectEventsReduction done with fill photon info " << endl;
-
-        // run vertex analysis
-	l.vertexAnalysis(vtxAna_, ipho1, ipho2 );
-        // select vertxe
-	*l.vtx_std_ranked_list = l.vertexSelection(vtxAna_, vtxConv_, ipho1, ipho2, pc1.first, pc2.first,  pc1.second, pc2.second, vtxVarNames);
-	if( l.vtx_std_ranked_list->size() != 0 ) {  
-		l.vtx_std_sel = (*l.vtx_std_ranked_list)[0];
-	} else {
-		std::cerr << "NO VERTEX SELECTED " << l.event << " " << l.run << " " << std::endl;
-	}
-	// update the photons' pt
-	for(int ipho=0; ipho<l.pho_n; ++ipho) {
-		l.set_pho_p4(ipho, l.vtx_std_sel);
-	}
-	
-	// fill ID variables
-	l.FillCICInputs();
-	l.FillCIC();
-
-	return true;
-}
-
-// ----------------------------------------------------------------------------------------------------
-bool StatAnalysis::SkimEvents(LoopAll& l, int jentry)
-{
-	l.b_pho_n->GetEntry(jentry);
-	if( l.pho_n < 2 ) {
-		return false;
-	}
-}
 // ----------------------------------------------------------------------------------------------------
 bool StatAnalysis::SelectEvents(LoopAll& l, int jentry) 
 {
@@ -498,29 +401,4 @@ bool StatAnalysis::SelectEvents(LoopAll& l, int jentry)
   if (l.run == 163817 && l.lumis>=618 && l.lumis<=966) return true;
   if (l.run == 163869 && l.lumis>=79 && l.lumis<=123) return true;
   return false;
-}
-
-// ----------------------------------------------------------------------------------------------------
-void StatAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree) 
-{
-	vtxAna_.branches(outputTree,"vtx_std_");	
-	l.vtx_std_ranked_list = new std::vector<int>();
-	l.pho_tkiso_recvtx_030_002_0000_10_01 = new std::vector<std::vector<float> >();
-
-	l.pho_cutlevel_lead = new std::vector<Short_t>();
-	l.pho_passcuts_lead = new std::vector<std::vector<UInt_t> >();
-	l.pho_cutlevel_sublead = new std::vector<Short_t>();
-	l.pho_passcuts_sublead = new std::vector<std::vector<UInt_t> >();
-
-	l.Branch_vtx_std_ranked_list(outputTree);
-	l.Branch_vtx_std_sel(outputTree);
-	l.Branch_pho_tkiso_recvtx_030_002_0000_10_01(outputTree);
-	l.Branch_pho_tkiso_badvtx_040_002_0000_10_01(outputTree);
-	l.Branch_pho_drtotk_25_99(outputTree);
-
-	l.Branch_pho_cutlevel_lead( outputTree );
-	l.Branch_pho_passcuts_lead( outputTree );
-	l.Branch_pho_cutlevel_sublead( outputTree );
-	l.Branch_pho_passcuts_sublead( outputTree );
-	
 }

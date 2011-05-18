@@ -40,6 +40,7 @@ LOOPALLO = LoopAll.$(ObjSuf) \
 	   SampleContainer.o \
 	   RooContainer.o \
 	   Cut.o \
+	   TriggerSelection.o \
            $(VTXOBS) $(PHOOBS)
 
 ROOFIT_BASE=$(ROOFITSYS)
@@ -68,6 +69,7 @@ LoopAll.$(ObjSuf): CommonParameters.h LoopAll.h Tools.h \
 	CounterContainer.cc CounterContainer.h \
 	SampleContainer.cc SampleContainer.h \
 	RooContainer.cc RooContainer.h \
+	TriggerSelection.h TriggerSelection.cc \
 	Cut.cc Cut.h $(VTXSRC) $(PHOSRC)
 
 LoopAllDict.$(SrcSuf): CommonParameters.h LoopAll.h \

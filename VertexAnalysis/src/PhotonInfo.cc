@@ -12,7 +12,7 @@ using namespace std;
 
 
 PhotonInfo::PhotonInfo(int id, const TVector3 & caloPosition, float energy) :
-	id_(id), caloPosition_(caloPosition), energy_(energy)
+	id_(id), caloPosition_(caloPosition), energy_(energy), nTracks_(0)
 {
 }
 

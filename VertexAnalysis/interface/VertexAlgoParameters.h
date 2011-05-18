@@ -14,6 +14,7 @@ public:
         bool removeTracksInCone;
         float coneSize;
 
+	bool useAllConversions;
 	float sigmaPix;
 	float sigmaTib;
 	float sigmaTob;

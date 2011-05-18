@@ -14,7 +14,6 @@ class PhotonInfo
 {
 public:
 
-  PhotonInfo(){;}
   PhotonInfo(int id, const TVector3 & caloPosition, float energy);
   PhotonInfo(int id, const TVector3 & caloPosition, 
 	     const TVector3 &  bs, 

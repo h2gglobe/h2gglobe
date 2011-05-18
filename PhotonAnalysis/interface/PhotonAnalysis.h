@@ -5,6 +5,8 @@
 #include "VertexAnalysis/interface/HggVertexAnalyzer.h"
 #include "VertexAnalysis/interface/PhotonInfo.h"
 
+#include "TriggerSelection.h"
+
 // ------------------------------------------------------------------------------------
 class PhotonAnalysis : public BaseAnalysis 
 {
@@ -16,14 +18,14 @@ public:
 	virtual const std::string & name() const { return name_; };
 	
 	// LoopAll analysis interface implementation
-	void Init(LoopAll&);
-	void Term(LoopAll&);
+	virtual void Init(LoopAll&);
+	virtual void Term(LoopAll&);
 	
-	void ReducedOutputTree(LoopAll &l, TTree *);
-	void GetBranches(TTree *, std::set<TBranch *>& );
+	virtual void ReducedOutputTree(LoopAll &l, TTree *);
+	virtual void GetBranches(TTree *, std::set<TBranch *>& );
 	
-	void FillReductionVariables(LoopAll& l, int jentry);   
-	bool SelectEventsReduction(LoopAll&, int);
+	virtual void FillReductionVariables(LoopAll& l, int jentry);   
+	virtual bool SelectEventsReduction(LoopAll&, int);
 
 	virtual bool SkimEvents(LoopAll&, int);
 	virtual bool SelectEvents(LoopAll&, int);
@@ -32,6 +34,9 @@ public:
 	// Public parameters to be read from config file
 	VertexAlgoParameters vtxAlgoParams;	 
 	std::vector<std::string> vtxVarNames;
+	
+	bool doTriggerSelection; 
+	std::vector<TriggerSelection> triggerSelections;
 	
 	// Preselection indexes
 	float presel_scet1, presel_scet2, presel_maxeta;
@@ -53,6 +58,8 @@ protected:
 	// Vertex analysis
 	HggVertexAnalyzer vtxAna_;
 	HggVertexFromConversions vtxConv_;
+	
+	int trigCounter_;
 	
 };
 
