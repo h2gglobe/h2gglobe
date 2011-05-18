@@ -1,4 +1,5 @@
 <use   name="h2gglobe"/>
+<use   name="roofit"/>
 <export>
   <lib   name="1"/>
 </export>
