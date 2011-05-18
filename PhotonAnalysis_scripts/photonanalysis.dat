@@ -6,8 +6,8 @@ vtxAlgoParams vertex_selection.dat
 ->
 Preselection cuts
 ->
-presel_scet1=25
-presel_scet2=35
+presel_scet1=35
+presel_scet2=25
 presel_maxeta=2.5
 
 ->

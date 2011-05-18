@@ -96,7 +96,9 @@ void PhotonAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	
         // From Here is the Standard Dec Review Selection/ gen Level studies
 	std::vector<int> pho_loose;
-	
+	// For use of the preselected photons in Dec Review, empty the vector
+	pho_presel.clear();
+
 	if( pho_presel.empty() ) { 
 		PreselectPhotons(l,jentry);
 	}

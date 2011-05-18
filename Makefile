@@ -38,8 +38,13 @@ LOOPALLO = LoopAll.$(ObjSuf) \
 	   BaseAnalysis.o \
 	   CounterContainer.o \
 	   SampleContainer.o \
+	   RooContainer.o \
 	   Cut.o \
            $(VTXOBS) $(PHOOBS)
+
+ROOFIT_BASE=$(ROOFITSYS)
+LDFLAGS+=-L$(ROOFIT_BASE)/lib -lRooFitCore
+CXXFLAGS+=-I$(ROOFIT_BASE)/include 
 
 all: $(LOOPALL)
 
@@ -62,6 +67,7 @@ LoopAll.$(ObjSuf): CommonParameters.h LoopAll.h Tools.h \
 	HistoContainer.cc HistoContainer.h \
 	CounterContainer.cc CounterContainer.h \
 	SampleContainer.cc SampleContainer.h \
+	RooContainer.cc RooContainer.h \
 	Cut.cc Cut.h $(VTXSRC) $(PHOSRC)
 
 LoopAllDict.$(SrcSuf): CommonParameters.h LoopAll.h \
@@ -71,11 +77,12 @@ LoopAllDict.$(SrcSuf): CommonParameters.h LoopAll.h \
 	HistoContainer.h \
 	CounterContainer.h \
 	SampleContainer.h \
+	RooContainer.h \
 	Cut.h \
-	VertexAnalysis/interface/VertexAlgoParameters.h PhotonAnalysis/interface/PhotonAnalysis.h
+	VertexAnalysis/interface/VertexAlgoParameters.h PhotonAnalysis/interface/PhotonAnalysis.h PhotonAnalysis/interface/StatAnalysis.h
 
 	@echo "Generating dictionary $@..."
-	@rootcint -f $@ -c LoopAll.h BaseAnalysis.h VertexAnalysis/interface/VertexAlgoParameters.h PhotonAnalysis/interface/PhotonAnalysis.h
+	@rootcint -f $@ -c -I$(ROOFIT_BASE)/include  LoopAll.h BaseAnalysis.h VertexAnalysis/interface/VertexAlgoParameters.h PhotonAnalysis/interface/PhotonAnalysis.h PhotonAnalysis/interface/StatAnalysis.h
 	@rootcint -f dict.cpp -c -p LinkDef.h 
 
 .$(SrcSuf).$(ObjSuf):

@@ -7,8 +7,9 @@
 
 HistoContainer::HistoContainer() {}
 
-HistoContainer::HistoContainer(int setTo) {
+HistoContainer::HistoContainer(int setTo, std::string setName) {
   setHistVal(setTo);
+  setHistNam(setName);
 }
 
 HistoContainer::~HistoContainer() 
@@ -18,14 +19,21 @@ void HistoContainer::setHistVal(int setTo) {
   histVal = setTo;
 }
 
+void HistoContainer::setHistNam(std::string setName) {
+  histNam = setName;
+}
+
 int HistoContainer::getHistVal() {
   return histVal;
 }
 
+void HistoContainer::setScale(float scale){
+  total_scale = scale;
+}
 
 std::string HistoContainer::ModifiedName(char* name, int i) {
   char* modName= new char[500];
-  sprintf(modName, "%s_cat%d_%d", name, i, histVal);
+  sprintf(modName,"%s_cat%d_%s",name,i,histNam.c_str());
   std::string output(modName);
   return output;
 }
@@ -78,7 +86,7 @@ void HistoContainer::Fill(std::string name, int category, float value, float wei
   std::map<std::string, std::vector<TH1F> >::iterator it = h1.find(std::string(name));
  
   if (it != h1.end()) {
-    (it->second)[category].Fill(value, weight);
+    (it->second)[category].Fill(value, total_scale*weight);
     return;
   }
 }
@@ -92,13 +100,13 @@ void HistoContainer::Fill2D(std::string name, int category, float valuex, float 
   //std::string modName = ModifiedName(name);
   std::map<std::string, std::vector<TProfile> >::iterator itp = hp.find(std::string(name));
   if (itp != hp.end()) {
-    (itp->second)[category].Fill(valuex, valuey, weight);
+    (itp->second)[category].Fill(valuex, valuey, total_scale*weight);
     return;
   }
 
   std::map<std::string, std::vector<TH2F> >::iterator it2 = h2.find(std::string(name));
   if (it2 != h2.end()) {
-    (it2->second)[category].Fill(valuex, valuey, weight);
+    (it2->second)[category].Fill(valuex, valuey, total_scale*weight);
     return;
   }
 }
@@ -107,7 +115,6 @@ void HistoContainer::Save() {
   std::map<std::string, std::vector<TH1F> >::iterator it;
   for (it = h1.begin(); it != h1.end(); ++it) {
     for (unsigned int i=0; i<(it->second).size(); i++) {
-      (it->second)[i].Scale(total_scale);
       (it->second)[i].Write();
     }
   }
@@ -115,7 +122,6 @@ void HistoContainer::Save() {
   std::map<std::string, std::vector<TH2F> >::iterator it2;
   for (it2 = h2.begin(); it2 != h2.end(); ++it2) {
     for (unsigned int i=0; i<(it2->second).size(); i++) {
-      (it2->second)[i].Scale(total_scale);
       (it2->second)[i].Write(); 
     }
   }
@@ -123,7 +129,6 @@ void HistoContainer::Save() {
   std::map<std::string, std::vector<TProfile> >::iterator itp;
   for (itp = hp.begin(); itp != hp.end(); ++itp) {
     for (unsigned int i=0; i<(itp->second).size(); i++) {
-      (itp->second)[i].Scale(total_scale);
       (itp->second)[i].Write();
     }
   }

@@ -8,8 +8,8 @@ ROOT.gSystem.Load("../libLoopAll.so");
 
 ROOT.gBenchmark.Start("Analysis");
 
-ut = ROOT.Util();
-cfg = configProducer(ut,"datafiles.dat",3)
+ut = ROOT.LoopAll();
+cfg = configProducer(ut,"datafiles.dat",0)
   
 ut.LoopAndFillHistos();
 ROOT.gBenchmark.Show("Analysis");

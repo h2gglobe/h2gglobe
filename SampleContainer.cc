@@ -24,7 +24,7 @@ void SampleContainer::computeWeight(float intL) {
   if(itype==0) { //this is data
     weight = 1; 
   } else {
-    weight = ntot/xsec*intL;
+    weight = kfactor*scale*xsec*intL/ntot;
   }
 }
  

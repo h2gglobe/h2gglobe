@@ -280,7 +280,7 @@ LoopAll::LoopAll(TTree *tree)
 	DefineUserBranches();
 #endif
 
-//  rooContainer = new RooContainer();
+  rooContainer = new RooContainer();
 }
 
 // ------------------------------------------------------------------------------------
@@ -331,8 +331,8 @@ void LoopAll::InitHistos(){
 
   for(int ind=0; ind<sampleContainer.size(); ind++) {
     SampleContainer thisSample = (SampleContainer) sampleContainer.at(ind);
-    HistoContainer temp(ind);
-    temp.total_scale = thisSample.weight*thisSample.scale*thisSample.kfactor;
+    HistoContainer temp(ind,thisSample.filesshortnam);
+    temp.setScale(thisSample.weight);
     histoContainer.push_back(temp);
   }
 

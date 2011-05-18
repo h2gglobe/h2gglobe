@@ -382,7 +382,7 @@ class configProducer:
 
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def read_input_files_reduce(self,line):
-    values = { "CaDir" : "", "Dir" : "", "typ" : -1, "Fil" : ""  }; 
+    values = { "CaDir" : "","DcDir" : "", "Dir" : "", "typ" : -1, "Fil" : ""  }; 
     # We have one of the file def lines
     split_line = line.split()
     for sp in split_line:
@@ -393,6 +393,7 @@ class configProducer:
         sys.exit( "Unrecognised Argument:\n ' %s ' in line:\n ' %s '"% (name,line) )
     directory = values["Dir"]
     cas_directory = values["CaDir"]
+    dcs_directory = values["DcDir"]
     fi_name   = values["Fil"]
     fi_type   = values["typ"]
     if fi_type != 0:
@@ -408,6 +409,11 @@ class configProducer:
       ca_files = makeCaFiles(cas_directory)
       for file_s in ca_files:
         self.conf_.files.append((file_s,fi_type))
+
+    if dcs_directory != '':
+      dc_files = makeDcFiles(dcs_directory)
+      for file_s in dc_files:
+        self.conf_.files.append((file_s,fi_type))
         
     if os.path.isdir(directory): 
       di_files = os.listdir(directory)
@@ -421,6 +427,7 @@ class configProducer:
     map_c	    = {}
     directory = ''
     cas_directory = ''
+    dcs_directory = ''
     fi_name   = ''
     fi_type   = ''
     # We have one of the file def lines
@@ -433,6 +440,8 @@ class configProducer:
         directory=str(val[1])
       elif val[0]== "CaDir":
         cas_directory=str(val[1])
+      elif val[0]== "DcDir":
+        dcs_directory=str(val[1])
       elif val[0] == "typ":
         fi_type = int(val[1])
         map_c["typ"] = int(val[1])
@@ -467,6 +476,12 @@ class configProducer:
     if cas_directory != '':
       ca_files = makeCaFiles(cas_directory)
       for file_s in ca_files:
+        self.conf_.files.append((file_s,fi_type))
+        self.conf_.confs.append(map_c.copy())
+
+    if dcs_directory != '':
+      dc_files = makeDcFiles(dcs_directory)
+      for file_s in dc_files:
         self.conf_.files.append((file_s,fi_type))
         self.conf_.confs.append(map_c.copy())
 	
