@@ -23,16 +23,20 @@ StatAnalysis::~StatAnalysis()
 // ----------------------------------------------------------------------------------------------------
 void StatAnalysis::Term(LoopAll& l) 
 {
-      l.rooContainer->FitToData("exp","bkg_mass");
-      l.rooContainer->FitToSystematicSet("exp","bkg_mass","e-scale");
-
-      
-      std::string outputfilename = (std::string) l.histFileName;  
-      l.rooContainer->WriteDataCard(outputfilename,"data_mass","sig_mass_m100","bkg_mass");
-      l.rooContainer->WriteDataCard(outputfilename,"data_mass","sig_mass_m110","bkg_mass");
-      l.rooContainer->WriteDataCard(outputfilename,"data_mass","sig_mass_m120","bkg_mass");
-      l.rooContainer->WriteDataCard(outputfilename,"data_mass","sig_mass_m130","bkg_mass");
-      l.rooContainer->WriteDataCard(outputfilename,"data_mass","sig_mass_m140","bkg_mass");
+        // Make Fits to the data-sets and systematic sets
+        l.rooContainer->FitToData("background_model","bkg_mass");
+        l.rooContainer->FitToData("signal_model","sig_mass_m120");
+  
+        // commented out as systematics are slow
+        //l.rooContainer->FitToSystematicSet("signal_model","sig_mass_m120","E_scale");
+  
+        // Can create binned models from the results of the fits, should be same bins as other 
+        // binned models
+        l.rooContainer->GenerateBinnedPdf("bkg_mass_rebinned","background_model","mass",120);
+  
+        // Write the data-card for the Combinations Code, needs the output filename
+        std::string outputfilename = (std::string) l.histFileName;
+        l.rooContainer->WriteDataCard(outputfilename,"data_mass","sig_mass_m120","bkg_mass_rebinned");
 
 }
 
@@ -44,40 +48,68 @@ void StatAnalysis::Init(LoopAll& l)
 
 	// call the base class initializer
 	PhotonAnalysis::Init(l);
-	
-	// next three lines should ideally be configured @ run-time 
+        // Define the number of categories for the statistical analysis and
+	// the systematic sets to be formed
+
 	l.rooContainer->SetNCategories(4);
-	std::vector<std::string> sys(1,"e-scale");
+	std::vector<std::string> sys(1,"E_scale");
 	l.rooContainer->MakeSystematicStudy(sys);
 	// ----------------------------------------------------
 
-	l.rooContainer->AddRealVar("data_mass" ,95.,155.);
-	l.rooContainer->AddRealVar("bkg_mass" ,95.,155.);
-	l.rooContainer->AddRealVar("sig_mass_m100" ,95.,155.);
-	l.rooContainer->AddRealVar("sig_mass_m110" ,95.,155.);
-	l.rooContainer->AddRealVar("sig_mass_m120" ,95.,155.);
-	l.rooContainer->AddRealVar("sig_mass_m130" ,95.,155.);
-	l.rooContainer->AddRealVar("sig_mass_m140" ,95.,155.);
+	// Create observables for shape-analysis with ranges
+	l.rooContainer->AddObservable("mass" ,95.,155.);
+
+	// Create parameters and pdfs for signal/background
+        // Background - Exponential
 	l.rooContainer->AddRealVar("mu",-0.04,-2.,-0.001);
 		  
-	// -------------------------------------//
-	std::vector<std::string> pars(2,"t");	 
-	pars[0] = "bkg_mass";
-	pars[1] = "mu";
-	// -------------------------------------//
+	std::vector<std::string> pars(1,"t");	 
+	pars[0] = "mu";
 
-	l.rooContainer->AddGenericPdf("exp",
-	  "exp((@0)*(@1))",pars,1,1000);
-		  
-	l.rooContainer->CreateDataSet("data_mass",30);
-	l.rooContainer->CreateDataSet("bkg_mass",30);
+	l.rooContainer->AddGenericPdf("background_model",
+	  "","mass",pars,1,1000); // 1 for exonential, no need for formula
+        // -----------------------------------------------------
+	
+	// Signal -- CB shape
+        l.rooContainer->AddRealVar("mean",120,100,150);
+        l.rooContainer->AddRealVar("sigma",3.5,0.1,5.);
+        l.rooContainer->AddRealVar("slope",1.,0.5,5.);
+        l.rooContainer->AddRealVar("n",2.,0.5,10.);
 
-	l.rooContainer->CreateDataSet("sig_mass_m100",30);
-	l.rooContainer->CreateDataSet("sig_mass_m110",30);
-	l.rooContainer->CreateDataSet("sig_mass_m120",30);
-	l.rooContainer->CreateDataSet("sig_mass_m130",30);
-	l.rooContainer->CreateDataSet("sig_mass_m140",30);
-	l.rooContainer->MakeSystematics("bkg_mass","e-scale");
+	std::vector<std::string> cb_pars(4,"cb");
+	cb_pars[0] = "mean";
+	cb_pars[1] = "sigma";
+	cb_pars[2] = "slope";
+	cb_pars[3] = "n";
+
+	l.rooContainer->AddGenericPdf("cb_shape",
+	  "","mass",cb_pars,4,1000);  // 4 for CB shape, no need for formula
+
+	// Signal -- Gaussian
+        l.rooContainer->AddRealVar("gsigma",1.2,0.1,4.);
+
+	std::vector<std::string> gau_pars(2,"gau");
+	gau_pars[0] = "mean";
+	gau_pars[1] = "gsigma";
+
+	l.rooContainer->AddGenericPdf("gau_shape",
+	  "","mass",gau_pars,2,1);  // 3 for Gaussian shape, no need for formula
+
+        // Add the  CB+Gaussian
+        std::vector<std::string> components(2,"c");
+        components[0] = "cb_shape";
+        components[1] = "gau_shape";
+        l.rooContainer->ComposePdf("signal_model","cb_shape+gau_shape",components);
+        // -----------------------------------------------------
+
+	// Make some data sets from the observables to fill in the event loop		  
+	// Binning is for histograms
+	l.rooContainer->CreateDataSet("mass","data_mass"    ,120);
+	l.rooContainer->CreateDataSet("mass","bkg_mass"     ,120);
+	l.rooContainer->CreateDataSet("mass","sig_mass_m120",120);
+
+	// Make more data sets to represent systematic shitfs for now commented out as systematics are slow
+	//l.rooContainer->MakeSystematics("mass","sig_mass_m120","E_scale");	
 	
 	if(PADEBUG) 
 		cout << "InitRealStatAnalysis END"<<endl;
@@ -100,7 +132,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
    float leadEtCut   = 40.0;
    float subleadEtCut = 35.0;
 
-   diphoton_index = l.DiphotonCiCSelection((LoopAll::phoCiCIDLevel) leadLevel, (LoopAll::phoCiCIDLevel) subLevel, leadEtCut, subleadEtCut, false); 
+   diphoton_index = l.DiphotonCiCSelection((LoopAll::phoCiCIDLevel) leadLevel, (LoopAll::phoCiCIDLevel) subLevel, leadEtCut, subleadEtCut, 4,false); 
  
   if (diphoton_index.first > -1 && diphoton_index.second > -1){
 
@@ -121,8 +153,11 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	 if (min_r9 < 0.93 && max_eta > 1.566 && max_eta < 2.5) category = 2;
 	 if (min_r9 > 0.93 && max_eta > 1.566 && max_eta < 2.5) category = 3;
  
-           float sys_error = 0.05;
- 
+	// Assume a global 3% error on the EnergyScale, create vector of
+	// masses based on systematic shifts, need 30 down and 30 up 
+	// representing -3 -> +3 sigma in 0.1 sigma steps
+           float sys_error = 0.03;
+
             std::vector<float> mass_errors;
             for (int sys=1;sys<31;sys++){
                  float incr = (float)sys/10;
@@ -136,25 +171,16 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
                  TLorentzVector nlead_err = (1.+incr*sys_error)*(*sublead_p4);
                  mass_errors.push_back((lead_err+nlead_err).M());
             }
- 
 
-        l.rooContainer->InputSystematicSet("bkg_mass","e-scale",category,mass_errors);
-         
-	 if (cur_type == 0){
+  
+	 if (cur_type == 0)
 	   l.rooContainer->InputDataPoint("data_mass",category,mass);
-	}
 	 else if (cur_type > 0)
 	   l.rooContainer->InputDataPoint("bkg_mass",category,mass,weight);
-	 else if (cur_type == -1 || cur_type == -2 || cur_type == -3)
-	   l.rooContainer->InputDataPoint("sig_mass_m100",category,mass,weight);
-	 else if (cur_type == -4 || cur_type == -5 || cur_type == -6)
-	   l.rooContainer->InputDataPoint("sig_mass_m110",category,mass,weight);
-	 else if (cur_type == -7 || cur_type == -8 || cur_type == -9)
+	 else if (cur_type < 0){
 	   l.rooContainer->InputDataPoint("sig_mass_m120",category,mass,weight);
-	 else if (cur_type == -10 || cur_type == -11 || cur_type == -12)
-	   l.rooContainer->InputDataPoint("sig_mass_m130",category,mass,weight);
-	 else if (cur_type == -13 || cur_type == -14 || cur_type == -15)
-	   l.rooContainer->InputDataPoint("sig_mass_m140",category,mass,weight);
+        //   l.rooContainer->InputSystematicSet("sig_mass_m120","E_scale",category,mass_errors);
+ 	 }
 	
 	}
 	

@@ -19,25 +19,16 @@ void RooContainer::MakeSystematicStudy(std::vector<std::string> sys_names){
      systematics_.push_back(*it_sys);
 }
 // ----------------------------------------------------------------------------------------------------
-void RooContainer::AddRealVar(std::string name,float xmin,float xmax){
-  for (int cat=0;cat<ncat;cat++){
-    addRealVar(getcatName(name,cat),xmin,xmax);
-    if (make_systematics){
-	for (it_sys=systematics_.begin(); it_sys!=systematics_.end();it_sys++){
-	  for (int sys=1;sys<=nsigmas;sys++)
-	    addRealVar(getsysindexName(getcatName(name,cat),*it_sys,sys,-1),xmin,xmax);
-	  for (int sys=1;sys<=nsigmas;sys++)
-	    addRealVar(getsysindexName(getcatName(name,cat),*it_sys,sys,1),xmin,xmax);
-	}
-    }
-  }
+void RooContainer::AddObservable(std::string name,float xmin,float xmax){
+    addRealVar(name,xmin,xmax);
+    addRealVar(getweightName(name),0.,1.0e6);
 }
 
 // ----------------------------------------------------------------------------------------------------
-// Create the observable variable here!
 void RooContainer::AddRealVar(std::string name,float init, float vmin, float vmax){
   for (int cat=0;cat<ncat;cat++){
-    addRealVar(getcatName(name,cat),init,vmin,vmax);
+    
+addRealVar(getcatName(name,cat),init,vmin,vmax);
     if (make_systematics){
 	for (it_sys=systematics_.begin(); it_sys!=systematics_.end();it_sys++){
 	  for (int sys=1;sys<=nsigmas;sys++)
@@ -50,7 +41,7 @@ void RooContainer::AddRealVar(std::string name,float init, float vmin, float vma
 }
 
 // ----------------------------------------------------------------------------------------------------
-void RooContainer::AddGenericPdf(std::string name,std::string formula
+void RooContainer::AddGenericPdf(std::string name,std::string formula,std::string obs_name
 				,std::vector<std::string> & var, int form
 				,double norm_guess ){
   for (int cat=0;cat<ncat;cat++){
@@ -60,7 +51,7 @@ void RooContainer::AddGenericPdf(std::string name,std::string formula
 	;++it){
       cat_var.push_back(getcatName(*it,cat));
     }  
-    addGenericPdf(getcatName(name,cat),formula,cat_var,form,norm_guess);
+    addGenericPdf(getcatName(name,cat),formula,obs_name,cat_var,form,norm_guess);
 
     if (make_systematics){
       
@@ -72,7 +63,7 @@ void RooContainer::AddGenericPdf(std::string name,std::string formula
 	  ;++it){
           cat_var.push_back(getsysindexName(getcatName(*it,cat),*it_sys,sys,-1));
         } 
-        addGenericPdf(getsysindexName(getcatName(name,cat),*it_sys,sys,-1),formula,cat_var,form,norm_guess);
+        addGenericPdf(getsysindexName(getcatName(name,cat),*it_sys,sys,-1),formula,obs_name,cat_var,form,norm_guess);
        } 
        for (int sys=1;sys<=nsigmas;sys++){
         std::vector<std::string> cat_var;
@@ -81,7 +72,7 @@ void RooContainer::AddGenericPdf(std::string name,std::string formula
 	  ;++it){
           cat_var.push_back(getsysindexName(getcatName(*it,cat),*it_sys,sys,1));
         } 
-        addGenericPdf(getsysindexName(getcatName(name,cat),*it_sys,sys,1),formula,cat_var,form,norm_guess);
+        addGenericPdf(getsysindexName(getcatName(name,cat),*it_sys,sys,1),formula,obs_name,cat_var,form,norm_guess);
        } 
       }
    }
@@ -125,34 +116,73 @@ void RooContainer::ComposePdf(std::string name, std::string  composition
  }
 }
 
-// ----------------------------------------------------------------------------------------------------
-void RooContainer::CreateDataSet(std::string name,int nbins){
-  for (int cat=0;cat<ncat;cat++){
-    std::string cat_name = getcatName(name,cat);
-    createDataSet(cat_name,cat_name,nbins);
-    
-    float xmin = m_var_min_[cat_name];
-    float xmax = m_var_max_[cat_name];
+void RooContainer::ConvolutePdf(std::string name, std::string f_pdf, std::string g_pdf, std::string observable, double norm_guess){
+  std::map<std::string,RooRealVar>::iterator obs = m_real_var_.find(observable);
+  if (obs == m_real_var_.end()){
+    std::cout << "Warning -- RooContainer::ConvolutePdf -- No Observable found named "
+	      << observable << std::endl;
+    return;
+  }
 
-    if (nbins >0)
-        m_real_var_[cat_name].setBins(nbins);
-      else 
-        m_real_var_[cat_name].setBins((int)(xmax-xmin));
+  for (int cat=0;cat<ncat;cat++){
+    convolutePdf(getcatName(name,cat),getcatName(f_pdf,cat),getcatName(g_pdf,cat),(*obs).second,norm_guess);
+	
+    if (make_systematics){	
+     for (it_sys=systematics_.begin(); it_sys!=systematics_.end();it_sys++){
+      for (int sys=1;sys<=nsigmas;sys++){
+       convolutePdf(getsysindexName(getcatName(name,cat),*it_sys,sys,-1),getsysindexName(getcatName(f_pdf,cat),*it_sys,sys,-1)
+		   ,getsysindexName(getcatName(g_pdf,cat),*it_sys,sys,-1),(*obs).second,norm_guess);
+      }
+      for (int sys=1;sys<=nsigmas;sys++){
+       convolutePdf(getsysindexName(getcatName(name,cat),*it_sys,sys,1),getsysindexName(getcatName(f_pdf,cat),*it_sys,sys,1)
+		   ,getsysindexName(getcatName(g_pdf,cat),*it_sys,sys,1),(*obs).second,norm_guess);
+      }
+     }
+   }
+ }
+}
+// ----------------------------------------------------------------------------------------------------
+void RooContainer::CreateDataSet(std::string name,std::string data_name,int nbins){
+  for (int cat=0;cat<ncat;cat++){
+    std::string cat_name = getcatName(data_name,cat);
+    createDataSet(name,cat_name,nbins);  
   }
 }
 
 // ----------------------------------------------------------------------------------------------------
-void RooContainer::MakeSystematics(std::string s_name, std::string sys_name){
-  bool in_sys = false;
+void RooContainer::GenerateBinnedPdf(std::string hist_name,std::string pdf_name,std::string obs_name,int nbins){
+
+  std::map<std::string,RooRealVar>::iterator obs_var = m_real_var_.find(obs_name);
+  if (obs_var == m_real_var_.end()) {
+   std::cout << "WARNING!!! -- RooContainer::GenerateBinnedPdf --  No Observable named "
+	     << obs_name << std::endl;
+   return;
+  }
+  for (int cat=0;cat<ncat;cat++){
+    generateBinnedPdf(getcatName(hist_name,cat),getcatName(pdf_name,cat),obs_name,obs_var->second,nbins);  
+  }
+  
+}
+// ----------------------------------------------------------------------------------------------------
+void RooContainer::MakeSystematics(std::string observable,std::string s_name, std::string sys_name){
+
+  std::map<std::string,RooRealVar>::iterator obs = m_real_var_.find(observable);
+  if (obs == m_real_var_.end()){
+    std::cout << "RooContainer::MakeSystematics -- WARNING!!! -- No Observable named "
+	      << observable << endl;
+    return;
+  }
+
+  bool in_sys = false;  
   for (it_sys=systematics_.begin();it_sys!=systematics_.end();it_sys++)
     if (sys_name == *it_sys) { in_sys=true;break;}
   if (in_sys){
     for (int cat=0;cat<ncat;cat++){
-      makeSystematics(getcatName(s_name,cat),sys_name);
+      makeSystematics(observable,getcatName(s_name,cat),sys_name);
     }
   }
   else
-    std::cout << "RooContainer::MakeSystematics -- WARNING!!! -- No systematic set created named "
+    std::cout << "RooContainer::MakeSystematics -- WARNING!!! -- No systematic study available named "
 	      << sys_name << endl;
 }
 
@@ -189,17 +219,18 @@ void RooContainer::Save(){
      ;it != fit_res_.end()
      ;it++ ){
       
-       writeRooPlot((it->first));
+       writeRooPlot((*it).first);
   }
   
   std::cout << "RooContainer::Save -- Saving Pdfs "
             << std::endl;
 
   std::vector<RooAbsPdf*>::iterator it_pdf;
+
   for(it_pdf  = pdf_saves_.begin()
      ;it_pdf != pdf_saves_.end()
      ;it_pdf++ ){
-      
+     
        ws.import(**it_pdf);
   }
 
@@ -210,9 +241,9 @@ void RooContainer::Save(){
   std::map<std::string,TH1F>::iterator it_e = m_th1f_.end();
 
   for(;it_d != it_e; it_d++){
-     writeRooDataHist((*it_d).first,&(it_d->second));
+     writeRooDataHist((*it_d).first,&((*it_d).second));
   }
-  ws.SetName("cms-hgg-workspace");
+  ws.SetName("cms_hgg_workspace");
   ws.Write();
 }
 
@@ -221,16 +252,17 @@ void RooContainer::InputDataPoint(std::string var_name, int cat, float x, float 
  
   if (cat>-1 && cat<ncat){
     std::string name = getcatName(var_name,cat);
-    std::map<std::string, RooRealVar>::const_iterator it_var  = m_real_var_.find(name);
-    if (it_var == m_real_var_.end()) 
-      std::cout << "Warning, No DataSet named "<< name << std::endl;
+    std::map<std::string, RooDataSet>::iterator it_var  = data_.find(name);
+    if (it_var == data_.end()) 
+      std::cout << "Warning -- RooContainer::InputDataPoint -- No DataSet named "<< name << std::endl;
     else{
-      float min_x = m_var_min_[name];
-      float max_x = m_var_max_[name];
+      float min_x = m_data_var_ptr_[name]->getMin();
+      float max_x = m_data_var_ptr_[name]->getMax();
 
       if (x > min_x && x < max_x){
-        m_real_var_[name] = x;
-        data_[name].add(RooArgSet(m_real_var_[name]),w);
+        *(m_data_var_ptr_[name]) = x;
+        ((*it_var).second).add(RooArgSet(*(m_data_var_ptr_[name])),w);
+
         m_th1f_[name].Fill(x,w);
       }
     }
@@ -250,7 +282,8 @@ void RooContainer::InputSystematicSet(std::string s_name, std::string sys_name,i
 
   if (x.size() != 2*nsigmas){
     std::cout << "WARNING -- RooContainer::InputSystematicSet -- Size of vector must be equal to "
-	      << 2*nsigmas << " -- WARNING" << std::endl;	
+	      << 2*nsigmas << " -- WARNING" << std::endl;
+    return;	
   }
  
  else{
@@ -260,12 +293,15 @@ void RooContainer::InputSystematicSet(std::string s_name, std::string sys_name,i
     std::string cat_name = getcatName(s_name,cat);
     std::string name = getsysName(cat_name,sys_name);
 
-    std::map<std::string,RooRealVar>::iterator it_var  = m_real_var_.find(cat_name);
+    std::map<std::string,RooDataSet>::iterator it_var  = data_.find(cat_name);
 
-    if (it_var == m_real_var_.end()) 
+    if (it_var == data_.end()) 
       std::cout << "WARNING -- RooContainer::InpusSystematicSet -- No DataSet named "<< cat_name << std::endl;
   
     else {
+
+      // Safe to use this since creation of systematic set guaranteed to have come from an already existing dataset
+      RooRealVar *ptr = m_data_var_ptr_[cat_name];
 
       std::vector<RooDataSet*>::iterator data_set_up = data_up_[name].begin();
       std::vector<RooDataSet*>::iterator data_set_dn = data_dn_[name].begin();
@@ -273,17 +309,17 @@ void RooContainer::InputSystematicSet(std::string s_name, std::string sys_name,i
       std::vector<TH1F*>::iterator th1f_set_dn = m_th1f_dn_[name].begin();
 
       std::vector<float>::iterator val = x.begin();
-
-      float min_x = m_var_min_[cat_name];
-      float max_x = m_var_max_[cat_name];
-
+ 
+      float min_x = ptr->getMin();
+      float max_x = ptr->getMax();
+      
       // Loop over the first nsigmas elements as the -1 -> dn sys
       for (;data_set_dn != data_dn_[name].end()
 	   ;data_set_dn++,th1f_set_dn++,val++){
 
         if (*val > min_x && *val < max_x){
-           it_var->second = *val;
-           (*data_set_dn)->add(RooArgSet(it_var->second),w);
+           *ptr = *val;
+           (*data_set_dn)->add(RooArgSet(*ptr),w);
            (*th1f_set_dn)->Fill(*val,w);
         }
       }
@@ -293,8 +329,8 @@ void RooContainer::InputSystematicSet(std::string s_name, std::string sys_name,i
 	   ;data_set_up++,th1f_set_up++,val++){
 
         if (*val > min_x && *val < max_x){
-           it_var->second = *val;
-           (*data_set_up)->add(RooArgSet(it_var->second),w);
+           *ptr = *val;
+           (*data_set_up)->add(RooArgSet(*ptr),w);
            (*th1f_set_up)->Fill(*val,w);
         }
       }
@@ -314,7 +350,6 @@ void RooContainer::WriteDataCard(std::string filename,std::string data_name
    std::vector<double> data_norms,sig_norms,bkg_norms;
    data_norms.resize(ncat); sig_norms.resize(ncat); bkg_norms.resize(ncat);
 
-   cout << filename << endl;
    for (int cat=0;cat<ncat;cat++){
      std::map<std::string,TH1F>::iterator it_data = m_th1f_.find(getcatName(data_name,cat));
      std::map<std::string,TH1F>::iterator it_sig  = m_th1f_.find(getcatName(sig_name,cat));
@@ -342,7 +377,7 @@ void RooContainer::WriteDataCard(std::string filename,std::string data_name
    file << "jmax *\n";
    file << "kmax *\n";
    file << "---------------------------------------------\n";
-   file << "shapes * * "<<filename<<" th1f-$PROCESS_$CHANNEL\n";
+   file << "shapes * * "<<filename<<" th1f_$PROCESS_$CHANNEL\n";
    file << "---------------------------------------------\n";
 
    // Write the data info	 
@@ -371,15 +406,26 @@ std::string RooContainer::getcatName(std::string name, int i){
   std::string output(char_string);
   return output;
 }
-
+// ---------------------------------------------------------------------------------
+std::string RooContainer::getweightName(std::string name){
+  char* char_string = Form("weight_%s",name.c_str());
+  std::string output(char_string);
+  return output;
+}
+// ---------------------------------------------------------------------------------
+std::string RooContainer::getnormName(std::string name){
+  char* char_string = Form("norm_%s",name.c_str());
+  std::string output(char_string);
+  return output;
+}
 // ----------------------------------------------------------------------------------------------------
 std::string RooContainer::getsysindexName(std::string name,std::string sys_name
 				    ,int sys,int direction){
   char* char_string;
   if (direction >= 0)
-    char_string = Form("%s_%s-up%.2d-sigma",name.c_str(),sys_name.c_str(),sys);
+    char_string = Form("%s_%s-up%.2d_sigma",name.c_str(),sys_name.c_str(),sys);
   else
-    char_string = Form("%s_%s-down%.2d-sigma",name.c_str(),sys_name.c_str(),sys);
+    char_string = Form("%s_%s-down%.2d_sigma",name.c_str(),sys_name.c_str(),sys);
   std::string output(char_string);
   return output;
 }
@@ -414,14 +460,33 @@ void RooContainer::addRealVar(std::string name ,float init, float vmin, float vm
 }
 
 // ----------------------------------------------------------------------------------------------------
-void RooContainer::addGenericPdf(std::string name,std::string formula
+void RooContainer::addGenericPdf(std::string name,std::string formula,std::string obs_name
 				,std::vector<std::string> & var, int form
 				,double norm_guess ){
 
     RooAbsPdf *temp_1;
+    std::map<std::string,RooRealVar>::iterator obs_real_var = m_real_var_.find(obs_name);
 
-    if (form==0){
-       RooArgList roo_args;
+    if (obs_real_var == m_real_var_.end()) {
+
+         std::cout << "WARNING -- RooContainer::AddGenericPdf -- No Variable Found Named " 
+	           << obs_name << std::endl; 
+    }
+    else{
+     std::vector<std::string>::iterator it_var = var.begin();
+
+     for (;it_var != var.end();it_var++){ 
+        std::map<std::string,RooRealVar>::iterator it_check = m_real_var_.find(*it_var);
+	if (it_check == m_real_var_.end()){
+           std::cout << "WARNING -- RooContainer::AddGenericPdf -- No Variable Found Named " 
+	             << *it_var << std::endl; 
+	   return;
+        }
+     }
+
+     if (form==0){
+      RooArgList roo_args;
+      roo_args.add((*obs_real_var).second); 
       for (std::vector<std::string>::iterator it_var = var.begin()
 	   ;it_var != var.end()
 	   ;it_var++
@@ -440,85 +505,114 @@ void RooContainer::addGenericPdf(std::string name,std::string formula
       std::cout << "RooContainer::AddGenericPdf -- Added all variables" 
 	        << std::endl;
 
-      temp_1 = new RooGenericPdf(Form("comp_%s",name.c_str()),name.c_str(),formula.c_str(),roo_args);	
+      temp_1 = new RooGenericPdf(Form("pdf_%s",name.c_str()),name.c_str(),formula.c_str(),roo_args);	
       v_gen_.push_back(temp_1);
 
-    } else if (form == 1) { //RooExponential  - x,slope
+     } else if (form == 1) { //RooExponential  - x,slope
+	if (var.size() == 1){
+	  temp_1 = new RooExponential(Form("pdf_%s",name.c_str()),name.c_str(),(*obs_real_var).second,m_real_var_[var[0]]);
+          v_gen_.push_back(temp_1);
+	} else {
+		
+          std::cout << "WARNING -- RooContainer::AddGenericPdf -- Need 1 arguments for RooExponential, was given: "
+		    << var.size() << " -- WARNING"
+	            << std::endl;
+	  return;
+	}
+     } else if (form == 2) { //RooGaussian - x,mean,sigma
 	if (var.size() == 2){
-	  temp_1 = new RooExponential(Form("comp_%s",name.c_str()),name.c_str(),m_real_var_[var[0]],m_real_var_[var[1]]);
+	  temp_1 = new RooGaussian(Form("pdf_%s",name.c_str()),name.c_str(),(*obs_real_var).second,m_real_var_[var[0]],m_real_var_[var[1]]);
           v_gen_.push_back(temp_1);
 	} else {
 		
-          std::cout << "WARNING -- RooContainer::AddGenericPdf -- Need 2 arguments for RooExponential, was given: "
+          std::cout << "WARNING -- RooContainer::AddGenericPdf -- Need 2 arguments for RooGaussian, was given: "
 		    << var.size() << " -- WARNING"
 	            << std::endl;
 	  return;
 	}
-    } else if (form == 2) { //RooGaussian - x,mean,sigma
-	if (var.size() == 3){
-	  temp_1 = new RooGaussian(Form("comp_%s",name.c_str()),name.c_str(),m_real_var_[var[0]],m_real_var_[var[1]],m_real_var_[var[2]]);
+     } else if (form == 3) { //RooBreitWigner - x,centre,width
+	if (var.size() == 2){
+	  temp_1 = new RooBreitWigner(Form("pdf_%s",name.c_str()),name.c_str(),(*obs_real_var).second,m_real_var_[var[0]],m_real_var_[var[1]]);
           v_gen_.push_back(temp_1);
 	} else {
 		
-          std::cout << "WARNING -- RooContainer::AddGenericPdf -- Need 3 arguments for RooGaussian, was given: "
-		    << var.size() << " -- WARNING"
-	            << std::endl;
-	  return;
-	}
-    } else if (form == 3) { //RooBreitWigner - x,centre,width
-	if (var.size() == 3){
-	  temp_1 = new RooBreitWigner(Form("comp_%s",name.c_str()),name.c_str(),m_real_var_[var[0]],m_real_var_[var[1]],m_real_var_[var[2]]);
-          v_gen_.push_back(temp_1);
-	} else {
-		
-          std::cout << "WARNING -- RooContainer::AddGenericPdf -- Need 3 arguments for RooBreitWigner, was given: "
-		    << var.size() << " -- WARNING"
-	            << std::endl;
-	  return;
-	}
-    } else if (form == 4) { //RooCBShape - x,centre,sigma,slope,n
-	if (var.size() == 5){
-	  temp_1 = new RooCBShape(Form("comp_%s",name.c_str()),name.c_str(),m_real_var_[var[0]],m_real_var_[var[1]],m_real_var_[var[2]]
-				 ,m_real_var_[var[3]],m_real_var_[var[4]]);
-          v_gen_.push_back(temp_1);
-	} else {
-		
-          std::cout << "WARNING -- RooContainer::AddGenericPdf -- Need 5 arguments for RooCBShape, was given: "
-		    << var.size() << " -- WARNING"
-	            << std::endl;
-	  return;
-	}
-    } else if (form == 5) { //RooVoigtian - x,centre,width,sigma
-	if (var.size() == 4){
-	  temp_1 = new RooVoigtian(Form("comp_%s",name.c_str()),name.c_str(),m_real_var_[var[0]],m_real_var_[var[1]],m_real_var_[var[2]]
-				  ,m_real_var_[var[3]]);
-          v_gen_.push_back(temp_1);
-	} else {
-		
-          std::cout << "WARNING -- RooContainer::AddGenericPdf -- Need 4 arguments for RooVoigtian, was given: "
-		    << var.size() << " -- WARNING"
-	            << std::endl;
-	  return;
-	}
-    }
+          std::cout << "WARNING -- RooContainer::AddGenericPdf -- Need 2 arguments for RooBreitWigner, was given: "
 
-    else {
+		    << var.size() << " -- WARNING"
+	            << std::endl;
+	  return;
+	}
+     } else if (form == 4) { //RooCBShape - x,centre,sigma,slope,n
+	if (var.size() == 4){
+	  temp_1 = new RooCBShape(Form("pdf_%s",name.c_str()),name.c_str(),(*obs_real_var).second,m_real_var_[var[0]],m_real_var_[var[1]]
+				 ,m_real_var_[var[2]],m_real_var_[var[3]]);
+          v_gen_.push_back(temp_1);
+	} else {
+		
+          std::cout << "WARNING -- RooContainer::AddGenericPdf -- Need 4 arguments for RooCBShape, was given: "
+		    << var.size() << " -- WARNING"
+	            << std::endl;
+	  return;
+	}
+     } else if (form == 5) { //RooVoigtian - x,centre,width,sigma
+	if (var.size() == 3){
+	  temp_1 = new RooVoigtian(Form("pdf_%s",name.c_str()),name.c_str(),(*obs_real_var).second,m_real_var_[var[0]],m_real_var_[var[1]]
+				  ,m_real_var_[var[2]]);
+          v_gen_.push_back(temp_1);
+	} else {
+		
+          std::cout << "WARNING -- RooContainer::AddGenericPdf -- Need 3 arguments for RooVoigtian, was given: "
+		    << var.size() << " -- WARNING"
+	            << std::endl;
+	  return;
+	}
+     }
+
+     else {
 	
        std::cout << "WARNING -- RooContainer::AddGenericPdf -- No Mode << form "
 		 << "Understood -- WARNING"
 	         << std::endl;
+     }
+
+     RooRealVar temp_var(Form("norm_%s",name.c_str()),name.c_str(),norm_guess,0.0,1e6);
+     m_real_var_.insert(pair<std::string,RooRealVar>(name,temp_var));
+
+     RooExtendPdf temp(name.c_str(),name.c_str(),*temp_1,m_real_var_[name]);
+     m_exp_.insert(pair<std::string,RooExtendPdf>(name,temp));
+
+     std::cout << "RooContainer::AddGenericPdf -- Made extended PDF " 
+	       << name << std::endl;	
     }
-		       
-    RooRealVar temp_var(Form("norm_%s",name.c_str()),name.c_str(),norm_guess,0.0,10000);
-    m_real_var_.insert(pair<std::string,RooRealVar>(name,temp_var));
-
-    RooExtendPdf temp(name.c_str(),name.c_str(),*temp_1,m_real_var_[name]);
-    m_exp_.insert(pair<std::string,RooExtendPdf>(name,temp));
-
-    std::cout << "RooContainer::AddGenericPdf -- Made extended PDF " 
-	        << name << std::endl;	
 }
 
+// ----------------------------------------------------------------------------------------------------
+void RooContainer::convolutePdf(std::string name, std::string f_pdf, std::string g_pdf, RooRealVar &observable, double norm_guess){
+ 
+    observable.setBins(1000,"cache");
+    
+    std::map<std::string,RooExtendPdf>::iterator it_f = m_exp_.find(f_pdf);
+    std::map<std::string,RooExtendPdf>::iterator it_g = m_exp_.find(g_pdf);
+    if (it_f == m_exp_.end() || it_f == m_exp_.end()){
+	
+      std::cout << "WARNING -- RooContainer::ConvolutePdf -- One of pdf's f or g wasnt found"
+		<< " f: " << f_pdf
+		<< " g: " << g_pdf << std::endl;
+      return;
+    }
+
+    RooFFTConvPdf *convoluted = new RooFFTConvPdf(Form("pdf_%s",name.c_str()),name.c_str(),observable,(*it_f).second,(*it_g).second);
+
+    RooRealVar temp_var(Form("norm_%s",name.c_str()),name.c_str(),norm_guess,0.0,1e6);
+    m_real_var_.insert(pair<std::string,RooRealVar>(name,temp_var));
+
+    RooExtendPdf temp(name.c_str(),name.c_str(),*convoluted,m_real_var_[name]);
+    m_exp_.insert(pair<std::string,RooExtendPdf>(name,temp));
+   
+    std::cout << "RooContainer::ConvolvePdf -- Made convoluted PDF " 
+	      << name << std::endl;	
+    
+}
 // ----------------------------------------------------------------------------------------------------
 void RooContainer::composePdf(std::string name, std::string  composition
 			     ,std::vector<std::string> & formula){
@@ -560,23 +654,27 @@ void RooContainer::createDataSet(std::string name,std::string data_name,int nbin
     std::map<std::string,RooRealVar>::const_iterator test=m_real_var_.find(name);
     if (test != m_real_var_.end()){ 
 
-      RooDataSet data_tmp(data_name.c_str(),data_name.c_str(),RooArgSet(m_real_var_[name]) );
+      bins_[data_name] = nbins;
+      m_data_var_ptr_[data_name] = &(m_real_var_[name]);
+      m_weight_var_ptr_[data_name] = &(m_real_var_[getweightName(name)]);
+      
+      RooDataSet data_tmp(data_name.c_str(),data_name.c_str(),RooArgSet((*test).second,*m_weight_var_ptr_[data_name]),getweightName(name).c_str());
       data_.insert(std::pair<std::string,RooDataSet>(data_name,data_tmp));
-      bins_[name] = nbins;
 
-      float xmin = m_var_min_[name];
-      float xmax = m_var_max_[name];
+
+      float xmin = (test->second).getMin();
+      float xmax = (test->second).getMax();
 
       if (nbins >0) {
-	m_th1f_[data_name] = TH1F(Form("th1f-%s",data_name.c_str()),Form("th1f-%s",data_name.c_str()),nbins,xmin,xmax);
+	m_th1f_[data_name] = TH1F(Form("th1f_%s",data_name.c_str()),name.c_str(),nbins,xmin,xmax);
       }
       else {
-	m_th1f_[data_name] = TH1F(Form("th1f-%s",data_name.c_str()),Form("th1f-%s",data_name.c_str()),(int)(xmax-xmin),xmin,xmax);
+	m_th1f_[data_name] = TH1F(Form("th1f_%s",data_name.c_str()),name.c_str(),(int)(xmax-xmin),xmin,xmax);
       }
 
       cout << "RooContainer::CreateDataSet -- Created RooDataSet from " << name 
 	   << " with name " << data_name <<endl;
-      cout << "RooContainer::CreateDataSet -- Created TH1F from " << name << endl;
+      cout << "RooContainer::CreateDataSet -- Created TH1F from " << data_name << endl;
     } 
 
     else {
@@ -611,11 +709,11 @@ void RooContainer::fitToData(std::string name_func, std::string name_data, std::
     std::map<std::string ,RooAddPdf>::iterator it_pdf = m_pdf_.find(name_func);
     std::map<std::string ,RooExtendPdf>::iterator it_exp = m_exp_.find(name_func);
 
-    int bins = bins_[name_var];
-    float x_min = m_var_min_[name_var];
-    float x_max = m_var_max_[name_var];
+    int bins = bins_[name_data];
+    float x_min = m_data_var_ptr_[name_data]->getMin();
+    float x_max = m_data_var_ptr_[name_data]->getMax();
 
-    RooRealVar *real_var = &m_real_var_[name_var];
+    RooRealVar *real_var = m_data_var_ptr_[name_data];
 
     if (it_pdf != m_pdf_.end()){
       use_composed_pdf = true;
@@ -675,8 +773,8 @@ void RooContainer::fitToData(std::string name_func, std::string name_data, std::
 			,LineColor(i+1)
 			,LineStyle(kDashed));
 	(it_pdf->second).paramOn(xframe);
-    	pdf_saves_.push_back(&(it_pdf->second));
       }
+      pdf_saves_.push_back(&(it_pdf->second));
     }
 
     else {
@@ -700,13 +798,38 @@ void RooContainer::fitToSystematicSet(std::string name_func,std::string name_var
 }
 
 // ----------------------------------------------------------------------------------------------------
-void RooContainer::writeRooDataHist(std::string name, TH1F* hist){
+void RooContainer::generateBinnedPdf(std::string hist_name,std::string pdf_name,std::string obs_name,RooRealVar &obs,int nbins){
 
-  RooRealVar tmp_var(name.c_str(),name.c_str(),hist->GetBinLowEdge(1)
-		,hist->GetBinLowEdge(hist->GetNbinsX()+1));
-  tmp_var.setBins(hist->GetNbinsX());
+  TH1F *temp_hist;
+  std::map<std::string,RooExtendPdf>::iterator exp = m_exp_.find(pdf_name);
+  if (exp != m_exp_.end()) {
+    temp_hist = (TH1F*)((*exp).second).createHistogram(Form("th1f_%s",hist_name.c_str()),obs,Binning(nbins));
+  } else {
+    std::map<std::string,RooAddPdf>::iterator pdf  = m_pdf_.find(pdf_name);
+    if (pdf != m_pdf_.end()) {
+      temp_hist = (TH1F*)((*pdf).second).createHistogram(Form("th1f_%s",hist_name.c_str()),obs,Binning(nbins));
+    }
+    else {
+       std::cout << "WARNING!!! -- RooContainer::GenerateBinnedPdf --  No Pdf named "
+	         << pdf_name << endl;  
+       return;
+    } 
+  }
 
-  RooDataHist tmp(Form("roohist-%s",name.c_str()),name.c_str(),RooArgList(tmp_var),hist);
+  double normalisation = m_real_var_[pdf_name].getVal();
+  temp_hist->Scale(normalisation/temp_hist->Integral());
+  temp_hist->SetName(Form("th1f_%s",hist_name.c_str()));
+  temp_hist->SetTitle(obs_name.c_str());  // Used later to keep track of the realvar associated, must be a better way to do this ?
+  m_th1f_.insert(std::pair<std::string,TH1F>(hist_name,*temp_hist));
+  std::cout << "RooContainer::GenerateBinnedPdf -- Generated TH1F named  "
+	    << hist_name << " From Pdf "
+	    << pdf_name  << std::endl;      
+}
+
+// ----------------------------------------------------------------------------------------------------
+void RooContainer::writeRooDataHist(std::string name, TH1F *hist){
+
+  RooDataHist tmp(Form("roohist_%s",name.c_str()),name.c_str(),RooArgList(m_real_var_[hist->GetTitle()]),hist);
 
   ws.import(tmp);
   hist->Write();
@@ -719,14 +842,14 @@ void RooContainer::writeRooPlot(RooPlot *plot){
   gROOT->SetBatch(true);
   gROOT->SetStyle("Plain");
   // ---------------------------------
-  TCanvas *can = new TCanvas(Form("plot-%s",plot->GetName()),plot->GetName(),900,600) ;    
+  TCanvas *can = new TCanvas(Form("plot_%s",plot->GetName()),plot->GetName(),900,600) ;    
   can->cd(); plot->Draw();
   can->Write();
   delete can;
 }
 
 // ----------------------------------------------------------------------------------------------------
-void RooContainer::makeSystematics(std::string s_name, std::string sys_name){
+void RooContainer::makeSystematics(std::string observable,std::string s_name, std::string sys_name){
 
   std::map<std::string,RooDataSet>::iterator test_it = data_.find(s_name);
 
@@ -738,17 +861,17 @@ void RooContainer::makeSystematics(std::string s_name, std::string sys_name){
     std::vector<TH1F*> v_th1f_up;
     std::vector<TH1F*> v_th1f_dn;
 
-    float min  = m_var_min_[s_name];
-    float max  = m_var_max_[s_name];
-    int bins   = bins_[s_name];
+    float min  = m_var_min_[observable];
+    float max  = m_var_max_[observable];
+    int bins   = bins_[observable];
   
     for (int sys=1;sys<=nsigmas;sys++){
 
       std::string name_up = getsysindexName(s_name,sys_name,sys,1);
       std::string name_dn = getsysindexName(s_name,sys_name,sys,-1);
     
-      createDataSet(s_name,name_up,bins);
-      createDataSet(s_name,name_dn,bins);
+      createDataSet(observable,name_up,bins);
+      createDataSet(observable,name_dn,bins);
 
       v_sys_up.push_back(&(data_[name_up]));
       v_sys_dn.push_back(&(data_[name_dn]));
