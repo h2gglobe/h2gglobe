@@ -27,8 +27,8 @@ void StatAnalysis::Term(LoopAll& l)
         l.rooContainer->FitToData("background_model","bkg_mass");
         l.rooContainer->FitToData("signal_model","sig_mass_m120");
   
-        // commented out as systematics are slow
-        //l.rooContainer->FitToSystematicSet("signal_model","sig_mass_m120","E_scale");
+        // fit to the systematic shits
+        l.rooContainer->FitToSystematicSet("signal_model","sig_mass_m120","E_scale");
   
         // Can create binned models from the results of the fits, should be same bins as other 
         // binned models
@@ -108,8 +108,8 @@ void StatAnalysis::Init(LoopAll& l)
 	l.rooContainer->CreateDataSet("mass","bkg_mass"     ,120);
 	l.rooContainer->CreateDataSet("mass","sig_mass_m120",120);
 
-	// Make more data sets to represent systematic shitfs for now commented out as systematics are slow
-	//l.rooContainer->MakeSystematics("mass","sig_mass_m120","E_scale");	
+	// Make more data sets to represent systematic shitfs , 
+	l.rooContainer->MakeSystematics("mass","sig_mass_m120","E_scale");	
 	
 	if(PADEBUG) 
 		cout << "InitRealStatAnalysis END"<<endl;
@@ -156,6 +156,8 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	// Assume a global 3% error on the EnergyScale, create vector of
 	// masses based on systematic shifts, need 30 down and 30 up 
 	// representing -3 -> +3 sigma in 0.1 sigma steps
+
+	// Needs some optimisation, loop slows down with systematics
            float sys_error = 0.03;
 
             std::vector<float> mass_errors;
@@ -179,7 +181,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	   l.rooContainer->InputDataPoint("bkg_mass",category,mass,weight);
 	 else if (cur_type < 0){
 	   l.rooContainer->InputDataPoint("sig_mass_m120",category,mass,weight);
-        //   l.rooContainer->InputSystematicSet("sig_mass_m120","E_scale",category,mass_errors);
+           l.rooContainer->InputSystematicSet("sig_mass_m120","E_scale",category,mass_errors);
  	 }
 	
 	}
