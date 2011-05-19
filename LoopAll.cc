@@ -962,7 +962,7 @@ void LoopAll::FillCounter(std::string name, int category) {
 // ----------------------------------------------------------------------------------------------------------------------
 bool LoopAll::CheckLumiSelection( int run, int lumi )
 {
-	if(! sampleContainer[current_sample_index].hasLumiSelection ){
+	if(typerun == kReduce || ! sampleContainer[current_sample_index].hasLumiSelection ){
 		return true;
 	}
 
