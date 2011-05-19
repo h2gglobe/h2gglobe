@@ -36,14 +36,17 @@ LOOPALLO = LoopAll.$(ObjSuf) \
 	   dict.$(ObjSuf) \
 	   HistoContainer.o \
 	   BaseAnalysis.o \
+	   BaseSmearer.o \
+	   EnergySmearer.o \
 	   CounterContainer.o \
 	   SampleContainer.o \
+	   PhotonReducedInfo.o \
 	   RooContainer.o \
 	   Cut.o \
 	   TriggerSelection.o \
            $(VTXOBS) $(PHOOBS)
 
-DICTS = LoopAll.h BaseAnalysis.h SampleContainer.h\
+DICTS = LoopAll.h BaseAnalysis.h BaseSmearer.h EnergySmearer.h SampleContainer.h\
 	VertexAnalysis/interface/VertexAlgoParameters.h\
 	PhotonAnalysis/interface/PhotonAnalysis.h\
 	PhotonAnalysis/interface/StatAnalysis.h\
@@ -72,6 +75,9 @@ LoopAll.$(ObjSuf): CommonParameters.h LoopAll.h Tools.h \
 	branchdef/treebranch.h branchdef/setbranchaddress.h branchdef/getentry.h branchdef/getbranch.h branchdef/branchdef.h \
 	GeneralFunctions_cc.h GeneralFunctions_h.h \
 	BaseAnalysis.cc BaseAnalysis.h \
+	BaseSmearer.cc BaseSmearer.h \
+	EnergySmearer.cc EnergySmearer.h \
+	PhotonReducedInfo.cc PhotonReducedInfo.h \
 	HistoContainer.cc HistoContainer.h \
 	CounterContainer.cc CounterContainer.h \
 	SampleContainer.cc SampleContainer.h \
@@ -83,6 +89,8 @@ LoopAllDict.$(SrcSuf): CommonParameters.h LoopAll.h \
 	branchdef/Limits.h branchdef/treedef.h \
 	GeneralFunctions_h.h \
 	BaseAnalysis.h \
+	BaseSmearer.h \
+	EnergySmearer.h \
 	HistoContainer.h \
 	CounterContainer.h \
 	SampleContainer.h \
