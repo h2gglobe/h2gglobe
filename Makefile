@@ -44,9 +44,10 @@ LOOPALLO = LoopAll.$(ObjSuf) \
            $(VTXOBS) $(PHOOBS)
 
 DICTS = LoopAll.h BaseAnalysis.h SampleContainer.h\
- 	VertexAnalysis/interface/VertexAlgoParameters.h\
- 	PhotonAnalysis/interface/PhotonAnalysis.h\
-  	PhotonAnalysis/interface/StatAnalysis.h\
+	VertexAnalysis/interface/VertexAlgoParameters.h\
+	PhotonAnalysis/interface/PhotonAnalysis.h\
+	PhotonAnalysis/interface/StatAnalysis.h\
+	RooContainer.h
 
 
 ROOFIT_BASE=$(ROOFITSYS)
