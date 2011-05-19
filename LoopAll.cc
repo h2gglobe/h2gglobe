@@ -555,7 +555,7 @@ void LoopAll::WriteFits() {
 
   hfile->cd();
   hfile->cd();
- // rooContainer->Save();
+  rooContainer->Save();
 }
 
 // ------------------------------------------------------------------------------------
