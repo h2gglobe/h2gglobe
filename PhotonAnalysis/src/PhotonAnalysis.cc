@@ -404,7 +404,7 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
         if(PADEBUG) cout << " SelectEventsReduction done with fill photon info " << endl;
 
         // run vertex analysis
-	l.vertexAnalysis(vtxAna_, ipho1, ipho2 );
+	l.vertexAnalysis(vtxAna_, pho1, pho2 );
         // select vertxe
 	*l.vtx_std_ranked_list = l.vertexSelection(vtxAna_, vtxConv_, pho1, pho2, vtxVarNames);
 	if( l.vtx_std_ranked_list->size() != 0 ) {  
