@@ -15,6 +15,9 @@ int matchPhotonToConversion(int);
 double phiNorm (float &phi);
 double etaTransformation(  float EtaParticle , float Zvertex);
 
+vector<double> generate_flat10_weights(TH1D* data_npu_estimated);
+
+
 // Vertex analysis
 void vertexAnalysis(HggVertexAnalyzer & vtxAna,  PhotonInfo pho1, PhotonInfo pho2);
 //std::vector<int> vertexSelection(HggVertexAnalyzer & vtxAna, HggVertexFromConversions & vtxAnaFromConv, int p1, int p2, std::vector<std::string> & vtxVarNames);

@@ -940,13 +940,12 @@ void LoopAll::FillHist2D(std::string name, float x, float y) {
 }
 
 // ------------------------------------------------------------------------------------
-void LoopAll::FillHist(std::string name, int category, float y) {
-  histoContainer[current_sample_index].Fill(name, category, y);
+void LoopAll::FillHist(std::string name, int category, float y, float wt ) {
+  histoContainer[current_sample_index].Fill(name, category, y, wt);
 }
-
 // ------------------------------------------------------------------------------------
-void LoopAll::FillHist2D(std::string name, int category, float x, float y) {
-  histoContainer[current_sample_index].Fill2D(name, category, x, y);
+void LoopAll::FillHist2D(std::string name, int category, float x, float y, float wt ) {
+  histoContainer[current_sample_index].Fill2D(name, category, x, y, wt);
 }
 
 // ------------------------------------------------------------------------------------

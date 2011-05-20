@@ -136,8 +136,8 @@ class LoopAll {
   void FillHist(std::string, float);
   void FillHist2D(std::string, float, float);
 
-  void FillHist(std::string, int, float); 
-  void FillHist2D(std::string, int, float, float);
+  void FillHist(std::string, int, float, float wt = 1.0); 
+  void FillHist2D(std::string, int, float, float, float wt = 1.0);
   
   void FillCounter(std::string, int);
   void FillCounter(std::string);
