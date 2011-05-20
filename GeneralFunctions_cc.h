@@ -488,12 +488,12 @@ int  LoopAll::matchPhotonToConversion( int lpho) {
 
   float mconv_pt=-999999;
   int iMatch=-1;     
+  float conv_pt = -9999;
 
   if(LDEBUG)  cout << "   LoopAll::matchPhotonToConversion conv_n " << conv_n << endl; 
   for(int iconv=0; iconv<conv_n; iconv++) {
-    vector<TVector3> refittedPairMomentum;
-    refittedPairMomentum.push_back(*((TVector3*) conv_refitted_momentum->At(iconv)));
-    float conv_pt =  refittedPairMomentum[iconv].Pt();
+    TVector3 refittedPairMomentum= *((TVector3*) conv_refitted_momentum->At(iconv));
+    conv_pt =  refittedPairMomentum.Pt();
     if (conv_pt < 1 ) continue;    
     if ( ! conv_validvtx[iconv] ) continue;
 
