@@ -48,10 +48,10 @@ class RooContainer {
    void AddRealVar(std::string,float,float,float);
    void AddGenericPdf(std::string,std::string,std::string,
 		      std::vector<std::string> &, 
-		      int form,
-		      double norm_guess=10);
+		      int form,double norm_guess=10
+		     ,double norm_min=0., double norm_max=1.e6);
    void ComposePdf(std::string, std::string
-			     ,std::vector<std::string> &);
+			     ,std::vector<std::string> &,bool use_extended=true);
    void ConvolutePdf(std::string,std::string,std::string,std::string
 			     ,double norm_guess=100);
 
@@ -79,9 +79,9 @@ class RooContainer {
    void addGenericPdf(std::string,std::string,std::string,
 		      std::vector<std::string> &,
 		      int form, 
-		      double norm_guess=100);
+		      double,double, double);
    void composePdf(std::string , std::string 
-			     ,std::vector<std::string> &);
+			     ,std::vector<std::string> &,bool);
    void convolutePdf(std::string,std::string,std::string,RooRealVar &,double norm_guess=100);
 
    void createDataSet(std::string,std::string,int);
@@ -109,13 +109,13 @@ class RooContainer {
    std::string getsysindexName(std::string,std::string
 			 ,int,int);
    
-   std::vector<RooAbsPdf*> v_gen_;
    std::vector<RooAbsPdf*> pdf_saves_;
 
    std::map<std::string, RooRealVar> m_real_var_;
+   std::map<std::string, RooAbsPdf*> m_gen_;
    std::map<std::string, RooExtendPdf> m_exp_;
    std::map<std::string, RooAddPdf> m_pdf_;
-   std::map<std::string,TH1F> m_th1f_;
+   std::map<std::string, TH1F> m_th1f_;
 
    std::map<std::string, float> m_var_min_;
    std::map<std::string, float> m_var_max_;

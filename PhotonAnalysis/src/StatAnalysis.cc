@@ -28,7 +28,7 @@ void StatAnalysis::Term(LoopAll& l)
         l.rooContainer->FitToData("signal_model","sig_mass_m120");
   
         // fit to the systematic shits
-        l.rooContainer->FitToSystematicSet("signal_model","sig_mass_m120","E_scale");
+        // l.rooContainer->FitToSystematicSet("signal_model","sig_mass_m120","E_scale");
   
         // Can create binned models from the results of the fits, should be same bins as other 
         // binned models
@@ -67,12 +67,12 @@ void StatAnalysis::Init(LoopAll& l)
 	pars[0] = "mu";
 
 	l.rooContainer->AddGenericPdf("background_model",
-	  "","mass",pars,1,1000); // 1 for exonential, no need for formula
+	  "","mass",pars,1); // 1 for exonential, no need for formula 
         // -----------------------------------------------------
 	
 	// Signal -- CB shape
         l.rooContainer->AddRealVar("mean",120,100,150);
-        l.rooContainer->AddRealVar("sigma",3.5,0.1,5.);
+        l.rooContainer->AddRealVar("sigma",1.,0.1,2.);
         l.rooContainer->AddRealVar("slope",1.,0.5,5.);
         l.rooContainer->AddRealVar("n",2.,0.5,10.);
 
@@ -83,23 +83,24 @@ void StatAnalysis::Init(LoopAll& l)
 	cb_pars[3] = "n";
 
 	l.rooContainer->AddGenericPdf("cb_shape",
-	  "","mass",cb_pars,4,1000);  // 4 for CB shape, no need for formula
+	  "","mass",cb_pars,4,0.8,0.,0.99);  // 4 for CB shape, no need for formula
 
 	// Signal -- Gaussian
-        l.rooContainer->AddRealVar("gsigma",1.2,0.1,4.);
+        l.rooContainer->AddRealVar("gsigma",2.5,1.,5.);
 
 	std::vector<std::string> gau_pars(2,"gau");
 	gau_pars[0] = "mean";
 	gau_pars[1] = "gsigma";
 
 	l.rooContainer->AddGenericPdf("gau_shape",
-	  "","mass",gau_pars,2,1);  // 3 for Gaussian shape, no need for formula
+	  "","mass",gau_pars,2,0.2,0.,0.5);  // 3 for Gaussian shape, no need for formula. 
 
         // Add the  CB+Gaussian
         std::vector<std::string> components(2,"c");
         components[0] = "cb_shape";
         components[1] = "gau_shape";
-        l.rooContainer->ComposePdf("signal_model","cb_shape+gau_shape",components);
+        l.rooContainer->ComposePdf("signal_model","cb_shape+gau_shape",components,false); // true means use extended pdfs
+											  // eg for a signal+bkg model
         // -----------------------------------------------------
 
 	// Make some data sets from the observables to fill in the event loop		  
@@ -130,28 +131,21 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
    int leadLevel=2, subLevel=2;
 
    float leadEtCut   = 40.0;
-   float subleadEtCut = 35.0;
+   float subleadEtCut = 30.0;
 
-   diphoton_index = l.DiphotonCiCSelection((LoopAll::phoCiCIDLevel) leadLevel, (LoopAll::phoCiCIDLevel) subLevel, leadEtCut, subleadEtCut, 4,false); 
+   diphoton_index = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtCut, subleadEtCut, 4,false); 
  
-  if (diphoton_index.first > -1 && diphoton_index.second > -1){
+   if (diphoton_index.first > -1 && diphoton_index.second > -1){
 
    	 TLorentzVector *lead_p4 = (TLorentzVector*)l.pho_p4->At(diphoton_index.first);
    	 TLorentzVector *sublead_p4 = (TLorentzVector*)l.pho_p4->At(diphoton_index.second);
   	 TLorentzVector Higgs = *lead_p4 + *sublead_p4; 	
 
 	 float mass = Higgs.M();
-
-         TVector3 *calopos1 = (TVector3*) l.pho_calopos->At(diphoton_index.first);
-         TVector3 *calopos2 = (TVector3*) l.pho_calopos->At(diphoton_index.second);
-         float min_r9  = min(l.pho_r9[diphoton_index.first],l.pho_r9[diphoton_index.second]);
-	 float max_eta = max(fabs(calopos1->Eta()),fabs(calopos2->Eta()));
-
-         int category;
-	 if (min_r9 < 0.93 && max_eta < 1.4442 ) category = 0;
-	 if (min_r9 > 0.93 && max_eta < 1.4442 ) category = 1;
-	 if (min_r9 < 0.93 && max_eta > 1.566 && max_eta < 2.5) category = 2;
-	 if (min_r9 > 0.93 && max_eta > 1.566 && max_eta < 2.5) category = 3;
+ 
+	 // 4 categories used for the limit setting.... 2 r9, 2 Eta
+         int category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,2,2,0);
+	 
  
 	// Assume a global 3% error on the EnergyScale, create vector of
 	// masses based on systematic shifts, need 30 down and 30 up 
@@ -181,7 +175,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	   l.rooContainer->InputDataPoint("bkg_mass",category,mass,weight);
 	 else if (cur_type < 0){
 	   l.rooContainer->InputDataPoint("sig_mass_m120",category,mass,weight);
-           l.rooContainer->InputSystematicSet("sig_mass_m120","E_scale",category,mass_errors);
+//           l.rooContainer->InputSystematicSet("sig_mass_m120","E_scale",category,mass_errors);
  	 }
 	
 	}
