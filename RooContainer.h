@@ -34,6 +34,7 @@
 #include <iostream>
 #include <fstream>
 #include <map>
+#include <set>
 #include <vector>
 
 class RooContainer {
@@ -55,7 +56,7 @@ class RooContainer {
    void ConvolutePdf(std::string,std::string,std::string,std::string
 			     ,double norm_guess=100);
 
-   void CreateDataSet(std::string,std::string,int nbins=-1); 
+   void CreateDataSet(std::string,std::string,int nbins,double x1=-990,double x2=-990); 
    void MakeSystematics(std::string,std::string,std::string);
 
    void FitToData(std::string,std::string 			
@@ -73,7 +74,7 @@ class RooContainer {
 		,std::vector<float>,float w=1.);
 
    void WriteDataCard(std::string,std::string,std::string,std::string);
-   void GenerateBinnedPdf(std::string,std::string,std::string,int);
+   void GenerateBinnedPdf(std::string,std::string,std::string,int,double x1=-999,double x2=-999);
 
 
    void Save();
@@ -90,20 +91,17 @@ class RooContainer {
 			     ,std::vector<std::string> &,bool);
    void convolutePdf(std::string,std::string,std::string,RooRealVar &,double norm_guess=100);
 
-   void createDataSet(std::string,std::string,int);
+   void createDataSet(std::string,std::string,int,double x1,double x2);
    void makeSystematics(std::string,std::string,std::string);
    
    void fitToData(std::string,std::string,std::string
 	         ,double,double,double,double);
    void fitToSystematicSet(std::string,std::string,std::string
 	     ,double,double,double,double);
-   void generateBinnedPdf(std::string,std::string,std::string,RooRealVar&,int);
+   void generateBinnedPdf(std::string,std::string,std::string,RooRealVar&,int,double,double);
    void writeRooDataHist(std::string, TH1F *);
    void writeRooPlot(RooPlot *);
-
-   int ncat;
-   int nsigmas;
-   bool make_systematics;
+   void removeDuplicateElements(std::vector<RooAbsPdf*> &);
 
    std::vector<std::string> systematics_;
    std::vector<std::string>::iterator it_sys;
@@ -114,7 +112,9 @@ class RooContainer {
    std::string getsysName(std::string,std::string);   
    std::string getsysindexName(std::string,std::string
 			 ,int,int);
-   
+   int ncat;
+   int nsigmas;
+   bool make_systematics;
    std::vector<RooAbsPdf*> pdf_saves_;
 
    std::map<std::string, RooRealVar> m_real_var_;

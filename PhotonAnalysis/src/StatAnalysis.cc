@@ -24,19 +24,30 @@ StatAnalysis::~StatAnalysis()
 void StatAnalysis::Term(LoopAll& l) 
 {
         // Make Fits to the data-sets and systematic sets
-        l.rooContainer->FitToData("background_model","bkg_mass");
-        l.rooContainer->FitToData("signal_model","sig_mass_m120");
+        l.rooContainer->FitToData("data_exp_model","data_mass",95,105,135,200);  // Fit to sidebands
+        l.rooContainer->FitToData("background_model","bkg_mass");		 // Fit to full obsevable range
+
+        l.rooContainer->FitToData("signal_model","sig_mass_m100");		 // fit to full obervable range
+        l.rooContainer->FitToData("signal_model","sig_mass_m110");		 // fit to full obervable range
+        l.rooContainer->FitToData("signal_model","sig_mass_m120");		 // fit to full obervable range
+        l.rooContainer->FitToData("signal_model","sig_mass_m130");		 // fit to full obervable range
+        l.rooContainer->FitToData("signal_model","sig_mass_m140");		 // fit to full obervable range
   
         // fit to the systematic shits
         // l.rooContainer->FitToSystematicSet("signal_model","sig_mass_m120","E_scale");
   
         // Can create binned models from the results of the fits, should be same bins as other 
-        // binned models
-        l.rooContainer->GenerateBinnedPdf("bkg_mass_rebinned","background_model","mass",120);
+        // binned models for when plugging into limit setting.
+        //l.rooContainer->GenerateBinnedPdf("bkg_mass_rebinned","background_model","mass",105); 	   // number of bins only -> full range
+        l.rooContainer->GenerateBinnedPdf("bkg_mass_narrow","background_model","mass",120,95,155); // give range also
   
-        // Write the data-card for the Combinations Code, needs the output filename
+        // Write the data-card for the Combinations Code, needs the output filename, makes binned analysis DataCard
         std::string outputfilename = (std::string) l.histFileName;
-        l.rooContainer->WriteDataCard(outputfilename,"data_mass","sig_mass_m120","bkg_mass_rebinned");
+        l.rooContainer->WriteDataCard(outputfilename,"data_mass","sig_mass_m100","bkg_mass_narrow");
+        l.rooContainer->WriteDataCard(outputfilename,"data_mass","sig_mass_m110","bkg_mass_narrow");
+        l.rooContainer->WriteDataCard(outputfilename,"data_mass","sig_mass_m120","bkg_mass_narrow");
+        l.rooContainer->WriteDataCard(outputfilename,"data_mass","sig_mass_m130","bkg_mass_narrow");
+        l.rooContainer->WriteDataCard(outputfilename,"data_mass","sig_mass_m140","bkg_mass_narrow");
 
 }
 
@@ -57,9 +68,31 @@ void StatAnalysis::Init(LoopAll& l)
 	// ----------------------------------------------------
 
 	// Create observables for shape-analysis with ranges
-	l.rooContainer->AddObservable("mass" ,95.,155.);
+	l.rooContainer->AddObservable("mass" ,95.,200.);
 
 	// Create parameters and pdfs for signal/background
+
+	// Data shape - Exponential/2nd Order Polynomial
+	l.rooContainer->AddRealVar("mu_data",-0.04,-2.,-0.001);
+	l.rooContainer->AddRealVar("p0_data",1.,0.,100.);
+	l.rooContainer->AddRealVar("p1_data",-2,-3.,1.);
+	l.rooContainer->AddRealVar("p2_data",0.04,0.,2.);
+
+	std::vector<std::string> data_exp_pars(1,"e");	 
+	data_exp_pars[0] = "mu_data";
+
+	l.rooContainer->AddGenericPdf("data_exp_model",
+	  "","mass",data_exp_pars,1); // 1 for exonential, no need for formula 
+
+	std::vector<std::string> data_pol_pars(3,"p");	 
+	data_pol_pars[0] = "p0_data";
+	data_pol_pars[1] = "p1_data";
+	data_pol_pars[2] = "p2_data";
+
+	l.rooContainer->AddGenericPdf("data_pol_model",
+	  "@1+@0*@1+@0*@0*@2","mass",data_pol_pars,0); // 0 for formula 
+	// ------------------------------------------------------
+        
         // Background - Exponential
 	l.rooContainer->AddRealVar("mu",-0.04,-2.,-0.001);
 		  
@@ -93,7 +126,7 @@ void StatAnalysis::Init(LoopAll& l)
 	gau_pars[1] = "gsigma";
 
 	l.rooContainer->AddGenericPdf("gau_shape",
-	  "","mass",gau_pars,2,0.2,0.,0.5);  // 3 for Gaussian shape, no need for formula. 
+	  "","mass",gau_pars,2,0.1,0.,0.5);  // 3 for Gaussian shape, no need for formula. 
 
         // Add the  CB+Gaussian
         std::vector<std::string> components(2,"c");
@@ -104,10 +137,14 @@ void StatAnalysis::Init(LoopAll& l)
         // -----------------------------------------------------
 
 	// Make some data sets from the observables to fill in the event loop		  
-	// Binning is for histograms
-	l.rooContainer->CreateDataSet("mass","data_mass"    ,120);
-	l.rooContainer->CreateDataSet("mass","bkg_mass"     ,120);
-	l.rooContainer->CreateDataSet("mass","sig_mass_m120",120);
+	// Binning is for histograms (will also produce unbinned data sets)
+	l.rooContainer->CreateDataSet("mass","data_mass"    ,120,95,155); // range for histogram specified
+	l.rooContainer->CreateDataSet("mass","bkg_mass"     ,60);    	  // only specify nbins for hist -> hist range taken from observable range
+	l.rooContainer->CreateDataSet("mass","sig_mass_m100",120,95,155);    
+	l.rooContainer->CreateDataSet("mass","sig_mass_m110",120,95,155);    
+	l.rooContainer->CreateDataSet("mass","sig_mass_m120",120,95,155);    
+	l.rooContainer->CreateDataSet("mass","sig_mass_m130",120,95,155);    
+	l.rooContainer->CreateDataSet("mass","sig_mass_m140",120,95,155);    
 
 	// Make more data sets to represent systematic shitfs , 
 	l.rooContainer->MakeSystematics("mass","sig_mass_m120","E_scale");	
@@ -173,10 +210,17 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	   l.rooContainer->InputDataPoint("data_mass",category,mass);
 	 else if (cur_type > 0)
 	   l.rooContainer->InputDataPoint("bkg_mass",category,mass,weight);
-	 else if (cur_type < 0){
+	 else if (cur_type == -1 || cur_type == -2 || cur_type == -3)
+	   l.rooContainer->InputDataPoint("sig_mass_m100",category,mass,weight);
+	 else if (cur_type == -4 || cur_type == -5 || cur_type == -6)
+	   l.rooContainer->InputDataPoint("sig_mass_m110",category,mass,weight);
+	 else if (cur_type == -7 || cur_type == -8 || cur_type == -9)
 	   l.rooContainer->InputDataPoint("sig_mass_m120",category,mass,weight);
 //           l.rooContainer->InputSystematicSet("sig_mass_m120","E_scale",category,mass_errors);
- 	 }
+	 else if (cur_type == -10 || cur_type == -11 || cur_type == -12)
+	   l.rooContainer->InputDataPoint("sig_mass_m130",category,mass,weight);
+	 else if (cur_type == -13 || cur_type == -14 || cur_type == -15)
+	   l.rooContainer->InputDataPoint("sig_mass_m140",category,mass,weight);
 	
 	}
 	
