@@ -283,12 +283,12 @@ GlobeVertexInfo::~GlobeVertexInfo() {};
 
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
-void LoopAll::vertexAnalysis(HggVertexAnalyzer & vtxAna, int p1, int p2)
+void LoopAll::vertexAnalysis(HggVertexAnalyzer & vtxAna,  PhotonInfo pho1, PhotonInfo pho2)
 {
         GlobeVertexInfo vinfo(*this); 
-	PhotonInfo
-	  pho1(p1,*((TVector3*)pho_calopos->At(p1)),((TLorentzVector*)pho_p4->At(p1))->Energy()),
-	  pho2(p2,*((TVector3*)pho_calopos->At(p2)),((TLorentzVector*)pho_p4->At(p2))->Energy());
+	//	PhotonInfo
+	  //	  pho1(p1,*((TVector3*)pho_calopos->At(p1)),((TLorentzVector*)pho_p4->At(p1))->Energy()),
+	  //  pho2(p2,*((TVector3*)pho_calopos->At(p2)),((TLorentzVector*)pho_p4->At(p2))->Energy());
 	vtxAna.analyze(vinfo,pho1,pho2);
 }
 
@@ -314,6 +314,10 @@ PhotonInfo LoopAll::fillPhotonInfos(int p1, bool useAllConvs)
 				  conv_chi2_probability[iConv1],
 				  conv_eoverp[iConv1]
 			);
+	} else {
+
+	  return PhotonInfo(p1,*((TVector3*)pho_calopos->At(p1)),((TLorentzVector*)pho_p4->At(p1))->Energy());
+
 	}
 	
 	return PhotonInfo(p1, 
@@ -444,7 +448,8 @@ int  LoopAll::matchPhotonToConversion( int lpho) {
   double conv_phi=-999.;
   
   float sc_eta  = ((TVector3 *) pho_calopos->At(lpho))->Eta();
-  float sc_phi  = ((TVector3 *) pho_calopos->At(lpho))->Phi();
+  float  phi  = ((TVector3 *) pho_calopos->At(lpho))->Phi();
+  double sc_phi = phiNorm(phi);
   
   TLorentzVector * p4 = (TLorentzVector *) pho_p4->At(lpho);
   float et = p4->Energy() / cosh(sc_eta);
@@ -465,14 +470,15 @@ int  LoopAll::matchPhotonToConversion( int lpho) {
     if (conv_pt < 1 ) continue;    
     if ( ! conv_validvtx[iconv] ) continue;
 
-    conv_phi  = ((TVector3 *) conv_refitted_momentum->At(iconv))->Phi();
+    phi  = ((TVector3 *) conv_refitted_momentum->At(iconv))->Phi();
+    conv_phi  = phiNorm(phi);
     float eta  = ((TVector3 *) conv_refitted_momentum->At(iconv))->Eta();
     conv_eta = etaTransformation(eta, conv_zofprimvtxfromtrks[iconv] );
 
     //    cout << " conversion index " << iconv << " eta " <<conv_eta<<  " norm phi " << conv_phi << " PT " << conv_pt << endl; 
 
-    float dPhi =conv_phi - sc_phi;       
-    double delta_phi = phiNorm (dPhi);
+    //  float dPhi =conv_phi - sc_phi;       
+    double delta_phi = conv_phi - sc_phi;       
     double delta_eta = conv_eta - sc_eta;
  
     //cout << " delta_eta " << delta_eta << " delta_phi " << delta_phi << endl;

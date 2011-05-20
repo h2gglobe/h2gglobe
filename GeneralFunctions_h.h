@@ -16,7 +16,7 @@ double phiNorm (float &phi);
 double etaTransformation(  float EtaParticle , float Zvertex);
 
 // Vertex analysis
-void vertexAnalysis(HggVertexAnalyzer & vtxAna, int pho1, int pho2);
+void vertexAnalysis(HggVertexAnalyzer & vtxAna,  PhotonInfo pho1, PhotonInfo pho2);
 //std::vector<int> vertexSelection(HggVertexAnalyzer & vtxAna, HggVertexFromConversions & vtxAnaFromConv, int p1, int p2, std::vector<std::string> & vtxVarNames);
 std::vector<int> vertexSelection(HggVertexAnalyzer & vtxAna, HggVertexFromConversions & vtxAnaFromConv, PhotonInfo & pho1, PhotonInfo & pho2,
 				 std::vector<std::string> & vtxVarNames);
