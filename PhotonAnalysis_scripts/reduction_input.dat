@@ -45,4 +45,15 @@ tk_quality
 ->
 track isolation
 ->
+tk_n
+tk_p4
 tk_vtx_pos
+
+->
+DeltaR to track
+->
+el_std_n
+el_std_hp_expin
+el_std_scind
+el_std_detain
+el_std_dphiin
