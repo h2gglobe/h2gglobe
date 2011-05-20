@@ -58,10 +58,16 @@ class RooContainer {
    void CreateDataSet(std::string,std::string,int nbins=-1); 
    void MakeSystematics(std::string,std::string,std::string);
 
-   void FitToData(std::string,std::string 
-	     ,double x1=-999,double x2=-999,double x3=-999,double x4=-999);
+   void FitToData(std::string,std::string 			
+	         ,double x1,double x2,double x3,double x4);
+   void FitToData(std::string,std::string,double x1,double x2);
+   void FitToData(std::string,std::string); 
+
    void FitToSystematicSet(std::string,std::string,std::string
-	     ,double x1=-999,double x2=-999,double x3=-999,double x4=-999);
+	                  ,double x1,double x2,double x3,double x4);
+   void FitToSystematicSet(std::string,std::string,std::string,double x1,double x2);
+   void FitToSystematicSet(std::string,std::string,std::string);
+
    void InputDataPoint(std::string,int,float,float w=1.);
    void InputSystematicSet(std::string,std::string,int
 		,std::vector<float>,float w=1.);

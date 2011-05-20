@@ -188,21 +188,49 @@ void RooContainer::MakeSystematics(std::string observable,std::string s_name, st
 }
 
 // ----------------------------------------------------------------------------------------------------
-void RooContainer::FitToData(std::string name_func, std::string  name_var
-			    ,double x1, double x2, double x3, double x4){
+void RooContainer::FitToData(std::string name_func, std::string name_var,double x1, double x2, double x3, double x4){
   for (int cat=0;cat<ncat;cat++){
     fitToData(getcatName(name_func,cat),getcatName(name_var,cat),getcatName(name_var,cat)
 	     ,x1,x2,x3,x4);
   }
 }
+// ----------------------------------------------------------------------------------------------------
+void RooContainer::FitToData(std::string name_func, std::string name_var,double x1, double x2){
+  for (int cat=0;cat<ncat;cat++){
+    fitToData(getcatName(name_func,cat),getcatName(name_var,cat),getcatName(name_var,cat)
+	     ,x1,x2,-999,-999);
+  }
+}
+// ----------------------------------------------------------------------------------------------------
+void RooContainer::FitToData(std::string name_func, std::string name_var){
+  for (int cat=0;cat<ncat;cat++){
+    fitToData(getcatName(name_func,cat),getcatName(name_var,cat),getcatName(name_var,cat)
+	     ,-999,-999,-999,-999);
+  }
+}
 
 // ----------------------------------------------------------------------------------------------------
 void RooContainer::FitToSystematicSet(std::string name_func,std::string name_var
-	     ,std::string sys_name
-	     ,double x1,double x2,double x3,double x4){
+	     ,std::string sys_name,double x1,double x2,double x3,double x4){
   for (int cat=0;cat<ncat;cat++) {
     fitToSystematicSet(getcatName(name_func,cat),getcatName(name_var,cat)
 		      ,sys_name,x1,x2,x3,x4);
+  }    
+}
+// ----------------------------------------------------------------------------------------------------
+void RooContainer::FitToSystematicSet(std::string name_func,std::string name_var
+	     ,std::string sys_name,double x1,double x2){
+  for (int cat=0;cat<ncat;cat++) {
+    fitToSystematicSet(getcatName(name_func,cat),getcatName(name_var,cat)
+		      ,sys_name,x1,x2,-999,-999);
+  }    
+}
+// ----------------------------------------------------------------------------------------------------
+void RooContainer::FitToSystematicSet(std::string name_func,std::string name_var
+	     ,std::string sys_name){
+  for (int cat=0;cat<ncat;cat++) {
+    fitToSystematicSet(getcatName(name_func,cat),getcatName(name_var,cat)
+		      ,sys_name,-999,-999,-999,-999);
   }    
 }
 
@@ -767,10 +795,21 @@ void RooContainer::fitToData(std::string name_func, std::string name_data, std::
     if (it_pdf != m_pdf_.end()){
       use_composed_pdf = true;
 
-     if (x1 < -990. && x2 < -990.  && x3 < -990. && x4 < -990.){
+     if (x1 < -990. && x2 < -990.  && x3 < -990. && x4 < -990.){ // Full Range Fit
         fit_result = (it_pdf->second).fitTo(it_data->second);
+     } else if (x3 < -990, x4 < -990){ // Single window fit
+      if (x1 < x_min || x2 > x_max){
+        std::cout << "RooContainer::FitToData -- WARNING!! Ranges outside of DataSet Range!" 
+		  << std::endl;
+        fit_result = (it_pdf->second).fitTo(it_data->second);
+        std::cout << " Fitted To Full Range -- WARNING!!" 
+		  << std::endl;
+      } else {
+        real_var->setRange("rnge",x1,x2);
+        fit_result = (it_pdf->second).fitTo((it_data->second),Range("rnge"));
+      }
      } else {
-      if (x1 < x_min || x4 > x_max){
+      if (x1 < x_min || x4 > x_max){ // Excluded window fit
         std::cout << "RooContainer::FitToData -- WARNING!! Ranges outside of DataSet Range!" 
 		  << std::endl;
         fit_result = (it_pdf->second).fitTo(it_data->second);
@@ -788,6 +827,17 @@ void RooContainer::fitToData(std::string name_func, std::string name_data, std::
       if (it_exp != m_exp_.end()){
        if (x1 < -990. && x2 < -990.  && x3 < -990. && x4 < -990.){
         fit_result = (it_exp->second).fitTo(it_data->second);
+      } else if (x3 < -990, x4 < -990){ // Single window fit
+        if (x1 < x_min || x2 > x_max){
+          std::cout << "RooContainer::FitToData -- WARNING!! Ranges outside of DataSet Range!" 
+		    << std::endl;
+          fit_result = (it_exp->second).fitTo(it_data->second);
+          std::cout << " Fitted To Full Range -- WARNING!!" 
+		    << std::endl;
+        } else {
+         real_var->setRange("rnge",x1,x2);
+         fit_result = (it_exp->second).fitTo((it_data->second),Range("rnge"));
+        }	
        } else {
         if (x1 < x_min || x4 > x_max){
           std::cout << "RooContianer::FitToData -- WARNING!! Ranges outside of DataSet Range!" 
