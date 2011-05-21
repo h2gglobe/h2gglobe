@@ -738,10 +738,6 @@ void RooContainer::createDataSet(std::string name,std::string data_name,int nbin
       m_data_var_ptr_[data_name] = &(m_real_var_[name]);
       m_weight_var_ptr_[data_name] = &(m_real_var_[getweightName(name)]);
       
-      RooDataSet data_tmp(data_name.c_str(),data_name.c_str(),RooArgSet((*test).second,*m_weight_var_ptr_[data_name]),getweightName(name).c_str());
-      data_.insert(std::pair<std::string,RooDataSet>(data_name,data_tmp));
-
-
       double xmin = (test->second).getMin();
       double xmax = (test->second).getMax();
       double r1,r2;
@@ -750,17 +746,26 @@ void RooContainer::createDataSet(std::string name,std::string data_name,int nbin
       if (x1 < -990 || x2 < -990 || x1 < xmin || x2 > xmax){
 	r1 = xmin;
         r2 = xmax;
+        RooDataSet data_tmp(data_name.c_str(),data_name.c_str(),RooArgSet((*test).second,*m_weight_var_ptr_[data_name]),getweightName(name).c_str());
+        data_.insert(std::pair<std::string,RooDataSet>(data_name,data_tmp));
 
       } else {
 	r1 = x1;
         r2 = x2;
+        m_data_var_ptr_[data_name]->setRange(Form("%s_%f_%f",data_name.c_str(),r1,r2),r1,r2);
+        RooDataSet data_tmp(data_name.c_str(),data_name.c_str(),RooArgSet((*test).second,*m_weight_var_ptr_[data_name]),WeightVar(getweightName(name).c_str()),CutRange(Form("%s_%f_%f",data_name.c_str(),r1,r2)));
+        data_.insert(std::pair<std::string,RooDataSet>(data_name,data_tmp));
       }
+
+
       if (nbins < -1)
         number_of_bins = (int) r2-r1;
       else
 	number_of_bins = nbins;
-       
-      m_th1f_[data_name] = TH1F(Form("th1f_%s",data_name.c_str()),name.c_str(),number_of_bins,r1,r2);
+      
+      TH1F tmp_hist(Form("th1f_%s",data_name.c_str()),name.c_str(),number_of_bins,r1,r2);
+      tmp_hist.GetYaxis()->SetTitle(Form("Events / (*.43f)",tmp_hist.GetBinWidth(1)));
+      m_th1f_[data_name] = tmp_hist;
 
       cout << "RooContainer::CreateDataSet -- Created RooDataSet from " << name 
 	   << " with name " << data_name <<endl;

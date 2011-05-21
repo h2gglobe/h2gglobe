@@ -5,6 +5,7 @@
 #include "TROOT.h"
 #include "TCanvas.h"
 #include "TH1F.h"
+#include "TAxis.h"
 
 // RooFit includes
 #include "RooDataHist.h"
