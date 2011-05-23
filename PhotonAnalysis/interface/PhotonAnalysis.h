@@ -48,6 +48,8 @@ public:
 	std::vector<float> pho_sc_et;
 	// Other options
 	bool runStatAnalysis;
+        TString puHist;//name of pileup reweighting histogram
+
 	
 protected:
 	void PreselectPhotons(LoopAll& l, int jentry);
@@ -59,6 +61,7 @@ protected:
 	HggVertexAnalyzer vtxAna_;
 	HggVertexFromConversions vtxConv_;
 	
+	vector<double> weights;
 	int trigCounter_;
 	
 };

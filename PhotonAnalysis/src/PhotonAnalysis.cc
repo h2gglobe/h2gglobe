@@ -117,6 +117,30 @@ void PhotonAnalysis::Init(LoopAll& l)
 		  rooContainer->CreateDataSet("mass");
 		*/
 	}
+
+    /* -------------------------------------------------------------------------------------------
+    Pileup Reweighting
+    https://twiki.cern.ch/twiki/bin/viewauth/CMS/PileupReweighting
+    ----------------------------------------------------------------------------------------------  */
+    if (puHist != "") {
+        if(PADEBUG) 
+            cout << "Opening PU file"<<endl;
+        TFile* puFile = TFile::Open( puHist );
+        if (puFile) {
+            cout<<"Reweighting events for pileup."<<endl;
+            TH1D *histo; 
+            puFile->GetObject("pileup",histo);
+            weights = l.generate_flat10_weights(histo);
+        }
+        else {
+            cout<<"Error opening " <<puHist<<" pileup reweighting histogram, using 1.0"<<endl; 
+            weights.resize(50);
+            for (int i=0; i<weights.size(); i++) weights[i] = 1.0;
+        }
+        if(PADEBUG) 
+            cout << "Opening PU file END"<<endl;
+    } 
+
 	if(PADEBUG) 
 		cout << "InitRealPhotonAnalysis END"<<endl;
 
@@ -129,10 +153,22 @@ void PhotonAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	if(PADEBUG) 
 		cout << "Analysis START"<<endl;
 	
-        // From Here is the Standard Dec Review Selection/ gen Level studies
+    // From Here is the Standard Dec Review Selection/ gen Level studies
 	std::vector<int> pho_loose;
 	// For use of the preselected photons in Dec Review, empty the vector
 	pho_presel.clear();
+
+    //PU reweighting
+    int n_pu = l.pu_n;
+    float weight = l.sampleContainer[l.current_sample_index].weight;
+    if (l.itype[l.current] !=0 && puHist != "") {
+        if(n_pu<weights.size()){
+             weight *= weights[n_pu];
+        }    
+        else{ //should not happen as we have a weight for all simulated n_pu multiplicities!
+             cout<<"n_pu ("<< n_pu<<") too big ("<<weights.size()<<"), event will not be reweighted for pileup"<<endl;
+        }
+    }
 
 	if( pho_presel.empty() ) { 
 		PreselectPhotons(l,jentry);
@@ -237,8 +273,8 @@ void PhotonAnalysis::Analysis(LoopAll& l, Int_t jentry)
 					
 					if (pass_selection[1] && pass_isolation[1]){
 //						cout << "mass is " << mass << " and higgs pt is " << h_pt << endl;
-						l.FillHist("pho_pt",category,leading_p4->Pt());
-						l.FillHist("pho_pt",category,nleading_p4->Pt());
+						l.FillHist("pho_pt",category,leading_p4->Pt(),weight);
+						l.FillHist("pho_pt",category,nleading_p4->Pt(),weight);
 						best_mass = mass;
 						best_pt   = h_pt;
 					}
@@ -248,11 +284,11 @@ void PhotonAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	}
 	
 	if (best_mass > 100)
-		l.FillHist("mass",0, best_mass);
-	l.FillHist("pt",0, best_pt);
+		l.FillHist("mass",0, best_mass, weight);
+	l.FillHist("pt",0, best_pt, weight);
 	if (category > -1){
-		l.FillHist("mass",category, best_mass);
-		l.FillHist("pt",category, best_pt);
+		l.FillHist("mass",category, best_mass, weight);
+		l.FillHist("pt",category, best_pt, weight);
 	}
 	if(PADEBUG) 
 		cout<<"myFillHistRed END"<<endl;
