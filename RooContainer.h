@@ -46,8 +46,8 @@ class RooContainer {
    ~RooContainer(){};
    void SetNCategories(int);
    void MakeSystematicStudy(std::vector<std::string>);
-   void AddObservable(std::string,float,float);
-   void AddRealVar(std::string,float,float,float);
+   void AddObservable(std::string,double,double);
+   void AddRealVar(std::string,double,double,double);
    void AddGenericPdf(std::string,std::string,std::string,
 		      std::vector<std::string> &, 
 		      int form,double norm_guess=10
@@ -70,20 +70,20 @@ class RooContainer {
    void FitToSystematicSet(std::string,std::string,std::string,double x1,double x2);
    void FitToSystematicSet(std::string,std::string,std::string);
 
-   void InputDataPoint(std::string,int,float,float w=1.);
+   void InputDataPoint(std::string,int,double,double w=1.);
    void InputSystematicSet(std::string,std::string,int
-		,std::vector<float>,float w=1.);
+		,std::vector<double>,double w=1.);
 
    void WriteDataCard(std::string,std::string,std::string,std::string);
-   void GenerateBinnedPdf(std::string,std::string,std::string,int,double x1=-999,double x2=-999);
-
+   void GenerateBinnedPdf(std::string,std::string,std::string,int,int,double x1=-999,double x2=-999);
+   void CombineBinnedDatasets(std::string,std::string);
 
    void Save();
    
   private:
 
-   void addRealVar(std::string,float,float);
-   void addRealVar(std::string,float,float,float);
+   void addRealVar(std::string,double,double);
+   void addRealVar(std::string,double,double,double);
    void addGenericPdf(std::string,std::string,std::string,
 		      std::vector<std::string> &,
 		      int form, 
@@ -99,7 +99,8 @@ class RooContainer {
 	         ,double,double,double,double);
    void fitToSystematicSet(std::string,std::string,std::string
 	     ,double,double,double,double);
-   void generateBinnedPdf(std::string,std::string,std::string,RooRealVar&,int,double,double);
+   void generateBinnedPdf(std::string,std::string,std::string,RooRealVar&,int,int,double,double);
+   void combineBinnedDatasets(std::string,std::string);
    void writeRooDataHist(std::string, TH1F *);
    void writeRooPlot(RooPlot *);
    void removeDuplicateElements(std::vector<RooAbsPdf*> &);
@@ -122,10 +123,11 @@ class RooContainer {
    std::map<std::string, RooAbsPdf*> m_gen_;
    std::map<std::string, RooExtendPdf> m_exp_;
    std::map<std::string, RooAddPdf> m_pdf_;
+   std::map<std::string, std::vector<RooRealVar*> > m_comp_pdf_norm_;
    std::map<std::string, TH1F> m_th1f_;
 
-   std::map<std::string, float> m_var_min_;
-   std::map<std::string, float> m_var_max_;
+   std::map<std::string, double> m_var_min_;
+   std::map<std::string, double> m_var_max_;
 
    std::map<std::string,RooDataSet> data_; 
    std::map<std::string,RooRealVar*> m_data_var_ptr_; 
@@ -138,7 +140,7 @@ class RooContainer {
    std::map<std::string,std::vector<TH1F*> > m_th1f_dn_;
  
    std::map<std::string,int> bins_;
-   std::map<std::string,float> inits_;
+   std::map<std::string,double> inits_;
    std::map<RooPlot*,RooFitResult*> fit_res_;
 
    RooWorkspace ws;   
