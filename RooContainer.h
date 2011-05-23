@@ -6,6 +6,7 @@
 #include "TCanvas.h"
 #include "TH1F.h"
 #include "TAxis.h"
+#include "TMath.h"
 
 // RooFit includes
 #include "RooDataHist.h"

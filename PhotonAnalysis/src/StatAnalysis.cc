@@ -39,7 +39,7 @@ void StatAnalysis::Term(LoopAll& l)
         // binned models for when plugging into limit setting.
         //l.rooContainer->GenerateBinnedPdf("bkg_mass_rebinned","background_model","mass",105); 	   // number of bins only -> full range
        // l.rooContainer->GenerateBinnedPdf("bkg_mass_narrow","background_model","mass",100,0,105,155); // 0, will take range from given range (if no range, will default to full obs range) 
-        l.rooContainer->GenerateBinnedPdf("bkg_mass_narrow","data_model","mass",100,2,105,145);  
+        l.rooContainer->GenerateBinnedPdf("bkg_mass_narrow","data_model","mass",50,2,105,155);  
         // mode 0 as above, 1 if want to bin in sub range from fit, 2 if want to bin in !sidebands
   	//l.rooContainer->CombineBinnedDatasets("bkg_mass_narrow","zee_mass");
 
@@ -75,7 +75,7 @@ void StatAnalysis::Init(LoopAll& l)
 
 	// Data shape - Exponential + Zee tail
 	l.rooContainer->AddRealVar("mu_data",-0.04,-2.,-0.001);
-	l.rooContainer->AddRealVar("mu_z_data",-0.5,-2.,-0.1);
+	l.rooContainer->AddRealVar("mu_z_data",-0.5,-2.,-0.001);
 
 	std::vector<std::string> data_exp_pars(1,"e");	 
 	data_exp_pars[0] = "mu_data";
@@ -139,14 +139,14 @@ void StatAnalysis::Init(LoopAll& l)
 
 	// Make some data sets from the observables to fill in the event loop		  
 	// Binning is for histograms (will also produce unbinned data sets)
-	l.rooContainer->CreateDataSet("mass","data_mass_full",100); // range for dataset and histogram
-	l.rooContainer->CreateDataSet("mass","data_mass"    ,100,105,155); // range for dataset and histogram
-	l.rooContainer->CreateDataSet("mass","bkg_mass"     ,100,105,155);    	  // only specify nbins for hist -> data_set and hist range set at default range
-	l.rooContainer->CreateDataSet("mass","zee_mass"     ,100,105,155);    	  
-	l.rooContainer->CreateDataSet("mass","sig_mass_m110",100,105,155);    
-	l.rooContainer->CreateDataSet("mass","sig_mass_m120",100,105,155);    
-	l.rooContainer->CreateDataSet("mass","sig_mass_m130",100,105,155);    
-	l.rooContainer->CreateDataSet("mass","sig_mass_m140",100,105,155);    
+	l.rooContainer->CreateDataSet("mass","data_mass_full",105); // only specify nbins for hist -> data_set and hist range set at default range
+	l.rooContainer->CreateDataSet("mass","data_mass"    ,50,105,155); // range for dataset and histogram
+	l.rooContainer->CreateDataSet("mass","bkg_mass"     ,50,105,155);    	  	
+        l.rooContainer->CreateDataSet("mass","zee_mass"     ,50,105,155);    	  
+	l.rooContainer->CreateDataSet("mass","sig_mass_m110",50,105,155);    
+	l.rooContainer->CreateDataSet("mass","sig_mass_m120",50,105,155);    
+	l.rooContainer->CreateDataSet("mass","sig_mass_m130",50,105,155);    
+	l.rooContainer->CreateDataSet("mass","sig_mass_m140",50,105,155);    
 
 	// Make more data sets to represent systematic shitfs , 
 	//l.rooContainer->MakeSystematics("mass","sig_mass_m120","E_scale");	
@@ -208,7 +208,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
             }
 
   
-	 if (cur_type > 0 ){
+	 if (cur_type == 0 ){
 	   l.rooContainer->InputDataPoint("data_mass",category,mass,weight);
 	   l.rooContainer->InputDataPoint("data_mass_full",category,mass,weight);
          }

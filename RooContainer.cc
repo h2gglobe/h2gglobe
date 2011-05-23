@@ -785,10 +785,7 @@ void RooContainer::createDataSet(std::string name,std::string data_name,int nbin
       data_.insert(std::pair<std::string,RooDataSet>(data_name,data_tmp));
 
 
-      if (nbins < -1)
-        number_of_bins = (int) r2-r1;
-      else
-	number_of_bins = nbins;
+      number_of_bins = nbins;
       
       TH1F tmp_hist(Form("th1f_%s",data_name.c_str()),name.c_str(),number_of_bins,r1,r2);
       tmp_hist.GetYaxis()->SetTitle(Form("Events / (%.3f)",tmp_hist.GetBinWidth(1)));
@@ -997,6 +994,7 @@ void RooContainer::generateBinnedPdf(std::string hist_name,std::string pdf_name,
   }
 
   double normalisation = 0;
+  double norm_err      = 0;
   // Need to normalize the histogram to integral under the curve
   // 3 modes - full observable range from fit and histogram (default, no range arguments)
   // 0 	     - default mode, assumes fit range == binning range if given or full rnage if not
@@ -1026,20 +1024,35 @@ void RooContainer::generateBinnedPdf(std::string hist_name,std::string pdf_name,
 
     if( mode==1){
       normalisation *= integral->getVal();
+      norm_err 	     = integral->getVal()*(TMath::Sqrt(normalisation));
     } else if (mode == 2) {
-      normalisation *= (1.- integral->getVal());
+      normalisation *= integral->getVal();//(1.- integral->getVal()); //getVal already calculated so will only happen once
+      norm_err 	     = integral->getVal()*(TMath::Sqrt(normalisation));
     } else {
       std::cerr << "WARNING --  RooContainer::GenerateBinnedPdf -- , No mode understood as " 
 	       << mode << ", Defaulting to mode 0" << std::endl;
+      norm_err 	  = TMath::Sqrt(normalisation);
     }
-  }
+  } else { norm_err = TMath::Sqrt(normalisation);}
+
+  temp_hist->SetTitle(obs_name.c_str());  // Used later to keep track of the realvar associated, must be a better way to do this ?
+
+  TH1F *temp_hist_up = (TH1F*)temp_hist->Clone();
+  TH1F *temp_hist_dn = (TH1F*)temp_hist->Clone();
 
   temp_hist->Scale(normalisation/temp_hist->Integral());
   temp_hist->SetName(Form("th1f_%s",hist_name.c_str()));
 
-  temp_hist->SetTitle(obs_name.c_str());  // Used later to keep track of the realvar associated, must be a better way to do this ?
+  temp_hist_up->Scale((normalisation+norm_err)/temp_hist->Integral());
+  temp_hist_up->SetName(Form("th1f_%s_norm_Up",hist_name.c_str()));
+
+  temp_hist_dn->Scale((normalisation-norm_err)/temp_hist->Integral());
+  temp_hist_dn->SetName(Form("th1f_%s_norm_Down",hist_name.c_str()));
 
   m_th1f_.insert(std::pair<std::string,TH1F>(hist_name,*temp_hist));
+  m_th1f_.insert(std::pair<std::string,TH1F>((std::string)(Form("%s_up",hist_name.c_str())),*temp_hist_up));
+  m_th1f_.insert(std::pair<std::string,TH1F>((std::string)(Form("%s_dn",hist_name.c_str())),*temp_hist_dn));
+
   std::cout << "RooContainer::GenerateBinnedPdf -- Generated TH1F named  "
 	    << hist_name << " From Pdf "
 	    << pdf_name  << ", Normalised Histogram to " << normalisation << std::endl;      
