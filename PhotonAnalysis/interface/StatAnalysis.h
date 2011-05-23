@@ -40,6 +40,7 @@ public:
 	
 	// Other options
 	bool runStatAnalysis;
+    TString puHist;//name of pileup reweighting histogram
 	
 protected:
 	void PreselectPhotons(LoopAll& l, int jentry);
@@ -52,6 +53,8 @@ protected:
 	
 	// RooStuff
 	RooContainer *rooContainer;
+
+	vector<double> weights;
 	
 };
 
