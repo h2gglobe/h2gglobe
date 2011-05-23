@@ -165,6 +165,17 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
    
    int cur_type = l.itype[l.current];
    float weight = l.sampleContainer[l.current_sample_index].weight;
+    //PU reweighting
+    int n_pu = l.pu_n;
+    if (l.itype[l.current] !=0 && puHist != "") {
+        if(n_pu<weights.size()){
+             weight *= weights[n_pu];
+        }    
+        else{ //should not happen 
+             cout<<"n_pu ("<< n_pu<<") too big ("<<weights.size()
+             <<"), event will not be reweighted for pileup"<<endl;
+        }
+    }
 
    std::pair<int,int> diphoton_index;
    int leadLevel=2, subLevel=2;
