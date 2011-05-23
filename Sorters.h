@@ -28,7 +28,7 @@ public:
 	SimpleSorter(T *a, C c=C()) : array_(a), compare_(c) {};
 	
 	bool operator () (int ii, int jj) {
-		return compare_( array_[ii], array_[ii] );
+		return compare_( array_[ii], array_[jj] );
 	};
 	
 private:
