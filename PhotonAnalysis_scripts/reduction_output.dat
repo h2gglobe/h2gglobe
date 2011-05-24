@@ -15,6 +15,12 @@ run
 bx
 
 ->
+SuperClusters
+->
+sc_p4
+sc_xyz
+
+->
 Photons 
 ->
 pho_n
@@ -36,6 +42,15 @@ pho_hoe
 pho_r1x5
 pho_r2x5
 pho_r9
+pho_isEBGap
+pho_isEEGap
+pho_isEBEEGap
+pho_h1oe
+pho_h2oe
+pho_hcal1sumetconedr04
+pho_hcal2sumetconedr04
+pho_hcal1sumetconedr03
+pho_hcal2sumetconedr03
 pho_zernike20
 pho_zernike42
 pho_e2nd
@@ -103,7 +118,7 @@ pho_conv_pair_momentum
 pho_conv_refitted_momentum
 pho_conv_vertexcorrected_p4
 ->
-AllConversions
+All Conversions
 ->
 conv_n
 conv_p4
@@ -154,6 +169,7 @@ weight:1
 pthat:1
 gp_n:1
 gp_p4:1
+gp_vtx:1
 gp_status:1
 gp_pdgid:1
 gp_mother:1
