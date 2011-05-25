@@ -29,4 +29,4 @@ tkIso_dzmax=1
 tkIso_dxymax=0.1
 ->
 
-doTriggerSelection=1
+doTriggerSelection=0
