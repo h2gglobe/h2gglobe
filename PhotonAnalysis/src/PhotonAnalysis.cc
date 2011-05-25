@@ -131,6 +131,7 @@ void PhotonAnalysis::Init(LoopAll& l)
             TH1D *histo; 
             puFile->GetObject("pileup",histo);
             weights = l.generate_flat10_weights(histo);
+	    puFile->Close();
         }
         else {
             cout<<"Error opening " <<puHist<<" pileup reweighting histogram, using 1.0"<<endl; 
