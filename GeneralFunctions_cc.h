@@ -1142,7 +1142,7 @@ int LoopAll::PhotonCiCSelectionLevel( int photon_index, std::vector<std::vector<
     isosumconstbad = 0.;
   }
 
-  float rhofacbad=0.40, rhofac=0.05;
+  float rhofacbad=0.52, rhofac=0.17;
   float val_isosumoet=(val_tkiso+val_ecaliso+val_hcaliso+isosumconst-rho*rhofac)*50./phop4->Et();
   float val_isosumoetbad=(val_tkisobad+val_ecalisobad+val_hcalisobad+isosumconstbad-rho*rhofacbad)*50./phop4->Et();
   float val_trkisooet=(val_tkiso)*50./phop4->Et();
