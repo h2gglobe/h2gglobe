@@ -487,6 +487,8 @@ class configProducer:
         map_c["json"] = str(val[1])
       else: sys.exit("Unrecognised Argument:\n ' %s ' in line:\n ' %s '"
                      %(val[0],line))
+    if map_c["typ"] != 0:
+      self.is_data_ = False
 
     if fi_name != '':
       if not os.path.isfile(fi_name): 
@@ -532,6 +534,7 @@ class configProducer:
         bname, sbtype = b.split(":")
         btype = int(sbtype)
       if btype == 0 or not self.is_data_:
+        print "Reading input branch %s " % bname   
         self.ut_.InputBranch(bname)
 
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
