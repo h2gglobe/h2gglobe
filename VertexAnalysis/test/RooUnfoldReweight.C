@@ -16,6 +16,30 @@ using std::endl;
 //#include "RooUnfoldBinByBin.h"
 #endif
 
+
+/*
+
+.L ../../../h2gglobe/VertexAnalysis/test/RooUnfoldReweight.C
+TFile b("/afs/cern.ch/user/m/malberti/public/xLino/NDataRecoVertices.root");
+TFile a("/afs/cern.ch/user/m/malberti/public/xLino/HistosForPUReweighting.root");
+TH1D *data  = (TH1D*) b.Get("NvtAll");
+TH1D *gen  = (TH1D*) a.Get("hgen");
+TH2D *gen_vs_reco  = (TH2D*) a.Get("hnpugen_vs_nvtxreco");
+TFile f("unfolded.root","RECREATE");
+TH1D *unf = Unfold(gen_vs_reco, gen, data);
+unf->Write();
+f.Close();
+
+*/
+
+
+TH1* Unfold(TH2*hgen_vs_reco, TH1*hgen, TH1*hdata){
+	  RooUnfoldResponse response (hgen_vs_reco->ProjectionX(), hgen, hgen_vs_reco);
+	  RooUnfoldBayes    unfold (&response, hdata, 4);
+	  return (TH1D*) unfold.Hreco(3)->Clone("hunfolded");
+}
+
+
 //==============================================================================
 // Global definitions
 //==============================================================================
