@@ -7,6 +7,9 @@
 #include "TH1F.h"
 #include "TAxis.h"
 #include "TMath.h"
+#include "TMatrixDSym.h"
+#include "TMatrixD.h"
+#include "TVectorD.h"
 
 // RooFit includes
 #include "RooDataHist.h"
@@ -46,7 +49,7 @@ class RooContainer {
    RooContainer(int ncat=1);
    ~RooContainer(){};
    void SetNCategories(int);
-   void MakeSystematicStudy(std::vector<std::string>);
+   void MakeSystematicStudy(std::vector<std::string>,std::vector<int>);
    void AddObservable(std::string,double,double);
    void AddRealVar(std::string,double,double,double);
    void AddGenericPdf(std::string,std::string,std::string,
@@ -76,8 +79,8 @@ class RooContainer {
 		,std::vector<double>,double w=1.);
 
    void WriteDataCard(std::string,std::string,std::string,std::string);
-   void GenerateBinnedPdf(std::string,std::string,std::string,int,int,double x1=-999,double x2=-999);
-   void CombineBinnedDatasets(std::string,std::string);
+   void GenerateBinnedPdf(std::string,std::string,std::string,int,int,int,double x1=-999,double x2=-999);
+   void CombineBinnedDatasets(std::string,std::string, double fraction=-1);
 
    void Save();
    
@@ -100,14 +103,20 @@ class RooContainer {
 	         ,double,double,double,double);
    void fitToSystematicSet(std::string,std::string,std::string
 	     ,double,double,double,double);
-   void generateBinnedPdf(std::string,std::string,std::string,RooRealVar&,int,int,double,double);
-   void combineBinnedDatasets(std::string,std::string);
+   void generateBinnedPdf(int,std::string,std::string,std::string,std::string,RooRealVar*,RooDataSet&,int,int,int,double,double);
+   void combineBinnedDatasets(std::string,std::string,double);
    void writeRooDataHist(std::string, TH1F *);
    void writeRooPlot(RooPlot *);
    void removeDuplicateElements(std::vector<RooAbsPdf*> &);
+   void setAllParametersConstant();
 
-   std::vector<std::string> systematics_;
-   std::vector<std::string>::iterator it_sys;
+   double getNormalisationFromFit(std::string,std::string,RooAbsPdf *,RooRealVar*,double,double,int,bool);
+
+   void getArgSetParameters(RooArgSet*,std::vector<double> &);
+   void setArgSetParameters(RooArgSet*,std::vector<double> &);
+
+   std::map<std::string,int> systematics_;
+   std::map<std::string,int>::iterator it_sys;
 
    std::string getweightName(std::string);   
    std::string getnormName(std::string);   
@@ -131,6 +140,7 @@ class RooContainer {
    std::map<std::string, double> m_var_max_;
 
    std::map<std::string,RooDataSet> data_; 
+   std::map<std::string,std::string> data_obs_names_; 
    std::map<std::string,RooRealVar*> m_data_var_ptr_; 
    std::map<std::string,RooRealVar*> m_weight_var_ptr_; 
 
@@ -143,6 +153,7 @@ class RooContainer {
    std::map<std::string,int> bins_;
    std::map<std::string,double> inits_;
    std::map<RooPlot*,RooFitResult*> fit_res_;
+   std::map<std::string,RooFitResult*> fit_results_;
 
    RooWorkspace ws;   
    
