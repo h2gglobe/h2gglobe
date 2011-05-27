@@ -24,8 +24,8 @@ StatAnalysis::~StatAnalysis()
 void StatAnalysis::Term(LoopAll& l) 
 {
         // Make Fits to the data-sets and systematic sets
-        l.rooContainer->FitToData("data_model","data_mass_full",95,105,155,200);  // Fit to sidebands
-//        l.rooContainer->FitToData("background_model","bkg_mass");    // Fit to window
+        l.rooContainer->FitToData("data_exp_model","data_mass");  // Fit to full range of dataset
+//        l.rooContainer->FitToData("background_model","bkg_mass");    // Fit to full set
 
 //        l.rooContainer->FitToData("signal_model","sig_mass_m110");		 // fit to full obervable range
 //        l.rooContainer->FitToData("signal_model","sig_mass_m120");		 // fit to full obervable range
@@ -39,16 +39,17 @@ void StatAnalysis::Term(LoopAll& l)
         // binned models for when plugging into limit setting.
         //l.rooContainer->GenerateBinnedPdf("bkg_mass_rebinned","background_model","mass",105); 	   // number of bins only -> full range
        // l.rooContainer->GenerateBinnedPdf("bkg_mass_narrow","background_model","mass",100,0,105,155); // 0, will take range from given range (if no range, will default to full obs range) 
-        l.rooContainer->GenerateBinnedPdf("bkg_mass_narrow","data_model","mass",50,2,105,155);  
-        // mode 0 as above, 1 if want to bin in sub range from fit, 2 if want to bin in !sidebands
+        l.rooContainer->GenerateBinnedPdf("bkg_mass_rebinned","data_exp_model","data_mass",1,100,0); // 1 means systematics from the fit effect only the background last digit mode = 0 
+        // mode 0 as above, 1 if want to bin in sub range from fit,
   	//l.rooContainer->CombineBinnedDatasets("bkg_mass_narrow","zee_mass");
 
         // Write the data-card for the Combinations Code, needs the output filename, makes binned analysis DataCard
         std::string outputfilename = (std::string) l.histFileName;
-        l.rooContainer->WriteDataCard(outputfilename,"data_mass","sig_mass_m110","bkg_mass_narrow");
-        l.rooContainer->WriteDataCard(outputfilename,"data_mass","sig_mass_m120","bkg_mass_narrow");
-        l.rooContainer->WriteDataCard(outputfilename,"data_mass","sig_mass_m130","bkg_mass_narrow");
-        l.rooContainer->WriteDataCard(outputfilename,"data_mass","sig_mass_m140","bkg_mass_narrow");
+        l.rooContainer->WriteDataCard(outputfilename,"data_mass","sig_mass_m110","bkg_mass_rebinned");
+        l.rooContainer->WriteDataCard(outputfilename,"data_mass","sig_mass_m115","bkg_mass_rebinned");
+        l.rooContainer->WriteDataCard(outputfilename,"data_mass","sig_mass_m120","bkg_mass_rebinned");
+        l.rooContainer->WriteDataCard(outputfilename,"data_mass","sig_mass_m130","bkg_mass_rebinned");
+        l.rooContainer->WriteDataCard(outputfilename,"data_mass","sig_mass_m140","bkg_mass_rebinned");
 
 }
 
@@ -58,6 +59,28 @@ void StatAnalysis::Init(LoopAll& l)
 	if(PADEBUG) 
 		cout << "InitRealStatAnalysis START"<<endl;
 
+/*
+//	r = new TRandom3();
+	if (icat == 0) {escale = 0.39; eres = 1.58;} 	// EB high r9
+	if (icat == 1) {escale = 0.19; eres = 1.8;} 	// EB low r9
+	if (icat == 2) {escale = 1.83; eres = 3.61;} 	// EE high r9
+	if (icat == 3) {escale = 2.02; eres = 3.17;} 	// EE low r9
+
+	energySmearerParams = EnergySmearer::energySmearingParameters;
+	energySmearerParams.n_categories=4;
+
+	scale_offset["EBHighR9"] = 0.39;
+	scale_offset["EBLowR9"]  = 0.19;
+	scale_offset["EEHighR9"] = 1.83;
+	scale_offset["EELowR9"]  = 2.02;
+
+	scale_offset["EBHighR9"] = 0.39;
+	scale_offset["EBLowR9"]  = 0.19;
+	scale_offset["EEHighR9"] = 1.83;
+	scale_offset["EELowR9"]  = 2.02;
+
+	energySmearer = new EnergySmearer()
+*/
 	// call the base class initializer
 	PhotonAnalysis::Init(l);
         // Define the number of categories for the statistical analysis and
@@ -65,33 +88,34 @@ void StatAnalysis::Init(LoopAll& l)
 
 	l.rooContainer->SetNCategories(4);
 	std::vector<std::string> sys(1,"E_scale");
-//	l.rooContainer->MakeSystematicStudy(sys);
+	std::vector<int> sys_t(1,-1);	// -1 for signal, 1 for background 0 for both
+	//l.rooContainer->MakeSystematicStudy(sys,sys_t);
 	// ----------------------------------------------------
 
 	// Create observables for shape-analysis with ranges
-	l.rooContainer->AddObservable("mass" ,95.,200.);
+	l.rooContainer->AddObservable("mass" ,100.,200.);
 
 	// Create parameters and pdfs for signal/background
 
 	// Data shape - Exponential + Zee tail
-	l.rooContainer->AddRealVar("mu_data",-0.04,-2.,-0.001);
-	l.rooContainer->AddRealVar("mu_z_data",-0.5,-2.,-0.001);
+	l.rooContainer->AddRealVar("mu_data",-0.04,-2.,-0.0001);
+	l.rooContainer->AddRealVar("mu_tail_data",-0.02,-0.5,-0.0001);
 
 	std::vector<std::string> data_exp_pars(1,"e");	 
 	data_exp_pars[0] = "mu_data";
-	std::vector<std::string> data_zee_pars(1,"e");	 
-	data_zee_pars[0] = "mu_z_data";
+	std::vector<std::string> data_tail_pars(1,"e");	 
+	data_tail_pars[0] = "mu_tail_data";
 
 	l.rooContainer->AddGenericPdf("data_exp_model",
-	  "","mass",data_exp_pars,1); // 1 for exonential, no need for formula
+	  "","mass",data_exp_pars,1);//,0.8,0.5,0.99); // 1 for exonential, no need for formula
  
-	l.rooContainer->AddGenericPdf("data_zee_model",
-	  "","mass",data_zee_pars,1); // 1 for exonential, no need for formula 
+	l.rooContainer->AddGenericPdf("data_tail_model",
+	  "","mass",data_tail_pars,1,0.2,0.,0.5); // 1 for exonential, no need for formula 
 
         std::vector<std::string> components_data(2,"c");
         components_data[0] = "data_exp_model";
-        components_data[1] = "data_zee_model";
-        l.rooContainer->ComposePdf("data_model","data_exp_model+data_zee_model",components_data,true); // true means use extended pdfs
+        components_data[1] = "data_tail_model";
+        l.rooContainer->ComposePdf("data_model","data_exp_model+data_tail_model",components_data,false); // true means use extended pdfs
 	// ------------------------------------------------------
         
         // Background - Exponential
@@ -139,14 +163,13 @@ void StatAnalysis::Init(LoopAll& l)
 
 	// Make some data sets from the observables to fill in the event loop		  
 	// Binning is for histograms (will also produce unbinned data sets)
-	l.rooContainer->CreateDataSet("mass","data_mass_full",105); // only specify nbins for hist -> data_set and hist range set at default range
-	l.rooContainer->CreateDataSet("mass","data_mass"    ,50,105,155); // range for dataset and histogram
-	l.rooContainer->CreateDataSet("mass","bkg_mass"     ,50,105,155);    	  	
-        l.rooContainer->CreateDataSet("mass","zee_mass"     ,50,105,155);    	  
-	l.rooContainer->CreateDataSet("mass","sig_mass_m110",50,105,155);    
-	l.rooContainer->CreateDataSet("mass","sig_mass_m120",50,105,155);    
-	l.rooContainer->CreateDataSet("mass","sig_mass_m130",50,105,155);    
-	l.rooContainer->CreateDataSet("mass","sig_mass_m140",50,105,155);    
+	l.rooContainer->CreateDataSet("mass","data_mass"    ,100); // (100,110,150) -> for a window, else full obs range is taken 
+	l.rooContainer->CreateDataSet("mass","bkg_mass"     ,100);    	  	
+	l.rooContainer->CreateDataSet("mass","sig_mass_m110",100);    
+	l.rooContainer->CreateDataSet("mass","sig_mass_m115",100);    
+	l.rooContainer->CreateDataSet("mass","sig_mass_m120",100);    
+	l.rooContainer->CreateDataSet("mass","sig_mass_m130",100);    
+	l.rooContainer->CreateDataSet("mass","sig_mass_m140",100);    
 
 	// Make more data sets to represent systematic shitfs , 
 	//l.rooContainer->MakeSystematics("mass","sig_mass_m120","E_scale");	
@@ -169,7 +192,9 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     int n_pu = l.pu_n;
     if (l.itype[l.current] !=0 && puHist != "") {
         if(n_pu<weights.size()){
-             weight *= weights[n_pu];
+	     //cout << n_pu<<endl;
+	     //std::cout << weights[n_pu] << std::endl;
+             //weight *= weights[n_pu];
         }    
         else{ //should not happen 
              cout<<"n_pu ("<< n_pu<<") too big ("<<weights.size()
@@ -177,6 +202,28 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
         }
     }
 
+   // smear all of the photons!
+
+/*
+   for (int ipho=0 ;ipho<l.pho_n;ipho++){
+	
+	double escale;
+	double eres;
+
+	int icat = l.PhotonCategory(ipho,2,2);
+	if (icat == 0) {escale = 0.39; eres = 1.58;} 	// EB high r9
+	if (icat == 1) {escale = 0.19; eres = 1.8;} 	// EB low r9
+	if (icat == 2) {escale = 1.83; eres = 3.61;} 	// EE high r9
+	if (icat == 3) {escale = 2.02; eres = 3.17;} 	// EE low r9
+
+        TLorentzVector p4 = *((TLorentzVector*)l.pho_p4->At(ipho));
+	double newE = p4.E()+r->Gaus(escale,eres);
+	p4.SetE(newE);
+	cout << newE<<endl;;
+	*((TLorentzVector*)l.pho_p4->At(ipho))= p4;	
+
+   }
+*/
    std::pair<int,int> diphoton_index;
    int leadLevel=2, subLevel=2;
 
@@ -220,20 +267,18 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
   
 	 if (cur_type == 0 ){
-	   l.rooContainer->InputDataPoint("data_mass",category,mass,weight);
-	   l.rooContainer->InputDataPoint("data_mass_full",category,mass,weight);
+	   l.rooContainer->InputDataPoint("data_mass",category,mass);
          }
-	 if (cur_type > 0 && cur_type != 3 && cur_type != 4)
+	 if (cur_type > 0)
 	   l.rooContainer->InputDataPoint("bkg_mass",category,mass,weight);
 	 else if (cur_type == 3 || cur_type == 4)
 	   l.rooContainer->InputDataPoint("zee_mass",category,mass,weight);
-	 //else if (cur_type == -1 || cur_type == -2 || cur_type == -3)
-	 //  l.rooContainer->InputDataPoint("sig_mass_m100",category,mass,weight);
-	 else if (cur_type == -4 || cur_type == -5 || cur_type == -6)
+	 else if (cur_type == -1 || cur_type == -2 || cur_type == -3)
 	   l.rooContainer->InputDataPoint("sig_mass_m110",category,mass,weight);
+	 else if (cur_type == -4 || cur_type == -5 || cur_type == -6)
+	   l.rooContainer->InputDataPoint("sig_mass_m115",category,mass,weight);
 	 else if (cur_type == -7 || cur_type == -8 || cur_type == -9)
 	   l.rooContainer->InputDataPoint("sig_mass_m120",category,mass,weight);
-//           l.rooContainer->InputSystematicSet("sig_mass_m120","E_scale",category,mass_errors);
 	 else if (cur_type == -10 || cur_type == -11 || cur_type == -12)
 	   l.rooContainer->InputDataPoint("sig_mass_m130",category,mass,weight);
 	 else if (cur_type == -13 || cur_type == -14 || cur_type == -15)
@@ -297,191 +342,5 @@ void StatAnalysis::PreselectPhotons(LoopAll& l, int jentry)
 // ----------------------------------------------------------------------------------------------------
 bool StatAnalysis::SelectEvents(LoopAll& l, int jentry) 
 {
-	if (l.itype[l.current] != 0) return true;
-
-	if (l.run < 160404) return true;
-  if (l.run == 160431 && l.lumis>=19 && l.lumis<=218) return true;
-  if (l.run == 160577 && l.lumis>=254 && l.lumis<=306) return true;
-  if (l.run == 160578 && l.lumis>=6 && l.lumis<=53) return true;
-  if (l.run == 160578 && l.lumis>=274 && l.lumis<=400) return true;
-  if (l.run == 160871 && l.lumis>=68 && l.lumis<=208) return true;
-  if (l.run == 160872 && l.lumis>=1 && l.lumis<=9) return true;
-  if (l.run == 160872 && l.lumis>=25 && l.lumis<=35) return true;
-  if (l.run == 160872 && l.lumis>=38 && l.lumis<=55) return true;
-  if (l.run == 160873 && l.lumis>=1 && l.lumis<=147) return true;
-  if (l.run == 160874 && l.lumis>=1 && l.lumis<=51) return true;
-  if (l.run == 160874 && l.lumis>=97 && l.lumis<=113) return true;
-  if (l.run == 160939 && l.lumis>=1 && l.lumis<=123) return true;
-  if (l.run == 160940 && l.lumis>=1 && l.lumis<=79) return true;
-  if (l.run == 160942 && l.lumis>=1 && l.lumis<=12) return true;
-  if (l.run == 160943 && l.lumis>=1 && l.lumis<=54) return true;
-  if (l.run == 160955 && l.lumis>=1 && l.lumis<=130) return true;
-  if (l.run == 160955 && l.lumis>=133 && l.lumis<=138) return true;
-  if (l.run == 160955 && l.lumis>=140 && l.lumis<=151) return true;
-  if (l.run == 160955 && l.lumis>=153 && l.lumis<=154) return true;
-  if (l.run == 160955 && l.lumis>=156 && l.lumis<=172) return true;
-  if (l.run == 160955 && l.lumis>=175 && l.lumis<=201) return true;
-  if (l.run == 160955 && l.lumis>=204 && l.lumis<=206) return true;
-  if (l.run == 160956 && l.lumis>=2 && l.lumis<=65) return true;
-  if (l.run == 160957 && l.lumis>=1 && l.lumis<=953) return true;
-  if (l.run == 160998 && l.lumis>=2 && l.lumis<=252) return true;
-  if (l.run == 161008 && l.lumis>=1 && l.lumis<=77) return true;
-  if (l.run == 161016 && l.lumis>=2 && l.lumis<=300) return true;
-  if (l.run == 162803 && l.lumis>=60 && l.lumis<=124) return true;
-  if (l.run == 162803 && l.lumis>=135 && l.lumis<=139) return true;
-  if (l.run == 162808 && l.lumis>=1 && l.lumis<=51) return true;
-  if (l.run == 162811 && l.lumis>=1 && l.lumis<=340) return true;
-  if (l.run == 162822 && l.lumis>=73 && l.lumis<=307) return true;
-  if (l.run == 162825 && l.lumis>=1 && l.lumis<=184) return true;
-  if (l.run == 162826 && l.lumis>=1 && l.lumis<=24) return true;
-  if (l.run == 162828 && l.lumis>=1 && l.lumis<=85) return true;
-  if (l.run == 162909 && l.lumis>=54 && l.lumis<=290) return true;
-  if (l.run == 163046 && l.lumis>=1 && l.lumis<=133) return true;
-  if (l.run == 163046 && l.lumis>=135 && l.lumis<=238) return true;
-  if (l.run == 163069 && l.lumis>=73 && l.lumis<=452) return true;
-  if (l.run == 163069 && l.lumis>=468 && l.lumis<=633) return true;
-  if (l.run == 163071 && l.lumis>=1 && l.lumis<=161) return true;
-  if (l.run == 163078 && l.lumis>=1 && l.lumis<=23) return true;
-  if (l.run == 163232 && l.lumis>=110 && l.lumis<=149) return true;
-  if (l.run == 163233 && l.lumis>=1 && l.lumis<=283) return true;
-  if (l.run == 163234 && l.lumis>=1 && l.lumis<=66) return true;
-  if (l.run == 163235 && l.lumis>=1 && l.lumis<=461) return true;
-  if (l.run == 163237 && l.lumis>=1 && l.lumis<=213) return true;
-  if (l.run == 163238 && l.lumis>=9 && l.lumis<=15) return true;
-  if (l.run == 163252 && l.lumis>=60 && l.lumis<=137) return true;
-  if (l.run == 163255 && l.lumis>=1 && l.lumis<=359) return true;
-  if (l.run == 163255 && l.lumis>=412 && l.lumis<=844) return true;
-  if (l.run == 163255 && l.lumis>=846 && l.lumis<=846) return true;
-  if (l.run == 163255 && l.lumis>=848 && l.lumis<=977) return true;
-  if (l.run == 163261 && l.lumis>=1 && l.lumis<=3) return true;
-  if (l.run == 163261 && l.lumis>=10 && l.lumis<=126) return true;
-  if (l.run == 163270 && l.lumis>=1 && l.lumis<=76) return true;
-  if (l.run == 163270 && l.lumis>=79 && l.lumis<=96) return true;
-  if (l.run == 163270 && l.lumis>=99 && l.lumis<=475) return true;
-  if (l.run == 163270 && l.lumis>=479 && l.lumis<=527) return true;
-  if (l.run == 163270 && l.lumis>=529 && l.lumis<=685) return true;
-  if (l.run == 163270 && l.lumis>=695 && l.lumis<=928) return true;
-  if (l.run == 163286 && l.lumis>=112 && l.lumis<=401) return true;
-  if (l.run == 163289 && l.lumis>=1 && l.lumis<=388) return true;
-  if (l.run == 163296 && l.lumis>=59 && l.lumis<=230) return true;
-  if (l.run == 163296 && l.lumis>=232 && l.lumis<=585) return true;
-  if (l.run == 163297 && l.lumis>=1 && l.lumis<=219) return true;
-  if (l.run == 163300 && l.lumis>=1 && l.lumis<=616) return true;
-  if (l.run == 163301 && l.lumis>=1 && l.lumis<=192) return true;
-  if (l.run == 163302 && l.lumis>=1 && l.lumis<=190) return true;
-  if (l.run == 163332 && l.lumis>=43 && l.lumis<=118) return true;
-  if (l.run == 163332 && l.lumis>=224 && l.lumis<=264) return true;
-  if (l.run == 163332 && l.lumis>=266 && l.lumis<=599) return true;
-  if (l.run == 163332 && l.lumis>=601 && l.lumis<=639) return true;
-  if (l.run == 163332 && l.lumis>=641 && l.lumis<=801) return true;
-  if (l.run == 163333 && l.lumis>=1 && l.lumis<=106) return true;
-  if (l.run == 163334 && l.lumis>=1 && l.lumis<=35) return true;
-  if (l.run == 163334 && l.lumis>=37 && l.lumis<=37) return true;
-  if (l.run == 163334 && l.lumis>=156 && l.lumis<=556) return true;
-  if (l.run == 163337 && l.lumis>=1 && l.lumis<=18) return true;
-  if (l.run == 163337 && l.lumis>=27 && l.lumis<=201) return true;
-  if (l.run == 163337 && l.lumis>=203 && l.lumis<=426) return true;
-  if (l.run == 163337 && l.lumis>=434 && l.lumis<=461) return true;
-  if (l.run == 163338 && l.lumis>=1 && l.lumis<=164) return true;
-  if (l.run == 163339 && l.lumis>=1 && l.lumis<=172) return true;
-  if (l.run == 163340 && l.lumis>=1 && l.lumis<=488) return true;
-  if (l.run == 163358 && l.lumis>=39 && l.lumis<=63) return true;
-  if (l.run == 163369 && l.lumis>=1 && l.lumis<=94) return true;
-  if (l.run == 163370 && l.lumis>=1 && l.lumis<=147) return true;
-  if (l.run == 163371 && l.lumis>=1 && l.lumis<=107) return true;
-  if (l.run == 163371 && l.lumis>=148 && l.lumis<=363) return true;
-  if (l.run == 163372 && l.lumis>=1 && l.lumis<=52) return true;
-  if (l.run == 163374 && l.lumis>=1 && l.lumis<=599) return true;
-  if (l.run == 163374 && l.lumis>=603 && l.lumis<=863) return true;
-  if (l.run == 163375 && l.lumis>=1 && l.lumis<=10) return true;
-  if (l.run == 163376 && l.lumis>=1 && l.lumis<=20) return true;
-  if (l.run == 163376 && l.lumis>=22 && l.lumis<=246) return true;
-  if (l.run == 163378 && l.lumis>=1 && l.lumis<=81) return true;
-  if (l.run == 163378 && l.lumis>=89 && l.lumis<=272) return true;
-  if (l.run == 163378 && l.lumis>=306 && l.lumis<=615) return true;
-  if (l.run == 163385 && l.lumis>=52 && l.lumis<=240) return true;
-  if (l.run == 163385 && l.lumis>=244 && l.lumis<=406) return true;
-  if (l.run == 163387 && l.lumis>=1 && l.lumis<=256) return true;
-  if (l.run == 163402 && l.lumis>=37 && l.lumis<=582) return true;
-  if (l.run == 163402 && l.lumis>=586 && l.lumis<=801) return true;
-  if (l.run == 163475 && l.lumis>=30 && l.lumis<=295) return true;
-  if (l.run == 163476 && l.lumis>=1 && l.lumis<=94) return true;
-  if (l.run == 163476 && l.lumis>=98 && l.lumis<=212) return true;
-  if (l.run == 163478 && l.lumis>=1 && l.lumis<=70) return true;
-  if (l.run == 163479 && l.lumis>=1 && l.lumis<=175) return true;
-  if (l.run == 163480 && l.lumis>=1 && l.lumis<=92) return true;
-  if (l.run == 163480 && l.lumis>=96 && l.lumis<=188) return true;
-  if (l.run == 163480 && l.lumis>=190 && l.lumis<=191) return true;
-  if (l.run == 163481 && l.lumis>=1 && l.lumis<=72) return true;
-  if (l.run == 163481 && l.lumis>=74 && l.lumis<=77) return true;
-  if (l.run == 163481 && l.lumis>=79 && l.lumis<=79) return true;
-  if (l.run == 163482 && l.lumis>=1 && l.lumis<=27) return true;
-  if (l.run == 163482 && l.lumis>=48 && l.lumis<=48) return true;
-  if (l.run == 163483 && l.lumis>=1 && l.lumis<=57) return true;
-  if (l.run == 163582 && l.lumis>=1 && l.lumis<=22) return true;
-  if (l.run == 163583 && l.lumis>=1 && l.lumis<=63) return true;
-  if (l.run == 163583 && l.lumis>=65 && l.lumis<=92) return true;
-  if (l.run == 163583 && l.lumis>=96 && l.lumis<=155) return true;
-  if (l.run == 163583 && l.lumis>=157 && l.lumis<=173) return true;
-  if (l.run == 163583 && l.lumis>=175 && l.lumis<=219) return true;
-  if (l.run == 163584 && l.lumis>=1 && l.lumis<=56) return true;
-  if (l.run == 163585 && l.lumis>=1 && l.lumis<=32) return true;
-  if (l.run == 163586 && l.lumis>=1 && l.lumis<=75) return true;
-  if (l.run == 163587 && l.lumis>=1 && l.lumis<=52) return true;
-  if (l.run == 163588 && l.lumis>=1 && l.lumis<=8) return true;
-  if (l.run == 163588 && l.lumis>=10 && l.lumis<=446) return true;
-  if (l.run == 163589 && l.lumis>=1 && l.lumis<=49) return true;
-  if (l.run == 163589 && l.lumis>=51 && l.lumis<=160) return true;
-  if (l.run == 163596 && l.lumis>=1 && l.lumis<=29) return true;
-  if (l.run == 163630 && l.lumis>=76 && l.lumis<=164) return true;
-  if (l.run == 163630 && l.lumis>=176 && l.lumis<=185) return true;
-  if (l.run == 163655 && l.lumis>=15 && l.lumis<=23) return true;
-  if (l.run == 163657 && l.lumis>=1 && l.lumis<=140) return true;
-  if (l.run == 163658 && l.lumis>=1 && l.lumis<=3) return true;
-  if (l.run == 163659 && l.lumis>=1 && l.lumis<=374) return true;
-  if (l.run == 163659 && l.lumis>=376 && l.lumis<=650) return true;
-  if (l.run == 163659 && l.lumis>=652 && l.lumis<=705) return true;
-  if (l.run == 163660 && l.lumis>=1 && l.lumis<=74) return true;
-  if (l.run == 163661 && l.lumis>=1 && l.lumis<=17) return true;
-  if (l.run == 163662 && l.lumis>=1 && l.lumis<=154) return true;
-  if (l.run == 163663 && l.lumis>=1 && l.lumis<=106) return true;
-  if (l.run == 163663 && l.lumis>=109 && l.lumis<=246) return true;
-  if (l.run == 163664 && l.lumis>=1 && l.lumis<=119) return true;
-  if (l.run == 163664 && l.lumis>=121 && l.lumis<=178) return true;
-  if (l.run == 163668 && l.lumis>=1 && l.lumis<=53) return true;
-  if (l.run == 163668 && l.lumis>=57 && l.lumis<=136) return true;
-  if (l.run == 163668 && l.lumis>=140 && l.lumis<=213) return true;
-  if (l.run == 163738 && l.lumis>=34 && l.lumis<=311) return true;
-  if (l.run == 163757 && l.lumis>=1 && l.lumis<=40) return true;
-  if (l.run == 163758 && l.lumis>=1 && l.lumis<=17) return true;
-  if (l.run == 163758 && l.lumis>=19 && l.lumis<=220) return true;
-  if (l.run == 163758 && l.lumis>=222 && l.lumis<=224) return true;
-  if (l.run == 163758 && l.lumis>=236 && l.lumis<=276) return true;
-  if (l.run == 163758 && l.lumis>=283 && l.lumis<=374) return true;
-  if (l.run == 163758 && l.lumis>=376 && l.lumis<=466) return true;
-  if (l.run == 163758 && l.lumis>=468 && l.lumis<=591) return true;
-  if (l.run == 163759 && l.lumis>=1 && l.lumis<=60) return true;
-  if (l.run == 163759 && l.lumis>=62 && l.lumis<=72) return true;
-  if (l.run == 163759 && l.lumis>=74 && l.lumis<=456) return true;
-  if (l.run == 163759 && l.lumis>=458 && l.lumis<=461) return true;
-  if (l.run == 163759 && l.lumis>=463 && l.lumis<=482) return true;
-  if (l.run == 163759 && l.lumis>=504 && l.lumis<=510) return true;
-  if (l.run == 163760 && l.lumis>=1 && l.lumis<=162) return true;
-  if (l.run == 163760 && l.lumis>=165 && l.lumis<=340) return true;
-  if (l.run == 163761 && l.lumis>=1 && l.lumis<=203) return true;
-  if (l.run == 163763 && l.lumis>=1 && l.lumis<=79) return true;
-  if (l.run == 163765 && l.lumis>=1 && l.lumis<=321) return true;
-  if (l.run == 163795 && l.lumis>=10 && l.lumis<=34) return true;
-  if (l.run == 163795 && l.lumis>=36 && l.lumis<=36) return true;
-  if (l.run == 163795 && l.lumis>=38 && l.lumis<=43) return true;
-  if (l.run == 163796 && l.lumis>=1 && l.lumis<=182) return true;
-  if (l.run == 163817 && l.lumis>=50 && l.lumis<=140) return true;
-  if (l.run == 163817 && l.lumis>=154 && l.lumis<=205) return true;
-  if (l.run == 163817 && l.lumis>=216 && l.lumis<=295) return true;
-  if (l.run == 163817 && l.lumis>=305 && l.lumis<=346) return true;
-  if (l.run == 163817 && l.lumis>=358 && l.lumis<=457) return true;
-  if (l.run == 163817 && l.lumis>=561 && l.lumis<=603) return true;
-  if (l.run == 163817 && l.lumis>=618 && l.lumis<=966) return true;
-  if (l.run == 163869 && l.lumis>=79 && l.lumis<=123) return true;
-  return false;
+ return true;
 }
