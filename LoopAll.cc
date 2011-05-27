@@ -756,30 +756,35 @@ int LoopAll::FillAndReduce(int jentry) {
 }
 
 // ------------------------------------------------------------------------------------
-void LoopAll::GetBranches(std::set<std::string> & names, std::set<TBranch *> & branches)
+void LoopAll::GetBranches(std::map<std::string,int> & names, std::set<TBranch *> & branches)
 {
-    for(std::set<std::string>::iterator it=names.begin(); it!=names.end(); ++it ) {
-	const std::string & name = *it;
+    for(std::map<std::string,int>::iterator it=names.begin(); it!=names.end(); ++it ) {
+	const std::string & name = (*it).first;
+	int typ = (*it).second;
 	branch_info_t & info = branchDict[ name ];
 	if( info.branch == 0 ) {
 		std::cerr << "no branch '"<< name << "'" << std::endl;
 		assert( 0 );
 	}
-	*(info.branch) = fChain->GetBranch( name.c_str() );
-	branches.insert( *(info.branch) );
+        if ( itype[current]!=0 || typ!=1){
+	  *(info.branch) = fChain->GetBranch( name.c_str() );
+	  branches.insert( *(info.branch) );
+	}
     }
 }
 
 // ------------------------------------------------------------------------------------
-void LoopAll::SetBranchAddresses(std::set<std::string> & names) {
-    for(std::set<std::string>::iterator it=names.begin(); it!=names.end(); ++it ) {
-	const std::string & name = *it;
+void LoopAll::SetBranchAddresses(std::map<std::string,int> & names) {
+    for(std::map<std::string,int>::iterator it=names.begin(); it!=names.end(); ++it ) {
+	const std::string & name = (*it).first;
+	int typ = (*it).second;
 	branch_info_t & info = branchDict[ name ];
 	if( info.read == 0 ){
 		std::cerr << "no read function for branch '"<< name << "'" << std::endl;
 		assert( 0 );
 	}
-	(this->*(info.read)) (fChain);
+        if ( itype[current]!=0 || typ!=1)
+	  (this->*(info.read)) (fChain);
     }
 }
 

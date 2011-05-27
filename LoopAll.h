@@ -150,11 +150,11 @@ class LoopAll {
   }
   
   /// void SkimBranch(const std::string & name)   { skimBranchNames.insert(name);  };
-  void InputBranch(const std::string & name)  { inputBranchNames.insert(name); };
+  void InputBranch(const std::string & name, int typ)  { inputBranchNames.insert(std::pair<std::string,int>(name,typ)); };
   void OutputBranch(const std::string & name) { if( find(outputBranchNames.begin(), outputBranchNames.end(), name)==outputBranchNames.end() ) { outputBranchNames.push_back(name); } };
 
-  void GetBranches(std::set<std::string> & names, std::set<TBranch *> & branches);
-  void SetBranchAddresses(std::set<std::string> & names);
+  void GetBranches(std::map<std::string,int> & names, std::set<TBranch *> & branches);
+  void SetBranchAddresses(std::map<std::string,int> & names);
   void Branches(std::list<std::string> & names);
   void GetEntry(std::set<TBranch *> & branches, int jentry);
 
@@ -175,7 +175,7 @@ class LoopAll {
 
   //// std::set<std::string> skimBranchNames;
   //// std::set<TBranch *> skimBranches; 
-  std::set<std::string> inputBranchNames;
+  std::map<std::string,int> inputBranchNames;
   std::set<TBranch *> inputBranches; 
   std::list<std::string> outputBranchNames;
   

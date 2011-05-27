@@ -533,9 +533,9 @@ class configProducer:
       if ":" in b:
         bname, sbtype = b.split(":")
         btype = int(sbtype)
-      if btype == 0 or not self.is_data_:
-        print "Reading input branch %s " % bname   
-        self.ut_.InputBranch(bname)
+      #if btype == 0 or not self.is_data_:
+      print "Reading input branch %s " % bname   
+      self.ut_.InputBranch(bname,btype)
 
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def read_output_branches(self,line):
@@ -553,9 +553,9 @@ class configProducer:
         print b
         bname, sbtype = b.split(":")
         btype = int(sbtype)
-      if btype == 0 or not self.is_data_:
-        self.ut_.InputBranch(bname)
-        self.ut_.OutputBranch(bname)
+     # if btype == 0 or not self.is_data_:
+      self.ut_.InputBranch(bname,btype)
+      self.ut_.OutputBranch(bname)
 
 #--------------------------------------------------------//
 #EOF 
