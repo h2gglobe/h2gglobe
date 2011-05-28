@@ -1,6 +1,7 @@
 #include "../interface/StatAnalysis.h"
 
 #include "Sorters.h"
+#include "PhotonReducedInfo.h"
 #include <iostream>
 #include <algorithm>
 
@@ -10,7 +11,6 @@ using namespace std;
 
 // ----------------------------------------------------------------------------------------------------
 StatAnalysis::StatAnalysis()  : 
-	runStatAnalysis(false),
 	name_("StatAnalysis"),
 	vtxAna_(vtxAlgoParams), vtxConv_(vtxAlgoParams)
 {
@@ -58,7 +58,52 @@ void StatAnalysis::Init(LoopAll& l)
 {
 	if(PADEBUG) 
 		cout << "InitRealStatAnalysis START"<<endl;
+	
+	// call the base class initializer
+	PhotonAnalysis::Init(l);
 
+	// FIXME: move to config file 
+	doEscaleSyst = false;
+	doEresolSyst = false;
+	nCategories = 4;
+
+	eSmearPars.categoryType = "2CatR9_EBEE";
+
+	// Number's from Adi's presentation 23 / 5
+	eSmearPars.n_categories = nCategories; 
+	// FIXME: 
+	// . shall apply E-scale correction to data?  
+	// . double-check signs
+	eSmearPars.scale_offset["EBHighR9"] = 4.6e-3;
+	eSmearPars.scale_offset["EBLowR9"]  = -1.9e-3;
+	eSmearPars.scale_offset["EEHighR9"] = -7.6e-3;
+	eSmearPars.scale_offset["EELowR9"]  = -2.1e-3;
+
+	eSmearPars.scale_offset_error["EBHighR9"] = 7e-4;
+	eSmearPars.scale_offset_error["EBLowR9"]  = 6e-4;
+	eSmearPars.scale_offset_error["EEHighR9"] = 1.8e-3;
+	eSmearPars.scale_offset_error["EELowR9"]  = 2.5e-4;
+
+	eSmearPars.smearing_sigma["EBHighR9"] = 9.6e-3;
+	eSmearPars.smearing_sigma["EBLowR9"]  = 1.348e-2;
+	eSmearPars.smearing_sigma["EEHighR9"] = 2.5e-2;
+	eSmearPars.smearing_sigma["EELowR9"]  = 2.3e-2;
+
+	eSmearPars.smearing_sigma_error["EBHighR9"] = 1.e-3;
+	eSmearPars.smearing_sigma_error["EBLowR9"]  = 6e-4;
+	eSmearPars.smearing_sigma_error["EEHighR9"] = 2e-3;
+	eSmearPars.smearing_sigma_error["EELowR9"]  = 2e-3;
+
+	eScaleSmearer = new EnergySmearer( eSmearPars );
+	eScaleSmearer->name("E_scale");
+	eScaleSmearer->scaleOrSmear(true);
+	
+	eResolSmearer = new EnergySmearer( eSmearPars );
+	eResolSmearer->name("E_res");
+	eResolSmearer->scaleOrSmear(false);
+	
+	photonSmearers_.push_back(eScaleSmearer);
+	photonSmearers_.push_back(eResolSmearer);
 /*
 //	r = new TRandom3();
 	if (icat == 0) {escale = 0.39; eres = 1.58;} 	// EB high r9
@@ -81,15 +126,26 @@ void StatAnalysis::Init(LoopAll& l)
 
 	energySmearer = new EnergySmearer()
 */
-	// call the base class initializer
-	PhotonAnalysis::Init(l);
         // Define the number of categories for the statistical analysis and
 	// the systematic sets to be formed
 
-	l.rooContainer->SetNCategories(4);
-	std::vector<std::string> sys(1,"E_scale");
-	std::vector<int> sys_t(1,-1);	// -1 for signal, 1 for background 0 for both
-	//l.rooContainer->MakeSystematicStudy(sys,sys_t);
+	// FIXME move these params to config file
+	l.rooContainer->SetNCategories(nCategories);
+	systRange  = 1.; // in units of sigma
+	nSystSteps = 3;    
+
+	if( doEscaleSyst ) {
+		systPhotonSmearers_.push_back( eScaleSmearer );
+		std::vector<std::string> sys(1,eScaleSmearer->name());
+		std::vector<int> sys_t(1,-1);	// -1 for signal, 1 for background 0 for both
+		l.rooContainer->MakeSystematicStudy(sys,sys_t);
+	}
+	if( doEresolSyst ) {
+		systPhotonSmearers_.push_back( eResolSmearer );
+		std::vector<std::string> sys(1,eResolSmearer->name());
+		std::vector<int> sys_t(1,-1);	// -1 for signal, 1 for background 0 for both
+		l.rooContainer->MakeSystematicStudy(sys,sys_t);
+	}
 	// ----------------------------------------------------
 
 	// Create observables for shape-analysis with ranges
@@ -230,64 +286,196 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
    float leadEtCut   = 40.0;
    float subleadEtCut = 30.0;
 
-   diphoton_index = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtCut, subleadEtCut, 4,false); 
- 
+   TVector3 * vtx = (TVector3*)l.vtx_std_xyz->At(l.vtx_std_sel);
+
+   // Nominal smearing
+   TClonesArray smeared_pho_p4("TLorentzVector",l.pho_n);
+   std::vector<float> smeared_pho_r9(l.pho_n,0.); 
+   std::vector<float> smeared_pho_weight(l.pho_n,1.);
+   
+   for(int ipho=0; ipho<l.pho_n; ++ipho ) { 
+       PhotonReducedInfo phoInfo ( *((TVector3*)l.pho_calopos->At(ipho)), ((TLorentzVector*)l.pho_p4->At(ipho))->Energy(), l.pho_isEB[ipho], l.pho_r9[ipho] );
+       // std::cerr << "Smearing photon " << ipho << " " << phoInfo.energy() << " " << phoInfo.r9() << " " << phoInfo.iDet() << std::endl;
+       float pweight = 1.;
+       // smear only MC. 
+       // FIXME: shall apply E-scale correction to data?  
+       if( cur_type != 0 ) {
+	   for(std::vector<BaseSmearer *>::iterator si=photonSmearers_.begin(); si!= photonSmearers_.end(); ++si ) {
+	       float sweight = 1.;
+	       (*si)->smearPhoton(phoInfo,weight,0.);
+	       pweight *= sweight;
+	   }
+       }
+       
+       // std::cerr << "Smeared photon " << ipho << " " << phoInfo.energy() << " " << phoInfo.r9() << " " << phoInfo.iDet() << std::endl;
+       new( smeared_pho_p4[ipho] )  TLorentzVector(phoInfo.p4(vtx->X(), vtx->Y(), vtx->Z() ));
+       smeared_pho_r9[ipho] = phoInfo.r9();
+       smeared_pho_weight[ipho] = pweight;
+   }
+   
+   // FIXME pass smeared R9
+   diphoton_index = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtCut, subleadEtCut, 4,false, &smeared_pho_p4 ); 
+   
    if (diphoton_index.first > -1 && diphoton_index.second > -1){
-
-   	 TLorentzVector *lead_p4 = (TLorentzVector*)l.pho_p4->At(diphoton_index.first);
-   	 TLorentzVector *sublead_p4 = (TLorentzVector*)l.pho_p4->At(diphoton_index.second);
-  	 TLorentzVector Higgs = *lead_p4 + *sublead_p4; 	
-
-	 float mass = Higgs.M();
- 
-	 // 4 categories used for the limit setting.... 2 r9, 2 Eta
-         int category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,2,2,0);
-	 
- 
-	// Assume a global 3% error on the EnergyScale, create vector of
-	// masses based on systematic shifts, need 30 down and 30 up 
-	// representing -3 -> +3 sigma in 0.1 sigma steps
-
-	// Needs some optimisation, loop slows down with systematics
-           float sys_error = 0.03;
-
-            std::vector<float> mass_errors;
-            for (int sys=1;sys<31;sys++){
-                 float incr = (float)sys/10;
-                 TLorentzVector lead_err = (1.-incr*sys_error)*(*lead_p4);
-                 TLorentzVector nlead_err = (1.-incr*sys_error)*(*sublead_p4);
-                 mass_errors.push_back((lead_err+nlead_err).M());
-            }
-            for (int sys=1;sys<31;sys++){
-                 float incr = (float)sys/10;
-                 TLorentzVector lead_err = (1.+incr*sys_error)*(*lead_p4);
-                 TLorentzVector nlead_err = (1.+incr*sys_error)*(*sublead_p4);
-                 mass_errors.push_back((lead_err+nlead_err).M());
-            }
-
-  
-	 if (cur_type == 0 ){
-	   l.rooContainer->InputDataPoint("data_mass",category,mass);
-         }
-	 if (cur_type > 0)
-	   l.rooContainer->InputDataPoint("bkg_mass",category,mass,weight);
-	 else if (cur_type == 3 || cur_type == 4)
-	   l.rooContainer->InputDataPoint("zee_mass",category,mass,weight);
-	 else if (cur_type == -1 || cur_type == -2 || cur_type == -3)
-	   l.rooContainer->InputDataPoint("sig_mass_m110",category,mass,weight);
-	 else if (cur_type == -4 || cur_type == -5 || cur_type == -6)
-	   l.rooContainer->InputDataPoint("sig_mass_m115",category,mass,weight);
-	 else if (cur_type == -7 || cur_type == -8 || cur_type == -9)
-	   l.rooContainer->InputDataPoint("sig_mass_m120",category,mass,weight);
-	 else if (cur_type == -10 || cur_type == -11 || cur_type == -12)
-	   l.rooContainer->InputDataPoint("sig_mass_m130",category,mass,weight);
-	 else if (cur_type == -13 || cur_type == -14 || cur_type == -15)
-	   l.rooContainer->InputDataPoint("sig_mass_m140",category,mass,weight);
-	
-	}
-	
-	if(PADEBUG) 
-		cout<<"myFillHistRed END"<<endl;
+       
+       float evweight = weight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second];
+       
+       TLorentzVector *lead_p4 = (TLorentzVector*)smeared_pho_p4.At(diphoton_index.first);
+       TLorentzVector *sublead_p4 = (TLorentzVector*)smeared_pho_p4.At(diphoton_index.second);
+       TLorentzVector Higgs = *lead_p4 + *sublead_p4; 	
+	   
+       // FIXME add di-photon smearings (and systematics?)
+       float mass = Higgs.M();
+       
+       // 4 categories used for the limit setting.... 2 r9, 2 Eta
+       // FIXME pass smeared R9
+       int category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,2,2,0);
+       
+       if (cur_type == 0 ){
+	   l.rooContainer->InputDataPoint("data_mass",category,mass,evweight);
+       }
+       if (cur_type > 0 && cur_type != 3 && cur_type != 4)
+	   l.rooContainer->InputDataPoint("bkg_mass",category,mass,evweight);
+       else if (cur_type == 3 || cur_type == 4)
+	   l.rooContainer->InputDataPoint("zee_mass",category,mass,evweight);
+       //else if (cur_type == -1 || cur_type == -2 || cur_type == -3)
+       //  l.rooContainer->InputDataPoint("sig_mass_m100",category,mass,evweight);
+       else if (cur_type == -1 || cur_type == -2 || cur_type == -3)
+	   l.rooContainer->InputDataPoint("sig_mass_m110",category,mass,evweight);
+       else if (cur_type == -4 || cur_type == -5 || cur_type == -6)
+	   l.rooContainer->InputDataPoint("sig_mass_m115",category,mass,evweight);
+       else if (cur_type == -7 || cur_type == -8 || cur_type == -9)
+	   l.rooContainer->InputDataPoint("sig_mass_m120",category,mass,evweight);
+       else if (cur_type == -10 || cur_type == -11 || cur_type == -12)
+	   l.rooContainer->InputDataPoint("sig_mass_m130",category,mass,evweight);
+       else if (cur_type == -13 || cur_type == -14 || cur_type == -15)
+	   l.rooContainer->InputDataPoint("sig_mass_m140",category,mass,evweight);
+       
+   }
+   
+   
+   // Systematics
+   
+   if( cur_type != 0 ) {
+       // FIXME smearers apply only to MC now
+       
+       
+       // fill steps for syst uncertainty study
+       float systStep = systRange / (float)nSystSteps;
+       
+       // loop over the smearers included in the systematics study
+       for(std::vector<BaseSmearer *>::iterator  si=systPhotonSmearers_.begin(); si!= systPhotonSmearers_.end(); ++si ) {
+	   std::vector<double> mass_errors;
+	   std::vector<double> weights;
+	   std::vector<int> categories;
+	   
+	   // loop over syst shift
+	   for(float syst_shift=-systRange; syst_shift<=systRange; syst_shift+=systRange ) { 
+	       // skip the central value 
+	       if( syst_shift == 0. ) { continue; } 
+	       
+	       // smear the photons 
+	       for(int ipho=0; ipho<l.pho_n; ++ipho ) { 
+		   
+		   PhotonReducedInfo phoInfo ( *((TVector3*)l.pho_calopos->At(ipho)), ((TLorentzVector*)l.pho_p4->At(ipho))->Energy(), l.pho_isEB[ipho], l.pho_r9[ipho] );
+		   float pweight = 1.;
+		   
+		   // move the smearer under study by syst_shift
+		   (*si)->smearPhoton(phoInfo,weight,syst_shift);
+		   
+		   // for the other use the nominal points
+		   for(std::vector<BaseSmearer *>::iterator  sj=photonSmearers_.begin(); sj!= photonSmearers_.end(); ++sj ) {
+		       if( *si == *sj ) { continue; }
+		       float sweight = 1.;
+		       (*sj)->smearPhoton(phoInfo,weight,0.);
+		       pweight *= sweight;
+		   }
+		   
+		   *((TLorentzVector *)smeared_pho_p4.At(ipho)) = phoInfo.p4(vtx->X(), vtx->Y(), vtx->Z() );
+		   smeared_pho_r9[ipho] = phoInfo.r9();
+		   smeared_pho_weight[ipho] = pweight;
+		   
+	       }
+	       
+	       // analyze the event
+	       // FIXME pass smeared R9
+	       diphoton_index = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtCut, subleadEtCut, 4,false, &smeared_pho_p4 ); 
+	       
+	       if (diphoton_index.first > -1 && diphoton_index.second > -1){
+		   
+		   float evweight = weight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second];
+		   
+		   TLorentzVector *lead_p4 = (TLorentzVector*)smeared_pho_p4.At(diphoton_index.first);
+		   TLorentzVector *sublead_p4 = (TLorentzVector*)smeared_pho_p4.At(diphoton_index.second);
+		   TLorentzVector Higgs = *lead_p4 + *sublead_p4; 	
+		   
+		   // FIXME di-photon smearings
+		   float mass = Higgs.M();
+		   
+		   // 4 categories used for the limit setting.... 2 r9, 2 Eta
+		   // FIXME pass smeared R9
+		   int category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,2,2,0);
+		   
+		   categories.push_back(category);
+		   mass_errors.push_back(mass);
+		   weights.push_back(evweight);
+		   
+	       } else {
+		   mass_errors.push_back(0.);   
+		   weights.push_back(0.);   
+		   categories.push_back(-1);
+	       }
+	       
+	       l.rooContainer->InputSystematicSet("sig_mass_m120",(*si)->name(),categories,mass_errors,weights);
+	       
+	       // Assume a global 3% error on the EnergyScale, create vector of
+	       // masses based on systematic shifts, need 30 down and 30 up 
+	       // representing -3 -> +3 sigma in 0.1 sigma steps
+	       
+	       ///// // Needs some optimisation, loop slows down with systematics
+	       ///// float sys_error = 0.03;
+	       ///// 
+	       ///// std::vector<float> mass_errors;
+	       ///// for (int sys=1;sys<31;sys++){
+	       ///// 	   float incr = (float)sys/10;
+	       ///// 	   TLorentzVector lead_err = (1.-incr*sys_error)*(*lead_p4);
+	       ///// 	   TLorentzVector nlead_err = (1.-incr*sys_error)*(*sublead_p4);
+	       ///// 	   mass_errors.push_back((lead_err+nlead_err).M());
+	       ///// }
+	       ///// for (int sys=1;sys<31;sys++){
+	       ///// 	   float incr = (float)sys/10;
+	       ///// 	   TLorentzVector lead_err = (1.+incr*sys_error)*(*lead_p4);
+	       ///// 	   TLorentzVector nlead_err = (1.+incr*sys_error)*(*sublead_p4);
+	       ///// 	   mass_errors.push_back((lead_err+nlead_err).M());
+	       ///// }
+	       ///// 
+	       ///// if (cur_type == 0 ){
+	       ///// 	   l.rooContainer->InputDataPoint("data_mass",category,mass,weight);
+	       ///// 	   l.rooContainer->InputDataPoint("data_mass_full",category,mass,weight);
+	       ///// }
+	       ///// if (cur_type > 0 && cur_type != 3 && cur_type != 4)
+	       ///// 	   l.rooContainer->InputDataPoint("bkg_mass",category,mass,weight);
+	       ///// else if (cur_type == 3 || cur_type == 4)
+	       ///// 	   l.rooContainer->InputDataPoint("zee_mass",category,mass,weight);
+	       ///// //else if (cur_type == -1 || cur_type == -2 || cur_type == -3)
+	       ///// //  l.rooContainer->InputDataPoint("sig_mass_m100",category,mass,weight);
+	       ///// else if (cur_type == -4 || cur_type == -5 || cur_type == -6)
+	       ///// 	   l.rooContainer->InputDataPoint("sig_mass_m110",category,mass,weight);
+	       ///// else if (cur_type == -7 || cur_type == -8 || cur_type == -9)
+	       ///// 	   l.rooContainer->InputDataPoint("sig_mass_m120",category,mass,weight);
+	       ///// //l.rooContainer->InputSystematicSet("sig_mass_m120","E_scale",category,mass_errors);
+	       ///// else if (cur_type == -10 || cur_type == -11 || cur_type == -12)
+	       ///// 	   l.rooContainer->InputDataPoint("sig_mass_m130",category,mass,weight);
+	       ///// else if (cur_type == -13 || cur_type == -14 || cur_type == -15)
+	       ///// 	   l.rooContainer->InputDataPoint("sig_mass_m140",category,mass,weight);
+	       ///// 
+	   }
+       }
+   }
+   smeared_pho_p4.Delete();
+   
+   if(PADEBUG) 
+	   cout<<"myFillHistRed END"<<endl;
 }
 
 // ----------------------------------------------------------------------------------------------------

@@ -7,7 +7,7 @@
 
 using namespace RooFit;
 
-RooContainer::RooContainer(int n):ncat(n),nsigmas(1),make_systematics(false){}
+RooContainer::RooContainer(int n, int s):ncat(n),nsigmas(s),make_systematics(false){}
 // ----------------------------------------------------------------------------------------------------
 void RooContainer::SetNCategories(int n){
    ncat = n;
@@ -316,72 +316,123 @@ void RooContainer::InputDataPoint(std::string var_name, int cat, double x, doubl
 
 
 // ----------------------------------------------------------------------------------------------------
-void RooContainer::InputSystematicSet(std::string s_name, std::string sys_name,int cat
-		  ,std::vector<double> x, double w){
+void RooContainer::InputSystematicSet(std::string s_name, std::string sys_name, std::vector<int> cats
+				      ,std::vector<double> x, std::vector<double> weights){
+
+  if( weights.empty() ) { weights.resize(x.size(),1.); }
+  
+  assert( x.size() == cats.size() );
+  assert( x.size() == weights.size() );
 
   if (x.size() != 2*nsigmas){
     std::cerr << "WARNING -- RooContainer::InputSystematicSet -- Size of vector must be equal to "
 	      << 2*nsigmas << " -- WARNING" << std::endl;
     return;	
   }
- 
- else{
 
-   if (cat>-1 && cat<ncat){
-
-    std::string cat_name = getcatName(s_name,cat);
-    std::string name = getsysName(cat_name,sys_name);
-
-    std::map<std::string,RooDataSet>::iterator it_var  = data_.find(cat_name);
-
-    if (it_var == data_.end()) 
-      std::cerr << "WARNING -- RooContainer::InpusSystematicSet -- No DataSet named "<< cat_name << std::endl;
+  else{
   
-    else {
+    for(size_t istep=0; istep < x.size(); ++istep ) {
+      int cat = cats[istep];
+      double w = weights[istep];
+  
+	if (cat>-1 && cat<ncat) {
 
-      // Safe to use this since creation of systematic set guaranteed to have come from an already existing dataset
-      RooRealVar *ptr = m_data_var_ptr_[cat_name];
-      double min_x = m_var_min_[cat_name];
-      double max_x = m_var_max_[cat_name];
+	  int ishift = istep - nsigmas;
 
-      std::vector<RooDataSet*>::iterator data_set_up = data_up_[name].begin();
-      std::vector<RooDataSet*>::iterator data_set_dn = data_dn_[name].begin();
-      std::vector<TH1F*>::iterator th1f_set_up = m_th1f_up_[name].begin();
-      std::vector<TH1F*>::iterator th1f_set_dn = m_th1f_dn_[name].begin();
-
-      std::vector<double>::iterator val = x.begin();
- 
+	  std::string cat_name = getcatName(s_name,cat);
+	  std::string name = getsysindexName( cat_name, sys_name, abs(ishift), (ishift > 0 ? 1 : -1) );
+	  
+	  std::map<std::string,RooDataSet>::iterator it_var  = data_.find(cat_name);
+	  
+	  if (it_var == data_.end()) 
+	    std::cerr << "WARNING -- RooContainer::InpusSystematicSet -- No DataSet named "<< cat_name << std::endl;
+	  
+	  else {
+	    
+	    // Safe to use this since creation of systematic set guaranteed to have come from an already existing dataset
+	    RooRealVar *ptr = m_data_var_ptr_[cat_name];
+	    double min_x = m_var_min_[cat_name];
+	    double max_x = m_var_max_[cat_name];
+	    
+	    RooDataSet & data_set = data_[name];
+	    TH1F & th1f_set = m_th1f_[name];
+	    
+	    double val = x[istep];
+	    *ptr = val;
+	    data_set.add(RooArgSet(*ptr),w);
+	    th1f_set.Fill(val,w);
+	    
+	  }
+	  
+	}
       
-      // Loop over the first nsigmas elements as the -1 -> dn sys
-      for (;data_set_dn != data_dn_[name].end()
-	   ;data_set_dn++,th1f_set_dn++,val++){
-
-        if (*val > min_x && *val < max_x){
-           *ptr = *val;
-           (*data_set_dn)->add(RooArgSet(*ptr),w);
-           (*th1f_set_dn)->Fill(*val,w);
-        }
-      }
-
-      // Loop over the second nsigmas elements as the +1 -> up sys
-      for (;data_set_up != data_up_[name].end()
-	   ;data_set_up++,th1f_set_up++,val++){
-
-        if (*val > min_x && *val < max_x){
-           *ptr = *val;
-           (*data_set_up)->add(RooArgSet(*ptr),w);
-           (*th1f_set_up)->Fill(*val,w);
-        }
-      }
+	else {
+	  std::cerr << "WARNING -- RooContainer::InputDataPoint -- No Category Number " << cat 
+		    << ", category must be from 0 to " << ncat-1
+		    << std::endl;
+	}
     }
-   }
-   else {
-    std::cerr << "WARNING -- RooContainer::InputDataPoint -- No Category Number " << cat 
-              << ", category must be from 0 to " << ncat-1
-	      << std::endl;
-   }
+    
+    //// else{
+    ////   
+    ////   if (cat>-1 && cat<ncat){
+    ////     
+    ////     std::string cat_name = getcatName(s_name,cat);
+    ////     std::string name = getsysName(cat_name,sys_name);
+    ////     
+    ////     std::map<std::string,RooDataSet>::iterator it_var  = data_.find(cat_name);
+    ////     
+    ////     if (it_var == data_.end()) 
+    //// 	std::cerr << "WARNING -- RooContainer::InpusSystematicSet -- No DataSet named "<< cat_name << std::endl;
+    ////     
+    ////     else {
+    //// 	
+    //// 	// Safe to use this since creation of systematic set guaranteed to have come from an already existing dataset
+    //// 	RooRealVar *ptr = m_data_var_ptr_[cat_name];
+    //// 	double min_x = m_var_min_[cat_name];
+    //// 	double max_x = m_var_max_[cat_name];
+    //// 	
+    //// 	std::vector<RooDataSet*>::iterator data_set_up = data_up_[name].begin();
+    //// 	std::vector<RooDataSet*>::iterator data_set_dn = data_dn_[name].begin();
+    //// 	std::vector<TH1F*>::iterator th1f_set_up = m_th1f_up_[name].begin();
+    //// 	std::vector<TH1F*>::iterator th1f_set_dn = m_th1f_dn_[name].begin();
+    //// 	
+    //// 	std::vector<double>::iterator val = x.begin();
+    //// 	
+    //// 	
+    //// 	// Loop over the first nsigmas elements as the -1 -> dn sys
+    //// 	for (;data_set_dn != data_dn_[name].end()
+    //// 	       ;data_set_dn++,th1f_set_dn++,val++){
+    //// 	  
+    //// 	  if (*val > min_x && *val < max_x){
+    //// 	    *ptr = *val;
+    //// 	    (*data_set_dn)->add(RooArgSet(*ptr),w);
+    //// 	    (*th1f_set_dn)->Fill(*val,w);
+    //// 	  }
+    //// 	}
+    //// 	
+    //// 	// Loop over the second nsigmas elements as the +1 -> up sys
+    //// 	for (;data_set_up != data_up_[name].end()
+    //// 	       ;data_set_up++,th1f_set_up++,val++){
+    //// 	  
+    //// 	  if (*val > min_x && *val < max_x){
+    //// 	    *ptr = *val;
+    //// 	    (*data_set_up)->add(RooArgSet(*ptr),w);
+    //// 	    (*th1f_set_up)->Fill(*val,w);
+    //// 	  }
+    //// 	}
+    ////     }
+    ////   }
+    ////   else {
+    ////     std::cerr << "WARNING -- RooContainer::InputDataPoint -- No Category Number " << cat 
+    //// 		<< ", category must be from 0 to " << ncat-1
+    //// 		<< std::endl;
+    ////   }
+    //// }
   }
 }
+
 // -----------------------------------------------------------------------------------------
 void RooContainer::CombineBinnedDatasets(std::string data_one, std::string data_two, double fraction){
   for (int cat=0;cat<ncat;cat++) {

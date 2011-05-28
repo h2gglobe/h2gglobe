@@ -349,8 +349,6 @@ void PhotonAnalysis::GetBranches(TTree *t, std::set<TBranch *>& s )
 // ----------------------------------------------------------------------------------------------------
 void PhotonAnalysis::PreselectPhotons(LoopAll& l, int jentry) 
 {
-
-
 	// Photon preselection
 	pho_acc.clear();
 	pho_presel.clear();
@@ -363,10 +361,10 @@ void PhotonAnalysis::PreselectPhotons(LoopAll& l, int jentry)
 	  // match all photons in the original tree with the conversions from the merged collection and save the indices
 	  int iConv  =l.matchPhotonToConversion(ipho);
 	  if ( iConv>=0 )
-	     (*l.pho_matchingConv).push_back(l.matchPhotonToConversion(ipho));
-	   else
-	     (*l.pho_matchingConv).push_back(-1);
-
+		  (*l.pho_matchingConv).push_back(l.matchPhotonToConversion(ipho));
+	  else
+		  (*l.pho_matchingConv).push_back(-1);
+	  
 
 
 	  TLorentzVector * p4 = (TLorentzVector *) l.pho_p4->At(ipho);
@@ -374,10 +372,13 @@ void PhotonAnalysis::PreselectPhotons(LoopAll& l, int jentry)
 	  // photon et wrt 0,0,0
 	  float et = p4->Energy() / cosh(eta);
 	  pho_sc_et.push_back(et);
+	  /// std::cerr << " " << p4->Pt() << " " << et << " " << eta;
 	  
 	  if( et < presel_scet2 || (eta>1.4442 && eta<1.566) || eta>presel_maxeta ) { 
+		  /// std::cerr << std::endl;
 	    continue;  
 	  }
+	  /// std::cerr << "keeping " << ipho << std::endl;
 	  pho_acc.push_back(ipho);
 	  
 	  bool isEB = l.pho_isEB[ipho];
@@ -397,6 +398,18 @@ void PhotonAnalysis::PreselectPhotons(LoopAll& l, int jentry)
 		  SimpleSorter<float,std::greater<float> >(&pho_sc_et[0]));
 	std::sort(pho_presel.begin(),pho_presel.end(),
 		  SimpleSorter<float,std::greater<float> >(&pho_sc_et[0]));
+
+	if( pho_presel.size() > 1 ) {
+		for(size_t ipho=0; ipho<pho_presel.size()-1; ++ipho ) {
+			assert( pho_sc_et[pho_presel[ipho]] >= pho_sc_et[pho_presel[ipho+1]] );
+		}
+	}
+	if( pho_acc.size()>1 ) {
+		for(size_t ipho=0; ipho<pho_acc.size()-1; ++ipho ) {
+			assert( pho_sc_et[pho_acc[ipho]] >= pho_sc_et[pho_acc[ipho+1]] );
+		}
+	}
+	
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -416,7 +429,7 @@ void PhotonAnalysis::FillReductionVariables(LoopAll& l, int jentry)
 bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry) 
 {
 
-  if(PADEBUG)  cout << " ****************** SelectEventsReduction " << endl;
+	if(PADEBUG)  cout << " ****************** SelectEventsReduction " << endl;
 	// require at least two reconstructed photons to store the event
 	if( pho_acc.size() < 2 || pho_sc_et[ pho_acc[0] ] < presel_scet1 ) { return false; }
 	
@@ -468,7 +481,6 @@ bool PhotonAnalysis::SkimEvents(LoopAll& l, int jentry)
 {
 	l.b_pho_n->GetEntry(jentry);
 	if( l.pho_n < 2 ) {
-
 		return false;
 	}
 

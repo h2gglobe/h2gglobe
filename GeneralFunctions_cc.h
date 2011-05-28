@@ -314,11 +314,10 @@ PhotonInfo LoopAll::fillPhotonInfos(int p1, bool useAllConvs)
 				  conv_chi2_probability[iConv1],
 				  conv_eoverp[iConv1]
 			);
-	} else {
-
-	  return PhotonInfo(p1,*((TVector3*)pho_calopos->At(p1)),((TLorentzVector*)pho_p4->At(p1))->Energy());
-
-	}
+	} 
+	//// else {
+	//// 	return PhotonInfo(p1,*((TVector3*)pho_calopos->At(p1)),((TLorentzVector*)pho_p4->At(p1))->Energy());
+	//// }
 	
 	return PhotonInfo(p1, 
 			  *((TVector3*)pho_calopos->At(p1)),                                                                                                                
@@ -1059,24 +1058,29 @@ void LoopAll::SetPhotonCutsInCategories(phoCiCIDLevel cutlevel, float * cic6_all
 
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
-std::pair<int,int> LoopAll::DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL, phoCiCIDLevel SUBLEADCUTLEVEL, Float_t leadPtMin, Float_t subleadPtMin, int ncategories, bool applyPtoverM) {
+std::pair<int,int> LoopAll::DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL, phoCiCIDLevel SUBLEADCUTLEVEL, Float_t leadPtMin, Float_t subleadPtMin, int ncategories, bool applyPtoverM, 
+						  TClonesArray *pho_p4_array) {
 
   //rho=0;// CAUTION SETTING RHO TO 0 FOR 2010 DATA FILES (RHO ISN'T IN THESE FILES)
   int selected_lead_index = -1;
   int selected_sublead_index = -1;
   float selected_lead_pt = -1;
   float selected_sublead_pt = -1;
-
+  
+  if( pho_p4_array == 0 ) {
+    pho_p4_array = pho_p4;
+  }
+  
   std::vector<std::vector<bool> > ph_passcut;
   for(int ipho=0;ipho!=pho_n;++ipho) {
-    TLorentzVector * iphop4 = (TLorentzVector*)pho_p4->At(ipho);
+    TLorentzVector * iphop4 = (TLorentzVector*)pho_p4_array->At(ipho);
     if(iphop4->Et() < leadPtMin || fabs(iphop4->Eta()) > 2.5)continue;
 
     if(PhotonCiCSelectionLevel(ipho, ph_passcut, ncategories, 0) < LEADCUTLEVEL)continue;
 
     for(int iipho=0;iipho!=pho_n;++iipho) {
       if(iipho == ipho)continue;
-      TLorentzVector * iiphop4 = (TLorentzVector*)pho_p4->At(iipho);
+      TLorentzVector * iiphop4 = (TLorentzVector*)pho_p4_array->At(iipho);
       if(iiphop4->Et() < subleadPtMin || fabs(iiphop4->Eta()) > 2.5)continue;
       if(iiphop4->Et() > iphop4->Et())continue;
       float m_gamgam = (*iphop4+*iiphop4).M();
@@ -1106,6 +1110,14 @@ std::pair<int,int> LoopAll::DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL, ph
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 int LoopAll::PhotonCiCSelectionLevel( int photon_index, std::vector<std::vector<bool> > & ph_passcut, int ncategories, int doSublead) {
 
+  if( ! runCiC ) {
+    switch(ncategories) {
+    case (4):
+      return doSublead ? (*pho_cic4cutlevel_sublead)[photon_index] : (*pho_cic4cutlevel_lead)[photon_index] ;
+    case (6):
+      return doSublead ? (*pho_cic6cutlevel_sublead)[photon_index] : (*pho_cic6cutlevel_lead)[photon_index] ;
+    }
+  }
   int cutlevelpassed = -1;
 
   int n_r9_categories = -1;
@@ -1141,7 +1153,8 @@ int LoopAll::PhotonCiCSelectionLevel( int photon_index, std::vector<std::vector<
     isosumconst = 0.;
     isosumconstbad = 0.;
   }
-
+  
+  /// float rhofacbad=0.40, rhofac=0.05;
   float rhofacbad=0.52, rhofac=0.17;
   float val_isosumoet=(val_tkiso+val_ecaliso+val_hcaliso+isosumconst-rho*rhofac)*50./phop4->Et();
   float val_isosumoetbad=(val_tkisobad+val_ecalisobad+val_hcalisobad+isosumconstbad-rho*rhofacbad)*50./phop4->Et();
@@ -1337,6 +1350,7 @@ Float_t LoopAll::SumTrackPtInCone(TLorentzVector *photon_p4, Int_t vtxind, Float
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 void LoopAll::DefineUserBranches() 
 {
+  runCiC = false;
 #ifndef __CINT__
 
 	BRANCH_DICT(gv_n  );

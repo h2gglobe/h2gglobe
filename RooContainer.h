@@ -46,20 +46,21 @@ class RooContainer {
 
   public:
 
-   RooContainer(int ncat=1);
-   ~RooContainer(){};
-   void SetNCategories(int);
-   void MakeSystematicStudy(std::vector<std::string>,std::vector<int>);
-   void AddObservable(std::string,double,double);
-   void AddRealVar(std::string,double,double,double);
-   void AddGenericPdf(std::string,std::string,std::string,
-		      std::vector<std::string> &, 
-		      int form,double norm_guess=10
-		     ,double norm_min=0., double norm_max=1.e6);
-   void ComposePdf(std::string, std::string
-			     ,std::vector<std::string> &,bool use_extended=true);
-   void ConvolutePdf(std::string,std::string,std::string,std::string
-			     ,double norm_guess=100);
+    RooContainer(int ncat=1, int nsigmas=1);
+    
+    ~RooContainer(){};
+    void SetNCategories(int);
+    void MakeSystematicStudy(std::vector<std::string>,std::vector<int>);
+    void AddObservable(std::string,double,double);
+    void AddRealVar(std::string,double,double,double);
+    void AddGenericPdf(std::string,std::string,std::string,
+		       std::vector<std::string> &, 
+		       int form,double norm_guess=10
+		       ,double norm_min=0., double norm_max=1.e6);
+    void ComposePdf(std::string, std::string
+		    ,std::vector<std::string> &,bool use_extended=true);
+    void ConvolutePdf(std::string,std::string,std::string,std::string
+		      ,double norm_guess=100);
 
    void CreateDataSet(std::string,std::string,int nbins,double x1=-990,double x2=-990); 
    void MakeSystematics(std::string,std::string,std::string);
@@ -75,8 +76,8 @@ class RooContainer {
    void FitToSystematicSet(std::string,std::string,std::string);
 
    void InputDataPoint(std::string,int,double,double w=1.);
-   void InputSystematicSet(std::string,std::string,int
-		,std::vector<double>,double w=1.);
+   void InputSystematicSet(std::string s_name, std::string sys_name, std::vector<int> cats
+			   ,std::vector<double> x, std::vector<double> weights=std::vector<double>(0));
 
    void WriteDataCard(std::string,std::string,std::string,std::string);
    void GenerateBinnedPdf(std::string,std::string,std::string,int,int,int,double x1=-999,double x2=-999);
@@ -84,6 +85,10 @@ class RooContainer {
 
    void Save();
    
+   int ncat;
+   int nsigmas;
+   bool make_systematics;
+
   private:
 
    void addRealVar(std::string,double,double);
@@ -124,9 +129,6 @@ class RooContainer {
    std::string getsysName(std::string,std::string);   
    std::string getsysindexName(std::string,std::string
 			 ,int,int);
-   int ncat;
-   int nsigmas;
-   bool make_systematics;
    std::vector<RooAbsPdf*> pdf_saves_;
 
    std::map<std::string, RooRealVar> m_real_var_;

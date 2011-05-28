@@ -76,7 +76,7 @@ float cic4_cut_sublead_pixel[phoNCUTLEVELS][4];
 
 // loops through photons and returns indices to two photons passing desired selection 
 // if more than one diphoton passes, returns pair with highest lead photon pt, or if lead is same, with highest sublead pt.
-std::pair<int,int> DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL = phoLOOSE, phoCiCIDLevel SUBLEADCUTLEVEL = phoLOOSE, Float_t leadPtMin = 30, Float_t subleadPtMin = 20, int ncategories=6, bool applyPtoverM=false);
+std::pair<int,int> DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL = phoLOOSE, phoCiCIDLevel SUBLEADCUTLEVEL = phoLOOSE, Float_t leadPtMin = 30, Float_t subleadPtMin = 20, int ncategories=6, bool applyPtoverM=false, TClonesArray *pho_p4_array=0);
 
 // for a photon index, applies all levels of cuts and returns the index to the highest cut level passed (can do lead and sublead - same for now)
 int   PhotonCiCSelectionLevel( int photon_index, std::vector<std::vector<bool> > & ph_passcut, int ncategories=6, int doSublead=1);
@@ -199,6 +199,7 @@ std::vector<std::vector<float> >* pho_tkiso_recvtx_030_002_0000_10_01;
 Float_t pho_tkiso_badvtx_040_002_0000_10_01[MAX_PHOTONS];
 Float_t pho_drtotk_25_99[MAX_PHOTONS];
 
+bool runCiC;
 std::vector<Short_t>* pho_cic6cutlevel_lead;
 std::vector<std::vector<UInt_t> >* pho_cic6passcuts_lead;
 std::vector<Short_t>* pho_cic6cutlevel_sublead;
