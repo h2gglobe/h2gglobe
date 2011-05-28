@@ -63,8 +63,8 @@ void StatAnalysis::Init(LoopAll& l)
 	PhotonAnalysis::Init(l);
 
 	// FIXME: move to config file 
-	doEscaleSyst = false;
-	doEresolSyst = false;
+	doEscaleSyst = true;
+	doEresolSyst = true;
 	nCategories = 4;
 
 	eSmearPars.categoryType = "2CatR9_EBEE";
@@ -228,7 +228,11 @@ void StatAnalysis::Init(LoopAll& l)
 	l.rooContainer->CreateDataSet("mass","sig_mass_m140",100);    
 
 	// Make more data sets to represent systematic shitfs , 
-	//l.rooContainer->MakeSystematics("mass","sig_mass_m120","E_scale");	
+	l.rooContainer->MakeSystematics("mass","sig_mass_m110",-1);	
+	l.rooContainer->MakeSystematics("mass","sig_mass_m115",-1);	
+	l.rooContainer->MakeSystematics("mass","sig_mass_m120",-1);	
+	l.rooContainer->MakeSystematics("mass","sig_mass_m130",-1);	
+	l.rooContainer->MakeSystematics("mass","sig_mass_m140",-1);	
 	
 	if(PADEBUG) 
 		cout << "InitRealStatAnalysis END"<<endl;
@@ -371,7 +375,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	   
 	   // loop over syst shift
 	   for(float syst_shift=-systRange; syst_shift<=systRange; syst_shift+=systRange ) { 
-	       // skip the central value 
+	       // skip the central value
 	       if( syst_shift == 0. ) { continue; } 
 	       
 	       // smear the photons 
@@ -426,50 +430,18 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		   categories.push_back(-1);
 	       }
 	       
-	       l.rooContainer->InputSystematicSet("sig_mass_m120",(*si)->name(),categories,mass_errors,weights);
-	       
-	       // Assume a global 3% error on the EnergyScale, create vector of
-	       // masses based on systematic shifts, need 30 down and 30 up 
-	       // representing -3 -> +3 sigma in 0.1 sigma steps
-	       
-	       ///// // Needs some optimisation, loop slows down with systematics
-	       ///// float sys_error = 0.03;
-	       ///// 
-	       ///// std::vector<float> mass_errors;
-	       ///// for (int sys=1;sys<31;sys++){
-	       ///// 	   float incr = (float)sys/10;
-	       ///// 	   TLorentzVector lead_err = (1.-incr*sys_error)*(*lead_p4);
-	       ///// 	   TLorentzVector nlead_err = (1.-incr*sys_error)*(*sublead_p4);
-	       ///// 	   mass_errors.push_back((lead_err+nlead_err).M());
-	       ///// }
-	       ///// for (int sys=1;sys<31;sys++){
-	       ///// 	   float incr = (float)sys/10;
-	       ///// 	   TLorentzVector lead_err = (1.+incr*sys_error)*(*lead_p4);
-	       ///// 	   TLorentzVector nlead_err = (1.+incr*sys_error)*(*sublead_p4);
-	       ///// 	   mass_errors.push_back((lead_err+nlead_err).M());
-	       ///// }
-	       ///// 
-	       ///// if (cur_type == 0 ){
-	       ///// 	   l.rooContainer->InputDataPoint("data_mass",category,mass,weight);
-	       ///// 	   l.rooContainer->InputDataPoint("data_mass_full",category,mass,weight);
-	       ///// }
-	       ///// if (cur_type > 0 && cur_type != 3 && cur_type != 4)
-	       ///// 	   l.rooContainer->InputDataPoint("bkg_mass",category,mass,weight);
-	       ///// else if (cur_type == 3 || cur_type == 4)
-	       ///// 	   l.rooContainer->InputDataPoint("zee_mass",category,mass,weight);
-	       ///// //else if (cur_type == -1 || cur_type == -2 || cur_type == -3)
-	       ///// //  l.rooContainer->InputDataPoint("sig_mass_m100",category,mass,weight);
-	       ///// else if (cur_type == -4 || cur_type == -5 || cur_type == -6)
-	       ///// 	   l.rooContainer->InputDataPoint("sig_mass_m110",category,mass,weight);
-	       ///// else if (cur_type == -7 || cur_type == -8 || cur_type == -9)
-	       ///// 	   l.rooContainer->InputDataPoint("sig_mass_m120",category,mass,weight);
-	       ///// //l.rooContainer->InputSystematicSet("sig_mass_m120","E_scale",category,mass_errors);
-	       ///// else if (cur_type == -10 || cur_type == -11 || cur_type == -12)
-	       ///// 	   l.rooContainer->InputDataPoint("sig_mass_m130",category,mass,weight);
-	       ///// else if (cur_type == -13 || cur_type == -14 || cur_type == -15)
-	       ///// 	   l.rooContainer->InputDataPoint("sig_mass_m140",category,mass,weight);
-	       ///// 
 	   }
+       	   if (cur_type == -1 || cur_type == -2 || cur_type == -3)
+	     l.rooContainer->InputSystematicSet("sig_mass_m110",(*si)->name(),categories,mass_errors,weights);
+           else if (cur_type == -4 || cur_type == -5 || cur_type == -6)
+	     l.rooContainer->InputSystematicSet("sig_mass_m115",(*si)->name(),categories,mass_errors,weights);
+           else if (cur_type == -7 || cur_type == -8 || cur_type == -9)
+	     l.rooContainer->InputSystematicSet("sig_mass_m120",(*si)->name(),categories,mass_errors,weights);
+           else if (cur_type == -10 || cur_type == -11 || cur_type == -12)
+	     l.rooContainer->InputSystematicSet("sig_mass_m130",(*si)->name(),categories,mass_errors,weights);
+           else if (cur_type == -13 || cur_type == -14 || cur_type == -15)
+	     l.rooContainer->InputSystematicSet("sig_mass_m140",(*si)->name(),categories,mass_errors,weights);
+       
        }
    }
    smeared_pho_p4.Delete();

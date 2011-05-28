@@ -168,7 +168,7 @@ void RooContainer::GenerateBinnedPdf(std::string hist_name,std::string pdf_name,
   
 }
 // ----------------------------------------------------------------------------------------------------
-void RooContainer::MakeSystematics(std::string observable,std::string s_name, std::string sys_name){
+void RooContainer::MakeSystematics(std::string observable,std::string s_name, int effect){
 
   std::map<std::string,RooRealVar>::iterator obs = m_real_var_.find(observable);
   if (obs == m_real_var_.end()){
@@ -177,17 +177,9 @@ void RooContainer::MakeSystematics(std::string observable,std::string s_name, st
     return;
   }
 
-  bool in_sys = false;  
-  for (it_sys=systematics_.begin();it_sys!=systematics_.end();it_sys++)
-    if (sys_name == (it_sys->first)) { in_sys=true;break;}
-  if (in_sys){
-    for (int cat=0;cat<ncat;cat++){
-      makeSystematics(observable,getcatName(s_name,cat),sys_name);
-    }
+  for (int cat=0;cat<ncat;cat++){
+      makeSystematics(observable,getcatName(s_name,cat),effect);
   }
-  else
-    std::cerr << "RooContainer::MakeSystematics -- WARNING!!! -- No systematic study available named "
-	      << sys_name << endl;
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -333,12 +325,14 @@ void RooContainer::InputSystematicSet(std::string s_name, std::string sys_name, 
   else{
   
     for(size_t istep=0; istep < x.size(); ++istep ) {
+    
       int cat = cats[istep];
       double w = weights[istep];
   
 	if (cat>-1 && cat<ncat) {
 
 	  int ishift = istep - nsigmas;
+	  if (ishift==0) ishift++;
 
 	  std::string cat_name = getcatName(s_name,cat);
 	  std::string name = getsysindexName( cat_name, sys_name, abs(ishift), (ishift > 0 ? 1 : -1) );
@@ -367,11 +361,11 @@ void RooContainer::InputSystematicSet(std::string s_name, std::string sys_name, 
 	  
 	}
       
-	else {
-	  std::cerr << "WARNING -- RooContainer::InputDataPoint -- No Category Number " << cat 
-		    << ", category must be from 0 to " << ncat-1
-		    << std::endl;
-	}
+	//else {
+	//  std::cerr << "WARNING -- RooContainer::InputDataPoint -- No Category Number " << cat 
+	//	    << ", category must be from 0 to " << ncat-1
+	//	    << std::endl;
+	//}
     }
     
     //// else{
@@ -965,7 +959,6 @@ void RooContainer::fitToData(std::string name_func, std::string name_data, std::
         real_var->setRange("rnge1",x1,x2);
         real_var->setRange("rnge2",x3,x4);
         fit_result = (it_pdf->second).fitTo((it_data->second),Range("rnge1,rnge2"),RooFit::Save(true),"r");
-	cout << "DEBUG -- YEP, I DID THE SIDEBAND FIT FROM THE double EXP"<<endl;
         mode = 2;
       }
      }
@@ -1300,52 +1293,60 @@ void RooContainer::removeDuplicateElements(std::vector<RooAbsPdf*> &k){
         k.erase( w , k.end() );
 }
 // ----------------------------------------------------------------------------------------------------
-void RooContainer::makeSystematics(std::string observable,std::string s_name, std::string sys_name){
+void RooContainer::makeSystematics(std::string observable,std::string s_name, int effect){
 
-  std::map<std::string,RooDataSet>::iterator test_it = data_.find(s_name);
-
-  if (test_it != data_.end()){
-
-    std::vector<RooDataSet*> v_sys_up;
-    std::vector<RooDataSet*> v_sys_dn;
-
-    std::vector<TH1F*> v_th1f_up;
-    std::vector<TH1F*> v_th1f_dn;
-
-    int bins   = bins_[observable];
+  for (std::map<std::string,int>::iterator isys=systematics_.begin()
+      ;isys!=systematics_.end();++isys){
   
-    for (int sys=1;sys<=nsigmas;sys++){
+    if (isys->second != effect && isys->second != 0) continue;
 
-      std::string name_up = getsysindexName(s_name,sys_name,sys,1);
-      std::string name_dn = getsysindexName(s_name,sys_name,sys,-1);
+    const std::string & sys_name = isys->first; 
+    std::map<std::string,RooDataSet>::iterator test_it = data_.find(s_name);
+
+    if (test_it != data_.end()){
+
+      int bins   = bins_[s_name];
+
+      std::vector<RooDataSet*> v_sys_up;
+      std::vector<RooDataSet*> v_sys_dn;
+
+      std::vector<TH1F*> v_th1f_up;
+      std::vector<TH1F*> v_th1f_dn;
+
+  
+      for (int sys=1;sys<=nsigmas;sys++){
+
+        std::string name_up = getsysindexName(s_name,sys_name,sys,1);
+        std::string name_dn = getsysindexName(s_name,sys_name,sys,-1);
     
-      TH1F *hist = &(m_th1f_[s_name]);
+        TH1F *hist = &(m_th1f_[s_name]);
 
-      double x1 = hist->GetBinLowEdge(1); 
-      double x2 = hist->GetBinLowEdge(hist->GetNbinsX()+1); 
+        double x1 = hist->GetBinLowEdge(1); 
+        double x2 = hist->GetBinLowEdge(hist->GetNbinsX()+1); 
 
-      createDataSet(observable,name_up,bins,x1,x2);
-      createDataSet(observable,name_dn,bins,x1,x2);
+        createDataSet(observable,name_up,bins,x1,x2);
+        createDataSet(observable,name_dn,bins,x1,x2);
 
-      v_sys_up.push_back(&(data_[name_up]));
-      v_sys_dn.push_back(&(data_[name_dn]));
+        v_sys_up.push_back(&(data_[name_up]));
+        v_sys_dn.push_back(&(data_[name_dn]));
 
-      v_th1f_up.push_back(&(m_th1f_[name_up]));
-      v_th1f_dn.push_back(&(m_th1f_[name_dn]));
-    }
+        v_th1f_up.push_back(&(m_th1f_[name_up]));
+        v_th1f_dn.push_back(&(m_th1f_[name_dn]));
+      }
 
-  std::string map_name = getsysName(s_name,sys_name);
+    std::string map_name = getsysName(s_name,sys_name);
 
-  data_up_.insert(std::pair<std::string,std::vector<RooDataSet*> >(map_name,v_sys_up));
-  data_dn_.insert(std::pair<std::string,std::vector<RooDataSet*> >(map_name,v_sys_dn));
+    data_up_.insert(std::pair<std::string,std::vector<RooDataSet*> >(map_name,v_sys_up));
+    data_dn_.insert(std::pair<std::string,std::vector<RooDataSet*> >(map_name,v_sys_dn));
 
-  m_th1f_up_.insert(std::pair<std::string,std::vector<TH1F*> >(map_name,v_th1f_up));
-  m_th1f_dn_.insert(std::pair<std::string,std::vector<TH1F*> >(map_name,v_th1f_dn));
+    m_th1f_up_.insert(std::pair<std::string,std::vector<TH1F*> >(map_name,v_th1f_up));
+    m_th1f_dn_.insert(std::pair<std::string,std::vector<TH1F*> >(map_name,v_th1f_dn));
   
+    }
+    else
+      std::cerr << "RooContainer::MakeSystematics -- Cannot Create Systematics Set, "
+	        << "No DATASET Found Named " << s_name << std::endl;
   }
-  else
-    std::cerr << "RooContainer::MakeSystematics -- Cannot Create Systematics Set, "
-	      << "No DATASET Found Named " << s_name << std::endl;
 }
 
 void RooContainer::setAllParametersConstant() {

@@ -63,7 +63,7 @@ class RooContainer {
 		      ,double norm_guess=100);
 
    void CreateDataSet(std::string,std::string,int nbins,double x1=-990,double x2=-990); 
-   void MakeSystematics(std::string,std::string,std::string);
+   void MakeSystematics(std::string,std::string,int);
 
    void FitToData(std::string,std::string 			
 	         ,double x1,double x2,double x3,double x4);
@@ -102,7 +102,7 @@ class RooContainer {
    void convolutePdf(std::string,std::string,std::string,RooRealVar &,double norm_guess=100);
 
    void createDataSet(std::string,std::string,int,double x1,double x2);
-   void makeSystematics(std::string,std::string,std::string);
+   void makeSystematics(std::string,std::string,int);
    
    void fitToData(std::string,std::string,std::string
 	         ,double,double,double,double);
