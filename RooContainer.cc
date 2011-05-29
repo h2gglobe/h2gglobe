@@ -507,7 +507,7 @@ void RooContainer::WriteDataCard(std::string filename,std::string data_name
    }
 
    ofstream file (Form("cms-hgg-%s-datacard.txt",sig_name.c_str()));
-   file << "CMS-HGG DataCard for Binned Limit Setting with TH1F\n";
+   file << "CMS-HGG DataCard for Binned Limit Setting with RooDataHist\n";
    file << "Run with: combine cms-hgg-"<<sig_name<<"-datacard.txt -M Routine -D "<< data_name << " -m MASS --generateBinnedWorkaround -S 1"; 
    file << "\n---------------------------------------------\n";
    file << "imax *\n";
