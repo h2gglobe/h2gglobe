@@ -396,7 +396,7 @@ vector<double> LoopAll::generate_flat10_weights(TH1D* data_npu_estimated){
     // see
     // SimGeneral/MixingModule/python/mix_E7TeV_FlatDist10_2011EarlyData_inTimeOnly_cfi.py;
     // copy and paste from there:
-    const double npu_probs[25] =
+    double npu_probs[25] =
    {0.0698146584,0.0698146584,0.0698146584,0.0698146584,0.0698146584,
     0.0698146584,0.0698146584,0.0698146584,0.0698146584,0.0698146584,
     0.0698146584,0.0630151648,0.0526654164,0.0402754482,0.0292988928,
@@ -404,17 +404,23 @@ vector<double> LoopAll::generate_flat10_weights(TH1D* data_npu_estimated){
     0.0010739954,0.0004595759,0.0002229748,0.0001028162,4.58337152809607E-05};
     vector<double> result(25);
     double s = 0.0;
-    for(int npu=0; npu<25; ++npu){
+
+    for (int npu=0; npu<25; ++npu){
+  
+        s += npu_probs[npu];
+    } 
+    for (int npu=0; npu<25; ++npu){
+  
+        npu_probs[npu] *= (1./s);
+    } 
+
+    data_npu_estimated->Scale(1./data_npu_estimated->Integral());
+    for (int npu=0; npu<25; ++npu){
         double npu_estimated = 
             data_npu_estimated->GetBinContent(
             data_npu_estimated->GetXaxis()->FindBin(npu));     
         result[npu] = npu_estimated / npu_probs[npu];
-        s += npu_estimated;
-    }
-    // normalize weights such that the total sum of weights over thw whole
-    // sample is 1.0, i.e., sum_i  result[i] * npu_probs[i] should be 1.0 (!)
-    for(int npu=0; npu<25; ++npu){
-        result[npu] /= s;
+        //s += npu_estimated;
     }
     return result;
 }
