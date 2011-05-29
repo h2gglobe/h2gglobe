@@ -12,6 +12,9 @@ RooContainer::RooContainer(int n, int s):ncat(n),nsigmas(s),make_systematics(fal
 void RooContainer::SetNCategories(int n){
    ncat = n;
 }
+void RooContainer::AddGlobalSystematic(std::string name,double val_sig, double val_bkg){
+  global_systematics_[name] = std::pair<double,double>(val_sig,val_bkg);
+}
 // ----------------------------------------------------------------------------------------------------
 void RooContainer::MakeSystematicStudy(std::vector<std::string> sys_names,std::vector<int> sys_types){
    make_systematics = true;
@@ -511,7 +514,7 @@ void RooContainer::WriteDataCard(std::string filename,std::string data_name
    file << "jmax *\n";
    file << "kmax *\n";
    file << "---------------------------------------------\n";
-   file << "shapes * * "<<filename<<" th1f_$PROCESS_$CHANNEL th1f_$PROCESS_$CHANNEL_$SYSTEMATIC01_sigma\n";
+   file << "shapes * * "<<filename<<" cms_hgg_workspace:roohist_$PROCESS_$CHANNEL cms_hgg_workspace:roohist_$PROCESS_$CHANNEL_$SYSTEMATIC01_sigma\n";
    file << "---------------------------------------------\n";
 
    // Write the data info	 
@@ -532,6 +535,13 @@ void RooContainer::WriteDataCard(std::string filename,std::string data_name
    file << "\n---------------------------------------------\n";
 
    // Now write the systematics lines:
+   // first Global Systematics
+   for (std::map<std::string,std::pair<double,double> >::iterator it_g_sys = global_systematics_.begin();it_g_sys!=global_systematics_.end(); it_g_sys++){ 
+     file << it_g_sys->first << " lnN  ";
+     for (int cat=0;cat<ncat;cat++) file << (it_g_sys->second).first << " " << (it_g_sys->second).second << " ";	
+     file <<endl;
+   }
+
    for (it_sys=systematics_.begin(); it_sys!=systematics_.end();it_sys++){ 
     
      file << it_sys->first << " shapeN  ";
