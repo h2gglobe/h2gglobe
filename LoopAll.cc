@@ -681,7 +681,7 @@ int LoopAll::FillAndReduce(int jentry) {
   // 
   // call skimming methods before reading data
   // 
-  if( typerun == kReduce || typerun == kFillReduce ) {
+  if( typerun == kReduce || typerun == kFillReduce || typerun == kFill ) {
     for (size_t i=0; i<analyses.size(); i++) {
       if( ! analyses[i]->SkimEvents(*this, jentry) ) {
     	  return hasoutputfile;
