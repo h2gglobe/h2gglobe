@@ -273,10 +273,15 @@ void RooContainer::Save(){
   for(;it_d != it_e; it_d++){
      writeRooDataHist((*it_d).first,&((*it_d).second));
   }
+
+  for (std::map<std::string,RooDataSet>::iterator it_data = data_.begin()
+      ;it_data!=data_.end();it_data++){
+      ws.import(it_data->second);
+  }
   ws.SetName("cms_hgg_workspace");
   
-  // Make sure all parameters of the pdfs are set constant
-  setAllParametersConstant();
+  // Make sure all parameters of the pdfs are set constant?
+  //setAllParametersConstant();
 
   ws.Write();
 }
