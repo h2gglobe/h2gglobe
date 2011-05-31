@@ -151,146 +151,49 @@ void PhotonAnalysis::Init(LoopAll& l)
 // ----------------------------------------------------------------------------------------------------
 void PhotonAnalysis::Analysis(LoopAll& l, Int_t jentry) 
 {
-	if(PADEBUG) 
-		cout << "Analysis START"<<endl;
-	
-    // From Here is the Standard Dec Review Selection/ gen Level studies
-	std::vector<int> pho_loose;
-	// For use of the preselected photons in Dec Review, empty the vector
-	pho_presel.clear();
+        if(PADEBUG) 
+                cout << "Analysis START"<<endl;
+        pho_presel.clear();
 
-    //PU reweighting
-    int n_pu = l.pu_n;
-    float weight = l.sampleContainer[l.current_sample_index].weight;
-    if (l.itype[l.current] !=0 && puHist != "") {
-        if(n_pu<weights.size()){
-             weight *= weights[n_pu];
-        }    
-        else{ //should not happen as we have a weight for all simulated n_pu multiplicities!
-             cout<<"n_pu ("<< n_pu<<") too big ("<<weights.size()<<"), event will not be reweighted for pileup"<<endl;
+	int n_pu = l.pu_n;
+	float weight =1.;
+	if (l.itype[l.current] !=0 && puHist != "") {
+	  if(n_pu<weights.size()){
+	    weight *= weights[n_pu];
+	  }    
+	  else{ //should not happen as we have a weight for all simulated n_pu multiplicities!
+	    cout<<"n_pu ("<< n_pu<<") too big ("<<weights.size()<<"), event will not be reweighted for pileup"<<endl;
+	  }
+	}
+
+        if( pho_presel.empty() ) { 
+                PreselectPhotons(l,jentry);
         }
-    }
 
-	if( pho_presel.empty() ) { 
-		PreselectPhotons(l,jentry);
-	}
-	TVector3 *calopos;	
-	TLorentzVector *p4;
-	for (size_t i=0; i<pho_presel.size(); ++i) {
-		int ipho = pho_presel[i];
+	if( pho_acc.size() < 2 || pho_sc_et[ pho_acc[0] ] < presel_scet1 ) return;
 
-		p4 = (TLorentzVector *) l.pho_p4->At(ipho);
-		calopos  = (TVector3 *) l.pho_calopos->At(ipho);
-		
-		// FIXME vertex
-		float pt  = p4->Pt(); 
-		float eta = fabs(calopos->Eta());
-		//PreSelection
-		if ( (! l.pho_haspixseed[ipho])
-		     && pt > 30. 
-		     && l.pho_hoe[ipho] <  0.1
-		     && l.pho_trksumptsolidconedr03[ipho] < 2*(3.5 + 0.001*pt)
-		     && l.pho_ecalsumetconedr03[ipho] < 2*(4.2 + 0.006*pt)
-		     && l.pho_hcalsumetconedr03[ipho] < 2*(2.2 + 0.0025*pt)
-		     &&((eta < 1.4442) || ((eta > 1.566) && (eta < 2.5))) ) {
-			pho_loose.push_back(ipho);
-		}
-	}
-	
-	//Event Selection
-	int n_pho_loose = pho_loose.size();
-	//FillHist("h_n_sel",n_preselected_pho);
-	
-	// Sort Photons into Pt Order
-	std::sort(pho_presel.begin(),pho_presel.end(),
-		  ClonesSorter<TLorentzVector,double,std::greater<double> >(l.pho_p4,&TLorentzVector::Pt));
-	
-        // Regular Event Selection begins here
-	float best_mass = 0.;
-	float best_pt = -1;
-	int category = -1;
-	float min_r9;
-	float max_eta;
-	
-	if (n_pho_loose > 1 ){
-		
-		int leading, nleading;
-				
-		leading  = pho_loose[0];
-		nleading = pho_loose[1];
-		
-		TLorentzVector * leading_p4 = (TLorentzVector *) l.pho_p4->At(leading);
-		TLorentzVector * nleading_p4 = (TLorentzVector *) l.pho_p4->At(nleading);
-		
-		
-		if (leading_p4->Pt() > 40.){
-			
-			// Determine the Category of the event
-			// -> Which histogram is filled
-			min_r9  = min(l.pho_r9[leading], l.pho_r9[nleading]);
-			
-			TVector3 * leading_calopos  = (TVector3 *) l.pho_calopos->At(leading);
-			TVector3 * nleading_calopos  = (TVector3 *) l.pho_calopos->At(nleading);
-			max_eta = max(fabs(leading_calopos->Eta())
-			              ,fabs(nleading_calopos->Eta()));
-			
-			if (min_r9 < 0.93 && max_eta < 1.4442 ) category = 1;
-			if (min_r9 > 0.93 && max_eta < 1.4442 ) category = 2;
-			if (min_r9 < 0.93 && max_eta > 1.566 && max_eta < 2.5) category = 3;
-			if (min_r9 > 0.93 && max_eta > 1.566 && max_eta < 2.5) category = 4;
-			
-			// -------------------------------------------------------
-			TLorentzVector Higgs = *leading_p4 + *nleading_p4;
-			
-			float mass = Higgs.M();
-			float h_pt = Higgs.Pt();
-			if (mass > 100. && mass < 150.){
-				//Good event, passes preselection and acceptance cuts
-				
-				int pass_selection[2];
-				int pass_isolation[2];
-				int in_iso_gap[2];
+        std::pair<int,int> diphoton_index;
+        int leadLevel=LoopAll::phoSUPERTIGHT, subLevel=LoopAll::phoSUPERTIGHT;
+        diphoton_index = l.DiphotonCiCSelection((LoopAll::phoCiCIDLevel) leadLevel, (LoopAll::phoCiCIDLevel) subLevel, 40.0, 30.0, 4, false);
 
-				//Now do selection on leading photon
-				pass_selection[0] = l.pho_hoe[leading] < 0.02
-					&& (((l.pho_sieie[leading] < 0.01)  && (fabs(leading_calopos->Eta()) < 1.4442)) 
-					    || (( l.pho_sieie[leading] < 0.028)
-						&& ((fabs(leading_calopos->Eta()) < 2.5) && (fabs(leading_calopos->Eta()) > 1.566))) );
-				pass_isolation[0] =  l.pho_trksumptsolidconedr03[leading] < (1.5 + 0.001*leading_p4->Pt())		
-					&& l.pho_ecalsumetconedr03[leading] < (2.0 + 0.006*leading_p4->Pt())
-					&& l.pho_hcalsumetconedr03[leading] < (2.0 + 0.0025*leading_p4->Pt());
-				
-				//Selection on next to leading photon
-				pass_selection[1] = l.pho_hoe[nleading] < 0.02
-					&& (((l.pho_sieie[nleading] < 0.01)  && (fabs(nleading_calopos->Eta()) < 1.4442)) 
-					    || (( l.pho_sieie[nleading] < 0.028)
-						&& ((fabs(nleading_calopos->Eta()) < 2.5) && (fabs(nleading_calopos->Eta()) > 1.566))) );
-				pass_isolation[1] =  l.pho_trksumptsolidconedr03[nleading] < (1.5 + 0.001*nleading_p4->Pt())
-					&& (l.pho_ecalsumetconedr03[nleading] < (2.0 + 0.006*nleading_p4->Pt()))
-					&& (l.pho_hcalsumetconedr03[nleading] < (2.0 + 0.0025*nleading_p4->Pt()));
-				
-				
-				if (pass_selection[0] && pass_isolation[0] ){
-					
-					if (pass_selection[1] && pass_isolation[1]){
-//						cout << "mass is " << mass << " and higgs pt is " << h_pt << endl;
-						l.FillHist("pho_pt",category,leading_p4->Pt(),weight);
-						l.FillHist("pho_pt",category,nleading_p4->Pt(),weight);
-						best_mass = mass;
-						best_pt   = h_pt;
-					}
-				}
-			}
-		}
-	}
-	
-	if (best_mass > 100)
-		l.FillHist("mass",0, best_mass, weight);
-	l.FillHist("pt",0, best_pt, weight);
-	if (category > -1){
-		l.FillHist("mass",category, best_mass, weight);
-		l.FillHist("pt",category, best_pt, weight);
-	}
+        if (diphoton_index.first > -1 && diphoton_index.second > -1){
+          TLorentzVector *lead_p4 = (TLorentzVector*)l.pho_p4->At(diphoton_index.first);
+          TLorentzVector *sublead_p4 = (TLorentzVector*)l.pho_p4->At(diphoton_index.second);
+          TLorentzVector Higgs = *lead_p4 + *sublead_p4;
+
+          int category = l.DiphotonCategory(diphoton_index.first, diphoton_index.second, 2, 2, 0);
+
+          l.FillHist("mass",0, Higgs.M(), weight);
+          l.FillHist("pt",0, Higgs.Pt(), weight);
+          l.FillHist("pho_pt",0,lead_p4->Pt(), weight);
+          l.FillHist("pho_pt",0,sublead_p4->Pt(), weight);
+
+          l.FillHist("mass",category+1, Higgs.M(), weight);
+          l.FillHist("pt",category+1, Higgs.Pt(), weight);
+          l.FillHist("pho_pt",category+1,lead_p4->Pt(), weight);
+          l.FillHist("pho_pt",category+1,sublead_p4->Pt(), weight);
+        }
+
 	if(PADEBUG) 
 		cout<<"myFillHistRed END"<<endl;
 	
@@ -298,37 +201,9 @@ void PhotonAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	if( runStatAnalysis ) {
 		StatAnalysis(l,jentry);
 	}
-	
-	///// for (int i=0; i<l.pho_n; i++) {
-	///// 	TLorentzVector *p4 = (TLorentzVector *) l.pho_p4->At(i);
-	///// 	// FIXME move Fill* in BaseAnalysis
-	///// 	l.FillHist("pho_pt", p4->Pt());
-	///// }
-  	///// 
-	///// Int_t in_endcap = 0;
-	///// Float_t best_mass = 0;
-	///// for (int i=0; i<l.pho_n-1; i++) {
-	///// 	TLorentzVector *pg1= (TLorentzVector *) l.pho_p4->At(i);
-	///// 	if (fabs(pg1->Eta()) > 1.479)
-	///// 		in_endcap = 1;
-	///// 
-	///// 	for (int j=i+1; j<l.pho_n; j++) {
-	///// 		TLorentzVector *pg2= (TLorentzVector *) l.pho_p4->At(j);
-	///// 		if (fabs(pg2->Eta()) > 1.479)
-	///// 			in_endcap = 1;
-	///// 		TLorentzVector higgs = (*pg1) + (*pg2);
-	///// 		Float_t mass = higgs.M();
-	///// 		if (mass > best_mass)
-	///// 			best_mass = mass;
-	///// 	}
-	///// }     
-	///// 
-	///// if (best_mass != 0) 
-	///// 	l.FillHist("invmass", best_mass);
-  	///// 
-	///// if(PADEBUG) 
-	///// 	cout<<"myFillHist END"<<endl;
+
 }
+
 
 // ----------------------------------------------------------------------------------------------------
 void PhotonAnalysis::StatAnalysis(LoopAll& l, Int_t jentry) 
@@ -486,7 +361,7 @@ bool PhotonAnalysis::SkimEvents(LoopAll& l, int jentry)
 
 	// do not run trigger selection on MC
 	int filetype = l.itype[l.current];
-	bool skipTrigger = ! doTriggerSelection || filetype != 0 || triggerSelections.empty();
+	bool skipTrigger = ( !doTriggerSelection && l.typerun!=0 ) || filetype != 0 || triggerSelections.empty();
 	if( ! skipTrigger ) {
 		// get the trigger selection for this run 
 		l.b_run->GetEntry(jentry);
