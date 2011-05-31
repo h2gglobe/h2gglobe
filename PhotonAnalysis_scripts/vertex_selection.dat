@@ -10,7 +10,7 @@ maxDzSignif=999.
 removeTracksInCone=1
 coneSize=0.05
 
-useAllConversions=0
+useAllConversions=1
 sigmaPix=0.06
 sigmaTib=0.67
 sigmaTob=2.04
