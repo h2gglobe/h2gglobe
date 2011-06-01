@@ -4,8 +4,8 @@
 using namespace std;
 
 
-PhotonReducedInfo::PhotonReducedInfo(const TVector3 & caloPosition, float energy,int iDet, float r9) :
-  caloPosition_(caloPosition), energy_(energy), iDet_(iDet), r9_(r9)
+PhotonReducedInfo::PhotonReducedInfo(const TVector3 & caloPosition, float energy,int iDet, float r9, bool passId) :
+	caloPosition_(caloPosition), energy_(energy), iDet_(iDet), r9_(r9), passId_(passId)
 {
 }
 

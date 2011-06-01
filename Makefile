@@ -38,6 +38,8 @@ LOOPALLO = LoopAll.$(ObjSuf) \
 	   BaseAnalysis.o \
 	   BaseSmearer.o \
 	   EnergySmearer.o \
+	   EfficiencySmearer.o \
+	   DiPhoEfficiencySmearer.o \
 	   CounterContainer.o \
 	   SampleContainer.o \
 	   PhotonReducedInfo.o \
@@ -46,7 +48,7 @@ LOOPALLO = LoopAll.$(ObjSuf) \
 	   TriggerSelection.o \
            $(VTXOBS) $(PHOOBS)
 
-DICTS = LoopAll.h BaseAnalysis.h BaseSmearer.h EnergySmearer.h SampleContainer.h\
+DICTS = LoopAll.h BaseAnalysis.h BaseSmearer.h EnergySmearer.h EfficiencySmearer.h DiPhoEfficiencySmearer.h SampleContainer.h\
 	VertexAnalysis/interface/VertexAlgoParameters.h\
 	PhotonAnalysis/interface/PhotonAnalysis.h\
 	PhotonAnalysis/interface/StatAnalysis.h\

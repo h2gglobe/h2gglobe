@@ -8,6 +8,8 @@
 #include "VertexAnalysis/interface/HggVertexAnalyzer.h"
 
 #include "EnergySmearer.h"
+#include "EfficiencySmearer.h"
+#include "DiPhoEfficiencySmearer.h"
 
 // ------------------------------------------------------------------------------------
 class StatAnalysis : public PhotonAnalysis 
@@ -29,24 +31,34 @@ public:
 	virtual void Analysis(LoopAll&, Int_t);
 	
 	// Options
+	float leadEtCut;
+	float subleadEtCut;
+
 	EnergySmearer::energySmearingParameters eSmearPars;
-	bool doEscaleSyst, doEresolSyst, doPhotonIdEffSyst, doVtxEffSyst;
+	EfficiencySmearer::efficiencySmearingParameters effSmearPars;
+	DiPhoEfficiencySmearer::diPhoEfficiencySmearingParameters diPhoEffSmearPars;
+	bool  doEscaleSyst, doEresolSyst, doPhotonIdEffSyst, doVtxEffSyst;
 	float systRange;
-	int nSystSteps;   
-	int nCategories;
+	int   nSystSteps;   
+	int   nEtaCategories, nR9Categories, nPtCategories;
 
 protected:
 	void PreselectPhotons(LoopAll& l, int jentry);
 
 	std::vector<BaseSmearer *> photonSmearers_;
 	std::vector<BaseSmearer *> systPhotonSmearers_;
-	std::vector<BaseSmearer *> diPhotonSmearers_;
+	std::vector<BaseDiPhotonSmearer *> diPhotonSmearers_;
+	std::vector<BaseDiPhotonSmearer *> systDiPhotonSmearers_;
 	
-	EnergySmearer *eScaleSmearer, *eResolSmearer, *idEffSmearer, *vtxEffSmearer, *hltEffSmearer ;
+	EnergySmearer *eScaleSmearer, *eResolSmearer ;
+	EfficiencySmearer *idEffSmearer;
+	DiPhoEfficiencySmearer *vtxEffSmearer, *hltEffSmearer;
 	
 	std::string name_;
 	
 	// Vertex analysis
+	int nCategories_;
+
 	HggVertexAnalyzer vtxAna_;
 	HggVertexFromConversions vtxConv_;
 	

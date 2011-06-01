@@ -117,21 +117,17 @@ int PhotonEtaCategory(int photonindex, int n_etacat=4) {
   return  etacat;
 }
 //diphoton category functions ( r9, eta, and diphoton pt)
-int DiphotonCategory(Int_t leadind, Int_t subleadind, int n_r9cat=3, int n_etacat=4, int n_pThcat=0) {
+int DiphotonCategory(Int_t leadind, Int_t subleadind, float pTh, int n_r9cat=3, int n_etacat=4, int n_pThcat=0) {
   Int_t r9cat  =  TMath::Max(PhotonR9Category(leadind,n_r9cat),PhotonR9Category(subleadind,n_r9cat));
   Int_t etacat =  TMath::Max(PhotonEtaCategory(leadind,n_etacat),PhotonEtaCategory(subleadind,n_etacat));
-  Int_t pThcat =  DiphotonPtCategory(leadind,subleadind,n_pThcat);
+  Int_t pThcat =  DiphotonPtCategory(pTh,n_pThcat);
   return  (r9cat + n_r9cat*etacat + (n_r9cat*n_etacat)*pThcat);  // (n_r9cat*c_etacat*n_pThcat) categories
 }
-int DiphotonPtCategory(Int_t leadind, Int_t subleadind, int n_pThcat=0) {
-  if(leadind < 0 || subleadind < 0) return -1;
+int DiphotonPtCategory(double pTh, int n_pThcat=0) {
   if(n_pThcat<2)return 0;
   int pThcat=0;
-  TLorentzVector * leadp4 = (TLorentzVector*)pho_p4->At(leadind);
-  TLorentzVector * subleadp4 = (TLorentzVector*)pho_p4->At(subleadind);
-  double pTh = (*leadp4 + *subleadp4).Pt();
   if(n_pThcat == 2) {
-    pThcat = (Int_t)(pTh < 40.);
+    pThcat = (Int_t)(pTh < 30.);
   } else if (n_pThcat == 3) {
     pThcat = (Int_t)((pTh < 50.) + (pTh < 25.));
   }

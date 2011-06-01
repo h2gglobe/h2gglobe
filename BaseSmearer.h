@@ -31,10 +31,34 @@ public:
 	
 	// ! return smeared photon informations
 	virtual bool smearPhoton( PhotonReducedInfo & pho, float & weight, float syst_shift=0. ) const = 0;
-	
+
+	/// virtual bool smearDiPhoton( TLorentzVector & 4p, const TVector3 & selVtx, const TVector3 & trueVtx);
 };
 
 // ! Used to search analyzers by name 
 bool operator == (BaseSmearer * a, const std::string & b);
+
+
+class BaseDiPhotonSmearer 
+{
+public:
+	// ! C-TOR
+	BaseDiPhotonSmearer();
+	
+	// ! D-TOR
+	virtual ~BaseDiPhotonSmearer();
+	
+	// ! the class name
+	virtual const std::string & name() const = 0; 
+	
+	// !  
+	operator const std::string & () const { return this->name(); };
+	
+	virtual bool smearDiPhoton( TLorentzVector & p4, TVector3 & selVtx, float & weight, const int & category, 
+				    const int & genMassPoint, const TVector3 & trueVtx, float syst_shift=0.) const = 0 ;
+};
+
+// ! Used to search analyzers by name 
+bool operator == (BaseDiPhotonSmearer * a, const std::string & b);
 
 #endif

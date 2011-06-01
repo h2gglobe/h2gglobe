@@ -7,14 +7,14 @@
 class PhotonReducedInfo
 {
 public:
-
   
-  PhotonReducedInfo(const TVector3 & caloPosition, float energy, int iDet, float r9);
+  PhotonReducedInfo(const TVector3 & caloPosition, float energy, int iDet, float r9, bool passId );
 
   const TVector3 & caloPosition() const { return caloPosition_; }
   int iDet() const {return iDet_;}
   float energy()       const { return energy_; }
   float r9()       const { return r9_; }
+  bool passId() const { return passId_; }
   TLorentzVector p4(float vtxx, float vtxy, float vtxz) const;
 
   void setEnergy(float energy) {energy_=energy; };
@@ -28,6 +28,7 @@ protected:
   float energy_;
   int iDet_;
   float r9_;
+  bool passId_;
 };
 
 
