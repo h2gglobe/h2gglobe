@@ -4,6 +4,8 @@
 #include "BaseSmearer.h"
 #include <string>
 #include <map>
+#include "TFile.h"
+#include "TGraphAsymmErrors.h"
 
 class PhotonReducedInfo;
 class TRandom3;
@@ -31,6 +33,8 @@ public:
 	  
 	  std::map<std::string,float> smearing_sigma;
 	  std::map<std::string,float> smearing_sigma_error;
+
+          std::string efficiency_file;
   };
   
   EnergySmearer(const energySmearingParameters& par) ;
@@ -44,15 +48,28 @@ public:
   
   void scaleOrSmear(bool x) { scaleOrSmear_=x; }; 
 
+  void doEnergy(bool x) { doEnergy_=x; }; 
+   
+  void doEfficiencies(bool x) { doEfficiencies_=x; }; 
+  
+  void setEffName(std::string x) { effName_ =x; };
+
+  bool initEfficiency();
+
   energySmearingParameters  myParameters_;
   
  protected:
-  bool scaleOrSmear_;
-  
+  bool doEnergy_, scaleOrSmear_, doEfficiencies_;
+
   std::string photonCategory(PhotonReducedInfo &) const;
+
+  double getWeight(double pt, std::string theCategory, float syst_shift) const;
   
-  std::string name_;
-  TRandom3* rgen_;
+  std::string   name_;
+  TRandom3     *rgen_;
+  std::string   effName_;
+  TFile        *theEfficiencyFile_; 
+  std::map<std::string,TGraphAsymmErrors*> smearing_eff_graph_;
 };
 
 #endif
