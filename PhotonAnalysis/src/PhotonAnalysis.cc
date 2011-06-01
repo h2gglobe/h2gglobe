@@ -136,7 +136,7 @@ void PhotonAnalysis::Init(LoopAll& l)
         else {
             cout<<"Error opening " <<puHist<<" pileup reweighting histogram, using 1.0"<<endl; 
             weights.resize(50);
-            for (int i=0; i<weights.size(); i++) weights[i] = 1.0;
+            for (unsigned int i=0; i<weights.size(); i++) weights[i] = 1.0;
         }
         if(PADEBUG) 
             cout << "Opening PU file END"<<endl;
@@ -155,7 +155,7 @@ void PhotonAnalysis::Analysis(LoopAll& l, Int_t jentry)
                 cout << "Analysis START"<<endl;
         pho_presel.clear();
 
-	int n_pu = l.pu_n;
+	unsigned int n_pu = l.pu_n;
 	float weight =1.;
 	if (l.itype[l.current] !=0 && puHist != "") {
 	  if(n_pu<weights.size()){

@@ -284,7 +284,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
    int cur_type = l.itype[l.current];
    float weight = l.sampleContainer[l.current_sample_index].weight;
     //PU reweighting
-    int n_pu = l.pu_n;
+   unsigned int n_pu = l.pu_n;
     if (l.itype[l.current] !=0 && puHist != "") {
         if(n_pu<weights.size()){
 	     //cout << n_pu<<endl;
