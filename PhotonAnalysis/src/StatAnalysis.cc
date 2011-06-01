@@ -65,6 +65,8 @@ void StatAnalysis::Init(LoopAll& l)
 	// FIXME: move to config file 
 	doEscaleSyst = true;
 	doEresolSyst = true;
+	doPhotonIdEffSyst = false;
+	doVtxEffSyst = true;
 	nCategories = 4;
 
 	eSmearPars.categoryType = "2CatR9_EBEE";
@@ -94,16 +96,37 @@ void StatAnalysis::Init(LoopAll& l)
 	eSmearPars.smearing_sigma_error["EEHighR9"] = 2e-3;
 	eSmearPars.smearing_sigma_error["EELowR9"]  = 2e-3;
 
+	eSmearPars.efficiency_file                = std::string("/afs/cern.ch/user/f/franzoni/public/globe/effReweight_tgraph.root");
+	
 	eScaleSmearer = new EnergySmearer( eSmearPars );
 	eScaleSmearer->name("E_scale");
+	eScaleSmearer->doEnergy(true);
 	eScaleSmearer->scaleOrSmear(true);
 	
 	eResolSmearer = new EnergySmearer( eSmearPars );
 	eResolSmearer->name("E_res");
+	eResolSmearer->doEnergy(false);
 	eResolSmearer->scaleOrSmear(false);
-	
+
+	idEffSmearer = new EnergySmearer( eSmearPars );
+	idEffSmearer->name("idEff");
+	idEffSmearer->doEfficiencies(true);
+	idEffSmearer->setEffName("ratioTP");
+	idEffSmearer->initEfficiency();
+
+	vtxEffSmearer = new EnergySmearer( eSmearPars );   // triplicate TF1's here
+	vtxEffSmearer->name("vtxEff");
+	vtxEffSmearer->doEfficiencies(true);
+	vtxEffSmearer->setEffName("ratioVertex");
+	vtxEffSmearer->initEfficiency();
+
+ 
 	photonSmearers_.push_back(eScaleSmearer);
 	photonSmearers_.push_back(eResolSmearer);
+	photonSmearers_.push_back(idEffSmearer);
+	photonSmearers_.push_back(vtxEffSmearer);
+	
+
 /*
 //	r = new TRandom3();
 	if (icat == 0) {escale = 0.39; eres = 1.58;} 	// EB high r9
@@ -146,6 +169,18 @@ void StatAnalysis::Init(LoopAll& l)
 		std::vector<int> sys_t(1,-1);	// -1 for signal, 1 for background 0 for both
 		l.rooContainer->MakeSystematicStudy(sys,sys_t);
 	}
+	if( doPhotonIdEffSyst ) {//GF this is here as a test, for the moment - there are other efficiencies too (VTX, trigger etc)
+		systPhotonSmearers_.push_back( idEffSmearer );
+		std::vector<std::string> sys(1,idEffSmearer->name());
+		std::vector<int> sys_t(1,-1);	// -1 for signal, 1 for background 0 for both
+		l.rooContainer->MakeSystematicStudy(sys,sys_t);
+	}//GF
+	if( doVtxEffSyst ) {//GF this is here as a test, for the moment - there are other efficiencies too (VTX, trigger etc)
+		systPhotonSmearers_.push_back( vtxEffSmearer );
+		std::vector<std::string> sys(1,vtxEffSmearer->name());
+		std::vector<int> sys_t(1,-1);	// -1 for signal, 1 for background 0 for both
+		l.rooContainer->MakeSystematicStudy(sys,sys_t);
+	}//GF
 	// ----------------------------------------------------
 
 	// Create observables for shape-analysis with ranges
@@ -374,7 +409,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	   std::vector<int> categories;
 	   
 	   // loop over syst shift
-	   for(float syst_shift=-systRange; syst_shift<=systRange; syst_shift+=systRange ) { 
+	   for(float syst_shift=(-1*systRange); syst_shift<=systRange; syst_shift+=systRange ) { 
 	       // skip the central value
 	       if( syst_shift == 0. ) { continue; } 
 	       
@@ -386,7 +421,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		   
 		   // move the smearer under study by syst_shift
 		   (*si)->smearPhoton(phoInfo,weight,syst_shift);
-		   
+		       
 		   // for the other use the nominal points
 		   for(std::vector<BaseSmearer *>::iterator  sj=photonSmearers_.begin(); sj!= photonSmearers_.end(); ++sj ) {
 		       if( *si == *sj ) { continue; }

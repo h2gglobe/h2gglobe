@@ -30,7 +30,7 @@ public:
 	
 	// Options
 	EnergySmearer::energySmearingParameters eSmearPars;
-	bool doEscaleSyst, doEresolSyst;
+	bool doEscaleSyst, doEresolSyst, doPhotonIdEffSyst, doVtxEffSyst;
 	float systRange;
 	int nSystSteps;   
 	int nCategories;
@@ -42,7 +42,7 @@ protected:
 	std::vector<BaseSmearer *> systPhotonSmearers_;
 	std::vector<BaseSmearer *> diPhotonSmearers_;
 	
-	EnergySmearer *eScaleSmearer, *eResolSmearer;
+	EnergySmearer *eScaleSmearer, *eResolSmearer, *idEffSmearer, *vtxEffSmearer, *hltEffSmearer ;
 	
 	std::string name_;
 	
