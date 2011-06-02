@@ -15,5 +15,5 @@ doEresolSyst=1
 efficiencyFile=/castor/cern.ch/user/m/musella/Higgs2011/inputs/sig_reweighing.root
 doPhotonIdEffSyst=1
 doVtxEffSyst=1
-
+doTriggerEffSyst=1
 
