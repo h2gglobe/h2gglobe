@@ -44,19 +44,19 @@ bool DiPhoEfficiencySmearer::init()
 
   // if map is not empty, yuo're initilized and happy..
   if( !smearing_eff_graph_.empty() ){
-     std:cout << "initialization of efficiencies already done; proceed with usage. " << std::endl;
+  std:cout << "initialization of DI-photon efficiency smearer " << effName_ << " already done; proceed with usage. " << std::endl;
     return true;
   }
   if( doVtxEff_ ) { passFailWeights_ = true; }
 
   //otherwise, get smearing functions from file and set up map
-  std::cout << "\n>>>initializing one efficiency for photon re-weighting; " <<  std::endl;
+  std::cout << "\n>>>initializing one efficiency for DI-photon re-weighting: " << effName_ <<  std::endl;
   
   // do basic sanity checks first
   if( effName_.empty()){
-    std::cout << "you're initialzinfg reweighting for efficiency but effName_ is empty" << std::endl;  assert(false); }
+    std::cout << "you're initializing reweighting for efficiency but effName_ is empty" << std::endl;  assert(false); }
   if( myParameters_.efficiency_file.empty()){
-    std::cout << "you're initialzinfg reweighting for efficiency: " << effName_  << " but input file with TGraphErrors is not specified; doing nothing. " << std::endl;  assert(false); }
+    std::cout << "you're initializing reweighting for efficiency: " << effName_  << " but input file with TGraphErrors is not specified; doing nothing. " << std::endl;  assert(false); }
   
   theDiPhoEfficiencyFile_ = TFile::Open(myParameters_.efficiency_file.c_str());
 
