@@ -124,14 +124,31 @@ void PhotonAnalysis::Init(LoopAll& l)
     ----------------------------------------------------------------------------------------------  */
     if (puHist != "") {
         if(PADEBUG) 
-            cout << "Opening PU file"<<endl;
+		cout << "Opening PU file"<<endl;
         TFile* puFile = TFile::Open( puHist );
         if (puFile) {
             cout<<"Reweighting events for pileup."<<endl;
-            TH1D *histo; 
-            puFile->GetObject("pileup",histo);
-            weights = l.generate_flat10_weights(histo);
-	    puFile->Close();
+	    TH1 * hweigh = (TH1D*) puFile->Get("weights");
+	    if( hweigh != 0 ) { 
+		    cout<< " This is a pre-processed pileup reweighing file." <<endl;
+		    TH1 * gen_pu = (TH1*)puFile->Get("generated_pu");
+		    TH1 * eff = (TH1*)hweigh->Clone("eff");
+		    eff->Multiply(gen_pu);
+		    hweigh->Scale( gen_pu->Integral() / eff->Integral()  );
+		    weights.clear();
+		    for( int ii=1; ii<hweigh->GetNbinsX(); ++ii ) {
+			    weights.push_back(hweigh->GetBinContent(ii)); 
+		    }
+	    } else {
+		    TH1D * histo = (TH1D*) puFile->Get("pileup");
+		    if( histo != 0 ) {
+			    weights = l.generate_flat10_weights(histo);
+			    puFile->Close();
+		    }
+	    }
+	    std::cout << "pile-up weights: ";
+	    std::copy(weights.begin(), weights.end(), std::ostream_iterator<double>(std::cout,","));
+	    std::cout << std::endl;
         }
         else {
             cout<<"Error opening " <<puHist<<" pileup reweighting histogram, using 1.0"<<endl; 

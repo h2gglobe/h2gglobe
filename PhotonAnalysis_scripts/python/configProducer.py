@@ -372,16 +372,20 @@ class configProducer:
       
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def read_analyzer(self,line):
-    a, name, config = line.split()
+    ## a, name, config = line.split()
+    sl = line.split()
+    sl.pop(0)
+    name = sl.pop(0)
     analyzer = ROOT.__getattr__(name)()
     self.ut_.AddAnalysis( analyzer )
-    try:
-      if os.path.isfile(config):
-        self.read_struct_from_file(config,analyzer)
-      else:
-        self.read_struct(config,analyzer)
-    except Exception, e:
-      sys.exit("Unable to read analyzer %s at line:\n\n%s\n%s"% (name, line, e) )
+    for config in sl:
+        try:
+            if os.path.isfile(config):
+                self.read_struct_from_file(config,analyzer)
+            else:
+                self.read_struct(config,analyzer)
+        except Exception, e:
+            sys.exit("Unable to read analyzer %s at line:\n\n%s\n%s"% (name, line, e) )
 
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def read_output_file(self,line):

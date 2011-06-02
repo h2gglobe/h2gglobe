@@ -33,7 +33,8 @@ public:
 	// Options
 	float leadEtCut;
 	float subleadEtCut;
-
+	std::string efficiencyFile;
+	
 	EnergySmearer::energySmearingParameters eSmearPars;
 	EfficiencySmearer::efficiencySmearingParameters effSmearPars;
 	DiPhoEfficiencySmearer::diPhoEfficiencySmearingParameters diPhoEffSmearPars;

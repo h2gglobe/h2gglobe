@@ -58,7 +58,7 @@ bool DiPhoEfficiencySmearer::init()
   if( myParameters_.efficiency_file.empty()){
     std::cout << "you're initialzinfg reweighting for efficiency: " << effName_  << " but input file with TGraphErrors is not specified; doing nothing. " << std::endl;  assert(false); }
   
-  theDiPhoEfficiencyFile_ = new TFile(myParameters_.efficiency_file.c_str());
+  theDiPhoEfficiencyFile_ = TFile::Open(myParameters_.efficiency_file.c_str());
 
   // initialize formulas for the di-photon categories; 
   for( int ii=0; ii<myParameters_.n_categories; ++ii ) {
@@ -72,7 +72,7 @@ bool DiPhoEfficiencySmearer::init()
     }
   }
 
-  delete  theDiPhoEfficiencyFile_;
+  theDiPhoEfficiencyFile_->Close();
   return true;
 
 }

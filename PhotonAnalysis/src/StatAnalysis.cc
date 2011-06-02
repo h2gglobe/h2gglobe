@@ -59,20 +59,33 @@ void StatAnalysis::Init(LoopAll& l)
 	if(PADEBUG) 
 		cout << "InitRealStatAnalysis START"<<endl;
 	
+	// These parameters are set in the configuration file
+ 	std::cout
+		<< "\n"
+		<< "-------------------------------------------------------------------------------------- \n"
+		<< "StatAnalysis " << "\n"
+		<< "-------------------------------------------------------------------------------------- \n"
+		<< "leadEtCut "<< leadEtCut << "\n"
+		<< "subleadEtCut "<< subleadEtCut << "\n"
+		<< "doTriggerSelection "<< doTriggerSelection << "\n"
+		<< "nEtaCategories "<< nEtaCategories << "\n"
+		<< "nR9Categories "<< nR9Categories << "\n"		
+		<< "nPtCategories "<< nPtCategories << "\n"		
+		<< "doEscaleSyst "<< doEscaleSyst << "\n"
+		<< "doEresolSyst "<< doEresolSyst << "\n"
+		<< "efficiencyFile " << efficiencyFile << "\n"
+		<< "doPhotonIdEffSyst "<< doPhotonIdEffSyst << "\n"
+		<< "doVtxEffSyst "<< doVtxEffSyst << "\n"
+		<< "-------------------------------------------------------------------------------------- \n"
+		<< std::endl;
+	
 	// call the base class initializer
 	PhotonAnalysis::Init(l);
-
-	// FIXME: move to config file 
-	doEscaleSyst = true;
-	doEresolSyst = true;
-	doPhotonIdEffSyst = true;
-	doVtxEffSyst = false;
-
-	nEtaCategories = 2, nR9Categories = 2, nPtCategories = 0;
-	leadEtCut    = 40.0;
-	subleadEtCut = 30.0;
-
-	nCategories_ = nEtaCategories * nR9Categories * nPtCategories;
+	
+	// initialize the analysis variables
+	nCategories_ = nEtaCategories;
+	if( nR9Categories != 0 ) nCategories_ *= nR9Categories;
+	if( nPtCategories != 0 ) nCategories_ *= nPtCategories;
 
 	eSmearPars.categoryType = "2CatR9_EBEE";
 
@@ -81,58 +94,80 @@ void StatAnalysis::Init(LoopAll& l)
 	// FIXME: 
 	// . shall apply E-scale correction to data?  
 	// . double-check signs
-	eSmearPars.scale_offset["EBHighR9"] = 4.6e-3;
-	eSmearPars.scale_offset["EBLowR9"]  = -1.9e-3;
-	eSmearPars.scale_offset["EEHighR9"] = -7.6e-3;
-	eSmearPars.scale_offset["EELowR9"]  = -2.1e-3;
+	///// eSmearPars.scale_offset["EBHighR9"] = 4.6e-3;
+	///// eSmearPars.scale_offset["EBLowR9"]  = -1.9e-3;
+	///// eSmearPars.scale_offset["EEHighR9"] = -7.6e-3;
+	///// eSmearPars.scale_offset["EELowR9"]  = -2.1e-3;
+	///// 
+	///// eSmearPars.scale_offset_error["EBHighR9"] = 7e-4;
+	///// eSmearPars.scale_offset_error["EBLowR9"]  = 6e-4;
+	///// eSmearPars.scale_offset_error["EEHighR9"] = 1.8e-3;
+	///// eSmearPars.scale_offset_error["EELowR9"]  = 2.5e-4;
+	///// 
+	///// eSmearPars.smearing_sigma["EBHighR9"] = 9.6e-3;
+	///// eSmearPars.smearing_sigma["EBLowR9"]  = 1.348e-2;
+	///// eSmearPars.smearing_sigma["EEHighR9"] = 2.5e-2;
+	///// eSmearPars.smearing_sigma["EELowR9"]  = 2.3e-2;
+	///// 
+	///// eSmearPars.smearing_sigma_error["EBHighR9"] = 1.e-3;
+	///// eSmearPars.smearing_sigma_error["EBLowR9"]  = 6e-4;
+	///// eSmearPars.smearing_sigma_error["EEHighR9"] = 2e-3;
+	///// eSmearPars.smearing_sigma_error["EELowR9"]  = 2e-3;
 
-	eSmearPars.scale_offset_error["EBHighR9"] = 7e-4;
-	eSmearPars.scale_offset_error["EBLowR9"]  = 6e-4;
-	eSmearPars.scale_offset_error["EEHighR9"] = 1.8e-3;
-	eSmearPars.scale_offset_error["EELowR9"]  = 2.5e-4;
+	// Numbers from Riccardo
+	eSmearPars.scale_offset["EBHighR9"] =  0.49e-2;
+	eSmearPars.scale_offset["EBLowR9"]  = -0.11e-2;
+	eSmearPars.scale_offset["EEHighR9"] = -0.57e-2;
+	eSmearPars.scale_offset["EELowR9"]  = -0.39e-2;
 
-	eSmearPars.smearing_sigma["EBHighR9"] = 9.6e-3;
-	eSmearPars.smearing_sigma["EBLowR9"]  = 1.348e-2;
-	eSmearPars.smearing_sigma["EEHighR9"] = 2.5e-2;
-	eSmearPars.smearing_sigma["EELowR9"]  = 2.3e-2;
+	eSmearPars.scale_offset_error["EBHighR9"] = 0.07e-2;
+	eSmearPars.scale_offset_error["EBLowR9"]  = 0.05e-2;
+	eSmearPars.scale_offset_error["EEHighR9"] = 0.24e-2;
+	eSmearPars.scale_offset_error["EELowR9"]  = 0.19e-2;
 
-	eSmearPars.smearing_sigma_error["EBHighR9"] = 1.e-3;
-	eSmearPars.smearing_sigma_error["EBLowR9"]  = 6e-4;
-	eSmearPars.smearing_sigma_error["EEHighR9"] = 2e-3;
-	eSmearPars.smearing_sigma_error["EELowR9"]  = 2e-3;
+	eSmearPars.smearing_sigma["EBHighR9"] = 0.89e-2;
+	eSmearPars.smearing_sigma["EBLowR9"]  = 1.99e-2;
+	eSmearPars.smearing_sigma["EEHighR9"] = 4.09e-2;
+	eSmearPars.smearing_sigma["EELowR9"]  = 2.46e-2;
+	
+	eSmearPars.smearing_sigma_error["EBHighR9"] = 0.25e-2;
+	eSmearPars.smearing_sigma_error["EBLowR9"]  = 0.12e-2;
+	eSmearPars.smearing_sigma_error["EEHighR9"] = 0.38e-2;
+	eSmearPars.smearing_sigma_error["EELowR9"]  = 0.52e-2;
+
 
 	effSmearPars.categoryType = "2CatR9_EBEE";
 	effSmearPars.n_categories = 4;
-	effSmearPars.efficiency_file                = std::string("/afs/cern.ch/user/f/franzoni/public/globe/effReweight_tgraph.root");
+	effSmearPars.efficiency_file = efficiencyFile;
 
 	diPhoEffSmearPars.n_categories = 4;
-	diPhoEffSmearPars.efficiency_file                = std::string("/afs/cern.ch/user/m/musella/public/higgs/effReweight_tgraph.root");
+	diPhoEffSmearPars.efficiency_file = efficiencyFile;
 
+	// energy scale corrections
 	eScaleSmearer = new EnergySmearer( eSmearPars );
 	eScaleSmearer->name("E_scale");
 	eScaleSmearer->doEnergy(true);
 	eScaleSmearer->scaleOrSmear(true);
 	photonSmearers_.push_back(eScaleSmearer);
-	
+	// energy resolution smearing
 	eResolSmearer = new EnergySmearer( eSmearPars );
 	eResolSmearer->name("E_res");
 	eResolSmearer->doEnergy(false);
 	eResolSmearer->scaleOrSmear(false);
 	photonSmearers_.push_back(eResolSmearer);
-
+	// photon ID efficiency 
 	idEffSmearer = new EfficiencySmearer( effSmearPars );
 	idEffSmearer->name("idEff");
 	idEffSmearer->setEffName("ratioTP");
 	idEffSmearer->init();
 	photonSmearers_.push_back(idEffSmearer);
-	
+	// Vertex ID
 	vtxEffSmearer = new DiPhoEfficiencySmearer( diPhoEffSmearPars );   // triplicate TF1's here
 	vtxEffSmearer->name("vtxEff");
 	vtxEffSmearer->setEffName("ratioVertex");
 	vtxEffSmearer->doVtxEff(true);
 	vtxEffSmearer->init();
- 
-	diPhotonSmearers_.push_back(vtxEffSmearer);
+ 	diPhotonSmearers_.push_back(vtxEffSmearer);
 	
         // Define the number of categories for the statistical analysis and
 	// the systematic sets to be formed
@@ -154,18 +189,18 @@ void StatAnalysis::Init(LoopAll& l)
 		std::vector<int> sys_t(1,-1);	// -1 for signal, 1 for background 0 for both
 		l.rooContainer->MakeSystematicStudy(sys,sys_t);
 	}
-	if( doPhotonIdEffSyst ) {//GF this is here as a test, for the moment - there are other efficiencies too (VTX, trigger etc)
+	if( doPhotonIdEffSyst ) {
 		systPhotonSmearers_.push_back( idEffSmearer );
 		std::vector<std::string> sys(1,idEffSmearer->name());
 		std::vector<int> sys_t(1,-1);	// -1 for signal, 1 for background 0 for both
 		l.rooContainer->MakeSystematicStudy(sys,sys_t);
-	}//GF
-	if( doVtxEffSyst ) {//GF this is here as a test, for the moment - there are other efficiencies too (VTX, trigger etc)
+	}
+	if( doVtxEffSyst ) {
 	        systDiPhotonSmearers_.push_back( vtxEffSmearer );
 		std::vector<std::string> sys(1,vtxEffSmearer->name());
 		std::vector<int> sys_t(1,-1);	// -1 for signal, 1 for background 0 for both
 		l.rooContainer->MakeSystematicStudy(sys,sys_t);
-	}//GF
+	}
 	// ----------------------------------------------------
 
 	// Create observables for shape-analysis with ranges

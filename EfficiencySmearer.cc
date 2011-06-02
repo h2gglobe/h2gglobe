@@ -84,7 +84,7 @@ bool EfficiencySmearer::init()
   if( myParameters_.efficiency_file.empty()){
     std::cout << "you're initialzinfg reweighting for efficiency: " << effName_  << " but input file with TGraphErrors is not specified; doing nothing. " << std::endl;  assert(false); }
   
-  theEfficiencyFile_ = new TFile(myParameters_.efficiency_file.c_str());
+  theEfficiencyFile_ = TFile::Open(myParameters_.efficiency_file.c_str());
 
   // initialize formulas for the four categories; 
   std::string effTmpName; std::string photonCat; TGraphAsymmErrors *graphTmp, *graphClone;
@@ -105,7 +105,7 @@ bool EfficiencySmearer::init()
   effTmpName = effName_+std::string("_")+photonCat; graphTmp = (TGraphAsymmErrors*) theEfficiencyFile_->Get(effTmpName.c_str());   // smearing_eff_graph_[photonCat]=graphTmp;  
   graphClone=(TGraphAsymmErrors*)graphTmp->Clone();    smearing_eff_graph_[photonCat]=graphClone;    
 
-  delete  theEfficiencyFile_;
+  theEfficiencyFile_->Close();
   return true;
 
 }
