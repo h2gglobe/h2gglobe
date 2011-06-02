@@ -313,7 +313,7 @@ void StatAnalysis::Init(LoopAll& l)
 void StatAnalysis::Analysis(LoopAll& l, Int_t jentry) 
 {
    if(PADEBUG) 
- 	cout << "Analysis START"<<endl;
+     cout << "Analysis START; cur_type is: " << l.itype[l.current] <<endl;
    
    int cur_type = l.itype[l.current];
    float weight = l.sampleContainer[l.current_sample_index].weight;
@@ -323,7 +323,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
         if(n_pu<weights.size()){
 	     //cout << n_pu<<endl;
 	     //std::cout << weights[n_pu] << std::endl;
-             //weight *= weights[n_pu];
+	  weight *= weights[n_pu];   // put this back
         }    
         else{ //should not happen 
              cout<<"n_pu ("<< n_pu<<") too big ("<<weights.size()
@@ -353,7 +353,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
        if( cur_type != 0 ) {
 	   for(std::vector<BaseSmearer *>::iterator si=photonSmearers_.begin(); si!= photonSmearers_.end(); ++si ) {
 	       float sweight = 1.;
-	       (*si)->smearPhoton(phoInfo,weight,0.);
+	       (*si)->smearPhoton(phoInfo,sweight,0.);
 	       pweight *= sweight;
 	   }
        }
@@ -366,7 +366,6 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
    diphoton_index = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtCut, subleadEtCut, 4,false, &smeared_pho_p4 ); 
    
    if (diphoton_index.first > -1 && diphoton_index.second > -1){
-       
        float evweight = weight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second];
        
        TLorentzVector *lead_p4 = (TLorentzVector*)smeared_pho_p4.At(diphoton_index.first);
@@ -418,7 +417,6 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
        
        // fill steps for syst uncertainty study
        float systStep = systRange / (float)nSystSteps;
-
        // di-photon smearers systematics
        if (diphoton_index.first > -1 && diphoton_index.second > -1){
 	       float evweight = weight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second];
@@ -441,7 +439,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 				       float swei=1.;
 				       float pth = Higgs.Pt();
 				       if( *si == *sj ) { 
-					   (*si)->smearDiPhoton( Higgs, *vtx, swei, category, cur_type, *((TVector3*)l.gv_pos->At(0)), syst_shift );
+					 (*si)->smearDiPhoton( Higgs, *vtx, swei, category, cur_type, *((TVector3*)l.gv_pos->At(0)), syst_shift );
 				       } else { 
 					   (*sj)->smearDiPhoton( Higgs, *vtx, swei, category, cur_type, *((TVector3*)l.gv_pos->At(0)), 0. );
 				       }
@@ -490,10 +488,10 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		   for(std::vector<BaseSmearer *>::iterator  sj=photonSmearers_.begin(); sj!= photonSmearers_.end(); ++sj ) {
 		       float sweight = 1.;
 		       if( *si == *sj ) {
-			   // move the smearer under study by syst_shift
+			   // move the SNsmearer under study by syst_shift
 			   (*si)->smearPhoton(phoInfo,sweight,syst_shift);
 		       } else {
-			   // for the other use the nominal points
+			 // for the other use the nominal points
 			   (*sj)->smearPhoton(phoInfo,sweight,0.);
 		       }
 		       pweight *= sweight;
