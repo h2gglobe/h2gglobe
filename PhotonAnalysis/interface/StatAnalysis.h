@@ -38,7 +38,7 @@ public:
 	EnergySmearer::energySmearingParameters eSmearPars;
 	EfficiencySmearer::efficiencySmearingParameters effSmearPars;
 	DiPhoEfficiencySmearer::diPhoEfficiencySmearingParameters diPhoEffSmearPars;
-	bool  doEscaleSyst, doEresolSyst, doPhotonIdEffSyst, doVtxEffSyst;
+	bool  doEscaleSyst, doEresolSyst, doPhotonIdEffSyst, doVtxEffSyst, doTriggerEffSyst;
 	float systRange;
 	int   nSystSteps;   
 	int   nEtaCategories, nR9Categories, nPtCategories;
@@ -53,7 +53,7 @@ protected:
 	
 	EnergySmearer *eScaleSmearer, *eResolSmearer ;
 	EfficiencySmearer *idEffSmearer;
-	DiPhoEfficiencySmearer *vtxEffSmearer, *hltEffSmearer;
+	DiPhoEfficiencySmearer *vtxEffSmearer, *triggerEffSmearer;
 	
 	std::string name_;
 	

@@ -76,6 +76,7 @@ void StatAnalysis::Init(LoopAll& l)
 		<< "efficiencyFile " << efficiencyFile << "\n"
 		<< "doPhotonIdEffSyst "<< doPhotonIdEffSyst << "\n"
 		<< "doVtxEffSyst "<< doVtxEffSyst << "\n"
+		<< "doTriggerEffSyst "<< doTriggerEffSyst << "\n"
 		<< "-------------------------------------------------------------------------------------- \n"
 		<< std::endl;
 	
@@ -168,6 +169,13 @@ void StatAnalysis::Init(LoopAll& l)
 	vtxEffSmearer->doVtxEff(true);
 	vtxEffSmearer->init();
  	diPhotonSmearers_.push_back(vtxEffSmearer);
+	// trigger efficiency
+	triggerEffSmearer = new DiPhoEfficiencySmearer( diPhoEffSmearPars );
+	triggerEffSmearer->name("triggerEff");
+	triggerEffSmearer->setEffName("effL1HLT");
+	triggerEffSmearer->doVtxEff(false);
+	triggerEffSmearer->init();
+ 	diPhotonSmearers_.push_back(triggerEffSmearer);
 	
         // Define the number of categories for the statistical analysis and
 	// the systematic sets to be formed
@@ -198,6 +206,12 @@ void StatAnalysis::Init(LoopAll& l)
 	if( doVtxEffSyst ) {
 	        systDiPhotonSmearers_.push_back( vtxEffSmearer );
 		std::vector<std::string> sys(1,vtxEffSmearer->name());
+		std::vector<int> sys_t(1,-1);	// -1 for signal, 1 for background 0 for both
+		l.rooContainer->MakeSystematicStudy(sys,sys_t);
+	}
+	if( doTriggerEffSyst ) {
+	        systDiPhotonSmearers_.push_back( triggerEffSmearer );
+		std::vector<std::string> sys(1,triggerEffSmearer->name());
 		std::vector<int> sys_t(1,-1);	// -1 for signal, 1 for background 0 for both
 		l.rooContainer->MakeSystematicStudy(sys,sys_t);
 	}
