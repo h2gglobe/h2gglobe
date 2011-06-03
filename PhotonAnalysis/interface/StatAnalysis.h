@@ -10,6 +10,8 @@
 #include "EnergySmearer.h"
 #include "EfficiencySmearer.h"
 #include "DiPhoEfficiencySmearer.h"
+#include <iostream>
+#include <fstream>
 
 // ------------------------------------------------------------------------------------
 class StatAnalysis : public PhotonAnalysis 
@@ -66,6 +68,8 @@ protected:
 	// RooStuff
 	RooContainer *rooContainer;
 
+	// Saclay Text
+	ofstream SaclayText;
 	//vector<double> weights;
 	
 };

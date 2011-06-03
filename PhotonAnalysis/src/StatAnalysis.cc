@@ -23,33 +23,19 @@ StatAnalysis::~StatAnalysis()
 // ----------------------------------------------------------------------------------------------------
 void StatAnalysis::Term(LoopAll& l) 
 {
-        // Make Fits to the data-sets and systematic sets
-        l.rooContainer->FitToData("data_exp_model","data_mass");  // Fit to full range of dataset
-//        l.rooContainer->FitToData("background_model","bkg_mass");    // Fit to full set
 
-//        l.rooContainer->FitToData("signal_model","sig_mass_m110");		 // fit to full obervable range
-//        l.rooContainer->FitToData("signal_model","sig_mass_m120");		 // fit to full obervable range
-//        l.rooContainer->FitToData("signal_model","sig_mass_m130");		 // fit to full obervable range
-//        l.rooContainer->FitToData("signal_model","sig_mass_m140");		 // fit to full obervable range
+        // Make Fits to the data-sets and systematic sets
+        l.rooContainer->FitToData("data_pol_model","data_mass");  // Fit to full range of dataset
   
-        // fit to the systematic shits
-        // l.rooContainer->FitToSystematicSet("signal_model","sig_mass_m120","E_scale");
-  
-        // Can create binned models from the results of the fits, should be same bins as other 
-        // binned models for when plugging into limit setting.
-        //l.rooContainer->GenerateBinnedPdf("bkg_mass_rebinned","background_model","mass",105); 	   // number of bins only -> full range
-       // l.rooContainer->GenerateBinnedPdf("bkg_mass_narrow","background_model","mass",100,0,105,155); // 0, will take range from given range (if no range, will default to full obs range) 
-        l.rooContainer->GenerateBinnedPdf("bkg_mass_rebinned","data_exp_model","data_mass",1,100,0); // 1 means systematics from the fit effect only the background last digit mode = 0 
+        l.rooContainer->GenerateBinnedPdf("bkg_mass_rebinned","data_pol_model","data_mass",1,60,1); // 1 means systematics from the fit effect only the backgroundi. last digit mode = 1 means this is an internal constraint fit 
         // mode 0 as above, 1 if want to bin in sub range from fit,
-  	//l.rooContainer->CombineBinnedDatasets("bkg_mass_narrow","zee_mass");
 
         // Write the data-card for the Combinations Code, needs the output filename, makes binned analysis DataCard
+	// Assumes the signal datasets will be called signal_name+"_mXXX"
         std::string outputfilename = (std::string) l.histFileName;
-        l.rooContainer->WriteDataCard(outputfilename,"data_mass","sig_mass_m110","bkg_mass_rebinned");
-        l.rooContainer->WriteDataCard(outputfilename,"data_mass","sig_mass_m115","bkg_mass_rebinned");
-        l.rooContainer->WriteDataCard(outputfilename,"data_mass","sig_mass_m120","bkg_mass_rebinned");
-        l.rooContainer->WriteDataCard(outputfilename,"data_mass","sig_mass_m130","bkg_mass_rebinned");
-        l.rooContainer->WriteDataCard(outputfilename,"data_mass","sig_mass_m140","bkg_mass_rebinned");
+        l.rooContainer->WriteDataCard(outputfilename,"data_mass","sig_mass","bkg_mass_rebinned");
+
+	SaclayText.close();
 
 }
 
@@ -59,6 +45,9 @@ void StatAnalysis::Init(LoopAll& l)
 	if(PADEBUG) 
 		cout << "InitRealStatAnalysis START"<<endl;
 	
+	// Saclay text file
+		SaclayText.open("ascii_events_204pb.txt");
+  	//
 	// These parameters are set in the configuration file
  	std::cout
 		<< "\n"
@@ -221,35 +210,34 @@ void StatAnalysis::Init(LoopAll& l)
 		l.rooContainer->MakeSystematicStudy(sys,sys_t);
 	}
 	// ----------------------------------------------------
+	// ----------------------------------------------------
+	// Global systematics - Lumi
+	l.rooContainer->AddGlobalSystematic("lumi",1.04,1.00);
+	// ----------------------------------------------------
 
 	// Create observables for shape-analysis with ranges
-	l.rooContainer->AddObservable("mass" ,100.,200.);
+	l.rooContainer->AddObservable("mass" ,100.,160.);
 
-	// Create parameters and pdfs for signal/background
+	// FIXME, get these numbers from the LoopAll or maybe sampleContainer?
+	l.rooContainer->AddRealVar("IntLumi",204.);
+	l.rooContainer->AddRealVar("XSBR_105",0.0387684+0.00262016+0.003037036);
+	l.rooContainer->AddRealVar("XSBR_110",0.0390848+0.00275406+0.002902204);
+	l.rooContainer->AddRealVar("XSBR_115",0.0386169+0.00283716+0.002717667);
+	l.rooContainer->AddRealVar("XSBR_120",0.0374175+0.00285525+0.002505285);
+	l.rooContainer->AddRealVar("XSBR_130",0.0319112+0.00260804+0.0019327068);
+	l.rooContainer->AddRealVar("XSBR_140",0.0235322+0.00204088+0.0012874228);	
 
-	// Data shape - Exponential + Zee tail
-	l.rooContainer->AddRealVar("mu_data",-0.04,-2.,-0.0001);
-	l.rooContainer->AddRealVar("mu_tail_data",-0.02,-0.5,-0.0001);
-
-	std::vector<std::string> data_exp_pars(1,"e");	 
-	data_exp_pars[0] = "mu_data";
-	std::vector<std::string> data_tail_pars(1,"e");	 
-	data_tail_pars[0] = "mu_tail_data";
-
-	l.rooContainer->AddGenericPdf("data_exp_model",
-	  "","mass",data_exp_pars,1);//,0.8,0.5,0.99); // 1 for exonential, no need for formula
- 
-	l.rooContainer->AddGenericPdf("data_tail_model",
-	  "","mass",data_tail_pars,1,0.2,0.,0.5); // 1 for exonential, no need for formula 
-
-        std::vector<std::string> components_data(2,"c");
-        components_data[0] = "data_exp_model";
-        components_data[1] = "data_tail_model";
-        l.rooContainer->ComposePdf("data_model","data_exp_model+data_tail_model",components_data,false); // true means use extended pdfs
+	l.rooContainer->AddRealVar("pol0",-0.04);
+	l.rooContainer->AddRealVar("pol1",0.016);
+	std::vector<std::string> data_pol_pars(2,"p");	 
+	data_pol_pars[0] = "pol1";
+	data_pol_pars[1] = "pol0";
+	l.rooContainer->AddGenericPdf("data_pol_model",
+	  "0","mass",data_pol_pars,62);	// >= 61 means RooPolynomial of order >= 1
 	// ------------------------------------------------------
         
         // Background - Exponential
-	l.rooContainer->AddRealVar("mu",-0.04,-2.,-0.001);
+	l.rooContainer->AddRealVar("mu",-0.04);
 		  
 	std::vector<std::string> pars(1,"t");	 
 	pars[0] = "mu";
@@ -257,56 +245,39 @@ void StatAnalysis::Init(LoopAll& l)
 	l.rooContainer->AddGenericPdf("background_model",
 	  "","mass",pars,1); // 1 for exonential, no need for formula 
         // -----------------------------------------------------
-	
-	// Signal -- CB shape
-        l.rooContainer->AddRealVar("mean",120,100,150);
-        l.rooContainer->AddRealVar("sigma",1.,0.1,2.);
-        l.rooContainer->AddRealVar("slope",1.,0.5,5.);
-        l.rooContainer->AddRealVar("n",2.,0.5,10.);
-
-	std::vector<std::string> cb_pars(4,"cb");
-	cb_pars[0] = "mean";
-	cb_pars[1] = "sigma";
-	cb_pars[2] = "slope";
-	cb_pars[3] = "n";
-
-	l.rooContainer->AddGenericPdf("cb_shape",
-	  "","mass",cb_pars,4,0.8,0.,0.99);  // 4 for CB shape, no need for formula
-
-	// Signal -- Gaussian
-        l.rooContainer->AddRealVar("gsigma",2.5,1.,5.);
-
-	std::vector<std::string> gau_pars(2,"gau");
-	gau_pars[0] = "mean";
-	gau_pars[1] = "gsigma";
-
-	l.rooContainer->AddGenericPdf("gau_shape",
-	  "","mass",gau_pars,2,0.1,0.,0.5);  // 3 for Gaussian shape, no need for formula. 
-
-        // Add the  CB+Gaussian
-        std::vector<std::string> components(2,"c");
-        components[0] = "cb_shape";
-        components[1] = "gau_shape";
-        l.rooContainer->ComposePdf("signal_model","cb_shape+gau_shape",components,false); // true means use extended pdfs
-											  // eg for a signal+bkg model
         // -----------------------------------------------------
 
 	// Make some data sets from the observables to fill in the event loop		  
 	// Binning is for histograms (will also produce unbinned data sets)
-	l.rooContainer->CreateDataSet("mass","data_mass"    ,100); // (100,110,150) -> for a window, else full obs range is taken 
-	l.rooContainer->CreateDataSet("mass","bkg_mass"     ,100);    	  	
-	l.rooContainer->CreateDataSet("mass","sig_mass_m110",100);    
-	l.rooContainer->CreateDataSet("mass","sig_mass_m115",100);    
-	l.rooContainer->CreateDataSet("mass","sig_mass_m120",100);    
-	l.rooContainer->CreateDataSet("mass","sig_mass_m130",100);    
-	l.rooContainer->CreateDataSet("mass","sig_mass_m140",100);    
+	l.rooContainer->CreateDataSet("mass","data_mass"    ,60); // (100,110,150) -> for a window, else full obs range is taken 
+	l.rooContainer->CreateDataSet("mass","bkg_mass"     ,60);    	  	
+	l.rooContainer->CreateDataSet("mass","sig_mass_m105",60);    
+	l.rooContainer->CreateDataSet("mass","sig_mass_m110",60);    
+	l.rooContainer->CreateDataSet("mass","sig_mass_m115",60);    
+	l.rooContainer->CreateDataSet("mass","sig_mass_m120",60);    
+	l.rooContainer->CreateDataSet("mass","sig_mass_m130",60);    
+	l.rooContainer->CreateDataSet("mass","sig_mass_m140",60);    
+	l.rooContainer->CreateDataSet("mass","sig_mass_rv_m105",60);    
+	l.rooContainer->CreateDataSet("mass","sig_mass_rv_m110",60);    
+	l.rooContainer->CreateDataSet("mass","sig_mass_rv_m115",60);    
+	l.rooContainer->CreateDataSet("mass","sig_mass_rv_m120",60);    
+	l.rooContainer->CreateDataSet("mass","sig_mass_rv_m130",60);    
+	l.rooContainer->CreateDataSet("mass","sig_mass_rv_m140",60);    
+	l.rooContainer->CreateDataSet("mass","sig_mass_wv_m105",60);    
+	l.rooContainer->CreateDataSet("mass","sig_mass_wv_m110",60);    
+	l.rooContainer->CreateDataSet("mass","sig_mass_wv_m115",60);    
+	l.rooContainer->CreateDataSet("mass","sig_mass_wv_m120",60);    
+	l.rooContainer->CreateDataSet("mass","sig_mass_wv_m130",60);    
+	l.rooContainer->CreateDataSet("mass","sig_mass_wv_m140",60);    
 
 	// Make more data sets to represent systematic shitfs , 
+	l.rooContainer->MakeSystematics("mass","sig_mass_m105",-1);	
 	l.rooContainer->MakeSystematics("mass","sig_mass_m110",-1);	
 	l.rooContainer->MakeSystematics("mass","sig_mass_m115",-1);	
 	l.rooContainer->MakeSystematics("mass","sig_mass_m120",-1);	
 	l.rooContainer->MakeSystematics("mass","sig_mass_m130",-1);	
 	l.rooContainer->MakeSystematics("mass","sig_mass_m140",-1);	
+	
 	
 	if(PADEBUG) 
 		cout << "InitRealStatAnalysis END"<<endl;
@@ -379,6 +350,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
        TLorentzVector *sublead_p4 = (TLorentzVector*)smeared_pho_p4.At(diphoton_index.second);
        TLorentzVector Higgs = *lead_p4 + *sublead_p4; 	
        
+       bool CorrectVertex;
        // FIXME pass smeared R9
        int category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,nPtCategories);
        if( cur_type != 0 ) {
@@ -392,28 +364,54 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	       if( pth != Higgs.Pt() ) {
 		   category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,nPtCategories);
 	       }
+	       CorrectVertex=(*vtx- *((TVector3*)l.gv_pos->At(0))).Mag() < 1.;
        }
-       float mass = Higgs.M();
-       
+       float mass    = Higgs.M();
+       float ptHiggs = Higgs.Pt();
+      
+
+	// Ouput Text File For Saclay Analysis
+	SaclayText << Form("typ=%d weight=%f category=%d mass=%f ptH=%f ptLEAD=%f ptSUBLEAD=%f",cur_type,evweight,category,mass,ptHiggs,lead_p4->Pt(),sublead_p4->Pt())<<endl;
+
+	// --------------------------------------------------------------------------------------------- 
        if (cur_type == 0 ){
-	   l.rooContainer->InputDataPoint("data_mass",category,mass,evweight);
+	   l.rooContainer->InputDataPoint("data_mass",category,mass);
        }
        if (cur_type > 0 && cur_type != 3 && cur_type != 4)
 	   l.rooContainer->InputDataPoint("bkg_mass",category,mass,evweight);
        else if (cur_type == 3 || cur_type == 4)
 	   l.rooContainer->InputDataPoint("zee_mass",category,mass,evweight);
-       //else if (cur_type == -1 || cur_type == -2 || cur_type == -3)
-       //  l.rooContainer->InputDataPoint("sig_mass_m100",category,mass,evweight);
-       else if (cur_type == -1 || cur_type == -2 || cur_type == -3)
+
+       else if (cur_type == -13|| cur_type == -14 || cur_type == -15|| cur_type == -16){
+	   l.rooContainer->InputDataPoint("sig_mass_m105",category,mass);
+	   if (CorrectVertex) l.rooContainer->InputDataPoint("sig_mass_rv_m105",category,mass,evweight);
+	   else l.rooContainer->InputDataPoint("sig_mass_wv_m105",category,mass,evweight);
+       }
+       else if (cur_type == -17 || cur_type == -18 || cur_type == -19|| cur_type == -20){
 	   l.rooContainer->InputDataPoint("sig_mass_m110",category,mass,evweight);
-       else if (cur_type == -4 || cur_type == -5 || cur_type == -6)
+	   if (CorrectVertex) l.rooContainer->InputDataPoint("sig_mass_rv_m110",category,mass,evweight);
+	   else l.rooContainer->InputDataPoint("sig_mass_wv_m110",category,mass,evweight);
+       }
+       else if (cur_type == -21 || cur_type == -22 || cur_type == -23|| cur_type == -24){
 	   l.rooContainer->InputDataPoint("sig_mass_m115",category,mass,evweight);
-       else if (cur_type == -7 || cur_type == -8 || cur_type == -9)
+	   if (CorrectVertex) l.rooContainer->InputDataPoint("sig_mass_rv_m115",category,mass,evweight);
+	   else l.rooContainer->InputDataPoint("sig_mass_wv_m115",category,mass,evweight);
+       }
+       else if (cur_type == -25 || cur_type == -26 || cur_type == -27|| cur_type == -28){
 	   l.rooContainer->InputDataPoint("sig_mass_m120",category,mass,evweight);
-       else if (cur_type == -10 || cur_type == -11 || cur_type == -12)
+	   if (CorrectVertex) l.rooContainer->InputDataPoint("sig_mass_rv_m120",category,mass,evweight);
+	   else l.rooContainer->InputDataPoint("sig_mass_wv_m120",category,mass,evweight);
+       }
+       else if (cur_type == -29 || cur_type == -30 || cur_type == -31|| cur_type == -32){
 	   l.rooContainer->InputDataPoint("sig_mass_m130",category,mass,evweight);
-       else if (cur_type == -13 || cur_type == -14 || cur_type == -15)
+	   if (CorrectVertex) l.rooContainer->InputDataPoint("sig_mass_rv_m130",category,mass,evweight);
+	   else l.rooContainer->InputDataPoint("sig_mass_wv_m130",category,mass,evweight);
+       }
+       else if (cur_type == -33 || cur_type == -34 || cur_type == -35|| cur_type == -36){
 	   l.rooContainer->InputDataPoint("sig_mass_m140",category,mass,evweight);
+	   if (CorrectVertex) l.rooContainer->InputDataPoint("sig_mass_rv_m140",category,mass,evweight);
+	   else l.rooContainer->InputDataPoint("sig_mass_wv_m140",category,mass,evweight);
+       }
        
    }
    
@@ -463,15 +461,17 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 			       weights.push_back(evweight);
 			       
 		       }
-		       if (cur_type == -1 || cur_type == -2 || cur_type == -3)
+       			 if (cur_type == -13|| cur_type == -14 || cur_type == -15|| cur_type == -16)
+			       l.rooContainer->InputSystematicSet("sig_mass_m105",(*si)->name(),categories,mass_errors,weights);
+       			 else if (cur_type == -17|| cur_type == -18 || cur_type == -19|| cur_type == -20)
 			       l.rooContainer->InputSystematicSet("sig_mass_m110",(*si)->name(),categories,mass_errors,weights);
-		       else if (cur_type == -4 || cur_type == -5 || cur_type == -6)
+       			 else if (cur_type == -21|| cur_type == -22 || cur_type == -23|| cur_type == -24)
 			       l.rooContainer->InputSystematicSet("sig_mass_m115",(*si)->name(),categories,mass_errors,weights);
-		       else if (cur_type == -7 || cur_type == -8 || cur_type == -9)
+       			 else if (cur_type == -25|| cur_type == -26 || cur_type == -27|| cur_type == -28)
 			       l.rooContainer->InputSystematicSet("sig_mass_m120",(*si)->name(),categories,mass_errors,weights);
-		       else if (cur_type == -10 || cur_type == -11 || cur_type == -12)
+       			 else if (cur_type == -29|| cur_type == -30 || cur_type == -31|| cur_type == -32)
 			       l.rooContainer->InputSystematicSet("sig_mass_m130",(*si)->name(),categories,mass_errors,weights);
-		       else if (cur_type == -13 || cur_type == -14 || cur_type == -15)
+       			 else if (cur_type == -33|| cur_type == -34 || cur_type == -35|| cur_type == -36)
 			       l.rooContainer->InputSystematicSet("sig_mass_m140",(*si)->name(),categories,mass_errors,weights);
 	       }
 
@@ -545,16 +545,18 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	       }
 	       
 	   }
-       	   if (cur_type == -1 || cur_type == -2 || cur_type == -3)
-	     l.rooContainer->InputSystematicSet("sig_mass_m110",(*si)->name(),categories,mass_errors,weights);
-           else if (cur_type == -4 || cur_type == -5 || cur_type == -6)
-	     l.rooContainer->InputSystematicSet("sig_mass_m115",(*si)->name(),categories,mass_errors,weights);
-           else if (cur_type == -7 || cur_type == -8 || cur_type == -9)
-	     l.rooContainer->InputSystematicSet("sig_mass_m120",(*si)->name(),categories,mass_errors,weights);
-           else if (cur_type == -10 || cur_type == -11 || cur_type == -12)
-	     l.rooContainer->InputSystematicSet("sig_mass_m130",(*si)->name(),categories,mass_errors,weights);
-           else if (cur_type == -13 || cur_type == -14 || cur_type == -15)
-	     l.rooContainer->InputSystematicSet("sig_mass_m140",(*si)->name(),categories,mass_errors,weights);
+	 if (cur_type == -13|| cur_type == -14 || cur_type == -15|| cur_type == -16)
+	       l.rooContainer->InputSystematicSet("sig_mass_m105",(*si)->name(),categories,mass_errors,weights);
+	 else if (cur_type == -17|| cur_type == -18 || cur_type == -19|| cur_type == -20)
+	       l.rooContainer->InputSystematicSet("sig_mass_m110",(*si)->name(),categories,mass_errors,weights);
+	 else if (cur_type == -21|| cur_type == -22 || cur_type == -23|| cur_type == -24)
+	       l.rooContainer->InputSystematicSet("sig_mass_m115",(*si)->name(),categories,mass_errors,weights);
+	 else if (cur_type == -25|| cur_type == -26 || cur_type == -27|| cur_type == -28)
+	       l.rooContainer->InputSystematicSet("sig_mass_m120",(*si)->name(),categories,mass_errors,weights);
+	 else if (cur_type == -29|| cur_type == -30 || cur_type == -31|| cur_type == -32)
+	       l.rooContainer->InputSystematicSet("sig_mass_m130",(*si)->name(),categories,mass_errors,weights);
+	 else if (cur_type == -33|| cur_type == -34 || cur_type == -35|| cur_type == -36)
+	       l.rooContainer->InputSystematicSet("sig_mass_m140",(*si)->name(),categories,mass_errors,weights);
        
        }
        

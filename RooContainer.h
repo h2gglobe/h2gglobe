@@ -22,6 +22,7 @@
 #include "RooBreitWigner.h"
 #include "RooVoigtian.h"
 #include "RooCBShape.h"
+#include "RooChebychev.h"
 #include "RooExtendPdf.h"
 #include "RooFFTConvPdf.h"
 #include "RooAddPdf.h"
@@ -53,15 +54,21 @@ class RooContainer {
     void AddGlobalSystematic(std::string,double,double);
     void MakeSystematicStudy(std::vector<std::string>,std::vector<int>);
     void AddObservable(std::string,double,double);
-    void AddRealVar(std::string,double,double,double);
+    void AddRealVar(std::string,double);
     void AddGenericPdf(std::string,std::string,std::string,
+		       std::vector<std::string> &, 
+		       int form,double norm_guess=10
+		       ,double norm_min=0., double norm_max=1.e6);
+    void AddSpecificCategoryPdf(int *,std::string,std::string,std::string,
 		       std::vector<std::string> &, 
 		       int form,double norm_guess=10
 		       ,double norm_min=0., double norm_max=1.e6);
     void ComposePdf(std::string, std::string
 		    ,std::vector<std::string> &,bool use_extended=true);
-    void ConvolutePdf(std::string,std::string,std::string,std::string
-		      ,double norm_guess=100);
+    void ComposeSpecificCategoryPdf(int *,std::string, std::string
+		    ,std::vector<std::string> &,bool use_extended=true);
+   // void ConvolutePdf(std::string,std::string,std::string,std::string
+   //		      ,double norm_guess=100);
 
    void CreateDataSet(std::string,std::string,int nbins,double x1=-990,double x2=-990); 
    void MakeSystematics(std::string,std::string,int);
@@ -93,14 +100,14 @@ class RooContainer {
   private:
 
    void addRealVar(std::string,double,double);
-   void addRealVar(std::string,double,double,double);
+   void addRealVar(std::string,double);
    void addGenericPdf(std::string,std::string,std::string,
 		      std::vector<std::string> &,
 		      int form, 
 		      double,double, double);
    void composePdf(std::string , std::string 
 			     ,std::vector<std::string> &,bool);
-   void convolutePdf(std::string,std::string,std::string,RooRealVar &,double norm_guess=100);
+  // void convolutePdf(std::string,std::string,std::string,RooRealVar &,double norm_guess=100);
 
    void createDataSet(std::string,std::string,int,double x1,double x2);
    void makeSystematics(std::string,std::string,int);
