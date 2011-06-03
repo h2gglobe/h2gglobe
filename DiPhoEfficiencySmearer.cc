@@ -22,7 +22,7 @@ bool DiPhoEfficiencySmearer::smearDiPhoton( TLorentzVector & p4, TVector3 & selV
   
   if (cat == "")
     {
-      std::cout << "No category has been found associated with this diphoton. Giving Up" << std::endl;
+      std::cout << effName_ <<" No category has been found associated with this diphoton. Giving Up" << std::endl;
       return false;
     }
 
@@ -93,11 +93,10 @@ double DiPhoEfficiencySmearer::getWeight(double pt, std::string theCategory, flo
 	myBin = bin; }
       else break;
     }
-    int binLow, binHigh; 
-    if(myBin == -1)                      {binHigh = 0; binLow=0;}
-    else if (myBin == (numPoints-1))     {binHigh = numPoints-1; binLow=numPoints-1;}
-    else {binLow=myBin; binHigh=myBin+1;}
-
+    int binLow, binHigh; bool atBoundary(false);
+    if      (myBin == -1)               {binHigh = 0; binLow=0; atBoundary=true;}
+    else if (myBin == (numPoints-1))    {binHigh = numPoints-1; binLow=numPoints-1; atBoundary=true;}
+    else                                {binLow=myBin; binHigh=myBin+1;}
 
     // get hold of efficiency ratio and error at either points
     // low-high refer to the points ; up-down refers to the errors 
@@ -115,14 +114,21 @@ double DiPhoEfficiencySmearer::getWeight(double pt, std::string theCategory, flo
     else             {theErrorLow = errLowYdown; theErrorHigh = errHighYdown;}
     
     double theWeight, theError;
-    theWeight = yLow + (yHigh-yLow) / (xHigh-xLow) * (pt-xLow);
-    theError  = theErrorLow + (theErrorHigh-theErrorLow) / (xHigh-xLow) * (pt-xLow);
-     
+    //           if you're NOT at the boundaris of TGraphAsymmErrors, linearly interpolate values and errors
+    if(!atBoundary) {
+      theWeight = yLow + (yHigh-yLow) / (xHigh-xLow) * (pt-xLow);
+      theError  = theErrorLow + (theErrorHigh-theErrorLow) / (xHigh-xLow) * (pt-xLow); }
+    else     //  if instead you ARE at the boundaris of TGraphAsymmErrors, collapse on first or last of its points  
+      { 
+	if(myBin == (numPoints-1)) {
+	  theWeight = yHigh; 	  theError  = theErrorHigh;	}
+	else if (myBin == -1) 	  {
+	  theWeight = yLow; 	  theError  = theErrorLow;  	}
+	else  {   std::cout <<  effName_ << " ** you claim to be at boundaries of TGraphAsymmErrors but your not! This is a problem " << std::endl;}
+      }
     return  ( theWeight + (theError*syst_shift));
   }
-  else {
-    std::cout <<  effName_ << "- category asked: " << theCategory << " was not found - which is a problem. Returning weight 1. " << std::endl;
-    return 1.;
-  }
+  else {     std::cout <<  effName_ << "- category asked: " << theCategory << " was not found - which is a problem. Returning weight 1. " << std::endl;
+    return 1.;  }
   
 }
