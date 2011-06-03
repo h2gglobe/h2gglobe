@@ -10,8 +10,12 @@ ROOT.gSystem.Load("../libLoopAll.so");
 
 ROOT.gBenchmark.Start("Analysis");
 
+config_file="datafiles.dat"
+if len(argv) > 1:
+    config_file = argv[1]
+
 ut = ROOT.LoopAll();
-cfg = configProducer(ut,"datafiles.dat",0)
+cfg = configProducer(ut,config_file,0)
   
 ut.LoopAndFillHistos();
 ROOT.gBenchmark.Show("Analysis");

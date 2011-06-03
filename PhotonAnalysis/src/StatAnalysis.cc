@@ -81,7 +81,7 @@ void StatAnalysis::Init(LoopAll& l)
 		<< std::endl;
 
 	// avoid recalculated the CIC ID every time
-	l.runCiC = true;
+	l.runCiC = false;
 	// call the base class initializer
 	PhotonAnalysis::Init(l);
 	
