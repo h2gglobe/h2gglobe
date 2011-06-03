@@ -80,9 +80,9 @@ bool EfficiencySmearer::init()
   
   // do basic sanity checks first
   if( effName_.empty()){
-    std::cout << "you're initializing reweighting for efficiency but effName_ is empty" << std::endl;  assert(false); }
+    std::cout << effName_ << "- you're initializing reweighting for efficiency but effName_ is empty" << std::endl;  assert(false); }
   if( myParameters_.efficiency_file.empty()){
-    std::cout << "you're initializing reweighting for efficiency: " << effName_  << " but input file with TGraphErrors is not specified; doing nothing. " << std::endl;  assert(false); }
+    std::cout << effName_ << "- you're initializing reweighting for efficiency: " << effName_  << " but input file with TGraphErrors is not specified; doing nothing. " << std::endl;  assert(false); }
   
   theEfficiencyFile_ = TFile::Open(myParameters_.efficiency_file.c_str());
 
@@ -154,7 +154,7 @@ double EfficiencySmearer::getWeight(double pt, std::string theCategory, float sy
     return  ( theWeight + (theError*syst_shift));
   }
   else {
-    std::cout << "category asked: " << theCategory << " was not found - which is a problem. Returning weight 1. " << std::endl;
+    std::cout << effName_ << " - category asked: " << theCategory << " was not found - which is a problem. Returning weight 1. " << std::endl;
     return 1.;
   }
   
