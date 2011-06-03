@@ -24,9 +24,13 @@ bool TriggerSelection::pass(const std::vector<std::string> & menu, const std::ve
 		if( jt != menu.end() ) {
 			// if yes check if the bit fired
 			int ibit = jt - menu.begin();
+			// std::cerr << "TriggerSelection found path " << *it << " " << *jt << " bit " << ibit << std::endl;
 			if( find(bits.begin(),bits.end(),ibit) != bits.end() ) { 
+				/// std::cerr << "Fired" << std::endl;
 				return true; 
 			}
+		} else {
+			std::cerr << "TriggerSelection not found path " << *jt << std::endl;
 		}
 	}
 	return false;

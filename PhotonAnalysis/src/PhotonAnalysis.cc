@@ -37,21 +37,31 @@ void PhotonAnalysis::Init(LoopAll& l)
 		vtxVarNames.push_back("ptbal"), vtxVarNames.push_back("ptasym"), vtxVarNames.push_back("logsumpt2");
 	}
 	
-	// trigger
-	triggerSelections.push_back(TriggerSelection(-1,147116));
-	triggerSelections.back().addpath("HLT_DoublePhoton15_L1R");
-	triggerSelections.push_back(TriggerSelection(146428,148058));
-	triggerSelections.back().addpath("HLT_DoublePhoton17_L1R");
-	triggerSelections.push_back(TriggerSelection(148822,149294));
-	triggerSelections.back().addpath("HLT_DoublePhoton22_L1R_v1");
-	triggerSelections.push_back(TriggerSelection(160000,-1));
-	triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v");
+	/// // trigger
+	/// triggerSelections.push_back(TriggerSelection(-1,147116));
+	/// triggerSelections.back().addpath("HLT_DoublePhoton15_L1R");
+	/// triggerSelections.push_back(TriggerSelection(146428,148058));
+	/// triggerSelections.back().addpath("HLT_DoublePhoton17_L1R");
+	/// triggerSelections.push_back(TriggerSelection(148822,149294));
+	/// triggerSelections.back().addpath("HLT_DoublePhoton22_L1R_v1");
+	/// triggerSelections.push_back(TriggerSelection(160000,-1));
+	/// triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v");
 
-	trigCounter_ = l.countersred.size();
-	l.countersred.resize(trigCounter_+1);
+	triggerSelections.push_back(TriggerSelection(160404,161176));
+	triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v");
+	triggerSelections.push_back(TriggerSelection(161216,165087));
+	triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v");
+	triggerSelections.back().addpath("HLT_Photon20_R9Id_Photon18_R9Id_v");
+	triggerSelections.push_back(TriggerSelection(165088,-1));
+	triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v");
+	triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_R9Id_v");
+
+	/// trigCounter_ = l.countersred.size();
+	/// l.countersred.resize(trigCounter_+1);
 
 	// CiC initialization
 	// FIXME should move this to GeneralFunctions
+	l.runCiC = true;
 	const int phoNCUTS = LoopAll::phoNCUTS;
 	const int phoCiC6NCATEGORIES = LoopAll::phoCiC6NCATEGORIES;
 	const int phoCiC4NCATEGORIES = LoopAll::phoCiC4NCATEGORIES;
@@ -378,7 +388,7 @@ bool PhotonAnalysis::SkimEvents(LoopAll& l, int jentry)
 
 	// do not run trigger selection on MC
 	int filetype = l.itype[l.current];
-	bool skipTrigger = ( !doTriggerSelection && l.typerun!=0 ) || filetype != 0 || triggerSelections.empty();
+	bool skipTrigger = !doTriggerSelection || filetype != 0 || triggerSelections.empty();
 	if( ! skipTrigger ) {
 		// get the trigger selection for this run 
 		l.b_run->GetEntry(jentry);
@@ -387,15 +397,28 @@ bool PhotonAnalysis::SkimEvents(LoopAll& l, int jentry)
 			std::cerr << "No trigger selection for run " << l.run << "defined" << std::endl;
 			return true;
 		}
+		///// std::cerr << "run " << l.run << " trig sel " << isel->firstrun << " " << isel->lastrun;
+		///// std::copy(isel->paths.begin(), isel->paths.end(), std::ostream_iterator<std::string>(std::cerr,","));
+		///// std::cerr << std::endl;
+		///// std::cerr << "menu ";
+		///// std::copy(l.hlt_path_names_HLT1->begin(), l.hlt_path_names_HLT1->end(), std::ostream_iterator<std::string>(std::cerr,","));
+		//// std::cerr << " fired ";
+		//// for(int ii=0; ii<l.hlt1_bit->size(); ++ii){ 
+		//// 	std::cerr << l.hlt_path_names_HLT1->at( l.hlt1_bit->at(ii) ) << ",";
+		//// }
+		/// std::copy(l.hlt1_bit->begin(), l.hlt1_bit->end(), std::ostream_iterator<int>(std::cerr,","));
+		/// std::cerr << std::endl;
+		
 		// get the trigegr data
 		l.b_hlt1_bit->GetEntry(jentry);
 		l.b_hlt_path_names_HLT1->GetEntry(jentry);
 		if( !  isel->pass(*(l.hlt_path_names_HLT1),*(l.hlt1_bit)) ) {
+			/// std::cerr << "failed "  << std::endl;
 			return false;
 		}
-		l.countersred[trigCounter_]++;
+		//// l.countersred[trigCounter_]++;
 	}
-		
+	
 	return true;
 }
 

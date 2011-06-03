@@ -1395,7 +1395,7 @@ Float_t LoopAll::SumTrackPtInCone(TLorentzVector *photon_p4, Int_t vtxind, Float
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 void LoopAll::DefineUserBranches() 
 {
-  runCiC = false;
+  runCiC = true;
 #ifndef __CINT__
 
 	BRANCH_DICT(gv_n  );

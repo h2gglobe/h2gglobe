@@ -436,8 +436,11 @@ void LoopAll::Loop(Int_t a) {
   int hasoutputfile=0;
   for (Int_t jentry=0; jentry<nentries;jentry++) {
     
-    if(jentry%10000==0) 
-      cout << "Entry: "<<jentry<<endl;
+    if(jentry%10000==0) {
+      cout << "Entry: "<<jentry << " ";
+      copy(countersred.begin(), countersred.end(), std::ostream_iterator<float>(cout, "_") );
+      cout << endl;
+    }
     
     if(LDEBUG) 
       cout<<"call LoadTree"<<endl;
@@ -537,13 +540,13 @@ void LoopAll::Loop(Int_t a) {
   
   if(countersred[1] || oldnentries==0) {
 	  //printf("red: %d_%d \n",(int)countersred[0], (int) countersred[1]);
-	  cout << "red: " << countersred[0] << "_";
-	  copy(countersred.begin()+1, countersred.end(), std::ostream_iterator<float>(cout, "_") );
+	  cout << "red: ";
+	  copy(countersred.begin(), countersred.end(), std::ostream_iterator<float>(cout, "_") );
 	  cout << endl;
   } else { 
 	  // printf("norm: %d \n",(int)counters[0]);
-	  cout << "norm: " << countersred[0] << "_";
-	  copy(countersred.begin()+1, countersred.end(), std::ostream_iterator<float>(cout, "_") );
+	  cout << "norm: "; 
+	  copy(countersred.begin(), countersred.end(), std::ostream_iterator<float>(cout, "_") );
 	  cout << endl;
   }
 }

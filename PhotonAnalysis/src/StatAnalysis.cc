@@ -79,10 +79,15 @@ void StatAnalysis::Init(LoopAll& l)
 		<< "doTriggerEffSyst "<< doTriggerEffSyst << "\n"
 		<< "-------------------------------------------------------------------------------------- \n"
 		<< std::endl;
-	
+
+	// avoid recalculated the CIC ID every time
+	l.runCiC = true;
 	// call the base class initializer
 	PhotonAnalysis::Init(l);
 	
+	diPhoCounter_ = l.countersred.size();
+	l.countersred.resize(diPhoCounter_+1);
+
 	// initialize the analysis variables
 	nCategories_ = nEtaCategories;
 	if( nR9Categories != 0 ) nCategories_ *= nR9Categories;
@@ -321,9 +326,9 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
    unsigned int n_pu = l.pu_n;
     if (l.itype[l.current] !=0 && puHist != "") {
         if(n_pu<weights.size()){
-	     //cout << n_pu<<endl;
-	     //std::cout << weights[n_pu] << std::endl;
-	  weight *= weights[n_pu];   // put this back
+	    //cout << n_pu<<endl;
+	    //std::cout << weights[n_pu] << std::endl;
+	    weight *= weights[n_pu];   // put this back
         }    
         else{ //should not happen 
              cout<<"n_pu ("<< n_pu<<") too big ("<<weights.size()
@@ -368,6 +373,8 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
    if (diphoton_index.first > -1 && diphoton_index.second > -1){
        float evweight = weight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second];
        
+       l.countersred[diPhoCounter_]++;
+
        TLorentzVector *lead_p4 = (TLorentzVector*)smeared_pho_p4.At(diphoton_index.first);
        TLorentzVector *sublead_p4 = (TLorentzVector*)smeared_pho_p4.At(diphoton_index.second);
        TLorentzVector Higgs = *lead_p4 + *sublead_p4; 	

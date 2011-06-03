@@ -57,9 +57,9 @@ protected:
 	
 	std::string name_;
 	
-	// Vertex analysis
 	int nCategories_;
-
+	int diPhoCounter_;
+	// Vertex analysis
 	HggVertexAnalyzer vtxAna_;
 	HggVertexFromConversions vtxConv_;
 	
