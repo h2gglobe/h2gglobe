@@ -135,7 +135,7 @@ void StatAnalysis::Init(LoopAll& l)
 	effSmearPars.n_categories = 4;
 	effSmearPars.efficiency_file = efficiencyFile;
 
-	diPhoEffSmearPars.n_categories = 4;
+	diPhoEffSmearPars.n_categories = 8;
 	diPhoEffSmearPars.efficiency_file = efficiencyFile;
 
 	// energy scale corrections
