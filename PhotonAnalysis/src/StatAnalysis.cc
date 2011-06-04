@@ -24,16 +24,17 @@ StatAnalysis::~StatAnalysis()
 void StatAnalysis::Term(LoopAll& l) 
 {
 
+        std::string outputfilename = (std::string) l.histFileName;
         // Make Fits to the data-sets and systematic sets
         l.rooContainer->FitToData("data_pol_model","data_mass");  // Fit to full range of dataset
   
-        //l.rooContainer->GenerateBinnedPdf("bkg_mass_rebinned","data_pol_model","data_mass",1,60,1); // 1 means systematics from the fit effect only the backgroundi. last digit mode = 1 means this is an internal constraint fit 
+        l.rooContainer->WriteDataCard(outputfilename,"data_mass","sig_mass","data_pol_model");
         // mode 0 as above, 1 if want to bin in sub range from fit,
 
         // Write the data-card for the Combinations Code, needs the output filename, makes binned analysis DataCard
 	// Assumes the signal datasets will be called signal_name+"_mXXX"
-        std::string outputfilename = (std::string) l.histFileName;
-        l.rooContainer->WriteDataCard(outputfilename,"data_mass","sig_mass","data_pol_model");
+        l.rooContainer->GenerateBinnedPdf("bkg_mass_rebinned","data_pol_model","data_mass",1,50,1); // 1 means systematics from the fit effect only the backgroundi. last digit mode = 1 means this is an internal constraint fit 
+        l.rooContainer->WriteDataCard(outputfilename,"data_mass","sig_mass","bkg_mass_rebinned");
 
 	SaclayText.close();
 
@@ -227,11 +228,11 @@ void StatAnalysis::Init(LoopAll& l)
 	l.rooContainer->AddRealVar("XSBR_130",0.0319112+0.00260804+0.0019327068);
 	l.rooContainer->AddRealVar("XSBR_140",0.0235322+0.00204088+0.0012874228);	
 
-	l.rooContainer->AddRealVar("pol0",-0.04);
-	l.rooContainer->AddRealVar("pol1",0.016);
+	l.rooContainer->AddRealVar("pol0",-0.01,-1.5,1.5);
+	l.rooContainer->AddRealVar("pol1",-0.01,-1.5,1.5);
 	std::vector<std::string> data_pol_pars(2,"p");	 
-	data_pol_pars[0] = "pol1";
-	data_pol_pars[1] = "pol0";
+	data_pol_pars[0] = "pol0";
+	data_pol_pars[1] = "pol1";
 	l.rooContainer->AddGenericPdf("data_pol_model",
 	  "0","mass",data_pol_pars,62);	// >= 61 means RooPolynomial of order >= 1
 	// ------------------------------------------------------

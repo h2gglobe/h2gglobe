@@ -54,7 +54,7 @@ class RooContainer {
     void AddGlobalSystematic(std::string,double,double);
     void MakeSystematicStudy(std::vector<std::string>,std::vector<int>);
     void AddObservable(std::string,double,double);
-    void AddRealVar(std::string,double);
+    void AddRealVar(std::string,double,double xmin=-10,double xmax=10);
     void AddGenericPdf(std::string,std::string,std::string,
 		       std::vector<std::string> &, 
 		       int form,double norm_guess=10
@@ -100,7 +100,7 @@ class RooContainer {
   private:
 
    void addRealVar(std::string,double,double);
-   void addRealVar(std::string,double);
+   void addRealVar(std::string,double,double,double);
    void addGenericPdf(std::string,std::string,std::string,
 		      std::vector<std::string> &,
 		      int form, 

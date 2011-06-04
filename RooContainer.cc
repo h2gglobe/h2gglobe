@@ -30,16 +30,16 @@ void RooContainer::AddObservable(std::string name,double xmin,double xmax){
 }
 
 // ----------------------------------------------------------------------------------------------------
-void RooContainer::AddRealVar(std::string name,double init){
+void RooContainer::AddRealVar(std::string name,double init,double xmin, double xmax){
   for (int cat=0;cat<ncat;cat++){
     
-addRealVar(getcatName(name,cat),init);
+    addRealVar(getcatName(name,cat),init,xmin,xmax);
     if (make_systematics){
 	for (it_sys=systematics_.begin(); it_sys!=systematics_.end();it_sys++){
 	  for (int sys=1;sys<=nsigmas;sys++)
-	    addRealVar(getsysindexName(getcatName(name,cat),(it_sys->first),sys,-1),init);
+	    addRealVar(getsysindexName(getcatName(name,cat),(it_sys->first),sys,-1),init,xmin,xmax);
 	  for (int sys=1;sys<=nsigmas;sys++)
-	    addRealVar(getsysindexName(getcatName(name,cat),(it_sys->first),sys,1),init);
+	    addRealVar(getsysindexName(getcatName(name,cat),(it_sys->first),sys,1),init,xmin,xmax);
 	}
     }
   }
@@ -374,7 +374,7 @@ void RooContainer::Save(){
   ws.SetName("cms_hgg_workspace");
   
   // Make sure all parameters of the pdfs are set constant
-  setAllParametersConstant();
+  //setAllParametersConstant();
 
   ws.Write();
 }
@@ -611,11 +611,15 @@ void RooContainer::WriteDataCard(std::string filename,std::string data_name
    }
 
    std::string signal_mass_name = (std::string) Form("%s_m$MASS",sig_name.c_str());
-   ofstream file ("cms-hgg-datacard.txt");
-   if (parameterisedBackground)
+   ofstream file;
+   if (parameterisedBackground){
+     file.open("cms-hgg-datacard_parBKG.txt");
      file << "CMS-HGG DataCard for Binned Limit Setting with RooDataHist+Parameterised Background\n";
-   else
+   }
+   else{
+     file.open("cms-hgg-datacard.txt");
      file << "CMS-HGG DataCard for Binned Limit Setting with RooDataHist\n";
+   }
 
    file << "Run with: combine cms-hgg-datacard.txt -M Routine -D "<< data_name << " -m MASS --generateBinnedWorkaround -S 1"; 
    file << "\n---------------------------------------------\n";
@@ -624,9 +628,9 @@ void RooContainer::WriteDataCard(std::string filename,std::string data_name
    file << "kmax *\n";
    file << "---------------------------------------------\n";
    if (parameterisedBackground){
-     file << "shapes "<<data_name <<" * "<<filename<<" cms_hgg_workspace:roohist_"<< data_name<<"\n";
+     file << "shapes "<<data_name <<" * "<<filename<<" cms_hgg_workspace:roohist_"<< data_name<<"_$CHANNEL\n";
      file << "shapes "<<signal_mass_name<<" * "<<filename<<" cms_hgg_workspace:roohist_"<<signal_mass_name << "_$CHANNEL cms_hgg_workspace:roohist_"<< signal_mass_name <<"_$CHANNEL_$SYSTEMATIC01_sigma\n";
-     file << "shapes "<<bkg_name<<" * "<<filename<<" cms_hgg_workspace:pdf_"<<bkg_name << "\n";
+     file << "shapes "<<bkg_name<<" * "<<filename<<" cms_hgg_workspace:pdf_"<<bkg_name << "_$CHANNEL cms_hgg_workspace:roohist_"<< bkg_name <<"_$CHANNEL_$SYSTEMATIC01_sigma\n";
    }
    else 
      file << "shapes * * "<<filename<<" cms_hgg_workspace:roohist_$PROCESS_$CHANNEL cms_hgg_workspace:roohist_$PROCESS_$CHANNEL_$SYSTEMATIC01_sigma\n";
@@ -721,9 +725,9 @@ void RooContainer::addRealVar(std::string name ,double xmin,double xmax){
 }
 
 // ----------------------------------------------------------------------------------------------------
-void RooContainer::addRealVar(std::string name ,double init){
-  RooRealVar temp(name.c_str(),name.c_str(),init,-100.,100.);
-  temp.removeRange();
+void RooContainer::addRealVar(std::string name ,double init,double xmin,double xmax){
+  RooRealVar temp(name.c_str(),name.c_str(),init,xmin,xmax);
+ // temp.removeRange();
   m_real_var_.insert(pair<std::string,RooRealVar>(name,temp));
   ws.import(m_real_var_[name]);
   std::cout << "RooContainer::AddRealVar -- Appended the variable " 
