@@ -438,12 +438,14 @@ class configProducer:
       dc_files = makeDcFiles(dcs_directory)
       for file_s in dc_files:
         self.conf_.files.append((file_s,fi_type))
-        
-    if os.path.isdir(directory): 
-      di_files = os.listdir(directory)
-      di_files = filter(lambda x: ".root" in x, di_files)
-      for file_s in di_files:
-        self.conf_.files.append((str(directory+'/'+file_s),fi_type))
+      
+    if directory != '':  
+      if os.path.isdir(directory): 
+        di_files = os.listdir(directory)
+        di_files = filter(lambda x: ".root" in x, di_files)
+        for file_s in di_files:
+          self.conf_.files.append((str(directory+'/'+file_s),fi_type))
+      else: sys.exit("No Such Directory as %s"%directory)  
 
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def read_input_files_loop(self,line):
@@ -512,14 +514,15 @@ class configProducer:
       for file_s in dc_files:
         self.conf_.files.append((file_s,fi_type))
         self.conf_.confs.append(map_c.copy())
-	
-    if os.path.isdir(directory): 
-      di_files = os.listdir(directory)
-      di_files = filter(lambda x: ".root" in x, di_files)
-      for file_s in di_files:
-        self.conf_.files.append((str(directory+'/'+file_s),fi_type))
-        self.conf_.confs.append(map_c.copy())
-        
+
+    if directory != '':	
+      if os.path.isdir(directory): 
+        di_files = os.listdir(directory)
+        di_files = filter(lambda x: ".root" in x, di_files)
+        for file_s in di_files:
+          self.conf_.files.append((str(directory+'/'+file_s),fi_type))
+          self.conf_.confs.append(map_c.copy())
+      else: sys.exit("No Such Directory as %s"%directory)  
           
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def read_input_branches(self,line):

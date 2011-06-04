@@ -335,7 +335,7 @@ void RooContainer::Save(){
             << std::endl;
 
   // check first and remove duplicates of the pointers. 
-  removeDuplicateElements(pdf_saves_);
+/*  removeDuplicateElements(pdf_saves_);
 
   std::vector<RooAbsPdf*>::iterator it_pdf;
 
@@ -345,6 +345,16 @@ void RooContainer::Save(){
      
        ws.import(**it_pdf);
   }
+*/
+  std::map<std::string,RooAbsPdf*>::iterator it_pdf;
+
+  for(it_pdf  = m_gen_.begin()
+     ;it_pdf != m_gen_.end()
+     ;it_pdf++ ){
+     
+       ws.import(*(it_pdf->second));
+  }
+  
 
   for (std::map<std::string,RooDataSet>::iterator it_data = data_.begin()
       ;it_data!=data_.end();it_data++)	{

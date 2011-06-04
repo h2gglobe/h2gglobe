@@ -27,13 +27,13 @@ void StatAnalysis::Term(LoopAll& l)
         // Make Fits to the data-sets and systematic sets
         l.rooContainer->FitToData("data_pol_model","data_mass");  // Fit to full range of dataset
   
-        l.rooContainer->GenerateBinnedPdf("bkg_mass_rebinned","data_pol_model","data_mass",1,60,1); // 1 means systematics from the fit effect only the backgroundi. last digit mode = 1 means this is an internal constraint fit 
+        //l.rooContainer->GenerateBinnedPdf("bkg_mass_rebinned","data_pol_model","data_mass",1,60,1); // 1 means systematics from the fit effect only the backgroundi. last digit mode = 1 means this is an internal constraint fit 
         // mode 0 as above, 1 if want to bin in sub range from fit,
 
         // Write the data-card for the Combinations Code, needs the output filename, makes binned analysis DataCard
 	// Assumes the signal datasets will be called signal_name+"_mXXX"
         std::string outputfilename = (std::string) l.histFileName;
-        l.rooContainer->WriteDataCard(outputfilename,"data_mass","sig_mass","bkg_mass_rebinned");
+        l.rooContainer->WriteDataCard(outputfilename,"data_mass","sig_mass","data_pol_model");
 
 	SaclayText.close();
 
@@ -216,7 +216,7 @@ void StatAnalysis::Init(LoopAll& l)
 	// ----------------------------------------------------
 
 	// Create observables for shape-analysis with ranges
-	l.rooContainer->AddObservable("mass" ,100.,160.);
+	l.rooContainer->AddObservable("mass" ,100.,150.);
 
 	// FIXME, get these numbers from the LoopAll or maybe sampleContainer?
 	l.rooContainer->AddRealVar("IntLumi",204.);
@@ -249,26 +249,26 @@ void StatAnalysis::Init(LoopAll& l)
 
 	// Make some data sets from the observables to fill in the event loop		  
 	// Binning is for histograms (will also produce unbinned data sets)
-	l.rooContainer->CreateDataSet("mass","data_mass"    ,60); // (100,110,150) -> for a window, else full obs range is taken 
-	l.rooContainer->CreateDataSet("mass","bkg_mass"     ,60);    	  	
-	l.rooContainer->CreateDataSet("mass","sig_mass_m105",60);    
-	l.rooContainer->CreateDataSet("mass","sig_mass_m110",60);    
-	l.rooContainer->CreateDataSet("mass","sig_mass_m115",60);    
-	l.rooContainer->CreateDataSet("mass","sig_mass_m120",60);    
-	l.rooContainer->CreateDataSet("mass","sig_mass_m130",60);    
-	l.rooContainer->CreateDataSet("mass","sig_mass_m140",60);    
-	l.rooContainer->CreateDataSet("mass","sig_mass_rv_m105",60);    
-	l.rooContainer->CreateDataSet("mass","sig_mass_rv_m110",60);    
-	l.rooContainer->CreateDataSet("mass","sig_mass_rv_m115",60);    
-	l.rooContainer->CreateDataSet("mass","sig_mass_rv_m120",60);    
-	l.rooContainer->CreateDataSet("mass","sig_mass_rv_m130",60);    
-	l.rooContainer->CreateDataSet("mass","sig_mass_rv_m140",60);    
-	l.rooContainer->CreateDataSet("mass","sig_mass_wv_m105",60);    
-	l.rooContainer->CreateDataSet("mass","sig_mass_wv_m110",60);    
-	l.rooContainer->CreateDataSet("mass","sig_mass_wv_m115",60);    
-	l.rooContainer->CreateDataSet("mass","sig_mass_wv_m120",60);    
-	l.rooContainer->CreateDataSet("mass","sig_mass_wv_m130",60);    
-	l.rooContainer->CreateDataSet("mass","sig_mass_wv_m140",60);    
+	l.rooContainer->CreateDataSet("mass","data_mass"    ,50); // (100,110,150) -> for a window, else full obs range is taken 
+	l.rooContainer->CreateDataSet("mass","bkg_mass"     ,50);    	  	
+	l.rooContainer->CreateDataSet("mass","sig_mass_m105",50);    
+	l.rooContainer->CreateDataSet("mass","sig_mass_m110",50);    
+	l.rooContainer->CreateDataSet("mass","sig_mass_m115",50);    
+	l.rooContainer->CreateDataSet("mass","sig_mass_m120",50);    
+	l.rooContainer->CreateDataSet("mass","sig_mass_m130",50);    
+	l.rooContainer->CreateDataSet("mass","sig_mass_m140",50);    
+	l.rooContainer->CreateDataSet("mass","sig_mass_rv_m105",50);    
+	l.rooContainer->CreateDataSet("mass","sig_mass_rv_m110",50);    
+	l.rooContainer->CreateDataSet("mass","sig_mass_rv_m115",50);    
+	l.rooContainer->CreateDataSet("mass","sig_mass_rv_m120",50);    
+	l.rooContainer->CreateDataSet("mass","sig_mass_rv_m130",50);    
+	l.rooContainer->CreateDataSet("mass","sig_mass_rv_m140",50);    
+	l.rooContainer->CreateDataSet("mass","sig_mass_wv_m105",50);    
+	l.rooContainer->CreateDataSet("mass","sig_mass_wv_m110",50);    
+	l.rooContainer->CreateDataSet("mass","sig_mass_wv_m115",50);    
+	l.rooContainer->CreateDataSet("mass","sig_mass_wv_m120",50);    
+	l.rooContainer->CreateDataSet("mass","sig_mass_wv_m130",50);    
+	l.rooContainer->CreateDataSet("mass","sig_mass_wv_m140",50);    
 
 	// Make more data sets to represent systematic shitfs , 
 	l.rooContainer->MakeSystematics("mass","sig_mass_m105",-1);	
@@ -353,11 +353,12 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
        bool CorrectVertex;
        // FIXME pass smeared R9
        int category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,nPtCategories);
+       int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,0);
        if( cur_type != 0 ) {
 	       float rewei=1.;
 	       float pth = Higgs.Pt();
 	       for(std::vector<BaseDiPhotonSmearer *>::iterator si=diPhotonSmearers_.begin(); si!= diPhotonSmearers_.end(); ++si ) {
-		   (*si)->smearDiPhoton( Higgs, *vtx, rewei, category, cur_type, *((TVector3*)l.gv_pos->At(0)), 0. );
+		   (*si)->smearDiPhoton( Higgs, *vtx, rewei, selectioncategory, cur_type, *((TVector3*)l.gv_pos->At(0)), 0. );
 	       }
 	       evweight *= rewei;
 	       // WARNING the order of the smeares matter here
@@ -383,7 +384,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	   l.rooContainer->InputDataPoint("zee_mass",category,mass,evweight);
 
        else if (cur_type == -13|| cur_type == -14 || cur_type == -15|| cur_type == -16){
-	   l.rooContainer->InputDataPoint("sig_mass_m105",category,mass);
+	   l.rooContainer->InputDataPoint("sig_mass_m105",category,mass,evweight);
 	   if (CorrectVertex) l.rooContainer->InputDataPoint("sig_mass_rv_m105",category,mass,evweight);
 	   else l.rooContainer->InputDataPoint("sig_mass_wv_m105",category,mass,evweight);
        }
@@ -440,13 +441,14 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
 			       // FIXME pass smeared R9 and di-photon
 			       int category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,nPtCategories);
+       			       int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,0);
 			       for(std::vector<BaseDiPhotonSmearer *>::iterator sj=diPhotonSmearers_.begin(); sj!= diPhotonSmearers_.end(); ++sj ) {
 				       float swei=1.;
 				       float pth = Higgs.Pt();
 				       if( *si == *sj ) { 
-					 (*si)->smearDiPhoton( Higgs, *vtx, swei, category, cur_type, *((TVector3*)l.gv_pos->At(0)), syst_shift );
+					 (*si)->smearDiPhoton( Higgs, *vtx, swei, selectioncategory, cur_type, *((TVector3*)l.gv_pos->At(0)), syst_shift );
 				       } else { 
-					   (*sj)->smearDiPhoton( Higgs, *vtx, swei, category, cur_type, *((TVector3*)l.gv_pos->At(0)), 0. );
+					   (*sj)->smearDiPhoton( Higgs, *vtx, swei, selectioncategory, cur_type, *((TVector3*)l.gv_pos->At(0)), 0. );
 				       }
 				       evweight *= swei;
 				       if( pth != Higgs.Pt() ) {
@@ -455,10 +457,10 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 			       }
 			       
 			       float mass = Higgs.M();
-			       
-			       categories.push_back(category);
-			       mass_errors.push_back(mass);
-			       weights.push_back(evweight);
+		
+			      categories.push_back(category);
+			      mass_errors.push_back(mass);
+			      weights.push_back(evweight);
 			       
 		       }
        			 if (cur_type == -13|| cur_type == -14 || cur_type == -15|| cur_type == -16)
@@ -521,11 +523,12 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		   TLorentzVector Higgs = *lead_p4 + *sublead_p4; 	
 		   
 		   int category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,nPtCategories);
+       		   int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,0);
 		   if( cur_type != 0 ) {
 		       for(std::vector<BaseDiPhotonSmearer *>::iterator si=diPhotonSmearers_.begin(); si!= diPhotonSmearers_.end(); ++si ) {
 			   float rewei=1.;
 			   float pth = Higgs.Pt();
-			   (*si)->smearDiPhoton( Higgs, *vtx, rewei, category, cur_type, *((TVector3*)l.gv_pos->At(0)), 0. );
+			   (*si)->smearDiPhoton( Higgs, *vtx, rewei, selectioncategory, cur_type, *((TVector3*)l.gv_pos->At(0)), 0. );
 			   if( pth != Higgs.Pt() ) {
 			       category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,nPtCategories);
 			   }
@@ -534,10 +537,10 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		   }
 		   float mass = Higgs.M();
 		   
-		   categories.push_back(category);
-		   mass_errors.push_back(mass);
-		   weights.push_back(evweight);
-		   
+	       	    categories.push_back(category);
+	            mass_errors.push_back(mass);
+	            weights.push_back(evweight);
+
 	       } else {
 		   mass_errors.push_back(0.);   
 		   weights.push_back(0.);   
