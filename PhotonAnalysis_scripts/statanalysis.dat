@@ -12,7 +12,7 @@ puHist=/castor/cern.ch/user/a/adavidzh/Higgs2011/pu/Weights_MCSpring11_Cert_1604
 doEscaleSyst=1
 doEresolSyst=1
 
-efficiencyFile=/castor/cern.ch/user/m/musella/Higgs2011/inputs/sig_reweighing_v2.root
+efficiencyFile=/castor/cern.ch/user/f/franzoni/hGlobe/11-06-04/sig_reweighing_v3.root
 doPhotonIdEffSyst=1
 doVtxEffSyst=1
 doTriggerEffSyst=1
