@@ -127,7 +127,7 @@ int DiphotonPtCategory(double pTh, int n_pThcat=0) {
   if(n_pThcat<2)return 0;
   int pThcat=0;
   if(n_pThcat == 2) {
-    pThcat = (Int_t)(pTh < 30.);
+    pThcat = (Int_t)(pTh < 40.);
   } else if (n_pThcat == 3) {
     pThcat = (Int_t)((pTh < 50.) + (pTh < 25.));
   }
