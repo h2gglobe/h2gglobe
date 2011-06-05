@@ -1,7 +1,7 @@
 #include "th1fmorph.C"
 #include "Normalization.C"
 
-void dofit(double fitmass, vector <TString> InterpolationList, TFile* SourceFile, TFile* OutputFile, RooWorkspace* WorkSpace) {
+void dofit(double fitmass, vector <TString> InterpolationList, TFile* SourceFile, TFile* OutputFile, RooWorkspace* WorkSpace, int debug=1) {
 
   if (fitmass>=140 || fitmass<=105) {
     std::cout << "Warning!!!!!!!!!!! You must have an input mass between 105 and 140 GeV!" << endl << "Exiting Program!!!!" << endl;
@@ -56,39 +56,37 @@ void dofit(double fitmass, vector <TString> InterpolationList, TFile* SourceFile
       LowerHist = (TH1F*) SourceFile->Get(LowerHistName.Data());
     }
     TH1F* UpperHist = (TH1F*) SourceFile->Get(UpperHistName.Data());
-    std::cout << "Calculating mass point at " << fitmass << "GeV with histograms " << LowerHistName << " and " << UpperHistName << endl;
+    if (debug>=1) std::cout << "Calculating mass point at " << fitmass << "GeV with histograms " << LowerHistName << " and " << UpperHistName << endl;
 
     double Normalization = GetNorm(lowerbound, LowerHist, upperbound, UpperHist, fitmass);
 
     TH1F* MCHist = (TH1F*) SourceFile->Get(HistName.Data());
-    if (MCHist!=NULL) {
-      TString MCHistName = MCHist->GetName();
-      MCHistName += "_MC";
-      MCHist->SetName(MCHistName.Data());
-      OutputFile->WriteTObject(MCHist);
-      MCHistName.ReplaceAll("th1f_","");
-      RooDataHist RooDataMCHist(Form("roohist_%s",MCHistName.Data()),MCHistName.Data(),RooArgList(RooRealMass[MCHist->GetTitle()]),MCHist);
-      WorkSpace->import(RooDataMCHist);
-    }
-    
     TH1F* InterpolatedHist = (TH1F*) th1fmorph(HistName.Data(),HistTitle.Data(),LowerHist,UpperHist,lowerbound,upperbound,fitmass,Normalization,0);
 
     if (MCHist!=NULL) {
       TString ResidualHistName = HistName;
-      ResidualHistName += "Residual";
+      ResidualHistName += "_Residual";
       TH1F* ResidualHist = (TH1F*) InterpolatedHist->Clone(ResidualHistName.Data());
       ResidualHist->Add(MCHist,-1);
       OutputFile->WriteTObject(ResidualHist);
       ResidualHistName.ReplaceAll("th1f_","");
-      RooDataHist RooDataResidual(Form("roohist_%s",ResidualHistName.Data()),ResidualHistName.Data(),RooArgList(RooRealMass[ResidualHist->GetTitle()]),ResidualHist);
+      RooDataHist RooDataResidual(Form("roohist_%s",ResidualHistName.Data()),ResidualHistName.Data(),RooArgList(RooRealMass[]),ResidualHist);
       WorkSpace->import(RooDataResidual);
     }
 
-    OutputFile->WriteTObject(InterpolatedHist,InterpolatedHist->GetName(),"Overwrite");
-    HistName.ReplaceAll("th1f_","");
-    RooDataHist RooDataInterpolated(Form("roohist_%s",HistName.Data()),HistName.Data(),RooArgList(RooRealMass[]),InterpolatedHist);
-    WorkSpace->import(RooDataInterpolated,kTRUE);
-  
+    if (MCHist==NULL) {
+      OutputFile->WriteTObject(InterpolatedHist,InterpolatedHist->GetName());
+      HistName.ReplaceAll("th1f_","");
+      RooDataHist RooDataInterpolated(Form("roohist_%s",HistName.Data()),HistName.Data(),RooArgList(RooRealMass[]),InterpolatedHist);
+      WorkSpace->import(RooDataInterpolated);
+    } else {
+      HistName += "_Interpolated";
+      InterpolatedHist->SetName(HistName.Data());
+      OutputFile->WriteTObject(InterpolatedHist);
+      HistName.ReplaceAll("th1f_","");
+      RooDataHist RooDataInterpolated(Form("roohist_%s",HistName.Data()),HistName.Data(),RooArgList(RooRealMass[]),InterpolatedHist);
+      WorkSpace->import(RooDataInterpolated);
+    }
   }
 
 }
