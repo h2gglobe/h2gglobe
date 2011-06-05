@@ -24,6 +24,11 @@ void RooContainer::MakeSystematicStudy(std::vector<std::string> sys_names,std::v
      systematics_.insert(std::pair<std::string,int>(*it,*it_typ));
 }
 // ----------------------------------------------------------------------------------------------------
+void RooContainer::AddConstant(std::string name,double init){
+  RooRealVar temp(name.c_str(),name.c_str(),init,init,init);
+  ws.import(temp);
+}
+// ----------------------------------------------------------------------------------------------------
 void RooContainer::AddObservable(std::string name,double xmin,double xmax){
     addRealVar(name,xmin,xmax);
     addRealVar(getweightName(name),0.,1.0e6);
@@ -729,12 +734,10 @@ void RooContainer::addRealVar(std::string name ,double init,double xmin,double x
   RooRealVar temp(name.c_str(),name.c_str(),init,xmin,xmax);
  // temp.removeRange();
   m_real_var_.insert(pair<std::string,RooRealVar>(name,temp));
-  ws.import(m_real_var_[name]);
   std::cout << "RooContainer::AddRealVar -- Appended the variable " 
 	    << name <<std::endl;
   
 }
-
 // ----------------------------------------------------------------------------------------------------
 void RooContainer::addGenericPdf(std::string name,std::string formula,std::string obs_name
 				,std::vector<std::string> & var, int form
@@ -1314,7 +1317,7 @@ void RooContainer::generateBinnedPdf(int catNo,std::string hist_nocat_name,std::
     double err = TMath::Sqrt(eval[par]);
     // If mode was 1 then the same data as was used in the fit is used in setting the limit  (ie need underconstrain)
     // if mode was 0 then we are assuming this fit is an EXTERNAL constraint to the errors from the fit must be included
-    if (mode) err*=5;
+    if (mode) err*=3.;  // cant go too high for fear of <ve pdfs
 
     std::string sys_name = (std::string)Form("%s_p%d",hist_name.c_str(),par);
 

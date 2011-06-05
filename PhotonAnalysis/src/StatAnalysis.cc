@@ -114,7 +114,7 @@ void StatAnalysis::Init(LoopAll& l)
 	eSmearPars.scale_offset["EBHighR9"] =  0.49e-2;
 	eSmearPars.scale_offset["EBLowR9"]  = -0.11e-2;
 	eSmearPars.scale_offset["EEHighR9"] = -0.57e-2;
-	eSmearPars.scale_offset["EELowR9"]  = -0.39e-2;
+	eSmearPars.scale_offset["EELowR9"]  = 0.39e-2;
 
 	eSmearPars.scale_offset_error["EBHighR9"] = 0.07e-2;
 	eSmearPars.scale_offset_error["EBLowR9"]  = 0.05e-2;
@@ -220,13 +220,13 @@ void StatAnalysis::Init(LoopAll& l)
 	l.rooContainer->AddObservable("mass" ,100.,150.);
 
 	// FIXME, get these numbers from the LoopAll or maybe sampleContainer?
-	l.rooContainer->AddRealVar("IntLumi",204.);
-	l.rooContainer->AddRealVar("XSBR_105",0.0387684+0.00262016+0.003037036);
-	l.rooContainer->AddRealVar("XSBR_110",0.0390848+0.00275406+0.002902204);
-	l.rooContainer->AddRealVar("XSBR_115",0.0386169+0.00283716+0.002717667);
-	l.rooContainer->AddRealVar("XSBR_120",0.0374175+0.00285525+0.002505285);
-	l.rooContainer->AddRealVar("XSBR_130",0.0319112+0.00260804+0.0019327068);
-	l.rooContainer->AddRealVar("XSBR_140",0.0235322+0.00204088+0.0012874228);	
+	l.rooContainer->AddConstant("IntLumi",204.);
+	l.rooContainer->AddConstant("XSBR_105",0.0387684+0.00262016+0.003037036);
+	l.rooContainer->AddConstant("XSBR_110",0.0390848+0.00275406+0.002902204);
+	l.rooContainer->AddConstant("XSBR_115",0.0386169+0.00283716+0.002717667);
+	l.rooContainer->AddConstant("XSBR_120",0.0374175+0.00285525+0.002286);
+	l.rooContainer->AddConstant("XSBR_130",0.0319112+0.00260804+0.0019327068);
+	l.rooContainer->AddConstant("XSBR_140",0.0235322+0.00204088+0.0012874228);	
 
 	l.rooContainer->AddRealVar("pol0",-0.01,-1.5,1.5);
 	l.rooContainer->AddRealVar("pol1",-0.01,-1.5,1.5);
