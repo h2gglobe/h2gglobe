@@ -1,3 +1,11 @@
+#include <vector>
+#include <map>
+#include <iostream>
+
+#include "TH1F.h"
+#include "TGraph.h"
+#include "TCanvas.h"
+
 double GetBR(double mass) {
 
   map <double, double> BranchingRatioMap;
@@ -147,6 +155,8 @@ double GetBR(double mass) {
       --iter;
     }
   }
+  
+  return -1;
   
 }
 
@@ -300,6 +310,8 @@ double GetXsection(double mass) {
     }
   }
   
+  return -1;
+
 }
 
 double GetNorm(double mass1, TH1F* hist1, double mass2, TH1F* hist2, double mass) {
