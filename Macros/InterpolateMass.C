@@ -56,7 +56,6 @@ void dofit(double fitmass, vector <TString> InterpolationList, TFile* SourceFile
   for (unsigned int k=0; k < InterpolationList.size(); k++) {
 
     TString LowerHistName = InterpolationList[k];
-    LowerHistName += "_MC";
     LowerHistName.ReplaceAll("115",LowerBoundString);
     TString UpperHistName = InterpolationList[k];
     UpperHistName.ReplaceAll("115",UpperBoundString);
@@ -68,10 +67,6 @@ void dofit(double fitmass, vector <TString> InterpolationList, TFile* SourceFile
     HistTitle += "GeV";
 
     TH1F* LowerHist = (TH1F*) SourceFile->Get(LowerHistName.Data());
-    if (LowerHist==NULL) {
-      LowerHistName.ReplaceAll("_MC","");
-      LowerHist = (TH1F*) SourceFile->Get(LowerHistName.Data());
-    }
     TH1F* UpperHist = (TH1F*) SourceFile->Get(UpperHistName.Data());
     if (debug>=1) cout << "Calculating mass point at " << fitmass << "GeV with histograms " << LowerHistName << " and " << UpperHistName << endl;
 
