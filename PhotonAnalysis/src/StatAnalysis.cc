@@ -18,7 +18,8 @@ StatAnalysis::StatAnalysis()  :
 
 // ----------------------------------------------------------------------------------------------------
 StatAnalysis::~StatAnalysis() 
-{}
+{
+}
 
 // ----------------------------------------------------------------------------------------------------
 void StatAnalysis::Term(LoopAll& l) 
@@ -38,6 +39,8 @@ void StatAnalysis::Term(LoopAll& l)
 
 	SaclayText.close();
 
+//	kfacFile->Close();
+//	PhotonAnalysis::Term(l);
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -279,6 +282,26 @@ void StatAnalysis::Init(LoopAll& l)
 	l.rooContainer->MakeSystematics("mass","sig_mass_m130",-1);	
 	l.rooContainer->MakeSystematics("mass","sig_mass_m140",-1);	
 	
+     /* -----------------------------------------------------------------------------------------
+     KFactors Reweighting
+     ------------------------------------------------------------------------------------------- */
+     cout << "Opening KFactor file"<<endl;
+     if (kfacHist != ""){
+	cout << "Opening KFactor file"<<endl;
+        TFile* kfacFile = TFile::Open( kfacHist );
+        if (kfacFile){
+	TH1D *temp;
+	temp = (TH1D*) kfacFile->Get(Form("kfact%d_0",110));
+	thm110 =(TH1D*) temp->Clone(Form("Hmass%d",110));
+	temp = (TH1D*) kfacFile->Get(Form("kfact%d_0",120));
+	thm120 =(TH1D*) temp->Clone(Form("Hmass%d",120));
+	temp = (TH1D*) kfacFile->Get(Form("kfact%d_0",130));
+	thm130 =(TH1D*) temp->Clone(Form("Hmass%d",130));
+	temp = (TH1D*) kfacFile->Get(Form("kfact%d_0",140));
+	thm140 =(TH1D*) temp->Clone(Form("Hmass%d",140));
+
+	}
+     } 
 	
 	if(PADEBUG) 
 		cout << "InitRealStatAnalysis END"<<endl;
@@ -307,6 +330,28 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
              <<"), event will not be reweighted for pileup"<<endl;
         }
     }
+ // ------------------------------------------------------------
+   //PT-H K-factors
+   double gPT = 0;
+   if (cur_type<0){
+    for (int gi=0;gi<l.gp_n;gi++){
+	if (l.gp_pdgid[gi]==25){
+	 TLorentzVector *gP4 = (TLorentzVector*)l.gp_p4->At(gi);
+	 gPT = gP4->Pt();
+	 break;
+	}
+    }
+   }
+
+
+   if (cur_type == -13)      weight*=GetDifferentialKfactor(gPT,105);
+   else if (cur_type == -17) weight*=GetDifferentialKfactor(gPT,110);
+   else if (cur_type == -21) weight*=GetDifferentialKfactor(gPT,115);
+   else if (cur_type == -25) weight*=GetDifferentialKfactor(gPT,120);
+   else if (cur_type == -29) weight*=GetDifferentialKfactor(gPT,130);
+   else if (cur_type == -33) weight*=GetDifferentialKfactor(gPT,140);
+
+   // ------------------------------------------------------------
 
    // smear all of the photons!
    std::pair<int,int> diphoton_index;
@@ -373,7 +418,10 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
       
 
 	// Ouput Text File For Saclay Analysis
-	SaclayText << Form("typ=%d weight=%f category=%d mass=%f ptH=%f ptLEAD=%f ptSUBLEAD=%f",cur_type,evweight,category,mass,ptHiggs,lead_p4->Pt(),sublead_p4->Pt())<<endl;
+	if (cur_type == 0)
+	  SaclayText << Form("typ=%d weight=%f category=%d mass=%f ptH=%f ptLEAD=%f ptSUBLEAD=%f, run=%d, lumis=%d, event=%d",cur_type,evweight,category,mass,ptHiggs,lead_p4->Pt(),sublead_p4->Pt())<<l.run<< l.lumis<<l.event <<endl;
+	else
+	  SaclayText << Form("typ=%d weight=%f category=%d mass=%f ptH=%f ptLEAD=%f ptSUBLEAD=%f",cur_type,evweight,category,mass,ptHiggs,lead_p4->Pt(),sublead_p4->Pt())<<endl;
 
 	// --------------------------------------------------------------------------------------------- 
        if (cur_type == 0 ){
@@ -626,3 +674,48 @@ bool StatAnalysis::SelectEvents(LoopAll& l, int jentry)
 {
  return true;
 }
+// ----------------------------------------------------------------------------------------------------
+double StatAnalysis::GetDifferentialKfactor(double gPT, int Mass)
+{
+
+
+	if (Mass <=110 ) return thm110->GetBinContent(thm110->FindFixBin(gPT));
+	else if (Mass ==120 ) return thm120->GetBinContent(thm120->FindFixBin(gPT));
+	else if (Mass ==130 ) return thm130->GetBinContent(thm130->FindFixBin(gPT));
+	else if (Mass ==140 ) return thm140->GetBinContent(thm140->FindFixBin(gPT));
+	else if (Mass ==115 ) return (0.5*thm110->GetBinContent(thm110->FindFixBin(gPT)) +0.5*thm120->GetBinContent(thm120->FindFixBin(gPT)));
+	return 1.0;
+/*
+	int  genMasses[4] = {110,120,130,140};
+	if (Mass<=genMasses[0] ) return kfactorHistograms[0]->GetBinContent(kfactorHistograms[0]->FindBin(gPT));
+	else if (Mass<genMasses[nMasses-1]) {
+
+		TH1D *hm1,*hm2;
+		double m1=0,m2=0;
+		for (int m=0;m<nMasses;m++){
+                	if (Mass<genMasses[m+1]){
+				hm1=kfactorHistograms[m];
+				hm2=kfactorHistograms[m+1];
+				m1 = genMasses[m];
+				m2 = genMasses[m+1];
+			//	cout << "Gen Mass: "<< Mass << " Using "<<m1<< " " << m2<< " Hist name check " << hm1->GetName()<<" " <<hm2->GetName()<<endl;
+				break;
+			}
+		}
+		if ((int)Mass == (int)m1 ){
+			 //cout << "Found the appropriate historgam "<<hm1->GetName()<<endl;
+			 return hm1->GetBinContent(hm1->FindBin(gPT));
+		} else {
+
+			TH1D *hm = (TH1D*) hm1->Clone("hm");
+			double alpha = ((float) (Mass-m1))/(m2-m1); // make sure ms are not integers
+			hm->Add(hm1,hm2,alpha,(1-alpha));
+			return hm->GetBinContent(hm->GetBinContent(hm->FindBin(gPT)));
+		}
+
+	}
+	else return kfactorHistograms[nMasses-1]->GetBinContent(kfactorHistograms[nMasses-1]->FindBin(gPT));
+*/
+}
+
+

@@ -12,6 +12,7 @@
 #include "DiPhoEfficiencySmearer.h"
 #include <iostream>
 #include <fstream>
+#include "math.h"
 
 // ------------------------------------------------------------------------------------
 class StatAnalysis : public PhotonAnalysis 
@@ -40,10 +41,17 @@ public:
 	EnergySmearer::energySmearingParameters eSmearPars;
 	EfficiencySmearer::efficiencySmearingParameters effSmearPars;
 	DiPhoEfficiencySmearer::diPhoEfficiencySmearingParameters diPhoEffSmearPars;
+
+	double GetDifferentialKfactor(double, int);
 	bool  doEscaleSyst, doEresolSyst, doPhotonIdEffSyst, doVtxEffSyst, doTriggerEffSyst;
 	float systRange;
 	int   nSystSteps;   
 	int   nEtaCategories, nR9Categories, nPtCategories;
+
+	TString kfacHist;
+
+	TH1D *thm110,*thm120,*thm130,*thm140;
+	int nMasses;
 
 protected:
 	void PreselectPhotons(LoopAll& l, int jentry);
@@ -71,6 +79,7 @@ protected:
 	// Saclay Text
 	ofstream SaclayText;
 	//vector<double> weights;
+	TFile *kfacFile;
 	
 };
 

@@ -7,10 +7,12 @@ nPtCategories=2
 
 doTriggerSelection=1
 
-puHist=/castor/cern.ch/user/a/adavidzh/Higgs2011/pu/Weights_MCSpring11_Cert_160404-163869_7TeV_May10ReReco_Collisions11_JSON.root
+kfacHist=/vols/cms02/h2g/aux/Kfactors_AllScales.root
+puHist=/vols/cms02/h2g/aux/Cert_160404-163869_7TeV_May10ReReco_Collisions11_JSON.txt.merged_with.h2g_V07_00.promptreco_May10ReReco.lumiSummary.json.weightsfor_globe_V07_00_gluglu_H_gg_115_pu2011.root
 
 doEscaleSyst=1
 doEresolSyst=1
+
 
 efficiencyFile=/castor/cern.ch/user/f/franzoni/hGlobe/11-06-04/sig_reweighing_v3.root
 doPhotonIdEffSyst=1
