@@ -370,14 +370,24 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 				   l.PhotonCiCSelectionLevel(ipho,p,l.phoSUPERTIGHT) );
        // std::cerr << "Smearing photon " << ipho << " " << phoInfo.energy() << " " << phoInfo.r9() << " " << phoInfo.iDet() << std::endl;
        float pweight = 1.;
-       // smear only MC. 
-       // FIXME: shall apply E-scale correction to data?  
-       if( cur_type != 0 ) {
-	   for(std::vector<BaseSmearer *>::iterator si=photonSmearers_.begin(); si!= photonSmearers_.end(); ++si ) {
-	       float sweight = 1.;
-	       (*si)->smearPhoton(phoInfo,sweight,0.);
-	       pweight *= sweight;
-	   }
+       // smear MC. But apply energy shift to data 
+       if( cur_type != 0 ) { // if it's MC
+	 for(std::vector<BaseSmearer *>::iterator si=photonSmearers_.begin(); si!= photonSmearers_.end(); ++si ) {
+	   float sweight = 1.;
+	   if (   (*si)->name()!=std::string("E_scale")  )     {        (*si)->smearPhoton(phoInfo,sweight,0.);	       }
+	   pweight *= sweight;
+	 }
+       } else 	 {          // if it's data
+	 for(std::vector<BaseSmearer *>::iterator si=photonSmearers_.begin(); si!= photonSmearers_.end(); ++si ) {
+	   float sweight = 1.;
+	   if (   (*si)->name()==std::string("E_scale")  )      {
+	     // correcting data requires flipping the sign of the scale shift
+	     float eneBef = phoInfo.energy();
+	     (*si)->smearPhoton(phoInfo,sweight,0.);
+	     float eneAft = phoInfo.energy();
+	     phoInfo.setEnergy( eneBef * ( 2 - eneAft/eneBef) ); }
+	   pweight *= sweight;
+	 }
        }
        new( smeared_pho_p4[ipho] )  TLorentzVector(phoInfo.p4(vtx->X(), vtx->Y(), vtx->Z() ));
        smeared_pho_r9[ipho] = phoInfo.r9();
@@ -467,7 +477,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
    
    
    // Systematics
-   if( cur_type != 0 ) {
+   if( cur_type != 0 ) { 
        // FIXME smearers apply only to MC now
        
        // fill steps for syst uncertainty study
@@ -506,11 +516,10 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 			       }
 			       
 			       float mass = Higgs.M();
-		
-			      categories.push_back(category);
-			      mass_errors.push_back(mass);
-			      weights.push_back(evweight);
-			       
+			       categories.push_back(category);
+			       mass_errors.push_back(mass);
+			       weights.push_back(evweight);
+
 		       }
        			 if (cur_type == -13|| cur_type == -14 || cur_type == -15|| cur_type == -16)
 			       l.rooContainer->InputSystematicSet("sig_mass_m105",(*si)->name(),categories,mass_errors,weights);
