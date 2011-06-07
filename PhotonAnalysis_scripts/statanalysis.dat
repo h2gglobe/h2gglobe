@@ -7,7 +7,7 @@ nPtCategories=2
 
 doTriggerSelection=1
 
-kfacHist=/vols/cms02/h2g/aux/Kfactors_AllScales.root
+kfacHist=/afs/cern.ch/user/f/fabstoec/public/Kfactors_AllScales.root
 puHist=/vols/cms02/h2g/aux/Cert_160404-163869_7TeV_May10ReReco_Collisions11_JSON.txt.merged_with.h2g_V07_00.promptreco_May10ReReco.lumiSummary.json.weightsfor_globe_V07_00_gluglu_H_gg_115_pu2011.root
 
 doEscaleSyst=1
