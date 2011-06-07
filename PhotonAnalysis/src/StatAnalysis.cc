@@ -113,16 +113,16 @@ void StatAnalysis::Init(LoopAll& l)
 	///// eSmearPars.smearing_sigma_error["EEHighR9"] = 2e-3;
 	///// eSmearPars.smearing_sigma_error["EELowR9"]  = 2e-3;
 
-	// Numbers from Riccardo
-	eSmearPars.scale_offset["EBHighR9"] =  0.49e-2;
-	eSmearPars.scale_offset["EBLowR9"]  = -0.11e-2;
-	eSmearPars.scale_offset["EEHighR9"] = -0.57e-2;
-	eSmearPars.scale_offset["EELowR9"]  = 0.39e-2;
+	// Numbers from Riccardo, https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/252/1.html
+	eSmearPars.scale_offset["EBHighR9"] =  0.47e-2;
+	eSmearPars.scale_offset["EBLowR9"]  = -0.14e-2;
+	eSmearPars.scale_offset["EEHighR9"] = -0.76e-2;
+	eSmearPars.scale_offset["EELowR9"]  = -0.08e-2;
 
-	eSmearPars.scale_offset_error["EBHighR9"] = 0.07e-2;
-	eSmearPars.scale_offset_error["EBLowR9"]  = 0.05e-2;
-	eSmearPars.scale_offset_error["EEHighR9"] = 0.24e-2;
-	eSmearPars.scale_offset_error["EELowR9"]  = 0.19e-2;
+	eSmearPars.scale_offset_error["EBHighR9"] = 0.06e-2;
+	eSmearPars.scale_offset_error["EBLowR9"]  = 0.09e-2;
+	eSmearPars.scale_offset_error["EEHighR9"] = 0.40e-2;
+	eSmearPars.scale_offset_error["EELowR9"]  = 0.61e-2;
 
 	eSmearPars.smearing_sigma["EBHighR9"] = 0.89e-2;
 	eSmearPars.smearing_sigma["EBLowR9"]  = 1.99e-2;
