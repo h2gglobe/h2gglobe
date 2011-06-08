@@ -38,7 +38,7 @@ public:
 	float subleadEtCut;
 	std::string efficiencyFile;
 	
-	EnergySmearer::energySmearingParameters eSmearPars;
+	EnergySmearer::energySmearingParameters eSmearPars, eSmearDataPars;
 	EfficiencySmearer::efficiencySmearingParameters effSmearPars;
 	DiPhoEfficiencySmearer::diPhoEfficiencySmearingParameters diPhoEffSmearPars;
 
@@ -61,7 +61,7 @@ protected:
 	std::vector<BaseDiPhotonSmearer *> diPhotonSmearers_;
 	std::vector<BaseDiPhotonSmearer *> systDiPhotonSmearers_;
 	
-	EnergySmearer *eScaleSmearer, *eResolSmearer ;
+	EnergySmearer *eScaleSmearer, *eScaleDataSmearer, *eResolSmearer ;
 	EfficiencySmearer *idEffSmearer;
 	DiPhoEfficiencySmearer *vtxEffSmearer, *triggerEffSmearer;
 	

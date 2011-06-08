@@ -86,53 +86,75 @@ void StatAnalysis::Init(LoopAll& l)
 	if( nR9Categories != 0 ) nCategories_ *= nR9Categories;
 	if( nPtCategories != 0 ) nCategories_ *= nPtCategories;
 
-	eSmearPars.categoryType = "2CatR9_EBEE";
-
-	// Number's from Adi's presentation 23 / 5
-	eSmearPars.n_categories = 4;
-	// FIXME: 
-	// . shall apply E-scale correction to data?  
-	// . double-check signs
-	///// eSmearPars.scale_offset["EBHighR9"] = 4.6e-3;
-	///// eSmearPars.scale_offset["EBLowR9"]  = -1.9e-3;
-	///// eSmearPars.scale_offset["EEHighR9"] = -7.6e-3;
-	///// eSmearPars.scale_offset["EELowR9"]  = -2.1e-3;
-	///// 
-	///// eSmearPars.scale_offset_error["EBHighR9"] = 7e-4;
-	///// eSmearPars.scale_offset_error["EBLowR9"]  = 6e-4;
-	///// eSmearPars.scale_offset_error["EEHighR9"] = 1.8e-3;
-	///// eSmearPars.scale_offset_error["EELowR9"]  = 2.5e-4;
-	///// 
-	///// eSmearPars.smearing_sigma["EBHighR9"] = 9.6e-3;
-	///// eSmearPars.smearing_sigma["EBLowR9"]  = 1.348e-2;
-	///// eSmearPars.smearing_sigma["EEHighR9"] = 2.5e-2;
-	///// eSmearPars.smearing_sigma["EELowR9"]  = 2.3e-2;
-	///// 
-	///// eSmearPars.smearing_sigma_error["EBHighR9"] = 1.e-3;
-	///// eSmearPars.smearing_sigma_error["EBLowR9"]  = 6e-4;
-	///// eSmearPars.smearing_sigma_error["EEHighR9"] = 2e-3;
-	///// eSmearPars.smearing_sigma_error["EELowR9"]  = 2e-3;
-
-	// Numbers from Riccardo
-	eSmearPars.scale_offset["EBHighR9"] =  0.49e-2;
-	eSmearPars.scale_offset["EBLowR9"]  = -0.11e-2;
-	eSmearPars.scale_offset["EEHighR9"] = -0.57e-2;
-	eSmearPars.scale_offset["EELowR9"]  = 0.39e-2;
-
-	eSmearPars.scale_offset_error["EBHighR9"] = 0.07e-2;
-	eSmearPars.scale_offset_error["EBLowR9"]  = 0.05e-2;
-	eSmearPars.scale_offset_error["EEHighR9"] = 0.24e-2;
-	eSmearPars.scale_offset_error["EELowR9"]  = 0.19e-2;
-
-	eSmearPars.smearing_sigma["EBHighR9"] = 0.89e-2;
-	eSmearPars.smearing_sigma["EBLowR9"]  = 1.99e-2;
-	eSmearPars.smearing_sigma["EEHighR9"] = 4.09e-2;
-	eSmearPars.smearing_sigma["EELowR9"]  = 2.46e-2;
+	// Numbers from Riccardo: "slide 1" of https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/252/1.html
+	// scale variations defined as: (deltaM_data - deltaM_MC) / M_Z   =>   scale factor >0 means energy should increased to MC
+	float scale_offset_EBHighR9         =  0.49e-2;
+	float scale_offset_EBLowR9          = -0.11e-2;
+	float scale_offset_EEHighR9         = -0.57e-2;
+	float scale_offset_EELowR9          = 0.39e-2;
+	float scale_offset_error_EBHighR9   = 0.07e-2;
+	float scale_offset_error_EBLowR9    = 0.05e-2;
+	float scale_offset_error_EEHighR9   = 0.24e-2;
+	float scale_offset_error_EELowR9    = 0.19e-2;
+	float smearing_sigma_EBHighR9       = 0.89e-2;
+	float smearing_sigma_EBLowR9        = 1.99e-2;
+	float smearing_sigma_EEHighR9       = 4.09e-2;
+	float smearing_sigma_EELowR9        = 2.46e-2;
+	float smearing_sigma_error_EBHighR9 = 0.25e-2;
+	float smearing_sigma_error_EBLowR9  = 0.12e-2;
+	float smearing_sigma_error_EEHighR9 = 0.38e-2;
+	float smearing_sigma_error_EELowR9  = 0.52e-2;
 	
-	eSmearPars.smearing_sigma_error["EBHighR9"] = 0.25e-2;
-	eSmearPars.smearing_sigma_error["EBLowR9"]  = 0.12e-2;
-	eSmearPars.smearing_sigma_error["EEHighR9"] = 0.38e-2;
-	eSmearPars.smearing_sigma_error["EELowR9"]  = 0.52e-2;
+
+
+
+	eSmearPars.categoryType = "2CatR9_EBEE";
+	eSmearPars.n_categories = 4;
+
+	// E scale is shifted for data, NOT for MC 
+	eSmearPars.scale_offset["EBHighR9"] = 0.;
+	eSmearPars.scale_offset["EBLowR9"]  = 0.;
+	eSmearPars.scale_offset["EEHighR9"] = 0.;
+	eSmearPars.scale_offset["EELowR9"]  = 0.;
+	// E scale systematics are applied to MC, NOT to data
+	eSmearPars.scale_offset_error["EBHighR9"] = scale_offset_error_EBHighR9;
+	eSmearPars.scale_offset_error["EBLowR9"]  = scale_offset_error_EBLowR9;
+	eSmearPars.scale_offset_error["EEHighR9"] = scale_offset_error_EEHighR9;
+	eSmearPars.scale_offset_error["EELowR9"]  = scale_offset_error_EELowR9;
+	// E resolution smearing applied to MC 
+	eSmearPars.smearing_sigma["EBHighR9"] = smearing_sigma_EBHighR9;
+	eSmearPars.smearing_sigma["EBLowR9"]  = smearing_sigma_EBLowR9;
+	eSmearPars.smearing_sigma["EEHighR9"] = smearing_sigma_EEHighR9;
+	eSmearPars.smearing_sigma["EELowR9"]  = smearing_sigma_EELowR9;
+	// E resolution systematics applied to MC 
+	eSmearPars.smearing_sigma_error["EBHighR9"] = smearing_sigma_error_EBHighR9;
+	eSmearPars.smearing_sigma_error["EBLowR9"]  = smearing_sigma_error_EBLowR9;
+	eSmearPars.smearing_sigma_error["EEHighR9"] = smearing_sigma_error_EEHighR9;
+	eSmearPars.smearing_sigma_error["EELowR9"]  = smearing_sigma_error_EELowR9;
+
+	eSmearDataPars.categoryType = "2CatR9_EBEE";
+	eSmearDataPars.n_categories = 4;
+
+	// initialize smearer specific to energy shifts in DATA; use opposite of energy scale shift
+	eSmearDataPars.scale_offset["EBHighR9"] = -1*scale_offset_EBHighR9;
+	eSmearDataPars.scale_offset["EBLowR9"]  = -1*scale_offset_EBLowR9;
+	eSmearDataPars.scale_offset["EEHighR9"] = -1*scale_offset_EEHighR9;
+	eSmearDataPars.scale_offset["EELowR9"]  = -1*scale_offset_EELowR9;
+	// no energy scale systematics applied to data
+	eSmearDataPars.scale_offset_error["EBHighR9"] = 0.;
+	eSmearDataPars.scale_offset_error["EBLowR9"]  = 0.;
+	eSmearDataPars.scale_offset_error["EEHighR9"] = 0.;
+	eSmearDataPars.scale_offset_error["EELowR9"]  = 0.;
+	// E resolution smearing NOT applied to data 
+	eSmearDataPars.smearing_sigma["EBHighR9"] = 0.;
+	eSmearDataPars.smearing_sigma["EBLowR9"]  = 0.;
+	eSmearDataPars.smearing_sigma["EEHighR9"] = 0.;
+	eSmearDataPars.smearing_sigma["EELowR9"]  = 0.;
+	// E resolution systematics NOT applied to data 
+	eSmearDataPars.smearing_sigma_error["EBHighR9"] = 0.;
+	eSmearDataPars.smearing_sigma_error["EBLowR9"]  = 0.;
+	eSmearDataPars.smearing_sigma_error["EEHighR9"] = 0.;
+	eSmearDataPars.smearing_sigma_error["EELowR9"]  = 0.;
 
 
 	effSmearPars.categoryType = "2CatR9_EBEE";
@@ -142,12 +164,18 @@ void StatAnalysis::Init(LoopAll& l)
 	diPhoEffSmearPars.n_categories = 8;
 	diPhoEffSmearPars.efficiency_file = efficiencyFile;
 
-	// energy scale corrections
+	// energy scale systematics to MC
 	eScaleSmearer = new EnergySmearer( eSmearPars );
 	eScaleSmearer->name("E_scale");
 	eScaleSmearer->doEnergy(true);
 	eScaleSmearer->scaleOrSmear(true);
 	photonSmearers_.push_back(eScaleSmearer);
+	// energy scale corrections to Data
+	eScaleDataSmearer = new EnergySmearer( eSmearDataPars );
+	eScaleDataSmearer->name("E_scale_data");
+	eScaleDataSmearer->doEnergy(true);
+	eScaleDataSmearer->scaleOrSmear(true);
+	//photonDataSmearers_.push_back(eScaleDataSmearer); // must not be included among MC smearers; will be singled out upon need // GF
 	// energy resolution smearing
 	eResolSmearer = new EnergySmearer( eSmearPars );
 	eResolSmearer->name("E_res");
@@ -374,20 +402,27 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
        if( cur_type != 0 ) { // if it's MC
 	 for(std::vector<BaseSmearer *>::iterator si=photonSmearers_.begin(); si!= photonSmearers_.end(); ++si ) {
 	   float sweight = 1.;
-	   if (   (*si)->name()!=std::string("E_scale")  )     {        (*si)->smearPhoton(phoInfo,sweight,0.);	       }
+	   // if (   (*si)->name()!=std::string("E_scale")  )     {        (*si)->smearPhoton(phoInfo,sweight,0.);	       } //GF
+	   (*si)->smearPhoton(phoInfo,sweight,0.);	   
 	   pweight *= sweight;
 	 }
        } else 	 {          // if it's data
-	 for(std::vector<BaseSmearer *>::iterator si=photonSmearers_.begin(); si!= photonSmearers_.end(); ++si ) {
-	   float sweight = 1.;
-	   if (   (*si)->name()==std::string("E_scale")  )      {
-	     // correcting data requires flipping the sign of the scale shift
-	     float eneBef = phoInfo.energy();
-	     (*si)->smearPhoton(phoInfo,sweight,0.);
-	     float eneAft = phoInfo.energy();
-	     phoInfo.setEnergy( eneBef * ( 2 - eneAft/eneBef) ); }
-	   pweight *= sweight;
-	 }
+
+
+//	 for(std::vector<BaseSmearer *>::iterator si=photonSmearers_.begin(); si!= photonSmearers_.end(); ++si ) {
+//	   float sweight = 1.;
+//	   if (   (*si)->name()==std::string("E_scale")  )      {
+//	     // correcting data requires flipping the sign of the scale shift
+//	     float eneBef = phoInfo.energy();
+//	     (*si)->smearPhoton(phoInfo,sweight,0.);
+//	     float eneAft = phoInfo.energy();
+//	     phoInfo.setEnergy( eneBef * ( 2 - eneAft/eneBef) ); }
+//	   pweight *= sweight;
+//	 }
+
+	 float sweight = 1.;
+	 eScaleDataSmearer->smearPhoton(phoInfo,sweight,0.);
+	 pweight *= sweight;
        }
        new( smeared_pho_p4[ipho] )  TLorentzVector(phoInfo.p4(vtx->X(), vtx->Y(), vtx->Z() ));
        smeared_pho_r9[ipho] = phoInfo.r9();
