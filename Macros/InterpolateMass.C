@@ -46,7 +46,7 @@ void dofit(double fitmass, vector <TString> InterpolationList, TFile* SourceFile
   }
 
   TString MassString = dtoa(fitmass);
-  MassString.ReplaceAll(".","_");
+  //MassString.ReplaceAll(".","_");
   TString LowerBoundString = dtoa(lowerbound);
   LowerBoundString.ReplaceAll(".0","");
   TString UpperBoundString = dtoa(upperbound);
