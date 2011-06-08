@@ -14,7 +14,7 @@ doEscaleSyst=1
 doEresolSyst=1
 
 
-efficiencyFile=/castor/cern.ch/user/f/franzoni/hGlobe/11-06-04/sig_reweighing_v3.root
+efficiencyFile=/afs/cern.ch/user/f/franzoni/public/globe/sig_reweighing_v4.root
 doPhotonIdEffSyst=1
 doVtxEffSyst=1
 doTriggerEffSyst=1
