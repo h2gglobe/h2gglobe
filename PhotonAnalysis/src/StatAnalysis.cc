@@ -407,19 +407,6 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	   pweight *= sweight;
 	 }
        } else 	 {          // if it's data
-
-
-//	 for(std::vector<BaseSmearer *>::iterator si=photonSmearers_.begin(); si!= photonSmearers_.end(); ++si ) {
-//	   float sweight = 1.;
-//	   if (   (*si)->name()==std::string("E_scale")  )      {
-//	     // correcting data requires flipping the sign of the scale shift
-//	     float eneBef = phoInfo.energy();
-//	     (*si)->smearPhoton(phoInfo,sweight,0.);
-//	     float eneAft = phoInfo.energy();
-//	     phoInfo.setEnergy( eneBef * ( 2 - eneAft/eneBef) ); }
-//	   pweight *= sweight;
-//	 }
-
 	 float sweight = 1.;
 	 eScaleDataSmearer->smearPhoton(phoInfo,sweight,0.);
 	 pweight *= sweight;
