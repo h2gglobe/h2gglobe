@@ -506,7 +506,6 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
        float systStep = systRange / (float)nSystSteps;
        // di-photon smearers systematics
        if (diphoton_index.first > -1 && diphoton_index.second > -1){
-	       float evweight = weight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second];
 	       
 	       TLorentzVector *lead_p4 = (TLorentzVector*)smeared_pho_p4.At(diphoton_index.first);
 	       TLorentzVector *sublead_p4 = (TLorentzVector*)smeared_pho_p4.At(diphoton_index.second);
@@ -519,6 +518,9 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		       for(float syst_shift=-systRange; syst_shift<=systRange; syst_shift+=systRange ) { 
 			       if( syst_shift == 0. ) { continue; } // skip the central value
 			       TLorentzVector Higgs = *lead_p4 + *sublead_p4; 	
+			       
+			       // restart with 'fresh' wait for this round of systematics
+			       float evweight = weight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second];
 
 			       // FIXME pass smeared R9 and di-photon
 			       int category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,nPtCategories);
