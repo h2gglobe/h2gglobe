@@ -338,6 +338,7 @@ class configProducer:
         for sp in split_line:
           name,val = [ s.lstrip(" ").rstrip(" ") for s in sp.split("=") ]
           try:
+	    if ".root" in val and not os.path.isfile(val): sys.exit("No File found - %s, check the line %s"%(val,line))
             t = type( struct.__getattribute__(name) )
             struct.__setattr__(name, t(val) )
           except AttributeError:
