@@ -12,11 +12,11 @@ intlumi = str(188.5)
 
 
 files = [
-#	  ROOT.TFile("all_higgsCombineTest.mH100.root")
-	 ROOT.TFile("all_higgsCombineTest.mH110.root")
-	, ROOT.TFile("all_higgsCombineTest.mH120.root")
-	, ROOT.TFile("all_higgsCombineTest.mH130.root")
-	, ROOT.TFile("all_higgsCombineTest.mH140.root")
+	 ROOT.TFile("higgsCombineTEST.ProfileLikelihood.mH105.1439293056.root")
+	, ROOT.TFile("higgsCombineTEST.ProfileLikelihood.mH110.350559743.root")
+	, ROOT.TFile("higgsCombineTEST.ProfileLikelihood.mH120.1452375510.root")
+	, ROOT.TFile("higgsCombineTEST.ProfileLikelihood.mH130.-1837255987.root")
+        , ROOT.TFile("higgsCombineTEST.ProfileLikelihood.mH140.244931859.root")
 	]
 
 masses = [105
@@ -26,11 +26,11 @@ masses = [105
        ,140]
 
 obs = [
-#3.95013
-2.65206
-,2.65206
-,2.607
-,4.07718
+6.08,
+8.223,
+6.051,
+3.637,
+11.5
 ]
 
 #leg=ROOT.TLegend(0.55,0.6,0.85,0.85)
@@ -95,7 +95,7 @@ xSecErrPlusPercent = array.array('d',[20.8,20.76,20.72,20.68,20.64,20.6,20.56,20
 xSecErrMinusPercent = array.array('d',[15.5,15.48,15.46,15.44,15.42,15.4,15.38,15.36,15.34,15.32,15.3,15.3,15.3,15.3,15.3,15.3,15.3,15.3,15.3,15.3,15.3,15.28,15.26,15.24,15.22,15.2,15.18,15.16,15.14,15.12,15.1,15.1,15.1,15.1,15.1,15.1,15.1,15.1,15.1,15.1,15.1,15.1,15.1,15.1,15.1,15.1,15.1,15.1,15.1,15.1,15.1,15.09,15.08,15.07,15.06,15.05,15.04,15.03,15.02,15.01,15,14.99,14.98,14.97,14.96,14.95,14.94,14.93,14.92,14.91,14.9])
 
 
-br = array.array('d',[0.00178,0.0018003,0.00182029,0.00183998,0.00185938,0.00187849,0.00189733,0.00191589,0.00193419,0.00195222,0.00197,0.00198737,0.00200441,0.00202113,0.00203754,0.00205365,0.00206948,0.00208501,0.00210028,0.00211527,0.00213,0.00214331,0.0021563,0.00216899,0.00218138,0.00219348,0.0022053,0.00221685,0.00222815,0.0022392,0.00225,0.00225571,0.00226125,0.00226662,0.00227182,0.00227687,0.00228177,0.00228652,0.00229114,0.00229563,0.0023,0.00229526,0.00229072,0.00228635,0.00228215,0.00227811,0.00227422,0.00227047,0.00226686,0.00226337,0.00226,0.00224526,0.00223124,0.00221791,0.0022052,0.00219308,0.00218151,0.00217044,0.00215986,0.00214972,0.00214,0.00211438,0.00209031,0.00206765,0.00204629,0.00202612,0.00200703,0.00198895,0.0019718,0.0019555,0.0194])                      
+br = array.array('d',[0.00178,0.0018003,0.00182029,0.00183998,0.00185938,0.00187849,0.00189733,0.00191589,0.00193419,0.00195222,0.00197,0.00198737,0.00200441,0.00202113,0.00203754,0.00205365,0.00206948,0.00208501,0.00210028,0.00211527,0.00213,0.00214331,0.0021563,0.00216899,0.00218138,0.00219348,0.0022053,0.00221685,0.00222815,0.0022392,0.00225,0.00225571,0.00226125,0.00226662,0.00227182,0.00227687,0.00228177,0.00228652,0.00229114,0.00229563,0.0023,0.00229526,0.00229072,0.00228635,0.00228215,0.00227811,0.00227422,0.00227047,0.00226686,0.00226337,0.00226,0.00224526,0.00223124,0.00221791,0.0022052,0.00219308,0.00218151,0.00217044,0.00215986,0.00214972,0.00214,0.00211438,0.00209031,0.00206765,0.00204629,0.00202612,0.00200703,0.00198895,0.0019718,0.0019555,0.00194])                      
 
 xSec10 = array.array('d',[0.0]*len(allMasses))
 xSec20 = array.array('d',[0.0]*len(allMasses))
@@ -167,15 +167,15 @@ for i in range(len(allMasses)):
   
   for i in range(len(allMasses)):
     myGraphXSecSM.SetPoint(i,allMasses[i],xSec[i])
-    myGraphXSecSM.SetPointError(i,0,0,dMinus[i],dPlus[i])
+#    myGraphXSecSM.SetPointError(i,0,0,dMinus[i],dPlus[i])
     myGraphXSec10SM.SetPoint(i,allMasses[i],xSec10[i])
-    myGraphXSec10SM.SetPointError(i,0,0,  dMinus10[i],dPlus10[i])
+#    myGraphXSec10SM.SetPointError(i,0,0,  dMinus10[i],dPlus10[i])
     myGraphXSec20SM.SetPoint(i,allMasses[i],xSec20[i])
-    myGraphXSec20SM.SetPointError(i,0,0,  dMinus20[i],dPlus20[i])
+#    myGraphXSec20SM.SetPointError(i,0,0,  dMinus20[i],dPlus20[i])
     myGraphXSec30SM.SetPoint(i,allMasses[i],xSec30[i])
-    myGraphXSec30SM.SetPointError(i,0,0,  dMinus30[i],dPlus30[i])
+#    myGraphXSec30SM.SetPointError(i,0,0,  dMinus30[i],dPlus30[i])
     myGraphXSec40SM.SetPoint(i,allMasses[i],xSec40[i])
-    myGraphXSec40SM.SetPointError(i,0,0,  dMinus40[i],dPlus40[i])
+#    myGraphXSec40SM.SetPointError(i,0,0,  dMinus40[i],dPlus40[i])
 
 
 
@@ -196,28 +196,28 @@ graphOne.SetLineWidth(3)
 myGraphXSecSM.SetLineStyle(2)
 myGraphXSecSM.SetLineColor(ROOT.kAzure+7)
 myGraphXSecSM.SetLineWidth(4)
-myGraphXSecSM.SetFillColor(ROOT.kAzure+7)
-myGraphXSecSM.SetFillStyle(3003)
+#myGraphXSecSM.SetFillColor(ROOT.kAzure+7)
+#myGraphXSecSM.SetFillStyle(3003)
 myGraphXSec10SM.SetLineStyle(2)
 myGraphXSec10SM.SetLineColor(ROOT.kAzure+7)
 myGraphXSec10SM.SetLineWidth(4)
-myGraphXSec10SM.SetFillColor(ROOT.kAzure+7)
-myGraphXSec10SM.SetFillStyle(3003)
+#myGraphXSec10SM.SetFillColor(ROOT.kAzure+7)
+#myGraphXSec10SM.SetFillStyle(3003)
 myGraphXSec20SM.SetLineStyle(2)
 myGraphXSec20SM.SetLineColor(ROOT.kAzure+7)
 myGraphXSec20SM.SetLineWidth(4)
-myGraphXSec20SM.SetFillColor(ROOT.kAzure+7)
-myGraphXSec20SM.SetFillStyle(3003)
+#myGraphXSec20SM.SetFillColor(ROOT.kAzure+7)
+#myGraphXSec20SM.SetFillStyle(3003)
 myGraphXSec30SM.SetLineStyle(2)
 myGraphXSec30SM.SetLineColor(ROOT.kAzure+7)
 myGraphXSec30SM.SetLineWidth(4)
-myGraphXSec30SM.SetFillColor(ROOT.kAzure+7)
-myGraphXSec30SM.SetFillStyle(3003)
+#myGraphXSec30SM.SetFillColor(ROOT.kAzure+7)
+#myGraphXSec30SM.SetFillStyle(3003)
 myGraphXSec40SM.SetLineStyle(2)
 myGraphXSec40SM.SetLineColor(ROOT.kAzure+7)
 myGraphXSec40SM.SetLineWidth(4)
-myGraphXSec40SM.SetFillColor(ROOT.kAzure+7)
-myGraphXSec40SM.SetFillStyle(3003)
+#myGraphXSec40SM.SetFillColor(ROOT.kAzure+7)
+#myGraphXSec40SM.SetFillStyle(3003)
 
 
 
@@ -240,7 +240,7 @@ C = ROOT.TCanvas("#int L = %s"%intlumi,"#int L = %s"%intlumi,1600,1100)
 C.SetGrid(True)
 MG.Draw("AL3")
 MG.GetXaxis().SetTitle("m_{H}(GeV/c^{2})")
-MG.GetXaxis().SetRangeUser(108,160)
+MG.GetXaxis().SetRangeUser(100,140.5)
 MG.GetYaxis().SetRangeUser(0.0,1.6)
 MG.GetYaxis().SetTitle("\sigma_{H}xBR(H#rightarrow #gamma #gamma) - 95% CL")
 MG.SetTitle("#int L = %s"%intlumi)
