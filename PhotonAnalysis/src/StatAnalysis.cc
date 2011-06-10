@@ -451,7 +451,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
 	// Ouput Text File For Saclay Analysis
 	if (cur_type == 0)
-	  SaclayText << Form("typ=%d weight=%f category=%d mass=%f ptH=%f ptLEAD=%f ptSUBLEAD=%f, run=%d, lumis=%d, event=%d",cur_type,evweight,category,mass,ptHiggs,lead_p4->Pt(),sublead_p4->Pt())<<l.run<< l.lumis<<l.event <<endl;
+	  SaclayText << Form("typ=%d weight=%f category=%d mass=%f ptH=%f ptLEAD=%f ptSUBLEAD=%f, run=%d, lumis=%d, event=%d",cur_type,evweight,category,mass,ptHiggs,lead_p4->Pt(),sublead_p4->Pt(),l.run,l.lumis,l.event) <<endl;
 	else
 	  SaclayText << Form("typ=%d weight=%f category=%d mass=%f ptH=%f ptLEAD=%f ptSUBLEAD=%f",cur_type,evweight,category,mass,ptHiggs,lead_p4->Pt(),sublead_p4->Pt())<<endl;
 

@@ -437,7 +437,7 @@ void LoopAll::Loop(Int_t a) {
   for (Int_t jentry=0; jentry<nentries;jentry++) {
     
     if(jentry%10000==0) {
-      cout << "Entry: "<<jentry << " ";
+      cout << "Entry: "<<jentry << " / "<<nentries <<  " "  ;
       copy(countersred.begin(), countersred.end(), std::ostream_iterator<float>(cout, "_") );
       cout << endl;
     }
