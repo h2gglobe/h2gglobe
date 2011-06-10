@@ -25,15 +25,21 @@ bool DiPhoEfficiencySmearer::smearDiPhoton( TLorentzVector & p4, TVector3 & selV
       std::cout << effName_ <<" No category has been found associated with this diphoton. Giving Up" << std::endl;
       return false;
     }
-
+  
   /////////////////////// changing weigh of photon according to efficiencies ///////////////////////////////////////////
   assert( ! smearing_eff_graph_.empty() );
   if( doVtxEff_ ) {
-    cat += (selVtx - trueVtx).Mag() > 1. ? "_pass" : "_fail"; 
+    if( (selVtx - trueVtx).Mag() < 1. ) {
+      cat += "_pass"; 
+    }
+    else {
+      cat += "_fail";
+      syst_shift *=-1;      // shift for pass and fail need to be in opposite directions
+    }
   }
   
   weight = getWeight( p4.Pt(), cat, syst_shift );
-
+  
   return true;
 }
 
@@ -85,10 +91,13 @@ double DiPhoEfficiencySmearer::getWeight(double pt, std::string theCategory, flo
 
     // determine the pair of bins between which  you interpolate
     int numPoints = ( theIter->second )->GetN();
-    double x, y;
+    double x, y, xPrevious;
     int myBin = -1;
+    xPrevious =-1e9;
     for (int bin=0; bin<numPoints; bin++ ){
       ( theIter->second )->GetPoint(bin, x, y);
+      assert( xPrevious < x ) ;     // points in TGraphAsymmErrors must be in increasing order
+      xPrevious=x;
       if(pt > x) {
 	myBin = bin; }
       else break;
