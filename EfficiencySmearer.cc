@@ -120,8 +120,10 @@ double EfficiencySmearer::getWeight(double pt, std::string theCategory, float sy
     int numPoints = ( theIter->second )->GetN();
     double x, y;
     int myBin = -1;
+    double xPrevious = -1e9;
     for (int bin=0; bin<numPoints; bin++ ){
       ( theIter->second )->GetPoint(bin, x, y);
+      assert( xPrevious < x );
       if(pt > x) {
 	myBin = bin; }
       else break;
