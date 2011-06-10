@@ -1,3 +1,5 @@
+// Original Author - Doug Berry
+
 #include "TH1F.h"
 #include "TList.h"
 #include "TString.h"

@@ -1,4 +1,4 @@
-# Original Author - Nicholas Wardle
+# Original Authors - Nicholas Wardle, Nancy Marinelli
 # Run this with limit-plotter-complete.py METHOD model
 # 	model  = sm (standard model) or ff (fermiophobic)
 #	METHOD = ProfileLikelihood, Bayesian, Frequentist
