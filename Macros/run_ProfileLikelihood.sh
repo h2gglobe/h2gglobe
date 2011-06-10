@@ -14,7 +14,7 @@ if [ ! -d $ODIR ]; then
 	mkdir $ODIR
 fi
 eval `scramv1 runtime -sh`
-combine cms-hgg-datacard_parBKG.txt -M ProfileLikelihood -D data_mass -m $2 -t $3 -s $SEED --rMin=0 --rMax=30 -n TEST --tries 8 -v 1 --maxTries 25 | tee mH$2.$JOBNUMBER.$$.log
+combine cms-hgg-datacard_parBKG.txt -M ProfileLikelihood -D data_mass -m $2 -t $3 -s -1 -S 1 --generateBinnedWorkaround --tries 1  --maxTries 200 --rMin=0. --rMax=35 -H ProfileLikelihood --hintStatOnly | tee mH$2.$JOBNUMBER.$$.log
 SEED=`cat mH$2.$JOBNUMBER.$$.log | grep '>>> Used OpenSSL to get a really random seed' | awk '{print$10}'`
 mv mH$2.$$.$JOBNUMBER.log $ODIR/higgsCombineTEST.ProfileLikelihood.mH$2.$SEED.log
 mv higgsCombineTEST.ProfileLikelihood.mH$2.$SEED.root $ODIR
