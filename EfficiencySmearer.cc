@@ -90,20 +90,28 @@ bool EfficiencySmearer::init()
   std::string effTmpName; std::string photonCat; TGraphAsymmErrors *graphTmp, *graphClone;
 
   photonCat =  std::string("EBHighR9");
-  effTmpName = effName_+std::string("_")+photonCat; graphTmp = (TGraphAsymmErrors*) theEfficiencyFile_->Get(effTmpName.c_str());   // smearing_eff_graph_[photonCat]=graphTmp;  
-  graphClone=(TGraphAsymmErrors*)graphTmp->Clone();    smearing_eff_graph_[photonCat]=graphClone;    
+  effTmpName = effName_+std::string("_")+photonCat; graphTmp = (TGraphAsymmErrors*) theEfficiencyFile_->Get(effTmpName.c_str());    
+  //std::cout << "graphTmp: " << graphTmp << " " << effTmpName.c_str()  <<std::endl; 
+  assert(graphTmp!=0);
+  graphClone=(TGraphAsymmErrors*)graphTmp->Clone();    smearing_eff_graph_[photonCat]=graphClone;
 
   photonCat =  std::string("EBLowR9");
-  effTmpName = effName_+std::string("_")+photonCat; graphTmp = (TGraphAsymmErrors*) theEfficiencyFile_->Get(effTmpName.c_str());   // smearing_eff_graph_[photonCat]=graphTmp;  
-  graphClone=(TGraphAsymmErrors*)graphTmp->Clone();    smearing_eff_graph_[photonCat]=graphClone;    
+  effTmpName = effName_+std::string("_")+photonCat; graphTmp = (TGraphAsymmErrors*) theEfficiencyFile_->Get(effTmpName.c_str());    
+  //std::cout << "graphTmp: " << graphTmp << " " << effTmpName.c_str()  <<std::endl; 
+  assert(graphTmp!=0);
+  graphClone=(TGraphAsymmErrors*)graphTmp->Clone();    smearing_eff_graph_[photonCat]=graphClone;
 
   photonCat =  std::string("EEHighR9");
-  effTmpName = effName_+std::string("_")+photonCat; graphTmp = (TGraphAsymmErrors*) theEfficiencyFile_->Get(effTmpName.c_str());   // smearing_eff_graph_[photonCat]=graphTmp;  
-  graphClone=(TGraphAsymmErrors*)graphTmp->Clone();    smearing_eff_graph_[photonCat]=graphClone;    
+  effTmpName = effName_+std::string("_")+photonCat; graphTmp = (TGraphAsymmErrors*) theEfficiencyFile_->Get(effTmpName.c_str());    
+  //std::cout << "graphTmp: " << graphTmp << " " << effTmpName.c_str()  <<std::endl; 
+  assert(graphTmp!=0);
+  graphClone=(TGraphAsymmErrors*)graphTmp->Clone();    smearing_eff_graph_[photonCat]=graphClone;
 
   photonCat =  std::string("EELowR9");
-  effTmpName = effName_+std::string("_")+photonCat; graphTmp = (TGraphAsymmErrors*) theEfficiencyFile_->Get(effTmpName.c_str());   // smearing_eff_graph_[photonCat]=graphTmp;  
-  graphClone=(TGraphAsymmErrors*)graphTmp->Clone();    smearing_eff_graph_[photonCat]=graphClone;    
+  effTmpName = effName_+std::string("_")+photonCat; graphTmp = (TGraphAsymmErrors*) theEfficiencyFile_->Get(effTmpName.c_str());    
+  //std::cout << "graphTmp: " << graphTmp << " " << effTmpName.c_str()  <<std::endl; 
+  assert(graphTmp!=0);
+  graphClone=(TGraphAsymmErrors*)graphTmp->Clone();    smearing_eff_graph_[photonCat]=graphClone;
 
   theEfficiencyFile_->Close();
   return true;
