@@ -7,7 +7,8 @@ DiPhoEfficiencySmearer::DiPhoEfficiencySmearer(const diPhoEfficiencySmearingPara
 {
   rgen_ = new TRandom3(0);
   name_="DiPhoEfficiencySmearer_"+ par.categoryType + "_" + par.parameterSetName;
-
+  passFailWeights_=false;
+  doVtxEff_       =false;
 }
 
 DiPhoEfficiencySmearer::~DiPhoEfficiencySmearer()
@@ -54,6 +55,7 @@ bool DiPhoEfficiencySmearer::init()
     return true;
   }
   if( doVtxEff_ ) { passFailWeights_ = true; }
+  else            { passFailWeights_ = false;}
 
   //otherwise, get smearing functions from file and set up map
   std::cout << "\n>>>initializing one efficiency for DI-photon re-weighting: " << effName_ <<  std::endl;
@@ -69,11 +71,14 @@ bool DiPhoEfficiencySmearer::init()
   // initialize formulas for the di-photon categories; 
   for( int ii=0; ii<myParameters_.n_categories; ++ii ) {
     std::string cat = Form("cat%d", ii);
+    //std::cout << "GF for efficiency: " << effName_ << "  passFailWeights_: " <<  passFailWeights_ << "  doVtxEff_: " <<  doVtxEff_ << std::endl;
     if( passFailWeights_ ) {
+      // std::cout << "GF cloning: " << ( (effName_+"_"+cat+"_pass").c_str() ) << std::endl;
       smearing_eff_graph_[cat+"_pass"]=(TGraphAsymmErrors*) theDiPhoEfficiencyFile_->Get((effName_+"_"+cat+"_pass").c_str())->Clone();
       smearing_eff_graph_[cat+"_fail"]=(TGraphAsymmErrors*) theDiPhoEfficiencyFile_->Get((effName_+"_"+cat+"_fail").c_str())->Clone();
       std::cerr << "DiPhoEfficiencySmearerc " << cat+"_pass" << std::endl;
     } else {
+      // std::cout << "GF cloning: " << ( (effName_+"_"+cat).c_str() ) << std::endl;
       smearing_eff_graph_[cat]=(TGraphAsymmErrors*) theDiPhoEfficiencyFile_->Get((effName_+"_"+cat).c_str())->Clone();
     }
   }
