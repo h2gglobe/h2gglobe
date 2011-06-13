@@ -68,6 +68,7 @@ void StatAnalysis::Init(LoopAll& l)
 		<< "doEresolSyst "<< doEresolSyst << "\n"
 		<< "efficiencyFile " << efficiencyFile << "\n"
 		<< "doPhotonIdEffSyst "<< doPhotonIdEffSyst << "\n"
+		<< "doR9Syst "<< doR9Syst << "\n"
 		<< "doVtxEffSyst "<< doVtxEffSyst << "\n"
 		<< "doTriggerEffSyst "<< doTriggerEffSyst << "\n"
 		<< "-------------------------------------------------------------------------------------- \n"
@@ -188,6 +189,12 @@ void StatAnalysis::Init(LoopAll& l)
 	idEffSmearer->setEffName("ratioTP");
 	idEffSmearer->init();
 	photonSmearers_.push_back(idEffSmearer);
+	// R9 re-weighting
+	r9Smearer = new EfficiencySmearer( effSmearPars );
+	r9Smearer->name("r9Eff");
+	r9Smearer->setEffName("ratioR9");
+	r9Smearer->init();
+	// photonSmearers_.push_back(r9Smearer);   // Keep R9 re-weighting correction temporarily off, while we establish which numbers are to be used
 	// Vertex ID
 	vtxEffSmearer = new DiPhoEfficiencySmearer( diPhoEffSmearPars );   // triplicate TF1's here
 	vtxEffSmearer->name("vtxEff");
@@ -228,6 +235,12 @@ void StatAnalysis::Init(LoopAll& l)
 		std::vector<std::string> sys(1,idEffSmearer->name());
 		std::vector<int> sys_t(1,-1);	// -1 for signal, 1 for background 0 for both
 		l.rooContainer->MakeSystematicStudy(sys,sys_t);
+	}
+	if( doR9Syst ) {
+                systPhotonSmearers_.push_back( r9Smearer );
+	        std::vector<std::string> sys(1,r9Smearer->name());
+	        std::vector<int> sys_t(1,-1);	// -1 for signal, 1 for background 0 for both
+     	        l.rooContainer->MakeSystematicStudy(sys,sys_t);
 	}
 	if( doVtxEffSyst ) {
 	        systDiPhotonSmearers_.push_back( vtxEffSmearer );

@@ -43,7 +43,7 @@ public:
 	DiPhoEfficiencySmearer::diPhoEfficiencySmearingParameters diPhoEffSmearPars;
 
 	double GetDifferentialKfactor(double, int);
-	bool  doEscaleSyst, doEresolSyst, doPhotonIdEffSyst, doVtxEffSyst, doTriggerEffSyst;
+	bool  doEscaleSyst, doEresolSyst, doPhotonIdEffSyst, doR9Syst, doVtxEffSyst, doTriggerEffSyst;
 	float systRange;
 	int   nSystSteps;   
 	int   nEtaCategories, nR9Categories, nPtCategories;
@@ -62,7 +62,7 @@ protected:
 	std::vector<BaseDiPhotonSmearer *> systDiPhotonSmearers_;
 	
 	EnergySmearer *eScaleSmearer, *eScaleDataSmearer, *eResolSmearer ;
-	EfficiencySmearer *idEffSmearer;
+	EfficiencySmearer *idEffSmearer, *r9Smearer;
 	DiPhoEfficiencySmearer *vtxEffSmearer, *triggerEffSmearer;
 	
 	std::string name_;
