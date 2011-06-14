@@ -1,5 +1,8 @@
 default=2
-htyp=0 plot=-1  ncat=5  xbins=100   ybins=0   xmin=20.0   xmax=120.0  ymin=0      ymax=0       name=pt
-htyp=0 plot=-1  ncat=5  xbins=50    ybins=0       xmin=0.0   xmax=120.0   ymin=0      ymax=0       name=pho_pt
-htyp=0 plot=-1  ncat=5  xbins=10   ybins=0    xmin=100.0   xmax=150.0  ymin=0       ymax=0       name=mass
+htyp=0 plot=-1  ncat=9  xbins=100   ybins=0   xmin=20.0   xmax=120.0  ymin=0      ymax=0       name=pt
+htyp=0 plot=-1  ncat=9  xbins=50    ybins=0       xmin=0.0   xmax=120.0   ymin=0      ymax=0       name=pho_pt
+htyp=0 plot=-1  ncat=9  xbins=10   ybins=0    xmin=100.0   xmax=150.0  ymin=0       ymax=0       name=mass
+htyp=0 plot=-1  ncat=9  xbins=50    ybins=0       xmin=0.0   xmax=120.0   ymin=0      ymax=0       name=pho1_pt
+htyp=0 plot=-1  ncat=9  xbins=50    ybins=0       xmin=0.0   xmax=120.0   ymin=0      ymax=0       name=pho2_pt
+htyp=0 plot=-1  ncat=9  xbins=10    ybins=0       xmin=0.5   xmax=10.5   ymin=0      ymax=0       name=pho_n
 

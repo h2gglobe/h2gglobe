@@ -14,6 +14,8 @@ StatAnalysis::StatAnalysis()  :
 	name_("StatAnalysis"),
 	vtxAna_(vtxAlgoParams), vtxConv_(vtxAlgoParams)
 {
+	reRunCiC = false;
+	doMCSmearing = true;
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -75,7 +77,7 @@ void StatAnalysis::Init(LoopAll& l)
 		<< std::endl;
 
 	// avoid recalculated the CIC ID every time
-	l.runCiC = false;
+	l.runCiC = reRunCiC;
 	// call the base class initializer
 	PhotonAnalysis::Init(l);
 	
@@ -86,28 +88,26 @@ void StatAnalysis::Init(LoopAll& l)
 	nCategories_ = nEtaCategories;
 	if( nR9Categories != 0 ) nCategories_ *= nR9Categories;
 	if( nPtCategories != 0 ) nCategories_ *= nPtCategories;
-
-	// Numbers from Riccardo: "slide 1" of https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/252/1.html
-	// scale variations defined as: (deltaM_data - deltaM_MC) / M_Z   =>   scale factor >0 means energy should increased to MC
-	float scale_offset_EBHighR9         =  0.49e-2;
-	float scale_offset_EBLowR9          = -0.11e-2;
-	float scale_offset_EEHighR9         = -0.57e-2;
-	float scale_offset_EELowR9          = 0.39e-2;
-	float scale_offset_error_EBHighR9   = 0.07e-2;
-	float scale_offset_error_EBLowR9    = 0.05e-2;
-	float scale_offset_error_EEHighR9   = 0.24e-2;
-	float scale_offset_error_EELowR9    = 0.19e-2;
-	float smearing_sigma_EBHighR9       = 0.89e-2;
-	float smearing_sigma_EBLowR9        = 1.99e-2;
-	float smearing_sigma_EEHighR9       = 4.09e-2;
-	float smearing_sigma_EELowR9        = 2.46e-2;
-	float smearing_sigma_error_EBHighR9 = 0.25e-2;
-	float smearing_sigma_error_EBLowR9  = 0.12e-2;
-	float smearing_sigma_error_EEHighR9 = 0.38e-2;
-	float smearing_sigma_error_EELowR9  = 0.52e-2;
 	
-
-
+	// Moved to configuration file PM
+	////// // Numbers from Riccardo: "slide 1" of https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/252/1.html
+	////// // scale variations defined as: (deltaM_data - deltaM_MC) / M_Z   =>   scale factor >0 means energy should increased to MC
+	////// float scale_offset_EBHighR9         =  0.49e-2;
+	////// float scale_offset_EBLowR9          = -0.11e-2;
+	////// float scale_offset_EEHighR9         = -0.57e-2;
+	////// float scale_offset_EELowR9          = 0.39e-2;
+	////// float scale_offset_error_EBHighR9   = 0.07e-2;
+	////// float scale_offset_error_EBLowR9    = 0.05e-2;
+	////// float scale_offset_error_EEHighR9   = 0.24e-2;
+	////// float scale_offset_error_EELowR9    = 0.19e-2;
+	////// float smearing_sigma_EBHighR9       = 0.89e-2;
+	////// float smearing_sigma_EBLowR9        = 1.99e-2;
+	////// float smearing_sigma_EEHighR9       = 4.09e-2;
+	////// float smearing_sigma_EELowR9        = 2.46e-2;
+	////// float smearing_sigma_error_EBHighR9 = 0.25e-2;
+	////// float smearing_sigma_error_EBLowR9  = 0.12e-2;
+	////// float smearing_sigma_error_EEHighR9 = 0.38e-2;
+	////// float smearing_sigma_error_EELowR9  = 0.52e-2;
 
 	eSmearPars.categoryType = "2CatR9_EBEE";
 	eSmearPars.n_categories = 4;
@@ -165,51 +165,67 @@ void StatAnalysis::Init(LoopAll& l)
 	diPhoEffSmearPars.n_categories = 8;
 	diPhoEffSmearPars.efficiency_file = efficiencyFile;
 
-	// energy scale systematics to MC
-	eScaleSmearer = new EnergySmearer( eSmearPars );
-	eScaleSmearer->name("E_scale");
-	eScaleSmearer->doEnergy(true);
-	eScaleSmearer->scaleOrSmear(true);
-	photonSmearers_.push_back(eScaleSmearer);
-	// energy scale corrections to Data
-	eScaleDataSmearer = new EnergySmearer( eSmearDataPars );
-	eScaleDataSmearer->name("E_scale_data");
-	eScaleDataSmearer->doEnergy(true);
-	eScaleDataSmearer->scaleOrSmear(true);
-	//photonDataSmearers_.push_back(eScaleDataSmearer); // must not be included among MC smearers; will be singled out upon need // GF
-	// energy resolution smearing
-	eResolSmearer = new EnergySmearer( eSmearPars );
-	eResolSmearer->name("E_res");
-	eResolSmearer->doEnergy(false);
-	eResolSmearer->scaleOrSmear(false);
-	photonSmearers_.push_back(eResolSmearer);
-	// photon ID efficiency 
-	idEffSmearer = new EfficiencySmearer( effSmearPars );
-	idEffSmearer->name("idEff");
-	idEffSmearer->setEffName("ratioTP");
-	idEffSmearer->init();
-	photonSmearers_.push_back(idEffSmearer);
-	// R9 re-weighting
-	r9Smearer = new EfficiencySmearer( effSmearPars );
-	r9Smearer->name("r9Eff");
-	r9Smearer->setEffName("ratioR9");
-	r9Smearer->init();
-	// photonSmearers_.push_back(r9Smearer);   // Keep R9 re-weighting correction temporarily off, while we establish which numbers are to be used
-	// Vertex ID
-	vtxEffSmearer = new DiPhoEfficiencySmearer( diPhoEffSmearPars );   // triplicate TF1's here
-	vtxEffSmearer->name("vtxEff");
-	vtxEffSmearer->setEffName("ratioVertex");
-	vtxEffSmearer->doVtxEff(true);
-	vtxEffSmearer->init();
- 	diPhotonSmearers_.push_back(vtxEffSmearer);
-	// trigger efficiency
-	triggerEffSmearer = new DiPhoEfficiencySmearer( diPhoEffSmearPars );
-	triggerEffSmearer->name("triggerEff");
-	triggerEffSmearer->setEffName("effL1HLT");
-	triggerEffSmearer->doVtxEff(false);
-	triggerEffSmearer->init();
- 	diPhotonSmearers_.push_back(triggerEffSmearer);
-	
+	if( doEscaleSmear ) {
+		// energy scale systematics to MC
+		eScaleSmearer = new EnergySmearer( eSmearPars );
+		eScaleSmearer->name("E_scale");
+		eScaleSmearer->doEnergy(true);
+		eScaleSmearer->scaleOrSmear(true);
+		photonSmearers_.push_back(eScaleSmearer);
+		
+		// energy scale corrections to Data
+		eScaleDataSmearer = new EnergySmearer( eSmearDataPars );
+		eScaleDataSmearer->name("E_scale_data");
+		eScaleDataSmearer->doEnergy(true);
+		eScaleDataSmearer->scaleOrSmear(true);
+		//photonDataSmearers_.push_back(eScaleDataSmearer); // must not be included among MC smearers; will be singled out upon need // GF
+	}
+	if( doEresolSmear ) {
+		// energy resolution smearing
+		std::cerr << __LINE__ << std::endl; 
+		eResolSmearer = new EnergySmearer( eSmearPars );
+		eResolSmearer->name("E_res");
+		eResolSmearer->doEnergy(false);
+		eResolSmearer->scaleOrSmear(false);
+		photonSmearers_.push_back(eResolSmearer);
+	}
+	if( doPhotonIdEffSmear ) {
+		// photon ID efficiency 
+		std::cerr << __LINE__ << std::endl; 
+		idEffSmearer = new EfficiencySmearer( effSmearPars );
+		idEffSmearer->name("idEff");
+		idEffSmearer->setEffName("ratioTP");
+		idEffSmearer->init();
+		photonSmearers_.push_back(idEffSmearer);
+	}
+	if( doR9Smear ) {
+		// R9 re-weighting
+		r9Smearer = new EfficiencySmearer( effSmearPars );
+		r9Smearer->name("r9Eff");
+		r9Smearer->setEffName("ratioR9");
+		r9Smearer->init();
+		photonSmearers_.push_back(r9Smearer);   // Keep R9 re-weighting correction temporarily off, while we establish which numbers are to be used
+	}
+	if( doVtxEffSmear ) {
+		// Vertex ID
+		std::cerr << __LINE__ << std::endl; 
+		vtxEffSmearer = new DiPhoEfficiencySmearer( diPhoEffSmearPars );   // triplicate TF1's here
+		vtxEffSmearer->name("vtxEff");
+		vtxEffSmearer->setEffName("ratioVertex");
+		vtxEffSmearer->doVtxEff(true);
+		vtxEffSmearer->init();
+		diPhotonSmearers_.push_back(vtxEffSmearer);
+	}
+	if( doTriggerEffSmear ) {
+		// trigger efficiency
+		std::cerr << __LINE__ << std::endl; 
+		triggerEffSmearer = new DiPhoEfficiencySmearer( diPhoEffSmearPars );
+		triggerEffSmearer->name("triggerEff");
+		triggerEffSmearer->setEffName("effL1HLT");
+		triggerEffSmearer->doVtxEff(false);
+		triggerEffSmearer->init();
+		diPhotonSmearers_.push_back(triggerEffSmearer);
+	}
         // Define the number of categories for the statistical analysis and
 	// the systematic sets to be formed
 
@@ -218,37 +234,37 @@ void StatAnalysis::Init(LoopAll& l)
 	systRange  = 1.; // in units of sigma
 	nSystSteps = 3;    
 
-	if( doEscaleSyst ) {
+	if( doEscaleSmear && doEscaleSyst ) {
 		systPhotonSmearers_.push_back( eScaleSmearer );
 		std::vector<std::string> sys(1,eScaleSmearer->name());
 		std::vector<int> sys_t(1,-1);	// -1 for signal, 1 for background 0 for both
 		l.rooContainer->MakeSystematicStudy(sys,sys_t);
 	}
-	if( doEresolSyst ) {
+	if( doEresolSmear && doEresolSyst ) {
 		systPhotonSmearers_.push_back( eResolSmearer );
 		std::vector<std::string> sys(1,eResolSmearer->name());
 		std::vector<int> sys_t(1,-1);	// -1 for signal, 1 for background 0 for both
 		l.rooContainer->MakeSystematicStudy(sys,sys_t);
 	}
-	if( doPhotonIdEffSyst ) {
+	if( doPhotonIdEffSmear && doPhotonIdEffSyst ) {
 		systPhotonSmearers_.push_back( idEffSmearer );
 		std::vector<std::string> sys(1,idEffSmearer->name());
 		std::vector<int> sys_t(1,-1);	// -1 for signal, 1 for background 0 for both
 		l.rooContainer->MakeSystematicStudy(sys,sys_t);
 	}
-	if( doR9Syst ) {
+	if( doR9Smear && doR9Syst ) {
                 systPhotonSmearers_.push_back( r9Smearer );
 	        std::vector<std::string> sys(1,r9Smearer->name());
 	        std::vector<int> sys_t(1,-1);	// -1 for signal, 1 for background 0 for both
      	        l.rooContainer->MakeSystematicStudy(sys,sys_t);
 	}
-	if( doVtxEffSyst ) {
+	if( doVtxEffSmear && doVtxEffSyst ) {
 	        systDiPhotonSmearers_.push_back( vtxEffSmearer );
 		std::vector<std::string> sys(1,vtxEffSmearer->name());
 		std::vector<int> sys_t(1,-1);	// -1 for signal, 1 for background 0 for both
 		l.rooContainer->MakeSystematicStudy(sys,sys_t);
 	}
-	if( doTriggerEffSyst ) {
+	if( doTriggerEffSmear && doTriggerEffSyst ) {
 	        systDiPhotonSmearers_.push_back( triggerEffSmearer );
 		std::vector<std::string> sys(1,triggerEffSmearer->name());
 		std::vector<int> sys_t(1,-1);	// -1 for signal, 1 for background 0 for both
@@ -384,6 +400,14 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     }
    }
 
+   ////// // FIXME: test event selection w/o conversions.
+   ////// // REMOVE IT
+   ////// vtxAna_.preselection( *l.vtx_std_ranked_list );
+   ////// l.vtx_std_sel = vtxAna_.rankprod(vtxVarNames)[0];
+   ////// for(int ipho=0; ipho<l.pho_n; ++ipho) {
+   ////// 	   l.set_pho_p4(ipho, l.vtx_std_sel);
+   ////// }
+   ////// /// UP TO HERE
 
    if (cur_type == -13)      weight*=GetDifferentialKfactor(gPT,105);
    else if (cur_type == -17) weight*=GetDifferentialKfactor(gPT,110);
@@ -396,8 +420,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
    // smear all of the photons!
    std::pair<int,int> diphoton_index;
-   int leadLevel=2, subLevel=2;
-
+   
    TVector3 * vtx = (TVector3*)l.vtx_std_xyz->At(l.vtx_std_sel);
 
    // Nominal smearing
@@ -409,17 +432,15 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
        std::vector<std::vector<bool> > p;
        PhotonReducedInfo phoInfo ( *((TVector3*)l.pho_calopos->At(ipho)), ((TLorentzVector*)l.pho_p4->At(ipho))->Energy(), l.pho_isEB[ipho], l.pho_r9[ipho],
 				   l.PhotonCiCSelectionLevel(ipho,p,l.phoSUPERTIGHT) );
-       // std::cerr << "Smearing photon " << ipho << " " << phoInfo.energy() << " " << phoInfo.r9() << " " << phoInfo.iDet() << std::endl;
        float pweight = 1.;
        // smear MC. But apply energy shift to data 
-       if( cur_type != 0 ) { // if it's MC
+       if( cur_type != 0 && doMCSmearing ) { // if it's MC
 	 for(std::vector<BaseSmearer *>::iterator si=photonSmearers_.begin(); si!= photonSmearers_.end(); ++si ) {
 	   float sweight = 1.;
-	   // if (   (*si)->name()!=std::string("E_scale")  )     {        (*si)->smearPhoton(phoInfo,sweight,0.);	       } //GF
 	   (*si)->smearPhoton(phoInfo,sweight,0.);	   
 	   pweight *= sweight;
 	 }
-       } else 	 {          // if it's data
+       } else if( doEscaleSmear && cur_type == 0 ) {          // if it's data
 	 float sweight = 1.;
 	 eScaleDataSmearer->smearPhoton(phoInfo,sweight,0.);
 	 pweight *= sweight;
@@ -445,30 +466,60 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
        // FIXME pass smeared R9
        int category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,nPtCategories);
        int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,0);
-       if( cur_type != 0 ) {
+       if( cur_type != 0 && doMCSmearing ) {
 	       float rewei=1.;
 	       float pth = Higgs.Pt();
 	       for(std::vector<BaseDiPhotonSmearer *>::iterator si=diPhotonSmearers_.begin(); si!= diPhotonSmearers_.end(); ++si ) {
 		   (*si)->smearDiPhoton( Higgs, *vtx, rewei, selectioncategory, cur_type, *((TVector3*)l.gv_pos->At(0)), 0. );
 	       }
 	       evweight *= rewei;
-	       // WARNING the order of the smeares matter here
-	       if( pth != Higgs.Pt() ) {
-		   category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,nPtCategories);
-	       }
+	       ////  // WARNING the order of the smeares matter here
+	       ////  if( pth != Higgs.Pt() ) {
+	       ////  	   category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,nPtCategories);
+	       ////  }
 	       CorrectVertex=(*vtx- *((TVector3*)l.gv_pos->At(0))).Mag() < 1.;
        }
        float mass    = Higgs.M();
        float ptHiggs = Higgs.Pt();
       
+       // control plots 
+       l.FillHist("mass",0, Higgs.M(), weight);
+       l.FillHist("pt",0, Higgs.Pt(), weight);
+       l.FillHist("pho_pt",0,lead_p4->Pt(), weight);
+       l.FillHist("pho1_pt",0,lead_p4->Pt(), weight);
+       l.FillHist("pho_pt",0,sublead_p4->Pt(), weight);
+       l.FillHist("pho2_pt",0,sublead_p4->Pt(), weight);
+       
+       l.FillHist("mass",category+1, Higgs.M(), weight);
+       l.FillHist("pt",category+1, Higgs.Pt(), weight);
+       l.FillHist("pho_pt",category+1,lead_p4->Pt(), weight);
+       l.FillHist("pho1_pt",category+1,lead_p4->Pt(), weight);
+       l.FillHist("pho_pt",category+1,sublead_p4->Pt(), weight);
+       l.FillHist("pho2_pt",category+1,sublead_p4->Pt(), weight);
 
-	// Ouput Text File For Saclay Analysis
-	if (cur_type == 0)
-	  SaclayText << Form("typ=%d weight=%f category=%d mass=%f ptH=%f ptLEAD=%f ptSUBLEAD=%f, run=%d, lumis=%d, event=%d",cur_type,evweight,category,mass,ptHiggs,lead_p4->Pt(),sublead_p4->Pt(),l.run,l.lumis,l.event) <<endl;
-	else
-	  SaclayText << Form("typ=%d weight=%f category=%d mass=%f ptH=%f ptLEAD=%f ptSUBLEAD=%f",cur_type,evweight,category,mass,ptHiggs,lead_p4->Pt(),sublead_p4->Pt())<<endl;
+       l.FillHist("pho_n",category+1,l.pho_n, weight);
 
-	// --------------------------------------------------------------------------------------------- 
+       if( ( vtxAna_.pho1() +  vtxAna_.pho2() != diphoton_index.first + diphoton_index.second ) || 
+	   ( vtxAna_.pho1() != diphoton_index.first && vtxAna_.pho1() != diphoton_index.second ) )    {
+	       std::cerr << "Mismatch between vertex ID and analysis di-photon "
+			 << "pho_n " << l.pho_n << " pho1_vtx " << vtxAna_.pho1() << " pho2_vtx " << vtxAna_.pho2() << " " 
+			 << "pho1_ana " << diphoton_index.first << " pho2_ana " << diphoton_index.second << " mass " << mass
+			 << std::endl; 
+       }
+       
+       // Ouput Text File For Saclay Analysis
+       //// f (cur_type == 0)
+       ////  SaclayText << Form("typ=%d weight=%f category=%d mass=%f ptH=%f ptLEAD=%f ptSUBLEAD=%f, run=%d, lumis=%d, event=%d",cur_type,evweight,category,mass,ptHiggs,lead_p4->Pt(),sublead_p4->Pt(),l.run,l.lumis,l.event) <<endl;
+       //// lse
+       ////  SaclayText << Form("typ=%d weight=%f category=%d mass=%f ptH=%f ptLEAD=%f ptSUBLEAD=%f",cur_type,evweight,category,mass,ptHiggs,lead_p4->Pt(),sublead_p4->Pt())<<endl;
+       SaclayText << setprecision(4) <<  "Run = " << l.run << "  LS = " << l.lumis << "  Event = " << l.event << "  SelVtx = " << l.vtx_std_sel << "  CAT4 = " << category % 4
+		  << "  ggM = " << mass << " gg_Pt =  " << ptHiggs;
+       for(int ii=0; ii<l.vtx_std_n; ++ii ) {
+	       SaclayText << " vtx " << ii << " = ( " << vtxAna_.ptbal(ii) << " , " << vtxAna_.ptasym(ii) << " , " << vtxAna_.logsumpt2(ii) << " )"; 
+       }
+       SaclayText << endl;
+       
+       // --------------------------------------------------------------------------------------------- 
        if (cur_type == 0 ){
 	   l.rooContainer->InputDataPoint("data_mass",category,mass);
        }
@@ -512,9 +563,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
    
    
    // Systematics
-   if( cur_type != 0 ) { 
-       // FIXME smearers apply only to MC now
-       
+   if( cur_type != 0 && doMCSmearing ) { 
        // fill steps for syst uncertainty study
        float systStep = systRange / (float)nSystSteps;
        // di-photon smearers systematics
@@ -547,9 +596,9 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 					   (*sj)->smearDiPhoton( Higgs, *vtx, swei, selectioncategory, cur_type, *((TVector3*)l.gv_pos->At(0)), 0. );
 				       }
 				       evweight *= swei;
-				       if( pth != Higgs.Pt() ) {
-					   category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,nPtCategories);
-				       }
+				       ////  if( pth != Higgs.Pt() ) {
+				       ////  	   category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,nPtCategories);
+				       ////  }
 			       }
 			       
 			       float mass = Higgs.M();
@@ -592,7 +641,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		   for(std::vector<BaseSmearer *>::iterator  sj=photonSmearers_.begin(); sj!= photonSmearers_.end(); ++sj ) {
 		       float sweight = 1.;
 		       if( *si == *sj ) {
-			   // move the SNsmearer under study by syst_shift
+			   // move the smearer under study by syst_shift
 			   (*si)->smearPhoton(phoInfo,sweight,syst_shift);
 		       } else {
 			 // for the other use the nominal points
@@ -619,14 +668,14 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		   
 		   int category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,nPtCategories);
        		   int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,0);
-		   if( cur_type != 0 ) {
+		   if( cur_type != 0 && doMCSmearing ) {
 		       for(std::vector<BaseDiPhotonSmearer *>::iterator si=diPhotonSmearers_.begin(); si!= diPhotonSmearers_.end(); ++si ) {
 			   float rewei=1.;
 			   float pth = Higgs.Pt();
 			   (*si)->smearDiPhoton( Higgs, *vtx, rewei, selectioncategory, cur_type, *((TVector3*)l.gv_pos->At(0)), 0. );
-			   if( pth != Higgs.Pt() ) {
-			       category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,nPtCategories);
-			   }
+			   ////  if( pth != Higgs.Pt() ) {
+			   ////      category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,nPtCategories);
+			   ////  }
 			   evweight *= rewei;
 		       }
 		   }

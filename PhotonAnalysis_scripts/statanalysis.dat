@@ -1,3 +1,5 @@
+->
+->
 leadEtCut=40.0
 subleadEtCut=30.0
 
@@ -6,17 +8,62 @@ nR9Categories=2
 nPtCategories=2
 
 doTriggerSelection=1
+reRunCiC=1 
 
+->
+Turn on-off all smearings 
+->
+doMCSmearing=1 
 
+->
+Individual smearing flags
+->
+doEscaleSmear=1
 doEscaleSyst=1
+
+doEresolSmear=1
 doEresolSyst=1
 
 doPhotonIdEffSyst=1
+doPhotonIdEffSmear=1
+
 doVtxEffSyst=1
+doVtxEffSmear=1
+
+doTriggerEffSmear=1
 doTriggerEffSyst=1
+
+doR9Smear=0
 doR9Syst=0
 
-
+->
+Inputs for reweighing
+->
 kfacHist=/afs/cern.ch/user/f/fabstoec/public/Kfactors_AllScales.root
-puHist=/afs/cern.ch/user/n/nckw/public/Cert_160404-163869_7TeV_May10ReReco_Collisions11_JSON.txt.merged_with.h2g_V07_00.promptreco_May10ReReco.lumiSummary.json.weightsfor_globe_V07_00_gluglu_H_gg_115_pu2011.root
+puHist=/castor/cern.ch/user/a/adavidzh/Higgs2011/pu/Weights_MCSpring11_Cert_160404-163869_7TeV_May10ReReco_Collisions11_JSON.root
+->
+/afs/cern.ch/user/n/nckw/public/Cert_160404-163869_7TeV_May10ReReco_Collisions11_JSON.txt.merged_with.h2g_V07_00.promptreco_May10ReReco.lumiSummary.json.weightsfor_globe_V07_00_gluglu_H_gg_115_pu2011.root
+->
 efficiencyFile=/afs/cern.ch/user/f/franzoni/public/globe/sig_reweighing_v6.root
+
+->
+Numbers from Riccardo: "slide 1" of https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/252/1.html
+scale variations defined as: (deltaM_data - deltaM_MC) / M_Z   =>   scale factor >0 means energy should increased to MC
+->
+scale_offset_EBHighR9=0.49e-2
+scale_offset_EBLowR9=-0.11e-2
+scale_offset_EEHighR9=-0.57e-2
+scale_offset_EELowR9=0.39e-2
+scale_offset_error_EBHighR9=0.07e-2
+scale_offset_error_EBLowR9=0.05e-2
+scale_offset_error_EEHighR9=0.24e-2
+scale_offset_error_EELowR9=0.19e-2
+smearing_sigma_EBHighR9=0.89e-2
+smearing_sigma_EBLowR9=1.99e-2
+smearing_sigma_EEHighR9=4.09e-2
+smearing_sigma_EELowR9=2.46e-2
+smearing_sigma_error_EBHighR9=0.25e-2
+smearing_sigma_error_EBLowR9=0.12e-2
+smearing_sigma_error_EEHighR9=0.38e-2
+smearing_sigma_error_EELowR9=0.52e-2
+

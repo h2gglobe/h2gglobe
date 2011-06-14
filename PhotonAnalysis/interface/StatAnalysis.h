@@ -34,6 +34,7 @@ public:
 	virtual void Analysis(LoopAll&, Int_t);
 	
 	// Options
+	bool reRunCiC;
 	float leadEtCut;
 	float subleadEtCut;
 	std::string efficiencyFile;
@@ -43,11 +44,31 @@ public:
 	DiPhoEfficiencySmearer::diPhoEfficiencySmearingParameters diPhoEffSmearPars;
 
 	double GetDifferentialKfactor(double, int);
-	bool  doEscaleSyst, doEresolSyst, doPhotonIdEffSyst, doR9Syst, doVtxEffSyst, doTriggerEffSyst;
+	bool  doMCSmearing;
+	bool  doEscaleSyst, doEresolSyst, doPhotonIdEffSyst, doVtxEffSyst, doR9Syst, doTriggerEffSyst;
+	bool  doEscaleSmear, doEresolSmear, doPhotonIdEffSmear, doVtxEffSmear, doR9Smear, doTriggerEffSmear;
 	float systRange;
 	int   nSystSteps;   
 	int   nEtaCategories, nR9Categories, nPtCategories;
 
+
+	float scale_offset_EBHighR9         ;
+	float scale_offset_EBLowR9          ;
+	float scale_offset_EEHighR9         ;
+	float scale_offset_EELowR9          ;
+	float scale_offset_error_EBHighR9   ;
+	float scale_offset_error_EBLowR9    ;
+	float scale_offset_error_EEHighR9   ;
+	float scale_offset_error_EELowR9    ;
+	float smearing_sigma_EBHighR9       ;
+	float smearing_sigma_EBLowR9        ;
+	float smearing_sigma_EEHighR9       ;
+	float smearing_sigma_EELowR9        ;
+	float smearing_sigma_error_EBHighR9 ;
+	float smearing_sigma_error_EBLowR9  ;
+	float smearing_sigma_error_EEHighR9 ;
+	float smearing_sigma_error_EELowR9  ;
+	
 	TString kfacHist;
 
 	TH1D *thm110,*thm120,*thm130,*thm140;

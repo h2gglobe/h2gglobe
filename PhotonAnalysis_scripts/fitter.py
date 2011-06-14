@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import ROOT
+from sys import argv
 from python.configProducer import *
 import sys
 
@@ -21,6 +22,9 @@ cfg = configProducer(ut,config_file,0)
 ut.LoopAndFillHistos();
 ROOT.gBenchmark.Show("Analysis");
 
+ut.histFileName="histograms_"+ut.histFileName
 ut.WriteFits();  
+ut.WriteHist();  
+ut.WriteCounters();  
 
 
