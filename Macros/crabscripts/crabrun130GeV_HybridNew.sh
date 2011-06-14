@@ -3,8 +3,9 @@
 mkdir outputToy
 echo "max events from CRAB: $MaxEvents"
 n="$MaxEvents"
-./combine model.root -M HybridNew -T $n  --generateNuis=0 --generateExt=1 --fitNuisances=1 --testStat Atlas -D data_mass -m 130 -s -1 -t 1 --generateBinnedWorkaround -S 1 -H ProfileLikelihood --hintStatOnly  --saveHybridResult --saveToys --toysFile HybridToys_mH130.root
+./combine 130GeVmodel.root -M HybridNew -T $n  --generateNuis=0 --generateExt=1 --fitNuisances=1 --testStat Atlas -D data_mass -m 130 -s -1 -t 1 --generateBinnedWorkaround -S 1 -H ProfileLikelihood --hintStatOnly
 rm CMS-HGG.root
-rm model.root
+rm 130GeVmodel.root
 mv *.root outputToy/
+rm *.root
 tar cvfz outputToy.tgz outputToy/
