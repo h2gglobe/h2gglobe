@@ -499,13 +499,13 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
        l.FillHist("pho_n",category+1,l.pho_n, weight);
 
-       if( ( vtxAna_.pho1() +  vtxAna_.pho2() != diphoton_index.first + diphoton_index.second ) || 
-	   ( vtxAna_.pho1() != diphoton_index.first && vtxAna_.pho1() != diphoton_index.second ) )    {
-	       std::cerr << "Mismatch between vertex ID and analysis di-photon "
-			 << "pho_n " << l.pho_n << " pho1_vtx " << vtxAna_.pho1() << " pho2_vtx " << vtxAna_.pho2() << " " 
-			 << "pho1_ana " << diphoton_index.first << " pho2_ana " << diphoton_index.second << " mass " << mass
-			 << std::endl; 
-       }
+       //// if( ( vtxAna_.pho1() +  vtxAna_.pho2() != diphoton_index.first + diphoton_index.second ) || 
+       //// 	   ( vtxAna_.pho1() != diphoton_index.first && vtxAna_.pho1() != diphoton_index.second ) )    {
+       //// 	       std::cerr << "Mismatch between vertex ID and analysis di-photon "
+       //// 			 << "pho_n " << l.pho_n << " pho1_vtx " << vtxAna_.pho1() << " pho2_vtx " << vtxAna_.pho2() << " " 
+       //// 			 << "pho1_ana " << diphoton_index.first << " pho2_ana " << diphoton_index.second << " mass " << mass
+       //// 			 << std::endl; 
+       //// }
        
        // Ouput Text File For Saclay Analysis
        //// f (cur_type == 0)
