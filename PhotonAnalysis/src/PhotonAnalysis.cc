@@ -285,7 +285,7 @@ void PhotonAnalysis::PreselectPhotons(LoopAll& l, int jentry)
 	  
 	  bool isEB = l.pho_isEB[ipho];
 	  float & ecaliso = isEB ? presel_ecaliso_eb : presel_ecaliso_ee;
-	  float & sieie = isEB ? presel_ecaliso_eb : presel_ecaliso_ee;
+	  float & sieie = isEB ? presel_sieie_eb : presel_sieie_ee;
 	  if( l.pho_ecalsumetconedr03[ipho] >= ecaliso ||  l.pho_sieie[ipho] >= sieie || l.pho_hoe[ipho] >= presel_hoe ) {
 	    continue;
 	  }
