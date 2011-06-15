@@ -16,6 +16,8 @@ StatAnalysis::StatAnalysis()  :
 {
 	reRunCiC = false;
 	doMCSmearing = true;
+	massMin = 100.;
+	massMax = 150.;
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -277,7 +279,8 @@ void StatAnalysis::Init(LoopAll& l)
 	// ----------------------------------------------------
 
 	// Create observables for shape-analysis with ranges
-	l.rooContainer->AddObservable("mass" ,100.,150.);
+	// l.rooContainer->AddObservable("mass" ,100.,150.);
+	l.rooContainer->AddObservable("mass" ,massMin,massMax);
 
 	// FIXME, get these numbers from the LoopAll or maybe sampleContainer?
 	l.rooContainer->AddConstant("IntLumi",204.);

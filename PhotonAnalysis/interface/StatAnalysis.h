@@ -50,8 +50,8 @@ public:
 	float systRange;
 	int   nSystSteps;   
 	int   nEtaCategories, nR9Categories, nPtCategories;
-
-
+	float massMin, massMax;
+	
 	float scale_offset_EBHighR9         ;
 	float scale_offset_EBLowR9          ;
 	float scale_offset_EEHighR9         ;

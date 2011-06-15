@@ -1,4 +1,4 @@
-intL=204. histfile=CMS-HGG.root output=shifo.root
+intL=204. histfile=/afs/cern.ch/user/m/musella/Analysis/Higgs_414/src/lip/HiggsToGG/macro/datastore/CMS-HGG/CMS-HGG.root output=shifo.root
 
 ->
 Data
@@ -7,6 +7,8 @@ typ=0    ind=0 draw=1  Nam=Data    CaDir=/castor/cern.ch/user/m/musella/Higgs201
 
 ->
 Signal samples
+->
+
 ->
 typ=-33 ind=1 draw=1  Nam=gluglu_H_gg_140_pu2011 CaDir=/castor/cern.ch/user/m/musella/Higgs2011/globe_V08_00_red_v1/Summer11/GluGluToHToGG_M-140 tot=109995 red=0 lum=1000.000000 xsec=0.023532 kfac=1.000000  scal=1.000000
 typ=-34 ind=2 draw=1  Nam=vbf_H_gg_140_pu2011 CaDir=/castor/cern.ch/user/m/musella/Higgs2011/globe_V08_00_red_v1/Summer11/VBF_HToGG_M-140 tot=109836 red=0 lum=1000.000000 xsec=0.002041 kfac=1.000000  scal=1.000000
@@ -36,6 +38,7 @@ typ=-13 ind=21 draw=1  Nam=gluglu_H_gg_105_pu2011 CaDir=/castor/cern.ch/user/m/m
 typ=-14 ind=22 draw=1  Nam=vbf_H_gg_105_pu2011 CaDir=/castor/cern.ch/user/m/musella/Higgs2011/globe_V08_00_red_v1/Summer11//VBF_HToGG_M-105 tot=109831 red=0 lum=1000.000000 xsec=0.002620 kfac=1.000000  scal=1.000000
 typ=-16 ind=23 draw=1  Nam=wz_H_gg_105_pu2011 CaDir=/castor/cern.ch/user/m/musella/Higgs2011/globe_V08_00_red_v1/Summer11//WH_ZH_HToGG_M-105 tot=110000 red=0 lum=1000.000000 xsec=0.002782 kfac=1.000000  scal=1.000000
 typ=-15 ind=24 draw=1  Nam=tt_H_gg_105_pu2011 CaDir=/castor/cern.ch/user/m/musella/Higgs2011/globe_V08_00_red_v1/Summer11//TTH_HToGG_M-105 tot=22000 red=0 lum=1000.000000 xsec=0.000255 kfac=1.000000  scal=1.000000
+->
 
 ->
 typ=-9 ind=25 draw=1  Nam=gluglu_H_gg_100_pu2011 CaDir=/castor/cern.ch/user/m/musella/Higgs2011/globe_V08_00_red_v1/Summer11//GluGluToHToGG_M-100 tot=109993 red=0 lum=1000.000000 xsec=0.038192 kfac=1.000000  scal=1.000000

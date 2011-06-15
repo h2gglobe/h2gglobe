@@ -22,9 +22,11 @@ cfg = configProducer(ut,config_file,0)
 ut.LoopAndFillHistos();
 ROOT.gBenchmark.Show("Analysis");
 
-ut.histFileName="histograms_"+ut.histFileName
 ut.WriteFits();  
+
+ut.histFileName="histograms_"+ut.histFileName
 ut.WriteHist();  
 ut.WriteCounters();  
 
 
+ROOT.gROOT.Reset()
