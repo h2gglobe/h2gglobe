@@ -38,7 +38,8 @@ public:
   void name(const std::string & x) { name_ = x; };
 
   void setEffName(std::string x) { effName_ =x; };
-  void doPhoId(bool x) { doPhoId_ = true; };
+  void doPhoId(bool x) { doPhoId_ =x; };
+  void doR9(bool x)    { doR9_    =x; };
 
   bool init();
 
@@ -52,7 +53,7 @@ public:
   std::string   name_;
   TRandom3     *rgen_;
   std::string   effName_;
-  bool doPhoId_;
+  bool doPhoId_, doR9_;
   TFile        *theEfficiencyFile_; 
   std::map<std::string,TGraphAsymmErrors*> smearing_eff_graph_;
 };

@@ -3,7 +3,7 @@
 #include "TRandom3.h"
 #include <assert.h>
 
-EfficiencySmearer::EfficiencySmearer(const efficiencySmearingParameters& par) : myParameters_(par), doPhoId_(false)
+EfficiencySmearer::EfficiencySmearer(const efficiencySmearingParameters& par) : myParameters_(par), doPhoId_(false), doR9_(false)
 {
   rgen_ = new TRandom3(0);
   name_="EfficiencySmearer_"+ par.categoryType + "_" + par.parameterSetName;
@@ -59,6 +59,13 @@ bool EfficiencySmearer::smearPhoton(PhotonReducedInfo & aPho, float & weight, fl
   assert( !smearing_eff_graph_.empty() );
   if( ! doPhoId_ || aPho.passId() ) {
 	  weight = getWeight( ( aPho.energy() / cosh(aPho.caloPosition().PseudoRapidity()) ) ,category, syst_shift);
+  }
+
+  // since R9 is not a selection variable BUT a categorization variable
+  // introduce correlation between weights assigned to R9 and to !R9
+  if( doR9_ )   {
+    if    ( aPho.r9()>0.94 )  weight =     getWeight( ( aPho.energy() / cosh(aPho.caloPosition().PseudoRapidity()) ) ,category, syst_shift);
+    else                      weight = -1* getWeight( ( aPho.energy() / cosh(aPho.caloPosition().PseudoRapidity()) ) ,category, syst_shift);
   }
   
   return true;
