@@ -41,7 +41,7 @@ doVtxEffSmear=1
 doTriggerEffSmear=1
 doTriggerEffSyst=1
 
-doR9Smear=0
+doR9Smear=1
 doR9Syst=1
 
 ->
