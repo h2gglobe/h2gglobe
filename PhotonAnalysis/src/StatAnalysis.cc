@@ -198,6 +198,7 @@ void StatAnalysis::Init(LoopAll& l)
 		idEffSmearer->name("idEff");
 		idEffSmearer->setEffName("ratioTP");
 		idEffSmearer->init();
+		idEffSmearer->doPhoId(true);
 		photonSmearers_.push_back(idEffSmearer);
 	}
 	if( doR9Smear ) {
@@ -206,7 +207,8 @@ void StatAnalysis::Init(LoopAll& l)
 		r9Smearer->name("r9Eff");
 		r9Smearer->setEffName("ratioR9");
 		r9Smearer->init();
-		photonSmearers_.push_back(r9Smearer);   // Keep R9 re-weighting correction temporarily off, while we establish which numbers are to be used
+		r9Smearer->doR9(true);
+		photonSmearers_.push_back(r9Smearer);
 	}
 	if( doVtxEffSmear ) {
 		// Vertex ID
