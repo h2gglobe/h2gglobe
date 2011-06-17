@@ -2,7 +2,8 @@
 #1 Working Directory
 #2 Mass
 cd $1
-ODIR=$1/HybridNew
+ODIR=$1
+cd ..
 if [ ! -d $ODIR ]; then
 	mkdir $ODIR
 fi
