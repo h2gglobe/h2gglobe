@@ -606,13 +606,13 @@ void LoopAll::FillCICInputs()
 	pho_tkiso_recvtx_030_002_0000_10_01->clear(); pho_tkiso_recvtx_030_002_0000_10_01->resize(pho_n,std::vector<float>(vtx_std_n,0.));
 	
 	for(int ipho=0;ipho<pho_n;++ipho){
-		TLorentzVector * phop4 = (TLorentzVector*)pho_p4->At(ipho);
-		pho_tkiso_badvtx_040_002_0000_10_01[ipho] = WorstSumTrackPtInCone(phop4, 0,0, 0.40, 0.02, 0.0, 1.0, 0.1);
+		// TLorentzVector * phop4 = (TLorentzVector*)pho_p4->At(ipho);
+		pho_tkiso_badvtx_040_002_0000_10_01[ipho] = WorstSumTrackPtInCone(ipho, 0,0, 0.40, 0.02, 0.0, 1.0, 0.1);
 		pho_drtotk_25_99[ipho] = DeltaRToTrack(ipho, vtx_std_sel, 2.5, 99.);
 		
 		for(int ivtx=0;ivtx<vtx_std_n;++ivtx) {
 			TLorentzVector p4 = get_pho_p4( ipho, ivtx );
-			(*pho_tkiso_recvtx_030_002_0000_10_01)[ipho][ivtx] = SumTrackPtInCone(phop4, ivtx, 0, 0.30, 0.02, 0.0, 1.0, 0.1);
+			(*pho_tkiso_recvtx_030_002_0000_10_01)[ipho][ivtx] = SumTrackPtInCone(&p4, ivtx, 0, 0.30, 0.02, 0.0, 1.0, 0.1);
 		}
 	}
 }
@@ -1296,7 +1296,7 @@ Float_t LoopAll::DeltaRToTrack(Int_t photonind, Int_t vtxind, Float_t PtMin, Flo
   TLorentzVector * photon_p4 = (TLorentzVector*)pho_p4->At(photonind);
   TVector3 * photon_calopos = (TVector3*)pho_calopos->At(photonind);
   for(int iel=0;iel!=el_std_n;++iel) {
-    if(el_std_hp_expin[iel]>maxlosthits)continue;
+    if(el_std_hp_expin[iel]>maxlosthits || ((TLorentzVector*)el_std_p4->At(iel))->Pt()<PtMin )continue;
     if(el_std_scind[iel] == pho_scind[photonind]) {
       elind = iel;
       break;
@@ -1340,12 +1340,13 @@ Float_t LoopAll::IsoEcalHitsSumEtNumCrystal( TVector3 *calopos, Float_t innerCon
 
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
-Float_t LoopAll::WorstSumTrackPtInCone(TLorentzVector *photon_p4, Int_t returnvtxind, Float_t PtMin, Float_t OuterConeRadius, Float_t InnerConeRadius, Float_t EtaStripHalfWidth, Float_t dzmax, Float_t dxymax) {
+Float_t LoopAll::WorstSumTrackPtInCone(Int_t ipho, Int_t returnvtxind, Float_t PtMin, Float_t OuterConeRadius, Float_t InnerConeRadius, Float_t EtaStripHalfWidth, Float_t dzmax, Float_t dxymax) {
 
   Int_t worstvtxind = -1;
   Float_t maxisosum = -100;
   for(int ivtx=0;ivtx!=vtx_std_n;++ivtx) {
-    Float_t thisvtxisosum = SumTrackPtInCone(photon_p4, ivtx, PtMin, OuterConeRadius, InnerConeRadius, EtaStripHalfWidth, dzmax, dxymax);
+    TLorentzVector photon_p4 = get_pho_p4( ipho, ivtx );
+    Float_t thisvtxisosum = SumTrackPtInCone(&photon_p4, ivtx, PtMin, OuterConeRadius, InnerConeRadius, EtaStripHalfWidth, dzmax, dxymax);
     if(thisvtxisosum > maxisosum) {
       maxisosum = thisvtxisosum;
       worstvtxind = ivtx;
