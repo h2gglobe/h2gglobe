@@ -3,11 +3,6 @@
 leadEtCut=40.0
 subleadEtCut=30.0
 
-->
-massMin=115.
-massMax=165.
-->
-
 massMin=100.
 massMax=150.
 
@@ -16,7 +11,7 @@ nR9Categories=2
 nPtCategories=2
 
 doTriggerSelection=1
-reRunCiC=1
+reRunCiC=0
 
 ->
 Turn on-off all smearings 

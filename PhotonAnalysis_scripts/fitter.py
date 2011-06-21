@@ -24,7 +24,11 @@ ROOT.gBenchmark.Show("Analysis");
 
 ut.WriteFits();  
 
-ut.histFileName="histograms_"+ut.histFileName
+if "/" in str(ut.histFileName):
+    path,name = str(ut.histFileName).rsplit("/",1)
+    ut.histFileName=path+"/histograms_"+name
+else:
+    ut.histFileName="histograms_"+ut.histFileName
 ut.WriteHist();  
 ut.WriteCounters();  
 

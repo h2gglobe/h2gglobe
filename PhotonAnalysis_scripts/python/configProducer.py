@@ -307,6 +307,7 @@ class configProducer:
       name,val = struct_name.split("=")
       t = type( struct.__getattribute__(name) )
       struct.__setattr__(name, t(val) )
+      print "%s.%s = %s" % ( struct.__name__, name, str(val) )
       return
 
     # otherwise it is complex structure
@@ -341,6 +342,7 @@ class configProducer:
 	    if ".root" in val and not "/castor" in val and not os.path.isfile(val): sys.exit("No File found - %s, check the line %s"%(val,line))
             t = type( struct.__getattribute__(name) )
             struct.__setattr__(name, t(val) )
+            print "%s = %s" % ( name, str(struct.__getattribute__(name)) )
           except AttributeError:
             sys.exit( "Error: unkown attribute: %s\nline: %s\n%s" % ( name, line, struct ) )
           except ValueError, e:
@@ -378,6 +380,7 @@ class configProducer:
     sl.pop(0)
     name = sl.pop(0)
     analyzer = ROOT.__getattr__(name)()
+    print "Loading analyzer %s " % name
     self.ut_.AddAnalysis( analyzer )
     for config in sl:
         try:
@@ -387,7 +390,8 @@ class configProducer:
                 self.read_struct(config,analyzer)
         except Exception, e:
             sys.exit("Unable to read analyzer %s at line:\n\n%s\n%s"% (name, line, e) )
-
+    print "Loaded analyzer %s " % name
+    
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def read_output_file(self,line):
     split_line = line.split()

@@ -1117,7 +1117,8 @@ std::pair<int,int> LoopAll::DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL, ph
   std::vector<std::vector<bool> > ph_passcut;
   for(int ipho=0;ipho!=pho_n;++ipho) {
     TLorentzVector * iphop4 = (TLorentzVector*)pho_p4_array->At(ipho);
-    float scEta = fabs(((TVector3 *)pho_calopos->At(ipho))->Eta());
+    /// float scEta = fabs(((TVector3 *)pho_calopos->At(ipho))->Eta());
+    float scEta = fabs(((TVector3 *)sc_xyz->At(pho_scind[ipho]))->Eta());
     if(iphop4->Et() < leadPtMin || scEta > 2.5 || ( scEta > 1.4442 && scEta < 1.566 ) )continue;
 
     if(PhotonCiCSelectionLevel(ipho, ph_passcut, ncategories, 0) < LEADCUTLEVEL)continue;
@@ -1125,7 +1126,8 @@ std::pair<int,int> LoopAll::DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL, ph
     for(int iipho=0;iipho!=pho_n;++iipho) {
       if(iipho == ipho)continue;
       TLorentzVector * iiphop4 = (TLorentzVector*)pho_p4_array->At(iipho);
-      float iiscEta = fabs(((TVector3 *)pho_calopos->At(iipho))->Eta());
+      /// float iiscEta = fabs(((TVector3 *)pho_calopos->At(iipho))->Eta());
+      float iiscEta = fabs(((TVector3 *)sc_xyz->At(pho_scind[iipho]))->Eta());
       if(iiphop4->Et() < subleadPtMin || iiscEta > 2.5 || ( iiscEta > 1.4442 && iiscEta < 1.566 ) )continue;
       if(iiphop4->Et() > iphop4->Et())continue;
       float m_gamgam = (*iphop4+*iiphop4).M();

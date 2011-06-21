@@ -425,7 +425,8 @@ void RooContainer::InputSystematicSet(std::string s_name, std::string sys_name, 
   if (x.size() != 2*nsigmas){
     std::cerr << "WARNING -- RooContainer::InputSystematicSet -- Size of vector must be equal to "
 	      << 2*nsigmas << " -- WARNING" << std::endl;
-    return;	
+    assert(0);
+    // return;	
   }
 
   else{
@@ -437,8 +438,9 @@ void RooContainer::InputSystematicSet(std::string s_name, std::string sys_name, 
   
 	if (cat>-1 && cat<ncat) {
 
-	  int ishift = istep - nsigmas;
-	  if (ishift==0) ishift++;
+	  /// int ishift = istep - nsigmas;
+	  /// if (ishift==0) ishift++;
+	  int ishift = istep < nsigmas ? istep - nsigmas : istep - nsigmas + 1;
 
 	  std::string cat_name = getcatName(s_name,cat);
 	  std::string name = getsysindexName( cat_name, sys_name, abs(ishift), (ishift > 0 ? 1 : -1) );

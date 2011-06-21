@@ -18,6 +18,9 @@ StatAnalysis::StatAnalysis()  :
 	doMCSmearing = true;
 	massMin = 100.;
 	massMax = 150.;
+
+	systRange  = 1.; // in units of sigma
+	nSystSteps = 1;    
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -235,8 +238,9 @@ void StatAnalysis::Init(LoopAll& l)
 
 	// FIXME move these params to config file
 	l.rooContainer->SetNCategories(nCategories_);
-	systRange  = 1.; // in units of sigma
-	nSystSteps = 3;    
+	l.rooContainer->nsigmas = nSystSteps;
+	// RooContainer does not support steps different from 1 sigma
+	assert( ((float)nSystSteps) == systRange );
 
 	if( doEscaleSmear && doEscaleSyst ) {
 		systPhotonSmearers_.push_back( eScaleSmearer );
@@ -405,14 +409,16 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     }
    }
 
-   ////// // FIXME: test event selection w/o conversions.
-   ////// // REMOVE IT
-   ////// vtxAna_.preselection( *l.vtx_std_ranked_list );
-   ////// l.vtx_std_sel = vtxAna_.rankprod(vtxVarNames)[0];
-   ////// for(int ipho=0; ipho<l.pho_n; ++ipho) {
-   ////// 	   l.set_pho_p4(ipho, l.vtx_std_sel);
-   ////// }
-   ////// /// UP TO HERE
+   // ////// // FIXME: test event selection w/o conversions.
+   // ////// // REMOVE IT
+   // ////// vtxAna_.preselection( *l.vtx_std_ranked_list );
+   // ////// l.vtx_std_sel = vtxAna_.rankprod(vtxVarNames)[0];
+   // l.vtx_std_sel = 0;
+   // /// l.rho = 0.;
+   // for(int ipho=0; ipho<l.pho_n; ++ipho) {
+   // 	   l.set_pho_p4(ipho, l.vtx_std_sel);
+   // }
+   // ////// /// UP TO HERE
 
    if (cur_type == -13)      weight*=GetDifferentialKfactor(gPT,105);
    else if (cur_type == -17) weight*=GetDifferentialKfactor(gPT,110);
@@ -519,9 +525,9 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
        ////  SaclayText << Form("typ=%d weight=%f category=%d mass=%f ptH=%f ptLEAD=%f ptSUBLEAD=%f",cur_type,evweight,category,mass,ptHiggs,lead_p4->Pt(),sublead_p4->Pt())<<endl;
        SaclayText << setprecision(4) <<  "Run = " << l.run << "  LS = " << l.lumis << "  Event = " << l.event << "  SelVtx = " << l.vtx_std_sel << "  CAT4 = " << category % 4
 		  << "  ggM = " << mass << " gg_Pt =  " << ptHiggs;
-       for(int ii=0; ii<l.vtx_std_n; ++ii ) {
-	       SaclayText << " vtx " << ii << " = ( " << vtxAna_.ptbal(ii) << " , " << vtxAna_.ptasym(ii) << " , " << vtxAna_.logsumpt2(ii) << " )"; 
-       }
+       /// for(int ii=0; ii<l.vtx_std_n; ++ii ) {
+       /// 	       SaclayText << " vtx " << ii << " = ( " << vtxAna_.ptbal(ii) << " , " << vtxAna_.ptasym(ii) << " , " << vtxAna_.logsumpt2(ii) << " )"; 
+       /// }
        SaclayText << endl;
        
        // --------------------------------------------------------------------------------------------- 
@@ -582,7 +588,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		       std::vector<double> weights;
 		       std::vector<int> categories;
 		       
-		       for(float syst_shift=-systRange; syst_shift<=systRange; syst_shift+=systRange ) { 
+		       for(float syst_shift=-systRange; syst_shift<=systRange; syst_shift+=systStep ) { 
 			       if( syst_shift == 0. ) { continue; } // skip the central value
 			       TLorentzVector Higgs = *lead_p4 + *sublead_p4; 	
 			       
@@ -635,7 +641,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	   std::vector<int> categories;
 	   
 	   // loop over syst shift
-	   for(float syst_shift=-systRange; syst_shift<=systRange; syst_shift+=systRange ) { 
+	   for(float syst_shift=-systRange; syst_shift<=systRange; syst_shift+=systStep ) { 
 	       if( syst_shift == 0. ) { continue; } // skip the central value
 	       // smear the photons 
 	       for(int ipho=0; ipho<l.pho_n; ++ipho ) { 
