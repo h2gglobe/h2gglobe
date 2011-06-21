@@ -6,18 +6,21 @@ vtxAlgoParams vertex_selection.dat
 ->
 Preselection cuts
 ->
-presel_scet1=35
-presel_scet2=25
+presel_scet1=35.
+presel_scet2=25.
 presel_maxeta=2.5
 
 ->
 selection of the di-photon pair to use for vertex analysis
 ->
-presel_ecaliso_eb=10.
-presel_ecaliso_ee=10.
+presel_ecaliso_eb=20.
+presel_ecaliso_ee=20.
 presel_sieie_eb=0.013
 presel_sieie_ee=0.03
 presel_hoe=0.15
+
+forcedRho=0.
+useDefaultVertex=1
 
 ->
 track isolation (re-)computation

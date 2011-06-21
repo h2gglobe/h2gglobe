@@ -86,7 +86,6 @@ pho_trksumpthollowconedr03
 pho_ntrksolidconedr03
 pho_ntrkhollowconedr03
 pho_barrel
-pho_scind
 pho_haspixseed
 pho_hasconvtks
 pho_nconv
@@ -122,6 +121,8 @@ pho_conv_vtx
 pho_conv_pair_momentum
 pho_conv_refitted_momentum
 pho_conv_vertexcorrected_p4
+pho_scind
+sc_xyz
 ->
 All Conversions
 ->
