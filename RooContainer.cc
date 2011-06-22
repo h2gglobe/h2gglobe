@@ -686,15 +686,18 @@ void RooContainer::WriteDataCard(std::string filename,std::string data_name
      file <<endl;
    }
 
+  
+    
+   double sigmaUnitInv = 1./(sigmaRange/nsigmas);
    for (it_sys=systematics_.begin(); it_sys!=systematics_.end();it_sys++){ 
     
      file << it_sys->first << " shape  ";
      if (it_sys->second == 0) // both background and signal effected
-      for (int cat=0;cat<ncat;cat++) file << " 1 1";
+      for (int cat=0;cat<ncat;cat++) file << sigmaUnitInv<< " " << sigmaUnitInv<< " ";
      else if (it_sys->second == -1) // signal effected
-      for (int cat=0;cat<ncat;cat++) file << " 1 0";
+      for (int cat=0;cat<ncat;cat++) file << sigmaUnitInv <<" 0 ";
      else if (it_sys->second == 1) // background effected
-      for (int cat=0;cat<ncat;cat++) file << " 0 1";
+      for (int cat=0;cat<ncat;cat++) file << " 0 "<<sigmaUnitInv;
      file << endl;
    }
 
@@ -1364,7 +1367,8 @@ void RooContainer::generateBinnedPdf(int catNo,std::string hist_nocat_name,std::
     // this row in evec is the scales for the parameters
     cout << "Systematic from parameter "<< par << endl;
 
-    double err = TMath::Sqrt(eval[par]);
+    double sigmaUnit = sigmaRange/nsigmas;
+    double err = sigmaUnit*TMath::Sqrt(eval[par]);
     // If mode was 1 then the same data as was used in the fit is used in setting the limit  (ie need underconstrain)
     // if mode was 0 then we are assuming this fit is an EXTERNAL constraint to the errors from the fit must be included
     if (mode) err*=3.;  // cant go too high for fear of <ve pdfs

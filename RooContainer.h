@@ -97,6 +97,7 @@ class RooContainer {
    
    int ncat;
    int nsigmas;
+   float sigmaRange;
    bool make_systematics;
 
   private:
