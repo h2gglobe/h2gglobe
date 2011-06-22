@@ -75,8 +75,6 @@ public:
 	int nMasses;
 
 protected:
-	void PreselectPhotons(LoopAll& l, int jentry);
-
 	std::vector<BaseSmearer *> photonSmearers_;
 	std::vector<BaseSmearer *> systPhotonSmearers_;
 	std::vector<BaseDiPhotonSmearer *> diPhotonSmearers_;

@@ -17,6 +17,8 @@ PhotonAnalysis::PhotonAnalysis()  :
 	name_("PhotonAnalysis"),
 	vtxAna_(vtxAlgoParams), vtxConv_(vtxAlgoParams)
 {
+	useDefaultVertex=false;
+	forcedRho = -1.;
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -38,15 +40,6 @@ void PhotonAnalysis::Init(LoopAll& l)
 	}
 	
 	/// // trigger
-	/// triggerSelections.push_back(TriggerSelection(-1,147116));
-	/// triggerSelections.back().addpath("HLT_DoublePhoton15_L1R");
-	/// triggerSelections.push_back(TriggerSelection(146428,148058));
-	/// triggerSelections.back().addpath("HLT_DoublePhoton17_L1R");
-	/// triggerSelections.push_back(TriggerSelection(148822,149294));
-	/// triggerSelections.back().addpath("HLT_DoublePhoton22_L1R_v1");
-	/// triggerSelections.push_back(TriggerSelection(160000,-1));
-	/// triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v");
-
 	triggerSelections.push_back(TriggerSelection(160404,161176));
 	triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v");
 	triggerSelections.push_back(TriggerSelection(161216,165087));
@@ -55,9 +48,6 @@ void PhotonAnalysis::Init(LoopAll& l)
 	triggerSelections.push_back(TriggerSelection(165088,-1));
 	triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v");
 	triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_R9Id_v");
-
-	/// trigCounter_ = l.countersred.size();
-	/// l.countersred.resize(trigCounter_+1);
 
 	// CiC initialization
 	// FIXME should move this to GeneralFunctions
@@ -111,23 +101,6 @@ void PhotonAnalysis::Init(LoopAll& l)
 	if (l.typerun == 2 || l.typerun == 1) {
 	}
   
-	if (runStatAnalysis) {  
-		/*
-		  rooContainer->AddRealVar("mass",50.,250.);
-		  rooContainer->AddRealVar("mu",-0.04,-1.,-0.001);
-		  
-		  // -------------------------------------//
-		  std::vector<const char*> pars(2,"t");	 
-		  pars[0] = "mass";
-		  pars[1] = "mu";
-		  // -------------------------------------//
-		  rooContainer->AddGenericPdf("exp",
-		  "exp((@0)*(@1))",pars,10);
-		  
-		  rooContainer->CreateDataSet("mass");
-		*/
-	}
-
     /* -------------------------------------------------------------------------------------------
     Pileup Reweighting
     https://twiki.cern.ch/twiki/bin/viewauth/CMS/PileupReweighting
@@ -199,9 +172,9 @@ void PhotonAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
 	if( pho_acc.size() < 2 || pho_sc_et[ pho_acc[0] ] < presel_scet1 ) return;
 
-        std::pair<int,int> diphoton_index;
         int leadLevel=LoopAll::phoSUPERTIGHT, subLevel=LoopAll::phoSUPERTIGHT;
-        diphoton_index = l.DiphotonCiCSelection((LoopAll::phoCiCIDLevel) leadLevel, (LoopAll::phoCiCIDLevel) subLevel, 40.0, 30.0, 4, false);
+        int dipho_id = l.DiphotonCiCSelection((LoopAll::phoCiCIDLevel) leadLevel, (LoopAll::phoCiCIDLevel) subLevel, 40.0, 30.0, 4, false);
+        std::pair<int,int> diphoton_index = std::make_pair(l.dipho_leadind[dipho_id],l.dipho_subleadind[dipho_id]);
 
         if (diphoton_index.first > -1 && diphoton_index.second > -1){
           TLorentzVector *lead_p4 = (TLorentzVector*)l.pho_p4->At(diphoton_index.first);
@@ -266,17 +239,17 @@ void PhotonAnalysis::PreselectPhotons(LoopAll& l, int jentry)
 		  (*l.pho_matchingConv).push_back(l.matchPhotonToConversion(ipho));
 	  else
 		  (*l.pho_matchingConv).push_back(-1);
-	  
 
-
-	  TLorentzVector * p4 = (TLorentzVector *) l.pho_p4->At(ipho);
-	  float eta  = fabs(((TVector3 *) l.pho_calopos->At(ipho))->Eta());
-	  // photon et wrt 0,0,0
-	  float et = p4->Energy() / cosh(eta);
-	  pho_sc_et.push_back(et);
+	  // TLorentzVector * p4 = (TLorentzVector *) l.pho_p4->At(ipho);
+	  TLorentzVector p4 = l.get_pho_p4(ipho,0);
+	  // float eta  = fabs(((TVector3 *) l.pho_calopos->At(ipho))->Eta());
+	  float eta = fabs(((TVector3 *)l.sc_xyz->At(l.pho_scind[ipho]))->Eta());
+ 	  // photon et wrt 0,0,0
+	  float sc_et = p4.Energy() / cosh(eta);
+	  pho_sc_et.push_back(sc_et);
 	  /// std::cerr << " " << p4->Pt() << " " << et << " " << eta;
 	  
-	  if( et < presel_scet2 || (eta>1.4442 && eta<1.566) || eta>presel_maxeta ) { 
+	  if( p4.Pt() < presel_scet2 || (eta>1.4442 && eta<1.566) || eta>presel_maxeta ) { 
 		  /// std::cerr << std::endl;
 	    continue;  
 	  }
@@ -289,26 +262,24 @@ void PhotonAnalysis::PreselectPhotons(LoopAll& l, int jentry)
 	  if( l.pho_ecalsumetconedr03[ipho] >= ecaliso ||  l.pho_sieie[ipho] >= sieie || l.pho_hoe[ipho] >= presel_hoe ) {
 	    continue;
 	  }
-	  
           
 	  //FIXME trigger matching
 	  pho_presel.push_back(ipho);
 	} 
 
-	// sort preslected photons by et
 	std::sort(pho_acc.begin(),pho_acc.end(),
-		  SimpleSorter<float,std::greater<float> >(&pho_sc_et[0]));
+		  ClonesSorter<TLorentzVector,double,std::greater<double> >(l.pho_p4,&TLorentzVector::Pt));
 	std::sort(pho_presel.begin(),pho_presel.end(),
-		  SimpleSorter<float,std::greater<float> >(&pho_sc_et[0]));
+		  ClonesSorter<TLorentzVector,double,std::greater<double> >(l.pho_p4,&TLorentzVector::Pt));
 
 	if( pho_presel.size() > 1 ) {
 		for(size_t ipho=0; ipho<pho_presel.size()-1; ++ipho ) {
-			assert( pho_sc_et[pho_presel[ipho]] >= pho_sc_et[pho_presel[ipho+1]] );
+			assert( ((TLorentzVector *)l.pho_p4->At(pho_presel[ipho]))->Pt() >= ((TLorentzVector *)l.pho_p4->At(pho_presel[ipho+1]))->Pt() );
 		}
 	}
 	if( pho_acc.size()>1 ) {
 		for(size_t ipho=0; ipho<pho_acc.size()-1; ++ipho ) {
-			assert( pho_sc_et[pho_acc[ipho]] >= pho_sc_et[pho_acc[ipho+1]] );
+			assert( ((TLorentzVector *)l.pho_p4->At(pho_acc[ipho]))->Pt() >= ((TLorentzVector *)l.pho_p4->At(pho_acc[ipho+1]))->Pt() );
 		}
 	}
 	
@@ -333,46 +304,113 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
 
 	if(PADEBUG)  cout << " ****************** SelectEventsReduction " << endl;
 	// require at least two reconstructed photons to store the event
-	if( pho_acc.size() < 2 || pho_sc_et[ pho_acc[0] ] < presel_scet1 ) { return false; }
+	if( pho_acc.size() < 2 || l.get_pho_p4( pho_acc[0], 0 ).Pt() < presel_scet1 ) { return false; }
 	
-	int ipho1 = pho_acc[0];
-	int ipho2 = pho_acc[1];
+	///// int ipho1 = pho_acc[0];
+	///// int ipho2 = pho_acc[1];
+	///// 
+	///// if( pho_presel.size() > 1 ) { 
+	///// 	// use the first two preselected photons for the vertex algorithm
+	///// 	ipho1 = pho_presel[0]; 
+	///// 	ipho2 = pho_presel[1]; 
+	///// } else if(pho_presel.size() > 0 ) {
+	///// 	// if only one photon was preselected use the highest preselected and the higest non preselect photons 
+	///// 	//    the event will be discarded by the analysis anyway
+	///// 	ipho1 = pho_presel[0]; 
+	///// 	ipho2 = pho_acc[0] == ipho1 ? pho_acc[1] : pho_acc[0]; 
+	///// }
+	///// assert( ipho1 != ipho2 );
+	///// vtxAna_.clear();
+	///// 
+	///// if(PADEBUG)        cout << " SelectEventsReduction going to fill photon info " << endl;
+	///// PhotonInfo pho1=l.fillPhotonInfos(ipho1,vtxAlgoParams.useAllConversions);
+        ///// PhotonInfo pho2=l.fillPhotonInfos(ipho2,vtxAlgoParams.useAllConversions);
+        ///// if(PADEBUG) cout << " SelectEventsReduction done with fill photon info " << endl;
+	///// 
+        ///// // run vertex analysis
+	///// l.vertexAnalysis(vtxAna_, pho1, pho2 );
+        ///// // select vertex
+	///// if( useDefaultVertex ) {
+	///// 	l.vtx_std_ranked_list->clear();
+	///// 	for(int ii=0;ii<l.vtx_std_n; ++ii) { l.vtx_std_ranked_list->push_back(ii); }
+	///// } else {
+	///// 	*l.vtx_std_ranked_list = l.vertexSelection(vtxAna_, vtxConv_, pho1, pho2, vtxVarNames);
+	///// 	if( l.vtx_std_ranked_list->size() != 0 ) {  
+	///// 		l.vtx_std_sel = (*l.vtx_std_ranked_list)[0];
+	///// 	} else {
+	///// 		l.vtx_std_sel = 0;
+	///// 		std::cerr << "NO VERTEX SELECTED " << l.event << " " << l.run << " " << std::endl;
+	///// 	}
+	///// 	// update the photons' pt
+	///// 	for(int ipho=0; ipho<l.pho_n; ++ipho) {
+	///// 		l.set_pho_p4(ipho, l.vtx_std_sel);
+	///// 	}
+	///// }
 	
-	if( pho_presel.size() > 1 ) { 
-		// use the first two preselected photons for the vertex algorithm
-		ipho1 = pho_presel[0]; 
-		ipho2 = pho_presel[1]; 
-	} else if(pho_presel.size() > 0 ) {
-		// if only one photon was preselected use the highest preselected and the higest non preselect photons 
-		//    the event will be discarded by the analysis anyway
-		ipho1 = pho_presel[0]; 
-		ipho2 = pho_acc[0] == ipho1 ? pho_acc[1] : pho_acc[0]; 
-	}
-	assert( ipho1 != ipho2 );
+	vtxAna_.clear();
+	l.vtx_std_ranked_list->clear();
+	l.dipho_vtx_std_sel->clear();
+	l.vtx_std_ranked_list->clear();
+	l.vtx_std_sel=0;
+	float maxSumPt = 0.;
+	l.dipho_n = 0;
 
-	if(PADEBUG)        cout << " SelectEventsReduction going to fill photon info " << endl;
-	PhotonInfo pho1=l.fillPhotonInfos(ipho1,vtxAlgoParams.useAllConversions);
-        PhotonInfo pho2=l.fillPhotonInfos(ipho2,vtxAlgoParams.useAllConversions);
-        if(PADEBUG) cout << " SelectEventsReduction done with fill photon info " << endl;
-
-        // run vertex analysis
-	l.vertexAnalysis(vtxAna_, pho1, pho2 );
-        // select vertxe
-	*l.vtx_std_ranked_list = l.vertexSelection(vtxAna_, vtxConv_, pho1, pho2, vtxVarNames);
-	if( l.vtx_std_ranked_list->size() != 0 ) {  
-		l.vtx_std_sel = (*l.vtx_std_ranked_list)[0];
-	} else {
-		l.vtx_std_sel = 0;
-		std::cerr << "NO VERTEX SELECTED " << l.event << " " << l.run << " " << std::endl;
-	}
-	// update the photons' pt
-	for(int ipho=0; ipho<l.pho_n; ++ipho) {
-		l.set_pho_p4(ipho, l.vtx_std_sel);
-	}
-	
 	// fill ID variables
+	if( forcedRho >= 0. ) {
+		l.rho = forcedRho;
+	}
 	l.FillCICInputs();
 	l.FillCIC();
+
+	if( pho_presel.size() < 2 ) {
+		l.vtx_std_ranked_list->push_back( std::vector<int>() );
+		for(int ii=0;ii<l.vtx_std_n; ++ii) { l.vtx_std_ranked_list->back().push_back(ii); }
+		l.vtx_std_sel = 0;
+	} else {
+		// fully combinatorial vertex selection
+		std::vector<std::pair<int,int> > diphotons;
+		for(size_t ip=0; ip<pho_presel.size(); ++ip) {
+			for(size_t jp=ip+1; jp<pho_presel.size(); ++jp) {
+				diphotons.push_back( std::make_pair( pho_presel[ip], pho_presel[jp] ) );
+			}
+		}
+		for(size_t id=0; id<diphotons.size(); ++id ) {
+			
+			int ipho1 = diphotons[id].first;
+			int ipho2 = diphotons[id].second;
+			
+			if(PADEBUG)        cout << " SelectEventsReduction going to fill photon info " << endl;
+			PhotonInfo pho1=l.fillPhotonInfos(ipho1,vtxAlgoParams.useAllConversions);
+			PhotonInfo pho2=l.fillPhotonInfos(ipho2,vtxAlgoParams.useAllConversions);
+			if(PADEBUG) cout << " SelectEventsReduction done with fill photon info " << endl;
+			
+			l.vertexAnalysis(vtxAna_, pho1, pho2 );
+			// make sure that vertex analysis indexes are in synch 
+			assert( id == vtxAna_.pairID(ipho1,ipho2) );
+			
+			l.vtx_std_ranked_list->push_back( l.vertexSelection(vtxAna_, vtxConv_, pho1, pho2, vtxVarNames) );
+			if( l.vtx_std_ranked_list->back().size() != 0 && ! useDefaultVertex ) {  
+				l.dipho_vtx_std_sel->push_back( (l.vtx_std_ranked_list)->back()[0] );
+			} else {
+				l.dipho_vtx_std_sel->push_back(0);
+				std::cerr << "NO VERTEX SELECTED " << l.event << " " << l.run << " " << diphotons[id].first << " " << diphotons[id].second << std::endl;
+			}
+			l.dipho_n = id+1;
+			l.dipho_leadind[id] = diphotons[id].first;
+			l.dipho_subleadind[id] = diphotons[id].second;
+			l.dipho_vtxind[id] = l.dipho_vtx_std_sel->back();
+			
+			TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[id], l.dipho_vtxind[id] );
+			TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[id], l.dipho_vtxind[id] );
+			l.dipho_sumpt[id] = lead_p4.Pt() + sublead_p4.Pt();
+			
+			if( l.dipho_sumpt[id] > maxSumPt ) {
+				l.vtx_std_sel = l.dipho_vtx_std_sel->back();
+				maxSumPt = l.dipho_sumpt[id];
+			}
+		}
+	}
+	
 
 	return true;
 }
@@ -437,45 +475,44 @@ void PhotonAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree)
 	l.pho_matchingConv = new  std::vector<int>();
 	l.Branch_pho_matchingConv(outputTree);
 
-
-	l.vtx_std_ranked_list = new std::vector<int>();
+	l.vtx_std_ranked_list = new std::vector<std::vector<int> >();
 	l.pho_tkiso_recvtx_030_002_0000_10_01 = new std::vector<std::vector<float> >();
-	l.pho_cic6cutlevel_lead = new std::vector<Short_t>();
-	l.pho_cic6passcuts_lead = new std::vector<std::vector<UInt_t> >();
-	l.pho_cic6cutlevel_sublead = new std::vector<Short_t>();
-	l.pho_cic6passcuts_sublead = new std::vector<std::vector<UInt_t> >();
-	l.pho_cic4cutlevel_lead = new std::vector<Short_t>();
-	l.pho_cic4passcuts_lead = new std::vector<std::vector<UInt_t> >();
-	l.pho_cic4cutlevel_sublead = new std::vector<Short_t>();
-	l.pho_cic4passcuts_sublead = new std::vector<std::vector<UInt_t> >();
-
-
+	l.pho_cic6cutlevel_lead = new std::vector<std::vector<Short_t> >();
+	l.pho_cic6passcuts_lead = new std::vector<std::vector<std::vector<UInt_t> > >();
+	l.pho_cic6cutlevel_sublead = new std::vector<std::vector<Short_t> >();
+	l.pho_cic6passcuts_sublead = new std::vector<std::vector<std::vector<UInt_t> > >();
+	l.pho_cic4cutlevel_lead = new std::vector<std::vector<Short_t> >();
+	l.pho_cic4passcuts_lead = new std::vector<std::vector<std::vector<UInt_t> > >();
+	l.pho_cic4cutlevel_sublead = new std::vector<std::vector<Short_t> >();
+	l.pho_cic4passcuts_sublead = new std::vector<std::vector<std::vector<UInt_t> > >();
+	l.dipho_vtx_std_sel =  new std::vector<int>();
 
 	l.Branch_vtx_std_ranked_list(outputTree);
 	l.Branch_vtx_std_sel(outputTree);
 	l.Branch_pho_tkiso_recvtx_030_002_0000_10_01(outputTree);
 	l.Branch_pho_tkiso_badvtx_040_002_0000_10_01(outputTree);
+	l.Branch_pho_tkiso_badvtx_id(outputTree);
 	l.Branch_pho_drtotk_25_99(outputTree);
 
-
-  //l.Branch_dipho_n(outputTree);
-  //l.Branch_dipho_leadind(outputTree);
-  //l.Branch_dipho_subleadind(outputTree);
-  //l.Branch_dipho_vtxind(outputTree);
-  //l.Branch_dipho_leadet(outputTree);
-  //l.Branch_dipho_subleadet(outputTree);
-  //l.Branch_dipho_leadeta(outputTree);
-  //l.Branch_dipho_subleadeta(outputTree);
-  //l.Branch_dipho_leadci6cindex(outputTree);
-  //l.Branch_dipho_subleadci6cindex(outputTree);
-  //l.Branch_dipho_leadci4cindex(outputTree);
-  //l.Branch_dipho_subleadci4cindex(outputTree);
-  //l.Branch_dipho_mass(outputTree);
-  //l.Branch_dipho_pt(outputTree);
-  //l.Branch_dipho_eta(outputTree);
-  //l.Branch_dipho_phi(outputTree);
-  //l.Branch_dipho_cts(outputTree);
-
+	l.Branch_dipho_n(outputTree);
+	l.Branch_dipho_leadind(outputTree);
+	l.Branch_dipho_subleadind(outputTree);
+	l.Branch_dipho_vtxind(outputTree);
+	l.Branch_dipho_sumpt(outputTree);
+	/// l.Branch_dipho_leadet(outputTree);
+	/// l.Branch_dipho_subleadet(outputTree);
+	/// l.Branch_dipho_leadeta(outputTree);
+	/// l.Branch_dipho_subleadeta(outputTree);
+	/// l.Branch_dipho_leadci6cindex(outputTree);
+	/// l.Branch_dipho_subleadci6cindex(outputTree);
+	/// l.Branch_dipho_leadci4cindex(outputTree);
+	/// l.Branch_dipho_subleadci4cindex(outputTree);
+	/// l.Branch_dipho_mass(outputTree);
+	/// l.Branch_dipho_pt(outputTree);
+	/// l.Branch_dipho_eta(outputTree);
+	/// l.Branch_dipho_phi(outputTree);
+	/// l.Branch_dipho_cts(outputTree);
+	
 	l.Branch_pho_cic6cutlevel_lead( outputTree );
 	l.Branch_pho_cic6passcuts_lead( outputTree );
 	l.Branch_pho_cic6cutlevel_sublead( outputTree );

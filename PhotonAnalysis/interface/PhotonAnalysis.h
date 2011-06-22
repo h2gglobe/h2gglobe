@@ -34,6 +34,8 @@ public:
 	// Public parameters to be read from config file
 	VertexAlgoParameters vtxAlgoParams;	 
 	std::vector<std::string> vtxVarNames;
+	bool useDefaultVertex;
+	float forcedRho;
 	
 	bool doTriggerSelection; 
 	std::vector<TriggerSelection> triggerSelections;

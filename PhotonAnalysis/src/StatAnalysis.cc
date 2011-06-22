@@ -432,17 +432,17 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
    // smear all of the photons!
    std::pair<int,int> diphoton_index;
    
-   TVector3 * vtx = (TVector3*)l.vtx_std_xyz->At(l.vtx_std_sel);
-
    // Nominal smearing
-   TClonesArray smeared_pho_p4("TLorentzVector",l.pho_n);
+   std::vector<float> smeared_pho_energy(l.pho_n,0.); 
    std::vector<float> smeared_pho_r9(l.pho_n,0.); 
    std::vector<float> smeared_pho_weight(l.pho_n,1.);
    
    for(int ipho=0; ipho<l.pho_n; ++ipho ) { 
        std::vector<std::vector<bool> > p;
-       PhotonReducedInfo phoInfo ( *((TVector3*)l.pho_calopos->At(ipho)), ((TLorentzVector*)l.pho_p4->At(ipho))->Energy(), l.pho_isEB[ipho], l.pho_r9[ipho],
-				   l.PhotonCiCSelectionLevel(ipho,p,l.phoSUPERTIGHT) );
+       PhotonReducedInfo phoInfo ( //*((TVector3*)l.pho_calopos->At(ipho)), 
+	       *((TVector3*)l.sc_xyz->At(l.pho_scind[ipho])), 
+	       ((TLorentzVector*)l.pho_p4->At(ipho))->Energy(), l.pho_isEB[ipho], l.pho_r9[ipho],
+	       l.PhotonCiCSelectionLevel(ipho,l.vtx_std_sel,p,l.phoSUPERTIGHT) );
        float pweight = 1.;
        // smear MC. But apply energy shift to data 
        if( cur_type != 0 && doMCSmearing ) { // if it's MC
@@ -456,22 +456,26 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	 eScaleDataSmearer->smearPhoton(phoInfo,sweight,0.);
 	 pweight *= sweight;
        }
-       new( smeared_pho_p4[ipho] )  TLorentzVector(phoInfo.p4(vtx->X(), vtx->Y(), vtx->Z() ));
+       smeared_pho_energy[ipho] = phoInfo.energy();
        smeared_pho_r9[ipho] = phoInfo.r9();
        smeared_pho_weight[ipho] = pweight;
    }
    
    // FIXME pass smeared R9
-   diphoton_index = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtCut, subleadEtCut, 4,false, &smeared_pho_p4 ); 
+   int diphoton_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtCut, subleadEtCut, 4,false, &smeared_pho_energy[0] ); 
+   /// std::cerr << "Selected pair " << l.dipho_n << " " << diphoton_id << std::endl;
    
-   if (diphoton_index.first > -1 && diphoton_index.second > -1){
+   if (diphoton_id > -1 ) {
+       diphoton_index = std::make_pair( l.dipho_leadind[diphoton_id],  l.dipho_subleadind[diphoton_id] );
+       
+       TVector3 * vtx = (TVector3*)l.vtx_std_xyz->At(l.dipho_vtxind[diphoton_id]);
        float evweight = weight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second];
        
        l.countersred[diPhoCounter_]++;
 
-       TLorentzVector *lead_p4 = (TLorentzVector*)smeared_pho_p4.At(diphoton_index.first);
-       TLorentzVector *sublead_p4 = (TLorentzVector*)smeared_pho_p4.At(diphoton_index.second);
-       TLorentzVector Higgs = *lead_p4 + *sublead_p4; 	
+       TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphoton_id], l.dipho_vtxind[diphoton_id], &smeared_pho_energy[0]);
+       TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphoton_id], l.dipho_vtxind[diphoton_id], &smeared_pho_energy[0]);
+       TLorentzVector Higgs = lead_p4 + sublead_p4; 	
        
        bool CorrectVertex;
        // FIXME pass smeared R9
@@ -484,10 +488,6 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		   (*si)->smearDiPhoton( Higgs, *vtx, rewei, selectioncategory, cur_type, *((TVector3*)l.gv_pos->At(0)), 0. );
 	       }
 	       evweight *= rewei;
-	       ////  // WARNING the order of the smeares matter here
-	       ////  if( pth != Higgs.Pt() ) {
-	       ////  	   category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,nPtCategories);
-	       ////  }
 	       CorrectVertex=(*vtx- *((TVector3*)l.gv_pos->At(0))).Mag() < 1.;
        }
        float mass    = Higgs.M();
@@ -496,38 +496,22 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
        // control plots 
        l.FillHist("mass",0, Higgs.M(), weight);
        l.FillHist("pt",0, Higgs.Pt(), weight);
-       l.FillHist("pho_pt",0,lead_p4->Pt(), weight);
-       l.FillHist("pho1_pt",0,lead_p4->Pt(), weight);
-       l.FillHist("pho_pt",0,sublead_p4->Pt(), weight);
-       l.FillHist("pho2_pt",0,sublead_p4->Pt(), weight);
+       l.FillHist("pho_pt",0,lead_p4.Pt(), weight);
+       l.FillHist("pho1_pt",0,lead_p4.Pt(), weight);
+       l.FillHist("pho_pt",0,sublead_p4.Pt(), weight);
+       l.FillHist("pho2_pt",0,sublead_p4.Pt(), weight);
        
        l.FillHist("mass",category+1, Higgs.M(), weight);
        l.FillHist("pt",category+1, Higgs.Pt(), weight);
-       l.FillHist("pho_pt",category+1,lead_p4->Pt(), weight);
-       l.FillHist("pho1_pt",category+1,lead_p4->Pt(), weight);
-       l.FillHist("pho_pt",category+1,sublead_p4->Pt(), weight);
-       l.FillHist("pho2_pt",category+1,sublead_p4->Pt(), weight);
+       l.FillHist("pho_pt",category+1,lead_p4.Pt(), weight);
+       l.FillHist("pho1_pt",category+1,lead_p4.Pt(), weight);
+       l.FillHist("pho_pt",category+1,sublead_p4.Pt(), weight);
+       l.FillHist("pho2_pt",category+1,sublead_p4.Pt(), weight);
 
        l.FillHist("pho_n",category+1,l.pho_n, weight);
 
-       //// if( ( vtxAna_.pho1() +  vtxAna_.pho2() != diphoton_index.first + diphoton_index.second ) || 
-       //// 	   ( vtxAna_.pho1() != diphoton_index.first && vtxAna_.pho1() != diphoton_index.second ) )    {
-       //// 	       std::cerr << "Mismatch between vertex ID and analysis di-photon "
-       //// 			 << "pho_n " << l.pho_n << " pho1_vtx " << vtxAna_.pho1() << " pho2_vtx " << vtxAna_.pho2() << " " 
-       //// 			 << "pho1_ana " << diphoton_index.first << " pho2_ana " << diphoton_index.second << " mass " << mass
-       //// 			 << std::endl; 
-       //// }
-       
-       // Ouput Text File For Saclay Analysis
-       //// f (cur_type == 0)
-       ////  SaclayText << Form("typ=%d weight=%f category=%d mass=%f ptH=%f ptLEAD=%f ptSUBLEAD=%f, run=%d, lumis=%d, event=%d",cur_type,evweight,category,mass,ptHiggs,lead_p4->Pt(),sublead_p4->Pt(),l.run,l.lumis,l.event) <<endl;
-       //// lse
-       ////  SaclayText << Form("typ=%d weight=%f category=%d mass=%f ptH=%f ptLEAD=%f ptSUBLEAD=%f",cur_type,evweight,category,mass,ptHiggs,lead_p4->Pt(),sublead_p4->Pt())<<endl;
        SaclayText << setprecision(4) <<  "Run = " << l.run << "  LS = " << l.lumis << "  Event = " << l.event << "  SelVtx = " << l.vtx_std_sel << "  CAT4 = " << category % 4
 		  << "  ggM = " << mass << " gg_Pt =  " << ptHiggs;
-       /// for(int ii=0; ii<l.vtx_std_n; ++ii ) {
-       /// 	       SaclayText << " vtx " << ii << " = ( " << vtxAna_.ptbal(ii) << " , " << vtxAna_.ptasym(ii) << " , " << vtxAna_.logsumpt2(ii) << " )"; 
-       /// }
        SaclayText << endl;
        
        // --------------------------------------------------------------------------------------------- 
@@ -578,11 +562,13 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
        // fill steps for syst uncertainty study
        float systStep = systRange / (float)nSystSteps;
        // di-photon smearers systematics
-       if (diphoton_index.first > -1 && diphoton_index.second > -1){
+       if (diphoton_id > -1 ) {
 	       
-	       TLorentzVector *lead_p4 = (TLorentzVector*)smeared_pho_p4.At(diphoton_index.first);
-	       TLorentzVector *sublead_p4 = (TLorentzVector*)smeared_pho_p4.At(diphoton_index.second);
-	       
+               TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphoton_id], l.dipho_vtxind[diphoton_id], &smeared_pho_energy[0]);
+               TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphoton_id], l.dipho_vtxind[diphoton_id], &smeared_pho_energy[0]);
+	       TVector3 * vtx = (TVector3*)l.vtx_std_xyz->At(l.dipho_vtxind[diphoton_id]);
+       
+
 	       for(std::vector<BaseDiPhotonSmearer *>::iterator si=systDiPhotonSmearers_.begin(); si!= systDiPhotonSmearers_.end(); ++si ) {
 		       std::vector<double> mass_errors;
 		       std::vector<double> weights;
@@ -590,7 +576,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		       
 		       for(float syst_shift=-systRange; syst_shift<=systRange; syst_shift+=systStep ) { 
 			       if( syst_shift == 0. ) { continue; } // skip the central value
-			       TLorentzVector Higgs = *lead_p4 + *sublead_p4; 	
+			       TLorentzVector Higgs = lead_p4 + sublead_p4; 	
 			       
 			       // restart with 'fresh' wait for this round of systematics
 			       float evweight = weight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second];
@@ -646,8 +632,11 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	       // smear the photons 
 	       for(int ipho=0; ipho<l.pho_n; ++ipho ) { 
 		   std::vector<std::vector<bool> > p;
-		   PhotonReducedInfo phoInfo ( *((TVector3*)l.pho_calopos->At(ipho)), ((TLorentzVector*)l.pho_p4->At(ipho))->Energy(), l.pho_isEB[ipho], l.pho_r9[ipho],
-					       l.PhotonCiCSelectionLevel(ipho,p,l.phoSUPERTIGHT));
+		   PhotonReducedInfo phoInfo ( ///*((TVector3*)l.pho_calopos->At(ipho)), 
+			   *((TVector3*)l.sc_xyz->At(l.pho_scind[ipho])), 
+			   ((TLorentzVector*)l.pho_p4->At(ipho))->Energy(), l.pho_isEB[ipho], l.pho_r9[ipho],
+			   l.PhotonCiCSelectionLevel(ipho,l.vtx_std_sel,p,l.phoSUPERTIGHT));
+		   
 		   float pweight = 1.;
 		   for(std::vector<BaseSmearer *>::iterator  sj=photonSmearers_.begin(); sj!= photonSmearers_.end(); ++sj ) {
 		       float sweight = 1.;
@@ -660,22 +649,24 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		       }
 		       pweight *= sweight;
 		   }
-		   *((TLorentzVector *)smeared_pho_p4.At(ipho)) = phoInfo.p4(vtx->X(), vtx->Y(), vtx->Z() );
+		   smeared_pho_energy[ipho] = phoInfo.energy();
 		   smeared_pho_r9[ipho] = phoInfo.r9();
 		   smeared_pho_weight[ipho] = pweight;
 	       }
 	       
 	       // analyze the event
 	       // FIXME pass smeared R9
-	       diphoton_index = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtCut, subleadEtCut, 4,false, &smeared_pho_p4 ); 
+	       int diphoton_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtCut, subleadEtCut, 4,false, &smeared_pho_energy[0] ); 
 	       
-	       if (diphoton_index.first > -1 && diphoton_index.second > -1){
+	       if (diphoton_id > -1 ) {
 		   
+		   diphoton_index = std::make_pair( l.dipho_leadind[diphoton_id],  l.dipho_subleadind[diphoton_id] );
 		   float evweight = weight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second];
 		   
-		   TLorentzVector *lead_p4 = (TLorentzVector*)smeared_pho_p4.At(diphoton_index.first);
-		   TLorentzVector *sublead_p4 = (TLorentzVector*)smeared_pho_p4.At(diphoton_index.second);
-		   TLorentzVector Higgs = *lead_p4 + *sublead_p4; 	
+		   TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphoton_id], l.dipho_vtxind[diphoton_id], &smeared_pho_energy[0]);
+		   TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphoton_id], l.dipho_vtxind[diphoton_id], &smeared_pho_energy[0]);
+		   TVector3 * vtx = (TVector3*)l.vtx_std_xyz->At(l.dipho_vtxind[diphoton_id]);
+		   TLorentzVector Higgs = lead_p4 + sublead_p4; 	
 		   
 		   int category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,nPtCategories);
        		   int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,0);
@@ -684,9 +675,6 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 			   float rewei=1.;
 			   float pth = Higgs.Pt();
 			   (*si)->smearDiPhoton( Higgs, *vtx, rewei, selectioncategory, cur_type, *((TVector3*)l.gv_pos->At(0)), 0. );
-			   ////  if( pth != Higgs.Pt() ) {
-			   ////      category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,nPtCategories);
-			   ////  }
 			   evweight *= rewei;
 		       }
 		   }
@@ -720,7 +708,6 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
        
        
    }
-   smeared_pho_p4.Delete();
    
    if(PADEBUG) 
 	   cout<<"myFillHistRed END"<<endl;
@@ -733,46 +720,6 @@ void StatAnalysis::GetBranches(TTree *t, std::set<TBranch *>& s )
 {
 	vtxAna_.setBranchAdresses(t,"vtx_std_");
 	vtxAna_.getBranches(t,"vtx_std_",s);
-}
-
-
-// ----------------------------------------------------------------------------------------------------
-void StatAnalysis::PreselectPhotons(LoopAll& l, int jentry) 
-{
-	// Photon preselection
-	pho_acc.clear();
-	pho_presel.clear();
-	pho_presel_lead.clear();
-	pho_sc_et.clear();
-	for(int ipho=0; ipho<l.pho_n; ++ipho) {
-		
-		TLorentzVector * p4 = (TLorentzVector *) l.pho_p4->At(ipho);
-		float eta  = fabs(((TVector3 *) l.pho_calopos->At(ipho))->Eta());
-		// photon et wrt 0,0,0
-		float et = p4->Energy() / cosh(eta);
-		pho_sc_et.push_back(et);
-		
-		if( et < presel_scet2 || (eta>1.4442 && eta<1.566) || eta>presel_maxeta ) { 
-			continue;  
-		}
-		pho_acc.push_back(ipho);
-		
-		bool isEB = l.pho_isEB[ipho];
-		float & ecaliso = isEB ? presel_ecaliso_eb : presel_ecaliso_ee;
-		float & sieie = isEB ? presel_ecaliso_eb : presel_ecaliso_ee;
-		if( l.pho_ecalsumetconedr03[ipho] >= ecaliso ||  l.pho_sieie[ipho] >= sieie || l.pho_hoe[ipho] >= presel_hoe ) {
-			continue;
-		}
-		
-		//FIXME trigger matching
-		pho_presel.push_back(ipho);
-	} 
-
-	// sort preslected photons by et
-	std::sort(pho_acc.begin(),pho_acc.end(),
-		  SimpleSorter<float,std::greater<float> >(&pho_sc_et[0]));
-	std::sort(pho_presel.begin(),pho_presel.end(),
-		  SimpleSorter<float,std::greater<float> >(&pho_sc_et[0]));
 }
 
 // ----------------------------------------------------------------------------------------------------

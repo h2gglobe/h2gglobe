@@ -1,3 +1,5 @@
+#include "Sorters.h"
+
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 void LoopAll::GlobeCtIsol(int mode, TLorentzVector* p4, float ptCut, float drCutMin, float drCutMax, Int_t & nIsol, Float_t & ptIsol, Float_t & angle1, Float_t & angle2, Float_t & angle3) {
   nIsol=0;
@@ -304,7 +306,8 @@ PhotonInfo LoopAll::fillPhotonInfos(int p1, bool useAllConvs)
 	if ( iConv1 >= 0) {
 		// conversions infos
 		return PhotonInfo(p1,
-				  *((TVector3*)pho_calopos->At(p1)),
+				  /// *((TVector3*)pho_calopos->At(p1)),
+				  *((TVector3*)sc_xyz->At(pho_scind[p1])),
 				  *((TVector3*) bs_xyz->At(0)),
 				  *((TVector3*) conv_vtx->At(iConv1)),
 				  ((TLorentzVector*)pho_p4->At(p1))->Energy(),
@@ -320,7 +323,8 @@ PhotonInfo LoopAll::fillPhotonInfos(int p1, bool useAllConvs)
 	//// }
 	
 	return PhotonInfo(p1, 
-			  *((TVector3*)pho_calopos->At(p1)),                                                                                                                
+			  /// *((TVector3*)pho_calopos->At(p1)),                                                                                                                
+			  *((TVector3*)sc_xyz->At(pho_scind[p1])),
 			  *((TVector3*) bs_xyz->At(0)),                                                                                                                            
 			  *((TVector3*) pho_conv_vtx->At(p1)),                                                                                                              
 			  ((TLorentzVector*)pho_p4->At(p1))->Energy(),                                                                                                      
@@ -337,7 +341,8 @@ std::vector<int> LoopAll::vertexSelection(HggVertexAnalyzer & vtxAna, HggVertexF
 					  PhotonInfo & pho1, PhotonInfo & pho2, std::vector<std::string> & vtxVarNames)
 {
 	int p1 = pho1.id(), p2 = pho2.id();
-	assert( p1 == vtxAna.pho1() && p2 == vtxAna.pho2() );
+	// assert( p1 == vtxAna.pho1() && p2 == vtxAna.pho2() );
+	vtxAna.setPairID(p1,p2);
 
 	// preselect vertices : all vertices
         std::vector<int> preselAll;
@@ -516,7 +521,8 @@ int  LoopAll::matchPhotonToConversion( int lpho) {
   double conv_eta=-999.;
   double conv_phi=-999.;
   
-  float sc_eta  = ((TVector3 *) pho_calopos->At(lpho))->Eta();
+  // float sc_eta  = ((TVector3 *) pho_calopos->At(lpho))->Eta();
+  float sc_eta  = ((TVector3 *) sc_xyz->At(pho_scind[lpho]))->Eta();
   float  phi  = ((TVector3 *) pho_calopos->At(lpho))->Phi();
   double sc_phi = phiNorm(phi);
   
@@ -583,20 +589,19 @@ int  LoopAll::matchPhotonToConversion( int lpho) {
 
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
-TLorentzVector LoopAll::get_pho_p4(int ipho, int ivtx)
+TLorentzVector LoopAll::get_pho_p4(int ipho, int ivtx, float * energy)
 {
-	PhotonInfo p(ipho, *((TVector3*)pho_calopos->At(ipho)),((TLorentzVector*)pho_p4->At(ipho))->Energy());
+	/// PhotonInfo p(ipho, *((TVector3*)pho_calopos->At(ipho)),((TLorentzVector*)pho_p4->At(ipho))->Energy());
+	PhotonInfo p(ipho, *((TVector3*)sc_xyz->At(pho_scind[ipho])),
+		     energy != 0 ? energy[ipho] : ((TLorentzVector*)pho_p4->At(ipho))->Energy() );
 	TVector3 * vtx = (TVector3*) vtx_std_xyz->At(ivtx);
 	return p.p4( vtx->X(), vtx->Y(), vtx->Z() );
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
-void LoopAll::set_pho_p4(int ipho, int ivtx)
+void LoopAll::set_pho_p4(int ipho, int ivtx, float *pho_energy_array)
 {
-	PhotonInfo p(ipho, *((TVector3*)pho_calopos->At(ipho)),((TLorentzVector*)pho_p4->At(ipho))->Energy());
-	TVector3 * vtx = (TVector3*) vtx_std_xyz->At(ivtx);
-	TLorentzVector p4 = p.p4( vtx->X(), vtx->Y(), vtx->Z() );
-	*((TLorentzVector*)pho_p4->At(ipho)) = p4;
+	*((TLorentzVector*)pho_p4->At(ipho)) = get_pho_p4(ipho,ivtx,pho_energy_array);
 }
 
 
@@ -607,7 +612,9 @@ void LoopAll::FillCICInputs()
 	
 	for(int ipho=0;ipho<pho_n;++ipho){
 		// TLorentzVector * phop4 = (TLorentzVector*)pho_p4->At(ipho);
-		pho_tkiso_badvtx_040_002_0000_10_01[ipho] = WorstSumTrackPtInCone(ipho, 0,0, 0.40, 0.02, 0.0, 1.0, 0.1);
+		std::pair<Int_t, Float_t> worse_iso = WorstSumTrackPtInCone(ipho, 0,0, 0.40, 0.02, 0.0, 1.0, 0.1); 
+		pho_tkiso_badvtx_040_002_0000_10_01[ipho] = worse_iso.second;
+		pho_tkiso_badvtx_id[ipho] = worse_iso.first;
 		pho_drtotk_25_99[ipho] = DeltaRToTrack(ipho, vtx_std_sel, 2.5, 99.);
 		
 		for(int ivtx=0;ivtx<vtx_std_n;++ivtx) {
@@ -621,52 +628,53 @@ void LoopAll::FillCICInputs()
 void LoopAll::FillCIC()
 {
 	// 6 categories
-	pho_cic6passcuts_lead->clear(); pho_cic6passcuts_lead->resize( pho_n, std::vector<UInt_t>(phoNCUTLEVELS,0) ); 
-	pho_cic6cutlevel_lead->clear(); pho_cic6cutlevel_lead->resize( pho_n, 0 );
-	pho_cic6passcuts_sublead->clear(); pho_cic6passcuts_sublead->resize( pho_n, std::vector<UInt_t>(phoNCUTLEVELS,0) ); 
-	pho_cic6cutlevel_sublead->clear(); pho_cic6cutlevel_sublead->resize( pho_n, 0 );
+	pho_cic6passcuts_lead->clear(); pho_cic6passcuts_lead->resize( pho_n, std::vector<std::vector<UInt_t> >(vtx_std_n, std::vector<UInt_t> (phoNCUTLEVELS,0) ) ); 
+	pho_cic6cutlevel_lead->clear(); pho_cic6cutlevel_lead->resize( pho_n, std::vector<Short_t>(vtx_std_n,0) );
+	pho_cic6passcuts_sublead->clear(); pho_cic6passcuts_sublead->resize( pho_n, std::vector<std::vector<UInt_t> >(vtx_std_n,std::vector<UInt_t>(phoNCUTLEVELS,0)) ); 
+	pho_cic6cutlevel_sublead->clear(); pho_cic6cutlevel_sublead->resize( pho_n, std::vector<Short_t>(vtx_std_n,0) );
 	std::vector<std::vector<bool> > cic6_passcut_lead, cic6_passcut_sublead;
 	// 4 categories
-	pho_cic4passcuts_lead->clear(); pho_cic4passcuts_lead->resize( pho_n, std::vector<UInt_t>(phoNCUTLEVELS,0) ); 
-	pho_cic4cutlevel_lead->clear(); pho_cic4cutlevel_lead->resize( pho_n, 0 );
-	pho_cic4passcuts_sublead->clear(); pho_cic4passcuts_sublead->resize( pho_n, std::vector<UInt_t>(phoNCUTLEVELS,0) ); 
-	pho_cic4cutlevel_sublead->clear(); pho_cic4cutlevel_sublead->resize( pho_n, 0 );
+	pho_cic4passcuts_lead->clear(); pho_cic4passcuts_lead->resize( pho_n, std::vector<std::vector<UInt_t> >(vtx_std_n, std::vector<UInt_t>(phoNCUTLEVELS,0) ) ); 
+	pho_cic4cutlevel_lead->clear(); pho_cic4cutlevel_lead->resize( pho_n, std::vector<Short_t>(vtx_std_n,0) );
+	pho_cic4passcuts_sublead->clear(); pho_cic4passcuts_sublead->resize( pho_n, std::vector<std::vector<UInt_t> >(vtx_std_n, std::vector<UInt_t>(phoNCUTLEVELS,0) ) ); 
+	pho_cic4cutlevel_sublead->clear(); pho_cic4cutlevel_sublead->resize( pho_n, std::vector<Short_t>(vtx_std_n,0) );
 	std::vector<std::vector<bool> > cic4_passcut_lead, cic4_passcut_sublead;
 	
 	for(int ipho=0;ipho<pho_n;++ipho){
+		for(int ivtx=0;ivtx<vtx_std_n;++ivtx){
 		// 6 categories
-		int cic6_level_lead = PhotonCiCSelectionLevel(ipho, cic6_passcut_lead, 6, 0);
-		int cic6_level_sublead = PhotonCiCSelectionLevel(ipho, cic6_passcut_sublead, 6, 1);
-		(*pho_cic6cutlevel_lead)[ipho] = cic6_level_lead;
-		(*pho_cic6cutlevel_sublead)[ipho] = cic6_level_sublead;
-		// 4 categories
-		int cic4_level_lead = PhotonCiCSelectionLevel(ipho, cic4_passcut_lead, 4, 0);
-		int cic4_level_sublead = PhotonCiCSelectionLevel(ipho, cic4_passcut_sublead, 4, 1);
-		(*pho_cic4cutlevel_lead)[ipho] = cic4_level_lead;
-		(*pho_cic4cutlevel_sublead)[ipho] = cic4_level_sublead;
-		
-		for(int iCUTLEVEL=0;iCUTLEVEL!=(int)phoNCUTLEVELS;++iCUTLEVEL) {
-			// 6 categories
-			UInt_t cic6_leadw=0, cic6_subleadw=0;
-			for(size_t icut=0; icut<cic6_passcut_lead.size(); ++icut) {
-				cic6_leadw |= ( (!cic6_passcut_lead[iCUTLEVEL][icut] & 0x1) << icut);
-			}
-			(*pho_cic6passcuts_lead)[ipho][iCUTLEVEL] = cic6_leadw;
-			for(size_t icut=0; icut<cic6_passcut_sublead.size(); ++icut) {
-				cic6_subleadw |= ( (!cic6_passcut_sublead[iCUTLEVEL][icut] & 0x1) << icut);
-			}
-			(*pho_cic6passcuts_sublead)[ipho][iCUTLEVEL] = cic6_subleadw;
+			int cic6_level_lead = PhotonCiCSelectionLevel(ipho, ivtx, cic6_passcut_lead, 6, 0);
+			int cic6_level_sublead = PhotonCiCSelectionLevel(ipho, ivtx, cic6_passcut_sublead, 6, 1);
+			(*pho_cic6cutlevel_lead)[ipho][ivtx] = cic6_level_lead;
+			(*pho_cic6cutlevel_sublead)[ipho][ivtx] = cic6_level_sublead;
 			// 4 categories
-			UInt_t cic4_leadw=0, cic4_subleadw=0;
-			for(size_t icut=0; icut<cic4_passcut_lead.size(); ++icut) {
-				cic4_leadw |= ( (!cic4_passcut_lead[iCUTLEVEL][icut] & 0x1) << icut);
+			int cic4_level_lead = PhotonCiCSelectionLevel(ipho, ivtx, cic4_passcut_lead, 4, 0);
+			int cic4_level_sublead = PhotonCiCSelectionLevel(ipho, ivtx, cic4_passcut_sublead, 4, 1);
+			(*pho_cic4cutlevel_lead)[ipho][ivtx] = cic4_level_lead;
+			(*pho_cic4cutlevel_sublead)[ipho][ivtx] = cic4_level_sublead;
+		
+			for(int iCUTLEVEL=0;iCUTLEVEL!=(int)phoNCUTLEVELS;++iCUTLEVEL) {
+				// 6 categories
+				UInt_t cic6_leadw=0, cic6_subleadw=0;
+				for(size_t icut=0; icut<cic6_passcut_lead.size(); ++icut) {
+					cic6_leadw |= ( (!cic6_passcut_lead[iCUTLEVEL][icut] & 0x1) << icut);
+				}
+				(*pho_cic6passcuts_lead)[ipho][ivtx][iCUTLEVEL] = cic6_leadw;
+				for(size_t icut=0; icut<cic6_passcut_sublead.size(); ++icut) {
+					cic6_subleadw |= ( (!cic6_passcut_sublead[iCUTLEVEL][icut] & 0x1) << icut);
+				}
+				(*pho_cic6passcuts_sublead)[ipho][ivtx][iCUTLEVEL] = cic6_subleadw;
+				// 4 categories
+				UInt_t cic4_leadw=0, cic4_subleadw=0;
+				for(size_t icut=0; icut<cic4_passcut_lead.size(); ++icut) {
+					cic4_leadw |= ( (!cic4_passcut_lead[iCUTLEVEL][icut] & 0x1) << icut);
+				}
+				(*pho_cic4passcuts_lead)[ipho][ivtx][iCUTLEVEL] = cic4_leadw;
+				for(size_t icut=0; icut<cic4_passcut_sublead.size(); ++icut) {
+					cic4_subleadw |= ( (!cic4_passcut_sublead[iCUTLEVEL][icut] & 0x1) << icut);
+				}
+				(*pho_cic4passcuts_sublead)[ipho][ivtx][iCUTLEVEL] = cic4_subleadw;
 			}
-			(*pho_cic4passcuts_lead)[ipho][iCUTLEVEL] = cic4_leadw;
-			for(size_t icut=0; icut<cic4_passcut_sublead.size(); ++icut) {
-				cic4_subleadw |= ( (!cic4_passcut_sublead[iCUTLEVEL][icut] & 0x1) << icut);
-			}
-			(*pho_cic4passcuts_sublead)[ipho][iCUTLEVEL] = cic4_subleadw;
-			
 		}
 	}
 }
@@ -1101,8 +1109,9 @@ void LoopAll::SetPhotonCutsInCategories(phoCiCIDLevel cutlevel, float * cic6_all
 
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
-std::pair<int,int> LoopAll::DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL, phoCiCIDLevel SUBLEADCUTLEVEL, Float_t leadPtMin, Float_t subleadPtMin, int ncategories, bool applyPtoverM, 
-						  TClonesArray *pho_p4_array) {
+int LoopAll::DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL, phoCiCIDLevel SUBLEADCUTLEVEL, 
+				   Float_t leadPtMin, Float_t subleadPtMin, int ncategories, bool applyPtoverM, 
+				   float *pho_energy_array) {
 
   //rho=0;// CAUTION SETTING RHO TO 0 FOR 2010 DATA FILES (RHO ISN'T IN THESE FILES)
   int selected_lead_index = -1;
@@ -1110,59 +1119,96 @@ std::pair<int,int> LoopAll::DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL, ph
   float selected_lead_pt = -1;
   float selected_sublead_pt = -1;
   
-  if( pho_p4_array == 0 ) {
-    pho_p4_array = pho_p4;
+  std::vector<int> passing_dipho;
+  std::vector<float> passing_sumpt;
+  for(int idipho = 0; idipho < dipho_n; ++idipho ) {
+	  int ivtx = dipho_vtxind[idipho];
+	  int lead = dipho_leadind[idipho];
+	  int sublead = dipho_subleadind[idipho];
+	  
+	  if( lead == sublead ) { continue; }
+
+	  TLorentzVector lead_p4 = get_pho_p4(lead,ivtx,pho_energy_array); 
+	  TLorentzVector sublead_p4 = get_pho_p4(sublead,ivtx,pho_energy_array); 
+	  
+	  float leadEta = fabs(((TVector3 *)sc_xyz->At(pho_scind[lead]))->Eta());
+	  float subleadEta = fabs(((TVector3 *)sc_xyz->At(pho_scind[lead]))->Eta());
+
+	  if( lead_p4.Pt() < leadPtMin || sublead_p4.Pt() < subleadPtMin || 
+	      leadEta > 2.5 || subleadEta > 2.5 || 
+	      ( leadEta > 1.4442 && leadEta < 1.566 ) || ( subleadEta > 1.4442 && subleadEta < 1.566 )
+		  ) { continue; }
+	  
+	  float m_gamgam = (lead_p4+sublead_p4).M();
+	  float L_ptom = lead_p4.Et()/m_gamgam;
+	  float S_ptom = sublead_p4.Et()/m_gamgam;
+	  if(applyPtoverM && (L_ptom < 0.33 || S_ptom<0.25))continue;
+	  	  
+	  std::vector<std::vector<bool> > ph_passcut;
+	  if( PhotonCiCSelectionLevel(lead, ivtx, ph_passcut, ncategories, 0, pho_energy_array ) < LEADCUTLEVEL ) { continue; }
+	  if( PhotonCiCSelectionLevel(sublead, ivtx, ph_passcut, ncategories, 1, pho_energy_array ) < SUBLEADCUTLEVEL ) { continue; }
+	  
+	  passing_dipho.push_back(idipho);
+	  passing_sumpt.push_back(lead_p4.Et()+sublead_p4.Et());
   }
   
-  std::vector<std::vector<bool> > ph_passcut;
-  for(int ipho=0;ipho!=pho_n;++ipho) {
-    TLorentzVector * iphop4 = (TLorentzVector*)pho_p4_array->At(ipho);
-    /// float scEta = fabs(((TVector3 *)pho_calopos->At(ipho))->Eta());
-    float scEta = fabs(((TVector3 *)sc_xyz->At(pho_scind[ipho]))->Eta());
-    if(iphop4->Et() < leadPtMin || scEta > 2.5 || ( scEta > 1.4442 && scEta < 1.566 ) )continue;
+  if( passing_dipho.empty() ) { return -1; }
 
-    if(PhotonCiCSelectionLevel(ipho, ph_passcut, ncategories, 0) < LEADCUTLEVEL)continue;
+  std::sort(passing_dipho.begin(),passing_dipho.end(),
+	    SimpleSorter<float,std::greater<double> >(&passing_sumpt[0]));
 
-    for(int iipho=0;iipho!=pho_n;++iipho) {
-      if(iipho == ipho)continue;
-      TLorentzVector * iiphop4 = (TLorentzVector*)pho_p4_array->At(iipho);
-      /// float iiscEta = fabs(((TVector3 *)pho_calopos->At(iipho))->Eta());
-      float iiscEta = fabs(((TVector3 *)sc_xyz->At(pho_scind[iipho]))->Eta());
-      if(iiphop4->Et() < subleadPtMin || iiscEta > 2.5 || ( iiscEta > 1.4442 && iiscEta < 1.566 ) )continue;
-      if(iiphop4->Et() > iphop4->Et())continue;
-      float m_gamgam = (*iphop4+*iiphop4).M();
-      float L_ptom = iphop4->Et()/m_gamgam;
-      float S_ptom = iiphop4->Et()/m_gamgam;
-      if(applyPtoverM && (L_ptom < 0.33 || S_ptom<0.25))continue;
+  return passing_dipho[0];
 
-      if(PhotonCiCSelectionLevel(iipho, ph_passcut, ncategories, 1) < SUBLEADCUTLEVEL )continue;
-      // if here, diphoton passed all cuts.
-      //std::cout << "FOUND DIPHOTON" << std::endl;
-      if( (iphop4->Et()>selected_lead_pt) || (ipho==selected_lead_index&&iiphop4->Et()>selected_sublead_pt) ) {
-	      selected_lead_pt = iphop4->Et();
-	      selected_sublead_pt = iiphop4->Et();
-	      selected_lead_index = ipho;
-	      selected_sublead_index = iipho;
-      }
-      
-    }// end photon loop (iipho), aka sublead
-  }// end photon loop (ipho), aka lead
-
-  std::pair<int,int> dipho_inds(selected_lead_index,selected_sublead_index);
-  return dipho_inds;
+  ///// std::vector<std::vector<bool> > ph_passcut;
+  ///// for(int ipho=0;ipho!=pho_n;++ipho) {
+  /////   TLorentzVector * iphop4 = (TLorentzVector*)pho_p4_array->At(ipho);
+  /////   /// float scEta = fabs(((TVector3 *)pho_calopos->At(ipho))->Eta());
+  /////   float scEta = fabs(((TVector3 *)sc_xyz->At(pho_scind[ipho]))->Eta());
+  /////   if(iphop4->Et() < leadPtMin || scEta > 2.5 || ( scEta > 1.4442 && scEta < 1.566 ) )continue;
+  ///// 
+  /////   if(PhotonCiCSelectionLevel(ipho, ivtx, ph_passcut, ncategories, 0) < LEADCUTLEVEL)continue;
+  ///// 
+  /////   for(int iipho=0;iipho!=pho_n;++iipho) {
+  /////     if(iipho == ipho)continue;
+  /////     TLorentzVector * iiphop4 = (TLorentzVector*)pho_p4_array->At(iipho);
+  /////     /// float iiscEta = fabs(((TVector3 *)pho_calopos->At(iipho))->Eta());
+  /////     float iiscEta = fabs(((TVector3 *)sc_xyz->At(pho_scind[iipho]))->Eta());
+  /////     if(iiphop4->Et() < subleadPtMin || iiscEta > 2.5 || ( iiscEta > 1.4442 && iiscEta < 1.566 ) )continue;
+  /////     if(iiphop4->Et() > iphop4->Et())continue;
+  /////     float m_gamgam = (*iphop4+*iiphop4).M();
+  /////     float L_ptom = iphop4->Et()/m_gamgam;
+  /////     float S_ptom = iiphop4->Et()/m_gamgam;
+  /////     if(applyPtoverM && (L_ptom < 0.33 || S_ptom<0.25))continue;
+  ///// 
+  /////     if(PhotonCiCSelectionLevel(iipho, ivtx, ph_passcut, ncategories, 1) < SUBLEADCUTLEVEL )continue;
+  /////     // if here, diphoton passed all cuts.
+  /////     //std::cout << "FOUND DIPHOTON" << std::endl;
+  /////     if( (iphop4->Et()>selected_lead_pt) || (ipho==selected_lead_index&&iiphop4->Et()>selected_sublead_pt) ) {
+  ///// 	      selected_lead_pt = iphop4->Et();
+  ///// 	      selected_sublead_pt = iiphop4->Et();
+  ///// 	      selected_lead_index = ipho;
+  ///// 	      selected_sublead_index = iipho;
+  /////     }
+  /////     
+  /////   }// end photon loop (iipho), aka sublead
+  ///// }// end photon loop (ipho), aka lead
+  ////  
+  ////  std::pair<int,int> dipho_inds(selected_lead_index,selected_sublead_index);
+  ////  return dipho_inds;
 
 }
 
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
-int LoopAll::PhotonCiCSelectionLevel( int photon_index, std::vector<std::vector<bool> > & ph_passcut, int ncategories, int doSublead) {
+int LoopAll::PhotonCiCSelectionLevel( int photon_index, int vertex_index, std::vector<std::vector<bool> > & ph_passcut, int ncategories, 
+				      int doSublead, float *pho_energy_array ) {
 
   if( ! runCiC ) {
     switch(ncategories) {
     case (4):
-      return doSublead ? (*pho_cic4cutlevel_sublead)[photon_index] : (*pho_cic4cutlevel_lead)[photon_index] ;
+      return doSublead ? (*pho_cic4cutlevel_sublead)[photon_index][vertex_index] : (*pho_cic4cutlevel_lead)[photon_index][vertex_index] ;
     case (6):
-      return doSublead ? (*pho_cic6cutlevel_sublead)[photon_index] : (*pho_cic6cutlevel_lead)[photon_index] ;
+      return doSublead ? (*pho_cic6cutlevel_sublead)[photon_index][vertex_index] : (*pho_cic6cutlevel_lead)[photon_index][vertex_index] ;
     }
   }
   int cutlevelpassed = -1;
@@ -1180,7 +1226,8 @@ int LoopAll::PhotonCiCSelectionLevel( int photon_index, std::vector<std::vector<
   }
   int photon_category = PhotonCategory(photon_index,n_r9_categories,n_eta_categories);
 
-  TLorentzVector * phop4 = (TLorentzVector*)pho_p4->At(photon_index);
+  TLorentzVector phop4 = get_pho_p4( photon_index, vertex_index, pho_energy_array  );
+  TLorentzVector phop4_badvtx = get_pho_p4( photon_index, pho_tkiso_badvtx_id[photon_index], pho_energy_array  );
 
   float val_tkiso = (*pho_tkiso_recvtx_030_002_0000_10_01)[photon_index][vtx_std_sel];
   float val_ecaliso = pho_ecalsumetconedr03[photon_index];
@@ -1203,9 +1250,9 @@ int LoopAll::PhotonCiCSelectionLevel( int photon_index, std::vector<std::vector<
   
   /// float rhofacbad=0.40, rhofac=0.05;
   float rhofacbad=0.52, rhofac=0.17;
-  float val_isosumoet=(val_tkiso+val_ecaliso+val_hcaliso+isosumconst-rho*rhofac)*50./phop4->Et();
-  float val_isosumoetbad=(val_tkisobad+val_ecalisobad+val_hcalisobad+isosumconstbad-rho*rhofacbad)*50./phop4->Et();
-  float val_trkisooet=(val_tkiso)*50./phop4->Et();
+  float val_isosumoet=(val_tkiso+val_ecaliso+val_hcaliso+isosumconst-rho*rhofac)*50./phop4.Et();
+  float val_isosumoetbad=(val_tkisobad+val_ecalisobad+val_hcalisobad+isosumconstbad-rho*rhofacbad)*50./phop4_badvtx.Et();
+  float val_trkisooet=(val_tkiso)*50./phop4.Et();
 
   ph_passcut.clear();
   ph_passcut.resize(phoNCUTLEVELS,std::vector<bool>(8,true) );
@@ -1295,10 +1342,9 @@ Float_t LoopAll::DeltaRToTrack(Int_t photonind, Int_t vtxind, Float_t PtMin, Flo
   if(LDEBUG)std::cout << "DeltaRToTrack BEGIN" << std::endl;
   int elind = -1;
   float eldr = 99.;
-  TLorentzVector * photon_p4 = (TLorentzVector*)pho_p4->At(photonind);
-  TVector3 * photon_calopos = (TVector3*)pho_calopos->At(photonind);
   for(int iel=0;iel!=el_std_n;++iel) {
-    if(el_std_hp_expin[iel]>maxlosthits || ((TLorentzVector*)el_std_p4->At(iel))->Pt()<PtMin )continue;
+    if(el_std_hp_expin[iel]>maxlosthits // || ((TLorentzVector*)el_std_p4->At(iel))->Pt()<PtMin 
+       ) continue;
     if(el_std_scind[iel] == pho_scind[photonind]) {
       elind = iel;
       break;
@@ -1342,7 +1388,7 @@ Float_t LoopAll::IsoEcalHitsSumEtNumCrystal( TVector3 *calopos, Float_t innerCon
 
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
-Float_t LoopAll::WorstSumTrackPtInCone(Int_t ipho, Int_t returnvtxind, Float_t PtMin, Float_t OuterConeRadius, Float_t InnerConeRadius, Float_t EtaStripHalfWidth, Float_t dzmax, Float_t dxymax) {
+std::pair<Int_t, Float_t> LoopAll::WorstSumTrackPtInCone(Int_t ipho, Int_t returnvtxind, Float_t PtMin, Float_t OuterConeRadius, Float_t InnerConeRadius, Float_t EtaStripHalfWidth, Float_t dzmax, Float_t dxymax) {
 
   Int_t worstvtxind = -1;
   Float_t maxisosum = -100;
@@ -1355,12 +1401,12 @@ Float_t LoopAll::WorstSumTrackPtInCone(Int_t ipho, Int_t returnvtxind, Float_t P
     }
   }
 
-  if(returnvtxind == 1) {
-    return 0.5+(float)worstvtxind;
-  } else {
-    return maxisosum;
-  }
-
+  /// if(returnvtxind == 1) {
+  ///   return 0.5+(float)worstvtxind;
+  /// } else {
+  ///   return maxisosum;
+  /// }
+  return std::make_pair(worstvtxind,maxisosum); 
 }
 
 
@@ -1374,7 +1420,8 @@ Float_t LoopAll::SumTrackPtInCone(TLorentzVector *photon_p4, Int_t vtxind, Float
     TLorentzVector * tkp4= (TLorentzVector *) tk_p4->At(itk);
     if(tkp4->Pt() < PtMin)continue;
     TVector3 * tkpos= (TVector3 *) tk_vtx_pos->At(itk);
-    double deltaz = fabs(vtxpos->Z() - tkpos->Z());
+    /// double deltaz = fabs(vtxpos->Z() - tkpos->Z()); 
+    double deltaz = fabs( (tkpos->Z()-vtxpos->Z()) - ( (tkpos->X()-vtxpos->X())*tkp4->Px() + (tkpos->Y()-vtxpos->Y())*tkp4->Py() )/tkp4->Pt() * tkp4->Pz()/tkp4->Pt() );
     if(deltaz > dzmax)continue;
     double dxy = ( -(tkpos->X() - vtxpos->X())*tkp4->Py() + (tkpos->Y() - vtxpos->Y())*tkp4->Px()) / tkp4->Pt();
     if(fabs(dxy) > dxymax)continue;
@@ -1417,6 +1464,7 @@ void LoopAll::DefineUserBranches()
 
 	BRANCH_DICT(pho_tkiso_recvtx_030_002_0000_10_01);
 	BRANCH_DICT(pho_tkiso_badvtx_040_002_0000_10_01);
+	BRANCH_DICT(pho_tkiso_badvtx_id);
 	BRANCH_DICT(pho_drtotk_25_99);
 
 	BRANCH_DICT(pho_cic6cutlevel_lead);
@@ -1435,24 +1483,25 @@ void LoopAll::DefineUserBranches()
 	BRANCH_DICT(pho_passcuts_sublead);
 
 	BRANCH_DICT(pho_matchingConv);
-
-  //BRANCH_DICT(dipho_n);
-  //BRANCH_DICT(dipho_leadind);
-  //BRANCH_DICT(dipho_subleadind);
-  //BRANCH_DICT(dipho_vtxind);
-  //BRANCH_DICT(dipho_leadet);
-  //BRANCH_DICT(dipho_subleadet);
-  //BRANCH_DICT(dipho_leadeta);
-  //BRANCH_DICT(dipho_subleadeta);
-  //BRANCH_DICT(dipho_leadci6cindex);
-  //BRANCH_DICT(dipho_subleadci6cindex);
-  //BRANCH_DICT(dipho_leadci4cindex);
-  //BRANCH_DICT(dipho_subleadci4cindex);
-  //BRANCH_DICT(dipho_mass);
-  //BRANCH_DICT(dipho_pt);
-  //BRANCH_DICT(dipho_eta);
-  //BRANCH_DICT(dipho_phi);
-  //BRANCH_DICT(dipho_cts);
+	
+	BRANCH_DICT(dipho_n);
+	BRANCH_DICT(dipho_leadind);
+	BRANCH_DICT(dipho_subleadind);
+	BRANCH_DICT(dipho_vtxind);
+	BRANCH_DICT(dipho_sumpt);
+	//// BRANCH_DICT(dipho_leadet);
+	//// BRANCH_DICT(dipho_subleadet);
+	//// BRANCH_DICT(dipho_leadeta);
+	//// BRANCH_DICT(dipho_subleadeta);
+	//// BRANCH_DICT(dipho_leadci6cindex);
+	//// BRANCH_DICT(dipho_subleadci6cindex);
+	//// BRANCH_DICT(dipho_leadci4cindex);
+	//// BRANCH_DICT(dipho_subleadci4cindex);
+	//// BRANCH_DICT(dipho_mass);
+	//// BRANCH_DICT(dipho_pt);
+	//// BRANCH_DICT(dipho_eta);
+	//// BRANCH_DICT(dipho_phi);
+	//// BRANCH_DICT(dipho_cts);
 
 	BRANCH_DICT(pho_matchingConv);
 
