@@ -23,6 +23,7 @@
 #include "RooVoigtian.h"
 #include "RooCBShape.h"
 #include "RooChebychev.h"
+#include "RooBernstein.h"
 #include "RooExtendPdf.h"
 #include "RooFFTConvPdf.h"
 #include "RooAddPdf.h"

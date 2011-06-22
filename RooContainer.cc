@@ -50,6 +50,24 @@ void RooContainer::AddRealVar(std::string name,double init,double xmin, double x
   }
 }
 // ----------------------------------------------------------------------------------------------------
+/* Work in progress to have functions of combinations of parameters, this is useful say for creating log-normal
+distributed parameters,
+void RooContainer::AddFormulaVar(std::string name,std::string formula,std::vector<string> vars){
+  for (int cat=0;cat<ncat;cat++){
+    
+    addFormulaVar(getcatName(name,cat),);
+    if (make_systematics){
+	for (it_sys=systematics_.begin(); it_sys!=systematics_.end();it_sys++){
+	  for (int sys=1;sys<=nsigmas;sys++)
+	    addFormulaVar(getsysindexName(getcatName(name,cat),(it_sys->first),sys,-1),init,xmin,xmax);
+	  for (int sys=1;sys<=nsigmas;sys++)
+	    addFormulaVar(getsysindexName(getcatName(name,cat),(it_sys->first),sys,1),init,xmin,xmax);
+	}
+    }
+  }
+}
+*/
+// ----------------------------------------------------------------------------------------------------
 void RooContainer::AddSpecificCategoryPdf(int *categories,std::string name,std::string formula,std::string obs_name
 				,std::vector<std::string> & var, int form
 				,double norm_guess, double norm_min, double norm_max){
@@ -847,7 +865,7 @@ void RooContainer::addGenericPdf(std::string name,std::string formula,std::strin
 	            << std::endl;
 	  return;
 	}
-     } else if (form>60) { // RooChebychev - x, p1....pform-1
+     } else if (form>60 && form < 70) { // RooChebychev - x, p1....pform-1
 
 	if (var.size() == form-60){
       	  RooArgList roo_args;
@@ -872,6 +890,36 @@ void RooContainer::addGenericPdf(std::string name,std::string formula,std::strin
 	} else {
 		
           std::cerr << "WARNING -- RooContainer::AddGenericPdf -- Need "<<form-60 << " arguments for RooChebychev of order " << form-60 <<", was given: "
+		    << var.size() << " -- WARNING"
+	            << std::endl;
+	  return;
+	}
+
+     } else if (form>70) { // RooBernstein - x, p1....pform-1
+
+	if (var.size() == form-70){
+      	  RooArgList roo_args;
+	  for (std::vector<std::string>::iterator it_var = var.begin()
+	      ;it_var != var.end()
+	      ;it_var++
+	      ){
+	     std::cout << "RooContainer::AddGenericPdf -- Adding Parameter " 
+		       << *it_var << std::endl;
+
+	     std::map<std::string,RooRealVar>::iterator real_var =  m_real_var_.find(*it_var);
+	     if (real_var != m_real_var_.end())
+	       roo_args.add((*real_var).second);
+	     else 
+      		std::cerr << "WARNING -- RooContainer::AddGenericPdf -- No Variable Found Named " 
+	        	  << *it_var << std::endl;
+  	   }
+      	   std::cout << "RooContainer::AddGenericPdf -- Added all variables" 
+	        	  << std::endl;
+
+      	   temp_1 = new RooBernstein(Form("pdf_%s",name.c_str()),name.c_str(),(*obs_real_var).second,roo_args);
+	} else {
+		
+          std::cerr << "WARNING -- RooContainer::AddGenericPdf -- Need "<<form-70 << " arguments for RooBernstein of order " << form-70 <<", was given: "
 		    << var.size() << " -- WARNING"
 	            << std::endl;
 	  return;
