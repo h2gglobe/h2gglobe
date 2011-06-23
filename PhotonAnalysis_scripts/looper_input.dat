@@ -36,3 +36,11 @@ pho_cic4passcuts_sublead
 conversions
 ->
 pho_matchingConv
+
+->
+di-photons
+->
+dipho_n
+dipho_leadind
+dipho_subleadind
+dipho_vtxind
