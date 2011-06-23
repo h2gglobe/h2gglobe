@@ -306,8 +306,8 @@ PhotonInfo LoopAll::fillPhotonInfos(int p1, bool useAllConvs)
 	if ( iConv1 >= 0) {
 		// conversions infos
 		return PhotonInfo(p1,
-				  /// *((TVector3*)pho_calopos->At(p1)),
-				  *((TVector3*)sc_xyz->At(pho_scind[p1])),
+				  *((TVector3*)pho_calopos->At(p1)),
+				  /// *((TVector3*)sc_xyz->At(pho_scind[p1])),
 				  *((TVector3*) bs_xyz->At(0)),
 				  *((TVector3*) conv_vtx->At(iConv1)),
 				  ((TLorentzVector*)pho_p4->At(p1))->Energy(),
@@ -323,8 +323,8 @@ PhotonInfo LoopAll::fillPhotonInfos(int p1, bool useAllConvs)
 	//// }
 	
 	return PhotonInfo(p1, 
-			  /// *((TVector3*)pho_calopos->At(p1)),                                                                                                                
-			  *((TVector3*)sc_xyz->At(pho_scind[p1])),
+			  *((TVector3*)pho_calopos->At(p1)),                                                                                                                
+			  /// *((TVector3*)sc_xyz->At(pho_scind[p1])),
 			  *((TVector3*) bs_xyz->At(0)),                                                                                                                            
 			  *((TVector3*) pho_conv_vtx->At(p1)),                                                                                                              
 			  ((TLorentzVector*)pho_p4->At(p1))->Energy(),                                                                                                      
@@ -591,8 +591,8 @@ int  LoopAll::matchPhotonToConversion( int lpho) {
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 TLorentzVector LoopAll::get_pho_p4(int ipho, int ivtx, float * energy)
 {
-	/// PhotonInfo p(ipho, *((TVector3*)pho_calopos->At(ipho)),((TLorentzVector*)pho_p4->At(ipho))->Energy());
-	PhotonInfo p(ipho, *((TVector3*)sc_xyz->At(pho_scind[ipho])),
+	/// PhotonInfo p(ipho, *((TVector3*)sc_xyz->At(pho_scind[ipho])),
+	PhotonInfo p(ipho, *((TVector3*)pho_calopos->At(ipho)),
 		     energy != 0 ? energy[ipho] : ((TLorentzVector*)pho_p4->At(ipho))->Energy() );
 	TVector3 * vtx = (TVector3*) vtx_std_xyz->At(ivtx);
 	return p.p4( vtx->X(), vtx->Y(), vtx->Z() );

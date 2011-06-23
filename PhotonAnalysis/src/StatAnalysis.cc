@@ -439,8 +439,8 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
    
    for(int ipho=0; ipho<l.pho_n; ++ipho ) { 
        std::vector<std::vector<bool> > p;
-       PhotonReducedInfo phoInfo ( //*((TVector3*)l.pho_calopos->At(ipho)), 
-	       *((TVector3*)l.sc_xyz->At(l.pho_scind[ipho])), 
+       PhotonReducedInfo phoInfo ( *((TVector3*)l.pho_calopos->At(ipho)), 
+	       // *((TVector3*)l.sc_xyz->At(l.pho_scind[ipho])), 
 	       ((TLorentzVector*)l.pho_p4->At(ipho))->Energy(), l.pho_isEB[ipho], l.pho_r9[ipho],
 	       l.PhotonCiCSelectionLevel(ipho,l.vtx_std_sel,p,l.phoSUPERTIGHT) );
        float pweight = 1.;
@@ -632,8 +632,8 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	       // smear the photons 
 	       for(int ipho=0; ipho<l.pho_n; ++ipho ) { 
 		   std::vector<std::vector<bool> > p;
-		   PhotonReducedInfo phoInfo ( ///*((TVector3*)l.pho_calopos->At(ipho)), 
-			   *((TVector3*)l.sc_xyz->At(l.pho_scind[ipho])), 
+		   PhotonReducedInfo phoInfo ( *((TVector3*)l.pho_calopos->At(ipho)), 
+			   /// *((TVector3*)l.sc_xyz->At(l.pho_scind[ipho])), 
 			   ((TLorentzVector*)l.pho_p4->At(ipho))->Energy(), l.pho_isEB[ipho], l.pho_r9[ipho],
 			   l.PhotonCiCSelectionLevel(ipho,l.vtx_std_sel,p,l.phoSUPERTIGHT));
 		   
