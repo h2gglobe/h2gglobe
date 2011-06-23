@@ -35,9 +35,9 @@ public:
   std::string   name_;
   std::string   KFName_;
   TFile        *theKFactorFile_; 
-  std::map<std::string,TGraphAsymmErrors*> smearing_eff_graph_;
-  
-  TH1* thm110, *thm120, *thm130, *thm140;
+  std::map< int,std::vector<TH1*> > kFactorSmearers_;
+  void   readMassPoint(int mass, int uId, int dId );
+  double getKFactor(int genMassPoint, int id, double gPT ) const;
 
   unsigned int downId, upId; 
 };

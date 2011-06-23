@@ -12,6 +12,21 @@ KFactorSmearer::~KFactorSmearer()
 {
 }
 
+void KFactorSmearer::readMassPoint(int mass, int uId, int dId ){
+  
+  kFactorSmearers_[mass] = std::vector<TH1*>(3,(TH1*)0);
+
+  TH1* temp = (TH1D*) theKFactorFile_->Get( Form("kfact%d_0",mass) );
+  assert(temp!=0);    kFactorSmearers_[mass][0]=(TH1D*) temp->Clone(Form("Hmass%d",mass)); kFactorSmearers_[mass][0]->SetDirectory(0);
+
+  temp = (TH1D*) theKFactorFile_->Get( Form("kfact%d_%d",mass,uId) );
+  assert(temp!=0);    kFactorSmearers_[mass][1]=(TH1D*) temp->Clone(Form("Hmass%_up",mass)); kFactorSmearers_[mass][1]->SetDirectory(0);
+
+  temp = (TH1D*) theKFactorFile_->Get( Form("kfact%d_%d",mass,dId) );
+  assert(temp!=0);    kFactorSmearers_[mass][2]=(TH1D*) temp->Clone(Form("Hmass%_down",mass)); kFactorSmearers_[mass][2]->SetDirectory(0);
+
+}
+
 bool KFactorSmearer::smearEvent( float & weight, const TLorentzVector & p4, const int nPu, const int sample_type, float syst_shift ) const 
 {
   int genMassPoint;
@@ -36,39 +51,38 @@ bool KFactorSmearer::smearEvent( float & weight, const TLorentzVector & p4, cons
 bool KFactorSmearer::init() 
 {
   cout << name_ << " - Opening KFactor file"<<endl;
-  TFile* kfacFile = TFile::Open( efficiency_file.c_str() );
-  assert(kfacFile!=0);
+  theKFactorFile_ = TFile::Open( efficiency_file.c_str() );
+  assert(theKFactorFile_!=0);
 
-  TH1D *temp;
-  temp = (TH1D*) kfacFile->Get(Form("kfact%d_0",110));
-  assert(temp!=0);   thm110 =(TH1D*) temp->Clone(Form("Hmass%d",110)); thm110->SetDirectory(0);
-  temp = (TH1D*) kfacFile->Get(Form("kfact%d_0",120));
-  assert(temp!=0);   thm120 =(TH1D*) temp->Clone(Form("Hmass%d",120)); thm120->SetDirectory(0);
-  temp = (TH1D*) kfacFile->Get(Form("kfact%d_0",130));
-  assert(temp!=0);   thm130 =(TH1D*) temp->Clone(Form("Hmass%d",130)); thm130->SetDirectory(0);
-  temp = (TH1D*) kfacFile->Get(Form("kfact%d_0",140));
-  assert(temp!=0);   thm140 =(TH1D*) temp->Clone(Form("Hmass%d",140)); thm140->SetDirectory(0);
-  
-  kfacFile->Close();
-  //GF get also the systematics (map?) 
+  readMassPoint(110, upId, downId);
+  readMassPoint(120, upId, downId);
+  readMassPoint(130, upId, downId);
+  readMassPoint(140, upId, downId);
+
+  theKFactorFile_->Close();
+
   return true;
+}
+
+double KFactorSmearer::getKFactor(int genMassPoint, int id, double gPT  ) const {
+
+  if(genMassPoint==110 || genMassPoint==120 || genMassPoint==130  || genMassPoint==140 ) {
+    const TH1* tmp = kFactorSmearers_.find(genMassPoint)->second[id]; 
+    return tmp->GetBinContent(tmp->FindFixBin(gPT));
+  }
+  assert(0); return 0.;
 }
 
 
 double KFactorSmearer::getWeight( const TLorentzVector & p4, const int nPu, const int & genMassPoint, float syst_shift) const
 {
-  
   float gPT = p4.Pt();
-
   // this is consistent with samples available on Tue Jun 21 18:10:03 CEST 2011
   // bins are very fine, therefore interpolation between bins can be neglegted for now
-  if      (genMassPoint ==110 ) return thm110->GetBinContent(thm110->FindFixBin(gPT));
-  else if (genMassPoint ==120 ) return thm120->GetBinContent(thm120->FindFixBin(gPT));
-  else if (genMassPoint ==130 ) return thm130->GetBinContent(thm130->FindFixBin(gPT));
-  else if (genMassPoint ==140 ) return thm140->GetBinContent(thm140->FindFixBin(gPT));
-  else if (genMassPoint ==115 ) return (0.5*thm110->GetBinContent(thm110->FindFixBin(gPT)) +0.5*thm120->GetBinContent(thm120->FindFixBin(gPT)));
-  else assert(0);
 
-  return 1.;
+  int    varId     = syst_shift > 0 ?   1 : 2;
+  double nominal   = genMassPoint == 115 ?   (0.5*getKFactor(110, 0, gPT )+0.5*getKFactor(120, 0, gPT ))         : getKFactor( genMassPoint, 0, gPT );
+  double variation = genMassPoint == 115 ?   (0.5*getKFactor(110, varId, gPT )+0.5*getKFactor(120, varId, gPT )) : getKFactor( genMassPoint, varId, gPT );
 
+  return ( nominal + (variation-nominal) * fabs(syst_shift) );
 }
