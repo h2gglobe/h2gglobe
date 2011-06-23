@@ -65,7 +65,7 @@ bool EfficiencySmearer::smearPhoton(PhotonReducedInfo & aPho, float & weight, fl
   // introduce correlation between weights assigned to R9 and to !R9
   if( doR9_ )   {
     if    ( aPho.r9()>0.94 )  weight =     getWeight( ( aPho.energy() / cosh(aPho.caloPosition().PseudoRapidity()) ) ,category, syst_shift);
-    else                      weight = -1* getWeight( ( aPho.energy() / cosh(aPho.caloPosition().PseudoRapidity()) ) ,category, syst_shift);
+    else                      weight =     getWeight( ( aPho.energy() / cosh(aPho.caloPosition().PseudoRapidity()) ) ,category, -1*syst_shift);
   }
   
   return true;
