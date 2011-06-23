@@ -39,6 +39,9 @@ doTriggerEffSyst=1
 doR9Smear=1
 doR9Syst=1
 
+doKFactorSmear=0
+doKFactorSyst=0
+
 ->
 Inputs for reweighing
 ->
@@ -47,7 +50,7 @@ puHist=/castor/cern.ch/user/a/adavidzh/Higgs2011/pu/Weights_MCSpring11_Cert_1604
 ->
 /afs/cern.ch/user/n/nckw/public/Cert_160404-163869_7TeV_May10ReReco_Collisions11_JSON.txt.merged_with.h2g_V07_00.promptreco_May10ReReco.lumiSummary.json.weightsfor_globe_V07_00_gluglu_H_gg_115_pu2011.root
 ->
-efficiencyFile=/afs/cern.ch/user/f/franzoni/public/globe/sig_reweighing_v7.root
+efficiencyFile=/afs/cern.ch/user/f/franzoni/public/globe/sig_reweighing_v8.root
 
 ->
 Numbers from Riccardo: "slide 1" of https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/252/1.html
