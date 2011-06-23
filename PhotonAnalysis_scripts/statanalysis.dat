@@ -39,7 +39,7 @@ doTriggerEffSyst=1
 doR9Smear=1
 doR9Syst=1
 
-doKFactorSmear=0
+doKFactorSmear=1
 doKFactorSyst=0
 
 ->

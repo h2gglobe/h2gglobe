@@ -10,6 +10,7 @@
 #include "EnergySmearer.h"
 #include "EfficiencySmearer.h"
 #include "DiPhoEfficiencySmearer.h"
+#include "KFactorSmearer.h"
 #include <iostream>
 #include <fstream>
 #include "math.h"
@@ -45,8 +46,8 @@ public:
 
 	double GetDifferentialKfactor(double, int);
 	bool  doMCSmearing;
-	bool  doEscaleSyst, doEresolSyst, doPhotonIdEffSyst, doVtxEffSyst, doR9Syst, doTriggerEffSyst;
-	bool  doEscaleSmear, doEresolSmear, doPhotonIdEffSmear, doVtxEffSmear, doR9Smear, doTriggerEffSmear;
+	bool  doEscaleSyst, doEresolSyst, doPhotonIdEffSyst, doVtxEffSyst, doR9Syst, doTriggerEffSyst, doKFactorSyst;
+	bool  doEscaleSmear, doEresolSmear, doPhotonIdEffSmear, doVtxEffSmear, doR9Smear, doTriggerEffSmear, doKFactorSmear;
 	float systRange;
 	int   nSystSteps;   
 	int   nEtaCategories, nR9Categories, nPtCategories;
@@ -69,7 +70,7 @@ public:
 	float smearing_sigma_error_EEHighR9 ;
 	float smearing_sigma_error_EELowR9  ;
 	
-	TString kfacHist;
+	std::string kfacHist;
 
 	TH1D *thm110,*thm120,*thm130,*thm140;
 	int nMasses;
@@ -79,10 +80,13 @@ protected:
 	std::vector<BaseSmearer *> systPhotonSmearers_;
 	std::vector<BaseDiPhotonSmearer *> diPhotonSmearers_;
 	std::vector<BaseDiPhotonSmearer *> systDiPhotonSmearers_;
+	std::vector<BaseGenLevelSmearer *> genLevelSmearers_;
+	std::vector<BaseGenLevelSmearer *> systGenLevelSmearers_;
 	
 	EnergySmearer *eScaleSmearer, *eScaleDataSmearer, *eResolSmearer ;
 	EfficiencySmearer *idEffSmearer, *r9Smearer;
 	DiPhoEfficiencySmearer *vtxEffSmearer, *triggerEffSmearer;
+	KFactorSmearer * kFactorSmearer;
 	
 	std::string name_;
 	

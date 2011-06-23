@@ -15,3 +15,12 @@ BaseDiPhotonSmearer::~BaseDiPhotonSmearer()
 {}
 
 bool operator == (BaseDiPhotonSmearer * a, const std::string & b) { return a->name() == b; };
+
+BaseGenLevelSmearer::BaseGenLevelSmearer()
+{}
+
+BaseGenLevelSmearer::~BaseGenLevelSmearer() 
+{}
+
+bool operator == (BaseGenLevelSmearer * a, const std::string & b) { return a->name() == b; };
+

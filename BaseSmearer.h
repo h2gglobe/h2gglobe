@@ -61,4 +61,26 @@ public:
 // ! Used to search analyzers by name 
 bool operator == (BaseDiPhotonSmearer * a, const std::string & b);
 
+
+class BaseGenLevelSmearer 
+{
+public:
+	// ! C-TOR
+	BaseGenLevelSmearer();
+	
+	// ! D-TOR
+	virtual ~BaseGenLevelSmearer();
+	
+	// ! the class name
+	virtual const std::string & name() const = 0; 
+	
+	// !  
+	operator const std::string & () const { return this->name(); };
+	
+	virtual bool smearEvent(  float & weight, const TLorentzVector & p4, const int nPu, const int sample_type, float syst_shift=0.) const = 0 ;
+};
+
+// ! Used to search analyzers by name 
+bool operator == (BaseGenLevelSmearer * a, const std::string & b);
+
 #endif
