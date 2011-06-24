@@ -4,6 +4,8 @@
 // ROOT includes
 #include "TROOT.h"
 #include "TCanvas.h"
+#include "TPaveText.h"
+#include "TLatex.h"
 #include "TH1F.h"
 #include "TAxis.h"
 #include "TMath.h"
@@ -15,6 +17,8 @@
 #include "RooDataHist.h"
 #include "RooDataSet.h"
 #include "RooRealVar.h"
+#include "RooConstVar.h"
+#include "RooFormulaVar.h"
 #include "RooPlot.h"
 #include "RooGenericPdf.h"
 #include "RooExponential.h"
@@ -57,6 +61,7 @@ class RooContainer {
     void AddObservable(std::string,double,double);
     void AddConstant(std::string,double);
     void AddRealVar(std::string,double,double xmin=-10,double xmax=10);
+    void AddFormulaVar(std::string,std::string,std::string);
     void AddGenericPdf(std::string,std::string,std::string,
 		       std::vector<std::string> &, 
 		       int form,double norm_guess=10
@@ -104,6 +109,7 @@ class RooContainer {
 
    void addRealVar(std::string,double,double);
    void addRealVar(std::string,double,double,double);
+   void addFormulaVar(std::string,std::string,std::string);
    void addGenericPdf(std::string,std::string,std::string,
 		      std::vector<std::string> &,
 		      int form, 
@@ -122,7 +128,7 @@ class RooContainer {
    void generateBinnedPdf(int,std::string,std::string,std::string,std::string,RooRealVar*,RooDataSet&,int,int,int,double,double);
    void combineBinnedDatasets(std::string,std::string,double);
    void writeRooDataHist(std::string, TH1F *);
-   void writeRooPlot(RooPlot *);
+   void writeRooPlot(RooPlot *,double);
    void removeDuplicateElements(std::vector<RooAbsPdf*> &);
    void setAllParametersConstant();
 
@@ -144,6 +150,7 @@ class RooContainer {
    std::vector<RooAbsPdf*> pdf_saves_;
 
    std::map<std::string, RooRealVar> m_real_var_;
+   std::map<std::string, RooFormulaVar> m_form_var_;
    std::map<std::string, RooAbsPdf*> m_gen_;
    std::map<std::string, RooExtendPdf> m_exp_;
    std::map<std::string, RooAddPdf> m_pdf_;
@@ -166,7 +173,7 @@ class RooContainer {
  
    std::map<std::string,int> bins_;
    std::map<std::string,double> inits_;
-   std::map<RooPlot*,RooFitResult*> fit_res_;
+   std::map<RooPlot*,double> fit_res_;
    std::map<std::string,RooFitResult*> fit_results_;
 
    RooWorkspace ws;   

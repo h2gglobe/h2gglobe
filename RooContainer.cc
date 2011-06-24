@@ -50,23 +50,19 @@ void RooContainer::AddRealVar(std::string name,double init,double xmin, double x
   }
 }
 // ----------------------------------------------------------------------------------------------------
-/* Work in progress to have functions of combinations of parameters, this is useful say for creating log-normal
-distributed parameters,
-void RooContainer::AddFormulaVar(std::string name,std::string formula,std::vector<string> vars){
+void RooContainer::AddFormulaVar(std::string name,std::string formula,std::string var){
   for (int cat=0;cat<ncat;cat++){
-    
-    addFormulaVar(getcatName(name,cat),);
+    addFormulaVar(getcatName(name,cat),formula,getcatName(var,cat));
     if (make_systematics){
 	for (it_sys=systematics_.begin(); it_sys!=systematics_.end();it_sys++){
 	  for (int sys=1;sys<=nsigmas;sys++)
-	    addFormulaVar(getsysindexName(getcatName(name,cat),(it_sys->first),sys,-1),init,xmin,xmax);
+	    addFormulaVar(getsysindexName(getcatName(name,cat),(it_sys->first),sys,-1),formula,getsysindexName(getcatName(var,cat),(it_sys->first),sys,-1));
 	  for (int sys=1;sys<=nsigmas;sys++)
-	    addFormulaVar(getsysindexName(getcatName(name,cat),(it_sys->first),sys,1),init,xmin,xmax);
+	    addFormulaVar(getsysindexName(getcatName(name,cat),(it_sys->first),sys,1),formula,getsysindexName(getcatName(var,cat),(it_sys->first),sys,1));
 	}
     }
   }
 }
-*/
 // ----------------------------------------------------------------------------------------------------
 void RooContainer::AddSpecificCategoryPdf(int *categories,std::string name,std::string formula,std::string obs_name
 				,std::vector<std::string> & var, int form
@@ -346,19 +342,19 @@ void RooContainer::Save(){
   std::cout << "RooContainer::Save -- Saving Plots "
             << std::endl;
 
-  std::map<RooPlot*,RooFitResult*>::iterator it;
+  std::map<RooPlot*,double>::iterator it;
   for(it  = fit_res_.begin()
      ;it != fit_res_.end()
      ;it++ ){
       
-       writeRooPlot((*it).first);
+       writeRooPlot((*it).first,(*it).second);
   }
   
   std::cout << "RooContainer::Save -- Saving Pdfs "
             << std::endl;
 
   // check first and remove duplicates of the pointers. 
-/*  removeDuplicateElements(pdf_saves_);
+  removeDuplicateElements(pdf_saves_);
 
   std::vector<RooAbsPdf*>::iterator it_pdf;
 
@@ -368,17 +364,17 @@ void RooContainer::Save(){
      
        ws.import(**it_pdf);
   }
-*/
-  std::map<std::string,RooAbsPdf*>::iterator it_pdf;
+/*
+  std::map<std::string,RooAbsPdf*>::iterator it_gen;
 
-  for(it_pdf  = m_gen_.begin()
-     ;it_pdf != m_gen_.end()
-     ;it_pdf++ ){
+  for(it_gen  = m_gen_.begin()
+     ;it_gen != m_gen_.end()
+     ;it_gen++ ){
      
-       ws.import(*(it_pdf->second));
+       ws.import(*(it_gen->second));
   }
   
-
+*/
   for (std::map<std::string,RooDataSet>::iterator it_data = data_.begin()
       ;it_data!=data_.end();it_data++)	{
 
@@ -756,15 +752,27 @@ void RooContainer::addRealVar(std::string name ,double xmin,double xmax){
 void RooContainer::addRealVar(std::string name ,double init,double xmin,double xmax){
   RooRealVar temp(name.c_str(),name.c_str(),init,xmin,xmax);
  // temp.removeRange();
+  temp.setRange(-10.,10.);
   m_real_var_.insert(pair<std::string,RooRealVar>(name,temp));
   std::cout << "RooContainer::AddRealVar -- Appended the variable " 
 	    << name <<std::endl;
   
 }
 // ----------------------------------------------------------------------------------------------------
+void RooContainer::addFormulaVar(std::string name ,std::string formula, std::string var){
+
+  RooFormulaVar temp(name.c_str(),name.c_str(),formula.c_str(),RooArgList(m_real_var_[var]));
+  m_form_var_.insert(pair<std::string,RooFormulaVar >(name,temp));
+
+  std::cout << "RooContainer::AddFormulaVar -- Appended the variable " 
+	    << name <<std::endl; 
+}
+// ----------------------------------------------------------------------------------------------------
 void RooContainer::addGenericPdf(std::string name,std::string formula,std::string obs_name
 				,std::vector<std::string> & var, int form
 				,double norm_guess, double norm_min, double norm_max ){
+
+   
 
     RooAbsPdf *temp_1;
     std::map<std::string,RooRealVar>::iterator obs_real_var = m_real_var_.find(obs_name);
@@ -775,14 +783,22 @@ void RooContainer::addGenericPdf(std::string name,std::string formula,std::strin
 	           << obs_name << std::endl; 
     }
     else{
+
+     // find the map to look in 
+     
+     bool form_vars = false;
      std::vector<std::string>::iterator it_var = var.begin();
 
      for (;it_var != var.end();it_var++){ 
         std::map<std::string,RooRealVar>::iterator it_check = m_real_var_.find(*it_var);
 	if (it_check == m_real_var_.end()){
-           std::cerr << "WARNING -- RooContainer::AddGenericPdf -- No Variable Found Named " 
-	             << *it_var << std::endl; 
-	   return;
+	  
+           std::map<std::string,RooFormulaVar>::iterator it_f_check = m_form_var_.find(*it_var);
+	   if (it_f_check == m_form_var_.end()){
+             std::cerr << "WARNING -- RooContainer::AddGenericPdf -- No Variable Found Named " 
+	               << *it_var << std::endl; 
+	     return;
+	   } else form_vars = true;
         }
      }
 
@@ -796,13 +812,22 @@ void RooContainer::addGenericPdf(std::string name,std::string formula,std::strin
 	     std::cout << "RooContainer::AddGenericPdf -- Adding Parameter " 
 		       << *it_var << std::endl;
 
-	     std::map<std::string,RooRealVar>::iterator real_var =  m_real_var_.find(*it_var);
-	     if (real_var != m_real_var_.end())
-	       roo_args.add((*real_var).second);
-	     else 
-      		std::cerr << "WARNING -- RooContainer::AddGenericPdf -- No Variable Found Named " 
-	        	  << *it_var << std::endl;
+	     if (!form_vars) {
+		std::map<std::string,RooRealVar>::iterator real_var =  m_real_var_.find(*it_var);
+	        if (real_var != m_real_var_.end())
+	          roo_args.add((*real_var).second);
+	        else 
+      		   std::cerr << "WARNING -- RooContainer::AddGenericPdf -- No Variable Found Named " 
+	        	     << *it_var << std::endl;
+	    } else {
+		std::map<std::string,RooFormulaVar>::iterator form_var =  m_form_var_.find(*it_var);
+	        if (form_var != m_form_var_.end())
+	          roo_args.add((*form_var).second);
+	        else 
+      		   std::cerr << "WARNING -- RooContainer::AddGenericPdf -- No Variable Found Named " 
+	        	     << *it_var << std::endl;
   	   }
+	}
 
       std::cout << "RooContainer::AddGenericPdf -- Added all variables" 
 	        << std::endl;
@@ -812,7 +837,8 @@ void RooContainer::addGenericPdf(std::string name,std::string formula,std::strin
 
      } else if (form == 1) { //RooExponential  - x,slope
 	if (var.size() == 1){
-	  temp_1 = new RooExponential(Form("pdf_%s",name.c_str()),name.c_str(),(*obs_real_var).second,m_real_var_[var[0]]);
+          if (!form_vars)  temp_1 = new RooExponential(Form("pdf_%s",name.c_str()),name.c_str(),(*obs_real_var).second,m_real_var_[var[0]]);
+          else  temp_1 = new RooExponential(Form("pdf_%s",name.c_str()),name.c_str(),(*obs_real_var).second,m_form_var_[var[0]]);
           //v_gen_.push_back(temp_1);
 	} else {
 		
@@ -823,7 +849,8 @@ void RooContainer::addGenericPdf(std::string name,std::string formula,std::strin
 	}
      } else if (form == 2) { //RooGaussian - x,mean,sigma
 	if (var.size() == 2){
-	  temp_1 = new RooGaussian(Form("pdf_%s",name.c_str()),name.c_str(),(*obs_real_var).second,m_real_var_[var[0]],m_real_var_[var[1]]);
+	  if (!form_vars) temp_1 = new RooGaussian(Form("pdf_%s",name.c_str()),name.c_str(),(*obs_real_var).second,m_real_var_[var[0]],m_real_var_[var[1]]);
+	  else temp_1 = new RooGaussian(Form("pdf_%s",name.c_str()),name.c_str(),(*obs_real_var).second,m_form_var_[var[0]],m_form_var_[var[1]]);
           //v_gen_.push_back(temp_1);
 	} else {
 		
@@ -834,7 +861,8 @@ void RooContainer::addGenericPdf(std::string name,std::string formula,std::strin
 	}
      } else if (form == 3) { //RooBreitWigner - x,centre,width
 	if (var.size() == 2){
-	  temp_1 = new RooBreitWigner(Form("pdf_%s",name.c_str()),name.c_str(),(*obs_real_var).second,m_real_var_[var[0]],m_real_var_[var[1]]);
+	  if (!form_vars) temp_1 = new RooBreitWigner(Form("pdf_%s",name.c_str()),name.c_str(),(*obs_real_var).second,m_real_var_[var[0]],m_real_var_[var[1]]);
+	  else temp_1 = new RooBreitWigner(Form("pdf_%s",name.c_str()),name.c_str(),(*obs_real_var).second,m_form_var_[var[0]],m_form_var_[var[1]]);
           //v_gen_.push_back(temp_1);
 	} else {
 		
@@ -846,8 +874,10 @@ void RooContainer::addGenericPdf(std::string name,std::string formula,std::strin
 	}
      } else if (form == 4) { //RooCBShape - x,centre,sigma,slope,n
 	if (var.size() == 4){
-	  temp_1 = new RooCBShape(Form("pdf_%s",name.c_str()),name.c_str(),(*obs_real_var).second,m_real_var_[var[0]],m_real_var_[var[1]]
+	  if (!form_vars) temp_1 = new RooCBShape(Form("pdf_%s",name.c_str()),name.c_str(),(*obs_real_var).second,m_real_var_[var[0]],m_real_var_[var[1]]
 				 ,m_real_var_[var[2]],m_real_var_[var[3]]);
+	  else temp_1 = new RooCBShape(Form("pdf_%s",name.c_str()),name.c_str(),(*obs_real_var).second,m_form_var_[var[0]],m_form_var_[var[1]]
+				 ,m_form_var_[var[2]],m_form_var_[var[3]]);
           //v_gen_.push_back(temp_1);
 	} else {
 		
@@ -858,8 +888,10 @@ void RooContainer::addGenericPdf(std::string name,std::string formula,std::strin
 	}
      } else if (form == 5) { //RooVoigtian - x,centre,width,sigma
 	if (var.size() == 3){
-	  temp_1 = new RooVoigtian(Form("pdf_%s",name.c_str()),name.c_str(),(*obs_real_var).second,m_real_var_[var[0]],m_real_var_[var[1]]
+	  if (!form_vars) temp_1 = new RooVoigtian(Form("pdf_%s",name.c_str()),name.c_str(),(*obs_real_var).second,m_real_var_[var[0]],m_real_var_[var[1]]
 				  ,m_real_var_[var[2]]);
+	  else temp_1 = new RooVoigtian(Form("pdf_%s",name.c_str()),name.c_str(),(*obs_real_var).second,m_form_var_[var[0]],m_form_var_[var[1]]
+				  ,m_form_var_[var[2]]);
           //v_gen_.push_back(temp_1);
 	} else {
 		
@@ -872,7 +904,8 @@ void RooContainer::addGenericPdf(std::string name,std::string formula,std::strin
 
 	if (var.size() == form-60){
       	  RooArgList roo_args;
-	  for (std::vector<std::string>::iterator it_var = var.begin()
+	  if (!form_vars){
+	   for (std::vector<std::string>::iterator it_var = var.begin()
 	      ;it_var != var.end()
 	      ;it_var++
 	      ){
@@ -886,6 +919,22 @@ void RooContainer::addGenericPdf(std::string name,std::string formula,std::strin
       		std::cerr << "WARNING -- RooContainer::AddGenericPdf -- No Variable Found Named " 
 	        	  << *it_var << std::endl;
   	   }
+	  } else {
+	   for (std::vector<std::string>::iterator it_var = var.begin()
+	      ;it_var != var.end()
+	      ;it_var++
+	      ){
+	     std::cout << "RooContainer::AddGenericPdf -- Adding Parameter " 
+		       << *it_var << std::endl;
+
+	     std::map<std::string,RooFormulaVar>::iterator form_var =  m_form_var_.find(*it_var);
+	     if (form_var != m_form_var_.end())
+	       roo_args.add((*form_var).second);
+	     else 
+      		std::cerr << "WARNING -- RooContainer::AddGenericPdf -- No Variable Found Named " 
+	         	  << *it_var << std::endl;
+	   }
+	  }
       	   std::cout << "RooContainer::AddGenericPdf -- Added all variables" 
 	        	  << std::endl;
 
@@ -902,7 +951,9 @@ void RooContainer::addGenericPdf(std::string name,std::string formula,std::strin
 
 	if (var.size() == form-70){
       	  RooArgList roo_args;
-	  for (std::vector<std::string>::iterator it_var = var.begin()
+	  roo_argsdd(RooConst(1.0));
+	  if (!form_vars){
+	   for (std::vector<std::string>::iterator it_var = var.begin()
 	      ;it_var != var.end()
 	      ;it_var++
 	      ){
@@ -916,6 +967,22 @@ void RooContainer::addGenericPdf(std::string name,std::string formula,std::strin
       		std::cerr << "WARNING -- RooContainer::AddGenericPdf -- No Variable Found Named " 
 	        	  << *it_var << std::endl;
   	   }
+	  } else {
+	   for (std::vector<std::string>::iterator it_var = var.begin()
+	      ;it_var != var.end()
+	      ;it_var++
+	      ){
+	     std::cout << "RooContainer::AddGenericPdf -- Adding Parameter " 
+		       << *it_var << std::endl;
+
+	     std::map<std::string,RooFormulaVar>::iterator form_var =  m_form_var_.find(*it_var);
+	     if (form_var != m_form_var_.end())
+	       roo_args.add((*form_var).second);
+	     else 
+      		std::cerr << "WARNING -- RooContainer::AddGenericPdf -- No Variable Found Named " 
+	         	  << *it_var << std::endl;
+	   }
+	  }
       	   std::cout << "RooContainer::AddGenericPdf -- Added all variables" 
 	        	  << std::endl;
 
@@ -939,7 +1006,7 @@ void RooContainer::addGenericPdf(std::string name,std::string formula,std::strin
 
      m_gen_.insert(std::pair<std::string,RooAbsPdf*>(name,temp_1));
 
-     RooRealVar temp_var(Form("norm_%s",name.c_str()),name.c_str(),norm_guess,norm_min,norm_max);
+     RooRealVar temp_var(Form("%s_norm",name.c_str()),name.c_str(),norm_guess,norm_min,norm_max);
      m_real_var_.insert(std::pair<std::string,RooRealVar>(name,temp_var));
 
      RooExtendPdf temp(name.c_str(),name.c_str(),*temp_1,m_real_var_[name]);
@@ -1120,7 +1187,7 @@ void RooContainer::fitToData(std::string name_func, std::string name_data, std::
 			    ,double x1, double x2, double x3, double x4){
 
     bool use_composed_pdf = false;
-    double chi_square;
+    int n_pars;
     std::cout << "RooContainer::FitToData -- Fitting function " 
 	      << name_func 
 	      << " To Dataset " 
@@ -1240,14 +1307,17 @@ void RooContainer::fitToData(std::string name_func, std::string name_data, std::
 	(it_pdf->second).paramOn(xframe);
       }
       pdf_saves_.push_back(&(it_pdf->second));
+      n_pars=(it_pdf->second).getParameters(it_data->second)->getSize() -1 ;
     }
 
     else {
 	(it_exp->second).plotOn(xframe,LineColor(4));
 	(it_exp->second).paramOn(xframe);
     	pdf_saves_.push_back(&(it_exp->second));
+        n_pars=(it_exp->second).getParameters(it_data->second)->getSize() -1 ;
     }
 
+    double chi_square = xframe->chiSquare(n_pars);
     if (mode == 0)      // full range fit
       xframe->SetName(Form("%s_%s",name_func.c_str(),name_data.c_str()));
     else if (mode == 1) // single window fit
@@ -1255,7 +1325,7 @@ void RooContainer::fitToData(std::string name_func, std::string name_data, std::
     else	        // sideband fit
       xframe->SetName(Form("%s_%s_%.1f_%.1f_%.1f_%.1f",name_func.c_str(),name_data.c_str(),x1,x2,x3,x4));
 
-    fit_res_.insert(std::pair<RooPlot*,RooFitResult*>(xframe,fit_result));
+    fit_res_.insert(std::pair<RooPlot*,double>(xframe,chi_square));
     fit_results_[name_func]=(fit_result); // keep a record of the last fit of a pdf
 }
 
@@ -1485,13 +1555,18 @@ void RooContainer::writeRooDataHist(std::string name, TH1F *hist){
 
 
 // ----------------------------------------------------------------------------------------------------
-void RooContainer::writeRooPlot(RooPlot *plot){
+void RooContainer::writeRooPlot(RooPlot *plot,double chi){
   // Dont want to let the plots pop up!
   gROOT->SetBatch(true);
   gROOT->SetStyle("Plain");
   // ---------------------------------
+  TLatex *text = new TLatex();
   TCanvas *can = new TCanvas(Form("plot_%s",plot->GetName()),plot->GetName(),900,600) ;    
-  can->cd(); plot->Draw();
+  
+  can->cd(); 
+  plot->Draw();
+  text->SetNDC();
+  text->DrawLatex(0.8,0.5,Form("#Chi^{2} = %.3f",chi));
   can->Write();
   delete can;
 }
