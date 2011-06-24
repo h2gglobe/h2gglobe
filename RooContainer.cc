@@ -604,6 +604,10 @@ void RooContainer::WriteDataCard(std::string filename,std::string data_name
 				,std::string sig_name, std::string bkg_name){
 
    bool parameterisedBackground = false;
+   bool multi_pdf = false;
+   RooAbsPdf * pdf_ptr;
+   RooRealVar *obs;
+
    for (int cat=0;cat<ncat;cat++){
      std::map<std::string,TH1F>::iterator it_data = m_th1f_.find(getcatName(data_name,cat));
 
@@ -620,17 +624,24 @@ void RooContainer::WriteDataCard(std::string filename,std::string data_name
      std::map<std::string,TH1F>::iterator it_bkg  = m_th1f_.find(getcatName(bkg_name,cat));
      if (it_bkg==m_th1f_.end() ){
 	parameterisedBackground = true;	
-        std::map<std::string,RooAbsPdf*>::iterator pdf_bkg  = m_gen_.find(getcatName(bkg_name,cat));
-        if (pdf_bkg==m_gen_.end() ){ 
+        std::map<std::string,RooAddPdf>::iterator pdf_bkg_a  = m_pdf_.find(getcatName(bkg_name,cat));
+        std::map<std::string,RooExtendPdf>::iterator pdf_bkg_e  = m_exp_.find(getcatName(bkg_name,cat));
+        if (pdf_bkg_e==m_exp_.end() && pdf_bkg_a==m_pdf_.end()){ 
 	   std::cerr << "WARNING -- RooContainer::WriteDataCard -- Cannot find "
 		     << bkg_name 
 		     << " DataCard will NOT be Writen -- WARNING!" << std::endl;
 	   return;
-        }
-
+        } else if(pdf_bkg_e!=m_exp_.end() ){
+	  multi_pdf = false;
+   	  pdf_ptr = m_gen_[getcatName(bkg_name,cat)];
+   	  obs = m_data_var_ptr_[getcatName(data_name,cat)] ;
+	} else if(pdf_bkg_a!=m_pdf_.end() ){
+	  multi_pdf = true;
+   	  pdf_ptr = m_gen_[getcatName(bkg_name,cat)];
+   	  obs = m_data_var_ptr_[getcatName(data_name,cat)] ;
+	}
      }
    }
-
    std::string signal_mass_name = (std::string) Form("%s_m$MASS",sig_name.c_str());
    ofstream file;
    if (parameterisedBackground){
@@ -671,7 +682,19 @@ void RooContainer::WriteDataCard(std::string filename,std::string data_name
    file << "\nprocess  ";
    for (int cat=0;cat<ncat;cat++) file << " -1   1  ";
    file << "\nrate     ";
-   for (int cat=0;cat<ncat;cat++) file << " -1  -1 ";
+   if (! parameterisedBackground)
+   	for (int cat=0;cat<ncat;cat++) file << " -1  -1 ";
+   else {
+	for (int cat=0;cat<ncat;cat++) {
+          std::string bcatName = getcatName(bkg_name,cat);
+          std::string dcatName = getcatName(data_name,cat);
+	  std::string rngeName = getcatName("datacard_",cat);
+	  double r1 = m_var_min_[dcatName] ;
+	  double r2 = m_var_max_[dcatName] ;
+	  double norm = getNormalisationFromFit(bcatName,rngeName,m_gen_[bcatName],obs,r1,r2,multi_pdf);
+	  file << " -1 " << norm << " ";   
+	}
+   }
    file << "\n---------------------------------------------\n";
 
    // Now write the systematics lines:
@@ -951,7 +974,7 @@ void RooContainer::addGenericPdf(std::string name,std::string formula,std::strin
 
 	if (var.size() == form-70){
       	  RooArgList roo_args;
-	  roo_argsdd(RooConst(1.0));
+	  roo_args.add(RooConst(1.0));
 	  if (!form_vars){
 	   for (std::vector<std::string>::iterator it_var = var.begin()
 	      ;it_var != var.end()
@@ -1399,7 +1422,7 @@ void RooContainer::generateBinnedPdf(int catNo,std::string hist_nocat_name,std::
   // 0 	     - assumes same data as fit to will be used to set limit -> make up some bullshit constraints weaker than the data
   // 1       - assumes External constraints to data being input, ie actual fit errors will be used
 
-  double normalisation = getNormalisationFromFit(pdf_name,hist_name,pdf_ptr,obs,r1,r2,mode,multi_pdf);
+  double normalisation = getNormalisationFromFit(pdf_name,hist_name,pdf_ptr,obs,r1,r2,multi_pdf);
   temp_hist->SetTitle(obs_name.c_str());  // Used later to keep track of the realvar associated, must be a better way to do this ?
 
   TH1F *temp_hist_up = (TH1F*)temp_hist->Clone();
@@ -1459,7 +1482,7 @@ void RooContainer::generateBinnedPdf(int catNo,std::string hist_nocat_name,std::
       }
 
       setArgSetParameters(rooParameters,new_values);
-      normalisation = getNormalisationFromFit(pdf_name,hist_name,pdf_ptr,obs,r1,r2,mode,multi_pdf);
+      normalisation = getNormalisationFromFit(pdf_name,hist_name,pdf_ptr,obs,r1,r2,multi_pdf);
 
       std::string hist_sys_name_up = getsysindexName(hist_name,s_name,sys,1);
       temp_hist = (TH1F*) pdf_ptr->createHistogram(Form("th1f_%s",hist_sys_name_up.c_str()),*obs,Binning(nbins,r1,r2));
@@ -1474,7 +1497,7 @@ void RooContainer::generateBinnedPdf(int catNo,std::string hist_nocat_name,std::
       }
 
       setArgSetParameters(rooParameters,new_values);
-      normalisation = getNormalisationFromFit(pdf_name,hist_name,pdf_ptr,obs,r1,r2,mode,multi_pdf);
+      normalisation = getNormalisationFromFit(pdf_name,hist_name,pdf_ptr,obs,r1,r2,multi_pdf);
 
       std::string hist_sys_name_dn = getsysindexName(hist_name,s_name,sys,-1);
       temp_hist = (TH1F*) pdf_ptr->createHistogram(Form("th1f_%s",hist_sys_name_dn.c_str()),*obs,Binning(nbins,r1,r2));
@@ -1521,7 +1544,7 @@ void RooContainer::setArgSetParameters(RooArgSet* params,std::vector<double> &va
   }
 }
 
-double RooContainer::getNormalisationFromFit(std::string pdf_name,std::string hist_name,RooAbsPdf *pdf_ptr,RooRealVar *obs,double r1,double r2,int mode,bool multi_pdf){
+double RooContainer::getNormalisationFromFit(std::string pdf_name,std::string hist_name,RooAbsPdf *pdf_ptr,RooRealVar *obs,double r1,double r2,bool multi_pdf){
 
   double normalisation = 0;
   if (multi_pdf){

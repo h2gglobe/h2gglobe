@@ -132,7 +132,7 @@ class RooContainer {
    void removeDuplicateElements(std::vector<RooAbsPdf*> &);
    void setAllParametersConstant();
 
-   double getNormalisationFromFit(std::string,std::string,RooAbsPdf *,RooRealVar*,double,double,int,bool);
+   double getNormalisationFromFit(std::string,std::string,RooAbsPdf *,RooRealVar*,double,double,bool);
 
    void getArgSetParameters(RooArgSet*,std::vector<double> &);
    void setArgSetParameters(RooArgSet*,std::vector<double> &);

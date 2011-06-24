@@ -19,7 +19,7 @@ StatAnalysis::StatAnalysis()  :
     massMin = 100.;
     massMax = 150.;
 
-    systRange  = 1.; // in units of sigma
+    systRange  = 3.; // in units of sigma
     nSystSteps = 1;    
 }
 
@@ -251,8 +251,9 @@ void StatAnalysis::Init(LoopAll& l)
     // FIXME move these params to config file
     l.rooContainer->SetNCategories(nCategories_);
     l.rooContainer->nsigmas = nSystSteps;
+    l.rooContainer->sigmaRange = systRange;
     // RooContainer does not support steps different from 1 sigma
-    assert( ((float)nSystSteps) == systRange );
+    //assert( ((float)nSystSteps) == systRange );
 
     if( doEscaleSmear && doEscaleSyst ) {
 	systPhotonSmearers_.push_back( eScaleSmearer );
@@ -318,22 +319,15 @@ void StatAnalysis::Init(LoopAll& l)
 
     l.rooContainer->AddRealVar("pol0",-0.01,-1.5,1.5);
     l.rooContainer->AddRealVar("pol1",-0.01,-1.5,1.5);
-    std::vector<std::string> data_pol_pars(2,"p");	 
-    data_pol_pars[0] = "pol0";
-    data_pol_pars[1] = "pol1";
-    l.rooContainer->AddGenericPdf("data_pol_model",
-				  "0","mass",data_pol_pars,62);	// >= 61 means RooPolynomial of order >= 1
-    // ------------------------------------------------------
-        
-    // Background - Exponential
-    l.rooContainer->AddRealVar("mu",-0.04);
-		  
-    std::vector<std::string> pars(1,"t");	 
-    pars[0] = "mu";
+    l.rooContainer->AddFormulaVar("modpol0","@0*@0","pol0");
+    l.rooContainer->AddFormulaVar("modpol1","@0*@0","pol1");
 
-    l.rooContainer->AddGenericPdf("background_model",
-				  "","mass",pars,1); // 1 for exonential, no need for formula 
-    // -----------------------------------------------------
+    std::vector<std::string> data_pol_pars(2,"p");	 
+    data_pol_pars[0] = "modpol0";
+    data_pol_pars[1] = "modpol1";
+    l.rooContainer->AddGenericPdf("data_pol_model",
+	  "0","mass",data_pol_pars,72);	// >= 71 means RooBernstein of order >= 1
+        
     // -----------------------------------------------------
 
     // Make some data sets from the observables to fill in the event loop		  
