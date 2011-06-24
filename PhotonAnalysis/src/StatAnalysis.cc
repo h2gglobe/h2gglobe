@@ -310,12 +310,22 @@ void StatAnalysis::Init(LoopAll& l)
 
     // FIXME, get these numbers from the LoopAll or maybe sampleContainer?
     l.rooContainer->AddConstant("IntLumi",204.);
+
+    // SM Model
     l.rooContainer->AddConstant("XSBR_105",0.0387684+0.00262016+0.003037036);
     l.rooContainer->AddConstant("XSBR_110",0.0390848+0.00275406+0.002902204);
     l.rooContainer->AddConstant("XSBR_115",0.0386169+0.00283716+0.002717667);
     l.rooContainer->AddConstant("XSBR_120",0.0374175+0.00285525+0.002286);
     l.rooContainer->AddConstant("XSBR_130",0.0319112+0.00260804+0.0019327068);
-    l.rooContainer->AddConstant("XSBR_140",0.0235322+0.00204088+0.0012874228);	
+    l.rooContainer->AddConstant("XSBR_140",0.0235322+0.00204088+0.0012874228);
+
+    // FF model	
+    l.rooContainer->AddConstant("ff_XSBR_105",0.1514688+0.1608224);
+    l.rooContainer->AddConstant("ff_XSBR_110",0.08323692+0.08023015);
+    l.rooContainer->AddConstant("ff_XSBR_115",0.0481518+0.04212559);
+    l.rooContainer->AddConstant("ff_XSBR_120",0.02927583+0.023436813);
+    l.rooContainer->AddConstant("ff_XSBR_130",0.01224394+0.008260946);
+    l.rooContainer->AddConstant("ff_XSBR_140",0.005656604+0.003241793);
 
     l.rooContainer->AddRealVar("pol0",-0.01,-1.5,1.5);
     l.rooContainer->AddRealVar("pol1",-0.01,-1.5,1.5);
