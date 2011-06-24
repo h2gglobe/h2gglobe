@@ -1,7 +1,4 @@
-->
 intL=204. histfile=/castor/cern.ch/user/c/cmshgg/StatAnalysis/11-06-24/CMS-HGG.root output=shifo.root
-->
-intL=204. histfile=CMS-HGG.root output=shifo.root
 
 ->
 Data
@@ -36,12 +33,12 @@ typ=-18 ind=18 draw=1  Nam=vbf_H_gg_110_pu2011 CaDir=/castor/cern.ch/user/d/drbe
 typ=-19 ind=19 draw=1  Nam=wz_H_gg_110_pu2011 CaDir=/castor/cern.ch/user/d/drberry/ReducedNTuples/globe_V09_00_v1/Summer11-PU_S3_START42_V11/WH_ZH_M-110_S3 tot=106235 red=0 lum=1000.000000 xsec=0.002655 kfac=1.000000  scal=1.000000
 typ=-20 ind=20 draw=1  Nam=tt_H_gg_110_pu2011 CaDir=/castor/cern.ch/user/d/drberry/ReducedNTuples/globe_V09_00_v1/Summer11-PU_S3_START42_V11/TTH_M-110_S3 tot=19550 red=0 lum=1000.000000 xsec=0.000247629 kfac=1.000000  scal=1.000000
 
+->
 typ=-13 ind=21 draw=1  Nam=gluglu_H_gg_105_pu2011 CaDir=/castor/cern.ch/user/d/drberry/ReducedNTuples/globe_V09_00_v1/Summer11-PU_S3_START42_V11/GluGlu_M-105_S3 tot=104444 red=0 lum=1000.000000 xsec=0.038768 kfac=1.000000  scal=1.000000
 typ=-14 ind=22 draw=1  Nam=vbf_H_gg_105_pu2011 CaDir=/castor/cern.ch/user/d/drberry/ReducedNTuples/globe_V09_00_v1/Summer11-PU_S3_START42_V11/VBF_M-105_S3 tot=109831 red=0 lum=1000.000000 xsec=0.002620 kfac=1.000000  scal=1.000000
 typ=-16 ind=23 draw=1  Nam=wz_H_gg_105_pu2011 CaDir=/castor/cern.ch/user/d/drberry/ReducedNTuples/globe_V09_00_v1/Summer11-PU_S3_START42_V11/WH_ZH_M-105_S3 tot=110000 red=0 lum=1000.000000 xsec=0.002782 kfac=1.000000  scal=1.000000
 typ=-15 ind=24 draw=1  Nam=tt_H_gg_105_pu2011 CaDir=/castor/cern.ch/user/d/drberry/ReducedNTuples/globe_V09_00_v1/Summer11-PU_S3_START42_V11/TTH_M-105_S3 tot=22000 red=0 lum=1000.000000 xsec=0.000255 kfac=1.000000  scal=1.000000
 
-->
 typ=-9 ind=25 draw=1  Nam=gluglu_H_gg_100_pu2011 CaDir=/castor/cern.ch/user//GluGlu_M-100_S3 tot=109993 red=0 lum=1000.000000 xsec=0.038192 kfac=1.000000  scal=1.000000
 typ=-10 ind=26 draw=1  Nam=vbf_H_gg_100_pu2011 CaDir=/castor/cern.ch/user//VBF_M-100_S3 tot=109109 red=0 lum=1000.000000 xsec=0.002458 kfac=1.000000  scal=1.000000
 typ=-12 ind=27 draw=1  Nam=wz_H_gg_100_pu2011 CaDir=/castor/cern.ch/user//WH_ZH_M-100_S3 tot=110000 red=0 lum=1000.000000 xsec=0.002890 kfac=1.000000  scal=1.000000
