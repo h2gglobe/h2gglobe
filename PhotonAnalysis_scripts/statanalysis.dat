@@ -40,7 +40,7 @@ doR9Smear=1
 doR9Syst=1
 
 doKFactorSmear=1
-doKFactorSyst=0
+doKFactorSyst=1
 
 ->
 Inputs for reweighing
