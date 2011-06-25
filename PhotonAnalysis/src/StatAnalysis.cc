@@ -41,8 +41,8 @@ void StatAnalysis::Term(LoopAll& l)
 
     // Write the data-card for the Combinations Code, needs the output filename, makes binned analysis DataCard
     // Assumes the signal datasets will be called signal_name+"_mXXX"
-    l.rooContainer->GenerateBinnedPdf("bkg_mass_rebinned","data_pol_model","data_mass",1,50,1); // 1 means systematics from the fit effect only the backgroundi. last digit mode = 1 means this is an internal constraint fit 
-    l.rooContainer->WriteDataCard(outputfilename,"data_mass","sig_mass","bkg_mass_rebinned");
+//    l.rooContainer->GenerateBinnedPdf("bkg_mass_rebinned","data_pol_model","data_mass",1,50,1); // 1 means systematics from the fit effect only the backgroundi. last digit mode = 1 means this is an internal constraint fit 
+//    l.rooContainer->WriteDataCard(outputfilename,"data_mass","sig_mass","bkg_mass_rebinned");
 
     SaclayText.close();
 
@@ -312,7 +312,7 @@ void StatAnalysis::Init(LoopAll& l)
     l.rooContainer->AddConstant("IntLumi",204.);
 
     // SM Model
-    l.rooContainer->AddConstant("XSBR_105",0.0387684+0.00262016+0.003037036);
+    //l.rooContainer->AddConstant("XSBR_105",0.0387684+0.00262016+0.003037036);
     l.rooContainer->AddConstant("XSBR_110",0.0390848+0.00275406+0.002902204);
     l.rooContainer->AddConstant("XSBR_115",0.0386169+0.00283716+0.002717667);
     l.rooContainer->AddConstant("XSBR_120",0.0374175+0.00285525+0.002286);
@@ -339,29 +339,29 @@ void StatAnalysis::Init(LoopAll& l)
 	  "0","mass",data_pol_pars,72);	// >= 71 means RooBernstein of order >= 1
         
     // -----------------------------------------------------
-
+    int nDataBins;
     // Make some data sets from the observables to fill in the event loop		  
     // Binning is for histograms (will also produce unbinned data sets)
-    l.rooContainer->CreateDataSet("mass","data_mass"    ,50); // (100,110,150) -> for a window, else full obs range is taken 
-    l.rooContainer->CreateDataSet("mass","bkg_mass"     ,50);    	  	
-    l.rooContainer->CreateDataSet("mass","sig_mass_m105",50);    
-    l.rooContainer->CreateDataSet("mass","sig_mass_m110",50);    
-    l.rooContainer->CreateDataSet("mass","sig_mass_m115",50);    
-    l.rooContainer->CreateDataSet("mass","sig_mass_m120",50);    
-    l.rooContainer->CreateDataSet("mass","sig_mass_m130",50);    
-    l.rooContainer->CreateDataSet("mass","sig_mass_m140",50);    
-    l.rooContainer->CreateDataSet("mass","sig_mass_rv_m105",50);    
-    l.rooContainer->CreateDataSet("mass","sig_mass_rv_m110",50);    
-    l.rooContainer->CreateDataSet("mass","sig_mass_rv_m115",50);    
-    l.rooContainer->CreateDataSet("mass","sig_mass_rv_m120",50);    
-    l.rooContainer->CreateDataSet("mass","sig_mass_rv_m130",50);    
-    l.rooContainer->CreateDataSet("mass","sig_mass_rv_m140",50);    
-    l.rooContainer->CreateDataSet("mass","sig_mass_wv_m105",50);    
-    l.rooContainer->CreateDataSet("mass","sig_mass_wv_m110",50);    
-    l.rooContainer->CreateDataSet("mass","sig_mass_wv_m115",50);    
-    l.rooContainer->CreateDataSet("mass","sig_mass_wv_m120",50);    
-    l.rooContainer->CreateDataSet("mass","sig_mass_wv_m130",50);    
-    l.rooContainer->CreateDataSet("mass","sig_mass_wv_m140",50);    
+    l.rooContainer->CreateDataSet("mass","data_mass"    ,nDataBins); // (100,110,150) -> for a window, else full obs range is taken 
+    l.rooContainer->CreateDataSet("mass","bkg_mass"     ,nDataBins);    	  	
+    l.rooContainer->CreateDataSet("mass","sig_mass_m105",nDataBins);    
+    l.rooContainer->CreateDataSet("mass","sig_mass_m110",nDataBins);    
+    l.rooContainer->CreateDataSet("mass","sig_mass_m115",nDataBins);    
+    l.rooContainer->CreateDataSet("mass","sig_mass_m120",nDataBins);    
+    l.rooContainer->CreateDataSet("mass","sig_mass_m130",nDataBins);    
+    l.rooContainer->CreateDataSet("mass","sig_mass_m140",nDataBins);    
+    l.rooContainer->CreateDataSet("mass","sig_mass_rv_m105",nDataBins);    
+    l.rooContainer->CreateDataSet("mass","sig_mass_rv_m110",nDataBins);    
+    l.rooContainer->CreateDataSet("mass","sig_mass_rv_m115",nDataBins);    
+    l.rooContainer->CreateDataSet("mass","sig_mass_rv_m120",nDataBins);    
+    l.rooContainer->CreateDataSet("mass","sig_mass_rv_m130",nDataBins);    
+    l.rooContainer->CreateDataSet("mass","sig_mass_rv_m140",nDataBins);    
+    l.rooContainer->CreateDataSet("mass","sig_mass_wv_m105",nDataBins);    
+    l.rooContainer->CreateDataSet("mass","sig_mass_wv_m110",nDataBins);    
+    l.rooContainer->CreateDataSet("mass","sig_mass_wv_m115",nDataBins);    
+    l.rooContainer->CreateDataSet("mass","sig_mass_wv_m120",nDataBins);    
+    l.rooContainer->CreateDataSet("mass","sig_mass_wv_m130",nDataBins);    
+    l.rooContainer->CreateDataSet("mass","sig_mass_wv_m140",nDataBins);    
 
     // Make more data sets to represent systematic shitfs , 
     l.rooContainer->MakeSystematics("mass","sig_mass_m105",-1);	
@@ -697,7 +697,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		if (diphoton_id > -1 ) {
 		   
 		    diphoton_index = std::make_pair( l.dipho_leadind[diphoton_id],  l.dipho_subleadind[diphoton_id] );
-		    float evweight = weight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second];
+		    float evweight = weight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second] *genLevWeight;
 		   
 		    TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphoton_id], l.dipho_vtxind[diphoton_id], &smeared_pho_energy[0]);
 		    TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphoton_id], l.dipho_vtxind[diphoton_id], &smeared_pho_energy[0]);
