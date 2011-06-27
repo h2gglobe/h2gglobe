@@ -31,13 +31,16 @@ def defineJsonFilter(fname,dataset):
 
 class configProducer:
 
-  def __init__(self,Ut,conf_filename,Type):
+  def __init__(self,Ut,conf_filename,Type,njobs=-1,jobId=0):
 
-    print "h2gglobe: step %d, with Config %s" %(Type,conf_filename)
+    print "h2gglobe: step %d, with Config %s. Number of jobs %d. Running job %d" %(Type,conf_filename,njobs,jobId)
 
     self.ut_   = Ut;
     self.type_ = Type;
     self.is_data_ = True
+
+    self.njobs_ = njobs
+    self.jobId_ = jobId
 
     self.conf_filename = str(conf_filename)
     self.lines_ = []
@@ -242,7 +245,7 @@ class configProducer:
 
      for line in self.lines_:
        # Decide whether this is a define line or a file line:
-       if "output=" in line:   
+       if "output=" in line:
          self.read_output_file(line)
 
        elif "Fil=" in line or "Dir=" in line:
@@ -400,6 +403,10 @@ class configProducer:
       val = sp.split("=")
       if val[0] == "output":
         outfile = str(val[1])
+        if self.njobs_ > 0:
+            name,ext=outfile.rsplit(".",1)
+            outfile = "%s_%d.%s" % ( name, self.jobId_, ext )
+        print "Outfile: %s" % outfile
         self.conf_.outfile = outfile
         outdir=outfile.rsplit("/",1)[0]
         if outdir != outfile:
@@ -435,22 +442,19 @@ class configProducer:
       self.conf_.files.append(tuple_n)
         
     if cas_directory != '':
-      ca_files = makeCaFiles(cas_directory)
+      ca_files = makeCaFiles(cas_directory,self.njobs_,self.jobId_)
       for file_s in ca_files:
         self.conf_.files.append((file_s,fi_type))
 
     if dcs_directory != '':
-      dc_files = makeDcFiles(dcs_directory)
+      dc_files = makeDcFiles(dcs_directory,self.njobs_,self.jobId_)
       for file_s in dc_files:
         self.conf_.files.append((file_s,fi_type))
       
-    if directory != '':  
-      if os.path.isdir(directory): 
-        di_files = os.listdir(directory)
-        di_files = filter(lambda x: ".root" in x, di_files)
-        for file_s in di_files:
-          self.conf_.files.append((str(directory+'/'+file_s),fi_type))
-      else: sys.exit("No Such Directory as %s"%directory)  
+    if directory != '':
+        files = makeFiles(directory,self.njobs_,self.jobId_)
+        for file_s in files:
+            self.conf_.files.append((file_s,fi_type))
 
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def read_input_files_loop(self,line):
@@ -509,25 +513,22 @@ class configProducer:
       self.conf_.confs.append(map_c.copy())
         
     if cas_directory != '':
-      ca_files = makeCaFiles(cas_directory)
+      ca_files = makeCaFiles(cas_directory,self.njobs_,self.jobId_)
       for file_s in ca_files:
         self.conf_.files.append((file_s,fi_type))
         self.conf_.confs.append(map_c.copy())
 
     if dcs_directory != '':
-      dc_files = makeDcFiles(dcs_directory)
+      dc_files = makeDcFiles(dcs_directory,self.njobs_,self.jobId_)
       for file_s in dc_files:
         self.conf_.files.append((file_s,fi_type))
         self.conf_.confs.append(map_c.copy())
 
-    if directory != '':	
-      if os.path.isdir(directory): 
-        di_files = os.listdir(directory)
-        di_files = filter(lambda x: ".root" in x, di_files)
-        for file_s in di_files:
-          self.conf_.files.append((str(directory+'/'+file_s),fi_type))
-          self.conf_.confs.append(map_c.copy())
-      else: sys.exit("No Such Directory as %s"%directory)  
+    if directory != '':
+        files = makeFiles(directory,self.njobs_,self.jobId_)
+        for file_s in files:
+            self.conf_.files.append((file_s,fi_type))
+            self.conf_.confs.append(map_c.copy())
           
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def read_input_branches(self,line):
