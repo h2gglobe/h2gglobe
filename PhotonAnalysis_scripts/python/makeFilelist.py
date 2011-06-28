@@ -28,7 +28,8 @@ def makeDcFiles(dir,njobs=-1,jobid=0):
    dir = str(dir)
    return_files = []
 
-   sc,flist = commands.getstatusoutput('srmls $DCACHE_SRM_ROOT/%s'%(dir))
+   sc,flist = commands.getstatusoutput('srmls $DCACHE_SRM_ROOT/%s --count 1000'%(dir))
+
    nf = 0
    
    if not sc:

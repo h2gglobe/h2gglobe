@@ -443,16 +443,19 @@ class configProducer:
         
     if cas_directory != '':
       ca_files = makeCaFiles(cas_directory,self.njobs_,self.jobId_)
+      if len(ca_files) == 0: sys.exit("No .root Files found in directory - %s"%cas_directory)
       for file_s in ca_files:
         self.conf_.files.append((file_s,fi_type))
 
     if dcs_directory != '':
       dc_files = makeDcFiles(dcs_directory,self.njobs_,self.jobId_)
+      if len(dc_files) == 0: sys.exit("No .root Files found in directory - %s"%dcs_directory)
       for file_s in dc_files:
         self.conf_.files.append((file_s,fi_type))
-      
+
     if directory != '':
         files = makeFiles(directory,self.njobs_,self.jobId_)
+	if len(files)==0: sys.exit("No .root Files found in directory - %s"%directory)
         for file_s in files:
             self.conf_.files.append((file_s,fi_type))
 
@@ -514,21 +517,21 @@ class configProducer:
         
     if cas_directory != '':
       ca_files = makeCaFiles(cas_directory,self.njobs_,self.jobId_)
+      if len(ca_files) == 0: sys.exit("No .root Files found in directory - %s"%cas_directory)
       for file_s in ca_files:
         self.conf_.files.append((file_s,fi_type))
-        self.conf_.confs.append(map_c.copy())
 
     if dcs_directory != '':
       dc_files = makeDcFiles(dcs_directory,self.njobs_,self.jobId_)
+      if len(dc_files) == 0: sys.exit("No .root Files found in directory - %s"%dcs_directory)
       for file_s in dc_files:
         self.conf_.files.append((file_s,fi_type))
-        self.conf_.confs.append(map_c.copy())
 
     if directory != '':
         files = makeFiles(directory,self.njobs_,self.jobId_)
+	if len(files)==0: sys.exit("No .root Files found in directory - %s"%directory)
         for file_s in files:
             self.conf_.files.append((file_s,fi_type))
-            self.conf_.confs.append(map_c.copy())
           
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def read_input_branches(self,line):
