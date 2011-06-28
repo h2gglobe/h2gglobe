@@ -54,13 +54,13 @@ def makeFiles(dir,njobs=-1,jobid=0):
    return_files = []
    nf = 0
    if os.path.isdir(dir): 
-      files = os.listdir(directory)
+      files = os.listdir(dir)
       for f in files:
          if '.root' in f:
             nf += 1
             if (njobs > 0) and (nf % njobs != jobid):
                continue
-            return_files.append(dcache_prepend+dir+'/'+f)
-   else: sys.exit("No Such Directory as %s"%directory)  
+            return_files.append(dir+'/'+f)
+   else: sys.exit("No Such Directory as %s"%dir)  
 
-   return files  
+   return return_files  
