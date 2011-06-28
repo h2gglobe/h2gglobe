@@ -1,4 +1,4 @@
-import commands,sys
+import commands,sys,os
 
 def makeCaFiles(dir,njobs=-1,jobid=0):
 
