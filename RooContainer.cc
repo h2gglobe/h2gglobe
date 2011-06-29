@@ -471,11 +471,11 @@ void RooContainer::InputSystematicSet(std::string s_name, std::string sys_name, 
 	    double min_x = m_var_min_[cat_name];
 	    double max_x = m_var_max_[cat_name];
 	    
-	    if (x > min_x && x < max_x ){
 	    	RooDataSet & data_set = data_[name];
 	    	TH1F & th1f_set = m_th1f_[name];
 	    
 	    	double val = x[istep];
+	    if (val > min_x &&val < max_x ){
 	    	*ptr = val;
 	    	data_set.add(RooArgSet(*ptr),w);
 	    	th1f_set.Fill(val,w);
