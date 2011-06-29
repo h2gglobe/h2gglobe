@@ -13,7 +13,7 @@ from datBlocks import *
 from makeFilelist import *
 
 
-def getGoodLumis(fname):
+def getJson(fname):
     try:
         jstring = open(fname).read()
     except IOError:
@@ -21,13 +21,20 @@ def getGoodLumis(fname):
     return json.loads( jstring )
 
 def defineJsonFilter(fname,dataset):
-    goodlumis = getGoodLumis( fname )
+    goodlumis = getJson( fname )
     
     for run in goodlumis.keys():
         for lumis in goodlumis[run]:
             dataset.addGoodLumi(int(run), int(lumis[0]), int(lumis[1]) )
   
- 
+
+def defineEvList(fname,dataset):
+    evlist = getJson( fname )
+    
+    for run in evlist.keys():
+        for ev in evlist[run]:
+            dataset.addEventToList(int(run), int(ev[0]), int(ev[1]) )
+
 
 class configProducer:
 
@@ -124,7 +131,8 @@ class configProducer:
       dataContainer = self.ut_.DefineSamples(dum['Nam'],dum['typ'],dum['ind'],dum['draw'],dum['red'],dum['tot'],dum['intL'],dum['lum'],dum['xsec'],dum['kfac'],dum['scal'])
       if("json" in dum and dum["json"] != ""):
         defineJsonFilter(dum["json"], dataContainer)
-          
+      if("evlist" in dum and dum["evlist"] != ""):
+        defineEvList(dum["evlist"], dataContainer)
         
   def add_files(self):
     for t_f in self.conf_.files:
@@ -504,6 +512,8 @@ class configProducer:
         map_c["scal"] = float(val[1])
       elif val[0] == "json":
         map_c["json"] = str(val[1])
+      elif val[0] == "evlist":
+        map_c["evlist"] = str(val[1])
       else: sys.exit("Unrecognised Argument:\n ' %s ' in line:\n ' %s '"
                      %(val[0],line))
     if map_c["typ"] != 0:

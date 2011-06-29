@@ -13,6 +13,7 @@ class SampleContainer {
   
   void computeWeight(float);
   void addGoodLumi(int run, int lumi1, int lumi2 );
+  void addEventToList(int run, int lumi, int event );
 
      
   float weight;
@@ -27,8 +28,9 @@ class SampleContainer {
   float kfactor; 
   float scale;
   float lumireal;
-  bool hasLumiSelection;
+  bool hasLumiSelection, hasEventList;
   std::map<int, std::vector<std::pair<int,int> > > goodLumis;
+  std::map<int, std::vector<std::pair<int,int> > > eventList;
 
   
  private:

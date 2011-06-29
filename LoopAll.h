@@ -159,6 +159,7 @@ class LoopAll {
   void GetEntry(std::set<TBranch *> & branches, int jentry);
 
   bool CheckLumiSelection( int run, int lumi );
+  bool CheckEventList( int run, int lumi, int event );
 
 #ifndef __CINT__
   typedef void (LoopAll::*branch_io_t) (TTree *);

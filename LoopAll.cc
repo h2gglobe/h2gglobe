@@ -980,3 +980,20 @@ bool LoopAll::CheckLumiSelection( int run, int lumi )
 	}
 	return false;
 }
+
+// ----------------------------------------------------------------------------------------------------------------------
+bool LoopAll::CheckEventList( int run, int lumi, int event  )
+{
+	if(typerun == kReduce || ! sampleContainer[current_sample_index].hasEventList ){
+		return true;
+	}
+
+	std::vector<std::pair<int,int> > &run_events = sampleContainer[current_sample_index].eventList[run];
+	for(std::vector<std::pair<int,int> >::iterator it=
+		    run_events.begin(); it!=run_events.end(); ++it ) {
+		if( lumi == it->first && event == it->second ) {
+			return true;
+		}
+	}
+	return false;
+}

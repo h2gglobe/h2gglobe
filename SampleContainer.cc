@@ -19,6 +19,7 @@ SampleContainer::SampleContainer() {
   scale = 1;
   lumireal = 1;
   hasLumiSelection = false;
+  hasEventList = false;
 }
 
 void SampleContainer::computeWeight(float intL) {
@@ -36,3 +37,10 @@ void SampleContainer::addGoodLumi(int run, int lumi1, int lumi2 )
 	goodLumis[run].push_back( std::make_pair(lumi1,lumi2) );
 }
 
+
+// ----------------------------------------------------------------------------------------------------------------------
+void SampleContainer::addEventToList(int run, int lumi, int event )
+{
+	hasEventList = true;
+	eventList[run].push_back( std::make_pair(lumi,event) );
+}

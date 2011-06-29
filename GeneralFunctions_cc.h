@@ -521,8 +521,8 @@ int  LoopAll::matchPhotonToConversion( int lpho) {
   double conv_eta=-999.;
   double conv_phi=-999.;
   
-  // float sc_eta  = ((TVector3 *) pho_calopos->At(lpho))->Eta();
-  float sc_eta  = ((TVector3 *) sc_xyz->At(pho_scind[lpho]))->Eta();
+  float sc_eta  = ((TVector3 *) pho_calopos->At(lpho))->Eta();
+  /// float sc_eta  = ((TVector3 *) sc_xyz->At(pho_scind[lpho]))->Eta();
   float  phi  = ((TVector3 *) pho_calopos->At(lpho))->Phi();
   double sc_phi = phiNorm(phi);
   
