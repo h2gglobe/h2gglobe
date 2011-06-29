@@ -128,6 +128,7 @@ class configProducer:
         
   def add_files(self):
     for t_f in self.conf_.files:
+      print t_f
       self.ut_.AddFile(t_f[0],t_f[1])
       
   # File Parsers ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -520,18 +521,22 @@ class configProducer:
       if len(ca_files) == 0: sys.exit("No .root Files found in directory - %s"%cas_directory)
       for file_s in ca_files:
         self.conf_.files.append((file_s,fi_type))
+	self.conf_.confs.append(map_c.copy())
 
     if dcs_directory != '':
       dc_files = makeDcFiles(dcs_directory,self.njobs_,self.jobId_)
       if len(dc_files) == 0: sys.exit("No .root Files found in directory - %s"%dcs_directory)
       for file_s in dc_files:
         self.conf_.files.append((file_s,fi_type))
+	self.conf_.confs.append(map_c.copy())
 
     if directory != '':
         files = makeFiles(directory,self.njobs_,self.jobId_)
 	if len(files)==0: sys.exit("No .root Files found in directory - %s"%directory)
-        for file_s in files:
+        for file_s in files:	
+	    print file_s, fi_type
             self.conf_.files.append((file_s,fi_type))
+	    self.conf_.confs.append(map_c.copy())
           
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def read_input_branches(self,line):
