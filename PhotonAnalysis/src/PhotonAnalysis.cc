@@ -274,7 +274,7 @@ void PhotonAnalysis::PreselectPhotons(LoopAll& l, int jentry)
 		std::vector<std::vector<bool> > p;
 		PhotonReducedInfo phoInfo ( *((TVector3*)l.pho_calopos->At(ipho)), 
 					    ((TLorentzVector*)l.pho_p4->At(ipho))->Energy(), l.pho_isEB[ipho], l.pho_r9[ipho],
-					    l.PhotonCiCSelectionLevel(ipho,l.vtx_std_sel,p,l.phoSUPERTIGHT) );
+					    false );
 		float pweight = 1.;
 		if( cur_type == 0 ) {          // correct energy scale in data
 			float sweight = 1.;
