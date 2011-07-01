@@ -34,7 +34,16 @@ tkIso_dzmax=1
 tkIso_dxymax=0.1
 ->
 
-->
 doTriggerSelection=1
+->
 puHist=/afs/cern.ch/user/n/nckw/public/Cert_160404-163869_7TeV_May10ReReco_Collisions11_JSON.txt.merged_with.h2g_V07_00.promptreco_May10ReReco.lumiSummary.json.weightsfor_globe_V07_00_gluglu_H_gg_115_pu2011.root
 ->
+
+scale_offset_EBHighR9=0.49e-2
+scale_offset_EBLowR9=-0.11e-2
+scale_offset_EEHighR9=-0.57e-2
+scale_offset_EELowR9=0.39e-2
+scale_offset_error_EBHighR9=0.07e-2
+scale_offset_error_EBLowR9=0.05e-2
+scale_offset_error_EEHighR9=0.24e-2
+scale_offset_error_EELowR9=0.19e-2

@@ -1,6 +1,7 @@
 #include "../interface/PhotonAnalysis.h"
 
 
+#include "PhotonReducedInfo.h"
 #include "Sorters.h"
 #include <iostream>
 #include <algorithm>
@@ -97,6 +98,36 @@ void PhotonAnalysis::Init(LoopAll& l)
 			}
 		}
 	}
+	
+	
+	eSmearDataPars.categoryType = "2CatR9_EBEE";
+	eSmearDataPars.n_categories = 4;
+        // initialize smearer specific to energy shifts in DATA; use opposite of energy scale shift
+	eSmearDataPars.scale_offset["EBHighR9"] = -1*scale_offset_EBHighR9;
+	eSmearDataPars.scale_offset["EBLowR9"]  = -1*scale_offset_EBLowR9;
+	eSmearDataPars.scale_offset["EEHighR9"] = -1*scale_offset_EEHighR9;
+	eSmearDataPars.scale_offset["EELowR9"]  = -1*scale_offset_EELowR9;
+	// no energy scale systematics applied to data
+	eSmearDataPars.scale_offset_error["EBHighR9"] = 0.;
+	eSmearDataPars.scale_offset_error["EBLowR9"]  = 0.;
+	eSmearDataPars.scale_offset_error["EEHighR9"] = 0.;
+	eSmearDataPars.scale_offset_error["EELowR9"]  = 0.;
+	// E resolution smearing NOT applied to data 
+	eSmearDataPars.smearing_sigma["EBHighR9"] = 0.;
+	eSmearDataPars.smearing_sigma["EBLowR9"]  = 0.;
+	eSmearDataPars.smearing_sigma["EEHighR9"] = 0.;
+	eSmearDataPars.smearing_sigma["EELowR9"]  = 0.;
+	// E resolution systematics NOT applied to data 
+	eSmearDataPars.smearing_sigma_error["EBHighR9"] = 0.;
+	eSmearDataPars.smearing_sigma_error["EBLowR9"]  = 0.;
+	eSmearDataPars.smearing_sigma_error["EEHighR9"] = 0.;
+	eSmearDataPars.smearing_sigma_error["EELowR9"]  = 0.;
+	
+	// energy scale corrections to Data
+	eScaleDataSmearer = new EnergySmearer( eSmearDataPars );
+	eScaleDataSmearer->name("E_scale_data");
+	eScaleDataSmearer->doEnergy(true);
+	eScaleDataSmearer->scaleOrSmear(true);
 
 	if (l.typerun == 2 || l.typerun == 1) {
 	}
@@ -170,28 +201,32 @@ void PhotonAnalysis::Analysis(LoopAll& l, Int_t jentry)
                 PreselectPhotons(l,jentry);
         }
 
-	if( pho_acc.size() < 2 || pho_sc_et[ pho_acc[0] ] < presel_scet1 ) return;
+	if( pho_acc.size() < 2 || pho_et[ pho_acc[0] ] < presel_scet1 ) return;
 
         int leadLevel=LoopAll::phoSUPERTIGHT, subLevel=LoopAll::phoSUPERTIGHT;
         int dipho_id = l.DiphotonCiCSelection((LoopAll::phoCiCIDLevel) leadLevel, (LoopAll::phoCiCIDLevel) subLevel, 40.0, 30.0, 4, false);
 
         if (dipho_id > -1){
 	  std::pair<int,int> diphoton_index = std::make_pair(l.dipho_leadind[dipho_id],l.dipho_subleadind[dipho_id]);
-          TLorentzVector *lead_p4 = (TLorentzVector*)l.pho_p4->At(diphoton_index.first);
-          TLorentzVector *sublead_p4 = (TLorentzVector*)l.pho_p4->At(diphoton_index.second);
-          TLorentzVector Higgs = *lead_p4 + *sublead_p4;
+	  TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[dipho_id], l.dipho_vtxind[dipho_id], &corrected_pho_energy[0]);
+	  TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[dipho_id], l.dipho_vtxind[dipho_id], &corrected_pho_energy[0]);
+	  TLorentzVector Higgs = lead_p4 + sublead_p4; 	
+	  
+          //// TLorentzVector *lead_p4 = (TLorentzVector*)l.pho_p4->At(diphoton_index.first);
+          //// TLorentzVector *sublead_p4 = (TLorentzVector*)l.pho_p4->At(diphoton_index.second);
+          //// TLorentzVector Higgs = *lead_p4 + *sublead_p4;
 
           int category = l.DiphotonCategory(diphoton_index.first, diphoton_index.second, 2, 2, 0);
 
           l.FillHist("mass",0, Higgs.M(), weight);
           l.FillHist("pt",0, Higgs.Pt(), weight);
-          l.FillHist("pho_pt",0,lead_p4->Pt(), weight);
-          l.FillHist("pho_pt",0,sublead_p4->Pt(), weight);
+          l.FillHist("pho_pt",0,lead_p4.Pt(), weight);
+          l.FillHist("pho_pt",0,sublead_p4.Pt(), weight);
 
           l.FillHist("mass",category+1, Higgs.M(), weight);
           l.FillHist("pt",category+1, Higgs.Pt(), weight);
-          l.FillHist("pho_pt",category+1,lead_p4->Pt(), weight);
-          l.FillHist("pho_pt",category+1,sublead_p4->Pt(), weight);
+          l.FillHist("pho_pt",category+1,lead_p4.Pt(), weight);
+          l.FillHist("pho_pt",category+1,sublead_p4.Pt(), weight);
         }
 
 	if(PADEBUG) 
@@ -228,8 +263,26 @@ void PhotonAnalysis::PreselectPhotons(LoopAll& l, int jentry)
 	pho_acc.clear();
 	pho_presel.clear();
 	pho_presel_lead.clear();
-	pho_sc_et.clear();
+	pho_et.clear();
 	l.pho_matchingConv->clear();
+
+	// Nominal smearing
+	corrected_pho_energy.clear(); corrected_pho_energy.resize(l.pho_n,0.); 
+	int cur_type = l.itype[l.current];
+
+	for(int ipho=0; ipho<l.pho_n; ++ipho ) { 
+		std::vector<std::vector<bool> > p;
+		PhotonReducedInfo phoInfo ( *((TVector3*)l.pho_calopos->At(ipho)), 
+					    ((TLorentzVector*)l.pho_p4->At(ipho))->Energy(), l.pho_isEB[ipho], l.pho_r9[ipho],
+					    l.PhotonCiCSelectionLevel(ipho,l.vtx_std_sel,p,l.phoSUPERTIGHT) );
+		float pweight = 1.;
+		if( cur_type == 0 ) {          // correct energy scale in data
+			float sweight = 1.;
+			eScaleDataSmearer->smearPhoton(phoInfo,sweight,0.);
+			pweight *= sweight;
+		}
+		corrected_pho_energy[ipho] = phoInfo.energy();
+	}
 
 	for(int ipho=0; ipho<l.pho_n; ++ipho) {
 
@@ -241,12 +294,12 @@ void PhotonAnalysis::PreselectPhotons(LoopAll& l, int jentry)
 		  (*l.pho_matchingConv).push_back(-1);
 
 	  // TLorentzVector * p4 = (TLorentzVector *) l.pho_p4->At(ipho);
-	  TLorentzVector p4 = l.get_pho_p4(ipho,0);
+	  TLorentzVector p4 = l.get_pho_p4(ipho,0,&corrected_pho_energy[0]);
 	  // float eta  = fabs(((TVector3 *) l.pho_calopos->At(ipho))->Eta());
 	  float eta = fabs(((TVector3 *)l.sc_xyz->At(l.pho_scind[ipho]))->Eta());
  	  // photon et wrt 0,0,0
-	  float sc_et = p4.Energy() / cosh(eta);
-	  pho_sc_et.push_back(sc_et);
+	  float et = p4.Pt();
+	  pho_et.push_back(et);
 	  /// std::cerr << " " << p4->Pt() << " " << et << " " << eta;
 	  
 	  if( p4.Pt() < presel_scet2 || (eta>1.4442 && eta<1.566) || eta>presel_maxeta ) { 
@@ -268,18 +321,20 @@ void PhotonAnalysis::PreselectPhotons(LoopAll& l, int jentry)
 	} 
 
 	std::sort(pho_acc.begin(),pho_acc.end(),
-		  ClonesSorter<TLorentzVector,double,std::greater<double> >(l.pho_p4,&TLorentzVector::Pt));
+		  SimpleSorter<float,std::greater<float> >(&pho_et[0]));
 	std::sort(pho_presel.begin(),pho_presel.end(),
-		  ClonesSorter<TLorentzVector,double,std::greater<double> >(l.pho_p4,&TLorentzVector::Pt));
+		  SimpleSorter<float,std::greater<float> >(&pho_et[0]));
 
 	if( pho_presel.size() > 1 ) {
 		for(size_t ipho=0; ipho<pho_presel.size()-1; ++ipho ) {
-			assert( ((TLorentzVector *)l.pho_p4->At(pho_presel[ipho]))->Pt() >= ((TLorentzVector *)l.pho_p4->At(pho_presel[ipho+1]))->Pt() );
+			/// assert( ((TLorentzVector *)l.pho_p4->At(pho_presel[ipho]))->Pt() >= ((TLorentzVector *)l.pho_p4->At(pho_presel[ipho+1]))->Pt() );
+			assert( pho_et[pho_presel[ipho]] >= pho_et[pho_presel[ipho+1]] );
 		}
 	}
 	if( pho_acc.size()>1 ) {
 		for(size_t ipho=0; ipho<pho_acc.size()-1; ++ipho ) {
-			assert( ((TLorentzVector *)l.pho_p4->At(pho_acc[ipho]))->Pt() >= ((TLorentzVector *)l.pho_p4->At(pho_acc[ipho+1]))->Pt() );
+			/// assert( ((TLorentzVector *)l.pho_p4->At(pho_acc[ipho]))->Pt() >= ((TLorentzVector *)l.pho_p4->At(pho_acc[ipho+1]))->Pt() );
+			assert( pho_et[pho_acc[ipho]] >= pho_et[pho_acc[ipho+1]] );
 		}
 	}
 	
@@ -304,7 +359,7 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
 
 	if(PADEBUG)  cout << " ****************** SelectEventsReduction " << endl;
 	// require at least two reconstructed photons to store the event
-	if( pho_acc.size() < 2 || l.get_pho_p4( pho_acc[0], 0 ).Pt() < presel_scet1 ) { return false; }
+	if( pho_acc.size() < 2 || l.get_pho_p4( pho_acc[0], 0, &corrected_pho_energy[0] ).Pt() < presel_scet1 ) { return false; }
 	
 	///// int ipho1 = pho_acc[0];
 	///// int ipho2 = pho_acc[1];
@@ -400,8 +455,8 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
 			l.dipho_subleadind[id] = diphotons[id].second;
 			l.dipho_vtxind[id] = l.dipho_vtx_std_sel->back();
 			
-			TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[id], l.dipho_vtxind[id] );
-			TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[id], l.dipho_vtxind[id] );
+			TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[id], l.dipho_vtxind[id], &corrected_pho_energy[0] );
+			TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[id], l.dipho_vtxind[id], &corrected_pho_energy[0] );
 			l.dipho_sumpt[id] = lead_p4.Pt() + sublead_p4.Pt();
 			
 			if( l.dipho_sumpt[id] > maxSumPt ) {

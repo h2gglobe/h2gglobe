@@ -6,6 +6,7 @@
 #include "VertexAnalysis/interface/PhotonInfo.h"
 
 #include "TriggerSelection.h"
+#include "EnergySmearer.h"
 
 // ------------------------------------------------------------------------------------
 class PhotonAnalysis : public BaseAnalysis 
@@ -44,10 +45,20 @@ public:
 	float presel_scet1, presel_scet2, presel_maxeta;
 	float presel_ecaliso_eb, presel_ecaliso_ee, presel_sieie_eb, presel_sieie_ee, presel_hoe;
 
+	EnergySmearer::energySmearingParameters eSmearDataPars;
+	float scale_offset_EBHighR9         ;
+	float scale_offset_EBLowR9          ;
+	float scale_offset_EEHighR9         ;
+	float scale_offset_EELowR9          ;
+	float scale_offset_error_EBHighR9   ;
+	float scale_offset_error_EBLowR9    ;
+	float scale_offset_error_EEHighR9   ;
+	float scale_offset_error_EELowR9    ;
+
 	std::vector<int> pho_acc;
 	std::vector<int> pho_presel;
 	std::vector<int> pho_presel_lead;
-	std::vector<float> pho_sc_et;
+	std::vector<float> pho_et;
 	// Other options
 	bool runStatAnalysis;
         TString puHist;//name of pileup reweighting histogram
@@ -65,7 +76,9 @@ protected:
 	
 	vector<double> weights;
 	int trigCounter_;
-	
+
+	EnergySmearer *eScaleDataSmearer ;
+	std::vector<float> corrected_pho_energy;
 };
 
 #endif

@@ -163,9 +163,6 @@ void StatAnalysis::Init(LoopAll& l)
     eSmearDataPars.smearing_sigma_error["EEHighR9"] = 0.;
     eSmearDataPars.smearing_sigma_error["EELowR9"]  = 0.;
 
-	
-
-
     effSmearPars.categoryType = "2CatR9_EBEE";
     effSmearPars.n_categories = 4;
     effSmearPars.efficiency_file = efficiencyFile;
@@ -180,12 +177,13 @@ void StatAnalysis::Init(LoopAll& l)
 	eScaleSmearer->doEnergy(true);
 	eScaleSmearer->scaleOrSmear(true);
 	photonSmearers_.push_back(eScaleSmearer);
-		
-	// energy scale corrections to Data
-	eScaleDataSmearer = new EnergySmearer( eSmearDataPars );
-	eScaleDataSmearer->name("E_scale_data");
-	eScaleDataSmearer->doEnergy(true);
-	eScaleDataSmearer->scaleOrSmear(true);
+	
+	//// Moved to PhotonAnalysis PM
+	//// // energy scale corrections to Data
+	//// eScaleDataSmearer = new EnergySmearer( eSmearDataPars );
+	//// eScaleDataSmearer->name("E_scale_data");
+	//// eScaleDataSmearer->doEnergy(true);
+	//// eScaleDataSmearer->scaleOrSmear(true);
 	//photonDataSmearers_.push_back(eScaleDataSmearer); // must not be included among MC smearers; will be singled out upon need // GF
     }
     if( doEresolSmear ) {

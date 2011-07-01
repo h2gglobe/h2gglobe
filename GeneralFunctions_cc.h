@@ -556,6 +556,8 @@ int  LoopAll::matchPhotonToConversion( int lpho) {
     /// double delta_phi = conv_phi - sc_phi;       
     double delta_phi = acos( cos(conv_phi - sc_phi) );       
     double delta_eta = conv_eta - sc_eta;
+
+    //// assert( delta_phi >= 0. && delta_phi <= TMath::Pi() ); 
  
     //cout << " delta_eta " << delta_eta << " delta_phi " << delta_phi << endl;
     delta_phi*=delta_phi;
