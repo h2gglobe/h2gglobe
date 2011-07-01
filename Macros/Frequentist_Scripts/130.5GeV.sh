@@ -91,5 +91,5 @@ if [ -d /tmp/drberry/ ]; then
         rm /tmp/drberry/*.txt
 fi
 /bin/ls
-hadd 130.5GeV.root higgsCombine*.root
+hadd 130.5GeVFrequentist.root higgsCombine*.root
 echo "## Done at $(date)"
