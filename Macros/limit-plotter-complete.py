@@ -23,9 +23,13 @@ if Method == "ProfileLikelihood":
   OBSName = Method+"/higgsCombineTest."+Method
 if Method == "Bayesian":
   OBSName = Method+"/higgsCombineOBSERVED.MarkovChainMC"
+if Method == "Frequentist":
+  OBSName = Method+"/higgsCombineOBSERVED.Frequentist"
 
 EXPmasses = [110,115,120,125,130,135,140]
 OBSmasses = numpy.arange(110,140.5,0.5)
+if Method == "Frequentist": EXPmasses = numpy.arange(110,140.5,0.5)
+
 #-------------------------------------------------------------------------
 
 if sys.argv[2] == "sm":
