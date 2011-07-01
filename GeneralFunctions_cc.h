@@ -553,35 +553,36 @@ int  LoopAll::matchPhotonToConversion( int lpho) {
     //    cout << " conversion index " << iconv << " eta " <<conv_eta<<  " norm phi " << conv_phi << " PT " << conv_pt << endl; 
 
     //  float dPhi =conv_phi - sc_phi;       
-    double delta_phi = conv_phi - sc_phi;       
+    /// double delta_phi = conv_phi - sc_phi;       
+    double delta_phi = acos( cos(conv_phi - sc_phi) );       
     double delta_eta = conv_eta - sc_eta;
  
     //cout << " delta_eta " << delta_eta << " delta_phi " << delta_phi << endl;
-    //delta_phi=pow(delta_phi,2);
-    //delta_eta=pow(delta_eta,2);
-    //float dR = sqrt( delta_phi+delta_eta); 
+    delta_phi*=delta_phi;
+    delta_eta*=delta_eta;
+    float dR = sqrt( delta_phi + delta_eta ); 
     
-    if ( fabs(delta_eta) < detaMin && fabs(delta_phi) < dphiMin ) {
-    //    if ( dR < dRMin ) {
-      detaMin=  fabs(delta_eta);
-      dphiMin=  fabs(delta_phi);
-      //dRMin=dR;
+    /// if ( fabs(delta_eta) < detaMin && fabs(delta_phi) < dphiMin ) {
+    if ( dR < dRMin ) {
+      /// detaMin=  fabs(delta_eta);
+      /// dphiMin=  fabs(delta_phi);
+      dRMin=dR;
       iMatch=iconv;
       mconv_pt = conv_pt;
     }
-
+    
   }
   
   //  cout << " minimized conversion index " << iMatch << " eta " <<conv_eta<< " phi " << conv_phi <<endl; 
 
-  if ( detaMin < 0.1 && dphiMin < 0.1 ) {
-  //  if ( dRMin< 0.1 ) {
+  // if ( detaMin < 0.1 && dphiMin < 0.1 ) {
+  if ( dRMin< 0.1 ) {
     if(LDEBUG)    cout << " matched conversion index " << iMatch << " eta " <<conv_eta<< " phi " << conv_phi << " pt " << mconv_pt << endl; 	
     result = iMatch;
   } else {
     result = -1;
   }
- 
+  
   return result;
   
 
