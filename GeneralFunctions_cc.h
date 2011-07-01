@@ -373,7 +373,7 @@ std::vector<int> LoopAll::vertexSelection(HggVertexAnalyzer & vtxAna, HggVertexF
             float z2  = vtxAnaFromConv.vtxZ(pho2);
             float dz2 = vtxAnaFromConv.vtxdZ(pho2);
             
-            zconv  = sqrt ( 1./(1./dz1/dz1 + 1./dz2/dz2 )*(z1/dz1/dz1 + z2/dz2/dz2) ) ;  // weighted average
+            zconv  = (z1/dz1/dz1 + z2/dz2/dz2)/(1./dz1/dz1 + 1./dz2/dz2 );  // weighted average
             dzconv = sqrt( 1./(1./dz1/dz1 + 1./dz2/dz2)) ;
           }
 	  
@@ -562,10 +562,10 @@ int  LoopAll::matchPhotonToConversion( int lpho) {
     delta_eta*=delta_eta;
     float dR = sqrt( delta_phi + delta_eta ); 
     
-    /// if ( fabs(delta_eta) < detaMin && fabs(delta_phi) < dphiMin ) {
-    if ( dR < dRMin ) {
-      /// detaMin=  fabs(delta_eta);
-      /// dphiMin=  fabs(delta_phi);
+    if ( fabs(delta_eta) < detaMin && fabs(delta_phi) < dphiMin ) {
+    // if ( dR < dRMin ) {
+      detaMin=  fabs(delta_eta);
+      dphiMin=  fabs(delta_phi);
       dRMin=dR;
       iMatch=iconv;
       mconv_pt = conv_pt;
@@ -575,8 +575,8 @@ int  LoopAll::matchPhotonToConversion( int lpho) {
   
   //  cout << " minimized conversion index " << iMatch << " eta " <<conv_eta<< " phi " << conv_phi <<endl; 
 
-  // if ( detaMin < 0.1 && dphiMin < 0.1 ) {
-  if ( dRMin< 0.1 ) {
+  if ( detaMin < 0.1 && dphiMin < 0.1 ) {
+    //if ( dRMin< 0.1 ) {
     if(LDEBUG)    cout << " matched conversion index " << iMatch << " eta " <<conv_eta<< " phi " << conv_phi << " pt " << mconv_pt << endl; 	
     result = iMatch;
   } else {
