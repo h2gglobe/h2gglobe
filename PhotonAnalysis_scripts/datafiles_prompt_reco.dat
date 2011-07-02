@@ -25,5 +25,5 @@ syntax:
 
 analyzer PhotonAnalysis photonanalysis.dat	
 ->
-analyzer StatAnalysis photonanalysis.dat statanalysis.dat datafiles_prompt_reco.dat
+analyzer StatAnalysis photonanalysis.dat statanalysis.dat smearings_prompt_reco_600pb.dat
  

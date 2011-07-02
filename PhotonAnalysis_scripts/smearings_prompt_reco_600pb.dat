@@ -1,6 +1,6 @@
 
-smearing_sigma_EBHighR9=1..49-2
-smearing_sigma_EBLowR9=1.77-2
+smearing_sigma_EBHighR9=1.49e-2
+smearing_sigma_EBLowR9=1.77e-2
 smearing_sigma_EEHighR9=4.65e-2
 smearing_sigma_EELowR9=3.72e-2
 smearing_sigma_error_EBHighR9=0.12e-2
