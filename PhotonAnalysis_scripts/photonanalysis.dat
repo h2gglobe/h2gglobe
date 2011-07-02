@@ -40,6 +40,8 @@ puHist=puHist=/castor/cern.ch/user/a/adavidzh/Higgs2011/pu/EstPU_Cert_May10ReRec
 /afs/cern.ch/user/n/nckw/public/Cert_160404-163869_7TeV_May10ReReco_Collisions11_JSON.txt.merged_with.h2g_V07_00.promptreco_May10ReReco.lumiSummary.json.weightsfor_globe_V07_00_gluglu_H_gg_115_pu2011.root
 ->
 
+->
+May10 re-reco
 scale_offset_EBHighR9=0.49e-2
 scale_offset_EBLowR9=-0.11e-2
 scale_offset_EEHighR9=-0.57e-2
@@ -48,3 +50,23 @@ scale_offset_error_EBHighR9=0.07e-2
 scale_offset_error_EBLowR9=0.05e-2
 scale_offset_error_EEHighR9=0.24e-2
 scale_offset_error_EELowR9=0.19e-2
+->
+
+->
+600/pb of prompt reco
+https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/284/4.html
+
+EB R>0.94    -0.01%    0.05%    1.49%    0.12%
+EB R<0.94    -0.52%    0.03%    1.77%    0.09%
+
+EE R>0.94    -4.28%    0.14%    4.65%    0.21%
+EE R<0.94    -1.80%    0.12%    3.72%    0.24%
+->
+scale_offset_EBHighR9=-0.01e-2
+scale_offset_EBLowR9=-0.52e-2
+scale_offset_EEHighR9=-4.28e-2
+scale_offset_EELowR9=-1.8e-2
+scale_offset_error_EBHighR9=0.05e-2
+scale_offset_error_EBLowR9=0.03e-2
+scale_offset_error_EEHighR9=0.14-2
+scale_offset_error_EELowR9=0.12-2
