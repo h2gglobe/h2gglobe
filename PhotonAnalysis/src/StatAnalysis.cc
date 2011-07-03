@@ -306,8 +306,7 @@ void StatAnalysis::Init(LoopAll& l)
     // l.rooContainer->AddObservable("mass" ,100.,150.);
     l.rooContainer->AddObservable("mass" ,massMin,massMax);
 
-    // FIXME, get these numbers from the LoopAll or maybe sampleContainer?
-    l.rooContainer->AddConstant("IntLumi",204.);
+    l.rooContainer->AddConstant("IntLumi",l.intlumi_);
 
     // SM Model
     //l.rooContainer->AddConstant("XSBR_105",0.0387684+0.00262016+0.003037036);

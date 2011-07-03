@@ -130,6 +130,8 @@ SampleContainer & LoopAll::DefineSamples(const char *filesshortnam,
                             float kfactor,
                             float scale) {
   
+  // set intlumi in LoopAll
+  intlumi_=intlumi;
   //look in map for type as a key already
   int sample_is_defined = -1;
   for (unsigned int s=0; s<sampleContainer.size(); s++) {

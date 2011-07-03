@@ -646,11 +646,11 @@ void RooContainer::WriteDataCard(std::string filename,std::string data_name
    std::string signal_mass_name = (std::string) Form("%s_m$MASS",sig_name.c_str());
    ofstream file;
    if (parameterisedBackground){
-     file.open("cms-hgg-datacard_parBKG.txt");
+     file.open(Form("cms-hgg-datacard_%s_parBKG.txt",filename.c_str()));
      file << "CMS-HGG DataCard for Binned Limit Setting with RooDataHist+Parameterised Background\n";
    }
    else{
-     file.open("cms-hgg-datacard.txt");
+     file.open(Form("cms-hgg-datacard_%s.txt",filename.c_str()));
      file << "CMS-HGG DataCard for Binned Limit Setting with RooDataHist\n";
    }
 

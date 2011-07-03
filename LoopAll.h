@@ -79,6 +79,7 @@ class LoopAll {
   //int lumireal[MAXFILES];
   int nfiles;
   float intlumi;
+  float intlumi_;
 
   std::vector<TTree*> Trees;
   std::vector<TFile*> Files;
