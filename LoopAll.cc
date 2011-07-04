@@ -75,6 +75,10 @@ void LoopAll::SetTypeRun(int t, const char* name) {
     outputTreePar->Branch("red_events", &outputParRed_Events, "red_events[reductions]/I");
 
   } 
+  outputTreeLumi = new TTree("lumi","Lumi info tree"); 
+  outputTreeLumi->Branch("run", &run, "run/I");
+  outputTreeLumi->Branch("lumis", &lumis, "lumis/I");
+
 }
 
 // ------------------------------------------------------------------------------------
@@ -113,7 +117,12 @@ void LoopAll::ReadInput(int t) {
 	    analyses[i]->ReducedOutputTree(*this,outputTree);
     }
     
+    
   } 
+  outputTreeLumi = new TTree("lumi","Lumi info tree"); 
+  outputTreeLumi->Branch("run", &run, "run/I");
+  outputTreeLumi->Branch("lumis", &lumis, "lumis/I");
+
   
 } 
 
@@ -187,20 +196,23 @@ void LoopAll::LoopAndFillHistos(TString treename) {
   
   Files.resize(files.size());  
   Trees.resize(files.size());  
+  LumiTrees.resize(files.size());  
   TreesPar.resize(files.size());  
 
   std::vector<std::string>::iterator it;
   std::vector<TTree*>::iterator it_tree;
+  std::vector<TTree*>::iterator it_treelumi;
   std::vector<TTree*>::iterator it_treepar;
   std::vector<TFile*>::iterator it_file;
   
   it = files.begin();
   it_file = Files.begin();
   it_tree	= Trees.begin();
+  it_treelumi	= LumiTrees.begin();
   it_treepar = TreesPar.begin();  
   
   for (;it!=files.end()
-         ;it_file++,it_tree++,it_treepar++,it++){ 
+         ;it_file++,it_tree++,it_treelumi++,it_treepar++,it++){ 
     
     this->current = i;
 	
@@ -251,7 +263,12 @@ void LoopAll::LoopAndFillHistos(TString treename) {
     if(tot_events != 0) {
       (*it_tree)->Delete("");
     }
-   
+
+    *it_treelumi = (TTree*) (*it_file)->Get("lumi");
+    if( *it_treelumi != 0 ) {
+      StoreProcessedLumis( *it_treelumi );
+    }
+
     // EDIT - Cannot close the first file since it is in use after 
     // file 0 
     if (i>0)
@@ -267,6 +284,21 @@ void LoopAll::LoopAndFillHistos(TString treename) {
 
   TermReal(typerun);
   Term();
+}
+
+// ------------------------------------------------------------------------------------
+void LoopAll::StoreProcessedLumis(TTree * tree){
+  tree->SetBranchAddress("run",&run);
+  tree->SetBranchAddress("lumis",&lumis);
+  for( int ii=0; ii<tree->GetEntries(); ++ii) {
+    tree->GetEntry(ii);
+    if( !CheckLumiSelection(run,lumis)  ) { continue; }
+    outputTreeLumi->Fill();
+  }
+  if(outputFile) {
+    outputFile->cd();
+    outputTreeLumi->Write(0,TObject::kWriteDelete);
+  }
 }
 
 // ------------------------------------------------------------------------------------
@@ -386,6 +418,7 @@ void LoopAll::TermReal(Int_t typerunpass) {
     outputParReductions++;
     outputTreePar->Fill();
     outputTreePar->Write();
+    outputTreeLumi->Write();
   }
 }
 
@@ -573,6 +606,8 @@ void LoopAll::WriteHist() {
   for(unsigned int ind=0; ind<sampleContainer.size(); ind++) {
     histoContainer[ind].Save();
   }
+  outputTreeLumi->Write();
+      
   if (makeOutputTree) 
     outputFile->cd();
 }

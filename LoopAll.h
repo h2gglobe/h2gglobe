@@ -68,6 +68,7 @@ class LoopAll {
   //void WriteCounters();  
   void SetTypeRun(int, const char* n);
   //void SetOutputNames(const char* n, const char* n2="");
+  void StoreProcessedLumis(TTree * tree);
   void AddFile(std::string,int);
   void ReadInput(int t=0);
   SampleContainer & DefineSamples(const char*,int,int,int,int, long long,
@@ -82,10 +83,12 @@ class LoopAll {
   float intlumi_;
 
   std::vector<TTree*> Trees;
+  std::vector<TTree*> LumiTrees;
   std::vector<TFile*> Files;
   std::vector<TTree*> TreesPar;
 
   TTree * outputTree;
+  TTree * outputTreeLumi;
   TTree * outputTreePar;
 
   TFile * outputFile;
