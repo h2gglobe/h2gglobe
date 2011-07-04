@@ -594,6 +594,7 @@ void LoopAll::WriteFits() {
   hfile->cd();
   hfile->cd();
   rooContainer->Save();
+  hfile->Close();
 }
 
 // ------------------------------------------------------------------------------------
@@ -607,9 +608,12 @@ void LoopAll::WriteHist() {
     histoContainer[ind].Save();
   }
   outputTreeLumi->Write();
+
+  hfile->Close();
       
   if (makeOutputTree) 
     outputFile->cd();
+
 }
 
 
