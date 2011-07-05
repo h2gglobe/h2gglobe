@@ -451,6 +451,8 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
 	TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphoton_id], l.dipho_vtxind[diphoton_id], &smeared_pho_energy[0]);
 	TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphoton_id], l.dipho_vtxind[diphoton_id], &smeared_pho_energy[0]);
+	float lead_r9    = l.pho_r9[l.dipho_leadind[diphoton_id]];
+	float sublead_r9 = l.pho_r9[l.dipho_subleadind[diphoton_id]];
 	TLorentzVector Higgs = lead_p4 + sublead_p4; 	
 	TVector3 * vtx = (TVector3*)l.vtx_std_xyz->At(l.dipho_vtxind[diphoton_id]);
 
@@ -471,21 +473,33 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	float ptHiggs = Higgs.Pt();
       
 	// control plots 
-	l.FillHist("mass",0, Higgs.M(), weight);
-	l.FillHist("pt",0, Higgs.Pt(), weight);
-	l.FillHist("pho_pt",0,lead_p4.Pt(), weight);
-	l.FillHist("pho1_pt",0,lead_p4.Pt(), weight);
-	l.FillHist("pho_pt",0,sublead_p4.Pt(), weight);
-	l.FillHist("pho2_pt",0,sublead_p4.Pt(), weight);
-       
-	l.FillHist("mass",category+1, Higgs.M(), weight);
-	l.FillHist("pt",category+1, Higgs.Pt(), weight);
-	l.FillHist("pho_pt",category+1,lead_p4.Pt(), weight);
-	l.FillHist("pho1_pt",category+1,lead_p4.Pt(), weight);
-	l.FillHist("pho_pt",category+1,sublead_p4.Pt(), weight);
-	l.FillHist("pho2_pt",category+1,sublead_p4.Pt(), weight);
+	l.FillHist("mass",0, Higgs.M(), evweight);
+	l.FillHist("pt",0, Higgs.Pt(), evweight);
 
-	l.FillHist("pho_n",category+1,l.pho_n, weight);
+	l.FillHist("pho_pt",0,lead_p4.Pt(), evweight);
+	l.FillHist("pho1_pt",0,lead_p4.Pt(), evweight);
+	l.FillHist("pho_r9",0, lead_r9, evweight);
+	l.FillHist("pho1_r9",0, lead_r9, evweight);
+
+	l.FillHist("pho_pt",0,sublead_p4.Pt(), evweight);
+	l.FillHist("pho2_pt",0,sublead_p4.Pt(), evweight);
+	l.FillHist("pho_r9",0, sublead_r9, evweight);
+	l.FillHist("pho1_r9",0, sublead_r9, evweight);
+       
+	l.FillHist("mass",category+1, Higgs.M(), evweight);
+	l.FillHist("pt",category+1, Higgs.Pt(), evweight);
+	
+	l.FillHist("pho_pt",category+1,lead_p4.Pt(), evweight);
+	l.FillHist("pho1_pt",category+1,lead_p4.Pt(), evweight);
+	l.FillHist("pho_r9",category+1, lead_r9, evweight);
+	l.FillHist("pho1_r9",category+1, lead_r9, evweight);
+	
+	l.FillHist("pho_pt",category+1,sublead_p4.Pt(), evweight);
+	l.FillHist("pho2_pt",category+1,sublead_p4.Pt(), evweight);
+	l.FillHist("pho_r9",category+1, sublead_r9, evweight);
+	l.FillHist("pho1_r9",category+1, sublead_r9, evweight);
+
+	l.FillHist("pho_n",category+1,l.pho_n, evweight);
 
 	SaclayText << setprecision(4) <<  "Run = " << l.run << "  LS = " << l.lumis << "  Event = " << l.event << "  SelVtx = " << l.vtx_std_sel << "  CAT4 = " << category % 4
 		   << "  ggM = " << mass << " gg_Pt =  " << ptHiggs;
