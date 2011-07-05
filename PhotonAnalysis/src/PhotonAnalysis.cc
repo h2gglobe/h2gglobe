@@ -4,6 +4,7 @@
 #include "PhotonReducedInfo.h"
 #include "Sorters.h"
 #include <iostream>
+#include <fstream>
 #include <algorithm>
 
 #define PADEBUG 0
@@ -20,6 +21,10 @@ PhotonAnalysis::PhotonAnalysis()  :
 {
 	useDefaultVertex=false;
 	forcedRho = -1.;
+
+	keepPP = true;
+	keepPF = true;
+	keepFF = true; 
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -29,6 +34,35 @@ PhotonAnalysis::~PhotonAnalysis()
 // ----------------------------------------------------------------------------------------------------
 void PhotonAnalysis::Term(LoopAll& l) 
 {}
+
+// ----------------------------------------------------------------------------------------------------
+void readEnergyScaleOffsets(const std::string &fname, EnergySmearer::energySmearingParameters::eScaleVector &escaleOffsets)
+{
+	std::fstream in(fname.c_str());
+	assert( in );
+	char line[200];
+	float EBHighR9, EBLowR9, EEHighR9, EELowR9; 
+	int  first, last;
+	do {
+		in.getline( line, 200, '\n' );
+
+		if( sscanf(line,"%d %d %f %f %f %f",&first, &last, &EBHighR9, &EBLowR9, &EEHighR9, &EELowR9) != 6 ) { continue; } 
+		std::cerr << "Energy scale by run " <<  first<< " " <<  last<< " " <<  EBHighR9<< " " <<  EBLowR9<< " " <<  EEHighR9<< " " <<  EELowR9 << std::endl;
+
+		escaleOffsets.push_back(EnergyScaleOffset(first,last));
+		escaleOffsets.back().scale_offset["EBHighR9"] = -1.*EBHighR9;
+		escaleOffsets.back().scale_offset["EBLowR9"]  = -1.*EBLowR9;
+		escaleOffsets.back().scale_offset["EEHighR9"] = -1.*EEHighR9;
+		escaleOffsets.back().scale_offset["EELowR9"]  = -1.*EELowR9;
+		escaleOffsets.back().scale_offset_error["EBHighR9"] = 0.;
+		escaleOffsets.back().scale_offset_error["EBLowR9"]  = 0.;
+		escaleOffsets.back().scale_offset_error["EEHighR9"] = 0.;
+		escaleOffsets.back().scale_offset_error["EELowR9"]  = 0.;
+
+	} while( in );
+	
+	in.close();
+}
 
 // ----------------------------------------------------------------------------------------------------
 void PhotonAnalysis::Init(LoopAll& l) 
@@ -99,19 +133,22 @@ void PhotonAnalysis::Init(LoopAll& l)
 		}
 	}
 	
-	
 	eSmearDataPars.categoryType = "2CatR9_EBEE";
+	eSmearDataPars.byRun = true;
 	eSmearDataPars.n_categories = 4;
-        // initialize smearer specific to energy shifts in DATA; use opposite of energy scale shift
-	eSmearDataPars.scale_offset["EBHighR9"] = -1*scale_offset_EBHighR9;
-	eSmearDataPars.scale_offset["EBLowR9"]  = -1*scale_offset_EBLowR9;
-	eSmearDataPars.scale_offset["EEHighR9"] = -1*scale_offset_EEHighR9;
-	eSmearDataPars.scale_offset["EELowR9"]  = -1*scale_offset_EELowR9;
-	// no energy scale systematics applied to data
-	eSmearDataPars.scale_offset_error["EBHighR9"] = 0.;
-	eSmearDataPars.scale_offset_error["EBLowR9"]  = 0.;
-	eSmearDataPars.scale_offset_error["EEHighR9"] = 0.;
-	eSmearDataPars.scale_offset_error["EELowR9"]  = 0.;
+	std::cerr << "Reading energy scale offsets " << scale_offset_file << std::endl;
+	readEnergyScaleOffsets(scale_offset_file, eSmearDataPars.scale_offset_byrun);
+        ///// // initialize smearer specific to energy shifts in DATA; use opposite of energy scale shift
+	///// eSmearDataPars.scale_offset_byrun.push_back(EnergyScaleOffset(0,-1));
+	///// eSmearDataPars.scale_offset_byrun.back().scale_offset["EBHighR9"] = -1*scale_offset_EBHighR9;
+	///// eSmearDataPars.scale_offset_byrun.back().scale_offset["EBLowR9"]  = -1*scale_offset_EBLowR9;
+	///// eSmearDataPars.scale_offset_byrun.back().scale_offset["EEHighR9"] = -1*scale_offset_EEHighR9;
+	///// eSmearDataPars.scale_offset_byrun.back().scale_offset["EELowR9"]  = -1*scale_offset_EELowR9;
+	///// // no energy scale systematics applied to data
+	///// eSmearDataPars.scale_offset_byrun.back().scale_offset_error["EBHighR9"] = 0.;
+	///// eSmearDataPars.scale_offset_byrun.back().scale_offset_error["EBLowR9"]  = 0.;
+	///// eSmearDataPars.scale_offset_byrun.back().scale_offset_error["EEHighR9"] = 0.;
+	///// eSmearDataPars.scale_offset_byrun.back().scale_offset_error["EELowR9"]  = 0.;
 	// E resolution smearing NOT applied to data 
 	eSmearDataPars.smearing_sigma["EBHighR9"] = 0.;
 	eSmearDataPars.smearing_sigma["EBLowR9"]  = 0.;
@@ -490,18 +527,7 @@ bool PhotonAnalysis::SkimEvents(LoopAll& l, int jentry)
 			std::cerr << "No trigger selection for run " << l.run << "defined" << std::endl;
 			return true;
 		}
-		///// std::cerr << "run " << l.run << " trig sel " << isel->firstrun << " " << isel->lastrun;
-		///// std::copy(isel->paths.begin(), isel->paths.end(), std::ostream_iterator<std::string>(std::cerr,","));
-		///// std::cerr << std::endl;
-		///// std::cerr << "menu ";
-		///// std::copy(l.hlt_path_names_HLT1->begin(), l.hlt_path_names_HLT1->end(), std::ostream_iterator<std::string>(std::cerr,","));
-		//// std::cerr << " fired ";
-		//// for(int ii=0; ii<l.hlt1_bit->size(); ++ii){ 
-		//// 	std::cerr << l.hlt_path_names_HLT1->at( l.hlt1_bit->at(ii) ) << ",";
-		//// }
-		/// std::copy(l.hlt1_bit->begin(), l.hlt1_bit->end(), std::ostream_iterator<int>(std::cerr,","));
-		/// std::cerr << std::endl;
-		
+
 		// get the trigegr data
 		l.b_hlt1_bit->GetEntry(jentry);
 		l.b_hlt_path_names_HLT1->GetEntry(jentry);
@@ -512,6 +538,35 @@ bool PhotonAnalysis::SkimEvents(LoopAll& l, int jentry)
 		//// l.countersred[trigCounter_]++;
 	}
 	
+	if( filetype == 2 ) { // photon+jet
+		l.b_process_id->GetEntry(jentry);
+		if( l.process_id == 18 ) {
+			return false;
+		}
+	}
+	
+	if( filetype != 0 && ! (keepPP && keepPF && keepFF) ) {
+		l.b_gp_n->GetEntry(jentry);
+		l.b_gp_status->GetEntry(jentry);
+		l.b_gp_pdgid->GetEntry(jentry);
+		l.b_gp_p4->GetEntry(jentry);
+
+		int np = 0;
+		for(int ip=0;ip<l.gp_n;++ip) {
+			if( l.gp_status[ip] != 1 || l.gp_pdgid[ip] != 22 ) { 
+				continue; 
+			}
+			TLorentzVector * p4 = (TLorentzVector*) l.gp_p4->At(ip);
+			if( p4->Pt() < 20. || fabs(p4->Eta()) > 3. ) { continue; }
+			int mother_id = abs( l.gp_pdgid[ l.gp_mother[ip] ] );
+			if( mother_id <= 25 ) { ++np; }
+			if( np >= 2 ) { break; }
+		}
+		if( np >= 2 && ! keepPP ) { return false; }
+		if( np == 1 && ! keepPF ) { return false; }
+		if( np == 0 && ! keepFF ) { return false; }
+	}
+
 	return true;
 }
 
