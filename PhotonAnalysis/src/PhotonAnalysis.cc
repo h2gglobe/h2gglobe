@@ -278,7 +278,7 @@ void PhotonAnalysis::PreselectPhotons(LoopAll& l, int jentry)
 		float pweight = 1.;
 		if( cur_type == 0 ) {          // correct energy scale in data
 			float sweight = 1.;
-			eScaleDataSmearer->smearPhoton(phoInfo,sweight,0.);
+			eScaleDataSmearer->smearPhoton(phoInfo,sweight,l.run,0.);
 			pweight *= sweight;
 		}
 		corrected_pho_energy[ipho] = phoInfo.energy();
