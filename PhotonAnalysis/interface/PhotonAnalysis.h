@@ -46,6 +46,7 @@ public:
 	float presel_ecaliso_eb, presel_ecaliso_ee, presel_sieie_eb, presel_sieie_ee, presel_hoe;
 
 	EnergySmearer::energySmearingParameters eSmearDataPars;
+	std::string scale_offset_file;
 	float scale_offset_EBHighR9         ;
 	float scale_offset_EBLowR9          ;
 	float scale_offset_EEHighR9         ;
@@ -62,8 +63,9 @@ public:
 	// Other options
 	bool runStatAnalysis;
         TString puHist;//name of pileup reweighting histogram
-
 	
+	bool keepPP, keepPF, keepFF;
+
 protected:
 	void PreselectPhotons(LoopAll& l, int jentry);
 	void StatAnalysis(LoopAll &l, int jentry);
@@ -79,6 +81,8 @@ protected:
 
 	EnergySmearer *eScaleDataSmearer ;
 	std::vector<float> corrected_pho_energy;
+	
+	
 };
 
 #endif
