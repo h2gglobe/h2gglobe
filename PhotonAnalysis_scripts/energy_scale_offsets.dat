@@ -1,2 +1,4 @@
 # Format first_run last_run EBHighR9 EBLowR9 EEHighR9 EELowR9
+# listed are measured relative energy scale departures (from 'ideal');
+# their opposite will be applied to data, as a correcton
 0 -1 0.49e-2 -0.11e-2 -0.57e-2 0.39e-2
