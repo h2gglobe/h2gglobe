@@ -520,7 +520,7 @@ class configProducer:
       self.is_data_ = False
 
     if fi_name != '':
-      if not os.path.isfile(fi_name): 
+      if not fi_name.startswith("rfio") and not os.path.isfile(fi_name): 
         sys.exit("No Input File Named: %s"%fi_name)
       tuple_n = fi_name, fi_type
       self.conf_.files.append(tuple_n)
