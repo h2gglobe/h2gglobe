@@ -33,7 +33,7 @@ public:
   
   virtual const std::string & name() const { return name_; };
   
-  virtual bool smearPhoton( PhotonReducedInfo & pho, float & weight, float syst_shift=0. ) const;
+  virtual bool smearPhoton( PhotonReducedInfo & pho, float & weight, int run, float syst_shift=0. ) const;
   
   void name(const std::string & x) { name_ = x; };
 

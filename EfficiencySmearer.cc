@@ -45,7 +45,7 @@ std::string EfficiencySmearer::photonCategory(PhotonReducedInfo & aPho) const
   return myCategory;
 }
 
-bool EfficiencySmearer::smearPhoton(PhotonReducedInfo & aPho, float & weight, float syst_shift) const
+bool EfficiencySmearer::smearPhoton(PhotonReducedInfo & aPho, float & weight, int run, float syst_shift) const
 {
   std::string category=photonCategory(aPho);
     

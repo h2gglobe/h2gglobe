@@ -58,14 +58,18 @@ efficiencyFile=/afs/cern.ch/user/m/musella/public/higgs/sig_reweighing_v9.root
 Numbers from Riccardo: "slide 1" of https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/252/1.html
 scale variations defined as: (deltaM_data - deltaM_MC) / M_Z   =>   scale factor >0 means energy should increased to MC
 ->
+->
 scale_offset_EBHighR9=0.49e-2
 scale_offset_EBLowR9=-0.11e-2
 scale_offset_EEHighR9=-0.57e-2
 scale_offset_EELowR9=0.39e-2
+->
+scale_offset_file=energy_scale_offsets.dat
 scale_offset_error_EBHighR9=0.07e-2
 scale_offset_error_EBLowR9=0.05e-2
 scale_offset_error_EEHighR9=0.24e-2
 scale_offset_error_EELowR9=0.19e-2
+
 smearing_sigma_EBHighR9=0.89e-2
 smearing_sigma_EBLowR9=1.99e-2
 smearing_sigma_EEHighR9=4.09e-2

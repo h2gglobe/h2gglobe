@@ -30,7 +30,7 @@ public:
 	operator const std::string & () const { return this->name(); };
 	
 	// ! return smeared photon informations
-	virtual bool smearPhoton( PhotonReducedInfo & pho, float & weight, float syst_shift=0. ) const = 0;
+	virtual bool smearPhoton( PhotonReducedInfo & pho, float & weight, int run, float syst_shift=0. ) const = 0;
 
 	/// virtual bool smearDiPhoton( TLorentzVector & 4p, const TVector3 & selVtx, const TVector3 & trueVtx);
 };

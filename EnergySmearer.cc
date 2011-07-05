@@ -9,12 +9,22 @@ EnergySmearer::EnergySmearer(const energySmearingParameters& par) : myParameters
   name_="EnergySmearer_"+ par.categoryType + "_" + par.parameterSetName;
   //Checking consistency of input parameters
   std::cerr << myParameters_.categoryType << " " <<  myParameters_.n_categories << std::endl;
-  assert( myParameters_.n_categories == myParameters_.scale_offset.size() );
-  assert( myParameters_.n_categories == myParameters_.scale_offset_error.size() );
   assert( myParameters_.n_categories == myParameters_.smearing_sigma.size() );
   assert( myParameters_.n_categories == myParameters_.smearing_sigma_error.size() );
-  assert( ( myParameters_.categoryType == "EBEE" && myParameters_.n_categories == 2) ||
-	  ( myParameters_.categoryType == "2CatR9_EBEE" && myParameters_.n_categories == 4) );
+  assert( ( myParameters_.categoryType == "EBEE" && myParameters_.n_categories == 2 ) ||
+	  ( myParameters_.categoryType == "2CatR9_EBEE" && myParameters_.n_categories == 4 ) ||
+	  ( myParameters_.categoryType == "2CatR9_EBEE_ByRun" && myParameters_.n_categories == 4 )
+	  );
+  if( myParameters_.byRun ) {
+    for(energySmearingParameters::eScaleVectorIt it=myParameters_.scale_offset_byrun.begin(); it!=myParameters_.scale_offset_byrun.end();
+	++it ) {
+      assert( myParameters_.n_categories == it->scale_offset.size() );
+      assert( myParameters_.n_categories == it->scale_offset_error.size() );
+    }
+  } else {
+    assert( myParameters_.n_categories == myParameters_.scale_offset.size() );
+    assert( myParameters_.n_categories == myParameters_.scale_offset_error.size() );
+  }
 }
 
 EnergySmearer::~EnergySmearer()
@@ -25,7 +35,7 @@ EnergySmearer::~EnergySmearer()
 std::string EnergySmearer::photonCategory(PhotonReducedInfo & aPho) const
 {
   std::string myCategory="";
-  if (myParameters_.categoryType=="2CatR9_EBEE")
+  if (myParameters_.categoryType=="2CatR9_EBEE" )
     {
       if (aPho.iDet()==1)
 	myCategory+="EB";
@@ -51,7 +61,27 @@ std::string EnergySmearer::photonCategory(PhotonReducedInfo & aPho) const
   return myCategory;
 }
 
-bool EnergySmearer::smearPhoton(PhotonReducedInfo & aPho, float & weight, float syst_shift) const
+
+float EnergySmearer::getScaleOffset(int run, const std::string & category) const
+{
+  const std::map<std::string, float> * scale_offset =  &(myParameters_.scale_offset);
+  
+  if( myParameters_.byRun ) {
+    scale_offset = &(find(myParameters_.scale_offset_byrun.begin(),myParameters_.scale_offset_byrun.end(),run)->scale_offset) ;
+  }
+  energySmearingParameters::parameterMapConstIt it=scale_offset->find(category);
+  
+  if ( it == scale_offset->end())
+    {
+      std::cout << "Category was not found in the configuration. Giving Up" << std::endl;
+      return false;
+    }
+  
+  return 1. + it->second;
+  
+}
+
+bool EnergySmearer::smearPhoton(PhotonReducedInfo & aPho, float & weight, int run, float syst_shift) const
 {
   std::string category=photonCategory(aPho);
     
@@ -61,15 +91,16 @@ bool EnergySmearer::smearPhoton(PhotonReducedInfo & aPho, float & weight, float 
       return false;
     }
 
-  energySmearingParameters::parameterMapConstIt it=myParameters_.scale_offset.find(category);
-
-  if ( it == myParameters_.scale_offset.end())
-    {
-      std::cout << "Category was not found in the configuration. Giving Up" << std::endl;
-      return false;
-    }
-  
-  float scale_offset   = 1. + it->second;
+  /// energySmearingParameters::parameterMapConstIt it=myParameters_.scale_offset.find(category);
+  /// 
+  /// if ( it == myParameters_.scale_offset.end())
+  ///   {
+  ///     std::cout << "Category was not found in the configuration. Giving Up" << std::endl;
+  ///     return false;
+  ///   }
+  ///
+  /// float scale_offset   = 1. + it->second;
+  float scale_offset   = getScaleOffset(run, category);
   float smearing_sigma = myParameters_.smearing_sigma.find(category)->second;
 
   /////////////////////// smearing or re-scaling photon energy ///////////////////////////////////////////
