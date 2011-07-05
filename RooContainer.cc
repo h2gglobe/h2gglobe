@@ -7,13 +7,17 @@
 
 using namespace RooFit;
 
-RooContainer::RooContainer(int n, int s):ncat(n),nsigmas(s),make_systematics(false){}
+RooContainer::RooContainer(int n, int s):ncat(n),nsigmas(s),make_systematics(false),save_systematics_data(false){}
 // ----------------------------------------------------------------------------------------------------
 void RooContainer::SetNCategories(int n){
    ncat = n;
 }
 void RooContainer::AddGlobalSystematic(std::string name,double val_sig, double val_bkg){
   global_systematics_[name] = std::pair<double,double>(val_sig,val_bkg);
+}
+// ----------------------------------------------------------------------------------------------------
+void RooContainer::SaveSystematicsData(){
+   save_systematics_data = true;
 }
 // ----------------------------------------------------------------------------------------------------
 void RooContainer::MakeSystematicStudy(std::vector<std::string> sys_names,std::vector<int> sys_types){
@@ -476,8 +480,12 @@ void RooContainer::InputSystematicSet(std::string s_name, std::string sys_name, 
 	    
 	    	double val = x[istep];
 	    if (val > min_x &&val < max_x ){
-	    	*ptr = val;
-	    	data_set.add(RooArgSet(*ptr),w);
+
+		// Only make datasets if the save_systematics_data is on
+		if (save_systematics_data){
+	    	   *ptr = val;
+	    	   data_set.add(RooArgSet(*ptr),w);
+		}
 	    	th1f_set.Fill(val,w);
 	    }
 	  }
@@ -1357,6 +1365,13 @@ void RooContainer::fitToData(std::string name_func, std::string name_data, std::
 void RooContainer::fitToSystematicSet(std::string name_func,std::string name_var
 	     ,std::string sys_name
 	     ,double x1,double x2,double x3,double x4){
+
+  if (! save_systematics_data){
+    std::cerr << "WARNING!!! -- RooContainer::FitToSystematicSet -- Systematic dataset was not saved ! (Need do SaveSystematicsData() ) "<<
+		 " No fit will be performed" << endl;
+    return;
+  }
+
   for (int sys=1;sys<=nsigmas;sys++){
     fitToData(getsysindexName(name_func,sys_name,sys,-1),getsysindexName(name_var,sys_name,sys,-1),name_var,x1,x2,x3,x4);
     fitToData(getsysindexName(name_func,sys_name,sys, 1),getsysindexName(name_var,sys_name,sys, 1),name_var,x1,x2,x3,x4);
@@ -1590,7 +1605,7 @@ void RooContainer::writeRooPlot(RooPlot *plot,double chi){
   can->cd(); 
   plot->Draw();
   text->SetNDC();
-  text->DrawLatex(0.8,0.5,Form("#Chi^{2} = %.3f",chi));
+  text->DrawLatex(0.11,0.15,Form("#chi^{2} / n d.o.f = %.3f",chi));
   can->Write();
   delete can;
 }
