@@ -86,7 +86,7 @@ void StatAnalysis::Init(LoopAll& l)
     l.runCiC = reRunCiC;
     // call the base class initializer
     PhotonAnalysis::Init(l);
-	
+    
     diPhoCounter_ = l.countersred.size();
     l.countersred.resize(diPhoCounter_+1);
 
@@ -95,27 +95,8 @@ void StatAnalysis::Init(LoopAll& l)
     if( nR9Categories != 0 ) nCategories_ *= nR9Categories;
     if( nPtCategories != 0 ) nCategories_ *= nPtCategories;
 	
-    // Moved to configuration file PM
-    ////// // Numbers from Riccardo: "slide 1" of https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/252/1.html
-    ////// // scale variations defined as: (deltaM_data - deltaM_MC) / M_Z   =>   scale factor >0 means energy should increased to MC
-    ////// float scale_offset_EBHighR9         =  0.49e-2;
-    ////// float scale_offset_EBLowR9          = -0.11e-2;
-    ////// float scale_offset_EEHighR9         = -0.57e-2;
-    ////// float scale_offset_EELowR9          = 0.39e-2;
-    ////// float scale_offset_error_EBHighR9   = 0.07e-2;
-    ////// float scale_offset_error_EBLowR9    = 0.05e-2;
-    ////// float scale_offset_error_EEHighR9   = 0.24e-2;
-    ////// float scale_offset_error_EELowR9    = 0.19e-2;
-    ////// float smearing_sigma_EBHighR9       = 0.89e-2;
-    ////// float smearing_sigma_EBLowR9        = 1.99e-2;
-    ////// float smearing_sigma_EEHighR9       = 4.09e-2;
-    ////// float smearing_sigma_EELowR9        = 2.46e-2;
-    ////// float smearing_sigma_error_EBHighR9 = 0.25e-2;
-    ////// float smearing_sigma_error_EBLowR9  = 0.12e-2;
-    ////// float smearing_sigma_error_EEHighR9 = 0.38e-2;
-    ////// float smearing_sigma_error_EELowR9  = 0.52e-2;
-
     eSmearPars.categoryType = "2CatR9_EBEE";
+    eSmearPars.byRun = false;
     eSmearPars.n_categories = 4;
 
     // E scale is shifted for data, NOT for MC 
@@ -139,29 +120,30 @@ void StatAnalysis::Init(LoopAll& l)
     eSmearPars.smearing_sigma_error["EEHighR9"] = smearing_sigma_error_EEHighR9;
     eSmearPars.smearing_sigma_error["EELowR9"]  = smearing_sigma_error_EELowR9;
 
-    eSmearDataPars.categoryType = "2CatR9_EBEE";
-    eSmearDataPars.n_categories = 4;
-
-    // initialize smearer specific to energy shifts in DATA; use opposite of energy scale shift
-    eSmearDataPars.scale_offset["EBHighR9"] = -1*scale_offset_EBHighR9;
-    eSmearDataPars.scale_offset["EBLowR9"]  = -1*scale_offset_EBLowR9;
-    eSmearDataPars.scale_offset["EEHighR9"] = -1*scale_offset_EEHighR9;
-    eSmearDataPars.scale_offset["EELowR9"]  = -1*scale_offset_EELowR9;
-    // no energy scale systematics applied to data
-    eSmearDataPars.scale_offset_error["EBHighR9"] = 0.;
-    eSmearDataPars.scale_offset_error["EBLowR9"]  = 0.;
-    eSmearDataPars.scale_offset_error["EEHighR9"] = 0.;
-    eSmearDataPars.scale_offset_error["EELowR9"]  = 0.;
-    // E resolution smearing NOT applied to data 
-    eSmearDataPars.smearing_sigma["EBHighR9"] = 0.;
-    eSmearDataPars.smearing_sigma["EBLowR9"]  = 0.;
-    eSmearDataPars.smearing_sigma["EEHighR9"] = 0.;
-    eSmearDataPars.smearing_sigma["EELowR9"]  = 0.;
-    // E resolution systematics NOT applied to data 
-    eSmearDataPars.smearing_sigma_error["EBHighR9"] = 0.;
-    eSmearDataPars.smearing_sigma_error["EBLowR9"]  = 0.;
-    eSmearDataPars.smearing_sigma_error["EEHighR9"] = 0.;
-    eSmearDataPars.smearing_sigma_error["EELowR9"]  = 0.;
+    // This is done in PhotonAnalysis now
+    //// eSmearDataPars.categoryType = "2CatR9_EBEE";
+    //// eSmearDataPars.n_categories = 4;
+    //// 
+    //// // initialize smearer specific to energy shifts in DATA; use opposite of energy scale shift
+    //// eSmearDataPars.scale_offset["EBHighR9"] = -1*scale_offset_EBHighR9;
+    //// eSmearDataPars.scale_offset["EBLowR9"]  = -1*scale_offset_EBLowR9;
+    //// eSmearDataPars.scale_offset["EEHighR9"] = -1*scale_offset_EEHighR9;
+    //// eSmearDataPars.scale_offset["EELowR9"]  = -1*scale_offset_EELowR9;
+    //// // no energy scale systematics applied to data
+    //// eSmearDataPars.scale_offset_error["EBHighR9"] = 0.;
+    //// eSmearDataPars.scale_offset_error["EBLowR9"]  = 0.;
+    //// eSmearDataPars.scale_offset_error["EEHighR9"] = 0.;
+    //// eSmearDataPars.scale_offset_error["EELowR9"]  = 0.;
+    //// // E resolution smearing NOT applied to data 
+    //// eSmearDataPars.smearing_sigma["EBHighR9"] = 0.;
+    //// eSmearDataPars.smearing_sigma["EBLowR9"]  = 0.;
+    //// eSmearDataPars.smearing_sigma["EEHighR9"] = 0.;
+    //// eSmearDataPars.smearing_sigma["EELowR9"]  = 0.;
+    //// // E resolution systematics NOT applied to data 
+    //// eSmearDataPars.smearing_sigma_error["EBHighR9"] = 0.;
+    //// eSmearDataPars.smearing_sigma_error["EBLowR9"]  = 0.;
+    //// eSmearDataPars.smearing_sigma_error["EEHighR9"] = 0.;
+    //// eSmearDataPars.smearing_sigma_error["EELowR9"]  = 0.;
 
     effSmearPars.categoryType = "2CatR9_EBEE";
     effSmearPars.n_categories = 4;
@@ -443,12 +425,12 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	if( cur_type != 0 && doMCSmearing ) { // if it's MC
 	    for(std::vector<BaseSmearer *>::iterator si=photonSmearers_.begin(); si!= photonSmearers_.end(); ++si ) {
 		float sweight = 1.;
-		(*si)->smearPhoton(phoInfo,sweight,0.);	   
+		(*si)->smearPhoton(phoInfo,sweight,l.run,0.);	   
 		pweight *= sweight;
 	    }
 	} else if( doEscaleSmear && cur_type == 0 ) {          // if it's data
 	    float sweight = 1.;
-	    eScaleDataSmearer->smearPhoton(phoInfo,sweight,0.);
+	    eScaleDataSmearer->smearPhoton(phoInfo,sweight,l.run,0.);
 	    pweight *= sweight;
 	}
 	smeared_pho_energy[ipho] = phoInfo.energy();
@@ -675,10 +657,10 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 			float sweight = 1.;
 			if( *si == *sj ) {
 			    // move the smearer under study by syst_shift
-			    (*si)->smearPhoton(phoInfo,sweight,syst_shift);
+			    (*si)->smearPhoton(phoInfo,sweight,l.run,syst_shift);
 			} else {
 			    // for the other use the nominal points
-			    (*sj)->smearPhoton(phoInfo,sweight,0.);
+			    (*sj)->smearPhoton(phoInfo,sweight,l.run,0.);
 			}
 			pweight *= sweight;
 		    }
