@@ -16,8 +16,8 @@ bx
 
 ->
 SuperClusters
-->
 sc_p4
+->
 sc_xyz
 
 ->
@@ -114,9 +114,7 @@ pho_conv_chi2
 pho_conv_chi2_probability
 pho_conv_validvtx
 pho_conv_MVALikelihood
-->
 pho_p4
-->
 pho_calopos
 pho_conv_vtx
 pho_conv_pair_momentum
