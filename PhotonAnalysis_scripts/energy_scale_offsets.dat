@@ -1,4 +1,16 @@
 # Format first_run last_run EBHighR9 EBLowR9 EEHighR9 EELowR9
 # listed are measured relative energy scale departures (from 'ideal');
 # their opposite will be applied to data, as a correcton
-0 -1 0.49e-2 -0.11e-2 -0.57e-2 0.39e-2
+
+## # May10 ReReco
+## 160404 163869 0.49e-2 -0.11e-2 -0.57e-2 0.39e-2
+## 
+## # Prompt Reco results with 600/pb
+## 165071 167746 -0.01e-2 -0.52e-2 -4.28e-2 -1.8e-2
+
+## Numbers from ECAL DPG 07/06 for May10 ReReco + 1/fb PromptReco
+160404 163869 0.47e-2 -0.25e-2 -0.58e-2 0.10e-2 
+165071 165970 0.07e-2 -0.49e-2 -2.49e-2 -0.62e-2
+165971 166502 -0.03e-2 -0.67e-2 -3.76e-2 -1.33e-2
+166503 166861 -0.11e-2 -0.63e-2 -4.50e-2 -1.78e-2
+166862 167784 -0.14e-2 -0.74e-2 -5.61e-2 -2.73e-2
