@@ -24,7 +24,8 @@ def makeCaFiles(dir,njobs=-1,jobid=0):
 
 def makeDcFiles(dir,njobs=-1,jobid=0):
 
-   dcache_prepend = 'dcap://gfe02.grid.hep.ph.ic.ac.uk/pnfs/hep.ph.ic.ac.uk/data/cms'
+   #dcache_prepend = 'dcap://gfe02.grid.hep.ph.ic.ac.uk/pnfs/hep.ph.ic.ac.uk/data/cms'
+   dcache_prepend = 'root://gfe02.grid.hep.ph.ic.ac.uk/'
    dir = str(dir)
    return_files = []
 
