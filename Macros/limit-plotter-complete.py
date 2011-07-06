@@ -8,6 +8,7 @@ import ROOT
 import array,sys,numpy
 ROOT.gROOT.ProcessLine(".L medianCalc.C++")
 from ROOT import medianCalc
+from ROOT import FrequentistLimits
 ROOT.gROOT.SetStyle("Plain")
 ROOT.gROOT.SetBatch(True)
 
@@ -56,7 +57,7 @@ def getOBSERVED(file):
   tree.GetEntry(0)
   return c.r
 
-EXPfiles = [ROOT.TFile(EXPName+".mH%d.root"%m) for m in EXPmasses]
+EXPfiles = [ROOT.TFile(EXPName+".mH%d.quant0.500.root"%m) for m in EXPmasses]
 
 # Get the observed limits - Currently only does up to 1 decimal mass points
 OBSfiles = []
@@ -106,12 +107,17 @@ for i,mass,f in zip(range(len(EXPfiles)),EXPmasses,EXPfiles):
   graph95.SetPoint(i,float(mass),median[0]*sm)
   graphMed.SetPoint(i,float(mass),median[0]*sm)
   graphOne.SetPoint(i,float(mass),1.*sm)
-
-  diff95_up = abs(median[0] - up95[0])*sm
-  diff95_dn = abs(median[0] - dn95[0])*sm
-  diff68_up = abs(median[0] - up68[0])*sm 
-  diff68_dn = abs(median[0] - dn68[0])*sm 
-
+  
+  if Method == "Frequentist":
+    diff95_up = abs(median[0] - FrequentistLimits(f.GetName().replace("0.500.root","0.975.root")))*sm
+    diff95_dn = abs(median[0] - FrequentistLimits(f.GetName().replace("0.500.root","0.027.root")))*sm
+    diff68_up = abs(median[0] - FrequentistLimits(f.GetName().replace("0.500.root","0.840.root")))*sm
+    diff68_dn = abs(median[0] - FrequentistLimits(f.GetName().replace("0.500.root","0.160.root")))*sm
+  else:
+    diff95_up = abs(median[0] - up95[0])*sm
+    diff95_dn = abs(median[0] - dn95[0])*sm
+    diff68_up = abs(median[0] - up68[0])*sm
+    diff68_dn = abs(median[0] - dn68[0])*sm
   
   graph68.SetPointError(i,0,0,diff68_dn,diff68_up)
   graph95.SetPointError(i,0,0,diff95_dn,diff95_up)
