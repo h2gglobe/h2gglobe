@@ -1,4 +1,6 @@
 default=2
+htyp=0 plot=-1  ncat=9  xbins=160   ybins=0       xmin=80.0  xmax=240.0  ymin=0      ymax=0       name=all_mass
+
 htyp=0 plot=-1  ncat=9  xbins=20    ybins=0       xmin=0.0   xmax=200.0  ymin=0      ymax=0       name=pt
 htyp=0 plot=-1  ncat=9  xbins=51    ybins=0       xmin=-2.55 xmax=2.55  ymin=0     ymax=0      name=eta
 htyp=0 plot=-1  ncat=9  xbins=160   ybins=0       xmin=80.0  xmax=240.0  ymin=0      ymax=0       name=mass

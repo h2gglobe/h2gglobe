@@ -19,6 +19,9 @@ def makeCaFiles(dir,njobs=-1,jobid=0):
             
    else:
       sys.exit("No Such Directory: %s"%(dir))
+
+   if nf==0: sys.exit("No .root Files found in directory - %s"%dir)
+
    return return_files
 
 
@@ -46,6 +49,9 @@ def makeDcFiles(dir,njobs=-1,jobid=0):
 
    else:
       sys.exit("No Such Directory: %s"%(dir))
+      
+   if nf==0: sys.exit("No .root Files found in directory - %s"%dir)
+
    return return_files
 
 
@@ -64,4 +70,6 @@ def makeFiles(dir,njobs=-1,jobid=0):
             return_files.append(dir+'/'+f)
    else: sys.exit("No Such Directory as %s"%dir)  
 
+   if nf==0: sys.exit("No .root Files found in directory - %s"%dir)
+   
    return return_files  

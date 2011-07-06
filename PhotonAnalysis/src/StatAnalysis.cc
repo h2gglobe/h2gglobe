@@ -495,43 +495,46 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	assert( evweight >= 0. ); 
 
 	// control plots 
-	l.FillHist("mass",0, Higgs.M(), evweight);
-	l.FillHist("pt",0, Higgs.Pt(), evweight);
-	l.FillHist("eta",0, Higgs.Eta(), evweight);
-
-	l.FillHist("pho_pt",0,lead_p4.Pt(), evweight);
-	l.FillHist("pho1_pt",0,lead_p4.Pt(), evweight);
-	l.FillHist("pho_eta",0,lead_p4.Eta(), evweight);
-	l.FillHist("pho1_eta",0,lead_p4.Eta(), evweight);
-	l.FillHist("pho_r9",0, lead_r9, evweight);
-	l.FillHist("pho1_r9",0, lead_r9, evweight);
-
-	l.FillHist("pho_pt",0,sublead_p4.Pt(), evweight);
-	l.FillHist("pho2_pt",0,sublead_p4.Pt(), evweight);
-	l.FillHist("pho_eta",0,sublead_p4.Eta(), evweight);
-	l.FillHist("pho2_eta",0,sublead_p4.Eta(), evweight);
-	l.FillHist("pho_r9",0, sublead_r9, evweight);
-	l.FillHist("pho1_r9",0, sublead_r9, evweight);
-       
-	l.FillHist("mass",category+1, Higgs.M(), evweight);
-	l.FillHist("pt",category+1, Higgs.Pt(), evweight);
-	l.FillHist("eta",category+1, Higgs.Eta(), evweight);
-	
-	l.FillHist("pho_pt",category+1,lead_p4.Pt(), evweight);
-	l.FillHist("pho1_pt",category+1,lead_p4.Pt(), evweight);
-	l.FillHist("pho_eta",category+1,lead_p4.Eta(), evweight);
-	l.FillHist("pho1_eta",category+1,lead_p4.Eta(), evweight);
-	l.FillHist("pho_r9",category+1, lead_r9, evweight);
-	l.FillHist("pho1_r9",category+1, lead_r9, evweight);
-	
-	l.FillHist("pho_pt",category+1,sublead_p4.Pt(), evweight);
-	l.FillHist("pho2_pt",category+1,sublead_p4.Pt(), evweight);
-	l.FillHist("pho_eta",category+1,sublead_p4.Eta(), evweight);
-	l.FillHist("pho2_eta",category+1,sublead_p4.Eta(), evweight);
-	l.FillHist("pho_r9",category+1, sublead_r9, evweight);
-	l.FillHist("pho1_r9",category+1, sublead_r9, evweight);
-
-	l.FillHist("pho_n",category+1,l.pho_n, evweight);
+	l.FillHist("all_mass",0, Higgs.M(), evweight);
+	if( mass>=massMin && mass<=massMax  ) {
+		l.FillHist("mass",0, Higgs.M(), evweight);
+		l.FillHist("pt",0, Higgs.Pt(), evweight);
+		l.FillHist("eta",0, Higgs.Eta(), evweight);
+		
+		l.FillHist("pho_pt",0,lead_p4.Pt(), evweight);
+		l.FillHist("pho1_pt",0,lead_p4.Pt(), evweight);
+		l.FillHist("pho_eta",0,lead_p4.Eta(), evweight);
+		l.FillHist("pho1_eta",0,lead_p4.Eta(), evweight);
+		l.FillHist("pho_r9",0, lead_r9, evweight);
+		l.FillHist("pho1_r9",0, lead_r9, evweight);
+		
+		l.FillHist("pho_pt",0,sublead_p4.Pt(), evweight);
+		l.FillHist("pho2_pt",0,sublead_p4.Pt(), evweight);
+		l.FillHist("pho_eta",0,sublead_p4.Eta(), evweight);
+		l.FillHist("pho2_eta",0,sublead_p4.Eta(), evweight);
+		l.FillHist("pho_r9",0, sublead_r9, evweight);
+		l.FillHist("pho1_r9",0, sublead_r9, evweight);
+		
+		l.FillHist("mass",category+1, Higgs.M(), evweight);
+		l.FillHist("pt",category+1, Higgs.Pt(), evweight);
+		l.FillHist("eta",category+1, Higgs.Eta(), evweight);
+		
+		l.FillHist("pho_pt",category+1,lead_p4.Pt(), evweight);
+		l.FillHist("pho1_pt",category+1,lead_p4.Pt(), evweight);
+		l.FillHist("pho_eta",category+1,lead_p4.Eta(), evweight);
+		l.FillHist("pho1_eta",category+1,lead_p4.Eta(), evweight);
+		l.FillHist("pho_r9",category+1, lead_r9, evweight);
+		l.FillHist("pho1_r9",category+1, lead_r9, evweight);
+		
+		l.FillHist("pho_pt",category+1,sublead_p4.Pt(), evweight);
+		l.FillHist("pho2_pt",category+1,sublead_p4.Pt(), evweight);
+		l.FillHist("pho_eta",category+1,sublead_p4.Eta(), evweight);
+		l.FillHist("pho2_eta",category+1,sublead_p4.Eta(), evweight);
+		l.FillHist("pho_r9",category+1, sublead_r9, evweight);
+		l.FillHist("pho1_r9",category+1, sublead_r9, evweight);
+		
+		l.FillHist("pho_n",category+1,l.pho_n, evweight);
+	}
 	
 	SaclayText << setprecision(4) <<  "Run = " << l.run << "  LS = " << l.lumis << "  Event = " << l.event << "  SelVtx = " << l.vtx_std_sel << "  CAT4 = " << category % 4
 		   << "  ggM = " << mass << " gg_Pt =  " << ptHiggs;

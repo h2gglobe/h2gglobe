@@ -377,10 +377,19 @@ class configProducer:
     split_line = line.split()
     for sp in split_line:
       val = sp.split("=")
+      
       if val[0] == "output":
         self.conf_.outfile = str(val[1])
+        if self.njobs_ > 0:
+            name,ext=self.conf_.outfile.rsplit(".",1)
+            self.conf_.outfile = "%s_%d.%s" % ( name, self.jobId_, ext )
+
       elif val[0] == 'histfile':
         self.conf_.histfile = str(val[1])
+        if self.njobs_ > 0:
+            name,ext=self.conf_.histfile.rsplit(".",1)
+            self.conf_.histfile = "%s_%d.%s" % ( name, self.jobId_, ext )
+        
       elif val[0] == 'intL':
         self.intL = float(val[1])
       else: sys.exit("Unrecognised Argument:\n ' %s ' in line:\n ' %s '" %(val[0],line))
@@ -452,19 +461,16 @@ class configProducer:
         
     if cas_directory != '':
       ca_files = makeCaFiles(cas_directory,self.njobs_,self.jobId_)
-      if len(ca_files) == 0: sys.exit("No .root Files found in directory - %s"%cas_directory)
       for file_s in ca_files:
         self.conf_.files.append((file_s,fi_type))
 
     if dcs_directory != '':
       dc_files = makeDcFiles(dcs_directory,self.njobs_,self.jobId_)
-      if len(dc_files) == 0: sys.exit("No .root Files found in directory - %s"%dcs_directory)
       for file_s in dc_files:
         self.conf_.files.append((file_s,fi_type))
 
     if directory != '':
         files = makeFiles(directory,self.njobs_,self.jobId_)
-	if len(files)==0: sys.exit("No .root Files found in directory - %s"%directory)
         for file_s in files:
             self.conf_.files.append((file_s,fi_type))
 
@@ -528,21 +534,18 @@ class configProducer:
         
     if cas_directory != '':
       ca_files = makeCaFiles(cas_directory,self.njobs_,self.jobId_)
-      if len(ca_files) == 0: sys.exit("No .root Files found in directory - %s"%cas_directory)
       for file_s in ca_files:
         self.conf_.files.append((file_s,fi_type))
 	self.conf_.confs.append(map_c.copy())
 
     if dcs_directory != '':
       dc_files = makeDcFiles(dcs_directory,self.njobs_,self.jobId_)
-      if len(dc_files) == 0: sys.exit("No .root Files found in directory - %s"%dcs_directory)
       for file_s in dc_files:
         self.conf_.files.append((file_s,fi_type))
 	self.conf_.confs.append(map_c.copy())
 
     if directory != '':
         files = makeFiles(directory,self.njobs_,self.jobId_)
-	if len(files)==0: sys.exit("No .root Files found in directory - %s"%directory)
         for file_s in files:	
 	    print file_s, fi_type
             self.conf_.files.append((file_s,fi_type))

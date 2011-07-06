@@ -19,8 +19,17 @@ config_file="datafiles.dat"
 if len(sys.argv) > 1:
     config_file = sys.argv[1]
 
+njobs=-1
+jobId=0
+if len(argv) > 2:
+    if len(argv) == 3:
+        print "Usage: fitter.py <config_file> [<njobs> <job_id>]" 
+        exit(1)
+    njobs = int(argv[2])
+    jobId = int(argv[3])
+
 ut = ROOT.LoopAll();
-cfg = configProducer(ut,config_file,0)
+cfg = configProducer(ut,config_file,0,njobs,jobId)
   
 ut.LoopAndFillHistos();
 ROOT.gBenchmark.Show("Analysis");

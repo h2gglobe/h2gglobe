@@ -260,7 +260,7 @@ void LoopAll::LoopAndFillHistos(TString treename) {
 
     Loop(i);
 
-    if(tot_events != 0) {
+    if(tot_events != 0 && (*it_tree) != 0  ) {
       (*it_tree)->Delete("");
     }
 
@@ -279,7 +279,7 @@ void LoopAll::LoopAndFillHistos(TString treename) {
   }
   
   //now close the first File
-  if(Files[0]->IsOpen())
+  if( !Files.empty() &&  Files[0]->IsOpen())
     Files[0]->Close();
 
   TermReal(typerun);
@@ -375,6 +375,9 @@ void LoopAll::InitHistos(){
     histoContainer.push_back(temp);
   }
 
+  HistoContainer temp(sampleContainer.size(),"tot");
+  temp.setScale(1.);
+  histoContainer.push_back(temp);
 }
 
 // ------------------------------------------------------------------------------------
@@ -604,7 +607,7 @@ void LoopAll::WriteHist() {
 
   hfile->cd();
   hfile->cd();
-  for(unsigned int ind=0; ind<sampleContainer.size(); ind++) {
+  for(unsigned int ind=0; ind<histoContainer.size(); ind++) {
     histoContainer[ind].Save();
   }
   outputTreeLumi->Write();
@@ -864,7 +867,7 @@ void LoopAll::BookHisto(int h2d,
 			float highlim2,
 			char *name) {
 
-  for(unsigned int ind=0; ind<sampleContainer.size(); ind++) {
+  for(unsigned int ind=0; ind<histoContainer.size(); ind++) {
     if (nbinsy == 0)
       histoContainer[ind].Add(name, histoncat, nbinsx, lowlim, highlim);
     if (nbinsy != 0)
@@ -989,10 +992,12 @@ void LoopAll::FillHist2D(std::string name, float x, float y) {
 // ------------------------------------------------------------------------------------
 void LoopAll::FillHist(std::string name, int category, float y, float wt ) {
   histoContainer[current_sample_index].Fill(name, category, y, wt);
+  histoContainer.back().Fill(name, category, y, wt);
 }
 // ------------------------------------------------------------------------------------
 void LoopAll::FillHist2D(std::string name, int category, float x, float y, float wt ) {
   histoContainer[current_sample_index].Fill2D(name, category, x, y, wt);
+  histoContainer.back().Fill(name, category, y, wt);
 }
 
 // ------------------------------------------------------------------------------------
