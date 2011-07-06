@@ -86,6 +86,11 @@ void StatAnalysis::Init(LoopAll& l)
     l.runCiC = reRunCiC;
     // call the base class initializer
     PhotonAnalysis::Init(l);
+
+    // Avoid reweighing from histo conainer
+    for(size_t ind=0; ind<l.histoContainer.size(); ind++) {
+	l.histoContainer[ind].setScale(1.);
+    }
     
     diPhoCounter_ = l.countersred.size();
     l.countersred.resize(diPhoCounter_+1);
@@ -367,6 +372,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
    
     int cur_type = l.itype[l.current];
     float weight = l.sampleContainer[l.current_sample_index].weight;
+    assert( weight > 0. );  
     //PU reweighting
     unsigned int n_pu = l.pu_n;
     if (l.itype[l.current] !=0 && puHist != "") {
@@ -380,6 +386,8 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		<<"), event will not be reweighted for pileup"<<endl;
         }
     }
+    assert( weight >= 0. );  
+    
     // ------------------------------------------------------------
     //PT-H K-factors
     double gPT = 0;
@@ -405,6 +413,10 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	for(std::vector<BaseGenLevelSmearer*>::iterator si=genLevelSmearers_.begin(); si!=genLevelSmearers_.end(); si++){
 	    float genWeight=1;
 	    (*si)->smearEvent( genWeight,gP4, l.pu_n, cur_type, 0. );
+	    if( genWeight < 0. ) {
+		std::cerr << "Negative weight from smearer " << (*si)->name() << std::endl;
+		assert(0);
+	    }
 	    genLevWeight*=genWeight;
 	}
     }
@@ -426,6 +438,10 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	    for(std::vector<BaseSmearer *>::iterator si=photonSmearers_.begin(); si!= photonSmearers_.end(); ++si ) {
 		float sweight = 1.;
 		(*si)->smearPhoton(phoInfo,sweight,l.run,0.);	   
+		if( sweight < 0. ) {
+			std::cerr << "Negative weight from smearer " << (*si)->name() << std::endl;
+			assert(0);
+		}
 		pweight *= sweight;
 	    }
 	} else if( doEscaleSmear && cur_type == 0 ) {          // if it's data
@@ -461,46 +477,62 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	int category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,nPtCategories);
 	int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,0);
 	if( cur_type != 0 && doMCSmearing ) {
-	    float rewei=1.;
 	    float pth = Higgs.Pt();
 	    for(std::vector<BaseDiPhotonSmearer *>::iterator si=diPhotonSmearers_.begin(); si!= diPhotonSmearers_.end(); ++si ) {
+		float rewei=1.;
 		(*si)->smearDiPhoton( Higgs, *vtx, rewei, selectioncategory, cur_type, *((TVector3*)l.gv_pos->At(0)), 0. );
+		if( rewei < 0. ) {
+		    std::cerr << "Negative weight from smearer " << (*si)->name() << std::endl;
+		    assert(0);
+		}
+		evweight *= rewei;
 	    }
-	    evweight *= rewei;
 	    CorrectVertex=(*vtx- *((TVector3*)l.gv_pos->At(0))).Mag() < 1.;
 	}
 	float mass    = Higgs.M();
 	float ptHiggs = Higgs.Pt();
       
+	assert( evweight >= 0. ); 
+
 	// control plots 
 	l.FillHist("mass",0, Higgs.M(), evweight);
 	l.FillHist("pt",0, Higgs.Pt(), evweight);
+	l.FillHist("eta",0, Higgs.Eta(), evweight);
 
 	l.FillHist("pho_pt",0,lead_p4.Pt(), evweight);
 	l.FillHist("pho1_pt",0,lead_p4.Pt(), evweight);
+	l.FillHist("pho_eta",0,lead_p4.Eta(), evweight);
+	l.FillHist("pho1_eta",0,lead_p4.Eta(), evweight);
 	l.FillHist("pho_r9",0, lead_r9, evweight);
 	l.FillHist("pho1_r9",0, lead_r9, evweight);
 
 	l.FillHist("pho_pt",0,sublead_p4.Pt(), evweight);
 	l.FillHist("pho2_pt",0,sublead_p4.Pt(), evweight);
+	l.FillHist("pho_eta",0,sublead_p4.Eta(), evweight);
+	l.FillHist("pho2_eta",0,sublead_p4.Eta(), evweight);
 	l.FillHist("pho_r9",0, sublead_r9, evweight);
 	l.FillHist("pho1_r9",0, sublead_r9, evweight);
        
 	l.FillHist("mass",category+1, Higgs.M(), evweight);
 	l.FillHist("pt",category+1, Higgs.Pt(), evweight);
+	l.FillHist("eta",category+1, Higgs.Eta(), evweight);
 	
 	l.FillHist("pho_pt",category+1,lead_p4.Pt(), evweight);
 	l.FillHist("pho1_pt",category+1,lead_p4.Pt(), evweight);
+	l.FillHist("pho_eta",category+1,lead_p4.Eta(), evweight);
+	l.FillHist("pho1_eta",category+1,lead_p4.Eta(), evweight);
 	l.FillHist("pho_r9",category+1, lead_r9, evweight);
 	l.FillHist("pho1_r9",category+1, lead_r9, evweight);
 	
 	l.FillHist("pho_pt",category+1,sublead_p4.Pt(), evweight);
 	l.FillHist("pho2_pt",category+1,sublead_p4.Pt(), evweight);
+	l.FillHist("pho_eta",category+1,sublead_p4.Eta(), evweight);
+	l.FillHist("pho2_eta",category+1,sublead_p4.Eta(), evweight);
 	l.FillHist("pho_r9",category+1, sublead_r9, evweight);
 	l.FillHist("pho1_r9",category+1, sublead_r9, evweight);
 
 	l.FillHist("pho_n",category+1,l.pho_n, evweight);
-
+	
 	SaclayText << setprecision(4) <<  "Run = " << l.run << "  LS = " << l.lumis << "  Event = " << l.event << "  SelVtx = " << l.vtx_std_sel << "  CAT4 = " << category % 4
 		   << "  ggM = " << mass << " gg_Pt =  " << ptHiggs;
 	SaclayText << endl;

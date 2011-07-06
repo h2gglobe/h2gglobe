@@ -61,11 +61,14 @@ EB R<0.94    -0.52%    0.03%    1.77%    0.09%
 
 EE R>0.94    -4.28%    0.14%    4.65%    0.21%
 EE R<0.94    -1.80%    0.12%    3.72%    0.24%
-->
+
 scale_offset_EBHighR9=-0.01e-2
 scale_offset_EBLowR9=-0.52e-2
 scale_offset_EEHighR9=-4.28e-2
 scale_offset_EELowR9=-1.8e-2
+->
+
+scale_offset_file=energy_scale_offsets.dat
 scale_offset_error_EBHighR9=0.05e-2
 scale_offset_error_EBLowR9=0.03e-2
 scale_offset_error_EEHighR9=0.14e-2

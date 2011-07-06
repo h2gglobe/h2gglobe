@@ -11,6 +11,8 @@ ROOT.gSystem.Load("libPhysics.so");
 ROOT.gSystem.Load("libCore.so");
 ROOT.gSystem.Load("../libLoopAll.so");
 
+ROOT.gROOT.SetBatch(1)
+
 ROOT.gBenchmark.Start("Analysis");
 
 config_file="datafiles.dat"

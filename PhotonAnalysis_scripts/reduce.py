@@ -3,6 +3,8 @@
 import ROOT
 from python.configProducer import *
 
+ROOT.gROOT.SetBatch(1)
+
 from sys import argv, exit
 config_file="filestoreduce.dat"
 if len(argv) > 1:

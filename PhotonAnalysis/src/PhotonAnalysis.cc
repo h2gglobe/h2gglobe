@@ -179,10 +179,17 @@ void PhotonAnalysis::Init(LoopAll& l)
         TFile* puFile = TFile::Open( puHist );
         if (puFile) {
             cout<<"Reweighting events for pileup."<<endl;
-	    TH1 * hweigh = (TH1D*) puFile->Get("weights");
+	    TH1 * hweigh = (TH1*) puFile->Get("weights");
+	    if( hweigh == 0 ) {
+		    hweigh = (TH1*) puFile->Get("NPUWeights");
+	    }
 	    if( hweigh != 0 ) { 
 		    cout<< " This is a pre-processed pileup reweighing file." <<endl;
 		    TH1 * gen_pu = (TH1*)puFile->Get("generated_pu");
+		    if( gen_pu == 0 ) {
+			    gen_pu = (TH1*)puFile->Get("NPUSource");
+		    }
+		    // Normalize weights such that the total cross section is unchanged
 		    TH1 * eff = (TH1*)hweigh->Clone("eff");
 		    eff->Multiply(gen_pu);
 		    hweigh->Scale( gen_pu->Integral() / eff->Integral()  );
@@ -538,33 +545,36 @@ bool PhotonAnalysis::SkimEvents(LoopAll& l, int jentry)
 		//// l.countersred[trigCounter_]++;
 	}
 	
-	if( filetype == 2 ) { // photon+jet
-		l.b_process_id->GetEntry(jentry);
-		if( l.process_id == 18 ) {
-			return false;
-		}
-	}
-	
-	if( filetype != 0 && ! (keepPP && keepPF && keepFF) ) {
-		l.b_gp_n->GetEntry(jentry);
-		l.b_gp_status->GetEntry(jentry);
-		l.b_gp_pdgid->GetEntry(jentry);
-		l.b_gp_p4->GetEntry(jentry);
-
-		int np = 0;
-		for(int ip=0;ip<l.gp_n;++ip) {
-			if( l.gp_status[ip] != 1 || l.gp_pdgid[ip] != 22 ) { 
-				continue; 
+	if( l.typerun == l.kReduce || l.typerun == l.kFillReduce ) {
+		if( filetype == 2 ) { // photon+jet
+			l.b_process_id->GetEntry(jentry);
+			if( l.process_id == 18 ) {
+				return false;
 			}
-			TLorentzVector * p4 = (TLorentzVector*) l.gp_p4->At(ip);
-			if( p4->Pt() < 20. || fabs(p4->Eta()) > 3. ) { continue; }
-			int mother_id = abs( l.gp_pdgid[ l.gp_mother[ip] ] );
-			if( mother_id <= 25 ) { ++np; }
-			if( np >= 2 ) { break; }
 		}
-		if( np >= 2 && ! keepPP ) { return false; }
-		if( np == 1 && ! keepPF ) { return false; }
-		if( np == 0 && ! keepFF ) { return false; }
+		
+		if( filetype != 0 && ! (keepPP && keepPF && keepFF) ) {
+			l.b_gp_n->GetEntry(jentry);
+			l.b_gp_mother->GetEntry(jentry);
+			l.b_gp_status->GetEntry(jentry);
+			l.b_gp_pdgid->GetEntry(jentry);
+			l.b_gp_p4->GetEntry(jentry);
+			
+			int np = 0;
+			for(int ip=0;ip<l.gp_n;++ip) {
+				if( l.gp_status[ip] != 1 || l.gp_pdgid[ip] != 22 ) { 
+					continue; 
+				}
+				TLorentzVector * p4 = (TLorentzVector*) l.gp_p4->At(ip);
+				if( p4->Pt() < 20. || fabs(p4->Eta()) > 3. ) { continue; }
+				int mother_id = abs( l.gp_pdgid[ l.gp_mother[ip] ] );
+				if( mother_id <= 25 ) { ++np; }
+				if( np >= 2 ) { break; }
+			}
+			if( np >= 2 && ! keepPP ) { return false; }
+			if( np == 1 && ! keepPF ) { return false; }
+			if( np == 0 && ! keepFF ) { return false; }
+		}
 	}
 
 	return true;
