@@ -43,7 +43,9 @@ bool KFactorSmearer::smearEvent( float & weight, const TLorentzVector & p4, cons
   else if (sample_type <=-37) assert(0);   // this is the case of non-existing sample
   else    return true;                     // this is the case of backgrounds
 
-  weight = getWeight( p4, nPu, genMassPoint, syst_shift );
+  double kWeight = getWeight( p4, nPu, genMassPoint, syst_shift );
+  weight = (kWeight > 0) ? kWeight : 0;
+
   return true;
 }
 

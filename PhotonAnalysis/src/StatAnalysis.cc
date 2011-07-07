@@ -57,7 +57,8 @@ void StatAnalysis::Init(LoopAll& l)
 	cout << "InitRealStatAnalysis START"<<endl;
 	
     // Saclay text file
-    SaclayText.open("ascii_events_204pb.txt");
+    std::string outputfilename = (std::string) l.histFileName;
+    SaclayText.open(Form("%s_ascii_events_204pb.txt",outputfilename.c_str()));
     //
     // These parameters are set in the configuration file
     std::cout
@@ -286,7 +287,7 @@ void StatAnalysis::Init(LoopAll& l)
     // ----------------------------------------------------
     // ----------------------------------------------------
     // Global systematics - Lumi
-    l.rooContainer->AddGlobalSystematic("lumi",1.04,1.00);
+    l.rooContainer->AddGlobalSystematic("lumi",1.06,1.00);
     // ----------------------------------------------------
 
     // Create observables for shape-analysis with ranges
