@@ -83,6 +83,7 @@ protected:
 	std::string name_;
 	
 	int nCategories_;
+	int nPhotonCategories_;
 	int diPhoCounter_;
 	// Vertex analysis
 	HggVertexAnalyzer vtxAna_;

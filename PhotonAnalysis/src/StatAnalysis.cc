@@ -100,6 +100,9 @@ void StatAnalysis::Init(LoopAll& l)
     nCategories_ = nEtaCategories;
     if( nR9Categories != 0 ) nCategories_ *= nR9Categories;
     if( nPtCategories != 0 ) nCategories_ *= nPtCategories;
+
+    nPhotonCategories_ = nEtaCategories;
+    if( nR9Categories != 0 ) nPhotonCategories_ *= nR9Categories;
 	
     eSmearPars.categoryType = "2CatR9_EBEE";
     eSmearPars.byRun = false;
@@ -432,7 +435,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	PhotonReducedInfo phoInfo ( *((TVector3*)l.pho_calopos->At(ipho)), 
 				    // *((TVector3*)l.sc_xyz->At(l.pho_scind[ipho])), 
 				    ((TLorentzVector*)l.pho_p4->At(ipho))->Energy(), l.pho_isEB[ipho], l.pho_r9[ipho],
-				    l.PhotonCiCSelectionLevel(ipho,l.vtx_std_sel,p,l.phoSUPERTIGHT) );
+				    l.PhotonCiCSelectionLevel(ipho,l.vtx_std_sel,p,nPhotonCategories_) );
 	float pweight = 1.;
 	// smear MC. But apply energy shift to data 
 	if( cur_type != 0 && doMCSmearing ) { // if it's MC
@@ -700,7 +703,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		    PhotonReducedInfo phoInfo ( *((TVector3*)l.pho_calopos->At(ipho)), 
 						/// *((TVector3*)l.sc_xyz->At(l.pho_scind[ipho])), 
 						((TLorentzVector*)l.pho_p4->At(ipho))->Energy(), l.pho_isEB[ipho], l.pho_r9[ipho],
-						l.PhotonCiCSelectionLevel(ipho,l.vtx_std_sel,p,l.phoSUPERTIGHT));
+						l.PhotonCiCSelectionLevel(ipho,l.vtx_std_sel,p,nPhotonCategories_));
 		   
 		    float pweight = 1.;
 		    for(std::vector<BaseSmearer *>::iterator  sj=photonSmearers_.begin(); sj!= photonSmearers_.end(); ++sj ) {
