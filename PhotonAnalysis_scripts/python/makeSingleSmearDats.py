@@ -43,7 +43,7 @@ from copy import deepcopy
 import re
 reps = [
         # '''intL=204. histfile=/castor/cern.ch/user/c/cmshgg/StatAnalysis/11-06-24/CMS-HGG.root output=shifo.root'''        
-        (re.compile(ur'''histfile=([^\s]+).root''',re.U), ur'''\1_%(optsstr)s.root '''),
+        (re.compile(ur'''histfile=([^\s]+).root''',re.U), ur'''histfile=\1_%(optsstr)s.root '''),
 
         # '''analyzer StatAnalysis photonanalysis.dat statanalysis.dat'''
         (re.compile(ur'''statanalysis.dat''',re.U), ur'''statanalysis.dat %(optsfname)s'''),        
