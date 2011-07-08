@@ -137,7 +137,9 @@ SampleContainer & LoopAll::DefineSamples(const char *filesshortnam,
                             float lumi,
                             float xsec,
                             float kfactor,
-                            float scale) {
+			    float scale,
+			    bool addnevents
+	) {
   
   // set intlumi in LoopAll
   intlumi_=intlumi;
@@ -151,9 +153,11 @@ SampleContainer & LoopAll::DefineSamples(const char *filesshortnam,
   }
   
   if (sample_is_defined != -1) {
-    sampleContainer[sample_is_defined].ntot += ntot;
-    sampleContainer[sample_is_defined].nred += nred;
-    sampleContainer[sample_is_defined].computeWeight(intlumi);
+      if( addnevents ) {
+	  sampleContainer[sample_is_defined].ntot += ntot;
+	  sampleContainer[sample_is_defined].nred += nred;
+	  sampleContainer[sample_is_defined].computeWeight(intlumi);
+      }
     return sampleContainer[sample_is_defined];
   }
 
@@ -1000,14 +1004,14 @@ void LoopAll::FillHist2D(std::string name, int category, float x, float y, float
   histoContainer.back().Fill(name, category, y, wt);
 }
 
-// ------------------------------------------------------------------------------------
-void LoopAll::FillCounter(std::string name) {
-  FillCounter(name, 0);
-}
+//// // ------------------------------------------------------------------------------------
+//// void LoopAll::FillCounter(std::string name, float weight) {
+//// 	FillCounter(name, 0, weight);
+//// }
 
 // ------------------------------------------------------------------------------------
-void LoopAll::FillCounter(std::string name, int category) {
-  counterContainer[current_sample_index].Fill(name, category);
+void LoopAll::FillCounter(std::string name, float weight, int category ) {
+	counterContainer[current_sample_index].Fill(name, category, weight);
 }
 
 // ----------------------------------------------------------------------------------------------------------------------

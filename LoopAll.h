@@ -71,8 +71,11 @@ class LoopAll {
   void StoreProcessedLumis(TTree * tree);
   void AddFile(std::string,int);
   void ReadInput(int t=0);
-  SampleContainer & DefineSamples(const char*,int,int,int,int, long long,
-                     float,float,float,float,float);
+  SampleContainer & DefineSamples(const char *filesshortnam,
+                            int type, int histtoindfromfiles, int histoplotit,
+                            int nred, long long ntot, float intlumi,
+                            float lumi, float xsec, float kfactor,
+			    float scale, bool addnevents=false);
   void Term(); 
 
   std::vector<std::string> files;
@@ -143,8 +146,8 @@ class LoopAll {
   void FillHist(std::string, int, float, float wt = 1.0); 
   void FillHist2D(std::string, int, float, float, float wt = 1.0);
   
-  void FillCounter(std::string, int);
-  void FillCounter(std::string);
+  void FillCounter(std::string name, float weight=1., int cat=0);
+  /// void FillCounter(std::string name, float weight=1.);
 
   BaseAnalysis* AddAnalysis(BaseAnalysis*); 
   template<class T> T * GetAnalysis( const std::string & name ) {
