@@ -1,9 +1,10 @@
-# Original Authors - Nicholas Wardle, Nancy Marinelli
+# Original Authors - Nicholas Wardle, Nancy Marinelli, Doug Berry
+
 # Run this with limit-plotter-complete.py METHOD model
 # 	model  = sm (standard model) or ff (fermiophobic)
 #	METHOD = ProfileLikelihood, Bayesian, Frequentist
 
-
+# Standard Imports and calculators
 import ROOT
 import array,sys,numpy
 ROOT.gROOT.ProcessLine(".L medianCalc.C++")
@@ -12,12 +13,25 @@ from ROOT import FrequentistLimits
 ROOT.gROOT.SetStyle("Plain")
 ROOT.gROOT.SetBatch(True)
 
-if len(sys.argv) != 3: sys.exit("Need More Arguments - run with limit-plotter-complete.py METHOD model")
 #-------------------------------------------------------------------------
+# Configuration for the Plotter
 intlumi = str(204)
-Method = sys.argv[1]
-#Method = "Bayesian"
+EXPmasses = [110,115,120,125,130,135,140]
+OBSmasses = numpy.arange(110,140.5,0.5)
+theorySMScales = [5,10,15,20]
 
+
+FILLSTYLE=1001
+FILLCOLOR_95=ROOT.kYellow-4
+FILLCOLOR_68=ROOT.kGreen+2
+FILLCOLOR_T=ROOT.kAzure+7			# Theory lines color
+#-------------------------------------------------------------------------
+# UserInput
+doRatio = False
+if len(sys.argv) < 3: sys.exit("Need More Arguments - run with limit-plotter-complete.py METHOD model")
+elif len(sys.argv ==4) and sys.argv[3] == "-doRatio": doRatio = True
+ 
+Method = sys.argv[1]
 EXPName = Method+"/expected"+Method
 
 if Method == "ProfileLikelihood":
@@ -27,16 +41,14 @@ if Method == "Bayesian":
 if Method == "Frequentist":
   OBSName = Method+"/higgsCombineOBSERVED.Frequentist"
 
-EXPmasses = [110,115,120,125,130,135,140]
-OBSmasses = numpy.arange(110,140.5,0.5)
-if Method == "Frequentist": EXPmasses = numpy.arange(110,140.5,0.5)
-
-#-------------------------------------------------------------------------
+if Method == "Frequentist": EXPmasses = OBSmasses[:]
 
 if sys.argv[2] == "sm":
 	from theory_sm import *
+	extraString = "SM"
 elif sys.argv[2] == "ff":
 	from theory_ff import *
+	extraString = "FP"
 else: sys.exit("choose either sm or ff model")
 
 ###### Nick's python for limits plus additional stuff to plot SM lines
@@ -91,14 +103,16 @@ MG = ROOT.TMultiGraph()
 #EXPECTED
 sm = 1
 for i,mass,f in zip(range(len(EXPfiles)),EXPmasses,EXPfiles):
-  
+ 
+   
   median = array.array('d',[0])
   up68   = array.array('d',[0])
   dn68   = array.array('d',[0])
   up95   = array.array('d',[0])
   dn95   = array.array('d',[0])
 
-  for j,mm in enumerate(allMasses): 
+  if not doRatio:
+    for j,mm in enumerate(allMasses): 
 	if mm==mass: sm = xSec[j]*br[j]
   
   tree = f.Get("limit")
@@ -128,100 +142,64 @@ for i,mass,f in zip(range(len(EXPfiles)),EXPmasses,EXPfiles):
 for i,mass in zip(range(len(OBSfiles)),OBSmasses):
 
   if obs[i] ==-1: continue
-  for j,mm in enumerate(allMasses): 
+  if not doRatio:
+    for j,mm in enumerate(allMasses): 
 	if mm==mass: sm = xSec[j]*br[j]
   graphObs.SetPoint(i,float(mass),obs[i]*sm)
   graphObs.SetPointError(i,0,0,0,0)
 
+
 #-------------------------------------------------------------------------
+# Construct the theory bands
+
+theoryArrays = []
+theoryPlusArrays = []
+theoryMinusArrays = []
+
+dPlusArrays = []
+dMinusArrays = []
 
 xSecErrPlus = array.array('d',[0.0]*len(allMasses))
 xSecErrMinus = array.array('d',[0.0]*len(allMasses))
-
-xSec10 = array.array('d',[0.0]*len(allMasses))
-xSec20 = array.array('d',[0.0]*len(allMasses))
-xSec30 = array.array('d',[0.0]*len(allMasses))
-xSec40 = array.array('d',[0.0]*len(allMasses))
-xSecErrPlus10 = array.array('d',[0.0]*len(allMasses))
-xSecErrPlus20 = array.array('d',[0.0]*len(allMasses))
-xSecErrPlus30 = array.array('d',[0.0]*len(allMasses))
-xSecErrPlus40 = array.array('d',[0.0]*len(allMasses))
-xSecErrMinus10 = array.array('d',[0.0]*len(allMasses))
-xSecErrMinus20 = array.array('d',[0.0]*len(allMasses))
-xSecErrMinus30 = array.array('d',[0.0]*len(allMasses))
-xSecErrMinus40 = array.array('d',[0.0]*len(allMasses))
 dPlus = array.array('d',[0.0]*len(allMasses))
-dPlus10 = array.array('d',[0.0]*len(allMasses))
-dPlus20 = array.array('d',[0.0]*len(allMasses))
-dPlus30 = array.array('d',[0.0]*len(allMasses))
-dPlus40 = array.array('d',[0.0]*len(allMasses))
-dMinus = array.array('d',[0.0]*len(allMasses))
-dMinus10 = array.array('d',[0.0]*len(allMasses))
-dMinus20 = array.array('d',[0.0]*len(allMasses))
-dMinus30 = array.array('d',[0.0]*len(allMasses))
-dMinus40 = array.array('d',[0.0]*len(allMasses))
+
+for th in theorySMScales:
+  theoryArrays.append(array.array('d',[0.0]*len(allMasses)))
+  theoryPlusArrays.append(array.array('d',[0.0]*len(allMasses)))
+  theoryMinusArrays.append(array.array('d',[0.0]*len(allMasses)))
+  dPlusArrays.append(array.array('d',[0.0]*len(allMasses)))
+  dMinusArrays.append(array.array('d',[0.0]*len(allMasses)))
+
 
 for i in range(len(allMasses)):
-  xSecErrPlus[i] =  xSec[i] +  xSec[i]*xSecErrPlusPercent[i]/100.;
-  xSecErrMinus[i] = xSec[i] -  xSec[i]*xSecErrMinusPercent[i]/100.;  
-  xSec[i]=xSec[i]*br[i];
-  xSecErrPlus[i] = xSecErrPlus[i]*br[i];
-  xSecErrMinus[i]= xSecErrMinus[i]*br[i];
-  xSec10[i]=10.*xSec[i];
-  xSec20[i]=20.*xSec[i];
-  xSec30[i]=30.*xSec[i];
-  xSec40[i]=40.*xSec[i];
-  
-  xSecErrPlus10[i]=10.*xSecErrPlus[i]
-  xSecErrPlus20[i]=20.*xSecErrPlus[i]
-  xSecErrPlus30[i]=30.*xSecErrPlus[i]
-  xSecErrPlus40[i]=40.*xSecErrPlus[i]
-  xSecErrMinus10[i]=10.*xSecErrMinus[i]
-  xSecErrMinus20[i]=20.*xSecErrMinus[i]
-  xSecErrMinus30[i]=30.*xSecErrMinus[i]
-  xSecErrMinus40[i]=40.*xSecErrMinus[i]
-  dPlus[i]  =  abs(xSecErrPlus[i]-xSec[i])
-  dMinus[i] =  abs(xSec[i] - xSecErrMinus[i])
-  dPlus10[i]  =  abs(xSecErrPlus10[i]-xSec10[i])
-  dMinus10[i] =  abs(xSec10[i] - xSecErrMinus10[i])
-  dPlus20[i]  =  xSecErrPlus20[i]-xSec20[i]
-  dMinus20[i] =  xSec20[i] - xSecErrMinus20[i]
-  dPlus30[i]  =  xSecErrPlus30[i]-xSec30[i]
-  dMinus30[i] =  xSec30[i] - xSecErrMinus30[i]
-  dPlus40[i]  =  xSecErrPlus40[i]-xSec40[i]
-  dMinus40[i] =  xSec40[i] - xSecErrMinus40[i]
+    xSecErrPlus[i] =  xSec[i] +  xSec[i]*xSecErrPlusPercent[i]/100.;
+    xSecErrMinus[i] = xSec[i] -  xSec[i]*xSecErrMinusPercent[i]/100.;  
 
+    if doRatio: xSec[i]=1.;
+    else: xSec[i]=xSec[i]*br[i];
 
-  
-  myGraphXSecSM   = ROOT.TGraphAsymmErrors()
-  myGraphXSec10SM = ROOT.TGraphAsymmErrors()
-  myGraphXSec20SM = ROOT.TGraphAsymmErrors()
-  myGraphXSec30SM = ROOT.TGraphAsymmErrors()
-  myGraphXSec40SM = ROOT.TGraphAsymmErrors()
-  
-  
+    xSecErrPlus[i] = xSecErrPlus[i]*br[i];
+    xSecErrMinus[i]= xSecErrMinus[i]*br[i];
 
-# DONT put in the theory bands, error will be in limit itself  
+    for j,th in enumerate(theorySMScales):
+      theoryArrays[j][i]=th*xSec[i];
+      theoryPlusArrays[j][i]=th*xSecErrPlus[i];
+      theoryMinusArrays[j][i]=th*xSecErrMinus[i];
+      dPlusArrays[j][i]=abs(th*xSecErrPlus[i]-th*xSec[i])
+      dMinusArrays[j][i]=abs(th*xSecErrMinus[i]-th*xSec[i])
+    
+  
+myGraphXSecSM   = ROOT.TGraphAsymmErrors()
+myGraphXSecSMScales = []
+for th in theorySMScales:
+  myGraphXSecSMScales.append(ROOT.TGraphAsymmErrors()) 
+  
   for i in range(len(allMasses)):
     myGraphXSecSM.SetPoint(i,allMasses[i],xSec[i])
-    #myGraphXSecSM.SetPointError(i,0,0,dMinus[i],dPlus[i])
-    myGraphXSec10SM.SetPoint(i,allMasses[i],xSec10[i])
-    #myGraphXSec10SM.SetPointError(i,0,0,  dMinus10[i],dPlus10[i])
-    myGraphXSec20SM.SetPoint(i,allMasses[i],xSec20[i])
-    #myGraphXSec20SM.SetPointError(i,0,0,  dMinus20[i],dPlus20[i])
-    myGraphXSec30SM.SetPoint(i,allMasses[i],xSec30[i])
-    #myGraphXSec30SM.SetPointError(i,0,0,  dMinus30[i],dPlus30[i])
-    myGraphXSec40SM.SetPoint(i,allMasses[i],xSec40[i])
-    #myGraphXSec40SM.SetPointError(i,0,0,  dMinus40[i],dPlus40[i])
+    for j in range(len(theorySMScales)):
+      myGraphXSecSMScales[j].SetPoint(i,allMasses[i],theoryArrays[j][i])
 
 #---------------------------------------------------------------------------
-
-FILLSTYLE=1001
-
-FILLCOLOR_95=ROOT.kYellow-4
-FILLCOLOR_68=ROOT.kGreen+2
-FILLCOLOR_T=ROOT.kAzure+7
-
 graph95.SetFillColor(FILLCOLOR_95)
 graph95.SetFillStyle(FILLSTYLE)
 graph68.SetFillColor(FILLCOLOR_68)
@@ -232,42 +210,29 @@ graphMed.SetLineWidth(3)
 graphObs.SetLineWidth(3)
 graphOne.SetLineWidth(3)
 
+
+
 myGraphXSecSM.SetLineStyle(2)
 myGraphXSecSM.SetLineColor(FILLCOLOR_T)
 myGraphXSecSM.SetLineWidth(4)
 myGraphXSecSM.SetFillColor(FILLCOLOR_T)
 myGraphXSecSM.SetFillStyle(FILLSTYLE)
-myGraphXSec10SM.SetLineStyle(2)
-myGraphXSec10SM.SetLineColor(FILLCOLOR_T)
-myGraphXSec10SM.SetLineWidth(4)
-myGraphXSec10SM.SetFillColor(FILLCOLOR_T)
-myGraphXSec10SM.SetFillStyle(FILLSTYLE)
-myGraphXSec20SM.SetLineStyle(2)
-myGraphXSec20SM.SetLineColor(FILLCOLOR_T)
-myGraphXSec20SM.SetLineWidth(4)
-myGraphXSec20SM.SetFillColor(FILLCOLOR_T)
-myGraphXSec20SM.SetFillStyle(FILLSTYLE)
-myGraphXSec30SM.SetLineStyle(2)
-myGraphXSec30SM.SetLineColor(FILLCOLOR_T)
-myGraphXSec30SM.SetLineWidth(4)
-myGraphXSec30SM.SetFillColor(FILLCOLOR_T)
-myGraphXSec30SM.SetFillStyle(FILLSTYLE)
-myGraphXSec40SM.SetLineStyle(2)
-myGraphXSec40SM.SetLineColor(FILLCOLOR_T)
-myGraphXSec40SM.SetLineWidth(4)
-myGraphXSec40SM.SetFillColor(FILLCOLOR_T)
-myGraphXSec40SM.SetFillStyle(FILLSTYLE)
 
-
-# use 95 as the default guy
 MG.Add(graph95)
 MG.Add(graph68)
 MG.Add(graphMed)
 MG.Add(myGraphXSecSM)
-MG.Add(myGraphXSec10SM)
-MG.Add(myGraphXSec20SM)
-MG.Add(myGraphXSec30SM)
-MG.Add(myGraphXSec40SM)
+
+if not doRatio:
+ for j in range(len(theorySMScales)):
+  myGraphXSecSMScales[j].SetLineStyle(2)
+  myGraphXSecSMScales[j].SetLineColor(FILLCOLOR_T)
+  myGraphXSecSMScales[j].SetLineWidth(4)
+  myGraphXSecSMScales[j].SetFillColor(FILLCOLOR_T)
+  myGraphXSecSMScales[j].SetFillStyle(FILLSTYLE)
+  MG.Add(myGraphXSecSMScales[j])
+
+# use 95 as the default guy
 MG.Add(graphObs)
 
 # -------------------------------------
@@ -277,18 +242,25 @@ C.SetGrid(True)
 MG.Draw("AL3")
 MG.GetXaxis().SetTitle("m_{H}(GeV/c^{2})")
 MG.GetXaxis().SetRangeUser(min(OBSmasses),max(OBSmasses))
-MG.GetYaxis().SetRangeUser(0.0,1.6)
-MG.GetYaxis().SetTitle("\sigma_{H}xBR(H#rightarrow #gamma #gamma) - 95% CL")
+MG.GetYaxis().SetRangeUser(0.0,10)
+MG.GetYaxis().SetTitle("\sigma_{H}xBR(H#rightarrow #gamma #gamma) / %s - 95% CL"%extraString)
 MG.SetTitle("#int L = %s"%intlumi)
 mytext = ROOT.TLatex()
+mytext.SetNDC()
 mytext.SetTextSize(0.04)
-mytext.DrawLatex(135,0.35,"10xSM")
-mytext.DrawLatex(135,0.65,"20xSM")
-mytext.DrawLatex(135,1.,"30xSM")
-mytext.DrawLatex(135,1.3,"40xSM")
-mytext.DrawLatex(132,1.45,"#int L = %d pb^{-1}"%int(intlumi) )
+SMEnd = myGraphXSecSM.Eval(max(OBSmasses))
+
+if not doRatio:
+ mytext.DrawLatex(140.4,SMEnd,"SM")
+ for th in theorySMScales:
+  mytext.DrawLatex(max(OBSmasses)+0.4,th*SMEnd,"%dx%s"%(th,extraString))
+
+mytext.DrawLatex(0.1,0.93,"CMS Preliminary 2011, #int L = %d pb^{-1}"%int(intlumi) )
 leg.Draw()
+
+#Make a bunch of extensions to the plots
 C.SaveAs("limit_%s_%s.pdf"%(sys.argv[2],Method))
 C.SaveAs("limit_%s_%s.gif"%(sys.argv[2],Method))
 C.SaveAs("limit_%s_%s.eps"%(sys.argv[2],Method))
 C.SaveAs("limit_%s_%s.ps"%(sys.argv[2],Method))
+
