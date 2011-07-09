@@ -72,13 +72,13 @@ scale_offset_error_EEHighR9=0.25e-2
 scale_offset_error_EELowR9=0.25e-2
 
 ->
-smearing updated according to Riccardo's: https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/300.html
+smearing updated according to Riccardo's: https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/313.html
 ->
-smearing_sigma_EBHighR9=1.41e-2
-smearing_sigma_EBLowR9=2.00e-2
-smearing_sigma_EEHighR9=4.74e-2
-smearing_sigma_EELowR9=3.61e-2
-smearing_sigma_error_EBHighR9=0.07e-2
-smearing_sigma_error_EBLowR9=0.04e-2
-smearing_sigma_error_EEHighR9=0.14e-2
-smearing_sigma_error_EELowR9=0.14e-2
+smearing_sigma_EBHighR9=0.93e-2
+smearing_sigma_EBLowR9=1.72e-2
+smearing_sigma_EEHighR9=3.15e-2
+smearing_sigma_EELowR9=2.69e-2
+smearing_sigma_error_EBHighR9=0.25e-2
+smearing_sigma_error_EBLowR9=0.25e-2
+smearing_sigma_error_EEHighR9=0.5e-2
+smearing_sigma_error_EELowR9=0.5e-2
