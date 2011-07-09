@@ -45,13 +45,13 @@ doKFactorSyst=1
 ->
 Inputs for reweighing
 ->
-kfacHist=/afs/cern.ch/user/f/fabstoec/public/Kfactors_AllScales.root
+kfacHist=/afs/cern.ch/user/f/fabstoec/public/Kfactors_AllScales_08_07_noNegative.root
 puHist=/castor/cern.ch/user/a/adavidzh/Higgs2011/pu/EstPU_Cert_May10ReReco_160404-163869_PromptReco_163870_167151_DCSOnly_167151-167746.root.weightsfor_globe_V09_00_gluglu_H_gg_115_pu2011.root
 ->
 /castor/cern.ch/user/a/adavidzh/Higgs2011/pu/Weights_MCSpring11_Cert_160404-163869_7TeV_May10ReReco_Collisions11_JSON.root
 /afs/cern.ch/user/n/nckw/public/Cert_160404-163869_7TeV_May10ReReco_Collisions11_JSON.txt.merged_with.h2g_V07_00.promptreco_May10ReReco.lumiSummary.json.weightsfor_globe_V07_00_gluglu_H_gg_115_pu2011.root
 ->
-efficiencyFile=/afs/cern.ch/user/n/nckw/public/sig_reweighing_v10.root
+efficiencyFile=/afs/cern.ch/user/f/franzoni/public/globe/sig_reweighing_v11.root
 
 
 ->
@@ -59,26 +59,20 @@ Numbers from Riccardo: https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/300.h
 scale variations defined as: (deltaM_data - deltaM_MC) / M_Z   =>   scale factor >0 means energy should increased to MC
 run-dependent corrections are now take from energy_scale_offsets.dat; systematics accordig to what's in PAS
 ->
-->
-scale_offset_EBHighR9=0.49e-2
-scale_offset_EBLowR9=-0.11e-2
-scale_offset_EEHighR9=-0.57e-2
-scale_offset_EELowR9=0.39e-2
-->
 scale_offset_file=energy_scale_offsets.dat
-scale_offset_error_EBHighR9=0.1e-2
-scale_offset_error_EBLowR9=0.1e-2
-scale_offset_error_EEHighR9=0.25e-2
-scale_offset_error_EELowR9=0.25e-2
+scale_offset_error_EBHighR9=0.05e-2
+scale_offset_error_EBLowR9=0.34e-2
+scale_offset_error_EEHighR9=0.26e-2
+scale_offset_error_EELowR9=0.26e-2
 
 ->
-smearing updated according to Riccardo's: https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/313.html
+smearing updated according to: https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/313/1.html
 ->
-smearing_sigma_EBHighR9=0.93e-2
-smearing_sigma_EBLowR9=1.72e-2
-smearing_sigma_EEHighR9=3.15e-2
-smearing_sigma_EELowR9=2.69e-2
-smearing_sigma_error_EBHighR9=0.25e-2
-smearing_sigma_error_EBLowR9=0.25e-2
-smearing_sigma_error_EEHighR9=0.5e-2
-smearing_sigma_error_EELowR9=0.5e-2
+smearing_sigma_EBHighR9=0.92e-2
+smearing_sigma_EBLowR9=1.70e-2
+smearing_sigma_EEHighR9=2.925e-2
+smearing_sigma_EELowR9=2.89e-2
+smearing_sigma_error_EBHighR9=0.20e-2
+smearing_sigma_error_EBLowR9=0.42e-2
+smearing_sigma_error_EEHighR9=0.50e-2
+smearing_sigma_error_EELowR9=0.43e-2
