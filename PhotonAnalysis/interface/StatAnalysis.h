@@ -81,6 +81,7 @@ protected:
 	KFactorSmearer * kFactorSmearer;
 	
 	std::string name_;
+	float nevents, sumwei, sumaccept, sumsmear, sumev; 
 	
 	int nCategories_;
 	int nPhotonCategories_;

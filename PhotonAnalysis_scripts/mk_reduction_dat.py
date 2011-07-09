@@ -35,7 +35,20 @@ for d in ds.read().split("\n"):
         continue
 
     sl = [ t for t in d.split(" ") if t != "" ]
-    dname, dtype = sl
+    dname = sl.pop(0)
+    dtype = sl.pop(0)
+    iname = dname
+    analyzer = "analyzer PhotonAnalysis photonanalysis.dat"
+    getanalyzer = False
+    for s in sl:
+        print s
+        if "append" in s:
+            dname += s.rsplit("=",1)[1]
+        elif "analyzer" in s:
+            analyzer = "%s" % s
+            getanalyzer = True
+        elif getanalyzer:
+            analyzer += " %s" % s
     datname="%s/%s.dat" % (datasetsdir, dname)
     print "Making configuration for %s (type %s)" % ( datname, dtype )
     f = open(datname ,"w+")
@@ -43,11 +56,11 @@ for d in ds.read().split("\n"):
         
 CaDir=%s/%s typ=%s
 
-analyzer PhotonAnalysis photonanalysis.dat
+%s
 
 inputBranches reduction_input.dat
 outputBranches reduction_output.dat
-        """ % ( outdir, dname, dname, indir, dname, dtype)
+        """ % ( outdir, dname, dname, indir, iname, dtype, analyzer)
     f.close()
 
     mk_outdir( "%s/%s" % ( outdir, dname )  )

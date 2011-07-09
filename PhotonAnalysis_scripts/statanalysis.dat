@@ -46,13 +46,14 @@ doKFactorSyst=1
 Inputs for reweighing
 ->
 kfacHist=/afs/cern.ch/user/f/fabstoec/public/Kfactors_AllScales_08_07_noNegative.root
-puHist=/castor/cern.ch/user/a/adavidzh/Higgs2011/pu/EstPU_Cert_May10ReReco_160404-163869_PromptReco_163870_167151_DCSOnly_167151-167746.root.weightsfor_globe_V09_00_gluglu_H_gg_115_pu2011.root
-->
-/castor/cern.ch/user/a/adavidzh/Higgs2011/pu/Weights_MCSpring11_Cert_160404-163869_7TeV_May10ReReco_Collisions11_JSON.root
-/afs/cern.ch/user/n/nckw/public/Cert_160404-163869_7TeV_May10ReReco_Collisions11_JSON.txt.merged_with.h2g_V07_00.promptreco_May10ReReco.lumiSummary.json.weightsfor_globe_V07_00_gluglu_H_gg_115_pu2011.root
-->
 efficiencyFile=/afs/cern.ch/user/f/franzoni/public/globe/sig_reweighing_v11.root
 
+puHist=/afs/cern.ch/user/m/musella/public/higgs/EstPU_Cert_May10ReReco_160404-163869_PromptReco_163870_167151_DCSOnly_167151-167746.root.weightsfor_globe_V09_00_S4.root
+puMap=pu_weights_map.dat
+t
+->
+puHist=/castor/cern.ch/user/a/adavidzh/Higgs2011/pu/EstPU_Cert_May10ReReco_160404-163869_PromptReco_163870_167151_DCSOnly_167151-167746.root.weightsfor_globe_V09_00_gluglu_H_gg_115_pu2011.root
+->
 
 ->
 Numbers from Riccardo: https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/300.html

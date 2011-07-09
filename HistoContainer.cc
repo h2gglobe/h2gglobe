@@ -84,7 +84,7 @@ void HistoContainer::Fill(std::string name, int category, float value, float wei
 
   //std::string modName = ModifiedName(name);
   std::map<std::string, std::vector<TH1F> >::iterator it = h1.find(std::string(name));
- 
+  /// if( category == 0 )std::cerr << " HistoContainer::Fill " << total_scale << " " << weight << std::endl;
   if (it != h1.end()) {
     (it->second)[category].Fill(value, total_scale*weight);
     return;

@@ -422,6 +422,7 @@ void LoopAll::TermReal(Int_t typerunpass) {
 
   if (makeOutputTree){ 
     outputFile->cd();
+    outputTree->Write();
     outputParReductions++;
     outputTreePar->Fill();
     outputTreePar->Write();
@@ -651,7 +652,7 @@ void LoopAll::WriteCounters() {
 
   TString msName = histFileName.ReplaceAll(".root", 5, ".csv", 4);
   FILE *file;
-  TString s2 = msName+".csv";
+  TString s2 = msName;/// +".csv";
   file = fopen(s2, "w");
 
   if(LDEBUG) std::cout<<"msName is "<< msName <<std::endl;

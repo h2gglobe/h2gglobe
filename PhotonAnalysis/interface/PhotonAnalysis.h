@@ -62,21 +62,23 @@ public:
 	std::vector<float> pho_et;
 	// Other options
 	bool runStatAnalysis;
-        TString puHist;//name of pileup reweighting histogram
-	
+        TString puHist, puMap;//name of pileup reweighting histogram
+
 	bool keepPP, keepPF, keepFF;
 
 protected:
 	void PreselectPhotons(LoopAll& l, int jentry);
 	void StatAnalysis(LoopAll &l, int jentry);
-	
+	void loadPuMap(const char * fname, TDirectory * dir);
+	void loadPuWeights(int typid, TDirectory * dir);
+
 	std::string name_;
 	
 	// Vertex analysis
 	HggVertexAnalyzer vtxAna_;
 	HggVertexFromConversions vtxConv_;
 	
-	vector<double> weights;
+	std::map<int, vector<double> > weights;
 	int trigCounter_;
 
 	EnergySmearer *eScaleDataSmearer ;

@@ -46,6 +46,8 @@ void StatAnalysis::Term(LoopAll& l)
 
     SaclayText.close();
 
+    std::cout << " nevents " <<  nevents << " " << sumwei << std::endl;
+
 //	kfacFile->Close();
 //	PhotonAnalysis::Term(l);
 }
@@ -55,7 +57,10 @@ void StatAnalysis::Init(LoopAll& l)
 {
     if(PADEBUG) 
 	cout << "InitRealStatAnalysis START"<<endl;
-	
+
+    nevents=0., sumwei=0.; 
+    sumaccept=0., sumsmear=0., sumev=0.;
+    
     // Saclay text file
     std::string outputfilename = (std::string) l.histFileName;
     SaclayText.open(Form("%s_ascii_events_204pb.txt",outputfilename.c_str()));
@@ -376,22 +381,37 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
    
     int cur_type = l.itype[l.current];
     float weight = l.sampleContainer[l.current_sample_index].weight;
+    l.FillCounter( "Processed", 1. );
     assert( weight > 0. );  
+    l.FillCounter( "XSWeighted", weight );
+    nevents+=1.;
+
     //PU reweighting
     unsigned int n_pu = l.pu_n;
-    if (l.itype[l.current] !=0 && puHist != "") {
-        if(n_pu<weights.size()){
-	    //cout << n_pu<<endl;
-	    //std::cout << weights[n_pu] << std::endl;
-	    weight *= weights[n_pu];   // put this back
-        }    
-        else{ //should not happen 
-	    cout<<"n_pu ("<< n_pu<<") too big ("<<weights.size()
-		<<"), event will not be reweighted for pileup"<<endl;
-        }
+    if ( cur_type !=0 && puHist != "") {
+	bool hasSpecificWeight = weights.find( cur_type ) != weights.end() ; 
+	if( cur_type < 0 && !hasSpecificWeight && jentry == 1 ) {
+	    std::cerr  << "WARNING no pu weights specific for sample " << cur_type << std::endl;
+	}
+	std::vector<double> & puweights = hasSpecificWeight ? weights[ cur_type ] : weights[0]; 
+	if(n_pu<puweights.size()){
+	    weight *= puweights[n_pu];
+	    sumwei+=puweights[n_pu]; 
+	}    
+	else{ //should not happen as we have a weight for all simulated n_pu multiplicities!
+	    cout <<"n_pu ("<< n_pu<<") too big ("<<puweights.size()<<") ["<< l.itype[l.current]<<"], event will not be reweighted for pileup"<<endl;
+	}
     }
-    assert( weight >= 0. );  
     
+    assert( weight >= 0. );  
+    l.FillCounter( "PUWeighted", weight );
+    
+    if( jentry % 10000 ==  0 ) {
+	    std::cout << " nevents " <<  nevents << " sumpuweights " << sumwei << " ratio " << sumwei / nevents 
+		      << " equiv events " << sumev << " accepted " << sumaccept << " smeared " << sumsmear << " "  
+		      <<  sumaccept / sumev << " " << sumsmear / sumaccept
+		      << std::endl;
+    }
     // ------------------------------------------------------------
     //PT-H K-factors
     double gPT = 0;
@@ -424,7 +444,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	    genLevWeight*=genWeight;
 	}
     }
-   
+
     // Nominal smearing
     std::vector<float> smeared_pho_energy(l.pho_n,0.); 
     std::vector<float> smeared_pho_r9(l.pho_n,0.); 
@@ -458,11 +478,12 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	smeared_pho_weight[ipho] = pweight;
     }
    
+    sumev += weight;
     // FIXME pass smeared R9
     int diphoton_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtCut, subleadEtCut, 4,false, &smeared_pho_energy[0] ); 
     /// std::cerr << "Selected pair " << l.dipho_n << " " << diphoton_id << std::endl;
     if (diphoton_id > -1 ) {
-	
+
 	diphoton_index = std::make_pair( l.dipho_leadind[diphoton_id],  l.dipho_subleadind[diphoton_id] );
     	// bring all the weights together: lumi & Xsection, single gammas, pt kfactor
 	float evweight = weight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second] * genLevWeight;
@@ -498,8 +519,14 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
       
 	assert( evweight >= 0. ); 
 
+	l.FillCounter( "Accepted", weight );
+	l.FillCounter( "Smeared", evweight );
+	sumaccept += weight;
+ 	sumsmear += evweight;
+
 	// control plots 
 	l.FillHist("all_mass",0, Higgs.M(), evweight);
+	l.FillHist("all_mass",category+1, Higgs.M(), evweight);
 	if( mass>=massMin && mass<=massMax  ) {
 		l.FillHist("mass",0, Higgs.M(), evweight);
 		l.FillHist("pt",0, Higgs.Pt(), evweight);

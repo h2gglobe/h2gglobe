@@ -65,6 +65,60 @@ void readEnergyScaleOffsets(const std::string &fname, EnergySmearer::energySmear
 }
 
 // ----------------------------------------------------------------------------------------------------
+void PhotonAnalysis::loadPuMap(const char * fname, TDirectory * dir)
+{
+	std::fstream in(fname);
+	assert( in );
+	char line[200];
+	int typid;
+	char dname[200];
+	do {
+		in.getline( line, 200, '\n' );
+
+		if( sscanf(line,"%d %s",&typid,dname) != 2 ) { continue; } 
+		std::cerr << "Reading PU weights for sample " << typid << " from " << dname << std::endl;
+		TDirectory * subdir = (TDirectory *)dir->Get(dname);
+		assert( subdir != 0 );
+		loadPuWeights(typid, subdir);
+	} while ( in );
+	in.close();
+}
+
+// ----------------------------------------------------------------------------------------------------
+void PhotonAnalysis::loadPuWeights(int typid, TDirectory * puFile)
+{
+            cout<<"Reweighting events for pileup."<<endl;
+	    TH1 * hweigh = (TH1*) puFile->Get("weights");
+	    if( hweigh == 0 ) {
+		    hweigh = (TH1*) puFile->Get("NPUWeights");
+	    }
+	    if( hweigh != 0 ) { 
+		    cout<< " This is a pre-processed pileup reweighing file." <<endl;
+		    TH1 * gen_pu = (TH1*)puFile->Get("generated_pu");
+		    if( gen_pu == 0 ) {
+			    gen_pu = (TH1*)puFile->Get("NPUSource");
+		    }
+		    // Normalize weights such that the total cross section is unchanged
+		    TH1 * eff = (TH1*)hweigh->Clone("eff");
+		    eff->Multiply(gen_pu);
+		    hweigh->Scale( gen_pu->Integral() / eff->Integral()  );
+		    weights[typid].clear();
+		    for( int ii=1; ii<hweigh->GetNbinsX(); ++ii ) {
+			    weights[typid].push_back(hweigh->GetBinContent(ii)); 
+		    }
+	    } 
+	    //// else {
+	    //// 	    TH1D * histo = (TH1D*) puFile->Get("pileup");
+	    //// 	    if( histo != 0 ) {
+	    //// 		    weights[typid] = l.generate_flat10_weights(histo);
+	    //// 	    }
+	    //// }
+	    std::cout << "pile-up weights: ["<<typid<<"]";
+	    std::copy(weights[typid].begin(), weights[typid].end(), std::ostream_iterator<double>(std::cout,","));
+	    std::cout << std::endl;
+}
+
+// ----------------------------------------------------------------------------------------------------
 void PhotonAnalysis::Init(LoopAll& l) 
 {
 	if(PADEBUG) 
@@ -178,40 +232,17 @@ void PhotonAnalysis::Init(LoopAll& l)
 		cout << "Opening PU file"<<endl;
         TFile* puFile = TFile::Open( puHist );
         if (puFile) {
-            cout<<"Reweighting events for pileup."<<endl;
-	    TH1 * hweigh = (TH1*) puFile->Get("weights");
-	    if( hweigh == 0 ) {
-		    hweigh = (TH1*) puFile->Get("NPUWeights");
-	    }
-	    if( hweigh != 0 ) { 
-		    cout<< " This is a pre-processed pileup reweighing file." <<endl;
-		    TH1 * gen_pu = (TH1*)puFile->Get("generated_pu");
-		    if( gen_pu == 0 ) {
-			    gen_pu = (TH1*)puFile->Get("NPUSource");
-		    }
-		    // Normalize weights such that the total cross section is unchanged
-		    TH1 * eff = (TH1*)hweigh->Clone("eff");
-		    eff->Multiply(gen_pu);
-		    hweigh->Scale( gen_pu->Integral() / eff->Integral()  );
-		    weights.clear();
-		    for( int ii=1; ii<hweigh->GetNbinsX(); ++ii ) {
-			    weights.push_back(hweigh->GetBinContent(ii)); 
-		    }
-	    } else {
-		    TH1D * histo = (TH1D*) puFile->Get("pileup");
-		    if( histo != 0 ) {
-			    weights = l.generate_flat10_weights(histo);
-			    puFile->Close();
-		    }
-	    }
-	    std::cout << "pile-up weights: ";
-	    std::copy(weights.begin(), weights.end(), std::ostream_iterator<double>(std::cout,","));
-	    std::cout << std::endl;
+		if( puMap != "" ) {
+		  loadPuMap(puMap, puFile); 
+		} else {
+		  loadPuWeights(0, puFile);
+		}
+		puFile->Close();
         }
         else {
             cout<<"Error opening " <<puHist<<" pileup reweighting histogram, using 1.0"<<endl; 
-            weights.resize(50);
-            for (unsigned int i=0; i<weights.size(); i++) weights[i] = 1.0;
+            weights[0].resize(50);
+            for (unsigned int i=0; i<weights[0].size(); i++) weights[0][i] = 1.0;
         }
         if(PADEBUG) 
             cout << "Opening PU file END"<<endl;
@@ -233,11 +264,12 @@ void PhotonAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	unsigned int n_pu = l.pu_n;
 	float weight =1.;
 	if (l.itype[l.current] !=0 && puHist != "") {
-	  if(n_pu<weights.size()){
-	    weight *= weights[n_pu];
+	  std::vector<double> & puweights = weights.find( l.itype[l.current] ) != weights.end() ? weights[ l.itype[l.current] ] : weights[0]; 
+	  if(n_pu<puweights.size()){
+	    weight *= puweights[n_pu];
 	  }    
 	  else{ //should not happen as we have a weight for all simulated n_pu multiplicities!
-	    cout<<"n_pu ("<< n_pu<<") too big ("<<weights.size()<<"), event will not be reweighted for pileup"<<endl;
+	    cout<<"n_pu ("<< n_pu<<") too big ("<<puweights.size()<<"), event will not be reweighted for pileup"<<endl;
 	  }
 	}
 
@@ -546,12 +578,12 @@ bool PhotonAnalysis::SkimEvents(LoopAll& l, int jentry)
 	}
 	
 	if( l.typerun == l.kReduce || l.typerun == l.kFillReduce ) {
-		if( filetype == 2 ) { // photon+jet
-			l.b_process_id->GetEntry(jentry);
-			if( l.process_id == 18 ) {
-				return false;
-			}
-		}
+		//// if( filetype == 2 ) { // photon+jet
+		//// 	l.b_process_id->GetEntry(jentry);
+		//// 	if( l.process_id == 18 ) {
+		//// 		return false;
+		//// 	}
+		//// }
 		
 		if( filetype != 0 && ! (keepPP && keepPF && keepFF) ) {
 			l.b_gp_n->GetEntry(jentry);

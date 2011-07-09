@@ -1,6 +1,7 @@
 #include "CounterContainer.h"
 #include <utility>
 #include <iostream>
+#include <assert.h>
 
 CounterContainer::CounterContainer(int n) {
   histVal = n;
@@ -43,10 +44,11 @@ void CounterContainer::Fill(std::string name, int category) {
 void CounterContainer::Fill(std::string name, int category, float weight) {
 
   std::map<std::string, std::vector<int> >::iterator it = c.find(name);
-  
-  if (it != c.end()) {
+  assert( it != c.end() ); 
+   assert( it->second.size() > category );
+  // if (it != c.end()) {
     c[name][category]++;
-  }
+    // }
 }
 
 unsigned int CounterContainer::ncat(int length) {
