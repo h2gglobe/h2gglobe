@@ -35,10 +35,8 @@ tkIso_dxymax=0.1
 ->
 
 doTriggerSelection=1
-->
-puHist=puHist=/castor/cern.ch/user/a/adavidzh/Higgs2011/pu/EstPU_Cert_May10ReReco_160404-163869_PromptReco_163870_167151_DCSOnly_167151-167746.root.weightsfor_globe_V09_00_gluglu_H_gg_115_pu2011.root
-/afs/cern.ch/user/n/nckw/public/Cert_160404-163869_7TeV_May10ReReco_Collisions11_JSON.txt.merged_with.h2g_V07_00.promptreco_May10ReReco.lumiSummary.json.weightsfor_globe_V07_00_gluglu_H_gg_115_pu2011.root
-->
+puHist=/afs/cern.ch/user/m/musella/public/higgs/EstPU_Cert_May10ReReco_160404-163869_PromptReco_163870_167151_DCSOnly_167151-167746.root.weightsfor_globe_V09_00_S4.root
+puMap=pu_weights_map.dat
 
 ->
 May10 re-reco
@@ -52,33 +50,4 @@ scale_offset_error_EEHighR9=0.24e-2
 scale_offset_error_EELowR9=0.19e-2
 ->
 
-->
-600/pb of prompt reco
-https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/284/4.html
-
-EB R>0.94    -0.01%    0.05%    1.49%    0.12%
-EB R<0.94    -0.52%    0.03%    1.77%    0.09%
-
-EE R>0.94    -4.28%    0.14%    4.65%    0.21%
-EE R<0.94    -1.80%    0.12%    3.72%    0.24%
-
-scale_offset_EBHighR9=-0.01e-2
-scale_offset_EBLowR9=-0.52e-2
-scale_offset_EEHighR9=-4.28e-2
-scale_offset_EELowR9=-1.8e-2
-->
-
-
-->
-Numbers from Riccardo: https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/300.html
-scale variations defined as: (deltaM_data - deltaM_MC) / M_Z   =>   scale factor >0 means energy should increased to MC
-run-dependent corrections are now take from energy_scale_offsets.dat; systematics accordig to what's in PAS
-->
-->
-smearing updated according to: https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/313/1.html
-->
 scale_offset_file=energy_scale_offsets.dat
-smearing_sigma_EBHighR9=0.92e-2
-smearing_sigma_EBLowR9=1.70e-2
-smearing_sigma_EEHighR9=2.925e-2
-smearing_sigma_EELowR9=2.89e-2
