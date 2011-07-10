@@ -14,6 +14,7 @@
 
 #include "th1fmorph.C"
 #include "Normalization.C"
+//#include "Normalization_ff.C"
 
 using namespace std;
 using namespace RooFit;
@@ -148,9 +149,9 @@ void InterpolateMass(double fitmass) {
   cout << "Done!" << endl;
 }
 
-void InterpolateMassRange(double Min, double Max, double Step) {
+void InterpolateMassRange(double Min, double Max, double Step, TString SourceFileName="CMS-HGG") {
 
-  TString FileName = "CMS-HGG_";
+  TString FileName = SourceFileName+"_";
   FileName += dtoa(Min);
   FileName += "_";
   FileName += dtoa(Max);
@@ -159,7 +160,8 @@ void InterpolateMassRange(double Min, double Max, double Step) {
   FileName.ReplaceAll(".","_");
   FileName += ".root";
   
-  TFile* SourceFile = new TFile("CMS-HGG.root");
+  SourceFileName += ".root";
+  TFile* SourceFile = new TFile(SourceFileName);
   TList* HistList = SourceFile->GetListOfKeys();
   RooWorkspace * WorkSpace = (RooWorkspace*) SourceFile->Get("cms_hgg_workspace");
   TFile* OutputFile = new TFile(FileName.Data(),"RECREATE");
