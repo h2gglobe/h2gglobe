@@ -13,7 +13,7 @@ typ=0    ind=0 draw=1  Nam=Data    CaDir=/castor/cern.ch/user/m/musella/Higgs201
 Signal samples
 ->
 
-typ=-34 ind=2 draw=1  Nam=vbf_H_gg_140_pu2011 CaDir=/castor/cern.ch/user/m/musella/Higgs2011/globe_V09_00_pm_11_07_01_02/Summer11/VBF_HToGG_M-140_S4   tot=109836 red=0 lum=1000.000000   xsec=0.005656604 kfac=1.000000  scal=1.000000
+typ=-34 ind=2 draw=1  Nam=vbf_H_gg_140_pu2011 CaDir=/castor/cern.ch/user/m/musella/Higgs2011/globe_V09_00_pm_11_07_01_02/Summer11/VBF_HToGG_M-140_S4   tot=95705 red=0 lum=1000.000000   xsec=0.005656604 kfac=1.000000  scal=1.000000
 typ=-36 ind=4 draw=1  Nam=wz_H_gg_140_pu2011 CaDir=/castor/cern.ch/user/m/musella/Higgs2011/globe_V09_00_pm_11_07_01_02/Summer11/WH_ZH_HToGG_M-140_S4  tot=110000 red=0 lum=1000.000000  xsec=0.0032417933 kfac=1.000000  scal=1.000000
 
 typ=-30 ind=6 draw=1  Nam=vbf_H_gg_130_pu2011 CaDir=/castor/cern.ch/user/m/musella/Higgs2011/globe_V09_00_pm_11_07_01_02/Summer11/VBF_HToGG_M-130_S4   tot=109849 red=0 lum=1000.000000   xsec=0.01224394 kfac=1.000000  scal=1.000000
