@@ -15,7 +15,7 @@ ROOT.gROOT.SetBatch(True)
 
 #-------------------------------------------------------------------------
 # Configuration for the Plotter
-intlumi = str(204)
+intlumi = str(1.09)
 EXPmasses = [110,115,120,125,130,135,140]
 OBSmasses = numpy.arange(110,140.5,0.5)
 theorySMScales = [5,10,15,20]
@@ -29,7 +29,7 @@ FILLCOLOR_T=ROOT.kAzure+7			# Theory lines color
 # UserInput
 doRatio = False
 if len(sys.argv) < 3: sys.exit("Need More Arguments - run with limit-plotter-complete.py METHOD model")
-elif len(sys.argv ==4) and sys.argv[3] == "-doRatio": doRatio = True
+elif len(sys.argv) ==4 and sys.argv[3] == "-doRatio": doRatio = True
  
 Method = sys.argv[1]
 EXPName = Method+"/expected"+Method
@@ -69,7 +69,10 @@ def getOBSERVED(file):
   tree.GetEntry(0)
   return c.r
 
-EXPfiles = [ROOT.TFile(EXPName+".mH%d.quant0.500.root"%m) for m in EXPmasses]
+if Method=="Frequentest":
+  EXPfiles = [ROOT.TFile(EXPName+".mH%d.quant0.500.root"%m) for m in EXPmasses]
+else:
+  EXPfiles = [ROOT.TFile(EXPName+".mH%d.root"%m) for m in EXPmasses]
 
 # Get the observed limits - Currently only does up to 1 decimal mass points
 OBSfiles = []
@@ -194,7 +197,7 @@ myGraphXSecSMScales = []
 for th in theorySMScales:
   myGraphXSecSMScales.append(ROOT.TGraphAsymmErrors()) 
   
-  for i in range(len(allMasses)):
+for i in range(len(allMasses)):
     myGraphXSecSM.SetPoint(i,allMasses[i],xSec[i])
     for j in range(len(theorySMScales)):
       myGraphXSecSMScales[j].SetPoint(i,allMasses[i],theoryArrays[j][i])
@@ -242,20 +245,25 @@ C.SetGrid(True)
 MG.Draw("AL3")
 MG.GetXaxis().SetTitle("m_{H}(GeV/c^{2})")
 MG.GetXaxis().SetRangeUser(min(OBSmasses),max(OBSmasses))
-MG.GetYaxis().SetRangeUser(0.0,10)
-MG.GetYaxis().SetTitle("\sigma_{H}xBR(H#rightarrow #gamma #gamma) / %s - 95% CL"%extraString)
+if doRatio:
+ MG.GetYaxis().SetRangeUser(0.0,10)
+ MG.GetYaxis().SetTitle("\sigma_{H}xBR(H#rightarrow #gamma #gamma) / %s - 95%% CL"%extraString)
+else: 
+ MG.GetYaxis().SetRangeUser(0.0,0.6)
+ MG.GetYaxis().SetTitle("\sigma_{H}xBR(H#rightarrow #gamma #gamma) - 95%% CL")
+
 MG.SetTitle("#int L = %s"%intlumi)
 mytext = ROOT.TLatex()
-mytext.SetNDC()
 mytext.SetTextSize(0.04)
 SMEnd = myGraphXSecSM.Eval(max(OBSmasses))
-
+print SMEnd
 if not doRatio:
- mytext.DrawLatex(140.4,SMEnd,"SM")
+ mytext.DrawLatex(max(OBSmasses)+.3,SMEnd,"SM")
  for th in theorySMScales:
-  mytext.DrawLatex(max(OBSmasses)+0.4,th*SMEnd,"%dx%s"%(th,extraString))
+  mytext.DrawLatex(max(OBSmasses)+0.3,th*SMEnd,"%dx%s"%(th,extraString))
 
-mytext.DrawLatex(0.1,0.93,"CMS Preliminary 2011, #int L = %d pb^{-1}"%int(intlumi) )
+mytext.SetNDC()
+mytext.DrawLatex(0.1,0.93,"CMS Preliminary 2011, #int L = %.2f fb^{-1}"%float(intlumi) )
 leg.Draw()
 
 #Make a bunch of extensions to the plots
@@ -263,4 +271,11 @@ C.SaveAs("limit_%s_%s.pdf"%(sys.argv[2],Method))
 C.SaveAs("limit_%s_%s.gif"%(sys.argv[2],Method))
 C.SaveAs("limit_%s_%s.eps"%(sys.argv[2],Method))
 C.SaveAs("limit_%s_%s.ps"%(sys.argv[2],Method))
+
+OUTTgraphs = ROOT.TFile("outputTGraphAsymmErrors_%s.root"%sys.argv[2],"RECREATE")
+graphMed.SetName("median")
+graphMed.Write()
+graphObs.SetName("observed")
+graphObs.Write()
+OUTTgraphs.Write()
 
