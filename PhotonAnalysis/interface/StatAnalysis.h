@@ -93,8 +93,7 @@ protected:
 	// RooStuff
 	RooContainer *rooContainer;
 
-	// Saclay Text
-	ofstream SaclayText;
+	ofstream eventListText;
 	//vector<double> weights;
 	TFile *kfacFile;
 	

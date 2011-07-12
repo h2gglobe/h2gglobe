@@ -44,7 +44,7 @@ void StatAnalysis::Term(LoopAll& l)
 //    l.rooContainer->GenerateBinnedPdf("bkg_mass_rebinned","data_pol_model","data_mass",1,50,1); // 1 means systematics from the fit effect only the backgroundi. last digit mode = 1 means this is an internal constraint fit 
 //    l.rooContainer->WriteDataCard(outputfilename,"data_mass","sig_mass","bkg_mass_rebinned");
 
-    SaclayText.close();
+    eventListText.close();
 
     std::cout << " nevents " <<  nevents << " " << sumwei << std::endl;
 
@@ -61,9 +61,8 @@ void StatAnalysis::Init(LoopAll& l)
     nevents=0., sumwei=0.; 
     sumaccept=0., sumsmear=0., sumev=0.;
     
-    // Saclay text file
     std::string outputfilename = (std::string) l.histFileName;
-    SaclayText.open(Form("%s_ascii_events_204pb.txt",outputfilename.c_str()));
+    eventListText.open(Form("%s_ascii_events.txt",outputfilename.c_str()));
     //
     // These parameters are set in the configuration file
     std::cout
@@ -567,9 +566,9 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		l.FillHist("pho_n",category+1,l.pho_n, evweight);
 	}
 	
-	SaclayText << setprecision(4) <<  "Run = " << l.run << "  LS = " << l.lumis << "  Event = " << l.event << "  SelVtx = " << l.vtx_std_sel << "  CAT4 = " << category % 4
+	eventListText << setprecision(4) <<"Type = "<< cur_type <<  "Run = " << l.run << "  LS = " << l.lumis << "  Event = " << l.event << "  SelVtx = " << l.vtx_std_sel << "  CAT4 = " << category % 4
 		   << "  ggM = " << mass << " gg_Pt =  " << ptHiggs;
-	SaclayText << endl;
+	eventListText << endl;
        
 	// --------------------------------------------------------------------------------------------- 
 	if (cur_type == 0 ){
