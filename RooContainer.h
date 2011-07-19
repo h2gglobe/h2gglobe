@@ -96,6 +96,7 @@ class RooContainer {
 			   ,std::vector<double> x, std::vector<double> weights=std::vector<double>(0));
 
    void WriteDataCard(std::string,std::string,std::string,std::string);
+   void WriteSpecificCategoryDataCards(std::string,std::string,std::string,std::string);
    void GenerateBinnedPdf(std::string,std::string,std::string,int,int,int,double x1=-999,double x2=-999);
    void CombineBinnedDatasets(std::string,std::string, double fraction=-1);
 
@@ -131,6 +132,7 @@ class RooContainer {
    void combineBinnedDatasets(std::string,std::string,double);
    void writeRooDataHist(std::string, TH1F *);
    void writeRooPlot(RooPlot *,double);
+   void writeSpecificCategoryDataCard(int,std::string,std::string,std::string,std::string);
    void removeDuplicateElements(std::vector<RooAbsPdf*> &);
    void setAllParametersConstant();
 

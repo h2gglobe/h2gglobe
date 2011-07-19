@@ -607,7 +607,134 @@ void RooContainer::combineBinnedDatasets(std::string data_one, std::string data_
 	return;
      }
 }
+// -----------------------------------------------------------------------------------------
+void RooContainer::WriteSpecificCategoryDataCards(std::string filename,std::string data_name
+						 ,std::string sig_name, std::string bkg_name){
 
+   for (int cat=0;cat<ncat;cat++){
+	writeSpecificCategoryDataCard(cat,filename,data_name,sig_name,bkg_name);
+   }
+}
+// -----------------------------------------------------------------------------------------
+void RooContainer::writeSpecificCategoryDataCard(int cat,std::string filename,std::string data_name
+						  ,std::string sig_name, std::string bkg_name){
+
+   bool parameterisedBackground = false;
+   bool multi_pdf = false;
+   RooAbsPdf * pdf_ptr;
+   RooRealVar *obs;
+
+     std::map<std::string,TH1F>::iterator it_data = m_th1f_.find(getcatName(data_name,cat));
+
+     if (!(it_data !=m_th1f_.end() )){
+
+	std::cerr << "WARNING -- RooContainer::WriteDataCard -- Cannot find "
+		  << data_name 
+		  << " DataCard will NOT be Writen -- WARNING!" << std::endl;
+	return;
+     }
+
+     std::map<std::string,TH1F>::iterator it_bkg  = m_th1f_.find(getcatName(bkg_name,cat));
+     if (it_bkg==m_th1f_.end() ){
+	parameterisedBackground = true;	
+        std::map<std::string,RooAddPdf>::iterator pdf_bkg_a  = m_pdf_.find(getcatName(bkg_name,cat));
+        std::map<std::string,RooExtendPdf>::iterator pdf_bkg_e  = m_exp_.find(getcatName(bkg_name,cat));
+        if (pdf_bkg_e==m_exp_.end() && pdf_bkg_a==m_pdf_.end()){ 
+	   std::cerr << "WARNING -- RooContainer::WriteDataCard -- Cannot find "
+		     << bkg_name 
+		     << " DataCard will NOT be Writen -- WARNING!" << std::endl;
+	   return;
+        } else if(pdf_bkg_e!=m_exp_.end() ){
+	  multi_pdf = false;
+   	  pdf_ptr = m_gen_[getcatName(bkg_name,cat)];
+   	  obs = m_data_var_ptr_[getcatName(data_name,cat)] ;
+	} else if(pdf_bkg_a!=m_pdf_.end() ){
+	  multi_pdf = true;
+   	  pdf_ptr = m_gen_[getcatName(bkg_name,cat)];
+   	  obs = m_data_var_ptr_[getcatName(data_name,cat)] ;
+	}
+     }
+   std::string signal_mass_name = (std::string) Form("%s_m$MASS",sig_name.c_str());
+   ofstream file;
+   if (parameterisedBackground){
+     file.open(Form("cms-hgg-datacard_%s_parBKG_cat%d.txt",filename.c_str(),cat));
+     file << "CMS-HGG DataCard for Binned Limit Setting with RooDataHist+Parameterised Background\n";
+   }
+   else{
+     file.open(Form("cms-hgg-datacard_%s_cat%d.txt",filename.c_str(),cat));
+     file << "CMS-HGG DataCard for Binned Limit Setting with RooDataHist\n";
+   }
+
+   file << "Run with: combine cms-hgg-datacard_cat"<< cat<<".txt -M Routine -D "<< data_name << " -m MASS --generateBinnedWorkaround -S 1"; 
+   file << "\n---------------------------------------------\n";
+   file << "imax *\n";
+   file << "jmax *\n";
+   file << "kmax *\n";
+   file << "---------------------------------------------\n";
+   if (parameterisedBackground){
+     file << "shapes "<<data_name <<" * "<<filename<<" cms_hgg_workspace:roohist_"<< data_name<<"_$CHANNEL\n";
+     file << "shapes "<<signal_mass_name<<" * "<<filename<<" cms_hgg_workspace:roohist_"<<signal_mass_name << "_$CHANNEL cms_hgg_workspace:roohist_"<< signal_mass_name <<"_$CHANNEL_$SYSTEMATIC01_sigma\n";
+     file << "shapes "<<bkg_name<<" * "<<filename<<" cms_hgg_workspace:pdf_"<<bkg_name << "_$CHANNEL cms_hgg_workspace:roohist_"<< bkg_name <<"_$CHANNEL_$SYSTEMATIC01_sigma\n";
+   }
+   else 
+     file << "shapes * * "<<filename<<" cms_hgg_workspace:roohist_$PROCESS_$CHANNEL cms_hgg_workspace:roohist_$PROCESS_$CHANNEL_$SYSTEMATIC01_sigma\n";
+   file << "---------------------------------------------\n";
+
+   // Write the data info	 
+   file << "bin	           ";
+    file << "cat"<<cat << " ";
+   file << "\nobservation  ";
+    file << " -1 ";
+   file << "\n---------------------------------------------\n";
+   // Write the model info	 
+   file << "bin	       ";
+    file << "cat"<<cat << "  cat" <<cat<<" ";
+   file << "\nprocess  ";
+    file << signal_mass_name<<" "<<bkg_name<< " ";
+   file << "\nprocess  ";
+    file << " -1   1  ";
+   file << "\nrate     ";
+   if (! parameterisedBackground)
+   	 file << " -1  -1 ";
+   else {
+	 {
+       //   std::string bcatName = getcatName(bkg_name,cat);
+       //   std::string dcatName = getcatName(data_name,cat);
+//	  std::string rngeName = getcatName("datacard_",cat);
+//	  double r1 = m_var_min_[dcatName] ;
+//	  double r2 = m_var_max_[dcatName] ;
+//	  double norm = getNormalisationFromFit(bcatName,rngeName,m_gen_[bcatName],obs,r1,r2,multi_pdf);
+	  file << " -1   1 " << " ";   
+	}
+   }
+   file << "\n---------------------------------------------\n";
+
+   // Now write the systematics lines:
+   // first Global Systematics
+   for (std::map<std::string,std::pair<double,double> >::iterator it_g_sys = global_systematics_.begin();it_g_sys!=global_systematics_.end(); it_g_sys++){ 
+     file << it_g_sys->first << " lnN  ";
+      file << (it_g_sys->second).first << " " << (it_g_sys->second).second << " ";	
+     file <<endl;
+   }
+
+  
+    
+   double sigmaUnitInv = 1./(sigmaRange/nsigmas);
+   for (it_sys=systematics_.begin(); it_sys!=systematics_.end();it_sys++){ 
+    
+     file << it_sys->first << " shape  ";
+     if (it_sys->second == 0) // both background and signal effected
+       file << sigmaUnitInv<< " " << sigmaUnitInv<< " ";
+     else if (it_sys->second == -1) // signal effected
+       file << sigmaUnitInv <<" 0 ";
+     else if (it_sys->second == 1) // background effected
+       file << " 0 "<<sigmaUnitInv;
+     file << endl;
+   }
+
+
+   file.close();
+}
 // -----------------------------------------------------------------------------------------
 void RooContainer::WriteDataCard(std::string filename,std::string data_name
 				,std::string sig_name, std::string bkg_name){
