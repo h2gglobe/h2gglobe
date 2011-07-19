@@ -695,13 +695,13 @@ void RooContainer::WriteDataCard(std::string filename,std::string data_name
    	for (int cat=0;cat<ncat;cat++) file << " -1  -1 ";
    else {
 	for (int cat=0;cat<ncat;cat++) {
-          std::string bcatName = getcatName(bkg_name,cat);
-          std::string dcatName = getcatName(data_name,cat);
-	  std::string rngeName = getcatName("datacard_",cat);
-	  double r1 = m_var_min_[dcatName] ;
-	  double r2 = m_var_max_[dcatName] ;
-	  double norm = getNormalisationFromFit(bcatName,rngeName,m_gen_[bcatName],obs,r1,r2,multi_pdf);
-	  file << " -1 " << norm << " ";   
+       //   std::string bcatName = getcatName(bkg_name,cat);
+       //   std::string dcatName = getcatName(data_name,cat);
+//	  std::string rngeName = getcatName("datacard_",cat);
+//	  double r1 = m_var_min_[dcatName] ;
+//	  double r2 = m_var_max_[dcatName] ;
+//	  double norm = getNormalisationFromFit(bcatName,rngeName,m_gen_[bcatName],obs,r1,r2,multi_pdf);
+	  file << " -1   1 " << " ";   
 	}
    }
    file << "\n---------------------------------------------\n";
@@ -1038,7 +1038,7 @@ void RooContainer::addGenericPdf(std::string name,std::string formula,std::strin
 
      m_gen_.insert(std::pair<std::string,RooAbsPdf*>(name,temp_1));
 
-     RooRealVar temp_var(Form("%s_norm",name.c_str()),name.c_str(),norm_guess,norm_min,norm_max);
+     RooRealVar temp_var(Form("pdf_%s_norm",name.c_str()),name.c_str(),norm_guess,norm_min,norm_max);
      m_real_var_.insert(std::pair<std::string,RooRealVar>(name,temp_var));
 
      RooExtendPdf temp(name.c_str(),name.c_str(),*temp_1,m_real_var_[name]);
@@ -1141,7 +1141,7 @@ void RooContainer::composePdf(std::string name, std::string  composition
 	} else {
 
     	  RooAddPdf *temp = new RooAddPdf(Form("pdf_%s",name.c_str()),composition.c_str(),roo_funs,roo_args);
-     	  RooRealVar temp_var(Form("norm_%s",name.c_str()),name.c_str(),100.,0.0,1e6);
+     	  RooRealVar temp_var(Form("pdf_%s_norm",name.c_str()),name.c_str(),100.,0.0,1e6);
      	  m_real_var_.insert(std::pair<std::string,RooRealVar>(name,temp_var));
           m_gen_.insert(std::pair<std::string,RooAbsPdf*>(name,temp));
 
