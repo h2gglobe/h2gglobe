@@ -69,10 +69,14 @@ def getOBSERVED(file):
   tree.GetEntry(0)
   return c.r
 
-if Method=="Frequentest":
-  EXPfiles = [ROOT.TFile(EXPName+".mH%d.quant0.500.root"%m) for m in EXPmasses]
-else:
-  EXPfiles = [ROOT.TFile(EXPName+".mH%d.root"%m) for m in EXPmasses]
+if Method=="Frequentist":
+  EXPfiles=[]
+  EXPmasses = OBSmasses[:]
+  for m in EXPmasses:
+    if int(m)==m:
+      EXPfiles.append(ROOT.TFile(EXPName+".mH%d.quant0.500.root"%m))
+    else:
+      EXPfiles.append(ROOT.TFile(EXPName+".mH%.1f.quant0.500.root"%m))
 
 # Get the observed limits - Currently only does up to 1 decimal mass points
 OBSfiles = []
@@ -267,6 +271,7 @@ mytext.DrawLatex(0.1,0.93,"CMS Preliminary 2011, #int L = %.2f fb^{-1}"%float(in
 leg.Draw()
 
 #Make a bunch of extensions to the plots
+if doRatio: Method=Method+"Ratio"
 C.SaveAs("limit_%s_%s.pdf"%(sys.argv[2],Method))
 C.SaveAs("limit_%s_%s.gif"%(sys.argv[2],Method))
 C.SaveAs("limit_%s_%s.eps"%(sys.argv[2],Method))
