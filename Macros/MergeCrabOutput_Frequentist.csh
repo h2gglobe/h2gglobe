@@ -5,4 +5,4 @@ foreach i ( `/bin/ls -d $1` )
 	hadd -f ${mass}FrequentistGrid.root *.root
 	cd ../../
 end
-hadd -f FrequentistGrid.root $1/res/*FrequentistGrid.root &
+hadd -f $2 $1/res/*FrequentistGrid.root &
