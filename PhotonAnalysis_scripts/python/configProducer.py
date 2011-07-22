@@ -11,6 +11,7 @@ import ROOT
 # Local python imports
 from datBlocks import *
 from makeFilelist import *
+from getTreeEntry import *
 
 
 def getJson(fname):
@@ -128,7 +129,7 @@ class configProducer:
     self.add_files()
     self.ut_.SetTypeRun(self.type_,self.conf_.histfile)
     for dum in self.conf_.confs:
-      dataContainer = self.ut_.DefineSamples(dum['Nam'],dum['typ'],dum['ind'],dum['draw'],dum['red'],dum['tot'],dum['intL'],dum['lum'],dum['xsec'],dum['kfac'],dum['scal'])
+      dataContainer = self.ut_.DefineSamples(dum['Nam'],dum['typ'],dum['ind'],dum['draw'],dum['red'],dum['tot'],dum['intL'],dum['lum'],dum['xsec'],dum['kfac'],dum['scal'],dum['addnevents'])
       if("json" in dum and dum["json"] != ""):
         defineJsonFilter(dum["json"], dataContainer)
       if("evlist" in dum and dum["evlist"] != ""):
@@ -478,6 +479,8 @@ class configProducer:
   def read_input_files_loop(self,line):
     print "read_input_files_loop"
     map_c	    = {}
+    map_c["tot"]=-1
+    map_c["addnevents"]=0
     directory = ''
     cas_directory = ''
     dcs_directory = ''
@@ -530,26 +533,37 @@ class configProducer:
         sys.exit("No Input File Named: %s"%fi_name)
       tuple_n = fi_name, fi_type
       self.conf_.files.append(tuple_n)
+      if fi_type!=0 and map_c["tot"] == -1:
+        map_c["tot"] = getTreeEntry(fi_name,"global_variables","processedEvents");
+	map_c["addnevents"] = int(1)
       self.conf_.confs.append(map_c.copy())
         
     if cas_directory != '':
       ca_files = makeCaFiles(cas_directory,self.njobs_,self.jobId_)
       for file_s in ca_files:
+        if fi_type!=0 and map_c["tot"] == -1:
+          map_c["tot"] = getTreeEntry(file_s,"global_variables","processedEvents");
+	  map_c["addnevents"] = int(1)
         self.conf_.files.append((file_s,fi_type))
 	self.conf_.confs.append(map_c.copy())
 
     if dcs_directory != '':
       dc_files = makeDcFiles(dcs_directory,self.njobs_,self.jobId_)
       for file_s in dc_files:
+        if fi_type!=0 and map_c["tot"] == -1:
+          map_c["tot"] = getTreeEntry(file_s,"global_variables","processedEvents");
+	  map_c["addnevents"] = int(1)
         self.conf_.files.append((file_s,fi_type))
 	self.conf_.confs.append(map_c.copy())
 
     if directory != '':
-        files = makeFiles(directory,self.njobs_,self.jobId_)
-        for file_s in files:	
-	    print file_s, fi_type
-            self.conf_.files.append((file_s,fi_type))
-	    self.conf_.confs.append(map_c.copy())
+      files = makeFiles(directory,self.njobs_,self.jobId_)
+      for file_s in files:	
+        if fi_type!=0 and map_c["tot"] == -1:
+            map_c["tot"] = getTreeEntry(file_s,"global_variables","processedEvents");
+	    map_c["addnevents"] = int(1)
+        self.conf_.files.append((file_s,fi_type))
+	self.conf_.confs.append(map_c.copy())
           
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def read_input_branches(self,line):
