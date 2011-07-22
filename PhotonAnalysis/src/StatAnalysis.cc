@@ -36,6 +36,7 @@ void StatAnalysis::Term(LoopAll& l)
     // Make Fits to the data-sets and systematic sets
     l.rooContainer->FitToData("data_pol_model","data_mass");  // Fit to full range of dataset
   
+    l.rooContainer->WriteSpecificCategoryDataCards(outputfilename,"data_mass","sig_mass","data_pol_model");
     l.rooContainer->WriteDataCard(outputfilename,"data_mass","sig_mass","data_pol_model");
     // mode 0 as above, 1 if want to bin in sub range from fit,
 
