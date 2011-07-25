@@ -1135,7 +1135,7 @@ int LoopAll::DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL, phoCiCIDLevel SUB
 	  TLorentzVector sublead_p4 = get_pho_p4(sublead,ivtx,pho_energy_array); 
 	  
 	  float leadEta = fabs(((TVector3 *)sc_xyz->At(pho_scind[lead]))->Eta());
-	  float subleadEta = fabs(((TVector3 *)sc_xyz->At(pho_scind[lead]))->Eta());
+	  float subleadEta = fabs(((TVector3 *)sc_xyz->At(pho_scind[sublead]))->Eta());
 
 	  if( lead_p4.Pt() < leadPtMin || sublead_p4.Pt() < subleadPtMin || 
 	      leadEta > 2.5 || subleadEta > 2.5 || 
