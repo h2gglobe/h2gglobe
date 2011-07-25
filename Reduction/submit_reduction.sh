@@ -1,4 +1,13 @@
+#!/bin/bash
+
+source version.sh
+
 queue=8nh
+
+if [[ -z $1 ]]; then
+    echo "usage:  $0 <directory> [wildcard] [n_jobs]"
+    exit 1
+fi
 
 dir=$1 && shift
 

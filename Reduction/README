@@ -1,0 +1,86 @@
+
+Scripts to run reduction on lxbatch
+------------------------------------
+
+This folder contains a small set of scripts to run the h2gglobe reduction step on
+the CERN batch system.
+
+
+Setting up the workarea
+-----------------------
+ 
+In order to setup the working area, you need to run the script
+
+mk_links.sh
+
+This creates a symbolic link to the PhotonAnalysis_script directory and set the execution bits
+of relevant files.
+
+
+
+Batch scripts
+-------------
+
+The batch jobs are run by the run.sh script. The setup.sh and cleanup.sh files are sourced at the beginning 
+and at the end of the job respectively to prepare the area and stage out the output.
+
+run.sh
+setup.sh
+cleanup.sh
+
+The directories to be used for local and remote storage are defined in setup.sh. 
+
+base_storedir="./datastore"
+storeremote="/castor/cern.ch/user/c/cmshgg/reduced"
+
+Users can override such variables by means of files called <username>_setup.sh 
+ 
+A file version.sh needs also to be created, to define the version variable.
+
+version="h2gglobe_V10_00_reduction_07_25"
+
+The output of the jobs will appear in $storeremote/$version.
+
+
+
+Utility scripts
+---------------
+
+A few scripts are dedicated to configuring and submitting scripts. The starting point are text files containing the list of samples to be reduced.
+The format of the latter is 
+
+<sample directory> <type_id> [append=<sample_postfix>] [analyzer <analyzer_name> <config_file.dat> [additional dat files]]
+
+The convention used for samples type:
+QCD 1
+GJet 2
+DiPhoton 3
+DrellYan 4
+
+Signal -1
+
+Data 0
+
+The file mk_reduction_dat.sh is used to create the dat files corresponding to the input text file. Once the input text file has been created, the corresponding
+files are generated as:
+
+rm data/*.dat
+./PhotonAnalysis_scripts/mk_reduction_dat.py /castor/cern.ch/user/c/cmshgg/processed/h2g_V10_00/Data ${storedir}/Data data.txt
+
+Add one line per txt file in mk_reduction_dat.sh.
+ 
+
+
+Submitting the jobs
+-------------------
+
+Once the dat files corresponding to a txt file have been created, the jobs can be submitted using the submit_reduction.sh script.
+
+submit_reduction.sh <dat files directory> [wildcard] [n_jobs]
+ 
+The status of the finished jobs can be checked with the following scripts.
+
+check_jobs.sh
+count_all_events.sh
+count_events.sh
+

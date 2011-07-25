@@ -1,0 +1,7 @@
+#!/usr/bin/awk -f
+
+BEGIN { n=0; tot=0; }
+
+// { if( $(col) != "" ) { n+=1; tot += $(col); tot2+=$(col)*$(col) } }
+
+END { avg=tot/n; stdev=sqrt(tot2/n - avg*avg); print "Total: "tot" N: "n" Average: "avg" RMS: "stdev } 
