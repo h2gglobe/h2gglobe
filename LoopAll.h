@@ -112,7 +112,10 @@ class LoopAll {
   Int_t        current_sample_index; //current file
   Int_t        tot_events;
   Int_t        sel_events;
-
+  std::vector<std::string>  globalCountersNames; 
+  std::vector<int> globalCounters; 
+  std::vector<int> fileGlobalCounters;
+  
   Int_t        outputParTot_Events, outputParSel_Events, outputParType, outputParVersion, outputParReductions, outputParRed_Events[20];
   std::vector<std::string>* outputParParameters;
   std::string* outputParJobMaker;

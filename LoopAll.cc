@@ -419,11 +419,12 @@ void LoopAll::TermReal(Int_t typerunpass) {
 
   if (makeOutputTree){ 
     outputFile->cd();
-    outputTree->Write();
+    assert( outputTree->GetEntries() == countersred[3] );
+    outputTree->Write(0,TObject::kWriteDelete);
     outputParReductions++;
     outputTreePar->Fill();
-    outputTreePar->Write();
-    outputTreeLumi->Write();
+    outputTreePar->Write(0,TObject::kWriteDelete);
+    outputTreeLumi->Write(0,TObject::kWriteDelete);
   }
 }
 
@@ -453,6 +454,37 @@ void LoopAll::Init(Int_t typerunpass, TTree *tree) {
   Notify();
 }
 
+
+// ------------------------------------------------------------------------------------
+void bookGlobalCounters( TTree * intree, TTree * outTree, 
+			 std::vector<std::string> & globalCountersNames, 
+			 std::vector<int> & globalCounters, 
+			 std::vector<int> & fileGlobalCounters )
+{
+	// ((TBranch *) global_variables->GetListOfBranches()->At(0)->GetAddress()
+	TObjArray * inbranches = intree->GetListOfBranches();
+	for( int ib=0; ib<inbranches->GetEntries(); ++ib ) {
+		TBranch * br = (TBranch *)inbranches->At(ib);
+		if( br->GetAddress() == 0 ) { 
+			TString title = br->GetTitle();
+			if( title.EndsWith("/I") 
+			    && find( globalCountersNames.begin(), globalCountersNames.end(), br->GetName() ) == globalCountersNames.end() ) {
+				globalCountersNames.push_back( std::string(br->GetName()) );
+			}
+		}
+	}
+	globalCounters.resize( globalCountersNames.size(), 0 );
+	fileGlobalCounters.clear();
+	fileGlobalCounters.resize( globalCountersNames.size(), 0 );
+	for(size_t ic=0; ic<globalCountersNames.size(); ++ic ) {
+		if( ! outTree->FindBranch( globalCountersNames[ic].c_str() ) ) {
+			std::cerr << "Booking global counter " << globalCountersNames[ic] << std::endl;
+			outTree->Branch( globalCountersNames[ic].c_str(), &globalCounters[ic], (globalCountersNames[ic]+"/I").c_str() );
+		}
+		std::cerr << "Reading global counter " << globalCountersNames[ic] << std::endl;
+		intree->SetBranchAddress( globalCountersNames[ic].c_str(), &fileGlobalCounters[ic] );
+	}
+}
 
 // ------------------------------------------------------------------------------------
 void LoopAll::Loop(Int_t a) {
@@ -540,7 +572,9 @@ void LoopAll::Loop(Int_t a) {
           TreesPar[a]->SetBranchAddress("reductions", &reductions);
           TreesPar[a]->SetBranchAddress("red_events", &red_events);
         }
-        
+	bookGlobalCounters( TreesPar[a], outputTreePar, globalCountersNames, globalCounters, fileGlobalCounters );
+	assert( globalCountersNames.size() == globalCounters.size() && globalCounters.size() == fileGlobalCounters.size() );
+
         TreesPar[a]->GetEntry(0);
         
         if (a == 0) {
@@ -551,7 +585,10 @@ void LoopAll::Loop(Int_t a) {
           outputParTot_Events += tot_events;
           outputParSel_Events += sel_events;
         }
-
+	for(size_t ii=0; ii<globalCountersNames.size(); ++ii) {
+		globalCounters[ii] += fileGlobalCounters[ii];
+	}
+	
         outputParType = type;
         outputParVersion = version;
         outputParParameters = &(*parameters);
@@ -560,12 +597,12 @@ void LoopAll::Loop(Int_t a) {
         if (!TreesPar[a]->FindBranch("reductions")) {
           outputParReductions = 0;
           for (int i=0; i<20; i++) {
-            outputParRed_Events[i] = -1;
+            outputParRed_Events[i] = 0;
           }
-          outputParRed_Events[0] += (int)countersred[1];
+          outputParRed_Events[0] += (int)countersred[3];
         } else {
           outputParReductions = reductions;
-          outputParRed_Events[reductions] += (int)countersred[1];
+          outputParRed_Events[reductions] += (int)countersred[3];
         }
       } else {
         std::cerr << "Cannot write Parameter tree." << std::endl;
