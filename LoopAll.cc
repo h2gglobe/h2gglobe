@@ -24,7 +24,6 @@ BaseAnalysis* LoopAll::AddAnalysis(BaseAnalysis* baseAnalysis) {
 // ------------------------------------------------------------------------------------
 void LoopAll::SetTypeRun(int t, const char* name) {
   typerun = t;
-  cout << "Type Run =" <<t <<endl; 
   if (t == 1) {
     makeOutputTree = 1;
     outputFileName = TString(name);
@@ -195,8 +194,6 @@ void LoopAll::LoopAndFillHistos(TString treename) {
     cout<<"LoopAndFillHistos: calling InitReal " << endl;
   
   InitReal(typerun);
-  
-  cerr << "files size " << files.size() << std::endl;
   
   Files.resize(files.size());  
   Trees.resize(files.size());  
