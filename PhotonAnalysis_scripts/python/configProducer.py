@@ -527,7 +527,8 @@ class configProducer:
                      %(val[0],line))
     if map_c["typ"] != 0:
       self.is_data_ = False
-
+      
+    
     if fi_name != '':
       if not fi_name.startswith("rfio") and not os.path.isfile(fi_name): 
         sys.exit("No Input File Named: %s"%fi_name)
@@ -537,33 +538,29 @@ class configProducer:
         map_c["tot"] = getTreeEntry(fi_name,"global_variables","processedEvents");
 	map_c["addnevents"] = int(1)
       self.conf_.confs.append(map_c.copy())
-        
+
+    mkFiles = None
+    dir = None
     if cas_directory != '':
-      ca_files = makeCaFiles(cas_directory,self.njobs_,self.jobId_)
-      for file_s in ca_files:
-        if fi_type!=0 and map_c["tot"] == -1:
-          map_c["tot"] = getTreeEntry(file_s,"global_variables","processedEvents");
-	  map_c["addnevents"] = int(1)
-        self.conf_.files.append((file_s,fi_type))
-	self.conf_.confs.append(map_c.copy())
-
+        mkFiles = makeCaFiles
+        dir = cas_directory  
     if dcs_directory != '':
-      dc_files = makeDcFiles(dcs_directory,self.njobs_,self.jobId_)
-      for file_s in dc_files:
-        if fi_type!=0 and map_c["tot"] == -1:
-          map_c["tot"] = getTreeEntry(file_s,"global_variables","processedEvents");
-	  map_c["addnevents"] = int(1)
-        self.conf_.files.append((file_s,fi_type))
-	self.conf_.confs.append(map_c.copy())
-
+        mkFiles = makeDcFiles
+        dir = dcs_directory  
     if directory != '':
-      files = makeFiles(directory,self.njobs_,self.jobId_)
-      for file_s in files:	
-        if fi_type!=0 and map_c["tot"] == -1:
-            map_c["tot"] = getTreeEntry(file_s,"global_variables","processedEvents");
-	    map_c["addnevents"] = int(1)
-        self.conf_.files.append((file_s,fi_type))
-	self.conf_.confs.append(map_c.copy())
+        mkFiles = makeFiles
+        dir = directory  
+        
+    if dir:
+      files = mkFiles(dir,self.njobs_,self.jobId_)
+      if fi_type!=0 and map_c["tot"] == -1:
+          allfiles = mkFiles(dir,-1,-1)
+          for file_s in allfiles:
+              map_c["tot"] = map_c["tot"] + getTreeEntry(file_s,"global_variables","processedEvents")
+      for file_s in files:
+          self.conf_.files.append((file_s,fi_type))
+          self.conf_.confs.append(map_c.copy())
+
           
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def read_input_branches(self,line):
