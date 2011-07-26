@@ -101,6 +101,12 @@ class RooContainer {
    void CombineBinnedDatasets(std::string,std::string, double fraction=-1);
 
    void Save();
+
+   void AppendDataSet(std::string, RooDataSet*);
+   void AppendTH1F(std::string, TH1F*);
+
+   std::vector<std::string> GetDataSetNames();
+   std::vector<std::string> GetTH1FNames();
    
    int ncat;
    int nsigmas;

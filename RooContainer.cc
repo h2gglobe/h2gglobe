@@ -440,7 +440,7 @@ void RooContainer::InputSystematicSet(std::string s_name, std::string sys_name, 
   assert( x.size() == cats.size() );
   assert( x.size() == weights.size() );
 
-  if (x.size() != 2*nsigmas){
+  if ((int)x.size() != 2*nsigmas){
     std::cerr << "WARNING -- RooContainer::InputSystematicSet -- Size of vector must be equal to "
 	      << 2*nsigmas << " -- WARNING" << std::endl;
     assert(0);
@@ -458,7 +458,7 @@ void RooContainer::InputSystematicSet(std::string s_name, std::string sys_name, 
 
 	  /// int ishift = istep - nsigmas;
 	  /// if (ishift==0) ishift++;
-	  int ishift = istep < nsigmas ? istep - nsigmas : istep - nsigmas + 1;
+	  int ishift = (int) istep < nsigmas ? (int) istep - nsigmas : (int) istep - nsigmas + 1;
 
 	  std::string cat_name = getcatName(s_name,cat);
 	  std::string name = getsysindexName( cat_name, sys_name, abs(ishift), (ishift > 0 ? 1 : -1) );
@@ -1061,7 +1061,7 @@ void RooContainer::addGenericPdf(std::string name,std::string formula,std::strin
 	}
      } else if (form>60 && form < 70) { // RooChebychev - x, p1....pform-1
 
-	if (var.size() == form-60){
+	if ((int)var.size() == form-60){
       	  RooArgList roo_args;
 	  if (!form_vars){
 	   for (std::vector<std::string>::iterator it_var = var.begin()
@@ -1108,7 +1108,7 @@ void RooContainer::addGenericPdf(std::string name,std::string formula,std::strin
 
      } else if (form>70) { // RooBernstein - x, p1....pform-1
 
-	if (var.size() == form-70){
+	if ((int)var.size() == form-70){
       	  RooArgList roo_args;
 	  roo_args.add(RooConst(1.0));
 	  if (!form_vars){
@@ -1243,7 +1243,7 @@ void RooContainer::composePdf(std::string name, std::string  composition
 	    if (exp != m_gen_.end()){
 	      roo_funs.add(*((*exp).second));
 
-              if (arg_count < formula.size()){
+              if (arg_count < (int)formula.size()){
 
 	        roo_args.add(m_real_var_[(*it_fun)]);
 	        check_sum += m_real_var_[*it_fun].getVal();
@@ -1568,8 +1568,9 @@ void RooContainer::generateBinnedPdf(int catNo,std::string hist_nocat_name,std::
   double normalisation = getNormalisationFromFit(pdf_name,hist_name,pdf_ptr,obs,r1,r2,multi_pdf);
   temp_hist->SetTitle(obs_name.c_str());  // Used later to keep track of the realvar associated, must be a better way to do this ?
 
-  TH1F *temp_hist_up = (TH1F*)temp_hist->Clone();
-  TH1F *temp_hist_dn = (TH1F*)temp_hist->Clone();
+ //  TH1F *temp_hist_up = (TH1F*)temp_hist->Clone();
+ // TH1F *temp_hist_dn = (TH1F*)temp_hist->Clone();
+
   temp_hist->Scale(normalisation/temp_hist->Integral());
   temp_hist->SetName(Form("th1f_%s",hist_name.c_str()));
   m_th1f_.insert(std::pair<std::string,TH1F>(hist_name,*temp_hist));
@@ -1821,5 +1822,56 @@ void RooContainer::setAllParametersConstant() {
  
 
 // ----------------------------------------------------------------------------------------------------
+// A few Extra functions are desired so that RooWorkspaces can be merged:
+// CategoryLooper Functions:
+
+void RooContainer::AppendDataSet(std::string name, RooDataSet *extraData){
+
+  // Find the DataSet
+  std::map<std::string, RooDataSet>::iterator it_var  = data_.find(name);
+    if (it_var == data_.end()) 
+      std::cerr << "WARNING -- RooContainer::InputDataPoint -- No DataSet named "<< name << std::endl;
+    else {
+
+      (it_var->second).append(*extraData);
+
+    }
+}
+
+void RooContainer::AppendTH1F(std::string name, TH1F *extraHist){
+  
+    std::map<std::string, TH1F>::iterator it_var  = m_th1f_.find(name);
+    if (it_var == m_th1f_.end()) 
+      std::cerr << "WARNING -- RooContainer::InputDataPoint -- No DataSet named "<< name << std::endl;
+    else (it_var->second).Add(extraHist);
+
+}
+
+//Getty type functions
+std::vector<std::string> RooContainer::GetDataSetNames(){
+
+	std::vector<std::string> ret;
+	for (std::map<std::string,RooDataSet>::iterator it_dset = data_.begin()
+	    ;it_dset!=data_.end()
+	    ;it_dset++){
+
+		ret.push_back(it_dset->first);
+	}
+	return ret;
+
+}
+std::vector<std::string> RooContainer::GetTH1FNames(){
+
+	std::vector<std::string> ret;
+	for (std::map<std::string,TH1F>::iterator it_dset = m_th1f_.begin()
+	    ;it_dset!=m_th1f_.end()
+	    ;it_dset++){
+
+		ret.push_back(it_dset->first);
+	}
+	return ret;
+
+}
+
 //EOF
 
