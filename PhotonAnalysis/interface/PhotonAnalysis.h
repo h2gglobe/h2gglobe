@@ -64,6 +64,7 @@ public:
 	bool runStatAnalysis;
         TString puHist, puMap;//name of pileup reweighting histogram
 
+	enum BkgCategory{promptprompt,promptfake,fakefake};
 	bool keepPP, keepPF, keepFF;
 
 protected:
