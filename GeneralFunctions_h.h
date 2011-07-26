@@ -136,6 +136,8 @@ int DiphotonPtCategory(double pTh, int n_pThcat=0) {
 }
 // CiC SELECTION CODE END - SSIMON
 
+// Functions movec from Tools.h
+double DeltaPhi(double,double);
 
 ///
 /// Missing and addition branches

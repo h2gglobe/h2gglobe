@@ -34,6 +34,7 @@ void LoopAll::GlobeCtIsol(int mode, TLorentzVector* p4, float ptCut, float drCut
 }
 
 
+
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 int LoopAll::GlobeMatchIsl(TLorentzVector* p4, Float_t & deltaR) {
   deltaR=10.;
@@ -1442,6 +1443,17 @@ Float_t LoopAll::SumTrackPtInCone(TLorentzVector *photon_p4, Int_t vtxind, Float
 
 // CiC SELECTION CODE END - SSIMON
 
+// Functions moved from Tools.h
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+double LoopAll::DeltaPhi(double phi1, double phi2) {
+  double deltaphi;
+  if(phi1<0) phi1+=TWOPI;
+  if(phi2<0) phi2+=TWOPI;
+  deltaphi=fabs(phi1-phi2);
+  if(deltaphi>TWOPI) deltaphi-=TWOPI;
+  if(deltaphi>PI) deltaphi=TWOPI-deltaphi;
+  return deltaphi;
+}
 //
 // Generate dictionary entries for branches from GeneralFunctions_h 
 //
