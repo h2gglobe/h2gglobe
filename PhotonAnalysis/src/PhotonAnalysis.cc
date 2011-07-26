@@ -261,6 +261,10 @@ void PhotonAnalysis::Analysis(LoopAll& l, Int_t jentry)
                 cout << "Analysis START"<<endl;
         pho_presel.clear();
 
+        //remove process ID 18 from gamma+jet to avoid double counting with born+box
+        if (l.itype[l.current]==3 && l.process_id==18) return;
+
+	//apply pileup reweighting
 	unsigned int n_pu = l.pu_n;
 	float weight =1.;
 	if (l.itype[l.current] !=0 && puHist != "") {
@@ -280,7 +284,62 @@ void PhotonAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	if( pho_acc.size() < 2 || pho_et[ pho_acc[0] ] < presel_scet1 ) return;
 
         int leadLevel=LoopAll::phoSUPERTIGHT, subLevel=LoopAll::phoSUPERTIGHT;
-        int dipho_id = l.DiphotonCiCSelection((LoopAll::phoCiCIDLevel) leadLevel, (LoopAll::phoCiCIDLevel) subLevel, 40.0, 30.0, 4, false);
+
+	//Fill histograms to use as denominator (pre-selection only) and numerator (selection applied)
+	//for photon ID efficiency calculation.  To avoid ambiguities concerning vertex choice, use only 
+	//events with one diphoton pair (close to 100% of signal events)
+        if (l.dipho_n==1) {
+
+	  int ivtx = l.dipho_vtxind[0];
+	  int lead = l.dipho_leadind[0];
+	  int sublead = l.dipho_subleadind[0];
+
+	  TLorentzVector lead_p4 = l.get_pho_p4(lead,ivtx,&corrected_pho_energy[0]); 
+	  TLorentzVector sublead_p4 = l.get_pho_p4(sublead,ivtx,&corrected_pho_energy[0]); 
+	  float leadEta = ((TVector3 *)l.sc_xyz->At(l.pho_scind[lead]))->Eta();
+	  float subleadEta = ((TVector3 *)l.sc_xyz->At(l.pho_scind[sublead]))->Eta();
+
+	  //apply pre-selection
+	  bool passpresel = true;
+	  if(lead_p4.Pt() < 40. || sublead_p4.Pt() < 30. || 
+	      fabs(leadEta) > 2.5 || fabs(subleadEta) > 2.5 || 
+	      ( fabs(leadEta) > 1.4442 && fabs(leadEta) < 1.566 ) || ( fabs(subleadEta) > 1.4442 && fabs(subleadEta) < 1.566 ))
+	    passpresel = false;
+	  if (lead != sublead && passpresel) {
+
+	    int leadpho_category = l.PhotonCategory(lead, 2, 2);
+	    int subleadpho_category = l.PhotonCategory(sublead, 2, 2);
+
+	    //Fill eta and pt distributions after pre-selection only (efficiency denominator)
+	    l.FillHist("pho1_pt_presel",0,lead_p4.Pt(), weight);
+	    l.FillHist("pho2_pt_presel",0,sublead_p4.Pt(), weight);
+	    l.FillHist("pho1_eta_presel",0,leadEta, weight);
+	    l.FillHist("pho2_eta_presel",0,subleadEta, weight);
+
+	    l.FillHist("pho1_pt_presel",leadpho_category+1,lead_p4.Pt(), weight);
+	    l.FillHist("pho2_pt_presel",subleadpho_category+1,sublead_p4.Pt(), weight);
+	    l.FillHist("pho1_eta_presel",leadpho_category+1,leadEta, weight);
+	    l.FillHist("pho2_eta_presel",subleadpho_category+1,subleadEta, weight);
+
+	    //Apply single photon CiC selection and fill eta and pt distributions (efficiency numerator)
+	    std::vector<std::vector<bool> > ph_passcut;
+	    if( l.PhotonCiCSelectionLevel(lead, ivtx, ph_passcut, 4, 0, &corrected_pho_energy[0]) >=  (LoopAll::phoCiCIDLevel) leadLevel) {
+	      l.FillHist("pho1_pt_sel",0,lead_p4.Pt(), weight);
+	      l.FillHist("pho1_eta_sel",0,leadEta, weight);
+	      l.FillHist("pho1_pt_sel",leadpho_category+1,lead_p4.Pt(), weight);
+	      l.FillHist("pho1_eta_sel",leadpho_category+1,leadEta, weight);
+	    }
+	    if( l.PhotonCiCSelectionLevel(sublead, ivtx, ph_passcut, 4, 1, &corrected_pho_energy[0]) >=  (LoopAll::phoCiCIDLevel) subLevel ) {
+	      l.FillHist("pho2_pt_sel",0,sublead_p4.Pt(), weight);
+	      l.FillHist("pho2_eta_sel",0,subleadEta, weight);
+	      l.FillHist("pho2_pt_sel",subleadpho_category+1,sublead_p4.Pt(), weight);
+	      l.FillHist("pho2_eta_sel",subleadpho_category+1,subleadEta, weight);
+	    }
+	  }
+        }
+
+	//Apply diphoton CiC selection
+	int dipho_id = l.DiphotonCiCSelection((LoopAll::phoCiCIDLevel) leadLevel, (LoopAll::phoCiCIDLevel) subLevel, 40.0, 30.0, 4, false, &corrected_pho_energy[0]);
 
         if (dipho_id > -1){
 	  std::pair<int,int> diphoton_index = std::make_pair(l.dipho_leadind[dipho_id],l.dipho_subleadind[dipho_id]);
@@ -292,17 +351,75 @@ void PhotonAnalysis::Analysis(LoopAll& l, Int_t jentry)
           //// TLorentzVector *sublead_p4 = (TLorentzVector*)l.pho_p4->At(diphoton_index.second);
           //// TLorentzVector Higgs = *lead_p4 + *sublead_p4;
 
-          int category = l.DiphotonCategory(diphoton_index.first, diphoton_index.second, 2, 2, 0);
+	  //Alternative definition of background categories for QCD,GJET, requiring matching of gen
+	  //photons to reco photons (main background category definition, based on gen info only is defined in
+	  //PhotonAnalysis::SkimEvents)
+	  BkgCategory bkgCat = promptprompt;
+          if (l.itype[l.current]==1 || l.itype[l.current]==2 || l.itype[l.current]==3) {
 
-          l.FillHist("mass",0, Higgs.M(), weight);
+            bool lead_is_prompt=false;
+            bool sublead_is_prompt=false;
+
+            for(int igp=0; igp<l.gp_n; ++igp) {
+
+              int id = l.gp_pdgid[igp];
+              int mother = l.gp_mother[igp];
+              int motherid = l.gp_pdgid[mother];
+
+              if ( id==22 && mother>-1 && (motherid==21 || abs(motherid)<=8 ) ) {
+                //cout << "mother " << mother << " " << motherid << endl;
+                TLorentzVector *gp_p4 = (TLorentzVector*)l.gp_p4->At(igp);
+                if ( gp_p4->DeltaR(lead_p4) < 0.3) lead_is_prompt = true;
+                if ( gp_p4->DeltaR(sublead_p4) < 0.3) sublead_is_prompt = true;
+              }
+
+            }
+
+            //cout << lead_is_prompt << " " << sublead_is_prompt << endl;
+            if (lead_is_prompt && sublead_is_prompt) {
+              bkgCat = promptprompt;
+            } else if (lead_is_prompt || sublead_is_prompt) {
+              bkgCat = promptfake;
+            } else {
+	      bkgCat = fakefake;
+	    }
+          }
+
+	  //Fill histograms according to diphoton or single photon category, as appropriate
+
+          int dipho_category = l.DiphotonCategory(diphoton_index.first, diphoton_index.second, Higgs.Pt(), 2, 2, 2);
+          int leadpho_category = l.PhotonCategory(diphoton_index.first, 2, 2);
+          int subleadpho_category = l.PhotonCategory(diphoton_index.second, 2, 2);
+
+          if (bkgCat == promptfake) {
+            l.FillHist("mass_pf",0, Higgs.M(), weight);
+            l.FillHist("mass_pf",dipho_category+1, Higgs.M(), weight);
+          } else if (bkgCat == fakefake) {
+            l.FillHist("mass_ff",0, Higgs.M(), weight);
+            l.FillHist("mass_ff",dipho_category+1, Higgs.M(), weight);
+          } else {
+            l.FillHist("mass",0, Higgs.M(), weight);
+            l.FillHist("mass",dipho_category+1, Higgs.M(), weight);
+          }
+
           l.FillHist("pt",0, Higgs.Pt(), weight);
-          l.FillHist("pho_pt",0,lead_p4.Pt(), weight);
-          l.FillHist("pho_pt",0,sublead_p4.Pt(), weight);
+	  l.FillHist("eta",0, Higgs.Eta(), weight);
+          l.FillHist("pho1_pt",0,lead_p4.Pt(), weight);
+          l.FillHist("pho2_pt",0,sublead_p4.Pt(), weight);
+          l.FillHist("pho1_eta",0,lead_p4.Eta(), weight);
+          l.FillHist("pho2_eta",0,sublead_p4.Eta(), weight);
+          l.FillHist("pho_r9",0,l.pho_r9[diphoton_index.first], weight);
+          l.FillHist("pho_r9",0,l.pho_r9[diphoton_index.second], weight);
 
-          l.FillHist("mass",category+1, Higgs.M(), weight);
-          l.FillHist("pt",category+1, Higgs.Pt(), weight);
-          l.FillHist("pho_pt",category+1,lead_p4.Pt(), weight);
-          l.FillHist("pho_pt",category+1,sublead_p4.Pt(), weight);
+          l.FillHist("pt",dipho_category+1, Higgs.Pt(), weight);
+	  l.FillHist("eta",dipho_category+1, Higgs.Eta(), weight);
+          l.FillHist("pho1_pt",dipho_category+1,lead_p4.Pt(), weight);
+          l.FillHist("pho2_pt",dipho_category+1,sublead_p4.Pt(), weight);
+          l.FillHist("pho1_eta",dipho_category+1,lead_p4.Eta(), weight);
+          l.FillHist("pho2_eta",dipho_category+1,sublead_p4.Eta(), weight);
+          l.FillHist("pho_r9",leadpho_category+1,l.pho_r9[diphoton_index.first], weight);
+          l.FillHist("pho_r9",subleadpho_category+1,l.pho_r9[diphoton_index.second], weight);
+
         }
 
 	if(PADEBUG) 
