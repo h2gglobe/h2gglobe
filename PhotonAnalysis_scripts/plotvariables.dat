@@ -4,6 +4,8 @@ htyp=0 plot=-1  ncat=9  xbins=160   ybins=0       xmin=80.0  xmax=240.0  ymin=0 
 htyp=0 plot=-1  ncat=9  xbins=100    ybins=0       xmin=0.0   xmax=200.0  ymin=0      ymax=0       name=pt
 htyp=0 plot=-1  ncat=9  xbins=51    ybins=0       xmin=-2.55 xmax=2.55  ymin=0     ymax=0      name=eta
 htyp=0 plot=-1  ncat=9  xbins=50   ybins=0       xmin=80.0  xmax=180.0  ymin=0      ymax=0       name=mass
+htyp=0 plot=-1  ncat=9  xbins=50   ybins=0       xmin=-1.0  xmax=1.0  ymin=0      ymax=0       name=helicityAngle
+htyp=0 plot=-1  ncat=9  xbins=50   ybins=0       xmin=0.0  xmax=3.14159  ymin=0      ymax=0       name=decayAngle
 
 htyp=0 plot=-1  ncat=9  xbins=50    ybins=0       xmin=0.0   xmax=120.0  ymin=0      ymax=0       name=pho_pt
 htyp=0 plot=-1  ncat=9  xbins=60    ybins=0       xmin=0.0   xmax=120.0  ymin=0      ymax=0       name=pho1_pt

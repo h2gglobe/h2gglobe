@@ -351,6 +351,19 @@ void PhotonAnalysis::Analysis(LoopAll& l, Int_t jentry)
           //// TLorentzVector *sublead_p4 = (TLorentzVector*)l.pho_p4->At(diphoton_index.second);
           //// TLorentzVector Higgs = *lead_p4 + *sublead_p4;
 
+	  // Decay Angle
+	  double decayAngle  = l.DeltaPhi(lead_p4.Phi(),sublead_p4.Phi());
+
+	  // Calculate the Rest Frame Quantities:
+	  TLorentzVector *rest_lead_p4 = (TLorentzVector*) lead_p4.Clone();
+	  TLorentzVector *rest_sublead_p4 = (TLorentzVector*) sublead_p4.Clone();
+	  TVector3 higgsBoostVector = Higgs.BoostVector();
+	  rest_lead_p4->Boost(higgsBoostVector);        // lead photon in Higgs Decay Frame
+	  rest_sublead_p4->Boost(higgsBoostVector);    // sub-lead photon in Higgs Decay Frame
+
+	  // Helicity angle
+	  double helicityAngle = (rest_lead_p4->Vect()).Dot(higgsBoostVector.Mag())/(rest_lead_p4->Vect().Mag()*higgsBoostVector.Mag());
+
 	  //Alternative definition of background categories for QCD,GJET, requiring matching of gen
 	  //photons to reco photons (main background category definition, based on gen info only is defined in
 	  //PhotonAnalysis::SkimEvents)
@@ -404,6 +417,8 @@ void PhotonAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
           l.FillHist("pt",0, Higgs.Pt(), weight);
 	  l.FillHist("eta",0, Higgs.Eta(), weight);
+	  l.FillHist("decayAngle",0, decayAngle, weight);
+	  l.FillHist("helicityAngle",0, helicityAngle, weight);
           l.FillHist("pho1_pt",0,lead_p4.Pt(), weight);
           l.FillHist("pho2_pt",0,sublead_p4.Pt(), weight);
           l.FillHist("pho1_eta",0,lead_p4.Eta(), weight);
@@ -413,6 +428,8 @@ void PhotonAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
           l.FillHist("pt",dipho_category+1, Higgs.Pt(), weight);
 	  l.FillHist("eta",dipho_category+1, Higgs.Eta(), weight);
+	  l.FillHist("decayAngle",dipho_category+1, decayAngle, weight);
+	  l.FillHist("helicityAngle",dipho_category+1, helicityAngle, weight);
           l.FillHist("pho1_pt",dipho_category+1,lead_p4.Pt(), weight);
           l.FillHist("pho2_pt",dipho_category+1,sublead_p4.Pt(), weight);
           l.FillHist("pho1_eta",dipho_category+1,lead_p4.Eta(), weight);
