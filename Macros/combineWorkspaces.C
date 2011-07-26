@@ -14,8 +14,9 @@ using namespace RooFit;
 
 void setupContainer(RooContainer *rooContainer){
 
-    double intlumi_=1092.;
+    // All of the following should be The same as in StatAnalysis (and the dat file statanalysis.dat)
 
+    double intlumi_=1092.;
     int nDataBins=50;
     double massMin = 100.;
     double massMax = 150.;
@@ -109,51 +110,46 @@ void saveContainer(RooContainer *rooContainer){
 
 void combineRooWorkspaces(std::string outputFileName="CMS-HGG.root"){
 
+	gSystem->Load("../libLoopAll.so");
+
 	std::vector<std::string> combineFileNames;
 	std::vector<TFile*> combineFiles;
 
 	// This should be configurable, best way to do it?
-	combineFileNames.push_back("CMS-HGG_1092pb.root");
 	combineFileNames.push_back("CMS-HGG_1092pb_ff.root");
+	combineFileNames.push_back("CMS-HGG_1092pb.root");
 	// ---------------------------------------------------
-
-	for (std::vector<std::string>::iterator it_comb=combineFileNames.begin()
-	    ;it_comb!=combineFileNames.end()
-	    ;it_comb++){
-		TFile * tmpFile = new TFile((*it_comb).c_str());
-		combineFiles.push_back(tmpFile);
-	}
 
  	// For now we will just behave as though we only just created this guy 
 	// -> in the Future, can change this to use whats detected inside the file
 	// of move all configuration to some common .dat file
 
 	RooContainer *rooContainer = new RooContainer();
-	// Initialise the RooConainer ( This function should really just be the same 
-	// as whats in StatAnalysis::Init )
-
 	setupContainer(rooContainer);
-
+	
+	// Get names of objects inside RooContainer
+	std::vector<std::string> histogramNames = rooContainer->GetTH1FNames();
+	std::vector<std::string> datasetNames = rooContainer->GetDataSetNames();
+		
 	// Loop Over the files and get the relevant pieces to Merge:
-	
-	for (std::vector<TFile*>::iterator it_comb=combineFiles.begin()
-	    ;it_comb != combineFiles.end()
+	for (std::vector<std::string>::iterator it_comb=combineFileNames.begin()
+	    ;it_comb!=combineFileNames.end()
 	    ;it_comb++){
-	
-	
-		// get names of objects inside RooContainer
-		std::vector<std::string> histogramNames = rooContainer->GetTH1FNames();
+
+		TFile * tmpFile = new TFile((*it_comb).c_str());
+
+		std::cout << "Current File - " << (*it_comb) << std::endl;
+
 		for (std::vector<std::string>::iterator it_hist=histogramNames.begin()
 		    ;it_hist!=histogramNames.end()
 		    ;it_hist++) {
-
-			TH1F *histExtra = (TH1F*) (*it_comb)->Get(Form("th1f_%s",it_hist->c_str()));
+			
+			TH1F *histExtra = (TH1F*) tmpFile->Get(Form("th1f_%s",it_hist->c_str()));
 			rooContainer->AppendTH1F(*it_hist,histExtra);	
 		}
 		
-		RooWorkspace *work = (RooWorkspace*) (*it_comb)->Get("cms_hgg_workspace");
+		RooWorkspace *work = (RooWorkspace*) tmpFile->Get("cms_hgg_workspace");
 
-		std::vector<std::string> datasetNames = rooContainer->GetDataSetNames();
 		for (std::vector<std::string>::iterator it_data=datasetNames.begin()
 		    ;it_data!=datasetNames.end()
 		    ;it_data++) {
@@ -161,8 +157,8 @@ void combineRooWorkspaces(std::string outputFileName="CMS-HGG.root"){
 			RooDataSet *dataExtra = (RooDataSet*) work->data(Form("%s",it_data->c_str()));
 			rooContainer->AppendDataSet(*it_data,dataExtra);	
 		}
-	
-	
+		std::cout << "Finished Combining File - " << (*it_comb) << std::endl;
+		
         }
 
 	TFile *outPutFile = new TFile(outputFileName.c_str(),"RECREATE");
