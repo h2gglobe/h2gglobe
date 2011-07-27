@@ -362,7 +362,11 @@ void PhotonAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	  rest_sublead_p4->Boost(higgsBoostVector);    // sub-lead photon in Higgs Decay Frame
 
 	  // Helicity angle
-	  double helicityAngle = (rest_lead_p4->Vect()).Dot(higgsBoostVector.Mag())/(rest_lead_p4->Vect().Mag()*higgsBoostVector.Mag());
+	  double helicityAngle = (rest_lead_p4->Vect()).Dot(higgsBoostVector)/(rest_lead_p4->Vect().Mag()*higgsBoostVector.Mag());
+
+	  //Max eta
+	  float maxeta = lead_p4.Eta();
+	  if (fabs(sublead_p4.Eta())>fabs(lead_p4.Eta())) maxeta = sublead_p4.Eta();
 
 	  //Alternative definition of background categories for QCD,GJET, requiring matching of gen
 	  //photons to reco photons (main background category definition, based on gen info only is defined in
@@ -425,6 +429,7 @@ void PhotonAnalysis::Analysis(LoopAll& l, Int_t jentry)
           l.FillHist("pho2_eta",0,sublead_p4.Eta(), weight);
           l.FillHist("pho_r9",0,l.pho_r9[diphoton_index.first], weight);
           l.FillHist("pho_r9",0,l.pho_r9[diphoton_index.second], weight);
+          l.FillHist("maxeta",0,maxeta, weight);
 
           l.FillHist("pt",dipho_category+1, Higgs.Pt(), weight);
 	  l.FillHist("eta",dipho_category+1, Higgs.Eta(), weight);
@@ -436,7 +441,82 @@ void PhotonAnalysis::Analysis(LoopAll& l, Int_t jentry)
           l.FillHist("pho2_eta",dipho_category+1,sublead_p4.Eta(), weight);
           l.FillHist("pho_r9",leadpho_category+1,l.pho_r9[diphoton_index.first], weight);
           l.FillHist("pho_r9",subleadpho_category+1,l.pho_r9[diphoton_index.second], weight);
+          l.FillHist("maxeta",dipho_category+1,maxeta, weight);
 
+	  float mH = Higgs.M();
+	  if (mH<110) {
+	    l.FillHist("pt_mlow",0, Higgs.Pt(), weight);
+	    l.FillHist("eta_mlow",0, Higgs.Eta(), weight);
+	    l.FillHist("decayAngle_mlow",0, decayAngle, weight);
+	    l.FillHist("helicityAngle_mlow",0, helicityAngle, weight);
+	    l.FillHist("pho1_pt_mlow",0,lead_p4.Pt(), weight);
+	    l.FillHist("pho2_pt_mlow",0,sublead_p4.Pt(), weight);
+	    l.FillHist("pho1_eta_mlow",0,lead_p4.Eta(), weight);
+	    l.FillHist("pho2_eta_mlow",0,sublead_p4.Eta(), weight);
+	    l.FillHist("pho_r9_mlow",0,l.pho_r9[diphoton_index.first], weight);
+	    l.FillHist("pho_r9_mlow",0,l.pho_r9[diphoton_index.second], weight);
+	    l.FillHist("maxeta_mlow",0,maxeta, weight);
+
+	    l.FillHist("pt_mlow",dipho_category+1, Higgs.Pt(), weight);
+	    l.FillHist("eta_mlow",dipho_category+1, Higgs.Eta(), weight);
+	    l.FillHist("decayAngle_mlow",dipho_category+1, decayAngle, weight);
+	    l.FillHist("helicityAngle_mlow",dipho_category+1, helicityAngle, weight);
+	    l.FillHist("pho1_pt_mlow",dipho_category+1,lead_p4.Pt(), weight);
+	    l.FillHist("pho2_pt_mlow",dipho_category+1,sublead_p4.Pt(), weight);
+	    l.FillHist("pho1_eta_mlow",dipho_category+1,lead_p4.Eta(), weight);
+	    l.FillHist("pho2_eta_mlow",dipho_category+1,sublead_p4.Eta(), weight);
+	    l.FillHist("pho_r9_mlow",leadpho_category+1,l.pho_r9[diphoton_index.first], weight);
+	    l.FillHist("pho_r9_mlow",subleadpho_category+1,l.pho_r9[diphoton_index.second], weight);
+	    l.FillHist("maxeta_mlow",dipho_category+1,maxeta, weight);
+	  } else if (mH>126) {
+	    l.FillHist("pt_mhigh",0, Higgs.Pt(), weight);
+	    l.FillHist("eta_mhigh",0, Higgs.Eta(), weight);
+	    l.FillHist("decayAngle_mhigh",0, decayAngle, weight);
+	    l.FillHist("helicityAngle_mhigh",0, helicityAngle, weight);
+	    l.FillHist("pho1_pt_mhigh",0,lead_p4.Pt(), weight);
+	    l.FillHist("pho2_pt_mhigh",0,sublead_p4.Pt(), weight);
+	    l.FillHist("pho1_eta_mhigh",0,lead_p4.Eta(), weight);
+	    l.FillHist("pho2_eta_mhigh",0,sublead_p4.Eta(), weight);
+	    l.FillHist("pho_r9_mhigh",0,l.pho_r9[diphoton_index.first], weight);
+	    l.FillHist("pho_r9_mhigh",0,l.pho_r9[diphoton_index.second], weight);
+	    l.FillHist("maxeta_mhigh",0,maxeta, weight);
+
+	    l.FillHist("pt_mhigh",dipho_category+1, Higgs.Pt(), weight);
+	    l.FillHist("eta_mhigh",dipho_category+1, Higgs.Eta(), weight);
+	    l.FillHist("decayAngle_mhigh",dipho_category+1, decayAngle, weight);
+	    l.FillHist("helicityAngle_mhigh",dipho_category+1, helicityAngle, weight);
+	    l.FillHist("pho1_pt_mhigh",dipho_category+1,lead_p4.Pt(), weight);
+	    l.FillHist("pho2_pt_mhigh",dipho_category+1,sublead_p4.Pt(), weight);
+	    l.FillHist("pho1_eta_mhigh",dipho_category+1,lead_p4.Eta(), weight);
+	    l.FillHist("pho2_eta_mhigh",dipho_category+1,sublead_p4.Eta(), weight);
+	    l.FillHist("pho_r9_mhigh",leadpho_category+1,l.pho_r9[diphoton_index.first], weight);
+	    l.FillHist("pho_r9_mhigh",subleadpho_category+1,l.pho_r9[diphoton_index.second], weight);
+	    l.FillHist("maxeta_mhigh",dipho_category+1,maxeta, weight);
+	  } else {
+	    l.FillHist("pt_msig",0, Higgs.Pt(), weight);
+	    l.FillHist("eta_msig",0, Higgs.Eta(), weight);
+	    l.FillHist("decayAngle_msig",0, decayAngle, weight);
+	    l.FillHist("helicityAngle_msig",0, helicityAngle, weight);
+	    l.FillHist("pho1_pt_msig",0,lead_p4.Pt(), weight);
+	    l.FillHist("pho2_pt_msig",0,sublead_p4.Pt(), weight);
+	    l.FillHist("pho1_eta_msig",0,lead_p4.Eta(), weight);
+	    l.FillHist("pho2_eta_msig",0,sublead_p4.Eta(), weight);
+	    l.FillHist("pho_r9_msig",0,l.pho_r9[diphoton_index.first], weight);
+	    l.FillHist("pho_r9_msig",0,l.pho_r9[diphoton_index.second], weight);
+	    l.FillHist("maxeta_msig",0,maxeta, weight);
+
+	    l.FillHist("pt_msig",dipho_category+1, Higgs.Pt(), weight);
+	    l.FillHist("eta_msig",dipho_category+1, Higgs.Eta(), weight);
+	    l.FillHist("decayAngle_msig",dipho_category+1, decayAngle, weight);
+	    l.FillHist("helicityAngle_msig",dipho_category+1, helicityAngle, weight);
+	    l.FillHist("pho1_pt_msig",dipho_category+1,lead_p4.Pt(), weight);
+	    l.FillHist("pho2_pt_msig",dipho_category+1,sublead_p4.Pt(), weight);
+	    l.FillHist("pho1_eta_msig",dipho_category+1,lead_p4.Eta(), weight);
+	    l.FillHist("pho2_eta_msig",dipho_category+1,sublead_p4.Eta(), weight);
+	    l.FillHist("pho_r9_msig",leadpho_category+1,l.pho_r9[diphoton_index.first], weight);
+	    l.FillHist("pho_r9_msig",subleadpho_category+1,l.pho_r9[diphoton_index.second], weight);
+	    l.FillHist("maxeta_msig",dipho_category+1,maxeta, weight);
+	  }
         }
 
 	if(PADEBUG) 
