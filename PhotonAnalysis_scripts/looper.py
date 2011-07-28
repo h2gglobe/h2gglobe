@@ -13,8 +13,7 @@ ROOT.gSystem.Load("../libLoopAll.so");
 ROOT.gBenchmark.Start("Analysis");
 
 ut = ROOT.LoopAll();
-config_file="input:wq
-files.dat"
+config_file="inputfiles.dat"
 if options.inputDat:
     config_file = options.inputDat
 cfg = configProducer(ut,config_file,0,int(options.nJobs),int(options.jobId))
