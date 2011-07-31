@@ -19,11 +19,12 @@ class workspaceMerger {
 	~workspaceMerger(){};
 	void combineWorkspaces();
 	void addFile(std::string);
-	void saveContainer();
 	void cleanUp();
 
   private:
 	void setupContainer();
+	void saveContainer();
+        std::string outputfilename;
 	TFile *outPutFile;
 	std::vector<std::string> combineFileNames;
 	RooContainer *rooContainer;
@@ -31,6 +32,7 @@ class workspaceMerger {
 };
 
 workspaceMerger::workspaceMerger(std::string outputFileName){
+  outputfilename=outputFileName;
   outPutFile =  TFile::Open(outputFileName.c_str(),"RECREATE");
   outPutFile->cd();
   rooContainer = new RooContainer();
@@ -107,6 +109,16 @@ void workspaceMerger::setupContainer(){
     rooContainer->nsigmas = nSystSteps;
     rooContainer->sigmaRange = systRange;
 
+    std::vector<std::string> sys;
+    std::vector<int> sys_t(7,-1);	// Current analysis only has these constrained signal systematics
+    sys.push_back("E_scale");
+    sys.push_back("E_res");
+    sys.push_back("idEff");
+    sys.push_back("r9Eff");
+    sys.push_back("kFactor");
+    sys.push_back("vtxEff");
+    sys.push_back("triggerEff");
+    rooContainer->MakeSystematicStudy(sys,sys_t);
     // ----------------------------------------------------
     // ----------------------------------------------------
     // Global systematics - Lumi
@@ -180,6 +192,8 @@ void workspaceMerger::setupContainer(){
 void workspaceMerger::saveContainer(){
 
     rooContainer->FitToData("data_pol_model","data_mass");  // Fit to full range of dataset
+    rooContainer->WriteSpecificCategoryDataCards(outputfilename,"data_mass","sig_mass","data_pol_model");
+    rooContainer->WriteDataCard(outputfilename,"data_mass","sig_mass","data_pol_model");
     rooContainer->Save();
 
 }
