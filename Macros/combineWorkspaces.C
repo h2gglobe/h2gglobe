@@ -9,12 +9,90 @@
 #include "TH1F.h"
 #include "TFile.h"
 #include "string.h"
+#include <memory>
 
 using namespace RooFit;
 
-void setupContainer(RooContainer *rooContainer){
+class workspaceMerger {
+   public:	
+	workspaceMerger(std::string);
+	~workspaceMerger(){};
+	void combineWorkspaces();
+	void addFile(std::string);
+	void saveContainer();
+	void cleanUp();
 
-    // All of the following should be The same as in StatAnalysis (and the dat file statanalysis.dat)
+  private:
+	void setupContainer();
+	TFile *outPutFile;
+	std::vector<std::string> combineFileNames;
+	RooContainer *rooContainer;
+
+};
+
+workspaceMerger::workspaceMerger(std::string outputFileName){
+  outPutFile =  TFile::Open(outputFileName.c_str(),"RECREATE");
+  outPutFile->cd();
+  rooContainer = new RooContainer();
+  setupContainer();
+}
+
+void workspaceMerger::cleanUp(){
+  delete rooContainer;
+  gROOT->Reset();
+}
+	
+void workspaceMerger::combineWorkspaces(){
+	
+	// Get names of objects inside RooContainer
+	std::vector<std::string> histogramNames = rooContainer->GetTH1FNames();
+	std::vector<std::string> datasetNames = rooContainer->GetDataSetNames();
+		
+	// Loop Over the files and get the relevant pieces to Merge:
+	for (std::vector<std::string>::iterator it_comb=combineFileNames.begin()
+	    ;it_comb!=combineFileNames.end()
+	    ;it_comb++){
+
+		TFile *tmpFile = TFile::Open((*it_comb).c_str());
+		tmpFile->cd();
+		std::cout << "Combining Current File - " << (*it_comb) << std::endl;
+
+		for (std::vector<std::string>::iterator it_hist=histogramNames.begin()
+		    ;it_hist!=histogramNames.end()
+		    ;it_hist++) {
+			
+			TH1F *histExtra = (TH1F*) tmpFile->Get(Form("th1f_%s",it_hist->c_str()));
+			rooContainer->AppendTH1F(*it_hist,histExtra);	
+		}
+		
+		RooWorkspace *work = (RooWorkspace*) tmpFile->Get("cms_hgg_workspace");
+
+		for (std::vector<std::string>::iterator it_data=datasetNames.begin()
+		    ;it_data!=datasetNames.end()
+		    ;it_data++) {
+
+			RooDataSet *dataExtra = (RooDataSet*) work->data(Form("%s",it_data->c_str()));
+			rooContainer->AppendDataSet(*it_data,dataExtra);	
+		}
+
+		std::cout << "Finished Combining File - " << (*it_comb) << std::endl;
+		
+		tmpFile->Close();
+		//delete tmpFile;		
+		
+        }
+
+	outPutFile->cd();
+	saveContainer();	
+
+}
+void workspaceMerger::addFile(std::string newFileName){
+  combineFileNames.push_back(newFileName);
+}
+// FIXME - All of the following should be The same as in StatAnalysis (and the dat file statanalysis.dat)
+// Should make this function available so that the same is used by StatAnalysis and this class
+void workspaceMerger::setupContainer(){
+
 
     double intlumi_=1092.;
     int nDataBins=50;
@@ -36,13 +114,11 @@ void setupContainer(RooContainer *rooContainer){
     // ----------------------------------------------------
 
     // Create observables for shape-analysis with ranges
-    // l.rooContainer->AddObservable("mass" ,100.,150.);
     rooContainer->AddObservable("mass" ,massMin,massMax);
 
     rooContainer->AddConstant("IntLumi",intlumi_);
 
     // SM Model
-    //l.rooContainer->AddConstant("XSBR_105",0.0387684+0.00262016+0.003037036);
     rooContainer->AddConstant("XSBR_110",0.0390848+0.00275406+0.002902204);
     rooContainer->AddConstant("XSBR_115",0.0386169+0.00283716+0.002717667);
     rooContainer->AddConstant("XSBR_120",0.0374175+0.00285525+0.002286);
@@ -67,7 +143,7 @@ void setupContainer(RooContainer *rooContainer){
     data_pol_pars[1] = "modpol1";
     rooContainer->AddGenericPdf("data_pol_model",
 	  "0","mass",data_pol_pars,72);	// >= 71 means RooBernstein of order >= 1
-        
+    
     // -----------------------------------------------------
     // Make some data sets from the observables to fill in the event loop		  
     // Binning is for histograms (will also produce unbinned data sets)
@@ -101,77 +177,13 @@ void setupContainer(RooContainer *rooContainer){
     rooContainer->MakeSystematics("mass","sig_mass_m140",-1);	
 }
 
-void saveContainer(RooContainer *rooContainer){
+void workspaceMerger::saveContainer(){
 
     rooContainer->FitToData("data_pol_model","data_mass");  // Fit to full range of dataset
     rooContainer->Save();
 
 }
 
-void combineRooWorkspaces(std::string outputFileName="CMS-HGG.root"){
-
-	gSystem->Load("../libLoopAll.so");
-
-	std::vector<std::string> combineFileNames;
-	std::vector<TFile*> combineFiles;
-
-	// This should be configurable, best way to do it?
-	combineFileNames.push_back("CMS-HGG_1092pb_ff.root");
-	combineFileNames.push_back("CMS-HGG_1092pb.root");
-	// ---------------------------------------------------
-
- 	// For now we will just behave as though we only just created this guy 
-	// -> in the Future, can change this to use whats detected inside the file
-	// of move all configuration to some common .dat file
-
-	RooContainer *rooContainer = new RooContainer();
-	setupContainer(rooContainer);
-	
-	// Get names of objects inside RooContainer
-	std::vector<std::string> histogramNames = rooContainer->GetTH1FNames();
-	std::vector<std::string> datasetNames = rooContainer->GetDataSetNames();
-		
-	// Loop Over the files and get the relevant pieces to Merge:
-	for (std::vector<std::string>::iterator it_comb=combineFileNames.begin()
-	    ;it_comb!=combineFileNames.end()
-	    ;it_comb++){
-
-		TFile * tmpFile = new TFile((*it_comb).c_str());
-
-		std::cout << "Current File - " << (*it_comb) << std::endl;
-
-		for (std::vector<std::string>::iterator it_hist=histogramNames.begin()
-		    ;it_hist!=histogramNames.end()
-		    ;it_hist++) {
-			
-			TH1F *histExtra = (TH1F*) tmpFile->Get(Form("th1f_%s",it_hist->c_str()));
-			rooContainer->AppendTH1F(*it_hist,histExtra);	
-		}
-		
-		RooWorkspace *work = (RooWorkspace*) tmpFile->Get("cms_hgg_workspace");
-
-		for (std::vector<std::string>::iterator it_data=datasetNames.begin()
-		    ;it_data!=datasetNames.end()
-		    ;it_data++) {
-
-			RooDataSet *dataExtra = (RooDataSet*) work->data(Form("%s",it_data->c_str()));
-			rooContainer->AppendDataSet(*it_data,dataExtra);	
-		}
-		std::cout << "Finished Combining File - " << (*it_comb) << std::endl;
-		
-        }
-
-	TFile *outPutFile = new TFile(outputFileName.c_str(),"RECREATE");
-	outPutFile->cd();
-
-	saveContainer(rooContainer);	
-
-	outPutFile->Close();
-
-	delete rooContainer;
-	delete outPutFile;
-	
-}
 
 
 
