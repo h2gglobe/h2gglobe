@@ -7,7 +7,7 @@ from python.lumi import *
 import sys
 from python.runOptions import *
 (options,args)=parser.parse_args()
-if (options.nJobs > 0) and (options.jobId >= options.nJobs): 
+if (int(options.nJobs) > 0) and (int(options.jobId) >= int(options.nJobs)):
   sys.exit("Job id's must run from 0 -> %d when splitting into %d jobs"%(int(options.nJobs)-1,int(options.nJobs)))
 
 ROOT.gSystem.Load("libRooFit.so")
