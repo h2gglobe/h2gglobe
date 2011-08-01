@@ -138,8 +138,8 @@ class configProducer:
         
   def add_files(self):
     for t_f in self.conf_.files:
-      print t_f
-      self.ut_.AddFile(t_f[0],t_f[1])
+      if (t_f[0]):  # only adding files which aren't Null
+        self.ut_.AddFile(t_f[0],t_f[1])
       
   # File Parsers ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -464,17 +464,20 @@ class configProducer:
     if cas_directory != '':
       ca_files = makeCaFiles(cas_directory,self.njobs_,self.jobId_)
       for file_s in ca_files:
-        self.conf_.files.append((file_s,fi_type))
+	if file_s[1]:self.conf_.files.append((file_s[0],fi_type))
+	else	    :self.conf_.files.append((None,fi_type))
 
     if dcs_directory != '':
       dc_files = makeDcFiles(dcs_directory,self.njobs_,self.jobId_)
       for file_s in dc_files:
-        self.conf_.files.append((file_s,fi_type))
+	if file_s[1]:self.conf_.files.append((file_s[0],fi_type))
+	else	    :self.conf_.files.append((None,fi_type))
 
     if directory != '':
         files = makeFiles(directory,self.njobs_,self.jobId_)
         for file_s in files:
-            self.conf_.files.append((file_s,fi_type))
+	  if file_s[1]:self.conf_.files.append((file_s[0],fi_type))
+	  else	    :self.conf_.files.append((None,fi_type))
 
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def read_input_files_loop(self,line):
@@ -537,10 +540,11 @@ class configProducer:
       self.nf_[0]+=1
       if not ( (self.njobs_>0) and (self.nf_[0] % self.njobs_ != self.jobId_) ):
         self.conf_.files.append(tuple_n)
-        if fi_type!=0 and map_c["tot"] == -1:
-          map_c["tot"] = getTreeEntry(fi_name,"global_variables","processedEvents");
-	  map_c["addnevents"] = int(1)
-        self.conf_.confs.append(map_c.copy())
+      else: self.conf_.files.append((None,fi_type));
+      if fi_type!=0 and map_c["tot"] == -1:
+        map_c["tot"] = getTreeEntry(fi_name,"global_variables","processedEvents");
+	map_c["addnevents"] = int(1)
+      self.conf_.confs.append(map_c.copy())
 
     mkFiles = None
     dir = None
@@ -559,9 +563,10 @@ class configProducer:
       if fi_type!=0 and map_c["tot"] == -1:
           allfiles = mkFiles(dir,-1,-1)
           for file_s in allfiles:
-              map_c["tot"] = map_c["tot"] + getTreeEntry(file_s,"global_variables","processedEvents")
+              map_c["tot"] = map_c["tot"] + getTreeEntry(file_s[0],"global_variables","processedEvents")
       for file_s in files:
-          self.conf_.files.append((file_s,fi_type))
+	  if file_s[1]: self.conf_.files.append((file_s[0],fi_type))
+	  else:      self.conf_.files.append((None,fi_type))
           self.conf_.confs.append(map_c.copy())
 
           

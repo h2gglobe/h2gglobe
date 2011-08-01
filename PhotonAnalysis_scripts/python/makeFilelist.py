@@ -14,8 +14,9 @@ def makeCaFiles(dir,njobs=-1,jobid=0,nf=[0]):
          if '.root' in f:
             nf[0] += 1
             if (njobs > 0) and (nf[0] % njobs != jobid):
-               continue
-            return_files.append('rfio://'+dir+'/'+f)
+               return_files.append(('rfio://'+dir+'/'+fi,False))
+	    else:
+               return_files.append(('rfio://'+dir+'/'+fi,True))
             
    else:
       sys.exit("No Such Directory: %s"%(dir))
@@ -44,8 +45,9 @@ def makeDcFiles(dir,njobs=-1,jobid=0,nf=[0]):
          if '.root' in f:
             nf[0] += 1
             if (njobs > 0) and (nf[0] % njobs != jobid):
-               continue
-            return_files.append(dcache_prepend+dir+'/'+f)
+               return_files.append((dcache_prepend+dir+'/'+f,False))
+	    else:
+               return_files.append((dcache_prepend+dir+'/'+f,True))
 
    else:
       sys.exit("No Such Directory: %s"%(dir))
@@ -66,8 +68,9 @@ def makeFiles(dir,njobs=-1,jobid=0,nf=[0]):
          if '.root' in f:
             nf[0] += 1
             if (njobs > 0) and (nf[0] % njobs != jobid):
-               continue
-            return_files.append(dir+'/'+f)
+               return_files.append((dir+'/'+f,False))
+	    else:
+               return_files.append((dir+'/'+f,True))
    else: sys.exit("No Such Directory as %s"%dir)  
 
    if nf[0]==0: sys.exit("No .root Files found in directory - %s"%dir)
