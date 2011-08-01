@@ -4,6 +4,8 @@ import ROOT
 from python.configProducer import *
 from python.runOptions import *
 (options,args)=parser.parse_args()
+if (optins.nJobs > 0) and (options.jobId >= options.nJobs): 
+  sys.exit("Job id's must run from 0 -> %d when splitting into %d jobs"%(int(options.nJobs)-1,int(options.nJobs)))
 
 ROOT.gSystem.Load("libPhysics.so");
 ROOT.gSystem.Load("libCore.so");

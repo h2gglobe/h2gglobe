@@ -49,6 +49,7 @@ class configProducer:
 
     self.njobs_ = njobs
     self.jobId_ = jobId
+    self.nf_ 	= [0]
 
     self.conf_filename = str(conf_filename)
     self.lines_ = []
@@ -533,11 +534,13 @@ class configProducer:
       if not fi_name.startswith("rfio") and not os.path.isfile(fi_name): 
         sys.exit("No Input File Named: %s"%fi_name)
       tuple_n = fi_name, fi_type
-      self.conf_.files.append(tuple_n)
-      if fi_type!=0 and map_c["tot"] == -1:
-        map_c["tot"] = getTreeEntry(fi_name,"global_variables","processedEvents");
-	map_c["addnevents"] = int(1)
-      self.conf_.confs.append(map_c.copy())
+      self.nf_[0]+=1
+      if not ( (self.njobs_>0) and (self.nf_[0] % self.njobs_ != self.jobId_) ):
+        self.conf_.files.append(tuple_n)
+        if fi_type!=0 and map_c["tot"] == -1:
+          map_c["tot"] = getTreeEntry(fi_name,"global_variables","processedEvents");
+	  map_c["addnevents"] = int(1)
+        self.conf_.confs.append(map_c.copy())
 
     mkFiles = None
     dir = None
@@ -552,7 +555,7 @@ class configProducer:
         dir = directory  
         
     if dir:
-      files = mkFiles(dir,self.njobs_,self.jobId_)
+      files = mkFiles(dir,self.njobs_,self.jobId_,self.nf_)
       if fi_type!=0 and map_c["tot"] == -1:
           allfiles = mkFiles(dir,-1,-1)
           for file_s in allfiles:
