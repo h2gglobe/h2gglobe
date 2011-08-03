@@ -23,6 +23,6 @@ else
     fi
 fi
 
-storedir=${storedir}/${version}
+storedir=${base_storedir}/${version}
 
 [[ ! -d ${storedir} ]] && mkdir $storedir
