@@ -351,9 +351,6 @@ void PhotonAnalysis::Analysis(LoopAll& l, Int_t jentry)
           //// TLorentzVector *sublead_p4 = (TLorentzVector*)l.pho_p4->At(diphoton_index.second);
           //// TLorentzVector Higgs = *lead_p4 + *sublead_p4;
 
-	  // Decay Angle
-	  double decayAngle  = l.DeltaPhi(lead_p4.Phi(),sublead_p4.Phi());
-
 	  // Calculate the Rest Frame Quantities:
 	  TLorentzVector *rest_lead_p4 = (TLorentzVector*) lead_p4.Clone();
 	  TLorentzVector *rest_sublead_p4 = (TLorentzVector*) sublead_p4.Clone();
@@ -361,13 +358,15 @@ void PhotonAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	  rest_lead_p4->Boost(higgsBoostVector);        // lead photon in Higgs Decay Frame
 	  rest_sublead_p4->Boost(higgsBoostVector);    // sub-lead photon in Higgs Decay Frame
 
-	  // Helicity angle
-	  double helicityAngle = (rest_lead_p4->Vect()).Dot(higgsBoostVector)/(rest_lead_p4->Vect().Mag()*higgsBoostVector.Mag());
-
-	  //Max eta
+	  // Calculate variables to be filled
+	  float decayAngle  = l.DeltaPhi(lead_p4.Phi(),sublead_p4.Phi());
+	  float helicityAngle = fabs(lead_p4.E()-sublead_p4.E())/Higgs.P();
 	  float maxeta = lead_p4.Eta();
 	  if (fabs(sublead_p4.Eta())>fabs(lead_p4.Eta())) maxeta = sublead_p4.Eta();
+	  float HT = lead_p4.Pt() + sublead_p4.Pt();
+	  float mH = Higgs.M();
 
+	  /*
 	  //Alternative definition of background categories for QCD,GJET, requiring matching of gen
 	  //photons to reco photons (main background category definition, based on gen info only is defined in
 	  //PhotonAnalysis::SkimEvents)
@@ -401,6 +400,7 @@ void PhotonAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	      bkgCat = fakefake;
 	    }
           }
+	  */
 
 	  //Fill histograms according to diphoton or single photon category, as appropriate
 
@@ -419,103 +419,141 @@ void PhotonAnalysis::Analysis(LoopAll& l, Int_t jentry)
             l.FillHist("mass",dipho_category+1, Higgs.M(), weight);
           }
 
+	  //Only fill histograms for QCD and GJet if bkgCat is not promptprompt
+	  //if ((l.itype[l.current]==1 || l.itype[l.current]==2 || l.itype[l.current]==3) && bkgCat==promptprompt) return;
+
           l.FillHist("pt",0, Higgs.Pt(), weight);
+          l.FillHist("ptOverM",0, Higgs.Pt()/Higgs.M(), weight);
 	  l.FillHist("eta",0, Higgs.Eta(), weight);
 	  l.FillHist("decayAngle",0, decayAngle, weight);
 	  l.FillHist("helicityAngle",0, helicityAngle, weight);
           l.FillHist("pho1_pt",0,lead_p4.Pt(), weight);
           l.FillHist("pho2_pt",0,sublead_p4.Pt(), weight);
+          l.FillHist("pho1_ptOverM",0,lead_p4.Pt()/Higgs.M(), weight);
+          l.FillHist("pho2_ptOverM",0,sublead_p4.Pt()/Higgs.M(), weight);
           l.FillHist("pho1_eta",0,lead_p4.Eta(), weight);
           l.FillHist("pho2_eta",0,sublead_p4.Eta(), weight);
           l.FillHist("pho_r9",0,l.pho_r9[diphoton_index.first], weight);
           l.FillHist("pho_r9",0,l.pho_r9[diphoton_index.second], weight);
           l.FillHist("maxeta",0,maxeta, weight);
+          l.FillHist("ht",0, HT, weight);
+          l.FillHist2D("ht_vs_m",0, HT, mH, weight);
 
           l.FillHist("pt",dipho_category+1, Higgs.Pt(), weight);
+          l.FillHist("ptOverM",dipho_category+1, Higgs.Pt()/Higgs.M(), weight);
 	  l.FillHist("eta",dipho_category+1, Higgs.Eta(), weight);
 	  l.FillHist("decayAngle",dipho_category+1, decayAngle, weight);
 	  l.FillHist("helicityAngle",dipho_category+1, helicityAngle, weight);
           l.FillHist("pho1_pt",dipho_category+1,lead_p4.Pt(), weight);
           l.FillHist("pho2_pt",dipho_category+1,sublead_p4.Pt(), weight);
+          l.FillHist("pho1_ptOverM",dipho_category+1,lead_p4.Pt()/Higgs.M(), weight);
+          l.FillHist("pho2_ptOverM",dipho_category+1,sublead_p4.Pt()/Higgs.M(), weight);
           l.FillHist("pho1_eta",dipho_category+1,lead_p4.Eta(), weight);
           l.FillHist("pho2_eta",dipho_category+1,sublead_p4.Eta(), weight);
-          l.FillHist("pho_r9",leadpho_category+1,l.pho_r9[diphoton_index.first], weight);
-          l.FillHist("pho_r9",subleadpho_category+1,l.pho_r9[diphoton_index.second], weight);
+          l.FillHist("pho_r9",dipho_category+1,l.pho_r9[diphoton_index.first], weight);
+          l.FillHist("pho_r9",dipho_category+1,l.pho_r9[diphoton_index.second], weight);
           l.FillHist("maxeta",dipho_category+1,maxeta, weight);
+          l.FillHist("ht",dipho_category+1, HT, weight);
+          l.FillHist2D("ht_vs_m",dipho_category+1, mH, HT, weight);
 
-	  float mH = Higgs.M();
-	  if (mH<110) {
+	  //Fill separately for low and high mass sidebands
+
+	  if (mH>100 && mH<110) {
 	    l.FillHist("pt_mlow",0, Higgs.Pt(), weight);
+	    l.FillHist("ptOverM_mlow",0, Higgs.Pt()/Higgs.M(), weight);
 	    l.FillHist("eta_mlow",0, Higgs.Eta(), weight);
 	    l.FillHist("decayAngle_mlow",0, decayAngle, weight);
-	    l.FillHist("helicityAngle_mlow",0, helicityAngle, weight);
-	    l.FillHist("pho1_pt_mlow",0,lead_p4.Pt(), weight);
-	    l.FillHist("pho2_pt_mlow",0,sublead_p4.Pt(), weight);
+	    l.FillHist("helicityAngle_mlow",0, helicityAngle*R_low, weight);
+	    l.FillHist("pho1_pt_mlow",0,lead_p4.Pt()*R_low, weight);
+	    l.FillHist("pho2_pt_mlow",0,sublead_p4.Pt()*R_low, weight);
+	    l.FillHist("pho1_ptOverM_mlow",0,lead_p4.Pt()/Higgs.M(), weight);
+	    l.FillHist("pho2_ptOverM_mlow",0,sublead_p4.Pt()/Higgs.M(), weight);
 	    l.FillHist("pho1_eta_mlow",0,lead_p4.Eta(), weight);
 	    l.FillHist("pho2_eta_mlow",0,sublead_p4.Eta(), weight);
 	    l.FillHist("pho_r9_mlow",0,l.pho_r9[diphoton_index.first], weight);
 	    l.FillHist("pho_r9_mlow",0,l.pho_r9[diphoton_index.second], weight);
 	    l.FillHist("maxeta_mlow",0,maxeta, weight);
+	    l.FillHist("ht_mlow",0, HT, weight);
 
 	    l.FillHist("pt_mlow",dipho_category+1, Higgs.Pt(), weight);
+	    l.FillHist("ptOverM_mlow",dipho_category+1, Higgs.Pt()/Higgs.M(), weight);
 	    l.FillHist("eta_mlow",dipho_category+1, Higgs.Eta(), weight);
 	    l.FillHist("decayAngle_mlow",dipho_category+1, decayAngle, weight);
-	    l.FillHist("helicityAngle_mlow",dipho_category+1, helicityAngle, weight);
-	    l.FillHist("pho1_pt_mlow",dipho_category+1,lead_p4.Pt(), weight);
-	    l.FillHist("pho2_pt_mlow",dipho_category+1,sublead_p4.Pt(), weight);
+	    l.FillHist("helicityAngle_mlow",dipho_category+1, helicityAngle*R_low, weight);
+	    l.FillHist("pho1_pt_mlow",dipho_category+1,lead_p4.Pt()*R_low, weight);
+	    l.FillHist("pho2_pt_mlow",dipho_category+1,sublead_p4.Pt()*R_low, weight);
+	    l.FillHist("pho1_ptOverM_mlow",dipho_category+1,lead_p4.Pt()/Higgs.M(), weight);
+	    l.FillHist("pho2_ptOverM_mlow",dipho_category+1,sublead_p4.Pt()/Higgs.M(), weight);
 	    l.FillHist("pho1_eta_mlow",dipho_category+1,lead_p4.Eta(), weight);
 	    l.FillHist("pho2_eta_mlow",dipho_category+1,sublead_p4.Eta(), weight);
-	    l.FillHist("pho_r9_mlow",leadpho_category+1,l.pho_r9[diphoton_index.first], weight);
-	    l.FillHist("pho_r9_mlow",subleadpho_category+1,l.pho_r9[diphoton_index.second], weight);
+	    l.FillHist("pho_r9_mlow",dipho_category+1,l.pho_r9[diphoton_index.first], weight);
+	    l.FillHist("pho_r9_mlow",dipho_category+1,l.pho_r9[diphoton_index.second], weight);
 	    l.FillHist("maxeta_mlow",dipho_category+1,maxeta, weight);
-	  } else if (mH>126) {
+	    l.FillHist("ht_mlow",dipho_category+1, HT, weight);
+	  } else if (mH>126 && mH<145) {
 	    l.FillHist("pt_mhigh",0, Higgs.Pt(), weight);
+	    l.FillHist("ptOverM_mhigh",0, Higgs.Pt()/Higgs.M(), weight);
 	    l.FillHist("eta_mhigh",0, Higgs.Eta(), weight);
 	    l.FillHist("decayAngle_mhigh",0, decayAngle, weight);
-	    l.FillHist("helicityAngle_mhigh",0, helicityAngle, weight);
-	    l.FillHist("pho1_pt_mhigh",0,lead_p4.Pt(), weight);
-	    l.FillHist("pho2_pt_mhigh",0,sublead_p4.Pt(), weight);
+	    l.FillHist("helicityAngle_mhigh",0, helicityAngle*R_high, weight);
+	    l.FillHist("pho1_pt_mhigh",0,lead_p4.Pt()*R_high, weight);
+	    l.FillHist("pho2_pt_mhigh",0,sublead_p4.Pt()*R_high, weight);
+	    l.FillHist("pho1_ptOverM_mhigh",0,lead_p4.Pt()/Higgs.M(), weight);
+	    l.FillHist("pho2_ptOverM_mhigh",0,sublead_p4.Pt()/Higgs.M(), weight);
 	    l.FillHist("pho1_eta_mhigh",0,lead_p4.Eta(), weight);
 	    l.FillHist("pho2_eta_mhigh",0,sublead_p4.Eta(), weight);
 	    l.FillHist("pho_r9_mhigh",0,l.pho_r9[diphoton_index.first], weight);
 	    l.FillHist("pho_r9_mhigh",0,l.pho_r9[diphoton_index.second], weight);
 	    l.FillHist("maxeta_mhigh",0,maxeta, weight);
+	    l.FillHist("ht_mhigh",0, HT, weight);
 
 	    l.FillHist("pt_mhigh",dipho_category+1, Higgs.Pt(), weight);
+	    l.FillHist("ptOverM_mhigh",dipho_category+1, Higgs.Pt()/Higgs.M(), weight);
 	    l.FillHist("eta_mhigh",dipho_category+1, Higgs.Eta(), weight);
 	    l.FillHist("decayAngle_mhigh",dipho_category+1, decayAngle, weight);
 	    l.FillHist("helicityAngle_mhigh",dipho_category+1, helicityAngle, weight);
 	    l.FillHist("pho1_pt_mhigh",dipho_category+1,lead_p4.Pt(), weight);
 	    l.FillHist("pho2_pt_mhigh",dipho_category+1,sublead_p4.Pt(), weight);
+	    l.FillHist("pho1_ptOverM_mhigh",dipho_category+1,lead_p4.Pt()/Higgs.M(), weight);
+	    l.FillHist("pho2_ptOverM_mhigh",dipho_category+1,sublead_p4.Pt()/Higgs.M(), weight);
 	    l.FillHist("pho1_eta_mhigh",dipho_category+1,lead_p4.Eta(), weight);
 	    l.FillHist("pho2_eta_mhigh",dipho_category+1,sublead_p4.Eta(), weight);
-	    l.FillHist("pho_r9_mhigh",leadpho_category+1,l.pho_r9[diphoton_index.first], weight);
-	    l.FillHist("pho_r9_mhigh",subleadpho_category+1,l.pho_r9[diphoton_index.second], weight);
+	    l.FillHist("pho_r9_mhigh",dipho_category+1,l.pho_r9[diphoton_index.first], weight);
+	    l.FillHist("pho_r9_mhigh",dipho_category+1,l.pho_r9[diphoton_index.second], weight);
 	    l.FillHist("maxeta_mhigh",dipho_category+1,maxeta, weight);
-	  } else {
+	    l.FillHist("ht_mhigh",dipho_category+1, HT, weight);
+	  } else if (mH>=110 && mH<=126) {
 	    l.FillHist("pt_msig",0, Higgs.Pt(), weight);
+	    l.FillHist("ptOverM_msig",0, Higgs.Pt()/Higgs.M(), weight);
 	    l.FillHist("eta_msig",0, Higgs.Eta(), weight);
 	    l.FillHist("decayAngle_msig",0, decayAngle, weight);
 	    l.FillHist("helicityAngle_msig",0, helicityAngle, weight);
 	    l.FillHist("pho1_pt_msig",0,lead_p4.Pt(), weight);
 	    l.FillHist("pho2_pt_msig",0,sublead_p4.Pt(), weight);
+	    l.FillHist("pho1_ptOverM_msig",0,lead_p4.Pt()/Higgs.M(), weight);
+	    l.FillHist("pho2_ptOverM_msig",0,sublead_p4.Pt()/Higgs.M(), weight);
 	    l.FillHist("pho1_eta_msig",0,lead_p4.Eta(), weight);
 	    l.FillHist("pho2_eta_msig",0,sublead_p4.Eta(), weight);
 	    l.FillHist("pho_r9_msig",0,l.pho_r9[diphoton_index.first], weight);
 	    l.FillHist("pho_r9_msig",0,l.pho_r9[diphoton_index.second], weight);
 	    l.FillHist("maxeta_msig",0,maxeta, weight);
+	    l.FillHist("ht_msig",0, HT, weight);
 
 	    l.FillHist("pt_msig",dipho_category+1, Higgs.Pt(), weight);
+	    l.FillHist("ptOverM_msig",dipho_category+1, Higgs.Pt()/Higgs.M(), weight);
 	    l.FillHist("eta_msig",dipho_category+1, Higgs.Eta(), weight);
 	    l.FillHist("decayAngle_msig",dipho_category+1, decayAngle, weight);
 	    l.FillHist("helicityAngle_msig",dipho_category+1, helicityAngle, weight);
 	    l.FillHist("pho1_pt_msig",dipho_category+1,lead_p4.Pt(), weight);
 	    l.FillHist("pho2_pt_msig",dipho_category+1,sublead_p4.Pt(), weight);
+	    l.FillHist("pho1_ptOverM_msig",dipho_category+1,lead_p4.Pt()/Higgs.M(), weight);
+	    l.FillHist("pho2_ptOverM_msig",dipho_category+1,sublead_p4.Pt()/Higgs.M(), weight);
 	    l.FillHist("pho1_eta_msig",dipho_category+1,lead_p4.Eta(), weight);
 	    l.FillHist("pho2_eta_msig",dipho_category+1,sublead_p4.Eta(), weight);
-	    l.FillHist("pho_r9_msig",leadpho_category+1,l.pho_r9[diphoton_index.first], weight);
-	    l.FillHist("pho_r9_msig",subleadpho_category+1,l.pho_r9[diphoton_index.second], weight);
+	    l.FillHist("pho_r9_msig",dipho_category+1,l.pho_r9[diphoton_index.first], weight);
+	    l.FillHist("pho_r9_msig",dipho_category+1,l.pho_r9[diphoton_index.second], weight);
 	    l.FillHist("maxeta_msig",dipho_category+1,maxeta, weight);
+	    l.FillHist("ht_msig",dipho_category+1, HT, weight);
 	  }
         }
 
