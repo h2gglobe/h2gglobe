@@ -456,16 +456,18 @@ void PhotonAnalysis::Analysis(LoopAll& l, Int_t jentry)
           l.FillHist("ht",dipho_category+1, HT, weight);
           l.FillHist2D("ht_vs_m",dipho_category+1, mH, HT, weight);
 
-	  //Fill separately for low and high mass sidebands
+	  //Fill separately for low and high mass sidebands and for signal region
 
 	  if (mH>100 && mH<110) {
 	    l.FillHist("pt_mlow",0, Higgs.Pt(), weight);
 	    l.FillHist("ptOverM_mlow",0, Higgs.Pt()/Higgs.M(), weight);
 	    l.FillHist("eta_mlow",0, Higgs.Eta(), weight);
 	    l.FillHist("decayAngle_mlow",0, decayAngle, weight);
-	    l.FillHist("helicityAngle_mlow",0, helicityAngle*R_low, weight);
-	    l.FillHist("pho1_pt_mlow",0,lead_p4.Pt()*R_low, weight);
-	    l.FillHist("pho2_pt_mlow",0,sublead_p4.Pt()*R_low, weight);
+	    l.FillHist("helicityAngle_mlow",0, helicityAngle, weight);
+	    l.FillHist("pho1_pt_mlow",0,lead_p4.Pt(), weight);
+	    l.FillHist("pho2_pt_mlow",0,sublead_p4.Pt(), weight);
+	    //l.FillHist("pho1_pt_mlow",0,lead_p4.Pt()*R_low, weight);
+	    //l.FillHist("pho2_pt_mlow",0,sublead_p4.Pt()*R_low, weight);
 	    l.FillHist("pho1_ptOverM_mlow",0,lead_p4.Pt()/Higgs.M(), weight);
 	    l.FillHist("pho2_ptOverM_mlow",0,sublead_p4.Pt()/Higgs.M(), weight);
 	    l.FillHist("pho1_eta_mlow",0,lead_p4.Eta(), weight);
@@ -479,9 +481,9 @@ void PhotonAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	    l.FillHist("ptOverM_mlow",dipho_category+1, Higgs.Pt()/Higgs.M(), weight);
 	    l.FillHist("eta_mlow",dipho_category+1, Higgs.Eta(), weight);
 	    l.FillHist("decayAngle_mlow",dipho_category+1, decayAngle, weight);
-	    l.FillHist("helicityAngle_mlow",dipho_category+1, helicityAngle*R_low, weight);
-	    l.FillHist("pho1_pt_mlow",dipho_category+1,lead_p4.Pt()*R_low, weight);
-	    l.FillHist("pho2_pt_mlow",dipho_category+1,sublead_p4.Pt()*R_low, weight);
+	    l.FillHist("helicityAngle_mlow",dipho_category+1, helicityAngle, weight);
+	    l.FillHist("pho1_pt_mlow",dipho_category+1,lead_p4.Pt(), weight);
+	    l.FillHist("pho2_pt_mlow",dipho_category+1,sublead_p4.Pt(), weight);
 	    l.FillHist("pho1_ptOverM_mlow",dipho_category+1,lead_p4.Pt()/Higgs.M(), weight);
 	    l.FillHist("pho2_ptOverM_mlow",dipho_category+1,sublead_p4.Pt()/Higgs.M(), weight);
 	    l.FillHist("pho1_eta_mlow",dipho_category+1,lead_p4.Eta(), weight);
@@ -495,9 +497,11 @@ void PhotonAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	    l.FillHist("ptOverM_mhigh",0, Higgs.Pt()/Higgs.M(), weight);
 	    l.FillHist("eta_mhigh",0, Higgs.Eta(), weight);
 	    l.FillHist("decayAngle_mhigh",0, decayAngle, weight);
-	    l.FillHist("helicityAngle_mhigh",0, helicityAngle*R_high, weight);
-	    l.FillHist("pho1_pt_mhigh",0,lead_p4.Pt()*R_high, weight);
-	    l.FillHist("pho2_pt_mhigh",0,sublead_p4.Pt()*R_high, weight);
+	    l.FillHist("helicityAngle_mhigh",0, helicityAngle, weight);
+	    l.FillHist("pho1_pt_mhigh",0,lead_p4.Pt(), weight);
+	    l.FillHist("pho2_pt_mhigh",0,sublead_p4.Pt(), weight);
+	    //l.FillHist("pho1_pt_mhigh",0,lead_p4.Pt()*R_high, weight);
+	    //l.FillHist("pho2_pt_mhigh",0,sublead_p4.Pt()*R_high, weight);
 	    l.FillHist("pho1_ptOverM_mhigh",0,lead_p4.Pt()/Higgs.M(), weight);
 	    l.FillHist("pho2_ptOverM_mhigh",0,sublead_p4.Pt()/Higgs.M(), weight);
 	    l.FillHist("pho1_eta_mhigh",0,lead_p4.Eta(), weight);
