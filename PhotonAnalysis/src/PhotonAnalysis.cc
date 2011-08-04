@@ -407,7 +407,7 @@ void PhotonAnalysis::Analysis(LoopAll& l, Int_t jentry)
           int dipho_category = l.DiphotonCategory(diphoton_index.first, diphoton_index.second, Higgs.Pt(), 2, 2, 2);
           int leadpho_category = l.PhotonCategory(diphoton_index.first, 2, 2);
           int subleadpho_category = l.PhotonCategory(diphoton_index.second, 2, 2);
-
+/*
           if (bkgCat == promptfake) {
             l.FillHist("mass_pf",0, Higgs.M(), weight);
             l.FillHist("mass_pf",dipho_category+1, Higgs.M(), weight);
@@ -418,7 +418,7 @@ void PhotonAnalysis::Analysis(LoopAll& l, Int_t jentry)
             l.FillHist("mass",0, Higgs.M(), weight);
             l.FillHist("mass",dipho_category+1, Higgs.M(), weight);
           }
-
+*/
 	  //Only fill histograms for QCD and GJet if bkgCat is not promptprompt
 	  //if ((l.itype[l.current]==1 || l.itype[l.current]==2 || l.itype[l.current]==3) && bkgCat==promptprompt) return;
 
