@@ -126,7 +126,7 @@ void workspaceMerger::setupContainer(){
     // ----------------------------------------------------
 
     // Create observables for shape-analysis with ranges
-    rooContainer->AddObservable("mass" ,massMin,massMax);
+    rooContainer->AddObservable("CMS_hgg_mass" ,massMin,massMax);
 
     rooContainer->AddConstant("IntLumi",intlumi_);
 
@@ -154,39 +154,39 @@ void workspaceMerger::setupContainer(){
     data_pol_pars[0] = "modpol0";
     data_pol_pars[1] = "modpol1";
     rooContainer->AddGenericPdf("data_pol_model",
-	  "0","mass",data_pol_pars,72);	// >= 71 means RooBernstein of order >= 1
+	  "0","CMS_hgg_mass",data_pol_pars,72);	// >= 71 means RooBernstein of order >= 1
     
     // -----------------------------------------------------
     // Make some data sets from the observables to fill in the event loop		  
     // Binning is for histograms (will also produce unbinned data sets)
-    rooContainer->CreateDataSet("mass","data_mass"    ,nDataBins); // (100,110,150) -> for a window, else full obs range is taken 
-    rooContainer->CreateDataSet("mass","bkg_mass"     ,nDataBins);    	  	
-    rooContainer->CreateDataSet("mass","sig_mass_m105",nDataBins);    
-    rooContainer->CreateDataSet("mass","sig_mass_m110",nDataBins);    
-    rooContainer->CreateDataSet("mass","sig_mass_m115",nDataBins);    
-    rooContainer->CreateDataSet("mass","sig_mass_m120",nDataBins);    
-    rooContainer->CreateDataSet("mass","sig_mass_m130",nDataBins);    
-    rooContainer->CreateDataSet("mass","sig_mass_m140",nDataBins);    
-    rooContainer->CreateDataSet("mass","sig_mass_rv_m105",nDataBins);    
-    rooContainer->CreateDataSet("mass","sig_mass_rv_m110",nDataBins);    
-    rooContainer->CreateDataSet("mass","sig_mass_rv_m115",nDataBins);    
-    rooContainer->CreateDataSet("mass","sig_mass_rv_m120",nDataBins);    
-    rooContainer->CreateDataSet("mass","sig_mass_rv_m130",nDataBins);    
-    rooContainer->CreateDataSet("mass","sig_mass_rv_m140",nDataBins);    
-    rooContainer->CreateDataSet("mass","sig_mass_wv_m105",nDataBins);    
-    rooContainer->CreateDataSet("mass","sig_mass_wv_m110",nDataBins);    
-    rooContainer->CreateDataSet("mass","sig_mass_wv_m115",nDataBins);    
-    rooContainer->CreateDataSet("mass","sig_mass_wv_m120",nDataBins);    
-    rooContainer->CreateDataSet("mass","sig_mass_wv_m130",nDataBins);    
-    rooContainer->CreateDataSet("mass","sig_mass_wv_m140",nDataBins);    
+    rooContainer->CreateDataSet("CMS_hgg_mass","data_mass"    ,nDataBins); // (100,110,150) -> for a window, else full obs range is taken 
+    rooContainer->CreateDataSet("CMS_hgg_mass","bkg_mass"     ,nDataBins);    	  	
+    rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_m105",nDataBins);    
+    rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_m110",nDataBins);    
+    rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_m115",nDataBins);    
+    rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_m120",nDataBins);    
+    rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_m130",nDataBins);    
+    rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_m140",nDataBins);    
+    rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_rv_m105",nDataBins);    
+    rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_rv_m110",nDataBins);    
+    rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_rv_m115",nDataBins);    
+    rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_rv_m120",nDataBins);    
+    rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_rv_m130",nDataBins);    
+    rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_rv_m140",nDataBins);    
+    rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_wv_m105",nDataBins);    
+    rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_wv_m110",nDataBins);    
+    rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_wv_m115",nDataBins);    
+    rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_wv_m120",nDataBins);    
+    rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_wv_m130",nDataBins);    
+    rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_wv_m140",nDataBins);    
 
     // Make more data sets to represent systematic shitfs , 
-    rooContainer->MakeSystematics("mass","sig_mass_m105",-1);	
-    rooContainer->MakeSystematics("mass","sig_mass_m110",-1);	
-    rooContainer->MakeSystematics("mass","sig_mass_m115",-1);	
-    rooContainer->MakeSystematics("mass","sig_mass_m120",-1);	
-    rooContainer->MakeSystematics("mass","sig_mass_m130",-1);	
-    rooContainer->MakeSystematics("mass","sig_mass_m140",-1);	
+    rooContainer->MakeSystematics("CMS_hgg_mass","sig_mass_m105",-1);	
+    rooContainer->MakeSystematics("CMS_hgg_mass","sig_mass_m110",-1);	
+    rooContainer->MakeSystematics("CMS_hgg_mass","sig_mass_m115",-1);	
+    rooContainer->MakeSystematics("CMS_hgg_mass","sig_mass_m120",-1);	
+    rooContainer->MakeSystematics("CMS_hgg_mass","sig_mass_m130",-1);	
+    rooContainer->MakeSystematics("CMS_hgg_mass","sig_mass_m140",-1);	
 }
 
 void workspaceMerger::saveContainer(){

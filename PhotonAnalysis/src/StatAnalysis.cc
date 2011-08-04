@@ -329,7 +329,7 @@ void StatAnalysis::Init(LoopAll& l)
     data_pol_pars[0] = "modpol0";
     data_pol_pars[1] = "modpol1";
     l.rooContainer->AddGenericPdf("data_pol_model",
-	  "0","mass",data_pol_pars,72);	// >= 71 means RooBernstein of order >= 1
+	  "0","CMS_hgg_mass",data_pol_pars,72);	// >= 71 means RooBernstein of order >= 1
         
     // -----------------------------------------------------
     int nDataBins=50;
