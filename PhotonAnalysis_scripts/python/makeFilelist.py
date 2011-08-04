@@ -14,9 +14,9 @@ def makeCaFiles(dir,njobs=-1,jobid=0,nf=[0]):
          if '.root' in f:
             nf[0] += 1
             if (njobs > 0) and (nf[0] % njobs != jobid):
-               return_files.append(('rfio://'+dir+'/'+fi,False))
+               return_files.append(('rfio://'+dir+'/'+f,False))
 	    else:
-               return_files.append(('rfio://'+dir+'/'+fi,True))
+               return_files.append(('rfio://'+dir+'/'+f,True))
             
    else:
       sys.exit("No Such Directory: %s"%(dir))
