@@ -63,6 +63,7 @@ class LoopAll {
                            float,float,float,float,char*);
  
   void LoopAndFillHistos(TString treename="event");
+  void MergeContainers();
   //void WriteHist();  
   //void WriteFits();  
   //void WriteCounters();  

@@ -54,7 +54,7 @@ void dofit(double fitmass, vector <TString> InterpolationList, TFile* SourceFile
   LowerBoundString.ReplaceAll(".0","");
   TString UpperBoundString = dtoa(upperbound);
   UpperBoundString.ReplaceAll(".0","");
-  RooRealVar RooRealMass = *(WorkSpace->var("mass"));
+  RooRealVar RooRealMass = *(WorkSpace->var("CMS_hgg_mass"));
   
   for (unsigned int k=0; k < InterpolationList.size(); k++) {
 

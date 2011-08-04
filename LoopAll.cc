@@ -185,6 +185,60 @@ void LoopAll::AddFile(std::string name,int type) {
   nfiles++;
 }
 
+void LoopAll::MergeContainers(){
+   
+  int i=0;
+  
+  if (DEBUG)
+    cout<<"LoopAndFillHistos: calling InitReal " << endl;
+  
+  InitReal(typerun);
+  
+  int numberOfFiles = files.size();  
+  Files.resize(numberOfFiles);  
+
+  std::vector<std::string>::iterator it;
+  std::vector<TFile*>::iterator it_file;
+  
+  it = files.begin();
+  it_file = Files.begin();
+  // Get names of objects inside RooContainer
+  std::vector<std::string> histogramNames = rooContainer->GetTH1FNames();
+  std::vector<std::string> datasetNames = rooContainer->GetDataSetNames();
+		
+  // Loop Over the files and get the relevant pieces to Merge:
+  for (;it!=files.end()
+       ;it_file++,it++){
+ 
+	*it_file = TFile::Open((*it).c_str());
+	(*it_file)->cd();
+	std::cout << "Combining Current File - " << (*it) << std::endl;
+
+	for (std::vector<std::string>::iterator it_hist=histogramNames.begin()
+	    ;it_hist!=histogramNames.end()
+	    ;it_hist++) {
+			
+		TH1F *histExtra = (TH1F*) (*it_file)->Get(Form("th1f_%s",it_hist->c_str()));
+		rooContainer->AppendTH1F(*it_hist,histExtra);	
+	}
+		
+	RooWorkspace *work = (RooWorkspace*) (*it_file)->Get("cms_hgg_workspace");
+	for (std::vector<std::string>::iterator it_data=datasetNames.begin()
+	    ;it_data!=datasetNames.end()
+	    ;it_data++) {
+
+		RooDataSet *dataExtra = (RooDataSet*) work->data(Form("%s",it_data->c_str()));
+		rooContainer->AppendDataSet(*it_data,dataExtra);	
+	}
+
+	std::cout << "Finished Combining File - " << (*it) << std::endl;
+
+	(*it_file)->Close();
+	//delete tmpFile;			
+  } 
+  TermReal(typerun);
+  Term();
+}
 // ------------------------------------------------------------------------------------
 void LoopAll::LoopAndFillHistos(TString treename) {
 
@@ -194,11 +248,12 @@ void LoopAll::LoopAndFillHistos(TString treename) {
     cout<<"LoopAndFillHistos: calling InitReal " << endl;
   
   InitReal(typerun);
-  
-  Files.resize(files.size());  
-  Trees.resize(files.size());  
-  LumiTrees.resize(files.size());  
-  TreesPar.resize(files.size());  
+ 
+  int numberOfFiles = files.size(); 
+  Files.resize(numberOfFiles);  
+  Trees.resize(numberOfFiles);  
+  LumiTrees.resize(numberOfFiles);  
+  TreesPar.resize(numberOfFiles);  
 
   std::vector<std::string>::iterator it;
   std::vector<TTree*>::iterator it_tree;
@@ -226,7 +281,7 @@ void LoopAll::LoopAndFillHistos(TString treename) {
     }
     this->current_sample_index = which_sample;
 
-    cout<<"LoopAndFillHistos: opening " << i << " " << files[i]<<endl;
+    cout<<"LoopAndFillHistos: opening " << i << " / " << numberOfFiles << " " << files[i]<<endl;
     
     *it_file = TFile::Open((*it).c_str());
     //Files[i] = TFile::Open(files[i]);
@@ -489,10 +544,10 @@ void bookGlobalCounters( TTree * intree, TTree * outTree,
 // ------------------------------------------------------------------------------------
 void LoopAll::Loop(Int_t a) {
   
-  makeOutputTree = makeOutputTree;
+  //makeOutputTree = makeOutputTree;
   if (makeOutputTree) {
-    outputTree = outputTree;
-    outputFile = outputFile;
+   // outputTree = outputTree;
+   // outputFile = outputFile;
     if(outputFile) 
       outputFile->cd();
   }

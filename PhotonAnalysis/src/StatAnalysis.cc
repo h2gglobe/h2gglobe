@@ -300,7 +300,7 @@ void StatAnalysis::Init(LoopAll& l)
 
     // Create observables for shape-analysis with ranges
     // l.rooContainer->AddObservable("mass" ,100.,150.);
-    l.rooContainer->AddObservable("mass" ,massMin,massMax);
+    l.rooContainer->AddObservable("CMS_hgg_mass" ,massMin,massMax);
 
     l.rooContainer->AddConstant("IntLumi",l.intlumi_);
 
@@ -335,34 +335,34 @@ void StatAnalysis::Init(LoopAll& l)
     int nDataBins=50;
     // Make some data sets from the observables to fill in the event loop		  
     // Binning is for histograms (will also produce unbinned data sets)
-    l.rooContainer->CreateDataSet("mass","data_mass"    ,nDataBins); // (100,110,150) -> for a window, else full obs range is taken 
-    l.rooContainer->CreateDataSet("mass","bkg_mass"     ,nDataBins);    	  	
-    l.rooContainer->CreateDataSet("mass","sig_mass_m105",nDataBins);    
-    l.rooContainer->CreateDataSet("mass","sig_mass_m110",nDataBins);    
-    l.rooContainer->CreateDataSet("mass","sig_mass_m115",nDataBins);    
-    l.rooContainer->CreateDataSet("mass","sig_mass_m120",nDataBins);    
-    l.rooContainer->CreateDataSet("mass","sig_mass_m130",nDataBins);    
-    l.rooContainer->CreateDataSet("mass","sig_mass_m140",nDataBins);    
-    l.rooContainer->CreateDataSet("mass","sig_mass_rv_m105",nDataBins);    
-    l.rooContainer->CreateDataSet("mass","sig_mass_rv_m110",nDataBins);    
-    l.rooContainer->CreateDataSet("mass","sig_mass_rv_m115",nDataBins);    
-    l.rooContainer->CreateDataSet("mass","sig_mass_rv_m120",nDataBins);    
-    l.rooContainer->CreateDataSet("mass","sig_mass_rv_m130",nDataBins);    
-    l.rooContainer->CreateDataSet("mass","sig_mass_rv_m140",nDataBins);    
-    l.rooContainer->CreateDataSet("mass","sig_mass_wv_m105",nDataBins);    
-    l.rooContainer->CreateDataSet("mass","sig_mass_wv_m110",nDataBins);    
-    l.rooContainer->CreateDataSet("mass","sig_mass_wv_m115",nDataBins);    
-    l.rooContainer->CreateDataSet("mass","sig_mass_wv_m120",nDataBins);    
-    l.rooContainer->CreateDataSet("mass","sig_mass_wv_m130",nDataBins);    
-    l.rooContainer->CreateDataSet("mass","sig_mass_wv_m140",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","data_mass"    ,nDataBins); // (100,110,150) -> for a window, else full obs range is taken 
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","bkg_mass"     ,nDataBins);    	  	
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_m105",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_m110",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_m115",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_m120",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_m130",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_m140",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_rv_m105",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_rv_m110",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_rv_m115",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_rv_m120",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_rv_m130",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_rv_m140",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_wv_m105",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_wv_m110",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_wv_m115",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_wv_m120",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_wv_m130",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_wv_m140",nDataBins);    
 
     // Make more data sets to represent systematic shitfs , 
-    l.rooContainer->MakeSystematics("mass","sig_mass_m105",-1);	
-    l.rooContainer->MakeSystematics("mass","sig_mass_m110",-1);	
-    l.rooContainer->MakeSystematics("mass","sig_mass_m115",-1);	
-    l.rooContainer->MakeSystematics("mass","sig_mass_m120",-1);	
-    l.rooContainer->MakeSystematics("mass","sig_mass_m130",-1);	
-    l.rooContainer->MakeSystematics("mass","sig_mass_m140",-1);	
+    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_mass_m105",-1);	
+    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_mass_m110",-1);	
+    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_mass_m115",-1);	
+    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_mass_m120",-1);	
+    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_mass_m130",-1);	
+    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_mass_m140",-1);	
 	
     /* -----------------------------------------------------------------------------------------
        KFactors Reweighting
