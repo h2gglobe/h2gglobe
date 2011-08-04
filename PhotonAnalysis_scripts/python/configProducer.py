@@ -482,14 +482,14 @@ class configProducer:
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def read_input_files_loop(self,line):
     print "read_input_files_loop"
-    map_c	    = {}
-    map_c["tot"]=-1
+    map_c = {"typ":-99999,"Nam":"default","draw":-999,"ind":-999,"tot":-1,"red":-999,"lum":1.0,"xsec":1.0,"kfac":1.0,"scal":1.0,"json":"","evlist":""}
+    #map_c["tot"]=-1
     map_c["addnevents"]=0
     directory = ''
     cas_directory = ''
     dcs_directory = ''
     fi_name   = ''
-    fi_type   = ''
+    fi_type   = -99999
     # We have one of the file def lines
     split_line = line.split()
     for sp in split_line:
@@ -505,34 +505,13 @@ class configProducer:
       elif val[0] == "typ":
         fi_type = int(val[1])
         map_c["typ"] = int(val[1])
-      elif val[0] == "Nam":
-        map_c["Nam"] = str(val[1])
-      elif val[0] == "draw":
-        map_c["draw"] = int(val[1])
-      elif val[0] == "ind":
-        map_c["ind"] = int(val[1])
-      elif val[0] == "tot":
-        map_c["tot"] = int(val[1])
-      elif val[0] == "red":
-        map_c["red"] = int(val[1])
-      elif val[0] == "lum":
-        map_c["lum"] = float(val[1])
-      elif val[0] == "xsec":
-        map_c["xsec"] = float(val[1])
-      elif val[0] == "kfac":
-        map_c["kfac"] = float(val[1])
-      elif val[0] == "scal":
-        map_c["scal"] = float(val[1])
-      elif val[0] == "json":
-        map_c["json"] = str(val[1])
-      elif val[0] == "evlist":
-        map_c["evlist"] = str(val[1])
+      elif val[0] in map_c:
+        map_c[val[0]] = type(map_c[val[0]])(val[1])
       else: sys.exit("Unrecognised Argument:\n ' %s ' in line:\n ' %s '"
                      %(val[0],line))
     if map_c["typ"] != 0:
       self.is_data_ = False
       
-    
     if fi_name != '':
       if not fi_name.startswith("rfio") and not os.path.isfile(fi_name): 
         sys.exit("No Input File Named: %s"%fi_name)
@@ -541,7 +520,7 @@ class configProducer:
       if not ( (self.njobs_>0) and (self.nf_[0] % self.njobs_ != self.jobId_) ):
         self.conf_.files.append(tuple_n)
       else: self.conf_.files.append((None,fi_type));
-      if fi_type!=0 and map_c["tot"] == -1:
+      if fi_type!=0 and fi_type!=-99999 and map_c["tot"] == -1:
         map_c["tot"] = getTreeEntry(fi_name,"global_variables","processedEvents");
 	map_c["addnevents"] = int(1)
       self.conf_.confs.append(map_c.copy())
@@ -560,7 +539,7 @@ class configProducer:
         
     if dir:
       files = mkFiles(dir,self.njobs_,self.jobId_,self.nf_)
-      if fi_type!=0 and map_c["tot"] == -1:
+      if fi_type!=0 and fi_type!=-99999 and map_c["tot"] == -1:
           allfiles = mkFiles(dir,-1,-1)
           for file_s in allfiles:
               map_c["tot"] = map_c["tot"] + getTreeEntry(file_s[0],"global_variables","processedEvents")
