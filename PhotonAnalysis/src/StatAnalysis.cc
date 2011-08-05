@@ -577,9 +577,6 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	}
 	if (cur_type > 0 && cur_type != 3 && cur_type != 4)
 	    l.rooContainer->InputDataPoint("bkg_mass",category,mass,evweight);
-	else if (cur_type == 3 || cur_type == 4)
-	    l.rooContainer->InputDataPoint("zee_mass",category,mass,evweight);
-
 	else if (cur_type == -13|| cur_type == -14 || cur_type == -15|| cur_type == -16){
 	    l.rooContainer->InputDataPoint("sig_mass_m105",category,mass,evweight);
 	    if (CorrectVertex) l.rooContainer->InputDataPoint("sig_mass_rv_m105",category,mass,evweight);
