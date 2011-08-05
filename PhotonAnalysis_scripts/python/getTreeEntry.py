@@ -9,7 +9,7 @@ def getTreeEntry(fileName,treeName,branchName):
    	   };"
 	)
 	from ROOT import Entry
-	newFile   = ROOT.TFile(fileName)
+	newFile   = ROOT.TFile.Open(fileName)
 
 	tree = newFile.Get(treeName)
 	brnch= tree.GetBranch(branchName)

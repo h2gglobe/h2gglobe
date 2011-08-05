@@ -482,7 +482,7 @@ class configProducer:
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def read_input_files_loop(self,line):
     print "read_input_files_loop"
-    map_c = {"typ":-99999,"Nam":"default","draw":-999,"ind":-999,"tot":-1,"red":-999,"lum":1.0,"xsec":1.0,"kfac":1.0,"scal":1.0,"json":"","evlist":""}
+    map_c = {"typ":-99999,"Nam":"default","draw":-999,"ind":-999,"tot":0,"red":-999,"lum":1.0,"xsec":1.0,"kfac":1.0,"scal":1.0,"json":"","evlist":""}
     #map_c["tot"]=-1
     map_c["addnevents"]=0
     directory = ''
@@ -520,8 +520,8 @@ class configProducer:
       if not ( (self.njobs_>0) and (self.nf_[0] % self.njobs_ != self.jobId_) ):
         self.conf_.files.append(tuple_n)
       else: self.conf_.files.append((None,fi_type));
-      if fi_type!=0 and fi_type!=-99999 and map_c["tot"] == -1:
-        map_c["tot"] = getTreeEntry(fi_name,"global_variables","processedEvents");
+      if fi_type!=0 and fi_type!=-99999 and map_c["tot"] == 0:
+        map_c["tot"] = getTreeEntry(fi_name,"global_variables","tot_events");
 	map_c["addnevents"] = int(1)
       self.conf_.confs.append(map_c.copy())
 
@@ -539,10 +539,11 @@ class configProducer:
         
     if dir:
       files = mkFiles(dir,self.njobs_,self.jobId_,self.nf_)
-      if fi_type!=0 and fi_type!=-99999 and map_c["tot"] == -1:
+      if fi_type!=0 and fi_type!=-99999 and map_c["tot"] == 0:
           allfiles = mkFiles(dir,-1,-1)
           for file_s in allfiles:
-              map_c["tot"] = map_c["tot"] + getTreeEntry(file_s[0],"global_variables","processedEvents")
+	      print "Ok i want to go and grab the file - ", file_s[0]
+              map_c["tot"] = map_c["tot"] + getTreeEntry(file_s[0],"global_variables","tot_events")
       for file_s in files:
 	  if file_s[1]: self.conf_.files.append((file_s[0],fi_type))
 	  else:      self.conf_.files.append((None,fi_type))
