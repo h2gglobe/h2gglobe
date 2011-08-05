@@ -521,7 +521,7 @@ class configProducer:
         self.conf_.files.append(tuple_n)
       else: self.conf_.files.append((None,fi_type));
       if fi_type!=0 and fi_type!=-99999 and map_c["tot"] == 0:
-        map_c["tot"] = getTreeEntry(fi_name,"global_variables","tot_events");
+        map_c["tot"] = getTreeEntry(fi_name,"global_variables","processedEvents");
 	map_c["addnevents"] = int(1)
       self.conf_.confs.append(map_c.copy())
 
@@ -543,7 +543,7 @@ class configProducer:
           allfiles = mkFiles(dir,-1,-1)
           for file_s in allfiles:
 	      print "Ok i want to go and grab the file - ", file_s[0]
-              map_c["tot"] = map_c["tot"] + getTreeEntry(file_s[0],"global_variables","tot_events")
+              map_c["tot"] = map_c["tot"] + getTreeEntry(file_s[0],"global_variables","processedEvents")
       for file_s in files:
 	  if file_s[1]: self.conf_.files.append((file_s[0],fi_type))
 	  else:      self.conf_.files.append((None,fi_type))
