@@ -281,7 +281,7 @@ void LoopAll::LoopAndFillHistos(TString treename) {
     }
     this->current_sample_index = which_sample;
 
-    cout<<"LoopAndFillHistos: opening " << i << " / " << numberOfFiles << " " << files[i]<<endl;
+    cout<<"LoopAndFillHistos: opening file " << i+1 << " / " << numberOfFiles << " : " << files[i]<<endl;
     
     *it_file = TFile::Open((*it).c_str());
     //Files[i] = TFile::Open(files[i]);
