@@ -122,6 +122,8 @@ pho_conv_refitted_momentum
 pho_conv_vertexcorrected_p4
 pho_scind
 sc_xyz
+pho_residCorrEnergy
+pho_residCorrResn
 
 ->
 All Conversions

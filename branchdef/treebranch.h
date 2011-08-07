@@ -405,6 +405,8 @@ void Branch_pho_conv_vtx(TTree * tree) { tree->Branch("pho_conv_vtx", "TClonesAr
 void Branch_pho_conv_pair_momentum(TTree * tree) { tree->Branch("pho_conv_pair_momentum", "TClonesArray",&pho_conv_pair_momentum, 32000, 0); }; 
 void Branch_pho_conv_refitted_momentum(TTree * tree) { tree->Branch("pho_conv_refitted_momentum", "TClonesArray",&pho_conv_refitted_momentum, 32000, 0); }; 
 void Branch_pho_conv_vertexcorrected_p4(TTree * tree) { tree->Branch("pho_conv_vertexcorrected_p4", "TClonesArray",&pho_conv_vertexcorrected_p4, 32000, 0); }; 
+void Branch_pho_residCorrEnergy(TTree * tree) { tree->Branch("pho_residCorrEnergy",&pho_residCorrEnergy,"pho_residCorrEnergy[pho_n]/F");  };
+void Branch_pho_residCorrResn(TTree * tree) { tree->Branch("pho_residCorrResn",&pho_residCorrResn,"pho_residCorrResn[pho_n]/F");  }; 
 void Branch_conv_n(TTree * tree) { tree->Branch("conv_n", &conv_n, "conv_n/I"); };
 void Branch_conv_p4(TTree * tree) { tree->Branch("conv_p4", "TClonesArray", &conv_p4, 32000, 0); };
 void Branch_conv_ntracks(TTree * tree) { tree->Branch("conv_ntracks",&conv_ntracks,"conv_ntracks[conv_n]/I"); };

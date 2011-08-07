@@ -405,6 +405,8 @@ void SetBranchAddress_pho_conv_vtx(TTree * tree) { tree->SetBranchAddress("pho_c
 void SetBranchAddress_pho_conv_pair_momentum(TTree * tree) { tree->SetBranchAddress("pho_conv_pair_momentum", &pho_conv_pair_momentum, &b_pho_conv_pair_momentum); }; 
 void SetBranchAddress_pho_conv_refitted_momentum(TTree * tree) { tree->SetBranchAddress("pho_conv_refitted_momentum", &pho_conv_refitted_momentum, &b_pho_conv_refitted_momentum); }; 
 void SetBranchAddress_pho_conv_vertexcorrected_p4(TTree * tree) { tree->SetBranchAddress("pho_conv_vertexcorrected_p4", &pho_conv_vertexcorrected_p4, &b_pho_conv_vertexcorrected_p4); }; 
+void SetBranchAddress_pho_residCorrEnergy(TTree * tree) { tree->SetBranchAddress("pho_residCorrEnergy", pho_residCorrEnergy, &b_pho_residCorrEnergy); }; 
+void SetBranchAddress_pho_residCorrResn(TTree * tree) { tree->SetBranchAddress("pho_residCorrResn", pho_residCorrResn, &b_pho_residCorrResn); }; 
 void SetBranchAddress_conv_n(TTree * tree) { tree->SetBranchAddress("conv_n", &conv_n, &b_conv_n); };
 void SetBranchAddress_conv_p4(TTree * tree) { tree->SetBranchAddress("conv_p4", &conv_p4, &b_conv_p4); };
 void SetBranchAddress_conv_ntracks(TTree * tree) { tree->SetBranchAddress("conv_ntracks", conv_ntracks, &b_conv_ntracks); };

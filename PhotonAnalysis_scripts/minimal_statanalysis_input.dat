@@ -30,6 +30,8 @@ pho_isEE
 pho_hasconvtks
 pho_p4
 pho_calopos
+pho_residCorrEnergy
+pho_residCorrResn
 
 ->
 CiC inputs

@@ -405,6 +405,8 @@
     TBranch *b_pho_conv_pair_momentum;
     TBranch *b_pho_conv_refitted_momentum;
     TBranch *b_pho_conv_vertexcorrected_p4;
+    TBranch *b_pho_residCorrEnergy;
+    TBranch *b_pho_residCorrResn;
     TBranch *b_conv_n;
     TBranch *b_conv_p4;
     TBranch *b_conv_ntracks;
