@@ -657,11 +657,11 @@ void RooContainer::writeSpecificCategoryDataCard(int cat,std::string filename,st
    std::string signal_mass_name = (std::string) Form("%s_m$MASS",sig_name.c_str());
    ofstream file;
    if (parameterisedBackground){
-     file.open(Form("cms-hgg-datacard_%s_parBKG_cat%d.txt",filename.c_str(),cat));
+     file.open(Form("%s_cms-hgg-datacard_parBKG_cat%d.txt",filename.c_str(),cat));
      file << "CMS-HGG DataCard for Binned Limit Setting with RooDataHist+Parameterised Background\n";
    }
    else{
-     file.open(Form("cms-hgg-datacard_%s_cat%d.txt",filename.c_str(),cat));
+     file.open(Form("%s_cms-hgg-datacard_cat%d.txt",filename.c_str(),cat));
      file << "CMS-HGG DataCard for Binned Limit Setting with RooDataHist\n";
    }
 
@@ -781,11 +781,11 @@ void RooContainer::WriteDataCard(std::string filename,std::string data_name
    std::string signal_mass_name = (std::string) Form("%s_m$MASS",sig_name.c_str());
    ofstream file;
    if (parameterisedBackground){
-     file.open(Form("cms-hgg-datacard_%s_parBKG.txt",filename.c_str()));
+     file.open(Form("%s_cms-hgg-datacard_parBKG.txt",filename.c_str()));
      file << "CMS-HGG DataCard for Binned Limit Setting with RooDataHist+Parameterised Background\n";
    }
    else{
-     file.open(Form("cms-hgg-datacard_%s.txt",filename.c_str()));
+     file.open(Form("%s_cms-hgg-datacard.txt",filename.c_str()));
      file << "CMS-HGG DataCard for Binned Limit Setting with RooDataHist\n";
    }
 
