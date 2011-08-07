@@ -3,7 +3,7 @@
 #include "TRandom3.h"
 #include <assert.h>
 
-EnergySmearer::EnergySmearer(const energySmearingParameters& par) : myParameters_(par), scaleOrSmear_(true)
+EnergySmearer::EnergySmearer(const energySmearingParameters& par) : myParameters_(par), scaleOrSmear_(true), doCorrections_(false)
 {
   rgen_ = new TRandom3(0);
   name_="EnergySmearer_"+ par.categoryType + "_" + par.parameterSetName;
@@ -103,6 +103,7 @@ bool EnergySmearer::smearPhoton(PhotonReducedInfo & aPho, float & weight, int ru
   float scale_offset   = getScaleOffset(run, category);
   float smearing_sigma = myParameters_.smearing_sigma.find(category)->second;
 
+
   /////////////////////// smearing or re-scaling photon energy ///////////////////////////////////////////
   //  float newEnergy=0.;
   float newEnergy=aPho.energy();
@@ -114,13 +115,20 @@ bool EnergySmearer::smearPhoton(PhotonReducedInfo & aPho, float & weight, int ru
 	  newEnergy = aPho.energy() * rgen_->Gaus(1.,smearing_sigma);
   }
   
+  /////////////////////// apply MC-based photon energy corrections ///////////////////////////////////////////
+  if (  doCorrections_ ) {
+    // get hold of the necessary variable to do the corrrction
+    newEnergy = aPho.energy() * 1.;
+  }
+
   //now smearing energy with correct value
   // float newEnergy= aPho.energy() * rgen_->Gaus(scale_offset,smearing_sigma);
   assert( newEnergy != 0. );
   aPho.setEnergy(newEnergy);
   
   /////////////////////// changing weigh of photon according to efficiencies ///////////////////////////////////////////
-  if(doEfficiencies_) {
+  //////////////////////  if you're doing corrections, don't touch the weights ////////////////////////////////////////
+  if(doEfficiencies_ && (!doCorrections_) ) {
     if( !smearing_eff_graph_.empty()  ){
       weight = getWeight( ( aPho.energy() / cosh(aPho.caloPosition().PseudoRapidity()) ) ,category, syst_shift);
     }
@@ -180,8 +188,6 @@ bool EnergySmearer::initEfficiency()
 }
 
 
-
-//float EnergySmearer::getWeight(PhotonReducedInfo & aPho) const
 double EnergySmearer::getWeight(double pt, std::string theCategory, float syst_shift) const
 {
   std::map<std::string,TGraphAsymmErrors*>::const_iterator theIter = smearing_eff_graph_.find(theCategory);

@@ -27,6 +27,9 @@ doEscaleSyst=1
 doEresolSmear=1
 doEresolSyst=1
 
+doEcorrectionSmear=0
+doEcorrectionSyst=0
+
 doPhotonIdEffSyst=1
 doPhotonIdEffSmear=1
 

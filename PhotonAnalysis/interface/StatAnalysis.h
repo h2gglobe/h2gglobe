@@ -40,7 +40,7 @@ public:
 	float subleadEtCut;
 	std::string efficiencyFile;
 	
-	EnergySmearer::energySmearingParameters eSmearPars;
+	// EnergySmearer::energySmearingParameters eSmearPars; // gone to PhotonAnalysis GF
 	EfficiencySmearer::efficiencySmearingParameters effSmearPars;
 	DiPhoEfficiencySmearer::diPhoEfficiencySmearingParameters diPhoEffSmearPars;
 
@@ -53,14 +53,14 @@ public:
 	int   nEtaCategories, nR9Categories, nPtCategories;
 	float massMin, massMax;
 	
-	float smearing_sigma_EBHighR9       ;
-	float smearing_sigma_EBLowR9        ;
-	float smearing_sigma_EEHighR9       ;
-	float smearing_sigma_EELowR9        ;
-	float smearing_sigma_error_EBHighR9 ;
-	float smearing_sigma_error_EBLowR9  ;
-	float smearing_sigma_error_EEHighR9 ;
-	float smearing_sigma_error_EELowR9  ;
+	//float smearing_sigma_EBHighR9       ;
+	//float smearing_sigma_EBLowR9        ;
+	//float smearing_sigma_EEHighR9       ;
+	//float smearing_sigma_EELowR9        ;
+	//float smearing_sigma_error_EBHighR9 ;
+	//float smearing_sigma_error_EBLowR9  ;
+	//float smearing_sigma_error_EEHighR9 ;
+	//float smearing_sigma_error_EELowR9  ;
 	
 	std::string kfacHist;
 
@@ -75,7 +75,7 @@ protected:
 	std::vector<BaseGenLevelSmearer *> genLevelSmearers_;
 	std::vector<BaseGenLevelSmearer *> systGenLevelSmearers_;
 	
-	EnergySmearer *eScaleSmearer, *eResolSmearer ;
+	EnergySmearer /* *eScaleSmearer,*/ *eResolSmearer ; // moved to PhotonAnalysis GF 
 	EfficiencySmearer *idEffSmearer, *r9Smearer;
 	DiPhoEfficiencySmearer *vtxEffSmearer, *triggerEffSmearer;
 	KFactorSmearer * kFactorSmearer;

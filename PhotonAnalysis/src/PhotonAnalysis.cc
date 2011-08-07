@@ -38,6 +38,7 @@ void PhotonAnalysis::Term(LoopAll& l)
 // ----------------------------------------------------------------------------------------------------
 void readEnergyScaleOffsets(const std::string &fname, EnergySmearer::energySmearingParameters::eScaleVector &escaleOffsets)
 {
+  // read in energy scale corrections to be applied in run ranges
 	std::fstream in(fname.c_str());
 	assert( in );
 	char line[200];
@@ -219,10 +220,51 @@ void PhotonAnalysis::Init(LoopAll& l)
 	eScaleDataSmearer->name("E_scale_data");
 	eScaleDataSmearer->doEnergy(true);
 	eScaleDataSmearer->scaleOrSmear(true);
+	// set here whether you want Paul's corrections, for data // GF
 
+	
+	eSmearPars.categoryType = "2CatR9_EBEE";
+	eSmearPars.byRun = false;
+	eSmearPars.n_categories = 4;
+	// E scale is shifted for data, NOT for MC 
+	eSmearPars.scale_offset["EBHighR9"] = 0.;
+	eSmearPars.scale_offset["EBLowR9"]  = 0.;
+	eSmearPars.scale_offset["EEHighR9"] = 0.;
+	eSmearPars.scale_offset["EELowR9"]  = 0.;
+	// E scale systematics are applied to MC, NOT to data
+	eSmearPars.scale_offset_error["EBHighR9"] = scale_offset_error_EBHighR9;
+	eSmearPars.scale_offset_error["EBLowR9"]  = scale_offset_error_EBLowR9;
+	eSmearPars.scale_offset_error["EEHighR9"] = scale_offset_error_EEHighR9;
+	eSmearPars.scale_offset_error["EELowR9"]  = scale_offset_error_EELowR9;
+	// E resolution smearing applied to MC 
+	eSmearPars.smearing_sigma["EBHighR9"] = smearing_sigma_EBHighR9;
+	eSmearPars.smearing_sigma["EBLowR9"]  = smearing_sigma_EBLowR9;
+	eSmearPars.smearing_sigma["EEHighR9"] = smearing_sigma_EEHighR9;
+	eSmearPars.smearing_sigma["EELowR9"]  = smearing_sigma_EELowR9;
+	// E resolution systematics applied to MC 
+	eSmearPars.smearing_sigma_error["EBHighR9"] = smearing_sigma_error_EBHighR9;
+	eSmearPars.smearing_sigma_error["EBLowR9"]  = smearing_sigma_error_EBLowR9;
+	eSmearPars.smearing_sigma_error["EEHighR9"] = smearing_sigma_error_EEHighR9;
+	eSmearPars.smearing_sigma_error["EELowR9"]  = smearing_sigma_error_EELowR9;
+	// MC would need Paul's corrections, of its own GF
+	
+	// energy scale systematics to MC
+        eScaleSmearer = new EnergySmearer( eSmearPars );
+	eScaleSmearer->name("E_scale");
+	eScaleSmearer->doEnergy(true);
+	eScaleSmearer->scaleOrSmear(true);
+	std::cout << "GF initialized: " << eScaleSmearer->name() << "  " << eScaleSmearer << std::endl;
+
+	if( doEcorrectionSmear ) {
+	  eCorrSmearer = new EnergySmearer( eSmearPars );
+	  eCorrSmearer->name("E_corr");
+	  // activating corrections for this smearer implies that it won't touch Escale and Eresolution
+	  eCorrSmearer->doCorrections(true); 
+	}
+	
 	if (l.typerun == 2 || l.typerun == 1) {
 	}
-  
+	
     /* -------------------------------------------------------------------------------------------
     Pileup Reweighting
     https://twiki.cern.ch/twiki/bin/viewauth/CMS/PileupReweighting
@@ -608,11 +650,13 @@ void PhotonAnalysis::PreselectPhotons(LoopAll& l, int jentry)
 					    ((TLorentzVector*)l.pho_p4->At(ipho))->Energy(), l.pho_isEB[ipho], l.pho_r9[ipho],
 					    false );
 		float pweight = 1.;
+		float sweight = 1.;
 		if( cur_type == 0 ) {          // correct energy scale in data
-			float sweight = 1.;
-			eScaleDataSmearer->smearPhoton(phoInfo,sweight,l.run,0.);
-			pweight *= sweight;
+		  eScaleDataSmearer->smearPhoton(phoInfo,sweight,l.run,0.);
+		  pweight *= sweight;
 		}
+		// apply mc-derived photon corrections, to data and MC alike
+		if( doEcorrectionSmear )  eCorrSmearer->smearPhoton(phoInfo,sweight,l.run,0.); 
 		corrected_pho_energy[ipho] = phoInfo.energy();
 	}
 
