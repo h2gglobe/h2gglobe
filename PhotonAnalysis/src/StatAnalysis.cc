@@ -566,10 +566,11 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		
 		l.FillHist("pho_n",category+1,l.pho_n, evweight);
 	}
-	
-	eventListText << setprecision(4) <<"Type = "<< cur_type <<  "Run = " << l.run << "  LS = " << l.lumis << "  Event = " << l.event << "  SelVtx = " << l.vtx_std_sel << "  CAT4 = " << category % 4
-		   << "  ggM = " << mass << " gg_Pt =  " << ptHiggs;
-	eventListText << endl;
+
+	if (cur_type==0){
+	  eventListText << setprecision(4) <<"Type = "<< cur_type <<  "Run = " << l.run << "  LS = " << l.lumis << "  Event = " << l.event << "  SelVtx = " << l.vtx_std_sel << "  CAT4 = " << category % 4 << "  ggM = " << mass << " gg_Pt =  " << ptHiggs;
+	  eventListText << endl;
+	}
        
 	// --------------------------------------------------------------------------------------------- 
 	if (cur_type == 0 ){
