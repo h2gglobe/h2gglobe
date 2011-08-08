@@ -55,6 +55,8 @@ public:
 	  eScaleVector scale_offset_byrun;
 	  
           std::string efficiency_file;
+          // errors on correction will be a fraction of the correction itself   
+          float       corrRelErr;
   };
   
   EnergySmearer(const energySmearingParameters& par);

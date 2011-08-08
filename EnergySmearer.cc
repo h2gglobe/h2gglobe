@@ -91,18 +91,8 @@ bool EnergySmearer::smearPhoton(PhotonReducedInfo & aPho, float & weight, int ru
       return false;
     }
 
-  /// energySmearingParameters::parameterMapConstIt it=myParameters_.scale_offset.find(category);
-  /// 
-  /// if ( it == myParameters_.scale_offset.end())
-  ///   {
-  ///     std::cout << "Category was not found in the configuration. Giving Up" << std::endl;
-  ///     return false;
-  ///   }
-  ///
-  /// float scale_offset   = 1. + it->second;
   float scale_offset   = getScaleOffset(run, category);
   float smearing_sigma = myParameters_.smearing_sigma.find(category)->second;
-
 
   /////////////////////// smearing or re-scaling photon energy ///////////////////////////////////////////
   //  float newEnergy=0.;
@@ -117,12 +107,14 @@ bool EnergySmearer::smearPhoton(PhotonReducedInfo & aPho, float & weight, int ru
   
   /////////////////////// apply MC-based photon energy corrections ///////////////////////////////////////////
   if (  doCorrections_ ) {
-    // get hold of the necessary variable to do the corrrction
-    newEnergy = aPho.energy() * 1.;
+    // corrEnergy is the corrected photon energy
+    newEnergy = aPho.corrEnergy() + syst_shift * myParameters_.corrRelErr * (aPho.corrEnergy() - aPho.energy());
   }
+  
+  //std::cout << "doCorrections: " << doCorrections_ << " ene: " <<  aPho.energy() 
+  //<< " corr ene: " <<  aPho.corrEnergy() << " newEne: " << newEnergy << " syst_shift: " 
+  //<< syst_shift << std::endl; 
 
-  //now smearing energy with correct value
-  // float newEnergy= aPho.energy() * rgen_->Gaus(scale_offset,smearing_sigma);
   assert( newEnergy != 0. );
   aPho.setEnergy(newEnergy);
   

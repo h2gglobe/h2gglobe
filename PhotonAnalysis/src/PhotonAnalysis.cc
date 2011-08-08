@@ -244,6 +244,8 @@ void PhotonAnalysis::Init(LoopAll& l)
 	eSmearPars.smearing_sigma_error["EBLowR9"]  = smearing_sigma_error_EBLowR9;
 	eSmearPars.smearing_sigma_error["EEHighR9"] = smearing_sigma_error_EEHighR9;
 	eSmearPars.smearing_sigma_error["EELowR9"]  = smearing_sigma_error_EELowR9;
+	// error on photon corrections set to a fraction of the correction itself; number below is tentative (GF: push it to .dat)  
+	eSmearPars.corrRelErr  = 0.5;
 	
 	// energy scale systematics to MC
         eScaleSmearer = new EnergySmearer( eSmearPars );
@@ -254,7 +256,7 @@ void PhotonAnalysis::Init(LoopAll& l)
 	if( doEcorrectionSmear ) {
 	  eCorrSmearer = new EnergySmearer( eSmearPars );
 	  eCorrSmearer->name("E_corr");
-	  // activating corrections for this smearer implies that it won't touch Escale and Eresolution
+	  // activating pho corrections to this instance of EnergySmearer, implies that it won't touch Escale and Eresolution
 	  eCorrSmearer->doCorrections(true); 
 	}
 	
@@ -643,7 +645,8 @@ void PhotonAnalysis::PreselectPhotons(LoopAll& l, int jentry)
 	for(int ipho=0; ipho<l.pho_n; ++ipho ) { 
 		std::vector<std::vector<bool> > p;
 		PhotonReducedInfo phoInfo ( *((TVector3*)l.pho_calopos->At(ipho)), 
-					    ((TLorentzVector*)l.pho_p4->At(ipho))->Energy(), l.pho_isEB[ipho], l.pho_r9[ipho],
+					    ((TLorentzVector*)l.pho_p4->At(ipho))->Energy(), l.pho_residCorrEnergy[ipho],
+					    l.pho_isEB[ipho], l.pho_r9[ipho],
 					    false );
 		float pweight = 1.;
 		float sweight = 1.;
