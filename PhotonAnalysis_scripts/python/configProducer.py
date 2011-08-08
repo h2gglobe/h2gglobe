@@ -542,7 +542,7 @@ class configProducer:
       if fi_type!=0 and fi_type!=-99999 and map_c["tot"] == 0:
           allfiles = mkFiles(dir,-1,-1)
           for file_s in allfiles:
-	      print "Ok i want to go and grab the file - ", file_s[0]
+	      print "Getting N Processed Events for - ", file_s[0]
               map_c["tot"] = map_c["tot"] + getTreeEntry(file_s[0],"global_variables","processedEvents")
       for file_s in files:
 	  if file_s[1]: self.conf_.files.append((file_s[0],fi_type))
