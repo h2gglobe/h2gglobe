@@ -220,8 +220,6 @@ void PhotonAnalysis::Init(LoopAll& l)
 	eScaleDataSmearer->name("E_scale_data");
 	eScaleDataSmearer->doEnergy(true);
 	eScaleDataSmearer->scaleOrSmear(true);
-	// set here whether you want Paul's corrections, for data // GF
-
 	
 	eSmearPars.categoryType = "2CatR9_EBEE";
 	eSmearPars.byRun = false;
@@ -246,14 +244,12 @@ void PhotonAnalysis::Init(LoopAll& l)
 	eSmearPars.smearing_sigma_error["EBLowR9"]  = smearing_sigma_error_EBLowR9;
 	eSmearPars.smearing_sigma_error["EEHighR9"] = smearing_sigma_error_EEHighR9;
 	eSmearPars.smearing_sigma_error["EELowR9"]  = smearing_sigma_error_EELowR9;
-	// MC would need Paul's corrections, of its own GF
 	
 	// energy scale systematics to MC
         eScaleSmearer = new EnergySmearer( eSmearPars );
 	eScaleSmearer->name("E_scale");
 	eScaleSmearer->doEnergy(true);
 	eScaleSmearer->scaleOrSmear(true);
-	std::cout << "GF initialized: " << eScaleSmearer->name() << "  " << eScaleSmearer << std::endl;
 
 	if( doEcorrectionSmear ) {
 	  eCorrSmearer = new EnergySmearer( eSmearPars );

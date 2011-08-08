@@ -179,7 +179,6 @@ void StatAnalysis::Init(LoopAll& l)
 	//eScaleSmearer->doEnergy(true);
 	//eScaleSmearer->scaleOrSmear(true);
         photonSmearers_.push_back(eScaleSmearer);
-	std::cout << "GF eScaleSmearer is true and holds:  " << eScaleSmearer << std::endl;
 
 	//// Moved to PhotonAnalysis PM
 	//// // energy scale corrections to Data
@@ -255,16 +254,11 @@ void StatAnalysis::Init(LoopAll& l)
     l.rooContainer->sigmaRange = systRange;
     // RooContainer does not support steps different from 1 sigma
     //assert( ((float)nSystSteps) == systRange );
-    std::cout << "gf before" << std::endl;
     if( doEscaleSmear && doEscaleSyst ) {
-        std::cout << "gf before 2 " << std::endl;
 	systPhotonSmearers_.push_back( eScaleSmearer );
-	std::cout << "gf aft -1 pointer: " << eScaleSmearer << " eScaleDataSmearer pinteR: " << eScaleDataSmearer << std::endl;
 	std::vector<std::string> sys(1,eScaleSmearer->name());
-	std::cout << "gf aft -0.5 " << std::endl;
 	std::vector<int> sys_t(1,-1);	// -1 for signal, 1 for background 0 for both
 	l.rooContainer->MakeSystematicStudy(sys,sys_t);
-	std::cout << "gf after" << std::endl;
     }
     if( doEresolSmear && doEresolSyst ) {
 	systPhotonSmearers_.push_back( eResolSmearer );
