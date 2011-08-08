@@ -52,7 +52,7 @@ public:
 	int   nSystSteps;   
 	int   nEtaCategories, nR9Categories, nPtCategories;
 	float massMin, massMax;
-	
+	int nDataBins;	
 	//float smearing_sigma_EBHighR9       ;
 	//float smearing_sigma_EBLowR9        ;
 	//float smearing_sigma_EEHighR9       ;

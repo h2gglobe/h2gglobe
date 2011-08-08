@@ -18,6 +18,7 @@ StatAnalysis::StatAnalysis()  :
     doMCSmearing = true;
     massMin = 100.;
     massMax = 150.;
+    int nDataBins=50;
 
     systRange  = 3.; // in units of sigma
     nSystSteps = 1;    
@@ -337,7 +338,6 @@ void StatAnalysis::Init(LoopAll& l)
 	  "0","CMS_hgg_mass",data_pol_pars,72);	// >= 71 means RooBernstein of order >= 1
         
     // -----------------------------------------------------
-    int nDataBins=50;
     // Make some data sets from the observables to fill in the event loop		  
     // Binning is for histograms (will also produce unbinned data sets)
     l.rooContainer->CreateDataSet("CMS_hgg_mass","data_mass"    ,nDataBins); // (100,110,150) -> for a window, else full obs range is taken 
