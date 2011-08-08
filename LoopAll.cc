@@ -561,8 +561,7 @@ void LoopAll::Loop(Int_t a) {
   outputEvents=0;
 
   int hasoutputfile=0;
-  //for (Int_t jentry=0; jentry<nentries;jentry++) {
-  for (Int_t jentry=0; jentry<5;jentry++) {
+  for (Int_t jentry=0; jentry<nentries;jentry++) {
     
     if(jentry%10000==0) {
       cout << "Entry: "<<jentry << " / "<<nentries <<  " "  ;
