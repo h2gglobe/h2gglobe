@@ -5,6 +5,7 @@ subleadEtCut=30.0
 
 massMin=100.
 massMax=150.
+nDataBins=50
 
 nEtaCategories=2
 nR9Categories=2
@@ -48,7 +49,7 @@ doKFactorSyst=1
 ->
 Inputs for reweighing
 ->
-kfacHist=/afs/cern.ch/user/f/fabstoec/public/Kfactors_AllScales_08_07_noNegative.root
+kfacHist=/afs/cern.ch/user/f/fabstoec/public/KFactors_AllScales.root
 efficiencyFile=/afs/cern.ch/user/f/franzoni/public/globe/sig_reweighing_v11.root
 
 puHist=/afs/cern.ch/user/m/musella/public/higgs/EstPU_Cert_May10ReReco_160404-163869_PromptReco_163870_167151_DCSOnly_167151-167746.root.weightsfor_globe_V09_00_S4.root

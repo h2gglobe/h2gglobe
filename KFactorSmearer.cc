@@ -40,7 +40,9 @@ bool KFactorSmearer::smearEvent( float & weight, const TLorentzVector & p4, cons
   else if (sample_type == -25) genMassPoint=120;
   else if (sample_type == -29) genMassPoint=130;
   else if (sample_type == -33) genMassPoint=140;
-  else if (sample_type <=-37) assert(0);   // this is the case of non-existing sample
+  else if (sample_type == -37) genMassPoint=125;
+  else if (sample_type == -41) genMassPoint=135;
+  else if (sample_type <=-45) assert(0);   // this is the case of non-existing sample
   else    return true;                     // this is the case of backgrounds
 
   double kWeight = getWeight( p4, nPu, genMassPoint, syst_shift );
@@ -56,9 +58,13 @@ bool KFactorSmearer::init()
   theKFactorFile_ = TFile::Open( efficiency_file.c_str() );
   assert(theKFactorFile_!=0);
 
+  readMassPoint(105, upId, downId);
   readMassPoint(110, upId, downId);
+  readMassPoint(115, upId, downId);
   readMassPoint(120, upId, downId);
+  readMassPoint(125, upId, downId);
   readMassPoint(130, upId, downId);
+  readMassPoint(135, upId, downId);
   readMassPoint(140, upId, downId);
 
   theKFactorFile_->Close();
@@ -68,7 +74,7 @@ bool KFactorSmearer::init()
 
 double KFactorSmearer::getKFactor(int genMassPoint, int id, double gPT  ) const {
 
-  if(genMassPoint==110 || genMassPoint==120 || genMassPoint==130  || genMassPoint==140 ) {
+  if(genMassPoint==105 || genMassPoint==110 || genMassPoint==115 || genMassPoint==120 || genMassPoint==125 || genMassPoint==130 || genMassPoint==135 || genMassPoint==140 ) {
     const TH1* tmp = kFactorSmearers_.find(genMassPoint)->second[id]; 
     return tmp->GetBinContent(tmp->FindFixBin(gPT));
   }
@@ -83,8 +89,8 @@ double KFactorSmearer::getWeight( const TLorentzVector & p4, const int nPu, cons
   // bins are very fine, therefore interpolation between bins can be neglegted for now
 
   int    varId     = syst_shift > 0 ?   1 : 2;
-  double nominal   = genMassPoint == 115 ?   (0.5*getKFactor(110, 0, gPT )+0.5*getKFactor(120, 0, gPT ))         : getKFactor( genMassPoint, 0, gPT );
-  double variation = genMassPoint == 115 ?   (0.5*getKFactor(110, varId, gPT )+0.5*getKFactor(120, varId, gPT )) : getKFactor( genMassPoint, varId, gPT );
+  double nominal   = getKFactor( genMassPoint, 0, gPT );
+  double variation = getKFactor( genMassPoint, varId, gPT );
 
   return ( nominal + (variation-nominal) * fabs(syst_shift) );
 }
