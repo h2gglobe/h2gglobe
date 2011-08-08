@@ -80,6 +80,7 @@ void StatAnalysis::Init(LoopAll& l)
 	<< "nPtCategories "<< nPtCategories << "\n"		
 	<< "doEscaleSyst "<< doEscaleSyst << "\n"
 	<< "doEresolSyst "<< doEresolSyst << "\n"
+	<< "doEcorrectionSyst "<< doEcorrectionSyst << "\n"
 	<< "efficiencyFile " << efficiencyFile << "\n"
 	<< "doPhotonIdEffSyst "<< doPhotonIdEffSyst << "\n"
 	<< "doR9Syst "<< doR9Syst << "\n"
@@ -208,6 +209,10 @@ void StatAnalysis::Init(LoopAll& l)
 	idEffSmearer->doPhoId(true);
 	photonSmearers_.push_back(idEffSmearer);
     }
+    if( doEcorrectionSmear ) {
+        // instance of this smearer done in PhotonAnalysis
+        photonSmearers_.push_back(eCorrSmearer);
+    }
     if( doR9Smear ) {
 	// R9 re-weighting
 	r9Smearer = new EfficiencySmearer( effSmearPars );
@@ -270,6 +275,13 @@ void StatAnalysis::Init(LoopAll& l)
     if( doPhotonIdEffSmear && doPhotonIdEffSyst ) {
 	systPhotonSmearers_.push_back( idEffSmearer );
 	std::vector<std::string> sys(1,idEffSmearer->name());
+	std::vector<int> sys_t(1,-1);	// -1 for signal, 1 for background 0 for both
+	l.rooContainer->MakeSystematicStudy(sys,sys_t);
+    }
+    if( doEcorrectionSmear && doEcorrectionSyst ) {
+        // instance of this smearer done in PhotonAnalysis
+        systPhotonSmearers_.push_back(eCorrSmearer);
+	std::vector<std::string> sys(1,eCorrSmearer->name());
 	std::vector<int> sys_t(1,-1);	// -1 for signal, 1 for background 0 for both
 	l.rooContainer->MakeSystematicStudy(sys,sys_t);
     }
@@ -459,7 +471,8 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	std::vector<std::vector<bool> > p;
 	PhotonReducedInfo phoInfo ( *((TVector3*)l.pho_calopos->At(ipho)), 
 				    // *((TVector3*)l.sc_xyz->At(l.pho_scind[ipho])), 
-				    ((TLorentzVector*)l.pho_p4->At(ipho))->Energy(), l.pho_isEB[ipho], l.pho_r9[ipho],
+				    ((TLorentzVector*)l.pho_p4->At(ipho))->Energy(), l.pho_residCorrEnergy[ipho],
+				    l.pho_isEB[ipho], l.pho_r9[ipho],
 				    l.PhotonCiCSelectionLevel(ipho,l.vtx_std_sel,p,nPhotonCategories_) );
 	float pweight = 1.;
 	// smear MC. But apply energy shift to data 
@@ -730,9 +743,11 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		// smear the photons 
 		for(int ipho=0; ipho<l.pho_n; ++ipho ) { 
 		    std::vector<std::vector<bool> > p;
+		    //std::cout << "GF check: " <<  l.pho_residCorrEnergy[ipho] << "  " << l.pho_residCorrResn[ipho] << std::endl;
 		    PhotonReducedInfo phoInfo ( *((TVector3*)l.pho_calopos->At(ipho)), 
 						/// *((TVector3*)l.sc_xyz->At(l.pho_scind[ipho])), 
-						((TLorentzVector*)l.pho_p4->At(ipho))->Energy(), l.pho_isEB[ipho], l.pho_r9[ipho],
+						((TLorentzVector*)l.pho_p4->At(ipho))->Energy(), l.pho_residCorrEnergy[ipho],
+						l.pho_isEB[ipho], l.pho_r9[ipho],
 						l.PhotonCiCSelectionLevel(ipho,l.vtx_std_sel,p,nPhotonCategories_));
 		   
 		    float pweight = 1.;
