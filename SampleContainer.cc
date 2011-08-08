@@ -26,6 +26,7 @@ void SampleContainer::computeWeight(float intL) {
   if(itype==0) { //this is data
     weight = 1; 
   } else {
+    std::cout << "Computing Weight for type - " << itype << ", Using " << ntot << " Processed Events" << std::endl;
     weight = kfactor*scale*xsec*intL/ntot;
   }
 }
