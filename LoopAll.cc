@@ -561,7 +561,8 @@ void LoopAll::Loop(Int_t a) {
   outputEvents=0;
 
   int hasoutputfile=0;
-  for (Int_t jentry=0; jentry<nentries;jentry++) {
+  //for (Int_t jentry=0; jentry<nentries;jentry++) {
+  for (Int_t jentry=0; jentry<5;jentry++) {
     
     if(jentry%10000==0) {
       cout << "Entry: "<<jentry << " / "<<nentries <<  " "  ;
@@ -576,16 +577,8 @@ void LoopAll::Loop(Int_t a) {
   
     if (ientry < 0) 
       break;
-   
-      
-    if(typerun == 1) {
-
-
-        //nb = fChain->GetEntry(jentry,1);
-	
-      
-    } else {
-      //HERE NEED TO DO A GLOBAL GETENTRY
+    
+    if(typerun != 1) {
       nb=0;
     }
 
@@ -599,7 +592,8 @@ void LoopAll::Loop(Int_t a) {
       cout<<"Called FillandReduce "<<endl;
   }
 
-  if(hasoutputfile) {
+//  if(hasoutputfile) {
+  if(typerun == kReduce || typerun == kFillReduce  ){
     if(outputFile) {
       outputFile->cd();
       if (LDEBUG)
@@ -607,10 +601,9 @@ void LoopAll::Loop(Int_t a) {
       outputTree->Write(0,TObject::kWriteDelete);
     }
 
-    
-    if(outputFile) {
+ //   if(outputFile) {
       outputFile->cd();
-      if(TreesPar[a]) {
+  //    if(TreesPar[a]) {
         
         std::vector<std::string> *parameters = new std::vector<std::string>;
         std::string *job_maker = new std::string;
@@ -631,7 +624,6 @@ void LoopAll::Loop(Int_t a) {
 	assert( globalCountersNames.size() == globalCounters.size() && globalCounters.size() == fileGlobalCounters.size() );
 
         TreesPar[a]->GetEntry(0);
-        
         if (a == 0) {
           outputParTot_Events = tot_events;
           outputParSel_Events = sel_events;
@@ -642,6 +634,7 @@ void LoopAll::Loop(Int_t a) {
         }
 	for(size_t ii=0; ii<globalCountersNames.size(); ++ii) {
 		globalCounters[ii] += fileGlobalCounters[ii];
+        	cout << "globalCounters Tot - " << globalCounters[ii]<<endl;
 	}
 	
         outputParType = type;
@@ -659,10 +652,10 @@ void LoopAll::Loop(Int_t a) {
           outputParReductions = reductions;
           outputParRed_Events[reductions] += (int)countersred[3];
         }
-      } else {
-        std::cerr << "Cannot write Parameter tree." << std::endl;
-      }
-    }
+ //     } else {
+  //      std::cerr << "Cannot write Parameter tree." << std::endl;
+ //     }
+ //   }
   }
   
   int oldnentries=nentries;
