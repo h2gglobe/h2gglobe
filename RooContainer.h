@@ -78,6 +78,7 @@ class RooContainer {
    // void ConvolutePdf(std::string,std::string,std::string,std::string
    //		      ,double norm_guess=100);
 
+   void SumBinnedDatasets(std::string,std::string,std::string,std::vector<double>, std::vector<double>, bool scale=true);
    void CreateDataSet(std::string,std::string,int nbins,double x1=-990,double x2=-990); 
    void MakeSystematics(std::string,std::string,int);
 
@@ -99,6 +100,7 @@ class RooContainer {
    void WriteSpecificCategoryDataCards(std::string,std::string,std::string,std::string);
    void GenerateBinnedPdf(std::string,std::string,std::string,int,int,int,double x1=-999,double x2=-999);
    void CombineBinnedDatasets(std::string,std::string, double fraction=-1);
+   std::vector<double> GetFitNormalisations(std::string,std::string,double,double);
 
    void Save();
 
@@ -127,6 +129,7 @@ class RooContainer {
 			     ,std::vector<std::string> &,bool);
   // void convolutePdf(std::string,std::string,std::string,RooRealVar &,double norm_guess=100);
 
+   void sumBinnedDatasets(std::string,std::string,std::string,double,double,bool);
    void createDataSet(std::string,std::string,int,double x1,double x2);
    void makeSystematics(std::string,std::string,int);
    

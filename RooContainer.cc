@@ -402,6 +402,43 @@ void RooContainer::Save(){
   ws.Write();
 }
 
+std::vector<double> RooContainer::GetFitNormalisations(std::string pdf_name, std::string data_name, double r1,double r2){
+ 
+  std::vector<double> normalisations;
+
+  for (int cat=0;cat<ncat;cat++){
+   std::map<std::string,RooRealVar*>::iterator obs_var = m_data_var_ptr_.find(getcatName(data_name,cat));
+   if (obs_var == m_data_var_ptr_.end()) {
+    std::cerr << "WARNING!!! -- RooContainer::GetFitNormalisations --  No Dataset named "
+	      << data_name << std::endl;
+   } else {
+     bool multi_pdf;
+     RooAbsPdf *pdf_ptr;
+
+     std::map<std::string,RooExtendPdf>::iterator exp = m_exp_.find(pdf_name);
+
+     if (exp != m_exp_.end()) {
+      pdf_ptr = &m_exp_[pdf_name];
+     } else {
+      std::map<std::string,RooAddPdf>::iterator pdf  = m_pdf_.find(pdf_name);
+     if (pdf != m_pdf_.end()) {
+      multi_pdf = true;
+      pdf_ptr = &m_pdf_[pdf_name];
+     }
+      else {
+        std::cerr << "WARNING!!! -- RooContainer::GetFitNormalisations --  No Pdf named "
+	         << pdf_name << endl;  
+      } 
+     }
+     std::string obs_name = data_obs_names_[getcatName(data_name,cat)];
+     // Just use a weird name (getcatName(obs_name)) for the histogram since we dont need it
+     normalisations.push_back(getNormalisationFromFit(pdf_name,getcatName(obs_name,cat),pdf_ptr,obs_var->second,r1,r2,multi_pdf));
+   }
+  }
+
+  return normalisations;
+
+}
 // ----------------------------------------------------------------------------------------------------
 void RooContainer::InputDataPoint(std::string var_name, int cat, double x, double w){
  
@@ -557,7 +594,46 @@ void RooContainer::InputSystematicSet(std::string s_name, std::string sys_name, 
     //// }
   }
 }
+// -----------------------------------------------------------------------------------------
+void RooContainer::SumBinnedDatasets(std::string new_name, std::string data_one,std::string data_two, std::vector<double> coefficients_one, std::vector<double> coefficients_two, bool scale){
 
+   if (coefficients_one.size() != ncat || coefficients_two.size() != ncat ){
+	std::cerr << "WARNING!! -- RooContainer::SumBinnedDataSets -- number of coefficients should be the same as number of categories " << std::endl;
+   } else {
+	
+	for (int cat=0;cat<ncat;cat++){
+	   sumBinnedDatasets(getcatName(new_name,cat),getcatName(data_one,cat),getcatName(data_two,cat),coefficients_one[cat],coefficients_two[cat],scale);
+	}
+	
+   }
+}
+// -----------------------------------------------------------------------------------------
+void RooContainer::sumBinnedDatasets(std::string new_name,std::string data_one,std::string data_two,double c1, double c2, bool scale){
+
+   std::map<std::string,TH1F>::iterator it_one = m_th1f_.find(data_one);
+   std::map<std::string,TH1F>::iterator it_two = m_th1f_.find(data_two);
+
+   if (it_one !=m_th1f_.end() && it_two !=m_th1f_.end() ){
+   
+      TH1F *histOne = (TH1F*)((*it_one).second).Clone();
+      histOne->SetName(Form("th1f_%s",new_name.c_str()));
+      if (scale) {  // coefficients are just multiples each histogram
+	histOne->Scale(c1);
+	histOne->Add(&(it_two->second),c2);
+      } else {
+	histOne->Scale(c1/histOne->Integral());
+	histOne->Add(&(it_two->second),c2/((*it_two).second).Integral());
+      }
+
+   m_th1f_.insert(std::pair<std::string,TH1F>(new_name,*histOne));
+   std::cout << "RooContainer::SumBinnedDatasets -- Created New Histogram called " << new_name << std::endl;
+  
+   } else {
+	std::cerr << "WARNING -- RooContainer::SumBinnedDatasets -- One of the following Histograms wasn't found " 
+	          << data_one << ", " << data_two << std::endl;
+   }
+   
+}
 // -----------------------------------------------------------------------------------------
 void RooContainer::CombineBinnedDatasets(std::string data_one, std::string data_two, double fraction){
   for (int cat=0;cat<ncat;cat++) {
@@ -1707,7 +1783,6 @@ double RooContainer::getNormalisationFromFit(std::string pdf_name,std::string hi
   obs->setRange(hist_name.c_str(),r1,r2);
   RooAbsReal* integral = pdf_ptr->createIntegral(*obs,NormSet(*obs),Range(hist_name.c_str()));
   normalisation *= integral->getVal();
-
 
   return normalisation;
 }
