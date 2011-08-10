@@ -16,4 +16,11 @@
 #166862 -1 -0.14e-2 -0.74e-2 -5.61e-2 -2.73e-2
 
 ## 05Jul reReco https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/313/1.html
-1 -1 0.03e-2 -0.54e-2 0.03e-2 -0.24e-2
+# 1 -1 0.03e-2 -0.54e-2 0.03e-2 -0.24e-2
+
+## "dressed rehearsal" numbers based on this: https://hypernews.cern.ch/HyperNews/CMS/get/ecal-calibration/200.html
+## update needed for production of final results;
+## three run ranges for Jul05, Aug05 and PrV6
+160329 170052  0.03e-2 -0.54e-2 0.03e-2 -0.24e-2
+170053 172790 -0.20e-2 -0.81e-2 1.09e-2  0.43e-2
+172791 -1     -0.35e-2 -0.97e-2 2.15e-2  1.58e-2
