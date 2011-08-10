@@ -1,11 +1,19 @@
-intL=1092. histfile=CMS-HGG_merged.root output=shifo.root
+intL=1650. histfile=CMS-HGG_1650pb.root output=shifo.root
 
 ->
 put here files to merge
 doesnt matter what the type etc is
 ->
-Fil=CMS-HGG_1092pb.root
-Fil=CMS-HGG_1092pb_ff.root
+Fil=CMS-HGG_1650pb_0.root
+Fil=CMS-HGG_1650pb_1.root
+Fil=CMS-HGG_1650pb_2.root
+Fil=CMS-HGG_1650pb_3.root
+Fil=CMS-HGG_1650pb_4.root
+Fil=CMS-HGG_1650pb_5.root
+Fil=CMS-HGG_1650pb_6.root
+Fil=CMS-HGG_1650pb_7.root
+Fil=CMS-HGG_1650pb_8.root
+Fil=CMS-HGG_1650pb_9.root
 
 
 ->
