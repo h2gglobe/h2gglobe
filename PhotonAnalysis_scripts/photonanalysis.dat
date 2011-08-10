@@ -38,16 +38,4 @@ doTriggerSelection=1
 puHist=/afs/cern.ch/user/m/musella/public/higgs/EstPU_Cert_May10ReReco_160404-163869_PromptReco_163870_167151_DCSOnly_167151-167746.root.weightsfor_globe_V09_00_S4.root
 puMap=pu_weights_map.dat
 
-->
-May10 re-reco
-scale_offset_EBHighR9=0.49e-2
-scale_offset_EBLowR9=-0.11e-2
-scale_offset_EEHighR9=-0.57e-2
-scale_offset_EELowR9=0.39e-2
-scale_offset_error_EBHighR9=0.07e-2
-scale_offset_error_EBLowR9=0.05e-2
-scale_offset_error_EEHighR9=0.24e-2
-scale_offset_error_EELowR9=0.19e-2
-->
-
 scale_offset_file=energy_scale_offsets.dat
