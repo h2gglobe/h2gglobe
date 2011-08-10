@@ -59,7 +59,7 @@ puHist=/castor/cern.ch/user/a/adavidzh/Higgs2011/pu/EstPU_Cert_May10ReReco_16040
 ->
 
 ->
-scale variations defined as: (deltaM_data - deltaM_MC) / M_Z   =>   scale factor >0 means energy should
+scale variations often measured as: (deltaM_data - deltaM_MC) / M_Z   => those numbers need be changed in sign for application to data
 run-dependent corrections are now taken from energy_scale_offsets.dat;
 GF, aug10: Escale shift taken from https://hypernews.cern.ch/HyperNews/CMS/get/ecal-calibration/200.html for the "dressed rehearsal"; using stat error as uncertainties.
 ->
