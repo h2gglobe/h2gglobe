@@ -67,8 +67,6 @@ bool KFactorSmearer::init()
   readMassPoint(110, upId, downId);
   readMassPoint(115, upId, downId);
   readMassPoint(120, upId, downId);
-  readMassPoint(121, upId, downId);
-  readMassPoint(123, upId, downId);
   readMassPoint(125, upId, downId);
   readMassPoint(130, upId, downId);
   readMassPoint(135, upId, downId);
