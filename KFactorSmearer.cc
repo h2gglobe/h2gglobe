@@ -42,7 +42,12 @@ bool KFactorSmearer::smearEvent( float & weight, const TLorentzVector & p4, cons
   else if (sample_type == -33) genMassPoint=140;
   else if (sample_type == -37) genMassPoint=125;
   else if (sample_type == -41) genMassPoint=135;
-  else if (sample_type <=-45) assert(0);   // this is the case of non-existing sample
+  else if (sample_type == -45) genMassPoint=145;
+  else if (sample_type == -49) genMassPoint=150;
+  else if (sample_type == -55) genMassPoint=120;  // No KFactors for 121 or 123 so using closest neighbors
+  else if (sample_type == -57) genMassPoint=125;
+
+  else if (sample_type <=-58) assert(0);   // this is the case of non-existing sample
   else    return true;                     // this is the case of backgrounds
 
   double kWeight = getWeight( p4, nPu, genMassPoint, syst_shift );
@@ -62,10 +67,14 @@ bool KFactorSmearer::init()
   readMassPoint(110, upId, downId);
   readMassPoint(115, upId, downId);
   readMassPoint(120, upId, downId);
+  readMassPoint(121, upId, downId);
+  readMassPoint(123, upId, downId);
   readMassPoint(125, upId, downId);
   readMassPoint(130, upId, downId);
   readMassPoint(135, upId, downId);
   readMassPoint(140, upId, downId);
+  readMassPoint(145, upId, downId);
+  readMassPoint(150, upId, downId);
 
   theKFactorFile_->Close();
 
@@ -74,7 +83,7 @@ bool KFactorSmearer::init()
 
 double KFactorSmearer::getKFactor(int genMassPoint, int id, double gPT  ) const {
 
-  if(genMassPoint==105 || genMassPoint==110 || genMassPoint==115 || genMassPoint==120 || genMassPoint==125 || genMassPoint==130 || genMassPoint==135 || genMassPoint==140 ) {
+  if(genMassPoint==105 || genMassPoint==110 || genMassPoint==115 || genMassPoint==120 || genMassPoint==125 || genMassPoint==130 || genMassPoint==135 || genMassPoint==140 || genMassPoint==145 ||genMassPoint==150 ||genMassPoint==121 ||genMassPoint==123 ) {
     const TH1* tmp = kFactorSmearers_.find(genMassPoint)->second[id]; 
     return tmp->GetBinContent(tmp->FindFixBin(gPT));
   }
