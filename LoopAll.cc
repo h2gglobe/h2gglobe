@@ -321,7 +321,7 @@ void LoopAll::LoopAndFillHistos(TString treename) {
     }
 
     *it_treelumi = (TTree*) (*it_file)->Get("lumi");
-    if( *it_treelumi != 0 ) {
+    if( *it_treelumi != 0 && outputFile ) {
       StoreProcessedLumis( *it_treelumi );
     }
 
@@ -349,7 +349,7 @@ void LoopAll::StoreProcessedLumis(TTree * tree){
   for( int ii=0; ii<tree->GetEntries(); ++ii) {
     tree->GetEntry(ii);
     if( !CheckLumiSelection(run,lumis)  ) { continue; }
-    outputTreeLumi->Fill();
+    if( outputFile ) outputTreeLumi->Fill();
   }
   if(outputFile) {
     outputFile->cd();
@@ -479,7 +479,7 @@ void LoopAll::TermReal(Int_t typerunpass) {
     outputParReductions++;
     outputTreePar->Fill();
     outputTreePar->Write(0,TObject::kWriteDelete);
-    outputTreeLumi->Write(0,TObject::kWriteDelete);
+    if(outputFile) outputTreeLumi->Write(0,TObject::kWriteDelete);
   }
 }
 
@@ -691,7 +691,6 @@ void LoopAll::WriteHist() {
 
 	hfile = TFile::Open(histFileName, "RECREATE", "Globe ROOT file with histograms");
 
-  hfile->cd();
   hfile->cd();
   for(unsigned int ind=0; ind<histoContainer.size(); ind++) {
     histoContainer[ind].Save();
