@@ -48,35 +48,33 @@ doKFactorSyst=1
 
 ->
 Inputs for reweighing
+- phoId and trigger: same as EPS,  https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/374.html
+- vertexing from: https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/374/1.html
 ->
 kfacHist=/afs/cern.ch/user/n/nckw/public/KFactors_AllScales.root
-efficiencyFile=/afs/cern.ch/user/f/franzoni/public/globe/sig_reweighing_v12.root
-
+efficiencyFile=/afs/cern.ch/user/f/franzoni/public/globe/sig_reweighing_v13.root
 puHist=/afs/cern.ch/user/m/musella/public/higgs/EstPU_Cert_May10ReReco_160404-163869_PromptReco_163870_167151_DCSOnly_167151-167746.root.weightsfor_globe_V09_00_S4.root
 puMap=pu_weights_map.dat
-->
-puHist=/castor/cern.ch/user/a/adavidzh/Higgs2011/pu/EstPU_Cert_May10ReReco_160404-163869_PromptReco_163870_167151_DCSOnly_167151-167746.root.weightsfor_globe_V09_00_gluglu_H_gg_115_pu2011.root
-->
 
 ->
 run-dependent corrections are now taken from energy_scale_offsets.dat;
-GF, aug10: Escale shift taken from https://hypernews.cern.ch/HyperNews/CMS/get/ecal-calibration/200.html for the "dressed rehearsal"; using stat error as uncertainties.
+GF, aug12: Escale shift taken from https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/371.html
 ->
 scale_offset_file=energy_scale_offsets.dat
 
-scale_offset_error_EBHighR9=0.03e-2
-scale_offset_error_EBLowR9=0.04e-2
-scale_offset_error_EEHighR9=0.22e-2
-scale_offset_error_EELowR9=0.16e-2
+scale_offset_error_EBHighR9=0.1e-2
+scale_offset_error_EBLowR9=0.4e-2
+scale_offset_error_EEHighR9=0.3e-2
+scale_offset_error_EELowR9=0.4e-2
 
 ->
-smearing updated according to: https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/313/1.html (still EPS values)
+smearing updated according to: https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/371.html
 ->
-smearing_sigma_EBHighR9=0.92e-2
-smearing_sigma_EBLowR9=1.70e-2
-smearing_sigma_EEHighR9=2.925e-2
-smearing_sigma_EELowR9=2.89e-2
-smearing_sigma_error_EBHighR9=0.20e-2
+smearing_sigma_EBHighR9=1.00e-2
+smearing_sigma_EBLowR9=1.69e-2
+smearing_sigma_EEHighR9=3.03e-2
+smearing_sigma_EELowR9=2.96e-2
+smearing_sigma_error_EBHighR9=0.23e-2
 smearing_sigma_error_EBLowR9=0.42e-2
-smearing_sigma_error_EEHighR9=0.50e-2
-smearing_sigma_error_EELowR9=0.43e-2
+smearing_sigma_error_EEHighR9=0.51e-2
+smearing_sigma_error_EELowR9=0.38e-2
