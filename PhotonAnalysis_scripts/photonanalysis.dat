@@ -35,7 +35,7 @@ tkIso_dxymax=0.1
 ->
 
 doTriggerSelection=1
-puHist=/afs/cern.ch/user/m/musella/public/higgs/EstPU_Cert_May10ReReco_160404-163869_PromptReco_163870_167151_DCSOnly_167151-167746.root.weightsfor_globe_V09_00_S4.root
+puHist=/afs/cern.ch/user/n/nckw/public/lp.json.weights.root
 puMap=pu_weights_map.dat
 
 scale_offset_file=energy_scale_offsets.dat
