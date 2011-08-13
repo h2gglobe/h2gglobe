@@ -44,7 +44,7 @@ bool KFactorSmearer::smearEvent( float & weight, const TLorentzVector & p4, cons
   else if (sample_type == -41) genMassPoint=135;
   else if (sample_type == -45) genMassPoint=145;
   else if (sample_type == -49) genMassPoint=150;
-  else if (sample_type == -55) genMassPoint=120;  // No KFactors for 121 or 123 so using closest neighbors
+  else if (sample_type == -53) genMassPoint=120;  // No KFactors for 121 or 123 so using closest neighbors
   else if (sample_type == -57) genMassPoint=125;
 
   else if (sample_type <=-62) assert(0);   // this is the case of non-existing sample
