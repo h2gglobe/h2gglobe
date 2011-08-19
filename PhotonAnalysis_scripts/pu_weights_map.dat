@@ -3,6 +3,15 @@
 ## 0 is the default set
 0 gluglu_H_gg_115_pu2011_0 
 
+1 qcd_pu2011_30
+2 qcd_pu2011_40
+3 gjet_pu2011_20
+4 di_photon_jets_pu2011_0
+5 di_photon_box_pu2011_25
+6 dy_jets_pu2011_50
+7 di_photon_box_pu2011_10
+8 di_photon_box_pu2011_250
+
 -57 gluglu_H_gg_123_pu2011_0
 -58 vbf_H_gg_123_pu2011_0    
 -60 wz_H_gg_123_pu2011_0     
