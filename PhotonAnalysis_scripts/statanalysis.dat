@@ -53,7 +53,7 @@ Inputs for reweighing
 ->
 kfacHist=/afs/cern.ch/user/n/nckw/public/KFactors_AllScales.root
 efficiencyFile=/afs/cern.ch/user/f/franzoni/public/globe/sig_reweighing_v13.root
-puHist=/afs/cern.ch/user/n/nckw/public/lp.json.weights.root
+puHist=/afs/cern.ch/user/f/franzoni/public/globe/lp.json.weights_aug11.root
 puMap=pu_weights_map.dat
 
 ->
