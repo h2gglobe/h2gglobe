@@ -30,8 +30,8 @@ bool TriggerSelection::pass(const std::vector<std::string> & menu, const std::ve
 				return true; 
 			}
 		} else {
-			std::cerr << "TriggerSelection not found path " << *jt << std::endl;
+			std::cerr << "TriggerSelection did not find path " << *it << std::endl;
 		}
-	}
+	} // loop over all paths for which we would accept the event
 	return false;
 }
