@@ -156,7 +156,8 @@ double GetBR(double mass) {
     }
   }
   
-  return -1;
+  std::cout << "Warning branching ratio outside range of 90-250GeV!!!!" << std::endl;
+  exit(1);
   
 }
 
@@ -309,8 +310,9 @@ double GetXsection(double mass) {
       --iter;
     }
   }
-  
-  return -1;
+
+  std::cout << "Warning cross section outside range of 90-250GeV!!!!" << std::endl;
+  exit(1);
 
 }
 
