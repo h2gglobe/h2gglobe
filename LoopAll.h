@@ -72,6 +72,9 @@ class LoopAll {
   void StoreProcessedLumis(TTree * tree);
   void AddFile(std::string,int);
   void ReadInput(int t=0);
+
+  /** adds a new entry to sampleContainer and returns a reference
+      to this entry. */
   SampleContainer & DefineSamples(const char *filesshortnam,
                             int type, int histtoindfromfiles, int histoplotit,
                             int nred, long long ntot, float intlumi,
