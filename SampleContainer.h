@@ -12,7 +12,16 @@ class SampleContainer {
   ~SampleContainer();
   
   void computeWeight(float);
+
+  /** adds a lumi section range to 'goodLumis' (typically
+      taken from a 'json' file containing the list of 
+      certified luminosity sections).
+
+      @param run the run to be added 
+      @param lumi1 the first lumi section to be added
+      @param lumi2 the last lumi secetion to be added */
   void addGoodLumi(int run, int lumi1, int lumi2 );
+
   void addEventToList(int run, int lumi, int event );
 
      
