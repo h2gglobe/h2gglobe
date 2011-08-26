@@ -898,6 +898,9 @@ void LoopAll::GetBranches(std::map<std::string,int> & names, std::set<TBranch *>
 	}
         if ( itype[current]!=0 || typ!=1){
 	  *(info.branch) = fChain->GetBranch( name.c_str() );
+          if (*(info.branch) == NULL)
+            cerr << "WARNING: in LoopAll::GetBranches(..): got null pointer for branch '" << name << "', typ=" << typ << endl;
+
 	  branches.insert( *(info.branch) );
 	}
     }
