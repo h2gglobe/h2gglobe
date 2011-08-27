@@ -150,12 +150,16 @@ graph95up = ROOT.TGraphErrors()
 graph95dn = ROOT.TGraphErrors()
 graphmede = ROOT.TGraphErrors()
 
+LegendEntry = ""
+if Method == "ProfileLikelihood": LegendEntry = "PL"
+if Method == "Bayesian": LegendEntry = "Bayesian"
+if Method == "Frequentist": LegendEntry = "CLs"
 
-leg.AddEntry(graphObs,"Observed CLs Limit","L")
+leg.AddEntry(graphObs,"Observed %s Limit"%LegendEntry,"L")
 if options.bayes: leg.AddEntry(bayesObs,"Observed Bayesian Limit","L")
-leg.AddEntry(graphMed,"Median Expected CLs Limit","L")
-leg.AddEntry(graph68,"#pm 1#sigma Expected CLs","F")
-leg.AddEntry(graph95,"#pm 2#sigma Expected CLs","F")
+leg.AddEntry(graphMed,"Median Expected %s Limit"%LegendEntry,"L")
+leg.AddEntry(graph68,"#pm 1#sigma Expected %s"%LegendEntry,"F")
+leg.AddEntry(graph95,"#pm 2#sigma Expected %s"%LegendEntry,"F")
 
 MG = ROOT.TMultiGraph()
 
