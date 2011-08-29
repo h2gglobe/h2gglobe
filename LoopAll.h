@@ -67,7 +67,14 @@ class LoopAll {
   //void WriteHist();  
   //void WriteFits();  
   //void WriteCounters();  
-  void SetTypeRun(int, const char* n);
+
+  /** @param type is the type of the analysis:
+             0 for looper.py (filling histograms)
+             1 for reduce.py (reduction step)
+      @param n is the name of the output file 
+  */
+  void SetTypeRun(int type, const char* n);
+
   //void SetOutputNames(const char* n, const char* n2="");
   void StoreProcessedLumis(TTree * tree);
   void AddFile(std::string,int);
@@ -194,6 +201,7 @@ class LoopAll {
   std::set<TBranch *> inputBranches; 
   std::list<std::string> outputBranchNames;
   
+  /** list of the analyses to be performed */
   std::vector<BaseAnalysis*> analyses;
 };
 
