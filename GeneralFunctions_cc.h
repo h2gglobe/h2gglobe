@@ -1137,17 +1137,18 @@ int LoopAll::DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL, phoCiCIDLevel SUB
 	  
 	  float leadEta = fabs(((TVector3 *)sc_xyz->At(pho_scind[lead]))->Eta());
 	  float subleadEta = fabs(((TVector3 *)sc_xyz->At(pho_scind[sublead]))->Eta());
-
-	  if( lead_p4.Pt() < leadPtMin || sublead_p4.Pt() < subleadPtMin || 
-	      leadEta > 2.5 || subleadEta > 2.5 || 
-	      ( leadEta > 1.4442 && leadEta < 1.566 ) || ( subleadEta > 1.4442 && subleadEta < 1.566 )
-		  ) { continue; }
-	  
 	  float m_gamgam = (lead_p4+sublead_p4).M();
-	  float L_ptom = lead_p4.Et()/m_gamgam;
-	  float S_ptom = sublead_p4.Et()/m_gamgam;
-	  if(applyPtoverM && (L_ptom < 0.33 || S_ptom<0.25))continue;
-	  	  
+
+	  if( leadEta > 2.5 || subleadEta > 2.5 || 
+	      ( leadEta > 1.4442 && leadEta < 1.566 ) ||
+	      ( subleadEta > 1.4442 && subleadEta < 1.566 ) ) { continue; }
+	  
+	  if( applyPtoverM ) {
+	    if ( lead_p4.Pt()/m_gamgam < leadPtMin/120. || sublead_p4.Pt()/m_gamgam < subleadPtMin/120. ) { continue; }
+	  } else {
+	    if ( lead_p4.Pt() < leadPtMin || sublead_p4.Pt() < subleadPtMin ) { continue; }
+	  }
+
 	  std::vector<std::vector<bool> > ph_passcut;
 	  if( PhotonCiCSelectionLevel(lead, ivtx, ph_passcut, ncategories, 0, pho_energy_array ) < LEADCUTLEVEL ) { continue; }
 	  if( PhotonCiCSelectionLevel(sublead, ivtx, ph_passcut, ncategories, 1, pho_energy_array ) < SUBLEADCUTLEVEL ) { continue; }
