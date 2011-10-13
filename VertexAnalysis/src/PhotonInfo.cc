@@ -52,7 +52,7 @@ TLorentzVector PhotonInfo::p4(float vtxx, float vtxy, float vtxz) const
 
 bool  PhotonInfo::isAConversion() {
   bool isAConversion=false;
-  if (  nTracks_ == 2  &&  convVtxValid_ &&   convVtxChi2Prob_ > 0.0005 )  isAConversion=true;
+  if (  nTracks_ == 2  &&  convVtxValid_ &&   convVtxChi2Prob_ > 0.000001 )  isAConversion=true;
 
   return isAConversion;
 
