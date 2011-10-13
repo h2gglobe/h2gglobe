@@ -14,11 +14,6 @@ StatAnalysis::StatAnalysis()  :
     name_("StatAnalysis"),
     vtxAna_(vtxAlgoParams), vtxConv_(vtxAlgoParams)
 {
-    reRunCiC = false;
-    doMCSmearing = true;
-    massMin = 100.;
-    massMax = 150.;
-    int nDataBins=50;
 
     systRange  = 3.; // in units of sigma
     nSystSteps = 1;    
