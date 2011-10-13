@@ -37,7 +37,7 @@ public:
 	std::vector<std::string> vtxVarNames;
 	bool useDefaultVertex;
 	float forcedRho;
-	
+	bool applyPtoverM;	
 	bool doTriggerSelection; 
 	std::vector<TriggerSelection> triggerSelections;
 	

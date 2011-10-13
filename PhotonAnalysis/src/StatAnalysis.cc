@@ -190,6 +190,10 @@ void StatAnalysis::Init(LoopAll& l)
 	//// eScaleDataSmearer->scaleOrSmear(true);
 	//photonDataSmearers_.push_back(eScaleDataSmearer); // must not be included among MC smearers; will be singled out upon need // GF questions?
     }
+    if( doEcorrectionSmear ) {
+        // instance of this smearer done in PhotonAnalysis
+        photonSmearers_.push_back(eCorrSmearer);
+    }
     if( doEresolSmear ) {
 	// energy resolution smearing
 	std::cerr << __LINE__ << std::endl; 
@@ -208,10 +212,6 @@ void StatAnalysis::Init(LoopAll& l)
 	idEffSmearer->init();
 	idEffSmearer->doPhoId(true);
 	photonSmearers_.push_back(idEffSmearer);
-    }
-    if( doEcorrectionSmear ) {
-        // instance of this smearer done in PhotonAnalysis
-        photonSmearers_.push_back(eCorrSmearer);
     }
     if( doR9Smear ) {
 	// R9 re-weighting
@@ -260,6 +260,13 @@ void StatAnalysis::Init(LoopAll& l)
     l.rooContainer->sigmaRange = systRange;
     // RooContainer does not support steps different from 1 sigma
     //assert( ((float)nSystSteps) == systRange );
+    if( doEcorrectionSmear && doEcorrectionSyst ) {
+        // instance of this smearer done in PhotonAnalysis
+        systPhotonSmearers_.push_back(eCorrSmearer);
+	std::vector<std::string> sys(1,eCorrSmearer->name());
+	std::vector<int> sys_t(1,-1);	// -1 for signal, 1 for background 0 for both
+	l.rooContainer->MakeSystematicStudy(sys,sys_t);
+    }
     if( doEscaleSmear && doEscaleSyst ) {
 	systPhotonSmearers_.push_back( eScaleSmearer );
 	std::vector<std::string> sys(1,eScaleSmearer->name());
@@ -275,13 +282,6 @@ void StatAnalysis::Init(LoopAll& l)
     if( doPhotonIdEffSmear && doPhotonIdEffSyst ) {
 	systPhotonSmearers_.push_back( idEffSmearer );
 	std::vector<std::string> sys(1,idEffSmearer->name());
-	std::vector<int> sys_t(1,-1);	// -1 for signal, 1 for background 0 for both
-	l.rooContainer->MakeSystematicStudy(sys,sys_t);
-    }
-    if( doEcorrectionSmear && doEcorrectionSyst ) {
-        // instance of this smearer done in PhotonAnalysis
-        systPhotonSmearers_.push_back(eCorrSmearer);
-	std::vector<std::string> sys(1,eCorrSmearer->name());
 	std::vector<int> sys_t(1,-1);	// -1 for signal, 1 for background 0 for both
 	l.rooContainer->MakeSystematicStudy(sys,sys_t);
     }
@@ -535,7 +535,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
    
     sumev += weight;
     // FIXME pass smeared R9
-    int diphoton_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtCut, subleadEtCut, 4,false, &smeared_pho_energy[0] ); 
+    int diphoton_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtCut, subleadEtCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
     /// std::cerr << "Selected pair " << l.dipho_n << " " << diphoton_id << std::endl;
     if (diphoton_id > -1 ) {
 
@@ -863,7 +863,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	       
 		// analyze the event
 		// FIXME pass smeared R9
-		int diphoton_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtCut, subleadEtCut, 4,false, &smeared_pho_energy[0] ); 
+		int diphoton_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtCut, subleadEtCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
 	       
 		if (diphoton_id > -1 ) {
 		   

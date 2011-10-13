@@ -34,6 +34,7 @@ tkIso_dzmax=1
 tkIso_dxymax=0.1
 ->
 
+applyPtoverM=0
 doTriggerSelection=1
 puHist=/afs/cern.ch/user/n/nckw/public/lp.json.weights.root
 puMap=pu_weights_map.dat

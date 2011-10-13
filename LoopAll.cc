@@ -232,7 +232,7 @@ void LoopAll::MergeContainers(){
 	}
 
 	std::cout << "Finished Combining File - " << (*it) << std::endl;
-
+	delete work;
 	(*it_file)->Close();
 	//delete tmpFile;			
   } 

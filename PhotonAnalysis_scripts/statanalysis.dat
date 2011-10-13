@@ -4,7 +4,7 @@ leadEtCut=40.0
 subleadEtCut=30.0
 
 massMin=100.
-massMax=200.
+massMax=160.
 nDataBins=60
 
 nEtaCategories=2
