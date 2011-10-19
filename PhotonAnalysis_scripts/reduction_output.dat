@@ -124,6 +124,8 @@ pho_scind
 sc_xyz
 pho_residCorrEnergy
 pho_residCorrResn
+pho_regr_energy
+pho_regr_energyerr
 
 ->
 All Conversions

@@ -407,6 +407,8 @@
    b_pho_conv_vertexcorrected_p4->GetEntry(jentry);
    b_pho_residCorrEnergy->GetEntry(jentry);
    b_pho_residCorrResn->GetEntry(jentry);
+   b_pho_regr_energy->GetEntry(jentry);
+   b_pho_regr_energyerr->GetEntry(jentry);
    b_conv_n->GetEntry(jentry);
    b_conv_p4->GetEntry(jentry);
    b_conv_ntracks->GetEntry(jentry);

@@ -33,6 +33,9 @@ pho_calopos
 pho_residCorrEnergy
 pho_residCorrResn
 
+pho_regr_energy
+pho_regr_energyerr
+
 ->
 CiC inputs
 ->

@@ -407,6 +407,8 @@
    b_pho_conv_vertexcorrected_p4 = fChain->GetBranch("pho_conv_vertexcorrected_p4"); 
    b_pho_residCorrEnergy = fChain->GetBranch("pho_residCorrEnergy"); 
    b_pho_residCorrResn = fChain->GetBranch("pho_residCorrResn"); 
+   b_pho_regr_energy = fChain->GetBranch("pho_regr_energy");
+   b_pho_regr_energyerr = fChain->GetBranch("pho_regr_energyerr");
    b_conv_n = fChain->GetBranch("conv_n");
    b_conv_p4 = fChain->GetBranch("conv_p4");
    b_conv_ntracks = fChain->GetBranch("conv_ntracks");

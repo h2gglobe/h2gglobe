@@ -407,6 +407,8 @@ BRANCH_DICT(pho_conv_refitted_momentum);
 BRANCH_DICT(pho_conv_vertexcorrected_p4);
 BRANCH_DICT(pho_residCorrEnergy);
 BRANCH_DICT(pho_residCorrResn);
+BRANCH_DICT(pho_regr_energy);
+BRANCH_DICT(pho_regr_energyerr);
 BRANCH_DICT(conv_n);
 BRANCH_DICT(conv_p4);
 BRANCH_DICT(conv_ntracks);
