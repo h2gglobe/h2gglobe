@@ -17,7 +17,8 @@ using namespace std;
 PhotonAnalysis::PhotonAnalysis()  : 
 	runStatAnalysis(false), doTriggerSelection(false),
 	name_("PhotonAnalysis"),
-	vtxAna_(vtxAlgoParams), vtxConv_(vtxAlgoParams)
+	vtxAna_(vtxAlgoParams), vtxConv_(vtxAlgoParams),
+	energyCorrectionMethod("DaunceyAndKenzie"), energyCorrected(0), energyCorrectedError(0)
 {
 	useDefaultVertex=false;
 	forcedRho = -1.;
@@ -124,6 +125,17 @@ void PhotonAnalysis::Init(LoopAll& l)
 {
 	if(PADEBUG) 
 		cout << "InitRealPhotonAnalysis START"<<endl;
+
+	if(energyCorrectionMethod=="DaunceyAndKenzie"){
+		energyCorrected		= (l.pho_residCorrEnergy);
+		energyCorrectedError= (l.pho_residCorrResn);
+	}else if(energyCorrectionMethod=="Bendavid"){
+		energyCorrected		= (l.pho_regr_energy);
+		energyCorrectedError= (l.pho_regr_energyerr);
+//	}else if(energyCorrectionMethod=="PFRegression"){
+	}else{
+		assert(doEcorrectionSmear==false);
+	}
 
 	if( vtxVarNames.empty() ) {
 		vtxVarNames.push_back("ptbal"), vtxVarNames.push_back("ptasym"), vtxVarNames.push_back("logsumpt2");
@@ -644,10 +656,15 @@ void PhotonAnalysis::PreselectPhotons(LoopAll& l, int jentry)
 
 	for(int ipho=0; ipho<l.pho_n; ++ipho ) { 
 		std::vector<std::vector<bool> > p;
-		PhotonReducedInfo phoInfo ( *((TVector3*)l.pho_calopos->At(ipho)), 
-					    ((TLorentzVector*)l.pho_p4->At(ipho))->Energy(), l.pho_residCorrEnergy[ipho],
-					    l.pho_isEB[ipho], l.pho_r9[ipho],
-					    false );
+		PhotonReducedInfo phoInfo (
+				*((TVector3*)l.pho_calopos->At(ipho)),
+				((TLorentzVector*)l.pho_p4->At(ipho))->Energy(),
+				energyCorrected[ipho],
+				l.pho_isEB[ipho],
+				l.pho_r9[ipho],
+				false,
+				(energyCorrectedError!=0?energyCorrectedError[ipho]:0)
+					    );
 		float pweight = 1.;
 		float sweight = 1.;
 		if( cur_type == 0 ) {          // correct energy scale in data

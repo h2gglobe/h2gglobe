@@ -432,6 +432,8 @@ TClonesArray *pho_conv_refitted_momentum;
 TClonesArray *pho_conv_vertexcorrected_p4;
 Float_t pho_residCorrEnergy[MAX_PHOTONS];
 Float_t pho_residCorrResn[MAX_PHOTONS];
+Float_t pho_regr_energy[MAX_PHOTONS];
+Float_t pho_regr_energyerr[MAX_PHOTONS];
 Int_t conv_n;
 TClonesArray *conv_p4;
 Int_t conv_ntracks[MAX_CONVERTEDPHOTONS];

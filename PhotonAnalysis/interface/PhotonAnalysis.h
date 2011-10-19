@@ -79,6 +79,8 @@ public:
 	enum BkgCategory{promptprompt,promptfake,fakefake};
 	bool keepPP, keepPF, keepFF;
 
+	std::string energyCorrectionMethod;
+
 protected:
 	void PreselectPhotons(LoopAll& l, int jentry);
 	void StatAnalysis(LoopAll &l, int jentry);
@@ -99,6 +101,8 @@ protected:
 	EnergySmearer *eCorrSmearer;      // corrections for energy scale  MC
 	std::vector<float> corrected_pho_energy;
 	
+	Float_t *energyCorrected;
+	Float_t *energyCorrectedError;
 	
 };
 

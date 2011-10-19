@@ -407,6 +407,8 @@
     TBranch *b_pho_conv_vertexcorrected_p4;
     TBranch *b_pho_residCorrEnergy;
     TBranch *b_pho_residCorrResn;
+    TBranch *b_pho_regr_energy;
+    TBranch *b_pho_regr_energyerr;
     TBranch *b_conv_n;
     TBranch *b_conv_p4;
     TBranch *b_conv_ntracks;
