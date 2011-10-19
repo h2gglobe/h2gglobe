@@ -18,9 +18,10 @@ ROOT.gStyle.SetOptStat(0)
 
 #-------------------------------------------------------------------------
 # Configuration for the Plotter
-intlumi = str(1.09)
-EXPmasses = [110,115,120,125,130,135,140]       # Only used in Bayesian and PL method
-OBSmasses = numpy.arange(110,141,1	)
+intlumi = str(1.66)
+EXPmasses = [110,115,120,125,130,135,140,150]       # Only used in Bayesian and PL method
+#OBSmasses = range(110,151,1)
+OBSmasses = [110,115,120,125,130,135,140,150]
 theorySMScales = [5,10]  			# A list of the C x sigma to draw
 
 OFFSETLOW=2
@@ -40,6 +41,7 @@ parser.add_option("-r","--doRatio",action="store_true")
 parser.add_option("-s","--doSmooth",action="store_true")
 parser.add_option("-b","--bayes",dest="bayes")
 parser.add_option("-o","--outputLimits",dest="outputLimits")
+parser.add_option("-e","--expectedOnly",action="store_true")
 (options,args)=parser.parse_args()
 # ------------------------------------------------------------------------
 
@@ -53,15 +55,15 @@ print "doSmooth: ", options.doSmooth
  
 Method = args[0]
 EXPName = Method+"/expected"+Method
-
-if Method == "ProfileLikelihood":
+if Method == "Asymptotic":  EXPName = Method+"/higgsCombineTest."+Method  # everyhting contained here
+if Method == "ProfileLikelihood" or Method=="Asymptotic":
   OBSName = Method+"/higgsCombineTest."+Method
 if Method == "Bayesian":
   OBSName = Method+"/higgsCombineOBSERVED.MarkovChainMC"
 if Method == "Frequentist":
   OBSName = Method+"/higgsCombineOBSERVED.Frequentist"
 
-if Method == "Frequentist": EXPmasses = OBSmasses[:]
+if Method == "Frequentist" or Method == "Asymptotic": EXPmasses = OBSmasses[:]
 
 if args[1] == "sm":
 	from theory_sm import *
@@ -99,7 +101,7 @@ ROOT.gROOT.ProcessLine( \
    };"
 )
 from ROOT import Entry
-def getOBSERVED(file):
+def getOBSERVED(file,entry=0):
   try:
    tree = file.Get("limit")
   except:
@@ -107,7 +109,7 @@ def getOBSERVED(file):
   br = tree.GetBranch("limit")
   c = Entry()
   br.SetAddress(ROOT.AddressOf(c,'r'))
-  tree.GetEntry(0)
+  tree.GetEntry(entry)
   return c.r
 
 if Method=="Frequentist":
@@ -119,17 +121,31 @@ if Method=="Frequentist":
     else:
       EXPfiles.append(ROOT.TFile(EXPName+".mH%.1f.quant0.500.root"%m))
   
+elif Method=="Asymptotic":
+  EXPfiles=[]
+  EXPmasses = OBSmasses[:]
+  for m in EXPmasses:
+    if int(m)==m:
+      EXPfiles.append(ROOT.TFile(EXPName+".mH%d.root"%m))
+    else:
+      EXPfiles.append(ROOT.TFile(EXPName+".mH%.1f.root"%m))
+
 else:
   EXPfiles = [ROOT.TFile(EXPName+".mH%d.root"%m) for m in EXPmasses]
 
 # Get the observed limits - Currently only does up to 1 decimal mass points
 OBSfiles = []
-for m in OBSmasses:
-  if int(m)==m:
-    OBSfiles.append(ROOT.TFile(OBSName+".mH%d.root"%m))
-  else:
-    OBSfiles.append(ROOT.TFile(OBSName+".mH%.1f.root"%m))
-obs = [getOBSERVED(O) for O in OBSfiles]
+if not options.expectedOnly:
+  for m in OBSmasses:
+    if int(m)==m:
+      OBSfiles.append(ROOT.TFile(OBSName+".mH%d.root"%m))
+    else:
+      OBSfiles.append(ROOT.TFile(OBSName+".mH%.1f.root"%m))
+  if Method == "Asymptotic":  obs = [getOBSERVED(O,5) for O in OBSfiles] # observed is last entry in these files
+  else: obs = [getOBSERVED(O) for O in OBSfiles]
+else:
+  obs = [0 for O in OBSmasses]
+  OBSfiles = obs[:]
 #-------------------------------------------------------------------------
 
 # Set-up the GRAPHS
@@ -154,9 +170,10 @@ LegendEntry = ""
 if Method == "ProfileLikelihood": LegendEntry = "PL"
 if Method == "Bayesian": LegendEntry = "Bayesian"
 if Method == "Frequentist": LegendEntry = "CLs"
+if Method == "Asymptotic": LegendEntry = "CLs - Asymptotic"
 
-leg.AddEntry(graphObs,"Observed %s Limit"%LegendEntry,"L")
-if options.bayes: leg.AddEntry(bayesObs,"Observed Bayesian Limit","L")
+if not options.expectedOnly: leg.AddEntry(graphObs,"Observed %s Limit"%LegendEntry,"L")
+if options.bayes and not options.expectedOnly: leg.AddEntry(bayesObs,"Observed Bayesian Limit","L")
 leg.AddEntry(graphMed,"Median Expected %s Limit"%LegendEntry,"L")
 leg.AddEntry(graph68,"#pm 1#sigma Expected %s"%LegendEntry,"F")
 leg.AddEntry(graph95,"#pm 2#sigma Expected %s"%LegendEntry,"F")
@@ -179,8 +196,23 @@ for i,mass,f in zip(range(len(EXPfiles)),EXPmasses,EXPfiles):
     for j,mm in enumerate(allMasses): 
 	if mm==mass: sm = xSec[j]*br[j]
   
-  tree = f.Get("limit")
-  medianCalc("r_mH"+str(mass),tree,median,up68,dn68,up95,dn95)
+  if Method == "Asymptotic":   
+      median[0] = getOBSERVED(f,2)
+      up95[0]   = getOBSERVED(f,4)
+      dn95[0]   = getOBSERVED(f,0)
+      up68[0]   = getOBSERVED(f,3)
+      dn68[0]   = getOBSERVED(f,1)
+      print "Mass - ",mass 
+      print "Median   :",median[0] 
+      print "Up 95%   :",up95[0]
+      print "Down 95% :",dn95[0]
+      print "Up 68%   :",up68[0]
+      print "Down 68% :",dn68[0]
+
+  else:
+    tree = f.Get("limit")
+    medianCalc("r_mH"+str(mass),tree,median,up68,dn68,up95,dn95)
+
   graph68.SetPoint(i,float(mass),median[0]*sm)
   graph95.SetPoint(i,float(mass),median[0]*sm)
   graphMed.SetPoint(i,float(mass),median[0]*sm)
@@ -188,11 +220,12 @@ for i,mass,f in zip(range(len(EXPfiles)),EXPmasses,EXPfiles):
   
   if Method == "Frequentist":
 
-    up95[0]   = FrequentistLimits(f.GetName().replace("0.500.root","0.975.root"))
-    dn95[0]   = FrequentistLimits(f.GetName().replace("0.500.root","0.027.root"))
-    up68[0]   = FrequentistLimits(f.GetName().replace("0.500.root","0.840.root"))
-    dn68[0]   = FrequentistLimits(f.GetName().replace("0.500.root","0.160.root"))
+      up95[0]   = FrequentistLimits(f.GetName().replace("0.500.root","0.975.root"))
+      dn95[0]   = FrequentistLimits(f.GetName().replace("0.500.root","0.027.root"))
+      up68[0]   = FrequentistLimits(f.GetName().replace("0.500.root","0.840.root"))
+      dn68[0]   = FrequentistLimits(f.GetName().replace("0.500.root","0.160.root"))
 
+  
   diff95_up = abs(median[0] - up95[0])*sm
   diff95_dn = abs(median[0] - dn95[0])*sm
   diff68_up = abs(median[0] - up68[0])*sm
@@ -219,11 +252,11 @@ for i,mass,f in zip(range(len(EXPfiles)),EXPmasses,EXPfiles):
 # Since i always fitted to the Absolute, need to see if i want the Ratio instead
 if options.doSmooth:
  fitstring = "[0] + [1]*x*x + [2]*x*x*x +[3]*x*x*x*x + [4]*x"
- medfunc = ROOT.TF1("medfunc",fitstring,109.,140.);
- up68func = ROOT.TF1("up68func",fitstring,109.,140.);
- dn68func = ROOT.TF1("dn68func",fitstring,109.,140.);
- up95func = ROOT.TF1("up95func",fitstring,109.,140.);
- dn95func = ROOT.TF1("dn95func",fitstring,109.,140.);
+ medfunc = ROOT.TF1("medfunc",fitstring,109.,150.);
+ up68func = ROOT.TF1("up68func",fitstring,109.,150.);
+ dn68func = ROOT.TF1("dn68func",fitstring,109.,150.);
+ up95func = ROOT.TF1("up95func",fitstring,109.,150.);
+ dn95func = ROOT.TF1("dn95func",fitstring,109.,150.);
 
  graphmede.Fit(medfunc,"R,M,EX0","Q")
  graph68up.Fit(up68func,"R,M,EX0","Q")
@@ -263,17 +296,16 @@ if options.doSmooth:
   graph68.SetPointError(i,0,0,diff68_dn,diff68_up)
   graph95.SetPointError(i,0,0,diff95_dn,diff95_up)
 
-
 #OBSERVED
 for i,mass in zip(range(len(OBSfiles)),OBSmasses):
 
-  sm = 1.;
-  if obs[i] ==-1: continue
-  if not options.doRatio:
-    for j,mm in enumerate(allMasses): 
-	if mm==mass: sm = xSec[j]*br[j]
-  graphObs.SetPoint(i,float(mass),obs[i]*sm)
-  graphObs.SetPointError(i,0,0,0,0)
+    sm = 1.;
+    if obs[i] ==-1: continue
+    if not options.doRatio:
+      for j,mm in enumerate(allMasses): 
+	  if mm==mass: sm = xSec[j]*br[j]
+    graphObs.SetPoint(i,float(mass),obs[i]*sm)
+    graphObs.SetPointError(i,0,0,0,0)
 
 
 #-------------------------------------------------------------------------
@@ -378,9 +410,11 @@ dummyGraph.SetPoint(1,min(OBSmasses)-OFFSETLOW,0)
 dummyGraph.SetPoint(1,max(OBSmasses)+OFFSETHIGH,0)
 
 MG.Add(dummyGraph)
-MG.Add(graphObs)
-if options.bayes:
- MG.Add(bayesObs)
+
+if not options.expectedOnly:
+  MG.Add(graphObs)
+  if options.bayes:
+   MG.Add(bayesObs)
 
 # -------------------------------------
 C = ROOT.TCanvas("#int L = %s"%intlumi,"#int L = %s"%intlumi,1600,1100)
