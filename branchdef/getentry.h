@@ -212,6 +212,7 @@
    b_jet_algoPF1_p4->GetEntry(jentry); 
    b_jet_algoPF1_emfrac->GetEntry(jentry); 
    b_jet_algoPF1_hadfrac->GetEntry(jentry); 
+   b_jet_algoPF1_erescale->GetEntry(jentry); 
    b_jet_algoPF1_ntk->GetEntry(jentry); 
    b_jet_algoPF1_tkind->GetEntry(jentry); 
    b_jet_algoPF1_calotwind->GetEntry(jentry); 

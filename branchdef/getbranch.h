@@ -212,9 +212,10 @@
    b_jet_algoPF1_p4 = fChain->GetBranch("jet_algoPF1_p4"); 
    b_jet_algoPF1_emfrac = fChain->GetBranch("jet_algoPF1_emfrac"); 
    b_jet_algoPF1_hadfrac = fChain->GetBranch("jet_algoPF1_hadfrac"); 
+   b_jet_algoPF1_erescale = fChain->GetBranch("jet_algoPF1_erescale"); 
    b_jet_algoPF1_ntk = fChain->GetBranch("jet_algoPF1_ntk"); 
    b_jet_algoPF1_tkind = fChain->GetBranch("jet_algoPF1_tkind"); 
-   b_jet_algoPF1_calotwind = fChain->GetBranch("jet_algoPF1_calotwind"); 
+   b_jet_algoPF1_calotwind = fChain->GetBranch("jet_algoPF1_calotwind");
    b_jet_algoPF2_n = fChain->GetBranch("jet_algoPF2_n"); 
    b_jet_algoPF2_p4 = fChain->GetBranch("jet_algoPF2_p4"); 
    b_jet_algoPF2_emfrac = fChain->GetBranch("jet_algoPF2_emfrac"); 

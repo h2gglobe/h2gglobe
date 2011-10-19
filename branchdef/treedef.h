@@ -233,6 +233,7 @@ TClonesArray *jet_algo3_p4;
 Int_t jet_algoPF1_n;
 Float_t jet_algoPF1_emfrac[MAX_JETS];
 Float_t jet_algoPF1_hadfrac[MAX_JETS];
+Float_t jet_algoPF1_erescale[MAX_JETS];
 Int_t jet_algoPF1_ntk[MAX_JETS];
 Int_t jet_algoPF1_ncalotw[MAX_JETS];
 std::vector<std::vector<unsigned short> >* jet_algoPF1_calotwind;

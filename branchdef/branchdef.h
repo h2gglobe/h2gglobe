@@ -212,6 +212,7 @@
     TBranch *b_jet_algoPF1_p4;
     TBranch *b_jet_algoPF1_emfrac;
     TBranch *b_jet_algoPF1_hadfrac;
+    TBranch *b_jet_algoPF1_erescale;
     TBranch *b_jet_algoPF1_ntk;
    TBranch *b_jet_algoPF1_tkind;
    TBranch *b_jet_algoPF1_calotwind;

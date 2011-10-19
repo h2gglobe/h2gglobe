@@ -212,6 +212,7 @@ void SetBranchAddress_jet_algoPF1_n(TTree * tree) { tree->SetBranchAddress("jet_
 void SetBranchAddress_jet_algoPF1_p4(TTree * tree) { tree->SetBranchAddress("jet_algoPF1_p4", &jet_algoPF1_p4, &b_jet_algoPF1_p4); }; 
 void SetBranchAddress_jet_algoPF1_emfrac(TTree * tree) { tree->SetBranchAddress("jet_algoPF1_emfrac", jet_algoPF1_emfrac, &b_jet_algoPF1_emfrac); }; 
 void SetBranchAddress_jet_algoPF1_hadfrac(TTree * tree) { tree->SetBranchAddress("jet_algoPF1_hadfrac", jet_algoPF1_hadfrac, &b_jet_algoPF1_hadfrac); }; 
+void SetBranchAddress_jet_algoPF1_erescale(TTree * tree) { tree->SetBranchAddress("jet_algoPF1_erescale", jet_algoPF1_erescale, &b_jet_algoPF1_erescale); }; 
 void SetBranchAddress_jet_algoPF1_ntk(TTree * tree) { tree->SetBranchAddress("jet_algoPF1_ntk", jet_algoPF1_ntk, &b_jet_algoPF1_ntk); }; 
 void SetBranchAddress_jet_algoPF1_tkind(TTree * tree) { tree->SetBranchAddress("jet_algoPF1_tkind", &jet_algoPF1_tkind, &b_jet_algoPF1_tkind); }; 
 void SetBranchAddress_jet_algoPF1_calotwind(TTree * tree) { tree->SetBranchAddress("jet_algoPF1_calotwind", &jet_algoPF1_calotwind, &b_jet_algoPF1_calotwind); }; 

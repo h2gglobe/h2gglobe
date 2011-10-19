@@ -212,6 +212,7 @@ BRANCH_DICT(jet_algoPF1_n);
 BRANCH_DICT(jet_algoPF1_p4);
 BRANCH_DICT(jet_algoPF1_emfrac);
 BRANCH_DICT(jet_algoPF1_hadfrac);
+BRANCH_DICT(jet_algoPF1_erescale);
 BRANCH_DICT(jet_algoPF1_ntk);
 BRANCH_DICT(jet_algoPF1_tkind);
 BRANCH_DICT(jet_algoPF1_calotwind);
