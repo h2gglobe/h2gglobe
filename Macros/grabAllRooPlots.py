@@ -37,7 +37,7 @@ if (nPlots >1):
   else:
     sqrtnPlots = int(nPlots**0.5)+1
     can = ROOT.TCanvas("c","Fit Plots",sqrtnPlots*1200,sqrtnPlots*900) # each plot needs to be pretty big
-    can.Divide(sqrtnPlots,sqrtnPlots-1)
+    can.Divide(sqrtnPlots,sqrtnPlots)
 else: 
   can = ROOT.TCanvas("c","Fit Plots",1200,900)
 for i,P in enumerate(plots):
