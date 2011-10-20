@@ -168,6 +168,10 @@ void StatAnalysis::Init(LoopAll& l)
     diPhoEffSmearPars.n_categories = 8;
     diPhoEffSmearPars.efficiency_file = efficiencyFile;
 
+    if( doEcorrectionSmear ) {
+        // instance of this smearer done in PhotonAnalysis
+        photonSmearers_.push_back(eCorrSmearer);
+    }
     if( doEscaleSmear ) {
         // Moved to PhotonAnalysis GF 
 	//// energy scale systematics to MC
@@ -184,10 +188,6 @@ void StatAnalysis::Init(LoopAll& l)
 	//// eScaleDataSmearer->doEnergy(true);
 	//// eScaleDataSmearer->scaleOrSmear(true);
 	//photonDataSmearers_.push_back(eScaleDataSmearer); // must not be included among MC smearers; will be singled out upon need // GF questions?
-    }
-    if( doEcorrectionSmear ) {
-        // instance of this smearer done in PhotonAnalysis
-        photonSmearers_.push_back(eCorrSmearer);
     }
     if( doEresolSmear ) {
 	// energy resolution smearing
@@ -503,9 +503,12 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	std::vector<std::vector<bool> > p;
 	PhotonReducedInfo phoInfo ( *((TVector3*)l.pho_calopos->At(ipho)), 
 				    // *((TVector3*)l.sc_xyz->At(l.pho_scind[ipho])), 
-				    ((TLorentzVector*)l.pho_p4->At(ipho))->Energy(), l.pho_residCorrEnergy[ipho],
+				    ((TLorentzVector*)l.pho_p4->At(ipho))->Energy(), 
+				    energyCorrected[ipho],
 				    l.pho_isEB[ipho], l.pho_r9[ipho],
-				    l.PhotonCiCSelectionLevel(ipho,l.vtx_std_sel,p,nPhotonCategories_) );
+				    l.PhotonCiCSelectionLevel(ipho,l.vtx_std_sel,p,nPhotonCategories_),
+				    (energyCorrectedError!=0?energyCorrectedError[ipho]:0)
+				    );
 	float pweight = 1.;
 	// smear MC. But apply energy shift to data 
 	if( cur_type != 0 && doMCSmearing ) { // if it's MC
@@ -518,8 +521,11 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		}
 		pweight *= sweight;
 	    }
-	} else if( doEscaleSmear && cur_type == 0 ) {          // if it's data
+	} else if( cur_type == 0 ) {          // if it's data
 	    float sweight = 1.;
+	    if( doEcorrectionSmear )  { 
+	      eCorrSmearer->smearPhoton(phoInfo,sweight,l.run,0.); 
+	    }
 	    eScaleDataSmearer->smearPhoton(phoInfo,sweight,l.run,0.);
 	    pweight *= sweight;
 	}
@@ -835,7 +841,8 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		    //std::cout << "GF check: " <<  l.pho_residCorrEnergy[ipho] << "  " << l.pho_residCorrResn[ipho] << std::endl;
 		    PhotonReducedInfo phoInfo ( *((TVector3*)l.pho_calopos->At(ipho)), 
 						/// *((TVector3*)l.sc_xyz->At(l.pho_scind[ipho])), 
-						((TLorentzVector*)l.pho_p4->At(ipho))->Energy(), l.pho_residCorrEnergy[ipho],
+						((TLorentzVector*)l.pho_p4->At(ipho))->Energy(), 
+						energyCorrected[ipho],
 						l.pho_isEB[ipho], l.pho_r9[ipho],
 						l.PhotonCiCSelectionLevel(ipho,l.vtx_std_sel,p,nPhotonCategories_));
 		   

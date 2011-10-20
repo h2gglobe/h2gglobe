@@ -22,14 +22,15 @@ doMCSmearing=1
 ->
 Individual smearing flags
 ->
+energyCorrectionMethod=Bendavid
+doEcorrectionSmear=1
+doEcorrectionSyst=0
+
 doEscaleSmear=1
 doEscaleSyst=1
 
 doEresolSmear=1
 doEresolSyst=1
-
-doEcorrectionSmear=0
-doEcorrectionSyst=0
 
 doPhotonIdEffSyst=1
 doPhotonIdEffSmear=1

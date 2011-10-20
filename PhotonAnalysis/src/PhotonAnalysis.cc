@@ -140,6 +140,8 @@ void PhotonAnalysis::Init(LoopAll& l)
 	}else{
 		assert(doEcorrectionSmear==false);
 	}
+	if (doEcorrectionSmear) std::cout << "using energy correction type: " << energyCorrectionMethod << std::endl;
+	else                    std::cout << "NOT using energy correction (sbattogiu)"<< std::endl;
 
 	if( vtxVarNames.empty() ) {
 		vtxVarNames.push_back("ptbal"), vtxVarNames.push_back("ptasym"), vtxVarNames.push_back("logsumpt2");
@@ -687,12 +689,14 @@ void PhotonAnalysis::PreselectPhotons(LoopAll& l, int jentry)
 					    );
 		float pweight = 1.;
 		float sweight = 1.;
+		if( doEcorrectionSmear )  { 
+		  eCorrSmearer->smearPhoton(phoInfo,sweight,l.run,0.); 
+		}
 		if( cur_type == 0 ) {          // correct energy scale in data
 		  eScaleDataSmearer->smearPhoton(phoInfo,sweight,l.run,0.);
 		  pweight *= sweight;
 		}
 		// apply mc-derived photon corrections, to data and MC alike
-		if( doEcorrectionSmear )  eCorrSmearer->smearPhoton(phoInfo,sweight,l.run,0.); 
 		corrected_pho_energy[ipho] = phoInfo.energy();
 	}
 

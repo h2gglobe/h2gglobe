@@ -111,20 +111,20 @@ bool EnergySmearer::smearPhoton(PhotonReducedInfo & aPho, float & weight, int ru
   float smearing_sigma = myParameters_.smearing_sigma.find(category)->second;
 
   /////////////////////// smearing or re-scaling photon energy ///////////////////////////////////////////
-  //  float newEnergy=0.;
-  float newEnergy=aPho.energy();
-  if( scaleOrSmear_ ) {
-	  scale_offset   += syst_shift * myParameters_.scale_offset_error.find(category)->second;
-	  newEnergy = aPho.energy() * scale_offset;
-  } else {
-	  smearing_sigma += syst_shift * myParameters_.smearing_sigma_error.find(category)->second;
-	  newEnergy = aPho.energy() * rgen_->Gaus(1.,smearing_sigma);
-  }
   
+  float newEnergy=aPho.energy();
   /////////////////////// apply MC-based photon energy corrections ///////////////////////////////////////////
   if (  doCorrections_ ) {
     // corrEnergy is the corrected photon energy
     newEnergy = aPho.corrEnergy() + syst_shift * myParameters_.corrRelErr * (aPho.corrEnergy() - aPho.energy());
+  }
+
+  if( scaleOrSmear_ ) {
+	  scale_offset   += syst_shift * myParameters_.scale_offset_error.find(category)->second;
+	  newEnergy *=  scale_offset;
+  } else {
+	  smearing_sigma += syst_shift * myParameters_.smearing_sigma_error.find(category)->second;
+	  newEnergy *=  rgen_->Gaus(1.,smearing_sigma);
   }
   
   //std::cout << "doCorrections: " << doCorrections_ << " ene: " <<  aPho.energy() 

@@ -39,4 +39,8 @@ doTriggerSelection=1
 puHist=/afs/cern.ch/user/n/nckw/public/lp.json.weights.root
 puMap=pu_weights_map.dat
 
+energyCorrectionMethod=Bendavid
+doEcorrectionSmear=1
+doEcorrectionSyst=0
+
 scale_offset_file=energy_scale_offsets.dat
