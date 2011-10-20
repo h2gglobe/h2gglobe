@@ -34,9 +34,9 @@ tkIso_dzmax=1
 tkIso_dxymax=0.1
 ->
 
-applyPtoverM=0
+applyPtoverM=1
 doTriggerSelection=1
-puHist=/afs/cern.ch/user/n/nckw/public/lp.json.weights.root
+puHist=/afs/cern.ch/user/f/franzoni/public/globe/lp.json.weights_aug11.root
 puMap=pu_weights_map.dat
 
 energyCorrectionMethod=Bendavid
