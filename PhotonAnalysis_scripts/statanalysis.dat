@@ -71,17 +71,17 @@ scale_offset_error_EEHighR9=0.3e-2
 scale_offset_error_EELowR9=0.4e-2
 
 ->
-smearing updated according to: https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/371.html
+smearing updated for LP11 improvements, according to: https://indico.cern.ch/materialDisplay.py?contribId=16&sessionId=5&materialId=slides&confId=157048
 ->
-smearing_sigma_EBHighR9=1.00e-2
-smearing_sigma_EBLowR9=1.69e-2
-smearing_sigma_EBm4HighR9=1.00e-2
-smearing_sigma_EBm4LowR9=1.69e-2
-smearing_sigma_EEHighR9=3.03e-2
-smearing_sigma_EELowR9=2.96e-2
-smearing_sigma_error_EBHighR9=0.23e-2
-smearing_sigma_error_EBLowR9=0.42e-2
-smearing_sigma_error_EBm4HighR9=0.23e-2
-smearing_sigma_error_EBm4LowR9=0.42e-2
-smearing_sigma_error_EEHighR9=0.51e-2
-smearing_sigma_error_EELowR9=0.38e-2
+smearing_sigma_EBHighR9=0.9e-2
+smearing_sigma_EBLowR9=1.2e-2
+smearing_sigma_EBm4HighR9=0.9e-2
+smearing_sigma_EBm4LowR9=2.3e-2
+smearing_sigma_EEHighR9=3.0e-2
+smearing_sigma_EELowR9=3.0e-2
+smearing_sigma_error_EBHighR9=0.2e-2
+smearing_sigma_error_EBLowR9=0.4e-2
+smearing_sigma_error_EBm4HighR9=0.2e-2
+smearing_sigma_error_EBm4LowR9=0.4e-2
+smearing_sigma_error_EEHighR9=0.5e-2
+smearing_sigma_error_EELowR9=0.4e-2
