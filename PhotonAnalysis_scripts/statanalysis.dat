@@ -9,7 +9,7 @@ nDataBins=60
 
 nEtaCategories=2
 nR9Categories=2
-nPtCategories=2
+nPtCategories=1
 
 doTriggerSelection=1
 reRunCiC=0
@@ -54,7 +54,7 @@ Inputs for reweighing
 ->
 kfacHist=/afs/cern.ch/user/n/nckw/public/KFactors_AllScales.root
 efficiencyFile=/afs/cern.ch/user/f/franzoni/public/globe/sig_reweighing_v13.root
-puHist=/afs/cern.ch/user/f/franzoni/public/globe/lp.json.weights_aug11.root
+puHist=/afs/cern.ch/user/a/adavidzh/public/lp.json.signal_weights.root
 puMap=pu_weights_map.dat
 
 ->
