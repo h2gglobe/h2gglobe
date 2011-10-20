@@ -13,7 +13,9 @@ EnergySmearer::EnergySmearer(const energySmearingParameters& par) : myParameters
   assert( myParameters_.n_categories == myParameters_.smearing_sigma_error.size() );
   assert( ( myParameters_.categoryType == "EBEE" && myParameters_.n_categories == 2 ) ||
 	  ( myParameters_.categoryType == "2CatR9_EBEE" && myParameters_.n_categories == 4 ) ||
-	  ( myParameters_.categoryType == "2CatR9_EBEE_ByRun" && myParameters_.n_categories == 4 )
+	  ( myParameters_.categoryType == "2CatR9_EBEE_ByRun" && myParameters_.n_categories == 4 ) ||
+	  ( myParameters_.categoryType == "2CatR9_EBEBm4EE" && myParameters_.n_categories == 6 ) ||
+	  ( myParameters_.categoryType == "2CatR9_EBEBm4EE_ByRun" && myParameters_.n_categories == 6 )
 	  );
   if( myParameters_.byRun ) {
     for(energySmearingParameters::eScaleVectorIt it=myParameters_.scale_offset_byrun.begin(); it!=myParameters_.scale_offset_byrun.end();
@@ -35,10 +37,24 @@ EnergySmearer::~EnergySmearer()
 std::string EnergySmearer::photonCategory(PhotonReducedInfo & aPho) const
 {
   std::string myCategory="";
-  if (myParameters_.categoryType=="2CatR9_EBEE" )
+  if (myParameters_.categoryType=="2CatR9_EBEE")
     {
       if (aPho.iDet()==1)
 	myCategory+="EB";
+      else
+	myCategory+="EE";
+      
+      if (aPho.r9()>=0.94)
+	myCategory+="HighR9";
+      else
+	myCategory+="LowR9";
+    }
+  else if (myParameters_.categoryType=="2CatR9_EBEBm4EE")
+    {
+      if (aPho.iDet()==1 && fabs(aPho.caloPosition().PseudoRapidity())      < 1.)
+	myCategory+="EB";
+      else if (aPho.iDet()==1 && fabs(aPho.caloPosition().PseudoRapidity()) > 1.)
+	myCategory+="EBm4";
       else
 	myCategory+="EE";
       

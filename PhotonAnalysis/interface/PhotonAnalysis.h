@@ -51,20 +51,28 @@ public:
 	std::string scale_offset_file;
 	float scale_offset_EBHighR9         ;
 	float scale_offset_EBLowR9          ;
+	float scale_offset_EBm4HighR9         ;
+	float scale_offset_EBm4LowR9          ;
 	float scale_offset_EEHighR9         ;
 	float scale_offset_EELowR9          ;
 	float scale_offset_error_EBHighR9   ;
 	float scale_offset_error_EBLowR9    ;
+	float scale_offset_error_EBm4HighR9   ;
+	float scale_offset_error_EBm4LowR9    ;
 	float scale_offset_error_EEHighR9   ;
 	float scale_offset_error_EELowR9    ;
 
 	EnergySmearer::energySmearingParameters eSmearPars;
 	float smearing_sigma_EBHighR9       ;
 	float smearing_sigma_EBLowR9        ;
+	float smearing_sigma_EBm4HighR9       ;
+	float smearing_sigma_EBm4LowR9        ;
 	float smearing_sigma_EEHighR9       ;
 	float smearing_sigma_EELowR9        ;
 	float smearing_sigma_error_EBHighR9 ;
 	float smearing_sigma_error_EBLowR9  ;
+	float smearing_sigma_error_EBm4HighR9 ;
+	float smearing_sigma_error_EBm4LowR9  ;
 	float smearing_sigma_error_EEHighR9 ;
 	float smearing_sigma_error_EELowR9  ;
 

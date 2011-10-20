@@ -14,6 +14,13 @@
 
 ## "dressed rehearsal" numbers based on this: https://hypernews.cern.ch/HyperNews/CMS/get/ecal-calibration/200.html
 ## three run ranges for Jul05, Aug05 and PrV6
-160329 170052  0.03e-2 -0.54e-2  0.03e-2 -0.24e-2
-170053 172790 -0.20e-2 -0.81e-2  1.09e-2  0.43e-2
-172791 -1     -0.35e-2 -0.97e-2  2.15e-2  1.58e-2
+## 160329 170052  0.03e-2 -0.54e-2  0.03e-2 -0.24e-2
+## 170053 172790 -0.20e-2 -0.81e-2  1.09e-2  0.43e-2
+## 172791 -1     -0.35e-2 -0.97e-2  2.15e-2  1.58e-2
+
+
+## introduce the EBm4 category and use corrections on top of regressions 
+# Format first_run last_run EBHighR9 EBLowR9 EBm4HighR9 EBm4LowR9 EEHighR9 EELowR9
+160329 170052  0.33e-2 -0.18e-2   0.33e-2 -1.45e-2   0.10e-2 -0.47e-2
+170053 172790  0.17e-2 -0.30e-2   0.17e-2 -1.77e-2   1.12e-2  0.31e-2
+172791 -1     -0.02e-2 -0.42e-2  -0.02e-2 -2.05e-2   2.40e-2  1.34e-2

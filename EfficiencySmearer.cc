@@ -8,7 +8,9 @@ EfficiencySmearer::EfficiencySmearer(const efficiencySmearingParameters& par) : 
   rgen_ = new TRandom3(0);
   name_="EfficiencySmearer_"+ par.categoryType + "_" + par.parameterSetName;
   
-  assert( ( myParameters_.categoryType == "2CatR9_EBEE" && myParameters_.n_categories == 4) );
+  assert( ( myParameters_.categoryType == "2CatR9_EBEE"     && myParameters_.n_categories == 4)  ||
+	  ( myParameters_.categoryType == "2CatR9_EBEBm4EE" && myParameters_.n_categories == 6)
+	  ); // m4 is not treated separately as far as efficiencies are concerned
 }
 
 EfficiencySmearer::~EfficiencySmearer()

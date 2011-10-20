@@ -43,21 +43,25 @@ void readEnergyScaleOffsets(const std::string &fname, EnergySmearer::energySmear
 	std::fstream in(fname.c_str());
 	assert( in );
 	char line[200];
-	float EBHighR9, EBLowR9, EEHighR9, EELowR9; 
+	float EBHighR9, EBLowR9, EBm4HighR9, EBm4LowR9, EEHighR9, EELowR9; 
 	int  first, last;
 	do {
 		in.getline( line, 200, '\n' );
 
-		if( sscanf(line,"%d %d %f %f %f %f",&first, &last, &EBHighR9, &EBLowR9, &EEHighR9, &EELowR9) != 6 ) { continue; } 
-		std::cerr << "Energy scale by run " <<  first<< " " <<  last<< " " <<  EBHighR9<< " " <<  EBLowR9<< " " <<  EEHighR9<< " " <<  EELowR9 << std::endl;
+		if( sscanf(line,"%d %d %f %f %f %f",&first, &last, &EBHighR9, &EBLowR9, &EBm4HighR9, &EBm4LowR9, &EEHighR9, &EELowR9) != 6 ) { continue; } 
+		std::cerr << "Energy scale by run " <<  first<< " " <<  last<< " " <<  EBHighR9<< " " <<  EBLowR9 << " " <<  EBm4HighR9<< " " <<  EBm4LowR9<< " " <<  EEHighR9<< " " <<  EELowR9 << std::endl;
 
 		escaleOffsets.push_back(EnergyScaleOffset(first,last));
 		escaleOffsets.back().scale_offset["EBHighR9"] = -1.*EBHighR9;
 		escaleOffsets.back().scale_offset["EBLowR9"]  = -1.*EBLowR9;
+		escaleOffsets.back().scale_offset["EBm4HighR9"] = -1.*EBm4HighR9;
+		escaleOffsets.back().scale_offset["EBm4LowR9"]  = -1.*EBm4LowR9;
 		escaleOffsets.back().scale_offset["EEHighR9"] = -1.*EEHighR9;
 		escaleOffsets.back().scale_offset["EELowR9"]  = -1.*EELowR9;
 		escaleOffsets.back().scale_offset_error["EBHighR9"] = 0.;
 		escaleOffsets.back().scale_offset_error["EBLowR9"]  = 0.;
+		escaleOffsets.back().scale_offset_error["EBm4HighR9"] = 0.;
+		escaleOffsets.back().scale_offset_error["EBm4LowR9"]  = 0.;
 		escaleOffsets.back().scale_offset_error["EEHighR9"] = 0.;
 		escaleOffsets.back().scale_offset_error["EELowR9"]  = 0.;
 
@@ -199,10 +203,12 @@ void PhotonAnalysis::Init(LoopAll& l)
 			}
 		}
 	}
-	
-	eSmearDataPars.categoryType = "2CatR9_EBEE";
+
+	//eSmearDataPars.categoryType = "2CatR9_EBEE"; //GF
+	eSmearDataPars.categoryType = "2CatR9_EBEBm4EE";
 	eSmearDataPars.byRun = true;
-	eSmearDataPars.n_categories = 4;
+	//eSmearDataPars.n_categories = 4; //GF
+	eSmearDataPars.n_categories = 6;
 	std::cerr << "Reading energy scale offsets " << scale_offset_file << std::endl;
 	readEnergyScaleOffsets(scale_offset_file, eSmearDataPars.scale_offset_byrun);
         ///// // initialize smearer specific to energy shifts in DATA; use opposite of energy scale shift
@@ -219,11 +225,15 @@ void PhotonAnalysis::Init(LoopAll& l)
 	// E resolution smearing NOT applied to data 
 	eSmearDataPars.smearing_sigma["EBHighR9"] = 0.;
 	eSmearDataPars.smearing_sigma["EBLowR9"]  = 0.;
+	eSmearDataPars.smearing_sigma["EBm4HighR9"] = 0.;
+	eSmearDataPars.smearing_sigma["EBm4LowR9"]  = 0.;
 	eSmearDataPars.smearing_sigma["EEHighR9"] = 0.;
 	eSmearDataPars.smearing_sigma["EELowR9"]  = 0.;
 	// E resolution systematics NOT applied to data 
 	eSmearDataPars.smearing_sigma_error["EBHighR9"] = 0.;
 	eSmearDataPars.smearing_sigma_error["EBLowR9"]  = 0.;
+	eSmearDataPars.smearing_sigma_error["EBm4HighR9"] = 0.;
+	eSmearDataPars.smearing_sigma_error["EBm4LowR9"]  = 0.;
 	eSmearDataPars.smearing_sigma_error["EEHighR9"] = 0.;
 	eSmearDataPars.smearing_sigma_error["EELowR9"]  = 0.;
 	
@@ -233,27 +243,37 @@ void PhotonAnalysis::Init(LoopAll& l)
 	eScaleDataSmearer->doEnergy(true);
 	eScaleDataSmearer->scaleOrSmear(true);
 	
-	eSmearPars.categoryType = "2CatR9_EBEE";
+	//eSmearPars.categoryType = "2CatR9_EBEE"; //GF
+	eSmearPars.categoryType = "2CatR9_EBEBm4EE";
 	eSmearPars.byRun = false;
-	eSmearPars.n_categories = 4;
+	//eSmearPars.n_categories = 4; //GF
+	eSmearPars.n_categories = 6;
 	// E scale is shifted for data, NOT for MC 
 	eSmearPars.scale_offset["EBHighR9"] = 0.;
 	eSmearPars.scale_offset["EBLowR9"]  = 0.;
+	eSmearPars.scale_offset["EBm4HighR9"] = 0.;
+	eSmearPars.scale_offset["EBm4LowR9"]  = 0.;
 	eSmearPars.scale_offset["EEHighR9"] = 0.;
 	eSmearPars.scale_offset["EELowR9"]  = 0.;
 	// E scale systematics are applied to MC, NOT to data
 	eSmearPars.scale_offset_error["EBHighR9"] = scale_offset_error_EBHighR9;
 	eSmearPars.scale_offset_error["EBLowR9"]  = scale_offset_error_EBLowR9;
+	eSmearPars.scale_offset_error["EBm4HighR9"] = scale_offset_error_EBHighR9;
+	eSmearPars.scale_offset_error["EBm4LowR9"]  = scale_offset_error_EBLowR9;
 	eSmearPars.scale_offset_error["EEHighR9"] = scale_offset_error_EEHighR9;
 	eSmearPars.scale_offset_error["EELowR9"]  = scale_offset_error_EELowR9;
 	// E resolution smearing applied to MC 
 	eSmearPars.smearing_sigma["EBHighR9"] = smearing_sigma_EBHighR9;
 	eSmearPars.smearing_sigma["EBLowR9"]  = smearing_sigma_EBLowR9;
+	eSmearPars.smearing_sigma["EBm4HighR9"] = smearing_sigma_EBm4HighR9;
+	eSmearPars.smearing_sigma["EBm4LowR9"]  = smearing_sigma_EBm4LowR9;
 	eSmearPars.smearing_sigma["EEHighR9"] = smearing_sigma_EEHighR9;
 	eSmearPars.smearing_sigma["EELowR9"]  = smearing_sigma_EELowR9;
 	// E resolution systematics applied to MC 
 	eSmearPars.smearing_sigma_error["EBHighR9"] = smearing_sigma_error_EBHighR9;
 	eSmearPars.smearing_sigma_error["EBLowR9"]  = smearing_sigma_error_EBLowR9;
+	eSmearPars.smearing_sigma_error["EBm4HighR9"] = smearing_sigma_error_EBm4HighR9;
+	eSmearPars.smearing_sigma_error["EBm4LowR9"]  = smearing_sigma_error_EBm4LowR9;
 	eSmearPars.smearing_sigma_error["EEHighR9"] = smearing_sigma_error_EEHighR9;
 	eSmearPars.smearing_sigma_error["EELowR9"]  = smearing_sigma_error_EELowR9;
 	// error on photon corrections set to a fraction of the correction itself; number below is tentative (GF: push it to .dat)  
