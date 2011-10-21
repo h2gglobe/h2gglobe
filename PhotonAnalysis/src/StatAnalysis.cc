@@ -325,7 +325,7 @@ void StatAnalysis::Init(LoopAll& l)
     l.rooContainer->AddConstant("XSBR_130",0.0319112+0.00260804+0.001759636+0.000173070);
     l.rooContainer->AddConstant("XSBR_125",0.0350599+0.00277319+0.002035123+0.000197718);
     l.rooContainer->AddConstant("XSBR_120",0.0374175+0.00285525+0.002285775+0.00021951 );
-    l.rooContainer->AddConstant("XSBR_123",0.0355224+0.00281352+0.00213681+0.00020663);
+    l.rooContainer->AddConstant("XSBR_123",0.0369736+0.00281352+0.00213681+0.00020663);
     l.rooContainer->AddConstant("XSBR_121",0.0369736+0.00284082+0.00223491+0.00021510);
     l.rooContainer->AddConstant("XSBR_115",0.0386169+0.00283716+0.002482089+0.000235578);
     l.rooContainer->AddConstant("XSBR_110",0.0390848+0.00275406+0.002654575+0.000247629);
