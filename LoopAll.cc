@@ -809,6 +809,15 @@ int LoopAll::FillAndReduce(int jentry) {
 
   //count all events
   countersred[0]++;
+  //
+  // read all inputs 
+  //
+  GetEntry(inputBranches, jentry);
+
+  if(!CheckLumiSelection(run,lumis)){
+	  return hasoutputfile;
+  }
+  countersred[1]++;
 
   // 
   // call skimming methods before reading data
@@ -818,17 +827,8 @@ int LoopAll::FillAndReduce(int jentry) {
       return hasoutputfile;
     }
   }
-  countersred[1]++;
-  
-  //
-  // read all inputs 
-  //
-  GetEntry(inputBranches, jentry);
-
-  if(!CheckLumiSelection(run,lumis)){
-	  return hasoutputfile;
-  }
   countersred[2]++;
+  
 
   //
   // reduction step
