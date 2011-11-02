@@ -10,7 +10,7 @@ def mk_outdir( name ):
         try:
             mkdir( outdir )
         except Exception, e:
-            print e
+            pass
 
 
 datasets="datasets.txt"
@@ -24,24 +24,23 @@ datasetsdir=datasets.rsplit(".",1)[0]
 try:
     mkdir( datasetsdir )
 except Exception, e:
-    print e
+    pass
 
 ds=open(datasets)
 
 mk_outdir( outdir )
 for d in ds.read().split("\n"):
-    s = d.lstrip(" ").lstrip(" ")
+    s = d.replace("\t","").lstrip(" ").lstrip(" ")
     if s == "" or s.startswith("#"):
         continue
 
-    sl = [ t for t in d.split(" ") if t != "" ]
+    sl = [ t for t in s.split(" ") if t != "" ]
     dname = sl.pop(0)
     dtype = sl.pop(0)
     iname = dname
     analyzer = "analyzer PhotonAnalysis photonanalysis.dat"
     getanalyzer = False
     for s in sl:
-        print s
         if "append" in s:
             dname += s.rsplit("=",1)[1]
         elif "analyzer" in s:

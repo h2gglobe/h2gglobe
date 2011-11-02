@@ -7,6 +7,8 @@ from sys import argv, exit
 (options,args)=parser.parse_args()
 
 ROOT.gROOT.SetBatch(1)
+ROOT.gSystem.Load("libTree.so");
+ROOT.gSystem.Load("libTMVA.so");
 ROOT.gSystem.Load("libPhysics.so")
 ROOT.gSystem.Load("libCore.so")
 ROOT.gSystem.Load("../libLoopAll.so")
