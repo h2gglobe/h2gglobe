@@ -8,6 +8,8 @@
 #include "TriggerSelection.h"
 #include "EnergySmearer.h"
 
+#include "TMVA/Reader.h"
+
 // ------------------------------------------------------------------------------------
 class PhotonAnalysis : public BaseAnalysis 
 {
@@ -89,6 +91,13 @@ public:
 
 	std::string energyCorrectionMethod;
 
+	std::string tmvaPerVtxMethod;                       	
+        std::string tmvaPerVtxWeights;                  
+        std::string tmvaPerEvtMethod;                   
+        std::string tmvaPerEvtWeights;                  
+                                                        
+        bool mvaVertexSelection, addConversionToMva;     
+
 protected:
 	void PreselectPhotons(LoopAll& l, int jentry);
 	void StatAnalysis(LoopAll &l, int jentry);
@@ -111,7 +120,10 @@ protected:
 	
 	Float_t *energyCorrected;
 	Float_t *energyCorrectedError;
-	
+
+	vector<string> tmvaPerVtxVariables_;
+	TMVA::Reader *tmvaPerVtxReader_;
+	TMVA::Reader *tmvaPerEvtReader_;
 };
 
 #endif

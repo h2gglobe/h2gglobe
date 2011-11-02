@@ -924,6 +924,7 @@ void LoopAll::SetBranchAddresses(std::map<std::string,int> & names) {
 // ------------------------------------------------------------------------------------
 void LoopAll::Branches(std::list<std::string> & names) {
    for(std::list<std::string>::iterator it=names.begin(); it!=names.end(); ++it ) {
+	   std::cerr << __FILE__ << ":" << __LINE__ << " " << *it << " " << outputTree << std::endl;  
 	const std::string & name = *it;
 	branch_info_t & info = branchDict[ name ];
 	if( info.write == 0 ){

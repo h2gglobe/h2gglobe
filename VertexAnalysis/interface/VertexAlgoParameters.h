@@ -14,6 +14,8 @@ public:
         bool removeTracksInCone;
         float coneSize;
 
+	std::string vtxProbFormula; 
+
 	bool useAllConversions;
 	float sigmaPix;
 	float sigmaTib;

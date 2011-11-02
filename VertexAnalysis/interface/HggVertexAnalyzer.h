@@ -12,6 +12,7 @@
 #include "TVector2.h"
 #include "TVector3.h"
 #include "TMatrixDSym.h"
+#include "TF1.h"
 
 namespace TMVA { class Reader; }
 
@@ -54,7 +55,6 @@ class TTree;
  *     float phocalox_[30], phocaloy_[30], phocaloz_[30], phoen_[30];
  *     
  *     void init() {
- *           vtxAlgoParams_.rescaleTkPtByError = true;}
  *           // variables order matters to resolve ties
  *           rankVariables_.push_back("ptbal"), rankVariables.push_back("ptasym"), rankVariables.push_back("logsumpt2");
  *                    
@@ -107,7 +107,6 @@ public:
 
 	HggVertexAnalyzer(AlgoParameters & ap, int nvtx=40);
 
-
 // CINT doesn't like function pointers
 #ifndef __CINT__ 
 	typedef float (HggVertexAnalyzer::*getter_t) (int) const;
@@ -117,32 +116,57 @@ public:
 #endif
 	static const float spherPwr_;
 	
+	// interface to  TMVA
 	static void bookVariables(TMVA::Reader & reader, const std::vector<std::string> & vars);
 	static void bookSpectators(TMVA::Reader & reader, const std::vector<std::string> & vars);
-	void fillVariables(int iv);
+	static void bookPerEventVariables(TMVA::Reader & reader, int nMvas=3, bool useNconv=true);
+
+	// Analyze di-photon - tracks correlations and fill algorithm input variables  
+	void analyze(const VertexInfoAdapter &, const PhotonInfo & pho1, const PhotonInfo & pho2);
+
+	// clear all the calculated values
+	void clear();
 	
-	// Rank vertexes
+	// Choose the di-photon pair
+	int  pairID(int pho1, int pho2);
+	void setPairID(int x) { ipair_ = x; };
+	void setPairID(int pho1, int pho2) { setPairID( pairID(pho1,pho2) ); };
+	
+	// Vertex selection
+	void preselection(const std::vector<int> &ps) { preselection_ = ps; }
 	std::vector<int> rank(std::string method);
 #ifndef __CINT__	
 	std::vector<int> rank(getter_t method, bool sign);
 #endif
 	std::vector<int> rank(TMVA::Reader &reader, const std::string & method);
-	std::vector<int> ranksum(const std::vector<std::string> & vars);
+	void evaluate(TMVA::Reader &reader, const std::string & method);
 	std::vector<int> rankprod(const std::vector<std::string> & vars);
-	////// std::vector<int> rankreciprocal(const std::vector<std::string> & vars);
-	////// std::vector<int> rankPairwise(const std::vector<std::string> & vars);
 
-	void analyze(const VertexInfoAdapter &, const PhotonInfo & pho1, const PhotonInfo & pho2);
-
-	void preselection(const std::vector<int> &ps) { preselection_ = ps; }
-
+	// Conversion-related methods 
+	double vtxdZFromConv(const PhotonInfo & pho);
+	double vtxZFromConv(const PhotonInfo & pho);
+	void setPullToConv(int ivert, float pull, float lim=10.);
+	void setNConv(int n);
+	
+	// Per-event MVA
+	float perEventMva(TMVA::Reader & reader,const  std::string & method, const std::vector<int> & rankedVertexes );
+	float vertexProbability(float perEventMva);
+	
 	// getters
 	int pho1() const { return pho1_[ipair_]; };
 	int pho2() const { return pho2_[ipair_]; };
 	int ninvalid_idxs() const { return ninvalid_idxs_; };
-
-	float mva(int i)    const { return 	mva_[i]; };	
-
+	
+	// MVA output per vertex
+	float mva(int i)    const { return 	mva_[ipair_][i]; };	
+	// Rank combination (product or sum)
+	float rcomb(int i)    const { return 	rcomb_[ipair_][i]; };	
+	
+	// algorithm input variables
+	float vertexz(int i)            const { return vertexz_[i]; };	
+	float nconv(int i)            const { return nconv_[ipair_]; };	
+	float pulltoconv(int i)    const { return pulltoconv_[ipair_][i]; };	
+	float limpulltoconv(int i)    const { return limpulltoconv_[ipair_][i]; };	
 	float diphopt(int i)    const { return diphopt_[ipair_][i]; };	
 	float nch(int i)    const { return 	nch_[ipair_][i]; };	
 	float ptmax(int i)  const { return 	ptmax_[ipair_][i]; };	
@@ -172,15 +196,11 @@ public:
 	float sumtrv(int i) const { return 	sumtrv_[ipair_][i]; };	
 	float sumtwd(int i) const { return 	sumtwd_[ipair_][i]; };	
 	float awytwdasym(int i) const { return awytwdasym_[ipair_][i]; };
-
+	
+	// read and write info to plain ROOT TTree
 	void branches(TTree *, const std::string & );
 	void setBranchAdresses(TTree *, const std::string &);
 	void getBranches(TTree *, const std::string &, std::set<TBranch *>& );
-
-	void clear();
-	int  pairID(int pho1, int pho2);
-	void setPairID(int x) { ipair_ = x; };
-	void setPairID(int pho1, int pho2) { setPairID( pairID(pho1,pho2) ); };
 
 private:
 #ifndef __CINT__	
@@ -190,6 +210,8 @@ private:
 	static std::vector<getter_t> varmeths_;
 	static std::vector<float> vars_;
 #endif
+	void fillVariables(int iv);
+	
 	std::vector<int> preselection();
 	void newpair(int ipair);
 
@@ -199,12 +221,16 @@ private:
 	
 	std::vector<int> preselection_;
 
-	std::vector<float> mva_;
+	std::vector<std::vector<float> > mva_, rcomb_;
 	
 	// buffers
 	std::vector<std::vector<TLorentzVector> > diPhoton_;
 	std::vector<std::vector<float> > diphopt_;
 	
+	std::vector<float> vertexz_;
+	std::vector<float> nconv_;
+	std::vector<std::vector<float> > pulltoconv_;
+	std::vector<std::vector<float> > limpulltoconv_;
 	std::vector<std::vector<float> > ptbal_;
 	std::vector<std::vector<float> > thrust_;
 	std::vector<std::vector<float> > sumpt_;
@@ -245,7 +271,12 @@ private:
 	std::vector<int> pho1_, pho2_;
 	std::vector<int> * ppho1_, * ppho2_;
 	int ninvalid_idxs_;
-
+	
+	std::vector<std::vector<float> > * pmva, * prcomb ;
+	std::vector<float>               * pvertexz ;
+	std::vector<float>               * pnconv ;
+	std::vector<std::vector<float> > * ppulltoconv ;
+	std::vector<std::vector<float> > * plimpulltoconv ;
 	std::vector<std::vector<float> > * pdiphopt ;
 	std::vector<std::vector<float> > * pnch ;
 	std::vector<std::vector<float> > * pptmax ;
@@ -273,6 +304,11 @@ private:
 	std::vector<std::vector<float> > * psumtwd ;
 	std::vector<std::vector<float> > * pawytwdasym ;
 
+	// per-event MVA
+	static float evt_diphoPt, evt_nvert, evt_nconv;
+	static std::vector<float> evt_mva, evt_dz;
+	TF1 * vertexProbability_;
+	
 };
 
 // -------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -312,7 +348,6 @@ public:
 
 	virtual ~VertexInfoAdapter();
 };
-
 
 // -------------------------------------------------------------------------------------------------------------------------------------------------------------
 class TupleVertexInfo : public VertexInfoAdapter

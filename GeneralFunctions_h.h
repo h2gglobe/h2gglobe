@@ -22,9 +22,11 @@ vector<double> generate_flat10_weights(TH1D* data_npu_estimated);
 void vertexAnalysis(HggVertexAnalyzer & vtxAna,  PhotonInfo pho1, PhotonInfo pho2);
 //std::vector<int> vertexSelection(HggVertexAnalyzer & vtxAna, HggVertexFromConversions & vtxAnaFromConv, int p1, int p2, std::vector<std::string> & vtxVarNames);
 std::vector<int> vertexSelection(HggVertexAnalyzer & vtxAna, HggVertexFromConversions & vtxAnaFromConv, PhotonInfo & pho1, PhotonInfo & pho2,
-				 std::vector<std::string> & vtxVarNames);
+				 std::vector<std::string> & vtxVarNames, 					  
+				 bool useMva=false, TMVA::Reader * reader=0, std::string tmvaMethod="");
 
 TLorentzVector get_pho_p4(int ipho, int ivtx, float *pho_energy_array=0);
+TLorentzVector get_pho_p4(int ipho, TVector3 * vtx, float * energy=0);
 void set_pho_p4(int ipho, int ivtx, float *pho_energy_array=0);
 
 // end vertex analysis 
@@ -118,12 +120,26 @@ int PhotonEtaCategory(int photonindex, int n_etacat=4) {
   return  etacat;
 }
 //diphoton category functions ( r9, eta, and diphoton pt)
-int DiphotonCategory(Int_t leadind, Int_t subleadind, float pTh, int n_r9cat=3, int n_etacat=4, int n_pThcat=0) {
+int DiphotonCategory(Int_t leadind, Int_t subleadind, float pTh, int n_r9cat=3, int n_etacat=4, int n_pThcat=0, int nVtxCategories=0, float vtxMva=-1.) {
   Int_t r9cat  =  TMath::Max(PhotonR9Category(leadind,n_r9cat),PhotonR9Category(subleadind,n_r9cat));
   Int_t etacat =  TMath::Max(PhotonEtaCategory(leadind,n_etacat),PhotonEtaCategory(subleadind,n_etacat));
   Int_t pThcat =  DiphotonPtCategory(pTh,n_pThcat);
-  return  (r9cat + n_r9cat*etacat + (n_r9cat*n_etacat)*pThcat);  // (n_r9cat*c_etacat*n_pThcat) categories
+  Int_t vtxCat =  DiphotonVtxCategory(vtxMva,nVtxCategories);
+  return  (r9cat + n_r9cat*etacat + (n_r9cat*n_etacat)*pThcat) + (n_r9cat*n_etacat*(n_pThcat>0?n_pThcat:1))*vtxCat;  // (n_r9cat*c_etacat*n_pThcat) categories
 }
+
+int DiphotonVtxCategory(float vtxMva, int nVtxCategories)
+{
+	int cat=0;
+	if(nVtxCategories==2) {
+		cat = (Int_t)(vtxMva > -0.8);
+	} else if (nVtxCategories>0) {
+		cat = (Int_t)(vtxMva > -0.8) + (Int_t)(vtxMva > -0.55);
+	}
+	/// cout << "DiphotonVtxCategory " << cat << " " << vtxMva << " " << nVtxCategories << endl;
+	return  cat;
+}
+
 int DiphotonPtCategory(double pTh, int n_pThcat=0) {
   if(n_pThcat<2)return 0;
   int pThcat=0;
@@ -195,6 +211,7 @@ TBranch * b_dipho_sumpt;
 int vtx_std_sel;
 std::vector<int> *  dipho_vtx_std_sel;
 std::vector<std::vector<int> > * vtx_std_ranked_list;
+std::vector<float> * vtx_std_evt_mva;
 // std::vector<int> * vtx_std_ranked_list;
 
 // CiC inputs
@@ -235,6 +252,7 @@ TBranch *b_pu_ntrks_highpt;
 
 TBranch *b_vtx_std_sel;
 TBranch *b_vtx_std_ranked_list;
+TBranch *b_vtx_std_evt_mva;
 
 TBranch * b_pho_tkiso_recvtx_030_002_0000_10_01;
 TBranch * b_pho_tkiso_badvtx_040_002_0000_10_01;
@@ -261,11 +279,13 @@ void DefineUserBranches();
 //
 // vertex branches
 void Branch_vtx_std_sel(TTree * tree) { tree->Branch("vtx_std_sel", &vtx_std_sel, "vtx_std_sel/I"); }; 
+void Branch_vtx_std_evt_mva(TTree * tree) { tree->Branch("vtx_std_evt_mva", "std::vector<float>", &vtx_std_evt_mva); }; 
 void Branch_vtx_std_ranked_list(TTree * tree) { tree->Branch("vtx_std_ranked_list", "std::vector<std::vector<int> >", &vtx_std_ranked_list); }; 
 void Branch_pho_matchingConv(TTree * tree) { tree->Branch("pho_matchingConv", "std::vector<int>", &pho_matchingConv); }; 
 
 
 void SetBranchAddress_vtx_std_sel(TTree * tree) { tree->SetBranchAddress("vtx_std_sel", &vtx_std_sel, &b_vtx_std_sel); }; 
+void SetBranchAddress_vtx_std_evt_mva(TTree * tree) { tree->SetBranchAddress("vtx_std_evt_mva", &vtx_std_evt_mva, &b_vtx_std_evt_mva); };
 void SetBranchAddress_vtx_std_ranked_list(TTree * tree) { tree->SetBranchAddress("vtx_std_ranked_list", &vtx_std_ranked_list, &b_vtx_std_ranked_list); };
 void SetBranchAddress_pho_matchingConv(TTree * tree) { tree->SetBranchAddress("pho_matchingConv", &pho_matchingConv, &b_pho_matchingConv); }; 
 

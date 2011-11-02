@@ -2,6 +2,12 @@
 Vertexe analysis parameters 	
 ->
 vtxAlgoParams vertex_selection.dat
+mvaVertexSelection=1
+addConversionToMva=1
+tmvaPerVtxWeights=/afs/cern.ch/user/m/musella/public/higgs/vertex_likelihoods/TMVAClassification_BDTCat_conversions_tmva_407.weights.xml
+tmvaPerVtxMethod=BDTCat
+tmvaPerEvtWeights=/afs/cern.ch/user/m/musella/public/higgs/vertex_likelihoods/TMVAClassification_evtBDTG_conversions_tmva_407.weights.xml
+tmvaPerEvtMethod=evtBDTG
 
 ->
 Preselection cuts

@@ -57,7 +57,7 @@ DICTS = LoopAll.h BaseAnalysis.h BaseSmearer.h EnergySmearer.h EfficiencySmearer
 
 
 ROOFIT_BASE=$(ROOFITSYS)
-LDFLAGS+=-L$(ROOFIT_BASE)/lib -lRooFitCore
+LDFLAGS+=-L$(ROOFIT_BASE)/lib $(ROOTLIBS) -lRooFitCore -lRooFit -lTMVA
 CXXFLAGS+=-I$(ROOFIT_BASE)/include 
 
 all: $(LOOPALL)

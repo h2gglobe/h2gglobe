@@ -18,8 +18,14 @@ PhotonAnalysis::PhotonAnalysis()  :
 	runStatAnalysis(false), doTriggerSelection(false),
 	name_("PhotonAnalysis"),
 	vtxAna_(vtxAlgoParams), vtxConv_(vtxAlgoParams),
+	tmvaPerVtxMethod("BDTG"),
+	tmvaPerVtxWeights(""),
+	tmvaPerEvtMethod("evtBTG"),
+	tmvaPerEvtWeights(""),
 	energyCorrectionMethod("DaunceyAndKenzie"), energyCorrected(0), energyCorrectedError(0)
 {
+	addConversionToMva=true;
+	mvaVertexSelection=false;
 	useDefaultVertex=false;
 	forcedRho = -1.;
 
@@ -148,15 +154,38 @@ void PhotonAnalysis::Init(LoopAll& l)
 	}
 	
 	/// // trigger
+	// /cdaq/physics/Run2011/5e32/v4.2/HLT/V2
 	triggerSelections.push_back(TriggerSelection(160404,161176));
 	triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v");
+
+        // /cdaq/physics/Run2011/5e32/v6.1/HLT/V1
 	triggerSelections.push_back(TriggerSelection(161216,165087));
 	triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v");
+	triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_R9Id_v");
+	triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_CaloIdL_IsoVL_v");
 	triggerSelections.back().addpath("HLT_Photon20_R9Id_Photon18_R9Id_v");
-	triggerSelections.push_back(TriggerSelection(165088,-1));
+
+        // /cdaq/physics/Run2011/1e33/v1.3/HLT/V2
+	triggerSelections.push_back(TriggerSelection(165088,173198));
 	triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v");
+	triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_R9Id_v");
+	triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_CaloIdL_IsoVL_v");
 	triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_R9Id_v");
 
+        // /cdaq/physics/Run2011/3e33/v1.1/HLT/V1
+	triggerSelections.push_back(TriggerSelection(173236,178380));
+	triggerSelections.back().addpath("HLT_Photon26_CaloIdXL_IsoXL_Photon18_CaloIdXL_IsoXL_v");
+	triggerSelections.back().addpath("HLT_Photon26_CaloIdXL_IsoXL_Photon18_R9Id_v");
+	triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_CaloIdXL_IsoXL_v");
+	triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_R9Id_v");
+	
+        // /cdaq/physics/Run2011/5e33/v1.4/HLT/V3
+	triggerSelections.push_back(TriggerSelection(178420,-1));
+	triggerSelections.back().addpath("HLT_Photon26_CaloIdXL_IsoXL_Photon18_CaloIdXL_IsoXL_Mass60_v");
+	triggerSelections.back().addpath("HLT_Photon26_CaloIdXL_IsoXL_Photon18_R9IdT_Mass60_v");
+	triggerSelections.back().addpath("HLT_Photon26_R9IdT_Photon18_CaloIdXL_IsoXL_Mass60_v");
+	triggerSelections.back().addpath("HLT_Photon26_R9IdT_Photon18_R9IdT_Mass60_v");
+	
 	// CiC initialization
 	// FIXME should move this to GeneralFunctions
 	l.runCiC = true;
@@ -205,25 +234,34 @@ void PhotonAnalysis::Init(LoopAll& l)
 			}
 		}
 	}
+	
+	if( tmvaPerVtxWeights != ""  ) {
+		tmvaPerVtxVariables_.push_back("ptbal"), tmvaPerVtxVariables_.push_back("ptasym"), tmvaPerVtxVariables_.push_back("logsumpt2");
+		if( addConversionToMva ) {
+			tmvaPerVtxVariables_.push_back("limPullToConv");
+			tmvaPerVtxVariables_.push_back("nConv");
+		}
+		tmvaPerVtxReader_ = new TMVA::Reader( "!Color:!Silent" );
+		HggVertexAnalyzer::bookVariables( *tmvaPerVtxReader_, tmvaPerVtxVariables_ );
+		tmvaPerVtxReader_->BookMVA( tmvaPerVtxMethod, tmvaPerVtxWeights );
+	} else {
+		tmvaPerVtxReader_ = 0;
+	}
+	if( tmvaPerEvtWeights != "" ) {
+		tmvaPerEvtReader_ = new TMVA::Reader( "!Color:!Silent" );
+		HggVertexAnalyzer::bookPerEventVariables( *tmvaPerEvtReader_ );
+		tmvaPerEvtReader_->BookMVA( tmvaPerEvtMethod, tmvaPerEvtWeights );
+	} else {
+		tmvaPerEvtReader_ = 0;
+	}
+	assert( !mvaVertexSelection || tmvaPerVtxReader_ != 0 );
 
-	//eSmearDataPars.categoryType = "2CatR9_EBEE"; //GF
 	eSmearDataPars.categoryType = "2CatR9_EBEBm4EE";
 	eSmearDataPars.byRun = true;
 	//eSmearDataPars.n_categories = 4; //GF
 	eSmearDataPars.n_categories = 6;
 	std::cerr << "Reading energy scale offsets " << scale_offset_file << std::endl;
 	readEnergyScaleOffsets(scale_offset_file, eSmearDataPars.scale_offset_byrun);
-        ///// // initialize smearer specific to energy shifts in DATA; use opposite of energy scale shift
-	///// eSmearDataPars.scale_offset_byrun.push_back(EnergyScaleOffset(0,-1));
-	///// eSmearDataPars.scale_offset_byrun.back().scale_offset["EBHighR9"] = -1*scale_offset_EBHighR9;
-	///// eSmearDataPars.scale_offset_byrun.back().scale_offset["EBLowR9"]  = -1*scale_offset_EBLowR9;
-	///// eSmearDataPars.scale_offset_byrun.back().scale_offset["EEHighR9"] = -1*scale_offset_EEHighR9;
-	///// eSmearDataPars.scale_offset_byrun.back().scale_offset["EELowR9"]  = -1*scale_offset_EELowR9;
-	///// // no energy scale systematics applied to data
-	///// eSmearDataPars.scale_offset_byrun.back().scale_offset_error["EBHighR9"] = 0.;
-	///// eSmearDataPars.scale_offset_byrun.back().scale_offset_error["EBLowR9"]  = 0.;
-	///// eSmearDataPars.scale_offset_byrun.back().scale_offset_error["EEHighR9"] = 0.;
-	///// eSmearDataPars.scale_offset_byrun.back().scale_offset_error["EELowR9"]  = 0.;
 	// E resolution smearing NOT applied to data 
 	eSmearDataPars.smearing_sigma["EBHighR9"] = 0.;
 	eSmearDataPars.smearing_sigma["EBLowR9"]  = 0.;
@@ -857,9 +895,14 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
 			
 			l.vertexAnalysis(vtxAna_, pho1, pho2 );
 			// make sure that vertex analysis indexes are in synch 
-			assert( id == vtxAna_.pairID(ipho1,ipho2) );
+			assert( (int)id == vtxAna_.pairID(ipho1,ipho2) );
 			
-			l.vtx_std_ranked_list->push_back( l.vertexSelection(vtxAna_, vtxConv_, pho1, pho2, vtxVarNames) );
+			l.vtx_std_ranked_list->push_back( l.vertexSelection(vtxAna_, vtxConv_, pho1, pho2, vtxVarNames, mvaVertexSelection, 
+									    tmvaPerVtxReader_, tmvaPerVtxMethod) );
+			if( tmvaPerEvtReader_ ) {
+				float vtxEvtMva = vtxAna_.perEventMva( *tmvaPerEvtReader_, tmvaPerEvtMethod, l.vtx_std_ranked_list->back() );
+				l.vtx_std_evt_mva->push_back(vtxEvtMva);
+			}
 			if( l.vtx_std_ranked_list->back().size() != 0 && ! useDefaultVertex ) {  
 				l.dipho_vtx_std_sel->push_back( (l.vtx_std_ranked_list)->back()[0] );
 			} else {
@@ -966,7 +1009,8 @@ void PhotonAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree)
 
 	l.pho_matchingConv = new  std::vector<int>();
 	l.Branch_pho_matchingConv(outputTree);
-
+	
+	l.vtx_std_evt_mva = new std::vector<float>();
 	l.vtx_std_ranked_list = new std::vector<std::vector<int> >();
 	l.pho_tkiso_recvtx_030_002_0000_10_01 = new std::vector<std::vector<float> >();
 	l.pho_cic6cutlevel_lead = new std::vector<std::vector<Short_t> >();
@@ -979,6 +1023,7 @@ void PhotonAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree)
 	l.pho_cic4passcuts_sublead = new std::vector<std::vector<std::vector<UInt_t> > >();
 	l.dipho_vtx_std_sel =  new std::vector<int>();
 
+	l.Branch_vtx_std_evt_mva(outputTree);
 	l.Branch_vtx_std_ranked_list(outputTree);
 	l.Branch_vtx_std_sel(outputTree);
 	l.Branch_pho_tkiso_recvtx_030_002_0000_10_01(outputTree);

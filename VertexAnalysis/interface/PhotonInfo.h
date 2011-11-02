@@ -33,7 +33,9 @@ public:
 	const int iDet() const {return iDet_;}
 	const float      energy()       const { return energy_; }
 	TLorentzVector p4(float vtxx, float vtxy, float vtxz) const;
-	bool isAConversion();
+	bool isAConversion() const;
+	bool isFake() const { return isFake_; };
+	void isFake(bool x=true) { isFake_ = x; };
 	
 protected:
 	int id_;
@@ -46,6 +48,7 @@ protected:
 	bool convVtxValid_;
 	float convVtxChi2Prob_;
 	float EoP_;
+	bool isFake_;
 };
 
 

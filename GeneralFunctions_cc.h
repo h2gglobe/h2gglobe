@@ -339,12 +339,14 @@ PhotonInfo LoopAll::fillPhotonInfos(int p1, bool useAllConvs)
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 std::vector<int> LoopAll::vertexSelection(HggVertexAnalyzer & vtxAna, HggVertexFromConversions & vtxAnaFromConv, 
-					  PhotonInfo & pho1, PhotonInfo & pho2, std::vector<std::string> & vtxVarNames)
+					  PhotonInfo & pho1, PhotonInfo & pho2, std::vector<std::string> & vtxVarNames, 
+					  bool useMva, TMVA::Reader * tmvaReader, std::string tmvaMethod)
 {
 	int p1 = pho1.id(), p2 = pho2.id();
 	// assert( p1 == vtxAna.pho1() && p2 == vtxAna.pho2() );
 	vtxAna.setPairID(p1,p2);
-
+	if( useMva ) { return vtxAna.rank(*tmvaReader,tmvaMethod); }
+	
 	// preselect vertices : all vertices
         std::vector<int> preselAll;
         for(int i=0; i<vtx_std_n ; i++) {
@@ -401,7 +403,7 @@ std::vector<int> LoopAll::vertexSelection(HggVertexAnalyzer & vtxAna, HggVertexF
 	
 	// ---- NEW METHOD 2 (suggested by MarcoP) : first use ranking, then conversions info, e.g. on the N vtxs with best rank
 	// preselection  : all vtxs
-	std::vector<int> rankprodAll = vtxAna.rankprod(vtxVarNames);
+	std::vector<int> rankprodAll = useMva ? vtxAna.rank(*tmvaReader,tmvaMethod) : vtxAna.rankprod(vtxVarNames);
 	int iClosestConv = -1;
 	float dminconv = 9999999;
 	
@@ -595,10 +597,21 @@ int  LoopAll::matchPhotonToConversion( int lpho) {
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 TLorentzVector LoopAll::get_pho_p4(int ipho, int ivtx, float * energy)
 {
+	/// /// PhotonInfo p(ipho, *((TVector3*)sc_xyz->At(pho_scind[ipho])),
+	/// PhotonInfo p(ipho, *((TVector3*)pho_calopos->At(ipho)),
+	/// 	     energy != 0 ? energy[ipho] : ((TLorentzVector*)pho_p4->At(ipho))->Energy() );
+	/// TVector3 * vtx = (TVector3*) vtx_std_xyz->At(ivtx);
+	/// return p.p4( vtx->X(), vtx->Y(), vtx->Z() );
+	TVector3 * vtx = (TVector3*) vtx_std_xyz->At(ivtx);
+	return get_pho_p4(ipho,vtx,energy);
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+TLorentzVector LoopAll::get_pho_p4(int ipho, TVector3 * vtx, float * energy)
+{
 	/// PhotonInfo p(ipho, *((TVector3*)sc_xyz->At(pho_scind[ipho])),
 	PhotonInfo p(ipho, *((TVector3*)pho_calopos->At(ipho)),
 		     energy != 0 ? energy[ipho] : ((TLorentzVector*)pho_p4->At(ipho))->Energy() );
-	TVector3 * vtx = (TVector3*) vtx_std_xyz->At(ivtx);
 	return p.p4( vtx->X(), vtx->Y(), vtx->Z() );
 }
 
@@ -1477,6 +1490,7 @@ void LoopAll::DefineUserBranches()
 	
 	BRANCH_DICT(vtx_std_sel);
 	BRANCH_DICT(vtx_std_ranked_list);
+	BRANCH_DICT(vtx_std_evt_mva);
 
 	BRANCH_DICT(pho_tkiso_recvtx_030_002_0000_10_01);
 	BRANCH_DICT(pho_tkiso_badvtx_040_002_0000_10_01);

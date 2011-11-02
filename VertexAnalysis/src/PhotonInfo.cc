@@ -12,7 +12,7 @@ using namespace std;
 
 
 PhotonInfo::PhotonInfo(int id, const TVector3 & caloPosition, float energy) :
-	id_(id), caloPosition_(caloPosition), energy_(energy), nTracks_(0)
+	id_(id), caloPosition_(caloPosition), energy_(energy), nTracks_(0), isFake_(false)
 {
 }
 
@@ -36,7 +36,8 @@ PhotonInfo::PhotonInfo(int id,
   nTracks_(nTracks),
   convVtxValid_(convVtxValid),
   convVtxChi2Prob_(convVtxChi2Prob),
-  EoP_(EoP)
+	EoP_(EoP),
+	isFake_(false)
 {
 }
 	
@@ -50,7 +51,7 @@ TLorentzVector PhotonInfo::p4(float vtxx, float vtxy, float vtxz) const
 	return p4;
 }
 
-bool  PhotonInfo::isAConversion() {
+bool  PhotonInfo::isAConversion() const {
   bool isAConversion=false;
   if (  nTracks_ == 2  &&  convVtxValid_ &&   convVtxChi2Prob_ > 0.000001 )  isAConversion=true;
 
