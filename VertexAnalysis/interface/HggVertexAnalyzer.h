@@ -142,9 +142,11 @@ public:
 	void evaluate(TMVA::Reader &reader, const std::string & method);
 	std::vector<int> rankprod(const std::vector<std::string> & vars);
 
-	// Conversion-related methods 
-	double vtxdZFromConv(const PhotonInfo & pho);
-	double vtxZFromConv(const PhotonInfo & pho);
+	// Conversion-related methods
+    double vtxdZFromConv(const PhotonInfo & pho);
+    double vtxZFromConv(const PhotonInfo & pho, int method=0);
+    double vtxZFromConvSuperCluster(const PhotonInfo & pho);
+	double vtxZFromConvOnly(const PhotonInfo & pho);
 	void setPullToConv(int ivert, float pull, float lim=10.);
 	void setNConv(int n);
 	

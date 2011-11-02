@@ -17,7 +17,8 @@ public:
   PhotonInfo(int id, const TVector3 & caloPosition, float energy);
   PhotonInfo(int id, const TVector3 & caloPosition, 
 	     const TVector3 &  bs, 
-	     const TVector3 &  convVtx, 
+	     const TVector3 &  convVtx,
+         const TVector3 &  refittedMomentum,
 	     float energy,
 	     int iDet,
 	     int nTracks,
@@ -30,7 +31,8 @@ public:
 	const TVector3 & beamSpot() const { return beamSpot_; }
 	const TVector3 & conversionVertex() const { return conversionVertex_; }
 	const TVector3 & caloPosition() const { return caloPosition_; }
-	const int iDet() const {return iDet_;}
+    const TVector3 & refittedMomentum() const { return refittedMomentum_; }
+    const int iDet() const {return iDet_;}
 	const float      energy()       const { return energy_; }
 	TLorentzVector p4(float vtxx, float vtxy, float vtxz) const;
 	bool isAConversion() const;
@@ -42,6 +44,7 @@ protected:
 	TVector3 caloPosition_;
 	TVector3 beamSpot_;
 	TVector3 conversionVertex_;
+    TVector3 refittedMomentum_;
 	float energy_;
 	int iDet_;
 	int nTracks_;

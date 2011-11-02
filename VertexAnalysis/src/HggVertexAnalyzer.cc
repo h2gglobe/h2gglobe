@@ -801,10 +801,52 @@ double HggVertexAnalyzer::vtxdZFromConv(const PhotonInfo & pho)
 
 
 // -------------------------------------------------------------------------------------------------------------------------------------------------------------
-double HggVertexAnalyzer::vtxZFromConv(const PhotonInfo & pho)
+double HggVertexAnalyzer::vtxZFromConv(const PhotonInfo & pho, int method)
+{
+  // method 0 is combined
+  // method 1 is conversion only
+  // method 2 is supercluster only
+
+  double ReturnValue = 0;
+
+  //Mixed Method Conversion Vertex
+  if (method==0) {
+    if (pho.iDet()) {
+      if (pho.conversionVertex().Perp()<=15.0) {
+        //Pixel Barrel
+        ReturnValue = vtxZFromConvOnly(pho);
+      } else if  (pho.conversionVertex().Perp()>15 && pho.conversionVertex().Perp()<=60.0) {
+        //Tracker Inner Barrel
+        ReturnValue = vtxZFromConvSuperCluster(pho);
+      } else if (pho.conversionVertex().Perp()>60.0) {
+        //Tracker Outer Barrel
+        ReturnValue = vtxZFromConvSuperCluster(pho);
+      }
+    } else {
+      if (pho.conversionVertex().Z()<=50.0) {
+        //Pixel Forward
+        ReturnValue = vtxZFromConvOnly(pho);
+      }  else if (pho.conversionVertex().Z()>50.0 && pho.conversionVertex().Z()<=100.0) {
+        //Tracker Inner Disk
+        ReturnValue = vtxZFromConvOnly(pho);
+      }  else if (pho.conversionVertex().Z()>100.0) {
+        //Track EndCap
+        ReturnValue = vtxZFromConvSuperCluster(pho);
+      }
+    }
+  }
+
+  if (method==1) ReturnValue = vtxZFromConvSuperCluster(pho);
+  if (method==2) ReturnValue = vtxZFromConvOnly(pho);
+  
+  return ReturnValue;
+
+}
+
+double HggVertexAnalyzer::vtxZFromConvSuperCluster(const PhotonInfo & pho)
 {
 
-  // get the z from conversions
+  // get the z from conversion plus SuperCluster
   double deltaX1 =  pho.caloPosition().X()- pho.conversionVertex().X();
   double deltaY1 =  pho.caloPosition().Y()- pho.conversionVertex().Y();
   double deltaZ1 =  pho.caloPosition().Z()- pho.conversionVertex().Z();
@@ -817,9 +859,15 @@ double HggVertexAnalyzer::vtxZFromConv(const PhotonInfo & pho)
   double deltaZ2 = R2/tantheta;
   double higgsZ =  pho.caloPosition().Z()-deltaZ1-deltaZ2;
   return higgsZ;
-
+  
 }
 
+double HggVertexAnalyzer::vtxZFromConvOnly(const PhotonInfo & pho) {
+
+  double dz = (pho.conversionVertex().Z()-pho.beamSpot().Z()) - ((pho.conversionVertex().X()-pho.beamSpot().X())*pho.refittedMomentum().X()+(pho.conversionVertex().Y()-pho.beamSpot().Y())*pho.refittedMomentum().Y())/pho.refittedMomentum().Perp() * pho.refittedMomentum().Z()/pho.refittedMomentum().Perp();
+  return dz + pho.beamSpot().Z();
+  
+}
 
 // -------------------------------------------------------------------------------------------------------------------------------------------------------------
 VertexInfoAdapter::~VertexInfoAdapter()
