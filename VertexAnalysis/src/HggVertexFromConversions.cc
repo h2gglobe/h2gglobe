@@ -18,12 +18,19 @@ using namespace std;
 
 
 HggVertexFromConversions::HggVertexFromConversions(VertexAlgoParameters &ap):
-  sigmaPix_ (ap.sigmaPix ),
-  sigmaTib_ (ap.sigmaTib ),
-  sigmaTob_ (ap.sigmaTob ),
-  sigmaFwd1_(ap.sigmaFwd1),
-  sigmaFwd2_(ap.sigmaFwd2),
-  sigmaFwd3_(ap.sigmaFwd3)  
+  sigma1Pix_ (ap.sigma1Pix ),
+  sigma1Tib_ (ap.sigma1Tib ),
+  sigma1Tob_ (ap.sigma1Tob ),
+  sigma1PixFwd_(ap.sigma1PixFwd),
+  sigma1Tid_(ap.sigma1Tid),
+  sigma1Tec_(ap.sigma1Tec),
+  
+  sigma2Pix_ (ap.sigma2Pix ),
+  sigma2Tib_ (ap.sigma2Tib ),
+  sigma2Tob_ (ap.sigma2Tob ),
+  sigma2PixFwd_(ap.sigma2PixFwd),
+  sigma2Tid_(ap.sigma2Tid),
+  sigma2Tec_(ap.sigma2Tec)
 {
 }
 
@@ -37,22 +44,22 @@ double HggVertexFromConversions::vtxdZ(const PhotonInfo & pho)
 
   if ( pho.iDet() ==1 ) { // barrel
     if ( pho.conversionVertex().Perp() <=15 ) {
-      dz=sigmaPix_;
+      dz=sigma2Pix_;
     } else if ( pho.conversionVertex().Perp() > 15 && pho.conversionVertex().Perp() <=60 ) {
-      dz=sigmaTib_;
+      dz=sigma2Tib_;
     } else {
-      dz=sigmaTob_;
+      dz=sigma2Tob_;
     }
 
   } else { // endcap
 
 
     if ( fabs(pho.conversionVertex().Z() ) <=50 ) {
-      dz=sigmaFwd1_;
+      dz=sigma2PixFwd_;
     } else if ( fabs(pho.conversionVertex().Z() ) > 50 && fabs(pho.conversionVertex().Z()) <= 100 ) {
-      dz=sigmaFwd2_;
+      dz=sigma2Tid_;
     } else {
-      dz=sigmaFwd3_;
+      dz=sigma2Tec_;
     }
   }
 

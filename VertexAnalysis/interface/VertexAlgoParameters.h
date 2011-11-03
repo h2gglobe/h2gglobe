@@ -17,12 +17,19 @@ public:
 	std::string vtxProbFormula; 
 
 	bool useAllConversions;
-	float sigmaPix;
-	float sigmaTib;
-	float sigmaTob;
-	float sigmaFwd1;
-	float sigmaFwd2;
-	float sigmaFwd3;
+	float sigma1Pix;
+	float sigma1Tib;
+	float sigma1Tob;
+	float sigma1PixFwd;
+	float sigma1Tid;
+	float sigma1Tec;
+
+  	float sigma2Pix;
+	float sigma2Tib;
+	float sigma2Tob;
+	float sigma2PixFwd;
+	float sigma2Tid;
+	float sigma2Tec;
 };
 
 #endif

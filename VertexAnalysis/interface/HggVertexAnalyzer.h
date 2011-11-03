@@ -86,7 +86,7 @@ public:
 	std::vector<int> rankprod(const std::vector<std::string> & vars);
 
 	// Conversion-related methods
-	double vtxdZFromConv(const PhotonInfo & pho);
+    double vtxdZFromConv(const PhotonInfo & pho, int method=0);
 	double vtxZFromConv(const PhotonInfo & pho, int method=0);
 	double vtxZFromConvSuperCluster(const PhotonInfo & pho);
 	double vtxZFromConvOnly(const PhotonInfo & pho);
