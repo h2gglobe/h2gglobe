@@ -34,71 +34,8 @@ class TTree;
  * An implementation of the VertexInfoAdapter interface that can be used with (almost) any NTuple is provided 
  * by the TupleVertexInfo class.
  * 
- * usage example:
- * <code>
- * class MyAnalzer {
- * 
- *     // algo parameters
- *     VertexAlgoParameters vtxAlgoParams_;
- *     vector<string> rankVariables_, tmvaVariables_;
+ * Documentation is avai
  *
- *     TMVA::Reader tmvaReader_;
- *     string tmvaMethod_;
- *
- *     // branches buffers
- *     inf nvtx_;
- *     float  vtxx_[100], vtxy_[100], vtxz_[100];
- *     
- *     int ntracks_;
- *     float tkpx_[100], tkpy_[100], tkpz_[100], tkPtErr_[100], tkVtxId_[100], tkWeight_[100];
- *     
- *     float phocalox_[30], phocaloy_[30], phocaloz_[30], phoen_[30];
- *     
- *     void init() {
- *           // variables order matters to resolve ties
- *           rankVariables_.push_back("ptbal"), rankVariables.push_back("ptasym"), rankVariables.push_back("logsumpt2");
- *                    
- *           mvaMethod_ = "BDTMethod"; 
- *           // tmva has its own order
- *           tmvaVariables_.push_back("ptbal"), tmvaVariables.push_back("ptasym"), tmvaVariables.push_back("logsumpt2");
- *           tmvaReader_ = new TMVA::Reader( "!Color:!Silent" );
- *           HggVertexAnalyzer::bookVariables( *tmvaReader_, tmvaVariables_ );
- *           tmvaReader_->BookMVA( tmvaMethod_, "<path to weights>" ); 
- *     }
- *     
- *     void analyze() {
- *     
- *           TupleVertexInfo vinfo(nvtx_, vtxx_, vtxy_, vtxz_, 
- *     			   ntracks_, tkpx_, tkpy_, tkpz_, tkPtErr_, tkVtxId_, tkWeight_);
- *           
- *           PhotonInfo pho1(TVector3(phocalox_[p1],phocaloy_[p1],phocaloz_[p1]),phoen_[p1]), 
- *                           pho2(TVector3(phocalox_[p2],phocaloy_[p2],phocaloz_[p2]),phoen_[p2]);
- *     
- *          
- *           HggVertexAnalyzer vAna(vtxAlgoParams_,nvtx);
- *     
- *           vAna.analyze(vinfo,pho1,pho2);
- *     
- *           vecto<int> rankprod = vAna.rankprod(rankVariables_);
- *           cout << "\n\nRanks product" << endl;
- *           cout << "best vertex " << rankprod[0] << endl;
- *           for(int ii=0; ii<nvtx_; ++ii) {
- *                 int vtxrank = find(rankprod.begin(), rankprod.end(), ii) - rankprod.begin();
- *                 cout << "vertx " << ii << " rank " << vtxrank << " " << vAna.ptbal(ii) << " " << vAna.ptasym(ii) << " " << vAna.logsumpt2(ii) << endl;
- *     
- *           }
- * 
- *           vecto<int> ranktmva = vAna.rankprod(*tmvaReader_,tmvaMethod_);
- *           cout << "\n\n" << tmvaMethod_ << endl;
- *           cout << "best vertex " << rankprod[0] << endl;
- *           for(int ii=0; ii<nvtx_; ++ii) {
- *                 int vtxrank = find(ranktmva.begin(), ranktmva.end(), ii) - ranktmva.begin();
- *                 cout << "vertx " << ii << " rank " << vtxrank << " " << vAna.ptbal(ii) << " " << vAna.ptasym(ii) << " " << vAna.logsumpt2(ii) << endl;
- *           }
- *     }
- * 
- * };
- * </code>
  */
 class HggVertexAnalyzer
 {
@@ -115,6 +52,12 @@ public:
 	static dict_t & dictionary();
 #endif
 	static const float spherPwr_;
+	
+	// Zero-configuration method
+	void setupWithDefaultOptions(const std::string & pathToPerVertxMvaWeights, const std::string & pathToPerEventMvaWeights, 
+				     std::vector<std::string> & rankVariables, 
+				     TMVA::Reader *& perVertexReader, std::string & perVertexMethod,
+				     TMVA::Reader *& perEventReader, std::string & perEventMethod);
 	
 	// interface to  TMVA
 	static void bookVariables(TMVA::Reader & reader, const std::vector<std::string> & vars);
@@ -143,9 +86,9 @@ public:
 	std::vector<int> rankprod(const std::vector<std::string> & vars);
 
 	// Conversion-related methods
-    double vtxdZFromConv(const PhotonInfo & pho);
-    double vtxZFromConv(const PhotonInfo & pho, int method=0);
-    double vtxZFromConvSuperCluster(const PhotonInfo & pho);
+	double vtxdZFromConv(const PhotonInfo & pho);
+	double vtxZFromConv(const PhotonInfo & pho, int method=0);
+	double vtxZFromConvSuperCluster(const PhotonInfo & pho);
 	double vtxZFromConvOnly(const PhotonInfo & pho);
 	void setPullToConv(int ivert, float pull, float lim=10.);
 	void setNConv(int n);

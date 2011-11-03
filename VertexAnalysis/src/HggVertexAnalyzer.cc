@@ -36,6 +36,52 @@ HggVertexAnalyzer::dict_t & HggVertexAnalyzer::dictionary()
 	return dictionary;
 }
 
+
+// -------------------------------------------------------------------------------------------------------------------------------------------------------------
+void HggVertexAnalyzer::setupWithDefaultOptions(const std::string & pathToPerVertxMvaWeights, const std::string & pathToPerEventMvaWeights, 
+						std::vector<string> & rankVariables,
+						TMVA::Reader *& perVtxReader, std::string & perVtxMethod,
+						TMVA::Reader *& perEvtReader, std::string & perEvtMethod)
+{
+	params_.fixTkIndex=0;
+
+	params_.rescaleTkPtByError=0;
+	params_.trackCountThr=0;
+	params_.highPurityOnly=0;
+
+	params_.maxD0Signif=999.;
+	params_.maxDzSignif=999.;
+
+	params_.removeTracksInCone=1;
+	params_.coneSize=0.05;
+
+	params_.useAllConversions=1;
+	params_.sigmaPix=0.06;
+	params_.sigmaTib=0.67;
+	params_.sigmaTob=2.04;
+	params_.sigmaFwd1=0.18;
+	params_.sigmaFwd2=0.61;
+	params_.sigmaFwd3=0.99;
+	
+	params_.vtxProbFormula="1.-0.49*(x+1)";
+	
+	std::vector<std::string>  perVtxVariables; 
+	perVtxMethod = "BDTCat";
+	perEvtMethod = "evtBDTG";
+	
+	perVtxVariables.push_back("ptbal"), perVtxVariables.push_back("ptasym"), perVtxVariables.push_back("logsumpt2"),
+		perVtxVariables.push_back("limPullToConv"), perVtxVariables.push_back("nConv");
+	rankVariables.push_back("ptbal"), rankVariables.push_back("ptasym"), rankVariables.push_back("logsumpt2");
+	
+	perVtxReader = new TMVA::Reader( "!Color:!Silent" );
+	HggVertexAnalyzer::bookVariables( *perVtxReader, perVtxVariables );
+	perVtxReader->BookMVA( perVtxMethod, pathToPerVertxMvaWeights );
+
+	perEvtReader = new TMVA::Reader( "!Color:!Silent" );
+	HggVertexAnalyzer::bookPerEventVariables( *perEvtReader );
+	perEvtReader->BookMVA( perEvtMethod, pathToPerEventMvaWeights );
+}
+
 // -------------------------------------------------------------------------------------------------------------------------------------------------------------
 void HggVertexAnalyzer::fillDictionary(HggVertexAnalyzer::dict_t& dictionary)
 {
@@ -315,7 +361,7 @@ float HggVertexAnalyzer::perEventMva(TMVA::Reader & reader,const  std::string & 
 	evt_diphoPt = diphopt(v0);
 	evt_nconv   = nconv(v0);
 	evt_nvert   = rankedVertexes.size();
-	for(int vi=0; vi<rankedVertexes.size() && vi<evt_mva.size(); ++vi ) {
+	for(int vi=0; vi<(int)rankedVertexes.size() && vi<(int)evt_mva.size(); ++vi ) {
 		int vtxid = rankedVertexes[vi];
 		evt_mva[vi] = mva(vtxid);
 		evt_dz[vi]  = vertexz(vtxid) - z0;
@@ -503,7 +549,7 @@ void HggVertexAnalyzer::clear()
 // -------------------------------------------------------------------------------------------------------------------------------------------------------------
 void HggVertexAnalyzer::setPullToConv(int ivert, float pull, float lim) 
 { 
-	if( pulltoconv_.size() <= ipair_ ) { 
+	if( (int)pulltoconv_.size() <= ipair_ ) { 
 		int nvtx = nch_[ipair_].size();
 		pulltoconv_.resize(ipair_+1); pulltoconv_[ipair_].resize(nvtx,1000.);
 		limpulltoconv_.resize(ipair_+1); limpulltoconv_[ipair_].resize(nvtx,1000.);
@@ -516,7 +562,7 @@ void HggVertexAnalyzer::setPullToConv(int ivert, float pull, float lim)
 // -------------------------------------------------------------------------------------------------------------------------------------------------------------
 void HggVertexAnalyzer::setNConv(int n)
 { 
-	if( nconv_.size() <= ipair_ ) { 
+	if( (int)nconv_.size() <= ipair_ ) { 
 		nconv_.resize(ipair_+1,0);
 	}
 	
