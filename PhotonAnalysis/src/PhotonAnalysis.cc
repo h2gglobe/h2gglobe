@@ -54,7 +54,7 @@ void readEnergyScaleOffsets(const std::string &fname, EnergySmearer::energySmear
 	do {
 		in.getline( line, 200, '\n' );
 
-		if( sscanf(line,"%d %d %f %f %f %f",&first, &last, &EBHighR9, &EBLowR9, &EBm4HighR9, &EBm4LowR9, &EEHighR9, &EELowR9) != 6 ) { continue; } 
+		if( sscanf(line,"%d %d %f %f %f %f %f %f",&first, &last, &EBHighR9, &EBLowR9, &EBm4HighR9, &EBm4LowR9, &EEHighR9, &EELowR9) != 8 ) { continue; } 
 		std::cerr << "Energy scale by run " <<  first<< " " <<  last<< " " <<  EBHighR9<< " " <<  EBLowR9 << " " <<  EBm4HighR9<< " " <<  EBm4LowR9<< " " <<  EEHighR9<< " " <<  EELowR9 << std::endl;
 
 		escaleOffsets.push_back(EnergyScaleOffset(first,last));
