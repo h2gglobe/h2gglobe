@@ -37,7 +37,7 @@ public:
 	TLorentzVector p4(float vtxx, float vtxy, float vtxz) const;
 	bool isAConversion() const;
 	bool isFake() const { return isFake_; };
-	void isFake(bool x=true) { isFake_ = x; };
+	void isFake(bool x) { isFake_ = x; };
 	
 protected:
 	int id_;
