@@ -45,6 +45,10 @@ public:
 	DiPhoEfficiencySmearer::diPhoEfficiencySmearingParameters diPhoEffSmearPars;
 
 	double GetDifferentialKfactor(double, int);
+
+	void FillSignalLabelMap();
+	std::string GetSignalLabel(int) ;
+
 	bool  doMCSmearing;
 	bool  doEscaleSyst, doEresolSyst, doPhotonIdEffSyst, doVtxEffSyst, doR9Syst, doTriggerEffSyst, doKFactorSyst;
 	bool  doEscaleSmear, doEresolSmear, doPhotonIdEffSmear, doVtxEffSmear, doR9Smear, doTriggerEffSmear, doKFactorSmear;
@@ -81,6 +85,7 @@ protected:
 	KFactorSmearer * kFactorSmearer;
 	
 	std::string name_;
+	std::map<int,std::string> signalLabels;
 	float nevents, sumwei, sumaccept, sumsmear, sumev; 
 	
 	int nCategories_;

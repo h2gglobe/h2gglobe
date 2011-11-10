@@ -32,8 +32,8 @@ void StatAnalysis::Term(LoopAll& l)
     // Make Fits to the data-sets and systematic sets
     l.rooContainer->FitToData("data_pol_model","data_mass");  // Fit to full range of dataset
   
-    l.rooContainer->WriteSpecificCategoryDataCards(outputfilename,"data_mass","sig_mass","data_pol_model");
-    l.rooContainer->WriteDataCard(outputfilename,"data_mass","sig_mass","data_pol_model");
+//    l.rooContainer->WriteSpecificCategoryDataCards(outputfilename,"data_mass","sig_mass","data_pol_model");
+//    l.rooContainer->WriteDataCard(outputfilename,"data_mass","sig_mass","data_pol_model");
     // mode 0 as above, 1 if want to bin in sub range from fit,
 
     // Write the data-card for the Combinations Code, needs the output filename, makes binned analysis DataCard
@@ -360,62 +360,79 @@ void StatAnalysis::Init(LoopAll& l)
     // -----------------------------------------------------
     // Make some data sets from the observables to fill in the event loop		  
     // Binning is for histograms (will also produce unbinned data sets)
+
     l.rooContainer->CreateDataSet("CMS_hgg_mass","data_mass"    ,nDataBins); // (100,110,150) -> for a window, else full obs range is taken 
     l.rooContainer->CreateDataSet("CMS_hgg_mass","bkg_mass"     ,nDataBins);    	  	
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_m105",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_m110",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_m115",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_m120",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_m121",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_m123",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_m125",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_m130",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_m135",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_m140",nDataBins);    
-//    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_m145",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_m150",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_rv_m105",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_rv_m110",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_rv_m115",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_rv_m120",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_rv_m121",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_rv_m123",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_rv_m125",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_rv_m130",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_rv_m135",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_rv_m140",nDataBins);    
-//    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_rv_m145",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_rv_m150",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_wv_m105",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_wv_m110",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_wv_m115",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_wv_m120",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_wv_m121",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_wv_m123",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_wv_m125",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_wv_m130",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_wv_m135",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_wv_m140",nDataBins);    
-//    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_wv_m145",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_wv_m150",nDataBins);    
 
-    // Make more data sets to represent systematic shitfs , 
-    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_mass_m105",-1);	
-    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_mass_m110",-1);	
-    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_mass_m115",-1);	
-    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_mass_m120",-1);	
-    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_mass_m121",-1);	
-    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_mass_m123",-1);	
-    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_mass_m125",-1);	
-    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_mass_m130",-1);	
-    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_mass_m135",-1);	
-    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_mass_m140",-1);	
-//    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_mass_m145",-1);	
-    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_mass_m150",-1);	
+    // Create Signal DataSets:
+    for (int sig=105;sig<=150;sig+=5){
+    	l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_ggh_mass_m%d",sig),nDataBins);    
+    	l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_vbf_mass_m%d",sig),nDataBins);    
+    	l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wzh_mass_m%d",sig),nDataBins);    
+    	l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_tth_mass_m%d",sig),nDataBins);   
+ 
+    	l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_ggh_mass_m%d_rv",sig),nDataBins);    
+    	l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_vbf_mass_m%d_rv",sig),nDataBins);    
+    	l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wzh_mass_m%d_rv",sig),nDataBins);    
+    	l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_tth_mass_m%d_rv",sig),nDataBins);    
+                                                                              
+    	l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_ggh_mass_m%d_wv",sig),nDataBins);    
+    	l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_vbf_mass_m%d_wv",sig),nDataBins);    
+    	l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wzh_mass_m%d_wv",sig),nDataBins);    
+    	l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_tth_mass_m%d_wv",sig),nDataBins);    
+    }
+
+    // Also create the 121 and 123 test points
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_ggh_mass_m121",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_vbf_mass_m121",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_wzh_mass_m121",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_tth_mass_m121",nDataBins);   
+ 
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_ggh_mass_m121_rv",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_vbf_mass_m121_rv",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_wzh_mass_m121_rv",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_tth_mass_m121_rv",nDataBins);    
+                                                                      
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_ggh_mass_m121_wv",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_vbf_mass_m121_wv",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_wzh_mass_m121_wv",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_tth_mass_m121_wv",nDataBins);    
 	
-    /* -----------------------------------------------------------------------------------------
-       KFactors Reweighting
-       ------------------------------------------------------------------------------------------- */
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_ggh_mass_m123",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_vbf_mass_m123",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_wzh_mass_m123",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_tth_mass_m123",nDataBins);   
+ 
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_ggh_mass_m123_rv",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_vbf_mass_m123_rv",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_wzh_mass_m123_rv",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_tth_mass_m123_rv",nDataBins);    
+                                                                      
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_ggh_mass_m123_wv",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_vbf_mass_m123_wv",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_wzh_mass_m123_wv",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_tth_mass_m123_wv",nDataBins);    
+
+
+    // Make more datasets representing Systematic Shifts of various quantities
+
+    for (int sig=105;sig<=150;sig+=5){
+    	l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_ggh_mass_m%d",sig),-1);	
+    	l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_vbf_mass_m%d",sig),-1);	
+    	l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_wzh_mass_m%d",sig),-1);	
+    	l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_tth_mass_m%d",sig),-1);	
+    }
+
+    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_ggh_mass_m121",-1);	
+    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_vbf_mass_m121",-1);	
+    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_wzh_mass_m121",-1);	
+    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_tth_mass_m121",-1);
+	
+    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_ggh_mass_m123",-1);	
+    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_vbf_mass_m123",-1);	
+    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_wzh_mass_m123",-1);	
+    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_tth_mass_m123",-1);	
+	
     if(PADEBUG) 
 	cout << "InitRealStatAnalysis END"<<endl;
 	
@@ -634,67 +651,10 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	}
 	if (cur_type > 0 && cur_type != 3 && cur_type != 4)
 	    l.rooContainer->InputDataPoint("bkg_mass",category,mass,evweight);
-	else if (cur_type == -13|| cur_type == -14 || cur_type == -15|| cur_type == -16){
-	    l.rooContainer->InputDataPoint("sig_mass_m105",category,mass,evweight);
-	    if (CorrectVertex) l.rooContainer->InputDataPoint("sig_mass_rv_m105",category,mass,evweight);
-	    else l.rooContainer->InputDataPoint("sig_mass_wv_m105",category,mass,evweight);
-	}
-	else if (cur_type == -17 || cur_type == -18 || cur_type == -19|| cur_type == -20){
-	    l.rooContainer->InputDataPoint("sig_mass_m110",category,mass,evweight);
-	    if (CorrectVertex) l.rooContainer->InputDataPoint("sig_mass_rv_m110",category,mass,evweight);
-	    else l.rooContainer->InputDataPoint("sig_mass_wv_m110",category,mass,evweight);
-	}
-	else if (cur_type == -21 || cur_type == -22 || cur_type == -23|| cur_type == -24){
-	    l.rooContainer->InputDataPoint("sig_mass_m115",category,mass,evweight);
-	    if (CorrectVertex) l.rooContainer->InputDataPoint("sig_mass_rv_m115",category,mass,evweight);
-	    else l.rooContainer->InputDataPoint("sig_mass_wv_m115",category,mass,evweight);
-	}
-	else if (cur_type == -25 || cur_type == -26 || cur_type == -27|| cur_type == -28){
-	    l.rooContainer->InputDataPoint("sig_mass_m120",category,mass,evweight);
-	    if (CorrectVertex) l.rooContainer->InputDataPoint("sig_mass_rv_m120",category,mass,evweight);
-	    else l.rooContainer->InputDataPoint("sig_mass_wv_m120",category,mass,evweight);
-	}
-	else if (cur_type == -29 || cur_type == -30 || cur_type == -31|| cur_type == -32){
-	    l.rooContainer->InputDataPoint("sig_mass_m130",category,mass,evweight);
-	    if (CorrectVertex) l.rooContainer->InputDataPoint("sig_mass_rv_m130",category,mass,evweight);
-	    else l.rooContainer->InputDataPoint("sig_mass_wv_m130",category,mass,evweight);
-	}
-	else if (cur_type == -33 || cur_type == -34 || cur_type == -35|| cur_type == -36){
-	    l.rooContainer->InputDataPoint("sig_mass_m140",category,mass,evweight);
-	    if (CorrectVertex) l.rooContainer->InputDataPoint("sig_mass_rv_m140",category,mass,evweight);
-	    else l.rooContainer->InputDataPoint("sig_mass_wv_m140",category,mass,evweight);
-	}
-	else if (cur_type == -37 || cur_type == -38 || cur_type == -39|| cur_type == -40){
-	    l.rooContainer->InputDataPoint("sig_mass_m125",category,mass,evweight);
-	    if (CorrectVertex) l.rooContainer->InputDataPoint("sig_mass_rv_m125",category,mass,evweight);
-	    else l.rooContainer->InputDataPoint("sig_mass_wv_m125",category,mass,evweight);
-	}
-	else if (cur_type == -41 || cur_type == -42 || cur_type == -43|| cur_type == -44){
-	    l.rooContainer->InputDataPoint("sig_mass_m135",category,mass,evweight);
-	    if (CorrectVertex) l.rooContainer->InputDataPoint("sig_mass_rv_m135",category,mass,evweight);
-	    else l.rooContainer->InputDataPoint("sig_mass_wv_m135",category,mass,evweight);
-	}
-
-
-//	else if (cur_type == -45 || cur_type == -46 || cur_type == -47|| cur_type == -48){
-//	    l.rooContainer->InputDataPoint("sig_mass_m145",category,mass,evweight);
-//	    if (CorrectVertex) l.rooContainer->InputDataPoint("sig_mass_rv_m145",category,mass,evweight);
-//	    else l.rooContainer->InputDataPoint("sig_mass_wv_m145",category,mass,evweight);
-//	}
-	else if (cur_type == -49 || cur_type == -50 || cur_type == -51|| cur_type == -52){
-	    l.rooContainer->InputDataPoint("sig_mass_m150",category,mass,evweight);
-	    if (CorrectVertex) l.rooContainer->InputDataPoint("sig_mass_rv_m150",category,mass,evweight);
-	    else l.rooContainer->InputDataPoint("sig_mass_wv_m150",category,mass,evweight);
-	}
-	else if (cur_type == -53 || cur_type == -54 || cur_type == -55|| cur_type == -56){
-	    l.rooContainer->InputDataPoint("sig_mass_m121",category,mass,evweight);
-	    if (CorrectVertex) l.rooContainer->InputDataPoint("sig_mass_rv_m121",category,mass,evweight);
-	    else l.rooContainer->InputDataPoint("sig_mass_wv_m121",category,mass,evweight);
-	}
-	else if (cur_type == -57 || cur_type == -58 || cur_type == -59|| cur_type == -60){
-	    l.rooContainer->InputDataPoint("sig_mass_m123",category,mass,evweight);
-	    if (CorrectVertex) l.rooContainer->InputDataPoint("sig_mass_rv_m123",category,mass,evweight);
-	    else l.rooContainer->InputDataPoint("sig_mass_wv_m123",category,mass,evweight);
+	else if (cur_type < 0){
+	    l.rooContainer->InputDataPoint("sig_"+GetSignalLabel(cur_type),category,mass,evweight);
+	    if (CorrectVertex) l.rooContainer->InputDataPoint("sig_"+GetSignalLabel(cur_type)+"rv",category,mass,evweight);
+	    else l.rooContainer->InputDataPoint("sig_"+GetSignalLabel(cur_type)+"wv",category,mass,evweight);
 	}
        
     }
@@ -740,31 +700,9 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		    weights.push_back(evweight);
 		}// end loop on systematics steps
 	   
-		if (cur_type == -13|| cur_type == -14 || cur_type == -15|| cur_type == -16)
-		    l.rooContainer->InputSystematicSet("sig_mass_m105",(*si)->name(),categories,mass_errors,weights);
-		else if (cur_type == -17|| cur_type == -18 || cur_type == -19|| cur_type == -20)
-		    l.rooContainer->InputSystematicSet("sig_mass_m110",(*si)->name(),categories,mass_errors,weights);
-		else if (cur_type == -21|| cur_type == -22 || cur_type == -23|| cur_type == -24)
-		    l.rooContainer->InputSystematicSet("sig_mass_m115",(*si)->name(),categories,mass_errors,weights);
-		else if (cur_type == -25|| cur_type == -26 || cur_type == -27|| cur_type == -28)
-		    l.rooContainer->InputSystematicSet("sig_mass_m120",(*si)->name(),categories,mass_errors,weights);
-		else if (cur_type == -29|| cur_type == -30 || cur_type == -31|| cur_type == -32)
-		    l.rooContainer->InputSystematicSet("sig_mass_m130",(*si)->name(),categories,mass_errors,weights);
-		else if (cur_type == -33|| cur_type == -34 || cur_type == -35|| cur_type == -36)
-		    l.rooContainer->InputSystematicSet("sig_mass_m140",(*si)->name(),categories,mass_errors,weights);
-		else if (cur_type == -37|| cur_type == -38 || cur_type == -39|| cur_type == -40)
-		    l.rooContainer->InputSystematicSet("sig_mass_m125",(*si)->name(),categories,mass_errors,weights);
-		else if (cur_type == -41|| cur_type == -42 || cur_type == -43|| cur_type == -44)
-		    l.rooContainer->InputSystematicSet("sig_mass_m135",(*si)->name(),categories,mass_errors,weights);
-
-	//	else if (cur_type == -45|| cur_type == -46 || cur_type == -47|| cur_type == -48)
-	//	    l.rooContainer->InputSystematicSet("sig_mass_m145",(*si)->name(),categories,mass_errors,weights);
-		else if (cur_type == -49|| cur_type == -50 || cur_type == -51|| cur_type == -52)
-		    l.rooContainer->InputSystematicSet("sig_mass_m150",(*si)->name(),categories,mass_errors,weights);
-		else if (cur_type == -53|| cur_type == -54 || cur_type == -55|| cur_type == -56)
-		    l.rooContainer->InputSystematicSet("sig_mass_m121",(*si)->name(),categories,mass_errors,weights);
-		else if (cur_type == -57|| cur_type == -58 || cur_type == -59|| cur_type == -60)
-		    l.rooContainer->InputSystematicSet("sig_mass_m123",(*si)->name(),categories,mass_errors,weights);
+		if (cur_type < 0){
+		    l.rooContainer->InputSystematicSet("sig_"+GetSignalLabel(cur_type),(*si)->name(),categories,mass_errors,weights);
+		}
 	    }// end loop on smearers 
 		 
 
@@ -798,30 +736,9 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		    mass_errors.push_back(mass);
 		    weights.push_back(evweight);
 		}
-		if (cur_type == -13|| cur_type == -14 || cur_type == -15|| cur_type == -16)
-		    l.rooContainer->InputSystematicSet("sig_mass_m105",(*si)->name(),categories,mass_errors,weights);
-		else if (cur_type == -17|| cur_type == -18 || cur_type == -19|| cur_type == -20)
-		    l.rooContainer->InputSystematicSet("sig_mass_m110",(*si)->name(),categories,mass_errors,weights);
-		else if (cur_type == -21|| cur_type == -22 || cur_type == -23|| cur_type == -24)
-		    l.rooContainer->InputSystematicSet("sig_mass_m115",(*si)->name(),categories,mass_errors,weights);
-		else if (cur_type == -25|| cur_type == -26 || cur_type == -27|| cur_type == -28)
-		    l.rooContainer->InputSystematicSet("sig_mass_m120",(*si)->name(),categories,mass_errors,weights);
-		else if (cur_type == -29|| cur_type == -30 || cur_type == -31|| cur_type == -32)
-		    l.rooContainer->InputSystematicSet("sig_mass_m130",(*si)->name(),categories,mass_errors,weights);
-		else if (cur_type == -33|| cur_type == -34 || cur_type == -35|| cur_type == -36)
-		    l.rooContainer->InputSystematicSet("sig_mass_m140",(*si)->name(),categories,mass_errors,weights);
-		else if (cur_type == -37|| cur_type == -38 || cur_type == -39|| cur_type == -40)
-		    l.rooContainer->InputSystematicSet("sig_mass_m125",(*si)->name(),categories,mass_errors,weights);
-		else if (cur_type == -41|| cur_type == -42 || cur_type == -43|| cur_type == -44)
-		    l.rooContainer->InputSystematicSet("sig_mass_m135",(*si)->name(),categories,mass_errors,weights);
-	//	else if (cur_type == -45|| cur_type == -46 || cur_type == -47|| cur_type == -48)
-	//	    l.rooContainer->InputSystematicSet("sig_mass_m145",(*si)->name(),categories,mass_errors,weights);
-		else if (cur_type == -49|| cur_type == -50 || cur_type == -51|| cur_type == -52)
-		    l.rooContainer->InputSystematicSet("sig_mass_m150",(*si)->name(),categories,mass_errors,weights);
-		else if (cur_type == -53|| cur_type == -54 || cur_type == -55|| cur_type == -56)
-		    l.rooContainer->InputSystematicSet("sig_mass_m121",(*si)->name(),categories,mass_errors,weights);
-		else if (cur_type == -57|| cur_type == -58 || cur_type == -59|| cur_type == -60)
-		    l.rooContainer->InputSystematicSet("sig_mass_m123",(*si)->name(),categories,mass_errors,weights);
+		if (cur_type < 0){
+		    l.rooContainer->InputSystematicSet("sig_"+GetSignalLabel(cur_type),(*si)->name(),categories,mass_errors,weights);
+		}
 	    }
 
 	}
@@ -900,30 +817,9 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		}
 	       
 	    }
-	    if (cur_type == -13|| cur_type == -14 || cur_type == -15|| cur_type == -16)
-		l.rooContainer->InputSystematicSet("sig_mass_m105",(*si)->name(),categories,mass_errors,weights);
-	    else if (cur_type == -17|| cur_type == -18 || cur_type == -19|| cur_type == -20)
-		l.rooContainer->InputSystematicSet("sig_mass_m110",(*si)->name(),categories,mass_errors,weights);
-	    else if (cur_type == -21|| cur_type == -22 || cur_type == -23|| cur_type == -24)
-		l.rooContainer->InputSystematicSet("sig_mass_m115",(*si)->name(),categories,mass_errors,weights);
-	    else if (cur_type == -25|| cur_type == -26 || cur_type == -27|| cur_type == -28)
-		l.rooContainer->InputSystematicSet("sig_mass_m120",(*si)->name(),categories,mass_errors,weights);
-	    else if (cur_type == -29|| cur_type == -30 || cur_type == -31|| cur_type == -32)
-		l.rooContainer->InputSystematicSet("sig_mass_m130",(*si)->name(),categories,mass_errors,weights);
-	    else if (cur_type == -33|| cur_type == -34 || cur_type == -35|| cur_type == -36)
-		l.rooContainer->InputSystematicSet("sig_mass_m140",(*si)->name(),categories,mass_errors,weights);
-	    else if (cur_type == -37|| cur_type == -38 || cur_type == -39|| cur_type == -40)
-	        l.rooContainer->InputSystematicSet("sig_mass_m125",(*si)->name(),categories,mass_errors,weights);
-	    else if (cur_type == -41|| cur_type == -42 || cur_type == -43|| cur_type == -44)
-	        l.rooContainer->InputSystematicSet("sig_mass_m135",(*si)->name(),categories,mass_errors,weights);
-	    //else if (cur_type == -45|| cur_type == -46 || cur_type == -47|| cur_type == -48)
-	    //    l.rooContainer->InputSystematicSet("sig_mass_m145",(*si)->name(),categories,mass_errors,weights);
-	    else if (cur_type == -49|| cur_type == -50 || cur_type == -51|| cur_type == -52)
-	        l.rooContainer->InputSystematicSet("sig_mass_m150",(*si)->name(),categories,mass_errors,weights);
-	    else if (cur_type == -53|| cur_type == -54 || cur_type == -55|| cur_type == -56)
-	        l.rooContainer->InputSystematicSet("sig_mass_m121",(*si)->name(),categories,mass_errors,weights);
-	    else if (cur_type == -57|| cur_type == -58 || cur_type == -59|| cur_type == -60)
-	        l.rooContainer->InputSystematicSet("sig_mass_m123",(*si)->name(),categories,mass_errors,weights);
+	    if (cur_type < 0){
+	       l.rooContainer->InputSystematicSet("sig_"+GetSignalLabel(cur_type),(*si)->name(),categories,mass_errors,weights);
+	    }
        
 	}
        
@@ -993,4 +889,84 @@ double StatAnalysis::GetDifferentialKfactor(double gPT, int Mass)
 */
 }
 
+void StatAnalysis::FillSignalLabelMap(){
+
+	// Basically A Map of the ID (type) to the signal's name which can be filled Now:
+  signalLabels[-57]="ggh_mass_m123";
+  signalLabels[-58]="vbf_mass_m123";
+  signalLabels[-60]="wzh_mass_m123";
+  signalLabels[-59]="tth_mass_m123";
+  signalLabels[-53]="ggh_mass_m121";
+  signalLabels[-54]="vbf_mass_m121";
+  signalLabels[-56]="wzh_mass_m121";
+  signalLabels[-55]="tth_mass_m121";
+  signalLabels[-65]="ggh_mass_m160";
+  signalLabels[-66]="vbf_mass_m160";
+  signalLabels[-68]="wzh_mass_m160";
+  signalLabels[-67]="tth_mass_m160";
+  signalLabels[-61]="ggh_mass_m155";
+  signalLabels[-62]="vbf_mass_m155";
+  signalLabels[-64]="wzh_mass_m155";
+  signalLabels[-63]="tth_mass_m155";
+  signalLabels[-49]="ggh_mass_m150";
+  signalLabels[-50]="vbf_mass_m150";
+  signalLabels[-52]="wzh_mass_m150";
+  signalLabels[-51]="tth_mass_m150";
+  signalLabels[-45]="ggh_mass_m145";
+  signalLabels[-46]="vbf_mass_m145";
+  signalLabels[-48]="wzh_mass_m145";
+  signalLabels[-47]="tth_mass_m145";
+  signalLabels[-33]="ggh_mass_m140";
+  signalLabels[-34]="vbf_mass_m140";
+  signalLabels[-36]="wzh_mass_m140";
+  signalLabels[-35]="tth_mass_m140";
+  signalLabels[-41]="ggh_mass_m135";
+  signalLabels[-42]="vbf_mass_m135";
+  signalLabels[-44]="wzh_mass_m135";
+  signalLabels[-43]="tth_mass_m135";
+  signalLabels[-29]="ggh_mass_m130";
+  signalLabels[-30]="vbf_mass_m130";
+  signalLabels[-32]="wzh_mass_m130";
+  signalLabels[-31]="tth_mass_m130";
+  signalLabels[-37]="ggh_mass_m125";
+  signalLabels[-38]="vbf_mass_m125";
+  signalLabels[-40]="wzh_mass_m125";
+  signalLabels[-39]="tth_mass_m125";
+  signalLabels[-25]="ggh_mass_m120";
+  signalLabels[-26]="vbf_mass_m120";
+  signalLabels[-28]="wzh_mass_m120";
+  signalLabels[-27]="tth_mass_m120";
+  signalLabels[-21]="ggh_mass_m115";
+  signalLabels[-22]="vbf_mass_m115";
+  signalLabels[-24]="wzh_mass_m115";
+  signalLabels[-23]="tth_mass_m115";
+  signalLabels[-17]="ggh_mass_m110";
+  signalLabels[-18]="vbf_mass_m110";
+  signalLabels[-19]="wzh_mass_m110";
+  signalLabels[-20]="tth_mass_m110";
+  signalLabels[-13]="ggh_mass_m105";
+  signalLabels[-14]="vbf_mass_m105";
+  signalLabels[-16]="wzh_mass_m105";
+  signalLabels[-15]="tth_mass_m105";
+  signalLabels[-69]="ggh_mass_m100";
+  signalLabels[-70]="vbf_mass_m100";
+  signalLabels[-72]="wzh_mass_m100";
+  signalLabels[-71]="tth_mass_m100";
+}
+
+std::string StatAnalysis::GetSignalLabel(int id){
+	
+	// For the lazy man, can return a memeber of the map rather than doing it yourself
+	std::map<int,std::string>::iterator it = signalLabels.find(id);
+
+	if (it!=signalLabels.end()){
+		return it->second;
+		
+	} else { 
+
+		std::cerr << "No Signal Type defined in map with id - " << id << std::endl;
+		return "NULL";
+	}
+	
+}
 
