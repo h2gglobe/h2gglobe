@@ -63,15 +63,29 @@ GF, aug12: Escale shift taken from https://hypernews.cern.ch/HyperNews/CMS/get/h
 ->
 scale_offset_file=energy_scale_offsets.dat
 
+->
+if scale_error_file is not empty (''), energy scale errors are taken from a dedicated file.
+Otherwise from the old syntax (scale_offset_error_EBHighR9, etc), ketp for backward compatibility  
+->
+scale_error_file=energy_scale_errors.dat
+->
 scale_offset_error_EBHighR9=0.1e-2
 scale_offset_error_EBLowR9=0.4e-2
 scale_offset_error_EBm4HighR9=0.1e-2
 scale_offset_error_EBm4LowR9=0.4e-2
 scale_offset_error_EEHighR9=0.3e-2
 scale_offset_error_EELowR9=0.4e-2
+->
+
 
 ->
 smearing updated for LP11 improvements, according to: https://indico.cern.ch/materialDisplay.py?contribId=16&sessionId=5&materialId=slides&confId=157048
+->
+->
+if smearing_file is not empty (''), values of extra-smearing and their errors are taken from a dedicated file.
+Otherwise from the old syntax (smearing_sigma_EBHighR9, etc), ketp for backward compatibility  
+->
+smearing_file=smearing_sigma_and_errors.dat
 ->
 smearing_sigma_EBHighR9=0.9e-2
 smearing_sigma_EBLowR9=1.2e-2
@@ -85,3 +99,4 @@ smearing_sigma_error_EBm4HighR9=0.2e-2
 smearing_sigma_error_EBm4LowR9=0.4e-2
 smearing_sigma_error_EEHighR9=0.5e-2
 smearing_sigma_error_EELowR9=0.4e-2
+->
