@@ -186,7 +186,6 @@ void LoopAll::AddFile(std::string name,int type) {
 }
 
 void LoopAll::MergeContainers(){
-   
   int i=0;
   
   if (DEBUG)
@@ -212,7 +211,7 @@ void LoopAll::MergeContainers(){
  
 	*it_file = TFile::Open((*it).c_str());
 	(*it_file)->cd();
-	std::cout << "Combining Current File - " << (*it) << std::endl;
+	std::cout << "Combining Current File " << i << " / " << numberOfFiles << " - " << (*it) << std::endl;
 
 	for (std::vector<std::string>::iterator it_hist=histogramNames.begin()
 	    ;it_hist!=histogramNames.end()
@@ -231,13 +230,16 @@ void LoopAll::MergeContainers(){
 		rooContainer->AppendDataSet(*it_data,dataExtra);	
 	}
 
-	std::cout << "Finished Combining File - " << (*it) << std::endl;
 	delete work;
+	//std::cout << "Finished Combining File - " << (*it) << std::endl;
+
 	(*it_file)->Close();
+	i++;
 	//delete tmpFile;			
   } 
   TermReal(typerun);
   Term();
+   
 }
 // ------------------------------------------------------------------------------------
 void LoopAll::LoopAndFillHistos(TString treename) {

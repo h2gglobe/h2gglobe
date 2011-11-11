@@ -7,7 +7,7 @@
 
 using namespace RooFit;
 
-RooContainer::RooContainer(int n, int s):ncat(n),nsigmas(s),make_systematics(false),save_systematics_data(false){}
+RooContainer::RooContainer(int n, int s):ncat(n),nsigmas(s),make_systematics(false),save_systematics_data(false){verbosity_=false;}
 // ----------------------------------------------------------------------------------------------------
 void RooContainer::SetNCategories(int n){
    ncat = n;
@@ -18,6 +18,9 @@ void RooContainer::AddGlobalSystematic(std::string name,double val_sig, double v
 // ----------------------------------------------------------------------------------------------------
 void RooContainer::SaveSystematicsData(){
    save_systematics_data = true;
+}
+void RooContainer::Verobose(bool noisy){
+	verbosity_=noisy;
 }
 // ----------------------------------------------------------------------------------------------------
 void RooContainer::MakeSystematicStudy(std::vector<std::string> sys_names,std::vector<int> sys_types){
@@ -626,7 +629,7 @@ void RooContainer::sumBinnedDatasets(std::string new_name,std::string data_one,s
       }
 
    m_th1f_.insert(std::pair<std::string,TH1F>(new_name,*histOne));
-   std::cout << "RooContainer::SumBinnedDatasets -- Created New Histogram called " << new_name << std::endl;
+   if (verbosity_) std::cout << "RooContainer::SumBinnedDatasets -- Created New Histogram called " << new_name << std::endl;
   
    } else {
 	std::cerr << "WARNING -- RooContainer::SumBinnedDatasets -- One of the following Histograms wasn't found " 
@@ -663,11 +666,10 @@ void RooContainer::combineBinnedDatasets(std::string data_one, std::string data_
 	  (it_two->second).Scale(total*f_data/N2);
 	  (it_one->second).Add(&(it_two->second));
 
-	  std::cout << "RooContainer::CombinedBinnedDatasets -- Added second histogram to first with proportion corrected by " << fraction << std::endl;
+	  if (verbosity_) std::cout << "RooContainer::CombinedBinnedDatasets -- Added second histogram to first with proportion corrected by " << fraction << std::endl;
 	  // scale second one back to its original 
 
 	  (it_two->second).Scale(N2/(it_two->second).Integral());
-	  std::cout << "  seccond histogram is left unchanged " << std::endl;
 	
 	  
         } else {
@@ -979,8 +981,9 @@ void RooContainer::addRealVar(std::string name ,double xmin,double xmax){
   RooRealVar temp(name.c_str(),name.c_str(),xmin,xmax);
   m_real_var_.insert(pair<std::string,RooRealVar >(name,temp));
 
-  std::cout << "RooContainer::AddRealVar -- Appended the variable " 
+  if (verbosity_) {std::cout << "RooContainer::AddRealVar -- Appended the variable " 
 	    << name <<std::endl; 
+  }
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -989,9 +992,9 @@ void RooContainer::addRealVar(std::string name ,double init,double xmin,double x
  // temp.removeRange();
   temp.setRange(-10.,10.);
   m_real_var_.insert(pair<std::string,RooRealVar>(name,temp));
-  std::cout << "RooContainer::AddRealVar -- Appended the variable " 
+  if (verbosity_) { std::cout << "RooContainer::AddRealVar -- Appended the variable " 
 	    << name <<std::endl;
-  
+  }
 }
 // ----------------------------------------------------------------------------------------------------
 void RooContainer::addFormulaVar(std::string name ,std::string formula, std::string var){
@@ -999,8 +1002,9 @@ void RooContainer::addFormulaVar(std::string name ,std::string formula, std::str
   RooFormulaVar temp(name.c_str(),name.c_str(),formula.c_str(),RooArgList(m_real_var_[var]));
   m_form_var_.insert(pair<std::string,RooFormulaVar >(name,temp));
 
-  std::cout << "RooContainer::AddFormulaVar -- Appended the variable " 
+  if (verbosity_) {std::cout << "RooContainer::AddFormulaVar -- Appended the variable " 
 	    << name <<std::endl; 
+  }
 }
 // ----------------------------------------------------------------------------------------------------
 void RooContainer::addGenericPdf(std::string name,std::string formula,std::string obs_name
@@ -1044,8 +1048,9 @@ void RooContainer::addGenericPdf(std::string name,std::string formula,std::strin
 	   ;it_var != var.end()
 	   ;it_var++
 	   ){
-	     std::cout << "RooContainer::AddGenericPdf -- Adding Parameter " 
+	if (verbosity_) {     std::cout << "RooContainer::AddGenericPdf -- Adding Parameter " 
 		       << *it_var << std::endl;
+	}
 
 	     if (!form_vars) {
 		std::map<std::string,RooRealVar>::iterator real_var =  m_real_var_.find(*it_var);
@@ -1064,8 +1069,9 @@ void RooContainer::addGenericPdf(std::string name,std::string formula,std::strin
   	   }
 	}
 
-      std::cout << "RooContainer::AddGenericPdf -- Added all variables" 
+     if (verbosity_) { std::cout << "RooContainer::AddGenericPdf -- Added all variables" 
 	        << std::endl;
+     }
 
       temp_1 = new RooGenericPdf(Form("pdf_%s",name.c_str()),name.c_str(),formula.c_str(),roo_args);	
       //v_gen_.push_back(temp_1);
@@ -1144,8 +1150,9 @@ void RooContainer::addGenericPdf(std::string name,std::string formula,std::strin
 	      ;it_var != var.end()
 	      ;it_var++
 	      ){
-	     std::cout << "RooContainer::AddGenericPdf -- Adding Parameter " 
+	     if (verbosity_){ std::cout << "RooContainer::AddGenericPdf -- Adding Parameter " 
 		       << *it_var << std::endl;
+	     }
 
 	     std::map<std::string,RooRealVar>::iterator real_var =  m_real_var_.find(*it_var);
 	     if (real_var != m_real_var_.end())
@@ -1159,8 +1166,9 @@ void RooContainer::addGenericPdf(std::string name,std::string formula,std::strin
 	      ;it_var != var.end()
 	      ;it_var++
 	      ){
-	     std::cout << "RooContainer::AddGenericPdf -- Adding Parameter " 
+	   if (verbosity_){   std::cout << "RooContainer::AddGenericPdf -- Adding Parameter " 
 		       << *it_var << std::endl;
+	   }
 
 	     std::map<std::string,RooFormulaVar>::iterator form_var =  m_form_var_.find(*it_var);
 	     if (form_var != m_form_var_.end())
@@ -1170,8 +1178,9 @@ void RooContainer::addGenericPdf(std::string name,std::string formula,std::strin
 	         	  << *it_var << std::endl;
 	   }
 	  }
-      	   std::cout << "RooContainer::AddGenericPdf -- Added all variables" 
+      	  if (verbosity_){  std::cout << "RooContainer::AddGenericPdf -- Added all variables" 
 	        	  << std::endl;
+	  }
 
       	   temp_1 = new RooChebychev(Form("pdf_%s",name.c_str()),name.c_str(),(*obs_real_var).second,roo_args);
 	} else {
@@ -1192,8 +1201,9 @@ void RooContainer::addGenericPdf(std::string name,std::string formula,std::strin
 	      ;it_var != var.end()
 	      ;it_var++
 	      ){
-	     std::cout << "RooContainer::AddGenericPdf -- Adding Parameter " 
+	  if (verbosity_){    std::cout << "RooContainer::AddGenericPdf -- Adding Parameter " 
 		       << *it_var << std::endl;
+	  }
 
 	     std::map<std::string,RooRealVar>::iterator real_var =  m_real_var_.find(*it_var);
 	     if (real_var != m_real_var_.end())
@@ -1207,8 +1217,9 @@ void RooContainer::addGenericPdf(std::string name,std::string formula,std::strin
 	      ;it_var != var.end()
 	      ;it_var++
 	      ){
-	     std::cout << "RooContainer::AddGenericPdf -- Adding Parameter " 
+	   if (verbosity_){   std::cout << "RooContainer::AddGenericPdf -- Adding Parameter " 
 		       << *it_var << std::endl;
+	   }
 
 	     std::map<std::string,RooFormulaVar>::iterator form_var =  m_form_var_.find(*it_var);
 	     if (form_var != m_form_var_.end())
@@ -1218,8 +1229,9 @@ void RooContainer::addGenericPdf(std::string name,std::string formula,std::strin
 	         	  << *it_var << std::endl;
 	   }
 	  }
-      	   std::cout << "RooContainer::AddGenericPdf -- Added all variables" 
+      	 if (verbosity_){   std::cout << "RooContainer::AddGenericPdf -- Added all variables" 
 	        	  << std::endl;
+	 }
 
       	   temp_1 = new RooBernstein(Form("pdf_%s",name.c_str()),name.c_str(),(*obs_real_var).second,roo_args);
 	} else {
@@ -1247,8 +1259,9 @@ void RooContainer::addGenericPdf(std::string name,std::string formula,std::strin
      RooExtendPdf temp(name.c_str(),name.c_str(),*temp_1,m_real_var_[name]);
      m_exp_.insert(std::pair<std::string,RooExtendPdf>(name,temp));
 
-     std::cout << "RooContainer::AddGenericPdf -- Made extended PDF " 
+     if (verbosity_){ std::cout << "RooContainer::AddGenericPdf -- Made extended PDF " 
 	       << name << std::endl;	
+     }
     }
 }
 
@@ -1303,8 +1316,9 @@ void RooContainer::composePdf(std::string name, std::string  composition
 	      roo_funs.add((*exp).second);
 	      roo_args.add(m_real_var_[(*it_fun)]);
               norms.push_back(&m_real_var_[(*it_fun)]);
-	      std::cout << "RooContainer::ComposePdf -- Including Extended Pdf " 
+	      if (verbosity_){       std::cout << "RooContainer::ComposePdf -- Including Extended Pdf " 
 		        << *it_fun << std::endl;
+	      }
 
 	    } else {
       	      std::cerr << "WARNING -- RooContainer::ComposePdf -- No Pdf Found Named " 
@@ -1325,8 +1339,9 @@ void RooContainer::composePdf(std::string name, std::string  composition
 	        check_sum += m_real_var_[*it_fun].getVal();
 	        arg_count++;
 	      }
-	      std::cout << "RooContainer::ComposePdf -- Including Pdf " 
+	      if (verbosity_){ std::cout << "RooContainer::ComposePdf -- Including Pdf " 
 		        << *it_fun << std::endl;
+	      }
 
 	    } else {
       	      std::cerr << "WARNING -- RooContainer::ComposePdf -- No Pdf Found Named " 
@@ -1360,8 +1375,9 @@ void RooContainer::composePdf(std::string name, std::string  composition
       m_comp_pdf_norm_[name] = norms;
     }
 
-    std::cout << "RooContainer::ComposePdf -- Created Composed PDF from Extended pdf's called " 
+    if (verbosity_){ std::cout << "RooContainer::ComposePdf -- Created Composed PDF from Extended pdf's called " 
 	      << name << std::endl;			       
+    }
 }
 
 
@@ -1405,9 +1421,10 @@ void RooContainer::createDataSet(std::string name,std::string data_name,int nbin
       tmp_hist.GetYaxis()->SetTitle(Form("Events / (%.3f)",tmp_hist.GetBinWidth(1)));
       m_th1f_[data_name] = tmp_hist;
 
-      cout << "RooContainer::CreateDataSet -- Created RooDataSet from " << name 
-	   << " with name " << data_name <<endl;
-      cout << "RooContainer::CreateDataSet -- Created TH1F from " << data_name << endl;
+      if (verbosity_) {cout << "RooContainer::CreateDataSet -- Created RooDataSet from " << name 
+	                    << " with name " << data_name <<endl;
+           	       cout << "RooContainer::CreateDataSet -- Created TH1F from " << data_name << endl;
+      }
 
     } else {
       std::cerr << "WARNING -- RooContainer::CreateDataSet -- No RealVar found Named "
@@ -1423,11 +1440,12 @@ void RooContainer::fitToData(std::string name_func, std::string name_data, std::
 
     bool use_composed_pdf = false;
     int n_pars;
-    std::cout << "RooContainer::FitToData -- Fitting function " 
+     if (verbosity_) { std::cout << "RooContainer::FitToData -- Fitting function " 
 	      << name_func 
 	      << " To Dataset " 
 	      << name_var
 	      << std::endl; 
+     }
 
     std::map<std::string,RooDataSet>::iterator it_data = data_.find(name_data);
     if (it_data == data_.end()){
@@ -1654,19 +1672,19 @@ void RooContainer::generateBinnedPdf(int catNo,std::string hist_nocat_name,std::
   // ---------------------------------------------------------------------------------------------------------------------
   // for proper treatment of the variations of the systematic errors from the fitting in binned pdf's we need to construct
   // the set of uncorrelated parameters, 
-  std::cout << "RooContainer::GenerateBinnedPdf -- Getting Latest fit result " << std::endl;
+  if (verbosity_) {std::cout << "RooContainer::GenerateBinnedPdf -- Getting Latest fit result " << std::endl;}
   TMatrixD cov = res_ptr->covarianceMatrix();
   TVectorD eval;
   TMatrixD evec   = cov.EigenVectors(eval);
-  std::cout << "Matrix of EigenVectors from "<< pdf_name << std::endl;
+  if (verbosity_) { std::cout << "Matrix of EigenVectors from "<< pdf_name << std::endl;}
   evec.Print();
-  std::cout << "Eigenvalues (squares of errors)"<< std::endl;
+  if (verbosity_) { std::cout << "Eigenvalues (squares of errors)"<< std::endl;}
   eval.Print();
   // ---------------------------------------------------------------------------------------------------------------------
 
   // now we know that the eigenvalues of the covariance matrix must scale each parameter as given by the new paraemeters
   int n_par = eval.GetNoElements();
-  std::cout << "RooContainer::GenerateBinnedPdf -- Number of Parameters from the Fit -- " << n_par  << std::endl;
+  if (verbosity_) { std::cout << "RooContainer::GenerateBinnedPdf -- Number of Parameters from the Fit -- " << n_par  << std::endl;}
   RooArgSet* rooParameters = pdf_ptr->getParameters(dataset);
 
   // fill vector with original parameters
@@ -1678,7 +1696,7 @@ void RooContainer::generateBinnedPdf(int catNo,std::string hist_nocat_name,std::
   for (int par=0;par<n_par;par++){
     
     // this row in evec is the scales for the parameters
-    cout << "Systematic from parameter "<< par << endl;
+  if (verbosity_) {  cout << "Systematic from parameter "<< par << endl;}
 
     double sigmaUnit = sigmaRange/nsigmas;
     double err = sigmaUnit*TMath::Sqrt(eval[par]);
@@ -1731,9 +1749,10 @@ void RooContainer::generateBinnedPdf(int catNo,std::string hist_nocat_name,std::
    }
   } 
 
-  std::cout << "RooContainer::GenerateBinnedPdf -- Generated TH1F named  "
+  if (verbosity_) {std::cout << "RooContainer::GenerateBinnedPdf -- Generated TH1F named  "
 	    << hist_name << " From Pdf "
 	    << pdf_name  << ", Normalised Histogram to " << normalisation << std::endl;      
+  }
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
