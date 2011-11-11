@@ -60,6 +60,7 @@ void StatAnalysis::Init(LoopAll& l)
     
     std::string outputfilename = (std::string) l.histFileName;
     eventListText.open(Form("%s_ascii_events.txt",outputfilename.c_str()));
+    FillSignalLabelMap();
     //
     // These parameters are set in the configuration file
     std::cout
@@ -106,61 +107,6 @@ void StatAnalysis::Init(LoopAll& l)
     nPhotonCategories_ = nEtaCategories;
     if( nR9Categories != 0 ) nPhotonCategories_ *= nR9Categories;
     
-    //// This is done in PhotonAnalysis now GF
-    //eSmearPars.categoryType = "2CatR9_EBEE";
-    //eSmearPars.byRun = false;
-    //eSmearPars.n_categories = 4;
-    //
-    //// E scale is shifted for data, NOT for MC 
-    //eSmearPars.scale_offset["EBHighR9"] = 0.;
-    //eSmearPars.scale_offset["EBLowR9"]  = 0.;
-    //eSmearPars.scale_offset["EEHighR9"] = 0.;
-    //eSmearPars.scale_offset["EELowR9"]  = 0.;
-    //// E scale systematics are applied to MC, NOT to data
-    //eSmearPars.scale_offset_error["EBHighR9"] = scale_offset_error_EBHighR9;
-    //eSmearPars.scale_offset_error["EBLowR9"]  = scale_offset_error_EBLowR9;
-    //eSmearPars.scale_offset_error["EEHighR9"] = scale_offset_error_EEHighR9;
-    //eSmearPars.scale_offset_error["EELowR9"]  = scale_offset_error_EELowR9;
-    //// E resolution smearing applied to MC 
-    //eSmearPars.smearing_sigma["EBHighR9"] = smearing_sigma_EBHighR9;
-    //eSmearPars.smearing_sigma["EBLowR9"]  = smearing_sigma_EBLowR9;
-    //eSmearPars.smearing_sigma["EEHighR9"] = smearing_sigma_EEHighR9;
-    //eSmearPars.smearing_sigma["EELowR9"]  = smearing_sigma_EELowR9;
-    //// E resolution systematics applied to MC 
-    //eSmearPars.smearing_sigma_error["EBHighR9"] = smearing_sigma_error_EBHighR9;
-    //eSmearPars.smearing_sigma_error["EBLowR9"]  = smearing_sigma_error_EBLowR9;
-    //eSmearPars.smearing_sigma_error["EEHighR9"] = smearing_sigma_error_EEHighR9;
-    //eSmearPars.smearing_sigma_error["EELowR9"]  = smearing_sigma_error_EELowR9;
-    // MC would need Paul's corrections, of its own GF
-
-
-    // This is done in PhotonAnalysis now
-    //// eSmearDataPars.categoryType = "2CatR9_EBEE";
-    //// eSmearDataPars.n_categories = 4;
-    //// 
-    //// // initialize smearer specific to energy shifts in DATA; use opposite of energy scale shift
-    //// eSmearDataPars.scale_offset["EBHighR9"] = -1*scale_offset_EBHighR9;
-    //// eSmearDataPars.scale_offset["EBLowR9"]  = -1*scale_offset_EBLowR9;
-    //// eSmearDataPars.scale_offset["EEHighR9"] = -1*scale_offset_EEHighR9;
-    //// eSmearDataPars.scale_offset["EELowR9"]  = -1*scale_offset_EELowR9;
-    //// // no energy scale systematics applied to data
-    //// eSmearDataPars.scale_offset_error["EBHighR9"] = 0.;
-    //// eSmearDataPars.scale_offset_error["EBLowR9"]  = 0.;
-    //// eSmearDataPars.scale_offset_error["EEHighR9"] = 0.;
-    //// eSmearDataPars.scale_offset_error["EELowR9"]  = 0.;
-    //// // E resolution smearing NOT applied to data 
-    //// eSmearDataPars.smearing_sigma["EBHighR9"] = 0.;
-    //// eSmearDataPars.smearing_sigma["EBLowR9"]  = 0.;
-    //// eSmearDataPars.smearing_sigma["EEHighR9"] = 0.;
-    //// eSmearDataPars.smearing_sigma["EELowR9"]  = 0.;
-    //// // E resolution systematics NOT applied to data 
-    //// eSmearDataPars.smearing_sigma_error["EBHighR9"] = 0.;
-    //// eSmearDataPars.smearing_sigma_error["EBLowR9"]  = 0.;
-    //// eSmearDataPars.smearing_sigma_error["EEHighR9"] = 0.;
-    //// eSmearDataPars.smearing_sigma_error["EELowR9"]  = 0.;
-    // DATA would need Paul's corrections, of its own (different from eSmearPars which is for MC) GF
-
-
     effSmearPars.categoryType = "2CatR9_EBEE";
     effSmearPars.n_categories = 4;
     effSmearPars.efficiency_file = efficiencyFile;
@@ -173,21 +119,7 @@ void StatAnalysis::Init(LoopAll& l)
         photonSmearers_.push_back(eCorrSmearer);
     }
     if( doEscaleSmear ) {
-        // Moved to PhotonAnalysis GF 
-	//// energy scale systematics to MC
-        //eScaleSmearer = new EnergySmearer( eSmearPars );
-	//eScaleSmearer->name("E_scale");
-	//eScaleSmearer->doEnergy(true);
-	//eScaleSmearer->scaleOrSmear(true);
         photonSmearers_.push_back(eScaleSmearer);
-
-	//// Moved to PhotonAnalysis PM
-	//// // energy scale corrections to Data
-	//// eScaleDataSmearer = new EnergySmearer( eSmearDataPars );
-	//// eScaleDataSmearer->name("E_scale_data");
-	//// eScaleDataSmearer->doEnergy(true);
-	//// eScaleDataSmearer->scaleOrSmear(true);
-	//photonDataSmearers_.push_back(eScaleDataSmearer); // must not be included among MC smearers; will be singled out upon need // GF questions?
     }
     if( doEresolSmear ) {
 	// energy resolution smearing

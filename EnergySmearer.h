@@ -4,6 +4,7 @@
 #include "BaseSmearer.h"
 #include <string>
 #include <map>
+#include <utility>
 #include "TFile.h"
 #include "TGraphAsymmErrors.h"
 
@@ -15,12 +16,33 @@ class EnergyScaleOffset {
 public:
 	EnergyScaleOffset(int first, int  last) : firstrun(first), lastrun(last) {};
 	bool operator == (int run) const { return run>=firstrun && ( lastrun<0 || run<=lastrun); }; 
-
+	bool operator == (const std::pair<int,int> & runrange) const { return runrange.first==firstrun && runrange.second==lastrun; }; 
+	
 	int firstrun,  lastrun;
-
+	
 	std::map<std::string,float> scale_offset;
 	std::map<std::string,float> scale_offset_error;
+	
+};
 
+class PhotonCategory {
+public:
+	PhotonCategory(float a, float b, float c, float d, std::string e ) : mineta(a) , maxeta(b), minr9(c), maxr9(d), name(e) {};
+	
+	bool operator == (const PhotonCategory & rh) const { return rh.mineta == mineta && rh.maxeta == maxeta && rh.minr9 == minr9 && rh.maxr9 == maxr9 && rh.name == name; }
+	bool operator == (const std::string & catname) const { return catname == name; }
+	bool operator == (const std::pair<std::pair<float,float>,std::pair<float,float> > & photonRange ) const { 
+		return photonRange.first.first == mineta && photonRange.first.second == maxeta && 
+			photonRange.second.first == minr9 && photonRange.second.second == maxr9; 
+
+	};
+	bool operator == (const std::pair<float,float> & photonCoordinates) const { 
+		return photonCoordinates.first >= mineta && photonCoordinates.first <= maxeta && 
+			photonCoordinates.second >= minr9 && photonCoordinates.second <= maxr9; 
+	};
+	
+	std::string name;
+	float mineta, maxeta, minr9, maxr9;
 };
 
 // ------------------------------------------------------------------------------------
@@ -34,7 +56,11 @@ public:
 	  bool byRun;
 	  std::string categoryType;
 	  std::string parameterSetName;
-	  
+
+	  typedef std::vector<PhotonCategory> phoCatVector;
+	  typedef std::vector<PhotonCategory>::iterator phoCatVectorIt;
+	  typedef std::vector<PhotonCategory>::const_iterator phoCatVectorConstIt;
+
 	  typedef std::vector<EnergyScaleOffset> eScaleVector;
 	  typedef std::vector<EnergyScaleOffset>::iterator eScaleVectorIt;
 	  typedef std::vector<EnergyScaleOffset>::const_iterator eScaleVectorConstIt;
@@ -52,6 +78,7 @@ public:
 	  std::map<std::string,float> smearing_sigma;
 	  std::map<std::string,float> smearing_sigma_error;
 	  
+	  phoCatVector photon_categories;
 	  eScaleVector scale_offset_byrun;
 	  
           std::string efficiency_file;

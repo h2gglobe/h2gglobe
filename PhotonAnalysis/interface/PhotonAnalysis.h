@@ -65,6 +65,7 @@ public:
 	float scale_offset_error_EELowR9    ;
 
 	EnergySmearer::energySmearingParameters eSmearPars;
+	std::string scale_offset_error_file, smearing_file;
 	float smearing_sigma_EBHighR9       ;
 	float smearing_sigma_EBLowR9        ;
 	float smearing_sigma_EBm4HighR9       ;

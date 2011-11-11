@@ -67,7 +67,7 @@ scale_offset_file=energy_scale_offsets.dat
 if scale_error_file is not empty (''), energy scale errors are taken from a dedicated file.
 Otherwise from the old syntax (scale_offset_error_EBHighR9, etc), ketp for backward compatibility  
 ->
-scale_error_file=energy_scale_errors.dat
+scale_offset_error_file=energy_scale_errors.dat
 ->
 scale_offset_error_EBHighR9=0.1e-2
 scale_offset_error_EBLowR9=0.4e-2

@@ -9,19 +9,23 @@ EnergySmearer::EnergySmearer(const energySmearingParameters& par) : myParameters
   name_="EnergySmearer_"+ par.categoryType + "_" + par.parameterSetName;
   //Checking consistency of input parameters
   std::cerr << myParameters_.categoryType << " " <<  myParameters_.n_categories << std::endl;
-  assert( myParameters_.n_categories == myParameters_.smearing_sigma.size() );
-  assert( myParameters_.n_categories == myParameters_.smearing_sigma_error.size() );
+  assert( myParameters_.byRun || myParameters_.n_categories == myParameters_.smearing_sigma.size() );
+  assert( myParameters_.byRun || myParameters_.n_categories == myParameters_.smearing_sigma_error.size() );
   assert( ( myParameters_.categoryType == "EBEE" && myParameters_.n_categories == 2 ) ||
 	  ( myParameters_.categoryType == "2CatR9_EBEE" && myParameters_.n_categories == 4 ) ||
 	  ( myParameters_.categoryType == "2CatR9_EBEE_ByRun" && myParameters_.n_categories == 4 ) ||
 	  ( myParameters_.categoryType == "2CatR9_EBEBm4EE" && myParameters_.n_categories == 6 ) ||
-	  ( myParameters_.categoryType == "2CatR9_EBEBm4EE_ByRun" && myParameters_.n_categories == 6 )
+	  ( myParameters_.categoryType == "2CatR9_EBEBm4EE_ByRun" && myParameters_.n_categories == 6 ) || 
+	  ( myParameters_.categoryType == "Automagic" && ( myParameters_.byRun || myParameters_.n_categories == myParameters_.photon_categories.size() ) )
 	  );
+  if( myParameters_.categoryType == "Automagic" ) {
+	  myParameters_.n_categories = myParameters_.photon_categories.size();
+  }
   if( myParameters_.byRun ) {
     for(energySmearingParameters::eScaleVectorIt it=myParameters_.scale_offset_byrun.begin(); it!=myParameters_.scale_offset_byrun.end();
 	++it ) {
-      assert( myParameters_.n_categories == it->scale_offset.size() );
-      assert( myParameters_.n_categories == it->scale_offset_error.size() );
+	    assert( myParameters_.n_categories == it->scale_offset.size() );
+	    assert( myParameters_.n_categories == it->scale_offset_error.size() );
     }
   } else {
     assert( myParameters_.n_categories == myParameters_.scale_offset.size() );
@@ -37,7 +41,17 @@ EnergySmearer::~EnergySmearer()
 std::string EnergySmearer::photonCategory(PhotonReducedInfo & aPho) const
 {
   std::string myCategory="";
-  if (myParameters_.categoryType=="2CatR9_EBEE")
+  if (myParameters_.categoryType=="Automagic") 
+    {
+	    EnergySmearer::energySmearingParameters::phoCatVectorConstIt vit = find(myParameters_.photon_categories.begin(), myParameters_.photon_categories.end(), 
+										    std::make_pair( fabs((float)aPho.caloPosition().PseudoRapidity()), (float)aPho.r9() ) );
+	    if( vit ==  myParameters_.photon_categories.end() ) {
+		    std::cerr << "Could not find energy scale correction for this photon " << (float)aPho.caloPosition().PseudoRapidity() << " " <<  (float)aPho.r9() << std::endl;
+		    assert( 0 );
+	    }
+	    myCategory = vit->name;
+    } 
+  else if (myParameters_.categoryType=="2CatR9_EBEE")
     {
       if (aPho.iDet()==1)
 	myCategory+="EB";
@@ -69,7 +83,7 @@ std::string EnergySmearer::photonCategory(PhotonReducedInfo & aPho) const
 	myCategory+="EB";
       else
 	myCategory+="EE";
-    } 
+    }
   else
     {
       std::cout << "Unknown categorization. No category name is returned" << std::endl;
@@ -122,9 +136,11 @@ bool EnergySmearer::smearPhoton(PhotonReducedInfo & aPho, float & weight, int ru
   else {
     if( scaleOrSmear_ ) {
 	  scale_offset   += syst_shift * myParameters_.scale_offset_error.find(category)->second;
+	  /// std::cerr << "photon category " << category << " syst_shift " <<  syst_shift << " scale_offset " << scale_offset << std::endl;
 	  newEnergy *=  scale_offset;
     } else {
 	  smearing_sigma += syst_shift * myParameters_.smearing_sigma_error.find(category)->second;
+	  /// std::cerr << "photon category " << category << " syst_shift " <<  syst_shift << " smearing_sigma " << smearing_sigma << std::endl;
 	  newEnergy *=  rgen_->Gaus(1.,smearing_sigma);
     }
   }
