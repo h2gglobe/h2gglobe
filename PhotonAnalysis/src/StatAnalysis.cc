@@ -250,32 +250,80 @@ void StatAnalysis::Init(LoopAll& l)
     l.rooContainer->AddConstant("IntLumi",l.intlumi_);
 
     // SM Model
-    l.rooContainer->AddConstant("XSBR_150",0.01428+0.001307+0.000641+0.000066  );
-    l.rooContainer->AddConstant("XSBR_145",0.018820+0.001676+0.000891+0.000090 );
-    l.rooContainer->AddConstant("XSBR_140",0.0234109+0.00203036+0.001163597+0.000117189);
-    l.rooContainer->AddConstant("XSBR_135",0.0278604+0.002343+0.001457559+0.000145053  );
-    l.rooContainer->AddConstant("XSBR_130",0.0319112+0.00260804+0.001759636+0.000173070);
-    l.rooContainer->AddConstant("XSBR_125",0.0350599+0.00277319+0.002035123+0.000197718);
-    l.rooContainer->AddConstant("XSBR_120",0.0374175+0.00285525+0.002285775+0.00021951 );
-    l.rooContainer->AddConstant("XSBR_123",0.0369736+0.00281352+0.00213681+0.00020663);
-    l.rooContainer->AddConstant("XSBR_121",0.0369736+0.00284082+0.00223491+0.00021510);
-    l.rooContainer->AddConstant("XSBR_115",0.0386169+0.00283716+0.002482089+0.000235578);
-    l.rooContainer->AddConstant("XSBR_110",0.0390848+0.00275406+0.002654575+0.000247629);
-    l.rooContainer->AddConstant("XSBR_105",0.0387684+0.00262016+0.002781962+0.000255074);
+    l.rooContainer->AddConstant("XSBR_ggh_150",0.01428);
+    l.rooContainer->AddConstant("XSBR_vbf_150",0.001308);
+    l.rooContainer->AddConstant("XSBR_wzh_150",0.000641);
+    l.rooContainer->AddConstant("XSBR_tth_150",0.000066);
+    l.rooContainer->AddConstant("XSBR_ggh_145",0.018820);
+    l.rooContainer->AddConstant("XSBR_vbf_145",0.001676);
+    l.rooContainer->AddConstant("XSBR_wzh_145",0.000891);
+    l.rooContainer->AddConstant("XSBR_tth_145",0.000090);
+    l.rooContainer->AddConstant("XSBR_ggh_140",0.0234109);
+    l.rooContainer->AddConstant("XSBR_vbf_140",0.00203036);
+    l.rooContainer->AddConstant("XSBR_wzh_140",0.001163597);
+    l.rooContainer->AddConstant("XSBR_tth_140",0.000117189);
+    l.rooContainer->AddConstant("XSBR_ggh_135",0.0278604);
+    l.rooContainer->AddConstant("XSBR_vbf_135",0.002343);
+    l.rooContainer->AddConstant("XSBR_wzh_135",0.001457559);
+    l.rooContainer->AddConstant("XSBR_tth_135",0.000145053);
+    l.rooContainer->AddConstant("XSBR_ggh_130",0.0319112);
+    l.rooContainer->AddConstant("XSBR_vbf_130",0.00260804);
+    l.rooContainer->AddConstant("XSBR_wzh_130",0.001759636);
+    l.rooContainer->AddConstant("XSBR_tth_130",0.000173070);
+    l.rooContainer->AddConstant("XSBR_ggh_125",0.0350599);
+    l.rooContainer->AddConstant("XSBR_vbf_125",0.00277319);
+    l.rooContainer->AddConstant("XSBR_wzh_125",0.002035123);
+    l.rooContainer->AddConstant("XSBR_tth_125",0.000197718);
+    l.rooContainer->AddConstant("XSBR_ggh_120",0.0374175);
+    l.rooContainer->AddConstant("XSBR_vbf_120",0.00285525);
+    l.rooContainer->AddConstant("XSBR_wzh_120",0.002285775);
+    l.rooContainer->AddConstant("XSBR_tth_120",0.00021951);
+    l.rooContainer->AddConstant("XSBR_ggh_123",0.0360696);
+    l.rooContainer->AddConstant("XSBR_vbf_123",0.00281352);
+    l.rooContainer->AddConstant("XSBR_wzh_123",0.00213681);
+    l.rooContainer->AddConstant("XSBR_tth_123",0.00020663);
+    l.rooContainer->AddConstant("XSBR_ggh_121",0.0369736);
+    l.rooContainer->AddConstant("XSBR_vbf_121",0.00284082);
+    l.rooContainer->AddConstant("XSBR_wzh_121",0.00223491);
+    l.rooContainer->AddConstant("XSBR_tth_121",0.00021510);
+    l.rooContainer->AddConstant("XSBR_ggh_115",0.0386169);
+    l.rooContainer->AddConstant("XSBR_vbf_115",0.00283716);
+    l.rooContainer->AddConstant("XSBR_wzh_115",0.002482089);
+    l.rooContainer->AddConstant("XSBR_tth_115",0.000235578);
+    l.rooContainer->AddConstant("XSBR_ggh_110",0.0390848);
+    l.rooContainer->AddConstant("XSBR_vbf_110",0.00275406);
+    l.rooContainer->AddConstant("XSBR_wzh_110",0.002654575);
+    l.rooContainer->AddConstant("XSBR_tth_110",0.000247629);
+    l.rooContainer->AddConstant("XSBR_ggh_105",0.0387684);
+    l.rooContainer->AddConstant("XSBR_vbf_105",0.00262016);
+    l.rooContainer->AddConstant("XSBR_wzh_105",0.002781962);
+    l.rooContainer->AddConstant("XSBR_tth_105",0.000255074);
 
     // FF model	
-    l.rooContainer->AddConstant("ff_XSBR_150",0.00259659+0.00127278);
-    l.rooContainer->AddConstant("ff_XSBR_145",0.00387544+0.00205969);
-    l.rooContainer->AddConstant("ff_XSBR_140",0.00565976+0.003243602);
-    l.rooContainer->AddConstant("ff_XSBR_135",0.00825+0.00513225   );
-    l.rooContainer->AddConstant("ff_XSBR_130",0.0122324+0.00825316 );
-    l.rooContainer->AddConstant("ff_XSBR_125",0.0186494+0.01368598 );
-    l.rooContainer->AddConstant("ff_XSBR_123",0.022212+0.0168696  );
-    l.rooContainer->AddConstant("ff_XSBR_121",0.0266484+0.0209646 );
-    l.rooContainer->AddConstant("ff_XSBR_120",0.0293139+0.02346729 );
-    l.rooContainer->AddConstant("ff_XSBR_115",0.0482184+0.04218386 );
-    l.rooContainer->AddConstant("ff_XSBR_110",0.083181+0.08017625  );
-    l.rooContainer->AddConstant("ff_XSBR_105",0.151616+0.1609787   );
+    l.rooContainer->AddConstant("ff_XSBR_vbf_150",0.00259659);
+    l.rooContainer->AddConstant("ff_XSBR_wzh_150",0.00127278);
+    l.rooContainer->AddConstant("ff_XSBR_vbf_145",0.00387544);
+    l.rooContainer->AddConstant("ff_XSBR_wzh_145",0.00205969);
+    l.rooContainer->AddConstant("ff_XSBR_vbf_140",0.00565976);
+    l.rooContainer->AddConstant("ff_XSBR_wzh_140",0.003243602);
+    l.rooContainer->AddConstant("ff_XSBR_vbf_135",0.00825);
+    l.rooContainer->AddConstant("ff_XSBR_wzh_135",0.00513225);
+    l.rooContainer->AddConstant("ff_XSBR_vbf_130",0.0122324);
+    l.rooContainer->AddConstant("ff_XSBR_wzh_130",0.00825316);
+    l.rooContainer->AddConstant("ff_XSBR_vbf_125",0.0186494);
+    l.rooContainer->AddConstant("ff_XSBR_wzh_125",0.01368598);
+    l.rooContainer->AddConstant("ff_XSBR_vbf_123",0.022212);
+    l.rooContainer->AddConstant("ff_XSBR_wzh_123",0.0168696);
+    l.rooContainer->AddConstant("ff_XSBR_vbf_121",0.0266484);
+    l.rooContainer->AddConstant("ff_XSBR_wzh_121",0.0209646);
+    l.rooContainer->AddConstant("ff_XSBR_vbf_120",0.0293139);
+    l.rooContainer->AddConstant("ff_XSBR_wzh_120",0.02346729);
+    l.rooContainer->AddConstant("ff_XSBR_vbf_115",0.0482184);
+    l.rooContainer->AddConstant("ff_XSBR_wzh_115",0.04218386);
+    l.rooContainer->AddConstant("ff_XSBR_vbf_110",0.083181);
+    l.rooContainer->AddConstant("ff_XSBR_wzh_110",0.08017625);
+    l.rooContainer->AddConstant("ff_XSBR_vbf_105",0.151616);
+    l.rooContainer->AddConstant("ff_XSBR_wzh_105",0.1609787);
 
     // Background modeling 
     l.rooContainer->AddRealVar("pol0",-0.01,-1.5,1.5);
@@ -364,7 +412,10 @@ void StatAnalysis::Init(LoopAll& l)
     l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_vbf_mass_m123",-1);	
     l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_wzh_mass_m123",-1);	
     l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_tth_mass_m123",-1);	
-	
+
+    // Make sure the Map is filled
+    FillSignalLabelMap();
+
     if(PADEBUG) 
 	cout << "InitRealStatAnalysis END"<<endl;
 	
@@ -585,8 +636,8 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	    l.rooContainer->InputDataPoint("bkg_mass",category,mass,evweight);
 	else if (cur_type < 0){
 	    l.rooContainer->InputDataPoint("sig_"+GetSignalLabel(cur_type),category,mass,evweight);
-	    if (CorrectVertex) l.rooContainer->InputDataPoint("sig_"+GetSignalLabel(cur_type)+"rv",category,mass,evweight);
-	    else l.rooContainer->InputDataPoint("sig_"+GetSignalLabel(cur_type)+"wv",category,mass,evweight);
+	    if (CorrectVertex) l.rooContainer->InputDataPoint("sig_"+GetSignalLabel(cur_type)+"_rv",category,mass,evweight);
+	    else l.rooContainer->InputDataPoint("sig_"+GetSignalLabel(cur_type)+"_wv",category,mass,evweight);
 	}
        
     }
