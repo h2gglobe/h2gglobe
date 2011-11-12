@@ -44,8 +44,8 @@ bool KFactorSmearer::smearEvent( float & weight, const TLorentzVector & p4, cons
   else if (sample_type == -41) genMassPoint=135;
   else if (sample_type == -45) genMassPoint=145;
   else if (sample_type == -49) genMassPoint=150;
-  else if (sample_type == -53) genMassPoint=120;  // FIXME  No KFactors for 121 or 123 so using closest neighbors  - this is 121
-  else if (sample_type == -57) genMassPoint=125;  // this is 123
+  else if (sample_type == -53) genMassPoint=121;  
+  else if (sample_type == -57) genMassPoint=123;  
   else if (sample_type == -61) genMassPoint=150;  // FIXME  this is mass=155; remapped into 150: no kfactors currently available for 155;
   else if (sample_type == -65) genMassPoint=150;  // FIXME  this is mass=160; remapped into 150: no kfactors currently available for 160;
   else if (sample_type == -69) genMassPoint=105;  // FIXME  this is mass=100; remapped into 105: no kfactors currently available for 100;
@@ -70,6 +70,8 @@ bool KFactorSmearer::init()
   readMassPoint(110, upId, downId);
   readMassPoint(115, upId, downId);
   readMassPoint(120, upId, downId);
+  readMassPoint(121, upId, downId);
+  readMassPoint(123, upId, downId);
   readMassPoint(125, upId, downId);
   readMassPoint(130, upId, downId);
   readMassPoint(135, upId, downId);
