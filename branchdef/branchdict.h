@@ -35,6 +35,8 @@ BRANCH_DICT(sc_sieie);
 BRANCH_DICT(sc_nbc);
 BRANCH_DICT(sc_bcseedind);
 BRANCH_DICT(sc_bcind);
+BRANCH_DICT(sc_seta);
+BRANCH_DICT(sc_sphi);
 BRANCH_DICT(bc_n);
 BRANCH_DICT(bc_islbar_n);
 BRANCH_DICT(bc_islend_n);

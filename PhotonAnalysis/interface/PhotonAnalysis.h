@@ -9,6 +9,9 @@
 #include "EnergySmearer.h"
 
 #include "TMVA/Reader.h"
+#include "PhotonFix.h"
+#include "../../../../HiggsToGammaGamma/interface/GBRForest.h"
+//#include "HiggsAnalysis/HiggsToGammaGamma/interface/GBRForest.h"
 
 // ------------------------------------------------------------------------------------
 class PhotonAnalysis : public BaseAnalysis 
@@ -33,7 +36,8 @@ public:
 	virtual bool SkimEvents(LoopAll&, int);
 	virtual bool SelectEvents(LoopAll&, int);
 	virtual void Analysis(LoopAll&, Int_t);
-	
+
+	void GetRegressionCorrections(LoopAll&);	
 	// Public parameters to be read from config file
 	VertexAlgoParameters vtxAlgoParams;	 
 	std::vector<std::string> vtxVarNames;
@@ -65,7 +69,6 @@ public:
 	float scale_offset_error_EELowR9    ;
 
 	EnergySmearer::energySmearingParameters eSmearPars;
-	std::string scale_offset_error_file, smearing_file;
 	float smearing_sigma_EBHighR9       ;
 	float smearing_sigma_EBLowR9        ;
 	float smearing_sigma_EBm4HighR9       ;
@@ -90,6 +93,7 @@ public:
 	enum BkgCategory{promptprompt,promptfake,fakefake};
 	bool keepPP, keepPF, keepFF;
 
+	std::string scale_offset_error_file, smearing_file;
 	std::string energyCorrectionMethod;
 
 	std::string tmvaPerVtxMethod;                       	
@@ -98,6 +102,10 @@ public:
         std::string tmvaPerEvtWeights;                  
                                                         
         bool mvaVertexSelection, addConversionToMva;     
+
+	// PhotonFix
+	std::string photonFixDat;
+	std::string regressionFile;
 
 protected:
 	void PreselectPhotons(LoopAll& l, int jentry);
@@ -125,6 +133,13 @@ protected:
 	vector<string> tmvaPerVtxVariables_;
 	TMVA::Reader *tmvaPerVtxReader_;
 	TMVA::Reader *tmvaPerEvtReader_;
+
+	TFile *fgbr;
+	GBRForest *fReadereb;
+        GBRForest *fReaderebvariance;
+        GBRForest *fReaderee;
+        GBRForest *fReadereevariance;      
+
 };
 
 #endif

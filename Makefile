@@ -47,9 +47,10 @@ LOOPALLO = LoopAll.$(ObjSuf) \
 	   RooContainer.o \
 	   Cut.o \
 	   TriggerSelection.o \
+	   PhotonFix.o \
            $(VTXOBS) $(PHOOBS)
 
-DICTS = LoopAll.h BaseAnalysis.h BaseSmearer.h EnergySmearer.h EfficiencySmearer.h DiPhoEfficiencySmearer.h EnergySmearer.h KFactorSmearer.h SampleContainer.h\
+DICTS = LoopAll.h BaseAnalysis.h BaseSmearer.h EnergySmearer.h EfficiencySmearer.h DiPhoEfficiencySmearer.h EnergySmearer.h KFactorSmearer.h SampleContainer.h PhotonFix.h \
 	VertexAnalysis/interface/VertexAlgoParameters.h\
 	PhotonAnalysis/interface/PhotonAnalysis.h\
 	PhotonAnalysis/interface/StatAnalysis.h\
@@ -87,6 +88,7 @@ LoopAll.$(ObjSuf): CommonParameters.h LoopAll.h Tools.h \
 	SampleContainer.cc SampleContainer.h \
 	RooContainer.cc RooContainer.h \
 	TriggerSelection.h TriggerSelection.cc \
+	PhotonFix.h PhotonFix.cc \
 	Cut.cc Cut.h $(VTXSRC) $(PHOSRC)
 
 LoopAllDict.$(SrcSuf): CommonParameters.h LoopAll.h \
@@ -99,6 +101,7 @@ LoopAllDict.$(SrcSuf): CommonParameters.h LoopAll.h \
 	CounterContainer.h \
 	SampleContainer.h \
 	RooContainer.h \
+	PhotonFix.h \
 	Cut.h \
 	VertexAnalysis/interface/VertexAlgoParameters.h PhotonAnalysis/interface/PhotonAnalysis.h PhotonAnalysis/interface/StatAnalysis.h
 

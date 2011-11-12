@@ -37,6 +37,8 @@ Int_t sc_barrel[MAX_SUPERCLUSTERS];
 Float_t sc_2xN[MAX_SUPERCLUSTERS];
 Float_t sc_5xN[MAX_SUPERCLUSTERS];
 Float_t sc_sieie[MAX_SUPERCLUSTERS];
+Float_t sc_seta[MAX_SUPERCLUSTERS];
+Float_t sc_sphi[MAX_SUPERCLUSTERS];
 Float_t sc_see[MAX_SUPERCLUSTERS];
 Int_t bc_n;
 Int_t bc_hybrid_n;

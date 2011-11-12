@@ -35,6 +35,8 @@ void SetBranchAddress_sc_sieie(TTree * tree) { tree->SetBranchAddress("sc_sieie"
 void SetBranchAddress_sc_nbc(TTree * tree) { tree->SetBranchAddress("sc_nbc", sc_nbc, &b_sc_nbc); }; 
 void SetBranchAddress_sc_bcseedind(TTree * tree) { tree->SetBranchAddress("sc_bcseedind", sc_bcseedind, &b_sc_bcseedind); }; 
 void SetBranchAddress_sc_bcind(TTree * tree) { tree->SetBranchAddress("sc_bcind", sc_bcind, &b_sc_bcind); }; 
+void SetBranchAddress_sc_seta(TTree * tree) { tree->SetBranchAddress("sc_seta", sc_seta, &b_sc_seta); }; 
+void SetBranchAddress_sc_sphi(TTree * tree) { tree->SetBranchAddress("sc_sphi", sc_sphi, &b_sc_sphi); }; 
 void SetBranchAddress_bc_n(TTree * tree) { tree->SetBranchAddress("bc_n", &bc_n, &b_bc_n); }; 
 void SetBranchAddress_bc_islbar_n(TTree * tree) { tree->SetBranchAddress("bc_islbar_n", &bc_islbar_n, &b_bc_islbar_n); }; 
 void SetBranchAddress_bc_islend_n(TTree * tree) { tree->SetBranchAddress("bc_islend_n", &bc_islend_n, &b_bc_islend_n); }; 

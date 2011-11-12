@@ -168,6 +168,11 @@ void PhotonAnalysis::Init(LoopAll& l)
 	}else if(energyCorrectionMethod=="Bendavid"){
 		energyCorrected		= (l.pho_regr_energy);
 		energyCorrectedError= (l.pho_regr_energyerr);
+	}else if(energyCorrectionMethod=="BendavidOTF"){
+		energyCorrected		= (l.pho_regr_energy_otf);
+		energyCorrectedError= (l.pho_regr_energyerr_otf);
+	}
+
 //	}else if(energyCorrectionMethod=="PFRegression"){
 	}else{
 		assert(doEcorrectionSmear==false);
@@ -419,6 +424,18 @@ void PhotonAnalysis::Init(LoopAll& l)
             cout << "Opening PU file END"<<endl;
     } 
 
+    // Load up instances of PhotonFix for local coordinate calculations
+	
+    PhotonFix::initialise("4_2",photonFixDat);	
+    std::cout << "Regression corrections from -> " << regressionFile.c_str() << std::endl;
+    fgbr = new TFile(regressionFile.c_str(),"READ");
+    fReadereb = (GBRForest*)fgbr->Get("EBCorrection");
+    fReaderebvariance = (GBRForest*)fgbr->Get("EBUncertainty");  
+    fReaderee = (GBRForest*)fgbr->Get("EECorrection");
+    fReadereevariance = (GBRForest*)fgbr->Get("EEUncertainty");      
+    fgbr->Close();
+	
+    // -------------------------------------------------------------------- 
 	if(PADEBUG) 
 		cout << "InitRealPhotonAnalysis END"<<endl;
 
@@ -773,6 +790,10 @@ void PhotonAnalysis::PreselectPhotons(LoopAll& l, int jentry)
 	corrected_pho_energy.clear(); corrected_pho_energy.resize(l.pho_n,0.); 
 	int cur_type = l.itype[l.current];
 
+	// TEMPORARY FIX TO CALCULATE CORRECTED ENERGIES SINCE REGRESSION WAS NOT STORED IN NTUPLES 
+	// The following Fills the arrays with the ON-THE-FLY calculations
+	GetRegressionCorrections(l);  // need to pass LoopAll
+	// -------------------------------------------------------------------------------------------//
 	for(int ipho=0; ipho<l.pho_n; ++ipho ) { 
 		std::vector<std::vector<bool> > p;
 		PhotonReducedInfo phoInfo (
@@ -1123,6 +1144,92 @@ void PhotonAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree)
 	l.Branch_pho_cic4passcuts_lead( outputTree );
 	l.Branch_pho_cic4cutlevel_sublead( outputTree );
 	l.Branch_pho_cic4passcuts_sublead( outputTree );
+
+	l.Branch_pho_regr_energy_otf(outputTree);
+	l.Branch_pho_regr_energyerr_otf(outputTree);
 	
 }
 
+void PhotonAnalysis::GetRegressionCorrections(LoopAll &l){
+
+  // PhotonFix's have been initialised correctly and so we just need to use the correct 
+  // one to calculate local corrections.
+
+  for (int ipho=0;ipho<l.pho_n;ipho++){
+		
+   float *fVals = new float[18];
+
+   double photonE = ((TLorentzVector*)l.pho_p4->At(ipho))->Energy();
+   TVector3 *sc = ((TVector3*)l.pho_calopos->At(ipho));	
+   int sc_index = l.pho_scind[ipho];
+   double r9=l.pho_r9[ipho];
+
+   PhotonFix phfix(photonE,sc->Eta(),sc->Phi(),r9);
+
+   bool isbarrel = (fabs(sc->Eta())<1.48);
+
+   if (isbarrel) {
+    fVals[0]  = l.sc_raw[sc_index];
+    fVals[1]  = r9;
+    fVals[2]  = sc->Eta();
+    fVals[3]  = sc->Phi();
+    fVals[4]  = l.pho_e5x5[ipho]/l.sc_raw[sc_index];
+    fVals[5]  = phfix.etaC();
+    fVals[6]  = phfix.etaS();
+    fVals[7]  = phfix.etaM();
+    fVals[8]  = phfix.phiC();
+    fVals[9]  = phfix.phiS();
+    fVals[10] = phfix.phiM();    
+    fVals[11] = l.pho_hoe[ipho];
+    fVals[12] = l.sc_seta[sc_index];
+    fVals[13] = l.sc_sphi[sc_index];
+    fVals[14] = l.pho_sieie[ipho];
+  }
+  else {
+    fVals[0]  = l.sc_raw[sc_index];
+    fVals[1]  = r9;
+    fVals[2]  = sc->Eta();
+    fVals[3]  = sc->Phi();
+    fVals[4]  = l.pho_e5x5[ipho]/l.sc_raw[sc_index];
+    fVals[5]  = l.sc_pre[sc_index]/l.sc_raw[sc_index];
+    fVals[6]  = phfix.xZ();
+    fVals[7]  = phfix.xC();
+    fVals[8]  = phfix.xS();
+    fVals[9]  = phfix.xM();
+    fVals[10] = phfix.yZ();
+    fVals[11] = phfix.yC();
+    fVals[12] = phfix.yS();
+    fVals[13] = phfix.yM();
+    fVals[14] = l.pho_hoe[ipho];
+    fVals[15] = l.sc_seta[sc_index];
+    fVals[16] = l.sc_sphi[sc_index];
+    fVals[17] = l.pho_sieie[ipho];    
+  }	
+
+  const double varscale = 1.253;
+  double den;
+  const GBRForest *reader;
+  const GBRForest *readervar;
+  if (isbarrel) {
+    den = l.sc_raw[sc_index];
+    reader = fReadereb;
+    readervar = fReaderebvariance;
+  }
+  else {
+    den = l.sc_raw[sc_index]+l.sc_pre[sc_index];
+    reader = fReaderee;
+    readervar = fReadereevariance;
+  }
+  
+  double ecor = reader->GetResponse(fVals)*den;
+  double ecorerr = readervar->GetResponse(fVals)*den*varscale;
+
+  energyCorrected[ipho]	= ecor;
+  energyCorrectedError[ipho]	= ecorerr;
+  
+  l.pho_regr_energy_otf[ipho]=ecor;
+  l.pho_regr_energyerr_otf[ipho]=ecorerr;
+  delete [] fVals;
+
+ }
+}

@@ -35,6 +35,8 @@ void Branch_sc_sieie(TTree * tree) { tree->Branch("sc_sieie",&sc_sieie, "sc_siei
 void Branch_sc_nbc(TTree * tree) { tree->Branch("sc_nbc",&sc_nbc, "sc_nbc[sc_n]/I");  }; 
 void Branch_sc_bcseedind(TTree * tree) { tree->Branch("sc_bcseedind",&sc_bcseedind, "sc_bcseedind[sc_n]/I");  }; 
 void Branch_sc_bcind(TTree * tree) { tree->Branch("sc_bcind",&sc_bcind, "sc_bcind[sc_n][35]/I");  }; 
+void Branch_sc_seta(TTree * tree) { tree->Branch("sc_seta",&sc_seta, "sc_seta[sc_n]/I");  }; 
+void Branch_sc_sphi(TTree * tree) { tree->Branch("sc_sphi",&sc_sphi, "sc_sphi[sc_n]/I");  }; 
 void Branch_bc_n(TTree * tree) { tree->Branch("bc_n",&bc_n, "bc_n/I");  }; 
 void Branch_bc_islbar_n(TTree * tree) { tree->Branch("bc_islbar_n",&bc_islbar_n, "bc_islbar_n/I");  }; 
 void Branch_bc_islend_n(TTree * tree) { tree->Branch("bc_islend_n",&bc_islend_n, "bc_islend_n/I");  }; 

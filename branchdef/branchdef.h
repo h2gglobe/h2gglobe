@@ -35,6 +35,8 @@
     TBranch *b_sc_nbc;
     TBranch *b_sc_bcseedind;
     TBranch *b_sc_bcind;
+    TBranch *b_sc_seta;
+    TBranch *b_sc_sphi;
     TBranch *b_bc_n;
     TBranch *b_bc_islbar_n;
     TBranch *b_bc_islend_n;

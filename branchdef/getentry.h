@@ -35,6 +35,8 @@
    b_sc_nbc->GetEntry(jentry); 
    b_sc_bcseedind->GetEntry(jentry); 
    b_sc_bcind->GetEntry(jentry); 
+   b_sc_seta->GetEntry(jentry); 
+   b_sc_sphi->GetEntry(jentry); 
    b_bc_n->GetEntry(jentry); 
    b_bc_islbar_n->GetEntry(jentry); 
    b_bc_islend_n->GetEntry(jentry); 

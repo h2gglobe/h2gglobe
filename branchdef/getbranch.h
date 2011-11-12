@@ -35,6 +35,8 @@
    b_sc_nbc = fChain->GetBranch("sc_nbc"); 
    b_sc_bcseedind = fChain->GetBranch("sc_bcseedind"); 
    b_sc_bcind = fChain->GetBranch("sc_bcind"); 
+   b_sc_seta = fChain->GetBranch("sc_seta"); 
+   b_sc_sphi = fChain->GetBranch("sc_sphi"); 
    b_bc_n = fChain->GetBranch("bc_n"); 
    b_bc_islbar_n = fChain->GetBranch("bc_islbar_n"); 
    b_bc_islend_n = fChain->GetBranch("bc_islend_n"); 

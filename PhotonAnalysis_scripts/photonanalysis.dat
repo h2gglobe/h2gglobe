@@ -50,3 +50,6 @@ doEcorrectionSmear=1
 doEcorrectionSyst=0
 
 scale_offset_file=energy_scale_offsets.dat
+
+photonFixDat=/afs/cern.ch/user/n/nckw/public/PhotonFixSTART42V13.dat
+regressionFile=/afs/cern.ch/user/n/nckw/public/gbrph.root

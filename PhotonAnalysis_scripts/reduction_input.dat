@@ -15,6 +15,17 @@ pho_r9
 pho_calopos
 
 ->
+on the fly regression corrections calculation
+->
+sc_raw
+sc_pre
+sc_seta
+sc_sphi
+pho_hoe
+pho_sieie
+pho_e5x5
+
+->
 minimal allconversions info
 ->
 conv_n
