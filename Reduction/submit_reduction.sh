@@ -18,10 +18,10 @@ for f in ${dir}/${wildcard}.dat; do
     if [[ -n $1 ]]; then
 	for i in $(seq 0 $(($1-1))); do
 	    rm -f ${f}_${i}.log
-	    bsub -q $queue -o ${f}_${i}.log run.sh -- ./reduce.py $PWD/$f $1 $i
+	    bsub -q $queue -o ${f}_${i}.log run.sh -- ./reduce.py --inputDat $PWD/$f --nJobs $1 --jobId $i
 	done
     else
 	rm -f $f.log
-	bsub -q $queue -o $f.log run.sh -- ./reduce.py $PWD/$f
+	bsub -q $queue -o $f.log run.sh -- ./reduce.py --inputDat $PWD/$f
     fi
 done
