@@ -171,7 +171,6 @@ void PhotonAnalysis::Init(LoopAll& l)
 	}else if(energyCorrectionMethod=="BendavidOTF"){
 		energyCorrected		= (l.pho_regr_energy_otf);
 		energyCorrectedError= (l.pho_regr_energyerr_otf);
-	}
 
 //	}else if(energyCorrectionMethod=="PFRegression"){
 	}else{
