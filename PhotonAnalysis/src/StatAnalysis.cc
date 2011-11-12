@@ -328,14 +328,17 @@ void StatAnalysis::Init(LoopAll& l)
     // Background modeling 
     l.rooContainer->AddRealVar("pol0",-0.01,-1.5,1.5);
     l.rooContainer->AddRealVar("pol1",-0.01,-1.5,1.5);
+    l.rooContainer->AddRealVar("pol2",-0.01,-1.5,1.5);
     l.rooContainer->AddFormulaVar("modpol0","@0*@0","pol0");
     l.rooContainer->AddFormulaVar("modpol1","@0*@0","pol1");
+    l.rooContainer->AddFormulaVar("modpol2","@0*@0","pol2");
 
-    std::vector<std::string> data_pol_pars(2,"p");	 
+    std::vector<std::string> data_pol_pars(3,"p");	 
     data_pol_pars[0] = "modpol0";
     data_pol_pars[1] = "modpol1";
+    data_pol_pars[2] = "modpol2";
     l.rooContainer->AddGenericPdf("data_pol_model",
-	  "0","CMS_hgg_mass",data_pol_pars,72);	// >= 71 means RooBernstein of order >= 1
+	  "0","CMS_hgg_mass",data_pol_pars,73);	// >= 71 means RooBernstein of order >= 1
         
     // -----------------------------------------------------
     // Make some data sets from the observables to fill in the event loop		  
