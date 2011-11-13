@@ -1557,7 +1557,7 @@ void RooContainer::fitToData(std::string name_func, std::string name_data, std::
 			,Components(*((it_pdf->second).pdfList().at(i)))
 			,LineColor(i+1)
 			,LineStyle(kDashed));
-	(it_pdf->second).paramOn(xframe);
+	(it_pdf->second).paramOn(xframe,RooFit::Layout(0.25,0.95,0.86));
       }
       pdf_saves_.push_back(&(it_pdf->second));
       n_pars=(it_pdf->second).getParameters(it_data->second)->getSize() -1 ;
@@ -1565,7 +1565,7 @@ void RooContainer::fitToData(std::string name_func, std::string name_data, std::
 
     else {
 	(it_exp->second).plotOn(xframe,LineColor(4));
-	(it_exp->second).paramOn(xframe);
+	(it_exp->second).paramOn(xframe,RooFit::Layout(0.25,0.95,0.86));
     	pdf_saves_.push_back(&(it_exp->second));
         n_pars=(it_exp->second).getParameters(it_data->second)->getSize() -1 ;
     }
