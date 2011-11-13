@@ -26,6 +26,7 @@
 
 
 ## self-describing format: eta and R9 boundaries need be explicit 
+## https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/477/1.html
 ##########################       EBhighEtaBad       ###############################
 EBhighEtaBad	1.0	1.5	-999.00	0.94	160431	170825	-0.0150	0.0005
 EBhighEtaBad	1.0	1.5	-999.00	0.94	170826	172619	-0.0191	0.0008
