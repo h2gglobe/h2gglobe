@@ -1,10 +1,10 @@
 {
-TFile *oldFILE = new TFile("./sig_reweighing_v10.root");
+TFile *oldFILE = new TFile("./vertex_reweighing.root");
 
 oldFILE->Print();
 oldFILE->ls();
 
-TFile *newFILE = new TFile("sig_reweighing_v10_NEW.root ","recreate");
+TFile *newFILE = new TFile("sig_reweighing_v14.root ","recreate");
 newFILE->cd();
 
 TGraphAsymmErrors * toCopy;
@@ -13,10 +13,12 @@ TGraphAsymmErrors * toCopy;
 int ncats = 8;
 // Fill in the values and their errors - one entry per category
 // HIGHPT - EBhighr9, EBlowR9, EEhighR9, EElowR9
+// Since this is a Diphoton Smear, keep the 8 categories for back compatibility
 // L1HLT ------------------------
-Double_t effL1HLT_[ncats] 	   = {1.,0.9953,1.,0.9886,1.,0.9953,1.,0.9886};
-Double_t effL1HLT_low_err_[ncats]  = {0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01};
-Double_t effL1HLT_high_err_[ncats] = {0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01};
+// Numbers from https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/476.html
+Double_t effL1HLT_[ncats] 	   = {1.,0.993,1.,0.988,1.,0.993,1.,0.988};
+Double_t effL1HLT_low_err_[ncats]  = {0.0001,0.0004,0.0002,0.0006,0.0001,0.0004,0.0002,0.0006};
+Double_t effL1HLT_high_err_[ncats] = {0.00,0.0004,0.00,0.0006,0.00,0.0004,0.00,0.0006};
 
 for (int cat=0;cat<ncats;cat++){
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -37,11 +39,13 @@ for (int cat=0;cat<ncats;cat++){
 }
 // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // ID efficieny corrections ------------------------------------------------------------------------------------------------------------------------------------------------------
+// Numbers from https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/472/2/1.html
+// Weighted assuming Run2011A = 1.666/fb, Run2011B = 3.07/fb
 int nphocats=4;
-Double_t ratioTP_[nphocats] 	    	    = {0.995,1.022,1.004,1.045} ;
-Double_t ratioTP_low_err_[nphocats] 	    = {0.003,0.011,0.014,0.038} ;
-Double_t ratioTP_high_err_[nphocats] 	    = {0.003,0.010,0.010,0.035} ;
-TString iDLabels_[nphocats] 		    = {"EBHighR9","EBLowR9","EEHighR9","EELowR9"};
+Double_t ratioTP_[nphocats] 	    	    = {0.983,1.000,0.999,1.051};
+Double_t ratioTP_low_err_[nphocats] 	    = {0.001,0.008,0.006,0.024} ;
+Double_t ratioTP_high_err_[nphocats] 	    = {0.001,0.008,0.006,0.024} ;
+std::string iDLabels_[nphocats] 	    = {"EBHighR9","EBLowR9","EEHighR9","EELowR9"};
 
 for (int cat=0;cat<nphocats;cat++){
    Int_t n=2;  
@@ -52,8 +56,8 @@ for (int cat=0;cat<nphocats;cat++){
    Double_t ratioTP_EBHighR9_eyl[n] = {ratioTP_low_err_[cat],ratioTP_low_err_[cat]};
    Double_t ratioTP_EBHighR9_eyh[n] = {ratioTP_high_err_[cat],ratioTP_high_err_[cat]};
    TGraphAsymmErrors* gr = new TGraphAsymmErrors(n,ratioTP_EBHighR9_x,ratioTP_EBHighR9_y,ratioTP_EBHighR9_exl,ratioTP_EBHighR9_exh,ratioTP_EBHighR9_eyl,ratioTP_EBHighR9_eyh);
-   gr->SetTitle(Form("ratioTP_%s",iDLabels_[cat]));
-   gr->SetName(Form("ratioTP_%s",iDLabels_[cat]));
+   gr->SetTitle(Form("ratioTP_%s",iDLabels_[cat].c_str()));
+   gr->SetName(Form("ratioTP_%s",iDLabels_[cat].c_str()));
    gr->SetMarkerColor(4);
    gr->SetMarkerStyle(21);
    gr->Draw("ALP");
@@ -64,7 +68,7 @@ for (int cat=0;cat<nphocats;cat++){
 // R9 Part -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-float effEBHighR9 = 0.67412; 
+float effEBHighR9 = 0.67412; 	// Should be checked if this is the same in the S6 Fall11 MC samples
 float effEEHighR9 = 0.68308; 
 
 float effEBLowR9 = 1.-effEBHighR9; 
