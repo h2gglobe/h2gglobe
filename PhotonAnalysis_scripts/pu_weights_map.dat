@@ -22,7 +22,8 @@
 -56 wz_H_gg_121_pu2011_0     
 -55 tt_H_gg_121_pu2011_0     
 
--49 gluglu_H_gg_150_pu2011_0 
+# Currently still have bug in GGH 145 in that it is actually M=150
+-49 gluglu_H_gg_145_pu2011_0 
 -50 vbf_H_gg_150_pu2011_0    
 -52 wz_H_gg_150_pu2011_0     
 -51 tt_H_gg_150_pu2011_0     
