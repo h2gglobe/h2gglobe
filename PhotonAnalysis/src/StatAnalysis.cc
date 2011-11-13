@@ -349,6 +349,8 @@ void StatAnalysis::Init(LoopAll& l)
 
     // Create Signal DataSets:
     for (int sig=105;sig<=150;sig+=5){
+	// Needed to use S4 for the GGH 145 Signal which has the BUG so no 145 sample
+	if (sig==145) continue;
     	l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_ggh_mass_m%d",sig),nDataBins);    
     	l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_vbf_mass_m%d",sig),nDataBins);    
     	l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wzh_mass_m%d",sig),nDataBins);    
