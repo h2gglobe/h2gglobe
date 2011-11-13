@@ -42,9 +42,9 @@ for (int cat=0;cat<ncats;cat++){
 // Numbers from https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/472/2/1.html
 // Weighted assuming Run2011A = 1.666/fb, Run2011B = 3.07/fb
 int nphocats=4;
-Double_t ratioTP_[nphocats] 	    	    = {0.983,1.000,0.999,1.051};
-Double_t ratioTP_low_err_[nphocats] 	    = {0.001,0.008,0.006,0.024} ;
-Double_t ratioTP_high_err_[nphocats] 	    = {0.001,0.008,0.006,0.024} ;
+Double_t ratioTP_[nphocats] 	    	    = {0.987,1.013,1.002,1.048};
+Double_t ratioTP_low_err_[nphocats] 	    = {0.002,0.011,0.008,0.037} ;
+Double_t ratioTP_high_err_[nphocats] 	    = {0.002,0.011,0.013,0.035} ;
 std::string iDLabels_[nphocats] 	    = {"EBHighR9","EBLowR9","EEHighR9","EELowR9"};
 
 for (int cat=0;cat<nphocats;cat++){
