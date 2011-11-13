@@ -402,6 +402,7 @@ void StatAnalysis::Init(LoopAll& l)
     // Make more datasets representing Systematic Shifts of various quantities
 
     for (int sig=105;sig<=150;sig+=5){
+	if (sig==145) continue;
     	l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_ggh_mass_m%d",sig),-1);	
     	l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_vbf_mass_m%d",sig),-1);	
     	l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_wzh_mass_m%d",sig),-1);	
