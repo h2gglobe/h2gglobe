@@ -16,9 +16,10 @@ int ncats = 8;
 // Since this is a Diphoton Smear, keep the 8 categories for back compatibility
 // L1HLT ------------------------
 // Numbers from https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/476.html
+// New numbers from Matteo for the errors with systematics (14th Nov 2011 h->gg meeting)
 Double_t effL1HLT_[ncats] 	   = {1.,0.993,1.,0.988,1.,0.993,1.,0.988};
-Double_t effL1HLT_low_err_[ncats]  = {0.0001,0.0004,0.0002,0.0006,0.0001,0.0004,0.0002,0.0006};
-Double_t effL1HLT_high_err_[ncats] = {0.00,0.0004,0.00,0.0006,0.00,0.0004,0.00,0.0006};
+Double_t effL1HLT_low_err_[ncats]  = {0.0001,0.0011,0.0002,0.004,0.0001,0.0011,0.0002,0.004,};
+Double_t effL1HLT_high_err_[ncats] = {0.00,0.0007,0.00,0.004    ,0.00,0.0007,0.00,0.004    ,};
 
 for (int cat=0;cat<ncats;cat++){
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------
