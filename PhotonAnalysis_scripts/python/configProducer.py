@@ -13,33 +13,21 @@ from datBlocks import *
 from makeFilelist import *
 from getTreeEntry import *
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 def getJson(fname):
-    """ parses a json file or string. If fname is
-     the name of an existing file, reads the contents
-     of that file otherwise assumes that 'fname' contains
-     a json string and parses it """
-     
     try:
         jstring = open(fname).read()
     except IOError:
         jstring = fname
     return json.loads( jstring )
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 def defineJsonFilter(fname,dataset):
-    """ takes the list of good luminosity sections from fname
-    and adds it to 'dataset' which typically is a C++ object of type SampleContainer
-    """
-
     goodlumis = getJson( fname )
     
     for run in goodlumis.keys():
         for lumis in goodlumis[run]:
             dataset.addGoodLumi(int(run), int(lumis[0]), int(lumis[1]) )
   
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 def defineEvList(fname,dataset):
     evlist = getJson( fname )
@@ -49,17 +37,9 @@ def defineEvList(fname,dataset):
             dataset.addEventToList(int(run), int(ev[0]), int(ev[1]) )
 
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class configProducer:
 
   def __init__(self,Ut,conf_filename,Type,njobs=-1,jobId=0):
-    """constructor
-
-         Ut            is typically a LoopAll C++ object
-         conf_filename is the name of the (input) configuration to be parsed
-         Type          is 0 for looper.py (filling histograms)
-                          1 for reduce.py (reduction step)
-         """
 
     print "h2gglobe: step %d, with Config %s. Number of jobs %d. Running job %d" %(Type,conf_filename,njobs,jobId)
 
@@ -81,14 +61,12 @@ class configProducer:
     self.plotvar_ = datBlock()
   
     if self.type_ == 0 or self.type_ == 2:
-      # histogramming
       self.init_loop()
       self.init_cuts()
       self.init_histos()
       self.init_counters()
 
     elif self.type_ == 1:
-      # reduction
       self.init_reduce()
       self.init_cuts()
 
@@ -98,15 +76,13 @@ class configProducer:
     else: 
       sys.exit("No Such Type As: %d"%self.type_)
       
-
-  # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def read_weights_file(self):
     weights_lines=[];
     self.read_file(self.sample_weights_file_,weights_lines) 
     for line in weights_lines:
 	file,pEvents = line.split("=")
 	self.file_processed_events_[file]=int(pEvents)
-    
+ 
   def read_file(self,conf_filename,lines=None):
     if lines == None:
       self.lines_ = [ ]
@@ -130,31 +106,23 @@ class configProducer:
         else:
           self.conf_.comments+=line
 
-  # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
   def init_cuts(self):
     self.read_dat_cuts('cuts.dat')
     for dum in self.plotvar_.vardef:
        self.ut_.AddCut(dum['cutname'],dum['ncat'],dum['dir'],dum['fin'],dum['cutValuel'],dum['cutValueh'])
-
-  # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
+       
   def init_counters(self):
     self.read_dat_counters('counters.dat')
     self.ut_.InitCounters()
     for dum in self.plotvar_.vardef:
       self.ut_.AddCounter(dum['ncat'] ,dum['countername'], dum['denomname1'], dum['denomname2'], dum['denomname3'])
-
-  # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~      
-
+      
   def init_histos(self):
     self.read_dat_plotvariables('plotvariables.dat')
     self.ut_.InitHistos()
     for dum in self.plotvar_.vardef:
       self.ut_.BookHisto(dum['htyp'],dum['plot'],dum['default'],dum['ncat'],dum['xbins'],dum['ybins'],dum['xmin'],dum['xmax'],dum['ymin'],dum['ymax'],dum['name'])
-
-  # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~      
-
+      
   def init_reduce(self):
     self.read_config_reduce(self.conf_filename)
     if PYDEBUG:
@@ -164,47 +132,19 @@ class configProducer:
     # self.ut_.ReadInput(self.type_)
     ## self.read_struct_from_file(self.ut_.vtxAlgoParams,)
 
-  # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
   def init_loop(self):
-
-    # parse the configuration file
     self.read_config_loop(self.conf_filename)
-
     if PYDEBUG:
       self.conf_.print_conf()
-
     self.add_files()
     self.ut_.SetTypeRun(self.type_,self.conf_.histfile)
     for dum in self.conf_.confs:
-
-      # see LoopAll::DefineSamples(..)
-      dataContainer = self.ut_.DefineSamples(dum['Nam'],       # const char *filesshortnam
-                                             dum['typ'],       # int type
-                                             dum['ind'],       # int histtoindfromfiles
-                                             dum['draw'],      # int histoplotit
-                                             dum['red'],       # int nred
-                                             dum['tot'],       # long long ntot
-                                             dum['intL'],      # float intlumi
-                                             dum['lum'],       # float lumi
-                                             dum['xsec'],      # float xsec
-                                             dum['kfac'],      # float kfactor
-                                             dum['scal'],      # float scale
-                                             dum['addnevents'] # bool addnevents
-                                             )
-
-      # dataContainer is the SampleContainer just added
-      # by DefineSamples(..). Potentially, we have to
-      # make some further changes to it
-      
-      # apply a selection of good luminosity sections
+      dataContainer = self.ut_.DefineSamples(dum['Nam'],dum['typ'],dum['ind'],dum['draw'],dum['red'],dum['tot'],dum['intL'],dum['lum'],dum['xsec'],dum['kfac'],dum['scal'],dum['addnevents'])
       if("json" in dum and dum["json"] != ""):
         defineJsonFilter(dum["json"], dataContainer)
       if("evlist" in dum and dum["evlist"] != ""):
         defineEvList(dum["evlist"], dataContainer)
-
-  # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~        
-
+        
   def add_files(self):
     for t_f in self.conf_.files:
       if (t_f[0]):  # only adding files which aren't Null
@@ -318,7 +258,6 @@ class configProducer:
       else: sys.exit("Config Line Unrecognised:\n ' %s '"%line)
 
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
   def read_config_reduce(self,f):
      "Parsing of the reduction configuration"        
      self.read_file(f)
@@ -349,6 +288,7 @@ class configProducer:
          self.read_struct_line(line,self.ut_)
            
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
   def generate_weights_file(self,filename):
      if len(self.file_processed_events_):
        wfile = open(filename,"w")
@@ -358,10 +298,9 @@ class configProducer:
        print "Written Number Of Processed Events file -- ",filename
 
   def read_config_loop(self,f):
-     "Parsing of the looper (histogramming step) configuration"        
+     "Parsing of the looper configuration"        
      self.read_file(f)
      self.intL	    = 0
-
      # look for a file called f.weights
      if os.path.isfile(f+".pevents") : 
 	self.sample_weights_file_= f+".pevents"
@@ -392,12 +331,11 @@ class configProducer:
          self.read_struct_line(line,self.ut_)
      
      for cc in  self.conf_.confs:
-       cc["intL"] = self.intL
- 
+       cc["intL"] = self.intL 
+
      if  self.sample_weights_file_==0:
 	 if self.njobs_==-1 or self.jobId_==0:
 	    self.generate_weights_file(f+".pevents")
-
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def read_struct_line(self,line,struct):
     split_line = line.split()
@@ -613,7 +551,9 @@ class configProducer:
 	  self.file_processed_events_[fi_name] = nEventsInFile
           map_c["tot"] = nEventsInFile;
 	  
-	else:  map_c["tot"] = self.file_processed_events_[fi_name]
+	else:  
+	  if fi_name in self.file_processed_events_:map_c["tot"] = self.file_processed_events_[fi_name]
+	  else: (sys.exit("No Entry for %s found in %s, Please Delete %s and re-run with option --dryRun to regenerate it"%(fi_name,self.sample_weights_file_,self.sample_weights_file_)))
 
 	map_c["addnevents"] = int(1)
       self.conf_.confs.append(map_c.copy())
@@ -641,7 +581,8 @@ class configProducer:
                 map_c["tot"] = map_c["tot"] + nEventsInFile
 		self.file_processed_events_[file_s[0]] = nEventsInFile
 	      else:
-		map_c["tot"] = map_c["tot"] + self.file_processed_events_[file_s[0]]
+		if file_s[0] in self.file_processed_events_: map_c["tot"] = map_c["tot"] + self.file_processed_events_[file_s[0]]
+		else: (sys.exit("No Entry for %s found in %s, Please Delete %s and re-run with option --dryRun to regenerate it"%(file_s[0],self.sample_weights_file_,self.sample_weights_file_)))
 
       for file_s in files:
 	  if file_s[1]: self.conf_.files.append((file_s[0],fi_type))
