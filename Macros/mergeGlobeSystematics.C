@@ -68,8 +68,10 @@ for (int cat=0;cat<nphocats;cat++){
 // R9 Part -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-float effEBHighR9 = 0.67412; 	// Should be checked if this is the same in the S6 Fall11 MC samples
-float effEEHighR9 = 0.68308; 
+//float effEBHighR9 = 0.67412; 	// Should be checked if this is the same in the S6 Fall11 MC samples
+//float effEEHighR9 = 0.68308; 
+float effEBHighR9 = 0.6916; 	// Should be checked if this is the same in the S6 Fall11 MC samples
+float effEEHighR9 = 0.6916; 
 
 float effEBLowR9 = 1.-effEBHighR9; 
 float effEELowR9 = 1.-effEEHighR9; 
