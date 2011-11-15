@@ -87,7 +87,8 @@ void StatAnalysis::Init(LoopAll& l)
 	<< std::endl;
 
     // avoid recalculated the CIC ID every time
-    l.runCiC = reRunCiC;
+    // PhotonAnalysis has this in init so no need to explicitly put it here
+    //l.runCiC = reRunCiC;
     // call the base class initializer
     PhotonAnalysis::Init(l);
 
@@ -240,7 +241,7 @@ void StatAnalysis::Init(LoopAll& l)
     // ----------------------------------------------------
     // ----------------------------------------------------
     // Global systematics - Lumi
-    l.rooContainer->AddGlobalSystematic("lumi",1.06,1.00);
+    l.rooContainer->AddGlobalSystematic("lumi",1.045,1.00);
     // ----------------------------------------------------
 
     // Create observables for shape-analysis with ranges
@@ -329,16 +330,19 @@ void StatAnalysis::Init(LoopAll& l)
     l.rooContainer->AddRealVar("pol0",-0.01,-1.5,1.5);
     l.rooContainer->AddRealVar("pol1",-0.01,-1.5,1.5);
     l.rooContainer->AddRealVar("pol2",-0.01,-1.5,1.5);
+    l.rooContainer->AddRealVar("pol3",-0.01,-1.5,1.5);
     l.rooContainer->AddFormulaVar("modpol0","@0*@0","pol0");
     l.rooContainer->AddFormulaVar("modpol1","@0*@0","pol1");
     l.rooContainer->AddFormulaVar("modpol2","@0*@0","pol2");
+    l.rooContainer->AddFormulaVar("modpol3","@0*@0","pol3");
 
-    std::vector<std::string> data_pol_pars(3,"p");	 
+    std::vector<std::string> data_pol_pars(4,"p");	 
     data_pol_pars[0] = "modpol0";
     data_pol_pars[1] = "modpol1";
     data_pol_pars[2] = "modpol2";
+    data_pol_pars[3] = "modpol3";
     l.rooContainer->AddGenericPdf("data_pol_model",
-	  "0","CMS_hgg_mass",data_pol_pars,73);	// >= 71 means RooBernstein of order >= 1
+	  "0","CMS_hgg_mass",data_pol_pars,74);	// >= 71 means RooBernstein of order >= 1
         
     // -----------------------------------------------------
     // Make some data sets from the observables to fill in the event loop		  
@@ -504,6 +508,24 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     std::vector<float> smeared_pho_energy(l.pho_n,0.); 
     std::vector<float> smeared_pho_r9(l.pho_n,0.); 
     std::vector<float> smeared_pho_weight(l.pho_n,1.);
+
+    // TEMPORARY FIX -------------------------------------------------------------------------------------------------------//
+    // Scale all the r9 of the photons in the MC
+    // For now we just let it use the index but we specifically Change the r9 in the branch AFTER Energy regression smearing
+    // Ideally we want to pass a smeared r9 too and apply after energy corrections, currently the smeared_pho_r9 isnt used!
+    // ---------------------------------------------------------------------------------------------------------------------//
+    // ---------------------------------------------------------------------------------------------------------------------//
+    // ---------------------------------------------------------------------------------------------------------------------//
+    if (cur_type !=0){
+      for (int ipho=0;ipho<l.pho_n;ipho++){
+        double R9_rescale = (l.pho_isEB[ipho]) ? 1.0048 : 1.00492 ;
+        l.pho_r9[ipho]*=R9_rescale;
+      }
+    }
+    // ---------------------------------------------------------------------------------------------------------------------//
+    // ---------------------------------------------------------------------------------------------------------------------//
+    // ---------------------------------------------------------------------------------------------------------------------//
+    // ---------------------------------------------------------------------------------------------------------------------//
    
     for(int ipho=0; ipho<l.pho_n; ++ipho ) { 
 	std::vector<std::vector<bool> > p;
@@ -542,9 +564,10 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
    
     sumev += weight;
     // FIXME pass smeared R9
-    int diphoton_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtCut, subleadEtCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
+    int diphoton_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtCut, subleadEtCut, nPhotonCategories_,applyPtoverM, &smeared_pho_energy[0] ); 
     /// std::cerr << "Selected pair " << l.dipho_n << " " << diphoton_id << std::endl;
     if (diphoton_id > -1 ) {
+
 
 	diphoton_index = std::make_pair( l.dipho_leadind[diphoton_id],  l.dipho_subleadind[diphoton_id] );
     	// bring all the weights together: lumi & Xsection, single gammas, pt kfactor
@@ -629,10 +652,10 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		l.FillHist("pho_n",category+1,l.pho_n, evweight);
 	}
 
-	if (cur_type==0){
-	  eventListText << setprecision(4) <<"Type = "<< cur_type <<  "Run = " << l.run << "  LS = " << l.lumis << "  Event = " << l.event << "  SelVtx = " << l.vtx_std_sel << "  CAT4 = " << category % 4 << "  ggM = " << mass << " gg_Pt =  " << ptHiggs;
-	  eventListText << endl;
-	}
+//	if (cur_type==0){
+//	  eventListText << setprecision(4) <<"Type = "<< cur_type <<  "Run = " << l.run << "  LS = " << l.lumis << "  Event = " << l.event << "  SelVtx = " << l.vtx_std_sel << "  CAT4 = " << category % 4 << "  ggM = " << mass << " gg_Pt =  " << ptHiggs;
+//	  eventListText << endl;
+//	}
        
 	// --------------------------------------------------------------------------------------------- 
 	if (cur_type == 0 ){
@@ -647,7 +670,6 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	}
        
     }
-   
    
     // Systematics
     if( cur_type != 0 && doMCSmearing ) { 
@@ -731,7 +753,8 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	    }
 
 	}
-       
+      
+
 	// loop over the smearers included in the systematics study
 	for(std::vector<BaseSmearer *>::iterator  si=systPhotonSmearers_.begin(); si!= systPhotonSmearers_.end(); ++si ) {
 	    std::vector<double> mass_errors;
@@ -771,7 +794,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	       
 		// analyze the event
 		// FIXME pass smeared R9
-		int diphoton_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtCut, subleadEtCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
+		int diphoton_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtCut, subleadEtCut, nPhotonCategories_,applyPtoverM, &smeared_pho_energy[0] ); 
 	       
 		if (diphoton_id > -1 ) {
 		   
