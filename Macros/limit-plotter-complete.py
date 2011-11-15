@@ -18,10 +18,11 @@ ROOT.gStyle.SetOptStat(0)
 
 #-------------------------------------------------------------------------
 # Configuration for the Plotter
-intlumi = str(1.66)
-EXPmasses = [110,115,120,125,130,135,140,150]       # Only used in Bayesian and PL method
-#OBSmasses = range(110,151,1)
-OBSmasses = [110,115,120,125,130,135,140,150]
+intlumi = str(4.69)
+#EXPmasses = [110,115,120,125,130,135,140,150]       # Only used in Bayesian and PL method
+OBSmasses = range(110,151,1)
+EXPmasses = range(110,151,1)
+#OBSmasses = [110,115,120,125,130,135,140,150]
 theorySMScales = [5,10]  			# A list of the C x sigma to draw
 
 OFFSETLOW=2
@@ -33,7 +34,7 @@ FILLCOLOR_95=ROOT.kGreen
 FILLCOLOR_68=ROOT.kYellow
 FILLCOLOR_T=ROOT.kAzure+7			# Theory lines color
 RANGEYABS=[0.0,0.6]
-RANGEYRAT=[0.0,14.8]
+RANGEYRAT=[0.0,8]
 #-------------------------------------------------------------------------
 # UserInput
 parser=OptionParser()
@@ -66,11 +67,17 @@ if Method == "Frequentist":
 if Method == "Frequentist" or Method == "Asymptotic": EXPmasses = OBSmasses[:]
 
 if args[1] == "sm":
-	from theory_sm import *
-	extraString = "SM"
+ ROOT.gROOT.ProcessLine(".L Normalization.C++")
+ from ROOT import GetBR
+ from ROOT import GetXsection
+ from theory_sm import *
+ extraString = "SM"
 elif args[1] == "ff":
-	from theory_ff import *
-	extraString = "FP"
+ ROOT.gROOT.ProcessLine(".L Normalization_ff.C++")
+ from ROOT import GetBR
+ from ROOT import GetXsection
+ from theory_ff import *
+ extraString = "FP"
 else: sys.exit("choose either sm or ff model")
 
 # get rid of the theory bands outside of the observed masses:
@@ -192,10 +199,7 @@ for i,mass,f in zip(range(len(EXPfiles)),EXPmasses,EXPfiles):
   up95   = array.array('d',[0])
   dn95   = array.array('d',[0])
 
-  if not options.doRatio:
-    for j,mm in enumerate(allMasses): 
-	if mm==mass: sm = xSec[j]*br[j]
-  
+  if not options.doRatio: sm = GetBR(mass)*GetXsection(mass) 
   if Method == "Asymptotic":   
       median[0] = getOBSERVED(f,2)
       up95[0]   = getOBSERVED(f,4)
@@ -279,8 +283,9 @@ if options.doSmooth:
 
   sm=1.0
   if not options.doRatio:
-   for j,mm in enumerate(allMasses):
-     if mm==mass: sm = (xSec[j]*br[j])  # since i fitted to absolute, if i want ratio, have to rescale
+  # for j,mm in enumerate(allMasses):
+  #   if mm==mass: sm = (xSec[j]*br[j])  # since i fitted to absolute, if i want ratio, have to rescale
+    sm = GetBR(mass)*GetXsection(mass)
 
   mediansmooth = medfunc.Eval(mass)
 
@@ -301,9 +306,7 @@ for i,mass in zip(range(len(OBSfiles)),OBSmasses):
 
     sm = 1.;
     if obs[i] ==-1: continue
-    if not options.doRatio:
-      for j,mm in enumerate(allMasses): 
-	  if mm==mass: sm = xSec[j]*br[j]
+    if not options.doRatio: sm = GetBR(M)*GetXsection(M)
     graphObs.SetPoint(i,float(mass),obs[i]*sm)
     graphObs.SetPointError(i,0,0,0,0)
 
