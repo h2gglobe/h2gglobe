@@ -184,3 +184,34 @@ Nick
   inputfiletree->Fill();
   inputfiletree->Write(0,TObject::kWriteDelete);
 
+
+
+
+In mpUtil:
+
+void mpUtil::PlotInteractive(TString tag, TString inputfile) { 
+
+      loops->myPlotInteractiveSetup(this,inputfile,tag); 
+      if(tag == "Hgg") {
+        //loops->myPlotInteractiveHggSetup(this,inputfile);
+      } else if(tag == "Hww") {
+	//loops->myPlotInteractiveHwwSetup(this,inputfile); 
+      } else if(tag == "Hzz") {
+      } else if(tag == "Mwl") {
+      } else if(tag == "Elizabeth") {
+	//loops->myPlotInteractiveElizabethSetup(this,inputfile); 
+      }
+      loops->myPlotInteractive(this,inputfile); 
+}
+
+Script:
+
+root -l
+.L matteo/tdrstyle.C
+setTDRStyle();
+  gSystem->Load("libPhysics.so");
+  gSystem->Load("libCore.so");
+  gSystem->Load("VertexAnalysis/lib/libh2gglobeVertexAnalysis.so");
+gSystem->Load("libLoopAll.so");
+mpUtil* m=new mpUtil();
+m->PlotInteractive("Hgg","oct13_ucsdcuts_smnewnew2.root");
