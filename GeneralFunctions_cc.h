@@ -1541,3 +1541,7 @@ void LoopAll::DefineUserBranches()
 
 #endif
 }
+
+#ifdef NewFeatures
+#include "Marco/plotInteractive_cc.h"
+#endif
