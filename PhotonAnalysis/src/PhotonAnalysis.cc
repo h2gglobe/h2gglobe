@@ -189,7 +189,7 @@ void PhotonAnalysis::Init(LoopAll& l)
 	triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v");
 
         // /cdaq/physics/Run2011/5e32/v6.1/HLT/V1
-	triggerSelections.push_back(TriggerSelection(161216,165208));
+	triggerSelections.push_back(TriggerSelection(161216,165633));
 	triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v");
 	triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_R9Id_v");
 	triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_CaloIdL_IsoVL_v");
