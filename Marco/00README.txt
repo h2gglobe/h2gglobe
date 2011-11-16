@@ -1,3 +1,16 @@
+Instructions 16/11/2011
+
+cd CMSSW_4_2_8/src
+cvs co -r regression_Sept30 HiggsAnalysis/HiggsToGammaGamma
+cvs co -r branch_for_42X -d HiggsAnalysis/HiggsTo2photons UserCode/HiggsAnalysis/HiggsTo2photons 
+
+rm -r  HiggsAnalysis/HiggsTo2photons/h2gglobe
+
+#check out the head of h2gglobe (we should make a tag
+
+cvs co -d HiggsAnalysis/HiggsTo2photons/h2gglobe UserCode/HiggsAnalysis/HiggsTo2photons/h2gglobe
+
+
 cp Marco/HistoContainer.cc .
 cp Marco/HistoContainer.h .
 
@@ -7,20 +20,18 @@ cp Marco/inputfiles.dat PhotonAnalysis_scripts/.
 
 cp Marco/configProducer.py PhotonAnalysis_scripts/python
 
-uncomment fist line in CommonParameters.h
+uncomment the second to last line in CommonParameters.h
+
+Modify in PhotonAnalysis/src/PhotonAnalysis.cc the line similar into:
+#include "../../../../HiggsToGammaGamma/interface/GBRForest.h"
 
 Then make
 
-Plotinteractive and myprintcountersnew still to be fixed
+Plotinteractive and myprintcountersnew are still to be fixed
 
+When finished if you want co commit everything:
 
-
-
-
-
-at the end:
-
-rm CommonParameters.h HistoContainer.cc HistoContainer.h PhotonAnalysis_scripts/cuts.dat PhotonAnalysis_scripts/plotvariables.dat PhotonAnalysis_scripts/inputfiles.dat PhotonAnalysis_scripts/python/configProducer.py
+rm CommonParameters.h HistoContainer.cc HistoContainer.h PhotonAnalysis_scripts/cuts.dat PhotonAnalysis_scripts/plotvariables.dat PhotonAnalysis_scripts/inputfiles.dat PhotonAnalysis_scripts/python/configProducer.py  PhotonAnalysis/src/PhotonAnalysis.cc
 
 cvs update -A
 

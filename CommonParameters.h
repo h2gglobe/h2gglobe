@@ -20,4 +20,6 @@
 #define MAXCOUNTERS 200
 #define MAXCOUNTERSRED 100
 
+//#define NewFeatures
+
 #endif
