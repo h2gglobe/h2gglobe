@@ -105,6 +105,11 @@ void LoopAll::myPlotInteractive(TString hsmallname) {
     }
   }
   if(MPDEBUG) cout<<"myPlotInteractive 3 "<<endl;
+
+
+  /*
+
+
   do {
     ivar=ipair.first;
     icat=ipair.second;
@@ -138,14 +143,14 @@ void LoopAll::myPlotInteractive(TString hsmallname) {
         else              {  nrows=5;      ncolumns=5; }
       }
       if(MPDEBUG) cout<<"myPlotInteractive 5 "<<endl;
-      /*
-         if(!DoReSize){
-         xSize = singlexSize*nrows;
-         ySize = singleySize*ncolumns;
-         if(xSize>xSizeMAX)xSize=xSizeMAX;
-         if(ySize>ySizeMAX)ySize=ySizeMAX;
-         }
-       */
+      
+      //   if(!DoReSize){
+      //   xSize = singlexSize*nrows;
+      //   ySize = singleySize*ncolumns;
+      //   if(xSize>xSizeMAX)xSize=xSizeMAX;
+      //   if(ySize>ySizeMAX)ySize=ySizeMAX;
+      //   }
+       
       ch->Clear();
       ch->SetWindowSize(xSize,ySize);
       ch->SetCanvasSize(xSize-4,ySize-28);
@@ -1129,8 +1134,11 @@ void LoopAll::myPlotInteractive(TString hsmallname) {
     icat = ipair.second;
 
 
-  } while(0 <= ivar && ivar < Nvar);
+  } 
+
+  while(0 <= ivar && ivar < Nvar);
   //********************************************
+  */
 }
 
 
@@ -1140,6 +1148,8 @@ std::pair<int,int> LoopAll::myGetInput(std::pair<int,int> ipair) {
 //  }
   int ivar=ipair.first;
   int icat=ipair.second;
+
+  /*
   int ncat=histoncat[ivar];
   std::pair<int,int> newPrevPair(ivar,icat);
   TString sIn;
@@ -1271,7 +1281,8 @@ std::pair<int,int> LoopAll::myGetInput(std::pair<int,int> ipair) {
         Int_t ifile; std::cout<<"which files? (-1 to end): ";do{std::cin >> ifile;if(ifile>-1 && ifile < NIND)myBkgd[ifile]=true; }while(ifile>-1); }
       else if(sIn == "write")             {DoRedraw=false;
         std::cout << "enter extension: ";TString ext;std::cin >> ext;ch->Print(outname+logstring+"."+ext);}
-      else if(sIn == "writeall")          {DoWriteAll=true;/*DoCats=true;*/DoMulti=true;icat=0;ivar=0;DoBigLegend=true;BigLegendInd=1;
+      //else if(sIn == "writeall")          {DoWriteAll=true;/////DoCats=true;////DoMulti=true;icat=0;ivar=0;DoBigLegend=true;BigLegendInd=1;
+      else if(sIn == "writeall")          {DoWriteAll=true;DoMulti=true;icat=0;ivar=0;DoBigLegend=true;BigLegendInd=1;
         std::cout << "enter extension: ";std::cin >> allext;}
       else if(sIn == "writesob")          {DoRedraw=false;
         if(DoSnB) {std::cout << "enter extension: ";TString ext;std::cin >> ext;ch3->Print(outnamesob+logstring+"."+ext);}
@@ -1297,18 +1308,22 @@ std::pair<int,int> LoopAll::myGetInput(std::pair<int,int> ipair) {
     }
 
   }
+  */
+
   std::pair<int,int> returnpair(ivar,icat);
   return returnpair;
 }
 
-void LoopAll::myPlotInteractiveSetup(mpUtil * mp, TString hsmallname, TString tag) {
+void LoopAll::myPlotInteractiveSetup(TString hsmallname, TString tag) {
   cout<<" entring myPlotInteractiveSetup "<<hsmallname<<"  "<<tag<<endl;
   TFile *file1;
   cout<<"open file"<<endl;
+    /*
   if(hsmallname!="") {
     if(MPDEBUG)std::cout << "PlotInteractive DEBUG 01 " << std::endl;
     file1 = TFile::Open(hsmallname);
     file1->cd();
+
     if(MPDEBUG)std::cout << "PlotInteractive DEBUG 02 " << std::endl;
     cout<<"get plotvariables"<<endl;
     plotvariables = (TTree*)file1->Get("plotvariables");
@@ -1449,7 +1464,7 @@ void LoopAll::myPlotInteractiveSetup(mpUtil * mp, TString hsmallname, TString ta
     histfilename = ((TObjString*)tca_histfilename->At(0))->GetString();
     for(Int_t ifile=0;ifile!=nfiles;ifile++) {
       inshortnames[ifile] = ((TObjString*)tca_inshortnames->At(ifile))->GetString();
-      infilenames[ifile] = ((TObjString*)tca_infilenames->At(ifile))->GetString();
+      infilenames[ifile] = ((TObjmpUtil * mp, String*)tca_infilenames->At(ifile))->GetString();
     }
     cout<<"done fillingfile"<<endl;
 
@@ -1669,6 +1684,8 @@ void LoopAll::myPlotInteractiveSetup(mpUtil * mp, TString hsmallname, TString ta
       myBkgd[iInd]=true;
     }
   }
+
+    */
     if(MPDEBUG)std::cout << "PlotInteractive DEBUG 13 " << std::endl;
 }
 

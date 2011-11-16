@@ -24,7 +24,7 @@ THStack *myStack;
 THStack *mySigStack;
 THStack *myDataStack;
 #define MYNINDS 50
-#define MAXINDEXFILES 500
+//#define MAXINDEXFILES 500
 int omitdefault[MAXINDEXFILES];//MYNINDS
 int omitInd[MAXINDEXFILES];//MYNINDS
 bool omitFile[MAXINDEXFILES];//MYNINDS
