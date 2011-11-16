@@ -10,8 +10,8 @@
 
 #include "TMVA/Reader.h"
 #include "PhotonFix.h"
-#include "../../../../HiggsToGammaGamma/interface/GBRForest.h"
-//#include "HiggsAnalysis/HiggsToGammaGamma/interface/GBRForest.h"
+// #include "HiggsToGammaGamma/interface/GBRForest.h"
+#include "HiggsAnalysis/HiggsToGammaGamma/interface/GBRForest.h"
 
 // ------------------------------------------------------------------------------------
 class PhotonAnalysis : public BaseAnalysis 
