@@ -13,6 +13,12 @@
 #include <string>
 #include <list>
 
+#ifdef NewFeatures
+#include <THStack.h>
+#include <TLegend.h>
+#include <TAxis.h>
+#endif
+
 class BaseAnalysis;
 
 #include "HistoContainer.h"
@@ -26,6 +32,7 @@ class BaseAnalysis;
 #include "VertexAnalysis/interface/VertexAlgoParameters.h"
 #include "VertexAnalysis/interface/PhotonInfo.h"
 #include "VertexAnalysis/interface/VertexAlgoParameters.h"
+
 
 #define BRANCH_DICT(NAME) branchDict[# NAME] = branch_info_t(& b ## _ ## NAME, & LoopAll::SetBranchAddress ## _ ## NAME, & LoopAll::Branch ## _ ## NAME )
 
@@ -160,6 +167,9 @@ class LoopAll {
   int ApplyCut(std::string, float, int);
 
 #ifdef NewFeatures
+  void myPrintCounters();
+  void myPrintCountersNew();
+
  virtual void   BookHisto(int,int,int,int,int,int,
                            float,float,float,float,char*,
 			   char* xaxis="", char* yaxis="");

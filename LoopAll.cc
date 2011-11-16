@@ -716,7 +716,8 @@ void LoopAll::WritePI() {
   Int_t Nvar, doplot;
   Int_t h2d[1000], typplot[1000], histoncat[1000];
   char* histoncatindtonames[1000];
-  Int_t nbinsx[1000], nbinsy[1000], lowlim[1000], highlim[1000], lowlim2[1000], highlim2[1000];
+  Int_t nbinsx[1000], nbinsy[1000];
+  Float_t lowlim[1000], highlim[1000], lowlim2[1000], highlim2[1000];
   Int_t itype[1000], histoind[1000], infoind[1000], histoplotit[1000];
   Int_t ntot[1000], nred[1000];
   Float_t lumi[1000], xsec[1000], kfactor[1000], scale[1000];
@@ -1599,6 +1600,8 @@ int LoopAll::SetCutVariables(TString cutname, float * variables) {
 
 #ifdef NewFeatures
 void LoopAll::myPrintCounters() {
+
+  /*
   // number of files
   int nindfiles=mp->nindfiles;
   
@@ -1821,10 +1824,11 @@ void LoopAll::myPrintCounters() {
   // third file: ascii
   fclose(fileascii);
   //
-  
+  */
 }
 
 void LoopAll::myPrintCountersNew() {
+  /*
   // number of files
   int nindfiles=mp->nindfiles;
   
@@ -2167,13 +2171,11 @@ void LoopAll::myPrintCountersNew() {
     
   }
   
-  /*
-  // first oocalc file ("all in a row")
-  for (int iFile=0; iFile<nindfiles; iFile++)
-    fprintf(file,"%s,\n",fileLines[iFile].str().c_str());
-  fclose(file);
-  //
-  */  
+  //// first oocalc file ("all in a row")
+  //for (int iFile=0; iFile<nindfiles; iFile++)
+  //  fprintf(file,"%s,\n",fileLines[iFile].str().c_str());
+  //fclose(file);
+  ////
 
   // second oocalc file (multi rows)
   fclose(filenew);
@@ -2182,7 +2184,7 @@ void LoopAll::myPrintCountersNew() {
   // third file: ascii
   fclose(fileascii);
   //
-  
+  */
 }
 
 void LoopAll::AddCut2(char *cutnamesc, int ncatstmp, int ifromright, int ifinalcut, float *cutValuel, float *cutValueh, int iread, int plot, int bins, float xmin, float xmax, char* xaxis, char* yaxis) {
