@@ -2,11 +2,13 @@
 //==============================  Interactive Plotting  ===============================
 //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
+#define MPDEBUG 0
 
-void LoopAll::myPlotInteractive(mpUtil * mp, TString hsmallname) {
+void LoopAll::myPlotInteractive(TString hsmallname) {
 
   if(MPDEBUG) cout<<"myPlotInteractive Start real "<<endl;
   cout<<"myPlotInteractive Start real "<<endl;
+
   TFile *file1;
 
   if(hsmallname!="") {
@@ -23,7 +25,6 @@ void LoopAll::myPlotInteractive(mpUtil * mp, TString hsmallname) {
   NReBin=2;
   BigLegendInd=1;
   StartCat=0;
-
 
   TH1F * hist1D[NIND];
   TH2F * hist2D[NIND];

@@ -699,6 +699,11 @@ void LoopAll::WriteHist() {
   }
   outputTreeLumi->Write();
 
+#ifdef NewFeatures
+  WriteCounters();
+  WritePI();
+#endif
+
   hfile->Close();
       
   if (makeOutputTree) 
@@ -706,7 +711,170 @@ void LoopAll::WriteHist() {
 
 }
 
+#ifdef NewFeatures
+void LoopAll::WritePI() {
+  Int_t Nvar, doplot;
+  Int_t h2d[1000], typplot[1000], histoncat[1000];
+  char* histoncatindtonames[1000];
+  Int_t nbinsx[1000], nbinsy[1000], lowlim[1000], highlim[1000], lowlim2[1000], highlim2[1000];
+  Int_t itype[1000], histoind[1000], infoind[1000], histoplotit[1000];
+  Int_t ntot[1000], nred[1000];
+  Float_t lumi[1000], xsec[1000], kfactor[1000], scale[1000];
+  Int_t typplotall = 0;
+  Int_t plothistoplotitPI = 0;
 
+  hfile->cd();
+  plotvartree = new TTree("plotvariables","globe plotvariables provenance information");
+  
+  plotvartree->Branch("Nvar", &Nvar, "Nvar/I");
+  plotvartree->Branch("typplotall", &typplotall, "typplotall/I");
+  plotvartree->Branch("doplot", &plothistoplotitPI, "plothistoplotitPI[Nvar]/I");
+  plotvartree->Branch("h2d", &h2d, "h2d[Nvar]/I");
+  plotvartree->Branch("typplot", &typplot, "typplot[Nvar]/I");
+  plotvartree->Branch("histoncat", &histoncat, "histoncat[Nvar]/I");
+  plotvartree->Branch("histoncatindtonames", &histoncatindtonames, "histoncatindtonames[Nvar]/I");
+  plotvartree->Branch("nbinsx", &nbinsx, "nbinsx[Nvar]/I");
+  plotvartree->Branch("nbinsy", &nbinsy, "nbinsy[Nvar]/I");
+  plotvartree->Branch("lowlim", &lowlim, "lowlim[Nvar]/F");
+  plotvartree->Branch("highlim", &highlim, "highlim[Nvar]/F");
+  plotvartree->Branch("lowlim2", &lowlim2, "lowlim2[Nvar]/F");
+  plotvartree->Branch("highlim2", &highlim2, "highlim2[Nvar]/F");
+
+  Nvar = histoContainer[0].size();
+  std::cout << Nvar << std::endl;
+  // FIXME MATTEO
+  for (int i=0; i<Nvar; i++) {
+    h2d[i]       = histoContainer[0].getDimension(i);
+    typplot[i]   = 1;
+    histoncat[i] = histoContainer[0].ncat(i);
+    histoncatindtonames[i] = const_cast<char*>(histoContainer[0].getName(i).c_str());
+    nbinsx[i]    = histoContainer[0].nbins(i, true);
+    nbinsy[i]    = histoContainer[0].nbins(i, false);
+    lowlim[i]    = histoContainer[0].min(i, true);
+    highlim[i]   = histoContainer[0].max(i, true);
+    lowlim2[i]   = histoContainer[0].min(i, false);
+    highlim2[i]  = histoContainer[0].max(i, false);
+  }
+  
+  TClonesArray* tca_xaxislabels = new TClonesArray("TObjString",Nvar);
+  plotvartree->Branch("xaxislabels", "TClonesArray", &tca_xaxislabels, 32000, 0);
+  for(int iplot=0;iplot!=Nvar;++iplot) { 
+    new ((*tca_xaxislabels)[iplot]) TObjString(); 
+    ((TObjString *)tca_xaxislabels->At(iplot))->SetString(histoContainer[0].axisName(iplot, true).c_str());
+  }
+
+  TClonesArray* tca_yaxislabels = new TClonesArray("TObjString",Nvar);
+  plotvartree->Branch("yaxislabels", "TClonesArray", &tca_yaxislabels, 32000, 0);
+  for(int iplot=0;iplot!=Nvar;++iplot) { 
+    new ((*tca_yaxislabels)[iplot]) TObjString(); 
+    ((TObjString *)tca_yaxislabels->At(iplot))->SetString(histoContainer[0].axisName(iplot, true).c_str());
+  }
+
+  TClonesArray* tca_plotvarnames = new TClonesArray("TObjString",Nvar);
+  plotvartree->Branch("plotvarnames", "TClonesArray", &tca_plotvarnames, 32000, 0);
+  for(int iplot=0;iplot!=Nvar;++iplot) { 
+    new ((*tca_plotvarnames)[iplot]) TObjString(); 
+    ((TObjString *)tca_plotvarnames->At(iplot))->SetString(histoContainer[0].getName(iplot).c_str());
+  }
+
+  /*
+  plotvartree->Branch("Nvarcats", &Nvarcats, "Nvarcats/I");
+  plotvartree->Branch("catid", &catid, "catid[Nvarcats]/I");
+  plotvartree->Branch("ncats", &ncats, "ncats[Nvarcats]/I");
+  tca_plotvarcatnames = new TClonesArray("TObjString",Ncatvar);
+  plotvartree->Branch("plotvarcatnames", "TClonesArray", &tca_plotvarcatnames, 32000, 0);
+  int catvartemp=0;
+  for(int i=0; i<Nvarcats; i++) {
+    for(int j=0; j<ncats[i]; j++) {
+      new ((*tca_plotvarcatnames)[catvartemp]) TObjString(); 
+      ((TObjString *)tca_plotvarcatnames->At(catvartemp))->SetString(catnames[i][j]);
+      catvartemp++;
+    } 
+  } 
+  std::cout << "Ncatvar: " << Ncatvar << std::endl;
+  std::cout << "catvartemp: " << catvartemp << std::endl;
+  */
+
+  plotvartree->Fill();
+  plotvartree->Write(0,TObject::kWriteDelete);
+  inputfiletree = new TTree("inputfiles","globe inputfiles provenance information");
+  int nfiles = files.size();
+  inputfiletree->Branch("nfiles", &nfiles, "nfiles/I");
+  inputfiletree->Branch("nindfiles", (int)(type2HistVal.size()), "nindfiles/I");
+  inputfiletree->Branch("intlumi", &intlumi, "intlumi/F");
+  inputfiletree->Branch("makeOutputTree", makeOutputTree, "makeOutputTree/I");
+  TClonesArray* tca_histfilename = new TClonesArray("TObjString",1);
+  inputfiletree->Branch("histfilename", "TClonesArray", &tca_histfilename, 32000, 0);
+  new ((*tca_histfilename)[0]) TObjString(); 
+  ((TObjString *)tca_histfilename->At(0))->SetString(outputFileName);
+  inputfiletree->Branch("itype", &itype, "itype[nfiles]/I");
+  //inputfiletree->Branch("histoind", &mp->histoindfromfiles, "histoindfromfiles[nfiles]/I");
+  //inputfiletree->Branch("infoind", &mp->infoind, "infoind[nindfiles]/I");
+  inputfiletree->Branch("histoplotit", &histoplotit, "histoplotit[nfiles]/I");
+  inputfiletree->Branch("ntot", &ntot, "ntot[nfiles]/I");
+  inputfiletree->Branch("nred", &nred, "nred[nfiles]/I");
+  inputfiletree->Branch("lumi", &lumi, "lumi[nfiles]/F");
+  inputfiletree->Branch("xsec", &xsec, "xsec[nfiles]/F");
+  inputfiletree->Branch("kfactor", &kfactor, "kfactor[nfiles]/F");
+  inputfiletree->Branch("scale", &scale, "scale[nfiles]/F");
+  
+  for (unsigned int i=0; i<sampleContainer.size(); i++) {
+    itype[i] = sampleContainer[i].itype;
+    histoind[i] = sampleContainer[i].ind;
+    infoind[i] = sampleContainer[i].ind;
+    histoplotit[i] = sampleContainer[i].histoplotit;
+    ntot[i] = sampleContainer[i].ntot; 
+    nred[i] = sampleContainer[i].nred;
+    lumi[i] = sampleContainer[i].lumi;
+    xsec[i] = sampleContainer[i].xsec;
+    kfactor[i] = sampleContainer[i].kfactor;
+    scale[i] = sampleContainer[i].scale;
+  }
+
+  TClonesArray* tca_inshortnames = new TClonesArray("TObjString",1);
+  TClonesArray* tca_infilenames = new TClonesArray("TObjString", nfiles);
+  inputfiletree->Branch("inshortnames", "TClonesArray", &tca_inshortnames, 32000, 0);
+  inputfiletree->Branch("infilenames", "TClonesArray", &tca_infilenames, 32000, 0);
+  for(int ifile=0;ifile!=nfiles;++ifile) { 
+    new ((*tca_inshortnames)[ifile]) TObjString(); 
+    new ((*tca_infilenames)[ifile]) TObjString(); 
+    // FIXME MATTEO SAME NAME
+    ((TObjString *)tca_inshortnames->At(ifile))->SetString(sampleContainer[ifile].filesshortnam.c_str());
+    ((TObjString *)tca_infilenames->At(ifile))->SetString(sampleContainer[ifile].filesshortnam.c_str());
+  }
+  inputfiletree->Fill();
+  inputfiletree->Write(0,TObject::kWriteDelete);
+}
+#endif
+
+#ifdef NewFeatures
+// ------------------------------------------------------------------------------------
+void LoopAll::WriteCounters() {
+
+  // number of files
+  int nindfiles=currentindexfiles;
+  
+  TString msName = histFileName.ReplaceAll(".root", 5, ".csv", 4);
+  FILE *file;
+  TString s1 = msName;
+  file = fopen(s1, "w");
+
+  for (Int_t var=0; var<counterContainer[0].mapSize(); var++) {
+    fprintf(file, "Counter %s\n", counterContainer[0].name(var).c_str());
+    for (Int_t c=0; c<counterContainer.size(); c++) {
+      //FIXME prepend sample name
+      for (Int_t cat=0; cat<counterContainer[c].ncat(var); cat++)
+	fprintf(file, "%d ", counterContainer[c][var][cat]);
+
+      fprintf(file, "\n");
+    }
+  }
+
+  fclose(file);
+}
+#endif
+
+#ifndef NewFeatures
 // ------------------------------------------------------------------------------------
 void LoopAll::WriteCounters() {
   if(LDEBUG) std::cout<<"LoopAll::myWriteCounters - START"<<std::endl;
@@ -803,6 +971,11 @@ void LoopAll::WriteCounters() {
   fclose(file);
   if(LDEBUG) std::cout<<"LoopAll::myWriteCounters - END"<<std::endl;
 }
+#endif
+
+
+
+
 
 // ------------------------------------------------------------------------------------
 int LoopAll::FillAndReduce(int jentry) {
@@ -945,6 +1118,7 @@ void LoopAll::GetEntry(std::set<TBranch *> & branches, int jentry)
   }
 }
 
+#ifndef NewFeatures
 // ------------------------------------------------------------------------------------
 void LoopAll::BookHisto(int h2d,
 			int typplot,
@@ -965,7 +1139,32 @@ void LoopAll::BookHisto(int h2d,
       histoContainer[ind].Add(name, histoncat, nbinsx, lowlim, highlim, nbinsy, lowlim2, highlim2);
   }
 }
+#endif
 
+#ifdef NewFeatures
+// ------------------------------------------------------------------------------------
+void LoopAll::BookHisto(int h2d,
+			int typplot,
+			int typeplotall,
+			int histoncat,
+			int nbinsx,
+			int nbinsy,
+			float lowlim,
+			float highlim,
+			float lowlim2,
+			float highlim2,
+			char *name,
+			char *xaxis, 
+			char* yaxis) {
+
+  for(unsigned int ind=0; ind<histoContainer.size(); ind++) {
+    if (nbinsy == 0)
+      histoContainer[ind].Add(name, xaxis, yaxis, histoncat, nbinsx, lowlim, highlim);
+    if (nbinsy != 0)
+      histoContainer[ind].Add(name, xaxis, yaxis, histoncat, nbinsx, lowlim, highlim, nbinsy, lowlim2, highlim2);
+  }
+}
+#endif
 
 // ------------------------------------------------------------------------------------
 void LoopAll::AddCut(char *cutnamesc, int ncatstmp, int ifromright, int ifinalcut, float *cutValuel, float *cutValueh) {
@@ -1073,6 +1272,74 @@ int LoopAll::ApplyCut(std::string cutname, float var, int icat) {
   std::cout<<"ApplyCut: attention cutname "<<cutname<<" not found"<<std::endl;
   return 0;
 }
+
+
+ 
+// ------------------------------------------------------------------------------------
+void LoopAll::FillHist(std::string name, float y) {
+  FillHist(name, 0, y);
+}
+
+// ------------------------------------------------------------------------------------
+void LoopAll::FillHist2D(std::string name, float x, float y) {
+  FillHist2D(name, 0, x, y);
+}
+
+// ------------------------------------------------------------------------------------
+void LoopAll::FillHist(std::string name, int category, float y, float wt ) {
+  histoContainer[current_sample_index].Fill(name, category, y, wt);
+  histoContainer.back().Fill(name, category, y, wt);
+}
+// ------------------------------------------------------------------------------------
+void LoopAll::FillHist2D(std::string name, int category, float x, float y, float wt ) {
+  histoContainer[current_sample_index].Fill2D(name, category, x, y, wt);
+  histoContainer.back().Fill(name, category, y, wt);
+}
+
+//// // ------------------------------------------------------------------------------------
+//// void LoopAll::FillCounter(std::string name, float weight) {
+//// 	FillCounter(name, 0, weight);
+//// }
+
+// ------------------------------------------------------------------------------------
+void LoopAll::FillCounter(std::string name, float weight, int category ) {
+	counterContainer[current_sample_index].Fill(name, category, weight);
+}
+
+// ----------------------------------------------------------------------------------------------------------------------
+bool LoopAll::CheckLumiSelection( int run, int lumi )
+{
+	if(typerun == kReduce || ! sampleContainer[current_sample_index].hasLumiSelection ){
+		return true;
+	}
+
+	std::vector<std::pair<int,int> > &run_lumis = sampleContainer[current_sample_index].goodLumis[run];
+	for(std::vector<std::pair<int,int> >::iterator it=
+		    run_lumis.begin(); it!=run_lumis.end(); ++it ) {
+		if( lumi >= it->first && lumi <= it->second ) {
+			return true;
+		}
+	}
+	return false;
+}
+
+// ----------------------------------------------------------------------------------------------------------------------
+bool LoopAll::CheckEventList( int run, int lumi, int event  )
+{
+	if(typerun == kReduce || ! sampleContainer[current_sample_index].hasEventList ){
+		return true;
+	}
+
+	std::vector<std::pair<int,int> > &run_events = sampleContainer[current_sample_index].eventList[run];
+	for(std::vector<std::pair<int,int> >::iterator it=
+		    run_events.begin(); it!=run_events.end(); ++it ) {
+		if( lumi == it->first && event == it->second ) {
+			return true;
+		}
+	}
+	return false;
+}
+
 
 #ifdef NewFeatures
 
@@ -1329,68 +1596,609 @@ int LoopAll::SetCutVariables(TString cutname, float * variables) {
 
 #endif
 
- 
-// ------------------------------------------------------------------------------------
-void LoopAll::FillHist(std::string name, float y) {
-  FillHist(name, 0, y);
-}
 
-// ------------------------------------------------------------------------------------
-void LoopAll::FillHist2D(std::string name, float x, float y) {
-  FillHist2D(name, 0, x, y);
-}
+#ifdef NewFeatures
+void LoopAll::myPrintCounters() {
+  // number of files
+  int nindfiles=mp->nindfiles;
+  
+  TString msName = mpUtilInstance->histFileName.ReplaceAll(".root", 5, ".csv", 4);
+  cout<<"Print the counters for intL: "<<mp->intlumi<<endl;
 
-// ------------------------------------------------------------------------------------
-void LoopAll::FillHist(std::string name, int category, float y, float wt ) {
-  histoContainer[current_sample_index].Fill(name, category, y, wt);
-  histoContainer.back().Fill(name, category, y, wt);
-}
-// ------------------------------------------------------------------------------------
-void LoopAll::FillHist2D(std::string name, int category, float x, float y, float wt ) {
-  histoContainer[current_sample_index].Fill2D(name, category, x, y, wt);
-  histoContainer.back().Fill(name, category, y, wt);
-}
-
-//// // ------------------------------------------------------------------------------------
-//// void LoopAll::FillCounter(std::string name, float weight) {
-//// 	FillCounter(name, 0, weight);
-//// }
-
-// ------------------------------------------------------------------------------------
-void LoopAll::FillCounter(std::string name, float weight, int category ) {
-	counterContainer[current_sample_index].Fill(name, category, weight);
-}
-
-// ----------------------------------------------------------------------------------------------------------------------
-bool LoopAll::CheckLumiSelection( int run, int lumi )
-{
-	if(typerun == kReduce || ! sampleContainer[current_sample_index].hasLumiSelection ){
-		return true;
+  // first oocalc file ("all in a row")
+  FILE *filenew;
+  TString s1 = msName+"_new.csv";
+  filenew=fopen(s1,"w");
+  //
+  
+  // second oocalc file (multi rows)
+  FILE *file;
+  TString s2 = msName+".csv";
+  file=fopen(s2, "w");
+  //
+  
+  // third file: ascii
+  FILE *fileascii;
+  TString s3 = msName+".tzt";
+  fileascii=fopen(s3, "w");
+  //
+  
+  // first oocalc file ("all in a row")
+  fprintf(file,"indexfiles, namefile, scale, lumi, intlum, weight, sample,");
+  //
+  
+  // first oocalc file ("all in a row")
+  for (int i=0; i<Ncounters; i++) {
+    if(counterprint[i]) {
+      int nCategories = countersncat[i];
+      if(nCategories == 0)
+	nCategories = 1;
+      //
+      // multiplicity of lines for the different categories
+      for(int iCategory = 0; iCategory<nCategories; iCategory++)
+	fprintf(file,",Name, Counted, TotalEvents, Sigma, Selection 1, Eff, Selection 2, Eff, Selection 3, Eff,");
+      //
+    }
+  }
+  fprintf(file,"\n");
+  //
+  
+  // first oocalc file ("all in a row")
+  stringstream fileLines[nindfiles];
+  bool fillInit = true;
+  //
+  
+  for (int i=0; i<Ncounters; i++) {
+    if(counterprint[i]) {
+      
+      // second oocalc file (multi rows)
+      fprintf(filenew,"Number, Sample, Counter Name, Counted, TotalEvents, Sigma, Selection 1, Eff, Selection 2, Eff, Selection 3, Eff");
+      fprintf(filenew,",indexfiles, namefile, scale, lumi, intlum, weight, xsec, ntot, nred, kfac");
+      fprintf(filenew,"\n");
+      //
+      
+      // third file: ascii
+      fprintf(fileascii,"#############################################\n");
+      fprintf(fileascii,"Number \t Sample");
+      fprintf(fileascii,"\n");
+      //
+      
+      int ncat = countersncat[i];
+      int c=-1;
+      while (c<ncat) {
+	if(c==-1) c=0;
+	float counts;
+	float denominatorCounts[3];
+	TString counterNames[3];
+	double counterEfficiencies[3];
+	
+	for (int ind=0; ind<nindfiles; ind++) {
+	  
+	  int indexfiles=mp->histoind[ind];
+	  int indexinfo=mp->infoind[ind];
+	  double weight=mp->weightind[ind];
+	  //double scale=mp->intlumi / mp->lumireal[indexfiles]  * mp->scale[indexinfo];
+	  
+	  // first oocalc file ("all in a row")
+	  // fill file infos only once
+	  if(fillInit){
+	    fileLines[ind]
+	      << indexfiles                   << ","
+	      << mp->files[indexinfo]         << ","
+	      << mp->scale[indexinfo]         << ","
+	      << mp->lumireal[indexfiles]     << ","
+	      << mp->intlumi                  << ","
+	      << weight                       << ","
+	      << mp->filesshortnam[indexinfo] << ",";
+	  }
+	  //
+  	  
+	  if (ncat==0) {
+	    counts=counters[indexfiles][i];
+	  }
+	  else {
+	    counts=counterscat[indexfiles][counterscatind[i]][c];
+	  }
+	  
+	  // Three denominators for partial efficiencies
+	  for(unsigned int iDen=0; iDen<3; iDen++) {
+	    if(counterdenom[i][iDen] < 0) {
+	      denominatorCounts[iDen] = -1; // no counter selected
+	      counterNames[iDen] = "---";
+	    } else {
+	      if(countersncat[counterdenom[i][iDen]] == 0) {
+		denominatorCounts[iDen]=counters[indexfiles][counterdenom[i][iDen]];
+	      } else if(countersncat[counterdenom[i][iDen]] != ncat) {
+		// take the first category for the denominator if numerator and denominator categories do not correspond
+		denominatorCounts[iDen]=counterscat[indexfiles][counterscatind[counterdenom[i][iDen]]][0];
+	      } else {
+		denominatorCounts[iDen]=counterscat[indexfiles][counterscatind[counterdenom[i][iDen]]][c];
+	      }
+	      counterNames[iDen] = counternames[counterdenom[i][iDen]];
+	    }
+	    counterEfficiencies[iDen]= (denominatorCounts[iDen]>0 ? counts/denominatorCounts[iDen] : -1);
+	  }
+	  
+	  // first oocalc file ("all in a row")
+	  fileLines[ind]
+	    << ","  << counternames[i]                        << ","  // counter Name
+	    << counts                                         << ","  // counter Counts
+	    << counts*weight/mp->scale[indexinfo]             << ","  // Total Events = counts x weight / scale
+	    << counts*weight/mp->scale[indexinfo]/mp->intlumi << ","  // Sigma (=xsec) = counts x weight / intlumi
+	    << counterNames[0].Data()                         << ","  // First denominator
+	    << counterEfficiencies[0]                         << ","  // Real Eff vs First denominator
+	    << counterNames[1].Data()                         << ","  // Second denominator
+	    << counterEfficiencies[1]                         << ","  // Real Eff vs Second denominator
+	    << counterNames[2].Data()                         << ","  // Third denominator
+	    << counterEfficiencies[2]                         << ","; // Real Eff vs Third denominator
+	  //
+	  // second oocalc file (multi rows)
+	  fprintf(filenew,"%d,%s,%s,%f,%f,%f,%s,%f,%s,%f,%s,%f",
+		  i, // counter Number
+		  mp->filesshortnam[indexinfo], // file short name
+		  counternames[i], // counter Name
+		  counts, // counter Counts
+		  counts*weight/mp->scale[indexinfo], // Total Events = counts x weight / scale
+		  counts*weight/mp->scale[indexinfo]/mp->intlumi, // Sigma (=xsec) = counts x weight / intlumi
+		  counterNames[0].Data(), // First denominator
+		  counterEfficiencies[0], // Real Eff vs First denominator
+		  counterNames[1].Data(), // Second denominator
+		  counterEfficiencies[1], // Real Eff vs Second denominator
+		  counterNames[2].Data(), // Third denominator
+		  counterEfficiencies[2]  // Real Eff vs Third denominator
+		  );
+	  fprintf(filenew,",%d,%s,%f,%f,%f,%f\n",indexfiles,mp->files[indexinfo], mp->scale[indexinfo],
+		  mp->lumireal[indexfiles],mp->intlumi,weight);
+	  //
+	  // third file: ascii
+	  fprintf(fileascii,"---------------------------------------------\n");
+	  fprintf(fileascii,"%d \t %s \n Counter Name: %s \n",
+		  i, // counter Number
+		  mp->filesshortnam[indexinfo], // file short name
+		  counternames[i] // counter Name
+		  );
+	  fprintf(fileascii,"---------------------------------------------\n");
+	  fprintf(fileascii,"Counted = %6.3f \n",
+		  counts // counter Counts
+		  );
+	  fprintf(fileascii,"  Total = %6.3f \n",
+		  counts*weight/mp->scale[indexinfo] // Total Events = counts x weight / scale
+		  );
+	  fprintf(fileascii,"  Sigma = %6.3f \n",
+		  counts*weight/mp->scale[indexinfo]/mp->intlumi // Sigma (=xsec) = counts x weight / intlumi
+		  );
+	  fprintf(fileascii,"  Scale = %6.3f \n",
+		  mp->scale[indexinfo] // Scale
+		  );
+	  fprintf(fileascii,"   Lumi = %6.3f \n",
+		  mp->lumireal[indexfiles] // Luminosity
+		  );
+	  fprintf(fileascii,"intLumi = %6.3f \n",
+		  mp->intlumi // Integrated Luminosity 
+		  );
+	  fprintf(fileascii," Weight = %6.3f \n",
+		  weight // Weight
+		  );
+	  fprintf(fileascii,"@@@\n");
+	  for(unsigned int iDen=0; iDen<3; iDen++) {
+	    if(counterNames[iDen] != "---")
+	      fprintf(fileascii,"Efficiency: %s / %s = %1.5f \n",
+		      counternames[i], // this counter
+		      counterNames[iDen].Data(), // i-th denominator
+		      counterEfficiencies[iDen]  // Real Eff vs i-th denominator
+		      );
+	  }
 	}
-
-	std::vector<std::pair<int,int> > &run_lumis = sampleContainer[current_sample_index].goodLumis[run];
-	for(std::vector<std::pair<int,int> >::iterator it=
-		    run_lumis.begin(); it!=run_lumis.end(); ++it ) {
-		if( lumi >= it->first && lumi <= it->second ) {
-			return true;
-		}
-	}
-	return false;
+	// second oocalc file (multi rows)
+	fprintf(filenew,"\n");
+	//
+	// third file: ascii
+	fprintf(fileascii,"\n");
+	//
+	// stringstream.str.c_str	
+	c++;
+      }
+      // second oocalc file (multi rows)
+      fprintf(filenew,"\n");
+      //
+      // third file: ascii
+      fprintf(fileascii,"\n");
+      //
+      
+      fillInit = false; 
+    }// counter print if
+    
+  }
+  
+  // first oocalc file ("all in a row")
+  for (int iFile=0; iFile<nindfiles; iFile++)
+    fprintf(file,"%s,\n",fileLines[iFile].str().c_str());
+  fclose(file);
+  //
+  // second oocalc file (multi rows)
+  fclose(filenew);
+  //
+  // third file: ascii
+  fclose(fileascii);
+  //
+  
 }
 
-// ----------------------------------------------------------------------------------------------------------------------
-bool LoopAll::CheckEventList( int run, int lumi, int event  )
-{
-	if(typerun == kReduce || ! sampleContainer[current_sample_index].hasEventList ){
-		return true;
-	}
+void LoopAll::myPrintCountersNew() {
+  // number of files
+  int nindfiles=mp->nindfiles;
+  
+  cout<<"Print the counters for intL: "<<mp->intlumi<<endl;
 
-	std::vector<std::pair<int,int> > &run_events = sampleContainer[current_sample_index].eventList[run];
-	for(std::vector<std::pair<int,int> >::iterator it=
-		    run_events.begin(); it!=run_events.end(); ++it ) {
-		if( lumi == it->first && event == it->second ) {
-			return true;
-		}
+
+  TString a(mp->histFilNam);
+
+  // first oocalc file ("all in a row")
+  FILE *file;
+  file=fopen(a+"counters_out_new.csv","w");
+  //
+  
+  // second oocalc file (multi rows)
+  FILE *filenew;
+  filenew=fopen(a+"counters_out.csv","w");
+  //
+  
+  // third file: ascii
+  FILE *fileascii;
+  fileascii=fopen(a+"counters_out.txt","w");
+  //
+  
+  for (int i=0; i<Ncounters; i++) {
+    
+    // first oocalc file ("all in a row")
+    stringstream fileLinesCatFile[nindfiles];
+    stringstream fileLinesCatCounts[nindfiles];
+    stringstream fileLinesCatEvents[nindfiles];
+    stringstream fileLinesCatSigma[nindfiles];
+    stringstream fileLinesCatEff[nindfiles][3];
+    //
+    
+    // second oocalc file (multi rows)
+    stringstream fileLinesCategories[nindfiles];
+    stringstream fileLinesEff[nindfiles][3];
+    stringstream fileLinesInfo[nindfiles];
+    //
+    
+    if(i==0) {
+      for (int ind=0; ind<nindfiles; ind++) {
+	int indexfiles=mp->histoind[ind];
+	int indexinfo=mp->infoind[ind];
+	cout<<"DEBUGDEBUG mp->scale[indexinfo]  "<<ind<<" "<<indexfiles<<" "<<indexinfo<<" "<<mp->scale[indexinfo]<<endl;
+      }
+    }
+    
+    if(counterprint[i]) {
+      
+      int ncat = countersncat[i];
+      
+      // first oocalc file ("all in a row")
+      fprintf(file,"Number, Sample, Counter Name, Categories");
+      //
+      for(unsigned int iCat = 0; iCat<ncat; iCat++)
+	fprintf(file,", Cat %d Counts",iCat);
+      fprintf(file,", TOT Cat Counts");
+      for(unsigned int iCat = 0; iCat<ncat; iCat++)
+	fprintf(file,", Cat %d Tot.Events",iCat);
+      fprintf(file,", TOT Cat Tot.Events");
+      for(unsigned int iCat = 0; iCat<ncat; iCat++)
+	fprintf(file,", Cat %d Sigma",iCat);
+      fprintf(file,", TOT Cat Sigma");
+      for(unsigned int iEff=0; iEff<3; iEff++) {
+	fprintf(file,", Denominator Name");
+	for(unsigned int iCat = 0; iCat<ncat; iCat++)
+	  fprintf(file,", Cat %d Eff.",iCat);
+	fprintf(file,", TOT Cat Eff.");
+      }
+      fprintf(file,",, indexfiles, namefile, scale, lumi, intlum, weight");
+      fprintf(file,"\n");
+      //
+      
+      // second oocalc file (multi rows)
+      fprintf(filenew,"Number, Sample, Counter Name");
+      for(unsigned int iCat = 0; iCat<ncat; iCat++)
+	fprintf(filenew,", Category, Counted, TotalEvents, Sigma");
+      fprintf(filenew,",, Total Counted, ,indexfiles, namefile, scale, lumi, intlum, weight, xsec, ntot, nred, kfac");
+      fprintf(filenew,"\n");
+      //
+      double counterNumerator_tot[nindfiles];
+      double counterDenominator_tot[nindfiles][3];
+      double counterEvents_tot[nindfiles];
+      double counterSigma_tot[nindfiles];
+      //
+      
+      // third file: ascii
+      fprintf(fileascii,"#############################################\n");
+      fprintf(fileascii,"Number \t Sample");
+      fprintf(fileascii,"\n");
+      //
+      
+      int c=-1;
+      while (c<ncat) {
+	if(c==-1) c=0;
+	float counts;
+	float denominatorCounts[3];
+	TString counterNames[3];
+	double counterEfficiencies[3];
+	
+	for (int ind=0; ind<nindfiles; ind++) {
+	  
+	  // reset only once
+	  if(c==0) {
+	    counterNumerator_tot[ind] = 0.;
+	    counterEvents_tot[ind] = 0.;
+	    counterSigma_tot[ind] = 0.;
+	  }
+	  //
+	  
+	  for(unsigned int iEff=0; iEff<3; iEff++)
+	    counterDenominator_tot[ind][iEff] = 0.;
+	  
+	  int indexfiles=mp->histoind[ind];
+	  int indexinfo=mp->infoind[ind];
+	  double weight=mp->weightind[ind];
+	  //double scale=mp->intlumi / mp->lumireal[indexfiles]  * mp->scale[indexinfo];
+	  
+
+	  // fill file infos only once
+	  if(c==0){
+	    // first oocalc file ("all in a row")
+	    fileLinesCatFile[ind]
+	      << i                            << "," // counter Number
+	      << mp->filesshortnam[indexinfo] << "," // file short name
+	      << counternames[i]              << "," // counter Name
+	      << ncat;                               // number of categories
+	    // second oocalc file (multi rows)
+	    fileLinesCategories[ind]
+	      << i                            << ","  // counter Number
+	      << mp->filesshortnam[indexinfo] << ","  // file short name
+	      << counternames[i]              << ","; // counter Name
+	  }
+	  // fill file infos only once
+	  if(c==0){
+	    fileLinesInfo[ind]
+	      << indexfiles               << ","
+	      << mp->files[indexinfo]     << ","
+	      << mp->scale[indexinfo]     << ","
+      	      << mp->lumireal[indexfiles] << ","
+      	      << mp->lumireal[indexinfo] << ","
+	      << mp->intlumi              << ","
+	      << weight                   << ","
+	      <<  mp->xsec[indexinfo]                  << ","
+	      <<  mp->ntot[indexinfo]                  << ","
+	      <<  mp->nred[indexinfo]                  << ","   
+	      <<  mp->kfactor[indexinfo]                
+	      ;
+	    //
+	  }
+	  //
+  	  
+	  if (ncat==0) {
+	    counts=counters[indexfiles][i];
+	  }
+	  else {
+	    counts=counterscat[indexfiles][counterscatind[i]][c];
+	  }
+	  
+	  // Three denominators for partial efficiencies
+	  counterNumerator_tot[ind] += counts;
+	  counterEvents_tot[ind]    += counts*weight;
+	  counterSigma_tot[ind]     += counts*weight/mp->intlumi;
+	  for(unsigned int iDen=0; iDen<3; iDen++) {
+	    if(counterdenom[i][iDen] < 0) {
+	      denominatorCounts[iDen] = -1; // no counter selected
+	      counterNames[iDen] = "---";
+	    } else {
+	      if(countersncat[counterdenom[i][iDen]] == 0) {
+		denominatorCounts[iDen]=counters[indexfiles][counterdenom[i][iDen]];
+	      } else if(countersncat[counterdenom[i][iDen]] != ncat) {
+		// take the first category for the denominator if numerator and denominator categories do not correspond
+		denominatorCounts[iDen]=counterscat[indexfiles][counterscatind[counterdenom[i][iDen]]][0];
+	      } else {
+		denominatorCounts[iDen]=counterscat[indexfiles][counterscatind[counterdenom[i][iDen]]][c];
+	      }
+	      counterNames[iDen] = counternames[counterdenom[i][iDen]];
+	    }
+	    counterEfficiencies[iDen] = (denominatorCounts[iDen]>0 ? counts/denominatorCounts[iDen] : -1);
+	    counterDenominator_tot[ind][iDen] += (denominatorCounts[iDen]>0 ? denominatorCounts[iDen] : 0);
+	  }
+	  
+	  if(c==0){
+	    // first oocalc file ("all in a row")
+	    for(unsigned int iEff=0; iEff<3; iEff++)
+	      //	      if(counterNames[iEff]!="---")
+		fileLinesCatEff[ind][iEff]
+		  << counterNames[iEff] << ","; // counter Name i-th denominator
+	    //
+	    // second oocalc file (multi rows)
+	    for(unsigned int iEff=0; iEff<3; iEff++)
+	      fileLinesEff[ind][iEff]
+		<< ",Efficiency " << iEff+1 << ","  // i-th Efficiency
+		<< counterNames[iEff]       << ","; // i-th denominator name
+	    //
+	  }
+	  
+	  // first oocalc file ("all in a row")
+	  fileLinesCatCounts[ind]
+	    << counts << ","; // counter Counts
+	  fileLinesCatEvents[ind]
+	    << counts*weight << ","; // Total Events = counts x weight
+	  fileLinesCatSigma[ind]
+	    << counts*weight/mp->intlumi << ","; // Sigma (=xsec) = counts x weight / intlumi
+	  for(unsigned int iEff=0; iEff<3; iEff++)
+	    //	    if(counterNames[iEff]!="---")
+	      fileLinesCatEff[ind][iEff]
+		<< counterEfficiencies[iEff] << ","; // Eff i-th denominator
+	  //
+	  
+	  // second oocalc file (multi rows)
+	  fileLinesCategories[ind]
+	    << c                         << ","  // category
+	    << counts                    << ","  // counter Counts
+	    << counts*weight             << ","  // Total Events = counts x weight
+	    << counts*weight/mp->intlumi << ","; // Sigma (=xsec) = counts x weight / intlumi
+	  for(unsigned int iEff=0; iEff<3; iEff++)
+	    fileLinesEff[ind][iEff]
+	      << c                         << ","  // category
+	      << denominatorCounts[iEff]   << ","  // denominator counter Counts
+	      << counterEfficiencies[iEff] << ","; // Eff vs i-th denominator
+	  //
+	  
+	  // third file: ascii
+	  fprintf(fileascii,"---------------------------------------------\n");
+	  fprintf(fileascii,"%d \t %s \n Counter Name: %s \n",
+		  i, // counter Number
+		  mp->filesshortnam[indexinfo], // file short name
+		  counternames[i] // counter Name
+		  );
+	  fprintf(fileascii,"---------------------------------------------\n");
+	  fprintf(fileascii,"Counted = %6.3f \n",
+		  counts // counter Counts
+		  );
+	  fprintf(fileascii,"  Total = %6.3f \n",
+		  //counts*weight/mp->scale[indexinfo] // Total Events = counts x weight / scale
+		  counts*weight // Total Events = counts x weight / scale
+		  );
+	  fprintf(fileascii,"  Sigma = %6.3f \n",
+		  //counts*weight/mp->scale[indexinfo]/mp->intlumi // Sigma (=xsec) = counts x weight / intlumi
+		  counts*weight/mp->intlumi // Sigma (=xsec) = counts x weight / intlumi
+		  );
+	  float scaledummy=1.;
+	  fprintf(fileascii,"  Scale = %6.3f \n",
+		  scaledummy // Scale
+		  //mp->scale[indexinfo] // Scale
+		  );
+	  fprintf(fileascii,"   Lumi = %6.3f \n",
+		  mp->lumireal[indexfiles] // Luminosity
+		  );
+	  fprintf(fileascii,"intLumi = %6.3f \n",
+		  mp->intlumi // Integrated Luminosity 
+		  );
+	  fprintf(fileascii," Weight = %6.3f \n",
+		  weight // Weight
+		  );
+	  fprintf(fileascii,"@@@\n");
+	  for(unsigned int iDen=0; iDen<3; iDen++) {
+	    if(counterNames[iDen] != "---")
+	      fprintf(fileascii,"Efficiency: %s / %s = %1.5f \n",
+		      counternames[i], // this counter
+		      counterNames[iDen].Data(), // i-th denominator
+		      counterEfficiencies[iDen]  // Real Eff vs i-th denominator
+		      );
+	  }
+	  
+	  
 	}
-	return false;
+	
+	// third file: ascii
+	fprintf(fileascii,"\n");
+	//
+	
+	c++;
+	
+      }
+      
+      // Loop on Files
+      for (int iFile=0; iFile<nindfiles; iFile++) {
+	// first oocalc file ("all in a row")
+	fprintf(file,"%s, %s %f, %s %f, %s %f",
+		fileLinesCatFile[iFile].str().c_str(),   // File Name and counter name + number of categories
+		fileLinesCatCounts[iFile].str().c_str(), // Categories Counts
+		counterNumerator_tot[iFile],             // TOT Categories Counts
+		fileLinesCatEvents[iFile].str().c_str(), // Categories Events
+		counterEvents_tot[iFile],                // TOT Categories Events = counts x weight
+		fileLinesCatSigma[iFile].str().c_str(),  // Categories Sigma
+		counterSigma_tot[iFile]                  // TOT Categories Sigma (=xsec) = counts x weight / intlumi
+		);
+	for(unsigned int iEff=0; iEff<3; iEff++)
+	  fprintf(file,", %s %f",
+		  fileLinesCatEff[iFile][iEff].str().c_str(), // Categories Efficiencies
+		  (counterDenominator_tot[iFile][iEff] !=0 ? counterNumerator_tot[iFile]/counterDenominator_tot[iFile][iEff] : -1) // overall efficiency
+		  );
+	fprintf(file,",, %s",
+		fileLinesInfo[iFile].str().c_str()
+		);
+	fprintf(file,"\n");
+	//
+	
+	// second oocalc file (multi rows)
+	fprintf(filenew,"%s, %f,, %s\n",
+		fileLinesCategories[iFile].str().c_str(),
+		counterNumerator_tot[iFile],
+		fileLinesInfo[iFile].str().c_str());
+	//
+	fprintf(filenew,", , Denominator Name");
+	for(unsigned int iCat = 0; iCat<ncat; iCat++)
+	  fprintf(filenew,", Category, Counted, Efficiency");
+	// Total
+	fprintf(filenew,",, Total Counted, Overall Efficiency, ");
+	fprintf(filenew,"\n");
+	//
+	for(unsigned int iEff=0; iEff<3; iEff++) {
+	  fprintf(filenew,"%s",fileLinesEff[iFile][iEff].str().c_str());
+	  fprintf(filenew,",%f, %f \n",
+		  counterDenominator_tot[iFile][iEff], // overall counts
+		  (counterDenominator_tot[iFile][iEff] !=0 ? counterNumerator_tot[iFile]/counterDenominator_tot[iFile][iEff] : -1) // overall efficiency
+		  );
+	}
+	fprintf(filenew,"\n");
+	//
+	
+      } // Loop on Files
+      //
+
+      // first oocalc file ("all in a row")
+      fprintf(file,"\n\n");
+      //
+      
+      // second oocalc file (multi rows)
+      fprintf(filenew,"\n");
+      //
+      
+      // third file: ascii
+      fprintf(fileascii,"\n");
+      //
+      
+    } // counter print if
+    
+  }
+  
+  /*
+  // first oocalc file ("all in a row")
+  for (int iFile=0; iFile<nindfiles; iFile++)
+    fprintf(file,"%s,\n",fileLines[iFile].str().c_str());
+  fclose(file);
+  //
+  */  
+
+  // second oocalc file (multi rows)
+  fclose(filenew);
+  //
+  
+  // third file: ascii
+  fclose(fileascii);
+  //
+  
 }
+
+void LoopAll::AddCut2(char *cutnamesc, int ncatstmp, int ifromright, int ifinalcut, float *cutValuel, float *cutValueh, int iread, int plot, int bins, float xmin, float xmax, char* xaxis, char* yaxis) {
+
+  AddCut(cutnamesc, ncatstmp, ifromright, ifinalcut, cutValuel, cutValueh);
+
+  // FIXME counter denominator 
+  char a[100];
+  sprintf(a, "%s_nminus1", cutnamesc);
+  BookHisto(0, 0, 0, ncatstmp, bins, 0, xmin, xmax, 0., 0., a, xaxis, yaxis);
+  AddCounter(ncatstmp, a, "", "", "");
+
+  sprintf(a, "%s_sequential", cutnamesc);
+  BookHisto(0, 0, 0, ncatstmp, bins, 0, xmin, xmax, 0, 0, a, xaxis, yaxis);
+  AddCounter(ncatstmp, a, "", "", "");
+}
+
+#endif
+

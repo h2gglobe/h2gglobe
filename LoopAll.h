@@ -34,10 +34,6 @@ class BaseAnalysis;
 class LoopAll {
  public :
   TTree          *fChain;
-#ifdef NewFeatures   
-  TTree * plotvartree;
-  TTree * inputfiletree;
-#endif
 
 #include "branchdef/branchdef.h"
 #include "branchdef/treedef.h"
@@ -63,9 +59,10 @@ class LoopAll {
   virtual Bool_t Notify();
   virtual void   Show(Long64_t entry = -1);
   virtual void   InitHistos();
+#ifndef NewFeatures
   virtual void   BookHisto(int,int,int,int,int,int,
                            float,float,float,float,char*);
- 
+#endif
   void LoopAndFillHistos(TString treename="event");
   void MergeContainers();
   //void WriteHist();  
@@ -108,6 +105,10 @@ class LoopAll {
   TTree * outputTree;
   TTree * outputTreeLumi;
   TTree * outputTreePar;
+#ifdef NewFeatures   
+  TTree * plotvartree;
+  TTree * inputfiletree;
+#endif
 
   TFile * outputFile;
   TString outputFileName;
@@ -159,6 +160,13 @@ class LoopAll {
   int ApplyCut(std::string, float, int);
 
 #ifdef NewFeatures
+ virtual void   BookHisto(int,int,int,int,int,int,
+                           float,float,float,float,char*,
+			   char* xaxis="", char* yaxis="");
+
+  void WritePI();
+  void AddCut2(char*, int, int, int, float*, float*, int, int, int, float, float, char*, char*);
+
   int ApplyCut(int icut, int icat);
   int ApplyCut(TString cutname, int icat);
 

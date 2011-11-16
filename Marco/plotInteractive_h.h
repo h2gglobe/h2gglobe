@@ -2,9 +2,11 @@
 //============================   Interactive Plotting  ================================
 //=====================================================================================
 
-void myPlotInteractive(mpUtil * mp, TString inputfiles="");
-void myPlotInteractiveSetup(mpUtil * mp, TString inputfiles="", TString anaysistag="");
+void myPlotInteractive(TString inputfiles="");
+void myPlotInteractiveSetup(TString inputfiles="", TString anaysistag="");
+
 void mySetTDRStyle(void);
+
 std::pair<int,int> myGetInput(std::pair<int,int> ivar);
 
 Int_t NFILES;
@@ -22,6 +24,7 @@ THStack *myStack;
 THStack *mySigStack;
 THStack *myDataStack;
 #define MYNINDS 50
+#define MAXINDEXFILES 500
 int omitdefault[MAXINDEXFILES];//MYNINDS
 int omitInd[MAXINDEXFILES];//MYNINDS
 bool omitFile[MAXINDEXFILES];//MYNINDS
