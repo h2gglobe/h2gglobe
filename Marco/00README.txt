@@ -1,7 +1,28 @@
-
 cp Marco/HistoContainer.cc .
 cp Marco/HistoContainer.h .
 
+cp Marco/cuts.dat PhotonAnalysis_scripts/.
+cp Marco/plotvariables.dat PhotonAnalysis_scripts/.
+cp Marco/inputfiles.dat PhotonAnalysis_scripts/.
+
+cp Marco/configProducer.py PhotonAnalysis_scripts/python
+
+uncomment fist line in CommonParameters.h
+
+Then make
+
+Plotinteractive and myprintcountersnew still to be fixed
+
+
+
+
+
+
+at the end:
+
+rm CommonParameters.h HistoContainer.cc HistoContainer.h PhotonAnalysis_scripts/cuts.dat PhotonAnalysis_scripts/plotvariables.dat PhotonAnalysis_scripts/inputfiles.dat PhotonAnalysis_scripts/python/configProducer.py
+
+cvs update -A
 
 
 
