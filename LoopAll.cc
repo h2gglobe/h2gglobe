@@ -980,6 +980,9 @@ void LoopAll::AddCut(char *cutnamesc, int ncatstmp, int ifromright, int ifinalcu
   this_cut->cut.clear();
   this_cut->cutintervall.clear();
   this_cut->cutintervalh.clear();
+#ifdef NewFeatures
+  this_cut->mycutvar=0;
+#endif
   if(LDEBUG) cout<<"this_cut filled  "<<endl;
   for (int j=0; j<ncatstmp; j++) {
     if(ifromright == 2) {
@@ -1045,6 +1048,7 @@ int LoopAll::ApplyCut(int icut, float var, int icat) {
   
   //returns 0 if not initialized
   if(cutContainer[icut].useit==0) return 1;
+  if(cutContainer[icut].ncat<2)icat=0;
   
   if(cutContainer[icut].fromright==2) {
     if(var<cutContainer[icut].cutintervall[icat] || var>cutContainer[icut].cutintervalh[icat]) return 0;
@@ -1065,10 +1069,266 @@ int LoopAll::ApplyCut(std::string cutname, float var, int icat) {
       return ApplyCut(i, var, icat);
     }
   }
-  
+
+  std::cout<<"ApplyCut: attention cutname "<<cutname<<" not found"<<std::endl;
+  return 0;
+}
+
+#ifdef NewFeatures
+
+float LoopAll::GetCutValue(TString cutname, int icat, int highcut) {
+  for (unsigned int i=0; i<cutContainer.size(); i++) {
+    if(cutContainer[i].name == cutname) {
+      if(cutContainer[i].ncat<2) icat=0;
+      if(cutContainer[i].fromright==2){
+        if(highcut){
+          return cutContainer[i].cutintervalh[icat];
+        }else{
+          return cutContainer[i].cutintervall[icat];
+        }
+      }else{
+        return cutContainer[i].cut[icat];
+      }
+    }
+  }
+  std::cout<<"GetCutValue: attention cutname "<<cutname<<" not found"<<std::endl;
+  return 0.;
+}
+
+
+int LoopAll::ApplyCut(int icut, int icat) {
+
+  if(cutContainer[icut].fromright==2) {
+    if(*(cutContainer[icut].mycutvar)<cutContainer[icut].cutintervall[icat] || *(cutContainer[icut].mycutvar)>cutContainer[icut].cutintervalh[icat]) return 0; 
+  }
+  else if (cutContainer[icut].fromright==1) {
+    if(*(cutContainer[icut].mycutvar)>cutContainer[icut].cut[icat]) return 0; 
+  }
+  else if (cutContainer[icut].fromright==0) {
+    if(*(cutContainer[icut].mycutvar)<cutContainer[icut].cut[icat]) return 0; 
+  }
+  return 1;
+}
+
+int LoopAll::ApplyCut(TString cutname, int icat) {
+
+  for (unsigned int i=0; i<cutContainer.size(); i++) {
+    if(cutContainer[i].name == cutname) {
+      return ApplyCut(i, icat);
+    }
+  } 
   //std::cout<<"ApplyCut: attention cutname "<<cutname<<" not found"<<endl;
   return 0;
 }
+
+/*
+int LoopAll::ApplyCut(int icut, float var, int icat) {
+  //returns 0 if not initialized
+  if(cutContainer[icut].useit==0) return 1;
+
+  if(cutContainer[icut].fromright==2) {
+    if(var<cutContainer[icut].cutintervall[icat] || var>cutContainer[icut].cutintervalh[icat]) return 0; 
+  }
+  else if (cutContainer[icut].fromright==1) {
+    if(var>cutContainer[icut].cut[icat]) return 0; 
+  }
+  else if (cutContainer[icut].fromright==0) {
+    if(var<cutContainer[icut].cut[icat]) return 0; 
+  }
+  return 1;
+}
+
+int LoopAll::ApplyCut(TString cutname, float var, int icat) {
+  for (unsigned int i=0; i<cutContainer.size(); i++) {
+    if(cutContainer[i].name==cutname) {
+      return ApplyCut(i, var, icat);
+    }
+  }
+  cout<<"ApplyCut: attention cutname "<<cutname<<" not found"<<endl;
+  return 0;
+}
+*/
+
+int LoopAll::ApplyCut(int icut, int * passcategory) {
+  for (int i=0; i<cutContainer[icut].ncat; i++) {
+    passcategory[i]=ApplyCut(icut, i);
+  }
+  return cutContainer[icut].ncat;
+}
+
+int LoopAll::ApplyCut(TString cutname, int * passcategory) { //returns the number of categories
+  for (unsigned int i=0; i<cutContainer.size(); i++) {
+    if(cutContainer[i].name==cutname) {
+      return ApplyCut(i, passcategory);
+    }
+  }
+  cout<<"ApplyCut: attention cutname "<<cutname<<" not found"<<endl;
+  return 0;
+}
+
+int LoopAll::ApplyCuts(int icat, int cutset, int & ncutsapplied, int & ncutspassed,  int & ncutsfailed) {
+
+  int ncats=0;
+  int passcuts=1;
+  for (unsigned int i=0; i<cutContainer.size(); i++) {
+    if(cutContainer[i].finalcut==cutset) {
+      if(cutContainer[i].useit) {
+
+	if(cutContainer[i].ncat>1) {
+	  if(ncats==0) ncats=cutContainer[i].ncat;
+	  if(cutContainer[i].ncat!=ncats) {
+	    cout<<"ApplyCuts: attention inconsistent number of categories for cutset "<<cutset<<endl;
+	    return 0;
+	  }
+	}
+	ncutsapplied++;
+	int icatuse=icat;
+	if(cutContainer[i].ncat<=1) {
+	  icatuse=0;
+	}
+	if(ApplyCut(i,icatuse)) {
+	  ncutspassed++;
+	}
+	else {
+	  ncutsfailed++;
+	  passcuts=0;
+	}
+      }
+    }
+  }
+  return passcuts;
+}
+
+int LoopAll::ApplyCutsFill(int icat, int cutset, int & ncutsapplied, int & ncutspassed,  int & ncutsfailed) {
+
+  int ntmpcuts=0;
+  int tmppasscut[100];
+  int indexcut[100];
+  for(int i=0; i<100; i++) {
+    tmppasscut[i]=0;
+  }
+
+  int ncats=0;
+  int passcuts=1;
+  for (unsigned int i=0; i<cutContainer.size(); i++) {
+    if(cutContainer[i].finalcut==cutset) {
+      if(cutContainer[i].useit) {
+
+	if(cutContainer[i].ncat>1) {
+	  if(ncats==0) ncats=cutContainer[i].ncat;
+	  if(cutContainer[i].ncat!=ncats) {
+	    cout<<"ApplyCuts: attention inconsistent number of categories for cutset "<<cutset<<endl;
+	    return 0;
+	  }
+	}
+	
+	ncutsapplied++;
+	
+	int icatuse=icat;
+	if(cutContainer[i].ncat<=1) {
+	  icatuse=0;
+	}
+	if(ApplyCut(i,icatuse)) {
+	  ncutspassed++;
+	  tmppasscut[ntmpcuts]=1;
+	}
+	else {
+	  ncutsfailed++;
+	  passcuts=0;
+	}
+	indexcut[ntmpcuts]=i;
+	ntmpcuts++;
+      }
+    }
+  }
+
+  //n-1 cut histograms
+  if(ncutsfailed==1||ncutsfailed==0) {
+    for(int i=0; i<ntmpcuts; i++) {
+      if(ncutsfailed==0||tmppasscut[i]==0) {
+	FillHist(cutContainer[indexcut[i]].name+"_nminus1", icat, *(cutContainer[indexcut[i]].mycutvar));
+	FillCounter(cutContainer[indexcut[i]].name+"_nminus1", icat);
+      }
+    } 
+  }
+
+  for(int i=0; i<ntmpcuts; i++) {
+    FillHist(cutContainer[indexcut[i]].name+"_sequential", icat, *(cutContainer[indexcut[i]].mycutvar));
+    FillCounter(cutContainer[indexcut[i]].name+"_sequential", icat);
+    if(tmppasscut[i]==0) break;
+  }
+
+  //remember to divide by the first for efficiencies
+
+  return passcuts;
+}
+
+int LoopAll::ApplyCuts(int icat, int cutset) {
+  int ncutsapplied=0;
+  int ncutspassed=0;
+  int ncutsfailed=0;
+  return ApplyCuts(icat, cutset, ncutsapplied, ncutspassed, ncutsfailed);
+}
+
+int LoopAll::ApplyCutsFill(int icat, int cutset) {
+  int ncutsapplied=0;
+  int ncutspassed=0;
+  int ncutsfailed=0;
+  return ApplyCutsFill(icat, cutset, ncutsapplied, ncutspassed, ncutsfailed);
+}
+
+//DON'T USE THE FOLLOWING ONE, IT MAY BE CONFUSING
+int LoopAll::ApplyCuts(int cutset, int * passcategory, int * ncutsapplied, int * ncutspassed,  int * ncutsfailed) { //returns the number of categories
+
+  int ncats=0;
+
+  for (unsigned int i=0; i<cutContainer.size(); i++) {
+    if(cutContainer[i].finalcut==cutset) {
+      if(cutContainer[i].useit) {
+	if(cutContainer[i].ncat>1) {
+	  if(ncats==0) ncats=cutContainer[i].ncat;
+	  if(cutContainer[i].ncat!=ncats) {
+	    cout<<"ApplyCut: attention inconsistent number of categories for cutset "<<cutset<<endl;
+	    return 0;
+	  }
+        }
+      }
+    }
+  }
+
+  for (int j=0; j<ncats; j++) {
+    ApplyCuts(j, cutset, ncutsapplied[j], ncutspassed[j],  ncutsfailed[j]);
+  }
+
+  return ncats;
+}
+
+//DON'T USE THE FOLLOWING ONE, IT MAY BE CONFUSING
+int LoopAll::ApplyCuts(int cutset, int * passcategory) { //returns the number of categories
+  int ncutsapplied[100];
+  int ncutspassed[100];  
+  int ncutsfailed[100];
+  return ApplyCuts(cutset, passcategory,ncutsapplied, ncutspassed,ncutsfailed);
+}
+
+
+int LoopAll::SetCutVariables(int i, float * variables) {
+  cutContainer[i].mycutvar=variables;
+  //cout<<"TEST CUT "<<i<<" "<<cutContainer[i].name<<" "<<*(cutContainer[i].mycutvar)<<endl;
+}
+
+int LoopAll::SetCutVariables(TString cutname, float * variables) {
+  for (unsigned int i=0; i<cutContainer.size(); i++) {
+    if(cutContainer[i].name==cutname) {
+      return SetCutVariables(i,variables);
+    }
+  }
+  cout<<"SetCutVariables: attention cutname "<<cutname<<" not found"<<endl;
+  return 0;
+}
+
+#endif
+
  
 // ------------------------------------------------------------------------------------
 void LoopAll::FillHist(std::string name, float y) {

@@ -33,8 +33,12 @@ class BaseAnalysis;
 
 class LoopAll {
  public :
-  TTree          *fChain;   
-  
+  TTree          *fChain;
+#ifdef NewFeatures   
+  TTree * plotvartree;
+  TTree * inputfiletree;
+#endif
+
 #include "branchdef/branchdef.h"
 #include "branchdef/treedef.h"
 #include "branchdef/setbranchaddress.h"
@@ -153,7 +157,35 @@ class LoopAll {
 
   int ApplyCut(int, float, int);
   int ApplyCut(std::string, float, int);
+
+#ifdef NewFeatures
+  int ApplyCut(int icut, int icat);
+  int ApplyCut(TString cutname, int icat);
+
+  float GetCutValue(TString cutname, int icat, int highcut=0);
+
+  //int ApplyCut(int icut, float var, int icat);
+  //int ApplyCut(TString cutname, float var, int icat);
+
+  //DON'T USE THE FOLLOWING ONE, IT MAY BE CONFUSING
+  int ApplyCut(int icut, int * passcategory); //returns the number of categories
+  //DON'T USE THE FOLLOWING ONE, IT MAY BE CONFUSING
+  int ApplyCut(TString cutname, int * passcategory); //returns the number of categories
   
+  int ApplyCutsFill(int icat, int cutset, int & ncutsapplied, int & ncutspassed,  int & ncutsfailed);
+  int ApplyCuts(int icat, int cutset, int & ncutsapplied, int & ncutspassed,  int & ncutsfailed);
+  int ApplyCutsFill(int icat, int cutset);
+  int ApplyCuts(int icat, int cutset);
+  
+  //DON'T USE THE FOLLOWING ONE, IT MAY BE CONFUSING
+  int ApplyCuts(int cutset, int * passcategory, int * ncutsapplied, int * ncutspassed,  int * ncutsfailed); //returns the number of categories
+  //DON'T USE THE FOLLOWING ONE, IT MAY BE CONFUSING
+  int ApplyCuts(int cutset, int * passcategory); //returns the number of categories
+  
+  int SetCutVariables(int i, float * variables);
+  int SetCutVariables(TString cutname, float * variables);  
+#endif
+
   void FillHist(std::string, float);
   void FillHist2D(std::string, float, float);
 
