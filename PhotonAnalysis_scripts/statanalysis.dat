@@ -12,7 +12,11 @@ nR9Categories=2
 nPtCategories=1
 
 doTriggerSelection=1
-reRunCiC=0
+->
+Currently CiC will always be re-run as hardcoded in PhotonAnalysis
+This is necessary for R9 Scaling and MC Energy Smearing 
+->
+reRunCiC=1
 
 ->
 Turn on-off all smearings 
