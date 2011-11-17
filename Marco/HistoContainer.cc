@@ -41,17 +41,15 @@ std::string HistoContainer::ModifiedName(char* name, int i) {
 void HistoContainer::Add(char* name, char* xaxis, char* yaxis, int categories,int bins, float xmin, float xmax) {
 
   std::vector<TH1F> temp;
-  std::cout <<  name << " " << size() << std::endl;
   for (int i=0; i<categories; i++) {
     std::string modName = ModifiedName(name, i);
     TH1F histo_temp(modName.c_str(), modName.c_str(), bins, xmin, xmax);
-    histo_temp.GetXaxis()->SetName(xaxis);
-    histo_temp.GetYaxis()->SetName(yaxis);
+    histo_temp.GetXaxis()->SetTitle(xaxis);
+    histo_temp.GetYaxis()->SetTitle(yaxis);
     temp.push_back(histo_temp);
     //temp.push_back(TH1F(modName.c_str(), modName.c_str(), bins, xmin, xmax));
   }
   names.push_back(name);
-  std::cout << names.size() << std::endl;
   h1[std::string(name)] = temp;
 }
 
@@ -63,8 +61,8 @@ void HistoContainer::Add(char* name, char* xaxis, char* yaxis, int categories, i
   for (int i=0; i<categories; i++) {
     std::string modName = ModifiedName(name, i); 
     TH2F histo_temp(modName.c_str(), modName.c_str(), binsx, xmin, xmax, binsy, ymin, ymax);
-    histo_temp.GetXaxis()->SetName(xaxis);
-    histo_temp.GetYaxis()->SetName(yaxis);
+    histo_temp.GetXaxis()->SetTitle(xaxis);
+    histo_temp.GetYaxis()->SetTitle(yaxis);
     temp.push_back(histo_temp);
     //temp.push_back(TH2F(modName.c_str(), modName.c_str(), binsx, xmin, xmax, binsy, ymin, ymax));
   }
@@ -80,8 +78,8 @@ void HistoContainer::Add(char* name, char* xaxis, char* yaxis, int categories, i
   for (int i=0; i<categories; i++) {
     std::string modName = ModifiedName(name, i);
     TProfile histo_temp(modName.c_str(), modName.c_str(), binsx, xmin, xmax, ymin, ymax);
-    histo_temp.GetXaxis()->SetName(xaxis);
-    histo_temp.GetYaxis()->SetName(yaxis);
+    histo_temp.GetXaxis()->SetTitle(xaxis);
+    histo_temp.GetYaxis()->SetTitle(yaxis);
     temp.push_back(histo_temp);
     //temp.push_back(TProfile(modName.c_str(), modName.c_str(), binsx, xmin, xmax, ymin, ymax));
   }
@@ -186,7 +184,7 @@ int HistoContainer::nbins(int n, bool isX) {
     if (isX)
       return (it->second)[0].GetNbinsX();
     else
-      return (it->second)[0].GetNbinsY();
+      return -1;
   }
   
   std::map<std::string, std::vector<TH2F> >::iterator it2 = h2.find(names[n]);
@@ -202,7 +200,7 @@ int HistoContainer::nbins(int n, bool isX) {
     if (isX)
       return (itp->second)[0].GetNbinsX();
     else
-      return (itp->second)[0].GetNbinsY();
+      return -1;
   }
 
   return -1;

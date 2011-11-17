@@ -1318,7 +1318,7 @@ void LoopAll::myPlotInteractiveSetup(TString hsmallname, TString tag) {
   cout<<" entring myPlotInteractiveSetup "<<hsmallname<<"  "<<tag<<endl;
   TFile *file1;
   cout<<"open file"<<endl;
-    /*
+    
   if(hsmallname!="") {
     if(MPDEBUG)std::cout << "PlotInteractive DEBUG 01 " << std::endl;
     file1 = TFile::Open(hsmallname);
@@ -1464,7 +1464,10 @@ void LoopAll::myPlotInteractiveSetup(TString hsmallname, TString tag) {
     histfilename = ((TObjString*)tca_histfilename->At(0))->GetString();
     for(Int_t ifile=0;ifile!=nfiles;ifile++) {
       inshortnames[ifile] = ((TObjString*)tca_inshortnames->At(ifile))->GetString();
-      infilenames[ifile] = ((TObjmpUtil * mp, String*)tca_infilenames->At(ifile))->GetString();
+
+      //MARCO??? FIXME???
+      //infilenames[ifile] = ((TObjmpUtil * mp, String*)tca_infilenames->At(ifile))->GetString();
+      infilenames[ifile] = ((TObjString*)tca_infilenames->At(ifile))->GetString();
     }
     cout<<"done fillingfile"<<endl;
 
@@ -1541,6 +1544,7 @@ void LoopAll::myPlotInteractiveSetup(TString hsmallname, TString tag) {
     if(MPDEBUG)std::cout << "NFILES: " << nfiles << std::endl;
     if(MPDEBUG)std::cout << "NIND: " << nindfiles << std::endl;
     for(Int_t iFile=0;iFile!=NFILES;++iFile) {
+      /*
       if(MPDEBUG) std::cout << "iFile: " << iFile << 
         "\titype: " << itype[iFile] << 
         //"\tmp itype: " << mp->itype[iFile] << 
@@ -1553,6 +1557,7 @@ void LoopAll::myPlotInteractiveSetup(TString hsmallname, TString tag) {
         "\tshortname: " << inshortnames[iFile] << 
         //"\tmp shortname: " << mp->filesshortnam[iFile] <<
         std::endl;
+      */
     }
     //}
     if(MPDEBUG)std::cout << "PlotInteractive DEBUG 06 " << std::endl;
@@ -1685,7 +1690,7 @@ void LoopAll::myPlotInteractiveSetup(TString hsmallname, TString tag) {
     }
   }
 
-    */
+    
     if(MPDEBUG)std::cout << "PlotInteractive DEBUG 13 " << std::endl;
 }
 

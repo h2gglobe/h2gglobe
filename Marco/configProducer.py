@@ -63,8 +63,8 @@ class configProducer:
     if self.type_ == 0 or self.type_ == 2:
       self.init_loop()
       self.init_counters()
-      self.init_cuts()
       self.init_histos()
+      self.init_cuts()
 
     elif self.type_ == 1:
       self.init_reduce()

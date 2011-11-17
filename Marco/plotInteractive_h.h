@@ -106,6 +106,113 @@ TString allext;
 TString num_to_string(int myint);
 
 
+//Should be in other
+
+
+TString varnames[MAXVAR];
+const char * varnamesc[MAXVAR];
+char * varnamescread[MAXVAR];
+char * xaxislabel[MAXVAR];
+char * yaxislabel[MAXVAR];
+Float_t highlim[MAXVAR];
+Float_t lowlim[MAXVAR];
+Float_t *varlinks[MAXVAR];
+Int_t doplot[MAXVAR];
+Int_t h2d[MAXVAR];
+Int_t nbinsx[MAXVAR];
+Int_t nbinsy[MAXVAR];
+Float_t highlim2[MAXVAR];
+Float_t lowlim2[MAXVAR];
+Int_t cutindex[MAXVAR];
+Int_t Nvar;
+Int_t Ncatvar;
+
+Int_t typplotall;
+Int_t typplot[MAXVAR];
+Int_t histoncat[MAXVAR];
+
+Int_t histoncatindtonames[MAXVAR];
+
+TClonesArray * tca_xaxislabels;
+TClonesArray * tca_yaxislabels;
+TClonesArray * tca_plotvarnames;
+TClonesArray * tca_plotvarcatnames;
+TClonesArray * tca_histfilename;
+TClonesArray * tca_inshortnames;
+TClonesArray * tca_infilenames;
+
+Int_t Nvarcats;
+Int_t catid[MAXVAR];
+Int_t ncats[MAXVAR];
+char * catnames[MAXVAR][MAXCAT];
+
+
+TTree* plotvariables;
+TTree* inputfiles;
+
+  TString plotvarnames[1000];
+  TString xaxislabels[1000];
+  TString yaxislabels[1000];
+  TString plotvarcatnames[40][50];
+
+  TBranch * b_Nvar;
+  TBranch * b_typplotall;
+  TBranch * b_doplot;
+  TBranch * b_h2d;
+  TBranch * b_typplot;
+  TBranch * b_histoncat;
+  TBranch * b_histoncatindtonames;
+  TBranch * b_nbinsx;
+  TBranch * b_nbinsy;
+  TBranch * b_lowlim;
+  TBranch * b_highlim;
+  TBranch * b_lowlim2;
+  TBranch * b_highlim2;
+  TBranch * b_xaxislabels;
+  TBranch * b_yaxislabels;
+  TBranch * b_plotvarnames;
+  TBranch * b_plotvarcatnames;
+  TBranch * b_Nvarcats;
+  TBranch * b_catid;
+  TBranch * b_ncats;
+
+//Int_t nfiles;
+  Int_t nindfiles;
+//Float_t intlumi;
+  TString  histfilename;
+//Int_t itype[MAXFILES];
+  Int_t histoind[MAXFILES];
+  Int_t infoind[MAXFILES];
+  Int_t histoplotit[MAXFILES];
+  Int_t ntot[MAXFILES];
+  Int_t nred[MAXFILES];
+  Float_t lumi[MAXFILES];
+  Float_t xsec[MAXFILES];
+  Float_t kfactor[MAXFILES];
+  Float_t scale[MAXFILES];
+  TString  inshortnames[MAXFILES];
+  TString  infilenames[MAXFILES];
+
+  TBranch * b_nfiles;
+  TBranch * b_nindfiles;
+  TBranch * b_intlumi;
+  TBranch * b_makeOutputTree;
+  TBranch * b_histfilename;
+  TBranch * b_itype;
+  TBranch * b_histoind;
+  TBranch * b_infoind;
+  TBranch * b_histoplotit;
+  TBranch * b_ntot;
+  TBranch * b_nred;
+  TBranch * b_lumi;
+  TBranch * b_xsec;
+  TBranch * b_kfactor;
+  TBranch * b_scale;
+  TBranch * b_inshortnames;
+  TBranch * b_infilenames;
+
+
+
 //=====================================================================================
 //==========================  End Interactive Plotting  ===============================
 //=====================================================================================
