@@ -674,7 +674,7 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
 	sumaccept += weight;
  	sumsmear += evweight;
 
-  if(VBFevent) category=nEtaCategories*nR9Categories*nPtCategories+1;
+  if(VBFevent) category=nEtaCategories*nR9Categories*nPtCategories;
 
 
 
