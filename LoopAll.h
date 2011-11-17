@@ -67,9 +67,10 @@ class LoopAll {
   virtual void   Show(Long64_t entry = -1);
   virtual void   InitHistos();
 #ifndef NewFeatures
-  virtual void   BookHisto(int,int,int,int,int,int,
-                           float,float,float,float,char*);
+  virtual void   BookHisto(int, int, int, int, int, int,
+                           float, float, float, float, char*);
 #endif
+
   void LoopAndFillHistos(TString treename="event");
   void MergeContainers();
   //void WriteHist();  
@@ -161,7 +162,14 @@ class LoopAll {
   //void BookHistos();
   void AddCut(char*,int,int,int,float*,float*);
   void InitCounters();
+
+#ifndef 
   void AddCounter(int,char*,char*,char*,char*);
+#endif
+
+#ifdef 
+  void AddCounter(int, const char*, const char*, const char*, const char*);
+#endif
 
   int ApplyCut(int, float, int);
   int ApplyCut(std::string, float, int);
@@ -170,9 +178,10 @@ class LoopAll {
   void myPrintCounters();
   void myPrintCountersNew();
 
- virtual void   BookHisto(int,int,int,int,int,int,
-                           float,float,float,float,char*,
-			   char* xaxis="", char* yaxis="");
+  virtual void   BookHisto(int, int, int, int, int, int,
+                           float, float, float, float, const char*,
+			   const char* xaxis="", const char* yaxis="");
+ 
 
   void WritePI();
   void AddCut2(char*, int, int, int, float*, float*, int, int, int, float, float, char*, char*);
