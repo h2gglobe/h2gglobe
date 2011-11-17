@@ -56,7 +56,7 @@ cp Marco/Makefile .
 
 uncomment the second to last line in CommonParameters.h
 
-Modify in PhotonAnalysis/src/PhotonAnalysis.cc the line similar into:
+Modify in PhotonAnalysis/interface/PhotonAnalysis.h the line similar into:
 #include "../../../../HiggsToGammaGamma/interface/GBRForest.h"
 
 Then make

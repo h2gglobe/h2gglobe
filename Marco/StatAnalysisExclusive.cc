@@ -117,9 +117,9 @@ void StatAnalysisExclusive::Init(LoopAll& l)
     l.SetCutVariables("cut_VBFLeadJPt",       &myVBFLeadJPt);
     l.SetCutVariables("cut_VBFSubJPt",        &myVBFSubJPt);
     l.SetCutVariables("cut_VBF_Mjj",          &myVBF_Mjj);
-    l.SetCutVariables("cut_VBFdEtaMin",       &myVBFdEtaMin);
-    l.SetCutVariables("cut_VBFZepMax",        &myVBFZepMax);
-    l.SetCutVariables("cut_VBFdPhiMin",       &myVBFdPhiMin);
+    l.SetCutVariables("cut_VBFdEta",       &myVBFdEta);
+    l.SetCutVariables("cut_VBFZep",        &myVBFZep);
+    l.SetCutVariables("cut_VBFdPhi",       &myVBFdPhi);
     l.SetCutVariables("cut_VBF_Mgg",          &myVBF_Mgg);
     l.SetCutVariables("cut_VBF_Mgg10",        &myVBF_Mgg);
 
@@ -615,9 +615,9 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
           myVBFLeadJPt = jet1->Pt();
           myVBFSubJPt = jet2->Pt();
           myVBF_Mjj = dijet.M();
-          myVBFdEtaMin = fabs(jet1->Eta() - jet2->Eta());
-          myVBFZepMax  = fabs(diphoton.Eta() - 0.5*(jet1->Eta() + jet2->Eta()));
-          myVBFdPhiMin = diphoton.DeltaPhi(dijet);
+          myVBFdEta = fabs(jet1->Eta() - jet2->Eta());
+          myVBFZep  = fabs(diphoton.Eta() - 0.5*(jet1->Eta() + jet2->Eta()));
+          myVBFdPhi = diphoton.DeltaPhi(dijet);
           myVBF_Mgg =diphoton.M();
 
           VBFevent = l.ApplyCutsFill(0,1);

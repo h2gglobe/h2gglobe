@@ -59,9 +59,9 @@ public:
   // for N-1
   float  myVBFLeadJPt;
   float  myVBFSubJPt;
-  float  myVBFdEtaMin;
-  float  myVBFZepMax;
-  float  myVBFdPhiMin;
+  float  myVBFdEta;
+  float  myVBFZep;
+  float  myVBFdPhi;
   float  myVBF_Mjj;
   float  myVBF_Mgg;
 
