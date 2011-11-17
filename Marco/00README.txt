@@ -33,6 +33,9 @@ cvs co -d HiggsAnalysis/HiggsTo2photons/h2gglobe UserCode/HiggsAnalysis/HiggsTo2
 cp Marco/HistoContainer.cc .
 cp Marco/HistoContainer.h .
 
+cp Marco/CounterContainer.cc .
+cp Marco/CounterContainer.h .
+
 cp Marco/cuts.dat PhotonAnalysis_scripts/.
 cp Marco/plotvariables.dat PhotonAnalysis_scripts/.
 cp Marco/inputfiles.dat PhotonAnalysis_scripts/.
@@ -61,8 +64,11 @@ Modify in PhotonAnalysis/interface/PhotonAnalysis.h the line similar into:
 
 Then make
 
+make clean; make -j 30
 
-python fitter.py -i datafiles_5fb.dat
+cd PhotonAnalysis_scripts/.
+python fitter.py -i datafiles_5fb.dat --dryRun
+python fitter.py -i datafiles_5fb.dat 
 
 Plotinteractive and myprintcountersnew are still to be fixed
 
@@ -70,6 +76,7 @@ When finished if you want co commit everything:
 
 rm CommonParameters.h HistoContainer.cc HistoContainer.h PhotonAnalysis_scripts/cuts.dat PhotonAnalysis_scripts/plotvariables.dat PhotonAnalysis_scripts/inputfiles.dat PhotonAnalysis_scripts/python/configProducer.py  PhotonAnalysis/src/PhotonAnalysis.cc PhotonAnalysis_scripts/looper.py PhotonAnalysis_scripts/looper_input.dat PhotonAnalysis_scripts/photonanalysis.dat PhotonAnalysis/src/PhotonAnalysis.cc PhotonAnalysis_scripts/reduction_output.dat PhotonAnalysis_scripts/datafiles_5fb.dat PhotonAnalysis_scripts/statanalysis.dat
 rm PhotonAnalysis/interface/StatAnalysisExclusive.h PhotonAnalysis/src/StatAnalysisExclusive.cc Makefile PhotonAnalysis_scripts/statanalysisexclusive.dat PhotonAnalysis_scripts/fitter.py
+rm CounterContainer.cc CounterContainer.h
 
 cvs update -A
 

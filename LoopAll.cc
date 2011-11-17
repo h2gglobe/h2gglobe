@@ -700,7 +700,6 @@ void LoopAll::WriteHist() {
   outputTreeLumi->Write();
 
 #ifdef NewFeatures
-  WriteCounters();
   WritePI();
 #endif
 
@@ -709,6 +708,9 @@ void LoopAll::WriteHist() {
   if (makeOutputTree) 
     outputFile->cd();
 
+#ifdef NewFeatures
+  WriteCounters();
+#endif
 }
 
 #ifdef NewFeatures
@@ -799,7 +801,8 @@ void LoopAll::WritePI() {
   plotvartree->Write(0,TObject::kWriteDelete);
   inputfiletree = new TTree("inputfiles","globe inputfiles provenance information");
   int nfiles = files.size();
-  int nindfiles = type2HistVal.size();
+  //int nindfiles = type2HistVal.size();
+  int nindfiles = sampleContainer.size();
   inputfiletree->Branch("nfiles", &nfiles, "nfiles/I");
   inputfiletree->Branch("nindfiles", &nindfiles, "nindfiles/I");
   inputfiletree->Branch("intlumi", &intlumi_, "intlumi/F");
@@ -864,10 +867,19 @@ void LoopAll::WriteCounters() {
   for (Int_t var=0; var<counterContainer[0].mapSize(); var++) {
     fprintf(file, "Counter %s\n", counterContainer[0].name(var).c_str());
     for (Int_t c=0; c<counterContainer.size(); c++) {
-      //FIXME prepend sample name
+     fprintf(file, "%s ", sampleContainer[c].filesshortnam.c_str());
       for (Int_t cat=0; cat<counterContainer[c].ncat(var); cat++)
-	fprintf(file, "%d ", counterContainer[c][var][cat]);
-
+	fprintf(file, "%f, ", counterContainer[c][var][cat]);
+      
+      for (Int_t j=0; j<3; j++) {
+	for (Int_t cat=0; cat<counterContainer[c].ncat(var); cat++)
+	  fprintf(file, "%f, ", counterContainer[c].efficiency(var, cat, j));
+      }
+      
+      float weight = sampleContainer[c].weight;
+      for (Int_t cat=0; cat<counterContainer[c].ncat(var); cat++)
+	fprintf(file, "%f, ", counterContainer[c][var][cat]*weight);
+      
       fprintf(file, "\n");
     }
   }
@@ -1157,15 +1169,15 @@ void LoopAll::BookHisto(int h2d,
 			float highlim,
 			float lowlim2,
 			float highlim2,
-			char *name,
-			char *xaxis, 
-			char* yaxis) {
+			const char *name,
+			const char *xaxis, 
+			const char* yaxis) {
 
   for(unsigned int ind=0; ind<histoContainer.size(); ind++) {
     if (nbinsy == 0)
-      histoContainer[ind].Add(name, xaxis, yaxis, histoncat, nbinsx, lowlim, highlim);
+      histoContainer[ind].Add(const_cast<char*>(name), const_cast<char*>(xaxis), const_cast<char*>(yaxis), histoncat, nbinsx, lowlim, highlim);
     if (nbinsy != 0)
-      histoContainer[ind].Add(name, xaxis, yaxis, histoncat, nbinsx, lowlim, highlim, nbinsy, lowlim2, highlim2);
+      histoContainer[ind].Add(const_cast<char*>(name), const_cast<char*>(xaxis), const_cast<char*>(yaxis), histoncat, nbinsx, lowlim, highlim, nbinsy, lowlim2, highlim2);
   }
 }
 #endif
@@ -1211,6 +1223,7 @@ void LoopAll::InitCounters(){
   if(LDEBUG) cout<<"InitCounts END"<<endl;
 }
 
+#ifndef NewFeatures
 // ------------------------------------------------------------------------------------
 void LoopAll::AddCounter(int countersncat,
 			 char *countername,
@@ -1244,6 +1257,46 @@ void LoopAll::AddCounter(int countersncat,
     if(LDEBUG) cout<<"added to "<<ind<<" sampleContainer"<< endl; 
   }
 }
+#endif
+
+#ifdef NewFeatures
+
+void LoopAll::AddCounter(int countersncat,
+			 const char *countername,
+			 const char *denomname0,
+			 const char *denomname1,
+			 const char *denomname2) {
+
+  std::string* counternames_str = new std::string(countername);
+  if(LDEBUG) cout<<" counternames_str"<<counternames_str<< endl; 
+
+  if(LDEBUG) cout<<" *counternames_str"<<*counternames_str<< endl; 
+  
+  std::string* denomname0_str = new std::string(denomname0);
+  if(LDEBUG) cout<<" denomname0_str"<<denomname0_str<< endl; 
+  
+
+  std::string* denomname1_str =new std::string(denomname1);
+
+  if(LDEBUG) cout<<" denomname1_str"<<denomname1_str<< endl; 
+  
+  std::string* denomname2_str = new std::string(denomname2);
+  if(LDEBUG) cout<<" denomname2_str"<<denomname2_str<< endl; 
+
+  for(unsigned int ind=0; ind<sampleContainer.size(); ind++) {
+    if(LDEBUG) cout<<"adding to "<<ind<<" sampleContainer"<< endl; 
+    counterContainer[ind].Add(*counternames_str
+    			      ,countersncat
+    			      ,*denomname0_str
+    			      ,*denomname1_str
+    			      ,*denomname2_str);
+
+    if(LDEBUG) cout<<"added to "<<ind<<" sampleContainer"<< endl; 
+  }
+}
+
+#endif
+
 
  
 // ------------------------------------------------------------------------------------
@@ -2196,7 +2249,6 @@ void LoopAll::AddCut2(char *cutnamesc, int ncatstmp, int ifromright, int ifinalc
 
   AddCut(cutnamesc, ncatstmp, ifromright, ifinalcut, cutValuel, cutValueh);
 
-  // FIXME counter denominator 
   char a[100];
   sprintf(a, "%s_nminus1", cutnamesc);
   BookHisto(0, 0, 0, ncatstmp, bins, 0, xmin, xmax, 0., 0., a, xaxis, yaxis);

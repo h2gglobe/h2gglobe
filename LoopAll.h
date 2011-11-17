@@ -163,11 +163,11 @@ class LoopAll {
   void AddCut(char*,int,int,int,float*,float*);
   void InitCounters();
 
-#ifndef 
+#ifndef NewFeatures
   void AddCounter(int,char*,char*,char*,char*);
 #endif
 
-#ifdef 
+#ifdef NewFeatures
   void AddCounter(int, const char*, const char*, const char*, const char*);
 #endif
 
