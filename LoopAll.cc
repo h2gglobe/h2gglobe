@@ -1133,11 +1133,14 @@ void LoopAll::BookHisto(int h2d,
 			float highlim2,
 			char *name) {
 
+  char* xaxis = NULL;
+  char* yaxis = NULL;
+
   for(unsigned int ind=0; ind<histoContainer.size(); ind++) {
     if (nbinsy == 0)
-      histoContainer[ind].Add(name, histoncat, nbinsx, lowlim, highlim);
+      histoContainer[ind].Add(name, xaxis, yaxis, histoncat, nbinsx, lowlim, highlim);
     if (nbinsy != 0)
-      histoContainer[ind].Add(name, histoncat, nbinsx, lowlim, highlim, nbinsy, lowlim2, highlim2);
+      histoContainer[ind].Add(name, xaxis, yaxis, histoncat, nbinsx, lowlim, highlim, nbinsy, lowlim2, highlim2);
   }
 }
 #endif
