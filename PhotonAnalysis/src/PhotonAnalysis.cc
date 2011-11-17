@@ -196,7 +196,18 @@ void PhotonAnalysis::Init(LoopAll& l)
 	triggerSelections.back().addpath("HLT_Photon20_R9Id_Photon18_R9Id_v");
 
         // /cdaq/physics/Run2011/1e33/v2.3/HLT/V1
-	triggerSelections.push_back(TriggerSelection(165970,173198));
+	triggerSelections.push_back(TriggerSelection(165970,166967));
+	triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v");
+	triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_R9Id_v");
+	triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_CaloIdL_IsoVL_v");
+	triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_R9Id_v");
+	triggerSelections.back().addpath("HLT_Photon36_CaloIdL_IsoVL_Photon22_CaloIdL_IsoVL_v");
+	triggerSelections.back().addpath("HLT_Photon36_CaloId_IsoVL_Photon22_R9Id_v");
+	triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_CaloIdL_IsoVL_v");
+	triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_R9Id_v");
+
+        // /cdaq/physics/Run2011/1e33/v2.3/HLT/V1
+	triggerSelections.push_back(TriggerSelection(167039,173198));
 	triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v");
 	triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_R9Id_v");
 	triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_CaloIdL_IsoVL_v");
@@ -205,7 +216,29 @@ void PhotonAnalysis::Init(LoopAll& l)
 	triggerSelections.back().addpath("HLT_Photon36_CaloIdL_IsoVL_Photon22_R9Id_v");
 	triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_CaloIdL_IsoVL_v");
 	triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_R9Id_v");
-	
+
+        // /cdaq/physics/Run2011/1e33/v2.3/HLT/V1
+	triggerSelections.push_back(TriggerSelection(165970,166967));
+	triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v");
+	triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_R9Id_v");
+	triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_CaloIdL_IsoVL_v");
+	triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_R9Id_v");
+	triggerSelections.back().addpath("HLT_Photon36_CaloIdL_IsoVL_Photon22_CaloIdL_IsoVL_v");
+	triggerSelections.back().addpath("HLT_Photon36_CaloId_IsoVL_Photon22_R9Id_v");
+	triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_CaloIdL_IsoVL_v");
+	triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_R9Id_v");
+
+        // /cdaq/physics/Run2011/1e33/v2.3/HLT/V3
+	triggerSelections.push_back(TriggerSelection(167039,173198));
+	triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v");
+	triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_R9Id_v");
+	triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_CaloIdL_IsoVL_v");
+	triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_R9Id_v");
+	triggerSelections.back().addpath("HLT_Photon36_CaloIdL_IsoVL_Photon22_CaloIdL_IsoVL_v");
+	triggerSelections.back().addpath("HLT_Photon36_CaloIdL_IsoVL_Photon22_R9Id_v");
+	triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_CaloIdL_IsoVL_v");
+	triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_R9Id_v");
+
         // /cdaq/physics/Run2011/3e33/v1.1/HLT/V1
 	triggerSelections.push_back(TriggerSelection(173236,178380));
 	triggerSelections.back().addpath("HLT_Photon26_CaloIdXL_IsoXL_Photon18_CaloIdXL_IsoXL_v");
