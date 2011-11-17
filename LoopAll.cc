@@ -854,7 +854,9 @@ void LoopAll::WriteCounters() {
   // number of files
   int nindfiles=currentindexfiles;
   
-  TString msName = histFileName.ReplaceAll(".root", 5, ".csv", 4);
+  TString msName = histFileName;
+  msName.ReplaceAll(".root", ".csv");
+
   FILE *file;
   TString s1 = msName;
   file = fopen(s1, "w");
@@ -900,7 +902,9 @@ void LoopAll::WriteCounters() {
   if (counterContainer.size() < 1)
     return;
 
-  TString msName = histFileName.ReplaceAll(".root", 5, ".csv", 4);
+  TString msName = histFileName;
+  msName.ReplaceAll(".root", ".csv");
+
   FILE *file;
   TString s2 = msName;/// +".csv";
   file = fopen(s2, "w");
@@ -1604,7 +1608,9 @@ void LoopAll::myPrintCounters() {
   // number of files
   int nindfiles=mp->nindfiles;
   
-  TString msName = mpUtilInstance->histFileName.ReplaceAll(".root", 5, ".csv", 4);
+  TString msName = histFileName;
+  msName.ReplaceAll(".root", ".csv");
+
   cout<<"Print the counters for intL: "<<mp->intlumi<<endl;
 
   // first oocalc file ("all in a row")
