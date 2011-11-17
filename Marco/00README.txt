@@ -4,13 +4,17 @@
 # FOR LOOPINTERACTIVE:
 
 root -l
-//.L matteo/tdrstyle.C
-//setTDRStyle();
+.L Marco/tdrstyle.C
+setTDRStyle();
   gSystem->Load("libPhysics.so");
   gSystem->Load("libCore.so");
   //gSystem->Load("VertexAnalysis/lib/libh2gglobeVertexAnalysis.so");
 gSystem->Load("libLoopAll.so");
 LoopAll* m=new LoopAll();
+m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_CMS-HGG_4686_nov17_tryExcl.root","Hgg");
+m->myPlotInteractive("PhotonAnalysis_scripts/histograms_CMS-HGG_4686_nov17_tryExcl.root");
+
+
 m->myPlotInteractiveSetup("Marco/histograms_CMS-HGG_4686_nov17_tryExcl.root","Hgg");
 m->myPlotInteractive("Marco/histograms_CMS-HGG_4686_nov17_tryExcl.root");
 

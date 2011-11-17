@@ -2,7 +2,7 @@
 //==============================  Interactive Plotting  ===============================
 //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
-#define MPDEBUG 1
+#define MPDEBUG 0
 
 void LoopAll::myPlotInteractive(TString hsmallname) {
 
@@ -600,10 +600,15 @@ void LoopAll::myPlotInteractive(TString hsmallname) {
                 hist1D[iInd]->SetFillStyle(0); 
                 hist1D[iInd]->SetLineColor(kBlack); 
                 //gStyle->SetErrorX(0);
-                hist1D[iInd]->SetMarkerStyle(myMarker[iInd]); 
-                //Chris if(myMarker[iInd]==20) hist1D[iInd]->SetMarkerSize(2); 
 
+		//cout<<"MARCO here marker stile and size"<<endl;
+		//myMarker[iInd]=20;//marco
+
+                hist1D[iInd]->SetMarkerStyle(myMarker[iInd]); 
+                //Chris 
                 //hist1D[iInd]->SetMarkerSize(1.4); 
+		//if(myMarker[iInd]==20) hist1D[iInd]->SetMarkerSize(2); 
+
                 //if(hist1D[iInd]->GetNbinsX()>50)hist1D[iInd]->SetMarkerSize(1.); 
                 //if(hist1D[iInd]->GetNbinsX()>120)hist1D[iInd]->SetMarkerSize(0.5); 
               }

@@ -1,4 +1,4 @@
-xSize=750    ySize=750   
+xSize=600    ySize=600   
 Stack=0   PopSig=1  FillSig=1 Over=0    Under=0
 Log=0     Grid=0    Stats=0   SumW2=0   DoCats=1
 Legend=1  Top=1     Right=1   NCols=1
