@@ -107,7 +107,7 @@ void LoopAll::myPlotInteractive(TString hsmallname) {
   if(MPDEBUG) cout<<"myPlotInteractive 3 "<<endl;
 
 
-  /*
+  
 
 
   do {
@@ -1138,7 +1138,7 @@ void LoopAll::myPlotInteractive(TString hsmallname) {
 
   while(0 <= ivar && ivar < Nvar);
   //********************************************
-  */
+  
 }
 
 
@@ -1149,7 +1149,7 @@ std::pair<int,int> LoopAll::myGetInput(std::pair<int,int> ipair) {
   int ivar=ipair.first;
   int icat=ipair.second;
 
-  /*
+  
   int ncat=histoncat[ivar];
   std::pair<int,int> newPrevPair(ivar,icat);
   TString sIn;
@@ -1308,7 +1308,7 @@ std::pair<int,int> LoopAll::myGetInput(std::pair<int,int> ipair) {
     }
 
   }
-  */
+  
 
   std::pair<int,int> returnpair(ivar,icat);
   return returnpair;
