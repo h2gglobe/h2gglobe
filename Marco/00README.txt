@@ -1,3 +1,8 @@
+~capalmer/CMS/Higgs2gg/Limits/nov14_forAN/428p7/src/HiggsAnalysis/HiggsTo2photons/h2gglobe_new/PhotonAnalysis_scripts/histograms_CMS-HGG_4686_nov17_tryExcl.root
+
+
+# FOR LOOPINTERACTIVE:
+
 root -l
 //.L matteo/tdrstyle.C
 //setTDRStyle();
@@ -13,6 +18,7 @@ m->myPlotInteractive("Marco/histograms_CMS-HGG_4686_nov17_tryExcl.root");
 
 
 Instructions 16/11/2011
+-----------------------
 
 cd CMSSW_4_2_8/src
 cvs co -r regression_Sept30 HiggsAnalysis/HiggsToGammaGamma
@@ -24,7 +30,6 @@ rm -r  HiggsAnalysis/HiggsTo2photons/h2gglobe
 
 cvs co -d HiggsAnalysis/HiggsTo2photons/h2gglobe UserCode/HiggsAnalysis/HiggsTo2photons/h2gglobe
 
-
 cp Marco/HistoContainer.cc .
 cp Marco/HistoContainer.h .
 
@@ -32,12 +37,21 @@ cp Marco/cuts.dat PhotonAnalysis_scripts/.
 cp Marco/plotvariables.dat PhotonAnalysis_scripts/.
 cp Marco/inputfiles.dat PhotonAnalysis_scripts/.
 # cp Marco/looper.py PhotonAnalysis_scripts/.
-cp Marco/looper_input.dat PhotonAnalysis_scripts/.
+# cp Marco/looper_input.dat PhotonAnalysis_scripts/.
 cp Marco/photonanalysis.dat PhotonAnalysis_scripts/.
 cp Marco/reduction_output.dat PhotonAnalysis_scripts/.
 
 cp Marco/configProducer.py PhotonAnalysis_scripts/python
 cp Marco/PhotonAnalysis.cc PhotonAnalysis/src/.
+
+cp Marco/datafiles_5fb.dat PhotonAnalysis_scripts/.
+cp Marco/statanalysis.dat PhotonAnalysis_scripts/.
+
+cp Marco/StatAnalysisExclusive.h PhotonAnalysis/interface/
+cp Marco/StatAnalysisExclusive.cc PhotonAnalysis/src/
+cp Marco//statanalysisexclusive.dat PhotonAnalysis_scripts/
+
+cp Marco/Makefile .
 
 uncomment the second to last line in CommonParameters.h
 
@@ -50,12 +64,21 @@ Plotinteractive and myprintcountersnew are still to be fixed
 
 When finished if you want co commit everything:
 
-rm CommonParameters.h HistoContainer.cc HistoContainer.h PhotonAnalysis_scripts/cuts.dat PhotonAnalysis_scripts/plotvariables.dat PhotonAnalysis_scripts/inputfiles.dat PhotonAnalysis_scripts/python/configProducer.py  PhotonAnalysis/src/PhotonAnalysis.cc PhotonAnalysis_scripts/looper.py PhotonAnalysis_scripts/looper_input.dat PhotonAnalysis_scripts/photonanalysis.dat PhotonAnalysis/src/ PhotonAnalysis_scripts/reduction_output.dat
+rm CommonParameters.h HistoContainer.cc HistoContainer.h PhotonAnalysis_scripts/cuts.dat PhotonAnalysis_scripts/plotvariables.dat PhotonAnalysis_scripts/inputfiles.dat PhotonAnalysis_scripts/python/configProducer.py  PhotonAnalysis/src/PhotonAnalysis.cc PhotonAnalysis_scripts/looper.py PhotonAnalysis_scripts/looper_input.dat PhotonAnalysis_scripts/photonanalysis.dat PhotonAnalysis/src/PhotonAnalysis.cc PhotonAnalysis_scripts/reduction_output.dat PhotonAnalysis_scripts/datafiles_5fb.dat PhotonAnalysis_scripts/statanalysis.dat
+rm PhotonAnalysis/interface/StatAnalysisExclusive.h PhotonAnalysis/src/StatAnalysisExclusive.cc Makefile PhotonAnalysis_scripts/statanalysisexclusive.dat
 
 cvs update -A
 
 
-
+=====================================
+=====================================
+=====================================
+=====================================
+END FOR NOW
+=====================================
+=====================================
+=====================================
+=====================================
 
 
 
