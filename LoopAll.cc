@@ -1303,7 +1303,7 @@ void LoopAll::AddCounter(int countersncat,
 int LoopAll::ApplyCut(int icut, float var, int icat) {
   
   //returns 0 if not initialized
-  if(cutContainer[icut].useit==0) return 1;
+  //MARCO if(cutContainer[icut].useit==0) return 1;
   if(cutContainer[icut].ncat<2)icat=0;
   
   if(cutContainer[icut].fromright==2) {
@@ -1496,7 +1496,8 @@ int LoopAll::ApplyCuts(int icat, int cutset, int & ncutsapplied, int & ncutspass
   int passcuts=1;
   for (unsigned int i=0; i<cutContainer.size(); i++) {
     if(cutContainer[i].finalcut==cutset) {
-      if(cutContainer[i].useit) {
+      //if(cutContainer[i].useit) 
+	{
 
 	if(cutContainer[i].ncat>1) {
 	  if(ncats==0) ncats=cutContainer[i].ncat;
@@ -1536,7 +1537,10 @@ int LoopAll::ApplyCutsFill(int icat, int cutset, int & ncutsapplied, int & ncuts
   int passcuts=1;
   for (unsigned int i=0; i<cutContainer.size(); i++) {
     if(cutContainer[i].finalcut==cutset) {
-      if(cutContainer[i].useit) {
+      //MARCO if(cutContainer[i].useit) 
+	{
+
+	  //cout<<"ApplyCutsFill "<<cutContainer[i].finalcut<<" "<<cutContainer[i].useit<<" "<<endl;
 
 	if(cutContainer[i].ncat>1) {
 	  if(ncats==0) ncats=cutContainer[i].ncat;
@@ -1565,6 +1569,7 @@ int LoopAll::ApplyCutsFill(int icat, int cutset, int & ncutsapplied, int & ncuts
       }
     }
   }
+  //cout<<"ApplyCutsFill "<<ncutsapplied<<" "<<ncutsfailed<<" "<<ncutspassed<<" "<<endl;
 
   //n-1 cut histograms
   if(ncutsfailed==1||ncutsfailed==0) {
@@ -1608,7 +1613,8 @@ int LoopAll::ApplyCuts(int cutset, int * passcategory, int * ncutsapplied, int *
 
   for (unsigned int i=0; i<cutContainer.size(); i++) {
     if(cutContainer[i].finalcut==cutset) {
-      if(cutContainer[i].useit) {
+      //if(cutContainer[i].useit) 
+	{
 	if(cutContainer[i].ncat>1) {
 	  if(ncats==0) ncats=cutContainer[i].ncat;
 	  if(cutContainer[i].ncat!=ncats) {
