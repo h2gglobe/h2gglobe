@@ -713,16 +713,16 @@ void LoopAll::WriteHist() {
 
 #ifdef NewFeatures
 void LoopAll::WritePI() {
-  Int_t Nvar, doplot;
-  Int_t h2d[1000], typplot[1000], histoncat[1000];
-  char* histoncatindtonames[1000];
+  Int_t Nvar;
+  Int_t h2d[1000], typplot[1000], histoncat[1000], histoindfromfiles[1000];
+  Int_t histoncatindtonames[1000];
   Int_t nbinsx[1000], nbinsy[1000];
   Float_t lowlim[1000], highlim[1000], lowlim2[1000], highlim2[1000];
   Int_t itype[1000], histoind[1000], infoind[1000], histoplotit[1000];
   Int_t ntot[1000], nred[1000];
   Float_t lumi[1000], xsec[1000], kfactor[1000], scale[1000];
   Int_t typplotall = 0;
-  Int_t plothistoplotitPI = 0;
+  Int_t plothistoplotitPI[1000];
 
   hfile->cd();
   plotvartree = new TTree("plotvariables","globe plotvariables provenance information");
@@ -742,13 +742,12 @@ void LoopAll::WritePI() {
   plotvartree->Branch("highlim2", &highlim2, "highlim2[Nvar]/F");
 
   Nvar = histoContainer[0].size();
-  std::cout << Nvar << std::endl;
-  // FIXME MATTEO
   for (int i=0; i<Nvar; i++) {
-    h2d[i]       = histoContainer[0].getDimension(i);
+    h2d[i]       = histoContainer[0].getDimension(i) - 1;
+    plothistoplotitPI[i]    = 1;
     typplot[i]   = 1;
     histoncat[i] = histoContainer[0].ncat(i);
-    histoncatindtonames[i] = const_cast<char*>(histoContainer[0].getName(i).c_str());
+    histoncatindtonames[i] = -1;
     nbinsx[i]    = histoContainer[0].nbins(i, true);
     nbinsy[i]    = histoContainer[0].nbins(i, false);
     lowlim[i]    = histoContainer[0].min(i, true);
@@ -768,7 +767,7 @@ void LoopAll::WritePI() {
   plotvartree->Branch("yaxislabels", "TClonesArray", &tca_yaxislabels, 32000, 0);
   for(int iplot=0;iplot!=Nvar;++iplot) { 
     new ((*tca_yaxislabels)[iplot]) TObjString(); 
-    ((TObjString *)tca_yaxislabels->At(iplot))->SetString(histoContainer[0].axisName(iplot, true).c_str());
+    ((TObjString *)tca_yaxislabels->At(iplot))->SetString(histoContainer[0].axisName(iplot, false).c_str());
   }
 
   TClonesArray* tca_plotvarnames = new TClonesArray("TObjString",Nvar);
@@ -800,17 +799,18 @@ void LoopAll::WritePI() {
   plotvartree->Write(0,TObject::kWriteDelete);
   inputfiletree = new TTree("inputfiles","globe inputfiles provenance information");
   int nfiles = files.size();
+  int nindfiles = type2HistVal.size();
   inputfiletree->Branch("nfiles", &nfiles, "nfiles/I");
-  inputfiletree->Branch("nindfiles", (int)(type2HistVal.size()), "nindfiles/I");
-  inputfiletree->Branch("intlumi", &intlumi, "intlumi/F");
+  inputfiletree->Branch("nindfiles", &nindfiles, "nindfiles/I");
+  inputfiletree->Branch("intlumi", &intlumi_, "intlumi/F");
   inputfiletree->Branch("makeOutputTree", makeOutputTree, "makeOutputTree/I");
   TClonesArray* tca_histfilename = new TClonesArray("TObjString",1);
   inputfiletree->Branch("histfilename", "TClonesArray", &tca_histfilename, 32000, 0);
   new ((*tca_histfilename)[0]) TObjString(); 
-  ((TObjString *)tca_histfilename->At(0))->SetString(outputFileName);
+  ((TObjString *)tca_histfilename->At(0))->SetString(histFileName);
   inputfiletree->Branch("itype", &itype, "itype[nfiles]/I");
-  //inputfiletree->Branch("histoind", &mp->histoindfromfiles, "histoindfromfiles[nfiles]/I");
-  //inputfiletree->Branch("infoind", &mp->infoind, "infoind[nindfiles]/I");
+  inputfiletree->Branch("histoind", &histoindfromfiles, "histoindfromfiles[nfiles]/I");
+  inputfiletree->Branch("infoind", &infoind, "infoind[nindfiles]/I");
   inputfiletree->Branch("histoplotit", &histoplotit, "histoplotit[nfiles]/I");
   inputfiletree->Branch("ntot", &ntot, "ntot[nfiles]/I");
   inputfiletree->Branch("nred", &nred, "nred[nfiles]/I");
@@ -839,7 +839,6 @@ void LoopAll::WritePI() {
   for(int ifile=0;ifile!=nfiles;++ifile) { 
     new ((*tca_inshortnames)[ifile]) TObjString(); 
     new ((*tca_infilenames)[ifile]) TObjString(); 
-    // FIXME MATTEO SAME NAME
     ((TObjString *)tca_inshortnames->At(ifile))->SetString(sampleContainer[ifile].filesshortnam.c_str());
     ((TObjString *)tca_infilenames->At(ifile))->SetString(sampleContainer[ifile].filesshortnam.c_str());
   }
