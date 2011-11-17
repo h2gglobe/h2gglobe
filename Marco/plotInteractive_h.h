@@ -180,7 +180,7 @@ TTree* inputfiles;
   Int_t nindfiles;
 //Float_t intlumi;
   TString  histfilename;
-//Int_t itype[MAXFILES];
+  Int_t itypePI[MAXFILES];
   Int_t histoind[MAXFILES];
   Int_t infoind[MAXFILES];
   Int_t histoplotit[MAXFILES];

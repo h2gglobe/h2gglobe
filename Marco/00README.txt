@@ -1,3 +1,17 @@
+root -l
+//.L matteo/tdrstyle.C
+//setTDRStyle();
+  gSystem->Load("libPhysics.so");
+  gSystem->Load("libCore.so");
+  //gSystem->Load("VertexAnalysis/lib/libh2gglobeVertexAnalysis.so");
+gSystem->Load("libLoopAll.so");
+LoopAll* m=new LoopAll();
+m->myPlotInteractiveSetup("Marco/histograms_CMS-HGG_4686_nov17_tryExcl.root","Hgg");
+m->myPlotInteractive("Marco/histograms_CMS-HGG_4686_nov17_tryExcl.root");
+
+
+
+
 Instructions 16/11/2011
 
 cd CMSSW_4_2_8/src
@@ -254,12 +268,70 @@ void mpUtil::PlotInteractive(TString tag, TString inputfile) {
 
 Script:
 
+
+
+
 root -l
-.L matteo/tdrstyle.C
-setTDRStyle();
+//.L matteo/tdrstyle.C
+//setTDRStyle();
   gSystem->Load("libPhysics.so");
   gSystem->Load("libCore.so");
-  gSystem->Load("VertexAnalysis/lib/libh2gglobeVertexAnalysis.so");
+  //gSystem->Load("VertexAnalysis/lib/libh2gglobeVertexAnalysis.so");
 gSystem->Load("libLoopAll.so");
+LoopAll* m=new LoopAll();
+m->myPlotInteractiveSetup("Marco/histograms_CMS-HGG_4686_nov17_tryExcl.root","Hgg");
+m->myPlotInteractive("Marco/histograms_CMS-HGG_4686_nov17_tryExcl.root");
+
+
+
+ Marco/histograms_CMS-HGG_4686_nov17_tryExcl.root
+
+
+
 mpUtil* m=new mpUtil();
 m->PlotInteractive("Hgg","oct13_ucsdcuts_smnewnew2.root");
+
+
+varname[0]: all_mass
+varname[1]: pt
+varname[2]: eta
+varname[3]: mass
+varname[4]: helicityAngle
+varname[5]: decayAngle
+varname[6]: pho_pt
+varname[7]: pho1_pt
+varname[8]: pho2_pt
+varname[9]: pho_eta
+varname[10]: pho1_eta
+varname[11]: pho2_eta
+varname[12]: pho_r9
+varname[13]: pho_n
+varname[14]: mass_pf
+varname[15]: mass_ff
+varname[16]: pho1_pt_presel
+varname[17]: pho2_pt_presel
+varname[18]: pho1_pt_sel
+varname[19]: pho2_pt_sel
+varname[20]: pho1_eta_presel
+varname[21]: pho2_eta_presel
+varname[22]: pho1_eta_sel
+varname[23]: pho2_eta_sel
+varname[24]: cut_Mgg_nminus1
+varname[25]: cut_Mgg_sequential
+varname[26]: cut_VBFLeadJPt_nminus1
+varname[27]: cut_VBFLeadJPt_sequential
+varname[28]: cut_VBFSubJPt_nminus1
+varname[29]: cut_VBFSubJPt_sequential
+varname[30]: cut_VBF_Mjj_nminus1
+varname[31]: cut_VBF_Mjj_sequential
+varname[32]: cut_VBF_dEta_nminus1
+varname[33]: cut_VBF_dEta_sequential
+varname[34]: cut_VBF_Zep_nminus1
+varname[35]: cut_VBF_Zep_sequential
+varname[36]: cut_VBF_dPhi_nminus1
+varname[37]: cut_VBF_dPhi_sequential
+varname[38]: cut_VBF_Mgg_nminus1
+varname[39]: cut_VBF_Mgg_sequential
+varname[40]: cut_VBF_Mgg4_nminus1
+varname[41]: cut_VBF_Mgg4_sequential
+

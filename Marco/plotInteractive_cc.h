@@ -2,7 +2,7 @@
 //==============================  Interactive Plotting  ===============================
 //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
-#define MPDEBUG 0
+#define MPDEBUG 1
 
 void LoopAll::myPlotInteractive(TString hsmallname) {
 
@@ -101,7 +101,7 @@ void LoopAll::myPlotInteractive(TString hsmallname) {
   if(MPDEBUG) {
     for( int iInd=0;iInd < NIND;++iInd) {
       //std::cout << "mp->infoind[iInd]" << mp->infoind[iInd] << std::endl;
-      //std::cout << "mp->itype[mp->infoind[iInd]]" << mp->itype[mp->infoind[iInd]] << std::endl;
+      //std::cout << "mp->itypePI[mp->infoind[iInd]]" << mp->itypePI[mp->infoind[iInd]] << std::endl;
     }
   }
   if(MPDEBUG) cout<<"myPlotInteractive 3 "<<endl;
@@ -178,6 +178,10 @@ void LoopAll::myPlotInteractive(TString hsmallname) {
         EndCat=TMath::Min(ncat,StartCat+nrows*ncolumns);
       }
       if(DoBigLegend && (BigLegendInd < StartCat || BigLegendInd > EndCat))BigLegendInd=1;
+
+
+
+
       for(Int_t jcat = StartCat; jcat != EndCat;++jcat) {
 
         //set canvas attributes
@@ -252,6 +256,7 @@ void LoopAll::myPlotInteractive(TString hsmallname) {
           if(!DoLegendT &&  DoLegendR)legend = new TLegend(IBLF*0.7,0.11,0.89,BLF*0.3);
           if(!DoLegendT && !DoLegendR)legend = new TLegend(0.11,0.11,BLF*0.3,BLF*0.3);
         }
+        if(MPDEBUG) cout<<"myPlotInteractive 71 "<<endl;
         legend->SetBorderSize(0);
         legend->SetTextFont(62);
         legend->SetLineColor(0);
@@ -260,10 +265,12 @@ void LoopAll::myPlotInteractive(TString hsmallname) {
         legend->SetLineWidth(lineWidth);
         legend->SetFillColor(kWhite);
         legend->SetFillStyle(0);
+        if(MPDEBUG) cout<<"myPlotInteractive 72 "<<endl;
 
         //get hist names
         histnamebase=plotvarnames[ivar];
 
+        if(MPDEBUG) cout<<"myPlotInteractive 73 "<<endl;
         TString catstring="_cat"+num_to_string(jcat);
         if(xaxislabels[ivar] == "xaxis") {
           if(histoncatindtonames[ivar]>=0)catstring="_"+plotvarcatnames[histoncatindtonames[ivar]][jcat];
@@ -272,17 +279,35 @@ void LoopAll::myPlotInteractive(TString hsmallname) {
           if(histoncatindtonames[ivar]>=0)catstring=plotvarcatnames[histoncatindtonames[ivar]][jcat];
           if(ncat>0)histnamebase+=catstring;
         }
+        if(MPDEBUG) cout<<"myPlotInteractive 74 "<<endl;
         histnamebaseSig=histnamebase+"Sig";
         histnamebaseData=histnamebase+"Data";
+        if(MPDEBUG) cout<<"myPlotInteractive 75 "<<endl;
+
+
+        if(MPDEBUG) cout<<"myPlotInteractive 75 "<<NIND<<endl;
+
         for(Int_t iInd=0;iInd!=NIND;++iInd){
+        if(MPDEBUG) cout<<"myPlotInteractive 76 "<<omitInd[iInd]<<endl;
           if(omitInd[iInd]%2==1)continue;
-          //myHistname[iInd]=plotvarnames[ivar]+"_"+num_to_string(mp->histoind[iInd]);
-          myHistname[iInd]=plotvarnames[ivar]+"_"+num_to_string(histoind[infoind[iInd]]);
+          ////myHistname[iInd]=plotvarnames[ivar]+"_"+num_to_string(mp->histoind[iInd]);
+          //myHistname[iInd]=plotvarnames[ivar]+"_"+num_to_string(histoind[infoind[iInd]]);
+          myHistname[iInd]=plotvarnames[ivar]+"_"+inshortnames[iInd];
           if(ncat>0) {
-            //myHistname[iInd]=plotvarnames[ivar]+"_cat"+num_to_string(jcat)+"_"+num_to_string(mp->histoind[iInd]);
-            myHistname[iInd]=plotvarnames[ivar]+"_cat"+num_to_string(jcat)+"_"+num_to_string(histoind[infoind[iInd]]);
+            ////myHistname[iInd]=plotvarnames[ivar]+"_cat"+num_to_string(jcat)+"_"+num_to_string(mp->histoind[iInd]);
+            //myHistname[iInd]=plotvarnames[ivar]+"_cat"+num_to_string(jcat)+"_"+num_to_string(histoind[infoind[iInd]]);
+            myHistname[iInd]=plotvarnames[ivar]+"_cat"+num_to_string(jcat)+"_"+inshortnames[iInd];
           }
+
+
           if(MPDEBUG)std::cout << "myHistname["<<iInd<<"]: " << myHistname[iInd] << std::endl;
+
+	  std::cout<<"NEWNEW "<<iInd<<" "<<infoind[iInd]<<" "<<inshortnames[iInd]<<std::endl;
+
+
+
+
+
         }
 
         if(MPDEBUG) cout<<"myPlotInteractive 8 "<<endl;
@@ -296,7 +321,9 @@ void LoopAll::myPlotInteractive(TString hsmallname) {
             if(omitInd[iInd]%2==1)continue;
             //hist1D[iInd] = new TH1F();
             //*(hist1D[iInd]) = *((TH1F*)gROOT->FindObject(myHistname[iInd])); 
-            //std::cout << "myHistname[iInd]: " << myHistname[iInd] << std::endl;
+
+            if(MPDEBUG) std::cout << "myHistname[iInd]: " << myHistname[iInd] << std::endl;
+
             hist1D[iInd] = new TH1F(*((TH1F*)gROOT->FindObject(myHistname[iInd]))); 
             hist1D[iInd]->SetLineStyle(0);
             hist1D[iInd]->GetXaxis()->SetLabelSize(0.04);
@@ -530,8 +557,8 @@ void LoopAll::myPlotInteractive(TString hsmallname) {
                 hist1D[iInd]->Scale(1./hist1D[iInd]->Integral());
               } else {
                 if(sigScale!=0) {
-                  //if(mp->itype[mp->infoind[iInd]]>0)hist1D[iInd]->Scale(sigScale);
-                  if(itype[infoind[iInd]]>0)hist1D[iInd]->Scale(sigScale);
+                  //if(mp->itypePI[mp->infoind[iInd]]>0)hist1D[iInd]->Scale(sigScale);
+                  if(itypePI[infoind[iInd]]>0)hist1D[iInd]->Scale(sigScale);
                 } else {
                   hist1D[iInd]->Scale(myScale[iInd]);
                 }
@@ -569,7 +596,7 @@ void LoopAll::myPlotInteractive(TString hsmallname) {
               } else {
                 hist1D[iInd]->SetLineColor(myColor[iInd]);
               }
-              if(DoData && itype[infoind[iInd]]==0) {
+              if(DoData && itypePI[infoind[iInd]]==0) {
                 hist1D[iInd]->SetFillStyle(0); 
                 hist1D[iInd]->SetLineColor(kBlack); 
                 //gStyle->SetErrorX(0);
@@ -580,8 +607,8 @@ void LoopAll::myPlotInteractive(TString hsmallname) {
                 //if(hist1D[iInd]->GetNbinsX()>50)hist1D[iInd]->SetMarkerSize(1.); 
                 //if(hist1D[iInd]->GetNbinsX()>120)hist1D[iInd]->SetMarkerSize(0.5); 
               }
-              //if(!DoFillSig && mp->itype[mp->infoind[iInd]]>0)
-              if(!DoFillSig && itype[infoind[iInd]]>0) {
+              //if(!DoFillSig && mp->itypePI[mp->infoind[iInd]]>0)
+              if(!DoFillSig && itypePI[infoind[iInd]]>0) {
                 hist1D[iInd]->SetFillStyle(0); 
                 hist1D[iInd]->SetLineColor(myColor[iInd]); 
                 if(false && omitInd[iInd]==0)
@@ -617,8 +644,8 @@ void LoopAll::myPlotInteractive(TString hsmallname) {
                 }
                 if(omitInd[myStackOrder[iInd]]%2==1)continue; 
 
-                //std::cout << "myStackOrder["<<iInd<<"]: " << myStackOrder[iInd] << "\tmp->itype[myStackOrder[iInd]]: " << mp->itype[myStackOrder[iInd]] << "\tmp->infoind[myStackOrder[iInd]]: " << mp->infoind[myStackOrder[iInd]] << std::endl;
-                if(DoData && itype[infoind[myStackOrder[iInd]]]==0) {
+                //std::cout << "myStackOrder["<<iInd<<"]: " << myStackOrder[iInd] << "\tmp->itypePI[myStackOrder[iInd]]: " << mp->itypePI[myStackOrder[iInd]] << "\tmp->infoind[myStackOrder[iInd]]: " << mp->infoind[myStackOrder[iInd]] << std::endl;
+                if(DoData && itypePI[infoind[myStackOrder[iInd]]]==0) {
                   if(MPDEBUG) cout<<"myPlotInteractive 14 - 02"<<endl;
                   std::cout << iInd << std::endl;
                   std::cout << myLabel[iInd] << std::endl;
@@ -626,7 +653,7 @@ void LoopAll::myPlotInteractive(TString hsmallname) {
                   std::cout << omitInd[myStackOrder[iInd]] << std::endl;
                   std::cout << myStackOrder[iInd] << std::endl;
                   myDataStack->Add(hist1D[myStackOrder[iInd]]); 
-                } else if(itype[infoind[myStackOrder[iInd]]]>0) {
+                } else if(itypePI[infoind[myStackOrder[iInd]]]>0) {
                   if(newline) {
                     if(firstsig || NStackLines==0) {
                       histStackLine[NStackLines] = TH1F("histline"+NStackLines,"",nbinstemp,lowedgetemp,highedgetemp);
@@ -647,7 +674,7 @@ void LoopAll::myPlotInteractive(TString hsmallname) {
                     NStackLines++;
                     newline=true;
                   }
-                } else if(itype[infoind[myStackOrder[iInd]]]<0) {
+                } else if(itypePI[infoind[myStackOrder[iInd]]]<0) {
                   if(newline) {
                     if(firstbg || NStackLines==0) {
                       histStackLine[NStackLines] = TH1F("histline"+NStackLines,"",nbinstemp,lowedgetemp,highedgetemp);
@@ -689,8 +716,8 @@ void LoopAll::myPlotInteractive(TString hsmallname) {
                 }
                 if(omitInd[myStackOrder[iInd]]%2==1)continue; 
                 //std::cout << "POP SIG BETTER BE FALSE!!" << std::endl;
-                //std::cout << "mp->itype[myStackOrder[iInd]]: " << mp->itype[myStackOrder[iInd]] << std::endl;
-                if(DoData && itype[infoind[myStackOrder[iInd]]]==0) {
+                //std::cout << "mp->itypePI[myStackOrder[iInd]]: " << mp->itypePI[myStackOrder[iInd]] << std::endl;
+                if(DoData && itypePI[infoind[myStackOrder[iInd]]]==0) {
                   if(MPDEBUG) cout<<"myPlotInteractive 14 - 06"<<endl;
                   myDataStack->Add(hist1D[myStackOrder[iInd]]); 
                 } else {
@@ -723,6 +750,8 @@ void LoopAll::myPlotInteractive(TString hsmallname) {
           outnamesob = outname+"SoverB";
 
           if(MPDEBUG) cout<<"myPlotInteractive 16 "<<endl;
+
+
           //draw hist
           TString histlike = " hist ";
           TString histlikesame = " hist same ";
@@ -853,14 +882,14 @@ void LoopAll::myPlotInteractive(TString hsmallname) {
               hist1D[iInd]->SetTitle(histnamebase);
               hist1D[iInd]->SetStats(DoStats);
               if(firstind) {
-                if(DoData && itype[infoind[iInd]]==0) {
+                if(DoData && itypePI[infoind[iInd]]==0) {
                   //hist1D[iInd]->Draw("E1");
                 } else {
                   hist1D[iInd]->Draw(histlike);
                   firstind=false;
                 }
               } else {
-                if(DoData && itype[infoind[iInd]]==0) {
+                if(DoData && itypePI[infoind[iInd]]==0) {
                   //hist1D[iInd]->Draw("E1 same");
                 } else {
                   hist1D[iInd]->Draw(histlike+"same");
@@ -869,7 +898,7 @@ void LoopAll::myPlotInteractive(TString hsmallname) {
             }
             for(Int_t iInd=0;iInd!=NIND;++iInd){
               if(omitInd[iInd]%2==1)continue;
-              if(DoData && itype[infoind[iInd]]==0) {
+              if(DoData && itypePI[infoind[iInd]]==0) {
                 if(firstind) {
                   hist1D[iInd]->Draw("E1");
                 } else {
@@ -988,7 +1017,7 @@ void LoopAll::myPlotInteractive(TString hsmallname) {
             hist2D[myStackOrder[iInd]]->SetStats(DoStats);
             hist2D[myStackOrder[iInd]]->SetMarkerColor(myColor[myStackOrder[iInd]]);
             hist2D[myStackOrder[iInd]]->SetMarkerStyle(myMarker[myStackOrder[iInd]]);
-            if(itype[infoind[iInd]]==0 && myMarker[myStackOrder[iInd]]>19 && myMarker[myStackOrder[iInd]]<24) hist2D[myStackOrder[iInd]]->SetMarkerStyle(myMarker[myStackOrder[iInd]]+4); 
+            if(itypePI[infoind[iInd]]==0 && myMarker[myStackOrder[iInd]]>19 && myMarker[myStackOrder[iInd]]<24) hist2D[myStackOrder[iInd]]->SetMarkerStyle(myMarker[myStackOrder[iInd]]+4); 
             if(didfirst)
               hist2D[myStackOrder[iInd]]->Draw("same");
             else
@@ -1009,7 +1038,7 @@ void LoopAll::myPlotInteractive(TString hsmallname) {
           outname = "hist_"; outname += plotvarnames[ivar];//histnamebase;
           for(Int_t iInd=0;iInd!=NIND;++iInd) {
             histProf[iInd] = new TProfile();
-            if(omitInd[iInd]%2==1 || itype[infoind[iInd]]<0)continue;
+            if(omitInd[iInd]%2==1 || itypePI[infoind[iInd]]<0)continue;
             *(histProf[iInd]) = *((TProfile*)gROOT->FindObject(myHistname[iInd])); 
             histProf[iInd]->GetXaxis()->SetLabelSize(0.04);
             histProf[iInd]->GetYaxis()->SetLabelSize(0.04);
@@ -1023,15 +1052,15 @@ void LoopAll::myPlotInteractive(TString hsmallname) {
 
           bool didfirst=false;
           for(Int_t iInd=NIND-1;iInd>=0;--iInd){
-            if(omitInd[myStackOrder[iInd]]%2==1 || itype[infoind[iInd]]<0)continue;
+            if(omitInd[myStackOrder[iInd]]%2==1 || itypePI[infoind[iInd]]<0)continue;
             histProf[myStackOrder[iInd]]->SetTitle(histnamebase);
             histProf[myStackOrder[iInd]]->SetStats(DoStats);
             histProf[myStackOrder[iInd]]->SetMarkerColor(myColor[myStackOrder[iInd]]);
             histProf[myStackOrder[iInd]]->SetMarkerStyle(27);
-            if(itype[infoind[iInd]]==0) histProf[myStackOrder[iInd]]->SetMarkerStyle(20);
-            //if(itype[infoind[iInd]]==0 && myMarker[myStackOrder[iInd]]>19 && myMarker[myStackOrder[iInd]]<24) histProf[myStackOrder[iInd]]->SetMarkerStyle(myMarker[myStackOrder[iInd]]+4); 
+            if(itypePI[infoind[iInd]]==0) histProf[myStackOrder[iInd]]->SetMarkerStyle(20);
+            //if(itypePI[infoind[iInd]]==0 && myMarker[myStackOrder[iInd]]>19 && myMarker[myStackOrder[iInd]]<24) histProf[myStackOrder[iInd]]->SetMarkerStyle(myMarker[myStackOrder[iInd]]+4); 
             histProf[myStackOrder[iInd]]->SetLineStyle(1);
-            if(itype[infoind[iInd]]==0) histProf[myStackOrder[iInd]]->SetLineWidth(2);
+            if(itypePI[infoind[iInd]]==0) histProf[myStackOrder[iInd]]->SetLineWidth(2);
             if(didfirst)
               histProf[myStackOrder[iInd]]->Draw("same");
             else
@@ -1040,7 +1069,7 @@ void LoopAll::myPlotInteractive(TString hsmallname) {
           }
           for(Int_t iInd=NIND-1;iInd>=0;--iInd){
             Int_t reverseInd = myStackOrder[NIND-1-iInd];// makes top of legend = top of stack
-            if(omitInd[reverseInd]%2==1 || itype[infoind[iInd]]<0)continue;
+            if(omitInd[reverseInd]%2==1 || itypePI[infoind[iInd]]<0)continue;
             if(omitInd[reverseInd]==2)continue;
             legend->AddEntry(histProf[reverseInd],myLabel[reverseInd],"p");
           }
@@ -1081,8 +1110,12 @@ void LoopAll::myPlotInteractive(TString hsmallname) {
               } 
 	    }
         }
+	float thishistmax =0.;
+	//MARCO FIXME
+	//float thishistmax = std::max(myStack->GetMaximum(),mySigStack->GetMaximum());
 
-   float thishistmax = std::max(myStack->GetMaximum(),mySigStack->GetMaximum());
+
+
           if(MPDEBUG) cout<<"myPlotInteractive 19.3 "<<endl;
    if(sethistmax>0) thishistmax = sethistmax;
    TLine *cutline = new TLine();
@@ -1370,10 +1403,10 @@ void LoopAll::myPlotInteractiveSetup(TString hsmallname, TString tag) {
     b_xaxislabels = plotvariables->GetBranch("xaxislabels");
     b_yaxislabels = plotvariables->GetBranch("yaxislabels");
     b_plotvarnames = plotvariables->GetBranch("plotvarnames");
-    b_Nvarcats = plotvariables->GetBranch("Nvarcats");
-    b_catid = plotvariables->GetBranch("catid");
-    b_ncats = plotvariables->GetBranch("ncats");
-    b_plotvarcatnames = plotvariables->GetBranch("plotvarcatnames");
+    //b_Nvarcats = plotvariables->GetBranch("Nvarcats");
+    //b_catid = plotvariables->GetBranch("catid");
+    //b_ncats = plotvariables->GetBranch("ncats");
+    //b_plotvarcatnames = plotvariables->GetBranch("plotvarcatnames");
 
     cout<<"get Entries"<<endl;
     b_Nvar->GetEntry();
@@ -1393,10 +1426,10 @@ void LoopAll::myPlotInteractiveSetup(TString hsmallname, TString tag) {
     b_xaxislabels->GetEntry();
     b_yaxislabels->GetEntry();
     b_plotvarnames->GetEntry();
-    b_Nvarcats->GetEntry();
-    b_catid->GetEntry();
-    b_ncats->GetEntry();
-    b_plotvarcatnames->GetEntry();
+    //b_Nvarcats->GetEntry();
+    //b_catid->GetEntry();
+    //b_ncats->GetEntry();
+    //b_plotvarcatnames->GetEntry();
 
     // plotvariables information END
     if(MPDEBUG)std::cout << "PlotInteractive DEBUG 03 " << std::endl;
@@ -1496,6 +1529,8 @@ void LoopAll::myPlotInteractiveSetup(TString hsmallname, TString tag) {
   NFILES=nfiles;
   NIND=nindfiles;
 
+  NIND=nfiles;
+
 
   xSizeMAX=1500;      
   ySizeMAX=950;     
@@ -1546,8 +1581,8 @@ void LoopAll::myPlotInteractiveSetup(TString hsmallname, TString tag) {
     for(Int_t iFile=0;iFile!=NFILES;++iFile) {
       /*
       if(MPDEBUG) std::cout << "iFile: " << iFile << 
-        "\titype: " << itype[iFile] << 
-        //"\tmp itype: " << mp->itype[iFile] << 
+        "\titype: " << itypePI[iFile] << 
+        //"\tmp itype: " << mp->itypePI[iFile] << 
         "\thistoind: " << histoind[iFile] << 
         "\tmp histoind: " << mp->histoind[iFile] << 
         "\tmp histoindfromfiles: " << mp->histoindfromfiles[iFile] << 
@@ -1566,7 +1601,7 @@ void LoopAll::myPlotInteractiveSetup(TString hsmallname, TString tag) {
   if(tag != "") {// read anaysis configuration from file
     defaultsetup=false;
     FILE * PIfile;
-    if(tag == "Hgg") { PIfile=fopen("Hgg_scripts/plotinteractiveHgg.dat","r");
+    if(tag == "Hgg") { PIfile=fopen("Marco/plotinteractiveHgg.dat","r");
     } else if(tag == "sgs1") { PIfile=fopen("sgs1_scripts/plotinteractivesgs1.dat","r");
     } else if(tag == "Hww") { PIfile=fopen("Hww_scripts/plotinteractiveHww.dat","r"); 
     } else if(tag == "Hzz") { PIfile=fopen("Hzz_scripts/plotinteractiveHzz.dat","r");
@@ -1596,11 +1631,23 @@ void LoopAll::myPlotInteractiveSetup(TString hsmallname, TString tag) {
       //dummy = fscanf(PIfile,"name=%s ind=%d order=%d omit=%d scale=%f color=%d marker=%d\n", name, &ind[iInd], &stackorder[iInd], &omitdefault[iInd], &scale[iInd], &color[iInd], &marker[iInd]);
       dummy = fscanf(PIfile,"name=%s ind=%d order=%d omit=%d scale=%f color=%d marker=%d\n", name, &ind[iInd], &stackorder[iInd], &omitdefault[iInd], &scale[iInd], &color[iInd], &marker[iInd]);
       myLabel[iInd]=name;
+
+
+
       if(ind[iInd]!=histoind[infoind[iInd]]) {
-        std::cout << "\nPROBLEM! int plotinteractive***.dat file - index does not match from inputfiles: ind:" << ind[iInd] << " should be " << histoind[infoind[iInd]];
-        std::cout << "\t. . . Using Defualt PlotInteractive Setup . . . " << std::endl;
-        defaultsetup=true;
-        break;
+
+        std::cout << "\nPROBLEM! int plotinteractive***.dat file - index does not match from inputfiles: ind:" << ind[iInd] << " should be " << histoind[infoind[iInd]]<<" [infoind[iInd] "<<infoind[iInd];
+        std::cout << "\t. . . NOT Using Defualt PlotInteractive Setup . . . " << std::endl;
+			
+
+		      //MARCO FIXME												
+	histoind[infoind[iInd]]=ind[iInd];
+
+	infoind[iInd]=ind[iInd];
+
+
+																					      //MARCO FIXME
+																							      //defaultsetup=true;																			      //break;
       }
     }
     NColsLegend = NColsREAD;
@@ -1665,9 +1712,9 @@ void LoopAll::myPlotInteractiveSetup(TString hsmallname, TString tag) {
       myLabel[iInd]=inshortnames[infoind[iInd]];
       myColor[iInd]=kGreen;
 
-      if(itype[infoind[iInd]]>0) {
+      if(itypePI[infoind[iInd]]>0) {
         myColor[iInd]=kRed;
-      } else if(itype[infoind[iInd]]<0) {
+      } else if(itypePI[infoind[iInd]]<0) {
         myColor[iInd]=kBlue+iInd%4;
       }
       myMarker[iInd]=iInd;
@@ -1681,10 +1728,13 @@ void LoopAll::myPlotInteractiveSetup(TString hsmallname, TString tag) {
     mySgnl[iInd]=false;
     myBkgd[iInd]=false;
     allBkgd[iInd]=false;
-    if(itype[infoind[iInd]]>0) {
+
+    cout<<iInd<<" "<<infoind[iInd]<<endl;
+
+    if(itypePI[infoind[iInd]]<0) {
       allSgnl[iInd]=true;
       mySgnl[iInd]=true;
-    } else if(itype[infoind[iInd]]<0) {
+    } else if(itypePI[infoind[iInd]]>0) {
       allBkgd[iInd]=true;
       myBkgd[iInd]=true;
     }
