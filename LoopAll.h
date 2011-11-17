@@ -219,8 +219,7 @@ class LoopAll {
   void FillHist(std::string, int, float, float wt = 1.0); 
   void FillHist2D(std::string, int, float, float, float wt = 1.0);
   
-  void FillCounter(std::string name, float weight=1., int cat=0);
-  /// void FillCounter(std::string name, float weight=1.);
+  void FillCounter(std::string name, int cat=0, float weight=1.);
 
   BaseAnalysis* AddAnalysis(BaseAnalysis*); 
   template<class T> T * GetAnalysis( const std::string & name ) {

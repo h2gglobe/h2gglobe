@@ -1353,13 +1353,8 @@ void LoopAll::FillHist2D(std::string name, int category, float x, float y, float
   histoContainer.back().Fill(name, category, y, wt);
 }
 
-//// // ------------------------------------------------------------------------------------
-//// void LoopAll::FillCounter(std::string name, float weight) {
-//// 	FillCounter(name, 0, weight);
-//// }
-
 // ------------------------------------------------------------------------------------
-void LoopAll::FillCounter(std::string name, float weight, int category ) {
+void LoopAll::FillCounter(std::string name, int category, float weight) {
 	counterContainer[current_sample_index].Fill(name, category, weight);
 }
 
@@ -1577,6 +1572,7 @@ int LoopAll::ApplyCutsFill(int icat, int cutset, int & ncutsapplied, int & ncuts
       if(ncutsfailed==0||tmppasscut[i]==0) {
 	FillHist(cutContainer[indexcut[i]].name+"_nminus1", icat, *(cutContainer[indexcut[i]].mycutvar));
 	FillCounter(cutContainer[indexcut[i]].name+"_nminus1", icat);
+	
       }
     } 
   }
