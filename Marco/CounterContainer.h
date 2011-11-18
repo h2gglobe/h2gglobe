@@ -17,10 +17,13 @@ class CounterContainer {
   void Fill(std::string, int);
   void Fill(std::string, int, float);
   void Save();
-  unsigned int mapSize() { return c.size(); }
+  unsigned int size() { return c.size(); }
   unsigned int ncat(unsigned int);
   std::string name(unsigned int);
-  float efficiency(int, int, int denom_type = 1);
+  std::string denomName(unsigned int, unsigned int);
+  float efficiency(unsigned int, unsigned int, unsigned int);
+  float efficiency(unsigned int, unsigned int);
+  float tot(unsigned int);
 
  private:
   int histVal;
