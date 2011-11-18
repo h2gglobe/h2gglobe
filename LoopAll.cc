@@ -1394,9 +1394,22 @@ void LoopAll::FillHist2D(std::string name, int category, float x, float y, float
 }
 
 // ------------------------------------------------------------------------------------
+#ifndef NewFeatures
+//// // ------------------------------------------------------------------------------------
+//// void LoopAll::FillCounter(std::string name, float weight) {
+//// 	FillCounter(name, 0, weight);
+//// }
+
+// ------------------------------------------------------------------------------------
+void LoopAll::FillCounter(std::string name, float weight, int category ) {
+	counterContainer[current_sample_index].Fill(name, category, weight);
+}
+#endif
+#ifdef NewFeatures
 void LoopAll::FillCounter(std::string name, int category, float weight) {
 	counterContainer[current_sample_index].Fill(name, category, weight);
 }
+#endif
 
 // ----------------------------------------------------------------------------------------------------------------------
 bool LoopAll::CheckLumiSelection( int run, int lumi )
