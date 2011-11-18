@@ -51,33 +51,69 @@ rm -r  HiggsAnalysis/HiggsTo2photons/h2gglobe
 
 cvs co -d HiggsAnalysis/HiggsTo2photons/h2gglobe UserCode/HiggsAnalysis/HiggsTo2photons/h2gglobe
 
-cp Marco/HistoContainer.cc .
-cp Marco/HistoContainer.h .
+cp Marco/HistoContainer.cc ./HistoContainer.cc
+cp Marco/HistoContainer.h ./HistoContainer.h
 
-cp Marco/CounterContainer.cc .
-cp Marco/CounterContainer.h .
+cp Marco/CounterContainer.cc ./CounterContainer.cc
+cp Marco/CounterContainer.h ./CounterContainer.h
 
-cp Marco/minimal_statanalysis_input.dat PhotonAnalysis_scripts/.
-cp Marco/cuts.dat PhotonAnalysis_scripts/.
-cp Marco/plotvariables.dat PhotonAnalysis_scripts/.
-cp Marco/inputfiles.dat PhotonAnalysis_scripts/.
-# cp Marco/looper.py PhotonAnalysis_scripts/.
-# cp Marco/looper_input.dat PhotonAnalysis_scripts/.
-cp Marco/photonanalysis.dat PhotonAnalysis_scripts/.
-cp Marco/reduction_output.dat PhotonAnalysis_scripts/.
+cp Marco/minimal_statanalysis_input.dat PhotonAnalysis_scripts/minimal_statanalysis_input.dat
+cp Marco/cuts.dat PhotonAnalysis_scripts/cuts.dat
+cp Marco/plotvariables.dat PhotonAnalysis_scripts/plotvariables.dat
+cp Marco/inputfiles.dat PhotonAnalysis_scripts/inputfiles.dat
+# cp Marco/looper.py PhotonAnalysis_scripts/looper.py
+# cp Marco/looper_input.dat PhotonAnalysis_scripts/looper_input.dat
+cp Marco/photonanalysis.dat PhotonAnalysis_scripts/photonanalysis.dat
+cp Marco/reduction_output.dat PhotonAnalysis_scripts/reduction_output.dat
 
-cp Marco/configProducer.py PhotonAnalysis_scripts/python
-cp Marco/PhotonAnalysis.cc PhotonAnalysis/src/.
+cp Marco/configProducer.py PhotonAnalysis_scripts/python/configProducer.py
+# cp Marco/PhotonAnalysis.cc PhotonAnalysis/src/PhotonAnalysis.cc
 
-cp Marco/datafiles_5fb.dat PhotonAnalysis_scripts/.
-cp Marco/statanalysis.dat PhotonAnalysis_scripts/.
+cp Marco/datafiles_5fb.dat PhotonAnalysis_scripts/datafiles_5fb.dat
+cp Marco/statanalysis.dat PhotonAnalysis_scripts/statanalysis.dat
 
-cp Marco/StatAnalysisExclusive.h PhotonAnalysis/interface/
-cp Marco/StatAnalysisExclusive.cc PhotonAnalysis/src/
-cp Marco/statanalysisexclusive.dat PhotonAnalysis_scripts/
-cp Marco/fitter.py PhotonAnalysis_scripts/
+cp Marco/StatAnalysisExclusive.h PhotonAnalysis/interface/StatAnalysisExclusive.h
+cp Marco/StatAnalysisExclusive.cc PhotonAnalysis/src/StatAnalysisExclusive.cc
+cp Marco/statanalysisexclusive.dat PhotonAnalysis_scripts/statanalysisexclusive.dat
+cp Marco/fitter.py PhotonAnalysis_scripts/fitter.py
 
-cp Marco/Makefile .
+cp Marco/Makefile ./Makefile
+
+
+
+
+diff Marco/HistoContainer.cc ./HistoContainer.cc
+diff Marco/HistoContainer.h ./HistoContainer.h
+
+diff Marco/CounterContainer.cc ./CounterContainer.cc
+diff Marco/CounterContainer.h ./CounterContainer.h
+
+diff Marco/minimal_statanalysis_input.dat PhotonAnalysis_scripts/minimal_statanalysis_input.dat
+diff Marco/cuts.dat PhotonAnalysis_scripts/cuts.dat
+diff Marco/plotvariables.dat PhotonAnalysis_scripts/plotvariables.dat
+diff Marco/inputfiles.dat PhotonAnalysis_scripts/inputfiles.dat
+# diff Marco/looper.py PhotonAnalysis_scripts/looper.py
+# diff Marco/looper_input.dat PhotonAnalysis_scripts/looper_input.dat
+diff Marco/photonanalysis.dat PhotonAnalysis_scripts/photonanalysis.dat
+diff Marco/reduction_output.dat PhotonAnalysis_scripts/reduction_output.dat
+
+diff Marco/configProducer.py PhotonAnalysis_scripts/python/configProducer.py
+# diff Marco/PhotonAnalysis.cc PhotonAnalysis/src/PhotonAnalysis.cc
+
+diff Marco/datafiles_5fb.dat PhotonAnalysis_scripts/datafiles_5fb.dat
+diff Marco/statanalysis.dat PhotonAnalysis_scripts/statanalysis.dat
+
+diff Marco/StatAnalysisExclusive.h PhotonAnalysis/interface/StatAnalysisExclusive.h
+diff Marco/StatAnalysisExclusive.cc PhotonAnalysis/src/StatAnalysisExclusive.cc
+diff Marco/statanalysisexclusive.dat PhotonAnalysis_scripts/statanalysisexclusive.dat
+diff Marco/fitter.py PhotonAnalysis_scripts/fitter.py
+
+diff Marco/Makefile ./Makefile
+
+
+
+
+
 
 uncomment the second to last line in CommonParameters.h
 
@@ -96,7 +132,8 @@ Plotinteractive and myprintcountersnew are still to be fixed
 
 When finished if you want co commit everything:
 
-rm CommonParameters.h HistoContainer.cc HistoContainer.h PhotonAnalysis_scripts/cuts.dat PhotonAnalysis_scripts/plotvariables.dat PhotonAnalysis_scripts/inputfiles.dat PhotonAnalysis_scripts/python/configProducer.py  PhotonAnalysis/src/PhotonAnalysis.cc PhotonAnalysis_scripts/looper.py PhotonAnalysis_scripts/looper_input.dat PhotonAnalysis_scripts/photonanalysis.dat PhotonAnalysis/src/PhotonAnalysis.cc PhotonAnalysis_scripts/reduction_output.dat PhotonAnalysis_scripts/datafiles_5fb.dat PhotonAnalysis_scripts/statanalysis.dat
+rm CommonParameters.h 
+rm HistoContainer.cc HistoContainer.h PhotonAnalysis_scripts/cuts.dat PhotonAnalysis_scripts/plotvariables.dat PhotonAnalysis_scripts/inputfiles.dat PhotonAnalysis_scripts/python/configProducer.py  PhotonAnalysis/src/PhotonAnalysis.cc PhotonAnalysis_scripts/looper.py PhotonAnalysis_scripts/looper_input.dat PhotonAnalysis_scripts/photonanalysis.dat PhotonAnalysis_scripts/reduction_output.dat PhotonAnalysis_scripts/datafiles_5fb.dat PhotonAnalysis_scripts/statanalysis.dat
 rm PhotonAnalysis/interface/StatAnalysisExclusive.h PhotonAnalysis/src/StatAnalysisExclusive.cc Makefile PhotonAnalysis_scripts/statanalysisexclusive.dat PhotonAnalysis_scripts/fitter.py
 rm CounterContainer.cc CounterContainer.h PhotonAnalysis_scripts/minimal_statanalysis_input.dat
 
