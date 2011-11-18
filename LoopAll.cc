@@ -866,62 +866,64 @@ void LoopAll::WriteCounters() {
 
   // FIXME size
   for (Int_t var=0; var<counterContainer[0].size(); var++) {
-    fprintf(file, "Sample, Counter Name, Categories, ");
+    fprintf(file, ",Sample,Counter Name,Categories,");
     Int_t cats = counterContainer[0].ncat(var);
     for (Int_t cat=0; cat<cats; cat++)
-      fprintf(file, "Cat %d Counts, ", cat);    
-    fprintf(file, "TOT Cat Counts, ");
+      fprintf(file, "Cat %d Counts,", cat);    
+    fprintf(file, "TOT Cat Counts, , ,");
     for (Int_t cat=0; cat<cats; cat++)
-      fprintf(file, "Cat %d Tot Events, ", cat);
-    fprintf(file, "TOT Cat Tot Events, ");
+      fprintf(file, "Cat %d Tot Events,", cat);
+    fprintf(file, "TOT Cat Tot Events, , ,");
     for (Int_t cat=0; cat<cats; cat++)
-      fprintf(file, "Cat %d Sigma, ", cat);
-    fprintf(file, "TOT Cat Sigma, ");
+      fprintf(file, "Cat %d Sigma,", cat);
+    fprintf(file, "TOT Cat Sigma, , ,");
     for (Int_t den=0; den<3; den++) {
-      fprintf(file, "Denominator Name, ");
+      fprintf(file, "Denominator Name,");
       for (Int_t cat=0; cat<cats; cat++)
-	fprintf(file, "Cat %d Counts, ", cat);    
-      fprintf(file, "TOT Cat Counts, ");
+	fprintf(file, "Cat %d Counts,", cat);    
+      fprintf(file, "TOT Cat Counts, , ,");
     }
-    fprintf(file, "indexfiles, namefile, scale, lumi, intLumi, weight\n");
+    fprintf(file, "indexfiles,scale,lumi,intLumi,weight\n");
     
     for (Int_t c=0; c<counterContainer.size(); c++) {
-      fprintf(file, "%s, %s, %d, ", 
+      fprintf(file, ",%s,%s,%d,", 
 	      sampleContainer[c].filesshortnam.c_str(), 
 	      counterContainer[0].name(var).c_str(),
 	      cats);
 
       float tot = counterContainer[c].tot(var);
       for (Int_t cat=0; cat<cats; cat++) {
-	fprintf(file, "%f, ", counterContainer[c][var][cat]);
+	fprintf(file, "%f,", counterContainer[c][var][cat]);
       }
-      fprintf(file, "%f, ", tot);
+      fprintf(file, "%f, , ,", tot);
 
       float weight = sampleContainer[c].weight;
       for (Int_t cat=0; cat<cats; cat++) {
-	fprintf(file, "%f, ", counterContainer[c][var][cat]*weight);
+	fprintf(file, "%f,", counterContainer[c][var][cat]*weight);
       }
-      fprintf(file, "%f, ", tot*weight);
+      fprintf(file, "%f, , ,", tot*weight);
 
       // FIXME Sigma ???
       for (Int_t cat=0; cat<cats; cat++) {
-	fprintf(file, "%f, ", counterContainer[c][var][cat]*weight);
+	fprintf(file, "%f,", counterContainer[c][var][cat]*weight);
       }
-      fprintf(file, "%f, ", tot*weight);
+      fprintf(file, "%f, , ,", tot*weight);
 
       for (Int_t den=0; den<3; den++) {
-	fprintf(file, "%s, ", counterContainer[c].denomName(var, den).c_str());
+	fprintf(file, "%s ,", counterContainer[c].denomName(var, den).c_str());
 	for (Int_t cat=0; cat<cats; cat++)
-	  fprintf(file, "%f, ", counterContainer[c].efficiency(var, cat, den));    
-	fprintf(file, "%f, ", counterContainer[c].efficiency(var, den));
+	  fprintf(file, "%f,", counterContainer[c].efficiency(var, cat, den));    
+	fprintf(file, "%f, , ,", counterContainer[c].efficiency(var, den));
       }
-      fprintf(file, "%d, %f, %f, %f, %f\n",
-	      sampleContainer[c].ind,
+      fprintf(file, "%d,%f,%f,%f,%f\n",
+	      sampleContainer[c].itype,
 	      sampleContainer[c].scale,
 	      sampleContainer[c].lumi,
 	      intlumi_,
 	      weight);
     }
+
+    fprintf(file, "\n\n\n\n");
   }
 
   fclose(file);
