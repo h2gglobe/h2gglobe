@@ -26,7 +26,11 @@ typ=3    ind=3  draw=1  Nam=GJet20_pf  Dir=/hadoop/cms/store/user/capalmer/h2g_V
 typ=4    ind=4  draw=1  Nam=DYJets     Dir=/hadoop/cms/store/user/capalmer/h2g_V11_04_01/h2gred_nov18/MC_Bkg_Fall11_S6/DYJetsToLL_TuneZ2_M-50_S6    xsec=2.475e+03       lum=1.e10     kfac=1.0  scal=1.
 
 typ=7    ind=7  draw=1  Nam=Box25   Dir=/hadoop/cms/store/user/capalmer/h2g_V11_04_01/h2gred_nov18/MC_Bkg_Fall11_S6/Box25To250_S6     xsec=12.37        lum=1.e10     kfac=1.0  scal=1.
+->
 typ=8    ind=8  draw=1  Nam=Box250  Dir=/hadoop/cms/store/user/capalmer/h2g_V11_04_01/h2gred_nov18/MC_Bkg_Fall11_S6/Box250_S6     xsec=2.08e-04     lum=1.e10     kfac=1.0  scal=1.
+->
+typ=8    ind=8  draw=1  Nam=Box250  Fil=/hadoop/cms/store/user/capalmer/h2g_V11_04_01/h2gred_nov18/MC_Bkg_Fall11_S6/Box250_S6/Box250_S6_0.root     xsec=2.08e-04     lum=1.e10     kfac=1.0  scal=1.
+
 typ=9    ind=9  draw=1  Nam=DiPhotonJets  Dir=/hadoop/cms/store/user/capalmer/h2g_V11_04_01/h2gred_nov18/MC_Bkg_Fall11_S6/DiPhotonJets_S6     xsec=1.54e+02     lum=1.e10     kfac=1.0  scal=1.
 
 

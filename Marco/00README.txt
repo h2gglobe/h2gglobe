@@ -3,6 +3,8 @@
 
 ~capalmer/CMS/Higgs2gg/Limits/nov14_forAN/428p7/src/HiggsAnalysis/HiggsTo2photons/h2gglobe_new2/
 
+http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/UserCode/HiggsAnalysis/HiggsTo2photons/h2gglobe/Marco/
+
 
 diff -r ~capalmer/CMS/Higgs2gg/Limits/nov14_forAN/428p7/src/HiggsAnalysis/HiggsTo2photons/h2gglobe_new2/ . |grep "diff -r" |grep -v CVS
 
@@ -84,6 +86,7 @@ cp Marco/configProducer.py PhotonAnalysis_scripts/python/configProducer.py
 
 cp Marco/datafiles_5fb.dat PhotonAnalysis_scripts/datafiles_5fb.dat
 cp Marco/datafiles_5fb_LL_33_23.dat PhotonAnalysis_scripts/datafiles_5fb_LL_33_23.dat
+cp Marco/datafiles_5fb_LL_33_23_all.dat PhotonAnalysis_scripts/datafiles_5fb_LL_33_23_all.dat
 
 cp Marco/statanalysis.dat PhotonAnalysis_scripts/statanalysis.dat
 
