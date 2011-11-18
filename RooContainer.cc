@@ -7,7 +7,7 @@
 
 using namespace RooFit;
 
-RooContainer::RooContainer(int n, int s):ncat(n),nsigmas(s),make_systematics(false),save_systematics_data(false){verbosity_=false;}
+RooContainer::RooContainer(int n, int s):ncat(n),nsigmas(s),make_systematics(false),save_systematics_data(false),fit_systematics(false),verbosity_(false){}
 // ----------------------------------------------------------------------------------------------------
 void RooContainer::SetNCategories(int n){
    ncat = n;
@@ -16,8 +16,11 @@ void RooContainer::AddGlobalSystematic(std::string name,double val_sig, double v
   global_systematics_[name] = std::pair<double,double>(val_sig,val_bkg);
 }
 // ----------------------------------------------------------------------------------------------------
-void RooContainer::SaveSystematicsData(){
-   save_systematics_data = true;
+void RooContainer::SaveSystematicsData(bool _do){
+   save_systematics_data = _do;
+}
+void RooContainer::MakeSystematicPdfs(bool _do){
+   fit_systematics = _do;
 }
 void RooContainer::Verobose(bool noisy){
 	verbosity_=noisy;
@@ -125,7 +128,7 @@ void RooContainer::AddGenericPdf(std::string name,std::string formula,std::strin
     }  
     addGenericPdf(getcatName(name,cat),formula,obs_name,cat_var,form,norm_guess,norm_min,norm_max);
 
-    if (make_systematics){
+    if (make_systematics && fit_systematics){
       
       for (it_sys=systematics_.begin(); it_sys!=systematics_.end();it_sys++){
        for (int sys=1;sys<=nsigmas;sys++){
@@ -166,7 +169,7 @@ void RooContainer::ComposeSpecificCategoryPdf(int *categories,std::string name, 
     }  
     composePdf(getcatName(name,cat),composition,cat_formula,use_extended);
 	
-    if (make_systematics){	
+    if (make_systematics && fit_systematics){	
      for (it_sys=systematics_.begin(); it_sys!=systematics_.end();it_sys++){
       for (int sys=1;sys<=nsigmas;sys++){
        std::vector<std::string> cat_formula;
@@ -202,7 +205,7 @@ void RooContainer::ComposePdf(std::string name, std::string  composition
     }  
     composePdf(getcatName(name,cat),composition,cat_formula,use_extended);
 	
-    if (make_systematics){	
+    if (make_systematics && fit_systematics){	
      for (it_sys=systematics_.begin(); it_sys!=systematics_.end();it_sys++){
       for (int sys=1;sys<=nsigmas;sys++){
        std::vector<std::string> cat_formula;
@@ -1586,6 +1589,13 @@ void RooContainer::fitToData(std::string name_func, std::string name_data, std::
 void RooContainer::fitToSystematicSet(std::string name_func,std::string name_var
 	     ,std::string sys_name
 	     ,double x1,double x2,double x3,double x4){
+
+  if (! fit_systematics){
+
+    std::cerr << "WARNING!!! -- RooContainer::FitToSystematicSet -- Systematic pdfs were not made ! (Need do MakeSystematicPdfs() ) "<<
+		 " No fit will be performed" << endl;
+    return;
+  }
 
   if (! save_systematics_data){
     std::cerr << "WARNING!!! -- RooContainer::FitToSystematicSet -- Systematic dataset was not saved ! (Need do SaveSystematicsData() ) "<<
