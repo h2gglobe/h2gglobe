@@ -199,9 +199,9 @@ class LoopAll {
   //DON'T USE THE FOLLOWING ONE, IT MAY BE CONFUSING
   int ApplyCut(TString cutname, int * passcategory); //returns the number of categories
   
-  int ApplyCutsFill(int icat, int cutset, int & ncutsapplied, int & ncutspassed,  int & ncutsfailed);
+  int ApplyCutsFill(int icat, int cutset, int & ncutsapplied, int & ncutspassed,  int & ncutsfailed, float histweight=1.0, float countweight=1.0);
   int ApplyCuts(int icat, int cutset, int & ncutsapplied, int & ncutspassed,  int & ncutsfailed);
-  int ApplyCutsFill(int icat, int cutset);
+  int ApplyCutsFill(int icat, int cutset, float histweight=1.0, float countweight=1.0);
   int ApplyCuts(int icat, int cutset);
   
   //DON'T USE THE FOLLOWING ONE, IT MAY BE CONFUSING
@@ -219,14 +219,7 @@ class LoopAll {
   void FillHist(std::string, int, float, float wt = 1.0); 
   void FillHist2D(std::string, int, float, float, float wt = 1.0);
 
-#ifndef NewFeatures  
   void FillCounter(std::string name, float weight=1., int cat=0);
-#endif
-
-#ifdef NewFeatures  
-  void FillCounter(std::string name, int cat=0, float weight=1.);
-#endif
-
 
   BaseAnalysis* AddAnalysis(BaseAnalysis*); 
   template<class T> T * GetAnalysis( const std::string & name ) {

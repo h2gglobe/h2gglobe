@@ -15,6 +15,23 @@ m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_CMS-HGG_4686_nov17_
 m->myPlotInteractive("PhotonAnalysis_scripts/histograms_CMS-HGG_4686_nov17_tryExcl.root");
 
 
+
+m->myPlotInteractiveSetup("Marco/histograms_CMS-HGG_4686_nov17_tryExcl.root","Hgg");
+m->myPlotInteractive("Marco/histograms_CMS-HGG_4686_nov17_tryExcl.root");
+
+
+
+m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_CMS-HGG_4686_nov17_tryExcl.root","Hgg");
+m->myPlotInteractive("PhotonAnalysis_scripts/histograms_CMS-HGG_4686_nov17_tryExcl.root");
+
+
+m->myPlotInteractiveSetup("Marco/histograms_CMS-HGG_4686_nov17_tryExcl.root","Hgg");
+m->myPlotInteractive("Marco/histograms_CMS-HGG_4686_nov17_tryExcl.root");
+
+m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_CMS-HGG_4686_nov17_tryExcl.root","Hgg");
+m->myPlotInteractive("PhotonAnalysis_scripts/histograms_CMS-HGG_4686_nov17_tryExcl.root");
+
+
 m->myPlotInteractiveSetup("Marco/histograms_CMS-HGG_4686_nov17_tryExcl.root","Hgg");
 m->myPlotInteractive("Marco/histograms_CMS-HGG_4686_nov17_tryExcl.root");
 

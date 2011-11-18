@@ -1394,7 +1394,6 @@ void LoopAll::FillHist2D(std::string name, int category, float x, float y, float
 }
 
 // ------------------------------------------------------------------------------------
-#ifndef NewFeatures
 //// // ------------------------------------------------------------------------------------
 //// void LoopAll::FillCounter(std::string name, float weight) {
 //// 	FillCounter(name, 0, weight);
@@ -1404,12 +1403,6 @@ void LoopAll::FillHist2D(std::string name, int category, float x, float y, float
 void LoopAll::FillCounter(std::string name, float weight, int category ) {
 	counterContainer[current_sample_index].Fill(name, category, weight);
 }
-#endif
-#ifdef NewFeatures
-void LoopAll::FillCounter(std::string name, int category, float weight) {
-	counterContainer[current_sample_index].Fill(name, category, weight);
-}
-#endif
 
 // ----------------------------------------------------------------------------------------------------------------------
 bool LoopAll::CheckLumiSelection( int run, int lumi )
@@ -1572,7 +1565,7 @@ int LoopAll::ApplyCuts(int icat, int cutset, int & ncutsapplied, int & ncutspass
   return passcuts;
 }
 
-int LoopAll::ApplyCutsFill(int icat, int cutset, int & ncutsapplied, int & ncutspassed,  int & ncutsfailed) {
+int LoopAll::ApplyCutsFill(int icat, int cutset, int & ncutsapplied, int & ncutspassed,  int & ncutsfailed, float histweight, float countweight) {
 
   int ntmpcuts=0;
   int tmppasscut[100];
@@ -1623,16 +1616,16 @@ int LoopAll::ApplyCutsFill(int icat, int cutset, int & ncutsapplied, int & ncuts
   if(ncutsfailed==1||ncutsfailed==0) {
     for(int i=0; i<ntmpcuts; i++) {
       if(ncutsfailed==0||tmppasscut[i]==0) {
-	FillHist(cutContainer[indexcut[i]].name+"_nminus1", icat, *(cutContainer[indexcut[i]].mycutvar));
-	FillCounter(cutContainer[indexcut[i]].name+"_nminus1", icat);
+	FillHist(cutContainer[indexcut[i]].name+"_nminus1", icat, *(cutContainer[indexcut[i]].mycutvar), histweight);
+	FillCounter(cutContainer[indexcut[i]].name+"_nminus1", countweight, icat);
 	
       }
     } 
   }
 
   for(int i=0; i<ntmpcuts; i++) {
-    FillHist(cutContainer[indexcut[i]].name+"_sequential", icat, *(cutContainer[indexcut[i]].mycutvar));
-    FillCounter(cutContainer[indexcut[i]].name+"_sequential", icat);
+    FillHist(cutContainer[indexcut[i]].name+"_sequential", icat, *(cutContainer[indexcut[i]].mycutvar), histweight);
+    FillCounter(cutContainer[indexcut[i]].name+"_sequential", countweight, icat);
     if(tmppasscut[i]==0) break;
   }
 
@@ -1648,11 +1641,11 @@ int LoopAll::ApplyCuts(int icat, int cutset) {
   return ApplyCuts(icat, cutset, ncutsapplied, ncutspassed, ncutsfailed);
 }
 
-int LoopAll::ApplyCutsFill(int icat, int cutset) {
+int LoopAll::ApplyCutsFill(int icat, int cutset, float histweight, float countweight) {
   int ncutsapplied=0;
   int ncutspassed=0;
   int ncutsfailed=0;
-  return ApplyCutsFill(icat, cutset, ncutsapplied, ncutspassed, ncutsfailed);
+  return ApplyCutsFill(icat, cutset, ncutsapplied, ncutspassed, ncutsfailed, histweight, countweight);
 }
 
 //DON'T USE THE FOLLOWING ONE, IT MAY BE CONFUSING

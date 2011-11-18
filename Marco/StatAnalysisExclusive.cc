@@ -621,7 +621,15 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
           myVBFdPhi = diphoton.DeltaPhi(dijet);
           myVBF_Mgg =diphoton.M();
 
-          VBFevent = l.ApplyCutsFill(0,1);
+	  //should be done for both earlier
+	  diphoton_index = std::make_pair( l.dipho_leadind[diphotonVBF_id],  l.dipho_subleadind[diphotonVBF_id] );
+	  float evweight = weight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second] * genLevWeight;
+	  float myweight=1.;
+	  if(evweight*weight!=0) myweight=evweight/weight;
+	  
+          VBFevent = l.ApplyCutsFill(0,1,evweight, myweight);
+
+
         }
       }
     }
@@ -629,7 +637,6 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
     if(VBFevent) diphoton_id = diphotonVBF_id;
     
     // CP
-
     /// std::cerr << "Selected pair " << l.dipho_n << " " << diphoton_id << std::endl;
     if (diphoton_id > -1 ) {
 
