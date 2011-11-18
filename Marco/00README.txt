@@ -11,6 +11,11 @@ setTDRStyle();
   //gSystem->Load("VertexAnalysis/lib/libh2gglobeVertexAnalysis.so");
 gSystem->Load("libLoopAll.so");
 LoopAll* m=new LoopAll();
+m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_CMS-HGG_4686_nov17_tryExcl_new.root","Hgg");
+m->myPlotInteractive("PhotonAnalysis_scripts/histograms_CMS-HGG_4686_nov17_tryExcl_new.root");
+
+
+
 m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_CMS-HGG_4686_nov17_tryExcl.root","Hgg");
 m->myPlotInteractive("PhotonAnalysis_scripts/histograms_CMS-HGG_4686_nov17_tryExcl.root");
 
@@ -51,6 +56,8 @@ rm -r  HiggsAnalysis/HiggsTo2photons/h2gglobe
 
 cvs co -d HiggsAnalysis/HiggsTo2photons/h2gglobe UserCode/HiggsAnalysis/HiggsTo2photons/h2gglobe
 
+cp Marco/CommonParameters.h ./CommonParameters.h
+
 cp Marco/HistoContainer.cc ./HistoContainer.cc
 cp Marco/HistoContainer.h ./HistoContainer.h
 
@@ -70,6 +77,8 @@ cp Marco/configProducer.py PhotonAnalysis_scripts/python/configProducer.py
 # cp Marco/PhotonAnalysis.cc PhotonAnalysis/src/PhotonAnalysis.cc
 
 cp Marco/datafiles_5fb.dat PhotonAnalysis_scripts/datafiles_5fb.dat
+cp Marco/datafiles_5fb_LL_33_23.dat PhotonAnalysis_scripts/datafiles_5fb_LL_33_23.dat
+
 cp Marco/statanalysis.dat PhotonAnalysis_scripts/statanalysis.dat
 
 cp Marco/StatAnalysisExclusive.h PhotonAnalysis/interface/StatAnalysisExclusive.h
@@ -81,6 +90,7 @@ cp Marco/Makefile ./Makefile
 
 
 
+diff Marco/CommonParameters.h ./CommonParameters.h
 
 diff Marco/HistoContainer.cc ./HistoContainer.cc
 diff Marco/HistoContainer.h ./HistoContainer.h
@@ -111,13 +121,7 @@ diff Marco/fitter.py PhotonAnalysis_scripts/fitter.py
 diff Marco/Makefile ./Makefile
 
 
-
-
-
-
-uncomment the second to last line in CommonParameters.h
-
-Modify in PhotonAnalysis/interface/PhotonAnalysis.h the line similar into:
+If needed modify in PhotonAnalysis/interface/PhotonAnalysis.h the line similar into:
 #include "../../../../HiggsToGammaGamma/interface/GBRForest.h"
 
 Then make
@@ -127,6 +131,10 @@ make clean; make -j 30
 cd PhotonAnalysis_scripts/.
 python fitter.py -i datafiles_5fb.dat --dryRun
 python fitter.py -i datafiles_5fb.dat 
+
+cd PhotonAnalysis_scripts/.
+python fitter.py -i datafiles_5fb_LL_33_23.dat --dryRun
+python fitter.py -i datafiles_5fb_LL_33_23.dat 
 
 Plotinteractive and myprintcountersnew are still to be fixed
 
