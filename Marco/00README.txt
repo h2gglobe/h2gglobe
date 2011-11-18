@@ -1,6 +1,12 @@
 ~capalmer/CMS/Higgs2gg/Limits/nov14_forAN/428p7/src/HiggsAnalysis/HiggsTo2photons/h2gglobe_new/PhotonAnalysis_scripts/histograms_CMS-HGG_4686_nov17_tryExcl.root
 
 
+~capalmer/CMS/Higgs2gg/Limits/nov14_forAN/428p7/src/HiggsAnalysis/HiggsTo2photons/h2gglobe_new2/
+
+
+diff -r ~capalmer/CMS/Higgs2gg/Limits/nov14_forAN/428p7/src/HiggsAnalysis/HiggsTo2photons/h2gglobe_new2/ . |grep "diff -r" |grep -v CVS
+
+
 # FOR LOOPINTERACTIVE:
 
 root -l
@@ -135,6 +141,10 @@ python fitter.py -i datafiles_5fb.dat
 cd PhotonAnalysis_scripts/.
 python fitter.py -i datafiles_5fb_LL_33_23.dat --dryRun
 python fitter.py -i datafiles_5fb_LL_33_23.dat 
+
+cd PhotonAnalysis_scripts/.
+python fitter.py -i datafiles_5fb_LL_33_23_all.dat --dryRun
+python fitter.py -i datafiles_5fb_LL_33_23_all.dat 
 
 Plotinteractive and myprintcountersnew are still to be fixed
 
