@@ -65,6 +65,14 @@ public:
   float  myVBF_Mjj;
   float  myVBF_Mgg;
 
+  float  myVHadLeadJPt;
+  float  myVHadSubJPt;
+  float  myVHaddEta;
+  float  myVHadZep;
+  float  myVHaddPhi;
+  float  myVHad_Mjj;
+  float  myVHad_Mgg;
+
 
   std::pair<int, int> Select2HighestPtJets(LoopAll&, TLorentzVector& leadpho, TLorentzVector& subleadpho, float jtLMinPt, float jtTMinPt);
   int RescaleJetEnergy(LoopAll&);
