@@ -716,15 +716,15 @@ void LoopAll::WriteHist() {
 #ifdef NewFeatures
 void LoopAll::WritePI() {
   Int_t Nvar;
-  Int_t h2d[1000], typplot[1000], histoncat[1000], histoindfromfiles[1000];
-  Int_t histoncatindtonames[1000];
-  Int_t nbinsx[1000], nbinsy[1000];
-  Float_t lowlim[1000], highlim[1000], lowlim2[1000], highlim2[1000];
-  Int_t itype[1000], histoind[1000], infoind[1000], histoplotit[1000];
-  Int_t ntot[1000], nred[1000];
-  Float_t lumi[1000], xsec[1000], kfactor[1000], scale[1000];
+  Int_t h2d[10000], typplot[10000], histoncat[10000], histoindfromfiles[10000];
+  Int_t histoncatindtonames[10000];
+  Int_t nbinsx[10000], nbinsy[10000];
+  Float_t lowlim[10000], highlim[10000], lowlim2[10000], highlim2[10000];
+  Int_t itype[00000], histoind[10000], infoind[10000], histoplotit[10000];
+  Int_t ntot[10000], nred[10000];
+  Float_t lumi[10000], xsec[10000], kfactor[10000], scale[10000];
   Int_t typplotall = 0;
-  Int_t plothistoplotitPI[1000];
+  Int_t plothistoplotitPI[10000];
 
   hfile->cd();
   plotvartree = new TTree("plotvariables","globe plotvariables provenance information");
@@ -839,9 +839,15 @@ void LoopAll::WritePI() {
   TClonesArray* tca_infilenames = new TClonesArray("TObjString", nfiles);
   inputfiletree->Branch("inshortnames", "TClonesArray", &tca_inshortnames, 32000, 0);
   inputfiletree->Branch("infilenames", "TClonesArray", &tca_infilenames, 32000, 0);
-  for(int ifile=0;ifile!=nfiles;++ifile) { 
+
+  cout<<"WritePI nfiles "<<nfiles<<" "<<sampleContainer.size()<<endl;
+  //for(int ifile=0;ifile!=nfiles;++ifile) { 
+  for(int ifile=0;ifile!=sampleContainer.size();++ifile) { 
+    cout<<"WritePI ifile "<<ifile<<endl;
     new ((*tca_inshortnames)[ifile]) TObjString(); 
     new ((*tca_infilenames)[ifile]) TObjString(); 
+    cout<<"WritePI sampleContainer[ifile].filesshortnam.c_str()"<< sampleContainer[ifile].filesshortnam.c_str()<<endl;
+
     ((TObjString *)tca_inshortnames->At(ifile))->SetString(sampleContainer[ifile].filesshortnam.c_str());
     ((TObjString *)tca_infilenames->At(ifile))->SetString(sampleContainer[ifile].filesshortnam.c_str());
   }
