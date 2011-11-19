@@ -33,7 +33,7 @@ SMFILLSTYLE=3244
 FILLCOLOR_95=ROOT.kGreen
 FILLCOLOR_68=ROOT.kYellow
 FILLCOLOR_T=ROOT.kAzure+7			# Theory lines color
-RANGEYABS=[0.0,0.6]
+RANGEYABS=[0.0,0.3]
 RANGEYRAT=[0.0,8]
 #-------------------------------------------------------------------------
 # UserInput
@@ -43,6 +43,7 @@ parser.add_option("-s","--doSmooth",action="store_true")
 parser.add_option("-b","--bayes",dest="bayes")
 parser.add_option("-o","--outputLimits",dest="outputLimits")
 parser.add_option("-e","--expectedOnly",action="store_true")
+parser.add_option("-d","--directory",default="None")
 (options,args)=parser.parse_args()
 # ------------------------------------------------------------------------
 
@@ -54,18 +55,21 @@ if options.bayes:
 print "doRatio: ", options.doRatio
 print "doSmooth: ", options.doSmooth
  
+
 Method = args[0]
-EXPName = Method+"/expected"+Method
-if Method == "Asymptotic":  EXPName = Method+"/higgsCombineTest."+Method  # everyhting contained here
+if options.directory=="None": InputDirectory=Method
+else: InputDirectory=options.directory
+
+EXPName = InputDirectory+"/expected"+Method
+if Method == "Asymptotic":  EXPName = InputDirectory+"/higgsCombineTest."+Method  # everyhting contained here
 if Method == "ProfileLikelihood" or Method=="Asymptotic":
-  OBSName = Method+"/higgsCombineTest."+Method
+  OBSName = InputDirectory+"/higgsCombineTest."+Method
 if Method == "Bayesian":
-  OBSName = Method+"/higgsCombineOBSERVED.MarkovChainMC"
+  OBSName = InputDirectory+"/higgsCombineOBSERVED.MarkovChainMC"
 if Method == "Frequentist":
-  OBSName = Method+"/higgsCombineOBSERVED.Frequentist"
+  OBSName = InputDirectory+"/higgsCombineOBSERVED.Frequentist"
 
 if Method == "Frequentist" or Method == "Asymptotic": EXPmasses = OBSmasses[:]
-
 if args[1] == "sm":
  ROOT.gROOT.ProcessLine(".L Normalization.C++")
  from ROOT import GetBR
@@ -306,7 +310,7 @@ for i,mass in zip(range(len(OBSfiles)),OBSmasses):
 
     sm = 1.;
     if obs[i] ==-1: continue
-    if not options.doRatio: sm = GetBR(M)*GetXsection(M)
+    if not options.doRatio: sm = GetBR(mass)*GetXsection(mass)
     graphObs.SetPoint(i,float(mass),obs[i]*sm)
     graphObs.SetPointError(i,0,0,0,0)
 
