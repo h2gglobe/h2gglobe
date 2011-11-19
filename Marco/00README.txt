@@ -126,6 +126,8 @@ cp Marco/statanalysis.dat PhotonAnalysis_scripts/statanalysis.dat
 cp Marco/StatAnalysisExclusive.h PhotonAnalysis/interface/StatAnalysisExclusive.h
 cp Marco/StatAnalysisExclusive.cc PhotonAnalysis/src/StatAnalysisExclusive.cc
 #cp Marco/StatAnalysisExclusive_marco.cc PhotonAnalysis/src/StatAnalysisExclusive.cc
+#cp Marco/StatAnalysisExclusive_marco_new.cc PhotonAnalysis/src/StatAnalysisExclusive.cc
+#cp Marco/StatAnalysisExclusive_marco_newnew.cc PhotonAnalysis/src/StatAnalysisExclusive.cc
 cp Marco/statanalysisexclusive.dat PhotonAnalysis_scripts/statanalysisexclusive.dat
 cp Marco/fitter.py PhotonAnalysis_scripts/fitter.py
 
@@ -171,7 +173,7 @@ If needed modify in PhotonAnalysis/interface/PhotonAnalysis.h the line similar i
 
 Then make
 
-make clean; make -j 30
+make clean; make -j 40
 
 cd PhotonAnalysis_scripts/.
 python fitter.py -i datafiles_5fb.dat --dryRun
@@ -182,9 +184,19 @@ python fitter.py -i datafiles_5fb_LL_33_23.dat --dryRun
 python fitter.py -i datafiles_5fb_LL_33_23.dat 
 
 cd PhotonAnalysis_scripts/.
+rm datafiles_5fb_LL_33_23_all_short.dat.pevents
+python fitter.py -i datafiles_5fb_LL_33_23_all_short.dat --dryRun
+python fitter.py -i datafiles_5fb_LL_33_23_all_short.dat 
+
+cd PhotonAnalysis_scripts/.
 rm datafiles_5fb_LL_33_23_all.dat.pevents
 python fitter.py -i datafiles_5fb_LL_33_23_all.dat --dryRun
 python fitter.py -i datafiles_5fb_LL_33_23_all.dat 
+
+cd PhotonAnalysis_scripts/.
+rm datafiles_5fb_LL_33_23_all_ff.dat.pevents
+python fitter.py -i datafiles_5fb_LL_33_23_all_ff.dat --dryRun
+python fitter.py -i datafiles_5fb_LL_33_23_all_ff.dat 
 
 Plotinteractive and myprintcountersnew are still to be fixed
 
