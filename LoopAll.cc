@@ -821,7 +821,12 @@ void LoopAll::WritePI() {
   inputfiletree->Branch("xsec", &xsec, "xsec[nfiles]/F");
   inputfiletree->Branch("kfactor", &kfactor, "kfactor[nfiles]/F");
   inputfiletree->Branch("scale", &scale, "scale[nfiles]/F");
-  
+
+  TClonesArray* tca_inshortnames = new TClonesArray("TObjString", sampleContainer.size());
+  inputfiletree->Branch("inshortnames", "TClonesArray", &tca_inshortnames, 32000, 0);
+  TClonesArray* tca_infilenames = new TClonesArray("TObjString", 1);
+  inputfiletree->Branch("infilenames", "TClonesArray", &tca_infilenames, 32000, 0);
+
   for (unsigned int i=0; i<sampleContainer.size(); i++) {
     itype[i] = sampleContainer[i].itype;
     histoind[i] = sampleContainer[i].ind;
@@ -833,24 +838,13 @@ void LoopAll::WritePI() {
     xsec[i] = sampleContainer[i].xsec;
     kfactor[i] = sampleContainer[i].kfactor;
     scale[i] = sampleContainer[i].scale;
+    new ((*tca_inshortnames)[i]) TObjString(); 
+    ((TObjString *)tca_inshortnames->At(i))->SetString(sampleContainer[i].filesshortnam.c_str());
+    
+    new ((*tca_infilenames)[i]) TObjString(); 
+    ((TObjString *)tca_infilenames->At(i))->SetString("n.a.");
   }
 
-  TClonesArray* tca_inshortnames = new TClonesArray("TObjString",1);
-  TClonesArray* tca_infilenames = new TClonesArray("TObjString", nfiles);
-  inputfiletree->Branch("inshortnames", "TClonesArray", &tca_inshortnames, 32000, 0);
-  inputfiletree->Branch("infilenames", "TClonesArray", &tca_infilenames, 32000, 0);
-
-  cout<<"WritePI nfiles "<<nfiles<<" "<<sampleContainer.size()<<endl;
-  //for(int ifile=0;ifile!=nfiles;++ifile) { 
-  for(int ifile=0;ifile!=sampleContainer.size();++ifile) { 
-    cout<<"WritePI ifile "<<ifile<<endl;
-    new ((*tca_inshortnames)[ifile]) TObjString(); 
-    new ((*tca_infilenames)[ifile]) TObjString(); 
-    cout<<"WritePI sampleContainer[ifile].filesshortnam.c_str()"<< sampleContainer[ifile].filesshortnam.c_str()<<endl;
-
-    ((TObjString *)tca_inshortnames->At(ifile))->SetString(sampleContainer[ifile].filesshortnam.c_str());
-    ((TObjString *)tca_infilenames->At(ifile))->SetString(sampleContainer[ifile].filesshortnam.c_str());
-  }
   inputfiletree->Fill();
   inputfiletree->Write(0,TObject::kWriteDelete);
 }
@@ -1048,11 +1042,15 @@ int LoopAll::FillAndReduce(int jentry) {
 
   //count all events
   countersred[0]++;
+
   //
   // read all inputs 
   //
   GetEntry(inputBranches, jentry);
+  
 
+  //b_run->GetEntry(jentry);
+  //b_lumis->GetEntry(jentry);
   if(!CheckLumiSelection(run,lumis)){
 	  return hasoutputfile;
   }
@@ -1067,7 +1065,6 @@ int LoopAll::FillAndReduce(int jentry) {
     }
   }
   countersred[2]++;
-  
 
   //
   // reduction step
