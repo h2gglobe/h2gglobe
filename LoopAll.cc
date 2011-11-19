@@ -824,7 +824,7 @@ void LoopAll::WritePI() {
 
   TClonesArray* tca_inshortnames = new TClonesArray("TObjString", sampleContainer.size());
   inputfiletree->Branch("inshortnames", "TClonesArray", &tca_inshortnames, 32000, 0);
-  TClonesArray* tca_infilenames = new TClonesArray("TObjString", 1);
+  TClonesArray* tca_infilenames = new TClonesArray("TObjString", sampleContainer.size());
   inputfiletree->Branch("infilenames", "TClonesArray", &tca_infilenames, 32000, 0);
 
   for (unsigned int i=0; i<sampleContainer.size(); i++) {
