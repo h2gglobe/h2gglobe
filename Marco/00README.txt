@@ -1,7 +1,6 @@
 ~capalmer/CMS/Higgs2gg/Limits/nov14_forAN/428p7/src/HiggsAnalysis/HiggsTo2photons/h2gglobe_new/PhotonAnalysis_scripts/histograms_CMS-HGG_4686_nov17_tryExcl.root
 
-
-~capalmer/CMS/Higgs2gg/Limits/nov14_forAN/428p7/src/HiggsAnalysis/HiggsTo2photons/h2gglobe_new2/
+~capalmer/CMS/Higgs2gg/Limits/nov14_forAN/428p7/src/HiggsAnalysis/HiggsTo2photons/h2gglobe_new2/PhotonAnalysis_scripts/
 
 http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/UserCode/HiggsAnalysis/HiggsTo2photons/h2gglobe/Marco/
 
@@ -19,6 +18,39 @@ setTDRStyle();
   //gSystem->Load("VertexAnalysis/lib/libh2gglobeVertexAnalysis.so");
 gSystem->Load("libLoopAll.so");
 LoopAll* m=new LoopAll();
+
+m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_CMS-HGG_4686_nov17_tryExcl_allsm_FINall.root","Hgg")
+m->myPlotInteractive("PhotonAnalysis_scripts/histograms_CMS-HGG_4686_nov17_tryExcl_allsm_FINall.root");
+
+
+
+m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_CMS-HGG_4686_nov17_tryExcl_allsm_FIN.root","Hgg")
+m->myPlotInteractive("PhotonAnalysis_scripts/histograms_CMS-HGG_4686_nov17_tryExcl_allsm_FIN.root");
+
+
+m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_CMS-HGG_4686_nov17_tryExcl_allsm_FINall.root","Hgg")
+m->myPlotInteractive("PhotonAnalysis_scripts/histograms_CMS-HGG_4686_nov17_tryExcl_allsm_FINall.root");
+
+
+
+
+m->myPlotInteractiveSetup("Marco/histograms_CMS-HGG_4686pb_jettagging_ff.root","Hgg")
+m->myPlotInteractive("Marco/histograms_CMS-HGG_4686pb_jettagging_ff.root");
+
+
+gSystem->Load("libLoopAll.so");
+LoopAll* m=new LoopAll();
+m->myPlotInteractiveSetup("Marco/histograms_CMS-HGG_4686pb_jettagging_ff.root","Hgg")
+m->myPlotInteractive("Marco/histograms_CMS-HGG_4686pb_jettagging_ff.root");
+
+m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_CMS-HGG_4686_nov17_tryExcl_new.root","Hgg");
+m->myPlotInteractive("PhotonAnalysis_scripts/histograms_CMS-HGG_4686_nov17_tryExcl_new.root");
+
+
+m->myPlotInteractiveSetup("Marco/histograms_CMS-HGG_4686pb_jettagging_ff.root","Hgg")
+m->myPlotInteractive("Marco/histograms_CMS-HGG_4686pb_jettagging_ff.root");
+
+
 m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_CMS-HGG_4686_nov17_tryExcl_new.root","Hgg");
 m->myPlotInteractive("PhotonAnalysis_scripts/histograms_CMS-HGG_4686_nov17_tryExcl_new.root");
 
@@ -146,6 +178,7 @@ python fitter.py -i datafiles_5fb_LL_33_23.dat --dryRun
 python fitter.py -i datafiles_5fb_LL_33_23.dat 
 
 cd PhotonAnalysis_scripts/.
+rm datafiles_5fb_LL_33_23_all.dat.pevents
 python fitter.py -i datafiles_5fb_LL_33_23_all.dat --dryRun
 python fitter.py -i datafiles_5fb_LL_33_23_all.dat 
 

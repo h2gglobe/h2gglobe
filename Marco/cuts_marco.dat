@@ -1,0 +1,13 @@
+cutname=number_Event_Trigger_HLT               ncat=1  dir=0 fin=0   val=1
+cutname=value_Event_Trigger_HLT                ncat=1  dir=0 fin=0   val=0
+cutname=def_ECAL_Barrel                        ncat=1  dir=2 fin=0   minval=0.0   maxval=1.4442
+cutname=cut_Mgg				       ncat=4  dir=2 fin=2   minval=90 minval=90 minval=90 minval=90 maxval=190 maxval=190 maxval=190 maxval=190 maxval=190 iread=1 plot=2 bins=50 xmin=90 xmax=190 xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=pluto
+
+cutname=cut_VBFLeadJPt  ncat=1  dir=0  fin=1  val=30.               iread=1 plot=2 bins=48 xmin=10 xmax=200   xaxis=Trailing@Jet@P_{T}@(GeV/c)    yaxis=Events/(5@GeV/c)
+cutname=cut_VBFSubJPt   ncat=1  dir=0  fin=1  val=20.               iread=1 plot=2 bins=48 xmin=10 xmax=200   xaxis=Trailing@Jet@P_{T}@(GeV/c)    yaxis=Events/(5@GeV/c)
+cutname=cut_VBF_Mjj     ncat=1  dir=0  fin=1  val=350.              iread=1 plot=2 bins=40 xmin=0 xmax=1000   xaxis=M_{JetJet}@(GeV/c^{2})        yaxis=Events/(50@GeV/c)
+cutname=cut_VBFdEta    ncat=1  dir=0  fin=1  val=3.5                iread=1 plot=2 bins=28 xmin=0 xmax=7      xaxis=#Delta#eta(Jet1,Jet2)        yaxis=Events/0.25
+cutname=cut_VBFZep     ncat=1  dir=1  fin=1  val=2.5                iread=1 plot=2 bins=32 xmin=0 xmax=8      xaxis=Zeppenfeld                   yaxis=Events/0.25
+cutname=cut_VBFdPhi    ncat=1  dir=0  fin=1  val=2.6                iread=1 plot=2 bins=16 xmin=0 xmax=3.142  xaxis=#Delta#phi(#gamma#gamma,jj)  yaxis=Events/(#pi/16)
+cutname=cut_VBF_Mgg     ncat=1  dir=2  fin=1  minval=90 maxval=190  iread=1 plot=2 bins=50 xmin=90 xmax=190   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(GeV/c^{2}
+cutname=cut_VBF_Mgg10   ncat=1  dir=2  fin=1  minval=90 maxval=190  iread=1 plot=2 bins=50 xmin=90 xmax=190   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(4@GeV/c^{2}

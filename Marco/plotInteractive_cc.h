@@ -325,15 +325,19 @@ void LoopAll::myPlotInteractive(TString hsmallname) {
             if(MPDEBUG) std::cout << "myHistname[iInd]: " << myHistname[iInd] << std::endl;
 
             hist1D[iInd] = new TH1F(*((TH1F*)gROOT->FindObject(myHistname[iInd]))); 
+            if(MPDEBUG) std::cout << "1 myHistname[iInd]: " << myHistname[iInd] << std::endl;
             hist1D[iInd]->SetLineStyle(0);
             hist1D[iInd]->GetXaxis()->SetLabelSize(0.04);
             hist1D[iInd]->GetYaxis()->SetLabelSize(0.04);
+            if(MPDEBUG) std::cout << "2 myHistname[iInd]: " << myHistname[iInd] << std::endl;
             if(xaxislabels[ivar] != "xaxis") {
               hist1D[iInd]->GetXaxis()->SetTitle(xaxislabels[ivar]);
               //std::cout <<"xaxislabels[ivar]: " << xaxislabels[ivar] << std::endl;
             }
+            if(MPDEBUG) std::cout << "3 myHistname[iInd]: " << myHistname[iInd] << std::endl;
             hist1D[iInd]->GetXaxis()->SetTitleSize(0.06);
             hist1D[iInd]->GetXaxis()->SetTitleOffset(0.75);
+            if(MPDEBUG) std::cout << "4 myHistname[iInd]: " << myHistname[iInd] << std::endl;
           }
           if(MPDEBUG) cout<<"myPlotInteractive 10 "<<endl;
           //reset hist contents (rebin, integrate, ...)
@@ -971,11 +975,11 @@ void LoopAll::myPlotInteractive(TString hsmallname) {
 
 	    //marcomarco
 	    if(iInd!=NIND-1) {
-            if(DoFill)  legend->AddEntry(hist1D[reverseInd],myLabel[reverseInd],"f"); 
-            else      legend->AddEntry(hist1D[reverseInd],myLabel[reverseInd],"l");
+            if(DoFill)  legend->AddEntry(hist1D[reverseInd],myLabeldisplay[reverseInd],"f"); 
+            else      legend->AddEntry(hist1D[reverseInd],myLabeldisplay[reverseInd],"l");
 	    }
 	    else 
-	      legend->AddEntry(hist1D[reverseInd],myLabel[reverseInd],"ep");
+	      legend->AddEntry(hist1D[reverseInd],myLabeldisplay[reverseInd],"ep");
           }
           if(MPDEBUG) cout<<"myPlotInteractive 18 "<<endl;
 #ifndef MARCODEFINE
@@ -1088,7 +1092,7 @@ void LoopAll::myPlotInteractive(TString hsmallname) {
             Int_t reverseInd = myStackOrder[NIND-1-iInd];// makes top of legend = top of stack
             if(omitInd[reverseInd]%2==1)continue;
             if(omitInd[reverseInd]==2)continue;
-            legend->AddEntry(hist2D[reverseInd],myLabel[reverseInd],"p");
+            legend->AddEntry(hist2D[reverseInd],myLabeldisplay[reverseInd],"p");
           }
           // END OF 2D HIST
         } else if(varDim==3) { 
@@ -1138,7 +1142,7 @@ void LoopAll::myPlotInteractive(TString hsmallname) {
             //FIXME if(omitInd[reverseInd]%2==1 || itypePI[infoind[iInd]]<0)continue;
             if(omitInd[reverseInd]%2==1 || itypePI[iInd]>0)continue;
             if(omitInd[reverseInd]==2)continue;
-            legend->AddEntry(histProf[reverseInd],myLabel[reverseInd],"p");
+            legend->AddEntry(histProf[reverseInd],myLabeldisplay[reverseInd],"p");
           }
           // END OF Profile HIST
         }
@@ -1559,23 +1563,66 @@ void LoopAll::myPlotInteractiveSetup(TString hsmallname, TString tag) {
     b_inshortnames->GetEntry();
     b_infilenames->GetEntry();
 
-    if(MPDEBUG)std::cout << "nfiles: " << nfiles << std::endl;
-    std::cout << "nfiles: " << nfiles << std::endl;
+    if(MPDEBUG)std::cout << "nfiles: " << nfiles <<" " <<nindfiles<<std::endl;
+    std::cout << "nfiles: " << nfiles <<" " <<nindfiles<<" "<<ntot[0]<<" "<<std::endl;
+
+    nfiles=nindfiles;
 
     histfilename = ((TObjString*)tca_histfilename->At(0))->GetString();
-    for(Int_t ifile=0;ifile!=nfiles;ifile++) {
-      inshortnames[ifile] = ((TObjString*)tca_inshortnames->At(ifile))->GetString();
 
-      //MARCO??? FIXME???
-      //infilenames[ifile] = ((TObjmpUtil * mp, String*)tca_infilenames->At(ifile))->GetString();
-      infilenames[ifile] = ((TObjString*)tca_infilenames->At(ifile))->GetString();
-    }
+
+    infilenames[0]=TString("Data");
+    cout<<infilenames[0]<<endl;
+    cout<<"before"<<endl;
+    inshortnames[0]=TString(infilenames[0]);
+    cout<<inshortnames[0]<<endl;
+    cout<<"after"<<endl;
+
+
+      for(Int_t ifile=0;ifile!=nfiles;ifile++) {
+	//MARCO??? FIXME???
+	//infilenames[ifile] = ((TObjmpUtil * mp, String*)tca_infilenames->At(ifile))->GetString();
+	infilenames[ifile] = ((TObjString*)tca_infilenames->At(ifile))->GetString();
+	inshortnames[ifile] = ((TObjString*)tca_inshortnames->At(ifile))->GetString();
+      }
+    
+      /*
+	nfiles=10;
+    
+	infilenames[0]=TString("Data");
+	cout<<infilenames[0]<<endl;
+	infilenames[1]=TString("Box25");
+	infilenames[2]=TString("Box250");
+	infilenames[3]=TString("DiPhotonJets");
+	infilenames[4]=TString("GJet20_pf");
+	infilenames[5]=TString("QCD40_fp");
+	infilenames[6]=TString("QCD40_ff");
+	infilenames[7]=TString("DYJets");
+	infilenames[8]=TString("vbf_H_gg_150_pu2011");
+	infilenames[9]=TString("wz_H_gg_150_pu2011");
+	//infilenames[8]=TString("VBF150");
+	//infilenames[9]=TString("WZH150");
+	cout<<infilenames[9]<<endl;
+	inshortnames[0]=TString(infilenames[0]);
+	cout<<inshortnames[0]<<endl;
+	inshortnames[1]=TString(infilenames[1]);
+	inshortnames[2]=TString(infilenames[2]);
+	inshortnames[3]=TString(infilenames[3]);
+	inshortnames[4]=TString(infilenames[4]);
+	inshortnames[5]=TString(infilenames[5]);
+	inshortnames[6]=TString(infilenames[6]);
+	inshortnames[7]=TString(infilenames[7]);
+	inshortnames[8]=TString(infilenames[8]);
+	inshortnames[9]=TString(infilenames[9]);
+	cout<<inshortnames[9]<<endl;
+      */
+
     cout<<"done fillingfile"<<endl;
 
     // fill strings from plotvariables
     for( Int_t ivar=0;ivar!=Nvar;++ivar) {
       plotvarnames[ivar] = ((TObjString*)tca_plotvarnames->At(ivar))->GetString();
-      //std::cout << "plotvarnames["<<ivar<<"]: " << plotvarnames[ivar] << std::endl;
+      std::cout << "plotvarnames["<<ivar<<"]: " << plotvarnames[ivar] << std::endl;
       xaxislabels[ivar] = ((TObjString*)tca_xaxislabels->At(ivar))->GetString();
       yaxislabels[ivar] = ((TObjString*)tca_yaxislabels->At(ivar))->GetString();
       xaxislabels[ivar].ReplaceAll("@"," ");
@@ -1688,6 +1735,7 @@ void LoopAll::myPlotInteractiveSetup(TString hsmallname, TString tag) {
     Int_t DoLogREAD,DoGridREAD,DoStatsREAD,DoSumW2READ,DoCatsREAD;
     Int_t DoLegendREAD,DoLegendTREAD,DoLegendRREAD,NColsREAD;
     char name[100];
+    char displayname[100];
     Int_t ind[NIND],stackorder[NIND],omit[NIND],color[NIND],marker[NIND];
     Float_t scale[NIND];
 
@@ -1697,8 +1745,9 @@ void LoopAll::myPlotInteractiveSetup(TString hsmallname, TString tag) {
     dummy =fscanf(PIfile,"Legend=%d Top=%d Right=%d NCols=%d\n",&DoLegendREAD,&DoLegendTREAD,&DoLegendRREAD,&NColsREAD);
     for( int iInd=0;iInd!=NIND;++iInd) {
       //dummy = fscanf(PIfile,"name=%s ind=%d order=%d omit=%d scale=%f color=%d marker=%d\n", name, &ind[iInd], &stackorder[iInd], &omitdefault[iInd], &scale[iInd], &color[iInd], &marker[iInd]);
-      dummy = fscanf(PIfile,"name=%s ind=%d order=%d omit=%d scale=%f color=%d marker=%d\n", name, &ind[iInd], &stackorder[iInd], &omitdefault[iInd], &scale[iInd], &color[iInd], &marker[iInd]);
+      dummy = fscanf(PIfile,"name=%s display=%s ind=%d order=%d omit=%d scale=%f color=%d marker=%d\n", name, displayname, &ind[iInd], &stackorder[iInd], &omitdefault[iInd], &scale[iInd], &color[iInd], &marker[iInd]);
       myLabel[iInd]=name;
+      myLabeldisplay[iInd]=displayname;
 
 
 
@@ -1750,8 +1799,8 @@ void LoopAll::myPlotInteractiveSetup(TString hsmallname, TString tag) {
     if(MPDEBUG)std::cout << "PlotInteractive DEBUG 09 - 02" << std::endl;
     std::cout << iInd << std::endl;
     std::cout << infoind[iInd] << std::endl;
-    std::cout << inshortnames[infoind[iInd]] << std::endl;
-        mySampleString[iInd]=inshortnames[infoind[iInd]];
+    std::cout << inshortnames[iInd] << std::endl;
+        mySampleString[iInd]=inshortnames[iInd];
     if(MPDEBUG)std::cout << "PlotInteractive DEBUG 09 - 03" << std::endl;
         omitInd[iInd]=omitdefault[iInd];
     if(MPDEBUG)std::cout << "PlotInteractive DEBUG 09 - 04" << std::endl;
@@ -1792,7 +1841,7 @@ void LoopAll::myPlotInteractiveSetup(TString hsmallname, TString tag) {
 
     if(MPDEBUG)std::cout << "PlotInteractive DEBUG 12 " << std::endl;
   for(Int_t iInd=0;iInd!=NIND;++iInd){ 
-    myLabel[iInd].ReplaceAll("@"," ");
+    myLabeldisplay[iInd].ReplaceAll("@"," ");
     allSgnl[iInd]=false;
     mySgnl[iInd]=false;
     myBkgd[iInd]=false;

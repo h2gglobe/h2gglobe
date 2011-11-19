@@ -2,10 +2,58 @@ xSize=600    ySize=600
 Stack=1   PopSig=1  FillSig=1 Over=0    Under=0
 Log=0     Grid=0    Stats=0   SumW2=0   DoCats=1
 Legend=1  Top=1     Right=1   NCols=1
-name=Data                	  ind=0     order=0     omit=0    scale=1         color=0     marker=20
+name=Data                display=Dat  	  ind=0       order=0     omit=0    scale=1.0       color=0     marker=20
+name=QCD40_ff            display=QCD_ff   ind=2       order=1     omit=0    scale=1.0       color=422   marker=0
+name=QCD40_fp            display=QCD_fp   ind=2       order=2     omit=0    scale=1.0       color=406   marker=0
+name=GJet20_pf           display=GJet_pf  ind=3       order=3     omit=0    scale=1.0       color=410   marker=0
+name=DYJets              display=DY       ind=4       order=4     omit=0    scale=1.0       color=410   marker=0
+name=Box25               display=Box@25   ind=7       order=5     omit=0    scale=1.0       color=410   marker=0
+name=Box250              display=Box@250  ind=8       order=6     omit=0    scale=1.0       color=410   marker=0
+name=DiPhotonJets        display=DiPhoton ind=9       order=7     omit=0    scale=1.0       color=410   marker=0
+name=vbf_H_gg_120_pu2011 display=VBF120   ind=10      order=8     omit=0    scale=1.0       color=801   marker=0
+name=wz_H_gg_120_pu2011  display=VH120    ind=11      order=9     omit=0    scale=1.0       color=803   marker=0
+
+
+
+name=Data                display=Dat  	  ind=0       order=0     omit=0    scale=1.0       color=0     marker=20
+name=QCD40_ff            display=QCD_ff   ind=2       order=1     omit=0    scale=1.0       color=422   marker=0
+name=QCD40_fp            display=QCD_fp   ind=2       order=2     omit=0    scale=1.0       color=406   marker=0
+name=GJet20_pf           display=GJet_pf  ind=3       order=3     omit=0    scale=1.0       color=410   marker=0
+name=vbf_H_gg_120_pu2011 display=VBF120   ind=10      order=4     omit=0    scale=1.0       color=801   marker=0
+name=wz_H_gg_120_pu2011  display=VH120    ind=11      order=5     omit=0    scale=1.0       color=803   marker=0
+
+name=Data                display=Dat  	  ind=0       order=0     omit=0    scale=1.0       color=0     marker=20
+name=QCD40_ff            display=QCD_ff   ind=2       order=1     omit=0    scale=1.0       color=422   marker=0
+name=QCD40_fp            display=QCD_fp   ind=2       order=2     omit=0    scale=1.0       color=406   marker=0
+name=GJet20_pf           display=GJet_pf  ind=3       order=3     omit=0    scale=1.0       color=410   marker=0
+name=DYJets              display=DY       ind=4       order=4     omit=0    scale=1.0       color=410   marker=0
+name=Box25               display=Box@25   ind=7       order=5     omit=0    scale=1.0       color=410   marker=0
+name=Box250              display=Box@250  ind=8       order=6     omit=0    scale=1.0       color=410   marker=0
+name=DiPhotonJets        display=DiPhoton ind=9       order=7     omit=0    scale=1.0       color=410   marker=0
+name=vbf_H_gg_120_pu2011 display=VBF120   ind=10      order=8     omit=0    scale=1.0       color=801   marker=0
+name=wz_H_gg_120_pu2011  display=VH120    ind=11      order=9     omit=0    scale=1.0       color=803   marker=0
+
+
+
+
+name=Data                	  ind=0       order=0     omit=0    scale=1         color=0     marker=20
+name=Box25                        ind=301     order=1     omit=0    scale=1.0       color=592   marker=0
+name=Box250                       ind=302     order=2     omit=0    scale=1.0       color=592   marker=0
+name=DiPhotonJets                 ind=303     order=3     omit=0    scale=1.0       color=592   marker=0
+name=GJet20_pf                    ind=314     order=4     omit=0    scale=1.0       color=406   marker=0
+name=QCD40_fp                     ind=315     order=5     omit=0    scale=1.0       color=406   marker=0
+name=QCD40_ff                     ind=325     order=6     omit=0    scale=1.0       color=422   marker=0
+name=DYJets                       ind=306     order=7     omit=0    scale=1.0       color=606   marker=0
+name=VBF150                       ind=2       order=8     omit=0    scale=1.0       color=2     marker=0
+name=WZH150                       ind=4       order=9     omit=0    scale=1.0       color=801   marker=0
+
+name=Data                	  ind=0     order=0     omit=0    scale=1         color=0     marker=100
 name=vbf_H_gg_120_pu2011          ind=10    order=1     omit=0    scale=1.0       color=801   marker=0
 name=Box10                        ind=6     order=2     omit=0    scale=1.0       color=610   marker=0
 name=DiPhotonJets                 ind=9     order=3     omit=0    scale=1.0       color=614   marker=0
+
+typ=-14 ind=38 draw=1  Nam=vbf_H_gg_105_pu2011 	  Dir=/hadoop/cms/store/user/capalmer/h2g_V11_04_01/h2gred_nov16/MC_Sig_Fall11_S6/VBF105_S6    red=0 lum=1000.000000  xsec=0.151616    kfac=1.000000  scal=1.000000
+typ=-16 ind=40 draw=1  Nam=wz_H_gg_105_pu2011     Dir=/hadoop/cms/store/user/capalmer/h2g_V11_04_01/h2gred_nov16/MC_Sig_Fall11_S6//WZH105_S6  red=0 lum=1000.000000  xsec=0.1609787   kfac=1.000000  scal=1.000000
 
 typ=0    ind=0 draw=1  Nam=Data    Fil=/hadoop/cms/store/user/capalmer/h2g_V11_04_01/h2gred_nov16/Data/PhotonPD_DiPho_nojson_2011B_newHLT/PhotonPD_DiPho_nojson_2011B_newHLT_48.root   tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1.  json=/home/users/capalmer/CMS/Higgs2gg/Limits/nov14_forAN/428p7/src/HiggsAnalysis/HiggsTo2photons/h2gglobe_new/PhotonAnalysis_scripts/Cert_160404-180252_7TeV_All2011_v3.txt
 typ=-26 ind=10 draw=1  Nam=vbf_H_gg_120_pu2011    Dir=/hadoop/cms/store/user/capalmer/h2g_V11_04_01/h2gred_nov16/MC_Sig_Fall11_S6/VBF120_S6      red=0 lum=100.0  xsec=0.00285525 kfac=1.000000  scal=1.000000

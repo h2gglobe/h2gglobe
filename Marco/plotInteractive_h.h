@@ -38,6 +38,7 @@ Int_t myStackOrder[MAXINDEXFILES];//MYNINDS
 Float_t myScale[MAXINDEXFILES];//MYNINDS
 Float_t sigScale;
 TString myLabel[MAXINDEXFILES];//MYNINDS
+TString myLabeldisplay[MAXINDEXFILES];//MYNINDS
 TString myHistname[MAXINDEXFILES];//MYNINDS
 TString mySampleString[MAXINDEXFILES];//MYNINDS
 Int_t NColsLegend;
@@ -192,6 +193,7 @@ TTree* inputfiles;
   Float_t scale[MAXFILES];
   TString  inshortnames[MAXFILES];
   TString  infilenames[MAXFILES];
+  TString  infilenamesnew[MAXFILES];
 
   TBranch * b_nfiles;
   TBranch * b_nindfiles;
