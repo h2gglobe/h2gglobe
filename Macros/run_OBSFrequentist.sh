@@ -1,19 +1,12 @@
 #!/bin/bash
 #1 Working Directory
 #2 Mass
+#3 RooModel Directory
+#4 Grid File
 REMOTEDIR=$PWD
-SUBNUMBER=1
-rfcp /castor/cern.ch/user/d/drberry/FrequentistGrid.root .
-if [ ! -d $1 ]; then
-	mkdir $1
-fi
 cd $1
-ln -s ../CMS-HGG.root CMS-HGG.root
-while [ -e FrequentistGrid$SUBNUMBER.root ]; do
-	SUBNUMBER=$(($SUBNUMBER+1))
-done
-ln -s $REMOTEDIR/FrequentistGrid.root FrequentistGrid$SUBNUMBER.root
+cp ../$4 $REMOTEDIR
 eval `scramv1 runtime -sh`
-combine ../RooModel/${2}GeVmodel.root -m ${2} -D data_mass -M HybridNew --freq --rAbsAcc=0.001 --grid=FrequentistGrid$SUBNUMBER.root
-/bin/ls
-mv higgsCombineTest.HybridNew.mH$2.root higgsCombineOBSERVED.Frequentist.mH$2.root
+combine ../${3}/${2}GeVmodel.root -m ${2} -D data_mass -M HybridNew -s -1 --freq --rAbsAcc=0.001 --grid=$REMOTEDIR/$4
+SEED=`/bin/ls higgsCombineTest.HybridNew.mH${2}.*.root | grep -v quant | sed "s|higgsCombineTest.HybridNew.mH${2}.\([-0-9][-0-9]*\).root|\1|" | grep -v .root`
+mv higgsCombineTest.HybridNew.mH$2.${SEED}.root higgsCombineOBSERVED.Frequentist.mH$2.root
