@@ -106,6 +106,7 @@ cp Marco/CounterContainer.h ./CounterContainer.h
 
 cp Marco/minimal_statanalysis_input.dat PhotonAnalysis_scripts/minimal_statanalysis_input.dat
 cp Marco/cuts.dat PhotonAnalysis_scripts/cuts.dat
+#cp Marco/cuts_marco.dat PhotonAnalysis_scripts/cuts.dat
 cp Marco/plotvariables.dat PhotonAnalysis_scripts/plotvariables.dat
 cp Marco/inputfiles.dat PhotonAnalysis_scripts/inputfiles.dat
 # cp Marco/looper.py PhotonAnalysis_scripts/looper.py
@@ -124,6 +125,7 @@ cp Marco/statanalysis.dat PhotonAnalysis_scripts/statanalysis.dat
 
 cp Marco/StatAnalysisExclusive.h PhotonAnalysis/interface/StatAnalysisExclusive.h
 cp Marco/StatAnalysisExclusive.cc PhotonAnalysis/src/StatAnalysisExclusive.cc
+#cp Marco/StatAnalysisExclusive_marco.cc PhotonAnalysis/src/StatAnalysisExclusive.cc
 cp Marco/statanalysisexclusive.dat PhotonAnalysis_scripts/statanalysisexclusive.dat
 cp Marco/fitter.py PhotonAnalysis_scripts/fitter.py
 
@@ -141,6 +143,7 @@ diff Marco/CounterContainer.h ./CounterContainer.h
 
 diff Marco/minimal_statanalysis_input.dat PhotonAnalysis_scripts/minimal_statanalysis_input.dat
 diff Marco/cuts.dat PhotonAnalysis_scripts/cuts.dat
+diff Marco/cuts_marco.dat PhotonAnalysis_scripts/cuts.dat
 diff Marco/plotvariables.dat PhotonAnalysis_scripts/plotvariables.dat
 diff Marco/inputfiles.dat PhotonAnalysis_scripts/inputfiles.dat
 # diff Marco/looper.py PhotonAnalysis_scripts/looper.py
@@ -156,6 +159,7 @@ diff Marco/statanalysis.dat PhotonAnalysis_scripts/statanalysis.dat
 
 diff Marco/StatAnalysisExclusive.h PhotonAnalysis/interface/StatAnalysisExclusive.h
 diff Marco/StatAnalysisExclusive.cc PhotonAnalysis/src/StatAnalysisExclusive.cc
+diff Marco/StatAnalysisExclusive_marco.cc PhotonAnalysis/src/StatAnalysisExclusive.cc
 diff Marco/statanalysisexclusive.dat PhotonAnalysis_scripts/statanalysisexclusive.dat
 diff Marco/fitter.py PhotonAnalysis_scripts/fitter.py
 
