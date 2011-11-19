@@ -8,7 +8,7 @@
 #define MAXCANVAS 10
 #define MAXCAN 500
 #define MAXCANPAD 20
-#define MAXFILES 100
+#define MAXFILES 10000
 
 #define MAXINDEXFILES 50
 #define MAXVARCAT 200
