@@ -3,15 +3,17 @@ Stack=1   PopSig=1  FillSig=1 Over=0    Under=0
 Log=0     Grid=0    Stats=0   SumW2=0   DoCats=1
 Legend=1  Top=1     Right=1   NCols=1
 name=Data                display=Dat  	  ind=0       order=0     omit=0    scale=1.0       color=0     marker=20
-name=Box25               display=Box@25   ind=1       order=1     omit=0    scale=1.0       color=410   marker=0
-name=Box250              display=Box@250  ind=2       order=2     omit=0    scale=1.0       color=410   marker=0
-name=DiPhotonJets        display=DiPhoton ind=3       order=3     omit=0    scale=1.0       color=410   marker=0
-name=GJet20_pf           display=GJet_pf  ind=4       order=4     omit=0    scale=1.0       color=410   marker=0
+name=Box25               display=Box@25   ind=1       order=1     omit=0    scale=1.0       color=592   marker=0
+name=Box250              display=Box@250  ind=2       order=2     omit=0    scale=1.0       color=592   marker=0
+name=DiPhotonJets        display=DiPhoton ind=3       order=3     omit=0    scale=1.0       color=592   marker=0
+name=GJet20_pf           display=GJet_pf  ind=4       order=4     omit=0    scale=1.0       color=406   marker=0
 name=QCD40_pf            display=QCD_pf   ind=5       order=5     omit=0    scale=1.0       color=406   marker=0
 name=QCD40_ff            display=QCD_ff   ind=6       order=6     omit=0    scale=1.0       color=422   marker=0
-name=DYJets              display=DY       ind=7       order=7     omit=0    scale=1.0       color=410   marker=0
-name=vbf_H_gg_120_pu2011 display=VBF120   ind=8       order=8    omit=0    scale=1.0       color=801   marker=0
-name=wz_H_gg_120_pu2011   display=VH120   ind=9       order=9    omit=0    scale=1.0       color=803   marker=0
+name=DYJets              display=DY       ind=7       order=7     omit=0    scale=1.0       color=606   marker=0
+name=vbf_H_gg_120_pu2011 display=VBF120   ind=8       order=8    omit=0    scale=1.0       color=2     marker=0
+name=wz_H_gg_120_pu2011   display=VH120   ind=9       order=9    omit=0    scale=1.0       color=801   marker=0
+
+
 
 
 name=Data                display=Dat  	  ind=0       order=0     omit=0    scale=1.0       color=0     marker=20
