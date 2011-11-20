@@ -20,18 +20,17 @@ typ=1    ind=1  draw=1  Nam=QCD30_ff   Dir=/hadoop/cms/store/user/capalmer/h2g_V
 typ=1    ind=1  draw=1  Nam=QCD30_pf   Dir=/hadoop/cms/store/user/capalmer/h2g_V11_04_01/h2gred_nov18/MC_Bkg_Fall11_S6/NewAlloc_QCD30to40_S6_pf    xsec=10868       lum=1.e10     kfac=1.0  scal=1.
 ->
 
-
-typ=1    ind=1  draw=1  Nam=Box25   Dir=/hadoop/cms/store/user/capalmer/h2g_V11_04_01/h2gred_nov18/MC_Bkg_Fall11_S6/Box25To250_S6     xsec=12.37        lum=1.e10     kfac=1.0  scal=1.
+typ=1    ind=1  draw=1  Nam=Box25   Dir=/hadoop/cms/store/user/capalmer/h2g_V11_04_01/h2gred_nov18/MC_Bkg_Fall11_S6/Box25To250_S6     xsec=12.37        lum=1.e10     kfac=1.3  scal=1.
 ->
-typ=2    ind=2  draw=1  Nam=Box250  Dir=/hadoop/cms/store/user/capalmer/h2g_V11_04_01/h2gred_nov18/MC_Bkg_Fall11_S6/Box250_S6     xsec=2.08e-04     lum=1.e10     kfac=1.0  scal=1.
+typ=2    ind=2  draw=1  Nam=Box250  Dir=/hadoop/cms/store/user/capalmer/h2g_V11_04_01/h2gred_nov18/MC_Bkg_Fall11_S6/Box250_S6     xsec=2.08e-04     lum=1.e10     kfac=1.3  scal=1.
 ->
-typ=2    ind=2  draw=1  Nam=Box250  Fil=/hadoop/cms/store/user/capalmer/h2g_V11_04_01/h2gred_nov18/MC_Bkg_Fall11_S6/Box250_S6/Box250_S6_0.root     xsec=2.08e-04     lum=1.e10     kfac=1.0  scal=1.
+typ=2    ind=2  draw=1  Nam=Box250  Fil=/hadoop/cms/store/user/capalmer/h2g_V11_04_01/h2gred_nov18/MC_Bkg_Fall11_S6/Box250_S6/Box250_S6_0.root     xsec=2.08e-04     lum=1.e10     kfac=1.3  scal=1.
 
-typ=3    ind=3  draw=1  Nam=DiPhotonJets  Dir=/hadoop/cms/store/user/capalmer/h2g_V11_04_01/h2gred_nov18/MC_Bkg_Fall11_S6/DiPhotonJets_S6     xsec=1.54e+02     lum=1.e10     kfac=1.0  scal=1.
-typ=4    ind=4  draw=1  Nam=GJet20_pf  Dir=/hadoop/cms/store/user/capalmer/h2g_V11_04_01/h2gred_nov18/MC_Bkg_Fall11_S6/GJet20_S6_pf    xsec=493.44       lum=1.e10     kfac=1.0  scal=1.
-typ=5    ind=5  draw=1  Nam=QCD40_pf   Dir=/hadoop/cms/store/user/capalmer/h2g_V11_04_01/h2gred_nov18/MC_Bkg_Fall11_S6/QCD40_S6_pf    xsec=43571.      lum=1.e10     kfac=1.0  scal=1.
+typ=3    ind=3  draw=1  Nam=DiPhotonJets  Dir=/hadoop/cms/store/user/capalmer/h2g_V11_04_01/h2gred_nov18/MC_Bkg_Fall11_S6/DiPhotonJets_S6     xsec=1.54e+02     lum=1.e10     kfac=1.15  scal=1.
+typ=4    ind=4  draw=1  Nam=GJet20_pf  Dir=/hadoop/cms/store/user/capalmer/h2g_V11_04_01/h2gred_nov18/MC_Bkg_Fall11_S6/GJet20_S6_pf    xsec=493.44       lum=1.e10     kfac=1.3  scal=1.
+typ=5    ind=5  draw=1  Nam=QCD40_pf   Dir=/hadoop/cms/store/user/capalmer/h2g_V11_04_01/h2gred_nov18/MC_Bkg_Fall11_S6/QCD40_S6_pf    xsec=43571.      lum=1.e10     kfac=1.3  scal=1.
 typ=6    ind=6  draw=1  Nam=QCD40_ff   Dir=/hadoop/cms/store/user/capalmer/h2g_V11_04_01/h2gred_nov18/MC_Bkg_Fall11_S6/QCD40_S6_ff    xsec=43571.      lum=1.e10     kfac=1.0  scal=1.
-typ=7    ind=7  draw=1  Nam=DYJets     Dir=/hadoop/cms/store/user/capalmer/h2g_V11_04_01/h2gred_nov18/MC_Bkg_Fall11_S6/DYJetsToLL_TuneZ2_M-50_S6    xsec=2.475e+03       lum=1.e10     kfac=1.0  scal=1.
+typ=7    ind=7  draw=1  Nam=DYJets     Dir=/hadoop/cms/store/user/capalmer/h2g_V11_04_01/h2gred_nov18/MC_Bkg_Fall11_S6/DYJetsToLL_TuneZ2_M-50_S6    xsec=2.475e+03       lum=1.e10     kfac=1.15  scal=1.
 
 ->
 ONLY THESE 2
