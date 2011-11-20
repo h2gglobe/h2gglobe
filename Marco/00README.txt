@@ -80,6 +80,7 @@ cp Marco/statanalysisexclusive.dat PhotonAnalysis_scripts/statanalysisexclusive.
 cp Marco/fitter.py PhotonAnalysis_scripts/fitter.py
 
 cp Marco/Makefile ./Makefile
+cp Marco/pu_weights_map.dat ./pu_weights_map.dat
 
 cp Marco/datafiles_5fb.dat PhotonAnalysis_scripts/datafiles_5fb.dat
 cp Marco/datafiles_5fb_LL_33_23.dat PhotonAnalysis_scripts/datafiles_5fb_LL_33_23.dat
