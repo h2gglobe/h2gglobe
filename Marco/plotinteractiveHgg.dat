@@ -3,6 +3,51 @@ Stack=1   PopSig=1  FillSig=1 Over=0    Under=0
 Log=0     Grid=0    Stats=0   SumW2=0   DoCats=1
 Legend=1  Top=1     Right=1   NCols=1
 name=Data                display=Dat  	  ind=0       order=0     omit=0    scale=1.0       color=0     marker=20
+name=Box25               display=Box@25   ind=1       order=1     omit=0    scale=1.0       color=410   marker=0
+name=Box250              display=Box@250  ind=2       order=2     omit=0    scale=1.0       color=410   marker=0
+name=DiPhotonJets        display=DiPhoton ind=3       order=3     omit=0    scale=1.0       color=410   marker=0
+name=GJet20_pf           display=GJet_pf  ind=4       order=4     omit=0    scale=1.0       color=410   marker=0
+name=QCD40_pf            display=QCD_pf   ind=5       order=5     omit=0    scale=1.0       color=406   marker=0
+name=QCD40_ff            display=QCD_ff   ind=6       order=6     omit=0    scale=1.0       color=422   marker=0
+name=DYJets              display=DY       ind=7       order=7     omit=0    scale=1.0       color=410   marker=0
+name=vbf_H_gg_120_pu2011 display=VBF120   ind=8      order=20    omit=0    scale=1.0       color=801   marker=0
+name=wz_H_gg_120_pu2011   display=VH120   ind=9      order=21    omit=0    scale=1.0       color=803   marker=0
+
+
+name=Data                display=Dat  	  ind=0       order=0     omit=0    scale=1.0       color=0     marker=20
+name=Box25               display=Box@25   ind=1       order=1     omit=0    scale=1.0       color=410   marker=0
+name=Box250              display=Box@250  ind=2       order=2     omit=0    scale=1.0       color=410   marker=0
+name=DiPhotonJets        display=DiPhoton ind=3       order=3     omit=0    scale=1.0       color=410   marker=0
+name=GJet20_pf           display=GJet_pf  ind=4       order=4     omit=0    scale=1.0       color=410   marker=0
+name=QCD40_pf            display=QCD_pf   ind=5       order=5     omit=0    scale=1.0       color=406   marker=0
+name=QCD40_ff            display=QCD_ff   ind=6       order=6     omit=0    scale=1.0       color=422   marker=0
+name=DYJets              display=DY       ind=7       order=7     omit=0    scale=1.0       color=410   marker=0
+name=vbf_H_gg_150_pu2011 display=VBF150   ind=8       order=8     omit=1    scale=1.0       color=801   marker=0
+name=wz_H_gg_150_pu2011   display=VH150   ind=9       order=9     omit=1    scale=1.0       color=803   marker=0
+name=vbf_H_gg_145_pu2011 display=VBF145   ind=10      order=10    omit=1    scale=1.0       color=801   marker=0
+name=wz_H_gg_145_pu2011   display=VH145   ind=11      order=11    omit=1    scale=1.0       color=803   marker=0
+name=vbf_H_gg_140_pu2011 display=VBF140   ind=12      order=12    omit=1    scale=1.0       color=801   marker=0
+name=wz_H_gg_140_pu2011   display=VH140   ind=13      order=13    omit=1    scale=1.0       color=803   marker=0
+name=vbf_H_gg_135_pu2011 display=VBF135   ind=14      order=14    omit=1    scale=1.0       color=801   marker=0
+name=wz_H_gg_135_pu2011   display=VH135   ind=15      order=15    omit=1    scale=1.0       color=803   marker=0
+name=vbf_H_gg_130_pu2011 display=VBF130   ind=16      order=16    omit=1    scale=1.0       color=801   marker=0
+name=wz_H_gg_130_pu2011   display=VH130   ind=17      order=16    omit=1    scale=1.0       color=803   marker=0
+name=vbf_H_gg_125_pu2011 display=VBF125   ind=18      order=18    omit=1    scale=1.0       color=801   marker=0
+name=wz_H_gg_125_pu2011   display=VH125   ind=19      order=19    omit=1    scale=1.0       color=803   marker=0
+name=vbf_H_gg_120_pu2011 display=VBF120   ind=20      order=20    omit=0    scale=1.0       color=801   marker=0
+name=wz_H_gg_120_pu2011   display=VH120   ind=21      order=21    omit=0    scale=1.0       color=803   marker=0
+name=vbf_H_gg_115_pu2011 display=VBF115   ind=22      order=22    omit=1    scale=1.0       color=801   marker=0
+name=wz_H_gg_115_pu2011   display=VH115   ind=23      order=23    omit=1    scale=1.0       color=803   marker=0
+name=vbf_H_gg_110_pu2011 display=VBF110   ind=20      order=24    omit=1    scale=1.0       color=801   marker=0
+name=wz_H_gg_110_pu2011   display=VH110   ind=21      order=25    omit=1    scale=1.0       color=803   marker=0
+name=vbf_H_gg_105_pu2011 display=VBF105   ind=22      order=26    omit=1    scale=1.0       color=801   marker=0
+name=wz_H_gg_105_pu2011   display=VH105   ind=23      order=27    omit=1    scale=1.0       color=803   marker=0
+
+
+
+
+
+name=Data                display=Dat  	  ind=0       order=0     omit=0    scale=1.0       color=0     marker=20
 name=QCD40_ff            display=QCD_ff   ind=2       order=1     omit=0    scale=1.0       color=422   marker=0
 name=QCD40_fp            display=QCD_fp   ind=2       order=2     omit=0    scale=1.0       color=406   marker=0
 name=GJet20_pf           display=GJet_pf  ind=3       order=3     omit=0    scale=1.0       color=410   marker=0
