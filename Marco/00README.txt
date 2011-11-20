@@ -16,8 +16,8 @@ setTDRStyle();
   //gSystem->Load("VertexAnalysis/lib/libh2gglobeVertexAnalysis.so");
 gSystem->Load("libLoopAll.so");
 LoopAll* m=new LoopAll();
-m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_only120.root","Hgg")
-m->myPlotInteractive("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_only120.root");
+m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_only120_fixed2.root","Hgg")
+m->myPlotInteractive("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_only120_fixed2.root");
 
 
 m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff.root","Hgg")
@@ -162,7 +162,7 @@ python fitter.py -i datafiles_5fb_LL_33_23_all.dat
 cd PhotonAnalysis_scripts/.
 rm datafiles_5fb_LL_33_23_all_ff.dat.pevents
 python fitter.py -i datafiles_5fb_LL_33_23_all_ff.dat --dryRun
-python fitter.py -i datafiles_5fb_LL_33_23_all_ff.dat >&  datafiles_5fb_LL_33_23_all_ff_allnew.log
+python fitter.py -i datafiles_5fb_LL_33_23_all_ff.dat >&  datafiles_5fb_LL_33_23_all_ff_120newfixed2.log
 
 Plotinteractive and myprintcountersnew are still to be fixed
 

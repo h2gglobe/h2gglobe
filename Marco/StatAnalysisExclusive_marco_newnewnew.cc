@@ -124,6 +124,13 @@ void StatAnalysisExclusive::Init(LoopAll& l)
     l.SetCutVariables("cut_All_Mgg2",         &myAll_Mgg);
     l.SetCutVariables("cut_AllPtHiggs",       &myAllPtHiggs);
 
+    l.SetCutVariables("cut_Incl_Mgg0",         &myInclusive_Mgg);
+    l.SetCutVariables("cut_Incl_Mgg2",         &myInclusive_Mgg);
+    l.SetCutVariables("cut_Incl_Mgg4",         &myInclusive_Mgg);
+    l.SetCutVariables("cut_Incl_Mgg10",        &myInclusive_Mgg);
+    l.SetCutVariables("cut_InclPtHiggs",       &myInclusivePtHiggs);
+
+
     l.SetCutVariables("cut_VBFLeadJPt",       &myVBFLeadJPt);
     l.SetCutVariables("cut_VBFSubJPt",        &myVBFSubJPt);
     l.SetCutVariables("cut_VBF_Mjj",          &myVBF_Mjj);
@@ -613,6 +620,25 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
     sumev += weight;
     // FIXME pass smeared R9
     int diphoton_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtCut, subleadEtCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
+
+    if(diphoton_id>-1)
+    {
+      TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphoton_id], l.dipho_vtxind[diphoton_id], &smeared_pho_energy[0]);
+      TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphoton_id], l.dipho_vtxind[diphoton_id], &smeared_pho_energy[0]);
+      TLorentzVector diphoton = lead_p4+sublead_p4;
+      myInclusive_Mgg = diphoton.M();
+      myInclusivePtHiggs =diphoton.Pt();
+      
+      //should be done for both earlier
+      diphoton_index = std::make_pair( l.dipho_leadind[diphoton_id],  l.dipho_subleadind[diphoton_id] );
+      float evweight = weight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second] * genLevWeight;
+      float myweight=1.;
+      if(evweight*weight!=0) myweight=evweight/weight;
+      
+      l.ApplyCutsFill(0,4,evweight, myweight);
+
+    }
+
     // CP
     int diphotonVBF_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVBFCut, subleadEtVBFCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
     int diphotonVHad_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVHadCut, subleadEtVHadCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
@@ -696,9 +722,12 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
           myVHaddPhi = fabs(diphoton.DeltaPhi(dijet));
           myVHad_Mgg =diphoton.M();
 
-	        float evweight = weight * smeared_pho_weight[l.dipho_leadind[diphotonVHad_id]] * smeared_pho_weight[l.dipho_vtxind[diphotonVHad_id]] * genLevWeight;
-	        float myweight=1.;
-	        if(evweight*weight!=0) myweight=evweight/weight;
+	  //should be done for both earlier
+	  diphoton_index = std::make_pair( l.dipho_leadind[diphotonVHad_id],  l.dipho_subleadind[diphotonVHad_id] );
+	  float evweight = weight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second] * genLevWeight;
+	  //float evweight = weight * smeared_pho_weight[l.dipho_leadind[diphotonVHad_id]] * smeared_pho_weight[l.dipho_vtxind[diphotonVHad_id]] * genLevWeight;
+	  float myweight=1.;
+	  if(evweight*weight!=0) myweight=evweight/weight;
 	  
           VHadevent = l.ApplyCutsFill(0,2,evweight, myweight);
         }
