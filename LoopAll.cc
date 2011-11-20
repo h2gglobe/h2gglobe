@@ -720,7 +720,7 @@ void LoopAll::WritePI() {
   Int_t histoncatindtonames[10000];
   Int_t nbinsx[10000], nbinsy[10000];
   Float_t lowlim[10000], highlim[10000], lowlim2[10000], highlim2[10000];
-  Int_t itype[00000], histoind[10000], infoind[10000], histoplotit[10000];
+  Int_t itype[10000], histoind[10000], infoind[10000], histoplotit[10000];
   Int_t ntot[10000], nred[10000];
   Float_t lumi[10000], xsec[10000], kfactor[10000], scale[10000];
   Int_t typplotall = 0;
