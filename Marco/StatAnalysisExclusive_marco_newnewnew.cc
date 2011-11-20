@@ -642,6 +642,15 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
 	        
           TLorentzVector diphoton = lead_p4+sublead_p4;
           
+          myAllLeadJPt = jet1->Pt();
+          myAllSubJPt = jet2->Pt();
+          myAll_Mjj = dijet.M();
+          myAlldEta = fabs(jet1->Eta() - jet2->Eta());
+          myAllZep  = fabs(diphoton.Eta() - 0.5*(jet1->Eta() + jet2->Eta()));
+          myAlldPhi = fabs(diphoton.DeltaPhi(dijet));
+          myAll_Mgg =diphoton.M();
+          myAllPtHiggs =diphoton.Pt();
+
           myVBFLeadJPt = jet1->Pt();
           myVBFSubJPt = jet2->Pt();
           myVBF_Mjj = dijet.M();
@@ -656,6 +665,8 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
 	  float myweight=1.;
 	  if(evweight*weight!=0) myweight=evweight/weight;
 	  
+          l.ApplyCutsFill(0,3,evweight, myweight);
+
           VBFevent = l.ApplyCutsFill(0,1,evweight, myweight);
         }
       }
@@ -682,7 +693,7 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
           myVHad_Mjj = dijet.M();
           myVHaddEta = fabs(jet1->Eta() - jet2->Eta());
           myVHadZep  = fabs(diphoton.Eta() - 0.5*(jet1->Eta() + jet2->Eta()));
-          myVHaddPhi = diphoton.DeltaPhi(dijet);
+          myVHaddPhi = fabs(diphoton.DeltaPhi(dijet));
           myVHad_Mgg =diphoton.M();
 
 	        float evweight = weight * smeared_pho_weight[l.dipho_leadind[diphotonVHad_id]] * smeared_pho_weight[l.dipho_vtxind[diphotonVHad_id]] * genLevWeight;
@@ -975,7 +986,7 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
           myAll_Mgg =diphoton.M();
           myAllPtHiggs =diphoton.Pt();
 
-	  l.ApplyCuts(0,3);
+	  //l.ApplyCuts(0,3);
 
           
           myVBFLeadJPt = jet1->Pt();
@@ -1012,7 +1023,7 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
           myVHad_Mjj = dijet.M();
           myVHaddEta = fabs(jet1->Eta() - jet2->Eta());
           myVHadZep  = fabs(diphoton.Eta() - 0.5*(jet1->Eta() + jet2->Eta()));
-          myVHaddPhi = diphoton.DeltaPhi(dijet);
+          myVHaddPhi = fabs(diphoton.DeltaPhi(dijet));
           myVHad_Mgg =diphoton.M();
 
           VHadevent = l.ApplyCuts(0,2);
