@@ -160,10 +160,19 @@ rm datafiles_5fb_LL_33_23_all.dat.pevents
 python fitter.py -i datafiles_5fb_LL_33_23_all.dat --dryRun
 python fitter.py -i datafiles_5fb_LL_33_23_all.dat 
 
+
+
+
+
 cd PhotonAnalysis_scripts/.
 rm datafiles_5fb_LL_33_23_all_ff.dat.pevents
 python fitter.py -i datafiles_5fb_LL_33_23_all_ff.dat --dryRun
-python fitter.py -i datafiles_5fb_LL_33_23_all_ff.dat >&  datafiles_5fb_LL_33_23_all_ff_120newfixed2.log
+python fitter.py -i datafiles_5fb_LL_33_23_all_ff.dat >&  datafiles_5fb_LL_33_23_all_ff_final.log
+
+cd PhotonAnalysis_scripts/.
+rm datafiles_5fb_LL_33_23_all_ff.dat.pevents
+python fitter.py -i datafiles_5fb_LL_33_23_all_ff_120.dat --dryRun
+python fitter.py -i datafiles_5fb_LL_33_23_all_ff_120.dat >&  datafiles_5fb_LL_33_23_all_ff_120_final.log
 
 Plotinteractive and myprintcountersnew are still to be fixed
 
