@@ -12,7 +12,7 @@ nR9Categories=2
 nPtCategories=1
 
 includeVBF=1
-includeVHad=0
+includeVHad=1
 
 nVBFEtaCategories=1
 
