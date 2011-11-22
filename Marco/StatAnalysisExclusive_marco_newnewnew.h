@@ -86,9 +86,6 @@ public:
   float  myAll_Mgg;
   float  myAllPtHiggs;
 
-  float  myInclusive_Mgg;
-  float  myInclusivePtHiggs;
-
 
   std::pair<int, int> Select2HighestPtJets(LoopAll&, TLorentzVector& leadpho, TLorentzVector& subleadpho, float jtLMinPt, float jtTMinPt);
   int RescaleJetEnergy(LoopAll&);
