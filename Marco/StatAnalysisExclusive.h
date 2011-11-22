@@ -38,6 +38,7 @@ public:
   bool includeVBF;
   bool includeVHad;
 	bool reRunCiC;
+
   float leadEtCut;
   float leadEtVBFCut;
   float leadEtVHadCut;
@@ -63,6 +64,7 @@ public:
   float  myVBFZep;
   float  myVBFdPhi;
   float  myVBF_Mjj;
+
   float  myVBF_Mgg;
 
   float  myVHadLeadJPt;
@@ -71,7 +73,18 @@ public:
   float  myVHadZep;
   float  myVHaddPhi;
   float  myVHad_Mjj;
+
   float  myVHad_Mgg;
+
+  float  myAllLeadJPt;
+  float  myAllSubJPt;
+  float  myAlldEta;
+  float  myAllZep;
+  float  myAlldPhi;
+  float  myAll_Mjj;
+
+  float  myAll_Mgg;
+  float  myAllPtHiggs;
 
 
   std::pair<int, int> Select2HighestPtJets(LoopAll&, TLorentzVector& leadpho, TLorentzVector& subleadpho, float jtLMinPt, float jtTMinPt);

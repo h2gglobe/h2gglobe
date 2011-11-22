@@ -114,14 +114,26 @@ void StatAnalysisExclusive::Init(LoopAll& l)
    
     nCategories_+=(nVBFCategories+nVHadCategories);
 
+    l.SetCutVariables("cut_AllLeadJPt",       &myAllLeadJPt);
+    l.SetCutVariables("cut_AllSubJPt",        &myAllSubJPt);
+    l.SetCutVariables("cut_All_Mjj",          &myAll_Mjj);
+    l.SetCutVariables("cut_All_dEta",         &myAlldEta);
+    l.SetCutVariables("cut_All_Zep",          &myAllZep);
+    l.SetCutVariables("cut_All_dPhi",         &myAlldPhi);
+    l.SetCutVariables("cut_All_Mgg0",         &myAll_Mgg);
+    l.SetCutVariables("cut_All_Mgg2",         &myAll_Mgg);
+    l.SetCutVariables("cut_AllPtHiggs",       &myAllPtHiggs);
+
     l.SetCutVariables("cut_VBFLeadJPt",       &myVBFLeadJPt);
     l.SetCutVariables("cut_VBFSubJPt",        &myVBFSubJPt);
     l.SetCutVariables("cut_VBF_Mjj",          &myVBF_Mjj);
     l.SetCutVariables("cut_VBF_dEta",         &myVBFdEta);
     l.SetCutVariables("cut_VBF_Zep",          &myVBFZep);
     l.SetCutVariables("cut_VBF_dPhi",         &myVBFdPhi);
+    l.SetCutVariables("cut_VBF_Mgg0",         &myVBF_Mgg);
     l.SetCutVariables("cut_VBF_Mgg2",         &myVBF_Mgg);
     l.SetCutVariables("cut_VBF_Mgg4",         &myVBF_Mgg);
+    l.SetCutVariables("cut_VBF_Mgg10",        &myVBF_Mgg);
 
     l.SetCutVariables("cut_VHadLeadJPt",      &myVHadLeadJPt);
     l.SetCutVariables("cut_VHadSubJPt",       &myVHadSubJPt);
@@ -129,8 +141,10 @@ void StatAnalysisExclusive::Init(LoopAll& l)
     l.SetCutVariables("cut_VHad_dEta",        &myVHaddEta);
     l.SetCutVariables("cut_VHad_Zep",         &myVHadZep);
     l.SetCutVariables("cut_VHad_dPhi",        &myVHaddPhi);
+    l.SetCutVariables("cut_VHad_Mgg0",        &myVHad_Mgg);
     l.SetCutVariables("cut_VHad_Mgg2",        &myVHad_Mgg);
     l.SetCutVariables("cut_VHad_Mgg4",        &myVHad_Mgg);
+    l.SetCutVariables("cut_VHad_Mgg10",        &myVHad_Mgg);
 
     // CP
 
@@ -612,7 +626,7 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
 
       if(diphotonVBF_id>-1){
         TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphotonVBF_id], l.dipho_vtxind[diphotonVBF_id], &smeared_pho_energy[0]);
-	      TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphotonVBF_id], l.dipho_vtxind[diphotonVBF_id], &smeared_pho_energy[0]);
+	TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphotonVBF_id], l.dipho_vtxind[diphotonVBF_id], &smeared_pho_energy[0]);
         float jet1ptcut =0.0;
         float jet2ptcut =0.0;
         
@@ -627,18 +641,31 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
 	        
           TLorentzVector diphoton = lead_p4+sublead_p4;
           
+          myAllLeadJPt = jet1->Pt();
+          myAllSubJPt = jet2->Pt();
+          myAll_Mjj = dijet.M();
+          myAlldEta = fabs(jet1->Eta() - jet2->Eta());
+          myAllZep  = fabs(diphoton.Eta() - 0.5*(jet1->Eta() + jet2->Eta()));
+          myAlldPhi = fabs(diphoton.DeltaPhi(dijet));
+          myAll_Mgg =diphoton.M();
+          myAllPtHiggs =diphoton.Pt();
+
           myVBFLeadJPt = jet1->Pt();
           myVBFSubJPt = jet2->Pt();
           myVBF_Mjj = dijet.M();
           myVBFdEta = fabs(jet1->Eta() - jet2->Eta());
           myVBFZep  = fabs(diphoton.Eta() - 0.5*(jet1->Eta() + jet2->Eta()));
-          myVBFdPhi = diphoton.DeltaPhi(dijet);
+          myVBFdPhi = fabs(diphoton.DeltaPhi(dijet));
           myVBF_Mgg =diphoton.M();
 
-	        float evweight = weight * smeared_pho_weight[l.dipho_leadind[diphotonVBF_id]] * smeared_pho_weight[l.dipho_vtxind[diphotonVBF_id]] * genLevWeight;
-	        float myweight=1.;
-	        if(evweight*weight!=0) myweight=evweight/weight;
+	  //should be done for both earlier
+	  diphoton_index = std::make_pair( l.dipho_leadind[diphotonVBF_id],  l.dipho_subleadind[diphotonVBF_id] );
+	  float evweight = weight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second] * genLevWeight;
+	  float myweight=1.;
+	  if(evweight*weight!=0) myweight=evweight/weight;
 	  
+          l.ApplyCutsFill(0,3,evweight, myweight);
+
           VBFevent = l.ApplyCutsFill(0,1,evweight, myweight);
         }
       }
@@ -665,14 +692,14 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
           myVHad_Mjj = dijet.M();
           myVHaddEta = fabs(jet1->Eta() - jet2->Eta());
           myVHadZep  = fabs(diphoton.Eta() - 0.5*(jet1->Eta() + jet2->Eta()));
-          myVHaddPhi = diphoton.DeltaPhi(dijet);
+          myVHaddPhi = fabs(diphoton.DeltaPhi(dijet));
           myVHad_Mgg =diphoton.M();
 
 	        float evweight = weight * smeared_pho_weight[l.dipho_leadind[diphotonVHad_id]] * smeared_pho_weight[l.dipho_vtxind[diphotonVHad_id]] * genLevWeight;
 	        float myweight=1.;
 	        if(evweight*weight!=0) myweight=evweight/weight;
 	  
-          VHadevent = l.ApplyCutsFill(0,1,evweight, myweight);
+          VHadevent = l.ApplyCutsFill(0,2,evweight, myweight);
         }
       }
     }
@@ -951,7 +978,7 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
           myVBF_Mjj = dijet.M();
           myVBFdEta = fabs(jet1->Eta() - jet2->Eta());
           myVBFZep  = fabs(diphoton.Eta() - 0.5*(jet1->Eta() + jet2->Eta()));
-          myVBFdPhi = diphoton.DeltaPhi(dijet);
+          myVBFdPhi = fabs(diphoton.DeltaPhi(dijet));
           myVBF_Mgg =diphoton.M();
 
           VBFevent = l.ApplyCuts(0,1);
@@ -980,7 +1007,7 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
           myVHad_Mjj = dijet.M();
           myVHaddEta = fabs(jet1->Eta() - jet2->Eta());
           myVHadZep  = fabs(diphoton.Eta() - 0.5*(jet1->Eta() + jet2->Eta()));
-          myVHaddPhi = diphoton.DeltaPhi(dijet);
+          myVHaddPhi = fabs(diphoton.DeltaPhi(dijet));
           myVHad_Mgg =diphoton.M();
 
           VHadevent = l.ApplyCuts(0,2);
