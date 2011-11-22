@@ -472,7 +472,7 @@ else:
  C.SaveAs("limit_%s_%s.gif"%(args[1],Method))
  C.SaveAs("limit_%s_%s.eps"%(args[1],Method))
  C.SaveAs("limit_%s_%s.ps"%(args[1],Method))
-
+ 
 if options.outputLimits:
   print "Writing Limits To ROOT file"
   OUTTgraphs = ROOT.TFile(options.outputLimits,"RECREATE")
@@ -480,6 +480,10 @@ if options.outputLimits:
   graphMed.Write()
   graphObs.SetName("observed")
   graphObs.Write()
+  graph68.SetName("graph68")
+  graph68.Write()
+  graph95.SetName("graph95")
+  graph95.Write()
   OUTTgraphs.Write()
 
 
