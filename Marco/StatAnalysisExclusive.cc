@@ -755,6 +755,7 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
  	sumsmear += evweight;
 
   if(VBFevent) category=nEtaCategories*nR9Categories*nPtCategories;
+  else if(VHadevent) category=nEtaCategories*nR9Categories*nPtCategories+1;
 
 
 
@@ -858,6 +859,7 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
 		    float mass = Higgs.M();
         
         if(VBFevent) category=nEtaCategories*nR9Categories*nPtCategories;
+        else if(VHadevent) category=nEtaCategories*nR9Categories*nPtCategories+1;
 		    categories.push_back(category);
 		    mass_errors.push_back(mass);
 		    weights.push_back(evweight);
@@ -896,6 +898,7 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
 		    }
 		    float mass = Higgs.M();
         if(VBFevent) category=nEtaCategories*nR9Categories*nPtCategories;
+        else if(VHadevent) category=nEtaCategories*nR9Categories*nPtCategories+1;
 		    categories.push_back(category);
 		    mass_errors.push_back(mass);
 		    weights.push_back(evweight);
@@ -1041,6 +1044,7 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
 		    float mass = Higgs.M();
 		   
               if(VBFevent) category=nEtaCategories*nR9Categories*nPtCategories;
+              else if(VHadevent) category=nEtaCategories*nR9Categories*nPtCategories+1;
 	       	    categories.push_back(category);
 	            mass_errors.push_back(mass);
 	            weights.push_back(evweight);
