@@ -116,12 +116,16 @@ void StatAnalysisExclusive::Init(LoopAll& l)
 
     l.SetCutVariables("cut_AllLeadJPt",       &myAllLeadJPt);
     l.SetCutVariables("cut_AllSubJPt",        &myAllSubJPt);
+    l.SetCutVariables("cut_AllLeadJEta",      &myAllLeadJEta);
+    l.SetCutVariables("cut_AllSubJEta",       &myAllSubJEta);
     l.SetCutVariables("cut_All_Mjj",          &myAll_Mjj);
     l.SetCutVariables("cut_All_dEta",         &myAlldEta);
     l.SetCutVariables("cut_All_Zep",          &myAllZep);
     l.SetCutVariables("cut_All_dPhi",         &myAlldPhi);
     l.SetCutVariables("cut_All_Mgg0",         &myAll_Mgg);
     l.SetCutVariables("cut_All_Mgg2",         &myAll_Mgg);
+    l.SetCutVariables("cut_All_Mgg_100-160",  &myAll_Mgg);
+    l.SetCutVariables("cut_All_Mgg2_100-160", &myAll_Mgg);
     l.SetCutVariables("cut_AllPtHiggs",       &myAllPtHiggs);
 
     l.SetCutVariables("cut_VBFLeadJPt",       &myVBFLeadJPt);
@@ -134,7 +138,9 @@ void StatAnalysisExclusive::Init(LoopAll& l)
     l.SetCutVariables("cut_VBF_Mgg2",         &myVBF_Mgg);
     l.SetCutVariables("cut_VBF_Mgg4",         &myVBF_Mgg);
     l.SetCutVariables("cut_VBF_Mgg10",        &myVBF_Mgg);
-
+    l.SetCutVariables("cut_VBF_Mgg4_100-160",        &myVBF_Mgg);
+    l.SetCutVariables("cut_VBF_Mgg2_100-160",        &myVBF_Mgg);
+    
     l.SetCutVariables("cut_VHadLeadJPt",      &myVHadLeadJPt);
     l.SetCutVariables("cut_VHadSubJPt",       &myVHadSubJPt);
     l.SetCutVariables("cut_VHad_Mjj",         &myVHad_Mjj);
@@ -145,6 +151,8 @@ void StatAnalysisExclusive::Init(LoopAll& l)
     l.SetCutVariables("cut_VHad_Mgg2",        &myVHad_Mgg);
     l.SetCutVariables("cut_VHad_Mgg4",        &myVHad_Mgg);
     l.SetCutVariables("cut_VHad_Mgg10",        &myVHad_Mgg);
+    l.SetCutVariables("cut_VHad_Mgg2_100-160",        &myVHad_Mgg);
+    l.SetCutVariables("cut_VHad_Mgg4_100-160",        &myVHad_Mgg);
 
     // CP
 
@@ -643,6 +651,8 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
           
           myAllLeadJPt = jet1->Pt();
           myAllSubJPt = jet2->Pt();
+          myAllLeadJEta = jet1->Eta();
+          myAllSubJEta = jet2->Eta();
           myAll_Mjj = dijet.M();
           myAlldEta = fabs(jet1->Eta() - jet2->Eta());
           myAllZep  = fabs(diphoton.Eta() - 0.5*(jet1->Eta() + jet2->Eta()));

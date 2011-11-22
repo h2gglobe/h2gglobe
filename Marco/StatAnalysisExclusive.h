@@ -78,6 +78,8 @@ public:
 
   float  myAllLeadJPt;
   float  myAllSubJPt;
+  float  myAllLeadJEta;
+  float  myAllSubJEta;
   float  myAlldEta;
   float  myAllZep;
   float  myAlldPhi;
