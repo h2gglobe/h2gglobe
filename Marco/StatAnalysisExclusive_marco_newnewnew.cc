@@ -647,8 +647,8 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
     std::pair<int,int> highestPtJets(-1,-1);
     if((includeVBF || includeVHad)&&l.jet_algoPF1_n>1) {
       RescaleJetEnergy(l);
-      if(includeVBF) diphotonVBF_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVBFCut, subleadEtVBFCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
-      if(includeVHad) diphotonVHad_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVHadCut, subleadEtVHadCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
+      diphotonVBF_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVBFCut, subleadEtVBFCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
+      diphotonVHad_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVHadCut, subleadEtVHadCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
 
       if(diphotonVBF_id>-1){
         TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphotonVBF_id], l.dipho_vtxind[diphotonVBF_id], &smeared_pho_energy[0]);
@@ -730,8 +730,8 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
       }
     }
     
-    if(VBFevent) diphoton_id = diphotonVBF_id;
-    else if(VHadevent) diphoton_id = diphotonVHad_id;
+    if(includeVBF&&VBFevent) diphoton_id = diphotonVBF_id;
+    else if(includeVHad&&VHadevent) diphoton_id = diphotonVHad_id;
     
     // CP
 
