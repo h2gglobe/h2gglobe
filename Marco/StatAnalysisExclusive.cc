@@ -124,8 +124,8 @@ void StatAnalysisExclusive::Init(LoopAll& l)
     l.SetCutVariables("cut_All_dPhi",         &myAlldPhi);
     l.SetCutVariables("cut_All_Mgg0",         &myAll_Mgg);
     l.SetCutVariables("cut_All_Mgg2",         &myAll_Mgg);
-    l.SetCutVariables("cut_All_Mgg_100-160",  &myAll_Mgg);
-    l.SetCutVariables("cut_All_Mgg2_100-160", &myAll_Mgg);
+    l.SetCutVariables("cut_All_Mgg_100_160",  &myAll_Mgg);
+    l.SetCutVariables("cut_All_Mgg2_100_160", &myAll_Mgg);
     l.SetCutVariables("cut_AllPtHiggs",       &myAllPtHiggs);
 
     l.SetCutVariables("cut_VBFLeadJPt",       &myVBFLeadJPt);
@@ -138,8 +138,8 @@ void StatAnalysisExclusive::Init(LoopAll& l)
     l.SetCutVariables("cut_VBF_Mgg2",         &myVBF_Mgg);
     l.SetCutVariables("cut_VBF_Mgg4",         &myVBF_Mgg);
     l.SetCutVariables("cut_VBF_Mgg10",        &myVBF_Mgg);
-    l.SetCutVariables("cut_VBF_Mgg4_100-160",        &myVBF_Mgg);
-    l.SetCutVariables("cut_VBF_Mgg2_100-160",        &myVBF_Mgg);
+    l.SetCutVariables("cut_VBF_Mgg4_100_160",        &myVBF_Mgg);
+    l.SetCutVariables("cut_VBF_Mgg2_100_160",        &myVBF_Mgg);
     
     l.SetCutVariables("cut_VHadLeadJPt",      &myVHadLeadJPt);
     l.SetCutVariables("cut_VHadSubJPt",       &myVHadSubJPt);
@@ -151,8 +151,19 @@ void StatAnalysisExclusive::Init(LoopAll& l)
     l.SetCutVariables("cut_VHad_Mgg2",        &myVHad_Mgg);
     l.SetCutVariables("cut_VHad_Mgg4",        &myVHad_Mgg);
     l.SetCutVariables("cut_VHad_Mgg10",        &myVHad_Mgg);
-    l.SetCutVariables("cut_VHad_Mgg2_100-160",        &myVHad_Mgg);
-    l.SetCutVariables("cut_VHad_Mgg4_100-160",        &myVHad_Mgg);
+    l.SetCutVariables("cut_VHad_Mgg2_100_160",        &myVHad_Mgg);
+    l.SetCutVariables("cut_VHad_Mgg4_100_160",        &myVHad_Mgg);
+
+    l.SetCutVariables("cut_VBFRLeadJPt",       &myVBFLeadJPt);
+    l.SetCutVariables("cut_VBFRSubJPt",        &myVBFSubJPt);
+    l.SetCutVariables("cut_VBFR_Mjj",          &myVBF_Mjj);
+    l.SetCutVariables("cut_VBFR_dEta",         &myVBFdEta);
+    l.SetCutVariables("cut_VBFR_Zep",          &myVBFZep);
+    l.SetCutVariables("cut_VBFR_dPhi",         &myVBFdPhi);
+    l.SetCutVariables("cut_VBFR_Mgg0",         &myVBF_Mgg);
+    l.SetCutVariables("cut_VBFR_Mgg2",         &myVBF_Mgg);
+    l.SetCutVariables("cut_VBFR_Mgg4",         &myVBF_Mgg);
+    l.SetCutVariables("cut_VBFR_Mgg10",        &myVBF_Mgg);
 
     // CP
 
@@ -677,6 +688,7 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
           l.ApplyCutsFill(0,3,evweight, myweight);
 
           VBFevent = l.ApplyCutsFill(0,1,evweight, myweight);
+          VBFevent = l.ApplyCutsFill(0,5,evweight, myweight);
         }
       }
 
@@ -995,6 +1007,7 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
           myVBF_Mgg =diphoton.M();
 
           VBFevent = l.ApplyCuts(0,1);
+          VBFevent = l.ApplyCuts(0,5);
         }
       }
       
