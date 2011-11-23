@@ -1,0 +1,195 @@
+#!/usr/bin/python
+import sys, os, string
+
+if (len(sys.argv) != 1):
+    Usage = """
+
+makanalysis AnalysisName
+
+"""
+    sys.exit(-1)
+
+name = sys.argv[1]
+if (not os.path.exists(name)):
+    os.system("mkdir -p " + name + "/interface")
+    os.system("mkdir -p " + name + "/src")
+    os.system("mkdir " + name + "_scripts")
+else:
+    print "I'm sorry but the analysis already exists !\nYou have to change the name."
+    sys.exit(-1)
+    
+file = open(name + "/BuildFile.xml", "w")
+text = """
+<use   name=\"h2gglobe\"/>
+<use   name=\"roofit\"/>
+<export>
+  <lib   name=\"1\"/>
+</export>
+<Flags CXXFLAGS=\"-g\" />
+"""
+file.write(text)
+file.close()
+
+file = open(name + "/interface/" + name + ".h", "w")
+text = """
+#ifndef __XXX__
+#define __XXX__
+
+#include \"BaseAnalysis.h\"
+
+// ------------------------------------------------------------------------------------
+class XXX : public BaseAnalysis {
+ public:
+  XXX();
+  virtual ~XXX();
+  
+  virtual const std::string & name() const { return name_; };
+  
+  // LoopAll analysis interface implementation
+  virtual void Init(LoopAll&);
+  virtual void Term(LoopAll&);
+  
+  virtual void ReducedOutputTree(LoopAll &l, TTree *);
+  virtual void GetBranches(TTree *, std::set<TBranch *>& );
+  
+  virtual void FillReductionVariables(LoopAll& l, int jentry);   
+  virtual bool SelectEventsReduction(LoopAll&, int);
+  
+  virtual bool SkimEvents(LoopAll&, int);
+  virtual bool SelectEvents(LoopAll&, int);
+  virtual void Analysis(LoopAll&, Int_t);
+  
+ protected:
+  std::string name_;
+};
+
+#endif
+"""
+text = text.replace("XXX", name)
+file.write(text)
+file.close()
+
+file = open(name + "/src/" + name + ".cc", "w")
+text = """
+#include \"../interface/XXX.h\"
+
+#include <iostream>
+
+#define XXXDEBUG 0
+
+using namespace std;
+
+// ----------------------------------------------------------------------------------------------------
+XXX::XXX()  : 
+  name_(\"XXX\")
+{}
+
+// ----------------------------------------------------------------------------------------------------
+XXX::~XXX() 
+{}
+
+// ----------------------------------------------------------------------------------------------------
+void XXX::Term(LoopAll& l) 
+{}
+
+// ----------------------------------------------------------------------------------------------------
+void XXX::Init(LoopAll& l) {
+  if(XXXDEBUG) 
+    cout << \"InitRealXXX START\"<<endl;
+  
+  if(XXXDEBUG) 
+    cout <<\"InitRealXXX END\"<<endl;
+}
+
+// ----------------------------------------------------------------------------------------------------
+void XXX::Analysis(LoopAll& l, Int_t jentry) {
+  if(XXXDEBUG) 
+    cout <<\"Analysis START\"<<endl;
+  
+  
+  if(XXXDEBUG) 
+    cout<<\"Analysis END\"<<endl;
+}
+
+// ----------------------------------------------------------------------------------------------------
+void XXX::GetBranches(TTree *t, std::set<TBranch *>& s ) 
+{}
+
+// ----------------------------------------------------------------------------------------------------
+void XXX::FillReductionVariables(LoopAll& l, int jentry) {
+  if(XXXDEBUG) 
+    cout<<\"myFillReduceVar START\"<<endl;
+  
+  if(XXXDEBUG) 
+    cout<<\"myFillReduceVar END\"<<endl;
+}
+
+// ----------------------------------------------------------------------------------------------------
+bool XXX::SelectEventsReduction(LoopAll& l, int jentry) {
+
+  if(XXXDEBUG)  cout << \" ****************** SelectEventsReduction \" << endl;
+  return true;
+}
+
+// ----------------------------------------------------------------------------------------------------
+bool XXX::SkimEvents(LoopAll& l, int jentry) {
+  return true;
+}
+
+// ----------------------------------------------------------------------------------------------------
+bool XXX::SelectEvents(LoopAll& l, int jentry) {
+  return true;
+}
+
+// ----------------------------------------------------------------------------------------------------
+void XXX::ReducedOutputTree(LoopAll &l, TTree * outputTree) 
+{}
+"""
+text = text.replace("XXX", name)
+file.write(text)
+file.close()
+
+
+os.system("cp -r PhotonAnalysis_scripts/python " + name + "_scripts/.")
+os.system("cp  PhotonAnalysis_scripts/reduce.py " + name + "_scripts/.")
+os.system("cp  PhotonAnalysis_scripts/looper.py " + name + "_scripts/.")
+
+os.system("cp  PhotonAnalysis_scripts/photonanalysis.dat " + name + "_scripts/" + name + ".dat")
+os.system("cp  PhotonAnalysis_scripts/counters.dat " + name + "_scripts/.")
+os.system("cp  PhotonAnalysis_scripts/template.dat " + name + "_scripts/.")
+os.system("cp  PhotonAnalysis_scripts/inputfiles.dat " + name + "_scripts/.")
+os.system("cp  PhotonAnalysis_scripts/cuts.dat " + name + "_scripts/.")
+os.system("cp  PhotonAnalysis_scripts/plotvariables.dat " + name + "_scripts/.")
+os.system("cp  PhotonAnalysis_scripts/reduction_input.dat " + name + "_scripts/.")
+os.system("cp  PhotonAnalysis_scripts/reduction_output.dat " + name + "_scripts/.")
+os.system("cp  PhotonAnalysis_scripts/filestoreduce.dat " + name + "_scripts/.")
+os.system("cp  PhotonAnalysis_scripts/looper_input.dat " + name + "_scripts/.")
+    
+# change MakeFile
+file = open("Makefile", "r")
+lines = file.readlines()
+file.close()
+
+file = open("Makefile_temp", "w")
+suffix = string.upper(name[:3])
+for l in lines:
+    if ("PhotonAnalysis.h" in l):
+        newline = l.replace("PhotonAnalysis", name)
+        file.write(l)
+        file.write(newline)
+    elif ("PHO=" in l):
+        file.write(suffix + "=" + name + "\n")
+        file.write(suffix + "SRC=$(wildcard $(" + suffix + ")/src/*.$(SrcSuf))" + "\n")
+        file.write(suffix + "OBS=$(patsubst %$(SrcSuf), %$(ObjSuf), $(" + suffix + "SRC))" + "\n")
+        file.write("\n")
+        file.write(l)
+    elif ("$(PHOOBS)" in l):
+        l = l.split("\n")[0] + " $(" + suffix + "OBS)\n"
+        file.write(l)
+    elif ("$(PHOSRC)" in l and "$(PHOSRC))" not in l):
+        l = l.split("\n")[0] + " $(" + suffix + "SRC)\n"
+        file.write(l)
+    else:
+        file.write(l)        
+
+os.system("mv Makefile_temp Makefile")
