@@ -314,6 +314,10 @@ void SetBranchAddress_mu_glo_losthits(TTree * tree) { tree->SetBranchAddress("mu
 void SetBranchAddress_mu_glo_validhits(TTree * tree) { tree->SetBranchAddress("mu_glo_validhits", mu_glo_validhits, &b_mu_glo_validhits); }; 
 void SetBranchAddress_mu_glo_type(TTree * tree) { tree->SetBranchAddress("mu_glo_type", mu_glo_type, &b_mu_glo_type); }; 
 void SetBranchAddress_mu_glo_iso(TTree * tree) { tree->SetBranchAddress("mu_glo_iso", mu_glo_iso, &b_mu_glo_iso); }; 
+void SetBranchAddress_mu_glo_pixelhits(TTree * tree) { tree->SetBranchAddress("mu_glo_pixelhits", mu_glo_pixelhits, &b_mu_glo_pixelhits); }; 
+void SetBranchAddress_mu_glo_validChmbhits(TTree * tree) { tree->SetBranchAddress("mu_glo_validChmbhits", mu_glo_validChmbhits, &b_mu_glo_validChmbhits); }; 
+void SetBranchAddress_mu_glo_ecaliso03(TTree * tree) { tree->SetBranchAddress("mu_glo_ecaliso03", mu_glo_ecaliso03, &b_mu_glo_ecaliso03); }; 
+void SetBranchAddress_mu_glo_tkiso03(TTree * tree) { tree->SetBranchAddress("mu_glo_tkiso03", mu_glo_tkiso03, &b_mu_glo_tkiso03); }; 
 void SetBranchAddress_pho_n(TTree * tree) { tree->SetBranchAddress("pho_n", &pho_n, &b_pho_n); }; 
 void SetBranchAddress_pho_feta(TTree * tree) { tree->SetBranchAddress("pho_feta", pho_feta, &b_pho_feta); }; 
 void SetBranchAddress_pho_crackcorr(TTree * tree) { tree->SetBranchAddress("pho_crackcorr", pho_crackcorr, &b_pho_crackcorr); }; 
