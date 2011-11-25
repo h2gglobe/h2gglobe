@@ -6,6 +6,7 @@
 #include "TROOT.h"
 #include "TChain.h"
 #include "TFile.h"
+#include "TH1D.h"
 #include "TClonesArray.h"
 
 #include <sstream>
@@ -117,6 +118,8 @@ class LoopAll {
   TTree * plotvartree;
   TTree * inputfiletree;
 #endif
+
+  TH1D  * pileup;
 
   TFile * outputFile;
   TString outputFileName;

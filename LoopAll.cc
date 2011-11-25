@@ -78,6 +78,10 @@ void LoopAll::SetTypeRun(int t, const char* name) {
   outputTreeLumi->Branch("run", &run, "run/I");
   outputTreeLumi->Branch("lumis", &lumis, "lumis/I");
 
+  if (typerun==kReduce){
+	pileup  =  new TH1D("pileup", "pileup", 61, -0.5, 60.5); 
+  }
+
 }
 
 // ------------------------------------------------------------------------------------
@@ -269,6 +273,8 @@ void LoopAll::LoopAndFillHistos(TString treename) {
   it_treelumi	= LumiTrees.begin();
   it_treepar = TreesPar.begin();  
   
+
+  cout << "SAMPLE CONTAINER SIZE " << sampleContainer.size() <<endl;
   for (;it!=files.end()
          ;it_file++,it_tree++,it_treelumi++,it_treepar++,it++){ 
     
@@ -289,7 +295,7 @@ void LoopAll::LoopAndFillHistos(TString treename) {
     //Files[i] = TFile::Open(files[i]);
     tot_events=1;
     sel_events=1;
-    if(typerun == 1) { //this is a reduce job
+    if(typerun == kReduce) { //this is a reduce job
       
       if(*it_file)
         *it_treepar=(TTree*) (*it_file)->Get("global_variables");
@@ -306,6 +312,14 @@ void LoopAll::LoopAndFillHistos(TString treename) {
         tot_events=0;
         sel_events=0;
       }
+
+      // Cannot mix PU histograms from different samples
+      //assert(sampleContainer.size()==1);
+
+      if (type!=0 && outputFile){
+	  pileup->Add((TH1D*) ((*it_file)->Get("pileup")));
+      } 
+     
     }
     
     if(tot_events!=0) {
@@ -481,7 +495,10 @@ void LoopAll::TermReal(Int_t typerunpass) {
     outputParReductions++;
     outputTreePar->Fill();
     outputTreePar->Write(0,TObject::kWriteDelete);
-    if(outputFile) outputTreeLumi->Write(0,TObject::kWriteDelete);
+    if(outputFile){ 
+     outputTreeLumi->Write(0,TObject::kWriteDelete);
+     pileup->Write(0,TObject::kWriteDelete);
+    }
   }
 }
 
