@@ -116,6 +116,8 @@ void StatAnalysisExclusive::Init(LoopAll& l)
 
     l.SetCutVariables("cut_AllLeadJPt",       &myAllLeadJPt);
     l.SetCutVariables("cut_AllSubJPt",        &myAllSubJPt);
+    l.SetCutVariables("cut_AllLeadJEta",      &myAllLeadJEta);
+    l.SetCutVariables("cut_AllSubJEta",       &myAllSubJEta);
     l.SetCutVariables("cut_All_Mjj",          &myAll_Mjj);
     l.SetCutVariables("cut_All_dEta",         &myAlldEta);
     l.SetCutVariables("cut_All_Zep",          &myAllZep);
@@ -130,28 +132,57 @@ void StatAnalysisExclusive::Init(LoopAll& l)
     l.SetCutVariables("cut_Incl_Mgg10",        &myInclusive_Mgg);
     l.SetCutVariables("cut_InclPtHiggs",       &myInclusivePtHiggs);
 
-
+    l.SetCutVariables("cut_VBF_Mgg0",         &myVBF_Mgg);
     l.SetCutVariables("cut_VBFLeadJPt",       &myVBFLeadJPt);
     l.SetCutVariables("cut_VBFSubJPt",        &myVBFSubJPt);
-    l.SetCutVariables("cut_VBF_Mjj",          &myVBF_Mjj);
     l.SetCutVariables("cut_VBF_dEta",         &myVBFdEta);
     l.SetCutVariables("cut_VBF_Zep",          &myVBFZep);
+    l.SetCutVariables("cut_VBF_Mjj",          &myVBF_Mjj);
     l.SetCutVariables("cut_VBF_dPhi",         &myVBFdPhi);
-    l.SetCutVariables("cut_VBF_Mgg0",         &myVBF_Mgg);
     l.SetCutVariables("cut_VBF_Mgg2",         &myVBF_Mgg);
     l.SetCutVariables("cut_VBF_Mgg4",         &myVBF_Mgg);
     l.SetCutVariables("cut_VBF_Mgg10",        &myVBF_Mgg);
+    l.SetCutVariables("cut_VBF_Mgg100160",    &myVBF_Mgg);
+    l.SetCutVariables("cut_VBF_Mggfin",       &myVBF_Mgg);
 
+    l.SetCutVariables("cut_VHad_Mgg0",        &myVHad_Mgg);
     l.SetCutVariables("cut_VHadLeadJPt",      &myVHadLeadJPt);
     l.SetCutVariables("cut_VHadSubJPt",       &myVHadSubJPt);
-    l.SetCutVariables("cut_VHad_Mjj",         &myVHad_Mjj);
     l.SetCutVariables("cut_VHad_dEta",        &myVHaddEta);
     l.SetCutVariables("cut_VHad_Zep",         &myVHadZep);
+    l.SetCutVariables("cut_VHad_Mjj",         &myVHad_Mjj);
     l.SetCutVariables("cut_VHad_dPhi",        &myVHaddPhi);
-    l.SetCutVariables("cut_VHad_Mgg0",        &myVHad_Mgg);
     l.SetCutVariables("cut_VHad_Mgg2",        &myVHad_Mgg);
     l.SetCutVariables("cut_VHad_Mgg4",        &myVHad_Mgg);
-    l.SetCutVariables("cut_VHad_Mgg10",        &myVHad_Mgg);
+    l.SetCutVariables("cut_VHad_Mgg10",       &myVHad_Mgg);
+    l.SetCutVariables("cut_VHad_Mgg100160",   &myVHad_Mgg);
+    l.SetCutVariables("cut_VHad_Mggfin",      &myVHad_Mgg);
+
+    l.SetCutVariables("cut_VBFR_Mgg0",         &myVBF_Mgg);
+    l.SetCutVariables("cut_VBFRLeadJPt",       &myVBFLeadJPt);
+    l.SetCutVariables("cut_VBFRSubJPt",        &myVBFSubJPt);
+    l.SetCutVariables("cut_VBFR_dEta",         &myVBFdEta);
+    l.SetCutVariables("cut_VBFR_Zep",          &myVBFZep);
+    l.SetCutVariables("cut_VBFR_Mjj",          &myVBF_Mjj);
+    l.SetCutVariables("cut_VBFR_dPhi",         &myVBFdPhi);
+    l.SetCutVariables("cut_VBFR_Mgg2",         &myVBF_Mgg);
+    l.SetCutVariables("cut_VBFR_Mgg4",         &myVBF_Mgg);
+    l.SetCutVariables("cut_VBFR_Mgg10",        &myVBF_Mgg);
+    l.SetCutVariables("cut_VBFR_Mgg100160",    &myVBF_Mgg);
+    l.SetCutVariables("cut_VBFR_Mggfin",       &myVBF_Mgg);
+
+    l.SetCutVariables("cut_VHadMLeadJPt",      &myVHadLeadJPt);
+    l.SetCutVariables("cut_VHadMSubJPt",       &myVHadSubJPt);
+    l.SetCutVariables("cut_VHadM_dEta",        &myVHaddEta);
+    l.SetCutVariables("cut_VHadM_Zep",         &myVHadZep);
+    l.SetCutVariables("cut_VHadM_Mjj",         &myVHad_Mjj);
+    l.SetCutVariables("cut_VHadM_dPhi",        &myVHaddPhi);
+    l.SetCutVariables("cut_VHadM_Mgg0",        &myVHad_Mgg);
+    l.SetCutVariables("cut_VHadM_Mgg2",        &myVHad_Mgg);
+    l.SetCutVariables("cut_VHadM_Mgg4",        &myVHad_Mgg);
+    l.SetCutVariables("cut_VHadM_Mgg10",       &myVHad_Mgg);
+    l.SetCutVariables("cut_VHadM_Mgg100160",   &myVHad_Mgg);
+    l.SetCutVariables("cut_VHadM_Mggfin",      &myVHad_Mgg);
 
     // CP
 
@@ -513,6 +544,11 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
    
     int cur_type = l.itype[l.current];
     float weight = l.sampleContainer[l.current_sample_index].weight;
+    float newweight = l.sampleContainer[l.current_sample_index].weight;
+    double pileupWeight=1.; 
+
+
+
     l.FillCounter( "Processed", 1. );
     assert( weight > 0. );  
     l.FillCounter( "XSWeighted", weight );
@@ -527,7 +563,9 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
 	}
 	std::vector<double> & puweights = hasSpecificWeight ? weights[ cur_type ] : weights[0]; 
 	if(n_pu<puweights.size()){
-	    weight *= puweights[n_pu];
+	  weight *= puweights[n_pu]; //MARCO
+	  pileupWeight *= puweights[n_pu];
+
 	    sumwei+=puweights[n_pu]; 
 	}    
 	else{ //should not happen as we have a weight for all simulated n_pu multiplicities!
@@ -535,8 +573,8 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
 	}
     }
     
-    assert( weight >= 0. );  
-    l.FillCounter( "PUWeighted", weight );
+    assert( weight >= 0. );  //marco
+    l.FillCounter( "PUWeighted", weight ); //marco
     
     if( jentry % 10000 ==  0 ) {
 	    std::cout << " nevents " <<  nevents << " sumpuweights " << sumwei << " ratio " << sumwei / nevents 
@@ -631,9 +669,13 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
       
       //should be done for both earlier
       diphoton_index = std::make_pair( l.dipho_leadind[diphoton_id],  l.dipho_subleadind[diphoton_id] );
-      float evweight = weight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second] * genLevWeight;
+      float evweight = newweight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second] * genLevWeight * pileupWeight;
+
+      if(fabs((float) newweight*pileupWeight-weight)/((float) newweight*pileupWeight+weight)>0.0001) cout<<"################ "<<newweight*pileupWeight<<" "<<weight<<" "<<newweight<<" "<<pileupWeight<<endl;
+      //if(newweight*pileupWeight != weight) cout<<"################ "<<newweight*pileupWeight<<" "<<weight<<" "<<newweight<<" "<<pileupWeight<<endl;
+
       float myweight=1.;
-      if(evweight*weight!=0) myweight=evweight/weight;
+      if(evweight*newweight!=0) myweight=evweight/newweight;
       
       l.ApplyCutsFill(0,4,evweight, myweight);
 
@@ -669,6 +711,8 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
           
           myAllLeadJPt = jet1->Pt();
           myAllSubJPt = jet2->Pt();
+          myAllLeadJEta = jet1->Eta();
+          myAllSubJEta = jet2->Eta();
           myAll_Mjj = dijet.M();
           myAlldEta = fabs(jet1->Eta() - jet2->Eta());
           myAllZep  = fabs(diphoton.Eta() - 0.5*(jet1->Eta() + jet2->Eta()));
@@ -686,19 +730,22 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
 
 	  //should be done for both earlier
 	  diphoton_index = std::make_pair( l.dipho_leadind[diphotonVBF_id],  l.dipho_subleadind[diphotonVBF_id] );
-	  float evweight = weight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second] * genLevWeight;
+	  float evweight = newweight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second] * genLevWeight * pileupWeight;
+      if(fabs((float) newweight*pileupWeight-weight)/((float) newweight*pileupWeight+weight)>0.0001) cout<<"################ "<<newweight*pileupWeight<<" "<<weight<<" "<<newweight<<" "<<pileupWeight<<endl;
+      //if(newweight*pileupWeight != weight) cout<<"AAA################ "<<newweight*pileupWeight<<" "<<weight<<" "<<newweight<<" "<<pileupWeight<<endl;
 	  float myweight=1.;
-	  if(evweight*weight!=0) myweight=evweight/weight;
+	  if(evweight*newweight!=0) myweight=evweight/newweight;
 	  
           l.ApplyCutsFill(0,3,evweight, myweight);
 
           VBFevent = l.ApplyCutsFill(0,1,evweight, myweight);
+          l.ApplyCutsFill(0,5,evweight, myweight);
         }
       }
 
       if(diphotonVHad_id>-1){
         TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphotonVHad_id], l.dipho_vtxind[diphotonVHad_id], &smeared_pho_energy[0]);
-	      TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphotonVHad_id], l.dipho_vtxind[diphotonVHad_id], &smeared_pho_energy[0]);
+	TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphotonVHad_id], l.dipho_vtxind[diphotonVHad_id], &smeared_pho_energy[0]);
         float jet1ptcut =0.0;
         float jet2ptcut =0.0;
         
@@ -721,11 +768,14 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
           myVHaddPhi = fabs(diphoton.DeltaPhi(dijet));
           myVHad_Mgg =diphoton.M();
 
-	        float evweight = weight * smeared_pho_weight[l.dipho_leadind[diphotonVHad_id]] * smeared_pho_weight[l.dipho_vtxind[diphotonVHad_id]] * genLevWeight;
-	        float myweight=1.;
-	        if(evweight*weight!=0) myweight=evweight/weight;
+	  float evweight = newweight * smeared_pho_weight[l.dipho_leadind[diphotonVHad_id]] * smeared_pho_weight[l.dipho_subleadind[diphotonVHad_id]] * genLevWeight * pileupWeight;
+      if(fabs((float) newweight*pileupWeight-weight)/((float) newweight*pileupWeight+weight)>0.0001) cout<<"################ "<<newweight*pileupWeight<<" "<<weight<<" "<<newweight<<" "<<pileupWeight<<endl;
+      //if(newweight*pileupWeight != weight) cout<<"BBB################ "<<newweight*pileupWeight<<" "<<weight<<" "<<newweight<<" "<<pileupWeight<<endl;
+	  float myweight=1.;
+	  if(evweight*newweight!=0) myweight=evweight/newweight;
 	  
           VHadevent = l.ApplyCutsFill(0,2,evweight, myweight);
+          l.ApplyCutsFill(0,6,evweight, myweight);
         }
       }
     }

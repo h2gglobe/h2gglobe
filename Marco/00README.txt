@@ -17,8 +17,10 @@ setTDRStyle();
   //gSystem->Load("VertexAnalysis/lib/libh2gglobeVertexAnalysis.so");
 gSystem->Load("libLoopAll.so");
 LoopAll* m=new LoopAll();
-m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_only120final.root","Hgg")
-m->myPlotInteractive("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_only120final.root");
+m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_only120_23nov_OK.root","Hgg")
+m->myPlotInteractive("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_only120_23nov_OK.root");
+
+_23nov_100160
 
 
 m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff.root","Hgg")
@@ -91,6 +93,7 @@ cp Marco/datafiles_5fb_LL_33_23_all_ff.dat PhotonAnalysis_scripts/datafiles_5fb_
 
 #FOR MARCO ADD THIS
 cp Marco/cuts_marco.dat PhotonAnalysis_scripts/cuts.dat
+#cp Marco/cuts_marco_100160.dat PhotonAnalysis_scripts/cuts.dat
 cp Marco/StatAnalysisExclusive_marco_newnewnew.h PhotonAnalysis/interface/StatAnalysisExclusive.h
 cp Marco/StatAnalysisExclusive_marco_newnewnew.cc PhotonAnalysis/src/StatAnalysisExclusive.cc
 cp Marco/marcodatafiles_5fb_LL_33_23_all_ff_120.dat PhotonAnalysis_scripts/datafiles_5fb_LL_33_23_all_ff_120.dat
@@ -170,12 +173,13 @@ rm datafiles_5fb_LL_33_23_all_ff.dat.pevents
 python fitter.py -i datafiles_5fb_LL_33_23_all_ff.dat --dryRun
 python fitter.py -i datafiles_5fb_LL_33_23_all_ff.dat >&  datafiles_5fb_LL_33_23_all_ff_final.log
 
+========
 cd PhotonAnalysis_scripts/.
-rm datafiles_5fb_LL_33_23_all_ff.dat.pevents
+rm datafiles_5fb_LL_33_23_all_ff_120.dat.pevents
 python fitter.py -i datafiles_5fb_LL_33_23_all_ff_120.dat --dryRun
-python fitter.py -i datafiles_5fb_LL_33_23_all_ff_120.dat >&  datafiles_5fb_LL_33_23_all_ff_120_final.log
+python fitter.py -i datafiles_5fb_LL_33_23_all_ff_120.dat >&  datafiles_5fb_LL_33_23_all_ff_120_23nov.log
 
-Plotinteractive and myprintcountersnew are still to be fixed
+cat datafiles_5fb_LL_33_23_all_ff_120_23nov.log
 
 When finished if you want co commit everything:
 
