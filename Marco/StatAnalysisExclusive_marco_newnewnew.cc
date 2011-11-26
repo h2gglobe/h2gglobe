@@ -707,7 +707,7 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
         
         highestPtJets = Select2HighestPtJets(l, lead_p4, sublead_p4, jet1ptcut, jet2ptcut );
 
-        bool VBFpresel = (highestPtJets.first>=0)&&(highestPtJets.first>=0);
+        bool VBFpresel = (highestPtJets.first>=0)&&(highestPtJets.second>=0);
 
 	//taken out from if  
 	TLorentzVector diphoton = lead_p4+sublead_p4;
@@ -741,6 +741,9 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
 	}
 
         if(VBFpresel){
+
+	  //cout<<"MARCOMM "<<highestPtJets.first<<" "<<highestPtJets.second<<endl;
+
           TLorentzVector* jet1 = (TLorentzVector*)l.jet_algoPF1_p4->At(highestPtJets.first);
           TLorentzVector* jet2 = (TLorentzVector*)l.jet_algoPF1_p4->At(highestPtJets.second);
           TLorentzVector dijet = (*jet1) + (*jet2);
@@ -785,7 +788,7 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
         
         highestPtJets = Select2HighestPtJets(l, lead_p4, sublead_p4, jet1ptcut, jet2ptcut );
 
-        bool VHadpresel = (highestPtJets.first>=0)&&(highestPtJets.first>=0);
+        bool VHadpresel = (highestPtJets.first>=0)&&(highestPtJets.second>=0);
   
 	//taken out from if  
 	TLorentzVector diphoton = lead_p4+sublead_p4;
@@ -1099,7 +1102,7 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
         
         highestPtJets = Select2HighestPtJets(l, lead_p4, sublead_p4, jet1ptcut, jet2ptcut );
 
-        bool VBFpresel = (highestPtJets.first>=0)&&(highestPtJets.first>=0);
+        bool VBFpresel = (highestPtJets.first>=0)&&(highestPtJets.second>=0);
   
 
         if(VBFpresel){
@@ -1143,7 +1146,7 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
         
         highestPtJets = Select2HighestPtJets(l, lead_p4, sublead_p4, jet1ptcut, jet2ptcut );
 
-        bool VHadpresel = (highestPtJets.first>=0)&&(highestPtJets.first>=0);
+        bool VHadpresel = (highestPtJets.first>=0)&&(highestPtJets.second>=0);
   
         if(VHadpresel){
           TLorentzVector* jet1 = (TLorentzVector*)l.jet_algoPF1_p4->At(highestPtJets.first);
@@ -1361,15 +1364,21 @@ std::pair<int, int> StatAnalysisExclusive::Select2HighestPtJets(LoopAll& l, TLor
   std::pair<int, int> myJets(-1,-1);
   std::pair<int, int> fail(-1,-1);
 
+  std::pair<int, int> myJetsnew(-1,-1);
+  std::pair<float, float> myJetspt(-1.,-1.);
+
   float dr2pho = 0.5;
-  float dr2jet = 0.5;
+  float dr2jet = 0.5; //Shoud change marco
 
   TLorentzVector* j1p4;
   TLorentzVector* j2p4;
   float j1pt=-1;
   float j2pt=-1;
 
-  // select ighest pt jets
+
+  //for me this is wrong
+
+  // select highest pt jets
   // veto jets close to photons or each other
   for(int j1_i=0; j1_i<l.jet_algoPF1_n; j1_i++){
     j1p4 = (TLorentzVector*) l.jet_algoPF1_p4->At(j1_i);
@@ -1377,7 +1386,7 @@ std::pair<int, int> StatAnalysisExclusive::Select2HighestPtJets(LoopAll& l, TLor
     if(j1p4->DeltaR(leadpho) < dr2pho) continue;
     if(j1p4->DeltaR(subleadpho) < dr2pho) continue;
     j1pt=j1p4->Pt();
-    if(j1pt<jtTMinPt) continue;
+    if(j1pt<jtTMinPt) continue; //jtT
     for(int j2_i=j1_i+1; j2_i<l.jet_algoPF1_n; j2_i++){
       j2p4 = (TLorentzVector*) l.jet_algoPF1_p4->At(j2_i);
       if(fabs(j2p4->Eta()) > 4.7) continue;
@@ -1386,7 +1395,7 @@ std::pair<int, int> StatAnalysisExclusive::Select2HighestPtJets(LoopAll& l, TLor
       if(j2p4->DeltaR(*j1p4) < dr2jet) continue;
       j2pt=j2p4->Pt();
       
-      if(j2pt<jtTMinPt) continue;
+      if(j2pt<jtTMinPt) continue; //jtT
       if(std::max(j1pt,j2pt)<jtLMinPt) continue;
 
       if(j1pt>j2pt){
@@ -1405,10 +1414,40 @@ std::pair<int, int> StatAnalysisExclusive::Select2HighestPtJets(LoopAll& l, TLor
     }
   }
 
-  if(myJets.first==-1) return fail;
+  for(int j1_i=0; j1_i<l.jet_algoPF1_n; j1_i++){
+    j1p4 = (TLorentzVector*) l.jet_algoPF1_p4->At(j1_i);
+    if(fabs(j1p4->Eta()) > 4.7) continue;
+    if(j1p4->DeltaR(leadpho) < dr2pho) continue;
+    if(j1p4->DeltaR(subleadpho) < dr2pho) continue;
+    j1pt=j1p4->Pt();
 
+    //cout<<"AAA MARCOMM "<<j1_i<<" "<<j1p4->Pt()<<" "<<j1p4->Eta()<<endl;
 
-  return myJets;
+    if(j1pt<jtTMinPt) continue;
+
+    if(j1pt>myJetspt.first) {
+      myJetsnew.second=myJetsnew.first;
+      myJetspt.second=myJetspt.first;
+      myJetspt.first=j1pt;
+      myJetsnew.first=j1_i;
+    }
+    else if(j1pt>myJetspt.second) {
+      myJetspt.second=j1pt;
+      myJetsnew.second=j1_i;
+    }
+  }
+
+  //cout<<"AAA MARCOMM "<<l.jet_algoPF1_n<<" "<<myJetsnew.first<<" "<<myJetsnew.second<<endl;
+
+  //if(myJets.first==-1) return fail;
+  //return myJets;
+
+  if(myJetsnew.second!=-1&&myJetspt.first>jtTMinPt&&myJetspt.second>jtTMinPt) {
+    if(myJetsnew!=myJets) {
+      cout<<"myJetsnew myJets "<<myJetsnew.first<<myJetsnew.second<<myJets.first<<myJets.second<<endl;
+    }
+  }
+  return myJetsnew;
 }
 
 
