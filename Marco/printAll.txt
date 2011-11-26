@@ -1,0 +1,378 @@
+root -l 
+.L Marco/tdrstyle.C
+setTDRStyle();
+  gSystem->Load("libPhysics.so");
+  gSystem->Load("libCore.so");
+  //gSystem->Load("VertexAnalysis/lib/libh2gglobeVertexAnalysis.so");
+gSystem->Load("libLoopAll.so");
+LoopAll* m=new LoopAll();
+m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_only120_25nov.root","Hgg")
+m->myPlotInteractive("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_only120_25nov.root");
+
+
+
+m->myPlotInteractiveSetup("/home/users/capalmer/CMS/Higgs2gg/Limits/nov14_forAN/428p7/src/HiggsAnalysis/HiggsTo2photons/h2gglobe_new3/PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_crosscheck_2011+120.root","Hgg")
+m->myPlotInteractive("/home/users/capalmer/CMS/Higgs2gg/Limits/nov14_forAN/428p7/src/HiggsAnalysis/HiggsTo2photons/h2gglobe_new3/PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_crosscheck_2011+120.root");
+
+
+j 25
+
+placeline -10000
+placetext  0.425 0.95 0.82 0.9
+placelegend 0.58 0.85 0.43 0.78
+#inclusive
+resize 800 600
+write png
+n
+#27
+write png
+n
+#28
+write png
+n
+#29
+write png
+n
+#30
+write png
+n
+#31
+write png
+n
+#32
+write png
+n
+#33
+write png
+n
+#34
+write png
+n
+#35
+write png
+n
+#36
+#all jets
+placeline -10000
+placetext  0.425 0.95 0.82 0.9
+placelegend 0.58 0.85 0.43 0.78
+j 36
+write png
+n
+#37
+write png
+n
+#38
+write png
+n
+#39
+write png
+n
+#40
+write png
+n
+#41
+write png
+n
+#42
+write png
+n
+#43
+write png
+n
+#44
+placetext  0.425 0.95 0.82 0.9
+placelegend 0.63 0.90 0.53 0.78
+write png
+n
+#45
+write png
+n
+#46
+write png
+n
+#47
+write png
+n
+#48
+write png
+n
+#49
+write png
+n
+#50
+placetext  0.15 0.675 0.82 0.9
+placelegend 0.28 0.55 0.43 0.78
+write png
+n
+#51
+write png
+n
+#52
+placetext  0.425 0.95 0.82 0.9
+placelegend 0.58 0.85 0.43 0.78
+write png
+n
+#53
+write png
+n
+#VBF - sequential
+#54
+j 54
+placetext  0.425 0.95 0.82 0.9
+placelegend 0.58 0.85 0.43 0.78
+setmax 15
+n
+setmax 0
+#55
+write png
+n
+n
+setmax 0
+#57
+write png
+n
+n
+#59
+write png
+n
+n
+#61
+write png
+n
+placetext  0.15 0.675 0.82 0.9
+placelegend 0.71 0.93 0.63 0.95
+n
+#63
+setmax 50
+write png
+n
+n
+#65
+setmax 35
+write png
+n
+setmax 0
+placetext  0.15 0.675 0.82 0.9
+placelegend 0.28 0.55 0.43 0.78
+n
+#67
+write png
+n
+placetext  0.425 0.95 0.82 0.9
+placelegend 0.58 0.85 0.43 0.78
+setmax 15
+n
+#69
+write png
+n
+setmax 20
+n
+#71
+write png
+n
+setmax 35
+n
+#73
+write png
+n
+
+#VBF - n-1
+#54
+j 54
+placetext  0.425 0.95 0.82 0.9
+placelegend 0.58 0.85 0.43 0.78
+setmax 15
+write png
+n
+setmax 0
+n
+#56
+setmax 18
+write png
+n
+setmax 0
+n
+#58
+write png
+n
+n
+#60
+write png
+n
+n
+#62
+setmax 27
+placetext  0.15 0.675 0.82 0.9
+placelegend 0.71 0.93 0.63 0.95
+write png
+n
+n
+#64
+setmax 30
+write png
+n
+n
+#66
+setmax 0
+placetext  0.15 0.675 0.82 0.9
+placelegend 0.28 0.55 0.43 0.78
+write png
+n
+n
+#68
+placetext  0.425 0.95 0.82 0.9
+placelegend 0.58 0.85 0.43 0.78
+setmax 15
+write png
+n
+n
+#70
+setmax 20
+write png
+n
+n
+#72
+setmax 35
+write png
+n
+
+
+#74
+#VHad - sequential
+setmax 0
+placetext  0.425 0.95 0.82 0.9
+placelegend 0.58 0.85 0.43 0.78
+n
+#75
+write png
+n
+n
+#77
+write png
+n
+n
+#79
+write png
+n
+placetext  0.15 0.675 0.82 0.9
+placelegend 0.71 0.93 0.63 0.95
+n
+#81
+setmax 300
+write png
+n
+setmax 0
+placetext  0.425 0.95 0.82 0.9
+placelegend 0.58 0.85 0.43 0.78
+n
+#83
+write png
+n
+n
+#85
+write png
+n
+placetext  0.15 0.675 0.82 0.9
+placelegend 0.28 0.55 0.43 0.78
+n
+#87
+write png
+n
+placetext  0.425 0.95 0.82 0.9
+placelegend 0.58 0.85 0.43 0.78
+n
+#89
+write png
+n
+n
+#91
+write png
+n
+n
+#93
+write png
+resize 800 800
+
+#74
+#VHad - n-1
+setmax 0
+placetext  0.425 0.95 0.82 0.9
+placelegend 0.58 0.85 0.43 0.78
+write png
+n
+n
+#76
+write png
+n
+n
+#78
+write png
+n
+n
+#80
+setmax 150
+placetext  0.15 0.675 0.82 0.9
+placelegend 0.71 0.93 0.63 0.95
+write png
+n
+setmax 300
+n
+#82
+setmax 0
+placetext  0.425 0.95 0.82 0.9
+placelegend 0.58 0.85 0.43 0.78
+write png
+n
+n
+#84
+write png
+root -l
+n
+n
+placetext  0.15 0.675 0.82 0.9
+placelegend 0.28 0.55 0.43 0.78
+#86
+
+
+
+write png
+n
+n
+placetext  0.425 0.95 0.82 0.9
+placelegend 0.58 0.85 0.43 0.78
+#88
+write png
+n
+n
+#90
+write png
+n
+n
+#92
+write png
+resize 800 800
+
+
+j 67
+resize 1000 1000
+placelegend 0.7 0.9 0.55 0.9
+write png
+2
+placetext 0.5 0.9 0.82 0.9
+placelegend 0.7 0.9 0.44 0.78
+write png
+2
+write png
+2
+write png
+2
+write png
+2
+write png
+2
+write png
+2
+placetext 0.2 0.6 0.82 0.9
+placelegend 0.28 0.48 0.44 0.78
+write png
