@@ -1,4 +1,4 @@
-root -l 
+root -l
 .L Marco/tdrstyle.C
 setTDRStyle();
   gSystem->Load("libPhysics.so");
@@ -6,373 +6,711 @@ setTDRStyle();
   //gSystem->Load("VertexAnalysis/lib/libh2gglobeVertexAnalysis.so");
 gSystem->Load("libLoopAll.so");
 LoopAll* m=new LoopAll();
-m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_only120_25nov.root","Hgg")
-m->myPlotInteractive("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_only120_25nov.root");
+m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_only120_26nov_90_190.root","Hgg")
+m->myPlotInteractive("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_only120_26nov_90_190.root");
 
 
-
-m->myPlotInteractiveSetup("/home/users/capalmer/CMS/Higgs2gg/Limits/nov14_forAN/428p7/src/HiggsAnalysis/HiggsTo2photons/h2gglobe_new3/PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_crosscheck_2011+120.root","Hgg")
-m->myPlotInteractive("/home/users/capalmer/CMS/Higgs2gg/Limits/nov14_forAN/428p7/src/HiggsAnalysis/HiggsTo2photons/h2gglobe_new3/PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_crosscheck_2011+120.root");
-
+SET VH VBF for now times 3
 
 j 25
-
 placeline -10000
-placetext  0.425 0.95 0.82 0.9
-placelegend 0.58 0.85 0.43 0.78
+placetext  0.125 0.65 0.82 0.9
+placelegend 0.60 0.95 0.55 0.9
 #inclusive
 resize 800 600
+
+j 25
+setmax 6000
 write png
-n
-#27
+setmax 0
+
+j 27
+setmax 1600
 write png
-n
-#28
+setmax 0
+
+j 29
+setmax 3000
 write png
-n
-#29
+setmax 0
+
+j 31
+setmax 2700
 write png
-n
-#30
+setmax 0
+
+j 33
+setmax 870
 write png
-n
-#31
+setmax 0
+
+j 34
+setmax 17
 write png
-n
-#32
+setmax 0
+
+j 35
 write png
-n
-#33
-write png
-n
-#34
-write png
-n
-#35
-write png
-n
-#36
-#all jets
-placeline -10000
-placetext  0.425 0.95 0.82 0.9
-placelegend 0.58 0.85 0.43 0.78
+setmax 0
+
 j 36
 write png
-n
-#37
-write png
-n
-#38
-write png
-n
-#39
-write png
-n
-#40
-write png
-n
-#41
-write png
-n
-#42
-write png
-n
-#43
-write png
-n
-#44
-placetext  0.425 0.95 0.82 0.9
-placelegend 0.63 0.90 0.53 0.78
-write png
-n
-#45
-write png
-n
-#46
-write png
-n
-#47
-write png
-n
-#48
-write png
-n
-#49
-write png
-n
-#50
-placetext  0.15 0.675 0.82 0.9
-placelegend 0.28 0.55 0.43 0.78
-write png
-n
-#51
-write png
-n
-#52
-placetext  0.425 0.95 0.82 0.9
-placelegend 0.58 0.85 0.43 0.78
-write png
-n
-#53
-write png
-n
-#VBF - sequential
-#54
-j 54
-placetext  0.425 0.95 0.82 0.9
-placelegend 0.58 0.85 0.43 0.78
-setmax 15
-n
 setmax 0
-#55
+
+j 37
 write png
-n
-n
 setmax 0
-#57
+
+j 38
+setmax 75
 write png
-n
-n
-#59
+setmax 0
+
+j 39
+setmax 1300
 write png
-n
-n
-#61
-write png
-n
-placetext  0.15 0.675 0.82 0.9
-placelegend 0.71 0.93 0.63 0.95
-n
-#63
+setmax 0
+
+j 40
 setmax 50
 write png
-n
-n
-#65
-setmax 35
-write png
-n
 setmax 0
-placetext  0.15 0.675 0.82 0.9
-placelegend 0.28 0.55 0.43 0.78
-n
-#67
-write png
-n
-placetext  0.425 0.95 0.82 0.9
-placelegend 0.58 0.85 0.43 0.78
-setmax 15
-n
-#69
-write png
-n
-setmax 20
-n
-#71
-write png
-n
-setmax 35
-n
-#73
-write png
-n
 
-#VBF - n-1
-#54
-j 54
-placetext  0.425 0.95 0.82 0.9
-placelegend 0.58 0.85 0.43 0.78
-setmax 15
+j 41
 write png
-n
 setmax 0
-n
-#56
-setmax 18
+
+j 42
+setmax 40
 write png
-n
 setmax 0
-n
-#58
+
+j 43
+setmax 45
 write png
-n
-n
-#60
+setmax 0
+
+j 44
+setmax 130
 write png
-n
-n
-#62
-setmax 27
-placetext  0.15 0.675 0.82 0.9
-placelegend 0.71 0.93 0.63 0.95
+setmax 0
+
+j 45
+setmax 130
 write png
-n
-n
-#64
+setmax 0
+
+j 46
 setmax 30
 write png
-n
-n
-#66
 setmax 0
-placetext  0.15 0.675 0.82 0.9
-placelegend 0.28 0.55 0.43 0.78
+
+j 47
+setmax 30
 write png
-n
-n
-#68
-placetext  0.425 0.95 0.82 0.9
-placelegend 0.58 0.85 0.43 0.78
-setmax 15
+setmax 0
+
+j 48
+setmax 60
 write png
-n
-n
-#70
-setmax 20
+setmax 0
+
+j 49
+setmax 60
 write png
-n
-n
-#72
-setmax 35
+setmax 0
+
+j 50
+setmax 40
 write png
-n
+setmax 0
+
+j 51
+setmax 40
+write png
+setmax 0
+
+j 52
+setmax 40
+write png
+setmax 0
+
+j 53
+setmax 40
+write png
+setmax 0
+
+j 54
+setmax 18
+write png
+setmax 0
+
+j 55
+setmax 18
+write png
+setmax 0
 
 
-#74
-#VHad - sequential
-setmax 0
-placetext  0.425 0.95 0.82 0.9
-placelegend 0.58 0.85 0.43 0.78
-n
-#75
-write png
-n
-n
-#77
-write png
-n
-n
-#79
-write png
-n
-placetext  0.15 0.675 0.82 0.9
-placelegend 0.71 0.93 0.63 0.95
-n
-#81
-setmax 300
-write png
-n
-setmax 0
-placetext  0.425 0.95 0.82 0.9
-placelegend 0.58 0.85 0.43 0.78
-n
-#83
-write png
-n
-n
-#85
-write png
-n
-placetext  0.15 0.675 0.82 0.9
-placelegend 0.28 0.55 0.43 0.78
-n
-#87
-write png
-n
-placetext  0.425 0.95 0.82 0.9
-placelegend 0.58 0.85 0.43 0.78
-n
-#89
-write png
-n
-n
-#91
-write png
-n
-n
-#93
-write png
-resize 800 800
 
-#74
-#VHad - n-1
-setmax 0
-placetext  0.425 0.95 0.82 0.9
-placelegend 0.58 0.85 0.43 0.78
-write png
-n
-n
-#76
-write png
-n
-n
-#78
-write png
-n
-n
-#80
-setmax 150
-placetext  0.15 0.675 0.82 0.9
-placelegend 0.71 0.93 0.63 0.95
-write png
-n
-setmax 300
-n
-#82
-setmax 0
-placetext  0.425 0.95 0.82 0.9
-placelegend 0.58 0.85 0.43 0.78
-write png
-n
-n
-#84
-write png
+##########################
+
+
+
 root -l
-n
-n
-placetext  0.15 0.675 0.82 0.9
-placelegend 0.28 0.55 0.43 0.78
-#86
+.L Marco/tdrstyle.C
+setTDRStyle();
+  gSystem->Load("libPhysics.so");
+  gSystem->Load("libCore.so");
+  //gSystem->Load("VertexAnalysis/lib/libh2gglobeVertexAnalysis.so");
+gSystem->Load("libLoopAll.so");
+LoopAll* m=new LoopAll();
+m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_only120_26nov_ptom_90_190.root","Hgg")
+m->myPlotInteractive("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_only120_26nov_ptom_90_190.root");
+
+
+SET VH VBF for now times 3
+
+j 25
+placeline -10000
+placetext  0.125 0.65 0.82 0.9
+placelegend 0.60 0.95 0.55 0.9
+#inclusive
+resize 800 600
+
+j 25
+setmax 6000
+write png
+setmax 0
+
+j 27
+setmax 5000
+write png
+setmax 0
+
+j 29
+setmax 7500
+write png
+setmax 0
+
+j 31
+setmax 6000
+write png
+setmax 0
+
+j 33
+setmax 0
+write png
+setmax 0
+
+j 34
+setmax 19
+write png
+setmax 0
+
+j 35
+write png
+setmax 0
+
+j 36
+write png
+setmax 0
+
+j 37
+write png
+setmax 0
+
+j 38
+setmax 70
+write png
+setmax 0
+
+j 39
+setmax 1300
+write png
+setmax 0
+
+j 40
+setmax 50
+write png
+setmax 0
+
+j 41
+write png
+setmax 0
+
+j 42
+setmax 40
+write png
+setmax 0
+
+j 43
+setmax 45
+write png
+setmax 0
+
+j 44
+setmax 140
+write png
+setmax 0
+
+j 45
+setmax 140
+write png
+setmax 0
+
+j 46
+setmax 30
+write png
+setmax 0
+
+j 47
+setmax 30
+write png
+setmax 0
+
+j 48
+setmax 60
+write png
+setmax 0
+
+j 49
+setmax 60
+write png
+setmax 0
+
+j 50
+setmax 40
+write png
+setmax 0
+
+j 51
+setmax 40
+write png
+setmax 0
+
+j 52
+setmax 40
+write png
+setmax 0
+
+j 53
+setmax 40
+write png
+setmax 0
+
+j 54
+setmax 18
+write png
+setmax 0
+
+j 55
+setmax 18
+write png
+setmax 0
 
 
 
-write png
-n
-n
-placetext  0.425 0.95 0.82 0.9
-placelegend 0.58 0.85 0.43 0.78
-#88
-write png
-n
-n
-#90
-write png
-n
-n
-#92
-write png
-resize 800 800
 
+
+
+
+###########################
+
+
+
+
+
+root -l
+.L Marco/tdrstyle.C
+setTDRStyle();
+  gSystem->Load("libPhysics.so");
+  gSystem->Load("libCore.so");
+  //gSystem->Load("VertexAnalysis/lib/libh2gglobeVertexAnalysis.so");
+gSystem->Load("libLoopAll.so");
+LoopAll* m=new LoopAll();
+m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_only120_26nov_90_190.root","Hgg")
+m->myPlotInteractive("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_only120_26nov_90_190.root");
+
+
+SET VH VBF for now times 3
+
+j 57
+placeline -10000
+placetext  0.125 0.65 0.82 0.9
+placelegend 0.60 0.95 0.55 0.9
+#inclusive
+resize 800 600
+
+j 57
+setmax 6000
+write png
+setmax 0
+
+j 59
+setmax 1300
+write png
+setmax 0
+
+j 61
+setmax 2200
+write png
+setmax 0
+
+j 63
+setmax 2200
+write png
+setmax 0
+
+j 65
+setmax 650
+write png
+setmax 0
+
+j 66
+setmax 95
+write png
+setmax 0
 
 j 67
-resize 1000 1000
-placelegend 0.7 0.9 0.55 0.9
 write png
-2
-placetext 0.5 0.9 0.82 0.9
-placelegend 0.7 0.9 0.44 0.78
+setmax 0
+
+j 68
 write png
-2
+setmax 0
+
+j 69
 write png
-2
+setmax 0
+
+j 70
+setmax 300
 write png
-2
+setmax 0
+
+j 71
+setmax 1200
 write png
-2
+setmax 0
+
+j 72
+setmax 400
 write png
-2
+setmax 0
+
+j 73
+setmax 850
 write png
-2
-placetext 0.2 0.6 0.82 0.9
-placelegend 0.28 0.48 0.44 0.78
+setmax 0
+
+j 74
+setmax 140
 write png
+setmax 0
+
+j 75
+setmax 140
+write png
+setmax 0
+
+j 76
+setmax 700
+write png
+setmax 0
+
+j 77
+setmax 700
+write png
+setmax 0
+
+j 78
+setmax 50
+write png
+setmax 0
+
+j 79
+setmax 50
+write png
+setmax 0
+
+j 80
+setmax 85
+write png
+setmax 0
+
+j 81
+setmax 85
+write png
+setmax 0
+
+j 82
+setmax 170
+write png
+setmax 0
+
+j 83
+setmax 170
+write png
+setmax 0
+
+j 84
+setmax 200
+write png
+setmax 0
+
+j 85
+setmax 200
+write png
+setmax 0
+
+j 86
+setmax 35
+write png
+setmax 0
+
+j 87
+setmax 35
+write png
+setmax 0
+
+
+
+##########################
+
+
+
+root -l
+.L Marco/tdrstyle.C
+setTDRStyle();
+  gSystem->Load("libPhysics.so");
+  gSystem->Load("libCore.so");
+  //gSystem->Load("VertexAnalysis/lib/libh2gglobeVertexAnalysis.so");
+gSystem->Load("libLoopAll.so");
+LoopAll* m=new LoopAll();
+m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_only120_26nov_ptom_90_190.root","Hgg")
+m->myPlotInteractive("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_only120_26nov_ptom_90_190.root");
+
+
+SET VH VBF for now times 3
+
+
+j 57
+placeline -10000
+placetext  0.125 0.65 0.82 0.9
+placelegend 0.60 0.95 0.55 0.9
+#inclusive
+resize 800 600
+
+j 57
+setmax 6000
+write png
+setmax 0
+
+j 59
+setmax 5000
+write png
+setmax 0
+
+j 61
+setmax 7500
+write png
+setmax 0
+
+j 63
+setmax 4700
+write png
+setmax 0
+
+j 65
+setmax 0
+write png
+setmax 0
+
+j 66
+setmax 110
+write png
+setmax 0
+
+j 67
+write png
+setmax 0
+
+j 68
+write png
+setmax 0
+
+j 69
+write png
+setmax 0
+
+j 70
+setmax 300
+write png
+setmax 0
+
+j 71
+setmax 1200
+write png
+setmax 0
+
+j 72
+setmax 400
+write png
+setmax 0
+
+j 73
+setmax 850
+write png
+setmax 0
+
+j 74
+setmax 160
+write png
+setmax 0
+
+j 75
+setmax 160
+write png
+setmax 0
+
+j 76
+setmax 750
+write png
+setmax 0
+
+j 77
+setmax 750
+write png
+setmax 0
+
+j 78
+setmax 70
+write png
+setmax 0
+
+j 79
+setmax 70
+write png
+setmax 0
+
+j 80
+setmax 130
+write png
+setmax 0
+
+j 81
+setmax 130
+write png
+setmax 0
+
+j 82
+setmax 300
+write png
+setmax 0
+
+j 83
+setmax 300
+write png
+setmax 0
+
+j 84
+setmax 250
+write png
+setmax 0
+
+j 85
+setmax 250
+write png
+setmax 0
+
+j 86
+setmax 40
+write png
+setmax 0
+
+j 87
+setmax 40
+write png
+setmax 0
+
+
+
+########################
+### END VHad
+########################
+
+root -l
+.L Marco/tdrstyle.C
+setTDRStyle();
+  gSystem->Load("libPhysics.so");
+  gSystem->Load("libCore.so");
+  //gSystem->Load("VertexAnalysis/lib/libh2gglobeVertexAnalysis.so");
+gSystem->Load("libLoopAll.so");
+LoopAll* m=new LoopAll();
+m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_only120_26nov_90_190.root","Hgg")
+m->myPlotInteractive("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_only120_26nov_90_190.root");
+
+
+All Plots
+
+j 99
+placeline -10000
+placetext  0.125 0.65 0.82 0.9
+placelegend 0.60 0.95 0.55 0.9
+#inclusive
+resize 800 600
+
+j 99
+setmax 4500
+write png
+setmax 0
+
+j 101
+setmax 0
+write png
+setmax 0
+
+
+j 103
+setmax 1500
+write png
+setmax 0
+
+
+j 105
+setmax 0
+write png
+setmax 0
+
+
+j 107
+setmax 850
+write png
+setmax 0
+
+
+j 109
+setmax 2300
+write png
+setmax 0
+
+
+j 111
+setmax 2000
+write png
+setmax 0
+
+
+j 113
+setmax 700
+write png
+setmax 0
+
+
+
+
+j 115
+setmax 7000
+write png
+setmax 0
+

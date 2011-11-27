@@ -114,6 +114,11 @@ void StatAnalysisExclusive::Init(LoopAll& l)
    
     nCategories_+=(nVBFCategories+nVHadCategories);
 
+    l.SetCutVariables("cut_All_phoet1",        &myAll_phoet1);
+    l.SetCutVariables("cut_All_phoet2",        &myAll_phoet2);
+    l.SetCutVariables("cut_All_phoetom1",      &myAll_phoetom1);
+    l.SetCutVariables("cut_All_phoetom2",      &myAll_phoetom2);
+
     l.SetCutVariables("cut_AllLeadJPt",       &myAllLeadJPt);
     l.SetCutVariables("cut_AllSubJPt",        &myAllSubJPt);
     l.SetCutVariables("cut_AllLeadJEta",      &myAllLeadJEta);
@@ -132,6 +137,67 @@ void StatAnalysisExclusive::Init(LoopAll& l)
     l.SetCutVariables("cut_Incl_Mgg10",        &myInclusive_Mgg);
     l.SetCutVariables("cut_InclPtHiggs",       &myInclusivePtHiggs);
 
+    l.SetCutVariables("cut_VBF_phoet1",        &myAll_phoet1);
+    l.SetCutVariables("cut_VBF_phoet2",        &myAll_phoet2);
+    l.SetCutVariables("cut_VBF_phoetom1",      &myAll_phoetom1);
+    l.SetCutVariables("cut_VBF_phoetom2",      &myAll_phoetom2);
+
+    l.SetCutVariables("cut_VBF_Mgg0",         &myAll_Mgg);
+    l.SetCutVariables("cut_VBFLeadJPt",       &myAllLeadJPt);
+    l.SetCutVariables("cut_VBFSubJPt",        &myAllSubJPt);
+    l.SetCutVariables("cut_VBF_dEta",         &myAlldEta);
+    l.SetCutVariables("cut_VBF_Zep",          &myAllZep);
+    l.SetCutVariables("cut_VBF_Mjj",          &myAll_Mjj);
+    l.SetCutVariables("cut_VBF_dPhi",         &myAlldPhi);
+    l.SetCutVariables("cut_VBF_Mgg2",         &myAll_Mgg);
+    l.SetCutVariables("cut_VBF_Mgg4",         &myAll_Mgg);
+    l.SetCutVariables("cut_VBF_Mgg10",        &myAll_Mgg);
+    l.SetCutVariables("cut_VBF_Mgg100160",    &myAll_Mgg);
+    l.SetCutVariables("cut_VBF_Mggfin",       &myAll_Mgg);
+
+    l.SetCutVariables("cut_VHad_phoet1",        &myAll_phoet1);
+    l.SetCutVariables("cut_VHad_phoet2",        &myAll_phoet2);
+    l.SetCutVariables("cut_VHad_phoetom1",      &myAll_phoetom1);
+    l.SetCutVariables("cut_VHad_phoetom2",      &myAll_phoetom2);
+
+    l.SetCutVariables("cut_VHad_Mgg0",        &myAll_Mgg);
+    l.SetCutVariables("cut_VHadLeadJPt",      &myAllLeadJPt);
+    l.SetCutVariables("cut_VHadSubJPt",       &myAllSubJPt);
+    l.SetCutVariables("cut_VHad_dEta",        &myAlldEta);
+    l.SetCutVariables("cut_VHad_Zep",         &myAllZep);
+    l.SetCutVariables("cut_VHad_Mjj",         &myAll_Mjj);
+    l.SetCutVariables("cut_VHad_dPhi",        &myAlldPhi);
+    l.SetCutVariables("cut_VHad_Mgg2",        &myAll_Mgg);
+    l.SetCutVariables("cut_VHad_Mgg4",        &myAll_Mgg);
+    l.SetCutVariables("cut_VHad_Mgg10",       &myAll_Mgg);
+    l.SetCutVariables("cut_VHad_Mgg100160",   &myAll_Mgg);
+    l.SetCutVariables("cut_VHad_Mggfin",      &myAll_Mgg);
+
+    l.SetCutVariables("cut_VBFR_phoet1",       &myAll_phoet1);
+    l.SetCutVariables("cut_VBFR_phoet2",       &myAll_phoet2);
+    l.SetCutVariables("cut_VBFR_phoetom1",     &myAll_phoetom1);
+    l.SetCutVariables("cut_VBFR_phoetom2",     &myAll_phoetom2);
+
+    l.SetCutVariables("cut_VBFR_Mgg0",         &myAll_Mgg);
+    l.SetCutVariables("cut_VBFRLeadJPt",       &myAllLeadJPt);
+    l.SetCutVariables("cut_VBFRSubJPt",        &myAllSubJPt);
+    l.SetCutVariables("cut_VBFR_dEta",         &myAlldEta);
+    l.SetCutVariables("cut_VBFR_Zep",          &myAllZep);
+    l.SetCutVariables("cut_VBFR_Mjj",          &myAll_Mjj);
+    l.SetCutVariables("cut_VBFR_dPhi",         &myAlldPhi);
+    l.SetCutVariables("cut_VBFR_Mgg2",         &myAll_Mgg);
+    l.SetCutVariables("cut_VBFR_Mgg4",         &myAll_Mgg);
+    l.SetCutVariables("cut_VBFR_Mgg10",        &myAll_Mgg);
+    l.SetCutVariables("cut_VBFR_Mgg100160",    &myAll_Mgg);
+    l.SetCutVariables("cut_VBFR_Mggfin",       &myAll_Mgg);
+
+
+    /*
+    l.SetCutVariables("cut_VBF_phoet1",        &myVBFphoet1);
+    l.SetCutVariables("cut_VBF_phoet2",        &myVBFphoet2);
+    l.SetCutVariables("cut_VBF_phoetom1",      &myVBFphoetom1);
+    l.SetCutVariables("cut_VBF_phoetom2",      &myVBFphoetom2);
+
     l.SetCutVariables("cut_VBF_Mgg0",         &myVBF_Mgg);
     l.SetCutVariables("cut_VBFLeadJPt",       &myVBFLeadJPt);
     l.SetCutVariables("cut_VBFSubJPt",        &myVBFSubJPt);
@@ -144,6 +210,11 @@ void StatAnalysisExclusive::Init(LoopAll& l)
     l.SetCutVariables("cut_VBF_Mgg10",        &myVBF_Mgg);
     l.SetCutVariables("cut_VBF_Mgg100160",    &myVBF_Mgg);
     l.SetCutVariables("cut_VBF_Mggfin",       &myVBF_Mgg);
+
+    l.SetCutVariables("cut_VHad_phoet1",        &myVHadphoet1);
+    l.SetCutVariables("cut_VHad_phoet2",        &myVHadphoet2);
+    l.SetCutVariables("cut_VHad_phoetom1",      &myVHadphoetom1);
+    l.SetCutVariables("cut_VHad_phoetom2",      &myVHadphoetom2);
 
     l.SetCutVariables("cut_VHad_Mgg0",        &myVHad_Mgg);
     l.SetCutVariables("cut_VHadLeadJPt",      &myVHadLeadJPt);
@@ -158,6 +229,11 @@ void StatAnalysisExclusive::Init(LoopAll& l)
     l.SetCutVariables("cut_VHad_Mgg100160",   &myVHad_Mgg);
     l.SetCutVariables("cut_VHad_Mggfin",      &myVHad_Mgg);
 
+    l.SetCutVariables("cut_VBFR_phoet1",       &myVBFRphoet1);
+    l.SetCutVariables("cut_VBFR_phoet2",       &myVBFRphoet2);
+    l.SetCutVariables("cut_VBFR_phoetom1",     &myVBFRphoetom1);
+    l.SetCutVariables("cut_VBFR_phoetom2",     &myVBFRphoetom2);
+
     l.SetCutVariables("cut_VBFR_Mgg0",         &myVBF_Mgg);
     l.SetCutVariables("cut_VBFRLeadJPt",       &myVBFLeadJPt);
     l.SetCutVariables("cut_VBFRSubJPt",        &myVBFSubJPt);
@@ -170,7 +246,9 @@ void StatAnalysisExclusive::Init(LoopAll& l)
     l.SetCutVariables("cut_VBFR_Mgg10",        &myVBF_Mgg);
     l.SetCutVariables("cut_VBFR_Mgg100160",    &myVBF_Mgg);
     l.SetCutVariables("cut_VBFR_Mggfin",       &myVBF_Mgg);
+*/
 
+    /*
     l.SetCutVariables("cut_VHadMLeadJPt",      &myVHadLeadJPt);
     l.SetCutVariables("cut_VHadMSubJPt",       &myVHadSubJPt);
     l.SetCutVariables("cut_VHadM_dEta",        &myVHaddEta);
@@ -183,6 +261,7 @@ void StatAnalysisExclusive::Init(LoopAll& l)
     l.SetCutVariables("cut_VHadM_Mgg10",       &myVHad_Mgg);
     l.SetCutVariables("cut_VHadM_Mgg100160",   &myVHad_Mgg);
     l.SetCutVariables("cut_VHadM_Mggfin",      &myVHad_Mgg);
+    */
 
     // CP
 
@@ -688,13 +767,17 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
     bool VHadevent = false;
     std::pair<int,int> highestPtJets(-1,-1);
     //if((includeVBF || includeVHad)&&l.jet_algoPF1_n>1) {
-    if((includeVBF || includeVHad)&&l.jet_algoPF1_n>1) {
+    {
       if(l.jet_algoPF1_n>1) {
 	RescaleJetEnergy(l);
       }
 
       int applyPtoverM=0;
 
+      leadEtVBFCut=40.;
+      leadEtVHadCut=40.;
+      subleadEtVBFCut=15.;
+      subleadEtVHadCut=15.;
 
       diphotonVBF_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVBFCut, subleadEtVBFCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
       diphotonVHad_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVHadCut, subleadEtVHadCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
@@ -714,6 +797,13 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
 	myAll_Mgg =diphoton.M();
 	myAllPtHiggs =diphoton.Pt();
         myVBF_Mgg =diphoton.M();
+
+	myAll_phoet1=lead_p4.Et();
+	myAll_phoet2=sublead_p4.Et();
+	myAll_phoetom1=lead_p4.Et()/diphoton.M();
+	myAll_phoetom2=sublead_p4.Et()/diphoton.M();
+
+
 	myAllLeadJPt = 0.;
 	myAllSubJPt = 0.;
 	myAllLeadJEta = 0.;
@@ -778,8 +868,11 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
 	VBFevent = l.ApplyCutsFill(0,1,evweight, myweight);
 	l.ApplyCutsFill(0,5,evweight, myweight);
       
-      }
+	VHadevent = l.ApplyCutsFill(0,2,evweight, myweight);
+	//l.ApplyCutsFill(0,6,evweight, myweight);
 
+      }
+      /*
       if(diphotonVHad_id>-1){
         TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphotonVHad_id], l.dipho_vtxind[diphotonVHad_id], &smeared_pho_energy[0]);
 	TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphotonVHad_id], l.dipho_vtxind[diphotonVHad_id], &smeared_pho_energy[0]);
@@ -833,6 +926,7 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
 	l.ApplyCutsFill(0,6,evweight, myweight);
        
       }
+      */
     }
     
     if(includeVBF&&VBFevent) diphoton_id = diphotonVBF_id;
@@ -1399,8 +1493,8 @@ std::pair<int, int> StatAnalysisExclusive::Select2HighestPtJets(LoopAll& l, TLor
       if(std::max(j1pt,j2pt)<jtLMinPt) continue;
 
       if(j1pt>j2pt){
-        jtLMinPt=j1pt;
-        jtTMinPt=j2pt;
+        jtLMinPt=j1pt; //??? why using something for something else???
+        jtTMinPt=j2pt; //??? why using something for something else???
 
         myJets.first = j1_i;
         myJets.second = j2_i;
@@ -1423,7 +1517,7 @@ std::pair<int, int> StatAnalysisExclusive::Select2HighestPtJets(LoopAll& l, TLor
 
     //cout<<"AAA MARCOMM "<<j1_i<<" "<<j1p4->Pt()<<" "<<j1p4->Eta()<<endl;
 
-    if(j1pt<jtTMinPt) continue;
+    //if(j1pt<jtTMinPt) continue;
 
     if(j1pt>myJetspt.first) {
       myJetsnew.second=myJetsnew.first;
@@ -1444,9 +1538,14 @@ std::pair<int, int> StatAnalysisExclusive::Select2HighestPtJets(LoopAll& l, TLor
 
   if(myJetsnew.second!=-1&&myJetspt.first>jtTMinPt&&myJetspt.second>jtTMinPt) {
     if(myJetsnew!=myJets) {
-      cout<<"myJetsnew myJets "<<myJetsnew.first<<myJetsnew.second<<myJets.first<<myJets.second<<endl;
+      j1p4 = (TLorentzVector*) l.jet_algoPF1_p4->At(myJetsnew.first);
+      j2p4 = (TLorentzVector*) l.jet_algoPF1_p4->At(myJetsnew.second);
+      float dr=j2p4->DeltaR(*j1p4);
+      cout<<"myJetsnew myJets "<<myJetsnew.first<<myJetsnew.second<<myJets.first<<myJets.second<<" dr "<<dr<<endl;
+      cout<<"myJetsnew myJets "<<myJetspt.first<<" "<<myJetspt.second<<" "<<jtLMinPt<<jtTMinPt<<endl;
     }
   }
+
   return myJetsnew;
 }
 

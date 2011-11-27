@@ -87,6 +87,10 @@ public:
 
   float  myAll_Mgg;
   float  myAllPtHiggs;
+  float  myAll_phoet1;
+  float  myAll_phoet2;
+  float  myAll_phoetom1;
+  float  myAll_phoetom2;
 
   float  myInclusive_Mgg;
   float  myInclusivePtHiggs;

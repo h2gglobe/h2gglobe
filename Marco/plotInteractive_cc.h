@@ -552,7 +552,9 @@ void LoopAll::myPlotInteractive(TString hsmallname) {
           if(MPDEBUG) cout<<"myPlotInteractive 12 "<<endl;
           // scale hist
           for(Int_t iInd=0;iInd!=NIND;++iInd){
+          if(MPDEBUG) cout<<"myPlotInteractive 12 1 "<<iInd<<endl;
             if(omitInd[iInd]%2==1)continue;
+          if(MPDEBUG) cout<<"myPlotInteractive 12 2 "<<iInd<<endl;
             if(DoInt) { hist1D[iInd]->SetContent(hist1D[iInd]->GetIntegral()); }
             if(DoRevInt) {
               Int_t nx = hist1D[iInd]->GetNbinsX();
@@ -573,6 +575,7 @@ void LoopAll::myPlotInteractive(TString hsmallname) {
                 }
               }
             } 
+
             Float_t tempMAXVAL = hist1D[iInd]->GetMaximum();
             if(tempMAXVAL > MAXVAL) {
               MAXVAL = tempMAXVAL;
@@ -1843,6 +1846,7 @@ void LoopAll::myPlotInteractiveSetup(TString hsmallname, TString tag) {
 
     if(MPDEBUG)std::cout << "PlotInteractive DEBUG 12 " << std::endl;
   for(Int_t iInd=0;iInd!=NIND;++iInd){ 
+    if(MPDEBUG)std::cout << "PlotInteractive DEBUG 121 " <<iInd<< std::endl;
     myLabeldisplay[iInd].ReplaceAll("@"," ");
     allSgnl[iInd]=false;
     mySgnl[iInd]=false;

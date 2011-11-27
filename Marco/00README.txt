@@ -17,8 +17,33 @@ setTDRStyle();
   //gSystem->Load("VertexAnalysis/lib/libh2gglobeVertexAnalysis.so");
 gSystem->Load("libLoopAll.so");
 LoopAll* m=new LoopAll();
-m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_only120_23nov_OK.root","Hgg")
-m->myPlotInteractive("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_only120_23nov_OK.root");
+m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_only120_23nov_OKw.root","Hgg")
+m->myPlotInteractive("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_only120_23nov_OKw.root");
+
+
+
+root -l
+.L Marco/tdrstyle.C
+setTDRStyle();
+  gSystem->Load("libPhysics.so");
+  gSystem->Load("libCore.so");
+  //gSystem->Load("VertexAnalysis/lib/libh2gglobeVertexAnalysis.so");
+gSystem->Load("libLoopAll.so");
+LoopAll* m=new LoopAll();
+m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_only120_26nov_90_190.root","Hgg")
+m->myPlotInteractive("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_only120_26nov_90_190.root");
+
+
+
+
+m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_only120_26nov_ptom_90_190.root","Hgg")
+m->myPlotInteractive("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_only120_26nov_ptom_90_190.root");
+
+m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_only120_26nov_ptom_100_160.root","Hgg")
+m->myPlotInteractive("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_only120_26nov_ptom_100_160.root");
+
+m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_only120_26nov_90_190.root","Hgg")
+m->myPlotInteractive("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_only120_26nov_90_190.root");
 
 _23nov_100160
 
@@ -175,11 +200,33 @@ python fitter.py -i datafiles_5fb_LL_33_23_all_ff.dat >&  datafiles_5fb_LL_33_23
 
 ========
 cd PhotonAnalysis_scripts/.
+cp ../Marco/cuts_marco.dat cuts.dat
+cp ../Marco/cuts_marco_ptom.dat cuts.dat
+cp ../Marco/cuts_marco_100160.dat cuts.dat
+cp ../Marco/cuts_marco_100160_ptom.dat cuts.dat
+cp ../Marco/marcodatafiles_5fb_LL_33_23_all_ff_120.dat datafiles_5fb_LL_33_23_all_ff_120.dat
+
+cp ../Marco/cuts_marco.dat cuts.dat
+cp ../Marco/marcodatafiles_5fb_LL_33_23_all_ff_120_2011A.dat datafiles_5fb_LL_33_23_all_ff_120_2011A.dat
+cp ../Marco/marcodatafiles_5fb_LL_33_23_all_ff_120_2011B.dat datafiles_5fb_LL_33_23_all_ff_120_2011B.dat
+
+
+#########
+#########
 rm datafiles_5fb_LL_33_23_all_ff_120.dat.pevents
 python fitter.py -i datafiles_5fb_LL_33_23_all_ff_120.dat --dryRun
-python fitter.py -i datafiles_5fb_LL_33_23_all_ff_120.dat >&  datafiles_5fb_LL_33_23_all_ff_120_23nov.log
+python fitter.py -i datafiles_5fb_LL_33_23_all_ff_120.dat >&  datafiles_5fb_LL_33_23_all_ff_120_26nov_90_190.log
+python fitter.py -i datafiles_5fb_LL_33_23_all_ff_120.dat >&  datafiles_5fb_LL_33_23_all_ff_120_26nov_ptom_90_190.log
+python fitter.py -i datafiles_5fb_LL_33_23_all_ff_120.dat >&  datafiles_5fb_LL_33_23_all_ff_120_26nov_100_160.log
+python fitter.py -i datafiles_5fb_LL_33_23_all_ff_120.dat >&  datafiles_5fb_LL_33_23_all_ff_120_26nov_ptom_100_160.log
+
+python fitter.py -i datafiles_5fb_LL_33_23_all_ff_120_2011A.dat >&  datafiles_5fb_LL_33_23_all_ff_120_26nov_90_190_2011A.log
+python fitter.py -i datafiles_5fb_LL_33_23_all_ff_120_2011B.dat >&  datafiles_5fb_LL_33_23_all_ff_120_26nov_90_190_2011B.log
 
 cat datafiles_5fb_LL_33_23_all_ff_120_23nov.log
+
+#########
+#########
 
 When finished if you want co commit everything:
 
