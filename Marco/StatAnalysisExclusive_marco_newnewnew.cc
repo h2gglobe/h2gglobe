@@ -66,7 +66,7 @@ void StatAnalysisExclusive::Init(LoopAll& l)
     std::cout
 	<< "\n"
 	<< "-------------------------------------------------------------------------------------- \n"
-	<< "StatAnalysisExclusive " << "\n"
+	<< "StatAnalysis " << "\n"
 	<< "-------------------------------------------------------------------------------------- \n"
 	<< "leadEtCut "<< leadEtCut << "\n"
 	<< "subleadEtCut "<< subleadEtCut << "\n"
@@ -131,18 +131,38 @@ void StatAnalysisExclusive::Init(LoopAll& l)
     l.SetCutVariables("cut_All_Mgg2",         &myAll_Mgg);
     l.SetCutVariables("cut_AllPtHiggs",       &myAllPtHiggs);
 
+    l.SetCutVariables("cut_All_phoet1",        &myAll_phoet1);
+    l.SetCutVariables("cut_All_phoet2",        &myAll_phoet2);
+    l.SetCutVariables("cut_All_phoetom1",      &myAll_phoetom1);
+    l.SetCutVariables("cut_All_phoetom2",      &myAll_phoetom2);
+
+
+    l.SetCutVariables("cut_VBFLeadJEta",      &myAllLeadJEta);
+    l.SetCutVariables("cut_VBFSubJEta",       &myAllSubJEta);
+
+
     l.SetCutVariables("cut_Incl_Mgg0",         &myInclusive_Mgg);
     l.SetCutVariables("cut_Incl_Mgg2",         &myInclusive_Mgg);
     l.SetCutVariables("cut_Incl_Mgg4",         &myInclusive_Mgg);
     l.SetCutVariables("cut_Incl_Mgg10",        &myInclusive_Mgg);
     l.SetCutVariables("cut_InclPtHiggs",       &myInclusivePtHiggs);
+    l.SetCutVariables("cut_All_Mgg4cat",         &myInclusive_Mgg);
 
     l.SetCutVariables("cut_VBF_phoet1",        &myAll_phoet1);
     l.SetCutVariables("cut_VBF_phoet2",        &myAll_phoet2);
     l.SetCutVariables("cut_VBF_phoetom1",      &myAll_phoetom1);
     l.SetCutVariables("cut_VBF_phoetom2",      &myAll_phoetom2);
 
+    l.SetCutVariables("cut_VBF_Mgg2cat",         &myAll_Mgg);
+    l.SetCutVariables("cut_VBF_Mgg4cat",         &myAll_Mgg);
+
+
     l.SetCutVariables("cut_VBF_Mgg0",         &myAll_Mgg);
+    //l.SetCutVariables("cut_VBF_Mgg01",         &myAll_Mgg);
+    //l.SetCutVariables("cut_VBF_Mgg02",         &myAll_Mgg);
+    //l.SetCutVariables("cut_VBF_Mgg03",         &myAll_Mgg);
+    //l.SetCutVariables("cut_VBF_Mgg04",         &myAll_Mgg);
+    //l.SetCutVariables("cut_VBF_Mgg05",         &myAll_Mgg);
     l.SetCutVariables("cut_VBFLeadJPt",       &myAllLeadJPt);
     l.SetCutVariables("cut_VBFSubJPt",        &myAllSubJPt);
     l.SetCutVariables("cut_VBF_dEta",         &myAlldEta);
@@ -399,7 +419,7 @@ void StatAnalysisExclusive::Init(LoopAll& l)
     // ----------------------------------------------------
     // ----------------------------------------------------
     // Global systematics - Lumi
-    l.rooContainer->AddGlobalSystematic("lumi",1.06,1.00);
+    l.rooContainer->AddGlobalSystematic("lumi",1.045,1.00);
     // ----------------------------------------------------
 
     // Create observables for shape-analysis with ranges
@@ -698,6 +718,24 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
     std::vector<float> smeared_pho_energy(l.pho_n,0.); 
     std::vector<float> smeared_pho_r9(l.pho_n,0.); 
     std::vector<float> smeared_pho_weight(l.pho_n,1.);
+
+    // TEMPORARY FIX -------------------------------------------------------------------------------------------------------//
+    // Scale all the r9 of the photons in the MC
+    // For now we just let it use the index but we specifically Change the r9 in the branch AFTER Energy regression smearing
+    // Ideally we want to pass a smeared r9 too and apply after energy corrections, currently the smeared_pho_r9 isnt used!
+    // ---------------------------------------------------------------------------------------------------------------------//
+    // ---------------------------------------------------------------------------------------------------------------------//
+    // ---------------------------------------------------------------------------------------------------------------------//
+    if (cur_type !=0){
+      for (int ipho=0;ipho<l.pho_n;ipho++){
+        double R9_rescale = (l.pho_isEB[ipho]) ? 1.0048 : 1.00492 ;
+        l.pho_r9[ipho]*=R9_rescale;
+      }
+    }
+    // ---------------------------------------------------------------------------------------------------------------------//
+    // ---------------------------------------------------------------------------------------------------------------------//
+    // ---------------------------------------------------------------------------------------------------------------------//
+    // ---------------------------------------------------------------------------------------------------------------------//
    
     for(int ipho=0; ipho<l.pho_n; ++ipho ) { 
 	std::vector<std::vector<bool> > p;
@@ -758,7 +796,23 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
       
       l.ApplyCutsFill(0,4,evweight, myweight);
 
+      if(myInclusive_Mgg>90.&&myInclusive_Mgg<190.) {
+	l.FillHist("run",0, l.run, 1.);
+      }
+
+
+      int category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,0.,2,2,1);
+
+      //cout<<"MMM "<<category <<" "<<evweight<<" "<<myweight<<endl;
+
+      if(myInclusive_Mgg>100&&myInclusive_Mgg<160) {
+	//cut_All_Mgg4cat
+	l.ApplyCutsFill(category,14,evweight, myweight);
+      }
+
+      //cout<<"MMM1 "<<category <<" "<<evweight<<" "<<myweight<<endl;
     }
+    //cout<<"MMM1 "<<endl;
 
     // CP
     int diphotonVBF_id = -1;
@@ -802,6 +856,12 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
 	myAll_phoet2=sublead_p4.Et();
 	myAll_phoetom1=lead_p4.Et()/diphoton.M();
 	myAll_phoetom2=sublead_p4.Et()/diphoton.M();
+
+	if(myAll_phoet1>55.&&myAll_phoet2>25.) {
+	  if(myVBF_Mgg>90.&&myVBF_Mgg<190.) {
+	    l.FillHist("run",1, l.run, 1.);
+	  }
+	}
 
 
 	myAllLeadJPt = 0.;
@@ -867,7 +927,29 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
 
 	VBFevent = l.ApplyCutsFill(0,1,evweight, myweight);
 	l.ApplyCutsFill(0,5,evweight, myweight);
+
+
+	int category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,0.,2,2,1);
+	int category2 = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,0.,2,1,1);
+
+	if(VBFevent&&false){
+	  if (cur_type==0){
+	    eventListText << setprecision(4) <<"Type = "<< cur_type <<  "Run = " << l.run << "  LS = " << l.lumis << "  Event = " << l.event << "  SelVtx = " << l.vtx_std_sel << "  CAT4 = " << category % 4 << "  ggM = " << diphoton.M() << " gg_Pt =  " << diphoton.Pt();
+	    eventListText << endl;
+	    eventListText << setprecision(4) <<" phoet   "<<myAll_phoet1<<" "<<myAll_phoet2<<endl;
+	    eventListText << setprecision(4) <<" phoetom "<<myAll_phoetom1<<" "<<myAll_phoetom2<<endl;
+	    eventListText << setprecision(4) <<" jetet   "<<myAllLeadJPt<<" "<<myAllSubJPt<<endl;
+	    eventListText << setprecision(4) <<" jeteta  "<<myAllLeadJEta<<" "<<myAllSubJEta<<endl;
+	    eventListText << setprecision(4) <<" jets deta "<<myAlldEta<<" zep "<<myAllZep<<" M "<<myAll_Mjj<<" dphi "<<myAlldPhi<<endl;
+	  }
+	}
+
+	if(VBFevent&&myAll_Mgg>100&&myAll_Mgg<160) {
+	  l.ApplyCutsFill(category,44,evweight, myweight);
+	  l.ApplyCutsFill(category2,42,evweight, myweight);
+	}
       
+	//cout<<"MMM "<<evweight<<" "<<myweight<<endl;
 	VHadevent = l.ApplyCutsFill(0,2,evweight, myweight);
 	//l.ApplyCutsFill(0,6,evweight, myweight);
 
@@ -988,43 +1070,43 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
 	l.FillHist("all_mass",0, Higgs.M(), evweight);
 	l.FillHist("all_mass",category+1, Higgs.M(), evweight);
 	if( mass>=massMin && mass<=massMax  ) {
-	  l.FillHist("mass",0, Higgs.M(), evweight);
-	  l.FillHist("pt",0, Higgs.Pt(), evweight);
-	  l.FillHist("eta",0, Higgs.Eta(), evweight);
-	  
-	  l.FillHist("pho_pt",0,lead_p4.Pt(), evweight);
-	  l.FillHist("pho1_pt",0,lead_p4.Pt(), evweight);
-	  l.FillHist("pho_eta",0,lead_p4.Eta(), evweight);
-	  l.FillHist("pho1_eta",0,lead_p4.Eta(), evweight);
-	  l.FillHist("pho_r9",0, lead_r9, evweight);
-	  l.FillHist("pho1_r9",0, lead_r9, evweight);
-	  
-	  l.FillHist("pho_pt",0,sublead_p4.Pt(), evweight);
-	  l.FillHist("pho2_pt",0,sublead_p4.Pt(), evweight);
-	  l.FillHist("pho_eta",0,sublead_p4.Eta(), evweight);
-	  l.FillHist("pho2_eta",0,sublead_p4.Eta(), evweight);
-	  l.FillHist("pho_r9",0, sublead_r9, evweight);
-	  l.FillHist("pho1_r9",0, sublead_r9, evweight);
-	  
-	  l.FillHist("mass",category+1, Higgs.M(), evweight);
-	  l.FillHist("pt",category+1, Higgs.Pt(), evweight);
-	  l.FillHist("eta",category+1, Higgs.Eta(), evweight);
-	  
-	  l.FillHist("pho_pt",category+1,lead_p4.Pt(), evweight);
-	  l.FillHist("pho1_pt",category+1,lead_p4.Pt(), evweight);
-	  l.FillHist("pho_eta",category+1,lead_p4.Eta(), evweight);
-	  l.FillHist("pho1_eta",category+1,lead_p4.Eta(), evweight);
-	  l.FillHist("pho_r9",category+1, lead_r9, evweight);
-	  l.FillHist("pho1_r9",category+1, lead_r9, evweight);
-	  
-	  l.FillHist("pho_pt",category+1,sublead_p4.Pt(), evweight);
-	  l.FillHist("pho2_pt",category+1,sublead_p4.Pt(), evweight);
-	  l.FillHist("pho_eta",category+1,sublead_p4.Eta(), evweight);
-	  l.FillHist("pho2_eta",category+1,sublead_p4.Eta(), evweight);
-	  l.FillHist("pho_r9",category+1, sublead_r9, evweight);
-	  l.FillHist("pho1_r9",category+1, sublead_r9, evweight);
-	  
-	  l.FillHist("pho_n",category+1,l.pho_n, evweight);
+		l.FillHist("mass",0, Higgs.M(), evweight);
+		l.FillHist("pt",0, Higgs.Pt(), evweight);
+		l.FillHist("eta",0, Higgs.Eta(), evweight);
+		
+		l.FillHist("pho_pt",0,lead_p4.Pt(), evweight);
+		l.FillHist("pho1_pt",0,lead_p4.Pt(), evweight);
+		l.FillHist("pho_eta",0,lead_p4.Eta(), evweight);
+		l.FillHist("pho1_eta",0,lead_p4.Eta(), evweight);
+		l.FillHist("pho_r9",0, lead_r9, evweight);
+		l.FillHist("pho1_r9",0, lead_r9, evweight);
+		
+		l.FillHist("pho_pt",0,sublead_p4.Pt(), evweight);
+		l.FillHist("pho2_pt",0,sublead_p4.Pt(), evweight);
+		l.FillHist("pho_eta",0,sublead_p4.Eta(), evweight);
+		l.FillHist("pho2_eta",0,sublead_p4.Eta(), evweight);
+		l.FillHist("pho_r9",0, sublead_r9, evweight);
+		l.FillHist("pho1_r9",0, sublead_r9, evweight);
+		
+		l.FillHist("mass",category+1, Higgs.M(), evweight);
+		l.FillHist("pt",category+1, Higgs.Pt(), evweight);
+		l.FillHist("eta",category+1, Higgs.Eta(), evweight);
+		
+		l.FillHist("pho_pt",category+1,lead_p4.Pt(), evweight);
+		l.FillHist("pho1_pt",category+1,lead_p4.Pt(), evweight);
+		l.FillHist("pho_eta",category+1,lead_p4.Eta(), evweight);
+		l.FillHist("pho1_eta",category+1,lead_p4.Eta(), evweight);
+		l.FillHist("pho_r9",category+1, lead_r9, evweight);
+		l.FillHist("pho1_r9",category+1, lead_r9, evweight);
+		
+		l.FillHist("pho_pt",category+1,sublead_p4.Pt(), evweight);
+		l.FillHist("pho2_pt",category+1,sublead_p4.Pt(), evweight);
+		l.FillHist("pho_eta",category+1,sublead_p4.Eta(), evweight);
+		l.FillHist("pho2_eta",category+1,sublead_p4.Eta(), evweight);
+		l.FillHist("pho_r9",category+1, sublead_r9, evweight);
+		l.FillHist("pho1_r9",category+1, sublead_r9, evweight);
+		
+		l.FillHist("pho_n",category+1,l.pho_n, evweight);
 	}
 
 	if (cur_type==0){
@@ -1205,20 +1287,6 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
           TLorentzVector dijet = (*jet1) + (*jet2);
 	        
           TLorentzVector diphoton = lead_p4+sublead_p4;
-
-	  // NEW MARCO
-
-          //myAllLeadJPt = jet1->Pt();
-          //myAllSubJPt = jet2->Pt();
-          //myAll_Mjj = dijet.M();
-          //myAlldEta = fabs(jet1->Eta() - jet2->Eta());
-          //myAllZep  = fabs(diphoton.Eta() - 0.5*(jet1->Eta() + jet2->Eta()));
-          //myAlldPhi = fabs(diphoton.DeltaPhi(dijet));
-          //myAll_Mgg =diphoton.M();
-          //myAllPtHiggs =diphoton.Pt();
-
-	  //l.ApplyCuts(0,3);
-
           
           myVBFLeadJPt = jet1->Pt();
           myVBFSubJPt = jet2->Pt();
@@ -1469,10 +1537,7 @@ std::pair<int, int> StatAnalysisExclusive::Select2HighestPtJets(LoopAll& l, TLor
   float j1pt=-1;
   float j2pt=-1;
 
-
-  //for me this is wrong
-
-  // select highest pt jets
+  // select ighest pt jets
   // veto jets close to photons or each other
   for(int j1_i=0; j1_i<l.jet_algoPF1_n; j1_i++){
     j1p4 = (TLorentzVector*) l.jet_algoPF1_p4->At(j1_i);
@@ -1541,8 +1606,8 @@ std::pair<int, int> StatAnalysisExclusive::Select2HighestPtJets(LoopAll& l, TLor
       j1p4 = (TLorentzVector*) l.jet_algoPF1_p4->At(myJetsnew.first);
       j2p4 = (TLorentzVector*) l.jet_algoPF1_p4->At(myJetsnew.second);
       float dr=j2p4->DeltaR(*j1p4);
-      cout<<"myJetsnew myJets "<<myJetsnew.first<<myJetsnew.second<<myJets.first<<myJets.second<<" dr "<<dr<<endl;
-      cout<<"myJetsnew myJets "<<myJetspt.first<<" "<<myJetspt.second<<" "<<jtLMinPt<<jtTMinPt<<endl;
+      //cout<<"myJetsnew myJets "<<myJetsnew.first<<myJetsnew.second<<myJets.first<<myJets.second<<" dr "<<dr<<endl;
+      //cout<<"myJetsnew myJets "<<myJetspt.first<<" "<<myJetspt.second<<" "<<jtLMinPt<<jtTMinPt<<endl;
     }
   }
 
