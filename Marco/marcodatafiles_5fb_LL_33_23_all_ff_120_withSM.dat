@@ -1,4 +1,4 @@
-intL=4686. histfile=CMS-HGG_4686pb_jettagging_ff_only120_29nov_withSM.root output=shifo1.root
+intL=4686. histfile=CMS-HGG_4686pb_jettagging_ff_only120_30nov_withSM.root output=shifo1.root
 
 ->
 rm  ../Marco/marcodatafiles_5fb_LL_33_23_all_ff_120_withSM.dat.pevents
@@ -14,11 +14,19 @@ intL=4686. histfile=CMS-HGG_4686pb_jettagging_ff_only120_26nov_ptom_100_160.root
 Data
 ->
 
+typ=0    ind=0 draw=1  Nam=Data    Dir=/nfs-6/userdata/mpieri/h2g_V11_04_01/h2gred_official_transNov30/Data/PhotonPD_DiPho_nojson_2011B_newHLT tot=1  lum=1.0e10  xsec=1. kfac=1.0  scal=1.  json=../Marco/Cert_160404-180252_7TeV_All2011_v3.txt
+typ=0    ind=0 draw=1  Nam=Data    Dir=/nfs-6/userdata/mpieri/h2g_V11_04_01/h2gred_official_transNov30/Data/PhotonPD_DiPho_nojson_aug5_newHLT tot=1  lum=1.0e10  xsec=1. kfac=1.0  scal=1.   json=../Marco/Cert_160404-180252_7TeV_All2011_v3.txt
+typ=0    ind=0 draw=1  Nam=Data    Dir=/nfs-6/userdata/mpieri/h2g_V11_04_01/h2gred_official_transNov30/Data/PhotonPD_DiPho_nojson_jul5_newHLT tot=1  lum=1.0e10  xsec=1. kfac=1.0  scal=1.   json=../Marco/Cert_160404-180252_7TeV_All2011_v3.txt
+typ=0    ind=0 draw=1  Nam=Data    Dir=/nfs-6/userdata/mpieri/h2g_V11_04_01/h2gred_official_transNov30/Data/PhotonPD_DiPho_nojson_oct03_newHLT tot=1  lum=1.0e10  xsec=1. kfac=1.0  scal=1.  json=../Marco/Cert_160404-180252_7TeV_All2011_v3.txt
+->
+
+hadoop
+
 typ=0    ind=0 draw=1  Nam=Data    Dir=/hadoop/cms/store/user/capalmer/h2g_V11_04_01/h2gred_nov18/Data/PhotonPD_DiPho_nojson_2011B_newHLT tot=1  lum=1.0e10  xsec=1. kfac=1.0  scal=1.  json=../Marco/Cert_160404-180252_7TeV_All2011_v3.txt
 typ=0    ind=0 draw=1  Nam=Data    Dir=/hadoop/cms/store/user/capalmer/h2g_V11_04_01/h2gred_nov18/Data/PhotonPD_DiPho_nojson_aug5_newHLT tot=1  lum=1.0e10  xsec=1. kfac=1.0  scal=1.   json=../Marco/Cert_160404-180252_7TeV_All2011_v3.txt
 typ=0    ind=0 draw=1  Nam=Data    Dir=/hadoop/cms/store/user/capalmer/h2g_V11_04_01/h2gred_nov18/Data/PhotonPD_DiPho_nojson_jul5_newHLT tot=1  lum=1.0e10  xsec=1. kfac=1.0  scal=1.   json=../Marco/Cert_160404-180252_7TeV_All2011_v3.txt
 typ=0    ind=0 draw=1  Nam=Data    Dir=/hadoop/cms/store/user/capalmer/h2g_V11_04_01/h2gred_nov18/Data/PhotonPD_DiPho_nojson_oct03_newHLT tot=1  lum=1.0e10  xsec=1. kfac=1.0  scal=1.  json=../Marco/Cert_160404-180252_7TeV_All2011_v3.txt
-
+->
 
 ->
 Background

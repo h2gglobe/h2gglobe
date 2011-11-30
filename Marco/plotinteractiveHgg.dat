@@ -10,8 +10,34 @@ name=GJet20_pf           display=GJet_pf  ind=4       order=4     omit=2    scal
 name=QCD40_pf            display=1@Prompt@#gamma@1@Fake@#gamma   ind=5       order=5     omit=0    scale=1.0       color=406   marker=0
 name=QCD40_ff            display=2@Fake@#gamma     ind=6      order=6    omit=0    scale=1.0       color=422   marker=0
 name=DYJets              display=Drell@Yan         ind=7      order=7    omit=0    scale=1.0       color=606   marker=0
-name=vbf_H_gg_120_pu2011 display=VBF120@\times@30   ind=8      order=8    omit=0    scale=30         color=2     marker=0
-name=wz_H_gg_120_pu2011   display=VH120@\times@30   ind=9      order=9    omit=0    scale=30         color=803   marker=0
+name=fp_vbf_H_gg_120      display=FPVBF120@\times@3   ind=8      order=8    omit=1    scale=3         color=2     marker=0
+name=fp_wz_H_gg_120       display=FPVH120@\times@3   ind=9      order=9    omit=1    scale=3         color=803   marker=0
+name=sm_gluglu_H_gg_120   display=GG120@\times@10   ind=10      order=10    omit=0    scale=10         color=9     marker=0
+name=sm_vbf_H_gg_120      display=VBF120@\times@10   ind=11      order=11    omit=0    scale=10         color=3     marker=0
+name=sm_wz_H_gg_120       display=VH120@\times@10   ind=12      order=12    omit=0    scale=10         color=5   marker=0
+name=sm_tt_H_gg_120       display=TTH120@\times@10   ind=13      order=13    omit=0    scale=10         color=4   marker=0
+name=gluglu_H_gg_125_pu2011   display=GG125@\times@10   ind=14      order=14    omit=1    scale=10         color=2     marker=0
+name=vbf_H_gg_125_pu2011      display=VBF125@\times@10   ind=15      order=15    omit=1    scale=10         color=3     marker=0
+name=wz_H_gg_125_pu2011       display=VH125@\times@10   ind=16      order=16    omit=1    scale=10         color=5   marker=0
+name=tt_H_gg_125_pu2011       display=TTH125@\times@10   ind=17      order=17    omit=1    scale=10         color=4   marker=0
+
+
+name=vbf_H_gg_120_pu2011 display=VBF120@\times@3   ind=8      order=8    omit=0    scale=3         color=2     marker=0
+name=wz_H_gg_120_pu2011   display=VH120@\times@3   ind=9      order=9    omit=1    scale=3         color=803   marker=0
+
+typ=-26 ind=8 draw=1  Nam=fp_vbf_H_gg_120_pu2011    Dir=/hadoop/cms/store/user/capalmer/h2g_V11_04_01/h2gred_nov16/MC_Sig_Fall11_S6//VBF120_S6    red=0 lum=1000.000000  xsec=0.0293139   kfac=1.000000  scal=1.000000
+typ=-28 ind=9 draw=1  Nam=fp_wz_H_gg_120_pu2011     Dir=/hadoop/cms/store/user/capalmer/h2g_V11_04_01/h2gred_nov16/MC_Sig_Fall11_S6//WZH120_S6  red=0 lum=1000.000000  xsec=0.02346729  kfac=1.000000  scal=1.000000
+
+->
+ADD point with SM sigma 
+->
+
+typ=-25 ind=10 draw=1   Nam=sm_gluglu_H_gg_120_pu2011 Dir=/hadoop/cms/store/user/capalmer/h2g_V11_04_01/h2gred_nov16/MC_Sig_Fall11_S6/Glu120_S6  red=0 lum=1000000.0  xsec=0.0374175 kfac=1.000000  scal=1.000000
+typ=-26 ind=11 draw=1  Nam=sm_vbf_H_gg_120_pu2011    Dir=/hadoop/cms/store/user/capalmer/h2g_V11_04_01/h2gred_nov16/MC_Sig_Fall11_S6/VBF120_S6      red=0 lum=1000000.0  xsec=0.00285525 kfac=1.000000  scal=1.000000
+typ=-28 ind=12 draw=1  Nam=sm_wz_H_gg_120_pu2011     Dir=/hadoop/cms/store/user/capalmer/h2g_V11_04_01/h2gred_nov16/MC_Sig_Fall11_S6/WZH120_S6    red=0 lum=1000000.0  xsec=0.002285775 kfac=1.000000  scal=1.000000
+typ=-27 ind=13 draw=1  Nam=sm_tt_H_gg_120_pu2011     Dir=/hadoop/cms/store/user/capalmer/h2g_V11_04_01/h2gred_nov16/MC_Sig_Fall11_S6/TTH120_S6      red=0 lum=1000000.0  xsec=0.00021951 kfac=1.000000  scal=1.000000
+
+
 
 name=Data                display=Dat  	  ind=0       order=0     omit=0    scale=1.0       color=0     marker=20
 name=Box25               display=Box@25   ind=1       order=1     omit=2    scale=1.0       color=592   marker=0
@@ -22,7 +48,7 @@ name=QCD40_pf            display=QCD_pf   ind=5       order=5     omit=0    scal
 name=QCD40_ff            display=QCD_ff   ind=6       order=6     omit=0    scale=1.0       color=422   marker=0
 name=DYJets              display=DY       ind=7       order=7     omit=0    scale=1.0       color=606   marker=0
 name=vbf_H_gg_120_pu2011 display=VBF120   ind=8       order=8    omit=0    scale=1.0       color=2     marker=0
-name=wz_H_gg_120_pu2011   display=VH120   ind=9       order=9    omit=0    scale=1.0       color=801   marker=0
+name=wz_H_gg_120_pu2011   display=VH120   ind=9       order=9    omit=1    scale=1.0       color=801   marker=0
 
 
 

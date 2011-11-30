@@ -5,8 +5,8 @@ http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/UserCode/HiggsAnalysis/HiggsTo2photon
 
 diff -r ~capalmer/CMS/Higgs2gg/Limits/nov14_forAN/428p7/src/HiggsAnalysis/HiggsTo2photons/h2gglobe_new2/ . |grep "diff -r" |grep -v CVS
 
+ls -l  ~capalmer/CMS/Higgs2gg/Limits/nov14_forAN/428p7/src/HiggsAnalysis/HiggsTo2photons/h2gglobe_new3/LoopAll.cc
 
-_only120final.root
 # FOR PLOTINTERACTIVE:
 
 root -l
@@ -17,24 +17,14 @@ setTDRStyle();
   //gSystem->Load("VertexAnalysis/lib/libh2gglobeVertexAnalysis.so");
 gSystem->Load("libLoopAll.so");
 LoopAll* m=new LoopAll();
-m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_only120_23nov_OKw.root","Hgg")
-m->myPlotInteractive("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_only120_23nov_OKw.root");
+m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_only120_29nov_withSM.root","Hgg")
+m->myPlotInteractive("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_only120_29nov_withSM.root");
+
+m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_only120_26nov_debug.root","Hgg")
+m->myPlotInteractive("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_only120_26nov_debug.root");
 
 
-
-root -l
-.L Marco/tdrstyle.C
-setTDRStyle();
-  gSystem->Load("libPhysics.so");
-  gSystem->Load("libCore.so");
-  //gSystem->Load("VertexAnalysis/lib/libh2gglobeVertexAnalysis.so");
-gSystem->Load("libLoopAll.so");
-LoopAll* m=new LoopAll();
-m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_only120_26nov_90_190.root","Hgg")
-m->myPlotInteractive("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_only120_26nov_90_190.root");
-
-
-
+_29nov_withSM
 
 m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_only120_26nov_ptom_90_190.root","Hgg")
 m->myPlotInteractive("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_only120_26nov_ptom_90_190.root");
@@ -44,29 +34,6 @@ m->myPlotInteractive("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettaggin
 
 m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_only120_26nov_90_190.root","Hgg")
 m->myPlotInteractive("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_only120_26nov_90_190.root");
-
-_23nov_100160
-
-
-m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff.root","Hgg")
-m->myPlotInteractive("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff.root");
-
-
-
-m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_only120.root","Hgg")
-m->myPlotInteractive("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_only120.root");
-
-
-m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff.root","Hgg")
-m->myPlotInteractive("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff.root");
-
-m->myPlotInteractiveSetup("PhotonAnalysis_scripts/","Hgg")
-m->myPlotInteractive("PhotonAnalysis_scripts/");
-
-histograms_CMS-HGG_4686pb_jettagging_ff_only120.root
-
-m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_CMS-HGG_4686_nov17_tryExcl_allsm_FINall.root","Hgg")
-m->myPlotInteractive("PhotonAnalysis_scripts/histograms_CMS-HGG_4686_nov17_tryExcl_allsm_FINall.root");
 
 
 
@@ -199,7 +166,11 @@ python fitter.py -i datafiles_5fb_LL_33_23_all_ff.dat --dryRun
 python fitter.py -i datafiles_5fb_LL_33_23_all_ff.dat >&  datafiles_5fb_LL_33_23_all_ff_final.log
 
 ========
+cp Marco/StatAnalysisExclusive_marco_newnewnew.h PhotonAnalysis/interface/StatAnalysisExclusive.h
+cp Marco/StatAnalysisExclusive_marco_newnewnew.cc PhotonAnalysis/src/StatAnalysisExclusive.cc
+
 cd PhotonAnalysis_scripts/.
+cp ../Marco/cuts_marco_debug.dat cuts.dat
 cp ../Marco/cuts_marco.dat cuts.dat
 cp ../Marco/cuts_marco_ptom.dat cuts.dat
 cp ../Marco/cuts_marco_100160.dat cuts.dat
@@ -209,6 +180,11 @@ cp ../Marco/marcodatafiles_5fb_LL_33_23_all_ff_120.dat datafiles_5fb_LL_33_23_al
 cp ../Marco/cuts_marco.dat cuts.dat
 cp ../Marco/marcodatafiles_5fb_LL_33_23_all_ff_120_2011A.dat datafiles_5fb_LL_33_23_all_ff_120_2011A.dat
 cp ../Marco/marcodatafiles_5fb_LL_33_23_all_ff_120_2011B.dat datafiles_5fb_LL_33_23_all_ff_120_2011B.dat
+
+cd PhotonAnalysis_scripts/.
+rm datafiles_5fb_LL_33_23_all_ff.dat.pevents
+python fitter.py -i ../Marco/marcodatafiles_5fb_LL_33_23_all_ff_120_withSM.dat --dryRun
+python fitter.py -i ../Marco/marcodatafiles_5fb_LL_33_23_all_ff_120_withSM.dat >& marcodatafiles_5fb_LL_33_23_all_ff_120_withSM_30nov.log
 
 
 #########
