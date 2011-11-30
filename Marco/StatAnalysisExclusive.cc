@@ -110,7 +110,7 @@ void StatAnalysisExclusive::Init(LoopAll& l)
     if( nR9Categories != 0 ) nPhotonCategories_ *= nR9Categories;
     
     int nVBFCategories  = ((int)includeVBF)*nVBFEtaCategories;
-    int nVHadCategories = (int)includeVHad;
+    int nVHadCategories = ((int)includeVHad)*nVHadEtaCategories;
     int nVHlepCategories = (int)includeVHlep * 2;
    
     nCategories_+=(nVBFCategories+nVHadCategories+nVHlepCategories);
@@ -425,7 +425,7 @@ void StatAnalysisExclusive::Init(LoopAll& l)
     int cats_with_quad[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
     int cats_with_cubic[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
-    for(int i=0; i<nEtaCategories*nR9Categories*nPtCategories+((int)includeVBF)*nVBFEtaCategories+(int)includeVHad+(int)includeVHlep * 2; i++){
+    for(int i=0; i<nEtaCategories*nR9Categories*nPtCategories+((int)includeVBF)*nVBFEtaCategories+((int)includeVHad)*nVHadEtaCategories+(int)includeVHlep * 2; i++){
       if(i<nEtaCategories*nR9Categories*nPtCategories) {
         cats_with_std[i]=1;
         cats_with_lin[i]=0;
@@ -436,11 +436,11 @@ void StatAnalysisExclusive::Init(LoopAll& l)
         cats_with_lin[i]=0;
         cats_with_quad[i]=1;
         cats_with_cubic[i]=0;
-      } else if(i<nEtaCategories*nR9Categories*nPtCategories+((int)includeVBF)*nVBFEtaCategories+(int)includeVHad){
+      } else if(i<nEtaCategories*nR9Categories*nPtCategories+((int)includeVBF)*nVBFEtaCategories+((int)includeVHad)*nVHadEtaCategories){
         cats_with_std[i]=0;
         cats_with_lin[i]=0;
-        cats_with_quad[i]=0;
-        cats_with_cubic[i]=1;
+        cats_with_quad[i]=1;
+        cats_with_cubic[i]=0;
       } else {
         cats_with_std[i]=0;
         cats_with_lin[i]=1;
@@ -698,8 +698,8 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
       TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphoton_id], l.dipho_vtxind[diphoton_id], &smeared_pho_energy[0]);
       TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphoton_id], l.dipho_vtxind[diphoton_id], &smeared_pho_energy[0]);
       TLorentzVector diphoton = lead_p4+sublead_p4;
-      myInclusive_Mgg = diphoton.M();
-      myInclusivePtHiggs =diphoton.Pt();
+      //myInclusive_Mgg = diphoton.M();
+      //myInclusivePtHiggs =diphoton.Pt();
       
       //should be done for both earlier
       diphoton_index = std::make_pair( l.dipho_leadind[diphoton_id],  l.dipho_subleadind[diphoton_id] );
@@ -711,7 +711,7 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
       float myweight=1.;
       if(evweight*newweight!=0) myweight=evweight/newweight;
       
-      l.ApplyCutsFill(0,4,evweight, myweight);
+      //l.ApplyCutsFill(0,4,evweight, myweight);
 
     }
 
@@ -731,6 +731,8 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
     
     if(includeVHlep){
       diphotonVHlep_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVHlepCut, subleadEtVHlepCut, 4, false, &smeared_pho_energy[0] );
+      //Add tighter cut on dr to tk
+      if(l.pho_drtotk_25_99[l.dipho_leadind[diphotonVHlep_id]] < 1 || l.pho_drtotk_25_99[l.dipho_subleadind[diphotonVHlep_id]] < 1) diphotonVHlep_id = -1;
     }
 
     if(includeVHlep && diphotonVHlep_id>-1) {
@@ -742,20 +744,26 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
       if(muonInd!=-1) {
         VHmuevent = true;
         CAT4 = l.DiphotonCategory(l.dipho_leadind[diphotonVHlep_id], l.dipho_subleadind[diphotonVHlep_id], myAllPtHiggs, 2, 2, 1, 0, -1.);
-        std::cout << setprecision(4) << "  CAT4 = " << CAT4 << "  ggM = " << diphoton.M() << " ggPt =  " << diphoton.Pt() << "Mutag  itype " <<cur_type << std::endl;
+        if(crosscheck && (cur_type==0 || cur_type==-26 || cur_type==-28)) 
+        std::cout << setprecision(4) << "  CAT4 = " << CAT4 << "  ggM = " << diphoton.M() << " ggPt =  " << diphoton.Pt() << " Mutag  itype " <<cur_type << std::endl;
       }
       
       elInd = l.ElectronSelection(lead_p4, sublead_p4, l.dipho_vtxind[diphotonVHlep_id]);
       if(elInd!=-1) {
         VHelevent = true;
         CAT4 = l.DiphotonCategory(l.dipho_leadind[diphotonVHlep_id], l.dipho_subleadind[diphotonVHlep_id], myAllPtHiggs, 2, 2, 1, 0, -1.);
-        std::cout << setprecision(4) << "  CAT4 = " << CAT4 << "  ggM = " << diphoton.M() << " ggPt =  " << diphoton.Pt() << "Eltag  itype " <<cur_type << std::endl;
+        if(crosscheck && (cur_type==0 || cur_type==-26 || cur_type==-28)) 
+        std::cout << setprecision(4) << "  CAT4 = " << CAT4 << "  ggM = " << diphoton.M() << " ggPt =  " << diphoton.Pt() << " Eltag  itype " <<cur_type << std::endl;
       }
     }
     
-    
+   
+
     if((includeVBF || includeVHad)&&l.jet_algoPF1_n>1) {
       RescaleJetEnergy(l);
+    }
+
+    if((includeVBF || includeVHad)) {
       if(includeVBF) diphotonVBF_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVBFCut, subleadEtVBFCut, 4,false, &smeared_pho_energy[0] ); 
       if(includeVHad) diphotonVHad_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVHadCut, subleadEtVHadCut, 4,false, &smeared_pho_energy[0] ); 
 
@@ -817,7 +825,7 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
             << " Mjj " << myVBF_Mjj
             << " dEtajj " << myVBFdEta 
             << " Zeppenfeld " << myVBFZep
-            << " dPhijjgg " << myVBFdPhi << "VBF itype " <<cur_type << std::endl;
+            << " dPhijjgg " << myVBFdPhi << " VBF itype " <<cur_type << std::endl;
         }
       }
 
@@ -829,7 +837,7 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
         
         highestPtJets = Select2HighestPtJets(l, lead_p4, sublead_p4, jet1ptcut, jet2ptcut );
 
-        bool VHadpresel = (highestPtJets.first!=-1)&&(highestPtJets.first!=-2);
+        bool VHadpresel = (highestPtJets.first!=-1)&&(highestPtJets.second!=-1);
   
         if(VHadpresel){
           TLorentzVector* jet1 = (TLorentzVector*)l.jet_algoPF1_p4->At(highestPtJets.first);
@@ -864,7 +872,7 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
               << " Mjj " << myVHad_Mjj
               << " dEtajj " << myVHaddEta
               << " Zeppenfeld " << myVHadZep
-              << " dPhijjgg " << myVHaddPhi << "VH itype " <<cur_type << std::endl;
+              << " dPhijjgg " << myVHaddPhi << " VH itype " <<cur_type << std::endl;
         }
       }
     }
@@ -924,10 +932,10 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
 	sumaccept += weight;
  	sumsmear += evweight;
 
-  if(VBFevent) category=nEtaCategories*nR9Categories*nPtCategories;
-  else if(VHadevent) category=nEtaCategories*nR9Categories*nPtCategories+((int)includeVBF)*nVBFEtaCategories;
-  else if(VHmuevent) category=nEtaCategories*nR9Categories*nPtCategories+(int)includeVHad;
-  else if(VHelevent) category=nEtaCategories*nR9Categories*nPtCategories+(int)includeVHlep;
+  if(VBFevent) category=nEtaCategories*nR9Categories*nPtCategories+l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nVBFEtaCategories,1,1);
+  else if(VHadevent) category=nEtaCategories*nR9Categories*nPtCategories+((int)includeVBF)*nVBFEtaCategories+l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nVHadEtaCategories,1,1);
+  else if(VHmuevent) category=nEtaCategories*nR9Categories*nPtCategories+((int)includeVBF)*nVBFEtaCategories+((int)includeVHad)*nVHadEtaCategories;
+  else if(VHelevent) category=nEtaCategories*nR9Categories*nPtCategories+((int)includeVBF)*nVBFEtaCategories+((int)includeVHad)*nVHadEtaCategories+(int)includeVHlep;
 
 
 
@@ -1030,11 +1038,12 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
 	     
 		    float mass = Higgs.M();
         
-        if(VBFevent) category=nEtaCategories*nR9Categories*nPtCategories;
-        else if(VHadevent) category=nEtaCategories*nR9Categories*nPtCategories+((int)includeVBF)*nVBFEtaCategories;
-        else if(VHmuevent) category=nEtaCategories*nR9Categories*nPtCategories+(int)includeVHad;
-        else if(VHelevent) category=nEtaCategories*nR9Categories*nPtCategories+(int)includeVHlep;
-		    categories.push_back(category);
+        if(VBFevent) category=nEtaCategories*nR9Categories*nPtCategories+l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nVBFEtaCategories,1,1);
+        else if(VHadevent) category=nEtaCategories*nR9Categories*nPtCategories+((int)includeVBF)*nVBFEtaCategories+l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nVHadEtaCategories,1,1);
+        else if(VHmuevent) category=nEtaCategories*nR9Categories*nPtCategories+((int)includeVBF)*nVBFEtaCategories+((int)includeVHad)*nVHadEtaCategories;
+        else if(VHelevent) category=nEtaCategories*nR9Categories*nPtCategories+((int)includeVBF)*nVBFEtaCategories+((int)includeVHad)*nVHadEtaCategories+(int)includeVHlep;
+		    
+        categories.push_back(category);
 		    mass_errors.push_back(mass);
 		    weights.push_back(evweight);
 		}// end loop on systematics steps
@@ -1071,10 +1080,11 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
 			evweight *= swei;
 		    }
 		    float mass = Higgs.M();
-        if(VBFevent) category=nEtaCategories*nR9Categories*nPtCategories;
-        else if(VHadevent) category=nEtaCategories*nR9Categories*nPtCategories+((int)includeVBF)*nVBFEtaCategories;
-        else if(VHmuevent) category=nEtaCategories*nR9Categories*nPtCategories+(int)includeVHad;
-        else if(VHelevent) category=nEtaCategories*nR9Categories*nPtCategories+(int)includeVHlep;
+        if(VBFevent) category=nEtaCategories*nR9Categories*nPtCategories+l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nVBFEtaCategories,1,1);
+        else if(VHadevent) category=nEtaCategories*nR9Categories*nPtCategories+((int)includeVBF)*nVBFEtaCategories+l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nVHadEtaCategories,1,1);
+        else if(VHmuevent) category=nEtaCategories*nR9Categories*nPtCategories+((int)includeVBF)*nVBFEtaCategories+((int)includeVHad)*nVHadEtaCategories;
+        else if(VHelevent) category=nEtaCategories*nR9Categories*nPtCategories+((int)includeVBF)*nVBFEtaCategories+((int)includeVHad)*nVHadEtaCategories+(int)includeVHlep;
+		    
 		    categories.push_back(category);
 		    mass_errors.push_back(mass);
 		    weights.push_back(evweight);
@@ -1143,7 +1153,7 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
         
         highestPtJets = Select2HighestPtJets(l, lead_p4, sublead_p4, jet1ptcut, jet2ptcut );
 
-        bool VBFpresel = (highestPtJets.first!=-1)&&(highestPtJets.first!=-2);
+        bool VBFpresel = (highestPtJets.first!=-1)&&(highestPtJets.second!=-1);
   
         if(VBFpresel){
           TLorentzVector* jet1 = (TLorentzVector*)l.jet_algoPF1_p4->At(highestPtJets.first);
@@ -1160,8 +1170,8 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
           myVBFdPhi = fabs(diphoton.DeltaPhi(dijet));
           myVBF_Mgg =diphoton.M();
 
+          //VBFevent = l.ApplyCuts(0,5);
           VBFevent = l.ApplyCuts(0,1);
-          VBFevent = l.ApplyCuts(0,5);
         }
       }
       
@@ -1173,7 +1183,7 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
         
         highestPtJets = Select2HighestPtJets(l, lead_p4, sublead_p4, jet1ptcut, jet2ptcut );
 
-        bool VHadpresel = (highestPtJets.first!=-1)&&(highestPtJets.first!=-2);
+        bool VHadpresel = (highestPtJets.first!=-1)&&(highestPtJets.second!=-1);
   
         if(VHadpresel){
           TLorentzVector* jet1 = (TLorentzVector*)l.jet_algoPF1_p4->At(highestPtJets.first);
@@ -1225,10 +1235,11 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
 		    }
 		    float mass = Higgs.M();
 		   
-        if(VBFevent) category=nEtaCategories*nR9Categories*nPtCategories;
-        else if(VHadevent) category=nEtaCategories*nR9Categories*nPtCategories+((int)includeVBF)*nVBFEtaCategories;
-        else if(VHmuevent) category=nEtaCategories*nR9Categories*nPtCategories+(int)includeVHad;
-        else if(VHelevent) category=nEtaCategories*nR9Categories*nPtCategories+(int)includeVHlep;
+        if(VBFevent) category=nEtaCategories*nR9Categories*nPtCategories+l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nVBFEtaCategories,1,1);
+        else if(VHadevent) category=nEtaCategories*nR9Categories*nPtCategories+((int)includeVBF)*nVBFEtaCategories+l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nVHadEtaCategories,1,1);
+        else if(VHmuevent) category=nEtaCategories*nR9Categories*nPtCategories+((int)includeVBF)*nVBFEtaCategories+((int)includeVHad)*nVHadEtaCategories;
+        else if(VHelevent) category=nEtaCategories*nR9Categories*nPtCategories+((int)includeVBF)*nVBFEtaCategories+((int)includeVHad)*nVHadEtaCategories+(int)includeVHlep;
+		    
 	       	    categories.push_back(category);
 	            mass_errors.push_back(mass);
 	            weights.push_back(evweight);
@@ -1398,6 +1409,9 @@ std::pair<int, int> StatAnalysisExclusive::Select2HighestPtJets(LoopAll& l, TLor
   std::pair<int, int> myJets(-1,-1);
   std::pair<int, int> fail(-1,-1);
 
+  std::pair<int, int> myJetsnew(-1,-1);
+  std::pair<float, float> myJetspt(-1.,-1.);
+
   float dr2pho = 0.5;
   float dr2jet = 0.5;
 
@@ -1442,10 +1456,45 @@ std::pair<int, int> StatAnalysisExclusive::Select2HighestPtJets(LoopAll& l, TLor
     }
   }
 
-  if(myJets.first==-1) return fail;
+  for(int j1_i=0; j1_i<l.jet_algoPF1_n; j1_i++){
+    j1p4 = (TLorentzVector*) l.jet_algoPF1_p4->At(j1_i);
+    if(fabs(j1p4->Eta()) > 4.7) continue;
+    if(j1p4->DeltaR(leadpho) < dr2pho) continue;
+    if(j1p4->DeltaR(subleadpho) < dr2pho) continue;
+    j1pt=j1p4->Pt();
 
+    //cout<<"AAA MARCOMM "<<j1_i<<" "<<j1p4->Pt()<<" "<<j1p4->Eta()<<endl;
 
-  return myJets;
+    //if(j1pt<jtTMinPt) continue;
+
+    if(j1pt>myJetspt.first) {
+      myJetsnew.second=myJetsnew.first;
+      myJetspt.second=myJetspt.first;
+      myJetspt.first=j1pt;
+      myJetsnew.first=j1_i;
+    }
+    else if(j1pt>myJetspt.second) {
+      myJetspt.second=j1pt;
+      myJetsnew.second=j1_i;
+    }
+  }
+
+  //cout<<"AAA MARCOMM "<<l.jet_algoPF1_n<<" "<<myJetsnew.first<<" "<<myJetsnew.second<<endl;
+
+  //if(myJets.first==-1) return fail;
+  //return myJets;
+
+  if(myJetsnew.second!=-1&&myJetspt.first>jtTMinPt&&myJetspt.second>jtTMinPt) {
+    if(myJetsnew!=myJets) {
+      j1p4 = (TLorentzVector*) l.jet_algoPF1_p4->At(myJetsnew.first);
+      j2p4 = (TLorentzVector*) l.jet_algoPF1_p4->At(myJetsnew.second);
+      float dr=j2p4->DeltaR(*j1p4);
+      cout<<"myJetsnew myJets "<<myJetsnew.first<<myJetsnew.second<<myJets.first<<myJets.second<<" dr "<<dr<<endl;
+      cout<<"myJetsnew myJets "<<myJetspt.first<<" "<<myJetspt.second<<" "<<jtLMinPt<<jtTMinPt<<endl;
+    }
+  }
+
+  return myJetsnew;
 }
 
 

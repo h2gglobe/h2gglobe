@@ -37,16 +37,20 @@ public:
 	// Options
   bool includeVBF;
   bool includeVHad;
+  bool includeVHlep;
 	bool reRunCiC;
 
   float leadEtCut;
   float leadEtVBFCut;
   float leadEtVHadCut;
+  float leadEtVHlepCut;
   float subleadEtCut;
   float subleadEtVBFCut;
   float subleadEtVHadCut;
+  float subleadEtVHlepCut;
   int nVBFEtaCategories;
-	std::string efficiencyFile;
+	int nVHadEtaCategories;
+  std::string efficiencyFile;
 	
 	// EnergySmearer::energySmearingParameters eSmearPars; // gone to PhotonAnalysis GF
 	EfficiencySmearer::efficiencySmearingParameters effSmearPars;
