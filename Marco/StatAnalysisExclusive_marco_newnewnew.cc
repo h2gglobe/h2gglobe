@@ -52,13 +52,16 @@ void StatAnalysisExclusive::Term(LoopAll& l)
 // ----------------------------------------------------------------------------------------------------
 void StatAnalysisExclusive::Init(LoopAll& l) 
 {
-    if(PADEBUG) 
+  //if(PADEBUG) 
 	cout << "InitRealStatAnalysisExclusive START"<<endl;
 
     nevents=0., sumwei=0.; 
     sumaccept=0., sumsmear=0., sumev=0.;
     
     std::string outputfilename = (std::string) l.histFileName;
+
+    cout<<"MMMMMMMM "<<outputfilename.c_str()<<endl;
+
     eventListText.open(Form("%s_ascii_events.txt",outputfilename.c_str()));
     FillSignalLabelMap();
     //
@@ -729,7 +732,7 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
     if (cur_type !=0){
       for (int ipho=0;ipho<l.pho_n;ipho++){
         double R9_rescale = (l.pho_isEB[ipho]) ? 1.0048 : 1.00492 ;
-        l.pho_r9[ipho]*=R9_rescale;
+        //l.pho_r9[ipho]*=R9_rescale; //commented MARCO for now, should ask
       }
     }
     // ---------------------------------------------------------------------------------------------------------------------//
@@ -836,6 +839,7 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
       diphotonVBF_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVBFCut, subleadEtVBFCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
       diphotonVHad_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVHadCut, subleadEtVHadCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
 
+
       if(diphotonVBF_id>-1){
         TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphotonVBF_id], l.dipho_vtxind[diphotonVBF_id], &smeared_pho_energy[0]);
 	TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphotonVBF_id], l.dipho_vtxind[diphotonVBF_id], &smeared_pho_energy[0]);
@@ -932,6 +936,13 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
 	int category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,0.,2,2,1);
 	int category2 = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,0.,2,1,1);
 
+	if (cur_type==0){
+	  int faketype=999;
+	  eventListText << setprecision(4) <<"Type = "<< faketype <<  " Run = " << l.run << "  LS = " << l.lumis << "  Event = " << l.event << "  SelVtx = " << l.vtx_std_sel << "  CAT4 = " << category % 4 << "  ggM = " << diphoton.M() << " gg_Pt =  " << diphoton.Pt();
+	  eventListText << endl;
+	}
+
+
 	if(VBFevent&&false){
 	  if (cur_type==0){
 	    eventListText << setprecision(4) <<"Type = "<< cur_type <<  "Run = " << l.run << "  LS = " << l.lumis << "  Event = " << l.event << "  SelVtx = " << l.vtx_std_sel << "  CAT4 = " << category % 4 << "  ggM = " << diphoton.M() << " gg_Pt =  " << diphoton.Pt();
@@ -943,6 +954,7 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
 	    eventListText << setprecision(4) <<" jets deta "<<myAlldEta<<" zep "<<myAllZep<<" M "<<myAll_Mjj<<" dphi "<<myAlldPhi<<endl;
 	  }
 	}
+	
 
 	if(VBFevent&&myAll_Mgg>100&&myAll_Mgg<160) {
 	  l.ApplyCutsFill(category,44,evweight, myweight);
@@ -1110,7 +1122,7 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
 	}
 
 	if (cur_type==0){
-	  eventListText << setprecision(4) <<"Type = "<< cur_type <<  "Run = " << l.run << "  LS = " << l.lumis << "  Event = " << l.event << "  SelVtx = " << l.vtx_std_sel << "  CAT4 = " << category % 4 << "  ggM = " << mass << " gg_Pt =  " << ptHiggs;
+	  eventListText << setprecision(4) <<"Type = "<< cur_type <<  " Run = " << l.run << "  LS = " << l.lumis << "  Event = " << l.event << "  SelVtx = " << l.vtx_std_sel << "  CAT4 = " << category % 4 << "  ggM = " << mass << " gg_Pt =  " << ptHiggs;
 	  eventListText << endl;
 	}
        

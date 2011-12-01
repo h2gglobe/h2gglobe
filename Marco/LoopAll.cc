@@ -17,7 +17,6 @@ using namespace std;
 BaseAnalysis* LoopAll::AddAnalysis(BaseAnalysis* baseAnalysis) {
   
   analyses.push_back(baseAnalysis);
-  
   return baseAnalysis;
 }
 
@@ -461,8 +460,26 @@ void LoopAll::InitReal(Int_t typerunpass) {
 
   if (makeOutputTree) 
     outputFile->cd();
-  cout<< "LoopAll::InitReal END" <<endl;
-  
+
+#ifdef NewFeatures
+  FILE *mar = fopen("Marco/dataevents.txt","r");
+
+  event_pointer = 0;
+  float dummy1, dummy2;
+  int idummy1, idummy2;
+
+  int realnmar=0;
+
+  int marco_type;
+  while(feof(mar)==0){
+    fscanf(mar, "Type = %d Run = %d  LS = %d  Event = %d  SelVtx = %d  CAT4 = %d  ggM = %f gg_Pt =  %f\n", 
+	   &good_events[realnmar][3], &good_events[realnmar][0], &good_events[realnmar][1], &good_events[realnmar][2], &idummy1, &idummy2, &dummy1, &dummy2);
+
+    realnmar++;
+  }
+
+  fclose(mar);
+#endif
 }
 
 // ------------------------------------------------------------------------------------
@@ -692,25 +709,33 @@ void LoopAll::WriteFits() {
 void LoopAll::WriteHist() {
 
 	hfile = TFile::Open(histFileName, "RECREATE", "Globe ROOT file with histograms");
+	cout<<"WriteHist before "<<endl;
 
-  hfile->cd();
-  for(unsigned int ind=0; ind<histoContainer.size(); ind++) {
-    histoContainer[ind].Save();
-  }
-  outputTreeLumi->Write();
+	hfile->cd();
+	for(unsigned int ind=0; ind<histoContainer.size(); ind++) {
+	  cout<<"WriteHist before "<<ind<<endl;
+	  histoContainer[ind].Save();
+	  cout<<"WriteHist after "<<ind<<endl;
+	}
+	cout<<"WriteHist before lumi "<<endl;
+	outputTreeLumi->Write();
+	cout<<"WriteHist after lumi "<<endl;
 
 #ifdef NewFeatures
   WritePI();
 #endif
+	cout<<"WriteHist here "<<endl;
 
   hfile->Close();
       
   if (makeOutputTree) 
     outputFile->cd();
+	cout<<"WriteHist here2 "<<endl;
 
 #ifdef NewFeatures
   WriteCounters();
 #endif
+	cout<<"WriteHist here4 "<<endl;
 }
 
 #ifdef NewFeatures
@@ -1042,17 +1067,40 @@ int LoopAll::FillAndReduce(int jentry) {
 
   //count all events
   countersred[0]++;
+  
+#ifdef NewFeatures
+  if (itype[current] == 0) {
+    b_event->GetEntry(jentry);
 
+    if(event == good_events[event_pointer][2]) {
+      b_run->GetEntry(jentry);
+      b_lumis->GetEntry(jentry);
+      
+      // You may need to add the check of the type 0 or 999
+      if ((run == good_events[event_pointer][0]) && (event == good_events[event_pointer][2]) && (lumis == good_events[event_pointer][1])) {
+	event_pointer++;
+	if ((run == good_events[event_pointer][0]) && (event == good_events[event_pointer][2]) && (lumis == good_events[event_pointer][1])) {
+	  event_pointer++;
+	}
+      } 
+      else {
+	return hasoutputfile;
+      }
+    }
+    else {
+      return hasoutputfile;
+    }
+  }
+#endif
+
+  //
   // read all inputs 
   //
-#ifndef NewFeatures
   GetEntry(inputBranches, jentry);
-#endif  
+  
 
-#ifdef NewFeatures
-  b_run->GetEntry(jentry);
-  b_lumis->GetEntry(jentry);
-#endif
+  //b_run->GetEntry(jentry);
+  //b_lumis->GetEntry(jentry);
   if(!CheckLumiSelection(run,lumis)){
 	  return hasoutputfile;
   }
@@ -1074,10 +1122,6 @@ int LoopAll::FillAndReduce(int jentry) {
   if( typerun == kReduce || typerun == kFillReduce ) {
     hasoutputfile = 1;
     
-#ifdef NewFeatures
-  GetEntry(inputBranches, jentry);
-#endif 
- 
     // compute additional quantites
     for (size_t i=0; i<analyses.size(); i++) {
       analyses[i]->FillReductionVariables(*this, jentry);
@@ -1112,63 +1156,6 @@ int LoopAll::FillAndReduce(int jentry) {
   // analysis step
   //
   if( typerun == kFill || typerun == kFillReduce ) {
-
-
-#ifdef NewFeatures
-
-    b_dipho_n->GetEntry(jentry);
-    if(!dipho_n) return hasoutputfile;
-
-    //b_dipho_n->GetEntry(jentry);
-    b_dipho_leadind->GetEntry(jentry);
-    b_dipho_subleadind->GetEntry(jentry);
-    //b_dipho_vtxind->GetEntry(jentry);
-    /*
-    b_pho_p4->GetEntry(jentry);
-    b_pho_regr_energy->GetEntry(jentry);
-    float maxmass=0.;
-    for(int i=0; i<dipho_n; i++){
-      TLorentzVector * lead_p4 = (TLorentzVector *) pho_p4->At(dipho_leadind[i]);      TLorentzVector * sublead_p4 = (TLorentzVector *) pho_p4->At(dipho_subleadind[i]);
-      TLorentzVector M=(pho_regr_energy[dipho_leadind[i]]*(*lead_p4)+
-			pho_regr_energy[dipho_subleadind[i]]*(*sublead_p4));
-      if(M.M()>maxmass)
-	maxmass=M.M();
-    }
-    if(maxmass<60) 
-      return hasoutputfile;
-    */
-    
-    /*
-    //b_dipho_leadind->GetEntry(jentry);
-    //b_dipho_subleadind->GetEntry(jentry);
-    b_dipho_vtxind->GetEntry(jentry);
-    b_pho_cic4cutlevel_lead->GetEntry(jentry);
-    b_pho_cic4cutlevel_sublead->GetEntry(jentry);
-    bool selectEvent = false;
-    //std::cout<<"dipho_n  "<<dipho_n<<std::endl;
-    for(int i=0; i<dipho_n; i++){
-      //std::cout<<"dipho_leadind["<<i<<"]   dipho_subleadind["<<i<<"]   dipho_vtxind["<<i<<"]"
-      //	       <<dipho_leadind[i]<<" "<<dipho_subleadind[i]<<"     "
-      //       <<dipho_vtxind[i]<<std::endl;
-      //std::cout<<"pho_cic4cutlevel_lead["<<dipho_leadind[i]<<"]["<<dipho_vtxind[i]<<"]   "<<(*pho_cic4cutlevel_lead)[dipho_leadind[i]][dipho_vtxind[i]]<<endl;
-      //std::cout<<"pho_cic4cutlevel_sublead["<<dipho_subleadind[i]<<"]["<<dipho_vtxind[i]<<"]   "<<(*pho_cic4cutlevel_sublead)[dipho_subleadind[i]][dipho_vtxind[i]]<<std::endl;
-      if((*pho_cic4cutlevel_lead)[dipho_leadind[i]][dipho_vtxind[i]]>=3 
-	 && (*pho_cic4cutlevel_sublead)[dipho_subleadind[i]][dipho_vtxind[i]]>=3
-	 ||
-	 (*pho_cic4cutlevel_lead)[dipho_leadind[i]][dipho_vtxind[i]]>=4 
-	 ||(*pho_cic4cutlevel_sublead)[dipho_subleadind[i]][dipho_vtxind[i]]>=4
-	 ) {
-	//	cout<<"**** event selected ****"<<endl;
-	selectEvent = true;
-      }
-    }
-  
-    //if(!selectEvent) return hasoutputfile;
-    */
-
-    GetEntry(inputBranches, jentry);
-#endif
-
     // event selection
     for (size_t i=0; i<analyses.size(); i++) {
       if( ! analyses[i]->SelectEvents(*this, jentry) ) {

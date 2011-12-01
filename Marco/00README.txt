@@ -1,3 +1,17 @@
+Datafiles I am using:
+marcodatafiles_5fb_LL_33_23_all_ff_120_withSM_fast.dat
+
+I have copied some MC but not all in my dir on nfs-6
+
+You need LoopAll.h and .cc from Marco from the head to be copied in ../.
+
+You need ~mpieri/Aug2011/mpieri/CMSSW_4_2_8/src/HiggsAnalysis/HiggsTo2photons/h2gglobe/Marco/dataevents.txt to be kept in Marco
+
+The order is jul aug oct 2011B hoping that it always takes the same sequence of files.
+
+
+
+
 http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/UserCode/HiggsAnalysis/HiggsTo2photons/h2gglobe/Marco/
 
 ~capalmer/CMS/Higgs2gg/Limits/nov14_forAN/428p7/src/HiggsAnalysis/HiggsTo2photons/h2gglobe_new/PhotonAnalysis_scripts/histograms_CMS-HGG_4686_nov17_tryExcl.root
@@ -17,6 +31,9 @@ setTDRStyle();
   //gSystem->Load("VertexAnalysis/lib/libh2gglobeVertexAnalysis.so");
 gSystem->Load("libLoopAll.so");
 LoopAll* m=new LoopAll();
+m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_marcodatafiles_5fb_LL_33_23_all_ff_120_withSM.root","Hgg")
+m->myPlotInteractive("PhotonAnalysis_scripts/histograms_marcodatafiles_5fb_LL_33_23_all_ff_120_withSM.root");
+
 m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_only120_29nov_withSM.root","Hgg")
 m->myPlotInteractive("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_only120_29nov_withSM.root");
 
@@ -55,6 +72,8 @@ cp Marco/HistoContainer.cc ./HistoContainer.cc
 cp Marco/HistoContainer.h ./HistoContainer.h
 cp Marco/CounterContainer.cc ./CounterContainer.cc
 cp Marco/CounterContainer.h ./CounterContainer.h
+cp Marco/LoopAll.h ./LoopAll.h 
+cp Marco/LoopAll.cc ./LoopAll.cc 
 
 cp Marco/minimal_statanalysis_input.dat PhotonAnalysis_scripts/minimal_statanalysis_input.dat
 cp Marco/cuts.dat PhotonAnalysis_scripts/cuts.dat
@@ -182,9 +201,9 @@ cp ../Marco/marcodatafiles_5fb_LL_33_23_all_ff_120_2011A.dat datafiles_5fb_LL_33
 cp ../Marco/marcodatafiles_5fb_LL_33_23_all_ff_120_2011B.dat datafiles_5fb_LL_33_23_all_ff_120_2011B.dat
 
 cd PhotonAnalysis_scripts/.
-rm datafiles_5fb_LL_33_23_all_ff.dat.pevents
-python fitter.py -i ../Marco/marcodatafiles_5fb_LL_33_23_all_ff_120_withSM.dat --dryRun
-python fitter.py -i ../Marco/marcodatafiles_5fb_LL_33_23_all_ff_120_withSM.dat >& marcodatafiles_5fb_LL_33_23_all_ff_120_withSM_30nov.log
+rm ../Marco/marcodatafiles_5fb_LL_33_23_all_ff_120_withSM_fast.dat.pevents
+python fitter.py -i ../Marco/marcodatafiles_5fb_LL_33_23_all_ff_120_withSM_fast.dat --dryRun
+python fitter.py -i ../Marco/marcodatafiles_5fb_LL_33_23_all_ff_120_withSM_fast.dat >& marcodatafiles_5fb_LL_33_23_all_ff_120_withSM_1DecM_fast.log
 
 
 #########
