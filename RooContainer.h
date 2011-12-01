@@ -96,16 +96,22 @@ class RooContainer {
 
    void MakeSystematics(std::string,std::string,int);
 
-   void FitToData(std::string,std::string 			
+   //----------
+
+   /** calls fitToData(..) (note the lower case first letter) for each category */
+   void FitToData(std::string name_func, std::string name_var
 	         ,double x1,double x2,double x3,double x4);
-   void FitToData(std::string,std::string,double x1,double x2);
+
+   void FitToData(std::string name_func, std::string name_var,double x1,double x2);
 
    /** Calls the most generic FitToData(..) method with some parameters
        set to default values.
 
        This method is for example called by StatAnalysis::Term(..) which in turn is called
        by LoopAll::TermReal(..) */
-   void FitToData(std::string,std::string); 
+   void FitToData(std::string name_func,std::string name_var); 
+
+   //----------
 
    void FitToSystematicSet(std::string,std::string,std::string
 	                  ,double x1,double x2,double x3,double x4);
@@ -184,6 +190,7 @@ class RooContainer {
        of the fit of the previously defined pdfs to the data */
    void fitToData(std::string name_func, std::string name_data, std::string name_var
 	         ,double x1, double x2, double x3, double x4);
+
    void fitToSystematicSet(std::string,std::string,std::string
 	     ,double,double,double,double);
    void generateBinnedPdf(int,std::string,std::string,std::string,std::string,RooRealVar*,RooDataSet&,int,int,int,double,double);
