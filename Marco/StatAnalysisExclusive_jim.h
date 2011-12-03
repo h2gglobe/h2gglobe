@@ -763,6 +763,7 @@ Float_t BDT_dipho(Int_t jentry, Int_t ilindex, Int_t islindex, float lmva, float
 Float_t BDT_dipho2(Int_t jentry, Int_t ilindex, Int_t islindex, float lmva, float slmva, float diphopt, float mass);
 
  void HggBookOptree();
+ void SetOutputNtupleVariables(int jentry, int itype, int leadind, int subleadind, int vtxind, float mass, TLorentzVector *leadp4, TLorentzVector *subleadp4);
 
 };
 

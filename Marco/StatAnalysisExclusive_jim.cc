@@ -45,6 +45,11 @@ void StatAnalysisExclusive::Term(LoopAll& l)
 
     std::cout << " nevents " <<  nevents << " " << sumwei << std::endl;
 
+
+    ll->hfilereal->cd();
+    optree->Write(0,TObject::kWriteDelete);
+ 
+
 //	kfacFile->Close();
 //	PhotonAnalysis::Term(l);
 }
@@ -1737,7 +1742,7 @@ void StatAnalysisExclusive::HggBookOptree() {
   //opfile = new TFile("optNtuple.root","RECREATE","optimization ntuple");
   //opfile->cd();
   //ll->outputFile->cd();  //MARCO CHECK THIS
-  //ll->hfile->cd();  //MARCO CHECK THIS
+  ll->hfilereal->cd();  //MARCO CHECK THIS
   optree= new TTree("ntuple","Hgg optimization Tree");
   //event vars
   optree->Branch("run",&t_run,"run/I",2000000);
@@ -3198,23 +3203,37 @@ float StatAnalysisExclusive::diphoSubCategory(int c4, int diphoCutLev) {
 
 //BDT WAS IN GEN FUNCTIONS
 
-
 void StatAnalysisExclusive::SetBDT() {
-  
+
+  //MPDEBUG=1;
+
+  std::cout<<"SetBDT"<<std::endl;
   if(MPDEBUG)  std::cout<<"SetBDT"<<std::endl;
 
   tmvaReader = new TMVA::Reader("!Color:Silent");
+  std::cout<<"SetBDT"<<std::endl;
   tmvaReader->AddVariable("sieie", &tmva_sieie);
+  std::cout<<"SetBDT"<<std::endl;
   tmvaReader->AddVariable("goodpf_iso", &tmva_goodpf_iso);
+  std::cout<<"SetBDT"<<std::endl;
   tmvaReader->AddVariable("badpf_iso", &tmva_badpf_iso);
+  std::cout<<"SetBDT"<<std::endl;
   tmvaReader->AddVariable("drtotk", &tmva_drtotk);
+  std::cout<<"SetBDT"<<std::endl;
   tmvaReader->AddVariable("hoe", &tmva_hoe);
+  std::cout<<"SetBDT"<<std::endl;
   tmvaReader->AddVariable("tkisopf", &tmva_tkisopf);
+  std::cout<<"SetBDT"<<std::endl;
   tmvaReader->AddVariable("r9", &tmva_r9);
+  std::cout<<"SetBDT"<<std::endl;
   tmvaReader->AddVariable("pt", &tmva_pt);
+  std::cout<<"SetBDT"<<std::endl;
   tmvaReader->AddVariable("eta", &tmva_eta);
+  std::cout<<"SetBDT"<<std::endl;
   tmvaReader->AddSpectator("isLeading", &tmva_isLeading);
+  std::cout<<"SetBDT"<<std::endl;
   tmvaReader->BookMVA("Gradient", "../Marco/MVAweights/mh_110_135_Gradient.weights.xml");
+  std::cout<<"SetBDT"<<std::endl;
 
 
   tmvaReader1 = new TMVA::Reader("!Color:Silent");
@@ -3230,6 +3249,7 @@ void StatAnalysisExclusive::SetBDT() {
   tmvaReader1->AddSpectator("isLeading", &tmva_isLeading);
   tmvaReader1->BookMVA("Category_Gradient", "../Marco/MVAweights/mh_110_135_Category_Gradient.weights.xml");
 
+  std::cout<<"SetBDT1"<<std::endl;
 
   tmvaReader2 = new TMVA::Reader("!Color:Silent");
   tmvaReader2->AddVariable("sieie", &tmva_sieie);
@@ -3243,6 +3263,7 @@ void StatAnalysisExclusive::SetBDT() {
   tmvaReader2->AddVariable("eta", &tmva_eta);
   tmvaReader2->AddSpectator("isLeading", &tmva_isLeading);
   tmvaReader2->BookMVA("Gradient", "/home/users/matteo/all_masses_ptom_Gradient.weights.xml");
+  std::cout<<"SetBDT2"<<std::endl;
   if(MPDEBUG)  std::cout<<"SetBDT End"<<std::endl;
 
 
@@ -3692,5 +3713,305 @@ Float_t StatAnalysisExclusive::BDT_dipho2(Int_t jentry, Int_t isl, Int_t il, flo
   Float_t mva = tmvaReader_dipho2->EvaluateMVA("Gradient");
   
   return mva;
+}
+
+
+void StatAnalysisExclusive::SetOutputNtupleVariables(int jentry, int itype, int leadind, int subleadind, int vtxind, float mass, TLorentzVector *leadp4, TLorentzVector *subleadp4) {
+
+  if(MPDEBUGCOPY) cout << "SetOutputNtupleVariables BEGIN"<<endl;
+  //int leadind = dipho_leadind[diphoton_index];
+  //int subleadind = dipho_subleadind[diphoton_index];
+
+  TLorentzVector newleadp4 =  TLorentzVector(VertexCorrectedP4Hgg(leadind,vtxind));
+  TLorentzVector newsubleadp4 =  TLorentzVector(VertexCorrectedP4Hgg(subleadind,vtxind));
+  TVector3 leadcalopos = *((TVector3*)ll->pho_calopos->At(leadind));
+  TVector3 subleadcalopos = *((TVector3*)ll->pho_calopos->At(subleadind));
+
+
+  Float_t leadeta = fabs(((TLorentzVector*)ll->sc_p4->At(ll->pho_scind[leadind]))->Eta());
+  Float_t subleadeta = fabs(((TLorentzVector*)ll->sc_p4->At(ll->pho_scind[subleadind]))->Eta());
+
+  TLorentzVector diphotonp4 = (*leadp4) + (*subleadp4);
+
+
+  // apply k-factor to gammJet sample with 2 real photons. 
+  // The k-factor from inputfiles is already in the weight, so here use kfactor = 1 except for the gammaJet 2-real case
+  float k_factor = 1.;//mp->kfactor[indexfiles];
+  //  if(itype==-1 || itype==-11 || itype==-21) {
+  //    k_factor = GetWeightKfactor1D(HggKfactor1D, diphotonp4.M());
+  //  } else if(itype==-2 || itype==-12 || itype==-22) {
+  //    k_factor = GetWeightKfactor1D(HggKfactor1D, diphotonp4.M());
+  //  } else if(itype==-3 && ll->pho_genmatch[leadind] && ll->pho_genmatch[subleadind]) {
+  ////    k_factor = 1.7;
+  //  }
+  //std::cout << "itype: " << itype << "\tindexfiles: " << indexfiles << "\tkfac: " << k_factor << std::endl;
+
+  t_run = ll->run;
+  t_lumis = ll->lumis;
+  t_event = ll->event;
+  t_itype = itype;
+  t_processid = ll->process_id;
+  //   minuit_weight is the weight computed from inputfiles including the k-factor
+  //   weight is not used to be myweight from this program which gives the PT-higgs correction and the efficiency correction for signal
+  //cout<<"   weigth   "<<itype<<"  "<<minuit_weight<<"  "<<k_factor<<"  "<<pileup_reweight<<"  "<<t_w<<endl;
+  if(jentry%1000==1&&itype>0&&itype%1000==1) cout<<jentry<<"  "<<itype<<"  mass="<<mass<<" out  higgs_genpt="<<ll->higgs_genpt<<"  diphopt="<<diphotonp4.Pt()<<"  t_w="<<t_w<<endl;
+  t_w = minuit_weight*k_factor*pileup_reweight*t_w;
+  t_wpu = pileup_reweight*weight;
+  t_mass = mass;
+  t_dmom0=0.5*pow(pow(ll->pho_regr_energyerr[leadind]/ll->pho_regr_energy[leadind],2)+pow(ll->pho_regr_energyerr[subleadind]/ll->pho_regr_energy[subleadind],2),0.5);
+
+  float leta=fabs( ((TLorentzVector*)ll->pho_p4->At(leadind))->Eta() );
+  float seta=fabs( ((TLorentzVector*)ll->pho_p4->At(subleadind))->Eta() );
+  float leadErr = GetSmearSigma(leta,ll->pho_r9[leadind]);
+  float subleadErr = GetSmearSigma(seta,ll->pho_r9[subleadind]);
+  double errfrac=0.5*pow(pow(ll->pho_regr_energyerr[leadind]/ll->pho_regr_energy[leadind],2)+pow(leadErr,2)+pow(ll->pho_regr_energyerr[subleadind]/ll->pho_regr_energy[subleadind],2)+pow(subleadErr,2),0.5);
+  t_dmom = errfrac;
+
+  if(jentry%1000==1) {
+    cout<<"jentry="<<jentry<<"  itype="<<itype;
+    cout<<"  lres="<<ll->pho_regr_energyerr[leadind]/ll->pho_regr_energy[leadind]<<"  sres="<<ll->pho_regr_energyerr[subleadind]/ll->pho_regr_energy[subleadind]
+	<<"  leta="<<leta<<"  lr9="<<ll->pho_r9[   leadind]<<"  "<<ll->PhotonCategory(leadind,2,2)<<"  lsmear="<<leadErr<<"  "
+	<<"  seta="<<seta<<"  sr9="<<ll->pho_r9[subleadind]<<"  "<<ll->PhotonCategory(subleadind,2,2)<<"  ssmear="<<subleadErr;
+    cout<<"    fractional error="<<errfrac<<endl;
+  }
+
+  t_deltaM=0;
+  if(itype>0) t_deltaM=mass-float(itype/1000);
+  t_diphocat2r92eta = ll->DiphotonCategory(leadind,subleadind,0.,2,2,1);
+  t_diphosubcat4 = diphoSubCategory(3,ll->DiphotonCategory(leadind,subleadind,0.,2,2,1),diphoCutLevel(leadind,subleadind,vtxind))-1;     //   jgb change replace chosen_vtx with vtxind (probably the same but its a parameter t this routine)
+  t_category = ll->DiphotonCategory(leadind,subleadind,0.,3,4,1);
+  t_barrel = (Int_t)(leadeta < 1.479 && subleadeta < 1.479);
+  t_diphor9 = TMath::Min(ll->pho_r9[leadind],ll->pho_r9[subleadind]);
+  t_diphoeta = fabs(diphotonp4.Eta());
+  t_costhetastar = fabs(leadp4->P() - subleadp4->P())/diphotonp4.P();
+  t_diphopt = diphotonp4.Pt();
+  t_diphopz = diphotonp4.Pz();
+  t_deltar = leadp4->DeltaR(*subleadp4);
+  t_etamax = TMath::Max(leadeta,subleadeta);
+  t_etamin = TMath::Min(leadeta,subleadeta);
+  t_deta = fabs(leadcalopos.Eta() - subleadcalopos.Eta());
+  t_leadcat = ll->PhotonCategory(leadind,3,4);
+  t_leadr9 = ll->pho_r9[leadind];
+  t_leadeta = leadcalopos.Eta();
+  t_leadpt = leadp4->Pt();
+  t_leadgenmatch = GenIndexHgg(leadp4)>=0;     
+  t_leadbarrel = leadeta < 1.479;//ll->pho_barrel[leadind];
+  t_leadhovere = ll->pho_hoe[leadind];
+  t_leadsee = ll->pho_see[leadind];
+  //t_leadspp = ll->pho_spp[leadind];
+  t_leadpi0nn=0;
+
+  t_leadecalhitsJ_060330 = ll->pho_ecalJ_060330[leadind];
+
+  t_leadtrkiso = ll->pho_ntrk_15_03[leadind];
+  t_leadecaliso = ll->pho_ecalJ_060330[leadind];
+  t_leadhcaliso = ll->pho_hcal_030[leadind];
+  //t_leadtrkplusecal=t_leadtrkecone30 + t_leadecalhitsJ_060330;
+
+  t_subleadcat = ll->PhotonCategory(subleadind,3,4);
+  t_subleadr9 = ll->pho_r9[subleadind];
+  t_subleadeta = subleadcalopos.Eta();
+  t_subleadpt = subleadp4->Pt();
+  //t_subleadgenmatch = ll->pho_genmatch[subleadind];
+  t_subleadgenmatch = GenIndexHgg(subleadp4)>=0;     
+  t_subleadbarrel = subleadeta < 1.479;//ll->pho_barrel[subleadind];
+  t_subleadhovere = ll->pho_hoe[subleadind];
+  t_subleadsee = ll->pho_see[subleadind];
+  //t_subleadspp = ll->pho_spp[subleadind];
+  t_subleadpi0nn=0;
+  t_subleadecalhitsJ_060330 = ll->pho_ecalJ_060330[subleadind];
+
+  t_rho = ll->rho;
+  t_nvtx = ll->vtx_std_n;
+
+  if(MPDEBUGCOPY) cout << "SetOutputNtupleVariables 02  "<<endl;
+
+  // cic index begin
+  t_leadci6cindex = PhotonCiCSelectionLevel(leadind,6,vtxind,0);
+  t_subleadci6cindex = PhotonCiCSelectionLevel(subleadind,6,vtxind,1);
+
+  t_leadci6cpfindex = PhotonCiCpfSelectionLevel(leadind,6,vtxind,0);
+  t_subleadci6cpfindex = PhotonCiCpfSelectionLevel(subleadind,6,vtxind,1);
+  t_subleadci6cpfmva = BDT(jentry, subleadind,vtxind);
+  t_subleadci6cpfmvacat = BDT_categorized(jentry, subleadind, vtxind, -1.);
+  t_subleadci6cpfmvaptom = BDT_ptom(jentry, subleadind,vtxind, mass);
+  t_subleadci6cpfmvaptom2 = BDT_ptom2(jentry, subleadind,vtxind, mass);
+  t_leadci6cpfmva = BDT(jentry, leadind,vtxind);
+  t_leadci6cpfmvacat = BDT_categorized(jentry, leadind,vtxind, 1.);
+  t_leadci6cpfmvaptom = BDT_ptom(jentry, leadind,vtxind, mass);
+  t_leadci6cpfmvaptom2 = BDT_ptom2(jentry, leadind,vtxind, mass);
+  t_diphomva = BDT_dipho(jentry, leadind, subleadind, t_leadci6cpfmvaptom, t_subleadci6cpfmvaptom, t_diphopt, mass);
+  t_diphomva2 = BDT_dipho2(jentry, leadind, subleadind, t_leadci6cpfmvaptom, t_subleadci6cpfmvaptom, t_diphopt, mass);
+ 
+  //std::pair<int,int> diphoton_indices(DiphotonCiCSelectionIndices( LEADCUTLEVEL, SUBLEADCUTLEVEL, leadPtMin, subleadPtMin, CICNCAT, -1, false));
+  //leadind = diphoton_indices.first;
+  //subleadind = diphoton_indices.second;
+
+  t_leadcutindex = t_leadci6cpfindex;//PhotonCiCSelectionLevel(leadind,6,chosen_vtx,0);
+  t_subleadcutindex = t_subleadci6cpfindex;//PhotonCiCSelectionLevel(subleadind,6,chosen_vtx,1);
+  t_leadci4cindex = PhotonCiCSelectionLevel(leadind,4,vtxind,0);
+  t_subleadci4cindex = PhotonCiCSelectionLevel(subleadind,4,vtxind,1);
+
+  //std::pair<int,int> diphoton_indices(DiphotonCiCSelectionIndices( LEADCUTLEVEL, SUBLEADCUTLEVEL, leadPtMin, subleadPtMin, CICNCAT, -1, false));
+  //leadind = diphoton_indices.first;
+  //subleadind = diphoton_indices.second;
+  if(MPDEBUGCOPY) cout << "SetOutputNtupleVariables 03  "<<endl;
+  
+
+  if(MPDEBUGCOPY) cout << "SetOutputNtupleVariables 05  "<<endl;
+
+  if(MPDEBUGCOPY) cout << "SetOutputNtupleVariables 06  "<<endl;
+
+  t_subleadtrkiso = ll->pho_ntrk_15_03[subleadind];
+  t_subleadecaliso = ll->pho_ecalJ_060330[subleadind];
+  t_subleadhcaliso = ll->pho_hcal_030[subleadind];
+
+  //MARCO ????
+  t_subleadtrkplusecal=t_subleadtrkecone30 + t_subleadecalhitsJ_060330;
+
+  //new ntuple branches
+  //  //lead vars
+  t_leadpixel = ll->pho_haspixseed[leadind];
+  t_leadsieie = ll->pho_sieie[leadind];
+  t_leadtrkhollowdr03 = ll->pho_trksumpthollowconedr03[leadind];
+  t_leadtrkhollowdr04 = ll->pho_trksumpthollowconedr04[leadind];
+  t_leadtrksoliddr03 = ll->pho_trksumptsolidconedr03[leadind];
+  t_leadtrksoliddr04 = ll->pho_trksumptsolidconedr04[leadind];
+  t_leadecaldr03 = ll->pho_ecalsumetconedr03[leadind];
+  t_leadecaldr04 = ll->pho_ecalsumetconedr04[leadind];
+  t_leadhcaldr03 = ll->pho_hcalsumetconedr03[leadind];
+  t_leadhcaldr04 = ll->pho_hcalsumetconedr04[leadind];
+  //sublead vars
+  t_subleadpixel = ll->pho_haspixseed[subleadind];
+  t_subleadsieie = ll->pho_sieie[subleadind];
+  t_subleadtrkhollowdr03 = ll->pho_trksumpthollowconedr03[subleadind];
+  t_subleadtrkhollowdr04 = ll->pho_trksumpthollowconedr04[subleadind];
+  t_subleadtrksoliddr03 = ll->pho_trksumptsolidconedr03[subleadind];
+  t_subleadtrksoliddr04 = ll->pho_trksumptsolidconedr04[subleadind];
+  t_subleadecaldr03 = ll->pho_ecalsumetconedr03[subleadind];
+  t_subleadecaldr04 = ll->pho_ecalsumetconedr04[subleadind];
+  t_subleadhcaldr03 = ll->pho_hcalsumetconedr03[subleadind];
+  t_subleadhcaldr04 = ll->pho_hcalsumetconedr04[subleadind];
+  if(MPDEBUGCOPY) cout << "SetOutputNtupleVariables 07  "<<endl;
+
+
+  /*
+  t_lead_tkiso_recvtx_030_005_0000_10_01    = ll->pho_tkiso_recvtx_030_005_0000_10_01[leadind];
+  t_sublead_tkiso_recvtx_030_005_0000_10_01 = ll->pho_tkiso_recvtx_030_005_0000_10_01[subleadind];
+  t_lead_tkiso_recvtx_030_006_0000_10_01    = ll->pho_tkiso_recvtx_030_006_0000_10_01[leadind];
+  t_sublead_tkiso_recvtx_030_006_0000_10_01 = ll->pho_tkiso_recvtx_030_006_0000_10_01[subleadind];
+  */
+
+  t_lead_tkiso_recvtx_030_005_0000_10_01    = 100000.;
+  t_sublead_tkiso_recvtx_030_005_0000_10_01 = 100000.;
+  t_lead_tkiso_recvtx_030_006_0000_10_01    = 100000.;
+  t_sublead_tkiso_recvtx_030_006_0000_10_01 = 100000.;
+  
+
+  if(MPDEBUGCOPY) cout << "SetOutputNtupleVariables 14  "<<endl;
+
+
+
+
+  // dxy
+  /*
+  t_lead_tkiso_recvtx_030_004_0000_10_02 = ll->pho_tkiso_recvtx_030_004_0000_10_02[leadind];
+  t_sublead_tkiso_recvtx_030_004_0000_10_02 = ll->pho_tkiso_recvtx_030_004_0000_10_02[subleadind];
+  */
+
+
+  if(MPDEBUGCOPY) cout << "SetOutputNtupleVariables 20  "<<endl;
+
+  // vertex z
+  //  gv_z = ((TVector3*)gv_pos->At(0))->Z();
+  t_genvtxz = ll->gv_z;
+  t_recvtxz = ((TVector3*)ll->vtx_std_xyz->At(vtxind))->z();
+  if(MPDEBUGCOPY) cout << "SetOutputNtupleVariables 21  "<<endl;
+
+  //pfiso
+  //cout<<"filling pfiso  "<<leadind<<"  "<<subleadind<<"  "<<vtxind<<"  "<<(void*)ll->pho_pfiso_mycharged03<<endl;
+  //cout<<(*ll->pho_pfiso_mycharged03)[0][0]<<"  "<<ll->pho_pfiso_mycharged03->size()<<" "<<(*ll->pho_pfiso_mycharged03)[0].size()<<endl;
+
+  t_lead_pfiso_charged03 = (*ll->pho_pfiso_mycharged03)[leadind][vtxind];                               //   jgb    _noveto  04
+  t_lead_pfiso_photon03 = ll->pho_pfiso_myphoton03[leadind];                               //   jgb    _noveto  04
+  t_lead_pfiso_neutral03 = ll->pho_pfiso_myneutral03[leadind];                               //   jgb    _noveto  04
+  t_lead_pfiso_charged04 = (*ll->pho_pfiso_mycharged04)[leadind][vtxind];                               //   jgb    _noveto  04
+  t_lead_pfiso_photon04 = ll->pho_pfiso_myphoton04[leadind];                               //   jgb    _noveto  04
+  t_lead_pfiso_neutral04 = ll->pho_pfiso_myneutral04[leadind];                               //   jgb    _noveto  04
+  t_sublead_pfiso_charged03 = (*ll->pho_pfiso_mycharged03)[subleadind][vtxind];                               //   jgb    _noveto  04
+  t_sublead_pfiso_photon03 = ll->pho_pfiso_myphoton03[subleadind];                               //   jgb    _noveto  04
+  t_sublead_pfiso_neutral03 = ll->pho_pfiso_myneutral03[subleadind];                               //   jgb    _noveto  04
+  t_sublead_pfiso_charged04 = (*ll->pho_pfiso_mycharged04)[subleadind][vtxind];                               //   jgb    _noveto  04
+  t_sublead_pfiso_photon04 = ll->pho_pfiso_myphoton04[subleadind];                               //   jgb    _noveto  04
+  t_sublead_pfiso_neutral04 = ll->pho_pfiso_myneutral04[subleadind];                               //   jgb    _noveto  04
+  if(MPDEBUGCOPY) cout << "SetOutputNtupleVariables 22  "<<endl;
+
+  float isomax=-99, dzmin=99;  int badind=0, genind=0;
+  for(int iv=0; iv<t_nvtx; iv++) if(fabs(t_genvtxz-((TVector3*)ll->vtx_std_xyz->At(iv))->z())<dzmin) {genind=iv; dzmin=fabs(t_genvtxz-((TVector3*)ll->vtx_std_xyz->At(iv))->z()); }
+  for(int iv=0; iv<t_nvtx; iv++) if((*ll->pho_pfiso_mycharged03)[leadind][iv]>isomax) {badind=iv; isomax=(*ll->pho_pfiso_mycharged03)[leadind][iv]; }
+  t_lead_pfiso_charged_badvtx_03 = (*ll->pho_pfiso_mycharged03)[leadind][badind];                               //   jgb    _noveto  04
+  t_lead_pfiso_photon_badvtx_03 = ll->pho_pfiso_myphoton03[leadind];                               //   jgb    _noveto  04
+  t_lead_pfiso_neutral_badvtx_03 = ll->pho_pfiso_myneutral03[leadind];                               //   jgb    _noveto  04
+  isomax=-99;  badind=0;
+  for(int iv=0; iv<t_nvtx; iv++) if((*ll->pho_pfiso_mycharged04)[leadind][iv]>isomax) {badind=iv; isomax=(*ll->pho_pfiso_mycharged04)[leadind][iv]; }
+  t_lead_pfiso_charged_badvtx_04 = (*ll->pho_pfiso_mycharged04)[leadind][badind];                               //   jgb    _noveto  04
+  t_lead_pfiso_photon_badvtx_04 = ll->pho_pfiso_myphoton04[leadind];                               //   jgb    _noveto  04
+  t_lead_pfiso_neutral_badvtx_04 = ll->pho_pfiso_myneutral04[leadind];                               //   jgb    _noveto  04
+  if(MPDEBUGCOPY) cout << "SetOutputNtupleVariables 23  "<<endl;
+
+  isomax=-99;  badind=0;
+  for(int iv=0; iv<t_nvtx; iv++) if((*ll->pho_pfiso_mycharged04)[subleadind][iv]>isomax) {badind=iv; isomax=(*ll->pho_pfiso_mycharged04)[subleadind][iv]; }
+  t_sublead_pfiso_charged_badvtx_04 = (*ll->pho_pfiso_mycharged04)[subleadind][badind];                               //   jgb    _noveto  04
+  t_sublead_pfiso_photon_badvtx_04 = ll->pho_pfiso_myphoton04[subleadind];                               //   jgb    _noveto  04
+  t_sublead_pfiso_neutral_badvtx_04 = ll->pho_pfiso_myneutral04[subleadind];                               //   jgb    _noveto  04
+  if(MPDEBUGCOPY) cout << "SetOutputNtupleVariables 24  "<<endl;
+
+  isomax=-99;  badind=0;
+  for(int iv=0; iv<t_nvtx; iv++) if((*ll->pho_pfiso_mycharged03)[subleadind][iv]>isomax) {badind=iv; isomax=(*ll->pho_pfiso_mycharged03)[subleadind][iv]; }
+  t_sublead_pfiso_charged_badvtx_03 = (*ll->pho_pfiso_mycharged03)[subleadind][badind];                               //   jgb    _noveto  04
+  t_sublead_pfiso_photon_badvtx_03 = ll->pho_pfiso_myphoton03[subleadind];                               //   jgb    _noveto  04
+  t_sublead_pfiso_neutral_badvtx_03 = ll->pho_pfiso_myneutral03[subleadind];                               //   jgb    _noveto  04
+  if(MPDEBUGCOPY) cout << "SetOutputNtupleVariables 25  "<<endl;
+
+  t_badvtxz = ((TVector3*)ll->vtx_std_xyz->At(badind))->z();
+  /*
+  if((itype<-9&&!t_subleadgenmatch&&fabs(t_recvtxz-t_genvtxz)>1||itype>0&&t_subleadgenmatch&&fabs(t_recvtxz-t_genvtxz)<1)&&t_sublead_pfiso_charged_badvtx_03-t_sublead_pfiso_charged03>3&&t_sublead_pfiso_charged_badvtx_03>9) {
+    cout<<"itype="<<itype<<"  diphopt="<<t_diphopt<<"  t_genvtxz="<<t_genvtxz<<"  recvtx="<<vtxind<<"  "<<t_recvtxz<<"  badvtx="<<badind<<"  "<<t_badvtxz
+	<<"  pfisoch="<<t_sublead_pfiso_charged03<<"  pfisoch_bad="<<t_sublead_pfiso_charged_badvtx_03<<endl;
+    for(int v=0; v<vtx_std_n; v++) cout<<vtx_std_scalarpt[v]<<"  "; cout<<endl;
+  }
+  */
+  t_genvtx_sumpt=ll->vtx_std_scalarpt[genind];
+  t_recvtx_sumpt=ll->vtx_std_scalarpt[vtxind];
+  t_badvtx_sumpt=ll->vtx_std_scalarpt[badind];
+  if(MPDEBUGCOPY) cout << "SetOutputNtupleVariables 26  "<<endl;
+
+  if(jentry%1000==1) {
+    cout<<subleadind<<" "<<leadind
+	<<"  vtxind="<<vtxind<<"  badind="<<badind
+	<<"  t_subleadsieie "<<t_subleadsieie
+	<<"  t_subleadhovere "<<t_subleadhovere
+	<<"  t_subleadr9 "<<t_subleadr9
+	<<"  t_sublead_pfiso_charged03 "<<t_sublead_pfiso_charged03
+	<<"  t_sublead_pfiso_photon03 "<<t_sublead_pfiso_photon03
+	<<"  t_sublead_pfiso_charged_badvtx_03 "<<t_sublead_pfiso_charged_badvtx_03
+	<<"   t_sublead_pfiso_neutral "<<t_sublead_pfiso_neutral04<<endl;
+    //	<<"t_sublead_drtotk_25_99 "<<t_subleaddrtotk_25_99
+  }
+
+
+
+  //  pf first guess isolation variables   pfiso
+
+
+  if((optree->GetEntries()<1000||optree->GetEntries()%100==1)&&t_mass>95&&t_mass<145&&t_leadci6cindex>2&&t_subleadci6cindex>2) {
+    float stkreciso=(*(ll->pho_tkiso_recvtx_030_002_0000_10_01))[subleadind][vtxind];
+    float ltkreciso=(*(ll->pho_tkiso_recvtx_030_002_0000_10_01))[leadind][vtxind];
+    cout<<"setting optree variables run,ev,cat,dscat,dcutlev,lind,sind,vtxind, lcut,scut,ltkreciso,stkrecios,mass,w="
+	<<ll->run<<"  "<<ll->event<<"  "<<t_diphocat2r92eta<<"  "<<t_diphosubcat4<<"  "<<diphoCutLevel(leadind,subleadind,vtxind)<<"  "<<leadind<<subleadind<<vtxind<<"   "<<t_leadci6cindex<<"  "<<t_subleadci6cindex<<"  "
+	<<ltkreciso<<"  "<<stkreciso<<"  "<<t_mass<<"  "<<t_w<<"  diphomva="<<t_diphomva<<endl;
+  }
+
+  if(MPDEBUGCOPY) cout << "SetOutputNtupleVariables END"<<endl;
 }
 
