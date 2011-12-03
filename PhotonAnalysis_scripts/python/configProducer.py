@@ -62,9 +62,9 @@ class configProducer:
   
     if self.type_ == 0 or self.type_ == 2:
       self.init_loop()
-      self.init_cuts()
-      self.init_histos()
       self.init_counters()
+      self.init_histos()
+      self.init_cuts()
 
     elif self.type_ == 1:
       self.init_reduce()
@@ -109,8 +109,11 @@ class configProducer:
   def init_cuts(self):
     self.read_dat_cuts('cuts.dat')
     for dum in self.plotvar_.vardef:
-       self.ut_.AddCut(dum['cutname'],dum['ncat'],dum['dir'],dum['fin'],dum['cutValuel'],dum['cutValueh'])
-       
+        if (dum['fin'] == 0):
+            self.ut_.AddCut(dum['cutname'],dum['ncat'],dum['dir'],dum['fin'],dum['cutValuel'],dum['cutValueh'])
+        else:
+            self.ut_.AddCut2(dum['cutname'],dum['ncat'],dum['dir'],dum['fin'],dum['cutValuel'],dum['cutValueh'], dum['iread'], dum['plot'], dum['bins'], dum['xmin'], dum['xmax'], dum['xaxis'], dum['yaxis'])
+
   def init_counters(self):
     self.read_dat_counters('counters.dat')
     self.ut_.InitCounters()
@@ -121,7 +124,7 @@ class configProducer:
     self.read_dat_plotvariables('plotvariables.dat')
     self.ut_.InitHistos()
     for dum in self.plotvar_.vardef:
-      self.ut_.BookHisto(dum['htyp'],dum['plot'],dum['default'],dum['ncat'],dum['xbins'],dum['ybins'],dum['xmin'],dum['xmax'],dum['ymin'],dum['ymax'],dum['name'])
+      self.ut_.BookHisto(dum['htyp'],dum['plot'],dum['default'],dum['ncat'],dum['xbins'],dum['ybins'],dum['xmin'],dum['xmax'],dum['ymin'],dum['ymax'],dum['name'], dum['xaxis'], dum['yaxis'])
       
   def init_reduce(self):
     self.read_config_reduce(self.conf_filename)
@@ -156,7 +159,7 @@ class configProducer:
     print "Parsing of the plotting variables dat"
     self.plotvar_.clear()
     self.read_file(f)
-    map_dict = { "htyp" : int, "plot": int, "ncat": int, "xbins" : int,  "ybins": int, "xmin": float, "xmax": float, "ymin": float, "ymax": float, "name": str };
+    map_dict = { "htyp" : int, "plot": int, "ncat": int, "xbins" : int,  "ybins": int, "xmin": float, "xmax": float, "ymin": float, "ymax": float, "name": str, "xaxis":str, "yaxis":str };
     map_c    = { }
     default = 0
     for line in self.lines_:       
@@ -220,7 +223,7 @@ class configProducer:
      self.plotvar_.clear()
      self.read_file(f)
      map_c   = {}
-     map_dict = { "cutname": str,  "ncat": int, "dir": int, "fin": int }
+     map_dict = {"cutname": str, "ncat": int, "dir": int, "fin": int, "iread":int, "plot":int, "bins":int, "xmin":float, "xmax":float, "xaxis":str, "yaxis":str}
      for line in self.lines_:       
       if len(line) < 2: continue
       if (len(line.split()) < 1): continue
