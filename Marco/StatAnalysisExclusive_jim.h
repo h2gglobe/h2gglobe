@@ -159,8 +159,8 @@ protected:
 	//JIM
 
 
-#define MPDEBUGCOPY 1
-#define MPDEBUG 1
+#define MPDEBUGCOPY 0
+#define MPDEBUG 0
 
 	LoopAll* ll;
 
@@ -653,7 +653,7 @@ void setPhotonCuts4();
 void setPhotonCuts6();
 void setPhotonCuts6pf();
 void setDiphoCuts();
-//int diphoCutLevel(int leadind, int subleadind, int vtxind);
+int diphoCutLevel(int leadind, int subleadind, int vtxind);
 float diphoWeight(int c4, int dipholev);
 int photonCutLevel4(float r9, float eta, float et, float isosum, float isosumbad, float tkiso, float sieie, float hoe, float drtotk);
 int photonCutLevel6(float r9, float eta, float et, float isosum, float isosumbad, float tkiso, float sieie, float hoe, float drtotk);
@@ -763,7 +763,26 @@ Float_t BDT_dipho(Int_t jentry, Int_t ilindex, Int_t islindex, float lmva, float
 Float_t BDT_dipho2(Int_t jentry, Int_t ilindex, Int_t islindex, float lmva, float slmva, float diphopt, float mass);
 
  void HggBookOptree();
- void SetOutputNtupleVariables(int jentry, int itype, int leadind, int subleadind, int vtxind, float mass, TLorentzVector *leadp4, TLorentzVector *subleadp4);
+ void SetOutputNtupleVariables(int jentry, int itype, int leadind, int subleadind, int vtxind, float mass, TLorentzVector *leadp4, TLorentzVector *subleadp4, float evweight, float pileupWeight);
+
+
+ //float GetShiftValue(int run, float thiseta, float r9, int epoch=0);
+
+float GetSmearSigma(float thiseta, float r9, int epoch=0);
+
+std::vector<Float_t> arrayToVector(size_t length, const Float_t *data);
+
+//r9cat+nr9*etaCat
+std::vector<float> smear_nov14;
+std::vector<float> smearErr_nov14;
+
+// runCat+nRunCat*r9cat +nRunCat*nr9Cat*etaCat
+//std::vector<float> shift_nov14;
+//std::vector<float> shiftErr_nov14;
+
+ Int_t GenIndexHgg(TLorentzVector *p_p4);
+
+ Int_t itype_jim(int itype);
 
 };
 

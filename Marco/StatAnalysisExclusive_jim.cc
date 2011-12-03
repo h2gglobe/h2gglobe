@@ -59,6 +59,51 @@ void StatAnalysisExclusive::Init(LoopAll& l)
 {
   ll=&l;
 
+
+
+
+
+  // shift and smear values
+  //r9cat+nr9*etaCat
+  float smear_nov14_temp[] = {0.99e-2, 1.00e-2, 1.57e-2, 2.17e-2, 3.30e-2, 3.26e-2, 3.78e-2, 3.31e-2}; 
+  smear_nov14=arrayToVector(8,smear_nov14_temp);
+  
+  float smearErr_nov14_temp[] = {0.22e-2, 0.24e-2, 0.60e-2, 0.59e-2, 0.91e-2, 0.30e-2, 0.34e-2, 0.52e-2};  
+  /*
+  r9cat+nr9*etaCat
+  category      minEta  MaxEta   mr9    Mr9      mrun    Mrun   smear   smearErr 
+  EBlowEtaGold  0.0 1.0 0.94  999.00  -999999 999999  0.99e-2 0.22e-2
+  EBlowEtaBad 0.0 1.0 -999.00 0.94  -999999 999999  1.00e-2 0.24e-2
+  EBhighEtaGold 1.0 1.5 0.94  999.00  -999999 999999  1.57e-2 0.60e-2
+  EBhighEtaBad  1.0 1.5 -999.00 0.94  -999999 999999  2.17e-2 0.59e-2
+  EElowEtaGold  1.5 2.0 0.94  999.00  -999999 999999  3.30e-2 0.91e-2
+  EElowEtaBad 1.5 2.0 -999.00 0.94  -999999 999999  3.26e-2 0.30e-2
+  EEhighEtaGold 2.0 3.0 0.94  999.00  -999999 999999  3.78e-2 0.34e-2
+  EEhighEtaBad  2.0 3.0 -999.00 0.94  -999999 999999  3.31e-2 0.52e-2
+  */
+  // runCat+nRunCat*r9cat +nRunCat*nr9Cat*etaCat
+
+  /*
+  float shift_nov14_temp[]= { 0.0028  , 0.0012  , 0.0043  , -0.0034 , -0.0038 , -0.0052, 
+                    -0.0014 , -0.0030 , 0.0001  , -0.0075 , -0.0079 , -0.0094, 
+                    -0.0039 , -0.0081 , -0.0039 , -0.0118 , -0.0129 , -0.0150,
+                    -0.0150 , -0.0191 , -0.0150 , -0.0228 , -0.0239 , -0.0260,
+                    -0.0005 , 0.0062  , 0.0048  , 0.0168  , 0.0257  , 0.0353 ,
+                    -0.0025 , 0.0041  , 0.0026  , 0.0147  , 0.0236  , 0.0331 ,
+                    0.0010  , 0.0113  , 0.0062  , 0.0019  , 0.0049  , 0.0009 ,
+                    -0.0050 , 0.0052  , 0.0001  , -0.0041 , -0.0011 , -0.0050};
+  
+  shift_nov14=arrayToVector(48,shift_nov14_temp);
+  */
+
+
+
+
+
+
+
+
+
   //if(PADEBUG) 
 	cout << "InitRealStatAnalysisExclusive START"<<endl;
 
@@ -656,7 +701,7 @@ void StatAnalysisExclusive::Init(LoopAll& l)
 
   if(l.typerun==0) {
     setDiphoCuts();
-    //SetBDT();                            // jgb 
+    SetBDT();                            // jgb 
   for(int idc=0;idc!=13;++idc) {
     std::cout << "\ncutdiphoptom         ";
     for(int ic=0;ic!=4;++ic){std::cout << "\t["<<idc<<"]["<<ic<<"]: " << cutdiphoptom[idc][ic];}
@@ -857,6 +902,39 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
     }
    
     sumev += weight;
+
+    //here jim's stuff for now:
+    int diphoton_id_jim = l.DiphotonCiCSelection(l.phoLOOSE, l.phoLOOSE, leadEtCut, subleadEtCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
+
+    if(diphoton_id_jim>=0) {
+      TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphoton_id_jim], l.dipho_vtxind[diphoton_id_jim], &smeared_pho_energy[0]);
+      TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphoton_id_jim], l.dipho_vtxind[diphoton_id_jim], &smeared_pho_energy[0]);
+      TLorentzVector diphoton = lead_p4+sublead_p4;
+      float evweight = newweight * smeared_pho_weight[l.dipho_leadind[diphoton_id_jim]] * smeared_pho_weight[l.dipho_subleadind[diphoton_id_jim]] * genLevWeight * pileupWeight;
+
+      if(fabs((float) newweight*pileupWeight-weight)/((float) newweight*pileupWeight+weight)>0.0001) cout<<"################ "<<newweight*pileupWeight<<" "<<weight<<" "<<newweight<<" "<<pileupWeight<<endl;
+
+      float myweight=1.;
+      if(evweight*newweight!=0) myweight=evweight/newweight;
+
+
+      //check itype
+
+      //NEED TO PASS THE WEIGHTS
+
+      int itypepass=cur_type;
+
+      SetOutputNtupleVariables(jentry, itypepass, l.dipho_leadind[diphoton_id_jim], l.dipho_subleadind[diphoton_id_jim], l.dipho_vtxind[diphoton_id_jim], diphoton.M(), &lead_p4, &sublead_p4, evweight, pileupWeight);
+
+      optree->Fill();
+      int noptree=optree->GetEntries();
+      if(noptree<1000) cout<<" filling optree n="<<noptree<<endl;
+      if(noptree%1000==0||noptree%1000==1) cout<<" optree n="<<noptree<<endl;
+      //if(noptree%10000==2) optree->Print();
+
+    }
+
+
     // FIXME pass smeared R9
     int diphoton_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtCut, subleadEtCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
 
@@ -3013,21 +3091,21 @@ int StatAnalysisExclusive::photonCutLevel6pf(float r9, float eta, float et, floa
   return lev;
 }
 
-/*
+
 int StatAnalysisExclusive::diphoCutLevel(int leadind, int subleadind, int vtxind) {
 
   if(MPDEBUGCOPY) cout << "diphoCutLevel BEGIN"<<endl;
   //int leadind = dipho_leadind[diphoton_index];
   //int subleadind = dipho_subleadind[diphoton_index];
 
-  int vtxi=vtxind,diphoind=-1;
+  int vtxi=vtxind, diphoind=-1;
   //  this loop doesn't work well because the two photons are not always in the list of diphotons
   if(vtxi<0) {
     //get right index to photons and variables....
-    for(int idipho=0;idipho!=dipho_n;++idipho) {
-      if(MPDEBUG) cout<<"diphoCutLevel: leadind,subleadind"<<leadind<<" "<<subleadind<<" "<<dipho_leadind[idipho]<<" "<<dipho_subleadind[idipho]<<endl;
-      if(leadind==dipho_leadind[idipho]&&subleadind==dipho_subleadind[idipho]) {
-	vtxi=dipho_vtxind[idipho];
+    for(int idipho=0;idipho!=ll->dipho_n;++idipho) {
+      if(MPDEBUG) cout<<"diphoCutLevel: leadind,subleadind"<<leadind<<" "<<subleadind<<" "<<ll->dipho_leadind[idipho]<<" "<<ll->dipho_subleadind[idipho]<<endl;
+      if(leadind==ll->dipho_leadind[idipho]&&subleadind==ll->dipho_subleadind[idipho]) {
+	vtxi=ll->dipho_vtxind[idipho];
 	diphoind=idipho;
       }
       //     jgb-kludge for photon pairs that don't appear in the diphoton list
@@ -3035,20 +3113,23 @@ int StatAnalysisExclusive::diphoCutLevel(int leadind, int subleadind, int vtxind
     }
   }
 
-  TLorentzVector newleadp4 =  TLorentzVector(VertexCorrectedP4Hgg(leadind,vtxind));
-  TLorentzVector newsubleadp4 =  TLorentzVector(VertexCorrectedP4Hgg(subleadind,vtxind));
+
+
+
+//MARCO FIX
+  TLorentzVector newleadp4; //MARCO FIX=  TLorentzVector(VertexCorrectedP4Hgg(leadind,vtxind));
+    TLorentzVector newsubleadp4; //MARCO FIX=  TLorentzVector(VertexCorrectedP4Hgg(subleadind,vtxind));
   //TLorentzVector * leadp4 = new TLorentzVector(VertexCorrectedP4Hgg(leadind,vtxind));
   //TLorentzVector * subleadp4 = new TLorentzVector(VertexCorrectedP4Hgg(subleadind,vtxind));
   TLorentzVector * leadp4 = &newleadp4;
   TLorentzVector * subleadp4 = &newsubleadp4;
 
+  //MARCO FIX
+  TVector3 leadcalopos = *((TVector3*)ll->pho_calopos->At(leadind));
+  Float_t leadeta = fabs(((TLorentzVector*)ll->sc_p4->At(ll->pho_scind[leadind]))->Eta());
 
-
-  TVector3 leadcalopos = *((TVector3*)pho_calopos->At(leadind));
-  Float_t leadeta = fabs(((TLorentzVector*)sc_p4->At(pho_scind[leadind]))->Eta());
-
-  TVector3 subleadcalopos = *((TVector3*)pho_calopos->At(subleadind));
-  Float_t subleadeta = fabs(((TLorentzVector*)sc_p4->At(pho_scind[subleadind]))->Eta());
+  TVector3 subleadcalopos = *((TVector3*)ll->pho_calopos->At(subleadind));
+  Float_t subleadeta = fabs(((TLorentzVector*)ll->sc_p4->At(ll->pho_scind[subleadind]))->Eta());
 
   TLorentzVector diphotonp4 = (*leadp4) + (*subleadp4);
 
@@ -3068,9 +3149,9 @@ int StatAnalysisExclusive::diphoCutLevel(int leadind, int subleadind, int vtxind
 
 
   //sean: this has to be changed too
-
-  Float_t leadcutindex = PhotonCiCSelectionLevel(leadind,6,vtxi,0,diphoind);
-  Float_t subleadcutindex = PhotonCiCSelectionLevel(subleadind,6,vtxi,1,diphoind);
+  //MARCO FIX
+  Float_t leadcutindex; //MARCO FIX= PhotonCiCSelectionLevel(leadind,6,vtxi,0,diphoind);
+  Float_t subleadcutindex; //MARCO FIX= PhotonCiCSelectionLevel(subleadind,6,vtxi,1,diphoind);
 
   //cout<<"mmmmm "<<leadcutindex<<" "<<subleadcutindex<<endl;
 
@@ -3081,8 +3162,8 @@ int StatAnalysisExclusive::diphoCutLevel(int leadind, int subleadind, int vtxind
 
   float etamax = TMath::Max(leadeta,subleadeta);
   float etamin = TMath::Min(leadeta,subleadeta);
-  float leadr9 = pho_r9[leadind];
-  float subleadr9 = pho_r9[subleadind];
+  float leadr9 = ll->pho_r9[leadind];
+  float subleadr9 = ll->pho_r9[subleadind];
   float leadpt = leadp4->Pt();
   float subleadpt = subleadp4->Pt();
 
@@ -3101,7 +3182,7 @@ int StatAnalysisExclusive::diphoCutLevel(int leadind, int subleadind, int vtxind
   float subleadptomass=subleadpt/mass; 
   float sumptom=subleadptomass+leadptomass; 
 
-  float dmom=0.5*pow(pow(pho_regr_energyerr[leadind]/pho_regr_energy[leadind],2)+pow(pho_regr_energyerr[subleadind]/pho_regr_energy[subleadind],2),0.5);
+  float dmom=0.5*pow(pow(ll->pho_regr_energyerr[leadind]/ll->pho_regr_energy[leadind],2)+pow(ll->pho_regr_energyerr[subleadind]/ll->pho_regr_energy[subleadind],2),0.5);
 
   //cout<<"diphoCutLevel  "<<subleadind<<leadind<<vtxind<<vtxi<<diphoind<<"  "<<dcat<<"  "<<diphoptom<<"  "<<fsubleadcutindex<<"  "<<fleadcutindex<<"  "<<etamax<<"  "<<etamin<<"  "<<subleadptomass<<"  "<<leadptomass<<endl;
 
@@ -3123,7 +3204,7 @@ int StatAnalysisExclusive::diphoCutLevel(int leadind, int subleadind, int vtxind
   return lev;
 
 }
-*/
+
 int StatAnalysisExclusive::diphoSubCategory(int nSubCat, int c4, int diphoCutLev) {
   if(nSubCat<=0) return 1;                                          //  no diphoton cuts if nSubCat<=0
   if(nSubCat>4) { cout<<"  nSubCat>4"<<endl;  return 1;}
@@ -3716,23 +3797,23 @@ Float_t StatAnalysisExclusive::BDT_dipho2(Int_t jentry, Int_t isl, Int_t il, flo
 }
 
 
-void StatAnalysisExclusive::SetOutputNtupleVariables(int jentry, int itype, int leadind, int subleadind, int vtxind, float mass, TLorentzVector *leadp4, TLorentzVector *subleadp4) {
+void StatAnalysisExclusive::SetOutputNtupleVariables(int jentry, int itype, int leadind, int subleadind, int vtxind, float mass, TLorentzVector *leadp4, TLorentzVector *subleadp4, float evweight, float pileupWeight) {
 
   if(MPDEBUGCOPY) cout << "SetOutputNtupleVariables BEGIN"<<endl;
   //int leadind = dipho_leadind[diphoton_index];
   //int subleadind = dipho_subleadind[diphoton_index];
 
-  TLorentzVector newleadp4 =  TLorentzVector(VertexCorrectedP4Hgg(leadind,vtxind));
-  TLorentzVector newsubleadp4 =  TLorentzVector(VertexCorrectedP4Hgg(subleadind,vtxind));
-  TVector3 leadcalopos = *((TVector3*)ll->pho_calopos->At(leadind));
-  TVector3 subleadcalopos = *((TVector3*)ll->pho_calopos->At(subleadind));
+  //NOT NEEDED ANYMORE TLorentzVector newleadp4; //MARCO FIXED =  TLorentzVector(VertexCorrectedP4Hgg(leadind,vtxind));
+  //NOT NEEDED ANYMORE TLorentzVector newsubleadp4;//MARCO FIXED  =  TLorentzVector(VertexCorrectedP4Hgg(subleadind,vtxind));
 
-
-  Float_t leadeta = fabs(((TLorentzVector*)ll->sc_p4->At(ll->pho_scind[leadind]))->Eta());
-  Float_t subleadeta = fabs(((TLorentzVector*)ll->sc_p4->At(ll->pho_scind[subleadind]))->Eta());
+  //TVector3 leadcalopos = *((TVector3*)ll->pho_calopos->At(leadind));
+  //TVector3 subleadcalopos = *((TVector3*)ll->pho_calopos->At(subleadind));
+  Float_t leadetanonabs = (((TLorentzVector*)ll->sc_p4->At(ll->pho_scind[leadind]))->Eta());
+  Float_t subleadetanonabs = (((TLorentzVector*)ll->sc_p4->At(ll->pho_scind[subleadind]))->Eta());
+  Float_t leadeta = fabs(leadetanonabs);
+  Float_t subleadeta = fabs(subleadetanonabs);
 
   TLorentzVector diphotonp4 = (*leadp4) + (*subleadp4);
-
 
   // apply k-factor to gammJet sample with 2 real photons. 
   // The k-factor from inputfiles is already in the weight, so here use kfactor = 1 except for the gammaJet 2-real case
@@ -3749,21 +3830,37 @@ void StatAnalysisExclusive::SetOutputNtupleVariables(int jentry, int itype, int 
   t_run = ll->run;
   t_lumis = ll->lumis;
   t_event = ll->event;
-  t_itype = itype;
+  t_itype = itype_jim(itype);
   t_processid = ll->process_id;
   //   minuit_weight is the weight computed from inputfiles including the k-factor
   //   weight is not used to be myweight from this program which gives the PT-higgs correction and the efficiency correction for signal
   //cout<<"   weigth   "<<itype<<"  "<<minuit_weight<<"  "<<k_factor<<"  "<<pileup_reweight<<"  "<<t_w<<endl;
-  if(jentry%1000==1&&itype>0&&itype%1000==1) cout<<jentry<<"  "<<itype<<"  mass="<<mass<<" out  higgs_genpt="<<ll->higgs_genpt<<"  diphopt="<<diphotonp4.Pt()<<"  t_w="<<t_w<<endl;
-  t_w = minuit_weight*k_factor*pileup_reweight*t_w;
-  t_wpu = pileup_reweight*weight;
+
+  //MARCO FIX higgs_genpt higgs_genpt higgs_genpt
+  // if(jentry%1000==1&&itype>0&&itype%1000==1) cout<<jentry<<"  "<<itype<<"  mass="<<mass<<" out  higgs_genpt="<<ll->higgs_genpt<<"  diphopt="<<diphotonp4.Pt()<<"  t_w="<<t_w<<endl;
+if(jentry%1000==1&&itype>0&&itype%1000==1) cout<<jentry<<"  "<<itype<<"  mass="<<mass<<" out  higgs_genpt= NOT THERE  diphopt="<<diphotonp4.Pt()<<"  t_w="<<t_w<<endl;
+
+
+
+  //MARCO FIXED WEIGHT FIXED 
+  //t_w = minuit_weight*k_factor*pileup_reweight*t_w;
+  //t_wpu = pileup_reweight*weight;
+  t_w =evweight;
+  t_wpu = pileupWeight;
+
+
   t_mass = mass;
   t_dmom0=0.5*pow(pow(ll->pho_regr_energyerr[leadind]/ll->pho_regr_energy[leadind],2)+pow(ll->pho_regr_energyerr[subleadind]/ll->pho_regr_energy[subleadind],2),0.5);
 
   float leta=fabs( ((TLorentzVector*)ll->pho_p4->At(leadind))->Eta() );
   float seta=fabs( ((TLorentzVector*)ll->pho_p4->At(subleadind))->Eta() );
+
+  //MARCO FIXED
   float leadErr = GetSmearSigma(leta,ll->pho_r9[leadind]);
   float subleadErr = GetSmearSigma(seta,ll->pho_r9[subleadind]);
+
+
+
   double errfrac=0.5*pow(pow(ll->pho_regr_energyerr[leadind]/ll->pho_regr_energy[leadind],2)+pow(leadErr,2)+pow(ll->pho_regr_energyerr[subleadind]/ll->pho_regr_energy[subleadind],2)+pow(subleadErr,2),0.5);
   t_dmom = errfrac;
 
@@ -3778,7 +3875,11 @@ void StatAnalysisExclusive::SetOutputNtupleVariables(int jentry, int itype, int 
   t_deltaM=0;
   if(itype>0) t_deltaM=mass-float(itype/1000);
   t_diphocat2r92eta = ll->DiphotonCategory(leadind,subleadind,0.,2,2,1);
-  t_diphosubcat4 = diphoSubCategory(3,ll->DiphotonCategory(leadind,subleadind,0.,2,2,1),diphoCutLevel(leadind,subleadind,vtxind))-1;     //   jgb change replace chosen_vtx with vtxind (probably the same but its a parameter t this routine)
+
+  //MARCO FIX CHECK
+
+  t_diphosubcat4; //MARCO FIX= diphoSubCategory(3,ll->DiphotonCategory(leadind,subleadind,0.,2,2,1),diphoCutLevel(leadind,subleadind,vtxind))-1;     //   jgb change replace chosen_vtx with vtxind (probably the same but its a parameter t this routine)
+
   t_category = ll->DiphotonCategory(leadind,subleadind,0.,3,4,1);
   t_barrel = (Int_t)(leadeta < 1.479 && subleadeta < 1.479);
   t_diphor9 = TMath::Min(ll->pho_r9[leadind],ll->pho_r9[subleadind]);
@@ -3789,37 +3890,48 @@ void StatAnalysisExclusive::SetOutputNtupleVariables(int jentry, int itype, int 
   t_deltar = leadp4->DeltaR(*subleadp4);
   t_etamax = TMath::Max(leadeta,subleadeta);
   t_etamin = TMath::Min(leadeta,subleadeta);
-  t_deta = fabs(leadcalopos.Eta() - subleadcalopos.Eta());
+
+  //MARCO CHANGED
+  //t_deta = fabs(leadcalopos.Eta() - subleadcalopos.Eta());
+  t_deta = fabs(leadetanonabs-subleadetanonabs);
+
   t_leadcat = ll->PhotonCategory(leadind,3,4);
   t_leadr9 = ll->pho_r9[leadind];
-  t_leadeta = leadcalopos.Eta();
+  //MARCO CHANGED
+  //t_leadeta = leadcalopos.Eta();
+  t_leadeta = leadetanonabs;
+
+
   t_leadpt = leadp4->Pt();
-  t_leadgenmatch = GenIndexHgg(leadp4)>=0;     
+  t_leadgenmatch = GenIndexHgg(leadp4)>=0; //MARCO FIX  = GenIndexHgg(leadp4)>=0;     
   t_leadbarrel = leadeta < 1.479;//ll->pho_barrel[leadind];
   t_leadhovere = ll->pho_hoe[leadind];
   t_leadsee = ll->pho_see[leadind];
   //t_leadspp = ll->pho_spp[leadind];
   t_leadpi0nn=0;
 
-  t_leadecalhitsJ_060330 = ll->pho_ecalJ_060330[leadind];
+  t_leadecalhitsJ_060330; //MARCO FIX = ll->pho_ecalJ_060330[leadind];
 
-  t_leadtrkiso = ll->pho_ntrk_15_03[leadind];
-  t_leadecaliso = ll->pho_ecalJ_060330[leadind];
-  t_leadhcaliso = ll->pho_hcal_030[leadind];
+  t_leadtrkiso; //MARCO FIX = ll->pho_ntrk_15_03[leadind];
+  t_leadecaliso; //MARCO FIX = ll->pho_ecalJ_060330[leadind];
+  t_leadhcaliso; //MARCO FIX = ll->pho_hcal_030[leadind];
   //t_leadtrkplusecal=t_leadtrkecone30 + t_leadecalhitsJ_060330;
 
   t_subleadcat = ll->PhotonCategory(subleadind,3,4);
   t_subleadr9 = ll->pho_r9[subleadind];
-  t_subleadeta = subleadcalopos.Eta();
+  //MARCO CHANGED
+  //t_subleadeta = subleadcalopos.Eta();
+  t_subleadeta = subleadetanonabs;
+
   t_subleadpt = subleadp4->Pt();
   //t_subleadgenmatch = ll->pho_genmatch[subleadind];
-  t_subleadgenmatch = GenIndexHgg(subleadp4)>=0;     
+  t_subleadgenmatch = GenIndexHgg(subleadp4)>=0; //MARCO FIX  = GenIndexHgg(subleadp4)>=0;     
   t_subleadbarrel = subleadeta < 1.479;//ll->pho_barrel[subleadind];
   t_subleadhovere = ll->pho_hoe[subleadind];
   t_subleadsee = ll->pho_see[subleadind];
   //t_subleadspp = ll->pho_spp[subleadind];
   t_subleadpi0nn=0;
-  t_subleadecalhitsJ_060330 = ll->pho_ecalJ_060330[subleadind];
+  t_subleadecalhitsJ_060330; //MARCO FIX = ll->pho_ecalJ_060330[subleadind];
 
   t_rho = ll->rho;
   t_nvtx = ll->vtx_std_n;
@@ -3827,11 +3939,11 @@ void StatAnalysisExclusive::SetOutputNtupleVariables(int jentry, int itype, int 
   if(MPDEBUGCOPY) cout << "SetOutputNtupleVariables 02  "<<endl;
 
   // cic index begin
-  t_leadci6cindex = PhotonCiCSelectionLevel(leadind,6,vtxind,0);
-  t_subleadci6cindex = PhotonCiCSelectionLevel(subleadind,6,vtxind,1);
+  t_leadci6cindex; //MARCO FIX = PhotonCiCSelectionLevel(leadind,6,vtxind,0);
+  t_subleadci6cindex; //MARCO FIX = PhotonCiCSelectionLevel(subleadind,6,vtxind,1);
 
-  t_leadci6cpfindex = PhotonCiCpfSelectionLevel(leadind,6,vtxind,0);
-  t_subleadci6cpfindex = PhotonCiCpfSelectionLevel(subleadind,6,vtxind,1);
+  t_leadci6cpfindex; //MARCO FIX = PhotonCiCpfSelectionLevel(leadind,6,vtxind,0);
+  t_subleadci6cpfindex; //MARCO FIX = PhotonCiCpfSelectionLevel(subleadind,6,vtxind,1);
   t_subleadci6cpfmva = BDT(jentry, subleadind,vtxind);
   t_subleadci6cpfmvacat = BDT_categorized(jentry, subleadind, vtxind, -1.);
   t_subleadci6cpfmvaptom = BDT_ptom(jentry, subleadind,vtxind, mass);
@@ -3849,8 +3961,8 @@ void StatAnalysisExclusive::SetOutputNtupleVariables(int jentry, int itype, int 
 
   t_leadcutindex = t_leadci6cpfindex;//PhotonCiCSelectionLevel(leadind,6,chosen_vtx,0);
   t_subleadcutindex = t_subleadci6cpfindex;//PhotonCiCSelectionLevel(subleadind,6,chosen_vtx,1);
-  t_leadci4cindex = PhotonCiCSelectionLevel(leadind,4,vtxind,0);
-  t_subleadci4cindex = PhotonCiCSelectionLevel(subleadind,4,vtxind,1);
+  t_leadci4cindex; //MARCO FIX = PhotonCiCSelectionLevel(leadind,4,vtxind,0);
+  t_subleadci4cindex; //MARCO FIX = PhotonCiCSelectionLevel(subleadind,4,vtxind,1);
 
   //std::pair<int,int> diphoton_indices(DiphotonCiCSelectionIndices( LEADCUTLEVEL, SUBLEADCUTLEVEL, leadPtMin, subleadPtMin, CICNCAT, -1, false));
   //leadind = diphoton_indices.first;
@@ -3862,9 +3974,9 @@ void StatAnalysisExclusive::SetOutputNtupleVariables(int jentry, int itype, int 
 
   if(MPDEBUGCOPY) cout << "SetOutputNtupleVariables 06  "<<endl;
 
-  t_subleadtrkiso = ll->pho_ntrk_15_03[subleadind];
-  t_subleadecaliso = ll->pho_ecalJ_060330[subleadind];
-  t_subleadhcaliso = ll->pho_hcal_030[subleadind];
+  t_subleadtrkiso; //MARCO FIX = ll->pho_ntrk_15_03[subleadind];
+  t_subleadecaliso; //MARCO FIX = ll->pho_ecalJ_060330[subleadind];
+  t_subleadhcaliso; //MARCO FIX = ll->pho_hcal_030[subleadind];
 
   //MARCO ????
   t_subleadtrkplusecal=t_subleadtrkecone30 + t_subleadecalhitsJ_060330;
@@ -3924,7 +4036,7 @@ void StatAnalysisExclusive::SetOutputNtupleVariables(int jentry, int itype, int 
 
   // vertex z
   //  gv_z = ((TVector3*)gv_pos->At(0))->Z();
-  t_genvtxz = ll->gv_z;
+  t_genvtxz; //MARCO FIX  = ll->gv_z;
   t_recvtxz = ((TVector3*)ll->vtx_std_xyz->At(vtxind))->z();
   if(MPDEBUGCOPY) cout << "SetOutputNtupleVariables 21  "<<endl;
 
@@ -4000,6 +4112,8 @@ void StatAnalysisExclusive::SetOutputNtupleVariables(int jentry, int itype, int 
   }
 
 
+  t_lead_drtotk_25_99 = ll->pho_drtotk_25_99[leadind];
+  t_sublead_drtotk_25_99 = ll->pho_drtotk_25_99[subleadind];
 
   //  pf first guess isolation variables   pfiso
 
@@ -4007,11 +4121,192 @@ void StatAnalysisExclusive::SetOutputNtupleVariables(int jentry, int itype, int 
   if((optree->GetEntries()<1000||optree->GetEntries()%100==1)&&t_mass>95&&t_mass<145&&t_leadci6cindex>2&&t_subleadci6cindex>2) {
     float stkreciso=(*(ll->pho_tkiso_recvtx_030_002_0000_10_01))[subleadind][vtxind];
     float ltkreciso=(*(ll->pho_tkiso_recvtx_030_002_0000_10_01))[leadind][vtxind];
-    cout<<"setting optree variables run,ev,cat,dscat,dcutlev,lind,sind,vtxind, lcut,scut,ltkreciso,stkrecios,mass,w="
-	<<ll->run<<"  "<<ll->event<<"  "<<t_diphocat2r92eta<<"  "<<t_diphosubcat4<<"  "<<diphoCutLevel(leadind,subleadind,vtxind)<<"  "<<leadind<<subleadind<<vtxind<<"   "<<t_leadci6cindex<<"  "<<t_subleadci6cindex<<"  "
-	<<ltkreciso<<"  "<<stkreciso<<"  "<<t_mass<<"  "<<t_w<<"  diphomva="<<t_diphomva<<endl;
+//MARCO FIX    cout<<"setting optree variables run,ev,cat,dscat,dcutlev,lind,sind,vtxind, lcut,scut,ltkreciso,stkrecios,mass,w="
+//MARCO FIX	<<ll->run<<"  "<<ll->event<<"  "<<t_diphocat2r92eta<<"  "<<t_diphosubcat4<<"  "<<diphoCutLevel(leadind,subleadind,vtxind)<<"  "<<leadind<<subleadind<<vtxind<<"   "<<t_leadci6cindex<<"  "<<t_subleadci6cindex<<"  "
+//MARCO FIX	<<ltkreciso<<"  "<<stkreciso<<"  "<<t_mass<<"  "<<t_w<<"  diphomva="<<t_diphomva<<endl;
   }
 
   if(MPDEBUGCOPY) cout << "SetOutputNtupleVariables END"<<endl;
 }
 
+std::vector<Float_t> StatAnalysisExclusive::arrayToVector(size_t length, const Float_t *data) {
+  std::vector<float> retval;
+  std::copy (data, data + length,std::back_inserter ( retval ) );
+  return retval;
+}
+float StatAnalysisExclusive::GetSmearSigma(float eta, float r9, int epoch){
+  // not using epoch for now
+  // r9cat + nr9Cat*etaCat
+  float sigma = -1;
+  if(epoch==0) {
+    int nr9Cat=2;
+    int r9Cat=(int)(r9<0.94);
+    int nEtaCat=4;
+    int etaCat=(int)(eta>1.0) + (int)(eta>1.5) + (int)(eta>2.0);
+    sigma=smear_nov14[(int)(r9Cat + nr9Cat*etaCat)];
+  }
+
+  return sigma;
+}
+
+
+
+Int_t StatAnalysisExclusive::GenIndexHgg(TLorentzVector *p_p4) {
+
+  /*
+    gp_n
+    gp_p4
+    gp_status
+    gp_pdgid
+    gp_mother
+
+   Int_t           gp_n;
+   TClonesArray    *gp_p4;
+   ////TClonesArray    *gp_vtx;
+   Short_t         gp_status[1538];   //[gp_n]
+   Short_t         gp_pdgid[1538];   //[gp_n]
+   Short_t         gp_mother[1538];   //[gp_n]
+  */
+
+  Float_t deltaRmin = 100;
+  Int_t genindex = -1;
+  //std::cout << "gp_n: " << ll->gp_n << std::endl;
+  for(Int_t i=0; i!=ll->gp_n; ++i) {
+    //std::cout << "i: " << i << std::endl;
+    if(ll->gp_status[i]!=1) continue;
+    if(fabs(ll->gp_pdgid[i])!=22) continue; 
+    if(ll->gp_status[ll->gp_mother[i]]!=3) continue;
+    TLorentzVector * genp4 = (TLorentzVector *) ll->gp_p4->At(i);
+    //std::cout << "ll->gp_pdgid[i]: " << ll->gp_pdgid[i] << "gp_status[i]: " << ll->gp_status[i] << "gp_mother[i]: " << ll->gp_mother[i] << "gp_status["<<ll->gp_mother[i]<<"]: " << ll->gp_status[ll->gp_mother[i]] << "gp_pdgid["<<ll->gp_mother[i]<<"]: " << ll->gp_pdgid[ll->gp_mother[i]] << "genp4->Et: " << genp4->Et() << std::endl;
+    //std::cout << "gp_status[i]: " << ll->gp_status[i] << std::endl;
+    //std::cout << "gp_mother[i]: " << ll->gp_mother[i] << std::endl;
+    //std::cout << "gp_status["<<ll->gp_mother[i]<<"]: " << ll->gp_status[ll->gp_mother[i]] << std::endl;
+    Float_t deltaR = genp4->DeltaR(*p_p4);
+    //std::cout << "deltaR : " << deltaR  << std::endl;
+    if( deltaR < deltaRmin ) {
+      genindex=i;
+      deltaRmin = deltaR;
+      if(deltaRmin < 0.08) return genindex;
+    }
+  }
+  if(deltaRmin > 0.06) return -1;
+  return genindex;
+}
+
+
+Int_t StatAnalysisExclusive::itype_jim(int itype) {
+
+  if(itype==0) {
+    return 0;
+  }
+  else if(itype>0) {
+    if(itype==1) return -24; //qcdff 30
+    if(itype==2) return -24; //qcdff 40
+    if(itype==3) return -13; //gj_pf 20
+    if(itype==4) return -1;  //diphojets
+    if(itype==5) return -2;  //box25-250
+    if(itype==6) return -25; //DY
+    //if(itype==7) return ;
+    //if(itype==8) return ;
+    //if(itype==9) return ;
+    //if(itype==10) return ;
+    if(itype==11) return -14; //qcdpf 30
+    if(itype==12) return -14; //qcdpf 40
+
+  }
+  else if(itype<0) {
+
+  //MH=100 -69
+
+  if(itype==-69) return 100001;
+  if(itype==-70) return 100002;
+  if(itype==-72) return 100003;
+  if(itype==-71) return 100004;
+
+  //MH=105 -13
+
+  if(itype==-13) return 105001;
+  if(itype==-14) return 105002;
+  if(itype==-16) return 105003;
+  if(itype==-15) return 105004;
+
+  //MH=110 -17
+
+  if(itype==-17) return 110001;
+  if(itype==-18) return 110002;
+  if(itype==-20) return 110003;
+  if(itype==-19) return 110004;
+
+  //MH=115 -21
+
+  if(itype==-21) return 115001;
+  if(itype==-22) return 115002;
+  if(itype==-24) return 115003;
+  if(itype==-23) return 115004;
+
+  //MH=120 -25
+
+  if(itype==-25) return 120001;
+  if(itype==-26) return 120002;
+  if(itype==-28) return 120003;
+  if(itype==-27) return 120004;
+
+  //MH=121 -53
+
+  if(itype==-53) return 121001;
+  if(itype==-54) return 121002;
+  if(itype==-56) return 121003;
+  if(itype==-55) return 121004;
+
+  //MH=123 -57
+
+  if(itype==-57) return 123001;
+  if(itype==-58) return 123002;
+  if(itype==-60) return 123003;
+  if(itype==-59) return 123004;
+
+  //MH=125 -37
+
+  if(itype==-37) return 125001;
+  if(itype==-38) return 125002;
+  if(itype==-40) return 125003;
+  if(itype==-39) return 125004;
+
+  //MH=130 -29
+
+  if(itype==-29) return 130001;
+  if(itype==-30) return 130002;
+  if(itype==-32) return 130003;
+  if(itype==-31) return 130004;
+  //MH=135 41
+
+  if(itype==-41) return 135001;
+  if(itype==-42) return 135002;
+  if(itype==-44) return 135003;
+  if(itype==-43) return 135004;
+
+  //MH=140 33
+
+  if(itype==-33) return 140001;
+  if(itype==-34) return 140002;
+  if(itype==-36) return 140003;
+  if(itype==-35) return 140004;
+
+  //MH=145 45
+
+  if(itype==-45) return 145001;
+  if(itype==-46) return 145002;
+  if(itype==-48) return 145003;
+  if(itype==-47) return 145004;
+
+  //MH=150 49
+  if(itype==-49) return 150001;
+  if(itype==-50) return 150002;
+  if(itype==-52) return 150003;
+  if(itype==-51) return 150004;
+  }
+
+  std::cout<<" ATTENTION WRONG ITYPE: "<<itype<<std::endl;
+  return 99999;
+
+}

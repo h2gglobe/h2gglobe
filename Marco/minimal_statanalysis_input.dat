@@ -6,6 +6,7 @@ where:
 	<branch_type> = 1 for branches to be read only for MC
 ->
 
+
 ->
 Counters
 ->
@@ -79,6 +80,7 @@ gv_n:1
 gv_pos:1
 pu_n:1
 
+
 ->
 Vertex
 ->
@@ -117,3 +119,44 @@ dipho_n
 dipho_leadind
 dipho_subleadind
 dipho_vtxind
+
+
+
+->
+New ones
+
+pho_genmatch to be made ....?? or there for MC???
+vtx_std_scalarpt is it there?
+vtx_std_sumpt ????
+
+->
+
+pho_pfiso_mycharged04
+pho_pfiso_myphoton04
+pho_pfiso_mycharged03
+pho_pfiso_myphoton03
+pho_pfiso_myneutral03
+pho_pfiso_myneutral04
+
+->
+pho_genmatch:1  try again
+vtx_std_scalarpt
+->
+
+sc_p4
+pho_see
+
+pho_trksumpthollowconedr03
+pho_trksumpthollowconedr04
+pho_trksumptsolidconedr03
+pho_trksumptsolidconedr04
+pho_ecalsumetconedr03
+pho_ecalsumetconedr04
+pho_hcalsumetconedr03
+pho_hcalsumetconedr04
+
+
+->
+END New ones
+->
+
