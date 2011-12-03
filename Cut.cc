@@ -19,7 +19,6 @@ void Cut::Print() {
       std::cout<<j<<" cut "<<cut[j]<<std::endl;
     }
   }
-#ifdef NewFeatures
   std::cout<<"mycutvar "<<mycutvar<<std::endl;
   if(mycutvar) {
     //" "<<*(mycutvar+1)<<std::endl;
@@ -27,6 +26,5 @@ void Cut::Print() {
       std::cout<<"mycutvar new test "<<j<<" "<<mycutvar[j]<<std::endl;
     }
   }
-#endif
 }
 
