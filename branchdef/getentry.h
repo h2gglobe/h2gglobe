@@ -317,6 +317,7 @@
    b_mu_glo_pixelhits->GetEntry(jentry); 
    b_mu_glo_validChmbhits->GetEntry(jentry); 
    b_mu_glo_ecaliso03->GetEntry(jentry); 
+   b_mu_glo_hcaliso03->GetEntry(jentry); 
    b_mu_glo_tkiso03->GetEntry(jentry); 
    b_pho_n->GetEntry(jentry); 
    b_pho_feta->GetEntry(jentry); 

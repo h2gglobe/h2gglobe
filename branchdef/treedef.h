@@ -337,6 +337,7 @@ Float_t mu_glo_iso[MAX_MUONS];
 Int_t mu_glo_pixelhits[MAX_MUONS];
 Int_t mu_glo_validChmbhits[MAX_MUONS];
 Float_t mu_glo_ecaliso03[MAX_MUONS];
+Float_t mu_glo_hcaliso03[MAX_MUONS];
 Float_t mu_glo_tkiso03[MAX_MUONS];
 TClonesArray *mu_glo_p4;
 TClonesArray *mu_glo_momvtx;

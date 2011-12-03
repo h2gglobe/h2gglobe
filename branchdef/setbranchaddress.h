@@ -317,6 +317,7 @@ void SetBranchAddress_mu_glo_iso(TTree * tree) { tree->SetBranchAddress("mu_glo_
 void SetBranchAddress_mu_glo_pixelhits(TTree * tree) { tree->SetBranchAddress("mu_glo_pixelhits", mu_glo_pixelhits, &b_mu_glo_pixelhits); }; 
 void SetBranchAddress_mu_glo_validChmbhits(TTree * tree) { tree->SetBranchAddress("mu_glo_validChmbhits", mu_glo_validChmbhits, &b_mu_glo_validChmbhits); }; 
 void SetBranchAddress_mu_glo_ecaliso03(TTree * tree) { tree->SetBranchAddress("mu_glo_ecaliso03", mu_glo_ecaliso03, &b_mu_glo_ecaliso03); }; 
+void SetBranchAddress_mu_glo_hcaliso03(TTree * tree) { tree->SetBranchAddress("mu_glo_hcaliso03", mu_glo_hcaliso03, &b_mu_glo_hcaliso03); }; 
 void SetBranchAddress_mu_glo_tkiso03(TTree * tree) { tree->SetBranchAddress("mu_glo_tkiso03", mu_glo_tkiso03, &b_mu_glo_tkiso03); }; 
 void SetBranchAddress_pho_n(TTree * tree) { tree->SetBranchAddress("pho_n", &pho_n, &b_pho_n); }; 
 void SetBranchAddress_pho_feta(TTree * tree) { tree->SetBranchAddress("pho_feta", pho_feta, &b_pho_feta); }; 

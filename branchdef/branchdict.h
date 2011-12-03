@@ -317,6 +317,7 @@ BRANCH_DICT(mu_glo_iso);
 BRANCH_DICT(mu_glo_pixelhits);
 BRANCH_DICT(mu_glo_validChmbhits);
 BRANCH_DICT(mu_glo_ecaliso03);
+BRANCH_DICT(mu_glo_hcaliso03);
 BRANCH_DICT(mu_glo_tkiso03);
 BRANCH_DICT(pho_n);
 BRANCH_DICT(pho_feta);

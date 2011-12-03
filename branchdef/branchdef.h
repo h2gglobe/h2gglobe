@@ -317,6 +317,7 @@
     TBranch *b_mu_glo_pixelhits;
     TBranch *b_mu_glo_validChmbhits;
     TBranch *b_mu_glo_ecaliso03;
+    TBranch *b_mu_glo_hcaliso03;
     TBranch *b_mu_glo_tkiso03;
     TBranch *b_pho_n;
     TBranch *b_pho_feta;

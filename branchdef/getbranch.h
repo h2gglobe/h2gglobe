@@ -317,6 +317,7 @@
    b_mu_glo_pixelhits = fChain->GetBranch("mu_glo_pixelhits"); 
    b_mu_glo_validChmbhits = fChain->GetBranch("mu_glo_validChmbhits"); 
    b_mu_glo_ecaliso03 = fChain->GetBranch("mu_glo_ecaliso03"); 
+   b_mu_glo_hcaliso03 = fChain->GetBranch("mu_glo_hcaliso03"); 
    b_mu_glo_tkiso03 = fChain->GetBranch("mu_glo_tkiso03"); 
    b_pho_n = fChain->GetBranch("pho_n"); 
    b_pho_feta = fChain->GetBranch("pho_feta"); 
