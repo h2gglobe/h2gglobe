@@ -38,41 +38,52 @@ std::string HistoContainer::ModifiedName(char* name, int i) {
   return output;
 }
 
-void HistoContainer::Add(char* name, int categories,int bins, float xmin, float xmax) {
+void HistoContainer::Add(char* name, char* xaxis, char* yaxis, int categories,int bins, float xmin, float xmax) {
 
   std::vector<TH1F> temp;
-
   for (int i=0; i<categories; i++) {
     std::string modName = ModifiedName(name, i);
-    temp.push_back(TH1F(modName.c_str(), modName.c_str(), bins, xmin, xmax));
+    TH1F histo_temp(modName.c_str(), modName.c_str(), bins, xmin, xmax);
+    histo_temp.GetXaxis()->SetTitle(xaxis);
+    histo_temp.GetYaxis()->SetTitle(yaxis);
+    temp.push_back(histo_temp);
+    //temp.push_back(TH1F(modName.c_str(), modName.c_str(), bins, xmin, xmax));
   }
-  
+  names.push_back(name);
   h1[std::string(name)] = temp;
 }
 
 
-void HistoContainer::Add(char* name, int categories, int binsx, float xmin, float xmax,
+void HistoContainer::Add(char* name, char* xaxis, char* yaxis, int categories, int binsx, float xmin, float xmax,
 			 int binsy, float ymin, float ymax) {
   
   std::vector<TH2F> temp;
   for (int i=0; i<categories; i++) {
-    std::string modName = ModifiedName(name, i);
-    temp.push_back(TH2F(modName.c_str(), modName.c_str(), binsx, xmin, xmax, binsy, ymin, ymax));
+    std::string modName = ModifiedName(name, i); 
+    TH2F histo_temp(modName.c_str(), modName.c_str(), binsx, xmin, xmax, binsy, ymin, ymax);
+    histo_temp.GetXaxis()->SetTitle(xaxis);
+    histo_temp.GetYaxis()->SetTitle(yaxis);
+    temp.push_back(histo_temp);
+    //temp.push_back(TH2F(modName.c_str(), modName.c_str(), binsx, xmin, xmax, binsy, ymin, ymax));
   }
-  
+  names.push_back(name);
   h2[std::string(name)] = temp;
 }
 
-void HistoContainer::Add(char* name, int categories, int binsx, 
+void HistoContainer::Add(char* name, char* xaxis, char* yaxis, int categories, int binsx, 
 			 float xmin, float xmax,
 			 float ymin, float ymax) {
 
   std::vector<TProfile> temp;
   for (int i=0; i<categories; i++) {
     std::string modName = ModifiedName(name, i);
-    temp.push_back(TProfile(modName.c_str(), modName.c_str(), binsx, xmin, xmax, ymin, ymax));
+    TProfile histo_temp(modName.c_str(), modName.c_str(), binsx, xmin, xmax, ymin, ymax);
+    histo_temp.GetXaxis()->SetTitle(xaxis);
+    histo_temp.GetYaxis()->SetTitle(yaxis);
+    temp.push_back(histo_temp);
+    //temp.push_back(TProfile(modName.c_str(), modName.c_str(), binsx, xmin, xmax, ymin, ymax));
   }
-
+  names.push_back(name);
   hp[std::string(name)] = temp;
 } 
 
@@ -132,4 +143,152 @@ void HistoContainer::Save() {
       (itp->second)[i].Write();
     }
   }
+}
+
+int HistoContainer::getDimension(int n) {
+
+  std::map<std::string, std::vector<TH1F> >::iterator it = h1.find(names[n]);
+  if (it != h1.end())
+    return 1;
+
+  std::map<std::string, std::vector<TH2F> >::iterator it2 = h2.find(names[n]);
+  if (it2 != h2.end())
+    return 2;
+  
+  std::map<std::string, std::vector<TProfile> >::iterator itp = hp.find(names[n]);
+  if (itp != hp.end())
+    return 3;
+}
+
+int HistoContainer::ncat(int n) {
+  
+  std::map<std::string, std::vector<TH1F> >::iterator it = h1.find(names[n]);
+  if (it != h1.end())
+    return it->second.size();
+  
+  std::map<std::string, std::vector<TH2F> >::iterator it2 = h2.find(names[n]);
+  if (it2 != h2.end())
+    return it2->second.size();
+  
+  std::map<std::string, std::vector<TProfile> >::iterator itp = hp.find(names[n]);
+  if (itp != hp.end())
+    return itp->second.size(); 
+  
+  return -1;
+}
+
+int HistoContainer::nbins(int n, bool isX) {
+  
+  std::map<std::string, std::vector<TH1F> >::iterator it = h1.find(names[n]);
+  if (it != h1.end()) {
+    if (isX)
+      return (it->second)[0].GetNbinsX();
+    else
+      return -1;
+  }
+  
+  std::map<std::string, std::vector<TH2F> >::iterator it2 = h2.find(names[n]);
+  if (it2 != h2.end()) {
+    if (isX)
+      return (it2->second)[0].GetNbinsX();
+    else
+      return (it2->second)[0].GetNbinsY();
+  }
+  
+  std::map<std::string, std::vector<TProfile> >::iterator itp = hp.find(names[n]);
+  if (itp != hp.end()) {
+    if (isX)
+      return (itp->second)[0].GetNbinsX();
+    else
+      return -1;
+  }
+
+  return -1;
+}
+
+float HistoContainer::max(int n, bool isX) {
+  
+  std::map<std::string, std::vector<TH1F> >::iterator it = h1.find(names[n]);
+  if (it != h1.end()) {
+    if (isX)
+      return (it->second)[0].GetXaxis()->GetXmax();
+    else
+      return (it->second)[0].GetYaxis()->GetXmax();
+  }
+  
+  std::map<std::string, std::vector<TH2F> >::iterator it2 = h2.find(names[n]);
+  if (it2 != h2.end()) {
+    if (isX)
+      return (it2->second)[0].GetXaxis()->GetXmax();
+    else
+      return (it2->second)[0].GetYaxis()->GetXmax();
+  }
+  
+  std::map<std::string, std::vector<TProfile> >::iterator itp = hp.find(names[n]);
+  if (itp != hp.end()) {
+    if (isX)
+      return (itp->second)[0].GetXaxis()->GetXmax();
+    else
+      return (itp->second)[0].GetYaxis()->GetXmax();
+  }
+
+  return -1;
+}
+
+float HistoContainer::min(int n, bool isX) {
+  
+  std::map<std::string, std::vector<TH1F> >::iterator it = h1.find(names[n]);
+  if (it != h1.end()) {
+    if (isX)
+      return (it->second)[0].GetXaxis()->GetXmin();
+    else
+      return (it->second)[0].GetYaxis()->GetXmin();
+  }
+  
+  std::map<std::string, std::vector<TH2F> >::iterator it2 = h2.find(names[n]);
+  if (it2 != h2.end()) {
+    if (isX)
+      return (it2->second)[0].GetXaxis()->GetXmin();
+    else
+      return (it2->second)[0].GetYaxis()->GetXmin();
+  }
+  
+  std::map<std::string, std::vector<TProfile> >::iterator itp = hp.find(names[n]);
+  if (itp != hp.end()) {
+    if (isX)
+      return (itp->second)[0].GetXaxis()->GetXmin();
+    else
+      return (itp->second)[0].GetYaxis()->GetXmin();
+  }
+
+  return -1;
+}
+
+std::string HistoContainer::axisName(int n, bool isX) {
+  
+  std::map<std::string, std::vector<TH1F> >::iterator it = h1.find(names[n]);
+  if (it != h1.end()) {
+    if (isX)
+      return (it->second)[0].GetXaxis()->GetTitle();
+    else
+      return (it->second)[0].GetYaxis()->GetTitle();
+  }
+  
+  std::map<std::string, std::vector<TH2F> >::iterator it2 = h2.find(names[n]);
+  if (it2 != h2.end()) {
+    if (isX)
+      return (it2->second)[0].GetXaxis()->GetTitle();
+    else
+      return (it2->second)[0].GetYaxis()->GetTitle();
+  }
+  
+  std::map<std::string, std::vector<TProfile> >::iterator itp = hp.find(names[n]);
+  if (itp != hp.end()) {
+    if (isX)
+      return (itp->second)[0].GetXaxis()->GetTitle();
+    else
+      return (itp->second)[0].GetYaxis()->GetTitle();
+  }
+
+  return "";
 }

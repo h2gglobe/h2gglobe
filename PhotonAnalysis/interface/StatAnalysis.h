@@ -35,10 +35,22 @@ public:
 	virtual void Analysis(LoopAll&, Int_t);
 	
 	// Options
+  bool includeVBF;
+  bool includeVHad;
+  bool includeVHlep;
 	bool reRunCiC;
-	float leadEtCut;
-	float subleadEtCut;
-	std::string efficiencyFile;
+
+  float leadEtCut;
+  float leadEtVBFCut;
+  float leadEtVHadCut;
+  float leadEtVHlepCut;
+  float subleadEtCut;
+  float subleadEtVBFCut;
+  float subleadEtVHadCut;
+  float subleadEtVHlepCut;
+  int nVBFEtaCategories;
+	int nVHadEtaCategories;
+  std::string efficiencyFile;
 	
 	// EnergySmearer::energySmearingParameters eSmearPars; // gone to PhotonAnalysis GF
 	EfficiencySmearer::efficiencySmearingParameters effSmearPars;
@@ -48,6 +60,41 @@ public:
 
 	void FillSignalLabelMap();
 	std::string GetSignalLabel(int) ;
+
+  // for N-1
+  float  myVBFLeadJPt;
+  float  myVBFSubJPt;
+  float  myVBFdEta;
+  float  myVBFZep;
+  float  myVBFdPhi;
+  float  myVBF_Mjj;
+
+  float  myVBF_Mgg;
+
+  float  myVHadLeadJPt;
+  float  myVHadSubJPt;
+  float  myVHaddEta;
+  float  myVHadZep;
+  float  myVHaddPhi;
+  float  myVHad_Mjj;
+
+  float  myVHad_Mgg;
+
+  float  myAllLeadJPt;
+  float  myAllSubJPt;
+  float  myAllLeadJEta;
+  float  myAllSubJEta;
+  float  myAlldEta;
+  float  myAllZep;
+  float  myAlldPhi;
+  float  myAll_Mjj;
+
+  float  myAll_Mgg;
+  float  myAllPtHiggs;
+
+
+  std::pair<int, int> Select2HighestPtJets(LoopAll&, TLorentzVector& leadpho, TLorentzVector& subleadpho, float jtLMinPt, float jtTMinPt);
+  int RescaleJetEnergy(LoopAll&);
 
 	bool  doMCSmearing;
 	bool  doEscaleSyst, doEresolSyst, doPhotonIdEffSyst, doVtxEffSyst, doR9Syst, doTriggerEffSyst, doKFactorSyst;
