@@ -1544,4 +1544,117 @@ void LoopAll::DefineUserBranches()
 
 #ifdef NewFeatures
 #include "Marco/plotInteractive_cc.h"
+
+int LoopAll::MuonSelection(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind){
+  int mymu = -1;
+
+  TLorentzVector* thismu;
+  float thiseta = -100;
+  float thispt = -100;
+  float thisiso =1000;
+
+  int passingMu = 0;
+
+  for( int indmu=0; indmu<mu_glo_n; indmu++){
+    thismu = (TLorentzVector*) mu_glo_p4->At(indmu);
+    thiseta = fabs(thismu->Eta());
+    if(thiseta>2.4) continue;
+    thispt = thismu->Pt();
+    if(thispt<20) continue;
+    if(mu_glo_type[indmu]<1100) continue;  // global and tracker
+    if(mu_glo_chi2[indmu]/mu_glo_dof[indmu]>=10) continue;
+    if(mu_glo_pixelhits[indmu]<=0) continue;
+    if(mu_glo_validhits[indmu]<=10) continue;
+    if(mu_glo_validChmbhits[indmu]<=0) continue;
+    if(mu_glo_nmatches[indmu]<=1) continue;
+    // need to calculate d0, dz wrt chosen vtx
+    //if(mu_glo_dz[indmu]>=0.1) continue;
+    thisiso=mu_glo_ecaliso03[indmu]+mu_glo_hcaliso03[indmu]+mu_glo_tkiso03[indmu] - rho*3.1415926*0.09;
+    if(thisiso/thispt>=0.1) continue;
+    if(std::min(pho1.DeltaR(*thismu),pho2.DeltaR(*thismu)) < 1) continue;
+
+    passingMu++;
+
+    std::cout << setprecision(4) << "Run = " << run << "  LS = " << lumis << "  Event = " << event << "  SelVtx = " << vtxind << " muEta = " << thiseta << "  muPhi = " << thismu->Phi() <<  "  muEt = " << thismu->Et() << endl;
+
+    mymu = indmu;
+  }
+
+  if(passingMu>1) std::cout<<"There are "<<passingMu<<" passing muons!!"<<std::endl;
+
+
+  /////////////////fabs(muD0Vtx[i][vtx]) < 0.02 &&       
+  /////////////////fabs(muDzVtx[i][vtx]) < 0.1 
+  /////////////////(here D0 and DZ are wrt vertex selected by the mva vertexing)
+
+  return mymu;
+}
+
+
+int LoopAll::ElectronSelection(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind){
+  int myel = -1;
+
+  TLorentzVector* thisel;
+  TLorentzVector* thissc;
+  float thiseta = -100;
+  float thispt = -100;
+  float thisiso =1000;
+
+  int passingEl = 0;
+
+  for( int indel=0; indel<el_std_n; indel++){
+    thisel = (TLorentzVector*) el_std_p4->At(indel);
+    thissc = (TLorentzVector*) el_std_sc->At(indel);
+    thiseta = fabs(thissc->Eta());
+    if(thiseta>2.5 || (thiseta>1.442 && thiseta<1.566)) continue;
+    thispt = thisel->Pt();
+    if(thispt<20) continue;
+    if(thiseta<1.442) {   // EB cuts
+      if(el_std_sieie[indel]>=0.01) continue; 
+      if(el_std_dphiin[indel]>=0.039) continue;
+      if(el_std_detain[indel]>=0.005) continue;
+      thisiso = el_std_tkiso03[indel] + std::max(0.,(double)el_std_ecaliso03[indel]-1.)
+              + el_std_hcaliso03[indel] - rho*3.1415926*0.09;
+      if(thisiso/thispt>=0.053) continue; 
+    } else {  // EE cuts
+      if(el_std_sieie[indel]>=0.03) continue; 
+      if(el_std_dphiin[indel]>=0.028) continue;
+      if(el_std_detain[indel]>=0.007) continue;
+      thisiso = el_std_tkiso03[indel] + el_std_ecaliso03[indel]
+              + el_std_hcaliso03[indel] - rho*3.1415926*0.09;
+      if(thisiso/thispt>=0.042) continue; 
+    }
+
+    // conversion rejection
+    if(el_std_dcot[indel]<=0.02) continue;
+    if(el_std_dist[indel]<=0.02) continue;
+
+    if(std::min( pho1.DeltaR(*thisel), pho2.DeltaR(*thisel))<=1.) continue;
+
+    TLorentzVector elpho1 = *thisel + pho1;
+    if( fabs(elpho1.M() - 91.19) <= 5) continue;
+
+    TLorentzVector elpho2 = *thisel + pho2;
+    if( fabs(elpho2.M() - 91.19) <= 5) continue;
+
+    // need to calculate d0, dz wrt chosen vtx
+    //if(el_std_dz[indel]>=0.1) continue;
+
+    passingEl++;
+
+    std::cout << setprecision(4) << "Run = " << run << "  LS = " << lumis << "  Event = " << event << "  SelVtx = " << vtxind << " elEta = " << thiseta << "  elPhi = " << thisel->Phi() <<  "  elEt = " << thisel->Et() << endl;
+
+    myel = indel;
+  }
+
+  if(passingEl>1) std::cout<<"There are "<<passingEl<<" passing electrons!!"<<std::endl;
+
+
+  /////////////////fabs(elD0Vtx[i][vtx]) < 0.02 &&       
+  /////////////////fabs(elDzVtx[i][vtx]) < 0.1 
+  /////////////////(here D0 and DZ are wrt vertex selected by the mva vertexing)
+
+  return myel;
+}
+
 #endif

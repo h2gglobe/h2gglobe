@@ -146,7 +146,7 @@ int DiphotonPtCategory(double pTh, int n_pThcat=0) {
   if(n_pThcat == 2) {
     pThcat = (Int_t)(pTh < 40.);
   } else if (n_pThcat == 3) {
-    pThcat = (Int_t)((pTh < 50.) + (pTh < 25.));
+    pThcat = (Int_t)((pTh < 70.) + (pTh < 40.));
   }
   return pThcat;
 }
@@ -401,4 +401,6 @@ void SetBranchAddress_pho_passcuts_sublead(TTree * tree) { tree->SetBranchAddres
 
 #ifdef NewFeatures
 #include "Marco/plotInteractive_h.h"
+int MuonSelection(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind);
+int ElectronSelection(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind);
 #endif
