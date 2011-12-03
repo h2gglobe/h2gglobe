@@ -178,6 +178,12 @@ class LoopAll {
   int ApplyCut(std::string, float, int);
 
 #ifdef NewFeatures
+
+  //FOR JIM
+  void BdtGetEntry(Int_t jentry);
+
+
+
   void myPrintCounters();
   void myPrintCountersNew();
 

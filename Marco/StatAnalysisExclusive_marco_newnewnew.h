@@ -152,6 +152,7 @@ protected:
 	RooContainer *rooContainer;
 
 	ofstream eventListText;
+	ofstream eventListTextVBF;
 	//vector<double> weights;
 	TFile *kfacFile;
 	

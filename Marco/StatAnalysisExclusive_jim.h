@@ -159,8 +159,8 @@ protected:
 	//JIM
 
 
-#define MPDEBUGCOPY 0
-#define MPDEBUG 0
+#define MPDEBUGCOPY 1
+#define MPDEBUG 1
 
 	LoopAll* ll;
 
@@ -762,7 +762,7 @@ Float_t BDT_ptom2(Int_t jentry, Int_t iPhoton, Int_t vtx, float mass);
 Float_t BDT_dipho(Int_t jentry, Int_t ilindex, Int_t islindex, float lmva, float slmva, float diphopt, float mass);
 Float_t BDT_dipho2(Int_t jentry, Int_t ilindex, Int_t islindex, float lmva, float slmva, float diphopt, float mass);
 
-
+ void HggBookOptree();
 
 };
 

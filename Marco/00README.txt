@@ -31,8 +31,30 @@ setTDRStyle();
   //gSystem->Load("VertexAnalysis/lib/libh2gglobeVertexAnalysis.so");
 gSystem->Load("libLoopAll.so");
 LoopAll* m=new LoopAll();
-m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_marcodatafiles_5fb_LL_33_23_all_ff_120_withSM.root","Hgg")
-m->myPlotInteractive("PhotonAnalysis_scripts/histograms_marcodatafiles_5fb_LL_33_23_all_ff_120_withSM.root");
+m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_marcodatafiles_5fb_LL_33_23_all_ff_120_withSM_1DEC.root","Hgg")
+m->myPlotInteractive("PhotonAnalysis_scripts/histograms_marcodatafiles_5fb_LL_33_23_all_ff_120_withSM_1DEC.root");
+
+root -l
+.L Marco/tdrstyle.C
+setTDRStyle();
+  gSystem->Load("libPhysics.so");
+  gSystem->Load("libCore.so");
+  //gSystem->Load("VertexAnalysis/lib/libh2gglobeVertexAnalysis.so");
+gSystem->Load("libLoopAll.so");
+LoopAll* m=new LoopAll();
+m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_marcodatafiles_5fb_LL_33_23_all_ff_120_withSM_1DEC_fastnew.root","Hgg")
+m->myPlotInteractive("PhotonAnalysis_scripts/histograms_marcodatafiles_5fb_LL_33_23_all_ff_120_withSM_1DEC_fastnew.root");
+
+root -l
+.L Marco/tdrstyle.C
+setTDRStyle();
+  gSystem->Load("libPhysics.so");
+  gSystem->Load("libCore.so");
+  //gSystem->Load("VertexAnalysis/lib/libh2gglobeVertexAnalysis.so");
+gSystem->Load("libLoopAll.so");
+LoopAll* m=new LoopAll();
+m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_marcodatafiles_5fb_LL_33_23_all_ff_120_withSM_1DEC.root","Hgg")
+m->myPlotInteractive("PhotonAnalysis_scripts/histograms_marcodatafiles_5fb_LL_33_23_all_ff_120_withSM_1DEC.root");
 
 m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_only120_29nov_withSM.root","Hgg")
 m->myPlotInteractive("PhotonAnalysis_scripts/histograms_CMS-HGG_4686pb_jettagging_ff_only120_29nov_withSM.root");
@@ -521,3 +543,16 @@ varname[39]: cut_VBF_Mgg_sequential
 varname[40]: cut_VBF_Mgg4_nminus1
 varname[41]: cut_VBF_Mgg4_sequential
 
+
+
+
+cp Marco/StatAnalysisExclusive_jim.h PhotonAnalysis/interface/StatAnalysisExclusive.h
+cp Marco/StatAnalysisExclusive_jim.cc PhotonAnalysis/src/StatAnalysisExclusive.cc
+
+
+cp Marco/StatAnalysisExclusive_marco_newnewnew.h PhotonAnalysis/interface/StatAnalysisExclusive.h
+cp Marco/StatAnalysisExclusive_marco_newnewnew.cc PhotonAnalysis/src/StatAnalysisExclusive.cc
+
+
+
+cp Marco/marcodatafiles_5fb_LL_33_23_all_ff_120.dat PhotonAnalysis_scripts/datafiles_5fb_LL_33_23_all

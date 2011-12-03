@@ -25,7 +25,7 @@ cutname=cut_VHad_phoet2   ncat=1 dir=0  fin=2  val=-25               iread=1 plo
 cutname=cut_VHad_phoetom1 ncat=1 dir=0  fin=2  val=0.5               iread=1 plot=2 bins=100 xmin=0 xmax=2   xaxis= yaxis=Events/(2@GeV/c)
 cutname=cut_VHad_phoetom2 ncat=1 dir=0  fin=2  val=0.208333         iread=1 plot=2 bins=100 xmin=0 xmax=2   xaxis= yaxis=Events/(2@GeV/c)
 cutname=cut_VHad_Mgg0    ncat=1  dir=2  fin=2  minval=90 maxval=190  iread=1 plot=2 bins=50 xmin=90 xmax=190   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(2@GeV/c^{2})
-cutname=cut_VHadLeadJPt  ncat=1  dir=0  fin=2  val=30                iread=1 plot=2 bins=48 xmin=10 xmax=200   xaxis=Leading@Jet@P_{T}@(GeV/c)    yaxis=Events/(5@GeV/c)
+cutname=cut_VHadLeadJPt  ncat=1  dir=0  fin=2  val=35                iread=1 plot=2 bins=48 xmin=10 xmax=200   xaxis=Leading@Jet@P_{T}@(GeV/c)    yaxis=Events/(5@GeV/c)
 cutname=cut_VHadSubJPt   ncat=1  dir=0  fin=2  val=20                iread=1 plot=2 bins=48 xmin=10 xmax=200   xaxis=Trailing@Jet@P_{T}@(GeV/c)    yaxis=Events/(5@GeV/c)
 cutname=cut_VHad_dEta    ncat=1  dir=1  fin=2  val=2.5               iread=1 plot=2 bins=14 xmin=0 xmax=7      xaxis=#Delta#eta(Jet1,Jet2)        yaxis=Events/0.5
 cutname=cut_VHad_Zep     ncat=1  dir=1  fin=2  val=1.5               iread=1 plot=2 bins=16 xmin=0 xmax=8      xaxis=Zeppenfeld                   yaxis=Events/0.5

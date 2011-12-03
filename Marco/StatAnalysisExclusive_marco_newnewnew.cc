@@ -42,6 +42,7 @@ void StatAnalysisExclusive::Term(LoopAll& l)
 //    l.rooContainer->WriteDataCard(outputfilename,"data_mass","sig_mass","bkg_mass_rebinned");
 
     eventListText.close();
+    eventListTextVBF.close();
 
     std::cout << " nevents " <<  nevents << " " << sumwei << std::endl;
 
@@ -63,6 +64,7 @@ void StatAnalysisExclusive::Init(LoopAll& l)
     cout<<"MMMMMMMM "<<outputfilename.c_str()<<endl;
 
     eventListText.open(Form("%s_ascii_events.txt",outputfilename.c_str()));
+    eventListTextVBF.open(Form("%s_ascii_events_vbf.txt",outputfilename.c_str()));
     FillSignalLabelMap();
     //
     // These parameters are set in the configuration file
@@ -732,7 +734,7 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
     if (cur_type !=0){
       for (int ipho=0;ipho<l.pho_n;ipho++){
         double R9_rescale = (l.pho_isEB[ipho]) ? 1.0048 : 1.00492 ;
-        //l.pho_r9[ipho]*=R9_rescale; //commented MARCO for now, should ask
+        l.pho_r9[ipho]*=R9_rescale; //commented MARCO for now, should ask
       }
     }
     // ---------------------------------------------------------------------------------------------------------------------//
@@ -943,15 +945,33 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
 	}
 
 
-	if(VBFevent&&false){
+	if(VBFevent){
 	  if (cur_type==0){
-	    eventListText << setprecision(4) <<"Type = "<< cur_type <<  "Run = " << l.run << "  LS = " << l.lumis << "  Event = " << l.event << "  SelVtx = " << l.vtx_std_sel << "  CAT4 = " << category % 4 << "  ggM = " << diphoton.M() << " gg_Pt =  " << diphoton.Pt();
-	    eventListText << endl;
-	    eventListText << setprecision(4) <<" phoet   "<<myAll_phoet1<<" "<<myAll_phoet2<<endl;
-	    eventListText << setprecision(4) <<" phoetom "<<myAll_phoetom1<<" "<<myAll_phoetom2<<endl;
-	    eventListText << setprecision(4) <<" jetet   "<<myAllLeadJPt<<" "<<myAllSubJPt<<endl;
-	    eventListText << setprecision(4) <<" jeteta  "<<myAllLeadJEta<<" "<<myAllSubJEta<<endl;
-	    eventListText << setprecision(4) <<" jets deta "<<myAlldEta<<" zep "<<myAllZep<<" M "<<myAll_Mjj<<" dphi "<<myAlldPhi<<endl;
+
+          TLorentzVector* jet1 = (TLorentzVector*)l.jet_algoPF1_p4->At(highestPtJets.first);
+          TLorentzVector* jet2 = (TLorentzVector*)l.jet_algoPF1_p4->At(highestPtJets.second);
+          TLorentzVector dijet = (*jet1) + (*jet2);
+
+	    eventListTextVBF << setprecision(4) <<"Type = "<< cur_type <<  " Run = " << l.run << "  LS = " << l.lumis << "  Event = " << l.event << "  SelVtx = " << l.vtx_std_sel << "  CAT4 = " << category % 4 << "  ggM = " << diphoton.M() << " gg_Pt =  " << diphoton.Pt();
+
+	    eventListTextVBF << setprecision(4) <<  "Run = " << l.run << "  LS = " << l.lumis <<
+              "  Event = " << l.event << "  SelVtx = " << l.dipho_vtxind[diphotonVHad_id]
+			     << "  CAT4 = " << category % 4 << "  ggM = " << myVHad_Mgg << " ggPt =  " << diphoton.Pt()
+			     << "  jetEta1 = " << jet1->Eta() << "  jetEta2 = " << jet2->Eta() 
+			     << "  jetPhi1 = " << jet1->Phi() << "  jetPhi2 = " << jet2->Phi()
+			     <<  "  jetEt1 = " << jet1->Et() << "  jetEt2 = "  << jet2->Et()
+			     << " Mjj " << myAll_Mjj
+			     << " dEtajj " << myAlldEta
+			     << " Zeppenfeld " << myAllZep
+			     << " dPhijjgg " << myAlldPhi << " VH itype " <<cur_type << endl;
+	      
+	    eventListTextVBF << setprecision(4) <<"Type = "<< cur_type <<  "Run = " << l.run << "  LS = " << l.lumis << "  Event = " << l.event << "  SetchangedVtx = " << l.vtx_std_sel << "  CAT4 = " << category % 4 << "  ggM = " << diphoton.M() << " gg_Pt =  " << diphoton.Pt();
+	    eventListTextVBF << endl;
+	    eventListTextVBF << setprecision(4) <<" phoet   "<<myAll_phoet1<<" "<<myAll_phoet2<<endl;
+	    eventListTextVBF << setprecision(4) <<" phoetom "<<myAll_phoetom1<<" "<<myAll_phoetom2<<endl;
+	    eventListTextVBF << setprecision(4) <<" jetet   "<<myAllLeadJPt<<" "<<myAllSubJPt<<endl;
+	    eventListTextVBF << setprecision(4) <<" jeteta  "<<myAllLeadJEta<<" "<<myAllSubJEta<<endl;
+	    eventListTextVBF << setprecision(4) <<" jets deta "<<myAlldEta<<" zep "<<myAllZep<<" M "<<myAll_Mjj<<" dphi "<<myAlldPhi<<endl;
 	  }
 	}
 	

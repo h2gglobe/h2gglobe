@@ -53,6 +53,7 @@ void StatAnalysisExclusive::Term(LoopAll& l)
 void StatAnalysisExclusive::Init(LoopAll& l) 
 {
   ll=&l;
+
   //if(PADEBUG) 
 	cout << "InitRealStatAnalysisExclusive START"<<endl;
 
@@ -634,23 +635,23 @@ void StatAnalysisExclusive::Init(LoopAll& l)
     // Make sure the Map is filled
     FillSignalLabelMap();
 
-    //JIM
+    //JIM START OF THINGS
  
 
  photonCutsSet4=false;
   photonCutsSet6=false;
   photonCutsSet6pf=false;
 
-  DODELTARCUT=false;
+  //DODELTARCUT=false;
 
-  GENMATCH_DELTAR_THRESHOLD = 0.1;
+  //GENMATCH_DELTAR_THRESHOLD = 0.1;
 
-  nduplicate=0;
+  //nduplicate=0;
 
 
   if(l.typerun==0) {
     setDiphoCuts();
-    SetBDT();                            // jgb 
+    //SetBDT();                            // jgb 
   for(int idc=0;idc!=13;++idc) {
     std::cout << "\ncutdiphoptom         ";
     for(int ic=0;ic!=4;++ic){std::cout << "\t["<<idc<<"]["<<ic<<"]: " << cutdiphoptom[idc][ic];}
@@ -1735,7 +1736,8 @@ void StatAnalysisExclusive::HggBookOptree() {
 
   //opfile = new TFile("optNtuple.root","RECREATE","optimization ntuple");
   //opfile->cd();
-  hfile->cd();
+  //ll->outputFile->cd();  //MARCO CHECK THIS
+  //ll->hfile->cd();  //MARCO CHECK THIS
   optree= new TTree("ntuple","Hgg optimization Tree");
   //event vars
   optree->Branch("run",&t_run,"run/I",2000000);
@@ -3212,7 +3214,7 @@ void StatAnalysisExclusive::SetBDT() {
   tmvaReader->AddVariable("pt", &tmva_pt);
   tmvaReader->AddVariable("eta", &tmva_eta);
   tmvaReader->AddSpectator("isLeading", &tmva_isLeading);
-  tmvaReader->BookMVA("Gradient", "mh_110_135_Gradient.weights.xml");
+  tmvaReader->BookMVA("Gradient", "../Marco/MVAweights/mh_110_135_Gradient.weights.xml");
 
 
   tmvaReader1 = new TMVA::Reader("!Color:Silent");
@@ -3226,7 +3228,7 @@ void StatAnalysisExclusive::SetBDT() {
   tmvaReader1->AddVariable("pt", &tmva_pt);
   tmvaReader1->AddVariable("eta", &tmva_eta);
   tmvaReader1->AddSpectator("isLeading", &tmva_isLeading);
-  tmvaReader1->BookMVA("Category_Gradient", "mh_110_135_Category_Gradient.weights.xml");
+  tmvaReader1->BookMVA("Category_Gradient", "../Marco/MVAweights/mh_110_135_Category_Gradient.weights.xml");
 
 
   tmvaReader2 = new TMVA::Reader("!Color:Silent");
@@ -3294,10 +3296,10 @@ Float_t StatAnalysisExclusive::BDT(Int_t jentry, Int_t iPhoton, Int_t vtx) {
 
   int n_r9_categories = 3;
   int n_eta_categories = 2;
-  tmva_cat = PhotonCategory(iPhoton,n_r9_categories,n_eta_categories);
+  tmva_cat = ll->PhotonCategory(iPhoton,n_r9_categories,n_eta_categories);
 
   if(MPDEBUG)  std::cout<<"BDT 1"<<std::endl;
-  ll->BdtGetEntry();
+  ll->BdtGetEntry(jentry);
   if(MPDEBUG)  std::cout<<"BDT 1 after"<<std::endl;
 
   /*
@@ -3341,7 +3343,7 @@ Float_t StatAnalysisExclusive::BDT(Int_t jentry, Int_t iPhoton, Int_t vtx) {
 
 
   float isomax=-99;   int badind=0;
-  for(int iv=0; iv<ll->vtx_std_n; iv++) if((*pho_pfiso_mycharged04)[iPhoton][iv]>isomax) {badind=iv; isomax=(*pho_pfiso_mycharged04)[iPhoton][iv]; }
+  for(int iv=0; iv<ll->vtx_std_n; iv++) if((*ll->pho_pfiso_mycharged04)[iPhoton][iv]>isomax) {badind=iv; isomax=(*ll->pho_pfiso_mycharged04)[iPhoton][iv]; }
   if(MPDEBUG)  std::cout<<"BDT 3"<<std::endl;
   
   float rhofacpf[6]={0.075, 0.082, 0.143, 0.050, 0.091, 0.106};          //move
@@ -3377,10 +3379,10 @@ Float_t StatAnalysisExclusive::BDT_categorized(Int_t jentry, Int_t iPhoton, Int_
 
   int n_r9_categories = 3;
   int n_eta_categories = 2;
-  tmva_cat = PhotonCategory(iPhoton,n_r9_categories,n_eta_categories);
+  tmva_cat = ll->PhotonCategory(iPhoton,n_r9_categories,n_eta_categories);
 
   if(MPDEBUG)  std::cout<<"BDT 1"<<std::endl;
-  ll->BdtGetEntry();
+  ll->BdtGetEntry(jentry);
   if(MPDEBUG)  std::cout<<"BDT 1 after"<<std::endl;
   /*
   if(MPDEBUG)  std::cout<<"BDT 1"<<std::endl;
@@ -3422,7 +3424,7 @@ Float_t StatAnalysisExclusive::BDT_categorized(Int_t jentry, Int_t iPhoton, Int_
 
 
   float isomax=-99;   int badind=0;
-  for(int iv=0; iv<ll->vtx_std_n; iv++) if((*pho_pfiso_mycharged04)[iPhoton][iv]>isomax) {badind=iv; isomax=(*pho_pfiso_mycharged04)[iPhoton][iv]; }
+  for(int iv=0; iv<ll->vtx_std_n; iv++) if((*ll->pho_pfiso_mycharged04)[iPhoton][iv]>isomax) {badind=iv; isomax=(*ll->pho_pfiso_mycharged04)[iPhoton][iv]; }
   if(MPDEBUG)  std::cout<<"BDT 3"<<std::endl;
   
   float rhofacpf[6]={0.075, 0.082, 0.143, 0.050, 0.091, 0.106};          //move
@@ -3460,10 +3462,10 @@ Float_t StatAnalysisExclusive::BDT_ptom(Int_t jentry, Int_t iPhoton, Int_t vtx, 
 
   int n_r9_categories = 3;
   int n_eta_categories = 2;
-  tmva_cat = PhotonCategory(iPhoton,n_r9_categories,n_eta_categories);
+  tmva_cat = ll->PhotonCategory(iPhoton,n_r9_categories,n_eta_categories);
 
   if(MPDEBUG)  std::cout<<"BDT 1"<<std::endl;
-  ll->BdtGetEntry();
+  ll->BdtGetEntry(jentry);
   if(MPDEBUG)  std::cout<<"BDT 1 after"<<std::endl;
 
   /*
@@ -3549,10 +3551,10 @@ Float_t StatAnalysisExclusive::BDT_ptom2(Int_t jentry, Int_t iPhoton, Int_t vtx,
 
   int n_r9_categories = 3;
   int n_eta_categories = 2;
-  tmva_cat = PhotonCategory(iPhoton,n_r9_categories,n_eta_categories);
+  tmva_cat = ll->PhotonCategory(iPhoton,n_r9_categories,n_eta_categories);
 
   if(MPDEBUG)  std::cout<<"BDT 1"<<std::endl;
-  ll->BdtGetEntry();
+  ll->BdtGetEntry(jentry);
   if(MPDEBUG)  std::cout<<"BDT 1 after"<<std::endl;
   /*
   if(MPDEBUG)  std::cout<<"BDT 1"<<std::endl;
@@ -3613,7 +3615,7 @@ Float_t StatAnalysisExclusive::BDT_ptom2(Int_t jentry, Int_t iPhoton, Int_t vtx,
   //tmva_tkisopf = min(sqrt((*ll->pho_pfiso_mycharged03)[iPhoton][vtx]*50/tmva_pt),10.);
   tmva_badpf_iso = min(sqrt(((*ll->pho_pfiso_mycharged04)[iPhoton][badind]+ll->pho_pfiso_myphoton04[iPhoton]-ll->rho*rhofacbad+4.8)*50/tmva_pt),10.);
   tmva_goodpf_iso = min(sqrt(((*ll->pho_pfiso_mycharged03)[iPhoton][vtx]+ll->pho_pfiso_myphoton03[iPhoton]-ll->rho*rhofac+2.8)*50/tmva_pt),10.);
-  tmva_tkisopf = min(sqrt((*ll->pho_pfiso_mycharged03)[iPhoton][vtx]*50/tmva_pt),10.);
+  tmva_tkisopf = min(sqrt((*ll->pho_pfiso_mycharged03)[iPhoton][vtx]*50/tmva_pt),(float) 10.);
   if(MPDEBUG)  std::cout<<"BDT 4"<<std::endl;
   if(MPDEBUG)  std::cout<<"BDT 4"<<std::endl;
   
@@ -3635,7 +3637,7 @@ Float_t StatAnalysisExclusive::BDT_ptom2(Int_t jentry, Int_t iPhoton, Int_t vtx,
 Float_t StatAnalysisExclusive::BDT_dipho(Int_t jentry, Int_t isl, Int_t il, float lmva, float slmva, float diphopt, float mass) {
 
 
-  ll->BdtGetEntry();
+  ll->BdtGetEntry(jentry);
 
     /*
   if (b_pho_r9->GetReadEntry() != jentry)
@@ -3664,7 +3666,7 @@ Float_t StatAnalysisExclusive::BDT_dipho(Int_t jentry, Int_t isl, Int_t il, floa
 
 Float_t StatAnalysisExclusive::BDT_dipho2(Int_t jentry, Int_t isl, Int_t il, float lmva, float slmva, float diphopt, float mass) {
 
-  ll->BdtGetEntry();
+  ll->BdtGetEntry(jentry);
 
     /*
   if (b_pho_r9->GetReadEntry() != jentry)
