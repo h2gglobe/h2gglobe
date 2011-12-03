@@ -1542,9 +1542,6 @@ void LoopAll::DefineUserBranches()
 #endif
 }
 
-#ifdef NewFeatures
-#include "Marco/plotInteractive_cc.h"
-
 int LoopAll::MuonSelection(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind){
   int mymu = -1;
 
@@ -1657,4 +1654,7 @@ int LoopAll::ElectronSelection(TLorentzVector& pho1, TLorentzVector& pho2, int v
   return myel;
 }
 
+
+#ifdef NewFeatures
+#include "Marco/plotInteractive_cc.h"
 #endif

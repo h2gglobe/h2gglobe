@@ -398,9 +398,9 @@ void SetBranchAddress_pho_passcuts_lead(TTree * tree) { tree->SetBranchAddress("
 void SetBranchAddress_pho_cutlevel_sublead(TTree * tree) { tree->SetBranchAddress("pho_cutlevel_sublead", &pho_cutlevel_sublead, &b_pho_cutlevel_sublead ); };
 void SetBranchAddress_pho_passcuts_sublead(TTree * tree) { tree->SetBranchAddress("pho_passcuts_sublead", &pho_passcuts_sublead, &b_pho_passcuts_sublead ); };
 
+int MuonSelection(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind);
+int ElectronSelection(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind);
 
 #ifdef NewFeatures
 #include "Marco/plotInteractive_h.h"
-int MuonSelection(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind);
-int ElectronSelection(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind);
 #endif
