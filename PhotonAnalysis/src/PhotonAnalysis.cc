@@ -834,9 +834,10 @@ void PhotonAnalysis::PreselectPhotons(LoopAll& l, int jentry)
 	corrected_pho_energy.clear(); corrected_pho_energy.resize(l.pho_n,0.); 
 	int cur_type = l.itype[l.current];
 
+	// EDIT - 4 Dec 2011 NWardle Latest Ntuple Production uses New and Correct Regression so no need to calculate on the FLY corrections
 	// TEMPORARY FIX TO CALCULATE CORRECTED ENERGIES SINCE REGRESSION WAS NOT STORED IN NTUPLES 
 	// The following Fills the arrays with the ON-THE-FLY calculations
-	GetRegressionCorrections(l);  // need to pass LoopAll
+	//GetRegressionCorrections(l);  // need to pass LoopAll
 	// -------------------------------------------------------------------------------------------//
 	for(int ipho=0; ipho<l.pho_n; ++ipho ) { 
 		std::vector<std::vector<bool> > p;
