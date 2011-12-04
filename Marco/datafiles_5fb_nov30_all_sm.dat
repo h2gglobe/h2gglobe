@@ -1,4 +1,4 @@
-intL=4686. histfile=CMS-HGG_4686_dec2_SM_VBF2cat_alldata_splittest.root output=schif.root
+intL=4686. histfile=CMS-HGG_4686_dec4_SM_inclusive+VBF_power.root output=schif.root
 
 ->
 -Data
@@ -76,6 +76,7 @@ typ=-50 ind=2 draw=1  Nam=vbf_H_gg_150_pu2011     Dir=/hadoop/cms/store/user/cap
 typ=-52 ind=4 draw=1  Nam=wz_H_gg_150_pu2011      Dir=/hadoop/cms/store/user/capalmer/h2g_V11_04_01/h2gred_official_transNov30/MC_Sig_Fall11_S6/WZH150_S6    red=0 lum=1000000.0  xsec=0.000641104 kfac=1.000000  scal=1.000000
 ->
 typ=-51 ind=3 draw=1  Nam=tt_H_gg_150_pu2011      Dir=/hadoop/cms/store/user/capalmer/h2g_V11_04_01/h2gred_official_transNov30/MC_Sig_Fall11_S6/TTH150_S6      red=0 lum=1000000.0  xsec=0.0000662184 kfac=1.000000  scal=1.000000
+->
 
 typ=-45 ind=1 draw=1  Nam=gluglu_H_gg_145_pu2011  Dir=/hadoop/cms/store/user/capalmer/h2g_V11_04_01/h2gred_official_transNov30/MC_Sig_Fall11_S6/Glu145_S6  red=0 lum=1000000.0  xsec=0.0188209 kfac=1.000000  scal=1.000000
 typ=-46 ind=2 draw=1  Nam=vbf_H_gg_145_pu2011     Dir=/hadoop/cms/store/user/capalmer/h2g_V11_04_01/h2gred_official_transNov30/MC_Sig_Fall11_S6/VBF145_S6      red=0 lum=1000000.0  xsec=0.00167668 kfac=1.000000  scal=1.000000
@@ -116,7 +117,6 @@ typ=-17 ind=17 draw=1  Nam=gluglu_H_gg_110_pu2011 Dir=/hadoop/cms/store/user/cap
 typ=-18 ind=18 draw=1  Nam=vbf_H_gg_110_pu2011    Dir=/hadoop/cms/store/user/capalmer/h2g_V11_04_01/h2gred_official_transNov30/MC_Sig_Fall11_S6/VBF110_S6      red=0 lum=1000000.0  xsec=0.00275406 kfac=1.000000  scal=1.000000
 typ=-19 ind=19 draw=1  Nam=wz_H_gg_110_pu2011     Dir=/hadoop/cms/store/user/capalmer/h2g_V11_04_01/h2gred_official_transNov30/MC_Sig_Fall11_S6/WZH110_S6    red=0 lum=1000000.0  xsec=0.002654575 kfac=1.000000  scal=1.000000
 typ=-20 ind=20 draw=1  Nam=tt_H_gg_110_pu2011     Dir=/hadoop/cms/store/user/capalmer/h2g_V11_04_01/h2gred_official_transNov30/MC_Sig_Fall11_S6/TTH110_S6      red=0 lum=1000000.0  xsec=0.000247629 kfac=1.000000  scal=1.000000
-->
 
 
 
@@ -155,5 +155,5 @@ syntax:
 
 analyzer PhotonAnalysis photonanalysis.dat	
 ->
-analyzer StatAnalysisExclusive photonanalysis.dat statanalysisexclusive.dat
+analyzer StatAnalysis photonanalysis.dat statanalysis.dat
  
