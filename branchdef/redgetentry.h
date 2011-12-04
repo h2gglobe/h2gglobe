@@ -188,12 +188,15 @@ b_mu_glo_d0err->GetEntry(jentry);
 b_mu_glo_charge->GetEntry(jentry); 
 b_mu_glo_losthits->GetEntry(jentry); 
 b_mu_glo_validhits->GetEntry(jentry); 
+b_mu_glo_innerhits->GetEntry(jentry); 
 b_mu_glo_iso->GetEntry(jentry);
 b_mu_glo_pixelhits->GetEntry(jentry);
 b_mu_glo_validChmbhits->GetEntry(jentry);
+b_mu_glo_tkpterr->GetEntry(jentry);
 b_mu_glo_ecaliso03->GetEntry(jentry);
 b_mu_glo_hcaliso03->GetEntry(jentry);
 b_mu_glo_tkiso03->GetEntry(jentry);
+b_mu_glo_dz->GetEntry(jentry);
  
 /* b_mu_tk_n->GetEntry(jentry); 
    b_mu_tk_p4->GetEntry(jentry); 

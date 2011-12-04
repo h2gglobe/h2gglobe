@@ -312,13 +312,16 @@ void Branch_mu_glo_d0err(TTree * tree) { tree->Branch("mu_glo_d0err",&mu_glo_d0e
 void Branch_mu_glo_charge(TTree * tree) { tree->Branch("mu_glo_charge",&mu_glo_charge, "mu_glo_charge[mu_glo_n]/I");  }; 
 void Branch_mu_glo_losthits(TTree * tree) { tree->Branch("mu_glo_losthits",&mu_glo_losthits, "mu_glo_losthits[mu_glo_n]/I");  }; 
 void Branch_mu_glo_validhits(TTree * tree) { tree->Branch("mu_glo_validhits",&mu_glo_validhits, "mu_glo_validhits[mu_glo_n]/I");  }; 
+void Branch_mu_glo_innerhits(TTree * tree) { tree->Branch("mu_glo_innerhits",&mu_glo_innerhits, "mu_glo_innerhits[mu_glo_n]/I");  }; 
 void Branch_mu_glo_type(TTree * tree) { tree->Branch("mu_glo_type",&mu_glo_type, "mu_glo_type[mu_glo_n]/I");  }; 
 void Branch_mu_glo_iso(TTree * tree) { tree->Branch("mu_glo_iso",&mu_glo_iso, "mu_glo_iso[mu_glo_n]/F");  }; 
 void Branch_mu_glo_pixelhits(TTree * tree) { tree->Branch("mu_glo_pixelhits",&mu_glo_pixelhits, "mu_glo_pixelhits[mu_glo_n]/I");  }; 
 void Branch_mu_glo_validChmbhits(TTree * tree) { tree->Branch("mu_glo_validChmbhits",&mu_glo_validChmbhits, "mu_glo_validChmbhits[mu_glo_n]/I");  }; 
+void Branch_mu_glo_tkpterr(TTree * tree) { tree->Branch("mu_glo_tkpterr",&mu_glo_tkpterr, "mu_glo_tkpterr[mu_glo_n]/F");  }; 
 void Branch_mu_glo_ecaliso03(TTree * tree) { tree->Branch("mu_glo_ecaliso03",&mu_glo_ecaliso03, "mu_glo_ecaliso03[mu_glo_n]/F");  }; 
 void Branch_mu_glo_hcaliso03(TTree * tree) { tree->Branch("mu_glo_hcaliso03",&mu_glo_hcaliso03, "mu_glo_hcaliso03[mu_glo_n]/F");  }; 
 void Branch_mu_glo_tkiso03(TTree * tree) { tree->Branch("mu_glo_tkiso03",&mu_glo_tkiso03, "mu_glo_tkiso03[mu_glo_n]/F");  }; 
+void Branch_mu_glo_dz(TTree * tree) { tree->Branch("mu_glo_dz",&mu_glo_dz, "mu_glo_dz[mu_glo_n]/F");  }; 
 void Branch_pho_n(TTree * tree) { tree->Branch("pho_n",&pho_n, "pho_n/I");  }; 
 void Branch_pho_feta(TTree * tree) { tree->Branch("pho_feta",&pho_feta,"pho_feta[pho_n][5]/F");  }; 
 void Branch_pho_crackcorr(TTree * tree) { tree->Branch("pho_crackcorr",&pho_crackcorr,"pho_crackcorr[pho_n]/F");  }; 
