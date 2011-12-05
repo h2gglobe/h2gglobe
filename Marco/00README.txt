@@ -90,33 +90,37 @@ rm -r  HiggsAnalysis/HiggsTo2photons/h2gglobe
 cvs co -d HiggsAnalysis/HiggsTo2photons/h2gglobe UserCode/HiggsAnalysis/HiggsTo2photons/h2gglobe
 
 cp Marco/CommonParameters.h ./CommonParameters.h
-cp Marco/HistoContainer.cc ./HistoContainer.cc
-cp Marco/HistoContainer.h ./HistoContainer.h
-cp Marco/CounterContainer.cc ./CounterContainer.cc
-cp Marco/CounterContainer.h ./CounterContainer.h
+#cp Marco/HistoContainer.cc ./HistoContainer.cc
+#cp Marco/HistoContainer.h ./HistoContainer.h
+#cp Marco/CounterContainer.cc ./CounterContainer.cc
+#cp Marco/CounterContainer.h ./CounterContainer.h
 cp Marco/LoopAll.h ./LoopAll.h 
 cp Marco/LoopAll.cc ./LoopAll.cc 
 
 cp Marco/minimal_statanalysis_input.dat PhotonAnalysis_scripts/minimal_statanalysis_input.dat
-cp Marco/cuts.dat PhotonAnalysis_scripts/cuts.dat
+#cp Marco/cuts.dat PhotonAnalysis_scripts/cuts.dat
 #cp Marco/cuts_marco.dat PhotonAnalysis_scripts/cuts.dat
 cp Marco/plotvariables.dat PhotonAnalysis_scripts/plotvariables.dat
-cp Marco/inputfiles.dat PhotonAnalysis_scripts/inputfiles.dat
+#cp Marco/inputfiles.dat PhotonAnalysis_scripts/inputfiles.dat
 # cp Marco/looper.py PhotonAnalysis_scripts/looper.py
 # cp Marco/looper_input.dat PhotonAnalysis_scripts/looper_input.dat
 cp Marco/photonanalysis.dat PhotonAnalysis_scripts/photonanalysis.dat
 cp Marco/reduction_output.dat PhotonAnalysis_scripts/reduction_output.dat
-cp Marco/configProducer.py PhotonAnalysis_scripts/python/configProducer.py
+######cp Marco/configProducer.py PhotonAnalysis_scripts/python/configProducer.py
 # cp Marco/PhotonAnalysis.cc PhotonAnalysis/src/PhotonAnalysis.cc
-cp Marco/StatAnalysisExclusive.h PhotonAnalysis/interface/StatAnalysisExclusive.h
-cp Marco/StatAnalysisExclusive.cc PhotonAnalysis/src/StatAnalysisExclusive.cc
-cp Marco/statanalysis.dat PhotonAnalysis_scripts/statanalysis.dat
+#cp Marco/StatAnalysisExclusive.h PhotonAnalysis/interface/StatAnalysisExclusive.h
+#cp Marco/StatAnalysisExclusive.cc PhotonAnalysis/src/StatAnalysisExclusive.cc
+##cp Marco/statanalysis.dat PhotonAnalysis_scripts/statanalysis.dat
 cp Marco/statanalysisexclusive.dat PhotonAnalysis_scripts/statanalysisexclusive.dat
 
+
+???
 cp Marco/fitter.py PhotonAnalysis_scripts/fitter.py
 
 cp Marco/Makefile ./Makefile
-cp Marco/pu_weights_map.dat PhotonAnalysis_scripts/pu_weights_map.dat
+
+???
+#cp Marco/pu_weights_map.dat PhotonAnalysis_scripts/pu_weights_map.dat
 
 cp Marco/datafiles_5fb.dat PhotonAnalysis_scripts/datafiles_5fb.dat
 cp Marco/datafiles_5fb_LL_33_23.dat PhotonAnalysis_scripts/datafiles_5fb_LL_33_23.dat
@@ -129,13 +133,13 @@ cp Marco/cuts_marco.dat PhotonAnalysis_scripts/cuts.dat
 #cp Marco/cuts_marco_100160.dat PhotonAnalysis_scripts/cuts.dat
 cp Marco/StatAnalysisExclusive_marco_newnewnew.h PhotonAnalysis/interface/StatAnalysisExclusive.h
 cp Marco/StatAnalysisExclusive_marco_newnewnew.cc PhotonAnalysis/src/StatAnalysisExclusive.cc
-cp Marco/marcodatafiles_5fb_LL_33_23_all_ff_120.dat PhotonAnalysis_scripts/datafiles_5fb_LL_33_23_all_ff_120.dat
-cp Marco/marcodatafiles_5fb_LL_33_23_all_ff.dat PhotonAnalysis_scripts/datafiles_5fb_LL_33_23_all_ff.dat
+###cp Marco/marcodatafiles_5fb_LL_33_23_all_ff_120.dat PhotonAnalysis_scripts/datafiles_5fb_LL_33_23_all_ff_120.dat
+###cp Marco/marcodatafiles_5fb_LL_33_23_all_ff.dat PhotonAnalysis_scripts/datafiles_5fb_LL_33_23_all_ff.dat
 
-cp Marco/datafiles_5fb.dat PhotonAnalysis_scripts/datafiles_5fb.dat
-cp Marco/datafiles_5fb_LL_33_23.dat PhotonAnalysis_scripts/datafiles_5fb_LL_33_23.dat
-cp Marco/datafiles_5fb_LL_33_23_all.dat PhotonAnalysis_scripts/datafiles_5fb_LL_33_23_all.dat
-cp Marco/datafiles_5fb_LL_33_23_all_ff.dat PhotonAnalysis_scripts/datafiles_5fb_LL_33_23_all_ff.dat
+#cp Marco/datafiles_5fb.dat PhotonAnalysis_scripts/datafiles_5fb.dat
+#cp Marco/datafiles_5fb_LL_33_23.dat PhotonAnalysis_scripts/datafiles_5fb_LL_33_23.dat
+#cp Marco/datafiles_5fb_LL_33_23_all.dat PhotonAnalysis_scripts/datafiles_5fb_LL_33_23_all.dat
+#cp Marco/datafiles_5fb_LL_33_23_all_ff.dat PhotonAnalysis_scripts/datafiles_5fb_LL_33_23_all_ff.dat
 
 
 diff Marco/CommonParameters.h ./CommonParameters.h
@@ -167,6 +171,9 @@ diff Marco/StatAnalysisExclusive.cc PhotonAnalysis/src/StatAnalysisExclusive.cc
 diff Marco/StatAnalysisExclusive_marco.cc PhotonAnalysis/src/StatAnalysisExclusive.cc
 diff Marco/statanalysisexclusive.dat PhotonAnalysis_scripts/statanalysisexclusive.dat
 diff Marco/fitter.py PhotonAnalysis_scripts/fitter.py
+
+diff Marco/StatAnalysisExclusive.h PhotonAnalysis/interface/StatAnalysis.h
+diff Marco/StatAnalysisExclusive.cc PhotonAnalysis/src/StatAnalysis.cc
 
 diff Marco/Makefile ./Makefile
 
@@ -210,7 +217,10 @@ python fitter.py -i datafiles_5fb_LL_33_23_all_ff.dat >&  datafiles_5fb_LL_33_23
 cp Marco/StatAnalysisExclusive_marco_newnewnew.h PhotonAnalysis/interface/StatAnalysisExclusive.h
 cp Marco/StatAnalysisExclusive_marco_newnewnew.cc PhotonAnalysis/src/StatAnalysisExclusive.cc
 
-cd PhotonAnalysis_scripts/.
+tkdiff Marco/StatAnalysisExclusive_marco_newnewnew.h PhotonAnalysis/interface/StatAnalysis.h
+tkdiff Marco/StatAnalysisExclusive_marco_newnewnew.cc PhotonAnalysis/src/StatAnalysis.cc
+
+d PhotonAnalysis_scripts/.
 cp ../Marco/cuts_marco_debug.dat cuts.dat
 cp ../Marco/cuts_marco.dat cuts.dat
 cp ../Marco/cuts_marco_ptom.dat cuts.dat

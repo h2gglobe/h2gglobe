@@ -452,8 +452,8 @@ void LoopAll::InitReal(Int_t typerunpass) {
  // }
 
   //marco new
-  //hfile = TFile::Open(histFileName, "RECREATE", "Globe ROOT file with histograms");
-
+  hfilereal = TFile::Open(histFileName, "RECREATE", "Globe ROOT file with histograms");
+  hfilereal->cd();
 
   if(LDEBUG) cout << "doing InitRealPhotonAnalysis" << endl;
   for (size_t i=0; i<analyses.size(); i++) {
@@ -719,7 +719,7 @@ void LoopAll::WriteHist() {
   //hfile = TFile::Open(histFileName, "RECREATE", "Globe ROOT file with histograms");
 	cout<<"WriteHist before "<<endl;
 
-	hfile->cd();
+	hfilereal->cd();
 	for(unsigned int ind=0; ind<histoContainer.size(); ind++) {
 	  cout<<"WriteHist before "<<ind<<endl;
 	  histoContainer[ind].Save();
@@ -734,7 +734,7 @@ void LoopAll::WriteHist() {
 #endif
 	cout<<"WriteHist here "<<endl;
 
-  hfile->Close();
+  hfilereal->Close();
       
   if (makeOutputTree) 
     outputFile->cd();
@@ -759,7 +759,7 @@ void LoopAll::WritePI() {
   Int_t typplotall = 0;
   Int_t plothistoplotitPI[10000];
 
-  hfile->cd();
+  hfilereal->cd();
   plotvartree = new TTree("plotvariables","globe plotvariables provenance information");
   
   plotvartree->Branch("Nvar", &Nvar, "Nvar/I");
@@ -1184,6 +1184,11 @@ void LoopAll::GetBranches(std::map<std::string,int> & names, std::set<TBranch *>
 {
     for(std::map<std::string,int>::iterator it=names.begin(); it!=names.end(); ++it ) {
 	const std::string & name = (*it).first;
+
+
+	//std::cout<<"getting name "<<name<<std::endl;
+
+
 	int typ = (*it).second;
 	branch_info_t & info = branchDict[ name ];
 	if( info.branch == 0 ) {
@@ -1238,6 +1243,8 @@ void LoopAll::Branches(std::list<std::string> & names) {
 void LoopAll::GetEntry(std::set<TBranch *> & branches, int jentry)
 {
   for(std::set<TBranch *>::iterator it=branches.begin(); it!=branches.end(); ++it ) {
+
+    //(*it)->Print();
     if( (*it)->GetReadEntry() != jentry ) {  (*it)->GetEntry(jentry); }
   }
 }

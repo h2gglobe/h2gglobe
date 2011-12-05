@@ -784,6 +784,12 @@ std::vector<float> smearErr_nov14;
 
  Int_t itype_jim(int itype);
 
+ 
+std::pair<int,int> DiphotonCiCSelectionIndicesJim( phoCiCIDLevel LEADCUTLEVEL = phoLOOSE, phoCiCIDLevel SUBLEADCUTLEVEL = phoLOOSE, Float_t leadPtMin = 30, Float_t subleadPtMin = 20, int ncat=6, int vtxind=-1, bool applyPtoverM=false);
+// for a photon index, applies all levels of cuts and returns the index to the highest cut level passed (can do lead and sublead - same for now)
+int   PhotonCiCSelectionLevelJim( int photon_index, int ncat=6, int vtxind=-1, int doSublead=1, int diphoind=-1, int print=0);
+int   PhotonCiCpfSelectionLevelJim( int photon_index, int ncat=6, int vtxind=-1, int doSublead=1, int diphoind=-1, int print=0);
+
 };
 
 #endif

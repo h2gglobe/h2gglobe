@@ -928,15 +928,22 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
 	//if(newweight*pileupWeight != weight) cout<<"AAA################ "<<newweight*pileupWeight<<" "<<weight<<" "<<newweight<<" "<<pileupWeight<<endl;
 	float myweight=1.;
 	if(evweight*newweight!=0) myweight=evweight/newweight;
+
+
+
+	//cout<<" Weights: weight "<<weight<<" newtimepileup" <<newweight*pileupWeight<<" genwei "<<genLevWeight<<" PTHihhs "<<myAllPtHiggs<<""<<genLevWeight<<endl;
 	
 	l.ApplyCutsFill(0,3,evweight, myweight);
-
+	//a
 	VBFevent = l.ApplyCutsFill(0,1,evweight, myweight);
+	//VBFevent = l.ApplyCutsFill(0,1,evweight, evweight);
 	l.ApplyCutsFill(0,5,evweight, myweight);
 
 
 	int category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,0.,2,2,1);
 	int category2 = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,0.,2,1,1);
+
+	//cout<<cur_type<<" Final events r,l,e"<< l.run << " " << l.lumis << " " << l.event <<" "<<category2<<" "<<diphoton.M()<<" "<<weight<<endl;
 
 	if (cur_type==0){
 	  int faketype=999;

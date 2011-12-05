@@ -904,6 +904,9 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
     sumev += weight;
 
     //here jim's stuff for now:
+
+    //HERE WE GET THE diphoton id and vtxind from the standard one??? //MARCO FIX
+
     int diphoton_id_jim = l.DiphotonCiCSelection(l.phoLOOSE, l.phoLOOSE, leadEtCut, subleadEtCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
 
     if(diphoton_id_jim>=0) {
@@ -3117,14 +3120,18 @@ int StatAnalysisExclusive::diphoCutLevel(int leadind, int subleadind, int vtxind
 
 
 //MARCO FIX
-  TLorentzVector newleadp4; //MARCO FIX=  TLorentzVector(VertexCorrectedP4Hgg(leadind,vtxind));
-    TLorentzVector newsubleadp4; //MARCO FIX=  TLorentzVector(VertexCorrectedP4Hgg(subleadind,vtxind));
-  //TLorentzVector * leadp4 = new TLorentzVector(VertexCorrectedP4Hgg(leadind,vtxind));
-  //TLorentzVector * subleadp4 = new TLorentzVector(VertexCorrectedP4Hgg(subleadind,vtxind));
+
+  //TLorentzVector newleadp4; //MARCO FIX=  TLorentzVector(VertexCorrectedP4Hgg(leadind,vtxind));
+  //TLorentzVector newsubleadp4; //MARCO FIX=  TLorentzVector(VertexCorrectedP4Hgg(subleadind,vtxind));
+//MARCO FIXED
+  TLorentzVector newleadp4 = ll->get_pho_p4(leadind,vtxind);
+  TLorentzVector newsubleadp4 = ll->get_pho_p4(subleadind,vtxind);
+
   TLorentzVector * leadp4 = &newleadp4;
   TLorentzVector * subleadp4 = &newsubleadp4;
 
-  //MARCO FIX
+
+
   TVector3 leadcalopos = *((TVector3*)ll->pho_calopos->At(leadind));
   Float_t leadeta = fabs(((TLorentzVector*)ll->sc_p4->At(ll->pho_scind[leadind]))->Eta());
 
@@ -3149,9 +3156,9 @@ int StatAnalysisExclusive::diphoCutLevel(int leadind, int subleadind, int vtxind
 
 
   //sean: this has to be changed too
-  //MARCO FIX
-  Float_t leadcutindex; //MARCO FIX= PhotonCiCSelectionLevel(leadind,6,vtxi,0,diphoind);
-  Float_t subleadcutindex; //MARCO FIX= PhotonCiCSelectionLevel(subleadind,6,vtxi,1,diphoind);
+  //MARCO FIXED OK???
+  Float_t leadcutindex= PhotonCiCSelectionLevelJim(leadind,6,vtxi,0,diphoind);
+  Float_t subleadcutindex= PhotonCiCSelectionLevelJim(subleadind,6,vtxi,1,diphoind);
 
   //cout<<"mmmmm "<<leadcutindex<<" "<<subleadcutindex<<endl;
 
@@ -3799,6 +3806,9 @@ Float_t StatAnalysisExclusive::BDT_dipho2(Int_t jentry, Int_t isl, Int_t il, flo
 
 void StatAnalysisExclusive::SetOutputNtupleVariables(int jentry, int itype, int leadind, int subleadind, int vtxind, float mass, TLorentzVector *leadp4, TLorentzVector *subleadp4, float evweight, float pileupWeight) {
 
+  //FIX itype
+  itype = itype_jim(itype);
+
   if(MPDEBUGCOPY) cout << "SetOutputNtupleVariables BEGIN"<<endl;
   //int leadind = dipho_leadind[diphoton_index];
   //int subleadind = dipho_subleadind[diphoton_index];
@@ -3830,7 +3840,7 @@ void StatAnalysisExclusive::SetOutputNtupleVariables(int jentry, int itype, int 
   t_run = ll->run;
   t_lumis = ll->lumis;
   t_event = ll->event;
-  t_itype = itype_jim(itype);
+  t_itype = itype;
   t_processid = ll->process_id;
   //   minuit_weight is the weight computed from inputfiles including the k-factor
   //   weight is not used to be myweight from this program which gives the PT-higgs correction and the efficiency correction for signal
@@ -3874,13 +3884,14 @@ if(jentry%1000==1&&itype>0&&itype%1000==1) cout<<jentry<<"  "<<itype<<"  mass="<
 
   t_deltaM=0;
   if(itype>0) t_deltaM=mass-float(itype/1000);
+
   t_diphocat2r92eta = ll->DiphotonCategory(leadind,subleadind,0.,2,2,1);
 
   //MARCO FIX CHECK
+  //MARCO FIX NOW
+  t_diphosubcat4 = diphoSubCategory(3,ll->DiphotonCategory(leadind,subleadind,0.,2,2,1),diphoCutLevel(leadind,subleadind,vtxind))-1;     //   jgb change replace chosen_vtx with vtxind (probably the same but its a parameter t this routine)
 
-  t_diphosubcat4; //MARCO FIX= diphoSubCategory(3,ll->DiphotonCategory(leadind,subleadind,0.,2,2,1),diphoCutLevel(leadind,subleadind,vtxind))-1;     //   jgb change replace chosen_vtx with vtxind (probably the same but its a parameter t this routine)
-
-  t_category = ll->DiphotonCategory(leadind,subleadind,0.,3,4,1);
+  t_category = ll->DiphotonCategory(leadind,subleadind,0.,4,3,1);
   t_barrel = (Int_t)(leadeta < 1.479 && subleadeta < 1.479);
   t_diphor9 = TMath::Min(ll->pho_r9[leadind],ll->pho_r9[subleadind]);
   t_diphoeta = fabs(diphotonp4.Eta());
@@ -3903,18 +3914,18 @@ if(jentry%1000==1&&itype>0&&itype%1000==1) cout<<jentry<<"  "<<itype<<"  mass="<
 
 
   t_leadpt = leadp4->Pt();
-  t_leadgenmatch = GenIndexHgg(leadp4)>=0; //MARCO FIX  = GenIndexHgg(leadp4)>=0;     
+  t_leadgenmatch = GenIndexHgg(leadp4)>=0; //MARCO FIXED  = GenIndexHgg(leadp4)>=0;     
   t_leadbarrel = leadeta < 1.479;//ll->pho_barrel[leadind];
   t_leadhovere = ll->pho_hoe[leadind];
   t_leadsee = ll->pho_see[leadind];
   //t_leadspp = ll->pho_spp[leadind];
   t_leadpi0nn=0;
 
-  t_leadecalhitsJ_060330; //MARCO FIX = ll->pho_ecalJ_060330[leadind];
+  t_leadecalhitsJ_060330; //MARCO FIX IGNORE = ll->pho_ecalJ_060330[leadind];
 
-  t_leadtrkiso; //MARCO FIX = ll->pho_ntrk_15_03[leadind];
-  t_leadecaliso; //MARCO FIX = ll->pho_ecalJ_060330[leadind];
-  t_leadhcaliso; //MARCO FIX = ll->pho_hcal_030[leadind];
+  t_leadtrkiso; //MARCO FIX IGNORE = ll->pho_ntrk_15_03[leadind];
+  t_leadecaliso; //MARCO FIX IGNORE = ll->pho_ecalJ_060330[leadind];
+  t_leadhcaliso; //MARCO FIX IGNORE = ll->pho_hcal_030[leadind];
   //t_leadtrkplusecal=t_leadtrkecone30 + t_leadecalhitsJ_060330;
 
   t_subleadcat = ll->PhotonCategory(subleadind,3,4);
@@ -3925,13 +3936,13 @@ if(jentry%1000==1&&itype>0&&itype%1000==1) cout<<jentry<<"  "<<itype<<"  mass="<
 
   t_subleadpt = subleadp4->Pt();
   //t_subleadgenmatch = ll->pho_genmatch[subleadind];
-  t_subleadgenmatch = GenIndexHgg(subleadp4)>=0; //MARCO FIX  = GenIndexHgg(subleadp4)>=0;     
+  t_subleadgenmatch = GenIndexHgg(subleadp4)>=0; //MARCO FIXED  = GenIndexHgg(subleadp4)>=0;     
   t_subleadbarrel = subleadeta < 1.479;//ll->pho_barrel[subleadind];
   t_subleadhovere = ll->pho_hoe[subleadind];
   t_subleadsee = ll->pho_see[subleadind];
   //t_subleadspp = ll->pho_spp[subleadind];
   t_subleadpi0nn=0;
-  t_subleadecalhitsJ_060330; //MARCO FIX = ll->pho_ecalJ_060330[subleadind];
+  t_subleadecalhitsJ_060330; //MARCO FIX IGNORE = ll->pho_ecalJ_060330[subleadind];
 
   t_rho = ll->rho;
   t_nvtx = ll->vtx_std_n;
@@ -3939,11 +3950,16 @@ if(jentry%1000==1&&itype>0&&itype%1000==1) cout<<jentry<<"  "<<itype<<"  mass="<
   if(MPDEBUGCOPY) cout << "SetOutputNtupleVariables 02  "<<endl;
 
   // cic index begin
-  t_leadci6cindex; //MARCO FIX = PhotonCiCSelectionLevel(leadind,6,vtxind,0);
-  t_subleadci6cindex; //MARCO FIX = PhotonCiCSelectionLevel(subleadind,6,vtxind,1);
+//MARCO FIX CHECK
+  t_leadci6cindex = PhotonCiCSelectionLevelJim(leadind,6,vtxind,0);
+//MARCO FIX CHECK
+  t_subleadci6cindex = PhotonCiCSelectionLevelJim(subleadind,6,vtxind,1);
 
-  t_leadci6cpfindex; //MARCO FIX = PhotonCiCpfSelectionLevel(leadind,6,vtxind,0);
-  t_subleadci6cpfindex; //MARCO FIX = PhotonCiCpfSelectionLevel(subleadind,6,vtxind,1);
+//MARCO FIX CHECK
+  t_leadci6cpfindex = PhotonCiCpfSelectionLevelJim(leadind,6,vtxind,0);
+//MARCO FIX CHECK
+  t_subleadci6cpfindex = PhotonCiCpfSelectionLevelJim(subleadind,6,vtxind,1);
+
   t_subleadci6cpfmva = BDT(jentry, subleadind,vtxind);
   t_subleadci6cpfmvacat = BDT_categorized(jentry, subleadind, vtxind, -1.);
   t_subleadci6cpfmvaptom = BDT_ptom(jentry, subleadind,vtxind, mass);
@@ -3961,8 +3977,10 @@ if(jentry%1000==1&&itype>0&&itype%1000==1) cout<<jentry<<"  "<<itype<<"  mass="<
 
   t_leadcutindex = t_leadci6cpfindex;//PhotonCiCSelectionLevel(leadind,6,chosen_vtx,0);
   t_subleadcutindex = t_subleadci6cpfindex;//PhotonCiCSelectionLevel(subleadind,6,chosen_vtx,1);
-  t_leadci4cindex; //MARCO FIX = PhotonCiCSelectionLevel(leadind,4,vtxind,0);
-  t_subleadci4cindex; //MARCO FIX = PhotonCiCSelectionLevel(subleadind,4,vtxind,1);
+//MARCO FIX CHECK
+  t_leadci4cindex = PhotonCiCSelectionLevelJim(leadind,4,vtxind,0);
+//MARCO FIX CHECK
+  t_subleadci4cindex = PhotonCiCSelectionLevelJim(subleadind,4,vtxind,1);
 
   //std::pair<int,int> diphoton_indices(DiphotonCiCSelectionIndices( LEADCUTLEVEL, SUBLEADCUTLEVEL, leadPtMin, subleadPtMin, CICNCAT, -1, false));
   //leadind = diphoton_indices.first;
@@ -3974,9 +3992,9 @@ if(jentry%1000==1&&itype>0&&itype%1000==1) cout<<jentry<<"  "<<itype<<"  mass="<
 
   if(MPDEBUGCOPY) cout << "SetOutputNtupleVariables 06  "<<endl;
 
-  t_subleadtrkiso; //MARCO FIX = ll->pho_ntrk_15_03[subleadind];
-  t_subleadecaliso; //MARCO FIX = ll->pho_ecalJ_060330[subleadind];
-  t_subleadhcaliso; //MARCO FIX = ll->pho_hcal_030[subleadind];
+  t_subleadtrkiso; //MARCO FIX IGNORE = ll->pho_ntrk_15_03[subleadind];
+  t_subleadecaliso; //MARCO FIX IGNORE = ll->pho_ecalJ_060330[subleadind];
+  t_subleadhcaliso; //MARCO FIX IGNORE = ll->pho_hcal_030[subleadind];
 
   //MARCO ????
   t_subleadtrkplusecal=t_subleadtrkecone30 + t_subleadecalhitsJ_060330;
@@ -4036,7 +4054,7 @@ if(jentry%1000==1&&itype>0&&itype%1000==1) cout<<jentry<<"  "<<itype<<"  mass="<
 
   // vertex z
   //  gv_z = ((TVector3*)gv_pos->At(0))->Z();
-  t_genvtxz; //MARCO FIX  = ll->gv_z;
+  t_genvtxz; //MARCO FIX  LATER = ll->gv_z;
   t_recvtxz = ((TVector3*)ll->vtx_std_xyz->At(vtxind))->z();
   if(MPDEBUGCOPY) cout << "SetOutputNtupleVariables 21  "<<endl;
 
@@ -4121,9 +4139,12 @@ if(jentry%1000==1&&itype>0&&itype%1000==1) cout<<jentry<<"  "<<itype<<"  mass="<
   if((optree->GetEntries()<1000||optree->GetEntries()%100==1)&&t_mass>95&&t_mass<145&&t_leadci6cindex>2&&t_subleadci6cindex>2) {
     float stkreciso=(*(ll->pho_tkiso_recvtx_030_002_0000_10_01))[subleadind][vtxind];
     float ltkreciso=(*(ll->pho_tkiso_recvtx_030_002_0000_10_01))[leadind][vtxind];
-//MARCO FIX    cout<<"setting optree variables run,ev,cat,dscat,dcutlev,lind,sind,vtxind, lcut,scut,ltkreciso,stkrecios,mass,w="
-//MARCO FIX	<<ll->run<<"  "<<ll->event<<"  "<<t_diphocat2r92eta<<"  "<<t_diphosubcat4<<"  "<<diphoCutLevel(leadind,subleadind,vtxind)<<"  "<<leadind<<subleadind<<vtxind<<"   "<<t_leadci6cindex<<"  "<<t_subleadci6cindex<<"  "
-//MARCO FIX	<<ltkreciso<<"  "<<stkreciso<<"  "<<t_mass<<"  "<<t_w<<"  diphomva="<<t_diphomva<<endl;
+
+//MARCO FIX CHECK
+
+    cout<<"setting optree variables run "
+	<<ll->run<<" ev  "<<ll->event<<" cat "<<t_diphocat2r92eta<<" dscat "<<t_diphosubcat4<<" dcutlev "<<diphoCutLevel(leadind,subleadind,vtxind)<<" lind,sind,vtxind "<<leadind<<subleadind<<vtxind<<" lcut  "<<t_leadci6cindex<<" scut "<<t_subleadci6cindex<<" ltkreciso "
+	<<ltkreciso<<" stkrecios "<<stkreciso<<" mass "<<t_mass<<" w "<<t_w<<"  diphomva="<<t_diphomva<<endl;
   }
 
   if(MPDEBUGCOPY) cout << "SetOutputNtupleVariables END"<<endl;
@@ -4310,3 +4331,381 @@ Int_t StatAnalysisExclusive::itype_jim(int itype) {
   return 99999;
 
 }
+
+
+
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+std::pair<int,int> StatAnalysisExclusive::DiphotonCiCSelectionIndicesJim( phoCiCIDLevel LEADCUTLEVEL, phoCiCIDLevel SUBLEADCUTLEVEL, Float_t leadPtMin, Float_t subleadPtMin, int ncat, int vtxind, bool applyPtoverM) {
+
+  if(MPDEBUGCOPY) {
+    cout<<"LEADCUTLEVEL / SUBLEADCUTLEVEL / leadPtMin / subleadPtMin / ncat / vtxind / applyPtoverM"<<endl;
+    cout<<LEADCUTLEVEL<<"\t"<<SUBLEADCUTLEVEL<<"\t"<<leadPtMin<<"\t"<<subleadPtMin<<"\t"<<ncat<<"\t"<<vtxind<<"\t"<<applyPtoverM<<endl;
+  }
+
+
+  //mmmmmmmm
+  int myprint = 0;
+
+  int selected_lead_index = -1;
+  int selected_sublead_index = -1;
+  float selected_lead_pt = -1;
+  float selected_sublead_pt = -1;
+
+  float lim1=1.4442;
+  float lim2=1.566;
+  float lim3=2.5;
+
+  int diphoind=-1;
+  for(int ipho=0;ipho!=ll->pho_n;++ipho) {
+    for(int iipho=0;iipho!=ll->pho_n;++iipho) {
+      if(iipho == ipho)continue;
+
+
+      if(MPDEBUGCOPY) 
+	cout<<"looking1 for dipho ind: "<<vtxind<<endl;
+      if(vtxind<0) {
+	//get right index to photons and variables....
+	for(int idipho=0;idipho!=ll->dipho_n;++idipho) {
+	  if(MPDEBUGCOPY) cout<<"looking for dipho ind: ipho, dipho"<<ipho<<" "<<iipho<<" "<<ll->dipho_leadind[idipho]<<" "<<ll->dipho_subleadind[idipho]<<endl;
+	  if(ipho==ll->dipho_leadind[idipho]&&iipho==ll->dipho_subleadind[idipho]) {
+	    vtxind=ll->dipho_vtxind[idipho];                 //   bug??   we should not reset the input parameter vtxind in this loop.  Should work with some copy.
+	    diphoind=idipho;
+	  }
+	}
+      }
+      else {
+	for(int idipho=0;idipho!=ll->dipho_n;++idipho) {
+	  if(MPDEBUGCOPY) cout<<"looking2 for dipho ind: ipho, dipho"<<ipho<<" "<<iipho<<" "<<ll->dipho_leadind[idipho]<<" "<<ll->dipho_subleadind[idipho]<<endl;
+	  if(ipho==ll->dipho_leadind[idipho]&&iipho==ll->dipho_subleadind[idipho]) {
+	    diphoind=idipho;
+	  }
+	}
+	if(diphoind<0) cout<<" **** WARNING: No diphot ind found for the requested vtxind: "<<vtxind<<endl;
+
+      }
+
+      if(MPDEBUGCOPY) cout<<"here marco11"<<ipho<<" "<<vtxind<<endl;
+
+
+      //TLorentzVector * iphop4 = (TLorentzVector*)pho_p4->At(ipho);
+      //TLorentzVector iphop4; //MARCO FIX  = TLorentzVector(VertexCorrectedP4Hgg(ipho,vtxind));
+      //MARCO FIX CHECK
+      TLorentzVector iphop4 = ll->get_pho_p4(ipho,vtxind);
+
+
+      if(MPDEBUGCOPY) cout<<"here marco11"<<endl;
+      //mmmmmm problem sean
+      //if(iphop4.Et() < leadPtMin || fabs(iphop4.Eta()) > 2.5)continue;
+      if(iphop4.Et() < leadPtMin) continue;
+      if(MPDEBUGCOPY) cout<<"here marco12"<<endl;
+      if(iphop4.Et() < selected_lead_pt) continue;
+      if(MPDEBUGCOPY) cout<<"here marco13"<<endl;
+      TVector3 * caloposi = (TVector3*)ll->pho_calopos->At(ipho);
+      if(MPDEBUGCOPY) cout<<"here marco14"<<endl;
+      Float_t etai = fabs(((TLorentzVector*)ll->sc_p4->At(ll->pho_scind[ipho]))->Eta());
+      if(MPDEBUGCOPY) cout<<"here marco15"<<endl;
+
+      if(fabs(etai)>lim1&&fabs(etai)<lim2) continue;
+      if(MPDEBUGCOPY) cout<<"here marco16"<<endl;
+      if(fabs(etai)>lim3) continue;
+      if(MPDEBUGCOPY) cout<<"here marco17"<<endl;
+      if(MPDEBUGCOPY) cout<<"here marco18"<<endl;
+
+      if(PhotonCiCSelectionLevelJim(ipho, ncat, vtxind, 0, diphoind, myprint) < LEADCUTLEVEL) continue;
+
+      //TLorentzVector * iiphop4 = (TLorentzVector*)ll->pho_p4->At(iipho);
+      //mmmmmm problem sean
+      //TLorentzVector iiphop4; //MARCO FIX  = TLorentzVector(VertexCorrectedP4Hgg(iipho,vtxind));
+      //MARCO FIX CHECK
+      TLorentzVector iiphop4 = ll->get_pho_p4(iipho,vtxind);
+
+
+
+      //if(iiphop4.Et() < subleadPtMin || fabs(iiphop4.Eta()) > 2.5)continue;
+      if(iiphop4.Et() >= iphop4.Et())continue;
+      if(iiphop4.Et() < subleadPtMin) continue;
+      if(iiphop4.Et() < selected_sublead_pt) continue;
+      TVector3 * caloposii = (TVector3*)ll->pho_calopos->At(iipho);
+      Float_t etaii = fabs(((TLorentzVector*)ll->sc_p4->At(ll->pho_scind[iipho]))->Eta());
+
+      if(MPDEBUGCOPY) cout<<"here marco13"<<endl;
+
+      if(fabs(etaii)>lim1&&fabs(etaii)<lim2) continue;
+      if(fabs(etaii)>lim3) continue;
+
+      float m_gamgam = (iphop4+iiphop4).M();
+      float L_ptom = iphop4.Et()/m_gamgam;
+      float S_ptom = iiphop4.Et()/m_gamgam;
+      if(applyPtoverM && (L_ptom < 0.33 || S_ptom<0.25)) continue;
+      if(MPDEBUGCOPY) cout<<"here marco14"<<endl;
+
+      if(PhotonCiCSelectionLevelJim(iipho, ncat, vtxind, 1, diphoind, myprint) < SUBLEADCUTLEVEL) continue;
+      if(MPDEBUGCOPY) cout<<"here marco15"<<endl;
+      // if here, diphoton passed all cuts.
+      //std::cout << "FOUND DIPHOTON" << std::endl;
+      //
+      //if(iphop4.Et() > selected_lead_pt) //READDED MARCO 23/7/11
+      {
+        selected_lead_pt = iphop4.Et();
+        selected_sublead_pt = iiphop4.Et();
+        selected_lead_index = ipho;
+        selected_sublead_index = iipho;
+      }
+
+    }// end photon loop (iipho), aka sublead
+  }// end photon loop (ipho), aka lead
+      if(MPDEBUGCOPY) cout<<"here marco16"<<endl;
+
+  std::pair<int,int> dipho_inds(selected_lead_index,selected_sublead_index);
+  return dipho_inds;
+      if(MPDEBUGCOPY) cout<<"here marco17"<<endl;
+
+}
+
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+int   StatAnalysisExclusive::PhotonCiCSelectionLevelJim( int photon_index, int ncat, int vtxind, int doSublead, int diphoind, int print) {
+  //  This routine picks out the correct values of the isolation etc. so that the photon id can be applied.
+ 
+  int cutlevelpassed = -1;
+
+  int n_r9_categories = -1;
+  int n_eta_categories = -1;
+  if(ncat==6) {
+    n_r9_categories = 3;
+    n_eta_categories = 2;
+  } else if(ncat==4) {
+    n_r9_categories = 2;
+    n_eta_categories = 2;
+  }
+  int photon_category = ll->PhotonCategory(photon_index,n_r9_categories,n_eta_categories);
+
+  //TLorentzVector * phop4 = (TLorentzVector*)ll->pho_p4->At(photon_index);
+  //TLorentzVector phop4; //MARCO FIX  = TLorentzVector(VertexCorrectedP4Hgg(photon_index,vtxind));
+  //MARCO FIX CHECK
+  TLorentzVector phop4 = ll->get_pho_p4(photon_index,vtxind);
+
+
+
+  // MARCO FIX float val_tkiso = ll->pho_tkiso_recvtx_030_002_0000_10_01[photon_index];
+  float val_tkiso = (*(ll->pho_tkiso_recvtx_030_002_0000_10_01))[photon_index][vtxind];
+  float val_ecaliso = ll->pho_ecalsumetconedr03[photon_index];
+  float val_hcaliso = ll->pho_hcalsumetconedr04[photon_index];
+  float val_ecalisobad = ll->pho_ecalsumetconedr04[photon_index];
+  float val_hcalisobad = ll->pho_hcalsumetconedr04[photon_index];
+  float val_tkisobad = ll->pho_tkiso_badvtx_040_002_0000_10_01[photon_index];
+  float val_drtotk_25_99 = ll->pho_drtotk_25_99[photon_index];
+  float	val_pfiso_charged = (*ll->pho_pfiso_mycharged03)[photon_index][vtxind];                               //   jgb    _noveto  04
+  float	val_pfiso_photon = ll->pho_pfiso_myphoton03[photon_index];                               //   jgb    _noveto  04
+  float	val_pfiso_neutral = ll->pho_pfiso_myneutral03[photon_index];                               //   jgb    _noveto  04
+
+  if(MPDEBUG) cout<<"DRTOTK: "<<photon_index<<" "<<diphoind<<" "<<ll->pho_drtotk_25_99[photon_index]<<" "
+		  //MARCO FIX CHECK << ll->dipho_lead_pho_drtotk_25_99[diphoind]<<" "
+		  //MARCO FIX CHECK <<ll->dipho_sublead_pho_drtotk_25_99[diphoind] <<" "
+		  << ll->pho_drtotk_25_99[ll->dipho_leadind[diphoind]]<<" "
+		  << ll->pho_drtotk_25_99[ll->dipho_subleadind[diphoind]]<<" "
+		  <<endl;
+
+
+  //????
+  // MARCO FIX CHECK WELL I CHANGED IT
+  //????
+  //????
+
+  /*
+  if(vtxind>=0) {
+    if(diphoind!=-1) {
+      if(!doSublead) {
+	 //MARCO FIX CHECK val_drtotk_25_99; //MARCO FIX !!!!! simple  = ll->dipho_lead_pho_drtotk_25_99[diphoind];
+	//MARCO FIX CHECK val_tkiso; //MARCO FIX  = ll->dipho_lead_pho_tkiso_recvtx_030_002_0000_10_01[diphoind];
+	//MARCO FIX CHECK val_tkisobad; //MARCO FIX = ll->dipho_lead_pho_tkiso_badvtx_040_002_0000_10_01[diphoind]; 
+	val_drtotk_25_99 = ll->pho_drtotk_25_99[dipho_leadind[diphoind]];
+	val_tkiso = ll->pho_tkiso_recvtx_030_002_0000_10_01[dipho_leadind[diphoind]];
+	val_tkisobad = ll->pho_tkiso_badvtx_040_002_0000_10_01[dipho_leadind[diphoind]]; 
+	val_pfiso_charged = (*ll->pho_pfiso_mycharged03)[photon_index][dipho_leadind[diphoind]];                               //   jgb    _noveto  04
+	val_pfiso_photon = ll->pho_pfiso_myphoton03[photon_index];                               //   jgb    _noveto  04
+	val_pfiso_neutral = ll->pho_pfiso_myneutral03[photon_index];                               //   jgb    _noveto  04
+
+      }
+      else {
+	val_drtotk_25_99; //MARCO FIX = ll->dipho_sublead_pho_drtotk_25_99[diphoind];
+	val_tkiso; //MARCO FIX = ll->dipho_sublead_pho_tkiso_recvtx_030_002_0000_10_01[diphoind];
+	val_tkisobad; //MARCO FIX = ll->dipho_sublead_pho_tkiso_badvtx_040_002_0000_10_01[diphoind];
+      }
+    }
+  }
+*/
+  val_drtotk_25_99 = ll->pho_drtotk_25_99[photon_index];
+  //val_tkiso = ll->pho_tkiso_recvtx_030_002_0000_10_01[photon_index];
+  val_tkiso = (*(ll->pho_tkiso_recvtx_030_002_0000_10_01))[photon_index][vtxind];
+
+  val_tkisobad = ll->pho_tkiso_badvtx_040_002_0000_10_01[photon_index]; 
+  val_pfiso_charged = (*ll->pho_pfiso_mycharged03)[photon_index][vtxind];                               //   jgb    _noveto  04
+  val_pfiso_photon = ll->pho_pfiso_myphoton03[photon_index];                               //   jgb    _noveto  04
+  val_pfiso_neutral = ll->pho_pfiso_myneutral03[photon_index];                               //   jgb    _noveto  04
+
+
+  //????
+  // END MARCO FIX CHECK WELL I CHANGED IT
+  //????
+
+
+  float val_sieie = ll->pho_sieie[photon_index];
+  float val_hoe = ll->pho_hoe[photon_index];
+  float val_r9 = ll->pho_r9[photon_index];
+  float val_pixel = (float)ll->pho_haspixseed[photon_index];
+
+
+
+
+
+
+
+  //float rhofacbad=0.40, rhofac=0.05;
+  float rhofacbad=0.52, rhofac=0.17;
+  float val_isosum=(val_tkiso+val_ecaliso+val_hcaliso-ll->rho*rhofac);
+  float val_isosumbad=(val_tkisobad+val_ecalisobad+val_hcalisobad-ll->rho*rhofacbad);
+  float val_trkiso=(val_tkiso);
+  float val_et=phop4.Et();
+
+  //mmmmmmmmmm
+  //1 1 69613 7.6 GeV isolation
+
+  if(print) {
+    cout<<photon_index<<" "<<endl;
+    cout<<"val_isosumoet "<<(val_tkiso+val_ecaliso+val_hcaliso-ll->rho*rhofac)<<endl;
+    cout<<"val_isosumoetbad "<<(val_tkisobad+val_ecalisobad+val_hcalisobad-ll->rho*rhofacbad)<<endl;
+    cout<<"val_trkisooet "<<(val_tkiso)<<endl;
+    cout<<"val_sieie "<<ll->pho_sieie[photon_index]<<endl;
+    cout<<"val_hoe "<<ll->pho_hoe[photon_index]<<endl;
+    cout<<"val_r9 "<<ll->pho_r9[photon_index]<<endl;
+    cout<<"val_drtotk_25_99 "<<ll->pho_drtotk_25_99[photon_index]<<endl;
+    //cout<<"val_pixel "<<(float)ll->pho_haspixseed[photon_index]<<endl;
+    
+    
+    //MARCO FIX cout<<"              val_tkiso "<<ll->pho_tkiso_recvtx_030_002_0000_10_01[photon_index]<<endl;
+  cout<<"              val_tkiso "<<(*(ll->pho_tkiso_recvtx_030_002_0000_10_01))[photon_index][vtxind]<<endl;
+
+
+
+    cout<<"              val_ecaliso "<<ll->pho_ecalsumetconedr03[photon_index]<<endl;
+    cout<<"              val_hcaliso "<<ll->pho_hcalsumetconedr04[photon_index]<<endl;
+    cout<<"              val_ecalisobad "<<ll->pho_ecalsumetconedr04[photon_index]<<endl;
+    cout<<"              val_hcalisobad "<<ll->pho_hcalsumetconedr04[photon_index]<<endl;
+    cout<<"              val_tkisobad "<<ll->pho_tkiso_badvtx_040_002_0000_10_01[photon_index]<<endl;
+    
+  }
+  float val_eta = fabs(((TVector3*)ll->pho_calopos->At(photon_index))->Eta());
+
+  //  Here we use the CiC routines to calculate the photon cut level for either 4 or 6 categories
+  //  The parameters are the cut variables so that the choice of the photons, vertex etc. can be separated from the basic Id
+
+  //cout<<"   PhotonCiCSelectionLevel  "<<photon_index<<"  "<<ncat<<"  "<<vtxind<<"  "<<doSublead<<"  "<<diphoind<<"  "<<val_r9<<"  "<<val_eta<<"  "<<val_isosumoet<<"  "
+  //    <<val_isosumoetbad<<"  "<<val_trkisooet<<"  "<<val_sieie<<"  "<<val_hoe<<"  "<<val_drtotk_25_99<<endl;
+
+  if(ncat==4) { cutlevelpassed = photonCutLevel4(val_r9, val_eta, val_et, val_isosum, val_isosumbad, val_trkiso, val_sieie, val_hoe, val_drtotk_25_99); }
+  else if(ncat==6) { cutlevelpassed = photonCutLevel6(val_r9, val_eta, val_et, val_isosum, val_isosumbad, val_trkiso, val_sieie, val_hoe, val_drtotk_25_99);}
+  else { cerr<<"Photon selection for "<<ncat<<" categories does not exist"<<endl; }
+
+
+  return cutlevelpassed;
+
+}
+
+
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+int   StatAnalysisExclusive::PhotonCiCpfSelectionLevelJim( int photon_index, int ncat, int vtxind, int doSublead, int diphoind, int print) {
+  //  This routine picks out the correct values of the isolation etc. so that the photon id can be applied.
+  //  This version is for the particle flow isolation
+  if(MPDEBUGCOPY) cout << "PhotonCiCpfSelectionLevel  BEGIN"<<endl;
+ 
+  int cutlevelpassed = -1;
+
+  int n_r9_categories = 3;
+  int n_eta_categories = 2;
+  int photon_category = ll->PhotonCategory(photon_index,n_r9_categories,n_eta_categories);
+
+  //TLorentzVector phop4; //MARCO FIX  = TLorentzVector(VertexCorrectedP4Hgg(photon_index,vtxind));
+  //MARCO FIX CHECK
+  TLorentzVector phop4 = ll->get_pho_p4(photon_index,vtxind);
+
+
+  float val_et=phop4.Et();
+  float val_eta = fabs(((TVector3*)ll->pho_calopos->At(photon_index))->Eta());
+
+  if(MPDEBUGCOPY) cout << "PhotonCiCpfSelectionLevel  01"<<endl;
+  //pfiso
+  //cout<<"filling pfiso  "<<leadind<<"  "<<subleadind<<"  "<<vtxind<<"  "<<(void*)>ll->pho_pfiso_mycharged03<<endl;
+  //cout<<(*ll->pho_pfiso_mycharged03)[0][0]<<"  "<<ll->pho_pfiso_mycharged03->size()<<" "<<(*ll->pho_pfiso_mycharged03)[0].size()<<endl;
+  float val_pfiso_charged03 = (*ll->pho_pfiso_mycharged03)[photon_index][vtxind]; 
+  float val_pfiso_photon03 = ll->pho_pfiso_myphoton03[photon_index];                     
+  float val_pfiso_neutral03 = ll->pho_pfiso_myneutral03[photon_index];                   
+  float val_pfiso_charged04 = (*ll->pho_pfiso_mycharged04)[photon_index][vtxind];      
+  float val_pfiso_photon04 = ll->pho_pfiso_myphoton04[photon_index];                     
+  float val_pfiso_neutral04 = ll->pho_pfiso_myneutral04[photon_index];                   
+  float val_drtotk_25_99 = ll->pho_drtotk_25_99[photon_index];
+
+  if(MPDEBUGCOPY) cout << "PhotonCiCpfSelectionLevel  02"<<endl;
+  float isomax=-99;   int badind=0;
+  for(int iv=0; iv<ll->vtx_std_n; iv++) if((*ll->pho_pfiso_mycharged04)[photon_index][iv]>isomax) {badind=iv; isomax=(*ll->pho_pfiso_mycharged04)[photon_index][iv]; }
+  float val_pfiso_charged_badvtx_04 = (*ll->pho_pfiso_mycharged04)[photon_index][badind];                               
+  isomax=-99;  badind=0;
+  for(int iv=0; iv<ll->vtx_std_n; iv++) if((*ll->pho_pfiso_mycharged03)[photon_index][iv]>isomax) {badind=iv; isomax=(*ll->pho_pfiso_mycharged03)[photon_index][iv]; }
+  float val_pfiso_charged_badvtx_03 = (*ll->pho_pfiso_mycharged03)[photon_index][badind];                               
+
+  if(MPDEBUG) cout<<"DRTOTK: "<<photon_index<<" "<<diphoind<<" "<<ll->pho_drtotk_25_99[photon_index]<<" "
+    //MARCO FIX	NOT IMPORTANT	  << ll->dipho_lead_pho_drtotk_25_99[diphoind]<<" "
+//MARCO FIX	NOT IMPORTANT		  <<ll->dipho_sublead_pho_drtotk_25_99[diphoind] <<" "
+		  <<endl;
+
+  if(MPDEBUGCOPY) cout << "PhotonCiCpfSelectionLevel  03"<<endl;
+  float val_sieie = ll->pho_sieie[photon_index];
+  float val_hoe = ll->pho_hoe[photon_index];
+  float val_r9 = ll->pho_r9[photon_index];
+  float val_pixel = (float)ll->pho_haspixseed[photon_index];
+
+  float rhofacpf[6]={0.075, 0.082, 0.143, 0.050, 0.091, 0.106};          //move
+  float rhofacbadpf[6]={0.141, 0.149, 0.208, 0.135, 0.162, 0.165};
+  float rhofac=rhofacpf[photon_category];
+  float val_isosum=val_pfiso_charged03+val_pfiso_photon03-ll->rho*rhofac;
+  float rhofacbad=rhofacbadpf[photon_category];
+  float val_isosumbad=val_pfiso_charged_badvtx_04+val_pfiso_photon04-ll->rho*rhofacbad;
+
+  if(MPDEBUGCOPY) cout << "PhotonCiCpfSelectionLevel  04"<<endl;
+  //cout<<"ind="<<photon_index<<"  vtxind="<<vtxind<<"  badind="<<badind<<"  vtx_std_n="<<ll->vtx_std_n<<"  rho="<<ll->rho<<"  photon_category="<<photon_category<<" rhofac="<<rhofac<<"rhofacbad="<<rhofacbad<<endl;
+  if(print) {
+    float val_isosumoet=(val_isosum+2.8)*50/val_et;
+    float val_isosumoetbad=(val_isosumbad+4.8)*50/val_et;
+    cout<<photon_index<<" "<<endl;
+    cout<<"val_isosumoet "<<val_isosumoet<<endl;
+    cout<<"val_isosumoetbad "<<val_isosumoetbad<<endl;
+    cout<<"val_pfiso_charged03 "<<val_pfiso_charged03<<endl;
+    cout<<"val_sieie "<<ll->pho_sieie[photon_index]<<endl;
+    cout<<"val_hoe "<<ll->pho_hoe[photon_index]<<endl;
+    cout<<"val_r9 "<<ll->pho_r9[photon_index]<<endl;
+    cout<<"val_drtotk_25_99 "<<ll->pho_drtotk_25_99[photon_index]<<endl;
+    
+    cout<<"              val_pfiso_charged03 "<<val_pfiso_charged03<<endl;
+    cout<<"              val_pfiso_photon03 "<<val_pfiso_photon03<<endl;
+    cout<<"              val_pfiso_charged04 "<<val_pfiso_charged04<<endl;
+    cout<<"              val_pfiso_charged03 "<<val_pfiso_charged03<<endl;
+    
+  }
+  if(MPDEBUGCOPY) cout << "PhotonCiCpfSelectionLevel  05"<<endl;
+
+  //  Here we use the CiC routines to calculate the photon cut level for either 4 or 6 categories
+  //  The parameters are the cut variables so that the choice of the photons, vertex etc. can be separated from the basic Id
+
+  //cout<<"   PhotonCiCSelectionLevel  "<<photon_index<<"  "<<ncat<<"  "<<vtxind<<"  "<<doSublead<<"  "<<diphoind<<"  "<<val_r9<<"  "<<val_eta<<"  "<<val_isosumoet<<"  "
+  //    <<val_isosumoetbad<<"  "<<val_trkisooet<<"  "<<val_sieie<<"  "<<val_hoe<<"  "<<val_drtotk_25_99<<endl;
+
+  cutlevelpassed = photonCutLevel6pf(val_r9, val_eta, val_et, val_isosum, val_isosumbad, val_pfiso_charged03, val_pfiso_neutral04, val_sieie, val_hoe, val_drtotk_25_99);
+  if(MPDEBUGCOPY) cout << "PhotonCiCpfSelectionLevel  BEGIN"<<endl;
+
+
+  return cutlevelpassed;
+
+}
+

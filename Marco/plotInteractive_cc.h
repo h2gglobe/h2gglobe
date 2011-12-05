@@ -2,7 +2,7 @@
 //==============================  Interactive Plotting  ===============================
 //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
-#define MPDEBUG 1
+#define MPDEBUG 0
 
 void LoopAll::myPlotInteractive(TString hsmallname) {
 

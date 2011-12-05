@@ -153,6 +153,7 @@ class LoopAll {
   std::vector<Float_t> countersred;
    
   TFile *hfile;
+  TFile *hfilereal;
   Int_t outputEvents;
 
   void Loop(Int_t);
