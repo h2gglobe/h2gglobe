@@ -723,7 +723,7 @@ void LoopAll::WriteHist() {
   if (makeOutputTree) 
     outputFile->cd();
 
-  WriteCounters();
+  //WriteCounters();
 }
 
 void LoopAll::WritePI() {
