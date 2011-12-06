@@ -11,7 +11,7 @@
 #include "TMVA/Reader.h"
 #include "PhotonFix.h"
 // #include "HiggsToGammaGamma/interface/GBRForest.h"
-#include "HiggsAnalysis/HiggsToGammaGamma/interface/GBRForest.h"
+//#include "HiggsAnalysis/HiggsToGammaGamma/interface/GBRForest.h"
 
 // ------------------------------------------------------------------------------------
 class PhotonAnalysis : public BaseAnalysis 
@@ -37,7 +37,7 @@ public:
 	virtual bool SelectEvents(LoopAll&, int);
 	virtual void Analysis(LoopAll&, Int_t);
 
-	void GetRegressionCorrections(LoopAll&);	
+	//void GetRegressionCorrections(LoopAll&);	
 	// Public parameters to be read from config file
 	VertexAlgoParameters vtxAlgoParams;	 
 	std::vector<std::string> vtxVarNames;
@@ -134,11 +134,11 @@ protected:
 	TMVA::Reader *tmvaPerVtxReader_;
 	TMVA::Reader *tmvaPerEvtReader_;
 
-	TFile *fgbr;
-	GBRForest *fReadereb;
-        GBRForest *fReaderebvariance;
-        GBRForest *fReaderee;
-        GBRForest *fReadereevariance;      
+	//TFile *fgbr;
+	//GBRForest *fReadereb;
+        //GBRForest *fReaderebvariance;
+        //GBRForest *fReaderee;
+        //GBRForest *fReadereevariance;      
 
 };
 

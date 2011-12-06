@@ -87,8 +87,6 @@ void StatAnalysis::Init(LoopAll& l)
 	<< std::endl;
 
     // avoid recalculated the CIC ID every time
-    // PhotonAnalysis has this in init so no need to explicitly put it here
-    //l.runCiC = reRunCiC;
     // call the base class initializer
     PhotonAnalysis::Init(l);
 
@@ -585,7 +583,12 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     float newweight = l.sampleContainer[l.current_sample_index].weight;
     double pileupWeight=1.; 
 
-
+    // Set reRunCiC Only if this is an MC event since scaling of R9 and Energy isn't done at reduction
+    if (cur_type==0) {
+	l.runCiC=reRunCiCForData;
+    } else {
+	l.runCiC = true;
+    } 
 
     l.FillCounter( "Processed", 1. );
     assert( weight > 0. );  
@@ -1005,7 +1008,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	}
 
 	if (cur_type==0){
-	  eventListText << setprecision(4) <<"Type = "<< cur_type <<  "Run = " << l.run << "  LS = " << l.lumis << "  Event = " << l.event << "  SelVtx = " << l.vtx_std_sel << "  CAT4 = " << category % 4 << "  ggM = " << mass << " gg_Pt =  " << ptHiggs;
+	  eventListText <<"Type = "<< cur_type <<  "Run = " << l.run << "  LS = " << l.lumis << "  Event = " <<  l.event << "  ggM = " << mass ;
 	  eventListText << endl;
 	}
        

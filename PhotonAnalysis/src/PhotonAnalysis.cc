@@ -469,7 +469,7 @@ void PhotonAnalysis::Init(LoopAll& l)
     } 
 
     // Load up instances of PhotonFix for local coordinate calculations
-	
+    /*	
     PhotonFix::initialise("4_2",photonFixDat);	
     std::cout << "Regression corrections from -> " << regressionFile.c_str() << std::endl;
     fgbr = new TFile(regressionFile.c_str(),"READ");
@@ -478,6 +478,7 @@ void PhotonAnalysis::Init(LoopAll& l)
     fReaderee = (GBRForest*)fgbr->Get("EECorrection");
     fReadereevariance = (GBRForest*)fgbr->Get("EEUncertainty");      
     fgbr->Close();
+    */
 	
     // -------------------------------------------------------------------- 
 	if(PADEBUG) 
@@ -1194,7 +1195,7 @@ void PhotonAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree)
 	l.Branch_pho_regr_energyerr_otf(outputTree);
 	
 }
-
+/*
 void PhotonAnalysis::GetRegressionCorrections(LoopAll &l){
 
   // PhotonFix's have been initialised correctly and so we just need to use the correct 
@@ -1278,3 +1279,4 @@ void PhotonAnalysis::GetRegressionCorrections(LoopAll &l){
 
  }
 }
+*/

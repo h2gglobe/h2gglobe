@@ -14,7 +14,7 @@ ROOT.gSystem.Load("libRooFit.so")
 ROOT.gSystem.Load("libPhysics.so");
 ROOT.gSystem.Load("libCore.so");
 ROOT.gSystem.Load("../libLoopAll.so");
-ROOT.gSystem.Load("../../../../../lib/slc5_amd64_gcc434/libHiggsAnalysisHiggsToGammaGamma.so")
+#ROOT.gSystem.Load("../../../../../lib/slc5_amd64_gcc434/libHiggsAnalysisHiggsToGammaGamma.so")
 
 ROOT.gROOT.SetBatch(1)
 

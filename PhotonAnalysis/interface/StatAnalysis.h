@@ -38,7 +38,7 @@ public:
   bool includeVBF;
   bool includeVHad;
   bool includeVHlep;
-	bool reRunCiC;
+  bool reRunCiCForData;
 
   float leadEtCut;
   float leadEtVBFCut;

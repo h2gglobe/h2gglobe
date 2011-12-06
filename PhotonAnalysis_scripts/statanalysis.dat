@@ -30,11 +30,7 @@ subleadEtVHlepCut=25
 
 
 doTriggerSelection=1
-->
-Currently CiC will always be re-run as hardcoded in PhotonAnalysis
-This is necessary for R9 Scaling and MC Energy Smearing 
-->
-reRunCiC=1
+reRunCiCForData=1
 
 ->
 Turn on-off all smearings 
