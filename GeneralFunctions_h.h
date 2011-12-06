@@ -78,7 +78,7 @@ float cic4_cut_sublead_pixel[phoNCUTLEVELS][4];
 
 // loops through photons and returns indices to two photons passing desired selection 
 // if more than one diphoton passes, returns pair with highest lead photon pt, or if lead is same, with highest sublead pt.
-int DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL = phoLOOSE, phoCiCIDLevel SUBLEADCUTLEVEL = phoLOOSE, Float_t leadPtMin = 30, Float_t subleadPtMin = 20, int ncategories=6, bool applyPtoverM=false, float *pho_energy_array=0);
+int DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL = phoLOOSE, phoCiCIDLevel SUBLEADCUTLEVEL = phoLOOSE, Float_t leadPtMin = 30, Float_t subleadPtMin = 20, int ncategories=6, bool applyPtoverM=false, float *pho_energy_array=0,bool split=false);
 
 // for a photon index, applies all levels of cuts and returns the index to the highest cut level passed (can do lead and sublead - same for now)
 int   PhotonCiCSelectionLevel( int photon_index, int vertex_index, std::vector<std::vector<bool> > & ph_passcut, int ncategories=6, int doSublead=1, float *pho_energy_array=0);

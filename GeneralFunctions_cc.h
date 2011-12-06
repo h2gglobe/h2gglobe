@@ -1130,7 +1130,7 @@ void LoopAll::SetPhotonCutsInCategories(phoCiCIDLevel cutlevel, float * cic6_all
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 int LoopAll::DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL, phoCiCIDLevel SUBLEADCUTLEVEL, 
 				   Float_t leadPtMin, Float_t subleadPtMin, int ncategories, bool applyPtoverM, 
-				   float *pho_energy_array) {
+				   float *pho_energy_array, bool split) {
 
   //rho=0;// CAUTION SETTING RHO TO 0 FOR 2010 DATA FILES (RHO ISN'T IN THESE FILES)
   int selected_lead_index = -1;
@@ -1157,11 +1157,16 @@ int LoopAll::DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL, phoCiCIDLevel SUB
 	  if( leadEta > 2.5 || subleadEta > 2.5 || 
 	      ( leadEta > 1.4442 && leadEta < 1.566 ) ||
 	      ( subleadEta > 1.4442 && subleadEta < 1.566 ) ) { continue; }
-	  
-	  if( applyPtoverM ) {
-	    if ( lead_p4.Pt()/m_gamgam < leadPtMin/120. || sublead_p4.Pt()/m_gamgam < subleadPtMin/120. ) { continue; }
-	  } else {
-	    if ( lead_p4.Pt() < leadPtMin || sublead_p4.Pt() < subleadPtMin ) { continue; }
+	 
+    // VBF cuts smoothly on lead pt/M but on straight pt on sublead to save sig eff and avoid HLT turn-on
+    if(split){
+	      if ( lead_p4.Pt()/m_gamgam < leadPtMin/120. || sublead_p4.Pt()< subleadPtMin ) { continue; }
+    }else{
+	    if( applyPtoverM ) {
+	      if ( lead_p4.Pt()/m_gamgam < leadPtMin/120. || sublead_p4.Pt()/m_gamgam < subleadPtMin/120. ) { continue; }
+	    } else {
+	      if ( lead_p4.Pt() < leadPtMin || sublead_p4.Pt() < subleadPtMin ) { continue; }
+	    }
 	  }
 
 	  std::vector<std::vector<bool> > ph_passcut;
