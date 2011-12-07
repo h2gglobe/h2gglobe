@@ -1,4 +1,4 @@
-intL=4721. histfile=CMS-HGG_4721.root output=shifo.root
+intL=4721. histfile=rfio:/castor/cern.ch/user/n/nckw/HGG/cms-hgg-05-12-11/CMS-HGG.root output=shifo.root
 
 ->
 Data
@@ -15,6 +15,8 @@ Signal samples
 
 ->
 --- GF addin in prospect of having new samples included	 ---
+
+
 typ=-57 ind=1 draw=1  Nam=gluglu_H_gg_123_pu2011  CaDir=/castor/cern.ch/user/c/cmshgg/reduced/h2gglobe_V11_04_01_reduction_11_15/MC_Sig_Fall11_S6/Glu123_S6  red=0 lum=1000000.0  xsec=0.0360696 kfac=1.000000  scal=1.000000
 typ=-58 ind=2 draw=1  Nam=vbf_H_gg_123_pu2011     CaDir=/castor/cern.ch/user/c/cmshgg/reduced/h2gglobe_V11_04_01_reduction_11_15/MC_Sig_Fall11_S6/VBF123_S6      red=0 lum=1000000.0  xsec=0.00281352 kfac=1.000000  scal=1.000000
 typ=-60 ind=4 draw=1  Nam=wz_H_gg_123_pu2011      CaDir=/castor/cern.ch/user/c/cmshgg/reduced/h2gglobe_V11_04_01_reduction_11_15/MC_Sig_Fall11_S6/WZH123_S6    red=0 lum=1000000.0  xsec=0.002136816 kfac=1.000000  scal=1.000000
@@ -25,6 +27,7 @@ typ=-54 ind=2 draw=1  Nam=vbf_H_gg_121_pu2011     CaDir=/castor/cern.ch/user/c/c
 typ=-56 ind=4 draw=1  Nam=wz_H_gg_121_pu2011      CaDir=/castor/cern.ch/user/c/cmshgg/reduced/h2gglobe_V11_04_01_reduction_11_15/MC_Sig_Fall11_S6/WZH121_S6    red=0 lum=1000000.0  xsec=0.002234914 kfac=1.000000  scal=1.000000
 typ=-55 ind=3 draw=1  Nam=tt_H_gg_121_pu2011      CaDir=/castor/cern.ch/user/c/cmshgg/reduced/h2gglobe_V11_04_01_reduction_11_15/MC_Sig_Fall11_S6/TTH121_S6      red=0 lum=1000000.0  xsec=0.0002151068 kfac=1.000000  scal=1.000000
 
+typ=-63 ind=3 draw=1  Nam=tt_H_gg_155_pu2011      CaDir=/castor/cern.ch/user/c/cmshgg/reduced/h2gglobe_V11_04_01_reduction_11_15/MC_Sig_Fall11_S6/TTH155_S6      red=0 lum=1000000.0  xsec=0.00004369626 kfac=1.000000  scal=1.000000
 ->
 
 -> 
