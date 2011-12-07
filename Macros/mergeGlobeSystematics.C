@@ -4,7 +4,7 @@ TFile *oldFILE = new TFile("./vertex_reweighing.root");
 oldFILE->Print();
 oldFILE->ls();
 
-TFile *newFILE = new TFile("sig_reweighing_v15.root ","recreate");
+TFile *newFILE = new TFile("sig_reweighing_v16.root ","recreate");
 newFILE->cd();
 
 TGraphAsymmErrors * toCopy;
@@ -19,7 +19,7 @@ int ncats = 8;
 // New numbers from Matteo for the errors with systematics (14th Nov 2011 h->gg meeting)
 Double_t effL1HLT_[ncats] 	   = {1.,0.993,1.,0.988,1.,0.993,1.,0.988};
 Double_t effL1HLT_low_err_[ncats]  = {0.001,0.001,0.001,0.004,0.001,0.001,0.001,0.004};
-Double_t effL1HLT_high_err_[ncats] = {0.001,0.001,0.001,0.004,0.001,0.001,0.001,0.004};
+Double_t effL1HLT_high_err_[ncats] = {0.000,0.001,0.000,0.004,0.000,0.001,0.000,0.004};
 
 for (int cat=0;cat<ncats;cat++){
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------
