@@ -5,7 +5,7 @@ subleadEtCut=30.0
 
 massMin=100.
 massMax=180.
-nDataBins=80
+nDataBins=160
 
 nEtaCategories=2
 nR9Categories=2
@@ -40,7 +40,7 @@ doMCSmearing=1
 ->
 Individual smearing flags
 ->
-energyCorrectionMethod=BendavidOTF
+energyCorrectionMethod=Bendavid
 doEcorrectionSmear=1
 doEcorrectionSyst=0
 
