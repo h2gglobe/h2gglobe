@@ -42,7 +42,9 @@ if not options.dryRun:
     ut.histFileName="histograms_"+ut.histFileName
   ut.WriteHist();  
 
+  # for small files, Keep local
   print "Producing JSON file for lumi calculation.."
+
   runLines = dumpLumi([ut.histFileName])
 
   print "Processed lumi sections: "
@@ -52,5 +54,7 @@ if not options.dryRun:
   print >>json, "{" + ", ".join(runLines) + "}"
   json.close()
 
+  if "/" in str(ut.histFileName):
+	ut.histFileName="histograms_"+name
   ut.WriteCounters();  
 ROOT.gROOT.Reset()
