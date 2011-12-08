@@ -389,8 +389,8 @@ void StatAnalysis::Init(LoopAll& l)
     l.rooContainer->AddConstant("ff_XSBR_wzh_105",0.1609787);
 
     // Background modeling 
-    l.rooContainer->AddRealVar("pol0",-0.01,-1.5,1.5);
-    l.rooContainer->AddRealVar("pol1",-0.01,-1.5,1.5);
+    l.rooContainer->AddRealVar("pol0",-0.1,-1.5,1.5);
+    l.rooContainer->AddRealVar("pol1",-0.1,-1.5,1.5);
     l.rooContainer->AddRealVar("pol2",-0.01,-1.5,1.5);
     l.rooContainer->AddRealVar("pol3",-0.01,-1.5,1.5);
     l.rooContainer->AddRealVar("pol4",-0.01,-1.5,1.5);

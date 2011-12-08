@@ -1,4 +1,4 @@
-intL=4715. histfile=rfio:/castor/cern.ch/user/n/nckw/HGG/cms-hgg-08-12-11/CMS-HGG.root output=shifo.root
+intL=4715. histfile=CMS-HGG.root output=shifo.root
 
 ->
 Data
