@@ -110,7 +110,7 @@ void StatAnalysisExclusive::Init(LoopAll& l)
     nevents=0., sumwei=0.; 
     sumaccept=0., sumsmear=0., sumev=0.;
     
-    std::string outputfilename = (std::string) ll->histFileName;
+    std::string outputfilename = (std::string) l.histFileName;
 
     cout<<"MMMMMMMM "<<outputfilename.c_str()<<endl;
 
@@ -143,7 +143,7 @@ void StatAnalysisExclusive::Init(LoopAll& l)
 	<< std::endl;
 
     // avoid recalculated the CIC ID every time
-    l.runCiC = reRunCiC;
+    //l.runCiC = reRunCiC;
     // call the base class initializer
     PhotonAnalysis::Init(l);
 
@@ -907,7 +907,9 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
 
     //HERE WE GET THE diphoton id and vtxind from the standard one??? //MARCO FIX
 
-    int diphoton_id_jim = l.DiphotonCiCSelection(l.phoLOOSE, l.phoLOOSE, leadEtCut, subleadEtCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
+    int diphoton_id_jim = l.DiphotonCiCSelection(l.phoLOOSE, l.phoLOOSE, 40., 30., 4,applyPtoverM, &smeared_pho_energy[0] ); 
+    if(diphoton_id_jim>=0)
+      diphoton_id_jim = l.DiphotonCiCSelection(l.phoTIGHT, l.phoTIGHT, 40., 30., 4,applyPtoverM, &smeared_pho_energy[0] ); 
 
     if(diphoton_id_jim>=0) {
       TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphoton_id_jim], l.dipho_vtxind[diphoton_id_jim], &smeared_pho_energy[0]);
@@ -1088,15 +1090,22 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
 	//if(newweight*pileupWeight != weight) cout<<"AAA################ "<<newweight*pileupWeight<<" "<<weight<<" "<<newweight<<" "<<pileupWeight<<endl;
 	float myweight=1.;
 	if(evweight*newweight!=0) myweight=evweight/newweight;
+
+
+
+	//cout<<" Weights: weight "<<weight<<" newtimepileup" <<newweight*pileupWeight<<" genwei "<<genLevWeight<<" PTHihhs "<<myAllPtHiggs<<""<<genLevWeight<<endl;
 	
 	l.ApplyCutsFill(0,3,evweight, myweight);
-
+	//a
 	VBFevent = l.ApplyCutsFill(0,1,evweight, myweight);
+	//VBFevent = l.ApplyCutsFill(0,1,evweight, evweight);
 	l.ApplyCutsFill(0,5,evweight, myweight);
 
 
 	int category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,0.,2,2,1);
 	int category2 = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,0.,2,1,1);
+
+	//cout<<cur_type<<" Final events r,l,e"<< l.run << " " << l.lumis << " " << l.event <<" "<<category2<<" "<<diphoton.M()<<" "<<weight<<endl;
 
 	if (cur_type==0){
 	  int faketype=999;
@@ -3320,7 +3329,7 @@ void StatAnalysisExclusive::SetBDT() {
   std::cout<<"SetBDT"<<std::endl;
   tmvaReader->AddSpectator("isLeading", &tmva_isLeading);
   std::cout<<"SetBDT"<<std::endl;
-  tmvaReader->BookMVA("Gradient", "../Marco/MVAweights/mh_110_135_Gradient.weights.xml");
+  tmvaReader->BookMVA("Gradient", "/home/users/branson/globeArea11/globe/mh_110_135_Gradient.weights.xml");
   std::cout<<"SetBDT"<<std::endl;
 
 
@@ -3335,7 +3344,7 @@ void StatAnalysisExclusive::SetBDT() {
   tmvaReader1->AddVariable("pt", &tmva_pt);
   tmvaReader1->AddVariable("eta", &tmva_eta);
   tmvaReader1->AddSpectator("isLeading", &tmva_isLeading);
-  tmvaReader1->BookMVA("Category_Gradient", "../Marco/MVAweights/mh_110_135_Category_Gradient.weights.xml");
+  tmvaReader1->BookMVA("Category_Gradient", "/home/users/branson/globeArea11/globe/MVAweights/mh_110_135_Category_Gradient.weights.xml");
 
   std::cout<<"SetBDT1"<<std::endl;
 
@@ -3380,8 +3389,10 @@ void StatAnalysisExclusive::SetBDT() {
   tmvaReader_dipho->AddVariable("subleadeta", &tmva_subleadeta);
   tmvaReader_dipho->AddVariable("leadr9", &tmva_leadr9);
   tmvaReader_dipho->AddVariable("subleadr9", &tmva_subleadr9);
+ tmvaReader_dipho->AddVariable("dmom", &tmva_dmom);
   tmvaReader_dipho->AddSpectator("diphocat2r92eta", &tmva_isLeading);
-  tmvaReader_dipho->BookMVA("Gradient", "/home/users/matteo/diphoton_dec1_Gradient.weights.xml");
+  tmvaReader_dipho->BookMVA("Gradient", "/home/users/matteo/diphoton_with_dmom_Gradient.weights.xml");
+  //  tmvaReader_dipho->BookMVA("Gradient", "/home/users/matteo/diphoton_dec1_Gradient.weights.xml");
 
 
   tmvaReader_dipho2 = new TMVA::Reader("!Color:Silent"); 
@@ -3395,7 +3406,8 @@ void StatAnalysisExclusive::SetBDT() {
   tmvaReader_dipho2->AddVariable("leadr9", &tmva_leadr9);
   tmvaReader_dipho2->AddVariable("subleadr9", &tmva_subleadr9);
   tmvaReader_dipho2->AddSpectator("diphocat2r92eta", &tmva_isLeading);
-  tmvaReader_dipho2->BookMVA("Gradient", "/home/users/matteo/diphotonswithweight_Gradient.weights.xml");
+  //tmvaReader_dipho2->BookMVA("Gradient", "/home/users/matteo/diphoton_without_qcd_allstat_Gradient.weights.xml");
+  tmvaReader_dipho2->BookMVA("Gradient", "/home/users/matteo/diphoton_allstat_Gradient.weights.xml");
 }
 
 
@@ -3743,7 +3755,7 @@ Float_t StatAnalysisExclusive::BDT_ptom2(Int_t jentry, Int_t iPhoton, Int_t vtx,
 }
 
 
-Float_t StatAnalysisExclusive::BDT_dipho(Int_t jentry, Int_t isl, Int_t il, float lmva, float slmva, float diphopt, float mass) {
+Float_t StatAnalysisExclusive::BDT_dipho(Int_t jentry, Int_t isl, Int_t il, float lmva, float slmva, float diphopt, float mass, float dmom) {
 
 
   ll->BdtGetEntry(jentry);
@@ -3767,6 +3779,7 @@ Float_t StatAnalysisExclusive::BDT_dipho(Int_t jentry, Int_t isl, Int_t il, floa
   tmva_sumptom = (((TLorentzVector*)ll->pho_p4->At(il))->Et()+((TLorentzVector*)ll->pho_p4->At(isl))->Et())/mass;
   tmva_subleadmva = slmva;
   tmva_leadmva = lmva;
+  tmva_dmom = dmom;
   
   Float_t mva = tmvaReader_dipho->EvaluateMVA("Gradient");
   
@@ -3968,7 +3981,7 @@ if(jentry%1000==1&&itype>0&&itype%1000==1) cout<<jentry<<"  "<<itype<<"  mass="<
   t_leadci6cpfmvacat = BDT_categorized(jentry, leadind,vtxind, 1.);
   t_leadci6cpfmvaptom = BDT_ptom(jentry, leadind,vtxind, mass);
   t_leadci6cpfmvaptom2 = BDT_ptom2(jentry, leadind,vtxind, mass);
-  t_diphomva = BDT_dipho(jentry, leadind, subleadind, t_leadci6cpfmvaptom, t_subleadci6cpfmvaptom, t_diphopt, mass);
+  t_diphomva = BDT_dipho(jentry, leadind, subleadind, t_leadci6cpfmvaptom, t_subleadci6cpfmvaptom, t_diphopt, mass, t_dmom);
   t_diphomva2 = BDT_dipho2(jentry, leadind, subleadind, t_leadci6cpfmvaptom, t_subleadci6cpfmvaptom, t_diphopt, mass);
  
   //std::pair<int,int> diphoton_indices(DiphotonCiCSelectionIndices( LEADCUTLEVEL, SUBLEADCUTLEVEL, leadPtMin, subleadPtMin, CICNCAT, -1, false));
@@ -4222,17 +4235,18 @@ Int_t StatAnalysisExclusive::itype_jim(int itype) {
   }
   else if(itype>0) {
     if(itype==1) return -24; //qcdff 30
-    if(itype==2) return -24; //qcdff 40
+    //if(itype==2) return -24; //qcdff 40
     if(itype==3) return -13; //gj_pf 20
     if(itype==4) return -1;  //diphojets
     if(itype==5) return -2;  //box25-250
     if(itype==6) return -25; //DY
     //if(itype==7) return ;
-    //if(itype==8) return ;
+    if(itype==8) return -2;  //box25-250
     //if(itype==9) return ;
     //if(itype==10) return ;
     if(itype==11) return -14; //qcdpf 30
     if(itype==12) return -14; //qcdpf 40
+    if(itype==2) return -14; //qcdpf 40
 
   }
   else if(itype<0) {

@@ -752,14 +752,14 @@ Float_t tmva_sieie, tmva_goodpf_iso, tmva_badpf_iso, tmva_drtotk, tmva_ptom;
 Float_t tmva_hoe, tmva_tkisopf, tmva_r9, tmva_pt, tmva_eta, tmva_isLeading;
 Int_t tmva_cat;
 Float_t tmva_etamax, tmva_subleadptomass, tmva_diphoptom, tmva_sumptom;
-Float_t tmva_subleadmva, tmva_leadmva, tmva_leadeta, tmva_subleadeta, tmva_leadr9, tmva_subleadr9;
+ Float_t tmva_subleadmva, tmva_leadmva, tmva_leadeta, tmva_subleadeta, tmva_leadr9, tmva_subleadr9, tmva_dmom;
 
 void SetBDT();
 Float_t BDT(Int_t jentry, Int_t iPhoton, Int_t vtx);
 Float_t BDT_categorized(Int_t jentry, Int_t iPhoton, Int_t vtx, float isLead);
 Float_t BDT_ptom(Int_t jentry, Int_t iPhoton, Int_t vtx, float mass);
 Float_t BDT_ptom2(Int_t jentry, Int_t iPhoton, Int_t vtx, float mass);
-Float_t BDT_dipho(Int_t jentry, Int_t ilindex, Int_t islindex, float lmva, float slmva, float diphopt, float mass);
+ Float_t BDT_dipho(Int_t jentry, Int_t ilindex, Int_t islindex, float lmva, float slmva, float diphopt, float mass, float dmom);
 Float_t BDT_dipho2(Int_t jentry, Int_t ilindex, Int_t islindex, float lmva, float slmva, float diphopt, float mass);
 
  void HggBookOptree();

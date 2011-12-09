@@ -2,6 +2,9 @@
 //==============================  Interactive Plotting  ===============================
 //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
+// GetXaxis()->SetTitle(xaxislabels[ivar]);
+// GetXaxis()->SetTitle("Trailing Jet #eta");
+
 #define MPDEBUG 0
 
 void LoopAll::myPlotInteractive(TString hsmallname) {
@@ -1222,7 +1225,7 @@ void LoopAll::myPlotInteractive(TString hsmallname) {
    cmstext = cmspavetext->AddText("\n\n\n\n\n\n\n\n");
    //cmstext = cmspavetext->AddText("");
    //cmstext = cmspavetext->AddText("");
-   cmstext = cmspavetext->AddText("#sqrt{s}=7 TeV L_{int} = 4.69 fb^{-1}");
+   cmstext = cmspavetext->AddText("#sqrt{s}=7 TeV L_{int} = 4.72 fb^{-1}");
    cmspavetext->Draw();
           if(MPDEBUG) cout<<"myPlotInteractive 19.7 "<<endl;
         //update canvas

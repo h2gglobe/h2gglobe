@@ -92,7 +92,7 @@ void StatAnalysisExclusive::Init(LoopAll& l)
 	<< std::endl;
 
     // avoid recalculated the CIC ID every time
-    l.runCiC = reRunCiC;
+    //l.runCiC = reRunCiC;
     // call the base class initializer
     PhotonAnalysis::Init(l);
 
@@ -126,6 +126,9 @@ void StatAnalysisExclusive::Init(LoopAll& l)
 
     l.SetCutVariables("cut_AllLeadJPt",       &myAllLeadJPt);
     l.SetCutVariables("cut_AllSubJPt",        &myAllSubJPt);
+    l.SetCutVariables("cut_AllLeadJEta1",      &myAllLeadJEta);
+    l.SetCutVariables("cut_AllLeadJPt1",       &myAllLeadJPt);
+    l.SetCutVariables("cut_AllSubJPt1",        &myAllSubJPt);
     l.SetCutVariables("cut_AllLeadJEta",      &myAllLeadJEta);
     l.SetCutVariables("cut_AllSubJEta",       &myAllSubJEta);
     l.SetCutVariables("cut_All_Mjj",          &myAll_Mjj);
@@ -140,6 +143,31 @@ void StatAnalysisExclusive::Init(LoopAll& l)
     l.SetCutVariables("cut_All_phoet2",        &myAll_phoet2);
     l.SetCutVariables("cut_All_phoetom1",      &myAll_phoetom1);
     l.SetCutVariables("cut_All_phoetom2",      &myAll_phoetom2);
+
+    l.SetCutVariables("cut_All_phoet1",        &myAll_phoet1);
+    l.SetCutVariables("cut_All_phoet2",        &myAll_phoet2);
+    l.SetCutVariables("cut_All_phoetom1",      &myAll_phoetom1);
+    l.SetCutVariables("cut_All_phoetom2",      &myAll_phoetom2);
+
+    l.SetCutVariables("cut_All2LeadJPt",       &myAllLeadJPt);
+    l.SetCutVariables("cut_All2SubJPt",        &myAllSubJPt);
+    l.SetCutVariables("cut_All2LeadJEta1",      &myAllLeadJEta);
+    l.SetCutVariables("cut_All2LeadJPt1",       &myAllLeadJPt);
+    l.SetCutVariables("cut_All2SubJPt1",        &myAllSubJPt);
+    l.SetCutVariables("cut_All2LeadJEta",      &myAllLeadJEta);
+    l.SetCutVariables("cut_All2SubJEta",       &myAllSubJEta);
+    l.SetCutVariables("cut_All2_Mjj",          &myAll_Mjj);
+    l.SetCutVariables("cut_All2_dEta",         &myAlldEta);
+    l.SetCutVariables("cut_All2_Zep",          &myAllZep);
+    l.SetCutVariables("cut_All2_dPhi",         &myAlldPhi);
+    l.SetCutVariables("cut_All2_Mgg0",         &myAll_Mgg);
+    l.SetCutVariables("cut_All2_Mgg2",         &myAll_Mgg);
+    l.SetCutVariables("cut_All2PtHiggs",       &myAllPtHiggs);
+
+    l.SetCutVariables("cut_All2_phoet1",        &myAll_phoet1);
+    l.SetCutVariables("cut_All2_phoet2",        &myAll_phoet2);
+    l.SetCutVariables("cut_All2_phoetom1",      &myAll_phoetom1);
+    l.SetCutVariables("cut_All2_phoetom2",      &myAll_phoetom2);
 
 
     l.SetCutVariables("cut_VBFLeadJEta",      &myAllLeadJEta);
@@ -198,6 +226,7 @@ void StatAnalysisExclusive::Init(LoopAll& l)
     l.SetCutVariables("cut_VHad_Mgg100160",   &myAll_Mgg);
     l.SetCutVariables("cut_VHad_Mggfin",      &myAll_Mgg);
 
+    /*
     l.SetCutVariables("cut_VBFR_phoet1",       &myAll_phoet1);
     l.SetCutVariables("cut_VBFR_phoet2",       &myAll_phoet2);
     l.SetCutVariables("cut_VBFR_phoetom1",     &myAll_phoetom1);
@@ -215,7 +244,7 @@ void StatAnalysisExclusive::Init(LoopAll& l)
     l.SetCutVariables("cut_VBFR_Mgg10",        &myAll_Mgg);
     l.SetCutVariables("cut_VBFR_Mgg100160",    &myAll_Mgg);
     l.SetCutVariables("cut_VBFR_Mggfin",       &myAll_Mgg);
-
+    */
 
     /*
     l.SetCutVariables("cut_VBF_phoet1",        &myVBFphoet1);
