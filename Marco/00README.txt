@@ -31,6 +31,17 @@ setTDRStyle();
   //gSystem->Load("VertexAnalysis/lib/libh2gglobeVertexAnalysis.so");
 gSystem->Load("libLoopAll.so");
 LoopAll* m=new LoopAll();
+m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_marcodatafiles_5fb_LL_33_23_all_ff_120_withSM_4DEC_fastnew_ptom.root","Hgg")
+m->myPlotInteractive("PhotonAnalysis_scripts/histograms_marcodatafiles_5fb_LL_33_23_all_ff_120_withSM_4DEC_fastnew_ptom.root");
+
+root -l
+.L Marco/tdrstyle.C
+setTDRStyle();
+  gSystem->Load("libPhysics.so");
+  gSystem->Load("libCore.so");
+  //gSystem->Load("VertexAnalysis/lib/libh2gglobeVertexAnalysis.so");
+gSystem->Load("libLoopAll.so");
+LoopAll* m=new LoopAll();
 m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_marcodatafiles_5fb_LL_33_23_all_ff_120_withSM_1DEC.root","Hgg")
 m->myPlotInteractive("PhotonAnalysis_scripts/histograms_marcodatafiles_5fb_LL_33_23_all_ff_120_withSM_1DEC.root");
 
@@ -129,6 +140,9 @@ cp Marco/datafiles_5fb_LL_33_23_all_ff.dat PhotonAnalysis_scripts/datafiles_5fb_
 
 
 #FOR MARCO ADD THIS
+cp Marco/statanalysis.dat PhotonAnalysis_scripts/statanalysis.dat
+cp Marco/photonanalysis.dat PhotonAnalysis_scripts/photonanalysis.dat
+cp  Marco/plotvariables.dat PhotonAnalysis_scripts/plotvariables.dat
 cp Marco/cuts_marco.dat PhotonAnalysis_scripts/cuts.dat
 #cp Marco/cuts_marco_100160.dat PhotonAnalysis_scripts/cuts.dat
 cp Marco/StatAnalysisExclusive_marco_newnewnew.h PhotonAnalysis/interface/StatAnalysisExclusive.h
@@ -554,12 +568,19 @@ varname[40]: cut_VBF_Mgg4_nminus1
 varname[41]: cut_VBF_Mgg4_sequential
 
 
+###cp ../LoopAll.h ../LoopAll_marco.h 
+###cp ../LoopAll.cc ../LoopAll_marco.cc 
 
-
+cp Marco/LoopAll.h Marco/LoopAll_marco.h 
+cp Marco/LoopAll.cc Marco/LoopAll_marco.cc 
+cp Marco/minimal_statanalysis_input.dat PhotonAnalysis_scripts/minimal_statanalysis_input.dat
 cp Marco/StatAnalysisExclusive_jim.h PhotonAnalysis/interface/StatAnalysisExclusive.h
 cp Marco/StatAnalysisExclusive_jim.cc PhotonAnalysis/src/StatAnalysisExclusive.cc
 
 
+cp Marco/plotvariables.dat PhotonAnalysis_scripts/plotvariables.dat
+cp Marco/cuts_marco.dat PhotonAnalysis_scripts/cuts.dat
+cp Marco/minimal_statanalysis_input_marco.dat PhotonAnalysis_scripts/minimal_statanalysis_input.dat
 cp Marco/StatAnalysisExclusive_marco_newnewnew.h PhotonAnalysis/interface/StatAnalysisExclusive.h
 cp Marco/StatAnalysisExclusive_marco_newnewnew.cc PhotonAnalysis/src/StatAnalysisExclusive.cc
 
