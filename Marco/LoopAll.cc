@@ -452,7 +452,7 @@ void LoopAll::InitReal(Int_t typerunpass) {
  // }
 
   //marco new
-  hfilereal = TFile::Open(histFileName, "RECREATE", "Globe ROOT file with histograms");
+  hfilereal = TFile::Open("histograms_"+histFileName, "RECREATE", "Globe ROOT file with histograms");
   hfilereal->cd();
 
   if(LDEBUG) cout << "doing InitRealPhotonAnalysis" << endl;
@@ -466,7 +466,7 @@ void LoopAll::InitReal(Int_t typerunpass) {
     outputFile->cd();
 
 #ifdef NewFeatures
-  FILE *mar = fopen("../Marco/dataevents.txt","r");
+  FILE *mar = fopen("../Marco/dataevents_new.txt","r");
 
   event_pointer = 0;
   float dummy1, dummy2;
@@ -475,6 +475,8 @@ void LoopAll::InitReal(Int_t typerunpass) {
   int realnmar=0;
 
   int marco_type;
+
+  
   //while(true){
   while(feof(mar)==0){
     fscanf(mar, "Type = %d Run = %d  LS = %d  Event = %d  SelVtx = %d  CAT4 = %d  ggM = %f gg_Pt =  %f\n", 
@@ -485,7 +487,7 @@ void LoopAll::InitReal(Int_t typerunpass) {
 
     //if(good_events[realnmar][3]<0) break;
   }
-
+  
   fclose(mar);
 #endif
 }
@@ -1075,6 +1077,7 @@ int LoopAll::FillAndReduce(int jentry) {
 
   //count all events
   countersred[0]++;
+  
   
 #ifdef NewFeatures
   if (itype[current] == 0) {

@@ -4,12 +4,30 @@ leadEtCut=40.0
 subleadEtCut=30.0
 
 massMin=100.
-massMax=160.
-nDataBins=60
+massMax=180.
+nDataBins=80
 
 nEtaCategories=2
 nR9Categories=2
 nPtCategories=1
+
+includeVBF=0
+includeVHad=0
+includeVHlep=0
+
+nVBFEtaCategories=2
+nVHadEtaCategories=1
+
+leadEtVBFCut=55
+subleadEtVBFCut=25
+
+leadEtVHadCut=60
+subleadEtVHadCut=25
+
+leadEtVHlepCut=45
+subleadEtVHlepCut=25
+
+
 
 doTriggerSelection=1
 ->
@@ -57,9 +75,9 @@ Inputs for reweighing
 - vertexing from: https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/374/1.html
 ->
 
-kfacHist=/home/users/capalmer/CMS/Higgs2gg/Limits/nov14_forAN/428p7/src/HiggsAnalysis/HiggsTo2photons/h2gglobe_new/Marco/KFactors_AllScales_interpolated.root
-efficiencyFile=/home/users/capalmer/CMS/Higgs2gg/Limits/nov14_forAN/428p7/src/HiggsAnalysis/HiggsTo2photons/h2gglobe_new/Marco/sig_reweighing_v14.root
-puHist=../Marco/2011_0100_73500.pileup.root
+kfacHist=../Marco/KFactors_AllScales_interpolated.root
+efficiencyFile=../Marco/sig_reweighing_v15.root
+puHist=../Marco/2011_0100_73500.weights.root
 
 puMap=pu_weights_map.dat
 

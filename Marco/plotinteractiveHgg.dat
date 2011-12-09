@@ -1,7 +1,80 @@
 xSize=600    ySize=600   
-Stack=1   PopSig=1  FillSig=1 Over=0    Under=0
+Stack=1   PopSig=1  FillSig=0 Over=0    Under=0
 Log=0     Grid=0    Stats=0   SumW2=0   DoCats=1
 Legend=1  Top=1     Right=1   NCols=1
+name=Data                display=Data 	  ind=0       order=0     omit=0    scale=1.0       color=0     marker=20
+name=Box25               display=Box@25   ind=1       order=1     omit=2    scale=1.0       color=592   marker=0
+name=Box250              display=Box@250  ind=2       order=2     omit=2    scale=1.0       color=592   marker=0
+name=DiPhotonJets        display=2@Prompt@#gamma ind=3       order=3     omit=0    scale=1.0       color=592   marker=0
+name=GJet20_pf           display=GJet_pf  ind=4       order=4     omit=2    scale=1.0       color=406   marker=0
+name=QCD40_pf            display=1@Prompt@#gamma@1@Fake@#gamma   ind=5       order=5     omit=0    scale=1.0       color=406   marker=0
+name=QCD40_ff            display=2@Fake@#gamma     ind=6      order=6    omit=0    scale=1.0       color=422   marker=0
+name=DYJets              display=Drell@Yan         ind=7      order=7    omit=0    scale=1.0       color=606   marker=0
+name=fp_vbf_H_gg_120      display=FPVBF120@\times@3   ind=8      order=8    omit=1    scale=3         color=2     marker=0
+name=fp_wz_H_gg_120       display=FPVH120@\times@5   ind=9      order=9    omit=1    scale=5         color=803   marker=0
+
+name=sm_gluglu_H_gg_120   display=GG120@\times@5   ind=10      order=10    omit=1    scale=5         color=9     marker=0
+name=sm_vbf_H_gg_120      display=VBF120@\times@500   ind=11      order=11    omit=0    scale=500         color=803     marker=0
+
+name=sm_wz_H_gg_120       display=VH120@\times@10   ind=12      order=12    omit=1    scale=10         color=5   marker=0
+name=sm_tt_H_gg_120       display=TTH120@\times@10   ind=13      order=13    omit=1    scale=10         color=4   marker=0
+
+
+
+
+name=gluglu_H_gg_125_pu2011   display=GG125@\times@10   ind=14      order=14    omit=1    scale=10         color=2     marker=0
+name=vbf_H_gg_125_pu2011      display=VBF125@\times@10   ind=15      order=15    omit=1    scale=10         color=3     marker=0
+name=wz_H_gg_125_pu2011       display=VH125@\times@10   ind=16      order=16    omit=1    scale=10         color=5   marker=0
+name=tt_H_gg_125_pu2011       display=TTH125@\times@10   ind=17      order=17    omit=1    scale=10         color=4   marker=0
+
+
+for ptom with bug
+name=Data                display=Data 	  ind=0       order=0     omit=0    scale=1.0       color=0     marker=20
+name=Box25               display=Box@25   ind=1       order=1     omit=2    scale=1.0       color=592   marker=0
+name=Box250              display=Box@250  ind=2       order=2     omit=2    scale=1.0       color=592   marker=0
+name=DiPhotonJets        display=2@Prompt@#gamma ind=3       order=3     omit=0    scale=1.0       color=592   marker=0
+name=GJet20_pf           display=GJet_pf  ind=4       order=4     omit=2    scale=1.0       color=406   marker=0
+name=QCD40_pf            display=1@Prompt@#gamma@1@Fake@#gamma   ind=5       order=5     omit=0    scale=1.0       color=406   marker=0
+name=DYJets              display=Drell@Yan         ind=6      order=6    omit=0    scale=1.0       color=606   marker=0
+name=fp_vbf_H_gg_120      display=FPVBF120@\times@3   ind=7      order=7    omit=1    scale=3         color=2     marker=0
+name=fp_wz_H_gg_120       display=FPVH120@\times@3   ind=8      order=8    omit=1    scale=3         color=803   marker=0
+name=sm_gluglu_H_gg_120   display=GG120@\times@10   ind=9      order=9    omit=1    scale=10         color=9     marker=0
+
+name=sm_vbf_H_gg_120      display=VBF120@\times@5   ind=10      order=10    omit=0    scale=5         color=803     marker=0
+
+
+name=sm_wz_H_gg_120       display=VH120@\times@10   ind=11      order=11    omit=1    scale=10         color=5   marker=0
+name=sm_tt_H_gg_120       display=TTH120@\times@10   ind=12      order=12    omit=1    scale=10         color=4   marker=0
+name=gluglu_H_gg_125_pu2011   display=GG125@\times@10   ind=13      order=13    omit=1    scale=10         color=2     marker=0
+name=vbf_H_gg_125_pu2011      display=VBF125@\times@10   ind=14      order=14    omit=1    scale=10         color=3     marker=0
+name=wz_H_gg_125_pu2011       display=VH125@\times@10   ind=15      order=15    omit=1    scale=10         color=5   marker=0
+name=tt_H_gg_125_pu2011       display=TTH125@\times@10   ind=16      order=16    omit=1    scale=10         color=4   marker=0
+
+
+standard
+name=Data                display=Data 	  ind=0       order=0     omit=0    scale=1.0       color=0     marker=20
+name=Box25               display=Box@25   ind=1       order=1     omit=2    scale=1.0       color=592   marker=0
+name=Box250              display=Box@250  ind=2       order=2     omit=2    scale=1.0       color=592   marker=0
+name=DiPhotonJets        display=2@Prompt@#gamma ind=3       order=3     omit=0    scale=1.0       color=592   marker=0
+name=GJet20_pf           display=GJet_pf  ind=4       order=4     omit=2    scale=1.0       color=406   marker=0
+name=QCD40_pf            display=1@Prompt@#gamma@1@Fake@#gamma   ind=5       order=5     omit=0    scale=1.0       color=406   marker=0
+name=QCD40_ff            display=2@Fake@#gamma     ind=6      order=6    omit=0    scale=1.0       color=422   marker=0
+name=DYJets              display=Drell@Yan         ind=7      order=7    omit=0    scale=1.0       color=606   marker=0
+name=fp_vbf_H_gg_120      display=FPVBF120@\times@3   ind=8      order=8    omit=1    scale=3         color=2     marker=0
+name=fp_wz_H_gg_120       display=FPVH120@\times@3   ind=9      order=9    omit=1    scale=3         color=803   marker=0
+name=sm_gluglu_H_gg_120   display=GG120@\times@10   ind=10      order=10    omit=1    scale=10         color=9     marker=0
+
+name=sm_vbf_H_gg_120      display=VBF120@\times@500   ind=11      order=11    omit=0    scale=500         color=803     marker=0
+
+name=sm_wz_H_gg_120       display=VH120@\times@10   ind=12      order=12    omit=1    scale=10         color=5   marker=0
+name=sm_tt_H_gg_120       display=TTH120@\times@10   ind=13      order=13    omit=1    scale=10         color=4   marker=0
+name=gluglu_H_gg_125_pu2011   display=GG125@\times@10   ind=14      order=14    omit=1    scale=10         color=2     marker=0
+name=vbf_H_gg_125_pu2011      display=VBF125@\times@10   ind=15      order=15    omit=1    scale=10         color=3     marker=0
+name=wz_H_gg_125_pu2011       display=VH125@\times@10   ind=16      order=16    omit=1    scale=10         color=5   marker=0
+name=tt_H_gg_125_pu2011       display=TTH125@\times@10   ind=17      order=17    omit=1    scale=10         color=4   marker=0
+
+
+
 name=Data                display=Data 	  ind=0       order=0     omit=0    scale=1.0       color=0     marker=400
 name=Box25               display=Box@25   ind=1       order=1     omit=2    scale=1.0       color=592   marker=0
 name=Box250              display=Box@250  ind=2       order=2     omit=2    scale=1.0       color=592   marker=0
@@ -23,24 +96,6 @@ name=tt_H_gg_125_pu2011       display=TTH125@\times@10   ind=17      order=17   
 
 
 
-name=Data                display=Data 	  ind=0       order=0     omit=0    scale=1.0       color=0     marker=400
-name=Box25               display=Box@25   ind=1       order=1     omit=0    scale=1.0       color=1   marker=0
-name=Box250              display=Box@250  ind=2       order=2     omit=0    scale=1.0       color=2   marker=0
-name=DiPhotonJets        display=2@Prompt@#gamma ind=3       order=3     omit=0    scale=1.0       color=3   marker=0
-name=GJet20_pf           display=GJet_pf  ind=4       order=4     omit=0    scale=1.0       color=4   marker=0
-name=QCD40_pf            display=1@Prompt@#gamma@1@Fake@#gamma   ind=5       order=5     omit=0    scale=1.0       color=5   marker=0
-name=QCD40_ff            display=2@Fake@#gamma     ind=6      order=6    omit=0    scale=1.0       color=6   marker=0
-name=DYJets              display=Drell@Yan         ind=7      order=7    omit=0    scale=1.0       color=7   marker=0
-name=fp_vbf_H_gg_120      display=FPVBF120@\times@3   ind=8      order=8    omit=0    scale=3         color=2     marker=0
-name=fp_wz_H_gg_120       display=FPVH120@\times@3   ind=9      order=9    omit=1    scale=3         color=803   marker=0
-name=sm_gluglu_H_gg_120   display=GG120@\times@10   ind=10      order=10    omit=1    scale=10         color=9     marker=0
-name=sm_vbf_H_gg_120      display=VBF120@\times@10   ind=11      order=11    omit=1    scale=10         color=3     marker=0
-name=sm_wz_H_gg_120       display=VH120@\times@10   ind=12      order=12    omit=1    scale=10         color=5   marker=0
-name=sm_tt_H_gg_120       display=TTH120@\times@10   ind=13      order=13    omit=1    scale=10         color=4   marker=0
-name=gluglu_H_gg_125_pu2011   display=GG125@\times@10   ind=14      order=14    omit=1    scale=10         color=2     marker=0
-name=vbf_H_gg_125_pu2011      display=VBF125@\times@10   ind=15      order=15    omit=1    scale=10         color=3     marker=0
-name=wz_H_gg_125_pu2011       display=VH125@\times@10   ind=16      order=16    omit=1    scale=10         color=5   marker=0
-name=tt_H_gg_125_pu2011       display=TTH125@\times@10   ind=17      order=17    omit=1    scale=10         color=4   marker=0
 
 
 
