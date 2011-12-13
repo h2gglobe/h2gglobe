@@ -42,7 +42,7 @@ tkIso_dxymax=0.1
 
 applyPtoverM=1
 doTriggerSelection=1
-puHist=/afs/cern.ch/user/a/adavidzh/public/json/111207/weights/2011_0100_73500.signal_weights.root
+puHist=/afs/cern.ch/user/a/adavidzh/public/json/111207/weights/2011_0100_73500.weights.root
 puMap=pu_weights_map.dat
 
 energyCorrectionMethod=Bendavid
