@@ -1,3 +1,11 @@
+#ifdef NewFeatures
+void SetBranchAddress_pho_pfiso_myneutral03(TTree * tree) { tree->SetBranchAddress("pho_pfiso_myneutral03", pho_pfiso_myneutral03, &b_pho_pfiso_myneutral03); }; 
+void SetBranchAddress_pho_pfiso_myneutral04(TTree * tree) { tree->SetBranchAddress("pho_pfiso_myneutral04", pho_pfiso_myneutral04, &b_pho_pfiso_myneutral04); }; 
+void SetBranchAddress_pho_pfiso_myphoton03(TTree * tree) { tree->SetBranchAddress("pho_pfiso_myphoton03", pho_pfiso_myphoton03, &b_pho_pfiso_myphoton03); }; 
+void SetBranchAddress_pho_pfiso_myphoton04(TTree * tree) { tree->SetBranchAddress("pho_pfiso_myphoton04", pho_pfiso_myphoton04, &b_pho_pfiso_myphoton04); }; 
+void SetBranchAddress_pho_pfiso_mycharged03(TTree * tree) { tree->SetBranchAddress("pho_pfiso_mycharged03", &pho_pfiso_mycharged03, &b_pho_pfiso_mycharged03); }; 
+void SetBranchAddress_pho_pfiso_mycharged04(TTree * tree) { tree->SetBranchAddress("pho_pfiso_mycharged04", &pho_pfiso_mycharged04, &b_pho_pfiso_mycharged04); }; 
+#endif
 void SetBranchAddress_event(TTree * tree) { tree->SetBranchAddress("event", &event, &b_event); }; 
 void SetBranchAddress_run(TTree * tree) { tree->SetBranchAddress("run", &run, &b_run); }; 
 void SetBranchAddress_process_id(TTree * tree) { tree->SetBranchAddress("process_id", &process_id, &b_process_id); }; 

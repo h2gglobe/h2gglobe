@@ -1,3 +1,11 @@
+#ifdef NewFeatures
+b_pho_pfiso_myneutral03->GetEntry(jentry);
+b_pho_pfiso_myneutral04->GetEntry(jentry);
+b_pho_pfiso_myphoton03->GetEntry(jentry);
+b_pho_pfiso_myphoton04->GetEntry(jentry);
+b_pho_pfiso_mycharged03->GetEntry(jentry);
+b_pho_pfiso_mycharged04->GetEntry(jentry);
+#endif
    b_event->GetEntry(jentry); 
    b_run->GetEntry(jentry); 
    b_process_id->GetEntry(jentry); 
