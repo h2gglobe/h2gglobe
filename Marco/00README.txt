@@ -714,3 +714,35 @@ cicPhoton ID badCombIso: 3.52066 (< 3.4 failed)
 We don't have below 2 events in our ntuples. Further investigation ongoing.
 Run 176547 Event 48254336
 Run 177053 Event 563451379
+
+
+
+
+#instructions
+
+cvs update -r baseline_workspace_08Dec2011_nw
+
+cp Marco/Makefile ./Makefile
+cp Marco/CommonParameters.h ./CommonParameters.h
+cp Marco/statanalysis.dat PhotonAnalysis_scripts/statanalysis.dat
+cp Marco/photonanalysis.dat PhotonAnalysis_scripts/photonanalysis.dat
+#### cp Marco/PhotonAnalysis.h PhotonAnalysis/interface/PhotonAnalysis.h
+
+??? YES FOR NOW 
+cp Marco/fitter.py PhotonAnalysis_scripts/fitter.py
+
+cp Marco/plotvariables.dat PhotonAnalysis_scripts/plotvariables.dat
+cp Marco/pu_weights_map.dat PhotonAnalysis_scripts/pu_weights_map.dat
+
+JIM
+
+cp Marco/LoopAll.cc LoopAll.cc
+cp Marco/LoopAll.h LoopAll.h
+cp Marco/minimal_statanalysis_input.dat PhotonAnalysis_scripts/minimal_statanalysis_input.dat
+cp Marco/StatAnalysisExclusive_jim.h PhotonAnalysis/interface/StatAnalysisExclusive.h
+cp Marco/StatAnalysisExclusive_jim.cc PhotonAnalysis/src/StatAnalysisExclusive.cc
+cp Marco/cuts_marco.dat PhotonAnalysis_scripts/cuts.dat
+
+END JIM
+
+
