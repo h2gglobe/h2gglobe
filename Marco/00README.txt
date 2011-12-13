@@ -746,3 +746,12 @@ cp Marco/cuts_marco.dat PhotonAnalysis_scripts/cuts.dat
 END JIM
 
 
+# If you don't take the head of branchdef
+
+cp Matteo/addBranch .
+./addBranch pho_pfiso_myneutral03 F pho_n MAX_PHOTONS
+./addBranch pho_pfiso_myneutral04 F pho_n MAX_PHOTONS
+./addBranch pho_pfiso_myphoton03 F pho_n MAX_PHOTONS
+./addBranch pho_pfiso_myphoton04 F pho_n MAX_PHOTONS
+./addBranch pho_pfiso_mycharged04 "std::vector<std::vector<float> >"
+./addBranch pho_pfiso_mycharged03 "std::vector<std::vector<float> >"
