@@ -1,7 +1,8 @@
-rm *png
+###rm *.png
 
 
 root -l
+
 .L Marco/tdrstyle.C
 setTDRStyle();
   gSystem->Load("libPhysics.so");
@@ -9,8 +10,19 @@ setTDRStyle();
   //gSystem->Load("VertexAnalysis/lib/libh2gglobeVertexAnalysis.so");
 gSystem->Load("libLoopAll.so");
 LoopAll* m=new LoopAll();
-m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_marcodatafiles_5fb_LL_33_23_all_ff_120_withSM_4DEC_fastnew_ptom_newnew.root","Hgg")
-m->myPlotInteractive("PhotonAnalysis_scripts/histograms_marcodatafiles_5fb_LL_33_23_all_ff_120_withSM_4DEC_fastnew_ptom_newnew.root");
+m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_marcodatafiles_5fb_Dec10_rereco_all_90_190_LAST.root","Hgg");
+m->myPlotInteractive("PhotonAnalysis_scripts/histograms_marcodatafiles_5fb_Dec10_rereco_all_90_190_LAST.root");
+
+
+
+j 25
+placeline -10000
+placetext  0.525 0.65 0.82 0.9
+placelegend 0.70 0.85 0.55 0.8
+#inclusive
+resize 800 600
+
+
 
 
 #### SET VH VBF for now times 5
@@ -24,13 +36,13 @@ resize 800 600
 
 
 j 25
-setmax 20
+setmax 26
 write png
 setmax 0
 
 
 j 26
-setmax 8000
+setmax 0
 write png
 setmax 0
 
@@ -41,12 +53,12 @@ setmax 0
 
 
 j 28
-setmax 6000
+setmax 11000
 write png
 setmax 0
 
 j 29
-setmax 22
+setmax 65
 write png
 setmax 0
 
@@ -57,24 +69,24 @@ write png
 setmax 0
 
 j 31
-setmax 30
+setmax 25
 write png
 setmax 0
 
 
 j 32
-setmax 7000
+setmax 5000
 write png
 setmax 0
 
 j 33
-setmax 16
+setmax 45
 write png
 setmax 0
 
 
 j 34
-setmax 0
+setmax 8500
 write png
 setmax 0
 
@@ -89,7 +101,7 @@ write png
 setmax 0
 
 j 39
-setmax 70
+setmax 50
 write png
 setmax 0
 
@@ -98,72 +110,208 @@ setmax 0
 write png
 setmax 0
 
+j 41
+setmax 22
+write png
+setmax 0
+
+j 42
+setmax 600
+write png
+setmax 0
+
 j 43
-setmax 90
+setmax 30
 write png
 setmax 0
 
 
 j 44
-setmax 1500
+setmax 950
 write png
 setmax 0
 
 
 j 45
-setmax 55
+setmax 36
 write png
 setmax 0
 
 
 j 46
-setmax 120
+setmax 800
 write png
 setmax 0
 
-
 j 47
-setmax 40
+setmax 90
 write png
 setmax 0
 
 
 j 48
-setmax 50
+setmax 1600
 write png
 setmax 0
 
 j 49
-setmax 150
+setmax 20
 write png
 setmax 0
 
 j 50
-setmax 150
+setmax 140
 write png
 setmax 0
 
 j 51
-setmax 22
+setmax 40
 write png
 setmax 0
 
 j 52
-setmax 22
+setmax 300
+write png
+setmax 0
+
+j 53
+setmax 30
+write png
+setmax 0
+
+j 54
+setmax 130
 write png
 setmax 0
 
 
 j 55
-setmax 40
+setmax 60
 write png
 setmax 0
 
 j 56
+setmax 120
+write png
+setmax 0
+
+j 63
 setmax 40
 write png
 setmax 0
 
+j 64
+setmax 80
+write png
+setmax 0
+
+j 65
+setmax 36
+write png
+setmax 0
+
+j 66
+setmax 44
+write png
+setmax 0
+
+j 73
+setmax 140
+write png
+setmax 0
+
+j 74
+setmax 140
+write png
+setmax 0
+
+//HERE
+
+
+
+j 179
+placeline -10000
+placetext  0.125 0.65 0.82 0.9
+placelegend 0.60 0.95 0.55 0.9
+#inclusive
+resize 800 600
+
+j 193
+setmax 850
+write png
+setmax 0
+
+j 194
+setmax 0
+write png
+setmax 0
+
+j 195
+setmax 700
+write png
+setmax 0
+
+j 196
+setmax 2000
+write png
+setmax 0
+
+j 197
+setmax 2200
+write png
+setmax 0
+
+j 198
+setmax 0
+write png
+setmax 0
+
+j 199
+setmax 600
+write png
+setmax 0
+
+j 200
+setmax 1100
+write png
+setmax 0
+
+j 201
+setmax 800
+write png
+setmax 0
+
+j 202
+setmax 1200
+write png
+setmax 0
+
+//HERE
+
+j 207
+setmax 1500
+write png
+setmax 0
+
+j 209
+setmax 1400
+write png
+setmax 0
+
+j 211
+setmax 1300
+write png
+setmax 0
+
+j 213
+setmax 4500
+write png
+setmax 0
+
+j 207
+setmax 1400
+write png
+setmax 0
 
 
 root -l
@@ -174,6 +322,9 @@ setTDRStyle();
   //gSystem->Load("VertexAnalysis/lib/libh2gglobeVertexAnalysis.so");
 gSystem->Load("libLoopAll.so");
 LoopAll* m=new LoopAll();
+m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_marcodatafiles_5fb_LL_33_23_all_ff_120_withSM_4DEC_fastnew_ptom_rereco.root");
+m->myPlotInteractive("PhotonAnalysis_scripts/histograms_marcodatafiles_5fb_LL_33_23_all_ff_120_withSM_4DEC_fastnew_ptom_rereco.root");
+
 m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_marcodatafiles_5fb_LL_33_23_all_ff_120_withSM_4DEC_fastnew_ptom_newnew.root","Hgg")
 m->myPlotInteractive("PhotonAnalysis_scripts/histograms_marcodatafiles_5fb_LL_33_23_all_ff_120_withSM_4DEC_fastnew_ptom_newnew.root");
 
@@ -427,4 +578,286 @@ setmax 0
 setmin 0
 log
 
+
+****************************
+
+
+
+
+
+root -l
+
+.L Marco/tdrstyle.C
+setTDRStyle();
+  gSystem->Load("libPhysics.so");
+  gSystem->Load("libCore.so");
+  //gSystem->Load("VertexAnalysis/lib/libh2gglobeVertexAnalysis.so");
+gSystem->Load("libLoopAll.so");
+LoopAll* m=new LoopAll();
+
+m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_marcodatafiles_5fb_Dec10_rereco_all_90_190.root","Hgg");
+m->myPlotInteractive("PhotonAnalysis_scripts/histograms_marcodatafiles_5fb_Dec10_rereco_all_90_190.root");
+
+
+
+
+
+j 25
+placeline -10000
+placetext  0.525 0.65 0.82 0.9
+placelegend 0.70 0.85 0.55 0.8
+#inclusive
+resize 800 600
+
+
+j 34
+
+All
+j 98
+
+
+n
+write png
+
+
+log
+log
+write png
+
+
+
+
+root PhotonAnalysis_scripts/histograms_marcodatafiles_5fb_Dec10_rereco_all_100_150.root
+
+
+VBF_AB_Zep_sequential_cat0_Data->Draw()
+VBF_AB_Zep_sequential_cat0_Data->Draw()
+
+
+VBF_AB_dPhi_nminus1_cat0_Data->Draw()
+VBF_AB_dPhi_nminus1_cat1_Data->Draw()
+
+
+***** RUN A and B
+
+
+rm *.png
+
+
+
+
+root -l
+
+.L Marco/tdrstyle.C
+setTDRStyle();
+  gSystem->Load("libPhysics.so");
+  gSystem->Load("libCore.so");
+  //gSystem->Load("VertexAnalysis/lib/libh2gglobeVertexAnalysis.so");
+gSystem->Load("libLoopAll.so");
+LoopAll* m=new LoopAll();
+
+m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_marcodatafiles_5fb_Dec10_rereco_all_90_190_30_20.root","Hgg");
+m->myPlotInteractive("PhotonAnalysis_scripts/histograms_marcodatafiles_5fb_Dec10_rereco_all_90_190_30_20.root");
+
+j 65
+placeline -10000
+placetext  0.525 0.65 0.82 0.9
+placelegend 0.70 0.85 0.55 0.8
+#inclusive
+resize 800 600
+
+j 65
+cats
+
+write png
+n
+n
+
+
+
+
+FINAL
+#################################
+#################################
+#################################
+
+rm *.png
+
+root -l
+
+.L Marco/tdrstyle.C
+setTDRStyle();
+  gSystem->Load("libPhysics.so");
+  gSystem->Load("libCore.so");
+  //gSystem->Load("VertexAnalysis/lib/libh2gglobeVertexAnalysis.so");
+gSystem->Load("libLoopAll.so");
+LoopAll* m=new LoopAll();
+m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_marcodatafiles_5fb_Dec10_rereco_all_90_190_LAST.root","Hgg");
+m->myPlotInteractive("PhotonAnalysis_scripts/histograms_marcodatafiles_5fb_Dec10_rereco_all_90_190_LAST.root");
+
+
+j 50
+resize 800 600
+placeline -10000
+
+write png
+n
+n
+
+sr
+
+j 81
+
+
+
+
+
+rm *.png
+
+root -l
+
+.L Marco/tdrstyle.C
+setTDRStyle();
+  gSystem->Load("libPhysics.so");
+  gSystem->Load("libCore.so");
+  //gSystem->Load("VertexAnalysis/lib/libh2gglobeVertexAnalysis.so");
+gSystem->Load("libLoopAll.so");
+LoopAll* m=new LoopAll();
+m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_marcodatafiles_5fb_Dec10_rereco_all_90_190_LAST_A.root","Hgg");
+m->myPlotInteractive("PhotonAnalysis_scripts/histograms_marcodatafiles_5fb_Dec10_rereco_all_90_190_LAST_A.root");
+
+
+resize 800 600
+placeline -10000
+
+j 30
+
+write png
+n
+n
+
+
+
+fig_dec11/2011A
+fig_dec11/2011B
+fig_dec11/masswin
+fig_dec11/pt
+
+mkdir fig_dec11/masswinA
+mkdir fig_dec11/masswinB
+
+
+mv fig_dec11/pt/hist_VBFLeadJPt1_sequential.png fig_dec11/pt/01_hist_VBFLeadJPt_after_Deta_sequential.png
+mv fig_dec11/pt/hist_VBFLeadJPt2_sequential.png fig_dec11/pt/02_hist_VBFLeadJPt2_after_Zep_sequential.png
+mv fig_dec11/pt/hist_VBFLeadJPt3_sequential.png fig_dec11/pt/03_hist_VBFLeadJPt3_after_Mjj_sequential.png
+mv fig_dec11/pt/hist_VBFLeadJPt2_nminus1.png fig_dec11/pt/04_hist_VBFLeadJPt2_after_all.png
+mv fig_dec11/pt/hist_VBFPtHiggs2_nminus1.png fig_dec11/pt/05_hist_VBFPtHiggs2_after_all.png
+
+
+mv fig_dec11/masswin/hist_VBFsr_phoet1_nminus1.png fig_dec11/masswin/hist_120_132_01_VBFsr_phoet1_nminus1.png
+mv fig_dec11/masswin/hist_VBFsr_phoetom1_nminus1.png fig_dec11/masswin/hist_120_132_02_VBFsr_phoetom1_nminus1.png
+mv fig_dec11/masswin/hist_VBFsr_phoet2_nminus1.png fig_dec11/masswin/hist_120_132_03_VBFsr_phoet2_nminus1.png
+mv fig_dec11/masswin/hist_VBFsr_phoetom2_nminus1.png fig_dec11/masswin/hist_120_132_04_VBFsr_phoetom2_nminus1.png
+mv fig_dec11/masswin/hist_VBFsrLeadJEta_nminus1.png fig_dec11/masswin/hist_120_132_05_VBFsrLeadJEta_nminus1.png
+mv fig_dec11/masswin/hist_VBFsrLeadJPt_nminus1.png fig_dec11/masswin/hist_120_132_06_VBFsrLeadJPt_nminus1.png
+mv fig_dec11/masswin/hist_VBFsrSubJEta_nminus1.png fig_dec11/masswin/hist_120_132_07_VBFsrSubJEta_nminus1.png
+mv fig_dec11/masswin/hist_VBFsrSubJPt_nminus1.png fig_dec11/masswin/hist_120_132_08_VBFsrSubJPt_nminus1.png
+mv fig_dec11/masswin/hist_VBFsr_dEta_nminus1.png fig_dec11/masswin/hist_120_132_09_VBFsr_dEta_nminus1.png
+mv fig_dec11/masswin/hist_VBFsr_Zep_nminus1.png fig_dec11/masswin/hist_120_132_10_VBFsr_Zep_nminus1.png
+mv fig_dec11/masswin/hist_VBFsr_Mjj_nminus1.png fig_dec11/masswin/hist_120_132_11_VBFsr_Mjj_nminus1.png
+mv fig_dec11/masswin/hist_VBFsr_dPhi_nminus1.png fig_dec11/masswin/hist_120_132_12_VBFsr_dPhi_nminus1.png
+mv fig_dec11/masswin/hist_VBFsr_Mgg2_nminus1.png fig_dec11/masswin/hist_120_132_13_VBFsr_Mgg2_nminus1.png
+mv fig_dec11/masswin/hist_VBFsr_nvtx_nminus1.png fig_dec11/masswin/hist_120_132_14_VBFsr_nvtx_nminus1.png
+mv fig_dec11/masswin/hist_VBFsrPtHiggs1_nminus1.png fig_dec11/masswin/hist_120_132_15_VBFsrPtHiggs1_nminus1.png
+
+
+
+mv fig_dec11/masswinA/hist_VBFsr_phoet1_nminus1.png fig_dec11/masswinA/hist_120_132_01_2011A_VBFsr_phoet1_nminus1.png
+mv fig_dec11/masswinA/hist_VBFsr_phoetom1_nminus1.png fig_dec11/masswinA/hist_120_132_02_2011A_VBFsr_phoetom1_nminus1.png 
+mv fig_dec11/masswinA/hist_VBFsr_phoet2_nminus1.png fig_dec11/masswinA/hist_120_132_03_2011A_VBFsr_phoet2_nminus1.png
+mv fig_dec11/masswinA/hist_VBFsr_phoetom2_nminus1.png fig_dec11/masswinA/hist_120_132_04_2011A_VBFsr_phoetom2_nminus1.png
+mv fig_dec11/masswinA/hist_VBFsrLeadJPt_nminus1.png fig_dec11/masswinA/hist_120_132_05_2011A_VBFsrLeadJPt_nminus1.png
+mv fig_dec11/masswinA/hist_VBFsrLeadJEta_nminus1.png fig_dec11/masswinA/hist_120_132_06_2011A_VBFsrLeadJEta_nminus1.png
+mv fig_dec11/masswinA/hist_VBFsrSubJPt_nminus1.png fig_dec11/masswinA/hist_120_132_07_2011A_VBFsrSubJPt_nminus1.png
+mv fig_dec11/masswinA/hist_VBFsrSubJEta_nminus1.png fig_dec11/masswinA/hist_120_132_08_2011A_VBFsrSubJEta_nminus1.png
+mv fig_dec11/masswinA/hist_VBFsr_dEta_nminus1.png fig_dec11/masswinA/hist_120_132_09_2011A_VBFsr_dEta_nminus1.png
+mv fig_dec11/masswinA/hist_VBFsr_Zep_nminus1.png fig_dec11/masswinA/hist_120_132_10_2011A_VBFsr_Zep_nminus1.png
+mv fig_dec11/masswinA/hist_VBFsr_Mjj_nminus1.png fig_dec11/masswinA/hist_120_132_11_2011A_VBFsr_Mjj_nminus1.png
+mv fig_dec11/masswinA/hist_VBFsr_dPhi_nminus1.png fig_dec11/masswinA/hist_120_132_12_2011A_VBFsr_dPhi_nminus1.png
+mv fig_dec11/masswinA/hist_VBFsr_Mgg2_nminus1.png fig_dec11/masswinA/hist_120_132_13_2011A_VBFsr_Mgg2_nminus1.png
+mv fig_dec11/masswinA/hist_VBFsr_nvtx_nminus1.png fig_dec11/masswinA/hist_120_132_14_2011A_VBFsr_nvtx_nminus1.png
+mv fig_dec11/masswinA/hist_VBFsrPtHiggs1_nminus1.png fig_dec11/masswinA/hist_120_132_15_2011A_VBFsrPtHiggs1_nminus1.png
+
+
+
+mv fig_dec11/2011A/hist_VBFLeadJPt_sequential.png fig_dec11/2011A/01_2011A_hist_VBFLeadJPt_sequential.png
+mv fig_dec11/2011A/hist_VBFLeadJEta_sequential.png fig_dec11/2011A/02_2011A_hist_VBFLeadJEta_sequential.png
+mv fig_dec11/2011A/hist_VBFSubJPt_sequential.png fig_dec11/2011A/03_2011A_hist_VBFSubJPt_sequential.png
+mv fig_dec11/2011A/hist_VBFSubJEta_sequential.png fig_dec11/2011A/04_2011A_hist_VBFSubJEta_sequential.png
+mv fig_dec11/2011A/hist_VBFPtHiggs1_sequential.png fig_dec11/2011A/05_2011A_hist_VBFPtHiggs1_after_jets_et_sequential.png
+mv fig_dec11/2011A/hist_VBF_nvtx_sequential.png fig_dec11/2011A/06_2011A_hist_VBF_nvtx_after_jets_et_sequential.png
+
+mv fig_dec11/2011A/hist_VBF_dEta_sequential.png fig_dec11/2011A/07_2011A_hist_VBF_dEta_after_jets_et_sequential.png
+mv fig_dec11/2011A/hist_VBF_Zep_sequential.png fig_dec11/2011A/08_2011A_hist_VBF_Zep_sequential.png
+
+mv fig_dec11/2011A/hist_VBFPtHiggs3_sequential.png fig_dec11/2011A/09_2011A_hist_VBFPtHiggs3_after_Zep_sequential.png
+mv fig_dec11/2011A/hist_VBF_nvtx1_sequential.png fig_dec11/2011A/10_2011A_hist_VBF_nvtx1_after_Zep_sequential.png
+
+mv fig_dec11/2011A/hist_VBF_Mjj_sequential.png fig_dec11/2011A/11_2011A_hist_VBF_Mjj_sequential.png
+mv fig_dec11/2011A/hist_VBF_dPhi_nminus1.png fig_dec11/2011A/12_2011A_hist_VBF_dPhi_nminus1.png 
+mv fig_dec11/2011A/hist_VBF_Mgg2_nminus1.png fig_dec11/2011A/13_2011A_hist_VBF_Mgg2_final.png
+mv fig_dec11/2011A/hist_VBF_Mgg10_nminus1.png fig_dec11/2011A/14_2011A_hist_VBF_Mgg10_final.png
+
+
+mv fig_dec11/2011A/hist_VBF_dPhi_sequential.png fig_dec11/2011A/12_2011A_hist_VBF_dPhi_nminus1.png 
+mv fig_dec11/2011A/hist_VBF_Mgg2_sequential.png fig_dec11/2011A/13_2011A_hist_VBF_Mgg2_final.png
+mv fig_dec11/2011A/hist_VBF_Mgg10_sequential.png fig_dec11/2011A/14_2011A_hist_VBF_Mgg10_final.png
+
+
+
+
+
+
+
+
+
+
+Period B: ...
+
+
+mv fig_dec11/masswinB/hist_VBFsr_phoet1_nminus1.png fig_dec11/masswinB/hist_120_132_01_2011B_VBFsr_phoet1_nminus1.png
+mv fig_dec11/masswinB/hist_VBFsr_phoetom1_nminus1.png fig_dec11/masswinB/hist_120_132_02_2011B_VBFsr_phoetom1_nminus1.png 
+mv fig_dec11/masswinB/hist_VBFsr_phoet2_nminus1.png fig_dec11/masswinB/hist_120_132_03_2011B_VBFsr_phoet2_nminus1.png
+mv fig_dec11/masswinB/hist_VBFsr_phoetom2_nminus1.png fig_dec11/masswinB/hist_120_132_04_2011B_VBFsr_phoetom2_nminus1.png
+mv fig_dec11/masswinB/hist_VBFsrLeadJPt_nminus1.png fig_dec11/masswinB/hist_120_132_05_2011B_VBFsrLeadJPt_nminus1.png
+mv fig_dec11/masswinB/hist_VBFsrLeadJEta_nminus1.png fig_dec11/masswinB/hist_120_132_06_2011B_VBFsrLeadJEta_nminus1.png
+mv fig_dec11/masswinB/hist_VBFsrSubJPt_nminus1.png fig_dec11/masswinB/hist_120_132_07_2011B_VBFsrSubJPt_nminus1.png
+mv fig_dec11/masswinB/hist_VBFsrSubJEta_nminus1.png fig_dec11/masswinB/hist_120_132_08_2011B_VBFsrSubJEta_nminus1.png
+mv fig_dec11/masswinB/hist_VBFsr_dEta_nminus1.png fig_dec11/masswinB/hist_120_132_09_2011B_VBFsr_dEta_nminus1.png
+mv fig_dec11/masswinB/hist_VBFsr_Zep_nminus1.png fig_dec11/masswinB/hist_120_132_10_2011B_VBFsr_Zep_nminus1.png
+mv fig_dec11/masswinB/hist_VBFsr_Mjj_nminus1.png fig_dec11/masswinB/hist_120_132_11_2011B_VBFsr_Mjj_nminus1.png
+mv fig_dec11/masswinB/hist_VBFsr_dPhi_nminus1.png fig_dec11/masswinB/hist_120_132_12_2011B_VBFsr_dPhi_nminus1.png
+mv fig_dec11/masswinB/hist_VBFsr_Mgg2_nminus1.png fig_dec11/masswinB/hist_120_132_13_2011B_VBFsr_Mgg2_nminus1.png
+mv fig_dec11/masswinB/hist_VBFsr_nvtx_nminus1.png fig_dec11/masswinB/hist_120_132_14_2011B_VBFsr_nvtx_nminus1.png
+mv fig_dec11/masswinB/hist_VBFsrPtHiggs1_nminus1.png fig_dec11/masswinB/hist_120_132_15_2011B_VBFsrPtHiggs1_nminus1.png
+
+
+
+mv fig_dec11/2011B/hist_VBFLeadJPt_sequential.png fig_dec11/2011B/01_2011B_hist_VBFLeadJPt_sequential.png
+mv fig_dec11/2011B/hist_VBFLeadJEta_sequential.png fig_dec11/2011B/02_2011B_hist_VBFLeadJEta_sequential.png
+mv fig_dec11/2011B/hist_VBFSubJPt_sequential.png fig_dec11/2011B/03_2011B_hist_VBFSubJPt_sequential.png
+mv fig_dec11/2011B/hist_VBFSubJEta_sequential.png fig_dec11/2011B/04_2011B_hist_VBFSubJEta_sequential.png
+mv fig_dec11/2011B/hist_VBFPtHiggs1_sequential.png fig_dec11/2011B/05_2011B_hist_VBFPtHiggs1_after_jets_et_sequential.png
+mv fig_dec11/2011B/hist_VBF_nvtx_sequential.png fig_dec11/2011B/06_2011B_hist_VBF_nvtx_after_jets_et_sequential.png
+
+mv fig_dec11/2011B/hist_VBF_dEta_sequential.png fig_dec11/2011B/07_2011B_hist_VBF_dEta_after_jets_et_sequential.png
+mv fig_dec11/2011B/hist_VBF_Zep_sequential.png fig_dec11/2011B/08_2011B_hist_VBF_Zep_sequential.png
+
+mv fig_dec11/2011B/hist_VBFPtHiggs3_sequential.png fig_dec11/2011B/09_2011B_hist_VBFPtHiggs3_after_Zep_sequential.png
+mv fig_dec11/2011B/hist_VBF_nvtx1_sequential.png fig_dec11/2011B/10_2011B_hist_VBF_nvtx1_after_Zep_sequential.png
+
+mv fig_dec11/2011B/hist_VBF_Mjj_sequential.png fig_dec11/2011B/11_2011B_hist_VBF_Mjj_sequential.png
+mv fig_dec11/2011B/hist_VBF_dPhi_nminus1.png fig_dec11/2011B/12_2011B_hist_VBF_dPhi_nminus1.png 
+mv fig_dec11/2011B/hist_VBF_Mgg2_nminus1.png fig_dec11/2011B/13_2011B_hist_VBF_Mgg2_final.png
+mv fig_dec11/2011B/hist_VBF_Mgg10_nminus1.png fig_dec11/2011B/14_2011B_hist_VBF_Mgg10_final.png
 

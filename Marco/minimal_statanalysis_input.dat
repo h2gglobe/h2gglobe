@@ -6,7 +6,6 @@ where:
 	<branch_type> = 1 for branches to be read only for MC
 ->
 
-
 ->
 Counters
 ->
@@ -16,6 +15,9 @@ run
 bx
 
 
+->
+Jets for VBF
+->
 jet_algoPF1_n
 jet_algoPF1_p4
 jet_algoPF1_erescale
@@ -80,7 +82,6 @@ gv_n:1
 gv_pos:1
 pu_n:1
 
-
 ->
 Vertex
 ->
@@ -123,11 +124,21 @@ dipho_vtxind
 
 
 ->
-New ones
+New ones for Jim
 
 pho_genmatch to be made ....?? or there for MC???
 vtx_std_scalarpt is it there?
 vtx_std_sumpt ????
+
+->
+
+->
+pho_genmatch:1  try again
+vtx_std_scalarpt
+->
+
+
+
 
 ->
 
@@ -139,9 +150,7 @@ pho_pfiso_myneutral03
 pho_pfiso_myneutral04
 
 ->
-pho_genmatch:1  try again
-vtx_std_scalarpt
-->
+
 
 sc_p4
 pho_see
@@ -154,6 +163,8 @@ pho_ecalsumetconedr03
 pho_ecalsumetconedr04
 pho_hcalsumetconedr03
 pho_hcalsumetconedr04
+
+
 
 
 ->

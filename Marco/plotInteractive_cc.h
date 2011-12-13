@@ -5,7 +5,7 @@
 // GetXaxis()->SetTitle(xaxislabels[ivar]);
 // GetXaxis()->SetTitle("Trailing Jet #eta");
 
-#define MPDEBUG 0
+#define MPDEBUG 1
 
 void LoopAll::myPlotInteractive(TString hsmallname) {
 
@@ -979,7 +979,7 @@ void LoopAll::myPlotInteractive(TString hsmallname) {
             Int_t reverseInd = myStackOrder[NIND-1-iInd];// makes top of legend = top of stack
             if(omitInd[reverseInd]%2==1)continue;
             if(omitInd[reverseInd]==2)continue;
-            std::cout << "myLabel: " << myLabel[reverseInd] << std::endl;
+            std::cout << "myLabel: " << reverseInd<<" "<<myLabel[reverseInd] << std::endl;
 
 	    //marcomarco
 	    if(iInd!=NIND-1) {
@@ -1155,6 +1155,9 @@ void LoopAll::myPlotInteractive(TString hsmallname) {
           // END OF Profile HIST
         }
 
+
+
+
         //draw legend
           if(MPDEBUG) cout<<"myPlotInteractive 19.1 "<<endl;
         if(DoLegend) legend->Draw();
@@ -1196,6 +1199,38 @@ void LoopAll::myPlotInteractive(TString hsmallname) {
 
 
 
+
+
+
+	/*
+	{
+	int iInd=0;
+	int jcat=0;
+	cout<<"MARCO ****** "<<plotvarnames[ivar]+"_cat"+num_to_string(jcat)+"_"+inshortnames[iInd]<<endl;
+	jcat=1;
+	cout<<"MARCO ****** "<<plotvarnames[ivar]+"_cat"+num_to_string(jcat)+"_"+inshortnames[iInd]<<endl;
+
+	TH1F * hcat = new TH1F(*((TH1F*)gROOT->FindObject(plotvarnames[ivar]+"_cat0_"+inshortnames[iInd]))); 
+	TH1F * hcat0 = new TH1F(*((TH1F*)gROOT->FindObject(plotvarnames[ivar]+"_cat0_"+inshortnames[iInd]))); 
+	TH1F * hcat1 = new TH1F(*((TH1F*)gROOT->FindObject(plotvarnames[ivar]+"_cat1_"+inshortnames[iInd]))); 
+
+	hcat->Add(hcat0,0.1277);
+
+	hcat->SetMinimum(0.);
+	hcat->SetMaximum(hcat->GetMaximum()*2.);
+
+	hcat1->SetMarkerStyle(20);
+	//hcat->SetMarkerSize(20);
+	hcat->Draw("hist");
+	hcat1->Draw("epsame");
+
+
+	}
+	*/
+
+
+
+
           if(MPDEBUG) cout<<"myPlotInteractive 19.3 "<<endl;
    if(sethistmax>0) thishistmax = sethistmax;
    TLine *cutline = new TLine();
@@ -1213,7 +1248,7 @@ void LoopAll::myPlotInteractive(TString hsmallname) {
           if(MPDEBUG) cout<<"myPlotInteractive 19.5 "<<endl;
    TPaveText *cmspavetext = new TPaveText(textx1,texty1,textx2,texty2,"brNDC");
    cmspavetext->SetTextFont(62);
-   cmspavetext->SetTextSize(0.0425); //MARCOMARCO was 0.5
+   cmspavetext->SetTextSize(0.0425); //MARCOMARCO was 0.0425 //may use 0.03
    cmspavetext->SetBorderSize(0);
    cmspavetext->SetLineColor(0);
    cmspavetext->SetLineStyle(0);
@@ -1226,6 +1261,7 @@ void LoopAll::myPlotInteractive(TString hsmallname) {
    //cmstext = cmspavetext->AddText("");
    //cmstext = cmspavetext->AddText("");
    cmstext = cmspavetext->AddText("#sqrt{s}=7 TeV L_{int} = 4.72 fb^{-1}");
+   //cmstext = cmspavetext->AddText("#sqrt{s}=7 TeV Run 2011A");
    cmspavetext->Draw();
           if(MPDEBUG) cout<<"myPlotInteractive 19.7 "<<endl;
         //update canvas
@@ -1649,6 +1685,9 @@ void LoopAll::myPlotInteractiveSetup(TString hsmallname, TString tag) {
   // inputfiles information END
   //NFILES = mp->nfiles;
   //NIND = mp->nindfiles;
+
+    cout<<"MARCO ************ "<<nfiles<<" "<<nindfiles<<" "<<endl;
+
   NFILES=nfiles;
   NIND=nindfiles;
 
@@ -1720,6 +1759,8 @@ void LoopAll::myPlotInteractiveSetup(TString hsmallname, TString tag) {
     //}
     if(MPDEBUG)std::cout << "PlotInteractive DEBUG 06 " << std::endl;
 
+    cout<<"TAG  "<<tag<<endl;
+
   bool defaultsetup=true;
   if(tag != "") {// read anaysis configuration from file
     defaultsetup=false;
@@ -1742,8 +1783,8 @@ void LoopAll::myPlotInteractiveSetup(TString hsmallname, TString tag) {
     Int_t DoStackREAD,DoPopSigREAD,DoFillSigREAD,DoOverFlowREAD,DoUnderFlowREAD;
     Int_t DoLogREAD,DoGridREAD,DoStatsREAD,DoSumW2READ,DoCatsREAD;
     Int_t DoLegendREAD,DoLegendTREAD,DoLegendRREAD,NColsREAD;
-    char name[100];
-    char displayname[100];
+    char name[1000];
+    char displayname[1000];
     Int_t ind[NIND],stackorder[NIND],omit[NIND],color[NIND],marker[NIND];
     Float_t scale[NIND];
 
@@ -1756,6 +1797,9 @@ void LoopAll::myPlotInteractiveSetup(TString hsmallname, TString tag) {
       dummy = fscanf(PIfile,"name=%s display=%s ind=%d order=%d omit=%d scale=%f color=%d marker=%d\n", name, displayname, &ind[iInd], &stackorder[iInd], &omitdefault[iInd], &scale[iInd], &color[iInd], &marker[iInd]);
       myLabel[iInd]=name;
       myLabeldisplay[iInd]=displayname;
+
+
+      cout<<"MARCO " <<iInd<<" "<<myLabel[iInd]<<" "<<myLabeldisplay[iInd]<<endl;
 
 
 

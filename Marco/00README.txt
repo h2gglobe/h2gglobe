@@ -571,19 +571,146 @@ varname[41]: cut_VBF_Mgg4_sequential
 ###cp ../LoopAll.h ../LoopAll_marco.h 
 ###cp ../LoopAll.cc ../LoopAll_marco.cc 
 
-cp Marco/LoopAll.h Marco/LoopAll_marco.h 
-cp Marco/LoopAll.cc Marco/LoopAll_marco.cc 
-cp Marco/minimal_statanalysis_input.dat PhotonAnalysis_scripts/minimal_statanalysis_input.dat
-cp Marco/StatAnalysisExclusive_jim.h PhotonAnalysis/interface/StatAnalysisExclusive.h
-cp Marco/StatAnalysisExclusive_jim.cc PhotonAnalysis/src/StatAnalysisExclusive.cc
-
-
-cp Marco/plotvariables.dat PhotonAnalysis_scripts/plotvariables.dat
-cp Marco/cuts_marco.dat PhotonAnalysis_scripts/cuts.dat
-cp Marco/minimal_statanalysis_input_marco.dat PhotonAnalysis_scripts/minimal_statanalysis_input.dat
 cp Marco/StatAnalysisExclusive_marco_newnewnew.h PhotonAnalysis/interface/StatAnalysisExclusive.h
 cp Marco/StatAnalysisExclusive_marco_newnewnew.cc PhotonAnalysis/src/StatAnalysisExclusive.cc
 
 
+JIM
+
+cp Marco/LoopAll.cc LoopAll.cc
+cp Marco/LoopAll.h LoopAll.h
+cp Marco/minimal_statanalysis_input.dat PhotonAnalysis_scripts/minimal_statanalysis_input.dat
+cp Marco/StatAnalysisExclusive_jim.h PhotonAnalysis/interface/StatAnalysisExclusive.h
+cp Marco/StatAnalysisExclusive_jim.cc PhotonAnalysis/src/StatAnalysisExclusive.cc
+cp Marco/cuts_marco.dat PhotonAnalysis_scripts/cuts.dat
+
+END JIM
+
+
+cp Marco/CommonParameters.h ./CommonParameters.h
+cp Marco/statanalysis.dat PhotonAnalysis_scripts/statanalysis.dat
+cp Marco/photonanalysis.dat PhotonAnalysis_scripts/photonanalysis.dat
+???? NOT FOR ME cp Marco/reduction_output.dat PhotonAnalysis_scripts/reduction_output.dat
+
+cp Marco/PhotonAnalysis.h PhotonAnalysis/interface/PhotonAnalysis.h
+
+
+??? YES FOR NOW 
+cp Marco/fitter.py PhotonAnalysis_scripts/fitter.py
+
+
+cp Marco/Makefile ./Makefile
+
+
+cp Marco/LoopAll.h LoopAll.h 
+cp Marco/LoopAll.cc LoopAll.cc 
+
+cp Marco/plotvariables.dat PhotonAnalysis_scripts/plotvariables.dat
+cp Marco/cuts_marco.dat PhotonAnalysis_scripts/cuts.dat
+# NO cp Marco/minimal_statanalysis_input_marco.dat PhotonAnalysis_scripts/minimal_statanalysis_input.dat
+cp Marco/StatAnalysisExclusive_marco_newnewnew.h PhotonAnalysis/interface/StatAnalysisExclusive.h
+cp Marco/StatAnalysisExclusive_marco_newnewnew.cc PhotonAnalysis/src/StatAnalysisExclusive.cc
+
+
+cvs update -r baseline_workspace_08Dec2011_nw
+
+
 
 cp Marco/marcodatafiles_5fb_LL_33_23_all_ff_120.dat PhotonAnalysis_scripts/datafiles_5fb_LL_33_23_all
+
+
+
+cvs diff  -r baseline_workspace_08Dec2011_nw
+
+cvs update -r baseline_workspace_08Dec2011_nw PhotonAnalysis/interface/PhotonAnalysis.h
+cvs update -r baseline_workspace_08Dec2011_nw PhotonAnalysis/interface/StatAnalysis.h
+cvs update -r baseline_workspace_08Dec2011_nw PhotonAnalysis/src/PhotonAnalysis.cc
+
+cvs update -r baseline_workspace_08Dec2011_nw PhotonAnalysis/src/StatAnalysis.cc
+
+cvs update -r baseline_workspace_08Dec2011_nw PhotonAnalysis_scripts/datafiles_5fb.dat
+cvs update -r baseline_workspace_08Dec2011_nw PhotonAnalysis_scripts/energy_scale_offsets.dat
+cvs update -r baseline_workspace_08Dec2011_nw PhotonAnalysis_scripts/pu_weights_map.dat
+cvs update -r baseline_workspace_08Dec2011_nw PhotonAnalysis_scripts/smearing_sigma_and_errors.dat
+cvs update -r baseline_workspace_08Dec2011_nw Reduction/data.txt
+cvs update -r baseline_workspace_08Dec2011_nw Reduction/mk_reduction_dat.sh
+
+TKDIFF TKDIFF TKDIFF TKDIFF
+
+tkdiff Marco/CommonParameters.h ./CommonParameters.h
+tkdiff Marco/statanalysis.dat PhotonAnalysis_scripts/statanalysis.dat
+tkdiff Marco/photonanalysis.dat PhotonAnalysis_scripts/photonanalysis.dat
+???? NOT FOR ME tkdiff Marco/reduction_output.dat PhotonAnalysis_scripts/reduction_output.dat
+
+tkdiff Marco/PhotonAnalysis.h PhotonAnalysis/interface/PhotonAnalysis.h
+
+
+
+
+
+??? YES FOR NOW 
+tkdiff Marco/fitter.py PhotonAnalysis_scripts/fitter.py
+
+
+tkdiff Marco/Makefile ./Makefile
+
+
+tkdiff Marco/LoopAll.h LoopAll.h 
+tkdiff Marco/LoopAll.cc LoopAll.cc 
+
+tkdiff Marco/plotvariables.dat PhotonAnalysis_scripts/plotvariables.dat
+tkdiff Marco/cuts_marco.dat PhotonAnalysis_scripts/cuts.dat
+tkdiff Marco/minimal_statanalysis_input_marco.dat PhotonAnalysis_scripts/minimal_statanalysis_input.dat
+tkdiff Marco/StatAnalysisExclusive_marco_newnewnew.h PhotonAnalysis/interface/StatAnalysis.h
+tkdiff Marco/StatAnalysisExclusive_marco_newnewnew.cc PhotonAnalysis/src/StatAnalysis.cc
+
+
+
+
+
+
+
+
+
+
+-- run 167675 Event 911781274
+phoEt[0] = 95.2403
+phoEt[1] = 27.4618
+regressed phoEt[0] = 95.8048
+regressed phoEt[1] = 27.9181
+i Passing preselection on photon 0
+j Passing preselection on photon 1
+
+cicPhotonID pho 0
+phocat = 0
+Id cut 0: combIso = -0.242797 cut > 3.8
+Id cut 1: combIso(badVertex) = -0.352329 cut > 11.7
+Id cut 2: trackIso = 0 cut > 3.5
+Id cut 3: Sigma_IetaIeta = 0.00909123 cut > 0.0106
+Id cut 4: Sigma_IetaIeta = 0 cut > 0.082
+Id cut 5: R9 = 0.956989 cut < 0.94
+Id cut 6: R9 = 99 cut < 1
+
+cicPhotonID pho 1
+phocat = 2
+Id cut 0: combIso = 1.77178 cut > 1.77
+
+
+-- run: 176547, event: 187480804
+4 photon candidates:
+pho 0 passed all selections.
+pho 1 failed on combined Iso, cicPhoton ID combIso: 3.67753 (< 2.2 failed)
+pho 2 failed on combined Iso, cicPhoton ID combIso: 2.38617 (< 2.2 failed)
+pho 3 failed on preselection, SCEta= 2.57595 (|SCEta|<2.5 failed)
+
+
+-- run: 177730, event: 58708626
+2 photon candidates:
+Leading photon failed on bad combined Iso cut.
+cicPhoton ID combIso: 1.43261 (< 2.2)
+cicPhoton ID badCombIso: 3.52066 (< 3.4 failed)
+
+
+We don't have below 2 events in our ntuples. Further investigation ongoing.
+Run 176547 Event 48254336
+Run 177053 Event 563451379

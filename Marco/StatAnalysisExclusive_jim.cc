@@ -27,6 +27,7 @@ StatAnalysisExclusive::~StatAnalysisExclusive()
 // ----------------------------------------------------------------------------------------------------
 void StatAnalysisExclusive::Term(LoopAll& l) 
 {
+
     std::string outputfilename = (std::string) l.histFileName;
     // Make Fits to the data-sets and systematic sets
     l.rooContainer->FitToData("data_pol_model","data_mass");  // Fit to full range of dataset
@@ -45,10 +46,10 @@ void StatAnalysisExclusive::Term(LoopAll& l)
 
     std::cout << " nevents " <<  nevents << " " << sumwei << std::endl;
 
-
-    ll->hfilereal->cd();
-    optree->Write(0,TObject::kWriteDelete);
- 
+    if(l.GetCutValue("optree")) {
+      ll->hfilereal->cd();
+      optree->Write(0,TObject::kWriteDelete);
+    }
 
 //	kfacFile->Close();
 //	PhotonAnalysis::Term(l);
@@ -170,173 +171,322 @@ void StatAnalysisExclusive::Init(LoopAll& l)
    
     nCategories_+=(nVBFCategories+nVHadCategories);
 
-    l.SetCutVariables("cut_All_phoet1",        &myAll_phoet1);
-    l.SetCutVariables("cut_All_phoet2",        &myAll_phoet2);
-    l.SetCutVariables("cut_All_phoetom1",      &myAll_phoetom1);
-    l.SetCutVariables("cut_All_phoetom2",      &myAll_phoetom2);
+    l.SetCutVariables("All_phoet1",        &myAll_phoet1);
+    l.SetCutVariables("All_phoet2",        &myAll_phoet2);
+    l.SetCutVariables("All_phoetom1",      &myAll_phoetom1);
+    l.SetCutVariables("All_phoetom2",      &myAll_phoetom2);
 
-    l.SetCutVariables("cut_AllLeadJPt",       &myAllLeadJPt);
-    l.SetCutVariables("cut_AllSubJPt",        &myAllSubJPt);
-    l.SetCutVariables("cut_AllLeadJEta",      &myAllLeadJEta);
-    l.SetCutVariables("cut_AllSubJEta",       &myAllSubJEta);
-    l.SetCutVariables("cut_All_Mjj",          &myAll_Mjj);
-    l.SetCutVariables("cut_All_dEta",         &myAlldEta);
-    l.SetCutVariables("cut_All_Zep",          &myAllZep);
-    l.SetCutVariables("cut_All_dPhi",         &myAlldPhi);
-    l.SetCutVariables("cut_All_Mgg0",         &myAll_Mgg);
-    l.SetCutVariables("cut_All_Mgg2",         &myAll_Mgg);
-    l.SetCutVariables("cut_AllPtHiggs",       &myAllPtHiggs);
+    l.SetCutVariables("AllLeadJPt",       &myAllLeadJPt);
+    l.SetCutVariables("AllSubJPt",        &myAllSubJPt);
+    l.SetCutVariables("AllLeadJEta1",      &myAllLeadJEta);
+    l.SetCutVariables("AllLeadJPt1",       &myAllLeadJPt);
+    l.SetCutVariables("AllSubJPt1",        &myAllSubJPt);
+    l.SetCutVariables("AllLeadJEta",      &myAllLeadJEta);
+    l.SetCutVariables("AllSubJEta",       &myAllSubJEta);
+    l.SetCutVariables("All_Mjj",          &myAll_Mjj);
+    l.SetCutVariables("All_dEta",         &myAlldEta);
+    l.SetCutVariables("All_Zep",          &myAllZep);
+    l.SetCutVariables("All_dPhi",         &myAlldPhi);
+    l.SetCutVariables("All_Mgg0",         &myAll_Mgg);
+    l.SetCutVariables("All_Mgg2",         &myAll_Mgg);
+    l.SetCutVariables("AllPtHiggs",       &myAllPtHiggs);
 
-    l.SetCutVariables("cut_All_phoet1",        &myAll_phoet1);
-    l.SetCutVariables("cut_All_phoet2",        &myAll_phoet2);
-    l.SetCutVariables("cut_All_phoetom1",      &myAll_phoetom1);
-    l.SetCutVariables("cut_All_phoetom2",      &myAll_phoetom2);
+    l.SetCutVariables("All_phoet1",        &myAll_phoet1);
+    l.SetCutVariables("All_phoet2",        &myAll_phoet2);
+    l.SetCutVariables("All_phoetom1",      &myAll_phoetom1);
+    l.SetCutVariables("All_phoetom2",      &myAll_phoetom2);
+
+    l.SetCutVariables("All_phoet1",        &myAll_phoet1);
+    l.SetCutVariables("All_phoet2",        &myAll_phoet2);
+    l.SetCutVariables("All_phoetom1",      &myAll_phoetom1);
+    l.SetCutVariables("All_phoetom2",      &myAll_phoetom2);
+
+    l.SetCutVariables("All2LeadJPt",       &myAllLeadJPt);
+    l.SetCutVariables("All2SubJPt",        &myAllSubJPt);
+    l.SetCutVariables("All2LeadJEta1",      &myAllLeadJEta);
+    l.SetCutVariables("All2LeadJPt1",       &myAllLeadJPt);
+    l.SetCutVariables("All2SubJPt1",        &myAllSubJPt);
+    l.SetCutVariables("All2LeadJEta",      &myAllLeadJEta);
+    l.SetCutVariables("All2SubJEta",       &myAllSubJEta);
+    l.SetCutVariables("All2_Mjj",          &myAll_Mjj);
+    l.SetCutVariables("All2_dEta",         &myAlldEta);
+    l.SetCutVariables("All2_Zep",          &myAllZep);
+    l.SetCutVariables("All2_dPhi",         &myAlldPhi);
+    l.SetCutVariables("All2_Mgg0",         &myAll_Mgg);
+    l.SetCutVariables("All2_Mgg2",         &myAll_Mgg);
+    l.SetCutVariables("All2PtHiggs",       &myAllPtHiggs);
+
+    l.SetCutVariables("All2_phoet1",        &myAll_phoet1);
+    l.SetCutVariables("All2_phoet2",        &myAll_phoet2);
+    l.SetCutVariables("All2_phoetom1",      &myAll_phoetom1);
+    l.SetCutVariables("All2_phoetom2",      &myAll_phoetom2);
 
 
-    l.SetCutVariables("cut_VBFLeadJEta",      &myAllLeadJEta);
-    l.SetCutVariables("cut_VBFSubJEta",       &myAllSubJEta);
+    l.SetCutVariables("Incl_Mgg0",         &myInclusive_Mgg);
+    l.SetCutVariables("Incl_Mgg2",         &myInclusive_Mgg);
+    l.SetCutVariables("Incl_Mgg4",         &myInclusive_Mgg);
+    l.SetCutVariables("Incl_Mgg10",        &myInclusive_Mgg);
+    l.SetCutVariables("InclPtHiggs",       &myInclusivePtHiggs);
+    l.SetCutVariables("All_Mgg4cat",       &myInclusive_Mgg);
+
+    l.SetCutVariables("VBF_Mgg2cat",         &myAll_Mgg);
+    l.SetCutVariables("VBF_Mgg4cat",         &myAll_Mgg);
+    l.SetCutVariables("VBF_Mgg4cat_incl",         &myAll_Mgg);
+
+    /*
+    l.SetCutVariables("VBF_phoet1",        &myAll_phoet1);
+    l.SetCutVariables("VBF_phoet2",        &myAll_phoet2);
+    l.SetCutVariables("VBF_phoetom1",      &myAll_phoetom1);
+    l.SetCutVariables("VBF_phoetom2",      &myAll_phoetom2);
+    l.SetCutVariables("VBF_Mgg0",         &myAll_Mgg);
+    l.SetCutVariables("VBFLeadJPt",       &myAllLeadJPt);
+    l.SetCutVariables("VBFSubJPt",        &myAllSubJPt);
+    l.SetCutVariables("VBFLeadJEta",       &myAllLeadJEta);
+    l.SetCutVariables("VBFSubJEta",        &myAllSubJEta);
+    l.SetCutVariables("VBF_dEta",         &myAlldEta);
+    l.SetCutVariables("VBF_Zep",          &myAllZep);
+    l.SetCutVariables("VBF_Mjj",          &myAll_Mjj);
+    l.SetCutVariables("VBF_dPhi",         &myAlldPhi);
+    l.SetCutVariables("VBF_Mgg2",         &myAll_Mgg);
+    l.SetCutVariables("VBF_Mgg4",         &myAll_Mgg);
+    l.SetCutVariables("VBF_Mgg10",        &myAll_Mgg);
+    l.SetCutVariables("VBF_Mgg100160",    &myAll_Mgg);
+    l.SetCutVariables("VBF_Mggfin",       &myAll_Mgg);
+    l.SetCutVariables("VBFPtHiggs1",       &myAllPtHiggs);
+    l.SetCutVariables("VBFPtHiggs2",       &myAllPtHiggs);
+    l.SetCutVariables("VBFPtHiggs3",       &myAllPtHiggs);
+    l.SetCutVariables("VBFPtHiggs4",       &myAllPtHiggs);
+*/
+    l.SetCutVariables("VBF_nvtx",        &myAll_nvtx);
+    l.SetCutVariables("VBF_nvtx1",        &myAll_nvtx);
+    l.SetCutVariables("VBFsr_nvtx",        &myAll_nvtx);
+    l.SetCutVariables("VBFsr_nvtx1",        &myAll_nvtx);
 
 
-    l.SetCutVariables("cut_Incl_Mgg0",         &myInclusive_Mgg);
-    l.SetCutVariables("cut_Incl_Mgg2",         &myInclusive_Mgg);
-    l.SetCutVariables("cut_Incl_Mgg4",         &myInclusive_Mgg);
-    l.SetCutVariables("cut_Incl_Mgg10",        &myInclusive_Mgg);
-    l.SetCutVariables("cut_InclPtHiggs",       &myInclusivePtHiggs);
-    l.SetCutVariables("cut_All_Mgg4cat",         &myInclusive_Mgg);
+    l.SetCutVariables("VBF_phoet1",        &myAll_phoet1);
+    l.SetCutVariables("VBF_phoet2",        &myAll_phoet2);
+    l.SetCutVariables("VBF_phoetom1",      &myAll_phoetom1);
+    l.SetCutVariables("VBF_phoetom2",      &myAll_phoetom2);
+    //l.SetCutVariables("VBF_Mgg2cat",       &myAll_Mgg);
+    //l.SetCutVariables("VBF_Mgg4cat",       &myAll_Mgg);
+    l.SetCutVariables("VBF_Mgg0",         &myAll_Mgg);
+    l.SetCutVariables("VBFLeadJPt",       &myAllLeadJPt);
+    l.SetCutVariables("VBFSubJPt",        &myAllSubJPt);
+    l.SetCutVariables("VBFLeadJEta",       &myAllLeadJEta);
+    l.SetCutVariables("VBFSubJEta",        &myAllSubJEta);
+    l.SetCutVariables("VBFLeadJPt1",       &myAllLeadJPt);
+    l.SetCutVariables("VBFSubJPt1",        &myAllSubJPt);
+    l.SetCutVariables("VBFLeadJPt2",       &myAllLeadJPt);
+    l.SetCutVariables("VBFSubJPt2",        &myAllSubJPt);
+    l.SetCutVariables("VBFLeadJPt3",       &myAllLeadJPt);
+    l.SetCutVariables("VBFSubJPt3",        &myAllSubJPt);
+    l.SetCutVariables("VBF_dEta",         &myAlldEta);
+    l.SetCutVariables("VBF_Zep",          &myAllZep);
+    l.SetCutVariables("VBF_Mjj",          &myAll_Mjj);
+    l.SetCutVariables("VBF_dPhi",         &myAlldPhi);
+    l.SetCutVariables("VBF_Mgg2",         &myAll_Mgg);
+    l.SetCutVariables("VBF_Mgg4",         &myAll_Mgg);
+    l.SetCutVariables("VBF_Mgg10",        &myAll_Mgg);
+    //l.SetCutVariables("VBF_Mgg100160",    &myAll_Mgg);
+    //l.SetCutVariables("VBF_Mggfin",       &myAll_Mgg);
+    l.SetCutVariables("VBFPtHiggs1",       &myAllPtHiggs);
+    l.SetCutVariables("VBFPtHiggs2",       &myAllPtHiggs);
+    l.SetCutVariables("VBFPtHiggs3",       &myAllPtHiggs);
+    l.SetCutVariables("VBFPtHiggs4",       &myAllPtHiggs);
 
-    l.SetCutVariables("cut_VBF_phoet1",        &myAll_phoet1);
-    l.SetCutVariables("cut_VBF_phoet2",        &myAll_phoet2);
-    l.SetCutVariables("cut_VBF_phoetom1",      &myAll_phoetom1);
-    l.SetCutVariables("cut_VBF_phoetom2",      &myAll_phoetom2);
+    l.SetCutVariables("VBF30_Mgg0",         &myAll_Mgg);
+    l.SetCutVariables("VBF30_phoet1",        &myAll_phoet1);
+    l.SetCutVariables("VBF30_phoet2",        &myAll_phoet2);
+    l.SetCutVariables("VBF30_phoetom1",      &myAll_phoetom1);
+    l.SetCutVariables("VBF30_phoetom2",      &myAll_phoetom2);
+    l.SetCutVariables("VBF30LeadJPt",       &myAllLeadJPt);
+    l.SetCutVariables("VBF30SubJPt",        &myAllSubJPt);
+    l.SetCutVariables("VBF30LeadJEta",       &myAllLeadJEta);
+    l.SetCutVariables("VBF30SubJEta",        &myAllSubJEta);
+    l.SetCutVariables("VBF30_dEta",         &myAlldEta);
+    l.SetCutVariables("VBF30_Zep",          &myAllZep);
+    l.SetCutVariables("VBF30_Mjj",          &myAll_Mjj);
+    l.SetCutVariables("VBF30_dPhi",         &myAlldPhi);
+    l.SetCutVariables("VBF30_Mgg2",         &myAll_Mgg);
+    l.SetCutVariables("VBF30_Mgg10",        &myAll_Mgg);
+    l.SetCutVariables("VBF30PtHiggs1",       &myAllPtHiggs);
 
-    l.SetCutVariables("cut_VBF_Mgg2cat",         &myAll_Mgg);
-    l.SetCutVariables("cut_VBF_Mgg4cat",         &myAll_Mgg);
+
+    l.SetCutVariables("VBFsr_Mgg0",         &myAll_Mgg);
+    l.SetCutVariables("VBFsr_phoet1",        &myAll_phoet1);
+    l.SetCutVariables("VBFsr_phoet2",        &myAll_phoet2);
+    l.SetCutVariables("VBFsr_phoetom1",      &myAll_phoetom1);
+    l.SetCutVariables("VBFsr_phoetom2",      &myAll_phoetom2);
+    l.SetCutVariables("VBFsrLeadJPt",       &myAllLeadJPt);
+    l.SetCutVariables("VBFsrSubJPt",        &myAllSubJPt);
+    l.SetCutVariables("VBFsrLeadJEta",       &myAllLeadJEta);
+    l.SetCutVariables("VBFsrSubJEta",        &myAllSubJEta);
+    l.SetCutVariables("VBFsr_dEta",         &myAlldEta);
+    l.SetCutVariables("VBFsr_Zep",          &myAllZep);
+    l.SetCutVariables("VBFsr_Mjj",          &myAll_Mjj);
+    l.SetCutVariables("VBFsr_dPhi",         &myAlldPhi);
+    l.SetCutVariables("VBFsr_Mgg2",         &myAll_Mgg);
+    l.SetCutVariables("VBFsrPtHiggs1",       &myAllPtHiggs);
+
+    l.SetCutVariables("VBF_AB_phoet1",        &myAll_phoet1);
+    l.SetCutVariables("VBF_AB_phoet2",        &myAll_phoet2);
+    l.SetCutVariables("VBF_AB_phoetom1",      &myAll_phoetom1);
+    l.SetCutVariables("VBF_AB_phoetom2",      &myAll_phoetom2);
+    l.SetCutVariables("VBF_AB_Mgg2cat",       &myAll_Mgg);
+    l.SetCutVariables("VBF_AB_Mgg4cat",       &myAll_Mgg);
+    l.SetCutVariables("VBF_AB_Mgg0",         &myAll_Mgg);
+    l.SetCutVariables("VBF_ABLeadJPt",       &myAllLeadJPt);
+    l.SetCutVariables("VBF_ABSubJPt",        &myAllSubJPt);
+    l.SetCutVariables("VBF_ABLeadJEta",       &myAllLeadJEta);
+    l.SetCutVariables("VBF_ABSubJEta",        &myAllSubJEta);
+    l.SetCutVariables("VBF_AB_dEta",         &myAlldEta);
+    l.SetCutVariables("VBF_AB_Zep",          &myAllZep);
+    l.SetCutVariables("VBF_AB_Mjj",          &myAll_Mjj);
+    l.SetCutVariables("VBF_AB_dPhi",         &myAlldPhi);
+    l.SetCutVariables("VBF_AB_Mgg2",         &myAll_Mgg);
+    l.SetCutVariables("VBF_AB_Mgg4",         &myAll_Mgg);
+    l.SetCutVariables("VBF_AB_Mgg10",        &myAll_Mgg);
+    l.SetCutVariables("VBF_AB_Mgg100160",    &myAll_Mgg);
+    l.SetCutVariables("VBF_AB_Mggfin",       &myAll_Mgg);
+    l.SetCutVariables("VBF_ABPtHiggs4",       &myAllPtHiggs);
 
 
-    l.SetCutVariables("cut_VBF_Mgg0",         &myAll_Mgg);
-    //l.SetCutVariables("cut_VBF_Mgg01",         &myAll_Mgg);
-    //l.SetCutVariables("cut_VBF_Mgg02",         &myAll_Mgg);
-    //l.SetCutVariables("cut_VBF_Mgg03",         &myAll_Mgg);
-    //l.SetCutVariables("cut_VBF_Mgg04",         &myAll_Mgg);
-    //l.SetCutVariables("cut_VBF_Mgg05",         &myAll_Mgg);
-    l.SetCutVariables("cut_VBFLeadJPt",       &myAllLeadJPt);
-    l.SetCutVariables("cut_VBFSubJPt",        &myAllSubJPt);
-    l.SetCutVariables("cut_VBF_dEta",         &myAlldEta);
-    l.SetCutVariables("cut_VBF_Zep",          &myAllZep);
-    l.SetCutVariables("cut_VBF_Mjj",          &myAll_Mjj);
-    l.SetCutVariables("cut_VBF_dPhi",         &myAlldPhi);
-    l.SetCutVariables("cut_VBF_Mgg2",         &myAll_Mgg);
-    l.SetCutVariables("cut_VBF_Mgg4",         &myAll_Mgg);
-    l.SetCutVariables("cut_VBF_Mgg10",        &myAll_Mgg);
-    l.SetCutVariables("cut_VBF_Mgg100160",    &myAll_Mgg);
-    l.SetCutVariables("cut_VBF_Mggfin",       &myAll_Mgg);
 
-    l.SetCutVariables("cut_VHad_phoet1",        &myAll_phoet1);
-    l.SetCutVariables("cut_VHad_phoet2",        &myAll_phoet2);
-    l.SetCutVariables("cut_VHad_phoetom1",      &myAll_phoetom1);
-    l.SetCutVariables("cut_VHad_phoetom2",      &myAll_phoetom2);
-
-    l.SetCutVariables("cut_VHad_Mgg0",        &myAll_Mgg);
-    l.SetCutVariables("cut_VHadLeadJPt",      &myAllLeadJPt);
-    l.SetCutVariables("cut_VHadSubJPt",       &myAllSubJPt);
-    l.SetCutVariables("cut_VHad_dEta",        &myAlldEta);
-    l.SetCutVariables("cut_VHad_Zep",         &myAllZep);
-    l.SetCutVariables("cut_VHad_Mjj",         &myAll_Mjj);
-    l.SetCutVariables("cut_VHad_dPhi",        &myAlldPhi);
-    l.SetCutVariables("cut_VHad_Mgg2",        &myAll_Mgg);
-    l.SetCutVariables("cut_VHad_Mgg4",        &myAll_Mgg);
-    l.SetCutVariables("cut_VHad_Mgg10",       &myAll_Mgg);
-    l.SetCutVariables("cut_VHad_Mgg100160",   &myAll_Mgg);
-    l.SetCutVariables("cut_VHad_Mggfin",      &myAll_Mgg);
-
-    l.SetCutVariables("cut_VBFR_phoet1",       &myAll_phoet1);
-    l.SetCutVariables("cut_VBFR_phoet2",       &myAll_phoet2);
-    l.SetCutVariables("cut_VBFR_phoetom1",     &myAll_phoetom1);
-    l.SetCutVariables("cut_VBFR_phoetom2",     &myAll_phoetom2);
-
-    l.SetCutVariables("cut_VBFR_Mgg0",         &myAll_Mgg);
-    l.SetCutVariables("cut_VBFRLeadJPt",       &myAllLeadJPt);
-    l.SetCutVariables("cut_VBFRSubJPt",        &myAllSubJPt);
-    l.SetCutVariables("cut_VBFR_dEta",         &myAlldEta);
-    l.SetCutVariables("cut_VBFR_Zep",          &myAllZep);
-    l.SetCutVariables("cut_VBFR_Mjj",          &myAll_Mjj);
-    l.SetCutVariables("cut_VBFR_dPhi",         &myAlldPhi);
-    l.SetCutVariables("cut_VBFR_Mgg2",         &myAll_Mgg);
-    l.SetCutVariables("cut_VBFR_Mgg4",         &myAll_Mgg);
-    l.SetCutVariables("cut_VBFR_Mgg10",        &myAll_Mgg);
-    l.SetCutVariables("cut_VBFR_Mgg100160",    &myAll_Mgg);
-    l.SetCutVariables("cut_VBFR_Mggfin",       &myAll_Mgg);
+    l.SetCutVariables("VBF1_phoet1",        &myAll_phoet1);
+    l.SetCutVariables("VBF1_phoet2",        &myAll_phoet2);
+    l.SetCutVariables("VBF1_phoetom1",      &myAll_phoetom1);
+    l.SetCutVariables("VBF1_phoetom2",      &myAll_phoetom2);
+    l.SetCutVariables("VBF1_Mgg2cat",         &myAll_Mgg);
+    l.SetCutVariables("VBF1_Mgg4cat",         &myAll_Mgg);
+    l.SetCutVariables("VBF1_Mgg0",         &myAll_Mgg);
+    l.SetCutVariables("VBF1LeadJPt",       &myAllLeadJPt);
+    l.SetCutVariables("VBF1SubJPt",        &myAllSubJPt);
+    l.SetCutVariables("VBF1_dEta",         &myAlldEta);
+    l.SetCutVariables("VBF1_Zep",          &myAllZep);
+    l.SetCutVariables("VBF1_Mjj",          &myAll_Mjj);
+    l.SetCutVariables("VBF1_dPhi",         &myAlldPhi);
+    l.SetCutVariables("VBF1_Mgg2",         &myAll_Mgg);
+    l.SetCutVariables("VBF1_Mgg4",         &myAll_Mgg);
+    l.SetCutVariables("VBF1_Mgg10",        &myAll_Mgg);
+    l.SetCutVariables("VBF1_Mgg100160",    &myAll_Mgg);
+    l.SetCutVariables("VBF1_Mggfin",       &myAll_Mgg);
+    l.SetCutVariables("VBF1PtHiggs1",       &myAllPtHiggs);
+    l.SetCutVariables("VBF1PtHiggs2",       &myAllPtHiggs);
+    l.SetCutVariables("VBF1PtHiggs3",       &myAllPtHiggs);
+    l.SetCutVariables("VBF1PtHiggs4",       &myAllPtHiggs);
 
 
     /*
-    l.SetCutVariables("cut_VBF_phoet1",        &myVBFphoet1);
-    l.SetCutVariables("cut_VBF_phoet2",        &myVBFphoet2);
-    l.SetCutVariables("cut_VBF_phoetom1",      &myVBFphoetom1);
-    l.SetCutVariables("cut_VBF_phoetom2",      &myVBFphoetom2);
+    l.SetCutVariables("VHad_phoet1",        &myAll_phoet1);
+    l.SetCutVariables("VHad_phoet2",        &myAll_phoet2);
+    l.SetCutVariables("VHad_phoetom1",      &myAll_phoetom1);
+    l.SetCutVariables("VHad_phoetom2",      &myAll_phoetom2);
 
-    l.SetCutVariables("cut_VBF_Mgg0",         &myVBF_Mgg);
-    l.SetCutVariables("cut_VBFLeadJPt",       &myVBFLeadJPt);
-    l.SetCutVariables("cut_VBFSubJPt",        &myVBFSubJPt);
-    l.SetCutVariables("cut_VBF_dEta",         &myVBFdEta);
-    l.SetCutVariables("cut_VBF_Zep",          &myVBFZep);
-    l.SetCutVariables("cut_VBF_Mjj",          &myVBF_Mjj);
-    l.SetCutVariables("cut_VBF_dPhi",         &myVBFdPhi);
-    l.SetCutVariables("cut_VBF_Mgg2",         &myVBF_Mgg);
-    l.SetCutVariables("cut_VBF_Mgg4",         &myVBF_Mgg);
-    l.SetCutVariables("cut_VBF_Mgg10",        &myVBF_Mgg);
-    l.SetCutVariables("cut_VBF_Mgg100160",    &myVBF_Mgg);
-    l.SetCutVariables("cut_VBF_Mggfin",       &myVBF_Mgg);
+    l.SetCutVariables("VHad_Mgg0",        &myAll_Mgg);
+    l.SetCutVariables("VHadLeadJPt",      &myAllLeadJPt);
+    l.SetCutVariables("VHadSubJPt",       &myAllSubJPt);
+    l.SetCutVariables("VHad_dEta",        &myAlldEta);
+    l.SetCutVariables("VHad_Zep",         &myAllZep);
+    l.SetCutVariables("VHad_Mjj",         &myAll_Mjj);
+    l.SetCutVariables("VHad_dPhi",        &myAlldPhi);
+    l.SetCutVariables("VHad_Mgg2",        &myAll_Mgg);
+    l.SetCutVariables("VHad_Mgg4",        &myAll_Mgg);
+    l.SetCutVariables("VHad_Mgg10",       &myAll_Mgg);
+    l.SetCutVariables("VHad_Mgg100160",   &myAll_Mgg);
+    l.SetCutVariables("VHad_Mggfin",      &myAll_Mgg);
+    */
 
-    l.SetCutVariables("cut_VHad_phoet1",        &myVHadphoet1);
-    l.SetCutVariables("cut_VHad_phoet2",        &myVHadphoet2);
-    l.SetCutVariables("cut_VHad_phoetom1",      &myVHadphoetom1);
-    l.SetCutVariables("cut_VHad_phoetom2",      &myVHadphoetom2);
 
-    l.SetCutVariables("cut_VHad_Mgg0",        &myVHad_Mgg);
-    l.SetCutVariables("cut_VHadLeadJPt",      &myVHadLeadJPt);
-    l.SetCutVariables("cut_VHadSubJPt",       &myVHadSubJPt);
-    l.SetCutVariables("cut_VHad_dEta",        &myVHaddEta);
-    l.SetCutVariables("cut_VHad_Zep",         &myVHadZep);
-    l.SetCutVariables("cut_VHad_Mjj",         &myVHad_Mjj);
-    l.SetCutVariables("cut_VHad_dPhi",        &myVHaddPhi);
-    l.SetCutVariables("cut_VHad_Mgg2",        &myVHad_Mgg);
-    l.SetCutVariables("cut_VHad_Mgg4",        &myVHad_Mgg);
-    l.SetCutVariables("cut_VHad_Mgg10",       &myVHad_Mgg);
-    l.SetCutVariables("cut_VHad_Mgg100160",   &myVHad_Mgg);
-    l.SetCutVariables("cut_VHad_Mggfin",      &myVHad_Mgg);
 
-    l.SetCutVariables("cut_VBFR_phoet1",       &myVBFRphoet1);
-    l.SetCutVariables("cut_VBFR_phoet2",       &myVBFRphoet2);
-    l.SetCutVariables("cut_VBFR_phoetom1",     &myVBFRphoetom1);
-    l.SetCutVariables("cut_VBFR_phoetom2",     &myVBFRphoetom2);
+    /*
+    l.SetCutVariables("VBFR_phoet1",       &myAll_phoet1);
+    l.SetCutVariables("VBFR_phoet2",       &myAll_phoet2);
+    l.SetCutVariables("VBFR_phoetom1",     &myAll_phoetom1);
+    l.SetCutVariables("VBFR_phoetom2",     &myAll_phoetom2);
 
-    l.SetCutVariables("cut_VBFR_Mgg0",         &myVBF_Mgg);
-    l.SetCutVariables("cut_VBFRLeadJPt",       &myVBFLeadJPt);
-    l.SetCutVariables("cut_VBFRSubJPt",        &myVBFSubJPt);
-    l.SetCutVariables("cut_VBFR_dEta",         &myVBFdEta);
-    l.SetCutVariables("cut_VBFR_Zep",          &myVBFZep);
-    l.SetCutVariables("cut_VBFR_Mjj",          &myVBF_Mjj);
-    l.SetCutVariables("cut_VBFR_dPhi",         &myVBFdPhi);
-    l.SetCutVariables("cut_VBFR_Mgg2",         &myVBF_Mgg);
-    l.SetCutVariables("cut_VBFR_Mgg4",         &myVBF_Mgg);
-    l.SetCutVariables("cut_VBFR_Mgg10",        &myVBF_Mgg);
-    l.SetCutVariables("cut_VBFR_Mgg100160",    &myVBF_Mgg);
-    l.SetCutVariables("cut_VBFR_Mggfin",       &myVBF_Mgg);
+    l.SetCutVariables("VBFR_Mgg0",         &myAll_Mgg);
+    l.SetCutVariables("VBFRLeadJPt",       &myAllLeadJPt);
+    l.SetCutVariables("VBFRSubJPt",        &myAllSubJPt);
+    l.SetCutVariables("VBFR_dEta",         &myAlldEta);
+    l.SetCutVariables("VBFR_Zep",          &myAllZep);
+    l.SetCutVariables("VBFR_Mjj",          &myAll_Mjj);
+    l.SetCutVariables("VBFR_dPhi",         &myAlldPhi);
+    l.SetCutVariables("VBFR_Mgg2",         &myAll_Mgg);
+    l.SetCutVariables("VBFR_Mgg4",         &myAll_Mgg);
+    l.SetCutVariables("VBFR_Mgg10",        &myAll_Mgg);
+    l.SetCutVariables("VBFR_Mgg100160",    &myAll_Mgg);
+    l.SetCutVariables("VBFR_Mggfin",       &myAll_Mgg);
+    */
+
+    /*
+    l.SetCutVariables("VBF_phoet1",        &myVBFphoet1);
+    l.SetCutVariables("VBF_phoet2",        &myVBFphoet2);
+    l.SetCutVariables("VBF_phoetom1",      &myVBFphoetom1);
+    l.SetCutVariables("VBF_phoetom2",      &myVBFphoetom2);
+
+    l.SetCutVariables("VBF_Mgg0",         &myVBF_Mgg);
+    l.SetCutVariables("VBFLeadJPt",       &myVBFLeadJPt);
+    l.SetCutVariables("VBFSubJPt",        &myVBFSubJPt);
+    l.SetCutVariables("VBF_dEta",         &myVBFdEta);
+    l.SetCutVariables("VBF_Zep",          &myVBFZep);
+    l.SetCutVariables("VBF_Mjj",          &myVBF_Mjj);
+    l.SetCutVariables("VBF_dPhi",         &myVBFdPhi);
+    l.SetCutVariables("VBF_Mgg2",         &myVBF_Mgg);
+    l.SetCutVariables("VBF_Mgg4",         &myVBF_Mgg);
+    l.SetCutVariables("VBF_Mgg10",        &myVBF_Mgg);
+    l.SetCutVariables("VBF_Mgg100160",    &myVBF_Mgg);
+    l.SetCutVariables("VBF_Mggfin",       &myVBF_Mgg);
+
+    l.SetCutVariables("VHad_phoet1",        &myVHadphoet1);
+    l.SetCutVariables("VHad_phoet2",        &myVHadphoet2);
+    l.SetCutVariables("VHad_phoetom1",      &myVHadphoetom1);
+    l.SetCutVariables("VHad_phoetom2",      &myVHadphoetom2);
+
+    l.SetCutVariables("VHad_Mgg0",        &myVHad_Mgg);
+    l.SetCutVariables("VHadLeadJPt",      &myVHadLeadJPt);
+    l.SetCutVariables("VHadSubJPt",       &myVHadSubJPt);
+    l.SetCutVariables("VHad_dEta",        &myVHaddEta);
+    l.SetCutVariables("VHad_Zep",         &myVHadZep);
+    l.SetCutVariables("VHad_Mjj",         &myVHad_Mjj);
+    l.SetCutVariables("VHad_dPhi",        &myVHaddPhi);
+    l.SetCutVariables("VHad_Mgg2",        &myVHad_Mgg);
+    l.SetCutVariables("VHad_Mgg4",        &myVHad_Mgg);
+    l.SetCutVariables("VHad_Mgg10",       &myVHad_Mgg);
+    l.SetCutVariables("VHad_Mgg100160",   &myVHad_Mgg);
+    l.SetCutVariables("VHad_Mggfin",      &myVHad_Mgg);
+
+    l.SetCutVariables("VBFR_phoet1",       &myVBFRphoet1);
+    l.SetCutVariables("VBFR_phoet2",       &myVBFRphoet2);
+    l.SetCutVariables("VBFR_phoetom1",     &myVBFRphoetom1);
+    l.SetCutVariables("VBFR_phoetom2",     &myVBFRphoetom2);
+
+    l.SetCutVariables("VBFR_Mgg0",         &myVBF_Mgg);
+    l.SetCutVariables("VBFRLeadJPt",       &myVBFLeadJPt);
+    l.SetCutVariables("VBFRSubJPt",        &myVBFSubJPt);
+    l.SetCutVariables("VBFR_dEta",         &myVBFdEta);
+    l.SetCutVariables("VBFR_Zep",          &myVBFZep);
+    l.SetCutVariables("VBFR_Mjj",          &myVBF_Mjj);
+    l.SetCutVariables("VBFR_dPhi",         &myVBFdPhi);
+    l.SetCutVariables("VBFR_Mgg2",         &myVBF_Mgg);
+    l.SetCutVariables("VBFR_Mgg4",         &myVBF_Mgg);
+    l.SetCutVariables("VBFR_Mgg10",        &myVBF_Mgg);
+    l.SetCutVariables("VBFR_Mgg100160",    &myVBF_Mgg);
+    l.SetCutVariables("VBFR_Mggfin",       &myVBF_Mgg);
 */
 
     /*
-    l.SetCutVariables("cut_VHadMLeadJPt",      &myVHadLeadJPt);
-    l.SetCutVariables("cut_VHadMSubJPt",       &myVHadSubJPt);
-    l.SetCutVariables("cut_VHadM_dEta",        &myVHaddEta);
-    l.SetCutVariables("cut_VHadM_Zep",         &myVHadZep);
-    l.SetCutVariables("cut_VHadM_Mjj",         &myVHad_Mjj);
-    l.SetCutVariables("cut_VHadM_dPhi",        &myVHaddPhi);
-    l.SetCutVariables("cut_VHadM_Mgg0",        &myVHad_Mgg);
-    l.SetCutVariables("cut_VHadM_Mgg2",        &myVHad_Mgg);
-    l.SetCutVariables("cut_VHadM_Mgg4",        &myVHad_Mgg);
-    l.SetCutVariables("cut_VHadM_Mgg10",       &myVHad_Mgg);
-    l.SetCutVariables("cut_VHadM_Mgg100160",   &myVHad_Mgg);
-    l.SetCutVariables("cut_VHadM_Mggfin",      &myVHad_Mgg);
+    l.SetCutVariables("VHadMLeadJPt",      &myVHadLeadJPt);
+    l.SetCutVariables("VHadMSubJPt",       &myVHadSubJPt);
+    l.SetCutVariables("VHadM_dEta",        &myVHaddEta);
+    l.SetCutVariables("VHadM_Zep",         &myVHadZep);
+    l.SetCutVariables("VHadM_Mjj",         &myVHad_Mjj);
+    l.SetCutVariables("VHadM_dPhi",        &myVHaddPhi);
+    l.SetCutVariables("VHadM_Mgg0",        &myVHad_Mgg);
+    l.SetCutVariables("VHadM_Mgg2",        &myVHad_Mgg);
+    l.SetCutVariables("VHadM_Mgg4",        &myVHad_Mgg);
+    l.SetCutVariables("VHadM_Mgg10",       &myVHad_Mgg);
+    l.SetCutVariables("VHadM_Mgg100160",   &myVHad_Mgg);
+    l.SetCutVariables("VHadM_Mggfin",      &myVHad_Mgg);
     */
 
     // CP
@@ -685,6 +835,14 @@ void StatAnalysisExclusive::Init(LoopAll& l)
     // Make sure the Map is filled
     FillSignalLabelMap();
 
+
+
+
+
+
+    if(l.GetCutValue("optree")) {
+
+
     //JIM START OF THINGS
  
 
@@ -701,7 +859,9 @@ void StatAnalysisExclusive::Init(LoopAll& l)
 
   if(l.typerun==0) {
     setDiphoCuts();
-    SetBDT();                            // jgb 
+    if(l.GetCutValue("bdt")) {
+      SetBDT();
+    }                            // jgb 
   for(int idc=0;idc!=13;++idc) {
     std::cout << "\ncutdiphoptom         ";
     for(int ic=0;ic!=4;++ic){std::cout << "\t["<<idc<<"]["<<ic<<"]: " << cutdiphoptom[idc][ic];}
@@ -751,12 +911,13 @@ void StatAnalysisExclusive::Init(LoopAll& l)
     goodevtvtxcount2[iiii]=0;
   }
 
-
-  HggBookOptree();
+  if(l.GetCutValue("optree")) {
+    HggBookOptree();
+  }
   }
 
     //END JIM
-
+    }
 
     if(PADEBUG) 
 	cout << "InitRealStatAnalysisExclusive END"<<endl;
@@ -903,45 +1064,56 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
    
     sumev += weight;
 
-    //here jim's stuff for now:
-
-    //HERE WE GET THE diphoton id and vtxind from the standard one??? //MARCO FIX
-
-    int diphoton_id_jim = l.DiphotonCiCSelection(l.phoLOOSE, l.phoLOOSE, 40., 30., 4,applyPtoverM, &smeared_pho_energy[0] ); 
-    if(diphoton_id_jim>=0)
-      diphoton_id_jim = l.DiphotonCiCSelection(l.phoTIGHT, l.phoTIGHT, 40., 30., 4,applyPtoverM, &smeared_pho_energy[0] ); 
-
-    if(diphoton_id_jim>=0) {
-      TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphoton_id_jim], l.dipho_vtxind[diphoton_id_jim], &smeared_pho_energy[0]);
-      TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphoton_id_jim], l.dipho_vtxind[diphoton_id_jim], &smeared_pho_energy[0]);
-      TLorentzVector diphoton = lead_p4+sublead_p4;
-      float evweight = newweight * smeared_pho_weight[l.dipho_leadind[diphoton_id_jim]] * smeared_pho_weight[l.dipho_subleadind[diphoton_id_jim]] * genLevWeight * pileupWeight;
-
-      if(fabs((float) newweight*pileupWeight-weight)/((float) newweight*pileupWeight+weight)>0.0001) cout<<"################ "<<newweight*pileupWeight<<" "<<weight<<" "<<newweight<<" "<<pileupWeight<<endl;
-
-      float myweight=1.;
-      if(evweight*newweight!=0) myweight=evweight/newweight;
+    int ccat1=-1;
+    int ccat2=-1;
+    int ccat3=-1;
+    int ccat4=-1;
 
 
-      //check itype
 
-      //NEED TO PASS THE WEIGHTS
+    if(l.GetCutValue("optree")) {
+      //here jim's stuff for now:
 
-      int itypepass=cur_type;
-
-      SetOutputNtupleVariables(jentry, itypepass, l.dipho_leadind[diphoton_id_jim], l.dipho_subleadind[diphoton_id_jim], l.dipho_vtxind[diphoton_id_jim], diphoton.M(), &lead_p4, &sublead_p4, evweight, pileupWeight);
-
-      optree->Fill();
-      int noptree=optree->GetEntries();
-      if(noptree<1000) cout<<" filling optree n="<<noptree<<endl;
-      if(noptree%1000==0||noptree%1000==1) cout<<" optree n="<<noptree<<endl;
-      //if(noptree%10000==2) optree->Print();
-
+      //HERE WE GET THE diphoton id and vtxind from the standard one??? //MARCO FIX
+      
+      int diphoton_id_jim = l.DiphotonCiCSelection(l.phoLOOSE, l.phoLOOSE, 40., 30., 4,applyPtoverM, &smeared_pho_energy[0] ); 
+      if(diphoton_id_jim>=0)
+	diphoton_id_jim = l.DiphotonCiCSelection(l.phoTIGHT, l.phoTIGHT, 40., 30., 4,applyPtoverM, &smeared_pho_energy[0] ); 
+      
+      if(diphoton_id_jim>=0) {
+	TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphoton_id_jim], l.dipho_vtxind[diphoton_id_jim], &smeared_pho_energy[0]);
+	TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphoton_id_jim], l.dipho_vtxind[diphoton_id_jim], &smeared_pho_energy[0]);
+	TLorentzVector diphoton = lead_p4+sublead_p4;
+	float evweight = newweight * smeared_pho_weight[l.dipho_leadind[diphoton_id_jim]] * smeared_pho_weight[l.dipho_subleadind[diphoton_id_jim]] * genLevWeight * pileupWeight;
+	
+	if(fabs((float) newweight*pileupWeight-weight)/((float) newweight*pileupWeight+weight)>0.0001) cout<<"################ "<<newweight*pileupWeight<<" "<<weight<<" "<<newweight<<" "<<pileupWeight<<endl;
+	
+	float myweight=1.;
+	if(evweight*newweight!=0) myweight=evweight/newweight;
+	
+	
+	//check itype
+	
+	//NEED TO PASS THE WEIGHTS
+	
+	int itypepass=cur_type;
+	
+	SetOutputNtupleVariables(jentry, itypepass, l.dipho_leadind[diphoton_id_jim], l.dipho_subleadind[diphoton_id_jim], l.dipho_vtxind[diphoton_id_jim], diphoton.M(), &lead_p4, &sublead_p4, evweight, pileupWeight);
+	
+	optree->Fill();
+	int noptree=optree->GetEntries();
+	if(noptree<1000) cout<<" filling optree n="<<noptree<<endl;
+	if(noptree%1000==0||noptree%1000==1) cout<<" optree n="<<noptree<<endl;
+	//if(noptree%10000==2) optree->Print();
+	
+      }
     }
 
 
     // FIXME pass smeared R9
     int diphoton_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtCut, subleadEtCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
+
+    int passincl=0;
 
     if(diphoton_id>-1)
     {
@@ -961,18 +1133,22 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
       float myweight=1.;
       if(evweight*newweight!=0) myweight=evweight/newweight;
       
-      l.ApplyCutsFill(0,4,evweight, myweight);
-
-      if(myInclusive_Mgg>90.&&myInclusive_Mgg<190.) {
+	if(l.ApplyCut("massrange",myAll_Mgg,0)) {
+	  l.ApplyCutsFill(0,4,evweight, myweight);
+	  passincl=1;
+	}
+      if(myInclusive_Mgg>100.&&myInclusive_Mgg<180.) {
 	l.FillHist("run",0, l.run, 1.);
       }
 
 
       int category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,0.,2,2,1);
 
+      ccat1=category;
+
       //cout<<"MMM "<<category <<" "<<evweight<<" "<<myweight<<endl;
 
-      if(myInclusive_Mgg>100&&myInclusive_Mgg<160) {
+      if(myInclusive_Mgg>100&&myInclusive_Mgg<180) {
 	//cut_All_Mgg4cat
 	l.ApplyCutsFill(category,14,evweight, myweight);
       }
@@ -1031,6 +1207,7 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
 	  }
 	}
 
+	myAll_nvtx=l.vtx_std_n;
 
 	myAllLeadJPt = 0.;
 	myAllSubJPt = 0.;
@@ -1095,15 +1272,58 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
 
 	//cout<<" Weights: weight "<<weight<<" newtimepileup" <<newweight*pileupWeight<<" genwei "<<genLevWeight<<" PTHihhs "<<myAllPtHiggs<<""<<genLevWeight<<endl;
 	
-	l.ApplyCutsFill(0,3,evweight, myweight);
-	//a
-	VBFevent = l.ApplyCutsFill(0,1,evweight, myweight);
-	//VBFevent = l.ApplyCutsFill(0,1,evweight, evweight);
-	l.ApplyCutsFill(0,5,evweight, myweight);
-
-
 	int category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,0.,2,2,1);
 	int category2 = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,0.,2,1,1);
+
+
+
+
+	if(l.ApplyCut("massrange",myAll_Mgg,0)) {
+
+	  l.ApplyCutsFill(0,3,evweight, myweight);
+	  //a
+	  VBFevent = l.ApplyCutsFill(0,1,evweight, myweight);
+
+	  if(passincl&&!VBFevent) {
+	    l.ApplyCutsFill(category,45,evweight, myweight);
+	  }
+
+	  //VBFevent = l.ApplyCutsFill(0,1,evweight, evweight);
+	  l.ApplyCutsFill(0,5,evweight, myweight);
+	  l.ApplyCutsFill(0,30,evweight, myweight);
+	  l.ApplyCutsFill(0,31,evweight, myweight);
+
+	  int catrun=0;
+
+	  //vtx_std_n
+
+	  if(myAll_nvtx>9) catrun=1;
+	  l.ApplyCutsFill(catrun,11,evweight, myweight);
+
+	  /*
+	  if(cur_type==0) {
+	    if(l.run>175830) catrun=1;
+
+	    l.ApplyCutsFill(catrun,11,evweight, myweight);
+	  }
+	  else {
+	    l.ApplyCutsFill(0,11,evweight*2.247/4.781,myweight*2.247/4.781);
+	    l.ApplyCutsFill(1,11,evweight*2.534/4.781,myweight*2.534/4.781);
+	  }
+	  */
+
+
+	  
+	  if(VBFevent&&myAll_Mgg>100&&myAll_Mgg<180) {
+	    l.ApplyCutsFill(category,44,evweight, myweight);
+	    l.ApplyCutsFill(category2,42,evweight, myweight);
+	  }
+	}
+
+
+
+	ccat2=category;
+	//if(ccat1!=ccat2) cout<<" MARCO DIFF NUMB OF CAT "<<ccat1<<" "<<ccat2<<endl;
 
 	//cout<<cur_type<<" Final events r,l,e"<< l.run << " " << l.lumis << " " << l.event <<" "<<category2<<" "<<diphoton.M()<<" "<<weight<<endl;
 
@@ -1120,6 +1340,9 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
           TLorentzVector* jet1 = (TLorentzVector*)l.jet_algoPF1_p4->At(highestPtJets.first);
           TLorentzVector* jet2 = (TLorentzVector*)l.jet_algoPF1_p4->At(highestPtJets.second);
           TLorentzVector dijet = (*jet1) + (*jet2);
+
+
+	  if(ccat1!=ccat2) cout<<" MARCO NEW DIFF NUMB OF CAT "<<ccat1<<" "<<ccat2<<endl;
 
 	    eventListTextVBF << setprecision(4) <<"Type = "<< cur_type <<  " Run = " << l.run << "  LS = " << l.lumis << "  Event = " << l.event << "  SelVtx = " << l.vtx_std_sel << "  CAT4 = " << category % 4 << "  ggM = " << diphoton.M() << " gg_Pt =  " << diphoton.Pt();
 
@@ -1140,19 +1363,20 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
 	    eventListTextVBF << setprecision(4) <<" phoetom "<<myAll_phoetom1<<" "<<myAll_phoetom2<<endl;
 	    eventListTextVBF << setprecision(4) <<" jetet   "<<myAllLeadJPt<<" "<<myAllSubJPt<<endl;
 	    eventListTextVBF << setprecision(4) <<" jeteta  "<<myAllLeadJEta<<" "<<myAllSubJEta<<endl;
-	    eventListTextVBF << setprecision(4) <<" jets deta "<<myAlldEta<<" zep "<<myAllZep<<" M "<<myAll_Mjj<<" dphi "<<myAlldPhi<<endl;
+	    eventListTextVBF << setprecision(4) <<" jets deta "<<myAlldEta<<" zep "<<myAllZep<<" M "<<myAll_Mjj<<" dphi "<<myAlldPhi <<endl;
+	    eventListTextVBF << setprecision(4) <<" phoeta   "<<lead_p4.Eta()<<" "<<sublead_p4.Eta()<<endl;
+	    eventListTextVBF << setprecision(4) <<" phophi   "<<lead_p4.Phi()<<" "<<sublead_p4.Phi()<<endl;
+			    
 	  }
 	}
 	
 
-	if(VBFevent&&myAll_Mgg>100&&myAll_Mgg<160) {
-	  l.ApplyCutsFill(category,44,evweight, myweight);
-	  l.ApplyCutsFill(category2,42,evweight, myweight);
-	}
-      
-	//cout<<"MMM "<<evweight<<" "<<myweight<<endl;
-	VHadevent = l.ApplyCutsFill(0,2,evweight, myweight);
+      	if(l.ApplyCut("massrange",myAll_Mgg,0)) {
+
+	  VHadevent = 0; //l.ApplyCutsFill(0,2,evweight, myweight);
+
 	//l.ApplyCutsFill(0,6,evweight, myweight);
+	}
 
       }
       /*
@@ -1526,7 +1750,7 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
           myVHaddPhi = fabs(diphoton.DeltaPhi(dijet));
           myVHad_Mgg =diphoton.M();
 
-          VHadevent = l.ApplyCuts(0,2);
+          VHadevent = 0; //l.ApplyCuts(0,2);
         }
       }
     }
@@ -3973,17 +4197,29 @@ if(jentry%1000==1&&itype>0&&itype%1000==1) cout<<jentry<<"  "<<itype<<"  mass="<
 //MARCO FIX CHECK
   t_subleadci6cpfindex = PhotonCiCpfSelectionLevelJim(subleadind,6,vtxind,1);
 
-  t_subleadci6cpfmva = BDT(jentry, subleadind,vtxind);
-  t_subleadci6cpfmvacat = BDT_categorized(jentry, subleadind, vtxind, -1.);
-  t_subleadci6cpfmvaptom = BDT_ptom(jentry, subleadind,vtxind, mass);
-  t_subleadci6cpfmvaptom2 = BDT_ptom2(jentry, subleadind,vtxind, mass);
-  t_leadci6cpfmva = BDT(jentry, leadind,vtxind);
-  t_leadci6cpfmvacat = BDT_categorized(jentry, leadind,vtxind, 1.);
-  t_leadci6cpfmvaptom = BDT_ptom(jentry, leadind,vtxind, mass);
-  t_leadci6cpfmvaptom2 = BDT_ptom2(jentry, leadind,vtxind, mass);
-  t_diphomva = BDT_dipho(jentry, leadind, subleadind, t_leadci6cpfmvaptom, t_subleadci6cpfmvaptom, t_diphopt, mass, t_dmom);
-  t_diphomva2 = BDT_dipho2(jentry, leadind, subleadind, t_leadci6cpfmvaptom, t_subleadci6cpfmvaptom, t_diphopt, mass);
- 
+  t_subleadci6cpfmva = 0.;
+  t_subleadci6cpfmvacat = 0.;
+  t_subleadci6cpfmvaptom = 0.;
+  t_subleadci6cpfmvaptom2 = 0.;
+  t_leadci6cpfmva = 0.;
+  t_leadci6cpfmvacat = 0.;
+  t_leadci6cpfmvaptom = 0.;
+  t_leadci6cpfmvaptom2 = 0.;
+  t_diphomva = 0.;
+  t_diphomva2 = 0.;
+
+  if(ll->GetCutValue("bdt")) {
+       t_subleadci6cpfmva = BDT(jentry, subleadind,vtxind);
+       t_subleadci6cpfmvacat = BDT_categorized(jentry, subleadind, vtxind, -1.);
+       t_subleadci6cpfmvaptom = BDT_ptom(jentry, subleadind,vtxind, mass);
+       t_subleadci6cpfmvaptom2 = BDT_ptom2(jentry, subleadind,vtxind, mass);
+       t_leadci6cpfmva = BDT(jentry, leadind,vtxind);
+       t_leadci6cpfmvacat = BDT_categorized(jentry, leadind,vtxind, 1.);
+       t_leadci6cpfmvaptom = BDT_ptom(jentry, leadind,vtxind, mass);
+       t_leadci6cpfmvaptom2 = BDT_ptom2(jentry, leadind,vtxind, mass);
+       t_diphomva = BDT_dipho(jentry, leadind, subleadind, t_leadci6cpfmvaptom, t_subleadci6cpfmvaptom, t_diphopt, mass, t_dmom);
+       t_diphomva2 = BDT_dipho2(jentry, leadind, subleadind, t_leadci6cpfmvaptom, t_subleadci6cpfmvaptom, t_diphopt, mass);
+  }
   //std::pair<int,int> diphoton_indices(DiphotonCiCSelectionIndices( LEADCUTLEVEL, SUBLEADCUTLEVEL, leadPtMin, subleadPtMin, CICNCAT, -1, false));
   //leadind = diphoton_indices.first;
   //subleadind = diphoton_indices.second;

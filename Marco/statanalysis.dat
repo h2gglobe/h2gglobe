@@ -5,7 +5,7 @@ subleadEtCut=30.0
 
 massMin=100.
 massMax=180.
-nDataBins=80
+nDataBins=160
 
 nEtaCategories=2
 nR9Categories=2
@@ -30,11 +30,7 @@ subleadEtVHlepCut=25
 
 
 doTriggerSelection=1
-->
-Currently CiC will always be re-run as hardcoded in PhotonAnalysis
-This is necessary for R9 Scaling and MC Energy Smearing 
-->
-reRunCiC=1
+reRunCiCForData=1
 
 ->
 Turn on-off all smearings 
@@ -44,7 +40,7 @@ doMCSmearing=1
 ->
 Individual smearing flags
 ->
-energyCorrectionMethod=BendavidOTF
+energyCorrectionMethod=Bendavid
 doEcorrectionSmear=1
 doEcorrectionSyst=0
 
@@ -76,8 +72,9 @@ Inputs for reweighing
 ->
 
 kfacHist=../Marco/KFactors_AllScales_interpolated.root
-efficiencyFile=../Marco/sig_reweighing_v15.root
-puHist=../Marco/2011_0100_73500.weights.root
+efficiencyFile=../Marco/sig_reweighing_v16.root
+puHist=../Marco/2011_0100_73500.signal_weights.root
+
 
 puMap=pu_weights_map.dat
 

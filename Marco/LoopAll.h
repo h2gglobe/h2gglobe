@@ -199,7 +199,7 @@ class LoopAll {
   int ApplyCut(int icut, int icat);
   int ApplyCut(TString cutname, int icat);
 
-  float GetCutValue(TString cutname, int icat, int highcut=0);
+  float GetCutValue(TString cutname, int icat=0, int highcut=0);
 
   //int ApplyCut(int icut, float var, int icat);
   //int ApplyCut(TString cutname, float var, int icat);

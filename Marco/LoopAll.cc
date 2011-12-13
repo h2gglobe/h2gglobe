@@ -466,15 +466,18 @@ void LoopAll::InitReal(Int_t typerunpass) {
     outputFile->cd();
 
 #ifdef NewFeatures
-  FILE *mar = fopen("../Marco/dataevents_new.txt","r");
-
   event_pointer = 0;
+
+  if(GetCutValue("eventlist")) {
+
+  FILE *mar = fopen("../Marco/dataevents_rereco.txt","r");
+
   float dummy1, dummy2;
   int idummy1, idummy2;
 
   int realnmar=0;
-
   int marco_type;
+
 
   
   //while(true){
@@ -489,6 +492,7 @@ void LoopAll::InitReal(Int_t typerunpass) {
   }
   
   fclose(mar);
+}
 #endif
 }
 
@@ -1080,6 +1084,8 @@ int LoopAll::FillAndReduce(int jentry) {
   
   
 #ifdef NewFeatures
+
+  if(GetCutValue("eventlist")) {
   if (itype[current] == 0) {
     b_event->GetEntry(jentry);
 
@@ -1102,7 +1108,9 @@ int LoopAll::FillAndReduce(int jentry) {
       return hasoutputfile;
     }
   }
+  }
 #endif
+  
 
   //
   // read all inputs 
@@ -1645,6 +1653,9 @@ int LoopAll::ApplyCuts(int icat, int cutset, int & ncutsapplied, int & ncutspass
 
 int LoopAll::ApplyCutsFill(int icat, int cutset, int & ncutsapplied, int & ncutspassed,  int & ncutsfailed, float histweight, float countweight) {
 
+  int debhere=0;
+
+  if(debhere) cout<<"MARCO APPLYCUT: start "<<endl;
   int ntmpcuts=0;
   int tmppasscut[100];
   int indexcut[100];
@@ -1659,7 +1670,7 @@ int LoopAll::ApplyCutsFill(int icat, int cutset, int & ncutsapplied, int & ncuts
       //MARCO if(cutContainer[i].useit) 
 	{
 
-	  //cout<<"ApplyCutsFill "<<cutContainer[i].finalcut<<" "<<cutContainer[i].useit<<" "<<endl;
+	  if(debhere) cout<<"ApplyCutsFill "<<cutContainer[i].name<<" "<<cutContainer[i].finalcut<<" "<<cutContainer[i].useit<<" "<<endl;
 
 	if(cutContainer[i].ncat>1) {
 	  if(ncats==0) ncats=cutContainer[i].ncat;
@@ -1675,6 +1686,9 @@ int LoopAll::ApplyCutsFill(int icat, int cutset, int & ncutsapplied, int & ncuts
 	if(cutContainer[i].ncat<=1) {
 	  icatuse=0;
 	}
+
+	if(debhere) cout<<"MARCO APPLYCUT: ICUTSET, i, icatuse "<<cutset<<" "<<i<<" "<<icatuse<<endl;
+
 	if(ApplyCut(i,icatuse)) {
 	  ncutspassed++;
 	  tmppasscut[ntmpcuts]=1;
@@ -1689,6 +1703,9 @@ int LoopAll::ApplyCutsFill(int icat, int cutset, int & ncutsapplied, int & ncuts
     }
   }
   //cout<<"ApplyCutsFill "<<ncutsapplied<<" "<<ncutsfailed<<" "<<ncutspassed<<" "<<endl;
+
+
+  if(debhere) cout<<"MARCO APPLYCUT: bef hist "<<endl;
 
   //n-1 cut histograms
   if(ncutsfailed==1||ncutsfailed==0) {
@@ -1708,6 +1725,7 @@ int LoopAll::ApplyCutsFill(int icat, int cutset, int & ncutsapplied, int & ncuts
   }
 
   //remember to divide by the first for efficiencies
+  if(debhere) cout<<"MARCO APPLYCUT: done "<<endl;
 
   return passcuts;
 }
