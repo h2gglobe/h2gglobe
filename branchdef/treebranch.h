@@ -1,11 +1,9 @@
-#ifdef NewFeatures
 void Branch_pho_pfiso_myneutral03(TTree * tree) { tree->Branch("pho_pfiso_myneutral03", &pho_pfiso_myneutral03, "pho_pfiso_myneutral03[pho_n]/F"); }; 
 void Branch_pho_pfiso_myneutral04(TTree * tree) { tree->Branch("pho_pfiso_myneutral04", &pho_pfiso_myneutral04, "pho_pfiso_myneutral04[pho_n]/F"); }; 
 void Branch_pho_pfiso_myphoton03(TTree * tree) { tree->Branch("pho_pfiso_myphoton03", &pho_pfiso_myphoton03, "pho_pfiso_myphoton03[pho_n]/F"); }; 
 void Branch_pho_pfiso_myphoton04(TTree * tree) { tree->Branch("pho_pfiso_myphoton04", &pho_pfiso_myphoton04, "pho_pfiso_myphoton04[pho_n]/F"); }; 
 void Branch_pho_pfiso_mycharged03(TTree * tree) { tree->Branch("pho_pfiso_mycharged03", "std::vector<std::vector<float> >", &pho_pfiso_mycharged03); }; 
 void Branch_pho_pfiso_mycharged04(TTree * tree) { tree->Branch("pho_pfiso_mycharged04", "std::vector<std::vector<float> >", &pho_pfiso_mycharged04); }; 
-#endif
 void Branch_event(TTree * tree) { tree->Branch("event",&event, "event/I");  }; 
 void Branch_run(TTree * tree) { tree->Branch("run",&run, "run/I");  }; 
 void Branch_process_id(TTree * tree) { tree->Branch("process_id",&process_id, "process_id/I");  }; 

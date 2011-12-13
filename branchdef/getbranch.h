@@ -1,11 +1,9 @@
-#ifdef NewFeatures
 b_pho_pfiso_myneutral03 = fChain->GetBranch("pho_pfiso_myneutral03");
 b_pho_pfiso_myneutral04 = fChain->GetBranch("pho_pfiso_myneutral04");
 b_pho_pfiso_myphoton03 = fChain->GetBranch("pho_pfiso_myphoton03");
 b_pho_pfiso_myphoton04 = fChain->GetBranch("pho_pfiso_myphoton04");
 b_pho_pfiso_mycharged03 = fChain->GetBranch("pho_pfiso_mycharged03");
 b_pho_pfiso_mycharged04 = fChain->GetBranch("pho_pfiso_mycharged04");
-#endif
    b_event = fChain->GetBranch("event"); 
    b_run = fChain->GetBranch("run"); 
    b_process_id = fChain->GetBranch("process_id"); 

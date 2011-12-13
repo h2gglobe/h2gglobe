@@ -1,11 +1,9 @@
-#ifdef NewFeatures
 TBranch *b_pho_pfiso_myneutral03;
 TBranch *b_pho_pfiso_myneutral04;
 TBranch *b_pho_pfiso_myphoton03;
 TBranch *b_pho_pfiso_myphoton04;
 TBranch *b_pho_pfiso_mycharged03;
 TBranch *b_pho_pfiso_mycharged04;
-#endif
     TBranch *b_event;
     TBranch *b_run;
     TBranch *b_process_id;
