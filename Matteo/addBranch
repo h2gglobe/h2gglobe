@@ -7,9 +7,10 @@
 import sys
 
 name = sys.argv[1]
-type = sys.argv[2] 
-index = sys.argv[3]
-limit = sys.argv[4]
+type = sys.argv[2]
+if (len(sys.argv) > 3):
+    index = sys.argv[3]
+    limit = sys.argv[4]
 
 file = open("branchdef/branchdef.h", "a")
 file.write("TBranch* b_" + name + ";\n")
@@ -41,6 +42,10 @@ file.close()
 file = open("branchdef/treedef.h", "a")
 if ("std::" in type):
     file.write(type + "* " + name + ";\n")
+elif (type == "F"):
+    file.write("Float_t " + name + "[" + limit + "];\n")
+elif (type == "I"):
+    file.write("Int_t " + name + "[" + limit + "];\n")
 else:
     file.write(type + " " + name + "[" + limit + "];\n")
 file.close()
