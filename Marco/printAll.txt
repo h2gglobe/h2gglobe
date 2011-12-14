@@ -10,8 +10,22 @@ setTDRStyle();
   //gSystem->Load("VertexAnalysis/lib/libh2gglobeVertexAnalysis.so");
 gSystem->Load("libLoopAll.so");
 LoopAll* m=new LoopAll();
+m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_jimdatafiles_5fb_Dec10_rereco_all_90_190_LAST_FINWITHNVTX_2.root","Hgg");
+m->myPlotInteractive("PhotonAnalysis_scripts/histograms_jimdatafiles_5fb_Dec10_rereco_all_90_190_LAST_FINWITHNVTX_2.root");
+
+
+m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_marcodatafiles_5fb_Dec10_rereco_all_90_190_LAST_B1.root","Hgg");
+m->myPlotInteractive("PhotonAnalysis_scripts/histograms_marcodatafiles_5fb_Dec10_rereco_all_90_190_LAST_B1.root");
+
+
+
 m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_marcodatafiles_5fb_Dec10_rereco_all_90_190_LAST.root","Hgg");
 m->myPlotInteractive("PhotonAnalysis_scripts/histograms_marcodatafiles_5fb_Dec10_rereco_all_90_190_LAST.root");
+
+m->myPlotInteractiveSetup("PhotonAnalysis_scripts/histograms_jimdatafiles_5fb_Dec10_rereco_all_90_190_LAST_FINWITHNVTX_1.root","Hgg");
+m->myPlotInteractive("PhotonAnalysis_scripts/histograms_jimdatafiles_5fb_Dec10_rereco_all_90_190_LAST_FINWITHNVTX_1.root");
+
+
 
 
 
@@ -220,10 +234,36 @@ setmax 140
 write png
 setmax 0
 
-j 74
-setmax 140
+j 75
+setmax 18
 write png
 setmax 0
+
+j 76
+setmax 18
+write png
+setmax 0
+
+j 77
+setmax 24
+write png
+setmax 0
+
+j 78
+setmax 24
+write png
+setmax 0
+
+j 79
+setmax 46
+write png
+setmax 0
+
+j 80
+setmax 46
+write png
+setmax 0
+
 
 //HERE
 
@@ -286,9 +326,20 @@ setmax 1200
 write png
 setmax 0
 
+j 203
+setmax 900
+write png
+setmax 0
+
+
 //HERE
 
 j 207
+setmax 1500
+write png
+setmax 0
+
+j 208
 setmax 1500
 write png
 setmax 0
@@ -298,7 +349,17 @@ setmax 1400
 write png
 setmax 0
 
+j 210
+setmax 1400
+write png
+setmax 0
+
 j 211
+setmax 1300
+write png
+setmax 0
+
+j 212
 setmax 1300
 write png
 setmax 0
@@ -308,11 +369,105 @@ setmax 4500
 write png
 setmax 0
 
-j 207
-setmax 1400
+j 213
+setmax 4500
 write png
 setmax 0
 
+
+j 235
+setmax 1000
+write png
+setmax 0
+
+j 239
+setmax 600
+write png
+setmax 0
+
+j 240
+setmax 1000
+write png
+setmax 0
+
+j 241
+setmax 0
+write png
+setmax 0
+
+j 242
+setmax 0
+write png
+setmax 0
+
+j 243
+setmax 500
+write png
+setmax 0
+
+j 244
+setmax 500
+write png
+setmax 0
+
+j 245
+setmax 550
+write png
+setmax 0
+
+j 246
+setmax 550
+write png
+setmax 0
+
+
+j 247
+setmax 800
+write png
+setmax 0
+
+j 248
+setmax 800
+write png
+setmax 0
+
+
+j 249
+setmax 2000
+write png
+setmax 0
+
+
+j 250
+setmax 2000
+write png
+setmax 0
+
+
+j 251
+setmax 1500
+write png
+setmax 0
+
+
+j 253
+setmax 1300
+write png
+setmax 0
+
+j 255
+setmax 1200
+write png
+setmax 0
+
+j 257
+setmax 4500
+write png
+setmax 0
+
+
+
+######## END ###########
 
 root -l
 .L Marco/tdrstyle.C
@@ -860,4 +1015,24 @@ mv fig_dec11/2011B/hist_VBF_Mjj_sequential.png fig_dec11/2011B/11_2011B_hist_VBF
 mv fig_dec11/2011B/hist_VBF_dPhi_nminus1.png fig_dec11/2011B/12_2011B_hist_VBF_dPhi_nminus1.png 
 mv fig_dec11/2011B/hist_VBF_Mgg2_nminus1.png fig_dec11/2011B/13_2011B_hist_VBF_Mgg2_final.png
 mv fig_dec11/2011B/hist_VBF_Mgg10_nminus1.png fig_dec11/2011B/14_2011B_hist_VBF_Mgg10_final.png
+
+
+
+
+RUN A AND B
+
+j 63
+setmax 26
+write png
+setmax 0
+
+j 64
+setmax 50
+write png
+setmax 0
+
+j 80
+setmax 26
+write png
+setmax 0
 
