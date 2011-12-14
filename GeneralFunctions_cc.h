@@ -1,5 +1,25 @@
 #include "Sorters.h"
 
+
+float LoopAll::getDmOverDz(Int_t pho1, Int_t pho2, Float_t* smeared) {
+
+  TVector3* vtx_plus = new TVector3(0, 0, 0.5);
+  TVector3* vtx_minus = new TVector3(0, 0, -0.5);
+
+  TLorentzVector lead_plus = get_pho_p4(pho1, vtx_plus, smeared);
+  TLorentzVector sublead_plus = get_pho_p4(pho2, vtx_minus, smeared);
+  TLorentzVector diphoton_plus = lead_plus + sublead_plus;
+
+  TLorentzVector lead_minus = get_pho_p4(pho1, vtx_minus, smeared);
+  TLorentzVector sublead_minus = get_pho_p4(pho2, vtx_minus, smeared);
+  TLorentzVector diphoton_minus = lead_minus + sublead_minus;
+  
+  float result = diphoton_plus.M() - diphoton_minus.M();
+
+  return result;
+}
+
+
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 void LoopAll::GlobeCtIsol(int mode, TLorentzVector* p4, float ptCut, float drCutMin, float drCutMax, Int_t & nIsol, Float_t & ptIsol, Float_t & angle1, Float_t & angle2, Float_t & angle3) {
   nIsol=0;

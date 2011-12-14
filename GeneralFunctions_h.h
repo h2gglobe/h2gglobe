@@ -401,6 +401,8 @@ void SetBranchAddress_pho_passcuts_sublead(TTree * tree) { tree->SetBranchAddres
 int MuonSelection(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind);
 int ElectronSelection(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind);
 
+float getDmOverDz(Int_t, Int_t, Float_t*);
+
 #ifdef NewFeatures
 #include "Marco/plotInteractive_h.h"
 #endif
