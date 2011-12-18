@@ -73,10 +73,10 @@ Inputs for reweighing
 
 kfacHist=/home/users/capalmer/CMS/Higgs2gg/Limits/nov14_forAN/428p7/src/HiggsAnalysis/HiggsTo2photons/h2gglobe_new/Marco/KFactors_AllScales_interpolated.root
 efficiencyFile=/home/users/capalmer/CMS/Higgs2gg/Limits/nov14_forAN/428p7/src/HiggsAnalysis/HiggsTo2photons/h2gglobe_dec9/Marco/sig_reweighing_v16.root
-puHist=../Marco/2011B_0100_73500.signal_weights.root
+puHist=../Marco/2011_0100_73500.weights.root
 ->
-puHist=../Marco/2011_0100_73500.signal_weights.root
-puHist=../Marco/2011A_0100_73500.signal_weights.root
+puHist=../Marco/2011B_0100_73500.weights.root
+puHist=../Marco/2011A_0100_73500.weights.root
 ->
 
 
