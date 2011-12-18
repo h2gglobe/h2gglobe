@@ -42,7 +42,11 @@ tkIso_dxymax=0.1
 
 applyPtoverM=1
 doTriggerSelection=1
-puHist=../Marco/2011_0100_73500.pileup.root
+puHist=../Marco/2011B_0100_73500.signal_weights.root
+->
+puHist=../Marco/2011_0100_73500.signal_weights.root
+puHist=../Marco/2011A_0100_73500.signal_weights.root
+->
 puMap=pu_weights_map.dat
 
 energyCorrectionMethod=Bendavid
