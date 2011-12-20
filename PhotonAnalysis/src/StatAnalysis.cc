@@ -167,6 +167,41 @@ void StatAnalysis::Init(LoopAll& l)
     l.SetCutVariables("cut_VBFR_Mgg10",        &myVBF_Mgg);
 
     // CP
+    l.SetCutVariables("cutnm1hir9EB_r9",             &sublead_r9);
+    l.SetCutVariables("cutnm1hir9EB_isoOverEt",      &sublead_isoOverEt);
+    l.SetCutVariables("cutnm1hir9EB_badisoOverEt",   &sublead_badisoOverEt);
+    l.SetCutVariables("cutnm1hir9EB_trkisooet",      &sublead_trkisooet);
+    l.SetCutVariables("cutnm1hir9EB_sieie",          &sublead_sieie);
+    l.SetCutVariables("cutnm1hir9EB_drtotk",         &sublead_drtotk);
+    l.SetCutVariables("cutnm1hir9EB_hovere",         &sublead_hovere);
+    l.SetCutVariables("cutnm1hir9EB_Mgg",            &sublead_mgg);
+
+    l.SetCutVariables("cutnm1lor9EB_r9",             &sublead_r9);
+    l.SetCutVariables("cutnm1lor9EB_isoOverEt",      &sublead_isoOverEt);
+    l.SetCutVariables("cutnm1lor9EB_badisoOverEt",   &sublead_badisoOverEt);
+    l.SetCutVariables("cutnm1lor9EB_trkisooet",      &sublead_trkisooet);
+    l.SetCutVariables("cutnm1lor9EB_sieie",          &sublead_sieie);
+    l.SetCutVariables("cutnm1lor9EB_drtotk",         &sublead_drtotk);
+    l.SetCutVariables("cutnm1lor9EB_hovere",         &sublead_hovere);
+    l.SetCutVariables("cutnm1lor9EB_Mgg",            &sublead_mgg);
+
+    l.SetCutVariables("cutnm1hir9EE_r9",             &sublead_r9);
+    l.SetCutVariables("cutnm1hir9EE_isoOverEt",      &sublead_isoOverEt);
+    l.SetCutVariables("cutnm1hir9EE_badisoOverEt",   &sublead_badisoOverEt);
+    l.SetCutVariables("cutnm1hir9EE_trkisooet",      &sublead_trkisooet);
+    l.SetCutVariables("cutnm1hir9EE_sieie",          &sublead_sieie);
+    l.SetCutVariables("cutnm1hir9EE_drtotk",         &sublead_drtotk);
+    l.SetCutVariables("cutnm1hir9EE_hovere",         &sublead_hovere);
+    l.SetCutVariables("cutnm1hir9EE_Mgg",            &sublead_mgg);
+
+    l.SetCutVariables("cutnm1lor9EE_r9",             &sublead_r9);
+    l.SetCutVariables("cutnm1lor9EE_isoOverEt",      &sublead_isoOverEt);
+    l.SetCutVariables("cutnm1lor9EE_badisoOverEt",   &sublead_badisoOverEt);
+    l.SetCutVariables("cutnm1lor9EE_trkisooet",      &sublead_trkisooet);
+    l.SetCutVariables("cutnm1lor9EE_sieie",          &sublead_sieie);
+    l.SetCutVariables("cutnm1lor9EE_drtotk",         &sublead_drtotk);
+    l.SetCutVariables("cutnm1lor9EE_hovere",         &sublead_hovere);
+    l.SetCutVariables("cutnm1lor9EE_Mgg",            &sublead_mgg);
 
 
     effSmearPars.categoryType = "2CatR9_EBEE";
@@ -717,6 +752,39 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     sumev += weight;
     // FIXME pass smeared R9
     int diphoton_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtCut, subleadEtCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
+    int diphoton_nm1_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoNOCUTS, leadEtCut, subleadEtCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
+
+    if(diphoton_nm1_id>-1)
+    {
+      TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphoton_nm1_id], l.dipho_vtxind[diphoton_nm1_id], &smeared_pho_energy[0]);
+      TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphoton_nm1_id], l.dipho_vtxind[diphoton_nm1_id], &smeared_pho_energy[0]);
+      TLorentzVector diphoton = lead_p4+sublead_p4;
+      
+      int photon_category   = l.PhotonCategory(l.dipho_subleadind[diphoton_nm1_id],2,2);
+      sublead_r9            = l.pho_r9[l.dipho_subleadind[diphoton_nm1_id]];
+      sublead_trkisooet     = (*l.pho_tkiso_recvtx_030_002_0000_10_01)[l.dipho_subleadind[diphoton_nm1_id]][l.dipho_vtxind[diphoton_nm1_id]]*50/sublead_p4.Et();
+      sublead_isoOverEt     = (l.pho_hcalsumetconedr04[l.dipho_subleadind[diphoton_nm1_id]]
+                            +  l.pho_ecalsumetconedr03[l.dipho_subleadind[diphoton_nm1_id]]
+                            +  (*l.pho_tkiso_recvtx_030_002_0000_10_01)[l.dipho_subleadind[diphoton_nm1_id]][l.dipho_vtxind[diphoton_nm1_id]]
+                            - 0.17*l.rho)*50/sublead_p4.Et();
+      sublead_badisoOverEt  = (l.pho_hcalsumetconedr04[l.dipho_subleadind[diphoton_nm1_id]]
+                            +  l.pho_ecalsumetconedr04[l.dipho_subleadind[diphoton_nm1_id]]
+                            +  l.pho_tkiso_badvtx_040_002_0000_10_01[l.dipho_subleadind[diphoton_nm1_id]]
+                            - 0.52*l.rho)*50/sublead_p4.Et();
+      
+      sublead_sieie         = l.pho_sieie[l.dipho_subleadind[diphoton_nm1_id]];
+      sublead_drtotk        = l.pho_drtotk_25_99[l.dipho_subleadind[diphoton_nm1_id]];
+      sublead_hovere        = l.pho_hoe[l.dipho_subleadind[diphoton_nm1_id]];
+      sublead_mgg           = diphoton.M();
+
+      int applyCutsType = 15 + photon_category;
+
+      float evweight = newweight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second] * genLevWeight * pileupWeight;
+      float myweight=1.;
+      if(evweight*newweight!=0) myweight=evweight/newweight;
+      l.ApplyCutsFill(0,applyCutsType, evweight, myweight);
+
+    }
 
     if(diphoton_id>-1)
     {
@@ -789,7 +857,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     }
 
     if((includeVBF || includeVHad)) {
-      if(includeVBF) diphotonVBF_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVBFCut, subleadEtVBFCut, 4,false, &smeared_pho_energy[0] ); 
+      if(includeVBF) diphotonVBF_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVBFCut, subleadEtVBFCut, 4,false, &smeared_pho_energy[0], true ); 
       if(includeVHad) diphotonVHad_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVHadCut, subleadEtVHadCut, 4,false, &smeared_pho_energy[0] ); 
 
       if(diphotonVBF_id>-1){
@@ -1167,7 +1235,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     bool VHadevent = false;
     std::pair<int,int> highestPtJets(-1,-1);
     if((includeVBF || includeVHad)&&l.jet_algoPF1_n>1) {
-      if(includeVBF) diphotonVBF_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVBFCut, subleadEtVBFCut, 4,false, &smeared_pho_energy[0] ); 
+      if(includeVBF) diphotonVBF_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVBFCut, subleadEtVBFCut, 4,false, &smeared_pho_energy[0], true); 
       if(includeVHad) diphotonVHad_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVHadCut, subleadEtVHadCut, 4,false, &smeared_pho_energy[0] ); 
 
       if(diphotonVBF_id>-1){
