@@ -62,6 +62,15 @@ public:
 	std::string GetSignalLabel(int) ;
 
   // for N-1
+  float sublead_r9;
+  float sublead_isoOverEt;
+  float sublead_badisoOverEt;
+  float sublead_trkisooet;
+  float sublead_sieie;
+  float sublead_drtotk;
+  float sublead_hovere;
+  float sublead_mgg;
+  
   float  myVBFLeadJPt;
   float  myVBFSubJPt;
   float  myVBFdEta;
