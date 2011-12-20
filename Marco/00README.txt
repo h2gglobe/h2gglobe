@@ -90,7 +90,7 @@ cp Marco/fitter.py PhotonAnalysis_scripts/fitter.py
 cp Marco/plotvariables.dat PhotonAnalysis_scripts/plotvariables.dat
 cp Marco/pu_weights_map.dat PhotonAnalysis_scripts/pu_weights_map.dat
 
-Specific for JIM
+******** Specific for JIM **************
 
 cp Marco/LoopAll.cc LoopAll.cc
 cp Marco/LoopAll.h LoopAll.h
@@ -105,22 +105,56 @@ cp Marco/cuts_marco.dat PhotonAnalysis_scripts/cuts.dat
 Before copying you should modify:
 
 cuts_marco.dat (first few cuts)
-minimal_statanalysis_input.dat (put the branches you need
+minimal_statanalysis_input.dat (put the branches you need)
+
+**** SPECIFIC FOR JIM ****
+In file minimal_statanalysis_input.dat remove the following couple of lines:
 
 ->
-This is a comment
+FOR JIM TO UNCOMMENT
+
+and
+
+FOR JIM TO UNCOMMENT
 ->
+ 
+This will take as inputs few more variables needed for the MVA.
+
+In file cuts.dat replace the first two lines with the following (change the value of the cuts to 1 = activate option):
+cutname=optree                      ncat=1  dir=0 fin=0   val=1.
+cutname=bdt                         ncat=1  dir=0 fin=0   val=1.
+
+
+Then to run use from h2gglobe/PhotonAnalysis_scripts:
+cd PhotonAnalysis_scripts/
+rm  ../Marco/jimdatafiles_5fb_Dec14_90_190.dat.pevents
+python fitter.py -i ../Marco/jimdatafiles_5fb_Dec14_90_190.dat --dryRun
+cd PhotonAnalysis_scripts/
+
+Run the following commands on different UAF machines:
+python fitter.py -i ../Marco/jimdatafiles_5fb_Dec14_90_190_dataA.dat >& jimdatafiles_5fb_Dec14_90_190_dataA.log
+python fitter.py -i ../Marco/jimdatafiles_5fb_Dec14_90_190_dataB.dat >& jimdatafiles_5fb_Dec14_90_190_dataB.log
+python fitter.py -i ../Marco/jimdatafiles_5fb_Dec14_90_190_signal.dat >& jimdatafiles_5fb_Dec14_90_190_signal.log
+python fitter.py -i ../Marco/jimdatafiles_5fb_Dec14_90_190_bg1.dat >& jimdatafiles_5fb_Dec14_90_190_bg1.log
+python fitter.py -i ../Marco/jimdatafiles_5fb_Dec14_90_190_bg2.dat >& jimdatafiles_5fb_Dec14_90_190_bg2.log
+
+When the jobs are completed:
+
+hadd final.root histograms_jimdatafiles_5fb_Dec14_90_190_dataA.root histograms_jimdatafiles_5fb_Dec14_90_190_dataB.root histograms_jimdatafiles_5fb_Dec14_90_190_signal.root histograms_jimdatafiles_5fb_Dec14_90_190_bg1.root histograms_jimdatafiles_5fb_Dec14_90_190_bg2.root
+
+*********** END OF SPECIFIC FOR JIM ******************
+
 
 then to run use from h2gglobe/PhotonAnalysis_scripts
 
 jimdatafiles_5fb_Dec14_90_190.dat
 and paste the lines in the first comment:
-
 cd PhotonAnalysis_scripts/
 rm  ../Marco/jimdatafiles_5fb_Dec14_90_190.dat.pevents
 python fitter.py -i ../Marco/jimdatafiles_5fb_Dec14_90_190.dat --dryRun
 cd PhotonAnalysis_scripts/
 python fitter.py -i ../Marco/jimdatafiles_5fb_Dec14_90_190.dat >& jimdatafiles_5fb_Dec14_90_190.log
+
 
 When you compile plotInteractive you need make clean; make -j 30
 Instructions for plotting in Marco/printAll.txt
