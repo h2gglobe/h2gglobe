@@ -1193,7 +1193,7 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
         float jet1ptcut =0.0;
         float jet2ptcut =0.0;
         
-        highestPtJets = Select2HighestPtJets(l, lead_p4, sublead_p4, jet1ptcut, jet2ptcut, *jet3);
+        highestPtJets = Select2HighestPtJets(l, lead_p4, sublead_p4, jet1ptcut, jet2ptcut, jet3);
 
 	if(jet3)
 	  cout<<"AAA MARCOMM Outside "<<jet3->Pt()<<endl;
@@ -1971,7 +1971,7 @@ std::string StatAnalysisExclusive::GetSignalLabel(int id){
 	
 }
 
-std::pair<int, int> StatAnalysisExclusive::Select2HighestPtJets(LoopAll& l, TLorentzVector& leadpho, TLorentzVector& subleadpho, float jtLMinPt, float jtTMinPt, TLorentzVector &jet3){
+std::pair<int, int> StatAnalysisExclusive::Select2HighestPtJets(LoopAll& l, TLorentzVector& leadpho, TLorentzVector& subleadpho, float jtLMinPt, float jtTMinPt, TLorentzVector* jet3){
 
   std::pair<int, int> myJets(-1,-1);
   std::pair<int, int> fail(-1,-1);
@@ -2066,12 +2066,13 @@ std::pair<int, int> StatAnalysisExclusive::Select2HighestPtJets(LoopAll& l, TLor
     }
   }
 
-  if(ind3>-1) &jet3 = (TLorentzVector*) l.jet_algoPF1_p4->At(ind3);
+  if(ind3>-1) 
+    jet3 = (TLorentzVector*) l.jet_algoPF1_p4->At(ind3);
 
   //cout<<"AAA MARCOMM "<<l.jet_algoPF1_n<<" "<<myJetsnew.first<<" "<<myJetsnew.second<<endl;
 
-  if(&jet3)
-    cout<<"AAA MARCOMM "<<ind3<<" "<<jet3.Pt()<<endl;
+  if(jet3)
+    cout<<"AAA MARCOMM "<<ind3<<" "<<jet3->Pt()<<endl;
 
   //if(myJets.first==-1) return fail;
   //return myJets;

@@ -101,7 +101,7 @@ public:
   float  myInclusive_Mgg;
   float  myInclusivePtHiggs;
 
-  std::pair<int, int> Select2HighestPtJets(LoopAll&, TLorentzVector& leadpho, TLorentzVector& subleadpho, float jtLMinPt, float jtTMinPt, TLorentzVector& jet3=0);
+  std::pair<int, int> Select2HighestPtJets(LoopAll&, TLorentzVector& leadpho, TLorentzVector& subleadpho, float jtLMinPt, float jtTMinPt, TLorentzVector* jet3=0);
   int RescaleJetEnergy(LoopAll&);
 
 	bool  doMCSmearing;
