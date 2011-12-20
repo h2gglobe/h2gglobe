@@ -101,7 +101,7 @@ public:
   float  myInclusive_Mgg;
   float  myInclusivePtHiggs;
 
-  std::pair<int, int> Select2HighestPtJets(LoopAll&, TLorentzVector& leadpho, TLorentzVector& subleadpho, float jtLMinPt, float jtTMinPt);
+  std::pair<int, int> Select2HighestPtJets(LoopAll&, TLorentzVector& leadpho, TLorentzVector& subleadpho, float jtLMinPt, float jtTMinPt, TLorentzVector& jet3=0);
   int RescaleJetEnergy(LoopAll&);
 
 	bool  doMCSmearing;
@@ -171,6 +171,25 @@ protected:
 TFile * opfile;
 TTree * optree;
 // Declaration of leaf types for jim's OLD ntuple
+
+Float_t   t_j1pt;
+Float_t   t_j1eta;
+Float_t   t_j1phi;
+
+Float_t   t_j2pt;
+Float_t   t_j2eta;
+Float_t   t_j2phi;
+
+Float_t   t_j3pt;
+Float_t   t_j3eta;
+Float_t   t_j3phi;
+
+Float_t   t_jjmass;
+Float_t   t_jjdeta;
+Float_t   t_jjzep;
+Float_t   t_jjdphi;
+
+
 Int_t           t_event;
 Int_t           t_run;
 Int_t           t_lumis;
@@ -765,7 +784,7 @@ Float_t BDT_ptom2(Int_t jentry, Int_t iPhoton, Int_t vtx, float mass);
 Float_t BDT_dipho2(Int_t jentry, Int_t ilindex, Int_t islindex, float lmva, float slmva, float diphopt, float mass);
 
  void HggBookOptree();
- void SetOutputNtupleVariables(int jentry, int itype, int leadind, int subleadind, int vtxind, float mass, TLorentzVector *leadp4, TLorentzVector *subleadp4, float evweight, float pileupWeight);
+ void SetOutputNtupleVariables(int jentry, int itype, int leadind, int subleadind, int vtxind, float mass, TLorentzVector *leadp4, TLorentzVector *subleadp4, float evweight, float pileupWeight, TLorentzVector * jet1=0, TLorentzVector * jet2=0, TLorentzVector * jet3=0);
 
 
  //float GetShiftValue(int run, float thiseta, float r9, int epoch=0);

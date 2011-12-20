@@ -46,10 +46,11 @@ void StatAnalysisExclusive::Term(LoopAll& l)
 
     std::cout << " nevents " <<  nevents << " " << sumwei << std::endl;
 
-    if(l.GetCutValue("optree")) {
-      ll->hfilereal->cd();
-      optree->Write(0,TObject::kWriteDelete);
-    }
+    //MMMMMMM if(l.GetCutValue("optree")) 
+      {
+	ll->hfilereal->cd();
+	optree->Write(0,TObject::kWriteDelete);
+      }
 
 //	kfacFile->Close();
 //	PhotonAnalysis::Term(l);
@@ -846,81 +847,83 @@ void StatAnalysisExclusive::Init(LoopAll& l)
     //JIM START OF THINGS
  
 
- photonCutsSet4=false;
-  photonCutsSet6=false;
-  photonCutsSet6pf=false;
+      photonCutsSet4=false;
+      photonCutsSet6=false;
+      photonCutsSet6pf=false;
+      
+      //DODELTARCUT=false;
+      
+      //GENMATCH_DELTAR_THRESHOLD = 0.1;
+      
+      //nduplicate=0;
+      
+      
+      if(l.typerun==0) {
+	setDiphoCuts();
+	if(l.GetCutValue("bdt")) {
+	  SetBDT();
+	}                            // jgb 
+	for(int idc=0;idc!=13;++idc) {
+	  std::cout << "\ncutdiphoptom         ";
+	  for(int ic=0;ic!=4;++ic){std::cout << "\t["<<idc<<"]["<<ic<<"]: " << cutdiphoptom[idc][ic];}
+	  std::cout << "\ncutfsubleadcutindex  ";
+	  for(int ic=0;ic!=4;++ic){std::cout << "\t["<<idc<<"]["<<ic<<"]: " << cutfsubleadcutindex[idc][ic];}
+	  std::cout << "\ncutfleadcutindex     ";
+	  for(int ic=0;ic!=4;++ic){std::cout << "\t["<<idc<<"]["<<ic<<"]: " << cutfleadcutindex[idc][ic];}
+	  std::cout << "\ncutetamax            ";
+	  for(int ic=0;ic!=4;++ic){std::cout << "\t["<<idc<<"]["<<ic<<"]: " << cutetamax[idc][ic];}
+	  std::cout << "\ncutetamin            ";
+	  for(int ic=0;ic!=4;++ic){std::cout << "\t["<<idc<<"]["<<ic<<"]: " << cutetamin[idc][ic];}
+	  std::cout << "\ncutsubleadptomass    ";
+	  for(int ic=0;ic!=4;++ic){std::cout << "\t["<<idc<<"]["<<ic<<"]: " << cutsubleadptomass[idc][ic];}
+	  std::cout << "\ncutleadptomass       ";
+	  for(int ic=0;ic!=4;++ic){std::cout << "\t["<<idc<<"]["<<ic<<"]: " << cutleadptomass[idc][ic];}
+	  std::cout << "\ncutsumptom              ";
+	  for(int ic=0;ic!=4;++ic){std::cout << "\t["<<idc<<"]["<<ic<<"]: " << cutsumptom[idc][ic];}
+	  std::cout << std::                    endl;
+	}
+	
+	for(int icutlevel=0;icutlevel!=phoNCUTLEVELS;++icutlevel) {
+	  std::cout << "CUT LEVEL: " << icutlevel << std::endl;
+	  for(int icat=0;icat!=4;++icat) std::cout << Ci4C_cut_lead_isosumoet[icutlevel][icat] << "\t";
+	  std::cout << std::endl;
+	  for(int icat=0;icat!=4;++icat) std::cout << Ci4C_cut_lead_isosumoetbad[icutlevel][icat] << "\t";
+	  std::cout << std::endl;
+	  for(int icat=0;icat!=4;++icat) std::cout << Ci4C_cut_lead_trkisooet[icutlevel][icat] << "\t";
+	  std::cout << std::endl;
+	  for(int icat=0;icat!=4;++icat) std::cout << Ci4C_cut_lead_sieie[icutlevel][icat] << "\t";
+	  std::cout << std::endl;
+	  for(int icat=0;icat!=4;++icat) std::cout << Ci4C_cut_lead_hovere[icutlevel][icat] << "\t";
+	  std::cout << std::endl;
+	  for(int icat=0;icat!=4;++icat) std::cout << Ci4C_cut_lead_r9[icutlevel][icat] << "\t";
+	  std::cout << std::endl;
+	  for(int icat=0;icat!=4;++icat) std::cout << Ci4C_cut_lead_drtotk_25_99[icutlevel][icat] << "\t";
+	  std::cout << std::endl;
+	  for(int icat=0;icat!=4;++icat) std::cout << Ci4C_cut_lead_pixel[icutlevel][icat] << "\t";
+	  std::cout << std::endl;
+	}
+	
+	
+	for(int iiii=0;iiii!=21;++iiii) {
+	  allevtvtxcount[iiii]=0;
+	  goodevtvtxcount1[iiii]=0;
+	  goodevtvtxcount14[iiii]=0;
+	  goodevtvtxcount17[iiii]=0;
+	  goodevtvtxcount2[iiii]=0;
+	}
+	
+      //END JIM
+      }
 
-  //DODELTARCUT=false;
-
-  //GENMATCH_DELTAR_THRESHOLD = 0.1;
-
-  //nduplicate=0;
-
-
-  if(l.typerun==0) {
-    setDiphoCuts();
-    if(l.GetCutValue("bdt")) {
-      SetBDT();
-    }                            // jgb 
-  for(int idc=0;idc!=13;++idc) {
-    std::cout << "\ncutdiphoptom         ";
-    for(int ic=0;ic!=4;++ic){std::cout << "\t["<<idc<<"]["<<ic<<"]: " << cutdiphoptom[idc][ic];}
-    std::cout << "\ncutfsubleadcutindex  ";
-    for(int ic=0;ic!=4;++ic){std::cout << "\t["<<idc<<"]["<<ic<<"]: " << cutfsubleadcutindex[idc][ic];}
-    std::cout << "\ncutfleadcutindex     ";
-    for(int ic=0;ic!=4;++ic){std::cout << "\t["<<idc<<"]["<<ic<<"]: " << cutfleadcutindex[idc][ic];}
-    std::cout << "\ncutetamax            ";
-    for(int ic=0;ic!=4;++ic){std::cout << "\t["<<idc<<"]["<<ic<<"]: " << cutetamax[idc][ic];}
-    std::cout << "\ncutetamin            ";
-    for(int ic=0;ic!=4;++ic){std::cout << "\t["<<idc<<"]["<<ic<<"]: " << cutetamin[idc][ic];}
-    std::cout << "\ncutsubleadptomass    ";
-    for(int ic=0;ic!=4;++ic){std::cout << "\t["<<idc<<"]["<<ic<<"]: " << cutsubleadptomass[idc][ic];}
-    std::cout << "\ncutleadptomass       ";
-    for(int ic=0;ic!=4;++ic){std::cout << "\t["<<idc<<"]["<<ic<<"]: " << cutleadptomass[idc][ic];}
-    std::cout << "\ncutsumptom              ";
-    for(int ic=0;ic!=4;++ic){std::cout << "\t["<<idc<<"]["<<ic<<"]: " << cutsumptom[idc][ic];}
-    std::cout << std::                    endl;
-  }
-
-  for(int icutlevel=0;icutlevel!=phoNCUTLEVELS;++icutlevel) {
-    std::cout << "CUT LEVEL: " << icutlevel << std::endl;
-    for(int icat=0;icat!=4;++icat) std::cout << Ci4C_cut_lead_isosumoet[icutlevel][icat] << "\t";
-    std::cout << std::endl;
-    for(int icat=0;icat!=4;++icat) std::cout << Ci4C_cut_lead_isosumoetbad[icutlevel][icat] << "\t";
-    std::cout << std::endl;
-    for(int icat=0;icat!=4;++icat) std::cout << Ci4C_cut_lead_trkisooet[icutlevel][icat] << "\t";
-    std::cout << std::endl;
-    for(int icat=0;icat!=4;++icat) std::cout << Ci4C_cut_lead_sieie[icutlevel][icat] << "\t";
-    std::cout << std::endl;
-    for(int icat=0;icat!=4;++icat) std::cout << Ci4C_cut_lead_hovere[icutlevel][icat] << "\t";
-    std::cout << std::endl;
-    for(int icat=0;icat!=4;++icat) std::cout << Ci4C_cut_lead_r9[icutlevel][icat] << "\t";
-    std::cout << std::endl;
-    for(int icat=0;icat!=4;++icat) std::cout << Ci4C_cut_lead_drtotk_25_99[icutlevel][icat] << "\t";
-    std::cout << std::endl;
-    for(int icat=0;icat!=4;++icat) std::cout << Ci4C_cut_lead_pixel[icutlevel][icat] << "\t";
-    std::cout << std::endl;
-  }
-
-
-  for(int iiii=0;iiii!=21;++iiii) {
-    allevtvtxcount[iiii]=0;
-    goodevtvtxcount1[iiii]=0;
-    goodevtvtxcount14[iiii]=0;
-    goodevtvtxcount17[iiii]=0;
-    goodevtvtxcount2[iiii]=0;
-  }
-
-  if(l.GetCutValue("optree")) {
-    HggBookOptree();
-  }
-  }
-
-    //END JIM
     }
-
+      
+    //if(l.GetCutValue("optree")) 
+    {
+      HggBookOptree();
+    }
+    
     if(PADEBUG) 
-	cout << "InitRealStatAnalysisExclusive END"<<endl;
+      cout << "InitRealStatAnalysisExclusive END"<<endl;
 	
     // FIXME book of additional variables
 }
@@ -1179,6 +1182,10 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
       diphotonVBF_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVBFCut, subleadEtVBFCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
       diphotonVHad_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVHadCut, subleadEtVHadCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
 
+      TLorentzVector* jet1=0;
+      TLorentzVector* jet2=0;
+      TLorentzVector* jet3=0;
+
 
       if(diphotonVBF_id>-1){
         TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphotonVBF_id], l.dipho_vtxind[diphotonVBF_id], &smeared_pho_energy[0]);
@@ -1186,7 +1193,10 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
         float jet1ptcut =0.0;
         float jet2ptcut =0.0;
         
-        highestPtJets = Select2HighestPtJets(l, lead_p4, sublead_p4, jet1ptcut, jet2ptcut );
+        highestPtJets = Select2HighestPtJets(l, lead_p4, sublead_p4, jet1ptcut, jet2ptcut, *jet3);
+
+	if(jet3)
+	  cout<<"AAA MARCOMM Outside "<<jet3->Pt()<<endl;
 
         bool VBFpresel = (highestPtJets.first>=0)&&(highestPtJets.second>=0);
 
@@ -1227,7 +1237,7 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
 
 	if(highestPtJets.first>=0) {
 
-	  TLorentzVector* jet1 = (TLorentzVector*)l.jet_algoPF1_p4->At(highestPtJets.first);
+	  jet1 = (TLorentzVector*)l.jet_algoPF1_p4->At(highestPtJets.first);
 
           myAllLeadJPt = jet1->Pt();
           myAllLeadJEta = jet1->Eta();
@@ -1239,8 +1249,8 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
 
 	  //cout<<"MARCOMM "<<highestPtJets.first<<" "<<highestPtJets.second<<endl;
 
-          TLorentzVector* jet1 = (TLorentzVector*)l.jet_algoPF1_p4->At(highestPtJets.first);
-          TLorentzVector* jet2 = (TLorentzVector*)l.jet_algoPF1_p4->At(highestPtJets.second);
+          jet1 = (TLorentzVector*)l.jet_algoPF1_p4->At(highestPtJets.first);
+          jet2 = (TLorentzVector*)l.jet_algoPF1_p4->At(highestPtJets.second);
           TLorentzVector dijet = (*jet1) + (*jet2);
           
           //myAllLeadJPt = jet1->Pt();
@@ -1275,8 +1285,23 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
 	int category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,0.,2,2,1);
 	int category2 = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,0.,2,1,1);
 
+	if(!l.GetCutValue("optree")) {
+	  //FILL OPTREE FOR ME
+
+	  int itypepass=cur_type;
+	
 
 
+	if(jet3)
+	  cout<<"AAA MARCOMM bef set "<<jet3->Pt()<<endl;
+
+	  SetOutputNtupleVariables(jentry, itypepass, l.dipho_leadind[diphotonVBF_id], l.dipho_subleadind[diphotonVBF_id], l.dipho_vtxind[diphotonVBF_id], diphoton.M(), &lead_p4, &sublead_p4, evweight, pileupWeight, jet1, jet2, jet3);
+	  
+	  optree->Fill();
+	  int noptree=optree->GetEntries();
+	  if(noptree<1000) cout<<" filling optree n="<<noptree<<endl;
+	  if(noptree%1000==0||noptree%1000==1) cout<<" optree n="<<noptree<<endl;
+	}
 
 	if(l.ApplyCut("massrange",myAll_Mgg,0)) {
 
@@ -1946,13 +1971,14 @@ std::string StatAnalysisExclusive::GetSignalLabel(int id){
 	
 }
 
-std::pair<int, int> StatAnalysisExclusive::Select2HighestPtJets(LoopAll& l, TLorentzVector& leadpho, TLorentzVector& subleadpho, float jtLMinPt, float jtTMinPt){
+std::pair<int, int> StatAnalysisExclusive::Select2HighestPtJets(LoopAll& l, TLorentzVector& leadpho, TLorentzVector& subleadpho, float jtLMinPt, float jtTMinPt, TLorentzVector &jet3){
 
   std::pair<int, int> myJets(-1,-1);
   std::pair<int, int> fail(-1,-1);
 
   std::pair<int, int> myJetsnew(-1,-1);
   std::pair<float, float> myJetspt(-1.,-1.);
+  std::pair<float, float> myJetsnewpt(-1.,-1.);
 
   float dr2pho = 0.5;
   float dr2jet = 0.5; //Shoud change marco
@@ -1962,6 +1988,7 @@ std::pair<int, int> StatAnalysisExclusive::Select2HighestPtJets(LoopAll& l, TLor
   float j1pt=-1;
   float j2pt=-1;
 
+  /*
   // select ighest pt jets
   // veto jets close to photons or each other
   for(int j1_i=0; j1_i<l.jet_algoPF1_n; j1_i++){
@@ -1997,6 +2024,10 @@ std::pair<int, int> StatAnalysisExclusive::Select2HighestPtJets(LoopAll& l, TLor
       }
     }
   }
+  */
+
+  float pt3=0;
+  int ind3=-1;
 
   for(int j1_i=0; j1_i<l.jet_algoPF1_n; j1_i++){
     j1p4 = (TLorentzVector*) l.jet_algoPF1_p4->At(j1_i);
@@ -2009,24 +2040,44 @@ std::pair<int, int> StatAnalysisExclusive::Select2HighestPtJets(LoopAll& l, TLor
 
     //if(j1pt<jtTMinPt) continue;
 
-    if(j1pt>myJetspt.first) {
+    if(j1pt>myJetsnewpt.first) {
+
+      pt3=myJetsnewpt.second;
+      ind3=myJetsnew.second;
+
       myJetsnew.second=myJetsnew.first;
-      myJetspt.second=myJetspt.first;
-      myJetspt.first=j1pt;
+      myJetsnewpt.second=myJetsnewpt.first;
+      myJetsnewpt.first=j1pt;
       myJetsnew.first=j1_i;
     }
-    else if(j1pt>myJetspt.second) {
-      myJetspt.second=j1pt;
+    else if(j1pt>myJetsnewpt.second) {
+
+      pt3=myJetsnewpt.second;
+      ind3=myJetsnew.second;
+
+      myJetsnewpt.second=j1pt;
       myJetsnew.second=j1_i;
+    }
+    else if(j1pt>pt3) {
+
+      pt3=j1pt;
+      ind3=j1_i;
+
     }
   }
 
+  if(ind3>-1) &jet3 = (TLorentzVector*) l.jet_algoPF1_p4->At(ind3);
+
   //cout<<"AAA MARCOMM "<<l.jet_algoPF1_n<<" "<<myJetsnew.first<<" "<<myJetsnew.second<<endl;
+
+  if(&jet3)
+    cout<<"AAA MARCOMM "<<ind3<<" "<<jet3.Pt()<<endl;
 
   //if(myJets.first==-1) return fail;
   //return myJets;
 
-  if(myJetsnew.second!=-1&&myJetspt.first>jtTMinPt&&myJetspt.second>jtTMinPt) {
+  /*
+  if(myJetsnew.second!=-1&&myJetsnewpt.first>jtTMinPt&&myJetsnewpt.second>jtTMinPt) {
     if(myJetsnew!=myJets) {
       j1p4 = (TLorentzVector*) l.jet_algoPF1_p4->At(myJetsnew.first);
       j2p4 = (TLorentzVector*) l.jet_algoPF1_p4->At(myJetsnew.second);
@@ -2035,6 +2086,7 @@ std::pair<int, int> StatAnalysisExclusive::Select2HighestPtJets(LoopAll& l, TLor
       //cout<<"myJetsnew myJets "<<myJetspt.first<<" "<<myJetspt.second<<" "<<jtLMinPt<<jtTMinPt<<endl;
     }
   }
+  */
 
   return myJetsnew;
 }
@@ -2049,8 +2101,6 @@ int  StatAnalysisExclusive::RescaleJetEnergy(LoopAll& l) {
   return 1;
 }
 
-
-
 void StatAnalysisExclusive::HggBookOptree() {
 
   //opfile = new TFile("optNtuple.root","RECREATE","optimization ntuple");
@@ -2058,6 +2108,24 @@ void StatAnalysisExclusive::HggBookOptree() {
   //ll->outputFile->cd();  //MARCO CHECK THIS
   ll->hfilereal->cd();  //MARCO CHECK THIS
   optree= new TTree("ntuple","Hgg optimization Tree");
+
+  optree->Branch("j1pt",&t_j1pt,"j1pt/F",2000000);
+  optree->Branch("j1eta",&t_j1eta,"j1eta/F",2000000);
+  optree->Branch("j1phi",&t_j1phi,"j1phi/F",2000000);
+  optree->Branch("j2pt",&t_j2pt,"j2pt/F",2000000);
+  optree->Branch("j2eta",&t_j2eta,"j2eta/F",2000000);
+  optree->Branch("j2phi",&t_j2phi,"j2phi/F",2000000);
+
+  optree->Branch("j3pt",&t_j3pt,"j3pt/F",2000000);
+  optree->Branch("j3eta",&t_j3eta,"j3eta/F",2000000);
+  optree->Branch("j3phi",&t_j3phi,"j3phi/F",2000000);
+
+  optree->Branch("jjmass",&t_jjmass,"jjmass/F",2000000);
+  optree->Branch("jjzep",&t_jjzep,"jjzep/F",2000000);
+  optree->Branch("jjdeta",&t_jjdeta,"jjdeta/F",2000000);
+  optree->Branch("jjdphi",&t_jjdphi,"jjdphi/F",2000000);
+
+
   //event vars
   optree->Branch("run",&t_run,"run/I",2000000);
   optree->Branch("lumis",&t_lumis,"lumis/I",2000000);
@@ -4041,7 +4109,7 @@ Float_t StatAnalysisExclusive::BDT_dipho2(Int_t jentry, Int_t isl, Int_t il, flo
 }
 
 
-void StatAnalysisExclusive::SetOutputNtupleVariables(int jentry, int itype, int leadind, int subleadind, int vtxind, float mass, TLorentzVector *leadp4, TLorentzVector *subleadp4, float evweight, float pileupWeight) {
+void StatAnalysisExclusive::SetOutputNtupleVariables(int jentry, int itype, int leadind, int subleadind, int vtxind, float mass, TLorentzVector *leadp4, TLorentzVector *subleadp4, float evweight, float pileupWeight, TLorentzVector * jet1, TLorentzVector * jet2, TLorentzVector * jet3) {
 
   //FIX itype
   itype = itype_jim(itype);
@@ -4055,6 +4123,38 @@ void StatAnalysisExclusive::SetOutputNtupleVariables(int jentry, int itype, int 
 
   //TVector3 leadcalopos = *((TVector3*)ll->pho_calopos->At(leadind));
   //TVector3 subleadcalopos = *((TVector3*)ll->pho_calopos->At(subleadind));
+
+
+
+  t_j1pt=myAllLeadJPt;
+  t_j1eta=myAllLeadJEta;
+  t_j1phi=-20;
+  if(jet1) t_j1phi=jet1->Phi();
+
+  t_j2pt=myAllSubJPt;
+  t_j2eta=myAllSubJEta;
+  t_j2phi=-20;
+  if(jet2) t_j2phi=jet2->Phi();
+
+  t_jjmass=myAll_Mjj;
+  t_jjdeta=myAlldEta;
+  t_jjzep=myAllZep;
+  t_jjdphi=myAlldPhi;
+
+
+  t_j3pt=0.;
+  t_j3eta=0.;
+  t_j3phi=0.;
+
+	if(jet3)
+	  cout<<"AAA MARCOMM in set "<<jet3->Pt()<<endl;
+
+  if(jet3) {
+    t_j3pt=jet3->Pt();
+    t_j3eta=jet3->Eta();
+    t_j3phi=jet3->Phi();
+  }
+
   Float_t leadetanonabs = (((TLorentzVector*)ll->sc_p4->At(ll->pho_scind[leadind]))->Eta());
   Float_t subleadetanonabs = (((TLorentzVector*)ll->sc_p4->At(ll->pho_scind[subleadind]))->Eta());
   Float_t leadeta = fabs(leadetanonabs);
@@ -4184,6 +4284,13 @@ if(jentry%1000==1&&itype>0&&itype%1000==1) cout<<jentry<<"  "<<itype<<"  mass="<
   t_rho = ll->rho;
   t_nvtx = ll->vtx_std_n;
 
+
+
+  if(!ll->GetCutValue("optree")) return;
+
+
+
+
   if(MPDEBUGCOPY) cout << "SetOutputNtupleVariables 02  "<<endl;
 
   // cic index begin
@@ -4192,10 +4299,12 @@ if(jentry%1000==1&&itype>0&&itype%1000==1) cout<<jentry<<"  "<<itype<<"  mass="<
 //MARCO FIX CHECK
   t_subleadci6cindex = PhotonCiCSelectionLevelJim(subleadind,6,vtxind,1);
 
-//MARCO FIX CHECK
+
+  //MARCO FIX CHECK
   t_leadci6cpfindex = PhotonCiCpfSelectionLevelJim(leadind,6,vtxind,0);
-//MARCO FIX CHECK
+  //MARCO FIX CHECK
   t_subleadci6cpfindex = PhotonCiCpfSelectionLevelJim(subleadind,6,vtxind,1);
+  
 
   t_subleadci6cpfmva = 0.;
   t_subleadci6cpfmvacat = 0.;

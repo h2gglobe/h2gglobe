@@ -78,7 +78,6 @@ Signal samples
 typ=-49 ind=1 draw=1  Nam=gluglu_H_gg_150_pu2011  Dir=/nfs-6/userdata/mpieri/h2g_V11_04_01/h2gred_official_transDec08/MC_Sig_Fall11_S6/GluGluToHToGG_M-150_7TeV  red=0 lum=1000000.0  xsec=0.01428 kfac=1.000000  scal=1.000000
 typ=-50 ind=2 draw=1  Nam=vbf_H_gg_150_pu2011     Dir=/nfs-6/userdata/mpieri/h2g_V11_04_01/h2gred_official_transDec08/MC_Sig_Fall11_S6/VBF_HToGG_M-150_7TeV      red=0 lum=1000000.0  xsec=0.001307912 kfac=1.000000  scal=1.000000
 typ=-52 ind=4 draw=1  Nam=wz_H_gg_150_pu2011      Dir=/nfs-6/userdata/mpieri/h2g_V11_04_01/h2gred_official_transDec08/MC_Sig_Fall11_S6/WH_ZH_HToGG_M-150_7TeV    red=0 lum=1000000.0  xsec=0.000641104 kfac=1.000000  scal=1.000000
-typ=-52 ind=4 draw=1  Nam=wz_H_gg_150_pu2011      Dir=/nfs-6/userdata/mpieri/h2g_V11_04_01/h2gred_official_transDec08/MC_Sig_Fall11_S6/WH_ZH_HToGG_M-150_7TeV    red=0 lum=1000000.0  xsec=0.000641104 kfac=1.000000  scal=1.000000
 
 typ=-45 ind=1 draw=1  Nam=gluglu_H_gg_145_pu2011  Dir=/nfs-6/userdata/mpieri/h2g_V11_04_01/h2gred_official_transDec08/MC_Sig_Fall11_S6/GluGluToHToGG_M-145_7TeV  red=0 lum=1000000.0  xsec=0.0188209 kfac=1.000000  scal=1.000000
 typ=-46 ind=2 draw=1  Nam=vbf_H_gg_145_pu2011     Dir=/nfs-6/userdata/mpieri/h2g_V11_04_01/h2gred_official_transDec08/MC_Sig_Fall11_S6/VBF_HToGG_M-145_7TeV      red=0 lum=1000000.0  xsec=0.00167668 kfac=1.000000  scal=1.000000

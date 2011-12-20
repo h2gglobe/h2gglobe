@@ -54,7 +54,6 @@ setmax 26
 write png
 setmax 0
 
-
 j 26
 setmax 0
 write png
@@ -64,7 +63,6 @@ j 27
 setmax 30
 write png
 setmax 0
-
 
 j 28
 setmax 11000
@@ -76,7 +74,6 @@ setmax 65
 write png
 setmax 0
 
-
 j 30
 setmax 6000
 write png
@@ -87,7 +84,6 @@ setmax 25
 write png
 setmax 0
 
-
 j 32
 setmax 5000
 write png
@@ -97,7 +93,6 @@ j 33
 setmax 45
 write png
 setmax 0
-
 
 j 34
 setmax 8500
@@ -111,6 +106,16 @@ setmax 0
 
 j 36
 setmax 0
+write png
+setmax 0
+
+j 37
+setmax 32
+write png
+setmax 0
+
+j 38
+setmax 1400
 write png
 setmax 0
 
@@ -135,16 +140,14 @@ write png
 setmax 0
 
 j 43
-setmax 30
+setmax 36
 write png
 setmax 0
-
 
 j 44
 setmax 950
 write png
 setmax 0
-
 
 j 45
 setmax 36
@@ -153,7 +156,7 @@ setmax 0
 
 
 j 46
-setmax 800
+setmax 900
 write png
 setmax 0
 
@@ -189,7 +192,7 @@ write png
 setmax 0
 
 j 53
-setmax 30
+setmax 32
 write png
 setmax 0
 
@@ -230,6 +233,11 @@ write png
 setmax 0
 
 j 73
+setmax 140
+write png
+setmax 0
+
+j 74
 setmax 140
 write png
 setmax 0
@@ -1035,4 +1043,632 @@ j 80
 setmax 26
 write png
 setmax 0
+
+
+
+
+
+FINAL ONES
+
+
+ptHiggs
+
+j 217
+setmax 6000
+write png
+
+setmax 50000
+setmin 10
+log
+write png
+log
+setmax 0
+setmin 0
+
+n
+setmax 6000
+write png
+
+setmax 50000
+setmin 10
+log
+write png
+log
+setmax 0
+setmin 0
+
+
+Jets...
+
+
+
+
+
+j 193
+setmax 850
+write png
+setmax 0
+
+j 194
+setmax 0
+write png
+setmax 0
+
+j 195
+setmax 700
+write png
+setmax 0
+
+j 196
+setmax 2000
+write png
+setmax 0
+
+j 197
+setmax 2200
+write png
+setmax 0
+
+j 198
+setmax 0
+write png
+setmax 0
+
+j 199
+setmax 600
+write png
+setmax 0
+
+j 200
+setmax 1100
+write png
+setmax 0
+
+j 201
+setmax 800
+write png
+setmax 0
+
+j 202
+setmax 1200
+write png
+setmax 0
+
+j 203
+setmax 900
+write png
+setmax 0
+
+j 204
+setmax 0
+write png
+setmax 0
+
+j 205
+setmax 0
+write png
+setmax 0
+
+j 206
+setmax 0
+write png
+setmax 0
+
+
+j 207
+setmax 1500
+write png
+setmax 0
+
+j 208
+setmax 1500
+write png
+setmax 0
+
+j 209
+setmax 1400
+write png
+setmax 0
+
+j 210
+setmax 1400
+write png
+setmax 0
+
+j 211
+setmax 1300
+write png
+setmax 0
+
+j 212
+setmax 1300
+write png
+setmax 0
+
+j 213
+setmax 4500
+write png
+setmax 0
+
+j 214
+setmax 4500
+write png
+setmax 0
+
+
+
+
+
+
+
+
+
+j 235
+setmax 1000
+write png
+setmax 0
+
+j 239
+setmax 600
+write png
+setmax 0
+
+j 240
+setmax 1000
+write png
+setmax 0
+
+j 241
+setmax 0
+write png
+setmax 0
+
+j 242
+setmax 0
+write png
+setmax 0
+
+j 243
+setmax 500
+write png
+setmax 0
+
+j 244
+setmax 500
+write png
+setmax 0
+
+j 245
+setmax 550
+write png
+setmax 0
+
+j 246
+setmax 550
+write png
+setmax 0
+
+
+j 247
+setmax 800
+write png
+setmax 0
+
+j 248
+setmax 800
+write png
+setmax 0
+
+
+j 249
+setmax 2000
+write png
+setmax 0
+
+
+j 250
+setmax 2000
+write png
+setmax 0
+
+
+j 251
+setmax 1500
+write png
+setmax 0
+
+
+j 253
+setmax 1300
+write png
+setmax 0
+
+j 255
+setmax 1200
+write png
+setmax 0
+
+j 257
+setmax 4500
+write png
+setmax 0
+
+
+
+
+
+Different scale
+
+
+
+
+j 177
+setmax 26
+write png
+setmax 0
+
+j 178
+setmax 26
+write png
+setmax 0
+
+
+
+j 177
+setmax 26
+cats
+write png
+setmax 0
+cats
+
+j 178
+setmax 26
+cats
+write png
+setmax 0
+cats
+
+
+
+j 177
+setmax 26
+cats
+n
+write png
+setmax 0
+cats
+
+j 178
+setmax 26
+cats
+n
+write png
+setmax 0
+cats
+
+
+
+
+####   FITS JetPT
+
+ root  histograms_marcodatafiles_5fb_Dec10_rereco_all_90_190_LAST.root
+
+float fmin=30.
+float fmax=150.
+
+
+VBFLeadJPt_sequential_cat0_Data->Fit("expo","","",fmin,fmax);
+VBFLeadJPt_sequential_cat0_Data->Draw("EP");
+VBFLeadJPt1_sequential_cat0_Data->Fit("expo","","",fmin,fmax);
+VBFLeadJPt1_sequential_cat0_Data->Draw("EP");
+VBFLeadJPt2_sequential_cat0_Data->Fit("expo","","",fmin,fmax);
+VBFLeadJPt2_sequential_cat0_Data->Draw("EP");
+VBFLeadJPt3_sequential_cat0_Data->Fit("expo","","",fmin,fmax);
+VBFLeadJPt3_sequential_cat0_Data->Draw("EP");
+VBFLeadJPt_nminus1_cat0_Data->Fit("expo","","",fmin,fmax);
+VBFLeadJPt_nminus1_cat0_Data->Draw("EP");
+
+
+VBFSubJPt_sequential_cat0_Data->Fit("expo","","",fmin,fmax);
+VBFSubJPt_sequential_cat0_Data->Draw("EP");
+VBFSubJPt1_sequential_cat0_Data->Fit("expo","","",fmin,fmax);
+VBFSubJPt1_sequential_cat0_Data->Draw("EP");
+VBFSubJPt2_sequential_cat0_Data->Fit("expo","","",fmin,fmax);
+VBFSubJPt2_sequential_cat0_Data->Draw("EP");
+VBFSubJPt3_sequential_cat0_Data->Fit("expo","","",fmin,fmax);
+VBFSubJPt3_sequential_cat0_Data->Draw("EP");
+VBFSubJPt_nminus1_cat0_Data->Fit("expo","","",fmin,fmax);
+VBFSubJPt_nminus1_cat0_Data->Draw("EP");
+
+
+
+
+LEAD and SUB
+
+VBFLeadJPt_sequential_cat0_Data->Fit("expo","","",fmin,fmax);
+VBFLeadJPt_sequential_cat0_Data->Draw("EP");
+VBFLeadJPt_nminus1_cat0_Data->Fit("expo","","",fmin,fmax);
+VBFLeadJPt_nminus1_cat0_Data->Draw("EP");
+
+VBFsrLeadJPt_sequential_cat0_Data->Fit("expo","","",fmin,fmax);
+VBFsrLeadJPt_sequential_cat0_Data->Draw("EP");
+VBFsrLeadJPt_nminus1_cat0_Data->Fit("expo","","",fmin,fmax);
+VBFsrLeadJPt_nminus1_cat0_Data->Draw("EP");
+
+VBF30LeadJPt_sequential_cat0_Data->Fit("expo","","",fmin,fmax);
+VBF30LeadJPt_sequential_cat0_Data->Draw("EP");
+VBF30LeadJPt_nminus1_cat0_Data->Fit("expo","","",fmin,fmax);
+VBF30LeadJPt_nminus1_cat0_Data->Draw("EP");
+
+VBF_ABLeadJPt_sequential_cat0_Data->Fit("expo","","",fmin,fmax);
+VBF_ABLeadJPt_sequential_cat0_Data->Draw("EP");
+VBF_ABLeadJPt_nminus1_cat0_Data->Fit("expo","","",fmin,fmax);
+VBF_ABLeadJPt_nminus1_cat0_Data->Draw("EP");
+
+VBF_ABLeadJPt_sequential_cat1_Data->Fit("expo","","",fmin,fmax);
+VBF_ABLeadJPt_sequential_cat1_Data->Draw("EP");
+VBF_ABLeadJPt_nminus1_cat1_Data->Fit("expo","","",fmin,fmax);
+VBF_ABLeadJPt_nminus1_cat1_Data->Draw("EP");
+
+AllLeadJPt_sequential_cat0_Data->Fit("expo","","",fmin,fmax);
+AllLeadJPt_sequential_cat0_Data->Draw("EP");
+AllLeadJPt_nminus1_cat0_Data->Fit("expo","","",fmin,fmax);
+AllLeadJPt_nminus1_cat0_Data->Draw("EP");
+
+AllLeadJPt1_sequential_cat0_Data->Fit("expo","","",fmin,fmax);
+AllLeadJPt1_sequential_cat0_Data->Draw("EP");
+
+All2LeadJPt_sequential_cat0_Data->Fit("expo","","",fmin,fmax);
+All2LeadJPt_sequential_cat0_Data->Draw("EP");
+All2LeadJPt_nminus1_cat0_Data->Fit("expo","","",fmin,fmax);
+All2LeadJPt_nminus1_cat0_Data->Draw("EP");
+
+All2LeadJPt1_sequential_cat0_Data->Fit("expo","","",fmin,fmax);
+All2LeadJPt1_sequential_cat0_Data->Draw("EP");
+
+
+
+VBFSubJPt_sequential_cat0_Data->Fit("expo","","",fmin,fmax);
+VBFSubJPt_sequential_cat0_Data->Draw("EP");
+VBFSubJPt_nminus1_cat0_Data->Fit("expo","","",fmin,fmax);
+VBFSubJPt_nminus1_cat0_Data->Draw("EP");
+
+VBFsrSubJPt_sequential_cat0_Data->Fit("expo","","",fmin,fmax);
+VBFsrSubJPt_sequential_cat0_Data->Draw("EP");
+VBFsrSubJPt_nminus1_cat0_Data->Fit("expo","","",fmin,fmax);
+VBFsrSubJPt_nminus1_cat0_Data->Draw("EP");
+
+VBF30SubJPt_sequential_cat0_Data->Fit("expo","","",fmin,fmax);
+VBF30SubJPt_sequential_cat0_Data->Draw("EP");
+VBF30SubJPt_nminus1_cat0_Data->Fit("expo","","",fmin,fmax);
+VBF30SubJPt_nminus1_cat0_Data->Draw("EP");
+
+VBF_ABSubJPt_sequential_cat0_Data->Fit("expo","","",fmin,fmax);
+VBF_ABSubJPt_sequential_cat0_Data->Draw("EP");
+VBF_ABSubJPt_nminus1_cat0_Data->Fit("expo","","",fmin,fmax);
+VBF_ABSubJPt_nminus1_cat0_Data->Draw("EP");
+
+VBF_ABSubJPt_sequential_cat1_Data->Fit("expo","","",fmin,fmax);
+VBF_ABSubJPt_sequential_cat1_Data->Draw("EP");
+VBF_ABSubJPt_nminus1_cat1_Data->Fit("expo","","",fmin,fmax);
+VBF_ABSubJPt_nminus1_cat1_Data->Draw("EP");
+
+AllSubJPt_sequential_cat0_Data->Fit("expo","","",fmin,fmax);
+AllSubJPt_sequential_cat0_Data->Draw("EP");
+AllSubJPt_nminus1_cat0_Data->Fit("expo","","",fmin,fmax);
+AllSubJPt_nminus1_cat0_Data->Draw("EP");
+
+AllSubJPt1_sequential_cat0_Data->Fit("expo","","",fmin,fmax);
+AllSubJPt1_sequential_cat0_Data->Draw("EP");
+
+All2SubJPt_sequential_cat0_Data->Fit("expo","","",fmin,fmax);
+All2SubJPt_sequential_cat0_Data->Draw("EP");
+All2SubJPt_nminus1_cat0_Data->Fit("expo","","",fmin,fmax);
+All2SubJPt_nminus1_cat0_Data->Draw("EP");
+
+All2SubJPt1_sequential_cat0_Data->Fit("expo","","",fmin,fmax);
+All2SubJPt1_sequential_cat0_Data->Draw("EP");
+
+
+
+
+
+
+
+
+
+
+VBFLeadJEta_sequential_cat0_Data->Draw("EP");
+VBFLeadJEta_nminus1_cat0_Data->Draw("EP");
+
+VBFsrLeadJEta_sequential_cat0_Data->Draw("EP");
+VBFsrLeadJEta_nminus1_cat0_Data->Draw("EP");
+
+VBF30LeadJEta_sequential_cat0_Data->Draw("EP");
+VBF30LeadJEta_nminus1_cat0_Data->Draw("EP");
+
+VBF_ABLeadJEta_sequential_cat0_Data->Draw("EP");
+VBF_ABLeadJEta_nminus1_cat0_Data->Draw("EP");
+
+VBF_ABLeadJEta_sequential_cat1_Data->Draw("EP");
+VBF_ABLeadJEta_nminus1_cat1_Data->Draw("EP");
+
+AllLeadJEta_sequential_cat0_Data->Draw("EP");
+AllLeadJEta_nminus1_cat0_Data->Draw("EP");
+AllLeadJEta1_sequential_cat0_Data->Draw("EP");
+
+All2LeadJEta_sequential_cat0_Data->Draw("EP");
+All2LeadJEta_nminus1_cat0_Data->Draw("EP");
+All2LeadJEta1_sequential_cat0_Data->Draw("EP");
+
+
+
+
+
+VBFSubJEta_sequential_cat0_Data->Draw("EP");
+VBFSubJEta_nminus1_cat0_Data->Draw("EP");
+
+VBFsrSubJEta_sequential_cat0_Data->Draw("EP");
+VBFsrSubJEta_nminus1_cat0_Data->Draw("EP");
+
+VBF30SubJEta_sequential_cat0_Data->Draw("EP");
+VBF30SubJEta_nminus1_cat0_Data->Draw("EP");
+
+VBF_ABSubJEta_sequential_cat0_Data->Draw("EP");
+VBF_ABSubJEta_nminus1_cat0_Data->Draw("EP");
+
+VBF_ABSubJEta_sequential_cat1_Data->Draw("EP");
+VBF_ABSubJEta_nminus1_cat1_Data->Draw("EP");
+
+AllSubJEta_sequential_cat0_Data->Draw("EP");
+AllSubJEta_nminus1_cat0_Data->Draw("EP");
+AllSubJEta1_sequential_cat0_Data->Draw("EP");
+
+All2SubJEta_sequential_cat0_Data->Draw("EP");
+All2SubJEta_nminus1_cat0_Data->Draw("EP");
+All2SubJEta1_sequential_cat0_Data->Draw("EP");
+
+
+########################################
+
+#root -l histograms_marcodatafiles_5fb_Dec10_rereco_all_90_190_LAST_jet3.root
+
+
+
+root -l histograms_marcodatafiles_5fb_Dec10_rereco_all_90_190_LAST_optree.root
+
+  
+
+ 
+.L ../Marco/tdrstyle.C
+setTDRStyle()
+gStyle->SetOptStat(1111111)
+gStyle->SetOptFit(0)
+
+
+TH1F mgg("mgg","mgg",8,100,180)
+
+TH1F etajet1("etajet1","etajet1",50,-5,5.)
+TH1F etajet2("etajet2","etajet2",50,-5,5.)
+
+TH1F ptjet1("ptjet1","ptjet1",40,20,220.)
+TH1F ptjet1_pres("ptjet1_pres","ptjet1_pres",22,40,150.)
+
+mgg.Sumw2();
+etajet1.Sumw2();
+etajet2.Sumw2();
+
+ptjet1.Sumw2();
+ptjet1_pres.Sumw2();
+
+
+//########################
+TString typ="(itype==0)";
+TString dmc="Data";
+
+//TString typ="(itype<0)";
+//TString dmc="BG_MC";
+
+//TString typ="(itype==-1||itype==-2)";
+//TString dmc="twoprompt_BG_MC";
+
+//TString typ="(itype==125002)";
+//TString dmc="H125VBF";
+
+//TString typ="(itype==125001)";
+//TString dmc="H125ggfus";
+
+//########################
+
+TString pho=typ+"&&mass>90&&mass<190&&leadpt/mass>55/120.&&subleadpt>25";
+TString cut0=pho;
+TString cutAll=cut0+"&&j2pt>15";
+TString cut1=cut0+"&&j1pt>30";
+TString cut2=cut1+"&&j2pt>20";
+TString cut3=cut2+"&&jjdeta>3.5";
+TString cut4=cut3+"&&jjzep<2.5";
+TString cut5=cut4+"&&jjmass>350";
+TString cut6=cut5+"&&jjdphi>2.6";
+
+//########################
+TString cutprint=  "cutAll";
+TString mycut="w*("+cutAll+")";
+//########################
+
+ntuple->Draw("j1pt>>ptjet1",mycut)
+ntuple->Draw("j1pt>>ptjet1_pres",mycut)
+ntuple->Draw("j1eta>>etajet1",mycut)
+ntuple->Draw("j2eta>>etajet2",mycut)
+ntuple->Draw("mass>>mgg",mycut)
+etajet1->SetMinimum(0.);
+etajet2->SetMinimum(0.);
+ptjet1->SetMinimum(0.);
+ptjet1->SetMinimum(0.);
+mgg->SetMinimum(0.);
+
+TCanvas *m=new TCanvas("a","a",900,700)
+
+m->cd()
+m->Divide(1,2,0.02,0.02)
+m->cd(1)
+
+m->cd(1)
+etajet1->Draw("EP")
+m->cd(2)
+etajet2->Draw("EP")
+m->cd(1)
+m->Print("Eta_"+dmc+"_"+cutprint+".png","png");
+m->Close();
+
+
+TCanvas *m1=new TCanvas("a1","a1",900,700)
+
+m1->cd()
+
+gStyle->SetOptStat(1111)
+ptjet1_pres->Draw("EP")
+//ptjet1->Draw("EP")
+m->Print("PtJet1_"+dmc+"_"+cutprint+"_nofit.png","png");
+
+ptjet1->Fit("expo","RVL","",30.,100.)
+
+TF1 *expexp = new TF1("expexp","[0]*exp(x*[1])+[2]*exp(x*[3])",0.,100.);        
+expexp->SetParameter(0,7.)
+expexp->SetParameter(1,-0.0024)
+expexp->SetParameter(2,0.)
+
+//ptjet1->Fit("expexp","RVL","",40.,150.)
+//ptjet1_pres->Fit("expo","RVL","",40.,150.)
+ptjet1_pres->Fit("expo","RVL","",40.,150.)
+
+gStyle->SetOptStat(1111)
+gStyle->SetOptFit(1111111)
+
+gStyle->SetOptStat(1111)
+gStyle->SetOptFit(1111111)
+expexp->SetParameter(0,300.)
+expexp->SetParameter(1,-0.01)
+expexp->SetParameter(2,100.)
+expexp->SetParameter(3,0.01)
+ptjet1->Fit("expexp","RVL","",30.,150.)
+ptjet1_pres->Fit("expexp","RVL","",40.,150.)
+
+ptjet1_pres->Draw("EP")
+//ptjet1->Draw("EP")
+m->Print("PtJet1_"+dmc+"_"+cutprint+".png","png");
+
+m1->SetLogy()
+m->Print("log_PtJet1_"+dmc+"_"+cutprint+".png","png");
+m1->SetLogy(0)
+
+m1->cd()
+mgg->Fit("pol2")
+mgg->Fit("pol2","L")
+gStyle->SetOptStat(1111)
+gStyle->SetOptFit(0)
+mgg->Draw("EP")
+
+m1->Print("Mass_"+dmc+"_"+cutprint+".png","png");
+
+m1->Close();
 

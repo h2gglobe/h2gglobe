@@ -5,7 +5,7 @@
 // GetXaxis()->SetTitle(xaxislabels[ivar]);
 // GetXaxis()->SetTitle("Trailing Jet #eta");
 
-#define MPDEBUG 1
+#define MPDEBUG 0
 
 void LoopAll::myPlotInteractive(TString hsmallname) {
 
@@ -1260,8 +1260,8 @@ void LoopAll::myPlotInteractive(TString hsmallname) {
    cmstext = cmspavetext->AddText("\n\n\n\n\n\n\n\n");
    //cmstext = cmspavetext->AddText("");
    //cmstext = cmspavetext->AddText("");
-   cmstext = cmspavetext->AddText("#sqrt{s}=7 TeV L_{int} = 4.72 fb^{-1}");
-   //cmstext = cmspavetext->AddText("#sqrt{s}=7 TeV Run 2011A");
+   cmstext = cmspavetext->AddText("#sqrt{s}=7 TeV L_{int} = 4.76 fb^{-1}");
+   //cmstext = cmspavetext->AddText("#sqrt{s}=7 TeV Run 2011B");
    cmspavetext->Draw();
           if(MPDEBUG) cout<<"myPlotInteractive 19.7 "<<endl;
         //update canvas

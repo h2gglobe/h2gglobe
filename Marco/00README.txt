@@ -1,3 +1,8 @@
+source /home/users/mpieri/cmsset_default.sh
+export SCRAM_ARCH="slc5_amd64_gcc434"
+
+cmsenv
+
 Datafiles I am using:
 marcodatafiles_5fb_LL_33_23_all_ff_120_withSM_fast.dat
 
@@ -718,9 +723,14 @@ Run 177053 Event 563451379
 
 
 
-#instructions
+# Final instructions
 
+
+take branchdef and Marco from the head
+
+all the rest:
 cvs update -r baseline_workspace_08Dec2011_nw
+
 
 cp Marco/Makefile ./Makefile
 cp Marco/CommonParameters.h ./CommonParameters.h
@@ -743,7 +753,20 @@ cp Marco/StatAnalysisExclusive_jim.h PhotonAnalysis/interface/StatAnalysisExclus
 cp Marco/StatAnalysisExclusive_jim.cc PhotonAnalysis/src/StatAnalysisExclusive.cc
 cp Marco/cuts_marco.dat PhotonAnalysis_scripts/cuts.dat
 
+
+
+
 END JIM
+
+
+????
+cp Marco/minimal_statanalysis_input.dat PhotonAnalysis_scripts/minimal_statanalysis_input.dat
+cp Marco/StatAnalysisExclusive.h PhotonAnalysis/interface/StatAnalysisExclusive.h
+cp Marco/StatAnalysisExclusive.cc PhotonAnalysis/src/StatAnalysisExclusive.cc
+cp Marco/cuts_marco.dat PhotonAnalysis_scripts/cuts.dat
+end ????
+
+
 
 
 # If you don't take the head of branchdef
