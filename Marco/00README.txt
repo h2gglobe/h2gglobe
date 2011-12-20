@@ -4,6 +4,40 @@ This file is in h2gglobe/Marco/00README.txt
 Instructions 20/12/2011
 -----------------------
 
+### from Chris
+
+# files needed to run at UCSD (in h2gglobe)
+cp Marco/photonanalysis_ucsd.dat PhotonAnalysis_scripts/photonanalysis.dat
+cp Marco/statanalysis_ucsd.dat PhotonAnalysis_scripts/statanalysis.dat
+cp Marco/subfit* PhotonAnalysis_scripts/.
+cp Marco/datafiles_5fb_dec20_all_sm.dat PhotonAnalysis_scripts/.
+cd PhotonAnalysis_scripts
+
+
+# instructions on splitting and combining workspaces
+python fitter.py -i datafiles_5fb_dec20_all_sm.dat -n numOfJobs -j jobNum
+#jobNum goes from 0 to numOfJobs-1
+# subfit4 usage
+uaf 4
+cd yourh2gglobe
+make -j 8
+cd PhotonAnalysis_scripts
+bash subfit4
+# there is a subfit# for uaf 3,4,7,8,9
+
+# usage for filestocombine.dat
+# forloop for put input files
+for i in {0..49}; do echo "Fil=CMS-HGG_4763_30-20_SM_2011_${i}.root"; done >>
+filestocombine.dat
+#need to edit filestocombind.dat for outputname and placement of the Fil=*root
+lines
+# you can also run combiner.py on a single file to change the fit
+# you have to edit in PhotonAnalysis/src/StatAnalysis.cc to change the fit
+python combiner.py
+
+### end Chris
+
+
 
 export CVS_RSH=ssh
 export CVSROOT=:ext:mpieri@cmscvs.cern.ch:/cvs_server/repositories/CMSSW
