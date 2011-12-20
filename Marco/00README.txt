@@ -66,12 +66,35 @@ cp Marco/StatAnalysisExclusive_jim.cc PhotonAnalysis/src/StatAnalysisExclusive.c
 cp Marco/cuts_marco.dat PhotonAnalysis_scripts/cuts.dat
 
 
-#### END INSTRUCTIONS 20/12/2011
+#
+
+Before copying you should modify:
+
+cuts_marco.dat (first few cuts)
+minimal_statanalysis_input.dat (put the branches you need
+
+->
+This is a comment
+->
+
+then to run use from h2gglobe/PhotonAnalysis_scripts
+
+jimdatafiles_5fb_Dec14_90_190.dat
+and paste the lines in the first comment:
+
+cd PhotonAnalysis_scripts/
+rm  ../Marco/jimdatafiles_5fb_Dec14_90_190.dat.pevents
+python fitter.py -i ../Marco/jimdatafiles_5fb_Dec14_90_190.dat --dryRun
+cd PhotonAnalysis_scripts/
+python fitter.py -i ../Marco/jimdatafiles_5fb_Dec14_90_190.dat >& jimdatafiles_5fb_Dec14_90_190.log
+
+When you compile plotInteractive you need make clean; make -j 30
+Instructions for plotting in Marco/printAll.txt
 
 
-
-
-
+### END INSTRUCTIONS 20/12/2011
+### END INSTRUCTIONS 20/12/2011
+### END INSTRUCTIONS 20/12/2011
 
 
 
