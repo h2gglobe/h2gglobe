@@ -1,3 +1,82 @@
+This file is in h2gglobe/Marco/00README.txt
+
+
+Instructions 20/12/2011
+-----------------------
+
+
+export CVS_RSH=ssh
+export CVSROOT=:ext:mpieri@cmscvs.cern.ch:/cvs_server/repositories/CMSSW
+
+#setenv CVS_RSH ssh
+#setenv CVSROOT :ext:mpieri@cmscvs.cern.ch:/cvs_server/repositories/CMSSW
+
+kinit mpieri@CERN.CH
+scramv1 project CMSSW CMSSW_4_2_8
+
+cd CMSSW_4_2_8/src
+
+
+cvs co -r branch_for_42X -d HiggsAnalysis/HiggsTo2photons UserCode/HiggsAnalysis/HiggsTo2photons 
+rm -r  HiggsAnalysis/HiggsTo2photons/h2gglobe
+
+#check out the head of h2gglobe (we should make a tag
+cvs co -d HiggsAnalysis/HiggsTo2photons/h2gglobe UserCode/HiggsAnalysis/HiggsTo2photons/h2gglobe
+
+
+cd HiggsAnalysis/HiggsTo2photons/h2gglobe
+
+
+source /home/users/mpieri/cmsset_default.sh
+export SCRAM_ARCH="slc5_amd64_gcc434"
+
+cmsenv
+
+You need some files that are in Marco and not in CVS:
+
+cp ~mpieri/Aug2011/mpieri/CMSSW_4_2_8/src/HiggsAnalysis/HiggsTo2photons/h2gglobe/Marco/dataevents*.txt Marco/.
+cp ~mpieri/Aug2011/mpieri/CMSSW_4_2_8/src/HiggsAnalysis/HiggsTo2photons/h2gglobe/Marco/*.root Marco/.
+cp ~mpieri/Aug2011/mpieri/CMSSW_4_2_8/src/HiggsAnalysis/HiggsTo2photons/h2gglobe/Marco/Cert_160404-180252_7TeV_All2011_v3.txt Marco/.
+
+Then you need to copy the following files:
+
+take branchdef and Marco from the head
+for all the rest it should also work with:
+cvs update -r baseline_workspace_08Dec2011_nw
+
+cp Marco/Makefile ./Makefile
+cp Marco/CommonParameters.h ./CommonParameters.h
+cp Marco/statanalysis.dat PhotonAnalysis_scripts/statanalysis.dat
+cp Marco/photonanalysis.dat PhotonAnalysis_scripts/photonanalysis.dat
+#### cp Marco/PhotonAnalysis.h PhotonAnalysis/interface/PhotonAnalysis.h
+
+??? I THINK YES FOR NOW 
+cp Marco/fitter.py PhotonAnalysis_scripts/fitter.py
+
+cp Marco/plotvariables.dat PhotonAnalysis_scripts/plotvariables.dat
+cp Marco/pu_weights_map.dat PhotonAnalysis_scripts/pu_weights_map.dat
+
+Specific for JIM
+
+cp Marco/LoopAll.cc LoopAll.cc
+cp Marco/LoopAll.h LoopAll.h
+cp Marco/minimal_statanalysis_input.dat PhotonAnalysis_scripts/minimal_statanalysis_input.dat
+cp Marco/StatAnalysisExclusive_jim.h PhotonAnalysis/interface/StatAnalysisExclusive.h
+cp Marco/StatAnalysisExclusive_jim.cc PhotonAnalysis/src/StatAnalysisExclusive.cc
+cp Marco/cuts_marco.dat PhotonAnalysis_scripts/cuts.dat
+
+
+#### END INSTRUCTIONS 20/12/2011
+
+
+
+
+
+
+
+
+
+
 source /home/users/mpieri/cmsset_default.sh
 export SCRAM_ARCH="slc5_amd64_gcc434"
 
