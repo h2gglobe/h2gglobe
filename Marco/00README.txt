@@ -1,28 +1,111 @@
 This file is in h2gglobe/Marco/00README.txt
 
+or:
 
-Instructions 20/12/2011
+http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/UserCode/HiggsAnalysis/HiggsTo2photons/h2gglobe/Marco/00README.txt?view=markup
+
+
+
+Instructions 21/12/2011
 -----------------------
 
-### from Chris
+
+#replace mpieri with your username
+
+export CVS_RSH=ssh
+export CVSROOT=:ext:mpieri@cmscvs.cern.ch:/cvs_server/repositories/CMSSW
+
+#setenv CVS_RSH ssh
+#setenv CVSROOT :ext:mpieri@cmscvs.cern.ch:/cvs_server/repositories/CMSSW
+
+kinit mpieri@CERN.CH
+
+### NEEDED at UCSD
+source /home/users/mpieri/cmsset_default.sh
+export SCRAM_ARCH="slc5_amd64_gcc434"
+### end NEEDED at UCSD
+
+scramv1 project CMSSW CMSSW_4_2_8
+
+cd CMSSW_4_2_8/src
+
+cmsenv
+
+cvs co -r branch_for_42X -d HiggsAnalysis/HiggsTo2photons UserCode/HiggsAnalysis/HiggsTo2photons 
+rm -r  HiggsAnalysis/HiggsTo2photons/h2gglobe
+
+#check out the head of h2gglobe (we should make a tag)
+
+cvs co -d HiggsAnalysis/HiggsTo2photons/h2gglobe UserCode/HiggsAnalysis/HiggsTo2photons/h2gglobe
+
+cd HiggsAnalysis/HiggsTo2photons/h2gglobe
+
+### You need some files that are in Marco and not in CVS:
+####NOT ANYMORE
+### cp ~mpieri/Aug2011/mpieri/CMSSW_4_2_8/src/HiggsAnalysis/HiggsTo2photons/h2gglobe/Marco/dataevents*.txt Marco/.
+### cp ~mpieri/Aug2011/mpieri/CMSSW_4_2_8/src/HiggsAnalysis/HiggsTo2photons/h2gglobe/Marco/*.root .
+### cp ~mpieri/Aug2011/mpieri/CMSSW_4_2_8/src/HiggsAnalysis/HiggsTo2photons/h2gglobe/Marco/Cert_160404-180252_7TeV_All2011_v3.txt Marco/.
+
+### OBSOLETE
+### Except branchdef and Marco all the rest it should also work with:
+### cvs update -r baseline_workspace_08Dec2011_nw
+
+
+make clean; make -j 30
+
+
+### Standard workspace: from Chris
+### instructions on splitting and combining workspaces
+
+### AT UCSD
 
 # files needed to run at UCSD (in h2gglobe)
 cp Marco/photonanalysis_ucsd.dat PhotonAnalysis_scripts/photonanalysis.dat
 cp Marco/statanalysis_ucsd.dat PhotonAnalysis_scripts/statanalysis.dat
 cp Marco/subfit* PhotonAnalysis_scripts/.
 cp Marco/datafiles_5fb_dec20_all_sm.dat PhotonAnalysis_scripts/.
+cp Marco/datafiles_5fb_dec20_all_sm.dat PhotonAnalysis_scripts/.
+cp Marco/pu_weights_map.dat PhotonAnalysis_scripts/.
+
 cd PhotonAnalysis_scripts
-
-
-# instructions on splitting and combining workspaces
 python fitter.py -i datafiles_5fb_dec20_all_sm.dat -n numOfJobs -j jobNum
+
 #jobNum goes from 0 to numOfJobs-1
+
+Example:
+
+cd PhotonAnalysis_scripts
+python fitter.py -i datafiles_5fb_dec20_all_sm.dat -n 100 -j 0
+
+### END AT UCSD
+
+
+### AT LXPLUS
+
+cd PhotonAnalysis_scripts
+python fitter.py -i datafiles_5fb.dat -n numOfJobs -j jobNum
+
+#jobNum goes from 0 to numOfJobs-1
+
+Example:
+ 
+cd PhotonAnalysis_scripts
+python fitter.py -i datafiles_5fb.dat -n 100 -j 0
+
+### END AT LXPLUS
+
+
+
+### start Chris
+
 # subfit4 usage
+
 uaf 4
 cd yourh2gglobe
 make -j 8
 cd PhotonAnalysis_scripts
 bash subfit4
+
 # there is a subfit# for uaf 3,4,7,8,9
 
 # usage for filestocombine.dat
@@ -39,50 +122,23 @@ python combiner.py
 
 
 
-export CVS_RSH=ssh
-export CVSROOT=:ext:mpieri@cmscvs.cern.ch:/cvs_server/repositories/CMSSW
-
-#setenv CVS_RSH ssh
-#setenv CVSROOT :ext:mpieri@cmscvs.cern.ch:/cvs_server/repositories/CMSSW
-
-kinit mpieri@CERN.CH
-scramv1 project CMSSW CMSSW_4_2_8
-
-cd CMSSW_4_2_8/src
 
 
-cvs co -r branch_for_42X -d HiggsAnalysis/HiggsTo2photons UserCode/HiggsAnalysis/HiggsTo2photons 
-rm -r  HiggsAnalysis/HiggsTo2photons/h2gglobe
-
-#check out the head of h2gglobe (we should make a tag
-cvs co -d HiggsAnalysis/HiggsTo2photons/h2gglobe UserCode/HiggsAnalysis/HiggsTo2photons/h2gglobe
 
 
-cd HiggsAnalysis/HiggsTo2photons/h2gglobe
 
 
-source /home/users/mpieri/cmsset_default.sh
-export SCRAM_ARCH="slc5_amd64_gcc434"
 
-cmsenv
-
-You need some files that are in Marco and not in CVS:
-
-cp ~mpieri/Aug2011/mpieri/CMSSW_4_2_8/src/HiggsAnalysis/HiggsTo2photons/h2gglobe/Marco/dataevents*.txt Marco/.
-cp ~mpieri/Aug2011/mpieri/CMSSW_4_2_8/src/HiggsAnalysis/HiggsTo2photons/h2gglobe/Marco/*.root Marco/.
-cp ~mpieri/Aug2011/mpieri/CMSSW_4_2_8/src/HiggsAnalysis/HiggsTo2photons/h2gglobe/Marco/Cert_160404-180252_7TeV_All2011_v3.txt Marco/.
 
 Then you need to copy the following files:
-
-take branchdef and Marco from the head
-for all the rest it should also work with:
-cvs update -r baseline_workspace_08Dec2011_nw
 
 cp Marco/Makefile ./Makefile
 cp Marco/CommonParameters.h ./CommonParameters.h
 cp Marco/statanalysis.dat PhotonAnalysis_scripts/statanalysis.dat
 cp Marco/photonanalysis.dat PhotonAnalysis_scripts/photonanalysis.dat
 #### cp Marco/PhotonAnalysis.h PhotonAnalysis/interface/PhotonAnalysis.h
+cp Marco/statanalysisexclusive.dat PhotonAnalysis_scripts/statanalysisexclusive.dat
+
 
 ??? I THINK YES FOR NOW 
 cp Marco/fitter.py PhotonAnalysis_scripts/fitter.py
@@ -163,6 +219,7 @@ Instructions for plotting in Marco/printAll.txt
 ### END INSTRUCTIONS 20/12/2011
 ### END INSTRUCTIONS 20/12/2011
 ### END INSTRUCTIONS 20/12/2011
+
 
 
 
