@@ -27,9 +27,9 @@ typ=2    ind=2  draw=1  Nam=Box250  Fil=/nfs-4/userdata/capalmer/h2g_V11_04_05/M
 ->
 
 typ=4    ind=3  draw=1  Nam=DiPhotonJets  Dir=/nfs-4/userdata/capalmer/h2g_V11_04_05/MC_Bkg_Fall11_S6/DiPhotonJets     xsec=1.54e+02     lum=1.e10     kfac=1.15  scal=1.
-typ=32    ind=4  draw=1  Nam=GJet20_pf  Dir=/nfs-4/userdata/capalmer/h2g_V11_04_05/MC_Bkg_Fall11_S6/GJet_Pt-20_pf    xsec=493.44       lum=1.e10     kfac=1.3  scal=1.
+typ=3    ind=4  draw=1  Nam=GJet20_pf  Dir=/nfs-4/userdata/capalmer/h2g_V11_04_05/MC_Bkg_Fall11_S6/GJet_Pt-20_pf    xsec=493.44       lum=1.e10     kfac=1.3  scal=1.
 typ=2    ind=5  draw=1  Nam=QCD40_pf   Dir=/nfs-4/userdata/capalmer/h2g_V11_04_05/MC_Bkg_Fall11_S6/QCDPt40_pf    xsec=43571.      lum=1.e10     kfac=1.3  scal=1.
-typ=23    ind=6  draw=1  Nam=QCD40_ff   Dir=/nfs-4/userdata/capalmer/h2g_V11_04_05/MC_Bkg_Fall11_S6/QCDPt40_ff    xsec=43571.      lum=1.e10     kfac=1.0  scal=1.
+typ=1    ind=6  draw=1  Nam=QCD40_ff   Dir=/nfs-4/userdata/capalmer/h2g_V11_04_05/MC_Bkg_Fall11_S6/QCDPt40_ff    xsec=43571.      lum=1.e10     kfac=1.0  scal=1.
 typ=6    ind=7  draw=1  Nam=DYJets     Dir=/nfs-4/userdata/capalmer/h2g_V11_04_05/MC_Bkg_Fall11_S6/DYJetsToLL_M50            xsec=2.475e+03       lum=1.e10     kfac=1.15  scal=1.
 
 
