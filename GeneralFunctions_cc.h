@@ -1,5 +1,85 @@
 #include "Sorters.h"
 
+void LoopAll::SetAllMVA() {
+  tmvaReaderID_UCSD = new TMVA::Reader("!Color:Silent");
+  tmvaReaderID_UCSD->AddVariable("sieie",      &tmva_id_ucsd_sieie);
+  tmvaReaderID_UCSD->AddVariable("goodpf_iso", &tmva_id_ucsd_goodpf_iso);
+  tmvaReaderID_UCSD->AddVariable("badpf_iso",  &tmva_id_ucsd_badpf_iso);
+  tmvaReaderID_UCSD->AddVariable("drtotk",     &tmva_id_ucsd_drtotk);
+  tmvaReaderID_UCSD->AddVariable("hoe",        &tmva_id_ucsd_hoe);
+  tmvaReaderID_UCSD->AddVariable("tkisopf",    &tmva_id_ucsd_tkisopf);
+  tmvaReaderID_UCSD->AddVariable("r9",         &tmva_id_ucsd_r9);
+  tmvaReaderID_UCSD->AddVariable("ptom",       &tmva_id_ucsd_ptom);
+  tmvaReaderID_UCSD->AddVariable("eta",        &tmva_id_ucsd_eta);
+  tmvaReaderID_UCSD->AddSpectator("isLeading", &tmva_id_ucsd_isLeading);
+  tmvaReaderID_UCSD->BookMVA("Gradient", "ID_UCSD.weights.xml");
+  
+  tmvaReader_dipho_UCSD = new TMVA::Reader("!Color:Silent"); 
+  tmvaReader_dipho_UCSD->AddVariable("subleadptomass",   &tmva_dipho_UCSD_subleadptomass);
+  tmvaReader_dipho_UCSD->AddVariable("diphoptom",        &tmva_dipho_UCSD_diphoptom);
+  tmvaReader_dipho_UCSD->AddVariable("sumptom",          &tmva_dipho_UCSD_sumptom);
+  tmvaReader_dipho_UCSD->AddVariable("subleadmva",       &tmva_dipho_UCSD_subleadmva);
+  tmvaReader_dipho_UCSD->AddVariable("leadmva",          &tmva_dipho_UCSD_leadmva);
+  tmvaReader_dipho_UCSD->AddVariable("leadeta",          &tmva_dipho_UCSD_leadeta);
+  tmvaReader_dipho_UCSD->AddVariable("subleadeta",       &tmva_dipho_UCSD_subleadeta);
+  tmvaReader_dipho_UCSD->AddVariable("leadr9",           &tmva_dipho_UCSD_leadr9);
+  tmvaReader_dipho_UCSD->AddVariable("subleadr9",        &tmva_dipho_UCSD_subleadr9);
+  tmvaReader_dipho_UCSD->AddVariable("dmom",             &tmva_dipho_UCSD_dmom);
+  tmvaReader_dipho_UCSD->AddSpectator("diphocat2r92eta", &tmva_dipho_UCSD_diphocat2r92eta);
+  tmvaReader_dipho_UCSD->BookMVA("Gradient", "diphoton_UCSD.weights.xml");
+}
+
+Float_t LoopAll::photonIDMVA(Int_t iPhoton, Int_t vtx, const char* type) {
+ 
+  Int_t cat = PhotonCategory(iPhoton);
+
+  Float_t isomax=-99;   
+  Int_t badind=0;
+  for(int iv=0; iv<vtx_std_n; iv++) {
+    if((*pho_pfiso_mycharged04)[iPhoton][iv]>isomax) {
+      badind=iv; 
+      isomax=(*pho_pfiso_mycharged04)[iPhoton][iv]; 
+    }
+  }
+  
+  float rhofacpf[6]    = {0.075, 0.082, 0.143, 0.050, 0.091, 0.106};
+  float rhofacbadpf[6] = {0.141, 0.149, 0.208, 0.135, 0.162, 0.165};
+  float rhofac         = rhofacpf[cat];
+  float rhofacbad      = rhofacbadpf[cat];
+
+  Float_t tmva_id_ucsd_pt = ((TLorentzVector*)pho_p4->At(iPhoton))->Et();
+  tmva_id_ucsd_badpf_iso = ((*pho_pfiso_mycharged04)[iPhoton][badind]+pho_pfiso_myphoton04[iPhoton]-rho*rhofacbad)*50/tmva_id_ucsd_pt;
+  tmva_id_ucsd_goodpf_iso = ((*pho_pfiso_mycharged03)[iPhoton][vtx]+pho_pfiso_myphoton03[iPhoton]-rho*rhofac)*50/tmva_id_ucsd_pt;
+  tmva_id_ucsd_tkisopf = (*pho_pfiso_mycharged03)[iPhoton][vtx]*50/tmva_id_ucsd_pt;
+  
+  tmva_id_ucsd_sieie = pho_sieie[iPhoton];
+  tmva_id_ucsd_drtotk = pho_drtotk_25_99[iPhoton];
+  tmva_id_ucsd_hoe = pho_hoe[iPhoton];
+  tmva_id_ucsd_r9 = pho_r9[iPhoton];
+  tmva_id_ucsd_eta = fabs(((TLorentzVector*)pho_p4->At(iPhoton))->Eta());
+  tmva_id_ucsd_isLeading = -1.; // not used just a spectator in the original definition
+  
+  Float_t mva = tmvaReaderID_UCSD->EvaluateMVA("Gradient");
+
+  return mva;
+}
+
+Float_t LoopAll::diphotonMVA(Int_t leadingPho, Int_t subleadingPho, Int_t vtx, float diphopt, float mass) {
+
+  tmva_dipho_UCSD_leadr9 = pho_r9[leadingPho];
+  tmva_dipho_UCSD_subleadr9 = pho_r9[subleadingPho];
+  tmva_dipho_UCSD_leadeta = fabs(((TLorentzVector*)pho_p4->At(leadingPho))->Eta());
+  tmva_dipho_UCSD_subleadeta = fabs(((TLorentzVector*)pho_p4->At(subleadingPho))->Eta());
+  tmva_dipho_UCSD_subleadptomass = ((TLorentzVector*)pho_p4->At(subleadingPho))->Et()/mass;
+  tmva_dipho_UCSD_diphoptom = diphopt/mass;
+  tmva_dipho_UCSD_sumptom = (((TLorentzVector*)pho_p4->At(leadingPho))->Et()+((TLorentzVector*)pho_p4->At(subleadingPho))->Et())/mass;
+  tmva_dipho_UCSD_subleadmva = photonIDMVA(subleadingPho, vtx, "UCSD");
+  tmva_dipho_UCSD_leadmva = photonIDMVA(leadingPho, vtx, "UCSD");
+  
+  Float_t mva = tmvaReader_dipho_UCSD->EvaluateMVA("Gradient");
+  
+  return mva;
+}
 
 float LoopAll::getDmOverDz(Int_t pho1, Int_t pho2, Float_t* smeared) {
 
@@ -18,7 +98,6 @@ float LoopAll::getDmOverDz(Int_t pho1, Int_t pho2, Float_t* smeared) {
 
   return result;
 }
-
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 void LoopAll::GlobeCtIsol(int mode, TLorentzVector* p4, float ptCut, float drCutMin, float drCutMax, Int_t & nIsol, Float_t & ptIsol, Float_t & angle1, Float_t & angle2, Float_t & angle3) {

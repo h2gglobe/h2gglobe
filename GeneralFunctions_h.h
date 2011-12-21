@@ -401,6 +401,9 @@ void SetBranchAddress_pho_passcuts_sublead(TTree * tree) { tree->SetBranchAddres
 int MuonSelection(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind);
 int ElectronSelection(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind);
 
+void SetAllMVA();
+Float_t photonIDMVA(Int_t, Int_t, const char*);
+Float_t diphotonMVA(Int_t, Int_t, Int_t, float, float);
 float getDmOverDz(Int_t, Int_t, Float_t*);
 
 #ifdef NewFeatures

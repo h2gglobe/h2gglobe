@@ -18,6 +18,8 @@
 #include <TLegend.h>
 #include <TAxis.h>
 
+#include "TMVA/Reader.h"
+
 class BaseAnalysis;
 
 #include "HistoContainer.h"
@@ -248,6 +250,31 @@ class LoopAll {
   
   /** list of the analyses to be performed */
   std::vector<BaseAnalysis*> analyses;
+  TMVA::Reader *tmvaReaderID_UCSD, * tmvaReader_dipho_UCSD;
+ 
+  Float_t tmva_id_ucsd_sieie;
+  Float_t tmva_id_ucsd_goodpf_iso;
+  Float_t tmva_id_ucsd_badpf_iso;
+  Float_t tmva_id_ucsd_drtotk;
+  Float_t tmva_id_ucsd_hoe;
+  Float_t tmva_id_ucsd_tkisopf;
+  Float_t tmva_id_ucsd_r9;
+  Float_t tmva_id_ucsd_ptom;
+  Float_t tmva_id_ucsd_eta;
+  Float_t tmva_id_ucsd_isLeading;
+  
+  Float_t tmva_dipho_UCSD_subleadptomass;
+  Float_t tmva_dipho_UCSD_diphoptom;
+  Float_t tmva_dipho_UCSD_sumptom;
+  Float_t tmva_dipho_UCSD_subleadmva;
+  Float_t tmva_dipho_UCSD_leadmva;
+  Float_t tmva_dipho_UCSD_leadeta;
+  Float_t tmva_dipho_UCSD_subleadeta;
+  Float_t tmva_dipho_UCSD_leadr9;
+  Float_t tmva_dipho_UCSD_subleadr9;
+  Float_t tmva_dipho_UCSD_dmom;
+  Float_t tmva_dipho_UCSD_diphocat2r92eta;
+
 };
 
 #endif
