@@ -1,5 +1,7 @@
 default=2
 
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0       xmin=100.0  xmax=180.0  ymin=0      ymax=0       name=Mass5cat xaxis=x yaxis=y
+
 htyp=0 plot=-1  ncat=2  xbins=50000   ybins=0       xmin=150000.0  xmax=200000.0  ymin=0      ymax=0       name=run xaxis=x yaxis=y
 
 
