@@ -403,8 +403,9 @@ int ElectronSelection(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind);
 
 void SetAllMVA();
 Float_t photonIDMVA(Int_t, Int_t, const char*);
-Float_t diphotonMVA(Int_t, Int_t, Int_t, float, float);
+Float_t diphotonMVA(Int_t, Int_t, Int_t, float, float, const char*);
 float getDmOverDz(Int_t, Int_t, Float_t*);
+Float_t deltaMassVtx(Int_t, Int_t, Float_t);
 
 #ifdef NewFeatures
 #include "Marco/plotInteractive_h.h"
