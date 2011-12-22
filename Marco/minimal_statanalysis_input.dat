@@ -161,10 +161,12 @@ pho_ecalsumetconedr04
 pho_hcalsumetconedr03
 pho_hcalsumetconedr04
 
-pho_sieip
+pho_siep
 pho_sipip
 sc_sphi
 sc_seta
+sc_pre
+sc_raw
 ->
 
 

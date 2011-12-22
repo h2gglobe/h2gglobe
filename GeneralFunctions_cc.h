@@ -63,7 +63,6 @@ void LoopAll::SetAllMVA() {
   tmvaReaderID_MIT_Endcap->AddVariable("RelPreshowerEnergy", &tmva_id_mit_preshower);
   tmvaReaderID_MIT_Endcap->BookMVA("AdaBoost", "TMVAClassificationPhotonID_Endcap_PassPreSel_Variable_6_BDTnCuts2000_BDT.weigh  ts.xml");
 
-  /*
   tmvaReader_dipho_MIT = new TMVA::Reader("!Color:Silent"); 
   tmvaReader_dipho_MIT->AddVariable("masserrsmeared/mass",         &tmva_dipho_MIT_dmom);
   tmvaReader_dipho_MIT->AddVariable("masserrsmearedwrongvtx/mass", &tmva_dipho_MIT_dmom_wrong_vtx);
@@ -76,7 +75,6 @@ void LoopAll::SetAllMVA() {
   tmvaReader_dipho_MIT->AddVariable("ph1.idmva",                   &tmva_dipho_MIT_ph1mva);
   tmvaReader_dipho_MIT->AddVariable("ph2.idmva",                   &tmva_dipho_MIT_ph2mva);
   tmvaReader_dipho_MIT->BookMVA("Gradient", "HggBambu_SM_Dec9_BDTG.weights.xml");
-  */
 }
 
 Float_t LoopAll::photonIDMVA(Int_t iPhoton, Int_t vtx, const char* type) {
@@ -119,6 +117,7 @@ Float_t LoopAll::photonIDMVA(Int_t iPhoton, Int_t vtx, const char* type) {
    
     float rhofacbad=0.52, rhofac=0.17;
     
+    Float_t raw = sc_raw[pho_scind[iPhoton]];
     TLorentzVector p4 = get_pho_p4(iPhoton, vtx);
     float pho_tkiso_goodvtx = SumTrackPtInCone(&p4, vtx, 0, 0.30, 0.02, 0.0, 1.0, 0.1);
     float pho_tkiso_badvtx = (WorstSumTrackPtInCone(iPhoton, 0, 0.40, 0.02, 0.0, 1.0, 0.1)).second;
@@ -128,13 +127,13 @@ Float_t LoopAll::photonIDMVA(Int_t iPhoton, Int_t vtx, const char* type) {
     tmva_id_mit_r9 = pho_r9[iPhoton];
     tmva_id_mit_ecal = pho_ecalsumetconedr03[iPhoton];
     tmva_id_mit_hcal = pho_hcalsumetconedr04[iPhoton];
-    tmva_id_mit_e5x5 = pho_e5x5[iPhoton]; // FIXME
+    tmva_id_mit_e5x5 = pho_e5x5[iPhoton]/raw;
     tmva_id_mit_etawidth = sc_seta[pho_scind[iPhoton]];
     tmva_id_mit_phiwidth = sc_sphi[pho_scind[iPhoton]];
     tmva_id_mit_sieip = pho_sieip[iPhoton];
     tmva_id_mit_sipip = pho_sipip[iPhoton];
     tmva_id_mit_nvtx = vtx_std_n;
-    tmva_id_mit_preshower = -99999.; // FIXME
+    tmva_id_mit_preshower = sc_pre[pho_scind[iPhoton]];
 
   if (pho_isEB[iPhoton]) 
     mva = tmvaReaderID_MIT_Barrel->EvaluateMVA("AdaBoost");
@@ -145,7 +144,7 @@ Float_t LoopAll::photonIDMVA(Int_t iPhoton, Int_t vtx, const char* type) {
   return mva;
 }
 
-Float_t LoopAll::diphotonMVA(Int_t leadingPho, Int_t subleadingPho, Int_t vtx, float diphopt, float mass, const char* type) {
+Float_t LoopAll::diphotonMVA(Int_t leadingPho, Int_t subleadingPho, Int_t vtx, float vtxProb, float diphopt, float mass, const char* type) {
   
   Float_t mva = 99.;
 
@@ -163,14 +162,14 @@ Float_t LoopAll::diphotonMVA(Int_t leadingPho, Int_t subleadingPho, Int_t vtx, f
   
     mva = tmvaReader_dipho_UCSD->EvaluateMVA("Gradient");
   } else {
-    tmva_dipho_MIT_dmom = 0;
-    tmva_dipho_MIT_dmom_wrong_vtx = 0;
-    tmva_dipho_MIT_vtxprob = 0;
-    tmva_dipho_MIT_ptom1 = 0;
-    tmva_dipho_MIT_ptom2 = 0;
-    tmva_dipho_MIT_eta1 = 0;
-    tmva_dipho_MIT_eta2 = 0;
-    tmva_dipho_MIT_dphi = 0;
+    tmva_dipho_MIT_dmom = 99999.; // FIXME
+    tmva_dipho_MIT_dmom_wrong_vtx = 99999.; // FIXME
+    tmva_dipho_MIT_vtxprob = vtxProb;
+    tmva_dipho_MIT_ptom1 = ((TLorentzVector*)pho_p4->At(leadingPho))->Et()/mass;
+    tmva_dipho_MIT_ptom2 = ((TLorentzVector*)pho_p4->At(subleadingPho))->Et()/mass;
+    tmva_dipho_MIT_eta1 = fabs(((TLorentzVector*)pho_p4->At(leadingPho))->Eta());
+    tmva_dipho_MIT_eta2 =  fabs(((TLorentzVector*)pho_p4->At(subleadingPho))->Eta());
+    tmva_dipho_MIT_dphi = TMath::Cos(((TLorentzVector*)pho_p4->At(leadingPho))->Phi() - ((TLorentzVector*)pho_p4->At(subleadingPho))->Phi());
     tmva_dipho_MIT_ph1mva = photonIDMVA(leadingPho, vtx, "MIT");
     tmva_dipho_MIT_ph2mva = photonIDMVA(subleadingPho, vtx, "MIT");
     mva = tmvaReader_dipho_MIT->EvaluateMVA("Gradient");
