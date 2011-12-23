@@ -17,6 +17,7 @@ using namespace std;
 BaseAnalysis* LoopAll::AddAnalysis(BaseAnalysis* baseAnalysis) {
   
   analyses.push_back(baseAnalysis);
+  
   return baseAnalysis;
 }
 
@@ -76,6 +77,10 @@ void LoopAll::SetTypeRun(int t, const char* name) {
   outputTreeLumi = new TTree("lumi","Lumi info tree"); 
   outputTreeLumi->Branch("run", &run, "run/I");
   outputTreeLumi->Branch("lumis", &lumis, "lumis/I");
+
+  if (typerun==kReduce){
+	pileup  =  new TH1D("pileup", "pileup", 61, -0.5, 60.5); 
+  }
 
 }
 
@@ -268,6 +273,8 @@ void LoopAll::LoopAndFillHistos(TString treename) {
   it_treelumi	= LumiTrees.begin();
   it_treepar = TreesPar.begin();  
   
+
+  cout << "SAMPLE CONTAINER SIZE " << sampleContainer.size() <<endl;
   for (;it!=files.end()
          ;it_file++,it_tree++,it_treelumi++,it_treepar++,it++){ 
     
@@ -288,7 +295,7 @@ void LoopAll::LoopAndFillHistos(TString treename) {
     //Files[i] = TFile::Open(files[i]);
     tot_events=1;
     sel_events=1;
-    if(typerun == 1) { //this is a reduce job
+    if(typerun == kReduce) { //this is a reduce job
       
       if(*it_file)
         *it_treepar=(TTree*) (*it_file)->Get("global_variables");
@@ -305,6 +312,14 @@ void LoopAll::LoopAndFillHistos(TString treename) {
         tot_events=0;
         sel_events=0;
       }
+
+      // Cannot mix PU histograms from different samples
+      //assert(sampleContainer.size()==1);
+
+      if (type!=0 && outputFile){
+	  pileup->Add((TH1D*) ((*it_file)->Get("pileup")));
+      } 
+     
     }
     
     if(tot_events!=0) {
@@ -462,6 +477,9 @@ void LoopAll::InitReal(Int_t typerunpass) {
   
   if(LDEBUG) cout << "finished InitRealPhotonAnalysis" << endl;
 
+  // Initialize all MVA
+  SetAllMVA();
+
   if (makeOutputTree) 
     outputFile->cd();
 
@@ -512,7 +530,10 @@ void LoopAll::TermReal(Int_t typerunpass) {
     outputParReductions++;
     outputTreePar->Fill();
     outputTreePar->Write(0,TObject::kWriteDelete);
-    if(outputFile) outputTreeLumi->Write(0,TObject::kWriteDelete);
+    if(outputFile){ 
+     outputTreeLumi->Write(0,TObject::kWriteDelete);
+     pileup->Write(0,TObject::kWriteDelete);
+    }
   }
 }
 
@@ -735,10 +756,7 @@ void LoopAll::WriteHist() {
 	outputTreeLumi->Write();
 	cout<<"WriteHist after lumi "<<endl;
 
-#ifdef NewFeatures
   WritePI();
-#endif
-	cout<<"WriteHist here "<<endl;
 
   hfilereal->Close();
       
@@ -752,7 +770,6 @@ void LoopAll::WriteHist() {
 	cout<<"WriteHist here4 "<<endl;
 }
 
-#ifdef NewFeatures
 void LoopAll::WritePI() {
   Int_t Nvar;
   Int_t h2d[10000], typplot[10000], histoncat[10000], histoindfromfiles[10000];
@@ -887,9 +904,7 @@ void LoopAll::WritePI() {
   inputfiletree->Fill();
   inputfiletree->Write(0,TObject::kWriteDelete);
 }
-#endif
 
-#ifdef NewFeatures
 // ------------------------------------------------------------------------------------
 void LoopAll::WriteCounters() {
 
@@ -967,112 +982,6 @@ void LoopAll::WriteCounters() {
 
   fclose(file);
 }
-#endif
-
-#ifndef NewFeatures
-// ------------------------------------------------------------------------------------
-void LoopAll::WriteCounters() {
-  if(LDEBUG) std::cout<<"LoopAll::myWriteCounters - START"<<std::endl;
-  
-  const int samples = sampleContainer.size();
-   
-  if(LDEBUG) std::cout<<"samples = "<<samples<<std::endl;
-  
-  stringstream fileLinesInfo[samples];
-  stringstream fileLinesCatFile[samples];
-  stringstream fileLinesCatCounts[samples];
-  stringstream fileLinesCatEvents[samples];
-  stringstream fileLinesCatSigma[samples];
-  stringstream fileLinesCatEff[samples][3];
-  
-  if(LDEBUG) std::cout<<"initialize streams"<<std::endl;
-
-  double counterNumerator_tot[samples];
-  double counterDenominator_tot[samples][3];
-  double counterEvents_tot[samples];
-  double counterSigma_tot[samples];
-    
-  if (counterContainer.size() < 1)
-    return;
-
-  TString msName = histFileName;
-  msName.ReplaceAll(".root", ".csv");
-
-  FILE *file;
-  TString s2 = msName;/// +".csv";
-  file = fopen(s2, "w");
-
-  if(LDEBUG) std::cout<<"msName is "<< msName <<std::endl;
-  if(LDEBUG) std::cout<<"s2 is "<< s2 <<std::endl;
-  
-  for(unsigned int i=0; i<counterContainer[0].mapSize(); i++) {
-    if(LDEBUG) std::cout<<"counterContainer[0].mapSize() is "<< counterContainer[0].mapSize() <<std::endl;
-    fprintf(file, "Number, Sample, Counter Name, Counted, TotalEvents, Sigma, Selection 1, Eff, Selection 2, Eff, Selection 3, Eff");
-    fprintf(file, ",indexfiles, namefile, scale, lumi, intlum, weight");
-    fprintf(file, "\n");
-    
-    int ncat = counterContainer[0].ncat(i);
-
-    fprintf(file, "Number, Sample, Counter Name, Categories");
-    for (unsigned int iCat=0; iCat<ncat; iCat++) 
-      fprintf(file, "Cat %d Counts", iCat);
-    fprintf(file, ", TOT Cat Counts");
-    for (unsigned int iCat=0; iCat<ncat; iCat++)
-      fprintf(file, ", Cat %d Tot Events", iCat);
-    fprintf(file, ", TOT Cat Tot Events");
-    for (unsigned int iCat=0; iCat<ncat; iCat++)
-      fprintf(file, ", Cat %d Tot Sigma", iCat);
-    fprintf(file, ", TOT Cat Tot Sigma");
-    for (unsigned int iEff=0; iEff<3; iEff++) {
-      fprintf(file, ", Denominator Name");
-      for (unsigned int iCat=0; iCat<ncat; iCat++)
-	      fprintf(file, ", Cat %d Eff.", iCat);
-      fprintf(file, ", TOT Cat Eff.");
-    }
-    fprintf(file, ",, indexfiles, namefile, scale, lumi, intlum, weight");
-    fprintf(file, "\n");
-    
-    for (int c=0; c<ncat; c++) {
-      if(LDEBUG) std::cout<<"cat is "<< c <<std::endl;
-      for (unsigned int j=0; j<counterContainer.size(); j++) {
-        if (c == 0) {
-	  counterNumerator_tot[j] = 0;
-	  counterEvents_tot[j] = 0;
-	  counterSigma_tot[j] = 0;
-	      }
-	      
-	      for (unsigned int iEff=0; iEff<3; iEff++)
-	        counterDenominator_tot[j][iEff] = 0;
-	      
-	      int indexfiles = sampleContainer[j].itype;
-	      //indexinfo =; // check matteo
-	      float weight = sampleContainer[j].weight;
-	      
-	      if (c == 0) {
-	        fileLinesCatFile[j] << j << sampleContainer[j].filesshortnam << counterContainer[j].name(i) << ncat;
-	        //fileLinesInfo[j] << indexfiles << files << scale << lumireal << intlumi << weight; // check matteo
-	        fileLinesInfo[j] << indexfiles << sampleContainer[j].scale << sampleContainer[j].lumireal << intlumi << sampleContainer[j].weight;
-	      }
-
-	      float counts = counterContainer[j][i][c];
-	      
-	      // CHECK MATTEO
-	      counterNumerator_tot[j] += counts;
-	      counterEvents_tot[j] += counts*weight;
-	      counterSigma_tot[j] += counts*weight/intlumi;
-      }
-      if(LDEBUG) std::cout<<"end cat loop"<<std::endl;
-    }
-    if(LDEBUG) std::cout<<"end sample loop"<<std::endl;
-  }
-  fclose(file);
-  if(LDEBUG) std::cout<<"LoopAll::myWriteCounters - END"<<std::endl;
-}
-#endif
-
-
-
-
 
 // ------------------------------------------------------------------------------------
 int LoopAll::FillAndReduce(int jentry) {
@@ -1260,30 +1169,6 @@ void LoopAll::GetEntry(std::set<TBranch *> & branches, int jentry)
   }
 }
 
-#ifndef NewFeatures
-// ------------------------------------------------------------------------------------
-void LoopAll::BookHisto(int h2d,
-			int typplot,
-			int typeplotall,
-			int histoncat,
-			int nbinsx,
-			int nbinsy,
-			float lowlim,
-			float highlim,
-			float lowlim2,
-			float highlim2,
-			char *name) {
-
-  for(unsigned int ind=0; ind<histoContainer.size(); ind++) {
-    if (nbinsy == 0)
-      histoContainer[ind].Add(name, histoncat, nbinsx, lowlim, highlim);
-    if (nbinsy != 0)
-      histoContainer[ind].Add(name, histoncat, nbinsx, lowlim, highlim, nbinsy, lowlim2, highlim2);
-  }
-}
-#endif
-
-#ifdef NewFeatures
 // ------------------------------------------------------------------------------------
 void LoopAll::BookHisto(int h2d,
 			int typplot,
@@ -1306,7 +1191,6 @@ void LoopAll::BookHisto(int h2d,
       histoContainer[ind].Add(const_cast<char*>(name), const_cast<char*>(xaxis), const_cast<char*>(yaxis), histoncat, nbinsx, lowlim, highlim, nbinsy, lowlim2, highlim2);
   }
 }
-#endif
 
 // ------------------------------------------------------------------------------------
 void LoopAll::AddCut(char *cutnamesc, int ncatstmp, int ifromright, int ifinalcut, float *cutValuel, float *cutValueh) {
@@ -1321,9 +1205,7 @@ void LoopAll::AddCut(char *cutnamesc, int ncatstmp, int ifromright, int ifinalcu
   this_cut->cut.clear();
   this_cut->cutintervall.clear();
   this_cut->cutintervalh.clear();
-#ifdef NewFeatures
   this_cut->mycutvar=0;
-#endif
   if(LDEBUG) cout<<"this_cut filled  "<<endl;
   for (int j=0; j<ncatstmp; j++) {
     if(ifromright == 2) {
@@ -1349,43 +1231,40 @@ void LoopAll::InitCounters(){
   if(LDEBUG) cout<<"InitCounts END"<<endl;
 }
 
-#ifndef NewFeatures
-// ------------------------------------------------------------------------------------
-void LoopAll::AddCounter(int countersncat,
-			 char *countername,
-			 char *denomname0,
-			 char *denomname1,
-			 char *denomname2) {
-    
-  std::string* counternames_str = new std::string(countername);
-  if(LDEBUG) cout<<" counternames_str"<<counternames_str<< endl; 
-  //counternames_str.assign(counternames);
-  if(LDEBUG) cout<<" *counternames_str"<<*counternames_str<< endl; 
-  
-  std::string* denomname0_str = new std::string(denomname0);
-  if(LDEBUG) cout<<" denomname0_str"<<denomname0_str<< endl; 
-  
-  //std::string denomname1_str;
-  std::string* denomname1_str =new std::string(denomname1);
-  //denomname1_str.assign(denomname1);
-  if(LDEBUG) cout<<" denomname1_str"<<denomname1_str<< endl; 
-  
-  std::string* denomname2_str = new std::string(denomname2);
-  if(LDEBUG) cout<<" denomname2_str"<<denomname2_str<< endl; 
-  
-  for(unsigned int ind=0; ind<sampleContainer.size(); ind++) {
-    if(LDEBUG) cout<<"adding to "<<ind<<" sampleContainer"<< endl; 
-    counterContainer[ind].Add(*counternames_str
-			      ,countersncat
-			      ,*denomname0_str
-			      ,*denomname1_str
-			      ,*denomname2_str);
-    if(LDEBUG) cout<<"added to "<<ind<<" sampleContainer"<< endl; 
-  }
-}
-#endif
+/////// ------------------------------------------------------------------------------------
+/////void LoopAll::AddCounter(int countersncat,
+/////			 char *countername,
+/////			 char *denomname0,
+/////			 char *denomname1,
+/////			 char *denomname2) {
+/////    
+/////  std::string* counternames_str = new std::string(countername);
+/////  if(LDEBUG) cout<<" counternames_str"<<counternames_str<< endl; 
+/////  //counternames_str.assign(counternames);
+/////  if(LDEBUG) cout<<" *counternames_str"<<*counternames_str<< endl; 
+/////  
+/////  std::string* denomname0_str = new std::string(denomname0);
+/////  if(LDEBUG) cout<<" denomname0_str"<<denomname0_str<< endl; 
+/////  
+/////  //std::string denomname1_str;
+/////  std::string* denomname1_str =new std::string(denomname1);
+/////  //denomname1_str.assign(denomname1);
+/////  if(LDEBUG) cout<<" denomname1_str"<<denomname1_str<< endl; 
+/////  
+/////  std::string* denomname2_str = new std::string(denomname2);
+/////  if(LDEBUG) cout<<" denomname2_str"<<denomname2_str<< endl; 
+/////  
+/////  for(unsigned int ind=0; ind<sampleContainer.size(); ind++) {
+/////    if(LDEBUG) cout<<"adding to "<<ind<<" sampleContainer"<< endl; 
+/////    counterContainer[ind].Add(*counternames_str
+/////			      ,countersncat
+/////			      ,*denomname0_str
+/////			      ,*denomname1_str
+/////			      ,*denomname2_str);
+/////    if(LDEBUG) cout<<"added to "<<ind<<" sampleContainer"<< endl; 
+/////  }
+/////}
 
-#ifdef NewFeatures
 
 void LoopAll::AddCounter(int countersncat,
 			 const char *countername,
@@ -1421,7 +1300,6 @@ void LoopAll::AddCounter(int countersncat,
   }
 }
 
-#endif
 
 
  
@@ -1525,7 +1403,6 @@ bool LoopAll::CheckEventList( int run, int lumi, int event  )
 }
 
 
-#ifdef NewFeatures
 
 float LoopAll::GetCutValue(TString cutname, int icat, int highcut) {
   for (unsigned int i=0; i<cutContainer.size(); i++) {
@@ -1572,33 +1449,6 @@ int LoopAll::ApplyCut(TString cutname, int icat) {
   return 0;
 }
 
-/*
-int LoopAll::ApplyCut(int icut, float var, int icat) {
-  //returns 0 if not initialized
-  if(cutContainer[icut].useit==0) return 1;
-
-  if(cutContainer[icut].fromright==2) {
-    if(var<cutContainer[icut].cutintervall[icat] || var>cutContainer[icut].cutintervalh[icat]) return 0; 
-  }
-  else if (cutContainer[icut].fromright==1) {
-    if(var>cutContainer[icut].cut[icat]) return 0; 
-  }
-  else if (cutContainer[icut].fromright==0) {
-    if(var<cutContainer[icut].cut[icat]) return 0; 
-  }
-  return 1;
-}
-
-int LoopAll::ApplyCut(TString cutname, float var, int icat) {
-  for (unsigned int i=0; i<cutContainer.size(); i++) {
-    if(cutContainer[i].name==cutname) {
-      return ApplyCut(i, var, icat);
-    }
-  }
-  cout<<"ApplyCut: attention cutname "<<cutname<<" not found"<<endl;
-  return 0;
-}
-*/
 
 int LoopAll::ApplyCut(int icut, int * passcategory) {
   for (int i=0; i<cutContainer[icut].ncat; i++) {
@@ -1795,10 +1645,8 @@ int LoopAll::SetCutVariables(TString cutname, float * variables) {
   return 0;
 }
 
-#endif
 
 
-#ifdef NewFeatures
 void LoopAll::myPrintCounters() {
 
   /*
