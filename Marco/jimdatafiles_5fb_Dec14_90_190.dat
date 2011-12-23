@@ -144,5 +144,5 @@ syntax:
 
 analyzer PhotonAnalysis photonanalysis.dat	
 ->
-analyzer StatAnalysisExclusive photonanalysis.dat statanalysisexclusive.dat
+analyzer StatAnalysisExclusive photonanalysis.dat statanalysis.dat
  

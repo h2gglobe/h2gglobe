@@ -37,24 +37,22 @@ rm -r  HiggsAnalysis/HiggsTo2photons/h2gglobe
 #check out the head of h2gglobe (we should make a tag)
 
 cvs co -d HiggsAnalysis/HiggsTo2photons/h2gglobe UserCode/HiggsAnalysis/HiggsTo2photons/h2gglobe
-
 cd HiggsAnalysis/HiggsTo2photons/h2gglobe
 
+### OBSOLETE
 ### You need some files that are in Marco and not in CVS:
 ####NOT ANYMORE
 ### cp ~mpieri/Aug2011/mpieri/CMSSW_4_2_8/src/HiggsAnalysis/HiggsTo2photons/h2gglobe/Marco/dataevents*.txt Marco/.
-### cp ~mpieri/Aug2011/mpieri/CMSSW_4_2_8/src/HiggsAnalysis/HiggsTo2photons/h2gglobe/Marco/*.root .
-### cp ~mpieri/Aug2011/mpieri/CMSSW_4_2_8/src/HiggsAnalysis/HiggsTo2photons/h2gglobe/Marco/Cert_160404-180252_7TeV_All2011_v3.txt Marco/.
-
-### OBSOLETE
 ### Except branchdef and Marco all the rest it should also work with:
 ### cvs update -r baseline_workspace_08Dec2011_nw
-
 
 make clean; make -j 30
 
 
-### Standard workspace: from Chris
+
+############################################
+### Standard workspace: from Chris #########
+############################################
 ### instructions on splitting and combining workspaces
 
 ### AT UCSD
@@ -63,7 +61,6 @@ make clean; make -j 30
 cp Marco/photonanalysis_ucsd.dat PhotonAnalysis_scripts/photonanalysis.dat
 cp Marco/statanalysis_ucsd.dat PhotonAnalysis_scripts/statanalysis.dat
 cp Marco/subfit* PhotonAnalysis_scripts/.
-cp Marco/datafiles_5fb_dec20_all_sm.dat PhotonAnalysis_scripts/.
 cp Marco/datafiles_5fb_dec20_all_sm.dat PhotonAnalysis_scripts/.
 cp Marco/pu_weights_map.dat PhotonAnalysis_scripts/.
 
@@ -82,6 +79,10 @@ python fitter.py -i datafiles_5fb_dec20_all_sm.dat -n 100 -j 0
 
 ### AT LXPLUS
 
+cp Marco/subfit* PhotonAnalysis_scripts/.
+cp Marco/statanalysis_ucsd.dat PhotonAnalysis_scripts/statanalysis.dat
+cp Marco/pu_weights_map.dat PhotonAnalysis_scripts/.
+
 cd PhotonAnalysis_scripts
 python fitter.py -i datafiles_5fb.dat -n numOfJobs -j jobNum
 
@@ -98,8 +99,11 @@ python fitter.py -i datafiles_5fb.dat -n 100 -j 0
 
 ### start Chris
 
-# subfit4 usage
+Merging of Workspaces:
 
+At ucsd done with subfit* for different uafs
+
+# subfit4 usage
 uaf 4
 cd yourh2gglobe
 make -j 8
@@ -110,39 +114,33 @@ bash subfit4
 
 # usage for filestocombine.dat
 # forloop for put input files
-for i in {0..49}; do echo "Fil=CMS-HGG_4763_30-20_SM_2011_${i}.root"; done >>
-filestocombine.dat
-#need to edit filestocombind.dat for outputname and placement of the Fil=*root
-lines
+for i in {0..49}; do echo "Fil=CMS-HGG_4763_30-20_SM_2011_${i}.root"; done >> filestocombine.dat
+
+#need to edit filestocombind.dat for outputname and placement of the Fil=*root lines
+
 # you can also run combiner.py on a single file to change the fit
 # you have to edit in PhotonAnalysis/src/StatAnalysis.cc to change the fit
 python combiner.py
 
-### end Chris
+############################################
+### End Standard workspace: from Chris #########
+############################################
 
 
+############################################
+### Things for Jim and Matteo MVA #########
+############################################
 
+from h2gglobe
+you need to copy the following files:
 
-
-
-
-
-
-
-
-Then you need to copy the following files:
+#FOR running at UCSD
+cp Marco/photonanalysis_ucsd.dat PhotonAnalysis_scripts/photonanalysis.dat
+#END FOR running at UCSD
 
 cp Marco/Makefile ./Makefile
 cp Marco/CommonParameters.h ./CommonParameters.h
-cp Marco/statanalysis.dat PhotonAnalysis_scripts/statanalysis.dat
-cp Marco/photonanalysis.dat PhotonAnalysis_scripts/photonanalysis.dat
-#### cp Marco/PhotonAnalysis.h PhotonAnalysis/interface/PhotonAnalysis.h
-cp Marco/statanalysisexclusive.dat PhotonAnalysis_scripts/statanalysisexclusive.dat
-
-
-??? I THINK YES FOR NOW 
-cp Marco/fitter.py PhotonAnalysis_scripts/fitter.py
-
+cp Marco/statanalysis_ucsd.dat PhotonAnalysis_scripts/statanalysis.dat
 cp Marco/plotvariables.dat PhotonAnalysis_scripts/plotvariables.dat
 cp Marco/pu_weights_map.dat PhotonAnalysis_scripts/pu_weights_map.dat
 
@@ -155,30 +153,27 @@ cp Marco/StatAnalysisExclusive_jim.h PhotonAnalysis/interface/StatAnalysisExclus
 cp Marco/StatAnalysisExclusive_jim.cc PhotonAnalysis/src/StatAnalysisExclusive.cc
 cp Marco/cuts_marco.dat PhotonAnalysis_scripts/cuts.dat
 
+make clean; make -j 30
 
-#
+### to be deleted
+### cp Marco/statanalysisexclusive.dat PhotonAnalysis_scripts/statanalysisexclusive.dat
 
-Before copying you should modify:
+### I THINK NOT ANYMORE 
+### cp Marco/fitter.py PhotonAnalysis_scripts/fitter.py
 
-cuts_marco.dat (first few cuts)
-minimal_statanalysis_input.dat (put the branches you need)
-
-**** SPECIFIC FOR JIM ****
-In file minimal_statanalysis_input.dat remove the following couple of lines:
-
-->
-FOR JIM TO UNCOMMENT
-
-and
-
-FOR JIM TO UNCOMMENT
-->
- 
-This will take as inputs few more variables needed for the MVA.
-
-In file cuts.dat replace the first two lines with the following (change the value of the cuts to 1 = activate option):
-cutname=optree                      ncat=1  dir=0 fin=0   val=1.
-cutname=bdt                         ncat=1  dir=0 fin=0   val=1.
+### Before copying you should modify:
+### ---------------------------------
+### //NOW THEY ARE DEFAULT FOR MVA
+### cuts_marco.dat (first few cuts)
+### minimal_statanalysis_input.dat (put the branches you need)
+### **** SPECIFIC FOR JIM ****
+### In file minimal_statanalysis_input.dat remove the following couple of lines:
+### ->
+### FOR JIM TO UNCOMMENT
+### and
+### FOR JIM TO UNCOMMENT
+### ->
+### This will take as inputs few more variables needed for the MVA.
 
 
 Then to run use from h2gglobe/PhotonAnalysis_scripts:
@@ -199,6 +194,9 @@ When the jobs are completed:
 hadd final.root histograms_jimdatafiles_5fb_Dec14_90_190_dataA.root histograms_jimdatafiles_5fb_Dec14_90_190_dataB.root histograms_jimdatafiles_5fb_Dec14_90_190_signal.root histograms_jimdatafiles_5fb_Dec14_90_190_bg1.root histograms_jimdatafiles_5fb_Dec14_90_190_bg2.root
 
 *********** END OF SPECIFIC FOR JIM ******************
+############################################
+### END ??? Things for Jim and Matteo MVA #########
+############################################
 
 
 then to run use from h2gglobe/PhotonAnalysis_scripts
