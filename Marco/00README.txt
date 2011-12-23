@@ -20,7 +20,7 @@ export CVSROOT=:ext:mpieri@cmscvs.cern.ch:/cvs_server/repositories/CMSSW
 
 kinit mpieri@CERN.CH
 
-### NEEDED at UCSD
+### NEEDED at UCSD ~/SCHIF
 source /home/users/mpieri/cmsset_default.sh
 export SCRAM_ARCH="slc5_amd64_gcc434"
 ### end NEEDED at UCSD
@@ -153,6 +153,14 @@ cp Marco/StatAnalysisExclusive_jim.h PhotonAnalysis/interface/StatAnalysisExclus
 cp Marco/StatAnalysisExclusive_jim.cc PhotonAnalysis/src/StatAnalysisExclusive.cc
 cp Marco/cuts_marco.dat PhotonAnalysis_scripts/cuts.dat
 
+
+### MATTEO ???
+cp Marco/StatAnalysisExclusive_jim.h PhotonAnalysis/interface/StatAnalysisExclusive.h
+cp Marco/StatAnalysisExclusive_jim.cc PhotonAnalysis/src/StatAnalysisExclusive.cc
+### END MATTEO ???
+
+
+
 make clean; make -j 30
 
 ### to be deleted
@@ -177,10 +185,17 @@ make clean; make -j 30
 
 
 Then to run use from h2gglobe/PhotonAnalysis_scripts:
+
 cd PhotonAnalysis_scripts/
 rm  ../Marco/jimdatafiles_5fb_Dec14_90_190.dat.pevents
 python fitter.py -i ../Marco/jimdatafiles_5fb_Dec14_90_190.dat --dryRun
-cd PhotonAnalysis_scripts/
+# cd PhotonAnalysis_scripts/
+python fitter.py -i ../Marco/jimdatafiles_5fb_Dec14_90_190.dat >& jimdatafiles_5fb_Dec14_90_190.log
+
+
+
+
+
 
 Run the following commands on different UAF machines:
 python fitter.py -i ../Marco/jimdatafiles_5fb_Dec14_90_190_dataA.dat >& jimdatafiles_5fb_Dec14_90_190_dataA.log
