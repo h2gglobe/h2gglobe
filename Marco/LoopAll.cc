@@ -2251,6 +2251,7 @@ void LoopAll::AddCut2(char *cutnamesc, int ncatstmp, int ifromright, int ifinalc
   AddCounter(ncatstmp, a, "", "", "");
 }
 
+#ifdef NewFeatures
 
 void LoopAll::BdtGetEntry(Int_t jentry) {
 

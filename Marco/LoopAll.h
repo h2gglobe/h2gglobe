@@ -14,11 +14,11 @@
 #include <string>
 #include <list>
 
-#ifdef NewFeatures
 #include <THStack.h>
 #include <TLegend.h>
 #include <TAxis.h>
-#endif
+
+#include "TMVA/Reader.h"
 
 class BaseAnalysis;
 
@@ -67,10 +67,6 @@ class LoopAll {
   virtual Bool_t Notify();
   virtual void   Show(Long64_t entry = -1);
   virtual void   InitHistos();
-#ifndef NewFeatures
-  virtual void   BookHisto(int, int, int, int, int, int,
-                           float, float, float, float, char*);
-#endif
 
   void LoopAndFillHistos(TString treename="event");
   void MergeContainers();
@@ -114,10 +110,8 @@ class LoopAll {
   TTree * outputTree;
   TTree * outputTreeLumi;
   TTree * outputTreePar;
-#ifdef NewFeatures   
   TTree * plotvartree;
   TTree * inputfiletree;
-#endif
 
   TH1D  * pileup;
 
@@ -167,22 +161,15 @@ class LoopAll {
   void AddCut(char*,int,int,int,float*,float*);
   void InitCounters();
 
-#ifndef NewFeatures
-  void AddCounter(int,char*,char*,char*,char*);
-#endif
-
-#ifdef NewFeatures
   void AddCounter(int, const char*, const char*, const char*, const char*);
-#endif
 
   int ApplyCut(int, float, int);
   int ApplyCut(std::string, float, int);
 
 #ifdef NewFeatures
-
   //FOR JIM
   void BdtGetEntry(Int_t jentry);
-
+#endif
 
 
   void myPrintCounters();
@@ -221,7 +208,6 @@ class LoopAll {
   
   int SetCutVariables(int i, float * variables);
   int SetCutVariables(TString cutname, float * variables);  
-#endif
 
   void FillHist(std::string, float);
   void FillHist2D(std::string, float, float);
@@ -278,6 +264,60 @@ class LoopAll {
   
   /** list of the analyses to be performed */
   std::vector<BaseAnalysis*> analyses;
+
+  TMVA::Reader *tmvaReaderID_UCSD, * tmvaReader_dipho_UCSD;
+  TMVA::Reader *tmvaReaderID_MIT_Barrel, *tmvaReaderID_MIT_Endcap;
+  TMVA::Reader *tmvaReader_dipho_MIT;
+ 
+  Float_t tmva_id_ucsd_sieie;
+  Float_t tmva_id_ucsd_goodpf_iso;
+  Float_t tmva_id_ucsd_badpf_iso;
+  Float_t tmva_id_ucsd_drtotk;
+  Float_t tmva_id_ucsd_hoe;
+  Float_t tmva_id_ucsd_tkisopf;
+  Float_t tmva_id_ucsd_r9;
+  Float_t tmva_id_ucsd_ptom;
+  Float_t tmva_id_ucsd_eta;
+  Float_t tmva_id_ucsd_isLeading;
+  
+  Float_t tmva_dipho_UCSD_subleadptomass;
+  Float_t tmva_dipho_UCSD_diphoptom;
+  Float_t tmva_dipho_UCSD_sumptom;
+  Float_t tmva_dipho_UCSD_subleadmva;
+  Float_t tmva_dipho_UCSD_leadmva;
+  Float_t tmva_dipho_UCSD_leadeta;
+  Float_t tmva_dipho_UCSD_subleadeta;
+  Float_t tmva_dipho_UCSD_leadr9;
+  Float_t tmva_dipho_UCSD_subleadr9;
+  Float_t tmva_dipho_UCSD_dmom;
+  Float_t tmva_dipho_UCSD_diphocat2r92eta;
+
+  Float_t tmva_id_mit_hoe;
+  Float_t tmva_id_mit_sieie;
+  Float_t tmva_id_mit_tiso1;
+  Float_t tmva_id_mit_tiso3;
+  Float_t tmva_id_mit_tiso2;
+  Float_t tmva_id_mit_r9;
+  Float_t tmva_id_mit_ecal;
+  Float_t tmva_id_mit_hcal;
+  Float_t tmva_id_mit_e5x5;
+  Float_t tmva_id_mit_etawidth;
+  Float_t tmva_id_mit_phiwidth;
+  Float_t tmva_id_mit_sieip;
+  Float_t tmva_id_mit_sipip;
+  Float_t tmva_id_mit_nvtx;
+  Float_t tmva_id_mit_preshower;
+ 
+  Float_t tmva_dipho_MIT_dmom;
+  Float_t tmva_dipho_MIT_dmom_wrong_vtx;
+  Float_t tmva_dipho_MIT_vtxprob;
+  Float_t tmva_dipho_MIT_ptom1;
+  Float_t tmva_dipho_MIT_ptom2;
+  Float_t tmva_dipho_MIT_eta1;
+  Float_t tmva_dipho_MIT_eta2;
+  Float_t tmva_dipho_MIT_dphi;
+  Float_t tmva_dipho_MIT_ph1mva;
+  Float_t tmva_dipho_MIT_ph2mva;
 };
 
 #endif
