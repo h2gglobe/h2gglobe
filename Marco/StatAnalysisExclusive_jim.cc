@@ -1117,12 +1117,18 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
     int diphoton_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtCut, subleadEtCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
 
     int passincl=0;
+    int catincl=0;
+    float evweightincl=0.;
+    float myweightincl=0.;
+    float evweightvbf=0.;
+    float myweightvbf=0.;
 
     if(diphoton_id>-1)
     {
       TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphoton_id], l.dipho_vtxind[diphoton_id], &smeared_pho_energy[0]);
       TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphoton_id], l.dipho_vtxind[diphoton_id], &smeared_pho_energy[0]);
       TLorentzVector diphoton = lead_p4+sublead_p4;
+      myAll_Mgg =diphoton.M();
       myInclusive_Mgg = diphoton.M();
       myInclusivePtHiggs =diphoton.Pt();
       
@@ -1143,9 +1149,12 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
       if(myInclusive_Mgg>100.&&myInclusive_Mgg<180.) {
 	l.FillHist("run",0, l.run, 1.);
       }
+      evweightincl=evweight;
+      myweightincl=myweight;
 
 
       int category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,0.,2,2,1);
+      catincl=category;
 
       ccat1=category;
 
@@ -1195,8 +1204,8 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
         
         highestPtJets = Select2HighestPtJets(l, lead_p4, sublead_p4, jet1ptcut, jet2ptcut, jet3);
 
-	if(jet3)
-	  cout<<"AAA MARCOMM Outside "<<jet3->Pt()<<endl;
+	//if(jet3)
+	  //  cout<<"AAA MARCOMM Outside "<<jet3->Pt()<<endl;
 
         bool VBFpresel = (highestPtJets.first>=0)&&(highestPtJets.second>=0);
 
@@ -1278,6 +1287,8 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
 	float myweight=1.;
 	if(evweight*newweight!=0) myweight=evweight/newweight;
 
+	evweightvbf=evweight;
+	myweightvbf=myweight;
 
 
 	//cout<<" Weights: weight "<<weight<<" newtimepileup" <<newweight*pileupWeight<<" genwei "<<genLevWeight<<" PTHihhs "<<myAllPtHiggs<<""<<genLevWeight<<endl;
@@ -1292,8 +1303,8 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
 	
 
 
-	if(jet3)
-	  cout<<"AAA MARCOMM bef set "<<jet3->Pt()<<endl;
+	  //if(jet3)
+	  //cout<<"AAA MARCOMM bef set "<<jet3->Pt()<<endl;
 
 	  SetOutputNtupleVariables(jentry, itypepass, l.dipho_leadind[diphotonVBF_id], l.dipho_subleadind[diphotonVBF_id], l.dipho_vtxind[diphotonVBF_id], diphoton.M(), &lead_p4, &sublead_p4, evweight, pileupWeight, jet1, jet2, jet3);
 	  
@@ -1459,6 +1470,21 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
        
       }
       */
+    }
+
+
+
+    if(VBFevent) {
+      if(l.ApplyCut("massrange",myAll_Mgg,0)) {
+	l.FillHist("Mass5cat",0,myAll_Mgg,evweightvbf);
+      }
+      l.FillCounter("Mass5cat",myweightvbf,0);
+    }
+    else if(passincl) {
+      if(l.ApplyCut("massrange",myAll_Mgg,0)) {
+	l.FillHist("Mass5cat",catincl+1,myAll_Mgg,evweightincl);
+      }
+      l.FillCounter("Mass5cat",myweightincl,catincl+1);
     }
     
     if(includeVBF&&VBFevent) diphoton_id = diphotonVBF_id;
@@ -4147,8 +4173,8 @@ void StatAnalysisExclusive::SetOutputNtupleVariables(int jentry, int itype, int 
   t_j3eta=0.;
   t_j3phi=0.;
 
-	if(jet3)
-	  cout<<"AAA MARCOMM in set "<<jet3->Pt()<<endl;
+  //if(jet3)
+	  //cout<<"AAA MARCOMM in set "<<jet3->Pt()<<endl;
 
   if(jet3) {
     t_j3pt=jet3->Pt();
