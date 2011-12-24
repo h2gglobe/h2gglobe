@@ -12,7 +12,7 @@ void LoopAll::SetAllMVA() {
   tmvaReaderID_UCSD->AddVariable("ptom",       &tmva_id_ucsd_ptom);
   tmvaReaderID_UCSD->AddVariable("eta",        &tmva_id_ucsd_eta);
   tmvaReaderID_UCSD->AddSpectator("isLeading", &tmva_id_ucsd_isLeading);
-  tmvaReaderID_UCSD->BookMVA("Gradient", "ID_UCSD.weights.xml");
+  tmvaReaderID_UCSD->BookMVA("Gradient", "../ID_UCSD.weights.xml");
   
   tmvaReader_dipho_UCSD = new TMVA::Reader("!Color:Silent"); 
   tmvaReader_dipho_UCSD->AddVariable("subleadptomass",   &tmva_dipho_UCSD_subleadptomass);
@@ -26,7 +26,7 @@ void LoopAll::SetAllMVA() {
   tmvaReader_dipho_UCSD->AddVariable("subleadr9",        &tmva_dipho_UCSD_subleadr9);
   tmvaReader_dipho_UCSD->AddVariable("dmom",             &tmva_dipho_UCSD_dmom);
   tmvaReader_dipho_UCSD->AddSpectator("diphocat2r92eta", &tmva_dipho_UCSD_diphocat2r92eta);
-  tmvaReader_dipho_UCSD->BookMVA("Gradient", "diphoton_UCSD.weights.xml");
+  tmvaReader_dipho_UCSD->BookMVA("Gradient", "../diphoton_UCSD.weights.xml");
 
   tmvaReaderID_MIT_Barrel = new TMVA::Reader("!Color:Silent"); 
   tmvaReaderID_MIT_Barrel->AddVariable("HoE",         &tmva_id_mit_hoe);
@@ -43,7 +43,7 @@ void LoopAll::SetAllMVA() {
   tmvaReaderID_MIT_Barrel->AddVariable("CoviEtaiPhi", &tmva_id_mit_sieip);
   tmvaReaderID_MIT_Barrel->AddVariable("CoviPhiiPhi", &tmva_id_mit_sipip);
   tmvaReaderID_MIT_Barrel->AddVariable("NVertexes",   &tmva_id_mit_nvtx);
-  tmvaReaderID_MIT_Barrel->BookMVA("AdaBoost", "TMVAClassificationPhotonID_Barrel_PassPreSel_Variable_6_BDTnCuts2000_BDT.weights.xml");
+  tmvaReaderID_MIT_Barrel->BookMVA("AdaBoost", "../TMVAClassificationPhotonID_Barrel_PassPreSel_Variable_6_BDTnCuts2000_BDT.weights.xml");
 
   tmvaReaderID_MIT_Endcap = new TMVA::Reader("!Color:Silent"); 
   tmvaReaderID_MIT_Endcap->AddVariable("HoE",                &tmva_id_mit_hoe);
@@ -61,7 +61,7 @@ void LoopAll::SetAllMVA() {
   tmvaReaderID_MIT_Endcap->AddVariable("CoviPhiiPhi",        &tmva_id_mit_sipip);
   tmvaReaderID_MIT_Endcap->AddVariable("NVertexes",          &tmva_id_mit_nvtx);
   tmvaReaderID_MIT_Endcap->AddVariable("RelPreshowerEnergy", &tmva_id_mit_preshower);
-  tmvaReaderID_MIT_Endcap->BookMVA("AdaBoost", "TMVAClassificationPhotonID_Endcap_PassPreSel_Variable_6_BDTnCuts2000_BDT.weigh  ts.xml");
+  tmvaReaderID_MIT_Endcap->BookMVA("AdaBoost", "../TMVAClassificationPhotonID_Endcap_PassPreSel_Variable_6_BDTnCuts2000_BDT.weights.xml");
 
   tmvaReader_dipho_MIT = new TMVA::Reader("!Color:Silent"); 
   tmvaReader_dipho_MIT->AddVariable("masserrsmeared/mass",         &tmva_dipho_MIT_dmom);
@@ -74,7 +74,7 @@ void LoopAll::SetAllMVA() {
   tmvaReader_dipho_MIT->AddVariable("TMath::Cos(ph1.phi-ph2.phi)", &tmva_dipho_MIT_dphi);
   tmvaReader_dipho_MIT->AddVariable("ph1.idmva",                   &tmva_dipho_MIT_ph1mva);
   tmvaReader_dipho_MIT->AddVariable("ph2.idmva",                   &tmva_dipho_MIT_ph2mva);
-  tmvaReader_dipho_MIT->BookMVA("Gradient", "HggBambu_SM_Dec9_BDTG.weights.xml");
+  tmvaReader_dipho_MIT->BookMVA("Gradient", "../HggBambu_SM_Dec9_BDTG.weights.xml");
 }
 
 Float_t LoopAll::photonIDMVA(Int_t iPhoton, Int_t vtx, const char* type) {

@@ -140,10 +140,6 @@ vtx_std_scalarpt
 
 sc_p4
 
-->
-FOR JIM TO UNCOMMENT
-->
-
 pho_pfiso_mycharged04
 pho_pfiso_myphoton04
 pho_pfiso_mycharged03
@@ -166,7 +162,11 @@ bs_sigmaZ
 vtx_std_evt_mva
 
 ->
-FOR JIM TO UNCOMMENT
+Not yet included in the reduction
+sc_sphi
+sc_seta
+sc_raw
+sc_pre
 ->
 
 ->

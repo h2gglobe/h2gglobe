@@ -3622,7 +3622,7 @@ float StatAnalysisExclusive::diphoSubCategory(int c4, int diphoCutLev) {
 void StatAnalysisExclusive::SetBDT() {
 
   //MPDEBUG=1;
-
+  /*
   std::cout<<"SetBDT"<<std::endl;
   if(MPDEBUG)  std::cout<<"SetBDT"<<std::endl;
 
@@ -3666,7 +3666,7 @@ void StatAnalysisExclusive::SetBDT() {
   tmvaReader1->BookMVA("Category_Gradient", "/home/users/branson/globeArea11/globe/MVAweights/mh_110_135_Category_Gradient.weights.xml");
 
   std::cout<<"SetBDT1"<<std::endl;
-
+  */
   tmvaReader2 = new TMVA::Reader("!Color:Silent");
   tmvaReader2->AddVariable("sieie", &tmva_sieie);
   tmvaReader2->AddVariable("goodpf_iso", &tmva_goodpf_iso);
@@ -3678,11 +3678,11 @@ void StatAnalysisExclusive::SetBDT() {
   tmvaReader2->AddVariable("ptom", &tmva_ptom);
   tmvaReader2->AddVariable("eta", &tmva_eta);
   tmvaReader2->AddSpectator("isLeading", &tmva_isLeading);
-  tmvaReader2->BookMVA("Gradient", "/home/users/matteo/all_masses_ptom_Gradient.weights.xml");
+  tmvaReader2->BookMVA("Gradient", "../ID_UCSD.weights.xml");
   std::cout<<"SetBDT2"<<std::endl;
   if(MPDEBUG)  std::cout<<"SetBDT End"<<std::endl;
 
-
+  /*
   tmvaReader3 = new TMVA::Reader("!Color:Silent");
   tmvaReader3->AddVariable("sieie", &tmva_sieie);
   tmvaReader3->AddVariable("goodpf_iso", &tmva_goodpf_iso);
@@ -3696,7 +3696,7 @@ void StatAnalysisExclusive::SetBDT() {
   tmvaReader3->AddSpectator("isLeading", &tmva_isLeading);
   tmvaReader3->BookMVA("Gradient", "/home/users/matteo/test_Gradient.weights.xml");
   if(MPDEBUG)  std::cout<<"SetBDT End"<<std::endl;
-
+  */
 
   tmvaReader_dipho = new TMVA::Reader("!Color:Silent"); 
   tmvaReader_dipho->AddVariable("subleadptomass", &tmva_subleadptomass);
@@ -3708,12 +3708,11 @@ void StatAnalysisExclusive::SetBDT() {
   tmvaReader_dipho->AddVariable("subleadeta", &tmva_subleadeta);
   tmvaReader_dipho->AddVariable("leadr9", &tmva_leadr9);
   tmvaReader_dipho->AddVariable("subleadr9", &tmva_subleadr9);
- tmvaReader_dipho->AddVariable("dmom", &tmva_dmom);
+  tmvaReader_dipho->AddVariable("dmom", &tmva_dmom);
   tmvaReader_dipho->AddSpectator("diphocat2r92eta", &tmva_isLeading);
-  tmvaReader_dipho->BookMVA("Gradient", "/home/users/matteo/diphoton_with_dmom_Gradient.weights.xml");
-  //  tmvaReader_dipho->BookMVA("Gradient", "/home/users/matteo/diphoton_dec1_Gradient.weights.xml");
+  tmvaReader_dipho->BookMVA("Gradient", "../diphoton_UCSD.weights.xml");
 
-
+  /*
   tmvaReader_dipho2 = new TMVA::Reader("!Color:Silent"); 
   tmvaReader_dipho2->AddVariable("subleadptomass", &tmva_subleadptomass);
   tmvaReader_dipho2->AddVariable("diphoptom", &tmva_diphoptom);
@@ -3725,8 +3724,8 @@ void StatAnalysisExclusive::SetBDT() {
   tmvaReader_dipho2->AddVariable("leadr9", &tmva_leadr9);
   tmvaReader_dipho2->AddVariable("subleadr9", &tmva_subleadr9);
   tmvaReader_dipho2->AddSpectator("diphocat2r92eta", &tmva_isLeading);
-  //tmvaReader_dipho2->BookMVA("Gradient", "/home/users/matteo/diphoton_without_qcd_allstat_Gradient.weights.xml");
   tmvaReader_dipho2->BookMVA("Gradient", "/home/users/matteo/diphoton_allstat_Gradient.weights.xml");
+  */
 }
 
 
@@ -4345,16 +4344,17 @@ if(jentry%1000==1&&itype>0&&itype%1000==1) cout<<jentry<<"  "<<itype<<"  mass="<
   t_diphomva2 = 0.;
 
   if(ll->GetCutValue("bdt")) {
-       t_subleadci6cpfmva = BDT(jentry, subleadind,vtxind);
-       t_subleadci6cpfmvacat = BDT_categorized(jentry, subleadind, vtxind, -1.);
-       t_subleadci6cpfmvaptom = BDT_ptom(jentry, subleadind,vtxind, mass);
-       t_subleadci6cpfmvaptom2 = BDT_ptom2(jentry, subleadind,vtxind, mass);
-       t_leadci6cpfmva = BDT(jentry, leadind,vtxind);
-       t_leadci6cpfmvacat = BDT_categorized(jentry, leadind,vtxind, 1.);
-       t_leadci6cpfmvaptom = BDT_ptom(jentry, leadind,vtxind, mass);
-       t_leadci6cpfmvaptom2 = BDT_ptom2(jentry, leadind,vtxind, mass);
-       t_diphomva = BDT_dipho(jentry, leadind, subleadind, t_leadci6cpfmvaptom, t_subleadci6cpfmvaptom, t_diphopt, mass, t_dmom);
-       t_diphomva2 = BDT_dipho2(jentry, leadind, subleadind, t_leadci6cpfmvaptom, t_subleadci6cpfmvaptom, t_diphopt, mass);
+    // FIXME
+    t_subleadci6cpfmva = 99;//BDT(jentry, subleadind,vtxind);
+    t_subleadci6cpfmvacat = 99;//BDT_categorized(jentry, subleadind, vtxind, -1.);
+    t_subleadci6cpfmvaptom = BDT_ptom(jentry, subleadind,vtxind, mass);
+    t_subleadci6cpfmvaptom2 = 99;//BDT_ptom2(jentry, subleadind,vtxind, mass);
+    t_leadci6cpfmva = 99;//BDT(jentry, leadind,vtxind);
+    t_leadci6cpfmvacat = 99;//BDT_categorized(jentry, leadind,vtxind, 1.);
+    t_leadci6cpfmvaptom = BDT_ptom(jentry, leadind,vtxind, mass);
+    t_leadci6cpfmvaptom2 = 99;//BDT_ptom2(jentry, leadind,vtxind, mass);
+    t_diphomva = BDT_dipho(jentry, leadind, subleadind, t_leadci6cpfmvaptom, t_subleadci6cpfmvaptom, t_diphopt, mass, t_dmom);
+    t_diphomva2 = 99;//BDT_dipho2(jentry, leadind, subleadind, t_leadci6cpfmvaptom, t_subleadci6cpfmvaptom, t_diphopt, mass);
   }
   //std::pair<int,int> diphoton_indices(DiphotonCiCSelectionIndices( LEADCUTLEVEL, SUBLEADCUTLEVEL, leadPtMin, subleadPtMin, CICNCAT, -1, false));
   //leadind = diphoton_indices.first;
