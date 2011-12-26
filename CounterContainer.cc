@@ -45,7 +45,7 @@ void CounterContainer::Fill(std::string name, int category, float weight) {
   if (index != -1)
     c[index][category] += weight;
   else
-    std::cout << "Wrong counter name" << std::endl;
+    std::cout << "Wrong counter name: " <<name<< std::endl;
 }
 
 unsigned int CounterContainer::ncat(unsigned int length) {
