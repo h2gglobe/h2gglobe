@@ -1,11 +1,11 @@
-intL=4715. histfile=jimdatafiles_5fb_Dec14_90_190_dataA.root output=schifDec14_90_190.root 
+intL=4715. histfile=jimdatafiles_5fb_Dec14_90_190_dataA.root output=schifDec14_90_190_dataA.root 
 
 ->
 cd PhotonAnalysis_scripts/
-rm  ../Marco/jimdatafiles_5fb_Dec14_90_190.dat.pevents
-python fitter.py -i ../Marco/jimdatafiles_5fb_Dec14_90_190.dat --dryRun
+rm  ../Marco/jimdatafiles_5fb_Dec14_90_190_dataA.dat.pevents
+python fitter.py -i ../Marco/jimdatafiles_5fb_Dec14_90_190_dataA.dat --dryRun
 cd PhotonAnalysis_scripts/
-python fitter.py -i ../Marco/jimdatafiles_5fb_Dec14_90_190.dat >& jimdatafiles_5fb_Dec14_90_190.log
+python fitter.py -i ../Marco/jimdatafiles_5fb_Dec14_90_190_dataA.dat >& jimdatafiles_5fb_Dec14_90_190_dataA.log
 
 Data
 ->

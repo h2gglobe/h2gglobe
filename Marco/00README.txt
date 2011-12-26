@@ -34,7 +34,7 @@ cmsenv
 cvs co -r branch_for_42X -d HiggsAnalysis/HiggsTo2photons UserCode/HiggsAnalysis/HiggsTo2photons 
 rm -r  HiggsAnalysis/HiggsTo2photons/h2gglobe
 
-#check out the head of h2gglobe (we should make a tag)
+#check out the head of h2gglobe (Last hopefully working tag is marco_Dec26)
 
 cvs co -d HiggsAnalysis/HiggsTo2photons/h2gglobe UserCode/HiggsAnalysis/HiggsTo2photons/h2gglobe
 cd HiggsAnalysis/HiggsTo2photons/h2gglobe
@@ -60,16 +60,21 @@ make clean; make -j 30
 # files needed to run at UCSD (in h2gglobe)
 cp Marco/photonanalysis_ucsd.dat PhotonAnalysis_scripts/photonanalysis.dat
 cp Marco/statanalysis_ucsd.dat PhotonAnalysis_scripts/statanalysis.dat
+cp Marco/pu_weights_map.dat PhotonAnalysis_scripts/pu_weights_map.dat
+
 cp Marco/subfit* PhotonAnalysis_scripts/.
 cp Marco/datafiles_5fb_dec20_all_sm.dat PhotonAnalysis_scripts/.
-cp Marco/pu_weights_map.dat PhotonAnalysis_scripts/.
+
 
 cd PhotonAnalysis_scripts
-python fitter.py -i datafiles_5fb_dec20_all_sm.dat -n numOfJobs -j jobNum
 
-#jobNum goes from 0 to numOfJobs-1
 
-Example:
+### The following jobs create the RooWorkspace that is the input to the cL calculations
+
+### python fitter.py -i datafiles_5fb_dec20_all_sm.dat -n numOfJobs -j jobNum
+### jobNum goes from 0 to numOfJobs-1
+
+### Example:
 
 cd PhotonAnalysis_scripts
 python fitter.py -i datafiles_5fb_dec20_all_sm.dat -n 100 -j 0
@@ -99,7 +104,7 @@ python fitter.py -i datafiles_5fb.dat -n 100 -j 0
 
 ### start Chris
 
-Merging of Workspaces:
+Instructions on merging the Workspaces:
 
 At ucsd done with subfit* for different uafs
 
@@ -152,14 +157,7 @@ cp Marco/minimal_statanalysis_input.dat PhotonAnalysis_scripts/minimal_statanaly
 cp Marco/StatAnalysisExclusive_jim.h PhotonAnalysis/interface/StatAnalysisExclusive.h
 cp Marco/StatAnalysisExclusive_jim.cc PhotonAnalysis/src/StatAnalysisExclusive.cc
 cp Marco/cuts_marco.dat PhotonAnalysis_scripts/cuts.dat
-
-
-### MATTEO ???
-cp Marco/StatAnalysisExclusive_jim.h PhotonAnalysis/interface/StatAnalysisExclusive.h
-cp Marco/StatAnalysisExclusive_jim.cc PhotonAnalysis/src/StatAnalysisExclusive.cc
-### END MATTEO ???
-
-
+cp Marco/counters.dat PhotonAnalysis_scripts/counters.dat
 
 make clean; make -j 30
 
@@ -193,9 +191,13 @@ python fitter.py -i ../Marco/jimdatafiles_5fb_Dec14_90_190.dat --dryRun
 python fitter.py -i ../Marco/jimdatafiles_5fb_Dec14_90_190.dat >& jimdatafiles_5fb_Dec14_90_190.log
 
 
+### These jobs create 'optree' called Ntuple inside the output histogram file.
+### From this one can do the mava analysis.
+### The mva analysis workspace could be create directly in these jobes but
+### StatAnalysis should be modifid for that 
 
 
-
+### This is from matteo
 
 Run the following commands on different UAF machines:
 python fitter.py -i ../Marco/jimdatafiles_5fb_Dec14_90_190_dataA.dat >& jimdatafiles_5fb_Dec14_90_190_dataA.log

@@ -1129,6 +1129,8 @@ void LoopAll::GetBranches(std::map<std::string,int> & names, std::set<TBranch *>
 void LoopAll::SetBranchAddresses(std::map<std::string,int> & names) {
   int ii=0;
 
+  int idebug=0;
+
     for(std::map<std::string,int>::iterator it=names.begin(); it!=names.end(); ++it ) {
 	const std::string & name = (*it).first;
 	int typ = (*it).second;
@@ -1137,10 +1139,10 @@ void LoopAll::SetBranchAddresses(std::map<std::string,int> & names) {
 		std::cerr << "no read function for branch '"<< name << "'" << std::endl;
 		assert( 0 );
 	}
-	std::cout <<ii++<< "branch '"<< name << "'" << current<<" "<<itype[current]<<" "<<typ<<std::endl;
+	if(idebug) std::cout <<ii++<< "branch '"<< name << "'" << current<<" "<<itype[current]<<" "<<typ<<std::endl;
         if ( itype[current]!=0 || typ!=1)
 	  (this->*(info.read)) (fChain);
-	std::cout <<ii++<< "branch aft '"<< name << "'" << std::endl;
+	if(idebug) std::cout <<ii++<< "branch aft '"<< name << "'" << std::endl;
     }
     std::cout<<"END FUNC"<<std::endl;
 }

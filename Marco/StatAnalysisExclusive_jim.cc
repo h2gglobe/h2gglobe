@@ -1105,8 +1105,8 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
 	
 	optree->Fill();
 	int noptree=optree->GetEntries();
-	if(noptree<1000) cout<<" filling optree n="<<noptree<<endl;
-	if(noptree%1000==0||noptree%1000==1) cout<<" optree n="<<noptree<<endl;
+	if(noptree<100) cout<<" filling optree n="<<noptree<<endl;
+	if(noptree%1000==1) cout<<" optree n="<<noptree<<endl;
 	//if(noptree%10000==2) optree->Print();
 	
       }
@@ -2097,8 +2097,8 @@ std::pair<int, int> StatAnalysisExclusive::Select2HighestPtJets(LoopAll& l, TLor
 
   //cout<<"AAA MARCOMM "<<l.jet_algoPF1_n<<" "<<myJetsnew.first<<" "<<myJetsnew.second<<endl;
 
-  if(jet3)
-    cout<<"AAA MARCOMM "<<ind3<<" "<<jet3->Pt()<<endl;
+  //if(jet3)
+  //cout<<"AAA MARCOMM "<<ind3<<" "<<jet3->Pt()<<endl;
 
   //if(myJets.first==-1) return fail;
   //return myJets;
@@ -4521,7 +4521,7 @@ if(jentry%1000==1&&itype>0&&itype%1000==1) cout<<jentry<<"  "<<itype<<"  mass="<
   //  pf first guess isolation variables   pfiso
 
 
-  if((optree->GetEntries()<1000||optree->GetEntries()%100==1)&&t_mass>95&&t_mass<145&&t_leadci6cindex>2&&t_subleadci6cindex>2) {
+  if((optree->GetEntries()<100||optree->GetEntries()%1000==1)&&t_mass>95&&t_mass<145&&t_leadci6cindex>2&&t_subleadci6cindex>2) {
     float stkreciso=(*(ll->pho_tkiso_recvtx_030_002_0000_10_01))[subleadind][vtxind];
     float ltkreciso=(*(ll->pho_tkiso_recvtx_030_002_0000_10_01))[leadind][vtxind];
 
