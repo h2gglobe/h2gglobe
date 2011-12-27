@@ -1102,7 +1102,17 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
 	int itypepass=cur_type;
 	
 	SetOutputNtupleVariables(jentry, itypepass, l.dipho_leadind[diphoton_id_jim], l.dipho_subleadind[diphoton_id_jim], l.dipho_vtxind[diphoton_id_jim], diphoton.M(), &lead_p4, &sublead_p4, evweight, pileupWeight);
-	
+
+	t_pvtx = vtxAna_.vertexProbability((*l.vtx_std_evt_mva)[l.dipho_vtxind[diphoton_id_jim]]);
+        Float_t t_dmodz = l.getDmOverDz(l.dipho_leadind[diphoton_id_jim], l.dipho_subleadind[diphoton_id_jim], &smeared_pho_energy[0]);
+        float z_gg = ((TVector3*)(l.vtx_std_xyz->At(l.dipho_vtxind[diphoton_id_jim])))->Z();
+        t_sigma_mz = fabs(t_dmodz)*(sqrt(pow(double(l.bs_sigmaZ), 2) + pow(double(z_gg), 2))) / diphoton.M();
+        t_bsZ = l.bs_sigmaZ;
+
+	t_leadphoidmitmva = l.photonIDMVA(l.dipho_leadind[diphoton_id_jim], l.dipho_vtxind[diphoton_id_jim], "MIT");
+	t_subleadphoidmitmva = l.photonIDMVA(l.dipho_subleadind[diphoton_id_jim], l.dipho_vtxind[diphoton_id_jim], "MIT");
+        t_diphomitmva = l.diphotonMVA(l.dipho_leadind[diphoton_id_jim], l.dipho_subleadind[diphoton_id_jim], l.dipho_vtxind[diphoton_id_jim], t_pvtx, diphoton.Pt(), diphoton.M(), "MIT");
+
 	optree->Fill();
 	int noptree=optree->GetEntries();
 	if(noptree<100) cout<<" filling optree n="<<noptree<<endl;
@@ -2249,6 +2259,13 @@ void StatAnalysisExclusive::HggBookOptree() {
   optree->Branch("subleadecal_060_32_20_018",&t_subleadecal_060_32_20_018,"subleadecal_060_32_20_018/F",2000000);
   optree->Branch("subleadecal_075_36_12_015",&t_subleadecal_075_36_12_015,"subleadecal_075_36_12_015/F",2000000);
   */
+
+  optree->Branch("pvtx", &t_pvtx, "pvtx/F");
+  optree->Branch("sigma_mz", &t_sigma_mz, "sigma_mz/F");
+  optree->Branch("leadphoidmitmva", &t_leadphoidmitmva, "leadphoidmitmva/F");
+  optree->Branch("subleadphoidmitmva", &t_subleadphoidmitmva, "subleadphoidmitmva/F");
+  optree->Branch("diphomitmva", &t_diphomitmva, "diphomitmva/F");
+  optree->Branch("bsZ", &t_bsZ, "bsZ/F");
 
   optree->Branch("nvtx",&t_nvtx,"nvtx/F",2000000);
   optree->Branch("rho",&t_rho,"rho/F",2000000);
@@ -3622,6 +3639,7 @@ float StatAnalysisExclusive::diphoSubCategory(int c4, int diphoCutLev) {
 void StatAnalysisExclusive::SetBDT() {
 
   //MPDEBUG=1;
+
   /*
   std::cout<<"SetBDT"<<std::endl;
   if(MPDEBUG)  std::cout<<"SetBDT"<<std::endl;
@@ -3679,7 +3697,6 @@ void StatAnalysisExclusive::SetBDT() {
   tmvaReader2->AddVariable("eta", &tmva_eta);
   tmvaReader2->AddSpectator("isLeading", &tmva_isLeading);
   tmvaReader2->BookMVA("Gradient", "../ID_UCSD.weights.xml");
-  std::cout<<"SetBDT2"<<std::endl;
   if(MPDEBUG)  std::cout<<"SetBDT End"<<std::endl;
 
   /*
@@ -3975,7 +3992,6 @@ Float_t StatAnalysisExclusive::BDT_ptom(Int_t jentry, Int_t iPhoton, Int_t vtx, 
   tmva_eta = fabs(((TLorentzVector*)ll->pho_p4->At(iPhoton))->Eta());
   
   if(MPDEBUG)  std::cout<<"BDT end"<<std::endl;
-  
   Float_t mva = tmvaReader2->EvaluateMVA("Gradient");
   //cout<<"BDT  "<<jentry<<"  "<<iPhoton<<"  "<<vtx<<"  "<<isomax<<"  "<<badind<<"  "<<rhofac<<"  "<<rhofacbad<<"  "<<tmva_pt<<"  "<<tmva_badpf_iso<<"  "<<tmva_goodpf_iso<<"  "<<tmva_sieie<<"  "<<tmva_drtotk
   //    <<"  "<<tmva_hoe<<"  "<<tmva_tkisopf<<"  "<<tmva_r9<<"  "<<tmva_eta<<"  "<<mva<<endl;
@@ -4344,7 +4360,7 @@ if(jentry%1000==1&&itype>0&&itype%1000==1) cout<<jentry<<"  "<<itype<<"  mass="<
   t_diphomva2 = 0.;
 
   if(ll->GetCutValue("bdt")) {
-    // FIXME
+    // FIXME 
     t_subleadci6cpfmva = 99;//BDT(jentry, subleadind,vtxind);
     t_subleadci6cpfmvacat = 99;//BDT_categorized(jentry, subleadind, vtxind, -1.);
     t_subleadci6cpfmvaptom = BDT_ptom(jentry, subleadind,vtxind, mass);

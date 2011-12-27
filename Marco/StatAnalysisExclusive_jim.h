@@ -283,6 +283,12 @@ Float_t         t_subleadecalhitsJ_060330;
 //new for the ntuple
 Float_t t_rho;
 Float_t t_nvtx;
+Float_t t_pvtx;
+Float_t t_sigma_mz;
+Float_t t_leadphoidmitmva;
+Float_t t_subleadphoidmitmva;
+Float_t t_diphomitmva;
+Float_t t_bsZ;
 
 Float_t t_leadcutindex;
 Float_t t_subleadcutindex;
