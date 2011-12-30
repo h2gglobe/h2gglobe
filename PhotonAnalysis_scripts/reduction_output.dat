@@ -20,6 +20,10 @@ SuperClusters
 sc_p4
 sc_xyz
 sc_n
+sc_sphi
+sc_seta
+sc_raw
+sc_pre
 
 ->
 Tracks 
@@ -197,6 +201,8 @@ pho_pfiso_myneutral03
 pho_pfiso_myneutral04
 pho_pfiso_myphoton03
 pho_pfiso_myphoton04
+pho_sieip
+pho_sipip
 
 ->
 All Conversions
