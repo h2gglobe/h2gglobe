@@ -1,11 +1,10 @@
 #include "EnergySmearer.h"
 #include "PhotonReducedInfo.h"
-#include "TRandom3.h"
 #include <assert.h>
 
 EnergySmearer::EnergySmearer(const energySmearingParameters& par) : myParameters_(par), scaleOrSmear_(true), doCorrections_(false)
 {
-  rgen_ = new TRandom3(0);
+  rgen_ = new TRandom3(12345);
   name_="EnergySmearer_"+ par.categoryType + "_" + par.parameterSetName;
   //Checking consistency of input parameters
   std::cerr << myParameters_.categoryType << " " <<  myParameters_.n_categories << std::endl;

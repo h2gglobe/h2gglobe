@@ -583,6 +583,11 @@ void LoopAll::Loop(Int_t a) {
   outputEvents=0;
 
   int hasoutputfile=0;
+ // Call the Reset Analysis at start of new file
+  for (size_t i=0; i<analyses.size(); i++) {
+     analyses[i]->ResetAnalysis(); 
+  }
+
   for (Int_t jentry=0; jentry<nentries;jentry++) {
     
     if(jentry%10000==0) {

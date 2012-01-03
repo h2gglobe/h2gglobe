@@ -35,6 +35,8 @@ public:
 	virtual void Init(LoopAll&) = 0;
 	// ! Finilization method. Called at the end of the event loop.
 	virtual void Term(LoopAll&) = 0;
+	// ! Method called at the start of each new file, call to reset any random variables etc
+	virtual void ResetAnalysis() =0;
 	
 	// ! Method to use in order to book additional veriables in the output tree 
 	virtual void ReducedOutputTree(LoopAll &, TTree *) = 0;

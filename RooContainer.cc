@@ -7,23 +7,58 @@
 
 using namespace RooFit;
 
-RooContainer::RooContainer(int n, int s):ncat(n),nsigmas(s),make_systematics(false),save_systematics_data(false),fit_systematics(false),verbosity_(false){}
+RooContainer::RooContainer(int n, int s):ncat(n),nsigmas(s),make_systematics(false),save_systematics_data(false),verbosity_(false),fit_systematics(false),save_roodatahists(true){}
+
 // ----------------------------------------------------------------------------------------------------
 void RooContainer::SetNCategories(int n){
    ncat = n;
 }
+void RooContainer::Verbose(bool noisy){
+	verbosity_=noisy;
+}
 void RooContainer::AddGlobalSystematic(std::string name,double val_sig, double val_bkg){
   global_systematics_[name] = std::pair<double,double>(val_sig,val_bkg);
 }
+void RooContainer::AddNormalisationSystematics(std::string name,std::vector<std::pair<double,double> > vals, int type){
+
+  if (vals.size() != ncat) {
+	std::cerr << "WARNING! -- RooContainer::AddNormalisationsSystematics -- expected input of errors"
+		  << "to be equal in size to number of categories=" << ncat << std::endl;
+	
+  } else {
+  	std::vector<std::pair<double,double> > sys;
+  	if (type ==-1){ // Signal Systematics
+		
+		for (int cat=0;cat<ncat;cat++){	
+			double value = 1.+(vals[cat].second/vals[cat].first);
+			sys.push_back(std::pair<double,double> (value,1.0));
+		}
+    	} else if (type ==1){ // Background Systematics
+		for (int cat=0;cat<ncat;cat++){	
+			double value = 1.+(vals[cat].second/vals[cat].first);
+			sys.push_back(std::pair<double,double> (1.0,value));
+		}
+    	} else if (type ==0){ // Both
+		for (int cat=0;cat<ncat;cat++){	
+			double value = 1.+(vals[cat].second/vals[cat].first);
+			sys.push_back(std::pair<double,double> (value,value));
+		}
+    	} else std::cerr << "WARNING! -- RooContainer::AddNormalisationsSystematics -- type not understood " 
+			<< type << endl;
+ 	normalisation_systematics_.insert(std::pair <std::string,std::vector <std::pair< double, double > > > (name,sys));
+  }
+}
 // ----------------------------------------------------------------------------------------------------
-void RooContainer::SaveSystematicsData(bool _do){
-   save_systematics_data = _do;
+void RooContainer::SaveSystematicsData(bool save){
+   save_systematics_data = save;
 }
-void RooContainer::MakeSystematicPdfs(bool _do){
-   fit_systematics = _do;
+// ----------------------------------------------------------------------------------------------------
+void RooContainer::MakeSystematicPdfs(bool save){
+   fit_systematics = save;
 }
-void RooContainer::Verobose(bool noisy){
-	verbosity_=noisy;
+// ----------------------------------------------------------------------------------------------------
+void RooContainer::SaveRooDataHists(bool save){
+   save_roodatahists = save;
 }
 // ----------------------------------------------------------------------------------------------------
 void RooContainer::MakeSystematicStudy(std::vector<std::string> sys_names,std::vector<int> sys_types){
@@ -41,6 +76,7 @@ void RooContainer::AddConstant(std::string name,double init){
 // ----------------------------------------------------------------------------------------------------
 void RooContainer::AddObservable(std::string name,double xmin,double xmax){
     addRealVar(name,xmin,xmax);
+    m_real_var_[name].setRange("FullObservableRange",xmin,xmax);
     addRealVar(getweightName(name),0.,1.0e6);
 }
 
@@ -49,7 +85,7 @@ void RooContainer::AddRealVar(std::string name,double init,double xmin, double x
   for (int cat=0;cat<ncat;cat++){
     
     addRealVar(getcatName(name,cat),init,xmin,xmax);
-    if (make_systematics){
+    if (make_systematics && fit_systematics){
 	for (it_sys=systematics_.begin(); it_sys!=systematics_.end();it_sys++){
 	  for (int sys=1;sys<=nsigmas;sys++)
 	    addRealVar(getsysindexName(getcatName(name,cat),(it_sys->first),sys,-1),init,xmin,xmax);
@@ -63,7 +99,7 @@ void RooContainer::AddRealVar(std::string name,double init,double xmin, double x
 void RooContainer::AddFormulaVar(std::string name,std::string formula,std::string var){
   for (int cat=0;cat<ncat;cat++){
     addFormulaVar(getcatName(name,cat),formula,getcatName(var,cat));
-    if (make_systematics){
+    if (make_systematics && fit_systematics){
 	for (it_sys=systematics_.begin(); it_sys!=systematics_.end();it_sys++){
 	  for (int sys=1;sys<=nsigmas;sys++)
 	    addFormulaVar(getsysindexName(getcatName(name,cat),(it_sys->first),sys,-1),formula,getsysindexName(getcatName(var,cat),(it_sys->first),sys,-1));
@@ -88,7 +124,7 @@ void RooContainer::AddSpecificCategoryPdf(int *categories,std::string name,std::
     }  
     addGenericPdf(getcatName(name,cat),formula,obs_name,cat_var,form,norm_guess,norm_min,norm_max);
 
-    if (make_systematics){
+    if (make_systematics && fit_systematics){
       
       for (it_sys=systematics_.begin(); it_sys!=systematics_.end();it_sys++){
        for (int sys=1;sys<=nsigmas;sys++){
@@ -352,6 +388,7 @@ void RooContainer::Save(){
   std::cout << "RooContainer::Save -- Saving Plots "
             << std::endl;
 
+/*
   std::map<RooPlot*,double>::iterator it;
   for(it  = fit_res_.begin()
      ;it != fit_res_.end()
@@ -359,6 +396,9 @@ void RooContainer::Save(){
       
        writeRooPlot((*it).first,(*it).second);
   }
+*/
+  std::vector<TCanvas*>::iterator it;
+  for(it = fit_canvases_.begin();it != fit_canvases_.end();it++ ) (*it)->Write();
   
   std::cout << "RooContainer::Save -- Saving Pdfs "
             << std::endl;
@@ -388,6 +428,7 @@ void RooContainer::Save(){
   for (std::map<std::string,RooDataSet>::iterator it_data = data_.begin()
       ;it_data!=data_.end();it_data++)	{
 
+
 	ws.import(it_data->second);
   }
 
@@ -407,8 +448,46 @@ void RooContainer::Save(){
 
   ws.Write();
 }
+std::vector< std::pair<double,double> > RooContainer::GetFitNormalisationsAndErrors(std::string pdf_name, std::string data_name, double r1,double r2, bool external_fit){
+ 
+  std::vector< std::pair< double,double> > normalisations;
 
-std::vector<double> RooContainer::GetFitNormalisations(std::string pdf_name, std::string data_name, double r1,double r2){
+  for (int cat=0;cat<ncat;cat++){
+   std::map<std::string,RooRealVar*>::iterator obs_var = m_data_var_ptr_.find(getcatName(data_name,cat));
+   if (obs_var == m_data_var_ptr_.end()) {
+    std::cerr << "WARNING!!! -- RooContainer::GetFitNormalisations --  No Dataset named "
+	      << data_name << std::endl;
+   } else {
+     bool multi_pdf;
+     RooAbsPdf *pdf_ptr;
+
+     std::map<std::string,RooExtendPdf>::iterator exp = m_exp_.find(getcatName(pdf_name,cat));
+
+     if (exp != m_exp_.end()) {
+      pdf_ptr = &(exp->second);
+      multi_pdf = false;
+     } else {
+      std::map<std::string,RooAddPdf>::iterator pdf  = m_pdf_.find(getcatName(pdf_name,cat));
+     if (pdf != m_pdf_.end()) {
+      multi_pdf = true;
+      pdf_ptr = &(pdf->second);
+     }
+      else {
+        std::cerr << "WARNING!!! -- RooContainer::GetFitNormalisations --  No Pdf named "
+	         << pdf_name << endl;  
+      } 
+     }
+     std::cout << getcatName(pdf_name,cat)<< std::endl;
+     std::string obs_name = data_obs_names_[getcatName(data_name,cat)];
+     // Just use a weird name (getcatName(obs_name)) for the histogram since we dont need it
+     normalisations.push_back(getNormalisationAndErrorFromFit(getcatName(pdf_name,cat),getcatName(obs_name,cat),pdf_ptr,obs_var->second,r1,r2,multi_pdf,external_fit));
+   }
+  }
+
+  return normalisations;
+
+}
+std::vector<double> RooContainer::GetFitNormalisations(std::string pdf_name, std::string data_name, double r1,double r2, bool external_fit){
  
   std::vector<double> normalisations;
 
@@ -421,24 +500,26 @@ std::vector<double> RooContainer::GetFitNormalisations(std::string pdf_name, std
      bool multi_pdf;
      RooAbsPdf *pdf_ptr;
 
-     std::map<std::string,RooExtendPdf>::iterator exp = m_exp_.find(pdf_name);
+     std::map<std::string,RooExtendPdf>::iterator exp = m_exp_.find(getcatName(pdf_name,cat));
 
      if (exp != m_exp_.end()) {
-      pdf_ptr = &m_exp_[pdf_name];
+      pdf_ptr = &(exp->second);
+      multi_pdf = false;
      } else {
-      std::map<std::string,RooAddPdf>::iterator pdf  = m_pdf_.find(pdf_name);
+      std::map<std::string,RooAddPdf>::iterator pdf  = m_pdf_.find(getcatName(pdf_name,cat));
      if (pdf != m_pdf_.end()) {
       multi_pdf = true;
-      pdf_ptr = &m_pdf_[pdf_name];
+      pdf_ptr = &(pdf->second);
      }
       else {
         std::cerr << "WARNING!!! -- RooContainer::GetFitNormalisations --  No Pdf named "
 	         << pdf_name << endl;  
       } 
      }
+     std::cout << getcatName(pdf_name,cat)<< std::endl;
      std::string obs_name = data_obs_names_[getcatName(data_name,cat)];
      // Just use a weird name (getcatName(obs_name)) for the histogram since we dont need it
-     normalisations.push_back(getNormalisationFromFit(pdf_name,getcatName(obs_name,cat),pdf_ptr,obs_var->second,r1,r2,multi_pdf));
+     normalisations.push_back(getNormalisationFromFit(getcatName(pdf_name,cat),getcatName(obs_name,cat),pdf_ptr,obs_var->second,r1,r2,multi_pdf,external_fit));
    }
   }
 
@@ -473,6 +554,30 @@ void RooContainer::InputDataPoint(std::string var_name, int cat, double x, doubl
   }
 }
 
+// ----------------------------------------------------------------------------------------------------
+void RooContainer::InputBinnedDataPoint(std::string var_name, int cat, double x, double w){
+ 
+  if (cat>-1 && cat<ncat){
+    std::string name = getcatName(var_name,cat);
+    std::map<std::string, RooDataSet>::iterator it_var  = data_.find(name);
+    if (it_var == data_.end()) 
+      std::cerr << "WARNING -- RooContainer::InputDataPointBinned -- No DataSet named "<< name << std::endl;
+    else{
+      double min_x = m_var_min_[name];
+      double max_x = m_var_max_[name];
+
+      if (x > min_x && x < max_x){
+        m_th1f_[name].Fill(x,w);
+      }
+    }
+  }
+
+  else {
+    std::cerr << "WARNING -- RooContainer::InputDataPointBinned -- No Category Number " << cat 
+              << ", category must be from 0 to " << ncat-1
+	      << std::endl;
+  }
+}
 
 // ----------------------------------------------------------------------------------------------------
 void RooContainer::InputSystematicSet(std::string s_name, std::string sys_name, std::vector<int> cats
@@ -614,6 +719,86 @@ void RooContainer::SumBinnedDatasets(std::string new_name, std::string data_one,
    }
 }
 // -----------------------------------------------------------------------------------------
+void RooContainer::SumBinnedDatasets(std::string new_name, std::string data_one,std::string data_two,double coefficients_one,double coefficients_two, bool scale){
+
+	for (int cat=0;cat<ncat;cat++){
+	   sumBinnedDatasets(getcatName(new_name,cat),getcatName(data_one,cat),getcatName(data_two,cat),coefficients_one,coefficients_two,scale);
+	}
+	
+}
+
+void RooContainer::SumMultiBinnedDatasets(std::string new_name, std::vector<std::string > data, std::vector<double> normalisation,bool scale){
+	// this version takes a vector of histograms and sums them to the total normalisations. 
+	// if scale == true, then each histogram is summed together and then the total scaled to N
+	// if scale == false then each is scaled to N/numberofhists then added
+	// if N < 0 then total histogram is not scaled (if scale=false then N=1)
+   if (normalisation.size() != ncat ){
+	std::cerr << "WARNING!! -- RooContainer::SumMultiBinnedDataSets -- number of coefficients should be the same as number of categories " << std::endl;
+   } else {
+
+	for (int cat=0;cat<ncat;cat++){
+	   std::vector<std::string> catNames;
+	   for (std::vector<string>::iterator it = data.begin() ; it!=data.end();it++){
+		catNames.push_back(getcatName(*it,cat));
+	   }
+	   sumMultiBinnedDatasets(getcatName(new_name,cat),catNames,normalisation[cat],scale);
+	}
+	
+   }
+}
+
+void RooContainer::SumMultiBinnedDatasets(std::string new_name, std::vector<std::string > data, double normalisation,bool scale){
+	// this version takes a vector of histograms and sums them to the total normalisations. 
+	// if scale == true, then each histogram is summed together and then the total scaled to N
+	// if scale == false then each is scaled to N/numberofhists then added
+	// if N < 0 then total histogram is not scaled (if scale=false then N=1)
+
+	for (int cat=0;cat<ncat;cat++){
+	   std::vector<std::string> catNames;
+	   for (std::vector<string>::iterator it = data.begin() ; it!=data.end();it++){
+		catNames.push_back(getcatName(*it,cat));
+	   }
+	   sumMultiBinnedDatasets(getcatName(new_name,cat),catNames,normalisation,scale);
+	}
+	
+}
+
+void RooContainer::sumMultiBinnedDatasets(std::string new_name, std::vector<std::string > data, double normalisation,bool scale){
+	
+	int nHists = data.size();
+   	std::map<std::string,TH1F>::iterator it_one = m_th1f_.find(data[0]); // Get The first histogram
+
+	if (!scale && normalisation<0) normalisation=1.0;
+	
+   	if (it_one !=m_th1f_.end() ){
+
+       	  TH1F *histOne = (TH1F*)((*it_one).second).Clone();
+          histOne->SetName(Form("th1f_%s",new_name.c_str()));
+
+	  if (!scale) histOne->Scale(1.0/histOne->Integral());
+
+	  for (int i=1;i<nHists;i++){
+	
+   	   std::map<std::string,TH1F>::iterator it_two = m_th1f_.find(data[i]); // Get The first histogram
+      	   if (scale) {  // histograms are weighted by their own integrals
+		histOne->Add(&(it_two->second));
+	   } else {	// histograms equally weighted
+		histOne->Add(&(it_two->second),1.0/(it_two->second).Integral());
+		
+	   }
+	  } 
+	  if (normalisation > 0)  histOne->Scale(normalisation/histOne->Integral());	
+   	  m_th1f_.insert(std::pair<std::string,TH1F>(new_name,*histOne));
+	  std::cout << "RooContainer::SumBinnedDatasets -- Created New Histogram called " << new_name << std::endl;
+  
+  	} else {
+	   std::cerr << "WARNING -- RooContainer::SumBinnedDatasets -- The following Histogram wasn't found " 
+	             << data[0] << std::endl;
+   	}
+}
+	
+
+// -----------------------------------------------------------------------------------------
 void RooContainer::sumBinnedDatasets(std::string new_name,std::string data_one,std::string data_two,double c1, double c2, bool scale){
 
    std::map<std::string,TH1F>::iterator it_one = m_th1f_.find(data_one);
@@ -627,12 +812,12 @@ void RooContainer::sumBinnedDatasets(std::string new_name,std::string data_one,s
 	histOne->Scale(c1);
 	histOne->Add(&(it_two->second),c2);
       } else {
-	histOne->Scale(c1/histOne->Integral());
-	histOne->Add(&(it_two->second),c2/((*it_two).second).Integral());
+	histOne->Scale((c1/histOne->Integral()));
+	histOne->Add(&(it_two->second),(c2/((*it_two).second).Integral()));
       }
 
    m_th1f_.insert(std::pair<std::string,TH1F>(new_name,*histOne));
-   if (verbosity_) std::cout << "RooContainer::SumBinnedDatasets -- Created New Histogram called " << new_name << std::endl;
+   std::cout << "RooContainer::SumBinnedDatasets -- Created New Histogram called " << new_name << std::endl;
   
    } else {
 	std::cerr << "WARNING -- RooContainer::SumBinnedDatasets -- One of the following Histograms wasn't found " 
@@ -660,7 +845,7 @@ void RooContainer::combineBinnedDatasets(std::string data_one, std::string data_
 	  double N1 = (it_one->second).Integral();
 	  double N2 = (it_two->second).Integral();
 	  double f_mc = N2/(N1+N2);
-          double total = N1 + N2;
+      double total = N1 + N2;
 
  	  double f_data = fraction*f_mc;
 
@@ -669,10 +854,11 @@ void RooContainer::combineBinnedDatasets(std::string data_one, std::string data_
 	  (it_two->second).Scale(total*f_data/N2);
 	  (it_one->second).Add(&(it_two->second));
 
-	  if (verbosity_) std::cout << "RooContainer::CombinedBinnedDatasets -- Added second histogram to first with proportion corrected by " << fraction << std::endl;
+	  std::cout << "RooContainer::CombinedBinnedDatasets -- Added second histogram to first with proportion corrected by " << fraction << std::endl;
 	  // scale second one back to its original 
 
 	  (it_two->second).Scale(N2/(it_two->second).Integral());
+	  std::cout << "  seccond histogram is left unchanged " << std::endl;
 	
 	  
         } else {
@@ -799,6 +985,13 @@ void RooContainer::writeSpecificCategoryDataCard(int cat,std::string filename,st
    }
 
   
+   // Write Category Normalisations 
+   for (std::map<std::string,std::vector < std::pair< double,double> > >::iterator it_n_sys = normalisation_systematics_.begin();it_n_sys!=normalisation_systematics_.end(); it_n_sys++){
+     file << it_n_sys->first << " lnN ";
+     file << (((*it_n_sys).second)[cat].first) << " " << (((*it_n_sys).second)[cat].second) << " ";	
+     file <<endl;
+
+   }
     
    double sigmaUnitInv = 1./(sigmaRange/nsigmas);
    for (it_sys=systematics_.begin(); it_sys!=systematics_.end();it_sys++){ 
@@ -922,8 +1115,17 @@ void RooContainer::WriteDataCard(std::string filename,std::string data_name
      file <<endl;
    }
 
+   // Write Category Normalisations 
+   for (std::map<std::string,std::vector < std::pair< double,double> > >::iterator it_n_sys = normalisation_systematics_.begin();it_n_sys!=normalisation_systematics_.end(); it_n_sys++){
+     file << it_n_sys->first << " lnN ";
+     for (int cat=0;cat<ncat;cat++) file << ((*it_n_sys).second[cat].first) << " " << ((*it_n_sys).second[cat].second) << " ";	
+     file <<endl;
+
+   }
+
+
   
-    
+   // Finally Shape Systematics    
    double sigmaUnitInv = 1./(sigmaRange/nsigmas);
    for (it_sys=systematics_.begin(); it_sys!=systematics_.end();it_sys++){ 
     
@@ -984,20 +1186,21 @@ void RooContainer::addRealVar(std::string name ,double xmin,double xmax){
   RooRealVar temp(name.c_str(),name.c_str(),xmin,xmax);
   m_real_var_.insert(pair<std::string,RooRealVar >(name,temp));
 
-  if (verbosity_) {std::cout << "RooContainer::AddRealVar -- Appended the variable " 
-	    << name <<std::endl; 
+  if (verbosity_){
+  	std::cout << "RooContainer::AddRealVar -- Appended the variable " 
+		  << name <<std::endl; 
   }
 }
 
 // ----------------------------------------------------------------------------------------------------
 void RooContainer::addRealVar(std::string name ,double init,double xmin,double xmax){
   RooRealVar temp(name.c_str(),name.c_str(),init,xmin,xmax);
- // temp.removeRange();
-  temp.setRange(-10.,10.);
   m_real_var_.insert(pair<std::string,RooRealVar>(name,temp));
-  if (verbosity_) { std::cout << "RooContainer::AddRealVar -- Appended the variable " 
-	    << name <<std::endl;
+  if (verbosity_){
+            std::cout << "RooContainer::AddRealVar -- Appended the variable " 
+	              << name <<std::endl;
   }
+  
 }
 // ----------------------------------------------------------------------------------------------------
 void RooContainer::addFormulaVar(std::string name ,std::string formula, std::string var){
@@ -1005,8 +1208,9 @@ void RooContainer::addFormulaVar(std::string name ,std::string formula, std::str
   RooFormulaVar temp(name.c_str(),name.c_str(),formula.c_str(),RooArgList(m_real_var_[var]));
   m_form_var_.insert(pair<std::string,RooFormulaVar >(name,temp));
 
-  if (verbosity_) {std::cout << "RooContainer::AddFormulaVar -- Appended the variable " 
-	    << name <<std::endl; 
+  if (verbosity_){
+        std::cout << "RooContainer::AddFormulaVar -- Appended the variable " 
+	          << name <<std::endl; 
   }
 }
 // ----------------------------------------------------------------------------------------------------
@@ -1051,9 +1255,8 @@ void RooContainer::addGenericPdf(std::string name,std::string formula,std::strin
 	   ;it_var != var.end()
 	   ;it_var++
 	   ){
-	if (verbosity_) {     std::cout << "RooContainer::AddGenericPdf -- Adding Parameter " 
+	     std::cout << "RooContainer::AddGenericPdf -- Adding Parameter " 
 		       << *it_var << std::endl;
-	}
 
 	     if (!form_vars) {
 		std::map<std::string,RooRealVar>::iterator real_var =  m_real_var_.find(*it_var);
@@ -1072,9 +1275,8 @@ void RooContainer::addGenericPdf(std::string name,std::string formula,std::strin
   	   }
 	}
 
-     if (verbosity_) { std::cout << "RooContainer::AddGenericPdf -- Added all variables" 
+      std::cout << "RooContainer::AddGenericPdf -- Added all variables" 
 	        << std::endl;
-     }
 
       temp_1 = new RooGenericPdf(Form("pdf_%s",name.c_str()),name.c_str(),formula.c_str(),roo_args);	
       //v_gen_.push_back(temp_1);
@@ -1153,9 +1355,8 @@ void RooContainer::addGenericPdf(std::string name,std::string formula,std::strin
 	      ;it_var != var.end()
 	      ;it_var++
 	      ){
-	     if (verbosity_){ std::cout << "RooContainer::AddGenericPdf -- Adding Parameter " 
+	     std::cout << "RooContainer::AddGenericPdf -- Adding Parameter " 
 		       << *it_var << std::endl;
-	     }
 
 	     std::map<std::string,RooRealVar>::iterator real_var =  m_real_var_.find(*it_var);
 	     if (real_var != m_real_var_.end())
@@ -1169,9 +1370,8 @@ void RooContainer::addGenericPdf(std::string name,std::string formula,std::strin
 	      ;it_var != var.end()
 	      ;it_var++
 	      ){
-	   if (verbosity_){   std::cout << "RooContainer::AddGenericPdf -- Adding Parameter " 
+	     std::cout << "RooContainer::AddGenericPdf -- Adding Parameter " 
 		       << *it_var << std::endl;
-	   }
 
 	     std::map<std::string,RooFormulaVar>::iterator form_var =  m_form_var_.find(*it_var);
 	     if (form_var != m_form_var_.end())
@@ -1181,9 +1381,8 @@ void RooContainer::addGenericPdf(std::string name,std::string formula,std::strin
 	         	  << *it_var << std::endl;
 	   }
 	  }
-      	  if (verbosity_){  std::cout << "RooContainer::AddGenericPdf -- Added all variables" 
+      	   std::cout << "RooContainer::AddGenericPdf -- Added all variables" 
 	        	  << std::endl;
-	  }
 
       	   temp_1 = new RooChebychev(Form("pdf_%s",name.c_str()),name.c_str(),(*obs_real_var).second,roo_args);
 	} else {
@@ -1204,9 +1403,8 @@ void RooContainer::addGenericPdf(std::string name,std::string formula,std::strin
 	      ;it_var != var.end()
 	      ;it_var++
 	      ){
-	  if (verbosity_){    std::cout << "RooContainer::AddGenericPdf -- Adding Parameter " 
+	     std::cout << "RooContainer::AddGenericPdf -- Adding Parameter " 
 		       << *it_var << std::endl;
-	  }
 
 	     std::map<std::string,RooRealVar>::iterator real_var =  m_real_var_.find(*it_var);
 	     if (real_var != m_real_var_.end())
@@ -1220,9 +1418,8 @@ void RooContainer::addGenericPdf(std::string name,std::string formula,std::strin
 	      ;it_var != var.end()
 	      ;it_var++
 	      ){
-	   if (verbosity_){   std::cout << "RooContainer::AddGenericPdf -- Adding Parameter " 
+	     std::cout << "RooContainer::AddGenericPdf -- Adding Parameter " 
 		       << *it_var << std::endl;
-	   }
 
 	     std::map<std::string,RooFormulaVar>::iterator form_var =  m_form_var_.find(*it_var);
 	     if (form_var != m_form_var_.end())
@@ -1232,9 +1429,8 @@ void RooContainer::addGenericPdf(std::string name,std::string formula,std::strin
 	         	  << *it_var << std::endl;
 	   }
 	  }
-      	 if (verbosity_){   std::cout << "RooContainer::AddGenericPdf -- Added all variables" 
+      	   std::cout << "RooContainer::AddGenericPdf -- Added all variables" 
 	        	  << std::endl;
-	 }
 
       	   temp_1 = new RooBernstein(Form("pdf_%s",name.c_str()),name.c_str(),(*obs_real_var).second,roo_args);
 	} else {
@@ -1246,7 +1442,7 @@ void RooContainer::addGenericPdf(std::string name,std::string formula,std::strin
 	}
 
     	
-     } else {
+    } else {
 	
        std::cerr << "WARNING -- RooContainer::AddGenericPdf -- No Mode " << form
 		 << "Understood -- WARNING"
@@ -1259,12 +1455,11 @@ void RooContainer::addGenericPdf(std::string name,std::string formula,std::strin
      RooRealVar temp_var(Form("pdf_%s_norm",name.c_str()),name.c_str(),norm_guess,norm_min,norm_max);
      m_real_var_.insert(std::pair<std::string,RooRealVar>(name,temp_var));
 
-     RooExtendPdf temp(name.c_str(),name.c_str(),*temp_1,m_real_var_[name]);
+     RooExtendPdf temp(name.c_str(),name.c_str(),*temp_1,m_real_var_[name],"FullObervableRange");
      m_exp_.insert(std::pair<std::string,RooExtendPdf>(name,temp));
 
-     if (verbosity_){ std::cout << "RooContainer::AddGenericPdf -- Made extended PDF " 
+     std::cout << "RooContainer::AddGenericPdf -- Made extended PDF " 
 	       << name << std::endl;	
-     }
     }
 }
 
@@ -1299,11 +1494,366 @@ void RooContainer::convolutePdf(std::string name, std::string f_pdf, std::string
 }
 */
 // ----------------------------------------------------------------------------------------------------
+std::vector<std::vector<double> > RooContainer::SoverBOptimizedBinning(std::string signalname,std::string bkgname,int nTargetBins,double penaltyScale){
+
+	std::vector<std::vector<double> > return_bins;
+	for (int cat=0;cat<ncat;cat++){
+	   std::map<std::string,TH1F>::iterator it_ths=m_th1f_.find(getcatName(signalname,cat));
+	   std::map<std::string,TH1F>::iterator it_thb=m_th1f_.find(getcatName(bkgname,cat));
+	   if (it_ths!=m_th1f_.end() && it_thb!=m_th1f_.end()){
+		return_bins.push_back(soverBOptimizedBinning(&(it_ths->second),&(it_thb->second),nTargetBins,penaltyScale));
+
+	   } else {
+		std::cerr << "WARNING ! -- RooContainer::SoverBOptimizedBinning -- One of the Following binned datasets not found " << signalname << ", " << bkgname <<std::endl;
+	   }
+	}
+
+	return return_bins;
+
+}
+// ----------------------------------------------------------------------------------------------------
+std::vector<double> RooContainer::soverBOptimizedBinning(TH1F *hs,TH1F *hb,int nTargetBins,double penaltyScale){
+
+	// Performs Optimized Binning based on a Signal and Background (S/B) distributions
+	// First runs the optimizedBinning on background and rebins S and B clones, note, always performs 
+	// revise_target=false,direction=-1 and use_n_entries=true
+	// nTargetBins is used for the flat binning, decision to merge based on penaltyScale
+	int ninitBins = hb->GetNbinsX();
+	if (hs->Integral()==0 ||  hb->Integral()==0 || ninitBins < 2) {
+		std::vector<double> binEdges;
+		binEdges.push_back(hb->GetBinLowEdge(1));
+		binEdges.push_back(hb->GetBinLowEdge(ninitBins+1));
+		return binEdges;
+	}
+
+	std::vector<double> binEdges = optimizedReverseBinning(hb,nTargetBins,false,true);
+
+	int j =0;
+	double *arrBins = new double[binEdges.size()];
+	for (std::vector<double>::iterator it=binEdges.begin();it!=binEdges.end();it++){
+		//cout << *it << endl;
+		arrBins[j]=*it;
+		j++;	
+	}
+	// Create new rebinned histograms (only temporary)
+	TH1F *hbnew =(TH1F*) hb->Rebin(binEdges.size()-1,"hbnew",arrBins);
+	TH1F *hsnew =(TH1F*) hs->Rebin(binEdges.size()-1,"hsnew",arrBins);
+	
+
+	// Better smoothing which doesn't use the first and last bins	
+	if (hsnew->Integral()!=0 && hbnew->Integral()!=0 && binEdges.size()-1 > 10){
+		histogramSmoothing(hsnew,1000);
+		histogramSmoothing(hbnew,1000);
+		//hsnew->Smooth(1000);
+		//hbnew->Smooth(1000);
+        }
+	// Do we really need the background histogram ?  we will be assuming that the first step is nentries per bin
+
+	// Smooth signal new binned histograms, the size of smoothing should be ~1% of the total bins	
+	//int nSmooth = (int) 0.01*hsnew->GetNbinsX();
+	//hsnew->Smooth(nSmooth);
+
+	delete [] arrBins;
+
+	if (hbnew->Integral()==0 || hsnew->Integral()==0) return binEdges;
+	std::vector<double> newbinEdges;
+	newbinEdges.push_back(hbnew->GetBinLowEdge(1));
+	int nNewBins = hbnew->GetNbinsX();
+	int i=1;
+	double maxSoB=0;
+        for (int j=1;j<=hbnew->GetNbinsX();j++){
+                double newMaximum = hsnew->GetBinContent(j)/hbnew->GetBinContent(j) ;
+                if (newMaximum>maxSoB) maxSoB=newMaximum;
+        }
+
+	while (i<=nNewBins){
+
+		int k = i+1;
+		double highEdge=hbnew->GetBinLowEdge(i+1);
+		double S = hsnew->GetBinContent(i);
+		double B = hbnew->GetBinContent(i);
+                double Stot =S;
+                double Btot =B;
+
+		if (B!=0){ 
+		  bool carryOn=true;
+
+		  while ( carryOn){
+
+		  	double SoB = S/B;
+
+			if (k<=nNewBins){
+
+			  double S1 = hsnew->GetBinContent(k);
+			  double B1 = hbnew->GetBinContent(k);
+			  if (B1==0) {
+				carryOn=true;
+			      	highEdge = hbnew->GetBinLowEdge(k+1);
+				Stot+=S1;
+				k++;
+			  }
+			  else{
+
+			    double SoB1 = S1/B1;
+			    double scaler=penaltyScale;
+                            double prob   = TMath::Prob((scaler*(Stot+S1))*(scaler*(Stot+S1))/(Btot+B1),1);
+                            double prob1  = TMath::Prob(((scaler*Stot)*(scaler*Stot)/(Btot)) + ((scaler*S1)*(scaler*S1)/(B1)),2);
+                  	    double importance = SoB/maxSoB;
+
+//			      if (fabs(SoB-SoB1)/SoB < penaltyScale/importance ){
+			      if ( prob<prob1 ){
+
+			      highEdge = hbnew->GetBinLowEdge(k+1);
+			      Stot+=S1;
+			      Btot+=B1;
+			      carryOn = true;
+			      k++;
+			    } else {carryOn=false;}
+			 }
+
+			} else {
+			  highEdge = hbnew->GetBinLowEdge(k);
+			  carryOn=false;
+			}
+		  }
+		}
+	        newbinEdges.push_back(highEdge);
+		i=k;
+	}
+
+	// now we have new Bin edges to return to the 
+	return newbinEdges;
+
+}
+// ----------------------------------------------------------------------------------------------------
+std::vector<std::vector<double> > RooContainer::RebinConstantEdges(std::string datasetname, int nTargetBins){
+
+	std::vector<std::vector<double> > return_bins;
+	for (int cat=0;cat<ncat;cat++){
+	   std::map<std::string,TH1F>::iterator it_th=m_th1f_.find(getcatName(datasetname,cat));
+	   if (it_th!=m_th1f_.end()){
+		return_bins.push_back(rebinConstantEdges(&(it_th->second),nTargetBins));
+
+	   } else {
+		std::cerr << "WARNING ! -- RooContainer::OptimizedBinning -- No such binned dataset as " << datasetname << std::endl;
+	   }
+	}
+
+	return return_bins;
+
+}
+// ----------------------------------------------------------------------------------------------------
+std::vector<double> RooContainer::rebinConstantEdges(TH1F *hb,int nTargetBins){
+	 
+	int nBins = hb->GetNbinsX();
+	std::vector<double> binEdges;
+	
+	for (int j=1;j<=nBins;j++) {
+		if (j%nTargetBins==0)	binEdges.push_back(hb->GetBinLowEdge(j+1));
+	}
+	return binEdges;
+}
+// ----------------------------------------------------------------------------------------------------
+std::vector<std::vector<double> > RooContainer::OptimizedBinning(std::string datasetname, int nTargetBins,bool revise_target,bool use_n_entries,int direction){
+
+	std::vector<std::vector<double> > return_bins;
+	for (int cat=0;cat<ncat;cat++){
+	   std::map<std::string,TH1F>::iterator it_th=m_th1f_.find(getcatName(datasetname,cat));
+	   if (it_th!=m_th1f_.end()){
+		if (direction!=-1) return_bins.push_back(optimizedBinning(&(it_th->second),nTargetBins,revise_target,use_n_entries));
+		else return_bins.push_back(optimizedReverseBinning(&(it_th->second),nTargetBins,revise_target,use_n_entries));
+
+	   } else {
+		std::cerr << "WARNING ! -- RooContainer::OptimizedBinning -- No such binned dataset as " << datasetname << std::endl;
+	   }
+	}
+
+	return return_bins;
+
+}
+// ----------------------------------------------------------------------------------------------------
+std::vector<double> RooContainer::optimizedBinning(TH1F *hb,int nTargetBins,bool revise_target, bool use_n_target){
+	// Return a set of bins which are "smoother" 
+
+	if (revise_target) {
+		if (use_n_target){
+		   std::cerr << "WARNING -- RooContainer::OptimizedBinning -- Can't use number of Entries as target in revised binning algo " << std::endl; 
+		   use_n_target = false;  // geometric algo always use revised number of bins, not number of entries
+		
+		}
+	}
+
+	int nBins = hb->GetNbinsX();
+	std::vector<double> binEdges;
+
+	double targetNumbers;
+	if (use_n_target) targetNumbers = nTargetBins; 
+	else targetNumbers = hb->Integral()/nTargetBins;
+
+	if (hb->Integral() < 2*targetNumbers){
+		std::cout << "RooContainer::OptimizedBinning -- Not enough entries in histogram for target numbers calculated - " 
+			  << targetNumbers 
+			  << ", Returning current bin boundaries "  << std::endl;
+		//for (int j=2;j<=nBins+1;j++) binEdges.push_back(hb->GetBinLowEdge(j));
+		binEdges.push_back(hb->GetBinLowEdge(1));
+		binEdges.push_back(hb->GetBinLowEdge(nBins+1));
+		return binEdges;
+	}
+	binEdges.push_back(hb->GetBinLowEdge(1));
+
+	double sumBin = 0;
+	int i=1;
+	while (i<=nBins){
+		if (revise_target) targetNumbers = hb->Integral(i,nBins)/nTargetBins;
+		sumBin=hb->GetBinContent(i);
+		double highEdge=hb->GetBinLowEdge(i+1);
+
+		bool carryOn = sumBin <= targetNumbers;
+		while ( carryOn){
+			if (i<nBins){
+			  sumBin+=hb->GetBinContent(i+1);
+			  highEdge = hb->GetBinLowEdge(i+2);
+			  carryOn =(sumBin <targetNumbers && i<=nBins);
+			  i++;
+			} else {
+			  highEdge = hb->GetBinLowEdge(i+1);
+			  carryOn=false;
+			}
+		}
+	        binEdges.push_back(highEdge);
+		i++;
+	}
+        if (sumBin < 10) binEdges.erase(binEdges.end()-2);
+	return binEdges;
+
+}
+// ----------------------------------------------------------------------------------------------------
+std::vector<double> RooContainer::optimizedReverseBinning(TH1F *hb,int nTargetBins,bool revise_target, bool use_n_target){
+	// Return a set of bins which are "smoother" 
+
+	if (revise_target) {
+		if (use_n_target){
+		   std::cerr << "WARNING -- RooContainer::OptimizedBinning -- Can't use number of Entries as target in revised binning algo " << std::endl; 
+		   use_n_target = false;  // geometric algo always use revised number of bins, not number of entries
+		
+		}
+	}
+
+	int nBins = hb->GetNbinsX();
+	std::vector<double> binEdges;
+
+	double targetNumbers;
+	if (use_n_target) targetNumbers = nTargetBins; 
+	else targetNumbers = hb->Integral()/nTargetBins;
+
+	if (hb->Integral() < 2*targetNumbers){
+		std::cout << "RooContainer::OptimizedBinning -- Not enough entries in histogram for target numbers calculated - " 
+			  << targetNumbers 
+			  << ", Returning current bin boundaries "  << std::endl;
+		//for (int j=2;j<=nBins+1;j++) binEdges.push_back(hb->GetBinLowEdge(j));
+		binEdges.push_back(hb->GetBinLowEdge(1));
+		binEdges.push_back(hb->GetBinLowEdge(nBins+1));
+		return binEdges;
+	}
+	binEdges.push_back(hb->GetBinLowEdge(nBins+1));
+
+	std::cout << "RooContainer::optimizedBinning -- Performing Reverse Optimize Binning" <<std::endl;
+	double sumBin = 0;
+	int i=nBins;
+	while (i>=1){
+		if (revise_target) targetNumbers = hb->Integral(1,i)/nTargetBins;
+		sumBin=hb->GetBinContent(i);
+		double highEdge=hb->GetBinLowEdge(i);
+
+		bool carryOn = sumBin <= targetNumbers;
+		while ( carryOn){
+			if (i>1){
+			  sumBin+=hb->GetBinContent(i-1);
+			  highEdge = hb->GetBinLowEdge(i-1);
+			  carryOn =(sumBin <targetNumbers && i>=1);
+			  i--;
+			} else {
+			  highEdge = hb->GetBinLowEdge(i);
+			  carryOn=false;
+			}
+		}
+	        binEdges.push_back(highEdge);
+		i--;
+	}
+        if (sumBin < 10) binEdges.erase(binEdges.end()-2);
+	reverse(binEdges.begin(),binEdges.end());
+	return binEdges;
+
+}
+// ----------------------------------------------------------------------------------------------------
+void RooContainer::RebinBinnedDataset(std::string new_name,std::string name,std::vector <std::vector<double> > catBinEdges, bool systematics){
+
+	for (int cat=0;cat<ncat;cat++){
+	  std::string catName = getcatName(name,cat);
+	  std::string catNewName = getcatName(new_name,cat);
+	  std::map<std::string,TH1F>::iterator it = m_th1f_.find(catName);
+	  if (it!=m_th1f_.end())
+		rebinBinnedDataset(catNewName,catName,&(it->second),catBinEdges[cat]);
+	  else {
+		std::cerr << "WARNING -- RooContainer::RebinBinnedDataset -- No Such Binned Dataset as "
+			  << getcatName(name,cat)
+			  << std::endl;
+	  }
+
+	  if (systematics){
+		for (it_sys=systematics_.begin(); it_sys!=systematics_.end();it_sys++){ 
+		  for (int sys=1;sys<=nsigmas;sys++){
+		     std::string sysDName = getsysindexName(catName,it_sys->first,sys,-1);
+		     std::string sysUName = getsysindexName(catName,it_sys->first,sys,1);
+		     std::string sysDNewName = getsysindexName(catNewName,it_sys->first,sys,-1);
+		     std::string sysUNewName = getsysindexName(catNewName,it_sys->first,sys,1);
+		     std::map<std::string,TH1F>::iterator itD = m_th1f_.find(sysDName);
+		     std::map<std::string,TH1F>::iterator itU = m_th1f_.find(sysUName);
+		     if (itD!=m_th1f_.end()) {
+			rebinBinnedDataset(sysDNewName,sysDName,&(itD->second),catBinEdges[cat]);
+			rebinBinnedDataset(sysUNewName,sysUName,&(itU->second),catBinEdges[cat]);
+		     }	
+		  }
+	        }
+	  }
+
+	}
+}
+// ----------------------------------------------------------------------------------------------------
+
+void RooContainer::rebinBinnedDataset(std::string new_name,std::string name, TH1F *hb,std::vector<double> binEdges){
+
+	double *arrBins = new double[binEdges.size()];
+	int j=0;
+	for (std::vector<double>::iterator it=binEdges.begin();it!=binEdges.end();it++){
+		arrBins[j]=*it;
+		j++;
+		
+	}
+	//const char *h_name = (const char *) hb->GetName;
+	//const char *title  = (const char *) hb->GetTitle;
+	
+	TH1F *hbnew =(TH1F*) hb->Rebin(binEdges.size()-1,hb->GetName(),arrBins);
+	hbnew->SetName(Form("th1f_%s",new_name.c_str()));
+	//cout << "title for new re-binned histogream - " << hb->GetTitle()<<endl; 
+	hbnew->SetTitle(hb->GetTitle());
+
+	// Just a quick test, mask the last "channel"
+	//hbnew->SetBinContent(hbnew->GetNbinsX(),0);
+	//cout << "DONT DO THIS IN MAIN PROGRAM ----- LINE 1563 rebin setting last bin to 0" <<endl;
+	delete [] arrBins;
+	m_th1f_[new_name]=*hbnew;
+	
+}
+// ----------------------------------------------------------------------------------------------------
 void RooContainer::composePdf(std::string name, std::string  composition
 			     ,std::vector<std::string> & formula,bool use_extended){
 
     RooArgList roo_args;
     RooArgList roo_funs;
+    RooArgList normalisationTerms;
+    TString expression = "@0";
+
     std::vector <RooRealVar*> norms;
     double check_sum = 0.;
     int arg_count    = 1;
@@ -1319,9 +1869,11 @@ void RooContainer::composePdf(std::string name, std::string  composition
 	      roo_funs.add((*exp).second);
 	      roo_args.add(m_real_var_[(*it_fun)]);
               norms.push_back(&m_real_var_[(*it_fun)]);
-	      if (verbosity_){       std::cout << "RooContainer::ComposePdf -- Including Extended Pdf " 
+	      normalisationTerms.add(m_real_var_[(*it_fun)]);
+              if (arg_count < (int)formula.size()) expression+=Form("+@%d",arg_count);
+	      std::cout << "RooContainer::ComposePdf -- Including Extended Pdf " 
 		        << *it_fun << std::endl;
-	      }
+	      arg_count++;
 
 	    } else {
       	      std::cerr << "WARNING -- RooContainer::ComposePdf -- No Pdf Found Named " 
@@ -1338,13 +1890,16 @@ void RooContainer::composePdf(std::string name, std::string  composition
 
               if (arg_count < (int)formula.size()){
 
-	        roo_args.add(m_real_var_[(*it_fun)]);
-	        check_sum += m_real_var_[*it_fun].getVal();
+	        RooRealVar *functionNormValue = &m_real_var_[(*it_fun)];
+	        addRealVar(Form("frac_%s",(*it_fun).c_str()),functionNormValue->getVal(),functionNormValue->getMin(),functionNormValue->getMax());
+	        RooRealVar *fractionVar = &m_real_var_[Form("frac_%s",(*it_fun).c_str())];
+	        roo_args.add(*fractionVar);
+	        check_sum += fractionVar->getVal();
+		//fractionVar->removeRange();
 	        arg_count++;
 	      }
-	      if (verbosity_){ std::cout << "RooContainer::ComposePdf -- Including Pdf " 
+	      std::cout << "RooContainer::ComposePdf -- Including Pdf " 
 		        << *it_fun << std::endl;
-	      }
 
 	    } else {
       	      std::cerr << "WARNING -- RooContainer::ComposePdf -- No Pdf Found Named " 
@@ -1361,7 +1916,8 @@ void RooContainer::composePdf(std::string name, std::string  composition
 	      return;
 	} else {
 
-    	  RooAddPdf *temp = new RooAddPdf(Form("pdf_%s",name.c_str()),composition.c_str(),roo_funs,roo_args);
+    	  RooAddPdf *temp = new RooAddPdf(Form("pdf_%s",name.c_str()),composition.c_str(),roo_funs,roo_args,true);
+	  //temp->fixCoefRange("FullObservableRange");
      	  RooRealVar temp_var(Form("pdf_%s_norm",name.c_str()),name.c_str(),100.,0.0,1e6);
      	  m_real_var_.insert(std::pair<std::string,RooRealVar>(name,temp_var));
           m_gen_.insert(std::pair<std::string,RooAbsPdf*>(name,temp));
@@ -1375,12 +1931,14 @@ void RooContainer::composePdf(std::string name, std::string  composition
       RooAddPdf temp(name.c_str(),composition.c_str(),roo_funs,roo_args);
       m_gen_.insert(std::pair<std::string,RooAbsPdf*>(name,&temp));
       m_pdf_.insert(pair<std::string,RooAddPdf>(name,temp));
+      cerr << "EXPRESSSION - " << expression.Data()<<endl;;
+      RooFormulaVar tmpSum(Form("pdf_%s_norm",name.c_str()),name.c_str(),expression.Data(),normalisationTerms);
+      m_form_var_.insert(pair<std::string,RooFormulaVar >(name,tmpSum));
       m_comp_pdf_norm_[name] = norms;
     }
 
-    if (verbosity_){ std::cout << "RooContainer::ComposePdf -- Created Composed PDF from Extended pdf's called " 
+    std::cout << "RooContainer::ComposePdf -- Created Composed PDF from Extended pdf's called " 
 	      << name << std::endl;			       
-    }
 }
 
 
@@ -1421,12 +1979,14 @@ void RooContainer::createDataSet(std::string name,std::string data_name,int nbin
       number_of_bins = nbins;
       
       TH1F tmp_hist(Form("th1f_%s",data_name.c_str()),name.c_str(),number_of_bins,r1,r2);
+      tmp_hist.Sumw2();
       tmp_hist.GetYaxis()->SetTitle(Form("Events / (%.3f)",tmp_hist.GetBinWidth(1)));
       m_th1f_[data_name] = tmp_hist;
 
-      if (verbosity_) {cout << "RooContainer::CreateDataSet -- Created RooDataSet from " << name 
-	                    << " with name " << data_name <<endl;
-           	       cout << "RooContainer::CreateDataSet -- Created TH1F from " << data_name << endl;
+      if (verbosity_){
+          cout << "RooContainer::CreateDataSet -- Created RooDataSet from " << name 
+	       << " with name " << data_name <<endl;
+          cout << "RooContainer::CreateDataSet -- Created TH1F from " << data_name << endl;
       }
 
     } else {
@@ -1443,12 +2003,11 @@ void RooContainer::fitToData(std::string name_func, std::string name_data, std::
 
     bool use_composed_pdf = false;
     int n_pars;
-     if (verbosity_) { std::cout << "RooContainer::FitToData -- Fitting function " 
+    std::cout << "RooContainer::FitToData -- Fitting function " 
 	      << name_func 
 	      << " To Dataset " 
 	      << name_var
 	      << std::endl; 
-     }
 
     std::map<std::string,RooDataSet>::iterator it_data = data_.find(name_data);
     if (it_data == data_.end()){
@@ -1458,6 +2017,7 @@ void RooContainer::fitToData(std::string name_func, std::string name_data, std::
     }
 
     RooFitResult *fit_result = new RooFitResult;
+    RooAbsPdf *pdf_ptr;
     // Look in the composed pdf before checking the standards
     std::map<std::string ,RooAddPdf>::iterator it_pdf = m_pdf_.find(name_func);
     std::map<std::string ,RooExtendPdf>::iterator it_exp = m_exp_.find(name_func);
@@ -1471,36 +2031,56 @@ void RooContainer::fitToData(std::string name_func, std::string name_data, std::
 
     if (it_pdf != m_pdf_.end()){
       use_composed_pdf = true;
-
+      pdf_ptr = &(it_pdf->second);
      if (x1 < -990. && x2 < -990.  && x3 < -990. && x4 < -990.){ // Full Range Fit
+     //   real_var->setRange("FullObservableRange",x_min,x_max);
         real_var->setRange("rnge",x_min,x_max);
-        fit_result = (it_pdf->second).fitTo(it_data->second,Range("rnge"),RooFit::Save(true));
+        fit_result = (it_pdf->second).fitTo(it_data->second,Range("rnge"),RooFit::Extended(true),RooFit::Save(true),RooFit::Strategy(2));
         mode = 0;
      } else if (x3 < -990 && x4 < -990){ // Single window fit
       if (x1 < x_min || x2 > x_max){
+     //   real_var->setRange("FullObservableRange",x_min,x_max);
         std::cerr << "RooContainer::FitToData -- WARNING!! Ranges outside of DataSet Range! Will Fit to full range, Normalisation may be wrong!!! " 
 		  << std::endl;
-        fit_result = (it_pdf->second).fitTo(it_data->second,RooFit::Save(true),"r");
+        fit_result = (it_pdf->second).fitTo(it_data->second,RooFit::Save(true),RooFit::Extended(true),RooFit::Strategy(2));
         std::cerr << " Fitted To Full Range -- WARNING!!" 
 		  << std::endl;
         mode = 0;
       } else {
+      //  real_var->setRange("FullObservableRange",x_min,x_max);
         real_var->setRange("rnge",x1,x2);
-        fit_result = (it_pdf->second).fitTo((it_data->second),Range("rnge"),RooFit::Save(true),"r");
+        fit_result = (it_pdf->second).fitTo((it_data->second),Range("rnge"),RooFit::Save(true),RooFit::Extended(true),RooFit::Strategy(2));
         mode = 1;
       }
      } else {
       if (x1 < x_min || x4 > x_max){ // Excluded window fit
         std::cerr << "RooContainer::FitToData -- WARNING!! Ranges outside of DataSet Range! Will Fit to full range, Normalisation may be wrong!!!" 
 		  << std::endl;
-        fit_result = (it_pdf->second).fitTo(it_data->second,RooFit::Save(true),"rq");
+        fit_result = (it_pdf->second).fitTo(it_data->second,RooFit::Save(true),RooFit::Extended(true),RooFit::Strategy(2));
         std::cerr << " Fitted To Full Range -- WARNING!!" 
 		  << std::endl;
         mode = 0;
       } else {
+      //  real_var->setRange("FullObservableRange",x2,x3);
         real_var->setRange("rnge1",x1,x2);
         real_var->setRange("rnge2",x3,x4);
-        fit_result = (it_pdf->second).fitTo((it_data->second),Range("rnge1,rnge2"),RooFit::Save(true),"r");
+        fit_result = (it_pdf->second).fitTo((it_data->second),Range("rnge1,rnge2"),RooFit::Save(true),RooFit::Extended(true),RooFit::Strategy(2));
+	// Not sure what to do with combined PDF in terms of getting Nevents correct with multiple ranges
+	// idea is to sum over all components and then scale by sum / sum entries
+	double nEntries = (it_data->second).sumEntries(0,"rnge1") + (it_data->second).sumEntries(0,"rnge2");
+	double sumComp = 0;
+//	for (std::vector<RooRealVar*>::iterator it_comp_norm = m_comp_pdf_norm_[name_func].begin();it_comp_norm != m_comp_pdf_norm_[name_func].end();it_comp_norm++)
+//	  {
+//		sumComp += (*it_comp_norm)->getVal();
+//	  }
+	for (std::vector<RooRealVar*>::iterator it_comp_norm = m_comp_pdf_norm_[name_func].begin();it_comp_norm != m_comp_pdf_norm_[name_func].end();it_comp_norm++)
+	  {
+//		(*it_comp_norm)->setVal(nEntries/sumComp);
+//		(*it_comp_norm)->setError(TMath::Sqrt((*it_comp_norm)->getVal()));
+		(*it_comp_norm)->setVal(2*(*it_comp_norm)->getVal());
+		(*it_comp_norm)->setError(2*(*it_comp_norm)->getError());
+	  }
+	
         mode = 2;
       }
      }
@@ -1508,35 +2088,50 @@ void RooContainer::fitToData(std::string name_func, std::string name_data, std::
 
     else {
       if (it_exp != m_exp_.end()){
+      pdf_ptr = &(it_exp->second);
        if (x1 < -990. && x2 < -990.  && x3 < -990. && x4 < -990.){
+     //   real_var->setRange("FullObservableRange",x_min,x_max);
         real_var->setRange("rnge",x_min,x_max);
-        fit_result = (it_exp->second).fitTo(it_data->second,Range("rnge"),RooFit::Save(true),"r");
+        fit_result = (it_exp->second).fitTo(it_data->second,Range("rnge"),RooFit::Save(true),RooFit::Extended(true),RooFit::Strategy(2));
         mode = 0;
       } else if (x3 < -990 && x4 < -990){ // Single window fit
         if (x1 < x_min || x2 > x_max){
+     //     real_var->setRange("FullObservableRange",x_min,x_max);
           std::cerr << "RooContainer::FitToData -- WARNING!! Ranges outside of DataSet Range! Will Fit to full range, Normalisation may be wrong!!!" 
 		    << std::endl;
-          fit_result = (it_exp->second).fitTo(it_data->second,RooFit::Save(true));
+          fit_result = (it_exp->second).fitTo(it_data->second,RooFit::Extended(true),RooFit::Save(true),RooFit::Strategy(2));
           std::cerr << " Fitted To Full Range -- WARNING!!" 
 		    << std::endl;
           mode = 0;
         } else {
+     //    real_var->setRange("FullObservableRange",x_min,x_max);
          real_var->setRange("rnge",x1,x2);
-         fit_result = (it_exp->second).fitTo((it_data->second),Range("rnge"),RooFit::Save(true),"r");
+         fit_result = (it_exp->second).fitTo((it_data->second),Range("rnge"),RooFit::Save(true),RooFit::Extended(true),RooFit::Strategy(2));
          mode = 1;
         }	
        } else {
         if (x1 < x_min || x4 > x_max){
+     //     real_var->setRange("FullObservableRange",x_min,x_max);
           std::cerr << "RooContianer::FitToData -- WARNING!! Ranges outside of DataSet Range! Will Fit to full range, Normalisation may be wrong!!!" 
 		    << std::endl;
-          fit_result = (it_exp->second).fitTo((it_data->second),RooFit::Save(true),"rq");
+          fit_result = (it_exp->second).fitTo((it_data->second),RooFit::Save(true),RooFit::Extended(true),RooFit::Strategy(2));
           std::cerr << " Fitted To Full Range -- WARNING!!" 
 		    << std::endl;
           mode = 0;
         } else {
+        //  real_var->setRange("FullObservableRange",x1,x4);
           real_var->setRange("rnge1",x1,x2);
           real_var->setRange("rnge2",x3,x4);
-          fit_result = (it_exp->second).fitTo((it_data->second),Range("rnge1,rnge2"),RooFit::Save(true),"rq");
+          fit_result = (it_exp->second).fitTo((it_data->second),Range("rnge1,rnge2"),RooFit::Save(true),RooFit::Extended(true),RooFit::Strategy(2));
+
+	  // This Fix just counts events in the sideband and uses that for Normalisation purposes
+	  double newNorm =(it_data->second).sumEntries(0,"rnge1") + (it_data->second).sumEntries(0,"rnge2");
+	  m_real_var_[name_func].setVal(newNorm);
+	  m_real_var_[name_func].setError(TMath::Sqrt(newNorm));
+
+	  // This Fix is to take account of there being 2 NLL for the 2 range fit
+//	  m_real_var_[name_func].setVal(2*m_real_var_[name_func].getVal());
+//	  m_real_var_[name_func].setError(2*m_real_var_[name_func].getError());
           mode = 2;
         }
        }
@@ -1544,6 +2139,25 @@ void RooContainer::fitToData(std::string name_func, std::string name_data, std::
       else
 	std::cerr << "WARNING -- RooContainer::FitToData -- No Pdf Found Named "
 	 	  << name_func << std::endl;
+    }
+
+    // keep hold of outer range from latest fit
+    if (mode==0 or mode==1){
+  	RooAbsReal* integral = pdf_ptr->createIntegral(*real_var,NormSet(*real_var),Range("rnge"));
+      	latestFitRangeIntegral_[name_func] = integral;
+    } else {
+  	RooAbsReal* integral1 = pdf_ptr->createIntegral(*real_var,NormSet(*real_var),Range("rnge1"));
+  	RooAbsReal* integral2 = pdf_ptr->createIntegral(*real_var,NormSet(*real_var),Range("rnge2"));
+//  	RooAbsReal* integral1 = pdf_ptr->createIntegral(*real_var,Range("rnge1"));
+//  	RooAbsReal* integral2 = pdf_ptr->createIntegral(*real_var,Range("rnge2"));
+	RooFormulaVar *integral = new RooFormulaVar("sum","sum","@0+@1",RooArgSet(*integral1,*integral2));
+	
+        real_var->setRange("rngeiSignal",x2,x3);
+	cout << "Number of Events in signal region = " << (it_data->second).sumEntries(0,"rngeSignal") <<endl;
+	DUMP_[Form("partial_1_%s",name_func.c_str())]=integral1;
+	DUMP_[Form("partial_2_%s",name_func.c_str())]=integral2;
+
+      	latestFitRangeIntegral_[name_func] = integral;
     }
 
     RooPlot *xframe = (*real_var).frame(x_min,x_max);
@@ -1560,39 +2174,68 @@ void RooContainer::fitToData(std::string name_func, std::string name_data, std::
 			,Components(*((it_pdf->second).pdfList().at(i)))
 			,LineColor(i+1)
 			,LineStyle(kDashed));
-	(it_pdf->second).paramOn(xframe,RooFit::Layout(0.25,0.95,0.86));
+	(it_pdf->second).paramOn(xframe,RooFit::Layout(0.15,0.86,0.86));
       }
       pdf_saves_.push_back(&(it_pdf->second));
       n_pars=(it_pdf->second).getParameters(it_data->second)->getSize() -1 ;
     }
 
     else {
-	(it_exp->second).plotOn(xframe,LineColor(4));
+	if (mode==2){
+	  (it_exp->second).plotOn(xframe,LineColor(4),RooFit::Range("rnge1,rnge2"),RooFit::Normalization(m_real_var_[name_func].getVal(),RooAbsReal::NumEvent));
+	} else {
+	  (it_exp->second).plotOn(xframe,LineColor(4),RooFit::Range("rnge"),RooFit::Normalization(m_real_var_[name_func].getVal(),RooAbsReal::NumEvent));
+	}
+	//if (mode==2){
+         // real_var->setRange("rnge",x2,x3);
+	 // (it_exp->second).plotOn(xframe,LineColor(2),LineStyle(3),Range("rnge")); //RooFit is so annoying that multiple goes at this ruins the normalisation
+	//}
 	(it_exp->second).paramOn(xframe,RooFit::Layout(0.25,0.95,0.86));
     	pdf_saves_.push_back(&(it_exp->second));
-        n_pars=(it_exp->second).getParameters(it_data->second)->getSize() -1 ;
+        //n_pars=(it_exp->second).getParameters(it_data->second)->getSize() -1 ;
+        n_pars=(it_exp->second).getParameters(it_data->second)->getSize();
     }
 
-    double chi_square = xframe->chiSquare(n_pars);
-    if (mode == 0)      // full range fit
+    double chi_square=xframe->chiSquare(n_pars);
+    if (mode == 0) {     // full range fit
       xframe->SetName(Form("%s_%s",name_func.c_str(),name_data.c_str()));
-    else if (mode == 1) // single window fit
+    } else if (mode == 1){ // single window fit
       xframe->SetName(Form("%s_%s_%.1f_%.1f",name_func.c_str(),name_data.c_str(),x1,x2));
-    else	        // sideband fit
+    } else {	        // sideband fit
       xframe->SetName(Form("%s_%s_%.1f_%.1f_%.1f_%.1f",name_func.c_str(),name_data.c_str(),x1,x2,x3,x4));
+    }
 
-    fit_res_.insert(std::pair<RooPlot*,double>(xframe,chi_square));
+    if (fit_result->covQual() != 3) {
+      std::cerr << " WARNING!!! -- RooContainer::FitToData -- Fit result covariance quality POOR from fit of " 
+	   	<< name_func << " to "
+	   	<< name_data << std::endl;
+    }
+
+    fit_result->printValue(std::cout);
+
+    // -------------------------------------------------------------------------------------------
+    // Make a plot of the fit
+    // Dont want to let the plots pop up!
+    gROOT->SetBatch(true);
+    gROOT->SetStyle("Plain");
+    //TLatex *text = new TLatex();
+    TCanvas *can = new TCanvas(Form("plot_%s",xframe->GetName()),xframe->GetName(),1200,900) ;    
+  
+    can->cd(); 
+    xframe->Draw();
+    //text->SetNDC();
+    //text->DrawLatex(0.11,0.15,Form("#chi^{2} / n d.o.f = %.3f",chi));
+    fit_canvases_.push_back(can);
     fit_results_[name_func]=(fit_result); // keep a record of the last fit of a pdf
+    // -------------------------------------------------------------------------------------------
 }
 
 // ----------------------------------------------------------------------------------------------------
 void RooContainer::fitToSystematicSet(std::string name_func,std::string name_var
 	     ,std::string sys_name
 	     ,double x1,double x2,double x3,double x4){
-
   if (! fit_systematics){
-
-    std::cerr << "WARNING!!! -- RooContainer::FitToSystematicSet -- Systematic pdfs were not made ! (Need do MakeSystematicPdfs() ) "<<
+    std::cerr << "WARNING!!! -- RooContainer::FitToSystematicSet -- Systematic Pdfs not created ! (Need do MakeSystematicPdfs() ) "<<
 		 " No fit will be performed" << endl;
     return;
   }
@@ -1665,11 +2308,11 @@ void RooContainer::generateBinnedPdf(int catNo,std::string hist_nocat_name,std::
 
 
   // Need to normalize the histogram to integral under the curve
-  // 2 modes - full observable range from fit and histogram (default, no range arguments)
-  // 0 	     - assumes same data as fit to will be used to set limit -> make up some bullshit constraints weaker than the data
-  // 1       - assumes External constraints to data being input, ie actual fit errors will be used
+  bool external_fit;
+  if (mode == 0) external_fit=true;
+  if (mode == 1) external_fit=false;
 
-  double normalisation = getNormalisationFromFit(pdf_name,hist_name,pdf_ptr,obs,r1,r2,multi_pdf);
+  double normalisation = getNormalisationFromFit(pdf_name,hist_name,pdf_ptr,obs,r1,r2,multi_pdf,external_fit);
   temp_hist->SetTitle(obs_name.c_str());  // Used later to keep track of the realvar associated, must be a better way to do this ?
 
  //  TH1F *temp_hist_up = (TH1F*)temp_hist->Clone();
@@ -1682,19 +2325,19 @@ void RooContainer::generateBinnedPdf(int catNo,std::string hist_nocat_name,std::
   // ---------------------------------------------------------------------------------------------------------------------
   // for proper treatment of the variations of the systematic errors from the fitting in binned pdf's we need to construct
   // the set of uncorrelated parameters, 
-  if (verbosity_) {std::cout << "RooContainer::GenerateBinnedPdf -- Getting Latest fit result " << std::endl;}
+  std::cout << "RooContainer::GenerateBinnedPdf -- Getting Latest fit result " << std::endl;
   TMatrixD cov = res_ptr->covarianceMatrix();
   TVectorD eval;
   TMatrixD evec   = cov.EigenVectors(eval);
-  if (verbosity_) { std::cout << "Matrix of EigenVectors from "<< pdf_name << std::endl;}
+  std::cout << "Matrix of EigenVectors from "<< pdf_name << std::endl;
   evec.Print();
-  if (verbosity_) { std::cout << "Eigenvalues (squares of errors)"<< std::endl;}
+  std::cout << "Eigenvalues (squares of errors)"<< std::endl;
   eval.Print();
   // ---------------------------------------------------------------------------------------------------------------------
 
   // now we know that the eigenvalues of the covariance matrix must scale each parameter as given by the new paraemeters
   int n_par = eval.GetNoElements();
-  if (verbosity_) { std::cout << "RooContainer::GenerateBinnedPdf -- Number of Parameters from the Fit -- " << n_par  << std::endl;}
+  std::cout << "RooContainer::GenerateBinnedPdf -- Number of Parameters from the Fit -- " << n_par  << std::endl;
   RooArgSet* rooParameters = pdf_ptr->getParameters(dataset);
 
   // fill vector with original parameters
@@ -1706,7 +2349,7 @@ void RooContainer::generateBinnedPdf(int catNo,std::string hist_nocat_name,std::
   for (int par=0;par<n_par;par++){
     
     // this row in evec is the scales for the parameters
-  if (verbosity_) {  cout << "Systematic from parameter "<< par << endl;}
+    cout << "Systematic from parameter "<< par << endl;
 
     double sigmaUnit = sigmaRange/nsigmas;
     double err = sigmaUnit*TMath::Sqrt(eval[par]);
@@ -1730,7 +2373,7 @@ void RooContainer::generateBinnedPdf(int catNo,std::string hist_nocat_name,std::
       }
 
       setArgSetParameters(rooParameters,new_values);
-      normalisation = getNormalisationFromFit(pdf_name,hist_name,pdf_ptr,obs,r1,r2,multi_pdf);
+      normalisation = getNormalisationFromFit(pdf_name,hist_name,pdf_ptr,obs,r1,r2,multi_pdf,external_fit);
 
       std::string hist_sys_name_up = getsysindexName(hist_name,s_name,sys,1);
       temp_hist = (TH1F*) pdf_ptr->createHistogram(Form("th1f_%s",hist_sys_name_up.c_str()),*obs,Binning(nbins,r1,r2));
@@ -1745,7 +2388,7 @@ void RooContainer::generateBinnedPdf(int catNo,std::string hist_nocat_name,std::
       }
 
       setArgSetParameters(rooParameters,new_values);
-      normalisation = getNormalisationFromFit(pdf_name,hist_name,pdf_ptr,obs,r1,r2,multi_pdf);
+      normalisation = getNormalisationFromFit(pdf_name,hist_name,pdf_ptr,obs,r1,r2,multi_pdf,external_fit);
 
       std::string hist_sys_name_dn = getsysindexName(hist_name,s_name,sys,-1);
       temp_hist = (TH1F*) pdf_ptr->createHistogram(Form("th1f_%s",hist_sys_name_dn.c_str()),*obs,Binning(nbins,r1,r2));
@@ -1759,10 +2402,9 @@ void RooContainer::generateBinnedPdf(int catNo,std::string hist_nocat_name,std::
    }
   } 
 
-  if (verbosity_) {std::cout << "RooContainer::GenerateBinnedPdf -- Generated TH1F named  "
+  std::cout << "RooContainer::GenerateBinnedPdf -- Generated TH1F named  "
 	    << hist_name << " From Pdf "
 	    << pdf_name  << ", Normalised Histogram to " << normalisation << std::endl;      
-  }
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -1793,34 +2435,74 @@ void RooContainer::setArgSetParameters(RooArgSet* params,std::vector<double> &va
   }
 }
 
-double RooContainer::getNormalisationFromFit(std::string pdf_name,std::string hist_name,RooAbsPdf *pdf_ptr,RooRealVar *obs,double r1,double r2,bool multi_pdf){
+std::pair<double,double> RooContainer::getNormalisationAndErrorFromFit(std::string pdf_name,std::string hist_name,RooAbsPdf *pdf_ptr,RooRealVar *obs,double r1,double r2,bool multi_pdf,bool external_range){
 
   double normalisation = 0;
+  RooAbsReal* normalisationVar;
   if (multi_pdf){
 
-     std::map<std::string,std::vector<RooRealVar*> >::iterator it = m_comp_pdf_norm_.find(pdf_name);
-     // get the values which correspond to normalisations of each component pdf
-     for ( std::vector<RooRealVar*>::iterator it_r = (it->second).begin() ; it_r!=(it->second).end();it_r++){
-	normalisation += (*it_r)->getVal();
-     }
+	normalisationVar = &m_form_var_[pdf_name];
   }
-
   else{
-    normalisation = m_real_var_[pdf_name].getVal();
+    normalisationVar = &m_real_var_[pdf_name];
   }
 
-  obs->setRange(hist_name.c_str(),r1,r2);
-  RooAbsReal* integral = pdf_ptr->createIntegral(*obs,NormSet(*obs),Range(hist_name.c_str()));
-  normalisation *= integral->getVal();
+  normalisation = normalisationVar->getVal();
 
-  return normalisation;
+  std::cout << "RooContainer::getNormalisationFromFit - Calculating Integral from Pdf " << pdf_name << " in range " << r1 << " -> " << r2 <<std::endl;
+  obs->setRange("rngeNorm",r1,r2);
+  RooAbsReal* integral = pdf_ptr->createIntegral(*obs,NormSet(*obs),Range("rngeNorm"));
+  RooFormulaVar normIntVar("normIntVar","normIntVar","@0*@1/@2",RooArgSet(*normalisationVar,*integral,*latestFitRangeIntegral_[pdf_name]));
+
+  double integralValue = integral->getVal();
+  double integralError = integral->getPropagatedError(*fit_results_[pdf_name]);
+
+  double result    = normIntVar.getVal();
+  double fullError = normIntVar.getPropagatedError(*fit_results_[pdf_name]);
+
+//  std::cout << "	Pdf Integral and Error From Latest Fit - " << integralValue << "+/-" << integralError << std::endl;
+//  std::cout << "	Full (extended term) Norm - " << normalisationVar->getVal()  << std::endl;
+//  std::cout << "	Integral Of latest Fit - " << latestFitRangeIntegral_[pdf_name]->getVal()  << std::endl;
+//  std::cout << "	Pdf Get Norm - " << pdf_ptr->getNorm()  << std::endl;
+//  std::cout << "	Normalisation In Range and Error - " << result << "+/-" << fullError << std::endl;
+  return std::pair<double,double>(result,fullError);
+
+}
+
+double RooContainer::getNormalisationFromFit(std::string pdf_name,std::string hist_name,RooAbsPdf *pdf_ptr,RooRealVar *obs,double r1,double r2,bool multi_pdf,bool external_range){
+
+  double normalisation = 0;
+  RooAbsReal* normalisationVar;
+  if (multi_pdf){
+
+	normalisationVar = &m_form_var_[pdf_name];
+  }
+  else{
+    normalisationVar = &m_real_var_[pdf_name];
+  }
+
+  normalisation = normalisationVar->getVal();
+
+  std::cout << "RooContainer::getNormalisationFromFit - Calculating Integral from Pdf " << pdf_name << " in range " << r1 << " -> " << r2 <<std::endl;
+  obs->setRange("rngeNorm",r1,r2);
+  RooAbsReal* integral = pdf_ptr->createIntegral(*obs,NormSet(*obs),Range("rngeNorm"));
+  RooFormulaVar normIntVar("normIntVar","normIntVar","@0*@1/@2",RooArgSet(*normalisationVar,*integral,*latestFitRangeIntegral_[pdf_name]));
+  double result    = normIntVar.getVal();
+
+  return result;
 }
 // ----------------------------------------------------------------------------------------------------
 void RooContainer::writeRooDataHist(std::string name, TH1F *hist){
 
-  RooDataHist tmp(Form("roohist_%s",name.c_str()),name.c_str(),RooArgList(m_real_var_[hist->GetTitle()]),hist);
+  // Having some problems with the RooDataHists right now in the MVA code, stick to the TH1's, also importing is very slow
+  // Makes Pdf from Histogram, ie bin Integral is used not bin content
 
-  ws.import(tmp);
+  if (save_roodatahists){
+
+       RooDataHist tmp(Form("roohist_%s",name.c_str()),name.c_str(),RooArgList(m_real_var_[hist->GetTitle()]),hist);
+       ws.import(tmp);
+  }
+
   hist->Write();
 }
 
@@ -1832,12 +2514,12 @@ void RooContainer::writeRooPlot(RooPlot *plot,double chi){
   gROOT->SetStyle("Plain");
   // ---------------------------------
   TLatex *text = new TLatex();
-  TCanvas *can = new TCanvas(Form("plot_%s",plot->GetName()),plot->GetName(),900,600) ;    
+  TCanvas *can = new TCanvas(Form("plot_%s",plot->GetName()),plot->GetName(),1200,900) ;    
   
   can->cd(); 
   plot->Draw();
   text->SetNDC();
-  text->DrawLatex(0.11,0.15,Form("#chi^{2} / n d.o.f = %.3f",chi));
+  //text->DrawLatex(0.11,0.15,Form("#chi^{2} / n d.o.f = %.3f",chi));
   can->Write();
   delete can;
 }
@@ -1852,6 +2534,27 @@ void RooContainer::removeDuplicateElements(std::vector<RooAbsPdf*> &k){
      if (tmpset.insert(*r).second ){ *w++ = *r;}
   }
         k.erase( w , k.end() );
+}
+// ----------------------------------------------------------------------------------------------------
+void RooContainer::histogramSmoothing(TH1F* h, int n){
+   // Nothing too special, a function which will smooth a histogram but ignore the first and last
+   // bins, useful for the "flat-binning" approach! 
+   if (h->GetNbinsX()>3){
+     int nbin = h->GetNbinsX();
+     TH1F *h2 = new TH1F(Form("hn%s",h->GetName()),Form("hn%s",h->GetName()),nbin-2,0,1);
+     for (int i=1;i<=nbin-2;i++){
+           h2->SetBinContent(i,h->GetBinContent(i+1));
+     }
+     h2->Smooth(n);
+     for (int i=2;i<=nbin-1;i++){
+           h->SetBinContent(i,h2->GetBinContent(i-1));
+     }
+
+   }
+
+   return;
+
+   
 }
 // ----------------------------------------------------------------------------------------------------
 void RooContainer::makeSystematics(std::string observable,std::string s_name, int effect){

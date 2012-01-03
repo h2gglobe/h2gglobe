@@ -120,7 +120,7 @@ int PhotonEtaCategory(int photonindex, int n_etacat=4) {
   return  etacat;
 }
 //diphoton category functions ( r9, eta, and diphoton pt)
-int DiphotonCategory(Int_t leadind, Int_t subleadind, float pTh, int n_etacat=4, int n_r9cat=3, int n_pThcat=0, int nVtxCategories=0, float vtxMva=-1.) {
+int DiphotonCategory(Int_t leadind, Int_t subleadind, float pTh, int n_r9cat=3, int n_etacat=4, int n_pThcat=0, int nVtxCategories=0, float vtxMva=-1.) {
   Int_t r9cat  =  TMath::Max(PhotonR9Category(leadind,n_r9cat),PhotonR9Category(subleadind,n_r9cat));
   Int_t etacat =  TMath::Max(PhotonEtaCategory(leadind,n_etacat),PhotonEtaCategory(subleadind,n_etacat));
   Int_t pThcat =  DiphotonPtCategory(pTh,n_pThcat);
@@ -146,7 +146,7 @@ int DiphotonPtCategory(double pTh, int n_pThcat=0) {
   if(n_pThcat == 2) {
     pThcat = (Int_t)(pTh < 40.);
   } else if (n_pThcat == 3) {
-    pThcat = (Int_t)((pTh < 70.) + (pTh < 40.));
+    pThcat = (Int_t)((pTh < 50.) + (pTh < 25.));
   }
   return pThcat;
 }
@@ -402,8 +402,8 @@ int MuonSelection(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind);
 int ElectronSelection(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind);
 
 void SetAllMVA();
-Float_t photonIDMVA(Int_t, Int_t, const char*);
-Float_t diphotonMVA(Int_t, Int_t, Int_t, float, float, float, const char*);
+Float_t photonIDMVA(Int_t, Int_t, TLorentzVector, const char*);
+Float_t diphotonMVA(Int_t, Int_t, Int_t, float, TLorentzVector, TLorentzVector, float,float, const char*);
 float getDmOverDz(Int_t, Int_t, Float_t*);
 Float_t deltaMassVtx(Int_t, Int_t, Float_t);
 

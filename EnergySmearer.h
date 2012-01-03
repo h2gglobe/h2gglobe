@@ -6,6 +6,7 @@
 #include <map>
 #include <utility>
 #include "TFile.h"
+#include "TRandom3.h"
 #include "TGraphAsymmErrors.h"
 
 class PhotonReducedInfo;
@@ -105,6 +106,8 @@ public:
   void doEfficiencies(bool x) { doEfficiencies_=x; }; 
   
   void setEffName(std::string x) { effName_ =x; };
+
+  void resetRandom(){rgen_->SetSeed(12345);};
 
   bool initEfficiency();
 

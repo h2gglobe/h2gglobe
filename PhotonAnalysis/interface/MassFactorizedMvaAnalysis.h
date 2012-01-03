@@ -1,11 +1,13 @@
-#ifndef __STATANALYSIS__
-#define __STATANALYSIS__
+#ifndef __MASSFACTORIZEDANALYSIS__
+#define __MASSFACTORIZEDANALYSIS__
 
 #include "BaseAnalysis.h"
 #include "BaseSmearer.h"
 #include "PhotonAnalysis.h"
 #include "RooContainer.h"
 #include "VertexAnalysis/interface/HggVertexAnalyzer.h"
+
+#include "MassResolution.h"
 
 #include "EnergySmearer.h"
 #include "EfficiencySmearer.h"
@@ -16,12 +18,12 @@
 #include "math.h"
 
 // ------------------------------------------------------------------------------------
-class StatAnalysis : public PhotonAnalysis 
+class MassFactorizedMvaAnalysis : public PhotonAnalysis 
 {
 public:
 	
-	StatAnalysis();
-	virtual ~StatAnalysis();
+	MassFactorizedMvaAnalysis();
+	virtual ~MassFactorizedMvaAnalysis();
 	
 	virtual const std::string & name() const { return name_; };
 	
@@ -32,26 +34,14 @@ public:
 	void GetBranches(TTree *, std::set<TBranch *>& );
 	
 	virtual bool SelectEvents(LoopAll&, int);
-        virtual void ResetAnalysis();
+	virtual void ResetAnalysis();
 	virtual void Analysis(LoopAll&, Int_t);
 	
 	// Options
-  bool includeVBF;
-  bool includeVHad;
-  bool includeVHlep;
-  bool reRunCiCForData;
-
-  float leadEtCut;
-  float leadEtVBFCut;
-  float leadEtVHadCut;
-  float leadEtVHlepCut;
-  float subleadEtCut;
-  float subleadEtVBFCut;
-  float subleadEtVHadCut;
-  float subleadEtVHlepCut;
-  int nVBFEtaCategories;
-	int nVHadEtaCategories;
-  std::string efficiencyFile;
+	bool reRunCiCForData;
+	float leadEtCut;
+	float subleadEtCut;
+	std::string efficiencyFile;
 	
 	// EnergySmearer::energySmearingParameters eSmearPars; // gone to PhotonAnalysis GF
 	EfficiencySmearer::efficiencySmearingParameters effSmearPars;
@@ -60,51 +50,8 @@ public:
 	double GetDifferentialKfactor(double, int);
 
 	void FillSignalLabelMap();
+	int GetBDTBoundaryCategory(float,bool);
 	std::string GetSignalLabel(int) ;
-
-  // for N-1
-  float sublead_r9;
-  float sublead_isoOverEt;
-  float sublead_badisoOverEt;
-  float sublead_trkisooet;
-  float sublead_sieie;
-  float sublead_drtotk;
-  float sublead_hovere;
-  float sublead_mgg;
-  
-  float  myVBFLeadJPt;
-  float  myVBFSubJPt;
-  float  myVBFdEta;
-  float  myVBFZep;
-  float  myVBFdPhi;
-  float  myVBF_Mjj;
-
-  float  myVBF_Mgg;
-
-  float  myVHadLeadJPt;
-  float  myVHadSubJPt;
-  float  myVHaddEta;
-  float  myVHadZep;
-  float  myVHaddPhi;
-  float  myVHad_Mjj;
-
-  float  myVHad_Mgg;
-
-  float  myAllLeadJPt;
-  float  myAllSubJPt;
-  float  myAllLeadJEta;
-  float  myAllSubJEta;
-  float  myAlldEta;
-  float  myAllZep;
-  float  myAlldPhi;
-  float  myAll_Mjj;
-
-  float  myAll_Mgg;
-  float  myAllPtHiggs;
-
-
-  std::pair<int, int> Select2HighestPtJets(LoopAll&, TLorentzVector& leadpho, TLorentzVector& subleadpho, float jtLMinPt, float jtTMinPt);
-  int RescaleJetEnergy(LoopAll&);
 
 	bool  doMCSmearing;
 	bool  doEscaleSyst, doEresolSyst, doPhotonIdEffSyst, doVtxEffSyst, doR9Syst, doTriggerEffSyst, doKFactorSyst;
@@ -122,7 +69,14 @@ public:
 	//float smearing_sigma_error_EBLowR9  ;
 	//float smearing_sigma_error_EEHighR9 ;
 	//float smearing_sigma_error_EELowR9  ;
-	
+
+	std::string bdtTrainingPhilosophy;
+	std::string photonLevelMvaUCSD  ;
+	std::string eventLevelMvaUCSD   ;                    
+	std::string photonLevelMvaMIT_EB;
+	std::string photonLevelMvaMIT_EE;
+	std::string eventLevelMvaMIT    ;
+
 	std::string kfacHist;
 
 	TH1D *thm110,*thm120,*thm130,*thm140;
@@ -145,7 +99,6 @@ protected:
 	std::map<int,std::string> signalLabels;
 	float nevents, sumwei, sumaccept, sumsmear, sumev; 
 	
-	int nCategories_;
 	int nPhotonCategories_;
 	int diPhoCounter_;
 	// Vertex analysis

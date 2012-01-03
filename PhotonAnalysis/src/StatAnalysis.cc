@@ -1590,7 +1590,10 @@ std::pair<int, int> StatAnalysis::Select2HighestPtJets(LoopAll& l, TLorentzVecto
   return myJetsnew;
 }
 
-
+void StatAnalysis::ResetAnalysis(){
+     // Reset Random Variable on the EnergyResolution Smearer
+     eResolSmearer->resetRandom();
+}
 
 int  StatAnalysis::RescaleJetEnergy(LoopAll& l) {
   for (int i = 0; i<l.jet_algoPF1_n; i++) {

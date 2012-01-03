@@ -8,6 +8,8 @@
 #include "TriggerSelection.h"
 #include "EnergySmearer.h"
 
+#include "MassResolution.h"
+
 #include "TMVA/Reader.h"
 #include "PhotonFix.h"
 // #include "HiggsToGammaGamma/interface/GBRForest.h"
@@ -133,6 +135,8 @@ protected:
 	vector<string> tmvaPerVtxVariables_;
 	TMVA::Reader *tmvaPerVtxReader_;
 	TMVA::Reader *tmvaPerEvtReader_;
+
+        MassResolution *massResolutionCalculator;
 
 	//TFile *fgbr;
 	//GBRForest *fReadereb;
