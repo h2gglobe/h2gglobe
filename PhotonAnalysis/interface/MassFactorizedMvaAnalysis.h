@@ -7,8 +7,6 @@
 #include "RooContainer.h"
 #include "VertexAnalysis/interface/HggVertexAnalyzer.h"
 
-#include "MassResolution.h"
-
 #include "EnergySmearer.h"
 #include "EfficiencySmearer.h"
 #include "DiPhoEfficiencySmearer.h"

@@ -595,7 +595,13 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
     // Divergence from StatAnalysis Here! Apply loose pre-selection to select photons
     // FIXME pass smeared R9
-    int diphoton_id = l.DiphotonCiCSelection(l.phoLOOSE, l.phoLOOSE, leadEtCut, subleadEtCut, nPhotonCategories_,applyPtoverM, &smeared_pho_energy[0] ); 
+    int diphoton_id=-1;
+    if (bdtTrainingPhilosophy=="MIT"){
+    	diphoton_id = l.DiphotonMITPreSelection(leadEtCut,subleadEtCut,applyPtoverM, &smeared_pho_energy[0] ); 
+    } else if (bdtTrainingPhilosophy=="UCSD"){
+    	diphoton_id = l.DiphotonCiCSelection(l.phoLOOSE, l.phoLOOSE, leadEtCut, subleadEtCut, nPhotonCategories_,applyPtoverM, &smeared_pho_energy[0] ); 
+    }
+
     /// std::cerr << "Selected pair " << l.dipho_n << " " << diphoton_id << std::endl;
     if (diphoton_id > -1 ) {
 
@@ -898,7 +904,12 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	       
 		// analyze the event
 		// FIXME pass smeared R9
-		int diphoton_id = l.DiphotonCiCSelection(l.phoLOOSE, l.phoLOOSE, leadEtCut, subleadEtCut, nPhotonCategories_,applyPtoverM, &smeared_pho_energy[0] ); 
+    		int diphoton_id=-1;
+    		if (bdtTrainingPhilosophy=="MIT"){
+    			diphoton_id = l.DiphotonMITPreSelection(leadEtCut,subleadEtCut,applyPtoverM, &smeared_pho_energy[0] ); 
+    		} else if (bdtTrainingPhilosophy=="UCSD"){
+    			diphoton_id = l.DiphotonCiCSelection(l.phoLOOSE, l.phoLOOSE, leadEtCut, subleadEtCut, nPhotonCategories_,applyPtoverM, &smeared_pho_energy[0] ); 
+    		}
 	       
 		if (diphoton_id > -1 ) {
 		   
@@ -1109,9 +1120,9 @@ int MassFactorizedMvaAnalysis::GetBDTBoundaryCategory(float bdtout, bool isEB){
 
 	} else if (bdtTrainingPhilosophy=="MIT"){
 
-//		   if (bdtout >=-0.50 && bdtout < 0.23) return 4;
-		   if (bdtout < 0.23) return 4;
-		   if (bdtout >= 0.23 && bdtout < 0.65) return 3;
+		   if (bdtout >=-0.50 && bdtout < 0.3) return 4;
+	//	   if (bdtout < 0.3) return 4;
+		   if (bdtout >= 0.3 && bdtout < 0.65) return 3;
 		   if (bdtout >= 0.65 && bdtout < 0.84) return 2;
 		   if (bdtout >= 0.84 && bdtout < 0.90) return 1;
 		   if (bdtout >= 0.90) return 0;

@@ -79,10 +79,12 @@ float cic4_cut_sublead_pixel[phoNCUTLEVELS][4];
 // loops through photons and returns indices to two photons passing desired selection 
 // if more than one diphoton passes, returns pair with highest lead photon pt, or if lead is same, with highest sublead pt.
 int DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL = phoLOOSE, phoCiCIDLevel SUBLEADCUTLEVEL = phoLOOSE, Float_t leadPtMin = 30, Float_t subleadPtMin = 20, int ncategories=6, bool applyPtoverM=false, float *pho_energy_array=0,bool split=false);
+int DiphotonMITPreSelection(Float_t leadPtMin, Float_t subleadPtMin, bool applyPtoverM, float *pho_energy_array=0);
 
 // for a photon index, applies all levels of cuts and returns the index to the highest cut level passed (can do lead and sublead - same for now)
 int   PhotonCiCSelectionLevel( int photon_index, int vertex_index, std::vector<std::vector<bool> > & ph_passcut, int ncategories=6, int doSublead=1, float *pho_energy_array=0);
 
+bool   PhotonMITPreSelection( int photon_index, int vertex_index,float *pho_energy_array=0);
 
 // Functions to calculate variables used in CiC selection
 Float_t DeltaRToTrack(Int_t photon_ind=-1, Int_t vtxind=-1, Float_t PtMin=1., Float_t dzmax=0.2, Float_t dxymax=0.1, int maxlosthits=0);
@@ -120,7 +122,7 @@ int PhotonEtaCategory(int photonindex, int n_etacat=4) {
   return  etacat;
 }
 //diphoton category functions ( r9, eta, and diphoton pt)
-int DiphotonCategory(Int_t leadind, Int_t subleadind, float pTh, int n_etacat=4,int n_r9cat=3,  int n_pThcat=0, int nVtxCategories=0, float vtxMva=-1.) {
+int DiphotonCategory(Int_t leadind, Int_t subleadind, float pTh,  int n_etacat=4,int n_r9cat=3, int n_pThcat=0, int nVtxCategories=0, float vtxMva=-1.) {
   Int_t r9cat  =  TMath::Max(PhotonR9Category(leadind,n_r9cat),PhotonR9Category(subleadind,n_r9cat));
   Int_t etacat =  TMath::Max(PhotonEtaCategory(leadind,n_etacat),PhotonEtaCategory(subleadind,n_etacat));
   Int_t pThcat =  DiphotonPtCategory(pTh,n_pThcat);
