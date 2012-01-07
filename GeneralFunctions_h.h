@@ -78,7 +78,7 @@ float cic4_cut_sublead_pixel[phoNCUTLEVELS][4];
 
 // loops through photons and returns indices to two photons passing desired selection 
 // if more than one diphoton passes, returns pair with highest lead photon pt, or if lead is same, with highest sublead pt.
-int DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL = phoLOOSE, phoCiCIDLevel SUBLEADCUTLEVEL = phoLOOSE, Float_t leadPtMin = 30, Float_t subleadPtMin = 20, int ncategories=6, bool applyPtoverM=false, float *pho_energy_array=0,bool split=false);
+int DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL = phoLOOSE, phoCiCIDLevel SUBLEADCUTLEVEL = phoLOOSE, Float_t leadPtMin = 30, Float_t subleadPtMin = 20, int ncategories=6, bool applyPtoverM=false, float *pho_energy_array=0);
 int DiphotonMITPreSelection(Float_t leadPtMin, Float_t subleadPtMin, bool applyPtoverM, float *pho_energy_array=0);
 
 // for a photon index, applies all levels of cuts and returns the index to the highest cut level passed (can do lead and sublead - same for now)
@@ -405,7 +405,7 @@ int ElectronSelection(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind);
 
 void SetAllMVA();
 Float_t photonIDMVA(Int_t, Int_t, TLorentzVector, const char*);
-Float_t diphotonMVA(Int_t, Int_t, Int_t, float, TLorentzVector, TLorentzVector, float,float, const char*);
+Float_t diphotonMVA(Int_t, Int_t, Int_t, float, TLorentzVector, TLorentzVector, float,float,float,const char*);
 float getDmOverDz(Int_t, Int_t, Float_t*);
 Float_t deltaMassVtx(Int_t, Int_t, Float_t);
 
