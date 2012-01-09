@@ -99,9 +99,11 @@ void StatAnalysis::Init(LoopAll& l)
     l.countersred.resize(diPhoCounter_+1);
 
     // initialize the analysis variables
-    nCategories_ = nEtaCategories;
-    if( nR9Categories != 0 ) nCategories_ *= nR9Categories;
-    if( nPtCategories != 0 ) nCategories_ *= nPtCategories;
+    nInclusiveCategories_ = nEtaCategories;
+    if( nR9Categories != 0 ) nInclusiveCategories_ *= nR9Categories;
+    if( nPtCategories != 0 ) nInclusiveCategories_ *= nPtCategories;
+
+    if( useMVA ) nInclusiveCategories_ = nDiphoEventClasses;
 
     // CP
 
@@ -112,7 +114,7 @@ void StatAnalysis::Init(LoopAll& l)
     int nVHadCategories = ((int)includeVHad)*nVHadEtaCategories;
     int nVHlepCategories = (int)includeVHlep * 2;
    
-    nCategories_+=(nVBFCategories+nVHadCategories+nVHlepCategories);
+    nCategories_=(nInclusiveCategories_+nVBFCategories+nVHadCategories+nVHlepCategories);
 
     l.SetCutVariables("cut_AllLeadJPt",       &myAllLeadJPt);
     l.SetCutVariables("cut_AllSubJPt",        &myAllSubJPt);
@@ -460,18 +462,18 @@ void StatAnalysis::Init(LoopAll& l)
     int cats_with_quad[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
     int cats_with_cubic[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
-    for(int i=0; i<nEtaCategories*nR9Categories*nPtCategories+((int)includeVBF)*nVBFEtaCategories+((int)includeVHad)*nVHadEtaCategories+(int)includeVHlep * 2; i++){
-      if(i<nEtaCategories*nR9Categories*nPtCategories) {
+    for(int i=0; i<nCategories_; i++){
+      if(i<nInclusiveCategories_) {
         cats_with_std[i]=1;
         cats_with_lin[i]=0;
         cats_with_quad[i]=0;
         cats_with_cubic[i]=0;
-      } else if(i<nEtaCategories*nR9Categories*nPtCategories+((int)includeVBF)*nVBFEtaCategories){
+      } else if(i<nInclusiveCategories_+((int)includeVBF)*nVBFEtaCategories){
         cats_with_std[i]=0;
         cats_with_lin[i]=0;
         cats_with_quad[i]=1;
         cats_with_cubic[i]=0;
-      } else if(i<nEtaCategories*nR9Categories*nPtCategories+((int)includeVBF)*nVBFEtaCategories+((int)includeVHad)*nVHadEtaCategories){
+      } else if(i<nInclusiveCategories_+((int)includeVBF)*nVBFEtaCategories+((int)includeVHad)*nVHadEtaCategories){
         cats_with_std[i]=0;
         cats_with_lin[i]=0;
         cats_with_quad[i]=1;
@@ -751,7 +753,18 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
    
     sumev += weight;
     // FIXME pass smeared R9
-    int diphoton_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtCut, subleadEtCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
+    int diphoton_id = -1;
+    float diphoton_mva = -10;
+    if(useMVA) {
+      //diphoton_id = l.DiphotonMVASelection( vtxAna_, diphoton_mva, phoIDMVAmin, phoIDMVAmin, 
+      //    leadEtCut, subleadEtCut, phoIDMVAtype, nDiphoEventClasses,
+      //    applyPtoverM, &smeared_pho_energy[0] );
+      //if(PADEBUG) std::cout<<"diphoton_id "<<diphoton_id<<std::endl;
+      //if(PADEBUG) std::cout<<"diphoton_mva "<<diphoton_mva<<std::endl;
+      //if(l.DiphotonMVAEventClass( diphoton_mva, nInclusiveCategories_, phoIDMVAtype) == -1) diphoton_id = -1;
+    } else {
+      diphoton_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtCut, subleadEtCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
+    }
     int diphoton_nm1_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoNOCUTS, leadEtCut, subleadEtCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
 
     if(diphoton_nm1_id>-1)
@@ -1000,7 +1013,17 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	
   
   // FIXME pass smeared R9
-	int category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,nPtCategories);
+	int category = -1;
+  if(useMVA){
+    if(PADEBUG) std::cout<<"getting diphoton event class"<<std::endl;
+    if(PADEBUG) std::cout<<"phoIDMVAtype "<<phoIDMVAtype<<std::endl;
+    if(PADEBUG) std::cout<<"nInclusiveCategories_ "<<nInclusiveCategories_<<std::endl;
+    if(PADEBUG) std::cout<<"diphoton_mva "<<diphoton_mva<<std::endl;
+    category = l.DiphotonMVAEventClass( diphoton_mva, nInclusiveCategories_, phoIDMVAtype);
+    if(PADEBUG) std::cout<<"got diphoton event class"<<std::endl;
+  } else {
+    category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,nPtCategories);
+  }
 	int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,0);
 	if( cur_type != 0 && doMCSmearing ) {
 	    float pth = Higgs.Pt();
@@ -1025,10 +1048,10 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	sumaccept += weight;
  	sumsmear += evweight;
 
-  if(VBFevent) category=nEtaCategories*nR9Categories*nPtCategories+l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nVBFEtaCategories,1,1);
-  else if(VHadevent) category=nEtaCategories*nR9Categories*nPtCategories+((int)includeVBF)*nVBFEtaCategories+l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nVHadEtaCategories,1,1);
-  else if(VHmuevent) category=nEtaCategories*nR9Categories*nPtCategories+((int)includeVBF)*nVBFEtaCategories+((int)includeVHad)*nVHadEtaCategories;
-  else if(VHelevent) category=nEtaCategories*nR9Categories*nPtCategories+((int)includeVBF)*nVBFEtaCategories+((int)includeVHad)*nVHadEtaCategories+(int)includeVHlep;
+  if(VBFevent) category=nInclusiveCategories_+l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nVBFEtaCategories,1,1);
+  else if(VHadevent) category=nInclusiveCategories_+((int)includeVBF)*nVBFEtaCategories+l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nVHadEtaCategories,1,1);
+  else if(VHmuevent) category=nInclusiveCategories_+((int)includeVBF)*nVBFEtaCategories+((int)includeVHad)*nVHadEtaCategories;
+  else if(VHelevent) category=nInclusiveCategories_+((int)includeVBF)*nVBFEtaCategories+((int)includeVHad)*nVHadEtaCategories+(int)includeVHlep;
 
 
 
@@ -1115,7 +1138,12 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		    if( syst_shift == 0. ) { continue; } // skip the central value
 		    TLorentzVector Higgs = lead_p4 + sublead_p4; 	
 	     
-		    int category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,nPtCategories);
+	      int category = -1;
+        if(useMVA){
+          category = l.DiphotonMVAEventClass( diphoton_mva, nInclusiveCategories_, phoIDMVAtype);
+        } else {
+          category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,nPtCategories);
+        }
 		    double genLevWeightSyst=1; 
 	     
 		    for(std::vector<BaseGenLevelSmearer *>::iterator sj=genLevelSmearers_.begin(); sj!= genLevelSmearers_.end(); ++sj ) {
@@ -1131,10 +1159,10 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	     
 		    float mass = Higgs.M();
         
-        if(VBFevent) category=nEtaCategories*nR9Categories*nPtCategories+l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nVBFEtaCategories,1,1);
-        else if(VHadevent) category=nEtaCategories*nR9Categories*nPtCategories+((int)includeVBF)*nVBFEtaCategories+l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nVHadEtaCategories,1,1);
-        else if(VHmuevent) category=nEtaCategories*nR9Categories*nPtCategories+((int)includeVBF)*nVBFEtaCategories+((int)includeVHad)*nVHadEtaCategories;
-        else if(VHelevent) category=nEtaCategories*nR9Categories*nPtCategories+((int)includeVBF)*nVBFEtaCategories+((int)includeVHad)*nVHadEtaCategories+(int)includeVHlep;
+        if(VBFevent) category=nInclusiveCategories_+l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nVBFEtaCategories,1,1);
+        else if(VHadevent) category=nInclusiveCategories_+((int)includeVBF)*nVBFEtaCategories+l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nVHadEtaCategories,1,1);
+        else if(VHmuevent) category=nInclusiveCategories_+((int)includeVBF)*nVBFEtaCategories+((int)includeVHad)*nVHadEtaCategories;
+        else if(VHelevent) category=nInclusiveCategories_+((int)includeVBF)*nVBFEtaCategories+((int)includeVHad)*nVHadEtaCategories+(int)includeVHlep;
 		    
         categories.push_back(category);
 		    mass_errors.push_back(mass);
@@ -1160,7 +1188,12 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		    float evweight = weight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second] * genLevWeight;
 			       
 		    // FIXME pass smeared R9 and di-photon
-		    int category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,nPtCategories);
+	      int category = -1;
+        if(useMVA){
+          category = l.DiphotonMVAEventClass( diphoton_mva, nInclusiveCategories_, phoIDMVAtype);
+        } else {
+          category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,nPtCategories);
+        }
 		    int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,0);
 		    for(std::vector<BaseDiPhotonSmearer *>::iterator sj=diPhotonSmearers_.begin(); sj!= diPhotonSmearers_.end(); ++sj ) {
 			float swei=1.;
@@ -1173,10 +1206,10 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 			evweight *= swei;
 		    }
 		    float mass = Higgs.M();
-        if(VBFevent) category=nEtaCategories*nR9Categories*nPtCategories+l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nVBFEtaCategories,1,1);
-        else if(VHadevent) category=nEtaCategories*nR9Categories*nPtCategories+((int)includeVBF)*nVBFEtaCategories+l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nVHadEtaCategories,1,1);
-        else if(VHmuevent) category=nEtaCategories*nR9Categories*nPtCategories+((int)includeVBF)*nVBFEtaCategories+((int)includeVHad)*nVHadEtaCategories;
-        else if(VHelevent) category=nEtaCategories*nR9Categories*nPtCategories+((int)includeVBF)*nVBFEtaCategories+((int)includeVHad)*nVHadEtaCategories+(int)includeVHlep;
+        if(VBFevent) category=nInclusiveCategories_+l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nVBFEtaCategories,1,1);
+        else if(VHadevent) category=nInclusiveCategories_+((int)includeVBF)*nVBFEtaCategories+l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nVHadEtaCategories,1,1);
+        else if(VHmuevent) category=nInclusiveCategories_+((int)includeVBF)*nVBFEtaCategories+((int)includeVHad)*nVHadEtaCategories;
+        else if(VHelevent) category=nInclusiveCategories_+((int)includeVBF)*nVBFEtaCategories+((int)includeVHad)*nVHadEtaCategories+(int)includeVHlep;
 		    
 		    categories.push_back(category);
 		    mass_errors.push_back(mass);
@@ -1228,7 +1261,23 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	       
 		// analyze the event
 		// FIXME pass smeared R9
-		int diphoton_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtCut, subleadEtCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
+		int diphoton_id = -1;
+    float diphoton_mva = -10;
+    if(useMVA) {
+	    //massResolutionCalculator->Setup(l,&lead_p4,&sublead_p4,diphoton_index.first,diphoton_index.second,diphoton_id,ptHiggs,mass,eSmearPars,nR9Categories,nEtaCategories);
+
+	    //float sigmaMrv = massResolutionCalculator->massResolutionCorrVtx();
+	    //float sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
+      //float sigmaMe = 1.0;
+      //diphoton_id = l.DiphotonMVASelection( vtxAna_, diphoton_mva, phoIDMVAmin, phoIDMVAmin, 
+      //    leadEtCut, subleadEtCut, phoIDMVAtype, nDiphoEventClasses,
+      //    sigmaMrv, sigmaMwv,sigmaMe,
+      //    applyPtoverM, &smeared_pho_energy[0] );
+      //if(l.DiphotonMVAEventClass( diphoton_mva, nInclusiveCategories_, phoIDMVAtype) == -1) diphoton_id = -1;
+
+    } else {
+      diphoton_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtCut, subleadEtCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
+    }
     int diphotonVBF_id = -1;
     int diphotonVHad_id = -1;
     bool VBFevent = false;
@@ -1316,7 +1365,12 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		    TVector3 * vtx = (TVector3*)l.vtx_std_xyz->At(l.dipho_vtxind[diphoton_id]);
 		    TLorentzVector Higgs = lead_p4 + sublead_p4; 	
 		   
-		    int category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,nPtCategories);
+	      int category = -1;
+        if(useMVA){
+          category = l.DiphotonMVAEventClass( diphoton_mva, nInclusiveCategories_, phoIDMVAtype);
+        } else {
+          category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,nPtCategories);
+        }
 		    int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,0);
 		    if( cur_type != 0 && doMCSmearing ) {
 			for(std::vector<BaseDiPhotonSmearer *>::iterator si=diPhotonSmearers_.begin(); si!= diPhotonSmearers_.end(); ++si ) {
@@ -1328,10 +1382,10 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		    }
 		    float mass = Higgs.M();
 		   
-        if(VBFevent) category=nEtaCategories*nR9Categories*nPtCategories+l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nVBFEtaCategories,1,1);
-        else if(VHadevent) category=nEtaCategories*nR9Categories*nPtCategories+((int)includeVBF)*nVBFEtaCategories+l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nVHadEtaCategories,1,1);
-        else if(VHmuevent) category=nEtaCategories*nR9Categories*nPtCategories+((int)includeVBF)*nVBFEtaCategories+((int)includeVHad)*nVHadEtaCategories;
-        else if(VHelevent) category=nEtaCategories*nR9Categories*nPtCategories+((int)includeVBF)*nVBFEtaCategories+((int)includeVHad)*nVHadEtaCategories+(int)includeVHlep;
+        if(VBFevent) category=nInclusiveCategories_+l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nVBFEtaCategories,1,1);
+        else if(VHadevent) category=nInclusiveCategories_+((int)includeVBF)*nVBFEtaCategories+l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nVHadEtaCategories,1,1);
+        else if(VHmuevent) category=nInclusiveCategories_+((int)includeVBF)*nVBFEtaCategories+((int)includeVHad)*nVHadEtaCategories;
+        else if(VHelevent) category=nInclusiveCategories_+((int)includeVBF)*nVBFEtaCategories+((int)includeVHad)*nVHadEtaCategories+(int)includeVHlep;
 		    
 	       	    categories.push_back(category);
 	            mass_errors.push_back(mass);

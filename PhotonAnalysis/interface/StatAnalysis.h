@@ -52,7 +52,12 @@ public:
   int nVBFEtaCategories;
 	int nVHadEtaCategories;
   std::string efficiencyFile;
-	
+
+  bool useMVA;
+  std::string phoIDMVAtype;
+  float phoIDMVAmin;
+  int nDiphoEventClasses;
+
 	// EnergySmearer::energySmearingParameters eSmearPars; // gone to PhotonAnalysis GF
 	EfficiencySmearer::efficiencySmearingParameters effSmearPars;
 	DiPhoEfficiencySmearer::diPhoEfficiencySmearingParameters diPhoEffSmearPars;
@@ -145,6 +150,7 @@ protected:
 	std::map<int,std::string> signalLabels;
 	float nevents, sumwei, sumaccept, sumsmear, sumev; 
 	
+	int nInclusiveCategories_;
 	int nCategories_;
 	int nPhotonCategories_;
 	int diPhoCounter_;
