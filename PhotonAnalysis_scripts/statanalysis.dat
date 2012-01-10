@@ -71,9 +71,9 @@ Inputs for reweighing
 - vertexing from: https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/374/1.html
 ->
 
-kfacHist=/afs/cern.ch/user/n/nckw/public/KFactors_AllScales_interpolated.root
-efficiencyFile=/afs/cern.ch/user/n/nckw/public/sig_reweighing_v16.root
-puHist=/afs/cern.ch/user/a/adavidzh/public/json/111207/weights/2011_0100_73500.weights.root
+kfacHist=aux/KFactors_AllScales_interpolated.root
+efficiencyFile=aux/sig_reweighing_v16.root
+puHist=aux/2011_0100_73500.weights3.root
 
 puMap=pu_weights_map.dat
 

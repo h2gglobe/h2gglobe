@@ -18,11 +18,11 @@ choose between UCSD and MIT trainings
 ->
 
 bdtTrainingPhilosophy=MIT
-photonLevelMvaUCSD=ID_UCSD.weights.xml
-eventLevelMvaUCSD=diphoton_UCSD.weights.xml
-photonLevelMvaMIT_EB=TMVAClassificationPhotonID_Barrel_PassPreSel_Variable_6_BDTnCuts2000_BDT.weights.xml
-photonLevelMvaMIT_EE=TMVAClassificationPhotonID_Endcap_PassPreSel_Variable_6_BDTnCuts2000_BDT.weights.xml
-eventLevelMvaMIT=HggBambu_SM_Dec9_BDTG.weights.xml
+photonLevelMvaUCSD=aux/ID_UCSD.weights.xml
+eventLevelMvaUCSD=aux/diphoton_UCSD.weights.xml
+photonLevelMvaMIT_EB=aux/TMVAClassificationPhotonID_Barrel_PassPreSel_Variable_6_BDTnCuts2000_BDT.weights.xml
+photonLevelMvaMIT_EE=aux/TMVAClassificationPhotonID_Endcap_PassPreSel_Variable_6_BDTnCuts2000_BDT.weights.xml
+eventLevelMvaMIT=aux/HggBambu_SM_Dec9_BDTG.weights.xml
 
 ->
 Turn on-off all smearings 
@@ -63,9 +63,9 @@ Inputs for reweighing
 - vertexing from: https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/374/1.html
 ->
 
-kfacHist=/vols/cms02/h2g/aux/KFactors_AllScales_interpolated.root
-efficiencyFile=/vols/cms02/h2g/aux/sig_reweighing_v16_mit.root
-puHist=/vols/cms02/h2g/aux/2011_0100_73500.weights3.root
+kfacHist=aux/KFactors_AllScales_interpolated.root
+efficiencyFile=aux/sig_reweighing_v16_mit.root
+puHist=aux/2011_0100_73500.weights3.root
 
 puMap=pu_weights_map.dat
 
