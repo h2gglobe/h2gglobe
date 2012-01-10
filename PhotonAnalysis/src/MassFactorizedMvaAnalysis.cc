@@ -308,11 +308,11 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
     l.rooContainer->AddConstant("ff_XSBR_vbf_105",0.151616);
     l.rooContainer->AddConstant("ff_XSBR_wzh_105",0.1609787);
 
-    l.rooContainer->AddRealVar("pol0",-0.05,-2.0,2.0);
-    l.rooContainer->AddRealVar("pol1",-0.05,-2.0,2.0);
-    l.rooContainer->AddRealVar("pol2",-0.05,-2.0,2.0);
-    l.rooContainer->AddRealVar("pol3",-0.01,-2.0,2.0);
-    l.rooContainer->AddRealVar("pol4",-0.01,-2.0,2.0);
+    l.rooContainer->AddRealVar("pol0",-0.05,-1.5,1.5);
+    l.rooContainer->AddRealVar("pol1",-0.05,-1.5,1.5);
+    l.rooContainer->AddRealVar("pol2",-0.05,-1.5,1.5);
+    l.rooContainer->AddRealVar("pol3",-0.01,-1.5,1.5);
+    l.rooContainer->AddRealVar("pol4",-0.01,-1.5,1.5);
     l.rooContainer->AddFormulaVar("modpol0","@0*@0","pol0");
     l.rooContainer->AddFormulaVar("modpol1","@0*@0","pol1");
     l.rooContainer->AddFormulaVar("modpol2","@0*@0","pol2");
@@ -644,14 +644,14 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
         float vtx_mva = l.vtx_std_evt_mva->at(diphoton_id);
 	float sigmaMrv = massResolutionCalculator->massResolutionCorrVtx();
 	float sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
-  float sigmaMe = 1.1;
+	float sigmaMeonly = massResolutionCalculator->massResolutionEonly();
 	// easy to calculate vertex probability from vtx mva output
 	float vtxProb 	= 1.-0.49*(vtx_mva+1.0);
 
 	float diphobdt_output = l.diphotonMVA(diphoton_index.first,diphoton_index.second
 				   ,l.dipho_vtxind[diphoton_id]
 				   ,vtxProb,lead_p4,sublead_p4
-				   ,sigmaMrv,sigmaMwv,sigmaMe
+				   ,sigmaMrv,sigmaMwv,sigmaMeonly
 				   ,bdtTrainingPhilosophy.c_str());
 	float phoid_mvaout_lead = l.photonIDMVA(diphoton_index.first,l.dipho_vtxind[diphoton_id],lead_p4 
 				   ,bdtTrainingPhilosophy.c_str());
@@ -671,6 +671,9 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	// control plots 
 	l.FillHist("all_mass",0, Higgs.M(), evweight);
 	l.FillHist("all_mass",category+1, Higgs.M(), evweight);
+ 
+	float rhofac=0.17;
+	float rhofacbad=0.52;
 	if( mass>=massMin && mass<=massMax  ) {
 		
 		l.FillHist("bdtout",0,diphobdt_output,evweight);
@@ -681,7 +684,19 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		}
 		l.FillHist("phoid_mvaout_lead",0,phoid_mvaout_lead,evweight);
 		l.FillHist("phoid_mvaout_sublead",0,phoid_mvaout_sublead,evweight);
-
+		// Photon ID Input 
+		if (l.pho_isEB) {
+		l.FillHist("hoe",0,l.pho_hoe[diphoton_index.first],evweight);
+		//l.FillHist("hoe",0,l.pho_hoe[diphoton_index.second],evweight);
+		l.FillHist("sieie",0,l.pho_sieie[diphoton_index.first],evweight);
+		//l.FillHist("sieie",0,l.pho_sieie[diphoton_index.second],evweight);
+		l.FillHist("tiso1",0,(*(l.pho_tkiso_recvtx_030_002_0000_10_01))[diphoton_index.first][l.dipho_vtxind[diphoton_id]] + l.pho_ecalsumetconedr03[diphoton_index.first]+l.pho_hcalsumetconedr04[diphoton_index.first]-l.rho*rhofac,evweight);
+		l.FillHist("tiso2",0,l.pho_tkiso_badvtx_040_002_0000_10_01[diphoton_index.first] +l.pho_ecalsumetconedr03[diphoton_index.first]+l.pho_hcalsumetconedr04[diphoton_index.first]-l.rho*rhofacbad,evweight);
+		l.FillHist("tiso3",0,(*(l.pho_tkiso_recvtx_030_002_0000_10_01))[diphoton_index.first][l.dipho_vtxind[diphoton_id]],evweight);
+		l.FillHist("sieip",0,l.pho_sieip[diphoton_index.first],evweight);
+		l.FillHist("sipip",0,TMath::Sqrt(l.pho_sipip[diphoton_index.first]),evweight);
+		}
+/*	
 		l.FillHist("mass",0, Higgs.M(), evweight);
 		l.FillHist("pt",0, Higgs.Pt(), evweight);
 		l.FillHist("eta",0, Higgs.Eta(), evweight);
@@ -719,6 +734,7 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		l.FillHist("pho1_r9",selectioncategory+1, sublead_r9, evweight);
 		
 		l.FillHist("pho_n",selectioncategory+1,l.pho_n, evweight);
+*/
 	}
 
 //	if (cur_type==0){
@@ -785,14 +801,14 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
         	    float vtx_mva = l.vtx_std_evt_mva->at(diphoton_id);
 		    float sigmaMrv = massResolutionCalculator->massResolutionCorrVtx();
 		    float sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
-        float sigmaMe = 1.1;
+		    float sigmaMeonly = massResolutionCalculator->massResolutionEonly();
 		    // easy to calculate vertex probability from vtx mva output
 		    float vtxProb 	= 1.-0.49*(vtx_mva+1.0);
 
 		    float diphobdt_output = l.diphotonMVA(diphoton_index.first,diphoton_index.second
 				   ,l.dipho_vtxind[diphoton_id]
 				   ,vtxProb,lead_p4,sublead_p4
-				   ,sigmaMrv,sigmaMwv,sigmaMe
+				   ,sigmaMrv,sigmaMwv,sigmaMeonly
 				   ,bdtTrainingPhilosophy.c_str());
 
 		    bool isEBEB  = (lead_p4.Eta() < 1.4442 ) && fabs(sublead_p4.Eta()<1.4442);
@@ -844,14 +860,14 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
         	    float vtx_mva = l.vtx_std_evt_mva->at(diphoton_id);
 		    float sigmaMrv = massResolutionCalculator->massResolutionCorrVtx();
 		    float sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
-        float sigmaMe = 1.1;
+		    float sigmaMeonly = massResolutionCalculator->massResolutionEonly();
 		    // easy to calculate vertex probability from vtx mva output
 	            float vtxProb 	= 1.-0.49*(vtx_mva+1.0);
 
 		    float diphobdt_output = l.diphotonMVA(diphoton_index.first,diphoton_index.second
 				   ,l.dipho_vtxind[diphoton_id]
 				   ,vtxProb,lead_p4,sublead_p4
-				   ,sigmaMrv,sigmaMwv,sigmaMe
+				   ,sigmaMrv,sigmaMwv,sigmaMeonly
 				   ,bdtTrainingPhilosophy.c_str());
 
 		    int category = GetBDTBoundaryCategory(diphobdt_output,isEBEB);
@@ -945,14 +961,14 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
         	    float vtx_mva = l.vtx_std_evt_mva->at(diphoton_id);
 		    float sigmaMrv = massResolutionCalculator->massResolutionCorrVtx();
 		    float sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
-        float sigmaMe = 1.1;
+		    float sigmaMeonly = massResolutionCalculator->massResolutionEonly();
 		    // easy to calculate vertex probability from vtx mva output
 		    float vtxProb 	= 1.-0.49*(vtx_mva+1.0);
 
 		    float diphobdt_output = l.diphotonMVA(diphoton_index.first,diphoton_index.second
 				   ,l.dipho_vtxind[diphoton_id]
 				   ,vtxProb,lead_p4,sublead_p4
-				   ,sigmaMrv,sigmaMwv,sigmaMe
+				   ,sigmaMrv,sigmaMwv,sigmaMeonly
 				   ,bdtTrainingPhilosophy.c_str());
 		   
 		    bool isEBEB  = (lead_p4.Eta() < 1.4442 ) && fabs(sublead_p4.Eta()<1.4442);

@@ -67,6 +67,7 @@ class MassResolution {
 
     double massResolutionCorrVtx();
     double massResolutionWrongVtx();
+    double massResolutionEonly();
 
   private:
     double leadPhotonResolution();
@@ -85,7 +86,6 @@ class MassResolution {
     double dzResolutionWrongVtx();
     
    // double massResolution();
-    double massResolutionEonly();
     double massResolutionAonly();
     double massResolutionEonlyNoSmear();
     double massResolutionCorrVtxNoSmear();
