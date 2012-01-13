@@ -1283,3 +1283,159 @@ delete [] fVals;
 }
 }
 */
+
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+int PhotonAnalysis::DiphotonMVASelection(LoopAll &l, HggVertexAnalyzer & vtxAna, Float_t & diphoMVA,  
+          Float_t minTightMVA, Float_t minLooseMVA, Float_t leadPtMin, 
+          Float_t subleadPtMin, std::string type, int ncategories,
+          bool applyPtoverM, float *pho_energy_array, bool split) {
+
+  //rho=0;// CAUTION SETTING RHO TO 0 FOR 2010 DATA FILES (RHO ISN'T IN THESE FILES)
+  int selected_lead_index = -1;
+  int selected_sublead_index = -1;
+  float selected_lead_pt = -1;
+  float selected_sublead_pt = -1;
+  
+  std::vector<int> passingLoose_dipho;
+  std::vector<int> passingTight_dipho;
+  std::vector<float> passingLoose_sumpt;
+  std::vector<float> passingTight_sumpt;
+  std::map<int,float> passing_diphomva;
+  //std::vector<float> passing_leadphomva;
+  //std::vector<float> passing_subphomva;
+  if(PADEBUG)  std::cout <<"type "<< type<<std::endl;
+  for(int idipho = 0; idipho < l.dipho_n; ++idipho ) {
+	  int ivtx = l.dipho_vtxind[idipho];
+	  int lead = l.dipho_leadind[idipho];
+	  int sublead = l.dipho_subleadind[idipho];
+	  
+	  if( lead == sublead ) { continue; }
+
+	  TLorentzVector lead_p4 = l.get_pho_p4(lead,ivtx,pho_energy_array); 
+	  TLorentzVector sublead_p4 = l.get_pho_p4(sublead,ivtx,pho_energy_array); 
+	  
+	  float leadEta = fabs(((TVector3 *)l.sc_xyz->At(l.pho_scind[lead]))->Eta());
+	  float subleadEta = fabs(((TVector3 *)l.sc_xyz->At(l.pho_scind[sublead]))->Eta());
+	  float m_gamgam = (lead_p4+sublead_p4).M();
+	  float pt_gamgam = (lead_p4+sublead_p4).Pt();
+
+    // FIXME call to (*vtx_std_evt_mva)[ivtx] crashes program
+    //std::cout<<"(*vtx_std_evt_mva)["<<ivtx<<"] "<< (*vtx_std_evt_mva)[ivtx]<<std::endl; 
+    //float vtxProb = vtxAna.vertexProbability((*vtx_std_evt_mva)[ivtx]);
+    //float vtxProb = vtxAna.vertexProbability(0.0);
+    float vtxProb = 0.3;
+
+	  if( leadEta > 2.5 || subleadEta > 2.5 || 
+	      ( leadEta > 1.4442 && leadEta < 1.566 ) ||
+	      ( subleadEta > 1.4442 && subleadEta < 1.566 ) ) { continue; }
+	 
+    // VBF cuts smoothly on lead pt/M but on straight pt on sublead to save sig eff and avoid HLT turn-on
+    if(split){
+	      if ( lead_p4.Pt()/m_gamgam < leadPtMin/120. || sublead_p4.Pt()< subleadPtMin ) { continue; }
+    }else{
+	    if( applyPtoverM ) {
+	      if ( lead_p4.Pt()/m_gamgam < leadPtMin/120. || sublead_p4.Pt()/m_gamgam < subleadPtMin/120. ) { continue; }
+	    } else {
+	      if ( lead_p4.Pt() < leadPtMin || sublead_p4.Pt() < subleadPtMin ) { continue; }
+	    }
+	  }
+
+    if(PADEBUG)  std::cout << "getting photon ID MVA" << std::endl;
+	  std::vector<std::vector<bool> > ph_passcut;
+    float leadmva = l.photonIDMVA(lead, ivtx, lead_p4, type); 
+    float submva = l.photonIDMVA(sublead, ivtx, sublead_p4, type);
+    if(leadmva>minLooseMVA && submva>minLooseMVA) {
+	    passingLoose_dipho.push_back(idipho);
+	    passingLoose_sumpt.push_back(lead_p4.Et()+sublead_p4.Et());
+      if(leadmva>minTightMVA && submva>minTightMVA) {
+	      passingTight_dipho.push_back(idipho);
+	      passingTight_sumpt.push_back(lead_p4.Et()+sublead_p4.Et());
+      }
+    } else { continue; } 
+
+    if(PADEBUG)  std::cout << "got photon ID MVA" << std::endl;
+	 
+    if(PADEBUG)  std::cout << "getting di-photon MVA" << std::endl;
+
+	  massResolutionCalculator->Setup(l,&lead_p4,&sublead_p4,lead,sublead,idipho,pt_gamgam, m_gamgam,eSmearPars,nR9Categories,nEtaCategories);
+
+	  float sigmaMrv = massResolutionCalculator->massResolutionCorrVtx();
+	  float sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
+	  float sigmaMeonly = massResolutionCalculator->massResolutionEonly();
+
+	  passing_diphomva[idipho]=
+      (l.diphotonMVA(lead, sublead, ivtx, 
+      vtxProb, lead_p4, sublead_p4, 
+      sigmaMrv, sigmaMwv, sigmaMeonly, type));
+    if(PADEBUG)  std::cout << "got di-photon MVA" << std::endl;
+	  //passing_leadphomva.push_back(leadmva);
+	  //passing_subphomva.push_back(submva);
+  }
+  
+  if( passingLoose_dipho.empty() ) { return -1; }
+
+  if( passingTight_dipho.empty() ) {
+    std::sort(passingLoose_dipho.begin(),passingLoose_dipho.end(),
+	      SimpleSorter<float,std::greater<double> >(&passingLoose_sumpt[0]));
+    // set reference to diphoton MVA
+    diphoMVA = passing_diphomva[passingLoose_dipho[0]];
+
+    if(PADEBUG)  std::cout<<"exiting DiphotonMVAsel"<<std::endl;
+    return passingLoose_dipho[0];
+  } else {
+    std::sort(passingTight_dipho.begin(),passingTight_dipho.end(),
+	      SimpleSorter<float,std::greater<double> >(&passingTight_sumpt[0]));
+    // set reference to diphoton MVA
+    diphoMVA = passing_diphomva[passingTight_dipho[0]];
+
+    if(PADEBUG)  std::cout<<"exiting DiphotonMVAsel"<<std::endl;
+    return passingTight_dipho[0];
+  }
+
+}
+
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+int PhotonAnalysis::DiphotonMVAEventClass(LoopAll &l, float diphoMVA, int nCat, std::string type, int EBEB){
+  if(PADEBUG)  std::cout<<"DiphotonMVAEventClass 1"<<std::endl;
+  
+  int eventClass = -1;
+
+  float class5threshMIT[5]  = { -0.5,  0.3, 0.65, 0.84, 0.9 };
+  float class6threshUCSD[6] = { -0.04041,  0.3878,  0.5958,  0.6677,  0.7671,  0.86 };
+  // first 2 for (ebee+eeee) and last 6 for ebeb
+  float class8threshUCSD[8]={-0.11, 0.5, -0.04041,  0.3878,  0.5958,  0.6677,  0.7671,  0.86 };
+
+  if(PADEBUG)  std::cout<<"DiphotonMVAEventClass 2"<<std::endl;
+  
+  if(nCat==5){
+  if(PADEBUG)  std::cout<<"DiphotonMVAEventClass 3"<<std::endl;
+    for(int ithresh=0; ithresh<nCat; ithresh++){
+      if(PADEBUG)  std::cout <<"eventClass "<<eventClass
+                <<"\tclass5threshMIT["<<ithresh<<"] "<<class5threshMIT[ithresh]<<std::endl;
+      if(class5threshMIT[ithresh]<diphoMVA && type=="MIT") eventClass++;
+    }
+  } else if(nCat==6){
+    for(int ithresh=0; ithresh<nCat; ithresh++){
+      if(class6threshUCSD[ithresh]<diphoMVA && type=="UCSD") eventClass++;
+    }
+  } else if(nCat==8){
+    for(int ithresh=0; ithresh<nCat; ithresh++){
+      if(type=="UCSD") {
+        if(class8threshUCSD[ithresh]<diphoMVA && EBEB==1) {
+          eventClass++;
+        } else if(class8threshUCSD[ithresh]<diphoMVA) {
+          eventClass++;
+        }
+      }
+    }
+    if(type=="UCSD" && eventClass!=-1 && EBEB==1) eventClass=eventClass+2;
+  }
+
+ 
+
+  if(PADEBUG)  std::cout<<"eventClass "<<eventClass<<std::endl;
+  return eventClass;
+}
+

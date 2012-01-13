@@ -28,6 +28,11 @@ leadEtVHlepCut=45
 subleadEtVHlepCut=25
 
 
+useMVA=1
+
+phoIDMVAtype=UCSD
+phoIDMVAmin=-0.9
+nDiphoEventClasses=5
 
 doTriggerSelection=1
 reRunCiCForData=1

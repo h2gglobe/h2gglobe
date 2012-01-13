@@ -9,13 +9,13 @@ nDataBins=160
 
 nEtaCategories=2
 nR9Categories=2
-nPtCategories=1
+nPtCategories=3
 
 includeVBF=0
 includeVHad=0
 includeVHlep=0
 
-nVBFEtaCategories=2
+nVBFEtaCategories=1
 nVHadEtaCategories=1
 
 leadEtVBFCut=55
@@ -28,6 +28,12 @@ leadEtVHlepCut=45
 subleadEtVHlepCut=25
 
 
+useMVA=1
+
+phoIDMVAtype=UCSD
+phoIDMVAloose=-0.3
+phoIDMVAtight=0.05
+nDiphoEventClasses=8
 
 doTriggerSelection=1
 reRunCiCForData=1
@@ -71,9 +77,14 @@ Inputs for reweighing
 - vertexing from: https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/374/1.html
 ->
 
-kfacHist=aux/KFactors_AllScales_interpolated.root
-efficiencyFile=aux/sig_reweighing_v16.root
-puHist=aux/2011_0100_73500.weights3.root
+kfacHist=../Marco/KFactors_AllScales_interpolated.root
+efficiencyFile=../Marco/sig_reweighing_v16.root
+puHist=../Marco/2011_0100_73500.weights.root
+->
+puHist=../Marco/2011B_0100_73500.weights.root
+puHist=../Marco/2011A_0100_73500.weights.root
+->
+
 
 puMap=pu_weights_map.dat
 

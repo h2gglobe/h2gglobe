@@ -55,7 +55,8 @@ public:
 
   bool useMVA;
   std::string phoIDMVAtype;
-  float phoIDMVAmin;
+  float phoIDMVAloose;
+  float phoIDMVAtight;
   int nDiphoEventClasses;
 
 	// EnergySmearer::energySmearingParameters eSmearPars; // gone to PhotonAnalysis GF
@@ -116,7 +117,7 @@ public:
 	bool  doEscaleSmear, doEresolSmear, doPhotonIdEffSmear, doVtxEffSmear, doR9Smear, doTriggerEffSmear, doKFactorSmear;
 	float systRange;
 	int   nSystSteps;   
-	int   nEtaCategories, nR9Categories, nPtCategories;
+	//int   nEtaCategories, nR9Categories, nPtCategories;
 	float massMin, massMax;
 	int nDataBins;	
 	//float smearing_sigma_EBHighR9       ;

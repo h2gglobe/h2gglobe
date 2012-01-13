@@ -148,7 +148,7 @@ int DiphotonPtCategory(double pTh, int n_pThcat=0) {
   if(n_pThcat == 2) {
     pThcat = (Int_t)(pTh < 40.);
   } else if (n_pThcat == 3) {
-    pThcat = (Int_t)((pTh < 70.) + (pTh < 40.));
+    pThcat = (Int_t)((pTh < 70.) + (pTh < 30.));
   }
   return pThcat;
 }
@@ -407,8 +407,8 @@ void SetAllMVA();
 Float_t photonIDMVA(Int_t iPhoton, Int_t vtx, TLorentzVector phoP4, std::string type);
 Float_t diphotonMVA(Int_t leadingPho, Int_t subleadingPho, Int_t vtx, float vtxProb, TLorentzVector leadP4, TLorentzVector subleadP4, float sigmaMrv, float sigmaMwv, float sigmaMeonly, std::string type);
 //Float_t diphotonMVA(Int_t leadingPho, Int_t subleadingPho, Int_t vtx, float vtxProb, TLorentzVector leadP4, TLorentzVector subleadP4, float diphopt, float mass, std::string type);
-int DiphotonMVASelection( HggVertexAnalyzer & vtxAna, float & diphoMVA, Float_t minLeadingMVA=-0.5, Float_t minSubleadingMVA=-0.5, Float_t leadPtMin=30, Float_t subleadPtMin=20, std::string type="UCSD", int ncategories=7, float sigmaMrv=1., float sigmaMwv=2., bool applyPtoverM=false, float *pho_energy_array=0, bool split=false);
-int DiphotonMVAEventClass( float diphoMVA, int nCat, std::string type);
+//int DiphotonMVASelection( HggVertexAnalyzer & vtxAna, float & diphoMVA, Float_t minLeadingMVA=-0.5, Float_t minSubleadingMVA=-0.5, Float_t leadPtMin=30, Float_t subleadPtMin=20, std::string type="UCSD", int ncategories=7, float sigmaMrv=1., float sigmaMwv=2., bool applyPtoverM=false, float *pho_energy_array=0, bool split=false);
+//int DiphotonMVAEventClass( float diphoMVA, int nCat, std::string type);
 float getDmOverDz(Int_t, Int_t, Float_t*);
 Float_t deltaMassVtx(Int_t, Int_t, Float_t);
 

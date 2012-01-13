@@ -108,6 +108,8 @@ public:
 	// PhotonFix
 	std::string photonFixDat;
 	std::string regressionFile;
+	
+  int   nEtaCategories, nR9Categories, nPtCategories;
 
 protected:
 	void PreselectPhotons(LoopAll& l, int jentry);
@@ -138,7 +140,14 @@ protected:
 
         MassResolution *massResolutionCalculator;
 
-	//TFile *fgbr;
+  int DiphotonMVASelection(LoopAll &l, HggVertexAnalyzer & vtxAna, Float_t & diphoMVA,  
+          Float_t minLeadingMVA=-0.3, Float_t minSubleadingMVA=-0.3, Float_t leadPtMin=30, 
+          Float_t subleadPtMin=20, std::string type="UCSD", int ncategories=7,
+          bool applyPtoverM=true, float *pho_energy_array=0, bool split=false);
+  
+  int DiphotonMVAEventClass(LoopAll &l, float diphoMVA, int nCat, std::string type, int EBEB=1);
+	
+  //TFile *fgbr;
 	//GBRForest *fReadereb;
         //GBRForest *fReaderebvariance;
         //GBRForest *fReaderee;
