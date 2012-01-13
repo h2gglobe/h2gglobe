@@ -76,14 +76,9 @@ Inputs for reweighing
 - vertexing from: https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/374/1.html
 ->
 
-kfacHist=../Marco/KFactors_AllScales_interpolated.root
-efficiencyFile=../Marco/sig_reweighing_v16.root
-puHist=../Marco/2011_0100_73500.weights.root
-->
-puHist=../Marco/2011B_0100_73500.weights.root
-puHist=../Marco/2011A_0100_73500.weights.root
-->
-
+kfacHist=aux/KFactors_AllScales_interpolated.root
+efficiencyFile=aux/sig_reweighing_v16.root
+puHist=aux/2011_0100_73500.weights3.root
 
 puMap=pu_weights_map.dat
 

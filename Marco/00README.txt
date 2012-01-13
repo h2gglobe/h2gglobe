@@ -58,9 +58,12 @@ make clean; make -j 30
 ### AT UCSD
 
 # files needed to run at UCSD (in h2gglobe)
-cp Marco/photonanalysis_ucsd.dat PhotonAnalysis_scripts/photonanalysis.dat
+# PROBABLY NO NEED ANYMORE cp Marco/photonanalysis_ucsd.dat PhotonAnalysis_scripts/photonanalysis.dat
+
+# 13->1, 23 -> 2, 32 -> 3 for PU rescaling
+# cp Marco/pu_weights_map.dat PhotonAnalysis_scripts/pu_weights_map.dat
+
 cp Marco/statanalysis_ucsd.dat PhotonAnalysis_scripts/statanalysis.dat
-cp Marco/pu_weights_map.dat PhotonAnalysis_scripts/pu_weights_map.dat
 
 cp Marco/subfit* PhotonAnalysis_scripts/.
 cp Marco/datafiles_5fb_dec20_all_sm.dat PhotonAnalysis_scripts/.
@@ -140,7 +143,7 @@ from h2gglobe
 you need to copy the following files:
 
 #FOR running at UCSD
-cp Marco/photonanalysis_ucsd.dat PhotonAnalysis_scripts/photonanalysis.dat
+#NOT ANYMORE cp Marco/photonanalysis_ucsd.dat PhotonAnalysis_scripts/photonanalysis.dat
 #END FOR running at UCSD
 
 cp Marco/Makefile ./Makefile
