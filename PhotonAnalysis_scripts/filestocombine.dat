@@ -1,10 +1,59 @@
-intL=4763. histfile=CMS-HGG_4763_SM_3pTcat_vbf_2011_betterfits.root  output=shifo.root
+intL=4763. histfile=CMS-HGG_4763_SM_UCSDmvatest_2011.root  output=shifo.root
 
 ->
 put here files to merge
 doesnt matter what the type etc is
 ->
-Fil=CMS-HGG_4763_SM_3pTcat_vbf_2011.root
+Fil=CMS-HGG_4763_SM_mvatest_2011_0.root
+Fil=CMS-HGG_4763_SM_mvatest_2011_1.root
+Fil=CMS-HGG_4763_SM_mvatest_2011_2.root
+Fil=CMS-HGG_4763_SM_mvatest_2011_3.root
+Fil=CMS-HGG_4763_SM_mvatest_2011_4.root
+Fil=CMS-HGG_4763_SM_mvatest_2011_5.root
+Fil=CMS-HGG_4763_SM_mvatest_2011_6.root
+Fil=CMS-HGG_4763_SM_mvatest_2011_7.root
+Fil=CMS-HGG_4763_SM_mvatest_2011_8.root
+Fil=CMS-HGG_4763_SM_mvatest_2011_9.root
+Fil=CMS-HGG_4763_SM_mvatest_2011_10.root
+Fil=CMS-HGG_4763_SM_mvatest_2011_11.root
+Fil=CMS-HGG_4763_SM_mvatest_2011_12.root
+Fil=CMS-HGG_4763_SM_mvatest_2011_13.root
+Fil=CMS-HGG_4763_SM_mvatest_2011_14.root
+Fil=CMS-HGG_4763_SM_mvatest_2011_15.root
+Fil=CMS-HGG_4763_SM_mvatest_2011_16.root
+Fil=CMS-HGG_4763_SM_mvatest_2011_17.root
+Fil=CMS-HGG_4763_SM_mvatest_2011_18.root
+Fil=CMS-HGG_4763_SM_mvatest_2011_19.root
+Fil=CMS-HGG_4763_SM_mvatest_2011_20.root
+Fil=CMS-HGG_4763_SM_mvatest_2011_21.root
+Fil=CMS-HGG_4763_SM_mvatest_2011_22.root
+Fil=CMS-HGG_4763_SM_mvatest_2011_23.root
+Fil=CMS-HGG_4763_SM_mvatest_2011_24.root
+Fil=CMS-HGG_4763_SM_mvatest_2011_25.root
+Fil=CMS-HGG_4763_SM_mvatest_2011_26.root
+Fil=CMS-HGG_4763_SM_mvatest_2011_27.root
+Fil=CMS-HGG_4763_SM_mvatest_2011_28.root
+Fil=CMS-HGG_4763_SM_mvatest_2011_29.root
+Fil=CMS-HGG_4763_SM_mvatest_2011_30.root
+Fil=CMS-HGG_4763_SM_mvatest_2011_31.root
+Fil=CMS-HGG_4763_SM_mvatest_2011_32.root
+Fil=CMS-HGG_4763_SM_mvatest_2011_33.root
+Fil=CMS-HGG_4763_SM_mvatest_2011_34.root
+Fil=CMS-HGG_4763_SM_mvatest_2011_35.root
+Fil=CMS-HGG_4763_SM_mvatest_2011_36.root
+Fil=CMS-HGG_4763_SM_mvatest_2011_37.root
+Fil=CMS-HGG_4763_SM_mvatest_2011_38.root
+Fil=CMS-HGG_4763_SM_mvatest_2011_39.root
+Fil=CMS-HGG_4763_SM_mvatest_2011_40.root
+Fil=CMS-HGG_4763_SM_mvatest_2011_41.root
+Fil=CMS-HGG_4763_SM_mvatest_2011_42.root
+Fil=CMS-HGG_4763_SM_mvatest_2011_43.root
+Fil=CMS-HGG_4763_SM_mvatest_2011_44.root
+Fil=CMS-HGG_4763_SM_mvatest_2011_45.root
+Fil=CMS-HGG_4763_SM_mvatest_2011_46.root
+Fil=CMS-HGG_4763_SM_mvatest_2011_47.root
+Fil=CMS-HGG_4763_SM_mvatest_2011_48.root
+Fil=CMS-HGG_4763_SM_mvatest_2011_49.root
 
 
 ->
