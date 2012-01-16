@@ -1407,7 +1407,10 @@ int PhotonAnalysis::DiphotonMVAEventClass(LoopAll &l, float diphoMVA, int nCat, 
   // first 2 for (ebee+eeee) and last 6 for ebeb
   float class8threshUCSD[8]={-0.11, 0.5, -0.04041,  0.3878,  0.5958,  0.6677,  0.7671,  0.86 };
 
-  if(PADEBUG)  std::cout<<"DiphotonMVAEventClass 2"<<std::endl;
+  if(PADEBUG)  std::cout<<"DiphotonMVAEventClass diphoMVA:  "<<diphoMVA<<std::endl;
+  if(PADEBUG)  std::cout<<"DiphotonMVAEventClass nCat:  "<<nCat<<std::endl;
+  if(PADEBUG)  std::cout<<"DiphotonMVAEventClass type:  "<<type<<std::endl;
+  if(PADEBUG)  std::cout<<"DiphotonMVAEventClass EBEB:  "<<EBEB<<std::endl;
   
   if(nCat==5){
   if(PADEBUG)  std::cout<<"DiphotonMVAEventClass 3"<<std::endl;
@@ -1421,16 +1424,18 @@ int PhotonAnalysis::DiphotonMVAEventClass(LoopAll &l, float diphoMVA, int nCat, 
       if(class6threshUCSD[ithresh]<diphoMVA && type=="UCSD") eventClass++;
     }
   } else if(nCat==8){
-    for(int ithresh=0; ithresh<nCat; ithresh++){
-      if(type=="UCSD") {
-        if(class8threshUCSD[ithresh]<diphoMVA && EBEB==1) {
+    if(type=="UCSD") {
+      for(int ithresh=0; ithresh<nCat; ithresh++){
+        if(class8threshUCSD[ithresh]<diphoMVA && EBEB==1 && ithresh>1) {
+          if(PADEBUG)  std::cout <<"passing EBEB eventClass "<<eventClass<<std::endl;
           eventClass++;
-        } else if(class8threshUCSD[ithresh]<diphoMVA) {
+        } else if(class8threshUCSD[ithresh]<diphoMVA && EBEB!=1 && ithresh<2) {
+          if(PADEBUG)  std::cout <<"passing !EBEB eventClass "<<eventClass<<std::endl;
           eventClass++;
         }
       }
+      if(eventClass!=-1 && EBEB==1) eventClass=eventClass+2;
     }
-    if(type=="UCSD" && eventClass!=-1 && EBEB==1) eventClass=eventClass+2;
   }
 
  
