@@ -11,6 +11,7 @@
 #include "EfficiencySmearer.h"
 #include "DiPhoEfficiencySmearer.h"
 #include "KFactorSmearer.h"
+#include "MassResolution.h"
 #include <iostream>
 #include <fstream>
 #include "math.h"
@@ -152,6 +153,9 @@ protected:
 	
 	// RooStuff
 	RooContainer *rooContainer;
+	
+	// MassResolution
+	MassResolution* massResolution;
 
 	ofstream eventListText;
 	ofstream eventListTextVBF;
@@ -289,6 +293,13 @@ Float_t t_leadphoidmitmva;
 Float_t t_subleadphoidmitmva;
 Float_t t_diphomitmva;
 Float_t t_bsZ;
+Float_t t_sigmaMRV;
+Float_t t_sigmaMWV;
+
+Float_t t_scwidtheta_l;
+Float_t t_scwidthphi_l;
+Float_t t_scwidtheta_sl;
+Float_t t_scwidthphi_sl;
 
 Float_t t_leadcutindex;
 Float_t t_subleadcutindex;

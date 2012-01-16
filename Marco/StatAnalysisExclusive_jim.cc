@@ -17,6 +17,7 @@ StatAnalysisExclusive::StatAnalysisExclusive()  :
 
     systRange  = 3.; // in units of sigma
     nSystSteps = 1;    
+    massResolution = new MassResolution("", "Bendavid");
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -1111,12 +1112,22 @@ void StatAnalysisExclusive::Analysis(LoopAll& l, Int_t jentry)
 
 	t_leadphoidmitmva = l.photonIDMVA(l.dipho_leadind[diphoton_id_jim], l.dipho_vtxind[diphoton_id_jim], "MIT");
 	t_subleadphoidmitmva = l.photonIDMVA(l.dipho_subleadind[diphoton_id_jim], l.dipho_vtxind[diphoton_id_jim], "MIT");
-        t_diphomitmva = l.diphotonMVA(l.dipho_leadind[diphoton_id_jim], l.dipho_subleadind[diphoton_id_jim], l.dipho_vtxind[diphoton_id_jim], t_pvtx, diphoton.Pt(), diphoton.M(), "MIT");
+
+	massResolution->Setup(l, &lead_p4, &sublead_p4, l.dipho_leadind[diphoton_id_jim], l.dipho_subleadind[diphoton_id_jim], diphoton_id_jim, diphoton.Pt(), diphoton.M(), eSmearPars, 2, 2);
+	t_sigmaMRV = massResolution->massResolutionCorrVtx();
+	t_sigmaMWV = massResolution->massResolutionWrongVtx();
+        t_diphomitmva = l.diphotonMVA(l.dipho_leadind[diphoton_id_jim], l.dipho_subleadind[diphoton_id_jim], l.dipho_vtxind[diphoton_id_jim], t_pvtx, diphoton.Pt(), diphoton.M(), t_sigmaMRV, t_sigmaMWV, "MIT");
+
+	t_scwidtheta_l = l.sc_seta[l.pho_scind[l.dipho_leadind[diphoton_id_jim]]]; 
+	t_scwidthphi_l = l.sc_sphi[l.pho_scind[l.dipho_leadind[diphoton_id_jim]]];
+
+	t_scwidtheta_sl = l.sc_seta[l.pho_scind[l.dipho_subleadind[diphoton_id_jim]]]; 
+	t_scwidthphi_sl = l.sc_sphi[l.pho_scind[l.dipho_subleadind[diphoton_id_jim]]];
 
 	optree->Fill();
 	int noptree=optree->GetEntries();
-	if(noptree<100) cout<<" filling optree n="<<noptree<<endl;
-	if(noptree%1000==1) cout<<" optree n="<<noptree<<endl;
+	if(noptree<1000) cout<<" filling optree n="<<noptree<<endl;
+	if(noptree%1000==0||noptree%1000==1) cout<<" optree n="<<noptree<<endl;
 	//if(noptree%10000==2) optree->Print();
 	
       }
@@ -2107,8 +2118,8 @@ std::pair<int, int> StatAnalysisExclusive::Select2HighestPtJets(LoopAll& l, TLor
 
   //cout<<"AAA MARCOMM "<<l.jet_algoPF1_n<<" "<<myJetsnew.first<<" "<<myJetsnew.second<<endl;
 
-  //if(jet3)
-  //cout<<"AAA MARCOMM "<<ind3<<" "<<jet3->Pt()<<endl;
+  if(jet3)
+    cout<<"AAA MARCOMM "<<ind3<<" "<<jet3->Pt()<<endl;
 
   //if(myJets.first==-1) return fail;
   //return myJets;
@@ -2266,6 +2277,13 @@ void StatAnalysisExclusive::HggBookOptree() {
   optree->Branch("subleadphoidmitmva", &t_subleadphoidmitmva, "subleadphoidmitmva/F");
   optree->Branch("diphomitmva", &t_diphomitmva, "diphomitmva/F");
   optree->Branch("bsZ", &t_bsZ, "bsZ/F");
+  optree->Branch("sigmaMRV", &t_sigmaMRV, "sigmaMRV/F");
+  optree->Branch("sigmaMWV", &t_sigmaMWV, "sigmaMWV/F");
+
+  optree->Branch("scwidtheta_l", &t_scwidtheta_l, "scwidtheta_l/F");
+  optree->Branch("scwidthphi_l", &t_scwidthphi_l, "scwidthphi_l/F");
+  optree->Branch("scwidtheta_sl", &t_scwidtheta_sl, "scwidtheta_sl/F");
+  optree->Branch("scwidthphi_sl", &t_scwidthphi_sl, "scwidthphi_sl/F");
 
   optree->Branch("nvtx",&t_nvtx,"nvtx/F",2000000);
   optree->Branch("rho",&t_rho,"rho/F",2000000);
@@ -3914,60 +3932,27 @@ Float_t StatAnalysisExclusive::BDT_categorized(Int_t jentry, Int_t iPhoton, Int_
 Float_t StatAnalysisExclusive::BDT_ptom(Int_t jentry, Int_t iPhoton, Int_t vtx, float mass) {
 
   // we put in the diphoton mass just to scale the single photon pt (pt/m) 
-  if(MPDEBUG)  std::cout<<"BDT"<<std::endl;
+
+  ll->BdtGetEntry(jentry);
 
   int n_r9_categories = 3;
   int n_eta_categories = 2;
-  tmva_cat = ll->PhotonCategory(iPhoton,n_r9_categories,n_eta_categories);
+  tmva_cat = ll->PhotonCategory(iPhoton, n_r9_categories, n_eta_categories);
+  std::cout << "CAT" << tmva_cat << std::endl;
 
-  if(MPDEBUG)  std::cout<<"BDT 1"<<std::endl;
-  ll->BdtGetEntry(jentry);
-  if(MPDEBUG)  std::cout<<"BDT 1 after"<<std::endl;
-
-  /*
-  if(MPDEBUG)  std::cout<<"BDT 1"<<std::endl;
-
-  if (b_pho_sieie->GetReadEntry() != jentry)
-  b_pho_sieie->GetEntry(jentry);
-  if(MPDEBUG)  std::cout<<"BDT 1 - 1"<<std::endl;
-  if (b_pho_pfiso_mycharged04->GetReadEntry() != jentry)
-  b_pho_pfiso_mycharged04->GetEntry(jentry);
-  if(MPDEBUG)  std::cout<<"BDT 1 - 2"<<std::endl;
-  if (b_pho_pfiso_myphoton04->GetReadEntry() != jentry)
-  b_pho_pfiso_myphoton04->GetEntry(jentry);
-  if(MPDEBUG)  std::cout<<"BDT 1 - 3"<<std::endl;
-  if (b_pho_pfiso_mycharged03->GetReadEntry() != jentry)
-  b_pho_pfiso_mycharged03->GetEntry(jentry);
-  if(MPDEBUG)  std::cout<<"BDT 1 - 4"<<std::endl;
-  if (b_pho_pfiso_myphoton03->GetReadEntry() != jentry)
-  b_pho_pfiso_myphoton03->GetEntry(jentry);
-  //std::cout<<"BDT 1 - 5"<<std::endl;
-  //if (b_pho_drtotk_25_99->GetReadEntry() != jentry)
-  //b_pho_drtotk_25_99->GetEntry(jentry);
-  if(MPDEBUG)  std::cout<<"BDT 1 - 6"<<std::endl;
-  if (b_pho_hoe->GetReadEntry() != jentry)
-  b_pho_hoe->GetEntry(jentry);
-  if(MPDEBUG)  std::cout<<"BDT 1 - 7"<<std::endl;
-  if (b_pho_r9->GetReadEntry() != jentry)
-  b_pho_r9->GetEntry(jentry);
-  if(MPDEBUG)  std::cout<<"BDT 1 - 8"<<std::endl;
-  if (b_pho_p4->GetReadEntry() != jentry)
-  b_pho_p4->GetEntry(jentry);
-  if(MPDEBUG)  std::cout<<"BDT 1 - 9"<<std::endl;
-  if (b_rho->GetReadEntry() != jentry)
-  b_rho->GetEntry(jentry);
-  */
-
-  if(MPDEBUG)  std::cout<<"BDT 2"<<std::endl;
   
-  float isomax=-99;   int badind=0;
-  for(int iv=0; iv<ll->vtx_std_n; iv++) if((*ll->pho_pfiso_mycharged04)[iPhoton][iv]>isomax) {badind=iv; isomax=(*ll->pho_pfiso_mycharged04)[iPhoton][iv]; }
-  if(MPDEBUG)  std::cout<<"BDT 3"<<std::endl;
+  float isomax=-99;   
+  int badind=0;
+  for(int iv=0; iv<ll->vtx_std_n; iv++) 
+    if((*ll->pho_pfiso_mycharged04)[iPhoton][iv]>isomax) {
+      badind=iv; 
+      isomax=(*ll->pho_pfiso_mycharged04)[iPhoton][iv]; 
+    }
   
-  float rhofacpf[6]={0.075, 0.082, 0.143, 0.050, 0.091, 0.106};          //move
-  float rhofacbadpf[6]={0.141, 0.149, 0.208, 0.135, 0.162, 0.165};
-  float rhofac=rhofacpf[tmva_cat];
-  float rhofacbad=rhofacbadpf[tmva_cat];
+  float rhofacpf[6]    = {0.075, 0.082, 0.143, 0.050, 0.091, 0.106};          //move
+  float rhofacbadpf[6] = {0.141, 0.149, 0.208, 0.135, 0.162, 0.165};
+  float rhofac         = rhofacpf[tmva_cat];
+  float rhofacbad      = rhofacbadpf[tmva_cat];
 
   tmva_pt = ((TLorentzVector*)ll->pho_p4->At(iPhoton))->Et();
   tmva_ptom = tmva_pt/mass;
@@ -3975,26 +3960,15 @@ Float_t StatAnalysisExclusive::BDT_ptom(Int_t jentry, Int_t iPhoton, Int_t vtx, 
   tmva_badpf_iso = ((*ll->pho_pfiso_mycharged04)[iPhoton][badind]+ll->pho_pfiso_myphoton04[iPhoton]-ll->rho*rhofacbad)*50/tmva_pt;
   tmva_goodpf_iso = ((*ll->pho_pfiso_mycharged03)[iPhoton][vtx]+ll->pho_pfiso_myphoton03[iPhoton]-ll->rho*rhofac)*50/tmva_pt;
   tmva_tkisopf = (*ll->pho_pfiso_mycharged03)[iPhoton][vtx]*50/tmva_pt;
-  //tmva_badpf_iso = min(sqrt(((*ll->pho_pfiso_mycharged04)[iPhoton][badind]+ll->pho_pfiso_myphoton04[iPhoton]-ll->rho*rhofacbad+0.0)*50/tmva_pt),10.);
-  //tmva_goodpf_iso = min(sqrt(((*ll->pho_pfiso_mycharged03)[iPhoton][vtx]+ll->pho_pfiso_myphoton03[iPhoton]-ll->rho*rhofac+0.0)*50/tmva_pt),10.);
-  //tmva_tkisopf = min(sqrt((*ll->pho_pfiso_mycharged03)[iPhoton][vtx]*50/tmva_pt),10.);
-  //tmva_badpf_iso = min(sqrt(((*ll->pho_pfiso_mycharged04)[iPhoton][badind]+ll->pho_pfiso_myphoton04[iPhoton]-ll->rho*rhofacbad+4.8)*50/tmva_pt),10.);
-  //tmva_goodpf_iso = min(sqrt(((*ll->pho_pfiso_mycharged03)[iPhoton][vtx]+ll->pho_pfiso_myphoton03[iPhoton]-ll->rho*rhofac+2.8)*50/tmva_pt),10.);
-  //tmva_tkisopf = min(sqrt((*ll->pho_pfiso_mycharged03)[iPhoton][vtx]*50/tmva_pt),10.);
-  if(MPDEBUG)  std::cout<<"BDT 4"<<std::endl;
-  if(MPDEBUG)  std::cout<<"BDT 4"<<std::endl;
   
   tmva_sieie = ll->pho_sieie[iPhoton];
-  tmva_drtotk = min(double(ll->pho_drtotk_25_99[iPhoton]),1.);
   tmva_drtotk = ll->pho_drtotk_25_99[iPhoton];
   tmva_hoe = ll->pho_hoe[iPhoton];
   tmva_r9 = ll->pho_r9[iPhoton];
   tmva_eta = fabs(((TLorentzVector*)ll->pho_p4->At(iPhoton))->Eta());
   
-  if(MPDEBUG)  std::cout<<"BDT end"<<std::endl;
   Float_t mva = tmvaReader2->EvaluateMVA("Gradient");
-  //cout<<"BDT  "<<jentry<<"  "<<iPhoton<<"  "<<vtx<<"  "<<isomax<<"  "<<badind<<"  "<<rhofac<<"  "<<rhofacbad<<"  "<<tmva_pt<<"  "<<tmva_badpf_iso<<"  "<<tmva_goodpf_iso<<"  "<<tmva_sieie<<"  "<<tmva_drtotk
-  //    <<"  "<<tmva_hoe<<"  "<<tmva_tkisopf<<"  "<<tmva_r9<<"  "<<tmva_eta<<"  "<<mva<<endl;
+
   return mva;
 }
 
@@ -4006,6 +3980,7 @@ Float_t StatAnalysisExclusive::BDT_ptom2(Int_t jentry, Int_t iPhoton, Int_t vtx,
 
   int n_r9_categories = 3;
   int n_eta_categories = 2;
+
   tmva_cat = ll->PhotonCategory(iPhoton,n_r9_categories,n_eta_categories);
 
   if(MPDEBUG)  std::cout<<"BDT 1"<<std::endl;
@@ -4537,7 +4512,7 @@ if(jentry%1000==1&&itype>0&&itype%1000==1) cout<<jentry<<"  "<<itype<<"  mass="<
   //  pf first guess isolation variables   pfiso
 
 
-  if((optree->GetEntries()<100||optree->GetEntries()%1000==1)&&t_mass>95&&t_mass<145&&t_leadci6cindex>2&&t_subleadci6cindex>2) {
+  if((optree->GetEntries()<1000||optree->GetEntries()%100==1)&&t_mass>95&&t_mass<145&&t_leadci6cindex>2&&t_subleadci6cindex>2) {
     float stkreciso=(*(ll->pho_tkiso_recvtx_030_002_0000_10_01))[subleadind][vtxind];
     float ltkreciso=(*(ll->pho_tkiso_recvtx_030_002_0000_10_01))[leadind][vtxind];
 
