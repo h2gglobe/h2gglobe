@@ -430,12 +430,21 @@ void StatAnalysis::Init(LoopAll& l)
     l.rooContainer->AddRealVar("CMS_hgg_pol1",-0.1,-1.5,1.5);
     l.rooContainer->AddRealVar("CMS_hgg_pol2",-0.01,-1.5,1.5);
     l.rooContainer->AddRealVar("CMS_hgg_pol3",-0.01,-1.5,1.5);
-    //l.rooContainer->AddRealVar("CMS_hgg_pol4",-0.01,-1.5,1.5);
+    l.rooContainer->AddRealVar("CMS_hgg_pol4",-0.01,-1.5,1.5);
     l.rooContainer->AddFormulaVar("CMS_hgg_modpol0","@0*@0","CMS_hgg_pol0");
     l.rooContainer->AddFormulaVar("CMS_hgg_modpol1","@0*@0","CMS_hgg_pol1");
     l.rooContainer->AddFormulaVar("CMS_hgg_modpol2","@0*@0","CMS_hgg_pol2");
     l.rooContainer->AddFormulaVar("CMS_hgg_modpol3","@0*@0","CMS_hgg_pol3");
-    //l.rooContainer->AddFormulaVar("CMS_hgg_modpol4","@0*@0","CMS_hgg_pol4");
+    l.rooContainer->AddFormulaVar("CMS_hgg_modpol4","@0*@0","CMS_hgg_pol4");
+
+    l.rooContainer->AddRealVar("CMS_hgg_quartic0",0.5,-1.5,1.5);
+    l.rooContainer->AddRealVar("CMS_hgg_quartic1",-0.5,-1.5,1.5);
+    l.rooContainer->AddRealVar("CMS_hgg_quartic2",0.5,-1.5,1.5);
+    l.rooContainer->AddRealVar("CMS_hgg_quartic3",0.5,-1.5,1.5);
+    l.rooContainer->AddFormulaVar("CMS_hgg_modquartic0","@0*@0","CMS_hgg_quartic0");
+    l.rooContainer->AddFormulaVar("CMS_hgg_modquartic1","@0*@0","CMS_hgg_quartic1");
+    l.rooContainer->AddFormulaVar("CMS_hgg_modquartic2","@0*@0","CMS_hgg_quartic2");
+    l.rooContainer->AddFormulaVar("CMS_hgg_modquartic3","@0*@0","CMS_hgg_quartic3");
 
     l.rooContainer->AddRealVar("CMS_hgg_quad0",-0.01,-1.5,1.5);
     l.rooContainer->AddRealVar("CMS_hgg_quad1",-0.01,-1.5,1.5);
@@ -457,61 +466,52 @@ void StatAnalysis::Init(LoopAll& l)
 	  //"0","CMS_hgg_mass",data_pol_pars,73);	// >= 71 means RooBernstein of order >= 1
         
 
-    int cats_with_std[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-    int cats_with_lin[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-    int cats_with_quad[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-    int cats_with_cubic[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+    int cats_with_std[]     = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+    int cats_with_lin[]     = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+    int cats_with_quad[]    = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+    int cats_with_cubic[]   = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+    int cats_with_quartic[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
     for(int i=0; i<nCategories_; i++){
       if(i<nInclusiveCategories_) {
-        if(i<4){
-          cats_with_std[i]=0;
-          cats_with_lin[i]=0;
-          cats_with_quad[i]=1;
-          cats_with_cubic[i]=0;
+        if(useMVA) {
+          if(i==1 || i==7) {
+            cats_with_quad[i]=1;
+          } else {
+            cats_with_quartic[i]=1;
+          }
         } else {
           cats_with_std[i]=1;
-          cats_with_lin[i]=0;
-          cats_with_quad[i]=0;
-          cats_with_cubic[i]=0;
         }
       } else if(i<nInclusiveCategories_+((int)includeVBF)*nVBFEtaCategories){
-        cats_with_std[i]=0;
-        cats_with_lin[i]=0;
         cats_with_quad[i]=1;
-        cats_with_cubic[i]=0;
       } else if(i<nInclusiveCategories_+((int)includeVBF)*nVBFEtaCategories+((int)includeVHad)*nVHadEtaCategories){
-        cats_with_std[i]=0;
-        cats_with_lin[i]=0;
         cats_with_quad[i]=1;
-        cats_with_cubic[i]=0;
       } else {
-        cats_with_std[i]=0;
         cats_with_lin[i]=1;
-        cats_with_quad[i]=0;
-        cats_with_cubic[i]=0;
       }  
     }
 
 
 
-    std::vector<std::string> data_pol_pars(4,"p");	 
-    //std::vector<std::string> data_pol_pars(5,"p");	 
+    std::vector<std::string> data_pol_pars(5,"p");	 
     data_pol_pars[0] = "CMS_hgg_modpol0";
     data_pol_pars[1] = "CMS_hgg_modpol1";
     data_pol_pars[2] = "CMS_hgg_modpol2";
     data_pol_pars[3] = "CMS_hgg_modpol3";
-    //data_pol_pars[4] = "CMS_hgg_modpol4";
+    data_pol_pars[4] = "CMS_hgg_modpol4";
+    
     l.rooContainer->AddSpecificCategoryPdf(cats_with_std,"data_pol_model",
-	  "0","CMS_hgg_mass",data_pol_pars,74);	// >= 71 means RooBernstein of order >= 1
+	  "0","CMS_hgg_mass",data_pol_pars,75);	// >= 71 means RooBernstein of order >= 1
     
-
-    std::vector<std::string> data_quad_pars(2,"p");	 
-    data_quad_pars[0] = "CMS_hgg_modquad0";
-    data_quad_pars[1] = "CMS_hgg_modquad1";
+    std::vector<std::string> data_quartic_pars(4,"p");	 
+    data_quartic_pars[0] = "CMS_hgg_modquartic0";
+    data_quartic_pars[1] = "CMS_hgg_modquartic1";
+    data_quartic_pars[2] = "CMS_hgg_modquartic2";
+    data_quartic_pars[3] = "CMS_hgg_modquartic3";
     
-    l.rooContainer->AddSpecificCategoryPdf(cats_with_quad, "data_pol_model",
-	  "0","CMS_hgg_mass",data_quad_pars,72);	// >= 71 means RooBernstein of order >= 1
+    l.rooContainer->AddSpecificCategoryPdf(cats_with_quartic,"data_pol_model",
+	  "0","CMS_hgg_mass",data_quartic_pars,74);	// >= 71 means RooBernstein of order >= 1
 
     std::vector<std::string> data_cubic_pars(3,"p");	 
     data_cubic_pars[0] = "CMS_hgg_modcubic0";
@@ -520,6 +520,15 @@ void StatAnalysis::Init(LoopAll& l)
     
     l.rooContainer->AddSpecificCategoryPdf(cats_with_cubic, "data_pol_model",
 	  "0","CMS_hgg_mass",data_cubic_pars,73);	// >= 71 means RooBernstein of order >= 1
+    
+
+    std::vector<std::string> data_quad_pars(2,"p");	 
+    data_quad_pars[0] = "CMS_hgg_modquad0";
+    data_quad_pars[1] = "CMS_hgg_modquad1";
+    
+    l.rooContainer->AddSpecificCategoryPdf(cats_with_quad, "data_pol_model",
+	  "0","CMS_hgg_mass",data_quad_pars,72);	// >= 71 means RooBernstein of order >= 1
+    
     
     std::vector<std::string> data_lin_pars(1,"p");	 
     data_lin_pars[0] = "CMS_hgg_modlin0";
@@ -771,7 +780,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
       if(PADEBUG) std::cout<<"diphoton_mva "<<diphoton_mva<<std::endl;
       if(diphoton_id!=-1){
         int EBEB = l.pho_isEB[l.dipho_leadind[diphoton_id]]==1 && l.pho_isEB[l.dipho_leadind[diphoton_id]]==1;
-        if(DiphotonMVAEventClass( l, diphoton_mva, nInclusiveCategories_, phoIDMVAtype) == -1, EBEB) diphoton_id = -1;
+        if(DiphotonMVAEventClass( l, diphoton_mva, nInclusiveCategories_, phoIDMVAtype, EBEB) == -1) diphoton_id = -1;
       }
     } else {
       diphoton_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtCut, subleadEtCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
