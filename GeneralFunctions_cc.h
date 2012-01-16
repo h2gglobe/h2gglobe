@@ -101,7 +101,9 @@ Float_t LoopAll::photonIDMVA(Int_t iPhoton, Int_t vtx, TLorentzVector p4, std::s
     float rhofacbadpf[6] = {0.141, 0.149, 0.208, 0.135, 0.162, 0.165};
     float rhofac         = rhofacpf[cat];
     float rhofacbad      = rhofacbadpf[cat];
-    
+   
+    TLorentzVector* scp4 = (TLorentzVector*)sc_p4->At(pho_scind[iPhoton]);
+
     Float_t tmva_id_ucsd_pt = photonEt;
     tmva_id_ucsd_badpf_iso = ((*pho_pfiso_mycharged04)[iPhoton][badind]+pho_pfiso_myphoton04[iPhoton]-rho*rhofacbad)*50/tmva_id_ucsd_pt;
     tmva_id_ucsd_goodpf_iso = ((*pho_pfiso_mycharged03)[iPhoton][vtx]+pho_pfiso_myphoton03[iPhoton]-rho*rhofac)*50/tmva_id_ucsd_pt;
@@ -111,7 +113,7 @@ Float_t LoopAll::photonIDMVA(Int_t iPhoton, Int_t vtx, TLorentzVector p4, std::s
     tmva_id_ucsd_drtotk = pho_drtotk_25_99[iPhoton];
     tmva_id_ucsd_hoe = pho_hoe[iPhoton];
     tmva_id_ucsd_r9 = pho_r9[iPhoton];
-    tmva_id_ucsd_eta = fabs(p4.Eta());
+    tmva_id_ucsd_eta = fabs(scp4->Eta());
     tmva_id_ucsd_isLeading = -1.; // not used just a spectator in the original definition
     if(LDEBUG)  std::cout<<"all variables set"<<std::endl;
 
@@ -184,11 +186,14 @@ Float_t LoopAll::diphotonMVA(Int_t leadingPho, Int_t subleadingPho, Int_t vtx, f
   float mass 	  = Higgs.M();
   float diphopt   = Higgs.Pt();
 
+  TLorentzVector* leadsc_p4 = (TLorentzVector*)sc_p4->At(pho_scind[leadingPho]);
+  TLorentzVector* subleadsc_p4 = (TLorentzVector*)sc_p4->At(pho_scind[subleadingPho]);
+  
   if (type == "UCSD") {
     tmva_dipho_UCSD_leadr9 = pho_r9[leadingPho];
     tmva_dipho_UCSD_subleadr9 = pho_r9[subleadingPho];
-    tmva_dipho_UCSD_leadeta = fabs(leadP4.Eta());
-    tmva_dipho_UCSD_subleadeta = fabs(subleadP4.Eta());
+    tmva_dipho_UCSD_leadeta = fabs(leadsc_p4->Eta());
+    tmva_dipho_UCSD_subleadeta = fabs(subleadsc_p4->Eta());
   //  tmva_dipho_UCSD_leadptomass = leadEt/mass;  
     tmva_dipho_UCSD_subleadptomass = subleadEt/mass;  
     tmva_dipho_UCSD_diphoptom = diphopt/mass;
