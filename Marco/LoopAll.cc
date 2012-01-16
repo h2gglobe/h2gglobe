@@ -2280,9 +2280,9 @@ void LoopAll::BdtGetEntry(Int_t jentry) {
   if(MPDEBUG)  std::cout<<"BDT 1 - 4"<<std::endl;
   if (b_pho_pfiso_myphoton03->GetReadEntry() != jentry)
   b_pho_pfiso_myphoton03->GetEntry(jentry);
-  //std::cout<<"BDT 1 - 5"<<std::endl;
-  //if (b_pho_drtotk_25_99->GetReadEntry() != jentry)
-  //b_pho_drtotk_25_99->GetEntry(jentry);
+  if(MPDEBUG)  std::cout<<"BDT 1 - 5"<<std::endl;
+  if (b_pho_drtotk_25_99->GetReadEntry() != jentry)
+  b_pho_drtotk_25_99->GetEntry(jentry);
   if(MPDEBUG)  std::cout<<"BDT 1 - 6"<<std::endl;
   if (b_pho_hoe->GetReadEntry() != jentry)
   b_pho_hoe->GetEntry(jentry);
@@ -2295,14 +2295,11 @@ void LoopAll::BdtGetEntry(Int_t jentry) {
   if(MPDEBUG)  std::cout<<"BDT 1 - 9"<<std::endl;
   if (b_rho->GetReadEntry() != jentry)
   b_rho->GetEntry(jentry);
-
-  /*
   if (b_pho_r9->GetReadEntry() != jentry)
   b_pho_r9->GetEntry(jentry);
   if(MPDEBUG)  std::cout<<"BDT 1 - 8"<<std::endl;
   if (b_pho_p4->GetReadEntry() != jentry)
   b_pho_p4->GetEntry(jentry);
-  */
 }
 
 #endif

@@ -161,13 +161,12 @@ pho_hcalsumetconedr04
 bs_sigmaZ
 vtx_std_evt_mva
 
-->
-Not yet included in the reduction
+
 sc_sphi
 sc_seta
 sc_raw
 sc_pre
-->
+
 
 ->
 END New ones
