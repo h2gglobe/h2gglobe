@@ -4599,6 +4599,13 @@ Int_t StatAnalysisExclusive::itype_jim(int itype) {
   else if(itype>0) {
     if(itype==1) return -24; //qcdff 30
     //if(itype==2) return -24; //qcdff 40
+
+    //new ones (temp???)
+    if(itype==13) return -24; 
+    if(itype==23) return -24;
+    if(itype==32) return -1; 
+
+
     if(itype==3) return -13; //gj_pf 20
     if(itype==4) return -1;  //diphojets
     if(itype==5) return -2;  //box25-250
@@ -4610,6 +4617,8 @@ Int_t StatAnalysisExclusive::itype_jim(int itype) {
     if(itype==11) return -14; //qcdpf 30
     if(itype==12) return -14; //qcdpf 40
     if(itype==2) return -14; //qcdpf 40
+
+
 
   }
   else if(itype<0) {
