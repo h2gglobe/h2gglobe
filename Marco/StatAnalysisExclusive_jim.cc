@@ -47,7 +47,7 @@ void StatAnalysisExclusive::Term(LoopAll& l)
 
     std::cout << " nevents " <<  nevents << " " << sumwei << std::endl;
 
-    //MMMMMMM if(l.GetCutValue("optree")) 
+    if(l.GetCutValue("optree")) 
       {
 	ll->hfilereal->cd();
 	optree->Write(0,TObject::kWriteDelete);
@@ -918,7 +918,7 @@ void StatAnalysisExclusive::Init(LoopAll& l)
 
     }
       
-    //if(l.GetCutValue("optree")) 
+    if(l.GetCutValue("optree")) 
     {
       HggBookOptree();
     }
