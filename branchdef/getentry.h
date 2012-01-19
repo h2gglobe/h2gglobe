@@ -373,6 +373,7 @@ b_pho_pfiso_mycharged04->GetEntry(jentry);
    b_pho_haspixseed->GetEntry(jentry); 
    b_pho_hasconvtks->GetEntry(jentry); 
    b_pho_nconv->GetEntry(jentry); 
+   b_pho_isconv->GetEntry(jentry); 
    b_pho_conv_ntracks->GetEntry(jentry); 
    b_pho_conv_pairinvmass->GetEntry(jentry); 
    b_pho_conv_paircotthetasep->GetEntry(jentry); 

@@ -367,6 +367,7 @@ BRANCH_DICT(pho_scind);
 BRANCH_DICT(pho_haspixseed);
 BRANCH_DICT(pho_hasconvtks);
 BRANCH_DICT(pho_nconv);
+BRANCH_DICT(pho_isconv);
 BRANCH_DICT(pho_conv_ntracks);
 BRANCH_DICT(pho_conv_pairinvmass);
 BRANCH_DICT(pho_conv_paircotthetasep);

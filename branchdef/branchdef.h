@@ -373,6 +373,7 @@ TBranch *b_pho_pfiso_mycharged04;
     TBranch *b_pho_haspixseed;
     TBranch *b_pho_hasconvtks;
     TBranch *b_pho_nconv;
+    TBranch *b_pho_isconv;
     TBranch *b_pho_conv_ntracks;
     TBranch *b_pho_conv_pairinvmass;
     TBranch *b_pho_conv_paircotthetasep;

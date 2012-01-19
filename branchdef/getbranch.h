@@ -373,6 +373,7 @@ b_pho_pfiso_mycharged04 = fChain->GetBranch("pho_pfiso_mycharged04");
    b_pho_haspixseed = fChain->GetBranch("pho_haspixseed"); 
    b_pho_hasconvtks = fChain->GetBranch("pho_hasconvtks"); 
    b_pho_nconv = fChain->GetBranch("pho_nconv"); 
+   b_pho_isconv = fChain->GetBranch("pho_isconv"); 
    b_pho_conv_ntracks = fChain->GetBranch("pho_conv_ntracks"); 
    b_pho_conv_pairinvmass = fChain->GetBranch("pho_conv_pairinvmass"); 
    b_pho_conv_paircotthetasep = fChain->GetBranch("pho_conv_paircotthetasep"); 

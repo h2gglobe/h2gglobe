@@ -373,6 +373,7 @@ void Branch_pho_scind(TTree * tree) { tree->Branch("pho_scind",&pho_scind, "pho_
 void Branch_pho_haspixseed(TTree * tree) { tree->Branch("pho_haspixseed",&pho_haspixseed,"pho_haspixseed[pho_n]/I");  }; 
 void Branch_pho_hasconvtks(TTree * tree) { tree->Branch("pho_hasconvtks",&pho_hasconvtks,"pho_hasconvtks[pho_n]/I");  }; 
 void Branch_pho_nconv(TTree * tree) { tree->Branch("pho_nconv",&pho_nconv,"pho_nconv[pho_n]/I");  }; 
+void Branch_pho_isconv(TTree * tree) { tree->Branch("pho_isconv",&pho_isconv,"pho_isconv[pho_n]/I");  }; 
 void Branch_pho_conv_ntracks(TTree * tree) { tree->Branch("pho_conv_ntracks",&pho_conv_ntracks,"pho_conv_ntracks[pho_n]/I");  }; 
 void Branch_pho_conv_pairinvmass(TTree * tree) { tree->Branch("pho_conv_pairinvmass",&pho_conv_pairinvmass,"pho_conv_pairinvmass[pho_n]/F");  }; 
 void Branch_pho_conv_paircotthetasep(TTree * tree) { tree->Branch("pho_conv_paircotthetasep",&pho_conv_paircotthetasep,"pho_conv_paircotthetasep[pho_n]/F");  }; 

@@ -373,6 +373,7 @@ void SetBranchAddress_pho_scind(TTree * tree) { tree->SetBranchAddress("pho_scin
 void SetBranchAddress_pho_haspixseed(TTree * tree) { tree->SetBranchAddress("pho_haspixseed", pho_haspixseed, &b_pho_haspixseed); }; 
 void SetBranchAddress_pho_hasconvtks(TTree * tree) { tree->SetBranchAddress("pho_hasconvtks", pho_hasconvtks, &b_pho_hasconvtks); }; 
 void SetBranchAddress_pho_nconv(TTree * tree) { tree->SetBranchAddress("pho_nconv", pho_nconv, &b_pho_nconv); }; 
+void SetBranchAddress_pho_isconv(TTree * tree) { tree->SetBranchAddress("pho_isconv", pho_isconv, &b_pho_isconv); }; 
 void SetBranchAddress_pho_conv_ntracks(TTree * tree) { tree->SetBranchAddress("pho_conv_ntracks", pho_conv_ntracks, &b_pho_conv_ntracks); }; 
 void SetBranchAddress_pho_conv_pairinvmass(TTree * tree) { tree->SetBranchAddress("pho_conv_pairinvmass", pho_conv_pairinvmass, &b_pho_conv_pairinvmass); }; 
 void SetBranchAddress_pho_conv_paircotthetasep(TTree * tree) { tree->SetBranchAddress("pho_conv_paircotthetasep", pho_conv_paircotthetasep, &b_pho_conv_paircotthetasep); }; 

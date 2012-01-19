@@ -415,6 +415,7 @@ Int_t pho_scind[MAX_PHOTONS];
 Int_t pho_haspixseed[MAX_PHOTONS];
 Int_t pho_hasconvtks[MAX_PHOTONS];
 Int_t pho_nconv[MAX_PHOTONS];
+Int_t pho_isconv[MAX_PHOTONS];
 Int_t pho_conv_ntracks[MAX_PHOTONS];
 Float_t pho_conv_pairinvmass[MAX_PHOTONS];
 Float_t pho_conv_paircotthetasep[MAX_PHOTONS];

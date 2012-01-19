@@ -1583,7 +1583,8 @@ bool LoopAll::PhotonMITPreSelection( int photon_index, int vertex_index, float *
    float val_hcalecal   = (val_ecaliso+val_hcaliso-rho*rhofac);                                             
    float val_abstrkiso  = (*pho_tkiso_recvtx_030_002_0000_10_01)[photon_index][vtx_std_sel];                
    float val_trkiso_hollow03 = pho_trksumpthollowconedr03[photon_index];                                    
-   float val_drtotk_25_99 = pho_drtotk_25_99[photon_index];
+//   float val_drtotk_25_99 = pho_drtotk_25_99[photon_index];
+   float val_isconv = pho_isconv[photon_index];
 
    if (val_hoe             >= mitCuts_hoe[photon_category]         ) return false;                                           
    if (val_sieie           >= mitCuts_sieie[photon_category]       ) return false;
@@ -1592,7 +1593,8 @@ bool LoopAll::PhotonMITPreSelection( int photon_index, int vertex_index, float *
    if (val_trkiso          >= mitCuts_trkiso[photon_category]      ) return false;
    if (val_hcalecal        >= mitCuts_hcalecal[photon_category]    ) return false;
    if (val_abstrkiso       >= mitCuts_abstrkiso[photon_category]   ) return false;                   
-   if (val_drtotk_25_99    <  mitCuts_drtotk_25_99[photon_category]   ) return false; // Electron Rejection based on CiC for now
+//   if (val_drtotk_25_99    <  mitCuts_drtotk_25_99[photon_category]   ) return false; // Electron Rejection based on CiC for now
+   if (!val_isconv  ) return false; // Convesion Safe Electron Rejection
    if (val_trkiso_hollow03 >= mitCuts_trkiso_hollow03[photon_category]) return false;                                        
 
    return true;
