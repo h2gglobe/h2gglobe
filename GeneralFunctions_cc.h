@@ -25,6 +25,9 @@ void LoopAll::SetAllMVA() {
   tmvaReader_dipho_UCSD->AddVariable("leadr9",           &tmva_dipho_UCSD_leadr9);
   tmvaReader_dipho_UCSD->AddVariable("subleadr9",        &tmva_dipho_UCSD_subleadr9);
   tmvaReader_dipho_UCSD->AddVariable("dmom",             &tmva_dipho_UCSD_dmom);
+  tmvaReader_dipho_UCSD->AddVariable("pvtx",             &tmva_dipho_UCSD_pvtx);
+  tmvaReader_dipho_UCSD->AddVariable("nvtx",             &tmva_dipho_UCSD_nvtx);
+  tmvaReader_dipho_UCSD->AddVariable("sigma_mz",         &tmva_dipho_UCSD_sigma_mz);
   tmvaReader_dipho_UCSD->AddSpectator("diphocat2r92eta", &tmva_dipho_UCSD_diphocat2r92eta);
 //  tmvaReader_dipho_UCSD->BookMVA("Gradient", "aux/diphoton_UCSD.weights.xml");
 
@@ -82,11 +85,11 @@ void LoopAll::SetAllMVA() {
 //  tmvaReader_dipho_MIT->BookMVA("Gradient", "aux/HggBambu_SM_Dec9_BDTG.weights.xml");
 }
 
-Float_t LoopAll::photonIDMVA(Int_t iPhoton, Int_t vtx, TLorentzVector p4, std::string type)  {
+Float_t LoopAll::photonIDMVA(Int_t iPhoton, Int_t vtx, TLorentzVector* p4, float mass, std::string type)  {
   if(LDEBUG)  std::cout<<"in photonIDMVA"<<std::endl; 
   Float_t mva = 999.;
  
-  float photonEt = p4.Et();
+  float photonEt = p4->Et();
   if (type == "UCSD") {
     if(LDEBUG)  std::cout<<"in photonIDMVA, type:"<<type<<std::endl; 
     Int_t cat = PhotonCategory(iPhoton);
@@ -100,7 +103,8 @@ Float_t LoopAll::photonIDMVA(Int_t iPhoton, Int_t vtx, TLorentzVector p4, std::s
 	isomax=(*pho_pfiso_mycharged04)[iPhoton][iv]; 
       }
 	  }
-    if(LDEBUG)  std::cout<<"in photonIDMVA, isomax:"<<isomax<<std::endl; 
+    if(LDEBUG)  std::cout<<"in photonIDMVA, isomax:  "<<isomax<<std::endl; 
+    if(LDEBUG)  std::cout<<"in photonIDMVA, cat:  "<<cat<<std::endl; 
     
     float rhofacpf[6]    = {0.075, 0.082, 0.143, 0.050, 0.091, 0.106};
     float rhofacbadpf[6] = {0.141, 0.149, 0.208, 0.135, 0.162, 0.165};
@@ -110,19 +114,30 @@ Float_t LoopAll::photonIDMVA(Int_t iPhoton, Int_t vtx, TLorentzVector p4, std::s
     TLorentzVector* scp4 = (TLorentzVector*)sc_p4->At(pho_scind[iPhoton]);
 
     Float_t tmva_id_ucsd_pt = photonEt;
+    tmva_id_ucsd_ptom = photonEt/mass;
     tmva_id_ucsd_badpf_iso = ((*pho_pfiso_mycharged04)[iPhoton][badind]+pho_pfiso_myphoton04[iPhoton]-rho*rhofacbad)*50/tmva_id_ucsd_pt;
     tmva_id_ucsd_goodpf_iso = ((*pho_pfiso_mycharged03)[iPhoton][vtx]+pho_pfiso_myphoton03[iPhoton]-rho*rhofac)*50/tmva_id_ucsd_pt;
+    if(LDEBUG)  std::cout<<"(*pho_pfiso_mycharged03)[iPhoton][vtx] "<<(*pho_pfiso_mycharged03)[iPhoton][vtx]<<std::endl;
+    if(LDEBUG)  std::cout<<"pho_pfiso_myphoton03[iPhoton] "<<pho_pfiso_myphoton04[iPhoton]<<std::endl;
+    if(LDEBUG)  std::cout<<"tmva_id_ucsd_goodpf_iso "<<tmva_id_ucsd_goodpf_iso<<std::endl;
     tmva_id_ucsd_tkisopf = (*pho_pfiso_mycharged03)[iPhoton][vtx]*50/tmva_id_ucsd_pt;
+    if(LDEBUG)  std::cout<<"tmva_id_ucsd_tkisopf "<<tmva_id_ucsd_tkisopf<<std::endl;
     
     tmva_id_ucsd_sieie = pho_sieie[iPhoton];
+    if(LDEBUG)  std::cout<<"tmva_id_ucsd_sieie "<<tmva_id_ucsd_sieie<<std::endl;
     tmva_id_ucsd_drtotk = pho_drtotk_25_99[iPhoton];
+    if(LDEBUG)  std::cout<<"tmva_id_ucsd_drtotk "<<tmva_id_ucsd_drtotk<<std::endl;
     tmva_id_ucsd_hoe = pho_hoe[iPhoton];
+    if(LDEBUG)  std::cout<<"tmva_id_ucsd_hoe "<<tmva_id_ucsd_hoe<<std::endl;
     tmva_id_ucsd_r9 = pho_r9[iPhoton];
+    if(LDEBUG)  std::cout<<"tmva_id_ucsd_r9 "<<tmva_id_ucsd_r9<<std::endl;
     tmva_id_ucsd_eta = fabs(scp4->Eta());
+    if(LDEBUG)  std::cout<<"tmva_id_ucsd_eta "<<tmva_id_ucsd_eta<<std::endl;
     tmva_id_ucsd_isLeading = -1.; // not used just a spectator in the original definition
     if(LDEBUG)  std::cout<<"all variables set"<<std::endl;
 
     mva = tmvaReaderID_UCSD->EvaluateMVA("Gradient");
+    if(LDEBUG)  std::cout<<"mva "<<mva<<std::endl;
     if(LDEBUG)  std::cout<<"got the mva"<<std::endl;
   } else {
     tmva_id_mit_hoe = pho_hoe[iPhoton];
@@ -180,15 +195,15 @@ Float_t LoopAll::photonIDMVA(Int_t iPhoton, Int_t vtx, TLorentzVector p4, std::s
   return mva;
 }
 
-Float_t LoopAll::diphotonMVA(Int_t leadingPho, Int_t subleadingPho, Int_t vtx, float vtxProb, TLorentzVector leadP4, TLorentzVector subleadP4, float sigmaMrv, float sigmaMwv, float sigmaMeonly, std::string type) {
+Float_t LoopAll::diphotonMVA(Int_t leadingPho, Int_t subleadingPho, Int_t vtx, float vtxProb, TLorentzVector* leadP4, TLorentzVector* subleadP4, float sigmaMrv, float sigmaMwv, float sigmaMeonly, std::string type) {
 
   // Ok need to re-write the diphoton-mva part since the systematics won't work unless we can change the Et of the photons
   // all we have to do is to pass in the ->Et of the two photons also rather than take them from the four-vector branches
   
   Float_t mva = 99.;
-  TLorentzVector Higgs = leadP4+subleadP4;
-  float leadEt    = leadP4.Et();
-  float subleadEt = subleadP4.Et();
+  TLorentzVector Higgs = *leadP4+*subleadP4;
+  float leadEt    = leadP4->Et();
+  float subleadEt = subleadP4->Et();
   float mass 	  = Higgs.M();
   float diphopt   = Higgs.Pt();
 
@@ -196,6 +211,7 @@ Float_t LoopAll::diphotonMVA(Int_t leadingPho, Int_t subleadingPho, Int_t vtx, f
   TLorentzVector* subleadsc_p4 = (TLorentzVector*)sc_p4->At(pho_scind[subleadingPho]);
   
   if (type == "UCSD") {
+    bool check=false;
     tmva_dipho_UCSD_leadr9 = pho_r9[leadingPho];
     tmva_dipho_UCSD_subleadr9 = pho_r9[subleadingPho];
     tmva_dipho_UCSD_leadeta = fabs(leadsc_p4->Eta());
@@ -204,11 +220,20 @@ Float_t LoopAll::diphotonMVA(Int_t leadingPho, Int_t subleadingPho, Int_t vtx, f
     tmva_dipho_UCSD_subleadptomass = subleadEt/mass;  
     tmva_dipho_UCSD_diphoptom = diphopt/mass;
     tmva_dipho_UCSD_sumptom = (leadEt+subleadEt)/mass;
-    tmva_dipho_UCSD_subleadmva = photonIDMVA(subleadingPho, vtx,leadP4, "UCSD");
-    tmva_dipho_UCSD_leadmva = photonIDMVA(leadingPho, vtx,subleadP4, "UCSD");
-   // tmva_dipho_UCSD_dmom = sigmaMrv/mass;
+    if(check || LDEBUG)  std::cout<<"tmva_dipho_UCSD_sumptom   "<<tmva_dipho_UCSD_sumptom<<std::endl; 
+    tmva_dipho_UCSD_subleadmva = photonIDMVA(subleadingPho, vtx, subleadP4, mass, "UCSD");
+    if(check || LDEBUG)  std::cout<<"tmva_dipho_UCSD_subleadmva   "<<tmva_dipho_UCSD_subleadmva<<std::endl; 
+    tmva_dipho_UCSD_leadmva = photonIDMVA(leadingPho, vtx, leadP4, mass, "UCSD");
+    if(check || LDEBUG)  std::cout<<"tmva_dipho_UCSD_leadmva   "<<tmva_dipho_UCSD_leadmva<<std::endl; 
     tmva_dipho_UCSD_dmom = sigmaMeonly/mass;
-  
+    if(check || LDEBUG)  std::cout<<"tmva_dipho_UCSD_dmom   "<<tmva_dipho_UCSD_dmom<<std::endl; 
+    tmva_dipho_UCSD_pvtx = max(0. ,min(1.,double(vtxProb)));
+    if(check || LDEBUG)  std::cout<<"tmva_dipho_UCSD_pvtx   "<<tmva_dipho_UCSD_pvtx<<std::endl; 
+    tmva_dipho_UCSD_nvtx = vtx_std_n;
+    if(check || LDEBUG)  std::cout<<"tmva_dipho_UCSD_nvtx   "<<tmva_dipho_UCSD_nvtx<<std::endl; 
+    tmva_dipho_UCSD_sigma_mz = sigmaMwv;
+    if(check || LDEBUG)  std::cout<<"tmva_dipho_UCSD_sigma_mz   "<<tmva_dipho_UCSD_sigma_mz<<std::endl; 
+
     mva = tmvaReader_dipho_UCSD->EvaluateMVA("Gradient");
   } else {
     tmva_dipho_MIT_dmom = sigmaMrv/mass;
@@ -216,13 +241,11 @@ Float_t LoopAll::diphotonMVA(Int_t leadingPho, Int_t subleadingPho, Int_t vtx, f
     tmva_dipho_MIT_vtxprob = vtxProb;
     tmva_dipho_MIT_ptom1 = leadEt/mass;
     tmva_dipho_MIT_ptom2 = subleadEt/mass;
-//    tmva_dipho_MIT_eta1 = fabs(leadP4.Eta());
-//    tmva_dipho_MIT_eta2 =  fabs(subleadP4.Eta());
-    tmva_dipho_MIT_eta1 = leadP4.Eta();
-    tmva_dipho_MIT_eta2 =  subleadP4.Eta();
+    tmva_dipho_MIT_eta1 = leadP4->Eta();
+    tmva_dipho_MIT_eta2 =  subleadP4->Eta();
     tmva_dipho_MIT_dphi = TMath::Cos(((TLorentzVector*)pho_p4->At(leadingPho))->Phi() - ((TLorentzVector*)pho_p4->At(subleadingPho))->Phi());
-    tmva_dipho_MIT_ph1mva = photonIDMVA(leadingPho,vtx, leadP4, "MIT");
-    tmva_dipho_MIT_ph2mva = photonIDMVA(subleadingPho,vtx, subleadP4, "MIT");
+    tmva_dipho_MIT_ph1mva = photonIDMVA(leadingPho,vtx, leadP4, 0, "MIT");
+    tmva_dipho_MIT_ph2mva = photonIDMVA(subleadingPho,vtx, subleadP4, 0, "MIT");
     mva = tmvaReader_dipho_MIT->EvaluateMVA("Gradient");
   }
   
@@ -1545,8 +1568,8 @@ int LoopAll::DiphotonMITPreSelection(Float_t leadPtMin, Float_t subleadPtMin,boo
   TLorentzVector selected_lead_p4 = get_pho_p4(selected_dipho_lead,selected_dipho_vtx,pho_energy_array); 
   TLorentzVector selected_sublead_p4 = get_pho_p4(selected_dipho_sublead,selected_dipho_vtx,pho_energy_array);
  
-  if ( photonIDMVA(selected_dipho_lead,selected_dipho_vtx,selected_lead_p4,"MIT") <= -0.3
-    || photonIDMVA(selected_dipho_sublead,selected_dipho_vtx,selected_sublead_p4,"MIT")	<= -0.3
+  if ( photonIDMVA(selected_dipho_lead,selected_dipho_vtx,&selected_lead_p4, 0,"MIT") <= -0.3
+    || photonIDMVA(selected_dipho_sublead,selected_dipho_vtx,&selected_sublead_p4, 0,"MIT")	<= -0.3
      ) {return -1;}
   
   return selected_dipho_ind;

@@ -1322,9 +1322,9 @@ int PhotonAnalysis::DiphotonMVASelection(LoopAll &l, HggVertexAnalyzer & vtxAna,
 
     // FIXME call to (*vtx_std_evt_mva)[ivtx] crashes program
     //std::cout<<"(*vtx_std_evt_mva)["<<ivtx<<"] "<< (*vtx_std_evt_mva)[ivtx]<<std::endl; 
-    //float vtxProb = vtxAna.vertexProbability((*vtx_std_evt_mva)[ivtx]);
+    float vtxProb = vtxAna.vertexProbability((*l.vtx_std_evt_mva)[ivtx]);
     //float vtxProb = vtxAna.vertexProbability(0.0);
-    float vtxProb = 0.3;
+    //float vtxProb = 0.3;
 
 	  if( leadEta > 2.5 || subleadEta > 2.5 || 
 	      ( leadEta > 1.4442 && leadEta < 1.566 ) ||
@@ -1343,8 +1343,11 @@ int PhotonAnalysis::DiphotonMVASelection(LoopAll &l, HggVertexAnalyzer & vtxAna,
 
     if(PADEBUG)  std::cout << "getting photon ID MVA" << std::endl;
 	  std::vector<std::vector<bool> > ph_passcut;
-    float leadmva = l.photonIDMVA(lead, ivtx, lead_p4, type); 
-    float submva = l.photonIDMVA(sublead, ivtx, sublead_p4, type);
+    float leadmva = l.photonIDMVA(lead, ivtx, &lead_p4, m_gamgam, type); 
+    float submva = l.photonIDMVA(sublead, ivtx, &sublead_p4, m_gamgam, type);
+    if(PADEBUG)  std::cout << "lead  leadmva  sublead  submva  "<<lead<<"  "<<leadmva<<"  "<<sublead<<"  "<<submva << std::endl;
+    if(PADEBUG)  std::cout << "lead_p4.Pt()  leadEta  sublead_p4.Pt()  subleadEta  "<<lead_p4.Pt()<<"  "<<leadEta<<"  "<<sublead_p4.Pt()<<"  "<<subleadEta << std::endl;
+    if(PADEBUG)  std::cout << "mass "<<m_gamgam<<std::endl;
     if(leadmva>minLooseMVA && submva>minLooseMVA) {
 	    passingLoose_dipho.push_back(idipho);
 	    passingLoose_sumpt.push_back(lead_p4.Et()+sublead_p4.Et());
@@ -1363,10 +1366,28 @@ int PhotonAnalysis::DiphotonMVASelection(LoopAll &l, HggVertexAnalyzer & vtxAna,
 	  float sigmaMrv = massResolutionCalculator->massResolutionCorrVtx();
 	  float sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
 	  float sigmaMeonly = massResolutionCalculator->massResolutionEonly();
+    
+    // FIXME  These things will move to MassResolution eventually...
+    if(type=="UCSD") {
+      float leta=fabs( ((TLorentzVector*)l.pho_p4->At(lead))->Eta() );
+      float seta=fabs( ((TLorentzVector*)l.pho_p4->At(sublead))->Eta() );
+
+      //MARCO FIXED
+      float leadErr = GetSmearSigma(leta,l.pho_r9[lead]);
+      float subleadErr = GetSmearSigma(seta,l.pho_r9[sublead]);
+
+      Float_t t_dmodz = l.getDmOverDz(lead, sublead, pho_energy_array);
+      float z_gg = ((TVector3*)(l.vtx_std_xyz->At(ivtx)))->Z();
+      // will be updated to this
+      //sigmaMwv = fabs(t_dmodz)*(sqrt(pow(double(l.bs_sigmaZ), 2) + pow(double(z_gg), 2)))/m_gamgam;
+      sigmaMwv = (t_dmodz)*(sqrt(pow(double(l.bs_sigmaZ), 2) + pow(double(z_gg), 2)));
+      
+      sigmaMeonly = 0.5*pow(pow(l.pho_regr_energyerr[lead]/l.pho_regr_energy[lead],2)+pow(leadErr,2)+pow(l.pho_regr_energyerr[sublead]/l.pho_regr_energy[sublead],2)+pow(subleadErr,2),0.5)*m_gamgam;
+    }
 
 	  passing_diphomva[idipho]=
       (l.diphotonMVA(lead, sublead, ivtx, 
-      vtxProb, lead_p4, sublead_p4, 
+      vtxProb, &lead_p4, &sublead_p4, 
       sigmaMrv, sigmaMwv, sigmaMeonly, type));
     if(PADEBUG)  std::cout << "got di-photon MVA" << std::endl;
 	  //passing_leadphomva.push_back(leadmva);
@@ -1429,7 +1450,9 @@ int PhotonAnalysis::DiphotonMVAEventClass(LoopAll &l, float diphoMVA, int nCat, 
         if(class8threshUCSD[ithresh]<diphoMVA && EBEB==1 && ithresh>1) {
           if(PADEBUG)  std::cout <<"passing EBEB eventClass "<<eventClass<<std::endl;
           eventClass++;
-        } else if(class8threshUCSD[ithresh]<diphoMVA && EBEB!=1 && ithresh<2) {
+        }
+        
+        if(class8threshUCSD[ithresh]<diphoMVA && EBEB!=1 && ithresh<2) {
           if(PADEBUG)  std::cout <<"passing !EBEB eventClass "<<eventClass<<std::endl;
           eventClass++;
         }
@@ -1442,5 +1465,21 @@ int PhotonAnalysis::DiphotonMVAEventClass(LoopAll &l, float diphoMVA, int nCat, 
 
   if(PADEBUG)  std::cout<<"eventClass "<<eventClass<<std::endl;
   return eventClass;
+}
+
+float PhotonAnalysis::GetSmearSigma(float eta, float r9, int epoch){
+  // not using epoch for now
+  // r9cat + nr9Cat*etaCat
+  float smear_nov14[] = {0.99e-2, 1.00e-2, 1.57e-2, 2.17e-2, 3.30e-2, 3.26e-2, 3.78e-2, 3.31e-2}; 
+  float sigma = -1;
+  if(epoch==0) {
+    int nr9Cat=2;
+    int r9Cat=(int)(r9<0.94);
+    int nEtaCat=4;
+    int etaCat=(int)(eta>1.0) + (int)(eta>1.5) + (int)(eta>2.0);
+    sigma=smear_nov14[(int)(r9Cat + nr9Cat*etaCat)];
+  }
+
+  return sigma;
 }
 

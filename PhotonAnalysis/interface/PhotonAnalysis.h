@@ -116,6 +116,7 @@ protected:
 	void StatAnalysis(LoopAll &l, int jentry);
 	void loadPuMap(const char * fname, TDirectory * dir);
 	void loadPuWeights(int typid, TDirectory * dir);
+  float GetSmearSigma(float eta, float r9, int epoch=0);
 
 	std::string name_;
 	

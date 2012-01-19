@@ -1,4 +1,4 @@
-intL=4763. histfile=CMS-HGG_4763_SM_UCSDmvatest_2011.root  output=shifo.root
+intL=4763. histfile=CMS-HGG_4763_SM_UCSDmva_jan19_2011.root  output=shifo.root
 
 ->
 put here files to merge

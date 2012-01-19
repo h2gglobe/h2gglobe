@@ -1810,9 +1810,11 @@ void LoopAll::myPlotInteractiveSetup(TString hsmallname, TString tag) {
 			
 
 		      //MARCO FIXME												
-	histoind[infoind[iInd]]=ind[iInd];
+	ind[iInd]=histoind[infoind[iInd]];
+	//histoind[infoind[iInd]]=ind[iInd];
 
-	infoind[iInd]=ind[iInd];
+	ind[iInd]=infoind[iInd];
+	//infoind[iInd]=ind[iInd];
 
 
 

@@ -426,33 +426,33 @@ void StatAnalysis::Init(LoopAll& l)
     l.rooContainer->AddConstant("ff_XSBR_wzh_105",0.1609787);
 
     // Background modeling 
-    l.rooContainer->AddRealVar("CMS_hgg_pol0",-0.1,-1.5,1.5);
-    l.rooContainer->AddRealVar("CMS_hgg_pol1",-0.1,-1.5,1.5);
-    l.rooContainer->AddRealVar("CMS_hgg_pol2",-0.01,-1.5,1.5);
-    l.rooContainer->AddRealVar("CMS_hgg_pol3",-0.01,-1.5,1.5);
-    l.rooContainer->AddRealVar("CMS_hgg_pol4",-0.01,-1.5,1.5);
+    l.rooContainer->AddRealVar("CMS_hgg_pol0",-0.1,-1.0,1.0);
+    l.rooContainer->AddRealVar("CMS_hgg_pol1",-0.1,-1.0,1.0);
+    l.rooContainer->AddRealVar("CMS_hgg_pol2",-0.1,-1.0,1.0);
+    l.rooContainer->AddRealVar("CMS_hgg_pol3",-0.01,-1.0,1.0);
+    l.rooContainer->AddRealVar("CMS_hgg_pol4",-0.01,-1.0,1.0);
     l.rooContainer->AddFormulaVar("CMS_hgg_modpol0","@0*@0","CMS_hgg_pol0");
     l.rooContainer->AddFormulaVar("CMS_hgg_modpol1","@0*@0","CMS_hgg_pol1");
     l.rooContainer->AddFormulaVar("CMS_hgg_modpol2","@0*@0","CMS_hgg_pol2");
     l.rooContainer->AddFormulaVar("CMS_hgg_modpol3","@0*@0","CMS_hgg_pol3");
     l.rooContainer->AddFormulaVar("CMS_hgg_modpol4","@0*@0","CMS_hgg_pol4");
 
-    l.rooContainer->AddRealVar("CMS_hgg_quartic0",0.5,-1.5,1.5);
-    l.rooContainer->AddRealVar("CMS_hgg_quartic1",-0.5,-1.5,1.5);
-    l.rooContainer->AddRealVar("CMS_hgg_quartic2",0.5,-1.5,1.5);
-    l.rooContainer->AddRealVar("CMS_hgg_quartic3",0.5,-1.5,1.5);
+    l.rooContainer->AddRealVar("CMS_hgg_quartic0",-0.1,-1.0,1.0);
+    l.rooContainer->AddRealVar("CMS_hgg_quartic1",-0.1,-1.0,1.0);
+    l.rooContainer->AddRealVar("CMS_hgg_quartic2",-0.1,-1.0,1.0);
+    l.rooContainer->AddRealVar("CMS_hgg_quartic3",-0.01,-1.0,1.0);
     l.rooContainer->AddFormulaVar("CMS_hgg_modquartic0","@0*@0","CMS_hgg_quartic0");
     l.rooContainer->AddFormulaVar("CMS_hgg_modquartic1","@0*@0","CMS_hgg_quartic1");
     l.rooContainer->AddFormulaVar("CMS_hgg_modquartic2","@0*@0","CMS_hgg_quartic2");
     l.rooContainer->AddFormulaVar("CMS_hgg_modquartic3","@0*@0","CMS_hgg_quartic3");
 
-    l.rooContainer->AddRealVar("CMS_hgg_quad0",-0.01,-1.5,1.5);
+    l.rooContainer->AddRealVar("CMS_hgg_quad0",-0.1,-1.5,1.5);
     l.rooContainer->AddRealVar("CMS_hgg_quad1",-0.01,-1.5,1.5);
     l.rooContainer->AddFormulaVar("CMS_hgg_modquad0","@0*@0","CMS_hgg_quad0");
     l.rooContainer->AddFormulaVar("CMS_hgg_modquad1","@0*@0","CMS_hgg_quad1");
     
-    l.rooContainer->AddRealVar("CMS_hgg_cubic0",-0.01,-1.5,1.5);
-    l.rooContainer->AddRealVar("CMS_hgg_cubic1",-0.01,-1.5,1.5);
+    l.rooContainer->AddRealVar("CMS_hgg_cubic0",-0.1,-1.5,1.5);
+    l.rooContainer->AddRealVar("CMS_hgg_cubic1",-0.1,-1.5,1.5);
     l.rooContainer->AddRealVar("CMS_hgg_cubic2",-0.01,-1.5,1.5);
     l.rooContainer->AddFormulaVar("CMS_hgg_modcubic0","@0*@0","CMS_hgg_cubic0");
     l.rooContainer->AddFormulaVar("CMS_hgg_modcubic1","@0*@0","CMS_hgg_cubic1");
@@ -475,8 +475,8 @@ void StatAnalysis::Init(LoopAll& l)
     for(int i=0; i<nCategories_; i++){
       if(i<nInclusiveCategories_) {
         if(useMVA) {
-          if(i==1 || i==7) {
-            cats_with_quad[i]=1;
+          if(i<5) {
+            cats_with_std[i]=1;
           } else {
             cats_with_quartic[i]=1;
           }
@@ -773,6 +773,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     int diphoton_id = -1;
     float diphoton_mva = -10;
     if(useMVA) {
+      if(PADEBUG) std::cout<<"run event "<<l.run<<"   "<<l.event<<std::endl;
       diphoton_id = DiphotonMVASelection( l, vtxAna_, diphoton_mva, phoIDMVAtight, phoIDMVAloose, 
           leadEtCut, subleadEtCut, phoIDMVAtype, nDiphoEventClasses,
           applyPtoverM, &smeared_pho_energy[0] );
