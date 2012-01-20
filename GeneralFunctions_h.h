@@ -404,8 +404,8 @@ int MuonSelection(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind);
 int ElectronSelection(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind);
 
 void SetAllMVA();
-Float_t photonIDMVA(Int_t iPhoton, Int_t vtx, TLorentzVector* phoP4, Float_t mass, std::string type);
-Float_t diphotonMVA(Int_t leadingPho, Int_t subleadingPho, Int_t vtx, float vtxProb, TLorentzVector* leadP4, TLorentzVector* subleadP4, float sigmaMrv, float sigmaMwv, float sigmaMeonly, std::string type);
+Float_t photonIDMVA(Int_t iPhoton, Int_t vtx, TLorentzVector &phoP4, Float_t mass, std::string type);
+Float_t diphotonMVA(Int_t leadingPho, Int_t subleadingPho, Int_t vtx, float vtxProb, TLorentzVector &leadP4, TLorentzVector &subleadP4, float sigmaMrv, float sigmaMwv, float sigmaMeonly, std::string type);
 
 Float_t tmva_dipho_UCSD_pvtx,tmva_dipho_UCSD_nvtx,tmva_dipho_UCSD_sigma_mz;
 float getDmOverDz(Int_t, Int_t, Float_t*);

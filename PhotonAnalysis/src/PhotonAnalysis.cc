@@ -1343,8 +1343,8 @@ int PhotonAnalysis::DiphotonMVASelection(LoopAll &l, HggVertexAnalyzer & vtxAna,
 
     if(PADEBUG)  std::cout << "getting photon ID MVA" << std::endl;
 	  std::vector<std::vector<bool> > ph_passcut;
-    float leadmva = l.photonIDMVA(lead, ivtx, &lead_p4, m_gamgam, type); 
-    float submva = l.photonIDMVA(sublead, ivtx, &sublead_p4, m_gamgam, type);
+    float leadmva = l.photonIDMVA(lead, ivtx, lead_p4, m_gamgam, type); 
+    float submva = l.photonIDMVA(sublead, ivtx, sublead_p4, m_gamgam, type);
     if(PADEBUG)  std::cout << "lead  leadmva  sublead  submva  "<<lead<<"  "<<leadmva<<"  "<<sublead<<"  "<<submva << std::endl;
     if(PADEBUG)  std::cout << "lead_p4.Pt()  leadEta  sublead_p4.Pt()  subleadEta  "<<lead_p4.Pt()<<"  "<<leadEta<<"  "<<sublead_p4.Pt()<<"  "<<subleadEta << std::endl;
     if(PADEBUG)  std::cout << "mass "<<m_gamgam<<std::endl;
@@ -1387,7 +1387,7 @@ int PhotonAnalysis::DiphotonMVASelection(LoopAll &l, HggVertexAnalyzer & vtxAna,
 
 	  passing_diphomva[idipho]=
       (l.diphotonMVA(lead, sublead, ivtx, 
-      vtxProb, &lead_p4, &sublead_p4, 
+      vtxProb, lead_p4, sublead_p4, 
       sigmaMrv, sigmaMwv, sigmaMeonly, type));
     if(PADEBUG)  std::cout << "got di-photon MVA" << std::endl;
 	  //passing_leadphomva.push_back(leadmva);

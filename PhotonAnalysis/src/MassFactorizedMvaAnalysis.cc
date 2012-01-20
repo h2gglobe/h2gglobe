@@ -650,12 +650,12 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
 		float diphobdt_output = l.diphotonMVA(diphoton_index.first,diphoton_index.second
 				,l.dipho_vtxind[diphoton_id]
-				,vtxProb,&lead_p4,&sublead_p4
+				,vtxProb,lead_p4,sublead_p4
 				,sigmaMrv,sigmaMwv,sigmaMeonly
 				,bdtTrainingPhilosophy.c_str());
-		float phoid_mvaout_lead = l.photonIDMVA(diphoton_index.first,l.dipho_vtxind[diphoton_id],&lead_p4,mass 
+		float phoid_mvaout_lead = l.photonIDMVA(diphoton_index.first,l.dipho_vtxind[diphoton_id],lead_p4,mass 
 				,bdtTrainingPhilosophy.c_str());
-		float phoid_mvaout_sublead = l.photonIDMVA(diphoton_index.second,l.dipho_vtxind[diphoton_id],&sublead_p4,mass 
+		float phoid_mvaout_sublead = l.photonIDMVA(diphoton_index.second,l.dipho_vtxind[diphoton_id],sublead_p4,mass 
 				,bdtTrainingPhilosophy.c_str());
 
 		bool isEBEB  = (lead_p4.Eta() < 1.4442 ) && fabs(sublead_p4.Eta()<1.4442);
@@ -807,7 +807,7 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
 					float diphobdt_output = l.diphotonMVA(diphoton_index.first,diphoton_index.second
 							,l.dipho_vtxind[diphoton_id]
-							,vtxProb,&lead_p4,&sublead_p4
+							,vtxProb,lead_p4,sublead_p4
 							,sigmaMrv,sigmaMwv,sigmaMeonly
 							,bdtTrainingPhilosophy.c_str());
 
@@ -866,7 +866,7 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
 					float diphobdt_output = l.diphotonMVA(diphoton_index.first,diphoton_index.second
 							,l.dipho_vtxind[diphoton_id]
-							,vtxProb,&lead_p4,&sublead_p4
+							,vtxProb,lead_p4,sublead_p4
 							,sigmaMrv,sigmaMwv,sigmaMeonly
 							,bdtTrainingPhilosophy.c_str());
 
@@ -967,7 +967,7 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
 					float diphobdt_output = l.diphotonMVA(diphoton_index.first,diphoton_index.second
 							,l.dipho_vtxind[diphoton_id]
-							,vtxProb,&lead_p4,&sublead_p4
+							,vtxProb,lead_p4,sublead_p4
 							,sigmaMrv,sigmaMwv,sigmaMeonly
 							,bdtTrainingPhilosophy.c_str());
 

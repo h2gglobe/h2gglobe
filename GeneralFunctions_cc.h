@@ -85,11 +85,11 @@ void LoopAll::SetAllMVA() {
 //  tmvaReader_dipho_MIT->BookMVA("Gradient", "aux/HggBambu_SM_Dec9_BDTG.weights.xml");
 }
 
-Float_t LoopAll::photonIDMVA(Int_t iPhoton, Int_t vtx, TLorentzVector* p4, float mass, std::string type)  {
+Float_t LoopAll::photonIDMVA(Int_t iPhoton, Int_t vtx, TLorentzVector &p4, float mass, std::string type)  {
   if(LDEBUG)  std::cout<<"in photonIDMVA"<<std::endl; 
   Float_t mva = 999.;
  
-  float photonEt = p4->Et();
+  float photonEt = p4.Et();
   if (type == "UCSD") {
     if(LDEBUG)  std::cout<<"in photonIDMVA, type:"<<type<<std::endl; 
     Int_t cat = PhotonCategory(iPhoton);
@@ -195,15 +195,15 @@ Float_t LoopAll::photonIDMVA(Int_t iPhoton, Int_t vtx, TLorentzVector* p4, float
   return mva;
 }
 
-Float_t LoopAll::diphotonMVA(Int_t leadingPho, Int_t subleadingPho, Int_t vtx, float vtxProb, TLorentzVector* leadP4, TLorentzVector* subleadP4, float sigmaMrv, float sigmaMwv, float sigmaMeonly, std::string type) {
+Float_t LoopAll::diphotonMVA(Int_t leadingPho, Int_t subleadingPho, Int_t vtx, float vtxProb, TLorentzVector &leadP4, TLorentzVector &subleadP4, float sigmaMrv, float sigmaMwv, float sigmaMeonly, std::string type) {
 
   // Ok need to re-write the diphoton-mva part since the systematics won't work unless we can change the Et of the photons
   // all we have to do is to pass in the ->Et of the two photons also rather than take them from the four-vector branches
   
   Float_t mva = 99.;
-  TLorentzVector Higgs = *leadP4+*subleadP4;
-  float leadEt    = leadP4->Et();
-  float subleadEt = subleadP4->Et();
+  TLorentzVector Higgs = leadP4+subleadP4;
+  float leadEt    = leadP4.Et();
+  float subleadEt = subleadP4.Et();
   float mass 	  = Higgs.M();
   float diphopt   = Higgs.Pt();
 
@@ -241,9 +241,10 @@ Float_t LoopAll::diphotonMVA(Int_t leadingPho, Int_t subleadingPho, Int_t vtx, f
     tmva_dipho_MIT_vtxprob = vtxProb;
     tmva_dipho_MIT_ptom1 = leadEt/mass;
     tmva_dipho_MIT_ptom2 = subleadEt/mass;
-    tmva_dipho_MIT_eta1 = leadP4->Eta();
-    tmva_dipho_MIT_eta2 =  subleadP4->Eta();
-    tmva_dipho_MIT_dphi = TMath::Cos(((TLorentzVector*)pho_p4->At(leadingPho))->Phi() - ((TLorentzVector*)pho_p4->At(subleadingPho))->Phi());
+    tmva_dipho_MIT_eta1 = leadP4.Eta();
+    tmva_dipho_MIT_eta2 =  subleadP4.Eta();
+//    tmva_dipho_MIT_dphi = TMath::Cos(((TLorentzVector*)phio_p4->At(leadingPho))->Phi() - ((TLorentzVector*)pho_p4->At(subleadingPho))->Phi());
+    tmva_dipho_MIT_dphi = TMath::Cos(leadP4.Phi() - subleadP4.Phi());
     tmva_dipho_MIT_ph1mva = photonIDMVA(leadingPho,vtx, leadP4, 0, "MIT");
     tmva_dipho_MIT_ph2mva = photonIDMVA(subleadingPho,vtx, subleadP4, 0, "MIT");
     mva = tmvaReader_dipho_MIT->EvaluateMVA("Gradient");
@@ -1568,8 +1569,8 @@ int LoopAll::DiphotonMITPreSelection(Float_t leadPtMin, Float_t subleadPtMin,boo
   TLorentzVector selected_lead_p4 = get_pho_p4(selected_dipho_lead,selected_dipho_vtx,pho_energy_array); 
   TLorentzVector selected_sublead_p4 = get_pho_p4(selected_dipho_sublead,selected_dipho_vtx,pho_energy_array);
  
-  if ( photonIDMVA(selected_dipho_lead,selected_dipho_vtx,&selected_lead_p4, 0,"MIT") <= -0.3
-    || photonIDMVA(selected_dipho_sublead,selected_dipho_vtx,&selected_sublead_p4, 0,"MIT")	<= -0.3
+  if ( photonIDMVA(selected_dipho_lead,selected_dipho_vtx,selected_lead_p4, 0,"MIT") <= -0.3
+    || photonIDMVA(selected_dipho_sublead,selected_dipho_vtx,selected_sublead_p4, 0,"MIT")	<= -0.3
      ) {return -1;}
   
   return selected_dipho_ind;
