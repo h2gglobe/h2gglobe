@@ -1140,12 +1140,20 @@ int MassFactorizedMvaAnalysis::GetBDTBoundaryCategory(float bdtout, bool isEB){
 
 	} else if (bdtTrainingPhilosophy=="MIT"){
 
+/*
 		if (bdtout >=-0.50 && bdtout < 0.3) return 4;
 		//	   if (bdtout < 0.3) return 4;
 		if (bdtout >= 0.3 && bdtout < 0.65) return 3;
 		if (bdtout >= 0.65 && bdtout < 0.84) return 2;
 		if (bdtout >= 0.84 && bdtout < 0.90) return 1;
 		if (bdtout >= 0.90) return 0;
+		return -1;
+*/
+		if (bdtout >=-0.50 && bdtout < 0.05) return 4;
+		if (bdtout >= 0.05 && bdtout < 0.55) return 3;
+		if (bdtout >= 0.55 && bdtout < 0.72) return 2;
+		if (bdtout >= 0.72 && bdtout < 0.89) return 1;
+		if (bdtout >= 0.89) return 0;
 		return -1;
 
 	} else std::cerr << "No BDT Philosophy known - " << bdtTrainingPhilosophy << std::endl;
