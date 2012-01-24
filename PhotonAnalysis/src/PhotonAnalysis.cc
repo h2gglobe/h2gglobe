@@ -1382,7 +1382,7 @@ int PhotonAnalysis::DiphotonMVASelection(LoopAll &l, HggVertexAnalyzer & vtxAna,
       //sigmaMwv = fabs(t_dmodz)*(sqrt(pow(double(l.bs_sigmaZ), 2) + pow(double(z_gg), 2)))/m_gamgam;
       sigmaMwv = (t_dmodz)*(sqrt(pow(double(l.bs_sigmaZ), 2) + pow(double(z_gg), 2)));
       
-      sigmaMeonly = 0.5*pow(pow(l.pho_regr_energyerr[lead]/l.pho_regr_energy[lead],2)+pow(leadErr,2)+pow(l.pho_regr_energyerr[sublead]/l.pho_regr_energy[sublead],2)+pow(subleadErr,2),0.5)*m_gamgam;
+      sigmaMeonly = 0.5*sqrt( pow(l.pho_regr_energyerr[lead]/l.pho_regr_energy[lead],2)+pow(leadErr,2)+pow(l.pho_regr_energyerr[sublead]/l.pho_regr_energy[sublead],2)+pow(subleadErr,2) )*m_gamgam;
     }
 
 	  passing_diphomva[idipho]=
@@ -1424,9 +1424,10 @@ int PhotonAnalysis::DiphotonMVAEventClass(LoopAll &l, float diphoMVA, int nCat, 
   int eventClass = -1;
 
   float class5threshMIT[5]  = { -0.5,  0.3, 0.65, 0.84, 0.9 };
-  float class6threshUCSD[6] = { -0.04041,  0.3878,  0.5958,  0.6677,  0.7671,  0.86 };
+  float class6threshUCSD[6] = { -0.4, -0.0356,  0.3889, 0.592, 0.6669,  0.7583 };
   // first 2 for (ebee+eeee) and last 6 for ebeb
-  float class8threshUCSD[8]={-0.11, 0.5, -0.04041,  0.3878,  0.5958,  0.6677,  0.7671,  0.86 };
+  float class8threshUCSD[8]={-0.7, -0.11, -0.4, -0.0356,  0.3889, 0.592, 0.6669,  0.7583 };
+  float class2threshUCSD[2]={-0.2, 0.3 };
 
   if(PADEBUG)  std::cout<<"DiphotonMVAEventClass diphoMVA:  "<<diphoMVA<<std::endl;
   if(PADEBUG)  std::cout<<"DiphotonMVAEventClass nCat:  "<<nCat<<std::endl;
@@ -1458,6 +1459,10 @@ int PhotonAnalysis::DiphotonMVAEventClass(LoopAll &l, float diphoMVA, int nCat, 
         }
       }
       if(eventClass!=-1 && EBEB==1) eventClass=eventClass+2;
+    }
+  } else if(nCat==2) {
+    for(int ithresh=0; ithresh<nCat; ithresh++){
+      if(class2threshUCSD[ithresh]<diphoMVA && type=="UCSD") eventClass++;
     }
   }
 

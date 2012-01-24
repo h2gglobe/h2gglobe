@@ -844,6 +844,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
     // CP
     int diphotonVBF_id = -1;
+    float diphotonVBF_mva = -10;
     int diphotonVHad_id = -1;
     int diphotonVHlep_id = -1;
     bool VHmuevent = false;
@@ -891,7 +892,16 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     }
 
     if((includeVBF || includeVHad)) {
-      if(includeVBF) diphotonVBF_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVBFCut, subleadEtVBFCut, 4,false, &smeared_pho_energy[0], true ); 
+      if(includeVBF) {
+        if(useMVA){
+          diphotonVBF_id = DiphotonMVASelection( l, vtxAna_, 
+            diphotonVBF_mva, phoIDMVAtight, phoIDMVAloose, 
+            leadEtVBFCut, subleadEtVBFCut, phoIDMVAtype, 2,
+            applyPtoverM, &smeared_pho_energy[0], true );
+        } else {
+          diphotonVBF_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVBFCut, subleadEtVBFCut, 4,false, &smeared_pho_energy[0], true); 
+        }
+      }
       if(includeVHad) diphotonVHad_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVHadCut, subleadEtVHadCut, 4,false, &smeared_pho_energy[0] ); 
 
       if(diphotonVBF_id>-1){
@@ -1006,6 +1016,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     
     if(includeVBF&&VBFevent) {
       diphoton_id = diphotonVBF_id;
+      diphoton_mva = diphotonVBF_mva;
     } else if(includeVHad&&VHadevent) {
       diphoton_id = diphotonVHad_id;
     } else if(includeVHlep && (VHelevent || VHmuevent)) {
@@ -1070,11 +1081,18 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	sumaccept += weight;
  	sumsmear += evweight;
 
-  if(VBFevent) category=nInclusiveCategories_+l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nVBFEtaCategories,1,1);
-  else if(VHadevent) category=nInclusiveCategories_+((int)includeVBF)*nVBFEtaCategories+l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nVHadEtaCategories,1,1);
-  else if(VHmuevent) category=nInclusiveCategories_+((int)includeVBF)*nVBFEtaCategories+((int)includeVHad)*nVHadEtaCategories;
-  else if(VHelevent) category=nInclusiveCategories_+((int)includeVBF)*nVBFEtaCategories+((int)includeVHad)*nVHadEtaCategories+(int)includeVHlep;
-
+  if(useMVA){
+    int EBEB = l.pho_isEB[l.dipho_leadind[diphoton_id]]==1 && l.pho_isEB[l.dipho_leadind[diphoton_id]]==1;
+    if(VBFevent) category=nInclusiveCategories_+ DiphotonMVAEventClass( l, diphoton_mva, 2, phoIDMVAtype, EBEB);
+    else if(VHadevent) category=nInclusiveCategories_+((int)includeVBF)*nVBFEtaCategories+ DiphotonMVAEventClass( l, diphoton_mva, 2, phoIDMVAtype, EBEB);
+    else if(VHmuevent) category=nInclusiveCategories_+((int)includeVBF)*nVBFEtaCategories+((int)includeVHad)*nVHadEtaCategories;
+    else if(VHelevent) category=nInclusiveCategories_+((int)includeVBF)*nVBFEtaCategories+((int)includeVHad)*nVHadEtaCategories+(int)includeVHlep;
+  } else {
+    if(VBFevent) category=nInclusiveCategories_+l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nVBFEtaCategories,1,1);
+    else if(VHadevent) category=nInclusiveCategories_+((int)includeVBF)*nVBFEtaCategories+l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nVHadEtaCategories,1,1);
+    else if(VHmuevent) category=nInclusiveCategories_+((int)includeVBF)*nVBFEtaCategories+((int)includeVHad)*nVHadEtaCategories;
+    else if(VHelevent) category=nInclusiveCategories_+((int)includeVBF)*nVBFEtaCategories+((int)includeVHad)*nVHadEtaCategories+(int)includeVHlep;
+  }
 
 
 	// control plots 
@@ -1301,12 +1319,22 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
       diphoton_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtCut, subleadEtCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
     }
     int diphotonVBF_id = -1;
+    float diphotonVBF_mva = -10;
     int diphotonVHad_id = -1;
     bool VBFevent = false;
     bool VHadevent = false;
     std::pair<int,int> highestPtJets(-1,-1);
     if((includeVBF || includeVHad)&&l.jet_algoPF1_n>1) {
-      if(includeVBF) diphotonVBF_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVBFCut, subleadEtVBFCut, 4,false, &smeared_pho_energy[0], true); 
+      if(includeVBF) {
+        if(useMVA){
+          diphotonVBF_id = DiphotonMVASelection( l, vtxAna_, 
+            diphotonVBF_mva, phoIDMVAtight, phoIDMVAloose, 
+            leadEtVBFCut, subleadEtVBFCut, phoIDMVAtype, 2,
+            applyPtoverM, &smeared_pho_energy[0], true );
+        } else {
+          diphotonVBF_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVBFCut, subleadEtVBFCut, 4,false, &smeared_pho_energy[0], true); 
+        }
+      }
       if(includeVHad) diphotonVHad_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVHadCut, subleadEtVHadCut, 4,false, &smeared_pho_energy[0] ); 
 
       if(diphotonVBF_id>-1){
@@ -1371,6 +1399,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     
     if(includeVBF&&VBFevent) {
       diphoton_id = diphotonVBF_id;
+      diphoton_mva = diphotonVBF_mva;
     } else if(includeVHad&&VHadevent) {
       diphoton_id = diphotonVHad_id;
     } else if(includeVHlep && (VHelevent || VHmuevent)) {

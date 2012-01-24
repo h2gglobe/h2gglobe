@@ -12,7 +12,7 @@ void LoopAll::SetAllMVA() {
   tmvaReaderID_UCSD->AddVariable("ptom",       &tmva_id_ucsd_ptom);
   tmvaReaderID_UCSD->AddVariable("eta",        &tmva_id_ucsd_eta);
   tmvaReaderID_UCSD->AddSpectator("isLeading", &tmva_id_ucsd_isLeading);
-//  tmvaReaderID_UCSD->BookMVA("Gradient", "aux/ID_UCSD.weights.xml");
+  tmvaReaderID_UCSD->BookMVA("Gradient", "aux/ID_UCSD.weights.xml");
   
   tmvaReader_dipho_UCSD = new TMVA::Reader("!Color:Silent"); 
   tmvaReader_dipho_UCSD->AddVariable("subleadptomass",   &tmva_dipho_UCSD_subleadptomass);
@@ -29,7 +29,8 @@ void LoopAll::SetAllMVA() {
   tmvaReader_dipho_UCSD->AddVariable("nvtx",             &tmva_dipho_UCSD_nvtx);
   tmvaReader_dipho_UCSD->AddVariable("sigma_mz",         &tmva_dipho_UCSD_sigma_mz);
   tmvaReader_dipho_UCSD->AddSpectator("diphocat2r92eta", &tmva_dipho_UCSD_diphocat2r92eta);
-//  tmvaReader_dipho_UCSD->BookMVA("Gradient", "aux/diphoton_UCSD.weights.xml");
+  tmvaReader_dipho_UCSD->BookMVA("Gradient", "aux/diphoton_dec16_Gradient.weights.xml");
+  //tmvaReader_dipho_UCSD->BookMVA("Gradient", "aux/diphoton_UCSD.weights.xml");
 
   tmvaReaderID_MIT_Barrel = new TMVA::Reader("!Color:Silent"); 
   tmvaReaderID_MIT_Barrel->AddVariable("HoE",         &tmva_id_mit_hoe);
