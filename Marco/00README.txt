@@ -5,6 +5,117 @@ or:
 http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/UserCode/HiggsAnalysis/HiggsTo2photons/h2gglobe/Marco/00README.txt?view=markup
 
 
+New instructions for optree 24/1/2012
+
+############################################
+### Things for Jim and Matteo MVA #########
+############################################
+
+from h2gglobe
+you need to copy the following files:
+
+cp Marco/CommonParameters.h ./CommonParameters.h
+cp Marco/LoopAll.cc LoopAll.cc
+cp Marco/LoopAll.h LoopAll.h
+cp Marco/StatAnalysis_jim.h PhotonAnalysis/interface/StatAnalysis.h
+cp Marco/StatAnalysis_jim.cc PhotonAnalysis/src/StatAnalysis.cc
+
+cp Marco/cuts_marco.dat PhotonAnalysis_scripts/cuts.dat
+cp Marco/counters.dat PhotonAnalysis_scripts/counters.dat
+
+comment pho_isconv in mva_statanalysis_input.dat
+
+Marco/datafiles_5fb_jan12_all_sm.dat 
+
+Marco/data.dat
+
+source /home/users/mpieri/cmsset_default.sh
+export SCRAM_ARCH="slc5_amd64_gcc434"
+cmsenv
+
+cd PhotonAnalysis_scripts/
+rm  ../Marco/data.dat.pevents
+python fitter.py -i ../Marco/data.dat --dryRun
+# cd PhotonAnalysis_scripts/
+python fitter.py -i ../Marco/data.dat >& data.log
+
+
+-->>> The rest has to be checked
+
+
+
+cp Marco/statanalysis_ucsd.dat PhotonAnalysis_scripts/statanalysis.dat
+cp Marco/plotvariables.dat PhotonAnalysis_scripts/plotvariables.dat
+cp Marco/pu_weights_map.dat PhotonAnalysis_scripts/pu_weights_map.dat
+
+******** Specific for JIM **************
+
+cp Marco/LoopAll.cc LoopAll.cc
+cp Marco/LoopAll.h LoopAll.h
+cp Marco/minimal_statanalysis_input.dat PhotonAnalysis_scripts/minimal_statanalysis_input.dat
+cp Marco/StatAnalysisExclusive_jim.h PhotonAnalysis/interface/StatAnalysisExclusive.h
+cp Marco/StatAnalysisExclusive_jim.cc PhotonAnalysis/src/StatAnalysisExclusive.cc
+cp Marco/cuts_marco.dat PhotonAnalysis_scripts/cuts.dat
+cp Marco/counters.dat PhotonAnalysis_scripts/counters.dat
+
+make clean; make -j 30
+
+### to be deleted
+### cp Marco/statanalysisexclusive.dat PhotonAnalysis_scripts/statanalysisexclusive.dat
+
+### I THINK NOT ANYMORE 
+### cp Marco/fitter.py PhotonAnalysis_scripts/fitter.py
+
+### Before copying you should modify:
+### ---------------------------------
+### //NOW THEY ARE DEFAULT FOR MVA
+### cuts_marco.dat (first few cuts)
+### minimal_statanalysis_input.dat (put the branches you need)
+### **** SPECIFIC FOR JIM ****
+### In file minimal_statanalysis_input.dat remove the following couple of lines:
+### ->
+### FOR JIM TO UNCOMMENT
+### and
+### FOR JIM TO UNCOMMENT
+### ->
+### This will take as inputs few more variables needed for the MVA.
+
+
+Then to run use from h2gglobe/PhotonAnalysis_scripts:
+
+cd PhotonAnalysis_scripts/
+rm  ../Marco/jimdatafiles_5fb_Dec14_90_190.dat.pevents
+python fitter.py -i ../Marco/jimdatafiles_5fb_Dec14_90_190.dat --dryRun
+# cd PhotonAnalysis_scripts/
+python fitter.py -i ../Marco/jimdatafiles_5fb_Dec14_90_190.dat >& jimdatafiles_5fb_Dec14_90_190.log
+
+
+### These jobs create 'optree' called Ntuple inside the output histogram file.
+### From this one can do the mava analysis.
+### The mva analysis workspace could be create directly in these jobes but
+### StatAnalysis should be modifid for that 
+
+
+### This is from matteo
+
+Run the following commands on different UAF machines:
+python fitter.py -i ../Marco/jimdatafiles_5fb_Dec14_90_190_dataA.dat >& jimdatafiles_5fb_Dec14_90_190_dataA.log
+python fitter.py -i ../Marco/jimdatafiles_5fb_Dec14_90_190_dataB.dat >& jimdatafiles_5fb_Dec14_90_190_dataB.log
+python fitter.py -i ../Marco/jimdatafiles_5fb_Dec14_90_190_signal.dat >& jimdatafiles_5fb_Dec14_90_190_signal.log
+python fitter.py -i ../Marco/jimdatafiles_5fb_Dec14_90_190_bg1.dat >& jimdatafiles_5fb_Dec14_90_190_bg1.log
+python fitter.py -i ../Marco/jimdatafiles_5fb_Dec14_90_190_bg2.dat >& jimdatafiles_5fb_Dec14_90_190_bg2.log
+
+When the jobs are completed:
+
+hadd final.root histograms_jimdatafiles_5fb_Dec14_90_190_dataA.root histograms_jimdatafiles_5fb_Dec14_90_190_dataB.root histograms_jimdatafiles_5fb_Dec14_90_190_signal.root histograms_jimdatafiles_5fb_Dec14_90_190_bg1.root histograms_jimdatafiles_5fb_Dec14_90_190_bg2.root
+
+
+
+END New instructions for optree 24/1/2012
+-----------------------------------------
+
+
+
 
 Instructions 21/12/2011
 -----------------------
