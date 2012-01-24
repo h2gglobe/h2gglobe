@@ -708,11 +708,20 @@ void LoopAll::WriteFits() {
 	hfile = TFile::Open(histFileName, "RECREATE", "Globe ROOT file with histograms");
 
   hfile->cd();
-  hfile->cd();
+  //hfile->cd();
+  for (std::vector<TMacro*>::iterator it = configFiles.begin(); it!=configFiles.end(); it++){
+	 	         (*it)->Write();
+  }
+
   rooContainer->Save();
   hfile->Close();
 }
-
+void LoopAll::StoreConfigFile(std::string configfilename) {
+	 
+  TMacro *mac = new TMacro(configfilename.c_str(),configfilename.c_str());
+  configFiles.push_back(mac);
+	 
+}
 // ------------------------------------------------------------------------------------
 void LoopAll::WriteHist() {
 

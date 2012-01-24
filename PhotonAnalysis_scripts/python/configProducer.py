@@ -75,7 +75,10 @@ class configProducer:
 
     else: 
       sys.exit("No Such Type As: %d"%self.type_)
-      
+
+  def store_config_file(self,filename):
+    self.ut_.StoreConfigFile(filename) 
+
   def read_weights_file(self):
     weights_lines=[];
     self.read_file(self.sample_weights_file_,weights_lines) 
@@ -105,6 +108,7 @@ class configProducer:
           lines.append(line)
         else:
           self.conf_.comments+=line
+      self.store_config_file(conf_filename)
 
   def init_cuts(self):
     self.read_dat_cuts('cuts.dat')
