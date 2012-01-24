@@ -7,6 +7,7 @@
 #include "TChain.h"
 #include "TFile.h"
 #include "TH1D.h"
+#include "TMacro.h"
 #include "TClonesArray.h"
 
 #include <sstream>
@@ -95,6 +96,7 @@ class LoopAll {
 			    float scale, bool addnevents=false);
   void Term(); 
 
+  std::vector<TMacro*> configFiles;
   std::vector<std::string> files;
   std::vector<int> itype;
   //int lumireal[MAXFILES];
@@ -166,12 +168,6 @@ class LoopAll {
   int ApplyCut(int, float, int);
   int ApplyCut(std::string, float, int);
 
-#ifdef NewFeatures
-  //FOR JIM
-  void BdtGetEntry(Int_t jentry);
-#endif
-
-
   void myPrintCounters();
   void myPrintCountersNew();
 
@@ -236,12 +232,7 @@ class LoopAll {
   bool CheckLumiSelection( int run, int lumi );
   bool CheckEventList( int run, int lumi, int event );
 
-
-#ifdef NewFeatures
-  int event_pointer;
-  int good_events[1000000][4];
-#endif
-
+  void StoreConfigFile(std::string);
 
 #ifndef __CINT__
   typedef void (LoopAll::*branch_io_t) (TTree *);
@@ -306,6 +297,7 @@ class LoopAll {
   Float_t tmva_id_mit_sieip;
   Float_t tmva_id_mit_sipip;
   Float_t tmva_id_mit_nvtx;
+  Float_t tmva_id_mit_sceta;
   Float_t tmva_id_mit_preshower;
  
   Float_t tmva_dipho_MIT_dmom;

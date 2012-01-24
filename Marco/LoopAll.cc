@@ -482,36 +482,8 @@ void LoopAll::InitReal(Int_t typerunpass) {
 
   if (makeOutputTree) 
     outputFile->cd();
-
-#ifdef NewFeatures
-  event_pointer = 0;
-
-  if(GetCutValue("eventlist")) {
-
-  FILE *mar = fopen("../Marco/dataevents_rereco.txt","r");
-
-  float dummy1, dummy2;
-  int idummy1, idummy2;
-
-  int realnmar=0;
-  int marco_type;
-
-
+  cout<< "LoopAll::InitReal END" <<endl;
   
-  //while(true){
-  while(feof(mar)==0){
-    fscanf(mar, "Type = %d Run = %d  LS = %d  Event = %d  SelVtx = %d  CAT4 = %d  ggM = %f gg_Pt =  %f\n", 
-	   &good_events[realnmar][3], &good_events[realnmar][0], &good_events[realnmar][1], &good_events[realnmar][2], &idummy1, &idummy2, &dummy1, &dummy2);
-
-    realnmar++;
-
-
-    //if(good_events[realnmar][3]<0) break;
-  }
-  
-  fclose(mar);
-}
-#endif
 }
 
 // ------------------------------------------------------------------------------------
@@ -740,11 +712,20 @@ void LoopAll::WriteFits() {
 	hfile = TFile::Open(histFileName, "RECREATE", "Globe ROOT file with histograms");
 
   hfile->cd();
-  hfile->cd();
+  //hfile->cd();
+  for (std::vector<TMacro*>::iterator it = configFiles.begin(); it!=configFiles.end(); it++){
+	 	         (*it)->Write();
+  }
+
   rooContainer->Save();
   hfile->Close();
 }
-
+void LoopAll::StoreConfigFile(std::string configfilename) {
+	 
+  TMacro *mac = new TMacro(configfilename.c_str(),configfilename.c_str());
+  configFiles.push_back(mac);
+	 
+}
 // ------------------------------------------------------------------------------------
 void LoopAll::WriteHist() {
 
@@ -999,36 +980,6 @@ int LoopAll::FillAndReduce(int jentry) {
 
   //count all events
   countersred[0]++;
-  
-  
-#ifdef NewFeatures
-
-  if(GetCutValue("eventlist")) {
-  if (itype[current] == 0) {
-    b_event->GetEntry(jentry);
-
-    if(event == good_events[event_pointer][2]) {
-      b_run->GetEntry(jentry);
-      b_lumis->GetEntry(jentry);
-      
-      // You may need to add the check of the type 0 or 999
-      if ((run == good_events[event_pointer][0]) && (event == good_events[event_pointer][2]) && (lumis == good_events[event_pointer][1])) {
-	event_pointer++;
-	if ((run == good_events[event_pointer][0]) && (event == good_events[event_pointer][2]) && (lumis == good_events[event_pointer][1])) {
-	  event_pointer++;
-	}
-      } 
-      else {
-	return hasoutputfile;
-      }
-    }
-    else {
-      return hasoutputfile;
-    }
-  }
-  }
-#endif
-  
 
   //
   // read all inputs 
@@ -1113,11 +1064,6 @@ void LoopAll::GetBranches(std::map<std::string,int> & names, std::set<TBranch *>
 {
     for(std::map<std::string,int>::iterator it=names.begin(); it!=names.end(); ++it ) {
 	const std::string & name = (*it).first;
-
-
-	//std::cout<<"getting name "<<name<<std::endl;
-
-
 	int typ = (*it).second;
 	branch_info_t & info = branchDict[ name ];
 	if( info.branch == 0 ) {
@@ -2262,45 +2208,4 @@ void LoopAll::AddCut2(char *cutnamesc, int ncatstmp, int ifromright, int ifinalc
   AddCounter(ncatstmp, a, "", "", "");
 }
 
-#ifdef NewFeatures
-
-void LoopAll::BdtGetEntry(Int_t jentry) {
-
-  if (b_pho_sieie->GetReadEntry() != jentry)
-  b_pho_sieie->GetEntry(jentry);
-  if(MPDEBUG)  std::cout<<"BDT 1 - 1"<<std::endl;
-  if (b_pho_pfiso_mycharged04->GetReadEntry() != jentry)
-  b_pho_pfiso_mycharged04->GetEntry(jentry);
-  if(MPDEBUG)  std::cout<<"BDT 1 - 2"<<std::endl;
-  if (b_pho_pfiso_myphoton04->GetReadEntry() != jentry)
-  b_pho_pfiso_myphoton04->GetEntry(jentry);
-  if(MPDEBUG)  std::cout<<"BDT 1 - 3"<<std::endl;
-  if (b_pho_pfiso_mycharged03->GetReadEntry() != jentry)
-  b_pho_pfiso_mycharged03->GetEntry(jentry);
-  if(MPDEBUG)  std::cout<<"BDT 1 - 4"<<std::endl;
-  if (b_pho_pfiso_myphoton03->GetReadEntry() != jentry)
-  b_pho_pfiso_myphoton03->GetEntry(jentry);
-  if(MPDEBUG)  std::cout<<"BDT 1 - 5"<<std::endl;
-  if (b_pho_drtotk_25_99->GetReadEntry() != jentry)
-  b_pho_drtotk_25_99->GetEntry(jentry);
-  if(MPDEBUG)  std::cout<<"BDT 1 - 6"<<std::endl;
-  if (b_pho_hoe->GetReadEntry() != jentry)
-  b_pho_hoe->GetEntry(jentry);
-  if(MPDEBUG)  std::cout<<"BDT 1 - 7"<<std::endl;
-  if (b_pho_r9->GetReadEntry() != jentry)
-  b_pho_r9->GetEntry(jentry);
-  if(MPDEBUG)  std::cout<<"BDT 1 - 8"<<std::endl;
-  if (b_pho_p4->GetReadEntry() != jentry)
-  b_pho_p4->GetEntry(jentry);
-  if(MPDEBUG)  std::cout<<"BDT 1 - 9"<<std::endl;
-  if (b_rho->GetReadEntry() != jentry)
-  b_rho->GetEntry(jentry);
-  if (b_pho_r9->GetReadEntry() != jentry)
-  b_pho_r9->GetEntry(jentry);
-  if(MPDEBUG)  std::cout<<"BDT 1 - 8"<<std::endl;
-  if (b_pho_p4->GetReadEntry() != jentry)
-  b_pho_p4->GetEntry(jentry);
-}
-
-#endif
 
