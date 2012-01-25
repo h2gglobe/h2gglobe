@@ -12,7 +12,7 @@ ALL_EXECUTABLES = fitSignal
 all:		$(ALL_EXECUTABLES)
 
 
-fitSignal:	fitSignal.o XMLUtils.o
+fitSignal:	fitSignal.o XMLUtils.o ParametricSignalModelConfig.o
 		g++ -L$$ROOFITSYS/lib -L$(BOOST_DIR)/lib -lRooFit -lRooFitCore -lFoam -lMinuit -lMathMore -lboost_regex -g  $^ -o $@ $$($$ROOTSYS/bin/root-config --glibs --cflags) -I$$ROOFITSYS/include -I$(BOOST_DIR)/include -lXMLParser 
 
 
