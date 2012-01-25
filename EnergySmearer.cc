@@ -140,6 +140,8 @@ bool EnergySmearer::smearPhoton(PhotonReducedInfo & aPho, float & weight, int ru
     } else {
 	  smearing_sigma += syst_shift * myParameters_.smearing_sigma_error.find(category)->second;
 	  /// std::cerr << "photon category " << category << " syst_shift " <<  syst_shift << " smearing_sigma " << smearing_sigma << std::endl;
+	  // Careful here, if sigma < 0 now, it will be squared and so not correct, set to 0 in this case.
+	  if (smearing_sigma < 0) smearing_sigma=0;
 	  newEnergy *=  rgen_->Gaus(1.,smearing_sigma);
     }
   }
