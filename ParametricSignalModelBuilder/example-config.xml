@@ -6,7 +6,7 @@
 
   <numInclusiveCategories> 8 </numInclusiveCategories>
 
-  <!-- optional, this here is the same as the default mapping hardwired into the code -->
+  <!-- optional, this here is the same as the default SM mapping hardwired into the code -->
   <signalProcessMerging>
     <map from="ggh" to="ggh" />
     <map from="tth" to="other" />
