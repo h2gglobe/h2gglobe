@@ -4,9 +4,9 @@ Vertexe analysis parameters
 vtxAlgoParams vertex_selection.dat
 mvaVertexSelection=1
 addConversionToMva=1
-tmvaPerVtxWeights=/afs/cern.ch/user/m/musella/public/higgs/vertex_likelihoods/TMVAClassification_BDTCat_conversions_tmva_407.weights.xml
+tmvaPerVtxWeights=aux/TMVAClassification_BDTCat_conversions_tmva_407.weights.xml
 tmvaPerVtxMethod=BDTCat
-tmvaPerEvtWeights=/afs/cern.ch/user/m/musella/public/higgs/vertex_likelihoods/TMVAClassification_evtBDTG_conversions_tmva_407.weights.xml
+tmvaPerEvtWeights=aux/TMVAClassification_evtBDTG_conversions_tmva_407.weights.xml
 tmvaPerEvtMethod=evtBDTG
 
 ->
@@ -42,8 +42,8 @@ tkIso_dxymax=0.1
 
 applyPtoverM=1
 doTriggerSelection=1
-puHist=/afs/cern.ch/user/a/adavidzh/public/json/111207/weights/2011_0100_73500.signal_weights.root
-puMap=pu_weights_map.dat
+puMap=pu_weights_map_missing.dat
+puHist=aux/2011_0100_73500.weights.root
 
 energyCorrectionMethod=Bendavid
 doEcorrectionSmear=1
@@ -51,5 +51,5 @@ doEcorrectionSyst=0
 
 scale_offset_file=energy_scale_offsets.dat
 
-photonFixDat=/afs/cern.ch/user/n/nckw/public/PhotonFixSTART42V13.dat
-regressionFile=/afs/cern.ch/user/n/nckw/public/gbrph.root
+photonFixDat=aux/PhotonFixSTART42V13.dat
+regressionFile=aux/gbrph.root
