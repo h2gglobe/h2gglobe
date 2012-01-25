@@ -42,9 +42,6 @@
 #include "TEfficiency.h"
 #include "RooConstVar.h"
 
-#include <TDOMParser.h>
-#include "XMLUtils.h"
-
 #ifndef __CINT__
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
@@ -56,244 +53,9 @@ using namespace boost::assign;
 
 
 using namespace RooFit;
+#include "utils.h"
+#include "ParametricSignalModelConfig.h"
 
-/** running interactively with ROOT, the standard assert creates a confusing situation... */
-#define ASSERT(condition) \
-  if (! (condition)) { \
-    std::cerr << "Assertion '" << #condition << "' failed in " << __FILE__ << ":" << __LINE__ << std::endl; \
-    exit(1); \
-  }
-
-//----------------------------------------------------------------------
-// class ParametricSignalModelConfig
-//----------------------------------------------------------------------
-
-class ParametricSignalModelConfig
-{
-public:
-  /** name of the file with the signal MC events (and the background model) */
-  std::string inputFname;
-
-  /** true if this is to be used for a fermiophobic interpretation of the data */
-  bool fermiophobic;
-
-  /** overall number of categories. Should be set to the number of categories
-   available in the input file, NOT the categories used for calculating the limits */
-  unsigned numCategories;
-
-  /** number of inclusive categories (used to determine which categories are 'special',
-   *  i.e. VBF like)
-   */
-  unsigned numInclusiveCategories;
-
-  /** this can be set to false in case the input file
-   *  does NOT distinguish between right and wrong
-   *  vertex. Normally left true.
-   */
-  bool useRightWrongVertex;
-
-  /** can be used to merge signal process input datasets into a combined
-   *  dataset for fitting (e.g. keep ggh as it is while merging the rest).
-   *
-   *  Maps from the suffix used for the RooDataSet (from the background
-   *  workspace) to the name used for the merged dataset.
-   */
-  map<string, string> signalProcessMergingMapping;
-
-  /** maximum mass (used e.g. for interpolating the fitted parameters) */
-  double massmax;
-
-  /** distance (in GeV) between masses used for interpolation */
-  double massInterpolationWidth;
-
-  /** weight used for scaling when fitting Gaussians */
-  double weightscale;
-
-  /** name of the workspace in the input file */
-  string inputWorkspaceName;
-
-  /** constants for smearing the mass resolution of
-   *  MC (to adapt to the data)
-   */
-  std::vector<double> smearingv;
-
-  //----------------------------------------------------------------------
-
-  /** constructor to initialize some default values */
-  ParametricSignalModelConfig() :
-    fermiophobic(false), numCategories(0), numInclusiveCategories(0), useRightWrongVertex(true), massmax(-1), massInterpolationWidth(-1), weightscale(2e3)
-  {
-    // initialize a default signal process mapping
-    initializeSignalProcessMergingMapping();
-  }
-
-  //----------------------------------------------------------------------
-
-  /** reads the configuration from an XML file */
-  static ParametricSignalModelConfig
-  read(const std::string &configFname)
-  {
-    // parse the XML file
-    TDOMParser parser;
-
-    // don't compare to a DTD for the moment
-    parser.SetValidate(false);
-
-    int res = parser.ParseFile(configFname.c_str());
-    if (res != 0)
-    {
-      cerr << "parsing configuration file " << configFname << " failed with error " << res << ", exiting" << endl;
-      exit(1);
-    }
-
-    TXMLDocument *doc = parser.GetXMLDocument();
-    TXMLNode *root = doc->GetRootNode();
-
-    ParametricSignalModelConfig config;
-
-    //--------------------
-    try
-    {
-      config.inputFname = XMLUtils::getAttribute(XMLUtils::getSingleChild(root, "inputFile"), "name");
-
-      config.inputWorkspaceName = XMLUtils::getAttribute(XMLUtils::getSingleChild(root, "inputFile"), "workspace", "cms_hgg_workspace");
-
-      config.fermiophobic = XMLUtils::getBooleanContent(XMLUtils::getSingleChild(root, "fermiophobic"));
-
-      config.numCategories = XMLUtils::getIntegerContent(XMLUtils::getSingleChild(root, "numCategories"));
-
-      config.numInclusiveCategories = XMLUtils::getIntegerContent(XMLUtils::getSingleChild(root, "numInclusiveCategories"));
-
-      config.useRightWrongVertex = XMLUtils::getBooleanContent(root, "useRightWrongVertex", true);
-
-      config.massmax = XMLUtils::getDoubleContent(root, "maxMassHypothesis", 160);
-
-      config.massInterpolationWidth = XMLUtils::getDoubleContent(root, "massInterpolationWidth", 10);
-
-      //----------
-      // read the signal process mapping (which input signal processes should be merged
-      // into what output process names for fitting the signal shape)
-      TXMLNode *signalProcessMerging = XMLUtils::getOptionalSingleChild(root, "signalProcessMerging");
-      if (signalProcessMerging != NULL)
-      {
-        config.signalProcessMergingMapping.clear();
-
-        vector<TXMLNode *> children = XMLUtils::getChildren(signalProcessMerging, "map");
-
-        BOOST_FOREACH(TXMLNode *child, children)
-              {
-                string src = XMLUtils::getAttribute(child, "from");
-                string dest = XMLUtils::getAttribute(child, "to");
-
-                // make sure that 'from' is not already existing in the map
-                if (config.signalProcessMergingMapping.count(src) > 0)
-                {
-                  cerr << "error in signalProcessMerging specification: source '" << src << "' appears more than once" << endl;
-                  exit(1);
-                }
-                config.signalProcessMergingMapping[src] = dest;
-
-              } // loop over all children (mapping elements)
-
-        // TODO: we should check here whether there was any mapping at
-        // all specified
-
-      }
-
-      //----------
-      // read signal MC smearing values
-      //----------
-      TXMLNode *signalMCsmearing = XMLUtils::getSingleChild(root, "signalMCsmearing");
-      {
-        config.smearingv.clear();
-
-        // first read the values into a map and check later that
-        // each category has exactly one value
-        map<unsigned, double> tmp;
-
-        vector<TXMLNode *> children = XMLUtils::getChildren(signalMCsmearing, "smearing");
-
-        BOOST_FOREACH(TXMLNode *child, children)
-        {
-          unsigned cat = boost::lexical_cast<unsigned>(XMLUtils::getAttribute(child, "cat"));
-          double value = boost::lexical_cast<double>(XMLUtils::getAttribute(child, "value"));
-
-          // check that the category is within the expected range
-          if (cat < 0 || cat >= config.numCategories)
-          {
-            cerr << "error in signalMCsmearing specification: category '" << cat << "' is out of range" << endl;
-            exit(1);
-          }
-
-          // make sure that 'from' is not already existing in the map
-          if (tmp.count(cat) > 0)
-          {
-            cerr << "error in signalMCsmearing specification: category '" << cat << "' appears more than once" << endl;
-            exit(1);
-          }
-          tmp[cat] = value;
-          //
-        } // loop over all children (mapping elements)
-
-        // now fill them in and insist that there is at least one value for each category
-        for (unsigned cat = 0; cat < config.numCategories; ++cat)
-        {
-          if (tmp.count(cat) < 1)
-          {
-            cerr << "error in signalMCsmearing specification: category '" << cat << "' not specified" << endl;
-            exit(1);
-          }
-
-          ASSERT(config.smearingv.size() == cat);
-          config.smearingv.push_back(tmp[cat]);
-        } // loop over all categories
-
-      }
-
-
-
-
-      //----------
-
-    }
-    catch (...)
-    {
-      cerr << "exception caught while reading configuration file " << configFname << endl;
-      exit(1);
-    }
-    //--------------------
-
-    return config;
-  }
-  //----------------------------------------------------------------------
-
-private:
-  void
-  initializeSignalProcessMergingMapping()
-  {
-    if (false)
-    {
-      // default mapping
-      signalProcessMergingMapping["ggh"] = "ggh";
-      signalProcessMergingMapping["tth"] = "tth";
-      signalProcessMergingMapping["vbf"] = "vbf";
-      signalProcessMergingMapping["wzh"] = "wzh";
-    }
-
-    if (true)
-    {
-      // grouping into ggh and the rest
-      signalProcessMergingMapping["ggh"] = "ggh";
-      signalProcessMergingMapping["tth"] = "other";
-      signalProcessMergingMapping["vbf"] = "other";
-      signalProcessMergingMapping["wzh"] = "other";
-    }
-
-  }
-
-  //----------------------------------------------------------------------
-
-};
 
 //----------------------------------------------------------------------
 #include "XsectDataDetailed.C"
@@ -461,8 +223,7 @@ private:
   std::vector<int> mhs;
   std::vector<TString> catnames;
 
-  // for analyzing the Imperial College files:
-  // signal comes in per Feynman-Diagram datasets
+  /** with recent input files, the signal comes in per Feynman-Diagram datasets */
   vector<string> inputSigProcessNames;
 
   /** signal process names after merging */
@@ -509,6 +270,10 @@ public:
 
     win = (RooWorkspace*) fdata->Get(config.inputWorkspaceName.c_str());
 
+    // if we don't do this, we'll get a segmentation fault at the end
+    // of the program (when RooFit cleans up)
+    gROOT->cd();
+
     if (win == NULL)
     {
       cerr << "workspace '" << config.inputWorkspaceName << "' not found in file " << config.inputFname << endl;
@@ -538,12 +303,20 @@ public:
     }
     //--------------------
 
-    sm_xs_br["ggh"] = SMCrossSections::xs_br_ggh;
-    sm_xs_br["vbf"] = SMCrossSections::xs_br_vbf;
-    sm_xs_br["wzh"] = SMCrossSections::xs_br_wzh;
-    sm_xs_br["tth"] = SMCrossSections::xs_br_tth;
-    sm_xs_br["sum"] = SMCrossSections::xs_br_sum;
-
+    if (! config.fermiophobic)
+    {
+      sm_xs_br["ggh"] = SMCrossSections::xs_br_ggh;
+      sm_xs_br["vbf"] = SMCrossSections::xs_br_vbf;
+      sm_xs_br["wzh"] = SMCrossSections::xs_br_wzh;
+      sm_xs_br["tth"] = SMCrossSections::xs_br_tth;
+      sm_xs_br["sum"] = SMCrossSections::xs_br_sum;
+    }
+    else
+    {
+      sm_xs_br["vbf"] = FPCrossSections::xs_br_vbf;
+      sm_xs_br["wzh"] = FPCrossSections::xs_br_wzh;
+      sm_xs_br["sum"] = FPCrossSections::xs_br_sum;
+    }
     //--------------------
 
     // TODO: these two groups could actually be merged
@@ -615,8 +388,8 @@ private:
       mhs.push_back((int) (mass + 0.5));
 
     // testing / debugging
-    mhs.clear();
-    mhs.push_back(130);
+    // mhs.clear();
+    // mhs.push_back(130);
   }
   //----------------------------------------------------------------------
 
@@ -1073,9 +846,8 @@ private:
       else
       {
         // FERMIOPHOBIC
-        cerr << "THIS IS NOT YET IMPLEMENTED" << endl;
-        exit(1);
-        // crossSectionHistogram[sigProcName]->Fill(SMCrossSections::smmasses[ipoint], SMCrossSections::ffxsbr[ipoint]);
+        crossSectionHistogram->Fill(FPCrossSections::masses[ipoint], sm_xs_br[sigProcName][ipoint]);
+         // crossSectionHistogram[sigProcName]->Fill(SMCrossSections::smmasses[ipoint], SMCrossSections::ffxsbr[ipoint]);
       }
 
       // FOUR GENERATIONS STANDARD MODEL
@@ -1121,14 +893,30 @@ private:
   /** creates the objects named hggpdf_cat%d_%s_norm */
   RooFormulaVar*
   makeNsigCat(unsigned cat, const string &inputSigProcName, RooRealVar &intlumi, RooRealVar *totalxsec,
+              RooFormulaVar *effaccbarrel,
+              RooFormulaVar *effaccmixed,
+              RooFormulaVar *r9fracbarrel,
+              RooFormulaVar *r9fracmixed,
 
-  RooFormulaVar *effaccbarrel, RooFormulaVar *effaccmixed, RooFormulaVar *r9fracbarrel, RooFormulaVar *r9fracmixed, RooAbsReal *ptfracbarrelhighr9, RooAbsReal *ptfracbarrelmixedr9, RooAbsReal *ptfracmixedhighr9, RooAbsReal *ptfracmixedmixedr9,
-      map<unsigned, map<string, map<unsigned, RooHistFunc*> > > &fitparmfuncsX, map<unsigned, map<string, RooHistFunc*> > &effaccfuncs
+              // pt fraction variables
+              RooAbsReal *ptfracbarrelhighr9,
+              RooAbsReal *ptfracbarrelmixedr9,
+              RooAbsReal *ptfracmixedhighr9,
+              RooAbsReal *ptfracmixedmixedr9,
 
+              RooAbsReal *ptfrac_B_barrelhighr9,
+              RooAbsReal *ptfrac_B_barrelmixedr9,
+              RooAbsReal *ptfrac_B_mixedhighr9,
+              RooAbsReal *ptfrac_B_mixedmixedr9,
+
+              map<unsigned, map<string, map<unsigned, RooHistFunc*> > > &fitparmfuncsX,
+              map<unsigned, map<string, RooHistFunc*> > &effaccfuncs
   )
   {
     // need to programmatically generate the list of all processes to normalize to
-    assert(! config.fermiophobic);
+
+    // 2012-01-14: no reason why the following code should not work for the fermiophobic case ?
+    // assert(! config.fermiophobic);
 
     const vector<string> *signalProcessNames = NULL;
     // when we take the normalization per signal process but
@@ -1142,69 +930,118 @@ private:
 
     string varExp;
 
+    string ptFractionExpr;
+
+    const unsigned numNumeratorArgs = 7;
     // e.g. (@6 + @7 + @8 + @9)
-    string denomExp = "(" + makeArgSum(6, 6 + signalProcessNames->size() - 1) + ")";
+    string denomExp = "(" + makeArgSum(numNumeratorArgs, numNumeratorArgs + signalProcessNames->size() - 1) + ")";
 
     switch (cat)
-      {
-    case 0:
+    {
+    case 0: // BB / high pT / high R9
       //       lumi      effacc         ptfrac(r9cat)
       //             xsect     r9frac
-      varExp = "@0 * @1 * @2 * (@3)    *(@4)  * (@5) / " + denomExp;
-      args.add(*effaccbarrel);
-      args.add(*r9fracbarrel);
-      args.add(*ptfracbarrelhighr9);
+      varExp = "@0 * @1 * @2 * (@3)    *(@4)  * (@6) / " + denomExp;
+      args.add(*effaccbarrel);       // @2
+      args.add(*r9fracbarrel);       // @3
+      args.add(*ptfracbarrelhighr9); // @4
+      args.add(*ptfrac_B_barrelhighr9); // @5
       break;
 
-    case 1:
-      varExp = "@0 * @1 * @2 * (1.0-@3)*(@4)  * (@5) / " + denomExp;
-      args.add(*effaccbarrel);
-      args.add(*r9fracbarrel);
-      args.add(*ptfracbarrelhighr9);
-      break;
-
-    case 2:
-      varExp = "@0 * @1 * @2 * (@3)    *(@4)  * (@5) / " + denomExp;
-      args.add(*effaccmixed);
-      args.add(*r9fracmixed);
-      args.add(*ptfracmixedhighr9);
-      break;
-
-    case 3:
-      varExp = "@0 * @1 * @2 * (1.0-@3)*(@4)  * (@5) / " + denomExp;
-      args.add(*effaccmixed);
-      args.add(*r9fracmixed);
-      args.add(*ptfracmixedhighr9);
-      break;
-
-      //----------
-
-    case 4:
-      varExp = "@0*@1*@2*(@3)*(1.0-@4) * (@5) / " + denomExp;
-      args.add(*effaccbarrel);
-      args.add(*r9fracbarrel);
-      args.add(*ptfracbarrelhighr9);
-      break;
-
-    case 5:
-      varExp = "@0*@1*@2*(1.0-@3)*(1.0-@4) * (@5) / " + denomExp;
+    case 1: // BB     high pT   low R9
+      varExp = "@0 * @1 * @2 * (1.0-@3)*(@4)  * (@6) / " + denomExp;
       args.add(*effaccbarrel);
       args.add(*r9fracbarrel);
       args.add(*ptfracbarrelmixedr9);
+      args.add(*ptfrac_B_barrelmixedr9);
       break;
 
-    case 6:
-      varExp = "@0*@1*@2*(@3)*(1.0-@4) * (@5) / " + denomExp;
+    case 2: // mixed  high pT   high R9
+      varExp = "@0 * @1 * @2 * (@3)    *(@4)  * (@6) / " + denomExp;
       args.add(*effaccmixed);
       args.add(*r9fracmixed);
       args.add(*ptfracmixedhighr9);
+      args.add(*ptfrac_B_mixedhighr9);
       break;
 
-    case 7:
-      varExp = "@0*@1*@2*(1.0-@3)*(1.0-@4) * (@5) / " + denomExp;
+    case 3: // mixed  high pT   low R9
+      varExp = "@0 * @1 * @2 * (1.0-@3)*(@4)  * (@6) / " + denomExp;
       args.add(*effaccmixed);
       args.add(*r9fracmixed);
       args.add(*ptfracmixedmixedr9);
+      args.add(*ptfrac_B_mixedmixedr9);
+      break;
+ 
+      //----------
+      // low pT categories
+      //----------
+
+    case 4: // BB     low pT    high R9
+      varExp = "@0*@1*@2*(@3)* (1.0 - @4 - @5) * (@6) / " + denomExp;
+      args.add(*effaccbarrel);
+      args.add(*r9fracbarrel);
+      args.add(*ptfracbarrelhighr9);
+      args.add(*ptfrac_B_barrelhighr9);
+      break;
+
+    case 5: // BB     low pT    low R9
+      varExp = "@0*@1*@2*(1.0-@3)*(1.0-@4 - @5) * (@6) / " + denomExp;
+      args.add(*effaccbarrel);
+      args.add(*r9fracbarrel);
+      args.add(*ptfracbarrelmixedr9);
+      args.add(*ptfrac_B_barrelmixedr9);
+      break;
+
+    case 6: // mixed  low pT    high R9
+      varExp = "@0*@1*@2*(@3)*(1.0-@4 - @5) * (@6) / " + denomExp;
+      args.add(*effaccmixed);
+      args.add(*r9fracmixed);
+      args.add(*ptfracmixedhighr9);
+      args.add(*ptfrac_B_mixedhighr9);
+      break;
+
+    case 7: // mixed  low pT    low R9 
+      varExp = "@0*@1*@2*(1.0-@3)*(1.0-@4 - @5) * (@6) / " + denomExp;
+      args.add(*effaccmixed);
+      args.add(*r9fracmixed);
+      args.add(*ptfracmixedmixedr9);
+      args.add(*ptfrac_B_mixedmixedr9);
+      break;
+
+    //----------
+    // highest pT categories
+    //----------
+
+    case 8: // BB     highest pT    high R9
+      varExp = "@0*@1*@2*(@3)* (@5) * (@6) / " + denomExp;
+      args.add(*effaccbarrel);
+      args.add(*r9fracbarrel);
+      args.add(*ptfracbarrelhighr9);
+      args.add(*ptfrac_B_barrelhighr9);
+      break;
+
+    case 9: // BB     highest pT    low R9
+      varExp = "@0*@1*@2*(1.0-@3)*(@5) * (@6) / " + denomExp;
+      args.add(*effaccbarrel);
+      args.add(*r9fracbarrel);
+      args.add(*ptfracbarrelmixedr9);
+      args.add(*ptfrac_B_barrelmixedr9);
+      break;
+
+    case 10: // mixed  highest pT    high R9
+      varExp = "@0*@1*@2*(@3)*(@5) * (@6) / " + denomExp;
+      args.add(*effaccmixed);
+      args.add(*r9fracmixed);
+      args.add(*ptfracmixedhighr9);
+      args.add(*ptfrac_B_mixedhighr9);
+      break;
+
+    case 11: // mixed  highest pT    low R9
+      varExp = "@0*@1*@2*(1.0-@3)*(@5) * (@6) / " + denomExp;
+      args.add(*effaccmixed);
+      args.add(*r9fracmixed);
+      args.add(*ptfracmixedmixedr9);
+      args.add(*ptfrac_B_mixedmixedr9);
       break;
 
     default:
@@ -1212,10 +1049,14 @@ private:
       ;
       }
 
-    // fraction of this process' efficiency (@5)
+    // fraction of this process' efficiency (@6)
     ASSERT(effaccfuncs[cat][inputSigProcName] != NULL);
     args.add(*effaccfuncs[cat][inputSigProcName]);
 
+    // consistency check
+    ASSERT((unsigned)args.getSize() == numNumeratorArgs);
+
+    // These are used in the denominator
     // note: must loop o
     BOOST_FOREACH(string proc, (*signalProcessNames))
           {
@@ -1456,7 +1297,7 @@ private:
           }
 
     // e.g. "@0*(@1+@2+@3+@4 + @5+@6+@7+@8)"
-    string expr = "@0 * (" + makeArgSum(1, sigProcessNames->size() * 2) + ")";
+    string expr = "@0 * (" + makeArgSum(1, sigProcessNames->size() * categories.size()) + ")";
     cout << "XXX making effAccVar: " << expr << " sigProcessNames.size()=" << sigProcessNames->size() << endl;
     return new RooFormulaVar(varname.c_str(), "", expr.c_str(), args);
   }
@@ -1465,9 +1306,20 @@ private:
 
   /** @param categories: for barrel and 4 categories: highR9cat = 0, lowR9cat = 1
    *                         mixed  and 4 categories: highR9cat = 2, lowR9cat = 3
+   *
+   * builds a 'fraction' variable with nuisance parameter (e.g. the fraction of high R9 with respect to the total)
+   * where the fraction is   numerator / ( numerator + other )
+   *
+   * can be used to build the R9 fraction variable and the pt fraction variable
+   *
+   * builds sums over all signal production mechanisms
+   *
+   * numeratorCats can e.g. be the categories corresponding to high R9 (in the given detector region)
+   * and otherCats can e.g. be the categories corresponding to low R9 (in the same region)
    */
   RooFormulaVar *
-  makeR9fracVar(const string &varname, map<unsigned, map<string, RooAbsReal *> > &finalnormslides, RooRealVar &deltaRnuisance, int highR9cat, int lowR9cat)
+  makeFracVar(const string &varname, map<unsigned, map<string, RooAbsReal *> > &finalnormslides, RooRealVar &deltaRnuisance,
+                const list<int> &numeratorCats,  const list<int> &otherCats)
   {
     const vector<string> *sigProcessNames = NULL;
 
@@ -1489,26 +1341,34 @@ private:
 
     // // cat 0 and 1 are barrel
     // for (unsigned cat = 0; cat <= 1; ++cat)
-    BOOST_FOREACH(string sigProcName, *sigProcessNames)
-          {
-            ASSERT(finalnormslides[highR9cat][sigProcName] != NULL);
-            args.add(*finalnormslides[highR9cat][sigProcName]);
-          }
+    BOOST_FOREACH(int cat, numeratorCats)
+    {
+      BOOST_FOREACH(string sigProcName, *sigProcessNames)
+      {
+          ASSERT(finalnormslides[cat][sigProcName] != NULL);
+          args.add(*finalnormslides[cat][sigProcName]);
+      }
+    }
 
-    BOOST_FOREACH(string sigProcName, *sigProcessNames)
-          {
-            ASSERT(finalnormslides[lowR9cat][sigProcName] != NULL);
-            args.add(*finalnormslides[lowR9cat][sigProcName]);
-          }
+    BOOST_FOREACH(int cat, otherCats)
+    {
+      BOOST_FOREACH(string sigProcName, *sigProcessNames)
+      {
+        ASSERT(finalnormslides[cat][sigProcName] != NULL);
+        args.add(*finalnormslides[cat][sigProcName]);
+      }
+    }
 
     // n elements in the numerator
     // 2n elements in the denominator
 
-    string exprHighR9 = makeArgSum(1, n); // signal processes in the high R9 category
-    string exprLowR9 = makeArgSum(n + 1, 2 * n); // signal processes in the low R9 category
+    string exprNumerator = makeArgSum(1, n * numeratorCats.size()); // signal processes in the high R9 category
+    string exprOther = makeArgSum(n * numeratorCats.size() + 1,
+                                  n * (numeratorCats.size() + otherCats.size()) ); // signal processes in the low R9 category
 
     // e.g. @0*(@1+@2+@3+@4)/(@1+@2+@3+@4 + @5+@6+@7+@8)
-    string expr = "@0 * (" + exprHighR9 + ") / (" + exprHighR9 + "  +  " + exprLowR9 + ")";
+    // i.e.
+    string expr = "@0 * (" + exprNumerator + ") / (" + exprNumerator + "  +  " + exprOther + ")";
     return new RooFormulaVar(varname.c_str(), "", expr.c_str(), args);
   }
 
@@ -1902,6 +1762,49 @@ private:
 
     // commented out for the moment as fitreswrong may be NULL
     // printf("mass = %i, status = %i, statuswrong = %i\n",mhs.at(i),fitres->status(),fitreswrong->status());
+  }
+
+  //----------------------------------------------------------------------
+
+  list<int> getBarrelCategories()
+  {
+    switch (config.numInclusiveCategories)
+    {
+      case 4:
+        return list_of(0)(1);
+
+      case 8:
+        return list_of(0)(1) (4)(5);
+
+      case 12:
+        return list_of(0)(1) (4)(5) (8)(9);
+
+      default:
+        cerr << "numInclusiveCategories = " << config.numInclusiveCategories << " is not yet supported here" << endl;
+        exit(1);
+    }
+  }
+
+  //----------------------------------------------------------------------
+
+  /** @return a list of the non-Barrel-Barrel categories */
+  list<int> getEndcapCategories()
+  {
+    switch (config.numInclusiveCategories)
+    {
+      case 4:
+        return list_of(2)(3);
+
+      case 8:
+        return list_of(2)(3) (6)(7);
+
+      case 12:
+        return list_of(2)(3) (6)(7) (10)(11);
+
+      default:
+        cerr << "numInclusiveCategories = " << config.numInclusiveCategories << " is not yet supported here" << endl;
+        exit(1);
+    }
   }
 
   //----------------------------------------------------------------------
@@ -2518,23 +2421,30 @@ public:
     RooAbsReal *ptfracmixedhighr9 = 0;
     RooAbsReal *ptfracmixedmixedr9 = 0;
 
-    if (config.numInclusiveCategories < 8)
+    RooAbsReal *ptfrac_B_barrelhighr9 = 0;
+    RooAbsReal *ptfrac_B_barrelmixedr9 = 0;
+    RooAbsReal *ptfrac_B_mixedhighr9 = 0;
+    RooAbsReal *ptfrac_B_mixedmixedr9 = 0;
+
+    // these (for the moment) do NOT depend on the signal production mechanism
+    // sum over all production mechanism normalizations
+
+    // Note that this adds up all finalnormslides functions
+    // 4 categories: cats 0 and 1 are barrel
+    // 8 categories: cats 0,1,4,5
+    effaccbarrel = makeEffAccVar("effaccbarrel", finalnormslides, nuissancedeltaeffaccbarrel, getBarrelCategories());
+
+    // 4 categories: cats 2 and 3 are mixed
+    // 8 categories: cats 2,3,6,7 are mixed
+    effaccmixed = makeEffAccVar("effaccmixed", finalnormslides, nuissancedeltaeffaccmixed, getEndcapCategories());
+
+    if (config.numInclusiveCategories == 4)
     {
-      // these (for the moment) do NOT depend on the signal production mechanism
-      // sum over all production mechanism normalizations
-      assert(config.numInclusiveCategories == 4);
+      // cat 0 and 1 (barrel)
+      // cat 0 [BB, high R9] / (cat 0 [BB, high R9] + cat 1 [BB, low R9])
+      r9fracbarrel = makeFracVar("r9fracbarrel", finalnormslides, nuissancedeltar9fracbarrel, list_of(0), list_of(1));
 
-      // Note that this adds up all finalnormslides functions
-      // cats 0 and 1 are barrel
-      effaccbarrel = makeEffAccVar("effaccbarrel", finalnormslides, nuissancedeltaeffaccbarrel, list_of(0)(1));
-
-      // cats 2 and 3 are mixed
-      effaccmixed = makeEffAccVar("effaccmixed", finalnormslides, nuissancedeltaeffaccmixed, list_of(2)(3));
-
-      // cat 0 and 1
-      r9fracbarrel = makeR9fracVar("r9fracbarrel", finalnormslides, nuissancedeltar9fracbarrel, 0, 1);
-
-      r9fracmixed = makeR9fracVar("r9fracmixed", finalnormslides, nuissancedeltar9fracmixed, 2, 3);
+      r9fracmixed = makeFracVar("r9fracmixed", finalnormslides, nuissancedeltar9fracmixed, list_of(2), list_of(3));
       //      r9fracmixed = new RooFormulaVar("r9fracmixed", "", "@0*(@1+@2+@3+@4)/(@1+@2+@3+@4 + @5+@6+@7+@8)", RooArgList(nuissancedeltar9fracmixed,
       //          // cat 2
       //          *finalnormslides[2][sigProcessNames[0]], *finalnormslides[2][sigProcessNames[1]], *finalnormslides[2][sigProcessNames[2]], *finalnormslides[2][sigProcessNames[3]],
@@ -2542,30 +2452,141 @@ public:
       //          // cat 3
       //          *finalnormslides[3][sigProcessNames[0]], *finalnormslides[3][sigProcessNames[1]], *finalnormslides[3][sigProcessNames[2]], *finalnormslides[3][sigProcessNames[3]]));
 
+      // there is no split by pT here
       ptfracbarrelhighr9 = new RooConstVar("ptfracbarrelhighr9", "", 1.0);
       ptfracbarrelmixedr9 = new RooConstVar("ptfracbarrelmixedr9", "", 1.0);
       ptfracmixedhighr9 = new RooConstVar("ptfracmixedhighr9", "", 1.0);
       ptfracmixedmixedr9 = new RooConstVar("ptfracmixedmixedr9", "", 1.0);
-    }
-    else
-    {
-      cerr << "THIS CODE WAS NOT ADAPTED TO PER PRODUCTION PROCESS FITTING. DO NOT USE NOW." << endl;
-      exit(1);
 
+      ptfrac_B_barrelhighr9 = new RooConstVar("ptfrac_B_barrelhighr9", "", 0.0);
+      ptfrac_B_barrelmixedr9 = new RooConstVar("ptfrac_B_barrelmixedr9", "", 0.0);
+      ptfrac_B_mixedhighr9 = new RooConstVar("ptfrac_B_mixedhighr9", "", 0.0);
+      ptfrac_B_mixedmixedr9 = new RooConstVar("ptfrac_B_mixedmixedr9", "", 0.0);
+
+    }
+    else if (config.numInclusiveCategories == 8)
+    {
       // build the quantities we want to use for systematic uncertainties from the per-category efficiencies
       // determined above (a kind of 'base transformation')
 
-      //      effaccbarrel = new RooFormulaVar("effaccbarrel","","@0*(@1+@2+@3+@4)",RooArgList(nuissancedeltaeffaccbarrel,*finalnormslides[0],*finalnormslides[1],*finalnormslides[4],*finalnormslides[5]));
-      //      // effaccmixed = new RooFormulaVar("effaccmixed","",  "@0*(@1+@2+@3+@4)",RooArgList(nuissancedeltaeffaccmixed,*finalnormslides[2],*finalnormslides[3],*finalnormslides[6],*finalnormslides[7]));
-      //      effaccmixed = new RooFormulaVar("effaccmixed","",  "@0*(@1+@2+@3+@4)",RooArgList(nuissancedeltaeffaccmixed,*finalnormslides[2],*finalnormslides[3],*finalnormslides[6],*finalnormslides[7]));
-      //      r9fracbarrel = new RooFormulaVar("r9fracbarrel","","@0*(@1+@2)/(@1+@2+@3+@4)",RooArgList(nuissancedeltar9fracbarrel,*finalnormslides[0],*finalnormslides[4],*finalnormslides[1],*finalnormslides[5]));
-      //      r9fracmixed = new RooFormulaVar("r9fracmixed","","@0*(@1+@2)/(@1+@2+@3+@4)",RooArgList(nuissancedeltar9fracmixed,*finalnormslides[2],*finalnormslides[6],*finalnormslides[3],*finalnormslides[7]));
-      //      r9fracmixed = new RooFormulaVar("r9fracmixed","","@0*(@1+@2)/(@1+@2+@3+@4)",RooArgList(nuissancedeltar9fracmixed,*finalnormslides[2],*finalnormslides[6],*finalnormslides[3],*finalnormslides[7]));
-      //      ptfracbarrelhighr9 = new RooFormulaVar("ptfracbarrelhighr9","","@0*@1/(@1+@2)",RooArgList(nuissancehighptfrac,*finalnormslides[0],*finalnormslides[4]));
-      //      ptfracbarrelmixedr9 = new RooFormulaVar("ptfracbarrelmixedr9","","@0*@1/(@1+@2)",RooArgList(nuissancehighptfrac,*finalnormslides[1],*finalnormslides[5]));
-      //      ptfracmixedhighr9 = new RooFormulaVar("ptfracmixedhighr9","","@0*@1/(@1+@2)",RooArgList(nuissancehighptfrac,*finalnormslides[2],*finalnormslides[6]));
-      //      ptfracmixedmixedr9 = new RooFormulaVar("ptfracmixedmixedr9","","@0*@1/(@1+@2)",RooArgList(nuissancehighptfrac,*finalnormslides[3],*finalnormslides[7]));
-      //      ptfracmixedmixedr9 = new RooFormulaVar("ptfracmixedmixedr9","","@0*@1/(@1+@2)",RooArgList(nuissancehighptfrac,*finalnormslides[3],*finalnormslides[7]));
+      /*
+        r9fracbarrel = new RooFormulaVar("r9fracbarrel","","@0 * (@1 + @2)/(@1 +@2 +@3 + @4)",RooArgList(nuissancedeltar9fracbarrel,
+              *finalnormslides[0],
+              *finalnormslides[4],
+              *finalnormslides[1],
+              *finalnormslides[5]) );
+      */
+      r9fracbarrel = makeFracVar("r9fracbarrel", finalnormslides, nuissancedeltar9fracbarrel, list_of(0)(4), list_of(1)(5));
+
+      /*      r9fracmixed  = new RooFormulaVar("r9fracmixed", "","@0 * (@1 + @2)/(@1 +@2 +@3 + @4)",RooArgList(nuissancedeltar9fracmixed,
+                  *finalnormslides[2],
+                  *finalnormslides[6],
+                  *finalnormslides[3],
+                  *finalnormslides[7]));
+      */
+      r9fracmixed = makeFracVar("r9fracmixed", finalnormslides, nuissancedeltar9fracmixed, list_of(2)(6), list_of(3)(7));
+
+      // pt fraction variables (separate per (Barrel/Endcap categories) x (R9 categories) )
+      /*
+      ptfrac_barrel_highr9  = new RooFormulaVar("ptfracbarrelhighr9","","@0*@1/(@1+@2)", RooArgList(nuissancehighptfrac,
+                                         *finalnormslides[0],*finalnormslides[4]));
+      */
+      //                                                                                        BB high R9 high pT
+      //                                                                                                       BB high R9 low pT
+      ptfracbarrelhighr9 = makeFracVar("ptfracbarrelhighr9", finalnormslides, nuissancehighptfrac, list_of(0), list_of(4));
+
+      /*      ptfrac_barrel_mixedr9 = new RooFormulaVar("ptfracbarrelmixedr9","","@0*@1/(@1+@2)",RooArgList(nuissancehighptfrac,
+                                      *finalnormslides[1],*finalnormslides[5])); */
+      //                                                                                        BB low R9 high pT
+      //                                                                                                       BB low R9 low pT
+      ptfracbarrelmixedr9 = makeFracVar("ptfracbarrelmixedr9", finalnormslides, nuissancehighptfrac, list_of(1), list_of(5));
+
+      /*      ptfrac_mixed_highr9   = new RooFormulaVar("ptfracmixedhighr9","","@0*@1/(@1+@2)",  RooArgList(nuissancehighptfrac,
+                   *finalnormslides[2],*finalnormslides[6])); */
+      //                                                                                        BE high R9 high pT
+      //                                                                                                       BE high R9 low pT
+      ptfracmixedhighr9 = makeFracVar("ptfracmixedhighr9", finalnormslides, nuissancehighptfrac, list_of(2), list_of(6));
+
+      /*      ptfrac_mixed_mixedr9  = new RooFormulaVar("ptfracmixedmixedr9","","@0*@1/(@1+@2)", RooArgList(nuissancehighptfrac,
+               *finalnormslides[3],*finalnormslides[7])); */
+      //                                                                                        BE low R9 high pT
+      //                                                                                                       BE low R9 low pT
+      ptfracmixedmixedr9 = makeFracVar("ptfracmixedmixedr9", finalnormslides, nuissancehighptfrac, list_of(3), list_of(7));
+
+      ptfrac_B_barrelhighr9 = new RooConstVar("ptfrac_B_barrelhighr9", "", 0.0);
+      ptfrac_B_barrelmixedr9 = new RooConstVar("ptfrac_B_barrelmixedr9", "", 0.0);
+      ptfrac_B_mixedhighr9 = new RooConstVar("ptfrac_B_mixedhighr9", "", 0.0);
+      ptfrac_B_mixedmixedr9 = new RooConstVar("ptfrac_B_mixedmixedr9", "", 0.0);
+
+    }
+    else if (config.numInclusiveCategories == 12)
+    {
+
+      // for 12, one would has to introduce two pt fractions (with the same nuisance parameter ?)
+      // pt frac A for cats 0..3
+      // pt frac B for cats 4..7
+      // pt frac for cats 8..11 is 1 - (pt frac A + pt frac B)
+
+      r9fracbarrel = makeFracVar("r9fracbarrel", finalnormslides, nuissancedeltar9fracbarrel, list_of(0)(4)(8), list_of(1)(5)(9));
+
+      /*      r9fracmixed  = new RooFormulaVar("r9fracmixed", "","@0 * (@1 + @2)/(@1 +@2 +@3 + @4)",RooArgList(nuissancedeltar9fracmixed,
+                  *finalnormslides[2],
+                  *finalnormslides[6],
+                  *finalnormslides[3],
+                  *finalnormslides[7]));
+      */
+      r9fracmixed = makeFracVar("r9fracmixed", finalnormslides, nuissancedeltar9fracmixed, list_of(2)(6)(10), list_of(3)(7)(11));
+
+#warning CHECK THIS IMPLEMENTATION OF THE PT FRACTIONS HERE
+
+      //----------
+      // pt fraction variables (separate per (Barrel/Endcap categories) x (R9 categories) )
+      /*
+      ptfrac_barrel_highr9  = new RooFormulaVar("ptfracbarrelhighr9","","@0*@1/(@1+@2)", RooArgList(nuissancehighptfrac,
+                                         *finalnormslides[0],*finalnormslides[4]));
+      */
+      //                                                                                        BB high R9 high pT
+      //                                                                                                       BB high R9 low pT
+      //                                                                                                       and highest pT
+      ptfracbarrelhighr9 = makeFracVar("ptfracbarrelhighr9", finalnormslides, nuissancehighptfrac, list_of(0), list_of(4)(8));
+
+      /*      ptfrac_barrel_mixedr9 = new RooFormulaVar("ptfracbarrelmixedr9","","@0*@1/(@1+@2)",RooArgList(nuissancehighptfrac,
+                                      *finalnormslides[1],*finalnormslides[5])); */
+      //                                                                                        BB low R9 high pT
+      //                                                                                                       BB low R9 low pT
+      //                                                                                                       and highest pT
+      ptfracbarrelmixedr9 = makeFracVar("ptfracbarrelmixedr9", finalnormslides, nuissancehighptfrac, list_of(1), list_of(5)(9));
+
+      /*      ptfrac_mixed_highr9   = new RooFormulaVar("ptfracmixedhighr9","","@0*@1/(@1+@2)",  RooArgList(nuissancehighptfrac,
+                   *finalnormslides[2],*finalnormslides[6])); */
+      //                                                                                        BE high R9 high pT
+      //                                                                                                       BE high R9 low pT
+      //                                                                                                       and highest pT
+      ptfracmixedhighr9 = makeFracVar("ptfracmixedhighr9", finalnormslides, nuissancehighptfrac, list_of(2), list_of(6)(10));
+
+      /*      ptfrac_mixed_mixedr9  = new RooFormulaVar("ptfracmixedmixedr9","","@0*@1/(@1+@2)", RooArgList(nuissancehighptfrac,
+               *finalnormslides[3],*finalnormslides[7])); */
+      //                                                                                        BE low R9 high pT
+      //                                                                                                       BE low R9 low pT
+      //                                                                                                       and highest pT
+      ptfracmixedmixedr9 = makeFracVar("ptfracmixedmixedr9", finalnormslides, nuissancehighptfrac, list_of(3), list_of(7)(11));
+
+      //--------------------
+      // do the same pT fractions for categories 8..11
+      //--------------------
+      ptfrac_B_barrelhighr9 = makeFracVar("ptfrac_B_barrelhighr9", finalnormslides, nuissancehighptfrac, list_of(8), list_of(0)(4));
+
+      ptfrac_B_barrelmixedr9 = makeFracVar("ptfrac_B_barrelmixedr9", finalnormslides, nuissancehighptfrac, list_of(9), list_of(1)(5));
+
+      ptfrac_B_mixedhighr9 = makeFracVar("ptfrac_B_mixedhighr9", finalnormslides, nuissancehighptfrac, list_of(10), list_of(2)(6));
+
+      ptfrac_B_mixedmixedr9 = makeFracVar("ptfrac_B_mixedmixedr9", finalnormslides, nuissancehighptfrac, list_of(11), list_of(3)(7));
+
+    }
+    else
+    {
+      cerr << "numInclusiveCategories = " << config.numInclusiveCategories << " is not yet supported here" << endl;
+      exit(1);
     }
 
     map<unsigned, map<string, RooAbsReal*> > nsigcats;
@@ -2593,7 +2614,13 @@ public:
             {
               RooFormulaVar *tmp = makeNsigCat(cat, sigProcName, intlumi, totalxsec,
 
-              effaccbarrel, effaccmixed, r9fracbarrel, r9fracmixed, ptfracbarrelhighr9, ptfracbarrelmixedr9, ptfracmixedhighr9, ptfracmixedmixedr9, fitparmfuncsX, effaccFuncsX);
+              effaccbarrel, effaccmixed, r9fracbarrel, r9fracmixed,
+
+                // pt fraction variables
+                ptfracbarrelhighr9,    ptfracbarrelmixedr9,    ptfracmixedhighr9,    ptfracmixedmixedr9,
+                ptfrac_B_barrelhighr9, ptfrac_B_barrelmixedr9, ptfrac_B_mixedhighr9, ptfrac_B_mixedmixedr9,
+
+                fitparmfuncsX, effaccFuncsX);
               nsigcat[cat] = tmp;
               nsigcats[cat][sigProcName] = tmp;
               pdfsToAdd.push_back(nsigcat[cat]);
@@ -2856,6 +2883,7 @@ main(int argc, char **argv)
   cout << "signal fitting done" << endl;
   cout << "----------------------------------------" << endl;
 
+  gROOT->cd();
 }
 //----------------------------------------------------------------------
 
