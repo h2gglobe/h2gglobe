@@ -1606,7 +1606,7 @@ bool LoopAll::PhotonMITPreSelection( int photon_index, int vertex_index, float *
    float val_hcaliso = pho_hcalsumetconedr04[photon_index] - 0.002*phop4.Et();                              
    float val_trkiso  = pho_trksumptsolidconedr03[photon_index] - 0.005*phop4.Et();                          
    float val_hcalecal   = (val_ecaliso+val_hcaliso-rho*rhofac);                                             
-   float val_abstrkiso  = (*pho_tkiso_recvtx_030_002_0000_10_01)[photon_index][vtx_std_sel];                
+   float val_abstrkiso  = (*pho_tkiso_recvtx_030_002_0000_10_01)[photon_index][vertex_index];                
    float val_trkiso_hollow03 = pho_trksumpthollowconedr03[photon_index];                                    
 //   float val_drtotk_25_99 = pho_drtotk_25_99[photon_index];
    float val_isconv = pho_isconv[photon_index];
@@ -1656,7 +1656,7 @@ int LoopAll::PhotonCiCSelectionLevel( int photon_index, int vertex_index, std::v
   TLorentzVector phop4 = get_pho_p4( photon_index, vertex_index, pho_energy_array  );
   TLorentzVector phop4_badvtx = get_pho_p4( photon_index, pho_tkiso_badvtx_id[photon_index], pho_energy_array  );
 
-  float val_tkiso = (*pho_tkiso_recvtx_030_002_0000_10_01)[photon_index][vtx_std_sel];
+  float val_tkiso = (*pho_tkiso_recvtx_030_002_0000_10_01)[photon_index][vertex_index];
   float val_ecaliso = pho_ecalsumetconedr03[photon_index];
   float val_hcaliso = pho_hcalsumetconedr04[photon_index];
   float val_ecalisobad = pho_ecalsumetconedr04[photon_index];
