@@ -1,4 +1,4 @@
-&# Original Authors - Nicholas Wardle, Nancy Marinelli, Doug Berry
+# Original Authors - Nicholas Wardle, Nancy Marinelli, Doug Berry
 
 # Run this with limit-plotter-complete.py METHOD model
 # 	model  = sm (standard model) or ff (fermiophobic)
@@ -45,6 +45,7 @@ parser.add_option("-s","--doSmooth",action="store_true")
 parser.add_option("-b","--bayes",dest="bayes")
 parser.add_option("-o","--outputLimits",dest="outputLimits")
 parser.add_option("-e","--expectedOnly",action="store_true")
+parser.add_option("-d","--directory",default="None")
 parser.add_option("","--pval",action="store_true")
 (options,args)=parser.parse_args()
 # ------------------------------------------------------------------------
