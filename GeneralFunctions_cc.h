@@ -2015,23 +2015,22 @@ int LoopAll::ElectronSelection(TLorentzVector& pho1, TLorentzVector& pho2, int v
     if(thispt<20) continue;
     if(thiseta<1.442) {   // EB cuts
       if(el_std_sieie[indel]>=0.01) continue; 
-      if(el_std_dphiin[indel]>=0.039) continue;
-      if(el_std_detain[indel]>=0.005) continue;
+      if(fabs(el_std_dphiin[indel])>=0.039) continue;
+      if(fabs(el_std_detain[indel])>=0.005) continue;
       thisiso = el_std_tkiso03[indel] + std::max(0.,(double)el_std_ecaliso03[indel]-1.)
               + el_std_hcaliso03[indel] - rho*3.1415926*0.09;
       if(thisiso/thispt>=0.053) continue; 
     } else {  // EE cuts
       if(el_std_sieie[indel]>=0.03) continue; 
-      if(el_std_dphiin[indel]>=0.028) continue;
-      if(el_std_detain[indel]>=0.007) continue;
+      if(fabs(el_std_dphiin[indel])>=0.028) continue;
+      if(fabs(el_std_detain[indel])>=0.007) continue;
       thisiso = el_std_tkiso03[indel] + el_std_ecaliso03[indel]
               + el_std_hcaliso03[indel] - rho*3.1415926*0.09;
       if(thisiso/thispt>=0.042) continue; 
     }
 
     // conversion rejection
-    if(el_std_dcot[indel]<=0.02) continue;
-    if(el_std_dist[indel]<=0.02) continue;
+    if(fabs(el_std_dcot[indel])<0.02 && fabs(el_std_dist[indel])<0.02) continue;
 
     if(std::min( pho1.DeltaR(*thisel), pho2.DeltaR(*thisel))<=1.) continue;
 
