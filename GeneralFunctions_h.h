@@ -115,7 +115,7 @@ int PhotonEtaCategory(int photonindex, int n_etacat=4) {
   // Float_t eta = fabs(((TVector3*)pho_calopos->At(photonindex))->Eta());
   Float_t eta = fabs(((TVector3*)sc_xyz->At(pho_scind[photonindex]))->Eta());
   if(n_etacat==4) {
-    etacat = (Int_t)((eta>0.9) + (eta>1.479) + (eta>2.1));   // 0, 1, 2, or 3 (barrel --> endcap)
+    etacat = (Int_t)(eta>0.9) + (Int_t)(eta>1.479) + (Int_t)(eta>2.1);   // 0, 1, 2, or 3 (barrel --> endcap)
   } else if(n_etacat==2) {
     etacat = (Int_t)(eta>1.479);   // 0, 1 (barrel --> endcap)
   }
