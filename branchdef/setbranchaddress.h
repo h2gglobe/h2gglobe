@@ -106,6 +106,8 @@ void SetBranchAddress_el_std_nambtk(TTree * tree) { tree->SetBranchAddress("el_s
 void SetBranchAddress_el_std_scind(TTree * tree) { tree->SetBranchAddress("el_std_scind", el_std_scind, &b_el_std_scind); }; 
 void SetBranchAddress_el_std_z0(TTree * tree) { tree->SetBranchAddress("el_std_z0", el_std_z0, &b_el_std_z0); }; 
 void SetBranchAddress_el_std_d0(TTree * tree) { tree->SetBranchAddress("el_std_d0", el_std_d0, &b_el_std_d0); }; 
+void SetBranchAddress_el_std_D0Vtx(TTree * tree) { tree->SetBranchAddress("el_std_D0Vtx", el_std_D0Vtx, &b_el_std_D0Vtx); }; 
+void SetBranchAddress_el_std_DZVtx(TTree * tree) { tree->SetBranchAddress("el_std_DZVtx", el_std_DZVtx, &b_el_std_DZVtx); }; 
 void SetBranchAddress_el_std_qoverperr(TTree * tree) { tree->SetBranchAddress("el_std_qoverperr", el_std_qoverperr, &b_el_std_qoverperr); }; 
 void SetBranchAddress_el_std_pterr(TTree * tree) { tree->SetBranchAddress("el_std_pterr", el_std_pterr, &b_el_std_pterr); }; 
 void SetBranchAddress_el_std_etaerr(TTree * tree) { tree->SetBranchAddress("el_std_etaerr", el_std_etaerr, &b_el_std_etaerr); }; 
@@ -313,6 +315,8 @@ void SetBranchAddress_mu_glo_tkind(TTree * tree) { tree->SetBranchAddress("mu_gl
 void SetBranchAddress_mu_glo_staind(TTree * tree) { tree->SetBranchAddress("mu_glo_staind", mu_glo_staind, &b_mu_glo_staind); }; 
 void SetBranchAddress_mu_glo_z0(TTree * tree) { tree->SetBranchAddress("mu_glo_z0", mu_glo_z0, &b_mu_glo_z0); }; 
 void SetBranchAddress_mu_glo_d0(TTree * tree) { tree->SetBranchAddress("mu_glo_d0", mu_glo_d0, &b_mu_glo_d0); }; 
+void SetBranchAddress_mu_glo_D0Vtx(TTree * tree) { tree->SetBranchAddress("mu_glo_D0Vtx", mu_glo_D0Vtx, &b_mu_glo_D0Vtx); }; 
+void SetBranchAddress_mu_glo_DZVtx(TTree * tree) { tree->SetBranchAddress("mu_glo_DZVtx", mu_glo_DZVtx, &b_mu_glo_DZVtx); }; 
 void SetBranchAddress_mu_glo_z0err(TTree * tree) { tree->SetBranchAddress("mu_glo_z0err", mu_glo_z0err, &b_mu_glo_z0err); }; 
 void SetBranchAddress_mu_glo_d0err(TTree * tree) { tree->SetBranchAddress("mu_glo_d0err", mu_glo_d0err, &b_mu_glo_d0err); }; 
 void SetBranchAddress_mu_glo_charge(TTree * tree) { tree->SetBranchAddress("mu_glo_charge", mu_glo_charge, &b_mu_glo_charge); }; 

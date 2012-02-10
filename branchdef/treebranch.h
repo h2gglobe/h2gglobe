@@ -106,6 +106,8 @@ void Branch_el_std_nambtk(TTree * tree) { tree->Branch("el_std_nambtk",&el_std_n
 void Branch_el_std_scind(TTree * tree) { tree->Branch("el_std_scind",&el_std_scind, "el_std_scind[el_std_n]/I"); }; 
 void Branch_el_std_z0(TTree * tree) { tree->Branch("el_std_z0",&el_std_z0, "el_std_z0[el_std_n]/F"); }; 
 void Branch_el_std_d0(TTree * tree) { tree->Branch("el_std_d0",&el_std_d0, "el_std_d0[el_std_n]/F"); }; 
+void Branch_el_std_D0Vtx(TTree * tree) { tree->Branch("el_std_D0Vtx",&el_std_D0Vtx,"el_std_D0Vtx[el_std_n][100]/F");  }; 
+void Branch_el_std_DZVtx(TTree * tree) { tree->Branch("el_std_DZVtx",&el_std_DZVtx,"el_std_DZVtx[el_std_n][100]/F");  }; 
 void Branch_el_std_qoverperr(TTree * tree) { tree->Branch("el_std_qoverperr",&el_std_qoverperr, "el_std_qoverperr[el_std_n]/F"); }; 
 void Branch_el_std_pterr(TTree * tree) { tree->Branch("el_std_pterr",&el_std_pterr, "el_std_pterr[el_std_n]/F"); }; 
 void Branch_el_std_etaerr(TTree * tree) { tree->Branch("el_std_etaerr",&el_std_etaerr, "el_std_etaerr[el_std_n]/F"); }; 
@@ -313,6 +315,8 @@ void Branch_mu_glo_tkind(TTree * tree) { tree->Branch("mu_glo_tkind",&mu_glo_tki
 void Branch_mu_glo_staind(TTree * tree) { tree->Branch("mu_glo_staind",&mu_glo_staind,"mu_glo_staind[mu_glo_n]/I");  }; 
 void Branch_mu_glo_z0(TTree * tree) { tree->Branch("mu_glo_z0",&mu_glo_z0, "mu_glo_z0[mu_glo_n]/F");  }; 
 void Branch_mu_glo_d0(TTree * tree) { tree->Branch("mu_glo_d0",&mu_glo_d0, "mu_glo_d0[mu_glo_n]/F");  }; 
+void Branch_mu_glo_D0Vtx(TTree * tree) { tree->Branch("mu_glo_D0Vtx",&mu_glo_D0Vtx,"mu_glo_D0Vtx[mu_glo_n][100]/F");  }; 
+void Branch_mu_glo_DZVtx(TTree * tree) { tree->Branch("mu_glo_DZVtx",&mu_glo_DZVtx,"mu_glo_DZVtx[mu_glo_n][100]/F");  }; 
 void Branch_mu_glo_z0err(TTree * tree) { tree->Branch("mu_glo_z0err",&mu_glo_z0err, "mu_glo__z0err[mu_glo_n]/F");  }; 
 void Branch_mu_glo_d0err(TTree * tree) { tree->Branch("mu_glo_d0err",&mu_glo_d0err, "mu_glo_d0err[mu_glo_n]/F");  }; 
 void Branch_mu_glo_charge(TTree * tree) { tree->Branch("mu_glo_charge",&mu_glo_charge, "mu_glo_charge[mu_glo_n]/I");  }; 

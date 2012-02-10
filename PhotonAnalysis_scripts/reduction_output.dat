@@ -29,6 +29,7 @@ sc_pre
 Tracks 
 ->
 tk_n
+tk_p4
 
 ->
 met
@@ -38,6 +39,8 @@ met_phi_pfmet
 
 ->
 Electrons
+el_std_D0Vtx
+el_std_DZVtx
 ->
 el_std_n
 el_std_p4
@@ -68,6 +71,8 @@ el_std_posvtx
 
 ->
 Muons
+mu_glo_D0Vtx
+mu_glo_DZVtx
 ->
 mu_glo_n
 mu_glo_p4
