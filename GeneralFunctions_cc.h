@@ -1973,6 +1973,18 @@ void LoopAll::DefineUserBranches()
 }
 
 int LoopAll::MuonSelection(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind){
+  if(run == 170249 && (lumis>= 37 && lumis<= 191 ))continue;
+  if(run == 170249 && (lumis>= 191 && lumis<= 507 ))continue;
+  if(run == 170255 && (lumis>= 1 && lumis<= 387 ))continue;
+  if(run == 170286 && (lumis>= 77 && lumis<= 260 ))continue;
+  if(run == 170292 && (lumis>= 1 && lumis<= 258 ))continue;
+  if(run == 170298 && (lumis>= 1 && lumis<= 178 ))continue;
+  if(run == 170354 && (lumis>= 1 && lumis<= 308))continue;
+  if(run == 170397 && (lumis>= 1 && lumis<= 345))continue;
+  if(run == 170406 && (lumis>= 1 && lumis<= 171))continue;
+  if(run == 170452 && (lumis>= 72 && lumis<= 110))continue;
+  if(run == 170527 && (lumis>= 49 && lumis<= 92))continue;
+  
   int mymu = -1;
 
   TLorentzVector* thismu;
@@ -2019,6 +2031,18 @@ int LoopAll::MuonSelection(TLorentzVector& pho1, TLorentzVector& pho2, int vtxin
 
 
 int LoopAll::ElectronSelection(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind){
+  if(run == 170249 && (lumis>= 37 && lumis<= 191 ))continue;
+  if(run == 170249 && (lumis>= 191 && lumis<= 507 ))continue;
+  if(run == 170255 && (lumis>= 1 && lumis<= 387 ))continue;
+  if(run == 170286 && (lumis>= 77 && lumis<= 260 ))continue;
+  if(run == 170292 && (lumis>= 1 && lumis<= 258 ))continue;
+  if(run == 170298 && (lumis>= 1 && lumis<= 178 ))continue;
+  if(run == 170354 && (lumis>= 1 && lumis<= 308))continue;
+  if(run == 170397 && (lumis>= 1 && lumis<= 345))continue;
+  if(run == 170406 && (lumis>= 1 && lumis<= 171))continue;
+  if(run == 170452 && (lumis>= 72 && lumis<= 110))continue;
+  if(run == 170527 && (lumis>= 49 && lumis<= 92))continue;
+  
   int myel = -1;
 
   TLorentzVector* thisel;
