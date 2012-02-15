@@ -24,6 +24,7 @@ void vertexAnalysis(HggVertexAnalyzer & vtxAna,  PhotonInfo pho1, PhotonInfo pho
 std::vector<int> vertexSelection(HggVertexAnalyzer & vtxAna, HggVertexFromConversions & vtxAnaFromConv, PhotonInfo & pho1, PhotonInfo & pho2,
 				 std::vector<std::string> & vtxVarNames, 					  
 				 bool useMva=false, TMVA::Reader * reader=0, std::string tmvaMethod="");
+void FindMCHiggsPhotons(int& passSelection, int& mc1, int& mc2, int& i1, int& i2  );
 
 TLorentzVector get_pho_p4(int ipho, int ivtx, float *pho_energy_array=0);
 TLorentzVector get_pho_p4(int ipho, TVector3 * vtx, float * energy=0);

@@ -2108,6 +2108,69 @@ int LoopAll::ElectronSelection(TLorentzVector& pho1, TLorentzVector& pho2, int v
 }
 
 
+//--- RECO-MC PHOTONS MATCHING --------------------------------------------------------------------------------------------------------
+void LoopAll::FindMCHiggsPhotons(int& passSelection, int& mc1, int& mc2, int& i1, int& i2  )
+{
+
+  for ( int i = 0; i< gp_n ; i++ ){
+    int pid        = gp_pdgid[i];
+    int status     = gp_status[i];
+    
+    if (pid != 22 || status!=1) continue;
+    
+    // uncomment this is mother info available
+    //     int mompid  = gp_pdgid[gp_mother[i]];
+    //     int gmompid = gp_pdgid[gp_mother[gp_mother[i]]];
+    //     //std::cout << i << "  " <<pid << "  " << mompid <<"  "<< gmompid<< std::endl;     
+    //     if ( (mompid ==25 || gmompid ==25) && mc1 < 0 ) { mc1  = i; }
+    //     else if ( (mompid ==25 || gmompid ==25) && mc2 < 0 ) { mc2  = i; }
+    
+    if ( mc1 < 0 ) { mc1  = i; }
+    else if ( mc2 < 0 ) { mc2  = i; break; }
+  
+  }
+  
+  if (mc1 < 0 || mc2 < 0 ) return;
+  
+  TLorentzVector *mcV1 = (TLorentzVector*)gp_p4->At(mc1);  
+  TLorentzVector *mcV2 = (TLorentzVector*)gp_p4->At(mc2);  
+  
+  int index1 = -100, index2 = -100;
+  double dr1min = 10000.;
+  double dr2min = 10000.;
+  
+  for (int i = 0; i < pho_n; i++){
+  
+    TVector3 *scpos = (TVector3*) pho_calopos -> At(i);
+    
+    double dr1 = scpos->DeltaR(mcV1->Vect());
+    if (dr1 < dr1min) { dr1min = dr1; index1 = i; }
+    
+    double dr2 = scpos->DeltaR(mcV2->Vect());
+    if (dr2 < dr2min) { dr2min = dr2; index2 = i; }
+  }
+  
+  TLorentzVector *photon1 = (TLorentzVector*)pho_p4->At(index1);
+  TLorentzVector *photon2 = (TLorentzVector*)pho_p4->At(index2);
+  
+  // order photons by pt
+  if (photon1->Pt() > photon2->Pt()) {
+    i1 = index1;
+    i2 = index2;
+  } else {
+    i1 = index2;
+    i2 = index1;
+  }
+  
+  bool is_mcmatched   = (dr1min < 0.15) && (dr2min< 0.15);
+  
+  if( is_mcmatched ) {
+    passSelection = 1;
+    return;
+  }
+}
+
+
 #ifdef NewFeatures
 #include "Marco/plotInteractive_cc.h"
 #endif
