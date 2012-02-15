@@ -58,6 +58,7 @@ pho_hoe
 pho_r9
 pho_drtotk_25_99
 pho_haspixseed
+pho_tkiso_badvtx_id
 
 ->
 CiC
@@ -123,6 +124,7 @@ dipho_vtxind
 
 ->
 muons
+->
 mu_glo_n
 mu_glo_p4
 mu_glo_type
@@ -135,10 +137,12 @@ mu_glo_nmatches
 mu_glo_ecaliso03
 mu_glo_hcaliso03
 mu_glo_tkiso03
-->
+mu_glo_D0Vtx
+mu_glo_DZVtx
 
 ->
 electrons
+->
 el_std_n
 el_std_p4
 el_std_sc
@@ -150,4 +154,6 @@ el_std_ecaliso03
 el_std_hcaliso03
 el_std_dcot
 el_std_dist
-->
+el_std_hp_expin
+el_std_D0Vtx
+el_std_DZVtx
