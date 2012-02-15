@@ -2054,6 +2054,8 @@ int LoopAll::ElectronSelection(TLorentzVector& pho1, TLorentzVector& pho2, int v
   int passingEl = 0;
 
   for( int indel=0; indel<el_std_n; indel++){
+    if(el_std_hp_expin[indel]!=0) continue;
+
     thisel = (TLorentzVector*) el_std_p4->At(indel);
     thissc = (TLorentzVector*) el_std_sc->At(indel);
     thiseta = fabs(thissc->Eta());
