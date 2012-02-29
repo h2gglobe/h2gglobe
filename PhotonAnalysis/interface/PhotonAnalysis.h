@@ -39,6 +39,8 @@ public:
 	virtual bool SelectEvents(LoopAll&, int);
 	virtual void Analysis(LoopAll&, Int_t);
 
+	virtual void ResetAnalysis();
+
 	//void GetRegressionCorrections(LoopAll&);	
 	// Public parameters to be read from config file
 	VertexAlgoParameters vtxAlgoParams;	 

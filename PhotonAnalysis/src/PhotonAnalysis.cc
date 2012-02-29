@@ -12,8 +12,6 @@
 
 using namespace std;
 
-
-
 // ----------------------------------------------------------------------------------------------------
 PhotonAnalysis::PhotonAnalysis()  : 
 	runStatAnalysis(false), doTriggerSelection(false),
@@ -1470,6 +1468,9 @@ int PhotonAnalysis::DiphotonMVAEventClass(LoopAll &l, float diphoMVA, int nCat, 
 
   if(PADEBUG)  std::cout<<"eventClass "<<eventClass<<std::endl;
   return eventClass;
+}
+
+void PhotonAnalysis::ResetAnalysis(){
 }
 
 float PhotonAnalysis::GetSmearSigma(float eta, float r9, int epoch){
