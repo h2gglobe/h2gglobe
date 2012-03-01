@@ -1908,6 +1908,20 @@ void LoopAll::DefineUserBranches()
 {
   runCiC = true;
 #ifndef __CINT__
+  BRANCH_DICT(gh_gen2reco1);
+  BRANCH_DICT(gh_gen2reco2);
+  BRANCH_DICT(gh_vbfq1_pdgid);
+  BRANCH_DICT(gh_vbfq2_pdgid);
+  BRANCH_DICT(gh_vh_pdgid);
+  BRANCH_DICT(gh_vh1_pdgid);
+  BRANCH_DICT(gh_vh2_pdgid);
+  BRANCH_DICT(gh_higgs_p4);
+  BRANCH_DICT(gh_pho1_p4);
+  BRANCH_DICT(gh_pho2_p4);
+  BRANCH_DICT(gh_vbfq1_p4);
+  BRANCH_DICT(gh_vbfq2_p4);
+  BRANCH_DICT(gh_vh1_p4);
+  BRANCH_DICT(gh_vh2_p4);
 
 	BRANCH_DICT(gv_n  );
 	BRANCH_DICT(gv_pos);
@@ -2111,35 +2125,57 @@ int LoopAll::ElectronSelection(TLorentzVector& pho1, TLorentzVector& pho2, int v
 
 
 //--- RECO-MC PHOTONS MATCHING --------------------------------------------------------------------------------------------------------
-void LoopAll::FindMCHiggsPhotons(int& passSelection, int& mc1, int& mc2, int& i1, int& i2  )
+bool LoopAll::FindMCHiggsPhotons(int& higgsind, int& mc1, int& mc2, int& i1, int& i2 )
 {
+  bool is_mcmatched = false;
+  
+  int higgsstat2 = -1;
+  int higgsstat3 = -1;
 
+  int pho1stat3 = -1;
+  int pho2stat3 = -1;
+  
   for ( int i = 0; i< gp_n ; i++ ){
     int pid        = gp_pdgid[i];
     int status     = gp_status[i];
     
+    if (pid == 25) {
+      if(status==2) higgsstat2=i;
+      if(status==3) higgsstat3=higgsind=i;
+      continue;
+    }
+   
+    
+    if (pid == 22 && status==3 && gp_mother[i]==higgsstat3) {
+      if(pho1stat3==-1) pho1stat3=i;
+      else if(pho2stat3==-1) pho2stat3=i;
+      continue;
+    }
+
     if (pid != 22 || status!=1) continue;
-    
-    // uncomment this is mother info available
-    //     int mompid  = gp_pdgid[gp_mother[i]];
-    //     int gmompid = gp_pdgid[gp_mother[gp_mother[i]]];
-    //     //std::cout << i << "  " <<pid << "  " << mompid <<"  "<< gmompid<< std::endl;     
-    //     if ( (mompid ==25 || gmompid ==25) && mc1 < 0 ) { mc1  = i; }
-    //     else if ( (mompid ==25 || gmompid ==25) && mc2 < 0 ) { mc2  = i; }
-    
-    if ( mc1 < 0 ) { mc1  = i; }
-    else if ( mc2 < 0 ) { mc2  = i; break; }
+   
+    if ( (gp_mother[i]==pho1stat3 || gp_mother[i]==pho2stat3) && mc1 < 0 ) { mc1  = i; }
+    else if ( (gp_mother[i]==pho1stat3 || gp_mother[i]==pho2stat3) && mc2 < 0 ) { mc2  = i; break; }
   
   }
   
-  if (mc1 < 0 || mc2 < 0 ) return;
+  if(higgsstat2 == -1) return is_mcmatched;
+
+  TLorentzVector* higgs2 = (TLorentzVector*)gp_p4->At(higgsstat2);
+  TLorentzVector* higgs3 = (TLorentzVector*)gp_p4->At(higgsstat3);
+  
+
+  if (mc1 < 0 || mc2 < 0 ) return is_mcmatched;
   
   TLorentzVector *mcV1 = (TLorentzVector*)gp_p4->At(mc1);  
   TLorentzVector *mcV2 = (TLorentzVector*)gp_p4->At(mc2);  
-  
+ 
+  TLorentzVector higgs_gg = *mcV1 + *mcV2;
+
+
   int index1 = -100, index2 = -100;
-  double dr1min = 10000.;
-  double dr2min = 10000.;
+  double dr1min = 0.3;
+  double dr2min = 0.3;
   
   for (int i = 0; i < pho_n; i++){
   
@@ -2152,24 +2188,78 @@ void LoopAll::FindMCHiggsPhotons(int& passSelection, int& mc1, int& mc2, int& i1
     if (dr2 < dr2min) { dr2min = dr2; index2 = i; }
   }
   
-  TLorentzVector *photon1 = (TLorentzVector*)pho_p4->At(index1);
-  TLorentzVector *photon2 = (TLorentzVector*)pho_p4->At(index2);
-  
-  // order photons by pt
-  if (photon1->Pt() > photon2->Pt()) {
-    i1 = index1;
-    i2 = index2;
-  } else {
-    i1 = index2;
-    i2 = index1;
+  if(index1!=-100 && index2!=-100){
+    TLorentzVector *photon1 = (TLorentzVector*)pho_p4->At(index1);
+    TLorentzVector *photon2 = (TLorentzVector*)pho_p4->At(index2);
+
+
+    // order photons by pt
+    if (photon1->Pt() > photon2->Pt()) {
+      i1 = index1;
+      i2 = index2;
+    } else {
+      i1 = index2;
+      i2 = index1;
+    }
+    
+    is_mcmatched   = (dr1min < 0.15) && (dr2min< 0.15);
+  } else if(index1!=-100 || index2!=-100) {
+    i1 = std::max(index1,index2);
+  }
+    
+
+  return is_mcmatched;
+}
+
+
+//--- GEN-VBF MATCHING --------------------------------------------------------------------------------------------------------
+bool LoopAll::FindMCVBF(int higgsind, int& vbfq1, int& vbfq2 )
+{
+  bool matchfound = false;
+  int higgsmom = gp_mother[higgsind];
+
+  for ( int i=higgsind+1; i< gp_n ; i++ ){
+    if(gp_status[i]!=3) continue;
+    //std::cout<<"vbfq1 vbfq2 i gp_mother[i] gp_pdgid[i] gp_status[i]  "<<vbfq1<<"   "<<vbfq2<<"   "<<i<<"   "<<gp_mother[i]<<"   "<<gp_pdgid[i]<<"   "<<gp_status[i]<<std::endl;
+    if(higgsmom==gp_mother[i]&&gp_pdgid[i]!=21&&abs(gp_pdgid[i])!=23&&abs(gp_pdgid[i])!=24){
+      if(vbfq1==-100) vbfq1=i;
+      else if(vbfq2==-100) {
+        vbfq2=i;
+        matchfound=true; 
+        break;
+      }
+    }
   }
   
-  bool is_mcmatched   = (dr1min < 0.15) && (dr2min< 0.15);
-  
-  if( is_mcmatched ) {
-    passSelection = 1;
-    return;
+
+  return matchfound;
+}
+
+
+//--- GEN-VH MATCHING --------------------------------------------------------------------------------------------------------
+bool LoopAll::FindMCVH(int higgsind, int& vh, int& vh1, int& vh2 )
+{
+  bool matchfound = false;
+  int higgsmom = gp_mother[higgsind];
+
+  for ( int i=higgsind-1; i< gp_n ; i++ ){
+    if(gp_status[i]!=3) continue;
+    if(higgsmom==gp_mother[i] && i!=higgsind && vh==-100) {
+      if(abs(gp_pdgid[i])==23 || abs(gp_pdgid[i])==24) vh=i;
+      continue;
+    }
+
+    //std::cout<<"vh vh1 vh2 i gp_mother[i] gp_pdgid[i] gp_status[i]  "<<vh<<"   "<<vh1<<"   "<<vh2<<"   "<<i<<"   "<<gp_mother[i]<<"   "<<gp_pdgid[i]<<"   "<<gp_status[i]<<std::endl;
+
+    if(gp_mother[i]==vh && vh1==-100) vh1=i;
+    else if(gp_mother[i]==vh && vh2==-100) { 
+      vh2=i; 
+      matchfound=true; 
+      break; 
+    }
   }
+  
+  return matchfound;
 }
 
 
