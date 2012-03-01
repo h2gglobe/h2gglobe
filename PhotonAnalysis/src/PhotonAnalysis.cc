@@ -947,46 +947,6 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
 	// require at least two reconstructed photons to store the event
 	if( pho_acc.size() < 2 || l.get_pho_p4( pho_acc[0], 0, &corrected_pho_energy[0] ).Pt() < presel_scet1 ) { return false; }
 	
-	///// int ipho1 = pho_acc[0];
-	///// int ipho2 = pho_acc[1];
-	///// 
-	///// if( pho_presel.size() > 1 ) { 
-	///// 	// use the first two preselected photons for the vertex algorithm
-	///// 	ipho1 = pho_presel[0]; 
-	///// 	ipho2 = pho_presel[1]; 
-	///// } else if(pho_presel.size() > 0 ) {
-	///// 	// if only one photon was preselected use the highest preselected and the higest non preselect photons 
-	///// 	//    the event will be discarded by the analysis anyway
-	///// 	ipho1 = pho_presel[0]; 
-	///// 	ipho2 = pho_acc[0] == ipho1 ? pho_acc[1] : pho_acc[0]; 
-	///// }
-	///// assert( ipho1 != ipho2 );
-	///// vtxAna_.clear();
-	///// 
-	///// if(PADEBUG)        cout << " SelectEventsReduction going to fill photon info " << endl;
-	///// PhotonInfo pho1=l.fillPhotonInfos(ipho1,vtxAlgoParams.useAllConversions);
-        ///// PhotonInfo pho2=l.fillPhotonInfos(ipho2,vtxAlgoParams.useAllConversions);
-        ///// if(PADEBUG) cout << " SelectEventsReduction done with fill photon info " << endl;
-	///// 
-        ///// // run vertex analysis
-	///// l.vertexAnalysis(vtxAna_, pho1, pho2 );
-        ///// // select vertex
-	///// if( useDefaultVertex ) {
-	///// 	l.vtx_std_ranked_list->clear();
-	///// 	for(int ii=0;ii<l.vtx_std_n; ++ii) { l.vtx_std_ranked_list->push_back(ii); }
-	///// } else {
-	///// 	*l.vtx_std_ranked_list = l.vertexSelection(vtxAna_, vtxConv_, pho1, pho2, vtxVarNames);
-	///// 	if( l.vtx_std_ranked_list->size() != 0 ) {  
-	///// 		l.vtx_std_sel = (*l.vtx_std_ranked_list)[0];
-	///// 	} else {
-	///// 		l.vtx_std_sel = 0;
-	///// 		std::cerr << "NO VERTEX SELECTED " << l.event << " " << l.run << " " << std::endl;
-	///// 	}
-	///// 	// update the photons' pt
-	///// 	for(int ipho=0; ipho<l.pho_n; ++ipho) {
-	///// 		l.set_pho_p4(ipho, l.vtx_std_sel);
-	///// 	}
-	///// }
 	
 	vtxAna_.clear();
 	l.vtx_std_ranked_list->clear();
@@ -1003,6 +963,80 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
 	}
 	l.FillCICInputs();
 	l.FillCIC();
+
+  int higgsind=-1;
+  int mc1=-1;
+  int mc2=-1;
+  int i1=-1;
+  int i2=-1;
+
+  l.FindMCHiggsPhotons( higgsind,  mc1,  mc2,  i1,  i2 );
+
+  l.gh_vbfq1_p4 = new TLorentzVector(0,0,0,0);
+  l.gh_vbfq2_p4 = new TLorentzVector(0,0,0,0);
+  l.gh_vh1_p4 = new TLorentzVector(0,0,0,0);
+  l.gh_vh2_p4 = new TLorentzVector(0,0,0,0);
+  
+  if(higgsind!=-1) l.gh_higgs_p4 = new TLorentzVector(*((TLorentzVector*)((TLorentzVector*) l.gp_p4->At(higgsind))->Clone()));
+  else l.gh_higgs_p4 = new TLorentzVector(0,0,0,0);
+  
+  l.gh_gen2reco1=i1;
+  l.gh_gen2reco2=i2;
+  
+  
+  if(mc1!=-1) l.gh_pho1_p4 = new TLorentzVector(*((TLorentzVector*)((TLorentzVector*) l.gp_p4->At(mc1))->Clone()));
+  else l.gh_pho1_p4 = new TLorentzVector(0,0,0,0);
+
+  if(mc2!=-1) l.gh_pho2_p4 = new TLorentzVector(*((TLorentzVector*)((TLorentzVector*) l.gp_p4->At(mc2))->Clone()));
+  else l.gh_pho2_p4 = new TLorentzVector(0,0,0,0);
+
+  
+
+  int vbfq1=-100;
+  int vbfq2=-100;
+
+  int vh=-100;
+  int vh1=-100;
+  int vh2=-100;
+
+  if(higgsind!=-1){
+    l.FindMCVBF(higgsind,vbfq1,vbfq2);
+    l.FindMCVH(higgsind,vh,vh1,vh2);
+
+    //std::cout<<"higgsind vbfq1 vbfq2 vh gp_pdgid[vh] vh1 vh2  "<<higgsind<<"  "<<vbfq1<<"  "<<vbfq2<<"  "<<vh<<"  "<<l.gp_pdgid[vh]<<"  "<<vh1<<"  "<<vh2<<std::endl;
+  }
+  
+  
+  if(vh==-100) l.gh_vh_pdgid=-10000;
+  else l.gh_vh_pdgid=l.gp_pdgid[vh];
+
+  if(vh1==-100) l.gh_vh1_pdgid=-10000;
+  else l.gh_vh1_pdgid=l.gp_pdgid[vh1];
+
+  if(vh2==-100) l.gh_vh2_pdgid=-10000;
+  else l.gh_vh2_pdgid=l.gp_pdgid[vh2];
+  
+  if(vh1==-100) l.gh_vh1_p4 = new TLorentzVector(0,0,0,0);
+  else l.gh_vh1_p4 = new TLorentzVector(*((TLorentzVector*)((TLorentzVector*) l.gp_p4->At(vh1))->Clone()));
+
+  if(vh2==-100) l.gh_vh2_p4 = new TLorentzVector(0,0,0,0);
+  else l.gh_vh2_p4 = new TLorentzVector(*((TLorentzVector*)((TLorentzVector*) l.gp_p4->At(vh2))->Clone()));
+
+
+  
+  if(vbfq1==-100) l.gh_vbfq1_pdgid=-10000;
+  else l.gh_vbfq1_pdgid=l.gp_pdgid[vbfq1];
+
+  if(vbfq2==-100) l.gh_vbfq2_pdgid=-10000;
+  else l.gh_vbfq2_pdgid=l.gp_pdgid[vbfq2];
+
+  if(vbfq1==-100) l.gh_vbfq1_p4 = new TLorentzVector(0,0,0,0);
+  else l.gh_vbfq1_p4 = new TLorentzVector(*((TLorentzVector*)((TLorentzVector*) l.gp_p4->At(vbfq1))->Clone()));
+
+  if(vbfq2==-100) l.gh_vbfq2_p4 = new TLorentzVector(0,0,0,0);
+  else l.gh_vbfq2_p4 = new TLorentzVector(*((TLorentzVector*)((TLorentzVector*) l.gp_p4->At(vbfq2))->Clone()));
+
+
 
 	if( pho_presel.size() < 2 ) {
 		l.vtx_std_ranked_list->push_back( std::vector<int>() );
@@ -1195,6 +1229,21 @@ void PhotonAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree)
 	l.Branch_pho_regr_energy_otf(outputTree);
 	l.Branch_pho_regr_energyerr_otf(outputTree);
 	
+  l.Branch_gh_gen2reco1( outputTree );
+  l.Branch_gh_gen2reco2( outputTree );
+  l.Branch_gh_vbfq1_pdgid( outputTree );
+  l.Branch_gh_vbfq2_pdgid( outputTree );
+  l.Branch_gh_vh_pdgid( outputTree );
+  l.Branch_gh_vh1_pdgid( outputTree );
+  l.Branch_gh_vh2_pdgid( outputTree );
+  l.Branch_gh_higgs_p4( outputTree );
+  l.Branch_gh_pho1_p4( outputTree );
+  l.Branch_gh_pho2_p4( outputTree );
+  l.Branch_gh_vbfq1_p4( outputTree );
+  l.Branch_gh_vbfq2_p4( outputTree );
+  l.Branch_gh_vh1_p4( outputTree );
+  l.Branch_gh_vh2_p4( outputTree );
+
 }
 /*
 void PhotonAnalysis::GetRegressionCorrections(LoopAll &l){
