@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import sys, os, re
-import subprocess, time
+import shutil, subprocess, time
 
 #----------------------------------------------------------------------
 
@@ -21,12 +21,11 @@ from optparse import OptionParser
 
 parser = OptionParser("""
 
-%prog [options] input_file1.root [ input_file2.root ... ]
-%prog [options] input_file1.log [ input_file2.log ... ]
+%python makeAYSM.py  --datacard=""
 
-    takes the observed and expected limit from the
-    per-mass point ROOT files (output of CMS' combine program)
-    and produces a CSV file (by default written to stdout)
+    This prog takes a functional datacard and makes
+    asymptotic limits between 110 and 150 in steps of
+    1 GeV unless these values are changed by the user.
 """
 )
 
@@ -87,15 +86,28 @@ thisdir=time.strftime("combine-%d%m%y-%X-")+str(options.label)
 thisdir=thisdir.replace(":", "")
 print thisdir
 
-os.system("mkdir "+thisdir)
+os.mkdir(thisdir)
 
-os.system("cp "+options.datacard+" "+thisdir)
+shutil.copy(options.datacard, thisdir)
 
 os.chdir(thisdir)
 
 for mass in massList:
-  thisCmd='combine -d '+datacard+' -M Asymptotic --minosAlgo="stepping"  -m '+str(mass)+' --minimizerStrategy 1 --saveWorkspace'
-  print thisCmd
+  logFname = "mass-%.1f.log" % mass
+  cmdParts=[
+    'combine',
+    '-d '+datacard,
+    '-M Asymptotic',
+    '--minosAlgo="stepping"',
+    '-m '+str(mass),
+    '--minimizerStrategy 1',
+    '--saveWorkspace', 
+    '2>&1 | cat >> %s &' % logFname,
+  ]
+
+
+  thisCmd=" ".join(cmdParts)
+  
   os.system(thisCmd)
   #comb = subprocess.Popen(thisCmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
       #stderr=subprocess.PIPE)
