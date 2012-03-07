@@ -9,6 +9,7 @@ DiPhoEfficiencySmearer::DiPhoEfficiencySmearer(const diPhoEfficiencySmearingPara
   name_="DiPhoEfficiencySmearer_"+ par.categoryType + "_" + par.parameterSetName;
   passFailWeights_=false;
   doVtxEff_       =false;
+  doMvaIdEff_	  =false;
 }
 
 DiPhoEfficiencySmearer::~DiPhoEfficiencySmearer()
@@ -17,29 +18,39 @@ DiPhoEfficiencySmearer::~DiPhoEfficiencySmearer()
 }
 
 bool DiPhoEfficiencySmearer::smearDiPhoton( TLorentzVector & p4, TVector3 & selVtx, float & weight, const int & category, 
-					    const int & genMassPoint, const TVector3 & trueVtx, float syst_shift) const
+					    const int & genMassPoint, const TVector3 & trueVtx, float & idMVA1, float & idMVA2, float syst_shift) const
 {
-  std::string cat=Form("cat%d", category);
+  if (doMvaIdEff_){
+    
+      float frac_idvary = 0.025;
+      idMVA1 += syst_shift*frac_idvary; 
+      idMVA2 += syst_shift*frac_idvary;
+ 
+  } else {
+    std::string cat=Form("cat%d", category);
   
-  if (cat == "")
-    {
-      std::cout << effName_ <<" No category has been found associated with this diphoton. Giving Up" << std::endl;
-      return false;
+    if (cat == "")
+      {
+       std::cout << effName_ <<" No category has been found associated with this diphoton. Giving Up" << std::endl;
+       return false;
+      }
+  
+    
+    /////////////////////// changing weigh of photon according to efficiencies ///////////////////////////////////////////
+    assert( ! smearing_eff_graph_.empty() );
+  
+    if( doVtxEff_ ) {
+      if( (selVtx - trueVtx).Mag() < 1. ) {
+        cat += "_pass"; 
+      }
+      else {
+        cat += "_fail";
+        syst_shift *=-1;      // shift for pass and fail need to be in opposite directions
+      }
     }
   
-  /////////////////////// changing weigh of photon according to efficiencies ///////////////////////////////////////////
-  assert( ! smearing_eff_graph_.empty() );
-  if( doVtxEff_ ) {
-    if( (selVtx - trueVtx).Mag() < 1. ) {
-      cat += "_pass"; 
-    }
-    else {
-      cat += "_fail";
-      syst_shift *=-1;      // shift for pass and fail need to be in opposite directions
-    }
+    weight = getWeight( p4.Pt(), cat, syst_shift );
   }
-  
-  weight = getWeight( p4.Pt(), cat, syst_shift );
   
   return true;
 }

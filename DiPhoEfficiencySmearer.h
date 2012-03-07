@@ -44,7 +44,7 @@ public:
   virtual const std::string & name() const { return name_; };
   
   virtual bool smearDiPhoton( TLorentzVector & p4, TVector3 & selVtx, float & weight, const int & category, const int & genMassPoint, 
-			      const TVector3 & trueVtx, float syst_shift) const ;
+			      const TVector3 & trueVtx, float & idMVA1,float & idMVA2 ,float syst_shift) const ;
 
   void name(const std::string & x) { name_ = x; };
 
@@ -53,6 +53,7 @@ public:
   bool init();
   void passFailWeights(bool x) { passFailWeights_ = x; };
   void doVtxEff(bool x) { doVtxEff_ = x; };
+  void doMvaIdEff(bool x) { doMvaIdEff_ = x; };
   
   diPhoEfficiencySmearingParameters  myParameters_;
   
@@ -60,7 +61,7 @@ public:
 
   double getWeight(double pt, std::string theCategory, float syst_shift) const;
 
-  bool passFailWeights_, doVtxEff_;
+  bool passFailWeights_, doVtxEff_, doMvaIdEff_;
   
   std::string   name_;
   TRandom3     *rgen_;

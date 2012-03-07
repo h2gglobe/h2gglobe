@@ -1,0 +1,164 @@
+leadEtCut=40.0
+subleadEtCut=30.0
+
+->
+Options for the mass spectrum range
+->
+massMin=100.
+massMax=180.
+nDataBins=160
+
+->
+Options for the sidebands mH ranges
+These define how the sidebands are calculated
+
+Define sidebands:
+sidebandWidth        defines the "phase-space" for each sideband (obs/bkg)
+signalRegionWidth    defines how far (as %) to put the first sideband (ie region in which signal should sit)
+sidebandShift 	     add an extra gap between the signalRegion and 1st sideband
+numberOfSidebands    number of sidebands created on each side (all created)
+
+Shich sidebands to use in sums (ie for binning algo and simple bkg model):
+
+numberOfSidebandsForAlgos    number of sidebands used on each side for binning algos +sums
+			     (warning numberofSidebandGaps+numberOfSidebandsForAlgos <= numberOfSidebands or Init will crash)
+numberOfSidebandGaps skip this many sidebands on each sidefor summing datasets
+		     (all will be in workspace, but not used for sideband sums)
+massSidebandMax(Min) if upper(lower) edge of sideband is larger(smaller)
+		     than this, sideband is ignored in sideband sums
+		     (will still be saved in workspace)
+->
+
+signalRegionWidth=0.02
+sidebandWidth=0.02
+sidebandShift=0.
+numberOfSidebands=6
+numberOfSidebandsForAlgos=3
+numberOfSidebandGaps=1
+massSidebandMin=99.5
+massSidebandMax=180.
+
+->
+OptimizedBinEdges
+->
+rederiveOptimizedBinEdges=1
+VbfBinEdges_110=1,1.04
+VbfBinEdges_115=1,1.04
+VbfBinEdges_120=1,1.04
+VbfBinEdges_125=1,1.04
+VbfBinEdges_130=1,1.04
+VbfBinEdges_135=1,1.04
+VbfBinEdges_140=1,1.04
+VbfBinEdges_150=1,1.04
+GradBinEdges_110=-1,0.3548,0.6296,0.6872,0.7384,0.8116,1
+AdaBinEdges_110=-1,0.1724,0.322,0.3852,0.4528,0.4932,1
+GradBinEdges_115=-1,0.3692,0.594,0.6464,0.7116,0.7524,0.8044,1
+AdaBinEdges_115=-1,0.1724,0.286,0.3436,0.4236,0.4856,1
+GradBinEdges_120=-1,0.3228,0.5764,0.6316,0.6696,0.718,0.7424,0.8012,1
+AdaBinEdges_120=-1,0.148,0.2492,0.3052,0.3436,0.4092,0.4352,0.4792,1
+GradBinEdges_125=-1,0.3028,0.5436,0.6204,0.6852,0.7396,0.7932,1
+AdaBinEdges_125=-1,0.1412,0.2392,0.3048,0.3608,0.4292,0.4688,1
+GradBinEdges_130=-1,0.2656,0.5068,0.5868,0.6416,0.696,0.7304,0.788,1
+AdaBinEdges_130=-1,0.1276,0.2308,0.2944,0.3356,0.4236,0.468,1
+GradBinEdges_135=-1,0.272,0.5328,0.61,0.6852,0.7584,1
+AdaBinEdges_135=-1,0.1472,0.2276,0.296,0.3644,0.4488,1
+GradBinEdges_140=-1,0.2796,0.4808,0.5924,0.6712,0.7528,1
+AdaBinEdges_140=-1,0.1408,0.226,0.2804,0.322,0.3868,0.4452,1
+GradBinEdges_150=-1,0.326,0.5344,0.6424,0.7404,1
+AdaBinEdges_150=-1,0.1568,0.2356,0.3024,0.4328,1
+ 
+                 
+->               
+General Options
+->
+
+includeVBF=1
+
+nEtaCategories=2
+nR9Categories=2
+nPtCategories=1
+
+doTriggerSelection=1
+reRunCiCForData=1
+
+doTraining=0
+splitSignalSample=0
+splitBackgroundSample=0
+
+->
+choose between UCSD and MIT trainings
+->
+
+bdtTrainingPhilosophy=MIT
+photonLevelMvaUCSD=aux/ID_UCSD.weights.xml
+eventLevelMvaUCSD=aux/diphoton_UCSD.weights.xml
+photonLevelMvaMIT_EB=aux/TMVAClassificationPhotonID_Barrel_PassPreSel_Variable_10_BDTnCuts2000_BDT.weights.xml
+photonLevelMvaMIT_EE=aux/TMVAClassificationPhotonID_Endcap_PassPreSel_Variable_10_BDTnCuts2000_BDT.weights.xml
+eventLevelMvaMIT=aux/HggBambu_SM_Jan2_BDTG.weights.xml
+
+MVAtype=BDT
+
+->
+Turn on-off all smearings 
+->
+doMCSmearing=1 
+
+->
+Individual smearing flags
+->
+doEscaleSmear=1
+doEscaleSyst=1
+
+doEresolSmear=1
+doEresolSyst=1
+
+energyCorrectionMethod=Bendavid
+doEcorrectionSmear=1
+doEcorrectionSyst=0
+
+doRegressionSmear=1
+doRegressionSyst=1
+
+doPhotonIdEffSyst=1
+doPhotonIdEffSmear=1
+
+doVtxEffSyst=1
+doVtxEffSmear=1
+
+doTriggerEffSmear=1
+doTriggerEffSyst=1
+
+doPhotonMvaIdSmear=1
+doPhotonMvaIdSyst=1
+
+doR9Smear=0
+doR9Syst=0
+
+doKFactorSmear=1
+doKFactorSyst=1
+
+mvaWeightsFolder=aux/wt_19Feb/
+
+->
+Inputs for reweighing
+- phoId and trigger: same as EPS,  https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/374.html
+- vertexing from: https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/374/1.html
+->
+
+kfacHist=aux/KFactors_AllScales_interpolated.root
+efficiencyFile=aux/sig_reweighing_v18_mit.root
+puHist=aux/2011_0100_73500.weights3.root
+
+puMap=pu_weights_map.dat
+
+->
+run-dependent corrections are now taken from energy_scale_offsets.dat;
+GF, aug12: Escale shift taken from https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/371.html
+->
+scale_offset_file=energy_scale_offsets.dat
+scale_offset_error_file=energy_scale_errors.dat
+
+->
+smearing updated for LP11 improvements, according to: https://indico.cern.ch/materialDisplay.py?contribId=16&sessionId=5&materialId=slides&confId=157048
+->
+smearing_file=smearing_sigma_and_errors.dat

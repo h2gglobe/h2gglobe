@@ -1,5 +1,6 @@
 #include "Sorters.h"
 
+
 void LoopAll::SetAllMVA() {
   tmvaReaderID_UCSD = new TMVA::Reader("!Color:Silent");
   tmvaReaderID_UCSD->AddVariable("sieie",      &tmva_id_ucsd_sieie);
@@ -12,7 +13,7 @@ void LoopAll::SetAllMVA() {
   tmvaReaderID_UCSD->AddVariable("ptom",       &tmva_id_ucsd_ptom);
   tmvaReaderID_UCSD->AddVariable("eta",        &tmva_id_ucsd_eta);
   tmvaReaderID_UCSD->AddSpectator("isLeading", &tmva_id_ucsd_isLeading);
-  tmvaReaderID_UCSD->BookMVA("Gradient", "aux/ID_UCSD.weights.xml");
+//  tmvaReaderID_UCSD->BookMVA("Gradient", "ID_UCSD.weights.xml");
   
   tmvaReader_dipho_UCSD = new TMVA::Reader("!Color:Silent"); 
   tmvaReader_dipho_UCSD->AddVariable("subleadptomass",   &tmva_dipho_UCSD_subleadptomass);
@@ -25,12 +26,8 @@ void LoopAll::SetAllMVA() {
   tmvaReader_dipho_UCSD->AddVariable("leadr9",           &tmva_dipho_UCSD_leadr9);
   tmvaReader_dipho_UCSD->AddVariable("subleadr9",        &tmva_dipho_UCSD_subleadr9);
   tmvaReader_dipho_UCSD->AddVariable("dmom",             &tmva_dipho_UCSD_dmom);
-  tmvaReader_dipho_UCSD->AddVariable("pvtx",             &tmva_dipho_UCSD_pvtx);
-  tmvaReader_dipho_UCSD->AddVariable("nvtx",             &tmva_dipho_UCSD_nvtx);
-  tmvaReader_dipho_UCSD->AddVariable("sigma_mz",         &tmva_dipho_UCSD_sigma_mz);
   tmvaReader_dipho_UCSD->AddSpectator("diphocat2r92eta", &tmva_dipho_UCSD_diphocat2r92eta);
-  tmvaReader_dipho_UCSD->BookMVA("Gradient", "aux/diphoton_dec16_Gradient.weights.xml");
-  //tmvaReader_dipho_UCSD->BookMVA("Gradient", "aux/diphoton_UCSD.weights.xml");
+//  tmvaReader_dipho_UCSD->BookMVA("Gradient", "diphoton_UCSD.weights.xml");
 
   tmvaReaderID_MIT_Barrel = new TMVA::Reader("!Color:Silent"); 
   tmvaReaderID_MIT_Barrel->AddVariable("HoE",         &tmva_id_mit_hoe);
@@ -50,7 +47,7 @@ void LoopAll::SetAllMVA() {
   tmvaReaderID_MIT_Barrel->AddVariable("ScEta",	      &tmva_id_mit_sceta);
   tmvaReaderID_MIT_Barrel->AddVariable("EtaWidth",    &tmva_id_mit_etawidth);
   tmvaReaderID_MIT_Barrel->AddVariable("PhiWidth",    &tmva_id_mit_phiwidth);
-//  tmvaReaderID_MIT_Barrel->BookMVA("AdaBoost", "aux/TMVAClassificationPhotonID_Barrel_PassPreSel_Variable_6_BDTnCuts2000_BDT.weights.xml");
+//  tmvaReaderID_MIT_Barrel->BookMVA("AdaBoost", "TMVAClassificationPhotonID_Barrel_PassPreSel_Variable_6_BDTnCuts2000_BDT.weights.xml");
 
   tmvaReaderID_MIT_Endcap = new TMVA::Reader("!Color:Silent"); 
   tmvaReaderID_MIT_Endcap->AddVariable("HoE",         &tmva_id_mit_hoe);
@@ -70,7 +67,25 @@ void LoopAll::SetAllMVA() {
   tmvaReaderID_MIT_Endcap->AddVariable("ScEta",	      &tmva_id_mit_sceta);
   tmvaReaderID_MIT_Endcap->AddVariable("EtaWidth",    &tmva_id_mit_etawidth);
   tmvaReaderID_MIT_Endcap->AddVariable("PhiWidth",    &tmva_id_mit_phiwidth);
-//  tmvaReaderID_MIT_Endcap->BookMVA("AdaBoost", "aux/TMVAClassificationPhotonID_Endcap_PassPreSel_Variable_6_BDTnCuts2000_BDT.weights.xml");
+/*
+  tmvaReaderID_MIT_Endcap = new TMVA::Reader("!Color:Silent"); 
+  tmvaReaderID_MIT_Endcap->AddVariable("HoE",                &tmva_id_mit_hoe);
+  tmvaReaderID_MIT_Endcap->AddVariable("covIEtaIEta",        &tmva_id_mit_sieie);
+  tmvaReaderID_MIT_Endcap->AddVariable("tIso1abs",           &tmva_id_mit_tiso1);
+  tmvaReaderID_MIT_Endcap->AddVariable("tIso3abs",           &tmva_id_mit_tiso3);
+  tmvaReaderID_MIT_Endcap->AddVariable("tIso2abs",           &tmva_id_mit_tiso2);
+  tmvaReaderID_MIT_Endcap->AddVariable("R9",                 &tmva_id_mit_r9);
+  tmvaReaderID_MIT_Endcap->AddVariable("absIsoEcal",         &tmva_id_mit_ecal);
+  tmvaReaderID_MIT_Endcap->AddVariable("absIsoHcal",         &tmva_id_mit_hcal);
+  tmvaReaderID_MIT_Endcap->AddVariable("RelE5x5",            &tmva_id_mit_e5x5);
+  tmvaReaderID_MIT_Endcap->AddVariable("EtaWidth",           &tmva_id_mit_etawidth);
+  tmvaReaderID_MIT_Endcap->AddVariable("PhiWidth",           &tmva_id_mit_phiwidth);
+  tmvaReaderID_MIT_Endcap->AddVariable("CoviEtaiPhi",        &tmva_id_mit_sieip);
+  tmvaReaderID_MIT_Endcap->AddVariable("CoviPhiiPhi",        &tmva_id_mit_sipip);
+  tmvaReaderID_MIT_Endcap->AddVariable("NVertexes",          &tmva_id_mit_nvtx);
+  tmvaReaderID_MIT_Endcap->AddVariable("RelPreshowerEnergy", &tmva_id_mit_preshower);
+*/
+//  tmvaReaderID_MIT_Endcap->BookMVA("AdaBoost", "TMVAClassificationPhotonID_Endcap_PassPreSel_Variable_6_BDTnCuts2000_BDT.weigh  ts.xml");
 
   tmvaReader_dipho_MIT = new TMVA::Reader("!Color:Silent"); 
   tmvaReader_dipho_MIT->AddVariable("masserrsmeared/mass",         &tmva_dipho_MIT_dmom);
@@ -83,18 +98,16 @@ void LoopAll::SetAllMVA() {
   tmvaReader_dipho_MIT->AddVariable("TMath::Cos(ph1.phi-ph2.phi)", &tmva_dipho_MIT_dphi);
   tmvaReader_dipho_MIT->AddVariable("ph1.idmva",                   &tmva_dipho_MIT_ph1mva);
   tmvaReader_dipho_MIT->AddVariable("ph2.idmva",                   &tmva_dipho_MIT_ph2mva);
-//  tmvaReader_dipho_MIT->BookMVA("Gradient", "aux/HggBambu_SM_Dec9_BDTG.weights.xml");
+//  tmvaReader_dipho_MIT->BookMVA("Gradient", "HggBambu_SM_Dec9_BDTG.weights.xml");
 }
 
-Float_t LoopAll::photonIDMVA(Int_t iPhoton, Int_t vtx, TLorentzVector &p4, float mass, std::string type)  {
-  if(LDEBUG)  std::cout<<"in photonIDMVA"<<std::endl; 
+Float_t LoopAll::photonIDMVA(Int_t iPhoton, Int_t vtx, TLorentzVector &p4, const char* type)  {
+  
   Float_t mva = 999.;
  
   float photonEt = p4.Et();
   if (type == "UCSD") {
-    if(LDEBUG)  std::cout<<"in photonIDMVA, type:"<<type<<std::endl; 
     Int_t cat = PhotonCategory(iPhoton);
-    if(LDEBUG)  std::cout<<"in photonIDMVA, cat:"<<cat<<std::endl; 
 
     Float_t isomax=-99;   
     Int_t badind=0;
@@ -103,43 +116,26 @@ Float_t LoopAll::photonIDMVA(Int_t iPhoton, Int_t vtx, TLorentzVector &p4, float
 	badind=iv; 
 	isomax=(*pho_pfiso_mycharged04)[iPhoton][iv]; 
       }
-	  }
-    if(LDEBUG)  std::cout<<"in photonIDMVA, isomax:  "<<isomax<<std::endl; 
-    if(LDEBUG)  std::cout<<"in photonIDMVA, cat:  "<<cat<<std::endl; 
+	    }
     
     float rhofacpf[6]    = {0.075, 0.082, 0.143, 0.050, 0.091, 0.106};
     float rhofacbadpf[6] = {0.141, 0.149, 0.208, 0.135, 0.162, 0.165};
     float rhofac         = rhofacpf[cat];
     float rhofacbad      = rhofacbadpf[cat];
-   
-    TLorentzVector* scp4 = (TLorentzVector*)sc_p4->At(pho_scind[iPhoton]);
-
+    
     Float_t tmva_id_ucsd_pt = photonEt;
-    tmva_id_ucsd_ptom = photonEt/mass;
     tmva_id_ucsd_badpf_iso = ((*pho_pfiso_mycharged04)[iPhoton][badind]+pho_pfiso_myphoton04[iPhoton]-rho*rhofacbad)*50/tmva_id_ucsd_pt;
     tmva_id_ucsd_goodpf_iso = ((*pho_pfiso_mycharged03)[iPhoton][vtx]+pho_pfiso_myphoton03[iPhoton]-rho*rhofac)*50/tmva_id_ucsd_pt;
-    if(LDEBUG)  std::cout<<"(*pho_pfiso_mycharged03)[iPhoton][vtx] "<<(*pho_pfiso_mycharged03)[iPhoton][vtx]<<std::endl;
-    if(LDEBUG)  std::cout<<"pho_pfiso_myphoton03[iPhoton] "<<pho_pfiso_myphoton04[iPhoton]<<std::endl;
-    if(LDEBUG)  std::cout<<"tmva_id_ucsd_goodpf_iso "<<tmva_id_ucsd_goodpf_iso<<std::endl;
     tmva_id_ucsd_tkisopf = (*pho_pfiso_mycharged03)[iPhoton][vtx]*50/tmva_id_ucsd_pt;
-    if(LDEBUG)  std::cout<<"tmva_id_ucsd_tkisopf "<<tmva_id_ucsd_tkisopf<<std::endl;
     
     tmva_id_ucsd_sieie = pho_sieie[iPhoton];
-    if(LDEBUG)  std::cout<<"tmva_id_ucsd_sieie "<<tmva_id_ucsd_sieie<<std::endl;
     tmva_id_ucsd_drtotk = pho_drtotk_25_99[iPhoton];
-    if(LDEBUG)  std::cout<<"tmva_id_ucsd_drtotk "<<tmva_id_ucsd_drtotk<<std::endl;
     tmva_id_ucsd_hoe = pho_hoe[iPhoton];
-    if(LDEBUG)  std::cout<<"tmva_id_ucsd_hoe "<<tmva_id_ucsd_hoe<<std::endl;
     tmva_id_ucsd_r9 = pho_r9[iPhoton];
-    if(LDEBUG)  std::cout<<"tmva_id_ucsd_r9 "<<tmva_id_ucsd_r9<<std::endl;
-    tmva_id_ucsd_eta = fabs(scp4->Eta());
-    if(LDEBUG)  std::cout<<"tmva_id_ucsd_eta "<<tmva_id_ucsd_eta<<std::endl;
+    tmva_id_ucsd_eta = fabs(p4.Eta());
     tmva_id_ucsd_isLeading = -1.; // not used just a spectator in the original definition
-    if(LDEBUG)  std::cout<<"all variables set"<<std::endl;
-
+    
     mva = tmvaReaderID_UCSD->EvaluateMVA("Gradient");
-    if(LDEBUG)  std::cout<<"mva "<<mva<<std::endl;
-    if(LDEBUG)  std::cout<<"got the mva"<<std::endl;
   } else {
     tmva_id_mit_hoe = pho_hoe[iPhoton];
     tmva_id_mit_sieie = pho_sieie[iPhoton];
@@ -166,7 +162,7 @@ Float_t LoopAll::photonIDMVA(Int_t iPhoton, Int_t vtx, TLorentzVector &p4, float
     tmva_id_mit_sipip    = TMath::Sqrt(pho_sipip[iPhoton]);
     tmva_id_mit_nvtx      = vtx_std_n;
     tmva_id_mit_preshower = sc_pre[pho_scind[iPhoton]]/raw;
-    tmva_id_mit_sceta	  = ((TVector3*)pho_calopos->At(iPhoton))->Eta();
+    tmva_id_mit_sceta	  = ((TVector3*)sc_xyz->At(pho_scind[iPhoton]))->Eta();
 
     // Print all of the variables
 /*
@@ -196,65 +192,61 @@ Float_t LoopAll::photonIDMVA(Int_t iPhoton, Int_t vtx, TLorentzVector &p4, float
   return mva;
 }
 
-Float_t LoopAll::diphotonMVA(Int_t leadingPho, Int_t subleadingPho, Int_t vtx, float vtxProb, TLorentzVector &leadP4, TLorentzVector &subleadP4, float sigmaMrv, float sigmaMwv, float sigmaMeonly, std::string type) {
+
+Float_t LoopAll::diphotonMVA(Int_t leadingPho, Int_t subleadingPho, Int_t vtx, float vtxProb, TLorentzVector &leadP4, TLorentzVector &subleadP4, float sigmaMrv, float sigmaMwv, float sigmaMeonly, const char* type, float photonID_1,float photonID_2) {
 
   // Ok need to re-write the diphoton-mva part since the systematics won't work unless we can change the Et of the photons
   // all we have to do is to pass in the ->Et of the two photons also rather than take them from the four-vector branches
   
   Float_t mva = 99.;
   TLorentzVector Higgs = leadP4+subleadP4;
-  float leadEt    = leadP4.Et();
-  float subleadEt = subleadP4.Et();
+  float leadPt    = leadP4.Pt();
+  float subleadPt = subleadP4.Pt();
   float mass 	  = Higgs.M();
   float diphopt   = Higgs.Pt();
 
-  TLorentzVector* leadsc_p4 = (TLorentzVector*)sc_p4->At(pho_scind[leadingPho]);
-  TLorentzVector* subleadsc_p4 = (TLorentzVector*)sc_p4->At(pho_scind[subleadingPho]);
-  
   if (type == "UCSD") {
-    bool check=false;
     tmva_dipho_UCSD_leadr9 = pho_r9[leadingPho];
     tmva_dipho_UCSD_subleadr9 = pho_r9[subleadingPho];
-    tmva_dipho_UCSD_leadeta = fabs(leadsc_p4->Eta());
-    tmva_dipho_UCSD_subleadeta = fabs(subleadsc_p4->Eta());
-  //  tmva_dipho_UCSD_leadptomass = leadEt/mass;  
-    tmva_dipho_UCSD_subleadptomass = subleadEt/mass;  
+    tmva_dipho_UCSD_leadeta = fabs(leadP4.Eta());
+    tmva_dipho_UCSD_subleadeta = fabs(subleadP4.Eta());
+  //  tmva_dipho_UCSD_leadptomass = leadPt/mass;  
+    tmva_dipho_UCSD_subleadptomass = subleadPt/mass;  
     tmva_dipho_UCSD_diphoptom = diphopt/mass;
-    tmva_dipho_UCSD_sumptom = (leadEt+subleadEt)/mass;
-    if(check || LDEBUG)  std::cout<<"tmva_dipho_UCSD_sumptom   "<<tmva_dipho_UCSD_sumptom<<std::endl; 
-    tmva_dipho_UCSD_subleadmva = photonIDMVA(subleadingPho, vtx, subleadP4, mass, "UCSD");
-    if(check || LDEBUG)  std::cout<<"tmva_dipho_UCSD_subleadmva   "<<tmva_dipho_UCSD_subleadmva<<std::endl; 
-    tmva_dipho_UCSD_leadmva = photonIDMVA(leadingPho, vtx, leadP4, mass, "UCSD");
-    if(check || LDEBUG)  std::cout<<"tmva_dipho_UCSD_leadmva   "<<tmva_dipho_UCSD_leadmva<<std::endl; 
+    tmva_dipho_UCSD_sumptom = (leadPt+subleadPt)/mass;
+    tmva_dipho_UCSD_subleadmva = photonIDMVA(subleadingPho, vtx,leadP4, "UCSD");
+    tmva_dipho_UCSD_leadmva = photonIDMVA(leadingPho, vtx,subleadP4, "UCSD");
+   // tmva_dipho_UCSD_dmom = sigmaMrv/mass;
     tmva_dipho_UCSD_dmom = sigmaMeonly/mass;
-    if(check || LDEBUG)  std::cout<<"tmva_dipho_UCSD_dmom   "<<tmva_dipho_UCSD_dmom<<std::endl; 
-    tmva_dipho_UCSD_pvtx = max(0. ,min(1.,double(vtxProb)));
-    if(check || LDEBUG)  std::cout<<"tmva_dipho_UCSD_pvtx   "<<tmva_dipho_UCSD_pvtx<<std::endl; 
-    tmva_dipho_UCSD_nvtx = vtx_std_n;
-    if(check || LDEBUG)  std::cout<<"tmva_dipho_UCSD_nvtx   "<<tmva_dipho_UCSD_nvtx<<std::endl; 
-    tmva_dipho_UCSD_sigma_mz = sigmaMwv;
-    if(check || LDEBUG)  std::cout<<"tmva_dipho_UCSD_sigma_mz   "<<tmva_dipho_UCSD_sigma_mz<<std::endl; 
-
+  
     mva = tmvaReader_dipho_UCSD->EvaluateMVA("Gradient");
   } else {
     tmva_dipho_MIT_dmom = sigmaMrv/mass;
     tmva_dipho_MIT_dmom_wrong_vtx = sigmaMwv/mass;
     tmva_dipho_MIT_vtxprob = vtxProb;
-    tmva_dipho_MIT_ptom1 = leadEt/mass;
-    tmva_dipho_MIT_ptom2 = subleadEt/mass;
+    tmva_dipho_MIT_ptom1 = leadPt/mass;
+    tmva_dipho_MIT_ptom2 = subleadPt/mass;
+//    tmva_dipho_MIT_eta1 = fabs(leadP4.Eta());
+//    tmva_dipho_MIT_eta2 =  fabs(subleadP4.Eta());
     tmva_dipho_MIT_eta1 = leadP4.Eta();
     tmva_dipho_MIT_eta2 =  subleadP4.Eta();
-//    tmva_dipho_MIT_dphi = TMath::Cos(((TLorentzVector*)phio_p4->At(leadingPho))->Phi() - ((TLorentzVector*)pho_p4->At(subleadingPho))->Phi());
+//    tmva_dipho_MIT_dphi = TMath::Cos(((TLorentzVector*)pho_p4->At(leadingPho))->Phi() - ((TLorentzVector*)pho_p4->At(subleadingPho))->Phi());
     tmva_dipho_MIT_dphi = TMath::Cos(leadP4.Phi() - subleadP4.Phi());
-    tmva_dipho_MIT_ph1mva = photonIDMVA(leadingPho,vtx, leadP4, 0, "MIT");
-    tmva_dipho_MIT_ph2mva = photonIDMVA(subleadingPho,vtx, subleadP4, 0, "MIT");
+      
+    if (photonID_1 < -1. && photonID_2 < -1.){
+    tmva_dipho_MIT_ph1mva = photonIDMVA(leadingPho,vtx, leadP4, "MIT");
+    tmva_dipho_MIT_ph2mva = photonIDMVA(subleadingPho,vtx, subleadP4, "MIT");
+
+    } else {
+    tmva_dipho_MIT_ph1mva = photonID_1;//photonIDMVA(leadingPho,vtx, leadP4, "MIT");
+    tmva_dipho_MIT_ph2mva = photonID_2;//photonIDMVA(subleadingPho,vtx, subleadP4, "MIT");
+
+    }
     mva = tmvaReader_dipho_MIT->EvaluateMVA("Gradient");
   }
   
   return mva;
 }
-
-
 
 float LoopAll::getDmOverDz(Int_t pho1, Int_t pho2, Float_t* smeared) {
 
@@ -276,8 +268,8 @@ float LoopAll::getDmOverDz(Int_t pho1, Int_t pho2, Float_t* smeared) {
 
 Float_t LoopAll::deltaMassVtx(Int_t pho1, Int_t pho2, Float_t dz) {
 
-  TVector3* pos1 = (TVector3*)pho_calopos->At(pho1);
-  TVector3* pos2 = (TVector3*)pho_calopos->At(pho2);
+  TVector3* pos1 = (TVector3*)sc_xyz->At(pho_scind[pho1]);
+  TVector3* pos2 = (TVector3*)sc_xyz->At(pho_scind[pho2]);
 
   Float_t r1 = pos1->Mag();
   Float_t r2 = pos2->Mag();
@@ -602,8 +594,8 @@ PhotonInfo LoopAll::fillPhotonInfos(int p1, bool useAllConvs)
 	if ( iConv1 >= 0) {
 		// conversions infos
 		return PhotonInfo(p1,
-				  *((TVector3*)pho_calopos->At(p1)),
-				  /// *((TVector3*)sc_xyz->At(pho_scind[p1])),
+				  //*((TVector3*)pho_calopos->At(p1)),
+				  *((TVector3*)sc_xyz->At(pho_scind[p1])),
 				  *((TVector3*) bs_xyz->At(0)),
 				  *((TVector3*) conv_vtx->At(iConv1)),
                   *((TVector3*) conv_refitted_momentum->At(iConv1)),
@@ -620,8 +612,8 @@ PhotonInfo LoopAll::fillPhotonInfos(int p1, bool useAllConvs)
 	//// }
 	
 	return PhotonInfo(p1, 
-			  *((TVector3*)pho_calopos->At(p1)),                                                                                                                
-			  /// *((TVector3*)sc_xyz->At(pho_scind[p1])),
+			  //*((TVector3*)pho_calopos->At(p1)),                                                                                                                
+			  *((TVector3*)sc_xyz->At(pho_scind[p1])),
 			  *((TVector3*) bs_xyz->At(0)),                                                                                                                            
 			  *((TVector3*) pho_conv_vtx->At(p1)),
               *((TVector3*) pho_conv_refitted_momentum->At(p1)),
@@ -821,9 +813,10 @@ int  LoopAll::matchPhotonToConversion( int lpho) {
   double conv_eta=-999.;
   double conv_phi=-999.;
   
-  float sc_eta  = ((TVector3 *) pho_calopos->At(lpho))->Eta();
-  /// float sc_eta  = ((TVector3 *) sc_xyz->At(pho_scind[lpho]))->Eta();
-  float  phi  = ((TVector3 *) pho_calopos->At(lpho))->Phi();
+ // float sc_eta  = ((TVector3 *) pho_calopos->At(lpho))->Eta();
+  float sc_eta  = ((TVector3 *) sc_xyz->At(pho_scind[lpho]))->Eta();
+  float phi  = ((TVector3 *) sc_xyz->At(pho_scind[lpho]))->Phi();
+//  float  phi  = ((TVector3 *) pho_calopos->At(lpho))->Phi();
   double sc_phi = phiNorm(phi);
   
   TLorentzVector * p4 = (TLorentzVector *) pho_p4->At(lpho);
@@ -843,7 +836,7 @@ int  LoopAll::matchPhotonToConversion( int lpho) {
     TVector3 refittedPairMomentum= *((TVector3*) conv_refitted_momentum->At(iconv));
     conv_pt =  refittedPairMomentum.Pt();
     if (conv_pt < 1 ) continue;    
-    if ( !conv_validvtx[iconv] || conv_ntracks[iconv]!=2 || conv_chi2_probability[iconv]<0.000001) continue;
+  //  if ( !conv_validvtx[iconv] || conv_ntracks[iconv]!=2 || conv_chi2_probability[iconv]<0.000001) continue; // this should be done later 
 
     phi  = ((TVector3 *) conv_refitted_momentum->At(iconv))->Phi();
     conv_phi  = phiNorm(phi);
@@ -864,8 +857,8 @@ int  LoopAll::matchPhotonToConversion( int lpho) {
     delta_eta*=delta_eta;
     float dR = sqrt( delta_phi + delta_eta ); 
     
-    if ( fabs(delta_eta) < detaMin && fabs(delta_phi) < dphiMin ) {
-    // if ( dR < dRMin ) {
+    //if ( fabs(delta_eta) < detaMin && fabs(delta_phi) < dphiMin ) {
+     if ( dR < dRMin ) {
       detaMin=  fabs(delta_eta);
       dphiMin=  fabs(delta_phi);
       dRMin=dR;
@@ -877,8 +870,8 @@ int  LoopAll::matchPhotonToConversion( int lpho) {
   
   //  cout << " minimized conversion index " << iMatch << " eta " <<conv_eta<< " phi " << conv_phi <<endl; 
 
-  if ( detaMin < 0.1 && dphiMin < 0.1 ) {
-    //if ( dRMin< 0.1 ) {
+  //if ( detaMin < 0.1 && dphiMin < 0.1 ) {
+    if ( dRMin< 0.1 ) {
     if(LDEBUG)    cout << " matched conversion index " << iMatch << " eta " <<conv_eta<< " phi " << conv_phi << " pt " << mconv_pt << endl; 	
     result = iMatch;
   } else {
@@ -907,7 +900,7 @@ TLorentzVector LoopAll::get_pho_p4(int ipho, int ivtx, float * energy)
 TLorentzVector LoopAll::get_pho_p4(int ipho, TVector3 * vtx, float * energy)
 {
 	/// PhotonInfo p(ipho, *((TVector3*)sc_xyz->At(pho_scind[ipho])),
-	PhotonInfo p(ipho, *((TVector3*)pho_calopos->At(ipho)),
+	PhotonInfo p(ipho, *((TVector3*)sc_xyz->At(pho_scind[ipho])),
 		     energy != 0 ? energy[ipho] : ((TLorentzVector*)pho_p4->At(ipho))->Energy() );
 	return p.p4( vtx->X(), vtx->Y(), vtx->Z() );
 }
@@ -1037,6 +1030,9 @@ void LoopAll::SetPhotonCutsInCategories(phoCiCIDLevel cutlevel, float * cic6_all
   const unsigned int ncat_cic6 = 6;
   const unsigned int ncat_cic4 = 4;
   switch(cutlevel) {
+
+    std::cout << "FFFSSSSSSSSSSSSSSSSSS!!!!!!!!!!!!" << cutlevel << std::endl;
+
     case(phoNOCUTS) : {
                         float cic6_allcuts_temp_lead[] = { 
                           1e+09,     1e+09,     1e+09,     1e+09,     1e+09,     1e+09,
@@ -1452,28 +1448,23 @@ int LoopAll::DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL, phoCiCIDLevel SUB
 	  if( leadEta > 2.5 || subleadEta > 2.5 || 
 	      ( leadEta > 1.4442 && leadEta < 1.566 ) ||
 	      ( subleadEta > 1.4442 && subleadEta < 1.566 ) ) { continue; }
-	 
-           float leadpt = lead_p4.Pt() > sublead_p4.Pt() ? lead_p4.Pt() : sublead_p4.Pt();
-           float subleadpt = lead_p4.Pt() < sublead_p4.Pt() ? lead_p4.Pt() : sublead_p4.Pt();
- 
-    // VBF cuts smoothly on lead pt/M but on straight pt on sublead to save sig eff and avoid HLT turn-on
-    if(split){
-	      if ( leadpt/m_gamgam < leadPtMin/120. || subleadpt< subleadPtMin ) { continue; }
-    }else{
-           if( applyPtoverM ) {
-             if ( leadpt/m_gamgam < leadPtMin/120. || subleadpt/m_gamgam < subleadPtMin/120. ) { continue; }
-           } else {
-             if ( leadpt < leadPtMin || subleadpt < subleadPtMin ) { continue; }
-           }
-	 }
- 
-           if (subleadpt > leadpt){ // Swap them
-                 int tmp = lead;
-                 lead = sublead;
-                 sublead =tmp;
-                 dipho_leadind[idipho] = lead;
-                 dipho_subleadind[idipho] = sublead;
-           }
+
+	  float leadpt = lead_p4.Pt() > sublead_p4.Pt() ? lead_p4.Pt() : sublead_p4.Pt();
+      	  float subleadpt = lead_p4.Pt() < sublead_p4.Pt() ? lead_p4.Pt() : sublead_p4.Pt(); 	  
+
+	  if( applyPtoverM ) {
+	    if ( leadpt/m_gamgam < leadPtMin/120. || subleadpt/m_gamgam < subleadPtMin/120. ) { continue; }
+	  } else {
+	    if ( leadpt < leadPtMin || subleadpt < subleadPtMin ) { continue; }
+	  }
+	  
+	  if (subleadpt > leadpt){ // Swap them
+		int tmp = lead;
+		lead = sublead;
+		sublead =tmp;
+		dipho_leadind[idipho] = lead;
+		dipho_subleadind[idipho] = sublead;
+	  }
 
 	  std::vector<std::vector<bool> > ph_passcut;
 	  if( PhotonCiCSelectionLevel(lead, ivtx, ph_passcut, ncategories, 0, pho_energy_array ) < LEADCUTLEVEL ) { continue; }
@@ -1556,24 +1547,31 @@ int LoopAll::DiphotonMITPreSelection(Float_t leadPtMin, Float_t subleadPtMin,boo
 	  if( leadEta > 2.5 || subleadEta > 2.5 || 
 	      ( leadEta > 1.4442 && leadEta < 1.566 ) ||
 	      ( subleadEta > 1.4442 && subleadEta < 1.566 ) ) { continue; }
-	 
- 
-           float leadpt = lead_p4.Pt() > sublead_p4.Pt() ? lead_p4.Pt() : sublead_p4.Pt();
-           float subleadpt = lead_p4.Pt() < sublead_p4.Pt() ? lead_p4.Pt() : sublead_p4.Pt();
- 
-           if( applyPtoverM ) {
-             if ( leadpt/m_gamgam < leadPtMin/120. || subleadpt/m_gamgam < subleadPtMin/120. ) { continue; }
-           } else {
-             if ( leadpt < leadPtMin || subleadpt < subleadPtMin ) { continue; }
-           }
- 
-           if (subleadpt > leadpt){ // Swap them
-                 int tmp = lead;
-                 lead = sublead;
-                 sublead =tmp;
-                 dipho_leadind[idipho] = lead;
-                 dipho_subleadind[idipho] = sublead;
-           }
+
+
+
+	  float leadpt = lead_p4.Pt() > sublead_p4.Pt() ? lead_p4.Pt() : sublead_p4.Pt();
+      	  float subleadpt = lead_p4.Pt() < sublead_p4.Pt() ? lead_p4.Pt() : sublead_p4.Pt(); 	  
+
+   if (run==173439 && lumis==155 && event==236661419) {
+ std::cout <<	"Inside diphotonSelection now" <<std::endl;
+ std::cout <<	"mass - " <<m_gamgam<<std::endl;
+ std::cout <<	"lead ET - " <<leadpt<<std::endl;
+ std::cout <<	"sublead ET - " <<subleadpt<<std::endl;
+}
+	  if( applyPtoverM ) {
+	    if ( leadpt/m_gamgam < leadPtMin/120. || subleadpt/m_gamgam < subleadPtMin/120. ) { continue; }
+	  } else {
+	    if ( leadpt < leadPtMin || subleadpt < subleadPtMin ) { continue; }
+	  }
+	  
+	  if (subleadpt > leadpt){ // Swap them
+		int tmp = lead;
+		lead = sublead;
+		sublead =tmp;
+		dipho_leadind[idipho] = lead;
+		dipho_subleadind[idipho] = sublead;
+	  }
 
 	  std::vector<std::vector<bool> > ph_passcut;
           if (!( PhotonMITPreSelection(lead, ivtx, pho_energy_array ) && PhotonMITPreSelection(sublead, ivtx,  pho_energy_array ))) continue; 
@@ -1592,10 +1590,19 @@ int LoopAll::DiphotonMITPreSelection(Float_t leadPtMin, Float_t subleadPtMin,boo
   int selected_dipho_vtx     = dipho_vtxind[selected_dipho_ind];
   TLorentzVector selected_lead_p4 = get_pho_p4(selected_dipho_lead,selected_dipho_vtx,pho_energy_array); 
   TLorentzVector selected_sublead_p4 = get_pho_p4(selected_dipho_sublead,selected_dipho_vtx,pho_energy_array);
+   if (run==173439 && lumis==155 && event==236661419) {
+ std::cout <<	"Inside diphotonSelection now" <<std::endl;
+std::cout << photonIDMVA(selected_dipho_lead,selected_dipho_vtx,selected_lead_p4,"MIT")<<std::endl;
+std::cout << photonIDMVA(selected_dipho_sublead,selected_dipho_vtx,selected_sublead_p4,"MIT")<<std::endl;
+
+}
  
-  if ( photonIDMVA(selected_dipho_lead,selected_dipho_vtx,selected_lead_p4, 0,"MIT") <= -0.3
-    || photonIDMVA(selected_dipho_sublead,selected_dipho_vtx,selected_sublead_p4, 0,"MIT")	<= -0.3
+  if ( photonIDMVA(selected_dipho_lead,selected_dipho_vtx,selected_lead_p4,"MIT") <= -0.3
+    || photonIDMVA(selected_dipho_sublead,selected_dipho_vtx,selected_sublead_p4,"MIT")	<= -0.3
      ) {return -1;}
+   if (run==173439 && lumis==155 && event==236661419) {
+ std::cout <<	"Diphoton selected index -- "<< selected_dipho_ind <<std::endl;
+}
   
   return selected_dipho_ind;
 
@@ -1604,7 +1611,7 @@ int LoopAll::DiphotonMITPreSelection(Float_t leadPtMin, Float_t subleadPtMin,boo
 bool LoopAll::PhotonMITPreSelection( int photon_index, int vertex_index, float *pho_energy_array ) {
 
 
-   int r9_category = (int) pho_r9[photon_index] < 0.9;                                                      
+   int r9_category = (int) (pho_r9[photon_index] <= 0.9);                                                      
    int photon_category = r9_category + 2*PhotonEtaCategory(photon_index,2);                                 
    int photon_cic_category = PhotonCategory(photon_index,2,2);
    
@@ -1624,15 +1631,39 @@ bool LoopAll::PhotonMITPreSelection( int photon_index, int vertex_index, float *
    float rhofac=0.17;
    float val_hoe        = pho_hoe[photon_index];
    float val_sieie      = pho_sieie[photon_index];                                                          
-   // not sure if should be using the dr03 or 04 for these so stick to "usual" choices                      
    float val_ecaliso = pho_ecalsumetconedr03[photon_index] - 0.012*phop4.Et();                              
-   float val_hcaliso = pho_hcalsumetconedr04[photon_index] - 0.002*phop4.Et();                              
-   float val_trkiso  = pho_trksumptsolidconedr03[photon_index] - 0.005*phop4.Et();                          
-   float val_hcalecal   = (val_ecaliso+val_hcaliso-rho*rhofac);                                             
+   float val_hcaliso = pho_hcalsumetconedr03[photon_index] - 0.005*phop4.Et(); 
+                             
+   float val_trkiso  = pho_trksumpthollowconedr03[photon_index] - 0.002*phop4.Et();                          
+   float val_hcalecal   = (pho_ecalsumetconedr03[photon_index]+pho_hcalsumetconedr03[photon_index]-rho*rhofac);                                             
    float val_abstrkiso  = (*pho_tkiso_recvtx_030_002_0000_10_01)[photon_index][vertex_index];                
    float val_trkiso_hollow03 = pho_trksumpthollowconedr03[photon_index];                                    
 //   float val_drtotk_25_99 = pho_drtotk_25_99[photon_index];
-   float val_isconv = pho_isconv[photon_index];
+   int   val_pho_isconv = pho_isconv[photon_index];
+
+   //if (run==173439 && lumis==155 && event==236661419) {
+
+//	std::cout << "I will lose this photon, but MIT will not" << std::endl;
+	
+//	std::cout << "rho " << rho <<std::endl;
+//	std::cout << "pho_n " << pho_n <<std::endl;
+//	std::cout << "pho_index " << photon_index <<std::endl;
+//	std::cout << "pho_et " << phop4.Et() <<std::endl;
+//	std::cout << "hoe " << val_hoe <<std::endl;
+//	std::cout << "sieie " << val_sieie <<std::endl;
+//	std::cout << "ecaliso " << val_ecaliso <<std::endl;
+//	std::cout << "hcaliso " << val_hcaliso <<std::endl;
+//	std::cout << "hcalecal " << val_hcalecal <<std::endl;
+//	std::cout << "abstrkiso " << val_abstrkiso <<std::endl;
+//	std::cout << "trkiso " << val_trkiso_hollow03 <<std::endl;
+//	std::cout << "isconv " << val_pho_isconv <<std::endl;
+
+//	std::cout << "r9 " << pho_r9[photon_index] <<std::endl;
+//	std::cout << "r9 categoty " << r9_category <<std::endl;
+//	std::cout << "eta scxyz" << fabs(((TVector3*)sc_xyz->At(pho_scind[photon_index]))->Eta()) <<std::endl;
+//	std::cout << "category" << photon_category <<std::endl;
+
+//   }
 
    if (val_hoe             >= mitCuts_hoe[photon_category]         ) return false;                                           
    if (val_sieie           >= mitCuts_sieie[photon_category]       ) return false;
@@ -1642,7 +1673,7 @@ bool LoopAll::PhotonMITPreSelection( int photon_index, int vertex_index, float *
    if (val_hcalecal        >= mitCuts_hcalecal[photon_category]    ) return false;
    if (val_abstrkiso       >= mitCuts_abstrkiso[photon_category]   ) return false;                   
 //   if (val_drtotk_25_99    <  mitCuts_drtotk_25_99[photon_category]   ) return false; // Electron Rejection based on CiC for now
-   if (!val_isconv  ) return false; // Convesion Safe Electron Rejection
+   if (!val_pho_isconv						   ) return false; // Electron Rejection based Conversion Safe Veto
    if (val_trkiso_hollow03 >= mitCuts_trkiso_hollow03[photon_category]) return false;                                        
 
    return true;
@@ -1887,6 +1918,57 @@ Float_t LoopAll::SumTrackPtInCone(TLorentzVector *photon_p4, Int_t vtxind, Float
 }
 
 
+bool LoopAll::CheckSphericalPhoton(int phoid){
+
+  TVector3 *phoCalo = (TVector3*)sc_xyz->At(pho_scind[phoid]);
+  if (pho_r9[phoid]<0.94 || fabs(phoCalo->Eta())>1.) return false;
+
+  TLorentzVector *bcpos   = (TLorentzVector*)bc_p4->At(sc_bcseedind[pho_scind[phoid]]);
+  //TVector3 bcxyz = bcpos->Vect();
+
+  double minDR=999.;
+  int closestHit=-1;
+  for (int i=0;i<ecalhit_n;i++){
+	TLorentzVector *xtalpos = (TLorentzVector*)ecalhit_p4->At(i);
+  	//TVector3 xtalxyz = xtalpos->Vect();
+	//double dR = (xtalxyz-bcxyz).Mag();
+	double dR = xtalpos->DeltaR(*bcpos);
+	if(dR<minDR){
+	 	closestHit = i;
+		minDR = dR;
+	}
+  }
+  if (closestHit<0) std::cout << "Fishy !!!!!!" <<std::endl;
+ 
+  int detid = ecalhit_detid[closestHit];
+  //int detid = ecalhit_detid[bc_seed[sc_bcseedind[pho_scind[phoid]]]];
+  int ieta  = (detid>>9)&0x7F; 
+  int iphi  = detid&0x1FF; 
+
+ //int ieta=IEta(bcpos->Eta());
+ //int iphi=IPhi(bcpos->Phi());
+//int ieta = IEta( ((TLorentzVector*)ecalhit_p4->At(closestHit))->Eta()); 
+//int iphi = IPhi( ((TLorentzVector*)ecalhit_p4->At(closestHit))->Phi()); 
+
+  if ((iphi %20)<=5 || (iphi%20)>=16){
+   return false;
+  }
+
+  int ietaTT=(std::abs(ieta)-1)/5+1;
+  if
+    (
+     (ietaTT>= 2&&     ietaTT<    5 ) ||
+     (ietaTT>= 7&&     ietaTT<    9 ) ||
+     (ietaTT>= 11&&    ietaTT<    13) ||
+     (ietaTT>= 15&&    ietaTT<    17)
+    ){	
+      return true; 
+   } 
+
+
+  return false;
+
+}
 // CiC SELECTION CODE END - SSIMON
 
 // Functions moved from Tools.h

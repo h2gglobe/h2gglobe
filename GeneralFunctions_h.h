@@ -81,7 +81,7 @@ float cic4_cut_sublead_pixel[phoNCUTLEVELS][4];
 
 // loops through photons and returns indices to two photons passing desired selection 
 // if more than one diphoton passes, returns pair with highest lead photon pt, or if lead is same, with highest sublead pt.
-int DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL = phoLOOSE, phoCiCIDLevel SUBLEADCUTLEVEL = phoLOOSE, Float_t leadPtMin = 30, Float_t subleadPtMin = 20, int ncategories=6, bool applyPtoverM=false, float *pho_energy_array=0,bool split=false);
+int DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL = phoLOOSE, phoCiCIDLevel SUBLEADCUTLEVEL = phoLOOSE, Float_t leadPtMin = 30, Float_t subleadPtMin = 20, int ncategories=6, bool applyPtoverM=false, float *pho_energy_array=0, bool split=false);
 int DiphotonMITPreSelection(Float_t leadPtMin, Float_t subleadPtMin, bool applyPtoverM, float *pho_energy_array=0);
 
 // for a photon index, applies all levels of cuts and returns the index to the highest cut level passed (can do lead and sublead - same for now)
@@ -151,7 +151,7 @@ int DiphotonPtCategory(double pTh, int n_pThcat=0) {
   if(n_pThcat == 2) {
     pThcat = (Int_t)(pTh < 40.);
   } else if (n_pThcat == 3) {
-    pThcat = (Int_t)((pTh < 70.) + (pTh < 30.));
+    pThcat = (Int_t)((pTh < 70.) + (pTh < 40.));
   }
   return pThcat;
 }
@@ -466,13 +466,24 @@ int MuonSelection(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind);
 int ElectronSelection(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind);
 
 void SetAllMVA();
-Float_t photonIDMVA(Int_t iPhoton, Int_t vtx, TLorentzVector &phoP4, Float_t mass, std::string type);
-Float_t diphotonMVA(Int_t leadingPho, Int_t subleadingPho, Int_t vtx, float vtxProb, TLorentzVector &leadP4, TLorentzVector &subleadP4, float sigmaMrv, float sigmaMwv, float sigmaMeonly, std::string type);
-
-Float_t tmva_dipho_UCSD_pvtx,tmva_dipho_UCSD_nvtx,tmva_dipho_UCSD_sigma_mz;
+Float_t photonIDMVA(Int_t, Int_t, TLorentzVector &, const char*);
+Float_t diphotonMVA(Int_t, Int_t, Int_t, float, TLorentzVector &, TLorentzVector &, float,float,float,const char*,float photonID_1=-50.,float photonID_2=-50.);
 float getDmOverDz(Int_t, Int_t, Float_t*);
 Float_t deltaMassVtx(Int_t, Int_t, Float_t);
 
+int IPhi(double phi){
+  if (phi < -999) return 0;
+  do {
+	phi+=2*TMath::Pi();
+  } while (phi<0);
+  return int(TMath::Ceil(phi/(2 *TMath::Pi()/(18*4*5))));
+};
+int IEta (double eta){
+  return int(TMath::Ceil((eta/1.479)*17*5) + (eta<0 ? -1 : 0));
+};
+
+bool CheckSphericalPhoton(int phoind);
+ 
 #ifdef NewFeatures
 #include "Marco/plotInteractive_h.h"
 #endif

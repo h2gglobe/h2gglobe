@@ -55,7 +55,7 @@ public:
 	operator const std::string & () const { return this->name(); };
 	
 	virtual bool smearDiPhoton( TLorentzVector & p4, TVector3 & selVtx, float & weight, const int & category, 
-				    const int & genMassPoint, const TVector3 & trueVtx, float syst_shift=0.) const = 0 ;
+				    const int & genMassPoint, const TVector3 & trueVtx, float & idMVA1, float & idMVA2, float syst_shift=0.) const = 0 ;
 };
 
 // ! Used to search analyzers by name 

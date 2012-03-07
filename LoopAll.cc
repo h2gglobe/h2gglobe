@@ -6,6 +6,7 @@
 #include <iostream>
 #include <iterator>
 #include <math.h>
+#include <ctime>
 #include "stdlib.h"
 
 using namespace std;
@@ -473,8 +474,8 @@ void LoopAll::InitReal(Int_t typerunpass) {
   
   if(LDEBUG) cout << "finished InitRealPhotonAnalysis" << endl;
 
-  // Initialize all MVA
-  SetAllMVA();
+  // Initialize all MVA -> This is done inside the Analysese now
+ // SetAllMVA();
 
   if (makeOutputTree) 
     outputFile->cd();
@@ -588,6 +589,9 @@ void LoopAll::Loop(Int_t a) {
      analyses[i]->ResetAnalysis(); 
   }
 
+  time_t tfilestart,tfileend;
+  tfilestart = time(0);
+
   for (Int_t jentry=0; jentry<nentries;jentry++) {
     
     if(jentry%10000==0) {
@@ -617,6 +621,8 @@ void LoopAll::Loop(Int_t a) {
     if(LDEBUG) 
       cout<<"Called FillandReduce "<<endl;
   }
+  tfileend = time(0);
+  std::cout << "Average time per event: " << (float) difftime(tfileend,tfilestart)/nentries << std::endl;
 
 //  if(hasoutputfile) {
   if(typerun == kReduce || typerun == kFillReduce  ){

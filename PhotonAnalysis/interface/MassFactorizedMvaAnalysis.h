@@ -36,6 +36,7 @@ public:
 	virtual void Analysis(LoopAll&, Int_t);
 	
 	// Options
+  	bool includeVBF;
 	bool reRunCiCForData;
 	float leadEtCut;
 	float subleadEtCut;
@@ -48,12 +49,13 @@ public:
 	double GetDifferentialKfactor(double, int);
 
 	void FillSignalLabelMap();
-	int GetBDTBoundaryCategory(float,bool);
+	int GetBDTBoundaryCategory(float,bool,bool);
 	std::string GetSignalLabel(int) ;
 
 	bool  doMCSmearing;
-	bool  doEscaleSyst, doEresolSyst, doPhotonIdEffSyst, doVtxEffSyst, doR9Syst, doTriggerEffSyst, doKFactorSyst;
-	bool  doEscaleSmear, doEresolSmear, doPhotonIdEffSmear, doVtxEffSmear, doR9Smear, doTriggerEffSmear, doKFactorSmear;
+	bool  doEscaleSyst, doEresolSyst, doPhotonIdEffSyst, doVtxEffSyst, doR9Syst, doTriggerEffSyst, doKFactorSyst, doPhotonMvaIdSyst;
+	bool  doEscaleSmear, doEresolSmear, doPhotonIdEffSmear, doVtxEffSmear, doR9Smear, doTriggerEffSmear, doKFactorSmear, doPhotonMvaIdSmear;
+	bool doRegressionSmear, doRegressionSyst;
 	float systRange;
 	int   nSystSteps;   
 	int   nEtaCategories, nR9Categories, nPtCategories;
@@ -80,6 +82,8 @@ public:
 	TH1D *thm110,*thm120,*thm130,*thm140;
 	int nMasses;
 
+	
+
 protected:
 	std::vector<BaseSmearer *> photonSmearers_;
 	std::vector<BaseSmearer *> systPhotonSmearers_;
@@ -88,9 +92,9 @@ protected:
 	std::vector<BaseGenLevelSmearer *> genLevelSmearers_;
 	std::vector<BaseGenLevelSmearer *> systGenLevelSmearers_;
 	
-	EnergySmearer /* *eScaleSmearer,*/ *eResolSmearer ; // moved to PhotonAnalysis GF 
+	EnergySmearer /* *eScaleSmearer,*/ *eResolSmearer, *eRegressionSmearer ; // moved to PhotonAnalysis GF 
 	EfficiencySmearer *idEffSmearer, *r9Smearer;
-	DiPhoEfficiencySmearer *vtxEffSmearer, *triggerEffSmearer;
+	DiPhoEfficiencySmearer *vtxEffSmearer, *triggerEffSmearer,*photonMvaIdSmearer ;
 	KFactorSmearer * kFactorSmearer;
 	
 	std::string name_;

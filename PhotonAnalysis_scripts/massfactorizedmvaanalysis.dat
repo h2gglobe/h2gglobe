@@ -13,6 +13,8 @@ nR9Categories=2
 doTriggerSelection=1
 reRunCiCForData=1
 
+includeVBF=1
+
 ->
 choose between UCSD and MIT trainings
 ->
@@ -42,6 +44,9 @@ doEscaleSyst=1
 doEresolSmear=1
 doEresolSyst=1
 
+doRegressionSmear=1
+doRegressionSyst=1
+
 doPhotonIdEffSyst=1
 doPhotonIdEffSmear=1
 
@@ -51,8 +56,11 @@ doVtxEffSmear=1
 doTriggerEffSmear=1
 doTriggerEffSyst=1
 
-doR9Smear=1
-doR9Syst=1
+doPhotonMvaIdSmear=1
+doPhotonMvaIdSyst=1
+
+doR9Smear=0
+doR9Syst=0
 
 doKFactorSmear=1
 doKFactorSyst=1
@@ -64,7 +72,7 @@ Inputs for reweighing
 ->
 
 kfacHist=aux/KFactors_AllScales_interpolated.root
-efficiencyFile=aux/sig_reweighing_v16_mit.root
+efficiencyFile=aux/sig_reweighing_v18_mit.root
 puHist=aux/2011_0100_73500.weights3.root
 
 puMap=pu_weights_map.dat

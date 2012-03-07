@@ -120,6 +120,7 @@ class LoopAll {
   TFile * outputFile;
   TString outputFileName;
   TString histFileName;
+  std::string outputTextFileName;
   Int_t makeOutputTree;
 
   char inputFilesName[1024];

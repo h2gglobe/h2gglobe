@@ -2,7 +2,7 @@
 #include "PhotonReducedInfo.h"
 #include <assert.h>
 
-EnergySmearer::EnergySmearer(const energySmearingParameters& par) : myParameters_(par), scaleOrSmear_(true), doCorrections_(false)
+EnergySmearer::EnergySmearer(const energySmearingParameters& par) : myParameters_(par), scaleOrSmear_(true), doCorrections_(false), doRegressionSmear_(false)
 {
   rgen_ = new TRandom3(12345);
   name_="EnergySmearer_"+ par.categoryType + "_" + par.parameterSetName;
@@ -123,6 +123,15 @@ bool EnergySmearer::smearPhoton(PhotonReducedInfo & aPho, float & weight, int ru
   float scale_offset   = getScaleOffset(run, category);
   float smearing_sigma = myParameters_.smearing_sigma.find(category)->second;
 
+  // special category for Unconverted photons in EB "far" from boundary (Haven't made this configrable yet in the smearers .dats)
+  float sphericalPhotonSigma     =0.0045;
+  float sphericalPhotonSigmaError=0.0040;
+  // Will move this soon to an additional category in dats which is configurable
+  bool is_specialPhoton = aPho.isSphericalPhoton();
+  if (is_specialPhoton) smearing_sigma=sphericalPhotonSigma;
+  //
+
+
   /////////////////////// smearing or re-scaling photon energy ///////////////////////////////////////////
   
   float newEnergy=aPho.energy();
@@ -130,6 +139,15 @@ bool EnergySmearer::smearPhoton(PhotonReducedInfo & aPho, float & weight, int ru
   if (  doCorrections_ ) {
     // corrEnergy is the corrected photon energy
     newEnergy = aPho.corrEnergy() + syst_shift * myParameters_.corrRelErr * (aPho.corrEnergy() - aPho.energy());
+  } else if ( doRegressionSmear_){
+    // leave energy alone, bus change resolution (10% uncertainty on sigmaE/E scaling)
+    float newSigma;
+    if (fabs(aPho.caloPosition().Eta())<1.5){
+    	newSigma = (aPho.corrEnergyErr()/1.07)*(1.07+syst_shift*0.1);
+    } else {
+    	newSigma = (aPho.corrEnergyErr()/1.045)*(1.045+syst_shift*0.1);
+    }
+    aPho.setCorrEnergyErr(newSigma);
   }
 
   else {
@@ -138,10 +156,12 @@ bool EnergySmearer::smearPhoton(PhotonReducedInfo & aPho, float & weight, int ru
 	  /// std::cerr << "photon category " << category << " syst_shift " <<  syst_shift << " scale_offset " << scale_offset << std::endl;
 	  newEnergy *=  scale_offset;
     } else {
-	  smearing_sigma += syst_shift * myParameters_.smearing_sigma_error.find(category)->second;
+	  float err_sigma= is_specialPhoton ? sphericalPhotonSigmaError : myParameters_.smearing_sigma_error.find(category)->second;
+	  smearing_sigma += syst_shift * err_sigma;
 	  /// std::cerr << "photon category " << category << " syst_shift " <<  syst_shift << " smearing_sigma " << smearing_sigma << std::endl;
-	  // Careful here, if sigma < 0 now, it will be squared and so not correct, set to 0 in this case.
-	  if (smearing_sigma < 0) smearing_sigma=0;
+          // Careful here, if sigma < 0 now, it will be squared and so not correct, set to 0 in this case.
+          if (smearing_sigma < 0) smearing_sigma=0;
+
 	  newEnergy *=  rgen_->Gaus(1.,smearing_sigma);
     }
   }

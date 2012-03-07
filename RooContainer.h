@@ -7,6 +7,7 @@
 #include "TPaveText.h"
 #include "TLatex.h"
 #include "TH1F.h"
+#include "TF1.h"
 #include "TAxis.h"
 #include "TString.h"
 #include "TMath.h"
@@ -84,6 +85,7 @@ class RooContainer {
    // void ConvolutePdf(std::string,std::string,std::string,std::string
    //		      ,double norm_guess=100);
 
+   void MergeHistograms(std::string,std::string, bool systematics=false);
    void SumBinnedDatasets(std::string,std::string,std::string,std::vector<double>, std::vector<double>, bool scale=true);
    void SumBinnedDatasets(std::string,std::string,std::string,double,double, bool scale=true);
    void SumMultiBinnedDatasets(std::string,std::vector<std::string>,std::vector<double>,bool scale=true);
@@ -107,9 +109,11 @@ class RooContainer {
 			   ,std::vector<double> x, std::vector<double> weights=std::vector<double>(0));
 
    void RebinBinnedDataset(std::string,std::string,std::vector <std::vector<double> >, bool);
+   void RebinBinnedDataset(std::string,std::string,std::vector<double> , bool);
    std::vector<std::vector<double> >OptimizedBinning(std::string,int,bool,bool,int direction=1);
    std::vector<std::vector<double> >RebinConstantEdges(std::string,int);
    std::vector<std::vector<double> >SoverBOptimizedBinning(std::string,std::string,int,double);
+   std::vector<std::vector<double> > SignificanceOptimizedBinning(std::string signalname,std::string bkgname,int nTargetBins);
    void WriteDataCard(std::string,std::string,std::string,std::string);
    void WriteSpecificCategoryDataCards(std::string,std::string,std::string,std::string);
    void GenerateBinnedPdf(std::string,std::string,std::string,int,int,int,double x1=-999,double x2=-999);
@@ -147,6 +151,7 @@ class RooContainer {
 			     ,std::vector<std::string> &,bool);
   // void convolutePdf(std::string,std::string,std::string,RooRealVar &,double norm_guess=100);
 
+   void mergeHistograms(std::string, TH1F*, TH1F*);
    void sumBinnedDatasets(std::string,std::string,std::string,double,double,bool);
    void sumMultiBinnedDatasets(std::string,std::vector<std::string>,double,bool scale=true);
    void createDataSet(std::string,std::string,int,double x1,double x2);
@@ -163,12 +168,18 @@ class RooContainer {
    void writeSpecificCategoryDataCard(int,std::string,std::string,std::string,std::string);
    void removeDuplicateElements(std::vector<RooAbsPdf*> &);
    void histogramSmoothing(TH1F*, int);
+   void histogramSmoothingFit(TH1F*);
    void setAllParametersConstant();
    void rebinBinnedDataset(std::string,std::string,TH1F *,std::vector<double>);
    std::vector<double> optimizedBinning(TH1F *,int,bool,bool);
    std::vector<double> rebinConstantEdges(TH1F *,int);
    std::vector<double> optimizedReverseBinning(TH1F *,int,bool,bool);
    std::vector<double> soverBOptimizedBinning(TH1F *,TH1F*,int,double);
+   std::vector<double> significanceOptimizedBinning(TH1F *hs,TH1F *hb,int nTargetBins);
+
+   double calculateSig(double s1, double s2, double b1, double b2);
+   double calculateSigMulti(std::vector<double> &s1, std::vector<double> &b1);
+   bool compareLHWide(double s1, double sdiff,double s2,double b1,double bdiff, double b2,double n, std::vector<double> &chanS, std::vector<double> &chanB);
 
    double getNormalisationFromFit(std::string,std::string,RooAbsPdf *,RooRealVar*,double,double,bool,bool);
    std::pair<double,double> getNormalisationAndErrorFromFit(std::string,std::string,RooAbsPdf *,RooRealVar*,double,double,bool,bool);

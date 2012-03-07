@@ -1,7 +1,7 @@
 # Python Configuration Handler for Util
 # Original Author - Nicholas Wardle
 
-PYDEBUG = 0
+PYDEBUG = 1
 
 # System python imports
 import sys,os, json
@@ -35,11 +35,11 @@ def defineEvList(fname,dataset):
     for run in evlist.keys():
         for ev in evlist[run]:
             dataset.addEventToList(int(run), int(ev[0]), int(ev[1]) )
-
+  
 
 class configProducer:
 
-  def __init__(self,Ut,conf_filename,Type,njobs=-1,jobId=0):
+  def __init__(self,Ut,conf_filename,Type,njobs=-1,jobId=0,makehistos=True):
 
     print "h2gglobe: step %d, with Config %s. Number of jobs %d. Running job %d" %(Type,conf_filename,njobs,jobId)
 
@@ -50,6 +50,8 @@ class configProducer:
     self.njobs_ = njobs
     self.jobId_ = jobId
     self.nf_ 	= [0]
+	
+    self.make_histograms=makehistos
 
     self.sample_weights_file_ = 0
     self.file_processed_events_ = {}
@@ -59,6 +61,8 @@ class configProducer:
 
     self.conf_    = confBlock()
     self.plotvar_ = datBlock()
+
+    self.tmac = []
   
     if self.type_ == 0 or self.type_ == 2:
       self.init_loop()
@@ -145,6 +149,7 @@ class configProducer:
       self.conf_.print_conf()
     self.add_files()
     self.ut_.SetTypeRun(self.type_,self.conf_.histfile)
+    self.ut_.outputTextFileName = self.conf_.outfile
     for dum in self.conf_.confs:
       dataContainer = self.ut_.DefineSamples(dum['Nam'],dum['typ'],dum['ind'],dum['draw'],dum['red'],dum['tot'],dum['intL'],dum['lum'],dum['xsec'],dum['kfac'],dum['scal'],dum['addnevents'])
       if("json" in dum and dum["json"] != ""):
@@ -386,8 +391,12 @@ class configProducer:
           name,val = [ s.lstrip(" ").rstrip(" ") for s in sp.split("=") ]
           try:
 	    if ".root" in val and not "/castor" in val and not os.path.isfile(val): sys.exit("No File found - %s, check the line %s"%(val,line))
-            t = type( struct.__getattribute__(name) )
-            struct.__setattr__(name, t(val) )
+      	    if "," in val:
+	     ele = val.split(",")
+	     for v in ele: (struct.__getattribute__(name)).push_back(float(v))
+            else :
+             t = type( struct.__getattribute__(name) )
+             struct.__setattr__(name, t(val) )
             print "%s = %s" % ( name, str(struct.__getattribute__(name)) )
           except AttributeError:
             sys.exit( "Error: unkown attribute: %s\nline: %s\n%s" % ( name, line, struct ) )
@@ -582,12 +591,13 @@ class configProducer:
       if fi_type!=0 and fi_type!=-99999 and map_c["tot"] == 0:
           allfiles = mkFiles(dir,-1,-1)
           for file_s in allfiles:
-	      print "Getting N Processed Events for - ", file_s[0]
 	      if self.sample_weights_file_==0 :
+	        print "Calculating N Processed Events for - ", file_s[0]
 		nEventsInFile = getTreeEntry(file_s[0],"global_variables","processedEvents")
                 map_c["tot"] = map_c["tot"] + nEventsInFile
 		self.file_processed_events_[file_s[0]] = nEventsInFile
 	      else:
+	        print "Reading N Processed Events for - ", file_s[0]
 		if file_s[0] in self.file_processed_events_: map_c["tot"] = map_c["tot"] + self.file_processed_events_[file_s[0]]
 		else: (sys.exit("No Entry for %s found in %s, Please Delete %s and re-run with option --dryRun to regenerate it"%(file_s[0],self.sample_weights_file_,self.sample_weights_file_)))
 

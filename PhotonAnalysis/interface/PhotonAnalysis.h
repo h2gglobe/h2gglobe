@@ -13,6 +13,7 @@
 #include "TMVA/Reader.h"
 #include "PhotonFix.h"
 // #include "HiggsToGammaGamma/interface/GBRForest.h"
+//#include "../../../../HiggsToGammaGamma/interface/GBRForest.h"
 //#include "HiggsAnalysis/HiggsToGammaGamma/interface/GBRForest.h"
 
 // ------------------------------------------------------------------------------------
@@ -42,7 +43,9 @@ public:
 	virtual void ResetAnalysis();
 
 	//void GetRegressionCorrections(LoopAll&);	
+//	void GetRegressionCorrections(LoopAll&);	
 	// Public parameters to be read from config file
+	float zero_;
 	VertexAlgoParameters vtxAlgoParams;	 
 	std::vector<std::string> vtxVarNames;
 	bool useDefaultVertex;
@@ -99,6 +102,7 @@ public:
 
 	std::string scale_offset_error_file, smearing_file;
 	std::string energyCorrectionMethod;
+	//std::string massResolutionFileName;
 
 	std::string tmvaPerVtxMethod;                       	
         std::string tmvaPerVtxWeights;                  
@@ -112,7 +116,36 @@ public:
 	std::string regressionFile;
 	
   int   nEtaCategories, nR9Categories, nPtCategories;
+	//std::string photonFixDat;
+	//std::string regressionFile;
 
+	// VBF
+  	// for N-1
+  	float  myVBFLeadJPt;
+  	float  myVBFSubJPt;
+  	float  myVBFdEta;
+  	float  myVBFZep;
+  	float  myVBFdPhi;
+  	float  myVBF_Mjj;
+
+  	float  myVBF_Mgg;
+
+ 	float  myAllLeadJPt;
+ 	float  myAllSubJPt;
+  	float  myAllLeadJEta;
+  	float  myAllSubJEta;
+ 	float  myAlldEta;
+  	float  myAllZep;
+ 	float  myAlldPhi;
+  	float  myAll_Mjj;
+
+  	float  myAll_Mgg;
+  	float  myAllPtHiggs;
+
+
+
+  	std::pair<int, int> Select2HighestPtJets(LoopAll&, TLorentzVector& leadpho, TLorentzVector& subleadpho, float jtLMinPt, float jtTMinPt);
+  	int RescaleJetEnergy(LoopAll&);
 protected:
 	void PreselectPhotons(LoopAll& l, int jentry);
 	void StatAnalysis(LoopAll &l, int jentry);
@@ -147,7 +180,6 @@ protected:
           Float_t minLeadingMVA=-0.3, Float_t minSubleadingMVA=-0.3, Float_t leadPtMin=30, 
           Float_t subleadPtMin=20, std::string type="UCSD", int ncategories=7,
           bool applyPtoverM=true, float *pho_energy_array=0, bool split=false);
-  
   int DiphotonMVAEventClass(LoopAll &l, float diphoMVA, int nCat, std::string type, int EBEB=1);
 	
   //TFile *fgbr;
@@ -155,6 +187,14 @@ protected:
         //GBRForest *fReaderebvariance;
         //GBRForest *fReaderee;
         //GBRForest *fReadereevariance;      
+	std::vector<PhotonReducedInfo> photonInfoCollection;
+/*
+	TFile *fgbr;
+	GBRForest *fReadereb;
+        GBRForest *fReaderebvariance;
+        GBRForest *fReaderee;
+        GBRForest *fReadereevariance;      
+*/
 
 };
 

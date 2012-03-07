@@ -101,6 +101,8 @@ public:
 
   void doEnergy(bool x) { doEnergy_=x; }; 
 
+  void doRegressionSigma(bool x) { doRegressionSmear_=x; }; 
+
   void doCorrections(bool x) { doCorrections_=x; }; 
    
   void doEfficiencies(bool x) { doEfficiencies_=x; }; 
@@ -114,7 +116,7 @@ public:
   energySmearingParameters  myParameters_;
   
  protected:
-  bool doEnergy_, scaleOrSmear_, doEfficiencies_, doCorrections_;
+  bool doEnergy_, scaleOrSmear_, doEfficiencies_, doCorrections_, doRegressionSmear_;
 
   std::string photonCategory(PhotonReducedInfo &) const;
 
