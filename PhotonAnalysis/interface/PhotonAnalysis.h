@@ -127,16 +127,15 @@ public:
   	float  myVBFZep;
   	float  myVBFdPhi;
   	float  myVBF_Mjj;
-
   	float  myVBF_Mgg;
 
- 	float  myAllLeadJPt;
- 	float  myAllSubJPt;
+ 	  float  myAllLeadJPt;
+ 	  float  myAllSubJPt;
   	float  myAllLeadJEta;
   	float  myAllSubJEta;
- 	float  myAlldEta;
+  	float  myAlldEta;
   	float  myAllZep;
- 	float  myAlldPhi;
+ 	  float  myAlldPhi;
   	float  myAll_Mjj;
 
   	float  myAll_Mgg;
@@ -144,8 +143,6 @@ public:
 
 
 
-  	std::pair<int, int> Select2HighestPtJets(LoopAll&, TLorentzVector& leadpho, TLorentzVector& subleadpho, float jtLMinPt, float jtTMinPt);
-  	int RescaleJetEnergy(LoopAll&);
 protected:
 	void PreselectPhotons(LoopAll& l, int jentry);
 	void StatAnalysis(LoopAll &l, int jentry);

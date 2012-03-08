@@ -87,6 +87,7 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
   nPhotonCategories_ = nEtaCategories;
   if( nR9Categories != 0 ) nPhotonCategories_ *= nR9Categories;
 
+  
   effSmearPars.categoryType = "2CatR9_EBEE";
   effSmearPars.n_categories = 4;
   effSmearPars.efficiency_file = efficiencyFile;
@@ -555,6 +556,9 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
   int cur_type = l.itype[l.current];
   float weight = l.sampleContainer[l.current_sample_index].weight;
+  float newweight = l.sampleContainer[l.current_sample_index].weight;
+  double pileupWeight=1.; 
+  
   l.FillCounter( "Processed", 1. );
   assert( weight > 0. );  
   l.FillCounter( "XSWeighted", weight );
@@ -585,6 +589,7 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
     if(n_pu<puweights.size()){
       weight *= puweights[n_pu];
       sumwei+=puweights[n_pu]; 
+	    pileupWeight *= puweights[n_pu];
     }    
     else{ //should not happen as we have a weight for all simulated n_pu multiplicities!
       cout <<"n_pu ("<< n_pu<<") too big ("<<puweights.size()<<") ["<< l.itype[l.current]<<"], event will not be reweighted for pileup"<<endl;
@@ -712,7 +717,7 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
     // CP // NW Use Same pre-selected events but tag as VBF if pass Jet Requirements
 
     if(includeVBF) {
-      PhotonAnalysis::RescaleJetEnergy(l);
+      l.RescaleJetEnergy();
       int diphoton_id_vbf = l.DiphotonMITPreSelection(leadEtCutVBF,subleadEtCut,applyPtoverM, &smeared_pho_energy[0] ); 
 
       if (diphoton_id_vbf > -1){
@@ -729,7 +734,7 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
       bool crosscheck = false;
       std::pair<int,int> highestPtJets(-1,-1);
 
-      highestPtJets = Select2HighestPtJets(l, lead_p4, sublead_p4, jet1ptcut, jet2ptcut );
+      highestPtJets = l.Select2HighestPtJets(lead_p4, sublead_p4, jet1ptcut, jet2ptcut );
       bool VBFpresel = (highestPtJets.first!=-1)&&(highestPtJets.second!=-1);
 
       // Make sure VBF event is set to false before checking for the Jets
@@ -740,17 +745,6 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
         TLorentzVector* jet2 = (TLorentzVector*)l.jet_algoPF1_p4->At(highestPtJets.second);
         TLorentzVector dijet = (*jet1) + (*jet2);
 
-        myAllLeadJPt = jet1->Pt();
-        myAllSubJPt = jet2->Pt();
-        myAllLeadJEta = jet1->Eta();
-        myAllSubJEta = jet2->Eta();
-        myAll_Mjj = dijet.M();
-        myAlldEta = fabs(jet1->Eta() - jet2->Eta());
-        myAllZep  = fabs(Higgs.Eta() - 0.5*(jet1->Eta() + jet2->Eta()));
-        myAlldPhi = fabs(Higgs.DeltaPhi(dijet));
-        myAll_Mgg =Higgs.M();
-        myAllPtHiggs =Higgs.Pt();
-
         myVBFLeadJPt = jet1->Pt();
         myVBFSubJPt = jet2->Pt();
         myVBF_Mjj = dijet.M();
@@ -760,24 +754,15 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
         myVBF_Mgg =Higgs.M();
 
 
-        // Cannot Get Apply cuts to work -> Need to discuss with C.Palmer, for now, jyst apply the cuts
-        //l.ApplyCutsFill(0,3,evweight, myweight);
-        //VBFevent = l.ApplyCutsFill(0,5,evweight, myweight);
-        //VBFevent = l.ApplyCutsFill(0,1,evweight, myweight);
-        if (myVBFLeadJPt  >30.){
-          if (myVBFSubJPt >20.){
-            if (myVBF_Mjj   >350.){
-              if (myVBFdEta   >3.5){
-                if (myVBFdPhi   >2.6){
-                  if (myVBFZep    <2.5){
-                    VBFevent=true;
-			  diphoton_id = diphoton_id_vbf;
-                  }
-                }
-              }   
-            }
-          }
-        }
+        // if you want counters and seq/n-1 histograms use ApplyCutsFill
+        //////float evweight = newweight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second] * genLevWeight * pileupWeight;
+        //////float myweight=1.;
+        //////if(evweight*newweight!=0) myweight=evweight/newweight;
+        //////VBFevent = l.ApplyCutsFill(0,1,evweight, myweight);
+        VBFevent = l.ApplyCuts(0,1);
+        if(VBFevent) diphoton_id = diphoton_id_vbf;
+        
+        
         /*  
             if(VBFevent && cur_type==-18) 
             std::cout << setprecision(4) <<  "Run = " << l.run << "  LS = " << l.lumis <<
@@ -1240,7 +1225,7 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
             bool crosscheck = false;
             std::pair<int,int> highestPtJets(-1,-1);
 
-            highestPtJets = Select2HighestPtJets(l, lead_p4, sublead_p4, jet1ptcut, jet2ptcut );
+            highestPtJets = l.Select2HighestPtJets(lead_p4, sublead_p4, jet1ptcut, jet2ptcut );
             bool VBFpresel = (highestPtJets.first!=-1)&&(highestPtJets.second!=-1);
 
             if(VBFpresel){
@@ -1248,17 +1233,6 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
               TLorentzVector* jet1 = (TLorentzVector*)l.jet_algoPF1_p4->At(highestPtJets.first);
               TLorentzVector* jet2 = (TLorentzVector*)l.jet_algoPF1_p4->At(highestPtJets.second);
               TLorentzVector dijet = (*jet1) + (*jet2);
-
-              myAllLeadJPt = jet1->Pt();
-              myAllSubJPt = jet2->Pt();
-              myAllLeadJEta = jet1->Eta();
-              myAllSubJEta = jet2->Eta();
-              myAll_Mjj = dijet.M();
-              myAlldEta = fabs(jet1->Eta() - jet2->Eta());
-              myAllZep  = fabs(Higgs.Eta() - 0.5*(jet1->Eta() + jet2->Eta()));
-              myAlldPhi = fabs(Higgs.DeltaPhi(dijet));
-              myAll_Mgg =Higgs.M();
-              myAllPtHiggs =Higgs.Pt();
 
               myVBFLeadJPt = jet1->Pt();
               myVBFSubJPt = jet2->Pt();
@@ -1270,23 +1244,13 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
 
               // Cannot Get Apply cuts to work -> Need to discuss with C.Palmer, for now, jyst apply the cuts
-              //l.ApplyCutsFill(0,3,evweight, myweight);
-              //VBFevent = l.ApplyCutsFill(0,5,evweight, myweight);
-              //VBFevent = l.ApplyCutsFill(0,1,evweight, myweight);
-              if (myVBFLeadJPt  >30.){
-                if (myVBFSubJPt >20.){
-                  if (myVBF_Mjj   >350.){
-                    if (myVBFdEta   >3.5){
-                      if (myVBFdPhi   >2.6){
-                        if (myVBFZep    <2.5){
-                          VBFevent=true;
-			  diphoton_id = diphoton_id_vbf;
-                        }
-                      }
-                    }   
-                  }
-                }
-              }
+              // if you want counters and seq/n-1 histograms use ApplyCutsFill
+              //////float evweight = newweight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second] * genLevWeight * pileupWeight;
+              //////float myweight=1.;
+              //////if(evweight*newweight!=0) myweight=evweight/newweight;
+              //////VBFevent = l.ApplyCutsFill(0,1,evweight, myweight);
+              VBFevent = l.ApplyCuts(0,1);
+              if(VBFevent) diphoton_id = diphoton_id_vbf;
 
               /*
                  if(VBFevent) 

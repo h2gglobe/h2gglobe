@@ -13,8 +13,8 @@ cutname=cut_VBF_dPhi     ncat=1  dir=0  fin=1  val=2.6               iread=1 plo
 cutname=cut_VBF_Mgg2     ncat=1  dir=2  fin=1  minval=90 maxval=190  iread=1 plot=2 bins=50 xmin=90 xmax=190   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(2@GeV/c^{2})
 cutname=cut_VBF_Mgg4     ncat=1  dir=2  fin=1  minval=90 maxval=190  iread=1 plot=2 bins=25 xmin=90 xmax=190   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(4@GeV/c^{2})
 cutname=cut_VBF_Mgg10    ncat=1  dir=2  fin=1  minval=90 maxval=190  iread=1 plot=2 bins=10 xmin=90 xmax=190   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(10@GeV/c^{2})
-cutname=cut_VBF_Mgg2_100_160    ncat=1  dir=2  fin=1  minval=100 maxval=180  iread=1 plot=2 bins=40 xmin=100 xmax=180   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(2@GeV/c^{2})
-cutname=cut_VBF_Mgg4_100_160    ncat=1  dir=2  fin=1  minval=100 maxval=180  iread=1 plot=2 bins=20 xmin=100 xmax=180   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(4@GeV/c^{2})
+cutname=cut_VBF_Mgg2_100_180    ncat=1  dir=2  fin=1  minval=100 maxval=180  iread=1 plot=2 bins=40 xmin=100 xmax=180   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(2@GeV/c^{2})
+cutname=cut_VBF_Mgg4_100_180    ncat=1  dir=2  fin=1  minval=100 maxval=180  iread=1 plot=2 bins=20 xmin=100 xmax=180   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(4@GeV/c^{2})
 
 cutname=cut_VHad_Mgg0    ncat=1  dir=2  fin=2  minval=90 maxval=190  iread=1 plot=2 bins=50 xmin=90 xmax=190   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(2@GeV/c^{2})
 cutname=cut_VHadLeadJPt  ncat=1  dir=0  fin=2  val=30                iread=1 plot=2 bins=48 xmin=10 xmax=200   xaxis=Leading@Jet@P_{T}@(GeV/c)    yaxis=Events/(5@GeV/c)

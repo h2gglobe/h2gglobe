@@ -103,7 +103,8 @@ void StatAnalysis::Init(LoopAll& l)
     if( nR9Categories != 0 ) nInclusiveCategories_ *= nR9Categories;
     if( nPtCategories != 0 ) nInclusiveCategories_ *= nPtCategories;
 
-    if( useMVA ) nInclusiveCategories_ = nDiphoEventClasses;
+    // mva removed cp march 8
+    //if( useMVA ) nInclusiveCategories_ = nDiphoEventClasses;
 
     // CP
 
@@ -131,18 +132,6 @@ void StatAnalysis::Init(LoopAll& l)
     l.SetCutVariables("cut_All_Mgg2_100_160", &myAll_Mgg);
     l.SetCutVariables("cut_AllPtHiggs",       &myAllPtHiggs);
 
-    l.SetCutVariables("cut_VBFLeadJPt",       &myVBFLeadJPt);
-    l.SetCutVariables("cut_VBFSubJPt",        &myVBFSubJPt);
-    l.SetCutVariables("cut_VBF_Mjj",          &myVBF_Mjj);
-    l.SetCutVariables("cut_VBF_dEta",         &myVBFdEta);
-    l.SetCutVariables("cut_VBF_Zep",          &myVBFZep);
-    l.SetCutVariables("cut_VBF_dPhi",         &myVBFdPhi);
-    l.SetCutVariables("cut_VBF_Mgg0",         &myVBF_Mgg);
-    l.SetCutVariables("cut_VBF_Mgg2",         &myVBF_Mgg);
-    l.SetCutVariables("cut_VBF_Mgg4",         &myVBF_Mgg);
-    l.SetCutVariables("cut_VBF_Mgg10",        &myVBF_Mgg);
-    l.SetCutVariables("cut_VBF_Mgg4_100_160",        &myVBF_Mgg);
-    l.SetCutVariables("cut_VBF_Mgg2_100_160",        &myVBF_Mgg);
     
     l.SetCutVariables("cut_VHadLeadJPt",      &myVHadLeadJPt);
     l.SetCutVariables("cut_VHadSubJPt",       &myVHadSubJPt);
@@ -474,15 +463,17 @@ void StatAnalysis::Init(LoopAll& l)
 
     for(int i=0; i<nCategories_; i++){
       if(i<nInclusiveCategories_) {
-        if(useMVA) {
-          if(i<5) {
-            cats_with_std[i]=1;
-          } else {
-            cats_with_quartic[i]=1;
-          }
-        } else {
-          cats_with_std[i]=1;
-        }
+        cats_with_std[i]=1;
+        // mva removed cp march 8
+        //if(useMVA) {
+        //  if(i<5) {
+        //    cats_with_std[i]=1;
+        //  } else {
+        //    cats_with_quartic[i]=1;
+        //  }
+        //} else {
+        //  cats_with_std[i]=1;
+        //}
       } else if(i<nInclusiveCategories_+((int)includeVBF)*nVBFEtaCategories){
         cats_with_quad[i]=1;
       } else if(i<nInclusiveCategories_+((int)includeVBF)*nVBFEtaCategories+((int)includeVHad)*nVHadEtaCategories){
@@ -772,21 +763,23 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     sumev += weight;
     // FIXME pass smeared R9
     int diphoton_id = -1;
-    float diphoton_mva = -10;
-    if(useMVA) {
-      if(PADEBUG) std::cout<<"run event "<<l.run<<"   "<<l.event<<std::endl;
-      diphoton_id = DiphotonMVASelection( l, vtxAna_, diphoton_mva, phoIDMVAtight, phoIDMVAloose, 
-          leadEtCut, subleadEtCut, phoIDMVAtype, nDiphoEventClasses,
-          applyPtoverM, &smeared_pho_energy[0] );
-      if(PADEBUG) std::cout<<"diphoton_id "<<diphoton_id<<std::endl;
-      if(PADEBUG) std::cout<<"diphoton_mva "<<diphoton_mva<<std::endl;
-      if(diphoton_id!=-1){
-        int EBEB = l.pho_isEB[l.dipho_leadind[diphoton_id]]==1 && l.pho_isEB[l.dipho_subleadind[diphoton_id]]==1;
-        if(DiphotonMVAEventClass( l, diphoton_mva, nInclusiveCategories_, phoIDMVAtype, EBEB) == -1) diphoton_id = -1;
-      }
-    } else {
-      diphoton_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtCut, subleadEtCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
-    }
+    // mva removed cp march 8
+    //float diphoton_mva = -10;
+    //if(useMVA) {
+    //  if(PADEBUG) std::cout<<"run event "<<l.run<<"   "<<l.event<<std::endl;
+    //  diphoton_id = DiphotonMVASelection( l, vtxAna_, diphoton_mva, phoIDMVAtight, phoIDMVAloose, 
+    //      leadEtCut, subleadEtCut, phoIDMVAtype, nDiphoEventClasses,
+    //      applyPtoverM, &smeared_pho_energy[0] );
+    //  if(PADEBUG) std::cout<<"diphoton_id "<<diphoton_id<<std::endl;
+    //  if(PADEBUG) std::cout<<"diphoton_mva "<<diphoton_mva<<std::endl;
+    //  if(diphoton_id!=-1){
+    //    int EBEB = l.pho_isEB[l.dipho_leadind[diphoton_id]]==1 && l.pho_isEB[l.dipho_subleadind[diphoton_id]]==1;
+    //    if(DiphotonMVAEventClass( l, diphoton_mva, nInclusiveCategories_, phoIDMVAtype, EBEB) == -1) diphoton_id = -1;
+    //  }
+    //} else {
+    
+    diphoton_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtCut, subleadEtCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
+    
     int diphoton_nm1_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoNOCUTS, leadEtCut, subleadEtCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
 
     if(diphoton_nm1_id>-1)
@@ -897,19 +890,19 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
    
 
     if((includeVBF || includeVHad)&&l.jet_algoPF1_n>1) {
-      RescaleJetEnergy(l);
+      l.RescaleJetEnergy();
     }
 
     if((includeVBF || includeVHad)) {
       if(includeVBF) {
-        if(useMVA){
-          diphotonVBF_id = DiphotonMVASelection( l, vtxAna_, 
-            diphotonVBF_mva, phoIDMVAtight, phoIDMVAloose, 
-            leadEtVBFCut, subleadEtVBFCut, phoIDMVAtype, 2,
-            applyPtoverM, &smeared_pho_energy[0], true );
-        } else {
-          diphotonVBF_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVBFCut, subleadEtVBFCut, 4,false, &smeared_pho_energy[0], true); 
-        }
+        // mva removed cp march 8
+        //if(useMVA){
+        //  diphotonVBF_id = DiphotonMVASelection( l, vtxAna_, 
+        //    diphotonVBF_mva, phoIDMVAtight, phoIDMVAloose, 
+        //    leadEtVBFCut, subleadEtVBFCut, phoIDMVAtype, 2,
+        //    applyPtoverM, &smeared_pho_energy[0], true );
+        //} else {
+        diphotonVBF_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVBFCut, subleadEtVBFCut, 4,false, &smeared_pho_energy[0], true); 
       }
       if(includeVHad) diphotonVHad_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVHadCut, subleadEtVHadCut, 4,false, &smeared_pho_energy[0] ); 
 
@@ -919,7 +912,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
         float jet1ptcut =0.0;
         float jet2ptcut =0.0;
         
-        highestPtJets = Select2HighestPtJets(l, lead_p4, sublead_p4, jet1ptcut, jet2ptcut );
+        highestPtJets = l.Select2HighestPtJets(lead_p4, sublead_p4, jet1ptcut, jet2ptcut );
 
         bool VBFpresel = (highestPtJets.first!=-1)&&(highestPtJets.second!=-1);
   
@@ -985,7 +978,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
         float jet1ptcut =0.0;
         float jet2ptcut =0.0;
         
-        highestPtJets = Select2HighestPtJets(l, lead_p4, sublead_p4, jet1ptcut, jet2ptcut );
+        highestPtJets = l.Select2HighestPtJets(lead_p4, sublead_p4, jet1ptcut, jet2ptcut );
 
         bool VHadpresel = (highestPtJets.first!=-1)&&(highestPtJets.second!=-1);
   
@@ -1029,7 +1022,8 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     
     if(includeVBF&&VBFevent) {
       diphoton_id = diphotonVBF_id;
-      diphoton_mva = diphotonVBF_mva;
+      // mva removed cp march 8
+      //diphoton_mva = diphotonVBF_mva;
     } else if(includeVHad&&VHadevent) {
       diphoton_id = diphotonVHad_id;
     } else if(includeVHlep && (VHelevent || VHmuevent)) {
@@ -1059,17 +1053,13 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
   
   // FIXME pass smeared R9
 	int category = -1;
-  if(useMVA){
-    if(PADEBUG) std::cout<<"getting diphoton event class"<<std::endl;
-    if(PADEBUG) std::cout<<"phoIDMVAtype "<<phoIDMVAtype<<std::endl;
-    if(PADEBUG) std::cout<<"nInclusiveCategories_ "<<nInclusiveCategories_<<std::endl;
-    if(PADEBUG) std::cout<<"diphoton_mva "<<diphoton_mva<<std::endl;
-    int EBEB = l.pho_isEB[l.dipho_leadind[diphoton_id]]==1 && l.pho_isEB[l.dipho_subleadind[diphoton_id]]==1;
-    category = DiphotonMVAEventClass( l, diphoton_mva, nInclusiveCategories_, phoIDMVAtype, EBEB);
-    if(PADEBUG) std::cout<<"got diphoton event class"<<std::endl;
-  } else {
-    category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,nPtCategories);
-  }
+  // mva removed cp march 8
+  //if(useMVA){
+  //  int EBEB = l.pho_isEB[l.dipho_leadind[diphoton_id]]==1 && l.pho_isEB[l.dipho_subleadind[diphoton_id]]==1;
+  //  category = DiphotonMVAEventClass( l, diphoton_mva, nInclusiveCategories_, phoIDMVAtype, EBEB);
+  //  if(PADEBUG) std::cout<<"got diphoton event class"<<std::endl;
+  //} else {
+  category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,nPtCategories);
 	int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,0);
 	if( cur_type != 0 && doMCSmearing ) {
 	    float pth = Higgs.Pt();
@@ -1094,18 +1084,19 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	sumaccept += weight;
  	sumsmear += evweight;
 
-  if(useMVA){
-    int EBEB = l.pho_isEB[l.dipho_leadind[diphoton_id]]==1 && l.pho_isEB[l.dipho_subleadind[diphoton_id]]==1;
-    if(VBFevent) category=nInclusiveCategories_+ DiphotonMVAEventClass( l, diphoton_mva, 2, phoIDMVAtype, EBEB);
-    else if(VHadevent) category=nInclusiveCategories_+((int)includeVBF)*nVBFEtaCategories+ DiphotonMVAEventClass( l, diphoton_mva, 2, phoIDMVAtype, EBEB);
-    else if(VHmuevent) category=nInclusiveCategories_+((int)includeVBF)*nVBFEtaCategories+((int)includeVHad)*nVHadEtaCategories;
-    else if(VHelevent) category=nInclusiveCategories_+((int)includeVBF)*nVBFEtaCategories+((int)includeVHad)*nVHadEtaCategories+(int)includeVHlep;
-  } else {
-    if(VBFevent) category=nInclusiveCategories_+l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nVBFEtaCategories,1,1);
-    else if(VHadevent) category=nInclusiveCategories_+((int)includeVBF)*nVBFEtaCategories+l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nVHadEtaCategories,1,1);
-    else if(VHmuevent) category=nInclusiveCategories_+((int)includeVBF)*nVBFEtaCategories+((int)includeVHad)*nVHadEtaCategories;
-    else if(VHelevent) category=nInclusiveCategories_+((int)includeVBF)*nVBFEtaCategories+((int)includeVHad)*nVHadEtaCategories+(int)includeVHlep;
-  }
+  // mva removed cp march 8
+  //if(useMVA){
+  //  int EBEB = l.pho_isEB[l.dipho_leadind[diphoton_id]]==1 && l.pho_isEB[l.dipho_subleadind[diphoton_id]]==1;
+  //  if(VBFevent) category=nInclusiveCategories_+ DiphotonMVAEventClass( l, diphoton_mva, 2, phoIDMVAtype, EBEB);
+  //  else if(VHadevent) category=nInclusiveCategories_+((int)includeVBF)*nVBFEtaCategories+ DiphotonMVAEventClass( l, diphoton_mva, 2, phoIDMVAtype, EBEB);
+  //  else if(VHmuevent) category=nInclusiveCategories_+((int)includeVBF)*nVBFEtaCategories+((int)includeVHad)*nVHadEtaCategories;
+  //  else if(VHelevent) category=nInclusiveCategories_+((int)includeVBF)*nVBFEtaCategories+((int)includeVHad)*nVHadEtaCategories+(int)includeVHlep;
+  //} else {
+  if(VBFevent) category=nInclusiveCategories_+l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nVBFEtaCategories,1,1);
+  else if(VHadevent) category=nInclusiveCategories_+((int)includeVBF)*nVBFEtaCategories+l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nVHadEtaCategories,1,1);
+  else if(VHmuevent) category=nInclusiveCategories_+((int)includeVBF)*nVBFEtaCategories+((int)includeVHad)*nVHadEtaCategories;
+  else if(VHelevent) category=nInclusiveCategories_+((int)includeVBF)*nVBFEtaCategories+((int)includeVHad)*nVHadEtaCategories+(int)includeVHlep;
+  
 
 
 	// control plots 
@@ -1192,12 +1183,12 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		    TLorentzVector Higgs = lead_p4 + sublead_p4; 	
 	     
 	      int category = -1;
-        if(useMVA){
-          int EBEB = l.pho_isEB[l.dipho_leadind[diphoton_id]]==1 && l.pho_isEB[l.dipho_subleadind[diphoton_id]]==1;
-          category = DiphotonMVAEventClass( l, diphoton_mva, nInclusiveCategories_, phoIDMVAtype, EBEB);
-        } else {
-          category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,nPtCategories);
-        }
+        // mva removed cp march 8
+        //if(useMVA){
+        //  int EBEB = l.pho_isEB[l.dipho_leadind[diphoton_id]]==1 && l.pho_isEB[l.dipho_subleadind[diphoton_id]]==1;
+        //  category = DiphotonMVAEventClass( l, diphoton_mva, nInclusiveCategories_, phoIDMVAtype, EBEB);
+        //} else {
+        category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,nPtCategories);
 		    double genLevWeightSyst=1; 
 	     
 		    for(std::vector<BaseGenLevelSmearer *>::iterator sj=genLevelSmearers_.begin(); sj!= genLevelSmearers_.end(); ++sj ) {
@@ -1243,12 +1234,13 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 			       
 		    // FIXME pass smeared R9 and di-photon
 	      int category = -1;
-        if(useMVA){
-          int EBEB = l.pho_isEB[l.dipho_leadind[diphoton_id]]==1 && l.pho_isEB[l.dipho_subleadind[diphoton_id]]==1;
-          category = DiphotonMVAEventClass( l, diphoton_mva, nInclusiveCategories_, phoIDMVAtype, EBEB);
-        } else {
-          category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,nPtCategories);
-        }
+        // mva removed cp march 8
+        //if(useMVA){
+        //  int EBEB = l.pho_isEB[l.dipho_leadind[diphoton_id]]==1 && l.pho_isEB[l.dipho_subleadind[diphoton_id]]==1;
+        //  category = DiphotonMVAEventClass( l, diphoton_mva, nInclusiveCategories_, phoIDMVAtype, EBEB);
+        //} else {
+        category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,nPtCategories);
+        
 		    int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,0);
 		    for(std::vector<BaseDiPhotonSmearer *>::iterator sj=diPhotonSmearers_.begin(); sj!= diPhotonSmearers_.end(); ++sj ) {
 			float swei=1.;
@@ -1318,36 +1310,39 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		// analyze the event
 		// FIXME pass smeared R9
 		int diphoton_id = -1;
-    float diphoton_mva = -10;
-    if(useMVA) {
-      diphoton_id = DiphotonMVASelection( l, vtxAna_, diphoton_mva, phoIDMVAtight, phoIDMVAloose, 
-          leadEtCut, subleadEtCut, phoIDMVAtype, nDiphoEventClasses,
-          applyPtoverM, &smeared_pho_energy[0] );
-      if(PADEBUG) std::cout<<"diphoton_id "<<diphoton_id<<std::endl;
-      if(PADEBUG) std::cout<<"diphoton_mva "<<diphoton_mva<<std::endl;
-      if(diphoton_id!=-1){
-        int EBEB = l.pho_isEB[l.dipho_leadind[diphoton_id]]==1 && l.pho_isEB[l.dipho_subleadind[diphoton_id]]==1;
-        if(DiphotonMVAEventClass( l, diphoton_mva, nInclusiveCategories_, phoIDMVAtype, EBEB) == -1) diphoton_id = -1;
-      }   
-    } else {
-      diphoton_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtCut, subleadEtCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
-    }
+    // mva removed cp march 8
+    //float diphoton_mva = -10;
+    //if(useMVA) {
+    //  diphoton_id = DiphotonMVASelection( l, vtxAna_, diphoton_mva, phoIDMVAtight, phoIDMVAloose, 
+    //      leadEtCut, subleadEtCut, phoIDMVAtype, nDiphoEventClasses,
+    //      applyPtoverM, &smeared_pho_energy[0] );
+    //  if(PADEBUG) std::cout<<"diphoton_id "<<diphoton_id<<std::endl;
+    //  if(PADEBUG) std::cout<<"diphoton_mva "<<diphoton_mva<<std::endl;
+    //  if(diphoton_id!=-1){
+    //    int EBEB = l.pho_isEB[l.dipho_leadind[diphoton_id]]==1 && l.pho_isEB[l.dipho_subleadind[diphoton_id]]==1;
+    //    if(DiphotonMVAEventClass( l, diphoton_mva, nInclusiveCategories_, phoIDMVAtype, EBEB) == -1) diphoton_id = -1;
+    //  }   
+    //} else {
+    diphoton_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtCut, subleadEtCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
+    
     int diphotonVBF_id = -1;
-    float diphotonVBF_mva = -10;
+    // mva removed cp march 8
+    //float diphotonVBF_mva = -10;
     int diphotonVHad_id = -1;
     bool VBFevent = false;
     bool VHadevent = false;
     std::pair<int,int> highestPtJets(-1,-1);
     if((includeVBF || includeVHad)&&l.jet_algoPF1_n>1) {
       if(includeVBF) {
-        if(useMVA){
-          diphotonVBF_id = DiphotonMVASelection( l, vtxAna_, 
-            diphotonVBF_mva, phoIDMVAtight, phoIDMVAloose, 
-            leadEtVBFCut, subleadEtVBFCut, phoIDMVAtype, 2,
-            applyPtoverM, &smeared_pho_energy[0], true );
-        } else {
-          diphotonVBF_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVBFCut, subleadEtVBFCut, 4,false, &smeared_pho_energy[0], true); 
-        }
+        // mva removed cp march 8
+        //if(useMVA){
+        //  diphotonVBF_id = DiphotonMVASelection( l, vtxAna_, 
+        //    diphotonVBF_mva, phoIDMVAtight, phoIDMVAloose, 
+        //    leadEtVBFCut, subleadEtVBFCut, phoIDMVAtype, 2,
+        //    applyPtoverM, &smeared_pho_energy[0], true );
+        //} else {
+        diphotonVBF_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVBFCut, subleadEtVBFCut, 4,false, &smeared_pho_energy[0], true); 
+        
       }
       if(includeVHad) diphotonVHad_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVHadCut, subleadEtVHadCut, 4,false, &smeared_pho_energy[0] ); 
 
@@ -1357,7 +1352,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
         float jet1ptcut =0.0;
         float jet2ptcut =0.0;
         
-        highestPtJets = Select2HighestPtJets(l, lead_p4, sublead_p4, jet1ptcut, jet2ptcut );
+        highestPtJets = l.Select2HighestPtJets(lead_p4, sublead_p4, jet1ptcut, jet2ptcut );
 
         bool VBFpresel = (highestPtJets.first!=-1)&&(highestPtJets.second!=-1);
   
@@ -1387,7 +1382,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
         float jet1ptcut =0.0;
         float jet2ptcut =0.0;
         
-        highestPtJets = Select2HighestPtJets(l, lead_p4, sublead_p4, jet1ptcut, jet2ptcut );
+        highestPtJets = l.Select2HighestPtJets(lead_p4, sublead_p4, jet1ptcut, jet2ptcut );
 
         bool VHadpresel = (highestPtJets.first!=-1)&&(highestPtJets.second!=-1);
   
@@ -1413,7 +1408,8 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     
     if(includeVBF&&VBFevent) {
       diphoton_id = diphotonVBF_id;
-      diphoton_mva = diphotonVBF_mva;
+      // mva removed cp march 8
+      //diphoton_mva = diphotonVBF_mva;
     } else if(includeVHad&&VHadevent) {
       diphoton_id = diphotonVHad_id;
     } else if(includeVHlep && (VHelevent || VHmuevent)) {
@@ -1431,12 +1427,13 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		    TLorentzVector Higgs = lead_p4 + sublead_p4; 	
 		   
 	      int category = -1;
-        if(useMVA){
-          int EBEB = l.pho_isEB[l.dipho_leadind[diphoton_id]]==1 && l.pho_isEB[l.dipho_subleadind[diphoton_id]]==1;
-          category = DiphotonMVAEventClass( l, diphoton_mva, nInclusiveCategories_, phoIDMVAtype, EBEB);
-        } else {
-          category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,nPtCategories);
-        }
+        // mva removed cp march 8
+        //if(useMVA){
+        //  int EBEB = l.pho_isEB[l.dipho_leadind[diphoton_id]]==1 && l.pho_isEB[l.dipho_subleadind[diphoton_id]]==1;
+        //  category = DiphotonMVAEventClass( l, diphoton_mva, nInclusiveCategories_, phoIDMVAtype, EBEB);
+        //} else {
+        category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,nPtCategories);
+        
 		    int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,0);
 		    if( cur_type != 0 && doMCSmearing ) {
 			for(std::vector<BaseDiPhotonSmearer *>::iterator si=diPhotonSmearers_.begin(); si!= diPhotonSmearers_.end(); ++si ) {
@@ -1617,108 +1614,8 @@ std::string StatAnalysis::GetSignalLabel(int id){
 	
 }
 
-std::pair<int, int> StatAnalysis::Select2HighestPtJets(LoopAll& l, TLorentzVector& leadpho, TLorentzVector& subleadpho, float jtLMinPt, float jtTMinPt){
-
-  std::pair<int, int> myJets(-1,-1);
-  std::pair<int, int> fail(-1,-1);
-
-  std::pair<int, int> myJetsnew(-1,-1);
-  std::pair<float, float> myJetspt(-1.,-1.);
-
-  float dr2pho = 0.5;
-  float dr2jet = 0.5;
-
-  TLorentzVector* j1p4;
-  TLorentzVector* j2p4;
-  float j1pt=-1;
-  float j2pt=-1;
-
-  // select ighest pt jets
-  // veto jets close to photons or each other
-  for(int j1_i=0; j1_i<l.jet_algoPF1_n; j1_i++){
-    j1p4 = (TLorentzVector*) l.jet_algoPF1_p4->At(j1_i);
-    if(fabs(j1p4->Eta()) > 4.7) continue;
-    if(j1p4->DeltaR(leadpho) < dr2pho) continue;
-    if(j1p4->DeltaR(subleadpho) < dr2pho) continue;
-    j1pt=j1p4->Pt();
-    if(j1pt<jtTMinPt) continue;
-    for(int j2_i=j1_i+1; j2_i<l.jet_algoPF1_n; j2_i++){
-      j2p4 = (TLorentzVector*) l.jet_algoPF1_p4->At(j2_i);
-      if(fabs(j2p4->Eta()) > 4.7) continue;
-      if(j2p4->DeltaR(leadpho) < dr2pho) continue;
-      if(j2p4->DeltaR(subleadpho) < dr2pho) continue;
-      if(j2p4->DeltaR(*j1p4) < dr2jet) continue;
-      j2pt=j2p4->Pt();
-      
-      if(j2pt<jtTMinPt) continue;
-      if(std::max(j1pt,j2pt)<jtLMinPt) continue;
-
-      if(j1pt>j2pt){
-        jtLMinPt=j1pt;
-        jtTMinPt=j2pt;
-
-        myJets.first = j1_i;
-        myJets.second = j2_i;
-      } else {
-        jtLMinPt=j2pt;
-        jtTMinPt=j1pt;
-
-        myJets.first = j2_i;
-        myJets.second = j1_i;
-      }
-    }
-  }
-
-  for(int j1_i=0; j1_i<l.jet_algoPF1_n; j1_i++){
-    j1p4 = (TLorentzVector*) l.jet_algoPF1_p4->At(j1_i);
-    if(fabs(j1p4->Eta()) > 4.7) continue;
-    if(j1p4->DeltaR(leadpho) < dr2pho) continue;
-    if(j1p4->DeltaR(subleadpho) < dr2pho) continue;
-    j1pt=j1p4->Pt();
-
-    //cout<<"AAA MARCOMM "<<j1_i<<" "<<j1p4->Pt()<<" "<<j1p4->Eta()<<endl;
-
-    //if(j1pt<jtTMinPt) continue;
-
-    if(j1pt>myJetspt.first) {
-      myJetsnew.second=myJetsnew.first;
-      myJetspt.second=myJetspt.first;
-      myJetspt.first=j1pt;
-      myJetsnew.first=j1_i;
-    }
-    else if(j1pt>myJetspt.second) {
-      myJetspt.second=j1pt;
-      myJetsnew.second=j1_i;
-    }
-  }
-
-  //cout<<"AAA MARCOMM "<<l.jet_algoPF1_n<<" "<<myJetsnew.first<<" "<<myJetsnew.second<<endl;
-
-  //if(myJets.first==-1) return fail;
-  //return myJets;
-
-  if(myJetsnew.second!=-1&&myJetspt.first>jtTMinPt&&myJetspt.second>jtTMinPt) {
-    if(myJetsnew!=myJets) {
-      j1p4 = (TLorentzVector*) l.jet_algoPF1_p4->At(myJetsnew.first);
-      j2p4 = (TLorentzVector*) l.jet_algoPF1_p4->At(myJetsnew.second);
-      float dr=j2p4->DeltaR(*j1p4);
-      //cout<<"myJetsnew myJets "<<myJetsnew.first<<myJetsnew.second<<myJets.first<<myJets.second<<" dr "<<dr<<endl;
-      //cout<<"myJetsnew myJets "<<myJetspt.first<<" "<<myJetspt.second<<" "<<jtLMinPt<<jtTMinPt<<endl;
-    }
-  }
-
-  return myJetsnew;
-}
 
 void StatAnalysis::ResetAnalysis(){
      // Reset Random Variable on the EnergyResolution Smearer
      eResolSmearer->resetRandom();
-}
-
-int  StatAnalysis::RescaleJetEnergy(LoopAll& l) {
-  for (int i = 0; i<l.jet_algoPF1_n; i++) {
-    TLorentzVector * thisjet = (TLorentzVector *) l.jet_algoPF1_p4->At(i);
-    *thisjet*=l.jet_algoPF1_erescale[i];
-  }
-  return 1;
 }

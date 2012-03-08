@@ -53,11 +53,12 @@ public:
 	int nVHadEtaCategories;
   std::string efficiencyFile;
 
-  bool useMVA;
-  std::string phoIDMVAtype;
-  float phoIDMVAloose;
-  float phoIDMVAtight;
-  int nDiphoEventClasses;
+  // mva removed cp march 8
+  //bool useMVA;
+  //std::string phoIDMVAtype;
+  //float phoIDMVAloose;
+  //float phoIDMVAtight;
+  //int nDiphoEventClasses;
 
 	// EnergySmearer::energySmearingParameters eSmearPars; // gone to PhotonAnalysis GF
 	EfficiencySmearer::efficiencySmearingParameters effSmearPars;
@@ -109,8 +110,6 @@ public:
   float  myAllPtHiggs;
 
 
-  std::pair<int, int> Select2HighestPtJets(LoopAll&, TLorentzVector& leadpho, TLorentzVector& subleadpho, float jtLMinPt, float jtTMinPt);
-  int RescaleJetEnergy(LoopAll&);
 
 	bool  doMCSmearing;
 	bool  doEscaleSyst, doEresolSyst, doPhotonIdEffSyst, doVtxEffSyst, doR9Syst, doTriggerEffSyst, doKFactorSyst;

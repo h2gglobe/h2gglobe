@@ -2068,6 +2068,62 @@ void LoopAll::DefineUserBranches()
 #endif
 }
 
+int  LoopAll::RescaleJetEnergy() {
+  for (int i = 0; i<jet_algoPF1_n; i++) {
+    TLorentzVector * thisjet = (TLorentzVector *) jet_algoPF1_p4->At(i);
+    *thisjet*=jet_algoPF1_erescale[i];
+  }
+  return 1;
+}
+
+std::pair<int, int> LoopAll::Select2HighestPtJets(TLorentzVector& leadpho, TLorentzVector& subleadpho, float jtLMinPt, float jtTMinPt){
+
+  std::pair<int, int> myJets(-1,-1);
+  std::pair<int, int> fail(-1,-1);
+
+  std::pair<float, float> myJetspt(-1.,-1.);
+
+  float dr2pho = 0.5;
+  float dr2jet = 0.5;
+
+  TLorentzVector* j1p4;
+  TLorentzVector* j2p4;
+  float j1pt=-1;
+  float j2pt=-1;
+
+  // select highest pt jets
+
+  for(int j1_i=0; j1_i<jet_algoPF1_n; j1_i++){
+    j1p4 = (TLorentzVector*) jet_algoPF1_p4->At(j1_i);
+    if(fabs(j1p4->Eta()) > 4.7) continue;
+    if(j1p4->DeltaR(leadpho) < dr2pho) continue;
+    if(j1p4->DeltaR(subleadpho) < dr2pho) continue;
+    j1pt=j1p4->Pt();
+
+
+    if(j1pt>myJetspt.first) {
+      myJets.second=myJets.first;
+      myJetspt.second=myJetspt.first;
+      myJetspt.first=j1pt;
+      myJets.first=j1_i;
+    }
+    else if(j1pt>myJetspt.second) {
+      myJetspt.second=j1pt;
+      myJets.second=j1_i;
+    }
+  }
+
+  if(myJets.second!=-1&&myJetspt.first>jtTMinPt&&myJetspt.second>jtTMinPt) {
+    if(myJets!=myJets) {
+      j1p4 = (TLorentzVector*) jet_algoPF1_p4->At(myJets.first);
+      j2p4 = (TLorentzVector*) jet_algoPF1_p4->At(myJets.second);
+      float dr=j2p4->DeltaR(*j1p4);
+    }
+  }
+
+  return myJets;
+}
+
 int LoopAll::MuonSelection(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind){
   int mymu = -1;
 

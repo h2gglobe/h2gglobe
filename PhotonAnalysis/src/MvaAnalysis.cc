@@ -1140,7 +1140,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
   if(includeVBF) {
             
       // JET MET Corrections
-      PhotonAnalysis::RescaleJetEnergy(l);
+      l.RescaleJetEnergy();
 
       int diphoton_id_vbf = l.DiphotonMITPreSelection(leadEtCutVBF,subleadEtCut,applyPtoverM, &smeared_pho_energy[0] ); 
 
@@ -1158,7 +1158,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
         bool crosscheck = false;
         std::pair<int,int> highestPtJets(-1,-1);
 
-        highestPtJets = Select2HighestPtJets(l, lead_p4, sublead_p4, jet1ptcut, jet2ptcut );
+        highestPtJets = l.Select2HighestPtJets(lead_p4, sublead_p4, jet1ptcut, jet2ptcut );
         bool VBFpresel = (highestPtJets.first!=-1)&&(highestPtJets.second!=-1);
 
         if(VBFpresel){
@@ -1188,23 +1188,9 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
 
           // Cannot Get Apply cuts to work -> Need to discuss with C.Palmer, for now, jyst apply the cuts
-          //l.ApplyCutsFill(0,3,evweight, myweight);
-          //VBFevent = l.ApplyCutsFill(0,5,evweight, myweight);
           //VBFevent = l.ApplyCutsFill(0,1,evweight, myweight);
-          if (myVBFLeadJPt  >30.){
-            if (myVBFSubJPt >20.){
-              if (myVBF_Mjj   >350.){
-                if (myVBFdEta   >3.5){
-                  if (myVBFdPhi   >2.6){
-                    if (myVBFZep    <2.5){
-                      VBFevent=true;
-		      diphoton_id = diphoton_id_vbf;
-                    }
-                  }
-                }   
-              }
-            }
-          }
+          VBFevent = l.ApplyCuts(0,1);
+          if(VBFevent) diphoton_id = diphoton_id_vbf;
 
         }
       }
@@ -2209,7 +2195,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
             bool crosscheck = false;
             std::pair<int,int> highestPtJets(-1,-1);
 
-            highestPtJets = Select2HighestPtJets(l, lead_p4, sublead_p4, jet1ptcut, jet2ptcut );
+            highestPtJets = l.Select2HighestPtJets(lead_p4, sublead_p4, jet1ptcut, jet2ptcut );
             bool VBFpresel = (highestPtJets.first!=-1)&&(highestPtJets.second!=-1);
 
             if(VBFpresel){
@@ -2242,20 +2228,8 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
               //l.ApplyCutsFill(0,3,evweight, myweight);
               //VBFevent = l.ApplyCutsFill(0,5,evweight, myweight);
               //VBFevent = l.ApplyCutsFill(0,1,evweight, myweight);
-              if (myVBFLeadJPt  >30.){
-                if (myVBFSubJPt >20.){
-                  if (myVBF_Mjj   >350.){
-                    if (myVBFdEta   >3.5){
-                      if (myVBFdPhi   >2.6){
-                        if (myVBFZep    <2.5){
-                          VBFevent=true;
-			  diphoton_id = diphoton_id_vbf;
-                        }
-                      }
-                    }   
-                  }
-                }
-              }
+              VBFevent = l.ApplyCuts(0,1);
+              if(VBFevent) diphoton_id = diphoton_id_vbf;
 
             }
          }
