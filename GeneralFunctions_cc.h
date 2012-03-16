@@ -2047,6 +2047,7 @@ void LoopAll::DefineUserBranches()
 	BRANCH_DICT(dipho_subleadind);
 	BRANCH_DICT(dipho_vtxind);
 	BRANCH_DICT(dipho_sumpt);
+	BRANCH_DICT(pho_genmatched);
 	BRANCH_DICT(pho_regr_energy_otf);
 	BRANCH_DICT(pho_regr_energyerr_otf);
 	//// BRANCH_DICT(dipho_leadet);

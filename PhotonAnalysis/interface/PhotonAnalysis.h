@@ -149,6 +149,9 @@ protected:
 	void loadPuMap(const char * fname, TDirectory * dir);
 	void loadPuWeights(int typid, TDirectory * dir);
   float GetSmearSigma(float eta, float r9, int epoch=0);
+  void SetNullHiggs(LoopAll& l);
+  bool FindHiggsObjects(LoopAll& l);
+  Bool_t GenMatchedPhoton(LoopAll& l, int ipho);
 
 	std::string name_;
 	

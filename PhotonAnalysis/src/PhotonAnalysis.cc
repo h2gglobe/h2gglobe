@@ -614,60 +614,15 @@ void PhotonAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	  float HT = lead_p4.Pt() + sublead_p4.Pt();
 	  float mH = Higgs.M();
 
-	  /*
-	  //Alternative definition of background categories for QCD,GJET, requiring matching of gen
-	  //photons to reco photons (main background category definition, based on gen info only is defined in
-	  //PhotonAnalysis::SkimEvents)
-	  BkgCategory bkgCat = promptprompt;
-          if (l.itype[l.current]==1 || l.itype[l.current]==2 || l.itype[l.current]==3) {
-
-            bool lead_is_prompt=false;
-            bool sublead_is_prompt=false;
-
-            for(int igp=0; igp<l.gp_n; ++igp) {
-
-              int id = l.gp_pdgid[igp];
-              int mother = l.gp_mother[igp];
-              int motherid = l.gp_pdgid[mother];
-
-              if ( id==22 && mother>-1 && (motherid==21 || abs(motherid)<=8 ) ) {
-                //cout << "mother " << mother << " " << motherid << endl;
-                TLorentzVector *gp_p4 = (TLorentzVector*)l.gp_p4->At(igp);
-                if ( gp_p4->DeltaR(lead_p4) < 0.3) lead_is_prompt = true;
-                if ( gp_p4->DeltaR(sublead_p4) < 0.3) sublead_is_prompt = true;
-              }
-
-            }
-
-            //cout << lead_is_prompt << " " << sublead_is_prompt << endl;
-            if (lead_is_prompt && sublead_is_prompt) {
-              bkgCat = promptprompt;
-            } else if (lead_is_prompt || sublead_is_prompt) {
-              bkgCat = promptfake;
-            } else {
-	      bkgCat = fakefake;
-	    }
-          }
-	  */
 
 	  //Fill histograms according to diphoton or single photon category, as appropriate
 
           int dipho_category = l.DiphotonCategory(diphoton_index.first, diphoton_index.second, Higgs.Pt(), 2, 2, 2);
           int leadpho_category = l.PhotonCategory(diphoton_index.first, 2, 2);
           int subleadpho_category = l.PhotonCategory(diphoton_index.second, 2, 2);
-/*
-          if (bkgCat == promptfake) {
-            l.FillHist("mass_pf",0, Higgs.M(), weight);
-            l.FillHist("mass_pf",dipho_category+1, Higgs.M(), weight);
-          } else if (bkgCat == fakefake) {
-            l.FillHist("mass_ff",0, Higgs.M(), weight);
-            l.FillHist("mass_ff",dipho_category+1, Higgs.M(), weight);
-          } else {
-            l.FillHist("mass",0, Higgs.M(), weight);
-            l.FillHist("mass",dipho_category+1, Higgs.M(), weight);
-          }
-*/
-	  //Only fill histograms for QCD and GJet if bkgCat is not promptprompt
+	  
+    
+    //Only fill histograms for QCD and GJet if bkgCat is not promptprompt
 	  //if ((l.itype[l.current]==1 || l.itype[l.current]==2 || l.itype[l.current]==3) && bkgCat==promptprompt) return;
 
           l.FillHist("pt",0, Higgs.Pt(), weight);
@@ -882,6 +837,7 @@ void PhotonAnalysis::PreselectPhotons(LoopAll& l, int jentry)
 		}
 		// apply mc-derived photon corrections, to data and MC alike
 		corrected_pho_energy[ipho] = phoInfo.energy();
+	  l.pho_genmatched[ipho]=GenMatchedPhoton( l, ipho);
 	}
 
 	for(int ipho=0; ipho<l.pho_n; ++ipho) {
@@ -978,78 +934,13 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
 	l.FillCICInputs();
 	l.FillCIC();
 
-  int higgsind=-1;
-  int mc1=-1;
-  int mc2=-1;
-  int i1=-1;
-  int i2=-1;
-
-  l.FindMCHiggsPhotons( higgsind,  mc1,  mc2,  i1,  i2 );
-
-  l.gh_vbfq1_p4 = new TLorentzVector(0,0,0,0);
-  l.gh_vbfq2_p4 = new TLorentzVector(0,0,0,0);
-  l.gh_vh1_p4 = new TLorentzVector(0,0,0,0);
-  l.gh_vh2_p4 = new TLorentzVector(0,0,0,0);
-  
-  if(higgsind!=-1) l.gh_higgs_p4 = new TLorentzVector(*((TLorentzVector*)((TLorentzVector*) l.gp_p4->At(higgsind))->Clone()));
-  else l.gh_higgs_p4 = new TLorentzVector(0,0,0,0);
-  
-  l.gh_gen2reco1=i1;
-  l.gh_gen2reco2=i2;
-  
-  
-  if(mc1!=-1) l.gh_pho1_p4 = new TLorentzVector(*((TLorentzVector*)((TLorentzVector*) l.gp_p4->At(mc1))->Clone()));
-  else l.gh_pho1_p4 = new TLorentzVector(0,0,0,0);
-
-  if(mc2!=-1) l.gh_pho2_p4 = new TLorentzVector(*((TLorentzVector*)((TLorentzVector*) l.gp_p4->At(mc2))->Clone()));
-  else l.gh_pho2_p4 = new TLorentzVector(0,0,0,0);
-
-  
-
-  int vbfq1=-100;
-  int vbfq2=-100;
-
-  int vh=-100;
-  int vh1=-100;
-  int vh2=-100;
-
-  if(higgsind!=-1){
-    l.FindMCVBF(higgsind,vbfq1,vbfq2);
-    l.FindMCVH(higgsind,vh,vh1,vh2);
-
-    //std::cout<<"higgsind vbfq1 vbfq2 vh gp_pdgid[vh] vh1 vh2  "<<higgsind<<"  "<<vbfq1<<"  "<<vbfq2<<"  "<<vh<<"  "<<l.gp_pdgid[vh]<<"  "<<vh1<<"  "<<vh2<<std::endl;
+  if(l.itype[l.current]<0) {
+    bool foundHiggs=FindHiggsObjects(l);
+    if(PADEBUG)  cout << " foundHiggs? "<<foundHiggs<<std::endl;
+  } else {
+    SetNullHiggs(l);
   }
   
-  
-  if(vh==-100) l.gh_vh_pdgid=-10000;
-  else l.gh_vh_pdgid=l.gp_pdgid[vh];
-
-  if(vh1==-100) l.gh_vh1_pdgid=-10000;
-  else l.gh_vh1_pdgid=l.gp_pdgid[vh1];
-
-  if(vh2==-100) l.gh_vh2_pdgid=-10000;
-  else l.gh_vh2_pdgid=l.gp_pdgid[vh2];
-  
-  if(vh1==-100) l.gh_vh1_p4 = new TLorentzVector(0,0,0,0);
-  else l.gh_vh1_p4 = new TLorentzVector(*((TLorentzVector*)((TLorentzVector*) l.gp_p4->At(vh1))->Clone()));
-
-  if(vh2==-100) l.gh_vh2_p4 = new TLorentzVector(0,0,0,0);
-  else l.gh_vh2_p4 = new TLorentzVector(*((TLorentzVector*)((TLorentzVector*) l.gp_p4->At(vh2))->Clone()));
-
-
-  
-  if(vbfq1==-100) l.gh_vbfq1_pdgid=-10000;
-  else l.gh_vbfq1_pdgid=l.gp_pdgid[vbfq1];
-
-  if(vbfq2==-100) l.gh_vbfq2_pdgid=-10000;
-  else l.gh_vbfq2_pdgid=l.gp_pdgid[vbfq2];
-
-  if(vbfq1==-100) l.gh_vbfq1_p4 = new TLorentzVector(0,0,0,0);
-  else l.gh_vbfq1_p4 = new TLorentzVector(*((TLorentzVector*)((TLorentzVector*) l.gp_p4->At(vbfq1))->Clone()));
-
-  if(vbfq2==-100) l.gh_vbfq2_p4 = new TLorentzVector(0,0,0,0);
-  else l.gh_vbfq2_p4 = new TLorentzVector(*((TLorentzVector*)((TLorentzVector*) l.gp_p4->At(vbfq2))->Clone()));
-
 
 
 	if( pho_presel.size() < 2 ) {
@@ -1240,6 +1131,7 @@ void PhotonAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree)
 	l.Branch_pho_cic4cutlevel_sublead( outputTree );
 	l.Branch_pho_cic4passcuts_sublead( outputTree );
 
+	l.Branch_pho_genmatched(outputTree);
 	l.Branch_pho_regr_energy_otf(outputTree);
 	l.Branch_pho_regr_energyerr_otf(outputTree);
 	
@@ -1259,93 +1151,7 @@ void PhotonAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree)
   l.Branch_gh_vh2_p4( outputTree );
 
 }
-/*
->>>>>>> 1.46.2.8
-void PhotonAnalysis::GetRegressionCorrections(LoopAll &l){
 
-  // PhotonFix's have been initialised correctly and so we just need to use the correct 
-  // one to calculate local corrections.
-
-  for (int ipho=0;ipho<l.pho_n;ipho++){
-		
-   float *fVals = new float[18];
-
-   double photonE = ((TLorentzVector*)l.pho_p4->At(ipho))->Energy();
-   TVector3 *sc = ((TVector3*)l.pho_calopos->At(ipho));	
-   int sc_index = l.pho_scind[ipho];
-   double r9=l.pho_r9[ipho];
-
-   PhotonFix phfix(photonE,sc->Eta(),sc->Phi(),r9);
-
-   bool isbarrel = (fabs(sc->Eta())<1.48);
-
-   if (isbarrel) {
-    fVals[0]  = l.sc_raw[sc_index];
-    fVals[1]  = r9;
-    fVals[2]  = sc->Eta();
-    fVals[3]  = sc->Phi();
-    fVals[4]  = l.pho_e5x5[ipho]/l.sc_raw[sc_index];
-    fVals[5]  = phfix.etaC();
-    fVals[6]  = phfix.etaS();
-    fVals[7]  = phfix.etaM();
-    fVals[8]  = phfix.phiC();
-    fVals[9]  = phfix.phiS();
-    fVals[10] = phfix.phiM();    
-    fVals[11] = l.pho_hoe[ipho];
-    fVals[12] = l.sc_seta[sc_index];
-    fVals[13] = l.sc_sphi[sc_index];
-    fVals[14] = l.pho_sieie[ipho];
-  }
-  else {
-    fVals[0]  = l.sc_raw[sc_index];
-    fVals[1]  = r9;
-    fVals[2]  = sc->Eta();
-    fVals[3]  = sc->Phi();
-    fVals[4]  = l.pho_e5x5[ipho]/l.sc_raw[sc_index];
-    fVals[5]  = l.sc_pre[sc_index]/l.sc_raw[sc_index];
-    fVals[6]  = phfix.xZ();
-    fVals[7]  = phfix.xC();
-    fVals[8]  = phfix.xS();
-    fVals[9]  = phfix.xM();
-    fVals[10] = phfix.yZ();
-    fVals[11] = phfix.yC();
-    fVals[12] = phfix.yS();
-    fVals[13] = phfix.yM();
-    fVals[14] = l.pho_hoe[ipho];
-    fVals[15] = l.sc_seta[sc_index];
-    fVals[16] = l.sc_sphi[sc_index];
-    fVals[17] = l.pho_sieie[ipho];    
-  }	
-
-  const double varscale = 1.253;
-  double den;
-  const GBRForest *reader;
-  const GBRForest *readervar;
-  if (isbarrel) {
-    den = l.sc_raw[sc_index];
-    reader = fReadereb;
-    readervar = fReaderebvariance;
-  }
-  else {
-    den = l.sc_raw[sc_index]+l.sc_pre[sc_index];
-    reader = fReaderee;
-    readervar = fReadereevariance;
-  }
-  
-  double ecor = reader->GetResponse(fVals)*den;
-  double ecorerr = readervar->GetResponse(fVals)*den*varscale;
-
-  energyCorrected[ipho]	= ecor;
-  energyCorrectedError[ipho]	= ecorerr;
-  
-  l.pho_regr_energy_otf[ipho]=ecor;
-  l.pho_regr_energyerr_otf[ipho]=ecorerr;
-  delete [] fVals;
-
- }
-}
-<<<<<<< PhotonAnalysis.cc
-*/
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 int PhotonAnalysis::DiphotonMVASelection(LoopAll &l, HggVertexAnalyzer & vtxAna, Float_t & diphoMVA,  
@@ -1551,4 +1357,125 @@ float PhotonAnalysis::GetSmearSigma(float eta, float r9, int epoch){
   }
 
   return sigma;
+}
+    
+    
+void PhotonAnalysis::SetNullHiggs(LoopAll& l){
+  
+  l.gh_higgs_p4 = new TLorentzVector(0,0,0,0);
+  
+  l.gh_pho1_p4 = new TLorentzVector(0,0,0,0);
+  l.gh_pho2_p4 = new TLorentzVector(0,0,0,0);
+
+  l.gh_vbfq1_p4 = new TLorentzVector(0,0,0,0);
+  l.gh_vbfq2_p4 = new TLorentzVector(0,0,0,0);
+  l.gh_vbfq1_pdgid=-10000;
+  l.gh_vbfq2_pdgid=-10000;
+  
+  l.gh_vh1_p4 = new TLorentzVector(0,0,0,0);
+  l.gh_vh2_p4 = new TLorentzVector(0,0,0,0);
+  l.gh_vh_pdgid=-10000;
+  l.gh_vh1_pdgid=-10000;
+  l.gh_vh2_pdgid=-10000;
+
+}
+
+
+bool PhotonAnalysis::FindHiggsObjects(LoopAll& l){
+  
+  int higgsind=-1;
+  int mc1=-1;
+  int mc2=-1;
+  int i1=-1;
+  int i2=-1;
+
+  l.FindMCHiggsPhotons( higgsind,  mc1,  mc2,  i1,  i2 );
+
+  
+  if(higgsind!=-1) l.gh_higgs_p4 = new TLorentzVector(*((TLorentzVector*)((TLorentzVector*) l.gp_p4->At(higgsind))->Clone()));
+  else l.gh_higgs_p4 = new TLorentzVector(0,0,0,0);
+  
+  l.gh_gen2reco1=i1;
+  l.gh_gen2reco2=i2;
+  
+  
+  if(mc1!=-1) l.gh_pho1_p4 = new TLorentzVector(*((TLorentzVector*)((TLorentzVector*) l.gp_p4->At(mc1))->Clone()));
+  else l.gh_pho1_p4 = new TLorentzVector(0,0,0,0);
+
+  if(mc2!=-1) l.gh_pho2_p4 = new TLorentzVector(*((TLorentzVector*)((TLorentzVector*) l.gp_p4->At(mc2))->Clone()));
+  else l.gh_pho2_p4 = new TLorentzVector(0,0,0,0);
+
+  
+
+  int vbfq1=-100;
+  int vbfq2=-100;
+
+  int vh=-100;
+  int vh1=-100;
+  int vh2=-100;
+
+  if(higgsind!=-1){
+    l.FindMCVBF(higgsind,vbfq1,vbfq2);
+    l.FindMCVH(higgsind,vh,vh1,vh2);
+
+    //std::cout<<"higgsind vbfq1 vbfq2 vh gp_pdgid[vh] vh1 vh2  "<<higgsind<<"  "<<vbfq1<<"  "<<vbfq2<<"  "<<vh<<"  "<<l.gp_pdgid[vh]<<"  "<<vh1<<"  "<<vh2<<std::endl;
+  }
+  
+  
+  if(vh==-100) l.gh_vh_pdgid=-10000;
+  else l.gh_vh_pdgid=l.gp_pdgid[vh];
+
+  if(vh1==-100) l.gh_vh1_pdgid=-10000;
+  else l.gh_vh1_pdgid=l.gp_pdgid[vh1];
+
+  if(vh2==-100) l.gh_vh2_pdgid=-10000;
+  else l.gh_vh2_pdgid=l.gp_pdgid[vh2];
+  
+  if(vh1==-100) l.gh_vh1_p4 = new TLorentzVector(0,0,0,0);
+  else l.gh_vh1_p4 = new TLorentzVector(*((TLorentzVector*)((TLorentzVector*) l.gp_p4->At(vh1))->Clone()));
+
+  if(vh2==-100) l.gh_vh2_p4 = new TLorentzVector(0,0,0,0);
+  else l.gh_vh2_p4 = new TLorentzVector(*((TLorentzVector*)((TLorentzVector*) l.gp_p4->At(vh2))->Clone()));
+
+
+  
+  if(vbfq1==-100) l.gh_vbfq1_pdgid=-10000;
+  else l.gh_vbfq1_pdgid=l.gp_pdgid[vbfq1];
+
+  if(vbfq2==-100) l.gh_vbfq2_pdgid=-10000;
+  else l.gh_vbfq2_pdgid=l.gp_pdgid[vbfq2];
+
+  if(vbfq1==-100) l.gh_vbfq1_p4 = new TLorentzVector(0,0,0,0);
+  else l.gh_vbfq1_p4 = new TLorentzVector(*((TLorentzVector*)((TLorentzVector*) l.gp_p4->At(vbfq1))->Clone()));
+
+  if(vbfq2==-100) l.gh_vbfq2_p4 = new TLorentzVector(0,0,0,0);
+  else l.gh_vbfq2_p4 = new TLorentzVector(*((TLorentzVector*)((TLorentzVector*) l.gp_p4->At(vbfq2))->Clone()));
+
+  return (higgsind != -1);
+
+}
+
+
+
+Bool_t PhotonAnalysis::GenMatchedPhoton(LoopAll& l, int ipho){
+  Bool_t is_prompt = false;
+  TLorentzVector* phop4 = (TLorentzVector*) l.pho_p4->At(ipho);
+
+  for(int ip=0;ip<l.gp_n;++ip) {
+    if( l.gp_status[ip] != 1 || l.gp_pdgid[ip] != 22 ) {
+      continue;
+    }
+    TLorentzVector * p4 = (TLorentzVector*) l.gp_p4->At(ip);
+    if( p4->Pt() < 20. || fabs(p4->Eta()) > 3. ) { continue; }
+    int mother_id = abs( l.gp_pdgid[ l.gp_mother[ip] ] );
+    if( mother_id <= 25 ) {
+      float dr = phop4->DeltaR(*p4);
+      if (dr<0.2) {
+        is_prompt = true;
+        break;
+      }
+    }
+  }
+  return is_prompt;
+
 }

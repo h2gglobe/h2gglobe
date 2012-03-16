@@ -670,17 +670,19 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     }
     // ------------------------------------------------------------
     //PT-H K-factors
-    double gPT = 0;
-    TLorentzVector gP4(0,0,0,0);
-    if (cur_type<0){            // if background sample, gP4 remains 4vect(0)
-	for (int gi=0;gi<l.gp_n;gi++){
-	    if (l.gp_pdgid[gi]==25){
-		gP4 = *((TLorentzVector*)l.gp_p4->At(gi));
-		gPT = gP4.Pt();
-		break;
-	    }
-	}
-    }
+    TLorentzVector gP4 = *(l.gh_higgs_p4);
+    double gPT = gP4.Pt();
+//    double gPT = 0;
+//    TLorentzVector gP4(0,0,0,0);
+//    if (cur_type<0){            // if background sample, gP4 remains 4vect(0)
+//	for (int gi=0;gi<l.gp_n;gi++){
+//	    if (l.gp_pdgid[gi]==25){
+//		gP4 = *((TLorentzVector*)l.gp_p4->At(gi));
+//		gPT = gP4.Pt();
+//		break;
+//	    }
+//	}
+//    }
 
     // ------------------------------------------------------------
 

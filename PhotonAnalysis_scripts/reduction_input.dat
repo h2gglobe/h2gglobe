@@ -26,6 +26,16 @@ pho_sieie
 pho_e5x5
 
 ->
+gen particles for matching
+->
+gp_n:1
+gp_p4:1
+gp_vtx:1
+gp_status:1
+gp_pdgid:1
+gp_mother:1
+
+->
 minimal allconversions info
 ->
 conv_n
