@@ -1,2 +1,2 @@
-PhotonRun2011A_Clean 0
-PhotonRun2011B_Clean 0
+PhotonRun2011A_Clean 0 analyzer EmptyAnalysis photonanalysis.dat
+PhotonRun2011B_Clean 0 analyzer EmptyAnalysis photonanalysis.dat
