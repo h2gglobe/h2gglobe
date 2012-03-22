@@ -217,6 +217,10 @@ double MassResolution::propagateDz(double dz){
 //  double alpha = //lead_p4.Angle(sublead_p4.Vect());
 //  if (alpha!= sublead_p4.Angle(lead_p4.Vect())) std::cout << "Error: Angle between photons not consistent" << std::endl;
 
+  TVector3 LeadPosition = leadPhoton->caloPosition() - vertex;
+  TVector3 SubLeadPosition = subleadPhoton->caloPosition() - vertex;
+
+/*
   double x1 = leadPhoton->caloPosition().X();
   double y1 = leadPhoton->caloPosition().Y();
   double z1 = leadPhoton->caloPosition().Z();
@@ -224,7 +228,8 @@ double MassResolution::propagateDz(double dz){
   double x2 = subleadPhoton->caloPosition().X();
   double y2 = subleadPhoton->caloPosition().Y();
   double z2 = subleadPhoton->caloPosition().Z();
-/*  
+*/
+  
   double x1 = leadPhoton->caloPosition().X()-vertex->X();
   double y1 = leadPhoton->caloPosition().Y()-vertex->Y();
   double z1 = leadPhoton->caloPosition().Z()-vertex->Z();
@@ -232,16 +237,16 @@ double MassResolution::propagateDz(double dz){
   double x2 = subleadPhoton->caloPosition().X()-vertex->X();
   double y2 = subleadPhoton->caloPosition().Y()-vertex->Y();
   double z2 = subleadPhoton->caloPosition().Z()-vertex->Z();
-*/
+
  
   double r1 = TMath::Sqrt(x1*x1+y1*y1+z1*z1);
   double r2 = TMath::Sqrt(x2*x2+y2*y2+z2*z2);
 
-  double cos_term = TMath::Cos(leadPhoton->caloPosition().Phi()-subleadPhoton->caloPosition().Phi());
-  double sech1 = SecH(leadPhoton->caloPosition().Eta());
-  double sech2 = SecH(subleadPhoton->caloPosition().Eta());
-  double tanh1 = TanH(leadPhoton->caloPosition().Eta());
-  double tanh2 = TanH(subleadPhoton->caloPosition().Eta());
+  double cos_term = TMath::Cos(LeadPosition.Phi()-SubLeadPosition.Phi());
+  double sech1 = SecH(LeadPosition.Eta());
+  double sech2 = SecH(SubLeadPosition.Eta());
+  double tanh1 = TanH(LeadPosition.Eta());
+  double tanh2 = TanH(SubLeadPosition.Eta());
 
   double numerator1 = sech1*(sech1*tanh2-tanh1*sech2*cos_term);
   double numerator2 = sech2*(sech2*tanh1-tanh2*sech1*cos_term);
