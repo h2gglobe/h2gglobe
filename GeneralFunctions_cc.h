@@ -836,7 +836,7 @@ int  LoopAll::matchPhotonToConversion( int lpho) {
     TVector3 refittedPairMomentum= *((TVector3*) conv_refitted_momentum->At(iconv));
     conv_pt =  refittedPairMomentum.Pt();
     if (conv_pt < 1 ) continue;    
-  //  if ( !conv_validvtx[iconv] || conv_ntracks[iconv]!=2 || conv_chi2_probability[iconv]<0.000001) continue; // this should be done later 
+    if ( !conv_validvtx[iconv] || conv_ntracks[iconv]!=2 || conv_chi2_probability[iconv]<0.000001) continue; // Changed back based on meeting on 21.03.2012
 
     phi  = ((TVector3 *) conv_refitted_momentum->At(iconv))->Phi();
     conv_phi  = phiNorm(phi);
@@ -871,7 +871,7 @@ int  LoopAll::matchPhotonToConversion( int lpho) {
   //  cout << " minimized conversion index " << iMatch << " eta " <<conv_eta<< " phi " << conv_phi <<endl; 
 
   //if ( detaMin < 0.1 && dphiMin < 0.1 ) {
-    if ( dRMin< 0.1 ) {
+  if ( dRMin< 0.1 ) {
     if(LDEBUG)    cout << " matched conversion index " << iMatch << " eta " <<conv_eta<< " phi " << conv_phi << " pt " << mconv_pt << endl; 	
     result = iMatch;
   } else {
