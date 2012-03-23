@@ -2159,11 +2159,14 @@ int LoopAll::MuonSelection(TLorentzVector& pho1, TLorentzVector& pho2, int vtxin
     if(mu_glo_validhits[indmu]<=10) continue;
     if(mu_glo_validChmbhits[indmu]<=0) continue;
     if(mu_glo_nmatches[indmu]<=1) continue;
-    // need to calculate d0, dz wrt chosen vtx
-    //if(mu_glo_dz[indmu]>=0.1) continue;
     thisiso=mu_glo_ecaliso03[indmu]+mu_glo_hcaliso03[indmu]+mu_glo_tkiso03[indmu] - rho*3.1415926*0.09;
     if(thisiso/thispt>=0.1) continue;
     if(std::min(pho1.DeltaR(*thismu),pho2.DeltaR(*thismu)) < 1) continue;
+    
+    // need to calculate d0, dz wrt chosen vtx
+    if(fabs(mu_glo_D0Vtx[indmu][vtxind]) > 0.02) continue;
+    if(fabs(mu_glo_DZVtx[indmu][vtxind]) > 0.1)  continue;
+
 
     passingMu++;
 
@@ -2220,14 +2223,15 @@ int LoopAll::ElectronSelection(TLorentzVector& pho1, TLorentzVector& pho2, int v
       if(fabs(el_std_dphiin[indel])>=0.039) continue;
       if(fabs(el_std_detain[indel])>=0.005) continue;
       thisiso = el_std_tkiso03[indel] + std::max(0.,(double)el_std_ecaliso03[indel]-1.)
-              + el_std_hcaliso03[indel] - rho*3.1415926*0.09;
+              + el_std_hcaliso03[indel] + (el_std_hoe[indel]*thissc->Energy()*sin(thissc->Theta())) - rho*3.1415926*0.09;
       if(thisiso/thispt>=0.053) continue; 
     } else {  // EE cuts
       if(el_std_sieie[indel]>=0.03) continue; 
       if(fabs(el_std_dphiin[indel])>=0.028) continue;
       if(fabs(el_std_detain[indel])>=0.007) continue;
       thisiso = el_std_tkiso03[indel] + el_std_ecaliso03[indel]
-              + el_std_hcaliso03[indel] - rho*3.1415926*0.09;
+              + el_std_hcaliso03[indel] + (el_std_hoe[indel]*thissc->Energy()*sin(thissc->Theta())) 
+              - rho*3.1415926*0.09;
       if(thisiso/thispt>=0.042) continue; 
     }
 
@@ -2243,7 +2247,8 @@ int LoopAll::ElectronSelection(TLorentzVector& pho1, TLorentzVector& pho2, int v
     if( fabs(elpho2.M() - 91.19) <= 5) continue;
 
     // need to calculate d0, dz wrt chosen vtx
-    //if(el_std_dz[indel]>=0.1) continue;
+    if(fabs(el_std_D0Vtx[indel][vtxind]) > 0.02) continue;
+    if(fabs(el_std_DZVtx[indel][vtxind]) > 0.1)  continue;
 
     passingEl++;
 
