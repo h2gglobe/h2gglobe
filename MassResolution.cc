@@ -217,8 +217,8 @@ double MassResolution::propagateDz(double dz){
 //  double alpha = //lead_p4.Angle(sublead_p4.Vect());
 //  if (alpha!= sublead_p4.Angle(lead_p4.Vect())) std::cout << "Error: Angle between photons not consistent" << std::endl;
 
-  TVector3 LeadPosition = leadPhoton->caloPosition() - vertex;
-  TVector3 SubLeadPosition = subleadPhoton->caloPosition() - vertex;
+  TVector3 LeadPosition = (leadPhoton->caloPosition()) - *vertex;
+  TVector3 SubLeadPosition = (subleadPhoton->caloPosition()) - *vertex;
 
 /*
   double x1 = leadPhoton->caloPosition().X();
