@@ -48,6 +48,7 @@ extern void G__set_cpp_environmentLoopAllDict();
 #include "PhotonAnalysis/interface/MvaAnalysis.h"
 #include "PhotonReducedInfo.h"
 #include "RooContainer.h"
+#include "PhotonAnalysis/interface/EmptyAnalysis.h"
 #include "MassResolution.h"
 #include <algorithm>
 namespace std { }
@@ -337,5 +338,6 @@ extern G__linked_taginfo G__LoopAllDictLN_vectorlEBaseGenLevelSmearermUcOallocat
 extern G__linked_taginfo G__LoopAllDictLN_reverse_iteratorlEvectorlEBaseGenLevelSmearermUcOallocatorlEBaseGenLevelSmearermUgRsPgRcLcLiteratorgR;
 extern G__linked_taginfo G__LoopAllDictLN_MassFactorizedMvaAnalysis;
 extern G__linked_taginfo G__LoopAllDictLN_MvaAnalysis;
+extern G__linked_taginfo G__LoopAllDictLN_EmptyAnalysis;
 
 /* STUB derived class for protected member access */

@@ -21,8 +21,8 @@ selection of the di-photon pair to use for vertex analysis
 ->
 presel_ecaliso_eb=999.
 presel_ecaliso_ee=999.
-presel_sieie_eb=0.013
-presel_sieie_ee=0.03
+presel_sieie_eb=0.020
+presel_sieie_ee=0.040
 presel_hoe=0.15
 
 ->
@@ -55,5 +55,7 @@ doEcorrectionSyst=0
 
 scale_offset_file=energy_scale_offsets.dat
 
+->
 photonFixDat=aux/PhotonFixSTART42V13.dat
 regressionFile=aux/gbrph.root
+->

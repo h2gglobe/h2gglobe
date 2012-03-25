@@ -124,7 +124,7 @@ bool EnergySmearer::smearPhoton(PhotonReducedInfo & aPho, float & weight, int ru
   float smearing_sigma = myParameters_.smearing_sigma.find(category)->second;
 
   // special category for Unconverted photons in EB "far" from boundary (Haven't made this configrable yet in the smearers .dats)
-  float sphericalPhotonSigma     =0.0045;
+  float sphericalPhotonSigma     =0.0067;
   float sphericalPhotonSigmaError=0.0040;
   // Will move this soon to an additional category in dats which is configurable
   bool is_specialPhoton = aPho.isSphericalPhoton();

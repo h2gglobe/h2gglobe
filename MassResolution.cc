@@ -189,7 +189,7 @@ double MassResolution::getPhotonResolution(double photonEnergy, double photonRes
     }
 
 
-    double categoryResolution = ispherical ? 0.0045*photonEnergy : _eSmearPars.smearing_sigma[myCategory]*photonEnergy;	
+    double categoryResolution = ispherical ? 0.0067*photonEnergy : _eSmearPars.smearing_sigma[myCategory]*photonEnergy;	
     return TMath::Sqrt(categoryResolution*categoryResolution + photonResolution*photonResolution);
 
 }
