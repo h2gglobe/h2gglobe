@@ -19,183 +19,191 @@
 // ------------------------------------------------------------------------------------
 class PhotonAnalysis : public BaseAnalysis 
 {
-public:
-	
-	PhotonAnalysis();
-	virtual ~PhotonAnalysis();
-	
-	virtual const std::string & name() const { return name_; };
-	
-	// LoopAll analysis interface implementation
-	virtual void Init(LoopAll&);
-	virtual void Term(LoopAll&);
-	
-	virtual void ReducedOutputTree(LoopAll &l, TTree *);
-	virtual void GetBranches(TTree *, std::set<TBranch *>& );
-	
-	virtual void FillReductionVariables(LoopAll& l, int jentry);   
-	virtual bool SelectEventsReduction(LoopAll&, int);
+ public:
+    
+    PhotonAnalysis();
+    virtual ~PhotonAnalysis();
+    
+    virtual const std::string & name() const { return name_; };
+    
+    // LoopAll analysis interface implementation
+    virtual void Init(LoopAll&);
+    virtual void Term(LoopAll&);
+    
+    virtual void ReducedOutputTree(LoopAll &l, TTree *);
+    virtual void GetBranches(TTree *, std::set<TBranch *>& );
+    
+    virtual void FillReductionVariables(LoopAll& l, int jentry);   
+    virtual bool SelectEventsReduction(LoopAll&, int);
 
-	virtual bool SkimEvents(LoopAll&, int);
-	virtual bool SelectEvents(LoopAll&, int);
-	virtual void Analysis(LoopAll&, Int_t);
+    virtual bool SkimEvents(LoopAll&, int);
+    virtual bool SelectEvents(LoopAll&, int);
+    virtual void Analysis(LoopAll&, Int_t);
 
-	virtual void ResetAnalysis();
+    virtual void ResetAnalysis();
 
-	//void GetRegressionCorrections(LoopAll&);	
-//	void GetRegressionCorrections(LoopAll&);	
-	// Public parameters to be read from config file
-	float zero_;
-	VertexAlgoParameters vtxAlgoParams;	 
-	std::vector<std::string> vtxVarNames;
-	bool useDefaultVertex;
-	float forcedRho;
-	bool applyPtoverM;	
-	bool doTriggerSelection; 
-	std::vector<TriggerSelection> triggerSelections;
-	
-	// Preselection indexes
-	float presel_scet1, presel_scet2, presel_maxeta;
-	float presel_ecaliso_eb, presel_ecaliso_ee, presel_sieie_eb, presel_sieie_ee, presel_hoe;
+    //void GetRegressionCorrections(LoopAll&);  
+    //  void GetRegressionCorrections(LoopAll&);    
+    // Public parameters to be read from config file
+    float zero_;
+    VertexAlgoParameters vtxAlgoParams;  
+    std::vector<std::string> vtxVarNames;
+    bool useDefaultVertex;
+    float forcedRho;
+    bool applyPtoverM;  
+    bool doTriggerSelection; 
+    std::vector<TriggerSelection> triggerSelections;
+    
+    // Preselection indexes
+    float presel_scet1, presel_scet2, presel_maxeta;
+    float presel_ecaliso_eb, presel_ecaliso_ee, presel_sieie_eb, presel_sieie_ee, presel_hoe;
 
-	bool doEcorrectionSmear, doEcorrectionSyst;
-	
-	EnergySmearer::energySmearingParameters eSmearDataPars;
-	std::string scale_offset_file;
-	float scale_offset_EBHighR9         ;
-	float scale_offset_EBLowR9          ;
-	float scale_offset_EBm4HighR9         ;
-	float scale_offset_EBm4LowR9          ;
-	float scale_offset_EEHighR9         ;
-	float scale_offset_EELowR9          ;
-	float scale_offset_error_EBHighR9   ;
-	float scale_offset_error_EBLowR9    ;
-	float scale_offset_error_EBm4HighR9   ;
-	float scale_offset_error_EBm4LowR9    ;
-	float scale_offset_error_EEHighR9   ;
-	float scale_offset_error_EELowR9    ;
+    bool doEcorrectionSmear, doEcorrectionSyst;
+    
+    EnergySmearer::energySmearingParameters eSmearDataPars;
+    std::string scale_offset_file;
+    float scale_offset_EBHighR9         ;
+    float scale_offset_EBLowR9          ;
+    float scale_offset_EBm4HighR9         ;
+    float scale_offset_EBm4LowR9          ;
+    float scale_offset_EEHighR9         ;
+    float scale_offset_EELowR9          ;
+    float scale_offset_error_EBHighR9   ;
+    float scale_offset_error_EBLowR9    ;
+    float scale_offset_error_EBm4HighR9   ;
+    float scale_offset_error_EBm4LowR9    ;
+    float scale_offset_error_EEHighR9   ;
+    float scale_offset_error_EELowR9    ;
 
-	EnergySmearer::energySmearingParameters eSmearPars;
-	float smearing_sigma_EBHighR9       ;
-	float smearing_sigma_EBLowR9        ;
-	float smearing_sigma_EBm4HighR9       ;
-	float smearing_sigma_EBm4LowR9        ;
-	float smearing_sigma_EEHighR9       ;
-	float smearing_sigma_EELowR9        ;
-	float smearing_sigma_error_EBHighR9 ;
-	float smearing_sigma_error_EBLowR9  ;
-	float smearing_sigma_error_EBm4HighR9 ;
-	float smearing_sigma_error_EBm4LowR9  ;
-	float smearing_sigma_error_EEHighR9 ;
-	float smearing_sigma_error_EELowR9  ;
+    EnergySmearer::energySmearingParameters eSmearPars;
+    float smearing_sigma_EBHighR9       ;
+    float smearing_sigma_EBLowR9        ;
+    float smearing_sigma_EBm4HighR9       ;
+    float smearing_sigma_EBm4LowR9        ;
+    float smearing_sigma_EEHighR9       ;
+    float smearing_sigma_EELowR9        ;
+    float smearing_sigma_error_EBHighR9 ;
+    float smearing_sigma_error_EBLowR9  ;
+    float smearing_sigma_error_EBm4HighR9 ;
+    float smearing_sigma_error_EBm4LowR9  ;
+    float smearing_sigma_error_EEHighR9 ;
+    float smearing_sigma_error_EELowR9  ;
 
-	std::vector<int> pho_acc;
-	std::vector<int> pho_presel;
-	std::vector<int> pho_presel_lead;
-	std::vector<float> pho_et;
-	// Other options
-	bool runStatAnalysis;
-        TString puHist, puMap;//name of pileup reweighting histogram
+    std::vector<int> pho_acc;
+    std::vector<int> pho_presel;
+    std::vector<int> pho_presel_lead;
+    std::vector<float> pho_et;
+    // Other options
+    bool runStatAnalysis;
+    TString puHist, puMap;//name of pileup reweighting histogram
 
-	enum BkgCategory{promptprompt,promptfake,fakefake};
-	bool keepPP, keepPF, keepFF;
+    enum BkgCategory{promptprompt,promptfake,fakefake};
+    bool keepPP, keepPF, keepFF;
 
-	std::string scale_offset_error_file, smearing_file;
-	std::string energyCorrectionMethod;
-	//std::string massResolutionFileName;
+    std::string scale_offset_error_file, smearing_file;
+    std::string energyCorrectionMethod;
+    //std::string massResolutionFileName;
 
-	std::string tmvaPerVtxMethod;                       	
-        std::string tmvaPerVtxWeights;                  
-        std::string tmvaPerEvtMethod;                   
-        std::string tmvaPerEvtWeights;                  
+    std::string tmvaPerVtxMethod;                           
+    std::string tmvaPerVtxWeights;                  
+    std::string tmvaPerEvtMethod;                   
+    std::string tmvaPerEvtWeights;                  
                                                         
-        bool mvaVertexSelection, addConversionToMva;     
+    bool mvaVertexSelection, addConversionToMva;     
 
-	// PhotonFix
-	std::string photonFixDat;
-	std::string regressionFile;
-	
-  int   nEtaCategories, nR9Categories, nPtCategories;
-	//std::string photonFixDat;
-	//std::string regressionFile;
+    // PhotonFix
+    std::string photonFixDat;
+    std::string regressionFile;
+    
+    int   nEtaCategories, nR9Categories, nPtCategories;
+    //std::string photonFixDat;
+    //std::string regressionFile;
 
-	// VBF
-  	// for N-1
-  	float  myVBFLeadJPt;
-  	float  myVBFSubJPt;
-  	float  myVBFdEta;
-  	float  myVBFZep;
-  	float  myVBFdPhi;
-  	float  myVBF_Mjj;
-  	float  myVBF_Mgg;
+    // VBF
+    // for N-1
+    float  myVBFLeadJPt;
+    float  myVBFSubJPt;
+    float  myVBFdEta;
+    float  myVBFZep;
+    float  myVBFdPhi;
+    float  myVBF_Mjj;
+    float  myVBF_Mgg;
 
- 	  float  myAllLeadJPt;
- 	  float  myAllSubJPt;
-  	float  myAllLeadJEta;
-  	float  myAllSubJEta;
-  	float  myAlldEta;
-  	float  myAllZep;
- 	  float  myAlldPhi;
-  	float  myAll_Mjj;
+    float  myAllLeadJPt;
+    float  myAllSubJPt;
+    float  myAllLeadJEta;
+    float  myAllSubJEta;
+    float  myAlldEta;
+    float  myAllZep;
+    float  myAlldPhi;
+    float  myAll_Mjj;
 
-  	float  myAll_Mgg;
-  	float  myAllPtHiggs;
+    float  myAll_Mgg;
+    float  myAllPtHiggs;
 
 
 
-protected:
-	void PreselectPhotons(LoopAll& l, int jentry);
-	void StatAnalysis(LoopAll &l, int jentry);
-	void loadPuMap(const char * fname, TDirectory * dir);
-	void loadPuWeights(int typid, TDirectory * dir);
-  float GetSmearSigma(float eta, float r9, int epoch=0);
-  void SetNullHiggs(LoopAll& l);
-  bool FindHiggsObjects(LoopAll& l);
-  Bool_t GenMatchedPhoton(LoopAll& l, int ipho);
+ protected:
+    void PreselectPhotons(LoopAll& l, int jentry);
+    void StatAnalysis(LoopAll &l, int jentry);
+    void loadPuMap(const char * fname, TDirectory * dir);
+    void loadPuWeights(int typid, TDirectory * dir);
+    float GetSmearSigma(float eta, float r9, int epoch=0);
+    void SetNullHiggs(LoopAll& l);
+    bool FindHiggsObjects(LoopAll& l);
+    Bool_t GenMatchedPhoton(LoopAll& l, int ipho);
 
-	std::string name_;
-	
-	// Vertex analysis
-	HggVertexAnalyzer vtxAna_;
-	HggVertexFromConversions vtxConv_;
-	
-	std::map<int, vector<double> > weights;
-	int trigCounter_;
+    std::string name_;
+    
+    // Vertex analysis
+    HggVertexAnalyzer vtxAna_;
+    HggVertexFromConversions vtxConv_;
+    
+    std::map<int, vector<double> > weights;
+    int trigCounter_;
 
-	EnergySmearer *eScaleDataSmearer ; // corrections for energy scale data
-	EnergySmearer *eScaleSmearer;      // corrections for energy scale  MC
-	EnergySmearer *eCorrSmearer;      // corrections for energy scale  MC
-	std::vector<float> corrected_pho_energy;
-	
-	Float_t *energyCorrected;
-	Float_t *energyCorrectedError;
+    EnergySmearer *eScaleDataSmearer ; // corrections for energy scale data
+    EnergySmearer *eScaleSmearer;      // corrections for energy scale  MC
+    EnergySmearer *eCorrSmearer;      // corrections for energy scale  MC
+    std::vector<float> corrected_pho_energy;
+    
+    Float_t *energyCorrected;
+    Float_t *energyCorrectedError;
 
-	vector<string> tmvaPerVtxVariables_;
-	TMVA::Reader *tmvaPerVtxReader_;
-	TMVA::Reader *tmvaPerEvtReader_;
+    vector<string> tmvaPerVtxVariables_;
+    TMVA::Reader *tmvaPerVtxReader_;
+    TMVA::Reader *tmvaPerEvtReader_;
 
-        MassResolution *massResolutionCalculator;
+    MassResolution *massResolutionCalculator;
 
-  int DiphotonMVASelection(LoopAll &l, HggVertexAnalyzer & vtxAna, Float_t & diphoMVA,  
-          Float_t minLeadingMVA=-0.3, Float_t minSubleadingMVA=-0.3, Float_t leadPtMin=30, 
-          Float_t subleadPtMin=20, std::string type="UCSD", int ncategories=7,
-          bool applyPtoverM=true, float *pho_energy_array=0, bool split=false);
-  int DiphotonMVAEventClass(LoopAll &l, float diphoMVA, int nCat, std::string type, int EBEB=1);
-	
-  //TFile *fgbr;
-	//GBRForest *fReadereb;
-        //GBRForest *fReaderebvariance;
-        //GBRForest *fReaderee;
-        //GBRForest *fReadereevariance;      
-	std::vector<PhotonReducedInfo> photonInfoCollection;
-/*
-	TFile *fgbr;
-	GBRForest *fReadereb;
-        GBRForest *fReaderebvariance;
-        GBRForest *fReaderee;
-        GBRForest *fReadereevariance;      
-*/
+    int DiphotonMVASelection(LoopAll &l, HggVertexAnalyzer & vtxAna, Float_t & diphoMVA,  
+                             Float_t minLeadingMVA=-0.3, Float_t minSubleadingMVA=-0.3, Float_t leadPtMin=30, 
+                             Float_t subleadPtMin=20, std::string type="UCSD", int ncategories=7,
+                             bool applyPtoverM=true, float *pho_energy_array=0, bool split=false);
+    int DiphotonMVAEventClass(LoopAll &l, float diphoMVA, int nCat, std::string type, int EBEB=1);
+    
+    //TFile *fgbr;
+    //GBRForest *fReadereb;
+    //GBRForest *fReaderebvariance;
+    //GBRForest *fReaderee;
+    //GBRForest *fReadereevariance;      
+    std::vector<PhotonReducedInfo> photonInfoCollection;
+    /*
+      TFile *fgbr;
+      GBRForest *fReadereb;
+      GBRForest *fReaderebvariance;
+      GBRForest *fReaderee;
+      GBRForest *fReadereevariance;      
+    */
 
 };
 
 #endif
+
+
+// Local Variables:
+// mode: c++
+// mode: sensitive
+// c-basic-offset: 4
+// End:
+// vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4
