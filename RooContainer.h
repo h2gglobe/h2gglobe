@@ -44,6 +44,7 @@
 
 // standard includes
 #include <cmath>
+#include <ctime>
 #include <iostream>
 #include <fstream>
 #include <map>
@@ -57,7 +58,7 @@ class RooContainer {
 
     RooContainer(int ncat=1, int nsigmas=1);
     
-    ~RooContainer(){};
+    ~RooContainer();
     void SetNCategories(int);
     void Verbose(bool noisy=true);
     void AddGlobalSystematic(std::string,double,double);
@@ -179,6 +180,7 @@ class RooContainer {
 
    double calculateSig(double s1, double s2, double b1, double b2);
    double calculateSigMulti(std::vector<double> &s1, std::vector<double> &b1);
+   double calculateSigMulti(double *s1, double *b1, int nchannel);
    bool compareLHWide(double s1, double sdiff,double s2,double b1,double bdiff, double b2,double n, std::vector<double> &chanS, std::vector<double> &chanB);
 
    double getNormalisationFromFit(std::string,std::string,RooAbsPdf *,RooRealVar*,double,double,bool,bool);
@@ -186,6 +188,8 @@ class RooContainer {
 
    void getArgSetParameters(RooArgSet*,std::vector<double> &);
    void setArgSetParameters(RooArgSet*,std::vector<double> &);
+
+   void maxSigScan(double *maximumSignificance,int *frozen_counters,int *chosen_counters,TH1F *hs, TH1F *hb, int N,int *counters, int movingCounterIndex);
 
    std::map<std::string,int> systematics_;
    std::map<std::string,std::pair<double,double> > global_systematics_;
@@ -229,6 +233,11 @@ class RooContainer {
    std::map<std::string,RooFitResult*> fit_results_;
    std::map<std::string,RooAbsReal* > latestFitRangeIntegral_;
    std::map<std::string,RooAbsReal* > DUMP_;
+
+   double *signalVector1;
+   double *backgroundVector1;
+   int g_step;
+   int sweepmode;
 
    RooWorkspace ws;   
    
