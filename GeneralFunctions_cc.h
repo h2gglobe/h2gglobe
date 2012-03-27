@@ -584,7 +584,7 @@ void LoopAll::vertexAnalysis(HggVertexAnalyzer & vtxAna,  PhotonInfo pho1, Photo
 
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
-PhotonInfo LoopAll::fillPhotonInfos(int p1, bool useAllConvs) 
+PhotonInfo LoopAll::fillPhotonInfos(int p1, bool useAllConvs, float * energy) 
 {
 	if(LDEBUG)  cout << "  LoopAll::fillPhotonInfos with index " << p1 <<  endl;
 	
@@ -594,12 +594,12 @@ PhotonInfo LoopAll::fillPhotonInfos(int p1, bool useAllConvs)
 	if ( iConv1 >= 0) {
 		// conversions infos
 		return PhotonInfo(p1,
-				  //*((TVector3*)pho_calopos->At(p1)),
+				  // *((TVector3*)pho_calopos->At(p1)),
 				  *((TVector3*)sc_xyz->At(pho_scind[p1])),
 				  *((TVector3*) bs_xyz->At(0)),
 				  *((TVector3*) conv_vtx->At(iConv1)),
-                  *((TVector3*) conv_refitted_momentum->At(iConv1)),
-				  ((TLorentzVector*)pho_p4->At(p1))->Energy(),
+				  *((TVector3*) conv_refitted_momentum->At(iConv1)),
+				  energy == 0 ? ((TLorentzVector*)pho_p4->At(p1))->Energy() : energy[p1],
 				  pho_isEB[p1],
 				  conv_ntracks[iConv1],
 				  conv_validvtx[iConv1],
@@ -612,12 +612,12 @@ PhotonInfo LoopAll::fillPhotonInfos(int p1, bool useAllConvs)
 	//// }
 	
 	return PhotonInfo(p1, 
-			  //*((TVector3*)pho_calopos->At(p1)),                                                                                                                
+			  // *((TVector3*)pho_calopos->At(p1)),                                                                                                                
 			  *((TVector3*)sc_xyz->At(pho_scind[p1])),
 			  *((TVector3*) bs_xyz->At(0)),                                                                                                                            
 			  *((TVector3*) pho_conv_vtx->At(p1)),
-              *((TVector3*) pho_conv_refitted_momentum->At(p1)),
-			  ((TLorentzVector*)pho_p4->At(p1))->Energy(),                                                                                                      
+			  *((TVector3*) pho_conv_refitted_momentum->At(p1)),
+			  energy == 0 ? ((TLorentzVector*)pho_p4->At(p1))->Energy() : energy[p1],
 			  pho_isEB[p1],                                                                                                                                     
 			  pho_conv_ntracks[p1],                                                                                                                             
 			  pho_conv_validvtx[p1],                                                                                                                            

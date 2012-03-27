@@ -10,7 +10,7 @@ void eIDInfo(Int_t, Int_t&, Int_t&,Int_t eIDMaxLevel=10);
 Float_t sipCalculator(int);
 
 // Match the Photon with the merged collection of conversions
-PhotonInfo fillPhotonInfos(int p1, bool useAllConvs);
+PhotonInfo fillPhotonInfos(int p1, bool useAllConvs, float * energy=0);
 int matchPhotonToConversion(int); 
 double phiNorm (float &phi);
 double etaTransformation(  float EtaParticle , float Zvertex);
