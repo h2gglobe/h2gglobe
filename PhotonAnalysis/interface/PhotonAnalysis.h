@@ -54,6 +54,23 @@ class PhotonAnalysis : public BaseAnalysis
     bool doTriggerSelection; 
     std::vector<TriggerSelection> triggerSelections;
     
+    // Options
+    bool includeVBF;
+    bool includeVHhad;
+    bool includeVHlep;
+    bool reRunCiCForData;
+
+    float leadEtCut;
+    float leadEtVBFCut;
+    float leadEtVHhadCut;
+    float leadEtVHlepCut;
+    float subleadEtCut;
+    float subleadEtVBFCut;
+    float subleadEtVHhadCut;
+    float subleadEtVHlepCut;
+    int nVBFEtaCategories;
+    int nVHhadEtaCategories;
+    
     // Preselection indexes
     float presel_scet1, presel_scet2, presel_maxeta;
     float presel_ecaliso_eb, presel_ecaliso_ee, presel_sieie_eb, presel_sieie_ee, presel_hoe;
@@ -119,8 +136,26 @@ class PhotonAnalysis : public BaseAnalysis
     //std::string photonFixDat;
     //std::string regressionFile;
 
-    // VBF
-    // for N-1
+    // n-1 plot for ClassicCats
+    float sublead_r9;
+    float sublead_isoOverEt;
+    float sublead_badisoOverEt;
+    float sublead_trkisooet;
+    float sublead_sieie;
+    float sublead_drtotk;
+    float sublead_hovere;
+    float sublead_mgg;
+  
+    // n-1 plots for VH hadronic tag 2011
+    float  myVHhadLeadJPt;
+    float  myVHhadSubJPt;
+    float  myVHhaddEta;
+    float  myVHhadZep;
+    float  myVHhaddPhi;
+    float  myVHhad_Mjj;
+    float  myVHhad_Mgg;
+    
+    // n-1 plots for VBF tag 2011 
     float  myVBFLeadJPt;
     float  myVBFSubJPt;
     float  myVBFdEta;
@@ -128,19 +163,6 @@ class PhotonAnalysis : public BaseAnalysis
     float  myVBFdPhi;
     float  myVBF_Mjj;
     float  myVBF_Mgg;
-
-    float  myAllLeadJPt;
-    float  myAllSubJPt;
-    float  myAllLeadJEta;
-    float  myAllSubJEta;
-    float  myAlldEta;
-    float  myAllZep;
-    float  myAlldPhi;
-    float  myAll_Mjj;
-
-    float  myAll_Mgg;
-    float  myAllPtHiggs;
-
 
 
  protected:
@@ -152,6 +174,11 @@ class PhotonAnalysis : public BaseAnalysis
     void SetNullHiggs(LoopAll& l);
     bool FindHiggsObjects(LoopAll& l);
     Bool_t GenMatchedPhoton(LoopAll& l, int ipho);
+    bool VBFTag2011(LoopAll& l, int diphoton_id, float* smeared_pho_energy=0, bool nm1=false, float eventweight=1, float myweight=1);
+    bool VHhadronicTag2011(LoopAll& l, int diphoton_id, float* smeared_pho_energy=0, bool nm1=false, float eventweight=1, float myweight=1);
+    bool ElectronTag2011(LoopAll& l, int diphotonVHlep_id, float* smeared_pho_energy=0, bool nm1=false, float eventweight=1, float myweight=1);
+    bool MuonTag2011(LoopAll& l, int diphotonVHlep_id, float* smeared_pho_energy=0, bool nm1=false, float eventweight=1, float myweight=1);
+    bool ClassicCatsNm1Plots(LoopAll& l, int diphoton_nm1_id, float* smeared_pho_energy, float eventweight, float myweight);
 
     std::string name_;
     

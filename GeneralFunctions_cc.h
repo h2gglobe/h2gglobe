@@ -614,14 +614,14 @@ PhotonInfo LoopAll::fillPhotonInfos(int p1, bool useAllConvs, float * energy)
 	return PhotonInfo(p1, 
 			  // *((TVector3*)pho_calopos->At(p1)),                                                                                                                
 			  *((TVector3*)sc_xyz->At(pho_scind[p1])),
-			  *((TVector3*) bs_xyz->At(0)),                                                                                                                            
+			  *((TVector3*) bs_xyz->At(0)),
 			  *((TVector3*) pho_conv_vtx->At(p1)),
 			  *((TVector3*) pho_conv_refitted_momentum->At(p1)),
 			  energy == 0 ? ((TLorentzVector*)pho_p4->At(p1))->Energy() : energy[p1],
-			  pho_isEB[p1],                                                                                                                                     
-			  pho_conv_ntracks[p1],                                                                                                                             
-			  pho_conv_validvtx[p1],                                                                                                                            
-			  pho_conv_chi2_probability[p1] ,                                                                                                                   
+			  pho_isEB[p1],
+			  pho_conv_ntracks[p1],
+			  pho_conv_validvtx[p1],
+			  pho_conv_chi2_probability[p1],
 			  pho_conv_eoverp[p1]                                                                                                                               
 		);
 }
@@ -1451,12 +1451,16 @@ int LoopAll::DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL, phoCiCIDLevel SUB
 
 	  float leadpt = lead_p4.Pt() > sublead_p4.Pt() ? lead_p4.Pt() : sublead_p4.Pt();
       	  float subleadpt = lead_p4.Pt() < sublead_p4.Pt() ? lead_p4.Pt() : sublead_p4.Pt(); 	  
-
-	  if( applyPtoverM ) {
-	    if ( leadpt/m_gamgam < leadPtMin/120. || subleadpt/m_gamgam < subleadPtMin/120. ) { continue; }
-	  } else {
-	    if ( leadpt < leadPtMin || subleadpt < subleadPtMin ) { continue; }
-	  }
+    // Exclusive modes cut smoothly on lead pt/M but on straight pt on sublead to save sig eff and avoid HLT turn-on  
+    if(split){   
+        if ( leadpt/m_gamgam < leadPtMin/120. || subleadpt< subleadPtMin ) { continue; }  
+    }else{
+	      if( applyPtoverM ) {
+	          if ( leadpt/m_gamgam < leadPtMin/120. || subleadpt/m_gamgam < subleadPtMin/120. ) { continue; }
+	      } else {
+	          if ( leadpt < leadPtMin || subleadpt < subleadPtMin ) { continue; }
+	      }
+    }
 	  
 	  if (subleadpt > leadpt){ // Swap them
 		int tmp = lead;
@@ -2170,12 +2174,12 @@ int LoopAll::MuonSelection(TLorentzVector& pho1, TLorentzVector& pho2, int vtxin
 
     passingMu++;
 
-    std::cout << setprecision(4) << "Run = " << run << "  LS = " << lumis << "  Event = " << event << "  SelVtx = " << vtxind << " muEta = " << thiseta << "  muPhi = " << thismu->Phi() <<  "  muEt = " << thismu->Et() << endl;
+    //std::cout << setprecision(4) << "Run = " << run << "  LS = " << lumis << "  Event = " << event << "  SelVtx = " << vtxind << " muEta = " << thiseta << "  muPhi = " << thismu->Phi() <<  "  muEt = " << thismu->Et() << endl;
 
     mymu = indmu;
   }
 
-  if(passingMu>1) std::cout<<"There are "<<passingMu<<" passing muons!!"<<std::endl;
+  //if(passingMu>1) std::cout<<"There are "<<passingMu<<" passing muons!!"<<std::endl;
 
 
   /////////////////fabs(muD0Vtx[i][vtx]) < 0.02 &&       
@@ -2252,12 +2256,12 @@ int LoopAll::ElectronSelection(TLorentzVector& pho1, TLorentzVector& pho2, int v
 
     passingEl++;
 
-    std::cout << setprecision(4) << "Run = " << run << "  LS = " << lumis << "  Event = " << event << "  SelVtx = " << vtxind << " elEta = " << thiseta << "  elPhi = " << thisel->Phi() <<  "  elEt = " << thisel->Et() << endl;
+    //std::cout << setprecision(4) << "Run = " << run << "  LS = " << lumis << "  Event = " << event << "  SelVtx = " << vtxind << " elEta = " << thiseta << "  elPhi = " << thisel->Phi() <<  "  elEt = " << thisel->Et() << endl;
 
     myel = indel;
   }
 
-  if(passingEl>1) std::cout<<"There are "<<passingEl<<" passing electrons!!"<<std::endl;
+  //if(passingEl>1) std::cout<<"There are "<<passingEl<<" passing electrons!!"<<std::endl;
 
 
   /////////////////fabs(elD0Vtx[i][vtx]) < 0.02 &&       

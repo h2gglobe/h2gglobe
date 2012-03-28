@@ -260,6 +260,7 @@ void PhotonAnalysis::Init(LoopAll& l)
     triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_CaloIdL_IsoVL_v");
     triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_R9Id_v");
 
+    // n-1 plots for VBF tag 2011 
     l.SetCutVariables("cut_VBFLeadJPt",       &myVBFLeadJPt);
     l.SetCutVariables("cut_VBFSubJPt",        &myVBFSubJPt);
     l.SetCutVariables("cut_VBF_Mjj",          &myVBF_Mjj);
@@ -272,6 +273,57 @@ void PhotonAnalysis::Init(LoopAll& l)
     l.SetCutVariables("cut_VBF_Mgg10",        &myVBF_Mgg);
     l.SetCutVariables("cut_VBF_Mgg4_100_180",        &myVBF_Mgg);
     l.SetCutVariables("cut_VBF_Mgg2_100_180",        &myVBF_Mgg);
+
+    // n-1 plots for VH hadronic tag 2011
+    l.SetCutVariables("cut_VHhadLeadJPt",      &myVHhadLeadJPt);
+    l.SetCutVariables("cut_VHhadSubJPt",       &myVHhadSubJPt);
+    l.SetCutVariables("cut_VHhad_Mjj",         &myVHhad_Mjj);
+    l.SetCutVariables("cut_VHhad_dEta",        &myVHhaddEta);
+    l.SetCutVariables("cut_VHhad_Zep",         &myVHhadZep);
+    l.SetCutVariables("cut_VHhad_dPhi",        &myVHhaddPhi);
+    l.SetCutVariables("cut_VHhad_Mgg0",        &myVHhad_Mgg);
+    l.SetCutVariables("cut_VHhad_Mgg2",        &myVHhad_Mgg);
+    l.SetCutVariables("cut_VHhad_Mgg4",        &myVHhad_Mgg);
+    l.SetCutVariables("cut_VHhad_Mgg10",        &myVHhad_Mgg);
+    l.SetCutVariables("cut_VHhad_Mgg2_100_160",        &myVHhad_Mgg);
+    l.SetCutVariables("cut_VHhad_Mgg4_100_160",        &myVHhad_Mgg);
+
+    // n-1 plot for ClassicCats
+    l.SetCutVariables("cutnm1hir9EB_r9",             &sublead_r9);
+    l.SetCutVariables("cutnm1hir9EB_isoOverEt",      &sublead_isoOverEt);
+    l.SetCutVariables("cutnm1hir9EB_badisoOverEt",   &sublead_badisoOverEt);
+    l.SetCutVariables("cutnm1hir9EB_trkisooet",      &sublead_trkisooet);
+    l.SetCutVariables("cutnm1hir9EB_sieie",          &sublead_sieie);
+    l.SetCutVariables("cutnm1hir9EB_drtotk",         &sublead_drtotk);
+    l.SetCutVariables("cutnm1hir9EB_hovere",         &sublead_hovere);
+    l.SetCutVariables("cutnm1hir9EB_Mgg",            &sublead_mgg);
+
+    l.SetCutVariables("cutnm1lor9EB_r9",             &sublead_r9);
+    l.SetCutVariables("cutnm1lor9EB_isoOverEt",      &sublead_isoOverEt);
+    l.SetCutVariables("cutnm1lor9EB_badisoOverEt",   &sublead_badisoOverEt);
+    l.SetCutVariables("cutnm1lor9EB_trkisooet",      &sublead_trkisooet);
+    l.SetCutVariables("cutnm1lor9EB_sieie",          &sublead_sieie);
+    l.SetCutVariables("cutnm1lor9EB_drtotk",         &sublead_drtotk);
+    l.SetCutVariables("cutnm1lor9EB_hovere",         &sublead_hovere);
+    l.SetCutVariables("cutnm1lor9EB_Mgg",            &sublead_mgg);
+
+    l.SetCutVariables("cutnm1hir9EE_r9",             &sublead_r9);
+    l.SetCutVariables("cutnm1hir9EE_isoOverEt",      &sublead_isoOverEt);
+    l.SetCutVariables("cutnm1hir9EE_badisoOverEt",   &sublead_badisoOverEt);
+    l.SetCutVariables("cutnm1hir9EE_trkisooet",      &sublead_trkisooet);
+    l.SetCutVariables("cutnm1hir9EE_sieie",          &sublead_sieie);
+    l.SetCutVariables("cutnm1hir9EE_drtotk",         &sublead_drtotk);
+    l.SetCutVariables("cutnm1hir9EE_hovere",         &sublead_hovere);
+    l.SetCutVariables("cutnm1hir9EE_Mgg",            &sublead_mgg);
+
+    l.SetCutVariables("cutnm1lor9EE_r9",             &sublead_r9);
+    l.SetCutVariables("cutnm1lor9EE_isoOverEt",      &sublead_isoOverEt);
+    l.SetCutVariables("cutnm1lor9EE_badisoOverEt",   &sublead_badisoOverEt);
+    l.SetCutVariables("cutnm1lor9EE_trkisooet",      &sublead_trkisooet);
+    l.SetCutVariables("cutnm1lor9EE_sieie",          &sublead_sieie);
+    l.SetCutVariables("cutnm1lor9EE_drtotk",         &sublead_drtotk);
+    l.SetCutVariables("cutnm1lor9EE_hovere",         &sublead_hovere);
+    l.SetCutVariables("cutnm1lor9EE_Mgg",            &sublead_mgg);
 
 
     // CiC initialization
@@ -1108,19 +1160,6 @@ void PhotonAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree)
     l.Branch_dipho_subleadind(outputTree);
     l.Branch_dipho_vtxind(outputTree);
     l.Branch_dipho_sumpt(outputTree);
-    /// l.Branch_dipho_leadet(outputTree);
-    /// l.Branch_dipho_subleadet(outputTree);
-    /// l.Branch_dipho_leadeta(outputTree);
-    /// l.Branch_dipho_subleadeta(outputTree);
-    /// l.Branch_dipho_leadci6cindex(outputTree);
-    /// l.Branch_dipho_subleadci6cindex(outputTree);
-    /// l.Branch_dipho_leadci4cindex(outputTree);
-    /// l.Branch_dipho_subleadci4cindex(outputTree);
-    /// l.Branch_dipho_mass(outputTree);
-    /// l.Branch_dipho_pt(outputTree);
-    /// l.Branch_dipho_eta(outputTree);
-    /// l.Branch_dipho_phi(outputTree);
-    /// l.Branch_dipho_cts(outputTree);
     
     l.Branch_pho_cic6cutlevel_lead( outputTree );
     l.Branch_pho_cic6passcuts_lead( outputTree );
@@ -1479,6 +1518,149 @@ Bool_t PhotonAnalysis::GenMatchedPhoton(LoopAll& l, int ipho){
     return is_prompt;
 
 }
+
+
+bool PhotonAnalysis::ClassicCatsNm1Plots(LoopAll& l, int diphoton_nm1_id, float* smeared_pho_energy, float eventweight, float myweight){
+    
+    bool pass = false;
+    if(diphoton_nm1_id==-1) return pass;
+
+    TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphoton_nm1_id], l.dipho_vtxind[diphoton_nm1_id], &smeared_pho_energy[0]);
+    TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphoton_nm1_id], l.dipho_vtxind[diphoton_nm1_id], &smeared_pho_energy[0]);
+    TLorentzVector diphoton = lead_p4+sublead_p4;
+    
+    int photon_category   = l.PhotonCategory(l.dipho_subleadind[diphoton_nm1_id],2,2);
+    sublead_r9            = l.pho_r9[l.dipho_subleadind[diphoton_nm1_id]];
+    sublead_trkisooet     = (*l.pho_tkiso_recvtx_030_002_0000_10_01)[l.dipho_subleadind[diphoton_nm1_id]][l.dipho_vtxind[diphoton_nm1_id]]*50/sublead_p4.Et();
+    sublead_isoOverEt     = (l.pho_hcalsumetconedr04[l.dipho_subleadind[diphoton_nm1_id]]
+                             +  l.pho_ecalsumetconedr03[l.dipho_subleadind[diphoton_nm1_id]]
+                             +  (*l.pho_tkiso_recvtx_030_002_0000_10_01)[l.dipho_subleadind[diphoton_nm1_id]][l.dipho_vtxind[diphoton_nm1_id]]
+                             - 0.17*l.rho)*50/sublead_p4.Et();
+    sublead_badisoOverEt  = (l.pho_hcalsumetconedr04[l.dipho_subleadind[diphoton_nm1_id]]
+                             +  l.pho_ecalsumetconedr04[l.dipho_subleadind[diphoton_nm1_id]]
+                             +  l.pho_tkiso_badvtx_040_002_0000_10_01[l.dipho_subleadind[diphoton_nm1_id]]
+                             - 0.52*l.rho)*50/sublead_p4.Et();
+    
+    sublead_sieie         = l.pho_sieie[l.dipho_subleadind[diphoton_nm1_id]];
+    sublead_drtotk        = l.pho_drtotk_25_99[l.dipho_subleadind[diphoton_nm1_id]];
+    sublead_hovere        = l.pho_hoe[l.dipho_subleadind[diphoton_nm1_id]];
+    sublead_mgg           = diphoton.M();
+    
+    int applyCutsType = 15 + photon_category;
+    
+    pass = l.ApplyCutsFill(0,applyCutsType, eventweight, myweight);
+
+    return pass;
+}
+
+
+bool PhotonAnalysis::ElectronTag2011(LoopAll& l, int diphotonVHlep_id, float* smeared_pho_energy, bool nm1, float eventweight, float myweight){
+    bool tag = false;
+
+    if(diphotonVHlep_id==-1) return tag;
+    TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphotonVHlep_id], l.dipho_vtxind[diphotonVHlep_id], &smeared_pho_energy[0]);
+    TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphotonVHlep_id], l.dipho_vtxind[diphotonVHlep_id], &smeared_pho_energy[0]);
+    
+    int elInd = l.ElectronSelection(lead_p4, sublead_p4, l.dipho_vtxind[diphotonVHlep_id]);
+    if(elInd!=-1) tag = true;
+    
+    return tag;
+}
+
+
+
+bool PhotonAnalysis::MuonTag2011(LoopAll& l, int diphotonVHlep_id, float* smeared_pho_energy, bool nm1, float eventweight, float myweight){
+    bool tag = false;
+
+    if(diphotonVHlep_id==-1) return tag;
+        
+    TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphotonVHlep_id], l.dipho_vtxind[diphotonVHlep_id], &smeared_pho_energy[0]);
+    TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphotonVHlep_id], l.dipho_vtxind[diphotonVHlep_id], &smeared_pho_energy[0]);
+    
+    int muonInd = l.MuonSelection(lead_p4, sublead_p4, l.dipho_vtxind[diphotonVHlep_id]);
+    if(muonInd!=-1) tag = true;
+    
+    return tag;
+}
+
+
+
+bool PhotonAnalysis::VBFTag2011(LoopAll& l, int diphoton_id, float* smeared_pho_energy, bool nm1, float eventweight, float myweight){
+    bool tag = false;
+
+    if(diphoton_id==-1) return tag;
+    float jet1ptcut =15.0;
+    float jet2ptcut =15.0;
+  
+  
+    TLorentzVector lead_p4    = l.get_pho_p4( l.dipho_leadind[diphoton_id], l.dipho_vtxind[diphoton_id], &smeared_pho_energy[0]);
+  	TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphoton_id], l.dipho_vtxind[diphoton_id], &smeared_pho_energy[0]);
+          
+    std::pair<int, int> jets = l.Select2HighestPtJets(lead_p4, sublead_p4, jet1ptcut, jet2ptcut );
+    if(jets.first==-1 or jets.second==-1) return tag;
+    
+    TLorentzVector diphoton = lead_p4+sublead_p4;
+  
+    TLorentzVector* jet1 = (TLorentzVector*)l.jet_algoPF1_p4->At(jets.first);
+    TLorentzVector* jet2 = (TLorentzVector*)l.jet_algoPF1_p4->At(jets.second);
+    TLorentzVector dijet = (*jet1) + (*jet2);
+    
+    myVBFLeadJPt= jet1->Pt();
+    myVBFSubJPt = jet2->Pt();
+    myVBF_Mjj   = dijet.M();
+    myVBFdEta   = fabs(jet1->Eta() - jet2->Eta());
+    myVBFZep    = fabs(diphoton.Eta() - 0.5*(jet1->Eta() + jet2->Eta()));
+    myVBFdPhi   = fabs(diphoton.DeltaPhi(dijet));
+    myVBF_Mgg   = diphoton.M();
+  
+    if(nm1){
+        tag = l.ApplyCutsFill(0,1, eventweight, myweight);
+    } else {
+        tag = l.ApplyCuts(0,1);
+    }
+  
+    return tag;
+}
+
+bool PhotonAnalysis::VHhadronicTag2011(LoopAll& l, int diphotonVHhad_id, float* smeared_pho_energy, bool nm1, float eventweight, float myweight){
+    bool tag = false;
+
+    if(diphotonVHhad_id==-1) return tag;
+    float jet1ptcut =15.0;
+    float jet2ptcut =15.0;
+  
+  
+    TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphotonVHhad_id], l.dipho_vtxind[diphotonVHhad_id], &smeared_pho_energy[0]);
+    TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphotonVHhad_id], l.dipho_vtxind[diphotonVHhad_id], &smeared_pho_energy[0]);
+    
+    std::pair<int, int> jets = l.Select2HighestPtJets(lead_p4, sublead_p4, jet1ptcut, jet2ptcut );
+    if(jets.first==-1 or jets.second==-1) return tag;
+  
+    TLorentzVector* jet1 = (TLorentzVector*)l.jet_algoPF1_p4->At(jets.first);
+    TLorentzVector* jet2 = (TLorentzVector*)l.jet_algoPF1_p4->At(jets.second);
+    TLorentzVector dijet = (*jet1) + (*jet2);
+    
+    TLorentzVector diphoton = lead_p4+sublead_p4;
+    
+    myVHhadLeadJPt = jet1->Pt();
+    myVHhadSubJPt = jet2->Pt();
+    myVHhad_Mjj = dijet.M();
+    myVHhaddEta = fabs(jet1->Eta() - jet2->Eta());
+    myVHhadZep  = fabs(diphoton.Eta() - 0.5*(jet1->Eta() + jet2->Eta()));
+    myVHhaddPhi = fabs(diphoton.DeltaPhi(dijet));
+    myVHhad_Mgg =diphoton.M();
+
+    
+    if(nm1){
+        tag = l.ApplyCutsFill(0,2, eventweight, myweight);
+    } else {
+        tag = l.ApplyCuts(0,2);
+    }
+  
+    return tag;
+}
+
+
 
 
 // Local Variables:

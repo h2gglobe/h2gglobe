@@ -12,17 +12,17 @@ nR9Categories=2
 nPtCategories=1
 
 includeVBF=1
-includeVHad=0
+includeVHhad=0
 includeVHlep=0
 
 nVBFEtaCategories=1
-nVHadEtaCategories=1
+nVHhadEtaCategories=1
 
 leadEtVBFCut=55
 subleadEtVBFCut=25
 
-leadEtVHadCut=60
-subleadEtVHadCut=25
+leadEtVHhadCut=60
+subleadEtVHhadCut=25
 
 leadEtVHlepCut=45
 subleadEtVHlepCut=25

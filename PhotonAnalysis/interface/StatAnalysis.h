@@ -35,22 +35,7 @@ class StatAnalysis : public PhotonAnalysis
     virtual void ResetAnalysis();
     virtual void Analysis(LoopAll&, Int_t);
     
-    // Options
-    bool includeVBF;
-    bool includeVHad;
-    bool includeVHlep;
-    bool reRunCiCForData;
-
-    float leadEtCut;
-    float leadEtVBFCut;
-    float leadEtVHadCut;
-    float leadEtVHlepCut;
-    float subleadEtCut;
-    float subleadEtVBFCut;
-    float subleadEtVHadCut;
-    float subleadEtVHlepCut;
-    int nVBFEtaCategories;
-    int nVHadEtaCategories;
+    
     std::string efficiencyFile;
 
     // mva removed cp march 8
@@ -69,45 +54,6 @@ class StatAnalysis : public PhotonAnalysis
     void FillSignalLabelMap();
     std::string GetSignalLabel(int) ;
 
-    // for N-1
-    float sublead_r9;
-    float sublead_isoOverEt;
-    float sublead_badisoOverEt;
-    float sublead_trkisooet;
-    float sublead_sieie;
-    float sublead_drtotk;
-    float sublead_hovere;
-    float sublead_mgg;
-  
-    float  myVBFLeadJPt;
-    float  myVBFSubJPt;
-    float  myVBFdEta;
-    float  myVBFZep;
-    float  myVBFdPhi;
-    float  myVBF_Mjj;
-
-    float  myVBF_Mgg;
-
-    float  myVHadLeadJPt;
-    float  myVHadSubJPt;
-    float  myVHaddEta;
-    float  myVHadZep;
-    float  myVHaddPhi;
-    float  myVHad_Mjj;
-
-    float  myVHad_Mgg;
-
-    float  myAllLeadJPt;
-    float  myAllSubJPt;
-    float  myAllLeadJEta;
-    float  myAllSubJEta;
-    float  myAlldEta;
-    float  myAllZep;
-    float  myAlldPhi;
-    float  myAll_Mjj;
-
-    float  myAll_Mgg;
-    float  myAllPtHiggs;
 
 
 

@@ -1167,17 +1167,6 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
                 TLorentzVector* jet2 = (TLorentzVector*)l.jet_algoPF1_p4->At(highestPtJets.second);
                 TLorentzVector dijet = (*jet1) + (*jet2);
 
-                myAllLeadJPt = jet1->Pt();
-                myAllSubJPt = jet2->Pt();
-                myAllLeadJEta = jet1->Eta();
-                myAllSubJEta = jet2->Eta();
-                myAll_Mjj = dijet.M();
-                myAlldEta = fabs(jet1->Eta() - jet2->Eta());
-                myAllZep  = fabs(Higgs.Eta() - 0.5*(jet1->Eta() + jet2->Eta()));
-                myAlldPhi = fabs(Higgs.DeltaPhi(dijet));
-                myAll_Mgg =Higgs.M();
-                myAllPtHiggs =Higgs.Pt();
-
                 myVBFLeadJPt = jet1->Pt();
                 myVBFSubJPt = jet2->Pt();
                 myVBF_Mjj = dijet.M();
@@ -2203,17 +2192,6 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
                             TLorentzVector* jet1 = (TLorentzVector*)l.jet_algoPF1_p4->At(highestPtJets.first);
                             TLorentzVector* jet2 = (TLorentzVector*)l.jet_algoPF1_p4->At(highestPtJets.second);
                             TLorentzVector dijet = (*jet1) + (*jet2);
-
-                            myAllLeadJPt = jet1->Pt();
-                            myAllSubJPt = jet2->Pt();
-                            myAllLeadJEta = jet1->Eta();
-                            myAllSubJEta = jet2->Eta();
-                            myAll_Mjj = dijet.M();
-                            myAlldEta = fabs(jet1->Eta() - jet2->Eta());
-                            myAllZep  = fabs(Higgs.Eta() - 0.5*(jet1->Eta() + jet2->Eta()));
-                            myAlldPhi = fabs(Higgs.DeltaPhi(dijet));
-                            myAll_Mgg =Higgs.M();
-                            myAllPtHiggs =Higgs.Pt();
 
                             myVBFLeadJPt = jet1->Pt();
                             myVBFSubJPt = jet2->Pt();
