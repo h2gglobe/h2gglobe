@@ -117,6 +117,7 @@ public:
   
  protected:
   bool doEnergy_, scaleOrSmear_, doEfficiencies_, doCorrections_, doRegressionSmear_;
+  int baseSeed_;
 
   std::string photonCategory(PhotonReducedInfo &) const;
 

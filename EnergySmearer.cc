@@ -5,6 +5,7 @@
 EnergySmearer::EnergySmearer(const energySmearingParameters& par) : myParameters_(par), scaleOrSmear_(true), doCorrections_(false), doRegressionSmear_(false)
 {
   rgen_ = new TRandom3(12345);
+  baseSeed_ = 0;
   name_="EnergySmearer_"+ par.categoryType + "_" + par.parameterSetName;
   //Checking consistency of input parameters
   std::cerr << myParameters_.categoryType << " " <<  myParameters_.n_categories << std::endl;
@@ -162,7 +163,20 @@ bool EnergySmearer::smearPhoton(PhotonReducedInfo & aPho, float & weight, int ru
           // Careful here, if sigma < 0 now, it will be squared and so not correct, set to 0 in this case.
           if (smearing_sigma < 0) smearing_sigma=0;
 
-	  newEnergy *=  rgen_->Gaus(1.,smearing_sigma);
+
+	  // deterministic smearing
+	  int nsigmas = round(syst_shift);
+	  if( nsigmas < 0 ) nsigmas = 1-nsigmas;
+	  if( nsigmas < aPho.nSmearingSeeds() ) {
+		  rgen_->SetSeed( baseSeed_+aPho.smearingSeed(nsigmas) );
+	  }
+	  
+	  float smear = rgen_->Gaus(1.,smearing_sigma);
+	  //// if( syst_shift == 0. ) {
+	  //// 	  std::cerr << "photon  " << newEnergy << " " <<  aPho.caloPosition().Eta() << " " << aPho.r9() << " " << nsigmas << " " << smear << " " << aPho.smearingSeed(nsigmas) << " " << rgen_->GetSeed() << std::endl;
+	  //// }
+	  newEnergy *=  smear;
+	  //// newEnergy *=  rgen_->Gaus(1.,smearing_sigma);
     }
   }
   

@@ -31,6 +31,10 @@ PhotonAnalysis::PhotonAnalysis()  :
     keepPP = true;
     keepPF = true;
     keepFF = true; 
+
+    doSystematics = true;    
+
+    zero_ = 0.; 
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -143,15 +147,141 @@ void PhotonAnalysis::loadPuWeights(int typid, TDirectory * puFile)
             weights[typid].push_back(hweigh->GetBinContent(ii)); 
         }
     } 
-    //// else {
-    ////        TH1D * histo = (TH1D*) puFile->Get("pileup");
-    ////        if( histo != 0 ) {
-    ////            weights[typid] = l.generate_flat10_weights(histo);
-    ////        }
-    //// }
     std::cout << "pile-up weights: ["<<typid<<"]";
     std::copy(weights[typid].begin(), weights[typid].end(), std::ostream_iterator<double>(std::cout,","));
     std::cout << std::endl;
+}
+
+// ----------------------------------------------------------------------------------------------------
+float PhotonAnalysis::getPuWeight(int n_pu, int sample_type, bool warnMe)
+{
+    if ( sample_type !=0 && puHist != "") {
+        bool hasSpecificWeight = weights.find( sample_type ) != weights.end() ; 
+        if( sample_type < 0 && !hasSpecificWeight && warnMe ) {
+            std::cerr  << "WARNING no pu weights specific for sample " << sample_type << std::endl;
+        }
+        std::vector<double> & puweights = hasSpecificWeight ? weights[ sample_type ] : weights[0]; 
+        if(n_pu<puweights.size()){
+            return puweights[n_pu]; 
+        }    
+        else{ //should not happen as we have a weight for all simulated n_pu multiplicities!
+            cout <<"n_pu ("<< n_pu<<") too big ("<<puweights.size()<<") ["<< sample_type <<"], event will not be reweighted for pileup"<<endl;
+        }
+    }
+    return 1.;
+} 
+
+// ----------------------------------------------------------------------------------------------------
+void PhotonAnalysis::applyGenLevelSmearings(double & genLevWeight, const TLorentzVector & gP4, int npu, int sample_type, BaseGenLevelSmearer * sys, float syst_shift)
+{
+    for(std::vector<BaseGenLevelSmearer*>::iterator si=genLevelSmearers_.begin(); si!=genLevelSmearers_.end(); si++){
+	float genWeight=1;
+	if( sys != 0 && *si == *sys ) { 
+	    (*si)->smearEvent(genWeight, gP4, npu, sample_type, syst_shift );
+	} else {
+	    (*si)->smearEvent(genWeight, gP4, npu, sample_type, 0. );
+	}
+	if( genWeight < 0. ) {
+	    std::cerr << "Negative weight from smearer " << (*si)->name() << std::endl;
+	    assert(0);
+	}
+	genLevWeight*=genWeight;
+    }
+}
+
+// ----------------------------------------------------------------------------------------------------
+void PhotonAnalysis::applySinglePhotonSmearings(std::vector<float> & smeared_pho_energy, std::vector<float> & smeared_pho_r9, std::vector<float> & smeared_pho_weight,
+						int cur_type, const LoopAll & l, const float * energyCorrected, const float * energyCorrectedError,
+						BaseSmearer * sys, float syst_shift
+						
+    )
+{
+    photonInfoCollection.clear();
+    smeared_pho_energy.resize(l.pho_n,0.);
+    smeared_pho_r9.resize(l.pho_n,0.);
+    smeared_pho_weight.resize(l.pho_n,0.);
+    for(int ipho=0; ipho<l.pho_n; ++ipho ) { 
+	
+        std::vector<std::vector<bool> > p;
+        PhotonReducedInfo phoInfo (
+	    *((TVector3*)     l.sc_xyz->At(l.pho_scind[ipho])), 
+	    ((TLorentzVector*)l.pho_p4->At(ipho))->Energy(), 
+	    energyCorrected[ipho],
+	    l.pho_isEB[ipho], l.pho_r9[ipho],
+	    true, // WARNING  setting pass photon ID flag for all photons. This is safe as long as only selected photons are used
+	    (energyCorrectedError!=0?energyCorrectedError[ipho]:0)
+	    );
+	
+	int ieta, iphi;
+	l.getIetaIPhi(ipho,ieta,iphi);
+	phoInfo.addSmearingSeed( (unsigned int)l.sc_raw[l.pho_scind[ipho]] + abs(ieta) + abs(iphi) + l.run + l.event + l.lumis ); 
+	// FIXME add seed to syst smearings
+	
+        float pweight = 1.;
+        // smear MC. But apply energy corrections and scale adjustement to data 
+        if( cur_type != 0 && doMCSmearing ) {
+            for(std::vector<BaseSmearer *>::iterator si=photonSmearers_.begin(); si!= photonSmearers_.end(); ++si ) {
+                float sweight = 1.;
+		if( sys != 0 && *si == *sys ) {
+		    // move the smearer under study by syst_shift
+		    (*si)->smearPhoton(phoInfo,sweight,l.run,syst_shift);
+		} else {
+		    // for the other use the nominal points
+		    (*si)->smearPhoton(phoInfo,sweight,l.run,0.);
+		}
+                if( sweight < 0. ) {
+                    std::cerr << "Negative weight from smearer " << (*si)->name() << std::endl;
+                    assert(0);
+                }
+                pweight *= sweight;
+            }
+        } else if( cur_type == 0 ) {
+            float sweight = 1.;
+            if( doEcorrectionSmear )  { 
+                eCorrSmearer->smearPhoton(phoInfo,sweight,l.run,0.); 
+            }
+            eScaleDataSmearer->smearPhoton(phoInfo,sweight,l.run,0.);
+            pweight *= sweight;
+        }
+        smeared_pho_energy[ipho] = phoInfo.energy();
+        smeared_pho_r9[ipho] = phoInfo.r9();
+        smeared_pho_weight[ipho] = pweight;
+        photonInfoCollection.push_back(phoInfo);
+    }
+}
+
+// ----------------------------------------------------------------------------------------------------
+void PhotonAnalysis::fillDiphoton(TLorentzVector & lead_p4, TLorentzVector & sublead_p4, TLorentzVector & Higgs,
+				  float & lead_r9, float & sublead_r9, TVector3 *& vtx, const float * energy,
+				  const LoopAll & l, int diphoton_id)
+{
+    lead_p4 = l.get_pho_p4( l.dipho_leadind[diphoton_id], l.dipho_vtxind[diphoton_id], energy);
+    sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphoton_id], l.dipho_vtxind[diphoton_id], energy);
+    lead_r9    = l.pho_r9[l.dipho_leadind[diphoton_id]];
+    sublead_r9 = l.pho_r9[l.dipho_subleadind[diphoton_id]];
+    Higgs = lead_p4 + sublead_p4;    
+    vtx = (TVector3*)l.vtx_std_xyz->At(l.dipho_vtxind[diphoton_id]);
+}
+
+// ----------------------------------------------------------------------------------------------------
+void PhotonAnalysis::applyDiPhotonSmearings(TLorentzVector & Higgs, TVector3 & vtx, int category, int cur_type, const TVector3 & truevtx, 
+					    float & evweight, float & idmva1, float & idmva2,
+					    BaseDiPhotonSmearer * sys, float syst_shift)
+{
+    float pth = Higgs.Pt();
+    for(std::vector<BaseDiPhotonSmearer *>::iterator si=diPhotonSmearers_.begin(); si!= diPhotonSmearers_.end(); ++si ) {
+        float rewei=1.;
+	if( sys != 0 && *si == *sys ) { 
+	    (*si)->smearDiPhoton( Higgs, vtx, rewei, category, cur_type, truevtx, idmva1, idmva2, syst_shift );
+	} else {
+	    (*si)->smearDiPhoton( Higgs, vtx, rewei, category, cur_type, truevtx, idmva1, idmva2, 0. );
+	}
+        if( rewei < 0. ) {
+            std::cerr << "Negative weight from smearer " << (*si)->name() << std::endl;
+            assert(0);
+        }
+        evweight *= rewei;
+    }
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -818,22 +948,8 @@ void PhotonAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
     if(PADEBUG) 
         cout<<"myFillHistRed END"<<endl;
-    
-    
-    if( runStatAnalysis ) {
-        StatAnalysis(l,jentry);
-    }
 
 }
-
-
-// ----------------------------------------------------------------------------------------------------
-void PhotonAnalysis::StatAnalysis(LoopAll& l, Int_t jentry) 
-{
-}
-
-
-
 
 // ----------------------------------------------------------------------------------------------------
 void PhotonAnalysis::GetBranches(TTree *t, std::set<TBranch *>& s ) 
@@ -1665,7 +1781,6 @@ bool PhotonAnalysis::VHhadronicTag2011(LoopAll& l, int diphotonVHhad_id, float* 
 
 // Local Variables:
 // mode: c++
-// mode: sensitive
 // c-basic-offset: 4
 // End:
 // vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4

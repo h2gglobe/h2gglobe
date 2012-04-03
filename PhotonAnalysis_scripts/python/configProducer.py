@@ -108,7 +108,7 @@ class configProducer:
             comment_status = False
           else:
             comment_status = True
-        elif not comment_status:
+        elif not comment_status and not line.startswith("#"):
           lines.append(line)
         else:
           self.conf_.comments+=line

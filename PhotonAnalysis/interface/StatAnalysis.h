@@ -54,10 +54,6 @@ class StatAnalysis : public PhotonAnalysis
     void FillSignalLabelMap();
     std::string GetSignalLabel(int) ;
 
-
-
-
-    bool  doMCSmearing;
     bool  doEscaleSyst, doEresolSyst, doPhotonIdEffSyst, doVtxEffSyst, doR9Syst, doTriggerEffSyst, doKFactorSyst;
     bool  doEscaleSmear, doEresolSmear, doPhotonIdEffSmear, doVtxEffSmear, doR9Smear, doTriggerEffSmear, doKFactorSmear;
     float systRange;
@@ -80,13 +76,23 @@ class StatAnalysis : public PhotonAnalysis
     int nMasses;
 
  protected:
-    std::vector<BaseSmearer *> photonSmearers_;
-    std::vector<BaseSmearer *> systPhotonSmearers_;
-    std::vector<BaseDiPhotonSmearer *> diPhotonSmearers_;
-    std::vector<BaseDiPhotonSmearer *> systDiPhotonSmearers_;
-    std::vector<BaseGenLevelSmearer *> genLevelSmearers_;
-    std::vector<BaseGenLevelSmearer *> systGenLevelSmearers_;
-    
+    bool AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentzVector & gP4, float & mass, float & evweight, int & category, int & diphoton_id,
+		      bool & isCorrectVertex,
+		      bool isSyst=false, 
+		      float syst_shift=0., bool skipSelection=false,
+		      BaseGenLevelSmearer *genSys=0, BaseSmearer *phoSys=0, BaseDiPhotonSmearer * diPhoSys=0); 
+    bool VHmuevent, VHelevent, VBFevent, VHhadevent;
+    double genLevWeight; 
+
+    std::vector<float> smeared_pho_energy;
+    std::vector<float> smeared_pho_r9;
+    std::vector<float> smeared_pho_weight;
+
+    void  computeExclusiveCategory(LoopAll & l, int & category, std::pair<int,int> diphoton_index, float pt);	
+
+    void fillControlPlots(const TLorentzVector & lead_p4, const  TLorentzVector & sublead_p4, const TLorentzVector & Higgs, float lead_r9, float sublead_r9, 
+			  int category, float evweight , LoopAll &);
+	
     EnergySmearer /* *eScaleSmearer,*/ *eResolSmearer ; // moved to PhotonAnalysis GF 
     EfficiencySmearer *idEffSmearer, *r9Smearer;
     DiPhoEfficiencySmearer *vtxEffSmearer, *triggerEffSmearer;
@@ -118,7 +124,6 @@ class StatAnalysis : public PhotonAnalysis
 
 // Local Variables:
 // mode: c++
-// mode: sensitive
 // c-basic-offset: 4
 // End:
 // vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4

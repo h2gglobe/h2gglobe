@@ -885,7 +885,7 @@ int  LoopAll::matchPhotonToConversion( int lpho) {
 
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
-TLorentzVector LoopAll::get_pho_p4(int ipho, int ivtx, float * energy)
+TLorentzVector LoopAll::get_pho_p4(int ipho, int ivtx, const float * energy) const
 {
 	/// /// PhotonInfo p(ipho, *((TVector3*)sc_xyz->At(pho_scind[ipho])),
 	/// PhotonInfo p(ipho, *((TVector3*)pho_calopos->At(ipho)),
@@ -897,7 +897,7 @@ TLorentzVector LoopAll::get_pho_p4(int ipho, int ivtx, float * energy)
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
-TLorentzVector LoopAll::get_pho_p4(int ipho, TVector3 * vtx, float * energy)
+TLorentzVector LoopAll::get_pho_p4(int ipho, TVector3 * vtx, const float * energy) const
 {
 	/// PhotonInfo p(ipho, *((TVector3*)sc_xyz->At(pho_scind[ipho])),
 	PhotonInfo p(ipho, *((TVector3*)sc_xyz->At(pho_scind[ipho])),
@@ -1922,33 +1922,58 @@ Float_t LoopAll::SumTrackPtInCone(TLorentzVector *photon_p4, Int_t vtxind, Float
 }
 
 
+void LoopAll::getIetaIPhi(int phoid, int & ieta, int & iphi ) const
+{
+	TLorentzVector *bcpos   = (TLorentzVector*)bc_p4->At(sc_bcseedind[pho_scind[phoid]]);
+	double minDR=999.;
+	int closestHit=-1;
+	for (int i=0;i<ecalhit_n;i++){
+		TLorentzVector *xtalpos = (TLorentzVector*)ecalhit_p4->At(i);
+		//TVector3 xtalxyz = xtalpos->Vect();
+		//double dR = (xtalxyz-bcxyz).Mag();
+		double dR = xtalpos->DeltaR(*bcpos);
+		if(dR<minDR){
+			closestHit = i;
+			minDR = dR;
+		}
+	}
+	if (closestHit<0) std::cout << "Fishy !!!!!!" <<std::endl;
+	
+	int detid = ecalhit_detid[closestHit];
+	//int detid = ecalhit_detid[bc_seed[sc_bcseedind[pho_scind[phoid]]]];
+	ieta  = (detid>>9)&0x7F; 
+	iphi  = detid&0x1FF; 
+}
+
 bool LoopAll::CheckSphericalPhoton(int phoid){
 
   TVector3 *phoCalo = (TVector3*)sc_xyz->At(pho_scind[phoid]);
   if (pho_r9[phoid]<0.94 || fabs(phoCalo->Eta())>1.) return false;
 
-  TLorentzVector *bcpos   = (TLorentzVector*)bc_p4->At(sc_bcseedind[pho_scind[phoid]]);
+  /// TLorentzVector *bcpos   = (TLorentzVector*)bc_p4->At(sc_bcseedind[pho_scind[phoid]]);
   //TVector3 bcxyz = bcpos->Vect();
 
-  double minDR=999.;
-  int closestHit=-1;
-  for (int i=0;i<ecalhit_n;i++){
-	TLorentzVector *xtalpos = (TLorentzVector*)ecalhit_p4->At(i);
-  	//TVector3 xtalxyz = xtalpos->Vect();
-	//double dR = (xtalxyz-bcxyz).Mag();
-	double dR = xtalpos->DeltaR(*bcpos);
-	if(dR<minDR){
-	 	closestHit = i;
-		minDR = dR;
-	}
-  }
-  if (closestHit<0) std::cout << "Fishy !!!!!!" <<std::endl;
- 
-  int detid = ecalhit_detid[closestHit];
-  //int detid = ecalhit_detid[bc_seed[sc_bcseedind[pho_scind[phoid]]]];
-  int ieta  = (detid>>9)&0x7F; 
-  int iphi  = detid&0x1FF; 
-
+  //// double minDR=999.;
+  //// int closestHit=-1;
+  //// for (int i=0;i<ecalhit_n;i++){
+  //// 	TLorentzVector *xtalpos = (TLorentzVector*)ecalhit_p4->At(i);
+  //// 	//TVector3 xtalxyz = xtalpos->Vect();
+  //// 	//double dR = (xtalxyz-bcxyz).Mag();
+  //// 	double dR = xtalpos->DeltaR(*bcpos);
+  //// 	if(dR<minDR){
+  //// 	 	closestHit = i;
+  //// 		minDR = dR;
+  //// 	}
+  //// }
+  //// if (closestHit<0) std::cout << "Fishy !!!!!!" <<std::endl;
+  //// 
+  //// int detid = ecalhit_detid[closestHit];
+  //// //int detid = ecalhit_detid[bc_seed[sc_bcseedind[pho_scind[phoid]]]];
+  //// int ieta  = (detid>>9)&0x7F; 
+  //// int iphi  = detid&0x1FF; 
+  int ieta, iphi;
+  getIetaIPhi(phoid,ieta,iphi);
+	
  //int ieta=IEta(bcpos->Eta());
  //int iphi=IPhi(bcpos->Phi());
 //int ieta = IEta( ((TLorentzVector*)ecalhit_p4->At(closestHit))->Eta()); 

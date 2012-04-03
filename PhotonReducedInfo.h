@@ -34,6 +34,11 @@ public:
   void setDet(int det) { iDet_=det; };
   void setSphericalPhoton(bool issph){sphericalPhoton_= issph;};
 
+  unsigned int nSmearingSeeds() { return smearingSeeds_.size(); }
+  int smearingSeed(int ised=0) { return smearingSeeds_[ised];  };
+  void addSmearingSeed(int seed) { return smearingSeeds_.push_back(seed);  };
+
+
 protected:
 
   TVector3 caloPosition_;
@@ -44,6 +49,7 @@ protected:
   float r9_;
   bool passId_;
   bool sphericalPhoton_;
+  std::vector<int> smearingSeeds_;
   void copy_(const PhotonReducedInfo &);
 };
 

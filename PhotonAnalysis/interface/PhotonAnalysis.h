@@ -41,7 +41,7 @@ class PhotonAnalysis : public BaseAnalysis
     virtual void Analysis(LoopAll&, Int_t);
 
     virtual void ResetAnalysis();
-
+    
     //void GetRegressionCorrections(LoopAll&);  
     //  void GetRegressionCorrections(LoopAll&);    
     // Public parameters to be read from config file
@@ -164,22 +164,30 @@ class PhotonAnalysis : public BaseAnalysis
     float  myVBF_Mjj;
     float  myVBF_Mgg;
 
+    // Smearings / corrections and systematics
+    bool  doMCSmearing, doSystematics;
 
  protected:
     void PreselectPhotons(LoopAll& l, int jentry);
-    void StatAnalysis(LoopAll &l, int jentry);
-    void loadPuMap(const char * fname, TDirectory * dir);
-    void loadPuWeights(int typid, TDirectory * dir);
     float GetSmearSigma(float eta, float r9, int epoch=0);
+    
     void SetNullHiggs(LoopAll& l);
     bool FindHiggsObjects(LoopAll& l);
     Bool_t GenMatchedPhoton(LoopAll& l, int ipho);
+    
+    bool ClassicCatsNm1Plots(LoopAll& l, int diphoton_nm1_id, float* smeared_pho_energy, float eventweight, float myweight);
+    
+    // Exclusive tags
     bool VBFTag2011(LoopAll& l, int diphoton_id, float* smeared_pho_energy=0, bool nm1=false, float eventweight=1, float myweight=1);
     bool VHhadronicTag2011(LoopAll& l, int diphoton_id, float* smeared_pho_energy=0, bool nm1=false, float eventweight=1, float myweight=1);
     bool ElectronTag2011(LoopAll& l, int diphotonVHlep_id, float* smeared_pho_energy=0, bool nm1=false, float eventweight=1, float myweight=1);
     bool MuonTag2011(LoopAll& l, int diphotonVHlep_id, float* smeared_pho_energy=0, bool nm1=false, float eventweight=1, float myweight=1);
-    bool ClassicCatsNm1Plots(LoopAll& l, int diphoton_nm1_id, float* smeared_pho_energy, float eventweight, float myweight);
-
+    
+    // Pile-up reweighing
+    void loadPuMap(const char * fname, TDirectory * dir);
+    void loadPuWeights(int typid, TDirectory * dir);
+    float getPuWeight(int npu, int sample_type, bool warnMe); 
+	
     std::string name_;
     
     // Vertex analysis
@@ -189,10 +197,33 @@ class PhotonAnalysis : public BaseAnalysis
     std::map<int, vector<double> > weights;
     int trigCounter_;
 
+    // MC smearing and correction machinery
+    void applyGenLevelSmearings(double & genLevWeight, const TLorentzVector & gP4, int npu, int sample_type, BaseGenLevelSmearer * sys=0, float systshift=0.);
+    
+    void applySinglePhotonSmearings(std::vector<float> & smeared_pho_energy, std::vector<float> & smeared_pho_r9, std::vector<float> & smeared_pho_weight,
+				    int cur_type, const LoopAll & l, const float * energyCorrected, const float * energyCorrectedError,
+				    BaseSmearer * sys=0, float syst_shift=0.);
+    
+    void fillDiphoton(TLorentzVector & lead_p4, TLorentzVector & sublead_p4, TLorentzVector & Higgs, float & lead_r9, float & sublead_r9, TVector3 *& vtx, 
+		      const float * energy, const LoopAll & l,  int diphoton_id);
+    
+    void applyDiPhotonSmearings(TLorentzVector & Higgs, TVector3 & vtx, int category, int cur_type, const TVector3 & truevtx, 
+				float & evweight, float & idmva1, float & idmva2,
+				BaseDiPhotonSmearer * sys=0, float syst_shift=0.);
+    
+    std::vector<BaseSmearer *> photonSmearers_;
+    std::vector<BaseSmearer *> systPhotonSmearers_;
+    std::vector<BaseDiPhotonSmearer *> diPhotonSmearers_;
+    std::vector<BaseDiPhotonSmearer *> systDiPhotonSmearers_;
+    std::vector<BaseGenLevelSmearer *> genLevelSmearers_;
+    std::vector<BaseGenLevelSmearer *> systGenLevelSmearers_;
+    
+    // common smearers
     EnergySmearer *eScaleDataSmearer ; // corrections for energy scale data
     EnergySmearer *eScaleSmearer;      // corrections for energy scale  MC
     EnergySmearer *eCorrSmearer;      // corrections for energy scale  MC
     std::vector<float> corrected_pho_energy;
+    std::vector<PhotonReducedInfo> photonInfoCollection;
     
     Float_t *energyCorrected;
     Float_t *energyCorrectedError;
@@ -214,14 +245,6 @@ class PhotonAnalysis : public BaseAnalysis
     //GBRForest *fReaderebvariance;
     //GBRForest *fReaderee;
     //GBRForest *fReadereevariance;      
-    std::vector<PhotonReducedInfo> photonInfoCollection;
-    /*
-      TFile *fgbr;
-      GBRForest *fReadereb;
-      GBRForest *fReaderebvariance;
-      GBRForest *fReaderee;
-      GBRForest *fReadereevariance;      
-    */
 
 };
 
@@ -230,7 +253,6 @@ class PhotonAnalysis : public BaseAnalysis
 
 // Local Variables:
 // mode: c++
-// mode: sensitive
 // c-basic-offset: 4
 // End:
 // vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4

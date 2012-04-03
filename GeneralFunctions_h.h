@@ -27,9 +27,25 @@ std::vector<int> vertexSelection(HggVertexAnalyzer & vtxAna, HggVertexFromConver
 bool FindMCHiggsPhotons(int& higgsind, int& mc1, int& mc2, int& i1, int& i2  );
 bool FindMCVBF(int higgsind, int& vbfq1, int& vbfq2 );
 bool FindMCVH(int higgsind, int& vh, int& vh1, int& vh2 );
+TLorentzVector GetHiggs() 
+{
+	TLorentzVector  gP4(0,0,0,0);
+	assert(gh_higgs_p4 != 0 || gp_p4 != 0);
+	if( gh_higgs_p4 != 0 ) {
+	    gP4 = *(gh_higgs_p4);
+	} else {
+	    for (int gi=0;gi<gp_n;gi++){
+		if (gp_pdgid[gi]==25){
+		    gP4 = *((TLorentzVector*)gp_p4->At(gi));
+		    break;
+		}
+	    }
+	}
+	return gP4; 
+};
 
-TLorentzVector get_pho_p4(int ipho, int ivtx, float *pho_energy_array=0);
-TLorentzVector get_pho_p4(int ipho, TVector3 * vtx, float * energy=0);
+TLorentzVector get_pho_p4(int ipho, int ivtx, const float *pho_energy_array=0) const ;
+TLorentzVector get_pho_p4(int ipho, TVector3 * vtx, const float * energy=0) const ;
 void set_pho_p4(int ipho, int ivtx, float *pho_energy_array=0);
 
 // end vertex analysis 
@@ -488,6 +504,7 @@ int IEta (double eta){
   return int(TMath::Ceil((eta/1.479)*17*5) + (eta<0 ? -1 : 0));
 };
 
+void getIetaIPhi(int phoid, int & ieta, int & iphi ) const ;
 bool CheckSphericalPhoton(int phoind);
  
 #ifdef NewFeatures

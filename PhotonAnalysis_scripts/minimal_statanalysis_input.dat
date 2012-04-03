@@ -27,7 +27,11 @@ SuperClusters
 ->
 pho_scind
 sc_xyz
-
+sc_raw
+bc_p4
+sc_bcseedind
+ecalhit_n
+ecalhit_p4
 
 ->
 Photons 

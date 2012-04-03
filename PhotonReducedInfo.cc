@@ -24,7 +24,7 @@ void PhotonReducedInfo::copy_(const PhotonReducedInfo &obj){
 	r9_=obj.r9_;
 	passId_=obj.passId_;
 	sphericalPhoton_=obj.sphericalPhoton_;
-
+	smearingSeeds_ = obj.smearingSeeds_;
 }
 // -------------------------------------------------------------------------------------------------------------------------------------------------------------
 TLorentzVector PhotonReducedInfo::p4(float vtxx, float vtxy, float vtxz) const
