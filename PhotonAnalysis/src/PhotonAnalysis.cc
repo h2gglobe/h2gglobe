@@ -105,7 +105,7 @@ void readEnergyScaleOffsets(const std::string &fname, EnergySmearer::energySmear
 }
 
 // ----------------------------------------------------------------------------------------------------
-void PhotonAnalysis::loadPuMap(const char * fname, TDirectory * dir)
+void PhotonAnalysis::loadPuMap(const char * fname, TDirectory * dir, TH1 * target)
 {
     std::fstream in(fname);
     assert( in );
@@ -119,13 +119,13 @@ void PhotonAnalysis::loadPuMap(const char * fname, TDirectory * dir)
         std::cerr << "Reading PU weights for sample " << typid << " from " << dname << std::endl;
         TDirectory * subdir = (TDirectory *)dir->Get(dname);
         assert( subdir != 0 );
-        loadPuWeights(typid, subdir);
+        loadPuWeights(typid, subdir, target);
     } while ( in );
     in.close();
 }
 
 // ----------------------------------------------------------------------------------------------------
-void PhotonAnalysis::loadPuWeights(int typid, TDirectory * puFile)
+void PhotonAnalysis::loadPuWeights(int typid, TDirectory * puFile, TH1 * target)
 {
     cout<<"Reweighting events for pileup."<<endl;
     TH1 * hweigh = (TH1*) puFile->Get("weights");
@@ -138,10 +138,16 @@ void PhotonAnalysis::loadPuWeights(int typid, TDirectory * puFile)
         if( gen_pu == 0 ) {
             gen_pu = (TH1*)puFile->Get("NPUSource");
         }
-        // Normalize weights such that the total cross section is unchanged
-        TH1 * eff = (TH1*)hweigh->Clone("eff");
-        eff->Multiply(gen_pu);
-        hweigh->Scale( gen_pu->Integral() / eff->Integral()  );
+	if( target != 0 ) {
+	    hweigh->Reset("ICE");
+	    hweigh->Divide(target, gen_pu, 1., 1./gen_pu->Integral() );
+	} else { 
+	    // Normalize weights such that the total cross section is unchanged
+	    TH1 * eff = (TH1*)hweigh->Clone("eff");
+	    eff->Multiply(gen_pu);
+	    hweigh->Scale( gen_pu->Integral() / eff->Integral()  );
+	    delete eff;
+	}
         weights[typid].clear();
         for( int ii=1; ii<hweigh->GetNbinsX(); ++ii ) {
             weights[typid].push_back(hweigh->GetBinContent(ii)); 
@@ -648,10 +654,19 @@ void PhotonAnalysis::Init(LoopAll& l)
             cout << "Opening PU file"<<endl;
         TFile* puFile = TFile::Open( puHist );
         if (puFile) {
+	    TH1 * target = 0;
+	    
+	    if( puTarget != "" ) {
+		TFile * puTargetFile = TFile::Open( puTarget ); 
+		assert( puTargetFile != 0 );
+		target = (TH1*)puTargetFile->Get("pileup");
+		target->Scale( 1. / target->Integral() );
+	    }
+	    
             if( puMap != "" ) {
-                loadPuMap(puMap, puFile); 
+                loadPuMap(puMap, puFile, target); 
             } else {
-                loadPuWeights(0, puFile);
+                loadPuWeights(0, puFile, target);
             }
             puFile->Close();
         }

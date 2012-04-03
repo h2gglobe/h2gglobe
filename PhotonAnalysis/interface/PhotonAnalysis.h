@@ -112,7 +112,7 @@ class PhotonAnalysis : public BaseAnalysis
     std::vector<float> pho_et;
     // Other options
     bool runStatAnalysis;
-    TString puHist, puMap;//name of pileup reweighting histogram
+    TString puHist, puMap, puTarget;//name of pileup reweighting histogram
 
     enum BkgCategory{promptprompt,promptfake,fakefake};
     bool keepPP, keepPF, keepFF;
@@ -184,8 +184,8 @@ class PhotonAnalysis : public BaseAnalysis
     bool MuonTag2011(LoopAll& l, int diphotonVHlep_id, float* smeared_pho_energy=0, bool nm1=false, float eventweight=1, float myweight=1);
     
     // Pile-up reweighing
-    void loadPuMap(const char * fname, TDirectory * dir);
-    void loadPuWeights(int typid, TDirectory * dir);
+    void loadPuMap(const char * fname, TDirectory * dir, TH1 * target=0);
+    void loadPuWeights(int typid, TDirectory * dir, TH1 * target=0);
     float getPuWeight(int npu, int sample_type, bool warnMe); 
 	
     std::string name_;

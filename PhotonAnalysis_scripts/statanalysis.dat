@@ -82,6 +82,7 @@ Inputs for reweighing
 kfacHist=aux/KFactors_AllScales_interpolated.root
 efficiencyFile=aux/sig_reweighing_v16.root
 puHist=aux/2011_0100_73500.weights3.root
+puTarget=aux/nov08_rereco.json.68000.pileup.root
 ->
 puHist=aux/2011B_0100_73500.weights.root
 puHist=aux/2011A_0100_73500.weights.root

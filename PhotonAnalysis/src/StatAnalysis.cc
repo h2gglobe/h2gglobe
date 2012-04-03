@@ -780,7 +780,7 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 	    l.RescaleJetEnergy();
 	}
 
-	if((includeVBF || includeVHhad)) {
+	if( !( VHmuevent || VHelevent ) && (includeVBF || includeVHhad)) {
 	    if(includeVBF) {
 		diphotonVBF_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVBFCut, subleadEtVBFCut, 4,false, &smeared_pho_energy[0], true); 
 		
@@ -858,7 +858,7 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
   
         if (!isSyst && (cur_type==0||PADEBUG) ) {
             eventListText << "Type = "<< cur_type <<  " Run = " << l.run << "  LS = " << l.lumis << "  Event = " <<  l.event << "  ggM = " << mass 
-			  <<  " CAT " << category ;
+			  <<  " CAT " << category << " Vertex = " <<  l.dipho_vtxind[diphoton_id];
             eventListText << endl;
         }
 	
