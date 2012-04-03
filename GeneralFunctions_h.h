@@ -505,7 +505,7 @@ int IEta (double eta){
 };
 
 void getIetaIPhi(int phoid, int & ieta, int & iphi ) const ;
-bool CheckSphericalPhoton(int phoind);
+bool CheckSphericalPhoton(int phoind) const;
  
 #ifdef NewFeatures
 #include "Marco/plotInteractive_h.h"

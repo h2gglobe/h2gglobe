@@ -1945,7 +1945,8 @@ void LoopAll::getIetaIPhi(int phoid, int & ieta, int & iphi ) const
 	iphi  = detid&0x1FF; 
 }
 
-bool LoopAll::CheckSphericalPhoton(int phoid){
+bool LoopAll::CheckSphericalPhoton(int phoid) const 
+{
 
   TVector3 *phoCalo = (TVector3*)sc_xyz->At(pho_scind[phoid]);
   if (pho_r9[phoid]<0.94 || fabs(phoCalo->Eta())>1.) return false;
