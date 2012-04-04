@@ -141,7 +141,10 @@ void PhotonAnalysis::loadPuWeights(int typid, TDirectory * puFile, TH1 * target)
         }
 	if( target != 0 ) {
 	    hweigh->Reset("ICE");
-	    hweigh->Divide(target, gen_pu, 1., 1./gen_pu->Integral() );
+	    for( int ii=1; ii<hweigh->GetNbinsX(); ++ii ) {
+		hweigh->SetBinContent( ii, target->GetBinContent( target->FindBin( hweigh->GetBinCenter(ii) ) ) );
+	    }
+	    hweigh->Divide(hweigh, gen_pu, 1., 1./gen_pu->Integral() );
 	} else { 
 	    // Normalize weights such that the total cross section is unchanged
 	    TH1 * eff = (TH1*)hweigh->Clone("eff");
