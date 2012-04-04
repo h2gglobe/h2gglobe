@@ -1,7 +1,7 @@
 #!/bin/bash
 
-./submit_reduction.sh data PhotonRun2011A_Clean 50
-./submit_reduction.sh data PhotonRun2011B_Clean 50
+./submit_reduction.sh data PhotonRun2011A_Jan16ReReco_Redo 50
+./submit_reduction.sh data PhotonRun2011B_Jan16ReReco 50
 
 ./submit_reduction.sh mc_sig_fall11_s6 GluGluToHToGG_M-100_7TeV
 ./submit_reduction.sh mc_sig_fall11_s6 GluGluToHToGG_M-105_7TeV
