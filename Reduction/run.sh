@@ -31,6 +31,7 @@ shift
 cd $workdir
 cp -pv $(dirname $(which $0))/*.sh .
 cp -pv $mydir/*.dat . 
+cp -prv $mydir/aux .
 source version.sh
 source setup.sh
 
