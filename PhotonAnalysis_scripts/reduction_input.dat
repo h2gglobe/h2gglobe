@@ -85,4 +85,12 @@ el_std_scind
 el_std_detain
 el_std_dphiin
 
-
+->
+MC truth
+->
+gp_n:1
+gp_p4:1
+gp_vtx:1
+gp_status:1
+gp_pdgid:1
+gp_mother:1
