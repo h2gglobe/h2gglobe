@@ -1150,8 +1150,8 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
             int ipho2 = diphotons[id].second;
             
             if(PADEBUG)        cout << " SelectEventsReduction going to fill photon info " << endl;
-            PhotonInfo pho1=l.fillPhotonInfos(ipho1,vtxAlgoParams.useAllConversions);
-            PhotonInfo pho2=l.fillPhotonInfos(ipho2,vtxAlgoParams.useAllConversions);
+            PhotonInfo pho1=l.fillPhotonInfos(ipho1,vtxAlgoParams.useAllConversions,&corrected_pho_energy[0]);
+            PhotonInfo pho2=l.fillPhotonInfos(ipho2,vtxAlgoParams.useAllConversions,&corrected_pho_energy[0]);
             if(PADEBUG) cout << " SelectEventsReduction done with fill photon info " << endl;
             
             l.vertexAnalysis(vtxAna_, pho1, pho2 );
