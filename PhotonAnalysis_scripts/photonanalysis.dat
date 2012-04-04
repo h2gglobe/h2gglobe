@@ -48,6 +48,7 @@ puHist=aux/2011A_0100_73500.weights.root
 puHist=aux/2011B_0100_73500.weights.root
 ->
 puMap=pu_weights_map.dat
+puTarget=aux/nov08_rereco.json.68000.pileup.root
 
 energyCorrectionMethod=Bendavid
 doEcorrectionSmear=1
