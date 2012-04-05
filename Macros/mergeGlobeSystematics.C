@@ -4,7 +4,7 @@ TFile *oldFILE = new TFile("./vertex_reweighing.root");
 oldFILE->Print();
 oldFILE->ls();
 
-TFile *newFILE = new TFile("sig_reweighing_v16.root ","recreate");
+TFile *newFILE = new TFile("sig_reweighing_v17_baseline.root ","recreate");
 newFILE->cd();
 
 TGraphAsymmErrors * toCopy;

@@ -447,6 +447,7 @@ class configProducer:
     print "Loading analyzer %s " % name
     self.ut_.AddAnalysis( analyzer )
     for config in sl:
+        ## print config, os.path.isfile(config)
         try:
             if os.path.isfile(config):
                 self.read_struct_from_file(config,analyzer)

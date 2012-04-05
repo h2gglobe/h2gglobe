@@ -36,7 +36,6 @@ if __name__  == "__main__":
 	(options,args)=parser.parse_args()
 	
 	# In case these guys are going to castor, writing out a handy comining file
-	outnam="filestocombine_%s"%options.inputDat
 	p = open(options.inputDat,"r")
 	cfg = Conf() 
 	datfile=""
@@ -76,8 +75,9 @@ if __name__  == "__main__":
 	mydir=os.getcwd()
 	scriptdir=os.path.dirname(options.outputScript)
 	os.system("mkdir -p %s" % scriptdir)
-	
-	g = open(os.path.join(scriptdir,outnam),"w+") 
+
+	outnam=os.path.join(scriptdir, "filestocombine_%s" % os.path.basename(options.inputDat))
+	g = open(outnam,"w+") 
 	filestocmb = ""
 	for i in xrange(len(files)):
 		fil = commands.getoutput("cmsPfn %s_%d.%s" % ( os.path.join(cfg.histdir,cfg.histfile[0]), i, cfg.histfile[1] ))
@@ -85,16 +85,17 @@ if __name__  == "__main__":
 	g.write( (datfile % filestocmb).replace("histfile=./","histfile=%s" % scriptdir ) )
 	g.close()	
 
-	tmp = "tmp_%s" % options.inputDat
-	if not os.path.isfile("tmp_%s.pevents" % options.inputDat):
+	tmpnam = os.path.join(os.path.dirname(options.inputDat), "tmp_%s" % os.path.basename(options.inputDat))
+	if not os.path.isfile("%s.pevents" % tmpnam):
 		print "Generating the pevents file...",
-		tmp  = open("tmp_%s" % options.inputDat, "w+")
+		tmp  = open("%s" % tmpnam, "w+")
 		idat = open(options.inputDat, "r")
 		tmp.write(idat.read().replace("split",""))
 		tmp.close()
 		idat.close()
-		os.system("python fitter.py -i tmp_%s --dryRun >& /dev/null\n" % options.inputDat)
-		print "OK"
+		print "python fitter.py -i %s --dryRun >& %s.log\n" % (tmpnam,tmpnam)
+		os.system("python fitter.py -i %s --dryRun >& %s.log\n" % (tmpnam,tmpnam) )
+		print "Done. Check %s.log for errors" % tmpnam
 		
 	mkdir="mkdir"
 	cp="cp -pv"
@@ -106,11 +107,11 @@ if __name__  == "__main__":
 		mkdir="cmsMkdir"
 		
 
-	os.system("tar zcf %s.tgz *.dat *.py python aux" % options.outputScript)
+	os.system("tar zcf %s.tgz $(find -name \*.dat -or -name \*.py) aux" % options.outputScript)
 	os.system("%s %s" % ( mkdir, cfg.histdir) )
 	os.system("%s %s.tgz %s" % ( cp,  options.outputScript, cfg.histdir) )
 	
-	q=open("tmp_%s.pevents" % options.inputDat,"r")
+	q=open("%s.pevents" % tmpnam, "r")
 	pevents=q.read()
 
 	for i in xrange(len(files)):

@@ -142,7 +142,7 @@ double MassResolution::getPhotonResolution(double photonEnergy, double photonRes
   if (_eSmearPars.categoryType=="Automagic") 
     {
 	    EnergySmearer::energySmearingParameters::phoCatVectorConstIt vit = find(_eSmearPars.photon_categories.begin(), _eSmearPars.photon_categories.end(), 
-										    std::make_pair( fabs((float)scEta), (float)r9 ) );
+										    std::make_pair(ispherical, std::make_pair( fabs((float)scEta), (float)r9 ) ) );
 	    if( vit ==  _eSmearPars.photon_categories.end() ) {
 		    //cout << "PhotonCheck " << r9 << " " << phoCat << " " << scEta << " " << iDet << " " << endl;
 		    std::cerr << "Could not find energy scale correction for this photon " << (float)scEta << " " <<  (float)r9 << std::endl;
@@ -189,8 +189,10 @@ double MassResolution::getPhotonResolution(double photonEnergy, double photonRes
     }
 
 
-    double categoryResolution = ispherical ? 0.0067*photonEnergy : _eSmearPars.smearing_sigma[myCategory]*photonEnergy;	
-    return TMath::Sqrt(categoryResolution*categoryResolution + photonResolution*photonResolution);
+  /// Moved to config file PM 4/4/12 
+  /// double categoryResolution = ispherical ? 0.0067*photonEnergy : _eSmearPars.smearing_sigma[myCategory]*photonEnergy;	
+  double categoryResolution = _eSmearPars.smearing_sigma[myCategory]*photonEnergy;	
+  return TMath::Sqrt(categoryResolution*categoryResolution + photonResolution*photonResolution);
 
 }
 

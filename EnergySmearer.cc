@@ -44,9 +44,12 @@ std::string EnergySmearer::photonCategory(PhotonReducedInfo & aPho) const
   if (myParameters_.categoryType=="Automagic") 
     {
 	    EnergySmearer::energySmearingParameters::phoCatVectorConstIt vit = find(myParameters_.photon_categories.begin(), myParameters_.photon_categories.end(), 
-										    std::make_pair( fabs((float)aPho.caloPosition().PseudoRapidity()), (float)aPho.r9() ) );
+										    std::make_pair( aPho.isSphericalPhoton(), 
+												    std::make_pair( fabs((float)aPho.caloPosition().PseudoRapidity()), 
+														    (float)aPho.r9() ) )
+		    );
 	    if( vit ==  myParameters_.photon_categories.end() ) {
-		    std::cerr << "Could not find energy scale correction for this photon " << (float)aPho.caloPosition().PseudoRapidity() << " " <<  (float)aPho.r9() << std::endl;
+		    std::cerr << "Could not find energy scale correction for this photon " << aPho.isSphericalPhoton() << " " << (float)aPho.caloPosition().PseudoRapidity() << " " <<  (float)aPho.r9() << std::endl;
 		    assert( 0 );
 	    }
 	    myCategory = vit->name;
@@ -124,12 +127,13 @@ bool EnergySmearer::smearPhoton(PhotonReducedInfo & aPho, float & weight, int ru
   float scale_offset   = getScaleOffset(run, category);
   float smearing_sigma = myParameters_.smearing_sigma.find(category)->second;
 
-  // special category for Unconverted photons in EB "far" from boundary (Haven't made this configrable yet in the smearers .dats)
-  float sphericalPhotonSigma     =0.0067;
-  float sphericalPhotonSigmaError=0.0040;
-  // Will move this soon to an additional category in dats which is configurable
-  bool is_specialPhoton = aPho.isSphericalPhoton();
-  if (is_specialPhoton) smearing_sigma=sphericalPhotonSigma;
+  /// Moved to configuration file PM 4/4/12
+  ////// // special category for Unconverted photons in EB "far" from boundary (Haven't made this configrable yet in the smearers .dats)
+  ////// float sphericalPhotonSigma     =0.0067;
+  ////// float sphericalPhotonSigmaError=0.0040;
+  ////// // Will move this soon to an additional category in dats which is configurable
+  ////// bool is_specialPhoton = aPho.isSphericalPhoton();
+  ////// if (is_specialPhoton) smearing_sigma=sphericalPhotonSigma;
   //
 
 
@@ -149,17 +153,16 @@ bool EnergySmearer::smearPhoton(PhotonReducedInfo & aPho, float & weight, int ru
     	newSigma = (aPho.corrEnergyErr()/1.045)*(1.045+syst_shift*0.1);
     }
     aPho.setCorrEnergyErr(newSigma);
-  }
-
-  else {
+  } else {
     if( scaleOrSmear_ ) {
 	  scale_offset   += syst_shift * myParameters_.scale_offset_error.find(category)->second;
 	  /// std::cerr << "photon category " << category << " syst_shift " <<  syst_shift << " scale_offset " << scale_offset << std::endl;
 	  newEnergy *=  scale_offset;
     } else {
-	  float err_sigma= is_specialPhoton ? sphericalPhotonSigmaError : myParameters_.smearing_sigma_error.find(category)->second;
+	  /// float err_sigma= is_specialPhoton ? sphericalPhotonSigmaError : myParameters_.smearing_sigma_error.find(category)->second;
+	  float err_sigma= myParameters_.smearing_sigma_error.find(category)->second;
 	  smearing_sigma += syst_shift * err_sigma;
-	  /// std::cerr << "photon category " << category << " syst_shift " <<  syst_shift << " smearing_sigma " << smearing_sigma << std::endl;
+	  //// std::cerr << "photon category " <<  aPho.isSphericalPhoton() << " " << fabs((float)aPho.caloPosition().PseudoRapidity()) << " " << (float)aPho.r9() << " " << category << " syst_shift " <<  syst_shift << " smearing_sigma " << smearing_sigma << std::endl;
           // Careful here, if sigma < 0 now, it will be squared and so not correct, set to 0 in this case.
           if (smearing_sigma < 0) smearing_sigma=0;
 

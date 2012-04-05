@@ -58,6 +58,7 @@ void readEnergyScaleOffsets(const std::string &fname, EnergySmearer::energySmear
     float EBHighR9, EBLowR9, EBm4HighR9, EBm4LowR9, EEHighR9, EELowR9; 
     char catname[200];
     float mineta, maxeta, minr9, maxr9, offset, err;
+    int type; 
     int  first, last;
     do {
         in.getline( line, 200, '\n' );
@@ -79,21 +80,22 @@ void readEnergyScaleOffsets(const std::string &fname, EnergySmearer::energySmear
             escaleOffsets.back().scale_offset_error["EBm4LowR9"]  = 0.;
             escaleOffsets.back().scale_offset_error["EEHighR9"] = 0.;
             escaleOffsets.back().scale_offset_error["EELowR9"]  = 0.;
-        } else if ( sscanf(line,"%s %f %f %f %f %d %d %f %f", &catname, &mineta, &maxeta, &minr9, &maxr9, &first, &last, &offset, &err ) == 9 ) { 
-            // check if the run range  is already defined
-            std::cerr << "Energy scale (or smering) by run " <<  catname << " " << mineta << " " << maxeta << " " << minr9 << " " << maxr9 << " " << first << " " << last << " " << offset << " " << err << std::endl;
+        } else if( sscanf(line,"%s %d %f %f %f %f %d %d %f %f", &catname, &type, &mineta, &maxeta, &minr9, &maxr9, &first, &last, &offset, &err  ) == 10 ) { 
+	    std::cerr << "Energy scale (or smering) by run " <<  catname << " " << type << " " << mineta << " " << maxeta << " " << minr9 << " " << maxr9 << " " << first << " " << last << " " << offset << " " << err << std::endl;
+	    
+	    assert( type>=0 && type<=2 );
 
             EnergySmearer::energySmearingParameters::eScaleVector::reverse_iterator escaleOffset = 
                 find(escaleOffsets.rbegin(),escaleOffsets.rend(),std::make_pair(first,last));
             if( escaleOffset == escaleOffsets.rend() ) {
-                std::cerr << "  adding new range range" << std::endl;
+                std::cerr << "  adding new range range " << first << " " << last << std::endl;
                 escaleOffsets.push_back(EnergyScaleOffset(first,last));
                 escaleOffset = escaleOffsets.rbegin();
             }
             // chck if the category is already defined
             if( find(photonCategories.begin(), photonCategories.end(), std::string(catname) ) == photonCategories.end() ) {
                 std::cerr << "  defining new category" << std::endl;
-                photonCategories.push_back(PhotonCategory(mineta,maxeta,minr9,maxr9,catname));
+                photonCategories.push_back(PhotonCategory(mineta,maxeta,minr9,maxr9,(PhotonCategory::photon_type_t)type,catname));
             }
             // assign the scale offset and error for this category and this run range 
             escaleOffset->scale_offset[catname] = data ? -offset : offset;

@@ -1945,58 +1945,37 @@ void LoopAll::getIetaIPhi(int phoid, int & ieta, int & iphi ) const
 	iphi  = detid&0x1FF; 
 }
 
+bool LoopAll::CheckSphericalPhoton(int ieta, int iphi) const 
+{
+    if ((iphi %20)<=5 || (iphi%20)>=16){
+	return false;
+    }
+    
+    int ietaTT=(std::abs(ieta)-1)/5+1;
+    if
+	(
+	    (ietaTT>= 2&&     ietaTT<    5 ) ||
+	    (ietaTT>= 7&&     ietaTT<    9 ) ||
+	    (ietaTT>= 11&&    ietaTT<    13) ||
+	    (ietaTT>= 15&&    ietaTT<    17)
+	    ){	
+	return true; 
+    } 
+    
+    
+    return false;
+}
+
 bool LoopAll::CheckSphericalPhoton(int phoid) const 
 {
 
   TVector3 *phoCalo = (TVector3*)sc_xyz->At(pho_scind[phoid]);
   if (pho_r9[phoid]<0.94 || fabs(phoCalo->Eta())>1.) return false;
 
-  /// TLorentzVector *bcpos   = (TLorentzVector*)bc_p4->At(sc_bcseedind[pho_scind[phoid]]);
-  //TVector3 bcxyz = bcpos->Vect();
-
-  //// double minDR=999.;
-  //// int closestHit=-1;
-  //// for (int i=0;i<ecalhit_n;i++){
-  //// 	TLorentzVector *xtalpos = (TLorentzVector*)ecalhit_p4->At(i);
-  //// 	//TVector3 xtalxyz = xtalpos->Vect();
-  //// 	//double dR = (xtalxyz-bcxyz).Mag();
-  //// 	double dR = xtalpos->DeltaR(*bcpos);
-  //// 	if(dR<minDR){
-  //// 	 	closestHit = i;
-  //// 		minDR = dR;
-  //// 	}
-  //// }
-  //// if (closestHit<0) std::cout << "Fishy !!!!!!" <<std::endl;
-  //// 
-  //// int detid = ecalhit_detid[closestHit];
-  //// //int detid = ecalhit_detid[bc_seed[sc_bcseedind[pho_scind[phoid]]]];
-  //// int ieta  = (detid>>9)&0x7F; 
-  //// int iphi  = detid&0x1FF; 
   int ieta, iphi;
   getIetaIPhi(phoid,ieta,iphi);
-	
- //int ieta=IEta(bcpos->Eta());
- //int iphi=IPhi(bcpos->Phi());
-//int ieta = IEta( ((TLorentzVector*)ecalhit_p4->At(closestHit))->Eta()); 
-//int iphi = IPhi( ((TLorentzVector*)ecalhit_p4->At(closestHit))->Phi()); 
-
-  if ((iphi %20)<=5 || (iphi%20)>=16){
-   return false;
-  }
-
-  int ietaTT=(std::abs(ieta)-1)/5+1;
-  if
-    (
-     (ietaTT>= 2&&     ietaTT<    5 ) ||
-     (ietaTT>= 7&&     ietaTT<    9 ) ||
-     (ietaTT>= 11&&    ietaTT<    13) ||
-     (ietaTT>= 15&&    ietaTT<    17)
-    ){	
-      return true; 
-   } 
-
-
-  return false;
+  
+  return CheckSphericalPhoton(ieta,iphi);
 
 }
 // CiC SELECTION CODE END - SSIMON

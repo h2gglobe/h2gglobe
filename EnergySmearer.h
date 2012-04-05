@@ -28,22 +28,25 @@ public:
 
 class PhotonCategory {
 public:
-	PhotonCategory(float a, float b, float c, float d, std::string e ) : mineta(a) , maxeta(b), minr9(c), maxr9(d), name(e) {};
+	enum photon_type_t { any=0, shperical=1, gap=2 };
+	PhotonCategory(float a, float b, float c, float d, photon_type_t e, std::string f ) : mineta(a) , maxeta(b), minr9(c), maxr9(d), type(e), name(f) {};
 	
 	bool operator == (const PhotonCategory & rh) const { return rh.mineta == mineta && rh.maxeta == maxeta && rh.minr9 == minr9 && rh.maxr9 == maxr9 && rh.name == name; }
 	bool operator == (const std::string & catname) const { return catname == name; }
-	bool operator == (const std::pair<std::pair<float,float>,std::pair<float,float> > & photonRange ) const { 
-		return photonRange.first.first == mineta && photonRange.first.second == maxeta && 
-			photonRange.second.first == minr9 && photonRange.second.second == maxr9; 
-
-	};
-	bool operator == (const std::pair<float,float> & photonCoordinates) const { 
-		return photonCoordinates.first >= mineta && photonCoordinates.first <= maxeta && 
-			photonCoordinates.second >= minr9 && photonCoordinates.second <= maxr9; 
+	///////// bool operator == (const std::pair<std::pair<float,float>,std::pair<float,float> > & photonRange ) const { 
+	///////// 	return photonRange.first.first == mineta && photonRange.first.second == maxeta && 
+	///////// 		photonRange.second.first == minr9 && photonRange.second.second == maxr9; 
+	///////// 
+	///////// };
+	bool operator == (const std::pair<bool,std::pair<float,float> > & photonCoordinates) const { 
+		return ( type == any || ( type == shperical && photonCoordinates.first || type == gap && ! photonCoordinates.first ) ) &&
+			photonCoordinates.second.first >= mineta && photonCoordinates.second.first <= maxeta && 
+			photonCoordinates.second.second >= minr9 && photonCoordinates.second.second <= maxr9; 
 	};
 	
 	std::string name;
 	float mineta, maxeta, minr9, maxr9;
+	photon_type_t type;
 };
 
 // ------------------------------------------------------------------------------------

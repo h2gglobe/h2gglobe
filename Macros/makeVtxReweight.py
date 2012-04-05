@@ -6,8 +6,8 @@
 
 class options:
    def __init__(self):
-	self.eff = "/afs/cern.ch/user/m/malberti/public/scaleFactors/vtxIdEff_vs_bosonPt_globe_Glu121_S6_PUweights_2011_0100_73500.root "
-	self.eff_ratio = "/afs/cern.ch/user/m/malberti/public/scaleFactors/BDT_vtxIdScaleFactorFromZmumu_DYJetsToLL_Fall11_S6_Run2011all.root "
+	self.eff = "/afs/cern.ch/user/m/malberti/public/scaleFactors/vtxIdEff_vs_bosonPt_globe_Glu121_S6_PUweights_2011_0100_73500.root"
+	self.eff_ratio = "/afs/cern.ch/user/m/malberti/public/scaleFactors/BDT_vtxIdScaleFactorFromZmumu_DYJetsToLL_Fall11_S6_Run2011all_reload.root"
 	self.n_categories = 8
 	self.outfile = "vertex_reweighing.root"
 
