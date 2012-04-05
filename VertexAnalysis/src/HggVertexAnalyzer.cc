@@ -712,7 +712,7 @@ void HggVertexAnalyzer::analyze(const VertexInfoAdapter & e, const PhotonInfo & 
 				++ninvalid_idxs_;
 				continue;
 			}
-			float tkWeight = e.tkWeight(tid,vid);			
+			float tkWeight = e.tkWeight(it,vid);			
 			
 			if( ( params_.highPurityOnly && !e.tkIsHighPurity(tid)  ) 
 			    /// || fabs(e.tkd0(tid,vid)/e.tkd0Err(tid,vid)) > params_.maxD0Signif 
