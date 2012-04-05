@@ -168,6 +168,7 @@ if __name__  == "__main__":
 		
 		f.write("rm %s.sh.run\n" % os.path.join(mydir,jobname))
 		f.close()
+		os.chmod("%s.sh"%(jobname),755)
 		
 	print "Submission Scripts written %sN.sh N=0,%d"%(options.outputScript,len(files))
 	print "Written ", outnam
