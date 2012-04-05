@@ -195,3 +195,13 @@ void InterpolateMassRange(double Min, double Max, double Step, TString SourceFil
   cout << "Done!" << endl;
 
 }
+
+
+#ifndef __CINT__
+
+int main(int argc, char ** argv)
+{
+	InterpolateMassRange(atof(argv[1]),atof(argv[2]),atof(argv[3]));
+}
+
+#endif

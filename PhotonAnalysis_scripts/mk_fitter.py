@@ -151,12 +151,14 @@ if __name__  == "__main__":
 				f.write("&& ( %s %s%s_%d.%s %s ) "        % ( cp, fn, cfg.histfile[0], i, cfg.histfile[1], cfg.histdir ) )
 			f.write("&& ( %s %s_%d.%s_ascii_events.txt %s ) " % ( cp, cfg.histfile[0], i, cfg.histfile[1], cfg.histdir ) )
 			f.write("&& ( %s %s_%d.json %s ) "                % ( cp, cfg.histfile[0], i, cfg.histdir ) )
+			f.write("&& ( %s histograms_%s_%d.csv %s ) " % ( cp, cfg.histfile[0], i, cfg.histdir ) )
 		else:
 			f.write("if ( python fitter.py -i %s.dat ) "%(jobbasename))
 			for fn in "","histograms_":
 				f.write("&& ( %s %s%s.%s %s/%s%s_%d.%s ) " % ( cp, fn, cfg.histfile[0], cfg.histfile[1], cfg.histdir, fn, cfg.histfile[0], i, cfg.histfile[1] ) )
 			f.write("&& ( %s %s.%s_ascii_events.txt %s/%s_%d.%s_ascii_events.txt ) " % ( cp, cfg.histfile[0], cfg.histfile[1], cfg.histdir, cfg.histfile[0], i, cfg.histfile[1] ) )
 			f.write("&& ( %s %s.json %s/%s_%d.json ) " % ( cp, cfg.histfile[0], cfg.histdir, cfg.histfile[0], i ) )
+			f.write("&& ( %s histograms_%s.csv %s/%s_%d.csv ) " % ( cp, cfg.histfile[0], cfg.histdir, cfg.histfile[0], i ) )
 			
 				
 		f.write("; then\n")
@@ -168,7 +170,7 @@ if __name__  == "__main__":
 		
 		f.write("rm %s.sh.run\n" % os.path.join(mydir,jobname))
 		f.close()
-		os.chmod("%s.sh"%(jobname),755)
+		os.system("chmod 755 %s.sh"%(jobname))
 		
 	print "Submission Scripts written %sN.sh N=0,%d"%(options.outputScript,len(files))
 	print "Written ", outnam
