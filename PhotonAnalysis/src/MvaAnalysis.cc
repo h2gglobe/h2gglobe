@@ -263,10 +263,10 @@ void MvaAnalysis::Term(LoopAll& l)
 
             // Bin edges can be rederived if flag is on --> Requires background MC
             if (rederiveOptimizedBinEdges) {
-                //optimizedGradBins =  l.rooContainer->SignificanceOptimizedBinning("sig_BDT_grad_all"+names[i],"bkg_BDT_grad_all"+names[i],10);
-                //optimizedAdaBins =  l.rooContainer->SignificanceOptimizedBinning("sig_BDT_ada_all"+names[i],"bkg_BDT_ada_all"+names[i],10);
-                optimizedGradBins =  l.rooContainer->SoverBOptimizedBinning("sig_BDT_grad_all"+names[i],"bkg_BDT_grad_all"+names[i],20,50);
-                optimizedAdaBins =  l.rooContainer->SoverBOptimizedBinning("sig_BDT_ada_all"+names[i],"bkg_BDT_ada_all"+names[i],20,50);
+                optimizedGradBins =  l.rooContainer->SignificanceOptimizedBinning("sig_BDT_grad_all"+names[i],"bkg_BDT_grad_all"+names[i],20);
+                optimizedAdaBins =  l.rooContainer->SignificanceOptimizedBinning("sig_BDT_ada_all"+names[i],"bkg_BDT_ada_all"+names[i],20);
+                //optimizedGradBins =  l.rooContainer->SoverBOptimizedBinning("sig_BDT_grad_all"+names[i],"bkg_BDT_grad_all"+names[i],20,50);
+                //optimizedAdaBins =  l.rooContainer->SoverBOptimizedBinning("sig_BDT_ada_all"+names[i],"bkg_BDT_ada_all"+names[i],20,50);
                 //      optimizedVbfBins =  l.rooContainer->SoverBOptimizedBinning("sig_VBF_all"+names[i],"bkg_VBF_all"+names[i],10,50);
                 //      optimizedVbfBins =  l.rooContainer->OptimizedBinning("bkg_VBF_all"+names[i],3,false,false-1);
                 optimizedVbfBins.push_back(1.);
