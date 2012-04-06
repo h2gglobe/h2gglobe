@@ -502,24 +502,40 @@ void paulFit(TDirectory *mDir,TH1F* fMFitS,TH1F* hMFitS,TH2F* hFCovar, bool make
       gROOT->SetBatch(true);
       gROOT->SetStyle("Plain");
       for(int j(0);j<global_nBdtBins;j++) {
-        TCanvas *can = new TCanvas();
-        can->SetName(Form("Fit_BDT%d",j));
+        TCanvas *can = new TCanvas(Form("Fit_BDT%d",j),"c1",305,95,800,550);
+//        can->SetName(Form("Fit_BDT%d",j));
+	can->SetBottomMargin(0.12);
+	can->SetGrid(); 
         fBFit[j]->SetLineColor(4);
-        fBFit[j]->SetLineWidth(4);
+        fBFit[j]->SetLineWidth(3);
         fBRaw[j]->SetMarkerStyle(20);
         fBRaw[j]->SetMarkerSize(1.0);
-        fBRaw[j]->GetXaxis()->SetTitle("m_{H}");
-        fBRaw[j]->SetTitle(Form("Fit BDT Mass %3.1f Bin %d",global_mH,j));
+        fBRaw[j]->GetXaxis()->SetTitle("m_{H} (GeV)");
+        fBRaw[j]->GetXaxis()->SetTitleSize(0.055);
+        fBRaw[j]->GetXaxis()->SetLabelSize(0.045);
+        fBRaw[j]->GetYaxis()->SetTitle(Form("Fraction in bin %d",j+1));
+        fBRaw[j]->GetYaxis()->SetTitleSize(0.05);
+        fBRaw[j]->GetYaxis()->SetLabelSize(0.045);
+        fBRaw[j]->GetYaxis()->SetNdivisions(508); 
+        //fBRaw[j]->SetTitle(Form("Fit BDT Mass %3.1f Bin %d",global_mH,j));
         double FVal = fBFit[j]->Eval(global_mH);
-        fBRaw[j]->GetYaxis()->SetRangeUser(FVal*0.1,FVal*1.9);
+        fBRaw[j]->GetYaxis()->SetRangeUser(floor(FVal*0.75*100)/100,floor(FVal*1.25*100)/100);
 
-        TLine l(global_mH,FVal*0.1,global_mH,FVal*1.9);
+        TLine l(global_mH,floor(FVal*0.75*100)/100,global_mH,floor(FVal*1.25*100)/100);
         l.SetLineColor(46);
         l.SetLineStyle(7);
+	l.SetLineWidth(3);
+        fBRaw[j]->SetTitle("");
         fBRaw[j]->Draw("AP");
         fBFit[j]->Draw("L");
         fBRaw[j]->Draw("sameP");
         l.Draw();
+
+	TText *text = new TText(0.6,0.8,"CMS Preliminary");
+	text->SetNDC();
+	text->Draw();
+	text->SetTextSize(0.05); 
+
         can->Write();
         if (makePlots){
           can->Print(Form("BMplots/%s/fit_m%3.1f_bin%d.png",type.c_str(),global_mH,j));
