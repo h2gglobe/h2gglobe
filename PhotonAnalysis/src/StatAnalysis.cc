@@ -643,7 +643,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		
                 for(float syst_shift=-systRange; syst_shift<=systRange; syst_shift+=systStep ) { 
                     if( syst_shift == 0. ) { continue; } // skip the central value
-		    syst_mass     =  0., syst_category = -1., syst_weight   =  0.;
+		    syst_mass     =  0., syst_category = -1, syst_weight   =  0.;
 		    
 		    // re-analyse the event without redoing the event selection as we use nominal values for the single photon
 		    // corrections and smearings
@@ -666,7 +666,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		
                 for(float syst_shift=-systRange; syst_shift<=systRange; syst_shift+=systStep ) { 
                     if( syst_shift == 0. ) { continue; } // skip the central value
-		    syst_mass     =  0., syst_category = -1., syst_weight   =  0.;
+		    syst_mass     =  0., syst_category = -1, syst_weight   =  0.;
 		    
 		    // re-analyse the event without redoing the event selection as we use nominal values for the single photon
 		    // corrections and smearings
@@ -682,27 +682,27 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		    l.rooContainer->InputSystematicSet("sig_"+GetSignalLabel(cur_type),(*si)->name(),categories,mass_errors,weights);
 		}
 	    }
+	}
+	
+	// single photon level systematics: several
+	for(std::vector<BaseSmearer *>::iterator  si=systPhotonSmearers_.begin(); si!= systPhotonSmearers_.end(); ++si ) {
+	    mass_errors.clear(), weights.clear(), categories.clear();
 	    
-	    // single photon level systematics: several
-	    for(std::vector<BaseSmearer *>::iterator  si=systPhotonSmearers_.begin(); si!= systPhotonSmearers_.end(); ++si ) {
-		mass_errors.clear(), weights.clear(), categories.clear();
+	    for(float syst_shift=-systRange; syst_shift<=systRange; syst_shift+=systStep ) { 
+		if( syst_shift == 0. ) { continue; } // skip the central value
+		syst_mass     =  0., syst_category = -1, syst_weight   =  0.;
 		
-                for(float syst_shift=-systRange; syst_shift<=systRange; syst_shift+=systStep ) { 
-                    if( syst_shift == 0. ) { continue; } // skip the central value
-		    syst_mass     =  0., syst_category = -1., syst_weight   =  0.;
-		    
-		    // re-analyse the event redoing the event selection this time
-		    AnalyseEvent(l,jentry, weight, gP4, syst_mass,  syst_weight, syst_category, diphoton_id, isCorrectVertex,
-				 true, syst_shift, false,  0, *si, 0 );
-		    
-		    categories.push_back(syst_category);
-		    mass_errors.push_back(syst_mass);
-                    weights.push_back(syst_weight);
-		}
-		if (cur_type < 0){
-		    // feed the modified signal model to the RooContainer
-		    l.rooContainer->InputSystematicSet("sig_"+GetSignalLabel(cur_type),(*si)->name(),categories,mass_errors,weights);
-		}
+		// re-analyse the event redoing the event selection this time
+		AnalyseEvent(l,jentry, weight, gP4, syst_mass,  syst_weight, syst_category, diphoton_id, isCorrectVertex,
+			     true, syst_shift, false,  0, *si, 0 );
+		
+		categories.push_back(syst_category);
+		mass_errors.push_back(syst_mass);
+		weights.push_back(syst_weight);
+	    }
+	    if (cur_type < 0){
+		// feed the modified signal model to the RooContainer
+		l.rooContainer->InputSystematicSet("sig_"+GetSignalLabel(cur_type),(*si)->name(),categories,mass_errors,weights);
 	    }
 	}
     }
@@ -722,7 +722,7 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 
     int cur_type = l.itype[l.current];
     float sampleweight = l.sampleContainer[l.current_sample_index].weight;
-    diphoton_id = -1;
+    /// diphoton_id = -1;
     
     std::pair<int,int> diphoton_index;
    
