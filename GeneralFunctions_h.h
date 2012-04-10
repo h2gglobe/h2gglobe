@@ -342,13 +342,13 @@ void Branch_gh_vbfq2_pdgid(TTree * tree) { tree->Branch("gh_vbfq2_pdgid",&gh_vbf
 void Branch_gh_vh_pdgid(TTree * tree) { tree->Branch("gh_vh_pdgid",&gh_vh_pdgid, "gh_vh_pdgid/I");  }; 
 void Branch_gh_vh1_pdgid(TTree * tree) { tree->Branch("gh_vh1_pdgid",&gh_vh1_pdgid, "gh_vh1_pdgid/I");  }; 
 void Branch_gh_vh2_pdgid(TTree * tree) { tree->Branch("gh_vh2_pdgid",&gh_vh2_pdgid, "gh_vh2_pdgid/I");  }; 
-void Branch_gh_higgs_p4(TTree * tree) { tree->Branch("gh_higgs_p4", "TLorentzVector",&gh_higgs_p4); }; 
-void Branch_gh_pho1_p4(TTree * tree) { tree->Branch("gh_pho1_p4", "TLorentzVector",&gh_pho1_p4); }; 
-void Branch_gh_pho2_p4(TTree * tree) { tree->Branch("gh_pho2_p4", "TLorentzVector",&gh_pho2_p4); }; 
-void Branch_gh_vbfq1_p4(TTree * tree) { tree->Branch("gh_vbfq1_p4", "TLorentzVector",&gh_vbfq1_p4); }; 
-void Branch_gh_vbfq2_p4(TTree * tree) { tree->Branch("gh_vbfq2_p4", "TLorentzVector",&gh_vbfq2_p4); }; 
-void Branch_gh_vh1_p4(TTree * tree) { tree->Branch("gh_vh1_p4", "TLorentzVector",&gh_vh1_p4); }; 
-void Branch_gh_vh2_p4(TTree * tree) { tree->Branch("gh_vh2_p4", "TLorentzVector",&gh_vh2_p4); }; 
+void Branch_gh_higgs_p4(TTree * tree) { tree->Branch("gh_higgs_p4", "TLorentzVector",&gh_higgs_p4, 32000, 0); }; 
+void Branch_gh_pho1_p4(TTree * tree) { tree->Branch("gh_pho1_p4", "TLorentzVector",&gh_pho1_p4, 32000, 0); }; 
+void Branch_gh_pho2_p4(TTree * tree) { tree->Branch("gh_pho2_p4", "TLorentzVector",&gh_pho2_p4, 32000, 0); }; 
+void Branch_gh_vbfq1_p4(TTree * tree) { tree->Branch("gh_vbfq1_p4", "TLorentzVector",&gh_vbfq1_p4, 32000, 0); }; 
+void Branch_gh_vbfq2_p4(TTree * tree) { tree->Branch("gh_vbfq2_p4", "TLorentzVector",&gh_vbfq2_p4, 32000, 0); }; 
+void Branch_gh_vh1_p4(TTree * tree) { tree->Branch("gh_vh1_p4", "TLorentzVector",&gh_vh1_p4, 32000, 0); }; 
+void Branch_gh_vh2_p4(TTree * tree) { tree->Branch("gh_vh2_p4", "TLorentzVector",&gh_vh2_p4, 32000, 0); }; 
 // vertex branches
 void Branch_vtx_std_sel(TTree * tree) { tree->Branch("vtx_std_sel", &vtx_std_sel, "vtx_std_sel/I"); }; 
 void Branch_vtx_std_evt_mva(TTree * tree) { tree->Branch("vtx_std_evt_mva", "std::vector<float>", &vtx_std_evt_mva); }; 
