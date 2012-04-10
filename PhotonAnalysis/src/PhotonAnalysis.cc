@@ -186,6 +186,7 @@ float PhotonAnalysis::getPuWeight(int n_pu, int sample_type, bool warnMe)
 // ----------------------------------------------------------------------------------------------------
 void PhotonAnalysis::applyGenLevelSmearings(double & genLevWeight, const TLorentzVector & gP4, int npu, int sample_type, BaseGenLevelSmearer * sys, float syst_shift)
 {
+    static int nwarnings=10;
     for(std::vector<BaseGenLevelSmearer*>::iterator si=genLevelSmearers_.begin(); si!=genLevelSmearers_.end(); si++){
 	float genWeight=1;
 	if( sys != 0 && *si == *sys ) { 
@@ -194,8 +195,15 @@ void PhotonAnalysis::applyGenLevelSmearings(double & genLevWeight, const TLorent
 	    (*si)->smearEvent(genWeight, gP4, npu, sample_type, 0. );
 	}
 	if( genWeight < 0. ) {
-	    std::cerr << "Negative weight from smearer " << (*si)->name() << std::endl;
-	    assert(0);
+	    if( syst_shift == 0. ) {
+		std::cerr << "Negative weight from smearer " << (*si)->name() << std::endl;
+		assert(0);
+	    } else { 
+		if( nwarnings-- > 0 ) {
+		    std::cout <<  "WARNING: negative during systematic scan in " << (*si)->name() << std::endl;
+		}
+		genWeight = 0.;
+	    }
 	}
 	genLevWeight*=genWeight;
     }
@@ -208,6 +216,7 @@ void PhotonAnalysis::applySinglePhotonSmearings(std::vector<float> & smeared_pho
 						
     )
 {
+    static int nwarnings = 10;
     photonInfoCollection.clear();
     smeared_pho_energy.resize(l.pho_n,0.);
     smeared_pho_r9.resize(l.pho_n,0.);
@@ -244,8 +253,15 @@ void PhotonAnalysis::applySinglePhotonSmearings(std::vector<float> & smeared_pho
 		    (*si)->smearPhoton(phoInfo,sweight,l.run,0.);
 		}
                 if( sweight < 0. ) {
-                    std::cerr << "Negative weight from smearer " << (*si)->name() << std::endl;
-                    assert(0);
+		    if( syst_shift == 0. ) {
+			std::cerr << "Negative weight from smearer " << (*si)->name() << std::endl;
+			assert(0);
+		    } else { 
+			if( nwarnings-- > 0 ) {
+			    std::cout <<  "WARNING: negative during systematic scan in " << (*si)->name() << std::endl;
+			}
+			sweight = 0.;
+		    }
                 }
                 pweight *= sweight;
             }
@@ -282,6 +298,7 @@ void PhotonAnalysis::applyDiPhotonSmearings(TLorentzVector & Higgs, TVector3 & v
 					    float & evweight, float & idmva1, float & idmva2,
 					    BaseDiPhotonSmearer * sys, float syst_shift)
 {
+    static int nwarnings=10;
     float pth = Higgs.Pt();
     for(std::vector<BaseDiPhotonSmearer *>::iterator si=diPhotonSmearers_.begin(); si!= diPhotonSmearers_.end(); ++si ) {
         float rewei=1.;
@@ -291,8 +308,15 @@ void PhotonAnalysis::applyDiPhotonSmearings(TLorentzVector & Higgs, TVector3 & v
 	    (*si)->smearDiPhoton( Higgs, vtx, rewei, category, cur_type, truevtx, idmva1, idmva2, 0. );
 	}
         if( rewei < 0. ) {
-            std::cerr << "Negative weight from smearer " << (*si)->name() << std::endl;
-            assert(0);
+	    if( syst_shift == 0. ) {
+		std::cerr << "Negative weight from smearer " << (*si)->name() << std::endl;
+		assert(0);
+	    } else { 
+		if( nwarnings-- > 0 ) {
+		    std::cout <<  "WARNING: negative during systematic scan in " << (*si)->name() << std::endl;
+		}
+		rewei = 0.;
+	    }
         }
         evweight *= rewei;
     }

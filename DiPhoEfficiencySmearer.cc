@@ -102,6 +102,7 @@ bool DiPhoEfficiencySmearer::init()
 
 double DiPhoEfficiencySmearer::getWeight(double pt, std::string theCategory, float syst_shift) const
 {
+    static int nwarnings = 10;
   std::map<std::string,TGraphAsymmErrors*>::const_iterator theIter = smearing_eff_graph_.find(theCategory);
   if( theIter != smearing_eff_graph_.end()  ) {
 
@@ -142,18 +143,21 @@ double DiPhoEfficiencySmearer::getWeight(double pt, std::string theCategory, flo
     //           if you're NOT at the boundaris of TGraphAsymmErrors, linearly interpolate values and errors
     if(!atBoundary) {
       theWeight = yLow + (yHigh-yLow) / (xHigh-xLow) * (pt-xLow);
-      theError  = theErrorLow + (theErrorHigh-theErrorLow) / (xHigh-xLow) * (pt-xLow); }
-    else     //  if instead you ARE at the boundaris of TGraphAsymmErrors, collapse on first or last of its points  
-      { 
+      theError  = theErrorLow + (theErrorHigh-theErrorLow) / (xHigh-xLow) * (pt-xLow); 
+    } else { 
+	//  if instead you ARE at the boundaris of TGraphAsymmErrors, collapse on first or last of its points  
 	if(myBin == (numPoints-1)) {
 	  theWeight = yHigh; 	  theError  = theErrorHigh;	}
 	else if (myBin == -1) 	  {
 	  theWeight = yLow; 	  theError  = theErrorLow;  	}
 	else  {   std::cout <<  effName_ << " ** you claim to be at boundaries of TGraphAsymmErrors but your not! This is a problem " << std::endl;}
-      }
-    return  ( theWeight + (theError*syst_shift));
+    }
+    float ret = theWeight + theError*syst_shift; 
+    return ret;
   }
-  else {     std::cout <<  effName_ << "- category asked: " << theCategory << " was not found - which is a problem. Returning weight 1. " << std::endl;
-    return 1.;  }
+  else {
+      std::cout <<  effName_ << "- category asked: " << theCategory << " was not found - which is a problem. Returning weight 1. " << std::endl;
+      return 1.;  
+  }
   
 }

@@ -47,10 +47,7 @@ if len(groups["done"]) == len(jobs):
             ## sys.argv = [ "combiner.py", "-i", filestocmb[0] ]
             ## import combiner
             os.system("python combiner.py -i %s" % filestocmb[0] )
-            
-            if docombine:
-                for m in range(110,160,10):
-                    os.system("%s %s | tee -a %s/do_combine.log" % ( docombine, taskdir, taskdir ) )
+            os.system("%s %s | tee -a %s/do_combine.log" % ( docombine, taskdir, taskdir ) )
 
     sys.exit(0)
             

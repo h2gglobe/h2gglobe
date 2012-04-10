@@ -1,5 +1,5 @@
 import ROOT
-import sys
+import sys, os
 
 grepmode=False
 if len(sys.argv) < 2: 
@@ -44,4 +44,7 @@ for i,P in enumerate(plots):
   can.cd(i+1)
   P.DrawClonePad()
 
-can.SaveAs("allThePlots_%s.eps"%fileName)
+## can.SaveAs("allThePlots_%s.eps"%fileName)
+dir=os.path.dirname(fileName)
+base=os.path.basename(fileName).replace(".root","")
+can.SaveAs(os.path.join(dir,"allThePlots_%s.eps"%base) )
