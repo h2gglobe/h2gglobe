@@ -504,7 +504,7 @@ private:
     //complexset.insert("cat2");
     //complexset.insert("cat3");
     complexset.insert("cat4");
-    complexset.insert("cat5");
+    //complexset.insert("cat5");
     //complexset.insert("cat6");
     //complexset.insert("cat4");
     //complexset.insert("cat5");
@@ -713,6 +713,8 @@ private:
 
               combhslides[icat][inputSigProcName] = new RooAddPdf(TString("combhslide") + catname + "_" + inputSigProcName, "", RooArgList(*g1slides[icat][inputSigProcName], *g2slides[icat][inputSigProcName], *g3slides[icat][inputSigProcName]),
                   RooArgList(*fitparmfuncs[icat][mergedSigProcName][6], *fitparmfuncs[icat][mergedSigProcName][7]), kTRUE);
+              
+              // 2 gaussians is the new standard in complex
               combhminslides[icat][inputSigProcName] = new RooAddPdf(TString("combhminslide") + catname + "_" + inputSigProcName, "", RooArgList(*g1slides[icat][inputSigProcName], *g2slides[icat][inputSigProcName]), RooArgList(*fitparmfuncs[icat][mergedSigProcName][6]), kTRUE);
 
               wg1slides[icat][inputSigProcName] = new RooGaussian(TString("wg1slide") + catname + "_" + inputSigProcName, "", *hmass, *wmean1slides[icat][inputSigProcName], *wsigma1slides[icat][inputSigProcName]);
@@ -720,8 +722,9 @@ private:
               combhwrongslides[icat][inputSigProcName] = new RooAddPdf(TString("combhwrongslide") + catname + "_" + inputSigProcName, "", RooArgList(*wg1slides[icat][inputSigProcName], *wg2slides[icat][inputSigProcName]), RooArgList(*fitparmfuncs[icat][mergedSigProcName][12]));
 
               fracrightmodslides[icat][inputSigProcName] = new RooFormulaVar(TString("fracrightmodslide") + catname + "_" + inputSigProcName, "", "@0*@1", RooArgList(nuissancedeltafracright, *fitparmfuncs[icat][mergedSigProcName][13]));
-              combHVtxSlides[icat][inputSigProcName] = new RooAddPdf(TString("combhvtxslide") + catname + "_" + inputSigProcName, "", RooArgList(*combhslides[icat][inputSigProcName], *combhwrongslides[icat][inputSigProcName]),
+              combHVtxSlides[icat][inputSigProcName] = new RooAddPdf(TString("combhvtxslide") + catname + "_" + inputSigProcName, "", RooArgList(*combhminslides[icat][inputSigProcName], *combhwrongslides[icat][inputSigProcName]),
                   RooArgList(*fracrightmodslides[icat][inputSigProcName]), kTRUE);
+              
               combhvtxminslides[icat][inputSigProcName] = new RooAddPdf(TString("combhvtxminslide") + catname + "_" + inputSigProcName, "", RooArgList(*combhminslides[icat][inputSigProcName], *wg1slides[icat][inputSigProcName]),
                   RooArgList(*fracrightmodslides[icat][inputSigProcName]), kTRUE);
               combhvtxsimpleslides[icat][inputSigProcName] = new RooAddPdf(TString("combhvtxsimpleslide") + catname + "_" + inputSigProcName, "", RooArgList(*g1slides[icat][inputSigProcName], *wg1slides[icat][inputSigProcName]),
@@ -1576,10 +1579,13 @@ private:
 
     if (usecomplexmodel)
     {
-      rightpdf = &combh;
+      rightpdf = &combhmin;
       wrongpdf = &combhwrong;
       allpdf = &combhvtx;
-      f1.setRange(0.52, 1.0);
+      f1.setRange(0.6, 0.95);
+      sigma2.setVal(4.0);
+      dm1.setRange(-1.0, 0.05);
+      dm1.setVal(-0.01);
     }
     else if (usesimplemodel)
     {
@@ -1597,20 +1603,22 @@ private:
       sigma2.setVal(3.0);
       f1.setRange(0.0, 1.0);
     }
+    
+    dm2.setRange(-5.0, 1.0);
 
-    if (mh == 110 && !usecomplexmodel)
-    {
-      dm2.setRange(-8.0, 5.0);
-    }
-    if (mh == 110)
-    {
-      dm1.setVal(0.0);
-    }
-    if (mh == 150)
-    {
-      dm1.setVal(-0.5);
-      dm2.setVal(-1.5);
-    }
+    //if (mh == 110 && !usecomplexmodel)
+    //{
+    //  dm2.setRange(-8.0, 5.0);
+    //}
+    //if (mh == 110)
+    //{
+    //  dm1.setVal(0.0);
+    //}
+    //if (mh == 150)
+    //{
+    //  dm1.setVal(-0.5);
+    //  dm2.setVal(-1.5);
+    //}
 
     RooDataSet *mcsigwdata = getMergedWeightedDataSet("mcsigwdata" + boost::lexical_cast<string>(mh) + catname + "_" + mergedSigProcName);
     RooDataSet *mcsigwrongwdata = NULL;
@@ -1651,21 +1659,22 @@ private:
 
     dm2.removeRange();
 
-    if (usecomplexmodel)
-    {
-      // more Gaussians in the sum for some of the categories
-      if (TMath::Abs(sigma2.getVal()) > TMath::Abs(sigma3.getVal()) || f2.getVal() < 0.5)
-      {
-        double sigma2tmp = sigma2.getVal();
-        double dm2tmp = dm2.getVal();
+    // testing
+    //if (usecomplexmodel)
+    //{
+    //  // more Gaussians in the sum for some of the categories
+    //  if (TMath::Abs(sigma2.getVal()) > TMath::Abs(sigma3.getVal()) || f2.getVal() < 0.5)
+    //  {
+    //    double sigma2tmp = sigma2.getVal();
+    //    double dm2tmp = dm2.getVal();
 
-        sigma2.setVal(sigma3.getVal());
-        dm2.setVal(dm3.getVal());
-        sigma3.setVal(sigma2tmp);
-        dm3.setVal(dm2tmp);
-        f2.setVal(1.0 - f2.getVal());
-      }
-    } // if usecomplexmodel
+    //    sigma2.setVal(sigma3.getVal());
+    //    dm2.setVal(dm3.getVal());
+    //    sigma3.setVal(sigma2tmp);
+    //    dm3.setVal(dm2tmp);
+    //    f2.setVal(1.0 - f2.getVal());
+    //  }
+    //} // if usecomplexmodel
 
 
     if (!usesimplemodel)
@@ -2268,7 +2277,7 @@ public:
 
               if (usecomplexmodel)
               {
-                rightpdf = &combh;
+                rightpdf = &combhmin;
                 wrongpdf = &combhwrong;
                 allpdf = &combhvtx;
                 interpdf = combhvtxslides[icat][sigProcName];
