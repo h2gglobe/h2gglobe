@@ -174,6 +174,6 @@ if __name__  == "__main__":
 		f.close()
 		os.system("chmod 755 %s.sh"%(jobname))
 		
-	print "Submission Scripts written %sN.sh N=0,%d"%(options.outputScript,len(files))
+	print "Submission Scripts written %sN.sh N=0,%d"%(options.outputScript,len(files)-1)
 	print "Written ", outnam
 	print "Combine workspace after running with python combiner.py -i ",outnam
