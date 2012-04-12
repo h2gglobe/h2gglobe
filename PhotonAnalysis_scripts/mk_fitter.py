@@ -150,6 +150,7 @@ if __name__  == "__main__":
 			for fn in "","histograms_":
 				f.write("&& ( %s %s%s_%d.%s %s ) "        % ( cp, fn, cfg.histfile[0], i, cfg.histfile[1], cfg.histdir ) )
 			f.write("&& ( %s %s_%d.%s_ascii_events.txt %s ) " % ( cp, cfg.histfile[0], i, cfg.histfile[1], cfg.histdir ) )
+			f.write("&& ( %s %s_%d.%s %s ) " % ( cp, cfg.outfile[0], i, cfg.outfile[1], cfg.histdir ) )
 			f.write("&& ( %s %s_%d.json %s ) "                % ( cp, cfg.histfile[0], i, cfg.histdir ) )
 			f.write("&& ( %s histograms_%s_%d.csv %s ) " % ( cp, cfg.histfile[0], i, cfg.histdir ) )
 		else:
@@ -157,6 +158,7 @@ if __name__  == "__main__":
 			for fn in "","histograms_":
 				f.write("&& ( %s %s%s.%s %s/%s%s_%d.%s ) " % ( cp, fn, cfg.histfile[0], cfg.histfile[1], cfg.histdir, fn, cfg.histfile[0], i, cfg.histfile[1] ) )
 			f.write("&& ( %s %s.%s_ascii_events.txt %s/%s_%d.%s_ascii_events.txt ) " % ( cp, cfg.histfile[0], cfg.histfile[1], cfg.histdir, cfg.histfile[0], i, cfg.histfile[1] ) )
+			f.write("&& ( %s %s.%s %s/%s_%d.%s ) " % ( cp, cfg.outfile[0], cfg.outfile[1], cfg.histdir, cfg.outfile[0], i, cfg.outfile[1]) )
 			f.write("&& ( %s %s.json %s/%s_%d.json ) " % ( cp, cfg.histfile[0], cfg.histdir, cfg.histfile[0], i ) )
 			f.write("&& ( %s histograms_%s.csv %s/%s_%d.csv ) " % ( cp, cfg.histfile[0], cfg.histdir, cfg.histfile[0], i ) )
 			

@@ -951,6 +951,7 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
                           <<" specialphoton2="<<photonInfoCollection[diphoton_index.second].isSphericalPhoton()
                           <<" specialphotongen1="<<l.CheckSphericalPhoton(diphoton_index.first) 
                           <<" specialphotongen2="<<l.CheckSphericalPhoton(diphoton_index.second)
+                          <<" VBFevent="<<VBFevent
 
 
                           <<" FileName="<<l.histFileName;
@@ -1508,9 +1509,9 @@ int MassFactorizedMvaAnalysis::GetBDTBoundaryCategory(float bdtout, bool isEB, b
             if (bdtout >= 0.05) return 4;
             else return -1;
         } else {
-            if (bdtout >= 0.05 && bdtout < 0.55) return 3;
-            if (bdtout >= 0.55 && bdtout < 0.72) return 2;
-            if (bdtout >= 0.72 && bdtout < 0.89) return 1;
+            if (bdtout >= 0.05 && bdtout < 0.545) return 3;
+            if (bdtout >= 0.545 && bdtout < 0.74) return 2;
+            if (bdtout >= 0.74 && bdtout < 0.89) return 1;
             if (bdtout >= 0.89) return 0;
             return -1;
         }
