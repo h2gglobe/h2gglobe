@@ -2,40 +2,43 @@ import os
 import fnmatch
 import sys
 
-def printLinks(outFile,webpath):
-  outFile.write('<p> \n <center>\n <font size="5">Signal Interpolation Diagnostics</font>\n </center> \n </p> \n')
-  outFile.write('<script language="Javascript"> \n document.write("Run at: ") + document.lastModified + ""); \n </SCRIPT>')
-  outFile.write('<a href=\"../../BDTInterpolationDiagnostics.txt\">Diagnostics File</a><br>\n')
-  outFile.write('<a href=\"../david/plots.html\">Signal, background and data plots</a><br>\n')
-  outFile.write('<a href=\"../fracs/plots.html\">Up, down and interpolated signal plots</a><br>\n')
-  outFile.write('BDT type: \n')
-  outFile.write('<a href=\"../../ada/david/plots.html\">ada</a>\n')
-  outFile.write('<a href=\"../../grad/david/plots.html\">grad</a><br>\n')
+def printLinks(outFile,thispage,plotTypes,plotNames,wsName):
+  outFile.write('<center>\n <p> \n <font size="5">Signal Interpolation Diagnostics</font>\n </p> \n')
+  outFile.write('<a href=\"../../BMplots/grad/model.html\"><font size="4">View Background Model Diagnostics</font></a><br> \n')
+  outFile.write('<script language="Javascript"> \n document.write("Results from interpolation run at: " + document.lastModified + ""); \n </SCRIPT> <br> \n ')
+  outFile.write('Run on file: '+wsName+'<br>\n')
+  outFile.write('Output file with interpolated histograms: '+wsName+'_interpolated.root <br>\n')
+  for p, plot in enumerate(plotTypes):
+    outFile.write('<a href=\"'+plot+'.html\">'+plotNames[p]+'</a><br> \n')
+  outFile.write('<a href=\"../ada/'+thispage+'.html\">ada</a> \n')
+  outFile.write('<a href=\"../grad/'+thispage+'.html\">grad</a> <br>\n')
 
-inPath = sys.argv[1]
-webpath='https://www.hep.ph.ic.ac.uk/~mk1009/h2g/MVA/SigInt/Diagnostics/'+inPath+'/'
-genFile=open('plots/plots.html','w')
-genFile.write('<p> \n <center>\n <font size="5">Signal Interpolation Diagnostics</font>\n </center> \n </p> \n')
-genFile.write('<script language="Javascript"> \n document.write("Run at: ") + document.lastModified + ""); \n </SCRIPT>')
-genFile.write('<a href=\"BDTInterpolationDiagnostics.txt\">Diagnostics File</a><br>\n')
-genFile.write('<a href=\"ada/david/plots.html\">Signal, background and data plots</a><br>\n')
-genFile.write('<a href=\"ada/fracs/plots.html\">Up, down and interpolated signal plots</a><br>\n')
 
+wsName=sys.argv[1]
 htmlFiles = []
+paths=[]
+plotTypes=[]
 
 for root, dirs, files in os.walk('plots'):
-  for filename in fnmatch.filter(files,'*.png'):
-    if root not in htmlFiles:
-      htmlFiles.append(root)
-    #print root
-    #print os.path.join(root,filename)
+  for dir in dirs:
+    pathName=root+'/'+dir
+    if pathName.count('/') < 2 and pathName not in paths: paths.append(pathName)
+    elif dir not in plotTypes: plotTypes.append(dir)
 
-for htmlName in htmlFiles:
-  htmlFile = open(htmlName+'/plots.html','w')
-  printLinks(htmlFile,webpath)
-  for root, dirnames, filenames in os.walk(htmlName):
-    filenames.sort()
-    for files in filenames:
-      link=webpath+str(htmlName)+'/'+str(files)
-      #print link
-      htmlFile.write('<a href='+link+'><img height=\"400\" src=\"'+link+'\"></a>\n')
+plotNames=['Signal, background and data plots','Fractional systematic up and down templates','Up, down and interpolated signal plots','Background model in sidebands','Signal, background and data difference plots']
+
+for path in paths:
+  tempArr=path.split('/')
+  bdtType=tempArr[1]
+
+  for plot in plotTypes:
+    allPlots=[]
+    htmlFile = open(path+'/'+plot+'.html','w')
+    printLinks(htmlFile,plot,plotTypes,plotNames,wsName)
+    for root,dirs,files in os.walk(path+'/'+plot):
+      for filename in fnmatch.filter(files,"*.png"):
+        allPlots.append(filename)
+    
+    allPlots.sort()
+    for p in allPlots:
+      htmlFile.write('<a href='+plot+'/'+p+'><img height=\"400\" src=\"'+plot+'/'+p+'\"></a> \n')
