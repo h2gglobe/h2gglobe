@@ -141,7 +141,7 @@ void plotBkgModel(TList* HistList, std::string name){
   TPaveText *txt = new TPaveText(0.2,0.1,0.4,0.35,"NDC");
   txt->SetFillColor(0);
   txt->SetLineColor(0);
-  txt->AddText("#int L = 4.76 fb^{-1}");
+  txt->AddText("#int L = 5.09 fb^{-1}");
 
   for (int i=1; i<HistList->GetEntries(); i++){
     //if (((TH1F*)HistList->At(i))->GetNbinsX()!=((TH1F*)HistList->At(0))->GetNbinsX()) std::cout << "Plot problem: calling plot for histograms with different number of bins" << std::endl;
@@ -238,7 +238,7 @@ void plotDavid(TH1F* bkgT, TH1F* sigT, TH1F* dataT, std::string name){
   TPaveText *txt = new TPaveText(0.2,0.1,0.4,0.35,"NDC");
   txt->SetFillColor(0);
   txt->SetLineColor(0);
-  txt->AddText("#int L = 4.76 fb^{-1}");
+  txt->AddText("#int L = 5.09 fb^{-1}");
 
   bkg->GetYaxis()->SetRangeUser(1.0,2.*(data->GetMaximum()));
 

@@ -22,7 +22,7 @@ g_expdijet		= 0.00495
 
 # Some "Global" Variables
 # PLOT OPS ----------------
-lumistring = "4.76 fb^{-1}"
+lumistring = "5.09 fb^{-1}"
 sigscale   = 5.
 # THEORY SYSTEMATICS ------
 lumi 		= "1.045"
@@ -514,7 +514,8 @@ genMasses     = [110,115,120,125,130,135,140,145,150]
 #scalingErrors = [1.025,1.025,1.025,1.025,1.025,1.025,1.025,1.025,1.025] # FLAT 25%
 #scalingErrors = [ 1.01185,1.01292,1.01378,1.01378,1.01594,1.01539,1.01814,1.02052,1.02257] # P.Dauncey 100-180, 2% window, MIT presel + BDT > 0.05 (Pol5 Fit)
 #scalingErrors=[1+((s-1)*0.95) for s in scalingErrors]
-scalingErrors = [1.01153,1.01197,1.01102,1.00966,1.01205,1.01457,1.01814,1.01903,1.01768] # P.Dauncey 100-180, 2% window, MIT presel + BDT > 0.05 , after synch, 19Feb (Pow2 Fit)
+#scalingErrors = [1.01153,1.01197,1.01102,1.00966,1.01205,1.01457,1.01814,1.01903,1.01768] # P.Dauncey 100-180, 2% window, MIT presel + BDT > 0.05 , after synch, 19Feb (Pow2 Fit)
+scalingErrors = [1.01072,1.01097,1.01061,1.01019,1.01234,1.01306,1.01519,1.01554,1.01412] # P.Dauncey 100-180, 2% window, MIT presel + BDT > 0.05 , Jan16 ReReco 15Apr (Pow2 Fit)
 
 #evalMasses    = numpy.arange(110,150.5,0.5)
 evalMasses    = numpy.arange(110.0,150.5,0.5)
