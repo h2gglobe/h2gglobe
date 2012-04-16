@@ -25,7 +25,7 @@ if len(subjobs)>0 :jobs = subjobs[:]
 
 for j in jobs:
 	os.system("chmod 775 %s"%j)
-	if options.resubFailed and os.path.isfile("%s.done"%j): continue
+	if options.resubFailed and not os.path.isfile("%s.fail"%j): continue
 	else:
 	   os.system("rm %s.run"%j)
 	   os.system("rm %s.fail"%j)
