@@ -31,5 +31,5 @@ for j in jobs:
 	   os.system("rm %s.fail"%j)
 	   os.system("rm %s.done"%j)
 	   os.system("rm %s.log"%j)
-	   print "Submitting Job: "bsub -q %s -o %s.log $PWD/%s "%(options.queue,j,j)"
+	   print "Submitting Job: 'bsub -q %s -o %s.log $PWD/%s '%(options.queue,j,j)"
    	   os.system("bsub -q %s -o %s.log $PWD/%s "%(options.queue,j,j))
