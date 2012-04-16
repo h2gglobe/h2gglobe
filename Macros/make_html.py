@@ -25,7 +25,7 @@ for root, dirs, files in os.walk('plots'):
     if pathName.count('/') < 2 and pathName not in paths: paths.append(pathName)
     elif dir not in plotTypes: plotTypes.append(dir)
 
-plotNames=['Signal, background and data plots','Fractional systematic up and down templates','Up, down and interpolated signal plots','Background model in sidebands','Signal, background and data difference plots']
+plotNames=['Background model in sideband','Signal, background and data plots','Signal, background and data difference plots','Fractional systematic up and down templates','Up and down interpolated signal plots']
 
 for path in paths:
   tempArr=path.split('/')
