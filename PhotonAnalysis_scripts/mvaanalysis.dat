@@ -146,7 +146,7 @@ Inputs for reweighing
 ->
 
 kfacHist=aux/KFactors_AllScales_interpolated.root
-efficiencyFile=aux/sig_reweighing_jan16rereco_mva_v1.root
+efficiencyFile=aux/sig_reweighing_jan16rereco_mva_v2.root
 puHist=aux/2011_0100_73500.weights3.root
 puTarget=aux/nov08_rereco.json.68000.pileup.root
 
