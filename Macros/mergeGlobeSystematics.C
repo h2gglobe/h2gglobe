@@ -4,7 +4,7 @@ TFile *oldFILE = new TFile("./vertex_reweighing.root");
 oldFILE->Print();
 oldFILE->ls();
 
-TFile *newFILE = new TFile("../PhotonAnalysis_scripts/aux/sig_reweighing_jan16rereco_baseline_v3.root ","recreate");
+TFile *newFILE = new TFile("../PhotonAnalysis_scripts/aux/sig_reweighing_jan16rereco_mva_v2.root ","recreate");
 newFILE->cd();
 
 TGraphAsymmErrors * toCopy;
@@ -40,9 +40,10 @@ for (int cat=0;cat<ncats;cat++){
 }
 // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // ID efficieny corrections ------------------------------------------------------------------------------------------------------------------------------------------------------
-// Numbers from https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/657/1/1/1.html
+// Numbers from https://hypernews.cern.ch/HyperNews/https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/657/1/1/1.html
+// Scale also by electron-veto ! from https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/674/1/1/1/1.html
 int nphocats=4;
-Double_t ratioTP_[nphocats] 	    	    = {0.983,0.996,0.999,1.040};
+Double_t ratioTP_[nphocats] 	    	    = {0.999*1.001,0.984*1.002,1.006*1.005,1.014*1.006};
 Double_t ratioTP_low_err_[nphocats] 	    = {0.002,0.011,0.013,0.037} ;
 Double_t ratioTP_high_err_[nphocats] 	    = {0.002,0.011,0.008,0.035} ;
 std::string iDLabels_[nphocats] 	    = {"EBHighR9","EBLowR9","EEHighR9","EELowR9"};
