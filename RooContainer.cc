@@ -593,6 +593,45 @@ void RooContainer::InputBinnedDataPoint(std::string var_name, int cat, double x,
   }
 */
 }
+// ----------------------------------------------------------------------------------------------------
+void RooContainer::InputSystematicPoint(std::string s_name, std::string sys_name,int ishift, int cat,double val,double w){
+
+  
+  
+	if (cat>-1 && cat<ncat) {
+
+	  std::string cat_name = getcatName(s_name,cat);
+	  std::string name = getsysindexName( cat_name, sys_name, abs(ishift), (ishift > 0 ? 1 : -1) );
+	  
+	  std::map<std::string,RooDataSet>::iterator it_var  = data_.find(cat_name);
+	  
+	  if (it_var == data_.end()) 
+	    std::cerr << "WARNING -- RooContainer::InpusSystematicSet -- No DataSet named "<< cat_name << std::endl;
+	  
+	  else {
+	    
+	    // Safe to use this since creation of systematic set guaranteed to have come from an already existing dataset
+	    RooRealVar *ptr = m_data_var_ptr_[cat_name];
+	    double min_x = m_var_min_[cat_name];
+	    double max_x = m_var_max_[cat_name];
+	    
+	    RooDataSet & data_set = data_[name];
+	    TH1F & th1f_set = m_th1f_[name];
+	    
+	    if (val > min_x &&val < max_x ){
+
+		// Only make datasets if the save_systematics_data is on
+		if (save_systematics_data){
+	    	   *ptr = val;
+	    	   data_set.add(RooArgSet(*ptr),w);
+		}
+	    	th1f_set.Fill(val,w);
+	    }
+	  }
+	  
+	}
+      
+}
 
 // ----------------------------------------------------------------------------------------------------
 void RooContainer::InputSystematicSet(std::string s_name, std::string sys_name, std::vector<int> cats

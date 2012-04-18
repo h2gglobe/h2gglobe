@@ -108,6 +108,7 @@ class RooContainer {
    void InputBinnedDataPoint(std::string,int,double,double w=1.);
    void InputSystematicSet(std::string s_name, std::string sys_name, std::vector<int> cats
 			   ,std::vector<double> x, std::vector<double> weights=std::vector<double>(0));
+   void InputSystematicPoint(std::string s_name, std::string sys_name, int cat, int ishift,double x, double w=1);
 
    void RebinBinnedDataset(std::string,std::string,std::vector <std::vector<double> >, bool);
    void RebinBinnedDataset(std::string,std::string,std::vector<double> , bool);
