@@ -60,7 +60,30 @@ enum phoCiCIDLevel { phoNOCUTS=0, phoLOOSE, phoMEDIUM, phoTIGHT, phoSUPERTIGHT, 
 enum phoCiCCuts { phoISOSUMOET=0,  phoISOSUMOETBAD,   phoTRKISOOETOM,   phoSIEIE,   phoHOVERE,   phoR9,   phoDRTOTK_25_99,   phoPIXEL, phoNCUTS };
 enum phoCiC6Categories { phoCiC6EBhighR9=0, phoCiC6EBmidR9, phoCiC6EBlowR9, phoCiC6EEhighR9, phoCiC6EEmidR9, phoCiC6EElowR9, phoCiC6NCATEGORIES };
 enum phoCiC4Categories { phoCiC4EBhighR9=0, phoCiC4EBlowR9, phoCiC4EEhighR9, phoCiC4EElowR9, phoCiC4NCATEGORIES };
+
+/** @param cutlevel           (input) is the required level of the cuts (e.g. phoSUPERTIGHT) 
+    @param cic6_cuts_lead     (output) will be filled with the CIC6 cut values for the LEADING photon
+    @param cic6_cuts_sublead, (output) will be filled with the CIC6 cut values for the SUBLEADING photon
+    @param cic4_cuts_lead     (output) will be filled with the CIC4 cut values for the LEADING photon
+    @param cic4_cuts_sublead  (output) will be filled with the CIC4 cut values for the SUBLEADING photon
+*/
 void SetPhotonCutsInCategories(phoCiCIDLevel cutlevel, float * cic6_cuts_lead, float * cic6_cuts_sublead, float * cic4_cuts_lead, float * cic4_cuts_sublead);
+
+//----------------------------------------------------------------------
+// cut values for cuts in categories selection
+//
+// first index is the level ('tightness') of the selection,
+// second index is the category index.
+//
+// See LoopAll::SetPhotonCutsInCategories(..) in GeneralFunctions_cc.h
+//   for the actual values.
+// initialized in PhotonAnalysis::Init(..)
+//
+// The (highest) level of selection which a photon passes is
+// calculated in LoopAll::PhotonCiCSelectionLevel(..)
+//----------------------------------------------------------------------
+// 6 categories
+//   leading photon
 float cic6_cut_lead_isosumoet[phoNCUTLEVELS][6];
 float cic6_cut_lead_isosumoetbad[phoNCUTLEVELS][6];
 float cic6_cut_lead_trkisooet[phoNCUTLEVELS][6];
@@ -69,6 +92,8 @@ float cic6_cut_lead_hovere[phoNCUTLEVELS][6];
 float cic6_cut_lead_r9[phoNCUTLEVELS][6];
 float cic6_cut_lead_drtotk_25_99[phoNCUTLEVELS][6];
 float cic6_cut_lead_pixel[phoNCUTLEVELS][6];
+
+//   subleading photon
 float cic6_cut_sublead_isosumoet[phoNCUTLEVELS][6];
 float cic6_cut_sublead_isosumoetbad[phoNCUTLEVELS][6];
 float cic6_cut_sublead_trkisooet[phoNCUTLEVELS][6];
@@ -78,6 +103,8 @@ float cic6_cut_sublead_r9[phoNCUTLEVELS][6];
 float cic6_cut_sublead_drtotk_25_99[phoNCUTLEVELS][6];
 float cic6_cut_sublead_pixel[phoNCUTLEVELS][6];
 
+// 4 categories
+//   leading photon
 float cic4_cut_lead_isosumoet[phoNCUTLEVELS][4];
 float cic4_cut_lead_isosumoetbad[phoNCUTLEVELS][4];
 float cic4_cut_lead_trkisooet[phoNCUTLEVELS][4];
@@ -86,6 +113,8 @@ float cic4_cut_lead_hovere[phoNCUTLEVELS][4];
 float cic4_cut_lead_r9[phoNCUTLEVELS][4];
 float cic4_cut_lead_drtotk_25_99[phoNCUTLEVELS][4];
 float cic4_cut_lead_pixel[phoNCUTLEVELS][4];
+
+//   subleading photon
 float cic4_cut_sublead_isosumoet[phoNCUTLEVELS][4];
 float cic4_cut_sublead_isosumoetbad[phoNCUTLEVELS][4];
 float cic4_cut_sublead_trkisooet[phoNCUTLEVELS][4];
@@ -95,12 +124,35 @@ float cic4_cut_sublead_r9[phoNCUTLEVELS][4];
 float cic4_cut_sublead_drtotk_25_99[phoNCUTLEVELS][4];
 float cic4_cut_sublead_pixel[phoNCUTLEVELS][4];
 
-// loops through photons and returns indices to two photons passing desired selection 
-// if more than one diphoton passes, returns pair with highest lead photon pt, or if lead is same, with highest sublead pt.
-int DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL = phoLOOSE, phoCiCIDLevel SUBLEADCUTLEVEL = phoLOOSE, Float_t leadPtMin = 30, Float_t subleadPtMin = 20, int ncategories=6, bool applyPtoverM=false, float *pho_energy_array=0, bool split=false);
+//----------------------------------------------------------------------
+
+/** loops through photons and returns indices to two photons passing desired selection .
+    if more than one diphoton passes, returns pair with highest lead photon pt, or if lead is same, with highest sublead pt. */
+int DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL = phoLOOSE, 
+                          phoCiCIDLevel SUBLEADCUTLEVEL = phoLOOSE, 
+                          Float_t leadPtMin = 30, 
+                          Float_t subleadPtMin = 20, 
+                          int ncategories=6, 
+                          bool applyPtoverM=false, 
+                          float *pho_energy_array=0, 
+                          bool split=false);
+
 int DiphotonMITPreSelection(Float_t leadPtMin, Float_t subleadPtMin, bool applyPtoverM, float *pho_energy_array=0);
 
-// for a photon index, applies all levels of cuts and returns the index to the highest cut level passed (can do lead and sublead - same for now)
+/** for a photon index, applies all levels of cuts and returns the
+    index to the highest cut level passed (can do lead and sublead -
+    same for now)
+
+    @param ph_passcut will contain flags which cuts the given photon
+           passes. The first index is the level of the selection
+           looked at, the second index is the index of the cut. 
+           Will be automatically resized.
+
+    @param doSublead zero, if the cuts for the leading photon
+           should be applied, non-zero if the cuts for the 
+           subleading photon should be applied.
+
+ */
 int   PhotonCiCSelectionLevel( int photon_index, int vertex_index, std::vector<std::vector<bool> > & ph_passcut, int ncategories=6, int doSublead=1, float *pho_energy_array=0);
 
 bool   PhotonMITPreSelection( int photon_index, int vertex_index,float *pho_energy_array=0);
@@ -111,10 +163,23 @@ Float_t IsoEcalHitsSumEtNumCrystal( TVector3 *calopos, Float_t innerConeDR, Floa
 std::pair<Int_t, Float_t> WorstSumTrackPtInCone(int ipho, Int_t returnVtxIndex=0, Float_t PtMin=0, Float_t OuterConeRadius=0.3, Float_t InnerConeRadius=0.04, Float_t EtaStripHalfWidth=0.015, Float_t dzmax=0.2, Float_t dxymax=0.1);
 Float_t SumTrackPtInCone(TLorentzVector *photon_p4, Int_t vtxind, Float_t PtMin=0, Float_t OuterConeRadius=0.3, Float_t InnerConeRadius=0.04, Float_t EtaStripHalfWidth=0.015, Float_t dzmax=0.2, Float_t dxymax=0.1);
 
-//photon category functions (r9 and eta)
+
+//----------------------------------------------------------------------
+/** photon category functions (r9 and eta) */
 int PhotonCategory(int photonindex, int n_r9cat=3, int n_etacat=2) { 
-  return PhotonR9Category(photonindex,n_r9cat) + n_r9cat*PhotonEtaCategory(photonindex,n_etacat);
+
+
+  // example: n_r9cat = 2 and n_etacat = 2
+  //  -> return value 0 high R9, barrel
+  //                  1 low R9,  barrel
+  //                  2 high R9, endcap
+  //                  3 low R9,  endcap
+  return PhotonR9Category(photonindex,n_r9cat) + n_r9cat * PhotonEtaCategory(photonindex,n_etacat);
 }
+
+//----------------------------------------------------------------------
+
+/** @return the photon R9 category number */
 Int_t PhotonR9Category(int photonindex, int n_r9cat=3) { 
   if(photonindex < 0) return -1;
   if(n_r9cat<2)return 0;
@@ -127,6 +192,10 @@ Int_t PhotonR9Category(int photonindex, int n_r9cat=3) {
   }
   return r9cat;
 }
+
+//----------------------------------------------------------------------
+
+/** @return the photon eta category number */
 int PhotonEtaCategory(int photonindex, int n_etacat=4) {
   if(photonindex < 0) return -1;
   if(n_etacat<2)return 0;
@@ -140,6 +209,8 @@ int PhotonEtaCategory(int photonindex, int n_etacat=4) {
   }
   return  etacat;
 }
+
+//----------------------------------------------------------------------
 //diphoton category functions ( r9, eta, and diphoton pt)
 int DiphotonCategory(Int_t leadind, Int_t subleadind, float pTh,  int n_etacat=4,int n_r9cat=3, int n_pThcat=0, int nVtxCategories=0, float vtxMva=-1.) {
   Int_t r9cat  =  TMath::Max(PhotonR9Category(leadind,n_r9cat),PhotonR9Category(subleadind,n_r9cat));
@@ -148,6 +219,8 @@ int DiphotonCategory(Int_t leadind, Int_t subleadind, float pTh,  int n_etacat=4
   Int_t vtxCat =  DiphotonVtxCategory(vtxMva,nVtxCategories);
   return  (r9cat + n_r9cat*etacat + (n_r9cat*n_etacat)*pThcat) + (n_r9cat*n_etacat*(n_pThcat>0?n_pThcat:1))*vtxCat;  // (n_r9cat*c_etacat*n_pThcat) categories
 }
+
+//----------------------------------------------------------------------
 
 int DiphotonVtxCategory(float vtxMva, int nVtxCategories)
 {

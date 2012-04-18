@@ -999,7 +999,7 @@ void LoopAll::SetPhotonCutsInCategories(phoCiCIDLevel cutlevel, float * cic6_all
   // hovere[]
   // r9[]
   // drtotk_25_99[]
-  // pixel[]
+  // pixel[]        
 
 // 6 categories
 // phoNOCUTS      - thresholds so all photons pass
@@ -1221,14 +1221,20 @@ void LoopAll::SetPhotonCutsInCategories(phoCiCIDLevel cutlevel, float * cic6_all
                               98.9981,          99,   0.0216484,     96.2292,     97.1855,     96.2294,
                               1.5,         1.5,         1.5,         1.5,         1.5,         1.5 };
                             float cic4_allcuts_temp_lead[] = { 
-                              3.8,     2.2,     1.77,    1.29,
-                              11.7,    3.4,     3.9,     1.84,
-                              3.5,     2.2,     2.3,     1.45,
-                              0.0106,  0.0097,  0.028,   0.027,
-                              0.082,   0.062,   0.065,   0.048,
-                              0.94,    0.36,    0.94,    0.32,
-                              1.,      0.062,   0.97,    0.97,
-                              1.5,     1.5,     1.5,     1.5 };
+
+                         // category from PhotonCategory(..)
+                         // cat 0      cat 1    cat 2    cat 3 
+                         // high R9    low R9   high R9  low R9
+                         // barrel     barrel   endcap   endcap
+
+                              3.8,     2.2,     1.77,    1.29,   // isosumoet       sum of isolation cone energies divided by Et (?)   (upper cut, maximum value)
+                              11.7,    3.4,     3.9,     1.84,   // isosumoetbad    same as isosumoet but for 'bad' (worst ?) vertex   (upper cut, maximum value)
+                              3.5,     2.2,     2.3,     1.45,   // trkisooetom     tracker isolation cone only (divided by Et)        (upper cut, maximum value)
+                              0.0106,  0.0097,  0.028,   0.027,  // sieie           sigma(ieta,ieta)                                   (upper cut, maximum value)
+                              0.082,   0.062,   0.065,   0.048,  // hovere          H/E                                                (upper cut, maximum value)
+                              0.94,    0.36,    0.94,    0.32,   // r9              R9                                               (lower cut, minimum value) 
+                              1.,      0.062,   0.97,    0.97,   // drtotk_25_99    Delta R to track ?                               (lower cut, minimum value)
+                              1.5,     1.5,     1.5,     1.5 };  // pixel           has pixel seed ?                                   (upper cut, maximum value)
                             float cic4_allcuts_temp_sublead[] = { 
                               3.8,     2.2,     1.77,    1.29,
                               11.7,    3.4,     3.9,     1.84,
@@ -1714,17 +1720,18 @@ int LoopAll::PhotonCiCSelectionLevel( int photon_index, int vertex_index, std::v
   TLorentzVector phop4 = get_pho_p4( photon_index, vertex_index, pho_energy_array  );
   TLorentzVector phop4_badvtx = get_pho_p4( photon_index, pho_tkiso_badvtx_id[photon_index], pho_energy_array  );
 
-  float val_tkiso = (*pho_tkiso_recvtx_030_002_0000_10_01)[photon_index][vertex_index];
-  float val_ecaliso = pho_ecalsumetconedr03[photon_index];
-  float val_hcaliso = pho_hcalsumetconedr04[photon_index];
-  float val_ecalisobad = pho_ecalsumetconedr04[photon_index];
-  float val_hcalisobad = pho_hcalsumetconedr04[photon_index];
-  float val_tkisobad = pho_tkiso_badvtx_040_002_0000_10_01[photon_index];
-  float val_sieie = pho_sieie[photon_index];
-  float val_hoe = pho_hoe[photon_index];
-  float val_r9 = pho_r9[photon_index];
+  // quantities which are used for the cuts
+  float val_tkiso        = (*pho_tkiso_recvtx_030_002_0000_10_01)[photon_index][vertex_index];
+  float val_ecaliso      = pho_ecalsumetconedr03[photon_index];
+  float val_hcaliso      = pho_hcalsumetconedr04[photon_index];
+  float val_ecalisobad   = pho_ecalsumetconedr04[photon_index];
+  float val_hcalisobad   = pho_hcalsumetconedr04[photon_index];
+  float val_tkisobad     = pho_tkiso_badvtx_040_002_0000_10_01[photon_index];
+  float val_sieie        = pho_sieie[photon_index];
+  float val_hoe          = pho_hoe[photon_index];
+  float val_r9           = pho_r9[photon_index];
   float val_drtotk_25_99 = pho_drtotk_25_99[photon_index];
-  float val_pixel = (float)pho_haspixseed[photon_index];
+  float val_pixel        = (float)pho_haspixseed[photon_index];
 
   float isosumconst = 5.;
   float isosumconstbad = 7.;
@@ -1735,9 +1742,16 @@ int LoopAll::PhotonCiCSelectionLevel( int photon_index, int vertex_index, std::v
   
   /// float rhofacbad=0.40, rhofac=0.05;
   float rhofacbad=0.52, rhofac=0.17;
-  float val_isosumoet=(val_tkiso+val_ecaliso+val_hcaliso+isosumconst-rho*rhofac)*50./phop4.Et();
-  float val_isosumoetbad=(val_tkisobad+val_ecalisobad+val_hcalisobad+isosumconstbad-rho*rhofacbad)*50./phop4_badvtx.Et();
-  float val_trkisooet=(val_tkiso)*50./phop4.Et();
+
+  // isolation cone energies divided by Et
+  //                        tracker iso    ecal iso         hcal iso         offset ?!        mean energy
+  //                                                                                          per unit
+  //                                                                                          area in the event
+  float val_isosumoet    = (val_tkiso    + val_ecaliso    + val_hcaliso    + isosumconst    - rho * rhofac )   * 50. / phop4.Et();
+  float val_isosumoetbad = (val_tkisobad + val_ecalisobad + val_hcalisobad + isosumconstbad - rho * rhofacbad) * 50. / phop4_badvtx.Et();
+
+  // tracker isolation cone energy divided by Et
+  float val_trkisooet    = (val_tkiso) * 50. / phop4.Et();
 
   ph_passcut.clear();
   ph_passcut.resize(phoNCUTLEVELS,std::vector<bool>(8,true) );
