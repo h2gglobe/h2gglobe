@@ -13,7 +13,7 @@ void printBdtCountBins(std::string filename){
 		TH1F *hist_ada = (TH1F*)_file0->Get(Form("th1f_data_ada_%3.1f_cat0",float(masses[i])));
 		std::cout << "GradBinEdges_"<<masses[i]<<"=";
 		for (int j=1;j<=hist_grad->GetNbinsX();j++){
-			if (j!=hist_ada->GetNbinsX()) std::cout << hist_grad->GetBinLowEdge(j)<<",";
+			if (j!=hist_grad->GetNbinsX()) std::cout << hist_grad->GetBinLowEdge(j)<<",";
 			else std::cout << hist_grad->GetBinLowEdge(j);
 		}
 		//std::cout <<"1"<<std::endl;
