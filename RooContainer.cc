@@ -1880,7 +1880,7 @@ std::vector<double> RooContainer::significanceOptimizedBinning(TH1F *hs,TH1F *hb
 	// Full scan is done for largest significance (wardning, could be very slow for tight constraints)
 
 	int ninitBins = hb->GetNbinsX();
-	if (hs->Integral()==0 ||  hb->Integral()==0 || ninitBins < 2) {
+	if (hs->Integral()==0 ||  hb->Integral()==0 || ninitBins < 3) {
 		std::vector<double> binEdges;
 		binEdges.push_back(hb->GetBinLowEdge(1));
 		binEdges.push_back(hb->GetBinLowEdge(ninitBins+1));
@@ -1889,6 +1889,7 @@ std::vector<double> RooContainer::significanceOptimizedBinning(TH1F *hs,TH1F *hb
 
 	std::vector<double> binEdges = optimizedReverseBinning(hb,nTargetBins,false,true);
 
+	if (binEdges.size() <= 10 ) return binEdges;
 	// Just TESTING HERE so remove this line soon!
 //	nTargetBins = 150; // this gives us about 144 with the latest thing :)
 //	std::vector<double> binEdges = optimizedReverseBinning(hb,nTargetBins,false,false);
@@ -1910,22 +1911,8 @@ std::vector<double> RooContainer::significanceOptimizedBinning(TH1F *hs,TH1F *hb
 	if (hsnew->Integral()!=0 && hbnew->Integral()!=0 && binEdges.size()-1 > 10){
 		histogramSmoothingFit(hsnew);
 		histogramSmoothingFit(hbnew);
-		//hsnew->Smooth(1000);
-		//hbnew->Smooth(1000);
         }
 
-	// --------------------------- TEST --------------------------- //
-	//hsnew->Rebin(2);
-	//hbnew->Rebin(2);
-	//hsnew->Rebin(2);
-	//hbnew->Rebin(2);
-	// --------------------------- TEST --------------------------- //
-
-	// Do we really need the background histogram ?  we will be assuming that the first step is nentries per bin
-
-	// Smooth signal new binned histograms, the size of smoothing should be ~1% of the total bins	
-	//int nSmooth = (int) 0.01*hsnew->GetNbinsX();
-	//hsnew->Smooth(nSmooth);
 
 	delete [] arrBins;
 
