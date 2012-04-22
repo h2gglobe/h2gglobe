@@ -3,9 +3,10 @@ import fnmatch
 import sys
 
 def printLinks(outFile,thispage,plotTypes,plotNames,wsName):
+  outFile.write('Author: Matthew Kenzie <br>')
+  outFile.write('<script language="Javascript"> \n document.write("Last modified: " + document.lastModified + ""); \n </SCRIPT> <br> \n ')
   outFile.write('<center>\n <p> \n <font size="5">Signal Interpolation Diagnostics</font>\n </p> \n')
   outFile.write('<a href=\"../../BMplots/grad/model.html\"><font size="4">View Background Model Diagnostics</font></a><br> \n')
-  outFile.write('<script language="Javascript"> \n document.write("Results from interpolation run at: " + document.lastModified + ""); \n </SCRIPT> <br> \n ')
   outFile.write('Run on file: '+wsName+'<br>\n')
   outFile.write('Output file with interpolated histograms: '+wsName+'_interpolated.root <br>\n')
   for p, plot in enumerate(plotTypes):

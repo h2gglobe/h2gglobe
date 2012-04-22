@@ -1,9 +1,10 @@
 import os,sys,fnmatch
 
 def printLinks(outFile,thispage,plotTypes,plotNames,wsName):
+  outFile.write('Author: Matthew Kenzie <br>')
+  outFile.write('<script language="Javascript"> \n document.write("Last modified: " + document.lastModified + ""); \n </SCRIPT> <br> \n ')
   outFile.write('<center> \n <p> \n <font size="5">Corrected Background Model Diagnostics</font> \n </p> \n')
-  outFile.write('<a href=\"../../plots/grad/david.html\"><font size="4">View Signal Interpolation Diagnostics</font></a><br> \n')
-  outFile.write('<script language="Javascript"> \n document.write("Results from correcting background model run at: " + document.lastModified + ""); \n </SCRIPT> <br> \n ')
+  outFile.write('<a href=\"../../plots/grad/david.html\"><font size="4">View Signal Model Diagnostics</font></a><br> \n')
   outFile.write('Rewritten workspace to file: '+wsName+'<br>\n')
   outFile.write('Output files: <br> \n')
   path = wsName[: wsName.find('CMS-HGG')]
