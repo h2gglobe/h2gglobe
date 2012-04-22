@@ -44,6 +44,7 @@ parser.add_option("-s","--doSmooth",action="store_true")
 parser.add_option("-b","--bayes",dest="bayes")
 parser.add_option("-o","--outputLimits",dest="outputLimits")
 parser.add_option("-e","--expectedOnly",action="store_true")
+parser.add_option("-a","--addLine",dest="addLine")
 parser.add_option("-p","--path",dest="path")
 parser.add_option("","--pval",action="store_true")
 (options,args)=parser.parse_args()
@@ -185,6 +186,13 @@ graph95up = ROOT.TGraphErrors()
 graph95dn = ROOT.TGraphErrors()
 graphmede = ROOT.TGraphErrors()
 
+if options.addLine:
+  f = ROOT.TFile(options.addLine)
+  graphAdd = f.Get("median")
+  graphAdd.SetLineStyle(2)
+  graphAdd.SetLineColor(4)
+  graphAdd.SetLineWidth(3)
+
 LegendEntry = ""
 if Method == "ProfileLikelihood": LegendEntry = "PL"
 if Method == "Bayesian": LegendEntry = "Bayesian"
@@ -198,6 +206,8 @@ if options.bayes and not options.expectedOnly: leg.AddEntry(bayesObs,"Observed B
 leg.AddEntry(graphMed,"Expected","L")
 leg.AddEntry(graph68,"#pm 1#sigma","F")
 leg.AddEntry(graph95,"#pm 2#sigma","F")
+if options.addLine:
+  leg.AddEntry(graphAdd,"HIG-12-001","L")
 
 MG = ROOT.TMultiGraph()
 
@@ -411,6 +421,7 @@ myGraphXSecSM.SetFillStyle(SMFILLSTYLE)
 MG.Add(graph95)
 MG.Add(graph68)
 MG.Add(graphMed)
+MG.Add(graphAdd)
 #MG.Add(baseline)
 MG.Add(myGraphXSecSM)
 
