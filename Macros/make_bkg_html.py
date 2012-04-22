@@ -28,15 +28,17 @@ oldMass="blank"
 for path in paths:
   tempArr=path.split('/')
   bdtType=tempArr[1]
-  plotTypes=['fCorr','fCovar','fit','uncorrErr','model','norm']
-  plotNames=['Fraction correlation matrices','Fractional covariance matrices','Bias Fits','Uncorrelated error matrices','Corrected background model','Normalisation fits']
+  plotTypes=['fCorr','fCovar','fit','uncorrErr','model','norm','frac_model','frac_bin']
+  plotNames=['Fraction correlation matrices','Fractional covariance matrices','Bias Fits','Uncorrelated error matrices','Corrected background model','Normalisation fits','S/B by mH','S/B by bin']
   fCorrPlots=[]
   fCovarPlots=[]
   fitPlots=[]
   uncorrErrPlots=[]
   modelPlots=[]
   normPlots=[]
-  plots=[fCorrPlots,fCovarPlots,fitPlots,uncorrErrPlots,modelPlots,normPlots]
+  bymhPlots=[]
+  bybinPlots=[]
+  plots=[fCorrPlots,fCovarPlots,fitPlots,uncorrErrPlots,modelPlots,normPlots,bymhPlots,bybinPlots]
 
   for root, dirs, files in os.walk(path):
     for p,pType in enumerate(plotTypes):
