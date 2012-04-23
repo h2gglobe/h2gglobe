@@ -75,7 +75,7 @@ class PhotonAnalysis : public BaseAnalysis
     float presel_scet1, presel_scet2, presel_maxeta;
     float presel_ecaliso_eb, presel_ecaliso_ee, presel_sieie_eb, presel_sieie_ee, presel_hoe;
 
-    bool doEcorrectionSmear, doEcorrectionSyst, useSphericalPhotons;
+    bool doEcorrectionSmear, doEcorrectionSyst;
 
     EnergySmearer::energySmearingParameters eSmearDataPars;
     std::string scale_offset_file;
