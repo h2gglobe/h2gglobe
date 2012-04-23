@@ -33,8 +33,15 @@ if __name__  == "__main__":
 	parser.add_option("-n","--nJobs",type="int", dest="nJobs",default=-1)
 	parser.add_option("-o","--outputScript",dest="outputScript",default="sub")
 	parser.add_option("-l","--label",dest="label",default="")
+	parser.add_option("","--runIC",dest="runIC",default=False, action="store_true")
+	parser.add_option("-u","--user",dest="user",default="")
 	(options,args)=parser.parse_args()
 	
+	# Check IC user configs:
+	if options.runIC:
+		print "Running at IC-HEP"
+		if options.user=="" : 
+			sys.exit("If you are an IC user, you need to defined options -u username")
 	# In case these guys are going to castor, writing out a handy comining file
 	p = open(options.inputDat,"r")
 	cfg = Conf() 
@@ -78,31 +85,41 @@ if __name__  == "__main__":
 
 	outnam=os.path.join(scriptdir, "filestocombine_%s" % os.path.basename(options.inputDat))
 	g = open(outnam,"w+") 
-	filestocmb = ""
-	for i in xrange(len(files)):
+	if options.runIC:
+	  filestocmb = ""
+	  for i in xrange(len(files)):
+		filestocmb += "Fil=%s/%s_%d.%s\n"  %(cfg.histdir,cfg.histfile[0],i,cfg.histfile[1])
+	  g.write( (datfile % filestocmb).replace("histfile=./","histfile=%s" % scriptdir ) )
+	  g.close()	
+		
+	if not options.runIC:
+	  filestocmb = ""
+	  for i in xrange(len(files)):
 		fil = commands.getoutput("cmsPfn %s_%d.%s" % ( os.path.join(cfg.histdir,cfg.histfile[0]), i, cfg.histfile[1] ))
 		filestocmb += "Fil=%s\n" % fil
-	g.write( (datfile % filestocmb).replace("histfile=./","histfile=%s" % scriptdir ) )
-	g.close()	
+	  g.write( (datfile % filestocmb).replace("histfile=./","histfile=%s" % scriptdir ) )
+	  g.close()	
 
 	tmpnam = os.path.join(os.path.dirname(options.inputDat), "tmp_%s" % os.path.basename(options.inputDat))
+	tmp  = open("%s" % tmpnam, "w+")
+	idat = open(options.inputDat, "r")
+	if options.runIC:tmp.write(idat.read().replace("%(label)s",options.label))
+	else:	tmp.write(idat.read().replace("split",""))
 	if not os.path.isfile("%s.pevents" % tmpnam):
 		print "Generating the pevents file...",
-		tmp  = open("%s" % tmpnam, "w+")
-		idat = open(options.inputDat, "r")
-		tmp.write(idat.read().replace("split",""))
-		tmp.close()
-		idat.close()
 		print "python fitter.py -i %s --dryRun >& %s.log\n" % (tmpnam,tmpnam)
 		os.system("python fitter.py -i %s --dryRun >& %s.log\n" % (tmpnam,tmpnam) )
 		print "Done. Check %s.log for errors" % tmpnam
+	idat.close()
+	tmp.close()
 		
 	mkdir="mkdir"
 	cp="cp -pv"
-	if cfg.histdir.startswith("/castor"):
+	if not options.runIC:
+	  if cfg.histdir.startswith("/castor"):
 		mkdir="rfmkdir"
 		cp="rfcp"
-	elif cfg.histdir.startswith("/store"):
+	  elif cfg.histdir.startswith("/store"):
 		cp="cmsStage"
 		mkdir="cmsMkdir"
 		
@@ -113,8 +130,30 @@ if __name__  == "__main__":
 	
 	q=open("%s.pevents" % tmpnam, "r")
 	pevents=q.read()
+	if options.runIC:
+	  for i in xrange(len(files)):
+		jobname =  "%s%d"%(options.outputScript,i)
+		jobbasename = os.path.basename(jobname)
+		f = open("%s.sh"%(jobname),"w")
+		
+		f.write("#!/bin/bash\n")
+		f.write("source /vols/cms/grid/setup.sh\n")
+		f.write("export X509_USER_PROXY=/home/hep/%s/.myproxy\n"%options.user)
+		f.write("cd %s\n"%mydir)
+		f.write("touch %s.sh.run\n" % os.path.join(mydir,jobname))
+		f.write("eval `scramv1 runtime -sh`\n")
+		f.write("if ( python fitter.py -i %s -n %d -j %d )\n "%(tmpnam,int(options.nJobs),i))
+		f.write("then\n")
+		
+		f.write("   touch %s.sh.done\n" % os.path.join(mydir,jobname))
+		f.write("else\n")
+		f.write("   touch %s.sh.fail\n" % os.path.join(mydir,jobname))
+		f.write("fi\n")
+		f.write("rm %s.sh.run\n" % os.path.join(mydir,jobname))
 
-	for i in xrange(len(files)):
+		
+	else:
+	  for i in xrange(len(files)):
 		jobname =  "%s%d"%(options.outputScript,i)
 		jobbasename = os.path.basename(jobname)
 		f = open("%s.sh"%(jobname),"w")
@@ -175,5 +214,7 @@ if __name__  == "__main__":
 		os.system("chmod 755 %s.sh"%(jobname))
 		
 	print "Submission Scripts written %sN.sh N=0,%d"%(options.outputScript,len(files)-1)
+
+#	if not options.runIC:
 	print "Written ", outnam
 	print "Combine workspace after running with python combiner.py -i ",outnam

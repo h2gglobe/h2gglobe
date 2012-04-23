@@ -13,8 +13,11 @@ parser.add_option("-q","--queue",dest="queue",default="1nh")
 parser.add_option("-d","--directory",dest="directory")
 parser.add_option("-j","--jobs",dest="jobs",action="callback",callback=cback,type='string')
 parser.add_option("-l","--label",dest="label",default="sub")
+parser.add_option("","--runIC",dest="runIC",default=False,action="store_true")
 
 (options,args)=parser.parse_args()
+
+workingDir=os.getcwd()
 
 jobs = glob.glob( "%s/%s*.sh" % (options.directory,options.label ) )
 
@@ -31,5 +34,9 @@ for j in jobs:
 	   os.system("rm %s.fail"%j)
 	   os.system("rm %s.done"%j)
 	   os.system("rm %s.log"%j)
-	   print "Submitting Job: 'bsub -q %s -o %s.log $PWD/%s '%(options.queue,j,j)"
-   	   os.system("bsub -q %s -o %s.log $PWD/%s "%(options.queue,j,j))
+	   if options.runIC:
+	   	print "Submitting Job: qsub -q %s -o %s/%s.log -e %s/%s.err %s "%(options.queue,workingDir,j,workingDir,j,j)
+   	   	os.system("qsub -q %s -o %s/%s.log -e %s/%s.err %s "%(options.queue,workingDir,j,workingDir,j,j))
+	   else:
+	     print "Submitting Job: bsub -q %s -o %s.log $PWD/%s" %(options.queue,j,j)
+   	     os.system("bsub -q %s -o %s.log $PWD/%s "%(options.queue,j,j))
