@@ -1095,7 +1095,9 @@ void LoopAll::Branches(std::list<std::string> & names) {
 	const std::string & name = *it;
 	branch_info_t & info = branchDict[ name ];
 	if( info.write == 0 ){
-		std::cerr << "no write function for branch '"<< name << "'" << std::endl;
+		std::cerr << "ERROR: no write function for branch '"<< name << "', "
+                          << "check the branch names in the file specified with the 'outputBranches' datacard (e.g. reduction_output.dat)" << std::endl;
+
 		assert( 0 );
 	}
 	(this->*(info.write)) (outputTree);
