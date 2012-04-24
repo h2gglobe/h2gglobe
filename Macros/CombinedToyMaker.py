@@ -90,9 +90,9 @@ class CombinedToyMaker:
   def getEventsPerCat(self,gendata):
     events=[]
     events.append(gendata.sumEntries("bdtoutput>=0.89"))
-    events.append(gendata.sumEntries("bdtoutput>=0.72 && bdtoutput<0.89"))
-    events.append(gendata.sumEntries("bdtoutput>=0.55 && bdtoutput<0.72"))
-    events.append(gendata.sumEntries("bdtoutput>=0.05 && bdtoutput<0.55"))
+    events.append(gendata.sumEntries("bdtoutput>=0.74 && bdtoutput<0.89"))
+    events.append(gendata.sumEntries("bdtoutput>=0.545 && bdtoutput<0.74"))
+    events.append(gendata.sumEntries("bdtoutput>=0.05 && bdtoutput<0.545"))
     for i, ev in enumerate(events):
       print ev, ' events in cat ', i
     return events
@@ -154,7 +154,7 @@ class CombinedToyMaker:
 
     for i in range(self.toyVBFEvents_):
       val_m = (self.genmassdata_[4].get(i)).getRealValue("CMS_hgg_mass");
-      val_b = 1.5
+      val_b = 1.01
       if val_m > mHL and val_m < mHH and val_b >=0.05: returnList.append((val_b,((val_m-mH)/mH)))
 
     return returnList

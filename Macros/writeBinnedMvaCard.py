@@ -463,15 +463,15 @@ parser.add_option("","--expSig",dest="expSig",default=-1.,type="float")
 parser.add_option("","--makePlot",dest="makePlot",default=False,action="store_true")
 parser.add_option("","--noVbfTag",dest="includeVBF",default=True,action="store_false")
 parser.add_option("","--plotStackedVbf",dest="splitSignal",default=False,action="store_true")
-parser.add_option("","--inputMassFacWS",dest="inputmassfacws",default="CMS-HGG_massfac_full_110_150_1.root")
+parser.add_option("","--inputMassFacWS",dest="inputmassfacws",default="CMS-HGG_massfac.root")
 parser.add_option("","--outputMassFacToy",dest="outputmassfactoy",default="massfac_toy_ws.root")
-parser.add_option("","--inputBdtPdf",dest="inputpdfworkspace",default="combToyWS.root")
+parser.add_option("","--inputBdtPdf",dest="inputpdfworkspace",default="") # leave default options as "" so we can check if user wants to input pdf rather than regenerate each time!
 parser.add_option("","--outputBdtPdf",dest="bdtworkspacename",default="combToyWS.root")
-parser.add_option("","--diphotonBdtFile",dest="diphotonmvahistfilename",default="DataTree_CMS-HGG.root")
-parser.add_option("","--diphotonBdtTree",dest="diphotonmvahisttreename",default="dataTree")
+parser.add_option("","--diphotonBdtFile",dest="diphotonmvahistfilename",default="cmshggtree.root")
+parser.add_option("","--diphotonBdtTree",dest="diphotonmvahisttreename",default="bdttree")
 parser.add_option("","--signalModelFile",dest="signalfilename",default="sigtree.root")
 parser.add_option("","--signalModelTree",dest="signaltreename",default="sigtree")
-parser.add_option("","--tmvaWeightsFolder",dest="tmvaweightsfolder",default="/vols/cms02/h2g/weights/wt_19Feb/")
+parser.add_option("","--tmvaWeightsFolder",dest="tmvaweightsfolder",default="")
 parser.add_option("","--reweightSignalYields",dest="signalyieldsweight",default=-999.,type="float")
 parser.add_option("-m","--mass",dest="singleMass",default=-1.,type="float")
 parser.add_option("-t","--type",dest="bdtType",default="grad");
@@ -536,16 +536,19 @@ can.SaveAs("normErrors_%s.pdf"%options.tfileName)
 # can make a special "global toy" set of datacards
 toymaker=0
 if options.throwGlobalToy:
-  if not options.inputpdfworkspace: 
+  print "Throwing a Global Toy"
+  if options.inputpdfworkspace=="": # Will Generate Pdf's
     backgrounddiphotonmvafile=ROOT.TFile(options.diphotonmvahistfilename)
-    signaldiphotonmvafile=ROOT.TFile(options.signalfilename)
+    if options.expSig > 0: signaldiphotonmvafile=ROOT.TFile(options.signalfilename)
   #toymaker = BdtToyMaker(options.tfileName,"data_pow_model_150.0")
   #toymaker.fitData()
-  toymaker = CombinedToyMaker(options.inputmassfacws)
+  if os.path.isfile(options.inputmassfacws):
+	  toymaker = CombinedToyMaker(options.inputmassfacws)
+  else:sys.exit("File %s not found, specified with --inputMassFacWS=%s "%(options.inputmassfacws,options.inputmassfacws)) 
 
-  if options.inputpdfworkspace:
+  if options.inputpdfworkspace!="":
     if not os.path.isfile(options.inputpdfworkspace): 
-	sys.exit("No file named %s, generate it first (remove option)"%options.inputpdfworkspace)
+	sys.exit("No file named %s, generate it first (remove option --inputiBdtPdf)"%options.inputpdfworkspace)
     toymaker.loadKeysPdf(options.inputpdfworkspace)
     #if options.expSig>0: toymaker.loadKeysPdf(backgroundpdfws,1)
     #else: toymaker.loadKeysPdf(backgroundpdfws,0)
