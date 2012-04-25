@@ -1453,6 +1453,13 @@ int LoopAll::DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL, phoCiCIDLevel SUB
 
 	  TLorentzVector lead_p4 = get_pho_p4(lead,ivtx,pho_energy_array); 
 	  TLorentzVector sublead_p4 = get_pho_p4(sublead,ivtx,pho_energy_array); 
+	  if (sublead_p4.Pt() > lead_p4.Pt()){ // Swap them but also swap the indeces
+		int tmp = lead;
+		lead = sublead;
+		sublead =tmp;
+		dipho_leadind[idipho] = lead;
+		dipho_subleadind[idipho] = sublead;
+	  }
 	  
 	  float leadEta = fabs(((TVector3 *)sc_xyz->At(pho_scind[lead]))->Eta());
 	  float subleadEta = fabs(((TVector3 *)sc_xyz->At(pho_scind[sublead]))->Eta());
@@ -1475,28 +1482,27 @@ int LoopAll::DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL, phoCiCIDLevel SUB
 	      }
     }
 	  
-	  if (subleadpt > leadpt){ // Swap them
-		int tmp = lead;
-		lead = sublead;
-		sublead =tmp;
-		dipho_leadind[idipho] = lead;
-		dipho_subleadind[idipho] = sublead;
-	  }
 
 	  std::vector<std::vector<bool> > ph_passcut;
 	  if( PhotonCiCSelectionLevel(lead, ivtx, ph_passcut, ncategories, 0, pho_energy_array ) < LEADCUTLEVEL ) { continue; }
 	  if( PhotonCiCSelectionLevel(sublead, ivtx, ph_passcut, ncategories, 1, pho_energy_array ) < SUBLEADCUTLEVEL ) { continue; }
 	  
 	  passing_dipho.push_back(idipho);
-	  passing_sumpt.push_back(lead_p4.Et()+sublead_p4.Et());
+	  passing_sumpt.push_back(leadpt+subleadpt);
   }
   
   if( passing_dipho.empty() ) { return -1; }
 
-  std::sort(passing_dipho.begin(),passing_dipho.end(),
-	    SimpleSorter<float,std::greater<double> >(&passing_sumpt[0]));
+   std::vector<int> passing_dipho_places;
+   for (int counting=0;counting<passing_dipho.size();counting++){
+	  passing_dipho_places.push_back(counting); // This is very weird, but needed for later	
+   }
+   std::sort(passing_dipho_places.begin(),passing_dipho_places.end(),
+	    SimpleSorter<float,std::greater<float> >(&passing_sumpt[0]));
+  //std::sort(passing_dipho.begin(),passing_dipho.end(),
+	//    SimpleSorter<float,std::greater<double> >(&passing_sumpt[0]));
 
-  return passing_dipho[0];
+  return passing_dipho[passing_dipho_places[0]];
 
   ///// std::vector<std::vector<bool> > ph_passcut;
   ///// for(int ipho=0;ipho!=pho_n;++ipho) {
@@ -1555,8 +1561,16 @@ int LoopAll::DiphotonMITPreSelection(Float_t leadPtMin, Float_t subleadPtMin,boo
 	  if( lead == sublead ) { continue; }
 
 	  TLorentzVector lead_p4 = get_pho_p4(lead,ivtx,pho_energy_array); 
-	  TLorentzVector sublead_p4 = get_pho_p4(sublead,ivtx,pho_energy_array); 
-	  
+	  TLorentzVector sublead_p4 = get_pho_p4(sublead,ivtx,pho_energy_array);
+ 
+	  if (sublead_p4.Pt() > lead_p4.Pt()){ // Swap them but also swap the indeces
+		int tmp = lead;
+		lead = sublead;
+		sublead =tmp;
+		dipho_leadind[idipho] = lead;
+		dipho_subleadind[idipho] = sublead;
+	  }
+
 	  float leadEta = fabs(((TVector3 *)sc_xyz->At(pho_scind[lead]))->Eta());
 	  float subleadEta = fabs(((TVector3 *)sc_xyz->At(pho_scind[sublead]))->Eta());
 	  float m_gamgam = (lead_p4+sublead_p4).M();
@@ -1565,43 +1579,65 @@ int LoopAll::DiphotonMITPreSelection(Float_t leadPtMin, Float_t subleadPtMin,boo
 	      ( leadEta > 1.4442 && leadEta < 1.566 ) ||
 	      ( subleadEta > 1.4442 && subleadEta < 1.566 ) ) { continue; }
 
-
-
 	  float leadpt = lead_p4.Pt() > sublead_p4.Pt() ? lead_p4.Pt() : sublead_p4.Pt();
       	  float subleadpt = lead_p4.Pt() < sublead_p4.Pt() ? lead_p4.Pt() : sublead_p4.Pt(); 	  
 
-   if (run==173439 && lumis==155 && event==236661419) {
- std::cout <<	"Inside diphotonSelection now" <<std::endl;
- std::cout <<	"mass - " <<m_gamgam<<std::endl;
- std::cout <<	"lead ET - " <<leadpt<<std::endl;
- std::cout <<	"sublead ET - " <<subleadpt<<std::endl;
-}
+        if (run==170397 && lumis==279 && event==304405242){
+ 		std::cout <<	"Inside diphotonSelection now" <<std::endl;
+		std::cout <<	"mass - " <<m_gamgam<<std::endl;
+ 		std::cout <<	"lead ET - " <<leadpt<<std::endl;
+ 		std::cout <<	"sublead ET - " <<subleadpt<<std::endl;
+	}
+
+
 	  if( applyPtoverM ) {
 	    if ( leadpt/m_gamgam < leadPtMin/120. || subleadpt/m_gamgam < subleadPtMin/120. ) { continue; }
 	  } else {
 	    if ( leadpt < leadPtMin || subleadpt < subleadPtMin ) { continue; }
 	  }
 	  
-	  if (subleadpt > leadpt){ // Swap them
-		int tmp = lead;
-		lead = sublead;
-		sublead =tmp;
-		dipho_leadind[idipho] = lead;
-		dipho_subleadind[idipho] = sublead;
-	  }
 
 	  std::vector<std::vector<bool> > ph_passcut;
           if (!( PhotonMITPreSelection(lead, ivtx, pho_energy_array ) && PhotonMITPreSelection(sublead, ivtx,  pho_energy_array ))) continue; 
 	  
 	  passing_dipho.push_back(idipho);
-	  passing_sumpt.push_back(lead_p4.Et()+sublead_p4.Et());
+	  passing_sumpt.push_back(leadpt+subleadpt); // need to use reordered pt!
   }
   
   if( passing_dipho.empty() ) { return -1; }
 
-  std::sort(passing_dipho.begin(),passing_dipho.end(),
-	    SimpleSorter<float,std::greater<double> >(&passing_sumpt[0]));
-  int selected_dipho_ind     = passing_dipho[0];
+/*   for (int KKK=0;KKK<passing_sumpt.size() ;KKK++){
+		std::cout <<	"diphoton index passing BEFORE SORT  -- "<< passing_dipho[KKK]<< " ";
+   }
+   std::cout << std::endl;
+   for (int KKK=0;KKK<passing_sumpt.size() ;KKK++){
+		std::cout <<	"sumpt BEFORE SORT  -- "<< passing_sumpt[KKK]<< " ";
+   }
+   std::cout << std::endl;
+*/
+// There is a very strange BUG here that the Sorted isn't working.
+// The indeces of the array it tries to check are actually the diphoton_index in this implementation (when i checked in Sorter this is what was happening)
+// EG if there are 2 diphotons passing , passing_dipho=[2,0], passing_sumpt=[100,30], then the Sorter was checking passing_sumpt[2] > passing_sumpt[0]
+// which is overflow!
+//  std::sort(passing_dipho.begin(),passing_dipho.end(),
+//	    SimpleSorter<float,std::greater<float> >(&(passing_sumpt[0])));
+   std::vector<int> passing_dipho_places;
+   for (int counting=0;counting<passing_dipho.size();counting++){
+	  passing_dipho_places.push_back(counting); // This is very weird, but needed for later	
+   }
+   std::sort(passing_dipho_places.begin(),passing_dipho_places.end(),
+	    SimpleSorter<float,std::greater<float> >(&passing_sumpt[0]));
+
+/*   for (int KKK=0;KKK<passing_sumpt.size() ;KKK++){
+		std::cout <<	"diphoton index passing AFTER SORT  -- "<< passing_dipho[KKK]<< " ";
+   }
+   std::cout << std::endl;
+   for (int KKK=0;KKK<passing_sumpt.size() ;KKK++){
+		std::cout <<	"sumpt AFTER SORT  -- "<< passing_sumpt[KKK]<< " ";
+   }
+   std::cout << std::endl;
+*/
+  int selected_dipho_ind     = passing_dipho[passing_dipho_places[0]];
   int selected_dipho_lead    = dipho_leadind[selected_dipho_ind];
   int selected_dipho_sublead = dipho_subleadind[selected_dipho_ind];
   int selected_dipho_vtx     = dipho_vtxind[selected_dipho_ind];
@@ -1617,9 +1653,16 @@ std::cout << photonIDMVA(selected_dipho_sublead,selected_dipho_vtx,selected_subl
   if ( photonIDMVA(selected_dipho_lead,selected_dipho_vtx,selected_lead_p4,"MIT") <= -0.3
     || photonIDMVA(selected_dipho_sublead,selected_dipho_vtx,selected_sublead_p4,"MIT")	<= -0.3
      ) {return -1;}
-   if (run==173439 && lumis==155 && event==236661419) {
- std::cout <<	"Diphoton selected index -- "<< selected_dipho_ind <<std::endl;
-}
+
+  if (run==170397 && lumis==279 && event==304405242){
+   std::cout <<	"Diphoton selected index -- "<< selected_dipho_ind <<std::endl;
+   std::cout <<	"N Passing Diphotons -- "<< passing_dipho.size() <<std::endl;
+   for (int KKK=0;KKK<passing_sumpt.size() ;KKK++){
+		std::cout <<	"diphotons PT  -- "<< passing_sumpt[KKK]<< " ";
+   }
+   std::cout << std::endl;
+   std::cout << "Lead Index / sublead index -- "<<selected_dipho_lead<< " / " << selected_dipho_sublead <<std::endl;
+  }
   
   return selected_dipho_ind;
 
@@ -1659,29 +1702,28 @@ bool LoopAll::PhotonMITPreSelection( int photon_index, int vertex_index, float *
    int   val_pho_isconv = pho_isconv[photon_index];
 
    //if (run==173439 && lumis==155 && event==236661419) {
-
+  if (run==170397 && lumis==279 &&event==304405242){
 //	std::cout << "I will lose this photon, but MIT will not" << std::endl;
 	
-//	std::cout << "rho " << rho <<std::endl;
-//	std::cout << "pho_n " << pho_n <<std::endl;
-//	std::cout << "pho_index " << photon_index <<std::endl;
-//	std::cout << "pho_et " << phop4.Et() <<std::endl;
-//	std::cout << "hoe " << val_hoe <<std::endl;
-//	std::cout << "sieie " << val_sieie <<std::endl;
-//	std::cout << "ecaliso " << val_ecaliso <<std::endl;
-//	std::cout << "hcaliso " << val_hcaliso <<std::endl;
-//	std::cout << "hcalecal " << val_hcalecal <<std::endl;
-//	std::cout << "abstrkiso " << val_abstrkiso <<std::endl;
-//	std::cout << "trkiso " << val_trkiso_hollow03 <<std::endl;
-//	std::cout << "isconv " << val_pho_isconv <<std::endl;
+    std::cout << "rho " << rho <<std::endl;
+    std::cout << "pho_n " << pho_n <<std::endl;
+    std::cout << "pho_index " << photon_index <<std::endl;
+    std::cout << "pho_et " << phop4.Et() <<std::endl;
+    std::cout << "hoe " << val_hoe <<std::endl;
+    std::cout << "sieie " << val_sieie <<std::endl;
+    std::cout << "ecaliso " << val_ecaliso <<std::endl;
+    std::cout << "hcaliso " << val_hcaliso <<std::endl;
+    std::cout << "hcalecal " << val_hcalecal <<std::endl;
+    std::cout << "abstrkiso " << val_abstrkiso <<std::endl;
+    std::cout << "trkiso " << val_trkiso_hollow03 <<std::endl;
+    std::cout << "isconv " << val_pho_isconv <<std::endl;
 
-//	std::cout << "r9 " << pho_r9[photon_index] <<std::endl;
-//	std::cout << "r9 categoty " << r9_category <<std::endl;
-//	std::cout << "eta scxyz" << fabs(((TVector3*)sc_xyz->At(pho_scind[photon_index]))->Eta()) <<std::endl;
-//	std::cout << "category" << photon_category <<std::endl;
+    std::cout << "r9 " << pho_r9[photon_index] <<std::endl;
+    std::cout << "r9 categoty " << r9_category <<std::endl;
+    std::cout << "eta scxyz" << fabs(((TVector3*)sc_xyz->At(pho_scind[photon_index]))->Eta()) <<std::endl;
+    std::cout << "category" << photon_category <<std::endl;
 
-//   }
-
+ }
    if (val_hoe             >= mitCuts_hoe[photon_category]         ) return false;                                           
    if (val_sieie           >= mitCuts_sieie[photon_category]       ) return false;
    if (val_ecaliso         >= mitCuts_ecaliso[photon_category]     ) return false;

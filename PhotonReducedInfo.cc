@@ -36,4 +36,18 @@ TLorentzVector PhotonReducedInfo::p4(float vtxx, float vtxy, float vtxz) const
 	return p4;
 }
 
+void PhotonReducedInfo::dump(){
+	std::cout << " --- Dumping Reduced Photon Info --- " << std::endl;
+	std::cout << "SC Position - " <<std::endl;
+	caloPosition_.Dump();
+	std::cout << "Current Energy - " << energy_<<std::endl;
+	std::cout << "Corrected Energy - " << corrEnergy_ <<std::endl;
+	std::cout << "Resolution - " << corrEnergyErr_<<std::endl;
+	std::cout << "Calo IDET - " <<iDet_<<std::endl;
+	std::cout << "r9 - " << r9_<<std::endl;
+	std::cout << "Pass ID - " << passId_<<std::endl;
+	std::cout << "Special Photon - " << sphericalPhoton_<<std::endl;
+	std::cout << " ----------------------------------- " << std::endl;
+
+}
 

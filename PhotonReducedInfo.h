@@ -3,7 +3,7 @@
 
 #include "TVector3.h"
 #include "TLorentzVector.h"
-
+#include <iostream>
 class PhotonReducedInfo
 {
 public:
@@ -37,7 +37,7 @@ public:
   unsigned int nSmearingSeeds() { return smearingSeeds_.size(); }
   int smearingSeed(int ised=0) { return smearingSeeds_[ised];  };
   void addSmearingSeed(int seed) { return smearingSeeds_.push_back(seed);  };
-
+  void dump();
 
 protected:
 
