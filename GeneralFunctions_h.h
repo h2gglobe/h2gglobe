@@ -160,8 +160,8 @@ bool   PhotonMITPreSelection( int photon_index, int vertex_index,float *pho_ener
 // Functions to calculate variables used in CiC selection
 Float_t DeltaRToTrack(Int_t photon_ind=-1, Int_t vtxind=-1, Float_t PtMin=1., Float_t dzmax=0.2, Float_t dxymax=0.1, int maxlosthits=0);
 Float_t IsoEcalHitsSumEtNumCrystal( TVector3 *calopos, Float_t innerConeDR, Float_t outerConeDR, Float_t stripEtaHalfWidth, Float_t stripHalfLength=99.);
-std::pair<Int_t, Float_t> WorstSumTrackPtInCone(int ipho, Int_t returnVtxIndex=0, Float_t PtMin=0, Float_t OuterConeRadius=0.3, Float_t InnerConeRadius=0.04, Float_t EtaStripHalfWidth=0.015, Float_t dzmax=0.2, Float_t dxymax=0.1);
-Float_t SumTrackPtInCone(TLorentzVector *photon_p4, Int_t vtxind, Float_t PtMin=0, Float_t OuterConeRadius=0.3, Float_t InnerConeRadius=0.04, Float_t EtaStripHalfWidth=0.015, Float_t dzmax=0.2, Float_t dxymax=0.1);
+std::pair<Int_t, Float_t> WorstSumTrackPtInCone(int ipho, Int_t returnVtxIndex=0, Float_t PtMin=0, Float_t OuterConeRadius=0.3, Float_t InnerConeRadius=0.04, Float_t EtaStripHalfWidth=0.015, Float_t dzmax=0.2, Float_t dxymax=0.1, bool Zee_validation=false);
+Float_t SumTrackPtInCone(TLorentzVector *photon_p4, Int_t vtxind, Float_t PtMin=0, Float_t OuterConeRadius=0.3, Float_t InnerConeRadius=0.04, Float_t EtaStripHalfWidth=0.015, Float_t dzmax=0.2, Float_t dxymax=0.1, bool Zee_validation=false, Int_t pho_ind=-1);
 
 
 //----------------------------------------------------------------------
@@ -349,6 +349,9 @@ std::vector<float> * vtx_std_evt_mva;
 std::vector<std::vector<float> >* pho_tkiso_recvtx_030_002_0000_10_01;
 Float_t pho_tkiso_badvtx_040_002_0000_10_01[MAX_PHOTONS];
 Int_t pho_tkiso_badvtx_id[MAX_PHOTONS];
+std::vector<std::vector<float> >* pho_ZeeVal_tkiso_recvtx_030_002_0000_10_01;
+Float_t pho_ZeeVal_tkiso_badvtx_040_002_0000_10_01[MAX_PHOTONS];
+Int_t pho_ZeeVal_tkiso_badvtx_id[MAX_PHOTONS];
 Float_t pho_drtotk_25_99[MAX_PHOTONS];
 
 bool runCiC;
@@ -388,6 +391,9 @@ TBranch *b_vtx_std_evt_mva;
 TBranch * b_pho_tkiso_recvtx_030_002_0000_10_01;
 TBranch * b_pho_tkiso_badvtx_040_002_0000_10_01;
 TBranch * b_pho_tkiso_badvtx_id;
+TBranch * b_pho_ZeeVal_tkiso_recvtx_030_002_0000_10_01;
+TBranch * b_pho_ZeeVal_tkiso_badvtx_040_002_0000_10_01;
+TBranch * b_pho_ZeeVal_tkiso_badvtx_id;
 TBranch * b_pho_drtotk_25_99;
 
 TBranch * b_pho_cic6cutlevel_lead;
@@ -496,13 +502,19 @@ void SetBranchAddress_pho_regr_energyerr_otf(TTree * tree) { tree->SetBranchAddr
 
 // ID branches
 void Branch_pho_tkiso_recvtx_030_002_0000_10_01(TTree * tree) { tree->Branch("pho_tkiso_recvtx_030_002_0000_10_01", "std::vector<std::vector<float> >", &pho_tkiso_recvtx_030_002_0000_10_01); }; 
+void Branch_pho_ZeeVal_tkiso_recvtx_030_002_0000_10_01(TTree * tree) { tree->Branch("pho_ZeeVal_tkiso_recvtx_030_002_0000_10_01", "std::vector<std::vector<float> >", &pho_ZeeVal_tkiso_recvtx_030_002_0000_10_01); }; 
 void Branch_pho_tkiso_badvtx_040_002_0000_10_01(TTree * tree) { tree->Branch("pho_tkiso_badvtx_040_002_0000_10_01", &pho_tkiso_badvtx_040_002_0000_10_01, "pho_tkiso_badvtx_040_002_0000_10_01[pho_n]/F" ); };
+void Branch_pho_ZeeVal_tkiso_badvtx_040_002_0000_10_01(TTree * tree) { tree->Branch("pho_ZeeVal_tkiso_badvtx_040_002_0000_10_01", &pho_ZeeVal_tkiso_badvtx_040_002_0000_10_01, "pho_ZeeVal_tkiso_badvtx_040_002_0000_10_01[pho_n]/F" ); };
 void Branch_pho_tkiso_badvtx_id(TTree * tree) { tree->Branch("pho_tkiso_badvtx_id", &pho_tkiso_badvtx_id, "pho_tkiso_badvtx_id[pho_n]/I" ); };
+void Branch_pho_ZeeVal_tkiso_badvtx_id(TTree * tree) { tree->Branch("pho_ZeeVal_tkiso_badvtx_id", &pho_ZeeVal_tkiso_badvtx_id, "pho_ZeeVal_tkiso_badvtx_id[pho_n]/I" ); };
 void Branch_pho_drtotk_25_99(TTree * tree) { tree->Branch("pho_drtotk_25_99", &pho_drtotk_25_99, "pho_drtotk_25_99[pho_n]/F" ); };
 
 void SetBranchAddress_pho_tkiso_recvtx_030_002_0000_10_01(TTree * tree) { tree->SetBranchAddress("pho_tkiso_recvtx_030_002_0000_10_01", &pho_tkiso_recvtx_030_002_0000_10_01, &b_pho_tkiso_recvtx_030_002_0000_10_01); }; 
+void SetBranchAddress_pho_ZeeVal_tkiso_recvtx_030_002_0000_10_01(TTree * tree) { tree->SetBranchAddress("pho_ZeeVal_tkiso_recvtx_030_002_0000_10_01", &pho_ZeeVal_tkiso_recvtx_030_002_0000_10_01, &b_pho_ZeeVal_tkiso_recvtx_030_002_0000_10_01); }; 
 void SetBranchAddress_pho_tkiso_badvtx_040_002_0000_10_01(TTree * tree) { tree->SetBranchAddress("pho_tkiso_badvtx_040_002_0000_10_01", &pho_tkiso_badvtx_040_002_0000_10_01, &b_pho_tkiso_badvtx_040_002_0000_10_01); };
+void SetBranchAddress_pho_ZeeVal_tkiso_badvtx_040_002_0000_10_01(TTree * tree) { tree->SetBranchAddress("pho_ZeeVal_tkiso_badvtx_040_002_0000_10_01", &pho_ZeeVal_tkiso_badvtx_040_002_0000_10_01, &b_pho_ZeeVal_tkiso_badvtx_040_002_0000_10_01); };
 void SetBranchAddress_pho_tkiso_badvtx_id(TTree * tree) { tree->SetBranchAddress("pho_tkiso_badvtx_id", &pho_tkiso_badvtx_id, &b_pho_tkiso_badvtx_id); };
+void SetBranchAddress_pho_ZeeVal_tkiso_badvtx_id(TTree * tree) { tree->SetBranchAddress("pho_ZeeVal_tkiso_badvtx_id", &pho_ZeeVal_tkiso_badvtx_id, &b_pho_ZeeVal_tkiso_badvtx_id); };
 void SetBranchAddress_pho_drtotk_25_99(TTree * tree) { tree->SetBranchAddress("pho_drtotk_25_99", &pho_drtotk_25_99, &b_pho_drtotk_25_99); };
 
 // These are missing in branchdef

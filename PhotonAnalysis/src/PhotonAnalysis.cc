@@ -1326,6 +1326,7 @@ void PhotonAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree)
     l.vtx_std_evt_mva = new std::vector<float>();
     l.vtx_std_ranked_list = new std::vector<std::vector<int> >();
     l.pho_tkiso_recvtx_030_002_0000_10_01 = new std::vector<std::vector<float> >();
+    l.pho_ZeeVal_tkiso_recvtx_030_002_0000_10_01 = new std::vector<std::vector<float> >();
     l.pho_cic6cutlevel_lead = new std::vector<std::vector<Short_t> >();
     l.pho_cic6passcuts_lead = new std::vector<std::vector<std::vector<UInt_t> > >();
     l.pho_cic6cutlevel_sublead = new std::vector<std::vector<Short_t> >();
@@ -1342,6 +1343,9 @@ void PhotonAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree)
     l.Branch_pho_tkiso_recvtx_030_002_0000_10_01(outputTree);
     l.Branch_pho_tkiso_badvtx_040_002_0000_10_01(outputTree);
     l.Branch_pho_tkiso_badvtx_id(outputTree);
+    l.Branch_pho_ZeeVal_tkiso_recvtx_030_002_0000_10_01(outputTree);
+    l.Branch_pho_ZeeVal_tkiso_badvtx_040_002_0000_10_01(outputTree);
+    l.Branch_pho_ZeeVal_tkiso_badvtx_id(outputTree);
     l.Branch_pho_drtotk_25_99(outputTree);
 
     l.Branch_dipho_n(outputTree);

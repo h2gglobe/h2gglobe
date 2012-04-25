@@ -917,6 +917,8 @@ void LoopAll::FillCICInputs()
 {
 	pho_tkiso_recvtx_030_002_0000_10_01->clear(); pho_tkiso_recvtx_030_002_0000_10_01->resize(pho_n,std::vector<float>(vtx_std_n,0.));
 	
+  pho_ZeeVal_tkiso_recvtx_030_002_0000_10_01->clear(); pho_ZeeVal_tkiso_recvtx_030_002_0000_10_01->resize(pho_n,std::vector<float>(vtx_std_n,0.));
+	
 	for(int ipho=0;ipho<pho_n;++ipho){
 		// TLorentzVector * phop4 = (TLorentzVector*)pho_p4->At(ipho);
 		std::pair<Int_t, Float_t> worse_iso = WorstSumTrackPtInCone(ipho, 0,0, 0.40, 0.02, 0.0, 1.0, 0.1); 
@@ -924,9 +926,14 @@ void LoopAll::FillCICInputs()
 		pho_tkiso_badvtx_id[ipho] = worse_iso.first;
 		pho_drtotk_25_99[ipho] = DeltaRToTrack(ipho, vtx_std_sel, 2.5, 99.);
 		
+    std::pair<Int_t, Float_t> worse_ZeeVal_iso = WorstSumTrackPtInCone(ipho, 0,0, 0.40, 0.02, 0.0, 1.0, 0.1, true); 
+		pho_ZeeVal_tkiso_badvtx_040_002_0000_10_01[ipho] = worse_iso.second;
+		pho_ZeeVal_tkiso_badvtx_id[ipho] = worse_iso.first;
+		
 		for(int ivtx=0;ivtx<vtx_std_n;++ivtx) {
 			TLorentzVector p4 = get_pho_p4( ipho, ivtx );
 			(*pho_tkiso_recvtx_030_002_0000_10_01)[ipho][ivtx] = SumTrackPtInCone(&p4, ivtx, 0, 0.30, 0.02, 0.0, 1.0, 0.1);
+			(*pho_ZeeVal_tkiso_recvtx_030_002_0000_10_01)[ipho][ivtx] = SumTrackPtInCone(&p4, ivtx, 0, 0.30, 0.02, 0.0, 1.0, 0.1,true,ipho);
 		}
 	}
 }
@@ -1887,13 +1894,13 @@ Float_t LoopAll::IsoEcalHitsSumEtNumCrystal( TVector3 *calopos, Float_t innerCon
 
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
-std::pair<Int_t, Float_t> LoopAll::WorstSumTrackPtInCone(Int_t ipho, Int_t returnvtxind, Float_t PtMin, Float_t OuterConeRadius, Float_t InnerConeRadius, Float_t EtaStripHalfWidth, Float_t dzmax, Float_t dxymax) {
+std::pair<Int_t, Float_t> LoopAll::WorstSumTrackPtInCone(Int_t ipho, Int_t returnvtxind, Float_t PtMin, Float_t OuterConeRadius, Float_t InnerConeRadius, Float_t EtaStripHalfWidth, Float_t dzmax, Float_t dxymax, bool Zee_validation) {
 
   Int_t worstvtxind = -1;
   Float_t maxisosum = -100;
   for(int ivtx=0;ivtx!=vtx_std_n;++ivtx) {
     TLorentzVector photon_p4 = get_pho_p4( ipho, ivtx );
-    Float_t thisvtxisosum = SumTrackPtInCone(&photon_p4, ivtx, PtMin, OuterConeRadius, InnerConeRadius, EtaStripHalfWidth, dzmax, dxymax);
+    Float_t thisvtxisosum = SumTrackPtInCone(&photon_p4, ivtx, PtMin, OuterConeRadius, InnerConeRadius, EtaStripHalfWidth, dzmax, dxymax, Zee_validation, ipho);
     if(thisvtxisosum > maxisosum) {
       maxisosum = thisvtxisosum;
       worstvtxind = ivtx;
@@ -1910,18 +1917,37 @@ std::pair<Int_t, Float_t> LoopAll::WorstSumTrackPtInCone(Int_t ipho, Int_t retur
 
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
-Float_t LoopAll::SumTrackPtInCone(TLorentzVector *photon_p4, Int_t vtxind, Float_t PtMin, Float_t OuterConeRadius, Float_t InnerConeRadius, Float_t EtaStripHalfWidth, Float_t dzmax, Float_t dxymax) {
+Float_t LoopAll::SumTrackPtInCone(TLorentzVector *photon_p4, Int_t vtxind, Float_t PtMin, Float_t OuterConeRadius, Float_t InnerConeRadius, Float_t EtaStripHalfWidth, Float_t dzmax, Float_t dxymax, bool Zee_validation, Int_t pho_ind) {
   // TRACKER Isolation
   if(vtxind<0)return -99;
   TVector3 * vtxpos= (TVector3 *) vtx_std_xyz->At(vtxind);
   float SumTrackPt=0;
+  
+  int electronMatch =-1;
+
+  if(Zee_validation && pho_ind!=-1) {
+    for(int iel=0; iel<el_std_n; iel++){
+      if(el_std_scind[iel]==pho_scind[pho_ind]) {
+        electronMatch=iel;
+        break;
+      }
+    }
+  }
+  
   for(unsigned int itk=0; itk!=tk_n; itk++) {
+    // remove electron track for Zee validation when there is a match
+    if(Zee_validation && !pho_isconv[pho_ind] && electronMatch!=-1) {
+      if(itk==el_std_tkind[electronMatch]) continue;
+    }  
+
     TLorentzVector * tkp4= (TLorentzVector *) tk_p4->At(itk);
     if(tkp4->Pt() < PtMin)continue;
+    
     TVector3 * tkpos= (TVector3 *) tk_vtx_pos->At(itk);
     /// double deltaz = fabs(vtxpos->Z() - tkpos->Z()); 
     double deltaz = fabs( (tkpos->Z()-vtxpos->Z()) - ( (tkpos->X()-vtxpos->X())*tkp4->Px() + (tkpos->Y()-vtxpos->Y())*tkp4->Py() )/tkp4->Pt() * tkp4->Pz()/tkp4->Pt() );
     if(deltaz > dzmax)continue;
+    
     double dxy = ( -(tkpos->X() - vtxpos->X())*tkp4->Py() + (tkpos->Y() - vtxpos->Y())*tkp4->Px()) / tkp4->Pt();
     if(fabs(dxy) > dxymax)continue;
     double tk_eta = tkp4->Eta();
@@ -1929,7 +1955,9 @@ Float_t LoopAll::SumTrackPtInCone(TLorentzVector *photon_p4, Int_t vtxind, Float
     double deta = fabs(photon_p4->Eta() - tk_eta);
     double dphi = fabs(photon_p4->Phi() - tk_phi);
     if(dphi > TMath::Pi())dphi = TMath::TwoPi() - dphi;
+    
     double deltaR = sqrt(deta*deta + dphi*dphi);
+    
     if(deltaR < OuterConeRadius && deltaR >= InnerConeRadius && deta >= EtaStripHalfWidth)SumTrackPt+=tkp4->Pt();
   }
   return SumTrackPt;
@@ -2046,6 +2074,9 @@ void LoopAll::DefineUserBranches()
 	BRANCH_DICT(pho_tkiso_recvtx_030_002_0000_10_01);
 	BRANCH_DICT(pho_tkiso_badvtx_040_002_0000_10_01);
 	BRANCH_DICT(pho_tkiso_badvtx_id);
+	BRANCH_DICT(pho_ZeeVal_tkiso_recvtx_030_002_0000_10_01);
+	BRANCH_DICT(pho_ZeeVal_tkiso_badvtx_040_002_0000_10_01);
+	BRANCH_DICT(pho_ZeeVal_tkiso_badvtx_id);
 	BRANCH_DICT(pho_drtotk_25_99);
 
 	BRANCH_DICT(pho_cic6cutlevel_lead);
