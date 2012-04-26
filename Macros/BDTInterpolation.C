@@ -26,9 +26,12 @@
 #include "TString.h"
 #include "TError.h"
 
+#include "RooWorkspace.h"
+
 #include "Normalization.C"
 
 using namespace std;
+using namespace RooFit;
 
 int davidCalls=0;
 int fracCalls=0;
@@ -678,6 +681,11 @@ int BDTInterpolation(std::string inFileName,bool Diagnose=false, bool doNorm=tru
       TCanvas *canv = (TCanvas*)inFile->Get(HistList->At(j)->GetName());
       outFile->cd();
       canv->Write();
+    }
+    else if (name.Contains("cms_hgg_workspace")){
+      RooWorkspace *work = (RooWorkspace*)inFile->Get(HistList->At(j)->GetName());
+      outFile->cd();
+      work->Write();
     }
     if (title.Contains(".dat")){
       TMacro *mac = (TMacro*)inFile->Get(HistList->At(j)->GetName());
