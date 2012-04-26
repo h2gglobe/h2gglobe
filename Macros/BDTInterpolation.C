@@ -38,11 +38,11 @@ int fracCalls=0;
 int linCalls=0;
 int systCalls=0;
 int bkgCalls=0;
-double lowMass=120.;
-double highMass=130.;
-double massStep=0.1;
-int lMassInt=120;
-int hMassInt=130;
+double lowMass=110.;
+double highMass=150.;
+double massStep=0.5;
+int lMassInt=110;
+int hMassInt=150;
 
 TH1F* Interpolate(double massLow, TH1F* low, double massHigh, TH1F* high, double massInt){
 
@@ -985,21 +985,24 @@ int BDTInterpolation(std::string inFileName,bool Diagnose=false, bool doNorm=tru
     orgHistListInt[l][pT][j]->At(k)->Write();
     diagFile << orgHistListInt[l][pT][j]->At(k)->GetName() << std::endl;
   }
-  
-  TList* endList = outFile->GetListOfKeys();
-  for (double mass=lowMass; mass<highMass+massStep/2.; mass+=massStep){
-    diagFile << mass << std::endl;
-    std::pair<int,int> nearestPair = findNearest(mass);
-    double nearest = nearestPair.first;
-    double nextNear = nearestPair.second;
-    for (int k=0; k<endList->GetSize(); k++){
-      TString hName = endList->At(k)->GetName();
-      if (hName.Contains("sigma") || !hName.Contains("sig")) continue;
-      if (hName.Contains(Form("a_%3.1f_cat0",nearest)) || hName.Contains(Form("d_%3.1f_cat0",nearest)) || hName.Contains(Form("%3.1f_%3.1f_cat0",nearest,nextNear)) || hName.Contains(Form("%3.1f_cat0",mass))) {
-        TH1F *temp = (TH1F*)outFile->Get(hName);
-        diagFile << "    " << setw(30) << temp->GetName();
-        diagFile << "    " << setw(8) << temp->GetEntries();
-        diagFile << "    " << setw(8) << temp->Integral() << std::endl;
+ 
+  if (diagnose){
+    cout << "Now checking all histograms in the workspace. This will take a while but you did ask to run diagnostics....." << endl;
+    TList* endList = outFile->GetListOfKeys();
+    for (double mass=lowMass; mass<highMass+massStep/2.; mass+=massStep){
+      diagFile << mass << std::endl;
+      std::pair<int,int> nearestPair = findNearest(mass);
+      double nearest = nearestPair.first;
+      double nextNear = nearestPair.second;
+      for (int k=0; k<endList->GetSize(); k++){
+        TString hName = endList->At(k)->GetName();
+        if (hName.Contains("sigma") || !hName.Contains("sig")) continue;
+        if (hName.Contains(Form("a_%3.1f_cat0",nearest)) || hName.Contains(Form("d_%3.1f_cat0",nearest)) || hName.Contains(Form("%3.1f_%3.1f_cat0",nearest,nextNear)) || hName.Contains(Form("%3.1f_cat0",mass))) {
+          TH1F *temp = (TH1F*)outFile->Get(hName);
+          diagFile << "    " << setw(30) << temp->GetName();
+          diagFile << "    " << setw(8) << temp->GetEntries();
+          diagFile << "    " << setw(8) << temp->Integral() << std::endl;
+        }
       }
     }
   }
