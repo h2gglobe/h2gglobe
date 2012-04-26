@@ -86,6 +86,8 @@ class LoopAll {
   void StoreProcessedLumis(TTree * tree);
   void AddFile(std::string,int);
   void ReadInput(int t=0);
+  
+  void SetSubJob(bool);
 
   /** adds a new entry to sampleContainer and returns a reference
       to this entry. */
@@ -95,6 +97,8 @@ class LoopAll {
                             float lumi, float xsec, float kfactor,
 			    float scale, bool addnevents=false);
   void Term(); 
+
+  bool is_subjob;
 
   std::vector<TMacro*> configFiles;
   std::vector<std::string> files;

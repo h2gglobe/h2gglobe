@@ -61,7 +61,7 @@ void MvaAnalysis::Term(LoopAll& l)
         }
         mvaFile_->Close();
     }
-    else{
+    else if (! l.is_subjob){
 
         // -----------------------------
         // l.rooContainer->AddRealVar("r1",-8,-15.,0.);
@@ -1271,6 +1271,26 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
         }
 
 
+        if (l.run==170397 && l.lumis==279 && l.event==304405242){
+                std::cout << "We Selected"<<std::endl;
+                std::cout << "Run/Lumi/Event "<<l.run<<" / "<<l.lumis<<" / "<< l.event<<std::endl;
+                std::cout << "jentry "<<jentry<<std::endl;
+                std::cout << "MASS - "<<mass<<std::endl;
+                std::cout << "photon PT1/PT2 - "<< lead_p4.Pt()<<" / " << sublead_p4.Pt()<< std::endl;
+                std::cout << "Lead P4 -- index " <<  diphoton_index.first << std::endl;
+                lead_p4.Dump();
+                std::cout << "SubLead P4 -- index " <<  diphoton_index.second << std::endl;
+                sublead_p4.Dump();
+
+                std:cout << "\n Every Photon " <<std::endl;
+                for (int IPHOTON=0;IPHOTON<l.pho_n;IPHOTON++){
+                    photonInfoCollection[IPHOTON].p4(vtx->X(),vtx->Y(),vtx->Z()).Dump();
+                    photonInfoCollection[IPHOTON].dump();
+                    
+                }
+                
+
+            }
 
         float bdt_grad,bdt_ada;
 

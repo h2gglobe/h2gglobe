@@ -64,6 +64,10 @@ class configProducer:
 
     self.tmac = []
   
+    # First, its useful for LoopAll to know if its is running Subjob or final Job
+    if njobs<0: self.ut_.SetSubJob(True)
+    else: self.ut_.SetSubJob(False)
+
     if self.type_ == 0 or self.type_ == 2:
       self.init_loop()
       self.init_counters()

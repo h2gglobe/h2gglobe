@@ -2184,4 +2184,8 @@ void LoopAll::AddCut2(char *cutnamesc, int ncatstmp, int ifromright, int ifinalc
   AddCounter(ncatstmp, a, "", "", "");
 }
 
+void LoopAll::SetSubJob(bool issubjob){
+
+	is_subjob=issubjob;
+}
 
