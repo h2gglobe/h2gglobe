@@ -112,7 +112,7 @@ if __name__  == "__main__":
 	if not os.path.isfile("%s.pevents" % tmpnam):
 		print "Generating the pevents file...",
 		print "python fitter.py -i %s --dryRun >& %s.log\n" % (tmpnam,tmpnam)
-		os.system("python fitter.py -i %s --dryRun >& %s.log" % (tmpnam) )
+		os.system("python fitter.py -i %s --dryRun >& %s.log" % (tmpnam,tmpnam) )
 		print "Done. Check %s.log for errors" % tmpnam
 		
 	mkdir="mkdir"
