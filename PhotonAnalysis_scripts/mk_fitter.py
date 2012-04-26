@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import sys, os, commands
+import sys, os, commands,subprocess
 
 class Conf:
 	def __init__(self):
@@ -105,13 +105,15 @@ if __name__  == "__main__":
 	idat = open(options.inputDat, "r")
 	if options.runIC:tmp.write(idat.read().replace("%(label)s",options.label))
 	else:	tmp.write(idat.read().replace("split",""))
+	
+
+	idat.close()
+	tmp.close()
 	if not os.path.isfile("%s.pevents" % tmpnam):
 		print "Generating the pevents file...",
 		print "python fitter.py -i %s --dryRun >& %s.log\n" % (tmpnam,tmpnam)
-		os.system("python fitter.py -i %s --dryRun >& %s.log\n" % (tmpnam,tmpnam) )
+		os.system("python fitter.py -i %s --dryRun >& %s.log" % (tmpnam) )
 		print "Done. Check %s.log for errors" % tmpnam
-	idat.close()
-	tmp.close()
 		
 	mkdir="mkdir"
 	cp="cp -pv"
