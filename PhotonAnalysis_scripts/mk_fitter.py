@@ -130,8 +130,13 @@ if __name__  == "__main__":
 	os.system("%s %s" % ( mkdir, cfg.histdir) )
 	os.system("%s %s.tgz %s" % ( cp,  options.outputScript, cfg.histdir) )
 	
-	q=open("%s.pevents" % tmpnam, "r")
-	pevents=q.read()
+	if os.path.isfile("%s.pevents" % tmpnam):
+		q=open("%s.pevents" % tmpnam, "r")
+		pevents=q.read()
+	else: 
+		print "Warning, %s.pevents doesn't exist.\nEither you only intend to run on Data or something went wrong (check the log and re-run if you are running on MC)."%tmpnam
+		pevents=""
+
 	if options.runIC:
 	  for i in xrange(len(files)):
 		jobname =  "%s%d"%(options.outputScript,i)
