@@ -172,6 +172,8 @@ void Branch_genjet_algo3_aux(TTree * tree) { tree->Branch("genjet_algo3_aux",&ge
 void Branch_hc_p4(TTree * tree) { tree->Branch("hc_p4", "TClonesArray",&hc_p4, 32000, 0); }; 
 void Branch_hc_n(TTree * tree) { tree->Branch("hc_n",&hc_n, "hc_n/I");  }; 
 void Branch_hc_type(TTree * tree) { tree->Branch("hc_type",&hc_type, "hc_type[hc_n]/I");  }; 
+void Branch_hlt_bit(TTree * tree) { tree->Branch("hlt_bit", "std::vector<unsigned short>", &hlt_bit); }; 
+void Branch_hlt_path_names_HLT(TTree * tree) { tree->Branch("hlt_path_names_HLT", "std::vector<std::string>", &hlt_path_names_HLT); }; 
 void Branch_hlt1_bit(TTree * tree) { tree->Branch("hlt1_bit", "std::vector<unsigned short>", &hlt1_bit); }; 
 void Branch_hlt_path_names_HLT1(TTree * tree) { tree->Branch("hlt_path_names_HLT1", "std::vector<std::string>", &hlt_path_names_HLT1); }; 
 void Branch_hlt2_bit(TTree * tree) { tree->Branch("hlt2_bit", "std::vector<unsigned short>", &hlt2_bit); }; 
@@ -182,6 +184,9 @@ void Branch_hlt_candpath(TTree * tree) { tree->Branch("hlt_candpath", "std::vect
 void Branch_ht_25(TTree * tree) { tree->Branch("ht_25",&ht_25, "ht_25/F");  }; 
 void Branch_ht_35(TTree * tree) { tree->Branch("ht_35",&ht_35, "ht_35/F");  }; 
 void Branch_ht_50(TTree * tree) { tree->Branch("ht_50",&ht_50, "ht_50/F");  }; 
+void Branch_rho_algo1(TTree * tree) { tree->Branch("rho_algo1",&rho_algo1, "rho_algo1/F");  }; 
+void Branch_rho_algo2(TTree * tree) { tree->Branch("rho_algo2",&rho_algo2, "rho_algo2/F");  }; 
+void Branch_rho_algo3(TTree * tree) { tree->Branch("rho_algo3",&rho_algo3, "rho_algo3/F");  }; 
 void Branch_ht_nomet25(TTree * tree) { tree->Branch("ht_nomet25",&ht_nomet25, "ht_nomet25/F");  }; 
 void Branch_ht_nomet35(TTree * tree) { tree->Branch("ht_nomet35",&ht_nomet35, "ht_nomet35/F");  }; 
 void Branch_ht_nomet50(TTree * tree) { tree->Branch("ht_nomet50",&ht_nomet50, "ht_nomet50/F");  }; 

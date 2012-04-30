@@ -172,6 +172,8 @@ void SetBranchAddress_genjet_algo3_aux(TTree * tree) { tree->SetBranchAddress("g
 void SetBranchAddress_hc_p4(TTree * tree) { tree->SetBranchAddress("hc_p4", &hc_p4, &b_hc_p4); }; 
 void SetBranchAddress_hc_n(TTree * tree) { tree->SetBranchAddress("hc_n", &hc_n, &b_hc_n); }; 
 void SetBranchAddress_hc_type(TTree * tree) { tree->SetBranchAddress("hc_type", hc_type, &b_hc_type); }; 
+void SetBranchAddress_hlt_bit(TTree * tree) { tree->SetBranchAddress("hlt_bit", &hlt_bit, &b_hlt_bit); }; 
+void SetBranchAddress_hlt_path_names_HLT(TTree * tree) { tree->SetBranchAddress("hlt_path_names_HLT", &hlt_path_names_HLT, &b_hlt_path_names_HLT); }; 
 void SetBranchAddress_hlt1_bit(TTree * tree) { tree->SetBranchAddress("hlt1_bit", &hlt1_bit, &b_hlt1_bit); }; 
 void SetBranchAddress_hlt_path_names_HLT1(TTree * tree) { tree->SetBranchAddress("hlt_path_names_HLT1", &hlt_path_names_HLT1, &b_hlt_path_names_HLT1); }; 
 void SetBranchAddress_hlt2_bit(TTree * tree) { tree->SetBranchAddress("hlt2_bit", &hlt2_bit, &b_hlt2_bit); }; 
@@ -182,6 +184,9 @@ void SetBranchAddress_hlt_candpath(TTree * tree) { tree->SetBranchAddress("hlt_c
 void SetBranchAddress_ht_25(TTree * tree) { tree->SetBranchAddress("ht_25", &ht_25, &b_ht_25); }; 
 void SetBranchAddress_ht_35(TTree * tree) { tree->SetBranchAddress("ht_35", &ht_35, &b_ht_35); }; 
 void SetBranchAddress_ht_50(TTree * tree) { tree->SetBranchAddress("ht_50", &ht_50, &b_ht_50); }; 
+void SetBranchAddress_rho_algo1(TTree * tree) { tree->SetBranchAddress("rho_algo1", &rho_algo1, &b_rho_algo1); }; 
+void SetBranchAddress_rho_algo2(TTree * tree) { tree->SetBranchAddress("rho_algo2", &rho_algo2, &b_rho_algo2); }; 
+void SetBranchAddress_rho_algo3(TTree * tree) { tree->SetBranchAddress("rho_algo3", &rho_algo3, &b_rho_algo3); }; 
 void SetBranchAddress_ht_nomet25(TTree * tree) { tree->SetBranchAddress("ht_nomet25", &ht_nomet25, &b_ht_nomet25); }; 
 void SetBranchAddress_ht_nomet35(TTree * tree) { tree->SetBranchAddress("ht_nomet35", &ht_nomet35, &b_ht_nomet35); }; 
 void SetBranchAddress_ht_nomet50(TTree * tree) { tree->SetBranchAddress("ht_nomet50", &ht_nomet50, &b_ht_nomet50); }; 
