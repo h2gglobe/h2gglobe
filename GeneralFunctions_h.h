@@ -141,7 +141,8 @@ int DiphotonMITPreSelection(Float_t leadPtMin, Float_t subleadPtMin, bool applyP
 
 /** for a photon index, applies all levels of cuts and returns the
     index to the highest cut level passed (can do lead and sublead -
-    same for now)
+    same for now). This should be compared to one of the phoCiCIDLevel
+    enum constants (e.g. phoSUPERTIGHT).
 
     @param ph_passcut will contain flags which cuts the given photon
            passes. The first index is the level of the selection
