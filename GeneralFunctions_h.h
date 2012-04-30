@@ -355,6 +355,15 @@ Int_t pho_ZeeVal_tkiso_badvtx_id[MAX_PHOTONS];
 Float_t pho_drtotk_25_99[MAX_PHOTONS];
 
 bool runCiC;
+
+/** cut levels of CIC photon identification (stored in the tree).
+    The first index is the index of the photon object (0..pho_n-1),
+    the second index is the index of the vertex (0..vtx_std_n-1) 
+    with respect to which the id is calculated. 
+
+    The contents are the return values of the function
+    PhotonCiCSelectionLevel(..)
+*/
 std::vector<std::vector<Short_t> >* pho_cic6cutlevel_lead;
 std::vector<std::vector<std::vector<UInt_t> > >* pho_cic6passcuts_lead;
 std::vector<std::vector<Short_t> >* pho_cic6cutlevel_sublead;
