@@ -1367,6 +1367,34 @@ void PhotonAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree)
     l.Branch_pho_regr_energy_otf(outputTree);
     l.Branch_pho_regr_energyerr_otf(outputTree);
     
+    
+    l.gh_higgs_p4 = new TClonesArray("TLorentzVector", 1); 
+    l.gh_higgs_p4->Clear();
+    ((*l.gh_higgs_p4)[0]) = new TLorentzVector();
+
+    l.gh_pho1_p4 = new TClonesArray("TLorentzVector", 1); 
+    l.gh_pho1_p4->Clear();
+    ((*l.gh_pho1_p4)[0]) = new TLorentzVector();
+
+    l.gh_pho2_p4 = new TClonesArray("TLorentzVector", 1); 
+    l.gh_pho2_p4->Clear();
+    ((*l.gh_pho2_p4)[0]) = new TLorentzVector();
+
+    l.gh_vbfq1_p4 = new TClonesArray("TLorentzVector", 1); 
+    l.gh_vbfq1_p4->Clear();
+    ((*l.gh_vbfq1_p4)[0]) = new TLorentzVector();
+
+    l.gh_vbfq2_p4 = new TClonesArray("TLorentzVector", 1); 
+    l.gh_vbfq2_p4->Clear();
+    ((*l.gh_vbfq2_p4)[0]) = new TLorentzVector();
+
+    l.gh_vh1_p4 = new TClonesArray("TLorentzVector", 1); 
+    l.gh_vh1_p4->Clear();
+    ((*l.gh_vh1_p4)[0]) = new TLorentzVector();
+
+    l.gh_vh2_p4 = new TClonesArray("TLorentzVector", 1); 
+    l.gh_vh2_p4->Clear();
+    ((*l.gh_vh2_p4)[0]) = new TLorentzVector();
     l.Branch_gh_gen2reco1( outputTree );
     l.Branch_gh_gen2reco2( outputTree );
     l.Branch_gh_vbfq1_pdgid( outputTree );
@@ -1594,18 +1622,18 @@ float PhotonAnalysis::GetSmearSigma(float eta, float r9, int epoch){
     
 void PhotonAnalysis::SetNullHiggs(LoopAll& l){
   
-    l.gh_higgs_p4 = new TLorentzVector(0,0,0,0);
+    ((TLorentzVector *)l.gh_higgs_p4->At(0))->SetXYZT(0,0,0,0);
   
-    l.gh_pho1_p4 = new TLorentzVector(0,0,0,0);
-    l.gh_pho2_p4 = new TLorentzVector(0,0,0,0);
+    ((TLorentzVector *)l.gh_pho1_p4->At(0))->SetXYZT(0,0,0,0);
+    ((TLorentzVector *)l.gh_pho2_p4->At(0))->SetXYZT(0,0,0,0);
 
-    l.gh_vbfq1_p4 = new TLorentzVector(0,0,0,0);
-    l.gh_vbfq2_p4 = new TLorentzVector(0,0,0,0);
+    ((TLorentzVector *)l.gh_vbfq1_p4->At(0))->SetXYZT(0,0,0,0);
+    ((TLorentzVector *)l.gh_vbfq2_p4->At(0))->SetXYZT(0,0,0,0);
     l.gh_vbfq1_pdgid=-10000;
     l.gh_vbfq2_pdgid=-10000;
   
-    l.gh_vh1_p4 = new TLorentzVector(0,0,0,0);
-    l.gh_vh2_p4 = new TLorentzVector(0,0,0,0);
+    ((TLorentzVector *)l.gh_vh1_p4->At(0))->SetXYZT(0,0,0,0);
+    ((TLorentzVector *)l.gh_vh2_p4->At(0))->SetXYZT(0,0,0,0);
     l.gh_vh_pdgid=-10000;
     l.gh_vh1_pdgid=-10000;
     l.gh_vh2_pdgid=-10000;
@@ -1624,20 +1652,25 @@ bool PhotonAnalysis::FindHiggsObjects(LoopAll& l){
     l.FindMCHiggsPhotons( higgsind,  mc1,  mc2,  i1,  i2 );
 
   
-    if(higgsind!=-1) l.gh_higgs_p4 = new TLorentzVector(*((TLorentzVector*)((TLorentzVector*) l.gp_p4->At(higgsind))->Clone()));
-    else l.gh_higgs_p4 = new TLorentzVector(0,0,0,0);
+    if(higgsind!=-1) {
+        TLorentzVector * TheHiggs = (TLorentzVector *) l.gp_p4->At(higgsind);
+        ((TLorentzVector *)l.gh_higgs_p4->At(0))->SetXYZT(TheHiggs->Px(),TheHiggs->Py(),TheHiggs->Pz(),TheHiggs->E()); 
+    } else { ((TLorentzVector *)l.gh_higgs_p4->At(0))->SetXYZT(0,0,0,0); }
   
     l.gh_gen2reco1=i1;
     l.gh_gen2reco2=i2;
   
   
-    if(mc1!=-1) l.gh_pho1_p4 = new TLorentzVector(*((TLorentzVector*)((TLorentzVector*) l.gp_p4->At(mc1))->Clone()));
-    else l.gh_pho1_p4 = new TLorentzVector(0,0,0,0);
+    if(mc1!=-1) {
+        TLorentzVector * mcpho1 = (TLorentzVector *) l.gp_p4->At(mc1);
+        ((TLorentzVector *)l.gh_pho1_p4->At(0))->SetXYZT(mcpho1->Px(),mcpho1->Py(),mcpho1->Pz(),mcpho1->E()); 
+    } else { ((TLorentzVector *)l.gh_pho1_p4->At(0))->SetXYZT(0,0,0,0); }
 
-    if(mc2!=-1) l.gh_pho2_p4 = new TLorentzVector(*((TLorentzVector*)((TLorentzVector*) l.gp_p4->At(mc2))->Clone()));
-    else l.gh_pho2_p4 = new TLorentzVector(0,0,0,0);
+    if(mc2!=-1) {
+        TLorentzVector * mcpho2 = (TLorentzVector *) l.gp_p4->At(mc2);
+        ((TLorentzVector *)l.gh_pho2_p4->At(0))->SetXYZT(mcpho2->Px(),mcpho2->Py(),mcpho2->Pz(),mcpho2->E()); 
+    } else { ((TLorentzVector *)l.gh_pho2_p4->At(0))->SetXYZT(0,0,0,0); }
 
-  
 
     int vbfq1=-100;
     int vbfq2=-100;
@@ -1663,11 +1696,15 @@ bool PhotonAnalysis::FindHiggsObjects(LoopAll& l){
     if(vh2==-100) l.gh_vh2_pdgid=-10000;
     else l.gh_vh2_pdgid=l.gp_pdgid[vh2];
   
-    if(vh1==-100) l.gh_vh1_p4 = new TLorentzVector(0,0,0,0);
-    else l.gh_vh1_p4 = new TLorentzVector(*((TLorentzVector*)((TLorentzVector*) l.gp_p4->At(vh1))->Clone()));
-
-    if(vh2==-100) l.gh_vh2_p4 = new TLorentzVector(0,0,0,0);
-    else l.gh_vh2_p4 = new TLorentzVector(*((TLorentzVector*)((TLorentzVector*) l.gp_p4->At(vh2))->Clone()));
+    if(vh1!=-100) {
+        TLorentzVector * mcvh1 = (TLorentzVector *) l.gp_p4->At(vh1);
+        ((TLorentzVector *)l.gh_vh1_p4->At(0))->SetXYZT(mcvh1->Px(),mcvh1->Py(),mcvh1->Pz(),mcvh1->E()); 
+    } else { ((TLorentzVector *)l.gh_vh1_p4->At(0))->SetXYZT(0,0,0,0); }
+    
+    if(vh2!=-100) {
+        TLorentzVector * mcvh2 = (TLorentzVector *) l.gp_p4->At(vh2);
+        ((TLorentzVector *)l.gh_vh2_p4->At(0))->SetXYZT(mcvh2->Px(),mcvh2->Py(),mcvh2->Pz(),mcvh2->E()); 
+    } else { ((TLorentzVector *)l.gh_vh2_p4->At(0))->SetXYZT(0,0,0,0); }
 
 
   
@@ -1677,11 +1714,15 @@ bool PhotonAnalysis::FindHiggsObjects(LoopAll& l){
     if(vbfq2==-100) l.gh_vbfq2_pdgid=-10000;
     else l.gh_vbfq2_pdgid=l.gp_pdgid[vbfq2];
 
-    if(vbfq1==-100) l.gh_vbfq1_p4 = new TLorentzVector(0,0,0,0);
-    else l.gh_vbfq1_p4 = new TLorentzVector(*((TLorentzVector*)((TLorentzVector*) l.gp_p4->At(vbfq1))->Clone()));
-
-    if(vbfq2==-100) l.gh_vbfq2_p4 = new TLorentzVector(0,0,0,0);
-    else l.gh_vbfq2_p4 = new TLorentzVector(*((TLorentzVector*)((TLorentzVector*) l.gp_p4->At(vbfq2))->Clone()));
+    if(vbfq1!=-100) {
+        TLorentzVector * mcvbfq1 = (TLorentzVector *) l.gp_p4->At(vbfq1);
+        ((TLorentzVector *)l.gh_vbfq1_p4->At(0))->SetXYZT(mcvbfq1->Px(),mcvbfq1->Py(),mcvbfq1->Pz(),mcvbfq1->E()); 
+    } else { ((TLorentzVector *)l.gh_vbfq1_p4->At(0))->SetXYZT(0,0,0,0); }
+    
+    if(vbfq2!=-100) {
+        TLorentzVector * mcvbfq2 = (TLorentzVector *) l.gp_p4->At(vbfq2);
+        ((TLorentzVector *)l.gh_vbfq2_p4->At(0))->SetXYZT(mcvbfq2->Px(),mcvbfq2->Py(),mcvbfq2->Pz(),mcvbfq2->E()); 
+    } else { ((TLorentzVector *)l.gh_vbfq2_p4->At(0))->SetXYZT(0,0,0,0); }
 
     return (higgsind != -1);
 

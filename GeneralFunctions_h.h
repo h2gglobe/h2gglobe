@@ -30,9 +30,9 @@ bool FindMCVH(int higgsind, int& vh, int& vh1, int& vh2 );
 TLorentzVector GetHiggs() 
 {
 	TLorentzVector  gP4(0,0,0,0);
-	assert(gh_higgs_p4 != 0 || gp_p4 != 0);
-	if( gh_higgs_p4 != 0 ) {
-	    gP4 = *(gh_higgs_p4);
+	assert(gh_higgs_p4->At(0) != 0 || gp_p4 != 0);
+	if( gh_higgs_p4->At(0) != 0 ) {
+	    gP4 = *((TLorentzVector*)gh_higgs_p4->At(0));
 	} else {
 	    for (int gi=0;gi<gp_n;gi++){
 		if (gp_pdgid[gi]==25){
@@ -262,13 +262,13 @@ Int_t gh_vbfq2_pdgid;
 Int_t gh_vh_pdgid;
 Int_t gh_vh1_pdgid;
 Int_t gh_vh2_pdgid;
-TLorentzVector *gh_higgs_p4;
-TLorentzVector *gh_pho1_p4;
-TLorentzVector *gh_pho2_p4;
-TLorentzVector *gh_vbfq1_p4;
-TLorentzVector *gh_vbfq2_p4;
-TLorentzVector *gh_vh1_p4;
-TLorentzVector *gh_vh2_p4;
+TClonesArray *gh_higgs_p4;
+TClonesArray *gh_pho1_p4;
+TClonesArray *gh_pho2_p4;
+TClonesArray *gh_vbfq1_p4;
+TClonesArray *gh_vbfq2_p4;
+TClonesArray *gh_vh1_p4;
+TClonesArray *gh_vh2_p4;
 
 Float_t rho;
 Int_t gv_n; 
@@ -431,13 +431,13 @@ void Branch_gh_vbfq2_pdgid(TTree * tree) { tree->Branch("gh_vbfq2_pdgid",&gh_vbf
 void Branch_gh_vh_pdgid(TTree * tree) { tree->Branch("gh_vh_pdgid",&gh_vh_pdgid, "gh_vh_pdgid/I");  }; 
 void Branch_gh_vh1_pdgid(TTree * tree) { tree->Branch("gh_vh1_pdgid",&gh_vh1_pdgid, "gh_vh1_pdgid/I");  }; 
 void Branch_gh_vh2_pdgid(TTree * tree) { tree->Branch("gh_vh2_pdgid",&gh_vh2_pdgid, "gh_vh2_pdgid/I");  }; 
-void Branch_gh_higgs_p4(TTree * tree) { tree->Branch("gh_higgs_p4", "TLorentzVector",&gh_higgs_p4, 32000, 0); }; 
-void Branch_gh_pho1_p4(TTree * tree) { tree->Branch("gh_pho1_p4", "TLorentzVector",&gh_pho1_p4, 32000, 0); }; 
-void Branch_gh_pho2_p4(TTree * tree) { tree->Branch("gh_pho2_p4", "TLorentzVector",&gh_pho2_p4, 32000, 0); }; 
-void Branch_gh_vbfq1_p4(TTree * tree) { tree->Branch("gh_vbfq1_p4", "TLorentzVector",&gh_vbfq1_p4, 32000, 0); }; 
-void Branch_gh_vbfq2_p4(TTree * tree) { tree->Branch("gh_vbfq2_p4", "TLorentzVector",&gh_vbfq2_p4, 32000, 0); }; 
-void Branch_gh_vh1_p4(TTree * tree) { tree->Branch("gh_vh1_p4", "TLorentzVector",&gh_vh1_p4, 32000, 0); }; 
-void Branch_gh_vh2_p4(TTree * tree) { tree->Branch("gh_vh2_p4", "TLorentzVector",&gh_vh2_p4, 32000, 0); }; 
+void Branch_gh_higgs_p4(TTree * tree) { tree->Branch("gh_higgs_p4", "TClonesArray",&gh_higgs_p4, 32000, 0); }; 
+void Branch_gh_pho1_p4(TTree * tree) { tree->Branch("gh_pho1_p4", "TClonesArray",&gh_pho1_p4, 32000, 0); }; 
+void Branch_gh_pho2_p4(TTree * tree) { tree->Branch("gh_pho2_p4", "TClonesArray",&gh_pho2_p4, 32000, 0); }; 
+void Branch_gh_vbfq1_p4(TTree * tree) { tree->Branch("gh_vbfq1_p4", "TClonesArray",&gh_vbfq1_p4, 32000, 0); }; 
+void Branch_gh_vbfq2_p4(TTree * tree) { tree->Branch("gh_vbfq2_p4", "TClonesArray",&gh_vbfq2_p4, 32000, 0); }; 
+void Branch_gh_vh1_p4(TTree * tree) { tree->Branch("gh_vh1_p4", "TClonesArray",&gh_vh1_p4, 32000, 0); }; 
+void Branch_gh_vh2_p4(TTree * tree) { tree->Branch("gh_vh2_p4", "TClonesArray",&gh_vh2_p4, 32000, 0); }; 
 // vertex branches
 void Branch_vtx_std_sel(TTree * tree) { tree->Branch("vtx_std_sel", &vtx_std_sel, "vtx_std_sel/I"); }; 
 void Branch_vtx_std_evt_mva(TTree * tree) { tree->Branch("vtx_std_evt_mva", "std::vector<float>", &vtx_std_evt_mva); }; 
