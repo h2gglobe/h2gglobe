@@ -46,8 +46,6 @@ met_phi_pfmet
 
 ->
 Electrons
-el_std_D0Vtx
-el_std_DZVtx
 ->
 el_std_n
 el_std_p4
@@ -74,12 +72,12 @@ el_std_tkind
 el_std_d0
 el_std_z0
 el_std_posvtx
+#el_std_D0Vtx
+#el_std_DZVtx
 
 
 ->
 Muons
-mu_glo_D0Vtx
-mu_glo_DZVtx
 ->
 mu_glo_n
 mu_glo_p4
@@ -98,6 +96,8 @@ mu_glo_ecaliso03
 mu_glo_hcaliso03
 mu_glo_tkiso03
 mu_glo_dz
+#mu_glo_D0Vtx
+#mu_glo_DZVtx
 
 ->
 Photons 
@@ -207,15 +207,43 @@ pho_residCorrEnergy
 pho_residCorrResn
 pho_regr_energy
 pho_regr_energyerr
-pho_pfiso_mycharged03
-pho_pfiso_mycharged04
-pho_pfiso_myneutral03
-pho_pfiso_myneutral04
-pho_pfiso_myphoton03
-pho_pfiso_myphoton04
 pho_sieip
 pho_sipip
 pho_isconv
+# new variables
+#pho_pfiso_myneutral01
+#pho_pfiso_myneutral02
+pho_pfiso_myneutral03
+pho_pfiso_myneutral04
+#pho_pfiso_myneutral05
+#pho_pfiso_myneutral06
+#pho_pfiso_myphoton01
+#pho_pfiso_myphoton02
+pho_pfiso_myphoton03
+pho_pfiso_myphoton04
+#pho_pfiso_myphoton05
+#pho_pfiso_myphoton06
+#pho_pfiso_mycharged01
+#pho_pfiso_mycharged02
+pho_pfiso_mycharged03
+pho_pfiso_mycharged04
+#pho_pfiso_mycharged05
+#pho_pfiso_mycharged06
+#pho_isPFPhoton
+#pho_isPFElectron
+pho_must
+pho_mustnc
+pho_pfpresh1
+pho_pfpresh2
+pho_mustenergy
+pho_mustenergyout
+pho_pflowE
+pho_pfdeta
+pho_pfdphi
+pho_pfclusrms
+pho_pfclusrmsmust
+pho_eseffsixix
+pho_eseffsiyiy
 
 ->
 All Conversions
@@ -295,7 +323,9 @@ vtx_std_ndof
 ->
 PU correction
 ->
-rho
+rho_algo1
+rho_algo2
+rho_algo3
 
 ->
 Beam spot
@@ -316,10 +346,10 @@ met_phi_tcmet
 ->
 Trigger
 ->
-hlt1_bit
+hlt_bit
 hlt_n
 hlt_candpath
-hlt_path_names_HLT1
+hlt_path_names_HLT
 hlt_p4
 l1emiso_n
 l1emiso_et
