@@ -475,17 +475,35 @@ std::vector<int> HggVertexAnalyzer::rankprod(const vector<string> & vars)
 	rcomb_.resize(ipair_+1); rcomb_[ipair_].resize(nvtx_,0.);
 	// fill the rank sum
 	std::vector<int> vrank(nvtx_);
+
+        // initialize a list of variables to be used to determine
+        // the ranking of the vertices (used for sorting later on)
+        //
+        // It looks like the sorting of the vertices is done primarily by
+        // the combined rank (rcomb) and ties are broken by the variables
+        // used in the combined rank (in the order given). The individual
+        // variables are added in the loop.
 	std::vector<pair<HggVertexAnalyzer::getter_t, bool> > meths(1,make_pair(&HggVertexAnalyzer::rcomb,true));
+
 	for( vector<string>::const_iterator ivar=vars.begin(); ivar!=vars.end(); ++ivar) {
+
+                // add the current variable to the list of ranking methods.
 		meths.push_back(dictionary()[*ivar]);
+
 		vrank = rank( *ivar );
 		for(size_t ii=0; ii<vtxs.size(); ++ii) {
 			int ivert = vtxs[ii];
+
+                        // find which rank this vertex has for the given variable
 			int rank = find( vrank.begin(), vrank.end(), ivert) - vrank.begin(); 
+
 			rcomb_[ipair_][ivert] *= 1. + (float)(rank);
-		}
-	}
+		} // end of loop over all vertices
+
+	} // end of loop over all variables
+
 	for(int ii=0; ii<nvtx_; ++ii) {
+                // calculate the geometrical mean of (1+rank(var)) over all variables
 		rcomb_[ipair_][ii] = pow( rcomb_[ipair_][ii], 1./(float)vars.size() );
 	}
 	RankHelper helper(*this,meths);

@@ -168,6 +168,11 @@ private:
 	
 	std::vector<int> preselection_;
 
+        /** the first index is the index of the photon pair,
+            the second index is the index of the vertex.
+
+            rcomb_ is the combined rank (over several variables)
+        */
 	std::vector<std::vector<float> > mva_, rcomb_;
 	
 	// buffers
