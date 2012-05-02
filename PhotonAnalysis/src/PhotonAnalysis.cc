@@ -1266,13 +1266,14 @@ bool PhotonAnalysis::SkimEvents(LoopAll& l, int jentry)
             return true;
         }
 
-        // get the trigegr data
-        l.b_hlt1_bit->GetEntry(jentry);
-        l.b_hlt_path_names_HLT1->GetEntry(jentry);
-        if( !  isel->pass(*(l.hlt_path_names_HLT1),*(l.hlt1_bit)) ) {
-            /// std::cerr << "failed "  << std::endl;
-            return false;
-        }
+        // taking out the trigger for first reduction CP May 3
+     //   // get the trigegr data
+     //   l.b_hlt1_bit->GetEntry(jentry);
+     //   l.b_hlt_path_names_HLT1->GetEntry(jentry);
+     //   if( !  isel->pass(*(l.hlt_path_names_HLT1),*(l.hlt1_bit)) ) {
+     //       /// std::cerr << "failed "  << std::endl;
+     //       return false;
+     //   }
         //// l.countersred[trigCounter_]++;
     }
     
