@@ -312,6 +312,9 @@ void SetBranchAddress_met_tcmet(TTree * tree) { tree->SetBranchAddress("met_tcme
 void SetBranchAddress_met_phi_tcmet(TTree * tree) { tree->SetBranchAddress("met_phi_tcmet", &met_phi_tcmet, &b_met_phi_tcmet); }; 
 void SetBranchAddress_met_pfmet(TTree * tree) { tree->SetBranchAddress("met_pfmet", &met_pfmet, &b_met_pfmet); }; 
 void SetBranchAddress_met_phi_pfmet(TTree * tree) { tree->SetBranchAddress("met_phi_pfmet", &met_phi_pfmet, &b_met_phi_pfmet); }; 
+void SetBranchAddress_met_sumet_pfmet(TTree * tree) { tree->SetBranchAddress("met_sumet_pfmet", &met_sumet_pfmet, &b_met_sumet_pfmet); }; 
+void SetBranchAddress_met_mEtSig_pfmet(TTree * tree) { tree->SetBranchAddress("met_mEtSig_pfmet", &met_mEtSig_pfmet, &b_met_mEtSig_pfmet); }; 
+void SetBranchAddress_met_significance_pfmet(TTree * tree) { tree->SetBranchAddress("met_significance_pfmet", &met_significance_pfmet, &b_met_significance_pfmet); }; 
 void SetBranchAddress_mu_glo_n(TTree * tree) { tree->SetBranchAddress("mu_glo_n", &mu_glo_n, &b_mu_glo_n); }; 
 void SetBranchAddress_mu_glo_p4(TTree * tree) { tree->SetBranchAddress("mu_glo_p4", &mu_glo_p4, &b_mu_glo_p4); }; 
 void SetBranchAddress_mu_glo_momvtx(TTree * tree) { tree->SetBranchAddress("mu_glo_momvtx", &mu_glo_momvtx, &b_mu_glo_momvtx); }; 

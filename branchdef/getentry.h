@@ -312,6 +312,9 @@
    b_met_phi_tcmet->GetEntry(jentry); 
    b_met_pfmet->GetEntry(jentry); 
    b_met_phi_pfmet->GetEntry(jentry); 
+   b_met_sumet_pfmet->GetEntry(jentry);
+   b_met_mEtSig_pfmet->GetEntry(jentry);
+   b_met_significance_pfmet->GetEntry(jentry);
    b_mu_glo_n->GetEntry(jentry); 
    b_mu_glo_p4->GetEntry(jentry); 
    b_mu_glo_momvtx->GetEntry(jentry); 

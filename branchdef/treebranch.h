@@ -312,6 +312,9 @@ void Branch_met_tcmet(TTree * tree) { tree->Branch("met_tcmet",&met_tcmet, "met_
 void Branch_met_phi_tcmet(TTree * tree) { tree->Branch("met_phi_tcmet",&met_phi_tcmet, "met_phi_tcmet");  }; 
 void Branch_met_pfmet(TTree * tree) { tree->Branch("met_pfmet",&met_pfmet, "met_pfmet/F");  }; 
 void Branch_met_phi_pfmet(TTree * tree) { tree->Branch("met_phi_pfmet",&met_phi_pfmet, "met_phi_pfmet");  }; 
+void Branch_met_sumet_pfmet(TTree * tree) { tree->Branch("met_sumet_pfmet",&met_sumet_pfmet, "met_sumet_pfmet/F");  }; 
+void Branch_met_mEtSig_pfmet(TTree * tree) { tree->Branch("met_mEtSig_pfmet",&met_mEtSig_pfmet, "met_mEtSig_pfmet/F");  }; 
+void Branch_met_significance_pfmet(TTree * tree) { tree->Branch("met_significance_pfmet",&met_significance_pfmet, "met_significance_pfmet/F");  }; 
 void Branch_mu_glo_n(TTree * tree) { tree->Branch("mu_glo_n",&mu_glo_n, "mu_glo_n/I");  }; 
 void Branch_mu_glo_p4(TTree * tree) { tree->Branch("mu_glo_p4", "TClonesArray",&mu_glo_p4, 32000, 0); }; 
 void Branch_mu_glo_momvtx(TTree * tree) { tree->Branch("mu_glo_momvtx", "TClonesArray",&mu_glo_momvtx, 32000, 0); }; 

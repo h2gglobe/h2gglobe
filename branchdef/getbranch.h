@@ -312,6 +312,9 @@
    b_met_phi_tcmet = fChain->GetBranch("met_phi_tcmet"); 
    b_met_pfmet = fChain->GetBranch("met_pfmet"); 
    b_met_phi_pfmet = fChain->GetBranch("met_phi_pfmet"); 
+   b_met_sumet_pfmet = fChain->GetBranch("met_sumet_pfmet");
+   b_met_mEtSig_pfmet = fChain->GetBranch("met_mEtSig_pfmet");
+   b_met_significance_pfmet = fChain->GetBranch("met_significance_pfmet");
    b_mu_glo_n = fChain->GetBranch("mu_glo_n"); 
    b_mu_glo_p4 = fChain->GetBranch("mu_glo_p4"); 
    b_mu_glo_momvtx = fChain->GetBranch("mu_glo_momvtx"); 
