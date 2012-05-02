@@ -627,3 +627,22 @@ TBranch *b_pho_pfclusrms;
 TBranch *b_pho_pfclusrmsmust;
 TBranch *b_pho_eseffsixix;
 TBranch *b_pho_eseffsiyiy;
+
+TBranch *b_jet_algoPF1_beta;
+TBranch *b_jet_algoPF1_betaStar;
+TBranch *b_jet_algoPF1_betaStarClassic;
+TBranch *b_jet_algoPF1_dR2Mean;
+TBranch *b_jet_algoPF1_dRMean;
+TBranch *b_jet_algoPF1_dZ;
+TBranch *b_jet_algoPF1_frac01;
+TBranch *b_jet_algoPF1_frac02;
+TBranch *b_jet_algoPF1_frac03;
+TBranch *b_jet_algoPF1_frac04;
+TBranch *b_jet_algoPF1_frac05;
+TBranch *b_jet_algoPF1_full_mva;
+TBranch *b_jet_algoPF1_simple_mva;
+
+TBranch *b_jet_algoPF1_nCharged;
+TBranch *b_jet_algoPF1_nNeutrals;
+TBranch *b_jet_algoPF1_full_wp_level;
+TBranch *b_jet_algoPF1_simple_wp_level;
