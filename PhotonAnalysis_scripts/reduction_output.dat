@@ -43,6 +43,9 @@ met
 ->
 met_pfmet
 met_phi_pfmet
+met_sumet_pfmet
+met_mEtSig_pfmet
+met_significance_pfmet
 
 ->
 Electrons
@@ -379,4 +382,21 @@ Jets
 jet_algoPF1_n
 jet_algoPF1_erescale
 jet_algoPF1_p4
+jet_algoPF1_beta
+jet_algoPF1_betaStar
+jet_algoPF1_betaStarClassic
+jet_algoPF1_dR2Mean
+jet_algoPF1_dRMean
+jet_algoPF1_dZ
+jet_algoPF1_frac01
+jet_algoPF1_frac02
+jet_algoPF1_frac03
+jet_algoPF1_frac04
+jet_algoPF1_frac05
+jet_algoPF1_full_mva
+jet_algoPF1_simple_mva
+jet_algoPF1_nCharged
+jet_algoPF1_nNeutrals
+jet_algoPF1_full_wp_level
+jet_algoPF1_simple_wp_level
 
