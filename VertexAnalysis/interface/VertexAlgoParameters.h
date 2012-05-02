@@ -1,6 +1,7 @@
 #ifndef hgg_VertexAlgoParameters_h
 #define hgg_VertexAlgoParameters_h
 
+/** parameters for the vertex selection algorithms */
 class VertexAlgoParameters {
 public:
 	bool fixTkIndex;

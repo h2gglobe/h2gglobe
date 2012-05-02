@@ -83,6 +83,8 @@ public:
 #endif
 	std::vector<int> rank(TMVA::Reader &reader, const std::string & method);
 	void evaluate(TMVA::Reader &reader, const std::string & method);
+
+        /** this is e.g. used from LoopAll::vertexSelection(..) */
 	std::vector<int> rankprod(const std::vector<std::string> & vars);
 
 	// Conversion-related methods

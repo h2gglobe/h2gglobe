@@ -1185,6 +1185,9 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
 
 
     if( pho_presel.size() < 2 ) {
+
+        // zero or one photons, can't determine a vertex based on photon pairs
+
         l.vtx_std_ranked_list->push_back( std::vector<int>() );
         for(int ii=0;ii<l.vtx_std_n; ++ii) { l.vtx_std_ranked_list->back().push_back(ii); }
         l.vtx_std_sel = 0;

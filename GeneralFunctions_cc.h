@@ -647,6 +647,8 @@ std::vector<int> LoopAll::vertexSelection(HggVertexAnalyzer & vtxAna, HggVertexF
         std::vector<int> preselConv;
 
         if ( (pho1.isAConversion() || pho2.isAConversion() ) )  {
+
+          // at least one of the photons is identified as a conversion
 	  
           if (pho1.isAConversion()  && !pho2.isAConversion() ){
             zconv  = vtxAnaFromConv.vtxZ(pho1);
@@ -676,7 +678,7 @@ std::vector<int> LoopAll::vertexSelection(HggVertexAnalyzer & vtxAna, HggVertexF
               preselConv.push_back(i); 
           }
 	  
-        }
+        } // end if at least one photon is a conversion
 	
 	// ---- METHOD 1 	
 	// preselection 
@@ -725,6 +727,8 @@ std::vector<int> LoopAll::vertexSelection(HggVertexAnalyzer & vtxAna, HggVertexF
  
 	return rankprod;
 }
+
+//----------------------------------------------------------------------
 
 vector<double> LoopAll::generate_flat10_weights(TH1D* data_npu_estimated){
     // see

@@ -387,14 +387,19 @@ float HggVertexAnalyzer::vertexProbability(float perEventMva)
 }
 
 // -------------------------------------------------------------------------------------------------------------------------------------------------------------
+/** class implemeting a comparison between vertices (used for sorting them) */
 class RankHelper
 {
 public:
+        /** @param m is a list of variables used for the comparison where the first entry
+            corresponds to the most significant variable. The bool in each element
+            determines whether higher or lower variables should be considered to be 'better' */
 	RankHelper( HggVertexAnalyzer & vAna, vector<pair< HggVertexAnalyzer::getter_t, bool> > m) :
 		vAna_(vAna), method_(m) {};
 	RankHelper( HggVertexAnalyzer & vAna, HggVertexAnalyzer::getter_t m, bool sign) :
 		vAna_(vAna), method_(vector<pair<HggVertexAnalyzer::getter_t,bool> >(1,make_pair(m,sign))) {};
 
+        /** must return true if the vertex lh is considered to be (strictly) 'less' than the vertex rh. */
 	bool operator() (int lh,int rh) {
 
 		if (lh == rh){

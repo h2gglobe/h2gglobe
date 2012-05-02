@@ -44,6 +44,7 @@ TLorentzVector GetHiggs()
 	return gP4; 
 };
 
+/** @return the photon four momentum calculated with respect to the given interaction vertex (??) */
 TLorentzVector get_pho_p4(int ipho, int ivtx, const float *pho_energy_array=0) const ;
 TLorentzVector get_pho_p4(int ipho, TVector3 * vtx, const float * energy=0) const ;
 void set_pho_p4(int ipho, int ivtx, float *pho_energy_array=0);
@@ -339,12 +340,22 @@ TBranch * b_pho_regr_energyerr_otf;
 //// TBranch * b_dipho_phi;
 //// TBranch * b_dipho_cts;
 
-// Vertex choiche
+
+//----------------------------------------
+// photon and diphoton vertex selection
+//----------------------------------------
+/** calculated in PhotonAnalysis.cc: vertex selected
+    for the diphoton pair with highest sum of Pt */
 int vtx_std_sel;
+
 std::vector<int> *  dipho_vtx_std_sel;
+
+/** calculated e.g. in PhotonAnalysis.cc */
 std::vector<std::vector<int> > * vtx_std_ranked_list;
 std::vector<float> * vtx_std_evt_mva;
 // std::vector<int> * vtx_std_ranked_list;
+
+//----------------------------------------
 
 // CiC inputs
 std::vector<std::vector<float> >* pho_tkiso_recvtx_030_002_0000_10_01;
