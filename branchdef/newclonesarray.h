@@ -43,6 +43,7 @@
   conv_vtx = new TClonesArray("TVector3", MAX_GENERATOR);
   conv_pair_momentum = new TClonesArray("TVector3", MAX_GENERATOR);
   conv_refitted_momentum = new TClonesArray("TVector3", MAX_GENERATOR);
+  conv_singleleg_momentum = new TClonesArray("TVector3", MAX_GENERATOR);
   lptgeninfo_p4  = new TClonesArray("TLorentzVector", MAX_GENERATOR);
   lptgen_p4  = new TClonesArray("TLorentzVector", MAX_GENERATOR);
   lptgen_befrad_p4  = new TClonesArray("TLorentzVector", MAX_GENERATOR);

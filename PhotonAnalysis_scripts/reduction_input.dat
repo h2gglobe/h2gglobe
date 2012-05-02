@@ -50,6 +50,7 @@ conv_p4
 conv_ntracks
 conv_pair_momentum
 conv_refitted_momentum
+conv_singleleg_momentum
 conv_validvtx
 conv_chi2_probability
 conv_vtx
