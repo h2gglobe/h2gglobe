@@ -84,7 +84,11 @@ public:
 	std::vector<int> rank(TMVA::Reader &reader, const std::string & method);
 	void evaluate(TMVA::Reader &reader, const std::string & method);
 
-        /** this is e.g. used from LoopAll::vertexSelection(..) */
+        /** Returns the vertex indices ordered by rank where the rank
+            is determined from taking a geometric mean based on the
+            ranks determined from the variables given in 'vars'.
+
+            This is e.g. used from LoopAll::vertexSelection(..) */
 	std::vector<int> rankprod(const std::vector<std::string> & vars);
 
 	// Conversion-related methods

@@ -18,12 +18,19 @@ double etaTransformation(  float EtaParticle , float Zvertex);
 vector<double> generate_flat10_weights(TH1D* data_npu_estimated);
 
 
+//----------------------------------------
 // Vertex analysis
+//----------------------------------------
 void vertexAnalysis(HggVertexAnalyzer & vtxAna,  PhotonInfo pho1, PhotonInfo pho2);
 //std::vector<int> vertexSelection(HggVertexAnalyzer & vtxAna, HggVertexFromConversions & vtxAnaFromConv, int p1, int p2, std::vector<std::string> & vtxVarNames);
+
+/** @return the indices of the vertices ranked by some algorithm */
 std::vector<int> vertexSelection(HggVertexAnalyzer & vtxAna, HggVertexFromConversions & vtxAnaFromConv, PhotonInfo & pho1, PhotonInfo & pho2,
 				 std::vector<std::string> & vtxVarNames, 					  
 				 bool useMva=false, TMVA::Reader * reader=0, std::string tmvaMethod="");
+
+//----------------------------------------
+
 bool FindMCHiggsPhotons(int& higgsind, int& mc1, int& mc2, int& i1, int& i2  );
 bool FindMCVBF(int higgsind, int& vbfq1, int& vbfq2 );
 bool FindMCVH(int higgsind, int& vh, int& vh1, int& vh2 );
