@@ -1,2 +1,1 @@
-PhotonRun2011A_Jan16ReReco_Redo 0
-PhotonRun2011B_Jan16ReReco 0
+PhotonPromptReco2012A_30-04-12 0
