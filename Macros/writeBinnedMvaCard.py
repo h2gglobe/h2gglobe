@@ -3,12 +3,13 @@ import os,numpy,sys,math,array
 ROOT.gROOT.SetStyle("Plain")
 ROOT.gROOT.SetBatch(True)
 
+ROOT.gROOT.ProcessLine(".x rootglobestyle.C")
 ROOT.gROOT.ProcessLine(".L quadInterpolate.C+")
 from ROOT import quadInterpolate
 
 from optparse import OptionParser
 
-from BdtToyMaker import BdtToyMaker
+#from BdtToyMaker import BdtToyMaker
 from CombinedToyMaker import CombinedToyMaker
 
 g_r=ROOT.TRandom3(0)
@@ -25,7 +26,7 @@ g_expdijet		= 0.00495
 lumistring = "5.09 fb^{-1}"
 sigscale   = 5.
 # THEORY SYSTEMATICS ------
-lumi 		= "1.022"
+lumi 		= "1.045"
 QCDscale_ggH  = "0.918/1.125"
 PDF_gg_1      = "0.923/1.079"
 PDF_gg_2      = "0.915/1.085"
@@ -224,22 +225,22 @@ def getPoissonBinContent(hist,b,exp):
 def writeCard(tfile,mass,scaleErr):
 
   print "Writing Datacard for mass -> ", mass
-  outPut = open(cardOutDir+"/mva-datacard_"+type+"_%3.1f.txt"%mass,"w")
+  outPut = open(cardOutDir+"/mva-datacard_"+runtype+"_%3.1f.txt"%mass,"w")
 
   # Get All of the histograms we are going to use
   # Data ->
-  dataHist = tfile.Get("th1f_data_"+type+"_%3.1f_cat0"%mass)
+  dataHist = tfile.Get("th1f_data_"+runtype+"_%3.1f_cat0"%mass)
   nBins    = dataHist.GetNbinsX()
   print "Number of Channels -> ", nBins
   # bkg model ->
-  bkgHist  	= tfile.Get("th1f_bkg_"+type+"_%3.1f_cat0"%mass)
+  bkgHist  	= tfile.Get("th1f_bkg_"+runtype+"_%3.1f_cat0"%mass)
   
-  if options.Bias: bkgHistCorr   = tfile.Get("th1f_bkg_"+type+"_%3.1f_cat0_fitsb_biascorr"%mass)
+  if options.Bias: bkgHistCorr   = tfile.Get("th1f_bkg_"+runtype+"_%3.1f_cat0_fitsb_biascorr"%mass)
   # 4 signal channels ->
-  gghHist  = tfile.Get("th1f_sig_"+type+"_ggh_%3.1f_cat0"%mass)
-  vbfHist  = tfile.Get("th1f_sig_"+type+"_vbf_%3.1f_cat0"%mass)
-  wzhHist  = tfile.Get("th1f_sig_"+type+"_wzh_%3.1f_cat0"%mass)
-  tthHist  = tfile.Get("th1f_sig_"+type+"_tth_%3.1f_cat0"%mass)
+  gghHist  = tfile.Get("th1f_sig_"+runtype+"_ggh_%3.1f_cat0"%mass)
+  vbfHist  = tfile.Get("th1f_sig_"+runtype+"_vbf_%3.1f_cat0"%mass)
+  wzhHist  = tfile.Get("th1f_sig_"+runtype+"_wzh_%3.1f_cat0"%mass)
+  tthHist  = tfile.Get("th1f_sig_"+runtype+"_tth_%3.1f_cat0"%mass)
 
   if options.signalyieldsweight > 0:
     print "Re-weighting Signal yields x %d"%signalyieldsweight
@@ -259,7 +260,14 @@ def writeCard(tfile,mass,scaleErr):
   outPut.write("--------------------------------------------------------------\n")
   ## Now its the observation
   outPut.write("bin 	     ")
-  for b in range(1,nBins+1): outPut.write(" cat%d "%b)
+  binL=1
+  binH=nBins+1
+  if options.binfromright>-1:
+    binL=nBins+1-options.binfromright
+    binH=binL+1
+    if binL<1:
+      sys.exit("Not enough bins to write %d" %options.binfromright)
+  for b in range(binL,binH): outPut.write(" cat%d "%b)
   outPut.write("\nobservation")
 
 #  backgroundContents = [bkgHist.GetBinContent(b) for b in range(1,nBins+1)]
@@ -291,41 +299,62 @@ def writeCard(tfile,mass,scaleErr):
 	  dataHist.SetBinError(b,(nd+ns)**0.5)
 
   else:
-	for b in range(1,nBins+1): outPut.write(" %d "%dataHist.GetBinContent(b))
+	for b in range(binL,binH): outPut.write(" %d "%dataHist.GetBinContent(b))
   outPut.write("\n--------------------------------------------------------------\n")
   ## Now we do the signal and background parts
   outPut.write("bin 	     ")
-  for b in range(1,nBins+1): outPut.write(" cat%d  cat%d  cat%d  cat%d  cat%d "%(b,b,b,b,b))
+  for b in range(binL,binH): outPut.write(" cat%d  cat%d  cat%d  cat%d  cat%d "%(b,b,b,b,b))
   outPut.write("\nprocess    ")
-  for b in range(1,nBins+1): outPut.write("  ggh    vbf    wzh    tth    bkg  ")
+  for b in range(binL,binH): outPut.write("  ggh    vbf    wzh    tth    bkg  ")
   outPut.write("\nprocess    ")
-  for b in range(1,nBins+1): outPut.write("   0      0      0      0    1    ")
+  for b in range(binL,binH): outPut.write("   0      0      0      0    1    ")
   outPut.write("\nrate       ")
 
+  # if global toy need to randomise background within its error as well
 
-  for b in range(1,nBins+1): outPut.write(" %.5f   %.5f   %.5f   %.5f   %.5f "\
-    %(getBinContent(gghHist,b),getBinContent(vbfHist,b),getBinContent(wzhHist,b),getBinContent(tthHist,b)\
-     ,backgroundContents[b-1]))
-  outPut.write("\n--------------------------------------------------------------\n")
+  if options.randomizeBackground:
+    # get signed error matrix from fit
+    th2f_errmat = tfile.Get("fUncorrErr_%s_%3.1f"%(options.bdtType,mass))
+    for b in range(binL,binH):
+      # first randomise by scale error
+      randBkg = backgroundContents[b-1]*(scaleErr**(1+g_r.Gaus()))
+
+    # then randomise by bin to bin correlation error
+      for q in range(1,nBins):
+        berr = th2f_errmat.GetBinContent(q,b)
+        bkgCont = backgroundContents[b-1]/sum(backgroundContents)
+        bias = quadInterpolate(1.,-1.,0.,1.,bkgCont-berr,bkgCont,bkgCont+berr)
+        randBkg = randBkg*(bias**(1+g_r.Gaus()))
+      
+      outPut.write(" %.5f   %.5f   %.5f   %.5f   %.5f "\
+      %(getBinContent(gghHist,b),getBinContent(vbfHist,b),getBinContent(wzhHist,b),getBinContent(tthHist,b)\
+       ,randBkg))
+    outPut.write("\n--------------------------------------------------------------\n")
+
+  else:
+    for b in range(binL,binH): outPut.write(" %.5f   %.5f   %.5f   %.5f   %.5f "\
+      %(getBinContent(gghHist,b),getBinContent(vbfHist,b),getBinContent(wzhHist,b),getBinContent(tthHist,b)\
+       ,backgroundContents[b-1]))
+    outPut.write("\n--------------------------------------------------------------\n")
 
 
   # This next bit is for the signal systematics, first lets do the easy ones, lumi and theory
   outPut.write("\nlumi          lnN ")
 
   if options.theorySys:
-    for b in range(1,nBins+1): outPut.write(" %s  %s  %s  %s  -  "%(lumi,lumi,lumi,lumi))
+    for b in range(binL,binH): outPut.write(" %s  %s  %s  %s  -  "%(lumi,lumi,lumi,lumi))
     outPut.write("\nQCDscale_ggH  lnN ")
-    for b in range(1,nBins+1): outPut.write(" %s  -   -   -   -  "%(QCDscale_ggH))
+    for b in range(binL,binH): outPut.write(" %s  -   -   -   -  "%(QCDscale_ggH))
     outPut.write("\nPDF_gg        lnN ")
-    for b in range(1,nBins+1): outPut.write(" %s  -   -   %s  -  "%(PDF_gg_1,PDF_gg_2))
+    for b in range(binL,binH): outPut.write(" %s  -   -   %s  -  "%(PDF_gg_1,PDF_gg_2))
     outPut.write("\nQCDscale_qqH  lnN ")
-    for b in range(1,nBins+1): outPut.write(" -   %s  -   -   -  "%(QCDscale_qqH))
+    for b in range(binL,binH): outPut.write(" -   %s  -   -   -  "%(QCDscale_qqH))
     outPut.write("\nPDF_qqbar     lnN ")
-    for b in range(1,nBins+1): outPut.write(" -   %s  %s  -   -  "%(PDF_qqbar_1,PDF_qqbar_2))
+    for b in range(binL,binH): outPut.write(" -   %s  %s  -   -  "%(PDF_qqbar_1,PDF_qqbar_2))
     outPut.write("\nQCDscale_VH   lnN ")
-    for b in range(1,nBins+1): outPut.write(" -   -   %s  -   -  "%(QCDscale_VH))
+    for b in range(binL,binH): outPut.write(" -   -   %s  -   -  "%(QCDscale_VH))
     outPut.write("\nQCDscale_ttH  lnN ")
-    for b in range(1,nBins+1): outPut.write(" -   -   -   %s  -  "%(QCDscale_ttH))
+    for b in range(binL,binH): outPut.write(" -   -   -   %s  -  "%(QCDscale_ttH))
 
   outPut.write("\n")
 
@@ -335,32 +364,38 @@ def writeCard(tfile,mass,scaleErr):
     print "Including VBF (last Bin) Systematics"
     # how many non VBF bins are there?
     nBins_inclusive=0
-    for b in range(1,nBins+1):  
+    nBins_exclusive=0
+    for b in range(binL,nBins+1):  
 	if dataHist.GetBinLowEdge(b)<1: nBins_inclusive+=1
+	if dataHist.GetBinLowEdge(b)>=1: nBins_exclusive+=1
 
     print "Number of Non VBF channels -> ", nBins_inclusive
-    print "Number of VBF channels -> ", nBins-nBins_inclusive
+    print "Number of VBF channels -> ", nBins_exclusive
     # calculate the effect on each bin, eg 70%, always assume last bins are VBF tagged
-    numberOfGGH_dijet = sum([gghHist.GetBinContent(b)*JetID_ggh for b in range(nBins_inclusive+1,nBins+1)])
-    numberOfTTH_dijet = sum([tthHist.GetBinContent(b)*JetID_ggh for b in range(nBins_inclusive+1,nBins+1)])
-    numberOfVBF_dijet = sum([vbfHist.GetBinContent(b)*JetID_vbf for b in range(nBins_inclusive+1,nBins+1)])
-    numberOfWZH_dijet = sum([wzhHist.GetBinContent(b)*JetID_vbf for b in range(nBins_inclusive+1,nBins+1)])
+    numberOfGGH_dijet = sum([gghHist.GetBinContent(b)*JetID_ggh for b in range(binH-nBins_exclusive,binH)])
+    numberOfTTH_dijet = sum([tthHist.GetBinContent(b)*JetID_ggh for b in range(binH-nBins_exclusive,binH)])
+    numberOfVBF_dijet = sum([vbfHist.GetBinContent(b)*JetID_vbf for b in range(binH-nBins_exclusive,binH)])
+    numberOfWZH_dijet = sum([wzhHist.GetBinContent(b)*JetID_vbf for b in range(binH-nBins_exclusive,binH)])
     
-    numberOfGGH_incl  = sum([gghHist.GetBinContent(b) for b in range(1,nBins_inclusive+1)])
-    numberOfTTH_incl  = sum([tthHist.GetBinContent(b) for b in range(1,nBins_inclusive+1)])
-    numberOfVBF_incl  = sum([vbfHist.GetBinContent(b) for b in range(1,nBins_inclusive+1)])
-    numberOfWZH_incl  = sum([wzhHist.GetBinContent(b) for b in range(1,nBins_inclusive+1)])
+    numberOfGGH_incl  = sum([gghHist.GetBinContent(b) for b in range(binL,nBins_inclusive+binL)])
+    numberOfTTH_incl  = sum([tthHist.GetBinContent(b) for b in range(binL,nBins_inclusive+binL)])
+    numberOfVBF_incl  = sum([vbfHist.GetBinContent(b) for b in range(binL,nBins_inclusive+binL)])
+    numberOfWZH_incl  = sum([wzhHist.GetBinContent(b) for b in range(binL,nBins_inclusive+binL)])
 
     outPut.write("\nJetID_ggh  lnN ")
-    for b in range(1,nBins_inclusive+1): outPut.write(" %.3f/%.3f   -   -   %.3f/%.3f   -  "%\
+    # inclusive bins
+    for b in range(binL,nBins_inclusive+binL): outPut.write(" %.3f/%.3f   -   -   %.3f/%.3f   -  "%\
 		    (1.-(numberOfGGH_dijet/numberOfGGH_incl),1.+(numberOfGGH_dijet/numberOfGGH_incl),\
 		     1.-(numberOfTTH_dijet/numberOfTTH_incl),1.+(numberOfTTH_dijet/numberOfTTH_incl)))
-    for b in range(nBins_inclusive+1,nBins+1): outPut.write(" %.3f/%.3f   -   -   %.3f/%.3f   -  "%(1+JetID_ggh,1-JetID_ggh,1+JetID_ggh,1-JetID_ggh))
+    # exclusive bins
+    for b in range(binH-nBins_exclusive,binH): outPut.write(" %.3f/%.3f   -   -   %.3f/%.3f   -  "%(1+JetID_ggh,1-JetID_ggh,1+JetID_ggh,1-JetID_ggh))
     outPut.write("\nJetID_vbf  lnN ")
-    for b in range(1,nBins_inclusive+1): outPut.write(" -  %.3f/%.3f  %.3f/%.3f  -   -  "%\
+    # inclusive bins
+    for b in range(binL,nBins_inclusive+binL): outPut.write(" -  %.3f/%.3f  %.3f/%.3f  -   -  "%\
 		    (1.-(numberOfVBF_dijet/numberOfVBF_incl),1.+(numberOfVBF_dijet/numberOfVBF_incl),\
 		     1.-(numberOfWZH_dijet/numberOfWZH_incl),1.+(numberOfWZH_dijet/numberOfWZH_incl)))
-    for b in range(nBins_inclusive+1,nBins+1):  outPut.write(" -  %.3f/%.3f   %.3f/%.3f  -   -  "%(1+JetID_vbf,1-JetID_vbf,1+JetID_vbf,1-JetID_vbf))
+    # exclusive bins
+    for b in range(binH-nBins_exclusive,binH):  outPut.write(" -  %.3f/%.3f   %.3f/%.3f  -   -  "%(1+JetID_vbf,1-JetID_vbf,1+JetID_vbf,1-JetID_vbf))
     outPut.write("\n")
 
   # Now is the very tedious part of the signal shape systematics, for each shape, simply do -/+ sigma
@@ -369,14 +404,14 @@ def writeCard(tfile,mass,scaleErr):
    print "Writing Systematics Part (could be slow)"
    for sys in systematics:
 
-    gghHistU  = tfile.Get("th1f_sig_"+type+"_ggh_%3.1f_cat0_%sUp01_sigma"%(mass,sys))
-    vbfHistU  = tfile.Get("th1f_sig_"+type+"_vbf_%3.1f_cat0_%sUp01_sigma"%(mass,sys))
-    wzhHistU  = tfile.Get("th1f_sig_"+type+"_wzh_%3.1f_cat0_%sUp01_sigma"%(mass,sys))
-    tthHistU  = tfile.Get("th1f_sig_"+type+"_tth_%3.1f_cat0_%sUp01_sigma"%(mass,sys))
-    gghHistD  = tfile.Get("th1f_sig_"+type+"_ggh_%3.1f_cat0_%sDown01_sigma"%(mass,sys))
-    vbfHistD  = tfile.Get("th1f_sig_"+type+"_vbf_%3.1f_cat0_%sDown01_sigma"%(mass,sys))
-    wzhHistD  = tfile.Get("th1f_sig_"+type+"_wzh_%3.1f_cat0_%sDown01_sigma"%(mass,sys))
-    tthHistD  = tfile.Get("th1f_sig_"+type+"_tth_%3.1f_cat0_%sDown01_sigma"%(mass,sys))
+    gghHistU  = tfile.Get("th1f_sig_"+runtype+"_ggh_%3.1f_cat0_%sUp01_sigma"%(mass,sys))
+    vbfHistU  = tfile.Get("th1f_sig_"+runtype+"_vbf_%3.1f_cat0_%sUp01_sigma"%(mass,sys))
+    wzhHistU  = tfile.Get("th1f_sig_"+runtype+"_wzh_%3.1f_cat0_%sUp01_sigma"%(mass,sys))
+    tthHistU  = tfile.Get("th1f_sig_"+runtype+"_tth_%3.1f_cat0_%sUp01_sigma"%(mass,sys))
+    gghHistD  = tfile.Get("th1f_sig_"+runtype+"_ggh_%3.1f_cat0_%sDown01_sigma"%(mass,sys))
+    vbfHistD  = tfile.Get("th1f_sig_"+runtype+"_vbf_%3.1f_cat0_%sDown01_sigma"%(mass,sys))
+    wzhHistD  = tfile.Get("th1f_sig_"+runtype+"_wzh_%3.1f_cat0_%sDown01_sigma"%(mass,sys))
+    tthHistD  = tfile.Get("th1f_sig_"+runtype+"_tth_%3.1f_cat0_%sDown01_sigma"%(mass,sys))
 
     if options.signalyieldsweight > 0:
       gghHistU.Scale(signalyieldsweight)
@@ -389,7 +424,7 @@ def writeCard(tfile,mass,scaleErr):
       tthHistD.Scale(signalyieldsweight)
 
     outPut.write("\n%s lnN "%sys)
-    for b in range(1,nBins+1): 
+    for b in range(binL,binH): 
 	 outPut.write(" %s %s %s %s - "%(\
 				     py_quadInterpolate(1.,-3.,0.,3.,gghHistD.GetBinContent(b)  \
 				        			  ,gghHist.GetBinContent(b)  \
@@ -407,7 +442,7 @@ def writeCard(tfile,mass,scaleErr):
   outPut.write("\n")
   # Finally the background errors, these are realtively simple
   outPut.write("\nbkg_norm lnN ")
-  for b in range(1,nBins+1): outPut.write(" -   -   -   -  %.3f "%(scaleErr))
+  for b in range(binL,binH): outPut.write(" -   -   -   -  %.3f "%(scaleErr))
 
   ## now for the David errors
   if options.Bias:
@@ -417,7 +452,7 @@ def writeCard(tfile,mass,scaleErr):
 	th2f_errmatrix = tfile.Get("fUncorrErr_%s_%3.1f"%(options.bdtType,mass))
 	for b in range(1,nBins):  # This error matrix is nBins-1 X nBins-1 due to constraint on sum on fractions
            outPut.write("\nmassBias%d lnN"%b)
-	   for q in range(1,nBins+1):
+	   for q in range(binL,binH):
 	   	f_errentry = th2f_errmatrix.GetBinContent(b,q)
 		bkgC = backgroundContents[q-1]/sum(backgroundContents)
 		bias_nuis  = py_quadInterpolate(1.,-1.,0.,1.,bkgC-f_errentry,bkgC,bkgC+f_errentry)
@@ -428,10 +463,10 @@ def writeCard(tfile,mass,scaleErr):
 
   if options.B2B and (not options.Bias):
    # bkg bins will be gmN errors instead 
-   for b in range(1,nBins+1):
+   for b in range(binL,binH):
         bkgScale = bkgHist.Integral()/bkgHist.GetEntries()
         outPut.write("\nbkg_stat%d gmN %d "%(b,int(backgroundContents[b-1]/bkgScale)))
-	for q in range(1,nBins+1):
+	for q in range(binL,binH):
 		if q==b: outPut.write(" - - - - %.3f "%bkgScale)
 		else:    outPut.write(" - - - - - ")
 
@@ -463,18 +498,20 @@ parser.add_option("","--expSig",dest="expSig",default=-1.,type="float")
 parser.add_option("","--makePlot",dest="makePlot",default=False,action="store_true")
 parser.add_option("","--noVbfTag",dest="includeVBF",default=True,action="store_false")
 parser.add_option("","--plotStackedVbf",dest="splitSignal",default=False,action="store_true")
-parser.add_option("","--inputMassFacWS",dest="inputmassfacws",default="CMS-HGG_massfac.root")
+parser.add_option("","--inputMassFacWS",dest="inputmassfacws",default="/vols/cms02/h2g/latest_workspace/CMS-HGG_massfac_full_110_150_1.root")
 parser.add_option("","--outputMassFacToy",dest="outputmassfactoy",default="massfac_toy_ws.root")
-parser.add_option("","--inputBdtPdf",dest="inputpdfworkspace",default="") # leave default options as "" so we can check if user wants to input pdf rather than regenerate each time!
-parser.add_option("","--outputBdtPdf",dest="bdtworkspacename",default="combToyWS.root")
-parser.add_option("","--diphotonBdtFile",dest="diphotonmvahistfilename",default="cmshggtree.root")
-parser.add_option("","--diphotonBdtTree",dest="diphotonmvahisttreename",default="bdttree")
-parser.add_option("","--signalModelFile",dest="signalfilename",default="sigtree.root")
+parser.add_option("","--inputBdtPdf",dest="inputpdfworkspace")
+parser.add_option("","--outputBdtPdf",dest="outputpdfworkspace",default="combToyWS.root")
+parser.add_option("","--inputTrees",dest="treefilename")
+parser.add_option("","--dataBdtTree",dest="datatreename",default="dataTree")
 parser.add_option("","--signalModelTree",dest="signaltreename",default="sigtree")
-parser.add_option("","--tmvaWeightsFolder",dest="tmvaweightsfolder",default="")
+parser.add_option("","--randomizeBackground",dest="randomizeBackground",default=False,action="store_true")
+parser.add_option("","--tmvaWeightsFolder",dest="tmvaweightsfolder",default="/vols/cms02/h2g/weights/wt_19Feb/")
 parser.add_option("","--reweightSignalYields",dest="signalyieldsweight",default=-999.,type="float")
+parser.add_option("-b","--specificBin",dest="binfromright",default=-1,type="int")
 parser.add_option("-m","--mass",dest="singleMass",default=-1.,type="float")
 parser.add_option("-t","--type",dest="bdtType",default="grad");
+parser.add_option("-o","--outputDir",dest="outputDir",default="mva-datacards-")
 
 
 (options,args)=parser.parse_args()
@@ -486,16 +523,18 @@ if options.expSig > 0: print ("(Also throwing signal SMx%f)"%options.expSig)
 if not options.includeVBF: options.splitSignal=False
 if (not options.Bias) and options.includeVBF: sys.exit("Cannot use summed sideband (ie assume no mH dependance) for VBF (currently unsupported)")
 
-type=options.bdtType
+runtype=options.bdtType
 
 # create output folders
-cardOutDir="mva-datacards-"+type
+cardOutDir=options.outputDir+runtype
+if options.throwGlobalToy or options.throwToy: cardOutDir=options.outputDir+"toy"
+if options.binfromright>-1: cardOutDir+="-bin%i"%options.binfromright
 if not options.signalSys:
   cardOutDir+="-nosigsys"
 if not os.path.isdir(cardOutDir):
   os.makedirs(cardOutDir)
 if options.makePlot:
-  plotOutDir="mva-plots-"+type
+  plotOutDir="mva-plots-"+runtype
   if not os.path.isdir(plotOutDir):
     os.makedirs(plotOutDir)
 
@@ -536,42 +575,19 @@ can.SaveAs("normErrors_%s.pdf"%options.tfileName)
 # can make a special "global toy" set of datacards
 toymaker=0
 if options.throwGlobalToy:
-  print "Throwing a Global Toy"
-  if options.inputpdfworkspace=="": # Will Generate Pdf's
-    backgrounddiphotonmvafile=ROOT.TFile(options.diphotonmvahistfilename)
-    if options.expSig > 0: signaldiphotonmvafile=ROOT.TFile(options.signalfilename)
-  #toymaker = BdtToyMaker(options.tfileName,"data_pow_model_150.0")
-  #toymaker.fitData()
-  if os.path.isfile(options.inputmassfacws):
-	  toymaker = CombinedToyMaker(options.inputmassfacws)
-  else:sys.exit("File %s not found, specified with --inputMassFacWS=%s "%(options.inputmassfacws,options.inputmassfacws)) 
+  toymaker = CombinedToyMaker(options.inputmassfacws)
+  if not options.inputpdfworkspace: 
+    toymaker.createPdfs(options.treefilename,options.outputpdfworkspace)
+  else:
+    toymaker.loadPdfs(options.inputpdfworkspace)
 
-  if options.inputpdfworkspace!="":
-    if not os.path.isfile(options.inputpdfworkspace): 
-	sys.exit("No file named %s, generate it first (remove option --inputiBdtPdf)"%options.inputpdfworkspace)
-    toymaker.loadKeysPdf(options.inputpdfworkspace)
-    #if options.expSig>0: toymaker.loadKeysPdf(backgroundpdfws,1)
-    #else: toymaker.loadKeysPdf(backgroundpdfws,0)
-  else: 
-    backgrounddiphotonmvahist=backgrounddiphotonmvafile.Get(options.diphotonmvahisttreename)
-    print 'Creating keys pdf from ', backgrounddiphotonmvahist.GetName(), ' with ', backgrounddiphotonmvahist.GetEntries(), ' entries '
-    toymaker.createKeysPdf(backgrounddiphotonmvahist)	
-    #if options.expSig>0: 
-    #  signaldiphotonmvahist=signaldiphotonmvafile.Get(options.signaltreename)
-    #  print 'Creating keys pdf from ', signaldiphotonmvahist.GetName(), ' with ', signaldiphotonmvahist.GetEntries(), ' entries '
-    #  toymaker.createSigHistPdf(signaldiphotonmvahist)
-    toymaker.savePdfWorkspace(options.bdtworkspacename)
-
-  toymaker.plotData(160,180)
-  toymaker.genData(cardOutDir+"/"+options.outputmassfactoy)
+  toymaker.plotData(160,200)
+  toymaker.genData(cardOutDir+"/"+options.outputmassfactoy,options.expSig)
   toymaker.plotToy(160,200)
-  toymaker.saveToyWorkspace("testToyWS.root")
-  #toymaker.genData(options.expSig)
-  #if options.expSig>0: toymaker.plotSigData(160)
+  toymaker.saveToyWorkspace(cardOutDir+"/testToyWS.root")
   ROOT.gROOT.ProcessLine(".L tmvaLoader.C+")
   from ROOT import tmvaLoader
   g_tmva = tmvaLoader(options.tmvaweightsfolder+"/TMVAClassification_BDT%sMIT.weights.xml"%options.bdtType,options.bdtType)
-  
   
 # Now we can write the cards
 tfile = ROOT.TFile(options.tfileName)
