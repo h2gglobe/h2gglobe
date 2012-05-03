@@ -20,7 +20,7 @@ leg.SetBorderSize(1)
 mytext = TLatex()
 mytext.SetTextSize(0.04)
 mytext.SetNDC()
-intlumi=4.76
+intlumi=5.09
 
 Masses=array.array("f",[x * 0.1 for x in range(1100,1501,5)])
 #print Masses
