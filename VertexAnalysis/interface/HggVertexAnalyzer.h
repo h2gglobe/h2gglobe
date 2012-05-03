@@ -185,6 +185,10 @@ private:
 	
 	std::vector<float> vertexz_;
 	std::vector<float> nconv_;
+
+        /** for the following variables, the first index is the 
+            photon pair index, the second index is the index
+            of the primary vertex */
 	std::vector<std::vector<float> > pulltoconv_;
 	std::vector<std::vector<float> > limpulltoconv_;
 	std::vector<std::vector<float> > ptbal_;
