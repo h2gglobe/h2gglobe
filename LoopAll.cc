@@ -80,7 +80,7 @@ void LoopAll::SetTypeRun(int t, const char* name) {
   outputTreeLumi->Branch("lumis", &lumis, "lumis/I");
 
   if (typerun==kReduce){
-	pileup  =  new TH1D("pileup", "pileup", 60, 0, 60); 
+	pileup  =  new TH1D("pileup", "pileup", 100, 0, 100); 
   }
 
 }
