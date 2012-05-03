@@ -722,7 +722,7 @@ private:
               combhwrongslides[icat][inputSigProcName] = new RooAddPdf(TString("combhwrongslide") + catname + "_" + inputSigProcName, "", RooArgList(*wg1slides[icat][inputSigProcName], *wg2slides[icat][inputSigProcName]), RooArgList(*fitparmfuncs[icat][mergedSigProcName][12]));
 
               fracrightmodslides[icat][inputSigProcName] = new RooFormulaVar(TString("fracrightmodslide") + catname + "_" + inputSigProcName, "", "@0*@1", RooArgList(nuissancedeltafracright, *fitparmfuncs[icat][mergedSigProcName][13]));
-              combHVtxSlides[icat][inputSigProcName] = new RooAddPdf(TString("combhvtxslide") + catname + "_" + inputSigProcName, "", RooArgList(*combhminslides[icat][inputSigProcName], *combhwrongslides[icat][inputSigProcName]),
+              combHVtxSlides[icat][inputSigProcName] = new RooAddPdf(TString("combhvtxslide") + catname + "_" + inputSigProcName, "", RooArgList(*combhslides[icat][inputSigProcName], *combhwrongslides[icat][inputSigProcName]),
                   RooArgList(*fracrightmodslides[icat][inputSigProcName]), kTRUE);
               
               combhvtxminslides[icat][inputSigProcName] = new RooAddPdf(TString("combhvtxminslide") + catname + "_" + inputSigProcName, "", RooArgList(*combhminslides[icat][inputSigProcName], *wg1slides[icat][inputSigProcName]),
@@ -1579,13 +1579,16 @@ private:
 
     if (usecomplexmodel)
     {
-      rightpdf = &combhmin;
+      rightpdf = &combh;
       wrongpdf = &combhwrong;
       allpdf = &combhvtx;
-      f1.setRange(0.6, 0.95);
-      sigma2.setVal(4.0);
-      dm1.setRange(-1.0, 0.05);
-      dm1.setVal(-0.01);
+      //sigma1.setVal(1.5);
+      //sigma2.setVal(3.0);
+      //f1.setRange(0.6, 0.95);
+      //f1.setVal(0.8);
+      //sigma2.setVal(4.0);
+      //dm1.setRange(-1.0, 0.05);
+      //dm1.setVal(-0.01);
     }
     else if (usesimplemodel)
     {
@@ -1677,23 +1680,23 @@ private:
     //} // if usecomplexmodel
 
 
-    if (!usesimplemodel)
-    {
-      //printf("testing sigmas, sigma1 = %5f, sigma2 = %5f\n",sigma1.getVal(),sigma2.getVal());
-      if (TMath::Abs(sigma1.getVal()) > TMath::Abs(sigma2.getVal()) || f1.getVal() < 0.5 || dm1.getVal() < dm2.getVal())
-      {
-        //printf("swapping gaussians\n");
-        double sigma1tmp = sigma1.getVal();
-        double dm1tmp = dm1.getVal();
+    //if (!usesimplemodel)
+    //{
+    //  //printf("testing sigmas, sigma1 = %5f, sigma2 = %5f\n",sigma1.getVal(),sigma2.getVal());
+    //  if (TMath::Abs(sigma1.getVal()) > TMath::Abs(sigma2.getVal()) || f1.getVal() < 0.5 || dm1.getVal() < dm2.getVal())
+    //  {
+    //    //printf("swapping gaussians\n");
+    //    double sigma1tmp = sigma1.getVal();
+    //    double dm1tmp = dm1.getVal();
 
-        sigma1.setVal(sigma2.getVal());
-        dm1.setVal(dm2.getVal());
-        sigma2.setVal(sigma1tmp);
-        dm2.setVal(dm1tmp);
-        f1.setVal(1.0 - f1.getVal());
-      }
+    //    sigma1.setVal(sigma2.getVal());
+    //    dm1.setVal(dm2.getVal());
+    //    sigma2.setVal(sigma1tmp);
+    //    dm2.setVal(dm1tmp);
+    //    f1.setVal(1.0 - f1.getVal());
+    //  }
 
-    } // if ! usesimplemodel
+    //} // if ! usesimplemodel
     //----------------------------------------
 
 
@@ -1845,39 +1848,39 @@ public:
 
     //define signal pdf variables
 
-    const double dm1init = 0.5;
-    RooRealVar dm1("dm1", "", dm1init, -12.0, 5.0);
-    dm1.removeRange();
+    const double dm1init = 0.03;
+    RooRealVar dm1("dm1", "", dm1init, -0.01, 0.1);
+    //dm1.removeRange();
 
-    const double dm2init = -1.0;
-    RooRealVar dm2("dm2", "", dm2init, -12.0, 5.0);
-    dm2.removeRange();
+    const double dm2init = -2.5;
+    RooRealVar dm2("dm2", "", dm2init, -6.0, -1.0);
+    //dm2.removeRange();
 
-    const double dm3init = -2.0;
-    RooRealVar dm3("dm3", "", dm3init, -9.0, 5.0);
+    const double dm3init = -1.0;
+    RooRealVar dm3("dm3", "", dm3init, -2.0, 0.01);
     //dm3.removeRange();
 
     RooFormulaVar mean1("mean1", "", "@0+@1", RooArgList(*mnom, dm1));
     RooFormulaVar mean2("mean2", "", "@0+@1", RooArgList(*mnom, dm2));
     RooFormulaVar mean3("mean3", "", "@0+@1", RooArgList(*mnom, dm3));
 
-    const double sigma1init = 1.0;
-    RooRealVar sigma1("sigma1", "", sigma1init, 0.5, 5.0);
-    sigma1.removeRange();
+    const double sigma1init = 0.8;
+    RooRealVar sigma1("sigma1", "", sigma1init, 0.5, 2.2);
+    //sigma1.removeRange();
 
-    const double sigma2init = 1.2;
-    RooRealVar sigma2("sigma2", "", sigma2init, 0.8, 7.0);
-    sigma2.removeRange();
+    const double sigma2init = 8.0;
+    RooRealVar sigma2("sigma2", "", sigma2init, 2.5, 10.0);
+    //sigma2.removeRange();
 
-    const double sigma3init = 2.0;
-    RooRealVar sigma3("sigma3", "", sigma3init, 1.0, 10.0);
-    sigma3.removeRange();
+    const double sigma3init = 2.5;
+    RooRealVar sigma3("sigma3", "", sigma3init, 1.0, 5.0);
+    //sigma3.removeRange();
 
-    const double f1init = 0.60;
-    RooRealVar f1("f1", "", f1init, 0.52, 1.0);
+    const double f1init = 0.85;
+    RooRealVar f1("f1", "", f1init, 0.55, 0.95);
 
-    const double f2init = 0.90;
-    RooRealVar f2("f2", "", f2init, 0.0, 1.0);
+    const double f2init = 0.10;
+    RooRealVar f2("f2", "", f2init, 0.0, 0.15);
 
     RooGaussian g1("g1", "", *hmass, mean1, sigma1);
     RooGaussian g2("g2", "", *hmass, mean2, sigma2);
@@ -2277,11 +2280,11 @@ public:
 
               if (usecomplexmodel)
               {
-                rightpdf = &combhmin;
+                rightpdf = &combh;
                 wrongpdf = &combhwrong;
                 allpdf = &combhvtx;
                 interpdf = combhvtxslides[icat][sigProcName];
-                f1.setRange(0.52, 1.0);
+                //f1.setRange(0.52, 1.0);
               }
               else if (usesimplemodel)
               {
