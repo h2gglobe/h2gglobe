@@ -1,1 +1,3 @@
-GJet_Pt40 5
+GJet_Pt40 2 append=_pp analyzer PhotonAnalysis photonanalysis.dat keep_pp.dat
+GJet_Pt40 2 append=_pf analyzer PhotonAnalysis photonanalysis.dat keep_pf.dat
+GJet_Pt40 2 append=_ff analyzer PhotonAnalysis photonanalysis.dat keep_ff.dat
