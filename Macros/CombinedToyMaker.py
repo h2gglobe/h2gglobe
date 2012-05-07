@@ -150,9 +150,9 @@ class CombinedToyMaker:
       self.gensigdatanovbf_ = self.bdtsigpdf_.generate(r.RooArgSet(self.bdtvar_,self.bdtmgg_),self.toyNoVBFEventsSig_)
       self.gensigdatanovbf_.SetName("gen_sig_output_novbf")
       self.gensigmassdata_.append(r.RooDataSet("gen_sig_mass_cat0","gen_sig_mass_cat0",self.gensigdatanovbf_,r.RooArgSet(self.bdtvar_,self.bdtmgg_),"bdtoutput>=0.89"))
-      self.gensigmassdata_.append(r.RooDataSet("gen_sig_mass_cat1","gen_sig_mass_cat0",self.gensigdatanovbf_,r.RooArgSet(self.bdtvar_,self.bdtmgg_),"bdtoutput>=0.72 && bdtoutput<0.89"))
-      self.gensigmassdata_.append(r.RooDataSet("gen_sig_mass_cat2","gen_sig_mass_cat0",self.gensigdatanovbf_,r.RooArgSet(self.bdtvar_,self.bdtmgg_),"bdtoutput>=0.55 && bdtoutput<0.72"))
-      self.gensigmassdata_.append(r.RooDataSet("gen_sig_mass_cat3","gen_sig_mass_cat0",self.gensigdatanovbf_,r.RooArgSet(self.bdtvar_,self.bdtmgg_),"bdtoutput>=0.05 && bdtoutput<0.55"))
+      self.gensigmassdata_.append(r.RooDataSet("gen_sig_mass_cat1","gen_sig_mass_cat0",self.gensigdatanovbf_,r.RooArgSet(self.bdtvar_,self.bdtmgg_),"bdtoutput>=0.74 && bdtoutput<0.89"))
+      self.gensigmassdata_.append(r.RooDataSet("gen_sig_mass_cat2","gen_sig_mass_cat0",self.gensigdatanovbf_,r.RooArgSet(self.bdtvar_,self.bdtmgg_),"bdtoutput>=0.545 && bdtoutput<0.74"))
+      self.gensigmassdata_.append(r.RooDataSet("gen_sig_mass_cat3","gen_sig_mass_cat0",self.gensigdatanovbf_,r.RooArgSet(self.bdtvar_,self.bdtmgg_),"bdtoutput>=0.05 && bdtoutput<0.545"))
 
     # throw signal toy in VBF cat
     if expSig>0:
@@ -201,6 +201,9 @@ class CombinedToyMaker:
     mHL = mH*(1.-size)
     mHH = mH*(1.+size)
 
+    # CHEATING NICK TEST !!!!!!!!!!!!!!!!!!!
+    
+    
     for i in range(self.toyNoVBFEvents_):
       val_m = (self.allgenmassdatanovbf_.get(i)).getRealValue("CMS_hgg_mass");
       val_b = (self.genbdtdata_.get(i)).getRealValue("bdtoutput");
