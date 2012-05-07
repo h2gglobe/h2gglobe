@@ -9,115 +9,124 @@
 include Makefile.arch
 
 SrcSuf        = cc
-
-#------------------------------------------------------------------------------
-
-
-#------------------------------------------------------------------------------
+HeadSuf       = h
+ObjSuf        = o
+DepSuf        = d
 
 .SUFFIXES: .$(SrcSuf) .$(ObjSuf) .$(DllSuf)
 .PHONY:    
 
-LOOPALL = LoopAll
+#------------------------------------------------------------------------------
 
 LOOPALLSO = libLoopAll.$(DllSuf)
 
-# integrate VertexAnalysis sub-package
-VTX=VertexAnalysis
-VTXSRC=$(wildcard $(VTX)/src/*.$(SrcSuf))
-VTXOBS=$(patsubst %$(SrcSuf), %$(ObjSuf), $(VTXSRC))
+##
+## Files in main directory
+## 
 
-PHO=PhotonAnalysis
-PHOSRC=$(wildcard $(PHO)/src/*.$(SrcSuf))
-PHOOBS=$(patsubst %$(SrcSuf), %$(ObjSuf), $(PHOSRC))
+## Headers
+MainHead=$(wildcard *.$(HeadSuf)) 
+MainHead+=$(wildcard branchdef/*.$(HeadSuf)) 
 
-LOOPALLO = LoopAll.$(ObjSuf) \
-	   LoopAllDict.$(ObjSuf) \
-	   dict.$(ObjSuf) \
-	   HistoContainer.o \
-	   BaseAnalysis.o \
-	   BaseSmearer.o \
-	   EnergySmearer.o \
-	   EfficiencySmearer.o \
-	   DiPhoEfficiencySmearer.o \
-	   KFactorSmearer.o \
-	   CounterContainer.o \
-	   SampleContainer.o \
-	   PhotonReducedInfo.o \
-	   RooContainer.o \
-	   MassResolution.o \
-	   Cut.o \
-	   TriggerSelection.o \
-	   PhotonFix.o \
-           $(VTXOBS) $(PHOOBS)
+## Sources
+MainSrc=$(filter-out dict.cc, $(filter-out LoopAllDict.cc,$(wildcard *.$(SrcSuf))) )
+MainSrc+=LoopAllDict.cc dict.cc
+MainObjs=$(patsubst %$(SrcSuf), %$(ObjSuf), $(MainSrc))
 
-DICTS = LoopAll.h BaseAnalysis.h BaseSmearer.h EnergySmearer.h EfficiencySmearer.h DiPhoEfficiencySmearer.h EnergySmearer.h KFactorSmearer.h SampleContainer.h PhotonFix.h \
-	VertexAnalysis/interface/VertexAlgoParameters.h\
-	PhotonAnalysis/interface/PhotonAnalysis.h\
-	PhotonAnalysis/interface/StatAnalysis.h\
-	PhotonAnalysis/interface/MassFactorizedMvaAnalysis.h\
-	PhotonAnalysis/interface/MvaAnalysis.h\
-	PhotonReducedInfo.h \
-	RooContainer.h \
-	PhotonAnalysis/interface/EmptyAnalysis.h \
-	MassResolution.h
+## ROOT dictionary
+LinkDef=LinkDef.h 
+MainDicts=LoopAll.h
+MainDicts+=$(wildcard Base*.$(HeadSuf))
+MainDicts+=$(wildcard *Smearer.$(HeadSuf))
+MainDicts+=$(wildcard *Container.$(HeadSuf))
+MainDicts+=PhotonFix.h MassResolution.h
 
+##
+## Subdirectories
+##
+SubPkgs=PhotonAnalysis VertexAnalysis
+SubPkgsDict=VertexAnalysis/interface/VertexAlgoParameters.h
 
+##
+## Flags and external dependecies
+## 
 ROOFIT_BASE=$(ROOFITSYS)
 LDFLAGS+=-L$(ROOFIT_BASE)/lib $(ROOTLIBS) -lRooFitCore -lRooFit -lTMVA
-CXXFLAGS+=-I$(ROOFIT_BASE)/include -I$(CMSSW_BASE)/src 
-
-all: $(LOOPALL)
-
-clean:
-	@rm -f $(LOOPALLO) core *Dict.* *.so dict.cpp
-
-.SUFFIXES: .$(SrcSuf)
-
+CXXFLAGS+=-I$(ROOFIT_BASE)/include -I$(CMSSW_BASE)/src  -I$(CMSSW_RELEASE_BASE)/src
 CXXFLAGS+=-I$(shell pwd)
 
-$(LOOPALL):  $(LOOPALLO)
-	$(LD) $(SOFLAGS) $(LDFLAGS) $(ROOTLIBS)  $(LOOPALLO) $(OutPutOpt) $(LOOPALLSO)
+##
+## Code from users
+##
+-include Makefile.user
+SubPkgs     += $(UserPkgs)
+SubPkgsDict += $(UserDict)
+
+
+############################################################################################################################
+###
+### Do not modify below this point, unless you have a good reason
+###
+############################################################################################################################ 
+ifneq ($(SubPkgs),)
+SubPkgsHead=$(foreach Pack,$(SubPkgs),$(wildcard $(Pack)/interface/*.$(HeadSuf)))
+SubPkgsSrc=$(foreach Pack,$(SubPkgs),$(wildcard $(Pack)/src/*.$(SrcSuf)))
+SubPkgsObjs=$(patsubst %$(SrcSuf), %$(ObjSuf), $(SubPkgsSrc))
+_SubPkgsDict=$(foreach Pack,$(SubPkgs),$(wildcard $(Pack)/interface/*Analysis.$(HeadSuf))) $(SubPkgsDict)
+else
+SubPkgsHead=
+SubPkgsSrc=
+SubPkgsDict=
+_SubPkgsDict=
+endif
+
+## 
+Objs = $(MainObjs) $(SubPkgsObjs)
+Dicts = $(MainDicts) $(_SubPkgsDict) 
+Deps = $(patsubst %$(ObjSuf), %$(DepSuf), $(Objs))
+
+## Targets
+all: $(LOOPALLSO)
+
+print:
+	@echo "Subpackages:"
+	@echo "------------"
+	@echo $(SubPkgs)
+	@echo
+
+	@echo "Sources:"
+	@echo "--------"	
+	@echo $(MainSrc) | tr ' ' '\n'
+	@echo $(SubPkgsSrc)  | tr ' ' '\n'
+	@echo 
+
+	@echo "Dictionary sources:"
+	@echo "-------------------"
+	@echo $(MainDicts)  | tr ' ' '\n'
+	@echo $(_SubPkgsDict)  | tr ' ' '\n'
+	@echo 
+
+clean:
+	@rm -fv $(Objs) $(Deps) $(LOOPALL) *[dD]ict.*
+
+$(LOOPALLSO):  $(Objs)
+	@echo "Linking"
+	@$(LD) $(SOFLAGS) $(LDFLAGS) $(ROOTLIBS)  $(Objs) $(OutPutOpt) $(LOOPALLSO)
 	@echo "$(LOOPALLSO) done"
 
-LoopAll.$(ObjSuf): CommonParameters.h LoopAll.h Tools.h \
-	branchdef/Limits.h branchdef/treedef.h branchdef/newclonesarray.h \
-	branchdef/treebranch.h branchdef/setbranchaddress.h branchdef/getentry.h branchdef/getbranch.h branchdef/branchdef.h \
-	GeneralFunctions_cc.h GeneralFunctions_h.h \
-	BaseAnalysis.cc BaseAnalysis.h \
-	BaseSmearer.cc BaseSmearer.h \
-	EnergySmearer.cc EnergySmearer.h \
-	KFactorSmearer.cc KFactorSmearer.h \
-	PhotonReducedInfo.cc PhotonReducedInfo.h \
-	HistoContainer.cc HistoContainer.h \
-	CounterContainer.cc CounterContainer.h \
-	SampleContainer.cc SampleContainer.h \
-	RooContainer.cc RooContainer.h \
-	MassResolution.cc MassResolution.h \
-	TriggerSelection.h TriggerSelection.cc \
-	PhotonFix.h PhotonFix.cc \
-	Cut.cc Cut.h $(VTXSRC) $(PHOSRC)
+LoopAllDict.$(SrcSuf): $(MainHead) $(SubPkgsHead)
+	@echo "Generating dictionary $@"
+	@rootcint -v4 -f $@ -c -I$(ROOFIT_BASE)/include -I$(CMSSW_BASE)/src  -I$(CMSSW_RELEASE_BASE)/src $(Dicts)
 
-LoopAllDict.$(SrcSuf): CommonParameters.h LoopAll.h \
-	branchdef/Limits.h branchdef/treedef.h \
-	GeneralFunctions_h.h \
-	BaseAnalysis.h \
-	BaseSmearer.h \
-	EnergySmearer.h \
-	HistoContainer.h \
-	CounterContainer.h \
-	SampleContainer.h \
-	RooContainer.h \
-	VertexAnalysis/interface/VertexAlgoParameters.h PhotonAnalysis/interface/PhotonAnalysis.h \
-	PhotonAnalysis/interface/StatAnalysis.h PhotonAnalysis/interface/MassFactorizedMvaAnalysis.h PhotonAnalysis/interface/MvaAnalysis.h \
-	PhotonAnalysis/interface/EmptyAnalysis.h
-
-	@echo "Generating dictionary $@..."
-	@rootcint -f $@ -c -I$(ROOFIT_BASE)/include -I$(CMSSW_BASE)/src $(DICTS)
-
-dict.cpp:
-	@rootcint -f dict.cpp -c -p LinkDef.h 
+dict.$(SrcSuf): $(LinkDef)
+	@echo "Generating dictionary $@"
+	@rootcint -f dict.cc -c -p $(LinkDef)
 
 .$(SrcSuf).$(ObjSuf):
-	$(CXX) $(CXXFLAGS) -g -c $< -o $@
+	@echo "Compiling $<"
+	@$(CXX) $(CXXFLAGS) -M -c $< -o $(patsubst %.$(ObjSuf), %.$(DepSuf), $@)
+	@sed -i 's|.*:|$*.o: Makefile|'  $(patsubst %.$(ObjSuf), %.$(DepSuf), $@)
+	@$(CXX) $(CXXFLAGS) -g -c $< -o $@
+
+-include $(Deps)
 
