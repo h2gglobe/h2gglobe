@@ -148,6 +148,15 @@ pho_eright
 pho_eleft
 pho_etop
 pho_ebottom
+pho_r19
+pho_maxoraw
+pho_cep
+pho_lambdaratio
+pho_lambdadivcov
+pho_etawidth
+pho_brem
+pho_smaj
+pho_e2x2
 ->
 pho_e2overe9
 ->
