@@ -1070,7 +1070,7 @@ void PhotonAnalysis::PreselectPhotons(LoopAll& l, int jentry)
         }
         if( cur_type == 0 ) {          // correct energy scale in data
             float ebefore = phoInfo.energy();
-            eScaleDataSmearer->smearPhoton(phoInfo,sweight,l.run,0.);
+            //eScaleDataSmearer->smearPhoton(phoInfo,sweight,l.run,0.);
             pweight *= sweight;
             /// std::cerr << std::setprecision(3) << "adjusting energy scale " << " run: "<< l.run << " " << phoInfo.caloPosition().Eta() << " " 
             ///       << phoInfo.r9()<< " before: " << ebefore;
