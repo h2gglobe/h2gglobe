@@ -8,6 +8,6 @@
 ./submit_reduction.sh mc_bkg_summer12_s7_V13_01_02 DYJets 10
 ./submit_reduction.sh mc_bkg_summer12_s7_V13_01_02 QCD_Pt_30_80 10
 
-./submit_reduction.sh mc_bkg_summer12_s7_V13_01_03 GJet_Pt-20_ff 10
-./submit_reduction.sh mc_bkg_summer12_s7_V13_01_03 GJet_Pt-20_pf 10
-./submit_reduction.sh mc_bkg_summer12_s7_V13_01_03 GJet_Pt-20_pp 10
+./submit_reduction.sh mc_bkg_summer12_s7_V13_01_03 GJet_Pt40_ff 10
+./submit_reduction.sh mc_bkg_summer12_s7_V13_01_03 GJet_Pt40_pf 10
+./submit_reduction.sh mc_bkg_summer12_s7_V13_01_03 GJet_Pt40_pp 10
