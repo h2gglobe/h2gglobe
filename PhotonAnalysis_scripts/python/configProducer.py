@@ -53,6 +53,10 @@ class configProducer:
 	
     self.make_histograms=makehistos
 
+    # configurable from .dat file
+    self.plottingvariables_ = "plotvariables.dat"
+    self.cutvariables_ = "cuts.dat"
+
     self.sample_weights_file_ = 0
     self.file_processed_events_ = {}
 
@@ -119,7 +123,7 @@ class configProducer:
       self.store_config_file(conf_filename)
 
   def init_cuts(self):
-    self.read_dat_cuts('cuts.dat')
+    self.read_dat_cuts(self.cutvariables_)
     for dum in self.plotvar_.vardef:
         if (dum['fin'] == 0):
             self.ut_.AddCut(dum['cutname'],dum['ncat'],dum['dir'],dum['fin'],dum['cutValuel'],dum['cutValueh'])
@@ -133,7 +137,7 @@ class configProducer:
       self.ut_.AddCounter(dum['ncat'] ,dum['countername'], dum['denomname1'], dum['denomname2'], dum['denomname3'])
       
   def init_histos(self):
-    self.read_dat_plotvariables('plotvariables.dat')
+    self.read_dat_plotvariables(self.plotvariables_)
     self.ut_.InitHistos()
     for dum in self.plotvar_.vardef:
       self.ut_.BookHisto(dum['htyp'],dum['plot'],dum['default'],dum['ncat'],dum['xbins'],dum['ybins'],dum['xmin'],dum['xmax'],dum['ymin'],dum['ymax'],dum['name'], dum['xaxis'], dum['yaxis'])
@@ -340,8 +344,16 @@ class configProducer:
          
        # input and output branches      
        elif line.startswith("outputBranches "):
-         self.read_output_branches(line)
-         
+         self.read_output_branches(line)         
+
+       # choose plotvariables for analysis
+       elif line.startswith("plotvariables"):
+	 self.plottingvariables_ = line.split(" ")[1]
+
+       # choose plotvariables for analysis
+       elif line.startswith("cuts"):
+	 self.cutvariables_ = line.split(" ")[1]
+
        # Read a generic member of the LoopAll class
        else:
          self.read_struct_line(line,self.ut_)
