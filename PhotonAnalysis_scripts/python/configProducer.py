@@ -137,7 +137,7 @@ class configProducer:
       self.ut_.AddCounter(dum['ncat'] ,dum['countername'], dum['denomname1'], dum['denomname2'], dum['denomname3'])
       
   def init_histos(self):
-    self.read_dat_plotvariables(self.plotvariables_)
+    self.read_dat_plotvariables(self.plottingvariables_)
     self.ut_.InitHistos()
     for dum in self.plotvar_.vardef:
       self.ut_.BookHisto(dum['htyp'],dum['plot'],dum['default'],dum['ncat'],dum['xbins'],dum['ybins'],dum['xmin'],dum['xmax'],dum['ymin'],dum['ymax'],dum['name'], dum['xaxis'], dum['yaxis'])
