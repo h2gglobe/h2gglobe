@@ -238,10 +238,10 @@ void Branch_jet_algoPF1_frac04(TTree * tree) { tree->Branch("jet_algoPF1_frac04"
 void Branch_jet_algoPF1_frac05(TTree * tree) { tree->Branch("jet_algoPF1_frac05",&jet_algoPF1_frac05, "jet_algoPF1_frac05[jet_algoPF1_n]/F"); }; 
 void Branch_jet_algoPF1_full_mva(TTree * tree) { tree->Branch("jet_algoPF1_full_mva",&jet_algoPF1_full_mva, "jet_algoPF1_full_mva[jet_algoPF1_n]/F"); }; 
 void Branch_jet_algoPF1_simple_mva(TTree * tree) { tree->Branch("jet_algoPF1_simple_mva",&jet_algoPF1_simple_mva, "jet_algoPF1_simple_mva[jet_algoPF1_n]/F"); }; 
-void Branch_jet_algoPF1_nCharged(TTree * tree) { tree->Branch("jet_algoPF1_nCharged",&jet_algoPF1_nCharged, "jet_algoPF1_nCharged[jet_algoPF1_n]/I"); }; 
-void Branch_jet_algoPF1_nNeutrals(TTree * tree) { tree->Branch("jet_algoPF1_nNeutrals",&jet_algoPF1_nNeutrals, "jet_algoPF1_nNeutrals[jet_algoPF1_n]/I"); }; 
-void Branch_jet_algoPF1_full_wp_level(TTree * tree) { tree->Branch("jet_algoPF1_full_wp_level",&jet_algoPF1_full_wp_level, "jet_algoPF1_full_wp_level[jet_algoPF1_n]/I"); }; 
-void Branch_jet_algoPF1_simple_wp_level(TTree * tree) { tree->Branch("jet_algoPF1_simple_wp_level",&jet_algoPF1_simple_wp_level, "jet_algoPF1_simple_wp_level[jet_algoPF1_n]/I"); }; 
+void Branch_jet_algoPF1_nCharged(TTree * tree) { tree->Branch("jet_algoPF1_nCharged",&jet_algoPF1_nCharged, "jet_algoPF1_nCharged[jet_algoPF1_n]/F"); }; 
+void Branch_jet_algoPF1_nNeutrals(TTree * tree) { tree->Branch("jet_algoPF1_nNeutrals",&jet_algoPF1_nNeutrals, "jet_algoPF1_nNeutrals[jet_algoPF1_n]/F"); }; 
+void Branch_jet_algoPF1_full_wp_level(TTree * tree) { tree->Branch("jet_algoPF1_full_wp_level",&jet_algoPF1_full_wp_level, "jet_algoPF1_full_wp_level[jet_algoPF1_n]/F"); }; 
+void Branch_jet_algoPF1_simple_wp_level(TTree * tree) { tree->Branch("jet_algoPF1_simple_wp_level",&jet_algoPF1_simple_wp_level, "jet_algoPF1_simple_wp_level[jet_algoPF1_n]/F"); }; 
 void Branch_jet_algoPF2_n(TTree * tree) { tree->Branch("jet_algoPF2_n",&jet_algoPF2_n, "jet_algoPF2_n/I"); }; 
 void Branch_jet_algoPF2_p4(TTree * tree) { tree->Branch("jet_algoPF2_p4", "TClonesArray",&jet_algoPF2_p4, 32000, 0); }; 
 void Branch_jet_algoPF2_emfrac(TTree * tree) { tree->Branch("jet_algoPF2_emfrac",&jet_algoPF2_emfrac, "jet_algoPF2_emfrac[jet_algoPF2_n]/F"); }; 
