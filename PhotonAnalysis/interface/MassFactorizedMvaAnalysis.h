@@ -4,6 +4,7 @@
 #include "BaseAnalysis.h"
 #include "BaseSmearer.h"
 #include "PhotonAnalysis.h"
+#include "StatAnalysis.h"
 #include "RooContainer.h"
 #include "VertexAnalysis/interface/HggVertexAnalyzer.h"
 
@@ -16,7 +17,7 @@
 #include "math.h"
 
 // ------------------------------------------------------------------------------------
-class MassFactorizedMvaAnalysis : public PhotonAnalysis 
+class MassFactorizedMvaAnalysis : public StatAnalysis 
 {
  public:
     
@@ -33,18 +34,7 @@ class MassFactorizedMvaAnalysis : public PhotonAnalysis
     
     virtual bool SelectEvents(LoopAll&, int);
     virtual void ResetAnalysis();
-    virtual void Analysis(LoopAll&, Int_t);
-    
-    // Options
-    bool includeVBF;
-    bool reRunCiCForData;
-    float leadEtCut;
-    float subleadEtCut;
-    std::string efficiencyFile;
-    
-    // EnergySmearer::energySmearingParameters eSmearPars; // gone to PhotonAnalysis GF
-    EfficiencySmearer::efficiencySmearingParameters effSmearPars;
-    DiPhoEfficiencySmearer::diPhoEfficiencySmearingParameters diPhoEffSmearPars;
+    virtual void Analysis(LoopAll&, Int_t); 
 
     double GetDifferentialKfactor(double, int);
 
@@ -52,23 +42,11 @@ class MassFactorizedMvaAnalysis : public PhotonAnalysis
     int GetBDTBoundaryCategory(float,bool,bool);
     std::string GetSignalLabel(int) ;
 
-    bool  doMCSmearing;
-    bool  doEscaleSyst, doEresolSyst, doPhotonIdEffSyst, doVtxEffSyst, doR9Syst, doTriggerEffSyst, doKFactorSyst, doPhotonMvaIdSyst;
-    bool  doEscaleSmear, doEresolSmear, doPhotonIdEffSmear, doVtxEffSmear, doR9Smear, doTriggerEffSmear, doKFactorSmear, doPhotonMvaIdSmear;
+    bool  doPhotonMvaIdSyst;
+    bool  doPhotonMvaIdSmear;
     bool doRegressionSmear, doRegressionSyst;
-    float systRange;
-    int   nSystSteps;   
-    int   nEtaCategories, nR9Categories, nPtCategories;
     float massMin, massMax;
     int nDataBins;  
-    //float smearing_sigma_EBHighR9       ;
-    //float smearing_sigma_EBLowR9        ;
-    //float smearing_sigma_EEHighR9       ;
-    //float smearing_sigma_EELowR9        ;
-    //float smearing_sigma_error_EBHighR9 ;
-    //float smearing_sigma_error_EBLowR9  ;
-    //float smearing_sigma_error_EEHighR9 ;
-    //float smearing_sigma_error_EELowR9  ;
 
     std::string bdtTrainingPhilosophy;
     std::string photonLevelMvaUCSD  ;
@@ -77,43 +55,27 @@ class MassFactorizedMvaAnalysis : public PhotonAnalysis
     std::string photonLevelMvaMIT_EE;
     std::string eventLevelMvaMIT    ;
 
-    std::string kfacHist;
-
-    TH1D *thm110,*thm120,*thm130,*thm140;
     int nMasses;
 
     
 
  protected:
-    std::vector<BaseSmearer *> photonSmearers_;
-    std::vector<BaseSmearer *> systPhotonSmearers_;
-    std::vector<BaseDiPhotonSmearer *> diPhotonSmearers_;
-    std::vector<BaseDiPhotonSmearer *> systDiPhotonSmearers_;
-    std::vector<BaseGenLevelSmearer *> genLevelSmearers_;
-    std::vector<BaseGenLevelSmearer *> systGenLevelSmearers_;
-    
-    EnergySmearer /* *eScaleSmearer,*/ *eResolSmearer, *eRegressionSmearer ; // moved to PhotonAnalysis GF 
-    EfficiencySmearer *idEffSmearer, *r9Smearer;
-    DiPhoEfficiencySmearer *vtxEffSmearer, *triggerEffSmearer,*photonMvaIdSmearer ;
-    KFactorSmearer * kFactorSmearer;
+
+    bool AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentzVector & gP4, float & mass, float & evweight, int & category, int & diphoton_id,
+		      bool & isCorrectVertex,
+		      bool isSyst=false, 
+		      float syst_shift=0., bool skipSelection=false,
+		      BaseGenLevelSmearer *genSys=0, BaseSmearer *phoSys=0, BaseDiPhotonSmearer * diPhoSys=0); 
+
+    EnergySmearer  *eRegressionSmearer ; 
+    DiPhoEfficiencySmearer *photonMvaIdSmearer ;
     
     std::string name_;
     std::map<int,std::string> signalLabels;
-    float nevents, sumwei, sumaccept, sumsmear, sumev; 
     
-    int nPhotonCategories_;
-    int diPhoCounter_;
-    // Vertex analysis
+    
     HggVertexAnalyzer vtxAna_;
     HggVertexFromConversions vtxConv_;
-    
-    // RooStuff
-    RooContainer *rooContainer;
-
-    ofstream eventListText;
-    //vector<double> weights;
-    TFile *kfacFile;
-    
 };
 
 #endif

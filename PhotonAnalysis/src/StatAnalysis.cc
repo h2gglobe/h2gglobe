@@ -777,7 +777,7 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 	}
 	
 	// VBF+hadronic VH
-	if((includeVBF || includeVHhad)&&l.jet_algoPF1_n>1) {
+	if((includeVBF || includeVHhad)&&l.jet_algoPF1_n>1 && !isSyst /*avoid rescale > once*/) {
 	    l.RescaleJetEnergy();
 	}
 
