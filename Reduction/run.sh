@@ -4,7 +4,7 @@ export BATCH=
 export DISPLAY=""
 
 batchdir=$PWD
-mydir=$(dirname $(which $0))/PhotonAnalysis_scripts
+mydir=$(dirname $(which $0))/AnalysisScripts
 
 set -x
 cd $mydir
@@ -31,7 +31,7 @@ shift
 cd $workdir
 cp -pv $(dirname $(which $0))/*.sh .
 cp -pv $mydir/*.dat . 
-cp -prv $mydir/aux .
+cp -prv $(find $mydir/ -name \*.dat -or -name \*.root -or -name \*.xml | xargs -n 1 dirname  | sort -u) .
 source version.sh
 source setup.sh
 

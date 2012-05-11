@@ -16,7 +16,7 @@ if [ -n "${BATCH+x}" ]; then
 else 
     [[ ! -d ${base_storedir} ]] && mkdir ${base_storedir}
     if [[ -n ${storeremote} ]]; then
-	if ( ! echo ${storeremote} | grep castor > /dev/null ) && 
+	if ( ! echo ${storeremote} | egrep '(castor|/store)' > /dev/null ) && 
 	    ( ! mount | grep ${storeremote} | grep ${USER} > /dev/null ); then 
 	    sshfs ${storeremote} ${storedir} -o nonempty
 	fi
