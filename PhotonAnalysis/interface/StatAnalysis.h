@@ -77,7 +77,7 @@ class StatAnalysis : public PhotonAnalysis
     int nMasses;
 
  protected:
-    bool AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentzVector & gP4, float & mass, float & evweight, int & category, int & diphoton_id,
+    virtual bool AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentzVector & gP4, float & mass, float & evweight, int & category, int & diphoton_id,
 		      bool & isCorrectVertex,
 		      bool isSyst=false, 
 		      float syst_shift=0., bool skipSelection=false,
