@@ -5,19 +5,26 @@ def makeCaFiles(dir,njobs=-1,jobid=0,nf=[0]):
    dir = str(dir)
    return_files = []
 
-   sc,flist = commands.getstatusoutput('nsls %s'%(dir))
-#   nf = 0
-   
+   iscastor = False
+   if dir.startswith("/castor"):
+      sc,flist = commands.getstatusoutput('nsls %s'%(dir))
+      iscastor = True
+   else:
+      sc,flist = commands.getstatusoutput("cmsLs %s | awk { print $5 }" % (dir))
+      
    if not sc:
       files = flist.split('\n')
       for f in files:
          if '.root' in f:
             nf[0] += 1
+            if iscastor:
+               fname = 'rfio://'+dir+'/'+f
+            else:
+               fname = commands.getoutput("cmsPfn %s" % f)
             if (njobs > 0) and (nf[0] % njobs != jobid):
-               return_files.append(('rfio://'+dir+'/'+f,False))
+               return_files.append((fname,False))
 	    else:
-               return_files.append(('rfio://'+dir+'/'+f,True))
-            
+               return_files.append((fname,True))      
    else:
       sys.exit("No Such Directory: %s"%(dir))
 
