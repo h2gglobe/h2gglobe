@@ -1181,13 +1181,16 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
     } else {
         SetNullHiggs(l);
     }
-  
-
-
+    /// Jet matching
+    // pfJets ak5
+    l.doJetMatching(*l.jet_algoPF1_p4,*l.genjet_algo1_p4,l.jet_algoPF1_genMatched,l.jet_algoPF1_vbfMatched,l.jet_algoPF1_genPt,l.jet_algoPF1_genDr);
+    // pfJets ak7
+    l.doJetMatching(*l.jet_algoPF2_p4,*l.genjet_algo2_p4,l.jet_algoPF2_genMatched,l.jet_algoPF2_vbfMatched,l.jet_algoPF2_genPt,l.jet_algoPF2_genDr);
+    // CHS ak5
+    l.doJetMatching(*l.jet_algoPF3_p4,*l.genjet_algo1_p4,l.jet_algoPF3_genMatched,l.jet_algoPF3_vbfMatched,l.jet_algoPF3_genPt,l.jet_algoPF3_genDr);
+    
     if( pho_presel.size() < 2 ) {
-
         // zero or one photons, can't determine a vertex based on photon pairs
-
         l.vtx_std_ranked_list->push_back( std::vector<int>() );
         for(int ii=0;ii<l.vtx_std_n; ++ii) { l.vtx_std_ranked_list->back().push_back(ii); }
         l.vtx_std_sel = 0;
@@ -1266,15 +1269,13 @@ bool PhotonAnalysis::SkimEvents(LoopAll& l, int jentry)
             return true;
         }
 
-        // taking out the trigger for first reduction CP May 3
-     //   // get the trigegr data
-     //   l.b_hlt1_bit->GetEntry(jentry);
-     //   l.b_hlt_path_names_HLT1->GetEntry(jentry);
-     //   if( !  isel->pass(*(l.hlt_path_names_HLT1),*(l.hlt1_bit)) ) {
-     //       /// std::cerr << "failed "  << std::endl;
-     //       return false;
-     //   }
-        //// l.countersred[trigCounter_]++;
+	// get the trigger data
+	l.b_hlt1_bit->GetEntry(jentry);
+	l.b_hlt_path_names_HLT1->GetEntry(jentry);
+	if( !  isel->pass(*(l.hlt_path_names_HLT1),*(l.hlt1_bit)) ) {
+	    return false;
+	}
+	l.countersred[trigCounter_]++;
     }
     
     if( l.typerun == l.kReduce || l.typerun == l.kFillReduce ) {
@@ -1371,6 +1372,20 @@ void PhotonAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree)
     l.Branch_pho_regr_energy_otf(outputTree);
     l.Branch_pho_regr_energyerr_otf(outputTree);
     
+    l.Branch_jet_algoPF1_genMatched(outputTree);
+    l.Branch_jet_algoPF1_vbfMatched(outputTree);
+    l.Branch_jet_algoPF1_genPt(outputTree);
+    l.Branch_jet_algoPF1_genDr(outputTree);
+
+    l.Branch_jet_algoPF2_genMatched(outputTree);
+    l.Branch_jet_algoPF2_vbfMatched(outputTree);
+    l.Branch_jet_algoPF2_genPt(outputTree);
+    l.Branch_jet_algoPF2_genDr(outputTree);
+
+    l.Branch_jet_algoPF3_genMatched(outputTree);
+    l.Branch_jet_algoPF3_vbfMatched(outputTree);
+    l.Branch_jet_algoPF3_genPt(outputTree);
+    l.Branch_jet_algoPF3_genDr(outputTree);
     
     l.gh_higgs_p4 = new TClonesArray("TLorentzVector", 1); 
     l.gh_higgs_p4->Clear();
@@ -1633,14 +1648,14 @@ void PhotonAnalysis::SetNullHiggs(LoopAll& l){
 
     ((TLorentzVector *)l.gh_vbfq1_p4->At(0))->SetXYZT(0,0,0,0);
     ((TLorentzVector *)l.gh_vbfq2_p4->At(0))->SetXYZT(0,0,0,0);
-    l.gh_vbfq1_pdgid=-10000;
-    l.gh_vbfq2_pdgid=-10000;
+    l.gh_vbfq1_pdgid=0;
+    l.gh_vbfq2_pdgid=0;
   
     ((TLorentzVector *)l.gh_vh1_p4->At(0))->SetXYZT(0,0,0,0);
     ((TLorentzVector *)l.gh_vh2_p4->At(0))->SetXYZT(0,0,0,0);
-    l.gh_vh_pdgid=-10000;
-    l.gh_vh1_pdgid=-10000;
-    l.gh_vh2_pdgid=-10000;
+    l.gh_vh_pdgid=0;
+    l.gh_vh1_pdgid=0;
+    l.gh_vh2_pdgid=0;
 
 }
 
@@ -1712,10 +1727,10 @@ bool PhotonAnalysis::FindHiggsObjects(LoopAll& l){
 
 
   
-    if(vbfq1==-100) l.gh_vbfq1_pdgid=-10000;
+    if(vbfq1==-100) l.gh_vbfq1_pdgid=0;
     else l.gh_vbfq1_pdgid=l.gp_pdgid[vbfq1];
 
-    if(vbfq2==-100) l.gh_vbfq2_pdgid=-10000;
+    if(vbfq2==-100) l.gh_vbfq2_pdgid=0;
     else l.gh_vbfq2_pdgid=l.gp_pdgid[vbfq2];
 
     if(vbfq1!=-100) {

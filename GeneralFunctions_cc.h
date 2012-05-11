@@ -2013,23 +2013,23 @@ Float_t LoopAll::SumTrackPtInCone(TLorentzVector *photon_p4, Int_t vtxind, Float
 
 void LoopAll::getIetaIPhi(int phoid, int & ieta, int & iphi ) const
 {
-	TLorentzVector *bcpos   = (TLorentzVector*)bc_p4->At(sc_bcseedind[pho_scind[phoid]]);
-	double minDR=999.;
-	int closestHit=-1;
-	for (int i=0;i<ecalhit_n;i++){
-		TLorentzVector *xtalpos = (TLorentzVector*)ecalhit_p4->At(i);
-		//TVector3 xtalxyz = xtalpos->Vect();
-		//double dR = (xtalxyz-bcxyz).Mag();
-		double dR = xtalpos->DeltaR(*bcpos);
-		if(dR<minDR){
-			closestHit = i;
-			minDR = dR;
-		}
-	}
-	if (closestHit<0) std::cout << "Fishy !!!!!!" <<std::endl;
+	///// TLorentzVector *bcpos   = (TLorentzVector*)bc_p4->At(sc_bcseedind[pho_scind[phoid]]);
+	///// double minDR=999.;
+	///// int closestHit=-1;
+	///// for (int i=0;i<ecalhit_n;i++){
+	///// 	TLorentzVector *xtalpos = (TLorentzVector*)ecalhit_p4->At(i);
+	///// 	//TVector3 xtalxyz = xtalpos->Vect();
+	///// 	//double dR = (xtalxyz-bcxyz).Mag();
+	///// 	double dR = xtalpos->DeltaR(*bcpos);
+	///// 	if(dR<minDR){
+	///// 		closestHit = i;
+	///// 		minDR = dR;
+	///// 	}
+	///// }
+	///// if (closestHit<0) std::cout << "Fishy !!!!!!" <<std::endl;
 	
-	int detid = ecalhit_detid[closestHit];
-	//int detid = ecalhit_detid[bc_seed[sc_bcseedind[pho_scind[phoid]]]];
+	//// int detid = ecalhit_detid[closestHit];
+	int detid = ecalhit_detid[bc_seed[sc_bcseedind[pho_scind[phoid]]]];
 	ieta  = (detid>>9)&0x7F; 
 	iphi  = detid&0x1FF; 
 }
@@ -2366,6 +2366,36 @@ int LoopAll::ElectronSelection(TLorentzVector& pho1, TLorentzVector& pho2, int v
   /////////////////(here D0 and DZ are wrt vertex selected by the mva vertexing)
 
   return myel;
+}
+
+//--- RECO-MC JET MATCHING --------------------------------------------------------------------------------------------------------
+void LoopAll::doJetMatching(TClonesArray & reco, TClonesArray & gen, 
+			    Bool_t  * match_flag, Bool_t * match_vbf_flag,  
+			    Float_t * match_pt,   Float_t * match_dr,      Float_t maxDr )
+{
+	int ngen  = gen.GetEntries();
+	int nreco = reco.GetEntries();
+	
+	for(int ir=0; ir<nreco; ++ir) {
+	    match_flag[ir] = false;
+	    match_vbf_flag[ir] = false;
+	    match_pt[ir] = 0.;
+	    match_dr[ir] = 999.;
+	    TLorentzVector & recop4 = *(TLorentzVector*)reco.At(ir);
+	    for(int ig=0; ig<ngen; +ir) {
+		TLorentzVector & genp4 = *(TLorentzVector*)gen.At(ig);
+		Float_t dR = recop4.DeltaR(genp4);
+		if( dR < maxDr && dR < match_dr[ir] ) {
+		    match_flag[ir] = true;
+		    match_pt[ir]   = genp4.Pt();
+		    match_dr[ir]   = dR;
+		    if( ! match_vbf_flag[ir] ) {
+			match_vbf_flag[ir] = ( gh_vbfq1_pdgid != 0 && recop4.DeltaR( *(TLorentzVector*)gh_vbfq1_p4->At(0) ) < maxDr ||
+					       gh_vbfq2_pdgid != 0 && recop4.DeltaR( *(TLorentzVector*)gh_vbfq2_p4->At(0) ) < maxDr );
+		    }
+		}
+	    }
+	}
 }
 
 

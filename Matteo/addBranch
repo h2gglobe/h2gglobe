@@ -46,6 +46,8 @@ elif (type == "F"):
     file.write("Float_t " + name + "[" + limit + "];\n")
 elif (type == "I"):
     file.write("Int_t " + name + "[" + limit + "];\n")
+elif (type == "O"):
+    file.write("Bool_t " + name + "[" + limit + "];\n")
 else:
     file.write(type + " " + name + "[" + limit + "];\n")
 file.close()
