@@ -1376,12 +1376,12 @@ void PhotonAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree)
     l.Branch_jet_algoPF1_vbfMatched(outputTree);
     l.Branch_jet_algoPF1_genPt(outputTree);
     l.Branch_jet_algoPF1_genDr(outputTree);
-
+    
     l.Branch_jet_algoPF2_genMatched(outputTree);
     l.Branch_jet_algoPF2_vbfMatched(outputTree);
     l.Branch_jet_algoPF2_genPt(outputTree);
     l.Branch_jet_algoPF2_genDr(outputTree);
-
+    
     l.Branch_jet_algoPF3_genMatched(outputTree);
     l.Branch_jet_algoPF3_vbfMatched(outputTree);
     l.Branch_jet_algoPF3_genPt(outputTree);

@@ -10,7 +10,7 @@ def makeCaFiles(dir,njobs=-1,jobid=0,nf=[0]):
       sc,flist = commands.getstatusoutput('nsls %s'%(dir))
       iscastor = True
    else:
-      sc,flist = commands.getstatusoutput("cmsLs %s | awk '{ print $5 }' | xargs cmsPfn | sed 's%\?.*$%%'" % (dir))
+      sc,flist = commands.getstatusoutput("cmsLs %s | awk '{ print $5 }' | xargs cmsPfn | sed 's/\?.*$//'" % (dir))
       
    if not sc:
       files = flist.split('\n')

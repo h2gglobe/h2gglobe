@@ -705,3 +705,9 @@ void Branch_jet_algoPF3_genDr(TTree* tree) { tree->Branch("jet_algoPF3_genDr", &
 void Branch_jet_algoPF3_vbfMatched(TTree* tree) { tree->Branch("jet_algoPF3_vbfMatched", &jet_algoPF3_vbfMatched, "jet_algoPF3_vbfMatched[jet_algoPF3_n]/O"); };
 void Branch_jet_algoPF2_vbfMatched(TTree* tree) { tree->Branch("jet_algoPF2_vbfMatched", &jet_algoPF2_vbfMatched, "jet_algoPF2_vbfMatched[jet_algoPF2_n]/O"); };
 void Branch_jet_algoPF1_vbfMatched(TTree* tree) { tree->Branch("jet_algoPF1_vbfMatched", &jet_algoPF1_vbfMatched, "jet_algoPF1_vbfMatched[jet_algoPF1_n]/O"); };
+void Branch_el_std_pfiso_charged(TTree* tree) { tree->Branch("el_std_pfiso_charged", &el_std_pfiso_charged, "el_std_pfiso_charged[el_std_n]/F"); };
+void Branch_el_std_pfiso_neutral(TTree* tree) { tree->Branch("el_std_pfiso_neutral", &el_std_pfiso_neutral, "el_std_pfiso_neutral[el_std_n]/F"); };
+void Branch_el_std_pfiso_photon(TTree* tree) { tree->Branch("el_std_pfiso_photon", &el_std_pfiso_photon, "el_std_pfiso_photon[el_std_n]/F"); };
+void Branch_pho_hcalbcsumetconedr03(TTree* tree) { tree->Branch("pho_hcalbcsumetconedr03", &pho_hcalbcsumetconedr03, "pho_hcalbcsumetconedr03[pho_n]/F"); };
+void Branch_pho_hcalbcsumetconedr04(TTree* tree) { tree->Branch("pho_hcalbcsumetconedr04", &pho_hcalbcsumetconedr04, "pho_hcalbcsumetconedr04[pho_n]/F"); };
+void Branch_pho_hoe_bc(TTree* tree) { tree->Branch("pho_hoe_bc", &pho_hoe_bc, "pho_hoe_bc[pho_n]/F"); };

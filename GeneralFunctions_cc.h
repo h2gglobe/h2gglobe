@@ -2382,7 +2382,8 @@ void LoopAll::doJetMatching(TClonesArray & reco, TClonesArray & gen,
 	    match_pt[ir] = 0.;
 	    match_dr[ir] = 999.;
 	    TLorentzVector & recop4 = *(TLorentzVector*)reco.At(ir);
-	    for(int ig=0; ig<ngen; +ir) {
+	    for(int ig=0; ig<ngen; ++ig) {
+		    /// std::cerr << "ir "  << ir << " ig " << ig << std::endl; 
 		TLorentzVector & genp4 = *(TLorentzVector*)gen.At(ig);
 		Float_t dR = recop4.DeltaR(genp4);
 		if( dR < maxDr && dR < match_dr[ir] ) {

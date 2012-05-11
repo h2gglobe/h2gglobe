@@ -23,14 +23,14 @@ sc_bcseedind
 
 ecalhit_n
 ecalhit_detid
-# ecalhit_p4
+### ecalhit_p4
 bc_n
-# bc_p4
+### bc_p4
 
 # Tracks 
 tk_n
-## tk_p4
-tk_vtx_pos
+### tk_p4
+### tk_vtx_pos
 
 # met
 met_pfmet
@@ -67,7 +67,6 @@ el_std_z0
 el_std_posvtx
 el_std_D0Vtx
 el_std_DZVtx
-el_std_eopin
 el_std_ip_ctf
 el_std_tkdrv
 el_std_ecaldrv
@@ -243,8 +242,8 @@ pho_pfclusrms
 pho_pfclusrmsmust
 pho_eseffsixix
 pho_eseffsiyiy
-pho_hcalbcsumetconedr03
-pho_hcalbcsumetconedr04
+#### pho_hcalbcsumetconedr03
+#### pho_hcalbcsumetconedr04
 pho_hoe_bc
 
 # All Conversions
@@ -345,22 +344,22 @@ bs_sigmaZ0Error
 met_tcmet
 met_phi_tcmet
 
-# Trigger
+###### # Trigger
 hlt_bit
 hlt_n
 hlt_candpath
 hlt_path_names_HLT
 hlt_p4
-l1emiso_n
-l1emiso_et
-l1emiso_eta
-l1emiso_phi
-l1emnoniso_n
-l1emnoniso_et
-l1emnoniso_eta
-l1emnoniso_phi
-l1bits_phy
-l1_labels
+#### l1emiso_n
+#### l1emiso_et
+#### l1emiso_eta
+#### l1emiso_phi
+#### l1emnoniso_n
+#### l1emnoniso_et
+#### l1emnoniso_eta
+#### l1emnoniso_phi
+#### l1bits_phy
+#### l1_labels
 
 # Jets
 jet_algoPF1_n

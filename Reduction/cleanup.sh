@@ -7,7 +7,7 @@ if [ -n "${BATCH+x}" ]; then
 	    cp=rfcp
 	else
 	    mkdir=cmsMkdir
-	    cp=cmsStage
+	    cp=cmsStage -f
 	fi
 	$mkdir ${storeremote}/${version}
 	cd ${storedir}

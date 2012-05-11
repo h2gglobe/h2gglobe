@@ -9,9 +9,9 @@ from sys import argv, exit
 ROOT.gROOT.SetBatch(1)
 ## ROOT.gSystem.Load("libTree.so");
 ## ROOT.gSystem.Load("libTMVA.so");
-ROOT.gSystem.Load("libPhysics.so")
-ROOT.gSystem.Load("libCore.so")
-ROOT.gSystem.Load("../../../../../lib/slc5_amd64_gcc434/libHiggsAnalysisHiggsToGammaGamma.so")
+#####ROOT.gSystem.Load("libPhysics.so")
+#####ROOT.gSystem.Load("libCore.so")
+#####ROOT.gSystem.Load("../../../../../lib/slc5_amd64_gcc434/libHiggsAnalysisHiggsToGammaGamma.so")
 ROOT.gSystem.Load("../libLoopAll.so")
 
 ROOT.gBenchmark.Start("Reduction")

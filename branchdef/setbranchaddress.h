@@ -705,3 +705,9 @@ void SetBranchAddress_jet_algoPF3_genDr(TTree* tree) { tree->SetBranchAddress("j
 void SetBranchAddress_jet_algoPF3_vbfMatched(TTree* tree) { tree->SetBranchAddress("jet_algoPF3_vbfMatched", &jet_algoPF3_vbfMatched, &b_jet_algoPF3_vbfMatched); };
 void SetBranchAddress_jet_algoPF2_vbfMatched(TTree* tree) { tree->SetBranchAddress("jet_algoPF2_vbfMatched", &jet_algoPF2_vbfMatched, &b_jet_algoPF2_vbfMatched); };
 void SetBranchAddress_jet_algoPF1_vbfMatched(TTree* tree) { tree->SetBranchAddress("jet_algoPF1_vbfMatched", &jet_algoPF1_vbfMatched, &b_jet_algoPF1_vbfMatched); };
+void SetBranchAddress_el_std_pfiso_charged(TTree* tree) { tree->SetBranchAddress("el_std_pfiso_charged", &el_std_pfiso_charged, &b_el_std_pfiso_charged); };
+void SetBranchAddress_el_std_pfiso_neutral(TTree* tree) { tree->SetBranchAddress("el_std_pfiso_neutral", &el_std_pfiso_neutral, &b_el_std_pfiso_neutral); };
+void SetBranchAddress_el_std_pfiso_photon(TTree* tree) { tree->SetBranchAddress("el_std_pfiso_photon", &el_std_pfiso_photon, &b_el_std_pfiso_photon); };
+void SetBranchAddress_pho_hcalbcsumetconedr03(TTree* tree) { tree->SetBranchAddress("pho_hcalbcsumetconedr03", &pho_hcalbcsumetconedr03, &b_pho_hcalbcsumetconedr03); };
+void SetBranchAddress_pho_hcalbcsumetconedr04(TTree* tree) { tree->SetBranchAddress("pho_hcalbcsumetconedr04", &pho_hcalbcsumetconedr04, &b_pho_hcalbcsumetconedr04); };
+void SetBranchAddress_pho_hoe_bc(TTree* tree) { tree->SetBranchAddress("pho_hoe_bc", &pho_hoe_bc, &b_pho_hoe_bc); };

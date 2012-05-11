@@ -33,6 +33,7 @@ pho_calopos
 on the fly regression corrections calculation
 ->
 sc_n
+sc_xyz
 sc_raw
 sc_pre
 sc_seta
@@ -95,3 +96,10 @@ gp_vtx:1
 gp_status:1
 gp_pdgid:1
 gp_mother:1
+
+genjet_algo1_n
+genjet_algo1_p4
+genjet_algo2_n
+genjet_algo2_p4
+genjet_algo3_n
+genjet_algo3_p4
