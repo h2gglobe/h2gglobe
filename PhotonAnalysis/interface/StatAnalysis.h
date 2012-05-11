@@ -11,6 +11,7 @@
 #include "EfficiencySmearer.h"
 #include "DiPhoEfficiencySmearer.h"
 #include "KFactorSmearer.h"
+#include "InterferenceSmearer.h"
 #include <iostream>
 #include <fstream>
 #include "math.h"
@@ -55,7 +56,7 @@ class StatAnalysis : public PhotonAnalysis
     std::string GetSignalLabel(int) ;
 
     bool  doEscaleSyst, doEresolSyst, doPhotonIdEffSyst, doVtxEffSyst, doR9Syst, doTriggerEffSyst, doKFactorSyst;
-    bool  doEscaleSmear, doEresolSmear, doPhotonIdEffSmear, doVtxEffSmear, doR9Smear, doTriggerEffSmear, doKFactorSmear;
+    bool  doEscaleSmear, doEresolSmear, doPhotonIdEffSmear, doVtxEffSmear, doR9Smear, doTriggerEffSmear, doKFactorSmear, doInterferenceSmear;
     float systRange;
     int   nSystSteps;   
     //int   nEtaCategories, nR9Categories, nPtCategories;
@@ -97,6 +98,7 @@ class StatAnalysis : public PhotonAnalysis
     EfficiencySmearer *idEffSmearer, *r9Smearer;
     DiPhoEfficiencySmearer *vtxEffSmearer, *triggerEffSmearer;
     KFactorSmearer * kFactorSmearer;
+    InterferenceSmearer * interferenceSmearer;
     
     std::string name_;
     std::map<int,std::string> signalLabels;

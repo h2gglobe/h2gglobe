@@ -191,6 +191,12 @@ void StatAnalysis::Init(LoopAll& l)
         kFactorSmearer->init();
         genLevelSmearers_.push_back(kFactorSmearer);
     }
+    if(doInterferenceSmear) {
+        // interference efficiency
+        std::cerr << __LINE__ << std::endl; 
+        interferenceSmearer = new InterferenceSmearer(2.5e-2,0.);
+        genLevelSmearers_.push_back(interferenceSmearer);
+    }
 
     // Define the number of categories for the statistical analysis and
     // the systematic sets to be formed

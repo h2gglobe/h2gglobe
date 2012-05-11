@@ -25,7 +25,7 @@ BaseAnalysis* LoopAll::AddAnalysis(BaseAnalysis* baseAnalysis) {
 // ------------------------------------------------------------------------------------
 void LoopAll::SetTypeRun(int t, const char* name) {
   typerun = t;
-  if (t == 1) {
+  if (typerun == kReduce || typerun == kFillReduce ) {
     makeOutputTree = 1;
     outputFileName = TString(name);
     histFileName  = TString("");
@@ -46,10 +46,10 @@ void LoopAll::SetTypeRun(int t, const char* name) {
   
   int hasoutputfile=0;
   
-  if(typerun == 0 || typerun == 2) {
+  if(typerun == kFill ) {
     if(DEBUG) cout<<"typerun is " << typerun <<endl;
     hasoutputfile=0;
-  } else if(typerun == 1) {
+  } else if(typerun == kReduce  || typerun == kFillReduce) {
     if(DEBUG) cout<<"typerun is " << typerun <<endl;
     
     hasoutputfile=1;
@@ -79,7 +79,7 @@ void LoopAll::SetTypeRun(int t, const char* name) {
   outputTreeLumi->Branch("run", &run, "run/I");
   outputTreeLumi->Branch("lumis", &lumis, "lumis/I");
 
-  if (typerun==kReduce){
+  if (typerun==kReduce || typerun == kFillReduce ){
 	pileup  =  new TH1D("pileup", "pileup", 100, 0, 100); 
   }
 
@@ -91,7 +91,7 @@ void LoopAll::ReadInput(int t) {
   typerun = t;
 
   
-  if (typerun == 1) {
+  if (typerun == kReduce || typerun == kFillReduce ) {
     makeOutputTree = 1;
   } else {
     makeOutputTree = 0;
@@ -107,10 +107,10 @@ void LoopAll::ReadInput(int t) {
   
   int hasoutputfile=0;
   
-  if(typerun == 0 || typerun == 2) {
+  if(typerun == kFill ) {
     if(DEBUG) cout<<"typerun is " << typerun <<endl;
     hasoutputfile=0;
-  } else if(typerun == 1) {
+  } else if(typerun == kReduce || typerun == kFillReduce ) {
     if(DEBUG) cout<<"typerun is " << typerun <<endl;
     
     hasoutputfile=1;
@@ -296,7 +296,7 @@ void LoopAll::LoopAndFillHistos(TString treename) {
     //Files[i] = TFile::Open(files[i]);
     tot_events=1;
     sel_events=1;
-    if(typerun == kReduce) { //this is a reduce job
+    if(typerun == kReduce || typerun == kFillReduce) { //this is a reduce job
       
       if(*it_file)
         *it_treepar=(TTree*) (*it_file)->Get("global_variables");
@@ -333,31 +333,30 @@ void LoopAll::LoopAndFillHistos(TString treename) {
 
     Loop(i);
 
-    if(tot_events != 0 && (*it_tree) != 0  ) {
+        if(tot_events != 0 && (*it_tree) != 0  ) {
       (*it_tree)->Delete("");
     }
-
+        
     *it_treelumi = (TTree*) (*it_file)->Get("lumi");
-    if( *it_treelumi != 0 && outputFile ) {
+        if( *it_treelumi != 0 && outputFile ) {
       StoreProcessedLumis( *it_treelumi );
     }
-
+        
     // EDIT - Cannot close the first file since it is in use after 
     // file 0 
-    if (i>0)
+        if (i>0)
       if((*it_file)->IsOpen())
         (*it_file)->Close();
-    
-    i++;
+        i++;
   }
   
-  //now close the first File
+    TermReal(typerun);
+    Term();
+  
+    //now close the first File
   if( !Files.empty() &&  Files[0]->IsOpen())
     Files[0]->Close();
-
-  TermReal(typerun);
-  Term();
-}
+  }
 
 // ------------------------------------------------------------------------------------
 void LoopAll::StoreProcessedLumis(TTree * tree){
@@ -493,16 +492,14 @@ void LoopAll::TermReal(Int_t typerunpass) {
   }
 
   if (makeOutputTree){ 
-    outputFile->cd();
-    assert( outputTree->GetEntries() == countersred[3] );
-    outputTree->Write(0,TObject::kWriteDelete);
-    outputParReductions++;
-    outputTreePar->Fill();
-    outputTreePar->Write(0,TObject::kWriteDelete);
-    if(outputFile){ 
-     outputTreeLumi->Write(0,TObject::kWriteDelete);
-     pileup->Write(0,TObject::kWriteDelete);
-    }
+        outputFile->cd();
+        assert( outputTree->GetEntries() == countersred[3] );
+        outputTree->Write(0,TObject::kWriteDelete);
+        outputParReductions++;
+        outputTreePar->Fill();
+        outputTreePar->Write(0,TObject::kWriteDelete);
+        outputTreeLumi->Write(0,TObject::kWriteDelete);
+        pileup->Write(0,TObject::kWriteDelete);
   }
 }
 
@@ -608,7 +605,7 @@ void LoopAll::Loop(Int_t a) {
     if (ientry < 0) 
       break;
     
-    if(typerun != 1) {
+    if(typerun == kFill ) {
       nb=0;
     }
 
@@ -711,17 +708,18 @@ void LoopAll::Loop(Int_t a) {
 // ------------------------------------------------------------------------------------
 void LoopAll::WriteFits() {
   
-	hfile = TFile::Open(histFileName, "RECREATE", "Globe ROOT file with histograms");
-
+  hfile = TFile::Open(histFileName, "RECREATE", "Globe ROOT file with histograms");
+  
   hfile->cd();
   //hfile->cd();
   for (std::vector<TMacro*>::iterator it = configFiles.begin(); it!=configFiles.end(); it++){
-	 	         (*it)->Write();
+    (*it)->Write();
   }
-
+  
   rooContainer->Save();
   hfile->Close();
 }
+
 void LoopAll::StoreConfigFile(std::string configfilename) {
 	 
   TMacro *mac = new TMacro(configfilename.c_str(),configfilename.c_str());
@@ -731,7 +729,7 @@ void LoopAll::StoreConfigFile(std::string configfilename) {
 // ------------------------------------------------------------------------------------
 void LoopAll::WriteHist() {
 
-	hfile = TFile::Open(histFileName, "RECREATE", "Globe ROOT file with histograms");
+  hfile = TFile::Open(histFileName, "RECREATE", "Globe ROOT file with histograms");
 
   hfile->cd();
   for(unsigned int ind=0; ind<histoContainer.size(); ind++) {
@@ -1307,8 +1305,11 @@ void LoopAll::FillHist2D(std::string name, int category, float x, float y, float
 //// }
 
 // ------------------------------------------------------------------------------------
-void LoopAll::FillCounter(std::string name, float weight, int category ) {
-	counterContainer[current_sample_index].Fill(name, category, weight);
+void LoopAll::FillCounter(std::string name, float weight, int category ) 
+{
+  if( counterContainer.size() > current_sample_index ) {
+    counterContainer[current_sample_index].Fill(name, category, weight);
+  }
 }
 
 // ----------------------------------------------------------------------------------------------------------------------

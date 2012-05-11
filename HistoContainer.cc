@@ -46,7 +46,9 @@ void HistoContainer::Add(char* name, char* xaxis, char* yaxis, int categories,in
     TH1F histo_temp(modName.c_str(), modName.c_str(), bins, xmin, xmax);
     histo_temp.GetXaxis()->SetTitle(xaxis);
     histo_temp.GetYaxis()->SetTitle(yaxis);
+    histo_temp.SetDirectory(0);
     temp.push_back(histo_temp);
+    temp.back().SetDirectory(0);
     //temp.push_back(TH1F(modName.c_str(), modName.c_str(), bins, xmin, xmax));
   }
   names.push_back(name);

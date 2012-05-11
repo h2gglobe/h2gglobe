@@ -106,6 +106,10 @@ print:
 	@echo $(_SubPkgsDict)  | tr ' ' '\n'
 	@echo 
 
+	@echo "CXXFLAGS: $(CXXFLAGS)"
+	@echo "LDFLAGS:  $(LDFLAGS)"
+	@echo
+
 clean:
 	@rm -fv $(Objs) $(Deps) $(LOOPALL) *[dD]ict.*
 
