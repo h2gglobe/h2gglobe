@@ -10,7 +10,7 @@ def makeCaFiles(dir,njobs=-1,jobid=0,nf=[0]):
       sc,flist = commands.getstatusoutput('nsls %s'%(dir))
       iscastor = True
    else:
-      sc,flist = commands.getstatusoutput("cmsLs %s | awk { print $5 }" % (dir))
+      sc,flist = commands.getstatusoutput("cmsLs %s | awk { print $5 } | xargs cmsPfn | sed 's%\?.*$%%'" % (dir))
       
    if not sc:
       files = flist.split('\n')
@@ -20,7 +20,7 @@ def makeCaFiles(dir,njobs=-1,jobid=0,nf=[0]):
             if iscastor:
                fname = 'rfio://'+dir+'/'+f
             else:
-               fname = commands.getoutput("cmsPfn %s" % f)
+               fname = f
             if (njobs > 0) and (nf[0] % njobs != jobid):
                return_files.append((fname,False))
 	    else:
