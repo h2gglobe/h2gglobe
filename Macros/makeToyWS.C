@@ -40,25 +40,56 @@ void makeToyWS(string inFileName, string outFileName){
 
   gROOT->SetBatch();
 
+  const bool doBkg=false;
+
   TFile *outFile = new TFile(outFileName.c_str(),"RECREATE");
   RooWorkspace *outWS = new RooWorkspace("fits_workspace");
+
+  system("mkdir PdfPlots");
 
   TFile *treeFile = TFile::Open(inFileName.c_str());
   TTree *dataTree = (TTree*)treeFile->Get("dataTree");
   TTree *sigTree = (TTree*)treeFile->Get("sigTree");
-  //printTree(sigTree);
-  //printTree(dataTree);
+  TTree *bkgTree;
+  if (doBkg) bkgTree = (TTree*)treeFile->Get("bkgTree");
 
+  // real vars
   RooRealVar *mass = new RooRealVar("CMS_hgg_mass","CMS_hgg_mass",100,180);
   RooRealVar *bdtoutput = new RooRealVar("bdtoutput","bdtoutput",-1,1);
   RooRealVar *vbf = new RooRealVar("vbf","vbf",0,1);
-  RooRealVar *weight = new RooRealVar("weight","weight",0,1);
+  RooRealVar *weight = new RooRealVar("weight","weight",0,20);
 
-  RooDataSet *data_novbf = new RooDataSet("data_bdt_novbf","data_bdt",RooArgSet(*bdtoutput,*mass,*vbf),Import(*dataTree),Cut("vbf==0"));
-  RooDataSet *data_vbf = new RooDataSet("data_bdt_vbf","data_bdt",RooArgSet(*bdtoutput,*mass,*vbf),Import(*dataTree),Cut("vbf==1"));
+  RooDataSet *data_forkeyspdf = new RooDataSet("data_forkeyspdf","data_bdt",RooArgSet(*bdtoutput,*mass,*vbf),Import(*dataTree),Cut("vbf==0"));
+  RooKeysPdf *data_pdf = new RooKeysPdf("data_pdf","data_pdf",*bdtoutput,*data_forkeyspdf);
 
-  RooKeysPdf *data_pdf = new RooKeysPdf("data_pdf","data_pdf",*bdtoutput,*data_novbf);
+  RooDataSet *bkg_forkeyspdf;
+  RooKeysPdf *bkg_pdf;
+  if (doBkg){
+    bkg_forkeyspdf = new RooDataSet("bkg_forkeyspdf","bkg_bdt",RooArgSet(*bdtoutput,*mass,*vbf),Import(*bkgTree),Cut("vbf==0"));
+    bkg_pdf = new RooKeysPdf("bkg_pdf","bkg_pdf",*bdtoutput,*bkg_forkeyspdf);
+    outWS->import(*bkg_forkeyspdf);
+    outWS->import(*bkg_pdf);
+  }
 
+  outWS->import(*data_forkeyspdf);
+  outWS->import(*data_pdf);
+
+  const int massBins=80;
+  const int bdtBins=38;
+  const double bLow=0.05;
+  mass->setBins(massBins);
+  bdtoutput->setBins(bdtBins);
+  bdtoutput->setRange(bLow,1.);
+  
+  // data datasets
+  RooDataSet *data_novbf = new RooDataSet("data_bdt_novbf","data_bdt",RooArgSet(*bdtoutput,*mass,*vbf),Import(*dataTree),Cut("vbf==0 && bdtoutput>=0.05"));
+  RooDataSet *data_vbf = new RooDataSet("data_bdt_vbf","data_bdt",RooArgSet(*bdtoutput,*mass,*vbf),Import(*dataTree),Cut("vbf==1 && bdtoutput>=0.05"));
+
+  // data pdfs
+  RooDataHist *data_hist = new RooDataHist("data_bdt_hist","data_bdt",RooArgSet(*bdtoutput,*mass),*data_novbf);
+  RooHistPdf *data_hist_pdf = new RooHistPdf("data_hist_pdf","data_hist_pdf",RooArgSet(*bdtoutput,*mass),*data_hist);
+
+  // ic data pdf
   RooDataSet *data_formass_all = new RooDataSet("data_bdt_cut_all","data_bdt",RooArgSet(*bdtoutput,*mass,*vbf),Import(*dataTree),Cut("bdtoutput>=0.05"));
   RooRealVar *r1 = new RooRealVar("r1","r1",-8.,-50.,0.); 
   RooRealVar *r2 = new RooRealVar("r2","r2",-1.,-50.,0.); 
@@ -67,43 +98,94 @@ void makeToyWS(string inFileName, string outFileName){
   fit->fitTo(*data_formass_all);
 
   TCanvas *canv = new TCanvas();
+  // data plots
   RooPlot *datB = bdtoutput->frame();
-  data_novbf->plotOn(datB,Binning(100));
+  data_novbf->plotOn(datB,Binning(bdtBins));
   data_pdf->plotOn(datB);
   datB->Draw();
-  canv->SaveAs("datB.pdf");
+  canv->SaveAs("PdfPlots/datBkeys.pdf");
+
+  RooPlot *datBh = bdtoutput->frame();
+  data_novbf->plotOn(datBh,Binning(bdtBins));
+  data_hist_pdf->plotOn(datBh);
+  datBh->Draw();
+  canv->SaveAs("PdfPlots/datB.pdf");
 
   RooPlot *datM = mass->frame();
-  data_novbf->plotOn(datM,Binning(160));
+  data_novbf->plotOn(datM,Binning(massBins));
+  data_hist_pdf->plotOn(datM);
   datM->Draw();
-  canv->SaveAs("datM.pdf");
+  canv->SaveAs("PdfPlots/datM.pdf");
 
-  RooDataSet *sig_novbf = new RooDataSet("sig_bdt_novbf","sig_bdt",RooArgSet(*bdtoutput,*mass,*vbf,*weight),Import(*sigTree),Cut("vbf==0"),WeightVar(*weight));
-  RooDataSet *sig_vbf = new RooDataSet("sig_bdt_vbf","sig_bdt",RooArgSet(*bdtoutput,*mass,*vbf,*weight),Import(*sigTree),Cut("vbf==1"),WeightVar(*weight));
+  RooPlot *datMc = mass->frame();
+  data_formass_all->plotOn(datMc,Binning(massBins));
+  fit->plotOn(datMc,LineColor(kMagenta));
+  datMc->Draw();
+  canv->SaveAs("PdfPlots/datMfit.pdf");
+
   
-  bdtoutput->setBins(50);
-  mass->setBins(360);
+  if (doBkg){
+    // background datasets
+    RooDataSet *bkg_novbf = new RooDataSet("bkg_bdt_novbf","bkg_bdt",RooArgSet(*bdtoutput,*mass,*vbf,*weight),Import(*bkgTree),Cut("vbf==0 && bdtoutput>=0.05"),WeightVar(*weight));
+    RooDataSet *bkg_vbf = new RooDataSet("bkg_bdt_vbf","bkg_bdt",RooArgSet(*bdtoutput,*mass,*vbf,*weight),Import(*bkgTree),Cut("vbf==1 && bdtoutput>=0.05"),WeightVar(*weight));
+    outWS->import(*bkg_novbf);
+    outWS->import(*bkg_vbf);
+
+    // bkg pdfs
+    RooDataHist *bkg_hist = new RooDataHist("bkg_bdt_hist","bkg_bdt",RooArgSet(*bdtoutput,*mass),*bkg_novbf);
+    RooHistPdf *bkg_hist_pdf = new RooHistPdf("bkg_hist_pdf","bkg_hist_pdf",RooArgSet(*bdtoutput,*mass),*bkg_hist);
+
+    outWS->import(*bkg_pdf);
+    outWS->import(*bkg_hist);
+    outWS->import(*bkg_hist_pdf);
+    
+    // bkg plots
+    RooPlot *bkgBk = bdtoutput->frame();
+    bkg_novbf->plotOn(bkgBk,Binning(bdtBins));
+    bkg_pdf->plotOn(bkgBk);
+    bkgBk->Draw();
+    canv->SaveAs("PdfPlots/bkgBkeys.pdf");
+    
+    RooPlot *bkgB = bdtoutput->frame();
+    bkg_novbf->plotOn(bkgB,Binning(bdtBins));
+    bkg_hist_pdf->plotOn(bkgB);
+    bkgB->Draw();
+    canv->SaveAs("PdfPlots/bkgB.pdf");
+
+    RooPlot *bkgM = mass->frame();
+    bkg_novbf->plotOn(bkgM,Binning(massBins));
+    bkg_hist_pdf->plotOn(bkgM);
+    bkgM->Draw();
+    canv->SaveAs("PdfPlots/bkgM.pdf");
+  }
+
+  // signal datasets
+  RooDataSet *sig_novbf = new RooDataSet("sig_bdt_novbf","sig_bdt",RooArgSet(*bdtoutput,*mass,*vbf,*weight),Import(*sigTree),Cut("vbf==0 && bdtoutput>=0.05"),WeightVar(*weight));
+  RooDataSet *sig_vbf = new RooDataSet("sig_bdt_vbf","sig_bdt",RooArgSet(*bdtoutput,*mass,*vbf,*weight),Import(*sigTree),Cut("vbf==1 && bdtoutput>=0.05"),WeightVar(*weight));
   
+  // signal pdfs
   RooDataHist *sig_hist = new RooDataHist("sig_bdt_hist","sig_bdt",RooArgSet(*bdtoutput,*mass),*sig_novbf);
   RooHistPdf *sig_pdf = new RooHistPdf("sig_pdf","sig_pdf",RooArgSet(*bdtoutput,*mass),*sig_hist);
 
   RooPlot *sigB = bdtoutput->frame();
-  sig_novbf->plotOn(sigB,Binning(50));
+  sig_novbf->plotOn(sigB,Binning(bdtBins));
   sig_pdf->plotOn(sigB);
   sigB->Draw();
-  canv->SaveAs("sigB.pdf");
+  canv->SaveAs("PdfPlots/sigB.pdf");
 
   RooPlot *sigM = mass->frame();
-  sig_novbf->plotOn(sigM,Binning(160));
+  sig_novbf->plotOn(sigM,Binning(massBins));
   sig_pdf->plotOn(sigM);
   sigM->Draw();
-  canv->SaveAs("sigM.pdf");
+  canv->SaveAs("PdfPlots/sigM.pdf");
   
 
   outWS->import(*data_novbf);
   outWS->import(*data_vbf);
   outWS->import(*data_pdf);
   outWS->import(*data_formass_all);
+  outWS->import(*data_hist);
+  outWS->import(*data_hist_pdf);
   outWS->import(*fit);
   outWS->import(*sig_novbf);
   outWS->import(*sig_vbf);
@@ -113,6 +195,7 @@ void makeToyWS(string inFileName, string outFileName){
   outWS->Write();
   sigTree->Write();
   dataTree->Write();
+  if (doBkg) bkgTree->Write();
 
   outFile->Close();
   treeFile->Close();
