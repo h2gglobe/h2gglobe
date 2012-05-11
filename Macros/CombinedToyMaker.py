@@ -45,6 +45,7 @@ class CombinedToyMaker:
     self.bdtvar_          = self.keyws_.var("bdtoutput")
     self.bdtmgg_          = self.keyws_.var("CMS_hgg_mass")
     self.bdtvbf_          = self.keyws_.var("vbf")
+    self.bdtdatakeys_     = self.keyws_.data("data_forkeyspdf")
     self.bdtdata_         = self.keyws_.data("data_bdt_novbf")
     self.bdtdatavbf_      = self.keyws_.data("data_bdt_vbf")
     self.bdtdatacut_      = self.keyws_.data("data_bdt_cut_all")
@@ -101,86 +102,122 @@ class CombinedToyMaker:
     events.append(gendata.sumEntries("bdtoutput>=0.74 && bdtoutput<0.89"))
     events.append(gendata.sumEntries("bdtoutput>=0.545 && bdtoutput<0.74"))
     events.append(gendata.sumEntries("bdtoutput>=0.05 && bdtoutput<0.545"))
-    for i, ev in enumerate(events):
-      print 'Cat %d has %5d events'%(i,ev)
     return events
 
   def genData(self,outwsname,expSig):
     if not self.hasFit_: sys.exit('Diphoton output not yet fitted. Bailing out.')
 
+    # set ranges
+    self.bdtvar_.setRange("cat0",0.89,1.0)
+    self.bdtvar_.setRange("cat1",0.74,0.89)
+    self.bdtvar_.setRange("cat2",0.545,0.74)
+    self.bdtvar_.setRange("cat3",0.05,0.545)
+    
+    print 'Data and pdfs obtained:'
+    for i, events in enumerate(self.getEventsPerCat(self.bdtdata_)):
+      print '\tCat %d  data has    %5d events'%(i,events)
+    print '\tCat 4  data has    %5d events'%self.bdtdatavbf_.sumEntries("bdtoutput>=0.05")
+    print '\tNo vbf data has    %5d events'%self.bdtdata_.sumEntries("bdtoutput>=0.05")
+    print '\tComb   data has    %5d events'%(self.bdtdata_.sumEntries("bdtoutput>=0.05")+self.bdtdatavbf_.sumEntries("bdtoutput>=0.05"))
+
     # first gen around bdt keys pdf
-    self.toyNoVBFEvents_ = self.rand_.Poisson(int(self.dataNoVBFEvents_))
+    self.toyNoVBFEvents_ = self.rand_.Poisson(self.dataNoVBFEvents_)
     self.bdtvar_.setRange(0.05,1.)
-    self.genbdtdata_  = self.bdtpdf_.generate(r.RooArgSet(self.bdtvar_),int(self.toyNoVBFEvents_))
+    self.genbdtdata_  = self.bdtpdf_.generate(r.RooArgSet(self.bdtvar_),self.toyNoVBFEvents_)
     self.genbdtdata_.SetName("gen_diphoton_output")
-   
+
+    self.genbdtdatacats_=[]
+    self.genbdtdatacats_.append(r.RooDataSet("gen_bdtoutput_cat0","gen_bdtoutput_cat0",r.RooArgSet(self.bdtvar_),r.RooFit.Import(self.genbdtdata_),r.RooFit.Cut("bdtoutput>=0.89")));
+    self.genbdtdatacats_.append(r.RooDataSet("gen_bdtoutput_cat1","gen_bdtoutput_cat1",r.RooArgSet(self.bdtvar_),r.RooFit.Import(self.genbdtdata_),r.RooFit.Cut("bdtoutput>=0.74 && bdtoutput<0.89")));
+    self.genbdtdatacats_.append(r.RooDataSet("gen_bdtoutput_cat2","gen_bdtoutput_cat2",r.RooArgSet(self.bdtvar_),r.RooFit.Import(self.genbdtdata_),r.RooFit.Cut("bdtoutput>=0.545 && bdtoutput<0.74")));
+    self.genbdtdatacats_.append(r.RooDataSet("gen_bdtoutput_cat3","gen_bdtoutput_cat3",r.RooArgSet(self.bdtvar_),r.RooFit.Import(self.genbdtdata_),r.RooFit.Cut("bdtoutput>=0.05 && bdtoutput<0.545")));
+
     eventsPerCat = self.getEventsPerCat(self.genbdtdata_)
     if len(eventsPerCat)!=len(self.mitpdfs_)-1: sys.exit('Different numbers of categories. Bailing out.')
-    
-    # given nevs generate around each non VBF cat
-    can = r.TCanvas()
+
     self.genmassdata_ = []
-    for i,ev in enumerate(eventsPerCat):
-      self.genmassdata_.append(self.mitpdfs_[i].generate(r.RooArgSet(self.bdtmgg_),int(ev)))
-    
-    # combine data in each non VBF cat for IC analysis
-    for i,dataset in enumerate(self.genmassdata_):
-      dataset.SetName("gen_mass_data_cat%d"%i)
-      if i==0: self.allgenmassdatanovbf_=r.RooDataSet("gen_combmassdata_novbf","gen_combmassdata_novbf",dataset,r.RooArgSet(self.bdtmgg_))
-      else: self.allgenmassdatanovbf_.append(dataset)
-    
+    # given nevents in bdtoutput generate around each non VBF cat
+    for i,dset in enumerate(self.genbdtdatacats_):
+      self.genmassdata_.append(self.mitpdfs_[i].generate(r.RooArgSet(self.bdtmgg_),dset.numEntries()))
+      self.genmassdata_[i].SetName("gen_mass_data_cat%d"%i)
+      if i==0: self.allgenmassdatanovbf_=r.RooDataSet("gen_combmassdata_novbf","gen_combmassdata_novbf",self.genmassdata_[i],r.RooArgSet(self.bdtmgg_))
+      else: self.allgenmassdatanovbf_.append(self.genmassdata_[i])
+
     # throw toy in VBF cat
     self.toyVBFEvents_ = self.rand_.Poisson(int(self.dataVBFEvents_))
     self.genmassdata_.append(self.mitpdfs_[4].generate(r.RooArgSet(self.bdtmgg_),int(self.toyVBFEvents_)))
+    self.genmassdata_[4].SetName("gen_mass_data_cat4")
 
     # combine data in VBF cat for IC analysis
     self.allgenmassdata_ = r.RooDataSet("gen_combmassdata_all","gen_combmassdata_all",self.allgenmassdatanovbf_,r.RooArgSet(self.bdtmgg_))
     self.allgenmassdata_.append(self.genmassdata_[4])
 
-    print 'Background toy thrown'
+    print 'Background toy thrown:'
     for i, massdat in enumerate(self.genmassdata_):
-      print 'Cat %d toy has  %5d events'%(i,massdat.sumEntries())
-    print 'No vbf toy has %5d events'%self.allgenmassdatanovbf_.sumEntries()
-    print 'Comb toy has   %5d events'%self.allgenmassdata_.numEntries()
+      print '\tCat %d  toy has     %5d events'%(i,massdat.sumEntries())
+    print '\tNo vbf toy has     %5d events'%self.allgenmassdatanovbf_.sumEntries()
+    print '\tComb   toy has     %5d events'%self.allgenmassdata_.numEntries()
 
     # then throw signal around bdt correlated with total mass and split into mass categories
-    self.gensigmassdata_ = []
+    self.gensigbdtdata_ = []
     if expSig>0:
-      self.toyNoVBFEventsSig_ = self.rand_.Poisson(expSig*int(self.sigNoVBFEvents_))
+      print 'Sig MC and pdfs obtained:'
+      for i, events in enumerate(self.getEventsPerCat(self.bdtsigdata_)):
+        print '\tCat %d  sig mc has  %5d events'%(i,events)
+      print '\tCat 4  sig mc has  %5d events'%self.bdtsigdatavbf_.sumEntries("bdtoutput>=0.05")
+      print '\tNo vbf sig mc has  %5d events'%self.bdtsigdata_.sumEntries("bdtoutput>=0.05")
+      print '\tComb   sig mc has  %5d events'%(self.bdtsigdata_.sumEntries("bdtoutput>=0.05")+self.bdtsigdatavbf_.sumEntries("bdtoutput>=0.05"))
+
+      self.toyNoVBFEventsSig_ = self.rand_.Poisson(expSig*self.sigNoVBFEvents_)
       self.gensigdatanovbf_ = self.bdtsigpdf_.generate(r.RooArgSet(self.bdtvar_,self.bdtmgg_),self.toyNoVBFEventsSig_)
       self.gensigdatanovbf_.SetName("gen_sig_output_novbf")
-      self.gensigmassdata_.append(r.RooDataSet("gen_sig_mass_cat0","gen_sig_mass_cat0",self.gensigdatanovbf_,r.RooArgSet(self.bdtvar_,self.bdtmgg_),"bdtoutput>=0.89"))
-      self.gensigmassdata_.append(r.RooDataSet("gen_sig_mass_cat1","gen_sig_mass_cat0",self.gensigdatanovbf_,r.RooArgSet(self.bdtvar_,self.bdtmgg_),"bdtoutput>=0.74 && bdtoutput<0.89"))
-      self.gensigmassdata_.append(r.RooDataSet("gen_sig_mass_cat2","gen_sig_mass_cat0",self.gensigdatanovbf_,r.RooArgSet(self.bdtvar_,self.bdtmgg_),"bdtoutput>=0.545 && bdtoutput<0.74"))
-      self.gensigmassdata_.append(r.RooDataSet("gen_sig_mass_cat3","gen_sig_mass_cat0",self.gensigdatanovbf_,r.RooArgSet(self.bdtvar_,self.bdtmgg_),"bdtoutput>=0.05 && bdtoutput<0.545"))
+     
+      self.gensigbdtdata_=[]
+      self.gensigbdtdata_.append(r.RooDataSet("gen_sig_data_cat0","gen_sig_data_cat0",r.RooArgSet(self.bdtvar_,self.bdtmgg_),r.RooFit.Import(self.gensigdatanovbf_),r.RooFit.Cut("bdtoutput>=0.89")));
+      self.gensigbdtdata_.append(r.RooDataSet("gen_sig_data_cat1","gen_sig_data_cat1",r.RooArgSet(self.bdtvar_,self.bdtmgg_),r.RooFit.Import(self.gensigdatanovbf_),r.RooFit.Cut("bdtoutput>=0.74 && bdtoutput<0.89")));
+      self.gensigbdtdata_.append(r.RooDataSet("gen_sig_data_cat2","gen_sig_data_cat2",r.RooArgSet(self.bdtvar_,self.bdtmgg_),r.RooFit.Import(self.gensigdatanovbf_),r.RooFit.Cut("bdtoutput>=0.545 && bdtoutput<0.74")));
+      self.gensigbdtdata_.append(r.RooDataSet("gen_sig_data_cat3","gen_sig_data_cat3",r.RooArgSet(self.bdtvar_,self.bdtmgg_),r.RooFit.Import(self.gensigdatanovbf_),r.RooFit.Cut("bdtoutput>=0.05 && bdtoutput<0.545")));
 
-    # throw signal toy in VBF cat
-    if expSig>0:
-      self.toyVBFEventsSig_ = self.rand_.Poisson(expSig*int(self.sigVBFEvents_))
-      self.gensigmassdata_.append(self.mitsigpdfs_[4].generate(r.RooArgSet(self.bdtmgg_),int(self.toyVBFEventsSig_)))
+      # throw signal toy in VBF cat
+      self.toyVBFEventsSig_ = self.rand_.Poisson(expSig*self.sigVBFEvents_)
+      self.gensigmassdatavbf_ = self.mitsigpdfs_[4].generate(r.RooArgSet(self.bdtmgg_),self.toyVBFEventsSig_)
 
-      # combine signal in no VBF cats for IC analysis
-      for i,dataset in enumerate(self.gensigmassdata_):
-        dataset.SetName("gen_sig_mass_data_cat%d"%i)
-        if i==4: continue
-        elif i==0: self.allgensigmassdatanovbf_=r.RooDataSet("gen_sig_combmassdata_novbf","gen_sig_combmassdata_novbf",dataset,r.RooArgSet(self.bdtmgg_))
-        else: self.allgensigmassdatanovbf_.append(dataset)
+      print 'Signal (%d x SM) toy thrown:'%expSig
+      #for i, events in enumerate(self.getEventsPerCat(self.gensigdatanovbf_)):
+      for i, massdat in enumerate(self.gensigbdtdata_):
+        print '\tCat %d  sig toy has %5d events'%(i,self.gensigbdtdata_[i].sumEntries())
+      print '\tCat 4  sig toy has %5d events'%(self.gensigmassdatavbf_.sumEntries())
+      print '\tNo vbf sig toy has %5d events'%self.gensigdatanovbf_.sumEntries()
+      print '\tComb   sig toy has %5d events'%(self.gensigdatanovbf_.sumEntries()+self.gensigmassdatavbf_.sumEntries())
 
-      # combine signal in VBF cats for IC analysis
-      self.allgensigmassdata_=r.RooDataSet("gen_sig_combmassdata","gen_sig_combmassdata",self.allgensigmassdatanovbf_,r.RooArgSet(self.bdtmgg_))
-      self.allgensigmassdata_.append(self.gensigmassdata_[4])
-      
-    # combine signal and background
-      self.genbdtdata_.append(self.gensigdatanovbf_)
-      for i, dataset in enumerate(self.genmassdata_):
-        dataset.append(self.gensigmassdata_[i])
-      self.allgenmassdatanovbf_.append(self.allgensigmassdatanovbf_)
-      self.allgenmassdata_.append(self.allgensigmassdata_)
+		# combine signal and background
+    self.genbkgmassdata_=[]
+    for i, dset in enumerate(self.genmassdata_):
+     	self.genbkgmassdata_.append(dset.Clone("gen_bkg_mass_cat%d"%i))
+     	if expSig>0:                                      
+     	  if i<4: dset.append(self.gensigbdtdata_[i])
+     	  else: dset.append(self.gensigmassdatavbf_)
+     	dset.Print()                                      
     
+    self.genbkgbdtdata_=[]
+    for i, dset in enumerate(self.genbdtdatacats_):
+     	self.genbkgbdtdata_.append(dset.Clone("gen_bkg_bdt_cat%d"%i))
+     	if expSig>0: dset.append(self.gensigbdtdata_[i])                                      
+     	dset.Print()                                      
+      
+    # now have following datasets:
+    # BKG: genbkgmassdata_[5] (mass)
+    #      genbkgbdtdata_[4]  (BDT)
+    # SIG: gensigbdtdata_[4]  (mass,BDT)
+    #      gensigmassdatavbf_ (mass)
+    # S+B: genmassdata_[5]    (mass)
+    #      genbdtdatacats_[4] (BDT)
+
     # name gen datasets and make gen datahists to match workspace and save workspace
     self.outwsFile_ = r.TFile(outwsname,"RECREATE")
     self.outws_ = r.RooWorkspace("cms_hgg_workspace")
     self.genmassdatahist_=[]
+    self.bdtmgg_.setBins(160)
     for i,dataset in enumerate(self.genmassdata_):
       dataset.SetName("data_mass_cat%i"%i)
       self.genmassdatahist_.append(r.RooDataHist("roohist_data_mass_cat%i"%i,"roohist_data_mass_cat%i"%i,r.RooArgSet(self.bdtmgg_),dataset))
@@ -195,91 +232,345 @@ class CombinedToyMaker:
     print 'Toy VBF events', self.toyVBFEvents_
     return int(self.toyVBFEvents_)
 
+  def returnWindowData(self,mH,size):
+    returnList = []
+
+    mHL = mH*(1.-size)
+    mHH = mH*(1.+size)
+
+    for i in range(self.bdtdata_.numEntries()):
+      val_m = (self.bdtdata_.get(i)).getRealValue("CMS_hgg_mass")
+      val_b = (self.bdtdata_.get(i)).getRealValue("bdtoutput")
+      if val_m > mHL and val_m < mHH and val_b >=0.05: returnList.append((val_b,((val_m-mH)/mH)))
+
+    for i in range(self.bdtdatavbf_.numEntries()):
+      val_m = (self.bdtdatavbf_.get(i)).getRealValue("CMS_hgg_mass")
+      val_b = 1.01
+      if val_m > mHL and val_m < mHH and val_b >=0.05: returnList.append((val_b,((val_m-mH)/mH)))
+
+    return returnList
+
   def returnWindowToyData(self,mH,size):
     returnList = []
 
     mHL = mH*(1.-size)
     mHH = mH*(1.+size)
 
-    # CHEATING NICK TEST !!!!!!!!!!!!!!!!!!!
-    
-    
-    for i in range(self.toyNoVBFEvents_):
-      val_m = (self.allgenmassdatanovbf_.get(i)).getRealValue("CMS_hgg_mass");
-      val_b = (self.genbdtdata_.get(i)).getRealValue("bdtoutput");
-      if val_m > mHL and val_m < mHH and val_b >=0.05: returnList.append((val_b,((val_m-mH)/mH)))
-
-    for i in range(self.toyVBFEvents_):
-      val_m = (self.genmassdata_[4].get(i)).getRealValue("CMS_hgg_mass");
-      val_b = 1.01
-      if val_m > mHL and val_m < mHH and val_b >=0.05: returnList.append((val_b,((val_m-mH)/mH)))
+    for cat, dset in enumerate(self.genmassdata_):
+      for ev in range(dset.numEntries()):
+        val_m = (self.genmassdata_[cat].get(ev)).getRealValue("CMS_hgg_mass");
+        if cat<4: val_b = (self.genbdtdatacats_[cat].get(ev)).getRealValue("bdtoutput");
+        else: val_b = 1.01
+        if val_m > mHL and val_m < mHH and val_b >=0.05: returnList.append((val_b,((val_m-mH)/mH)))
 
     return returnList
-
-  def plotData(self,nbinsMass,nbinsBDT):
+      
+  def plotData(self,path,nbinsMass,nbinsBDT):
     
-    if not os.path.isdir("StuffForToys"):
-      os.makedirs("StuffForToys")
+    if not os.path.isdir(path+"/PlotsForToys"):
+      os.makedirs(path+"/PlotsForToys")
+    if not os.path.isdir(path+"/PlotsForToys/data"):
+      os.makedirs(path+"/PlotsForToys/data")
     can = r.TCanvas()
-    frame2 = self.bdtmgg_.frame()
-    self.bdtdatacut_.plotOn(frame2,r.RooFit.Binning(nbinsMass))
-    self.icpdf_.plotOn(frame2)
-    frame2.SetTitle("Mass in data for bdtoutput>=0.05")
-    frame2.Draw()
-    can.SaveAs("StuffForToys/data_mass.pdf")
 
+    self.bdtvar_.setRange("allcats",0.05,1.);
+    
     frame1 = self.bdtvar_.frame()
     frame1.SetTitle("BDT output in data")
-    self.bdtdata_.plotOn(frame1,r.RooFit.Binning(nbinsBDT))
-    self.bdtdatavbf_.plotOn(frame1,r.RooFit.Binning(nbinsBDT),r.RooFit.MarkerColor(4),r.RooFit.LineColor(4))
-    self.bdtdata_.plotOn(frame1,r.RooFit.Binning(nbinsBDT))
-    self.bdtpdf_.plotOn(frame1)
+    self.bdtdatakeys_.plotOn(frame1,r.RooFit.Binning(nbinsBDT))
+    self.bdtpdf_.plotOn(frame1,r.RooFit.NormRange("allcats"))
     frame1.Draw()
-    can.SaveAs("StuffForToys/data_bdt.pdf")
+    can.SaveAs(path+"/PlotsForToys/data/data_bdt.pdf")
+   
+    self.bdtvar_.setRange(0.05,1.)
+    frame2 = self.bdtvar_.frame()
+    frame2.SetTitle("BDT output in data")
+    self.bdtdata_.plotOn(frame2,r.RooFit.Binning(nbinsBDT))
+    self.bdtpdf_.plotOn(frame2,r.RooFit.NormRange("allcats"))
+    self.bdtdatavbf_.plotOn(frame2,r.RooFit.Binning(nbinsBDT),r.RooFit.MarkerColor(4),r.RooFit.LineColor(4))
+    frame2.Draw()
+    can.SaveAs(path+"/PlotsForToys/data/data_bdt_zoom.pdf")
+    
+    frame3 = self.bdtmgg_.frame()
+    self.bdtdatacut_.plotOn(frame3,r.RooFit.Binning(nbinsMass))
+    self.icpdf_.plotOn(frame3)
+    frame3.SetTitle("Mass in data for bdtoutput>=0.05")
+    frame3.Draw()
+    can.SaveAs(path+"/PlotsForToys/data/data_mass.pdf")
 
-  def plotToy(self,nbinsMass,nbinsBDT):
+  def plotToy(self,path,nbinsMass,nbinsBDT,expSig=0):
     
-    if not os.path.isdir("StuffForToys"):
-      os.makedirs("StuffForToys")
+    if not os.path.isdir(path+"/PlotsForToys/toy/bkg"):
+      os.makedirs(path+"/PlotsForToys/toy/bkg")
+    if not os.path.isdir(path+"/PlotsForToys/toy/sig"):
+      os.makedirs(path+"/PlotsForToys/toy/sig")
+    if not os.path.isdir(path+"/PlotsForToys/toy/sandb"):
+      os.makedirs(path+"/PlotsForToys/toy/sandb")
     
+    # have following datasets:
+    # BKG: genbkgmassdata_[5] (mass)
+    #      genbkgbdtdata_[4]  (BDT)
+    # SIG: gensigbdtdata_[4]  (mass,BDT)
+    #      gensigmassdatavbf_ (mass)
+    # S+B: genmassdata_[5]    (mass)
+    #      genbdtdatacats_[4] (BDT)
+
     self.bdtvar_.setRange(0.05,1.)
     can = r.TCanvas()
+    # bkg only toy first
+    for i,dset in enumerate(self.genbkgbdtdata_):
+      frame = self.bdtvar_.frame()
+      frame.SetTitle("BDT output toy cat %d - background"%i)
+      dset.plotOn(frame,r.RooFit.Binning(nbinsBDT))
+      self.bdtpdf_.plotOn(frame,r.RooFit.NormRange("cat%d"%i))
+      frame.Draw()
+      can.SaveAs("%s/PlotsForToys/toy/bkg/toy_bkg_bdt_cat%d.pdf"%(path,i))
+      if i==0: self.genbkgbdtcomb_ = r.RooDataSet("gen_bkg_bdt_comb","gen_bkg_bdt_comb",dset,r.RooArgSet(self.bdtvar_))
+      else: self.genbkgbdtcomb_.append(dset)
+
+    frame1 = self.bdtvar_.frame()
+    frame1.SetTitle("BDT output toy no VBF - background")
+    self.genbkgbdtcomb_.plotOn(frame1,r.RooFit.Binning(nbinsBDT))
+    self.bdtpdf_.plotOn(frame1,r.RooFit.Range(0.05,1.),r.RooFit.NormRange("allcats"))
+    frame1.Draw()
+    can.SaveAs(path+"/PlotsForToys/toy/bkg/toy_bkg_bdt_novbf.pdf")
+
+    for i,dset in enumerate(self.genbkgmassdata_):
+      frame = self.bdtmgg_.frame()
+      frame.SetTitle("Mass toy cat %d - background"%i)
+      dset.plotOn(frame,r.RooFit.Binning(nbinsMass))
+      self.mitpdfs_[i].plotOn(frame)
+      frame.Draw()
+      can.SaveAs("%s/PlotsForToys/toy/bkg/toy_bkg_mass_cat%d.pdf"%(path,i))
+      if i==0:
+        self.genbkgmasscombnovbf_ = r.RooDataSet("gen_bkg_mass_comb_novbf","gen_bkg_mass_comb_novbf",dset,r.RooArgSet(self.bdtmgg_))
+        self.genbkgmasscomb_ = r.RooDataSet("gen_bkg_mass_comb","gen_bkg_mass_comb",dset,r.RooArgSet(self.bdtmgg_))
+      elif i==4:
+        self.genbkgmasscomb_.append(dset)
+      else:
+        self.genbkgmasscombnovbf_.append(dset)
+        self.genbkgmasscomb_.append(dset)
+
+    frame2 = self.bdtmgg_.frame()
+    frame2.SetTitle("Mass toy no VBF - background")
+    self.genbkgmasscombnovbf_.plotOn(frame2,r.RooFit.Binning(nbinsMass))
+    self.icpdf_.plotOn(frame2,r.RooFit.LineColor(r.kMagenta))
+    frame2.Draw()
+    can.SaveAs(path+"/PlotsForToys/toy/bkg/toy_bkg_mass_novbf.pdf")
+
+    frame3 = self.bdtmgg_.frame()
+    frame3.SetTitle("Mass toy all combined - background")
+    self.genbkgmasscomb_.plotOn(frame3,r.RooFit.Binning(nbinsMass))
+    self.icpdf_.plotOn(frame3,r.RooFit.LineColor(r.kMagenta))
+    frame3.Draw()
+    can.SaveAs(path+"/PlotsForToys/toy/bkg/toy_bkg_mass_all.pdf")
+
+    # have following datasets:
+    # BKG: genbkgmassdata_[5] (mass)
+    #      genbkgbdtdata_[4]  (BDT)
+    # SIG: gensigbdtdata_[4]  (mass,BDT)
+    #      gensigmassdatavbf_ (mass)
+    # S+B: genmassdata_[5]    (mass)
+    #      genbdtdatacats_[4] (BDT)
+
+    if expSig>0:
+      # sig toy second
+      for i,dset in enumerate(self.gensigbdtdata_):
+        # bdt
+        frame = self.bdtvar_.frame()
+        frame.SetTitle("BDT output toy cat %d - signal (%d x SM)"%(i,expSig))
+        dset.plotOn(frame,r.RooFit.Binning(nbinsBDT))
+        self.bdtsigpdf_.plotOn(frame,r.RooFit.NormRange("cat%d"%i))
+        frame.Draw()
+        can.SaveAs("%s/PlotsForToys/toy/sig/toy_sig_bdt_cat%d.pdf"%(path,i))
+        # mass
+        frame = self.bdtmgg_.frame()
+        frame.SetTitle("Mass toy cat %d - signal (%d x SM) "%(i,expSig))
+        dset.plotOn(frame,r.RooFit.Binning(nbinsMass))
+        self.mitsigpdfs_[i].plotOn(frame,r.RooFit.LineColor(r.kMagenta))
+        frame.Draw()
+        can.SaveAs("%s/PlotsForToys/toy/sig/toy_sig_mass_cat%d.pdf"%(path,i))
+        if i==0: self.gensigcombnovbf_ = r.RooDataSet("gen_sig_mass_comb_novbf","gen_sig_mass_comb_novbf",dset,r.RooArgSet(self.bdtvar_,self.bdtmgg_))
+        else: self.gensigcombnovbf_.append(dset)
+      
+      # plot sig mass in vbf
+      frame4 = self.bdtmgg_.frame()
+      frame4.SetTitle("Mass toy cat 4 - signal (%d x SM)"%expSig)
+      self.gensigmassdatavbf_.plotOn(frame4,r.RooFit.Binning(nbinsMass))
+      self.mitsigpdfs_[4].plotOn(frame4)
+      frame4.Draw()
+      can.SaveAs("%s/PlotsForToys/toy/sig/toy_sig_mass_cat4.pdf"%path)
+
+      # plot bdt comb
+      frame5 = self.bdtvar_.frame()
+      frame5.SetTitle("BDT output toy no VBF - signal (%d x SM)"%expSig)
+      self.gensigcombnovbf_.plotOn(frame5,r.RooFit.Binning(nbinsBDT))
+      self.bdtsigpdf_.plotOn(frame5)
+      frame5.Draw()
+      can.SaveAs(path+"/PlotsForToys/toy/sig/toy_sig_bdt_novbf.pdf")
+
+      # plot mass comb no vbf
+      frame6 = self.bdtmgg_.frame()
+      frame6.SetTitle("Mass toy no VBF - signal (%d x SM)"%expSig)
+      self.gensigcombnovbf_.plotOn(frame6,r.RooFit.Binning(nbinsMass))
+      self.bdtsigpdf_.plotOn(frame6)
+      frame6.Draw()
+      can.SaveAs(path+"/PlotsForToys/toy/sig/toy_sig_mass_novbf.pdf")
+
+      # plot mass comb all
+      self.gensigmasscomb_ = r.RooDataSet("gen_sig_mass_comb","gen_sig_mass_comb",self.gensigcombnovbf_,r.RooArgSet(self.bdtmgg_))
+      self.gensigmasscomb_.append(self.gensigmassdatavbf_)
+      frame7 = self.bdtmgg_.frame()
+      frame7.SetTitle("Mass toy all combined - signal (%d x SM)"%expSig)
+      self.gensigmasscomb_.plotOn(frame7,r.RooFit.Binning(nbinsMass))
+      self.bdtsigpdf_.plotOn(frame7)
+      frame7.Draw()
+      can.SaveAs(path+"/PlotsForToys/toy/sig/toy_sig_mass_all.pdf")
+
+    # have following datasets:
+    # BKG: genbkgmassdata_[5] (mass)
+    #      genbkgbdtdata_[4]  (BDT)
+    # SIG: gensigbdtdata_[4]  (mass,BDT)
+    #      gensigmassdatavbf_ (mass)
+    # S+B: genmassdata_[5]    (mass)
+    #      genbdtdatacats_[4] (BDT)
+
+    # comb toy last
+    for i,dset in enumerate(self.genbdtdatacats_):
+      # bdt
+      frame = self.bdtvar_.frame()
+      frame.SetTitle("BDT output toy cat %d - s+b"%i)
+      dset.plotOn(frame,r.RooFit.Binning(nbinsBDT))
+      self.bdtpdf_.plotOn(frame,r.RooFit.Normalization(self.genbkgbdtdata_[i].sumEntries(),r.RooAbsReal.NumEvent),r.RooFit.NormRange("cat%d"%i))
+      frame.Draw()
+      can.SaveAs("%s/PlotsForToys/toy/sandb/toy_sandb_bdt_cat%d.pdf"%(path,i))
+      if i==0: self.genallbdtcomb_ = r.RooDataSet("gen_sandb_bdt_comb","gen_sandb_bdt_comb",dset,r.RooArgSet(self.bdtvar_))
+      else: self.genallbdtcomb_.append(dset)
+
+    frame8 = self.bdtvar_.frame()
+    frame8.SetTitle("BDT output toy no VBF - s+b")
+    self.genallbdtcomb_.plotOn(frame8,r.RooFit.Binning(nbinsBDT))
+    self.bdtpdf_.plotOn(frame8,r.RooFit.Normalization(self.genbkgbdtdata_[0].sumEntries()+self.genbkgbdtdata_[1].sumEntries()+self.genbkgbdtdata_[2].sumEntries()+self.genbkgbdtdata_[3].sumEntries(),r.RooAbsReal.NumEvent))
+    frame8.Draw()
+    can.SaveAs(path+"/PlotsForToys/toy/sandb/toy_sandb_bdt_novbf.pdf")
+
+    for i,dset in enumerate(self.genmassdata_):
+      # mass
+      frame = self.bdtmgg_.frame()
+      frame.SetTitle("Mass toy cat %d - s+b"%i)
+      dset.plotOn(frame,r.RooFit.Binning(nbinsMass))
+      self.mitpdfs_[i].plotOn(frame,r.RooFit.Normalization(self.genbkgmassdata_[i].sumEntries(),r.RooAbsReal.NumEvent))
+      frame.Draw()
+      can.SaveAs("%s/PlotsForToys/toy/sandb/toy_sandb_mass_cat%d.pdf"%(path,i))
+      if i==0:
+        self.genallmasscombnovbf_ = r.RooDataSet("gen_sandb_mass_comb_novbf","gen_sandb_mass_comb_novbf",dset,r.RooArgSet(self.bdtmgg_))
+        self.genallmasscomb_ = r.RooDataSet("gen_sandb_mass_comb","gen_sandb_mass_comb",dset,r.RooArgSet(self.bdtmgg_))
+      elif i==4:
+        self.genallmasscomb_.append(dset)
+      else:
+        self.genallmasscombnovbf_.append(dset)
+        self.genallmasscomb_.append(dset)
+
+    frame9 = self.bdtmgg_.frame()
+    frame9.SetTitle("Mass toy no VBF - s+b")
+    self.genallmasscombnovbf_.plotOn(frame9,r.RooFit.Binning(nbinsMass))
+    self.icpdf_.plotOn(frame9,r.RooFit.Normalization(self.genbkgmasscombnovbf_.sumEntries(),r.RooAbsReal.NumEvent),r.RooFit.LineColor(r.kMagenta))
+    frame9.Draw()
+    can.SaveAs(path+"/PlotsForToys/toy/sandb/toy_sandb_mass_novbf.pdf")
+
+    frame10 = self.bdtmgg_.frame()
+    frame10.SetTitle("Mass toy all combined - s+b")
+    self.genallmasscomb_.plotOn(frame10,r.RooFit.Binning(nbinsMass))
+    self.icpdf_.plotOn(frame10,r.RooFit.Normalization(self.genbkgmasscomb_.sumEntries(),r.RooAbsReal.NumEvent),r.RooFit.LineColor(r.kMagenta))
+    frame10.Draw()
+    can.SaveAs(path+"/PlotsForToys/toy/sandb/toy_sandb_mass_all.pdf")
+
+
+
+      
+"""
     frame1 = self.bdtvar_.frame()
     self.genbdtdata_.plotOn(frame1,r.RooFit.Binning(nbinsBDT))
-    self.bdtpdf_.plotOn(frame1)
+    self.bdtpdf_.plotOn(frame1,r.RooFit.Range(0.05,1.))
     frame1.SetTitle("BDT output toy no VBF")
     frame1.Draw()
-    can.SaveAs("StuffForToys/toy_bdt_novbf.pdf")
+    can.SaveAs(path+"/PlotsForToys/toy/toy_bdt_novbf.pdf")
+
+    for i, dset in enumerate(self.genbdtdatacats_):
+      frame2 = self.bdtvar_.frame()
+      dset.plotOn(frame2,r.RooFit.Binning(nbinsBDT))
+      self.bdtpdf_.plotOn(frame2,r.RooFit.NormRange("cat%d"%i))
+      frame2.SetTitle("BDT output toy cat %d"%i)
+      frame2.Draw()
+      can.SaveAs("%s/PlotsForToys/toy/toy_bdt_cat%d.pdf"%(path,i))
 
     # mass
     for i, dataset in enumerate(self.genmassdata_):
-      frame1 = self.bdtmgg_.frame()
-      frame1.SetTitle("Mass toy for category %i"%i)
-      dataset.plotOn(frame1,r.RooFit.Binning(nbinsMass))
-      self.mitpdfs_[i].plotOn(frame1)
-      frame1.Draw()
-      can.SaveAs("StuffForToys/toy_mass_cat%i.pdf"%i)
-
-    frame3 = self.bdtmgg_.frame()
-    frame3.SetTitle("Mass toy for all non VBF categories combined")
-    self.allgenmassdatanovbf_.plotOn(frame3,r.RooFit.Binning(nbinsMass))
-    self.icpdf_.plotOn(frame3,r.RooFit.Normalization(self.toyNoVBFEvents_,r.RooAbsReal.NumEvent),r.RooFit.LineColor(r.kMagenta))
-    frame3.Draw()
-    can.SaveAs("StuffForToys/toy_mass_comb_noVBF.pdf")
+      frame3 = self.bdtmgg_.frame()
+      frame3.SetTitle("Mass toy for category %i"%i)
+      dataset.plotOn(frame3,r.RooFit.Binning(nbinsMass))
+      self.mitpdfs_[i].plotOn(frame3)
+      frame3.Draw()
+      can.SaveAs(path+"/PlotsForToys/toy/toy_mass_cat%i.pdf"%i)
 
     frame4 = self.bdtmgg_.frame()
-    frame4.SetTitle("Mass toy for all categories combined")
-    self.allgenmassdata_.plotOn(frame4,r.RooFit.Binning(nbinsMass))
-    self.icpdf_.plotOn(frame4,r.RooFit.Normalization(self.toyNoVBFEvents_+self.toyVBFEvents_,r.RooAbsReal.NumEvent),r.RooFit.LineColor(r.kMagenta))
+    frame4.SetTitle("Mass toy for all non VBF categories combined")
+    self.allgenmassdatanovbf_.plotOn(frame4,r.RooFit.Binning(nbinsMass))
+    self.icpdf_.plotOn(frame4,r.RooFit.Normalization(self.toyNoVBFEvents_,r.RooAbsReal.NumEvent),r.RooFit.LineColor(r.kMagenta))
     frame4.Draw()
-    can.SaveAs("StuffForToys/toy_mass_comb.pdf")
-      
+    can.SaveAs(path+"/PlotsForToys/toy/toy_mass_comb_noVBF.pdf")
+
+    frame5 = self.bdtmgg_.frame()
+    frame5.SetTitle("Mass toy for all categories combined")
+    self.allgenmassdata_.plotOn(frame5,r.RooFit.Binning(nbinsMass))
+    self.icpdf_.plotOn(frame5,r.RooFit.Normalization(self.toyNoVBFEvents_+self.toyVBFEvents_,r.RooAbsReal.NumEvent),r.RooFit.LineColor(r.kMagenta))
+    frame5.Draw()
+    can.SaveAs(path+"/PlotsForToys/toy/toy_mass_comb.pdf")
+
+    frame6 = self.bdtmgg_.frame()
+    frame6.SetTitle("Mass toy for all non VBF categories in signal")
+    self.gensigdatanovbf_.plotOn(frame6,r.RooFit.Binning(nbinsMass))
+    self.bdtsigpdf_.plotOn(frame6)
+    frame6.Draw()
+    can.SaveAs(path+"/PlotsForToys/toy/toy_sig_mass_novbf.pdf")
+
+    frame7 = self.bdtvar_.frame()
+    frame7.SetTitle("BDT output toy for all non VBF cateogories in signal")
+    self.gensigdatanovbf_.plotOn(frame7,r.RooFit.Binning(nbinsBDT))
+    self.bdtsigpdf_.plotOn(frame7)
+    frame7.Draw()
+    can.SaveAs(path+"/PlotsForToys/toy/toy_sig_bdt_novbf.pdf")
+
+    for i, dset in enumerate(self.gensigbdtdata_):
+      dB = self.bdtvar_.frame()
+      dB.SetTitle("BDT output toy cat %d signal"%i)
+      dset.plotOn(dB)
+      self.bdtsigpdf_.plotOn(dB,r.RooFit.NormRange("cat%d"%i))
+      dB.Draw()
+      can.SaveAs("%s/PlotsForToys/toy/toy_sig_bdt_cat%d.pdf"%(path,i))
+      dM = self.bdtmgg_.frame()
+      dM.SetTitle("Mass toy cat %d signal"%i)
+      dset.plotOn(dM)
+      self.mitsigpdfs_[i].plotOn(dM,r.RooFit.LineColor(r.RooFit.kMagenta))
+      dM.Draw()
+      can.SaveAs("%s/PlotsForToys/toy/toy_sig_mass_cat%d.pdf"%(path,i))
+
+    frame8 = self.bdtmgg_.frame()
+    frame8.SetTitle("Mass toy cat 4 signal")
+    self.gensigmassdatavbf_.plotOn(frame8)
+    self.mitsigpdfs_[4].plotOn(frame8)
+    frame8.Draw()
+    can.SaveAs("%s/PlotsForToys/toy/toy_sig_mass_cat4.pdf"%path)
+
+    # mass
+
     #self.icr1_       = r.RooRealVar("r1","r1",-8.,-10.,0.)
     #self.icr2_       = r.RooRealVar("r2","r2",-0.05,-10.,0.)
     #self.icf1_       = r.RooRealVar("f1","f1",0.01,0.,1.)
     #self.icpdfmass_  = r.RooGenericPdf("data_pow_model","data_pow_model","(1-@3)*TMath::Power(@0,@1)+@3*TMath::Power(@0,@2)",r.RooArgList(self.mitvar_,self.icr1_,self.icr2_,self.icf1_));
+"""
 
-  """
+"""
   def createSigPdf(self,tree):
     if not self.hasFit_:
       sys.exit('There is no background PDF made or loaded yet. Can\'t create signal. Bailing out')
@@ -325,5 +616,5 @@ class CombinedToyMaker:
     print self.dataVBFEvents_
     self.hasFit_      = True
 
-  """
+"""
 

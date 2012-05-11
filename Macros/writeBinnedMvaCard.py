@@ -78,7 +78,7 @@ def fillToyBDT(histogram):
 	for j in range(len(toydata)):
 		val = array.array('f',[0])
 		if toydata[j][0]>1. : val[0] = toydata[j][0]
-		else:g_tmva.tmvaGetVal(toydata[j][0],toydata[j][1],val)	
+		else: val[0] = g_tmva.tmvaGetVal(toydata[j][0],toydata[j][1])	
 		histNew.Fill(val[0])
 	listret = []
 	for b in range(1,histNew.GetNbinsX()+1):listret.append(histNew.GetBinContent(b))
@@ -287,8 +287,8 @@ def writeCard(tfile,mass,scaleErr):
 	for b in range(1,nBins+1): 
 	  nd = pseudoBackgroundOnlyDataset[b-1]
 	  ns = 0
-	  if options.expSig>0:
-		print "Injecting %.f x SM"%expSig
+	  if options.expSig>0 and not options.throwGlobalToy:
+		print "Injecting %.f x SM"%options.expSig
 		ns+=getPoissonBinContent(gghHist,b,options.expSig)
 		ns+=getPoissonBinContent(vbfHist,b,options.expSig)
 		ns+=getPoissonBinContent(wzhHist,b,options.expSig)
@@ -512,6 +512,7 @@ parser.add_option("-b","--specificBin",dest="binfromright",default=-1,type="int"
 parser.add_option("-m","--mass",dest="singleMass",default=-1.,type="float")
 parser.add_option("-t","--type",dest="bdtType",default="grad");
 parser.add_option("-o","--outputDir",dest="outputDir",default="mva-datacards-")
+parser.add_option("-p","--outputPlot",dest="outputPlot")
 
 
 (options,args)=parser.parse_args()
@@ -526,15 +527,22 @@ if (not options.Bias) and options.includeVBF: sys.exit("Cannot use summed sideba
 runtype=options.bdtType
 
 # create output folders
-cardOutDir=options.outputDir+runtype
-if options.throwGlobalToy or options.throwToy: cardOutDir=options.outputDir+"toy"
+if options.outputDir=="mva-datacards-":
+  cardOutDir=options.outputDir+runtype
+  plotOutDir="mva-plots-"+runtype
+else:
+  cardOutDir=options.outputDir
+  plotOutDir=cardOutDir+"-plots"
+
+if options.outputPlot:
+  plotOutDir=options.outputPlot
+
 if options.binfromright>-1: cardOutDir+="-bin%i"%options.binfromright
 if not options.signalSys:
   cardOutDir+="-nosigsys"
 if not os.path.isdir(cardOutDir):
   os.makedirs(cardOutDir)
 if options.makePlot:
-  plotOutDir="mva-plots-"+runtype
   if not os.path.isdir(plotOutDir):
     os.makedirs(plotOutDir)
 
@@ -577,13 +585,13 @@ toymaker=0
 if options.throwGlobalToy:
   toymaker = CombinedToyMaker(options.inputmassfacws)
   if not options.inputpdfworkspace: 
-    toymaker.createPdfs(options.treefilename,options.outputpdfworkspace)
+    toymaker.createPdfs(options.treefilename,options.outputpdfworkspace,options.expSig)
   else:
-    toymaker.loadPdfs(options.inputpdfworkspace)
+    toymaker.loadPdfs(options.inputpdfworkspace,options.expSig)
 
-  toymaker.plotData(160,200)
+  toymaker.plotData(cardOutDir,160,200)
   toymaker.genData(cardOutDir+"/"+options.outputmassfactoy,options.expSig)
-  toymaker.plotToy(160,200)
+  toymaker.plotToy(cardOutDir,160,95,options.expSig)
   toymaker.saveToyWorkspace(cardOutDir+"/testToyWS.root")
   ROOT.gROOT.ProcessLine(".L tmvaLoader.C+")
   from ROOT import tmvaLoader
@@ -594,6 +602,7 @@ tfile = ROOT.TFile(options.tfileName)
 if options.singleMass>0: evalMasses=[float(options.singleMass)]
 for m in evalMasses: 
 	if options.throwGlobalToy: 
+		#g_toydatalist=toymaker.returnWindowData(float(m),g_SIDEBANDWIDTH)
 		g_toydatalist=toymaker.returnWindowToyData(float(m),g_SIDEBANDWIDTH)
 		#tagging of jets now implicitly taken car of in CombinedToyMaker
     #if options.includeVBF: tagPseudoDijets()
