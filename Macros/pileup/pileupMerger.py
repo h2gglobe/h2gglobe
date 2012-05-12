@@ -1,5 +1,10 @@
 #!/bin/env python
 
+##CASTOR bash script
+#ESCAPED=`echo $DIR | sed -e 's/[\\/&]/\\\\&/g'`
+#FILES=`nsls ${DIR} | sed "s/^/rfio:${ESCAPED}\//" | paste -s`
+#hadd -T ${OUT} ${FILES}
+
 from optparse import OptionParser
 from pprint import pprint
 import os.path as p
