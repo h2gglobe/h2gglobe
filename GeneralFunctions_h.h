@@ -37,8 +37,8 @@ bool FindMCVH(int higgsind, int& vh, int& vh1, int& vh2 );
 TLorentzVector GetHiggs() 
 {
 	TLorentzVector  gP4(0,0,0,0);
-	assert(gh_higgs_p4->At(0) != 0 || gp_p4 != 0);
-	if( gh_higgs_p4->At(0) != 0 ) {
+	assert(gh_higgs_p4 != 0 || gp_p4 != 0);
+	if( gh_higgs_p4 != 0 && gh_higgs_p4->At(0) != 0 ) {
 	    gP4 = *((TLorentzVector*)gh_higgs_p4->At(0));
 	} else {
 	    for (int gi=0;gi<gp_n;gi++){
@@ -597,7 +597,7 @@ void SetBranchAddress_pho_passcuts_sublead(TTree * tree) { tree->SetBranchAddres
 
 void doJetMatching(TClonesArray & reco, TClonesArray & gen, Bool_t * match_flag, Bool_t * match_vbf_flag, Float_t * match_pt, Float_t * match_dr, Float_t maxDr=0.4 );
 
-std::pair<int, int> Select2HighestPtJets(TLorentzVector& leadpho, TLorentzVector& subleadpho, float jtLMinPt, float jtTMinPt);
+std::pair<int, int> Select2HighestPtJets(TLorentzVector& leadpho, TLorentzVector& subleadpho, float jtLMinPt, float jtTMinPt, Bool_t * jetid_flags=0);
 int RescaleJetEnergy();
 int MuonSelection(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind);
 int ElectronSelection(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind);

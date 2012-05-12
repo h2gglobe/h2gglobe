@@ -2178,8 +2178,8 @@ int  LoopAll::RescaleJetEnergy() {
   return 1;
 }
 
-std::pair<int, int> LoopAll::Select2HighestPtJets(TLorentzVector& leadpho, TLorentzVector& subleadpho, float jtLMinPt, float jtTMinPt){
-
+std::pair<int, int> LoopAll::Select2HighestPtJets(TLorentzVector& leadpho, TLorentzVector& subleadpho, float jtLMinPt, float jtTMinPt, Bool_t * jetid_flags)
+{
   std::pair<int, int> myJets(-1,-1);
   std::pair<int, int> fail(-1,-1);
 
@@ -2197,6 +2197,7 @@ std::pair<int, int> LoopAll::Select2HighestPtJets(TLorentzVector& leadpho, TLore
 
   for(int j1_i=0; j1_i<jet_algoPF1_n; j1_i++){
     j1p4 = (TLorentzVector*) jet_algoPF1_p4->At(j1_i);
+    if(jetid_flags != 0 && !jetid_flags[j1_i]) continue; 
     if(fabs(j1p4->Eta()) > 4.7) continue;
     if(j1p4->DeltaR(leadpho) < dr2pho) continue;
     if(j1p4->DeltaR(subleadpho) < dr2pho) continue;
