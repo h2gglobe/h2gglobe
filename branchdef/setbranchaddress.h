@@ -711,3 +711,6 @@ void SetBranchAddress_el_std_pfiso_photon(TTree* tree) { tree->SetBranchAddress(
 void SetBranchAddress_pho_hcalbcsumetconedr03(TTree* tree) { tree->SetBranchAddress("pho_hcalbcsumetconedr03", &pho_hcalbcsumetconedr03, &b_pho_hcalbcsumetconedr03); };
 void SetBranchAddress_pho_hcalbcsumetconedr04(TTree* tree) { tree->SetBranchAddress("pho_hcalbcsumetconedr04", &pho_hcalbcsumetconedr04, &b_pho_hcalbcsumetconedr04); };
 void SetBranchAddress_pho_hoe_bc(TTree* tree) { tree->SetBranchAddress("pho_hoe_bc", &pho_hoe_bc, &b_pho_hoe_bc); };
+void SetBranchAddress_jet_algoPF1_cutbased_wp_level(TTree* tree) { tree->SetBranchAddress("jet_algoPF1_cutbased_wp_level", &jet_algoPF1_cutbased_wp_level, &b_jet_algoPF1_cutbased_wp_level); };
+void SetBranchAddress_jet_algoPF2_cutbased_wp_level(TTree* tree) { tree->SetBranchAddress("jet_algoPF2_cutbased_wp_level", &jet_algoPF2_cutbased_wp_level, &b_jet_algoPF2_cutbased_wp_level); };
+void SetBranchAddress_jet_algoPF3_cutbased_wp_level(TTree* tree) { tree->SetBranchAddress("jet_algoPF3_cutbased_wp_level", &jet_algoPF3_cutbased_wp_level, &b_jet_algoPF3_cutbased_wp_level); };

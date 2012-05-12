@@ -715,3 +715,6 @@ b_el_std_pfiso_photon = fChain->GetBranch("el_std_pfiso_photon");
 b_pho_hcalbcsumetconedr03 = fChain->GetBranch("pho_hcalbcsumetconedr03");
 b_pho_hcalbcsumetconedr04 = fChain->GetBranch("pho_hcalbcsumetconedr04");
 b_pho_hoe_bc = fChain->GetBranch("pho_hoe_bc");
+b_jet_algoPF1_cutbased_wp_level = fChain->GetBranch("jet_algoPF1_cutbased_wp_level");
+b_jet_algoPF2_cutbased_wp_level = fChain->GetBranch("jet_algoPF2_cutbased_wp_level");
+b_jet_algoPF3_cutbased_wp_level = fChain->GetBranch("jet_algoPF3_cutbased_wp_level");

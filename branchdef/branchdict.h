@@ -711,3 +711,6 @@ BRANCH_DICT(el_std_pfiso_photon);
 BRANCH_DICT(pho_hcalbcsumetconedr03);
 BRANCH_DICT(pho_hcalbcsumetconedr04);
 BRANCH_DICT(pho_hoe_bc);
+BRANCH_DICT(jet_algoPF1_cutbased_wp_level);
+BRANCH_DICT(jet_algoPF2_cutbased_wp_level);
+BRANCH_DICT(jet_algoPF3_cutbased_wp_level);

@@ -713,3 +713,6 @@ TBranch* b_el_std_pfiso_photon;
 TBranch* b_pho_hcalbcsumetconedr03;
 TBranch* b_pho_hcalbcsumetconedr04;
 TBranch* b_pho_hoe_bc;
+TBranch* b_jet_algoPF1_cutbased_wp_level;
+TBranch* b_jet_algoPF2_cutbased_wp_level;
+TBranch* b_jet_algoPF3_cutbased_wp_level;

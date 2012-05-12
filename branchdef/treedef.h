@@ -738,3 +738,6 @@ Float_t el_std_pfiso_photon[MAX_ELECTRONS];
 Float_t pho_hcalbcsumetconedr03[MAX_PHOTONS];
 Float_t pho_hcalbcsumetconedr04[MAX_PHOTONS];
 Float_t pho_hoe_bc[MAX_PHOTONS];
+Int_t jet_algoPF1_cutbased_wp_level[MAX_JETS];
+Int_t jet_algoPF2_cutbased_wp_level[MAX_JETS];
+Int_t jet_algoPF3_cutbased_wp_level[MAX_JETS];

@@ -711,3 +711,6 @@ void Branch_el_std_pfiso_photon(TTree* tree) { tree->Branch("el_std_pfiso_photon
 void Branch_pho_hcalbcsumetconedr03(TTree* tree) { tree->Branch("pho_hcalbcsumetconedr03", &pho_hcalbcsumetconedr03, "pho_hcalbcsumetconedr03[pho_n]/F"); };
 void Branch_pho_hcalbcsumetconedr04(TTree* tree) { tree->Branch("pho_hcalbcsumetconedr04", &pho_hcalbcsumetconedr04, "pho_hcalbcsumetconedr04[pho_n]/F"); };
 void Branch_pho_hoe_bc(TTree* tree) { tree->Branch("pho_hoe_bc", &pho_hoe_bc, "pho_hoe_bc[pho_n]/F"); };
+void Branch_jet_algoPF1_cutbased_wp_level(TTree* tree) { tree->Branch("jet_algoPF1_cutbased_wp_level", &jet_algoPF1_cutbased_wp_level, "jet_algoPF1_cutbased_wp_level[jet_algoPF1_n]/I"); };
+void Branch_jet_algoPF2_cutbased_wp_level(TTree* tree) { tree->Branch("jet_algoPF2_cutbased_wp_level", &jet_algoPF2_cutbased_wp_level, "jet_algoPF2_cutbased_wp_level[jet_algoPF2_n]/I"); };
+void Branch_jet_algoPF3_cutbased_wp_level(TTree* tree) { tree->Branch("jet_algoPF3_cutbased_wp_level", &jet_algoPF3_cutbased_wp_level, "jet_algoPF3_cutbased_wp_level[jet_algoPF3_n]/I"); };
