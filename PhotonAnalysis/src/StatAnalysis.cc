@@ -562,6 +562,9 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     } else {
         l.runCiC = true;
     } 
+    if( l.rho == 0. && forcedRho < 0. ) {
+	l.rho = l.rho_algo1;
+    }
 
     l.FillCounter( "Processed", 1. );
     assert( weight > 0. );  

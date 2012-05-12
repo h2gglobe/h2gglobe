@@ -1171,6 +1171,8 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
     // fill ID variables
     if( forcedRho >= 0. ) {
         l.rho = forcedRho;
+    } else if ( l.rho == 0. ) {
+	l.rho = l.rho_algo1;
     }
     l.FillCICInputs();
     l.FillCIC();
@@ -1847,7 +1849,7 @@ bool PhotonAnalysis::VBFTag2011(LoopAll& l, int diphoton_id, float* smeared_pho_
   
   
     TLorentzVector lead_p4    = l.get_pho_p4( l.dipho_leadind[diphoton_id], l.dipho_vtxind[diphoton_id], &smeared_pho_energy[0]);
-  	TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphoton_id], l.dipho_vtxind[diphoton_id], &smeared_pho_energy[0]);
+    TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphoton_id], l.dipho_vtxind[diphoton_id], &smeared_pho_energy[0]);
           
     std::pair<int, int> jets = l.Select2HighestPtJets(lead_p4, sublead_p4, jet1ptcut, jet2ptcut );
     if(jets.first==-1 or jets.second==-1) return tag;
@@ -1874,6 +1876,44 @@ bool PhotonAnalysis::VBFTag2011(LoopAll& l, int diphoton_id, float* smeared_pho_
   
     return tag;
 }
+
+bool PhotonAnalysis::VBFTag2012(LoopAll& l, int diphoton_id, float* smeared_pho_energy, bool nm1, float eventweight, float myweight, bool * jetid_flags) {
+    bool tag = false;
+
+    if(diphoton_id==-1) return tag;
+    float jet1ptcut =30.0;
+    float jet2ptcut =20.0;
+  
+  
+    TLorentzVector lead_p4    = l.get_pho_p4( l.dipho_leadind[diphoton_id], l.dipho_vtxind[diphoton_id], &smeared_pho_energy[0]);
+    TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphoton_id], l.dipho_vtxind[diphoton_id], &smeared_pho_energy[0]);
+          
+    std::pair<int, int> jets = l.Select2HighestPtJets(lead_p4, sublead_p4, jet1ptcut, jet2ptcut, jetid_flags );
+    if(jets.first==-1 || jets.second==-1) return tag;
+    
+    TLorentzVector diphoton = lead_p4+sublead_p4;
+  
+    TLorentzVector* jet1 = (TLorentzVector*)l.jet_algoPF1_p4->At(jets.first);
+    TLorentzVector* jet2 = (TLorentzVector*)l.jet_algoPF1_p4->At(jets.second);
+    TLorentzVector dijet = (*jet1) + (*jet2);
+    
+    myVBFLeadJPt= jet1->Pt();
+    myVBFSubJPt = jet2->Pt();
+    myVBF_Mjj   = dijet.M();
+    myVBFdEta   = fabs(jet1->Eta() - jet2->Eta());
+    myVBFZep    = fabs(diphoton.Eta() - 0.5*(jet1->Eta() + jet2->Eta()));
+    myVBFdPhi   = fabs(diphoton.DeltaPhi(dijet));
+    myVBF_Mgg   = diphoton.M();
+  
+    if(nm1){
+        tag = l.ApplyCutsFill(0,1, eventweight, myweight);
+    } else {
+        tag = l.ApplyCuts(0,1);
+    }
+  
+    return tag;
+}
+
 
 bool PhotonAnalysis::VHhadronicTag2011(LoopAll& l, int diphotonVHhad_id, float* smeared_pho_energy, bool nm1, float eventweight, float myweight){
     bool tag = false;
