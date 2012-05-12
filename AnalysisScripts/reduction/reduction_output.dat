@@ -382,6 +382,7 @@ jet_algoPF1_nCharged
 jet_algoPF1_nNeutrals
 jet_algoPF1_full_wp_level
 jet_algoPF1_simple_wp_level
+jet_algoPF1_cutbased_wp_level
 jet_algoPF1_pfloose
 
 jet_algoPF2_n
@@ -404,6 +405,7 @@ jet_algoPF2_nCharged
 jet_algoPF2_nNeutrals
 jet_algoPF2_full_wp_level
 jet_algoPF2_simple_wp_level
+jet_algoPF2_cutbased_wp_level
 jet_algoPF2_pfloose
 
 jet_algoPF3_n
@@ -426,5 +428,6 @@ jet_algoPF3_nCharged
 jet_algoPF3_nNeutrals
 jet_algoPF3_full_wp_level
 jet_algoPF3_simple_wp_level
+jet_algoPF3_cutbased_wp_level
 jet_algoPF3_pfloose
 

@@ -19,8 +19,30 @@ bx
 Jets for VBF
 ->
 jet_algoPF1_n
-jet_algoPF1_p4
 jet_algoPF1_erescale
+jet_algoPF1_p4
+jet_algoPF1_beta
+jet_algoPF1_betaStar
+jet_algoPF1_betaStarClassic
+jet_algoPF1_dR2Mean
+jet_algoPF1_dRMean
+jet_algoPF1_dZ
+jet_algoPF1_frac01
+jet_algoPF1_frac02
+jet_algoPF1_frac03
+jet_algoPF1_frac04
+jet_algoPF1_frac05
+jet_algoPF1_full_mva
+jet_algoPF1_simple_mva
+jet_algoPF1_nCharged
+jet_algoPF1_nNeutrals
+jet_algoPF1_full_wp_level
+jet_algoPF1_simple_wp_level
+jet_algoPF1_pfloose
+jet_algoPF1_vbfMatched
+jet_algoPF1_genMatched
+jet_algoPF1_genPt
+jet_algoPF1_genDr
 
 ->
 SuperClusters
@@ -28,10 +50,10 @@ SuperClusters
 pho_scind
 sc_xyz
 sc_raw
-bc_p4
+## bc_p4
 sc_bcseedind
 ecalhit_n
-ecalhit_p4
+## ecalhit_p4
 ecalhit_detid
 
 ->
@@ -96,10 +118,11 @@ vtx_std_n
 vtx_std_xyz
 vtx_std_ndof
 
-->
-PU correction
-->
-rho
+# PU correction
+## rho
+rho_algo1
+rho_algo2
+rho_algo3
 
 ->
 Beam spot
@@ -110,9 +133,9 @@ bs_xyz
 ->
 Trigger
 ->
-hlt1_bit
+hlt_bit
 hlt_n
-hlt_path_names_HLT1
+hlt_path_names_HLT
 
 ->
 Vertex selection
