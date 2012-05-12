@@ -6,5 +6,5 @@ if [[ -z $1 ]]; then
     exit 1
 fi
 
-tail -n 100 $1/*.log | egrep -B 2 '=>|rfcp|Red|Break' | egrep  '=>|rfcp|[Rr]ed|Break'
+tail -n 100 $1/*.log | egrep -B 2 '=>|cmsStage|rfcp|Red|Break' | egrep  '=>|cmsStage|rfcp|[Rr]ed|Break'
 

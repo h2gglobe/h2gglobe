@@ -35,9 +35,9 @@ tk_n
 # met
 met_pfmet
 met_phi_pfmet
-#met_sumet_pfmet
-#met_mEtSig_pfmet
-#met_significance_pfmet
+met_sumet_pfmet
+met_mEtSig_pfmet
+met_significance_pfmet
 
 # Electrons
 el_std_n
