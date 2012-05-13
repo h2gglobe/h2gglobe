@@ -15,6 +15,7 @@ from fsUtils import canonicalize
 
 from optparse import OptionParser
 parser = OptionParser(usage="usage: %prog target_pileup.root mc_pileup.root [mc_pileup2.root ...] \nrun with --help to get list of options")
+parser.add_option("--output", default='weights.root', help="Weights ROOT file [default: %default].", metavar='FILE')
 (options, args) = parser.parse_args()
 
 if len(args) < 2:
@@ -36,33 +37,37 @@ def getPuHistos(tFile):
 dataPuFile = ROOT.TFile.Open(dataPuFileName)
 dataPuHistosDict = dict( [(h.GetName(),h) for h in getPuHistos(dataPuFile)] )
 
-fout = ROOT.TFile.Open("weights.root","recreate")
+fout = ROOT.TFile.Open(options.output,"recreate")
 fout.cd()
 
 for (name, hist) in dataPuHistosDict.iteritems():
     hist.Write('target_'+name)
 
 
-def makeWeightHisto(data, mc):
+def makeWeightHisto(dataOrig, mcOrig):
+
+    #TODO: check that the axis dimensions are compatible
+    if mcOrig.GetNbinsX()<dataOrig.GetNbinsX():
+        nbins = mcOrig.GetNbinsX()
+    elif mcOrig.GetNbinsX()>dataOrig.GetNbinsX():
+        raise RuntimeException("Unhandled case: Gen PU in the samples has more bins than the Target PU one.\n Quitting.")
+    else:
+        nbins = False
+
+    if nbins:
+        import numpy as np
+        data = dataOrig.Rebin(nbins,'',np.arange(0.0,nbins+1.0,1.0))
+        mc = mcOrig.Rebin(nbins,'',np.arange(0.0,nbins+1.0,1.0))
+    else:
+        data = dataOrig
+        mc = mcOrig
+        
     w = data.Clone(data.GetName()+'_weights')
     w.SetTitle(w.GetName())
     w.Reset("ICE")
     w.SetEntries(0)
 
-    #TODO: check that the axis dimensions are compatible
-#         if puf0.GetNbinsX()<puOrig.GetNbinsX():
-#             nbins = puf0.GetNbinsX()
-#         elif puf0.GetNbinsX()>puOrig.GetNbinsX():
-#             print "Unhandled case: Gen PU in the samples has more bins than the Target PU one.\n Quitting."
-#             sys.exit(-1);
-#         else:
-#             nbins = False
-            
-#         if nbins:
-#import numpy as np
-#             pu = puOrig.Rebin(nbins,'',np.arange(-0.5,nbins+0.5,1.0))
-#         else:
-#             pu = puOrig
+    pprint( [x.GetXaxis().GetXbins().GetSize() for x in (dataOrig, mcOrig, data, mc)] )
                 
     w.Divide( data, mc, 1./data.Integral(), 1./mc.Integral() )
 

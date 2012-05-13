@@ -62,7 +62,7 @@ if not options.skipPileup:
     %(inputJsonName)s.%(minBiasXsec)s.%(calcMode)s.pileup.root &> %(inputJsonName)s.%(minBiasXsec)s.%(calcMode)s.pileup.root.log"
     
     for options.calcMode in calcModes.keys():
-        print "Queuing %(calcMode)s PU." % vars(options)
+        print "Queuing %(calcMode)s PU calculation." % vars(options)
         jobs.append(cmd % dict( vars(options).items() + calcModes[options.calcMode].items() ) )
 
 
@@ -75,7 +75,7 @@ if not options.skipLumi:
         program = "%(calculator)s.py" % vars(options)
         if not which(program):
             raise RuntimeError("%s not found. Check https://twiki.cern.ch/twiki/bin/view/CMS/LumiCalc for how to install lumi stuff." % program)
-        print "Queuing %(calculator)s lumi." % vars(options)
+        print "Queuing %(calculator)s lumi calculation." % vars(options)
         jobs.append(cmd % vars(options))
 
 if options.dryRun:
@@ -95,13 +95,14 @@ from multiprocessing import Pool
 pool = Pool()
 
 # run all jobs in parallel
+print "Running queued commmands in parallel. (This can take a while...)"
 ret = pool.map(runCmd, jobs)
 if reduce(lambda x, y: x+y, ret):
         raise RuntimeError, "Non-zero return code in parallel loop. Check logs."
 
-
 #merge the pileup files
-cmd = "hadd %(inputJsonName)s.%(minBiasXsec)s.pileup.root \
+cmd = "rm %(inputJsonName)s.%(minBiasXsec)s.pileup.root; \
+hadd %(inputJsonName)s.%(minBiasXsec)s.pileup.root \
 %(inputJsonName)s.%(minBiasXsec)s.true.pileup.root \
 %(inputJsonName)s.%(minBiasXsec)s.observed.pileup.root \
 &> %(inputJsonName)s.%(minBiasXsec)s.pileup.root.log"
