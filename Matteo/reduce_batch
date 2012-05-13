@@ -107,17 +107,19 @@ if __name__ == "__main__":
     hadoop_home   = "/hadoop/cms/store/user/" + username
 
 # reduce_batch input ---
-REQUIRED_ARGS = 7
+REQUIRED_ARGS = 9
 
 if (len(sys.argv) != REQUIRED_ARGS):
     print "input ${INPUT_ARGS} arguments, ${REQUIRED_ARGS} required -- aborting\n"
-    print "Usage: is ./reduce_batch arg1 arg2 arg3 arg4 arg5 arg6 \n"
+    print "Usage: is ./reduce_batch arg1 arg2 arg3 arg4 arg5 arg6 arg7 arg8\n"
     print "arg1: tag \t\t\t\t\t(jets, hww160, ttbar, ...)"
     print "arg2: analysisname \t\t\t\t(PhotonAnalysis, ...)"
     print "arg3: type \t\t\t\t(for reducing differently for different data)"
     print "arg4: root_seed \t\t\t(the beginning of your filenames to run on)"
     print "arg5: hadoop_data_directory \t\t( /hadoop/cms/store/user/ . . . )"
-    print "arg6: template.dat file\t\t\t"
+    print "arg6: dat file\t\t\t"
+    print "arg7: inputBranches file\t\t\t"
+    print "arg8: outputBranches file\t\t\t"
     sys.exit(-4)
 print "\nPreparing batch reduction...\n"
 
@@ -126,7 +128,9 @@ analysisname = sys.argv[2]
 itype = sys.argv[3]
 rootseed = sys.argv[4]
 thedatadirectory = os.path.dirname(sys.argv[5]) + "/"+ os.path.basename(sys.argv[5])
-templatefile = sys.argv[6]
+datfile = sys.argv[6]
+inputBranchesFile = sys.argv[7]
+outputBranchesFile = sys.argv[8]
 
 timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
 outputdir = timestamp + "_" + tag
@@ -232,34 +236,28 @@ for f in xrange(0, len(file_names), filesperjob):
     if (limits[1] > len(file_names)):
         limits = (f, len(file_names))
     
-    inp = open(analysisname+"_scripts/"+templatefile, "r")
-    lines = inp.readlines()
-    inp.close()
+    #inp = open(analysisname+"_scripts/"+templatefile, "r")
+    #lines = inp.readlines()
+    #inp.close()
 
     datafilename = rootseed + "_datafiles"+ str(numberofjobs) + ".dat"
     txtfilename = rootseed + "_datafiles"+ str(numberofjobs) + ".txt"
     
     out = open("reduce/"+datafilename, "w")
     out2 = open("reduce/"+txtfilename, "w")
-    for l in lines:
-        
-        if ("output=" in l):
-            out.write("output=" + outputfilename + "_job" + str(numberofjobs) +".root\n")
-        elif ("Branches" in l):
-            out.write(l)
-        elif ("analyzer" in l):
-            out.write(l)
-        elif ("Fil=" in l):
-            for i in file_names[limits[0]:limits[1]]:
-                out.write("Fil=" + i.split("\n")[0] + " typ=" + itype + "\n")
-                out2.write(i)
-            out.write("\n")
+    out.write("output=" + outputfilename + "_job" + str(numberofjobs) +".root\n")
+    for i in file_names[limits[0]:limits[1]]:
+        out.write("Fil=" + i.split("\n")[0] + " typ=" + itype + "\n")
+        out2.write(i)
+        out.write("\n")    
+    out.write("inputBranches " + inputBranchesFile + "\n")
+    out.write("outputBranches " + outputBranchesFile + "\n")
+    out.write("analyzer " + analysisname + " " + datfile + "\n")
             
     out.close()
     out2.close()
 
-os.system("cp " + analysisname + "_scripts/* reduce/.")
-os.system("cp -r " + analysisname + "_scripts/python reduce/.")
+os.system("cp -r AnalysisScripts/* reduce/.")
 
 thetarball = "reduce" + timestamp + ".tgz"
 os.system("tar zcf " + thetarball + " reduce libLoopAll.so")
@@ -311,9 +309,9 @@ for ijob in xrange(1, numberofjobs+1):
     file.write("\n")
     file.write("## setup env\n")
     file.write("export PATH=/usr/local/bin:/bin:/usr/bin\n")
-    file.write("export SCRAM_ARCH=slc5_amd64_gcc434\n")
+    file.write("export SCRAM_ARCH=slc5_amd64_gcc462\n")
     file.write("source $OSG_APP/cmssoft/cms/cmsset_default.sh\n")
-    file.write("cd $OSG_APP/cmssoft/cms/slc5_amd64_gcc434/cms/cmssw/" + CMSSWVersion + "/src\n")
+    file.write("cd $OSG_APP/cmssoft/cms/slc5_amd64_gcc462/cms/cmssw/" + CMSSWVersion + "/src\n")
     file.write("eval \`scram runtime -sh\`\n")
     file.write("export SRM_PATH=$OSG_APP/ucsdt2/gLite/d-cache/srm\n")
     file.write("export PATH=$PATH:$OSG_APP/ucsdt2/gLite/d-cache/srm/bin\n")
@@ -377,7 +375,7 @@ for ijob in xrange(1, numberofjobs+1):
     file = open(jobname + ".sub", "w")
     text = """
 universe=grid
-Grid_Resource=gt2 osg-gw-4.t2.ucsd.edu:/jobmanager-condor
+Grid_Resource=gt2 osg-gw-5.t2.ucsd.edu:/jobmanager-condor
 executable=%s.bash
 stream_output = False
 stream_error  = False
