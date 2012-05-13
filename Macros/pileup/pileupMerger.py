@@ -11,14 +11,15 @@ import os.path as p
 from subprocess import check_call as call
 
 parser = OptionParser(usage="usage: %prog [options] EOS_source_directory\nrun with --help to get list of options")
-parser.add_option("--putBack", dest="putBack", action="store_true", default=False, help="Put back merged file in source directory [default: %default].")
+
+parser.add_option("--putBack", action="store_true", default=False, help="Put back merged file in source directory [default: %default].")
 
 (options, args) = parser.parse_args()
 
-if len(args) == 0:
+if len(args) != 1:
     parser.print_usage()
-    import sys
-    sys.exit(1)
+    raise RuntimeError("Need exactly one directory to work with.")
+
 options.inDir = args[0]
 options.inDirName = p.basename(options.inDir)
 
