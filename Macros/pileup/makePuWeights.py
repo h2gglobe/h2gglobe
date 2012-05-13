@@ -67,7 +67,7 @@ def makeWeightHisto(dataOrig, mcOrig):
     w.Reset("ICE")
     w.SetEntries(0)
 
-    pprint( [x.GetXaxis().GetXbins().GetSize() for x in (dataOrig, mcOrig, data, mc)] )
+    #pprint( [x.GetXaxis().GetXbins().GetSize() for x in (dataOrig, mcOrig, data, mc)] )
                 
     w.Divide( data, mc, 1./data.Integral(), 1./mc.Integral() )
 
