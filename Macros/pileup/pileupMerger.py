@@ -31,7 +31,7 @@ if not options.inDirName:
 # call(cmd % vars(options), shell=True)
 
 call( """cmsLs %(inDir)s | awk '{ print $5 }' | xargs cmsPfn | sed 's/\?.*$//' > %(inDirName)s.files.txt""" % vars(options), shell=True)
-call( """rm %(inDirName)s.pileup.root %(inDirName)s.pileup.root.log""" % vars(options), shell=True)
+call( """rm -f %(inDirName)s.pileup.root %(inDirName)s.pileup.root.log""" % vars(options), shell=True)
 call( """hadd -T %(inDirName)s.pileup.root @%(inDirName)s.files.txt &> %(inDirName)s.pileup.root.log""" % vars(options), shell=True)
 
 if options.putBack:
