@@ -43,6 +43,7 @@ class MvaAnalysis : public PhotonAnalysis
     int SignalType(int);
     void SetBDTInputVariables(TLorentzVector*, TLorentzVector*, double, double, MassResolution* ,double, double, double, double, int cat = 0);
     void SetBDTInputTree(TTree *);
+    void SetTree(TTree *);
     
     // Options
     bool reRunCiCForData;
@@ -85,6 +86,7 @@ class MvaAnalysis : public PhotonAnalysis
 
     int nMasses;
 
+    bool makeTrees;
     bool doTraining;
     bool splitSignalSample;
     bool splitBackgroundSample;
@@ -106,7 +108,7 @@ class MvaAnalysis : public PhotonAnalysis
     std::vector<double> VbfBinEdges_135, GradBinEdges_135, AdaBinEdges_135;
     std::vector<double> VbfBinEdges_140, GradBinEdges_140, AdaBinEdges_140;
     std::vector<double> VbfBinEdges_150, GradBinEdges_150, AdaBinEdges_150;
-
+    
  protected:
     std::vector<BaseSmearer *> photonSmearers_;
     std::vector<BaseSmearer *> systPhotonSmearers_;
@@ -170,6 +172,9 @@ class MvaAnalysis : public PhotonAnalysis
     float _bdtoutput;
     int _cat;           
     int _sideband;           
+    // extras for trees
+    int _vbf;
+    int _cur_type;
 
     //vector<double> weights;
     TFile *kfacFile;
@@ -184,6 +189,12 @@ class MvaAnalysis : public PhotonAnalysis
     TTree * backgroundTrainTree_7pt_[2];
     TTree * backgroundTestTree_7pt_[2];
     TFile * mvaFile_;
+
+    // To make trees for toys
+    TFile *treeFile_;
+    TTree *dataTree_;
+    TTree *bkgTree_;
+    TTree *sigTree_[9];
     
 };
 

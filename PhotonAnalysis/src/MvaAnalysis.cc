@@ -61,6 +61,13 @@ void MvaAnalysis::Term(LoopAll& l)
         }
         mvaFile_->Close();
     }
+    else if (makeTrees){
+        treeFile_->cd();
+        dataTree_->Write();
+        bkgTree_->Write();
+        for (int i=0; i<nMasses; i++) sigTree_[i]->Write();
+        treeFile_->Close();
+    }
     else if (! l.is_subjob){
 
         // -----------------------------
@@ -96,7 +103,7 @@ void MvaAnalysis::Term(LoopAll& l)
           "0","CMS_hgg_mass",data_pol_pars,75); // >= 71 means RooBernstein of order >= 1
           // -----------------------------
           */
-
+        /*
         // loop hypothesis  
         for (double mass=110.0; mass<150.2; mass+=0.5){
             if (mass < masses[1] || mass > masses[nMasses-1] ) continue;  
@@ -111,9 +118,10 @@ void MvaAnalysis::Term(LoopAll& l)
             sideband_boundaries[1] = mass_hypothesis*(1.+sidebandWidth);
 
             // -----------------------------
-            l.rooContainer->AddRealVar(Form("r1_%3.1f",mass),-8.,-10.,0.);
-            l.rooContainer->AddRealVar(Form("r2_%3.1f",mass),-0.05,-10.,0.);
-            l.rooContainer->AddRealVar(Form("f2_%3.1f",mass),0.01,0.,1.);
+            l.rooContainer->AddRealVar(Form("r1_%3.1f",mass),-8.,-20.,0.);
+            l.rooContainer->AddRealVar(Form("r2_%3.1f",mass),-0.8,-20.,0.);
+            l.rooContainer->AddRealVar(Form("f2_%3.1f",mass),0.5,0.,1.);
+            */
             /*
             // 5th Order Polynomial
             l.rooContainer->AddRealVar(Form("pol0_%3.1f",mass),-0.05,-1.5,1.5);
@@ -147,7 +155,7 @@ void MvaAnalysis::Term(LoopAll& l)
             "0","CMS_hgg_mass",data_pol_pars,65);   // >= 71 means RooBernstein of order >= 1
             // -----------------------------
             */
-
+/*
             // Power law
             std::vector<std::string> data_pow_pars(3,Form("p_%3.1f",mass));   
             data_pow_pars[0] = Form("r1_%3.1f",mass);
@@ -425,9 +433,10 @@ void MvaAnalysis::Term(LoopAll& l)
         
             } 
         }
-
+        */
     }
     PhotonAnalysis::Term(l);
+
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -790,8 +799,21 @@ void MvaAnalysis::Init(LoopAll& l)
             SetBDTInputTree(backgroundTestTree_2pt_[i]);
         }
     }
+    else if (makeTrees){
+        TString dataTreeFileName("Tree_"+(std::string)l.histFileName);
+        treeFile_ = TFile::Open(dataTreeFileName,"RECREATE");
+        treeFile_->cd();
+        dataTree_ = new TTree("dataTree","dataTree");
+        SetTree(dataTree_);
+        bkgTree_ = new TTree("bkgTree","bkgTree");
+        SetTree(bkgTree_);
+        for (int i=0; i<nMasses; i++){
+            sigTree_[i]  = new TTree(Form("sigTree%s",BDTnames[i].c_str()),Form("sigTree%s",BDTnames[i].c_str()));
+            SetTree(sigTree_[i]);
+        }
+    }
     else{
-
+        
         l.rooContainer->AddObservable("BDT" ,-1.,1.);
         l.rooContainer->AddObservable("VBF" ,1,1+2*sidebandWidth);  // Basically a single bin just for VBF
 
@@ -1405,8 +1427,22 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
                 }
             }
         }
+        else if (makeTrees){
+            // --- Info for trees ---
+            _mgg = mass;
+            _bdtoutput = bdtoutput;
+            _wt = evweight;
+            if (VBFevent) _vbf=1;
+            else _vbf=0;
+            _cat = category;
+            _cur_type=cur_type;
+            //cout << Form("M: %3.2f -- B: %1.3f -- W: %1.3f -- V: %d",_mgg,_bdtoutput,_wt,_vbf) << endl;
+            if (cur_type==0) dataTree_->Fill();
+            else if (cur_type<0) sigTree_[SignalType(cur_type)]->Fill();
+            else if (cur_type>0) bkgTree_->Fill();
+        }
         else{
-
+            
             // --- Fill invariant mass spectrum -------
             if (cur_type==0){  // Data
                 l.rooContainer->InputDataPoint("data_mass",category,mass);
@@ -1419,6 +1455,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
             // ------ Deal with Signal MC first
             if (cur_type<0){ // signal MC
+                
                 // define hypothesis masses for the sidebands
                 float mass_hypothesis = masses[SignalType(cur_type)];
 
@@ -1929,7 +1966,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
     // Now do some MC Systematic studies - For MVA Analysis, assume that we only care about Signal Systematics Here, ie make the check cur_type < 0 to increase speed
     // --------------------------------------------------------------------------------------------------------------------------------------------------------------
-    if( cur_type < 0 && doMCSmearing && !doTraining){
+    if( cur_type < 0 && doMCSmearing && !doTraining && !makeTrees){
         // fill steps for syst uncertainty study
         float systStep = systRange / (float)nSystSteps;
         // di-photon smearers systematics (These frst smeaers will not effect the selection so can reuse the diphoton_id)
@@ -2554,6 +2591,16 @@ void MvaAnalysis::SetBDTInputTree(TTree *tree){
     TBranch *b_cat                  = tree->Branch("cat", &_cat, "cat/I");
     TBranch *b_sideband             = tree->Branch("sideband", &_sideband, "sideband/I");
     TBranch *b_bdtoutput            = tree->Branch("bdtoutput", &_bdtoutput, "bdtoutput/F");
+}
+
+void MvaAnalysis::SetTree(TTree *tree){
+    treeFile_->cd();
+    TBranch *b_mgg      = tree->Branch("CMS_hgg_mass",&_mgg,"CMS_hgg_mass/F");
+    TBranch *b_bdtouput = tree->Branch("bdtoutput",&_bdtoutput,"bdtoutput/F");
+    TBranch *b_vbf      = tree->Branch("vbf",&_vbf,"vbf/I");
+    TBranch *b_weight   = tree->Branch("weight",&_wt,"weight/F");
+    TBranch *b_cat      = tree->Branch("category",&_cat,"category/I");
+    TBranch *b_cur_type = tree->Branch("cur_type",&_cur_type,"cur_type/I");
 }
 
 void MvaAnalysis::ResetAnalysis(){
