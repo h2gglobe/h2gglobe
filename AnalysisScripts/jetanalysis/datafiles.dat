@@ -1,0 +1,28 @@
+## intL=5089. histfile=jetid_vbf.root output=shifo.root
+intL=5089. histfile=jetid.root output=shifo.root
+
+typ=-21 ind=9 draw=1   Nam=gluglu_H_gg_120_8TeV CaDir=/store/group/phys_higgs/cmshgg/reduced/may15review_reduction_v3/Summer12_S7_8TeV/GluGluToHToGG_M-120_2 red=0 lum=1000000.0  xsec=21.109 kfac=2.04e-03  scal=1.
+## Fixme 8TeV xsection not yet available. Rescaled from 7TeV assuming VBF/ggH = const
+typ=-26 ind=10 draw=1  Nam=vbf_H_gg_120_8TeV    CaDir=/store/group/phys_higgs/cmshgg/reduced/may15review_reduction_v3/Summer12_S7_8TeV/VBF_HToGG_M-120     red=0 lum=1000000.0  xsec=1.61 kfac=2.04e-03   scal=1.
+
+### typ=3 ind=-1 draw=1 Nam=di_photon_born_10_8TeV red=0 lum=1 xsec=1 kfac=1 scal=1 CaDir=/store/group/phys_higgs/cmshgg/reduced/may15review_reduction_v3/Summer12_S7_8TeV/DiPhotonBorn_Pt-10To25_T2_US_Caltech
+typ=4 ind=-2 draw=1 Nam=di_photon_born_25_8TeV red=0 lum=1 xsec=29 kfac=1.3 scal=1 CaDir=/store/group/phys_higgs/cmshgg/reduced/may15review_reduction_v3/Summer12_S7_8TeV/DiPhotonBorn_Pt-25To250_Rome
+### typ=5 ind=-3 draw=1 Nam=di_photon_box_10_8TeV  red=0 lum=1 xsec=1 kfac=1 scal=1 CaDir=/store/group/phys_higgs/cmshgg/reduced/may15review_reduction_v3/Summer12_S7_8TeV/DiPhotonBox_Pt-10To25_T2_US_Caltech
+### typ=6 ind=-4 draw=1 Nam=di_photon_box_25_8TeV  red=0 lum=1 xsec=1 kfac=1 scal=1 CaDir=/store/group/phys_higgs/cmshgg/reduced/may15review_reduction_v3/Summer12_S7_8TeV/DiPhotonBox_Pt-250ToInf_T2_US_Caltech
+typ=7 ind=-5 draw=1 Nam=di_photon_box_250_8TeV red=0 lum=1 xsec=18 kfac=1.3 scal=1 CaDir=/store/group/phys_higgs/cmshgg/reduced/may15review_reduction_v3/Summer12_S7_8TeV/DiPhotonBox_Pt-25To250_T2_IT_Rome
+
+##
+## Branches to use
+##
+inputBranches minimal_statanalysis_input.dat
+
+plotvariables jetanalysis/plotvariables.dat
+
+## define analyses to run
+## 	a library containing the class dictionary has loaded before parsing the 
+## 	configuration file
+## syntax:
+## 	analyzer <class_name> <config_file>
+## 
+## analyzer PhotonAnalysis photonanalysis.dat	
+analyzer JetIdAnalysis photonanalysis.dat statanalysis.dat jetanalysis/jetanalysis.dat
