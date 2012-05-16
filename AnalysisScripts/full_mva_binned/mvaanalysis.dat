@@ -116,6 +116,7 @@ doMCSmearing=1
 ->
 Individual smearing flags
 ->
+
 doEscaleSmear=1
 doEscaleSyst=1
 

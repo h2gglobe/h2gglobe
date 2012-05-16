@@ -28,8 +28,10 @@ MassFactorizedMvaAnalysis::~MassFactorizedMvaAnalysis()
 void MassFactorizedMvaAnalysis::Term(LoopAll& l) 
 {
 
-    std::string outputfilename = (std::string) l.histFileName;
-    l.rooContainer->FitToData("data_pol_model","data_mass");  // Fit to full range of dataset
+    if (! l.is_subjob){ // no need to waste time when running a subjob
+        std::string outputfilename = (std::string) l.histFileName;
+        l.rooContainer->FitToData("data_pol_model","data_mass");  // Fit to full range of dataset
+    }
 
     eventListText.close();
     std::cout << " nevents " <<  nevents << " " << sumwei << std::endl;
@@ -177,6 +179,12 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
         kFactorSmearer->name("kFactor");
         kFactorSmearer->init();
         genLevelSmearers_.push_back(kFactorSmearer);
+    }
+    if(doInterferenceSmear) {
+        // interference efficiency
+        std::cerr << __LINE__ << std::endl; 
+        interferenceSmearer = new InterferenceSmearer(2.5e-2,0.);
+        genLevelSmearers_.push_back(interferenceSmearer);
     }
 
     // Define the number of categories for the statistical analysis and
@@ -640,7 +648,7 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
     float mass, evweight;
     int diphoton_id, category;
     bool isCorrectVertex;
-    if( AnalyseEvent(l,jentry, weight, gP4, mass,  evweight, category, diphoton_id, isCorrectVertex) ) {
+    if( AnalyseEvent(l,jentry, weight, gP4, mass,  evweight, category, diphoton_id, isCorrectVertex,zero_) ) {
 	// feed the event to the RooContainer 
         if (cur_type == 0 ){
             l.rooContainer->InputDataPoint("data_mass",category,mass);
@@ -678,7 +686,7 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		    
 		    // re-analyse the event without redoing the event selection as we use nominal values for the single photon
 		    // corrections and smearings
-		    AnalyseEvent(l, jentry, weight, gP4, syst_mass,  syst_weight, syst_category, diphoton_id, isCorrectVertex,
+		    AnalyseEvent(l, jentry, weight, gP4, syst_mass,  syst_weight, syst_category, diphoton_id, isCorrectVertex,zero_,
 				 true, syst_shift, true, *si, 0, 0 );
 		    		    
 		    categories.push_back(syst_category);
@@ -701,7 +709,7 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		    
 		    // re-analyse the event without redoing the event selection as we use nominal values for the single photon
 		    // corrections and smearings
-		    AnalyseEvent(l,jentry, weight, gP4, syst_mass,  syst_weight, syst_category, diphoton_id, isCorrectVertex,
+		    AnalyseEvent(l,jentry, weight, gP4, syst_mass,  syst_weight, syst_category, diphoton_id, isCorrectVertex,zero_,
 				 true, syst_shift, true,  0, 0, *si );
 		    
 		    categories.push_back(syst_category);
@@ -724,7 +732,7 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		syst_mass     =  0., syst_category = -1, syst_weight   =  0.;
 		
 		// re-analyse the event redoing the event selection this time
-		AnalyseEvent(l,jentry, weight, gP4, syst_mass,  syst_weight, syst_category, diphoton_id, isCorrectVertex,
+		AnalyseEvent(l,jentry, weight, gP4, syst_mass,  syst_weight, syst_category, diphoton_id, isCorrectVertex,zero_,
 			     true, syst_shift, false,  0, *si, 0 );
 		
 		categories.push_back(syst_category);
@@ -743,11 +751,12 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 }
 
 bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentzVector & gP4,
-				float & mass, float & evweight, int & category, int & diphoton_id, bool & isCorrectVertex,
+				float & mass, float & evweight, int & category, int & diphoton_id, bool & isCorrectVertex, float &kinematic_bdtout,
 				bool isSyst, 
 				float syst_shift, bool skipSelection, 
 				BaseGenLevelSmearer *genSys, BaseSmearer *phoSys, BaseDiPhotonSmearer * diPhoSys) 
 {
+
     assert( isSyst || ! skipSelection );
 
     int cur_type = l.itype[l.current];
@@ -762,42 +771,44 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 	applyGenLevelSmearings(genLevWeight,gP4,l.pu_n,cur_type,genSys,syst_shift);
     }
 	
-	// first apply corrections and smearing on the single photons 
-	smeared_pho_energy.clear(); smeared_pho_energy.resize(l.pho_n,0.); 
-	smeared_pho_r9.clear();     smeared_pho_r9.resize(l.pho_n,0.); 
-	smeared_pho_weight.clear(); smeared_pho_weight.resize(l.pho_n,1.);
-	applySinglePhotonSmearings(smeared_pho_energy, smeared_pho_r9, smeared_pho_weight, cur_type, l, energyCorrected, energyCorrectedError,
-				   phoSys, syst_shift);
+    if (!skipSelection){
+        // first apply corrections and smearing on the single photons 
+        smeared_pho_energy.clear(); smeared_pho_energy.resize(l.pho_n,0.); 
+        smeared_pho_r9.clear();     smeared_pho_r9.resize(l.pho_n,0.); 
+        smeared_pho_weight.clear(); smeared_pho_weight.resize(l.pho_n,1.);
+        applySinglePhotonSmearings(smeared_pho_energy, smeared_pho_r9, smeared_pho_weight, cur_type, l, energyCorrected, energyCorrectedError,
+                       phoSys, syst_shift);
 
-	// inclusive category di-photon selection
-	// FIXME pass smeared R9
-	diphoton_id = l.DiphotonMITPreSelection(leadEtCut,subleadEtCut,applyPtoverM, &smeared_pho_energy[0] ); 
-    	
-	// Exclusive Modes
-	int diphotonVBF_id = -1;
-	VBFevent = false;
-	
-	// VBF
-	if((includeVBF || includeVHhad)&&l.jet_algoPF1_n>1 && !isSyst /*avoid rescale > once*/) {
-	    l.RescaleJetEnergy();
-	}
+        // inclusive category di-photon selection
+        // FIXME pass smeared R9
+        diphoton_id = l.DiphotonMITPreSelection(leadEtCut,subleadEtCut,applyPtoverM, &smeared_pho_energy[0] ); 
+            
+        // Exclusive Modes
+        int diphotonVBF_id = -1;
+        VBFevent = false;
+        
+        // VBF
+        if((includeVBF || includeVHhad)&&l.jet_algoPF1_n>1 && !isSyst /*avoid rescale > once*/) {
+            l.RescaleJetEnergy();
+        }
 
-	if(includeVBF) {
-        double leadEtCutVBF = 55.;
-		diphotonVBF_id = l.DiphotonMITPreSelection(leadEtCutVBF,subleadEtCut,applyPtoverM, &smeared_pho_energy[0] );
-		float eventweight = weight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second] * genLevWeight;
-		float myweight=1.;
-		if(eventweight*sampleweight!=0) myweight=eventweight/sampleweight;
-		
-		VBFevent=VBFTag2011(l, diphotonVBF_id, &smeared_pho_energy[0], true, eventweight, myweight);
-	}
-	
-	if(includeVBF&&VBFevent) {
-	    diphoton_id = diphotonVBF_id;
+        if(includeVBF) {
+            double leadEtCutVBF = 55.;
+            diphotonVBF_id = l.DiphotonMITPreSelection(leadEtCutVBF,subleadEtCut,applyPtoverM, &smeared_pho_energy[0] );
+            float eventweight = weight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second] * genLevWeight;
+            float myweight=1.;
+            if(eventweight*sampleweight!=0) myweight=eventweight/sampleweight;
+            
+            VBFevent=VBFTag2011(l, diphotonVBF_id, &smeared_pho_energy[0], true, eventweight, myweight);
+        }
+        
+        if(includeVBF&&VBFevent) {
+            diphoton_id = diphotonVBF_id;
+        }
     }
-    
     // if we selected any di-photon, compute the Higgs candidate kinematics
-    // and compute the event category 
+    // and compute the event category
+    if (PADEBUG) std::cout << "Found a Diphoton , diphoton ID " <<diphoton_id << std::endl; 
     if (diphoton_id > -1 ) {
         diphoton_index = std::make_pair( l.dipho_leadind[diphoton_id],  l.dipho_subleadind[diphoton_id] );
 
@@ -839,10 +850,11 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
                            
         // Must be calculated after photon id has potentially been smeared
         float diphobdt_output = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id] ,vtxProb,lead_p4,sublead_p4 ,sigmaMrv,sigmaMwv,sigmaMeonly ,bdtTrainingPhilosophy.c_str() ,phoid_mvaout_lead,phoid_mvaout_sublead);
-
+        kinematic_bdtout = diphobdt_output;
         bool isEBEB  = (lead_p4.Eta() < 1.4442 ) && fabs(sublead_p4.Eta()<1.4442);
-        int category = GetBDTBoundaryCategory(diphobdt_output,isEBEB,VBFevent);
+        category = GetBDTBoundaryCategory(diphobdt_output,isEBEB,VBFevent);
  
+        if (PADEBUG) std::cout << " Diphoton Category " <<category <<std::endl;
     	// sanity check
         assert( evweight >= 0. ); 
 	
@@ -855,7 +867,9 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 	        fillControlPlots(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, category, evweight, l );
 	    }
 	
-        if (cur_type==0 && mass >= 100. && mass < 180. && !isSyst /*should never be if running data anyway*/){
+        //if (cur_type==0 && mass >= 100. && mass < 180. && !isSyst /*should never be if running data anyway*/){
+        if (mass >= 100. && mass < 180. && !isSyst){
+        //if (1>0){
             eventListText <<"Type="<< cur_type 
             <<" Run=" << l.run 
             <<" LS=" << l.lumis 
@@ -908,7 +922,6 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
         }
 	    return true;
     }
-    
     return false;
 }
 

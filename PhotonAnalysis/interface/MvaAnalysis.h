@@ -11,6 +11,8 @@
 #include "EfficiencySmearer.h"
 #include "DiPhoEfficiencySmearer.h"
 #include "KFactorSmearer.h"
+#include "InterferenceSmearer.h"
+#include "MassFactorizedMvaAnalysis.h"
 #include "MassResolution.h"
 #include "TMVA/Reader.h"
 #include <iostream>
@@ -18,7 +20,7 @@
 #include "math.h"
 
 // ------------------------------------------------------------------------------------
-class MvaAnalysis : public PhotonAnalysis 
+class MvaAnalysis : public MassFactorizedMvaAnalysis
 {
  public:
     
@@ -38,29 +40,16 @@ class MvaAnalysis : public PhotonAnalysis
     virtual void Analysis(LoopAll&, Int_t);
     
     void FillSignalLabelMap();
+    int GetBDTBoundaryCategory(float,bool,bool);
     std::string GetSignalLabel(int);
 
     int SignalType(int);
     void SetBDTInputVariables(TLorentzVector*, TLorentzVector*, double, double, MassResolution* ,double, double, double, double, int cat = 0);
-    void SetBDTInputTree(TTree *);
     void SetTree(TTree *);
+    void SetBDTInputTree(TTree *);
     
-    // Options
-    bool reRunCiCForData;
-    bool includeVBF;
-    float leadEtCut;
-    float subleadEtCut;
-    std::string efficiencyFile;
-    
-    // EnergySmearer::energySmearingParameters eSmearPars; // gone to PhotonAnalysis GF
-    EfficiencySmearer::efficiencySmearingParameters effSmearPars;
-    DiPhoEfficiencySmearer::diPhoEfficiencySmearingParameters diPhoEffSmearPars;
-
-    bool  doMCSmearing;
-    bool  doEscaleSyst, doEresolSyst, doPhotonIdEffSyst, doVtxEffSyst, doR9Syst, doTriggerEffSyst, doKFactorSyst, doPhotonMvaIdSyst;
-    bool  doEscaleSmear, doEresolSmear, doPhotonIdEffSmear, doVtxEffSmear, doR9Smear, doTriggerEffSmear, doKFactorSmear,doPhotonMvaIdSmear;
-
-    bool doRegressionSmear, doRegressionSyst;
+   
+    double mHMaximum, mHMinimum, mHStep; 
     float systRange;
     int   nSystSteps;   
     int   nEtaCategories, nR9Categories, nPtCategories;
@@ -86,8 +75,8 @@ class MvaAnalysis : public PhotonAnalysis
 
     int nMasses;
 
-    bool makeTrees;
     bool doTraining;
+    bool makeTrees;
     bool splitSignalSample;
     bool splitBackgroundSample;
     //int nMassPt;
@@ -108,26 +97,16 @@ class MvaAnalysis : public PhotonAnalysis
     std::vector<double> VbfBinEdges_135, GradBinEdges_135, AdaBinEdges_135;
     std::vector<double> VbfBinEdges_140, GradBinEdges_140, AdaBinEdges_140;
     std::vector<double> VbfBinEdges_150, GradBinEdges_150, AdaBinEdges_150;
-    
+
  protected:
-    std::vector<BaseSmearer *> photonSmearers_;
-    std::vector<BaseSmearer *> systPhotonSmearers_;
-    std::vector<BaseDiPhotonSmearer *> diPhotonSmearers_;
-    std::vector<BaseDiPhotonSmearer *> systDiPhotonSmearers_;
-    std::vector<BaseGenLevelSmearer *> genLevelSmearers_;
-    std::vector<BaseGenLevelSmearer *> systGenLevelSmearers_;
-    
-    EnergySmearer /* *eScaleSmearer,*/ *eResolSmearer, *eRegressionSmearer ; // moved to PhotonAnalysis GF 
-    EfficiencySmearer *idEffSmearer, *r9Smearer;
-    DiPhoEfficiencySmearer *vtxEffSmearer, *triggerEffSmearer, *photonMvaIdSmearer;
-    KFactorSmearer * kFactorSmearer;
+
+    float tmvaGetVal(double,double,float);
+
     
     std::string name_;
     float nevents, sumwei, sumaccept, sumsmear, sumev; 
     
-    int nCategories_;
     int nPhotonCategories_;
-    int diPhoCounter_;
     // Vertex analysis
     HggVertexAnalyzer vtxAna_;
     HggVertexFromConversions vtxConv_;
@@ -172,9 +151,16 @@ class MvaAnalysis : public PhotonAnalysis
     float _bdtoutput;
     int _cat;           
     int _sideband;           
+
     // extras for trees
     int _vbf;
     int _cur_type;
+
+    // To make trees for toys
+    TFile *treeFile_;
+    TTree *dataTree_;
+    TTree *bkgTree_;
+    TTree *sigTree_[9]; 
 
     //vector<double> weights;
     TFile *kfacFile;
@@ -189,12 +175,6 @@ class MvaAnalysis : public PhotonAnalysis
     TTree * backgroundTrainTree_7pt_[2];
     TTree * backgroundTestTree_7pt_[2];
     TFile * mvaFile_;
-
-    // To make trees for toys
-    TFile *treeFile_;
-    TTree *dataTree_;
-    TTree *bkgTree_;
-    TTree *sigTree_[9];
     
 };
 

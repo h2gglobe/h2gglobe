@@ -15,8 +15,6 @@ MvaAnalysis::MvaAnalysis()  :
     vtxAna_(vtxAlgoParams), vtxConv_(vtxAlgoParams)
 {
 
-    systRange  = 3.; // in units of sigma
-    nSystSteps = 1;    
     nMasses  = 9;
 }
 
@@ -29,6 +27,7 @@ MvaAnalysis::~MvaAnalysis()
 // ----------------------------------------------------------------------------------------------------
 void MvaAnalysis::Term(LoopAll& l) 
 {
+    // All Final Fits + rebinning are now done in Macros/FullMvaToolkit rather than in Term
     eventListText.close();
     if (doTraining){
         for (int i = 0; i<nMasses;i++){
@@ -61,6 +60,7 @@ void MvaAnalysis::Term(LoopAll& l)
         }
         mvaFile_->Close();
     }
+
     else if (makeTrees){
         treeFile_->cd();
         dataTree_->Write();
@@ -68,375 +68,7 @@ void MvaAnalysis::Term(LoopAll& l)
         for (int i=0; i<nMasses; i++) sigTree_[i]->Write();
         treeFile_->Close();
     }
-    else if (! l.is_subjob){
-
-        // -----------------------------
-        // l.rooContainer->AddRealVar("r1",-8,-15.,0.);
-        // l.rooContainer->AddRealVar("r2",-0.05,-15.,0.);
-        // l.rooContainer->AddRealVar("f2",0.01,0.,1.);
-
-        // Power law
-        // std::vector<std::string> data_pow_pars(3,"p");   
-        // data_pow_pars[0] = "r1";
-        /// data_pow_pars[1] = "r2";
-        //data_pow_pars[2] = "f2";
-        //l.rooContainer->AddGenericPdf("data_pow_model", "(1-@3)*TMath::Power(@0,@1) + @3*TMath::Power(@0,@2)","CMS_hgg_mass",data_pow_pars,0);
-        /*// 5th Order Polynomial
-          l.rooContainer->AddRealVar("pol0",-0.5,-1.5,1.5);
-          l.rooContainer->AddRealVar("pol1",0.4,-1.5,1.5);
-          l.rooContainer->AddRealVar("pol2",0.04,-1.5,1.5);
-          l.rooContainer->AddRealVar("pol3",-0.03,-1.5,1.5);
-          l.rooContainer->AddRealVar("pol4",-0.03,-1.5,1.5);
-          l.rooContainer->AddFormulaVar("modpol0","@0*@0","pol0");
-          l.rooContainer->AddFormulaVar("modpol1","@0*@0","pol1");
-          l.rooContainer->AddFormulaVar("modpol2","@0*@0","pol2");
-          l.rooContainer->AddFormulaVar("modpol3","@0*@0","pol3");
-          l.rooContainer->AddFormulaVar("modpol4","@0*@0","pol4");
-
-          std::vector<std::string> data_pol_pars(5,"p");     
-          data_pol_pars[0] = "modpol0";
-          data_pol_pars[1] = "modpol1";
-          data_pol_pars[2] = "modpol2";
-          data_pol_pars[3] = "modpol3";
-          data_pol_pars[4] = "modpol4";
-          l.rooContainer->AddGenericPdf("data_pow_model",
-          "0","CMS_hgg_mass",data_pol_pars,75); // >= 71 means RooBernstein of order >= 1
-          // -----------------------------
-          */
-        /*
-        // loop hypothesis  
-        for (double mass=110.0; mass<150.2; mass+=0.5){
-            if (mass < masses[1] || mass > masses[nMasses-1] ) continue;  
-
-            // define hypothesis masses for the sidebands
-            float mass_hypothesis = mass;
-
-            // define the signal Region
-            float sideband_boundaries[2];
-
-            sideband_boundaries[0] = mass_hypothesis*(1.-sidebandWidth);
-            sideband_boundaries[1] = mass_hypothesis*(1.+sidebandWidth);
-
-            // -----------------------------
-            l.rooContainer->AddRealVar(Form("r1_%3.1f",mass),-8.,-20.,0.);
-            l.rooContainer->AddRealVar(Form("r2_%3.1f",mass),-0.8,-20.,0.);
-            l.rooContainer->AddRealVar(Form("f2_%3.1f",mass),0.5,0.,1.);
-            */
-            /*
-            // 5th Order Polynomial
-            l.rooContainer->AddRealVar(Form("pol0_%3.1f",mass),-0.05,-1.5,1.5);
-            l.rooContainer->AddRealVar(Form("pol1_%3.1f",mass),0.05,-1.5,1.5);
-            l.rooContainer->AddRealVar(Form("pol2_%3.1f",mass),0.05,-1.5,1.5);
-            l.rooContainer->AddRealVar(Form("pol3_%3.1f",mass),-0.001,-1.5,1.5);
-            l.rooContainer->AddRealVar(Form("pol4_%3.1f",mass),-0.001,-1.5,1.5);
-            l.rooContainer->AddFormulaVar(Form("modpol0_%3.1f",mass),"@0*@0",Form("pol0_%3.1f",mass));
-            l.rooContainer->AddFormulaVar(Form("modpol1_%3.1f",mass),"@0*@0",Form("pol1_%3.1f",mass));
-            l.rooContainer->AddFormulaVar(Form("modpol2_%3.1f",mass),"@0*@0",Form("pol2_%3.1f",mass));
-            l.rooContainer->AddFormulaVar(Form("modpol3_%3.1f",mass),"@0*@0",Form("pol3_%3.1f",mass));
-            l.rooContainer->AddFormulaVar(Form("modpol4_%3.1f",mass),"@0*@0",Form("pol4_%3.1f",mass));
-
-            std::vector<std::string> data_poly4_pars(4,"p");     
-            data_poly4_pars[0] = Form("modpol0_%3.1f",mass);
-            data_poly4_pars[1] = Form("modpol1_%3.1f",mass);
-            data_poly4_pars[2] = Form("modpol2_%3.1f",mass);
-            data_poly4_pars[3] = Form("modpol3_%3.1f",mass);
-
-            l.rooContainer->AddGenericPdf(Form("data_poly4_model_%3.1f",mass),
-            "0","CMS_hgg_mass",data_poly4_pars,64); // >= 71 means RooBernstein of order >= 1
-
-            std::vector<std::string> data_pol_pars(5,"p");   
-            data_pol_pars[0] = Form("modpol0_%3.1f",mass);
-            data_pol_pars[1] = Form("modpol1_%3.1f",mass);
-            data_pol_pars[2] = Form("modpol2_%3.1f",mass);
-            data_pol_pars[3] = Form("modpol3_%3.1f",mass);
-            data_pol_pars[4] = Form("modpol4_%3.1f",mass);
-
-            l.rooContainer->AddGenericPdf(Form("data_pow_model_%3.1f",mass),
-            "0","CMS_hgg_mass",data_pol_pars,65);   // >= 71 means RooBernstein of order >= 1
-            // -----------------------------
-            */
-/*
-            // Power law
-            std::vector<std::string> data_pow_pars(3,Form("p_%3.1f",mass));   
-            data_pow_pars[0] = Form("r1_%3.1f",mass);
-            data_pow_pars[1] = Form("r2_%3.1f",mass);
-            data_pow_pars[2] = Form("f2_%3.1f",mass);
-            l.rooContainer->AddGenericPdf(Form("data_pow_model_%3.1f",mass), "(1-@3)*TMath::Power(@0,@1) + @3*TMath::Power(@0,@2)","CMS_hgg_mass",data_pow_pars,0);
-
-            //      l.rooContainer->FitToData(Form("data_poly4_model_%3.1f",mass), "data_mass",massMin,sideband_boundaries[0],sideband_boundaries[1],massMax); // try to fit with lower order first
-            l.rooContainer->FitToData(Form("data_pow_model_%3.1f",mass), "data_mass",massMin,sideband_boundaries[0],sideband_boundaries[1],massMax);
-            std::vector<std::pair<double,double> > N_sigErr = l.rooContainer->GetFitNormalisationsAndErrors(Form("data_pow_model_%3.1f",mass),"data_mass",sideband_boundaries[0],sideband_boundaries[1]);
-            //l.rooContainer->FitToData("data_pow_model", "data_mass",massMin,sideband_boundaries[0],sideband_boundaries[1],massMax);
-            //std::vector<std::pair<double,double> > N_sigErr = l.rooContainer->GetFitNormalisationsAndErrors("data_pow_model","data_mass",sideband_boundaries[0],sideband_boundaries[1]);
-
-            //l.rooContainer->AddNormalisationSystematics(Form("bkg_norm_%3.1f",mass),N_sigErr, 1); // 1 means it effect the background only
-
-            // Calculate weights to apply to the sidebands
-            std::vector<double> N_sig = l.rooContainer->GetFitNormalisations(Form("data_pow_model_%3.1f",mass),"data_mass",sideband_boundaries[0],sideband_boundaries[1]);
-            //std::vector<double> N_sig = l.rooContainer->GetFitNormalisations("data_pow_model","data_mass",sideband_boundaries[0],sideband_boundaries[1]);
-            // Used to store this number in the histograms of original sideband model, now just store as a RooRealVar
-            l.rooContainer->AddConstant(Form("NBkgInSignal_mH%3.1f",mass),N_sig[0]);
-            std::cout << "Number Of Events In Background -- " << N_sig[0] << std::endl;
-
-            bool scale = true;//true;
-            std::vector<string> ada_bkgsets;
-            std::vector<string> grad_bkgsets;
-            std::vector<string> vbf_bkgsets;
-            //std::vector<string> ada_datasets;
-            //std::vector<string> grad_datasets;
-
-            // For summing over sidebands, can skip some of them (defined in .dat) and only include those iside the range 100->180
-            // Dont use all of the sidebands availablbe but rather only up to the number of sidebands set by numberOfSidebandsForAlgos
-            // Actually, we only *need* these sums for 5GeV steps
-
-            if ((int)mass - mass==0 && ((int)mass)%5==0){
-                for (int sideband_i=numberOfSidebandGaps+1;sideband_i<=numberOfSidebandsForAlgos+numberOfSidebandGaps;sideband_i++) {
-
-                    // Calculate mass hypothesis of sideband and check its boudaries
-                    double hypothesisModifier = (1.+sidebandWidth)/(1-sidebandWidth);
-                    double mass_hypothesis_sb = (mass_hypothesis*(1.+signalRegionWidth)/(1.-sidebandWidth)+sidebandShift)*(TMath::Power(hypothesisModifier,sideband_i-1));               
-                    double sideband_boundaries_high= mass_hypothesis_sb*(1.+sidebandWidth);
-
-                    if (sideband_boundaries_high <= massSidebandMax){
-
-                        ada_bkgsets.push_back(Form("bkg_%dhigh_BDT_ada_%3.1f",sideband_i,mass));
-                        //   ada_datasets.push_back(Form("data_%dhigh_BDT_ada_%3.1f",sideband_i,mass));
-                        grad_bkgsets.push_back(Form("bkg_%dhigh_BDT_grad_%3.1f",sideband_i,mass));
-                        vbf_bkgsets.push_back(Form("bkg_%dhigh_VBF_%3.1f",sideband_i,mass));
-                        //   grad_datasets.push_back(Form("data_%dhigh_BDT_grad_%3.1f",sideband_i,mass));
-                    }
-
-                    hypothesisModifier = (1.-sidebandWidth)/(1+sidebandWidth);
-                    mass_hypothesis_sb = (mass_hypothesis*(1.-signalRegionWidth)/(1.+sidebandWidth)-sidebandShift)*(TMath::Power(hypothesisModifier,sideband_i-1));
-                    double sideband_boundaries_low = mass_hypothesis_sb*(1.-sidebandWidth);
-
-                    if (sideband_boundaries_low >= massSidebandMin){
-                        ada_bkgsets.push_back(Form("bkg_%dlow_BDT_ada_%3.1f",sideband_i,mass));
-                        //           ada_datasets.push_back(Form("data_%dlow_BDT_ada_%3.1f",sideband_i,mass));
-                        grad_bkgsets.push_back(Form("bkg_%dlow_BDT_grad_%3.1f",sideband_i,mass));
-                        vbf_bkgsets.push_back(Form("bkg_%dlow_VBF_%3.1f",sideband_i,mass));
-                        //           grad_datasets.push_back(Form("data_%dlow_BDT_grad_%3.1f",sideband_i,mass));
-                    }
-
-                }
-
-                // Also for the bkg MC we want to throw in the signal region for the binning algos
-                ada_bkgsets.push_back(Form("bkg_BDT_ada_%3.1f",mass)) ;
-                grad_bkgsets.push_back(Form("bkg_BDT_grad_%3.1f",mass)) ;
-                vbf_bkgsets.push_back(Form("bkg_VBF_%3.1f",mass)) ;
-
-
-                l.rooContainer->SumMultiBinnedDatasets(Form("bkg_BDT_ada_all_%3.1f",mass),ada_bkgsets, N_sig, scale);
-                l.rooContainer->SumMultiBinnedDatasets(Form("bkg_BDT_grad_all_%3.1f",mass),grad_bkgsets, N_sig, scale);
-                l.rooContainer->SumMultiBinnedDatasets(Form("bkg_VBF_all_%3.1f",mass),vbf_bkgsets, -1, true); // N<0, implies no rescaling when true flag is used
-
-                //      l.rooContainer->SumMultiBinnedDatasets(Form("data_BDT_sideband_ada_%3.1f",mass),ada_datasets, N_sig, scale);
-                //      l.rooContainer->SumMultiBinnedDatasets(Form("data_BDT_sideband_grad_%3.1f",mass),grad_datasets, N_sig, scale);
-            }
-
-        }
-        for (int i=1; i<nMasses; i++){
-            // Need to binning on MC!
-            //        std::vector <std::vector<double> > optimizedGradBins =  l.rooContainer->OptimizedBinning("bkg_BDT_grad_all"+names[i],50,false,true,-1);
-            //        std::vector<std::vector <double> > optimizedAdaBins =  l.rooContainer->OptimizedBinning("bkg_BDT_ada_all"+names[i],50,false,true,-1);
-            //        std::vector <std::vector<double> > optimizedGradBins =  l.rooContainer->RebinConstantEdges("bkg_BDT_grad_all"+names[i],100);
-            //        std::vector<std::vector <double> > optimizedAdaBins =  l.rooContainer->RebinConstantEdges("bkg_BDT_ada_all"+names[i],100);
-
-            // use ggh as signal modell , should ideall sum them first
-
-            std::vector<std::string> grad_sigsets;
-            std::vector<std::string> ada_sigsets;
-            std::vector<std::string> vbf_sigsets;
-            ada_sigsets.push_back("sig_BDT_ada_ggh"+names[i]);
-            ada_sigsets.push_back("sig_BDT_ada_vbf"+names[i]);
-            ada_sigsets.push_back("sig_BDT_ada_wzh"+names[i]);
-            ada_sigsets.push_back("sig_BDT_ada_tth"+names[i]);
-            grad_sigsets.push_back("sig_BDT_grad_ggh"+names[i]);
-            grad_sigsets.push_back("sig_BDT_grad_vbf"+names[i]);
-            grad_sigsets.push_back("sig_BDT_grad_wzh"+names[i]);
-            grad_sigsets.push_back("sig_BDT_grad_tth"+names[i]);
-            vbf_sigsets.push_back("sig_VBF_ggh"+names[i]);
-            vbf_sigsets.push_back("sig_VBF_vbf"+names[i]);
-            vbf_sigsets.push_back("sig_VBF_wzh"+names[i]);
-            vbf_sigsets.push_back("sig_VBF_tth"+names[i]);
-
-            l.rooContainer->SumMultiBinnedDatasets("sig_BDT_ada_all"+names[i],ada_sigsets,-1.,true);
-            l.rooContainer->SumMultiBinnedDatasets("sig_BDT_grad_all"+names[i],grad_sigsets,-1.,true);
-            l.rooContainer->SumMultiBinnedDatasets("sig_VBF_all"+names[i],vbf_sigsets,-1.,true);
-
-            std::vector<double> optimizedVbfBins;
-            std::vector <std::vector<double> > optimizedGradBins;
-            std::vector<std::vector <double> > optimizedAdaBins; 
-
-
-            // Bin edges can be rederived if flag is on --> Requires background MC
-            if (rederiveOptimizedBinEdges) {
-                optimizedGradBins =  l.rooContainer->SignificanceOptimizedBinning("sig_BDT_grad_all"+names[i],"bkg_BDT_grad_all"+names[i],20);
-                optimizedAdaBins =  l.rooContainer->SignificanceOptimizedBinning("sig_BDT_ada_all"+names[i],"bkg_BDT_ada_all"+names[i],20);
-                //optimizedGradBins =  l.rooContainer->SoverBOptimizedBinning("sig_BDT_grad_all"+names[i],"bkg_BDT_grad_all"+names[i],20,50);
-                //optimizedAdaBins =  l.rooContainer->SoverBOptimizedBinning("sig_BDT_ada_all"+names[i],"bkg_BDT_ada_all"+names[i],20,50);
-                //      optimizedVbfBins =  l.rooContainer->SoverBOptimizedBinning("sig_VBF_all"+names[i],"bkg_VBF_all"+names[i],10,50);
-                //      optimizedVbfBins =  l.rooContainer->OptimizedBinning("bkg_VBF_all"+names[i],3,false,false-1);
-                optimizedVbfBins.push_back(1.);
-                //  optimizedVbfBins.push_back(1.013333333333333);
-                //  optimizedVbfBins.push_back(1.026666666666666);
-                optimizedVbfBins.push_back(1.04);
-            } else {
-                if (i==1){
-                    optimizedVbfBins=VbfBinEdges_110;
-                    optimizedGradBins.push_back(GradBinEdges_110);
-                    optimizedAdaBins.push_back(AdaBinEdges_110);
-                }
-                else if (i==2){
-                    optimizedVbfBins=VbfBinEdges_115;
-                    optimizedGradBins.push_back(GradBinEdges_115);
-                    optimizedAdaBins.push_back(AdaBinEdges_115);
-                }
-                else if (i==3){
-                    optimizedVbfBins=VbfBinEdges_120;
-                    optimizedGradBins.push_back(GradBinEdges_120);
-                    optimizedAdaBins.push_back(AdaBinEdges_120);
-                }
-                else if (i==4){
-                    optimizedVbfBins=VbfBinEdges_125;
-                    optimizedGradBins.push_back(GradBinEdges_125);
-                    optimizedAdaBins.push_back(AdaBinEdges_125);
-                }
-                else if (i==5){
-                    optimizedVbfBins=VbfBinEdges_130;
-                    optimizedGradBins.push_back(GradBinEdges_130);
-                    optimizedAdaBins.push_back(AdaBinEdges_130);
-                }
-                else if (i==6){
-                    optimizedVbfBins=VbfBinEdges_135;
-                    optimizedGradBins.push_back(GradBinEdges_135);
-                    optimizedAdaBins.push_back(AdaBinEdges_135);
-                }
-                else if (i==7){
-                    optimizedVbfBins=VbfBinEdges_140;
-                    optimizedGradBins.push_back(GradBinEdges_140);
-                    optimizedAdaBins.push_back(AdaBinEdges_140);
-                }
-                else if (i==8){
-                    optimizedVbfBins=VbfBinEdges_150;
-                    optimizedGradBins.push_back(GradBinEdges_150);
-                    optimizedAdaBins.push_back(AdaBinEdges_150);
-                }
-
-            }
-
-
-            double mass_h_low;      
-            double mass_h_high;
-
-            if (i==7){ // the 140 case
-                mass_h_low  =-2.5;
-                mass_h_high =4.6;
-            } else if (i==8){  // the 150 case
-                mass_h_low  =-5.0;
-                mass_h_high =0.1;
-            } else {
-                mass_h_low  =-2.5;
-                mass_h_high =2.1;
-            }
-
-            for (double mass=mass_h_low; mass<mass_h_high; mass+=0.5){
-
-                double mass_hypothesis = masses[i]+mass;
-                if (mass_hypothesis < 110 || mass_hypothesis > 150) continue;
-
-                //l.rooContainer->RebinBinnedDataset(Form("bkg_grad_%3.1f",mass_hypothesis),Form("data_BDT_sideband_grad_%3.1f",mass_hypothesis),optimizedGradBins,false);
-                l.rooContainer->RebinBinnedDataset(Form("bkg_mc_grad_%3.1f",mass_hypothesis),Form("bkg_BDT_grad_%3.1f",mass_hypothesis),optimizedGradBins,false);
-                // l.rooContainer->RebinBinnedDataset(Form("zee_mc_grad_%3.1f",mass_hypothesis),Form("zee_BDT_grad_%3.1f",mass_hypothesis),optimizedGradBins,false);
-                //l.rooContainer->RebinBinnedDataset(Form("bkg_mc_balg_grad_%3.1f",mass_hypothesis),Form("bkg_BDT_grad_all_%3.1f",mass_hypothesis),optimizedGradBins,false); 
-                l.rooContainer->RebinBinnedDataset(Form("data_grad_%3.1f",mass_hypothesis),Form("data_BDT_grad_%3.1f",mass_hypothesis),optimizedGradBins,false);
-
-                //l.rooContainer->RebinBinnedDataset(Form("bkg_ada_%3.1f",mass_hypothesis),Form("data_BDT_sideband_ada_%3.1f",mass_hypothesis),optimizedAdaBins,false);
-                l.rooContainer->RebinBinnedDataset(Form("bkg_mc_ada_%3.1f",mass_hypothesis),Form("bkg_BDT_ada_%3.1f",mass_hypothesis),optimizedAdaBins,false);
-                // l.rooContainer->RebinBinnedDataset(Form("zee_mc_ada_%3.1f",mass_hypothesis),Form("zee_BDT_ada_%3.1f",mass_hypothesis),optimizedAdaBins,false);
-                // l.rooContainer->RebinBinnedDataset(Form("bkg_mc_balg_ada_%3.1f",mass_hypothesis),Form("bkg_BDT_ada_all_%3.1f",mass_hypothesis),optimizedAdaBins,false);
-                l.rooContainer->RebinBinnedDataset(Form("data_ada_%3.1f",mass_hypothesis),Form("data_BDT_ada_%3.1f",mass_hypothesis),optimizedAdaBins,false);
-
-                l.rooContainer->RebinBinnedDataset(Form("bkg_mc_vbf_%3.1f",mass_hypothesis),Form("bkg_VBF_%3.1f",mass_hypothesis),optimizedVbfBins,false);
-                l.rooContainer->RebinBinnedDataset(Form("data_vbf_%3.1f",mass_hypothesis),Form("data_VBF_%3.1f",mass_hypothesis),optimizedVbfBins,false);
-    
-                if (includeVBF){
-                    // After Rebinning, now we want to include the VBF dataset
-                    l.rooContainer->MergeHistograms(Form("bkg_mc_grad_%3.1f",mass_hypothesis),Form("bkg_mc_vbf_%3.1f",mass_hypothesis));
-                    l.rooContainer->MergeHistograms(Form("data_grad_%3.1f",mass_hypothesis),Form("data_vbf_%3.1f",mass_hypothesis));
-                    l.rooContainer->MergeHistograms(Form("bkg_mc_ada_%3.1f",mass_hypothesis),Form("bkg_mc_vbf_%3.1f",mass_hypothesis));
-                    l.rooContainer->MergeHistograms(Form("data_ada_%3.1f",mass_hypothesis),Form("data_vbf_%3.1f",mass_hypothesis));
-                }
-                                                                                     
-
-                for (int sideband_i=1;sideband_i<=numberOfSidebands;sideband_i++){
-                    l.rooContainer->RebinBinnedDataset(Form("bkg_%dhigh_grad_%3.1f",sideband_i,mass_hypothesis),Form("data_%dhigh_BDT_grad_%3.1f",sideband_i,mass_hypothesis),optimizedGradBins,false);
-                    l.rooContainer->RebinBinnedDataset(Form("bkg_%dlow_grad_%3.1f",sideband_i,mass_hypothesis),Form("data_%dlow_BDT_grad_%3.1f",sideband_i,mass_hypothesis),optimizedGradBins,false);
-                    l.rooContainer->RebinBinnedDataset(Form("bkg_mc_%dhigh_grad_%3.1f",sideband_i,mass_hypothesis),Form("bkg_%dhigh_BDT_grad_%3.1f",sideband_i,mass_hypothesis),optimizedGradBins,false);
-                    l.rooContainer->RebinBinnedDataset(Form("bkg_mc_%dlow_grad_%3.1f",sideband_i,mass_hypothesis),Form("bkg_%dlow_BDT_grad_%3.1f",sideband_i,mass_hypothesis),optimizedGradBins,false);
-                    // l.rooContainer->RebinBinnedDataset(Form("zee_mc_%dhigh_grad_%3.1f",sideband_i,mass_hypothesis),Form("zee_%dhigh_BDT_grad_%3.1f",sideband_i,mass_hypothesis),optimizedGradBins,false);
-                    // l.rooContainer->RebinBinnedDataset(Form("zee_mc_%dlow_grad_%3.1f",sideband_i,mass_hypothesis),Form("zee_%dlow_BDT_grad_%3.1f",sideband_i,mass_hypothesis),optimizedGradBins,false);
-
-                    l.rooContainer->RebinBinnedDataset(Form("bkg_%dhigh_ada_%3.1f",sideband_i,mass_hypothesis),Form("data_%dhigh_BDT_ada_%3.1f",sideband_i,mass_hypothesis),optimizedAdaBins,false);
-                    l.rooContainer->RebinBinnedDataset(Form("bkg_%dlow_ada_%3.1f",sideband_i,mass_hypothesis),Form("data_%dlow_BDT_ada_%3.1f",sideband_i,mass_hypothesis),optimizedAdaBins,false);
-                    l.rooContainer->RebinBinnedDataset(Form("bkg_mc_%dhigh_ada_%3.1f",sideband_i,mass_hypothesis),Form("bkg_%dhigh_BDT_ada_%3.1f",sideband_i,mass_hypothesis),optimizedAdaBins,false);
-                    l.rooContainer->RebinBinnedDataset(Form("bkg_mc_%dlow_ada_%3.1f",sideband_i,mass_hypothesis),Form("bkg_%dlow_BDT_ada_%3.1f",sideband_i,mass_hypothesis),optimizedAdaBins,false);
-                    // l.rooContainer->RebinBinnedDataset(Form("zee_mc_%dhigh_ada_%3.1f",sideband_i,mass_hypothesis),Form("zee_%dhigh_BDT_ada_%3.1f",sideband_i,mass_hypothesis),optimizedAdaBins,false);
-                    // l.rooContainer->RebinBinnedDataset(Form("zee_mc_%dlow_ada_%3.1f",sideband_i,mass_hypothesis),Form("zee_%dlow_BDT_ada_%3.1f",sideband_i,mass_hypothesis),optimizedAdaBins,false);
-
-                    l.rooContainer->RebinBinnedDataset(Form("bkg_%dhigh_vbf_%3.1f",sideband_i,mass_hypothesis),Form("data_%dhigh_VBF_%3.1f",sideband_i,mass_hypothesis),optimizedVbfBins,false);
-                    l.rooContainer->RebinBinnedDataset(Form("bkg_%dlow_vbf_%3.1f",sideband_i,mass_hypothesis),Form("data_%dlow_VBF_%3.1f",sideband_i,mass_hypothesis),optimizedVbfBins,false);
-                    l.rooContainer->RebinBinnedDataset(Form("bkg_mc_%dhigh_vbf_%3.1f",sideband_i,mass_hypothesis),Form("bkg_%dhigh_VBF_%3.1f",sideband_i,mass_hypothesis),optimizedVbfBins,false);
-                    l.rooContainer->RebinBinnedDataset(Form("bkg_mc_%dlow_vbf_%3.1f",sideband_i,mass_hypothesis),Form("bkg_%dlow_VBF_%3.1f",sideband_i,mass_hypothesis),optimizedVbfBins,false);
-
-                    if (includeVBF){
-                        // Also add sidbeband from VBF
-                        l.rooContainer->MergeHistograms(Form("bkg_%dhigh_grad_%3.1f",sideband_i,mass_hypothesis),Form("bkg_%dhigh_vbf_%3.1f",sideband_i,mass_hypothesis));
-                        l.rooContainer->MergeHistograms(Form("bkg_%dlow_grad_%3.1f",sideband_i,mass_hypothesis),Form("bkg_%dlow_vbf_%3.1f",sideband_i,mass_hypothesis));
-                        l.rooContainer->MergeHistograms(Form("bkg_mc_%dhigh_grad_%3.1f",sideband_i,mass_hypothesis),Form("bkg_mc_%dhigh_vbf_%3.1f",sideband_i,mass_hypothesis));
-                        l.rooContainer->MergeHistograms(Form("bkg_mc_%dlow_grad_%3.1f",sideband_i,mass_hypothesis),Form("bkg_mc_%dlow_vbf_%3.1f",sideband_i,mass_hypothesis));
-
-                        l.rooContainer->MergeHistograms(Form("bkg_%dhigh_ada_%3.1f",sideband_i,mass_hypothesis),Form("bkg_%dhigh_vbf_%3.1f",sideband_i,mass_hypothesis));
-                        l.rooContainer->MergeHistograms(Form("bkg_%dlow_ada_%3.1f",sideband_i,mass_hypothesis),Form("bkg_%dlow_vbf_%3.1f",sideband_i,mass_hypothesis));
-                        l.rooContainer->MergeHistograms(Form("bkg_mc_%dhigh_ada_%3.1f",sideband_i,mass_hypothesis),Form("bkg_mc_%dhigh_vbf_%3.1f",sideband_i,mass_hypothesis));
-                        l.rooContainer->MergeHistograms(Form("bkg_mc_%dlow_ada_%3.1f",sideband_i,mass_hypothesis),Form("bkg_mc_%dlow_vbf_%3.1f",sideband_i,mass_hypothesis));
-                    }
-                }
-
-            }
-
-            for (int j=-1; j<2; j++){
-                if ((i==1 && j==-1) || (i==nMasses-1 && j==1)) continue;
-                l.rooContainer->RebinBinnedDataset("sig_grad_ggh"+names[i]+names[i+j],"sig_BDT_grad_ggh"+names[i+j],optimizedGradBins,true);
-                l.rooContainer->RebinBinnedDataset("sig_grad_vbf"+names[i]+names[i+j],"sig_BDT_grad_vbf"+names[i+j],optimizedGradBins,true);
-                l.rooContainer->RebinBinnedDataset("sig_grad_wzh"+names[i]+names[i+j],"sig_BDT_grad_wzh"+names[i+j],optimizedGradBins,true);
-                l.rooContainer->RebinBinnedDataset("sig_grad_tth"+names[i]+names[i+j],"sig_BDT_grad_tth"+names[i+j],optimizedGradBins,true);
-                l.rooContainer->RebinBinnedDataset("sig_ada_ggh"+names[i]+names[i+j],"sig_BDT_ada_ggh"  +names[i+j],optimizedAdaBins,true);
-                l.rooContainer->RebinBinnedDataset("sig_ada_vbf"+names[i]+names[i+j],"sig_BDT_ada_vbf"  +names[i+j],optimizedAdaBins,true);
-                l.rooContainer->RebinBinnedDataset("sig_ada_wzh"+names[i]+names[i+j],"sig_BDT_ada_wzh"  +names[i+j],optimizedAdaBins,true);
-                l.rooContainer->RebinBinnedDataset("sig_ada_tth"+names[i]+names[i+j],"sig_BDT_ada_tth"  +names[i+j],optimizedAdaBins,true);
-                l.rooContainer->RebinBinnedDataset("sig_vbf_ggh"+names[i]+names[i+j],"sig_VBF_ggh"  +names[i+j],optimizedVbfBins,true);
-                l.rooContainer->RebinBinnedDataset("sig_vbf_vbf"+names[i]+names[i+j],"sig_VBF_vbf"  +names[i+j],optimizedVbfBins,true);
-                l.rooContainer->RebinBinnedDataset("sig_vbf_wzh"+names[i]+names[i+j],"sig_VBF_wzh"  +names[i+j],optimizedVbfBins,true);
-                l.rooContainer->RebinBinnedDataset("sig_vbf_tth"+names[i]+names[i+j],"sig_VBF_tth"  +names[i+j],optimizedVbfBins,true);
-
-                if (includeVBF){
-                    l.rooContainer->MergeHistograms("sig_grad_ggh"+names[i]+names[i+j],"sig_vbf_ggh"+names[i]+names[i+j],true);
-                    l.rooContainer->MergeHistograms("sig_grad_vbf"+names[i]+names[i+j],"sig_vbf_vbf"+names[i]+names[i+j],true);
-                    l.rooContainer->MergeHistograms("sig_grad_wzh"+names[i]+names[i+j],"sig_vbf_wzh"+names[i]+names[i+j],true);
-                    l.rooContainer->MergeHistograms("sig_grad_tth"+names[i]+names[i+j],"sig_vbf_tth"+names[i]+names[i+j],true);
-                    l.rooContainer->MergeHistograms("sig_ada_ggh"+names[i]+names[i+j],"sig_vbf_ggh"+names[i]+names[i+j],true);
-                    l.rooContainer->MergeHistograms("sig_ada_vbf"+names[i]+names[i+j],"sig_vbf_vbf"+names[i]+names[i+j],true);
-                    l.rooContainer->MergeHistograms("sig_ada_wzh"+names[i]+names[i+j],"sig_vbf_wzh"+names[i]+names[i+j],true);
-                    l.rooContainer->MergeHistograms("sig_ada_tth"+names[i]+names[i+j],"sig_vbf_tth"+names[i]+names[i+j],true);
-                }
-        
-            } 
-        }
-        */
-    }
     PhotonAnalysis::Term(l);
-
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -510,13 +142,6 @@ void MvaAnalysis::Init(LoopAll& l)
     // Make sure that we wont try to use more sidebands than available
     assert(numberOfSidebandsForAlgos+numberOfSidebandGaps <= numberOfSidebands);
 
-    //   for (float mass = 90.;
-    //              mass<150.;
-    //              mass*= (1+signalRegionWidth)/(1-signalRegionWidth)){
-    //       bkg_masses.push_back(mass); 
-    //       cout<<"background mass hypothesis: "<< mass << endl;
-    //   }
-    //cout << "end weird loop"<<endl;
     std::string outputfilename = (std::string) l.histFileName;
     //
     // These parameters are set in the configuration file
@@ -557,11 +182,6 @@ void MvaAnalysis::Init(LoopAll& l)
 
     diPhoCounter_ = l.countersred.size();
     l.countersred.resize(diPhoCounter_+1);
-
-    // initialize the analysis variables
-    nCategories_ = nEtaCategories;
-    if( nR9Categories != 0 ) nCategories_ *= nR9Categories;
-    if( nPtCategories != 0 ) nCategories_ *= nPtCategories;
 
     nPhotonCategories_ = nEtaCategories;
     if( nR9Categories != 0 ) nPhotonCategories_ *= nR9Categories;
@@ -656,6 +276,14 @@ void MvaAnalysis::Init(LoopAll& l)
         kFactorSmearer->init();
         genLevelSmearers_.push_back(kFactorSmearer);
     }
+
+    if(doInterferenceSmear) {
+        // interference efficiency
+        std::cerr << __LINE__ << std::endl; 
+        interferenceSmearer = new InterferenceSmearer(2.5e-2,0.);
+        genLevelSmearers_.push_back(interferenceSmearer);
+    }
+
     /*    if(doKFactorSmear2D) {
     // kFactor efficiency
     std::cerr << __LINE__ << std::endl; 
@@ -670,7 +298,8 @@ void MvaAnalysis::Init(LoopAll& l)
     // the systematic sets to be formed
 
     // FIXME move these params to config file
-    l.rooContainer->SetNCategories(1);
+    l.rooContainer->SetNCategories(1+(int)includeVBF);
+
     l.rooContainer->nsigmas = nSystSteps;
     l.rooContainer->sigmaRange = systRange;
     l.rooContainer->SaveRooDataHists(false);
@@ -754,16 +383,6 @@ void MvaAnalysis::Init(LoopAll& l)
 
     l.rooContainer->AddConstant("IntLumi",l.intlumi_);
 
-    //  l.rooContainer->AddRealVar("r1",-4,-20.,0.);
-    //  l.rooContainer->AddRealVar("r2",-5,-20.,0.);
-    //  l.rooContainer->AddRealVar("f2",0.2,0.,1.);
-
-    // Power law
-    //std::vector<std::string> data_pow_pars(3,"p");   
-    //data_pow_pars[0] = "r1";
-    //data_pow_pars[1] = "r2";
-    //data_pow_pars[2] = "f2";
-    //l.rooContainer->AddGenericPdf("data_pow_model", "(1-@3)*TMath::Power(@0,@1) + @3*TMath::Power(@0,@2)","CMS_hgg_mass",data_pow_pars,0);
 
     // Initialize all MVA ---------------------------------------------------//
     l.SetAllMVA();
@@ -812,10 +431,10 @@ void MvaAnalysis::Init(LoopAll& l)
             SetTree(sigTree_[i]);
         }
     }
+
     else{
-        
+
         l.rooContainer->AddObservable("BDT" ,-1.,1.);
-        l.rooContainer->AddObservable("VBF" ,1,1+2*sidebandWidth);  // Basically a single bin just for VBF
 
         //Set up TMVA reader (only two variables)
         tmvaReader_= new TMVA::Reader();
@@ -826,109 +445,38 @@ void MvaAnalysis::Init(LoopAll& l)
         //Invariant Mass Spectra
         l.rooContainer->CreateDataSet("CMS_hgg_mass","data_mass",nDataBins);
         l.rooContainer->CreateDataSet("CMS_hgg_mass","bkg_mass" ,nDataBins);       
-        l.rooContainer->CreateDataSet("CMS_hgg_mass","zee_mass" ,nDataBins);       
 
-        int nBDTbins = 5000;
+        int nBDTbins = 5000;    // The initial number of bins (ie before any binning algorithm is performed)
 
-        // TESTING 
-
-        for (std::vector<double>::iterator b=VbfBinEdges_110.begin();b!=VbfBinEdges_110.end();b++){
-
-            std::cout << "Bin edge " << *b<<std::endl ;
-        }
-        //
 
         // Usual datasets
-        for (double mass=110.0; mass<150.5; mass+=0.5){
-
-            //Adaptive Boost
-            l.rooContainer->CreateDataSet("BDT",Form("data_BDT_ada_%3.1f",mass)       ,nBDTbins);
-            l.rooContainer->CreateDataSet("BDT",Form("bkg_BDT_ada_%3.1f",mass)       ,nBDTbins);
-            l.rooContainer->CreateDataSet("BDT",Form("zee_BDT_ada_%3.1f",mass)       ,nBDTbins);
+        for (double mass=mHMinimum; mass<=mHMaximum; mass+=mHStep){
 
             //Gradient Boost
             l.rooContainer->CreateDataSet("BDT",Form("data_BDT_grad_%3.1f",mass)     ,nBDTbins);
             l.rooContainer->CreateDataSet("BDT",Form("bkg_BDT_grad_%3.1f",mass)      ,nBDTbins);
-            l.rooContainer->CreateDataSet("BDT",Form("zee_BDT_grad_%3.1f",mass)      ,nBDTbins);
-
-            if (includeVBF){
-                // VBF
-                l.rooContainer->CreateDataSet("VBF",Form("data_VBF_%3.1f",mass)     ,nBDTbins);
-                l.rooContainer->CreateDataSet("VBF",Form("bkg_VBF_%3.1f",mass)      ,nBDTbins);
-                l.rooContainer->CreateDataSet("VBF",Form("zee_VBF_%3.1f",mass)      ,nBDTbins);
-            }
-      
 
             for (int sideband_i=1;sideband_i<=numberOfSidebands;sideband_i++){
                 // Always create all of the sidebands, even if we skip some of them
                 // later on for the sums
-                l.rooContainer->CreateDataSet("BDT",Form("bkg_%dlow_BDT_ada_%3.1f",sideband_i,mass)   ,nBDTbins);
-                l.rooContainer->CreateDataSet("BDT",Form("bkg_%dhigh_BDT_ada_%3.1f",sideband_i,mass)  ,nBDTbins);
-                l.rooContainer->CreateDataSet("BDT",Form("data_%dlow_BDT_ada_%3.1f",sideband_i,mass)  ,nBDTbins);
-                l.rooContainer->CreateDataSet("BDT",Form("data_%dhigh_BDT_ada_%3.1f",sideband_i,mass) ,nBDTbins);
 
                 l.rooContainer->CreateDataSet("BDT",Form("bkg_%dlow_BDT_grad_%3.1f",sideband_i,mass)  ,nBDTbins);
                 l.rooContainer->CreateDataSet("BDT",Form("bkg_%dhigh_BDT_grad_%3.1f",sideband_i,mass) ,nBDTbins);
                 l.rooContainer->CreateDataSet("BDT",Form("data_%dlow_BDT_grad_%3.1f",sideband_i,mass) ,nBDTbins);
                 l.rooContainer->CreateDataSet("BDT",Form("data_%dhigh_BDT_grad_%3.1f",sideband_i,mass),nBDTbins);
 
-                if (includeVBF){
-                    l.rooContainer->CreateDataSet("VBF",Form("bkg_%dlow_VBF_%3.1f",sideband_i,mass)  ,nBDTbins);
-                    l.rooContainer->CreateDataSet("VBF",Form("bkg_%dhigh_VBF_%3.1f",sideband_i,mass) ,nBDTbins);
-                    l.rooContainer->CreateDataSet("VBF",Form("data_%dlow_VBF_%3.1f",sideband_i,mass) ,nBDTbins);
-                    l.rooContainer->CreateDataSet("VBF",Form("data_%dhigh_VBF_%3.1f",sideband_i,mass),nBDTbins);
-                }
-
-                //  l.rooContainer->CreateDataSet("BDT",Form("zee_%dlow_BDT_ada_%3.1f",sideband_i,mass)   ,nBDTbins);
-                //  l.rooContainer->CreateDataSet("BDT",Form("zee_%dhigh_BDT_ada_%3.1f",sideband_i,mass)  ,nBDTbins);
-                //  l.rooContainer->CreateDataSet("BDT",Form("zee_%dlow_BDT_grad_%3.1f",sideband_i,mass)   ,nBDTbins);
-                //  l.rooContainer->CreateDataSet("BDT",Form("zee_%dhigh_BDT_grad_%3.1f",sideband_i,mass)  ,nBDTbins);
-
             }
 
         }
 
         // loop signal mass points signal datasets
-        for (double sig=110.0;sig<=150;sig+=5.0){  // We are ignoring mass 105 for now
+        for (double sig=mHMinimum;sig<=mHMaximum;sig+=5.0){  // We are ignoring mass 105 for now
             if (sig==145.0) continue;
             l.rooContainer->CreateDataSet("BDT",Form("sig_BDT_grad_ggh_%3.1f",sig)      ,nBDTbins); 
             l.rooContainer->CreateDataSet("BDT",Form("sig_BDT_grad_vbf_%3.1f",sig)      ,nBDTbins); 
             l.rooContainer->CreateDataSet("BDT",Form("sig_BDT_grad_wzh_%3.1f",sig)      ,nBDTbins); 
             l.rooContainer->CreateDataSet("BDT",Form("sig_BDT_grad_tth_%3.1f",sig)      ,nBDTbins); 
 
-            l.rooContainer->CreateDataSet("BDT",Form("sig_BDT_ada_ggh_%3.1f",sig)       ,nBDTbins);    
-            l.rooContainer->CreateDataSet("BDT",Form("sig_BDT_ada_vbf_%3.1f",sig)       ,nBDTbins);    
-            l.rooContainer->CreateDataSet("BDT",Form("sig_BDT_ada_wzh_%3.1f",sig)       ,nBDTbins);    
-            l.rooContainer->CreateDataSet("BDT",Form("sig_BDT_ada_tth_%3.1f",sig)       ,nBDTbins);   
-
-            if (includeVBF){
-                l.rooContainer->CreateDataSet("VBF",Form("sig_VBF_ggh_%3.1f",sig)       ,nBDTbins);    
-                l.rooContainer->CreateDataSet("VBF",Form("sig_VBF_vbf_%3.1f",sig)       ,nBDTbins);    
-                l.rooContainer->CreateDataSet("VBF",Form("sig_VBF_wzh_%3.1f",sig)       ,nBDTbins);    
-                l.rooContainer->CreateDataSet("VBF",Form("sig_VBF_tth_%3.1f",sig)       ,nBDTbins);   
-            }
-
-            /*
-              for (int sideband_i=1;sideband_i<=numberOfSidebands;sideband_i++){
-              l.rooContainer->CreateDataSet("BDT",Form("sig_%dlow_BDT_ada_ggh_%3.1f",sideband_i,sig)   ,nBDTbins);
-              l.rooContainer->CreateDataSet("BDT",Form("sig_%dhigh_BDT_ada_ggh_%3.1f",sideband_i,sig)  ,nBDTbins);
-              l.rooContainer->CreateDataSet("BDT",Form("sig_%dlow_BDT_ada_vbf_%3.1f",sideband_i,sig)   ,nBDTbins);
-              l.rooContainer->CreateDataSet("BDT",Form("sig_%dhigh_BDT_ada_vbf_%3.1f",sideband_i,sig)  ,nBDTbins);
-              l.rooContainer->CreateDataSet("BDT",Form("sig_%dlow_BDT_ada_wzh_%3.1f",sideband_i,sig)   ,nBDTbins);
-              l.rooContainer->CreateDataSet("BDT",Form("sig_%dhigh_BDT_ada_wzh_%3.1f",sideband_i,sig)  ,nBDTbins);
-              l.rooContainer->CreateDataSet("BDT",Form("sig_%dlow_BDT_ada_tth_%3.1f",sideband_i,sig)   ,nBDTbins);
-              l.rooContainer->CreateDataSet("BDT",Form("sig_%dhigh_BDT_ada_tth_%3.1f",sideband_i,sig)  ,nBDTbins);
-
-              l.rooContainer->CreateDataSet("BDT",Form("sig_%dlow_BDT_grad_ggh_%3.1f",sideband_i,sig)   ,nBDTbins);
-              l.rooContainer->CreateDataSet("BDT",Form("sig_%dhigh_BDT_grad_ggh_%3.1f",sideband_i,sig)  ,nBDTbins);
-              l.rooContainer->CreateDataSet("BDT",Form("sig_%dlow_BDT_grad_vbf_%3.1f",sideband_i,sig)   ,nBDTbins);
-              l.rooContainer->CreateDataSet("BDT",Form("sig_%dhigh_BDT_grad_vbf_%3.1f",sideband_i,sig)  ,nBDTbins);
-              l.rooContainer->CreateDataSet("BDT",Form("sig_%dlow_BDT_grad_wzh_%3.1f",sideband_i,sig)   ,nBDTbins);
-              l.rooContainer->CreateDataSet("BDT",Form("sig_%dhigh_BDT_grad_wzh_%3.1f",sideband_i,sig)  ,nBDTbins);
-              l.rooContainer->CreateDataSet("BDT",Form("sig_%dlow_BDT_grad_tth_%3.1f",sideband_i,sig)   ,nBDTbins);
-              l.rooContainer->CreateDataSet("BDT",Form("sig_%dhigh_BDT_grad_tth_%3.1f",sideband_i,sig)  ,nBDTbins);
-              }
-            */
 
             // Make the signal Systematic Sets
             l.rooContainer->MakeSystematics("BDT",Form("sig_BDT_grad_ggh_%3.1f",sig),-1);
@@ -936,41 +484,10 @@ void MvaAnalysis::Init(LoopAll& l)
             l.rooContainer->MakeSystematics("BDT",Form("sig_BDT_grad_wzh_%3.1f",sig),-1);
             l.rooContainer->MakeSystematics("BDT",Form("sig_BDT_grad_tth_%3.1f",sig),-1);
 
-            l.rooContainer->MakeSystematics("BDT",Form("sig_BDT_ada_ggh_%3.1f",sig) ,-1);
-            l.rooContainer->MakeSystematics("BDT",Form("sig_BDT_ada_vbf_%3.1f",sig) ,-1);
-            l.rooContainer->MakeSystematics("BDT",Form("sig_BDT_ada_wzh_%3.1f",sig) ,-1);
-            l.rooContainer->MakeSystematics("BDT",Form("sig_BDT_ada_tth_%3.1f",sig) ,-1);
-
-            if (includeVBF){
-                l.rooContainer->MakeSystematics("VBF",Form("sig_VBF_ggh_%3.1f",sig) ,-1);
-                l.rooContainer->MakeSystematics("VBF",Form("sig_VBF_vbf_%3.1f",sig) ,-1);
-                l.rooContainer->MakeSystematics("VBF",Form("sig_VBF_wzh_%3.1f",sig) ,-1);
-                l.rooContainer->MakeSystematics("VBF",Form("sig_VBF_tth_%3.1f",sig) ,-1);
-            }
-
 
         }
         //TMVA Reader
-        if (MVAtype=="Likelihood"){
-            if (bdtTrainingPhilosophy=="MIT") {
-                tmvaReader_->BookMVA("BDT_ada_123", mvaWeightsFolder+"/TMVAClassification_LikelihoodMIT.weights.xml");
-                tmvaReader_->BookMVA("BDT_grad_123",mvaWeightsFolder+"/TMVAClassification_LikelihoodDMIT.weights.xml");
-            }
-            else {
-                tmvaReader_->BookMVA("BDT_ada_123", mvaWeightsFolder+"/TMVAClassification_LikelihoodUCSD.weights.xml");
-                tmvaReader_->BookMVA("BDT_grad_123",mvaWeightsFolder+"/TMVAClassification_LikelihoodDUCSD.weights.xml");
-            }
-        }
-        else {
-            if (bdtTrainingPhilosophy=="MIT") {
-                tmvaReader_->BookMVA("BDT_ada_123", mvaWeightsFolder+"/TMVAClassification_BDTadaMIT.weights.xml");
-                tmvaReader_->BookMVA("BDT_grad_123",mvaWeightsFolder+"/TMVAClassification_BDTgradMIT.weights.xml");
-            }
-            else {
-                tmvaReader_->BookMVA("BDT_ada_123", mvaWeightsFolder+"/TMVAClassification_BDTadaUCSD.weights.xml");
-                tmvaReader_->BookMVA("BDT_grad_123",mvaWeightsFolder+"/TMVAClassification_BDTgradUCSD.weights.xml");
-            }
-        }
+        tmvaReader_->BookMVA("BDT_grad_123", mvaWeightsFolder+"/TMVAClassification_BDTgradMIT.weights.xml");
     }
 
     FillSignalLabelMap();
@@ -1049,23 +566,16 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
     // ------------------------------------------------------------
     //PT-H K-factors
     double gPT = 0;
-    double gY  = 0;
     TLorentzVector gP4(0,0,0,0);
-    if (cur_type<0){            // if background sample, gP4 remains 4vect(0)
-        for (int gi=0;gi<l.gp_n;gi++){
-            if (l.gp_pdgid[gi]==25){
-                gP4 = *((TLorentzVector*)l.gp_p4->At(gi));
-                gPT = gP4.Pt();
-                gY  = fabs(gP4.Rapidity());
-                break;
-            }
-        }
+    if (cur_type<0){
+	    gP4 = l.GetHiggs();
+	    gPT = gP4.Pt();
     }
 
     // ------------------------------------------------------------
     // smear all of the photons!
     std::pair<int,int> diphoton_index;
-
+/*
     // do gen-level dependent first (e.g. k-factor); only for signal
     double genLevWeight=1; 
     if(cur_type<0){
@@ -1079,6 +589,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
             genLevWeight*=genWeight;
         }
     }
+*/
 
     // Nominal smearing
     std::vector<float> smeared_pho_energy(l.pho_n,0.); 
@@ -1107,330 +618,19 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
     // ---------------------------------------------------------------------------------------------------------------------//
     // ---------------------------------------------------------------------------------------------------------------------//
     // ---------------------------------------------------------------------------------------------------------------------//
-    photonInfoCollection.clear();
-    for(int ipho=0; ipho<l.pho_n; ++ipho ) { 
-        std::vector<std::vector<bool> > p;
-        PhotonReducedInfo phoInfo (// *((TVector3*)l.pho_calopos->At(ipho)), 
-                                   *((TVector3*)l.sc_xyz->At(l.pho_scind[ipho])), 
-                                   ((TLorentzVector*)l.pho_p4->At(ipho))->Energy(), 
-                                   energyCorrected[ipho],
-                                   l.pho_isEB[ipho], l.pho_r9[ipho],
-                                   l.PhotonCiCSelectionLevel(ipho,l.vtx_std_sel,p,nPhotonCategories_),
-                                   (energyCorrectedError!=0?energyCorrectedError[ipho]:0)
-                                   );
-        if (l.CheckSphericalPhoton(ipho)) phoInfo.setSphericalPhoton(true);
-        float pweight = 1.;
-        // smear MC. But apply energy shift to data 
-        if( cur_type != 0 && doMCSmearing ) { // if it's MC
-            for(std::vector<BaseSmearer *>::iterator si=photonSmearers_.begin(); si!= photonSmearers_.end(); ++si ) {
-                float sweight = 1.;
-                (*si)->smearPhoton(phoInfo,sweight,l.run,0.);     
-                if( sweight < 0. ) {
-                    std::cerr << "Negative weight from smearer " << (*si)->name() << std::endl;
-                    assert(0);
-                }
-                pweight *= sweight;
-            }
-        } else if(cur_type == 0 ) {          // if it's data
-            float sweight = 1.; 
-            if (doEcorrectionSmear){
-                eCorrSmearer->smearPhoton(phoInfo,sweight,l.run,0.);     // This Smearer is the same as for MC so can just re-use it
-            }
-            eScaleDataSmearer->smearPhoton(phoInfo,sweight,l.run,0.);
-            pweight *= sweight;  
-        }
 
-        smeared_pho_energy[ipho] = phoInfo.energy();
-        smeared_pho_r9[ipho] = phoInfo.r9();
-        smeared_pho_weight[ipho] = pweight;
-        photonInfoCollection.push_back(phoInfo);
-    }
+    float bdt_grad;
+    float kinematic_bdtout;
+    float mass, evweight;
+    int diphoton_id, category;
+    bool isCorrectVertex;
 
-    sumev += weight;
+    if( AnalyseEvent(l,jentry, weight, gP4, mass,  evweight, category, diphoton_id, isCorrectVertex, kinematic_bdtout) ) {
 
-    // Get Ready for VBF Tagging
-    bool VBFevent = false;
-    double leadEtCutVBF = 55.;
-    // FIXME pass smeared R9
-    int diphoton_id=-1;
-
-    // VBF-TAGGING -------------------------------------------------------------------------- //
-    // CP // NW Use Same pre-selected events but tag as VBF if pass Jet Requirements
-    // Make sure VBF event is set to false before checking for the Jets
-    VBFevent = false; 
-
-    if(includeVBF) {
-            
-        // JET MET Corrections
-        l.RescaleJetEnergy();
-
-        int diphoton_id_vbf = l.DiphotonMITPreSelection(leadEtCutVBF,subleadEtCut,applyPtoverM, &smeared_pho_energy[0] ); 
-
-        if (diphoton_id_vbf > -1){
-            diphoton_index = std::make_pair( l.dipho_leadind[diphoton_id_vbf],  l.dipho_subleadind[diphoton_id_vbf] );
-
-            TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphoton_id_vbf], l.dipho_vtxind[diphoton_id_vbf], &smeared_pho_energy[0]);
-            TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphoton_id_vbf], l.dipho_vtxind[diphoton_id_vbf], &smeared_pho_energy[0]);
-            float lead_r9    = l.pho_r9[l.dipho_leadind[diphoton_id_vbf]];
-            float sublead_r9 = l.pho_r9[l.dipho_subleadind[diphoton_id_vbf]];
-            TLorentzVector Higgs = lead_p4 + sublead_p4;   
-
-            float jet1ptcut =0.0;
-            float jet2ptcut =0.0;
-            bool crosscheck = false;
-            std::pair<int,int> highestPtJets(-1,-1);
-
-            highestPtJets = l.Select2HighestPtJets(lead_p4, sublead_p4, jet1ptcut, jet2ptcut );
-            bool VBFpresel = (highestPtJets.first!=-1)&&(highestPtJets.second!=-1);
-
-            if(VBFpresel){
-
-                TLorentzVector* jet1 = (TLorentzVector*)l.jet_algoPF1_p4->At(highestPtJets.first);
-                TLorentzVector* jet2 = (TLorentzVector*)l.jet_algoPF1_p4->At(highestPtJets.second);
-                TLorentzVector dijet = (*jet1) + (*jet2);
-
-                myVBFLeadJPt = jet1->Pt();
-                myVBFSubJPt = jet2->Pt();
-                myVBF_Mjj = dijet.M();
-                myVBFdEta = fabs(jet1->Eta() - jet2->Eta());
-                myVBFZep  = fabs(Higgs.Eta() - 0.5*(jet1->Eta() + jet2->Eta()));
-                myVBFdPhi = fabs(Higgs.DeltaPhi(dijet));
-                myVBF_Mgg =Higgs.M();
-
-
-                // Cannot Get Apply cuts to work -> Need to discuss with C.Palmer, for now, jyst apply the cuts
-                //VBFevent = l.ApplyCutsFill(0,1,evweight, myweight);
-                VBFevent = l.ApplyCuts(0,1);
-                if(VBFevent) diphoton_id = diphoton_id_vbf;
-
-            }
-        }
-    }
-    // CP // NW VBF Tagging
-    // --------------------- END VBF-TAGGING --------------------------------------------------------//
-
-
-    if (diphoton_id<0 ){ // then the VBF selection failed at some point and so we try for inclusive
-        if (bdtTrainingPhilosophy=="MIT"){
-            diphoton_id = l.DiphotonMITPreSelection(leadEtCut,subleadEtCut,applyPtoverM, &smeared_pho_energy[0] ); 
-        } else if (bdtTrainingPhilosophy=="UCSD"){
-            diphoton_id = l.DiphotonCiCSelection(l.phoLOOSE, l.phoLOOSE, leadEtCut, subleadEtCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
-        }
-    }
-    /// std::cerr << "Selected pair " << l.dipho_n << " " << diphoton_id << std::endl;
-    if (diphoton_id > -1 ) {
-
-        diphoton_index = std::make_pair( l.dipho_leadind[diphoton_id],  l.dipho_subleadind[diphoton_id] );
-        // bring all the weights together: lumi & Xsection, single gammas, pt kfactor
-        float evweight = weight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second] * genLevWeight;
-
-        l.countersred[diPhoCounter_]++;
-
-        TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphoton_id], l.dipho_vtxind[diphoton_id], &smeared_pho_energy[0]);
-        TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphoton_id], l.dipho_vtxind[diphoton_id], &smeared_pho_energy[0]);
-        float lead_r9    = l.pho_r9[l.dipho_leadind[diphoton_id]];
-        float sublead_r9 = l.pho_r9[l.dipho_subleadind[diphoton_id]];
-        TLorentzVector Higgs = lead_p4 + sublead_p4;   
-        TVector3 * vtx = (TVector3*)l.vtx_std_xyz->At(l.dipho_vtxind[diphoton_id]);
-
-        int category = 0;
-        int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,0);
-        bool CorrectVertex;
-        // FIXME pass smeared R9
-        if( cur_type != 0 && doMCSmearing && cur_type < 100) {
-            float pth = Higgs.Pt();
-            for(std::vector<BaseDiPhotonSmearer *>::iterator si=diPhotonSmearers_.begin(); si!= diPhotonSmearers_.end(); ++si ) {
-                float rewei=1.;
-                (*si)->smearDiPhoton( Higgs, *vtx, rewei, selectioncategory, cur_type, *((TVector3*)l.gv_pos->At(0)), zero_ ,zero_,0.);
-                if( rewei < 0. ) {
-                    std::cerr << "Negative weight from smearer " << (*si)->name() << std::endl;
-                    assert(0);
-                }
-                evweight *= rewei;
-            }
-            CorrectVertex=(*vtx- *((TVector3*)l.gv_pos->At(0))).Mag() < 1.;
-        }
-
-        // Keep some variables for plotting later (already have r9 from above);
-
-        float mass        = Higgs.M();
-        float ptHiggs     = Higgs.Pt();
-        float etaHiggs    = fabs(Higgs.Eta());
-        float pt_lead     = lead_p4.Pt();
-        float pt_sublead  = sublead_p4.Pt();
-        float eta_lead    = fabs(lead_p4.Eta());
-        float eta_sublead = fabs(sublead_p4.Eta());
-        float delta_phi   = fabs(lead_p4.DeltaPhi(sublead_p4));
-        int histoplace    = 0;      // index for histocontaner, corresponds to sideband
-
-        assert( evweight >= 0. ); 
-
-        // Mass Resolution of the Event
-        //massResolutionCalculator->Setup(l,&lead_p4,&sublead_p4,diphoton_index.first,diphoton_index.second,diphoton_id,ptHiggs,mass,eSmearPars,nR9Categories,nEtaCategories);
-        massResolutionCalculator->Setup(l,&photonInfoCollection[diphoton_index.first],&photonInfoCollection[diphoton_index.second],diphoton_id,eSmearPars,nR9Categories,nEtaCategories);
-        //    massResolutionCalculator->setSphericalLeadPhoton(l.CheckSphericalPhoton(diphoton_index.first));
-        //    massResolutionCalculator->setSphericalSubleadPhoton(l.CheckSphericalPhoton(diphoton_index.second));
-
-        double massResolution = massResolutionCalculator->massResolutionCorrVtx();
-        //  double massResolution = massResolutionCalculator->massResolution();  //no longer use one or other
-        double vtx_mva = l.vtx_std_evt_mva->at(diphoton_id);
-        float sigmaMrv = massResolutionCalculator->massResolutionEonly();
-        float sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
-        float sigmaMeonly = massResolutionCalculator->massResolutionEonly();
-        float vtxProb = 1.-0.49*(vtx_mva+1.0);
-
-        float bdtoutput,phoid_mvaout_lead,phoid_mvaout_sublead;
-        if (bdtTrainingPhilosophy=="MIT"){
-            bdtoutput = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMeonly,"MIT");
-            if (bdtoutput < 0.05) category = -1;
-            phoid_mvaout_lead = l.photonIDMVA(diphoton_index.first,l.dipho_vtxind[diphoton_id],lead_p4,"MIT");
-            phoid_mvaout_sublead = l.photonIDMVA(diphoton_index.second,l.dipho_vtxind[diphoton_id],sublead_p4,"MIT");
-        } 
-        else if (bdtTrainingPhilosophy=="UCSD"){
-            bdtoutput = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMeonly,"UCSD");
-            phoid_mvaout_lead = l.photonIDMVA(diphoton_index.first,l.dipho_vtxind[diphoton_id],lead_p4,"UCSD");
-            phoid_mvaout_sublead = l.photonIDMVA(diphoton_index.second,l.dipho_vtxind[diphoton_id],sublead_p4,"UCSD");
-        }
-
-
-        if (l.run==170397 && l.lumis==279 && l.event==304405242){
-                std::cout << "We Selected"<<std::endl;
-                std::cout << "Run/Lumi/Event "<<l.run<<" / "<<l.lumis<<" / "<< l.event<<std::endl;
-                std::cout << "jentry "<<jentry<<std::endl;
-                std::cout << "MASS - "<<mass<<std::endl;
-                std::cout << "photon PT1/PT2 - "<< lead_p4.Pt()<<" / " << sublead_p4.Pt()<< std::endl;
-                std::cout << "Lead P4 -- index " <<  diphoton_index.first << std::endl;
-                lead_p4.Dump();
-                std::cout << "SubLead P4 -- index " <<  diphoton_index.second << std::endl;
-                sublead_p4.Dump();
-
-                std:cout << "\n Every Photon " <<std::endl;
-                for (int IPHOTON=0;IPHOTON<l.pho_n;IPHOTON++){
-                    photonInfoCollection[IPHOTON].p4(vtx->X(),vtx->Y(),vtx->Z()).Dump();
-                    photonInfoCollection[IPHOTON].dump();
-                    
-                }
-                
-
-            }
-
-        float bdt_grad,bdt_ada;
-
-        if (doTraining ){//
-            if (cur_type > 0 ){
-                // Background:
-                //
-                // 2 Percent mass window N upper and N sidebands
-                for (int i = 0; i<nMasses;i++) {
-                    // define hypothesis masses for the sidebands
-                    float mass_hypothesis = masses[i];
-                    float mass_hypothesis_low = 0.;//mass_hypothesis*(1-signalRegionWidth)/(1+signalRegionWidth) -sidebandShift;
-                    float mass_hypothesis_high = 0.;//mass_hypothesis*(1+signalRegionWidth)/(1-signalRegionWidth)+sidebandShift;
-
-                    float sideband_boundaries[2];
-                    sideband_boundaries[0] = mass_hypothesis*(1-sidebandWidth);
-                    sideband_boundaries[1] = mass_hypothesis*(1+sidebandWidth);
-
-                    //Signal Window
-                    if( mass>sideband_boundaries[0] && mass<sideband_boundaries[1]){//Signal mass window cut
-                        SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,mass_hypothesis,bdtoutput,evweight,category);
-                        //std::cout<<_mgg<<", "<<mass<<std::endl;
-                        _sideband = 0;
-                        if (jentry%2==0) backgroundTrainTree_2pt_[i]->Fill();
-                        else if (jentry%2==1) backgroundTestTree_2pt_[i]->Fill();
-                    }
-                    // Loop over N lower sidebands
-                    for (int sideband_i = 1 ; sideband_i <= numberOfSidebands ; sideband_i++){
-                        double hypothesisModifier = (1.-sidebandWidth)/(1+sidebandWidth);
-                        mass_hypothesis_low = (mass_hypothesis*(1.-signalRegionWidth)/(1.+sidebandWidth)-sidebandShift)
-                            *(TMath::Power(hypothesisModifier,sideband_i-1));
-                        double sideband_boundaries_low = mass_hypothesis_low*(1.-sidebandWidth);
-                        double sideband_boundaries_high= mass_hypothesis_low*(1.+sidebandWidth);
-
-                        if ( mass>sideband_boundaries_low && mass<sideband_boundaries_high){
-                            SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,mass_hypothesis_low,bdtoutput,evweight,category);
-                            //std::cout<<_mgg<<", "<<mass<<std::endl;
-                            _sideband = 1*sideband_i;
-                            if (jentry%2==0) backgroundTrainTree_2pt_[i]->Fill();
-                            else if (jentry%2==1) backgroundTestTree_2pt_[i]->Fill();
-                        }
-                    }
-                    // Loop over N higher sidebands
-                    for (int sideband_i = 1 ; sideband_i <= numberOfSidebands ; sideband_i++){
-                        double hypothesisModifier = (1.+sidebandWidth)/(1-sidebandWidth);
-                        mass_hypothesis_high = (mass_hypothesis*(1.+signalRegionWidth)/(1.-sidebandWidth)+sidebandShift)
-                            *(TMath::Power(hypothesisModifier,sideband_i-1));
-                        double sideband_boundaries_low = mass_hypothesis_high*(1.-sidebandWidth);
-                        double sideband_boundaries_high= mass_hypothesis_high*(1.+sidebandWidth);
-                        //std::cout<<sideband_boundaries_low<<", "<<sideband_boundaries_high<<std::endl;
-
-                        if ( mass>sideband_boundaries_low && mass<sideband_boundaries_high){
-                            SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,mass_hypothesis_high,bdtoutput,evweight,category);
-                            //std::cout<<_mgg<<", "<<mass<<std::endl;
-                            _sideband = -1*sideband_i;
-                            if (jentry%2==0) backgroundTrainTree_2pt_[i]->Fill();
-                            else if (jentry%2==1) backgroundTestTree_2pt_[i]->Fill();
-                        }
-                    }
-                }
-
-
-                // 7 Percent mass window with single upper and lower sidebands
-                for (int i = 0; i<nMasses;i++) {
-                    // define hypothesis masses for the sidebands
-                    float mass_hypothesis = masses[i];
-                    float mass_hypothesis_low = mass_hypothesis*(1-signalRegionWidth)/(1+signalRegionWidth);
-                    float mass_hypothesis_high = mass_hypothesis*(1+signalRegionWidth)/(1-signalRegionWidth);
-                    // define the sidebands
-                    float sideband_boundaries[4];
-                    sideband_boundaries[0] = mass_hypothesis_low*(1-signalRegionWidth);
-                    sideband_boundaries[1] = mass_hypothesis*(1-signalRegionWidth);
-                    sideband_boundaries[2] = mass_hypothesis*(1+signalRegionWidth);
-                    sideband_boundaries[3] = mass_hypothesis_high*(1+signalRegionWidth);
-
-                    if( mass>sideband_boundaries[1] && mass<sideband_boundaries[2] ){//Signal mass window cut
-                        SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,mass_hypothesis,bdtoutput,evweight,category);
-                        _sideband = 0;
-                        if (jentry%2==0) backgroundTrainTree_7pt_[i]->Fill();
-                        else if (jentry%2==1) backgroundTestTree_7pt_[i]->Fill();
-                    }
-                    else if( mass>sideband_boundaries[0] && mass<sideband_boundaries[1] ){//lower sideband mass window cut
-                        SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,mass_hypothesis_low,bdtoutput,evweight,category);
-                        _sideband = -1;
-                        if (jentry%2==0) backgroundTrainTree_7pt_[i]->Fill();
-                        else if (jentry%2==1) backgroundTestTree_7pt_[i]->Fill();
-                    }
-                    else if( mass>sideband_boundaries[2] && mass<sideband_boundaries[3] ){//upper sideband mass window cut
-                        SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,mass_hypothesis_high,bdtoutput,evweight,category);
-                        _sideband = 1;
-                        if (jentry%2==0) backgroundTrainTree_7pt_[i]->Fill();
-                        else if (jentry%2==1) backgroundTestTree_7pt_[i]->Fill();
-                    }
-                } 
-            }
-            else { //Signal 
-                int i0 = SignalType(cur_type); 
-                if (i0<0){
-                    cout<<"CAN'T TRAIN ON DATA!\n";
-                    return;
-                }
-                float mass_hypothesis = masses[i0];
-                float sideband_boundaries[2];
-                sideband_boundaries[0] = mass_hypothesis*(1-signalRegionWidth);
-                sideband_boundaries[1] = mass_hypothesis*(1+signalRegionWidth);
-
-                if( mass>sideband_boundaries[0] && mass<sideband_boundaries[1] ){//Signal mass window cut
-                    SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,masses[i0],bdtoutput,evweight,category);
-                    _sideband = 0;
-                    if (jentry%2==0) signalTrainTree_[i0]->Fill();
-                    else if (jentry%2==1) signalTestTree_[i0]->Fill();
-                }
-            }
-        }
-        else if (makeTrees){
+    if (makeTrees){
             // --- Info for trees ---
             _mgg = mass;
-            _bdtoutput = bdtoutput;
+            _bdtoutput = kinematic_bdtout;
             _wt = evweight;
             if (VBFevent) _vbf=1;
             else _vbf=0;
@@ -1440,945 +640,179 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
             if (cur_type==0) dataTree_->Fill();
             else if (cur_type<0) sigTree_[SignalType(cur_type)]->Fill();
             else if (cur_type>0) bkgTree_->Fill();
-        }
-        else{
-            
-            // --- Fill invariant mass spectrum -------
-            if (cur_type==0){  // Data
-                l.rooContainer->InputDataPoint("data_mass",category,mass);
-            } else if (cur_type>0){ // Background MC
-                if (cur_type==6){l.rooContainer->InputBinnedDataPoint("zee_mass",category,mass,evweight);}
-                else {l.rooContainer->InputBinnedDataPoint("bkg_mass",category,mass,evweight);}
-            }
-
-            if (bdtoutput>=0.05) l.FillHist("all_mass",0, mass, evweight);
-
-            // ------ Deal with Signal MC first
-            if (cur_type<0){ // signal MC
-                
-                // define hypothesis masses for the sidebands
-                float mass_hypothesis = masses[SignalType(cur_type)];
-
-                // define the sidebands
-                float sideband_boundaries[2];
-                sideband_boundaries[0] = mass_hypothesis*(1-sidebandWidth);
-                sideband_boundaries[1] = mass_hypothesis*(1+sidebandWidth);
-
-                //Signal Window
-                if( mass>sideband_boundaries[0] && mass<sideband_boundaries[1]){//Signal mass window cut
-                    histoplace=1;
-                    SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,mass_hypothesis,bdtoutput,evweight);
-
-                    bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada_123" );
-                    bdt_grad = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
-
-                    if (bdtoutput>=0.05) {
-                        l.FillHist("signal_pt_msig",0, Higgs.Pt(), evweight);
-                        l.FillHist("signal_logpt_msig",0, log10(Higgs.Pt()), evweight);
-                        l.FillHist("signal_ptOverM_msig",0, Higgs.Pt()/mass, evweight);
-                        l.FillHist("signal_ptOverMH_msig",0, _H_ptOverM, evweight);
-                        l.FillHist("signal_eta_msig",0, Higgs.Eta(), evweight);
-                        l.FillHist("signal_deltaPhi_msig",0, _d_phi, evweight);
-                        l.FillHist("signal_cosDeltaPhi_msig",0, cos(_d_phi), evweight);
-                        l.FillHist("signal_deltaEta_msig",0, _d_eta, evweight);
-                        l.FillHist("signal_helicityAngle_msig",0, _cos_theta_star, evweight);
-                        l.FillHist("signal_pho1_pt_msig",0,lead_p4.Pt(), evweight);
-                        l.FillHist("signal_pho2_pt_msig",0,sublead_p4.Pt(), evweight);
-                        l.FillHist("signal_pho1_ptOverM_msig",0,lead_p4.Pt()/mass, evweight);
-                        l.FillHist("signal_pho2_ptOverM_msig",0,sublead_p4.Pt()/mass, evweight);
-                        l.FillHist("signal_pho1_ptOverMH_msig",0,_pho1_ptOverM, evweight);
-                        l.FillHist("signal_pho2_ptOverMH_msig",0,_pho2_ptOverM, evweight);
-                        l.FillHist("signal_pho1_eta_msig",0,lead_p4.Eta(), evweight);
-                        l.FillHist("signal_pho2_eta_msig",0,sublead_p4.Eta(), evweight);
-                        l.FillHist("signal_pho_minr9_msig",0,min(l.pho_r9[diphoton_index.first],l.pho_r9[diphoton_index.second]), evweight);
-                        l.FillHist("signal_pho1_r9_msig",0,l.pho_r9[diphoton_index.first], evweight);
-                        l.FillHist("signal_pho2_r9_msig",0,l.pho_r9[diphoton_index.second], evweight);
-                        l.FillHist("signal_maxeta_msig",0,_max_eta, evweight);
-                        l.FillHist("signal_deltaMOverMH_msig",0, _deltaMOverM, evweight);
-                        l.FillHist("signal_sigmaM_msig",0,sigmaMrv, evweight);
-                        l.FillHist("signal_sigmaM_wrongVtx_msig",0,sigmaMwv, evweight);
-                        l.FillHist("signal_sigmaMOverM_msig",0,sigmaMrv/mass, evweight);
-                        l.FillHist("signal_sigmaMOverM_wrongVtx_msig",0,sigmaMwv/mass, evweight);
-                        l.FillHist("signal_sigmaMOverMH_msig",0,sigmaMrv/mass_hypothesis, evweight);
-                        l.FillHist("signal_sigmaMOverMH_wrongVtx_msig",0,sigmaMwv/mass_hypothesis, evweight);
-                        l.FillHist("signal_deltaMOverSigmaM_msig",0,_deltaMOverSigmaM, evweight);
-                        l.FillHist("signal_deltaMOverSigmaM_wrongVtx_msig",0,(mass-mass_hypothesis)/sigmaMwv, evweight);
-                        l.FillHist("signal_pho1_phoidMva_msig",0,phoid_mvaout_lead, evweight);
-                        l.FillHist("signal_pho2_phoidMva_msig",0,phoid_mvaout_sublead, evweight);
-                        l.FillHist("signal_vtxProb_msig",0,vtxProb, evweight);
-                    }
-                    l.FillHist("signal_bdtoutput_msig",0,bdtoutput, evweight);
-
-                    if (VBFevent){ // note if includeVBF=false, VBFevent will always be false so no need to check both
-                        l.rooContainer->InputBinnedDataPoint("sig_VBF_"+currentTypeSignalLabel  ,category,1.+sidebandWidth+_deltaMOverM,evweight);
-                    } else {
-                        l.rooContainer->InputBinnedDataPoint("sig_BDT_ada_"+currentTypeSignalLabel  ,category,bdt_ada,evweight);
-                        l.rooContainer->InputBinnedDataPoint("sig_BDT_grad_"+currentTypeSignalLabel ,category,bdt_grad,evweight);
-                    }
-                }
-                else {
-                    /*  // Loop over N lower sidebands
-                        for (int sideband_i = 1 ; sideband_i <= numberOfSidebands ; sideband_i++){
-                        double hypothesisModifier = (1.-sidebandWidth)/(1+sidebandWidth);
-                        double mass_hypothesis_low     = (mass_hypothesis*(1.-signalRegionWidth)/(1.+sidebandWidth)-sidebandShift)*(TMath::Power(hypothesisModifier,sideband_i-1));
-                        double sideband_boundaries_low = mass_hypothesis_low*(1.-sidebandWidth);
-                        double sideband_boundaries_high= mass_hypothesis_low*(1.+sidebandWidth);
-
-                        if ( mass>sideband_boundaries_low && mass<sideband_boundaries_high){
-                        SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,mass_hypothesis_low,bdtoutput,evweight);
-                        bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada_123" );
-                        bdt_grad = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
-
-                        if (!VBFevent){ // note if includeVBF=false, VBFevent will always be false so no need to check both
-                        l.rooContainer->InputBinnedDataPoint(Form("sig_%dlow_BDT_ada_",sideband_i)+currentTypeSignalLabel ,category,bdt_ada,evweight);
-                        l.rooContainer->InputBinnedDataPoint(Form("sig_%dlow_BDT_grad_",sideband_i)+currentTypeSignalLabel ,category,bdt_grad,evweight);
-                        }
-                        }
-                        }
-                    */
-
-                    // Loop over N higher sidebands
-                    /*  for (int sideband_i = 1 ; sideband_i <= numberOfSidebands ; sideband_i++){
-
-                        double hypothesisModifier = (1.+sidebandWidth)/(1-sidebandWidth);
-                        double mass_hypothesis_high     = (mass_hypothesis*(1.+signalRegionWidth)/(1.-sidebandWidth)+sidebandShift)*(TMath::Power(hypothesisModifier,sideband_i-1));
-                        double sideband_boundaries_low = mass_hypothesis_high*(1.-sidebandWidth);
-                        double sideband_boundaries_high= mass_hypothesis_high*(1.+sidebandWidth);
-
-                        if ( mass>sideband_boundaries_low && mass<sideband_boundaries_high){
-                        SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,mass_hypothesis_high,bdtoutput,evweight);
-                        bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada_123" );
-                        bdt_grad = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
+    }
         
-                        if (!VBFevent){ // note if includeVBF=false, VBFevent will always be false so no need to check both
-                        l.rooContainer->InputBinnedDataPoint(Form("sig_%dhigh_BDT_ada_",sideband_i)+currentTypeSignalLabel ,category,bdt_ada,evweight);
-                        l.rooContainer->InputBinnedDataPoint(Form("sig_%dhigh_BDT_grad_",sideband_i)+currentTypeSignalLabel ,category,bdt_grad,evweight);
-                        }
-                        }
-                        }
-                    */
-                }
+    // --- Fill invariant mass spectrum -------
+    if (cur_type==0){  // Data
+                l.rooContainer->InputDataPoint("data_mass",category,mass);
+    } else if (cur_type>0){ // Background MC
+                l.rooContainer->InputBinnedDataPoint("bkg_mass",category,mass,evweight);
+    }
 
-
+    if (cur_type<0){ // signal MC
+            float mass_hypothesis = masses[SignalType(cur_type)];
+            float sideband_boundaries[2];
+            sideband_boundaries[0] = mass_hypothesis*(1-sidebandWidth);
+            sideband_boundaries[1] = mass_hypothesis*(1+sidebandWidth);
+            if( mass>sideband_boundaries[0] && mass<sideband_boundaries[1]){//Signal mass window cut
+                   bdt_grad =  tmvaGetVal(mass,mass_hypothesis,kinematic_bdtout);
+                   if (PADEBUG) std::cout <<"Seleced Event mH="<<mass_hypothesis<<" mass="<<mass<<" bdtout="<<kinematic_bdtout<< " cat="<<category<<" massbdt="<<bdt_grad<<" weight="<<weight<<std::endl;
+                   l.rooContainer->InputBinnedDataPoint("sig_BDT_grad_"+currentTypeSignalLabel ,category,bdt_grad,evweight);
+            
             }
-            // ---- Now deal with background MC and data
-            else {
+     } else {
 
-                // Iterate over each BDT mass. 
-                for (int i = 1; i<nMasses;i++){ //ignoring mass 105 for now
-
-                    double mass_h_low;      
-                    double mass_h_high;
-
-                    if (i==7){ // the 140 case because currently 145 is missing
-                        mass_h_low  =-2.5;
-                        mass_h_high =4.6;
-                    } else if (i==8){  // the 150 case
-                        mass_h_low  =-5.0;
-                        mass_h_high =0.1;
-                    } else {
-                        mass_h_low  =-2.5;
-                        mass_h_high =2.1;
-                    }
-
-                    for (double mass_h=mass_h_low; mass_h<mass_h_high; mass_h+=0.5){
-
-                        float mass_hypothesis = masses[i]+mass_h;
-                        if (mass_hypothesis < masses[1] || mass_hypothesis > masses[nMasses-1]) continue;
-
-                        float sideband_boundaries[2];
-                        sideband_boundaries[0] = mass_hypothesis*(1-sidebandWidth);
-                        sideband_boundaries[1] = mass_hypothesis*(1+sidebandWidth);
-
-                        //Signal Window
-                        if( mass>sideband_boundaries[0] && mass<sideband_boundaries[1]){//Signal mass window cut
-                            //std::cout << "sig region" << std::endl;
-                            histoplace=1;
-                            SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,mass_hypothesis,bdtoutput,evweight);
-
-                            bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada_123" );
-                            bdt_grad = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
-
-                            if (mass_hypothesis == masses[i]) {
-
-                                if (bdtoutput>=0.05) {
-                                    l.FillHist("pt_msig",i-1, Higgs.Pt(), evweight);
-                                    l.FillHist("logpt_msig",i-1, log10(Higgs.Pt()), evweight);
-                                    l.FillHist("ptOverM_msig",i-1, Higgs.Pt()/mass, evweight);
-                                    l.FillHist("ptOverMH_msig",i-1, _H_ptOverM, evweight);
-                                    l.FillHist("eta_msig",i-1, Higgs.Eta(), evweight);
-                                    l.FillHist("deltaPhi_msig",i-1, _d_phi, evweight);
-                                    l.FillHist("cosDeltaPhi_msig",i-1, cos(_d_phi), evweight);
-                                    l.FillHist("deltaEta_msig",i-1, _d_eta, evweight);
-                                    l.FillHist("helicityAngle_msig",i-1, _cos_theta_star, evweight);
-                                    l.FillHist("pho1_pt_msig",i-1,lead_p4.Pt(), evweight);
-                                    l.FillHist("pho2_pt_msig",i-1,sublead_p4.Pt(), evweight);
-                                    l.FillHist("pho1_ptOverM_msig",i-1,lead_p4.Pt()/mass, evweight);
-                                    l.FillHist("pho2_ptOverM_msig",i-1,sublead_p4.Pt()/mass, evweight);
-                                    l.FillHist("pho1_ptOverMH_msig",i-1,_pho1_ptOverM, evweight);
-                                    l.FillHist("pho2_ptOverMH_msig",i-1,_pho2_ptOverM, evweight);
-                                    l.FillHist("pho1_eta_msig",i-1,lead_p4.Eta(), evweight);
-                                    l.FillHist("pho2_eta_msig",i-1,sublead_p4.Eta(), evweight);
-                                    l.FillHist("pho_minr9_msig",i-1,min(l.pho_r9[diphoton_index.first],l.pho_r9[diphoton_index.second]), evweight);
-                                    l.FillHist("pho1_r9_msig",i-1,l.pho_r9[diphoton_index.first], evweight);
-                                    l.FillHist("pho2_r9_msig",i-1,l.pho_r9[diphoton_index.second], evweight);
-                                    l.FillHist("maxeta_msig",i-1,_max_eta, evweight);
-                                    l.FillHist("deltaMOverMH_msig",i-1, _deltaMOverM, evweight);
-                                    l.FillHist("sigmaM_msig",i-1,sigmaMrv, evweight);
-                                    l.FillHist("sigmaM_wrongVtx_msig",i-1,sigmaMwv, evweight);
-                                    l.FillHist("sigmaMOverM_msig",i-1,sigmaMrv/mass, evweight);
-                                    l.FillHist("sigmaMOverM_wrongVtx_msig",i-1,sigmaMwv/mass, evweight);
-                                    l.FillHist("sigmaMOverMH_msig",i-1,sigmaMrv/mass_hypothesis, evweight);
-                                    l.FillHist("sigmaMOverMH_wrongVtx_msig",i-1,sigmaMwv/mass_hypothesis, evweight);
-                                    l.FillHist("deltaMOverSigmaM_msig",i-1,_deltaMOverSigmaM, evweight);
-                                    l.FillHist("deltaMOverSigmaM_wrongVtx_msig",i-1,(mass-mass_hypothesis)/sigmaMwv, evweight);
-                                    l.FillHist("pho1_phoidMva_msig",i-1,phoid_mvaout_lead, evweight);
-                                    l.FillHist("pho2_phoidMva_msig",i-1,phoid_mvaout_sublead, evweight);
-                                    l.FillHist("vtxProb_msig",i-1,vtxProb, evweight);
-                                }
-                                l.FillHist("bdtoutput_msig",i-1,bdtoutput, evweight);
-
-                            }
-
-                            //std::cout << "ada: " << bdt_ada << "  grad: " << bdt_grad << std::endl;
-
-                            if (cur_type == 0 ){//data
-    
-                                if (cur_type==0 && mass_hypothesis==124.0 && bdtoutput>=0.05){
-                                    eventListText <<"Type="<< cur_type << " diphotonBDT="<<bdtoutput<<" mgg="<<mass<<" bdt="<<bdt_grad<<" vbf=" << VBFevent << endl;
-                                }
-                                if (VBFevent){ 
-                                    l.rooContainer->InputBinnedDataPoint(Form("data_VBF_%3.1f",mass_hypothesis),category,1.+sidebandWidth+_deltaMOverM,evweight);
-                                } else {
-                                    l.rooContainer->InputBinnedDataPoint(Form("data_BDT_ada_%3.1f",mass_hypothesis),category,bdt_ada,evweight);
-                                    l.rooContainer->InputBinnedDataPoint(Form("data_BDT_grad_%3.1f",mass_hypothesis),category,bdt_grad,evweight);
-                                }
-                            }
-                            if (cur_type > 0 ){// background MC
-                                if (cur_type==6){
-                                    //l.rooContainer->InputBinnedDataPoint(Form("zee_BDT_ada_%3.1f",mass_hypothesis),category,bdt_ada,evweight);
-                                    //l.rooContainer->InputBinnedDataPoint(Form("zee_BDT_grad_%3.1f",mass_hypothesis) ,category,bdt_grad,evweight);
-                                }
-                                else{
-                                    if (VBFevent){
-                                        l.rooContainer->InputBinnedDataPoint(Form("bkg_VBF_%3.1f",mass_hypothesis),category,1.+sidebandWidth+_deltaMOverM,evweight);
-                                    } else {
-                                        l.rooContainer->InputBinnedDataPoint(Form("bkg_BDT_ada_%3.1f",mass_hypothesis),category,bdt_ada,evweight);
-                                        l.rooContainer->InputBinnedDataPoint(Form("bkg_BDT_grad_%3.1f",mass_hypothesis) ,category,bdt_grad,evweight);
-                                    }
-                                }
-                            }
-                        }
-
-                        else {
-                            // Loop over N lower sidebands
-                            std::string sideband_str;
-                            std::stringstream sideband_stream;
-                            for (int sideband_i = 1 ; sideband_i <= numberOfSidebands ; sideband_i++){
-                                histoplace=sideband_i+1;
-                                double hypothesisModifier = (1.-sidebandWidth)/(1+sidebandWidth);
-                                double mass_hypothesis_low     = (mass_hypothesis*(1.-signalRegionWidth)/(1.+sidebandWidth)-sidebandShift)*(TMath::Power(hypothesisModifier,sideband_i-1));
-                                double sideband_boundaries_low = mass_hypothesis_low*(1.-sidebandWidth);
-                                double sideband_boundaries_high= mass_hypothesis_low*(1.+sidebandWidth);
-
-                                //cout << "sideband, "<< sideband_i << " mH, "<<mass_hypothesis_low<< " bands, " <<sideband_boundaries_low << " " << sideband_boundaries_high <<endl;
-                                if ( mass>sideband_boundaries_low && mass<sideband_boundaries_high){
-                                    SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,mass_hypothesis_low,bdtoutput,evweight);
-                                    bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada_123" );
-                                    bdt_grad = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
-
-                                    if (mass_hypothesis == masses[i]) {
-
-                                        if (sideband_i==1) {
-                                            sideband_str="";
-                                        } else {
-                                            sideband_stream << sideband_i;
-                                            sideband_str = sideband_stream.str();
-                                        }
-
-                                        if (bdtoutput>=0.05) {
-                                            l.FillHist("pt_mlow"+sideband_str,i-1, Higgs.Pt(), evweight);
-                                            l.FillHist("logpt_mlow"+sideband_str,i-1, log10(Higgs.Pt()), evweight);
-                                            l.FillHist("ptOverM_mlow"+sideband_str,i-1, Higgs.Pt()/mass, evweight);
-                                            l.FillHist("ptOverMH_mlow"+sideband_str,i-1, _H_ptOverM, evweight);
-                                            l.FillHist("eta_mlow"+sideband_str,i-1, Higgs.Eta(), evweight);
-                                            l.FillHist("deltaPhi_mlow"+sideband_str,i-1, _d_phi, evweight);
-                                            l.FillHist("cosDeltaPhi_mlow"+sideband_str,i-1, cos(_d_phi), evweight);
-                                            l.FillHist("deltaEta_mlow"+sideband_str,i-1, _d_eta, evweight);
-                                            l.FillHist("helicityAngle_mlow"+sideband_str,i-1, _cos_theta_star, evweight);
-                                            l.FillHist("pho1_pt_mlow"+sideband_str,i-1,lead_p4.Pt(), evweight);
-                                            l.FillHist("pho2_pt_mlow"+sideband_str,i-1,sublead_p4.Pt(), evweight);
-                                            l.FillHist("pho1_ptOverM_mlow"+sideband_str,i-1,lead_p4.Pt()/mass, evweight);
-                                            l.FillHist("pho2_ptOverM_mlow"+sideband_str,i-1,sublead_p4.Pt()/mass, evweight);
-                                            l.FillHist("pho1_ptOverMH_mlow"+sideband_str,i-1,_pho1_ptOverM, evweight);
-                                            l.FillHist("pho2_ptOverMH_mlow"+sideband_str,i-1,_pho2_ptOverM, evweight);
-                                            l.FillHist("pho1_eta_mlow"+sideband_str,i-1,lead_p4.Eta(), evweight);
-                                            l.FillHist("pho2_eta_mlow"+sideband_str,i-1,sublead_p4.Eta(), evweight);
-                                            l.FillHist("pho_minr9_mlow"+sideband_str,i-1,_min_r9, evweight);
-                                            l.FillHist("pho1_r9_mlow"+sideband_str,i-1,l.pho_r9[diphoton_index.first], evweight);
-                                            l.FillHist("pho2_r9_mlow"+sideband_str,i-1,l.pho_r9[diphoton_index.second], evweight);
-                                            l.FillHist("maxeta_mlow"+sideband_str,i-1,_max_eta, evweight);
-                                            l.FillHist("deltaMOverMH_mlow"+sideband_str,i-1, _deltaMOverM, evweight);
-                                            l.FillHist("sigmaM_mlow"+sideband_str,i-1,sigmaMrv, evweight);
-                                            l.FillHist("sigmaM_wrongVtx_mlow"+sideband_str,i-1,sigmaMwv, evweight);
-                                            l.FillHist("sigmaMOverM_mlow"+sideband_str,i-1,sigmaMrv/mass, evweight);
-                                            l.FillHist("sigmaMOverM_wrongVtx_mlow"+sideband_str,i-1,sigmaMwv/mass, evweight);
-                                            l.FillHist("sigmaMOverMH_mlow"+sideband_str,i-1,sigmaMrv/mass_hypothesis, evweight);
-                                            l.FillHist("sigmaMOverMH_wrongVtx_mlow"+sideband_str,i-1,sigmaMwv/mass_hypothesis, evweight);
-                                            l.FillHist("deltaMOverSigmaM_mlow"+sideband_str,i-1,_deltaMOverSigmaM, evweight);
-                                            l.FillHist("deltaMOverSigmaM_wrongVtx_mlow"+sideband_str,i-1,(mass-mass_hypothesis)/sigmaMwv, evweight);
-                                            l.FillHist("pho1_phoidMva_mlow"+sideband_str,i-1,phoid_mvaout_lead, evweight);
-                                            l.FillHist("pho2_phoidMva_mlow"+sideband_str,i-1,phoid_mvaout_sublead, evweight);
-                                            l.FillHist("vtxProb_mlow"+sideband_str,i-1,vtxProb, evweight);
-                                        }
-                                        l.FillHist("bdtoutput_mlow"+sideband_str,i-1,bdtoutput, evweight);
-
-                                    }
-
-                                    if (cur_type == 0 ){//data
-                                        if (VBFevent){
-                                            l.rooContainer->InputBinnedDataPoint(Form("data_%dlow_VBF_%3.1f",sideband_i,mass_hypothesis),category,1.+sidebandWidth+_deltaMOverM,evweight);
-                                        } else {
-                                            l.rooContainer->InputBinnedDataPoint(Form("data_%dlow_BDT_ada_%3.1f",sideband_i,mass_hypothesis),category,bdt_ada,evweight);
-                                            l.rooContainer->InputBinnedDataPoint(Form("data_%dlow_BDT_grad_%3.1f",sideband_i,mass_hypothesis) ,category,bdt_grad,evweight);
-                                        }
-                                    }
-                                    else if (cur_type > 0 ){// background MC
-                                        if (cur_type==6){
-                                            //l.rooContainer->InputBinnedDataPoint(Form("zee_%dlow_BDT_ada_%3.1f",sideband_i,mass_hypothesis),category,bdt_ada,evweight);
-                                            //l.rooContainer->InputBinnedDataPoint(Form("zee_%dlow_BDT_grad_%3.1f",sideband_i,mass_hypothesis) ,category,bdt_grad,evweight);
-                                        } else {
-                                            if (VBFevent){
-                                                l.rooContainer->InputBinnedDataPoint(Form("bkg_%dlow_VBF_%3.1f",sideband_i,mass_hypothesis),category,1.+sidebandWidth+_deltaMOverM,evweight);
-                                            } else {
-                                                l.rooContainer->InputBinnedDataPoint(Form("bkg_%dlow_BDT_ada_%3.1f",sideband_i,mass_hypothesis),category,bdt_ada,evweight);
-                                                l.rooContainer->InputBinnedDataPoint(Form("bkg_%dlow_BDT_grad_%3.1f",sideband_i,mass_hypothesis),category,bdt_grad,evweight);   
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-                            // Loop over N higher sidebands
-                            for (int sideband_i = 1 ; sideband_i <= numberOfSidebands ; sideband_i++){
-
-                                histoplace=sideband_i+4;
-                                double hypothesisModifier = (1.+sidebandWidth)/(1-sidebandWidth);
-                                double mass_hypothesis_high     = (mass_hypothesis*(1.+signalRegionWidth)/(1.-sidebandWidth)+sidebandShift)*(TMath::Power(hypothesisModifier,sideband_i-1));
-                                double sideband_boundaries_low = mass_hypothesis_high*(1.-sidebandWidth);
-                                double sideband_boundaries_high= mass_hypothesis_high*(1.+sidebandWidth);
-
-                                if ( mass>sideband_boundaries_low && mass<sideband_boundaries_high){
-                                    SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,mass_hypothesis_high,bdtoutput,evweight);
-                                    bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada_123" );
-                                    bdt_grad = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
-
-                                    if (mass_hypothesis == masses[i]) {
-
-                                        if (sideband_i==1) {
-                                            sideband_str="";
-                                        } else {
-                                            sideband_stream << sideband_i;
-                                            sideband_str = sideband_stream.str();
-                                        }
-
-                                        if (bdtoutput>=0.05) {
-                                            l.FillHist("pt_mhigh"+sideband_str,i-1, Higgs.Pt(), evweight);
-                                            l.FillHist("logpt_mhigh"+sideband_str,i-1, log10(Higgs.Pt()), evweight);
-                                            l.FillHist("ptOverM_mhigh"+sideband_str,i-1, Higgs.Pt()/mass, evweight);
-                                            l.FillHist("ptOverMH_mhigh"+sideband_str,i-1, _H_ptOverM, evweight);
-                                            l.FillHist("eta_mhigh"+sideband_str,i-1, Higgs.Eta(), evweight);
-                                            l.FillHist("deltaPhi_mhigh"+sideband_str,i-1, _d_phi, evweight);
-                                            l.FillHist("cosDeltaPhi_mhigh"+sideband_str,i-1, cos(_d_phi), evweight);
-                                            l.FillHist("deltaEta_mhigh"+sideband_str,i-1, _d_eta, evweight);
-                                            l.FillHist("helicityAngle_mhigh"+sideband_str,i-1, _cos_theta_star, evweight);
-                                            l.FillHist("pho1_pt_mhigh"+sideband_str,i-1,lead_p4.Pt(), evweight);
-                                            l.FillHist("pho2_pt_mhigh"+sideband_str,i-1,sublead_p4.Pt(), evweight);
-                                            l.FillHist("pho1_ptOverM_mhigh"+sideband_str,i-1,lead_p4.Pt()/mass, evweight);
-                                            l.FillHist("pho2_ptOverM_mhigh"+sideband_str,i-1,sublead_p4.Pt()/mass, evweight);
-                                            l.FillHist("pho1_ptOverMH_mhigh"+sideband_str,i-1,_pho1_ptOverM, evweight);
-                                            l.FillHist("pho2_ptOverMH_mhigh"+sideband_str,i-1,_pho2_ptOverM, evweight);
-                                            l.FillHist("pho1_eta_mhigh"+sideband_str,i-1,lead_p4.Eta(), evweight);
-                                            l.FillHist("pho2_eta_mhigh"+sideband_str,i-1,sublead_p4.Eta(), evweight);
-                                            l.FillHist("pho_minr9_mhigh"+sideband_str,i-1,_min_r9, evweight);
-                                            l.FillHist("pho1_r9_mhigh"+sideband_str,i-1,l.pho_r9[diphoton_index.first], evweight);
-                                            l.FillHist("pho2_r9_mhigh"+sideband_str,i-1,l.pho_r9[diphoton_index.second], evweight);
-                                            l.FillHist("maxeta_mhigh"+sideband_str,i-1,_max_eta, evweight);
-                                            l.FillHist("deltaMOverMH_mhigh"+sideband_str,i-1, _deltaMOverM, evweight);
-                                            l.FillHist("sigmaM_mhigh"+sideband_str,i-1,sigmaMrv, evweight);
-                                            l.FillHist("sigmaM_wrongVtx_mhigh"+sideband_str,i-1,sigmaMwv, evweight);
-                                            l.FillHist("sigmaMOverM_mhigh"+sideband_str,i-1,sigmaMrv/mass, evweight);
-                                            l.FillHist("sigmaMOverM_wrongVtx_mhigh"+sideband_str,i-1,sigmaMwv/mass, evweight);
-                                            l.FillHist("sigmaMOverMH_mhigh"+sideband_str,i-1,sigmaMrv/mass_hypothesis, evweight);
-                                            l.FillHist("sigmaMOverMH_wrongVtx_mhigh"+sideband_str,i-1,sigmaMwv/mass_hypothesis, evweight);
-                                            l.FillHist("deltaMOverSigmaM_mhigh"+sideband_str,i-1,_deltaMOverSigmaM, evweight);
-                                            l.FillHist("deltaMOverSigmaM_wrongVtx_mhigh"+sideband_str,i-1,(mass-mass_hypothesis)/sigmaMwv, evweight);
-                                            l.FillHist("pho1_phoidMva_mhigh"+sideband_str,i-1,phoid_mvaout_lead, evweight);
-                                            l.FillHist("pho2_phoidMva_mhigh"+sideband_str,i-1,phoid_mvaout_sublead, evweight);
-                                            l.FillHist("vtxProb_mhigh"+sideband_str,i-1,vtxProb, evweight);
-                                        }
-                                        l.FillHist("bdtoutput_mhigh"+sideband_str,i-1,bdtoutput, evweight);
-
-                                    }
-
-                                    if (cur_type == 0 ){//data
-                                        if (VBFevent){
-                                            l.rooContainer->InputBinnedDataPoint(Form("data_%dhigh_VBF_%3.1f",sideband_i,mass_hypothesis),category,1.+sidebandWidth+_deltaMOverM,evweight);
-                                        } else {
-                                            l.rooContainer->InputBinnedDataPoint(Form("data_%dhigh_BDT_ada_%3.1f",sideband_i,mass_hypothesis),category,bdt_ada,evweight);
-                                            l.rooContainer->InputBinnedDataPoint(Form("data_%dhigh_BDT_grad_%3.1f",sideband_i,mass_hypothesis) ,category,bdt_grad,evweight);
-                                        }
-                                    }
-                                    else if (cur_type > 0 ){// background MC
-                                        if (cur_type==6){
-                                            //l.rooContainer->InputBinnedDataPoint(Form("zee_%dhigh_BDT_ada_%3.1f",sideband_i,mass_hypothesis),category,bdt_ada,evweight);
-                                            //l.rooContainer->InputBinnedDataPoint(Form("zee_%dhigh_BDT_grad_%3.1f",sideband_i,mass_hypothesis) ,category,bdt_grad,evweight);
-                                        } else {
-                                            if (VBFevent){
-                                                l.rooContainer->InputBinnedDataPoint(Form("bkg_%dhigh_VBF_%3.1f",sideband_i,mass_hypothesis),category,1.+sidebandWidth+_deltaMOverM,evweight);
-                                            } else {
-                                                l.rooContainer->InputBinnedDataPoint(Form("bkg_%dhigh_BDT_ada_%3.1f",sideband_i,mass_hypothesis),category,bdt_ada,evweight);
-                                                l.rooContainer->InputBinnedDataPoint(Form("bkg_%dhigh_BDT_grad_%3.1f",sideband_i,mass_hypothesis),category,bdt_grad,evweight);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        } 
-                    } // end loop over mass hypotheses
-                } // end loop over BDT
-            } // Background MC or Data
-
-            // histos, 0 -> default, 1->signal region, 2,3,4 -> lower SB , 5,6,7 -> higher SB,8 all
-            if (mass>massMin && mass<massMax){
-
-                // Special histogram fill BDT_mH, BDT_mH + .5GeV
-                // ------------------------------------------------------------------------------------------------------------------------------------//
-                float q_mass_hypothesis = 120.0;
-                SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,q_mass_hypothesis,bdtoutput,evweight);
-                float bdt_grad_1 = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
-                SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,q_mass_hypothesis+1.2,bdtoutput,evweight);
-                float bdt_grad_2 = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
-                SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,q_mass_hypothesis-1.2,bdtoutput,evweight);
-                float bdt_grad_3 = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
-                if (bdtoutput>=0.05){
-                    l.FillHist2D("shiftingMH_up_bdt1_bdt2_mH120_1p"  ,0,bdt_grad_1,bdt_grad_2,evweight);
-                    l.FillHist2D("shiftingMH_dn_bdt1_bdt2_mH120_1p"  ,0,bdt_grad_1,bdt_grad_3,evweight);
-                }
-
-                q_mass_hypothesis = 140.0;
-                SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,q_mass_hypothesis,bdtoutput,evweight);
-                bdt_grad_1 = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
-                SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,q_mass_hypothesis+1.4,bdtoutput,evweight);
-                bdt_grad_2 = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
-                SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,q_mass_hypothesis-1.4,bdtoutput,evweight);
-                bdt_grad_3 = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
-                if (bdtoutput>=0.05){
-                    l.FillHist2D("shiftingMH_up_bdt1_bdt2_mH140_1p"  ,0,bdt_grad_1,bdt_grad_2,evweight);
-                    l.FillHist2D("shiftingMH_dn_bdt1_bdt2_mH140_1p"  ,0,bdt_grad_1,bdt_grad_3,evweight);
-                }
-
-                q_mass_hypothesis = 120.0;
-                SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,q_mass_hypothesis,bdtoutput,evweight);
-                bdt_grad_1 = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
-                SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,q_mass_hypothesis+2.4,bdtoutput,evweight);
-                bdt_grad_2 = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
-                SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,q_mass_hypothesis-2.4,bdtoutput,evweight);
-                bdt_grad_3 = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
-                if (bdtoutput>=0.05){
-                    l.FillHist2D("shiftingMH_up_bdt1_bdt2_mH120_2p"  ,0,bdt_grad_1,bdt_grad_2,evweight);
-                    l.FillHist2D("shiftingMH_dn_bdt1_bdt2_mH120_2p"  ,0,bdt_grad_1,bdt_grad_3,evweight);
-                }
-
-                q_mass_hypothesis = 140.0;
-                SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,q_mass_hypothesis,bdtoutput,evweight);
-                bdt_grad_1 = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
-                SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,q_mass_hypothesis+2.8,bdtoutput,evweight);
-                bdt_grad_2 = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
-                SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,q_mass_hypothesis-2.8,bdtoutput,evweight);
-                bdt_grad_3 = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
-                if (bdtoutput>=0.05){
-                    l.FillHist2D("shiftingMH_up_bdt1_bdt2_mH140_2p"  ,0,bdt_grad_1,bdt_grad_2,evweight);
-                    l.FillHist2D("shiftingMH_dn_bdt1_bdt2_mH140_2p"  ,0,bdt_grad_1,bdt_grad_3,evweight);
-                }
-                // ------------------------------------------------------------------------------------------------------------------------------------//
-
-                /*
-                  l.FillHist2D("bdtgrad_vs_mass"    ,histoplace,bdt_grad,mass,evweight);
-                  l.FillHist2D("bdtgrad_vs_hpt"    ,histoplace,bdt_grad,ptHiggs,evweight);
-                  l.FillHist2D("bdtgrad_vs_leadpt"  ,histoplace,bdt_grad,pt_lead,evweight);
-                  l.FillHist2D("bdtgrad_vs_subleadpt"  ,histoplace,bdt_grad,pt_sublead,evweight);
-                  l.FillHist2D("bdtgrad_vs_leadeta"  ,histoplace,bdt_grad,eta_lead,evweight);
-                  l.FillHist2D("bdtgrad_vs_subleadeta"  ,histoplace,bdt_grad,eta_sublead,evweight);
-                  l.FillHist2D("bdtgrad_vs_dphi"    ,histoplace,bdt_grad,delta_phi,evweight);
-                  l.FillHist2D("bdtgrad_vs_heta"    ,histoplace,bdt_grad,etaHiggs,evweight);
-                  l.FillHist2D("bdtgrad_vs_sigmamoverm"  ,histoplace,bdt_grad,sigmaMrv/mass,evweight);
-                  l.FillHist2D("bdtgrad_vs_leadr9"  ,histoplace,bdt_grad,lead_r9,evweight);
-                  l.FillHist2D("bdtgrad_vs_subleadr9"  ,histoplace,bdt_grad,sublead_r9,evweight);
-
-                  l.FillHist2D("bdtada_vs_mass"    ,histoplace,bdt_ada,mass,evweight);
-                  l.FillHist2D("bdtada_vs_hpt"    ,histoplace,bdt_ada,ptHiggs,evweight);
-                  l.FillHist2D("bdtada_vs_leadpt"  ,histoplace,bdt_ada,pt_lead,evweight);
-                  l.FillHist2D("bdtada_vs_subleadpt"  ,histoplace,bdt_ada,pt_sublead,evweight);
-                  l.FillHist2D("bdtada_vs_leadeta"  ,histoplace,bdt_ada,eta_lead,evweight);
-                  l.FillHist2D("bdtada_vs_subleadeta"  ,histoplace,bdt_ada,eta_sublead,evweight);
-                  l.FillHist2D("bdtada_vs_dphi"    ,histoplace,bdt_ada,delta_phi,evweight);
-                  l.FillHist2D("bdtada_vs_heta"    ,histoplace,bdt_ada,etaHiggs,evweight);
-                  l.FillHist2D("bdtada_vs_sigmamoverm"  ,histoplace,bdt_ada,sigmaMrv/mass,evweight);
-                  l.FillHist2D("bdtada_vs_leadr9"  ,histoplace,bdt_ada,lead_r9,evweight);
-                  l.FillHist2D("bdtada_vs_subleadr9"  ,histoplace,bdt_ada,sublead_r9,evweight);
-
-                  l.FillHist2D("bdtgrad_vs_mass"    ,8,bdt_grad,mass,evweight);
-                  l.FillHist2D("bdtgrad_vs_hpt"    ,8,bdt_grad,ptHiggs,evweight);
-                  l.FillHist2D("bdtgrad_vs_leadpt"  ,8,bdt_grad,pt_lead,evweight);
-                  l.FillHist2D("bdtgrad_vs_subleadpt"  ,8,bdt_grad,pt_sublead,evweight);
-                  l.FillHist2D("bdtgrad_vs_leadeta"  ,8,bdt_grad,eta_lead,evweight);
-                  l.FillHist2D("bdtgrad_vs_subleadeta"  ,8,bdt_grad,eta_sublead,evweight);
-                  l.FillHist2D("bdtgrad_vs_dphi"    ,8,bdt_grad,delta_phi,evweight);
-                  l.FillHist2D("bdtgrad_vs_heta"    ,8,bdt_grad,etaHiggs,evweight);
-                  l.FillHist2D("bdtgrad_vs_sigmamoverm"  ,8,bdt_grad,sigmaMrv/mass,evweight);
-                  l.FillHist2D("bdtgrad_vs_leadr9"  ,8,bdt_grad,lead_r9,evweight);
-                  l.FillHist2D("bdtgrad_vs_subleadr9"  ,8,bdt_grad,sublead_r9,evweight);
-
-                  l.FillHist2D("bdtada_vs_mass"    ,8,bdt_ada,mass,evweight);
-                  l.FillHist2D("bdtada_vs_hpt"    ,8,bdt_ada,ptHiggs,evweight);
-                  l.FillHist2D("bdtada_vs_leadpt"  ,8,bdt_ada,pt_lead,evweight);
-                  l.FillHist2D("bdtada_vs_subleadpt"  ,8,bdt_ada,pt_sublead,evweight);
-                  l.FillHist2D("bdtada_vs_leadeta"  ,8,bdt_ada,eta_lead,evweight);
-                  l.FillHist2D("bdtada_vs_subleadeta"  ,8,bdt_ada,eta_sublead,evweight);
-                  l.FillHist2D("bdtada_vs_dphi"    ,8,bdt_ada,delta_phi,evweight);
-                  l.FillHist2D("bdtada_vs_heta"    ,8,bdt_ada,etaHiggs,evweight);
-                  l.FillHist2D("bdtada_vs_sigmamoverm"  ,8,bdt_ada,sigmaMrv/mass,evweight);
-                  l.FillHist2D("bdtada_vs_leadr9"  ,8,bdt_ada,lead_r9,evweight);
-                  l.FillHist2D("bdtada_vs_subleadr9"  ,8,bdt_ada,sublead_r9,evweight);
-                */
+        for (double mH=mHMinimum; mH<mHMaximum; mH+=mHStep){
+            // Fill Signal Window
+            float sideband_boundaries[2];
+            sideband_boundaries[0] = mH*(1-sidebandWidth);
+            sideband_boundaries[1] = mH*(1+sidebandWidth);
+            if( mass>sideband_boundaries[0] && mass<sideband_boundaries[1]){//Signal mass window cut
+                bdt_grad =  tmvaGetVal(mass,mH,kinematic_bdtout);
+            
+                if (cur_type==0) l.rooContainer->InputBinnedDataPoint(Form("data_BDT_grad_%3.1f",mH),category,bdt_grad,evweight);
+                else if (cur_type > 0) l.rooContainer->InputBinnedDataPoint(Form("bkg_BDT_grad_%3.1f",mH) ,category,bdt_grad,evweight);
             }
-            l.FillCounter( "Accepted", weight );
-            l.FillCounter( "Smeared", evweight );
-            sumaccept += weight;
-            sumsmear += evweight;
+            
+            // Loop over N lower sidebands
+            for (int sideband_i = 1 ; sideband_i <= numberOfSidebands ; sideband_i++){
+                double hypothesisModifier = (1.-sidebandWidth)/(1+sidebandWidth);
+                double mass_hypothesis_low     = (mH*(1.-signalRegionWidth)/(1.+sidebandWidth)-sidebandShift)*(TMath::Power(hypothesisModifier,sideband_i-1));
+                double sideband_boundaries_low = mass_hypothesis_low*(1.-sidebandWidth);
+                double sideband_boundaries_high= mass_hypothesis_low*(1.+sidebandWidth);
+
+                if ( mass>sideband_boundaries_low && mass<sideband_boundaries_high){
+                   bdt_grad =  tmvaGetVal(mass,mass_hypothesis_low,kinematic_bdtout);
+                   if (cur_type==0) l.rooContainer->InputBinnedDataPoint(Form("data_%dlow_BDT_grad_%3.1f",sideband_i,mH) ,category,bdt_grad,evweight);
+                   else if (cur_type > 0) l.rooContainer->InputBinnedDataPoint(Form("bkg_%dlow_BDT_grad_%3.1f",sideband_i,mH) ,category,bdt_grad,evweight);
+
+                }
+            }
+            // Loop over N higher sidebands
+            for (int sideband_i = 1 ; sideband_i <= numberOfSidebands ; sideband_i++){
+                double hypothesisModifier = (1.+sidebandWidth)/(1-sidebandWidth);
+                double mass_hypothesis_high     = (mH*(1.+signalRegionWidth)/(1.-sidebandWidth)+sidebandShift)*(TMath::Power(hypothesisModifier,sideband_i-1));
+                double sideband_boundaries_low = mass_hypothesis_high*(1.-sidebandWidth);
+                double sideband_boundaries_high= mass_hypothesis_high*(1.+sidebandWidth);
+
+                if ( mass>sideband_boundaries_low && mass<sideband_boundaries_high){
+                   bdt_grad =  tmvaGetVal(mass,mass_hypothesis_high,kinematic_bdtout);
+                   if (cur_type==0) l.rooContainer->InputBinnedDataPoint(Form("data_%dhigh_BDT_grad_%3.1f",sideband_i,mH) ,category,bdt_grad,evweight);
+                   else if (cur_type > 0) l.rooContainer->InputBinnedDataPoint(Form("bkg_%dhigh_BDT_grad_%3.1f",sideband_i,mH) ,category,bdt_grad,evweight);
+
+                }
+            }
 
         }
     }
-    if(PADEBUG) 
-        cout<<"myFillHistRed END"<<endl;
-
-
-    // Now do some MC Systematic studies - For MVA Analysis, assume that we only care about Signal Systematics Here, ie make the check cur_type < 0 to increase speed
-    // --------------------------------------------------------------------------------------------------------------------------------------------------------------
-    if( cur_type < 0 && doMCSmearing && !doTraining && !makeTrees){
+    }
+    // Systematics uncertaities for the binned model
+    // We re-analyse the event several times for different values of corrections and smearings
+    if( cur_type < 0 && doMCSmearing && doSystematics && !doTraining && !makeTrees) { 
+        
         // fill steps for syst uncertainty study
         float systStep = systRange / (float)nSystSteps;
-        // di-photon smearers systematics (These frst smeaers will not effect the selection so can reuse the diphoton_id)
+	
+	    float syst_mass, syst_weight, syst_kinematic_bdtout;
+	    int syst_category;
+ 	    std::vector<double> bdt_errors;
+	    std::vector<double> weights;
+	    std::vector<int>    categories;
+
+        // define hypothesis masses for the sidebands
+        float mass_hypothesis = masses[SignalType(cur_type)];
+        // define the sidebands
+        float sideband_boundaries[2];
+        sideband_boundaries[0] = mass_hypothesis*(1-sidebandWidth);
+        sideband_boundaries[1] = mass_hypothesis*(1+sidebandWidth);
+	
         if (diphoton_id > -1 ) {
+     
+	    // gen-level systematics, i.e. ggH k-factor for the moment
+        for(std::vector<BaseGenLevelSmearer*>::iterator si=systGenLevelSmearers_.begin(); si!=systGenLevelSmearers_.end(); si++){
+		bdt_errors.clear(), weights.clear(), categories.clear();
+		
+           for(float syst_shift=-systRange; syst_shift<=systRange; syst_shift+=systStep ) { 
+            if( syst_shift == 0. ) { continue; } // skip the central value
+		    syst_mass     =  0., syst_category = -1, syst_weight   =  0.;
+		    
+		    // re-analyse the event without redoing the event selection as we use nominal values for the single photon
+		    // corrections and smearings
+		    AnalyseEvent(l, jentry, weight, gP4, syst_mass,  syst_weight, syst_category, diphoton_id, isCorrectVertex, syst_kinematic_bdtout, true, syst_shift, true, *si, 0, 0 );
+		    		    
 
-            float lead_r9    = l.pho_r9[l.dipho_leadind[diphoton_id]];
-            float sublead_r9 = l.pho_r9[l.dipho_subleadind[diphoton_id]];
-            TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphoton_id], l.dipho_vtxind[diphoton_id], &smeared_pho_energy[0]);
-            TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphoton_id], l.dipho_vtxind[diphoton_id], &smeared_pho_energy[0]);
-            TVector3 * vtx = (TVector3*)l.vtx_std_xyz->At(l.dipho_vtxind[diphoton_id]);
+            // Signal Window cut
+            if( mass>sideband_boundaries[0] && mass<sideband_boundaries[1]){
+               double syst_bdt_grad = tmvaGetVal(syst_mass,mass_hypothesis,syst_kinematic_bdtout);
+		       categories.push_back(syst_category);
+		       bdt_errors.push_back(syst_bdt_grad);
+               weights.push_back(syst_weight);
+            } else {
+		       categories.push_back(-1);
+		       bdt_errors.push_back(-100);
+               weights.push_back(0);
+            }
+		   }
 
-            for(std::vector<BaseGenLevelSmearer*>::iterator si=systGenLevelSmearers_.begin(); si!=systGenLevelSmearers_.end(); si++){
-                std::vector<double> bdt_grad_errors;
-                std::vector<double> bdt_ada_errors;
-                std::vector<double> vbf_values;
-                std::vector<double> weights;
-                std::vector<int>    categories;
-
-                for(float syst_shift=-systRange; syst_shift<=systRange; syst_shift+=systStep ) { 
-                    if( syst_shift == 0. ) { continue; } // skip the central value
-                    TLorentzVector Higgs = lead_p4 + sublead_p4;   
-
-                    int category = 0;  // Category always 0 fro MVA analysis
-                    double genLevWeightSyst=1; 
-
-                    for(std::vector<BaseGenLevelSmearer *>::iterator sj=genLevelSmearers_.begin(); sj!= genLevelSmearers_.end(); ++sj ) {
-                        float swei=1.;
-                        if( *si == *sj ) { 
-                            (*si)->smearEvent(swei, gP4, l.pu_n, cur_type, syst_shift );
-                        } else {
-                            (*sj)->smearEvent(swei, gP4, l.pu_n, cur_type, 0. );
-                        }
-                        genLevWeightSyst *= swei;
-                    }
-
-                    float evweight = weight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second] * genLevWeightSyst;
-                    float mass = Higgs.M();
-                    float ptHiggs = Higgs.Pt();
-
-                    // Mass Resolution of the Event
-                    //massResolutionCalculator->Setup(l,&lead_p4,&sublead_p4,diphoton_index.first,diphoton_index.second,diphoton_id,ptHiggs,mass,eSmearPars,nR9Categories,nEtaCategories);
-                    massResolutionCalculator->Setup(l,&photonInfoCollection[diphoton_index.first],&photonInfoCollection[diphoton_index.second],diphoton_id,eSmearPars,nR9Categories,nEtaCategories);
-                    //massResolutionCalculator->setSphericalLeadPhoton(l.CheckSphericalPhoton(diphoton_index.first));
-                    //massResolutionCalculator->setSphericalSubleadPhoton(l.CheckSphericalPhoton(diphoton_index.second));
-
-                    double massResolution = massResolutionCalculator->massResolutionCorrVtx();
-                    double vtx_mva = l.vtx_std_evt_mva->at(diphoton_id);
-                    float sigmaMrv = massResolutionCalculator->massResolutionEonly();
-                    float sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
-                    float sigmaMeonly = massResolutionCalculator->massResolutionEonly();
-                    float vtxProb = 1.-0.49*(vtx_mva+1.0);
-
-                    float bdtoutput;
-                    if (bdtTrainingPhilosophy=="MIT"){
-                        bdtoutput = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMeonly,"MIT");
-                        if (bdtoutput < 0.05 ) category = -1;
-                    } 
-                    else if (bdtTrainingPhilosophy=="UCSD"){
-                        bdtoutput = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMeonly,"UCSD");
-                    }
-
-                    // define hypothesis masses for the sidebands
-                    float mass_hypothesis = masses[SignalType(cur_type)];
-                    // define the sidebands
-                    float sideband_boundaries[2];
-                    sideband_boundaries[0] = mass_hypothesis*(1-sidebandWidth);
-                    sideband_boundaries[1] = mass_hypothesis*(1+sidebandWidth);
-
-                    //Signal Window
-                    if( mass>sideband_boundaries[0] && mass<sideband_boundaries[1]){//Signal mass window cut
-                        SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,mass_hypothesis,bdtoutput,evweight);
-                        float bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada_123" );
-                        float bdt_grad = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
-
-                        categories.push_back(category);
-                        if (VBFevent){
-                            bdt_ada_errors.push_back(-100);
-                            bdt_grad_errors.push_back(-100);    
-                            vbf_values.push_back(1.5);
-                        } else {
-                            bdt_ada_errors.push_back(bdt_ada);
-                            bdt_grad_errors.push_back(bdt_grad);
-                            vbf_values.push_back(-100);
-                        }
-                        weights.push_back(evweight);
-
-                    } else {
-                        categories.push_back(-1);
-                        bdt_ada_errors.push_back(-100.);
-                        bdt_grad_errors.push_back(-100.);
-                        vbf_values.push_back(-100);
-                        weights.push_back(0.);
-                    }
-
-                }// end loop on systematics steps
-                // Fill In the Corect Systematic Set ---------------------------------------------------------------------------//
-                if (includeVBF) l.rooContainer->InputSystematicSet("sig_VBF_"+currentTypeSignalLabel,(*si)->name(),categories,vbf_values,weights);
-                l.rooContainer->InputSystematicSet("sig_BDT_ada_"+currentTypeSignalLabel,(*si)->name(),categories,bdt_ada_errors,weights);
-                l.rooContainer->InputSystematicSet("sig_BDT_grad_"+currentTypeSignalLabel,(*si)->name(),categories,bdt_grad_errors,weights);
-                // -------------------------------------------------------------------------------------------------------------//
-
-            } // end loop on smearers 
-
-
-            for(std::vector<BaseDiPhotonSmearer *>::iterator si=systDiPhotonSmearers_.begin(); si!= systDiPhotonSmearers_.end(); ++si ) {
-                std::vector<double> bdt_grad_errors;
-                std::vector<double> bdt_ada_errors;
-                std::vector<double> vbf_values;
-                std::vector<double> weights;
-                std::vector<int> categories;
-
-                for(float syst_shift=-systRange; syst_shift<=systRange; syst_shift+=systStep ) { 
-                    if( syst_shift == 0. ) { continue; } // skip the central value
-                    TLorentzVector Higgs = lead_p4 + sublead_p4;   
-
-                    // restart with 'fresh' wait for this round of systematics
-                    float evweight = weight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second] * genLevWeight;
-
-                    // FIXME pass smeared R9 and di-photon
-                    int category = 0; 
-                    int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,0);
-
-                    float photon_idMVA1=l.photonIDMVA(diphoton_index.first,l.dipho_vtxind[diphoton_id],lead_p4,"MIT");
-                    float photon_idMVA2=l.photonIDMVA(diphoton_index.second,l.dipho_vtxind[diphoton_id],sublead_p4,"MIT");
-
-                    for(std::vector<BaseDiPhotonSmearer *>::iterator sj=diPhotonSmearers_.begin(); sj!= diPhotonSmearers_.end(); ++sj ) {
-                        float swei=1.;
-                        float pth = Higgs.Pt();
-                        if( *si == *sj ) { 
-                            (*si)->smearDiPhoton( Higgs, *vtx, swei, selectioncategory, cur_type, *((TVector3*)l.gv_pos->At(0)), photon_idMVA1,photon_idMVA2,syst_shift);
-                        } else { 
-                            (*sj)->smearDiPhoton( Higgs, *vtx, swei, selectioncategory, cur_type, *((TVector3*)l.gv_pos->At(0)) ,photon_idMVA1,photon_idMVA2,0.);
-                        }
-                        evweight *= swei;
-                    }
-                    float mass = Higgs.M();
-                    float ptHiggs = Higgs.Pt();
-                    // Mass Resolution of the Event
-                    //massResolutionCalculator->Setup(l,&lead_p4,&sublead_p4,diphoton_index.first,diphoton_index.second,diphoton_id,ptHiggs,mass,eSmearPars,nR9Categories,nEtaCategories);
-                    massResolutionCalculator->Setup(l,&photonInfoCollection[diphoton_index.first],&photonInfoCollection[diphoton_index.second],diphoton_id,eSmearPars,nR9Categories,nEtaCategories);
-                    //massResolutionCalculator->setSphericalLeadPhoton(l.CheckSphericalPhoton(diphoton_index.first));
-                    //massResolutionCalculator->setSphericalSubleadPhoton(l.CheckSphericalPhoton(diphoton_index.second));
-
-                    double massResolution = massResolutionCalculator->massResolutionCorrVtx();
-                    double vtx_mva = l.vtx_std_evt_mva->at(diphoton_id);
-                    float sigmaMrv = massResolutionCalculator->massResolutionEonly();
-                    float sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
-                    float sigmaMeonly = massResolutionCalculator->massResolutionEonly();
-                    float vtxProb = 1.-0.49*(vtx_mva+1.0);
-
-                    float bdtoutput;
-                    if (bdtTrainingPhilosophy=="MIT"){
-                        bdtoutput = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMeonly,"MIT",photon_idMVA1,photon_idMVA2);
-                        if (bdtoutput < 0.05) category = -1;
-                    } 
-                    else if (bdtTrainingPhilosophy=="UCSD"){
-                        bdtoutput = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMeonly,"UCSD");
-                    }
-
-                    // define hypothesis masses for the sidebands
-                    float mass_hypothesis = masses[SignalType(cur_type)];
-                    // define the sidebands
-                    float sideband_boundaries[2];
-                    sideband_boundaries[0] = mass_hypothesis*(1-sidebandWidth);
-                    sideband_boundaries[1] = mass_hypothesis*(1+sidebandWidth);
-
-                    //Signal Window
-                    if( mass>sideband_boundaries[0] && mass<sideband_boundaries[1]){//Signal mass window cut
-                        SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,mass_hypothesis,bdtoutput,evweight);
-                        float bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada_123" );
-                        float bdt_grad = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
-
-                        categories.push_back(category);
-                        if (VBFevent){
-                            bdt_ada_errors.push_back(-100);
-                            bdt_grad_errors.push_back(-100);    
-                            vbf_values.push_back(1.5);
-                        } else {
-                            bdt_ada_errors.push_back(bdt_ada);
-                            bdt_grad_errors.push_back(bdt_grad);
-                            vbf_values.push_back(-100);
-                        }
-                        weights.push_back(evweight);
-
-                    } else {
-                        categories.push_back(-1);
-                        bdt_ada_errors.push_back(-100.);
-                        bdt_grad_errors.push_back(-100.);
-                        vbf_values.push_back(-100);
-                        weights.push_back(0.);
-                    }
-                }// end loop on systematics steps
-
-                // Fill In the Corect Systematic Set ---------------------------------------------------------------------------//
-                if (includeVBF)  l.rooContainer->InputSystematicSet("sig_VBF_" +currentTypeSignalLabel,(*si)->name(),categories,vbf_values,weights);
-                l.rooContainer->InputSystematicSet("sig_BDT_ada_" +currentTypeSignalLabel,(*si)->name(),categories,bdt_ada_errors,weights);
-                l.rooContainer->InputSystematicSet("sig_BDT_grad_"+currentTypeSignalLabel,(*si)->name(),categories,bdt_grad_errors,weights);
-                // -------------------------------------------------------------------------------------------------------------//
-
-            } // end loop on smearers 
-
-        } // Close If on CiC Selection
-
-        // -------------------------------------------------------------------------------------------------------------------------------------//
-        // Now the systematic Steps which can effect the CiC Selection -------------------------------------------------------------------------//
-
-        // loop over the smearers included in the systematics study
-        for(std::vector<BaseSmearer *>::iterator  si=systPhotonSmearers_.begin(); si!= systPhotonSmearers_.end(); ++si ) {
-            std::vector<double> bdt_grad_errors;
-            std::vector<double> bdt_ada_errors;
-            std::vector<double> vbf_values;
-            std::vector<double> weights;
-            std::vector<int> categories;
-
-            // loop over syst shift
-            for(float syst_shift=-systRange; syst_shift<=systRange; syst_shift+=systStep ) { 
-                if( syst_shift == 0. ) { continue; } // skip the central value
-                // smear the photons 
-                photonInfoCollection.clear();
-                for(int ipho=0; ipho<l.pho_n; ++ipho ) { 
-                    std::vector<std::vector<bool> > p;
-                    PhotonReducedInfo phoInfo (/// *((TVector3*)l.pho_calopos->At(ipho)), 
-                                               *((TVector3*)l.sc_xyz->At(l.pho_scind[ipho])), 
-                                               ((TLorentzVector*)l.pho_p4->At(ipho))->Energy(), 
-                                               energyCorrected[ipho],
-                                               l.pho_isEB[ipho], l.pho_r9[ipho],
-                                               l.PhotonCiCSelectionLevel(ipho,l.vtx_std_sel,p,nPhotonCategories_),
-                                               (energyCorrectedError!=0?energyCorrectedError[ipho]:0)
-                                               );
-                    if (l.CheckSphericalPhoton(ipho)) phoInfo.setSphericalPhoton(true);
-
-                    float pweight = 1.;
-                    for(std::vector<BaseSmearer *>::iterator  sj=photonSmearers_.begin(); sj!= photonSmearers_.end(); ++sj ) {
-                        float sweight = 1.;
-                        if( *si == *sj ) {
-                            // move the smearer under study by syst_shift
-                            (*si)->smearPhoton(phoInfo,sweight,l.run,syst_shift);
-                        } else {
-                            // for the other use the nominal points
-                            (*sj)->smearPhoton(phoInfo,sweight,l.run,0.);
-                        }
-                        pweight *= sweight;
-                    }
-                    smeared_pho_energy[ipho] = phoInfo.energy();
-                    smeared_pho_r9[ipho] = phoInfo.r9();
-                    smeared_pho_weight[ipho] = pweight;
-                    photonInfoCollection.push_back(phoInfo);
-                }
-
-                // analyze the event
-                // FIXME pass smeared R9
-                //    int diphoton_id = l.DiphotonCiCSelection(l.phoLOOSE, l.phoLOOSE, leadEtCut, subleadEtCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
-                // VBF-TAGGING -------------------------------------------------------------------------- //
-                VBFevent = false;
-
-                int diphoton_id=-1;
-
-                if(includeVBF) {
-                    int diphoton_id_vbf = l.DiphotonMITPreSelection(leadEtCutVBF,subleadEtCut,applyPtoverM, &smeared_pho_energy[0] ); 
-                    if (diphoton_id_vbf >-1){
-                        // JET MET Corrections // No need to reset the pointers again, so no need to RescaleJetEnergy a second time
-                        diphoton_index = std::make_pair( l.dipho_leadind[diphoton_id_vbf],  l.dipho_subleadind[diphoton_id_vbf] );
-
-                        TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphoton_id_vbf], l.dipho_vtxind[diphoton_id_vbf], &smeared_pho_energy[0]);
-                        TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphoton_id_vbf], l.dipho_vtxind[diphoton_id_vbf], &smeared_pho_energy[0]);
-                        float lead_r9    = l.pho_r9[l.dipho_leadind[diphoton_id_vbf]];
-                        float sublead_r9 = l.pho_r9[l.dipho_subleadind[diphoton_id_vbf]];
-                        TLorentzVector Higgs = lead_p4 + sublead_p4;   
-
-                        float jet1ptcut =0.0;
-                        float jet2ptcut =0.0;
-                        bool crosscheck = false;
-                        std::pair<int,int> highestPtJets(-1,-1);
-
-                        highestPtJets = l.Select2HighestPtJets(lead_p4, sublead_p4, jet1ptcut, jet2ptcut );
-                        bool VBFpresel = (highestPtJets.first!=-1)&&(highestPtJets.second!=-1);
-
-                        if(VBFpresel){
-
-                            TLorentzVector* jet1 = (TLorentzVector*)l.jet_algoPF1_p4->At(highestPtJets.first);
-                            TLorentzVector* jet2 = (TLorentzVector*)l.jet_algoPF1_p4->At(highestPtJets.second);
-                            TLorentzVector dijet = (*jet1) + (*jet2);
-
-                            myVBFLeadJPt = jet1->Pt();
-                            myVBFSubJPt = jet2->Pt();
-                            myVBF_Mjj = dijet.M();
-                            myVBFdEta = fabs(jet1->Eta() - jet2->Eta());
-                            myVBFZep  = fabs(Higgs.Eta() - 0.5*(jet1->Eta() + jet2->Eta()));
-                            myVBFdPhi = fabs(Higgs.DeltaPhi(dijet));
-                            myVBF_Mgg =Higgs.M();
-
-
-                            // Cannot Get Apply cuts to work -> Need to discuss with C.Palmer, for now, jyst apply the cuts
-                            //l.ApplyCutsFill(0,3,evweight, myweight);
-                            //VBFevent = l.ApplyCutsFill(0,5,evweight, myweight);
-                            //VBFevent = l.ApplyCutsFill(0,1,evweight, myweight);
-                            VBFevent = l.ApplyCuts(0,1);
-                            if(VBFevent) diphoton_id = diphoton_id_vbf;
-
-                        }
-                    }
-                }
-                // CP // NW VBF Tagging
-                // --------------------- END VBF-TAGGING --------------------------------------------------------//
-                if (diphoton_id < 0){ // failed to find a VBF 
-                    if (bdtTrainingPhilosophy=="MIT"){
-                        diphoton_id = l.DiphotonMITPreSelection(leadEtCut,subleadEtCut,applyPtoverM, &smeared_pho_energy[0] ); 
-                    } else if (bdtTrainingPhilosophy=="UCSD"){
-                        diphoton_id = l.DiphotonCiCSelection(l.phoLOOSE, l.phoLOOSE, leadEtCut, subleadEtCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
-                    }
-                }
-
-                if (diphoton_id > -1 ) {
-
-                    diphoton_index = std::make_pair( l.dipho_leadind[diphoton_id],  l.dipho_subleadind[diphoton_id] );
-                    float evweight = weight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second] *genLevWeight;
-
-                    float lead_r9    = l.pho_r9[l.dipho_leadind[diphoton_id]];
-                    float sublead_r9 = l.pho_r9[l.dipho_subleadind[diphoton_id]];
-                    TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphoton_id], l.dipho_vtxind[diphoton_id], &smeared_pho_energy[0]);
-                    TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphoton_id], l.dipho_vtxind[diphoton_id], &smeared_pho_energy[0]);
-                    TVector3 * vtx = (TVector3*)l.vtx_std_xyz->At(l.dipho_vtxind[diphoton_id]);
-                    TLorentzVector Higgs = lead_p4 + sublead_p4;   
-
-                    int category = 0; 
-                    int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,0);
-                    if( cur_type != 0 && doMCSmearing ) {
-                        for(std::vector<BaseDiPhotonSmearer *>::iterator si=diPhotonSmearers_.begin(); si!= diPhotonSmearers_.end(); ++si ) {
-                            float rewei=1.;
-                            float pth = Higgs.Pt();
-                            (*si)->smearDiPhoton( Higgs, *vtx, rewei, selectioncategory, cur_type, *((TVector3*)l.gv_pos->At(0)), zero_ ,zero_,0.);
-                            evweight *= rewei;
-                        }
-                    }
-                    float mass = Higgs.M();
-
-                    float ptHiggs = Higgs.Pt();
-                    // Mass Resolution of the Event
-                    //massResolutionCalculator->Setup(l,&lead_p4,&sublead_p4,diphoton_index.first,diphoton_index.second,diphoton_id,ptHiggs,mass,eSmearPars,nR9Categories,nEtaCategories);
-                    massResolutionCalculator->Setup(l,&photonInfoCollection[diphoton_index.first],&photonInfoCollection[diphoton_index.second],diphoton_id,eSmearPars,nR9Categories,nEtaCategories);
-                    //massResolutionCalculator->setSphericalLeadPhoton(l.CheckSphericalPhoton(diphoton_index.first));
-                    //massResolutionCalculator->setSphericalSubleadPhoton(l.CheckSphericalPhoton(diphoton_index.second));
-
-                    double massResolution = massResolutionCalculator->massResolutionCorrVtx();
-                    double vtx_mva = l.vtx_std_evt_mva->at(diphoton_id);
-                    float sigmaMrv = massResolutionCalculator->massResolutionEonly();
-                    float sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
-                    float sigmaMeonly = massResolutionCalculator->massResolutionEonly();
-                    float vtxProb = 1.-0.49*(vtx_mva+1.0);
-
-                    float bdtoutput;
-                    if (bdtTrainingPhilosophy=="MIT"){
-                        bdtoutput = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMeonly,"MIT");
-                        if (bdtoutput < 0.05) category = -1;  // Remove the VBF tagged events
-                    } 
-                    else if (bdtTrainingPhilosophy=="UCSD"){
-                        bdtoutput = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMeonly,"UCSD");
-                    }
-
-                    // define hypothesis masses for the sidebands
-                    float mass_hypothesis = masses[SignalType(cur_type)];
-                    // define the sidebands
-                    float sideband_boundaries[2];
-                    sideband_boundaries[0] = mass_hypothesis*(1-sidebandWidth);
-                    sideband_boundaries[1] = mass_hypothesis*(1+sidebandWidth);
-
-                    //Signal Window
-                    if( mass>sideband_boundaries[0] && mass<sideband_boundaries[1]){//Signal mass window cut
-                        SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,mass_hypothesis,bdtoutput,evweight);
-                        float bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada_123" );
-                        float bdt_grad = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
-
-                        categories.push_back(category);
-                        if (VBFevent){
-                            bdt_ada_errors.push_back(-100);
-                            bdt_grad_errors.push_back(-100);
-                            vbf_values.push_back(1.5);
-                        } else {
-                            bdt_ada_errors.push_back(bdt_ada);
-                            bdt_grad_errors.push_back(bdt_grad);
-                            vbf_values.push_back(-100.);
-                        }
-                        weights.push_back(evweight);
-
-                    } else {
-
-                        categories.push_back(-1);
-                        bdt_ada_errors.push_back(-100.);
-                        bdt_grad_errors.push_back(-100.);
-                        vbf_values.push_back(-100.);
-                        weights.push_back(0.);
-                    }
-
-                } else { // In case CiC selection fails now
-                    categories.push_back(-1);
-                    bdt_ada_errors.push_back(-100.);
-                    bdt_grad_errors.push_back(-100.);
-                    vbf_values.push_back(-100.);
-                    weights.push_back(0.);
-                }
-
-            }// end loop on systematics steps
-
-            // Fill In the Corect Systematic Set ---------------------------------------------------------------------------//
-            if (includeVBF) l.rooContainer->InputSystematicSet("sig_VBF_" +currentTypeSignalLabel,(*si)->name(),categories,vbf_values,weights);
-            l.rooContainer->InputSystematicSet("sig_BDT_ada_" +currentTypeSignalLabel,(*si)->name(),categories,bdt_ada_errors,weights);
-            l.rooContainer->InputSystematicSet("sig_BDT_grad_"+currentTypeSignalLabel,(*si)->name(),categories,bdt_grad_errors,weights);
-            // -------------------------------------------------------------------------------------------------------------//
-
-        } // Close on Smearers
-    } // End Signal Systematic Study 
-    // --------------------------------------------------------------------------------------------------------------------------------------------------------------
+		    l.rooContainer->InputSystematicSet("sig_BDT_grad_"+currentTypeSignalLabel,(*si)->name(),categories,bdt_errors,weights);
+	    }
+	    
+	    // di-photon systematics: vertex efficiency and trigger 
+	    for(std::vector<BaseDiPhotonSmearer *>::iterator si=systDiPhotonSmearers_.begin(); si!= systDiPhotonSmearers_.end(); ++si ) {
+		bdt_errors.clear(), weights.clear(), categories.clear();
+		
+           for(float syst_shift=-systRange; syst_shift<=systRange; syst_shift+=systStep ) { 
+            if( syst_shift == 0. ) { continue; } // skip the central value
+		    syst_mass     =  0., syst_category = -1, syst_weight   =  0.;
+		    
+		    // re-analyse the event without redoing the event selection as we use nominal values for the single photon
+		    // corrections and smearings
+		    AnalyseEvent(l,jentry, weight, gP4, syst_mass,  syst_weight, syst_category, diphoton_id, isCorrectVertex, syst_kinematic_bdtout, true, syst_shift, true,  0, 0, *si );
+            // Signal Window cut
+            if( syst_mass>sideband_boundaries[0] && syst_mass<sideband_boundaries[1]){
+               double syst_bdt_grad = tmvaGetVal(syst_mass,mass_hypothesis,syst_kinematic_bdtout);
+		       categories.push_back(syst_category);
+		       bdt_errors.push_back(syst_bdt_grad);
+               weights.push_back(syst_weight);
+            } else {
+		       categories.push_back(-1);
+		       bdt_errors.push_back(-100);
+               weights.push_back(0);
+            }
+		    
+		   }
+		   l.rooContainer->InputSystematicSet("sig_BDT_grad_"+currentTypeSignalLabel,(*si)->name(),categories,bdt_errors,weights);
+	    }
+	}
+	
+	// single photon level systematics: several
+	for(std::vector<BaseSmearer *>::iterator  si=systPhotonSmearers_.begin(); si!= systPhotonSmearers_.end(); ++si ) {
+	    bdt_errors.clear(), weights.clear(), categories.clear();
+	    
+	   for(float syst_shift=-systRange; syst_shift<=systRange; syst_shift+=systStep ) { 
+		if( syst_shift == 0. ) { continue; } // skip the central value
+		syst_mass     =  0., syst_category = -1, syst_weight   =  0.; syst_kinematic_bdtout=0.;
+		
+		// re-analyse the event redoing the event selection this time
+		AnalyseEvent(l,jentry, weight, gP4, syst_mass,  syst_weight, syst_category, diphoton_id, isCorrectVertex,syst_kinematic_bdtout, true, syst_shift, false,  0, *si, 0 );
+		
+        // Signal Window cut
+        if( syst_mass>sideband_boundaries[0] && syst_mass<sideband_boundaries[1]){
+           double syst_bdt_grad = tmvaGetVal(syst_mass,mass_hypothesis,syst_kinematic_bdtout);
+           categories.push_back(syst_category);
+           bdt_errors.push_back(syst_bdt_grad);
+           weights.push_back(syst_weight);
+        } else {
+           categories.push_back(-1);
+           bdt_errors.push_back(-100);
+           weights.push_back(0);
+        }
+	   }
+	   l.rooContainer->InputSystematicSet("sig_BDT_grad_"+currentTypeSignalLabel,(*si)->name(),categories,bdt_errors,weights);
+	}
+    }
+    if(PADEBUG) 
+        cout<<"myFillHistRed END"<<endl;
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -2593,6 +1027,30 @@ void MvaAnalysis::SetBDTInputTree(TTree *tree){
     TBranch *b_bdtoutput            = tree->Branch("bdtoutput", &_bdtoutput, "bdtoutput/F");
 }
 
+void MvaAnalysis::ResetAnalysis(){
+    // Reset Random Variable on the EnergyResolution Smearer
+    eResolSmearer->resetRandom();
+}
+
+float MvaAnalysis::tmvaGetVal(double mass, double mass_hypothesis, float kinematic_bdt){
+
+    _deltaMOverM = (mass-mass_hypothesis)/mass_hypothesis;
+    _bdtoutput = kinematic_bdt;
+    return tmvaReader_->EvaluateMVA( "BDT_grad_123" );
+
+}
+int MvaAnalysis::GetBDTBoundaryCategory(float bdtout, bool isEB, bool VBFevent){
+
+    if (VBFevent) {
+        if (bdtout >= 0.05) return 1;
+        return -1;
+    } else {
+        if (bdtout >= 0.05) return 0;
+        return -1;
+    }
+}
+
+
 void MvaAnalysis::SetTree(TTree *tree){
     treeFile_->cd();
     TBranch *b_mgg      = tree->Branch("CMS_hgg_mass",&_mgg,"CMS_hgg_mass/F");
@@ -2602,12 +1060,6 @@ void MvaAnalysis::SetTree(TTree *tree){
     TBranch *b_cat      = tree->Branch("category",&_cat,"category/I");
     TBranch *b_cur_type = tree->Branch("cur_type",&_cur_type,"cur_type/I");
 }
-
-void MvaAnalysis::ResetAnalysis(){
-    // Reset Random Variable on the EnergyResolution Smearer
-    eResolSmearer->resetRandom();
-}
-
 
 // Local Variables:
 // mode: c++
