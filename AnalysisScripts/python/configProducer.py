@@ -408,7 +408,12 @@ class configProducer:
       val = self.expand_file(val)
       t = type( struct.__getattribute__(name) )
       struct.__setattr__(name, t(val) )
-      print "%s.%s = %s" % ( struct.__name__, name, str(val) )
+
+      nameofstructure=""
+      try: nameofstructure=struct.__name__
+      except AttributeError :nameofstructure="LoopAll"
+
+      print "%s.%s = %s" % ( nameofstructure, name, str(val) )
       return
 
     # otherwise it is complex structure

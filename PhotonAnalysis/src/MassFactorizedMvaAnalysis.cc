@@ -578,6 +578,7 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
     } else {
         l.runCiC = true;
     }
+    if (l.runZeeValidation) l.runCiC=true;
 
     // -----------------------------------------------------------------------------------------------
 

@@ -562,6 +562,8 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     } else {
         l.runCiC = true;
     } 
+    if (l.runZeeValidation) l.runCiC=true;
+
     if( l.rho == 0. && forcedRho < 0. ) {
 	l.rho = l.rho_algo1;
     }
@@ -617,7 +619,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     float mass, evweight;
     int diphoton_id, category;
     bool isCorrectVertex;
-    if( AnalyseEvent(l,jentry, weight, gP4, mass,  evweight, category, diphoton_id, isCorrectVertex) ) {
+    if( AnalyseEvent(l,jentry, weight, gP4, mass,  evweight, category, diphoton_id, isCorrectVertex,zero_) ) {
 	// feed the event to the RooContainer 
         if (cur_type == 0 ){
             l.rooContainer->InputDataPoint("data_mass",category,mass);
@@ -657,7 +659,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		    
 		    // re-analyse the event without redoing the event selection as we use nominal values for the single photon
 		    // corrections and smearings
-		    AnalyseEvent(l, jentry, weight, gP4, syst_mass,  syst_weight, syst_category, diphoton_id, isCorrectVertex,
+		    AnalyseEvent(l, jentry, weight, gP4, syst_mass,  syst_weight, syst_category, diphoton_id, isCorrectVertex,zero_,
 				 true, syst_shift, true, *si, 0, 0 );
 		    		    
 		    categories.push_back(syst_category);
@@ -680,7 +682,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		    
 		    // re-analyse the event without redoing the event selection as we use nominal values for the single photon
 		    // corrections and smearings
-		    AnalyseEvent(l,jentry, weight, gP4, syst_mass,  syst_weight, syst_category, diphoton_id, isCorrectVertex,
+		    AnalyseEvent(l,jentry, weight, gP4, syst_mass,  syst_weight, syst_category, diphoton_id, isCorrectVertex,zero_,
 				 true, syst_shift, true,  0, 0, *si );
 		    
 		    categories.push_back(syst_category);
@@ -703,7 +705,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		syst_mass     =  0., syst_category = -1, syst_weight   =  0.;
 		
 		// re-analyse the event redoing the event selection this time
-		AnalyseEvent(l,jentry, weight, gP4, syst_mass,  syst_weight, syst_category, diphoton_id, isCorrectVertex,
+		AnalyseEvent(l,jentry, weight, gP4, syst_mass,  syst_weight, syst_category, diphoton_id, isCorrectVertex,zero_,
 			     true, syst_shift, false,  0, *si, 0 );
 		
 		categories.push_back(syst_category);
@@ -723,8 +725,8 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
 // ----------------------------------------------------------------------------------------------------
 bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentzVector & gP4,
-				float & mass, float & evweight, int & category, int & diphoton_id, bool & isCorrectVertex,
-				bool isSyst, 
+				float & mass, float & evweight, int & category, int & diphoton_id, bool & isCorrectVertex, float &kinematic_bdtout,
+				bool isSyst,
 				float syst_shift, bool skipSelection, 
 				BaseGenLevelSmearer *genSys, BaseSmearer *phoSys, BaseDiPhotonSmearer * diPhoSys) 
 {

@@ -77,9 +77,9 @@ void LoopAll::SetTypeRun(int t, const char* name) {
   outputTreeLumi->Branch("run", &run, "run/I");
   outputTreeLumi->Branch("lumis", &lumis, "lumis/I");
 
-  if (typerun==kReduce || typerun == kFillReduce ){
-	pileup  =  new TH1D("pileup", "pileup", 100, 0, 100); 
-  }
+//  if (typerun==kReduce || typerun == kFillReduce ){
+//	pileup  =  new TH1D("pileup", "pileup", 100, 0, 100); 
+//  }
 
 }
 
@@ -316,7 +316,12 @@ void LoopAll::LoopAndFillHistos(TString treename) {
       //assert(sampleContainer.size()==1);
 
       if (type!=0 && outputFile){
-	  pileup->Add((TH1D*) ((*it_file)->Get("pileup")));
+	  if (i==0) {// this is the first file and so need to clone the pileup histo
+	  	pileup = (TH1D*) ((*it_file)->Get("pileup"))->Clone();
+	  }
+	  else {	
+	  	pileup->Add((TH1D*) ((*it_file)->Get("pileup")));
+	  }
       } 
      
     }
@@ -390,6 +395,8 @@ LoopAll::LoopAll(TTree *tree) :
 #endif
 
   rooContainer = new RooContainer();
+  // Best Set Global parameters accesible via python to defauls
+  runZeeValidation = false;
 }
 
 // ------------------------------------------------------------------------------------

@@ -101,6 +101,7 @@ class MvaAnalysis : public MassFactorizedMvaAnalysis
  protected:
 
     float tmvaGetVal(double,double,float);
+    void fillLeeTrees(float,float,int,float,int);
 
     
     std::string name_;

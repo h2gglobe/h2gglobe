@@ -434,6 +434,12 @@ void MvaAnalysis::Init(LoopAll& l)
 
     else{
 
+        // override defaults if Zee Validation
+        if (l.runZeeValidation){
+            mHMaximum=90.0;
+            mHMinimum=90.0;
+        }
+
         l.rooContainer->AddObservable("BDT" ,-1.,1.);
 
         //Set up TMVA reader (only two variables)
@@ -534,7 +540,9 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
     } else {
         l.runCiC = true;
     }
-
+    if (l.runZeeValidation) {   
+        l.runCiC=true;
+    }
     // -----------------------------------------------------------------------------------------------
 
     //PU reweighting
@@ -628,18 +636,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
     if( AnalyseEvent(l,jentry, weight, gP4, mass,  evweight, category, diphoton_id, isCorrectVertex, kinematic_bdtout) ) {
 
     if (makeTrees){
-            // --- Info for trees ---
-            _mgg = mass;
-            _bdtoutput = kinematic_bdtout;
-            _wt = evweight;
-            if (VBFevent) _vbf=1;
-            else _vbf=0;
-            _cat = category;
-            _cur_type=cur_type;
-            //cout << Form("M: %3.2f -- B: %1.3f -- W: %1.3f -- V: %d",_mgg,_bdtoutput,_wt,_vbf) << endl;
-            if (cur_type==0) dataTree_->Fill();
-            else if (cur_type<0) sigTree_[SignalType(cur_type)]->Fill();
-            else if (cur_type>0) bkgTree_->Fill();
+            fillLeeTrees(mass,kinematic_bdtout,category,evweight,cur_type);
     }
         
     // --- Fill invariant mass spectrum -------
@@ -1060,7 +1057,19 @@ void MvaAnalysis::SetTree(TTree *tree){
     TBranch *b_cat      = tree->Branch("category",&_cat,"category/I");
     TBranch *b_cur_type = tree->Branch("cur_type",&_cur_type,"cur_type/I");
 }
-
+void MvaAnalysis::fillLeeTrees(float mass,float kinematic_bdtout,int category,float evweight,int cur_type){
+            // --- Info for trees ---
+            _mgg = mass;
+            _bdtoutput = kinematic_bdtout;
+            _wt = evweight;
+            if (category==1) _vbf=1;
+            else _vbf=0;
+            _cat = category;
+            _cur_type=cur_type;
+            if (cur_type==0) dataTree_->Fill();
+            else if (cur_type<0) sigTree_[SignalType(cur_type)]->Fill();
+            else if (cur_type>0) bkgTree_->Fill();
+}
 // Local Variables:
 // mode: c++
 // mode: sensitive

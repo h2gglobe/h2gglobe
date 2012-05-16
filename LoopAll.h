@@ -107,6 +107,9 @@ class LoopAll {
   float intlumi;
   float intlumi_;
 
+  // Zee Validaton Flag
+  bool runZeeValidation;
+
   std::vector<TTree*> Trees;
   std::vector<TTree*> LumiTrees;
   std::vector<TFile*> Files;
