@@ -1,16 +1,24 @@
 #!/usr/bin/python
 import sys, os, string
 
-if (len(sys.argv) != 2):
+if (len(sys.argv) != 2 or len(sys.argv) != 3):
     Usage = """
 Usage:
-mkanalysis AnalysisName (the Analysis suffix will be added to chosen name)
+mkanalysis AnalysisName [ParentAnslysis]
 
+Paramters:
+AnalysisName           analysis name (the suffix Analysis will be added to chosen name)
+ParentAnalysis         optional paramter to specify a different parent analysis wrt BaseAnalysis
 """
     print Usage
     sys.exit(-1)
 
 name = sys.argv[1] + "Analysis"
+if (len(sys.argv) == 3):
+    parent = sys.argv[2]
+else:
+    parent = "BaseAnalysis"
+    
 if (not os.path.exists(name)):
     os.system("mkdir -p " + name + "/interface")
     os.system("mkdir -p " + name + "/src")
@@ -35,10 +43,10 @@ text = """
 #ifndef __XXX__
 #define __XXX__
 
-#include \"BaseAnalysis.h\"
+#include \"YYY.h\"
 
 // ------------------------------------------------------------------------------------
-class XXX : public BaseAnalysis {
+class XXX : public ZZZ {
  public:
   XXX();
   virtual ~XXX();
@@ -51,6 +59,8 @@ class XXX : public BaseAnalysis {
   
   virtual void ReducedOutputTree(LoopAll &l, TTree *);
   virtual void GetBranches(TTree *, std::set<TBranch *>& );
+
+  virtual void ResetAnalysis();
   
   virtual void FillReductionVariables(LoopAll& l, int jentry);   
   virtual bool SelectEventsReduction(LoopAll&, int);
@@ -66,12 +76,17 @@ class XXX : public BaseAnalysis {
 #endif
 """
 text = text.replace("XXX", name)
+text = text.replace("ZZZ", parent)
+if (parent == "BaseAnalysis"):
+    text = text.replace("YYY", parent+".h")
+else:
+    text = text.replace("YYY", parent+"/include/"+parent+".h")
 file.write(text)
 file.close()
 
 file = open(name + "/src/" + name + ".cc", "w")
 text = """
-#include \"../interface/XXX.h\"
+#include \"XXX/interface/XXX.h\"
 
 #include <iostream>
 
@@ -144,6 +159,11 @@ bool XXX::SelectEvents(LoopAll& l, int jentry) {
 // ----------------------------------------------------------------------------------------------------
 void XXX::ReducedOutputTree(LoopAll &l, TTree * outputTree) 
 {}
+
+// ----------------------------------------------------------------------------------------------------
+void XXX::ResetAnalysis()
+{}
+
 """
 text = text.replace("XXX", name)
 file.write(text)
