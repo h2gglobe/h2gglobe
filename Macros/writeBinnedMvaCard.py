@@ -3,7 +3,9 @@ import os,numpy,sys,math,array
 ROOT.gROOT.SetStyle("Plain")
 ROOT.gROOT.SetBatch(True)
 
-ROOT.gROOT.ProcessLine(".x rootglobestyle.C")
+ROOT.gROOT.ProcessLine(".L rootglobestyle.C+")
+from ROOT import setTDRStyle
+setTDRStyle()
 ROOT.gROOT.ProcessLine(".L quadInterpolate.C+")
 from ROOT import quadInterpolate
 
