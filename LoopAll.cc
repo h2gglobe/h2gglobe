@@ -1,7 +1,6 @@
 #define LDEBUG 0 
 
 #include "LoopAll.h"
-#include "Tools.h"
 
 #include <iostream>
 #include <iterator>
@@ -11,7 +10,6 @@
 
 using namespace std;
 
-#include "GeneralFunctions_cc.h"
 #include "BaseAnalysis.h"
 
 // ------------------------------------------------------------------------------------

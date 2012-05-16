@@ -1,3 +1,4 @@
+#include "LoopAll.h"
 #include "Sorters.h"
 
 
@@ -586,44 +587,42 @@ void LoopAll::vertexAnalysis(HggVertexAnalyzer & vtxAna,  PhotonInfo pho1, Photo
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 PhotonInfo LoopAll::fillPhotonInfos(int p1, bool useAllConvs, float * energy) 
 {
-	if(LDEBUG)  cout << "  LoopAll::fillPhotonInfos with index " << p1 <<  endl;
 	
-	int iConv1 = useAllConvs ? matchPhotonToConversion(p1) : -1;
-	if(LDEBUG)  cout << " I have matched and the index is " << iConv1 << endl;
+  int iConv1 = useAllConvs ? matchPhotonToConversion(p1) : -1;
+		
+  if ( iConv1 >= 0) {
+    // conversions infos
+    return PhotonInfo(p1,
+		      // *((TVector3*)pho_calopos->At(p1)),
+		      *((TVector3*)sc_xyz->At(pho_scind[p1])),
+		      *((TVector3*) bs_xyz->At(0)),
+		      *((TVector3*) conv_vtx->At(iConv1)),
+		      conv_ntracks[iConv1] == 1 ? *((TVector3*) conv_singleleg_momentum->At(iConv1)) : *((TVector3*) conv_refitted_momentum->At(iConv1)),
+		      energy == 0 ? ((TLorentzVector*)pho_p4->At(p1))->Energy() : energy[p1],
+		      pho_isEB[p1],
+		      conv_ntracks[iConv1],
+		      conv_validvtx[iConv1],
+		      conv_chi2_probability[iConv1],
+		      conv_eoverp[iConv1]
+		      );
+  } 
+  //// else {
+  //// 	return PhotonInfo(p1,*((TVector3*)pho_calopos->At(p1)),((TLorentzVector*)pho_p4->At(p1))->Energy());
+  //// }
 	
-	if ( iConv1 >= 0) {
-		// conversions infos
-		return PhotonInfo(p1,
-				  // *((TVector3*)pho_calopos->At(p1)),
-				  *((TVector3*)sc_xyz->At(pho_scind[p1])),
-				  *((TVector3*) bs_xyz->At(0)),
-				  *((TVector3*) conv_vtx->At(iConv1)),
-                  conv_ntracks[iConv1] == 1 ? *((TVector3*) conv_singleleg_momentum->At(iConv1)) : *((TVector3*) conv_refitted_momentum->At(iConv1)),
-				  energy == 0 ? ((TLorentzVector*)pho_p4->At(p1))->Energy() : energy[p1],
-				  pho_isEB[p1],
-				  conv_ntracks[iConv1],
-				  conv_validvtx[iConv1],
-				  conv_chi2_probability[iConv1],
-				  conv_eoverp[iConv1]
-			);
-	} 
-	//// else {
-	//// 	return PhotonInfo(p1,*((TVector3*)pho_calopos->At(p1)),((TLorentzVector*)pho_p4->At(p1))->Energy());
-	//// }
-	
-	return PhotonInfo(p1, 
-			  // *((TVector3*)pho_calopos->At(p1)),                                                                                                                
-			  *((TVector3*)sc_xyz->At(pho_scind[p1])),
-			  *((TVector3*) bs_xyz->At(0)),
-			  *((TVector3*) pho_conv_vtx->At(p1)),
-			  *((TVector3*) pho_conv_refitted_momentum->At(p1)),
-			  energy == 0 ? ((TLorentzVector*)pho_p4->At(p1))->Energy() : energy[p1],
-			  pho_isEB[p1],
-			  pho_conv_ntracks[p1],
-			  pho_conv_validvtx[p1],
-			  pho_conv_chi2_probability[p1],
-			  pho_conv_eoverp[p1]                                                                                                                               
-		);
+  return PhotonInfo(p1, 
+		    // *((TVector3*)pho_calopos->At(p1)),                                                                                                                
+		    *((TVector3*)sc_xyz->At(pho_scind[p1])),
+		    *((TVector3*) bs_xyz->At(0)),
+		    *((TVector3*) pho_conv_vtx->At(p1)),
+		    *((TVector3*) pho_conv_refitted_momentum->At(p1)),
+		    energy == 0 ? ((TLorentzVector*)pho_p4->At(p1))->Energy() : energy[p1],
+		    pho_isEB[p1],
+		    pho_conv_ntracks[p1],
+		    pho_conv_validvtx[p1],
+		    pho_conv_chi2_probability[p1],
+		    pho_conv_eoverp[p1]                                                                                                                               
+		    );
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
@@ -835,7 +834,6 @@ int  LoopAll::matchPhotonToConversion( int lpho) {
   int iMatch=-1;     
   float conv_pt = -9999;
 
-  if(LDEBUG)  cout << "   LoopAll::matchPhotonToConversion conv_n " << conv_n << endl; 
   for(int iconv=0; iconv<conv_n; iconv++) {
     TVector3 refittedPairMomentum= conv_ntracks[iconv]==1 ? *((TVector3*) conv_singleleg_momentum->At(iconv)) : *((TVector3*) conv_refitted_momentum->At(iconv));
     conv_pt =  refittedPairMomentum.Pt();
@@ -877,7 +875,6 @@ int  LoopAll::matchPhotonToConversion( int lpho) {
 
   //if ( detaMin < 0.1 && dphiMin < 0.1 ) {
   if ( dRMin< 0.1 ) {
-    if(LDEBUG)    cout << " matched conversion index " << iMatch << " eta " <<conv_eta<< " phi " << conv_phi << " pt " << mconv_pt << endl; 	
     result = iMatch;
   } else {
     result = -1;
@@ -1892,7 +1889,6 @@ int LoopAll::PhotonCiCSelectionLevel( int photon_index, int vertex_index, std::v
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 Float_t LoopAll::DeltaRToTrack(Int_t photonind, Int_t vtxind, Float_t PtMin, Float_t dzmax, Float_t dxymax, int maxlosthits){
-  if(LDEBUG)std::cout << "DeltaRToTrack BEGIN" << std::endl;
   int elind = -1;
   float eldr = 99.;
   for(int iel=0;iel!=el_std_n;++iel) {
@@ -1911,7 +1907,6 @@ Float_t LoopAll::DeltaRToTrack(Int_t photonind, Int_t vtxind, Float_t PtMin, Flo
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 Float_t LoopAll::IsoEcalHitsSumEtNumCrystal( TVector3 *calopos, Float_t innerConeDR, Float_t outerConeDR, Float_t stripEtaHalfWidth, Float_t stripHalfLength) {
-  if(LDEBUG)std::cout << "IsoEcalHitsSumEtNumCrystal begin" << std::endl;
   Float_t ecalhitsSumEt=0.;
   for(int i=0; i!= ecalhit_n; ++i) {
     //if(ecalhit_type[i]==2)continue;// don't use preshower (still want this?? - crashes without it)
@@ -1935,7 +1930,6 @@ Float_t LoopAll::IsoEcalHitsSumEtNumCrystal( TVector3 *calopos, Float_t innerCon
     }
     if(fabs(rechitp4->E())>0.08 && fabs(rechitp4->Et()) > 0.)ecalhitsSumEt+=rechitp4->Et();
   }
-  if(LDEBUG)std::cout << "IsoEcalHitsSumEtNumCrystal end" << std::endl;
   return ecalhitsSumEt;
 }
 
@@ -2073,11 +2067,11 @@ bool LoopAll::CheckSphericalPhoton(int phoid) const
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 double LoopAll::DeltaPhi(double phi1, double phi2) {
   double deltaphi;
-  if(phi1<0) phi1+=TWOPI;
-  if(phi2<0) phi2+=TWOPI;
+  if(phi1<0) phi1+=2*TMath::Pi();
+  if(phi2<0) phi2+=2*TMath::Pi();
   deltaphi=fabs(phi1-phi2);
-  if(deltaphi>TWOPI) deltaphi-=TWOPI;
-  if(deltaphi>PI) deltaphi=TWOPI-deltaphi;
+  if(deltaphi>2*TMath::Pi()) deltaphi-=2*TMath::Pi();
+  if(deltaphi>TMath::Pi()) deltaphi=2*TMath::Pi()-deltaphi;
   return deltaphi;
 }
 //
