@@ -1,6 +1,16 @@
 leadEtCut=40.0
 subleadEtCut=30.0
 
+systRange=3.
+nSystSteps=1    
+
+->
+Testing Hypothesis
+->
+mHMinimum=110.0
+mHMaximum=150.0
+mHStep=0.5
+
 ->
 Options for the mass spectrum range
 ->
@@ -136,6 +146,8 @@ doR9Syst=0
 
 doKFactorSmear=1
 doKFactorSyst=1
+
+doInterferenceSmear=1
 
 mvaWeightsFolder=aux/wt_Jan16reload_v2/
 
