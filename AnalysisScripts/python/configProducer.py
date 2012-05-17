@@ -538,7 +538,7 @@ class configProducer:
 
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def read_input_files_reduce(self,line):
-    values = { "CaDir" : "","DcDir" : "", "Dir" : "", "typ" : -1, "Fil" : ""  }; 
+    values = { "CaDir" : "","DcDir" : "","EosDir":"", "Dir" : "", "typ" : -1, "Fil" : ""  }; 
     # We have one of the file def lines
     split_line = line.split()
     for sp in split_line:
@@ -550,6 +550,7 @@ class configProducer:
     directory = values["Dir"]
     cas_directory = values["CaDir"]
     dcs_directory = values["DcDir"]
+    eos_directory = values["EosDir"]
     fi_name   = values["Fil"]
     fi_type   = values["typ"]
     if fi_type != 0:
@@ -573,6 +574,12 @@ class configProducer:
 	if file_s[1]:self.conf_.files.append((file_s[0],fi_type))
 	else	    :self.conf_.files.append((None,fi_type))
 
+    if eos_directory != '':
+      eo_files = makeEosFiles(eos_directory,self.njobs_,self.jobId_)
+      for file_s in eo_files:
+	if file_s[1]:self.conf_.files.append((file_s[0],fi_type))
+	else	    :self.conf_.files.append((None,fi_type))
+
     if directory != '':
         files = makeFiles(directory,self.njobs_,self.jobId_)
         for file_s in files:
@@ -588,6 +595,7 @@ class configProducer:
     directory = ''
     cas_directory = ''
     dcs_directory = ''
+    eos_directory = ''
     fi_name   = ''
     fi_type   = -99999
     # We have one of the file def lines
@@ -602,6 +610,8 @@ class configProducer:
         cas_directory=str(val[1])
       elif val[0]== "DcDir":
         dcs_directory=str(val[1])
+      elif val[0]== "EosDir":
+        eos_directory=str(val[1])
       elif val[0] == "typ":
         fi_type = int(val[1])
         map_c["typ"] = int(val[1])
@@ -641,6 +651,9 @@ class configProducer:
     if dcs_directory != '':
         mkFiles = makeDcFiles
         dir = dcs_directory  
+    if eos_directory != '':
+        mkFiles = makeEosFiles
+        dir = eos_directory  
     if directory != '':
         mkFiles = makeFiles
         dir = directory  

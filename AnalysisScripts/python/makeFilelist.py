@@ -63,6 +63,40 @@ def makeDcFiles(dir,njobs=-1,jobid=0,nf=[0]):
 
    return return_files
 
+def unmounteos(dir):
+   
+   unmount = 'csh -c "eosumount %s "'%dir
+   sc,flist = commands.getstatusoutput(unmount) 
+   sc,flist = commands.getstatusoutput("rm -r %s"%dir) 
+   
+
+def makeEosFiles(dir,njobs=-1,jobid=0,nf=[0]):
+   eoslsprepend = "./eosfoo/cms/store/group/phys_higgs/cmshgg/" 
+   eosprepend = "root://eoscms.cern.ch//eos/cms/store/group/phys_higgs/cmshgg/" 
+
+   fc = commands.getstatusoutput('csh -c "eosmount ./eosfoo /store/cms/"') 
+   dir = str(dir)
+   return_files = []
+#   nf = 0
+   if os.path.isdir(eoslsprepend+dir): 
+      files = os.listdir(eoslsprepend+dir)
+      for f in files:
+         if '.root' in f:
+            nf[0] += 1
+            if (njobs > 0) and (nf[0] % njobs != jobid):
+               return_files.append((eosprepend+dir+'/'+f,False))
+	    else:
+               return_files.append((eosprepend+dir+'/'+f,True))
+   else: 
+	unmounteos("eosfoo")
+	sys.exit("No Such Directory as %s"%eoslsprepend+dir)  
+
+   if nf[0]==0: 
+	unmounteos("eosfoo")
+	sys.exit("No .root Files found in directory - %s"%eoslsprepend+dir)
+   
+   unmounteos("eosfoo")
+   return return_files  
 
 def makeFiles(dir,njobs=-1,jobid=0,nf=[0]):
 
