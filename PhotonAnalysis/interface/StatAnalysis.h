@@ -78,7 +78,7 @@ class StatAnalysis : public PhotonAnalysis
 
  protected:
     virtual bool AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentzVector & gP4, float & mass, float & evweight, int & category, int & diphoton_id,
-		      bool & isCorrectVertex,
+		      bool & isCorrectVertex,float &kinematic_bdtout,
 		      bool isSyst=false, 
 		      float syst_shift=0., bool skipSelection=false,
 		      BaseGenLevelSmearer *genSys=0, BaseSmearer *phoSys=0, BaseDiPhotonSmearer * diPhoSys=0); 
