@@ -8,12 +8,12 @@ fi
 
 echo "---------------------------------------"
 
-echo "Read files"
+echo -n "Read files "
 for f in $@; do 
     ## echo "Job $f read "$(grep opening.*root $f | wc -l)" files"
-    grep opening.*root $f
-    grep red: $f | tail -1; 
-done | sort
+    grep opening.*root $f 
+    ### grep red: $f | tail -1; 
+done | sort | wc -l
 
 echo 
 echo -n "Processed events - "
