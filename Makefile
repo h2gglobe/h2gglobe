@@ -119,7 +119,7 @@ print:
 	@echo
 
 clean:
-	@rm -fv $(Objs) $(Deps) $(LOOPALL) *[dD]ict.*
+	@rm -fv $(Objs) $(Deps) $(LOOPALL) *[dD]ict.* .extraTags
 
 .extraTags: extraTags
 	@echo "Getting extra tags"
