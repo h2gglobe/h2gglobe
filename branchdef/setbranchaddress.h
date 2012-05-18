@@ -723,3 +723,15 @@ void SetBranchAddress_jet_algoPF2_betaStarClassic_ext(TTree* tree) { tree->SetBr
 void SetBranchAddress_jet_algoPF3_beta_ext(TTree* tree) { tree->SetBranchAddress("jet_algoPF3_beta_ext", &jet_algoPF3_beta_ext, &b_jet_algoPF3_beta_ext); };
 void SetBranchAddress_jet_algoPF3_betaStar_ext(TTree* tree) { tree->SetBranchAddress("jet_algoPF3_betaStar_ext", &jet_algoPF3_betaStar_ext, &b_jet_algoPF3_betaStar_ext); };
 void SetBranchAddress_jet_algoPF3_betaStarClassic_ext(TTree* tree) { tree->SetBranchAddress("jet_algoPF3_betaStarClassic_ext", &jet_algoPF3_betaStarClassic_ext, &b_jet_algoPF3_betaStarClassic_ext); };
+void SetBranchAddress_pho_pfiso_barecharged01(TTree* tree) { tree->SetBranchAddress("pho_pfiso_barecharged01", &pho_pfiso_barecharged01, &b_pho_pfiso_barecharged01); };
+void SetBranchAddress_pho_pfiso_barecharged02(TTree* tree) { tree->SetBranchAddress("pho_pfiso_barecharged02", &pho_pfiso_barecharged02, &b_pho_pfiso_barecharged02); };
+void SetBranchAddress_pho_pfiso_barecharged03(TTree* tree) { tree->SetBranchAddress("pho_pfiso_barecharged03", &pho_pfiso_barecharged03, &b_pho_pfiso_barecharged03); };
+void SetBranchAddress_pho_pfiso_barecharged04(TTree* tree) { tree->SetBranchAddress("pho_pfiso_barecharged04", &pho_pfiso_barecharged04, &b_pho_pfiso_barecharged04); };
+void SetBranchAddress_pho_pfiso_barecharged05(TTree* tree) { tree->SetBranchAddress("pho_pfiso_barecharged05", &pho_pfiso_barecharged05, &b_pho_pfiso_barecharged05); };
+void SetBranchAddress_pho_pfiso_barecharged06(TTree* tree) { tree->SetBranchAddress("pho_pfiso_barecharged06", &pho_pfiso_barecharged06, &b_pho_pfiso_barecharged06); };
+void SetBranchAddress_pho_pfiso_egcharged01(TTree* tree) { tree->SetBranchAddress("pho_pfiso_egcharged01", &pho_pfiso_egcharged01, &b_pho_pfiso_egcharged01); };
+void SetBranchAddress_pho_pfiso_egcharged02(TTree* tree) { tree->SetBranchAddress("pho_pfiso_egcharged02", &pho_pfiso_egcharged02, &b_pho_pfiso_egcharged02); };
+void SetBranchAddress_pho_pfiso_egcharged03(TTree* tree) { tree->SetBranchAddress("pho_pfiso_egcharged03", &pho_pfiso_egcharged03, &b_pho_pfiso_egcharged03); };
+void SetBranchAddress_pho_pfiso_egcharged04(TTree* tree) { tree->SetBranchAddress("pho_pfiso_egcharged04", &pho_pfiso_egcharged04, &b_pho_pfiso_egcharged04); };
+void SetBranchAddress_pho_pfiso_egcharged05(TTree* tree) { tree->SetBranchAddress("pho_pfiso_egcharged05", &pho_pfiso_egcharged05, &b_pho_pfiso_egcharged05); };
+void SetBranchAddress_pho_pfiso_egcharged06(TTree* tree) { tree->SetBranchAddress("pho_pfiso_egcharged06", &pho_pfiso_egcharged06, &b_pho_pfiso_egcharged06); };

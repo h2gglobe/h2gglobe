@@ -24,9 +24,9 @@ file = open("branchdef/getbranch.h", "a")
 file.write("b_" + name + " = fChain->GetBranch(\"" + name + "\");\n")
 file.close()
 
-file = open("branchdef/getentry.h", "a")
-file.write("b_" + name + "->GetEntry(jentry);\n")
-file.close()
+#######file = open("branchdef/getentry.h", "a")
+#######file.write("b_" + name + "->GetEntry(jentry);\n")
+#######file.close()
 
 file = open("branchdef/setbranchaddress.h", "a")
 file.write("void SetBranchAddress_" + name + "(TTree* tree) { tree->SetBranchAddress(\"" + name + "\", &" + name + ", &b_" + name + "); };\n")
