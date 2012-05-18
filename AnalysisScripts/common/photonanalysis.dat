@@ -41,12 +41,8 @@ tkIso_dxymax=0.1
 ->
 
 applyPtoverM=1
-doTriggerSelection=1
+doTriggerSelection=0
 puHist=aux/2011_0100_73500.weights3.root
-->
-puHist=aux/2011A_0100_73500.weights.root
-puHist=aux/2011B_0100_73500.weights.root
-->
 puMap=pu_weights_map.dat
 puTarget=aux/nov08_rereco.json.68000.pileup.root
 

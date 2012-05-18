@@ -44,7 +44,7 @@ MainDicts+=PhotonFix.h MassResolution.h
 ##
 ## Subdirectories
 ##
-SubPkgs=PhotonAnalysis VertexAnalysis
+SubPkgs=PhotonAnalysis VertexAnalysis JetAnalysis
 SubPkgsDict=VertexAnalysis/interface/VertexAlgoParameters.h
 
 ##
@@ -52,7 +52,7 @@ SubPkgsDict=VertexAnalysis/interface/VertexAlgoParameters.h
 ## 
 ROOFIT_BASE=$(ROOFITSYS)
 LDFLAGS+=-L$(ROOFIT_BASE)/lib $(ROOTLIBS) -lRooFitCore -lRooFit -lTMVA
-### LDFLAGS+= $(patsubst %, -L%, $(shell echo ${LD_LIBRARY_PATH} | tr ':' '\n')) -lFWCorePythonParameterSet -lFWCoreParameterSet
+LDFLAGS+= $(patsubst %, -L%, $(shell echo ${LD_LIBRARY_PATH} | tr ':' '\n')) -lFWCorePythonParameterSet -lFWCoreParameterSet
 CXXFLAGS+=-I$(ROOFIT_BASE)/include -I$(CMSSW_BASE)/src  -I$(CMSSW_RELEASE_BASE)/src
 CXXFLAGS+=-I$(shell pwd)
 

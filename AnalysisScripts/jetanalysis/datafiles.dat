@@ -17,6 +17,7 @@ typ=7 ind=-5 draw=1 Nam=di_photon_box_250_8TeV red=0 lum=1 xsec=18 kfac=1.3 scal
 inputBranches minimal_statanalysis_input.dat
 
 plotvariables jetanalysis/plotvariables.dat
+runZeeValidation=1
 
 ## define analyses to run
 ## 	a library containing the class dictionary has loaded before parsing the 
