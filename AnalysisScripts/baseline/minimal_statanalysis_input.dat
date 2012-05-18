@@ -38,6 +38,7 @@ jet_algoPF1_nCharged
 jet_algoPF1_nNeutrals
 jet_algoPF1_full_wp_level
 jet_algoPF1_simple_wp_level
+jet_algoPF1_cutbased_wp_level
 jet_algoPF1_pfloose
 jet_algoPF1_vbfMatched
 jet_algoPF1_genMatched

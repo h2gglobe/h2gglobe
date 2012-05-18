@@ -714,3 +714,12 @@ void Branch_pho_hoe_bc(TTree* tree) { tree->Branch("pho_hoe_bc", &pho_hoe_bc, "p
 void Branch_jet_algoPF1_cutbased_wp_level(TTree* tree) { tree->Branch("jet_algoPF1_cutbased_wp_level", &jet_algoPF1_cutbased_wp_level, "jet_algoPF1_cutbased_wp_level[jet_algoPF1_n]/I"); };
 void Branch_jet_algoPF2_cutbased_wp_level(TTree* tree) { tree->Branch("jet_algoPF2_cutbased_wp_level", &jet_algoPF2_cutbased_wp_level, "jet_algoPF2_cutbased_wp_level[jet_algoPF2_n]/I"); };
 void Branch_jet_algoPF3_cutbased_wp_level(TTree* tree) { tree->Branch("jet_algoPF3_cutbased_wp_level", &jet_algoPF3_cutbased_wp_level, "jet_algoPF3_cutbased_wp_level[jet_algoPF3_n]/I"); };
+void Branch_jet_algoPF1_beta_ext(TTree* tree) { tree->Branch("jet_algoPF1_beta_ext", "std::vector<std::vector<float>  >", &jet_algoPF1_beta_ext); };
+void Branch_jet_algoPF1_betaStar_ext(TTree* tree) { tree->Branch("jet_algoPF1_betaStar_ext", "std::vector<std::vector<float>  >", &jet_algoPF1_betaStar_ext); };
+void Branch_jet_algoPF1_betaStarClassic_ext(TTree* tree) { tree->Branch("jet_algoPF1_betaStarClassic_ext", "std::vector<std::vector<float>  >", &jet_algoPF1_betaStarClassic_ext); };
+void Branch_jet_algoPF2_beta_ext(TTree* tree) { tree->Branch("jet_algoPF2_beta_ext", "std::vector<std::vector<float>  >", &jet_algoPF2_beta_ext); };
+void Branch_jet_algoPF2_betaStar_ext(TTree* tree) { tree->Branch("jet_algoPF2_betaStar_ext", "std::vector<std::vector<float>  >", &jet_algoPF2_betaStar_ext); };
+void Branch_jet_algoPF2_betaStarClassic_ext(TTree* tree) { tree->Branch("jet_algoPF2_betaStarClassic_ext", "std::vector<std::vector<float>  >", &jet_algoPF2_betaStarClassic_ext); };
+void Branch_jet_algoPF3_beta_ext(TTree* tree) { tree->Branch("jet_algoPF3_beta_ext", "std::vector<std::vector<float>  >", &jet_algoPF3_beta_ext); };
+void Branch_jet_algoPF3_betaStar_ext(TTree* tree) { tree->Branch("jet_algoPF3_betaStar_ext", "std::vector<std::vector<float>  >", &jet_algoPF3_betaStar_ext); };
+void Branch_jet_algoPF3_betaStarClassic_ext(TTree* tree) { tree->Branch("jet_algoPF3_betaStarClassic_ext", "std::vector<std::vector<float>  >", &jet_algoPF3_betaStarClassic_ext); };

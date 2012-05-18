@@ -1,5 +1,5 @@
-## intL=5089. histfile=jetid_vbf.root output=shifo.root
-intL=5089. histfile=jetid.root output=shifo.root
+## intL=1. histfile=jetid_vbf.root output=shifo.root
+intL=1. histfile=jetid_nowei_true_vtx0.root output=shifo.root
 
 typ=-21 ind=9 draw=1   Nam=gluglu_H_gg_120_8TeV CaDir=/store/group/phys_higgs/cmshgg/reduced/may15review_reduction_v3/Summer12_S7_8TeV/GluGluToHToGG_M-120_2 red=0 lum=1000000.0  xsec=21.109 kfac=2.04e-03  scal=1.
 ## Fixme 8TeV xsection not yet available. Rescaled from 7TeV assuming VBF/ggH = const

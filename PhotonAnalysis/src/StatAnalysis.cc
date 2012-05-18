@@ -862,7 +862,7 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 	    l.FillCounter( "Smeared", evweight );
 	    sumaccept += weight;
 	    sumsmear += evweight;
-	    fillControlPlots(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, category, evweight, l );
+	    fillControlPlots(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, category, evweight, isCorrectVertex, l );
 	}
 
 	// see if the event falls into an exclusive category
@@ -893,7 +893,7 @@ void StatAnalysis::computeExclusiveCategory(LoopAll & l, int & category, std::pa
 
 // ----------------------------------------------------------------------------------------------------
 void StatAnalysis::fillControlPlots(const TLorentzVector & lead_p4, const  TLorentzVector & sublead_p4, const TLorentzVector & Higgs, float lead_r9, float sublead_r9, 
-				    int category, float evweight, LoopAll & l )
+				    int category, bool isCorrectVertex, float evweight, LoopAll & l )
 {       
     // control plots 
     float mass = Higgs.M();
@@ -902,6 +902,7 @@ void StatAnalysis::fillControlPlots(const TLorentzVector & lead_p4, const  TLore
     if( mass>=massMin && mass<=massMax  ) {
 	l.FillHist("mass",0, Higgs.M(), evweight);
 	l.FillHist("pt",0, Higgs.Pt(), evweight);
+	if( isCorrectVertex ) { l.FillHist("pt_rv",0, Higgs.Pt(), evweight); }
 	l.FillHist("eta",0, Higgs.Eta(), evweight);
         
 	l.FillHist("pho_pt",0,lead_p4.Pt(), evweight);
@@ -920,6 +921,7 @@ void StatAnalysis::fillControlPlots(const TLorentzVector & lead_p4, const  TLore
         
 	l.FillHist("mass",category+1, Higgs.M(), evweight);
 	l.FillHist("pt",category+1, Higgs.Pt(), evweight);
+	if( isCorrectVertex ) { l.FillHist("pt_rv",category+1, Higgs.Pt(), evweight); }
 	l.FillHist("eta",category+1, Higgs.Eta(), evweight);
         
 	l.FillHist("pho_pt",category+1,lead_p4.Pt(), evweight);

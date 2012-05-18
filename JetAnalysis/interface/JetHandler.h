@@ -4,17 +4,27 @@
 #include "CMGTools/External/interface/PileupJetIdAlgo.h"
 #include <string>
 
+class LoopAll;
+
 // ------------------------------------------------------------------------------------
 class JetHandler
 {
 public:
     
-    JetHandler(const std::string & cfg, const std::string & pset);
+    JetHandler(const std::string & cfg, const std::string & pset, LoopAll &l);
+    
+    void compute_beta(int ijet, int ivx=-1);
+    void compute_mva(int ijet, int ivtx=-1);
+    void  compute_wp(int ijet, int ivtx=-1);
+    
+    void recompute_jec();
+    
     virtual ~JetHandler();
     
 private:
-    PileupJetIdAlgo * jetIdAlgo;
-  
+    LoopAll & l_;
+    PileupJetIdAlgo * cutbased, * simple, * full;
+    
 };
 
 #endif

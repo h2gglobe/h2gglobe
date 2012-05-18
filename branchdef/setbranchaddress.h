@@ -714,3 +714,12 @@ void SetBranchAddress_pho_hoe_bc(TTree* tree) { tree->SetBranchAddress("pho_hoe_
 void SetBranchAddress_jet_algoPF1_cutbased_wp_level(TTree* tree) { tree->SetBranchAddress("jet_algoPF1_cutbased_wp_level", &jet_algoPF1_cutbased_wp_level, &b_jet_algoPF1_cutbased_wp_level); };
 void SetBranchAddress_jet_algoPF2_cutbased_wp_level(TTree* tree) { tree->SetBranchAddress("jet_algoPF2_cutbased_wp_level", &jet_algoPF2_cutbased_wp_level, &b_jet_algoPF2_cutbased_wp_level); };
 void SetBranchAddress_jet_algoPF3_cutbased_wp_level(TTree* tree) { tree->SetBranchAddress("jet_algoPF3_cutbased_wp_level", &jet_algoPF3_cutbased_wp_level, &b_jet_algoPF3_cutbased_wp_level); };
+void SetBranchAddress_jet_algoPF1_beta_ext(TTree* tree) { tree->SetBranchAddress("jet_algoPF1_beta_ext", &jet_algoPF1_beta_ext, &b_jet_algoPF1_beta_ext); };
+void SetBranchAddress_jet_algoPF1_betaStar_ext(TTree* tree) { tree->SetBranchAddress("jet_algoPF1_betaStar_ext", &jet_algoPF1_betaStar_ext, &b_jet_algoPF1_betaStar_ext); };
+void SetBranchAddress_jet_algoPF1_betaStarClassic_ext(TTree* tree) { tree->SetBranchAddress("jet_algoPF1_betaStarClassic_ext", &jet_algoPF1_betaStarClassic_ext, &b_jet_algoPF1_betaStarClassic_ext); };
+void SetBranchAddress_jet_algoPF2_beta_ext(TTree* tree) { tree->SetBranchAddress("jet_algoPF2_beta_ext", &jet_algoPF2_beta_ext, &b_jet_algoPF2_beta_ext); };
+void SetBranchAddress_jet_algoPF2_betaStar_ext(TTree* tree) { tree->SetBranchAddress("jet_algoPF2_betaStar_ext", &jet_algoPF2_betaStar_ext, &b_jet_algoPF2_betaStar_ext); };
+void SetBranchAddress_jet_algoPF2_betaStarClassic_ext(TTree* tree) { tree->SetBranchAddress("jet_algoPF2_betaStarClassic_ext", &jet_algoPF2_betaStarClassic_ext, &b_jet_algoPF2_betaStarClassic_ext); };
+void SetBranchAddress_jet_algoPF3_beta_ext(TTree* tree) { tree->SetBranchAddress("jet_algoPF3_beta_ext", &jet_algoPF3_beta_ext, &b_jet_algoPF3_beta_ext); };
+void SetBranchAddress_jet_algoPF3_betaStar_ext(TTree* tree) { tree->SetBranchAddress("jet_algoPF3_betaStar_ext", &jet_algoPF3_betaStar_ext, &b_jet_algoPF3_betaStar_ext); };
+void SetBranchAddress_jet_algoPF3_betaStarClassic_ext(TTree* tree) { tree->SetBranchAddress("jet_algoPF3_betaStarClassic_ext", &jet_algoPF3_betaStarClassic_ext, &b_jet_algoPF3_betaStarClassic_ext); };

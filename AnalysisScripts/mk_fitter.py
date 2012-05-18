@@ -62,7 +62,8 @@ if __name__  == "__main__":
 
 		if "histfile" in line:
 			cfg.read_histfile(line)
-			line = line.replace(cfg.histdir,"./")
+			if( cfg.histdir != "" ):
+				line = line.replace(cfg.histdir,"./")
 			
 
 		if line.startswith("split"):
@@ -124,7 +125,11 @@ if __name__  == "__main__":
 	  elif cfg.histdir.startswith("/store"):
 		cp="cmsStage"
 		mkdir="cmsMkdir"
-		
+	if cfg.histdir=="":
+		if os.path.isabs(scriptdir):
+			cfg.histdir==scriptdir
+		else:
+			cfg.histdir=os.path.join(os.getcwd(),scriptdir)
 
 	os.system("tar zcf %s.tgz $(find -name \*.dat -or -name \*.py) aux" % options.outputScript)
 	os.system("%s %s" % ( mkdir, cfg.histdir) )

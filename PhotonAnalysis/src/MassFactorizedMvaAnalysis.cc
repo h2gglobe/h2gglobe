@@ -865,7 +865,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 	        l.FillCounter( "Smeared", evweight );
 	        sumaccept += weight;
 	        sumsmear += evweight;
-	        fillControlPlots(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, category, evweight, l );
+	        fillControlPlots(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, category, isCorrectVertex, evweight, l );
 	    }
 	
         //if (cur_type==0 && mass >= 100. && mass < 180. && !isSyst /*should never be if running data anyway*/){

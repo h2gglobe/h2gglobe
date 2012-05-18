@@ -92,7 +92,7 @@ class StatAnalysis : public PhotonAnalysis
     void  computeExclusiveCategory(LoopAll & l, int & category, std::pair<int,int> diphoton_index, float pt);	
 
     void fillControlPlots(const TLorentzVector & lead_p4, const  TLorentzVector & sublead_p4, const TLorentzVector & Higgs, float lead_r9, float sublead_r9, 
-			  int category, float evweight , LoopAll &);
+			  int category, bool rightvtx, float evweight , LoopAll &);
 	
     EnergySmearer /* *eScaleSmearer,*/ *eResolSmearer ; // moved to PhotonAnalysis GF 
     EfficiencySmearer *idEffSmearer, *r9Smearer;
