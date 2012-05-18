@@ -85,6 +85,7 @@ endif
 Objs = $(MainObjs) $(SubPkgsObjs)
 Dicts = $(MainDicts) $(_SubPkgsDict) 
 Deps = $(patsubst %$(ObjSuf), %$(DepSuf), $(Objs))
+ExtPacks=.extraTags
 
 ## Targets
 all: $(LOOPALLSO)
@@ -120,7 +121,12 @@ print:
 clean:
 	@rm -fv $(Objs) $(Deps) $(LOOPALL) *[dD]ict.*
 
-$(LOOPALLSO):  $(Objs)
+.extraTags: extraTags
+	@echo "Getting extra tags"
+	@bash extraTags
+	@touch .extraTags
+
+$(LOOPALLSO):  $(Objs) $(ExtPacks)
 	@echo "Linking"
 	@$(LD) $(SOFLAGS) $(LDFLAGS) $(ROOTLIBS)  $(Objs) $(OutPutOpt) $(LOOPALLSO)
 	@echo "$(LOOPALLSO) done"
