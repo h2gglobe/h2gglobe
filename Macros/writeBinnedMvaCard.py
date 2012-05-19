@@ -25,10 +25,10 @@ g_expdijet		= 0.00495
 
 # Some "Global" Variables
 # PLOT OPS ----------------
-lumistring = "5.09 fb^{-1}"
+lumistring = "5.1 fb^{-1}"
 sigscale   = 5.
 # THEORY SYSTEMATICS ------
-lumi 		= "1.045"
+lumi 		= "1.022"
 QCDscale_ggH  = "0.918/1.125"
 PDF_gg_1      = "0.923/1.079"
 PDF_gg_2      = "0.915/1.085"
