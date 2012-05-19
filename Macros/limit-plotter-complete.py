@@ -18,7 +18,7 @@ ROOT.gStyle.SetOptStat(0)
 
 #-------------------------------------------------------------------------
 # Configuration for the Plotter
-intlumi = str(4.76)
+intlumi = str(5.1)
 #EXPmasses = [110,115,120,125,130,135,140,150]       # Only used in Bayesian and PL method
 OBSmasses = numpy.arange(115,151,1.)
 EXPmasses = numpy.arange(115,151,1.)
@@ -440,7 +440,7 @@ dummyHist.Draw("AXIGSAME")
 
 #MG.GetXaxis().SetTitle("m_{H}(GeV/c^{2})")
 #MG.GetXaxis().SetRangeUser(min(OBSmasses)-OFFSETLOW,max(OBSmasses)+OFFSETHIGH)
-dummyHist.GetXaxis().SetTitle("m_{H}(GeV/c^{2})")
+dummyHist.GetXaxis().SetTitle("m_{H} GeV")
 dummyHist.GetXaxis().SetRangeUser(min(OBSmasses)-OFFSETLOW,max(OBSmasses)+OFFSETHIGH)
 if options.doRatio:
  #MG.GetYaxis().SetRangeUser(0.0,14.8)
@@ -463,7 +463,7 @@ if not options.doRatio:
   mytext.DrawLatex(max(OBSmasses)+0.3,th*SMEnd,"%d#times#sigma_{%s}"%(th,extraString))
 
 mytext.SetNDC()
-mytext.DrawLatex(0.6,0.82,"#splitline{CMS preliminary}{#sqrt{s} = 7 TeV L = %.2f fb^{-1}}"%float(intlumi))
+mytext.DrawLatex(0.6,0.82,"#splitline{CMS preliminary}{#sqrt{s} = 7 TeV L = %.1f fb^{-1}}"%float(intlumi))
 leg.Draw()
 
 #Make a bunch of extensions to the plots
