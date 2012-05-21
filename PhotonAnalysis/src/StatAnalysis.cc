@@ -606,8 +606,17 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     // ---------------------------------------------------------------------------------------------------------------------//
     if (cur_type !=0){
         for (int ipho=0;ipho<l.pho_n;ipho++){
-            double R9_rescale = (l.pho_isEB[ipho]) ? 1.0048 : 1.00492 ;
-            l.pho_r9[ipho]*=R9_rescale;
+	    if( dataIs2011 ) {
+		double R9_rescale = (l.pho_isEB[ipho]) ? 1.0048 : 1.00492 ;
+		l.pho_r9[ipho]*=R9_rescale;
+	    } else {
+		l.pho_r9[ipho]*=1.0035;
+		if (l.pho_isEB[ipho]){ l.pho_sieie[ipho] = (0.87*l.pho_sieie[ipho]) + 0.0011 ;}
+		else {l.pho_sieie[ipho]*=0.99;}
+		l.sc_seta[l.pho_scind[ipho]]*=0.99;  
+		l.sc_sphi[l.pho_scind[ipho]]*=0.99;  
+		energyCorrectedError[ipho] *=(l.pho_isEB[ipho]) ? 1.07 : 1.045 ;
+	    }
         }
     }
     // ---------------------------------------------------------------------------------------------------------------------//
@@ -616,22 +625,12 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     // ---------------------------------------------------------------------------------------------------------------------//
 
     // Analyse the event assuming nominal values of corrections and smearings
-    float mass, evweight;
+    float mass, evweight, diphotonMVA;
     int diphoton_id, category;
     bool isCorrectVertex;
-    if( AnalyseEvent(l,jentry, weight, gP4, mass,  evweight, category, diphoton_id, isCorrectVertex,zero_) ) {
+    if( AnalyseEvent(l,jentry, weight, gP4, mass,  evweight, category, diphoton_id, isCorrectVertex,diphotonMVA) ) {
 	// feed the event to the RooContainer 
-        if (cur_type == 0 ){
-            l.rooContainer->InputDataPoint("data_mass",category,mass);
-        }
-        if (cur_type > 0 && cur_type != 3 && cur_type != 4) {
-            l.rooContainer->InputDataPoint("bkg_mass",category,mass,evweight);
-	}
-        else if (cur_type < 0){
-            l.rooContainer->InputDataPoint("sig_"+GetSignalLabel(cur_type),category,mass,evweight);
-            if (isCorrectVertex) l.rooContainer->InputDataPoint("sig_"+GetSignalLabel(cur_type)+"_rv",category,mass,evweight);
-            else l.rooContainer->InputDataPoint("sig_"+GetSignalLabel(cur_type)+"_wv",category,mass,evweight);
-        }
+	FillRooContainer(l, cur_type, mass, diphotonMVA, category, evweight, isCorrectVertex);
     }
     
     // Systematics uncertaities for the binned model
@@ -641,9 +640,10 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
         // fill steps for syst uncertainty study
         float systStep = systRange / (float)nSystSteps;
 	
-	float syst_mass, syst_weight;
+	float syst_mass, syst_weight, syst_diphotonMVA;
 	int syst_category;
  	std::vector<double> mass_errors;
+ 	std::vector<double> mva_errors;
 	std::vector<double> weights;
 	std::vector<int>    categories;
 	
@@ -651,7 +651,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
      
 	    // gen-level systematics, i.e. ggH k-factor for the moment
             for(std::vector<BaseGenLevelSmearer*>::iterator si=systGenLevelSmearers_.begin(); si!=systGenLevelSmearers_.end(); si++){
-		mass_errors.clear(), weights.clear(), categories.clear();
+		mass_errors.clear(), weights.clear(), categories.clear(), mva_errors.clear();
 		
                 for(float syst_shift=-systRange; syst_shift<=systRange; syst_shift+=systStep ) { 
                     if( syst_shift == 0. ) { continue; } // skip the central value
@@ -661,20 +661,17 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		    // corrections and smearings
 		    AnalyseEvent(l, jentry, weight, gP4, syst_mass,  syst_weight, syst_category, diphoton_id, isCorrectVertex,zero_,
 				 true, syst_shift, true, *si, 0, 0 );
-		    		    
-		    categories.push_back(syst_category);
-		    mass_errors.push_back(syst_mass);
-                    weights.push_back(syst_weight);
+		    
+		    AccumulateSyst( cur_type, syst_mass, syst_diphotonMVA, syst_category, syst_weight,
+				    mass_errors, mva_errors, categories, weights);
 		}
-		if (cur_type < 0){
-		    // feed the modified signal model to the RooContainer
-		    l.rooContainer->InputSystematicSet("sig_"+GetSignalLabel(cur_type),(*si)->name(),categories,mass_errors,weights);
-		}
+		
+		FillRooContainerSyst(l, (*si)->name(), cur_type, mass_errors, mva_errors, categories, weights);
 	    }
 	    
 	    // di-photon systematics: vertex efficiency and trigger 
 	    for(std::vector<BaseDiPhotonSmearer *>::iterator si=systDiPhotonSmearers_.begin(); si!= systDiPhotonSmearers_.end(); ++si ) {
-		mass_errors.clear(), weights.clear(), categories.clear();
+		mass_errors.clear(), weights.clear(), categories.clear(), mva_errors.clear();
 		
                 for(float syst_shift=-systRange; syst_shift<=systRange; syst_shift+=systStep ) { 
                     if( syst_shift == 0. ) { continue; } // skip the central value
@@ -685,20 +682,17 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		    AnalyseEvent(l,jentry, weight, gP4, syst_mass,  syst_weight, syst_category, diphoton_id, isCorrectVertex,zero_,
 				 true, syst_shift, true,  0, 0, *si );
 		    
-		    categories.push_back(syst_category);
-		    mass_errors.push_back(syst_mass);
-                    weights.push_back(syst_weight);
+		    AccumulateSyst( cur_type, syst_mass, syst_diphotonMVA, syst_category, syst_weight,
+                                    mass_errors, mva_errors, categories, weights);
 		}
-		if (cur_type < 0){
-		    // feed the modified signal model to the RooContainer
-		    l.rooContainer->InputSystematicSet("sig_"+GetSignalLabel(cur_type),(*si)->name(),categories,mass_errors,weights);
-		}
+
+		FillRooContainerSyst(l, (*si)->name(), cur_type, mass_errors, mva_errors, categories, weights);
 	    }
 	}
 	
 	// single photon level systematics: several
 	for(std::vector<BaseSmearer *>::iterator  si=systPhotonSmearers_.begin(); si!= systPhotonSmearers_.end(); ++si ) {
-	    mass_errors.clear(), weights.clear(), categories.clear();
+	    mass_errors.clear(), weights.clear(), categories.clear(), mva_errors.clear();
 	    
 	    for(float syst_shift=-systRange; syst_shift<=systRange; syst_shift+=systStep ) { 
 		if( syst_shift == 0. ) { continue; } // skip the central value
@@ -708,14 +702,11 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		AnalyseEvent(l,jentry, weight, gP4, syst_mass,  syst_weight, syst_category, diphoton_id, isCorrectVertex,zero_,
 			     true, syst_shift, false,  0, *si, 0 );
 		
-		categories.push_back(syst_category);
-		mass_errors.push_back(syst_mass);
-		weights.push_back(syst_weight);
+		AccumulateSyst( cur_type, syst_mass, syst_diphotonMVA, syst_category, syst_weight,
+				mass_errors, mva_errors, categories, weights);
 	    }
-	    if (cur_type < 0){
-		// feed the modified signal model to the RooContainer
-		l.rooContainer->InputSystematicSet("sig_"+GetSignalLabel(cur_type),(*si)->name(),categories,mass_errors,weights);
-	    }
+	    
+	    FillRooContainerSyst(l, (*si)->name(), cur_type, mass_errors, mva_errors, categories, weights);
 	}
     }
 
@@ -725,13 +716,14 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
 // ----------------------------------------------------------------------------------------------------
 bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentzVector & gP4,
-				float & mass, float & evweight, int & category, int & diphoton_id, bool & isCorrectVertex, float &kinematic_bdtout,
+				float & mass, float & evweight, int & category, int & diphoton_id, bool & isCorrectVertex,
+				float &kinematic_bdtout,
 				bool isSyst,
 				float syst_shift, bool skipSelection, 
 				BaseGenLevelSmearer *genSys, BaseSmearer *phoSys, BaseDiPhotonSmearer * diPhoSys) 
 {
     assert( isSyst || ! skipSelection );
-
+    
     int cur_type = l.itype[l.current];
     float sampleweight = l.sampleContainer[l.current_sample_index].weight;
     /// diphoton_id = -1;
@@ -878,6 +870,48 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
     }
     
     return false;
+}
+
+// ----------------------------------------------------------------------------------------------------
+void StatAnalysis::FillRooContainer(LoopAll& l, int cur_type, float mass, float diphotonMVA, 
+				    int category, float weight, bool isCorrectVertex) 
+{
+        if (cur_type == 0 ){
+            l.rooContainer->InputDataPoint("data_mass",category,mass);
+        }
+        if (cur_type > 0 && cur_type != 3 && cur_type != 4) {
+            l.rooContainer->InputDataPoint("bkg_mass",category,mass,weight);
+	}
+        else if (cur_type < 0){
+            l.rooContainer->InputDataPoint("sig_"+GetSignalLabel(cur_type),category,mass,weight);
+            if (isCorrectVertex) l.rooContainer->InputDataPoint("sig_"+GetSignalLabel(cur_type)+"_rv",category,mass,weight);
+            else l.rooContainer->InputDataPoint("sig_"+GetSignalLabel(cur_type)+"_wv",category,mass,weight);
+        }
+}
+
+// ----------------------------------------------------------------------------------------------------
+void StatAnalysis::AccumulateSyst(int cur_type, float mass, float diphotonMVA, 
+				  int category, float weight,
+				  std::vector<double> & mass_errors,
+				  std::vector<double> & mva_errors,
+				  std::vector<int>    & categories,
+				  std::vector<double> & weights)
+{
+    categories.push_back(category);
+    mass_errors.push_back(mass);
+    weights.push_back(weight);
+}
+
+
+// ----------------------------------------------------------------------------------------------------
+void StatAnalysis::FillRooContainerSyst(LoopAll& l, const std::string &name, int cur_type,
+			  std::vector<double> & mass_errors, std::vector<double> & mva_errors,
+			  std::vector<int>    & categories, std::vector<double> & weights) 
+{	
+    if (cur_type < 0){
+	// feed the modified signal model to the RooContainer
+	l.rooContainer->InputSystematicSet("sig_"+GetSignalLabel(cur_type),name,categories,mass_errors,weights);
+    }
 }
 
 // ----------------------------------------------------------------------------------------------------

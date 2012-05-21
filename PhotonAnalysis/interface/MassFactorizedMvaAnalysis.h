@@ -30,23 +30,14 @@ class MassFactorizedMvaAnalysis : public StatAnalysis
     void Init(LoopAll&);
     void Term(LoopAll&);
     
-    void GetBranches(TTree *, std::set<TBranch *>& );
-    
-    virtual bool SelectEvents(LoopAll&, int);
     virtual void ResetAnalysis();
-    virtual void Analysis(LoopAll&, Int_t); 
+    //// virtual void Analysis(LoopAll&, Int_t); 
 
-    double GetDifferentialKfactor(double, int);
-
-    void FillSignalLabelMap();
     virtual int GetBDTBoundaryCategory(float,bool,bool);
-    std::string GetSignalLabel(int) ;
 
-    bool  doPhotonMvaIdSyst;
-    bool  doPhotonMvaIdSmear;
+    bool doPhotonMvaIdSyst;
+    bool doPhotonMvaIdSmear;
     bool doRegressionSmear, doRegressionSyst;
-    float massMin, massMax;
-    int nDataBins;  
 
     std::string bdtTrainingPhilosophy;
     std::string photonLevelMvaUCSD  ;
@@ -54,10 +45,6 @@ class MassFactorizedMvaAnalysis : public StatAnalysis
     std::string photonLevelMvaMIT_EB;
     std::string photonLevelMvaMIT_EE;
     std::string eventLevelMvaMIT    ;
-
-    int nMasses;
-
-    
 
  protected:
 

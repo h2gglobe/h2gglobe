@@ -710,12 +710,12 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
         // fill steps for syst uncertainty study
         float systStep = systRange / (float)nSystSteps;
 	
-	    float syst_mass, syst_weight, syst_kinematic_bdtout;
-	    int syst_category;
- 	    std::vector<double> bdt_errors;
-	    std::vector<double> weights;
-	    std::vector<int>    categories;
-
+	float syst_mass, syst_weight, syst_kinematic_bdtout;
+	int syst_category;
+	std::vector<double> bdt_errors;
+	std::vector<double> weights;
+	std::vector<int>    categories;
+	
         // define hypothesis masses for the sidebands
         float mass_hypothesis = masses[SignalType(cur_type)];
         // define the sidebands
@@ -724,61 +724,61 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
         sideband_boundaries[1] = mass_hypothesis*(1+sidebandWidth);
 	
         if (diphoton_id > -1 ) {
-     
+	    
 	    // gen-level systematics, i.e. ggH k-factor for the moment
-        for(std::vector<BaseGenLevelSmearer*>::iterator si=systGenLevelSmearers_.begin(); si!=systGenLevelSmearers_.end(); si++){
+	    for(std::vector<BaseGenLevelSmearer*>::iterator si=systGenLevelSmearers_.begin(); si!=systGenLevelSmearers_.end(); si++){
 		bdt_errors.clear(), weights.clear(), categories.clear();
 		
-           for(float syst_shift=-systRange; syst_shift<=systRange; syst_shift+=systStep ) { 
-            if( syst_shift == 0. ) { continue; } // skip the central value
+		for(float syst_shift=-systRange; syst_shift<=systRange; syst_shift+=systStep ) { 
+		    if( syst_shift == 0. ) { continue; } // skip the central value
 		    syst_mass     =  0., syst_category = -1, syst_weight   =  0.;
 		    
 		    // re-analyse the event without redoing the event selection as we use nominal values for the single photon
 		    // corrections and smearings
 		    AnalyseEvent(l, jentry, weight, gP4, syst_mass,  syst_weight, syst_category, diphoton_id, isCorrectVertex, syst_kinematic_bdtout, true, syst_shift, true, *si, 0, 0 );
-		    		    
-
-            // Signal Window cut
-            if( mass>sideband_boundaries[0] && mass<sideband_boundaries[1]){
-               double syst_bdt_grad = tmvaGetVal(syst_mass,mass_hypothesis,syst_kinematic_bdtout);
-		       categories.push_back(syst_category);
-		       bdt_errors.push_back(syst_bdt_grad);
-               weights.push_back(syst_weight);
-            } else {
-		       categories.push_back(-1);
-		       bdt_errors.push_back(-100);
-               weights.push_back(0);
-            }
-		   }
-
-		    l.rooContainer->InputSystematicSet("sig_BDT_grad_"+currentTypeSignalLabel,(*si)->name(),categories,bdt_errors,weights);
+		    
+		    
+		    // Signal Window cut
+		    if( mass>sideband_boundaries[0] && mass<sideband_boundaries[1]){
+			double syst_bdt_grad = tmvaGetVal(syst_mass,mass_hypothesis,syst_kinematic_bdtout);
+			categories.push_back(syst_category);
+			bdt_errors.push_back(syst_bdt_grad);
+			weights.push_back(syst_weight);
+		    } else {
+			categories.push_back(-1);
+			bdt_errors.push_back(-100);
+			weights.push_back(0);
+		    }
+		}
+		
+		l.rooContainer->InputSystematicSet("sig_BDT_grad_"+currentTypeSignalLabel,(*si)->name(),categories,bdt_errors,weights);
 	    }
 	    
 	    // di-photon systematics: vertex efficiency and trigger 
 	    for(std::vector<BaseDiPhotonSmearer *>::iterator si=systDiPhotonSmearers_.begin(); si!= systDiPhotonSmearers_.end(); ++si ) {
 		bdt_errors.clear(), weights.clear(), categories.clear();
 		
-           for(float syst_shift=-systRange; syst_shift<=systRange; syst_shift+=systStep ) { 
-            if( syst_shift == 0. ) { continue; } // skip the central value
+		for(float syst_shift=-systRange; syst_shift<=systRange; syst_shift+=systStep ) { 
+		    if( syst_shift == 0. ) { continue; } // skip the central value
 		    syst_mass     =  0., syst_category = -1, syst_weight   =  0.;
 		    
 		    // re-analyse the event without redoing the event selection as we use nominal values for the single photon
 		    // corrections and smearings
 		    AnalyseEvent(l,jentry, weight, gP4, syst_mass,  syst_weight, syst_category, diphoton_id, isCorrectVertex, syst_kinematic_bdtout, true, syst_shift, true,  0, 0, *si );
-            // Signal Window cut
-            if( syst_mass>sideband_boundaries[0] && syst_mass<sideband_boundaries[1]){
-               double syst_bdt_grad = tmvaGetVal(syst_mass,mass_hypothesis,syst_kinematic_bdtout);
-		       categories.push_back(syst_category);
-		       bdt_errors.push_back(syst_bdt_grad);
-               weights.push_back(syst_weight);
-            } else {
-		       categories.push_back(-1);
-		       bdt_errors.push_back(-100);
-               weights.push_back(0);
-            }
+		    // Signal Window cut
+		    if( syst_mass>sideband_boundaries[0] && syst_mass<sideband_boundaries[1]){
+			double syst_bdt_grad = tmvaGetVal(syst_mass,mass_hypothesis,syst_kinematic_bdtout);
+			categories.push_back(syst_category);
+			bdt_errors.push_back(syst_bdt_grad);
+			weights.push_back(syst_weight);
+		    } else {
+			categories.push_back(-1);
+			bdt_errors.push_back(-100);
+			weights.push_back(0);
+		    }
 		    
-		   }
-		   l.rooContainer->InputSystematicSet("sig_BDT_grad_"+currentTypeSignalLabel,(*si)->name(),categories,bdt_errors,weights);
+		}
+		l.rooContainer->InputSystematicSet("sig_BDT_grad_"+currentTypeSignalLabel,(*si)->name(),categories,bdt_errors,weights);
 	    }
 	}
 	
@@ -786,26 +786,26 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	for(std::vector<BaseSmearer *>::iterator  si=systPhotonSmearers_.begin(); si!= systPhotonSmearers_.end(); ++si ) {
 	    bdt_errors.clear(), weights.clear(), categories.clear();
 	    
-	   for(float syst_shift=-systRange; syst_shift<=systRange; syst_shift+=systStep ) { 
+	    for(float syst_shift=-systRange; syst_shift<=systRange; syst_shift+=systStep ) { 
 		if( syst_shift == 0. ) { continue; } // skip the central value
 		syst_mass     =  0., syst_category = -1, syst_weight   =  0.; syst_kinematic_bdtout=0.;
 		
 		// re-analyse the event redoing the event selection this time
 		AnalyseEvent(l,jentry, weight, gP4, syst_mass,  syst_weight, syst_category, diphoton_id, isCorrectVertex,syst_kinematic_bdtout, true, syst_shift, false,  0, *si, 0 );
 		
-        // Signal Window cut
-        if( syst_mass>sideband_boundaries[0] && syst_mass<sideband_boundaries[1]){
-           double syst_bdt_grad = tmvaGetVal(syst_mass,mass_hypothesis,syst_kinematic_bdtout);
-           categories.push_back(syst_category);
-           bdt_errors.push_back(syst_bdt_grad);
-           weights.push_back(syst_weight);
-        } else {
-           categories.push_back(-1);
-           bdt_errors.push_back(-100);
-           weights.push_back(0);
-        }
-	   }
-	   l.rooContainer->InputSystematicSet("sig_BDT_grad_"+currentTypeSignalLabel,(*si)->name(),categories,bdt_errors,weights);
+		// Signal Window cut
+		if( syst_mass>sideband_boundaries[0] && syst_mass<sideband_boundaries[1]){
+		    double syst_bdt_grad = tmvaGetVal(syst_mass,mass_hypothesis,syst_kinematic_bdtout);
+		    categories.push_back(syst_category);
+		    bdt_errors.push_back(syst_bdt_grad);
+		    weights.push_back(syst_weight);
+		} else {
+		    categories.push_back(-1);
+		    bdt_errors.push_back(-100);
+		    weights.push_back(0);
+		}
+	    }
+	    l.rooContainer->InputSystematicSet("sig_BDT_grad_"+currentTypeSignalLabel,(*si)->name(),categories,bdt_errors,weights);
 	}
     }
     if(PADEBUG) 
@@ -1072,7 +1072,6 @@ void MvaAnalysis::fillLeeTrees(float mass,float kinematic_bdtout,int category,fl
 }
 // Local Variables:
 // mode: c++
-// mode: sensitive
 // c-basic-offset: 4
 // End:
 // vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4

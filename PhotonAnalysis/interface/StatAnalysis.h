@@ -36,17 +36,8 @@ class StatAnalysis : public PhotonAnalysis
     virtual void ResetAnalysis();
     virtual void Analysis(LoopAll&, Int_t);
     
-    
     std::string efficiencyFile;
 
-    // mva removed cp march 8
-    //bool useMVA;
-    //std::string phoIDMVAtype;
-    //float phoIDMVAloose;
-    //float phoIDMVAtight;
-    //int nDiphoEventClasses;
-
-    // EnergySmearer::energySmearingParameters eSmearPars; // gone to PhotonAnalysis GF
     EfficiencySmearer::efficiencySmearingParameters effSmearPars;
     DiPhoEfficiencySmearer::diPhoEfficiencySmearingParameters diPhoEffSmearPars;
 
@@ -56,32 +47,39 @@ class StatAnalysis : public PhotonAnalysis
     std::string GetSignalLabel(int) ;
 
     bool  doEscaleSyst, doEresolSyst, doPhotonIdEffSyst, doVtxEffSyst, doR9Syst, doTriggerEffSyst, doKFactorSyst;
-    bool  doEscaleSmear, doEresolSmear, doPhotonIdEffSmear, doVtxEffSmear, doR9Smear, doTriggerEffSmear, doKFactorSmear, doInterferenceSmear;
+    bool  doEscaleSmear, doEresolSmear, doPhotonIdEffSmear, doVtxEffSmear, doR9Smear, doTriggerEffSmear, 
+	doKFactorSmear, doInterferenceSmear;
     float systRange;
     int   nSystSteps;   
     //int   nEtaCategories, nR9Categories, nPtCategories;
     float massMin, massMax;
     int nDataBins;  
-    //float smearing_sigma_EBHighR9       ;
-    //float smearing_sigma_EBLowR9        ;
-    //float smearing_sigma_EEHighR9       ;
-    //float smearing_sigma_EELowR9        ;
-    //float smearing_sigma_error_EBHighR9 ;
-    //float smearing_sigma_error_EBLowR9  ;
-    //float smearing_sigma_error_EEHighR9 ;
-    //float smearing_sigma_error_EELowR9  ;
+    bool dataIs2011;
     
     std::string kfacHist;
 
     TH1D *thm110,*thm120,*thm130,*thm140;
-    int nMasses;
 
  protected:
-    virtual bool AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentzVector & gP4, float & mass, float & evweight, int & category, int & diphoton_id,
-		      bool & isCorrectVertex,float &kinematic_bdtout,
-		      bool isSyst=false, 
-		      float syst_shift=0., bool skipSelection=false,
-		      BaseGenLevelSmearer *genSys=0, BaseSmearer *phoSys=0, BaseDiPhotonSmearer * diPhoSys=0); 
+    // Factorized Analysis method + loop over systematics
+    virtual bool AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentzVector & gP4, float & mass, float & evweight, 
+			      int & category, int & diphoton_id,
+			      bool & isCorrectVertex,float &kinematic_bdtout,
+			      bool isSyst=false, 
+			      float syst_shift=0., bool skipSelection=false,
+			      BaseGenLevelSmearer *genSys=0, BaseSmearer *phoSys=0, BaseDiPhotonSmearer * diPhoSys=0); 
+
+    virtual void FillRooContainer(LoopAll& l, int cur_type, float mass, float diphotonMVA, int category, float weight, 
+				  bool isCorrectVertex);
+    virtual void AccumulateSyst(int cur_type, float mass, float diphotonMVA, int category, float weight,
+				std::vector<double> & mass_errors,
+				std::vector<double> & mva_errors,
+				std::vector<int>    & categories,
+				std::vector<double> & weights);
+    virtual void FillRooContainerSyst(LoopAll& l, const std::string & name,int cur_type,
+				      std::vector<double> & mass_errors, std::vector<double> & mva_errors,
+				      std::vector<int>    & categories, std::vector<double> & weights);
+    
     bool VHmuevent, VHelevent, VBFevent, VHhadevent;
     double genLevWeight; 
 
@@ -91,7 +89,8 @@ class StatAnalysis : public PhotonAnalysis
 
     void  computeExclusiveCategory(LoopAll & l, int & category, std::pair<int,int> diphoton_index, float pt);	
 
-    void fillControlPlots(const TLorentzVector & lead_p4, const  TLorentzVector & sublead_p4, const TLorentzVector & Higgs, float lead_r9, float sublead_r9, 
+    void fillControlPlots(const TLorentzVector & lead_p4, const  TLorentzVector & sublead_p4, const TLorentzVector & Higgs, 
+			  float lead_r9, float sublead_r9, 
 			  int category, bool rightvtx, float evweight , LoopAll &);
 	
     EnergySmearer /* *eScaleSmearer,*/ *eResolSmearer ; // moved to PhotonAnalysis GF 
@@ -108,6 +107,7 @@ class StatAnalysis : public PhotonAnalysis
     int nCategories_;
     int nPhotonCategories_;
     int diPhoCounter_;
+
     // Vertex analysis
     HggVertexAnalyzer vtxAna_;
     HggVertexFromConversions vtxConv_;

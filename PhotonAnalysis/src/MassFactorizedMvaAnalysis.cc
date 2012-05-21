@@ -555,201 +555,201 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
     // FIXME book of additional variables
 }
 
-// ----------------------------------------------------------------------------------------------------
-void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry) 
-{
-    if(PADEBUG) 
-        cout << "Analysis START; cur_type is: " << l.itype[l.current] <<endl;
-
-
-    int cur_type = l.itype[l.current];
-    float weight = l.sampleContainer[l.current_sample_index].weight;
-    float newweight = l.sampleContainer[l.current_sample_index].weight;
-    double pileupWeight=1.; 
-  
-    l.FillCounter( "Processed", 1. );
-    assert( weight > 0. );  
-    l.FillCounter( "XSWeighted", weight );
-    nevents+=1.;
-
-    // Set reRunCiC Only if this is an MC event since scaling of R9 and Energy isn't done at reduction
-    if (cur_type==0) {
-        l.runCiC=reRunCiCForData;
-    } else {
-        l.runCiC = true;
-    }
-    if (l.runZeeValidation) l.runCiC=true;
-
-    // -----------------------------------------------------------------------------------------------
-
-    //PU reweighting
-    unsigned int n_pu = l.pu_n;
-    if ( cur_type !=0 && puHist != "" && cur_type < 100 ) {
-        bool hasSpecificWeight = weights.find( cur_type ) != weights.end() ; 
-        if( cur_type < 0 && !hasSpecificWeight && jentry == 1 ) {
-            std::cerr  << "WARNING no pu weights specific for sample " << cur_type << std::endl;
-        }
-        std::vector<double> & puweights = hasSpecificWeight ? weights[ cur_type ] : weights[0]; 
-        if(n_pu<puweights.size()){
-            weight *= puweights[n_pu];
-            sumwei+=puweights[n_pu]; 
-            pileupWeight *= puweights[n_pu];
-        }    
-        else{ //should not happen as we have a weight for all simulated n_pu multiplicities!
-            cout <<"n_pu ("<< n_pu<<") too big ("<<puweights.size()<<") ["<< l.itype[l.current]<<"], event will not be reweighted for pileup"<<endl;
-        }
-    }
-
-    assert( weight >= 0. );  
-    l.FillCounter( "PUWeighted", weight );
-
-    if( jentry % 10000 ==  0 ) {
-        std::cout << " nevents " <<  nevents << " sumpuweights " << sumwei << " ratio " << sumwei / nevents 
-                  << " equiv events " << sumev << " accepted " << sumaccept << " smeared " << sumsmear << " "  
-                  <<  sumaccept / sumev << " " << sumsmear / sumaccept
-                  << std::endl;
-    }
-    // ------------------------------------------------------------
-    //PT-H K-factors
-    double gPT = 0;
-    TLorentzVector gP4(0,0,0,0);
-    if (cur_type<0){
-	    gP4 = l.GetHiggs();
-	    gPT = gP4.Pt();
-    }
-    // ------------------------------------------------------------
-
-    // TEMPORARY FIX -------------------------------------------------------------------------------------------------------//
-    // Scale all the r9 of the photons (and also some other variables) in the MC for better agreement
-    // For now we just let it use the index but we specifically Change the r9 in the branch AFTER Energy regression smearing
-    // Ideally we want to pass a smeared r9 too and apply after energy corrections, currently the smeared_pho_r9 isnt used!
-    // ---------------------------------------------------------------------------------------------------------------------//
-    // ---------------------------------------------------------------------------------------------------------------------//
-    // ---------------------------------------------------------------------------------------------------------------------//
-
-    if (cur_type !=0){
-        for (int ipho=0;ipho<l.pho_n;ipho++){
-            l.pho_isEB[ipho]=fabs((*((TVector3*)l.sc_xyz->At(l.pho_scind[ipho]))).Eta())<1.5;
-            //double R9_rescale = (l.pho_isEB[ipho]) ? 1.0048 : 1.00492 ;
-            //l.pho_r9[ipho]*=R9_rescale;
-            l.pho_r9[ipho]*=1.0035;
-            if (l.pho_isEB[ipho]){ l.pho_sieie[ipho] = (0.87*l.pho_sieie[ipho]) + 0.0011 ;}
-            else {l.pho_sieie[ipho]*=0.99;}
-            l.sc_seta[l.pho_scind[ipho]]*=0.99;  
-            l.sc_sphi[l.pho_scind[ipho]]*=0.99;  
-            energyCorrectedError[ipho] *=(l.pho_isEB[ipho]) ? 1.07 : 1.045 ;
-        }
-    }
-    // ---------------------------------------------------------------------------------------------------------------------//
-    // ---------------------------------------------------------------------------------------------------------------------//
-    // ---------------------------------------------------------------------------------------------------------------------//
-    // ---------------------------------------------------------------------------------------------------------------------//
-
-    // Analyse the event assuming nominal values of corrections and smearings
-    float mass, evweight;
-    int diphoton_id, category;
-    bool isCorrectVertex;
-    if( AnalyseEvent(l,jentry, weight, gP4, mass,  evweight, category, diphoton_id, isCorrectVertex,zero_) ) {
-	// feed the event to the RooContainer 
-        if (cur_type == 0 ){
-            l.rooContainer->InputDataPoint("data_mass",category,mass);
-        }
-        if (cur_type > 0 && cur_type != 3 && cur_type != 4) {
-            l.rooContainer->InputDataPoint("bkg_mass",category,mass,evweight);
-	}
-        else if (cur_type < 0){
-            l.rooContainer->InputDataPoint("sig_"+GetSignalLabel(cur_type),category,mass,evweight);
-        }
-    }
-
-    // Systematics uncertaities for the binned model
-    // We re-analyse the event several times for different values of corrections and smearings
-    if( cur_type < 0 && doMCSmearing && doSystematics ) { 
-        
-        // fill steps for syst uncertainty study
-        float systStep = systRange / (float)nSystSteps;
-	
-	    float syst_mass, syst_weight;
-	    int syst_category;
- 	    std::vector<double> mass_errors;
-	    std::vector<double> weights;
-	    std::vector<int>    categories;
-	
-        if (diphoton_id > -1 ) {
-     
-	    // gen-level systematics, i.e. ggH k-factor for the moment
-            for(std::vector<BaseGenLevelSmearer*>::iterator si=systGenLevelSmearers_.begin(); si!=systGenLevelSmearers_.end(); si++){
-		mass_errors.clear(), weights.clear(), categories.clear();
-		
-                for(float syst_shift=-systRange; syst_shift<=systRange; syst_shift+=systStep ) { 
-                    if( syst_shift == 0. ) { continue; } // skip the central value
-		    syst_mass     =  0., syst_category = -1, syst_weight   =  0.;
-		    
-		    // re-analyse the event without redoing the event selection as we use nominal values for the single photon
-		    // corrections and smearings
-		    AnalyseEvent(l, jentry, weight, gP4, syst_mass,  syst_weight, syst_category, diphoton_id, isCorrectVertex,zero_,
-				 true, syst_shift, true, *si, 0, 0 );
-		    		    
-		    categories.push_back(syst_category);
-		    mass_errors.push_back(syst_mass);
-                    weights.push_back(syst_weight);
-		}
-		if (cur_type < 0){
-		    // feed the modified signal model to the RooContainer
-		    l.rooContainer->InputSystematicSet("sig_"+GetSignalLabel(cur_type),(*si)->name(),categories,mass_errors,weights);
-		}
-	    }
-	    
-	    // di-photon systematics: vertex efficiency and trigger 
-	    for(std::vector<BaseDiPhotonSmearer *>::iterator si=systDiPhotonSmearers_.begin(); si!= systDiPhotonSmearers_.end(); ++si ) {
-		mass_errors.clear(), weights.clear(), categories.clear();
-		
-                for(float syst_shift=-systRange; syst_shift<=systRange; syst_shift+=systStep ) { 
-                    if( syst_shift == 0. ) { continue; } // skip the central value
-		    syst_mass     =  0., syst_category = -1, syst_weight   =  0.;
-		    
-		    // re-analyse the event without redoing the event selection as we use nominal values for the single photon
-		    // corrections and smearings
-		    AnalyseEvent(l,jentry, weight, gP4, syst_mass,  syst_weight, syst_category, diphoton_id, isCorrectVertex,zero_,
-				 true, syst_shift, true,  0, 0, *si );
-		    
-		    categories.push_back(syst_category);
-		    mass_errors.push_back(syst_mass);
-                    weights.push_back(syst_weight);
-		}
-		if (cur_type < 0){
-		    // feed the modified signal model to the RooContainer
-		    l.rooContainer->InputSystematicSet("sig_"+GetSignalLabel(cur_type),(*si)->name(),categories,mass_errors,weights);
-		}
-	    }
-	}
-	
-	// single photon level systematics: several
-	for(std::vector<BaseSmearer *>::iterator  si=systPhotonSmearers_.begin(); si!= systPhotonSmearers_.end(); ++si ) {
-	    mass_errors.clear(), weights.clear(), categories.clear();
-	    
-	    for(float syst_shift=-systRange; syst_shift<=systRange; syst_shift+=systStep ) { 
-		if( syst_shift == 0. ) { continue; } // skip the central value
-		syst_mass     =  0., syst_category = -1, syst_weight   =  0.;
-		
-		// re-analyse the event redoing the event selection this time
-		AnalyseEvent(l,jentry, weight, gP4, syst_mass,  syst_weight, syst_category, diphoton_id, isCorrectVertex,zero_,
-			     true, syst_shift, false,  0, *si, 0 );
-		
-		categories.push_back(syst_category);
-		mass_errors.push_back(syst_mass);
-		weights.push_back(syst_weight);
-	    }
-	    if (cur_type < 0){
-		// feed the modified signal model to the RooContainer
-		l.rooContainer->InputSystematicSet("sig_"+GetSignalLabel(cur_type),(*si)->name(),categories,mass_errors,weights);
-	    }
-	}
-    }
-
-    if(PADEBUG) 
-        cout<<"myFillHistRed END"<<endl;
-}
+////////// // ----------------------------------------------------------------------------------------------------
+////////// void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry) 
+////////// {
+//////////     if(PADEBUG) 
+//////////         cout << "Analysis START; cur_type is: " << l.itype[l.current] <<endl;
+////////// 
+////////// 
+//////////     int cur_type = l.itype[l.current];
+//////////     float weight = l.sampleContainer[l.current_sample_index].weight;
+//////////     float newweight = l.sampleContainer[l.current_sample_index].weight;
+//////////     double pileupWeight=1.; 
+//////////   
+//////////     l.FillCounter( "Processed", 1. );
+//////////     assert( weight > 0. );  
+//////////     l.FillCounter( "XSWeighted", weight );
+//////////     nevents+=1.;
+////////// 
+//////////     // Set reRunCiC Only if this is an MC event since scaling of R9 and Energy isn't done at reduction
+//////////     if (cur_type==0) {
+//////////         l.runCiC=reRunCiCForData;
+//////////     } else {
+//////////         l.runCiC = true;
+//////////     }
+//////////     if (l.runZeeValidation) l.runCiC=true;
+////////// 
+//////////     // -----------------------------------------------------------------------------------------------
+////////// 
+//////////     //PU reweighting
+//////////     unsigned int n_pu = l.pu_n;
+//////////     if ( cur_type !=0 && puHist != "" && cur_type < 100 ) {
+//////////         bool hasSpecificWeight = weights.find( cur_type ) != weights.end() ; 
+//////////         if( cur_type < 0 && !hasSpecificWeight && jentry == 1 ) {
+//////////             std::cerr  << "WARNING no pu weights specific for sample " << cur_type << std::endl;
+//////////         }
+//////////         std::vector<double> & puweights = hasSpecificWeight ? weights[ cur_type ] : weights[0]; 
+//////////         if(n_pu<puweights.size()){
+//////////             weight *= puweights[n_pu];
+//////////             sumwei+=puweights[n_pu]; 
+//////////             pileupWeight *= puweights[n_pu];
+//////////         }    
+//////////         else{ //should not happen as we have a weight for all simulated n_pu multiplicities!
+//////////             cout <<"n_pu ("<< n_pu<<") too big ("<<puweights.size()<<") ["<< l.itype[l.current]<<"], event will not be reweighted for pileup"<<endl;
+//////////         }
+//////////     }
+////////// 
+//////////     assert( weight >= 0. );  
+//////////     l.FillCounter( "PUWeighted", weight );
+////////// 
+//////////     if( jentry % 10000 ==  0 ) {
+//////////         std::cout << " nevents " <<  nevents << " sumpuweights " << sumwei << " ratio " << sumwei / nevents 
+//////////                   << " equiv events " << sumev << " accepted " << sumaccept << " smeared " << sumsmear << " "  
+//////////                   <<  sumaccept / sumev << " " << sumsmear / sumaccept
+//////////                   << std::endl;
+//////////     }
+//////////     // ------------------------------------------------------------
+//////////     //PT-H K-factors
+//////////     double gPT = 0;
+//////////     TLorentzVector gP4(0,0,0,0);
+//////////     if (cur_type<0){
+////////// 	    gP4 = l.GetHiggs();
+////////// 	    gPT = gP4.Pt();
+//////////     }
+//////////     // ------------------------------------------------------------
+////////// 
+//////////     // TEMPORARY FIX -------------------------------------------------------------------------------------------------------//
+//////////     // Scale all the r9 of the photons (and also some other variables) in the MC for better agreement
+//////////     // For now we just let it use the index but we specifically Change the r9 in the branch AFTER Energy regression smearing
+//////////     // Ideally we want to pass a smeared r9 too and apply after energy corrections, currently the smeared_pho_r9 isnt used!
+//////////     // ---------------------------------------------------------------------------------------------------------------------//
+//////////     // ---------------------------------------------------------------------------------------------------------------------//
+//////////     // ---------------------------------------------------------------------------------------------------------------------//
+////////// 
+//////////     if (cur_type !=0){
+//////////         for (int ipho=0;ipho<l.pho_n;ipho++){
+//////////             l.pho_isEB[ipho]=fabs((*((TVector3*)l.sc_xyz->At(l.pho_scind[ipho]))).Eta())<1.5;
+//////////             //double R9_rescale = (l.pho_isEB[ipho]) ? 1.0048 : 1.00492 ;
+//////////             //l.pho_r9[ipho]*=R9_rescale;
+//////////             l.pho_r9[ipho]*=1.0035;
+//////////             if (l.pho_isEB[ipho]){ l.pho_sieie[ipho] = (0.87*l.pho_sieie[ipho]) + 0.0011 ;}
+//////////             else {l.pho_sieie[ipho]*=0.99;}
+//////////             l.sc_seta[l.pho_scind[ipho]]*=0.99;  
+//////////             l.sc_sphi[l.pho_scind[ipho]]*=0.99;  
+//////////             energyCorrectedError[ipho] *=(l.pho_isEB[ipho]) ? 1.07 : 1.045 ;
+//////////         }
+//////////     }
+//////////     // ---------------------------------------------------------------------------------------------------------------------//
+//////////     // ---------------------------------------------------------------------------------------------------------------------//
+//////////     // ---------------------------------------------------------------------------------------------------------------------//
+//////////     // ---------------------------------------------------------------------------------------------------------------------//
+////////// 
+//////////     // Analyse the event assuming nominal values of corrections and smearings
+//////////     float mass, evweight;
+//////////     int diphoton_id, category;
+//////////     bool isCorrectVertex;
+//////////     if( AnalyseEvent(l,jentry, weight, gP4, mass,  evweight, category, diphoton_id, isCorrectVertex,zero_) ) {
+////////// 	// feed the event to the RooContainer 
+//////////         if (cur_type == 0 ){
+//////////             l.rooContainer->InputDataPoint("data_mass",category,mass);
+//////////         }
+//////////         if (cur_type > 0 && cur_type != 3 && cur_type != 4) {
+//////////             l.rooContainer->InputDataPoint("bkg_mass",category,mass,evweight);
+////////// 	}
+//////////         else if (cur_type < 0){
+//////////             l.rooContainer->InputDataPoint("sig_"+GetSignalLabel(cur_type),category,mass,evweight);
+//////////         }
+//////////     }
+////////// 
+//////////     // Systematics uncertaities for the binned model
+//////////     // We re-analyse the event several times for different values of corrections and smearings
+//////////     if( cur_type < 0 && doMCSmearing && doSystematics ) { 
+//////////         
+//////////         // fill steps for syst uncertainty study
+//////////         float systStep = systRange / (float)nSystSteps;
+////////// 	
+////////// 	    float syst_mass, syst_weight;
+////////// 	    int syst_category;
+//////////  	    std::vector<double> mass_errors;
+////////// 	    std::vector<double> weights;
+////////// 	    std::vector<int>    categories;
+////////// 	
+//////////         if (diphoton_id > -1 ) {
+//////////      
+////////// 	    // gen-level systematics, i.e. ggH k-factor for the moment
+//////////             for(std::vector<BaseGenLevelSmearer*>::iterator si=systGenLevelSmearers_.begin(); si!=systGenLevelSmearers_.end(); si++){
+////////// 		mass_errors.clear(), weights.clear(), categories.clear();
+////////// 		
+//////////                 for(float syst_shift=-systRange; syst_shift<=systRange; syst_shift+=systStep ) { 
+//////////                     if( syst_shift == 0. ) { continue; } // skip the central value
+////////// 		    syst_mass     =  0., syst_category = -1, syst_weight   =  0.;
+////////// 		    
+////////// 		    // re-analyse the event without redoing the event selection as we use nominal values for the single photon
+////////// 		    // corrections and smearings
+////////// 		    AnalyseEvent(l, jentry, weight, gP4, syst_mass,  syst_weight, syst_category, diphoton_id, isCorrectVertex,zero_,
+////////// 				 true, syst_shift, true, *si, 0, 0 );
+////////// 		    		    
+////////// 		    categories.push_back(syst_category);
+////////// 		    mass_errors.push_back(syst_mass);
+//////////                     weights.push_back(syst_weight);
+////////// 		}
+////////// 		if (cur_type < 0){
+////////// 		    // feed the modified signal model to the RooContainer
+////////// 		    l.rooContainer->InputSystematicSet("sig_"+GetSignalLabel(cur_type),(*si)->name(),categories,mass_errors,weights);
+////////// 		}
+////////// 	    }
+////////// 	    
+////////// 	    // di-photon systematics: vertex efficiency and trigger 
+////////// 	    for(std::vector<BaseDiPhotonSmearer *>::iterator si=systDiPhotonSmearers_.begin(); si!= systDiPhotonSmearers_.end(); ++si ) {
+////////// 		mass_errors.clear(), weights.clear(), categories.clear();
+////////// 		
+//////////                 for(float syst_shift=-systRange; syst_shift<=systRange; syst_shift+=systStep ) { 
+//////////                     if( syst_shift == 0. ) { continue; } // skip the central value
+////////// 		    syst_mass     =  0., syst_category = -1, syst_weight   =  0.;
+////////// 		    
+////////// 		    // re-analyse the event without redoing the event selection as we use nominal values for the single photon
+////////// 		    // corrections and smearings
+////////// 		    AnalyseEvent(l,jentry, weight, gP4, syst_mass,  syst_weight, syst_category, diphoton_id, isCorrectVertex,zero_,
+////////// 				 true, syst_shift, true,  0, 0, *si );
+////////// 		    
+////////// 		    categories.push_back(syst_category);
+////////// 		    mass_errors.push_back(syst_mass);
+//////////                     weights.push_back(syst_weight);
+////////// 		}
+////////// 		if (cur_type < 0){
+////////// 		    // feed the modified signal model to the RooContainer
+////////// 		    l.rooContainer->InputSystematicSet("sig_"+GetSignalLabel(cur_type),(*si)->name(),categories,mass_errors,weights);
+////////// 		}
+////////// 	    }
+////////// 	}
+////////// 	
+////////// 	// single photon level systematics: several
+////////// 	for(std::vector<BaseSmearer *>::iterator  si=systPhotonSmearers_.begin(); si!= systPhotonSmearers_.end(); ++si ) {
+////////// 	    mass_errors.clear(), weights.clear(), categories.clear();
+////////// 	    
+////////// 	    for(float syst_shift=-systRange; syst_shift<=systRange; syst_shift+=systStep ) { 
+////////// 		if( syst_shift == 0. ) { continue; } // skip the central value
+////////// 		syst_mass     =  0., syst_category = -1, syst_weight   =  0.;
+////////// 		
+////////// 		// re-analyse the event redoing the event selection this time
+////////// 		AnalyseEvent(l,jentry, weight, gP4, syst_mass,  syst_weight, syst_category, diphoton_id, isCorrectVertex,zero_,
+////////// 			     true, syst_shift, false,  0, *si, 0 );
+////////// 		
+////////// 		categories.push_back(syst_category);
+////////// 		mass_errors.push_back(syst_mass);
+////////// 		weights.push_back(syst_weight);
+////////// 	    }
+////////// 	    if (cur_type < 0){
+////////// 		// feed the modified signal model to the RooContainer
+////////// 		l.rooContainer->InputSystematicSet("sig_"+GetSignalLabel(cur_type),(*si)->name(),categories,mass_errors,weights);
+////////// 	    }
+////////// 	}
+//////////     }
+////////// 
+//////////     if(PADEBUG) 
+//////////         cout<<"myFillHistRed END"<<endl;
+////////// }
 
 bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentzVector & gP4,
 				float & mass, float & evweight, int & category, int & diphoton_id, bool & isCorrectVertex, float &kinematic_bdtout,
@@ -794,8 +794,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
         }
 
         if(includeVBF) {
-            double leadEtCutVBF = 55.;
-            diphotonVBF_id = l.DiphotonMITPreSelection(leadEtCutVBF,subleadEtCut,applyPtoverM, &smeared_pho_energy[0] );
+            diphotonVBF_id = l.DiphotonMITPreSelection(leadEtVBFCut,subleadEtVBFCut,applyPtoverM, &smeared_pho_energy[0] );
             float eventweight = weight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second] * genLevWeight;
             float myweight=1.;
             if(eventweight*sampleweight!=0) myweight=eventweight/sampleweight;
@@ -927,91 +926,6 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 }
 
 // ----------------------------------------------------------------------------------------------------
-
-// ----------------------------------------------------------------------------------------------------
-void MassFactorizedMvaAnalysis::GetBranches(TTree *t, std::set<TBranch *>& s ) 
-{
-    vtxAna_.setBranchAdresses(t,"vtx_std_");
-    vtxAna_.getBranches(t,"vtx_std_",s);
-}
-
-// ----------------------------------------------------------------------------------------------------
-bool MassFactorizedMvaAnalysis::SelectEvents(LoopAll& l, int jentry) 
-{
-    return true;
-}
-// ----------------------------------------------------------------------------------------------------
-double MassFactorizedMvaAnalysis::GetDifferentialKfactor(double gPT, int Mass)
-{
-
-    return 1.0;
-}
-
-void MassFactorizedMvaAnalysis::FillSignalLabelMap(){
-
-    // Basically A Map of the ID (type) to the signal's name which can be filled Now:
-    signalLabels[-57]="ggh_mass_m123";
-    signalLabels[-58]="vbf_mass_m123";
-    signalLabels[-60]="wzh_mass_m123";
-    signalLabels[-59]="tth_mass_m123";
-    signalLabels[-53]="ggh_mass_m121";
-    signalLabels[-54]="vbf_mass_m121";
-    signalLabels[-56]="wzh_mass_m121";
-    signalLabels[-55]="tth_mass_m121";
-    signalLabels[-65]="ggh_mass_m160";
-    signalLabels[-66]="vbf_mass_m160";
-    signalLabels[-68]="wzh_mass_m160";
-    signalLabels[-67]="tth_mass_m160";
-    signalLabels[-61]="ggh_mass_m155";
-    signalLabels[-62]="vbf_mass_m155";
-    signalLabels[-64]="wzh_mass_m155";
-    signalLabels[-63]="tth_mass_m155";
-    signalLabels[-49]="ggh_mass_m150";
-    signalLabels[-50]="vbf_mass_m150";
-    signalLabels[-52]="wzh_mass_m150";
-    signalLabels[-51]="tth_mass_m150";
-    signalLabels[-45]="ggh_mass_m145";
-    signalLabels[-46]="vbf_mass_m145";
-    signalLabels[-48]="wzh_mass_m145";
-    signalLabels[-47]="tth_mass_m145";
-    signalLabels[-33]="ggh_mass_m140";
-    signalLabels[-34]="vbf_mass_m140";
-    signalLabels[-36]="wzh_mass_m140";
-    signalLabels[-35]="tth_mass_m140";
-    signalLabels[-41]="ggh_mass_m135";
-    signalLabels[-42]="vbf_mass_m135";
-    signalLabels[-44]="wzh_mass_m135";
-    signalLabels[-43]="tth_mass_m135";
-    signalLabels[-29]="ggh_mass_m130";
-    signalLabels[-30]="vbf_mass_m130";
-    signalLabels[-32]="wzh_mass_m130";
-    signalLabels[-31]="tth_mass_m130";
-    signalLabels[-37]="ggh_mass_m125";
-    signalLabels[-38]="vbf_mass_m125";
-    signalLabels[-40]="wzh_mass_m125";
-    signalLabels[-39]="tth_mass_m125";
-    signalLabels[-25]="ggh_mass_m120";
-    signalLabels[-26]="vbf_mass_m120";
-    signalLabels[-28]="wzh_mass_m120";
-    signalLabels[-27]="tth_mass_m120";
-    signalLabels[-21]="ggh_mass_m115";
-    signalLabels[-22]="vbf_mass_m115";
-    signalLabels[-24]="wzh_mass_m115";
-    signalLabels[-23]="tth_mass_m115";
-    signalLabels[-17]="ggh_mass_m110";
-    signalLabels[-18]="vbf_mass_m110";
-    signalLabels[-19]="wzh_mass_m110";
-    signalLabels[-20]="tth_mass_m110";
-    signalLabels[-13]="ggh_mass_m105";
-    signalLabels[-14]="vbf_mass_m105";
-    signalLabels[-16]="wzh_mass_m105";
-    signalLabels[-15]="tth_mass_m105";
-    signalLabels[-69]="ggh_mass_m100";
-    signalLabels[-70]="vbf_mass_m100";
-    signalLabels[-72]="wzh_mass_m100";
-    signalLabels[-71]="tth_mass_m100";
-}
-
 int MassFactorizedMvaAnalysis::GetBDTBoundaryCategory(float bdtout, bool isEB, bool VBFevent){
 
     if (bdtTrainingPhilosophy=="UCSD"){
@@ -1051,22 +965,6 @@ int MassFactorizedMvaAnalysis::GetBDTBoundaryCategory(float bdtout, bool isEB, b
         }
 
     } else std::cerr << "No BDT Philosophy known - " << bdtTrainingPhilosophy << std::endl;
-}
-
-std::string MassFactorizedMvaAnalysis::GetSignalLabel(int id){
-
-    // For the lazy man, can return a memeber of the map rather than doing it yourself
-    std::map<int,std::string>::iterator it = signalLabels.find(id);
-
-    if (it!=signalLabels.end()){
-        return it->second;
-
-    } else { 
-
-        std::cerr << "No Signal Type defined in map with id - " << id << std::endl;
-        return "NULL";
-    }
-
 }
 
 void MassFactorizedMvaAnalysis::ResetAnalysis(){
