@@ -15,6 +15,9 @@ reRunCiCForData=1
 
 includeVBF=1
 
+leadEtVBFCut=55
+subleadEtVBFCut=30
+
 ->
 choose between UCSD and MIT trainings
 ->
