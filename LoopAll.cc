@@ -76,11 +76,6 @@ void LoopAll::SetTypeRun(int t, const char* name) {
   outputTreeLumi = new TTree("lumi","Lumi info tree"); 
   outputTreeLumi->Branch("run", &run, "run/I");
   outputTreeLumi->Branch("lumis", &lumis, "lumis/I");
-
-//  if (typerun==kReduce || typerun == kFillReduce ){
-//	pileup  =  new TH1D("pileup", "pileup", 100, 0, 100); 
-//  }
-
 }
 
 // ------------------------------------------------------------------------------------
@@ -323,7 +318,10 @@ void LoopAll::LoopAndFillHistos(TString treename) {
 	  	pileup->Add((TH1D*) ((*it_file)->Get("pileup")));
 	  }
       } 
-     
+      
+      if (type == 0)
+	if (typerun==kReduce || typerun == kFillReduce )
+	  pileup  =  new TH1D("pileup", "pileup", 100, 0, 100); 
     }
     
     if(tot_events!=0) {
