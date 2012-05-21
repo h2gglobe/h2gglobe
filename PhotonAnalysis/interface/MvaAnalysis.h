@@ -35,10 +35,6 @@ class MvaAnalysis : public MassFactorizedMvaAnalysis
     
     void GetBranches(TTree *, std::set<TBranch *>& );
     
-    virtual bool SelectEvents(LoopAll&, int);
-    virtual void ResetAnalysis();
-    virtual void Analysis(LoopAll&, Int_t);
-    
     void FillSignalLabelMap();
     int GetBDTBoundaryCategory(float,bool,bool);
     std::string GetSignalLabel(int);
@@ -103,6 +99,16 @@ class MvaAnalysis : public MassFactorizedMvaAnalysis
     float tmvaGetVal(double,double,float);
     void fillLeeTrees(float,float,int,float,int);
 
+    virtual void FillRooContainer(LoopAll& l, int cur_type, float mass, float diphotonMVA, int category, float weight, 
+				  bool isCorrectVertex);
+    virtual void AccumulateSyst(int cur_type, float mass, float diphotonMVA, int category, float weight,
+				std::vector<double> & mass_errors,
+				std::vector<double> & mva_errors,
+				std::vector<int>    & categories,
+				std::vector<double> & weights);
+    virtual void FillRooContainerSyst(LoopAll& l, const std::string & name,int cur_type,
+				      std::vector<double> & mass_errors, std::vector<double> & mva_errors,
+				      std::vector<int>    & categories, std::vector<double> & weights);
     
     std::string name_;
     float nevents, sumwei, sumaccept, sumsmear, sumev; 

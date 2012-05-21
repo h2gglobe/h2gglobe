@@ -502,317 +502,6 @@ void MvaAnalysis::Init(LoopAll& l)
         cout << "InitRealMvaAnalysis END"<<endl;
 }
 
-// ----------------------------------------------------------------------------------------------------
-void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry) 
-{
-
-    if(PADEBUG) 
-        cout << "Analysis START; cur_type is: " << l.itype[l.current] <<endl;
-    int cur_type = l.itype[l.current];
-    float weight = l.sampleContainer[l.current_sample_index].weight;
-
-    if (!doTraining){
-        if (splitSignalSample  && cur_type < 0) {
-            if (jentry%2!=0) return;
-            else weight*=2;
-        }
-
-        if (splitBackgroundSample && cur_type > 0) {
-            if (jentry%2!=0) return;
-            else weight*=2;
-        }
-    }
-
-
-    // Get Signal Label for the current type
-    std::string currentTypeSignalLabel = "";
-    if  (cur_type<0) currentTypeSignalLabel = GetSignalLabel(cur_type);
-    // -----------------------------------------------------------------------------------------------
-
-    l.FillCounter( "Processed", 1. );
-    assert( weight > 0. );  
-    l.FillCounter( "XSWeighted", weight );
-    nevents+=1.;
-
-    // Set reRunCiC Only if this is an MC event since scaling of R9 and Energy isn't done at reduction
-    if (cur_type==0) {
-        l.runCiC=reRunCiCForData;
-    } else {
-        l.runCiC = true;
-    }
-    if (l.runZeeValidation) {   
-        l.runCiC=true;
-    }
-    // -----------------------------------------------------------------------------------------------
-
-    //PU reweighting
-    unsigned int n_pu = l.pu_n;
-    if ( cur_type !=0 && puHist != "" && cur_type < 100) {
-        bool hasSpecificWeight = weights.find( cur_type ) != weights.end() ; 
-        if( cur_type < 0 && !hasSpecificWeight && jentry == 1 ) {
-            std::cerr  << "WARNING no pu weights specific for sample " << cur_type << std::endl;
-        }
-        std::vector<double> & puweights = hasSpecificWeight ? weights[ cur_type ] : weights[0]; 
-        if(n_pu<puweights.size()){
-            weight *= puweights[n_pu];
-            sumwei+=puweights[n_pu]; 
-        }    
-        else{ //should not happen as we have a weight for all simulated n_pu multiplicities!
-            cout <<"n_pu ("<< n_pu<<") too big ("<<puweights.size()<<") ["<< l.itype[l.current]<<"], event will not be reweighted for pileup"<<endl;
-        }
-    }
-
-    assert( weight >= 0. );  
-    l.FillCounter( "PUWeighted", weight );
-
-    if( jentry % 10000 ==  0 ) {
-        std::cout << " nevents " <<  nevents << " sumpuweights " << sumwei << " ratio " << sumwei / nevents 
-                  << " equiv events " << sumev << " accepted " << sumaccept << " smeared " << sumsmear << " "  
-                  <<  sumaccept / sumev << " " << sumsmear / sumaccept
-                  << std::endl;
-    }
-    // ------------------------------------------------------------
-    //PT-H K-factors
-    double gPT = 0;
-    TLorentzVector gP4(0,0,0,0);
-    if (cur_type<0){
-	    gP4 = l.GetHiggs();
-	    gPT = gP4.Pt();
-    }
-
-    // ------------------------------------------------------------
-    // smear all of the photons!
-    std::pair<int,int> diphoton_index;
-/*
-    // do gen-level dependent first (e.g. k-factor); only for signal
-    double genLevWeight=1; 
-    if(cur_type<0){
-        for(std::vector<BaseGenLevelSmearer*>::iterator si=genLevelSmearers_.begin(); si!=genLevelSmearers_.end(); si++){
-            float genWeight=1;
-            (*si)->smearEvent( genWeight,gP4, l.pu_n, cur_type, 0. );
-            if( genWeight < 0. ) {
-                std::cerr << "Negative weight from smearer " << (*si)->name() << std::endl;
-                assert(0);
-            }
-            genLevWeight*=genWeight;
-        }
-    }
-*/
-
-    // Nominal smearing
-    std::vector<float> smeared_pho_energy(l.pho_n,0.); 
-    std::vector<float> smeared_pho_r9(l.pho_n,0.); 
-    std::vector<float> smeared_pho_weight(l.pho_n,1.);
-
-    // TEMPORARY FIX -------------------------------------------------------------------------------------------------------//
-    // Scale all the r9 of the photons in the MC
-    // For now we just let it use the index but we specifically Change the r9 in the branch AFTER Energy regression smearing
-    // Ideally we want to pass a smeared r9 too and apply after energy corrections, currently the smeared_pho_r9 isnt used!
-    // ---------------------------------------------------------------------------------------------------------------------//
-    // ---------------------------------------------------------------------------------------------------------------------//
-    // ---------------------------------------------------------------------------------------------------------------------//
-    if (cur_type !=0){
-        for (int ipho=0;ipho<l.pho_n;ipho++){
-            l.pho_isEB[ipho]=fabs((*((TVector3*)l.sc_xyz->At(l.pho_scind[ipho]))).Eta())<1.5;
-            l.pho_r9[ipho]*=1.0035;
-            if (l.pho_isEB[ipho]){ l.pho_sieie[ipho] = (0.87*l.pho_sieie[ipho]) + 0.0011 ;}
-            else {l.pho_sieie[ipho]*=0.99;}
-            l.sc_seta[l.pho_scind[ipho]]*=0.99;  
-            l.sc_sphi[l.pho_scind[ipho]]*=0.99;  
-            energyCorrectedError[ipho] *=(l.pho_isEB[ipho]) ? 1.07 : 1.045 ;
-        }
-    }
-    // ---------------------------------------------------------------------------------------------------------------------//
-    // ---------------------------------------------------------------------------------------------------------------------//
-    // ---------------------------------------------------------------------------------------------------------------------//
-    // ---------------------------------------------------------------------------------------------------------------------//
-
-    float bdt_grad;
-    float kinematic_bdtout;
-    float mass, evweight;
-    int diphoton_id, category;
-    bool isCorrectVertex;
-
-    if( AnalyseEvent(l,jentry, weight, gP4, mass,  evweight, category, diphoton_id, isCorrectVertex, kinematic_bdtout) ) {
-
-    if (makeTrees){
-            fillLeeTrees(mass,kinematic_bdtout,category,evweight,cur_type);
-    }
-        
-    // --- Fill invariant mass spectrum -------
-    if (cur_type==0){  // Data
-                l.rooContainer->InputDataPoint("data_mass",category,mass);
-    } else if (cur_type>0){ // Background MC
-                l.rooContainer->InputBinnedDataPoint("bkg_mass",category,mass,evweight);
-    }
-
-    if (cur_type<0){ // signal MC
-            float mass_hypothesis = masses[SignalType(cur_type)];
-            float sideband_boundaries[2];
-            sideband_boundaries[0] = mass_hypothesis*(1-sidebandWidth);
-            sideband_boundaries[1] = mass_hypothesis*(1+sidebandWidth);
-            if( mass>sideband_boundaries[0] && mass<sideband_boundaries[1]){//Signal mass window cut
-                   bdt_grad =  tmvaGetVal(mass,mass_hypothesis,kinematic_bdtout);
-                   if (PADEBUG) std::cout <<"Seleced Event mH="<<mass_hypothesis<<" mass="<<mass<<" bdtout="<<kinematic_bdtout<< " cat="<<category<<" massbdt="<<bdt_grad<<" weight="<<weight<<std::endl;
-                   l.rooContainer->InputBinnedDataPoint("sig_BDT_grad_"+currentTypeSignalLabel ,category,bdt_grad,evweight);
-            
-            }
-     } else {
-
-        for (double mH=mHMinimum; mH<mHMaximum; mH+=mHStep){
-            // Fill Signal Window
-            float sideband_boundaries[2];
-            sideband_boundaries[0] = mH*(1-sidebandWidth);
-            sideband_boundaries[1] = mH*(1+sidebandWidth);
-            if( mass>sideband_boundaries[0] && mass<sideband_boundaries[1]){//Signal mass window cut
-                bdt_grad =  tmvaGetVal(mass,mH,kinematic_bdtout);
-            
-                if (cur_type==0) l.rooContainer->InputBinnedDataPoint(Form("data_BDT_grad_%3.1f",mH),category,bdt_grad,evweight);
-                else if (cur_type > 0) l.rooContainer->InputBinnedDataPoint(Form("bkg_BDT_grad_%3.1f",mH) ,category,bdt_grad,evweight);
-            }
-            
-            // Loop over N lower sidebands
-            for (int sideband_i = 1 ; sideband_i <= numberOfSidebands ; sideband_i++){
-                double hypothesisModifier = (1.-sidebandWidth)/(1+sidebandWidth);
-                double mass_hypothesis_low     = (mH*(1.-signalRegionWidth)/(1.+sidebandWidth)-sidebandShift)*(TMath::Power(hypothesisModifier,sideband_i-1));
-                double sideband_boundaries_low = mass_hypothesis_low*(1.-sidebandWidth);
-                double sideband_boundaries_high= mass_hypothesis_low*(1.+sidebandWidth);
-
-                if ( mass>sideband_boundaries_low && mass<sideband_boundaries_high){
-                   bdt_grad =  tmvaGetVal(mass,mass_hypothesis_low,kinematic_bdtout);
-                   if (cur_type==0) l.rooContainer->InputBinnedDataPoint(Form("data_%dlow_BDT_grad_%3.1f",sideband_i,mH) ,category,bdt_grad,evweight);
-                   else if (cur_type > 0) l.rooContainer->InputBinnedDataPoint(Form("bkg_%dlow_BDT_grad_%3.1f",sideband_i,mH) ,category,bdt_grad,evweight);
-
-                }
-            }
-            // Loop over N higher sidebands
-            for (int sideband_i = 1 ; sideband_i <= numberOfSidebands ; sideband_i++){
-                double hypothesisModifier = (1.+sidebandWidth)/(1-sidebandWidth);
-                double mass_hypothesis_high     = (mH*(1.+signalRegionWidth)/(1.-sidebandWidth)+sidebandShift)*(TMath::Power(hypothesisModifier,sideband_i-1));
-                double sideband_boundaries_low = mass_hypothesis_high*(1.-sidebandWidth);
-                double sideband_boundaries_high= mass_hypothesis_high*(1.+sidebandWidth);
-
-                if ( mass>sideband_boundaries_low && mass<sideband_boundaries_high){
-                   bdt_grad =  tmvaGetVal(mass,mass_hypothesis_high,kinematic_bdtout);
-                   if (cur_type==0) l.rooContainer->InputBinnedDataPoint(Form("data_%dhigh_BDT_grad_%3.1f",sideband_i,mH) ,category,bdt_grad,evweight);
-                   else if (cur_type > 0) l.rooContainer->InputBinnedDataPoint(Form("bkg_%dhigh_BDT_grad_%3.1f",sideband_i,mH) ,category,bdt_grad,evweight);
-
-                }
-            }
-
-        }
-    }
-    }
-    // Systematics uncertaities for the binned model
-    // We re-analyse the event several times for different values of corrections and smearings
-    if( cur_type < 0 && doMCSmearing && doSystematics && !doTraining && !makeTrees) { 
-        
-        // fill steps for syst uncertainty study
-        float systStep = systRange / (float)nSystSteps;
-	
-	float syst_mass, syst_weight, syst_kinematic_bdtout;
-	int syst_category;
-	std::vector<double> bdt_errors;
-	std::vector<double> weights;
-	std::vector<int>    categories;
-	
-        // define hypothesis masses for the sidebands
-        float mass_hypothesis = masses[SignalType(cur_type)];
-        // define the sidebands
-        float sideband_boundaries[2];
-        sideband_boundaries[0] = mass_hypothesis*(1-sidebandWidth);
-        sideband_boundaries[1] = mass_hypothesis*(1+sidebandWidth);
-	
-        if (diphoton_id > -1 ) {
-	    
-	    // gen-level systematics, i.e. ggH k-factor for the moment
-	    for(std::vector<BaseGenLevelSmearer*>::iterator si=systGenLevelSmearers_.begin(); si!=systGenLevelSmearers_.end(); si++){
-		bdt_errors.clear(), weights.clear(), categories.clear();
-		
-		for(float syst_shift=-systRange; syst_shift<=systRange; syst_shift+=systStep ) { 
-		    if( syst_shift == 0. ) { continue; } // skip the central value
-		    syst_mass     =  0., syst_category = -1, syst_weight   =  0.;
-		    
-		    // re-analyse the event without redoing the event selection as we use nominal values for the single photon
-		    // corrections and smearings
-		    AnalyseEvent(l, jentry, weight, gP4, syst_mass,  syst_weight, syst_category, diphoton_id, isCorrectVertex, syst_kinematic_bdtout, true, syst_shift, true, *si, 0, 0 );
-		    
-		    
-		    // Signal Window cut
-		    if( mass>sideband_boundaries[0] && mass<sideband_boundaries[1]){
-			double syst_bdt_grad = tmvaGetVal(syst_mass,mass_hypothesis,syst_kinematic_bdtout);
-			categories.push_back(syst_category);
-			bdt_errors.push_back(syst_bdt_grad);
-			weights.push_back(syst_weight);
-		    } else {
-			categories.push_back(-1);
-			bdt_errors.push_back(-100);
-			weights.push_back(0);
-		    }
-		}
-		
-		l.rooContainer->InputSystematicSet("sig_BDT_grad_"+currentTypeSignalLabel,(*si)->name(),categories,bdt_errors,weights);
-	    }
-	    
-	    // di-photon systematics: vertex efficiency and trigger 
-	    for(std::vector<BaseDiPhotonSmearer *>::iterator si=systDiPhotonSmearers_.begin(); si!= systDiPhotonSmearers_.end(); ++si ) {
-		bdt_errors.clear(), weights.clear(), categories.clear();
-		
-		for(float syst_shift=-systRange; syst_shift<=systRange; syst_shift+=systStep ) { 
-		    if( syst_shift == 0. ) { continue; } // skip the central value
-		    syst_mass     =  0., syst_category = -1, syst_weight   =  0.;
-		    
-		    // re-analyse the event without redoing the event selection as we use nominal values for the single photon
-		    // corrections and smearings
-		    AnalyseEvent(l,jentry, weight, gP4, syst_mass,  syst_weight, syst_category, diphoton_id, isCorrectVertex, syst_kinematic_bdtout, true, syst_shift, true,  0, 0, *si );
-		    // Signal Window cut
-		    if( syst_mass>sideband_boundaries[0] && syst_mass<sideband_boundaries[1]){
-			double syst_bdt_grad = tmvaGetVal(syst_mass,mass_hypothesis,syst_kinematic_bdtout);
-			categories.push_back(syst_category);
-			bdt_errors.push_back(syst_bdt_grad);
-			weights.push_back(syst_weight);
-		    } else {
-			categories.push_back(-1);
-			bdt_errors.push_back(-100);
-			weights.push_back(0);
-		    }
-		    
-		}
-		l.rooContainer->InputSystematicSet("sig_BDT_grad_"+currentTypeSignalLabel,(*si)->name(),categories,bdt_errors,weights);
-	    }
-	}
-	
-	// single photon level systematics: several
-	for(std::vector<BaseSmearer *>::iterator  si=systPhotonSmearers_.begin(); si!= systPhotonSmearers_.end(); ++si ) {
-	    bdt_errors.clear(), weights.clear(), categories.clear();
-	    
-	    for(float syst_shift=-systRange; syst_shift<=systRange; syst_shift+=systStep ) { 
-		if( syst_shift == 0. ) { continue; } // skip the central value
-		syst_mass     =  0., syst_category = -1, syst_weight   =  0.; syst_kinematic_bdtout=0.;
-		
-		// re-analyse the event redoing the event selection this time
-		AnalyseEvent(l,jentry, weight, gP4, syst_mass,  syst_weight, syst_category, diphoton_id, isCorrectVertex,syst_kinematic_bdtout, true, syst_shift, false,  0, *si, 0 );
-		
-		// Signal Window cut
-		if( syst_mass>sideband_boundaries[0] && syst_mass<sideband_boundaries[1]){
-		    double syst_bdt_grad = tmvaGetVal(syst_mass,mass_hypothesis,syst_kinematic_bdtout);
-		    categories.push_back(syst_category);
-		    bdt_errors.push_back(syst_bdt_grad);
-		    weights.push_back(syst_weight);
-		} else {
-		    categories.push_back(-1);
-		    bdt_errors.push_back(-100);
-		    weights.push_back(0);
-		}
-	    }
-	    l.rooContainer->InputSystematicSet("sig_BDT_grad_"+currentTypeSignalLabel,(*si)->name(),categories,bdt_errors,weights);
-	}
-    }
-    if(PADEBUG) 
-        cout<<"myFillHistRed END"<<endl;
-}
-
-// ----------------------------------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------------------------------
 void MvaAnalysis::GetBranches(TTree *t, std::set<TBranch *>& s ) 
@@ -821,11 +510,6 @@ void MvaAnalysis::GetBranches(TTree *t, std::set<TBranch *>& s )
     vtxAna_.getBranches(t,"vtx_std_",s);
 }
 
-// ----------------------------------------------------------------------------------------------------
-bool MvaAnalysis::SelectEvents(LoopAll& l, int jentry) 
-{
-    return true;
-}
 // ----------------------------------------------------------------------------------------------------
 
 int MvaAnalysis::SignalType(int cur_type){
@@ -859,6 +543,7 @@ int MvaAnalysis::SignalType(int cur_type){
     }
     return i0;
 }
+// ----------------------------------------------------------------------------------------------------
 
 void MvaAnalysis::FillSignalLabelMap(){
 
@@ -924,6 +609,7 @@ void MvaAnalysis::FillSignalLabelMap(){
     signalLabels[-72]="wzh_100.0";
     signalLabels[-71]="tth_100.0";
 }
+// ----------------------------------------------------------------------------------------------------
 
 std::string MvaAnalysis::GetSignalLabel(int id){
 
@@ -940,6 +626,7 @@ std::string MvaAnalysis::GetSignalLabel(int id){
     }
 
 }
+// ----------------------------------------------------------------------------------------------------
 
 void MvaAnalysis::SetBDTInputVariables(TLorentzVector *lead_p4, TLorentzVector *sublead_p4, double lead_r9, double sublead_r9, MassResolution *massResolutionCalculator, double vtx_mva, double mass_hypothesis, double bdtoutput, double evweight, int cat){
 
@@ -988,6 +675,7 @@ void MvaAnalysis::SetBDTInputVariables(TLorentzVector *lead_p4, TLorentzVector *
     _cat        = cat;
     _bdtoutput = bdtoutput;
 }
+// ----------------------------------------------------------------------------------------------------
 
 void MvaAnalysis::SetBDTInputTree(TTree *tree){
     mvaFile_->cd();
@@ -1023,11 +711,8 @@ void MvaAnalysis::SetBDTInputTree(TTree *tree){
     TBranch *b_sideband             = tree->Branch("sideband", &_sideband, "sideband/I");
     TBranch *b_bdtoutput            = tree->Branch("bdtoutput", &_bdtoutput, "bdtoutput/F");
 }
+// ----------------------------------------------------------------------------------------------------
 
-void MvaAnalysis::ResetAnalysis(){
-    // Reset Random Variable on the EnergyResolution Smearer
-    eResolSmearer->resetRandom();
-}
 
 float MvaAnalysis::tmvaGetVal(double mass, double mass_hypothesis, float kinematic_bdt){
 
@@ -1036,6 +721,7 @@ float MvaAnalysis::tmvaGetVal(double mass, double mass_hypothesis, float kinemat
     return tmvaReader_->EvaluateMVA( "BDT_grad_123" );
 
 }
+// ----------------------------------------------------------------------------------------------------
 int MvaAnalysis::GetBDTBoundaryCategory(float bdtout, bool isEB, bool VBFevent){
 
     if (VBFevent) {
@@ -1047,6 +733,7 @@ int MvaAnalysis::GetBDTBoundaryCategory(float bdtout, bool isEB, bool VBFevent){
     }
 }
 
+// ----------------------------------------------------------------------------------------------------
 
 void MvaAnalysis::SetTree(TTree *tree){
     treeFile_->cd();
@@ -1057,6 +744,7 @@ void MvaAnalysis::SetTree(TTree *tree){
     TBranch *b_cat      = tree->Branch("category",&_cat,"category/I");
     TBranch *b_cur_type = tree->Branch("cur_type",&_cur_type,"cur_type/I");
 }
+// ----------------------------------------------------------------------------------------------------
 void MvaAnalysis::fillLeeTrees(float mass,float kinematic_bdtout,int category,float evweight,int cur_type){
             // --- Info for trees ---
             _mgg = mass;
@@ -1070,6 +758,114 @@ void MvaAnalysis::fillLeeTrees(float mass,float kinematic_bdtout,int category,fl
             else if (cur_type<0) sigTree_[SignalType(cur_type)]->Fill();
             else if (cur_type>0) bkgTree_->Fill();
 }
+// ----------------------------------------------------------------------------------------------------
+void MvaAnalysis::FillRooContainer(LoopAll& l, int cur_type, float mass, float diphotonMVA, 
+				    int category, float weight, bool isCorrectVertex) 
+{
+    // --- Fill invariant mass spectrum -------
+    if (cur_type==0){  // Data
+                l.rooContainer->InputDataPoint("data_mass",category,mass);
+    } else if (cur_type>0){ // Background MC
+                l.rooContainer->InputBinnedDataPoint("bkg_mass",category,mass,weight);
+    }
+
+    if (cur_type<0){ // signal MC
+
+            std::string currentTypeSignalLabel = GetSignalLabel(cur_type);
+            float mass_hypothesis = masses[SignalType(cur_type)];
+            float sideband_boundaries[2];
+            sideband_boundaries[0] = mass_hypothesis*(1-sidebandWidth);
+            sideband_boundaries[1] = mass_hypothesis*(1+sidebandWidth);
+            if( mass>sideband_boundaries[0] && mass<sideband_boundaries[1]){//Signal mass window cut
+                   float bdt_grad =  tmvaGetVal(mass,mass_hypothesis,diphotonMVA);
+                   if (PADEBUG) std::cout <<"Seleced Event mH="<<mass_hypothesis<<" mass="<<mass<<" bdtout="<<diphotonMVA<< " cat="<<category<<" massbdt="<<bdt_grad<<" weight="<<weight<<std::endl;
+                   l.rooContainer->InputBinnedDataPoint("sig_BDT_grad_"+currentTypeSignalLabel ,category,bdt_grad,weight);
+            
+            }
+     } else {
+
+        for (double mH=mHMinimum; mH<mHMaximum; mH+=mHStep){
+            // Fill Signal Window
+            float sideband_boundaries[2];
+            sideband_boundaries[0] = mH*(1-sidebandWidth);
+            sideband_boundaries[1] = mH*(1+sidebandWidth);
+            if( mass>sideband_boundaries[0] && mass<sideband_boundaries[1]){//Signal mass window cut
+                float bdt_grad =  tmvaGetVal(mass,mH,diphotonMVA);
+            
+                if (cur_type==0) l.rooContainer->InputBinnedDataPoint(Form("data_BDT_grad_%3.1f",mH),category,bdt_grad,weight);
+                else if (cur_type > 0) l.rooContainer->InputBinnedDataPoint(Form("bkg_BDT_grad_%3.1f",mH) ,category,bdt_grad,weight);
+            }
+            
+            // Loop over N lower sidebands
+            for (int sideband_i = 1 ; sideband_i <= numberOfSidebands ; sideband_i++){
+                double hypothesisModifier = (1.-sidebandWidth)/(1+sidebandWidth);
+                double mass_hypothesis_low     = (mH*(1.-signalRegionWidth)/(1.+sidebandWidth)-sidebandShift)*(TMath::Power(hypothesisModifier,sideband_i-1));
+                double sideband_boundaries_low = mass_hypothesis_low*(1.-sidebandWidth);
+                double sideband_boundaries_high= mass_hypothesis_low*(1.+sidebandWidth);
+
+                if ( mass>sideband_boundaries_low && mass<sideband_boundaries_high){
+                   float bdt_grad =  tmvaGetVal(mass,mass_hypothesis_low,diphotonMVA);
+                   if (cur_type==0) l.rooContainer->InputBinnedDataPoint(Form("data_%dlow_BDT_grad_%3.1f",sideband_i,mH) ,category,bdt_grad,weight);
+                   else if (cur_type > 0) l.rooContainer->InputBinnedDataPoint(Form("bkg_%dlow_BDT_grad_%3.1f",sideband_i,mH) ,category,bdt_grad,weight);
+
+                }
+            }
+            // Loop over N higher sidebands
+            for (int sideband_i = 1 ; sideband_i <= numberOfSidebands ; sideband_i++){
+                double hypothesisModifier = (1.+sidebandWidth)/(1-sidebandWidth);
+                double mass_hypothesis_high     = (mH*(1.+signalRegionWidth)/(1.-sidebandWidth)+sidebandShift)*(TMath::Power(hypothesisModifier,sideband_i-1));
+                double sideband_boundaries_low = mass_hypothesis_high*(1.-sidebandWidth);
+                double sideband_boundaries_high= mass_hypothesis_high*(1.+sidebandWidth);
+
+                if ( mass>sideband_boundaries_low && mass<sideband_boundaries_high){
+                   float bdt_grad =  tmvaGetVal(mass,mass_hypothesis_high,diphotonMVA);
+                   if (cur_type==0) l.rooContainer->InputBinnedDataPoint(Form("data_%dhigh_BDT_grad_%3.1f",sideband_i,mH) ,category,bdt_grad,weight);
+                   else if (cur_type > 0) l.rooContainer->InputBinnedDataPoint(Form("bkg_%dhigh_BDT_grad_%3.1f",sideband_i,mH) ,category,bdt_grad,weight);
+
+                }
+            }
+
+        }
+    }
+}
+// ----------------------------------------------------------------------------------------------------
+void MvaAnalysis::AccumulateSyst(int cur_type, float mass, float diphotonMVA, 
+				  int category, float weight,
+				  std::vector<double> & mass_errors,
+				  std::vector<double> & mva_errors,
+				  std::vector<int>    & categories,
+				  std::vector<double> & weights)
+{
+    float mass_hypothesis = masses[SignalType(cur_type)];
+    // define the sidebands
+    float sideband_boundaries[2];
+    sideband_boundaries[0] = mass_hypothesis*(1-sidebandWidth);
+    sideband_boundaries[1] = mass_hypothesis*(1+sidebandWidth);
+	// Signal Window cut
+	if( mass>sideband_boundaries[0] && mass<sideband_boundaries[1]){
+			double syst_bdt_grad = tmvaGetVal(mass,mass_hypothesis,diphotonMVA);
+			categories.push_back(category);
+			mva_errors.push_back(syst_bdt_grad);
+			weights.push_back(weight);
+	} else {
+			categories.push_back(-1);
+			mva_errors.push_back(-100);
+			weights.push_back(0);
+	}
+}
+// ----------------------------------------------------------------------------------------------------
+void MvaAnalysis::FillRooContainerSyst(LoopAll& l, const std::string &name, int cur_type,
+			  std::vector<double> & mass_errors, std::vector<double> & mva_errors,
+			  std::vector<int>    & categories, std::vector<double> & weights) 
+{
+        // Get Signal Label for the current type
+        if (cur_type<0){
+            std::string currentTypeSignalLabel = GetSignalLabel(cur_type);
+		    l.rooContainer->InputSystematicSet("sig_BDT_grad_"+currentTypeSignalLabel,name,categories,mva_errors,weights);
+        }
+}
+
+
 // Local Variables:
 // mode: c++
 // c-basic-offset: 4
