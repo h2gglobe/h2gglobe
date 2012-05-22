@@ -784,7 +784,7 @@ void MvaAnalysis::FillRooContainer(LoopAll& l, int cur_type, float mass, float d
             }
      } else {
 
-        for (double mH=mHMinimum; mH<mHMaximum; mH+=mHStep){
+        for (double mH=mHMinimum; mH<=mHMaximum; mH+=mHStep){
             // Fill Signal Window
             float sideband_boundaries[2];
             sideband_boundaries[0] = mH*(1-sidebandWidth);
