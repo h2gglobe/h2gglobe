@@ -44,7 +44,8 @@ MainDicts+=PhotonFix.h MassResolution.h HtmlHelper.h
 ##
 ## Subdirectories
 ##
-SubPkgs=PhotonAnalysis VertexAnalysis JetAnalysis
+SubPkgs=PhotonAnalysis VertexAnalysis 
+## JetAnalysis
 SubPkgsDict=VertexAnalysis/interface/VertexAlgoParameters.h
 
 ##
@@ -52,7 +53,8 @@ SubPkgsDict=VertexAnalysis/interface/VertexAlgoParameters.h
 ## 
 ROOFIT_BASE=$(ROOFITSYS)
 LDFLAGS+=-L$(ROOFIT_BASE)/lib $(ROOTLIBS) -lRooFitCore -lRooFit -lTMVA
-LDFLAGS+= $(patsubst %, -L%, $(shell echo ${LD_LIBRARY_PATH} | tr ':' '\n')) -lFWCorePythonParameterSet -lFWCoreParameterSet
+LDFLAGS+= $(patsubst %, -L%, $(shell echo ${LD_LIBRARY_PATH} | tr ':' '\n')) 
+## -lFWCorePythonParameterSet -lFWCoreParameterSet -lCMGToolsExternal -lCondFormatsJetMETObjects
 CXXFLAGS+=-I$(ROOFIT_BASE)/include -I$(CMSSW_BASE)/src  -I$(CMSSW_RELEASE_BASE)/src
 CXXFLAGS+=-I$(shell pwd)
 
@@ -116,6 +118,11 @@ print:
 	@echo "LDFLAGS: "
 	@echo "-------------------"
 	@echo "$(LDFLAGS)" | tr ' ' '\n'
+	@echo
+
+	@echo "Extra tags"
+	@echo "-------------------"
+	@for pack in `awk '/get_tag/ { print $$4 }' extraTags`; do ls -d $$CMSSW_BASE/src/$$pack; done
 	@echo
 
 clean:
