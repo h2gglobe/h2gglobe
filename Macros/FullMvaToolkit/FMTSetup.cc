@@ -26,13 +26,14 @@ FMTSetup::FMTSetup():
 	datacards_(false),
 	diagnose_(false),
 	web_(false),
-	checkHistos_(false)
+	checkHistos_(false),
+	cleaned(false)
 {
 	
 }
 
 FMTSetup::~FMTSetup(){
-	delete rebinner;
+	if (!cleaned) delete rebinner;
 }
 
 void FMTSetup::OptionParser(int argc, char *argv[]){
@@ -305,7 +306,14 @@ void FMTSetup::makeNormPlot(){
 	if (!skipRebin_ && all_) rebinner->fitter->makeNormPlot();
 }
 
+void FMTSetup::cleanUp(){
+	// need to call FMTRebin destructor to free up file
+	delete rebinner;
+	cleaned=true;
+}
+
 void FMTSetup::createCorrBkgModel(){
+	if (!cleaned) cleanUp();
 	if (bkgModel_){
 		cout << "Running createCorrectedBackgroundModel...." << endl;
 		createCorrectedBackgroundModel(filename_,getnumberOfSidebands(),getsidebandWidth(),getsignalRegionWidth(),getnumberOfSidebandGaps(),getmassSidebandMin(),getmassSidebandMax(),boost::lexical_cast<double>(getmHMinimum()),boost::lexical_cast<double>(getmHMaximum()),getmHStep(),diagnose_);
@@ -314,6 +322,7 @@ void FMTSetup::createCorrBkgModel(){
 }
 
 void FMTSetup::interpolateBDT(){
+	if (!cleaned) cleanUp();
 	if (interp_){
     cout << "Running signal interpolation...." << endl;
     FMTSigInterp *interpolater = new FMTSigInterp(filename_,diagnose_,false,getmHMinimum(), getmHMaximum(), getmHStep(), getmassMin(), getmassMax(), getnDataBins(), getsignalRegionWidth(), getsidebandWidth(), getnumberOfSidebands(), getnumberOfSidebandsForAlgos(), getnumberOfSidebandGaps(), getmassSidebandMin(), getmassSidebandMax(), getincludeVBF(), getincludeLEP(), getsystematics(), getrederiveOptimizedBinEdges(), getAllBinEdges(),verbose_);
@@ -322,6 +331,7 @@ void FMTSetup::interpolateBDT(){
 }
 
 void FMTSetup::writeDataCards(){
+	if (!cleaned) cleanUp();
 	if (datacards_){
 		filename_=filename_+"_interpolated.root";
 		system(Form("python ../writeBinnedMvaCard.py -i %s -t grad --makePlot",filename_.c_str()));
@@ -329,6 +339,7 @@ void FMTSetup::writeDataCards(){
 }
 
 void FMTSetup::publishToWeb(){
+	if (!cleaned) cleanUp();
 	if (web_){
 		system(Form("python ../publishPlots.py %s %s",filename_.c_str(),webDir_.c_str()));
 	}

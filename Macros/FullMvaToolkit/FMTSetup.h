@@ -38,6 +38,7 @@ class FMTSetup : public FMTBase {
 		void interpolateBDT();
 		void writeDataCards();
 		void publishToWeb();
+		void cleanUp();
 
 	private:
 		
@@ -69,6 +70,7 @@ class FMTSetup : public FMTBase {
 		string datFil_;
 
 		FMTRebin *rebinner;
+		bool cleaned;
 
 };
 
