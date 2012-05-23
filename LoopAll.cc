@@ -285,6 +285,7 @@ void LoopAll::LoopAndFillHistos(TString treename) {
 
     cout<<"LoopAndFillHistos: opening file " << i+1 << " / " << numberOfFiles << " : " << files[i]<<endl;
     
+
     *it_file = TFile::Open((*it).c_str());
     //Files[i] = TFile::Open(files[i]);
     tot_events=1;
@@ -317,7 +318,7 @@ void LoopAll::LoopAndFillHistos(TString treename) {
 	  else {	
 	  	pileup->Add((TH1D*) ((*it_file)->Get("pileup")));
 	  }
-      } 
+      }      
       
       if (type == 0)
 	if (typerun==kReduce || typerun == kFillReduce )

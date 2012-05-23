@@ -506,9 +506,12 @@ void PhotonAnalysis::Init(LoopAll& l)
         float cic6_cuts_sublead[phoNCUTS][phoCiC6NCATEGORIES];
         float cic4_cuts_lead[phoNCUTS][phoCiC4NCATEGORIES];
         float cic4_cuts_sublead[phoNCUTS][phoCiC4NCATEGORIES];
+	float cic4pf_cuts_lead[phoNCUTS][phoCiC4NCATEGORIES];
+        float cic4pf_cuts_sublead[phoNCUTS][phoCiC4NCATEGORIES];
 
         // get the cut values for the current photon CIC level 
-        l.SetPhotonCutsInCategories((LoopAll::phoCiCIDLevel)iLevel, &cic6_cuts_lead[0][0], &cic6_cuts_sublead[0][0], &cic4_cuts_lead[0][0], &cic4_cuts_sublead[0][0] );
+        l.SetPhotonCutsInCategories((LoopAll::phoCiCIDLevel)iLevel, &cic6_cuts_lead[0][0], &cic6_cuts_sublead[0][0], &cic4_cuts_lead[0][0], &cic4_cuts_sublead[0][0],
+				    &cic4pf_cuts_lead[0][0], &cic4pf_cuts_sublead[0][0]);
         
         // rearrange the returned values to arrays with more meaningful names
         float * cic6_cuts_arrays_lead[phoNCUTS] = {
@@ -554,7 +557,28 @@ void PhotonAnalysis::Init(LoopAll& l)
             &l.cic4_cut_sublead_drtotk_25_99[0][0], 
             &l.cic4_cut_sublead_pixel[0][0]
         };
-
+	
+	float * cic4pf_cuts_arrays_lead[phoNCUTS] = {
+            &l.cic4pf_cut_lead_isosumoet[0][0], 
+            &l.cic4pf_cut_lead_isosumoetbad[0][0], 
+            &l.cic4pf_cut_lead_trkisooet[0][0], 
+            &l.cic4pf_cut_lead_sieie[0][0],
+            &l.cic4pf_cut_lead_hovere[0][0], 
+            &l.cic4pf_cut_lead_r9[0][0], 
+            &l.cic4pf_cut_lead_drtotk_25_99[0][0], 
+            &l.cic4pf_cut_lead_pixel[0][0] 
+        };
+        
+        float * cic4pf_cuts_arrays_sublead[phoNCUTS] = {
+            &l.cic4pf_cut_sublead_isosumoet[0][0], 
+            &l.cic4pf_cut_sublead_isosumoetbad[0][0], 
+            &l.cic4pf_cut_sublead_trkisooet[0][0], 
+            &l.cic4pf_cut_sublead_sieie[0][0], 
+            &l.cic4pf_cut_sublead_hovere[0][0], 
+            &l.cic4pf_cut_sublead_r9[0][0],
+            &l.cic4pf_cut_sublead_drtotk_25_99[0][0], 
+            &l.cic4pf_cut_sublead_pixel[0][0]
+        };
         for(int iCut=0; iCut<phoNCUTS; ++iCut) {
             for(int iCat=0; iCat<phoCiC6NCATEGORIES; ++iCat) {
                 cic6_cuts_arrays_lead[iCut][iLevel*phoCiC6NCATEGORIES+iCat] = cic6_cuts_lead[iCut][iCat];
@@ -564,6 +588,10 @@ void PhotonAnalysis::Init(LoopAll& l)
                 cic4_cuts_arrays_lead[iCut][iLevel*phoCiC4NCATEGORIES+iCat] = cic4_cuts_lead[iCut][iCat];
                 cic4_cuts_arrays_sublead[iCut][iLevel*phoCiC4NCATEGORIES+iCat] = cic4_cuts_sublead[iCut][iCat];
             }
+            for(int iCat=0; iCat<phoCiC4NCATEGORIES; ++iCat) {
+                cic4pf_cuts_arrays_lead[iCut][iLevel*phoCiC4NCATEGORIES+iCat] = cic4pf_cuts_lead[iCut][iCat];
+                cic4pf_cuts_arrays_sublead[iCut][iLevel*phoCiC4NCATEGORIES+iCat] = cic4pf_cuts_sublead[iCut][iCat];
+	    }
         }
     } // end of loop over all photon cut levels
     

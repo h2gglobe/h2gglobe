@@ -265,7 +265,25 @@ class LoopAll {
   TMVA::Reader *tmvaReaderID_UCSD, * tmvaReader_dipho_UCSD;
   TMVA::Reader *tmvaReaderID_MIT_Barrel, *tmvaReaderID_MIT_Endcap;
   TMVA::Reader *tmvaReader_dipho_MIT;
- 
+  TMVA::Reader *tmvaReaderID_Single_Barrel, *tmvaReaderID_Single_Endcap;
+
+  Float_t photonIDMVANew(Int_t, Int_t, TLorentzVector &, const char*);
+
+  Float_t tmva_photonid_pfchargedisogood03;
+  Float_t tmva_photonid_pfchargedisobad03;
+  Float_t tmva_photonid_pfphotoniso03;
+  Float_t tmva_photonid_pfneutraliso03;
+  Float_t tmva_photonid_sieie;
+  Float_t tmva_photonid_sieip;
+  Float_t tmva_photonid_etawidth;
+  Float_t tmva_photonid_phiwidth;
+  Float_t tmva_photonid_r9;
+  Float_t tmva_photonid_s4ratio;
+  Float_t tmva_photonid_lambdaratio;
+  Float_t tmva_photonid_sceta;
+  Float_t tmva_photonid_eventrho;
+  Float_t tmva_photonid_ESEffSigmaRR;
+
   Float_t tmva_id_ucsd_sieie;
   Float_t tmva_id_ucsd_goodpf_iso;
   Float_t tmva_id_ucsd_badpf_iso;
@@ -393,7 +411,7 @@ enum phoCiC4Categories { phoCiC4EBhighR9=0, phoCiC4EBlowR9, phoCiC4EEhighR9, pho
     @param cic4_cuts_lead     (output) will be filled with the CIC4 cut values for the LEADING photon
     @param cic4_cuts_sublead  (output) will be filled with the CIC4 cut values for the SUBLEADING photon
 */
-void SetPhotonCutsInCategories(phoCiCIDLevel cutlevel, float * cic6_cuts_lead, float * cic6_cuts_sublead, float * cic4_cuts_lead, float * cic4_cuts_sublead);
+ void SetPhotonCutsInCategories(phoCiCIDLevel cutlevel, float * cic6_cuts_lead, float * cic6_cuts_sublead, float * cic4_cuts_lead, float * cic4_cuts_sublead, float*, float*);
 
 //----------------------------------------------------------------------
 // cut values for cuts in categories selection
@@ -450,6 +468,26 @@ float cic4_cut_sublead_r9[phoNCUTLEVELS][4];
 float cic4_cut_sublead_drtotk_25_99[phoNCUTLEVELS][4];
 float cic4_cut_sublead_pixel[phoNCUTLEVELS][4];
 
+//   leading photon
+float cic4pf_cut_lead_isosumoet[phoNCUTLEVELS][4];
+float cic4pf_cut_lead_isosumoetbad[phoNCUTLEVELS][4];
+float cic4pf_cut_lead_trkisooet[phoNCUTLEVELS][4];
+float cic4pf_cut_lead_sieie[phoNCUTLEVELS][4];
+float cic4pf_cut_lead_hovere[phoNCUTLEVELS][4];
+float cic4pf_cut_lead_r9[phoNCUTLEVELS][4];
+float cic4pf_cut_lead_drtotk_25_99[phoNCUTLEVELS][4];
+float cic4pf_cut_lead_pixel[phoNCUTLEVELS][4];
+
+//   subleading photon
+float cic4pf_cut_sublead_isosumoet[phoNCUTLEVELS][4];
+float cic4pf_cut_sublead_isosumoetbad[phoNCUTLEVELS][4];
+float cic4pf_cut_sublead_trkisooet[phoNCUTLEVELS][4];
+float cic4pf_cut_sublead_sieie[phoNCUTLEVELS][4];
+float cic4pf_cut_sublead_hovere[phoNCUTLEVELS][4];
+float cic4pf_cut_sublead_r9[phoNCUTLEVELS][4];
+float cic4pf_cut_sublead_drtotk_25_99[phoNCUTLEVELS][4];
+float cic4pf_cut_sublead_pixel[phoNCUTLEVELS][4];
+
 //----------------------------------------------------------------------
 
 /** loops through photons and returns indices to two photons passing desired selection .
@@ -480,6 +518,8 @@ int DiphotonMITPreSelection(Float_t leadPtMin, Float_t subleadPtMin, bool applyP
            subleading photon should be applied.
 
  */
+int   PhotonCiCPFSelectionLevel( int photon_index, int vertex_index, std::vector<std::vector<bool> > & ph_passcut, int ncategories=6, int doSublead=1, float *pho_energy_array=0);
+
 int   PhotonCiCSelectionLevel( int photon_index, int vertex_index, std::vector<std::vector<bool> > & ph_passcut, int ncategories=6, int doSublead=1, float *pho_energy_array=0);
 
 bool   PhotonMITPreSelection( int photon_index, int vertex_index,float *pho_energy_array=0);
@@ -683,8 +723,10 @@ std::vector<float> * vtx_std_evt_mva;
 //----------------------------------------
 
 // CiC inputs
+std::vector<std::vector<float> >* pho_mitmva;
 std::vector<std::vector<float> >* pho_tkiso_recvtx_030_002_0000_10_01;
 Float_t pho_tkiso_badvtx_040_002_0000_10_01[MAX_PHOTONS];
+Float_t pho_pfiso_charged_badvtx_04[MAX_PHOTONS];
 Int_t pho_tkiso_badvtx_id[MAX_PHOTONS];
 std::vector<std::vector<float> >* pho_ZeeVal_tkiso_recvtx_030_002_0000_10_01;
 Float_t pho_ZeeVal_tkiso_badvtx_040_002_0000_10_01[MAX_PHOTONS];
@@ -710,6 +752,9 @@ std::vector<std::vector<std::vector<UInt_t> > >* pho_cic4passcuts_lead;
 std::vector<std::vector<Short_t> >* pho_cic4cutlevel_sublead;
 std::vector<std::vector<std::vector<UInt_t> > >* pho_cic4passcuts_sublead;
 
+std::vector<std::vector<Short_t> >* pho_cic4pfcutlevel_lead;
+std::vector<std::vector<Short_t> >* pho_cic4pfcutlevel_sublead;
+
 std::vector<std::vector<Short_t> >* pho_cutlevel_lead;
 std::vector<std::vector<std::vector<UInt_t> > >* pho_passcuts_lead;
 std::vector<std::vector<Short_t> >* pho_cutlevel_sublead;
@@ -734,6 +779,8 @@ TBranch *b_vtx_std_sel;
 TBranch *b_vtx_std_ranked_list;
 TBranch *b_vtx_std_evt_mva;
 
+TBranch * b_pho_mitmva;
+TBranch * b_pho_pfiso_charged_badvtx_04;
 TBranch * b_pho_tkiso_recvtx_030_002_0000_10_01;
 TBranch * b_pho_tkiso_badvtx_040_002_0000_10_01;
 TBranch * b_pho_tkiso_badvtx_id;
@@ -750,6 +797,9 @@ TBranch * b_pho_cic4cutlevel_lead;
 TBranch * b_pho_cic4passcuts_lead;
 TBranch * b_pho_cic4cutlevel_sublead;
 TBranch * b_pho_cic4passcuts_sublead;
+
+TBranch * b_pho_cic4pfcutlevel_lead;
+TBranch * b_pho_cic4pfcutlevel_sublead;
 
 TBranch * b_pho_cutlevel_lead;
 TBranch * b_pho_passcuts_lead;
@@ -847,17 +897,27 @@ void SetBranchAddress_pho_regr_energyerr_otf(TTree * tree) { tree->SetBranchAddr
 
 
 // ID branches
+void Branch_pho_mitmva(TTree * tree) { tree->Branch("pho_mitmva", "std::vector<std::vector<float> >", &pho_mitmva); }; 
+
 void Branch_pho_tkiso_recvtx_030_002_0000_10_01(TTree * tree) { tree->Branch("pho_tkiso_recvtx_030_002_0000_10_01", "std::vector<std::vector<float> >", &pho_tkiso_recvtx_030_002_0000_10_01); }; 
 void Branch_pho_ZeeVal_tkiso_recvtx_030_002_0000_10_01(TTree * tree) { tree->Branch("pho_ZeeVal_tkiso_recvtx_030_002_0000_10_01", "std::vector<std::vector<float> >", &pho_ZeeVal_tkiso_recvtx_030_002_0000_10_01); }; 
 void Branch_pho_tkiso_badvtx_040_002_0000_10_01(TTree * tree) { tree->Branch("pho_tkiso_badvtx_040_002_0000_10_01", &pho_tkiso_badvtx_040_002_0000_10_01, "pho_tkiso_badvtx_040_002_0000_10_01[pho_n]/F" ); };
+void Branch_pho_pfiso_charged_badvtx_04(TTree * tree) { tree->Branch("pho_pfiso_charged_badvtx_04", &pho_pfiso_charged_badvtx_04, "pho_pfiso_charged_badvtx_04[pho_n]/F" ); };
+
 void Branch_pho_ZeeVal_tkiso_badvtx_040_002_0000_10_01(TTree * tree) { tree->Branch("pho_ZeeVal_tkiso_badvtx_040_002_0000_10_01", &pho_ZeeVal_tkiso_badvtx_040_002_0000_10_01, "pho_ZeeVal_tkiso_badvtx_040_002_0000_10_01[pho_n]/F" ); };
+
 void Branch_pho_tkiso_badvtx_id(TTree * tree) { tree->Branch("pho_tkiso_badvtx_id", &pho_tkiso_badvtx_id, "pho_tkiso_badvtx_id[pho_n]/I" ); };
 void Branch_pho_ZeeVal_tkiso_badvtx_id(TTree * tree) { tree->Branch("pho_ZeeVal_tkiso_badvtx_id", &pho_ZeeVal_tkiso_badvtx_id, "pho_ZeeVal_tkiso_badvtx_id[pho_n]/I" ); };
 void Branch_pho_drtotk_25_99(TTree * tree) { tree->Branch("pho_drtotk_25_99", &pho_drtotk_25_99, "pho_drtotk_25_99[pho_n]/F" ); };
 
+void SetBranchAddress_pho_mitmva(TTree * tree) { tree->SetBranchAddress("pho_mitmva", &pho_mitmva, &b_pho_mitmva); }; 
+
 void SetBranchAddress_pho_tkiso_recvtx_030_002_0000_10_01(TTree * tree) { tree->SetBranchAddress("pho_tkiso_recvtx_030_002_0000_10_01", &pho_tkiso_recvtx_030_002_0000_10_01, &b_pho_tkiso_recvtx_030_002_0000_10_01); }; 
 void SetBranchAddress_pho_ZeeVal_tkiso_recvtx_030_002_0000_10_01(TTree * tree) { tree->SetBranchAddress("pho_ZeeVal_tkiso_recvtx_030_002_0000_10_01", &pho_ZeeVal_tkiso_recvtx_030_002_0000_10_01, &b_pho_ZeeVal_tkiso_recvtx_030_002_0000_10_01); }; 
 void SetBranchAddress_pho_tkiso_badvtx_040_002_0000_10_01(TTree * tree) { tree->SetBranchAddress("pho_tkiso_badvtx_040_002_0000_10_01", &pho_tkiso_badvtx_040_002_0000_10_01, &b_pho_tkiso_badvtx_040_002_0000_10_01); };
+
+void SetBranchAddress_pho_pfiso_charged_badvtx_04(TTree * tree) { tree->SetBranchAddress("pho_pfiso_charged_badvtx_04", &pho_pfiso_charged_badvtx_04, &b_pho_pfiso_charged_badvtx_04); };
+
 void SetBranchAddress_pho_ZeeVal_tkiso_badvtx_040_002_0000_10_01(TTree * tree) { tree->SetBranchAddress("pho_ZeeVal_tkiso_badvtx_040_002_0000_10_01", &pho_ZeeVal_tkiso_badvtx_040_002_0000_10_01, &b_pho_ZeeVal_tkiso_badvtx_040_002_0000_10_01); };
 void SetBranchAddress_pho_tkiso_badvtx_id(TTree * tree) { tree->SetBranchAddress("pho_tkiso_badvtx_id", &pho_tkiso_badvtx_id, &b_pho_tkiso_badvtx_id); };
 void SetBranchAddress_pho_ZeeVal_tkiso_badvtx_id(TTree * tree) { tree->SetBranchAddress("pho_ZeeVal_tkiso_badvtx_id", &pho_ZeeVal_tkiso_badvtx_id, &b_pho_ZeeVal_tkiso_badvtx_id); };
@@ -883,6 +943,11 @@ void Branch_pho_cic4passcuts_lead(TTree * tree) { tree->Branch("pho_cic4passcuts
 void Branch_pho_cic4cutlevel_sublead(TTree * tree) { tree->Branch("pho_cic4cutlevel_sublead", "std::vector<std::vector<Short_t> >", &pho_cic4cutlevel_sublead); };
 void Branch_pho_cic4passcuts_sublead(TTree * tree) { tree->Branch("pho_cic4passcuts_sublead", "std::vector<std::vector<std::vector<UInt_t> > >", &pho_cic4passcuts_sublead); };
 
+
+void Branch_pho_cic4pfcutlevel_lead(TTree * tree) { tree->Branch("pho_cic4pfcutlevel_lead", "std::vector<std::vector<Short_t> >", &pho_cic4pfcutlevel_lead); };
+void Branch_pho_cic4pfcutlevel_sublead(TTree * tree) { tree->Branch("pho_cic4pfcutlevel_sublead", "std::vector<std::vector<Short_t> >", &pho_cic4pfcutlevel_sublead); };
+
+
 void Branch_pho_cutlevel_lead(TTree * tree) { tree->Branch("pho_cutlevel_lead", "std::vector<std::vector<Short_t> >", &pho_cutlevel_lead); };
 void Branch_pho_passcuts_lead(TTree * tree) { tree->Branch("pho_passcuts_lead", "std::vector<std::vector<std::vector<UInt_t> > >", &pho_passcuts_lead); };
 void Branch_pho_cutlevel_sublead(TTree * tree) { tree->Branch("pho_cutlevel_sublead", "std::vector<std::vector<Short_t> >", &pho_cutlevel_sublead); };
@@ -907,6 +972,11 @@ void SetBranchAddress_pho_cic4cutlevel_lead(TTree * tree) { tree->SetBranchAddre
 void SetBranchAddress_pho_cic4passcuts_lead(TTree * tree) { tree->SetBranchAddress("pho_cic4passcuts_lead", &pho_cic4passcuts_lead, &b_pho_cic4passcuts_lead ); };
 void SetBranchAddress_pho_cic4cutlevel_sublead(TTree * tree) { tree->SetBranchAddress("pho_cic4cutlevel_sublead", &pho_cic4cutlevel_sublead, &b_pho_cic4cutlevel_sublead ); };
 void SetBranchAddress_pho_cic4passcuts_sublead(TTree * tree) { tree->SetBranchAddress("pho_cic4passcuts_sublead", &pho_cic4passcuts_sublead, &b_pho_cic4passcuts_sublead ); };
+
+
+void SetBranchAddress_pho_cic4pfcutlevel_lead(TTree * tree) { tree->SetBranchAddress("pho_cic4pfcutlevel_lead", &pho_cic4pfcutlevel_lead, &b_pho_cic4pfcutlevel_lead ); };
+void SetBranchAddress_pho_cic4pfcutlevel_sublead(TTree * tree) { tree->SetBranchAddress("pho_cic4pfcutlevel_sublead", &pho_cic4pfcutlevel_sublead, &b_pho_cic4pfcutlevel_sublead ); };
+
 
 void SetBranchAddress_pho_cutlevel_lead(TTree * tree) { tree->SetBranchAddress("pho_cutlevel_lead", &pho_cutlevel_lead, &b_pho_cutlevel_lead ); };
 void SetBranchAddress_pho_passcuts_lead(TTree * tree) { tree->SetBranchAddress("pho_passcuts_lead", &pho_passcuts_lead, &b_pho_passcuts_lead ); };
