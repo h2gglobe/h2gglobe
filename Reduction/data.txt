@@ -1,1 +1,1 @@
-PhotonPromptReco2012A_30-04-12 0
+PhotonPromptReco2012A_JetFix 0
