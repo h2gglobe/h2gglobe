@@ -46,6 +46,7 @@ int main(int argc, char* argv[]){
 	runner->interpolateBDT();
 	runner->writeDataCards();
 	runner->publishToWeb();
+	runner->runCombine();
 
   cout << "Original file " << filename << " updated." << endl;
   cout << "Old file copied to " << filename << "_beforeFMT.root" << endl;

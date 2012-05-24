@@ -13,7 +13,7 @@
 #include "boost/lexical_cast.hpp"
 
 #include "FMTSigInterp.h"
-#include "Normalization.C"
+#include "python/Normalization.C"
 
 using namespace std;
 

@@ -38,6 +38,8 @@ class FMTSetup : public FMTBase {
 		void interpolateBDT();
 		void writeDataCards();
 		void publishToWeb();
+		void runCombine();
+
 		void cleanUp();
 
 	private:
@@ -60,6 +62,7 @@ class FMTSetup : public FMTBase {
 		bool diagnose_;
 		bool blinding_;
 		bool web_;
+		bool runCombine_;
 		bool checkHistos_;
 
 		int tempmHMin_;

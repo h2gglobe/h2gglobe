@@ -26,6 +26,7 @@ FMTSetup::FMTSetup():
 	datacards_(false),
 	diagnose_(false),
 	web_(false),
+	runCombine_(false),
 	checkHistos_(false),
 	cleaned(false)
 {
@@ -64,12 +65,13 @@ void FMTSetup::OptionParser(int argc, char *argv[]){
     ("interp,I",    																										"Run signal interpolation")
     ("datacards,d", 																										"Produce datacards")
     ("diagnose,D",  																										"Run full diagnostics (makes plots) - increases running time")
+    ("www,w",     	po::value<string>(&webDir_),												"Publish to web - increases running time")
+    ("runCombine,C", 																										"Run Higgs combine tool")
     ("mHMin,l",			po::value<int>(&tempmHMin_),													"Set lower bound (GeV) for Higgs mH")
     ("mHMax,u",			po::value<int>(&tempmHMax_),													"Set upper bound (GeV) for Higgs mH")
     ("mHStep,s",		po::value<double>(&tempmHStep_),											"Set bin size (GeV) for Higgs mH")
 		("blind,E",	  																											"Blind analysis or not")
-    ("www,w",     	po::value<string>(&webDir_),												"Publish to web - increases running time")
-    ("checkHistos,c",              																	  	"Run check on histograms in file")
+		("checkHistos,c",              																	  	"Run check on histograms in file")
     ("verbose,v",                                                       "Increase output level")
 		("useDat,U", po::value<string>(&datFil_)->default_value("0"),				"Get options from .dat file not TFile")
     ;
@@ -105,6 +107,7 @@ void FMTSetup::OptionParser(int argc, char *argv[]){
 	if (vm.count("blind")) 					blinding_=true;
 	if (vm.count("checkHistos")) 		checkHistos_=true;
   if (vm.count("www"))            web_=true;
+	if (vm.count("runCombine"))			runCombine_=true;
   if (vm.count("verbose"))        verbose_=true;
   else                            verbose_=false;
 	if (vm.count("mHMin")) 					setmHMinimum(tempmHMin_);
@@ -333,14 +336,28 @@ void FMTSetup::interpolateBDT(){
 void FMTSetup::writeDataCards(){
 	if (!cleaned) cleanUp();
 	if (datacards_){
-		filename_=filename_+"_interpolated.root";
-		system(Form("python ../writeBinnedMvaCard.py -i %s -t grad --makePlot",filename_.c_str()));
+		cout << "Preparing to write datacards...." << endl;
+		system(Form("python writeBinnedMvaCard.py -i %s --makePlot --mhLow %3d.0 --mhHigh %3d.0 --mhStep %1.1f",filename_.c_str(),getmHMinimum(),getmHMaximum(),getmHStep()));
 	}
 }
 
 void FMTSetup::publishToWeb(){
 	if (!cleaned) cleanUp();
 	if (web_){
-		system(Form("python ../publishPlots.py %s %s",filename_.c_str(),webDir_.c_str()));
+		system("cp mva-plots-grad/* BMplots/grad");
+		system("cp FitPlots/* BMplots/grad");
+		system(Form("python python/make_html.py %s",filename_.c_str()));
+		system(Form("python python/make_bkg_html.py %s",filename_.c_str()));
+		system(Form("mkdir %s",webDir_.c_str()));
+		system(Form("cp -r plots %s",webDir_.c_str()));
+		system(Form("cp -r BMplots %s",webDir_.c_str()));
+	}
+}
+
+void FMTSetup::runCombine(){
+	if (!cleaned) cleanUp();
+	if (runCombine_){
+		cout << Form("./limit.sh mva-datacards-grad/ grad $PWD") << endl;
+		system(Form("./limit.sh mva-datacards-grad/ grad $PWD"));
 	}
 }
