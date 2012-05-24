@@ -3,6 +3,8 @@ import os,numpy,sys,math,array
 ROOT.gROOT.SetStyle("Plain")
 ROOT.gROOT.SetBatch(True)
 
+ROOT.gROOT.ProcessLine("gSystem->SetIncludePath(\"-I$ROOTSYS/include -I$ROOFITSYS/include\")");
+
 ROOT.gROOT.ProcessLine(".L python/quadInterpolate.C+")
 from ROOT import quadInterpolate
 
