@@ -3,7 +3,7 @@ ROOFITBASE=$(ROOFITSYS)
 ROOFITLIBS=$(ROOFITBASE)/lib
 ROOFITINCS=$(ROOFITBASE)/include
 DEPENDENTS = `root-config --cflags --libs` -L$(ROOFITLIBS) -I$(ROOFITINCS) -lMinuit -lFoam -lRooFit -lRooFitCore -lboost_program_options
-FILES = RunFullMvaAnalysis.cc FMTBase.cc FMTFit.cc FMTRebin.cc FMTSetup.cc FMTSigInterp.cc
+FILES = RunFullMvaAnalysis.cc src/FMTBase.cc src/FMTFit.cc src/FMTRebin.cc src/FMTSetup.cc src/FMTSigInterp.cc
 OUT_EXE = runIt.exe
 
 all: RunFullMvaAnalysis

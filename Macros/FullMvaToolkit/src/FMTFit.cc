@@ -10,7 +10,7 @@
 #include "RooFormulaVar.h"
 #include "RooPlot.h"
 
-#include "FMTFit.h"
+#include "../interface/FMTFit.h"
 
 using namespace std;
 using namespace RooFit;

@@ -11,11 +11,11 @@
 #include "TMacro.h"
 #include "TObjString.h"
 
-#include "FMTBase.h"
-#include "FMTRebin.h"
-#include "FMTFit.h"
-#include "FMTSetup.h"
-#include "FMTSigInterp.h"
+#include "interface/FMTBase.h"
+#include "interface/FMTRebin.h"
+#include "interface/FMTFit.h"
+#include "interface/FMTSetup.h"
+#include "interface/FMTSigInterp.h"
 
 using namespace std;
 namespace po = boost::program_options;

@@ -3,7 +3,7 @@
 #include "TMath.h"
 #include "boost/lexical_cast.hpp"
 
-#include "FMTBase.h"
+#include "../interface/FMTBase.h"
 
 using namespace std;
 

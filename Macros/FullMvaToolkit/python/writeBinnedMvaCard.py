@@ -3,7 +3,7 @@ import os,numpy,sys,math,array
 ROOT.gROOT.SetStyle("Plain")
 ROOT.gROOT.SetBatch(True)
 
-ROOT.gROOT.ProcessLine(".L quadInterpolate.C+")
+ROOT.gROOT.ProcessLine(".L python/quadInterpolate.C+")
 from ROOT import quadInterpolate
 
 from optparse import OptionParser
@@ -423,18 +423,6 @@ def writeCard(tfile,mass,scaleErr):
       tthHistD.Scale(signalyieldsweight)
 
     outPut.write("\n%s lnN "%sys)
-    print gghHist.GetEntries(), gghHist.GetNbinsX(), gghHist.Integral()
-    print vbfHist.GetEntries(), vbfHist.GetNbinsX(), vbfHist.Integral()
-    print wzhHist.GetEntries(), wzhHist.GetNbinsX(), wzhHist.Integral()
-    print tthHist.GetEntries(), tthHist.GetNbinsX(), tthHist.Integral()
-    print gghHistU.GetEntries(), gghHistU.GetNbinsX(), gghHistU.Integral()
-    print vbfHistU.GetEntries(), vbfHistU.GetNbinsX(), vbfHistU.Integral()
-    print wzhHistU.GetEntries(), wzhHistU.GetNbinsX(), wzhHistU.Integral()
-    print tthHistU.GetEntries(), tthHistU.GetNbinsX(), tthHistU.Integral()
-    print gghHistD.GetEntries(), gghHistD.GetNbinsX(), gghHistD.Integral()
-    print vbfHistD.GetEntries(), vbfHistD.GetNbinsX(), vbfHistD.Integral()
-    print wzhHistD.GetEntries(), wzhHistD.GetNbinsX(), wzhHistD.Integral()
-    print tthHistD.GetEntries(), tthHistD.GetNbinsX(), tthHistD.Integral()
 
     for b in range(binL,binH): 
 	 outPut.write(" %s %s %s %s - "%(\
@@ -525,7 +513,9 @@ parser.add_option("-m","--mass",dest="singleMass",default=-1.,type="float")
 parser.add_option("-t","--type",dest="bdtType",default="grad");
 parser.add_option("-o","--outputDir",dest="outputDir",default="mva-datacards-")
 parser.add_option("-p","--outputPlot",dest="outputPlot")
-
+parser.add_option("-l","--mhLow",dest="mhLow",type="float",default=110.)
+parser.add_option("-u","--mhHigh",dest="mhHigh",type="float",default=150.)
+parser.add_option("-s","--mhStep",dest="mhStep",type="float",default=0.5)
 
 (options,args)=parser.parse_args()
 print "Creating Binned Datacards from workspace -> ", options.tfileName
@@ -577,7 +567,7 @@ genMasses     = [110,115,120,125,130,135,140,145,150]
 scalingErrors = [1.01072,1.01097,1.01061,1.01019,1.01234,1.01306,1.01519,1.01554,1.01412] # P.Dauncey 100-180, 2% window, MIT presel + BDT > 0.05 , Jan16 ReReco 15Apr (Pow2 Fit)
 
 #evalMasses    = numpy.arange(110,150.5,0.5)
-evalMasses    = numpy.arange(110.0,150.5,0.5)
+evalMasses    = numpy.arange(options.mhLow,options.mhHigh+options.mhStep,options.mhStep)
 normG = ROOT.TGraph(len(genMasses))
 
 # Fill the errors graph
@@ -605,7 +595,7 @@ if options.throwGlobalToy:
   toymaker.genData(cardOutDir+"/"+options.outputmassfactoy,options.expSig)
   toymaker.plotToy(cardOutDir,160,95,options.expSig)
   toymaker.saveToyWorkspace(cardOutDir+"/testToyWS.root")
-  ROOT.gROOT.ProcessLine(".L tmvaLoader.C+")
+  ROOT.gROOT.ProcessLine(".L python/tmvaLoader.C+")
   from ROOT import tmvaLoader
   g_tmva = tmvaLoader(options.tmvaweightsfolder+"/TMVAClassification_BDT%sMIT.weights.xml"%options.bdtType,options.bdtType)
   

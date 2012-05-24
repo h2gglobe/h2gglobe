@@ -7,7 +7,7 @@
 #include "TTree.h"
 #include "TText.h"
 
-#include "FMTRebin.h"
+#include "../interface/FMTRebin.h"
 
 using namespace std;
 

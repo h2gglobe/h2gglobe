@@ -7,11 +7,10 @@
 #include "TMacro.h"
 #include "TObjString.h"
 
-#include "createCorrectedBackgroundModel.C"
-//#include "BDTInterpolation.C"
+#include "../python/createCorrectedBackgroundModel.C"
 
-#include "FMTSigInterp.h"
-#include "FMTSetup.h"
+#include "../interface/FMTSigInterp.h"
+#include "../interface/FMTSetup.h"
 
 using namespace std;
 namespace po = boost::program_options;
@@ -337,13 +336,14 @@ void FMTSetup::writeDataCards(){
 	if (!cleaned) cleanUp();
 	if (datacards_){
 		cout << "Preparing to write datacards...." << endl;
-		system(Form("python writeBinnedMvaCard.py -i %s --makePlot --mhLow %3d.0 --mhHigh %3d.0 --mhStep %1.1f",filename_.c_str(),getmHMinimum(),getmHMaximum(),getmHStep()));
+		system(Form("python python/writeBinnedMvaCard.py -i %s --makePlot --mhLow %3d.0 --mhHigh %3d.0 --mhStep %1.1f",filename_.c_str(),getmHMinimum(),getmHMaximum(),getmHStep()));
 	}
 }
 
 void FMTSetup::publishToWeb(){
 	if (!cleaned) cleanUp();
 	if (web_){
+		cout << "Publishing to web: " << webDir_ << "/BMplots/grad/model.html" << endl;
 		system("cp mva-plots-grad/* BMplots/grad");
 		system("cp FitPlots/* BMplots/grad");
 		system(Form("python python/make_html.py %s",filename_.c_str()));
@@ -357,7 +357,8 @@ void FMTSetup::publishToWeb(){
 void FMTSetup::runCombine(){
 	if (!cleaned) cleanUp();
 	if (runCombine_){
-		cout << Form("./limit.sh mva-datacards-grad/ grad $PWD") << endl;
-		system(Form("./limit.sh mva-datacards-grad/ grad $PWD"));
+		cout << "Running combine tool..... " << endl;
+		cout << Form("./python/limit.sh mva-datacards-grad/ grad $PWD") << endl;
+		system(Form("./python/limit.sh mva-datacards-grad/ grad $PWD"));
 	}
 }

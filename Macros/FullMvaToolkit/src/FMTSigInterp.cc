@@ -12,8 +12,8 @@
 
 #include "boost/lexical_cast.hpp"
 
-#include "FMTSigInterp.h"
-#include "python/Normalization.C"
+#include "../interface/FMTSigInterp.h"
+#include "../../Normalization.C"
 
 using namespace std;
 
