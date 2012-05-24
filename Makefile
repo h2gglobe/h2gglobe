@@ -44,8 +44,7 @@ MainDicts+=PhotonFix.h MassResolution.h HtmlHelper.h
 ##
 ## Subdirectories
 ##
-SubPkgs=PhotonAnalysis VertexAnalysis 
-## JetAnalysis
+SubPkgs=PhotonAnalysis VertexAnalysis JetAnalysis
 SubPkgsDict=VertexAnalysis/interface/VertexAlgoParameters.h
 
 ##
@@ -53,8 +52,7 @@ SubPkgsDict=VertexAnalysis/interface/VertexAlgoParameters.h
 ## 
 ROOFIT_BASE=$(ROOFITSYS)
 LDFLAGS+=-L$(ROOFIT_BASE)/lib $(ROOTLIBS) -lRooFitCore -lRooFit -lTMVA
-LDFLAGS+= $(patsubst %, -L%, $(shell echo ${LD_LIBRARY_PATH} | tr ':' '\n')) 
-## -lFWCorePythonParameterSet -lFWCoreParameterSet -lCMGToolsExternal -lCondFormatsJetMETObjects
+LDFLAGS+= $(patsubst %, -L%, $(shell echo ${LD_LIBRARY_PATH} | tr ':' '\n')) -lFWCorePythonParameterSet -lFWCoreParameterSet -lCMGToolsExternal -lCondFormatsJetMETObjects
 CXXFLAGS+=-I$(ROOFIT_BASE)/include -I$(CMSSW_BASE)/src  -I$(CMSSW_RELEASE_BASE)/src
 CXXFLAGS+=-I$(shell pwd)
 
@@ -90,7 +88,7 @@ Deps = $(patsubst %$(ObjSuf), %$(DepSuf), $(Objs))
 ExtPacks=.extraTags
 
 ## Targets
-all: $(LOOPALLSO)
+all: $(ExtPacks) $(LOOPALLSO)
 
 print:
 	@echo "Subpackages:"
@@ -133,7 +131,7 @@ clean:
 	@bash extraTags
 	@touch .extraTags
 
-$(LOOPALLSO):  $(Objs) $(ExtPacks)
+$(LOOPALLSO):  $(Objs)
 	@echo "Linking"
 	@$(LD) $(SOFLAGS) $(LDFLAGS) $(ROOTLIBS)  $(Objs) $(OutPutOpt) $(LOOPALLSO)
 	@echo "$(LOOPALLSO) done"
@@ -149,7 +147,7 @@ dict.$(SrcSuf): $(LinkDef)
 .$(SrcSuf).$(ObjSuf):
 	@echo "Compiling $<"
 	@$(CXX) $(CXXFLAGS) -M -c $< -o $(patsubst %.$(ObjSuf), %.$(DepSuf), $@)
-	@sed -i 's|.*:|$*.o: Makefile|'  $(patsubst %.$(ObjSuf), %.$(DepSuf), $@)
+	@sed -i "s|.*:|$*.o: Makefile $(ExtPacks)|"  $(patsubst %.$(ObjSuf), %.$(DepSuf), $@)
 	@$(CXX) $(CXXFLAGS) -g -c $< -o $@
 
 -include $(Deps)
