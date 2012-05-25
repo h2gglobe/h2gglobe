@@ -317,6 +317,8 @@ pu_sumpt_lowpt:1
 pu_sumpt_highpt:1
 pu_ntrks_lowpt:1
 pu_ntrks_highpt:1
+### genjet_algo1_n:1
+### genjet_algo1_p4:1
 
 # Vertex
 vtx_std_n
@@ -385,6 +387,15 @@ jet_algoPF1_simple_wp_level
 jet_algoPF1_cutbased_wp_level
 jet_algoPF1_pfloose
 
+jet_algoPF1_beta_ext
+jet_algoPF1_betaStar_ext
+jet_algoPF1_betaStarClassic_ext
+jet_algoPF1_full_wp_level_ext
+jet_algoPF1_simple_wp_level_ext
+jet_algoPF1_cutbased_wp_level_ext
+jet_algoPF1_full_mva_ext
+jet_algoPF1_simple_mva_ext
+
 jet_algoPF2_n
 jet_algoPF2_erescale
 jet_algoPF2_p4
@@ -408,6 +419,15 @@ jet_algoPF2_simple_wp_level
 jet_algoPF2_cutbased_wp_level
 jet_algoPF2_pfloose
 
+jet_algoPF2_beta_ext
+jet_algoPF2_betaStar_ext
+jet_algoPF2_betaStarClassic_ext
+jet_algoPF2_full_wp_level_ext
+jet_algoPF2_simple_wp_level_ext
+jet_algoPF2_cutbased_wp_level_ext
+jet_algoPF2_full_mva_ext
+jet_algoPF2_simple_mva_ext
+
 jet_algoPF3_n
 jet_algoPF3_erescale
 jet_algoPF3_p4
@@ -430,6 +450,15 @@ jet_algoPF3_full_wp_level
 jet_algoPF3_simple_wp_level
 jet_algoPF3_cutbased_wp_level
 jet_algoPF3_pfloose
+
+jet_algoPF3_beta_ext
+jet_algoPF3_betaStar_ext
+jet_algoPF3_betaStarClassic_ext
+jet_algoPF3_full_wp_level_ext
+jet_algoPF3_simple_wp_level_ext
+jet_algoPF3_cutbased_wp_level_ext
+jet_algoPF3_full_mva_ext
+jet_algoPF3_simple_mva_ext
 
 # New photon variables 
 pho_pfRawEnergy
@@ -466,3 +495,4 @@ pho_pfiso_egcharged03
 pho_pfiso_egcharged04
 pho_pfiso_egcharged05
 pho_pfiso_egcharged06
+
