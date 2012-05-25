@@ -35,6 +35,8 @@ if __name__  == "__main__":
 	parser.add_option("-l","--label",dest="label",default="")
 	parser.add_option("","--runIC",dest="runIC",default=False, action="store_true")
 	parser.add_option("-u","--user",dest="user",default="")
+	parser.add_option("-a","--addfile",dest="addfiles",action="append",default=[])
+
 	(options,args)=parser.parse_args()
 	
 	# Check IC user configs:
@@ -127,11 +129,11 @@ if __name__  == "__main__":
 		mkdir="cmsMkdir"
 	if cfg.histdir=="":
 		if os.path.isabs(scriptdir):
-			cfg.histdir==scriptdir
+			cfg.histdir=scriptdir
 		else:
 			cfg.histdir=os.path.join(os.getcwd(),scriptdir)
 
-	os.system("tar zcf %s.tgz $(find -name \*.dat -or -name \*.py) aux" % options.outputScript)
+	os.system("tar zcf %s.tgz $(find -name \*.dat -or -name \*.py) aux common" % options.outputScript)
 	os.system("%s %s" % ( mkdir, cfg.histdir) )
 	os.system("%s %s.tgz %s" % ( cp,  options.outputScript, cfg.histdir) )
 	
@@ -198,7 +200,7 @@ if __name__  == "__main__":
 		
 		if i < options.nJobs:
 			f.write("if ( python fitter.py -i %s.dat -n %d -j %d ) "%(jobbasename,int(options.nJobs),i))
-			for fn in "","histograms_":
+			for fn in ["","histograms_"]+options.addfiles:
 				f.write("&& ( %s %s%s_%d.%s %s ) "        % ( cp, fn, cfg.histfile[0], i, cfg.histfile[1], cfg.histdir ) )
 			#f.write("&& ( %s %s_%d.%s_ascii_events.txt %s ) " % ( cp, cfg.histfile[0], i, cfg.histfile[1], cfg.histdir ) )
 			f.write("&& ( %s %s_%d.%s %s ) " % ( cp, cfg.outfile[0], i, cfg.outfile[1], cfg.histdir ) )
@@ -206,7 +208,7 @@ if __name__  == "__main__":
 			f.write("&& ( %s histograms_%s_%d.csv %s ) " % ( cp, cfg.histfile[0], i, cfg.histdir ) )
 		else:
 			f.write("if ( python fitter.py -i %s.dat ) "%(jobbasename))
-			for fn in "","histograms_":
+			for fn in "","histograms_"+options.addfiles:
 				f.write("&& ( %s %s%s.%s %s/%s%s_%d.%s ) " % ( cp, fn, cfg.histfile[0], cfg.histfile[1], cfg.histdir, fn, cfg.histfile[0], i, cfg.histfile[1] ) )
 			#f.write("&& ( %s %s.%s_ascii_events.txt %s/%s_%d.%s_ascii_events.txt ) " % ( cp, cfg.histfile[0], cfg.histfile[1], cfg.histdir, cfg.histfile[0], i, cfg.histfile[1] ) )
 			f.write("&& ( %s %s.%s %s/%s_%d.%s ) " % ( cp, cfg.outfile[0], cfg.outfile[1], cfg.histdir, cfg.outfile[0], i, cfg.outfile[1]) )
