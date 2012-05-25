@@ -33,7 +33,8 @@ public:
 	const TVector3 & caloPosition() const { return caloPosition_; }
     const TVector3 & refittedMomentum() const { return refittedMomentum_; }
     const int iDet() const {return iDet_;}
-	const float      energy()       const { return energy_; }
+    const int nTracks() const {return nTracks_;}
+    const float      energy()       const { return energy_; }
 	TLorentzVector p4(float vtxx, float vtxy, float vtxz) const;
 	bool isAConversion() const;
 	bool isFake() const { return isFake_; };

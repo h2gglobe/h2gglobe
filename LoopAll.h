@@ -393,7 +393,7 @@ TLorentzVector GetHiggs()
 TLorentzVector get_pho_p4(int ipho, int ivtx, const float *pho_energy_array=0) const ;
 TLorentzVector get_pho_p4(int ipho, TVector3 * vtx, const float * energy=0) const ;
 void set_pho_p4(int ipho, int ivtx, float *pho_energy_array=0);
-
+double get_pho_zposfromconv(TVector3 convvtx, TVector3 superclustervtx, TVector3 beamSpot);
 // end vertex analysis 
 
 void FillCICInputs();

@@ -56,20 +56,27 @@ void HggVertexAnalyzer::setupWithDefaultOptions(const std::string & pathToPerVer
 	params_.coneSize=0.05;
 
 	params_.useAllConversions=1;
-    params_.sigma1Pix=0.016;
-    params_.sigma1Tib=0.572;
-    params_.sigma1Tob=4.142;
-    params_.sigma1PixFwd=0.082;
-    params_.sigma1Tid=0.321;
-    params_.sigma1Tec=3.109;
-
-    params_.sigma2Pix=0.035;
-    params_.sigma2Tib=0.331;
-    params_.sigma2Tob=1.564;
-    params_.sigma2PixFwd=0.189;
-    params_.sigma2Tid=0.418;
-    params_.sigma2Tec=0.815;
+	params_.sigma1Pix=0.016;
+	params_.sigma1Tib=0.572;
+	params_.sigma1Tob=4.142;
+	params_.sigma1PixFwd=0.082;
+	params_.sigma1Tid=0.321;
+	params_.sigma1Tec=3.109;
 	
+	params_.sigma2Pix=0.035;
+	params_.sigma2Tib=0.331;
+	params_.sigma2Tob=1.564;
+	params_.sigma2PixFwd=0.189;
+	params_.sigma2Tid=0.418;
+	params_.sigma2Tec=0.815;
+
+	params_.singlelegsigma2Pix=0.036;
+	params_.singlelegsigma2Tib=0.456;
+	params_.singlelegsigma2Tob=0.362;
+	params_.singlelegsigma2PixFwd=0.130;
+	params_.singlelegsigma2Tid=0.465;
+	params_.singlelegsigma2Tec=1.018;
+    
 	params_.vtxProbFormula="1.-0.49*(x+1)";
 	
 	std::vector<std::string>  perVtxVariables; 
@@ -526,6 +533,7 @@ int HggVertexAnalyzer::pairID(int pho1, int pho2)
 // -------------------------------------------------------------------------------------------------------------------------------------------------------------
 void HggVertexAnalyzer::clear()
 {
+	/// std::cerr << "HggVertexAnalyzer::clear" << std::endl;
 	mva_.clear();
 	rcomb_.clear();
 	
@@ -604,11 +612,12 @@ void HggVertexAnalyzer::analyze(const VertexInfoAdapter & e, const PhotonInfo & 
 {
 	int const nvtx = e.nvtx();
 	nvtx_ = nvtx;
-	/// std::cerr << "HggVertexAnalyzer::analyze " << nvtx_ << std::endl;
 	int pho1 = p1.id();
 	int pho2 = p2.id();
 	ipair_ = pairID(pho1,pho2);
+	/// std::cerr << "HggVertexAnalyzer::analyze " << nvtx_ << " " << ipair_ << std::endl;
 	if( ipair_ >= (int)pho1_.size() ) {
+		/// std::cerr << "HggVertexAnalyzer::analyze " << __LINE__ << std::endl;
 		pho1_.push_back(pho1);
 		pho2_.push_back(pho2);
 
@@ -853,38 +862,49 @@ double HggVertexAnalyzer::vtxdZFromConv(const PhotonInfo & pho, int method)
   // attribute the error depending on the tracker region
   double dz=-99999;
 
-  if ( pho.iDet() ==1 ) { // barrel
-    if ( pho.conversionVertex().Perp() <=15 ) {
-      if (method==0) dz=params_.sigma1Pix;
-      if (method==1) dz=params_.sigma1Pix;
-      if (method==2) dz=params_.sigma2Pix;
-    } else if ( pho.conversionVertex().Perp() > 15 && pho.conversionVertex().Perp() <=60 ) {
-      if (method==0) dz=params_.sigma2Tib;
-      if (method==1) dz=params_.sigma1Tib;
-      if (method==2) dz=params_.sigma2Tib;
-    } else {
-      if (method==0) dz=params_.sigma2Tob;
-      if (method==1) dz=params_.sigma1Tob;
-      if (method==2) dz=params_.sigma2Tob;
-    }
+  if (pho.nTracks()==2) {
+          if ( pho.iDet() ==1 ) { // barrel
+                  if ( pho.conversionVertex().Perp() <=15 ) {
+                          if (method==0) dz=params_.sigma1Pix;
+                          if (method==1) dz=params_.sigma1Pix;
+                          if (method==2) dz=params_.sigma2Pix;
+                  } else if ( pho.conversionVertex().Perp() > 15 && pho.conversionVertex().Perp() <=60 ) {
+                          if (method==0) dz=params_.sigma2Tib;
+                          if (method==1) dz=params_.sigma1Tib;
+                          if (method==2) dz=params_.sigma2Tib;
+                  } else {
+                          if (method==0) dz=params_.sigma2Tob;
+                          if (method==1) dz=params_.sigma1Tob;
+                          if (method==2) dz=params_.sigma2Tob;
+                  }
 
-  } else { // endcap
+          } else { // endcap
 
-    if ( fabs(pho.conversionVertex().Z() ) <=50 ) {
-      if (method==0) dz=params_.sigma1PixFwd;
-      if (method==1) dz=params_.sigma1PixFwd;
-      if (method==2) dz=params_.sigma2PixFwd;
-    } else if ( fabs(pho.conversionVertex().Z() ) > 50 && fabs(pho.conversionVertex().Z()) <= 100 ) {
-      if (method==0) dz=params_.sigma1Tid;
-      if (method==1) dz=params_.sigma1Tid;
-      if (method==2) dz=params_.sigma2Tid;
-    } else {
-      if (method==0) dz=params_.sigma2Tec;
-      if (method==1) dz=params_.sigma1Tec;
-      if (method==2) dz=params_.sigma2Tec;
-    }
+                  if ( fabs(pho.conversionVertex().Z() ) <=50 ) {
+                          if (method==0) dz=params_.sigma1PixFwd;
+                          if (method==1) dz=params_.sigma1PixFwd;
+                          if (method==2) dz=params_.sigma2PixFwd;
+                  } else if ( fabs(pho.conversionVertex().Z() ) > 50 && fabs(pho.conversionVertex().Z()) <= 100 ) {
+                          if (method==0) dz=params_.sigma1Tid;
+                          if (method==1) dz=params_.sigma1Tid;
+                          if (method==2) dz=params_.sigma2Tid;
+                  } else {
+                          if (method==0) dz=params_.sigma2Tec;
+                          if (method==1) dz=params_.sigma1Tec;
+                          if (method==2) dz=params_.sigma2Tec;
+                  }
+          }
+  } else if (pho.nTracks()==1) {
+          if ( pho.iDet() ==1 ) { // barrel
+                  if ( pho.conversionVertex().Perp() <=15 ) dz=params_.singlelegsigma2Pix;
+                  else if ( pho.conversionVertex().Perp() > 15 && pho.conversionVertex().Perp() <=60 ) dz=params_.singlelegsigma2Tib;
+                  else dz=params_.singlelegsigma2Tob;
+          } else { // endcap
+                  if ( fabs(pho.conversionVertex().Z() ) <=50 ) dz=params_.sigma2PixFwd;
+                  else if ( fabs(pho.conversionVertex().Z() ) > 50 && fabs(pho.conversionVertex().Z()) <= 100 ) dz=params_.sigma2Tid;
+                  else dz=params_.singlelegsigma2Tec;
+          }
   }
-
   return dz;
 
 }
@@ -899,35 +919,37 @@ double HggVertexAnalyzer::vtxZFromConv(const PhotonInfo & pho, int method)
   double ReturnValue = 0;
 
   //Mixed Method Conversion Vertex
-  if (method==0) {
-    if (pho.iDet()) {
-      if (pho.conversionVertex().Perp()<=15.0) {
-        //Pixel Barrel
-        ReturnValue = vtxZFromConvOnly(pho);
-      } else if  (pho.conversionVertex().Perp()>15 && pho.conversionVertex().Perp()<=60.0) {
-        //Tracker Inner Barrel
-        ReturnValue = vtxZFromConvSuperCluster(pho);
-      } else {
-        //Tracker Outer Barrel
-        ReturnValue = vtxZFromConvSuperCluster(pho);
-      }
-    } else {
-      if (fabs(pho.conversionVertex().Z())<=50.0) {
-        //Pixel Forward
-        ReturnValue = vtxZFromConvOnly(pho);
-      }  else if (fabs(pho.conversionVertex().Z())>50.0 && fabs(pho.conversionVertex().Z())<=100.0) {
-        //Tracker Inner Disk
-        ReturnValue = vtxZFromConvOnly(pho);
-      }  else {
-        //Track EndCap
-        ReturnValue = vtxZFromConvSuperCluster(pho);
-      }
-    }
+  if (pho.nTracks()==2) {
+          if (method==0) {
+                  if (pho.iDet()) {
+                          if (pho.conversionVertex().Perp()<=15.0) {
+                                  //Pixel Barrel
+                                  ReturnValue = vtxZFromConvOnly(pho);
+                          } else if  (pho.conversionVertex().Perp()>15 && pho.conversionVertex().Perp()<=60.0) {
+                                  //Tracker Inner Barrel
+                                  ReturnValue = vtxZFromConvSuperCluster(pho);
+                          } else {
+                                  //Tracker Outer Barrel
+                                  ReturnValue = vtxZFromConvSuperCluster(pho);
+                          }
+                  } else {
+                          if (fabs(pho.conversionVertex().Z())<=50.0) {
+                                  //Pixel Forward
+                                  ReturnValue = vtxZFromConvOnly(pho);
+                          }  else if (fabs(pho.conversionVertex().Z())>50.0 && fabs(pho.conversionVertex().Z())<=100.0) {
+                                  //Tracker Inner Disk
+                                  ReturnValue = vtxZFromConvOnly(pho);
+                          }  else {
+                                  //Track EndCap
+                                  ReturnValue = vtxZFromConvSuperCluster(pho);
+                          }
+                  }
+          }
+          if (method==1) ReturnValue = vtxZFromConvSuperCluster(pho);
+          if (method==2) ReturnValue = vtxZFromConvOnly(pho);
+  } else if (pho.nTracks()==1) {
+          ReturnValue = vtxZFromConvSuperCluster(pho);
   }
-
-  if (method==1) ReturnValue = vtxZFromConvSuperCluster(pho);
-  if (method==2) ReturnValue = vtxZFromConvOnly(pho);
-  
   return ReturnValue;
 
 }
@@ -996,6 +1018,5 @@ TupleVertexInfo::TupleVertexInfo(int nvtx, float * vtxx, float * vtxy, float * v
 
 // Local Variables:
 // mode: c++       
-// mode: sensitive 
 // c-basic-offset: 8
 // End:             
