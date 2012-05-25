@@ -13,7 +13,7 @@
 #include <string>
 
 #include "th1fmorph.C"
-#include "Normalization.C"
+#include "Normalization_7TeV.C"
 //#include "Normalization_ff.C"
 
 using namespace std;

@@ -28,7 +28,7 @@
 
 #include "RooWorkspace.h"
 
-#include "Normalization.C"
+#include "Normalization_7TeV.C"
 
 using namespace std;
 using namespace RooFit;
