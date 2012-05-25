@@ -41,7 +41,7 @@ int main(int argc, char* argv[]){
 	runner->runRebinning();
 	runner->printRunOptions("after.txt");
 	runner->runFitting();
-	//runner->makeNormPlot();
+	runner->makeNormPlot();
 	runner->createCorrBkgModel();
 	runner->interpolateBDT();
 	runner->writeDataCards();

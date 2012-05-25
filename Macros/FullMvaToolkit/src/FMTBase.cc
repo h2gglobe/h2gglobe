@@ -341,9 +341,26 @@ vector<int> FMTBase::getMCMasses(){
 	}
 	return theMasses;
 }
+
+vector<double> FMTBase::getAllMH(){
+  vector<double> theMasses;
+  vector<int> mcMasses = getMCMasses();
+  for (vector<int>::iterator mcM=mcMasses.begin(); mcM!=mcMasses.end(); mcM++){
+    vector<double> mhMasses = getMHMasses(*mcM);
+    for (vector<double>::iterator mh=mhMasses.begin(); mh!=mhMasses.end(); mh++){
+      theMasses.push_back(*mh);
+    }
+  }
+  return theMasses;
+}
+
 int FMTBase::getNumMCMasses(){
 	vector<int> theMasses = getMCMasses();
 	return theMasses.size();
+}
+int FMTBase::getNumMHMasses(){
+  vector<double> theMasses = getAllMH();
+  return theMasses.size();
 }
 
 // FMTBase::setters

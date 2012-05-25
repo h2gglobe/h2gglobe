@@ -123,6 +123,7 @@ void FMTSetup::OptionParser(int argc, char *argv[]){
 	rebinner->fitter->setblind(blinding_);
 	rebinner->fitter->setplot(diagnose_);
 
+  if (diagnose_) system("mkdir plots");
 	printPassedOptions();
 
 }

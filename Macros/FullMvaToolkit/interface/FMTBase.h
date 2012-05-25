@@ -63,7 +63,9 @@ class FMTBase {
     vector<int> getUandDMCMasses(int);
     pair<int,int> getInterpMasses(double);
 		vector<int> getMCMasses();
+    vector<double> getAllMH();
 		int getNumMCMasses();
+    int getNumMHMasses();
 
 		// setters
 		void setmHMinimum(int);

@@ -116,12 +116,15 @@ pair<double,double> FMTFit::FitPow(double mass){
 
 void FMTFit::Plot(double mass){
     
-    system("mkdir FitPlots");
     RooPlot *frame = mass_var->frame(Title(Form("Mass fit for %3.1f",mass)));
     frame->GetXaxis()->SetTitle("m_{#gamma#gamma} (GeV)");
-    if (blind_) data->plotOn(frame,Binning(getnDataBins()),Invisible());
-		else data->plotOn(frame,Binning(getnDataBins()));
+    if (blind_) {
+      data->plotOn(frame,Binning(getnDataBins()),CutRange("unblindReg"));
+      data->plotOn(frame,Binning(getnDataBins()),Invisible());
+		}
+    else data->plotOn(frame,Binning(getnDataBins()));
     fit->plotOn(frame,Range(Form("rangeLow_m%3.1f,rangeHig_m%3.1f",mass,mass)),NormRange(Form("rangeLow_m%3.1f,rangeHig_m%3.1f",mass,mass)));
+    frame->SetMinimum(0.0001);
     TCanvas *c1 = new TCanvas();
 		frame->Draw();
 		// make signal reg and sideband boxes
@@ -159,8 +162,9 @@ void FMTFit::Plot(double mass){
 		text->DrawLatex(0.68,0.85,"CMS preliminary");
     text->DrawLatex(0.75,0.78,"#sqrt{s} = 7 TeV");
 		text->DrawLatex(0.73,0.71,"#int L = 5.1 fb^{-1}");
-    c1->SaveAs(Form("FitPlots/fit_m%3.1f.pdf",mass));
-    c1->SaveAs(Form("FitPlots/fit_m%3.1f.png",mass));
+    if (blind_) text->DrawLatex(0.67,0.64,"Blinded: [100,150]");
+    c1->SaveAs(Form("plots/fit_m%3.1f.pdf",mass));
+    c1->SaveAs(Form("plots/fit_m%3.1f.png",mass));
 }
 
 void FMTFit::redoFit(double mass){
@@ -170,15 +174,13 @@ void FMTFit::redoFit(double mass){
 
 void FMTFit::makeNormPlot(){
   
-  double highMass=getmHMaximum();
-  double lowMass=getmHMinimum();
-  double massStep=getmHStep();
-  int nGlobalMs=int(floor(((highMass-lowMass)/massStep)+0.5))+1;
-  TGraph *normG = new TGraph(nGlobalMs);
+  TGraph *normG = new TGraph(getNumMHMasses());  
+  vector<double> allMasses = getAllMH();
   int i=0;
-  for (double mass=lowMass; mass<highMass+massStep/2.; mass+=massStep){
-    RooRealVar *val = (RooRealVar*)outWS->var(Form("NBkgInSignal_mH%3.1f",mass));
-    normG->SetPoint(i,mass,val->getVal());
+  for (vector<double>::iterator mh=allMasses.begin(); mh!=allMasses.end(); mh++){
+    cout << *mh << endl;
+    RooRealVar *val = (RooRealVar*)outWS->var(Form("NBkgInsignal_mH%3.1f",*mh));
+    normG->SetPoint(i,*mh,val->getVal());
     i++;
   }
   TCanvas *canv = new TCanvas();
@@ -189,8 +191,8 @@ void FMTFit::makeNormPlot(){
   normG->GetYaxis()->SetTitleOffset(1.5);
   normG->GetXaxis()->SetTitle("m_{H} (GeV)");
   normG->Draw("ALP");
-  canv->SaveAs("FitPlots/normAll.pdf");
-  canv->SaveAs("FitPlots/normAll.png");
+  canv->SaveAs("plots/normAll.pdf");
+  canv->SaveAs("plots/normAll.png");
 	delete normG;
 	delete canv;
 }
