@@ -154,7 +154,7 @@ def plotDistributions(mass,data,signals,bkg,errors):
 	mytext = ROOT.TLatex();mytext.SetTextSize(0.03);mytext.SetNDC();mytext.DrawLatex(0.1,0.92,"CMS preliminary,  #sqrt{s} = 7 TeV ");mytext.SetTextSize(0.04)
 	mytext.DrawLatex(0.2,0.8,"#int L = %s"%(lumistring))
 	leg.Draw()
-	c.SaveAs(plotOutDir+"/model_m%3.1f.pdf"%mass);c.SaveAs(plotOutDir+"/model_m%3.1f.png"%mass)
+	c.SaveAs(plotOutDir+"/pdf/model_m%3.1f.pdf"%mass);c.SaveAs(plotOutDir+"/png/model_m%3.1f.png"%mass)
 	
 	d = ROOT.TCanvas()
 	leg2 = ROOT.TLegend(0.56,0.56,0.88,0.88)
@@ -189,7 +189,7 @@ def plotDistributions(mass,data,signals,bkg,errors):
 	leg2.Draw()
 	mytext = ROOT.TLatex();mytext.SetTextSize(0.03);mytext.SetNDC();mytext.DrawLatex(0.1,0.92,"CMS preliminary,  #sqrt{s} = 7 TeV ");mytext.SetTextSize(0.04)
 	mytext.DrawLatex(0.2,0.8,"#int L = %s"%(lumistring))
-	d.SaveAs(plotOutDir+"/diff_model_m%3.1f.pdf"%mass);d.SaveAs(plotOutDir+"/diff_model_m%3.1f.png"%mass)
+	d.SaveAs(plotOutDir+"/pdf/diff_model_m%3.1f.pdf"%mass);d.SaveAs(plotOutDir+"/png/diff_model_m%3.1f.png"%mass)
 	
 
 

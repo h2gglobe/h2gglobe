@@ -117,8 +117,8 @@ void FMTSigInterp::plotOutput(TH1F* bkg, TH1F* sig, TH1F* data, string name){
   leg->Draw("same");
   txt->Draw("same");
   canv->SetLogy();
-  canv->SaveAs(Form("plots/output_%s.pdf",name.c_str()));
-  canv->SaveAs(Form("plots/output_%s.png",name.c_str()));
+  canv->SaveAs(Form("plots/pdf/output_%s.pdf",name.c_str()));
+  canv->SaveAs(Form("plots/png/output_%s.png",name.c_str()));
 
 }
 
