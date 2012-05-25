@@ -65,6 +65,10 @@ void RooContainer::SaveSystematicsData(bool save){
    save_systematics_data = save;
 }
 // ----------------------------------------------------------------------------------------------------
+void RooContainer::BlindData(bool blind){
+   blind_data = blind;
+}
+// ----------------------------------------------------------------------------------------------------
 void RooContainer::MakeSystematicPdfs(bool save){
    fit_systematics = save;
 }
@@ -2760,8 +2764,9 @@ void RooContainer::fitToData(std::string name_func, std::string name_data, std::
 
     RooPlot *xframe = (*real_var).frame(x_min,x_max);
 
-    if (bins > 0) (it_data->second).plotOn(xframe,Binning(bins));
-    else  (it_data->second).plotOn(xframe);
+    const RooCmdArg blind = (blind_data) ? RooFit::Invisible() : RooFit::MarkerColor(kBlack);
+    if (bins > 0) (it_data->second).plotOn(xframe,Binning(bins),blind);
+    else  (it_data->second).plotOn(xframe,blind);
 
     if (use_composed_pdf){
       (it_pdf->second).plotOn(xframe,LineColor(4));

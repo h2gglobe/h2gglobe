@@ -38,6 +38,7 @@
 #include "RooArgList.h"
 #include "RooAddPdf.h"
 #include "RooGlobalFunc.h"
+#include "RooCmdArg.h"
 
 // RooStats includes
 #include "RooWorkspace.h"
@@ -61,6 +62,7 @@ class RooContainer {
     ~RooContainer();
     void SetNCategories(int);
     void Verbose(bool noisy=true);
+    void BlindData(bool blind=true);
     void AddGlobalSystematic(std::string,double,double);
     void AddNormalisationSystematics(std::string,std::vector<std::pair<double,double> >, int);
     void SaveSystematicsData(bool save=true);
@@ -239,6 +241,8 @@ class RooContainer {
    double *backgroundVector1;
    int g_step;
    int sweepmode;
+  
+   bool blind_data;
 
    RooWorkspace ws;   
    
