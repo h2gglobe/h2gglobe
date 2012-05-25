@@ -2,7 +2,11 @@ CC = g++
 ROOFITBASE=$(ROOFITSYS)
 ROOFITLIBS=$(ROOFITBASE)/lib
 ROOFITINCS=$(ROOFITBASE)/include
-DEPENDENTS = `root-config --cflags --libs` -L$(ROOFITLIBS) -I$(ROOFITINCS) -lMinuit -lFoam -lRooFit -lRooFitCore -lboost_program_options
+BOOSTBASE=$(CMSSW_DATA_PATH)/../external/boost/1.49.0-cms/
+BOOSTLIBS=$(BOOSTBASE)/lib
+BOOSTINCS=$(BOOSTBASE)/include
+
+DEPENDENTS = `root-config --cflags --libs` -L$(ROOFITLIBS) -I$(ROOFITINCS) -L$(BOOSTLIBS) -I$(BOOSTINCS) -lMinuit -lFoam -lRooFit -lRooFitCore -lboost_program_options
 FILES = RunFullMvaAnalysis.cc src/FMTBase.cc src/FMTFit.cc src/FMTRebin.cc src/FMTSetup.cc src/FMTSigInterp.cc
 OUT_EXE = runIt.exe
 
