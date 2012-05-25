@@ -17,10 +17,11 @@
 
 using namespace std;
 
-FMTSigInterp::FMTSigInterp(string filename, bool diagnose, bool doSyst, int mHMinimum, int mHMaximum, double mHStep, double massMin, double massMax, int nDataBins, double signalRegionWidth, double sidebandWidth, int numberOfSidebands, int numberOfSidebandsForAlgos, int numberOfSidebandGaps, double massSidebandMin, double massSidebandMax, bool includeVBF, bool includeLEP, vector<string> systematics, bool rederiveOptimizedBinEdges, vector<map<int, vector<double> > > AllBinEdges, bool verbose):
+FMTSigInterp::FMTSigInterp(string filename, bool diagnose, bool doSyst, int mHMinimum, int mHMaximum, double mHStep, double massMin, double massMax, int nDataBins, double signalRegionWidth, double sidebandWidth, int numberOfSidebands, int numberOfSidebandsForAlgos, int numberOfSidebandGaps, double massSidebandMin, double massSidebandMax, bool includeVBF, bool includeLEP, vector<string> systematics, bool rederiveOptimizedBinEdges, vector<map<int, vector<double> > > AllBinEdges, bool blind, bool verbose):
   
 	FMTBase(mHMinimum, mHMaximum, mHStep, massMin, massMax, nDataBins, signalRegionWidth, sidebandWidth, numberOfSidebands, numberOfSidebandsForAlgos, numberOfSidebandGaps, massSidebandMin, massSidebandMax, includeVBF, includeLEP, systematics, rederiveOptimizedBinEdges, AllBinEdges, verbose),
-  diagnose_(diagnose)
+  diagnose_(diagnose),
+  blind_(blind)
 {
   tFile = TFile::Open(filename.c_str(),"UPDATE");
 
@@ -65,21 +66,22 @@ TH1F* FMTSigInterp::Interpolate(double massLow, TH1F* low, double massHigh, TH1F
   return interp;
 }
 
-void FMTSigInterp::linearBin(TH1F *hist){
+TH1F* FMTSigInterp::linearBin(TH1F *hist){
   assert(hist->GetEntries()!=0);
   assert(hist->GetNbinsX()>2);
-  
+   
   int nBins = hist->GetNbinsX();
+  TH1F *h = new TH1F(Form("%s_lin",hist->GetName()),"",nBins,0,nBins);
   for (int i=0; i<nBins; i++){
-    if (hist->GetBinLowEdge(i+1)<1.) hist->GetXaxis()->SetBinLabel(i+1,Form("Bin %d",i+1));
-    else if (hist->GetBinLowEdge(i+1)<1.04) hist->GetXaxis()->SetBinLabel(i+1,"Di-jet");
-    else if (hist->GetBinLowEdge(i+1)<1.08) hist->GetXaxis()->SetBinLabel(i+1,"Di-lepton");
+    h->SetBinContent(i+1,hist->GetBinContent(i+1));
+    if (hist->GetBinLowEdge(i+1)<1.) h->GetXaxis()->SetBinLabel(i+1,Form("Bin %d",i+1));
+    else if (hist->GetBinLowEdge(i+1)<1.04) h->GetXaxis()->SetBinLabel(i+1,"Di-jet");
+    else if (hist->GetBinLowEdge(i+1)<1.08) h->GetXaxis()->SetBinLabel(i+1,"Di-lepton");
   }
+  return h;
 }
 
 void FMTSigInterp::plotOutput(TH1F* bkg, TH1F* sig, TH1F* data, string name){
-  system("mkdir -p plots/grad/output");
-  system("mkdir -p plots/grad/diff");
 
   TH1F *sig3 = (TH1F*)sig->Clone();
   sig3->Scale(3.);
@@ -101,12 +103,12 @@ void FMTSigInterp::plotOutput(TH1F* bkg, TH1F* sig, TH1F* data, string name){
   sig->Draw("same hist");
   sig3->Draw("same hist");
   sig5->Draw("same hist");
-  data->Draw("same e");
+  if (!blind_) data->Draw("same e");
   TLegend *leg = new TLegend(0.45,0.6,0.85,0.85);
   leg->SetLineColor(0);
   leg->SetFillColor(0);
   leg->AddEntry(bkg,"Background","f");
-  leg->AddEntry(data,"Data","lep");
+  if (!blind_) leg->AddEntry(data,"Data","lep");
   leg->AddEntry(sig,"Signal (1, 3, 5 #times SM)","l");
   TPaveText *txt = new TPaveText(0.2,0.1,0.4,0.35,"NDC");
   txt->SetFillColor(0);
@@ -115,21 +117,17 @@ void FMTSigInterp::plotOutput(TH1F* bkg, TH1F* sig, TH1F* data, string name){
   leg->Draw("same");
   txt->Draw("same");
   canv->SetLogy();
-  canv->SaveAs(Form("plots/grad/output/%s.pdf",name.c_str()));
-  canv->SaveAs(Form("plots/grad/output/%s.png",name.c_str()));
+  canv->SaveAs(Form("plots/output_%s.pdf",name.c_str()));
+  canv->SaveAs(Form("plots/output_%s.png",name.c_str()));
 
 }
 
 void FMTSigInterp::runInterpolation(){
   
-  if (diagnose_){
-    system("rm -r InterpPlots");
-    system("mkdir InterpPlots");
-  }
   gROOT->SetBatch();
   gStyle->SetOptStat(0);
   gErrorIgnoreLevel = kWarning;
-  ofstream diagFile("InterpPlots/SigInterpolationDiagnostics.txt");
+  ofstream diagFile("plots/SigInterpolationDiagnostics.txt");
   
   vector<int> mcMasses = getMCMasses();
   vector<string> productionTypes;
@@ -164,10 +162,10 @@ void FMTSigInterp::runInterpolation(){
         }
         TH1F *bkg = (TH1F*)tFile->Get(Form("th1f_bkg_grad_%3.1f_fitsb_biascorr",*mh));
         TH1F *data = (TH1F*)tFile->Get(Form("th1f_data_grad_%3.1f",*mh));
-        linearBin(bkg);
-        linearBin(data);
-        linearBin(allSig);
-        if (diagnose_) plotOutput(bkg,allSig,data,Form("mH_%3.1f",*mh));
+        TH1F *bkgLin = linearBin(bkg);
+        TH1F *dataLin = linearBin(data);
+        TH1F *allSigLin = linearBin(allSig);
+        if (diagnose_) plotOutput(bkgLin,allSigLin,dataLin,Form("mH_%3.1f",*mh));
       }
       else{
         int nearest = (getInterpMasses(*mh)).first;
@@ -200,10 +198,10 @@ void FMTSigInterp::runInterpolation(){
         }
         TH1F *bkg = (TH1F*)tFile->Get(Form("th1f_bkg_grad_%3.1f_fitsb_biascorr",*mh));
         TH1F *data = (TH1F*)tFile->Get(Form("th1f_data_grad_%3.1f",*mh));
-        linearBin(bkg);
-        linearBin(data);
-        linearBin(allSig);
-        if (diagnose_) plotOutput(bkg,allSig,data,Form("mH_%3.1f",*mh));
+        TH1F *bkgLin = linearBin(bkg);
+        TH1F *dataLin = linearBin(data);
+        TH1F *allSigLin = linearBin(allSig);
+        if (diagnose_) plotOutput(bkgLin,allSigLin,dataLin,Form("mH_%3.1f",*mh));
         
         // then do signal systematic histograms
         vector<string> theSystematics = getsystematics();

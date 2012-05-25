@@ -44,6 +44,7 @@ using namespace std;
 using namespace RooFit;
 
 // The following global variables should be the same as definde in PhotonAnalysis_scripts/mvaanalysis.dat
+bool global_BLIND=false;
 double global_SIDEBANDWIDTH=0.02;
 double global_SIGNALREGION=0.02;
 int global_NUMBEROFSIDEBANDGAPS=1;
@@ -529,9 +530,9 @@ void paulFit(TDirectory *mDir,TH1F* fMFitS,TH1F* hMFitS,TH2F* hFCovar, bool make
 		l.SetLineStyle(7);
 		l.SetLineWidth(3);
 		fBRaw[j]->SetTitle("");
-		fBRaw[j]->Draw("AP");
+		if (!global_BLIND) fBRaw[j]->Draw("AP");
 		fBFit[j]->Draw("L");
-		fBRaw[j]->Draw("sameP");
+		if (!global_BLIND) fBRaw[j]->Draw("sameP");
 		l.Draw();
 
 		TText *text = new TText(0.6,0.8,"CMS Preliminary");
@@ -541,8 +542,8 @@ void paulFit(TDirectory *mDir,TH1F* fMFitS,TH1F* hMFitS,TH2F* hFCovar, bool make
 
 		can->Write();
 		if (makePlots){
-			can->Print(Form("BMplots/%s/fit_m%3.1f_bin%d.png",type.c_str(),global_mH,j));
-			can->Print(Form("BMplots/%s/fit_m%3.1f_bin%d.pdf",type.c_str(),global_mH,j));
+			can->Print(Form("plots/png/fit_m%3.1f_bin%d.png",global_mH,j));
+			can->Print(Form("plots/pdf/fit_m%3.1f_bin%d.pdf",global_mH,j));
 		}
 	}
 
@@ -560,12 +561,12 @@ void paulFit(TDirectory *mDir,TH1F* fMFitS,TH1F* hMFitS,TH2F* hFCovar, bool make
 		gPad->SetRightMargin(5.);
 		hFCorr->SetMarkerColor(kGray+2);
 		hFCorr->Draw("colz text");
-		canv->Print(Form("BMplots/%s/fCorr_m%3.1f.png",type.c_str(),global_mH));
-		canv->Print(Form("BMplots/%s/fCorr_m%3.1f.pdf",type.c_str(),global_mH));
+		canv->Print(Form("plots/png/fCorr_m%3.1f.png",global_mH));
+		canv->Print(Form("plots/pdf/fCorr_m%3.1f.pdf",global_mH));
 		hFCovar->SetMarkerColor(kGray+2);
 		hFCovar->Draw("colz text");
-		canv->Print(Form("BMplots/%s/fCovar_m%3.1f.png",type.c_str(),global_mH));
-		canv->Print(Form("BMplots/%s/fCovar_m%3.1f.pdf",type.c_str(),global_mH));
+		canv->Print(Form("plots/png/fCovar_m%3.1f.png",global_mH));
+		canv->Print(Form("plots/pdf/fCovar_m%3.1f.pdf",global_mH));
 	}
 
 }
@@ -594,8 +595,9 @@ void diagonalizeMatrix(TH2F *th2f_covar,TH2F *th2f_out){
 
 }
 
-void createCorrectedBackgroundModel(std::string fileName, int nsidebands=6, double sidebandWidth_=0.02, double signalRegionWidth_=0.02, int numberOfSidebandGaps_=1, double massSidebandMin_=99., double massSidebandMax_=180., double mHLow=110, double mHHigh=150, double mHStep=0.5, bool makePlots=false, std::string defaultPrepend="CMS-HGG" ){
+void createCorrectedBackgroundModel(std::string fileName, int nsidebands=6, double sidebandWidth_=0.02, double signalRegionWidth_=0.02, int numberOfSidebandGaps_=1, double massSidebandMin_=99., double massSidebandMax_=180., double mHLow=110, double mHHigh=150, double mHStep=0.5, bool makePlots=false, bool blind=false, std::string defaultPrepend="CMS-HGG" ){
 
+  global_BLIND=blind;
 	global_SIDEBANDWIDTH=sidebandWidth_;
 	global_SIGNALREGION=signalRegionWidth_;
 	global_NUMBEROFSIDEBANDGAPS=numberOfSidebandGaps_;
@@ -603,8 +605,6 @@ void createCorrectedBackgroundModel(std::string fileName, int nsidebands=6, doub
 	global_MASSSIDEBANDMAX=massSidebandMax_;
 
 	if (makePlots){
-		system("mkdir -p BMplots/ada");
-		system("mkdir -p BMplots/grad");
 		gStyle->SetPalette(1);
 		gStyle->SetOptStat(0);
 	}
@@ -676,8 +676,8 @@ void createCorrectedBackgroundModel(std::string fileName, int nsidebands=6, doub
 			uCorrErr->SetMarkerColor(kGray);
 			gPad->SetRightMargin(2.);
 			uCorrErr->Draw("colz text");
-			canv->Print(Form("BMplots/%s/uncorrErr_m%3.1f.png",type.c_str(),mH));
-			canv->Print(Form("BMplots/%s/uncorrErr_m%3.1f.pdf",type.c_str(),mH));
+			canv->Print(Form("plots/png/uncorrErr_m%3.1f.png",mH));
+			canv->Print(Form("plots/pdf/uncorrErr_m%3.1f.pdf",mH));
 		}
 	}
 	std::cout << "Saving Fits to file -> " << out->GetName() << std::endl;

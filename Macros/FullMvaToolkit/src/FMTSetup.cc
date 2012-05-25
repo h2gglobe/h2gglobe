@@ -123,7 +123,10 @@ void FMTSetup::OptionParser(int argc, char *argv[]){
 	rebinner->fitter->setblind(blinding_);
 	rebinner->fitter->setplot(diagnose_);
 
-  if (diagnose_) system("mkdir plots");
+  if (diagnose_) {
+    system("mkdir -p plots/png");
+    system("mkdir -p plots/pdf");
+  }
 	printPassedOptions();
 
 }
@@ -319,7 +322,7 @@ void FMTSetup::createCorrBkgModel(){
 	if (!cleaned) cleanUp();
 	if (bkgModel_){
 		cout << "Running createCorrectedBackgroundModel...." << endl;
-		createCorrectedBackgroundModel(filename_,getnumberOfSidebands(),getsidebandWidth(),getsignalRegionWidth(),getnumberOfSidebandGaps(),getmassSidebandMin(),getmassSidebandMax(),boost::lexical_cast<double>(getmHMinimum()),boost::lexical_cast<double>(getmHMaximum()),getmHStep(),diagnose_);
+		createCorrectedBackgroundModel(filename_,getnumberOfSidebands(),getsidebandWidth(),getsignalRegionWidth(),getnumberOfSidebandGaps(),getmassSidebandMin(),getmassSidebandMax(),boost::lexical_cast<double>(getmHMinimum()),boost::lexical_cast<double>(getmHMaximum()),getmHStep(),diagnose_, blinding_);
 		cout << "Finished correcting background model" << endl;
 	}
 }
@@ -328,7 +331,7 @@ void FMTSetup::interpolateBDT(){
 	if (!cleaned) cleanUp();
 	if (interp_){
     cout << "Running signal interpolation...." << endl;
-    FMTSigInterp *interpolater = new FMTSigInterp(filename_,diagnose_,false,getmHMinimum(), getmHMaximum(), getmHStep(), getmassMin(), getmassMax(), getnDataBins(), getsignalRegionWidth(), getsidebandWidth(), getnumberOfSidebands(), getnumberOfSidebandsForAlgos(), getnumberOfSidebandGaps(), getmassSidebandMin(), getmassSidebandMax(), getincludeVBF(), getincludeLEP(), getsystematics(), getrederiveOptimizedBinEdges(), getAllBinEdges(),verbose_);
+    FMTSigInterp *interpolater = new FMTSigInterp(filename_,diagnose_,false,getmHMinimum(), getmHMaximum(), getmHStep(), getmassMin(), getmassMax(), getnDataBins(), getsignalRegionWidth(), getsidebandWidth(), getnumberOfSidebands(), getnumberOfSidebandsForAlgos(), getnumberOfSidebandGaps(), getmassSidebandMin(), getmassSidebandMax(), getincludeVBF(), getincludeLEP(), getsystematics(), getrederiveOptimizedBinEdges(), getAllBinEdges(),blinding_,verbose_);
     interpolater->runInterpolation();
 		delete interpolater;
 	}

@@ -163,8 +163,8 @@ void FMTFit::Plot(double mass){
     text->DrawLatex(0.75,0.78,"#sqrt{s} = 7 TeV");
 		text->DrawLatex(0.73,0.71,"#int L = 5.1 fb^{-1}");
     if (blind_) text->DrawLatex(0.67,0.64,"Blinded: [100,150]");
-    c1->SaveAs(Form("plots/fit_m%3.1f.pdf",mass));
-    c1->SaveAs(Form("plots/fit_m%3.1f.png",mass));
+    c1->SaveAs(Form("plots/pdf/fit_m%3.1f.pdf",mass));
+    c1->SaveAs(Form("plots/png/fit_m%3.1f.png",mass));
 }
 
 void FMTFit::redoFit(double mass){
@@ -191,8 +191,8 @@ void FMTFit::makeNormPlot(){
   normG->GetYaxis()->SetTitleOffset(1.5);
   normG->GetXaxis()->SetTitle("m_{H} (GeV)");
   normG->Draw("ALP");
-  canv->SaveAs("plots/normAll.pdf");
-  canv->SaveAs("plots/normAll.png");
+  canv->SaveAs("plots/pdf/normAll.pdf");
+  canv->SaveAs("plots/png/normAll.png");
 	delete normG;
 	delete canv;
 }
