@@ -28,8 +28,8 @@ if not options.inDirName:
 
 call( """cmsLs %(inDir)s | awk '{ print $5 }' | xargs cmsPfn | sed 's/\?.*$//' > %(inDirName)s.files.txt""" % vars(options), shell=True)
 call( """rm -f %(inDirName)s.pileup.root %(inDirName)s.pileup.root.log""" % vars(options), shell=True)
-#call( """hadd -T %(inDirName)s.pileup.root @%(inDirName)s.files.txt &> %(inDirName)s.pileup.root.log""" % vars(options), shell=True)
-call( """hadd -T %(inDirName)s.pileup.root `cat %(inDirName)s.files.txt | paste -s` &> %(inDirName)s.pileup.root.log""" % vars(options), shell=True)
+#call( """hadd -k -T %(inDirName)s.pileup.root @%(inDirName)s.files.txt &> %(inDirName)s.pileup.root.log""" % vars(options), shell=True)
+call( """hadd -k -T %(inDirName)s.pileup.root `cat %(inDirName)s.files.txt | paste -s` &> %(inDirName)s.pileup.root.log""" % vars(options), shell=True)
 
 if options.putBack:
     cmd = """xrdcp %(inDirName)s.pileup.root `cmsPfn %(inDir)s | sed 's/\?.*$//'`/%(inDirName)s.pileup.root"""

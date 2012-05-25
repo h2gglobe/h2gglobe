@@ -24,10 +24,10 @@ def which(program):
 parser = OptionParser(usage="usage: %prog [options] some_data.json\nrun with --help to get list of options")
 parser.add_option("--skipLumi",   action="store_true", default=False, help="Skip lumi calculation [default: %default].")
 parser.add_option("--skipPileup", action="store_true", default=False, help="Skip PU calculation [default: %default].")
-parser.add_option("--minBiasXsec", default=68000,  type="int", help="Minimum bias cross section to use in calculating the PU [default: %default].")
+parser.add_option("--minBiasXsec", default=68300,  type="int", help="Minimum bias cross section to use in calculating the PU [default: %default].")
 parser.add_option("--maxPileupBin",  default=100,  type="int", help="Largest PU value [default: %default].")
 #parser.add_option("--numPileupBins", default=100,  type="int", help="Number of PU bins [default: %default].")
-parser.add_option("--pileupJson", default='/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions12/8TeV/PileUp/pileup_JSON_DCSONLY_190389-193575.txt', help="Pileup JSON file [default: %default].", metavar='pileup_JSON.txt')
+parser.add_option("--pileupJson", default='/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions12/8TeV/PileUp/pileup_JSON_DCSONLY_190389-194533.txt', help="Pileup JSON file [default: %default].", metavar='pileup_JSON.txt')
 parser.add_option("--dryRun", action="store_true", default=False, help="Do not execute the commands [default: %default].")
 
 (options, args) = parser.parse_args()

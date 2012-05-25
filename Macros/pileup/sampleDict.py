@@ -18,11 +18,12 @@ def sampleString(dirName):
 templateSignal = '%(name)s_H_gg_%(mass)s_0'
 regexSignal = re.compile('M-(?P<mass>\d+)')
 
-templateQCD = '%(name)s_%(combination)s_%(threshold)s'
+#templateQCD = '%(name)s_%(combination)s_%(threshold)s'
+templateQCD = '%(name)s_%(threshold)s'
 regexQCD = re.compile('Pt(-{0,1})(?P<threshold>\d+)(.*?)\_(?P<combination>\w{2})')
 
 templateDY = '%(name)s_%(threshold)s'
-regexDY = re.compile('(M|Pt)(?P<threshold>\d+)')
+regexDY = re.compile('(M|Pt)-{0,1}(?P<threshold>\d+)')
 
 
 sampleInfo = {
@@ -58,6 +59,10 @@ sampleInfo = {
     'name':'di_photon_box', 'template':templateDY, 'regex':regexDY
     },
 
+    re.compile('Born')    : {
+    'name':'di_photon_born', 'template':templateDY, 'regex':regexDY
+    },
+
     re.compile('DiPhotonJets') : {
     'name':'di_photon_jets', 'template':'di_photon_jets_0'}, 
     }
@@ -89,6 +94,8 @@ if __name__ == '__main__':
 
     #dy_jets_50 DYJetsToLL_M50
     print sampleString(base+'DYJetsToLL_M50')
+    print sampleString(base+'DYJetsToLL_M-50')
+    print sampleString(base+'DYJetsToLL_M-50.pileup.root')
 
     #di_photon_jets_0 DiPhotonJets
     print sampleString(base+'DiPhotonJets')
