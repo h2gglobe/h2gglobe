@@ -31,7 +31,7 @@ string getFileName(int argc, char* argv[]){
 int main(int argc, char* argv[]){
 
   string filename = getFileName(argc,argv);
-  system(Form("cp %s %s_beforeFMT.root",filename.c_str(),filename.c_str()));
+  if (filename!="0") system(Form("cp %s %s_beforeFMT.root",filename.c_str(),filename.c_str()));
 
 	FMTSetup *runner = new FMTSetup();
 	runner->OptionParser(argc,argv);

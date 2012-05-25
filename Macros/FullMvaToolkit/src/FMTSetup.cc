@@ -39,7 +39,7 @@ FMTSetup::~FMTSetup(){
 void FMTSetup::OptionParser(int argc, char *argv[]){
 
   cout << "\033[1mFullMvaToolkit -- Developed by Matthew Kenzie and Nick Wardle \033[0m \n";
-  cout <<        "                          on behalf of Imperial College London\n" << endl;
+  cout <<        "                  Imperial College London\n" << endl;
   cout << "\033[1mRecommend running is with following arguments:\033\[0m \n\t\t./runIt.exe -i <filename> -b -I -d -D -w <web_dir> -c \n" << endl;
 
   po::options_description desc("Allowed options");

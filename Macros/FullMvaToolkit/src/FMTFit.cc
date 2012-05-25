@@ -3,6 +3,7 @@
 #include "TFile.h"
 #include "TLine.h"
 #include "TBox.h"
+#include "TLatex.h"
 
 #include "RooDataSet.h"
 #include "RooWorkspace.h"
@@ -114,7 +115,8 @@ pair<double,double> FMTFit::FitPow(double mass){
 }
 
 void FMTFit::Plot(double mass){
-
+    
+    system("mkdir FitPlots");
     RooPlot *frame = mass_var->frame(Title(Form("Mass fit for %3.1f",mass)));
     frame->GetXaxis()->SetTitle("m_{#gamma#gamma} (GeV)");
     if (blind_) data->plotOn(frame,Binning(getnDataBins()),Invisible());
@@ -123,6 +125,12 @@ void FMTFit::Plot(double mass){
     TCanvas *c1 = new TCanvas();
 		frame->Draw();
 		// make signal reg and sideband boxes
+		TLine l1, l2;
+    l1.SetLineColor(kRed);
+    l1.SetLineWidth(2);
+    l2.SetLineColor(kBlue-2);
+    l2.SetLineWidth(2);
+    l2.SetLineStyle(9);
     TBox b1, b2;
     b1.SetFillColor(kRed-9);
     b2.SetFillColor(kBlue-9);
@@ -130,16 +138,27 @@ void FMTFit::Plot(double mass){
     b2.SetFillStyle(3003);
     b1.IsTransparent();
     b2.IsTransparent();
+		double sidebL = mass*(1-getsignalRegionWidth());
+		double sidebH = mass*(1+getsignalRegionWidth());
+    l1.DrawLine(sidebL,frame->GetMinimum(),sidebL,frame->GetMaximum());
+    l1.DrawLine(sidebH,frame->GetMinimum(),sidebH,frame->GetMaximum());
+    b1.DrawBox(sidebL,frame->GetMinimum(),sidebH,frame->GetMaximum());
     vector<double> lowEdges = getLowerSidebandEdges(mass);
     vector<double> highEdges = getUpperSidebandEdges(mass);
     for (int i=0; i<lowEdges.size(); i++) {
-      b1.DrawBox(lowEdges[i],frame->GetMinimum(),lowEdges[i],frame->GetMaximum());
+      l2.DrawLine(lowEdges[i],frame->GetMinimum(),lowEdges[i],frame->GetMaximum());
       if (i>0) b2.DrawBox(lowEdges[i-1],frame->GetMinimum(),lowEdges[i],frame->GetMaximum());
     }
     for (int i=0; i<highEdges.size(); i++) {
-      b1.DrawBox(highEdges[i],frame->GetMinimum(),highEdges[i],frame->GetMaximum()); 
+      l2.DrawLine(highEdges[i],frame->GetMinimum(),highEdges[i],frame->GetMaximum()); 
       if (i>0) b2.DrawBox(highEdges[i-1],frame->GetMinimum(),highEdges[i],frame->GetMaximum());
     }
+		TLatex *text = new TLatex();
+		text->SetTextSize(0.04);
+		text->SetNDC();
+		text->DrawLatex(0.68,0.85,"CMS preliminary");
+    text->DrawLatex(0.75,0.78,"#sqrt{s} = 7 TeV");
+		text->DrawLatex(0.73,0.71,"#int L = 5.1 fb^{-1}");
     c1->SaveAs(Form("FitPlots/fit_m%3.1f.pdf",mass));
     c1->SaveAs(Form("FitPlots/fit_m%3.1f.png",mass));
 }
