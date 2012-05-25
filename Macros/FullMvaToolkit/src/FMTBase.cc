@@ -296,6 +296,10 @@ vector<int> FMTBase::getUandDMCMasses(int mass){
     theMasses.push_back(140);
     if (150<=mHMaximum_) theMasses.push_back(150);
   }
+	else if (mass==150){
+		if (140>=mHMinimum_) theMasses.push_back(140);
+		theMasses.push_back(150);
+	}
   else {
     if (mass-5>=mHMinimum_) theMasses.push_back(mass-5);
     theMasses.push_back(mass);
