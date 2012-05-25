@@ -85,3 +85,8 @@ scale_offset_error_file=energy_scale_errors.dat
 additional MC smearing
 ->
 smearing_file=smearing_sigma_and_errors.dat
+
+recomputeBetas=0
+recorrectJets=0
+rerunJetMva=0
+recomputeJetWp=0

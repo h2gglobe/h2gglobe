@@ -38,4 +38,7 @@ scale_offset_file=energy_scale_offsets.dat
 ## regressionFile=aux/gbrph.root
 
 recomputeBetas=0
+recorrectJets=0
+rerunJetMva=0
+recomputeJetWp=0
 jetHandlerCfg=jetHandler_cfg.py
