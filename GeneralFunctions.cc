@@ -921,7 +921,9 @@ int  LoopAll::matchPhotonToConversion( int lpho) {
     phi  = refittedPairMomentum.Phi();
     conv_phi  = phiNorm(phi);
     float eta  = refittedPairMomentum.Eta();
-    conv_eta = etaTransformation(eta, conv_zofprimvtxfromtrks[iconv] );
+    float zpositionfromconv = get_pho_zposfromconv(*((TVector3*) conv_vtx->At(iconv)),*((TVector3*) sc_xyz->At(pho_scind[lpho])),*((TVector3*) bs_xyz->At(0)));
+    //conv_eta = etaTransformation(eta, conv_zofprimvtxfromtrks[iconv] );
+    conv_eta = etaTransformation(eta, zpositionfromconv );
 
     //    cout << " conversion index " << iconv << " eta " <<conv_eta<<  " norm phi " << conv_phi << " PT " << conv_pt << endl; 
 
@@ -962,6 +964,22 @@ int  LoopAll::matchPhotonToConversion( int lpho) {
 
 }
 
+double LoopAll::get_pho_zposfromconv(TVector3 convvtx, TVector3 superclustervtx, TVector3 beamSpot) {
+  
+  double deltaX1 = superclustervtx.X()-convvtx.X();
+  double deltaY1 = superclustervtx.Y()-convvtx.Y();
+  double deltaZ1 = superclustervtx.Z()-convvtx.Z();
+  double R1 = sqrt(deltaX1*deltaX1+deltaY1*deltaY1);
+  double tantheta = R1/deltaZ1;
+  
+  double deltaX2 = convvtx.X()-beamSpot.X();
+  double deltaY2 = convvtx.Y()-beamSpot.Y();
+  double R2 = sqrt(deltaX2*deltaX2+deltaY2*deltaY2);
+  double deltaZ2 = R2/tantheta;
+  double primaryvertexZ = superclustervtx.Z()-deltaZ1-deltaZ2;
+  return primaryvertexZ;
+
+}
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 TLorentzVector LoopAll::get_pho_p4(int ipho, int ivtx, const float * energy) const
