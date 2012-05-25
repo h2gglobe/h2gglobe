@@ -661,8 +661,6 @@ void createCorrectedBackgroundModel(std::string fileName, int nsidebands=6, doub
 
 		// Write out the Hists into the original File
 		in->cd();
-    cout << gDirectory << " " << in << endl;
-    gDirectory->pwd();
     in->Cd(Form("%s:/",fileName.c_str()));
     cout << "----!---- Write corrected hists into original file......" << endl;
     correctedHist->Write(correctedHist->GetName(),TObject::kOverwrite);

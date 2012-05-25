@@ -329,6 +329,7 @@ void FMTSetup::interpolateBDT(){
     cout << "Running signal interpolation...." << endl;
     FMTSigInterp *interpolater = new FMTSigInterp(filename_,diagnose_,false,getmHMinimum(), getmHMaximum(), getmHStep(), getmassMin(), getmassMax(), getnDataBins(), getsignalRegionWidth(), getsidebandWidth(), getnumberOfSidebands(), getnumberOfSidebandsForAlgos(), getnumberOfSidebandGaps(), getmassSidebandMin(), getmassSidebandMax(), getincludeVBF(), getincludeLEP(), getsystematics(), getrederiveOptimizedBinEdges(), getAllBinEdges(),verbose_);
     interpolater->runInterpolation();
+		delete interpolater;
 	}
 }
 
