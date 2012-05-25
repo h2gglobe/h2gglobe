@@ -56,6 +56,7 @@ class FMTSetup : public FMTBase {
 		bool rebin_;
 		bool skipRebin_;
 		bool binEdges_;
+    bool dumpDatFile_;
 		bool bkgModel_;
 		bool interp_;
 		bool datacards_;
@@ -71,6 +72,7 @@ class FMTSetup : public FMTBase {
 
 		string webDir_;
 		string datFil_;
+    string dumpDatFil_;
 
 		FMTRebin *rebinner;
 		bool cleaned;

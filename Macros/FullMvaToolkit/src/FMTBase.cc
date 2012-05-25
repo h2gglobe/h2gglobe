@@ -469,16 +469,75 @@ void FMTBase::setLEPBinEdges(map<int,vector<double> > LEPBinEdges){
 	LEPBinEdges_=LEPBinEdges;
 }
 
+void FMTBase::dumpDatFile(string filename){
+  ofstream outFile;
+  outFile.open(filename.c_str());
+  outFile << "# .dat file dumped by FullMvaToolkit" << endl;
+  outFile << endl;
+  outFile << "# Testing hypothesis" << endl;
+  outFile << "mHMinimum=" << Form("%3d.0",mHMinimum_) << endl;
+  outFile << "mHMaximum=" << Form("%3d.0",mHMaximum_) << endl;
+  outFile << "mHStep=" << Form("%1.1f",mHStep_) << endl;
+  outFile << endl;
+  outFile << "# Options for the mass spectrum range" << endl;
+  outFile << "massMin=" << Form("%3.f",massMin_) << endl;
+  outFile << "massMax=" << Form("%3.f",massMax_) << endl;
+  outFile << "nDataBins=" << nDataBins_ << endl;
+  outFile << endl;
+  outFile << "# Options for the sidebands" << endl;
+  outFile << "signalRegionWidth=" << Form("%1.2f",signalRegionWidth_) << endl;
+  outFile << "sidebandWidth=" << Form("%1.2f",sidebandWidth_) << endl;
+  outFile << "numberOfSidebands=" << numberOfSidebands_ << endl;
+  outFile << "numberOfSidebandsForAlgos=" << numberOfSidebandsForAlgos_ << endl;
+  outFile << "numberOfSidebandGaps=" << numberOfSidebandGaps_ << endl;
+  outFile << "massSidebandMin=" << Form("%3.1f",massSidebandMin_) << endl;
+  outFile << "massSidebandMax=" << Form("%3.1f",massSidebandMax_) << endl;
+  outFile << endl;
+  outFile << "# OptimizedBinEdges" << endl;
+  outFile << "rederiveOptimizedBinEdges=" << rederiveOptimizedBinEdges_ << endl;
+  vector<int> mcMasses = getMCMasses();
+  for (vector<int>::iterator mcM = mcMasses.begin(); mcM != mcMasses.end(); mcM++){
+    if (includeLEP_) {
+      outFile << "LepBinEdges_" << *mcM << "=" << returnVecAsString(getLEPBinEdges(*mcM)) << endl;
+    }
+    if (includeVBF_) {
+      outFile << "VbfBinEdges_" << *mcM << "=" << returnVecAsString(getVBFBinEdges(*mcM)) << endl;
+    }
+    outFile << "GradBinEdges_" << *mcM << "=" << returnVecAsString(getBinEdges(*mcM)) << endl;
+  }
+  outFile << endl;
+  outFile << "# General options" << endl;
+  outFile << "includeVBF=" << includeVBF_ << endl;
+  outFile << "includeLEP=" << includeLEP_ << endl;
+  outFile << endl;
+  outFile << "# smearing flags" << endl;
+  vector<string> theSysts = getsystematics();
+  for (vector<string>::iterator sys=theSysts.begin(); sys!=theSysts.end(); sys++){
+    if (*sys=="E_scale") outFile << "doEscaleSyst=1" << endl;
+    if (*sys=="E_res") outFile << "doEresolSyst=1" << endl;
+    if (*sys=="E_corr") outFile << "doEcorrectionSyst=1" << endl;
+    if (*sys=="regSig") outFile << "doRegressionSyst=1" << endl;
+    if (*sys=="idEff") outFile << "doPhotonIdEffSyst=1" << endl;
+    if (*sys=="vtxEff") outFile << "doVtxEffSyst=1" << endl;
+    if (*sys=="triggerEff") outFile << "doTriggerEffSyst=1" << endl;
+    if (*sys=="phoIdMva") outFile << "doPhotonMvaIdSyst=1" << endl;
+    if (*sys=="r9Eff") outFile << "doR9Syst=1" << endl;
+    if (*sys=="kFactor") outFile << "doKFactorSyst=1" << endl;
+  }
+  
+  outFile.close();
+}
+
 void FMTBase::printRunOptions(string filename){
 
-	ofstream out;
+	ofstream outFile;
 	bool outFileReq;
 	if (filename=="0") outFileReq=false;
 	else {
 		outFileReq=true;
-		out.open(filename.c_str());
+		outFile.open(filename.c_str());
 	}
-	ostream &outFile = (outFileReq ? out : cout);
+	ostream &out = (outFileReq ? outFile : cout);
 	
 	out << "Running with following options:" << endl;
  	out << "\tmHMinimum                 " << mHMinimum_  << endl;               
@@ -533,7 +592,7 @@ void FMTBase::printRunOptions(string filename){
     }
 		out << "]" << endl;
   }
-	out.close();
+	outFile.close();
 }
 
 void FMTBase::checkHisto(TH1F *h){

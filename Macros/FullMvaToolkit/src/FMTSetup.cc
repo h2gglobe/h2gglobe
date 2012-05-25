@@ -21,6 +21,7 @@ FMTSetup::FMTSetup():
 	rebin_(false),
 	skipRebin_(false),
 	binEdges_(false),
+  dumpDatFile_(false),
 	interp_(false),
 	datacards_(false),
 	diagnose_(false),
@@ -60,6 +61,7 @@ void FMTSetup::OptionParser(int argc, char *argv[]){
                                                                         "  - \tNOTE: this will re-run all fits and rebinnings around this mass. This is the recommended way of executing any refit or re-rebinning. You should opt to run on the nearest MC mass. E.g. to refit and rebin 112.5 use --rebin 115")
     ("skipRebin,N",  																										"Skip the rebinning stage")
     ("getBinEdges,B",																										"Use bin edges from mvaanalysis")
+    ("dumpDatFile,F",po::value<string>(&dumpDatFil_),                   "Save a new .dat file. For example if you want to save the bin edges so they can be read in later.")
     ("bkgModel,b",  																										"Correct the background model")
     ("interp,I",    																										"Run signal interpolation")
     ("datacards,d", 																										"Produce datacards")
@@ -69,7 +71,7 @@ void FMTSetup::OptionParser(int argc, char *argv[]){
     ("mHMin,l",			po::value<int>(&tempmHMin_),													"Set lower bound (GeV) for Higgs mH")
     ("mHMax,u",			po::value<int>(&tempmHMax_),													"Set upper bound (GeV) for Higgs mH")
     ("mHStep,s",		po::value<double>(&tempmHStep_),											"Set bin size (GeV) for Higgs mH")
-		("blind,E",	  																											"Blind analysis or not")
+		("blind,E",	  																											"Blind analysis - data not plotted")
 		("checkHistos,c",              																	  	"Run check on histograms in file")
     ("verbose,v",                                                       "Increase output level")
 		("useDat,U", po::value<string>(&datFil_)->default_value("0"),				"Get options from .dat file not TFile")
@@ -99,6 +101,7 @@ void FMTSetup::OptionParser(int argc, char *argv[]){
   if (rebinMasses_.size()>0)      rebin_=true;
 	if (vm.count("skipRebin")) 			skipRebin_=true;
 	if (vm.count("getBinEdges")) 		binEdges_=true;
+  if (vm.count("dumpDatFile"))    dumpDatFile_=true;
 	if (vm.count("bkgModel")) 			bkgModel_=true;
 	if (vm.count("interp")) 				interp_=true;
 	if (vm.count("datacards")) 			datacards_=true;
@@ -117,6 +120,7 @@ void FMTSetup::OptionParser(int argc, char *argv[]){
 
 	if (fitMasses_.size()==0 && rebinMasses_.size()==0 && !skipRebin_) all_=true;
 
+  //FIXME TEST
 	if (checkHistos_) checkAllHistos();
 	
 	rebinner = new FMTRebin(filename_,getmHMinimum(), getmHMaximum(), getmHStep(), getmassMin(), getmassMax(), getnDataBins(), getsignalRegionWidth(), getsidebandWidth(), getnumberOfSidebands(), getnumberOfSidebandsForAlgos(), getnumberOfSidebandGaps(), getmassSidebandMin(), getmassSidebandMax(), getincludeVBF(), getincludeLEP(), getsystematics(), getrederiveOptimizedBinEdges(), getAllBinEdges(),verbose_);
@@ -128,6 +132,7 @@ void FMTSetup::OptionParser(int argc, char *argv[]){
     system("mkdir -p plots/pdf");
   }
 	printPassedOptions();
+  dumpDatFile();
 
 }
 
@@ -288,10 +293,11 @@ void FMTSetup::runRebinning(){
 	else return;
 	for (vector<int>::iterator rebM = theMasses.begin(); rebM != theMasses.end(); rebM++){
 		cout << "Running rebinning for mass " << *rebM << endl;
-		cout << "UandD: "; printVec(getUandDMCMasses(*rebM)); cout << endl;
-		cout << "mH:    "; printVec(getMHMasses(*rebM)); cout << endl;
+		cout << "UandD: ["; printVec(getUandDMCMasses(*rebM)); cout << "]" << endl;
+		cout << "mH:    ["; printVec(getMHMasses(*rebM)); cout << "]" << endl;
 		rebinner->executeRebinning(*rebM);
 		setAllBinEdges(rebinner->getAllBinEdges());
+    if (dumpDatFile_) dumpDatFile(dumpDatFil_); 
 		cout << "Done rebinning" << endl;
 	}
 	cout << "Done all requested rebinning" << endl;

@@ -21,6 +21,8 @@ class FMTBase {
 		void checkMCMass(int);
 		template <class T>
 		void printVec(vector<T>);
+    template <class T>
+    string returnVecAsString(vector<T>);
 
 		// getters
 		int getmHMinimum();
@@ -99,6 +101,7 @@ class FMTBase {
 		void setLEPBinEdges(map<int,vector<double> >);
 
 		void printRunOptions(string filename="0");
+    void dumpDatFile(string filename="mvaanalysis.dat");
 		void checkHisto(TH1F*);
 
 		void write(TFile*,TObject*);
@@ -135,12 +138,17 @@ class FMTBase {
 };
 
 template <class T>
+string FMTBase::returnVecAsString(vector<T> vec){
+  string result="";
+  for (typename vector<T>::iterator it=vec.begin(); it!=vec.end()-1; it++) result+=Form("%1.4f,",*it);
+  result+=Form("%1.4f",*(vec.end()-1));
+  return result;
+}
+
+template <class T>
 void FMTBase::printVec(vector<T> vec){
-	cout << "[";
-	//for (int i=0; i<vec.size()-1; i++) cout << vec[i] << ",";
-	//cout << vec[vec.size()-1] << "]";
 	for (typename vector<T>::iterator it=vec.begin(); it!=vec.end()-1; it++) cout << *it << ",";
-	cout << *(vec.end()-1) << "]";
+	cout << *(vec.end()-1);
 }
 
 #endif
