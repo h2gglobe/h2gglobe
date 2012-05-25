@@ -36,18 +36,21 @@ jet_algoPF1_full_mva
 jet_algoPF1_simple_mva
 jet_algoPF1_nCharged
 jet_algoPF1_nNeutrals
-jet_algoPF1_full_wp_level
-jet_algoPF1_simple_wp_level
-jet_algoPF1_cutbased_wp_level
 jet_algoPF1_pfloose
 jet_algoPF1_vbfMatched
 jet_algoPF1_genMatched
 jet_algoPF1_genPt
 jet_algoPF1_genDr
+jet_algoPF1_full_mva_ext
+jet_algoPF1_simple_mva_ext
+jet_algoPF1_full_wp_level_ext
+jet_algoPF1_simple_wp_level_ext
+jet_algoPF1_cutbased_wp_level_ext
+jet_algoPF1_beta_ext
+jet_algoPF1_betaStar_ext
+jet_algoPF1_betaStarClassic_ext
 
-->
-SuperClusters
-->
+# SuperClusters
 pho_scind
 sc_xyz
 sc_raw
@@ -57,12 +60,11 @@ ecalhit_n
 ## ecalhit_p4
 ecalhit_detid
 
-->
-Photons 
-->
+# Photons 
 pho_n
 pho_isEB
 pho_isEE
+pho_isconv
 pho_hasconvtks
 pho_p4
 pho_calopos
