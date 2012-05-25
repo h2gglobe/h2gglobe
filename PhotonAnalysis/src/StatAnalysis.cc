@@ -17,7 +17,8 @@ StatAnalysis::StatAnalysis()  :
 
     systRange  = 3.; // in units of sigma
     nSystSteps = 1;    
-    doSystematics = true;    
+    doSystematics = true;   
+    dataIs2011 = false;
 }
 
 // ----------------------------------------------------------------------------------------------------

@@ -1,6 +1,4 @@
-->
-Vertexe analysis parameters 	
-->
+## Vertexe analysis parameters 	
 vtxAlgoParams vertex_selection.dat
 mvaVertexSelection=1
 addConversionToMva=1
@@ -9,36 +7,20 @@ tmvaPerVtxMethod=BDTCat
 tmvaPerEvtWeights=aux/TMVAClassification_evtBDTG_conversions_tmva_407.weights.xml
 tmvaPerEvtMethod=evtBDTG
 
-->
-Preselection cuts
-->
+## Preselection cuts
 presel_scet1=20.
 presel_scet2=20.
 presel_maxeta=2.5
 
-->
-selection of the di-photon pair to use for vertex analysis
-->
+## selection of the di-photon pair to use for vertex analysis
 presel_ecaliso_eb=999.
 presel_ecaliso_ee=999.
 presel_sieie_eb=0.020
 presel_sieie_ee=0.040
 presel_hoe=0.15
 
-->
-forcedRho=0.
-useDefaultVertex=1
-->
-
-->
-track isolation (re-)computation
-tkIso_ptmin=0.
-tkIso_outerCone=0.3
-tkIso_innerCone=0.02
-tkIso_etaStripHalfW=0.
-tkIso_dzmax=1
-tkIso_dxymax=0.1
-->
+## forcedRho=0.
+## useDefaultVertex=1
 
 applyPtoverM=1
 doTriggerSelection=0
@@ -52,7 +34,8 @@ doEcorrectionSyst=0
 
 scale_offset_file=energy_scale_offsets.dat
 
-->
-photonFixDat=aux/PhotonFixSTART42V13.dat
-regressionFile=aux/gbrph.root
-->
+## photonFixDat=aux/PhotonFixSTART42V13.dat
+## regressionFile=aux/gbrph.root
+
+recomputeBetas=0
+jetHandlerCfg=jetHandler_cfg.py

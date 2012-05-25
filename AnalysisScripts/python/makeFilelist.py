@@ -8,19 +8,19 @@ def makeCaFiles(dir,njobs=-1,jobid=0,nf=[0]):
    iscastor = False
    if dir.startswith("/castor"):
       sc,flist = commands.getstatusoutput('nsls %s'%(dir))
-      iscastor = True
+      prepend = 'rfio://'
    else:
-      sc,flist = commands.getstatusoutput("cmsLs %s | awk '{ print $5 }' | xargs cmsPfn | sed 's/\?.*$//'" % (dir))
+      ### sc,flist = commands.getstatusoutput("cmsLs %s | awk '{ print $5 }' | xargs cmsPfn | sed 's/\?.*$//'" % (dir))
+      eos = "/afs/cern.ch/project/eos/installation/pro/bin/eos"
+      sc,flist = commands.getstatusoutput("%s root://eoscms ls /eos/cms%s" % (eos,dir))
+      prepend = 'root://eoscms//eos/cms'
       
    if not sc:
       files = flist.split('\n')
       for f in files:
          if '.root' in f:
             nf[0] += 1
-            if iscastor:
-               fname = 'rfio://'+dir+'/'+f
-            else:
-               fname = f
+            fname = "%s%s/%s" % ( prepend, dir, f) 
             if (njobs > 0) and (nf[0] % njobs != jobid):
                return_files.append((fname,False))
 	    else:

@@ -392,7 +392,7 @@ class configProducer:
 
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def expand_file(self,val):
-      extensions = [".dat",".root",".xml"]
+      extensions = [".dat",".root",".xml",".py"]
       if os.path.splitext(val)[1] in extensions:
           return self.find_file(val)
       return val

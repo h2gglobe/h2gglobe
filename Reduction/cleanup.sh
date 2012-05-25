@@ -14,7 +14,7 @@ if [ -n "${BATCH+x}" ]; then
 	for d in $(find -type d); do
 	    $mkdir ${storeremote}/${version}/$d;
 	    for f in $(find $d -maxdepth 1 -type f); do
-		$cp $f ${storeremote}/${version}/$d &
+		$cp -f $f ${storeremote}/${version}/$d &
 	    done
 	done
     fi

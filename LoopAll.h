@@ -115,6 +115,7 @@ class LoopAll {
   std::vector<TFile*> Files;
   std::vector<TTree*> TreesPar;
 
+
   TTree * outputTree;
   TTree * outputTreeLumi;
   TTree * outputTreePar;
@@ -140,8 +141,9 @@ class LoopAll {
 
   Int_t        current; //current file
   Int_t        current_sample_index; //current file
-  Int_t        tot_events;
-  Int_t        sel_events;
+  // global parameters
+  Int_t tot_events, sel_events, type, version, reductions;
+
   std::vector<std::string>  globalCountersNames; 
   std::vector<int> globalCounters; 
   std::vector<int> fileGlobalCounters;
@@ -986,7 +988,7 @@ void SetBranchAddress_pho_passcuts_sublead(TTree * tree) { tree->SetBranchAddres
 void doJetMatching(TClonesArray & reco, TClonesArray & gen, Bool_t * match_flag, Bool_t * match_vbf_flag, Float_t * match_pt, Float_t * match_dr, Float_t maxDr=0.4 );
 
 std::pair<int, int> Select2HighestPtJets(TLorentzVector& leadpho, TLorentzVector& subleadpho, float jtLMinPt, float jtTMinPt, Bool_t * jetid_flags=0);
-int RescaleJetEnergy();
+int RescaleJetEnergy(bool force=false);
 int MuonSelection(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind);
 int ElectronSelection(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind);
 

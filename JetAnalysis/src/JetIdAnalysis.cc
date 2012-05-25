@@ -1,5 +1,7 @@
 #include "../interface/JetIdAnalysis.h"
 
+#include "../interface/JetHandler.h"
+
 #include "Sorters.h"
 #include "PhotonReducedInfo.h"
 #include <iostream>
@@ -16,7 +18,12 @@ JetIdAnalysis::JetIdAnalysis()
 {
     name_ = "JetIdAnalysis";
 
-    minBiasRefName = "aux/minBiasRef.root";
+    recomputeJetId = false;
+    expoMatching   = false;
+    dumpFlatTree   = false;
+    
+    flatTree_ = 0;
+    outputFile_ = 0;
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -28,17 +35,50 @@ JetIdAnalysis::~JetIdAnalysis()
 void JetIdAnalysis::Term(LoopAll& l) 
 {
     /// l.outputFile->cd();
+    if( dumpFlatTree ) {
+	if( outputFile_ ) {
+	    outputFile_->cd();
+	} else {
+	    l.outputFile->cd();
+	}
+	flatTree_->Write();
+	if( outputFile_ ) {
+	    outputFile_->Close();
+	}
+    }
+
 }
 
 // ----------------------------------------------------------------------------------------------------
 void JetIdAnalysis::Init(LoopAll& l) 
 {
-     StatAnalysis::Init(l);
+    if( l.runZeeValidation ) {
+	leadEtCut = 15;
+	subleadEtCut = 15;
+	leadEtVBFCut = 15.;
+	subleadEtVBFCut = 15.;
+	massMin = 60, massMax = 120.;
+	applyPtoverM = false;
+    }
+    StatAnalysis::Init(l);
+    if( jetHandler_ == 0 ) {
+    	jetHandler_ = new JetHandler(jetHandlerCfg, l);
+    }
+    std::cout << __FILE__ << std::endl;
+    if( dumpFlatTree ) {
+	if( flatTree_ == 0 ) { 
+	    outputFile_ = TFile::Open("jetid_"+l.outputFileName,"recreate");
+	    flatTree_ = new TTree("flatTree","flatTree");
+	}
+    	jetHandler_->bookFlatTree( flatTree_ );
+    }
 }
 
 // ----------------------------------------------------------------------------------------------------
 void JetIdAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree) 
 {
+    dumpFlatTree=true;
+    flatTree_ = new TTree("flatTree","flatTree");
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -52,12 +92,16 @@ bool JetIdAnalysis::SelectEventsReduction(LoopAll&, int)
     return true;
 }
 
+void switchJetIdVertex(LoopAll &l, int ivtx) ;
+
 // ----------------------------------------------------------------------------------------------------
-bool JetIdAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentzVector & gP4, float & mass, float & evweight, int & category, int & diphoton_id,
-			      bool & isCorrectVertex,
-			      bool isSyst, 
-			      float syst_shift, bool skipSelection,
-			      BaseGenLevelSmearer *genSys, BaseSmearer *phoSys, BaseDiPhotonSmearer * diPhoSys)
+bool JetIdAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentzVector & gP4, float & mass, float & evweight, 
+				 int & category, int & diphoton_id,
+				 bool & isCorrectVertex,
+				 float &kinematic_bdtout,
+				 bool isSyst, 
+				 float syst_shift, bool skipSelection,
+				 BaseGenLevelSmearer *genSys, BaseSmearer *phoSys, BaseDiPhotonSmearer * diPhoSys)
 {
     assert( isSyst || ! skipSelection );
 
@@ -86,6 +130,7 @@ bool JetIdAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorent
 	// inclusive category di-photon selection
 	// FIXME pass smeared R9
 	diphoton_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtCut, subleadEtCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
+	//// diphoton_id = l.DiphotonCiCSelection(l.phoNOCUTS, l.phoNOCUTS, leadEtCut, subleadEtCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
 	
 	// N-1 plots
 	if( ! isSyst ) {
@@ -110,73 +155,129 @@ bool JetIdAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorent
 	l.RescaleJetEnergy();
 
 	diphotonVBF_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVBFCut, subleadEtVBFCut, 4,false, &smeared_pho_energy[0], true); 
+	/// diphotonVBF_id = l.DiphotonCiCSelection(l.phoNOCUTS, l.phoNOCUTS, leadEtVBFCut, subleadEtVBFCut, 4,false, &smeared_pho_energy[0], true); 
+	
+	diphoton_id = diphotonVBF_id; 
+	if( diphoton_id == -1 ) { return false; }
 	
 	TLorentzVector lead_p4, sublead_p4, Higgs;
 	float lead_r9, sublead_r9;
 	TVector3 * vtx;
-	if( diphotonVBF_id != -1 ) { diphoton_id = diphotonVBF_id; }
-	if( diphoton_id == -1 ) { return false; }
 	fillDiphoton(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, vtx, &smeared_pho_energy[0], l, diphoton_id);  
+	if( Higgs.M() < massMin || Higgs.M() > massMax )  { return false; }
 	
+	// clean and sort jets
+	std::vector<int> sorted_jets;
+	for(int ijet=0; ijet<l.jet_algoPF1_n; ++ijet) { 
+	    TLorentzVector * p4 = (TLorentzVector*)l.jet_algoPF1_p4->At(ijet);
+	    if( p4->DeltaR(lead_p4) > 0.5 && p4->DeltaR(sublead_p4) > 0.5 ) {
+		sorted_jets.push_back(ijet);
+	    }
+	}
+	std::sort(sorted_jets.begin(),sorted_jets.end(),
+		  ClonesSorter<TLorentzVector,double,std::greater<double> >(l.jet_algoPF1_p4,&TLorentzVector::Pt));
+	
+	if( recomputeJetId ) {
+	    for(size_t itjet=0; itjet<sorted_jets.size(); ++itjet ) {
+		jetHandler_->computeMva(sorted_jets[itjet],l.dipho_vtxind[diphoton_id]);
+	    }
+	}
+	switchJetIdVertex( l, l.dipho_vtxind[diphoton_id] );
+
 	/// Different jet ID options
-	if( l.dipho_vtxind[diphoton_id] == 0 && (*vtx- *((TVector3*)l.gv_pos->At(0))).Mag() < 1. ) { 
-	    std::vector<std::vector<unsigned char> > jetids(7,std::vector<unsigned char>(l.jet_algoPF1_n,true)); 
-	    for(int ijet=0; ijet<l.jet_algoPF1_n; ++ijet) {
-		int ijetid = 0;
-		TLorentzVector * p4 = (TLorentzVector*)l.jet_algoPF1_p4->At(ijet);
-		
-		bool pfloose = (l.jet_algoPF1_pfloose[ijet]  && fabs(p4->Eta()) < 3.) || (l.jet_algoPF1_nNeutrals[ijet] > 1);
-		
-		bool sloose  = PileupJetIdentifier::passJetId(l.jet_algoPF1_simple_wp_level[ijet], PileupJetIdentifier::kLoose);
-		bool floose  = PileupJetIdentifier::passJetId(l.jet_algoPF1_full_wp_level[ijet], PileupJetIdentifier::kLoose);
-		bool cmedium = PileupJetIdentifier::passJetId(l.jet_algoPF1_cutbased_wp_level[ijet], PileupJetIdentifier::kMedium);
-		bool smedium = PileupJetIdentifier::passJetId(l.jet_algoPF1_simple_wp_level[ijet], PileupJetIdentifier::kMedium) ;
-		bool fmedium = PileupJetIdentifier::passJetId(l.jet_algoPF1_full_wp_level[ijet], PileupJetIdentifier::kMedium)   ;
-		
-		jetids[++ijetid][ijet] = pfloose;
-		jetids[++ijetid][ijet] = pfloose && sloose ; 
-		jetids[++ijetid][ijet] = pfloose && floose ; 
-		jetids[++ijetid][ijet] = pfloose && cmedium; 
-		jetids[++ijetid][ijet] = pfloose && smedium;
-		jetids[++ijetid][ijet] = pfloose && fmedium;
-		
-		/// Fill control plots
-		if( p4->Pt() > 20. && fabs(p4->Eta()) < 4.7 && p4->DeltaR(lead_p4) > 0.5 && p4->DeltaR(sublead_p4) > 0.5 ) {
-		    bool isMatched = l.jet_algoPF1_genMatched[ijet] && l.jet_algoPF1_genDr[ijet] < 0.3 && l.jet_algoPF1_genPt[ijet] > 10.;
-		    for(; ijetid>=0; --ijetid) {
-			bool passId = (bool)jetids[ijetid][ijet];
-			if( ! passId ) { continue; }
-			bool kinOnly = ijetid >= 1; // Fill the jet ID distributions only for no-selection
-			fillJetIdPlots(l,ijet,ijetid,1.,"",kinOnly);
-			if( isMatched ) {
-			    fillJetIdPlots(l,ijet,ijetid,1.,"matched_",kinOnly);
-			} else {
-			    fillJetIdPlots(l,ijet,ijetid,1.,"unmatched_",kinOnly);
-			}
+	std::vector<std::vector<unsigned char> > jetids(12,std::vector<unsigned char>(l.jet_algoPF1_n,false)); 
+	for(size_t itjet=0; itjet<sorted_jets.size(); ++itjet ) {
+	    int & ijet = sorted_jets[itjet];
+	    int ijetid = 0;
+	    TLorentzVector * p4 = (TLorentzVector*)l.jet_algoPF1_p4->At(ijet);
+	    
+	    bool pfloose = (l.jet_algoPF1_pfloose[ijet] );
+	    
+	    bool sloose  = PileupJetIdentifier::passJetId(l.jet_algoPF1_simple_wp_level[ijet], PileupJetIdentifier::kLoose);
+	    bool floose  = PileupJetIdentifier::passJetId(l.jet_algoPF1_full_wp_level[ijet], PileupJetIdentifier::kLoose);
+	    bool cmedium = PileupJetIdentifier::passJetId(l.jet_algoPF1_cutbased_wp_level[ijet], PileupJetIdentifier::kMedium);
+	    bool smedium = PileupJetIdentifier::passJetId(l.jet_algoPF1_simple_wp_level[ijet], PileupJetIdentifier::kMedium) ;
+	    bool fmedium = PileupJetIdentifier::passJetId(l.jet_algoPF1_full_wp_level[ijet], PileupJetIdentifier::kMedium)   ;
+	    
+	    jetids[ijetid][ijet]   = true; // No selection
+	    jetids[++ijetid][ijet] = pfloose;
+	    jetids[++ijetid][ijet] = sloose ; 
+	    jetids[++ijetid][ijet] = floose ; 
+	    jetids[++ijetid][ijet] = cmedium; 
+	    jetids[++ijetid][ijet] = smedium;
+	    jetids[++ijetid][ijet] = fmedium;
+	    jetids[++ijetid][ijet] = pfloose && sloose ; 
+	    jetids[++ijetid][ijet] = pfloose && floose ; 
+	    jetids[++ijetid][ijet] = pfloose && cmedium; 
+	    jetids[++ijetid][ijet] = pfloose && smedium;
+	    jetids[++ijetid][ijet] = pfloose && fmedium;
+			    
+	    /// Fill control plots
+	    if( p4->Pt() > 20. && fabs(p4->Eta()) < 4.5 ) {
+		bool isMatched, notMatched;
+		if( expoMatching ) {
+		    isMatched = 
+			l.jet_algoPF1_genDr[ijet] < 0.1 + 0.3*exp(-0.05*(l.jet_algoPF1_genPt[ijet]-10.)) 
+			& fabs(l.jet_algoPF1_genPt[ijet] - p4->Pt())/l.jet_algoPF1_genPt[ijet] < 0.5;
+		    notMatched = ! isMatched || ( l.jet_algoPF1_genDr[ijet] > 0.3 && l.jet_algoPF1_genPt[ijet] < 10. );
+		} else {
+		    isMatched = l.jet_algoPF1_genMatched[ijet] && l.jet_algoPF1_genDr[ijet] < 0.3 && l.jet_algoPF1_genPt[ijet] > 10.;
+		    notMatched = ! l.jet_algoPF1_genMatched[ijet] 
+			|| ( l.jet_algoPF1_genDr[ijet] > 0.3 && l.jet_algoPF1_genPt[ijet] < 10. );
+		}
+		if( l.event>65200 && l.event<65300 ) {
+		    cout << "event: " << l.event << " jet: " << itjet
+			 << " pt: " << p4->Pt() << " pt_raw: " << p4->Pt() / l.jet_algoPF1_erescale[ijet] 
+			 << " eta: " << p4->Eta()
+			 << " isMatched: " << isMatched << " matchDr: " << l.jet_algoPF1_genDr[ijet] 
+			 << " matchPt: " << l.jet_algoPF1_genPt[ijet] << std::endl  ;
+		}
+		for(; ijetid>=0; --ijetid) {
+		    bool passId = (bool)jetids[ijetid][ijet];
+		    if( ! passId ) { continue; }
+		    bool kinOnly = ijetid >= 1; // Fill the jet ID distributions only for no-selection
+		    fillJetIdPlots(l,ijet,ijetid,1.,"",kinOnly);
+		    if( isMatched && itjet == 1 ) {
+			fillJetIdPlots(l,ijet,ijetid,1.,"matched_",kinOnly);
+		    } else if( notMatched ) {
+			fillJetIdPlots(l,ijet,ijetid,1.,"unmatched_",kinOnly);
 		    }
 		}
-	    }
-	    if( diphotonVBF_id != -1 ) {
-		float eventweight = weight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second] * genLevWeight;
-		float myweight=1.;
-		if(eventweight*sampleweight!=0) myweight=eventweight/sampleweight;
-		
-		l.FillHist2D("vtxid_vs_nvtx",0,l.vtx_std_n,l.dipho_vtxind[diphotonVBF_id],eventweight);
-		l.FillHist2D("vtxid_vs_rho",0,l.rho_algo1,l.dipho_vtxind[diphotonVBF_id],eventweight);
-		
-		/// Test effect of different jet IDs on the event selection
-		for(int ijetid=jetids.size()-1; ijetid>=0;--ijetid) {
-		    VBFevent=VBFTag2012(l, diphotonVBF_id, &smeared_pho_energy[0], true, eventweight, myweight,(bool*)&(jetids[ijetid][0]));
-		    if( VBFevent ) {
-			diphoton_id = diphotonVBF_id;
-			l.FillHist2D("dijet_count_vs_nvtx",ijetid,l.vtx_std_n,1.,eventweight);
-			l.FillHist2D("dijet_count_vs_rho",ijetid,l.rho_algo1,1.,eventweight);
-			l.FillHist2D("vtxid_vs_nvtx",ijetid+1,l.vtx_std_n,l.dipho_vtxind[diphotonVBF_id],eventweight);
-			l.FillHist2D("vtxid_vs_rho",ijetid+1,l.rho_algo1,l.dipho_vtxind[diphotonVBF_id],eventweight);
-		    } else {
-			l.FillHist2D("dijet_count_vs_nvtx",ijetid,l.vtx_std_n,0.,eventweight);
-			l.FillHist2D("dijet_count_vs_rho",ijetid,l.rho_algo1,0.,eventweight);
+		if( dumpFlatTree ) {
+		    //// tree_ijet = itjet;
+		    //// tree_genPt = ;
+		    //// tree_genDr = ;
+		    //// tree_njets = ;
+		    //// tree_jetLooseID = ;
+		    if( isMatched && itjet == 1 && cur_type < 0 ) {
+			jetHandler_->fillFromJet(ijet,l.dipho_vtxind[diphoton_id]);
+		    } else if ( notMatched ) {
+			jetHandler_->fillFromJet(ijet,l.dipho_vtxind[diphoton_id]);
 		    }
+		    // flatTree_->Fill()
+		}
+	    }
+	}
+	if( diphotonVBF_id != -1 ) {
+	    float eventweight = weight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second] * genLevWeight;
+	    float myweight=1.;
+	    if(eventweight*sampleweight!=0) myweight=eventweight/sampleweight;
+	    
+	    l.FillHist2D("vtxid_vs_nvtx",0,l.vtx_std_n,l.dipho_vtxind[diphotonVBF_id],eventweight);
+	    l.FillHist2D("vtxid_vs_rho",0,l.rho_algo1,l.dipho_vtxind[diphotonVBF_id],eventweight);
+	    
+	    /// Test effect of different jet IDs on the event selection
+	    for(int ijetid=jetids.size()-1; ijetid>=0;--ijetid) {
+		VBFevent=VBFTag2012(l, diphotonVBF_id, &smeared_pho_energy[0], true, eventweight, myweight,(bool*)&(jetids[ijetid][0]));
+		if( VBFevent ) {
+		    diphoton_id = diphotonVBF_id;
+		    l.FillHist2D("dijet_count_vs_nvtx",ijetid,l.vtx_std_n,1.,eventweight);
+		    l.FillHist2D("dijet_count_vs_rho",ijetid,l.rho_algo1,1.,eventweight);
+		    l.FillHist2D("vtxid_vs_nvtx",ijetid+1,l.vtx_std_n,l.dipho_vtxind[diphotonVBF_id],eventweight);
+		    l.FillHist2D("vtxid_vs_rho",ijetid+1,l.rho_algo1,l.dipho_vtxind[diphotonVBF_id],eventweight);
+		} else {
+		    l.FillHist2D("dijet_count_vs_nvtx",ijetid,l.vtx_std_n,0.,eventweight);
+		    l.FillHist2D("dijet_count_vs_rho",ijetid,l.rho_algo1,0.,eventweight);
 		}
 	    }
 	}
@@ -241,10 +342,10 @@ bool JetIdAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorent
 void JetIdAnalysis::fillJetIdPlots(LoopAll & l, int ijet, int icat, float wei, const char * label, 
 				   bool kinOnly)
 {
-    static float etabins[] = { 0., 2.5, 2.75, 3.0, 999. };
+    static float etabins[] = { 0., 2.5, 2.75, 4.0, 999. };
     static int netabins = sizeof(etabins) / sizeof(float);
 
-    static float ptbins[] = { 20., 30., 50., 999999. };
+    static float ptbins[] = { 20., 22., 25., 30., 35., 40., 50., 999999. };
     static int nptbins = sizeof(ptbins) / sizeof(float);
     
     TLorentzVector * p4 = (TLorentzVector*)l.jet_algoPF1_p4->At(ijet);
@@ -254,7 +355,7 @@ void JetIdAnalysis::fillJetIdPlots(LoopAll & l, int ijet, int icat, float wei, c
     assert( icat == 0 );
     int etacat = ( std::lower_bound( etabins, etabins + netabins, fabs(p4->Eta()) ) - etabins - 1 );
     int ptcat  = ( std::lower_bound( ptbins, ptbins + nptbins, fabs(p4->Pt()) )     - ptbins - 1 );
-    /// std::cout << fabs(p4->Eta()) << " " << p4->Pt() << " " << etacat << " " << ptcat << std::endl;
+
     // Jet ID variables pt inclusive
     FILL_JETID_PLOT(label,frac01         , etacat, ijet, wei ); 
     FILL_JETID_PLOT(label,frac02         , etacat, ijet, wei );
@@ -269,7 +370,8 @@ void JetIdAnalysis::fillJetIdPlots(LoopAll & l, int ijet, int icat, float wei, c
     FILL_JETID_PLOT(label,nCharged       , etacat, ijet, wei );
     FILL_JETID_PLOT(label,simple_mva     , etacat, ijet, wei );
     FILL_JETID_PLOT(label,full_mva       , etacat, ijet, wei );
-    // Jet ID variables pt bins
+
+    // Jet ID variables in pt bins
     FILL_JETID_PLOT(label,frac01         , etacat+ (ptcat+1)*(netabins-1), ijet, wei ); 
     FILL_JETID_PLOT(label,frac02         , etacat+ (ptcat+1)*(netabins-1), ijet, wei );
     FILL_JETID_PLOT(label,frac03         , etacat+ (ptcat+1)*(netabins-1), ijet, wei );
@@ -283,6 +385,20 @@ void JetIdAnalysis::fillJetIdPlots(LoopAll & l, int ijet, int icat, float wei, c
     FILL_JETID_PLOT(label,nCharged       , etacat+ (ptcat+1)*(netabins-1), ijet, wei );
     FILL_JETID_PLOT(label,simple_mva     , etacat+ (ptcat+1)*(netabins-1), ijet, wei );
     FILL_JETID_PLOT(label,full_mva       , etacat+ (ptcat+1)*(netabins-1), ijet, wei );
+}
+
+void switchJetIdVertex(LoopAll &l, int ivtx) 
+{
+    for(int ii=0; ii<l.jet_algoPF1_n; ++ii) {
+	l.jet_algoPF1_beta[ii]              = (*l.jet_algoPF1_beta_ext)[ii][ivtx];
+    	l.jet_algoPF1_betaStar[ii]          = (*l.jet_algoPF1_betaStar_ext)[ii][ivtx];
+    	l.jet_algoPF1_betaStarClassic[ii]   = (*l.jet_algoPF1_betaStarClassic_ext)[ii][ivtx];
+    	l.jet_algoPF1_simple_mva[ii]        = (*l.jet_algoPF1_simple_mva_ext)[ii][ivtx];
+    	l.jet_algoPF1_full_mva[ii]          = (*l.jet_algoPF1_full_mva_ext)[ii][ivtx];
+    	l.jet_algoPF1_simple_wp_level[ii]   = (*l.jet_algoPF1_simple_wp_level_ext)[ii][ivtx];
+    	l.jet_algoPF1_full_wp_level[ii]     = (*l.jet_algoPF1_full_wp_level_ext)[ii][ivtx];
+    	l.jet_algoPF1_cutbased_wp_level[ii] = (*l.jet_algoPF1_cutbased_wp_level_ext)[ii][ivtx];
+    }
 }
 
 // Local Variables:

@@ -37,7 +37,10 @@ for d in ds.read().split("\n"):
     sl = [ t for t in s.split(" ") if t != "" ]
     dname = sl.pop(0)
     dtype = sl.pop(0)
-    iname = dname
+    if ":" in dname:
+        iname,dname = dname.rsplit(":",1)
+    else:
+        iname = dname
     analyzer = "analyzer PhotonAnalysis photonanalysis.dat"
     getanalyzer = False
     for s in sl:

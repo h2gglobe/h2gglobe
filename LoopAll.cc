@@ -51,15 +51,16 @@ void LoopAll::SetTypeRun(int t, const char* name) {
     if(DEBUG) cout<<"typerun is " << typerun <<endl;
     
     hasoutputfile=1;
+    outputFile->cd();
     outputTree = new TTree("event","Reduced tree"); 
-    outputTreePar = new TTree("global_variables","Parameters");
     
     // book output braches
     Branches(outputBranchNames);
     for (size_t i=0; i<analyses.size(); i++) {
-	    analyses[i]->ReducedOutputTree(*this,outputTree);
+      analyses[i]->ReducedOutputTree(*this,outputTree);
     }
 
+    outputTreePar = new TTree("global_variables","Parameters");
     outputParParameters = new std::vector<std::string>;
     outputParJobMaker = new std::string;
     outputTreePar->Branch("tot_events", &outputParTot_Events, "tot_events/I");
@@ -111,7 +112,7 @@ void LoopAll::ReadInput(int t) {
     outputTreePar = new TTree("global_variables","Parameters");
     
     for (size_t i=0; i<analyses.size(); i++) {
-	    analyses[i]->ReducedOutputTree(*this,outputTree);
+      analyses[i]->ReducedOutputTree(*this,outputTree);
     }
     
     
@@ -125,18 +126,18 @@ void LoopAll::ReadInput(int t) {
 
 // ------------------------------------------------------------------------------------
 SampleContainer & LoopAll::DefineSamples(const char *filesshortnam,
-                            int type,
-                            int histtoindfromfiles,
-                            int histoplotit,
-                            int nred,
-                            long long ntot,
-                            float intlumi,
-                            float lumi,
-                            float xsec,
-                            float kfactor,
-			    float scale,
-			    bool addnevents
-	) {
+					 int type,
+					 int histtoindfromfiles,
+					 int histoplotit,
+					 int nred,
+					 long long ntot,
+					 float intlumi,
+					 float lumi,
+					 float xsec,
+					 float kfactor,
+					 float scale,
+					 bool addnevents
+					 ) {
   
   // set intlumi in LoopAll
   intlumi_=intlumi;
@@ -150,11 +151,11 @@ SampleContainer & LoopAll::DefineSamples(const char *filesshortnam,
   }
   
   if (sample_is_defined != -1) {
-      if( addnevents ) {
-	  sampleContainer[sample_is_defined].ntot += ntot;
-	  sampleContainer[sample_is_defined].nred += nred;
-	  sampleContainer[sample_is_defined].computeWeight(intlumi);
-      }
+    if( addnevents ) {
+      sampleContainer[sample_is_defined].ntot += ntot;
+      sampleContainer[sample_is_defined].nred += nred;
+      sampleContainer[sample_is_defined].computeWeight(intlumi);
+    }
     return sampleContainer[sample_is_defined];
   }
 
@@ -205,35 +206,35 @@ void LoopAll::MergeContainers(){
 		
   // Loop Over the files and get the relevant pieces to Merge:
   for (;it!=files.end()
-       ;it_file++,it++){
+	 ;it_file++,it++){
  
-	*it_file = TFile::Open((*it).c_str());
-	(*it_file)->cd();
-	std::cout << "Combining Current File " << i << " / " << numberOfFiles << " - " << (*it) << std::endl;
+    *it_file = TFile::Open((*it).c_str());
+    (*it_file)->cd();
+    std::cout << "Combining Current File " << i << " / " << numberOfFiles << " - " << (*it) << std::endl;
 
-	for (std::vector<std::string>::iterator it_hist=histogramNames.begin()
-	    ;it_hist!=histogramNames.end()
-	    ;it_hist++) {
+    for (std::vector<std::string>::iterator it_hist=histogramNames.begin()
+	   ;it_hist!=histogramNames.end()
+	   ;it_hist++) {
 			
-		TH1F *histExtra = (TH1F*) (*it_file)->Get(Form("th1f_%s",it_hist->c_str()));
-		rooContainer->AppendTH1F(*it_hist,histExtra);	
-	}
+      TH1F *histExtra = (TH1F*) (*it_file)->Get(Form("th1f_%s",it_hist->c_str()));
+      rooContainer->AppendTH1F(*it_hist,histExtra);	
+    }
 		
-	RooWorkspace *work = (RooWorkspace*) (*it_file)->Get("cms_hgg_workspace");
-	for (std::vector<std::string>::iterator it_data=datasetNames.begin()
-	    ;it_data!=datasetNames.end()
-	    ;it_data++) {
+    RooWorkspace *work = (RooWorkspace*) (*it_file)->Get("cms_hgg_workspace");
+    for (std::vector<std::string>::iterator it_data=datasetNames.begin()
+	   ;it_data!=datasetNames.end()
+	   ;it_data++) {
 
-		RooDataSet *dataExtra = (RooDataSet*) work->data(Form("%s",it_data->c_str()));
-		rooContainer->AppendDataSet(*it_data,dataExtra);	
-	}
+      RooDataSet *dataExtra = (RooDataSet*) work->data(Form("%s",it_data->c_str()));
+      rooContainer->AppendDataSet(*it_data,dataExtra);	
+    }
 
-	delete work;
-	//std::cout << "Finished Combining File - " << (*it) << std::endl;
+    delete work;
+    //std::cout << "Finished Combining File - " << (*it) << std::endl;
 
-	(*it_file)->Close();
-	i++;
-	//delete tmpFile;			
+    (*it_file)->Close();
+    i++;
+    //delete tmpFile;			
   } 
   TermReal(typerun);
   Term();
@@ -277,9 +278,9 @@ void LoopAll::LoopAndFillHistos(TString treename) {
     int type = itype[i];
     int which_sample = -1;
     for (int sample=0;sample<sampleContainer.size();sample++){
-    	if (type == sampleContainer[sample].itype){
-    		which_sample = sample;
-    	}
+      if (type == sampleContainer[sample].itype){
+	which_sample = sample;
+      }
     }
     this->current_sample_index = which_sample;
 
@@ -290,24 +291,24 @@ void LoopAll::LoopAndFillHistos(TString treename) {
     //Files[i] = TFile::Open(files[i]);
     tot_events=1;
     sel_events=1;
+    
+    if(*it_file)
+      *it_treepar=(TTree*) (*it_file)->Get("global_variables");
+    if(*it_treepar) {
+      TBranch        *b_tot_events;
+      TBranch        *b_sel_events;
+      (*it_treepar)->SetBranchAddress("tot_events",&tot_events, &b_tot_events);
+      (*it_treepar)->SetBranchAddress("sel_events",&sel_events, &b_sel_events);
+      b_tot_events->GetEntry(0);
+      b_sel_events->GetEntry(0);
+    } else {
+      cout<<"REDUCE JOB, no global_variables tree ... the C-step job must have crashed ... SKIP THE FILE"<<endl;
+      tot_events=0;
+      sel_events=0;
+    }
+    
     if(typerun == kReduce || typerun == kFillReduce) { //this is a reduce job
       
-      if(*it_file)
-        *it_treepar=(TTree*) (*it_file)->Get("global_variables");
-      
-      if(*it_treepar) {
-        TBranch        *b_tot_events;
-        TBranch        *b_sel_events;
-        (*it_treepar)->SetBranchAddress("tot_events",&tot_events, &b_tot_events);
-        (*it_treepar)->SetBranchAddress("sel_events",&sel_events, &b_sel_events);
-        b_tot_events->GetEntry(0);
-        b_sel_events->GetEntry(0);
-      } else {
-        cout<<"REDUCE JOB, no global_variables tree ... the C-step job must have crashed ... SKIP THE FILE"<<endl;
-        tot_events=0;
-        sel_events=0;
-      }
-
       // Cannot mix PU histograms from different samples
       //assert(sampleContainer.size()==1);
 
@@ -335,30 +336,30 @@ void LoopAll::LoopAndFillHistos(TString treename) {
 
     Loop(i);
 
-        if(tot_events != 0 && (*it_tree) != 0  ) {
+    if(tot_events != 0 && (*it_tree) != 0  ) {
       (*it_tree)->Delete("");
     }
         
     *it_treelumi = (TTree*) (*it_file)->Get("lumi");
-        if( *it_treelumi != 0 && outputFile ) {
+    if( *it_treelumi != 0 && outputFile ) {
       StoreProcessedLumis( *it_treelumi );
     }
         
     // EDIT - Cannot close the first file since it is in use after 
     // file 0 
-        if (i>0)
+    if (i>0)
       if((*it_file)->IsOpen())
         (*it_file)->Close();
-        i++;
+    i++;
   }
   
-    TermReal(typerun);
-    Term();
+  TermReal(typerun);
+  Term();
   
-    //now close the first File
+  //now close the first File
   if( !Files.empty() &&  Files[0]->IsOpen())
     Files[0]->Close();
-  }
+}
 
 // ------------------------------------------------------------------------------------
 void LoopAll::StoreProcessedLumis(TTree * tree){
@@ -378,19 +379,19 @@ void LoopAll::StoreProcessedLumis(TTree * tree){
 // ------------------------------------------------------------------------------------
 void LoopAll::Term(){
   if (outputFile)
-   if (outputFile->IsOpen())
-    outputFile->Close();
+    if (outputFile->IsOpen())
+      outputFile->Close();
 }
 
 // ------------------------------------------------------------------------------------
 LoopAll::LoopAll(TTree *tree) :
-	counters(4,0.), countersred(4,0.)
+  counters(4,0.), countersred(4,0.)
 {  
 #include "branchdef/newclonesarray.h"
 
 #ifndef __CINT__
 #include "branchdef/branchdict.h"
-	DefineUserBranches();
+  DefineUserBranches();
 #endif
 
   rooContainer = new RooContainer();
@@ -468,7 +469,7 @@ void LoopAll::InitReal(Int_t typerunpass) {
   //for(int ind=0; ind<sampleContainer.size(); ind++) {
   // HistoContainer temp(ind);
   //  histoContainer.push_back(temp);
- // }
+  // }
 
   if(LDEBUG) cout << "doing InitRealPhotonAnalysis" << endl;
   for (size_t i=0; i<analyses.size(); i++) {
@@ -478,7 +479,7 @@ void LoopAll::InitReal(Int_t typerunpass) {
   if(LDEBUG) cout << "finished InitRealPhotonAnalysis" << endl;
 
   // Initialize all MVA -> This is done inside the Analysese now
- // SetAllMVA();
+  // SetAllMVA();
 
   if (makeOutputTree) 
     outputFile->cd();
@@ -496,14 +497,14 @@ void LoopAll::TermReal(Int_t typerunpass) {
   }
 
   if (makeOutputTree){ 
-        outputFile->cd();
-        assert( outputTree->GetEntries() == countersred[3] );
-        outputTree->Write(0,TObject::kWriteDelete);
-        outputParReductions++;
-        outputTreePar->Fill();
-        outputTreePar->Write(0,TObject::kWriteDelete);
-        outputTreeLumi->Write(0,TObject::kWriteDelete);
-        pileup->Write(0,TObject::kWriteDelete);
+    outputFile->cd();
+    assert( outputTree->GetEntries() == countersred[3] );
+    outputTree->Write(0,TObject::kWriteDelete);
+    outputParReductions++;
+    outputTreePar->Fill();
+    outputTreePar->Write(0,TObject::kWriteDelete);
+    outputTreeLumi->Write(0,TObject::kWriteDelete);
+    pileup->Write(0,TObject::kWriteDelete);
   }
 }
 
@@ -524,9 +525,9 @@ void LoopAll::Init(Int_t typerunpass, TTree *tree) {
   inputBranches.clear();
   GetBranches(inputBranchNames, inputBranches);
   if( typerun != kReduce && typerun != kFillReduce ) {
-	  for (size_t i=0; i<analyses.size(); i++) {
-		  analyses[i]->GetBranches(fChain, inputBranches);
-	  }
+    for (size_t i=0; i<analyses.size(); i++) {
+      analyses[i]->GetBranches(fChain, inputBranches);
+    }
   }
   SetBranchAddresses(inputBranchNames);
   
@@ -540,29 +541,29 @@ void bookGlobalCounters( TTree * intree, TTree * outTree,
 			 std::vector<int> & globalCounters, 
 			 std::vector<int> & fileGlobalCounters )
 {
-	// ((TBranch *) global_variables->GetListOfBranches()->At(0)->GetAddress()
-	TObjArray * inbranches = intree->GetListOfBranches();
-	for( int ib=0; ib<inbranches->GetEntries(); ++ib ) {
-		TBranch * br = (TBranch *)inbranches->At(ib);
-		if( br->GetAddress() == 0 ) { 
-			TString title = br->GetTitle();
-			if( title.EndsWith("/I") 
-			    && find( globalCountersNames.begin(), globalCountersNames.end(), br->GetName() ) == globalCountersNames.end() ) {
-				globalCountersNames.push_back( std::string(br->GetName()) );
-			}
-		}
-	}
-	globalCounters.resize( globalCountersNames.size(), 0 );
-	fileGlobalCounters.clear();
-	fileGlobalCounters.resize( globalCountersNames.size(), 0 );
-	for(size_t ic=0; ic<globalCountersNames.size(); ++ic ) {
-		if( ! outTree->FindBranch( globalCountersNames[ic].c_str() ) ) {
-			std::cerr << "Booking global counter " << globalCountersNames[ic] << std::endl;
-			outTree->Branch( globalCountersNames[ic].c_str(), &globalCounters[ic], (globalCountersNames[ic]+"/I").c_str() );
-		}
-		std::cerr << "Reading global counter " << globalCountersNames[ic] << std::endl;
-		intree->SetBranchAddress( globalCountersNames[ic].c_str(), &fileGlobalCounters[ic] );
-	}
+  // ((TBranch *) global_variables->GetListOfBranches()->At(0)->GetAddress()
+  TObjArray * inbranches = intree->GetListOfBranches();
+  for( int ib=0; ib<inbranches->GetEntries(); ++ib ) {
+    TBranch * br = (TBranch *)inbranches->At(ib);
+    if( br->GetAddress() == 0 ) { 
+      TString title = br->GetTitle();
+      if( title.EndsWith("/I") 
+	  && find( globalCountersNames.begin(), globalCountersNames.end(), br->GetName() ) == globalCountersNames.end() ) {
+	globalCountersNames.push_back( std::string(br->GetName()) );
+      }
+    }
+  }
+  globalCounters.resize( globalCountersNames.size(), 0 );
+  fileGlobalCounters.clear();
+  fileGlobalCounters.resize( globalCountersNames.size(), 0 );
+  for(size_t ic=0; ic<globalCountersNames.size(); ++ic ) {
+    if( ! outTree->FindBranch( globalCountersNames[ic].c_str() ) ) {
+      std::cerr << "Booking global counter " << globalCountersNames[ic] << std::endl;
+      outTree->Branch( globalCountersNames[ic].c_str(), &globalCounters[ic], (globalCountersNames[ic]+"/I").c_str() );
+    }
+    std::cerr << "Reading global counter " << globalCountersNames[ic] << std::endl;
+    intree->SetBranchAddress( globalCountersNames[ic].c_str(), &fileGlobalCounters[ic] );
+  }
 }
 
 // ------------------------------------------------------------------------------------
@@ -570,8 +571,8 @@ void LoopAll::Loop(Int_t a) {
   
   //makeOutputTree = makeOutputTree;
   if (makeOutputTree) {
-   // outputTree = outputTree;
-   // outputFile = outputFile;
+    // outputTree = outputTree;
+    // outputFile = outputFile;
     if(outputFile) 
       outputFile->cd();
   }
@@ -585,14 +586,36 @@ void LoopAll::Loop(Int_t a) {
   outputEvents=0;
 
   int hasoutputfile=0;
- // Call the Reset Analysis at start of new file
+  // Call the Reset Analysis at start of new file
   for (size_t i=0; i<analyses.size(); i++) {
-     analyses[i]->ResetAnalysis(); 
+    analyses[i]->ResetAnalysis(); 
   }
 
   time_t tfilestart,tfileend;
   tfilestart = time(0);
+  
+  /// read global parameters
+  std::vector<std::string> *parameters = new std::vector<std::string>;
+  std::string *job_maker = new std::string;
+  Int_t red_events[20];
+  
+  TreesPar[a]->SetBranchAddress("tot_events", &tot_events);
+  TreesPar[a]->SetBranchAddress("sel_events", &sel_events);
+  TreesPar[a]->SetBranchAddress("type", &type);
+  TreesPar[a]->SetBranchAddress("version", &version);
+  TreesPar[a]->SetBranchAddress("parameters", &parameters);
+  TreesPar[a]->SetBranchAddress("jobmaker", &job_maker);
+  if (TreesPar[a]->FindBranch("reductions")) {
+    TreesPar[a]->SetBranchAddress("reductions", &reductions);
+    TreesPar[a]->SetBranchAddress("red_events", &red_events);
+  }
+  if(typerun == kReduce || typerun == kFillReduce  ){
+    bookGlobalCounters( TreesPar[a], outputTreePar, globalCountersNames, globalCounters, fileGlobalCounters );
+    assert( globalCountersNames.size() == globalCounters.size() && globalCounters.size() == fileGlobalCounters.size() );
+  }
+  TreesPar[a]->GetEntry(0);
 
+  // Loop over events
   for (Int_t jentry=0; jentry<nentries;jentry++) {
     
     if(jentry%10000==0) {
@@ -625,7 +648,7 @@ void LoopAll::Loop(Int_t a) {
   tfileend = time(0);
   std::cout << "Average time per event: " << (float) difftime(tfileend,tfilestart)/nentries << std::endl;
 
-//  if(hasoutputfile) {
+  //  if(hasoutputfile) {
   if(typerun == kReduce || typerun == kFillReduce  ){
     if(outputFile) {
       outputFile->cd();
@@ -634,61 +657,38 @@ void LoopAll::Loop(Int_t a) {
       outputTree->Write(0,TObject::kWriteDelete);
     }
 
- //   if(outputFile) {
-      outputFile->cd();
-  //    if(TreesPar[a]) {
+    //   if(outputFile) {
+    outputFile->cd();
+    //    if(TreesPar[a]) {
         
-        std::vector<std::string> *parameters = new std::vector<std::string>;
-        std::string *job_maker = new std::string;
-        Int_t tot_events, sel_events, type, version, reductions;
-        Int_t red_events[20];
-        
-        TreesPar[a]->SetBranchAddress("tot_events", &tot_events);
-        TreesPar[a]->SetBranchAddress("sel_events", &sel_events);
-        TreesPar[a]->SetBranchAddress("type", &type);
-        TreesPar[a]->SetBranchAddress("version", &version);
-        TreesPar[a]->SetBranchAddress("parameters", &parameters);
-        TreesPar[a]->SetBranchAddress("jobmaker", &job_maker);
-        if (TreesPar[a]->FindBranch("reductions")) {
-          TreesPar[a]->SetBranchAddress("reductions", &reductions);
-          TreesPar[a]->SetBranchAddress("red_events", &red_events);
-        }
-	bookGlobalCounters( TreesPar[a], outputTreePar, globalCountersNames, globalCounters, fileGlobalCounters );
-	assert( globalCountersNames.size() == globalCounters.size() && globalCounters.size() == fileGlobalCounters.size() );
+    if (a == 0) {
+      outputParTot_Events = tot_events;
+      outputParSel_Events = sel_events;
 
-        TreesPar[a]->GetEntry(0);
-        if (a == 0) {
-          outputParTot_Events = tot_events;
-          outputParSel_Events = sel_events;
-
-        } else {
-          outputParTot_Events += tot_events;
-          outputParSel_Events += sel_events;
-        }
-	for(size_t ii=0; ii<globalCountersNames.size(); ++ii) {
-		globalCounters[ii] += fileGlobalCounters[ii];
-        	cout << "globalCounters Tot - " << globalCounters[ii]<<endl;
-	}
+    } else {
+      outputParTot_Events += tot_events;
+      outputParSel_Events += sel_events;
+    }
+    for(size_t ii=0; ii<globalCountersNames.size(); ++ii) {
+      globalCounters[ii] += fileGlobalCounters[ii];
+      cout << "globalCounters Tot - " << globalCounters[ii]<<endl;
+    }
 	
-        outputParType = type;
-        outputParVersion = version;
-        outputParParameters = &(*parameters);
-        outputParJobMaker = job_maker;
+    outputParType = type;
+    outputParVersion = version;
+    outputParParameters = &(*parameters);
+    outputParJobMaker = job_maker;
         
-        if (!TreesPar[a]->FindBranch("reductions")) {
-          outputParReductions = 0;
-          for (int i=0; i<20; i++) {
-            outputParRed_Events[i] = 0;
-          }
-          outputParRed_Events[0] += (int)countersred[3];
-        } else {
-          outputParReductions = reductions;
-          outputParRed_Events[reductions] += (int)countersred[3];
-        }
- //     } else {
-  //      std::cerr << "Cannot write Parameter tree." << std::endl;
- //     }
- //   }
+    if (!TreesPar[a]->FindBranch("reductions")) {
+      outputParReductions = 0;
+      for (int i=0; i<20; i++) {
+	outputParRed_Events[i] = 0;
+      }
+      outputParRed_Events[0] += (int)countersred[3];
+    } else {
+      outputParReductions = reductions;
+      outputParRed_Events[reductions] += (int)countersred[3];
+    }
   }
   
   int oldnentries=nentries;
@@ -697,15 +697,15 @@ void LoopAll::Loop(Int_t a) {
   }
   
   if(countersred[1] || oldnentries==0) {
-	  //printf("red: %d_%d \n",(int)countersred[0], (int) countersred[1]);
-	  cout << "red: ";
-	  copy(countersred.begin(), countersred.end(), std::ostream_iterator<float>(cout, "_") );
-	  cout << endl;
+    //printf("red: %d_%d \n",(int)countersred[0], (int) countersred[1]);
+    cout << "red: ";
+    copy(countersred.begin(), countersred.end(), std::ostream_iterator<float>(cout, "_") );
+    cout << endl;
   } else { 
-	  // printf("norm: %d \n",(int)counters[0]);
-	  cout << "norm: "; 
-	  copy(countersred.begin(), countersred.end(), std::ostream_iterator<float>(cout, "_") );
-	  cout << endl;
+    // printf("norm: %d \n",(int)counters[0]);
+    cout << "norm: "; 
+    copy(countersred.begin(), countersred.end(), std::ostream_iterator<float>(cout, "_") );
+    cout << endl;
   }
 }
 
@@ -817,21 +817,21 @@ void LoopAll::WritePI() {
   }
 
   /*
-  plotvartree->Branch("Nvarcats", &Nvarcats, "Nvarcats/I");
-  plotvartree->Branch("catid", &catid, "catid[Nvarcats]/I");
-  plotvartree->Branch("ncats", &ncats, "ncats[Nvarcats]/I");
-  tca_plotvarcatnames = new TClonesArray("TObjString",Ncatvar);
-  plotvartree->Branch("plotvarcatnames", "TClonesArray", &tca_plotvarcatnames, 32000, 0);
-  int catvartemp=0;
-  for(int i=0; i<Nvarcats; i++) {
+    plotvartree->Branch("Nvarcats", &Nvarcats, "Nvarcats/I");
+    plotvartree->Branch("catid", &catid, "catid[Nvarcats]/I");
+    plotvartree->Branch("ncats", &ncats, "ncats[Nvarcats]/I");
+    tca_plotvarcatnames = new TClonesArray("TObjString",Ncatvar);
+    plotvartree->Branch("plotvarcatnames", "TClonesArray", &tca_plotvarcatnames, 32000, 0);
+    int catvartemp=0;
+    for(int i=0; i<Nvarcats; i++) {
     for(int j=0; j<ncats[i]; j++) {
-      new ((*tca_plotvarcatnames)[catvartemp]) TObjString(); 
-      ((TObjString *)tca_plotvarcatnames->At(catvartemp))->SetString(catnames[i][j]);
-      catvartemp++;
+    new ((*tca_plotvarcatnames)[catvartemp]) TObjString(); 
+    ((TObjString *)tca_plotvarcatnames->At(catvartemp))->SetString(catnames[i][j]);
+    catvartemp++;
     } 
-  } 
-  std::cout << "Ncatvar: " << Ncatvar << std::endl;
-  std::cout << "catvartemp: " << catvartemp << std::endl;
+    } 
+    std::cout << "Ncatvar: " << Ncatvar << std::endl;
+    std::cout << "catvartemp: " << catvartemp << std::endl;
   */
 
   plotvartree->Fill();
@@ -985,7 +985,7 @@ int LoopAll::FillAndReduce(int jentry) {
   //b_run->GetEntry(jentry);
   //b_lumis->GetEntry(jentry);
   if(!CheckLumiSelection(run,lumis)){
-	  return hasoutputfile;
+    return hasoutputfile;
   }
   countersred[1]++;
 
@@ -1013,7 +1013,7 @@ int LoopAll::FillAndReduce(int jentry) {
     // (pre-)select events
     for (size_t i=0; i<analyses.size(); i++) {
       if( ! analyses[i]->SelectEventsReduction(*this, jentry) ) {
-    	  return hasoutputfile;
+	return hasoutputfile;
       }
     }
 
@@ -1042,7 +1042,7 @@ int LoopAll::FillAndReduce(int jentry) {
     // event selection
     for (size_t i=0; i<analyses.size(); i++) {
       if( ! analyses[i]->SelectEvents(*this, jentry) ) {
-    	  return hasoutputfile;
+	return hasoutputfile;
       }
     }
     // final analysis
@@ -1057,53 +1057,53 @@ int LoopAll::FillAndReduce(int jentry) {
 // ------------------------------------------------------------------------------------
 void LoopAll::GetBranches(std::map<std::string,int> & names, std::set<TBranch *> & branches)
 {
-    for(std::map<std::string,int>::iterator it=names.begin(); it!=names.end(); ++it ) {
-	const std::string & name = (*it).first;
-	int typ = (*it).second;
-	branch_info_t & info = branchDict[ name ];
-	if( info.branch == 0 ) {
-		std::cerr << "no branch '"<< name << "'" << std::endl;
-		assert( 0 );
-	}
-        if ( itype[current]!=0 || typ!=1){
-	  *(info.branch) = fChain->GetBranch( name.c_str() );
-          if (*(info.branch) == NULL)
-            cerr << "WARNING: in LoopAll::GetBranches(..): got null pointer for branch '" << name << "', typ=" << typ << endl;
-
-	  branches.insert( *(info.branch) );
-	}
+  for(std::map<std::string,int>::iterator it=names.begin(); it!=names.end(); ++it ) {
+    const std::string & name = (*it).first;
+    int typ = (*it).second;
+    branch_info_t & info = branchDict[ name ];
+    if( info.branch == 0 ) {
+      std::cerr << "no branch '"<< name << "'" << std::endl;
+      assert( 0 );
     }
+    if ( itype[current]!=0 || typ!=1){
+      *(info.branch) = fChain->GetBranch( name.c_str() );
+      if (*(info.branch) == NULL)
+	cerr << "WARNING: in LoopAll::GetBranches(..): got null pointer for branch '" << name << "', typ=" << typ << endl;
+
+      branches.insert( *(info.branch) );
+    }
+  }
 }
 
 // ------------------------------------------------------------------------------------
 void LoopAll::SetBranchAddresses(std::map<std::string,int> & names) {
-    for(std::map<std::string,int>::iterator it=names.begin(); it!=names.end(); ++it ) {
-	const std::string & name = (*it).first;
-	int typ = (*it).second;
-	branch_info_t & info = branchDict[ name ];
-	if( info.read == 0 ){
-		std::cerr << "no read function for branch '"<< name << "'" << std::endl;
-		assert( 0 );
-	}
-        if ( itype[current]!=0 || typ!=1)
-	  (this->*(info.read)) (fChain);
+  for(std::map<std::string,int>::iterator it=names.begin(); it!=names.end(); ++it ) {
+    const std::string & name = (*it).first;
+    int typ = (*it).second;
+    branch_info_t & info = branchDict[ name ];
+    if( info.read == 0 ){
+      std::cerr << "no read function for branch '"<< name << "'" << std::endl;
+      assert( 0 );
     }
+    if ( itype[current]!=0 || typ!=1)
+      (this->*(info.read)) (fChain);
+  }
 }
 
 // ------------------------------------------------------------------------------------
 void LoopAll::Branches(std::list<std::string> & names) {
-   for(std::list<std::string>::iterator it=names.begin(); it!=names.end(); ++it ) {
-	   std::cerr << __FILE__ << ":" << __LINE__ << " " << *it << " " << outputTree << std::endl;  
-	const std::string & name = *it;
-	branch_info_t & info = branchDict[ name ];
-	if( info.write == 0 ){
-		std::cerr << "ERROR: no write function for branch '"<< name << "', "
-                          << "check the branch names in the file specified with the 'outputBranches' datacard (e.g. reduction_output.dat)" << std::endl;
+  for(std::list<std::string>::iterator it=names.begin(); it!=names.end(); ++it ) {
+    std::cerr << __FILE__ << ":" << __LINE__ << " " << *it << " " << outputTree << std::endl;  
+    const std::string & name = *it;
+    branch_info_t & info = branchDict[ name ];
+    if( info.write == 0 ){
+      std::cerr << "ERROR: no write function for branch '"<< name << "', "
+		<< "check the branch names in the file specified with the 'outputBranches' datacard (e.g. reduction_output.dat)" << std::endl;
 
-		assert( 0 );
-	}
-	(this->*(info.write)) (outputTree);
+      assert( 0 );
     }
+    (this->*(info.write)) (outputTree);
+  }
 }
 
 // ------------------------------------------------------------------------------------
@@ -1171,7 +1171,7 @@ void LoopAll::InitCounters(){
   if(LDEBUG) cout<<"InitCounts BEGIN"<<endl;
 
   for(unsigned int i=0; i<sampleContainer.size(); i++)
-     counterContainer.push_back(CounterContainer(i));
+    counterContainer.push_back(CounterContainer(i));
 
   if(LDEBUG) cout<<"InitCounts END"<<endl;
 }
@@ -1289,18 +1289,18 @@ void LoopAll::FillHist(std::string name, float y) {
 // ------------------------------------------------------------------------------------
 void LoopAll::FillHist2D(std::string name, float x, float y) {
   FillHist2D(name, 0, x, y);
- }
+}
 
 // ------------------------------------------------------------------------------------
 void LoopAll::FillHist(std::string name, int category, float y, float wt ) {
   histoContainer[current_sample_index].Fill(name, category, y, wt);
   histoContainer.back().Fill(name, category, y, wt);
- }
+}
 // ------------------------------------------------------------------------------------
 void LoopAll::FillHist2D(std::string name, int category, float x, float y, float wt ) {
   histoContainer[current_sample_index].Fill2D(name, category, x, y, wt);
   histoContainer.back().Fill2D(name, category, x, y, wt);
- }
+}
 
 // ------------------------------------------------------------------------------------
 //// // ------------------------------------------------------------------------------------
@@ -1319,35 +1319,35 @@ void LoopAll::FillCounter(std::string name, float weight, int category )
 // ----------------------------------------------------------------------------------------------------------------------
 bool LoopAll::CheckLumiSelection( int run, int lumi )
 {
-	if(typerun == kReduce || ! sampleContainer[current_sample_index].hasLumiSelection ){
-		return true;
-	}
+  if(typerun == kReduce || ! sampleContainer[current_sample_index].hasLumiSelection ){
+    return true;
+  }
 
-	std::vector<std::pair<int,int> > &run_lumis = sampleContainer[current_sample_index].goodLumis[run];
-	for(std::vector<std::pair<int,int> >::iterator it=
-		    run_lumis.begin(); it!=run_lumis.end(); ++it ) {
-		if( lumi >= it->first && lumi <= it->second ) {
-			return true;
-		}
-	}
-	return false;
+  std::vector<std::pair<int,int> > &run_lumis = sampleContainer[current_sample_index].goodLumis[run];
+  for(std::vector<std::pair<int,int> >::iterator it=
+	run_lumis.begin(); it!=run_lumis.end(); ++it ) {
+    if( lumi >= it->first && lumi <= it->second ) {
+      return true;
+    }
+  }
+  return false;
 }
 
 // ----------------------------------------------------------------------------------------------------------------------
 bool LoopAll::CheckEventList( int run, int lumi, int event  )
 {
-	if(typerun == kReduce || ! sampleContainer[current_sample_index].hasEventList ){
-		return true;
-	}
+  if(typerun == kReduce || ! sampleContainer[current_sample_index].hasEventList ){
+    return true;
+  }
 
-	std::vector<std::pair<int,int> > &run_events = sampleContainer[current_sample_index].eventList[run];
-	for(std::vector<std::pair<int,int> >::iterator it=
-		    run_events.begin(); it!=run_events.end(); ++it ) {
-		if( lumi == it->first && event == it->second ) {
-			return true;
-		}
-	}
-	return false;
+  std::vector<std::pair<int,int> > &run_events = sampleContainer[current_sample_index].eventList[run];
+  for(std::vector<std::pair<int,int> >::iterator it=
+	run_events.begin(); it!=run_events.end(); ++it ) {
+    if( lumi == it->first && event == it->second ) {
+      return true;
+    }
+  }
+  return false;
 }
 
 
@@ -1422,7 +1422,7 @@ int LoopAll::ApplyCuts(int icat, int cutset, int & ncutsapplied, int & ncutspass
   for (unsigned int i=0; i<cutContainer.size(); i++) {
     if(cutContainer[i].finalcut==cutset) {
       //if(cutContainer[i].useit) 
-	{
+      {
 
 	if(cutContainer[i].ncat>1) {
 	  if(ncats==0) ncats=cutContainer[i].ncat;
@@ -1463,9 +1463,9 @@ int LoopAll::ApplyCutsFill(int icat, int cutset, int & ncutsapplied, int & ncuts
   for (unsigned int i=0; i<cutContainer.size(); i++) {
     if(cutContainer[i].finalcut==cutset) {
       //MARCO if(cutContainer[i].useit) 
-	{
+      {
 
-	  //cout<<"ApplyCutsFill "<<cutContainer[i].finalcut<<" "<<cutContainer[i].useit<<" "<<endl;
+	//cout<<"ApplyCutsFill "<<cutContainer[i].finalcut<<" "<<cutContainer[i].useit<<" "<<endl;
 
 	if(cutContainer[i].ncat>1) {
 	  if(ncats==0) ncats=cutContainer[i].ncat;
@@ -1540,7 +1540,7 @@ int LoopAll::ApplyCuts(int cutset, int * passcategory, int * ncutsapplied, int *
   for (unsigned int i=0; i<cutContainer.size(); i++) {
     if(cutContainer[i].finalcut==cutset) {
       //if(cutContainer[i].useit) 
-	{
+      {
 	if(cutContainer[i].ncat>1) {
 	  if(ncats==0) ncats=cutContainer[i].ncat;
 	  if(cutContainer[i].ncat!=ncats) {
@@ -1620,16 +1620,16 @@ void LoopAll::myPrintCounters() {
   
   // first oocalc file ("all in a row")
   for (int i=0; i<Ncounters; i++) {
-    if(counterprint[i]) {
-      int nCategories = countersncat[i];
-      if(nCategories == 0)
-	nCategories = 1;
-      //
-      // multiplicity of lines for the different categories
-      for(int iCategory = 0; iCategory<nCategories; iCategory++)
-	fprintf(file,",Name, Counted, TotalEvents, Sigma, Selection 1, Eff, Selection 2, Eff, Selection 3, Eff,");
-      //
-    }
+  if(counterprint[i]) {
+  int nCategories = countersncat[i];
+  if(nCategories == 0)
+  nCategories = 1;
+  //
+  // multiplicity of lines for the different categories
+  for(int iCategory = 0; iCategory<nCategories; iCategory++)
+  fprintf(file,",Name, Counted, TotalEvents, Sigma, Selection 1, Eff, Selection 2, Eff, Selection 3, Eff,");
+  //
+  }
   }
   fprintf(file,"\n");
   //
@@ -1640,170 +1640,170 @@ void LoopAll::myPrintCounters() {
   //
   
   for (int i=0; i<Ncounters; i++) {
-    if(counterprint[i]) {
+  if(counterprint[i]) {
       
-      // second oocalc file (multi rows)
-      fprintf(filenew,"Number, Sample, Counter Name, Counted, TotalEvents, Sigma, Selection 1, Eff, Selection 2, Eff, Selection 3, Eff");
-      fprintf(filenew,",indexfiles, namefile, scale, lumi, intlum, weight, xsec, ntot, nred, kfac");
-      fprintf(filenew,"\n");
-      //
+  // second oocalc file (multi rows)
+  fprintf(filenew,"Number, Sample, Counter Name, Counted, TotalEvents, Sigma, Selection 1, Eff, Selection 2, Eff, Selection 3, Eff");
+  fprintf(filenew,",indexfiles, namefile, scale, lumi, intlum, weight, xsec, ntot, nred, kfac");
+  fprintf(filenew,"\n");
+  //
       
-      // third file: ascii
-      fprintf(fileascii,"#############################################\n");
-      fprintf(fileascii,"Number \t Sample");
-      fprintf(fileascii,"\n");
-      //
+  // third file: ascii
+  fprintf(fileascii,"#############################################\n");
+  fprintf(fileascii,"Number \t Sample");
+  fprintf(fileascii,"\n");
+  //
       
-      int ncat = countersncat[i];
-      int c=-1;
-      while (c<ncat) {
-	if(c==-1) c=0;
-	float counts;
-	float denominatorCounts[3];
-	TString counterNames[3];
-	double counterEfficiencies[3];
+  int ncat = countersncat[i];
+  int c=-1;
+  while (c<ncat) {
+  if(c==-1) c=0;
+  float counts;
+  float denominatorCounts[3];
+  TString counterNames[3];
+  double counterEfficiencies[3];
 	
-	for (int ind=0; ind<nindfiles; ind++) {
+  for (int ind=0; ind<nindfiles; ind++) {
 	  
-	  int indexfiles=mp->histoind[ind];
-	  int indexinfo=mp->infoind[ind];
-	  double weight=mp->weightind[ind];
-	  //double scale=mp->intlumi / mp->lumireal[indexfiles]  * mp->scale[indexinfo];
+  int indexfiles=mp->histoind[ind];
+  int indexinfo=mp->infoind[ind];
+  double weight=mp->weightind[ind];
+  //double scale=mp->intlumi / mp->lumireal[indexfiles]  * mp->scale[indexinfo];
 	  
-	  // first oocalc file ("all in a row")
-	  // fill file infos only once
-	  if(fillInit){
-	    fileLines[ind]
-	      << indexfiles                   << ","
-	      << mp->files[indexinfo]         << ","
-	      << mp->scale[indexinfo]         << ","
-	      << mp->lumireal[indexfiles]     << ","
-	      << mp->intlumi                  << ","
-	      << weight                       << ","
-	      << mp->filesshortnam[indexinfo] << ",";
-	  }
-	  //
+  // first oocalc file ("all in a row")
+  // fill file infos only once
+  if(fillInit){
+  fileLines[ind]
+  << indexfiles                   << ","
+  << mp->files[indexinfo]         << ","
+  << mp->scale[indexinfo]         << ","
+  << mp->lumireal[indexfiles]     << ","
+  << mp->intlumi                  << ","
+  << weight                       << ","
+  << mp->filesshortnam[indexinfo] << ",";
+  }
+  //
   	  
-	  if (ncat==0) {
-	    counts=counters[indexfiles][i];
-	  }
-	  else {
-	    counts=counterscat[indexfiles][counterscatind[i]][c];
-	  }
+  if (ncat==0) {
+  counts=counters[indexfiles][i];
+  }
+  else {
+  counts=counterscat[indexfiles][counterscatind[i]][c];
+  }
 	  
-	  // Three denominators for partial efficiencies
-	  for(unsigned int iDen=0; iDen<3; iDen++) {
-	    if(counterdenom[i][iDen] < 0) {
-	      denominatorCounts[iDen] = -1; // no counter selected
-	      counterNames[iDen] = "---";
-	    } else {
-	      if(countersncat[counterdenom[i][iDen]] == 0) {
-		denominatorCounts[iDen]=counters[indexfiles][counterdenom[i][iDen]];
-	      } else if(countersncat[counterdenom[i][iDen]] != ncat) {
-		// take the first category for the denominator if numerator and denominator categories do not correspond
-		denominatorCounts[iDen]=counterscat[indexfiles][counterscatind[counterdenom[i][iDen]]][0];
-	      } else {
-		denominatorCounts[iDen]=counterscat[indexfiles][counterscatind[counterdenom[i][iDen]]][c];
-	      }
-	      counterNames[iDen] = counternames[counterdenom[i][iDen]];
-	    }
-	    counterEfficiencies[iDen]= (denominatorCounts[iDen]>0 ? counts/denominatorCounts[iDen] : -1);
-	  }
+  // Three denominators for partial efficiencies
+  for(unsigned int iDen=0; iDen<3; iDen++) {
+  if(counterdenom[i][iDen] < 0) {
+  denominatorCounts[iDen] = -1; // no counter selected
+  counterNames[iDen] = "---";
+  } else {
+  if(countersncat[counterdenom[i][iDen]] == 0) {
+  denominatorCounts[iDen]=counters[indexfiles][counterdenom[i][iDen]];
+  } else if(countersncat[counterdenom[i][iDen]] != ncat) {
+  // take the first category for the denominator if numerator and denominator categories do not correspond
+  denominatorCounts[iDen]=counterscat[indexfiles][counterscatind[counterdenom[i][iDen]]][0];
+  } else {
+  denominatorCounts[iDen]=counterscat[indexfiles][counterscatind[counterdenom[i][iDen]]][c];
+  }
+  counterNames[iDen] = counternames[counterdenom[i][iDen]];
+  }
+  counterEfficiencies[iDen]= (denominatorCounts[iDen]>0 ? counts/denominatorCounts[iDen] : -1);
+  }
 	  
-	  // first oocalc file ("all in a row")
-	  fileLines[ind]
-	    << ","  << counternames[i]                        << ","  // counter Name
-	    << counts                                         << ","  // counter Counts
-	    << counts*weight/mp->scale[indexinfo]             << ","  // Total Events = counts x weight / scale
-	    << counts*weight/mp->scale[indexinfo]/mp->intlumi << ","  // Sigma (=xsec) = counts x weight / intlumi
-	    << counterNames[0].Data()                         << ","  // First denominator
-	    << counterEfficiencies[0]                         << ","  // Real Eff vs First denominator
-	    << counterNames[1].Data()                         << ","  // Second denominator
-	    << counterEfficiencies[1]                         << ","  // Real Eff vs Second denominator
-	    << counterNames[2].Data()                         << ","  // Third denominator
-	    << counterEfficiencies[2]                         << ","; // Real Eff vs Third denominator
-	  //
-	  // second oocalc file (multi rows)
-	  fprintf(filenew,"%d,%s,%s,%f,%f,%f,%s,%f,%s,%f,%s,%f",
-		  i, // counter Number
-		  mp->filesshortnam[indexinfo], // file short name
-		  counternames[i], // counter Name
-		  counts, // counter Counts
-		  counts*weight/mp->scale[indexinfo], // Total Events = counts x weight / scale
-		  counts*weight/mp->scale[indexinfo]/mp->intlumi, // Sigma (=xsec) = counts x weight / intlumi
-		  counterNames[0].Data(), // First denominator
-		  counterEfficiencies[0], // Real Eff vs First denominator
-		  counterNames[1].Data(), // Second denominator
-		  counterEfficiencies[1], // Real Eff vs Second denominator
-		  counterNames[2].Data(), // Third denominator
-		  counterEfficiencies[2]  // Real Eff vs Third denominator
-		  );
-	  fprintf(filenew,",%d,%s,%f,%f,%f,%f\n",indexfiles,mp->files[indexinfo], mp->scale[indexinfo],
-		  mp->lumireal[indexfiles],mp->intlumi,weight);
-	  //
-	  // third file: ascii
-	  fprintf(fileascii,"---------------------------------------------\n");
-	  fprintf(fileascii,"%d \t %s \n Counter Name: %s \n",
-		  i, // counter Number
-		  mp->filesshortnam[indexinfo], // file short name
-		  counternames[i] // counter Name
-		  );
-	  fprintf(fileascii,"---------------------------------------------\n");
-	  fprintf(fileascii,"Counted = %6.3f \n",
-		  counts // counter Counts
-		  );
-	  fprintf(fileascii,"  Total = %6.3f \n",
-		  counts*weight/mp->scale[indexinfo] // Total Events = counts x weight / scale
-		  );
-	  fprintf(fileascii,"  Sigma = %6.3f \n",
-		  counts*weight/mp->scale[indexinfo]/mp->intlumi // Sigma (=xsec) = counts x weight / intlumi
-		  );
-	  fprintf(fileascii,"  Scale = %6.3f \n",
-		  mp->scale[indexinfo] // Scale
-		  );
-	  fprintf(fileascii,"   Lumi = %6.3f \n",
-		  mp->lumireal[indexfiles] // Luminosity
-		  );
-	  fprintf(fileascii,"intLumi = %6.3f \n",
-		  mp->intlumi // Integrated Luminosity 
-		  );
-	  fprintf(fileascii," Weight = %6.3f \n",
-		  weight // Weight
-		  );
-	  fprintf(fileascii,"@@@\n");
-	  for(unsigned int iDen=0; iDen<3; iDen++) {
-	    if(counterNames[iDen] != "---")
-	      fprintf(fileascii,"Efficiency: %s / %s = %1.5f \n",
-		      counternames[i], // this counter
-		      counterNames[iDen].Data(), // i-th denominator
-		      counterEfficiencies[iDen]  // Real Eff vs i-th denominator
-		      );
-	  }
-	}
-	// second oocalc file (multi rows)
-	fprintf(filenew,"\n");
-	//
-	// third file: ascii
-	fprintf(fileascii,"\n");
-	//
-	// stringstream.str.c_str	
-	c++;
-      }
-      // second oocalc file (multi rows)
-      fprintf(filenew,"\n");
-      //
-      // third file: ascii
-      fprintf(fileascii,"\n");
-      //
+  // first oocalc file ("all in a row")
+  fileLines[ind]
+  << ","  << counternames[i]                        << ","  // counter Name
+  << counts                                         << ","  // counter Counts
+  << counts*weight/mp->scale[indexinfo]             << ","  // Total Events = counts x weight / scale
+  << counts*weight/mp->scale[indexinfo]/mp->intlumi << ","  // Sigma (=xsec) = counts x weight / intlumi
+  << counterNames[0].Data()                         << ","  // First denominator
+  << counterEfficiencies[0]                         << ","  // Real Eff vs First denominator
+  << counterNames[1].Data()                         << ","  // Second denominator
+  << counterEfficiencies[1]                         << ","  // Real Eff vs Second denominator
+  << counterNames[2].Data()                         << ","  // Third denominator
+  << counterEfficiencies[2]                         << ","; // Real Eff vs Third denominator
+  //
+  // second oocalc file (multi rows)
+  fprintf(filenew,"%d,%s,%s,%f,%f,%f,%s,%f,%s,%f,%s,%f",
+  i, // counter Number
+  mp->filesshortnam[indexinfo], // file short name
+  counternames[i], // counter Name
+  counts, // counter Counts
+  counts*weight/mp->scale[indexinfo], // Total Events = counts x weight / scale
+  counts*weight/mp->scale[indexinfo]/mp->intlumi, // Sigma (=xsec) = counts x weight / intlumi
+  counterNames[0].Data(), // First denominator
+  counterEfficiencies[0], // Real Eff vs First denominator
+  counterNames[1].Data(), // Second denominator
+  counterEfficiencies[1], // Real Eff vs Second denominator
+  counterNames[2].Data(), // Third denominator
+  counterEfficiencies[2]  // Real Eff vs Third denominator
+  );
+  fprintf(filenew,",%d,%s,%f,%f,%f,%f\n",indexfiles,mp->files[indexinfo], mp->scale[indexinfo],
+  mp->lumireal[indexfiles],mp->intlumi,weight);
+  //
+  // third file: ascii
+  fprintf(fileascii,"---------------------------------------------\n");
+  fprintf(fileascii,"%d \t %s \n Counter Name: %s \n",
+  i, // counter Number
+  mp->filesshortnam[indexinfo], // file short name
+  counternames[i] // counter Name
+  );
+  fprintf(fileascii,"---------------------------------------------\n");
+  fprintf(fileascii,"Counted = %6.3f \n",
+  counts // counter Counts
+  );
+  fprintf(fileascii,"  Total = %6.3f \n",
+  counts*weight/mp->scale[indexinfo] // Total Events = counts x weight / scale
+  );
+  fprintf(fileascii,"  Sigma = %6.3f \n",
+  counts*weight/mp->scale[indexinfo]/mp->intlumi // Sigma (=xsec) = counts x weight / intlumi
+  );
+  fprintf(fileascii,"  Scale = %6.3f \n",
+  mp->scale[indexinfo] // Scale
+  );
+  fprintf(fileascii,"   Lumi = %6.3f \n",
+  mp->lumireal[indexfiles] // Luminosity
+  );
+  fprintf(fileascii,"intLumi = %6.3f \n",
+  mp->intlumi // Integrated Luminosity 
+  );
+  fprintf(fileascii," Weight = %6.3f \n",
+  weight // Weight
+  );
+  fprintf(fileascii,"@@@\n");
+  for(unsigned int iDen=0; iDen<3; iDen++) {
+  if(counterNames[iDen] != "---")
+  fprintf(fileascii,"Efficiency: %s / %s = %1.5f \n",
+  counternames[i], // this counter
+  counterNames[iDen].Data(), // i-th denominator
+  counterEfficiencies[iDen]  // Real Eff vs i-th denominator
+  );
+  }
+  }
+  // second oocalc file (multi rows)
+  fprintf(filenew,"\n");
+  //
+  // third file: ascii
+  fprintf(fileascii,"\n");
+  //
+  // stringstream.str.c_str	
+  c++;
+  }
+  // second oocalc file (multi rows)
+  fprintf(filenew,"\n");
+  //
+  // third file: ascii
+  fprintf(fileascii,"\n");
+  //
       
-      fillInit = false; 
-    }// counter print if
+  fillInit = false; 
+  }// counter print if
     
   }
   
   // first oocalc file ("all in a row")
   for (int iFile=0; iFile<nindfiles; iFile++)
-    fprintf(file,"%s,\n",fileLines[iFile].str().c_str());
+  fprintf(file,"%s,\n",fileLines[iFile].str().c_str());
   fclose(file);
   //
   // second oocalc file (multi rows)
@@ -1842,320 +1842,320 @@ void LoopAll::myPrintCountersNew() {
   
   for (int i=0; i<Ncounters; i++) {
     
-    // first oocalc file ("all in a row")
-    stringstream fileLinesCatFile[nindfiles];
-    stringstream fileLinesCatCounts[nindfiles];
-    stringstream fileLinesCatEvents[nindfiles];
-    stringstream fileLinesCatSigma[nindfiles];
-    stringstream fileLinesCatEff[nindfiles][3];
-    //
+  // first oocalc file ("all in a row")
+  stringstream fileLinesCatFile[nindfiles];
+  stringstream fileLinesCatCounts[nindfiles];
+  stringstream fileLinesCatEvents[nindfiles];
+  stringstream fileLinesCatSigma[nindfiles];
+  stringstream fileLinesCatEff[nindfiles][3];
+  //
     
-    // second oocalc file (multi rows)
-    stringstream fileLinesCategories[nindfiles];
-    stringstream fileLinesEff[nindfiles][3];
-    stringstream fileLinesInfo[nindfiles];
-    //
+  // second oocalc file (multi rows)
+  stringstream fileLinesCategories[nindfiles];
+  stringstream fileLinesEff[nindfiles][3];
+  stringstream fileLinesInfo[nindfiles];
+  //
     
-    if(i==0) {
-      for (int ind=0; ind<nindfiles; ind++) {
-	int indexfiles=mp->histoind[ind];
-	int indexinfo=mp->infoind[ind];
-	cout<<"DEBUGDEBUG mp->scale[indexinfo]  "<<ind<<" "<<indexfiles<<" "<<indexinfo<<" "<<mp->scale[indexinfo]<<endl;
-      }
-    }
+  if(i==0) {
+  for (int ind=0; ind<nindfiles; ind++) {
+  int indexfiles=mp->histoind[ind];
+  int indexinfo=mp->infoind[ind];
+  cout<<"DEBUGDEBUG mp->scale[indexinfo]  "<<ind<<" "<<indexfiles<<" "<<indexinfo<<" "<<mp->scale[indexinfo]<<endl;
+  }
+  }
     
-    if(counterprint[i]) {
+  if(counterprint[i]) {
       
-      int ncat = countersncat[i];
+  int ncat = countersncat[i];
       
-      // first oocalc file ("all in a row")
-      fprintf(file,"Number, Sample, Counter Name, Categories");
-      //
-      for(unsigned int iCat = 0; iCat<ncat; iCat++)
-	fprintf(file,", Cat %d Counts",iCat);
-      fprintf(file,", TOT Cat Counts");
-      for(unsigned int iCat = 0; iCat<ncat; iCat++)
-	fprintf(file,", Cat %d Tot.Events",iCat);
-      fprintf(file,", TOT Cat Tot.Events");
-      for(unsigned int iCat = 0; iCat<ncat; iCat++)
-	fprintf(file,", Cat %d Sigma",iCat);
-      fprintf(file,", TOT Cat Sigma");
-      for(unsigned int iEff=0; iEff<3; iEff++) {
-	fprintf(file,", Denominator Name");
-	for(unsigned int iCat = 0; iCat<ncat; iCat++)
-	  fprintf(file,", Cat %d Eff.",iCat);
-	fprintf(file,", TOT Cat Eff.");
-      }
-      fprintf(file,",, indexfiles, namefile, scale, lumi, intlum, weight");
-      fprintf(file,"\n");
-      //
+  // first oocalc file ("all in a row")
+  fprintf(file,"Number, Sample, Counter Name, Categories");
+  //
+  for(unsigned int iCat = 0; iCat<ncat; iCat++)
+  fprintf(file,", Cat %d Counts",iCat);
+  fprintf(file,", TOT Cat Counts");
+  for(unsigned int iCat = 0; iCat<ncat; iCat++)
+  fprintf(file,", Cat %d Tot.Events",iCat);
+  fprintf(file,", TOT Cat Tot.Events");
+  for(unsigned int iCat = 0; iCat<ncat; iCat++)
+  fprintf(file,", Cat %d Sigma",iCat);
+  fprintf(file,", TOT Cat Sigma");
+  for(unsigned int iEff=0; iEff<3; iEff++) {
+  fprintf(file,", Denominator Name");
+  for(unsigned int iCat = 0; iCat<ncat; iCat++)
+  fprintf(file,", Cat %d Eff.",iCat);
+  fprintf(file,", TOT Cat Eff.");
+  }
+  fprintf(file,",, indexfiles, namefile, scale, lumi, intlum, weight");
+  fprintf(file,"\n");
+  //
       
-      // second oocalc file (multi rows)
-      fprintf(filenew,"Number, Sample, Counter Name");
-      for(unsigned int iCat = 0; iCat<ncat; iCat++)
-	fprintf(filenew,", Category, Counted, TotalEvents, Sigma");
-      fprintf(filenew,",, Total Counted, ,indexfiles, namefile, scale, lumi, intlum, weight, xsec, ntot, nred, kfac");
-      fprintf(filenew,"\n");
-      //
-      double counterNumerator_tot[nindfiles];
-      double counterDenominator_tot[nindfiles][3];
-      double counterEvents_tot[nindfiles];
-      double counterSigma_tot[nindfiles];
-      //
+  // second oocalc file (multi rows)
+  fprintf(filenew,"Number, Sample, Counter Name");
+  for(unsigned int iCat = 0; iCat<ncat; iCat++)
+  fprintf(filenew,", Category, Counted, TotalEvents, Sigma");
+  fprintf(filenew,",, Total Counted, ,indexfiles, namefile, scale, lumi, intlum, weight, xsec, ntot, nred, kfac");
+  fprintf(filenew,"\n");
+  //
+  double counterNumerator_tot[nindfiles];
+  double counterDenominator_tot[nindfiles][3];
+  double counterEvents_tot[nindfiles];
+  double counterSigma_tot[nindfiles];
+  //
       
-      // third file: ascii
-      fprintf(fileascii,"#############################################\n");
-      fprintf(fileascii,"Number \t Sample");
-      fprintf(fileascii,"\n");
-      //
+  // third file: ascii
+  fprintf(fileascii,"#############################################\n");
+  fprintf(fileascii,"Number \t Sample");
+  fprintf(fileascii,"\n");
+  //
       
-      int c=-1;
-      while (c<ncat) {
-	if(c==-1) c=0;
-	float counts;
-	float denominatorCounts[3];
-	TString counterNames[3];
-	double counterEfficiencies[3];
+  int c=-1;
+  while (c<ncat) {
+  if(c==-1) c=0;
+  float counts;
+  float denominatorCounts[3];
+  TString counterNames[3];
+  double counterEfficiencies[3];
 	
-	for (int ind=0; ind<nindfiles; ind++) {
+  for (int ind=0; ind<nindfiles; ind++) {
 	  
-	  // reset only once
-	  if(c==0) {
-	    counterNumerator_tot[ind] = 0.;
-	    counterEvents_tot[ind] = 0.;
-	    counterSigma_tot[ind] = 0.;
-	  }
-	  //
+  // reset only once
+  if(c==0) {
+  counterNumerator_tot[ind] = 0.;
+  counterEvents_tot[ind] = 0.;
+  counterSigma_tot[ind] = 0.;
+  }
+  //
 	  
-	  for(unsigned int iEff=0; iEff<3; iEff++)
-	    counterDenominator_tot[ind][iEff] = 0.;
+  for(unsigned int iEff=0; iEff<3; iEff++)
+  counterDenominator_tot[ind][iEff] = 0.;
 	  
-	  int indexfiles=mp->histoind[ind];
-	  int indexinfo=mp->infoind[ind];
-	  double weight=mp->weightind[ind];
-	  //double scale=mp->intlumi / mp->lumireal[indexfiles]  * mp->scale[indexinfo];
+  int indexfiles=mp->histoind[ind];
+  int indexinfo=mp->infoind[ind];
+  double weight=mp->weightind[ind];
+  //double scale=mp->intlumi / mp->lumireal[indexfiles]  * mp->scale[indexinfo];
 	  
 
-	  // fill file infos only once
-	  if(c==0){
-	    // first oocalc file ("all in a row")
-	    fileLinesCatFile[ind]
-	      << i                            << "," // counter Number
-	      << mp->filesshortnam[indexinfo] << "," // file short name
-	      << counternames[i]              << "," // counter Name
-	      << ncat;                               // number of categories
-	    // second oocalc file (multi rows)
-	    fileLinesCategories[ind]
-	      << i                            << ","  // counter Number
-	      << mp->filesshortnam[indexinfo] << ","  // file short name
-	      << counternames[i]              << ","; // counter Name
-	  }
-	  // fill file infos only once
-	  if(c==0){
-	    fileLinesInfo[ind]
-	      << indexfiles               << ","
-	      << mp->files[indexinfo]     << ","
-	      << mp->scale[indexinfo]     << ","
-      	      << mp->lumireal[indexfiles] << ","
-      	      << mp->lumireal[indexinfo] << ","
-	      << mp->intlumi              << ","
-	      << weight                   << ","
-	      <<  mp->xsec[indexinfo]                  << ","
-	      <<  mp->ntot[indexinfo]                  << ","
-	      <<  mp->nred[indexinfo]                  << ","   
-	      <<  mp->kfactor[indexinfo]                
-	      ;
-	    //
-	  }
-	  //
+  // fill file infos only once
+  if(c==0){
+  // first oocalc file ("all in a row")
+  fileLinesCatFile[ind]
+  << i                            << "," // counter Number
+  << mp->filesshortnam[indexinfo] << "," // file short name
+  << counternames[i]              << "," // counter Name
+  << ncat;                               // number of categories
+  // second oocalc file (multi rows)
+  fileLinesCategories[ind]
+  << i                            << ","  // counter Number
+  << mp->filesshortnam[indexinfo] << ","  // file short name
+  << counternames[i]              << ","; // counter Name
+  }
+  // fill file infos only once
+  if(c==0){
+  fileLinesInfo[ind]
+  << indexfiles               << ","
+  << mp->files[indexinfo]     << ","
+  << mp->scale[indexinfo]     << ","
+  << mp->lumireal[indexfiles] << ","
+  << mp->lumireal[indexinfo] << ","
+  << mp->intlumi              << ","
+  << weight                   << ","
+  <<  mp->xsec[indexinfo]                  << ","
+  <<  mp->ntot[indexinfo]                  << ","
+  <<  mp->nred[indexinfo]                  << ","   
+  <<  mp->kfactor[indexinfo]                
+  ;
+  //
+  }
+  //
   	  
-	  if (ncat==0) {
-	    counts=counters[indexfiles][i];
-	  }
-	  else {
-	    counts=counterscat[indexfiles][counterscatind[i]][c];
-	  }
+  if (ncat==0) {
+  counts=counters[indexfiles][i];
+  }
+  else {
+  counts=counterscat[indexfiles][counterscatind[i]][c];
+  }
 	  
-	  // Three denominators for partial efficiencies
-	  counterNumerator_tot[ind] += counts;
-	  counterEvents_tot[ind]    += counts*weight;
-	  counterSigma_tot[ind]     += counts*weight/mp->intlumi;
-	  for(unsigned int iDen=0; iDen<3; iDen++) {
-	    if(counterdenom[i][iDen] < 0) {
-	      denominatorCounts[iDen] = -1; // no counter selected
-	      counterNames[iDen] = "---";
-	    } else {
-	      if(countersncat[counterdenom[i][iDen]] == 0) {
-		denominatorCounts[iDen]=counters[indexfiles][counterdenom[i][iDen]];
-	      } else if(countersncat[counterdenom[i][iDen]] != ncat) {
-		// take the first category for the denominator if numerator and denominator categories do not correspond
-		denominatorCounts[iDen]=counterscat[indexfiles][counterscatind[counterdenom[i][iDen]]][0];
-	      } else {
-		denominatorCounts[iDen]=counterscat[indexfiles][counterscatind[counterdenom[i][iDen]]][c];
-	      }
-	      counterNames[iDen] = counternames[counterdenom[i][iDen]];
-	    }
-	    counterEfficiencies[iDen] = (denominatorCounts[iDen]>0 ? counts/denominatorCounts[iDen] : -1);
-	    counterDenominator_tot[ind][iDen] += (denominatorCounts[iDen]>0 ? denominatorCounts[iDen] : 0);
-	  }
+  // Three denominators for partial efficiencies
+  counterNumerator_tot[ind] += counts;
+  counterEvents_tot[ind]    += counts*weight;
+  counterSigma_tot[ind]     += counts*weight/mp->intlumi;
+  for(unsigned int iDen=0; iDen<3; iDen++) {
+  if(counterdenom[i][iDen] < 0) {
+  denominatorCounts[iDen] = -1; // no counter selected
+  counterNames[iDen] = "---";
+  } else {
+  if(countersncat[counterdenom[i][iDen]] == 0) {
+  denominatorCounts[iDen]=counters[indexfiles][counterdenom[i][iDen]];
+  } else if(countersncat[counterdenom[i][iDen]] != ncat) {
+  // take the first category for the denominator if numerator and denominator categories do not correspond
+  denominatorCounts[iDen]=counterscat[indexfiles][counterscatind[counterdenom[i][iDen]]][0];
+  } else {
+  denominatorCounts[iDen]=counterscat[indexfiles][counterscatind[counterdenom[i][iDen]]][c];
+  }
+  counterNames[iDen] = counternames[counterdenom[i][iDen]];
+  }
+  counterEfficiencies[iDen] = (denominatorCounts[iDen]>0 ? counts/denominatorCounts[iDen] : -1);
+  counterDenominator_tot[ind][iDen] += (denominatorCounts[iDen]>0 ? denominatorCounts[iDen] : 0);
+  }
 	  
-	  if(c==0){
-	    // first oocalc file ("all in a row")
-	    for(unsigned int iEff=0; iEff<3; iEff++)
-	      //	      if(counterNames[iEff]!="---")
-		fileLinesCatEff[ind][iEff]
-		  << counterNames[iEff] << ","; // counter Name i-th denominator
-	    //
-	    // second oocalc file (multi rows)
-	    for(unsigned int iEff=0; iEff<3; iEff++)
-	      fileLinesEff[ind][iEff]
-		<< ",Efficiency " << iEff+1 << ","  // i-th Efficiency
-		<< counterNames[iEff]       << ","; // i-th denominator name
-	    //
-	  }
+  if(c==0){
+  // first oocalc file ("all in a row")
+  for(unsigned int iEff=0; iEff<3; iEff++)
+  //	      if(counterNames[iEff]!="---")
+  fileLinesCatEff[ind][iEff]
+  << counterNames[iEff] << ","; // counter Name i-th denominator
+  //
+  // second oocalc file (multi rows)
+  for(unsigned int iEff=0; iEff<3; iEff++)
+  fileLinesEff[ind][iEff]
+  << ",Efficiency " << iEff+1 << ","  // i-th Efficiency
+  << counterNames[iEff]       << ","; // i-th denominator name
+  //
+  }
 	  
-	  // first oocalc file ("all in a row")
-	  fileLinesCatCounts[ind]
-	    << counts << ","; // counter Counts
-	  fileLinesCatEvents[ind]
-	    << counts*weight << ","; // Total Events = counts x weight
-	  fileLinesCatSigma[ind]
-	    << counts*weight/mp->intlumi << ","; // Sigma (=xsec) = counts x weight / intlumi
-	  for(unsigned int iEff=0; iEff<3; iEff++)
-	    //	    if(counterNames[iEff]!="---")
-	      fileLinesCatEff[ind][iEff]
-		<< counterEfficiencies[iEff] << ","; // Eff i-th denominator
-	  //
+  // first oocalc file ("all in a row")
+  fileLinesCatCounts[ind]
+  << counts << ","; // counter Counts
+  fileLinesCatEvents[ind]
+  << counts*weight << ","; // Total Events = counts x weight
+  fileLinesCatSigma[ind]
+  << counts*weight/mp->intlumi << ","; // Sigma (=xsec) = counts x weight / intlumi
+  for(unsigned int iEff=0; iEff<3; iEff++)
+  //	    if(counterNames[iEff]!="---")
+  fileLinesCatEff[ind][iEff]
+  << counterEfficiencies[iEff] << ","; // Eff i-th denominator
+  //
 	  
-	  // second oocalc file (multi rows)
-	  fileLinesCategories[ind]
-	    << c                         << ","  // category
-	    << counts                    << ","  // counter Counts
-	    << counts*weight             << ","  // Total Events = counts x weight
-	    << counts*weight/mp->intlumi << ","; // Sigma (=xsec) = counts x weight / intlumi
-	  for(unsigned int iEff=0; iEff<3; iEff++)
-	    fileLinesEff[ind][iEff]
-	      << c                         << ","  // category
-	      << denominatorCounts[iEff]   << ","  // denominator counter Counts
-	      << counterEfficiencies[iEff] << ","; // Eff vs i-th denominator
-	  //
+  // second oocalc file (multi rows)
+  fileLinesCategories[ind]
+  << c                         << ","  // category
+  << counts                    << ","  // counter Counts
+  << counts*weight             << ","  // Total Events = counts x weight
+  << counts*weight/mp->intlumi << ","; // Sigma (=xsec) = counts x weight / intlumi
+  for(unsigned int iEff=0; iEff<3; iEff++)
+  fileLinesEff[ind][iEff]
+  << c                         << ","  // category
+  << denominatorCounts[iEff]   << ","  // denominator counter Counts
+  << counterEfficiencies[iEff] << ","; // Eff vs i-th denominator
+  //
 	  
-	  // third file: ascii
-	  fprintf(fileascii,"---------------------------------------------\n");
-	  fprintf(fileascii,"%d \t %s \n Counter Name: %s \n",
-		  i, // counter Number
-		  mp->filesshortnam[indexinfo], // file short name
-		  counternames[i] // counter Name
-		  );
-	  fprintf(fileascii,"---------------------------------------------\n");
-	  fprintf(fileascii,"Counted = %6.3f \n",
-		  counts // counter Counts
-		  );
-	  fprintf(fileascii,"  Total = %6.3f \n",
-		  //counts*weight/mp->scale[indexinfo] // Total Events = counts x weight / scale
-		  counts*weight // Total Events = counts x weight / scale
-		  );
-	  fprintf(fileascii,"  Sigma = %6.3f \n",
-		  //counts*weight/mp->scale[indexinfo]/mp->intlumi // Sigma (=xsec) = counts x weight / intlumi
-		  counts*weight/mp->intlumi // Sigma (=xsec) = counts x weight / intlumi
-		  );
-	  float scaledummy=1.;
-	  fprintf(fileascii,"  Scale = %6.3f \n",
-		  scaledummy // Scale
-		  //mp->scale[indexinfo] // Scale
-		  );
-	  fprintf(fileascii,"   Lumi = %6.3f \n",
-		  mp->lumireal[indexfiles] // Luminosity
-		  );
-	  fprintf(fileascii,"intLumi = %6.3f \n",
-		  mp->intlumi // Integrated Luminosity 
-		  );
-	  fprintf(fileascii," Weight = %6.3f \n",
-		  weight // Weight
-		  );
-	  fprintf(fileascii,"@@@\n");
-	  for(unsigned int iDen=0; iDen<3; iDen++) {
-	    if(counterNames[iDen] != "---")
-	      fprintf(fileascii,"Efficiency: %s / %s = %1.5f \n",
-		      counternames[i], // this counter
-		      counterNames[iDen].Data(), // i-th denominator
-		      counterEfficiencies[iDen]  // Real Eff vs i-th denominator
-		      );
-	  }
+  // third file: ascii
+  fprintf(fileascii,"---------------------------------------------\n");
+  fprintf(fileascii,"%d \t %s \n Counter Name: %s \n",
+  i, // counter Number
+  mp->filesshortnam[indexinfo], // file short name
+  counternames[i] // counter Name
+  );
+  fprintf(fileascii,"---------------------------------------------\n");
+  fprintf(fileascii,"Counted = %6.3f \n",
+  counts // counter Counts
+  );
+  fprintf(fileascii,"  Total = %6.3f \n",
+  //counts*weight/mp->scale[indexinfo] // Total Events = counts x weight / scale
+  counts*weight // Total Events = counts x weight / scale
+  );
+  fprintf(fileascii,"  Sigma = %6.3f \n",
+  //counts*weight/mp->scale[indexinfo]/mp->intlumi // Sigma (=xsec) = counts x weight / intlumi
+  counts*weight/mp->intlumi // Sigma (=xsec) = counts x weight / intlumi
+  );
+  float scaledummy=1.;
+  fprintf(fileascii,"  Scale = %6.3f \n",
+  scaledummy // Scale
+  //mp->scale[indexinfo] // Scale
+  );
+  fprintf(fileascii,"   Lumi = %6.3f \n",
+  mp->lumireal[indexfiles] // Luminosity
+  );
+  fprintf(fileascii,"intLumi = %6.3f \n",
+  mp->intlumi // Integrated Luminosity 
+  );
+  fprintf(fileascii," Weight = %6.3f \n",
+  weight // Weight
+  );
+  fprintf(fileascii,"@@@\n");
+  for(unsigned int iDen=0; iDen<3; iDen++) {
+  if(counterNames[iDen] != "---")
+  fprintf(fileascii,"Efficiency: %s / %s = %1.5f \n",
+  counternames[i], // this counter
+  counterNames[iDen].Data(), // i-th denominator
+  counterEfficiencies[iDen]  // Real Eff vs i-th denominator
+  );
+  }
 	  
 	  
-	}
+  }
 	
-	// third file: ascii
-	fprintf(fileascii,"\n");
-	//
+  // third file: ascii
+  fprintf(fileascii,"\n");
+  //
 	
-	c++;
+  c++;
 	
-      }
+  }
       
-      // Loop on Files
-      for (int iFile=0; iFile<nindfiles; iFile++) {
-	// first oocalc file ("all in a row")
-	fprintf(file,"%s, %s %f, %s %f, %s %f",
-		fileLinesCatFile[iFile].str().c_str(),   // File Name and counter name + number of categories
-		fileLinesCatCounts[iFile].str().c_str(), // Categories Counts
-		counterNumerator_tot[iFile],             // TOT Categories Counts
-		fileLinesCatEvents[iFile].str().c_str(), // Categories Events
-		counterEvents_tot[iFile],                // TOT Categories Events = counts x weight
-		fileLinesCatSigma[iFile].str().c_str(),  // Categories Sigma
-		counterSigma_tot[iFile]                  // TOT Categories Sigma (=xsec) = counts x weight / intlumi
-		);
-	for(unsigned int iEff=0; iEff<3; iEff++)
-	  fprintf(file,", %s %f",
-		  fileLinesCatEff[iFile][iEff].str().c_str(), // Categories Efficiencies
-		  (counterDenominator_tot[iFile][iEff] !=0 ? counterNumerator_tot[iFile]/counterDenominator_tot[iFile][iEff] : -1) // overall efficiency
-		  );
-	fprintf(file,",, %s",
-		fileLinesInfo[iFile].str().c_str()
-		);
-	fprintf(file,"\n");
-	//
+  // Loop on Files
+  for (int iFile=0; iFile<nindfiles; iFile++) {
+  // first oocalc file ("all in a row")
+  fprintf(file,"%s, %s %f, %s %f, %s %f",
+  fileLinesCatFile[iFile].str().c_str(),   // File Name and counter name + number of categories
+  fileLinesCatCounts[iFile].str().c_str(), // Categories Counts
+  counterNumerator_tot[iFile],             // TOT Categories Counts
+  fileLinesCatEvents[iFile].str().c_str(), // Categories Events
+  counterEvents_tot[iFile],                // TOT Categories Events = counts x weight
+  fileLinesCatSigma[iFile].str().c_str(),  // Categories Sigma
+  counterSigma_tot[iFile]                  // TOT Categories Sigma (=xsec) = counts x weight / intlumi
+  );
+  for(unsigned int iEff=0; iEff<3; iEff++)
+  fprintf(file,", %s %f",
+  fileLinesCatEff[iFile][iEff].str().c_str(), // Categories Efficiencies
+  (counterDenominator_tot[iFile][iEff] !=0 ? counterNumerator_tot[iFile]/counterDenominator_tot[iFile][iEff] : -1) // overall efficiency
+  );
+  fprintf(file,",, %s",
+  fileLinesInfo[iFile].str().c_str()
+  );
+  fprintf(file,"\n");
+  //
 	
-	// second oocalc file (multi rows)
-	fprintf(filenew,"%s, %f,, %s\n",
-		fileLinesCategories[iFile].str().c_str(),
-		counterNumerator_tot[iFile],
-		fileLinesInfo[iFile].str().c_str());
-	//
-	fprintf(filenew,", , Denominator Name");
-	for(unsigned int iCat = 0; iCat<ncat; iCat++)
-	  fprintf(filenew,", Category, Counted, Efficiency");
-	// Total
-	fprintf(filenew,",, Total Counted, Overall Efficiency, ");
-	fprintf(filenew,"\n");
-	//
-	for(unsigned int iEff=0; iEff<3; iEff++) {
-	  fprintf(filenew,"%s",fileLinesEff[iFile][iEff].str().c_str());
-	  fprintf(filenew,",%f, %f \n",
-		  counterDenominator_tot[iFile][iEff], // overall counts
-		  (counterDenominator_tot[iFile][iEff] !=0 ? counterNumerator_tot[iFile]/counterDenominator_tot[iFile][iEff] : -1) // overall efficiency
-		  );
-	}
-	fprintf(filenew,"\n");
-	//
+  // second oocalc file (multi rows)
+  fprintf(filenew,"%s, %f,, %s\n",
+  fileLinesCategories[iFile].str().c_str(),
+  counterNumerator_tot[iFile],
+  fileLinesInfo[iFile].str().c_str());
+  //
+  fprintf(filenew,", , Denominator Name");
+  for(unsigned int iCat = 0; iCat<ncat; iCat++)
+  fprintf(filenew,", Category, Counted, Efficiency");
+  // Total
+  fprintf(filenew,",, Total Counted, Overall Efficiency, ");
+  fprintf(filenew,"\n");
+  //
+  for(unsigned int iEff=0; iEff<3; iEff++) {
+  fprintf(filenew,"%s",fileLinesEff[iFile][iEff].str().c_str());
+  fprintf(filenew,",%f, %f \n",
+  counterDenominator_tot[iFile][iEff], // overall counts
+  (counterDenominator_tot[iFile][iEff] !=0 ? counterNumerator_tot[iFile]/counterDenominator_tot[iFile][iEff] : -1) // overall efficiency
+  );
+  }
+  fprintf(filenew,"\n");
+  //
 	
-      } // Loop on Files
-      //
+  } // Loop on Files
+  //
 
-      // first oocalc file ("all in a row")
-      fprintf(file,"\n\n");
-      //
+  // first oocalc file ("all in a row")
+  fprintf(file,"\n\n");
+  //
       
-      // second oocalc file (multi rows)
-      fprintf(filenew,"\n");
-      //
+  // second oocalc file (multi rows)
+  fprintf(filenew,"\n");
+  //
       
-      // third file: ascii
-      fprintf(fileascii,"\n");
-      //
+  // third file: ascii
+  fprintf(fileascii,"\n");
+  //
       
-    } // counter print if
+  } // counter print if
     
   }
   
@@ -2191,6 +2191,6 @@ void LoopAll::AddCut2(char *cutnamesc, int ncatstmp, int ifromright, int ifinalc
 
 void LoopAll::SetSubJob(bool issubjob){
 
-	is_subjob=issubjob;
+  is_subjob=issubjob;
 }
 

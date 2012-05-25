@@ -305,6 +305,12 @@ HtmlHelper & HtmlHelper::addPage(const std::string& name)
 }
 
 //---------------------------------------------------------------------------------------------------------------------
+HtmlPlot * HtmlHelper::makePlot(TCanvas *c, bool remove, const std::string& name , bool pdf, bool macro, bool root) 
+{ 
+	return new HtmlPlot(c,remove,name,pdf,macro,root); 
+}
+
+//---------------------------------------------------------------------------------------------------------------------
 RENDER(HtmlHelper,"html")
 
 // Local Variables:

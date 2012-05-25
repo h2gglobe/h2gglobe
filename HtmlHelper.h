@@ -7,6 +7,8 @@
 #include <list>
 #include <map>
 
+#include "TCanvas.h"
+
 
 /**
  *
@@ -114,7 +116,6 @@ private:
  *
  *
  */
-class TCanvas;
 class HtmlPlot : public HtmlObject {
 public:
 	HtmlPlot(TCanvas *, bool remove=false, const std::string& name = "", bool pdf=true, bool macro=false, bool root=false);
@@ -187,7 +188,8 @@ public:
 	HtmlTable::Row  & navbar() { return *navbar_; }
 	
 	HtmlHelper & addPage(const std::string& name);
-	
+
+	HtmlPlot * makePlot(TCanvas *c, bool remove=false, const std::string& name = "", bool pdf=true, bool macro=false, bool root=false); 
 	void render(std::ostream &);
 	
 private:
@@ -209,6 +211,19 @@ template HtmlTable::Row & HtmlObject::add<HtmlTable::Row >(HtmlTable::Row *);
 template HtmlTable::Cell& HtmlObject::add<HtmlTable::Cell>(HtmlTable::Cell *);
 template HtmlHelper     & HtmlObject::add<HtmlHelper     >(HtmlHelper*);
 template HtmlObject     & HtmlObject::operator<< (const std::string  & );
+
+#ifdef __CINT__ 
+#pragma link C++ class HtmlObject; 
+#pragma link C++ class HtmlHeader;
+#pragma link C++ class HtmlTag  ;
+#pragma link C++ class HtmlBody  ;
+#pragma link C++ class HtmlPlot  ;
+#pragma link C++ class HtmlTable ;
+#pragma link C++ class HtmlTable::Row ;
+#pragma link C++ class HtmlTable::Cell;
+#pragma link C++ class HtmlHelper;
+#endif 
+
 
 #endif
 

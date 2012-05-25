@@ -16,6 +16,8 @@
 //#include "../../../../HiggsToGammaGamma/interface/GBRForest.h"
 //#include "HiggsAnalysis/HiggsToGammaGamma/interface/GBRForest.h"
 
+class JetHandler;
+
 // ------------------------------------------------------------------------------------
 class PhotonAnalysis : public BaseAnalysis 
 {
@@ -167,6 +169,9 @@ class PhotonAnalysis : public BaseAnalysis
     // Smearings / corrections and systematics
     bool  doMCSmearing, doSystematics;
 
+    bool recomputeBetas;
+    std::string jetHandlerCfg;
+    
  protected:
     void PreselectPhotons(LoopAll& l, int jentry);
     float GetSmearSigma(float eta, float r9, int epoch=0);
@@ -194,6 +199,9 @@ class PhotonAnalysis : public BaseAnalysis
     // Vertex analysis
     HggVertexAnalyzer vtxAna_;
     HggVertexFromConversions vtxConv_;
+
+    // Jets
+    JetHandler * jetHandler_;
     
     std::map<int, vector<double> > weights;
     int trigCounter_;

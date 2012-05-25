@@ -1035,7 +1035,7 @@ void LoopAll::FillCIC()
 	
 	for(int ipho=0;ipho<pho_n;++ipho){
 		for(int ivtx=0;ivtx<vtx_std_n;++ivtx){
-		// 6 categories
+			// 6 categories
 			int cic6_level_lead = PhotonCiCSelectionLevel(ipho, ivtx, cic6_passcut_lead, 6, 0);
 			int cic6_level_sublead = PhotonCiCSelectionLevel(ipho, ivtx, cic6_passcut_sublead, 6, 1);
 			(*pho_cic6cutlevel_lead)[ipho][ivtx] = cic6_level_lead;
@@ -2204,7 +2204,8 @@ int LoopAll::PhotonCiCSelectionLevel( int photon_index, int vertex_index, std::v
   float val_r9           = pho_r9[photon_index];
   float val_drtotk_25_99 = pho_drtotk_25_99[photon_index];
   float val_pixel        = (float)pho_haspixseed[photon_index];
-
+  int val_pho_isconv     = pho_isconv[photon_index];
+  
   float isosumconst = 5.;
   float isosumconstbad = 7.;
   if(ncategories==4) {
@@ -2238,7 +2239,7 @@ int LoopAll::PhotonCiCSelectionLevel( int photon_index, int vertex_index, std::v
           ph_passcut[iCUTLEVEL][4] = (val_hoe              <=   cic6_cut_lead_hovere[iCUTLEVEL][photon_category]        );
           ph_passcut[iCUTLEVEL][5] = (val_r9             >=     cic6_cut_lead_r9[iCUTLEVEL][photon_category]            );// gt cut
 	  if( runZeeValidation ) { 
-		  ph_passcut[iCUTLEVEL][6] = (val_drtotk_25_99   <     cic6_cut_lead_drtotk_25_99[iCUTLEVEL][photon_category]  );// gt cut
+		  ph_passcut[iCUTLEVEL][6] = ! val_pho_isconv;
 	  } else {
 		  ph_passcut[iCUTLEVEL][6] = (val_drtotk_25_99   >=     cic6_cut_lead_drtotk_25_99[iCUTLEVEL][photon_category]  );// gt cut
 	  }
@@ -2252,7 +2253,7 @@ int LoopAll::PhotonCiCSelectionLevel( int photon_index, int vertex_index, std::v
           ph_passcut[iCUTLEVEL][4] = (val_hoe              <=   cic4_cut_lead_hovere[iCUTLEVEL][photon_category]        );
           ph_passcut[iCUTLEVEL][5] = (val_r9             >=     cic4_cut_lead_r9[iCUTLEVEL][photon_category]            );// gt cut
 	  if( runZeeValidation ) { 
-		  ph_passcut[iCUTLEVEL][6] = (val_drtotk_25_99   <     cic4_cut_lead_drtotk_25_99[iCUTLEVEL][photon_category]  );// gt cut
+		  ph_passcut[iCUTLEVEL][6] = ! val_pho_isconv;
 	  } else {
 		  ph_passcut[iCUTLEVEL][6] = (val_drtotk_25_99   >=     cic4_cut_lead_drtotk_25_99[iCUTLEVEL][photon_category]  );// gt cut
 	  }
@@ -2264,7 +2265,7 @@ int LoopAll::PhotonCiCSelectionLevel( int photon_index, int vertex_index, std::v
 	ph_passcut_all = ph_passcut_all && ph_passcut[iCUTLEVEL][icut];
       }
       if(ph_passcut_all) {
-	if( cutlevelpassed != iCUTLEVEL - 1 ) {
+	if( cutlevelpassed != iCUTLEVEL - 1 && ! runZeeValidation) {
 	  std::cerr << "photon " << photon_index << " (category " << photon_category << ") in run/event " << run << "/" << event << " passed CiC cut level " 
 		    << iCUTLEVEL << " but not "  << iCUTLEVEL - 1 << ". Did you load your cut values correctly? "<< std::endl;
 	  /// assert( 0 );
@@ -2282,7 +2283,11 @@ int LoopAll::PhotonCiCSelectionLevel( int photon_index, int vertex_index, std::v
           ph_passcut[iCUTLEVEL][3] = (val_sieie            <=   cic6_cut_sublead_sieie[iCUTLEVEL][photon_category]         );
           ph_passcut[iCUTLEVEL][4] = (val_hoe              <=   cic6_cut_sublead_hovere[iCUTLEVEL][photon_category]        );
           ph_passcut[iCUTLEVEL][5] = (val_r9             >=     cic6_cut_sublead_r9[iCUTLEVEL][photon_category]            );// gt cut
-          ph_passcut[iCUTLEVEL][6] = (val_drtotk_25_99   >=     cic6_cut_sublead_drtotk_25_99[iCUTLEVEL][photon_category]  );// gt cut
+	  if( runZeeValidation ) { 
+		  ph_passcut[iCUTLEVEL][6] = ! val_pho_isconv;
+	  } else {
+		  ph_passcut[iCUTLEVEL][6] = (val_drtotk_25_99   >=     cic6_cut_sublead_drtotk_25_99[iCUTLEVEL][photon_category]  );// gt cut
+	  }
           ph_passcut[iCUTLEVEL][7] = (val_pixel            <=   cic6_cut_sublead_pixel[iCUTLEVEL][photon_category]         );
           break;
         case(4) :
@@ -2292,7 +2297,11 @@ int LoopAll::PhotonCiCSelectionLevel( int photon_index, int vertex_index, std::v
           ph_passcut[iCUTLEVEL][3] = (val_sieie            <=   cic4_cut_sublead_sieie[iCUTLEVEL][photon_category]         );
           ph_passcut[iCUTLEVEL][4] = (val_hoe              <=   cic4_cut_sublead_hovere[iCUTLEVEL][photon_category]        );
           ph_passcut[iCUTLEVEL][5] = (val_r9             >=     cic4_cut_sublead_r9[iCUTLEVEL][photon_category]            );// gt cut
-          ph_passcut[iCUTLEVEL][6] = (val_drtotk_25_99   >=     cic4_cut_sublead_drtotk_25_99[iCUTLEVEL][photon_category]  );// gt cut
+	  if( runZeeValidation ) { 
+		  ph_passcut[iCUTLEVEL][6] = ! val_pho_isconv;
+	  } else {
+		  ph_passcut[iCUTLEVEL][6] = (val_drtotk_25_99   >=     cic4_cut_sublead_drtotk_25_99[iCUTLEVEL][photon_category]  );// gt cut
+	  }
           ph_passcut[iCUTLEVEL][7] = (val_pixel            <=   cic4_cut_sublead_pixel[iCUTLEVEL][photon_category]         );
           break;
       }
@@ -2301,7 +2310,7 @@ int LoopAll::PhotonCiCSelectionLevel( int photon_index, int vertex_index, std::v
 	ph_passcut_all = ph_passcut_all && ph_passcut[iCUTLEVEL][icut];
       }
       if(ph_passcut_all) {
-	if( cutlevelpassed != iCUTLEVEL - 1 ) {
+	if( cutlevelpassed != iCUTLEVEL - 1 && ! runZeeValidation ) {
 	  std::cerr << "photon " << photon_index << " (category " << photon_category << ") in run/event " << run << "/" << event << " passed CiC cut level " 
 		    << iCUTLEVEL << " but not "  << iCUTLEVEL - 1 << ". Did you load your cut values correctly? " << std::endl;
 	  //// assert( 0 );
@@ -2599,7 +2608,14 @@ void LoopAll::DefineUserBranches()
 #endif
 }
 
-int  LoopAll::RescaleJetEnergy() {
+int  LoopAll::RescaleJetEnergy(bool force) {
+  static int nprints = 1;
+  if( version >= 13 && ! force ) {
+    if( nprints-- > 0 ) {
+      std::cout << "Data format version is " << version << " jets are already corrected " << std::endl;
+    }
+    return 1;
+  }
   for (int i = 0; i<jet_algoPF1_n; i++) {
     TLorentzVector * thisjet = (TLorentzVector *) jet_algoPF1_p4->At(i);
     *thisjet*=jet_algoPF1_erescale[i];

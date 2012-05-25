@@ -8,6 +8,8 @@
 #include <fstream>
 #include <algorithm>
 
+#include "JetAnalysis/interface/JetHandler.h"
+
 #define PADEBUG 0
 
 using namespace std;
@@ -35,11 +37,16 @@ PhotonAnalysis::PhotonAnalysis()  :
     doSystematics = true;    
 
     zero_ = 0.; 
+    
+    recomputeBetas = false;
+    jetHandler_ = 0;
 }
 
 // ----------------------------------------------------------------------------------------------------
 PhotonAnalysis::~PhotonAnalysis() 
-{}
+{
+    if( jetHandler_ != 0 ) delete jetHandler_;
+}
 
 // ----------------------------------------------------------------------------------------------------
 void PhotonAnalysis::Term(LoopAll& l) 
@@ -765,6 +772,10 @@ void PhotonAnalysis::Init(LoopAll& l)
             cout << "Opening PU file END"<<endl;
     } 
 
+    if( recomputeBetas ) {
+	jetHandler_ = new JetHandler(jetHandlerCfg, l);
+    }
+
     // Load up instances of PhotonFix for local coordinate calculations
     /*  
         PhotonFix::initialise("4_2",photonFixDat);  
@@ -1204,7 +1215,7 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
     }
     l.FillCICInputs();
     l.FillCIC();
-
+    
     if(l.itype[l.current]<0) {
         bool foundHiggs=FindHiggsObjects(l);
         if(PADEBUG)  cout << " foundHiggs? "<<foundHiggs<<std::endl;
@@ -1218,7 +1229,15 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
     l.doJetMatching(*l.jet_algoPF2_p4,*l.genjet_algo2_p4,l.jet_algoPF2_genMatched,l.jet_algoPF2_vbfMatched,l.jet_algoPF2_genPt,l.jet_algoPF2_genDr);
     // CHS ak5
     l.doJetMatching(*l.jet_algoPF3_p4,*l.genjet_algo1_p4,l.jet_algoPF3_genMatched,l.jet_algoPF3_vbfMatched,l.jet_algoPF3_genPt,l.jet_algoPF3_genDr);
-    
+
+    if( recomputeBetas ) {
+	for(int ijet=0; ijet<l.jet_algoPF1_n; ++ijet) {
+	    for(int ivtx=0;ivtx<l.vtx_std_n; ++ivtx) {
+		jetHandler_->computeBetas(ijet, ivtx);
+	    }
+	}
+    }
+
     if( pho_presel.size() < 2 ) {
         // zero or one photons, can't determine a vertex based on photon pairs
         l.vtx_std_ranked_list->push_back( std::vector<int>() );

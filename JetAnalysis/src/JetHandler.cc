@@ -1,42 +1,37 @@
 #include "JetAnalysis/interface/JetHandler.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/PythonParameterSet/interface/MakeParameterSets.h"
-
 #include "LoopAll.h"
+
 
 // ---------------------------------------------------------------------------------------------------------------
 JetHandler::JetHandler(const std::string & cfg, LoopAll & l):
     l_(l)
 {
-    boost::shared_ptr<edm::ParameterSet> myPset = edm::readConfig(cfg);
+    myPset = edm::readPSetsFrom(cfg);
     
     cutbased = new PileupJetIdAlgo(myPset->getParameter<edm::ParameterSet>("cutbased"));
     simple   = new PileupJetIdAlgo(myPset->getParameter<edm::ParameterSet>("simple"));
     full     = new PileupJetIdAlgo(myPset->getParameter<edm::ParameterSet>("full"));
     
-    
     jecCorData_ = 0;
     jecCorMc_   = 0;
-    std::vector<std::string> dataJEC = myPset->getParameter<std::vector<std::string> >("dataJEC");
-    std::vector<std::string> mcJEC   = myPset->getParameter<std::vector<std::string> >("mcJEC");
+    edm::ParameterSet jec = myPset->getParameter<edm::ParameterSet>("jec");
+    std::vector<std::string> dataJEC = jec.getParameter<std::vector<std::string> >("data");
+    std::vector<std::string> mcJEC   = jec.getParameter<std::vector<std::string> >("mc");
     
     for(std::vector<std::string>::iterator corr = dataJEC.begin(); corr!=dataJEC.end(); ++corr) {
-	jetCorParsData_.push_back( JetCorrectorParameters(*corr) );
+    	jetCorParsData_.push_back( JetCorrectorParameters(*corr) );
     }
-
     for(std::vector<std::string>::iterator corr = mcJEC.begin(); corr!=mcJEC.end(); ++corr) {
-	jetCorParsMc_.push_back( JetCorrectorParameters(*corr) );
+    	jetCorParsMc_.push_back( JetCorrectorParameters(*corr) );
     }
     
     if( ! jetCorParsData_.empty() ) {
-	jecCorData_ = new FactorizedJetCorrector(jetCorParsData_);
+    	jecCorData_ = new FactorizedJetCorrector(jetCorParsData_);
     }
-
     if( ! jetCorParsMc_.empty() ) {
-	jecCorMc_ = new FactorizedJetCorrector(jetCorParsMc_);
+    	jecCorMc_ = new FactorizedJetCorrector(jetCorParsMc_);
     }
-    
 }
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -45,6 +40,9 @@ JetHandler::~JetHandler()
     delete cutbased;
     delete simple;
     delete full;
+    
+    if( jecCorData_ != 0 ) { delete jecCorData_; }
+    if( jecCorMc_ != 0 )   { delete jecCorMc_;   }
 }
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -55,7 +53,7 @@ float dz(TLorentzVector * tkp4, TVector3 * tkpos, TVector3 * vtxpos)
 }
 
 // ---------------------------------------------------------------------------------------------------------------
-void JetHandler::compute_betas(int ijet, int vtx)
+void JetHandler::computeBetas(int ijet, int vtx)
 {
     float sumTkPt = 0.;
     float & beta = (*l_.jet_algoPF1_beta_ext)[ijet][vtx];
@@ -112,22 +110,116 @@ void JetHandler::compute_betas(int ijet, int vtx)
     
 }
 
+#define BOOK_BRANCH(TREE, VARIABLE) TREE -> Branch( # VARIABLE, \
+						    full->getVariables().find(# VARIABLE)->second.first, # VARIABLE "/F" )
+
 // ---------------------------------------------------------------------------------------------------------------
-void compute_mva(int ijet, int ivtx)
+void JetHandler::bookFlatTree(TTree * tree)
 {
-    
+    BOOK_BRANCH(tree, dRMean         );
+    BOOK_BRANCH(tree, frac01         );
+    BOOK_BRANCH(tree, frac02         );
+    BOOK_BRANCH(tree, frac03         );
+    BOOK_BRANCH(tree, frac04         );
+    BOOK_BRANCH(tree, frac05         );
+    BOOK_BRANCH(tree, frac06         );
+    BOOK_BRANCH(tree, frac07         );
+    BOOK_BRANCH(tree, nNeutrals      );
+    BOOK_BRANCH(tree, beta           );
+    BOOK_BRANCH(tree, betaStar       );
+    BOOK_BRANCH(tree, dZ             );
+    BOOK_BRANCH(tree, nCharged       );
+    BOOK_BRANCH(tree, dR2Mean        );
+    BOOK_BRANCH(tree, betaStarClassic);
+    BOOK_BRANCH(tree, jetPt	     );
+    BOOK_BRANCH(tree, jetEta	     );
+    BOOK_BRANCH(tree, nvtx           );
 }
 
 // ---------------------------------------------------------------------------------------------------------------
-void compute_wp(int ijet, int ivtx)
+void JetHandler::fillFromJet(int ijet, int ivtx)
 {
+    TLorentzVector * p4 = (TLorentzVector*)l_.jet_algoPF1_p4->At(ijet);
     
+    internalId_.dRMean         (l_.jet_algoPF1_dRMean             [ijet]);
+    internalId_.frac01         (l_.jet_algoPF1_frac01             [ijet]);
+    internalId_.frac02         (l_.jet_algoPF1_frac02             [ijet]);
+    internalId_.frac03         (l_.jet_algoPF1_frac03             [ijet]);
+    internalId_.frac04         (l_.jet_algoPF1_frac04             [ijet]);
+    internalId_.frac05         (l_.jet_algoPF1_frac05             [ijet]);
+    internalId_.frac06         (l_.jet_algoPF1_frac06             [ijet]);
+    internalId_.frac07         (l_.jet_algoPF1_frac07             [ijet]);
+    internalId_.nNeutrals      (l_.jet_algoPF1_nNeutrals          [ijet]);
+    internalId_.beta           ((*l_.jet_algoPF1_beta_ext)        [ijet][ivtx]);
+    internalId_.betaStar       ((*l_.jet_algoPF1_betaStar_ext)    [ijet][ivtx]);
+    internalId_.dZ             (l_.jet_algoPF1_dZ                 [ijet]);
+    internalId_.nCharged       (l_.jet_algoPF1_nCharged           [ijet]);
+    internalId_.dR2Mean        (l_.jet_algoPF1_dR2Mean            [ijet]);
+    internalId_.betaStarClassic((*l_.jet_algoPF1_betaStarClassic_ext)[ijet][ivtx]);
+    
+    internalId_.jetPt(p4->Pt());
+    internalId_.jetEta(p4->Eta());
+    internalId_.nvtx(l_.vtx_std_n);
+    
+    full->set(internalId_);
 }
 
 // ---------------------------------------------------------------------------------------------------------------
-void recompute_jec(int ijet, int ivtx)
+void JetHandler::computeMva(int ijet, int ivtx)
 {
+    fillFromJet(ijet,ivtx);
     
+    // full->set(internalId_);
+    PileupJetIdentifier fullId = full->computeMva();
+    (*l_.jet_algoPF1_full_mva_ext)[ijet][ivtx] = fullId.mva();
+    (*l_.jet_algoPF1_full_wp_level_ext)[ijet][ivtx] = fullId.idFlag();
+
+    simple->set(internalId_);
+    PileupJetIdentifier simpleId = simple->computeMva();
+    (*l_.jet_algoPF1_simple_mva_ext)[ijet][ivtx] = simpleId.mva();
+    (*l_.jet_algoPF1_simple_wp_level_ext)[ijet][ivtx] = simpleId.idFlag();
+    
+    TLorentzVector * p4 = (TLorentzVector*)l_.jet_algoPF1_p4->At(ijet);
+    (*l_.jet_algoPF1_cutbased_wp_level_ext)[ijet][ivtx] 
+	= cutbased->computeCutIDflag( (*l_.jet_algoPF1_betaStarClassic_ext)[ijet][ivtx], 
+				      l_.jet_algoPF1_dR2Mean[ijet], 
+				      l_.vtx_std_n,
+				      p4->Pt(), p4->Eta() );
+}
+
+// ---------------------------------------------------------------------------------------------------------------
+void JetHandler::computeWp(int ijet, int ivtx)
+{
+    TLorentzVector * p4 = (TLorentzVector*)l_.jet_algoPF1_p4->At(ijet);
+    
+    (*l_.jet_algoPF1_full_wp_level_ext)[ijet][ivtx] 
+	= full->computeIDflag( (*l_.jet_algoPF1_full_mva_ext)[ijet][ivtx], (float)p4->Pt(), (float)p4->Eta());
+
+    (*l_.jet_algoPF1_simple_wp_level_ext)[ijet][ivtx] 
+	= simple->computeIDflag( (*l_.jet_algoPF1_simple_mva_ext)[ijet][ivtx], (float)p4->Pt(), (float)p4->Eta());
+    
+    (*l_.jet_algoPF1_cutbased_wp_level_ext)[ijet][ivtx] 
+	= cutbased->computeCutIDflag( (*l_.jet_algoPF1_betaStarClassic_ext)[ijet][ivtx], 
+				      l_.jet_algoPF1_dR2Mean[ijet], 
+				      l_.vtx_std_n,
+				      p4->Pt(), p4->Eta() );
+}
+
+// ---------------------------------------------------------------------------------------------------------------
+void JetHandler::recomputeJec(int ijet, bool correct)
+{
+    //////// TLorentzVector * p4 = (TLorentzVector*)l_.jet_algoPF1_p4->At(ijet);
+    //////// float uncorrPt = p4->Pt() / l_.jet_algoPF1_erescale[ijet];
+    //////// 
+    ////////  	jecCor->setJetPt(uncorrPt);
+    //////// 	jecCor->setJetEta(p4->Eta());
+    //////// 	jecCor->setJetA(l_.jet_algoPF1_area[ijet]);
+    //////// 	jecCor->setRho(l_.rho_algo1);
+    //////// 	float thejec = jecCor->getCorrection();
+    ////////    if( thejec < 0. ) { thejec = 0.; }
+    ////////    l_.jet_algoPF1_erescale[ijet] = uncorrPt * thejec / p4->Pt();
+    ////////    if( correct ) { *p4 *= l_.jet_algoPF1_erescale[ijet]; }
+    //////// 
 }
 
 // Local Variables:

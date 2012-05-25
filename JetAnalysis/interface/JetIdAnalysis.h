@@ -34,22 +34,25 @@ class JetIdAnalysis : public StatAnalysis
     void ReducedOutputTree(LoopAll &l, TTree * outputTree);
     bool SelectEventsReduction(LoopAll&, int);
 
-    bool AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentzVector & gP4, float & mass, float & evweight, int & category, int & diphoton_id,
-			      bool & isCorrectVertex,
-			      bool isSyst=false, 
-			      float syst_shift=0., bool skipSelection=false,
-			      BaseGenLevelSmearer *genSys=0, BaseSmearer *phoSys=0, BaseDiPhotonSmearer * diPhoSys=0); 
+    bool AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentzVector & gP4, float & mass, float & evweight, int & category, 
+		      int & diphoton_id,
+		      bool & isCorrectVertex,
+		      float &kinematic_bdtout,
+		      bool isSyst=false, 
+		      float syst_shift=0., bool skipSelection=false,
+		      BaseGenLevelSmearer *genSys=0, BaseSmearer *phoSys=0, BaseDiPhotonSmearer * diPhoSys=0); 
 
     void fillJetIdPlots(LoopAll & l, int ijet, int icat, float wei, const char * label, bool kinOnly=true);
     
-    TString minBiasRefName;
+    bool recomputeJetId, expoMatching, dumpFlatTree;
+    
     
 private:
     std::vector<std::string> vtxVarNames_;
     std::vector<float> vtxVars_;
-    
-    TFile * uFile_;
-    TTree * uTree_;
+
+    TFile * outputFile_;
+    TTree * flatTree_;
     TH1 * hMinBiasSpecturm_, *hHiggsSpecturm_, *hMinBiasRef_;
     bool isClosestToGen_, passCiC_;
     int   nPU_, nVert_;
