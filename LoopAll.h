@@ -729,6 +729,7 @@ std::vector<std::vector<float> >* pho_mitmva;
 std::vector<std::vector<float> >* pho_tkiso_recvtx_030_002_0000_10_01;
 Float_t pho_tkiso_badvtx_040_002_0000_10_01[MAX_PHOTONS];
 Float_t pho_pfiso_charged_badvtx_04[MAX_PHOTONS];
+Int_t pho_pfiso_charged_badvtx_id[MAX_PHOTONS];
 Int_t pho_tkiso_badvtx_id[MAX_PHOTONS];
 std::vector<std::vector<float> >* pho_ZeeVal_tkiso_recvtx_030_002_0000_10_01;
 Float_t pho_ZeeVal_tkiso_badvtx_040_002_0000_10_01[MAX_PHOTONS];
@@ -755,7 +756,9 @@ std::vector<std::vector<Short_t> >* pho_cic4cutlevel_sublead;
 std::vector<std::vector<std::vector<UInt_t> > >* pho_cic4passcuts_sublead;
 
 std::vector<std::vector<Short_t> >* pho_cic4pfcutlevel_lead;
+std::vector<std::vector<std::vector<UInt_t> > >* pho_cic4pfpasscuts_lead;
 std::vector<std::vector<Short_t> >* pho_cic4pfcutlevel_sublead;
+std::vector<std::vector<std::vector<UInt_t> > >* pho_cic4pfpasscuts_sublead;
 
 std::vector<std::vector<Short_t> >* pho_cutlevel_lead;
 std::vector<std::vector<std::vector<UInt_t> > >* pho_passcuts_lead;
@@ -783,6 +786,7 @@ TBranch *b_vtx_std_evt_mva;
 
 TBranch * b_pho_mitmva;
 TBranch * b_pho_pfiso_charged_badvtx_04;
+TBranch * b_pho_pfiso_charged_badvtx_id;
 TBranch * b_pho_tkiso_recvtx_030_002_0000_10_01;
 TBranch * b_pho_tkiso_badvtx_040_002_0000_10_01;
 TBranch * b_pho_tkiso_badvtx_id;
@@ -801,7 +805,9 @@ TBranch * b_pho_cic4cutlevel_sublead;
 TBranch * b_pho_cic4passcuts_sublead;
 
 TBranch * b_pho_cic4pfcutlevel_lead;
+TBranch * b_pho_cic4pfpasscuts_lead;
 TBranch * b_pho_cic4pfcutlevel_sublead;
+TBranch * b_pho_cic4pfpasscuts_sublead;
 
 TBranch * b_pho_cutlevel_lead;
 TBranch * b_pho_passcuts_lead;
@@ -905,6 +911,7 @@ void Branch_pho_tkiso_recvtx_030_002_0000_10_01(TTree * tree) { tree->Branch("ph
 void Branch_pho_ZeeVal_tkiso_recvtx_030_002_0000_10_01(TTree * tree) { tree->Branch("pho_ZeeVal_tkiso_recvtx_030_002_0000_10_01", "std::vector<std::vector<float> >", &pho_ZeeVal_tkiso_recvtx_030_002_0000_10_01); }; 
 void Branch_pho_tkiso_badvtx_040_002_0000_10_01(TTree * tree) { tree->Branch("pho_tkiso_badvtx_040_002_0000_10_01", &pho_tkiso_badvtx_040_002_0000_10_01, "pho_tkiso_badvtx_040_002_0000_10_01[pho_n]/F" ); };
 void Branch_pho_pfiso_charged_badvtx_04(TTree * tree) { tree->Branch("pho_pfiso_charged_badvtx_04", &pho_pfiso_charged_badvtx_04, "pho_pfiso_charged_badvtx_04[pho_n]/F" ); };
+void Branch_pho_pfiso_charged_badvtx_id(TTree * tree) { tree->Branch("pho_pfiso_charged_badvtx_id", &pho_pfiso_charged_badvtx_id, "pho_pfiso_charged_badvtx_id[pho_n]/I" ); };
 
 void Branch_pho_ZeeVal_tkiso_badvtx_040_002_0000_10_01(TTree * tree) { tree->Branch("pho_ZeeVal_tkiso_badvtx_040_002_0000_10_01", &pho_ZeeVal_tkiso_badvtx_040_002_0000_10_01, "pho_ZeeVal_tkiso_badvtx_040_002_0000_10_01[pho_n]/F" ); };
 
@@ -919,6 +926,7 @@ void SetBranchAddress_pho_ZeeVal_tkiso_recvtx_030_002_0000_10_01(TTree * tree) {
 void SetBranchAddress_pho_tkiso_badvtx_040_002_0000_10_01(TTree * tree) { tree->SetBranchAddress("pho_tkiso_badvtx_040_002_0000_10_01", &pho_tkiso_badvtx_040_002_0000_10_01, &b_pho_tkiso_badvtx_040_002_0000_10_01); };
 
 void SetBranchAddress_pho_pfiso_charged_badvtx_04(TTree * tree) { tree->SetBranchAddress("pho_pfiso_charged_badvtx_04", &pho_pfiso_charged_badvtx_04, &b_pho_pfiso_charged_badvtx_04); };
+void SetBranchAddress_pho_pfiso_charged_badvtx_id(TTree * tree) { tree->SetBranchAddress("pho_pfiso_charged_badvtx_id", &pho_pfiso_charged_badvtx_id, &b_pho_pfiso_charged_badvtx_id); };
 
 void SetBranchAddress_pho_ZeeVal_tkiso_badvtx_040_002_0000_10_01(TTree * tree) { tree->SetBranchAddress("pho_ZeeVal_tkiso_badvtx_040_002_0000_10_01", &pho_ZeeVal_tkiso_badvtx_040_002_0000_10_01, &b_pho_ZeeVal_tkiso_badvtx_040_002_0000_10_01); };
 void SetBranchAddress_pho_tkiso_badvtx_id(TTree * tree) { tree->SetBranchAddress("pho_tkiso_badvtx_id", &pho_tkiso_badvtx_id, &b_pho_tkiso_badvtx_id); };
@@ -947,7 +955,9 @@ void Branch_pho_cic4passcuts_sublead(TTree * tree) { tree->Branch("pho_cic4passc
 
 
 void Branch_pho_cic4pfcutlevel_lead(TTree * tree) { tree->Branch("pho_cic4pfcutlevel_lead", "std::vector<std::vector<Short_t> >", &pho_cic4pfcutlevel_lead); };
+void Branch_pho_cic4pfpasscuts_lead(TTree * tree) { tree->Branch("pho_cic4pfpasscuts_lead", "std::vector<std::vector<std::vector<UInt_t> > >", &pho_cic4pfpasscuts_lead); };
 void Branch_pho_cic4pfcutlevel_sublead(TTree * tree) { tree->Branch("pho_cic4pfcutlevel_sublead", "std::vector<std::vector<Short_t> >", &pho_cic4pfcutlevel_sublead); };
+void Branch_pho_cic4pfpasscuts_sublead(TTree * tree) { tree->Branch("pho_cic4pfpasscuts_sublead", "std::vector<std::vector<std::vector<UInt_t> > >", &pho_cic4pfpasscuts_sublead); };
 
 
 void Branch_pho_cutlevel_lead(TTree * tree) { tree->Branch("pho_cutlevel_lead", "std::vector<std::vector<Short_t> >", &pho_cutlevel_lead); };
@@ -977,7 +987,9 @@ void SetBranchAddress_pho_cic4passcuts_sublead(TTree * tree) { tree->SetBranchAd
 
 
 void SetBranchAddress_pho_cic4pfcutlevel_lead(TTree * tree) { tree->SetBranchAddress("pho_cic4pfcutlevel_lead", &pho_cic4pfcutlevel_lead, &b_pho_cic4pfcutlevel_lead ); };
+void SetBranchAddress_pho_cic4pfpasscuts_lead(TTree * tree) { tree->SetBranchAddress("pho_cic4pfpasscuts_lead", &pho_cic4pfpasscuts_lead, &b_pho_cic4pfpasscuts_lead ); };
 void SetBranchAddress_pho_cic4pfcutlevel_sublead(TTree * tree) { tree->SetBranchAddress("pho_cic4pfcutlevel_sublead", &pho_cic4pfcutlevel_sublead, &b_pho_cic4pfcutlevel_sublead ); };
+void SetBranchAddress_pho_cic4pfpasscuts_sublead(TTree * tree) { tree->SetBranchAddress("pho_cic4pfpasscuts_sublead", &pho_cic4pfpasscuts_sublead, &b_pho_cic4pfpasscuts_sublead ); };
 
 
 void SetBranchAddress_pho_cutlevel_lead(TTree * tree) { tree->SetBranchAddress("pho_cutlevel_lead", &pho_cutlevel_lead, &b_pho_cutlevel_lead ); };
