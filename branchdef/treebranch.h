@@ -771,3 +771,6 @@ void Branch_jet_algoPF3_simple_wp_level_ext(TTree* tree) { tree->Branch("jet_alg
 void Branch_jet_algoPF3_cutbased_wp_level_ext(TTree* tree) { tree->Branch("jet_algoPF3_cutbased_wp_level_ext", "std::vector<std::vector<int> >", &jet_algoPF3_cutbased_wp_level_ext); };
 void Branch_jet_algoPF3_full_mva_ext(TTree* tree) { tree->Branch("jet_algoPF3_full_mva_ext", "std::vector<std::vector<float> >", &jet_algoPF3_full_mva_ext); };
 void Branch_jet_algoPF3_simple_mva_ext(TTree* tree) { tree->Branch("jet_algoPF3_simple_mva_ext", "std::vector<std::vector<float> >", &jet_algoPF3_simple_mva_ext); };
+void Branch_jet_algoPF3_area(TTree* tree) { tree->Branch("jet_algoPF3_area", &jet_algoPF3_area, "jet_algoPF3_area[jet_algoPF3_n]/F"); };
+void Branch_jet_algoPF1_area(TTree* tree) { tree->Branch("jet_algoPF1_area", &jet_algoPF1_area, "jet_algoPF1_area[jet_algoPF1_n]/F"); };
+void Branch_jet_algoPF2_area(TTree* tree) { tree->Branch("jet_algoPF2_area", &jet_algoPF2_area, "jet_algoPF2_area[jet_algoPF2_n]/F"); };

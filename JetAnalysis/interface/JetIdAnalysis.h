@@ -61,6 +61,10 @@ private:
     TLorentzVector *pho2_;
     TLorentzVector *dipho_;
     
+    int tree_ijet, tree_ievent;
+    float tree_genPt, tree_genDr, tree_njets;
+    bool tree_jetLooseID, tree_isMatched;
+
 };
 
 #endif

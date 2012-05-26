@@ -169,7 +169,7 @@ class PhotonAnalysis : public BaseAnalysis
     // Smearings / corrections and systematics
     bool  doMCSmearing, doSystematics;
 
-    bool recomputeBetas;
+    bool recomputeBetas, recorrectJets, rerunJetMva, recomputeJetWp;
     std::string jetHandlerCfg;
     
  protected:
@@ -202,10 +202,11 @@ class PhotonAnalysis : public BaseAnalysis
 
     // Jets
     JetHandler * jetHandler_;
+    void postProcessJets(LoopAll & l); 
     
     std::map<int, vector<double> > weights;
     int trigCounter_;
-
+    
     // MC smearing and correction machinery
     void applyGenLevelSmearings(double & genLevWeight, const TLorentzVector & gP4, int npu, int sample_type, BaseGenLevelSmearer * sys=0, float systshift=0.);
     

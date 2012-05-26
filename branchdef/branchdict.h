@@ -771,3 +771,6 @@ BRANCH_DICT(jet_algoPF3_simple_wp_level_ext);
 BRANCH_DICT(jet_algoPF3_cutbased_wp_level_ext);
 BRANCH_DICT(jet_algoPF3_full_mva_ext);
 BRANCH_DICT(jet_algoPF3_simple_mva_ext);
+BRANCH_DICT(jet_algoPF3_area);
+BRANCH_DICT(jet_algoPF1_area);
+BRANCH_DICT(jet_algoPF2_area);

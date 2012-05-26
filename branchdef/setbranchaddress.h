@@ -771,3 +771,6 @@ void SetBranchAddress_jet_algoPF3_simple_wp_level_ext(TTree* tree) { tree->SetBr
 void SetBranchAddress_jet_algoPF3_cutbased_wp_level_ext(TTree* tree) { tree->SetBranchAddress("jet_algoPF3_cutbased_wp_level_ext", &jet_algoPF3_cutbased_wp_level_ext, &b_jet_algoPF3_cutbased_wp_level_ext); };
 void SetBranchAddress_jet_algoPF3_full_mva_ext(TTree* tree) { tree->SetBranchAddress("jet_algoPF3_full_mva_ext", &jet_algoPF3_full_mva_ext, &b_jet_algoPF3_full_mva_ext); };
 void SetBranchAddress_jet_algoPF3_simple_mva_ext(TTree* tree) { tree->SetBranchAddress("jet_algoPF3_simple_mva_ext", &jet_algoPF3_simple_mva_ext, &b_jet_algoPF3_simple_mva_ext); };
+void SetBranchAddress_jet_algoPF3_area(TTree* tree) { tree->SetBranchAddress("jet_algoPF3_area", &jet_algoPF3_area, &b_jet_algoPF3_area); };
+void SetBranchAddress_jet_algoPF1_area(TTree* tree) { tree->SetBranchAddress("jet_algoPF1_area", &jet_algoPF1_area, &b_jet_algoPF1_area); };
+void SetBranchAddress_jet_algoPF2_area(TTree* tree) { tree->SetBranchAddress("jet_algoPF2_area", &jet_algoPF2_area, &b_jet_algoPF2_area); };

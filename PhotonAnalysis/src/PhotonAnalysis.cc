@@ -39,6 +39,9 @@ PhotonAnalysis::PhotonAnalysis()  :
     zero_ = 0.; 
     
     recomputeBetas = false;
+    recorrectJets = false;
+    rerunJetMva = false;
+    recomputeJetWp = false;
     jetHandler_ = 0;
 }
 
@@ -774,7 +777,7 @@ void PhotonAnalysis::Init(LoopAll& l)
             cout << "Opening PU file END"<<endl;
     } 
 
-    if( recomputeBetas ) {
+    if( recomputeBetas || recorrectJets || rerunJetMva || recomputeJetWp ) {
 	jetHandler_ = new JetHandler(jetHandlerCfg, l);
     }
 
@@ -1192,6 +1195,26 @@ void PhotonAnalysis::FillReductionVariables(LoopAll& l, int jentry)
 }
 
 // ----------------------------------------------------------------------------------------------------
+void PhotonAnalysis::postProcessJets(LoopAll & l) 
+{
+    for(int ijet=0; ijet<l.jet_algoPF1_n; ++ijet) {
+	for(int ivtx=0;ivtx<l.vtx_std_n; ++ivtx) {
+	    if( recomputeBetas ) {
+		jetHandler_->computeBetas(ijet, ivtx);
+	    }
+	    if( recorrectJets ) {
+		jetHandler_->recomputeJec(ijet, true);
+	    }
+	    if( rerunJetMva ) {
+		jetHandler_->computeMva(ijet, ivtx);
+	    } else if ( recomputeJetWp ) {
+		jetHandler_->computeWp(ijet, ivtx);
+	    }
+	}
+    }
+}
+
+// ----------------------------------------------------------------------------------------------------
 bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry) 
 {
 
@@ -1232,14 +1255,8 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
     // CHS ak5
     l.doJetMatching(*l.jet_algoPF3_p4,*l.genjet_algo1_p4,l.jet_algoPF3_genMatched,l.jet_algoPF3_vbfMatched,l.jet_algoPF3_genPt,l.jet_algoPF3_genDr);
 
-    if( recomputeBetas ) {
-	for(int ijet=0; ijet<l.jet_algoPF1_n; ++ijet) {
-	    for(int ivtx=0;ivtx<l.vtx_std_n; ++ivtx) {
-		jetHandler_->computeBetas(ijet, ivtx);
-	    }
-	}
-    }
-
+    postProcessJets(l);
+    
     if( pho_presel.size() < 2 ) {
         // zero or one photons, can't determine a vertex based on photon pairs
         l.vtx_std_ranked_list->push_back( std::vector<int>() );

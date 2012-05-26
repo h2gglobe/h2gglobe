@@ -798,3 +798,6 @@ std::vector<std::vector<int> >* jet_algoPF3_simple_wp_level_ext;
 std::vector<std::vector<int> >* jet_algoPF3_cutbased_wp_level_ext;
 std::vector<std::vector<float> >* jet_algoPF3_full_mva_ext;
 std::vector<std::vector<float> >* jet_algoPF3_simple_mva_ext;
+Float_t jet_algoPF3_area[MAX_JETS];
+Float_t jet_algoPF1_area[MAX_JETS];
+Float_t jet_algoPF2_area[MAX_JETS];

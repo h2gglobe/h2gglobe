@@ -1,7 +1,5 @@
 #include "JetAnalysis/interface/JetHandler.h"
-
 #include "LoopAll.h"
-
 
 // ---------------------------------------------------------------------------------------------------------------
 JetHandler::JetHandler(const std::string & cfg, LoopAll & l):
@@ -64,9 +62,6 @@ void JetHandler::computeBetas(int ijet, int vtx)
     const std::vector<unsigned short> & vtx_tracks = (*l_.vtx_std_tkind)[vtx];
     TVector3 * vtxpos = (TVector3*)l_.vtx_std_xyz->At(vtx);
     
-    std::cout << l_.jet_algoPF1_tkind << " " << l_.jet_algoPF1_tkind->size() << std::endl;
-    std::cout << l_.jet_algoPF2_tkind << " " << l_.jet_algoPF2_tkind->size() << std::endl;
-    std::cout << l_.jet_algoPF3_tkind << " " << l_.jet_algoPF3_tkind->size() << std::endl;
     const std::vector<unsigned short> & jet_tracks = (*l_.jet_algoPF1_tkind)[ijet];
     for(std::vector<unsigned short>::const_iterator itrack=jet_tracks.begin(); itrack!=jet_tracks.end(); ++itrack ) {
 	bool inVtx0 = find( vtx_tracks.begin(),  vtx_tracks.end(), *itrack ) != vtx_tracks.end();
@@ -208,18 +203,19 @@ void JetHandler::computeWp(int ijet, int ivtx)
 // ---------------------------------------------------------------------------------------------------------------
 void JetHandler::recomputeJec(int ijet, bool correct)
 {
-    //////// TLorentzVector * p4 = (TLorentzVector*)l_.jet_algoPF1_p4->At(ijet);
-    //////// float uncorrPt = p4->Pt() / l_.jet_algoPF1_erescale[ijet];
-    //////// 
-    ////////  	jecCor->setJetPt(uncorrPt);
-    //////// 	jecCor->setJetEta(p4->Eta());
-    //////// 	jecCor->setJetA(l_.jet_algoPF1_area[ijet]);
-    //////// 	jecCor->setRho(l_.rho_algo1);
-    //////// 	float thejec = jecCor->getCorrection();
-    ////////    if( thejec < 0. ) { thejec = 0.; }
-    ////////    l_.jet_algoPF1_erescale[ijet] = uncorrPt * thejec / p4->Pt();
-    ////////    if( correct ) { *p4 *= l_.jet_algoPF1_erescale[ijet]; }
-    //////// 
+    bool data = l_.itype[l_.current] == 0;
+    FactorizedJetCorrector * jecCor = ( data ? jecCorData_ : jecCorMc_ );
+    TLorentzVector * p4 = (TLorentzVector*)l_.jet_algoPF1_p4->At(ijet);
+    float uncorrPt = p4->Pt() / l_.jet_algoPF1_erescale[ijet];
+    
+    jecCor->setJetPt(uncorrPt);
+    jecCor->setJetEta(p4->Eta());
+    jecCor->setJetA(l_.jet_algoPF1_area[ijet]);
+    jecCor->setRho(l_.rho_algo1);
+    float thejec = jecCor->getCorrection();
+    if( thejec < 0. ) { thejec = 0.; }
+    l_.jet_algoPF1_erescale[ijet] = uncorrPt * thejec / p4->Pt();
+    if( correct ) { *p4 *= l_.jet_algoPF1_erescale[ijet]; }
 }
 
 // Local Variables:

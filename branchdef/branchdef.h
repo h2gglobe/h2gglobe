@@ -773,3 +773,6 @@ TBranch* b_jet_algoPF3_simple_wp_level_ext;
 TBranch* b_jet_algoPF3_cutbased_wp_level_ext;
 TBranch* b_jet_algoPF3_full_mva_ext;
 TBranch* b_jet_algoPF3_simple_mva_ext;
+TBranch* b_jet_algoPF3_area;
+TBranch* b_jet_algoPF1_area;
+TBranch* b_jet_algoPF2_area;

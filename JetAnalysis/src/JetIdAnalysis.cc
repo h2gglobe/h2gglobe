@@ -64,13 +64,20 @@ void JetIdAnalysis::Init(LoopAll& l)
     if( jetHandler_ == 0 ) {
     	jetHandler_ = new JetHandler(jetHandlerCfg, l);
     }
-    std::cout << __FILE__ << std::endl;
+
     if( dumpFlatTree ) {
 	if( flatTree_ == 0 ) { 
-	    outputFile_ = TFile::Open("jetid_"+l.outputFileName,"recreate");
+	    outputFile_ = TFile::Open("jetid_"+l.histFileName,"recreate");
 	    flatTree_ = new TTree("flatTree","flatTree");
 	}
     	jetHandler_->bookFlatTree( flatTree_ );
+	flatTree_->Branch( "ievent", &tree_ievent );
+	flatTree_->Branch( "ijet", &tree_ijet );
+	flatTree_->Branch( "isMatched", &tree_isMatched );
+	flatTree_->Branch( "jetGenPt", &tree_genPt );
+	flatTree_->Branch( "jetHenDr", &tree_genDr );
+	flatTree_->Branch( "njets", &tree_njets );
+	flatTree_->Branch( "jetLooseID", &tree_jetLooseID );
     }
 }
 
@@ -152,7 +159,8 @@ bool JetIdAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorent
 	VBFevent = false;
 	VHhadevent = false;
 	
-	l.RescaleJetEnergy();
+	/// l.RescaleJetEnergy();
+	postProcessJets(l);
 
 	diphotonVBF_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVBFCut, subleadEtVBFCut, 4,false, &smeared_pho_energy[0], true); 
 	/// diphotonVBF_id = l.DiphotonCiCSelection(l.phoNOCUTS, l.phoNOCUTS, leadEtVBFCut, subleadEtVBFCut, 4,false, &smeared_pho_energy[0], true); 
@@ -177,11 +185,11 @@ bool JetIdAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorent
 	std::sort(sorted_jets.begin(),sorted_jets.end(),
 		  ClonesSorter<TLorentzVector,double,std::greater<double> >(l.jet_algoPF1_p4,&TLorentzVector::Pt));
 	
-	if( recomputeJetId ) {
-	    for(size_t itjet=0; itjet<sorted_jets.size(); ++itjet ) {
-		jetHandler_->computeMva(sorted_jets[itjet],l.dipho_vtxind[diphoton_id]);
-	    }
-	}
+	///// if( recomputeJetId ) {
+	/////     for(size_t itjet=0; itjet<sorted_jets.size(); ++itjet ) {
+	///// 	jetHandler_->computeMva(sorted_jets[itjet],l.dipho_vtxind[diphoton_id]);
+	/////     }
+	///// }
 	switchJetIdVertex( l, l.dipho_vtxind[diphoton_id] );
 
 	/// Different jet ID options
@@ -244,17 +252,19 @@ bool JetIdAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorent
 		    }
 		}
 		if( dumpFlatTree ) {
-		    //// tree_ijet = itjet;
-		    //// tree_genPt = ;
-		    //// tree_genDr = ;
-		    //// tree_njets = ;
-		    //// tree_jetLooseID = ;
+		    tree_ievent = l.event;
+		    tree_ijet = itjet;
+		    tree_isMatched = l.jet_algoPF1_genMatched[ijet];
+		    tree_genPt = l.jet_algoPF1_genPt[ijet];
+		    tree_genDr = l.jet_algoPF1_genDr[ijet];
+		    tree_njets = l.jet_algoPF1_n;
+		    tree_jetLooseID = pfloose;
 		    if( isMatched && itjet == 1 && cur_type < 0 ) {
 			jetHandler_->fillFromJet(ijet,l.dipho_vtxind[diphoton_id]);
 		    } else if ( notMatched ) {
 			jetHandler_->fillFromJet(ijet,l.dipho_vtxind[diphoton_id]);
 		    }
-		    // flatTree_->Fill()
+		    flatTree_->Fill();
 		}
 	    }
 	}
