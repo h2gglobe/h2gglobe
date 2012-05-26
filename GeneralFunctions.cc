@@ -1,5 +1,6 @@
 #include "LoopAll.h"
 #include "Sorters.h"
+#define GFDEBUG 0
 
 
 void LoopAll::SetAllMVA() {
@@ -1031,6 +1032,14 @@ void LoopAll::FillCICInputs()
 			TLorentzVector p4 = get_pho_p4( ipho, ivtx );
 			(*pho_tkiso_recvtx_030_002_0000_10_01)[ipho][ivtx] = SumTrackPtInCone(&p4, ivtx, 0, 0.30, 0.02, 0.0, 1.0, 0.1);
 			(*pho_ZeeVal_tkiso_recvtx_030_002_0000_10_01)[ipho][ivtx] = SumTrackPtInCone(&p4, ivtx, 0, 0.30, 0.02, 0.0, 1.0, 0.1,true,ipho);
+      
+      // Need to fill the CiCpf here
+      float largestIso= -1;
+		  if((*pho_pfiso_mycharged04)[ipho][ivtx] > largestIso){
+        pho_pfiso_charged_badvtx_04[ipho]=(*pho_pfiso_mycharged04)[ipho][ivtx];
+        pho_pfiso_charged_badvtx_id[ipho]=ivtx;
+      }
+
 		}
 	}
 }
@@ -1050,6 +1059,13 @@ void LoopAll::FillCIC()
 	pho_cic4passcuts_sublead->clear(); pho_cic4passcuts_sublead->resize( pho_n, std::vector<std::vector<UInt_t> >(vtx_std_n, std::vector<UInt_t>(phoNCUTLEVELS,0) ) ); 
 	pho_cic4cutlevel_sublead->clear(); pho_cic4cutlevel_sublead->resize( pho_n, std::vector<Short_t>(vtx_std_n,0) );
 	std::vector<std::vector<bool> > cic4_passcut_lead, cic4_passcut_sublead;
+  
+  // PF - 4 categories
+	pho_cic4pfpasscuts_lead->clear(); pho_cic4pfpasscuts_lead->resize( pho_n, std::vector<std::vector<UInt_t> >(vtx_std_n, std::vector<UInt_t>(phoNCUTLEVELS,0) ) ); 
+	pho_cic4pfcutlevel_lead->clear(); pho_cic4pfcutlevel_lead->resize( pho_n, std::vector<Short_t>(vtx_std_n,0) );
+	pho_cic4pfpasscuts_sublead->clear(); pho_cic4pfpasscuts_sublead->resize( pho_n, std::vector<std::vector<UInt_t> >(vtx_std_n, std::vector<UInt_t>(phoNCUTLEVELS,0) ) ); 
+	pho_cic4pfcutlevel_sublead->clear(); pho_cic4pfcutlevel_sublead->resize( pho_n, std::vector<Short_t>(vtx_std_n,0) );
+	std::vector<std::vector<bool> > cic4pf_passcut_lead, cic4pf_passcut_sublead;
 	
 	for(int ipho=0;ipho<pho_n;++ipho){
 		for(int ivtx=0;ivtx<vtx_std_n;++ivtx){
@@ -1064,6 +1080,14 @@ void LoopAll::FillCIC()
 			(*pho_cic4cutlevel_lead)[ipho][ivtx] = cic4_level_lead;
 			(*pho_cic4cutlevel_sublead)[ipho][ivtx] = cic4_level_sublead;
 		
+			// PF - 4 categories
+			int cic4pf_level_lead = PhotonCiCPFSelectionLevel(ipho, ivtx, cic4pf_passcut_lead, 4, 0);
+			std::cout<<"cic4pf_level_lead  "<<cic4pf_level_lead<<std::endl;
+      int cic4pf_level_sublead = PhotonCiCPFSelectionLevel(ipho, ivtx, cic4pf_passcut_sublead, 4, 1);
+			std::cout<<"cic4pf_level_sublead  "<<cic4pf_level_sublead<<std::endl;
+			(*pho_cic4pfcutlevel_lead)[ipho][ivtx] = cic4pf_level_lead;
+			(*pho_cic4pfcutlevel_sublead)[ipho][ivtx] = cic4pf_level_sublead;
+		
 			for(int iCUTLEVEL=0;iCUTLEVEL!=(int)phoNCUTLEVELS;++iCUTLEVEL) {
 				// 6 categories
 				UInt_t cic6_leadw=0, cic6_subleadw=0;
@@ -1075,7 +1099,8 @@ void LoopAll::FillCIC()
 					cic6_subleadw |= ( (!cic6_passcut_sublead[iCUTLEVEL][icut] & 0x1) << icut);
 				}
 				(*pho_cic6passcuts_sublead)[ipho][ivtx][iCUTLEVEL] = cic6_subleadw;
-				// 4 categories
+			
+        // 4 categories
 				UInt_t cic4_leadw=0, cic4_subleadw=0;
 				for(size_t icut=0; icut<cic4_passcut_lead.size(); ++icut) {
 					cic4_leadw |= ( (!cic4_passcut_lead[iCUTLEVEL][icut] & 0x1) << icut);
@@ -1085,6 +1110,17 @@ void LoopAll::FillCIC()
 					cic4_subleadw |= ( (!cic4_passcut_sublead[iCUTLEVEL][icut] & 0x1) << icut);
 				}
 				(*pho_cic4passcuts_sublead)[ipho][ivtx][iCUTLEVEL] = cic4_subleadw;
+				
+        // PF - 4 categories
+				UInt_t cic4pf_leadw=0, cic4pf_subleadw=0;
+				for(size_t icut=0; icut<cic4pf_passcut_lead.size(); ++icut) {
+					cic4pf_leadw |= ( (!cic4pf_passcut_lead[iCUTLEVEL][icut] & 0x1) << icut);
+				}
+				(*pho_cic4pfpasscuts_lead)[ipho][ivtx][iCUTLEVEL] = cic4pf_leadw;
+				for(size_t icut=0; icut<cic4pf_passcut_sublead.size(); ++icut) {
+					cic4pf_subleadw |= ( (!cic4pf_passcut_sublead[iCUTLEVEL][icut] & 0x1) << icut);
+				}
+				(*pho_cic4pfpasscuts_sublead)[ipho][ivtx][iCUTLEVEL] = cic4pf_subleadw;
 			}
 		}
 	}
@@ -1248,20 +1284,20 @@ void LoopAll::SetPhotonCutsInCategories(phoCiCIDLevel cutlevel, float * cic6_all
 			   8.9,       6.3,       9.8,       6.8,
 			   43,      19.4,        24,       7.9,
 			   6.2,       4.3,         5,       4.3,
-			   1e+09,     1e+09,     1e+09,     1e+09,
 			   0.0117,    0.0105,     0.031,     0.031,
 			   0.137,      0.14,     0.145,     0.143,
 			   0.94,      0.25,      0.93,      0.24,
-			   1.5,         1.5,         1.5,         1.5 };
+         1,    0.0136,    0.0138,    0.0122,
+			   1.5,         1.5,         1.5,         1.5};
 			 float cic4pf_allcuts_temp_sublead[] = { 
 			   8.9,       6.3,       9.8,       6.8,
 			   43,      19.4,        24,       7.9,
 			   6.2,       4.3,         5,       4.3,
-			   1e+09,     1e+09,     1e+09,     1e+09,
 			   0.0117,    0.0105,     0.031,     0.031,
 			   0.137,      0.14,     0.145,     0.143,
 			   0.94,      0.25,      0.93,      0.24,
-			   1.5,         1.5,         1.5,         1.5 };
+         1,    0.0136,    0.0138,    0.0122,
+			   1.5,         1.5,         1.5,         1.5};
 
                           for(int i=0;i!=ncuts*ncat_cic4;++i) { 
 			    cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
@@ -1315,20 +1351,20 @@ void LoopAll::SetPhotonCutsInCategories(phoCiCIDLevel cutlevel, float * cic6_all
 			  8.4,       5.4,       6.1,       6.2,
 			  43,       8.6,       8.9,       6.1,
 			  5.5,       3.8,       3.8,       3.4,
-			  1e+09,     1e+09,     1e+09,     1e+09,
 			  0.0116,    0.0104,     0.031,     0.029,
 			  0.137,     0.103,     0.145,     0.128,
 			  0.94,      0.25,      0.94,      0.24,
-			  1.5,         1.5,         1.5,         1.5 };
+        1,     0.021,    0.0138,    0.0162, 
+			  1.5,         1.5,         1.5,         1.5};
 			float cic4pf_allcuts_temp_sublead[] = { 
 			  8.4,       5.4,       6.1,       6.2,
 			  43,       8.6,       8.9,       6.1,
 			  5.5,       3.8,       3.8,       3.4,
-			  1e+09,     1e+09,     1e+09,     1e+09,
 			  0.0116,    0.0104,     0.031,     0.029,
 			  0.137,     0.103,     0.145,     0.128,
 			  0.94,      0.25,      0.94,      0.24,
-			  1.5,         1.5,         1.5,         1.5 };
+        1,     0.021,    0.0138,    0.0162, 
+			  1.5,         1.5,         1.5,         1.5};
 
 			for(int i=0;i!=ncuts*ncat_cic4;++i) { 
 			  cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
@@ -1382,20 +1418,20 @@ void LoopAll::SetPhotonCutsInCategories(phoCiCIDLevel cutlevel, float * cic6_all
 			   6.6,       4.9,       5.6,       4.2,
 			   11.5,       7.2,       8.4,       5.5,
 			   4.4,       2.7,       3.3,       2.5,
-			   1e+09,     1e+09,     1e+09,     1e+09,
 			   0.0111,    0.0103,     0.028,     0.028,
 			   0.124,     0.103,     0.142,     0.128,
 			   0.94,      0.25,      0.94,      0.24,
-			   1.5,         1.5,         1.5,         1.5 };
+         1,     0.032,     0.024,    0.0173,
+			   1.5,         1.5,         1.5,         1.5};
 			 float cic4pf_allcuts_temp_sublead[] = { 
 			   6.6,       4.9,       5.6,       4.2,
 			   11.5,       7.2,       8.4,       5.5,
 			   4.4,       2.7,       3.3,       2.5,
-			   1e+09,     1e+09,     1e+09,     1e+09,
 			   0.0111,    0.0103,     0.028,     0.028,
 			   0.124,     0.103,     0.142,     0.128,
 			   0.94,      0.25,      0.94,      0.24,
-			   1.5,         1.5,         1.5,         1.5 };
+         1,     0.032,     0.024,    0.0173,
+			   1.5,         1.5,         1.5,         1.5};
 
 		       for(int i=0;i!=ncuts*ncat_cic4;++i) { 
 			 cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
@@ -1455,20 +1491,21 @@ void LoopAll::SetPhotonCutsInCategories(phoCiCIDLevel cutlevel, float * cic6_all
 			      6,       4.7,       5.6,       3.6,
 			      10,       6.5,       5.6,       4.4,
 			      3.8,       2.5,       3.1,       2.2,
-			      1e+09,     1e+09,     1e+09,     1e+09,
 			      0.0108,    0.0102,     0.028,     0.028,
 			      0.124,     0.092,     0.142,     0.063,
 			      0.94,      0.28,      0.94,      0.24,
-			      1.5,         1.5,         1.5,         1.5 };
+			      1,      0.99,      0.99,     0.028,
+            1.5,         1.5,         1.5,         1.5};
+
 			    float cic4pf_allcuts_temp_sublead[] = { 
 			      6,       4.7,       5.6,       3.6,
 			      10,       6.5,       5.6,       4.4,
 			      3.8,       2.5,       3.1,       2.2,
-			      1e+09,     1e+09,     1e+09,     1e+09,
 			      0.0108,    0.0102,     0.028,     0.028,
 			      0.124,     0.092,     0.142,     0.063,
 			      0.94,      0.28,      0.94,      0.24,
-			      1.5,         1.5,         1.5,         1.5 };
+			      1,      0.99,      0.99,     0.028,
+            1.5,         1.5,         1.5,         1.5};
 			    for(int i=0;i!=ncuts*ncat_cic4;++i) { 
 			      cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
 			      cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i]; 
@@ -1521,20 +1558,21 @@ void LoopAll::SetPhotonCutsInCategories(phoCiCIDLevel cutlevel, float * cic6_all
 			      5.6,       4.3,       5.5,       2.8,
 			      9.5,         6,       5.1,       4.3,
 			      3.3,       2.3,       2.2,       1.2,
-			      1e+09,     1e+09,     1e+09,     1e+09,
 			      0.0107,    0.0101,     0.028,     0.028,
 			      0.124,     0.092,     0.116,     0.059,
 			      0.94,      0.38,      0.94,      0.24,
-			      1.5,         1.5,         1.5,         1.5 };
+			      1,      0.99,      0.99,     0.028,
+            1.5,         1.5,         1.5,         1.5};
+
 			    float cic4pf_allcuts_temp_sublead[] = { 
 			      5.6,       4.3,       5.5,       2.8,
 			      9.5,         6,       5.1,       4.3,
 			      3.3,       2.3,       2.2,       1.2,
-			      1e+09,     1e+09,     1e+09,     1e+09,
 			      0.0107,    0.0101,     0.028,     0.028,
 			      0.124,     0.092,     0.116,     0.059,
 			      0.94,      0.38,      0.94,      0.24,
-			      1.5,         1.5,         1.5,         1.5 };
+			      1,      0.99,      0.99,     0.028,
+            1.5,         1.5,         1.5,         1.5};
 
 			    for(int i=0;i!=ncuts*ncat_cic4;++i) { 
 			      cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
@@ -1588,20 +1626,20 @@ void LoopAll::SetPhotonCutsInCategories(phoCiCIDLevel cutlevel, float * cic6_all
 			      5.1,       3.8,       3.3,       2.6,
 			      7.5,         5,       4.7,         4,
 			      3,       2.2,      1.35,      0.38,
-			      1e+09,     1e+09,     1e+09,     1e+09,
 			      0.0107,      0.01,     0.028,     0.027,
 			      0.124,     0.092,     0.116,     0.059,
 			      0.94,      0.39,      0.94,      0.24,
-			      1.5,         1.5,         1.5,         1.5 };
+            1,         1,      0.99,      0.06,
+			      1.5,         1.5,         1.5,         1.5};
 			    float cic4pf_allcuts_temp_sublead[] = { 
 			      5.1,       3.8,       3.3,       2.6,
 			      7.5,         5,       4.7,         4,
 			      3,       2.2,      1.35,      0.38,
-			      1e+09,     1e+09,     1e+09,     1e+09,
 			      0.0107,      0.01,     0.028,     0.027,
 			      0.124,     0.092,     0.116,     0.059,
 			      0.94,      0.39,      0.94,      0.24,
-			      1.5,         1.5,         1.5,         1.5 };
+            1,         1,      0.99,      0.06,
+			      1.5,         1.5,         1.5,         1.5};
 			    for(int i=0;i!=ncuts*ncat_cic4;++i) { 
 			      cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
 			      cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i]; 
@@ -1654,20 +1692,20 @@ void LoopAll::SetPhotonCutsInCategories(phoCiCIDLevel cutlevel, float * cic6_all
 			      4.5,       2.7,       2.6,       2.4,
 			      5.9,       4.8,       4.6,       3.7,
 			      2.5,      1.48,      0.87,      0.38,
-			      -1e+09,    -1e+09,    -1e+09,    -1e+09,
 			      0.0106,      0.01,     0.028,     0.027,
 			      0.099,     0.092,     0.104,     0.059,
 			      0.94,      0.39,      0.94,      0.24,
-			      1.5,         1.5,         1.5,         1.5 };
+            1,         1,         1,      0.78,
+			      1.5,         1.5,         1.5,         1.5};
 			    float cic4pf_allcuts_temp_sublead[] = { 
 			      4.5,       2.7,       2.6,       2.4,
 			      5.9,       4.8,       4.6,       3.7,
 			      2.5,      1.48,      0.87,      0.38,
-			      1e+09,    1e+09,     1e+09,     1e+09,
 			      0.0106,      0.01,     0.028,     0.027,
 			      0.099,     0.092,     0.104,     0.059,
 			      0.94,      0.39,      0.94,      0.24,
-			      1.5,         1.5,         1.5,         1.5 };
+            1,         1,         1,      0.78,
+			      1.5,         1.5,         1.5,         1.5};
 			    for(int i=0;i!=ncuts*ncat_cic4;++i) { 
 			      cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
 			      cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i]; 
@@ -1720,21 +1758,21 @@ void LoopAll::SetPhotonCutsInCategories(phoCiCIDLevel cutlevel, float * cic6_all
 			      2.7,       2.4,       2.4,       2.3,
 			      5.9,       3.7,       4.6,       2.7,
 			      1.28,      1.15,      0.65,      0.38,
-			      1e+09,     1e+09,     1e+09,     1e+09,
 			      .0106,    0.0099,     0.028,     0.027,
 			      0.095,     0.092,     0.065,     0.059,
 			      0.94,      0.39,      0.94,      0.24,
-			      1.5,         1.5,         1.5,         1.5};
+            1,         1,         1,      0.97,
+			      1.5,         1.5,         1.5,         1.5} ;
 
 			    float cic4pf_allcuts_temp_sublead[] = { 
 			      2.7,       2.4,       2.4,       2.3,
 			      5.9,       3.7,       4.6,       2.7,
 			      1.28,      1.15,      0.65,      0.38,
-			      1e+09,     1e+09,     1e+09,     1e+09,
 			      .0106,     0.0099,     0.028,     0.027,
 			      0.095,     0.092,     0.065,     0.059,
 			      0.94,      0.39,      0.94,      0.24,
-			      1.5,         1.5,         1.5,         1.5};
+            1,         1,         1,      0.97,
+			      1.5,         1.5,         1.5,         1.5} ;
 
 			    for(int i=0;i!=ncuts*ncat_cic4;++i) { 
 			      cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
@@ -2117,18 +2155,26 @@ int LoopAll::PhotonCiCPFSelectionLevel( int photon_index, int vertex_index, std:
     for(int iCUTLEVEL=0;iCUTLEVEL!=(int)phoNCUTLEVELS;++iCUTLEVEL) {
       switch(ncategories) {
       case(4) :
-	ph_passcut[iCUTLEVEL][0] = (val_isosumoet        <=   cic4pf_cut_lead_isosumoet[iCUTLEVEL][photon_category]     );
-	ph_passcut[iCUTLEVEL][1] = (val_isosumoetbad     <=   cic4pf_cut_lead_isosumoetbad[iCUTLEVEL][photon_category]  );
-	ph_passcut[iCUTLEVEL][2] = (val_trkisooet        <=   cic4pf_cut_lead_trkisooet[iCUTLEVEL][photon_category]     );
-	ph_passcut[iCUTLEVEL][3] = (val_sieie            <=   cic4pf_cut_lead_sieie[iCUTLEVEL][photon_category]         );
-	ph_passcut[iCUTLEVEL][4] = (val_hoe              <=   cic4pf_cut_lead_hovere[iCUTLEVEL][photon_category]        );
-	ph_passcut[iCUTLEVEL][5] = (val_r9               >=   cic4pf_cut_lead_r9[iCUTLEVEL][photon_category]            );// gt cut
-	if( runZeeValidation ) { 
-	  ph_passcut[iCUTLEVEL][6] = val_conv;
-	} else {
-	  ph_passcut[iCUTLEVEL][6] = !val_conv;
-	}
-	break;
+        if(GFDEBUG) cout<<"iCUTLEVEL phoNCUTLEVELS "<<iCUTLEVEL<<" "<<phoNCUTLEVELS<<endl;
+	      ph_passcut[iCUTLEVEL][0] = (val_isosumoet        <=   cic4pf_cut_lead_isosumoet[iCUTLEVEL][photon_category]     );
+	      if(GFDEBUG) cout<<"pass, val, cut:  "<<ph_passcut[iCUTLEVEL][0] <<"   "<< val_isosumoet        <<"   "<<   cic4pf_cut_lead_isosumoet[iCUTLEVEL][photon_category]  <<std::endl;
+	      ph_passcut[iCUTLEVEL][1] = (val_isosumoetbad     <=   cic4pf_cut_lead_isosumoetbad[iCUTLEVEL][photon_category]  );
+	      if(GFDEBUG) cout<<"pass, val, cut:  "<<ph_passcut[iCUTLEVEL][1] <<"   "<< val_isosumoetbad     <<"   "<<   cic4pf_cut_lead_isosumoetbad[iCUTLEVEL][photon_category]<<std::endl;
+	      ph_passcut[iCUTLEVEL][2] = (val_trkisooet        <=   cic4pf_cut_lead_trkisooet[iCUTLEVEL][photon_category]     );
+	      if(GFDEBUG) cout<<"pass, val, cut:  "<<ph_passcut[iCUTLEVEL][2] <<"   "<< val_trkisooet        <<"   "<<   cic4pf_cut_lead_trkisooet[iCUTLEVEL][photon_category]  <<std::endl;
+	      ph_passcut[iCUTLEVEL][3] = (val_sieie            <=   cic4pf_cut_lead_sieie[iCUTLEVEL][photon_category]         );
+	      if(GFDEBUG) cout<<"pass, val, cut:  "<<ph_passcut[iCUTLEVEL][3] <<"   "<< val_sieie            <<"   "<<   cic4pf_cut_lead_sieie[iCUTLEVEL][photon_category]      <<std::endl;
+	      ph_passcut[iCUTLEVEL][4] = (val_hoe              <=   cic4pf_cut_lead_hovere[iCUTLEVEL][photon_category]        );
+	      if(GFDEBUG) cout<<"pass, val, cut:  "<<ph_passcut[iCUTLEVEL][4] <<"   "<< val_hoe              <<"   "<<   cic4pf_cut_lead_hovere[iCUTLEVEL][photon_category]     <<std::endl;
+	      ph_passcut[iCUTLEVEL][5] = (val_r9               >=   cic4pf_cut_lead_r9[iCUTLEVEL][photon_category]            );// gt cut
+	      if(GFDEBUG) cout<<"pass, val, cut:  "<<ph_passcut[iCUTLEVEL][5] <<"   "<< val_r9               <<"   "<<   cic4pf_cut_lead_r9[iCUTLEVEL][photon_category]         <<std::endl;
+        if(GFDEBUG) cout<<"val_conv:  "<<val_conv<<endl;
+	      if( runZeeValidation ) { 
+	        ph_passcut[iCUTLEVEL][6] = !val_conv;
+	      } else {
+	        ph_passcut[iCUTLEVEL][6] = val_conv;
+	      }
+	      break;
       }
       bool ph_passcut_all = true;
       for(int icut=0;icut!=8;++icut) {
@@ -2147,18 +2193,26 @@ int LoopAll::PhotonCiCPFSelectionLevel( int photon_index, int vertex_index, std:
     for(int iCUTLEVEL=0;iCUTLEVEL!=(int)phoNCUTLEVELS;++iCUTLEVEL) {
       switch(ncategories) {
       case(4) :
-	ph_passcut[iCUTLEVEL][0] = (val_isosumoet        <=   cic4pf_cut_sublead_isosumoet[iCUTLEVEL][photon_category]     );
-	ph_passcut[iCUTLEVEL][1] = (val_isosumoetbad     <=   cic4pf_cut_sublead_isosumoetbad[iCUTLEVEL][photon_category]  );
-	ph_passcut[iCUTLEVEL][2] = (val_trkisooet        <=   cic4pf_cut_sublead_trkisooet[iCUTLEVEL][photon_category]     );
-	ph_passcut[iCUTLEVEL][3] = (val_sieie            <=   cic4pf_cut_sublead_sieie[iCUTLEVEL][photon_category]         );
-	ph_passcut[iCUTLEVEL][4] = (val_hoe              <=   cic4pf_cut_sublead_hovere[iCUTLEVEL][photon_category]        );
-	ph_passcut[iCUTLEVEL][5] = (val_r9               >=   cic4pf_cut_sublead_r9[iCUTLEVEL][photon_category]            );
-	if( runZeeValidation ) { 
-	  ph_passcut[iCUTLEVEL][6] = val_conv;
-	} else {
-	  ph_passcut[iCUTLEVEL][6] = !val_conv;
-	}
-	break;
+        if(GFDEBUG) cout<<"iCUTLEVEL phoNCUTLEVELS "<<iCUTLEVEL<<" "<<phoNCUTLEVELS<<endl;
+        ph_passcut[iCUTLEVEL][0] = (val_isosumoet        <=   cic4pf_cut_sublead_isosumoet[iCUTLEVEL][photon_category]     );
+        if(GFDEBUG) cout<<"pass, val, cut:  "<<ph_passcut[iCUTLEVEL][0] <<"   "<< val_isosumoet        <<"   "<<   cic4pf_cut_sublead_isosumoet[iCUTLEVEL][photon_category]  <<std::endl;
+	      ph_passcut[iCUTLEVEL][1] = (val_isosumoetbad     <=   cic4pf_cut_sublead_isosumoetbad[iCUTLEVEL][photon_category]  );
+	      if(GFDEBUG) cout<<"pass, val, cut:  "<<ph_passcut[iCUTLEVEL][1] <<"   "<< val_isosumoetbad     <<"   "<<   cic4pf_cut_sublead_isosumoetbad[iCUTLEVEL][photon_category]<<std::endl;
+	      ph_passcut[iCUTLEVEL][2] = (val_trkisooet        <=   cic4pf_cut_sublead_trkisooet[iCUTLEVEL][photon_category]     );
+	      if(GFDEBUG) cout<<"pass, val, cut:  "<<ph_passcut[iCUTLEVEL][2] <<"   "<< val_trkisooet        <<"   "<<   cic4pf_cut_sublead_trkisooet[iCUTLEVEL][photon_category]  <<std::endl;
+	      ph_passcut[iCUTLEVEL][3] = (val_sieie            <=   cic4pf_cut_sublead_sieie[iCUTLEVEL][photon_category]         );
+	      if(GFDEBUG) cout<<"pass, val, cut:  "<<ph_passcut[iCUTLEVEL][3] <<"   "<< val_sieie            <<"   "<<   cic4pf_cut_sublead_sieie[iCUTLEVEL][photon_category]      <<std::endl;
+	      ph_passcut[iCUTLEVEL][4] = (val_hoe              <=   cic4pf_cut_sublead_hovere[iCUTLEVEL][photon_category]        );
+	      if(GFDEBUG) cout<<"pass, val, cut:  "<<ph_passcut[iCUTLEVEL][4] <<"   "<< val_hoe              <<"   "<<   cic4pf_cut_sublead_hovere[iCUTLEVEL][photon_category]     <<std::endl;
+	      ph_passcut[iCUTLEVEL][5] = (val_r9               >=   cic4pf_cut_sublead_r9[iCUTLEVEL][photon_category]            );
+	      if(GFDEBUG) cout<<"pass, val, cut:  "<<ph_passcut[iCUTLEVEL][5] <<"   "<< val_r9               <<"   "<<   cic4pf_cut_sublead_r9[iCUTLEVEL][photon_category]         <<std::endl;
+        if(GFDEBUG) cout<<"val_conv:  "<<val_conv<<endl;
+	      if( runZeeValidation ) { 
+	        ph_passcut[iCUTLEVEL][6] = !val_conv;
+	      } else {
+	        ph_passcut[iCUTLEVEL][6] = val_conv;
+	      }
+	      break;
       }
       bool ph_passcut_all = true;
       for(int icut=0;icut!=8;++icut) {
@@ -2573,6 +2627,7 @@ void LoopAll::DefineUserBranches()
 	BRANCH_DICT(pho_tkiso_recvtx_030_002_0000_10_01);
 	BRANCH_DICT(pho_tkiso_badvtx_040_002_0000_10_01);
 	BRANCH_DICT(pho_pfiso_charged_badvtx_04);
+	BRANCH_DICT(pho_pfiso_charged_badvtx_id);
 	BRANCH_DICT(pho_tkiso_badvtx_id);
 	BRANCH_DICT(pho_ZeeVal_tkiso_recvtx_030_002_0000_10_01);
 	BRANCH_DICT(pho_ZeeVal_tkiso_badvtx_040_002_0000_10_01);
@@ -2590,7 +2645,9 @@ void LoopAll::DefineUserBranches()
 	BRANCH_DICT(pho_cic4passcuts_sublead);
 
 	BRANCH_DICT(pho_cic4pfcutlevel_lead);
+	BRANCH_DICT(pho_cic4pfpasscuts_lead);
 	BRANCH_DICT(pho_cic4pfcutlevel_sublead);
+	BRANCH_DICT(pho_cic4pfpasscuts_sublead);
 
 	BRANCH_DICT(pho_cutlevel_lead);
 	BRANCH_DICT(pho_passcuts_lead);

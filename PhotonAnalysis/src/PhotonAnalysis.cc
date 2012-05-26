@@ -513,12 +513,14 @@ void PhotonAnalysis::Init(LoopAll& l)
         float cic6_cuts_sublead[phoNCUTS][phoCiC6NCATEGORIES];
         float cic4_cuts_lead[phoNCUTS][phoCiC4NCATEGORIES];
         float cic4_cuts_sublead[phoNCUTS][phoCiC4NCATEGORIES];
-	float cic4pf_cuts_lead[phoNCUTS][phoCiC4NCATEGORIES];
+	    float cic4pf_cuts_lead[phoNCUTS][phoCiC4NCATEGORIES];
         float cic4pf_cuts_sublead[phoNCUTS][phoCiC4NCATEGORIES];
 
         // get the cut values for the current photon CIC level 
-        l.SetPhotonCutsInCategories((LoopAll::phoCiCIDLevel)iLevel, &cic6_cuts_lead[0][0], &cic6_cuts_sublead[0][0], &cic4_cuts_lead[0][0], &cic4_cuts_sublead[0][0],
-				    &cic4pf_cuts_lead[0][0], &cic4pf_cuts_sublead[0][0]);
+        l.SetPhotonCutsInCategories((LoopAll::phoCiCIDLevel)iLevel, 
+                &cic6_cuts_lead[0][0], &cic6_cuts_sublead[0][0], 
+                &cic4_cuts_lead[0][0], &cic4_cuts_sublead[0][0],
+	            &cic4pf_cuts_lead[0][0], &cic4pf_cuts_sublead[0][0]);
         
         // rearrange the returned values to arrays with more meaningful names
         float * cic6_cuts_arrays_lead[phoNCUTS] = {
@@ -1389,6 +1391,10 @@ void PhotonAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree)
     l.pho_cic4passcuts_lead = new std::vector<std::vector<std::vector<UInt_t> > >();
     l.pho_cic4cutlevel_sublead = new std::vector<std::vector<Short_t> >();
     l.pho_cic4passcuts_sublead = new std::vector<std::vector<std::vector<UInt_t> > >();
+    l.pho_cic4pfcutlevel_lead = new std::vector<std::vector<Short_t> >();
+    l.pho_cic4pfpasscuts_lead = new std::vector<std::vector<std::vector<UInt_t> > >();
+    l.pho_cic4pfcutlevel_sublead = new std::vector<std::vector<Short_t> >();
+    l.pho_cic4pfpasscuts_sublead = new std::vector<std::vector<std::vector<UInt_t> > >();
     l.dipho_vtx_std_sel =  new std::vector<int>();
 
     l.Branch_vtx_std_evt_mva(outputTree);
@@ -1397,9 +1403,12 @@ void PhotonAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree)
     l.Branch_pho_tkiso_recvtx_030_002_0000_10_01(outputTree);
     l.Branch_pho_tkiso_badvtx_040_002_0000_10_01(outputTree);
     l.Branch_pho_tkiso_badvtx_id(outputTree);
+    l.Branch_pho_pfiso_charged_badvtx_04(outputTree);
+    l.Branch_pho_pfiso_charged_badvtx_id(outputTree);
     l.Branch_pho_ZeeVal_tkiso_recvtx_030_002_0000_10_01(outputTree);
     l.Branch_pho_ZeeVal_tkiso_badvtx_040_002_0000_10_01(outputTree);
     l.Branch_pho_ZeeVal_tkiso_badvtx_id(outputTree);
+    l.Branch_pho_mitmva(outputTree);
     l.Branch_pho_drtotk_25_99(outputTree);
 
     l.Branch_dipho_n(outputTree);
@@ -1416,6 +1425,10 @@ void PhotonAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree)
     l.Branch_pho_cic4passcuts_lead( outputTree );
     l.Branch_pho_cic4cutlevel_sublead( outputTree );
     l.Branch_pho_cic4passcuts_sublead( outputTree );
+    l.Branch_pho_cic4pfcutlevel_lead( outputTree );
+    l.Branch_pho_cic4pfpasscuts_lead( outputTree );
+    l.Branch_pho_cic4pfcutlevel_sublead( outputTree );
+    l.Branch_pho_cic4pfpasscuts_sublead( outputTree );
 
     l.Branch_pho_genmatched(outputTree);
     l.Branch_pho_regr_energy_otf(outputTree);
