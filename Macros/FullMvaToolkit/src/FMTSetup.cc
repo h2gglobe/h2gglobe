@@ -315,7 +315,7 @@ void FMTSetup::runFitting(){
 
 void FMTSetup::makeNormPlot(){
 	
-	if (!skipRebin_ && all_) rebinner->fitter->makeNormPlot();
+	if (!skipRebin_ && all_ && diagnose_) rebinner->fitter->makeNormPlot();
 }
 
 void FMTSetup::cleanUp(){

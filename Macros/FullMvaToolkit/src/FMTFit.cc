@@ -178,8 +178,7 @@ void FMTFit::makeNormPlot(){
   vector<double> allMasses = getAllMH();
   int i=0;
   for (vector<double>::iterator mh=allMasses.begin(); mh!=allMasses.end(); mh++){
-    cout << *mh << endl;
-    RooRealVar *val = (RooRealVar*)outWS->var(Form("NBkgInsignal_mH%3.1f",*mh));
+    RooRealVar *val = (RooRealVar*)outWS->var(Form("NBkgInSignal_mH%3.1f",*mh));
     normG->SetPoint(i,*mh,val->getVal());
     i++;
   }
