@@ -2051,7 +2051,7 @@ bool LoopAll::PhotonMITPreSelection( int photon_index, int vertex_index, float *
    float val_hcaliso = pho_hcalsumetconedr03[photon_index] - 0.005*phop4.Et(); 
                              
    float val_trkiso  = pho_trksumpthollowconedr03[photon_index] - 0.002*phop4.Et();                          
-   float val_hcalecal   = (pho_ecalsumetconedr03[photon_index]+pho_hcalsumetconedr03[photon_index]-rho*rhofac);                                             
+   float val_hcalecal   = (pho_ecalsumetconedr03[photon_index]+pho_hcalsumetconedr03[photon_index]-rho_algo1*rhofac);                                             
    float val_abstrkiso  = (*pho_tkiso_recvtx_030_002_0000_10_01)[photon_index][vertex_index];                
    float val_trkiso_hollow03 = pho_trksumpthollowconedr03[photon_index];                                    
 //   float val_drtotk_25_99 = pho_drtotk_25_99[photon_index];
@@ -2141,7 +2141,7 @@ int LoopAll::PhotonCiCPFSelectionLevel( int photon_index, int vertex_index, std:
   float val_r9           = pho_r9[photon_index];
   float val_conv         = pho_isconv[photon_index];
 
-  float rhofacbad=0.40, rhofac=0.17;
+  float rhofacbad=0.23, rhofac=0.09;
 
   float val_isosumoet    = (val_tkiso    + val_ecaliso    - rho_algo1 * rhofac )   * 50. / phop4.Et();
   float val_isosumoetbad = (val_tkisobad + val_ecalisobad - rho_algo1 * rhofacbad) * 50. / phop4_badvtx.Et();
