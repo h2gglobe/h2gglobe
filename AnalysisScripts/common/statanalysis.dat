@@ -27,6 +27,7 @@ subleadEtVHhadCut=25
 leadEtVHlepCut=45
 subleadEtVHlepCut=25
 
+phoidMvaCut=-0.3
 
 doTriggerSelection=1
 reRunCiCForData=1

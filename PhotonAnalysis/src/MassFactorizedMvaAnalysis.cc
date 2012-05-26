@@ -782,7 +782,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 
         // inclusive category di-photon selection
         // FIXME pass smeared R9
-        diphoton_id = l.DiphotonMITPreSelection(leadEtCut,subleadEtCut,applyPtoverM, &smeared_pho_energy[0] ); 
+        diphoton_id = l.DiphotonMITPreSelection(leadEtCut,subleadEtCut,phoidMvaCut,applyPtoverM, &smeared_pho_energy[0] ); 
             
         // Exclusive Modes
         int diphotonVBF_id = -1;
@@ -794,7 +794,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
         }
 
         if(includeVBF) {
-            diphotonVBF_id = l.DiphotonMITPreSelection(leadEtVBFCut,subleadEtVBFCut,applyPtoverM, &smeared_pho_energy[0] );
+            diphotonVBF_id = l.DiphotonMITPreSelection(leadEtVBFCut,subleadEtVBFCut,phoidMvaCut,applyPtoverM, &smeared_pho_energy[0] );
             float eventweight = weight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second] * genLevWeight;
             float myweight=1.;
             if(eventweight*sampleweight!=0) myweight=eventweight/sampleweight;
@@ -827,6 +827,23 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 	    mass     = Higgs.M();
         float ptHiggs = Higgs.Pt();
 
+	// For Zee validation, reweight MC pT distribution to match data 
+	if( l.runZeeValidation && cur_type != 0) {
+	  if (zeePtBinLowEdge.size() != zeePtWeight.size()) {
+	    std::cout << "Array size mismatch: zeePtBinLowEdge[" << zeePtBinLowEdge.size()
+		      << "], zeePtWeight[" << zeePtWeight.size() << "]" <<diphoton_id << std::endl;
+	  }
+	  for (int i=0; i<zeePtBinLowEdge.size(); i++) {
+	    float zeePtBinHighEdge = 999.;
+	    if (i<zeePtBinLowEdge.size()-1) zeePtBinHighEdge = zeePtBinLowEdge[i+1];
+	    if (ptHiggs>zeePtBinLowEdge[i] && ptHiggs<zeePtBinHighEdge) {
+	      evweight *= zeePtWeight[i];
+	      //cout << ptHiggs << " " << zeePtWeight[i] << endl;
+	      break;
+	    }
+	  }
+	}
+
         // Mass Resolution of the Event
         massResolutionCalculator->Setup(l,&photonInfoCollection[diphoton_index.first],&photonInfoCollection[diphoton_index.second],diphoton_id,eSmearPars,nR9Categories,nEtaCategories);
         float vtx_mva  = l.vtx_std_evt_mva->at(diphoton_id);
@@ -838,7 +855,6 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 
         float phoid_mvaout_lead = l.photonIDMVA(diphoton_index.first,l.dipho_vtxind[diphoton_id],lead_p4,bdtTrainingPhilosophy.c_str());
         float phoid_mvaout_sublead = l.photonIDMVA(diphoton_index.second,l.dipho_vtxind[diphoton_id],sublead_p4,bdtTrainingPhilosophy.c_str());
-
 
 	    // apply di-photon level smearings and corrections
         int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,0);
@@ -864,7 +880,11 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 	        l.FillCounter( "Smeared", evweight );
 	        sumaccept += weight;
 	        sumsmear += evweight;
-	        fillControlPlots(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, category, isCorrectVertex, evweight, l );
+	        if (l.runZeeValidation) {
+		  fillZeeControlPlots(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, phoid_mvaout_lead, phoid_mvaout_sublead, diphobdt_output, sigmaMrv, sigmaMwv, vtxProb, diphoton_id, category, evweight, l );
+		} else {
+		  fillControlPlots(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, category, isCorrectVertex, evweight, l );
+		}
 	    }
 	
         //if (cur_type==0 && mass >= 100. && mass < 180. && !isSyst /*should never be if running data anyway*/){
@@ -926,6 +946,169 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 }
 
 // ----------------------------------------------------------------------------------------------------
+void MassFactorizedMvaAnalysis::fillZeeControlPlots(const TLorentzVector & lead_p4, const  TLorentzVector & sublead_p4, 
+	                        const TLorentzVector & Higgs, float lead_r9, float sublead_r9,
+				float phoid_mvaout_lead, float phoid_mvaout_sublead, 
+                                float diphobdt_output, float sigmaMrv, float sigmaMwv, float vtxProb,
+				int diphoton_id, int category, float evweight, LoopAll & l )
+{
+
+  float mass = Higgs.M();
+  float ptHiggs = Higgs.Pt();
+
+  float cos_dphi = TMath::Cos(lead_p4.Phi()-sublead_p4.Phi());
+  float pho1_sigmaE = energyCorrectedError[l.dipho_leadind[diphoton_id]];
+  float pho2_sigmaE = energyCorrectedError[l.dipho_subleadind[diphoton_id]];
+
+  l.FillHist("mass",0, mass, evweight);
+  l.FillHist("mass",category+1, mass, evweight);
+  if (ptHiggs<20.) {
+    l.FillHist("mass_pt0to20",0, mass, evweight);
+  } else if (ptHiggs<40.) {
+    l.FillHist("mass_pt20to40",0, mass, evweight);
+  } else if (ptHiggs<60.) {
+    l.FillHist("mass_pt40to60",0, mass, evweight);
+  } else if (ptHiggs<100.) {
+    l.FillHist("mass_pt60to100",0, mass, evweight);
+  } else {
+    l.FillHist("mass_pt100up",0, mass, evweight);
+  }
+
+  if (mass>=100. && mass<=180.) l.FillHist("bdtout_m100to180",0,diphobdt_output,evweight);
+
+  if( mass>=60. && mass<=120.  ) {
+
+    l.FillHist("bdtout",0,diphobdt_output,evweight);
+    if (fabs(lead_p4.Eta() < 1.4442 ) && fabs(sublead_p4.Eta()<1.4442)){
+      l.FillHist("bdtoutEB",0,diphobdt_output,evweight);
+    } else if (fabs(lead_p4.Eta() > 1.566 ) && fabs(sublead_p4.Eta()>1.566)){
+      l.FillHist("bdtoutEE",0,diphobdt_output,evweight);
+    } else {
+      l.FillHist("bdtoutEBEE",0,diphobdt_output,evweight);
+    }
+
+    l.FillHist("nvtx",0, l.vtx_std_n, evweight);
+    l.FillHist("nvtx",category+1, l.vtx_std_n, evweight);
+    l.FillHist("pt",0, ptHiggs, evweight);
+    l.FillHist("pt",category+1, ptHiggs, evweight);
+
+    if (fabs(lead_p4.Eta()) < 1.4442) {
+      l.FillHist("pho1_sigmaEOverE_EB",0,pho1_sigmaE/lead_p4.E(), evweight);
+      l.FillHist("pho1_sigmaEOverE_EB_up",0,(pho1_sigmaE/1.07*1.17)/lead_p4.E(), evweight);
+      l.FillHist("pho1_sigmaEOverE_EB_down",0,(pho1_sigmaE/1.07*0.97)/lead_p4.E(), evweight);
+    } else {
+      l.FillHist("pho1_sigmaEOverE_EE",0,pho1_sigmaE/lead_p4.E(), evweight);
+      l.FillHist("pho1_sigmaEOverE_EE_up",0,(pho1_sigmaE/1.045*1.145)/lead_p4.E(), evweight);
+      l.FillHist("pho1_sigmaEOverE_EE_down",0,(pho1_sigmaE/1.045*0.945)/lead_p4.E(), evweight);
+    }
+
+    if (fabs(sublead_p4.Eta()) < 1.4442) {
+      l.FillHist("pho2_sigmaEOverE_EB",0,pho2_sigmaE/sublead_p4.E(), evweight);
+      l.FillHist("pho2_sigmaEOverE_EB_up",0,(pho2_sigmaE/1.07*1.17)/sublead_p4.E(), evweight);
+      l.FillHist("pho2_sigmaEOverE_EB_down",0,(pho2_sigmaE/1.07*0.97)/sublead_p4.E(), evweight);
+    } else {
+      l.FillHist("pho2_sigmaEOverE_EE",0,pho2_sigmaE/sublead_p4.E(), evweight);
+      l.FillHist("pho2_sigmaEOverE_EE_up",0,(pho2_sigmaE/1.045*1.145)/sublead_p4.E(), evweight);
+      l.FillHist("pho2_sigmaEOverE_EE_down",0,(pho2_sigmaE/1.045*0.945)/sublead_p4.E(), evweight);
+    }
+
+    if (fabs(lead_p4.Eta()) < 1.4442) {
+      l.FillHist("pho1_phoidMva_EB",0,phoid_mvaout_lead, evweight);
+      l.FillHist("pho1_phoidMva_EB_up",0,(phoid_mvaout_lead+0.025), evweight);
+      l.FillHist("pho1_phoidMva_EB_down",0,(phoid_mvaout_lead-0.025), evweight);
+    } else {
+      l.FillHist("pho1_phoidMva_EE",0,phoid_mvaout_lead, evweight);
+      l.FillHist("pho1_phoidMva_EE_up",0,(phoid_mvaout_lead+0.025), evweight);
+      l.FillHist("pho1_phoidMva_EE_down",0,(phoid_mvaout_lead-0.025), evweight);
+    }
+
+    if (fabs(sublead_p4.Eta()) < 1.4442) {
+      l.FillHist("pho2_phoidMva_EB",0,phoid_mvaout_sublead, evweight);
+      l.FillHist("pho2_phoidMva_EB_up",0,(phoid_mvaout_sublead+0.025), evweight);
+      l.FillHist("pho2_phoidMva_EB_down",0,(phoid_mvaout_sublead-0.025), evweight);
+    } else {
+      l.FillHist("pho2_phoidMva_EE",0,phoid_mvaout_sublead, evweight);
+      l.FillHist("pho2_phoidMva_EE_up",0,(phoid_mvaout_sublead+0.025), evweight);
+      l.FillHist("pho2_phoidMva_EE_down",0,(phoid_mvaout_sublead-0.025), evweight);
+    }
+
+    if (diphobdt_output > 0.05) {
+
+      l.FillHist("pho1_phoidMva",0,phoid_mvaout_lead, evweight);
+      l.FillHist("pho1_phoidMva",category+1,phoid_mvaout_lead, evweight);
+      l.FillHist("pho2_phoidMva",0,phoid_mvaout_sublead, evweight);
+      l.FillHist("pho2_phoidMva",category+1,phoid_mvaout_sublead, evweight);
+      l.FillHist("sigmaMOverM",0,sigmaMrv/mass, evweight);
+      l.FillHist("sigmaMOverM",category+1,sigmaMrv/mass, evweight);
+      l.FillHist("sigmaMOverM_wrongVtx",0,sigmaMwv/mass, evweight);
+      l.FillHist("sigmaMOverM_wrongVtx",category+1,sigmaMwv/mass, evweight);
+      l.FillHist("vtxProb",0,vtxProb, evweight);
+      l.FillHist("vtxProb",category+1,vtxProb, evweight);
+      l.FillHist("pho1_ptOverM",0,lead_p4.Pt()/mass, evweight);
+      l.FillHist("pho1_ptOverM",category+1,lead_p4.Pt()/mass, evweight);
+      l.FillHist("pho2_ptOverM",0,sublead_p4.Pt()/mass, evweight);
+      l.FillHist("pho2_ptOverM",category+1,sublead_p4.Pt()/mass, evweight);
+      l.FillHist("pho1_eta",0,lead_p4.Eta(), evweight);
+      l.FillHist("pho1_eta",category+1,lead_p4.Eta(), evweight);
+      l.FillHist("pho2_eta",0,sublead_p4.Eta(), evweight);
+      l.FillHist("pho2_eta",category+1,sublead_p4.Eta(), evweight);
+      l.FillHist("cosDeltaPhi",0,cos_dphi, evweight);
+      l.FillHist("cosDeltaPhi",category+1,cos_dphi, evweight);
+
+      l.FillHist("r9",0,lead_r9, evweight);
+      l.FillHist("r9",0,sublead_r9, evweight);
+      l.FillHist("r9",category+1,lead_r9, evweight);
+      l.FillHist("r9",category+1,sublead_r9, evweight);
+
+      if (fabs(lead_p4.Eta()) < 1.4442 && fabs(sublead_p4.Eta())<1.4442) {
+	l.FillHist("sigmaMOverM_EB",0,sigmaMrv/mass, evweight);
+	l.FillHist("sigmaMOverM_wrongVtx_EB",0,sigmaMwv/mass, evweight);
+	if (lead_r9>0.93 && sublead_r9>0.93) {
+	  l.FillHist("sigmaMOverM_EB",1,sigmaMrv/mass, evweight);
+	  l.FillHist("sigmaMOverM_wrongVtx_EB",1,sigmaMwv/mass, evweight);
+	} else if (lead_r9<0.93 && sublead_r9<0.93) {
+	  l.FillHist("sigmaMOverM_EB",3,sigmaMrv/mass, evweight);
+	  l.FillHist("sigmaMOverM_wrongVtx_EB",3,sigmaMwv/mass, evweight);
+	} else {
+	  l.FillHist("sigmaMOverM_EB",2,sigmaMrv/mass, evweight);
+	  l.FillHist("sigmaMOverM_wrongVtx_EB",2,sigmaMwv/mass, evweight);
+	}
+      } else if (fabs(lead_p4.Eta()) > 1.566 && fabs(sublead_p4.Eta())>1.566) {
+	l.FillHist("sigmaMOverM_EE",0,sigmaMrv/mass, evweight);
+	l.FillHist("sigmaMOverM_wrongVtx_EE",0,sigmaMwv/mass, evweight);
+	if (lead_r9>0.93 && sublead_r9>0.93) {
+	  l.FillHist("sigmaMOverM_EE",1,sigmaMrv/mass, evweight);
+	  l.FillHist("sigmaMOverM_wrongVtx_EE",1,sigmaMwv/mass, evweight);
+	} else if (lead_r9<0.93 && sublead_r9<0.93) {
+	  l.FillHist("sigmaMOverM_EE",3,sigmaMrv/mass, evweight);
+	  l.FillHist("sigmaMOverM_wrongVtx_EE",3,sigmaMwv/mass, evweight);
+	} else {
+	  l.FillHist("sigmaMOverM_EE",2,sigmaMrv/mass, evweight);
+	  l.FillHist("sigmaMOverM_wrongVtx_EE",2,sigmaMwv/mass, evweight);
+	}
+      } else {
+	l.FillHist("sigmaMOverM_EBEE",0,sigmaMrv/mass, evweight);
+	l.FillHist("sigmaMOverM_wrongVtx_EBEE",0,sigmaMwv/mass, evweight);
+	if (lead_r9>0.93 && sublead_r9>0.93) {
+	  l.FillHist("sigmaMOverM_EBEE",1,sigmaMrv/mass, evweight);
+	  l.FillHist("sigmaMOverM_wrongVtx_EBEE",1,sigmaMwv/mass, evweight);
+	} else if (lead_r9<0.93 && sublead_r9<0.93) {
+	  l.FillHist("sigmaMOverM_EBEE",3,sigmaMrv/mass, evweight);
+	  l.FillHist("sigmaMOverM_wrongVtx_EBEE",3,sigmaMwv/mass, evweight);
+	} else {
+	  l.FillHist("sigmaMOverM_EBEE",2,sigmaMrv/mass, evweight);
+	  l.FillHist("sigmaMOverM_wrongVtx_EBEE",2,sigmaMwv/mass, evweight);
+	}
+      }
+
+    }
+
+  }
+
+}
+
+
+// ----------------------------------------------------------------------------------------------------
 int MassFactorizedMvaAnalysis::GetBDTBoundaryCategory(float bdtout, bool isEB, bool VBFevent){
 
     if (bdtTrainingPhilosophy=="UCSD"){
@@ -971,6 +1154,7 @@ void MassFactorizedMvaAnalysis::ResetAnalysis(){
     // Reset Random Variable on the EnergyResolution Smearer
     eResolSmearer->resetRandom();
 }
+
 
 
 // Local Variables:

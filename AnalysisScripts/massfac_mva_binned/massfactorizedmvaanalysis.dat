@@ -18,6 +18,8 @@ includeVBF=1
 leadEtVBFCut=55
 subleadEtVBFCut=30
 
+phoidMvaCut=-0.3
+
 ->
 choose between UCSD and MIT trainings
 ->
@@ -78,7 +80,6 @@ kfacHist=aux/KFactors_AllScales_interpolated.root
 efficiencyFile=aux/sig_reweighing_jan16rereco_mva_v2.root
 puHist=aux/2011_0100_73500.weights3.root
 puTarget=aux/nov08_rereco.json.68000.pileup.root
-
 puMap=pu_weights_map.dat
 
 ->

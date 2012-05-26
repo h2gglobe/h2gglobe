@@ -55,7 +55,9 @@ class StatAnalysis : public PhotonAnalysis
     float massMin, massMax;
     int nDataBins;  
     bool dataIs2011;
-    
+    float phoidMvaCut;
+    std::vector<double> zeePtBinLowEdge, zeePtWeight;
+
     std::string kfacHist;
 
     TH1D *thm110,*thm120,*thm130,*thm140;
@@ -92,7 +94,7 @@ class StatAnalysis : public PhotonAnalysis
     void fillControlPlots(const TLorentzVector & lead_p4, const  TLorentzVector & sublead_p4, const TLorentzVector & Higgs, 
 			  float lead_r9, float sublead_r9, 
 			  int category, bool rightvtx, float evweight , LoopAll &);
-	
+
     EnergySmearer /* *eScaleSmearer,*/ *eResolSmearer ; // moved to PhotonAnalysis GF 
     EfficiencySmearer *idEffSmearer, *r9Smearer;
     DiPhoEfficiencySmearer *vtxEffSmearer, *triggerEffSmearer;

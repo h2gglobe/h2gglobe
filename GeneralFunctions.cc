@@ -1832,7 +1832,8 @@ int LoopAll::DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL, phoCiCIDLevel SUB
         if ( leadpt/m_gamgam < leadPtMin/120. || subleadpt< subleadPtMin ) { continue; }  
     }else{
 	      if( applyPtoverM ) {
-	          if ( leadpt/m_gamgam < leadPtMin/120. || subleadpt/m_gamgam < subleadPtMin/120. ) { continue; }
+	          if ( leadpt/m_gamgam < leadPtMin/120. || subleadpt/m_gamgam < subleadPtMin/120. ||
+		       leadpt < 100./3. || subleadpt < 100./4.) { continue; }
 	      } else {
 	          if ( leadpt < leadPtMin || subleadpt < subleadPtMin ) { continue; }
 	      }
@@ -1899,7 +1900,7 @@ int LoopAll::DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL, phoCiCIDLevel SUB
 
 }
 
-int LoopAll::DiphotonMITPreSelection(Float_t leadPtMin, Float_t subleadPtMin,bool applyPtoverM,float *pho_energy_array) {
+int LoopAll::DiphotonMITPreSelection(Float_t leadPtMin, Float_t subleadPtMin, Float_t phoidMvaCut, bool applyPtoverM, float *pho_energy_array) {
 
   //rho=0;// CAUTION SETTING RHO TO 0 FOR 2010 DATA FILES (RHO ISN'T IN THESE FILES)
   int selected_lead_index = -1;
@@ -1947,7 +1948,8 @@ int LoopAll::DiphotonMITPreSelection(Float_t leadPtMin, Float_t subleadPtMin,boo
 
 
 	  if( applyPtoverM ) {
-	    if ( leadpt/m_gamgam < leadPtMin/120. || subleadpt/m_gamgam < subleadPtMin/120. ) { continue; }
+	    if ( leadpt/m_gamgam < leadPtMin/120. || subleadpt/m_gamgam < subleadPtMin/120. ||
+		 leadpt < 100./3. || subleadpt < 100./4.) { continue; }
 	  } else {
 	    if ( leadpt < leadPtMin || subleadpt < subleadPtMin ) { continue; }
 	  }
@@ -2006,8 +2008,8 @@ std::cout << photonIDMVA(selected_dipho_sublead,selected_dipho_vtx,selected_subl
 
 }
  
-  if ( photonIDMVA(selected_dipho_lead,selected_dipho_vtx,selected_lead_p4,"MIT") <= -0.3
-    || photonIDMVA(selected_dipho_sublead,selected_dipho_vtx,selected_sublead_p4,"MIT")	<= -0.3
+  if ( photonIDMVA(selected_dipho_lead,selected_dipho_vtx,selected_lead_p4,"MIT") <= phoidMvaCut
+    || photonIDMVA(selected_dipho_sublead,selected_dipho_vtx,selected_sublead_p4,"MIT")	<= phoidMvaCut
      ) {return -1;}
 
   if (run==170397 && lumis==279 && event==304405242){

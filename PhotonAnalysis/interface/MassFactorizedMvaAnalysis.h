@@ -35,6 +35,12 @@ class MassFactorizedMvaAnalysis : public StatAnalysis
 
     virtual int GetBDTBoundaryCategory(float,bool,bool);
 
+    void fillZeeControlPlots(const TLorentzVector & lead_p4, const  TLorentzVector & sublead_p4, 
+	                     const TLorentzVector & Higgs, float lead_r9, float sublead_r9,
+			     float phoid_mvaout_lead, float phoid_mvaout_sublead, 
+			     float diphobdt_output, float sigmaMrv, float sigmaMwv, float vtxProb,
+			     int diphoton_id, int category, float evweight, LoopAll & l );
+
     bool doPhotonMvaIdSyst;
     bool doPhotonMvaIdSmear;
     bool doRegressionSmear, doRegressionSyst;

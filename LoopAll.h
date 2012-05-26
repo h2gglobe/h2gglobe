@@ -503,7 +503,7 @@ int DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL = phoLOOSE,
                           float *pho_energy_array=0, 
                           bool split=false);
 
-int DiphotonMITPreSelection(Float_t leadPtMin, Float_t subleadPtMin, bool applyPtoverM, float *pho_energy_array=0);
+int DiphotonMITPreSelection(Float_t leadPtMin, Float_t subleadPtMin, Float_t phoidMvaCut, bool applyPtoverM, float *pho_energy_array=0);
 
 /** for a photon index, applies all levels of cuts and returns the
     index to the highest cut level passed (can do lead and sublead -
