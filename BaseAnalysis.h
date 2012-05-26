@@ -53,7 +53,7 @@ public:
 	virtual bool SelectEvents(LoopAll&, int) = 0;
 	
 	// ! Implemement your final analysis here
-	virtual void Analysis(LoopAll&, Int_t) = 0;
+	virtual bool Analysis(LoopAll&, Int_t) = 0;
 	
 };
 

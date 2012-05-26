@@ -56,6 +56,7 @@ class configProducer:
     # configurable from .dat file
     self.plottingvariables_ = "plotvariables.dat"
     self.cutvariables_ = "cuts.dat"
+    self.treevariables_ = "treevariables.dat"
 
     self.sample_weights_file_ = 0
     self.file_processed_events_ = {}
@@ -92,6 +93,7 @@ class configProducer:
       self.init_loop()
       self.init_counters()
       self.init_histos()
+      self.init_trees()
       self.init_cuts()
 
     elif self.type_ == 1:
@@ -168,6 +170,12 @@ class configProducer:
     self.ut_.InitHistos()
     for dum in self.plotvar_.vardef:
       self.ut_.BookHisto(dum['htyp'],dum['plot'],dum['default'],dum['ncat'],dum['xbins'],dum['ybins'],dum['xmin'],dum['xmax'],dum['ymin'],dum['ymax'],dum['name'], dum['xaxis'], dum['yaxis'])
+
+  def init_trees(self):
+    self.read_dat_treevariables(self.treevariables_)
+    self.ut_.InitTrees()
+    for dum in self.plotvar_.vardef:
+      self.ut_.BookTreeBranch(dum['name'],dum['type'])
       
   def init_reduce(self):
     self.read_config_reduce(self.conf_filename)
@@ -259,6 +267,28 @@ class configProducer:
         self.plotvar_.vardef.append(map_c.copy())
       else: sys.exit("Config Line Unrecognised:\n ' %s '"%line)
 
+  # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  def read_dat_treevariables(self,f): 
+     print "Parsing of the treevariables dat"
+     self.plotvar_.clear()
+     self.read_file(f)
+     map_dict = { "type":int, "name": str }
+     map_c   = {}
+     for line in self.lines_:       
+      if len(line) < 2: continue
+      if (len(line.split()) < 1): continue
+
+      if "name" in line:
+        # We have one of the file def lines
+        split_line = line.split()
+        for sp in split_line:
+          name, val = sp.split("=")
+          if name in  map_dict :
+            map_c[name] = map_dict[name](val)
+          else: sys.exit("Unrecognised Argument:\n ' %s ' in line:\n ' %s '" %(name,line))
+
+        self.plotvar_.vardef.append(map_c.copy())
+      else: sys.exit("Config Line Unrecognised:\n ' %s '"%line)
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def read_dat_cuts(self,f): 
      "Parsing of the cuts dat"
@@ -375,9 +405,13 @@ class configProducer:
        elif line.startswith("plotvariables"):
 	 self.plottingvariables_ = line.split(" ")[1]
 
-       # choose plotvariables for analysis
+       # choose cuts for analysis
        elif line.startswith("cuts"):
 	 self.cutvariables_ = line.split(" ")[1]
+
+       # choose trees for analysis
+       elif line.startswith("treevariables"):
+	 self.treevariables_ = line.split(" ")[1]
 
        # Read a generic member of the LoopAll class
        else:

@@ -34,7 +34,7 @@ class StatAnalysis : public PhotonAnalysis
     
     virtual bool SelectEvents(LoopAll&, int);
     virtual void ResetAnalysis();
-    virtual void Analysis(LoopAll&, Int_t);
+    virtual bool Analysis(LoopAll&, Int_t);
     
     std::string efficiencyFile;
 

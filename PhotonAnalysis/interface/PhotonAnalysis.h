@@ -40,7 +40,7 @@ class PhotonAnalysis : public BaseAnalysis
 
     virtual bool SkimEvents(LoopAll&, int);
     virtual bool SelectEvents(LoopAll&, int);
-    virtual void Analysis(LoopAll&, Int_t);
+    virtual bool Analysis(LoopAll&, Int_t);
 
     virtual void ResetAnalysis();
     

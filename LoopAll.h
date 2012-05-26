@@ -26,6 +26,7 @@ class BaseAnalysis;
 #include "HistoContainer.h"
 #include "CounterContainer.h"
 #include "SampleContainer.h"
+#include "TreeContainer.h"
 #include "Cut.h"
 #include "branchdef/Limits.h"
 #include "RooContainer.h"
@@ -53,6 +54,7 @@ class LoopAll {
   std::vector<CounterContainer> counterContainer;
   std::vector<SampleContainer> sampleContainer;
   std::vector<Cut> cutContainer;
+  std::vector<TreeContainer> treeContainer;	 
   RooContainer *rooContainer;
   
   LoopAll(TTree *tree=0);
@@ -182,6 +184,15 @@ class LoopAll {
   virtual void   BookHisto(int, int, int, int, int, int,
                            float, float, float, float, const char*,
 			   const char* xaxis="", const char* yaxis="");
+
+  
+  // Cut down (flat) trees for MVA Training 
+  void InitTrees();
+  void BookTreeBranch(std::string name, int type);
+  void FillTreeContainer();
+  void FillTree(std::string name,float x);
+  void FillTree(std::string name,double x);
+  void FillTree(std::string name,int x);
  
 
   void WritePI();

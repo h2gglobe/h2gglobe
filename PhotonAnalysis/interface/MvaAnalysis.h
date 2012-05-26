@@ -75,6 +75,7 @@ class MvaAnalysis : public MassFactorizedMvaAnalysis
     bool makeTrees;
     bool splitSignalSample;
     bool splitBackgroundSample;
+    double trainingMassHypothesis;
     //int nMassPt;
     std::string names[9];
     std::string BDTnames[9];
@@ -97,10 +98,10 @@ class MvaAnalysis : public MassFactorizedMvaAnalysis
  protected:
 
     float tmvaGetVal(double,double,float);
-    void fillLeeTrees(float,float,int,float,int);
+    void fillTMVATrees(LoopAll &l,float,float,int,float,int);
 
-    virtual void FillRooContainer(LoopAll& l, int cur_type, float mass, float diphotonMVA, int category, float weight, 
-				  bool isCorrectVertex);
+    virtual void FillRooContainer(LoopAll& l, int cur_type, float mass, float diphotonMVA, int category, float weight, bool isCorrectVertex);
+
     virtual void AccumulateSyst(int cur_type, float mass, float diphotonMVA, int category, float weight,
 				std::vector<double> & mass_errors,
 				std::vector<double> & mva_errors,

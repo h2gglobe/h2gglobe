@@ -548,7 +548,7 @@ void StatAnalysis::Init(LoopAll& l)
 }
 
 // ----------------------------------------------------------------------------------------------------
-void StatAnalysis::Analysis(LoopAll& l, Int_t jentry) 
+bool StatAnalysis::Analysis(LoopAll& l, Int_t jentry) 
 {
     if(PADEBUG) 
         cout << "Analysis START; cur_type is: " << l.itype[l.current] <<endl;
@@ -690,7 +690,8 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		FillRooContainerSyst(l, (*si)->name(), cur_type, mass_errors, mva_errors, categories, weights);
 	    }
 	}
-	
+
+    int diphoton_id_syst;	
 	// single photon level systematics: several
 	for(std::vector<BaseSmearer *>::iterator  si=systPhotonSmearers_.begin(); si!= systPhotonSmearers_.end(); ++si ) {
 	    mass_errors.clear(), weights.clear(), categories.clear(), mva_errors.clear();
@@ -700,7 +701,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		syst_mass     =  0., syst_category = -1, syst_weight   =  0.;
 		
 		// re-analyse the event redoing the event selection this time
-		AnalyseEvent(l,jentry, weight, gP4, syst_mass,  syst_weight, syst_category, diphoton_id, isCorrectVertex,zero_,
+		AnalyseEvent(l,jentry, weight, gP4, syst_mass,  syst_weight, syst_category, diphoton_id_syst, isCorrectVertex,zero_,
 			     true, syst_shift, false,  0, *si, 0 );
 		
 		AccumulateSyst( cur_type, syst_mass, syst_diphotonMVA, syst_category, syst_weight,
@@ -713,6 +714,8 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
     if(PADEBUG) 
         cout<<"myFillHistRed END"<<endl;
+
+    return (diphoton_id > -1);
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -877,17 +880,19 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 void StatAnalysis::FillRooContainer(LoopAll& l, int cur_type, float mass, float diphotonMVA, 
 				    int category, float weight, bool isCorrectVertex) 
 {
-        if (cur_type == 0 ){
+
+
+    if (cur_type == 0 ){
             l.rooContainer->InputDataPoint("data_mass",category,mass);
-        }
-        if (cur_type > 0 && cur_type != 3 && cur_type != 4) {
+    }
+    if (cur_type > 0 && cur_type != 3 && cur_type != 4) {
             l.rooContainer->InputDataPoint("bkg_mass",category,mass,weight);
 	}
-        else if (cur_type < 0){
+    else if (cur_type < 0){
             l.rooContainer->InputDataPoint("sig_"+GetSignalLabel(cur_type),category,mass,weight);
             if (isCorrectVertex) l.rooContainer->InputDataPoint("sig_"+GetSignalLabel(cur_type)+"_rv",category,mass,weight);
             else l.rooContainer->InputDataPoint("sig_"+GetSignalLabel(cur_type)+"_wv",category,mass,weight);
-        }
+    }
 }
 
 // ----------------------------------------------------------------------------------------------------

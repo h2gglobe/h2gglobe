@@ -802,14 +802,14 @@ void PhotonAnalysis::Init(LoopAll& l)
 }
 
 // ----------------------------------------------------------------------------------------------------
-void PhotonAnalysis::Analysis(LoopAll& l, Int_t jentry) 
+bool PhotonAnalysis::Analysis(LoopAll& l, Int_t jentry) 
 {
     if(PADEBUG) 
         cout << "Analysis START"<<endl;
     pho_presel.clear();
 
     //remove process ID 18 from gamma+jet to avoid double counting with born+box
-    if (l.itype[l.current]==3 && l.process_id==18) return;
+    if (l.itype[l.current]==3 && l.process_id==18) return false;
 
     //apply pileup reweighting
     unsigned int n_pu = l.pu_n;
@@ -828,7 +828,7 @@ void PhotonAnalysis::Analysis(LoopAll& l, Int_t jentry)
         PreselectPhotons(l,jentry);
     }
 
-    if( pho_acc.size() < 2 || pho_et[ pho_acc[0] ] < presel_scet1 ) return;
+    if( pho_acc.size() < 2 || pho_et[ pho_acc[0] ] < presel_scet1 ) return false;
 
     int leadLevel=LoopAll::phoSUPERTIGHT, subLevel=LoopAll::phoSUPERTIGHT;
 
@@ -1066,6 +1066,7 @@ void PhotonAnalysis::Analysis(LoopAll& l, Int_t jentry)
     if(PADEBUG) 
         cout<<"myFillHistRed END"<<endl;
 
+    return true;
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -1343,7 +1344,7 @@ bool PhotonAnalysis::SkimEvents(LoopAll& l, int jentry)
 	if( !  isel->pass(*(l.hlt_path_names_HLT1),*(l.hlt1_bit)) ) {
 	    return false;
 	}
-	l.countersred[trigCounter_]++;
+	//l.countersred[trigCounter_]++;
     }
     
     if( l.typerun == l.kReduce || l.typerun == l.kFillReduce ) {

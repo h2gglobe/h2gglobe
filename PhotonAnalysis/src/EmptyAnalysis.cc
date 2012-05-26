@@ -32,7 +32,7 @@ void EmptyAnalysis::Init(LoopAll& l)
 }
 
 // ----------------------------------------------------------------------------------------------------
-void EmptyAnalysis::Analysis(LoopAll& l, Int_t jentry) 
+bool EmptyAnalysis::Analysis(LoopAll& l, Int_t jentry) 
 {
 }
 

@@ -458,6 +458,16 @@ void LoopAll::InitHistos(){
 }
 
 // ------------------------------------------------------------------------------------
+void LoopAll::InitTrees(){
+
+  for(int ind=0; ind<sampleContainer.size(); ind++) {
+    SampleContainer thisSample = (SampleContainer) sampleContainer.at(ind);
+    TreeContainer temp(ind,thisSample.filesshortnam);
+    treeContainer.push_back(temp);
+  }
+}
+
+// ------------------------------------------------------------------------------------
 void LoopAll::InitReal(Int_t typerunpass) {
 
   // Set branch addresses
@@ -739,6 +749,9 @@ void LoopAll::WriteHist() {
   for(unsigned int ind=0; ind<histoContainer.size(); ind++) {
     histoContainer[ind].Save();
   }
+  for(unsigned int ind=0; ind<treeContainer.size(); ind++) {
+    treeContainer[ind].Save();
+  }
   outputTreeLumi->Write();
 
   WritePI();
@@ -750,6 +763,7 @@ void LoopAll::WriteHist() {
 
   //WriteCounters();
 }
+
 
 void LoopAll::WritePI() {
   Int_t Nvar;
@@ -1047,7 +1061,9 @@ int LoopAll::FillAndReduce(int jentry) {
     }
     // final analysis
     for (size_t i=0; i<analyses.size(); i++) {
-      analyses[i]->Analysis(*this, jentry); 
+      if ( analyses[i]->Analysis(*this, jentry) ) { 
+      	FillTreeContainer();
+      }
     }
   }
   
@@ -1113,7 +1129,12 @@ void LoopAll::GetEntry(std::set<TBranch *> & branches, int jentry)
     if( (*it)->GetReadEntry() != jentry ) {  (*it)->GetEntry(jentry); }
   }
 }
-
+// ------------------------------------------------------------------------------------
+void LoopAll::BookTreeBranch(std::string name, int type){
+  for(unsigned int ind=0; ind<treeContainer.size(); ind++) {
+	treeContainer[ind].AddTreeBranch(name,type);
+  }
+}
 // ------------------------------------------------------------------------------------
 void LoopAll::BookHisto(int h2d,
 			int typplot,
@@ -1278,8 +1299,22 @@ int LoopAll::ApplyCut(std::string cutname, float var, int icat) {
   std::cout<<"ApplyCut: attention cutname "<<cutname<<" not found"<<std::endl;
   return 0;
 }
-
-
+// ------------------------------------------------------------------------------------
+void LoopAll::FillTreeContainer(){	// To Be Called after each jentry
+  treeContainer[current_sample_index].FillTree();
+}
+// ------------------------------------------------------------------------------------
+void LoopAll::FillTree(std::string name,float x){
+  treeContainer[current_sample_index].FillFloat(name, x);
+}
+// ------------------------------------------------------------------------------------
+void LoopAll::FillTree(std::string name,double x){
+  treeContainer[current_sample_index].FillDouble(name, x);
+}
+// ------------------------------------------------------------------------------------
+void LoopAll::FillTree(std::string name,int x){
+  treeContainer[current_sample_index].FillInt(name, x);
+}
  
 // ------------------------------------------------------------------------------------
 void LoopAll::FillHist(std::string name, float y) {
