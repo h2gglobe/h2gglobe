@@ -1082,9 +1082,9 @@ void LoopAll::FillCIC()
 		
 			// PF - 4 categories
 			int cic4pf_level_lead = PhotonCiCPFSelectionLevel(ipho, ivtx, cic4pf_passcut_lead, 4, 0);
-			std::cout<<"cic4pf_level_lead  "<<cic4pf_level_lead<<std::endl;
+			if(GFDEBUG) std::cout<<"cic4pf_level_lead  "<<cic4pf_level_lead<<std::endl;
       int cic4pf_level_sublead = PhotonCiCPFSelectionLevel(ipho, ivtx, cic4pf_passcut_sublead, 4, 1);
-			std::cout<<"cic4pf_level_sublead  "<<cic4pf_level_sublead<<std::endl;
+			if(GFDEBUG) std::cout<<"cic4pf_level_sublead  "<<cic4pf_level_sublead<<std::endl;
 			(*pho_cic4pfcutlevel_lead)[ipho][ivtx] = cic4pf_level_lead;
 			(*pho_cic4pfcutlevel_sublead)[ipho][ivtx] = cic4pf_level_sublead;
 		
