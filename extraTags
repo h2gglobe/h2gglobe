@@ -19,7 +19,7 @@ get_tag()
 }
 
 cd $CMSSW_BASE/src
-get_tag V00-02-05 UserCode/CMG/CMGTools/External CMGTools/External 
+get_tag V00-02-07 UserCode/CMG/CMGTools/External CMGTools/External 
 
 if [[ -n $packs ]]; then 
     scram b -j 10 $packs
