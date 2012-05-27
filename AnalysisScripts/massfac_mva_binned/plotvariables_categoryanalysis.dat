@@ -1,0 +1,103 @@
+default=2
+
+htyp=0 plot=-1  ncat=1  xbins=440   ybins=0       xmin=80.0  xmax=190.0  ymin=0      ymax=0       name=mass_cic xaxis= yaxis=
+htyp=0 plot=-1  ncat=1  xbins=440   ybins=0       xmin=80.0  xmax=190.0  ymin=0      ymax=0       name=mass_mva xaxis= yaxis=
+htyp=0 plot=-1  ncat=1  xbins=440   ybins=0       xmin=80.0  xmax=190.0  ymin=0      ymax=0       name=mass_mva_bdtoutlt05 xaxis= yaxis=
+htyp=0 plot=-1  ncat=1  xbins=440   ybins=0       xmin=80.0  xmax=190.0  ymin=0      ymax=0       name=mass_failpresel_bdtoutgt05 xaxis= yaxis=
+htyp=0 plot=-1  ncat=1  xbins=440   ybins=0       xmin=80.0  xmax=190.0  ymin=0      ymax=0       name=mass_failpresel_bdtoutlt05 xaxis= yaxis=
+
+htyp=1 plot=-1  ncat=1  xbins=4   ybins=4  xmin=-0.5  xmax=3.5  ymin=-0.5 ymax=3.5 name=diphocat_vs_passMVA xaxis= yaxis=
+htyp=1 plot=-1  ncat=1  xbins=2   ybins=2  xmin=-0.5  xmax=1.5  ymin=-0.5 ymax=1.5 name=passCiC_vs_passMVA xaxis= yaxis=
+htyp=1 plot=-1  ncat=1  xbins=6   ybins=5  xmin=-2.5  xmax=3.5  ymin=-1.5 ymax=3.5 name=passCiC_vs_passMVA_cat xaxis= yaxis=
+htyp=1 plot=-1  ncat=1  xbins=2   ybins=2  xmin=-0.5  xmax=1.5  ymin=-0.5 ymax=1.5 name=passVBFCiC_vs_passVBFMVA xaxis= yaxis=
+
+htyp=1 plot=-1  ncat=5  xbins=100   ybins=100  xmin=-1.0  xmax=1.0  ymin=0. ymax=200. name=pt_vs_bdtout xaxis= yaxis=
+htyp=1 plot=-1  ncat=5  xbins=100   ybins=100  xmin=-1.0  xmax=1.0  ymin=0. ymax=200. name=pt_vs_bdtout_failpresel xaxis= yaxis=
+
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=-1.0  xmax=1.0  ymin=0 ymax=0 name=bdtout xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=-1.0  xmax=1.0  ymin=0 ymax=0 name=bdtout_lowPt xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=-1.0  xmax=1.0  ymin=0 ymax=0 name=bdtout_highPt xaxis= yaxis=
+
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=-1.0  xmax=1.0  ymin=0 ymax=0 name=bdtout_passCiC xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=-1.0  xmax=1.0  ymin=0 ymax=0 name=bdtout_passCiC_lowPt xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=-1.0  xmax=1.0  ymin=0 ymax=0 name=bdtout_passCiC_highPt xaxis= yaxis=
+
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=-1.0  xmax=1.0  ymin=0 ymax=0 name=bdtout_failpresel xaxis= yaxis=
+
+htyp=1 plot=-1  ncat=7  xbins=60   ybins=50  xmin=0.  xmax=3.0  ymin=0. ymax=2.5 name=eta1_vs_deltaEta xaxis= yaxis=
+htyp=1 plot=-1  ncat=7  xbins=50   ybins=50  xmin=-2.5  xmax=2.5  ymin=-2.5 ymax=2.5 name=eta2_vs_eta1 xaxis= yaxis=
+htyp=1 plot=-1  ncat=7  xbins=50   ybins=50  xmin=0.  xmax=2.5  ymin=0.5 ymax=1.0 name=minR9_vs_maxEta xaxis= yaxis=
+
+
+htyp=0 plot=-1  ncat=5  xbins=75   ybins=0  xmin=0.  xmax=0.15  ymin=0 ymax=0 name=lead_hoe xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=80   ybins=0  xmin=0.  xmax=0.04  ymin=0 ymax=0 name=lead_sieie xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=0.  xmax=10.0  ymin=0 ymax=0 name=lead_ecaliso xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=0.  xmax=10.0  ymin=0 ymax=0 name=lead_hcaliso xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=0.  xmax=10.0  ymin=0 ymax=0 name=lead_trkiso xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=0.  xmax=10.0  ymin=0 ymax=0 name=lead_hcalecal xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=0.  xmax=10.0  ymin=0 ymax=0 name=lead_abstrkiso xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=0.  xmax=10.0  ymin=0 ymax=0 name=lead_trkiso_hollow03 xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=-1.0  xmax=1.0  ymin=0 ymax=0 name=lead_phoid_mvaout xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=0.  xmax=100.  ymin=0 ymax=0 name=lead_pt xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=-2.5  xmax=2.5  ymin=0 ymax=0 name=lead_eta xaxis= yaxis=
+
+htyp=0 plot=-1  ncat=5  xbins=75   ybins=0  xmin=0.  xmax=0.15  ymin=0 ymax=0 name=sublead_hoe xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=80   ybins=0  xmin=0.  xmax=0.04  ymin=0 ymax=0 name=sublead_sieie xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=0.  xmax=10.0  ymin=0 ymax=0 name=sublead_ecaliso xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=0.  xmax=10.0  ymin=0 ymax=0 name=sublead_hcaliso xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=0.  xmax=10.0  ymin=0 ymax=0 name=sublead_trkiso xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=0.  xmax=10.0  ymin=0 ymax=0 name=sublead_hcalecal xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=0.  xmax=10.0  ymin=0 ymax=0 name=sublead_abstrkiso xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=0.  xmax=10.0  ymin=0 ymax=0 name=sublead_trkiso_hollow03 xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=-1.0  xmax=1.0  ymin=0 ymax=0 name=sublead_phoid_mvaout xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=0.  xmax=100.  ymin=0 ymax=0 name=sublead_pt xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=-2.5  xmax=2.5  ymin=0 ymax=0 name=sublead_eta xaxis= yaxis=
+
+
+htyp=0 plot=-1  ncat=5  xbins=75   ybins=0  xmin=0.  xmax=0.15  ymin=0 ymax=0 name=lead_hoe_failpresel_bdtoutgt05 xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=80   ybins=0  xmin=0.  xmax=0.04  ymin=0 ymax=0 name=lead_sieie_failpresel_bdtoutgt05 xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=0.  xmax=10.0  ymin=0 ymax=0 name=lead_ecaliso_failpresel_bdtoutgt05 xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=0.  xmax=10.0  ymin=0 ymax=0 name=lead_hcaliso_failpresel_bdtoutgt05 xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=0.  xmax=10.0  ymin=0 ymax=0 name=lead_trkiso_failpresel_bdtoutgt05 xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=0.  xmax=10.0  ymin=0 ymax=0 name=lead_hcalecal_failpresel_bdtoutgt05 xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=0.  xmax=10.0  ymin=0 ymax=0 name=lead_abstrkiso_failpresel_bdtoutgt05 xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=0.  xmax=10.0  ymin=0 ymax=0 name=lead_trkiso_hollow03_failpresel_bdtoutgt05 xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=-1.0  xmax=1.0  ymin=0 ymax=0 name=lead_phoid_mvaout_failpresel_bdtoutgt05 xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=0.  xmax=100.  ymin=0 ymax=0 name=lead_pt_failpresel_bdtoutgt05 xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=-2.5  xmax=2.5  ymin=0 ymax=0 name=lead_eta_failpresel_bdtoutgt05 xaxis= yaxis=
+
+htyp=0 plot=-1  ncat=5  xbins=75   ybins=0  xmin=0.  xmax=0.15  ymin=0 ymax=0 name=sublead_hoe_failpresel_bdtoutgt05 xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=80   ybins=0  xmin=0.  xmax=0.04  ymin=0 ymax=0 name=sublead_sieie_failpresel_bdtoutgt05 xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=0.  xmax=10.0  ymin=0 ymax=0 name=sublead_ecaliso_failpresel_bdtoutgt05 xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=0.  xmax=10.0  ymin=0 ymax=0 name=sublead_hcaliso_failpresel_bdtoutgt05 xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=0.  xmax=10.0  ymin=0 ymax=0 name=sublead_trkiso_failpresel_bdtoutgt05 xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=0.  xmax=10.0  ymin=0 ymax=0 name=sublead_hcalecal_failpresel_bdtoutgt05 xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=0.  xmax=10.0  ymin=0 ymax=0 name=sublead_abstrkiso_failpresel_bdtoutgt05 xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=0.  xmax=10.0  ymin=0 ymax=0 name=sublead_trkiso_hollow03_failpresel_bdtoutgt05 xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=-1.0  xmax=1.0  ymin=0 ymax=0 name=sublead_phoid_mvaout_failpresel_bdtoutgt05 xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=0.  xmax=100.  ymin=0 ymax=0 name=sublead_pt_failpresel_bdtoutgt05 xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=-2.5  xmax=2.5  ymin=0 ymax=0 name=sublead_eta_failpresel_bdtoutgt05 xaxis= yaxis=
+
+htyp=0 plot=-1  ncat=5  xbins=75   ybins=0  xmin=0.  xmax=0.15  ymin=0 ymax=0 name=lead_hoe_failpresel_bdtoutlt05 xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=80   ybins=0  xmin=0.  xmax=0.04  ymin=0 ymax=0 name=lead_sieie_failpresel_bdtoutlt05 xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=0.  xmax=10.0  ymin=0 ymax=0 name=lead_ecaliso_failpresel_bdtoutlt05 xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=0.  xmax=10.0  ymin=0 ymax=0 name=lead_hcaliso_failpresel_bdtoutlt05 xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=0.  xmax=10.0  ymin=0 ymax=0 name=lead_trkiso_failpresel_bdtoutlt05 xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=0.  xmax=10.0  ymin=0 ymax=0 name=lead_hcalecal_failpresel_bdtoutlt05 xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=0.  xmax=10.0  ymin=0 ymax=0 name=lead_abstrkiso_failpresel_bdtoutlt05 xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=0.  xmax=10.0  ymin=0 ymax=0 name=lead_trkiso_hollow03_failpresel_bdtoutlt05 xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=-1.0  xmax=1.0  ymin=0 ymax=0 name=lead_phoid_mvaout_failpresel_bdtoutlt05 xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=0.  xmax=100.  ymin=0 ymax=0 name=lead_pt_failpresel_bdtoutlt05 xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=-2.5  xmax=2.5  ymin=0 ymax=0 name=lead_eta_failpresel_bdtoutlt05 xaxis= yaxis=
+
+htyp=0 plot=-1  ncat=5  xbins=75   ybins=0  xmin=0.  xmax=0.15  ymin=0 ymax=0 name=sublead_hoe_failpresel_bdtoutlt05 xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=80   ybins=0  xmin=0.  xmax=0.04  ymin=0 ymax=0 name=sublead_sieie_failpresel_bdtoutlt05 xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=0.  xmax=10.0  ymin=0 ymax=0 name=sublead_ecaliso_failpresel_bdtoutlt05 xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=0.  xmax=10.0  ymin=0 ymax=0 name=sublead_hcaliso_failpresel_bdtoutlt05 xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=0.  xmax=10.0  ymin=0 ymax=0 name=sublead_trkiso_failpresel_bdtoutlt05 xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=0.  xmax=10.0  ymin=0 ymax=0 name=sublead_hcalecal_failpresel_bdtoutlt05 xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=0.  xmax=10.0  ymin=0 ymax=0 name=sublead_abstrkiso_failpresel_bdtoutlt05 xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=0.  xmax=10.0  ymin=0 ymax=0 name=sublead_trkiso_hollow03_failpresel_bdtoutlt05 xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=-1.0  xmax=1.0  ymin=0 ymax=0 name=sublead_phoid_mvaout_failpresel_bdtoutlt05 xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=0.  xmax=100.  ymin=0 ymax=0 name=sublead_pt_failpresel_bdtoutlt05 xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=100   ybins=0  xmin=-2.5  xmax=2.5  ymin=0 ymax=0 name=sublead_eta_failpresel_bdtoutlt05 xaxis= yaxis=
