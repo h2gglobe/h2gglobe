@@ -2582,6 +2582,7 @@ void RooContainer::createDataSet(std::string name,std::string data_name,int nbin
       
       TH1F tmp_hist(Form("th1f_%s",data_name.c_str()),name.c_str(),number_of_bins,r1,r2);
       tmp_hist.Sumw2();
+      if (blind_data) {tmp_hist.SetLineColor(0); tmp_hist.SetMarkerColor(0);} // Invisible points for bliding
       tmp_hist.GetYaxis()->SetTitle(Form("Events / (%.3f)",tmp_hist.GetBinWidth(1)));
       m_th1f_[data_name] = tmp_hist;
 
