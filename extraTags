@@ -22,6 +22,8 @@ cd $CMSSW_BASE/src
 get_tag V00-02-07 UserCode/CMG/CMGTools/External CMGTools/External 
 
 if [[ -n $packs ]]; then 
-    scram b -j 10 $packs
+    scram b $packs
 fi
 
+cd -
+touch .extraTags

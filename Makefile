@@ -89,7 +89,8 @@ Deps = $(patsubst %$(ObjSuf), %$(DepSuf), $(Objs))
 ExtPacks=.extraTags
 
 ## Targets
-all: $(ExtPacks) $(LOOPALLSO)
+all: $(ExtPacks)
+	@$(MAKE)  $(LOOPALLSO)
 
 print:
 	@echo "Subpackages:"
@@ -130,7 +131,6 @@ clean:
 .extraTags: extraTags
 	@echo "Getting extra tags"
 	@bash extraTags
-	@touch .extraTags
 
 $(LOOPALLSO):  $(Objs)
 	@echo "Linking"
@@ -145,7 +145,9 @@ dict.$(SrcSuf): $(LinkDef)
 	@echo "Generating dictionary $@"
 	@rootcint -f dict.cc -c -p $(LinkDef)
 
-.$(SrcSuf).$(ObjSuf):
+%.$(ObjSuf): $(ExtPacks)
+
+.$(SrcSuf).$(ObjSuf): $(ExtPacks)
 	@echo "Compiling $<"
 	@$(CXX) $(CXXFLAGS) -M -c $< -o $(patsubst %.$(ObjSuf), %.$(DepSuf), $@)
 	@sed -i "s|.*:|$*.o: Makefile $(ExtPacks)|"  $(patsubst %.$(ObjSuf), %.$(DepSuf), $@)
