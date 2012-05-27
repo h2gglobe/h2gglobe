@@ -1900,7 +1900,7 @@ int LoopAll::DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL, phoCiCIDLevel SUB
 
 }
 
-int LoopAll::DiphotonMITPreSelection(Float_t leadPtMin, Float_t subleadPtMin, Float_t phoidMvaCut, bool applyPtoverM, float *pho_energy_array) {
+int LoopAll::DiphotonMITPreSelection(Float_t leadPtMin, Float_t subleadPtMin, Float_t phoidMvaCut, bool applyPtoverM, float *pho_energy_array, bool kinonly) {
 
   //rho=0;// CAUTION SETTING RHO TO 0 FOR 2010 DATA FILES (RHO ISN'T IN THESE FILES)
   int selected_lead_index = -1;
@@ -1956,8 +1956,10 @@ int LoopAll::DiphotonMITPreSelection(Float_t leadPtMin, Float_t subleadPtMin, Fl
 	  
 
 	  std::vector<std::vector<bool> > ph_passcut;
-          if (!( PhotonMITPreSelection(lead, ivtx, pho_energy_array ) && PhotonMITPreSelection(sublead, ivtx,  pho_energy_array ))) continue; 
-	  
+	  if (!kinonly) {
+	    if (!( PhotonMITPreSelection(lead, ivtx, pho_energy_array ) && PhotonMITPreSelection(sublead, ivtx,  pho_energy_array ))) continue; 
+	  }
+
 	  passing_dipho.push_back(idipho);
 	  passing_sumpt.push_back(leadpt+subleadpt); // need to use reordered pt!
   }
@@ -2008,9 +2010,11 @@ std::cout << photonIDMVA(selected_dipho_sublead,selected_dipho_vtx,selected_subl
 
 }
  
-  if ( photonIDMVA(selected_dipho_lead,selected_dipho_vtx,selected_lead_p4,"MIT") <= phoidMvaCut
-    || photonIDMVA(selected_dipho_sublead,selected_dipho_vtx,selected_sublead_p4,"MIT")	<= phoidMvaCut
-     ) {return -1;}
+  if (!kinonly) {
+    if ( photonIDMVA(selected_dipho_lead,selected_dipho_vtx,selected_lead_p4,"MIT") <= phoidMvaCut
+	 || photonIDMVA(selected_dipho_sublead,selected_dipho_vtx,selected_sublead_p4,"MIT")	<= phoidMvaCut
+	 ) {return -1;}
+  }
 
   if (run==170397 && lumis==279 && event==304405242){
    std::cout <<	"Diphoton selected index -- "<< selected_dipho_ind <<std::endl;
