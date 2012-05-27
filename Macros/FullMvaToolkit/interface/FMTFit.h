@@ -21,7 +21,6 @@ class FMTFit : public FMTBase{
 
 		pair<double,double> FitPow(double);
 		void redoFit(double);
-		void makeNormPlot();
 		void Plot(double);
 
 		bool getblind();

@@ -9,6 +9,7 @@
 
 #include "../python/createCorrectedBackgroundModel.C"
 
+#include "../interface/FMTPlots.h"
 #include "../interface/FMTSigInterp.h"
 #include "../interface/FMTSetup.h"
 
@@ -28,6 +29,7 @@ FMTSetup::FMTSetup():
 	web_(false),
 	runCombine_(false),
 	checkHistos_(false),
+  noPlot_(false),
 	cleaned(false)
 {
 	
@@ -75,6 +77,7 @@ void FMTSetup::OptionParser(int argc, char *argv[]){
 		("checkHistos,c",              																	  	"Run check on histograms in file")
     ("verbose,v",                                                       "Increase output level")
 		("useDat,U", po::value<string>(&datFil_)->default_value("0"),				"Get options from .dat file not TFile")
+    ("noPlot,n",                                                        "Don't remake plots")
     ;
   
 	po::positional_options_description p;
@@ -109,6 +112,7 @@ void FMTSetup::OptionParser(int argc, char *argv[]){
 	if (vm.count("blind")) 					blinding_=true;
 	if (vm.count("checkHistos")) 		checkHistos_=true;
   if (vm.count("www"))            web_=true;
+  if (vm.count("noPlot"))         noPlot_=true;
 	if (vm.count("runCombine"))			runCombine_=true;
   if (vm.count("verbose"))        verbose_=true;
   else                            verbose_=false;
@@ -313,11 +317,6 @@ void FMTSetup::runFitting(){
 	}
 }
 
-void FMTSetup::makeNormPlot(){
-	
-	if (!skipRebin_ && all_ && diagnose_) rebinner->fitter->makeNormPlot();
-}
-
 void FMTSetup::cleanUp(){
 	// need to call FMTRebin destructor to free up file
 	delete rebinner;
@@ -343,6 +342,20 @@ void FMTSetup::interpolateBDT(){
 	}
 }
 
+void FMTSetup::makePlots(){
+  if (!cleaned) cleanUp();
+  if (diagnose_ && !noPlot_){
+    cout << "Making plots..." << endl;
+    FMTPlots *plotter = new FMTPlots(filename_, getmHMinimum(), getmHMaximum(), getmHStep(), getmassMin(), getmassMax(), getnDataBins(), getsignalRegionWidth(), getsidebandWidth(), getnumberOfSidebands(), getnumberOfSidebandsForAlgos(), getnumberOfSidebandGaps(), getmassSidebandMin(), getmassSidebandMax(), getincludeVBF(), getincludeLEP(), getsystematics(), getrederiveOptimizedBinEdges(), getAllBinEdges(),blinding_,verbose_);
+    vector<double> theMasses = getAllMH();
+    for (vector<double>::iterator mh = theMasses.begin(); mh != theMasses.end(); mh++){
+      plotter->plotAll(*mh);
+    }
+    plotter->makeNormPlot();
+    delete plotter;
+  }
+}
+
 void FMTSetup::writeDataCards(){
 	if (!cleaned) cleanUp();
 	if (datacards_){
@@ -354,14 +367,11 @@ void FMTSetup::writeDataCards(){
 void FMTSetup::publishToWeb(){
 	if (!cleaned) cleanUp();
 	if (web_){
-		cout << "Publishing to web: " << webDir_ << "/BMplots/grad/model.html" << endl;
-		system("cp mva-plots-grad/* BMplots/grad");
-		system("cp FitPlots/* BMplots/grad");
-		system(Form("python python/make_html.py %s",filename_.c_str()));
-		system(Form("python python/make_bkg_html.py %s",filename_.c_str()));
+		cout << "Publishing to web: " << webDir_ << "/plots/png/home.html" << endl;
+		system("cp mva-plots-grad/png/*.png plots/png");
+		system(Form("python python/publish_plots.py %s",filename_.c_str()));
 		system(Form("mkdir %s",webDir_.c_str()));
 		system(Form("cp -r plots %s",webDir_.c_str()));
-		system(Form("cp -r BMplots %s",webDir_.c_str()));
 	}
 }
 

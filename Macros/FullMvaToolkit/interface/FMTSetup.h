@@ -33,9 +33,9 @@ class FMTSetup : public FMTBase {
 
 		void runRebinning();
 		void runFitting();
-		void makeNormPlot();
 		void createCorrBkgModel();
 		void interpolateBDT();
+    void makePlots();
 		void writeDataCards();
 		void publishToWeb();
 		void runCombine();
@@ -65,6 +65,7 @@ class FMTSetup : public FMTBase {
 		bool web_;
 		bool runCombine_;
 		bool checkHistos_;
+    bool noPlot_;
 
 		int tempmHMin_;
 		int tempmHMax_;

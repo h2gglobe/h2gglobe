@@ -172,30 +172,6 @@ void FMTFit::redoFit(double mass){
   pair<double,double> dummyVar = FitPow(mass);
 }
 
-void FMTFit::makeNormPlot(){
-  
-  TGraph *normG = new TGraph(getNumMHMasses());  
-  vector<double> allMasses = getAllMH();
-  int i=0;
-  for (vector<double>::iterator mh=allMasses.begin(); mh!=allMasses.end(); mh++){
-    RooRealVar *val = (RooRealVar*)outWS->var(Form("NBkgInSignal_mH%3.1f",*mh));
-    normG->SetPoint(i,*mh,val->getVal());
-    i++;
-  }
-  TCanvas *canv = new TCanvas();
-  normG->SetMarkerSize(2);
-  normG->SetLineWidth(2);
-  normG->SetTitle("Fit normalisations");
-  normG->GetYaxis()->SetTitle("Background events in signal region");
-  normG->GetYaxis()->SetTitleOffset(1.5);
-  normG->GetXaxis()->SetTitle("m_{H} (GeV)");
-  normG->Draw("ALP");
-  canv->SaveAs("plots/pdf/normAll.pdf");
-  canv->SaveAs("plots/png/normAll.png");
-	delete normG;
-	delete canv;
-}
-
 bool FMTFit::getblind(){
 	return blind_;
 }

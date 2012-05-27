@@ -43,6 +43,7 @@ class FMTBase {
 		pair<int,int> getNsidebandsUandD(double);
 		vector<double> getLowerSidebandEdges(double);
 		vector<double> getUpperSidebandEdges(double);
+    vector<string> getProdTypes();
 	
 		bool getincludeVBF();
 		bool getincludeLEP();

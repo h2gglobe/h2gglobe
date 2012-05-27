@@ -167,6 +167,15 @@ vector<double> FMTBase::getUpperSidebandEdges(double mass){
   return upperEdges;
 }
 
+vector<string> FMTBase::getProdTypes(){
+  vector<string> productionTypes;
+  productionTypes.push_back("ggh");
+  productionTypes.push_back("vbf");
+  productionTypes.push_back("wzh");
+  productionTypes.push_back("tth");
+  return productionTypes;
+}
+
 bool FMTBase::getincludeVBF(){
 	return includeVBF_;
 }

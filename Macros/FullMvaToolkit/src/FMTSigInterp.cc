@@ -66,61 +66,6 @@ TH1F* FMTSigInterp::Interpolate(double massLow, TH1F* low, double massHigh, TH1F
   return interp;
 }
 
-TH1F* FMTSigInterp::linearBin(TH1F *hist){
-  assert(hist->GetEntries()!=0);
-  assert(hist->GetNbinsX()>2);
-   
-  int nBins = hist->GetNbinsX();
-  TH1F *h = new TH1F(Form("%s_lin",hist->GetName()),"",nBins,0,nBins);
-  for (int i=0; i<nBins; i++){
-    h->SetBinContent(i+1,hist->GetBinContent(i+1));
-    if (hist->GetBinLowEdge(i+1)<1.) h->GetXaxis()->SetBinLabel(i+1,Form("Bin %d",i+1));
-    else if (hist->GetBinLowEdge(i+1)<1.04) h->GetXaxis()->SetBinLabel(i+1,"Di-jet");
-    else if (hist->GetBinLowEdge(i+1)<1.08) h->GetXaxis()->SetBinLabel(i+1,"Di-lepton");
-  }
-  return h;
-}
-
-void FMTSigInterp::plotOutput(TH1F* bkg, TH1F* sig, TH1F* data, string name){
-
-  TH1F *sig3 = (TH1F*)sig->Clone();
-  sig3->Scale(3.);
-  TH1F *sig5 = (TH1F*)sig->Clone();
-  sig5->Scale(5.);
-
-  bkg->SetLineColor(kBlue);
-  bkg->SetFillColor(kBlue-9);
-  sig->SetLineColor(kRed);
-  sig3->SetLineColor(kRed);
-  sig3->SetLineStyle(3);
-  sig5->SetLineColor(kRed);
-  sig5->SetLineStyle(7);
-  data->SetMarkerStyle(20);
-
-  TCanvas *canv = new TCanvas();
-  bkg->SetTitle(name.c_str());
-  bkg->Draw("e2");
-  sig->Draw("same hist");
-  sig3->Draw("same hist");
-  sig5->Draw("same hist");
-  if (!blind_) data->Draw("same e");
-  TLegend *leg = new TLegend(0.45,0.6,0.85,0.85);
-  leg->SetLineColor(0);
-  leg->SetFillColor(0);
-  leg->AddEntry(bkg,"Background","f");
-  if (!blind_) leg->AddEntry(data,"Data","lep");
-  leg->AddEntry(sig,"Signal (1, 3, 5 #times SM)","l");
-  TPaveText *txt = new TPaveText(0.2,0.1,0.4,0.35,"NDC");
-  txt->SetFillColor(0);
-  txt->SetLineColor(0);
-  txt->AddText("#int L = 5.09 fb^{-1}");
-  leg->Draw("same");
-  txt->Draw("same");
-  canv->SetLogy();
-  canv->SaveAs(Form("plots/pdf/output_%s.pdf",name.c_str()));
-  canv->SaveAs(Form("plots/png/output_%s.png",name.c_str()));
-
-}
 
 void FMTSigInterp::runInterpolation(){
   
@@ -130,11 +75,7 @@ void FMTSigInterp::runInterpolation(){
   ofstream diagFile("plots/SigInterpolationDiagnostics.txt");
   
   vector<int> mcMasses = getMCMasses();
-  vector<string> productionTypes;
-  productionTypes.push_back("ggh");
-  productionTypes.push_back("vbf");
-  productionTypes.push_back("wzh");
-  productionTypes.push_back("tth");
+  vector<string> productionTypes = getProdTypes();
 
   // now do interpolation
   for (vector<int>::iterator mcMass=mcMasses.begin(); mcMass!=mcMasses.end(); mcMass++){
@@ -160,12 +101,6 @@ void FMTSigInterp::runInterpolation(){
             write(tFile,down);
           }
         }
-        TH1F *bkg = (TH1F*)tFile->Get(Form("th1f_bkg_grad_%3.1f_fitsb_biascorr",*mh));
-        TH1F *data = (TH1F*)tFile->Get(Form("th1f_data_grad_%3.1f",*mh));
-        TH1F *bkgLin = linearBin(bkg);
-        TH1F *dataLin = linearBin(data);
-        TH1F *allSigLin = linearBin(allSig);
-        if (diagnose_) plotOutput(bkgLin,allSigLin,dataLin,Form("mH_%3.1f",*mh));
       }
       else{
         int nearest = (getInterpMasses(*mh)).first;
@@ -196,12 +131,6 @@ void FMTSigInterp::runInterpolation(){
           if (*prod=="ggh") allSig = (TH1F*)interpolated->Clone();
           else allSig->Add(interpolated);
         }
-        TH1F *bkg = (TH1F*)tFile->Get(Form("th1f_bkg_grad_%3.1f_fitsb_biascorr",*mh));
-        TH1F *data = (TH1F*)tFile->Get(Form("th1f_data_grad_%3.1f",*mh));
-        TH1F *bkgLin = linearBin(bkg);
-        TH1F *dataLin = linearBin(data);
-        TH1F *allSigLin = linearBin(allSig);
-        if (diagnose_) plotOutput(bkgLin,allSigLin,dataLin,Form("mH_%3.1f",*mh));
         
         // then do signal systematic histograms
         vector<string> theSystematics = getsystematics();

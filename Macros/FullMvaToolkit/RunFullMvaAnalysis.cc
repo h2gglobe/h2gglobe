@@ -11,6 +11,7 @@
 #include "TMacro.h"
 #include "TObjString.h"
 
+#include "interface/FMTPlots.h"
 #include "interface/FMTBase.h"
 #include "interface/FMTRebin.h"
 #include "interface/FMTFit.h"
@@ -41,9 +42,9 @@ int main(int argc, char* argv[]){
 	runner->runRebinning();
 	runner->printRunOptions("after.txt");
 	runner->runFitting();
-	runner->makeNormPlot();
 	runner->createCorrBkgModel();
 	runner->interpolateBDT();
+  runner->makePlots();
 	runner->writeDataCards();
 	runner->publishToWeb();
 	runner->runCombine();

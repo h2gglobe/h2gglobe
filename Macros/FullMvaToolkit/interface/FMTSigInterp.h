@@ -18,11 +18,6 @@ class FMTSigInterp : public FMTBase {
 
     TH1F *Interpolate(double,TH1F*,double,TH1F*,double);
 
-    TH1F* linearBin(TH1F*);
-    void plotSidebands(TH1F*,vector<TH1F*>,vector<TH1F*>,string);
-    void plotOutput(TH1F*, TH1F*, TH1F*, string);
-    void plotFrac(TH1F*,TH1F*,TH1F*,string);
-
     void runInterpolation();
 
   private:
