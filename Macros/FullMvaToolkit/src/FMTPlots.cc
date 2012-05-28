@@ -81,7 +81,7 @@ void FMTPlots::makePlots(TH1F* dataH, TH1F *sigH, TH1F *bkgH, TH1F *bkgmcH, vect
   //plotSidebands(bkg,dataSideLow,dataSideHigh,bkgmc,bkgSideLow,bkgSideHigh,mh);
   //plotSystFracs(sig,sigSyst,mh);
   //plotInterpolation(sig,lowInterp,highInterp,mh);
-	if (runSB_) plotByMH("fake-shape-cards",mh,data,sig,bkg);
+	plotByMH("fake-shape-cards",mh,data,sig,bkg);
   delete data;
   delete sig;
   delete bkg;
@@ -477,6 +477,8 @@ void FMTPlots::plotByMH(string pathname, double mh, TH1F *data, TH1F *sig, TH1F 
 	text->AddText(Form("#chi^{2} (B_{ML}) = %1.3f",chi2bkgML));
 	text->AddText(Form("#chi^{2} (SB_{ML}) = %1.3f",chi2sbML));
 	TPaveText *massText = new TPaveText(0.15,0.8,0.3,0.89,"NDC");
+	massText->SetFillStyle(0);
+	massText->SetLineColor(0);
 	massText->AddText(Form("m_{H}=%3.1f",mh));
 	TLatex *runText = new TLatex();
 	runText->SetTextSize(0.03);
@@ -491,11 +493,8 @@ void FMTPlots::plotByMH(string pathname, double mh, TH1F *data, TH1F *sig, TH1F 
 	dp->Draw();
 
 	canv->cd(1);
-	if (!blind_) {
-		data->Draw("9le1p");
-		bkg2->Draw("9sameE2");
-	}
-	else bkg2->Draw("9E2");
+	bkg2->GetYaxis()->SetRangeUser(1,2e4);
+	bkg2->Draw("9E2");
 	bkg1->Draw("9sameE2");
 	bkg->Draw("9samehist");
 	bkgML->Draw("9samehist");
@@ -510,10 +509,11 @@ void FMTPlots::plotByMH(string pathname, double mh, TH1F *data, TH1F *sig, TH1F 
 	runText->DrawLatex(0.5,0.94,"#int L = 5.1");
 
 	canv->cd(2);
-	TLegend *leg2 = new TLegend(0.11,0.5,0.4,0.88);
+	TLegend *leg2 = new TLegend(0.11,0.7,0.4,0.88);
 	leg2->SetFillColor(0);
 	leg2->SetBorderSize(0);
 	leg2->AddEntry(sobML,"S/B (ML)","lep");
+	sobML->GetYaxis()->SetRangeUser(-0.2,1.4);
 	sobML->Draw("9ep");
 	leg2->Draw("same");
 
