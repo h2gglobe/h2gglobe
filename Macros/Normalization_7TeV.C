@@ -162,161 +162,6 @@ double GetBR(double mass) {
   
 }
 
-double GetXsection(double mass) {
-
-  map <double, double> XSectionMap;
-  XSectionMap[90]=33.8959;
-  XSectionMap[95]=30.5228;
-  XSectionMap[100]=27.5471;
-  XSectionMap[105]=24.9582;
-  XSectionMap[110]=22.7112;
-  XSectionMap[110.5]=22.4929;
-  XSectionMap[111]=22.2949;
-  XSectionMap[111.5]=22.0882;
-  XSectionMap[112]=21.891;
-  XSectionMap[112.5]=21.6841;
-  XSectionMap[113]=21.4987;
-  XSectionMap[113.5]=21.3024;
-  XSectionMap[114]=21.1075;
-  XSectionMap[114.5]=20.9231;
-  XSectionMap[115]=20.7379;
-  XSectionMap[115.5]=20.5543;
-  XSectionMap[116]=20.3799;
-  XSectionMap[116.5]=20.197;
-  XSectionMap[117]=20.0243;
-  XSectionMap[117.5]=19.851;
-  XSectionMap[118]=19.6789;
-  XSectionMap[118.5]=19.5072;
-  XSectionMap[119]=19.3457;
-  XSectionMap[119.5]=19.18438;
-  XSectionMap[120]=19.01246;
-  XSectionMap[120.5]=18.85166;
-  XSectionMap[121]=18.70108;
-  XSectionMap[121.5]=18.54062;
-  XSectionMap[122]=18.38147;
-  XSectionMap[122.5]=18.22164;
-  XSectionMap[123]=18.08183;
-  XSectionMap[123.5]=17.93234;
-  XSectionMap[124]=17.78306;
-  XSectionMap[124.5]=17.63389;
-  XSectionMap[125]=17.49604;
-  XSectionMap[125.5]=17.3472;
-  XSectionMap[126]=17.20858;
-  XSectionMap[126.5]=17.07017;
-  XSectionMap[127]=16.93297;
-  XSectionMap[127.5]=16.79489;
-  XSectionMap[128]=16.65702;
-  XSectionMap[128.5]=16.52027;
-  XSectionMap[129]=16.39272;
-  XSectionMap[129.5]=16.2553;
-  XSectionMap[130]=16.12918;
-  XSectionMap[130.5]=16.00218;
-  XSectionMap[131]=15.87639;
-  XSectionMap[131.5]=15.75971;
-  XSectionMap[132]=15.63414;
-  XSectionMap[132.5]=15.50779;
-  XSectionMap[133]=15.39265;
-  XSectionMap[133.5]=15.26662;
-  XSectionMap[134]=15.1617;
-  XSectionMap[134.5]=15.047;
-  XSectionMap[135]=14.9324;
-  XSectionMap[135.5]=14.81791;
-  XSectionMap[136]=14.70354;
-  XSectionMap[136.5]=14.58927;
-  XSectionMap[137]=14.47532;
-  XSectionMap[137.5]=14.38228;
-  XSectionMap[138]=14.26845;
-  XSectionMap[138.5]=14.15482;
-  XSectionMap[139]=14.05231;
-  XSectionMap[139.5]=13.94891;
-  XSectionMap[140]=13.84562;
-  XSectionMap[141]=13.64057;
-  XSectionMap[142]=13.44507;
-  XSectionMap[143]=13.24;
-  XSectionMap[144]=13.05526;
-  XSectionMap[145]=12.86195;
-  XSectionMap[146]=12.68876;
-  XSectionMap[147]=12.5064;
-  XSectionMap[148]=12.32437;
-  XSectionMap[149]=12.15286;
-  XSectionMap[150]=11.98179;
-  XSectionMap[151]=11.82075;
-  XSectionMap[152]=11.64993;
-  XSectionMap[153]=11.48934;
-  XSectionMap[154]=11.33298;
-  XSectionMap[155]=11.17384;
-  XSectionMap[156]=11.01263;
-  XSectionMap[157]=10.85104;
-  XSectionMap[158]=10.68418;
-  XSectionMap[159]=10.52334;
-  XSectionMap[160]=10.36062;
-  XSectionMap[162]=10.02523;
-  XSectionMap[164]=9.69762;
-  XSectionMap[166]=9.39728;
-  XSectionMap[168]=9.1301;
-  XSectionMap[170]=8.87739;
-  XSectionMap[172]=8.63504;
-  XSectionMap[174]=8.40245;
-  XSectionMap[176]=8.17764;
-  XSectionMap[178]=7.96305;
-  XSectionMap[180]=7.75479;
-  XSectionMap[182]=7.54702;
-  XSectionMap[184]=7.35255;
-  XSectionMap[186]=7.16541;
-  XSectionMap[188]=6.98324;
-  XSectionMap[190]=6.80952;
-  XSectionMap[192]=6.64487;
-  XSectionMap[194]=6.49068;
-  XSectionMap[196]=6.34284;
-  XSectionMap[198]=6.20153;
-  XSectionMap[200]=6.06875;
-  XSectionMap[202]=5.93861;
-  XSectionMap[204]=5.81288;
-  XSectionMap[206]=5.69375;
-  XSectionMap[208]=5.57598;
-  XSectionMap[210]=5.46177;
-  XSectionMap[212]=5.35397;
-  XSectionMap[214]=5.24869;
-  XSectionMap[216]=5.14975;
-  XSectionMap[218]=5.05121;
-  XSectionMap[220]=4.95707;
-  XSectionMap[222]=4.86323;
-  XSectionMap[224]=4.77178;
-  XSectionMap[226]=4.68459;
-  XSectionMap[228]=4.59966;
-  XSectionMap[230]=4.51619;
-  XSectionMap[232]=4.43594;
-  XSectionMap[234]=4.35701;
-  XSectionMap[236]=4.28231;
-  XSectionMap[238]=4.20786;
-  XSectionMap[240]=4.135713;
-  XSectionMap[242]=4.067887;
-  XSectionMap[244]=4.003181;
-  XSectionMap[246]=3.939776;
-  XSectionMap[248]=3.87848;
-  XSectionMap[250]=3.819473;
-
-  for (std::map<double, double>::const_iterator iter = XSectionMap.begin();  iter != XSectionMap.end(); ++iter) {
-    if (mass==iter->first) return iter->second;
-    if (mass>iter->first) {
-      double lowmass = iter->first;
-      double lowxsec = iter->second;
-      ++iter;
-      if (mass<iter->first) {
-        double highmass = iter->first;
-        double highxsec = iter->second;
-        double xsec = (highxsec-lowxsec)/(highmass-lowmass)*(mass-lowmass)+lowxsec;
-        return xsec;
-      }
-      --iter;
-    }
-  }
-
-  std::cout << "Warning cross section outside range of 90-250GeV!!!!" << std::endl;
-  exit(1);
-
-}
-
 double GetXsection(double mass, TString HistName) {
 
   map <double, double> XSectionMap;
@@ -1023,6 +868,13 @@ double GetXsection(double mass, TString HistName) {
 
   std::cout << "Warning cross section outside range of 90-250GeV!!!!" << std::endl;
   exit(1);
+
+}
+
+double GetXsection(double mass) {
+
+  double xsec = GetXsection(mass,"ggh") + GetXsection(mass,"vbf") + GetXsection(mass,"wzh") + GetXsection(mass,"tth");
+  return xsec;
 
 }
 
