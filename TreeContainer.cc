@@ -65,7 +65,7 @@ void TreeContainer::FillInt(std::string name, int x){
 	if (it!=int_branches.end()){
 		(*it).second = x;
 	} else {
-		std::cerr << "TreeContainer -- No Double Tree " << name << std::endl;
+		std::cerr << "TreeContainer -- No Int Tree " << name << std::endl;
 	}
 }
 
