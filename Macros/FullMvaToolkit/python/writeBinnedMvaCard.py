@@ -137,13 +137,20 @@ def plotDistributions(mass,data,signals,bkg,errors):
   		fNew2.SetBinError(b,2*(((fNew2.GetBinError(b)**2)+((fNew2.GetBinContent(b)*additional)**2))**0.5))
 	c = ROOT.TCanvas();c.SetLogy()
 	if (not options.includeVBF): flatdata.GetXaxis().SetTitle("Category")
-	if not options.blind: flatdata.Draw("9");fNew2.Draw("9sameE2");fNew.Draw("9sameE2");flatbkg.Draw("9samehist")
+	if (not options.blind): 
+		flatdata.Draw("9")
+		fNew2.Draw("9sameE2")
+	else: 
+		fNew2.Draw("9E2")
+	fNew.Draw("9sameE2");flatbkg.Draw("9samehist")
 	if options.splitSignal: 
 	  sigst = ROOT.THStack();sigst.Add(flatsignal);sigst.Add(flatsignal1);sigst.Draw("9samehist")
 	else:  flatsignal.Draw("9samehist")
-	if not options.blind: flatdata.Draw("9sameP");flatdata.SetMinimum(1.0);flatdata.SetMaximum(20*flatdata.Integral())
+	if (not options.blind): 
+		flatdata.Draw("9sameP");
+	flatbkg.SetMinimum(1.0);flatbkg.SetMaximum(20*flatdata.Integral())
 
-	if not options.blind: leg.AddEntry(flatdata,"Data","PLE")
+	if (not options.blind): leg.AddEntry(flatdata,"Data","PLE")
 	if options.splitSignal:
 	  leg.AddEntry(flatsignal,"Higgs (GG,WZ,TT), m_{H}=%3.1f GeV (x%d)"%(mass,int(sigscale)) ,"L")
 	  leg.AddEntry(flatsignal1,"Higgs, m_{H}=%3.1f GeV (x%d)"%(mass,int(sigscale)) ,"L")
@@ -168,15 +175,21 @@ def plotDistributions(mass,data,signals,bkg,errors):
 		flatdata.SetBinError(b,((datErrs[b-1]*datErrs[b-1]) +(fNew.GetBinError(b)*fNew.GetBinError(b)))**0.5 )
 	flatbkg.Add(flatbkg,-1)
 
-	if not options.blind: flatdata.Draw("9");flatbkg.Draw("9samehist")
+	if (not options.blind): 
+		flatdata.Draw("9")
+		flatbkg.Draw("9samehist")
+	else: 
+		flatbkg.Draw("9hist")
 	if options.splitSignal: 
 	  sigst = ROOT.THStack();sigst.Add(flatsignal);sigst.Add(flatsignal1)
 	  sigst.Draw("9samehist")
 	else:
 	  flatsignal.Draw("9samehist")
-	if not options.blind: flatdata.Draw("9sameP");flatdata.SetMaximum(250);flatdata.SetMinimum(-100)
+	if (not options.blind): 
+		flatdata.Draw("9sameP")
+	flatbkg.SetMaximum(250);flatbkg.SetMinimum(-100)
 
-	if not options.blind: leg2.AddEntry(flatdata,"Data","PLE")
+	if (not options.blind): leg2.AddEntry(flatdata,"Data","PLE")
 	if options.splitSignal:
 	  leg2.AddEntry(flatsignal,"Higgs (GG,WZ,TT), m_{H}=%3.0f GeV (x%d)"%(mass,int(sigscale)) ,"L")
 	  leg2.AddEntry(flatsignal1,"Higgs, m_{H}=%3.0f GeV (x%d)"%(mass,int(sigscale)) ,"L")

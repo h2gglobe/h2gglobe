@@ -1,9 +1,12 @@
 import os,sys,fnmatch
 
-def printLinks(outFile,plotTypes,plotNames,wsName):
+def printLinks(outFile,plotTypes,plotNames,wsName,blind):
   outFile.write('Author: Matthew Kenzie <br>')
   outFile.write('<script language="Javascript"> \n document.write("Last modified: " + document.lastModified + ""); \n </SCRIPT> <br> \n ')
-  outFile.write('<center> \n <p> \n <font size="5">FullMvaToolkit Diagnostics</font> \n </p> \n')
+  if blind: 
+    outFile.write('<center> \n <p> \n <font size="5">FullMvaToolkit Diagnostics</font> <br> \n Blinded \n </p> \n')
+  else:
+		outFile.write('<center> \n <p> \n <font size="5">FullMvaToolkit Diagnostics</font> <br> \n Unblinded \n </p> \n')
   outFile.write('<a href=\"home.html\">Home</a> <br> \n')
   outFile.write('Rewritten workspace to file: <br>'+wsName+'<br>\n')
   outFile.write('<table>\n')
@@ -17,7 +20,10 @@ def printLinks(outFile,plotTypes,plotNames,wsName):
   outFile.write('</center>')
 
 wsName=sys.argv[1]
-
+blindString=sys.argv[2]
+blind=False
+if blindString=="--blind" or blindString=="-E":
+	blind=True
 paths=[]
 
 oldMass="blank"
@@ -37,7 +43,7 @@ plots=[modelPlots,diffPlots,fitPlots,datSidePlots,bkgSidePlots,interpPlots,uncor
 
 path='plots/png'
 homepage = open(path+'/home.html','w')
-printLinks(homepage,plotTypes,plotNames,wsName)
+printLinks(homepage,plotTypes,plotNames,wsName,blind)
 homepage.write('<center>\n')
 homepage.write('<font size="5"> Homepage </font> <br> \n')
 homepage.write('Click links above to browse plots <br> \n')
@@ -52,7 +58,7 @@ for root, dirs, files in os.walk(path):
     
     plots[p].sort()
     htmlFile = open(path+'/'+plotTypes[p]+'.html','w')
-    printLinks(htmlFile,plotTypes,plotNames,wsName);
+    printLinks(htmlFile,plotTypes,plotNames,wsName,blind);
     for plot in plots[p]:
       if plotTypes[p]=='fit':
         name = plot.split('.png')[0]

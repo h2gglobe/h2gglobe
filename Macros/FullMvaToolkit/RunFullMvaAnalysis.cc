@@ -44,8 +44,8 @@ int main(int argc, char* argv[]){
 	runner->runFitting();
 	runner->createCorrBkgModel();
 	runner->interpolateBDT();
-  runner->makePlots();
 	runner->writeDataCards();
+  runner->makePlots();
 	runner->publishToWeb();
 	runner->runCombine();
 

@@ -12,7 +12,7 @@ using namespace std;
 class FMTPlots : public FMTBase {
 
   public:
-    FMTPlots(string, int, int, double, double, double, int, double, double, int, int, int, double, double, bool, bool, vector<string>, bool, vector<map<int,vector<double> > >, bool blind=false,bool verbose=false);
+    FMTPlots(string, bool, int, int, double, double, double, int, double, double, int, int, int, double, double, bool, bool, vector<string>, bool, vector<map<int,vector<double> > >, bool blind=false,bool verbose=false);
     ~FMTPlots();
   
     TH1F *linearBin(TH1F*);
@@ -25,10 +25,15 @@ class FMTPlots : public FMTBase {
     void plotInterpolation(TH1F*, TH1F*, TH1F*, double);
     void makeNormPlot();
 
+		void plotByMH(string, double, TH1F*, TH1F*, TH1F*);
+		pair<pair<double,double>,pair<double,double> > getBandSB(string,int);
+		vector<double> getNormErrs(string);
+
   private:
     
     TFile *tFile;
     bool blind_;
+		bool runSB_;
     bool verbose_;
 };
 

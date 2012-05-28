@@ -525,13 +525,13 @@ void paulFit(TDirectory *mDir,TH1F* fMFitS,TH1F* hMFitS,TH2F* hFCovar, bool make
 
 		//TLine l(global_mH,floor(FVal*0.75*100)/100,global_mH,floor(FVal*1.25*100)/100);
 		fBRaw[j]->GetYaxis()->SetRangeUser(FVal*0.1,FVal*1.9);
+		fBFit[j]->GetYaxis()->SetRangeUser(FVal*0.1,FVal*1.9);
 		TLine l(global_mH,FVal*0.1,global_mH,FVal*1.9);
 		l.SetLineColor(46);
 		l.SetLineStyle(7);
 		l.SetLineWidth(3);
-		fBRaw[j]->SetTitle("");
-		if (!global_BLIND) fBRaw[j]->Draw("AP");
-		fBFit[j]->Draw("L");
+		fBFit[j]->SetTitle("");
+		fBFit[j]->Draw("AL");
 		if (!global_BLIND) fBRaw[j]->Draw("sameP");
 		l.Draw();
 

@@ -27,9 +27,11 @@ FMTSetup::FMTSetup():
 	datacards_(false),
 	diagnose_(false),
 	web_(false),
+	blinding_(true),
 	runCombine_(false),
 	checkHistos_(false),
   noPlot_(false),
+	runSB_(false),
 	cleaned(false)
 {
 	
@@ -73,11 +75,12 @@ void FMTSetup::OptionParser(int argc, char *argv[]){
     ("mHMin,l",			po::value<int>(&tempmHMin_),													"Set lower bound (GeV) for Higgs mH")
     ("mHMax,u",			po::value<int>(&tempmHMax_),													"Set upper bound (GeV) for Higgs mH")
     ("mHStep,s",		po::value<double>(&tempmHStep_),											"Set bin size (GeV) for Higgs mH")
-		("blind,E",	  																											"Blind analysis - data not plotted")
+		("unblind,E",	  																											"Unblind analysis - data will be plotted (default is off)")
 		("checkHistos,c",              																	  	"Run check on histograms in file")
     ("verbose,v",                                                       "Increase output level")
 		("useDat,U", po::value<string>(&datFil_)->default_value("0"),				"Get options from .dat file not TFile")
     ("noPlot,n",                                                        "Don't remake plots")
+		("runSB,R",																													"Make S/B plots")
     ;
   
 	po::positional_options_description p;
@@ -109,10 +112,11 @@ void FMTSetup::OptionParser(int argc, char *argv[]){
 	if (vm.count("interp")) 				interp_=true;
 	if (vm.count("datacards")) 			datacards_=true;
 	if (vm.count("diagnose")) 			diagnose_=true;
-	if (vm.count("blind")) 					blinding_=true;
+	if (vm.count("unblind")) 					blinding_=false;
 	if (vm.count("checkHistos")) 		checkHistos_=true;
   if (vm.count("www"))            web_=true;
   if (vm.count("noPlot"))         noPlot_=true;
+	if (vm.count("runSB"))					runSB_=true;
 	if (vm.count("runCombine"))			runCombine_=true;
   if (vm.count("verbose"))        verbose_=true;
   else                            verbose_=false;
@@ -342,11 +346,24 @@ void FMTSetup::interpolateBDT(){
 	}
 }
 
+void FMTSetup::writeDataCards(){
+	if (!cleaned) cleanUp();
+	if (datacards_){
+		cout << "Preparing to write datacards...." << endl;
+		if (blinding_) system(Form("python python/writeBinnedMvaCard.py -i %s -p plots --makePlot --mhLow %3d.0 --mhHigh %3d.0 --mhStep %1.1f --blind",filename_.c_str(),getmHMinimum(),getmHMaximum(),getmHStep()));
+		else system(Form("python python/writeBinnedMvaCard.py -i %s -p plots --makePlot --mhLow %3d.0 --mhHigh %3d.0 --mhStep %1.1f",filename_.c_str(),getmHMinimum(),getmHMaximum(),getmHStep()));
+	}
+}
+
 void FMTSetup::makePlots(){
   if (!cleaned) cleanUp();
   if (diagnose_ && !noPlot_){
-    cout << "Making plots..." << endl;
-    FMTPlots *plotter = new FMTPlots(filename_, getmHMinimum(), getmHMaximum(), getmHStep(), getmassMin(), getmassMax(), getnDataBins(), getsignalRegionWidth(), getsidebandWidth(), getnumberOfSidebands(), getnumberOfSidebandsForAlgos(), getnumberOfSidebandGaps(), getmassSidebandMin(), getmassSidebandMax(), getincludeVBF(), getincludeLEP(), getsystematics(), getrederiveOptimizedBinEdges(), getAllBinEdges(),blinding_,verbose_);
+		if (runSB_) {
+			cout << "Running S/B stuff...." << endl;
+			system(Form("python python/GetFakeShapeDatacards.py -i mva-datacards-grad -o fake-shape-cards -D -C -N --mhLow %3d.0 --mhHigh %3d.0 --mhStep %1.1f",getmHMinimum(),getmHMaximum(),getmHStep()));
+    }
+		cout << "Making plots..." << endl;
+    FMTPlots *plotter = new FMTPlots(filename_, runSB_, getmHMinimum(), getmHMaximum(), getmHStep(), getmassMin(), getmassMax(), getnDataBins(), getsignalRegionWidth(), getsidebandWidth(), getnumberOfSidebands(), getnumberOfSidebandsForAlgos(), getnumberOfSidebandGaps(), getmassSidebandMin(), getmassSidebandMax(), getincludeVBF(), getincludeLEP(), getsystematics(), getrederiveOptimizedBinEdges(), getAllBinEdges(),blinding_,verbose_);
     vector<double> theMasses = getAllMH();
     for (vector<double>::iterator mh = theMasses.begin(); mh != theMasses.end(); mh++){
       plotter->plotAll(*mh);
@@ -356,20 +373,14 @@ void FMTSetup::makePlots(){
   }
 }
 
-void FMTSetup::writeDataCards(){
-	if (!cleaned) cleanUp();
-	if (datacards_){
-		cout << "Preparing to write datacards...." << endl;
-		system(Form("python python/writeBinnedMvaCard.py -i %s --makePlot --mhLow %3d.0 --mhHigh %3d.0 --mhStep %1.1f",filename_.c_str(),getmHMinimum(),getmHMaximum(),getmHStep()));
-	}
-}
 
 void FMTSetup::publishToWeb(){
 	if (!cleaned) cleanUp();
 	if (web_){
 		cout << "Publishing to web: " << webDir_ << "/plots/png/home.html" << endl;
-		system("cp mva-plots-grad/png/*.png plots/png");
-		system(Form("python python/publish_plots.py %s",filename_.c_str()));
+		if (blinding_) system(Form("python python/publish_plots.py %s --blind",filename_.c_str()));
+		else system(Form("python python/publish_plots.py %s",filename_.c_str()));
+		system(Form("rm -r %s",webDir_.c_str()));
 		system(Form("mkdir %s",webDir_.c_str()));
 		system(Form("cp -r plots %s",webDir_.c_str()));
 	}

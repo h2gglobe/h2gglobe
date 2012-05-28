@@ -118,7 +118,8 @@ void FMTFit::Plot(double mass){
     
     RooPlot *frame = mass_var->frame(Title(Form("Mass fit for %3.1f",mass)));
     frame->GetXaxis()->SetTitle("m_{#gamma#gamma} (GeV)");
-    if (blind_) {
+    mass_var->setRange("unblindReg",150,getmassMax());
+		if (blind_) {
       data->plotOn(frame,Binning(getnDataBins()),CutRange("unblindReg"));
       data->plotOn(frame,Binning(getnDataBins()),Invisible());
 		}

@@ -66,6 +66,7 @@ class FMTSetup : public FMTBase {
 		bool runCombine_;
 		bool checkHistos_;
     bool noPlot_;
+		bool runSB_;
 
 		int tempmHMin_;
 		int tempmHMax_;
