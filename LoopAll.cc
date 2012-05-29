@@ -395,6 +395,7 @@ LoopAll::LoopAll(TTree *tree) :
 #endif
 
   rooContainer = new RooContainer();
+  rooContainer->BlindData();	// 2012 requires that we Blind our data
   // Best Set Global parameters accesible via python to defauls
   runZeeValidation = false;
   usePFCiC = true;
