@@ -45,7 +45,7 @@ MainDicts+=PhotonFix.h MassResolution.h HtmlHelper.h
 ##
 ## Subdirectories
 ##
-SubPkgs=PhotonAnalysis VertexAnalysis JetAnalysis
+SubPkgs=PhotonAnalysis VertexAnalysis JetAnalysis PhotonJetAnalysis
 SubPkgsDict=VertexAnalysis/interface/VertexAlgoParameters.h
 
 ##
