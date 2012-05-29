@@ -69,8 +69,8 @@ doPhotonMvaIdSyst=1
 doR9Smear=0
 doR9Syst=0
 
-doKFactorSmear=1
-doKFactorSyst=1
+doKFactorSmear=0
+doKFactorSyst=0
 
 ->
 Inputs for reweighing
@@ -80,7 +80,7 @@ Inputs for reweighing
 
 kfacHist=aux/KFactors_AllScales_interpolated.root
 efficiencyFile=aux/sig_reweighing_jan16rereco_mva_v2.root
-puHist=aux/2011_0100_73500.weights3.root
+puHist=aux/2012_weights.root
 puTarget=aux/nov08_rereco.json.68000.pileup.root
 puMap=pu_weights_map.dat
 
