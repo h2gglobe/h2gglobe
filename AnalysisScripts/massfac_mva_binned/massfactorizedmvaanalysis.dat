@@ -29,6 +29,8 @@ choose between UCSD and MIT trainings
 bdtTrainingPhilosophy=MIT
 photonLevelMvaUCSD=aux/ID_UCSD.weights.xml
 eventLevelMvaUCSD=aux/diphoton_UCSD.weights.xml
+photonLevelNewIDMVA_EB=aux/TMVA_EBpf_BDT.weights.xml
+photonLevelNewIDMVA_EE=aux/TMVA_EEpf_BDT.weights.xml
 photonLevelMvaMIT_EB=aux/TMVAClassificationPhotonID_Barrel_PassPreSel_Variable_10_BDTnCuts2000_BDT.weights.xml
 photonLevelMvaMIT_EE=aux/TMVAClassificationPhotonID_Endcap_PassPreSel_Variable_10_BDTnCuts2000_BDT.weights.xml
 eventLevelMvaMIT=aux/HggBambu_SMDipho_Jan16_BDTG.weights.xml

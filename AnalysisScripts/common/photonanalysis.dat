@@ -24,7 +24,7 @@ presel_hoe=0.15
 
 applyPtoverM=1
 doTriggerSelection=0
-puHist=aux/2011_0100_73500.weights3.root
+puHist=aux/2012_weights.root
 puMap=pu_weights_map.dat
 puTarget=aux/nov08_rereco.json.68000.pileup.root
 

@@ -1,11 +1,12 @@
-intL=1490. histfile=/castor/cern.ch/user/c/cmshgg/MvaAnalysis/may31freeze/%(label)s/CMS-HGG.root output=./%(label)s/eventsList.txt
+#intL=1490. histfile=/castor/cern.ch/user/c/cmshgg/MvaAnalysis/may31freeze/%(label)s/CMS-HGG.root output=./%(label)s/eventsList.txt
+intL=1490. histfile=./CMS-HGG_test.root output=./eventsList.txt
 
 #
 # Data
 #
 
+#typ=0    ind=0 draw=1  Nam=Data    Fil=root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/data/PhotonPromptReco2012A/PhotonPromptReco2012A_0.root tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=aux/Cert_190456-194479_8TeV_PromptReco_Collisions12_JSON.txt
 typ=0    ind=0 draw=1  Nam=Data    CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/data/PhotonPromptReco2012A tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=aux/Cert_190456-194479_8TeV_PromptReco_Collisions12_JSON.txt
-->
 typ=0    ind=0 draw=1  Nam=Data    CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/data/PhotonPromptReco2012A tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=aux/Cert_190456-194479_8TeV_PromptReco_Collisions12_JSON.txt
 #
 # Signal
@@ -54,12 +55,10 @@ typ=-17 ind=1 draw=1  Nam=gluglu_H_gg_110_pu2012  CaDir=/store/group/phys_higgs/
 typ=-18 ind=2 draw=1  Nam=vbf_H_gg_110_pu2012     CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/VBF_HToGG_M-110_8TeV        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
 typ=-19 ind=4 draw=1  Nam=wz_H_gg_110_pu2012      CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/WH_ZH_HToGG_M-110_8TeV      red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
 typ=-20 ind=3 draw=1  Nam=tt_H_gg_110_pu2012      CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/GluGluToHToGG_M-110_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
-->
 # 
 # Branches to use
 #
-inputBranches massfactorizedmvaanalysis_input.dat
-inputBranches minimal_analysis_input.dat
+inputBranches mvaanalysis_input.dat
 
 ## define analyses to run
 ## 	a library containing the class dictionary has loaded before parsing the 
@@ -68,5 +67,5 @@ inputBranches minimal_analysis_input.dat
 ## 	analyzer <class_name> <config_file>
 ## 
 ## analyzer PhotonAnalysis photonanalysis.dat	
-analyzer MassFactorizedMvaAnalysis photonanalysis.dat massfactorizedmvaanalysis.dat
+analyzer MvaAnalysis photonanalysis.dat mvaanalysis.dat
 

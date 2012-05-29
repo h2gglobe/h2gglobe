@@ -263,7 +263,7 @@ void MvaAnalysis::Init(LoopAll& l)
     // the systematic sets to be formed
 
     // FIXME move these params to config file
-    l.rooContainer->SetNCategories(1+(int)includeVBF);
+    l.rooContainer->SetNCategories(1+2*(int)includeVBF);
 
     l.rooContainer->nsigmas = nSystSteps;
     l.rooContainer->sigmaRange = systRange;
@@ -354,6 +354,10 @@ void MvaAnalysis::Init(LoopAll& l)
     // UCSD
     l.tmvaReaderID_UCSD->BookMVA("Gradient"      ,photonLevelMvaUCSD.c_str()  );
     l.tmvaReader_dipho_UCSD->BookMVA("Gradient"  ,eventLevelMvaUCSD.c_str()   );
+    // New ID MVA
+    cout << "Booking MVA..." << endl;
+    l.tmvaReaderID_Single_Barrel->BookMVA("AdaBoost",photonLevelNewIDMVA_EB.c_str());
+    l.tmvaReaderID_Single_Endcap->BookMVA("AdaBoost",photonLevelNewIDMVA_EE.c_str());
     // MIT 
     l.tmvaReaderID_MIT_Barrel->BookMVA("AdaBoost",photonLevelMvaMIT_EB.c_str());
     l.tmvaReaderID_MIT_Endcap->BookMVA("AdaBoost",photonLevelMvaMIT_EE.c_str());

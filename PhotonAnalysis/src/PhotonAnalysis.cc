@@ -131,6 +131,7 @@ void PhotonAnalysis::loadPuMap(const char * fname, TDirectory * dir, TH1 * targe
         std::cerr << "Reading PU weights for sample " << typid << " from " << dname << std::endl;
         TDirectory * subdir = (TDirectory *)dir->Get(dname);
         assert( subdir != 0 );
+        cout << "loadPuMap " << typid << " from subdir " << endl; 
         loadPuWeights(typid, subdir, target);
     } while ( in );
     in.close();
@@ -140,13 +141,20 @@ void PhotonAnalysis::loadPuMap(const char * fname, TDirectory * dir, TH1 * targe
 void PhotonAnalysis::loadPuWeights(int typid, TDirectory * puFile, TH1 * target)
 {
     cout<<"Reweighting events for pileup."<<endl;
-    TH1 * hweigh = (TH1*) puFile->Get("weights");
+    // 2011 PU weights file:
+    // TH1 * hweigh = (TH1*) puFile->Get("weights");
+    // 2012 PU weights file:
+    TH1 * hweigh = (TH1*) puFile->Get("pileup_weights");
+
     if( hweigh == 0 ) {
         hweigh = (TH1*) puFile->Get("NPUWeights");
     }
     if( hweigh != 0 ) { 
         cout<< " This is a pre-processed pileup reweighing file." <<endl;
-        TH1 * gen_pu = (TH1*)puFile->Get("generated_pu");
+        // 2011 PU file:
+        // TH1 * gen_pu = (TH1*)puFile->Get("generated_pu");
+        // 2012 PU file:
+        TH1 * gen_pu = (TH1*)puFile->Get("pileup");
         if( gen_pu == 0 ) {
             gen_pu = (TH1*)puFile->Get("NPUSource");
         }

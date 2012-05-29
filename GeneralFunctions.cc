@@ -115,7 +115,6 @@ void LoopAll::SetAllMVA() {
   tmvaReaderID_Single_Barrel->AddVariable("myphoton_SCeta",   &tmva_photonid_sceta );
   tmvaReaderID_Single_Barrel->AddVariable("event_rho",   &tmva_photonid_eventrho );
   
-
   tmvaReaderID_Single_Endcap = new TMVA::Reader("!Color:Silent");
   tmvaReaderID_Single_Endcap->AddVariable("myphoton_pfchargedisogood03",   &tmva_photonid_pfchargedisogood03 );
   tmvaReaderID_Single_Endcap->AddVariable("myphoton_pfchargedisobad03",   &tmva_photonid_pfchargedisobad03 );

@@ -53,7 +53,7 @@ massSidebandMax=180.
 ->
 OptimizedBinEdges
 ->
-rederiveOptimizedBinEdges=1
+rederiveOptimizedBinEdges=0
 VbfBinEdges_110=1,1.04
 VbfBinEdges_115=1,1.04
 VbfBinEdges_120=1,1.04
@@ -90,7 +90,7 @@ nEtaCategories=2
 nR9Categories=2
 nPtCategories=1
 
-doTriggerSelection=1
+doTriggerSelection=0
 reRunCiCForData=1
 
 doTraining=0
@@ -104,6 +104,8 @@ choose between UCSD and MIT trainings
 bdtTrainingPhilosophy=MIT
 photonLevelMvaUCSD=aux/ID_UCSD.weights.xml
 eventLevelMvaUCSD=aux/diphoton_UCSD.weights.xml
+photonLevelNewIDMVA_EB=aux/TMVA_EBpf_BDT.weights.xml
+photonLevelNewIDMVA_EE=aux/TMVA_EEpf_BDT.weights.xml
 photonLevelMvaMIT_EB=aux/TMVAClassificationPhotonID_Barrel_PassPreSel_Variable_10_BDTnCuts2000_BDT.weights.xml
 photonLevelMvaMIT_EE=aux/TMVAClassificationPhotonID_Endcap_PassPreSel_Variable_10_BDTnCuts2000_BDT.weights.xml
 eventLevelMvaMIT=aux/HggBambu_SMDipho_Jan16_BDTG.weights.xml

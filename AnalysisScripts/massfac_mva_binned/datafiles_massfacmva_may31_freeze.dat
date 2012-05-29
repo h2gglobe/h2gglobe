@@ -57,8 +57,7 @@ typ=-20 ind=3 draw=1  Nam=tt_H_gg_110_pu2012      CaDir=/store/group/phys_higgs/
 # 
 # Branches to use
 #
-inputBranches mvaanalysis_input.dat
-inputBranches minimal_analysis_input.dat
+inputBranches minimal_analysis_input.dat massfactorizedmvaanalysis_input.dat
 
 ## define analyses to run
 ## 	a library containing the class dictionary has loaded before parsing the 
@@ -67,5 +66,5 @@ inputBranches minimal_analysis_input.dat
 ## 	analyzer <class_name> <config_file>
 ## 
 ## analyzer PhotonAnalysis photonanalysis.dat	
-analyzer MvaAnalysis photonanalysis.dat mvaanalysis.dat
+analyzer MassFactorizedMvaAnalysis photonanalysis.dat massfactorizedmvaanalysis.dat
 
