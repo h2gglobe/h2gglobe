@@ -29,18 +29,19 @@ string dtoa(double value) {
 
 void dofit(double fitmass, vector <TString> InterpolationList, TFile* SourceFile, TFile* OutputFile, RooWorkspace* WorkSpace, int debug=1) {
 
-  if (fitmass>=150 || fitmass<=105) {
-    cout << "Warning!!!!!!!!!!! You must have an input mass between 105 and 140 GeV!" << endl << "Exiting Program!!!!" << endl;
+  if (fitmass>=150 || fitmass<=110) {
+    cout << "Warning!!!!!!!!!!! You must have an input mass between 110 and 150 GeV!" << endl << "Exiting Program!!!!" << endl;
     return;
   }
 
   if (floor(fitmass)-fitmass<0.00001 && floor(fitmass)-fitmass>0) fitmass=floor(fitmass);
   if (fitmass-ceil(fitmass)>-0.00001 && fitmass-ceil(fitmass)<0) fitmass=ceil(fitmass);
   
-  double Masses[12] = {105.0, 110.0, 115.0, 120.0,125.0, 130.0, 135.0,140.0,150.0};
+  //double Masses[12] = {105.0, 110.0, 115.0, 120.0,125.0, 130.0, 135.0,140.0,150.0};
+  double Masses[5] = {110.0, 120.0, 130.0, 140.0, 150.0};
   double lowerbound = 0;
   double upperbound = 0;
-  for (unsigned int i=0; i<8; i++) {
+  for (unsigned int i=0; i<5; i++) {
     if (fitmass>Masses[i] && fitmass<Masses[i+1]) {
       lowerbound = Masses[i];
       upperbound = Masses[i+1];
@@ -61,11 +62,11 @@ void dofit(double fitmass, vector <TString> InterpolationList, TFile* SourceFile
   for (unsigned int k=0; k < InterpolationList.size(); k++) {
 
     TString LowerHistName = InterpolationList[k];
-    LowerHistName.ReplaceAll("115",LowerBoundString);
+    LowerHistName.ReplaceAll("110",LowerBoundString);
     TString UpperHistName = InterpolationList[k];
-    UpperHistName.ReplaceAll("115",UpperBoundString);
+    UpperHistName.ReplaceAll("110",UpperBoundString);
     TString HistName = InterpolationList[k];
-    HistName.ReplaceAll("115",MassString);
+    HistName.ReplaceAll("110",MassString);
     
     TString HistTitle = "Interpolated Mass at ";
     HistTitle += dtoa(fitmass);
@@ -115,8 +116,8 @@ void InterpolateMass(double fitmass) {
   FileName.ReplaceAll(".","_");
   FileName += ".root";
   
-  if (fitmass>=140 || fitmass<=105) {
-    cout << "Warning!!!!!!!!!!! You must have an input mass between 105 and 140 GeV!" << endl << "Exiting Program!!!!" << endl;
+  if (fitmass>=150 || fitmass<=110) {
+    cout << "Warning!!!!!!!!!!! You must have an input mass between 110 and 150 GeV!" << endl << "Exiting Program!!!!" << endl;
     exit(1);
   }
 
@@ -130,7 +131,7 @@ void InterpolateMass(double fitmass) {
   for (Int_t j=0; j<HistList->GetSize(); ++j) {
 
     TString HistName(HistList->At(j)->GetName());
-    if (HistName.Contains("115")) InterpolationList.push_back(HistName);
+    if (HistName.Contains("110")) InterpolationList.push_back(HistName);
     if (HistName.Contains("th1f")) {
       TH1F* temphist = (TH1F*) SourceFile->Get(HistName.Data());
       OutputFile->WriteTObject(temphist);
@@ -173,7 +174,7 @@ void InterpolateMassRange(double Min, double Max, double Step, TString SourceFil
   for (Int_t j=0; j<HistList->GetSize(); ++j) {
 
     TString HistName(HistList->At(j)->GetName());
-    if (HistName.Contains("115")) InterpolationList.push_back(HistName);
+    if (HistName.Contains("110")) InterpolationList.push_back(HistName);
     if (HistName.Contains("th1f")) {
       TH1F* temphist = (TH1F*) SourceFile->Get(HistName.Data());
       OutputFile->WriteTObject(temphist);
