@@ -1,0 +1,18 @@
+output=photonjet/PhotonPlusJetMCTest.root
+
+Fil=/data/ndpc2/c/HiggsGammaGamma/PhotonPlusJet/CMSSW_5_2_4_patch4/src/HiggsAnalysis/HiggsTo2photons/h2gglobe/G_Pt-120to170_TuneZ2star_8TeV.root typ=1
+
+->
+input and output branches
+->
+inputBranches reduction_input.dat
+outputBranches reduction_output.dat
+
+->
+define analyses to run
+	a library containing the class dictionary has loaded before parsing the 
+	configuration file
+syntax:
+	analyzer <class_name> <config_file>
+->
+analyzer PhotonJetAnalysis photonjet/photonjetanalysis.dat
