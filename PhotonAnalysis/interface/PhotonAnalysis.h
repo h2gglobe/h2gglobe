@@ -72,6 +72,7 @@ class PhotonAnalysis : public BaseAnalysis
     float subleadEtVHlepCut;
     int nVBFEtaCategories;
     int nVHhadEtaCategories;
+    int nVBFDijetJetCategories;
     
     // Preselection indexes
     float presel_scet1, presel_scet2, presel_maxeta;

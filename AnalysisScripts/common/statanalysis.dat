@@ -1,47 +1,48 @@
-->
-->
+##
+doTriggerSelection=1
+reRunCiCForData=1
+
+##
 leadEtCut=40.0
 subleadEtCut=30.0
 
+##
 massMin=100.
 massMax=180.
 nDataBins=160
 
+## Un-tagged categories
 nEtaCategories=2
 nR9Categories=2
 nPtCategories=1
 
+## Di-jet tag
 includeVBF=1
-includeVHhad=0
-includeVHlep=0
-
 nVBFEtaCategories=1
 nVHhadEtaCategories=1
 
-leadEtVBFCut=55
+leadEtVBFCut=60
 subleadEtVBFCut=25
 
+## Hadronic V tag
+includeVHhad=0
 leadEtVHhadCut=60
 subleadEtVHhadCut=25
+
+## Lepton tag
+includeVHlep=0
 
 leadEtVHlepCut=45
 subleadEtVHlepCut=25
 
+##
 phoidMvaCut=-0.3
 
-doTriggerSelection=1
-reRunCiCForData=1
-
+## Corrections and smearings
 scaleR9Only=1
-
-->
-Turn on-off all smearings 
-->
 doMCSmearing=1 
 
-->
-Individual smearing flags
-->
+## Individual smearing flags
 energyCorrectionMethod=Bendavid
 doEcorrectionSmear=1
 doEcorrectionSyst=0
@@ -69,26 +70,21 @@ doKFactorSyst=1
 
 doInterferenceSmear=1
 
-->
-Inputs for reweighing
-->
+## Inputs for reweighing
 kfacHist=aux/KFactors_AllScales_interpolated.root
 efficiencyFile=aux/sig_reweighing_jan16rereco_baseline_v3.root
 puMap=pu_weights_map.dat
 puHist=aux/2011_0100_73500.weights3.root
 puTarget=aux/nov08_rereco.json.68000.pileup.root
 
-->
-energy scale adjustement and errors
-->
+## energy scale adjustement and errors
 scale_offset_file=energy_scale_offsets.dat
 scale_offset_error_file=energy_scale_errors.dat
 
-->
-additional MC smearing
-->
+## additional MC smearing
 smearing_file=smearing_sigma_and_errors.dat
 
+## jets
 recomputeBetas=0
 recorrectJets=0
 rerunJetMva=0

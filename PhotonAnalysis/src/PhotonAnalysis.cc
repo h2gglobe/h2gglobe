@@ -1960,7 +1960,7 @@ bool PhotonAnalysis::VBFTag2012(LoopAll& l, int diphoton_id, float* smeared_pho_
 
     if(diphoton_id==-1) return tag;
     float jet1ptcut =30.0;
-    float jet2ptcut =20.0;
+    float jet2ptcut =25.0;
   
   
     TLorentzVector lead_p4    = l.get_pho_p4( l.dipho_leadind[diphoton_id], l.dipho_vtxind[diphoton_id], &smeared_pho_energy[0]);

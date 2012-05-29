@@ -19,6 +19,7 @@ StatAnalysis::StatAnalysis()  :
     nSystSteps = 1;    
     doSystematics = true;   
     dataIs2011 = false;
+    nVBFDijetJetCategories=1;
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -113,7 +114,7 @@ void StatAnalysis::Init(LoopAll& l)
     nPhotonCategories_ = nEtaCategories;
     if( nR9Categories != 0 ) nPhotonCategories_ *= nR9Categories;
     
-    int nVBFCategories  = ((int)includeVBF)*nVBFEtaCategories;
+    int nVBFCategories   = ((int)includeVBF)*nVBFEtaCategories*nVBFDijetJetCategories;
     int nVHhadCategories = ((int)includeVHhad)*nVHhadEtaCategories;
     int nVHlepCategories = (int)includeVHlep * 2;
    
@@ -603,6 +604,7 @@ bool StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
         rescaleClusterVariables(l);
     }
 
+    // Re-apply JEC and / or recompute JetID
     if(includeVBF || includeVHhad) { postProcessJets(l); }
     
     // Analyse the event assuming nominal values of corrections and smearings
@@ -903,11 +905,18 @@ void StatAnalysis::FillRooContainerSyst(LoopAll& l, const std::string &name, int
 // ----------------------------------------------------------------------------------------------------
 void StatAnalysis::computeExclusiveCategory(LoopAll & l, int & category, std::pair<int,int> diphoton_index, float pt)
 {
-    if(VBFevent)        category=nInclusiveCategories_ + l.DiphotonCategory(diphoton_index.first,diphoton_index.second,pt,nVBFEtaCategories,1,1);
-    else if(VHhadevent) category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFEtaCategories
-	+ l.DiphotonCategory(diphoton_index.first,diphoton_index.second,pt,nVHhadEtaCategories,1,1);
-    else if(VHmuevent) category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFEtaCategories + ( (int)includeVHhad )*nVHhadEtaCategories;
-    else if(VHelevent) category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFEtaCategories + ( (int)includeVHhad )*nVHhadEtaCategories + (int)includeVHlep;
+    if(VBFevent)        {
+	category=nInclusiveCategories_ + 
+	    l.DiphotonCategory(diphoton_index.first,diphoton_index.second,pt,nVBFEtaCategories,1,1) 
+	    + nVBFEtaCategories*l.DijetSubCategory(myVBF_Mjj,myVBFLeadJPt,myVBFSubJPt,nVBFDijetJetCategories)
+	    ;
+    } else if(VHhadevent) { category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFEtaCategories
+	    + l.DiphotonCategory(diphoton_index.first,diphoton_index.second,pt,nVHhadEtaCategories,1,1); 
+    } else if(VHmuevent) {
+	category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFEtaCategories + ( (int)includeVHhad )*nVHhadEtaCategories;  
+    } else if(VHelevent) { 
+	category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFEtaCategories + ( (int)includeVHhad )*nVHhadEtaCategories + (int)includeVHlep;
+    }
     
 }
 

@@ -603,6 +603,14 @@ int DiphotonCategory(Int_t leadind, Int_t subleadind, float pTh,  int n_etacat=4
 }
 
 //----------------------------------------------------------------------
+int DijetSubCategory(float mjj, float leadPt, float subledPt, float ncat)
+{
+	if( ncat == 1 ) { return 0; }
+	return ( mjj < 500. || subledPt < 30. );
+}
+
+
+//----------------------------------------------------------------------
 
 int DiphotonVtxCategory(float vtxMva, int nVtxCategories)
 {
