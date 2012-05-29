@@ -4,6 +4,8 @@ subleadEtCut=30.0
 systRange=3.
 nSystSteps=1    
 
+scaleR9Only=0
+
 ->
 Testing Hypothesis
 ->

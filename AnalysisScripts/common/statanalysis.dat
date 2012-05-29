@@ -32,6 +32,8 @@ phoidMvaCut=-0.3
 doTriggerSelection=1
 reRunCiCForData=1
 
+scaleR9Only=1
+
 ->
 Turn on-off all smearings 
 ->

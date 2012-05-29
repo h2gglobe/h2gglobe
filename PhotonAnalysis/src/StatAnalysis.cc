@@ -598,32 +598,10 @@ bool StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	gPT = gP4.Pt();
     }
 
-    // TEMPORARY FIX -------------------------------------------------------------------------------------------------------//
-    // Scale all the r9 of the photons in the MC
-    // For now we just let it use the index but we specifically Change the r9 in the branch AFTER Energy regression smearing
-    // Ideally we want to pass a smeared r9 too and apply after energy corrections, currently the smeared_pho_r9 isnt used!
-    // ---------------------------------------------------------------------------------------------------------------------//
-    // ---------------------------------------------------------------------------------------------------------------------//
-    // ---------------------------------------------------------------------------------------------------------------------//
+    // Dava driven MC corrections to cluster shape variables and energy resolution estimate
     if (cur_type !=0){
-        for (int ipho=0;ipho<l.pho_n;ipho++){
-	    if( dataIs2011 ) {
-		double R9_rescale = (l.pho_isEB[ipho]) ? 1.0048 : 1.00492 ;
-		l.pho_r9[ipho]*=R9_rescale;
-	    } else {
-		l.pho_r9[ipho]*=1.0035;
-		if (l.pho_isEB[ipho]){ l.pho_sieie[ipho] = (0.87*l.pho_sieie[ipho]) + 0.0011 ;}
-		else {l.pho_sieie[ipho]*=0.99;}
-		l.sc_seta[l.pho_scind[ipho]]*=0.99;  
-		l.sc_sphi[l.pho_scind[ipho]]*=0.99;  
-	    }
-	    energyCorrectedError[ipho] *=(l.pho_isEB[ipho]) ? 1.07 : 1.045 ;
-        }
+        rescaleClusterVariables(l);
     }
-    // ---------------------------------------------------------------------------------------------------------------------//
-    // ---------------------------------------------------------------------------------------------------------------------//
-    // ---------------------------------------------------------------------------------------------------------------------//
-    // ---------------------------------------------------------------------------------------------------------------------//
 
     if(includeVBF || includeVHhad) { postProcessJets(l); }
     
@@ -1083,6 +1061,39 @@ std::string StatAnalysis::GetSignalLabel(int id){
     
 }
 
+void StatAnalysis::rescaleClusterVariables(LoopAll &l){
+
+    for (int ipho=0;ipho<l.pho_n;ipho++){
+     // Data-driven MC scalings 
+     if (dataIs2011) {
+	      if( scaleR9Only ) {
+		    double R9_rescale = (l.pho_isEB[ipho]) ? 1.0048 : 1.00492 ;
+		    l.pho_r9[ipho]*=R9_rescale;
+	      } else {
+		    l.pho_r9[ipho]*=1.0035;
+		    if (l.pho_isEB[ipho]){ l.pho_sieie[ipho] = (0.87*l.pho_sieie[ipho]) + 0.0011 ;}
+	    	else {l.pho_sieie[ipho]*=0.99;}
+		    l.sc_seta[l.pho_scind[ipho]]*=0.99;  
+		    l.sc_sphi[l.pho_scind[ipho]]*=0.99;  
+	      }
+
+     } else {    // For now ony know of s4 and ESEffSigmarr scalings
+    
+	      if( !scaleR9Only ) {
+             // s4 Ratio is pho_e2x2/pho_e5x5 so scale numerator
+             l.pho_e2x2[ipho]*= (l.pho_isEB[ipho]) ? 1.0055 : 1.0085 ;
+            
+             // we actually scale sqrt(rr2)
+             if (l.pho_isEB[ipho]==0) {
+                l.pho_eseffsixix[ipho]*=1.04;
+                l.pho_eseffsiyiy[ipho]*=1.04;
+             }
+          }
+	 }
+
+	 energyCorrectedError[ipho] *=(l.pho_isEB[ipho]) ? 1.07 : 1.045 ;
+    }
+}
 
 void StatAnalysis::ResetAnalysis(){
     // Reset Random Variable on the EnergyResolution Smearer

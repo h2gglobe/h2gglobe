@@ -10,7 +10,9 @@ nDataBins=160
 nEtaCategories=2
 nR9Categories=2
 
-doTriggerSelection=1
+scaleR9Only=0
+
+doTriggerSelection=0 
 reRunCiCForData=1
 
 includeVBF=1
