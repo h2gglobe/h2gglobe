@@ -905,8 +905,9 @@ int  LoopAll::matchPhotonToConversion( int lpho) {
     TVector3 refittedPairMomentum= conv_ntracks[iconv]==1 ? *((TVector3*) conv_singleleg_momentum->At(iconv)) : *((TVector3*) conv_refitted_momentum->At(iconv));
     conv_pt =  refittedPairMomentum.Pt();
     if (conv_pt < 1 ) continue;
-    if ( conv_ntracks[iconv]!=1 && conv_ntracks[iconv]!=2) continue;
-    if ( conv_ntracks[iconv]==2 && (!conv_validvtx[iconv] || conv_ntracks[iconv]!=2 || conv_chi2_probability[iconv]<0.000001)) continue; // Changed back based on meeting on 21.03.2012
+    //if ( conv_ntracks[iconv]!=1 && conv_ntracks[iconv]!=2) continue;
+    if ( conv_ntracks[iconv]!=2) continue;
+    if ( conv_ntracks[iconv]==2 && (!conv_validvtx[iconv] || conv_chi2_probability[iconv]<0.000001)) continue; // Changed back based on meeting on 21.03.2012
 
     phi  = refittedPairMomentum.Phi();
     conv_phi  = phiNorm(phi);
