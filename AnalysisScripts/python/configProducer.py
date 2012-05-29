@@ -655,8 +655,13 @@ class configProducer:
                      %(val[0],line))
     if map_c["typ"] != 0:
       self.is_data_ = False
+
+    # First check if its a signal sample we are defining, in which case calculate the x-section and BR
+    if map_c["typ"] < 0: 
+      map_c["xsec"] = self.ut_.signalNormalizer.GetXsection(map_c["typ"]) * self.ut_.signalNormalizer.GetBR(map_c["typ"])
       
     if fi_name != '':
+
       if not fi_name.startswith("rfio") and not fi_name.startswith("root:/") and not fi_name.startswith("/castor") and not os.path.isfile(fi_name): 
         sys.exit("No Input File Named: %s"%fi_name)
       tuple_n = fi_name, fi_type

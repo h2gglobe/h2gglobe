@@ -74,7 +74,7 @@ if Method == "HybridNew":
 if Method == "HybridNew" or Method == "Asymptotic": EXPmasses = OBSmasses[:]
 
 if args[1] == "sm":
- ROOT.gROOT.ProcessLine(".L Normalization_7TeV.C++")
+ ROOT.gROOT.ProcessLine(".L Normalization_8TeV.c++")
  from ROOT import GetBR
  from ROOT import GetXsection
  from theory_sm import *

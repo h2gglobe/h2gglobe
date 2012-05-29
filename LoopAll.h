@@ -35,7 +35,7 @@ class BaseAnalysis;
 #include "VertexAnalysis/interface/VertexAlgoParameters.h"
 #include "VertexAnalysis/interface/PhotonInfo.h"
 #include "VertexAnalysis/interface/VertexAlgoParameters.h"
-
+#include "Macros/Normalization_8TeV.h"
 
 #define BRANCH_DICT(NAME) branchDict[# NAME] = branch_info_t(& b ## _ ## NAME, & LoopAll::SetBranchAddress ## _ ## NAME, & LoopAll::Branch ## _ ## NAME )
 
@@ -56,6 +56,7 @@ class LoopAll {
   std::vector<Cut> cutContainer;
   std::vector<TreeContainer> treeContainer;	 
   RooContainer *rooContainer;
+  Normalization_8TeV *signalNormalizer;
   
   LoopAll(TTree *tree=0);
   virtual ~LoopAll();
@@ -97,6 +98,7 @@ class LoopAll {
                             int nred, long long ntot, float intlumi,
                             float lumi, float xsec, float kfactor,
 			    float scale, bool addnevents=false);
+
   void Term(); 
 
   bool is_subjob;

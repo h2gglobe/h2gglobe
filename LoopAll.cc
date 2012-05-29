@@ -394,11 +394,18 @@ LoopAll::LoopAll(TTree *tree) :
   DefineUserBranches();
 #endif
 
-  rooContainer = new RooContainer();
+  rooContainer       = new RooContainer();
+  signalNormalizer   = new Normalization_8TeV();
+
   rooContainer->BlindData();	// 2012 requires that we Blind our data
   // Best Set Global parameters accesible via python to defauls
+
+  signalNormalizer->FillSignalTypes();
+
   runZeeValidation = false;
   usePFCiC = true;
+
+  
 }
 
 // ------------------------------------------------------------------------------------

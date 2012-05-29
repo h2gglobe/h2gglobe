@@ -30,7 +30,7 @@ MainHead+=$(wildcard branchdef/*.$(HeadSuf))
 
 ## Sources
 MainSrc=$(filter-out dict.cc, $(filter-out LoopAllDict.cc,$(wildcard *.$(SrcSuf))) )
-MainSrc+=LoopAllDict.cc dict.cc
+MainSrc+=LoopAllDict.cc dict.cc Macros/Normalization_8TeV.cc
 MainObjs=$(patsubst %$(SrcSuf), %$(ObjSuf), $(MainSrc))
 
 ## ROOT dictionary
@@ -39,7 +39,7 @@ MainDicts=LoopAll.h
 MainDicts+=$(wildcard Base*.$(HeadSuf))
 MainDicts+=$(wildcard *Smearer.$(HeadSuf))
 MainDicts+=$(wildcard *Container.$(HeadSuf))
-MainDicts+=PhotonFix.h MassResolution.h HtmlHelper.h
+MainDicts+=PhotonFix.h MassResolution.h HtmlHelper.h Macros/Normalization_8TeV.h
 
 
 ##
@@ -119,11 +119,6 @@ print:
 	@echo "LDFLAGS: "
 	@echo "-------------------"
 	@echo "$(LDFLAGS)" | tr ' ' '\n'
-	@echo
-
-	@echo "Extra tags"
-	@echo "-------------------"
-	@for pack in `awk '/get_tag/ { print $$4 }' extraTags`; do ls -d $$CMSSW_BASE/src/$$pack; done
 	@echo
 
 clean:
