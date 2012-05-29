@@ -88,6 +88,7 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
     // initialize the analysis variables
     nPhotonCategories_ = nEtaCategories;
     if( nR9Categories != 0 ) nPhotonCategories_ *= nR9Categories;
+    nInclusiveCategories_ = 4;
 
   
     effSmearPars.categoryType = "2CatR9_EBEE";
@@ -869,6 +870,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
         kinematic_bdtout = diphobdt_output;
         bool isEBEB  = (lead_p4.Eta() < 1.4442 ) && fabs(sublead_p4.Eta()<1.4442);
         category = GetBDTBoundaryCategory(diphobdt_output,isEBEB,VBFevent);
+        if (diphobdt_output>=0.05) computeExclusiveCategory(l,category,diphoton_index,Higgs.Pt()); 
  
         if (PADEBUG) std::cout << " Diphoton Category " <<category <<std::endl;
     	// sanity check
@@ -1137,6 +1139,8 @@ int MassFactorizedMvaAnalysis::GetBDTBoundaryCategory(float bdtout, bool isEB, b
         */
         //       if (bdtout >=-0.50 && bdtout < 0.05) return 4;
         if (VBFevent) {
+            //if (bdtout >= 0.05 && VBFevent==1) return 4;
+            //if (bdtout >= 0.05 && VBFevent==2) return 5;
             if (bdtout >= 0.05) return 4;
             else return -1;
         } else {

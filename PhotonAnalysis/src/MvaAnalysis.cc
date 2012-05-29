@@ -149,6 +149,7 @@ void MvaAnalysis::Init(LoopAll& l)
 
     nPhotonCategories_ = nEtaCategories;
     if( nR9Categories != 0 ) nPhotonCategories_ *= nR9Categories;
+    nInclusiveCategories_ = 1;
 
     effSmearPars.categoryType = "2CatR9_EBEE";
     effSmearPars.n_categories = 4;
@@ -655,6 +656,8 @@ float MvaAnalysis::tmvaGetVal(double mass, double mass_hypothesis, float kinemat
 int MvaAnalysis::GetBDTBoundaryCategory(float bdtout, bool isEB, bool VBFevent){
 
     if (VBFevent) {
+        //if (bdtout >= 0.05 && VBFevent==1) return 1;
+        //if (bdtout >= 0.05 && VBFevent==2) return 2;
         if (bdtout >= 0.05) return 1;
         return -1;
     } else {
