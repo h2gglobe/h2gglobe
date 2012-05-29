@@ -71,7 +71,7 @@ void FMTSetup::OptionParser(int argc, char *argv[]){
     ("datacards,d", 																										"Produce datacards")
     ("diagnose,D",  																										"Run full diagnostics (makes plots) - increases running time")
     ("www,w",     	po::value<string>(&webDir_),												"Publish to web - increases running time")
-    ("runCombine,C", 																										"Run Higgs combine tool")
+    ("runCombine,C", 																										"Run Higgs combine tool (please make sure you have checked out HiggsAnalyis/CombinedLimit and compile it somewhere in your CMSSW area)")
     ("mHMin,l",			po::value<int>(&tempmHMin_),													"Set lower bound (GeV) for Higgs mH")
     ("mHMax,u",			po::value<int>(&tempmHMax_),													"Set upper bound (GeV) for Higgs mH")
     ("mHStep,s",		po::value<double>(&tempmHStep_),											"Set bin size (GeV) for Higgs mH")
@@ -80,7 +80,7 @@ void FMTSetup::OptionParser(int argc, char *argv[]){
     ("verbose,v",                                                       "Increase output level")
 		("useDat,U", po::value<string>(&datFil_)->default_value("0"),				"Get options from .dat file not TFile")
     ("noPlot,n",                                                        "Don't remake plots")
-		("runSB,R",																													"Make S/B plots")
+		("runSB,R",																													"Make S/B plots - in development (please don\'t use yet)")
     ;
   
 	po::positional_options_description p;

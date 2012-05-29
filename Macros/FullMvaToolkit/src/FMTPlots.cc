@@ -77,11 +77,11 @@ void FMTPlots::makePlots(TH1F* dataH, TH1F *sigH, TH1F *bkgH, TH1F *bkgmcH, vect
   for (vector<TH1F*>::iterator it = bkgSideHighH.begin(); it != bkgSideHighH.end(); it++) bkgSideHigh.push_back(linearBin(*it));
   for (vector<pair<TH1F*,TH1F*> >::iterator it = sigSystH.begin(); it != sigSystH.end(); it++) sigSyst.push_back(pair<TH1F*,TH1F*>(linearBin(it->first),linearBin(it->second)));
 
-  //plotOutput(data,bkg,sig,sig3,sig5,mh);
-  //plotSidebands(bkg,dataSideLow,dataSideHigh,bkgmc,bkgSideLow,bkgSideHigh,mh);
-  //plotSystFracs(sig,sigSyst,mh);
-  //plotInterpolation(sig,lowInterp,highInterp,mh);
-	plotByMH("fake-shape-cards",mh,data,sig,bkg);
+  plotOutput(data,bkg,sig,sig3,sig5,mh);
+  plotSidebands(bkg,dataSideLow,dataSideHigh,bkgmc,bkgSideLow,bkgSideHigh,mh);
+  plotSystFracs(sig,sigSyst,mh);
+  plotInterpolation(sig,lowInterp,highInterp,mh);
+	if (runSB_) plotByMH("fake-shape-cards",mh,data,sig,bkg);
   delete data;
   delete sig;
   delete bkg;
@@ -494,12 +494,12 @@ void FMTPlots::plotByMH(string pathname, double mh, TH1F *data, TH1F *sig, TH1F 
 
 	canv->cd(1);
 	bkg2->GetYaxis()->SetRangeUser(1,2e4);
-	bkg2->Draw("9E2");
-	bkg1->Draw("9sameE2");
-	bkg->Draw("9samehist");
-	bkgML->Draw("9samehist");
-	sbML->Draw("9samehist");
-	if (!blind_) data->Draw("9samele1p");
+	bkg2->Draw("E2");
+	bkg1->Draw("sameE2");
+	bkg->Draw("samehist");
+	bkgML->Draw("samehist");
+	sbML->Draw("samehist");
+	if (!blind_) data->Draw("samele1p");
 	leg->Draw("same");
 	text->Draw("same");
 	massText->Draw("same");
@@ -514,7 +514,7 @@ void FMTPlots::plotByMH(string pathname, double mh, TH1F *data, TH1F *sig, TH1F 
 	leg2->SetBorderSize(0);
 	leg2->AddEntry(sobML,"S/B (ML)","lep");
 	sobML->GetYaxis()->SetRangeUser(-0.2,1.4);
-	sobML->Draw("9ep");
+	sobML->Draw("ep");
 	leg2->Draw("same");
 
 	canv->Print(Form("plots/pdf/sb_by_mh_%3.1f.pdf",mh));

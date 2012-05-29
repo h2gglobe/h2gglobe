@@ -13,7 +13,7 @@
 #include "boost/lexical_cast.hpp"
 
 #include "../interface/FMTSigInterp.h"
-#include "../../Normalization.C"
+#include "../../Normalization_7TeV.C"
 
 using namespace std;
 
