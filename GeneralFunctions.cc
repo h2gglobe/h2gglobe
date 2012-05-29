@@ -2022,7 +2022,6 @@ std::cout << photonIDMVA(selected_dipho_sublead,selected_dipho_vtx,selected_subl
 // Define newfunction to calculate MIT (Pre-)Selection                                                      
 bool LoopAll::PhotonMITPreSelection( int photon_index, int vertex_index, float *pho_energy_array ) {
 
-
    int r9_category = (int) (pho_r9[photon_index] <= 0.9);                                                      
    int photon_category = r9_category + 2*PhotonEtaCategory(photon_index,2);                                 
    int photon_cic_category = PhotonCategory(photon_index,2,2);
@@ -2032,63 +2031,65 @@ bool LoopAll::PhotonMITPreSelection( int photon_index, int vertex_index, float *
    float mitCuts_ecaliso[4]             = {50,4,50,4};                                                      
    float mitCuts_hcaliso[4]             = {50,4,50,4};                                                      
    float mitCuts_trkiso[4]              = {50,4,50,4};                                                      
-   float mitCuts_hcalecal[4]            = {3,3,3,3};                                                        
-   float mitCuts_abstrkiso[4]           = {2.8,2.8,2.8,2.8};                                                
-   float mitCuts_trkiso_hollow03[4]     = {4,4,4,4};                                                       
-   float mitCuts_drtotk_25_99[4]	= {0.26,0.029,0.0062,0.0055};
+   //float mitCuts_hcalecal[4]            = {3,3,3,3};                                                        
+   //float mitCuts_abstrkiso[4]           = {2.8,2.8,2.8,2.8};                                                
+   //float mitCuts_trkiso_hollow03[4]     = {4,4,4,4};                                                       
+   //float mitCuts_drtotk_25_99[4]	= {0.26,0.029,0.0062,0.0055};
+   float mitCuts_pfiso[4]               = {4,4,4,4};
 
-   TLorentzVector phop4 = get_pho_p4( photon_index, vertex_index, pho_energy_array  );                      
-   TLorentzVector phop4_badvtx = get_pho_p4( photon_index, pho_tkiso_badvtx_id[photon_index], pho_energy_array  );
+   TLorentzVector phop4 = get_pho_p4( photon_index, vertex_index, pho_energy_array);                      
+   //TLorentzVector phop4_badvtx = get_pho_p4( photon_index, pho_tkiso_badvtx_id[photon_index], pho_energy_array  );
 
-   float rhofac=0.17;
+   //float rhofac=0.17;
    float val_hoe        = pho_hoe[photon_index];
    float val_sieie      = pho_sieie[photon_index];                                                          
    float val_ecaliso = pho_ecalsumetconedr03[photon_index] - 0.012*phop4.Et();                              
    float val_hcaliso = pho_hcalsumetconedr03[photon_index] - 0.005*phop4.Et(); 
-                             
-   float val_trkiso  = pho_trksumpthollowconedr03[photon_index] - 0.002*phop4.Et();                          
-   float val_hcalecal   = (pho_ecalsumetconedr03[photon_index]+pho_hcalsumetconedr03[photon_index]-rho_algo1*rhofac);                                             
-   float val_abstrkiso  = (*pho_tkiso_recvtx_030_002_0000_10_01)[photon_index][vertex_index];                
-   float val_trkiso_hollow03 = pho_trksumpthollowconedr03[photon_index];                                    
-//   float val_drtotk_25_99 = pho_drtotk_25_99[photon_index];
-   int   val_pho_isconv = pho_isconv[photon_index];
+   float val_trkiso  = pho_trksumpthollowconedr03[photon_index] - 0.002*phop4.Et();                          \
 
-   //if (run==173439 && lumis==155 && event==236661419) {
-  if (run==170397 && lumis==279 &&event==304405242){
-//	std::cout << "I will lose this photon, but MIT will not" << std::endl;
-	
-    std::cout << "rho " << rho <<std::endl;
-    std::cout << "pho_n " << pho_n <<std::endl;
-    std::cout << "pho_index " << photon_index <<std::endl;
-    std::cout << "pho_et " << phop4.Et() <<std::endl;
-    std::cout << "hoe " << val_hoe <<std::endl;
-    std::cout << "sieie " << val_sieie <<std::endl;
-    std::cout << "ecaliso " << val_ecaliso <<std::endl;
-    std::cout << "hcaliso " << val_hcaliso <<std::endl;
-    std::cout << "hcalecal " << val_hcalecal <<std::endl;
-    std::cout << "abstrkiso " << val_abstrkiso <<std::endl;
-    std::cout << "trkiso " << val_trkiso_hollow03 <<std::endl;
-    std::cout << "isconv " << val_pho_isconv <<std::endl;
+   //float val_hcalecal   = (pho_ecalsumetconedr03[photon_index]+pho_hcalsumetconedr03[photon_index]-rho_algo1*rhofac);                                             
+   //float val_abstrkiso  = (*pho_tkiso_recvtx_030_002_0000_10_01)[photon_index][vertex_index];                
+   //float val_trkiso_hollow03 = pho_trksumpthollowconedr03[photon_index];                                    
+   //float val_drtotk_25_99 = pho_drtotk_25_99[photon_index];
+   int val_pho_isconv = pho_isconv[photon_index];
+   float val_pfiso02 = (*pho_pfiso_mycharged02)[photon_index][vertex_index];
 
-    std::cout << "r9 " << pho_r9[photon_index] <<std::endl;
-    std::cout << "r9 categoty " << r9_category <<std::endl;
-    std::cout << "eta scxyz" << fabs(((TVector3*)sc_xyz->At(pho_scind[photon_index]))->Eta()) <<std::endl;
-    std::cout << "category" << photon_category <<std::endl;
-
- }
+   /*
+     if (run==170397 && lumis==279 &&event==304405242){
+     
+     std::cout << "rho " << rho <<std::endl;
+     std::cout << "pho_n " << pho_n <<std::endl;
+     std::cout << "pho_index " << photon_index <<std::endl;
+     std::cout << "pho_et " << phop4.Et() <<std::endl;
+     std::cout << "hoe " << val_hoe <<std::endl;
+     std::cout << "sieie " << val_sieie <<std::endl;
+     std::cout << "ecaliso " << val_ecaliso <<std::endl;
+     std::cout << "hcaliso " << val_hcaliso <<std::endl;
+     std::cout << "hcalecal " << val_hcalecal <<std::endl;
+     std::cout << "abstrkiso " << val_abstrkiso <<std::endl;
+     std::cout << "trkiso " << val_trkiso_hollow03 <<std::endl;
+     std::cout << "isconv " << val_pho_isconv <<std::endl;
+     
+     std::cout << "r9 " << pho_r9[photon_index] <<std::endl;
+     std::cout << "r9 categoty " << r9_category <<std::endl;
+     std::cout << "eta scxyz" << fabs(((TVector3*)sc_xyz->At(pho_scind[photon_index]))->Eta()) <<std::endl;
+     std::cout << "category" << photon_category <<std::endl;
+     }
+   */
+  
    if (val_hoe             >= mitCuts_hoe[photon_category]         ) return false;                                           
    if (val_sieie           >= mitCuts_sieie[photon_category]       ) return false;
    if (val_ecaliso         >= mitCuts_ecaliso[photon_category]     ) return false;
    if (val_hcaliso         >= mitCuts_hcaliso[photon_category]     ) return false;                                           
    if (val_trkiso          >= mitCuts_trkiso[photon_category]      ) return false;
-   if (val_hcalecal        >= mitCuts_hcalecal[photon_category]    ) return false;
-   if (val_abstrkiso       >= mitCuts_abstrkiso[photon_category]   ) return false;                   
-//   if (val_drtotk_25_99    <  mitCuts_drtotk_25_99[photon_category]   ) return false; // Electron Rejection based on CiC for now
+   //if (val_hcalecal        >= mitCuts_hcalecal[photon_category]    ) return false;
+   //if (val_abstrkiso       >= mitCuts_abstrkiso[photon_category]   ) return false;                   
+   // if (val_drtotk_25_99    <  mitCuts_drtotk_25_99[photon_category]   ) return false; // Electron Rejection based on CiC for now
    if ((!val_pho_isconv && !runZeeValidation) || (runZeeValidation && val_pho_isconv) ) return false; // Electron Rejection based Conversion Safe Veto
-   if (val_trkiso_hollow03 >= mitCuts_trkiso_hollow03[photon_category]) return false;                                        
+   //if (val_trkiso_hollow03 >= mitCuts_trkiso_hollow03[photon_category]) return false;                                        
+   if (val_pfiso02 >= mitCuts_pfiso[photon_category]) return false;            
 
    return true;
-
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
