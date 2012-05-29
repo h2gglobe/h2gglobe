@@ -54,7 +54,7 @@ SubPkgsDict=VertexAnalysis/interface/VertexAlgoParameters.h
 ROOFIT_BASE=$(ROOFITSYS)
 LDFLAGS+=-L$(ROOFIT_BASE)/lib $(ROOTLIBS) -lRooFitCore -lRooFit -lTMVA
 LDFLAGS+= $(patsubst %, -L%, $(shell echo ${LD_LIBRARY_PATH} | tr ':' '\n')) -lFWCorePythonParameterSet -lFWCoreParameterSet -lCMGToolsExternal -lCondFormatsJetMETObjects
-CXXFLAGS+=-I$(ROOFIT_BASE)/include -I$(CMSSW_BASE)/src  -I$(CMSSW_RELEASE_BASE)/src
+CXXFLAGS+=-I$(ROOFIT_BASE)/include -I$(CMSSW_BASE)/src  -I$(CMSSW_RELEASE_BASE)/src -I$(CMSSW_FWLITE_INCLUDE_PATH)
 CXXFLAGS+=-I$(shell pwd)
 
 ##
