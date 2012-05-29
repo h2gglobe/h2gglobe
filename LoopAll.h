@@ -112,6 +112,8 @@ class LoopAll {
   // Zee Validaton Flag
   bool runZeeValidation;
 
+  bool usePFCiC;
+  
   std::vector<TTree*> Trees;
   std::vector<TTree*> LumiTrees;
   std::vector<TFile*> Files;

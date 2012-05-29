@@ -32,7 +32,7 @@ puMap=
 puHist=
 puTarget=
 
-recomputeJetId=0
 dumpFlatTree=1
+recorrectJets=0
 
 

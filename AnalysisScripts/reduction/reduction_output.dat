@@ -386,6 +386,7 @@ jet_algoPF1_full_wp_level
 jet_algoPF1_simple_wp_level
 jet_algoPF1_cutbased_wp_level
 jet_algoPF1_pfloose
+jet_algoPF1_area
 
 jet_algoPF1_beta_ext
 jet_algoPF1_betaStar_ext
@@ -418,6 +419,7 @@ jet_algoPF2_full_wp_level
 jet_algoPF2_simple_wp_level
 jet_algoPF2_cutbased_wp_level
 jet_algoPF2_pfloose
+jet_algoPF2_area
 
 jet_algoPF2_beta_ext
 jet_algoPF2_betaStar_ext
@@ -450,6 +452,7 @@ jet_algoPF3_full_wp_level
 jet_algoPF3_simple_wp_level
 jet_algoPF3_cutbased_wp_level
 jet_algoPF3_pfloose
+jet_algoPF3_area
 
 jet_algoPF3_beta_ext
 jet_algoPF3_betaStar_ext

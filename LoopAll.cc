@@ -302,9 +302,14 @@ void LoopAll::LoopAndFillHistos(TString treename) {
       b_tot_events->GetEntry(0);
       b_sel_events->GetEntry(0);
     } else {
-      cout<<"REDUCE JOB, no global_variables tree ... the C-step job must have crashed ... SKIP THE FILE"<<endl;
+      cout<<"NO global_variables tree ... the C-step job must have crashed ... SKIP THE FILE"<<endl;
       tot_events=0;
       sel_events=0;
+    }
+    
+    *it_treelumi = (TTree*) (*it_file)->Get("lumi");
+    if( *it_treelumi != 0 && outputFile ) {
+      StoreProcessedLumis( *it_treelumi );
     }
     
     if(typerun == kReduce || typerun == kFillReduce) { //this is a reduce job
@@ -339,12 +344,7 @@ void LoopAll::LoopAndFillHistos(TString treename) {
     if(tot_events != 0 && (*it_tree) != 0  ) {
       (*it_tree)->Delete("");
     }
-        
-    *it_treelumi = (TTree*) (*it_file)->Get("lumi");
-    if( *it_treelumi != 0 && outputFile ) {
-      StoreProcessedLumis( *it_treelumi );
-    }
-        
+    
     // EDIT - Cannot close the first file since it is in use after 
     // file 0 
     if (i>0)
@@ -370,7 +370,7 @@ void LoopAll::StoreProcessedLumis(TTree * tree){
     if( !CheckLumiSelection(run,lumis)  ) { continue; }
     if( outputFile ) outputTreeLumi->Fill();
   }
-  if(outputFile) {
+  if(typerun != kFill && outputFile) {
     outputFile->cd();
     outputTreeLumi->Write(0,TObject::kWriteDelete);
   }
@@ -397,6 +397,7 @@ LoopAll::LoopAll(TTree *tree) :
   rooContainer = new RooContainer();
   // Best Set Global parameters accesible via python to defauls
   runZeeValidation = false;
+  usePFCiC = true;
 }
 
 // ------------------------------------------------------------------------------------

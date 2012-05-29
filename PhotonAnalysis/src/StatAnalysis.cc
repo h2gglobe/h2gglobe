@@ -89,7 +89,6 @@ void StatAnalysis::Init(LoopAll& l)
         << "-------------------------------------------------------------------------------------- \n"
         << std::endl;
 
-    // avoid recalculated the CIC ID every time
     // call the base class initializer
     PhotonAnalysis::Init(l);
 
@@ -565,7 +564,8 @@ bool StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     } 
     if (l.runZeeValidation) l.runCiC=true;
 
-    if( l.rho == 0. && forcedRho < 0. ) {
+    // make sure that rho is properly set
+    if( l.version >= 13 && forcedRho < 0. ) {
 	l.rho = l.rho_algo1;
     }
 
@@ -616,8 +616,8 @@ bool StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		else {l.pho_sieie[ipho]*=0.99;}
 		l.sc_seta[l.pho_scind[ipho]]*=0.99;  
 		l.sc_sphi[l.pho_scind[ipho]]*=0.99;  
-		energyCorrectedError[ipho] *=(l.pho_isEB[ipho]) ? 1.07 : 1.045 ;
 	    }
+	    energyCorrectedError[ipho] *=(l.pho_isEB[ipho]) ? 1.07 : 1.045 ;
         }
     }
     // ---------------------------------------------------------------------------------------------------------------------//
@@ -625,6 +625,8 @@ bool StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     // ---------------------------------------------------------------------------------------------------------------------//
     // ---------------------------------------------------------------------------------------------------------------------//
 
+    if(includeVBF || includeVHhad) { postProcessJets(l); }
+    
     // Analyse the event assuming nominal values of corrections and smearings
     float mass, evweight, diphotonMVA;
     int diphoton_id, category;

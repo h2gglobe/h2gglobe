@@ -9,12 +9,14 @@
 using namespace RooFit;
 
 RooContainer::RooContainer(int n, int s):ncat(n),nsigmas(s),make_systematics(false),save_systematics_data(false),verbosity_(false),fit_systematics(false),save_roodatahists(true){
-
+	
 // Set up the arrays which may be needed
 signalVector1 = new double[25];
 backgroundVector1 = new double[25];
 
+blind_data = true;
 }
+
 RooContainer::~RooContainer(){
 delete [] signalVector1;
 delete [] backgroundVector1;
