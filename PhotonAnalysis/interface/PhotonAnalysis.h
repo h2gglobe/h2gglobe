@@ -203,8 +203,9 @@ class PhotonAnalysis : public BaseAnalysis
 
     // Jets
     JetHandler * jetHandler_;
-    void postProcessJets(LoopAll & l); 
-    
+    void postProcessJets(LoopAll & l, int vtx=-1); 
+    void switchJetIdVertex(LoopAll &l, int ivtx);
+
     std::map<int, vector<double> > weights;
     int trigCounter_;
     

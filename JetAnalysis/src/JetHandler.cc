@@ -18,16 +18,20 @@ JetHandler::JetHandler(const std::string & cfg, LoopAll & l):
     std::vector<std::string> mcJEC   = jec.getParameter<std::vector<std::string> >("mc");
     
     for(std::vector<std::string>::iterator corr = dataJEC.begin(); corr!=dataJEC.end(); ++corr) {
+	std::cout << "JetHandler JEC data " << *corr << std::endl;
     	jetCorParsData_.push_back( JetCorrectorParameters(*corr) );
     }
     for(std::vector<std::string>::iterator corr = mcJEC.begin(); corr!=mcJEC.end(); ++corr) {
+	std::cout << "JetHandler JEC MC " << *corr << std::endl;
     	jetCorParsMc_.push_back( JetCorrectorParameters(*corr) );
     }
     
     if( ! jetCorParsData_.empty() ) {
+	std::cout << "Booking JEC data " << std::endl;
     	jecCorData_ = new FactorizedJetCorrector(jetCorParsData_);
     }
     if( ! jetCorParsMc_.empty() ) {
+	std::cout << "Booking JEC MC " << std::endl;
     	jecCorMc_ = new FactorizedJetCorrector(jetCorParsMc_);
     }
 }
@@ -198,6 +202,9 @@ void JetHandler::computeWp(int ijet, int ivtx)
 				      l_.jet_algoPF1_dR2Mean[ijet], 
 				      l_.vtx_std_n,
 				      p4->Pt(), p4->Eta() );
+    //////// if( p4->Pt() > 20. ) { 
+    //////// 	std::cout << "JetHandler::computeWp " << ijet << " " << ivtx << " " << (*l_.jet_algoPF1_betaStarClassic_ext)[ijet][ivtx] << " " << l_.jet_algoPF1_dR2Mean[ijet] << " " << l_.vtx_std_n << " " << p4->Eta() << " " << PileupJetIdentifier::passJetId((*l_.jet_algoPF1_cutbased_wp_level_ext)[ijet][ivtx], PileupJetIdentifier::kLoose) << std::endl; 
+    //////// }
 }
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -206,16 +213,24 @@ void JetHandler::recomputeJec(int ijet, bool correct)
     bool data = l_.itype[l_.current] == 0;
     FactorizedJetCorrector * jecCor = ( data ? jecCorData_ : jecCorMc_ );
     TLorentzVector * p4 = (TLorentzVector*)l_.jet_algoPF1_p4->At(ijet);
+    float oldPt = p4->Pt();
     float uncorrPt = p4->Pt() / l_.jet_algoPF1_erescale[ijet];
+    float eta = p4->Eta();
     
     jecCor->setJetPt(uncorrPt);
-    jecCor->setJetEta(p4->Eta());
+    jecCor->setJetEta(eta);
     jecCor->setJetA(l_.jet_algoPF1_area[ijet]);
     jecCor->setRho(l_.rho_algo1);
     float thejec = jecCor->getCorrection();
     if( thejec < 0. ) { thejec = 0.; }
-    l_.jet_algoPF1_erescale[ijet] = uncorrPt * thejec / p4->Pt();
-    if( correct ) { *p4 *= l_.jet_algoPF1_erescale[ijet]; }
+    float rescale = uncorrPt * thejec / p4->Pt();
+    l_.jet_algoPF1_erescale[ijet] = thejec;
+    *p4 *= rescale;
+    //// if( oldPt > 20. ) {
+    ////  	std::cerr << "JetHandler::recomputeJec " << uncorrPt << " " << eta << " " << l_.jet_algoPF1_area[ijet] 
+    ////  		  << " " << l_.rho_algo1 << " " << thejec << " " << rescale << " " << oldPt 
+    ////  		  << " " << p4->Pt() << std::endl;
+    //// }
 }
 
 // Local Variables:

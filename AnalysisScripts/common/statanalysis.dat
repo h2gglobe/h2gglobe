@@ -86,6 +86,6 @@ smearing_file=smearing_sigma_and_errors.dat
 
 ## jets
 recomputeBetas=0
-recorrectJets=0
+recorrectJets=1
 rerunJetMva=0
-recomputeJetWp=0
+recomputeJetWp=1

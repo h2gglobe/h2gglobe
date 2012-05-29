@@ -159,15 +159,15 @@ bool JetIdAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorent
 	VBFevent = false;
 	VHhadevent = false;
 	
-	/// l.RescaleJetEnergy();
-	postProcessJets(l);
-
 	diphotonVBF_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVBFCut, subleadEtVBFCut, 4,false, &smeared_pho_energy[0], true); 
 	/// diphotonVBF_id = l.DiphotonCiCSelection(l.phoNOCUTS, l.phoNOCUTS, leadEtVBFCut, subleadEtVBFCut, 4,false, &smeared_pho_energy[0], true); 
 	
 	diphoton_id = diphotonVBF_id; 
 	if( diphoton_id == -1 ) { return false; }
-	
+
+	/// l.RescaleJetEnergy();
+	/// postProcessJets(l,l.dipho_vtxind[diphoton_id]);
+		
 	TLorentzVector lead_p4, sublead_p4, Higgs;
 	float lead_r9, sublead_r9;
 	TVector3 * vtx;

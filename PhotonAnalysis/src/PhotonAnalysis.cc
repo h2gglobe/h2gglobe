@@ -9,6 +9,7 @@
 #include <algorithm>
 
 #include "JetAnalysis/interface/JetHandler.h"
+#include "CMGTools/External/interface/PileupJetIdentifier.h"
 
 #define PADEBUG 0
 
@@ -1204,15 +1205,20 @@ void PhotonAnalysis::FillReductionVariables(LoopAll& l, int jentry)
 }
 
 // ----------------------------------------------------------------------------------------------------
-void PhotonAnalysis::postProcessJets(LoopAll & l) 
+void PhotonAnalysis::postProcessJets(LoopAll & l, int vtx) 
 {
     for(int ijet=0; ijet<l.jet_algoPF1_n; ++ijet) {
-	for(int ivtx=0;ivtx<l.vtx_std_n; ++ivtx) {
+	int minv = 0, maxv = l.vtx_std_n;
+	if( vtx!=-1 ){
+	    minv = vtx;
+	    maxv = vtx+1;
+	}
+	if( recorrectJets ) {
+	    jetHandler_->recomputeJec(ijet, true);
+	}
+	for(int ivtx=minv;ivtx<maxv; ++ivtx) {
 	    if( recomputeBetas ) {
 		jetHandler_->computeBetas(ijet, ivtx);
-	    }
-	    if( recorrectJets ) {
-		jetHandler_->recomputeJec(ijet, true);
 	    }
 	    if( rerunJetMva ) {
 		jetHandler_->computeMva(ijet, ivtx);
@@ -1222,6 +1228,22 @@ void PhotonAnalysis::postProcessJets(LoopAll & l)
 	}
     }
 }
+
+// ----------------------------------------------------------------------------------------------------
+void PhotonAnalysis::switchJetIdVertex(LoopAll &l, int ivtx) 
+{
+    for(int ii=0; ii<l.jet_algoPF1_n; ++ii) {
+	l.jet_algoPF1_beta[ii]              = (*l.jet_algoPF1_beta_ext)[ii][ivtx];
+    	l.jet_algoPF1_betaStar[ii]          = (*l.jet_algoPF1_betaStar_ext)[ii][ivtx];
+    	l.jet_algoPF1_betaStarClassic[ii]   = (*l.jet_algoPF1_betaStarClassic_ext)[ii][ivtx];
+    	l.jet_algoPF1_simple_mva[ii]        = (*l.jet_algoPF1_simple_mva_ext)[ii][ivtx];
+    	l.jet_algoPF1_full_mva[ii]          = (*l.jet_algoPF1_full_mva_ext)[ii][ivtx];
+    	l.jet_algoPF1_simple_wp_level[ii]   = (*l.jet_algoPF1_simple_wp_level_ext)[ii][ivtx];
+    	l.jet_algoPF1_full_wp_level[ii]     = (*l.jet_algoPF1_full_wp_level_ext)[ii][ivtx];
+    	l.jet_algoPF1_cutbased_wp_level[ii] = (*l.jet_algoPF1_cutbased_wp_level_ext)[ii][ivtx];
+    }
+}
+
 
 // ----------------------------------------------------------------------------------------------------
 bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry) 
@@ -1963,14 +1985,25 @@ bool PhotonAnalysis::VBFTag2011(LoopAll& l, int diphoton_id, float* smeared_pho_
     return tag;
 }
 
-bool PhotonAnalysis::VBFTag2012(LoopAll& l, int diphoton_id, float* smeared_pho_energy, bool nm1, float eventweight, float myweight, bool * jetid_flags) {
+bool PhotonAnalysis::VBFTag2012(LoopAll& l, int diphoton_id, float* smeared_pho_energy, bool nm1, float eventweight, 
+				float myweight, bool * jetid_flags) 
+{
+    static std::vector<unsigned char> id_flags;
     bool tag = false;
-
+    
     if(diphoton_id==-1) return tag;
     float jet1ptcut =30.0;
     float jet2ptcut =25.0;
-  
-  
+      
+    if( jetid_flags == 0 ) { 
+	switchJetIdVertex( l, l.dipho_vtxind[diphoton_id] );
+	id_flags.resize(l.jet_algoPF1_n);
+	for(int ijet=0; ijet<l.jet_algoPF1_n; ++ijet ) {
+	    id_flags[ijet] = PileupJetIdentifier::passJetId(l.jet_algoPF1_cutbased_wp_level[ijet], PileupJetIdentifier::kLoose);
+	}
+	jetid_flags = (bool*)&id_flags[0];
+    }
+    
     TLorentzVector lead_p4    = l.get_pho_p4( l.dipho_leadind[diphoton_id], l.dipho_vtxind[diphoton_id], &smeared_pho_energy[0]);
     TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphoton_id], l.dipho_vtxind[diphoton_id], &smeared_pho_energy[0]);
           
