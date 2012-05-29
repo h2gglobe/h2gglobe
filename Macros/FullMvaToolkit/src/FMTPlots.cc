@@ -43,12 +43,17 @@ TH1F* FMTPlots::linearBin(TH1F* hist){
   
   int nBins = hist->GetNbinsX();
   TH1F *h = new TH1F(Form("lin_%s",hist->GetName()),"",nBins,0,nBins);
-  for (int b=0; b<nBins; b++){
-    h->SetBinContent(b+1,hist->GetBinContent(b+1));
-    if (hist->GetBinLowEdge(b+1)<=1.) h->GetXaxis()->SetBinLabel(b+1,Form("BDT Bin %d",b+1));
-    else if (hist->GetBinLowEdge(b+1)<=1.04) h->GetXaxis()->SetBinLabel(b+1,"Di-jet");
-    else if (hist->GetBinLowEdge(b+1)<=1.08) h->GetXaxis()->SetBinLabel(b+1,"Di-lep");
+	if (verbose_) cout << "Bin edges: "; 
+  for (int b=1; b<=nBins; b++){
+    h->SetBinContent(b,hist->GetBinContent(b));
+		h->SetBinError(b,hist->GetBinError(b));
+		if (verbose_) cout << hist->GetBinLowEdge(b) << "   ";
+    if (hist->GetBinLowEdge(b)<1.) h->GetXaxis()->SetBinLabel(b,Form("BDT Bin %d",b));
+    else if (hist->GetBinLowEdge(b)<1.04) h->GetXaxis()->SetBinLabel(b,"Di-jet");
+    else if (hist->GetBinLowEdge(b)<1.08) h->GetXaxis()->SetBinLabel(b,"Di-lep");
   }
+	if (verbose_) cout << endl;
+	h->GetXaxis()->SetNdivisions(nBins);
   return h;
 }
 
@@ -56,7 +61,9 @@ void FMTPlots::makePlots(TH1F* dataH, TH1F *sigH, TH1F *bkgH, TH1F *bkgmcH, vect
 
   TH1F *data = linearBin(dataH);
   TH1F *sig = linearBin(sigH);
-  TH1F *bkg = linearBin(bkgH);
+	// Can just clone background - as it is already linear binned on correction (still need labels)
+  TH1F *bkg = (TH1F*)bkgH->Clone();
+	for (int bin=1; bin<=bkg->GetNbinsX(); bin++) bkg->GetXaxis()->SetBinLabel(bin,data->GetXaxis()->GetBinLabel(bin));
   TH1F *bkgmc = linearBin(bkgmcH);
   TH1F *sig3 = (TH1F*)sig->Clone();
   sig3->Scale(3.);
@@ -424,13 +431,14 @@ void FMTPlots::plotByMH(string pathname, double mh, TH1F *data, TH1F *sig, TH1F 
 	string textfile = Form("%s/%3.1fout.txt",pathname.c_str(),mh);
 	vector<double> normErrs = getNormErrs(Form("%s/mva-datacard_grad_%3.1f.txt",pathname.c_str(),mh));
 
-	for (int bin=1; bin<=bkg->GetNbinsX()+1; bin++){
+	for (int bin=1; bin<=bkg->GetNbinsX(); bin++){
 		pair<pair<double,double>,pair<double,double> > res = getBandSB(textfile,bin);
 		bkgML->SetBinContent(bin,(res.first).first);
 		sbML->SetBinContent(bin,(res.first).second);
 		sobML->SetBinContent(bin,(res.second).second/(res.second).first);
-		bkg1->SetBinError(bin,pow(pow(bkg->GetBinError(bin),2)+pow(bkg->GetBinContent(bin)*(normErrs[bin]-1),2),0.5));
-		bkg2->SetBinError(bin,2*pow(pow(bkg->GetBinError(bin),2)+pow(bkg->GetBinContent(bin)*(normErrs[bin]-1),2),0.5));
+		if (verbose_) cout << normErrs[bin] << endl;
+		bkg1->SetBinError(bin,pow(pow(bkg1->GetBinError(bin),2)+pow(bkg1->GetBinContent(bin)*(normErrs[bin-1]-1),2),0.5));
+		bkg2->SetBinError(bin,2*pow(pow(bkg2->GetBinError(bin),2)+pow(bkg2->GetBinContent(bin)*(normErrs[bin-1]-1),2),0.5));
 	}
 
 	bkgML->SetLineColor(kRed);
@@ -448,9 +456,10 @@ void FMTPlots::plotByMH(string pathname, double mh, TH1F *data, TH1F *sig, TH1F 
 	bkg2->SetFillStyle(1001);
 	bkg2->SetFillColor(5);
 	sig5->SetLineStyle(kDashed);
+	sig5->SetLineColor(kRed);
 	sig5->SetLineWidth(2);
 	sobML->SetLineColor(1);
-	sobML->SetLineWidth(2);
+	sobML->SetLineWidth(3);
 	
 	TLegend *leg = new TLegend(0.6,0.5,0.89,0.89);
 	leg->SetFillColor(0);
@@ -509,12 +518,18 @@ void FMTPlots::plotByMH(string pathname, double mh, TH1F *data, TH1F *sig, TH1F 
 	runText->DrawLatex(0.5,0.94,"#int L = 5.1");
 
 	canv->cd(2);
-	TLegend *leg2 = new TLegend(0.11,0.7,0.4,0.88);
+	TLegend *leg2 = new TLegend(0.11,0.75,0.4,0.88);
 	leg2->SetFillColor(0);
 	leg2->SetBorderSize(0);
-	leg2->AddEntry(sobML,"S/B (ML)","lep");
-	sobML->GetYaxis()->SetRangeUser(-0.2,1.4);
-	sobML->Draw("ep");
+	leg2->AddEntry(sobML,"S/B (ML)","l");
+	sobML->GetYaxis()->SetRangeUser(-0.2,0.8);
+	sobML->SetTitle("");
+	sobML->GetXaxis()->SetLabelSize(0.06);
+	sobML->GetYaxis()->SetLabelSize(0.06);
+	sobML->GetYaxis()->SetTitle("S/B (ML)");
+	sobML->GetYaxis()->SetTitleSize(0.06);
+	sobML->GetYaxis()->SetTitleOffset(0.5);
+	sobML->Draw("hist");
 	leg2->Draw("same");
 
 	canv->Print(Form("plots/pdf/sb_by_mh_%3.1f.pdf",mh));
