@@ -153,25 +153,15 @@ Float_t LoopAll::photonIDMVANew(Int_t iPhoton, Int_t vtx, TLorentzVector &p4, co
   tmva_photonid_r9           = pho_r9[iPhoton];
   tmva_photonid_lambdaratio  = pho_lambdaratio[iPhoton];
   
-  int cur_type = itype[current];
-  float s4ratio_mcscale=1.0;
-  if (cur_type !=0){
-    if(pho_isEB[iPhoton]==1) s4ratio_mcscale = 1.0055;
-    else s4ratio_mcscale = 1.0085;
-  }
-  tmva_photonid_s4ratio  = pho_e2x2[iPhoton]/pho_e5x5[iPhoton]*s4ratio_mcscale;
-  
+  tmva_photonid_s4ratio  = pho_e2x2[iPhoton]/pho_e5x5[iPhoton];
   tmva_photonid_eventrho = rho_algo1;
   tmva_photonid_sceta    = ((TVector3*)sc_xyz->At(pho_scind[iPhoton]))->Eta(); 
   
   float rr2=pho_eseffsixix[iPhoton]*pho_eseffsixix[iPhoton]+pho_eseffsiyiy[iPhoton]*pho_eseffsiyiy[iPhoton];
-  tmva_photonid_ESEffSigmaRR = 0.0; if(rr2>0. && rr2<999999.) tmva_photonid_ESEffSigmaRR = sqrt(rr2);
-  float ESEffSigmaRR_mcscale=1.0;
-  if (cur_type !=0 && pho_isEB[iPhoton]==0 ){
-    ESEffSigmaRR_mcscale = 1.04; //0.9955;
-  }
-  tmva_photonid_ESEffSigmaRR *= ESEffSigmaRR_mcscale; 
-  
+  tmva_photonid_ESEffSigmaRR = 0.0; 
+  if(rr2>0. && rr2<999999.) 
+    tmva_photonid_ESEffSigmaRR = sqrt(rr2);
+    
   if (pho_isEB[iPhoton])
     mva = tmvaReaderID_Single_Barrel->EvaluateMVA("AdaBoost");
   else
