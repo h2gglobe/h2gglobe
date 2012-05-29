@@ -2,8 +2,7 @@ CC = g++
 ROOFITBASE=$(ROOFITSYS)
 ROOFITLIBS=$(ROOFITBASE)/lib
 ROOFITINCS=$(ROOFITBASE)/include
-#BOOSTBASE=$(CMSSW_DATA_PATH)/../external/boost/1.47.0-cms
-BOOSTBASE=/vols/sl5_exp_software/cms/slc5_amd64_gcc434/external/boost/1.47.0-cms
+BOOSTBASE=$(CMSSW_DATA_PATH)/../external/boost/1.47.0
 BOOSTLIBS=$(BOOSTBASE)/lib
 BOOSTINCS=$(BOOSTBASE)/include
 
