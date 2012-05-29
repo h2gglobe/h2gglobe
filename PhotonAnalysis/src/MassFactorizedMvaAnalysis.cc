@@ -803,7 +803,10 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
             float myweight=1.;
             if(eventweight*sampleweight!=0) myweight=eventweight/sampleweight;
             
-            VBFevent=VBFTag2011(l, diphotonVBF_id, &smeared_pho_energy[0], true, eventweight, myweight);
+	    VBFevent= ( dataIs2011 ? 
+			VBFTag2011(l, diphotonVBF_id, &smeared_pho_energy[0], true, eventweight, myweight) :
+			VBFTag2012(l, diphotonVBF_id, &smeared_pho_energy[0], true, eventweight, myweight) )
+		    ;
         }
         
         if(includeVBF&&VBFevent) {
