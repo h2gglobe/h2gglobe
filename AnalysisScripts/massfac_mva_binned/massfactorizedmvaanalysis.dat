@@ -129,3 +129,9 @@ smearing_sigma_error_EBm4LowR9=0.4e-2
 smearing_sigma_error_EEHighR9=0.5e-2
 smearing_sigma_error_EELowR9=0.4e-2
 ->
+
+## jets
+recomputeBetas=0
+recorrectJets=1
+rerunJetMva=0
+recomputeJetWp=1

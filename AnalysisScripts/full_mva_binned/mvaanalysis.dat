@@ -180,3 +180,9 @@ scale_offset_error_file=energy_scale_errors.dat
 smearing updated for LP11 improvements, according to: https://indico.cern.ch/materialDisplay.py?contribId=16&sessionId=5&materialId=slides&confId=157048
 ->
 smearing_file=smearing_sigma_and_errors.dat
+
+## jets
+recomputeBetas=0
+recorrectJets=1
+rerunJetMva=0
+recomputeJetWp=1

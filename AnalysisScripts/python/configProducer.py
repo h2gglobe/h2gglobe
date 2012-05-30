@@ -633,7 +633,7 @@ class configProducer:
     fi_name   = ''
     fi_type   = -99999
     # We have one of the file def lines
-    split_line = line.split()
+    split_line = line.replace("split","").split()
     for sp in split_line:
       val = sp.split("=")
       if val[0] == "Fil":
