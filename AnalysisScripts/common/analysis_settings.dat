@@ -19,6 +19,8 @@ leadEtVHlepCut=45
 subleadEtVHlepCut=25
 
 ## Inputs for reweighing
+doKFactorSmear=0
+doKFactorSyst=0
 kfacHist=
 ## For 7TeV samples
 ## kfacHist=aux/KFactors_AllScales_interpolated.root
