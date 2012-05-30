@@ -40,6 +40,8 @@
 #include "RooWorkspace.h"
 #include "RooRealVar.h"
 
+#include "logh.hh"
+
 using namespace std;
 using namespace RooFit;
 
@@ -125,7 +127,7 @@ void fcnFit(Int_t &npar, Double_t *gin, Double_t &f, Double_t *p, Int_t iflag) {
 		for(int j(0);j<global_nBdtBins;j++) {
 			double nm(nd[i]*(par[j][0]+par[j][1]*(global_parameters.fMass[i]-global_mH)));
 			//std::cout << "nm[" << i << "][" << j << "] = " << nm << std::endl;
-			f+=global_parameters.fData[i][j]*log(global_parameters.fData[i][j]/nm)+nm-global_parameters.fData[i][j];
+			f+=global_parameters.fData[i][j]*logn(global_parameters.fData[i][j]/nm)+nm-global_parameters.fData[i][j];
 		}
 		//    }
 	}
