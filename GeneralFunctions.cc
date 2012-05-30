@@ -302,12 +302,12 @@ Float_t LoopAll::diphotonMVA(Int_t leadingPho, Int_t subleadingPho, Int_t vtx, f
     tmva_dipho_MIT_dphi = TMath::Cos(leadP4.Phi() - subleadP4.Phi());
       
     if (photonID_1 < -1. && photonID_2 < -1.){
-    tmva_dipho_MIT_ph1mva = photonIDMVA(leadingPho,vtx, leadP4, "MIT");
-    tmva_dipho_MIT_ph2mva = photonIDMVA(subleadingPho,vtx, subleadP4, "MIT");
+    tmva_dipho_MIT_ph1mva = photonIDMVANew(leadingPho,vtx, leadP4, "MIT");
+    tmva_dipho_MIT_ph2mva = photonIDMVANew(subleadingPho,vtx, subleadP4, "MIT");
 
     } else {
-    tmva_dipho_MIT_ph1mva = photonID_1;//photonIDMVA(leadingPho,vtx, leadP4, "MIT");
-    tmva_dipho_MIT_ph2mva = photonID_2;//photonIDMVA(subleadingPho,vtx, subleadP4, "MIT");
+    tmva_dipho_MIT_ph1mva = photonID_1;//photonIDMVANew(leadingPho,vtx, leadP4, "MIT");
+    tmva_dipho_MIT_ph2mva = photonID_2;//photonIDMVANew(subleadingPho,vtx, subleadP4, "MIT");
 
     }
     mva = tmvaReader_dipho_MIT->EvaluateMVA("Gradient");
@@ -1995,14 +1995,14 @@ int LoopAll::DiphotonMITPreSelection(Float_t leadPtMin, Float_t subleadPtMin, Fl
   TLorentzVector selected_sublead_p4 = get_pho_p4(selected_dipho_sublead,selected_dipho_vtx,pho_energy_array);
    if (run==173439 && lumis==155 && event==236661419) {
  std::cout <<	"Inside diphotonSelection now" <<std::endl;
-std::cout << photonIDMVA(selected_dipho_lead,selected_dipho_vtx,selected_lead_p4,"MIT")<<std::endl;
-std::cout << photonIDMVA(selected_dipho_sublead,selected_dipho_vtx,selected_sublead_p4,"MIT")<<std::endl;
+std::cout << photonIDMVANew(selected_dipho_lead,selected_dipho_vtx,selected_lead_p4,"MIT")<<std::endl;
+std::cout << photonIDMVANew(selected_dipho_sublead,selected_dipho_vtx,selected_sublead_p4,"MIT")<<std::endl;
 
 }
  
   if (!kinonly) {
-    if ( photonIDMVA(selected_dipho_lead,selected_dipho_vtx,selected_lead_p4,"MIT") <= phoidMvaCut
-	 || photonIDMVA(selected_dipho_sublead,selected_dipho_vtx,selected_sublead_p4,"MIT")	<= phoidMvaCut
+    if ( photonIDMVANew(selected_dipho_lead,selected_dipho_vtx,selected_lead_p4,"MIT") <= phoidMvaCut
+	 || photonIDMVANew(selected_dipho_sublead,selected_dipho_vtx,selected_sublead_p4,"MIT")	<= phoidMvaCut
 	 ) {return -1;}
   }
 
