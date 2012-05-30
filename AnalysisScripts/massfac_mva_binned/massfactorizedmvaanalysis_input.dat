@@ -38,3 +38,5 @@ pho_hcalsumetconedr03
 pho_trksumpthollowconedr03
 pho_isconv
 pho_pfiso_mycharged02
+
+# everything else picked up from minimal_analysis_input.dat 

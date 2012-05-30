@@ -16,6 +16,8 @@ doTriggerSelection=0
 reRunCiCForData=1
 
 includeVBF=1
+nVBFEtaCategories=1
+nVHhadEtaCategories=1
 
 leadEtVBFCut=55
 subleadEtVBFCut=30
@@ -81,7 +83,7 @@ Inputs for reweighing
 ->
 
 kfacHist=
-efficiencyFile=aux/sig_reweighing_jan16rereco_mva_v2.root
+efficiencyFile=aux/sig_reweighing_may31freeze_mva_v2.root
 puHist=aux/2012_weights.root
 puTarget=
 puMap=pu_weights_map.dat
