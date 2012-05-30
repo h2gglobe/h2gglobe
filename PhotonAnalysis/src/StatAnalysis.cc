@@ -724,6 +724,7 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 	// inclusive category di-photon selection
 	// FIXME pass smeared R9
 	diphoton_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtCut, subleadEtCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
+	//// diphoton_id = l.DiphotonCiCSelection(l.phoNOCUTS, l.phoNOCUTS, leadEtCut, subleadEtCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
 	
 	// N-1 plots
 	if( ! isSyst ) {
@@ -832,7 +833,8 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 	    l.FillCounter( "Smeared", evweight );
 	    sumaccept += weight;
 	    sumsmear += evweight;
-	    fillControlPlots(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, category, evweight, isCorrectVertex, l );
+	    fillControlPlots(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, diphoton_id,  
+			     category, isCorrectVertex, evweight, l );
 	}
 
 	// see if the event falls into an exclusive category
@@ -913,38 +915,63 @@ void StatAnalysis::computeExclusiveCategory(LoopAll & l, int & category, std::pa
 }
 
 // ----------------------------------------------------------------------------------------------------
-void StatAnalysis::fillControlPlots(const TLorentzVector & lead_p4, const  TLorentzVector & sublead_p4, const TLorentzVector & Higgs, float lead_r9, float sublead_r9, 
+void StatAnalysis::fillControlPlots(const TLorentzVector & lead_p4, const  TLorentzVector & sublead_p4, const TLorentzVector & Higgs, 
+				    float lead_r9, float sublead_r9, int diphoton_id,
 				    int category, bool isCorrectVertex, float evweight, LoopAll & l )
 {       
     // control plots 
+    if( category>=0 ) { 
+	fillControlPlots( lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, diphoton_id, -1, isCorrectVertex, evweight, l ); 
+    }
     float mass = Higgs.M();
-    l.FillHist("all_mass",0, Higgs.M(), evweight);
+    //// l.FillHist("all_mass",0, Higgs.M(), evweight);
     l.FillHist("all_mass",category+1, Higgs.M(), evweight);
     if( mass>=massMin && mass<=massMax  ) {
-	l.FillHist("mass",0, Higgs.M(), evweight);
-	l.FillHist("pt",0, Higgs.Pt(), evweight);
-	if( isCorrectVertex ) { l.FillHist("pt_rv",0, Higgs.Pt(), evweight); }
-	l.FillHist("eta",0, Higgs.Eta(), evweight);
-        
-	l.FillHist("pho_pt",0,lead_p4.Pt(), evweight);
-	l.FillHist("pho1_pt",0,lead_p4.Pt(), evweight);
-	l.FillHist("pho_eta",0,lead_p4.Eta(), evweight);
-	l.FillHist("pho1_eta",0,lead_p4.Eta(), evweight);
-	l.FillHist("pho_r9",0, lead_r9, evweight);
-	l.FillHist("pho1_r9",0, lead_r9, evweight);
-        
-	l.FillHist("pho_pt",0,sublead_p4.Pt(), evweight);
-	l.FillHist("pho2_pt",0,sublead_p4.Pt(), evweight);
-	l.FillHist("pho_eta",0,sublead_p4.Eta(), evweight);
-	l.FillHist("pho2_eta",0,sublead_p4.Eta(), evweight);
-	l.FillHist("pho_r9",0, sublead_r9, evweight);
-	l.FillHist("pho1_r9",0, sublead_r9, evweight);
+	///// l.FillHist("mass",0, Higgs.M(), evweight);
+	///// l.FillHist("pt",0, Higgs.Pt(), evweight);
+	///// if( isCorrectVertex ) { l.FillHist("pt_rv",0, Higgs.Pt(), evweight); }
+	///// l.FillHist("eta",0, Higgs.Eta(), evweight);
+        ///// 
+	///// l.FillHist("pho_pt",0,lead_p4.Pt(), evweight);
+	///// l.FillHist("pho1_pt",0,lead_p4.Pt(), evweight);
+	///// l.FillHist("pho_eta",0,lead_p4.Eta(), evweight);
+	///// l.FillHist("pho1_eta",0,lead_p4.Eta(), evweight);
+	///// l.FillHist("pho_r9",0, lead_r9, evweight);
+	///// l.FillHist("pho1_r9",0, lead_r9, evweight);
+        ///// 
+	///// l.FillHist("pho_pt",0,sublead_p4.Pt(), evweight);
+	///// l.FillHist("pho2_pt",0,sublead_p4.Pt(), evweight);
+	///// l.FillHist("pho_eta",0,sublead_p4.Eta(), evweight);
+	///// l.FillHist("pho2_eta",0,sublead_p4.Eta(), evweight);
+	///// l.FillHist("pho_r9",0, sublead_r9, evweight);
+	///// l.FillHist("pho1_r9",0, sublead_r9, evweight);
         
 	l.FillHist("mass",category+1, Higgs.M(), evweight);
+	l.FillHist("eta",category+1, Higgs.Eta(), evweight);
+
 	l.FillHist("pt",category+1, Higgs.Pt(), evweight);
 	if( isCorrectVertex ) { l.FillHist("pt_rv",category+1, Higgs.Pt(), evweight); }
-	l.FillHist("eta",category+1, Higgs.Eta(), evweight);
-        
+
+	l.FillHist("nvtx",category+1, l.vtx_std_n, evweight);
+        if( isCorrectVertex ) { l.FillHist("nvtx_rv",category+1, l.vtx_std_n, evweight); }
+	
+	vtxAna_.setPairID(diphoton_id);
+	float vtxProb = vtxAna_.vertexProbability(l.vtx_std_evt_mva->at(diphoton_id));
+	l.FillHist2D("vtxprob_pt",category+1, Higgs.Pt(), vtxProb, evweight);
+	l.FillHist2D("vtxprob_nvtx",category+1, l.vtx_std_n, vtxProb, evweight);
+	std::vector<int> & vtxlist = l.vtx_std_ranked_list->at(diphoton_id);
+	size_t maxv = std::min(vtxlist.size(),(size_t)5);
+	for(size_t ivtx=0; ivtx<maxv; ++ivtx) {
+	    int vtxid = vtxlist.at(ivtx);
+	    l.FillHist(Form("vtx_mva_%d",ivtx),category+1,vtxAna_.mva(ivtx),evweight);
+	    if( ivtx > 0 ) {
+		l.FillHist(Form("vtx_dz_%d",ivtx),category+1,
+			   vtxAna_.vertexz(ivtx)-vtxAna_.vertexz(l.dipho_vtxind[diphoton_id]),evweight);
+	    }
+	}
+	l.FillHist("vtx_nconv",vtxAna_.nconv(0));
+	// l.FillHist("vtx_legs",vtxAna_.nlegs(0));
+	
 	l.FillHist("pho_pt",category+1,lead_p4.Pt(), evweight);
 	l.FillHist("pho1_pt",category+1,lead_p4.Pt(), evweight);
 	l.FillHist("pho_eta",category+1,lead_p4.Eta(), evweight);

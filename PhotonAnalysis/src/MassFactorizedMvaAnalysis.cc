@@ -858,7 +858,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
         float sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
         float sigmaMeonly = massResolutionCalculator->massResolutionEonly();
         // easy to calculate vertex probability from vtx mva output
-        float vtxProb   = 1.-0.49*(vtx_mva+1.0);
+        float vtxProb   = 1.-0.49*(vtx_mva+1.0); /// should better use this: vtxAna_.vertexProbability(vtx_mva); PM
 
         float phoid_mvaout_lead = l.photonIDMVANew(diphoton_index.first,l.dipho_vtxind[diphoton_id],lead_p4,bdtTrainingPhilosophy.c_str());
         float phoid_mvaout_sublead = l.photonIDMVANew(diphoton_index.second,l.dipho_vtxind[diphoton_id],sublead_p4,bdtTrainingPhilosophy.c_str());
@@ -891,7 +891,8 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 	        if (l.runZeeValidation) {
 		  fillZeeControlPlots(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, phoid_mvaout_lead, phoid_mvaout_sublead, diphobdt_output, sigmaMrv, sigmaMwv, vtxProb, diphoton_id, category, evweight, l );
 		} else {
-		  fillControlPlots(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, category, isCorrectVertex, evweight, l );
+		  fillControlPlots(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9,  diphoton_id, 
+				   category, isCorrectVertex, evweight, l );
 		}
 	    }
 	
