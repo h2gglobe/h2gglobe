@@ -1,0 +1,40 @@
+## Di-jet tag
+includeVBF=1
+nVBFEtaCategories=1
+nVBFDijetJetCategories=2
+
+leadEtVBFCut=60
+subleadEtVBFCut=25
+
+## Hadronic V tag
+includeVHhad=0
+nVHhadEtaCategories=1
+leadEtVHhadCut=60
+subleadEtVHhadCut=25
+
+## Lepton tag
+includeVHlep=0
+
+leadEtVHlepCut=45
+subleadEtVHlepCut=25
+
+## Inputs for reweighing
+kfacHist=
+## For 7TeV samples
+## kfacHist=aux/KFactors_AllScales_interpolated.root
+puMap=pu_weights_map.dat
+puHist=aux/2012_weights.root
+puTarget=
+
+## energy scale adjustement and errors
+scale_offset_file=energy_scale_offsets.dat
+scale_offset_error_file=energy_scale_errors.dat
+
+## additional MC smearing
+smearing_file=smearing_sigma_and_errors.dat
+
+## jets
+recomputeBetas=0
+recorrectJets=1
+rerunJetMva=0
+recomputeJetWp=1
