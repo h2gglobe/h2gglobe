@@ -195,7 +195,7 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
     if (bdtTrainingPhilosophy == "UCSD") {
         l.rooContainer->SetNCategories(8);
     } else if (bdtTrainingPhilosophy == "MIT") {
-        if (includeVBF)  l.rooContainer->SetNCategories(5);
+        if (includeVBF)  l.rooContainer->SetNCategories(6);
         else l.rooContainer->SetNCategories(4);
     }
 
@@ -396,9 +396,9 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
           "0","CMS_hgg_mass",data_pol3_pars,73);    // >= 71 means RooBernstein of order >= 1
         */
         if (includeVBF){
-            int poly3cats[5] = {0,0,0,0,1};
-            int poly4cats[5] = {1,0,0,0,0};
-            int poly5cats[5] = {0,1,1,1,0};
+            int poly3cats[6] = {0,0,0,0,1,1};
+            int poly4cats[6] = {1,0,0,0,0,0};
+            int poly5cats[6] = {0,1,1,1,0,0};
 
             std::vector<std::string> data_pol5_pars(5,"p");   
             data_pol5_pars[0] = "modpol0";
