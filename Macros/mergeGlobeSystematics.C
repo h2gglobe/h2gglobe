@@ -4,7 +4,7 @@ TFile *oldFILE = new TFile("./vertex_reweighing.root");
 oldFILE->Print();
 oldFILE->ls();
 
-TFile *newFILE = new TFile("../PhotonAnalysis_scripts/aux/sig_reweighing_jan16rereco_mva_v2.root ","recreate");
+TFile *newFILE = new TFile("../AnalysisScripts/aux/sig_reweighing_may31freeze_mva_v2.root ","recreate");
 newFILE->cd();
 
 TGraphAsymmErrors * toCopy;
@@ -17,7 +17,11 @@ int ncats = 8;
 // L1HLT ------------------------
 // Numbers from https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/476.html
 // New numbers from Matteo for the errors with systematics (14th Nov 2011 h->gg meeting)
-Double_t effL1HLT_[ncats] 	   = {1.,0.993,1.,0.988,1.,0.993,1.,0.988};
+// New numbers from Xiaohang (L1*HLT) https://indico.cern.ch/getFile.py/access?contribId=39&sessionId=5&resId=1&materialId=slides&confId=191993
+// baseline:
+//Double_t effL1HLT_[ncats] 	       = {0.994*0.998,0.994*0.998,0.994*0.998,0.994*0.998,0.994*0.998,0.994*0.998,0.994*0.998,0.994*0.998};
+// mva:
+Double_t effL1HLT_[ncats] 	       = {0.997*0.995,0.997*0.995,0.997*0.995,0.997*0.995,0.997*0.995,0.997*0.995,0.997*0.995,0.997*0.995};
 Double_t effL1HLT_low_err_[ncats]  = {0.001,0.001,0.001,0.004,0.001,0.001,0.001,0.004};
 Double_t effL1HLT_high_err_[ncats] = {0.000,0.001,0.000,0.004,0.000,0.001,0.000,0.004};
 
@@ -40,12 +44,20 @@ for (int cat=0;cat<ncats;cat++){
 }
 // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // ID efficieny corrections ------------------------------------------------------------------------------------------------------------------------------------------------------
-// Numbers from https://hypernews.cern.ch/HyperNews/https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/657/1/1/1.html
-// Scale also by electron-veto ! from https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/674/1/1/1/1.html
+// Numbers from https://hypernews.cern.ch/HyperNews/CMS/get/AUX/2012/05/28/14:42:22-22393-scale_factors.pdf
+// Scale by electron veto!
 int nphocats=4;
-Double_t ratioTP_[nphocats] 	    	    = {0.999*1.001,0.984*1.002,1.006*1.005,1.014*1.006};
-Double_t ratioTP_low_err_[nphocats] 	    = {0.002,0.011,0.013,0.037} ;
-Double_t ratioTP_high_err_[nphocats] 	    = {0.002,0.011,0.008,0.035} ;
+
+// baseline
+/*
+Double_t ratioTP_[nphocats] 	    	      = {0.999*1.001,0.998*1.002,1.006*1.005,1.020*1.006};
+Double_t ratioTP_low_err_[nphocats] 	    = {0.002,0.006,0.008,0.014} ;
+Double_t ratioTP_high_err_[nphocats] 	    = {0.002,0.006,0.008,0.014} ;
+*/
+// mva
+Double_t ratioTP_[nphocats] 	    	      = {1.000*1.001,1.000*1.002,1.000*1.005,0.999*1.006};
+Double_t ratioTP_low_err_[nphocats] 	    = {0.0003,0.0003,0.0011,0.0006} ;
+Double_t ratioTP_high_err_[nphocats] 	    = {0.0003,0.0003,0.0011,0.0006} ;
 std::string iDLabels_[nphocats] 	    = {"EBHighR9","EBLowR9","EEHighR9","EELowR9"};
 
 for (int cat=0;cat<nphocats;cat++){
