@@ -6,11 +6,12 @@
 
 class options:
    def __init__(self):
-	self.eff = "/afs/cern.ch/user/m/malberti/public/scaleFactors/vtxIdEff_vs_bosonPt_globe_Glu120_S6_PUweights_2011_68000.root"
-	self.eff_ratio = "/afs/cern.ch/user/m/malberti/public/scaleFactors/BDT_vtxIdScaleFactorFromZmumu_DYJetsToLL_Fall11_S6_Run2011all_reload.root"
-	self.n_categories = 8
-	self.outfile = "vertex_reweighing.root"
-
+      ## self.eff = "/afs/cern.ch/user/m/malberti/public/scaleFactors/vtxIdEff_vs_bosonPt_globe_Glu120_S6_PUweights_2011_68000.root"
+      self.eff = "../AnalysisScripts/aux/vtxEff_mH120_Summer12_S7.root"
+      self.eff_ratio = "/afs/cern.ch/user/m/malberti/public/scaleFactors/BDT_vtxIdScaleFactorFromZmumu_DYJetsToLL_Fall11_S6_Run2011all_reload.root"
+      self.n_categories = 8
+      self.outfile = "vertex_reweighing.root"
+      
 # prevent ROOT from parsing command line
 from ROOT import *
 from math import sqrt
@@ -19,30 +20,6 @@ o=options()
 
 gStyle.SetMarkerSize(1.5)
 gROOT.SetBatch(True)
-
-##
-## Read files
-## 
-### files = []
-### files.append( { "file" : 5Bo.eff, "label" : "eff" } )
-### 
-### ph = PlotHelper(files)
-### 
-### # histograms to be read
-### histos_to_read = [
-###     ("higgsPt",                [("Rebin",2)]),
-###     ("matchVtxHiggsPt",          [("Rebin",2)]),
-###     ]
-### 
-### # efficiencies to compute
-### efficiencies = [
-###     ("effMatchVsPt","matchVtxHiggsPt", "higgsPt", "Selection efficiency (matching);p_{T}(#gamma,#gamma); Efficiency (Matching)"),
-### ]
-### 
-### # read and divide histograms
-### ph.read(histos_to_read)
-### ph.divide(efficiencies,[(yrange,(0.,1.05))])
-### mc_eff = ph.histos["eff"]["effMatchVsPt"]
 
 fr = TFile.Open(o.eff_ratio)
 eff_ratio = fr.Get("scaleFactor")
@@ -76,7 +53,11 @@ for i in range(mc_eff.GetN()):
     ## pwe = 1.e-2
 
     eff  = mc_eff.GetY()[i]
-    effe = mc_eff.GetErrorY(i)
+    ## effe = mc_eff.GetErrorY(i)
+    if( x < 40 ):
+       effe = 0.005
+    else:
+       effe = 0.002
     ## if eff < 0.95 and eff*pw <0.95:
     if eff < 0.98:
         fw  = (1. - eff*pw)  / (1. - eff)

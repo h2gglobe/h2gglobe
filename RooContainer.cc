@@ -430,7 +430,7 @@ void RooContainer::Save(){
      ;it_pdf != pdf_saves_.end()
      ;it_pdf++ ){
      
-       ws.import(**it_pdf);
+	  ws.import(**it_pdf,Silence());
   }
 /*
   std::map<std::string,RooAbsPdf*>::iterator it_gen;
