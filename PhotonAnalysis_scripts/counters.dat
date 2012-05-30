@@ -1,7 +1,0 @@
-ncat=1   countername=Processed   denomname1=Events denomname2=-1 denomname3=-1
-ncat=1   countername=XSWeighted  denomname1=Processed denomname2=-1 denomname3=-1
-ncat=1   countername=PUWeighted  denomname1=XSWeighted denomname2=-1 denomname3=-1
-ncat=1   countername=Accepted  denomname1=PUWeighted denomname2=-1 denomname3=-1
-ncat=1   countername=Smeared  denomname1=PUWeighted denomname2=Accepted denomname3=-1
-ncat=12  countername=fr_den_eta denomname1=-1     denomname2=-1 denomname3=-1
-ncat=12  countername=fr_den_et  denomname1=-1     denomname2=-1 denomname3=-1
