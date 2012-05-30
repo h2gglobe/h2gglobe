@@ -162,10 +162,10 @@ Inputs for reweighing
 - vertexing from: https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/374/1.html
 ->
 
-kfacHist=aux/KFactors_AllScales_interpolated.root
+kfacHist=
 efficiencyFile=aux/sig_reweighing_jan16rereco_mva_v2.root
 puHist=aux/2012_weights.root
-puTarget=aux/nov08_rereco.json.68000.pileup.root
+puTarget=
 
 puMap=pu_weights_map.dat
 

@@ -467,6 +467,8 @@ class configProducer:
     """
     if PYDEBUG:
       print "Reading structure %s" % ( str(struct) )
+    if type(lines) == str:
+        lines = [lines]
     for line in lines:
       split_line = line.split()
 
