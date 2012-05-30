@@ -83,7 +83,7 @@ Inputs for reweighing
 ->
 
 kfacHist=
-efficiencyFile=aux/sig_reweighing_may31freeze_mva_v2.root
+efficiencyFile=aux/sig_reweighing_jan16rereco_mva_v3.root
 puHist=aux/2012_weights.root
 puTarget=
 puMap=pu_weights_map.dat

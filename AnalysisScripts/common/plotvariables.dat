@@ -1,8 +1,8 @@
 default=2
 htyp=0 plot=-1  ncat=18  xbins=160   ybins=0       xmin=80.0  xmax=240.0  ymin=0      ymax=0       name=all_mass xaxis=x yaxis=y
 
-htyp=0 plot=-1  ncat=18  xbins=100    ybins=0       xmin=0.0   xmax=200.0  ymin=0      ymax=0       name=pt
-htyp=0 plot=-1  ncat=18  xbins=100    ybins=0       xmin=0.0   xmax=200.0  ymin=0      ymax=0       name=pt_rv
+htyp=0 plot=-1  ncat=18  xbins=250    ybins=0       xmin=0.0   xmax=250.0  ymin=0      ymax=0       name=pt
+htyp=0 plot=-1  ncat=18  xbins=250    ybins=0       xmin=0.0   xmax=250.0  ymin=0      ymax=0       name=pt_rv
 htyp=0 plot=-1  ncat=18  xbins=51    ybins=0       xmin=-2.55 xmax=2.55  ymin=0     ymax=0      name=eta
 htyp=0 plot=-1  ncat=18  xbins=50   ybins=0       xmin=80.0  xmax=180.0  ymin=0      ymax=0       name=mass
 htyp=0 plot=-1  ncat=18  xbins=50   ybins=0       xmin=-1.0  xmax=1.0  ymin=0      ymax=0       name=helicityAngle
@@ -11,7 +11,7 @@ htyp=0 plot=-1  ncat=18  xbins=50   ybins=0       xmin=0.0  xmax=3.14159  ymin=0
 htyp=0 plot=-1  ncat=18  xbins=100    ybins=0       xmin=0.5   xmax=100.5  ymin=0      ymax=0       name=nvtx
 htyp=0 plot=-1  ncat=18  xbins=100    ybins=0       xmin=0.5   xmax=100.5  ymin=0      ymax=0       name=nvtx_rv
 htyp=1 plot=-1  ncat=18  xbins=100    ybins=202     xmin=0.5   xmax=100.5  ymin=-0.005 ymax=1.005   name=vtxprob_nvtx
-htyp=1 plot=-1  ncat=18  xbins=100    ybins=202     xmin=0.0   xmax=200.0  ymin=-0.005 ymax=1.005   name=vtxprob_pt
+htyp=1 plot=-1  ncat=18  xbins=125    ybins=202     xmin=0.0   xmax=250.0  ymin=-0.005 ymax=1.005   name=vtxprob_pt
 htyp=0 plot=-1  ncat=18  xbins=200   ybins=0    xmin=-1  xmax=1   ymin=0       ymax=0       name=vtx_mva_0
 htyp=0 plot=-1  ncat=18  xbins=200   ybins=0    xmin=-1  xmax=1   ymin=0       ymax=0       name=vtx_mva_1
 htyp=0 plot=-1  ncat=18  xbins=200   ybins=0    xmin=-1  xmax=1   ymin=0       ymax=0       name=vtx_mva_2
