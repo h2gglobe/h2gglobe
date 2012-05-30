@@ -391,29 +391,18 @@ void StatAnalysis::Init(LoopAll& l)
     int cats_with_cubic[]   = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
     int cats_with_quartic[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
+    std::cout << "Number of categories: " << nCategories_ << std::endl;
     for(int i=0; i<nCategories_; i++){
         if(i<nInclusiveCategories_) {
             cats_with_std[i]=1;
-            // mva removed cp march 8
-            //if(useMVA) {
-            //  if(i<5) {
-            //    cats_with_std[i]=1;
-            //  } else {
-            //    cats_with_quartic[i]=1;
-            //  }
-            //} else {
-            //  cats_with_std[i]=1;
-            //}
-        } else if(i<nInclusiveCategories_+((int)includeVBF)*nVBFEtaCategories){
+        } else if(i<nInclusiveCategories_+nVBFCategories){
             cats_with_quad[i]=1;
-        } else if(i<nInclusiveCategories_+((int)includeVBF)*nVBFEtaCategories+((int)includeVHhad)*nVHhadEtaCategories){
+        } else if(i<nInclusiveCategories_+nVBFCategories+nVHhadCategories){
             cats_with_quad[i]=1;
         } else {
             cats_with_lin[i]=1;
         }  
     }
-
-
 
     std::vector<std::string> data_pol_pars(5,"p");   
     data_pol_pars[0] = "CMS_hgg_modpol0";

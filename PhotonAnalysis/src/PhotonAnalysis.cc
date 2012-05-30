@@ -436,7 +436,7 @@ void PhotonAnalysis::Init(LoopAll& l)
     triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_R9Id_v");
 
     // /cdaq/physics/Run2011/5e33/v1.4/HLT/V3
-    triggerSelections.push_back(TriggerSelection(178420,-1));
+    triggerSelections.push_back(TriggerSelection(178420,190455));
     triggerSelections.back().addpath("HLT_Photon26_CaloIdXL_IsoXL_Photon18_CaloIdXL_IsoXL_Mass60_v");
     triggerSelections.back().addpath("HLT_Photon26_CaloIdXL_IsoXL_Photon18_R9IdT_Mass60_v");
     triggerSelections.back().addpath("HLT_Photon26_R9IdT_Photon18_CaloIdXL_IsoXL_Mass60_v");
@@ -445,6 +445,29 @@ void PhotonAnalysis::Init(LoopAll& l)
     triggerSelections.back().addpath("HLT_Photon36_CaloIdL_IsoVL_Photon22_R9Id_v");
     triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_CaloIdL_IsoVL_v");
     triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_R9Id_v");
+    
+    ///// HLT_Photon26_CaloId10_Iso50_Photon18_CaloId10_Iso50_Mass60_v
+    ///// HLT_Photon26_CaloId10_Iso50_Photon18_R9Id85_Mass60_v
+    ///// HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass60_v
+    ///// HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass70_v
+    ///// HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_v
+    ///// HLT_Photon26_R9Id85_Photon18_CaloId10_Iso50_Mass60_v
+    ///// HLT_Photon26_R9Id85_Photon18_R9Id85_Mass60_v
+    ///// 
+    ///// HLT_Photon36_CaloId10_Iso50_Photon22_CaloId10_Iso50_v
+    ///// HLT_Photon36_CaloId10_Iso50_Photon22_R9Id85_v
+    ///// HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_R9Id85_OR_CaloId10_Iso50_v
+    ///// HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_v
+    ///// HLT_Photon36_R9Id85_Photon22_CaloId10_Iso50_v
+    ///// HLT_Photon36_R9Id85_Photon22_R9Id85_v
+    triggerSelections.push_back(TriggerSelection(190456,194269));
+    triggerSelections.back().addpath("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass60_v");
+    triggerSelections.back().addpath("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_R9Id85_OR_CaloId10_Iso50_v");
+
+    triggerSelections.push_back(TriggerSelection(194270,-1));
+    triggerSelections.back().addpath("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass60_v");
+    triggerSelections.back().addpath("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass70_v");
+    triggerSelections.back().addpath("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_R9Id85_OR_CaloId10_Iso50_v");
 
     // n-1 plots for VBF tag 2011 
     l.SetCutVariables("cut_VBFLeadJPt",       &myVBFLeadJPt);
@@ -787,6 +810,12 @@ void PhotonAnalysis::Init(LoopAll& l)
     } 
 
     if( recomputeBetas || recorrectJets || rerunJetMva || recomputeJetWp ) {
+	std::cout << "JetHandler: \n" 
+		  << "recomputeBetas " << recomputeBetas << "\n" 
+		  << "recorrectJets " << recorrectJets << "\n" 
+		  << "rerunJetMva " << rerunJetMva << "\n" 
+		  << "recomputeJetWp " << recomputeJetWp 
+		  << std::endl;
 	jetHandler_ = new JetHandler(jetHandlerCfg, l);
     }
 
@@ -1369,10 +1398,18 @@ bool PhotonAnalysis::SkimEvents(LoopAll& l, int jentry)
         }
 
 	// get the trigger data
-	l.b_hlt1_bit->GetEntry(jentry);
-	l.b_hlt_path_names_HLT1->GetEntry(jentry);
-	if( !  isel->pass(*(l.hlt_path_names_HLT1),*(l.hlt1_bit)) ) {
-	    return false;
+	if( l.version < 13 ) { 
+	    l.b_hlt1_bit->GetEntry(jentry); 
+	    l.b_hlt_path_names_HLT1->GetEntry(jentry);
+	    if( !  isel->pass( *(l.hlt_path_names_HLT1), *(l.hlt1_bit) ) ) {
+		return false;
+	    }
+	} else {  
+	    l.b_hlt_bit->GetEntry(jentry); 
+	    l.b_hlt_path_names_HLT->GetEntry(jentry);
+	    if( !  isel->pass( *(l.hlt_path_names_HLT), *(l.hlt_bit) ) ) {
+		return false;
+	    }
 	}
 	//l.countersred[trigCounter_]++;
     }

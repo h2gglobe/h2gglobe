@@ -208,7 +208,7 @@ if __name__  == "__main__":
 			f.write("&& ( %s histograms_%s_%d.csv %s ) " % ( cp, cfg.histfile[0], i, cfg.histdir ) )
 		else:
 			f.write("if ( python fitter.py -i %s.dat ) "%(jobbasename))
-			for fn in "","histograms_"+options.addfiles:
+			for fn in ["","histograms_"]+options.addfiles:
 				f.write("&& ( %s %s%s.%s %s/%s%s_%d.%s ) " % ( cp, fn, cfg.histfile[0], cfg.histfile[1], cfg.histdir, fn, cfg.histfile[0], i, cfg.histfile[1] ) )
 			#f.write("&& ( %s %s.%s_ascii_events.txt %s/%s_%d.%s_ascii_events.txt ) " % ( cp, cfg.histfile[0], cfg.histfile[1], cfg.histdir, cfg.histfile[0], i, cfg.histfile[1] ) )
 			f.write("&& ( %s %s.%s %s/%s_%d.%s ) " % ( cp, cfg.outfile[0], cfg.outfile[1], cfg.histdir, cfg.outfile[0], i, cfg.outfile[1]) )

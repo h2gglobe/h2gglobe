@@ -89,7 +89,7 @@ void RooContainer::MakeSystematicStudy(std::vector<std::string> sys_names,std::v
 // ----------------------------------------------------------------------------------------------------
 void RooContainer::AddConstant(std::string name,double init){
   RooRealVar temp(name.c_str(),name.c_str(),init,init,init);
-  ws.import(temp);
+  ws.import(temp,Silence());
 }
 // ----------------------------------------------------------------------------------------------------
 void RooContainer::AddObservable(std::string name,double xmin,double xmax){
