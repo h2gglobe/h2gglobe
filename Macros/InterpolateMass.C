@@ -19,7 +19,7 @@
 using namespace std;
 using namespace RooFit;
 
-Normalization_8TeV normalizer();
+Normalization_8TeV *normalizer = new Normalization_8TeV();
 
 string dtoa(double value) {
     stringstream sstr;
@@ -76,7 +76,7 @@ void dofit(double fitmass, vector <TString> InterpolationList, TFile* SourceFile
     TH1F* UpperHist = (TH1F*) SourceFile->Get(UpperHistName.Data());
     if (debug>=1) cout << "Calculating mass point at " << fitmass << "GeV with histograms " << LowerHistName << " and " << UpperHistName << endl;
 
-    double Normalization = normalizer.GetNorm(lowerbound, LowerHist, upperbound, UpperHist, fitmass);
+    double Normalization = normalizer->GetNorm(lowerbound, LowerHist, upperbound, UpperHist, fitmass);
 
     TH1F* MCHist = (TH1F*) SourceFile->Get(HistName.Data());
     TH1F* InterpolatedHist = (TH1F*) th1fmorph((Char_t*) HistName.Data(),(Char_t*) HistTitle.Data(),LowerHist,UpperHist,lowerbound,upperbound,fitmass,Normalization,0);
