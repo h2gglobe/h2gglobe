@@ -1,5 +1,4 @@
 // Makes partially blinded mass distribution + fit plots for Mass-fac MVA analysis
-// Needs the Parametric signal model also
 
 #include "TFile.h"
 #include "TH1F.h"
@@ -21,7 +20,7 @@
 #include "RooFitResult.h"
 #include <iostream>
 
-void makeBkgPlots(std::string filebkg,std::string filesig){
+void makeBkgPlots(std::string filebkg){
 
 	// Globals
 	gROOT->SetStyle("Plain");
@@ -30,23 +29,19 @@ void makeBkgPlots(std::string filebkg,std::string filesig){
 	const int ncats = 6;
 
 	std::string labels[6] = {
-			"Both photons in barrel, R_{9}^{min} > 0.94"
-			,"Both photons in barrel, R_{9}^{min} < 0.94"
-			,"One or more photons in endcap, R_{9}^{min} > 0.94"
-			,"One or more photons in endcap, R_{9}^{min} < 0.94"
+			"BDT >= 0.89"
+			,"0.74  <= BDT < 0.89"
+			,"0.545 <= BDT < 0.74"
+			,"0.05  <= BDT < 0.545"
 			,"Dijet-tagged class m_{jj} > 500 GeV"
 			,"Dijet-tagged class 250 < m_{jj} < 500 GeV"
 			};
 
 	TFile *fb = TFile::Open(filebkg.c_str());
-	TFile *fs = TFile::Open(filesig.c_str());
 
 	RooWorkspace *w_bkg  = (RooWorkspace*) fb->Get("cms_hgg_workspace");
-	RooWorkspace *w_sig  = (RooWorkspace*) fs->Get("wsig");
 
 	RooRealVar *x = (RooRealVar*) w_bkg->var("CMS_hgg_mass");
-	RooRealVar *mH = (RooRealVar*) w_sig->var("MH");
-	mH->setVal(120.0);
 
 	TLatex *latex = new TLatex();	
 	latex->SetTextSize(0.025);
@@ -55,6 +50,16 @@ void makeBkgPlots(std::string filebkg,std::string filesig){
 	TLatex *cmslatex = new TLatex();
 	cmslatex->SetTextSize(0.04);
 	cmslatex->SetNDC();
+
+	double totalGGHinDIJET = 0;
+	double totalVBFinDIJET = 0;
+	double totalGGHinINCL = 0;
+	double totalVBFinINCL = 0;
+
+	double totalTTHinDIJET = 0;
+	double totalWZHinDIJET = 0;
+	double totalTTHinINCL = 0;
+	double totalWZHinINCL = 0;
 
 	for (int cat=0;cat<ncats;cat++){
 		
@@ -72,35 +77,31 @@ void makeBkgPlots(std::string filebkg,std::string filesig){
 		
 		// Get Signal pdf norms
 		std::cout << "Getting Signal Components" << std::endl;
-//		RooRealVar *gghnorm = w_sig->var(Form("hggpdf_cat%d_ggh_norm",cat));
-//		RooRealVar *vbfnorm = w_sig->var(Form("hggpdf_cat%d_vbf_norm",cat));
-//		RooRealVar *wzhnorm = w_sig->var(Form("hggpdf_cat%d_wzh_norm",cat));
-//		RooRealVar *tthnorm = w_sig->var(Form("hggpdf_cat%d_tth_norm",cat));
 		TH1F *gghnorm = (TH1F*)fb->Get(Form("th1f_sig_ggh_mass_m120_cat%d",cat));
 		TH1F *vbfnorm = (TH1F*)fb->Get(Form("th1f_sig_vbf_mass_m120_cat%d",cat));
 		TH1F *wzhnorm = (TH1F*)fb->Get(Form("th1f_sig_wzh_mass_m120_cat%d",cat));
 		TH1F *tthnorm = (TH1F*)fb->Get(Form("th1f_sig_tth_mass_m120_cat%d",cat));
-
-		std::cout << "Rescaling Signal Components" << std::endl;
-		double totalSig = gghnorm->Integral()+vbfnorm->Integral()+wzhnorm->Integral()+tthnorm->Integral();
-		totalSig*=2;
-//		gghnorm->setVal(2*gghnorm->getVal());
-//		vbfnorm->setVal(2*vbfnorm->getVal());
-//		wzhnorm->setVal(2*wzhnorm->getVal());
-//		tthnorm->setVal(2*tthnorm->getVal());
-
-		// Signal Pdfs -> Taken from binned model refit for now
-		RooAbsPdf *ggh = w_sig->pdf(Form("sigpdfcat%d_ggh",cat));
-		RooAbsPdf *vbf = w_sig->pdf(Form("sigpdfcat%d_vbf",cat));
-		RooAbsPdf *wzh = w_sig->pdf(Form("sigpdfcat%d_wzh",cat));
-		RooAbsPdf *tth = w_sig->pdf(Form("sigpdfcat%d_tth",cat));
-
-		std::cout << "Combining Signal Components" << std::endl;
-		RooArgList siglist(*ggh,*vbf,*wzh,*tth);
-		RooAddPdf allsig("all","all",siglist);
-		std::cout << "Signal OK" << std::endl;
 		
-		// Make some dummy hists for latex to grab
+		if (cat<=3){
+			totalGGHinINCL+=gghnorm->Integral();
+			totalVBFinINCL+=vbfnorm->Integral();
+			totalTTHinINCL+=tthnorm->Integral();
+			totalWZHinINCL+=wzhnorm->Integral();
+		}else{
+			totalGGHinDIJET+=gghnorm->Integral();
+			totalVBFinDIJET+=vbfnorm->Integral();
+			totalTTHinDIJET+=tthnorm->Integral();
+			totalWZHinDIJET+=wzhnorm->Integral();
+		}
+		
+		std::cout << "Rescaling Signal Components" << std::endl;
+		gghnorm->Add(vbfnorm);
+		gghnorm->Add(wzhnorm);
+		gghnorm->Add(tthnorm);
+
+
+		TH1F *allsig = (TH1F*)gghnorm->Clone();
+		allsig->Rebin(2);
 		TH1F dumData("d","",80,100,180); dumData.Sumw2();dumData.SetMarkerSize(1.0);dumData.SetMarkerStyle(20);dumData.SetLineWidth(3);
 		dumData.Fill(101);
 		TH1F dumSignal("s","",80,100,180); dumSignal.SetLineColor(4);dumSignal.SetFillColor(38);dumSignal.SetFillStyle(3001) ;dumSignal.SetLineWidth(2);
@@ -117,7 +118,8 @@ void makeBkgPlots(std::string filebkg,std::string filesig){
 		bkg->plotOn(frame,RooFit::VisualizeError(*r,2,1),RooFit::FillColor(kGreen));
 		bkg->plotOn(frame,RooFit::VisualizeError(*r,1,1),RooFit::FillColor(kYellow));
 		bkg->plotOn(frame,RooFit::LineColor(kRed));
-		allsig.plotOn(frame,RooFit::LineColor(kBlue),RooFit::FillColor(38), RooFit::Normalization(totalSig,RooAbsReal::NumEvent));
+		allsig->SetLineColor(1);
+		allsig->SetFillColor(38);
 		x->setRange("unblind",150,180);
 		data->plotOn(frame,RooFit::Binning(80),RooFit::CutRange("unblind"));
 
@@ -131,15 +133,22 @@ void makeBkgPlots(std::string filebkg,std::string filesig){
 		leg->AddEntry(&dumBkg,"Bkg Model","L");
 		leg->AddEntry(&dum1Sig,"#pm 1#sigma","F");
 		leg->AddEntry(&dum2Sig,"#pm 2#sigma","F");
-		leg->AddEntry(&dumSignal,"2xSM m_{H} = 120 GeV","L");
+		leg->AddEntry(&dumSignal,"1xSM m_{H} = 120 GeV","F");
 		
 		frame->Draw();
 		frame->SetMinimum(0.0001);
+		allsig->Draw("samehistF");
 		leg->Draw();
 		cmslatex->DrawLatex(0.15,0.8,"#splitline{CMS Preliminary}{#sqrt{s} = 8TeV L = 1.5fb^{-1}}");
 		latex->DrawLatex(0.1,0.92,labels[cat].c_str());
-		can->SaveAs(Form("baselinecat%d.pdf",cat));
+		can->SaveAs(Form("massfacmvacat%d.pdf",cat));
 	}
 
+	// JET ID Systematics
+	std::cout << "The following can be used (nick knows what they mean) as the JET Migration systematics" <<std::endl;
+	std::cout << "XXX " << 1-(0.7*totalGGHinDIJET/(totalGGHinINCL))<<std::endl;
+	std::cout << "YYY " << 1-(0.7*totalTTHinDIJET/(totalTTHinINCL))<<std::endl;
+	std::cout << "MMM " << 1-(0.1*totalVBFinDIJET/(totalVBFinINCL))<<std::endl;
+	std::cout << "NNN " << 1-(0.1*totalWZHinDIJET/(totalWZHinINCL))<<std::endl;
 }
 
