@@ -731,40 +731,40 @@ Normalization_8TeV::Normalization_8TeV(){
     XSectionMap_wzh[250]=0.06848*1.25;
 
     //TTH X-Sections
-    XSectionMap_tth[90]=323.3;
-    XSectionMap_tth[95]=281.2;
-    XSectionMap_tth[100]=245.3;
-    XSectionMap_tth[105]=214.8;
-    XSectionMap_tth[110]=188.7;
-    XSectionMap_tth[115]=166.3;
-    XSectionMap_tth[120]=147.0;
-    XSectionMap_tth[125]=130.2;
-    XSectionMap_tth[130]=115.7;
-    XSectionMap_tth[135]=103.1;
-    XSectionMap_tth[140]=92.07;
-    XSectionMap_tth[145]=82.46;
-    XSectionMap_tth[150]=74.03;
-    XSectionMap_tth[155]=66.64;
-    XSectionMap_tth[160]=60.13;
-    XSectionMap_tth[165]=54.39;
-    XSectionMap_tth[170]=49.30;
-    XSectionMap_tth[175]=44.80;
-    XSectionMap_tth[180]=40.80;
-    XSectionMap_tth[185]=37.25;
-    XSectionMap_tth[190]=34.08;
-    XSectionMap_tth[195]=31.25;
-    XSectionMap_tth[200]=28.72;
-    XSectionMap_tth[210]=24.42;
-    XSectionMap_tth[220]=20.94;
-    XSectionMap_tth[230]=18.10;
-    XSectionMap_tth[240]=15.74;
-    XSectionMap_tth[250]=13.80;
-    XSectionMap_tth[260]=12.19;
-    XSectionMap_tth[270]=10.83;
-    XSectionMap_tth[280]=9.686;
-    XSectionMap_tth[290]=8.705;
-    XSectionMap_tth[300]=7.862;
- 
+    XSectionMap_tth[90]=0.3233;  
+    XSectionMap_tth[95]=0.2812;  
+    XSectionMap_tth[100]=0.2453;  
+    XSectionMap_tth[105]=0.2148;  
+    XSectionMap_tth[110]=0.1887;  
+    XSectionMap_tth[115]=0.1663;  
+    XSectionMap_tth[120]=0.1470;  
+    XSectionMap_tth[125]=0.1302;  
+    XSectionMap_tth[130]=0.1157;  
+    XSectionMap_tth[135]=0.1031;  
+    XSectionMap_tth[140]=0.09207; 
+    XSectionMap_tth[145]=0.08246; 
+    XSectionMap_tth[150]=0.07403; 
+    XSectionMap_tth[155]=0.06664; 
+    XSectionMap_tth[160]=0.06013; 
+    XSectionMap_tth[165]=0.05439; 
+    XSectionMap_tth[170]=0.04930; 
+    XSectionMap_tth[175]=0.04480; 
+    XSectionMap_tth[180]=0.04080; 
+    XSectionMap_tth[185]=0.03725; 
+    XSectionMap_tth[190]=0.03408; 
+    XSectionMap_tth[195]=0.03125; 
+    XSectionMap_tth[200]=0.02872; 
+    XSectionMap_tth[210]=0.02442; 
+    XSectionMap_tth[220]=0.02094; 
+    XSectionMap_tth[230]=0.01810; 
+    XSectionMap_tth[240]=0.01574; 
+    XSectionMap_tth[250]=0.01380; 
+    XSectionMap_tth[260]=0.01219; 
+    XSectionMap_tth[270]=0.01083; 
+    XSectionMap_tth[280]=0.009686;
+    XSectionMap_tth[290]=0.008705;
+    XSectionMap_tth[300]=0.007862;
+     
 }
 
 void Normalization_8TeV::FillSignalTypes(){
