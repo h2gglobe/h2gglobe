@@ -32,6 +32,8 @@ class Normalization_8TeV {
 	std::map<double,double> BranchingRatioMap;
 	std::map<double,double> XSectionMap_ggh;
 	std::map<double,double> XSectionMap_vbf;
+	std::map<double,double> XSectionMap_wh;
+	std::map<double,double> XSectionMap_zh;
 	std::map<double,double> XSectionMap_wzh;
 	std::map<double,double> XSectionMap_tth;
 	std::map<int,std::pair<TString,double > > SignalTypeMap;
