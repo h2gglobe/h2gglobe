@@ -2235,7 +2235,7 @@ int LoopAll::PhotonCiCPFSelectionLevel( int photon_index, int vertex_index, std:
 int LoopAll::PhotonCiCSelectionLevel( int photon_index, int vertex_index, std::vector<std::vector<bool> > & ph_passcut, int ncategories, 
 				      int doSublead, float *pho_energy_array ) {
   
-  if( usePFCiC ) {
+  if( usePFCiC && ncategories==4 ) {
     return PhotonCiCPFSelectionLevel( photon_index, vertex_index, ph_passcut, ncategories, doSublead, pho_energy_array );
   }
   if( ! runCiC ) {
