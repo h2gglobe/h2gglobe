@@ -25,9 +25,9 @@
 
 using namespace std;
 
-FMTPlots::FMTPlots(string filename, bool runSB, int mHMinimum, int mHMaximum, double mHStep, double massMin, double massMax, int nDataBins, double signalRegionWidth, double sidebandWidth, int numberOfSidebands, int numberOfSidebandsForAlgos, int numberOfSidebandGaps, double massSidebandMin, double massSidebandMax, bool includeVBF, bool includeLEP, vector<string> systematics, bool rederiveOptimizedBinEdges, vector<map<int, vector<double> > > AllBinEdges, bool blind, bool verbose):
+FMTPlots::FMTPlots(string filename, bool runSB, int mHMinimum, int mHMaximum, double mHStep, double massMin, double massMax, int nDataBins, double signalRegionWidth, double sidebandWidth, int numberOfSidebands, int numberOfSidebandsForAlgos, int numberOfSidebandGaps, double massSidebandMin, double massSidebandMax, bool includeVBF, int nVBFCategories, bool includeLEP, int nLEPCategories, vector<string> systematics, bool rederiveOptimizedBinEdges, vector<map<int, vector<double> > > AllBinEdges, bool blind, bool verbose):
 
-	FMTBase(mHMinimum, mHMaximum, mHStep, massMin, massMax, nDataBins, signalRegionWidth, sidebandWidth, numberOfSidebands, numberOfSidebandsForAlgos, numberOfSidebandGaps, massSidebandMin, massSidebandMax, includeVBF, includeLEP, systematics, rederiveOptimizedBinEdges, AllBinEdges, verbose),
+	FMTBase(mHMinimum, mHMaximum, mHStep, massMin, massMax, nDataBins, signalRegionWidth, sidebandWidth, numberOfSidebands, numberOfSidebandsForAlgos, numberOfSidebandGaps, massSidebandMin, massSidebandMax, includeVBF, nVBFCategories, includeLEP, nLEPCategories, systematics, rederiveOptimizedBinEdges, AllBinEdges, verbose),
   blind_(blind),
 	runSB_(runSB)
 {
@@ -49,8 +49,8 @@ TH1F* FMTPlots::linearBin(TH1F* hist){
 		h->SetBinError(b,hist->GetBinError(b));
 		if (verbose_) cout << hist->GetBinLowEdge(b) << "   ";
     if (hist->GetBinLowEdge(b)<1.) h->GetXaxis()->SetBinLabel(b,Form("BDT Bin %d",b));
-    else if (hist->GetBinLowEdge(b)<1.04) h->GetXaxis()->SetBinLabel(b,"Di-jet");
-    else if (hist->GetBinLowEdge(b)<1.08) h->GetXaxis()->SetBinLabel(b,"Di-lep");
+    else if (hist->GetBinLowEdge(b)<2.) h->GetXaxis()->SetBinLabel(b,"Di-jet");
+    else if (hist->GetBinLowEdge(b)<3.) h->GetXaxis()->SetBinLabel(b,"Di-lep");
   }
 	if (verbose_) cout << endl;
 	h->GetXaxis()->SetNdivisions(nBins);

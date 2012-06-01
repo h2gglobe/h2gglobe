@@ -7,7 +7,7 @@
 
 using namespace std;
 
-FMTBase::FMTBase(int mHMinimum, int mHMaximum, double mHStep, double massMin, double massMax, int nDataBins, double signalRegionWidth, double sidebandWidth, int numberOfSidebands, int numberOfSidebandsForAlgos, int numberOfSidebandGaps, double massSidebandMin, double massSidebandMax, bool includeVBF, bool includeLEP, vector<string> systematics, bool rederiveOptimizedBinEdges, vector<map<int, vector<double> > > AllBinEdges, bool verbose):
+FMTBase::FMTBase(int mHMinimum, int mHMaximum, double mHStep, double massMin, double massMax, int nDataBins, double signalRegionWidth, double sidebandWidth, int numberOfSidebands, int numberOfSidebandsForAlgos, int numberOfSidebandGaps, double massSidebandMin, double massSidebandMax, bool includeVBF, int nVBFCategories, bool includeLEP, int nLEPCategories, vector<string> systematics, bool rederiveOptimizedBinEdges, vector<map<int, vector<double> > > AllBinEdges, bool verbose):
 	
 	mHMinimum_(mHMinimum),
 	mHMaximum_(mHMaximum),
@@ -25,7 +25,9 @@ FMTBase::FMTBase(int mHMinimum, int mHMaximum, double mHStep, double massMin, do
 	massSidebandMax_(massSidebandMax),
 
 	includeVBF_(includeVBF),
+  nVBFCategories_(nVBFCategories),
 	includeLEP_(includeLEP),
+  nLEPCategories_(nLEPCategories),
 
 	systematics_(systematics),
 
@@ -179,13 +181,19 @@ vector<string> FMTBase::getProdTypes(){
 bool FMTBase::getincludeVBF(){
 	return includeVBF_;
 }
+int FMTBase::getnVBFCategories(){
+  return nVBFCategories_;
+}
 bool FMTBase::getincludeLEP(){
 	return includeLEP_;
 }
+int FMTBase::getnLEPCategories(){
+  return nLEPCategories_;
+}
 const int FMTBase::getNcats(){
 	int ncats=1;
-	if (includeVBF_) ncats++;
-	if (includeLEP_) ncats++;
+	if (includeVBF_) ncats+=nVBFCategories_;
+	if (includeLEP_) ncats+=nLEPCategories_;
 	return ncats;
 }
 
@@ -202,9 +210,11 @@ bool FMTBase::getrederiveOptimizedBinEdges(){
 
 vector<map<int, vector<double> > > FMTBase::getAllBinEdges(){
 	vector<map<int, vector<double> > > theEdges;
-	theEdges.push_back(getBinEdges());
-	theEdges.push_back(getVBFBinEdges());
-	theEdges.push_back(getLEPBinEdges());
+  for (int cat=0; cat<getNcats(); cat++){
+    if (isIncCat(cat)) theEdges.push_back(getBinEdges());
+	  if (isVBFCat(cat)) theEdges.push_back(getVBFBinEdges());
+	  if (isLEPCat(cat)) theEdges.push_back(getLEPBinEdges());
+  }
 	return theEdges;
 }
 
@@ -417,8 +427,14 @@ void FMTBase::setmassSidebandMax(double massSidebandMax){
 void FMTBase::setincludeVBF(bool includeVBF){
 	includeVBF_=includeVBF;
 }
+void FMTBase::setnVBFCategories(int nVBFCats){
+  nVBFCategories_=nVBFCats;
+}
 void FMTBase::setincludeLEP(bool includeLEP){
 	includeLEP_=includeLEP;
+}
+void FMTBase::setnLEPCategories(int nLEPCats){
+  nLEPCategories_=nLEPCats;
 }
 
 void FMTBase::setsystematics(vector<string> systematics){
@@ -478,6 +494,21 @@ void FMTBase::setLEPBinEdges(map<int,vector<double> > LEPBinEdges){
 	LEPBinEdges_=LEPBinEdges;
 }
 
+bool FMTBase::isIncCat(int cat){
+  if (cat==0) return true;
+  else return false;
+}
+
+bool FMTBase::isVBFCat(int cat){
+  if (cat>0 && cat<=getnVBFCategories()) return true;
+  else return false;
+}
+bool FMTBase::isLEPCat(int cat){
+  if (cat>getnVBFCategories() && cat<=(getnVBFCategories()+getnLEPCategories())) return true;
+  else return false;
+}
+
+
 void FMTBase::dumpDatFile(string filename){
   ofstream outFile;
   outFile.open(filename.c_str());
@@ -517,7 +548,9 @@ void FMTBase::dumpDatFile(string filename){
   outFile << endl;
   outFile << "# General options" << endl;
   outFile << "includeVBF=" << includeVBF_ << endl;
+  outFile << "nVBFCategories=" << nVBFCategories_ << endl;
   outFile << "includeLEP=" << includeLEP_ << endl;
+  outFile << "nLEPCategories=" << nLEPCategories_ << endl;
   outFile << endl;
   outFile << "# smearing flags" << endl;
   vector<string> theSysts = getsystematics();
@@ -562,8 +595,10 @@ void FMTBase::printRunOptions(string filename){
  	out << "\tnumberOfSidebandGaps      " << numberOfSidebandGaps_  << endl;               
  	out << "\tmassSidebandMin           " << massSidebandMin_  << endl;               
  	out << "\tmassSidebandMax           " << massSidebandMax_  << endl;               
- 	out << "\tincludeVBF                " << includeVBF_  << endl;               
- 	out << "\tincludeLEP                " << includeLEP_  << endl;               
+ 	out << "\tincludeVBF                " << includeVBF_  << endl;
+  out << "\tnVBFCategories            " << nVBFCategories_ << endl;
+ 	out << "\tincludeLEP                " << includeLEP_  << endl;
+  out << "\tnLEPCategories            " << nLEPCategories_ << endl;
   out << "\tsystematics               [";
   if (systematics_.size()>0) {
     for (int i=0; i<systematics_.size()-1; i++) out << systematics_[i] << ",";

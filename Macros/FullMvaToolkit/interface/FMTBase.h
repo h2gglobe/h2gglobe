@@ -15,7 +15,7 @@ class FMTBase {
 
 	public:
 		FMTBase(){};
-		FMTBase(int, int, double, double, double, int, double, double, int, int, int, double, double, bool, bool, vector<string>, bool, vector<map<int,vector<double> > >, bool verbose=false); 
+		FMTBase(int, int, double, double, double, int, double, double, int, int, int, double, double, bool, int, bool, int, vector<string>, bool, vector<map<int,vector<double> > >, bool verbose=false); 
 		~FMTBase(){};
 
 		void checkMCMass(int);
@@ -46,7 +46,9 @@ class FMTBase {
     vector<string> getProdTypes();
 	
 		bool getincludeVBF();
+    int getnVBFCategories();
 		bool getincludeLEP();
+    int getnLEPCategories();
 		const int getNcats();
 
 		vector<string> getsystematics();
@@ -87,7 +89,9 @@ class FMTBase {
 		void setmassSidebandMax(double);
 	
 		void setincludeVBF(bool);
+    void setnVBFCategories(int);
 		void setincludeLEP(bool);
+    void setnLEPCategories(int);
 
 		void setsystematics(vector<string>);
 		void setsystematic(string);
@@ -101,6 +105,9 @@ class FMTBase {
 		void setVBFBinEdges(map<int,vector<double> >);
 		void setLEPBinEdges(map<int,vector<double> >);
 
+    bool isIncCat(int);
+    bool isVBFCat(int);
+    bool isLEPCat(int);
 		void printRunOptions(string filename="0");
     void dumpDatFile(string filename="mvaanalysis.dat");
 		void checkHisto(TH1F*);
@@ -127,7 +134,9 @@ class FMTBase {
 		double massSidebandMax_;
 	
 		bool includeVBF_;
+    int nVBFCategories_;
 		bool includeLEP_;
+    int nLEPCategories_;
 
 		vector<string> systematics_;
 

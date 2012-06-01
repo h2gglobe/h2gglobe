@@ -24,7 +24,7 @@ g_expdijet		= 0.00495
 
 # Some "Global" Variables
 # PLOT OPS ----------------
-lumistring = "5.09 fb^{-1}"
+lumistring = "1.5 fb^{-1}"
 sigscale   = 5.
 # THEORY SYSTEMATICS ------
 lumi 		= "1.045"
@@ -43,7 +43,7 @@ systematics = [
 	      ,"idEff"
 	      ,"phoIdMva"
 	      ,"regSig"
-	      ,"kFactor"
+	      #,"kFactor"
 	      ,"triggerEff"
 	      ,"vtxEff"
 	      ]
@@ -115,6 +115,7 @@ def plotDistributions(mass,data,signals,bkg,errors):
 	flatsignal1 = plainBin(signals[-1])
 
 	flatbkg  = plainBin(bkg);flatbkg.SetLineColor(4);flatbkg.SetLineWidth(2)
+	for b in range(1,nbins+1): flatbkg.GetXaxis().SetBinLabel(b,flatdata.GetXaxis().GetBinLabel(b))
 
 	fNew  = flatbkg.Clone()
 	fNew2 = flatbkg.Clone()
@@ -137,6 +138,8 @@ def plotDistributions(mass,data,signals,bkg,errors):
   		fNew2.SetBinError(b,2*(((fNew2.GetBinError(b)**2)+((fNew2.GetBinContent(b)*additional)**2))**0.5))
 	c = ROOT.TCanvas();c.SetLogy()
 	if (not options.includeVBF): flatdata.GetXaxis().SetTitle("Category")
+	flatdata.GetYaxis().SetRangeUser(0.1,1e4)
+	fNew2.GetYaxis().SetRangeUser(0.1,1e4)
 	if (not options.blind): 
 		flatdata.Draw("9")
 		fNew2.Draw("9sameE2")
@@ -158,7 +161,7 @@ def plotDistributions(mass,data,signals,bkg,errors):
 	else: leg.AddEntry(flatsignal,"Higgs, m_{H}=%3.1f GeV (x%d)"%(mass,int(sigscale)) ,"L")
 	leg.AddEntry(flatbkg,"Background","L");leg.AddEntry(fNewT,"\pm 1\sigma","F");leg.AddEntry(fNew2T,"\pm 2\sigma","F")
 	leg.Draw()
-	mytext = ROOT.TLatex();mytext.SetTextSize(0.03);mytext.SetNDC();mytext.DrawLatex(0.1,0.92,"CMS preliminary,  #sqrt{s} = 7 TeV ");mytext.SetTextSize(0.04)
+	mytext = ROOT.TLatex();mytext.SetTextSize(0.03);mytext.SetNDC();mytext.DrawLatex(0.1,0.92,"CMS preliminary,  #sqrt{s} = 8 TeV ");mytext.SetTextSize(0.04)
 	mytext.DrawLatex(0.2,0.8,"#int L = %s"%(lumistring))
 	leg.Draw()
 	c.SaveAs(plotOutDir+"/pdf/model_m%3.1f.pdf"%mass);c.SaveAs(plotOutDir+"/png/model_m%3.1f.png"%mass)
@@ -589,6 +592,7 @@ normG = ROOT.TGraph(len(genMasses))
 # Fill the errors graph
 can = ROOT.TCanvas()
 for i,ne in enumerate(scalingErrors):
+  scalingErrors[i]=((scalingErrors[i]-1)*((21126/9834)**0.5))+1 # scale up norm Errors HACK for may31freeze
   normG.SetPoint(i,genMasses[i],ne)
 normG.SetMarkerStyle(20)
 normG.GetXaxis().SetTitle("mH")

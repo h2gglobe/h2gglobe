@@ -99,6 +99,9 @@ void FMTSetup::OptionParser(int argc, char *argv[]){
   if (!vm.count("outfilename")) { outfilename_=filename_+"_processed.root"; }
 
  	ReadRunConfig();
+  // FIXME HARD CODE
+  //setnLEPCategories(0);
+  //setincludeLEP(false);
 	fitMasses_ = getVecFromString<double>(fitString_);
   rebinMasses_ = getVecFromString<int>(rebinString_);
   organiseVectors(rebinMasses_,fitMasses_);
@@ -112,7 +115,7 @@ void FMTSetup::OptionParser(int argc, char *argv[]){
 	if (vm.count("interp")) 				interp_=true;
 	if (vm.count("datacards")) 			datacards_=true;
 	if (vm.count("diagnose")) 			diagnose_=true;
-	if (vm.count("unblind")) 					blinding_=false;
+	if (vm.count("unblind")) 				blinding_=false;
 	if (vm.count("checkHistos")) 		checkHistos_=true;
   if (vm.count("www"))            web_=true;
   if (vm.count("noPlot"))         noPlot_=true;
@@ -131,7 +134,7 @@ void FMTSetup::OptionParser(int argc, char *argv[]){
   //FIXME TEST
 	if (checkHistos_) checkAllHistos();
 	
-	rebinner = new FMTRebin(filename_,getmHMinimum(), getmHMaximum(), getmHStep(), getmassMin(), getmassMax(), getnDataBins(), getsignalRegionWidth(), getsidebandWidth(), getnumberOfSidebands(), getnumberOfSidebandsForAlgos(), getnumberOfSidebandGaps(), getmassSidebandMin(), getmassSidebandMax(), getincludeVBF(), getincludeLEP(), getsystematics(), getrederiveOptimizedBinEdges(), getAllBinEdges(),verbose_);
+	rebinner = new FMTRebin(filename_,getmHMinimum(), getmHMaximum(), getmHStep(), getmassMin(), getmassMax(), getnDataBins(), getsignalRegionWidth(), getsidebandWidth(), getnumberOfSidebands(), getnumberOfSidebandsForAlgos(), getnumberOfSidebandGaps(), getmassSidebandMin(), getmassSidebandMax(), getincludeVBF(), getnVBFCategories(), getincludeLEP(), getnLEPCategories(), getsystematics(), getrederiveOptimizedBinEdges(), getAllBinEdges(),verbose_);
 	rebinner->fitter->setblind(blinding_);
 	rebinner->fitter->setplot(diagnose_);
 
@@ -140,8 +143,6 @@ void FMTSetup::OptionParser(int argc, char *argv[]){
     system("mkdir -p plots/pdf");
   }
 	printPassedOptions();
-  dumpDatFile();
-
 }
 
 void FMTSetup::checkAllHistos(){
@@ -195,7 +196,9 @@ void FMTSetup::ReadRunConfig(){
 		if (sline.find("massSidebandMax=")!=string::npos)							setmassSidebandMax(getOptFromConfig<double>(sline));
 
 		if (sline.find("includeVBF=")!=string::npos)									setincludeVBF(getOptFromConfig<bool>(sline));
+    if (sline.find("nVBFCategories=")!=string::npos)              setnVBFCategories(getOptFromConfig<int>(sline));
 		if (sline.find("includeLEP=")!=string::npos)									setincludeLEP(getOptFromConfig<bool>(sline));
+    if (sline.find("nLEPCategories_")!=string::npos)              setnLEPCategories(getOptFromConfig<int>(sline));
 
     if (sline.find("doEscaleSyst=")!=string::npos)                if (getOptFromConfig<bool>(sline)) setsystematic("E_scale"); 
     if (sline.find("doEresolSyst=")!=string::npos)                if (getOptFromConfig<bool>(sline)) setsystematic("E_res"); 
@@ -340,7 +343,7 @@ void FMTSetup::interpolateBDT(){
 	if (!cleaned) cleanUp();
 	if (interp_){
     cout << "Running signal interpolation...." << endl;
-    FMTSigInterp *interpolater = new FMTSigInterp(filename_,diagnose_,false,getmHMinimum(), getmHMaximum(), getmHStep(), getmassMin(), getmassMax(), getnDataBins(), getsignalRegionWidth(), getsidebandWidth(), getnumberOfSidebands(), getnumberOfSidebandsForAlgos(), getnumberOfSidebandGaps(), getmassSidebandMin(), getmassSidebandMax(), getincludeVBF(), getincludeLEP(), getsystematics(), getrederiveOptimizedBinEdges(), getAllBinEdges(),blinding_,verbose_);
+    FMTSigInterp *interpolater = new FMTSigInterp(filename_,diagnose_,false,getmHMinimum(), getmHMaximum(), getmHStep(), getmassMin(), getmassMax(), getnDataBins(), getsignalRegionWidth(), getsidebandWidth(), getnumberOfSidebands(), getnumberOfSidebandsForAlgos(), getnumberOfSidebandGaps(), getmassSidebandMin(), getmassSidebandMax(), getincludeVBF(), getnVBFCategories(), getincludeLEP(), getnLEPCategories(), getsystematics(), getrederiveOptimizedBinEdges(), getAllBinEdges(),blinding_,verbose_);
     interpolater->runInterpolation();
 		delete interpolater;
 	}
@@ -363,7 +366,7 @@ void FMTSetup::makePlots(){
 			system(Form("python python/GetFakeShapeDatacards.py -i mva-datacards-grad -o fake-shape-cards -D -C -N --mhLow %3d.0 --mhHigh %3d.0 --mhStep %1.1f",getmHMinimum(),getmHMaximum(),getmHStep()));
     }
 		cout << "Making plots..." << endl;
-    FMTPlots *plotter = new FMTPlots(filename_, runSB_, getmHMinimum(), getmHMaximum(), getmHStep(), getmassMin(), getmassMax(), getnDataBins(), getsignalRegionWidth(), getsidebandWidth(), getnumberOfSidebands(), getnumberOfSidebandsForAlgos(), getnumberOfSidebandGaps(), getmassSidebandMin(), getmassSidebandMax(), getincludeVBF(), getincludeLEP(), getsystematics(), getrederiveOptimizedBinEdges(), getAllBinEdges(),blinding_,verbose_);
+    FMTPlots *plotter = new FMTPlots(filename_, runSB_, getmHMinimum(), getmHMaximum(), getmHStep(), getmassMin(), getmassMax(), getnDataBins(), getsignalRegionWidth(), getsidebandWidth(), getnumberOfSidebands(), getnumberOfSidebandsForAlgos(), getnumberOfSidebandGaps(), getmassSidebandMin(), getmassSidebandMax(), getincludeVBF(), getnVBFCategories(), getincludeLEP(), getnLEPCategories(), getsystematics(), getrederiveOptimizedBinEdges(), getAllBinEdges(),blinding_,verbose_);
     vector<double> theMasses = getAllMH();
     for (vector<double>::iterator mh = theMasses.begin(); mh != theMasses.end(); mh++){
       plotter->plotAll(*mh);

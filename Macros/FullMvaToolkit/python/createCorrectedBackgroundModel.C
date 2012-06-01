@@ -40,7 +40,7 @@
 #include "RooWorkspace.h"
 #include "RooRealVar.h"
 
-#include "logh.hh"
+#include "logn.hh"
 
 using namespace std;
 using namespace RooFit;

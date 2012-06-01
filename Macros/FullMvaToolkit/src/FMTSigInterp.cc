@@ -13,21 +13,22 @@
 #include "boost/lexical_cast.hpp"
 
 #include "../interface/FMTSigInterp.h"
-#include "../../Normalization_7TeV.C"
 
 using namespace std;
 
-FMTSigInterp::FMTSigInterp(string filename, bool diagnose, bool doSyst, int mHMinimum, int mHMaximum, double mHStep, double massMin, double massMax, int nDataBins, double signalRegionWidth, double sidebandWidth, int numberOfSidebands, int numberOfSidebandsForAlgos, int numberOfSidebandGaps, double massSidebandMin, double massSidebandMax, bool includeVBF, bool includeLEP, vector<string> systematics, bool rederiveOptimizedBinEdges, vector<map<int, vector<double> > > AllBinEdges, bool blind, bool verbose):
+FMTSigInterp::FMTSigInterp(string filename, bool diagnose, bool doSyst, int mHMinimum, int mHMaximum, double mHStep, double massMin, double massMax, int nDataBins, double signalRegionWidth, double sidebandWidth, int numberOfSidebands, int numberOfSidebandsForAlgos, int numberOfSidebandGaps, double massSidebandMin, double massSidebandMax, bool includeVBF, int nVBFCategories, bool includeLEP, int nLEPCategories, vector<string> systematics, bool rederiveOptimizedBinEdges, vector<map<int, vector<double> > > AllBinEdges, bool blind, bool verbose):
   
-	FMTBase(mHMinimum, mHMaximum, mHStep, massMin, massMax, nDataBins, signalRegionWidth, sidebandWidth, numberOfSidebands, numberOfSidebandsForAlgos, numberOfSidebandGaps, massSidebandMin, massSidebandMax, includeVBF, includeLEP, systematics, rederiveOptimizedBinEdges, AllBinEdges, verbose),
+	FMTBase(mHMinimum, mHMaximum, mHStep, massMin, massMax, nDataBins, signalRegionWidth, sidebandWidth, numberOfSidebands, numberOfSidebandsForAlgos, numberOfSidebandGaps, massSidebandMin, massSidebandMax, includeVBF, nVBFCategories, includeLEP, nLEPCategories, systematics, rederiveOptimizedBinEdges, AllBinEdges, verbose),
   diagnose_(diagnose),
   blind_(blind)
 {
   tFile = TFile::Open(filename.c_str(),"UPDATE");
+  normalizer = new Normalization_8TeV();
 
 }
 
 FMTSigInterp::~FMTSigInterp(){
+  delete normalizer;
   tFile->Close();
 }
 
@@ -37,8 +38,8 @@ TH1F* FMTSigInterp::Interpolate(double massLow, TH1F* low, double massHigh, TH1F
   assert(low->GetNbinsX()==high->GetNbinsX());
 
   // Scale histograms for interpolation
-  low->Scale(1./(GetXsection(massLow)*GetBR(massLow)));
-  high->Scale(1./(GetXsection(massHigh)*GetBR(massHigh)));
+  low->Scale(1./(normalizer->GetXsection(massLow)*normalizer->GetBR(massLow)));
+  high->Scale(1./(normalizer->GetXsection(massHigh)*normalizer->GetBR(massHigh)));
   
   TH1F *interp = (TH1F*)low->Clone();
   for (int i=0; i<interp->GetNbinsX(); i++){
@@ -49,8 +50,8 @@ TH1F* FMTSigInterp::Interpolate(double massLow, TH1F* low, double massHigh, TH1F
   }
 
   // Scale back interpolation histograms
-  low->Scale(GetXsection(massLow)*GetBR(massLow));
-  high->Scale(GetXsection(massHigh)*GetBR(massHigh));
+  low->Scale(normalizer->GetXsection(massLow)*normalizer->GetBR(massLow));
+  high->Scale(normalizer->GetXsection(massHigh)*normalizer->GetBR(massHigh));
 
   std::string name = low->GetName();
   std::string strLow = Form("%3.1f",massLow);
@@ -60,7 +61,7 @@ TH1F* FMTSigInterp::Interpolate(double massLow, TH1F* low, double massHigh, TH1F
   interp->SetName(name.c_str());
 
   // Scale interpolated histogram
-  double norm = GetNorm(massLow,low,massHigh,high,massInt);
+  double norm = normalizer->GetNorm(massLow,low,massHigh,high,massInt);
   interp->Scale(norm/interp->Integral());
 
   return interp;
@@ -92,7 +93,10 @@ void FMTSigInterp::runInterpolation(){
           if (*prod=="ggh") allSig = (TH1F*)sig->Clone();
           else allSig->Add(sig);
           vector<string> theSystematics = getsystematics();
+          if (verbose_) cout << "["; printVec(theSystematics); cout << "]" << endl;
           for (vector<string>::iterator syst=theSystematics.begin(); syst!=theSystematics.end(); syst++){
+            if (verbose_) cout << Form("th1f_sig_grad_%s_%3.1f_%3.1f_%sUp01_sigma",prod->c_str(),*mh,*mh,syst->c_str()) << endl;
+            if (verbose_) cout << Form("th1f_sig_grad_%s_%3.1f_%3.1f_%sDown01_sigma",prod->c_str(),*mh,*mh,syst->c_str()) << endl;
             TH1F* up = (TH1F*)tFile->Get(Form("th1f_sig_grad_%s_%3.1f_%3.1f_%sUp01_sigma",prod->c_str(),*mh,*mh,syst->c_str()));
             TH1F* down = (TH1F*)tFile->Get(Form("th1f_sig_grad_%s_%3.1f_%3.1f_%sDown01_sigma",prod->c_str(),*mh,*mh,syst->c_str()));
             up->SetName(Form("th1f_sig_grad_%s_%3.1f_%sUp01_sigma",prod->c_str(),*mh,syst->c_str()));

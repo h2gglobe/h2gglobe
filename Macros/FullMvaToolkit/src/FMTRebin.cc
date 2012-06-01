@@ -11,14 +11,14 @@
 
 using namespace std;
 
-FMTRebin::FMTRebin(string filename, int mHMinimum, int mHMaximum, double mHStep, double massMin, double massMax, int nDataBins, double signalRegionWidth, double sidebandWidth, int numberOfSidebands, int numberOfSidebandsForAlgos, int numberOfSidebandGaps, double massSidebandMin, double massSidebandMax, bool includeVBF, bool includeLEP, vector<string> systematics, bool rederiveOptimizedBinEdges, vector<map<int,vector<double> > > AllBinEdges, bool verbose):
+FMTRebin::FMTRebin(string filename, int mHMinimum, int mHMaximum, double mHStep, double massMin, double massMax, int nDataBins, double signalRegionWidth, double sidebandWidth, int numberOfSidebands, int numberOfSidebandsForAlgos, int numberOfSidebandGaps, double massSidebandMin, double massSidebandMax, bool includeVBF, int nVBFCategories, bool includeLEP, int nLEPCategories, vector<string> systematics, bool rederiveOptimizedBinEdges, vector<map<int,vector<double> > > AllBinEdges, bool verbose):
 	
-	FMTBase(mHMinimum, mHMaximum, mHStep, massMin, massMax, nDataBins, signalRegionWidth, sidebandWidth, numberOfSidebands, numberOfSidebandsForAlgos, numberOfSidebandGaps, massSidebandMin, massSidebandMax, includeVBF, includeLEP, systematics, rederiveOptimizedBinEdges, AllBinEdges, verbose)
+	FMTBase(mHMinimum, mHMaximum, mHStep, massMin, massMax, nDataBins, signalRegionWidth, sidebandWidth, numberOfSidebands, numberOfSidebandsForAlgos, numberOfSidebandGaps, massSidebandMin, massSidebandMax, includeVBF, nVBFCategories, includeLEP, nLEPCategories, systematics, rederiveOptimizedBinEdges, AllBinEdges, verbose)
 {
 	signalVector1 = new double[25];
 	backgroundVector1 = new double[25];
 	tFile = TFile::Open(filename.c_str(),"UPDATE");
-	fitter = new FMTFit(tFile,mHMinimum, mHMaximum, mHStep, massMin, massMax, nDataBins, signalRegionWidth, sidebandWidth, numberOfSidebands, numberOfSidebandsForAlgos, numberOfSidebandGaps, massSidebandMin, massSidebandMax, includeVBF, includeLEP, systematics, rederiveOptimizedBinEdges, AllBinEdges, verbose);
+	fitter = new FMTFit(tFile,mHMinimum, mHMaximum, mHStep, massMin, massMax, nDataBins, signalRegionWidth, sidebandWidth, numberOfSidebands, numberOfSidebandsForAlgos, numberOfSidebandGaps, massSidebandMin, massSidebandMax, includeVBF, nVBFCategories, includeLEP, nLEPCategories, systematics, rederiveOptimizedBinEdges, AllBinEdges, verbose);
 
 }
 
@@ -276,7 +276,7 @@ void FMTRebin::histogramSmoothingFit(TH1F* h){
   return;
 }
 
-TH1F* FMTRebin::rebinBinnedDataset(std::string new_name, TH1F *hb,std::vector<double> binEdges, bool exclusive){
+TH1F* FMTRebin::rebinBinnedDataset(std::string new_name, TH1F *hb,std::vector<double> binEdges, int cat){
 
   double *arrBins = new double[binEdges.size()];
   int j=0;
@@ -286,21 +286,41 @@ TH1F* FMTRebin::rebinBinnedDataset(std::string new_name, TH1F *hb,std::vector<do
   }
   //const char *h_name = (const char *) hb->GetName;
   //const char *title  = (const char *) hb->GetTitle;
-  if (exclusive && binEdges.size()!=2){
-    cerr << "ERROR -- FMTRebin::rebinBinnedDataset - I\'m confused about what to do. Bailing out." << endl;
+  // this hard code should be removed
+  if ((isVBFCat(cat) && binEdges.size()!=getnVBFCategories()+1) || (isLEPCat(cat) && binEdges.size()!=getnLEPCategories()+1)){
+    cout << "INC? " << isIncCat(cat) << endl;
+    cout << "VBF? " << isVBFCat(cat) << endl;
+    cout << "LEP? " << isLEPCat(cat) << endl;
+    cout << "nVBFCat " << getnVBFCategories() << endl;
+    cout << "nBinEdg " << binEdges.size() << endl;
+    cerr << "ERROR -- FMTRebin::rebinBinnedDataset - I\'m confused about what to do. The bin edges specified for cat " << cat << " do no match the binning. Bailing out." << endl;
     exit(1);
   }
 
   TH1F *hbnew;
 
-  // FIXME - hardcode of exclusive channels - should be synced with MvaAnalysis or done somewhere else
-  if (exclusive) {
-    hbnew = new TH1F("h","h",1,arrBins[0],arrBins[1]);
-    for (int i=0; i<hb->GetEntries(); i++) hbnew->Fill((arrBins[0]+(arrBins[1]-arrBins[0])/2.));
+  if (isVBFCat(cat)){
+    // do VBF
+    hbnew = new TH1F("hV","hV",1,arrBins[cat-1],arrBins[cat]);
+    for (int i=0; i<hb->GetEntries(); i++) hbnew->Fill(1.+(cat*0.02));
     hbnew->Sumw2();
     if (hb->GetEntries()!=0) hbnew->Scale(hb->Integral()/hbnew->Integral());
   }
-  else hbnew =(TH1F*) hb->Rebin(binEdges.size()-1,hb->GetName(),arrBins);
+  else if (isLEPCat(cat)){
+    // do LEP
+    int lepIt = cat-getnVBFCategories();
+    hbnew = new TH1F("hL","hL",1,arrBins[lepIt-1],arrBins[lepIt]);
+    for (int i=0; i<hb->GetEntries(); i++) hbnew->Fill(2.+(lepIt*0.02));
+    hbnew->Sumw2();
+    if (hb->GetEntries()!=0) hbnew->Scale(hb->Integral()/hbnew->Integral());
+  }
+  else if (isIncCat(cat)){
+    hbnew =(TH1F*) hb->Rebin(binEdges.size()-1,hb->GetName(),arrBins);
+  }
+  else {
+    cerr << "ERROR -- FMTRebin::rebinBinnedDataset - cat " << cat << " is not recognised. Bailing out" << endl;
+    exit(1);
+  }
   hbnew->SetName(Form("%s",new_name.c_str()));
   //cout << "title for new re-binned histogream - " << hb->GetTitle()<<endl; 
   hbnew->SetTitle(hb->GetTitle());
@@ -465,21 +485,26 @@ TH1F* FMTRebin::sumMultiBinnedDatasets(string new_name, vector<TH1F*> hists, dou
 
 void FMTRebin::makeOutputHistogram(string new_name, string old_name, int binningMass){
 
-  vector<vector<double> > theEdges = getAllBinEdges(binningMass);
+  vector<double> theEdges;
 	vector<TH1F*> old, rebinned;
-  bool exclusive=false;
 	for (int cat=0; cat<getNcats(); cat++){
-		if ((!getincludeVBF() && cat==1) || (!getincludeLEP() && cat==2)) continue;
-    if (cat>0) exclusive=true;
-    else exclusive=false;
+    if (isVBFCat(cat) && !getincludeVBF()) continue;
+    if (isLEPCat(cat) && !getincludeLEP()) continue;
+    if (isIncCat(cat)) theEdges = getBinEdges(binningMass);
+    else if (isVBFCat(cat)) theEdges = getVBFBinEdges(binningMass);
+    else if (isLEPCat(cat)) theEdges = getLEPBinEdges(binningMass);
+    else {
+      cerr << "Category " << cat << " not recognised " << endl;
+      exit(1);
+    }
 		old.push_back((TH1F*)tFile->Get(Form("%s_cat%d",old_name.c_str(),cat)));
-		rebinned.push_back(rebinBinnedDataset(Form("%s_cat%d",new_name.c_str(),cat),old[cat],theEdges[cat],exclusive));
+		rebinned.push_back(rebinBinnedDataset(Form("%s_cat%d",new_name.c_str(),cat),old[cat],theEdges,cat));
     if (verbose_) checkHisto(old[cat]);
     if (verbose_) checkHisto(rebinned[cat]);
 		write(tFile,rebinned[cat]);
 	}
-  if (getincludeVBF()) mergeHistograms(new_name,rebinned[0],rebinned[1]);
-  if (getincludeLEP()) mergeHistograms(new_name,rebinned[0],rebinned[2]);
+  if (getincludeVBF()) for (int vCat=0; vCat<getnVBFCategories(); vCat++) mergeHistograms(new_name,rebinned[0],rebinned[vCat+1]);
+  if (getincludeLEP()) for (int lCat=0; lCat<getnLEPCategories(); lCat++) mergeHistograms(new_name,rebinned[0],rebinned[lCat+getnVBFCategories()+1]);
   //tFile->cd();
   if (verbose_) checkHisto(rebinned[0]); 
   write(tFile,rebinned[0]);
@@ -527,21 +552,26 @@ void FMTRebin::mergeHistograms(std::string nameHist, TH1F* hist1, TH1F* hist2){
 void FMTRebin::makeSignalOutputHistogram(string new_name, string old_name, int binningMass){
 
   // Do central signal MC
-	vector<vector<double> > theEdges = getAllBinEdges(binningMass);
+  vector<double> theEdges;
 	vector<TH1F*> old, rebinned;
-  bool exclusive=false;
 	for (int cat=0; cat<getNcats(); cat++){
-		if ((!getincludeVBF() && cat==1) || (!getincludeLEP() && cat==2)) continue;
-    if (cat>0) exclusive=true;
-    else exclusive=false;
+    if (isVBFCat(cat) && !getincludeVBF()) continue;
+    if (isLEPCat(cat) && !getincludeLEP()) continue;
+    if (isIncCat(cat)) theEdges = getBinEdges(binningMass);
+    else if (isVBFCat(cat)) theEdges = getVBFBinEdges(binningMass);
+    else if (isLEPCat(cat)) theEdges = getLEPBinEdges(binningMass);
+    else {
+      cerr << "Category " << cat << " not recognised " << endl;
+      exit(1);
+    }
 		old.push_back((TH1F*)tFile->Get(Form("%s_cat%d",old_name.c_str(),cat)));
-		rebinned.push_back(rebinBinnedDataset(Form("%s_cat%d",new_name.c_str(),cat),old[cat],theEdges[cat],exclusive));
+		rebinned.push_back(rebinBinnedDataset(Form("%s_cat%d",new_name.c_str(),cat),old[cat],theEdges,cat));
     if (verbose_) checkHisto(old[cat]);
     if (verbose_) checkHisto(rebinned[cat]);
 		write(tFile,rebinned[cat]);
 	}
-	if (getincludeVBF()) mergeHistograms(new_name,rebinned[0],rebinned[1]);
-	if (getincludeLEP()) mergeHistograms(new_name,rebinned[0],rebinned[2]);
+  if (getincludeVBF()) for (int vCat=0; vCat<getnVBFCategories(); vCat++) mergeHistograms(new_name,rebinned[0],rebinned[vCat+1]);
+  if (getincludeLEP()) for (int lCat=0; lCat<getnLEPCategories(); lCat++) mergeHistograms(new_name,rebinned[0],rebinned[lCat+getnVBFCategories()+1]);
   if (verbose_) checkHisto(rebinned[0]); 
 	write(tFile,rebinned[0]);
 
@@ -550,15 +580,20 @@ void FMTRebin::makeSignalOutputHistogram(string new_name, string old_name, int b
 	vector<string> theSystematics = getsystematics();
 	for (vector<string>::iterator syst=theSystematics.begin(); syst!=theSystematics.end(); syst++){
 		vector<TH1F*>  up, up_rebinned, down, down_rebinned;
-    exclusive=false;
 		for (int cat=0; cat<getNcats(); cat++){
-			if ((!getincludeVBF() && cat==1) || (!getincludeLEP() && cat==2)) continue;
-      if (cat>0) exclusive=true;
-      else exclusive=false;
+      if (isVBFCat(cat) && !getincludeVBF()) continue;
+      if (isLEPCat(cat) && !getincludeLEP()) continue;
+      if (isIncCat(cat)) theEdges = getBinEdges(binningMass);
+      else if (isVBFCat(cat)) theEdges = getVBFBinEdges(binningMass);
+      else if (isLEPCat(cat)) theEdges = getLEPBinEdges(binningMass);
+      else {
+        cerr << "Category " << cat << " not recognised " << endl;
+        exit(1);
+      }
 			up.push_back((TH1F*)tFile->Get(Form("%s_cat%d_%sUp01_sigma",old_name.c_str(),cat,syst->c_str())));
 			down.push_back((TH1F*)tFile->Get(Form("%s_cat%d_%sDown01_sigma",old_name.c_str(),cat,syst->c_str())));
-			up_rebinned.push_back(rebinBinnedDataset(Form("%s_cat%d_%sUp01_sigma",new_name.c_str(),cat,syst->c_str()),up[cat],theEdges[cat],exclusive));
-			down_rebinned.push_back(rebinBinnedDataset(Form("%s_cat%d_%sDown01_sigma",new_name.c_str(),cat,syst->c_str()),down[cat],theEdges[cat],exclusive));
+			up_rebinned.push_back(rebinBinnedDataset(Form("%s_cat%d_%sUp01_sigma",new_name.c_str(),cat,syst->c_str()),up[cat],theEdges,cat));
+			down_rebinned.push_back(rebinBinnedDataset(Form("%s_cat%d_%sDown01_sigma",new_name.c_str(),cat,syst->c_str()),down[cat],theEdges,cat));
       if (verbose_) checkHisto(up[cat]);
       if (verbose_) checkHisto(up_rebinned[cat]);
       if (verbose_) checkHisto(down[cat]);
@@ -566,14 +601,18 @@ void FMTRebin::makeSignalOutputHistogram(string new_name, string old_name, int b
 			write(tFile,up_rebinned[cat]);
 			write(tFile,down_rebinned[cat]);
 		}
-		if (getincludeVBF()) {
-			mergeHistograms(Form("%s_%sDown01_sigma",new_name.c_str(),syst->c_str()),down_rebinned[0],down_rebinned[1]);
-			mergeHistograms(Form("%s_%sUp01_sigma",new_name.c_str(),syst->c_str()),up_rebinned[0],up_rebinned[1]);
-		}
-		if (getincludeLEP()) {
-			mergeHistograms(Form("%s_%sDown01_sigma",new_name.c_str(),syst->c_str()),down_rebinned[0],down_rebinned[2]);
-			mergeHistograms(Form("%s_%sUp01_sigma",new_name.c_str(),syst->c_str()),up_rebinned[0],up_rebinned[2]);
-		}
+    if (getincludeVBF()) {
+      for (int vCat=0; vCat<getnVBFCategories(); vCat++) {
+        mergeHistograms(Form("%s_%sUp01_sigma",new_name.c_str(),syst->c_str()),up_rebinned[0],up_rebinned[vCat+1]);
+        mergeHistograms(Form("%s_%sDown01_sigma",new_name.c_str(),syst->c_str()),down_rebinned[0],down_rebinned[vCat+1]);
+      }
+    }
+    if (getincludeLEP()) {
+      for (int lCat=0; lCat<getnLEPCategories(); lCat++) {
+        mergeHistograms(Form("%s_%sUp01_sigma",new_name.c_str(),syst->c_str()),up_rebinned[0],up_rebinned[lCat+getnVBFCategories()+1]);
+        mergeHistograms(Form("%s_%sDown01_sigma",new_name.c_str(),syst->c_str()),down_rebinned[0],down_rebinned[lCat+getnVBFCategories()+1]);
+      }
+    }
     if (verbose_) checkHisto(up_rebinned[0]);
     if (verbose_) checkHisto(down_rebinned[0]);
 		write(tFile,up_rebinned[0]);
@@ -665,8 +704,8 @@ void FMTRebin::executeRebinning(int mass){
 		BinEdges = getBinEdges(mass);
 		VBFBinEdges = getVBFBinEdges(mass);
 		// for now hard code lep tag which doesn't exist!
-		LEPBinEdges.push_back(1.04);
-		LEPBinEdges.push_back(1.08);
+		LEPBinEdges.push_back(2.);
+		LEPBinEdges.push_back(2.04);
 		setLEPBinEdges(mass,LEPBinEdges);
 	}
 	else {
@@ -678,20 +717,23 @@ void FMTRebin::executeRebinning(int mass){
 			bkgForBinning[cat] = getCombBackground(mass,cat,bkgInSigThisMass);
 			sigForBinning[cat] = getCombSignal(mass,cat);
 		}
-		BinEdges = significanceOptimizedBinning(sigForBinning[0],bkgForBinning[0],20);
-		VBFBinEdges.push_back(1.);
-		VBFBinEdges.push_back(1.04);
-		LEPBinEdges.push_back(1.04);
-		LEPBinEdges.push_back(1.08);
-		
-    // could maybe set the bin edges here
-    // or write them to a file somewhere?
+		// get inclusive bin edges
+    BinEdges = significanceOptimizedBinning(sigForBinning[0],bkgForBinning[0],20);
+    // set vbf edges from 1. in 0.04 steps
+    VBFBinEdges.push_back(1.);
+    for (int vCat=0; vCat<getnVBFCategories(); vCat++) VBFBinEdges.push_back(1.+(vCat+1)*0.04);
+    // set lep edges from 2. in 0.04 steps
+    LEPBinEdges.push_back(2.);
+    for (int lCat=0; lCat<getnLEPCategories(); lCat++) LEPBinEdges.push_back(2.+(lCat+1)*0.04);
+    
+    // set the bin edges here
 		setBinEdges(mass,BinEdges);
 		setVBFBinEdges(mass,VBFBinEdges);
 		setLEPBinEdges(mass,LEPBinEdges);
 		
 	}
 	cout << "Extrated bin edges - mass " << mass << endl;
+  cout << (getBinEdges(mass)).size() << " " << (getVBFBinEdges(mass)).size() << " " << (getLEPBinEdges(mass)).size() << endl;
 	// now rebin background at +- mHStep and do the fit
   vector<double> theMasses = getMHMasses(mass);
   for (vector<double>::iterator mH = theMasses.begin(); mH != theMasses.end(); mH++){

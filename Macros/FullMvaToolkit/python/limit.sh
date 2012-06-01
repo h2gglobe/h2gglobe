@@ -14,14 +14,14 @@ for m in {110..150}; do
   combine mva-datacard_$2_$m.0.txt -M ProfileLikelihood -D data_$2 -m $m -S 1 --rMin=0. --rMax=25 --signif --pvalue
 done
 
-for m in {110..149}; do 
-  echo -------------------------------
-  echo Running $2 $1 limit for mass $m.5 
-  echo -------------------------------
-  combine mva-datacard_$2_$m.5.txt -M Asymptotic -D data_$2 -m $m.5 --newGenerator=1 -H ProfileLikelihood
-  combine mva-datacard_$2_$m.5.txt -M MaxLikelihoodFit -D data_$2 -m $m.5 --minimizerStrategy=2
-  combine mva-datacard_$2_$m.5.txt -M ProfileLikelihood -D data_$2 -m $m.5 -S 1 --rMin=0. --rMax=25 --signif --pvalue
-done
+#for m in {110..149}; do 
+  #echo -------------------------------
+  #echo Running $2 $1 limit for mass $m.5 
+  #echo -------------------------------
+  #combine mva-datacard_$2_$m.5.txt -M Asymptotic -D data_$2 -m $m.5 --newGenerator=1 -H ProfileLikelihood
+  #combine mva-datacard_$2_$m.5.txt -M MaxLikelihoodFit -D data_$2 -m $m.5 --minimizerStrategy=2
+  #combine mva-datacard_$2_$m.5.txt -M ProfileLikelihood -D data_$2 -m $m.5 -S 1 --rMin=0. --rMax=25 --signif --pvalue
+#done
 
 mkdir Asymptotic MaxLikelihoodFit ProfileLikelihood
 for m in {110..150}; do
@@ -30,10 +30,10 @@ for m in {110..150}; do
 	mv higgsCombineTest.ProfileLikelihood.mH$m.root ProfileLikelihood/higgsCombineTest.ProfileLikelihood.mH$m.0.root
 done
 
-for m in {110..149}; do
-	mv higgsCombineTest.Asymptotic.mH$m.5.root Asymptotic/higgsCombineTest.Asymptotic.mH$m.5.root
-	mv higgsCombineTest.MaxLikelihoodFit.mH$m.5.root MaxLikelihoodFit/higgsCombineTest.MaxLikelihoodFit.mH$m.5.root
-	mv higgsCombineTest.ProfileLikelihood.mH$m.5.root ProfileLikelihood/higgsCombineTest.ProfileLikelihood.mH$m.5.root
-done
+#for m in {110..149}; do
+	#mv higgsCombineTest.Asymptotic.mH$m.5.root Asymptotic/higgsCombineTest.Asymptotic.mH$m.5.root
+	#mv higgsCombineTest.MaxLikelihoodFit.mH$m.5.root MaxLikelihoodFit/higgsCombineTest.MaxLikelihoodFit.mH$m.5.root
+	#mv higgsCombineTest.ProfileLikelihood.mH$m.5.root ProfileLikelihood/higgsCombineTest.ProfileLikelihood.mH$m.5.root
+#done
 cd $3
 

@@ -9,7 +9,7 @@ using namespace std;
 class FMTRebin : public FMTBase {
 	
 	public:
-		FMTRebin(string filename, int mHMinimum, int mHMaximum, double mHStep, double massMin, double massMax, int nDataBins, double signalRegionWidth, double sidebandWidth, int numberOfSidebands, int numberOfSidebandsForAlgos, int numberOfSidebandGaps, double massSidebandMin, double massSidebandMax, bool includeVBF, bool includeLEP, vector<string> systematics, bool rederiveOptimizedBinEdges, vector<map<int,vector<double> > > AllBinEdges, bool verbose=false);
+		FMTRebin(string filename, int mHMinimum, int mHMaximum, double mHStep, double massMin, double massMax, int nDataBins, double signalRegionWidth, double sidebandWidth, int numberOfSidebands, int numberOfSidebandsForAlgos, int numberOfSidebandGaps, double massSidebandMin, double massSidebandMax, bool includeVBF, int nVBFCategories, bool includeLEP, int nLEPCategories, vector<string> systematics, bool rederiveOptimizedBinEdges, vector<map<int,vector<double> > > AllBinEdges, bool verbose=false);
 		~FMTRebin();
 
 		// rebinning methods
@@ -17,7 +17,7 @@ class FMTRebin : public FMTBase {
     double calculateSigMulti(double*,double*,int);
     void histogramSmoothing(TH1F*,int);
     void histogramSmoothingFit(TH1F*);
-    TH1F* rebinBinnedDataset(string,TH1F*,vector<double>,bool);
+    TH1F* rebinBinnedDataset(string,TH1F*,vector<double>,int);
     void maxSigScan(double*,int*,int*,TH1F*,TH1F*,int,int*,int);
     vector<double> significanceOptimizedBinning(TH1F*,TH1F*,int);
     vector<double> soverBOptimizedBinning(TH1F*,TH1F*,int,double);
