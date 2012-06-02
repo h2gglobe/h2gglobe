@@ -1,5 +1,4 @@
-#intL=1490. histfile=/castor/cern.ch/user/c/cmshgg/MvaAnalysis/may31freeze/%(label)s/CMS-HGG.root output=./%(label)s/eventsList.txt
-intL=1490. histfile=./CMS-HGG_test.root output=./eventsList.txt
+intL=1490. histfile=/castor/cern.ch/user/c/cmshgg/MvaAnalysis/may31freeze/%(label)s/CMS-HGG.root output=eventsList.txt
 
 #
 # Data
@@ -68,5 +67,5 @@ inputBranches mvaanalysis_input.dat
 ## 	analyzer <class_name> <config_file>
 ## 
 ## analyzer PhotonAnalysis photonanalysis.dat	
-analyzer MvaAnalysis photonanalysis.dat mvaanalysis.dat
+analyzer MvaAnalysis photonanalysis.dat analysis_settings.dat mvaanalysis.dat
 

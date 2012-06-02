@@ -6,40 +6,34 @@ nSystSteps=1
 
 scaleR9Only=0
 
-->
-Testing Hypothesis
-->
+# Testing Hypothesis
 mHMinimum=110.0
 mHMaximum=150.0
 mHStep=0.5
 
-->
-Options for the mass spectrum range
-->
+# Options for the mass spectrum range
 massMin=100.
 massMax=180.
 nDataBins=160
 
-->
-Options for the sidebands mH ranges
-These define how the sidebands are calculated
+# Options for the sidebands mH ranges
+# These define how the sidebands are calculated
 
-Define sidebands:
-sidebandWidth        defines the "phase-space" for each sideband (obs/bkg)
-signalRegionWidth    defines how far (as %) to put the first sideband (ie region in which signal should sit)
-sidebandShift 	     add an extra gap between the signalRegion and 1st sideband
-numberOfSidebands    number of sidebands created on each side (all created)
+# Define sidebands:
+# sidebandWidth        defines the "phase-space" for each sideband (obs/bkg)
+# signalRegionWidth    defines how far (as %) to put the first sideband (ie region in which signal should sit)
+# sidebandShift 	     add an extra gap between the signalRegion and 1st sideband
+# numberOfSidebands    number of sidebands created on each side (all created)
 
-Shich sidebands to use in sums (ie for binning algo and simple bkg model):
+# Shich sidebands to use in sums (ie for binning algo and simple bkg model):
 
-numberOfSidebandsForAlgos    number of sidebands used on each side for binning algos +sums
-			     (warning numberofSidebandGaps+numberOfSidebandsForAlgos <= numberOfSidebands or Init will crash)
-numberOfSidebandGaps skip this many sidebands on each sidefor summing datasets
-		     (all will be in workspace, but not used for sideband sums)
-massSidebandMax(Min) if upper(lower) edge of sideband is larger(smaller)
-		     than this, sideband is ignored in sideband sums
-		     (will still be saved in workspace)
-->
+# numberOfSidebandsForAlgos    number of sidebands used on each side for binning algos +sums
+# 			     (warning numberofSidebandGaps+numberOfSidebandsForAlgos <= numberOfSidebands or Init will crash)
+# numberOfSidebandGaps skip this many sidebands on each sidefor summing datasets
+# 		     (all will be in workspace, but not used for sideband sums)
+# massSidebandMax(Min) if upper(lower) edge of sideband is larger(smaller)
+# 		     than this, sideband is ignored in sideband sums
+# 		     (will still be saved in workspace)
 
 signalRegionWidth=0.02
 sidebandWidth=0.02
@@ -50,9 +44,7 @@ numberOfSidebandGaps=1
 massSidebandMin=99.5
 massSidebandMax=180.
 
-->
-OptimizedBinEdges
-->
+#  OptimizedBinEdges
 rederiveOptimizedBinEdges=0
 VbfBinEdges_110=1,1.04,1.08
 VbfBinEdges_115=1,1.04,1.08
@@ -80,16 +72,9 @@ GradBinEdges_150=-1,0.0636,0.2716,0.478,0.5968,0.662,0.7636,1
 AdaBinEdges_150=-1,0.0024,0.0964,0.164,0.2336,0.282,0.3616,1
  
                  
-->               
-General Options
-->
+# General Options
 
 nInclusiveCategories=1
-nVBFCategories=2
-
-includeVBF=1
-nVBFEtaCategories=1
-nVHhadEtaCategories=1
 
 nEtaCategories=2
 nR9Categories=2
@@ -102,9 +87,7 @@ doTraining=0
 splitSignalSample=0
 splitBackgroundSample=0
 
-->
-choose between UCSD and MIT trainings
-->
+# choose between UCSD and MIT trainings
 
 bdtTrainingPhilosophy=MIT
 photonLevelMvaUCSD=aux/ID_UCSD.weights.xml
@@ -117,14 +100,10 @@ eventLevelMvaMIT=aux/HggBambu_SMDipho_Jan16_BDTG.weights.xml
 
 MVAtype=BDT
 
-->
-Turn on-off all smearings 
-->
+# Turn on-off all smearings 
 doMCSmearing=1 
 
-->
-Individual smearing flags
-->
+# Individual smearing flags
 
 doEscaleSmear=1
 doEscaleSyst=1
@@ -161,33 +140,10 @@ doInterferenceSmear=1
 
 mvaWeightsFolder=aux/wt_Jan16reload_v2/
 
-->
-Inputs for reweighing
-- phoId and trigger: same as EPS,  https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/374.html
-- vertexing from: https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/374/1.html
-->
+# Inputs for reweighing
+# - phoId and trigger: same as EPS,  https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/374.html
+# - vertexing from: https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/374/1.html
 
-kfacHist=
 efficiencyFile=aux/sig_reweighing_jan16rereco_mva_v3.root
-puHist=aux/2012_weights.root
-puTarget=
 
-puMap=pu_weights_map.dat
 
-->
-run-dependent corrections are now taken from energy_scale_offsets.dat;
-GF, aug12: Escale shift taken from https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/371.html
-->
-scale_offset_file=energy_scale_offsets.dat
-scale_offset_error_file=energy_scale_errors.dat
-
-->
-smearing updated for LP11 improvements, according to: https://indico.cern.ch/materialDisplay.py?contribId=16&sessionId=5&materialId=slides&confId=157048
-->
-smearing_file=smearing_sigma_and_errors.dat
-
-## jets
-recomputeBetas=0
-recorrectJets=1
-rerunJetMva=0
-recomputeJetWp=1
