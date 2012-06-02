@@ -19,11 +19,11 @@ ROOT.gStyle.SetOptFit(1111)
 
 #-------------------------------------------------------------------------
 # Configuration for the Plotter
-intlumi = str(1.5)
-EXPmasses = [110.,115.,120.,125.,130.,135.,140.,150.]     
-#OBSmasses = numpy.arange(110,150.5,0.5)
-#EXPmasses = numpy.arange(110,150.5,0.5)
-OBSmasses = [110.,115.,120.,125.,130.,135.,140.,150.]
+intlumi = "1.5 (2012) + 5.1 (2011)"
+#EXPmasses = [110.,115.,120.,125.,130.,135.,140.,150.]     
+OBSmasses = numpy.arange(110,150.5,1.)
+EXPmasses = numpy.arange(110,150.5,1.)
+#OBSmasses = [110.,115.,120.,125.,130.,135.,140.,150.]
 
 # Plotting Styles --------------------------------------------------------
 OFFSETLOW=0
@@ -44,6 +44,7 @@ parser.add_option("-s","--doSmooth",action="store_true")
 parser.add_option("-b","--bayes",dest="bayes")
 parser.add_option("-o","--outputLimits",dest="outputLimits")
 parser.add_option("-e","--expectedOnly",action="store_true")
+parser.add_option("-p","--path",dest="path")
 parser.add_option("","--pval",action="store_true")
 (options,args)=parser.parse_args()
 # ------------------------------------------------------------------------
@@ -60,15 +61,19 @@ if options.bayes:
 Method = options.Method
 
 EXPName = Method+"/higgsCombineEXPECTED."+Method
-if Method == "Asymptotic":  EXPName = Method+"/higgsCombineTest."+Method  # everyhting contained here
-if Method == "ProfileLikelihood" or Method=="Asymptotic":
+if Method == "Asymptotic" or Method == "AsymptoticNew":  EXPName = Method+"/higgsCombineTest."+Method  # everyhting contained here
+if Method == "ProfileLikelihood" or Method=="Asymptotic" or Method=="AsymptoticNew":
   OBSName = Method+"/higgsCombineTest."+Method
 if Method == "Bayesian":
   OBSName = Method+"/higgsCombineOBSERVED.MarkovChainMC"
 if Method == "HybridNew":
   OBSName = Method+"/higgsCombineOBSERVED.HybridNew"
 
-if Method == "HybridNew" or Method == "Asymptotic": EXPmasses = OBSmasses[:]
+if options.path:
+  OBSName = options.path+'/'+OBSName
+  EXPName = options.path+'/'+EXPName
+
+if Method == "HybridNew" or Method == "Asymptotic" or Method == "AsymptoticNew": EXPmasses = OBSmasses[:]
 # Done with setip
 # --------------------------------------------------------------------------
 ROOT.gROOT.ProcessLine( \
@@ -97,12 +102,12 @@ if Method=="HybridNew":
     else:
       EXPfiles.append(ROOT.TFile(EXPName+".mH%.1f.quant0.500.root"%m))
   
-elif Method=="Asymptotic":
+elif Method=="Asymptotic" or Method=="AsymptoticNew":
   EXPfiles=[]
   EXPmasses = OBSmasses[:]
   for m in EXPmasses:
     if int(m)==m:
-      EXPfiles.append(ROOT.TFile(EXPName+".mH%d.root"%m))
+      EXPfiles.append(ROOT.TFile(EXPName+".mH%.1f.root"%m))
     else:
       EXPfiles.append(ROOT.TFile(EXPName+".mH%.1f.root"%m))
 
@@ -114,17 +119,17 @@ OBSfiles = []
 if not options.expectedOnly:
   for m in OBSmasses:
     if int(m)==m:
-      OBSfiles.append(ROOT.TFile(OBSName+".mH%d.root"%m))
+      OBSfiles.append(ROOT.TFile(OBSName+".mH%.1f.root"%m))
     else:
       OBSfiles.append(ROOT.TFile(OBSName+".mH%.1f.root"%m))
-  if Method == "Asymptotic":  obs = [getOBSERVED(O,5) for O in OBSfiles] # observed is last entry in these files
+  if Method == "Asymptotic" or Method =="AsymptoticNew":  obs = [getOBSERVED(O,5) for O in OBSfiles] # observed is last entry in these files
   else: obs = [getOBSERVED(O) for O in OBSfiles]
 else:
   obs = [0 for O in OBSmasses]
   OBSfiles = obs[:]
 #-------------------------------------------------------------------------
 # Set-up the GRAPHS
-leg=ROOT.TLegend(0.16,0.71,0.4,0.88)
+leg=ROOT.TLegend(0.16,0.61,0.47,0.89)
 leg.SetFillColor(0)
 leg.SetBorderSize(0)
 
@@ -140,17 +145,26 @@ graph68dn = ROOT.TGraphErrors()
 graph95up = ROOT.TGraphErrors()
 graph95dn = ROOT.TGraphErrors()
 graphmede = ROOT.TGraphErrors()
+
+baseFile = ROOT.TFile.Open("baseline_may31freeze_limit.root")
+graphBase = baseFile.Get("median")
+graphBase.SetLineColor(4)
+graphBase.SetLineStyle(3)
+graphBase.SetLineWidth(3)
 #-------------------------------------------------------------------------
 # Different entries for the different methods
 LegendEntry = ""
 if Method == "ProfileLikelihood": LegendEntry = "PL"
 if Method == "Bayesian": LegendEntry = "Bayesian"
 if Method == "HybridNew": LegendEntry = "CLs"
-if Method == "Asymptotic": LegendEntry = "#splitline{CLs}{Asymptotic}"
+if Method == "Asymptotic": LegendEntry = "CLs (Asymptotic)"
+if Method == "AsymptoticNew": LegendEntry = "CLs (AsymptoticNew)"
 
-if not options.expectedOnly: leg.AddEntry(graphObs,"Observed %s"%LegendEntry,"L")
+leg.SetTextSize(0.035);
+leg.SetHeader("%s"%LegendEntry)
+if not options.expectedOnly: leg.AddEntry(graphObs,"Observed","L")
 if options.bayes and not options.expectedOnly: leg.AddEntry(bayesObs,"Observed Bayesian Limit","L")
-leg.AddEntry(graphMed,"Expected","L")
+leg.AddEntry(graphMed,"Expected ","L")
 leg.AddEntry(graph68,"#pm 1#sigma","F")
 leg.AddEntry(graph95,"#pm 2#sigma","F")
 
@@ -168,7 +182,7 @@ for i,mass,f in zip(range(len(EXPfiles)),EXPmasses,EXPfiles):
   dn95   = array.array('d',[0])
 
   if not options.doRatio: sm = signalNormalizer.GetBR(mass)*signalNormaliser.GetXsection(mass) 
-  if Method == "Asymptotic":   
+  if Method == "Asymptotic" or Method=="AsymptoticNew":   
       median[0] = getOBSERVED(f,2)
       up95[0]   = getOBSERVED(f,4)
       dn95[0]   = getOBSERVED(f,0)
@@ -268,8 +282,8 @@ graph95.SetFillStyle(FILLSTYLE)
 graph68.SetFillColor(FILLCOLOR_68)
 graph68.SetFillStyle(FILLSTYLE)
 graphMed.SetLineStyle(2)
-graphMed.SetLineColor(1)
-graphMed.SetMarkerColor(1)
+graphMed.SetLineColor(2)
+graphMed.SetMarkerColor(2)
 graphMed.SetLineWidth(3)
 graphObs.SetLineWidth(3)
 
@@ -280,7 +294,7 @@ if options.bayes:
  bayesObs.SetLineStyle(7)
 
 graphOne.SetLineWidth(3)
-graphOne.SetLineColor(2)
+graphOne.SetLineColor(ROOT.kAzure+7)
 graphObs.SetMarkerStyle(20)
 graphObs.SetMarkerSize(2.0)
 graphObs.SetLineColor(1)
@@ -288,6 +302,7 @@ graphObs.SetLineColor(1)
 MG.Add(graph95)
 MG.Add(graph68)
 MG.Add(graphMed)
+#MG.Add(graphBase)
 
 if not options.expectedOnly:
   MG.Add(graphObs)
@@ -319,7 +334,8 @@ mytext = ROOT.TLatex()
 mytext.SetTextSize(0.04)
 
 mytext.SetNDC()
-mytext.DrawLatex(0.54,0.8,"#splitline{CMS preliminary}{#sqrt{s} = 8 TeV L = %.1f fb^{-1}}"%float(intlumi))
+mytext.DrawLatex(0.48,0.85,"CMS preliminary")
+mytext.DrawLatex(0.48,0.77,"#splitline{#sqrt{s} = 7 TeV L = 5.1 fb^{-1} (2011)}{#sqrt{s} = 8 TeV L = 1.5 fb^{-1}(2012)}")
 leg.Draw()
 
 #Make a bunch of extensions to the plots
