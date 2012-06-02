@@ -149,7 +149,7 @@ void MvaAnalysis::Init(LoopAll& l)
 
     nPhotonCategories_ = nEtaCategories;
     if( nR9Categories != 0 ) nPhotonCategories_ *= nR9Categories;
-    nInclusiveCategories_ = 1;
+    nInclusiveCategories_ = nInclusiveCategories;
 
     effSmearPars.categoryType = "2CatR9_EBEE";
     effSmearPars.n_categories = 4;
@@ -263,7 +263,8 @@ void MvaAnalysis::Init(LoopAll& l)
     // the systematic sets to be formed
 
     // FIXME move these params to config file
-    l.rooContainer->SetNCategories(1+2*(int)includeVBF);
+    if (includeVBF) l.rooContainer->SetNCategories(nInclusiveCategories_+nVBFCategories);
+    else l.rooContainer->SetNCategories(nInclusiveCategories_);
 
     l.rooContainer->nsigmas = nSystSteps;
     l.rooContainer->sigmaRange = systRange;
