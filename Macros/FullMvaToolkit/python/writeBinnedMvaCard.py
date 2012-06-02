@@ -24,10 +24,9 @@ g_expdijet		= 0.00495
 
 # Some "Global" Variables
 # PLOT OPS ----------------
-lumistring = "1.5 fb^{-1}"
 sigscale   = 5.
 # THEORY SYSTEMATICS ------
-lumi 		= "1.045"
+lumi          = "1.045"
 QCDscale_ggH  = "0.918/1.125"
 PDF_gg_1      = "0.923/1.079"
 PDF_gg_2      = "0.915/1.085"
@@ -100,7 +99,8 @@ def plainBin(hist):
 	return h2
 
 def plotDistributions(mass,data,signals,bkg,errors):
-
+  
+	lumistring = "%1.1f fb^{-1}"%(options.intLumi)
 	if options.splitSignal: # last signal is separated off
 	  for i in range(1,len(signals)-1):
 		signals[0].Add(signals[i])
@@ -241,6 +241,7 @@ def getPoissonBinContent(hist,b,exp):
 
 def writeCard(tfile,mass,scaleErr):
 
+  lumistring = "%1.1f fb^{-1}"%(options.intLumi)
   print "Writing Datacard for mass -> ", mass
   outPut = open(cardOutDir+"/mva-datacard_"+runtype+"_%3.1f.txt"%mass,"w")
 
@@ -356,7 +357,8 @@ def writeCard(tfile,mass,scaleErr):
 
 
   # This next bit is for the signal systematics, first lets do the easy ones, lumi and theory
-  outPut.write("\nlumi          lnN ")
+  if options.is2011: outPut.write("\nlumi          lnN ")
+  else: outPut.write("\nlumi_8Tev       lnN ")
 
   if options.theorySys:
     for b in range(binL,binH): outPut.write(" %s  %s  %s  %s  -  "%(lumi,lumi,lumi,lumi))
@@ -399,14 +401,16 @@ def writeCard(tfile,mass,scaleErr):
     numberOfVBF_incl  = sum([vbfHist.GetBinContent(b) for b in range(binL,nBins_inclusive+binL)])
     numberOfWZH_incl  = sum([wzhHist.GetBinContent(b) for b in range(binL,nBins_inclusive+binL)])
 
-    outPut.write("\nJetID_ggh  lnN ")
+    if options.is2011: outPut.write("\nJetID_ggh  lnN ")
+    else: outPut.write("\nJetID_ggh_8Tev  lnN ")
     # inclusive bins
     for b in range(binL,nBins_inclusive+binL): outPut.write(" %.3f/%.3f   -   -   %.3f/%.3f   -  "%\
 		    (1.-(numberOfGGH_dijet/numberOfGGH_incl),1.+(numberOfGGH_dijet/numberOfGGH_incl),\
 		     1.-(numberOfTTH_dijet/numberOfTTH_incl),1.+(numberOfTTH_dijet/numberOfTTH_incl)))
     # exclusive bins
     for b in range(binH-nBins_exclusive,binH): outPut.write(" %.3f/%.3f   -   -   %.3f/%.3f   -  "%(1+JetID_ggh,1-JetID_ggh,1+JetID_ggh,1-JetID_ggh))
-    outPut.write("\nJetID_vbf  lnN ")
+    if options.is2011: outPut.write("\nJetID_vbf  lnN ")
+    else: outPut.write("\nJetID_vbf_8Tev  lnN ")
     # inclusive bins
     for b in range(binL,nBins_inclusive+binL): outPut.write(" -  %.3f/%.3f  %.3f/%.3f  -   -  "%\
 		    (1.-(numberOfVBF_dijet/numberOfVBF_incl),1.+(numberOfVBF_dijet/numberOfVBF_incl),\
@@ -440,7 +444,8 @@ def writeCard(tfile,mass,scaleErr):
       wzhHistD.Scale(signalyieldsweight)
       tthHistD.Scale(signalyieldsweight)
 
-    outPut.write("\n%s lnN "%sys)
+    if options.is2011: outPut.write("\n%s lnN "%sys)
+    else: outPut.write("\n%s_8Tev lnN "%sys)
 
     for b in range(binL,binH): 
 	 outPut.write(" %s %s %s %s - "%(\
@@ -459,7 +464,8 @@ def writeCard(tfile,mass,scaleErr):
  				    ))
   outPut.write("\n")
   # Finally the background errors, these are realtively simple
-  outPut.write("\nbkg_norm lnN ")
+  if options.is2011: outPut.write("\nbkg_norm lnN ")
+  else: outPut.write("\nbkg_norm_8TeV lnN ")
   for b in range(binL,binH): outPut.write(" -   -   -   -  %.3f "%(scaleErr))
 
   ## now for the David errors
@@ -469,7 +475,8 @@ def writeCard(tfile,mass,scaleErr):
 	# Input Signed Error Matrix from Fit 
 	th2f_errmatrix = tfile.Get("fUncorrErr_%s_%3.1f"%(options.bdtType,mass))
 	for b in range(1,nBins):  # This error matrix is nBins-1 X nBins-1 due to constraint on sum on fractions
-           outPut.write("\nmassBias%d lnN"%b)
+           if options.is2011: outPut.write("\nmassBias%d lnN"%b)
+           else: outPut.write("\nmassBias%d_8TeV lnN"%b)
 	   for q in range(binL,binH):
 	   	f_errentry = th2f_errmatrix.GetBinContent(b,q)
 		bkgC = backgroundContents[q-1]/sum(backgroundContents)
@@ -483,7 +490,8 @@ def writeCard(tfile,mass,scaleErr):
    # bkg bins will be gmN errors instead 
    for b in range(binL,binH):
         bkgScale = bkgHist.Integral()/bkgHist.GetEntries()
-        outPut.write("\nbkg_stat%d gmN %d "%(b,int(backgroundContents[b-1]/bkgScale)))
+        if options.is2011: outPut.write("\nbkg_stat%d gmN %d "%(b,int(backgroundContents[b-1]/bkgScale)))
+        else: outPut.write("\nbkg_stat%d_8TeV gmN %d "%(b,int(backgroundContents[b-1]/bkgScale)))
 	for q in range(binL,binH):
 		if q==b: outPut.write(" - - - - %.3f "%bkgScale)
 		else:    outPut.write(" - - - - - ")
@@ -505,6 +513,8 @@ def writeCard(tfile,mass,scaleErr):
 
 parser = OptionParser()
 parser.add_option("-i","--input",dest="tfileName")
+parser.add_option("","--intLumi",dest="intLumi",type="float")
+parser.add_option("","--is2011",dest="is2011",action="store_true",default=False)
 parser.add_option("","--noB2B",action="store_false",dest="B2B",default=True)
 #parser.add_option("","--addBias",dest="biasFile",default=None)
 parser.add_option("","--noBias",dest="Bias",default=True,action="store_false")
@@ -537,6 +547,7 @@ parser.add_option("-u","--mhHigh",dest="mhHigh",type="float",default=150.)
 parser.add_option("-s","--mhStep",dest="mhStep",type="float",default=0.5)
 
 (options,args)=parser.parse_args()
+
 print "Creating Binned Datacards from workspace -> ", options.tfileName
 if options.throwToy: print ("Throwing Toy dataset from BKG")
 if options.throwGlobalToy: print ("Throwing Global Toy dataset from BKG"); options.throwToy=True

@@ -12,7 +12,7 @@ using namespace std;
 class FMTPlots : public FMTBase {
 
   public:
-    FMTPlots(string, bool, int, int, double, double, double, int, double, double, int, int, int, double, double, bool, int, bool, int, vector<string>, bool, vector<map<int,vector<double> > >, bool blind=false,bool verbose=false);
+    FMTPlots(string, bool, double, bool, int, int, double, double, double, int, double, double, int, int, int, double, double, bool, int, bool, int, vector<string>, bool, vector<map<int,vector<double> > >, bool blind=false,bool verbose=false);
     ~FMTPlots();
   
     TH1F *linearBin(TH1F*);

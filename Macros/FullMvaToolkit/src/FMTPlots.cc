@@ -25,9 +25,9 @@
 
 using namespace std;
 
-FMTPlots::FMTPlots(string filename, bool runSB, int mHMinimum, int mHMaximum, double mHStep, double massMin, double massMax, int nDataBins, double signalRegionWidth, double sidebandWidth, int numberOfSidebands, int numberOfSidebandsForAlgos, int numberOfSidebandGaps, double massSidebandMin, double massSidebandMax, bool includeVBF, int nVBFCategories, bool includeLEP, int nLEPCategories, vector<string> systematics, bool rederiveOptimizedBinEdges, vector<map<int, vector<double> > > AllBinEdges, bool blind, bool verbose):
+FMTPlots::FMTPlots(string filename, bool runSB, double intLumi, bool is2011, int mHMinimum, int mHMaximum, double mHStep, double massMin, double massMax, int nDataBins, double signalRegionWidth, double sidebandWidth, int numberOfSidebands, int numberOfSidebandsForAlgos, int numberOfSidebandGaps, double massSidebandMin, double massSidebandMax, bool includeVBF, int nVBFCategories, bool includeLEP, int nLEPCategories, vector<string> systematics, bool rederiveOptimizedBinEdges, vector<map<int, vector<double> > > AllBinEdges, bool blind, bool verbose):
 
-	FMTBase(mHMinimum, mHMaximum, mHStep, massMin, massMax, nDataBins, signalRegionWidth, sidebandWidth, numberOfSidebands, numberOfSidebandsForAlgos, numberOfSidebandGaps, massSidebandMin, massSidebandMax, includeVBF, nVBFCategories, includeLEP, nLEPCategories, systematics, rederiveOptimizedBinEdges, AllBinEdges, verbose),
+	FMTBase(intLumi, is2011, mHMinimum, mHMaximum, mHStep, massMin, massMax, nDataBins, signalRegionWidth, sidebandWidth, numberOfSidebands, numberOfSidebandsForAlgos, numberOfSidebandGaps, massSidebandMin, massSidebandMax, includeVBF, nVBFCategories, includeLEP, nLEPCategories, systematics, rederiveOptimizedBinEdges, AllBinEdges, verbose),
   blind_(blind),
 	runSB_(runSB)
 {
@@ -227,12 +227,12 @@ void FMTPlots::plotSidebands(TH1F *bkg, vector<TH1F*> dataSideLow, vector<TH1F*>
   leg1->Draw("same");
   text->DrawLatex(0.13,0.30,"CMS preliminary");
   text->DrawLatex(0.20,0.23,"#sqrt{s} = 7 TeV");
-  text->DrawLatex(0.18,0.15,"#int L = 5.1 fb^{-1}");
+  text->DrawLatex(0.18,0.15,Form("#int L = %1.1f fb^{-1}",getintLumi()));
   c2->cd();
   leg2->Draw("same");
   text->DrawLatex(0.13,0.30,"CMS preliminary");
   text->DrawLatex(0.20,0.23,"#sqrt{s} = 7 TeV");
-  text->DrawLatex(0.18,0.15,"#int L = 5.1 fb^{-1}");
+  text->DrawLatex(0.18,0.15,Form("#int L = %1.1f fb^{-1}",getintLumi()));
 
   c1->SetLogy();
   c1->Print(Form("plots/png/dat_sideband_mH_%3.1f.png",mh));
@@ -272,7 +272,7 @@ void FMTPlots::plotOutput(TH1F* data, TH1F* bkg, TH1F* sig, TH1F* sig3, TH1F* si
   TPaveText *txt = new TPaveText(0.2,0.1,0.4,0.35,"NDC");
   txt->SetFillColor(0);
   txt->SetLineColor(0);
-  txt->AddText("#int L = 5.09 fb^{-1}");
+  txt->AddText(Form("#int L = %1.1f fb^{-1}",getintLumi()));
   leg->Draw("same");
   txt->Draw("same");
   canv->SetLogy();
@@ -405,7 +405,7 @@ void FMTPlots::makeNormPlot(){
 	text->SetNDC();
 	text->DrawLatex(0.68,0.85,"CMS preliminary");
   text->DrawLatex(0.75,0.78,"#sqrt{s} = 7 TeV");
-  text->DrawLatex(0.73,0.71,"#int L = 5.1 fb^{-1}");
+  text->DrawLatex(0.73,0.71,Form("#int L = %1.1f fb^{-1}",getintLumi()));
   canv->SaveAs("plots/pdf/fit_all_norm.pdf");
   canv->SaveAs("plots/png/fit_all_norm.png");
 	delete normG;

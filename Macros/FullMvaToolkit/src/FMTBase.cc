@@ -7,8 +7,10 @@
 
 using namespace std;
 
-FMTBase::FMTBase(int mHMinimum, int mHMaximum, double mHStep, double massMin, double massMax, int nDataBins, double signalRegionWidth, double sidebandWidth, int numberOfSidebands, int numberOfSidebandsForAlgos, int numberOfSidebandGaps, double massSidebandMin, double massSidebandMax, bool includeVBF, int nVBFCategories, bool includeLEP, int nLEPCategories, vector<string> systematics, bool rederiveOptimizedBinEdges, vector<map<int, vector<double> > > AllBinEdges, bool verbose):
-	
+FMTBase::FMTBase(double intLumi, bool is2011, int mHMinimum, int mHMaximum, double mHStep, double massMin, double massMax, int nDataBins, double signalRegionWidth, double sidebandWidth, int numberOfSidebands, int numberOfSidebandsForAlgos, int numberOfSidebandGaps, double massSidebandMin, double massSidebandMax, bool includeVBF, int nVBFCategories, bool includeLEP, int nLEPCategories, vector<string> systematics, bool rederiveOptimizedBinEdges, vector<map<int, vector<double> > > AllBinEdges, bool verbose):
+
+  intLumi_(intLumi),
+  is2011_(is2011),
 	mHMinimum_(mHMinimum),
 	mHMaximum_(mHMaximum),
 	mHStep_(mHStep),
@@ -382,6 +384,13 @@ int FMTBase::getNumMHMasses(){
   return theMasses.size();
 }
 
+bool FMTBase::getis2011(){
+  return is2011_;
+}
+double FMTBase::getintLumi(){
+  return intLumi_;
+}
+
 // FMTBase::setters
 void FMTBase::setmHMinimum(int mHMinimum){
 	mHMinimum_=mHMinimum;
@@ -456,8 +465,8 @@ void FMTBase::setrederiveOptimizedBinEdges(bool rederiveOptimizedBinEdges){
 
 void FMTBase::setAllBinEdges(vector<map<int,vector<double> > > theEdges){
 	setBinEdges(*(theEdges.begin()));
-	setVBFBinEdges(*(theEdges.begin()+1));
-	setLEPBinEdges(*(theEdges.begin()+2));
+	for (int cat=0; cat<nVBFCategories_; cat++) setVBFBinEdges(*(theEdges.begin()+cat+1));
+	for (int cat=0; cat<nLEPCategories_; cat++) setLEPBinEdges(*(theEdges.begin()+nVBFCategories_+cat+1));
 }
 
 void FMTBase::setBinEdges(int mass, vector<double> BinEdges){
@@ -492,6 +501,13 @@ void FMTBase::setVBFBinEdges(map<int,vector<double> > VBFBinEdges){
 }
 void FMTBase::setLEPBinEdges(map<int,vector<double> > LEPBinEdges){
 	LEPBinEdges_=LEPBinEdges;
+}
+
+void FMTBase::setis2011(bool is2011){
+  is2011_=is2011;
+}
+void FMTBase::setintLumi(double lumi){
+  intLumi_=lumi;
 }
 
 bool FMTBase::isIncCat(int cat){
@@ -582,6 +598,7 @@ void FMTBase::printRunOptions(string filename){
 	ostream &out = (outFileReq ? outFile : cout);
 	
 	out << "Running with following options:" << endl;
+  out << "\tintLumi                   " << intLumi_ << endl;
  	out << "\tmHMinimum                 " << mHMinimum_  << endl;               
  	out << "\tmHMaximum                 " << mHMaximum_  << endl;               
  	out << "\tmHStep                    " << mHStep_  << endl;               

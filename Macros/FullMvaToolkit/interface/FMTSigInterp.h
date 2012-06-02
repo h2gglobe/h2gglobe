@@ -15,7 +15,7 @@ using namespace std;
 class FMTSigInterp : public FMTBase {
 
   public:
-    FMTSigInterp(string, bool, bool, int, int, double, double, double, int, double, double, int, int, int, double, double, bool, int, bool, int, vector<string>, bool, vector<map<int,vector<double> > >, bool blind=false,bool verbose=false);
+    FMTSigInterp(string, double, bool, bool, bool, int, int, double, double, double, int, double, double, int, int, int, double, double, bool, int, bool, int, vector<string>, bool, vector<map<int,vector<double> > >, bool blind=false,bool verbose=false);
     ~FMTSigInterp();
 
     TH1F *Interpolate(double,TH1F*,double,TH1F*,double);

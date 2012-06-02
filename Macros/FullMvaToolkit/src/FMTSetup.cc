@@ -30,7 +30,7 @@ FMTSetup::FMTSetup():
 	blinding_(true),
 	runCombine_(false),
 	checkHistos_(false),
-  noPlot_(false),
+  noPlot_(true),
 	runSB_(false),
 	cleaned(false)
 {
@@ -79,7 +79,9 @@ void FMTSetup::OptionParser(int argc, char *argv[]){
 		("checkHistos,c",              																	  	"Run check on histograms in file")
     ("verbose,v",                                                       "Increase output level")
 		("useDat,U", po::value<string>(&datFil_)->default_value("0"),				"Get options from .dat file not TFile")
-    ("noPlot,n",                                                        "Don't remake plots")
+    ("doPlot,P",                                                        "Remake plots")
+    ("setLumi,L",po::value<double>(&userLumi_),                         "Set luminosity (by default read from datafiles.dat)")
+    ("is2011,7",                                                        "Is data run 2011 (7TeV) - default is 2012 (8TeV)")
 		("runSB,R",																													"Make S/B plots - in development (please don\'t use yet)")
     ;
   
@@ -118,7 +120,7 @@ void FMTSetup::OptionParser(int argc, char *argv[]){
 	if (vm.count("unblind")) 				blinding_=false;
 	if (vm.count("checkHistos")) 		checkHistos_=true;
   if (vm.count("www"))            web_=true;
-  if (vm.count("noPlot"))         noPlot_=true;
+  if (vm.count("doPlot"))         noPlot_=false;
 	if (vm.count("runSB"))					runSB_=true;
 	if (vm.count("runCombine"))			runCombine_=true;
   if (vm.count("verbose"))        verbose_=true;
@@ -128,13 +130,16 @@ void FMTSetup::OptionParser(int argc, char *argv[]){
 	if (vm.count("mHStep")) 				setmHStep(tempmHStep_);
 	if (vm.count("getBinEdges"))		setrederiveOptimizedBinEdges(false);
 	else 														setrederiveOptimizedBinEdges(true);
+  if (vm.count("is2011"))         setis2011(true);
+  else                            setis2011(false);
+  if (vm.count("setLumi"))        setintLumi(userLumi_);
 
 	if (fitMasses_.size()==0 && rebinMasses_.size()==0 && !skipRebin_) all_=true;
 
   //FIXME TEST
 	if (checkHistos_) checkAllHistos();
 	
-	rebinner = new FMTRebin(filename_,getmHMinimum(), getmHMaximum(), getmHStep(), getmassMin(), getmassMax(), getnDataBins(), getsignalRegionWidth(), getsidebandWidth(), getnumberOfSidebands(), getnumberOfSidebandsForAlgos(), getnumberOfSidebandGaps(), getmassSidebandMin(), getmassSidebandMax(), getincludeVBF(), getnVBFCategories(), getincludeLEP(), getnLEPCategories(), getsystematics(), getrederiveOptimizedBinEdges(), getAllBinEdges(),verbose_);
+	rebinner = new FMTRebin(filename_, getintLumi(), getis2011(), getmHMinimum(), getmHMaximum(), getmHStep(), getmassMin(), getmassMax(), getnDataBins(), getsignalRegionWidth(), getsidebandWidth(), getnumberOfSidebands(), getnumberOfSidebandsForAlgos(), getnumberOfSidebandGaps(), getmassSidebandMin(), getmassSidebandMax(), getincludeVBF(), getnVBFCategories(), getincludeLEP(), getnLEPCategories(), getsystematics(), getrederiveOptimizedBinEdges(), getAllBinEdges(),verbose_);
 	rebinner->fitter->setblind(blinding_);
 	rebinner->fitter->setplot(diagnose_);
 
@@ -219,7 +224,17 @@ void FMTSetup::ReadRunConfig(){
       if (sline.find(Form("LepBinEdges_%3d=",m))!=string::npos)   setLEPBinEdges(m,getBinEdgesFromString(getOptFromConfig<string>(sline)));
     }
   }
+  userLumi_ = getLumiFromWorkspace();
+  setintLumi(userLumi_);
 	printRunOptions();
+}
+
+double FMTSetup::getLumiFromWorkspace(){
+  TFile *inFile = TFile::Open(filename_.c_str());
+  RooWorkspace *inWS = (RooWorkspace*)inFile->Get("cms_hgg_workspace");
+  RooRealVar *tempLumi = (RooRealVar*)inWS->var("IntLumi");
+  inFile->Close();
+  return tempLumi->getVal();
 }
 
 vector<double> FMTSetup::getBinEdgesFromString(string name){
@@ -273,6 +288,7 @@ void FMTSetup::printPassedOptions(){
   cout << "\tDatacards:              " << datacards_ << endl;
   cout << "\tDiagnostics:            " << diagnose_ << endl;
   cout << "\tBlinding:               " << blinding_ << endl;
+  cout << "\tIs 2011 data:           " << getis2011() << endl;
   cout << "\tWeb publish:            " << web_ << endl;
   cout << "\tCheck histos:           " << checkHistos_ << endl;
 }
@@ -343,7 +359,7 @@ void FMTSetup::interpolateBDT(){
 	if (!cleaned) cleanUp();
 	if (interp_){
     cout << "Running signal interpolation...." << endl;
-    FMTSigInterp *interpolater = new FMTSigInterp(filename_,diagnose_,false,getmHMinimum(), getmHMaximum(), getmHStep(), getmassMin(), getmassMax(), getnDataBins(), getsignalRegionWidth(), getsidebandWidth(), getnumberOfSidebands(), getnumberOfSidebandsForAlgos(), getnumberOfSidebandGaps(), getmassSidebandMin(), getmassSidebandMax(), getincludeVBF(), getnVBFCategories(), getincludeLEP(), getnLEPCategories(), getsystematics(), getrederiveOptimizedBinEdges(), getAllBinEdges(),blinding_,verbose_);
+    FMTSigInterp *interpolater = new FMTSigInterp(filename_, getintLumi(), getis2011(), diagnose_,false,getmHMinimum(), getmHMaximum(), getmHStep(), getmassMin(), getmassMax(), getnDataBins(), getsignalRegionWidth(), getsidebandWidth(), getnumberOfSidebands(), getnumberOfSidebandsForAlgos(), getnumberOfSidebandGaps(), getmassSidebandMin(), getmassSidebandMax(), getincludeVBF(), getnVBFCategories(), getincludeLEP(), getnLEPCategories(), getsystematics(), getrederiveOptimizedBinEdges(), getAllBinEdges(),blinding_,verbose_);
     interpolater->runInterpolation();
 		delete interpolater;
 	}
@@ -353,8 +369,14 @@ void FMTSetup::writeDataCards(){
 	if (!cleaned) cleanUp();
 	if (datacards_){
 		cout << "Preparing to write datacards...." << endl;
-		if (blinding_) system(Form("python python/writeBinnedMvaCard.py -i %s -p plots --makePlot --mhLow %3d.0 --mhHigh %3d.0 --mhStep %1.1f --blind",filename_.c_str(),getmHMinimum(),getmHMaximum(),getmHStep()));
-		else system(Form("python python/writeBinnedMvaCard.py -i %s -p plots --makePlot --mhLow %3d.0 --mhHigh %3d.0 --mhStep %1.1f",filename_.c_str(),getmHMinimum(),getmHMaximum(),getmHStep()));
+		if (getis2011()){
+      if (blinding_) system(Form("python python/writeBinnedMvaCard.py -i %s -p plots --makePlot --mhLow %3d.0 --mhHigh %3d.0 --mhStep %1.1f --intLumi %1.1f --is2011 --blind",filename_.c_str(),getmHMinimum(),getmHMaximum(),getmHStep(),getintLumi()));
+      else system(Form("python python/writeBinnedMvaCard.py -i %s -p plots --makePlot --mhLow %3d.0 --mhHigh %3d.0 --mhStep %1.1f --intLumi %1.1f --is2011",filename_.c_str(),getmHMinimum(),getmHMaximum(),getmHStep(),getintLumi()));
+    }
+    else {
+      if (blinding_) system(Form("python python/writeBinnedMvaCard.py -i %s -p plots --makePlot --mhLow %3d.0 --mhHigh %3d.0 --mhStep %1.1f --intLumi %1.1f --blind",filename_.c_str(),getmHMinimum(),getmHMaximum(),getmHStep(),getintLumi()));
+      else system(Form("python python/writeBinnedMvaCard.py -i %s -p plots --makePlot --mhLow %3d.0 --mhHigh %3d.0 --mhStep %1.1f --intLumi %1.1f",filename_.c_str(),getmHMinimum(),getmHMaximum(),getmHStep(),getintLumi()));
+    }
 	}
 }
 
@@ -366,7 +388,7 @@ void FMTSetup::makePlots(){
 			system(Form("python python/GetFakeShapeDatacards.py -i mva-datacards-grad -o fake-shape-cards -D -C -N --mhLow %3d.0 --mhHigh %3d.0 --mhStep %1.1f",getmHMinimum(),getmHMaximum(),getmHStep()));
     }
 		cout << "Making plots..." << endl;
-    FMTPlots *plotter = new FMTPlots(filename_, runSB_, getmHMinimum(), getmHMaximum(), getmHStep(), getmassMin(), getmassMax(), getnDataBins(), getsignalRegionWidth(), getsidebandWidth(), getnumberOfSidebands(), getnumberOfSidebandsForAlgos(), getnumberOfSidebandGaps(), getmassSidebandMin(), getmassSidebandMax(), getincludeVBF(), getnVBFCategories(), getincludeLEP(), getnLEPCategories(), getsystematics(), getrederiveOptimizedBinEdges(), getAllBinEdges(),blinding_,verbose_);
+    FMTPlots *plotter = new FMTPlots(filename_, runSB_, getintLumi(), getis2011(), getmHMinimum(), getmHMaximum(), getmHStep(), getmassMin(), getmassMax(), getnDataBins(), getsignalRegionWidth(), getsidebandWidth(), getnumberOfSidebands(), getnumberOfSidebandsForAlgos(), getnumberOfSidebandGaps(), getmassSidebandMin(), getmassSidebandMax(), getincludeVBF(), getnVBFCategories(), getincludeLEP(), getnLEPCategories(), getsystematics(), getrederiveOptimizedBinEdges(), getAllBinEdges(),blinding_,verbose_);
     vector<double> theMasses = getAllMH();
     for (vector<double>::iterator mh = theMasses.begin(); mh != theMasses.end(); mh++){
       plotter->plotAll(*mh);

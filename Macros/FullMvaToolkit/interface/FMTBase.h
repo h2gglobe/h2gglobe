@@ -15,7 +15,7 @@ class FMTBase {
 
 	public:
 		FMTBase(){};
-		FMTBase(int, int, double, double, double, int, double, double, int, int, int, double, double, bool, int, bool, int, vector<string>, bool, vector<map<int,vector<double> > >, bool verbose=false); 
+		FMTBase(double,bool,int, int, double, double, double, int, double, double, int, int, int, double, double, bool, int, bool, int, vector<string>, bool, vector<map<int,vector<double> > >, bool verbose=false); 
 		~FMTBase(){};
 
 		void checkMCMass(int);
@@ -72,6 +72,9 @@ class FMTBase {
 		int getNumMCMasses();
     int getNumMHMasses();
 
+    bool getis2011();
+    double getintLumi();
+
 		// setters
 		void setmHMinimum(int);
 		void setmHMaximum(int);
@@ -104,6 +107,9 @@ class FMTBase {
 		void setBinEdges(map<int,vector<double> >);
 		void setVBFBinEdges(map<int,vector<double> >);
 		void setLEPBinEdges(map<int,vector<double> >);
+
+    void setis2011(bool);
+    void setintLumi(double);
 
     bool isIncCat(int);
     bool isVBFCat(int);
@@ -144,6 +150,9 @@ class FMTBase {
 		map<int, vector<double> > BinEdges_;
 		map<int, vector<double> > VBFBinEdges_;
 		map<int, vector<double> > LEPBinEdges_;
+
+    bool is2011_;
+    double intLumi_;
 
 };
 

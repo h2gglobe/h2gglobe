@@ -22,6 +22,8 @@ class FMTSetup : public FMTBase {
 
 		vector<double> getBinEdgesFromString(string);
 
+    double getLumiFromWorkspace();
+
 		template <class T>
 		T getOptFromConfig(string);
 		template <class T>
@@ -75,6 +77,8 @@ class FMTSetup : public FMTBase {
 		string webDir_;
 		string datFil_;
     string dumpDatFil_;
+
+    double userLumi_;
 
 		FMTRebin *rebinner;
 		bool cleaned;
