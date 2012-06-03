@@ -21,8 +21,8 @@ ROOT.gStyle.SetOptStat(0)
 intlumi = str(5.1)
 #EXPmasses = [110,115,120,125,130,135,140,150]       # Only used in Bayesian and PL method
 #'OBSmasses = [110,115,120,125,130,135,140,150]       # Only used in Bayesian and PL method
-OBSmasses = numpy.arange(110,150.5,0.5)
-EXPmasses = numpy.arange(110,150.5,0.5)
+OBSmasses = numpy.arange(110,150.5,1.)
+EXPmasses = numpy.arange(110,150.5,1.)
 #OBSmasses = [110,115,120,125,130,135,140,150]
 theorySMScales = [5,10]  			# A list of the C x sigma to draw
 
@@ -44,6 +44,7 @@ parser.add_option("-s","--doSmooth",action="store_true")
 parser.add_option("-b","--bayes",dest="bayes")
 parser.add_option("-o","--outputLimits",dest="outputLimits")
 parser.add_option("-e","--expectedOnly",action="store_true")
+parser.add_option("-p","--path",dest="path")
 parser.add_option("","--pval",action="store_true")
 (options,args)=parser.parse_args()
 # ------------------------------------------------------------------------
@@ -71,10 +72,13 @@ if Method == "Bayesian":
 if Method == "HybridNew":
   OBSName = Method+"/higgsCombineOBSERVED.HybridNew"
 
+if options.path:
+  OBSName = options.path+'/'+OBSName
+  EXPName = options.path+'/'+EXPName
 if Method == "HybridNew" or Method == "Asymptotic": EXPmasses = OBSmasses[:]
 
 if args[1] == "sm":
- ROOT.gROOT.ProcessLine(".L Normalization_8TeV.c++")
+ ROOT.gROOT.ProcessLine(".L Normalization_8TeV.cc++")
  from ROOT import GetBR
  from ROOT import GetXsection
  from theory_sm import *

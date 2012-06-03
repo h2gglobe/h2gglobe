@@ -7,6 +7,7 @@ parser = OptionParser()
 parser.add_option("-i","--input",dest="tFileName")
 parser.add_option("-g","--grep",dest="grepString",default="_")
 parser.add_option("-a","--antigrep",dest="antigrepString",default="!")
+parser.add_option("-N","--norm",dest="norm",action="store_true",default=False)
 parser.add_option("-n","--noSort",action="store_false",dest="Sort",default=True)
 (options,arg)=parser.parse_args()
 
@@ -15,10 +16,11 @@ grepBit  = options.grepString
 antiGrepBit = options.antigrepString
 tfile = ROOT.TFile(filename)
 
-ws = tfile.Get("cms_hgg_workspace")
-#for m in numpy.arange(110,140.5,0.5):
-#	var = ws.var("NBkgInSignal_mH%3.1f"%m)
-#	print "%20s %4.2f"%(var.GetName(),var.getVal())
+if options.norm:
+  ws = tfile.Get("cms_hgg_workspace")
+  for m in numpy.arange(110,150.5,0.5):
+    var = ws.var("NBkgInSignal_mH%3.1f"%m)
+    print "%20s %4.2f"%(var.GetName(),var.getVal())
 
 files=[]
 for key in tfile.GetListOfKeys():

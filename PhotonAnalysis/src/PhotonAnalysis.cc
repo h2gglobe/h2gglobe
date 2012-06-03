@@ -218,7 +218,7 @@ void PhotonAnalysis::applyGenLevelSmearings(double & genLevWeight, const TLorent
 		assert(0);
 	    } else { 
 		if( nwarnings-- > 0 ) {
-		    std::cout <<  "WARNING: negative during systematic scan in " << (*si)->name() << std::endl;
+		    std::cout <<  "WARNING: negative during systematic scan in " << (*si)->name() << " " << genWeight << std::endl;
 		}
 		genWeight = 0.;
 	    }

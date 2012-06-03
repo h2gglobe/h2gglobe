@@ -262,8 +262,7 @@ void MvaAnalysis::Init(LoopAll& l)
     // Define the number of categories for the statistical analysis and
     // the systematic sets to be formed
 
-    // FIXME move these params to config file
-    if (includeVBF) l.rooContainer->SetNCategories(nInclusiveCategories_+nVBFCategories);
+    if (includeVBF) l.rooContainer->SetNCategories(nInclusiveCategories_+nVBFDijetJetCategories);
     else l.rooContainer->SetNCategories(nInclusiveCategories_);
 
     l.rooContainer->nsigmas = nSystSteps;

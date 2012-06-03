@@ -50,6 +50,7 @@ bool DiPhoEfficiencySmearer::smearDiPhoton( TLorentzVector & p4, TVector3 & selV
     }
   
     weight = getWeight( p4.Pt(), cat, syst_shift );
+    weight = weight<0 ? 0 : weight;
   }
   
   return true;

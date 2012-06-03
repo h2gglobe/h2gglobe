@@ -19,7 +19,7 @@ StatAnalysis::StatAnalysis()  :
     nSystSteps = 1;    
     doSystematics = true;   
     dataIs2011 = false;
-    nVBFDijetJetCategories=1;
+    nVBFDijetJetCategories=2;
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -900,7 +900,7 @@ void StatAnalysis::FillRooContainerSyst(LoopAll& l, const std::string &name, int
 void StatAnalysis::computeExclusiveCategory(LoopAll & l, int & category, std::pair<int,int> diphoton_index, float pt)
 {
     if(VBFevent)        {
-	category=nInclusiveCategories_ + 
+    category=nInclusiveCategories_ + 
 	    l.DiphotonCategory(diphoton_index.first,diphoton_index.second,pt,nVBFEtaCategories,1,1) 
 	    + nVBFEtaCategories*l.DijetSubCategory(myVBF_Mjj,myVBFLeadJPt,myVBFSubJPt,nVBFDijetJetCategories)
 	    ;
