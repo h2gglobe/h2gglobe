@@ -118,9 +118,11 @@ void FMTFit::Plot(double mass){
     
     RooPlot *frame = mass_var->frame(Title(Form("Mass fit for %3.1f",mass)));
     frame->GetXaxis()->SetTitle("m_{#gamma#gamma} (GeV)");
-    mass_var->setRange("unblindReg",150,getmassMax());
+    mass_var->setRange("unblindReg_1",getmassMin(),110);
+    mass_var->setRange("unblindReg_2",150,getmassMax());
 		if (blind_) {
-      data->plotOn(frame,Binning(getnDataBins()),CutRange("unblindReg"));
+      data->plotOn(frame,Binning(getnDataBins()),CutRange("unblindReg_1"));
+      data->plotOn(frame,Binning(getnDataBins()),CutRange("unblindReg_2"));
       data->plotOn(frame,Binning(getnDataBins()),Invisible());
 		}
     else data->plotOn(frame,Binning(getnDataBins()));
@@ -162,8 +164,8 @@ void FMTFit::Plot(double mass){
 		text->SetNDC();
 		text->DrawLatex(0.68,0.85,"CMS preliminary");
     text->DrawLatex(0.75,0.78,"#sqrt{s} = 8 TeV");
-		text->DrawLatex(0.73,0.71,Form("#int L = %1.1f fb^{-1}",getintLumi()));
-    if (blind_) text->DrawLatex(0.67,0.64,"Blinded: [100,150]");
+		text->DrawLatex(0.73,0.71,Form("#int L = %1.1f fb^{-1}",(getintLumi()/1000.)));
+    if (blind_) text->DrawLatex(0.67,0.64,"Blinded: [110,150]");
     c1->SaveAs(Form("plots/pdf/fit_m%3.1f.pdf",mass));
     c1->SaveAs(Form("plots/png/fit_m%3.1f.png",mass));
 }
