@@ -46,7 +46,7 @@ void LoopAll::SetAllMVA() {
 //  tmvaReaderID_MIT_Barrel->AddVariable("CoviEtaiPhi", &tmva_id_mit_sieip);
 //  tmvaReaderID_MIT_Barrel->AddVariable("CoviPhiiPhi", &tmva_id_mit_sipip);
   tmvaReaderID_MIT_Barrel->AddVariable("NVertexes",   &tmva_id_mit_nvtx);
-  tmvaReaderID_MIT_Barrel->AddVariable("ScEta",	      &tmva_id_mit_sceta);
+  tmvaReaderID_MIT_Barrel->AddVariable("ScEta",        &tmva_id_mit_sceta);
   tmvaReaderID_MIT_Barrel->AddVariable("EtaWidth",    &tmva_id_mit_etawidth);
   tmvaReaderID_MIT_Barrel->AddVariable("PhiWidth",    &tmva_id_mit_phiwidth);
   //tmvaReaderID_MIT_Barrel->BookMVA("AdaBoost", "TMVAClassificationPhotonID_Barrel_PassPreSel_Variable_6_BDTnCuts2000_BDT.weights.xml");
@@ -66,7 +66,7 @@ void LoopAll::SetAllMVA() {
 //  tmvaReaderID_MIT_Endcap->AddVariable("CoviEtaiPhi", &tmva_id_mit_sieip);
 //  tmvaReaderID_MIT_Endcap->AddVariable("CoviPhiiPhi", &tmva_id_mit_sipip);
   tmvaReaderID_MIT_Endcap->AddVariable("NVertexes",   &tmva_id_mit_nvtx);
-  tmvaReaderID_MIT_Endcap->AddVariable("ScEta",	      &tmva_id_mit_sceta);
+  tmvaReaderID_MIT_Endcap->AddVariable("ScEta",        &tmva_id_mit_sceta);
   tmvaReaderID_MIT_Endcap->AddVariable("EtaWidth",    &tmva_id_mit_etawidth);
   tmvaReaderID_MIT_Endcap->AddVariable("PhiWidth",    &tmva_id_mit_phiwidth);
 /*
@@ -181,10 +181,10 @@ Float_t LoopAll::photonIDMVA(Int_t iPhoton, Int_t vtx, TLorentzVector &p4, const
     Int_t badind=0;
     for(int iv=0; iv<vtx_std_n; iv++) {
       if((*pho_pfiso_mycharged04)[iPhoton][iv]>isomax) {
-	badind=iv; 
-	isomax=(*pho_pfiso_mycharged04)[iPhoton][iv]; 
+  badind=iv; 
+  isomax=(*pho_pfiso_mycharged04)[iPhoton][iv]; 
       }
-	    }
+      }
     
     float rhofacpf[6]    = {0.075, 0.082, 0.143, 0.050, 0.091, 0.106};
     float rhofacbadpf[6] = {0.141, 0.149, 0.208, 0.135, 0.162, 0.165};
@@ -230,7 +230,7 @@ Float_t LoopAll::photonIDMVA(Int_t iPhoton, Int_t vtx, TLorentzVector &p4, const
     tmva_id_mit_sipip    = TMath::Sqrt(pho_sipip[iPhoton]);
     tmva_id_mit_nvtx      = vtx_std_n;
     tmva_id_mit_preshower = sc_pre[pho_scind[iPhoton]]/raw;
-    tmva_id_mit_sceta	  = ((TVector3*)sc_xyz->At(pho_scind[iPhoton]))->Eta();
+    tmva_id_mit_sceta    = ((TVector3*)sc_xyz->At(pho_scind[iPhoton]))->Eta();
 
     // Print all of the variables
 /*
@@ -270,7 +270,7 @@ Float_t LoopAll::diphotonMVA(Int_t leadingPho, Int_t subleadingPho, Int_t vtx, f
   TLorentzVector Higgs = leadP4+subleadP4;
   float leadPt    = leadP4.Pt();
   float subleadPt = subleadP4.Pt();
-  float mass 	  = Higgs.M();
+  float mass     = Higgs.M();
   float diphopt   = Higgs.Pt();
 
   if (type == "UCSD") {
@@ -595,41 +595,41 @@ void LoopAll::eIDInfo(Int_t index, Int_t& iso_result, Int_t& id_result, Int_t eI
 class GlobeVertexInfo : public VertexInfoAdapter
 {
 public:
-	GlobeVertexInfo(LoopAll &);
-	
-	virtual int nvtx() const    { return lo_.vtx_std_n; };
-	virtual int ntracks() const { return lo_.tk_p4->GetEntries(); } // return lo_.tk_n; };
-	
-	virtual bool hasVtxTracks() const { return true; }
-	virtual const unsigned short * vtxTracks(int ii) const { return &(*lo_.vtx_std_tkind)[ii][0]; };
-	virtual int vtxNTracks(int ii) const { return lo_.vtx_std_ntks[ii]; };
-	virtual const float * vtxTkWeights(int ii) const { return &(*lo_.vtx_std_tkweight)[ii][0]; };
+  GlobeVertexInfo(LoopAll &);
+  
+  virtual int nvtx() const    { return lo_.vtx_std_n; };
+  virtual int ntracks() const { return lo_.tk_p4->GetEntries(); } // return lo_.tk_n; };
+  
+  virtual bool hasVtxTracks() const { return true; }
+  virtual const unsigned short * vtxTracks(int ii) const { return &(*lo_.vtx_std_tkind)[ii][0]; };
+  virtual int vtxNTracks(int ii) const { return lo_.vtx_std_ntks[ii]; };
+  virtual const float * vtxTkWeights(int ii) const { return &(*lo_.vtx_std_tkweight)[ii][0]; };
 
-	virtual float tkpx(int ii) const { return ((TLorentzVector*)lo_.tk_p4->At(ii))->Px(); };
-	virtual float tkpy(int ii) const { return ((TLorentzVector*)lo_.tk_p4->At(ii))->Py(); };
-	virtual float tkpz(int ii) const { return ((TLorentzVector*)lo_.tk_p4->At(ii))->Pz(); };
-	
-	virtual float tkPtErr(int ii) const { return lo_.tk_pterr[ii]; };
-	virtual int   tkVtxId(int ii) const { return -1; };
+  virtual float tkpx(int ii) const { return ((TLorentzVector*)lo_.tk_p4->At(ii))->Px(); };
+  virtual float tkpy(int ii) const { return ((TLorentzVector*)lo_.tk_p4->At(ii))->Py(); };
+  virtual float tkpz(int ii) const { return ((TLorentzVector*)lo_.tk_p4->At(ii))->Pz(); };
+  
+  virtual float tkPtErr(int ii) const { return lo_.tk_pterr[ii]; };
+  virtual int   tkVtxId(int ii) const { return -1; };
 
-	virtual float tkWeight(int ii, int jj) const { return (*lo_.vtx_std_tkweight)[jj][ii]; };
-	
-	virtual float vtxx(int ii) const { return ((TVector3*)lo_.vtx_std_xyz->At(ii))->X(); };
-	virtual float vtxy(int ii) const { return ((TVector3*)lo_.vtx_std_xyz->At(ii))->Y(); };
-	virtual float vtxz(int ii) const { return ((TVector3*)lo_.vtx_std_xyz->At(ii))->Z(); };
+  virtual float tkWeight(int ii, int jj) const { return (*lo_.vtx_std_tkweight)[jj][ii]; };
+  
+  virtual float vtxx(int ii) const { return ((TVector3*)lo_.vtx_std_xyz->At(ii))->X(); };
+  virtual float vtxy(int ii) const { return ((TVector3*)lo_.vtx_std_xyz->At(ii))->Y(); };
+  virtual float vtxz(int ii) const { return ((TVector3*)lo_.vtx_std_xyz->At(ii))->Z(); };
 
-	virtual float tkd0(int ii, int jj) const { return 0.; }; // FIXME
-	virtual float tkd0Err(int ii, int jj) const { return 1.; };  // FIXME
+  virtual float tkd0(int ii, int jj) const { return 0.; }; // FIXME
+  virtual float tkd0Err(int ii, int jj) const { return 1.; };  // FIXME
 
-	virtual float tkdz(int ii, int jj) const { return 0.; };  // FIXME
-	virtual float tkdzErr(int ii, int jj) const { return 1.; };  // FIXME
+  virtual float tkdz(int ii, int jj) const { return 0.; };  // FIXME
+  virtual float tkdzErr(int ii, int jj) const { return 1.; };  // FIXME
 
-	virtual bool tkIsHighPurity(int ii) const { return ( lo_.tk_quality[ii] & (1<<2) ) >> 2; };
+  virtual bool tkIsHighPurity(int ii) const { return ( lo_.tk_quality[ii] & (1<<2) ) >> 2; };
 
-	virtual ~GlobeVertexInfo();
-	
+  virtual ~GlobeVertexInfo();
+  
 private:
-	LoopAll & lo_;
+  LoopAll & lo_;
 };
 
 
@@ -644,65 +644,65 @@ GlobeVertexInfo::~GlobeVertexInfo() {};
 void LoopAll::vertexAnalysis(HggVertexAnalyzer & vtxAna,  PhotonInfo pho1, PhotonInfo pho2)
 {
         GlobeVertexInfo vinfo(*this); 
-	//	PhotonInfo
-	  //	  pho1(p1,*((TVector3*)pho_calopos->At(p1)),((TLorentzVector*)pho_p4->At(p1))->Energy()),
-	  //  pho2(p2,*((TVector3*)pho_calopos->At(p2)),((TLorentzVector*)pho_p4->At(p2))->Energy());
-	vtxAna.analyze(vinfo,pho1,pho2);
+  //  PhotonInfo
+    //    pho1(p1,*((TVector3*)pho_calopos->At(p1)),((TLorentzVector*)pho_p4->At(p1))->Energy()),
+    //  pho2(p2,*((TVector3*)pho_calopos->At(p2)),((TLorentzVector*)pho_p4->At(p2))->Energy());
+  vtxAna.analyze(vinfo,pho1,pho2);
 }
 
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 PhotonInfo LoopAll::fillPhotonInfos(int p1, bool useAllConvs, float * energy) 
 {
-	
+  
   int iConv1 = useAllConvs ? matchPhotonToConversion(p1) : -1;
-		
+    
   if ( iConv1 >= 0) {
     // conversions infos
     return PhotonInfo(p1,
-		      // *((TVector3*)pho_calopos->At(p1)),
-		      *((TVector3*)sc_xyz->At(pho_scind[p1])),
-		      *((TVector3*) bs_xyz->At(0)),
-		      *((TVector3*) conv_vtx->At(iConv1)),
-		      conv_ntracks[iConv1] == 1 ? *((TVector3*) conv_singleleg_momentum->At(iConv1)) : *((TVector3*) conv_refitted_momentum->At(iConv1)),
-		      energy == 0 ? ((TLorentzVector*)pho_p4->At(p1))->Energy() : energy[p1],
-		      pho_isEB[p1],
-		      conv_ntracks[iConv1],
-		      conv_validvtx[iConv1],
-		      conv_chi2_probability[iConv1],
-		      conv_eoverp[iConv1]
-		      );
+          // *((TVector3*)pho_calopos->At(p1)),
+          *((TVector3*)sc_xyz->At(pho_scind[p1])),
+          *((TVector3*) bs_xyz->At(0)),
+          *((TVector3*) conv_vtx->At(iConv1)),
+          conv_ntracks[iConv1] == 1 ? *((TVector3*) conv_singleleg_momentum->At(iConv1)) : *((TVector3*) conv_refitted_momentum->At(iConv1)),
+          energy == 0 ? ((TLorentzVector*)pho_p4->At(p1))->Energy() : energy[p1],
+          pho_isEB[p1],
+          conv_ntracks[iConv1],
+          conv_validvtx[iConv1],
+          conv_chi2_probability[iConv1],
+          conv_eoverp[iConv1]
+          );
   } 
   //// else {
-  //// 	return PhotonInfo(p1,*((TVector3*)pho_calopos->At(p1)),((TLorentzVector*)pho_p4->At(p1))->Energy());
+  ////   return PhotonInfo(p1,*((TVector3*)pho_calopos->At(p1)),((TLorentzVector*)pho_p4->At(p1))->Energy());
   //// }
-	
+  
   return PhotonInfo(p1, 
-		    // *((TVector3*)pho_calopos->At(p1)),                                                                                                                
-		    *((TVector3*)sc_xyz->At(pho_scind[p1])),
-		    *((TVector3*) bs_xyz->At(0)),
-		    *((TVector3*) pho_conv_vtx->At(p1)),
-		    *((TVector3*) pho_conv_refitted_momentum->At(p1)),
-		    energy == 0 ? ((TLorentzVector*)pho_p4->At(p1))->Energy() : energy[p1],
-		    pho_isEB[p1],
-		    pho_conv_ntracks[p1],
-		    pho_conv_validvtx[p1],
-		    pho_conv_chi2_probability[p1],
-		    pho_conv_eoverp[p1]                                                                                                                               
-		    );
+        // *((TVector3*)pho_calopos->At(p1)),                                                                                                                
+        *((TVector3*)sc_xyz->At(pho_scind[p1])),
+        *((TVector3*) bs_xyz->At(0)),
+        *((TVector3*) pho_conv_vtx->At(p1)),
+        *((TVector3*) pho_conv_refitted_momentum->At(p1)),
+        energy == 0 ? ((TLorentzVector*)pho_p4->At(p1))->Energy() : energy[p1],
+        pho_isEB[p1],
+        pho_conv_ntracks[p1],
+        pho_conv_validvtx[p1],
+        pho_conv_chi2_probability[p1],
+        pho_conv_eoverp[p1]                                                                                                                               
+        );
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 std::vector<int> LoopAll::vertexSelection(HggVertexAnalyzer & vtxAna, HggVertexFromConversions & vtxAnaFromConv, 
-					  PhotonInfo & pho1, PhotonInfo & pho2, std::vector<std::string> & vtxVarNames, 
-					  bool useMva, TMVA::Reader * tmvaReader, std::string tmvaMethod)
+            PhotonInfo & pho1, PhotonInfo & pho2, std::vector<std::string> & vtxVarNames, 
+            bool useMva, TMVA::Reader * tmvaReader, std::string tmvaMethod)
 {
-	int p1 = pho1.id(), p2 = pho2.id();
-	// assert( p1 == vtxAna.pho1() && p2 == vtxAna.pho2() );
-	vtxAna.setPairID(p1,p2);
-	if( useMva ) { return vtxAna.rank(*tmvaReader,tmvaMethod); }
-	
-	// preselect vertices : all vertices
+  int p1 = pho1.id(), p2 = pho2.id();
+  // assert( p1 == vtxAna.pho1() && p2 == vtxAna.pho2() );
+  vtxAna.setPairID(p1,p2);
+  if( useMva ) { return vtxAna.rank(*tmvaReader,tmvaMethod); }
+  
+  // preselect vertices : all vertices
         std::vector<int> preselAll;
         for(int i=0; i<vtx_std_n ; i++) {
           preselAll.push_back(i); 
@@ -715,17 +715,17 @@ std::vector<int> LoopAll::vertexSelection(HggVertexAnalyzer & vtxAna, HggVertexF
         if ( (pho1.isAConversion() || pho2.isAConversion() ) )  {
 
           // at least one of the photons is identified as a conversion
-	  
+    
           if (pho1.isAConversion()  && !pho2.isAConversion() ){
             zconv  = vtxAnaFromConv.vtxZ(pho1);
             dzconv = vtxAnaFromConv.vtxdZ(pho1);
           }
-	  
+    
           if (pho2.isAConversion() && !pho1.isAConversion()){
             zconv  = vtxAnaFromConv.vtxZ(pho2);
             dzconv = vtxAnaFromConv.vtxdZ(pho2);
           }
-	  
+    
           if ( pho1.isAConversion() && pho2.isAConversion()){
             float z1  = vtxAnaFromConv.vtxZ(pho1);
             float dz1 = vtxAnaFromConv.vtxdZ(pho1);
@@ -736,62 +736,62 @@ std::vector<int> LoopAll::vertexSelection(HggVertexAnalyzer & vtxAna, HggVertexF
             zconv  = (z1/dz1/dz1 + z2/dz2/dz2)/(1./dz1/dz1 + 1./dz2/dz2 );  // weighted average
             dzconv = sqrt( 1./(1./dz1/dz1 + 1./dz2/dz2)) ;
           }
-	  
-	  // preselect vertices : only vertices in a window zconv +/- dzconv
-	  for(int i=0; i < vtx_std_n; i++) {
-	    TVector3 * vtxpos= (TVector3 *) vtx_std_xyz->At(i);
-	    if ( fabs(zconv - vtxpos->Z() ) < dzconv ) 
+    
+    // preselect vertices : only vertices in a window zconv +/- dzconv
+    for(int i=0; i < vtx_std_n; i++) {
+      TVector3 * vtxpos= (TVector3 *) vtx_std_xyz->At(i);
+      if ( fabs(zconv - vtxpos->Z() ) < dzconv ) 
               preselConv.push_back(i); 
           }
-	  
+    
         } // end if at least one photon is a conversion
-	
-	// ---- METHOD 1 	
-	// preselection 
-	//	if ( preselConv.size()==0 )
+  
+  // ---- METHOD 1   
+  // preselection 
+  //  if ( preselConv.size()==0 )
         //  vtxAna.preselection(preselAll);
         //else
         //  vtxAna.preselection(preselConv);
-	
-	//std::vector<int> rankprod = vtxAna.rankprod(vtxVarNames);
-	
-	// ---- METHOD 1 
+  
+  //std::vector<int> rankprod = vtxAna.rankprod(vtxVarNames);
+  
+  // ---- METHOD 1 
 
-	
-	// ---- NEW METHOD 2 (suggested by MarcoP) : first use ranking, then conversions info, e.g. on the N vtxs with best rank
-	// preselection  : all vtxs
-	std::vector<int> rankprodAll = useMva ? vtxAna.rank(*tmvaReader,tmvaMethod) : vtxAna.rankprod(vtxVarNames);
-	int iClosestConv = -1;
-	float dminconv = 9999999;
-	
-	TLorentzVector dipho = get_pho_p4( p1, 0 ) + get_pho_p4( p2, 0 ) ;
-	
-	int nbest ;
-	if (  dipho.Pt() < 30 ) nbest = 5;
-	else nbest = 3; 
-	if (rankprodAll.size() < nbest ) nbest = rankprodAll.size();
+  
+  // ---- NEW METHOD 2 (suggested by MarcoP) : first use ranking, then conversions info, e.g. on the N vtxs with best rank
+  // preselection  : all vtxs
+  std::vector<int> rankprodAll = useMva ? vtxAna.rank(*tmvaReader,tmvaMethod) : vtxAna.rankprod(vtxVarNames);
+  int iClosestConv = -1;
+  float dminconv = 9999999;
+  
+  TLorentzVector dipho = get_pho_p4( p1, 0 ) + get_pho_p4( p2, 0 ) ;
+  
+  int nbest ;
+  if (  dipho.Pt() < 30 ) nbest = 5;
+  else nbest = 3; 
+  if (rankprodAll.size() < nbest ) nbest = rankprodAll.size();
 
-	for (int ii = 0; ii < nbest; ii++ ){
-	   TVector3 * vtxpos= (TVector3 *) vtx_std_xyz->At(rankprodAll[ii]);
-	   if ( fabs( vtxpos->Z()-zconv ) < dzconv && fabs(vtxpos->Z() - zconv ) < dminconv){
-	     iClosestConv = rankprodAll[ii];
-	     dminconv = fabs(vtxpos->Z()-zconv );
-	   }
-	}
-	std::vector<int> rankprod;
-	rankprod.clear();
-	if (iClosestConv!=-1 ) rankprod.push_back(iClosestConv);
+  for (int ii = 0; ii < nbest; ii++ ){
+     TVector3 * vtxpos= (TVector3 *) vtx_std_xyz->At(rankprodAll[ii]);
+     if ( fabs( vtxpos->Z()-zconv ) < dzconv && fabs(vtxpos->Z() - zconv ) < dminconv){
+       iClosestConv = rankprodAll[ii];
+       dminconv = fabs(vtxpos->Z()-zconv );
+     }
+  }
+  std::vector<int> rankprod;
+  rankprod.clear();
+  if (iClosestConv!=-1 ) rankprod.push_back(iClosestConv);
 
-	//for (int kk = 0; kk  < nbest; kk++ ){
-	for (int kk = 0; kk  < rankprodAll.size(); kk++ ){
-	  if ( iClosestConv == rankprodAll[kk] ) continue;
-	  else rankprod.push_back(rankprodAll[kk]);
-	}
-	// ---- METHOD 2
+  //for (int kk = 0; kk  < nbest; kk++ ){
+  for (int kk = 0; kk  < rankprodAll.size(); kk++ ){
+    if ( iClosestConv == rankprodAll[kk] ) continue;
+    else rankprod.push_back(rankprodAll[kk]);
+  }
+  // ---- METHOD 2
 
 
  
-	return rankprod;
+  return rankprod;
 }
 
 //----------------------------------------------------------------------
@@ -869,7 +869,7 @@ double LoopAll::etaTransformation(  float EtaParticle , float Zvertex)  {
       float RR = Zlen/sinh(EtaParticle); 
       Theta = atan(RR/Zend);
       if(Theta<0.0) Theta = Theta+pi ;
-      ETA = - log(tan(0.5*Theta));		      
+      ETA = - log(tan(0.5*Theta));          
     } 
   //---Return the result
   return ETA;
@@ -975,153 +975,153 @@ double LoopAll::get_pho_zposfromconv(TVector3 convvtx, TVector3 superclustervtx,
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 TLorentzVector LoopAll::get_pho_p4(int ipho, int ivtx, const float * energy) const
 {
-	/// /// PhotonInfo p(ipho, *((TVector3*)sc_xyz->At(pho_scind[ipho])),
-	/// PhotonInfo p(ipho, *((TVector3*)pho_calopos->At(ipho)),
-	/// 	     energy != 0 ? energy[ipho] : ((TLorentzVector*)pho_p4->At(ipho))->Energy() );
-	/// TVector3 * vtx = (TVector3*) vtx_std_xyz->At(ivtx);
-	/// return p.p4( vtx->X(), vtx->Y(), vtx->Z() );
-	TVector3 * vtx = (TVector3*) vtx_std_xyz->At(ivtx);
-	return get_pho_p4(ipho,vtx,energy);
+  /// /// PhotonInfo p(ipho, *((TVector3*)sc_xyz->At(pho_scind[ipho])),
+  /// PhotonInfo p(ipho, *((TVector3*)pho_calopos->At(ipho)),
+  ///        energy != 0 ? energy[ipho] : ((TLorentzVector*)pho_p4->At(ipho))->Energy() );
+  /// TVector3 * vtx = (TVector3*) vtx_std_xyz->At(ivtx);
+  /// return p.p4( vtx->X(), vtx->Y(), vtx->Z() );
+  TVector3 * vtx = (TVector3*) vtx_std_xyz->At(ivtx);
+  return get_pho_p4(ipho,vtx,energy);
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 TLorentzVector LoopAll::get_pho_p4(int ipho, TVector3 * vtx, const float * energy) const
 {
-	/// PhotonInfo p(ipho, *((TVector3*)sc_xyz->At(pho_scind[ipho])),
-	PhotonInfo p(ipho, *((TVector3*)sc_xyz->At(pho_scind[ipho])),
-		     energy != 0 ? energy[ipho] : ((TLorentzVector*)pho_p4->At(ipho))->Energy() );
-	return p.p4( vtx->X(), vtx->Y(), vtx->Z() );
+  /// PhotonInfo p(ipho, *((TVector3*)sc_xyz->At(pho_scind[ipho])),
+  PhotonInfo p(ipho, *((TVector3*)sc_xyz->At(pho_scind[ipho])),
+         energy != 0 ? energy[ipho] : ((TLorentzVector*)pho_p4->At(ipho))->Energy() );
+  return p.p4( vtx->X(), vtx->Y(), vtx->Z() );
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 void LoopAll::set_pho_p4(int ipho, int ivtx, float *pho_energy_array)
 {
-	*((TLorentzVector*)pho_p4->At(ipho)) = get_pho_p4(ipho,ivtx,pho_energy_array);
+  *((TLorentzVector*)pho_p4->At(ipho)) = get_pho_p4(ipho,ivtx,pho_energy_array);
 }
 
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 void LoopAll::FillCICInputs()
 {
-	pho_tkiso_recvtx_030_002_0000_10_01->clear(); pho_tkiso_recvtx_030_002_0000_10_01->resize(pho_n,std::vector<float>(vtx_std_n,0.));
-	
+  pho_tkiso_recvtx_030_002_0000_10_01->clear(); pho_tkiso_recvtx_030_002_0000_10_01->resize(pho_n,std::vector<float>(vtx_std_n,0.));
+  
   pho_ZeeVal_tkiso_recvtx_030_002_0000_10_01->clear(); pho_ZeeVal_tkiso_recvtx_030_002_0000_10_01->resize(pho_n,std::vector<float>(vtx_std_n,0.));
-	
-	for(int ipho=0;ipho<pho_n;++ipho){
-		// TLorentzVector * phop4 = (TLorentzVector*)pho_p4->At(ipho);
-		std::pair<Int_t, Float_t> worse_iso = WorstSumTrackPtInCone(ipho, 0,0, 0.40, 0.02, 0.0, 1.0, 0.1); 
-		pho_tkiso_badvtx_040_002_0000_10_01[ipho] = worse_iso.second;
-		pho_tkiso_badvtx_id[ipho] = worse_iso.first;
-		pho_drtotk_25_99[ipho] = DeltaRToTrack(ipho, vtx_std_sel, 2.5, 99.);
-		
+  
+  for(int ipho=0;ipho<pho_n;++ipho){
+    // TLorentzVector * phop4 = (TLorentzVector*)pho_p4->At(ipho);
+    std::pair<Int_t, Float_t> worse_iso = WorstSumTrackPtInCone(ipho, 0,0, 0.40, 0.02, 0.0, 1.0, 0.1); 
+    pho_tkiso_badvtx_040_002_0000_10_01[ipho] = worse_iso.second;
+    pho_tkiso_badvtx_id[ipho] = worse_iso.first;
+    pho_drtotk_25_99[ipho] = DeltaRToTrack(ipho, vtx_std_sel, 2.5, 99.);
+    
     std::pair<Int_t, Float_t> worse_ZeeVal_iso = WorstSumTrackPtInCone(ipho, 0,0, 0.40, 0.02, 0.0, 1.0, 0.1, true); 
-		pho_ZeeVal_tkiso_badvtx_040_002_0000_10_01[ipho] = worse_iso.second;
-		pho_ZeeVal_tkiso_badvtx_id[ipho] = worse_iso.first;
-		
-		for(int ivtx=0;ivtx<vtx_std_n;++ivtx) {
-			TLorentzVector p4 = get_pho_p4( ipho, ivtx );
-			(*pho_tkiso_recvtx_030_002_0000_10_01)[ipho][ivtx] = SumTrackPtInCone(&p4, ivtx, 0, 0.30, 0.02, 0.0, 1.0, 0.1);
-			(*pho_ZeeVal_tkiso_recvtx_030_002_0000_10_01)[ipho][ivtx] = SumTrackPtInCone(&p4, ivtx, 0, 0.30, 0.02, 0.0, 1.0, 0.1,true,ipho);
+    pho_ZeeVal_tkiso_badvtx_040_002_0000_10_01[ipho] = worse_iso.second;
+    pho_ZeeVal_tkiso_badvtx_id[ipho] = worse_iso.first;
+    
+    for(int ivtx=0;ivtx<vtx_std_n;++ivtx) {
+      TLorentzVector p4 = get_pho_p4( ipho, ivtx );
+      (*pho_tkiso_recvtx_030_002_0000_10_01)[ipho][ivtx] = SumTrackPtInCone(&p4, ivtx, 0, 0.30, 0.02, 0.0, 1.0, 0.1);
+      (*pho_ZeeVal_tkiso_recvtx_030_002_0000_10_01)[ipho][ivtx] = SumTrackPtInCone(&p4, ivtx, 0, 0.30, 0.02, 0.0, 1.0, 0.1,true,ipho);
       
       // Need to fill the CiCpf here
       float largestIso= -1;
-		  if((*pho_pfiso_mycharged04)[ipho][ivtx] > largestIso){
+      if((*pho_pfiso_mycharged04)[ipho][ivtx] > largestIso){
         pho_pfiso_charged_badvtx_04[ipho]=(*pho_pfiso_mycharged04)[ipho][ivtx];
         pho_pfiso_charged_badvtx_id[ipho]=ivtx;
       }
 
-		}
-	}
+    }
+  }
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 void LoopAll::FillCIC()
 {
-	// 6 categories
-	pho_cic6passcuts_lead->clear(); pho_cic6passcuts_lead->resize( pho_n, std::vector<std::vector<UInt_t> >(vtx_std_n, std::vector<UInt_t> (phoNCUTLEVELS,0) ) ); 
-	pho_cic6cutlevel_lead->clear(); pho_cic6cutlevel_lead->resize( pho_n, std::vector<Short_t>(vtx_std_n,0) );
-	pho_cic6passcuts_sublead->clear(); pho_cic6passcuts_sublead->resize( pho_n, std::vector<std::vector<UInt_t> >(vtx_std_n,std::vector<UInt_t>(phoNCUTLEVELS,0)) ); 
-	pho_cic6cutlevel_sublead->clear(); pho_cic6cutlevel_sublead->resize( pho_n, std::vector<Short_t>(vtx_std_n,0) );
-	std::vector<std::vector<bool> > cic6_passcut_lead, cic6_passcut_sublead;
-	// 4 categories
-	pho_cic4passcuts_lead->clear(); pho_cic4passcuts_lead->resize( pho_n, std::vector<std::vector<UInt_t> >(vtx_std_n, std::vector<UInt_t>(phoNCUTLEVELS,0) ) ); 
-	pho_cic4cutlevel_lead->clear(); pho_cic4cutlevel_lead->resize( pho_n, std::vector<Short_t>(vtx_std_n,0) );
-	pho_cic4passcuts_sublead->clear(); pho_cic4passcuts_sublead->resize( pho_n, std::vector<std::vector<UInt_t> >(vtx_std_n, std::vector<UInt_t>(phoNCUTLEVELS,0) ) ); 
-	pho_cic4cutlevel_sublead->clear(); pho_cic4cutlevel_sublead->resize( pho_n, std::vector<Short_t>(vtx_std_n,0) );
-	std::vector<std::vector<bool> > cic4_passcut_lead, cic4_passcut_sublead;
+  // 6 categories
+  pho_cic6passcuts_lead->clear(); pho_cic6passcuts_lead->resize( pho_n, std::vector<std::vector<UInt_t> >(vtx_std_n, std::vector<UInt_t> (phoNCUTLEVELS,0) ) ); 
+  pho_cic6cutlevel_lead->clear(); pho_cic6cutlevel_lead->resize( pho_n, std::vector<Short_t>(vtx_std_n,0) );
+  pho_cic6passcuts_sublead->clear(); pho_cic6passcuts_sublead->resize( pho_n, std::vector<std::vector<UInt_t> >(vtx_std_n,std::vector<UInt_t>(phoNCUTLEVELS,0)) ); 
+  pho_cic6cutlevel_sublead->clear(); pho_cic6cutlevel_sublead->resize( pho_n, std::vector<Short_t>(vtx_std_n,0) );
+  std::vector<std::vector<bool> > cic6_passcut_lead, cic6_passcut_sublead;
+  // 4 categories
+  pho_cic4passcuts_lead->clear(); pho_cic4passcuts_lead->resize( pho_n, std::vector<std::vector<UInt_t> >(vtx_std_n, std::vector<UInt_t>(phoNCUTLEVELS,0) ) ); 
+  pho_cic4cutlevel_lead->clear(); pho_cic4cutlevel_lead->resize( pho_n, std::vector<Short_t>(vtx_std_n,0) );
+  pho_cic4passcuts_sublead->clear(); pho_cic4passcuts_sublead->resize( pho_n, std::vector<std::vector<UInt_t> >(vtx_std_n, std::vector<UInt_t>(phoNCUTLEVELS,0) ) ); 
+  pho_cic4cutlevel_sublead->clear(); pho_cic4cutlevel_sublead->resize( pho_n, std::vector<Short_t>(vtx_std_n,0) );
+  std::vector<std::vector<bool> > cic4_passcut_lead, cic4_passcut_sublead;
   
   // PF - 4 categories
-	pho_cic4pfpasscuts_lead->clear(); pho_cic4pfpasscuts_lead->resize( pho_n, std::vector<std::vector<UInt_t> >(vtx_std_n, std::vector<UInt_t>(phoNCUTLEVELS,0) ) ); 
-	pho_cic4pfcutlevel_lead->clear(); pho_cic4pfcutlevel_lead->resize( pho_n, std::vector<Short_t>(vtx_std_n,0) );
-	pho_cic4pfpasscuts_sublead->clear(); pho_cic4pfpasscuts_sublead->resize( pho_n, std::vector<std::vector<UInt_t> >(vtx_std_n, std::vector<UInt_t>(phoNCUTLEVELS,0) ) ); 
-	pho_cic4pfcutlevel_sublead->clear(); pho_cic4pfcutlevel_sublead->resize( pho_n, std::vector<Short_t>(vtx_std_n,0) );
-	std::vector<std::vector<bool> > cic4pf_passcut_lead, cic4pf_passcut_sublead;
-	
-	for(int ipho=0;ipho<pho_n;++ipho){
-		for(int ivtx=0;ivtx<vtx_std_n;++ivtx){
-			// 6 categories
-			int cic6_level_lead = PhotonCiCSelectionLevel(ipho, ivtx, cic6_passcut_lead, 6, 0);
-			int cic6_level_sublead = PhotonCiCSelectionLevel(ipho, ivtx, cic6_passcut_sublead, 6, 1);
-			(*pho_cic6cutlevel_lead)[ipho][ivtx] = cic6_level_lead;
-			(*pho_cic6cutlevel_sublead)[ipho][ivtx] = cic6_level_sublead;
-			// 4 categories
-			int cic4_level_lead = PhotonCiCSelectionLevel(ipho, ivtx, cic4_passcut_lead, 4, 0);
-			int cic4_level_sublead = PhotonCiCSelectionLevel(ipho, ivtx, cic4_passcut_sublead, 4, 1);
-			(*pho_cic4cutlevel_lead)[ipho][ivtx] = cic4_level_lead;
-			(*pho_cic4cutlevel_sublead)[ipho][ivtx] = cic4_level_sublead;
-		
-			// PF - 4 categories
-			int cic4pf_level_lead = PhotonCiCPFSelectionLevel(ipho, ivtx, cic4pf_passcut_lead, 4, 0);
-			if(GFDEBUG) std::cout<<"cic4pf_level_lead  "<<cic4pf_level_lead<<std::endl;
+  pho_cic4pfpasscuts_lead->clear(); pho_cic4pfpasscuts_lead->resize( pho_n, std::vector<std::vector<UInt_t> >(vtx_std_n, std::vector<UInt_t>(phoNCUTLEVELS,0) ) ); 
+  pho_cic4pfcutlevel_lead->clear(); pho_cic4pfcutlevel_lead->resize( pho_n, std::vector<Short_t>(vtx_std_n,0) );
+  pho_cic4pfpasscuts_sublead->clear(); pho_cic4pfpasscuts_sublead->resize( pho_n, std::vector<std::vector<UInt_t> >(vtx_std_n, std::vector<UInt_t>(phoNCUTLEVELS,0) ) ); 
+  pho_cic4pfcutlevel_sublead->clear(); pho_cic4pfcutlevel_sublead->resize( pho_n, std::vector<Short_t>(vtx_std_n,0) );
+  std::vector<std::vector<bool> > cic4pf_passcut_lead, cic4pf_passcut_sublead;
+  
+  for(int ipho=0;ipho<pho_n;++ipho){
+    for(int ivtx=0;ivtx<vtx_std_n;++ivtx){
+      // 6 categories
+      int cic6_level_lead = PhotonCiCSelectionLevel(ipho, ivtx, cic6_passcut_lead, 6, 0);
+      int cic6_level_sublead = PhotonCiCSelectionLevel(ipho, ivtx, cic6_passcut_sublead, 6, 1);
+      (*pho_cic6cutlevel_lead)[ipho][ivtx] = cic6_level_lead;
+      (*pho_cic6cutlevel_sublead)[ipho][ivtx] = cic6_level_sublead;
+      // 4 categories
+      int cic4_level_lead = PhotonCiCSelectionLevel(ipho, ivtx, cic4_passcut_lead, 4, 0);
+      int cic4_level_sublead = PhotonCiCSelectionLevel(ipho, ivtx, cic4_passcut_sublead, 4, 1);
+      (*pho_cic4cutlevel_lead)[ipho][ivtx] = cic4_level_lead;
+      (*pho_cic4cutlevel_sublead)[ipho][ivtx] = cic4_level_sublead;
+    
+      // PF - 4 categories
+      int cic4pf_level_lead = PhotonCiCPFSelectionLevel(ipho, ivtx, cic4pf_passcut_lead, 4, 0);
+      if(GFDEBUG) std::cout<<"cic4pf_level_lead  "<<cic4pf_level_lead<<std::endl;
       int cic4pf_level_sublead = PhotonCiCPFSelectionLevel(ipho, ivtx, cic4pf_passcut_sublead, 4, 1);
-			if(GFDEBUG) std::cout<<"cic4pf_level_sublead  "<<cic4pf_level_sublead<<std::endl;
-			(*pho_cic4pfcutlevel_lead)[ipho][ivtx] = cic4pf_level_lead;
-			(*pho_cic4pfcutlevel_sublead)[ipho][ivtx] = cic4pf_level_sublead;
-		
-			for(int iCUTLEVEL=0;iCUTLEVEL!=(int)phoNCUTLEVELS;++iCUTLEVEL) {
-				// 6 categories
-				UInt_t cic6_leadw=0, cic6_subleadw=0;
-				for(size_t icut=0; icut<cic6_passcut_lead.size(); ++icut) {
-					cic6_leadw |= ( (!cic6_passcut_lead[iCUTLEVEL][icut] & 0x1) << icut);
-				}
-				(*pho_cic6passcuts_lead)[ipho][ivtx][iCUTLEVEL] = cic6_leadw;
-				for(size_t icut=0; icut<cic6_passcut_sublead.size(); ++icut) {
-					cic6_subleadw |= ( (!cic6_passcut_sublead[iCUTLEVEL][icut] & 0x1) << icut);
-				}
-				(*pho_cic6passcuts_sublead)[ipho][ivtx][iCUTLEVEL] = cic6_subleadw;
-			
+      if(GFDEBUG) std::cout<<"cic4pf_level_sublead  "<<cic4pf_level_sublead<<std::endl;
+      (*pho_cic4pfcutlevel_lead)[ipho][ivtx] = cic4pf_level_lead;
+      (*pho_cic4pfcutlevel_sublead)[ipho][ivtx] = cic4pf_level_sublead;
+    
+      for(int iCUTLEVEL=0;iCUTLEVEL!=(int)phoNCUTLEVELS;++iCUTLEVEL) {
+        // 6 categories
+        UInt_t cic6_leadw=0, cic6_subleadw=0;
+        for(size_t icut=0; icut<cic6_passcut_lead.size(); ++icut) {
+          cic6_leadw |= ( (!cic6_passcut_lead[iCUTLEVEL][icut] & 0x1) << icut);
+        }
+        (*pho_cic6passcuts_lead)[ipho][ivtx][iCUTLEVEL] = cic6_leadw;
+        for(size_t icut=0; icut<cic6_passcut_sublead.size(); ++icut) {
+          cic6_subleadw |= ( (!cic6_passcut_sublead[iCUTLEVEL][icut] & 0x1) << icut);
+        }
+        (*pho_cic6passcuts_sublead)[ipho][ivtx][iCUTLEVEL] = cic6_subleadw;
+      
         // 4 categories
-				UInt_t cic4_leadw=0, cic4_subleadw=0;
-				for(size_t icut=0; icut<cic4_passcut_lead.size(); ++icut) {
-					cic4_leadw |= ( (!cic4_passcut_lead[iCUTLEVEL][icut] & 0x1) << icut);
-				}
-				(*pho_cic4passcuts_lead)[ipho][ivtx][iCUTLEVEL] = cic4_leadw;
-				for(size_t icut=0; icut<cic4_passcut_sublead.size(); ++icut) {
-					cic4_subleadw |= ( (!cic4_passcut_sublead[iCUTLEVEL][icut] & 0x1) << icut);
-				}
-				(*pho_cic4passcuts_sublead)[ipho][ivtx][iCUTLEVEL] = cic4_subleadw;
-				
+        UInt_t cic4_leadw=0, cic4_subleadw=0;
+        for(size_t icut=0; icut<cic4_passcut_lead.size(); ++icut) {
+          cic4_leadw |= ( (!cic4_passcut_lead[iCUTLEVEL][icut] & 0x1) << icut);
+        }
+        (*pho_cic4passcuts_lead)[ipho][ivtx][iCUTLEVEL] = cic4_leadw;
+        for(size_t icut=0; icut<cic4_passcut_sublead.size(); ++icut) {
+          cic4_subleadw |= ( (!cic4_passcut_sublead[iCUTLEVEL][icut] & 0x1) << icut);
+        }
+        (*pho_cic4passcuts_sublead)[ipho][ivtx][iCUTLEVEL] = cic4_subleadw;
+        
         // PF - 4 categories
-				UInt_t cic4pf_leadw=0, cic4pf_subleadw=0;
-				for(size_t icut=0; icut<cic4pf_passcut_lead.size(); ++icut) {
-					cic4pf_leadw |= ( (!cic4pf_passcut_lead[iCUTLEVEL][icut] & 0x1) << icut);
-				}
-				(*pho_cic4pfpasscuts_lead)[ipho][ivtx][iCUTLEVEL] = cic4pf_leadw;
-				for(size_t icut=0; icut<cic4pf_passcut_sublead.size(); ++icut) {
-					cic4pf_subleadw |= ( (!cic4pf_passcut_sublead[iCUTLEVEL][icut] & 0x1) << icut);
-				}
-				(*pho_cic4pfpasscuts_sublead)[ipho][ivtx][iCUTLEVEL] = cic4pf_subleadw;
-			}
-		}
-	}
+        UInt_t cic4pf_leadw=0, cic4pf_subleadw=0;
+        for(size_t icut=0; icut<cic4pf_passcut_lead.size(); ++icut) {
+          cic4pf_leadw |= ( (!cic4pf_passcut_lead[iCUTLEVEL][icut] & 0x1) << icut);
+        }
+        (*pho_cic4pfpasscuts_lead)[ipho][ivtx][iCUTLEVEL] = cic4pf_leadw;
+        for(size_t icut=0; icut<cic4pf_passcut_sublead.size(); ++icut) {
+          cic4pf_subleadw |= ( (!cic4pf_passcut_sublead[iCUTLEVEL][icut] & 0x1) << icut);
+        }
+        (*pho_cic4pfpasscuts_sublead)[ipho][ivtx][iCUTLEVEL] = cic4pf_subleadw;
+      }
+    }
+  }
 }
 
 
 // CiC SELECTION CODE BEGIN - SSIMON
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 void LoopAll::SetPhotonCutsInCategories(phoCiCIDLevel cutlevel, float * cic6_allcuts_lead, float * cic6_allcuts_sublead, 
-					float * cic4_allcuts_lead, float * cic4_allcuts_sublead,
-					float * cic4pf_allcuts_lead, float * cic4pf_allcuts_sublead) {
+          float * cic4_allcuts_lead, float * cic4_allcuts_sublead,
+          float * cic4pf_allcuts_lead, float * cic4pf_allcuts_sublead) {
 
   //thresholds are in this order below
   // isosumoet[]
@@ -1158,618 +1158,980 @@ void LoopAll::SetPhotonCutsInCategories(phoCiCIDLevel cutlevel, float * cic6_all
 
 
 
-  const unsigned int ncuts = 8;
-  const unsigned int ncat_cic6 = 6;
-  const unsigned int ncat_cic4 = 4;
-  switch(cutlevel) {
-  case(phoNOCUTS) : {
-                        float cic6_allcuts_temp_lead[] = { 
-                          1e+09,     1e+09,     1e+09,     1e+09,     1e+09,     1e+09,
-                          1e+09,     1e+09,     1e+09,     1e+09,     1e+09,     1e+09,
-                          1e+09,     1e+09,     1e+09,     1e+09,     1e+09,     1e+09,
-                          1e+09,     1e+09,     1e+09,     1e+09,     1e+09,     1e+09,
-                          1e+09,     1e+09,     1e+09,     1e+09,     1e+09,     1e+09,
-                          -1e+09,    -1e+09,    -1e+09,    -1e+09,    -1e+09,    -1e+09,
-                          -1e+09,    -1e+09,    -1e+09,    -1e+09,    -1e+09,    -1e+09,
-                          1.5,         1.5,         1.5,         1.5,         1.5,         1.5 };
-                        float cic6_allcuts_temp_sublead[] = { 
-                          1e+09,     1e+09,     1e+09,     1e+09,     1e+09,     1e+09,
-                          1e+09,     1e+09,     1e+09,     1e+09,     1e+09,     1e+09,
-                          1e+09,     1e+09,     1e+09,     1e+09,     1e+09,     1e+09,
-                          1e+09,     1e+09,     1e+09,     1e+09,     1e+09,     1e+09,
-                          1e+09,     1e+09,     1e+09,     1e+09,     1e+09,     1e+09,
-                          -1e+09,    -1e+09,    -1e+09,    -1e+09,    -1e+09,    -1e+09,
-                          -1e+09,    -1e+09,    -1e+09,    -1e+09,    -1e+09,    -1e+09,
-                          1.5,         1.5,         1.5,         1.5,         1.5,         1.5 };
-                        float cic4_allcuts_temp_lead[] = { 
-                          1e+09,     1e+09,     1e+09,     1e+09,
-                          1e+09,     1e+09,     1e+09,     1e+09,
-                          1e+09,     1e+09,     1e+09,     1e+09,
-                          1e+09,     1e+09,     1e+09,     1e+09,
-                          1e+09,     1e+09,     1e+09,     1e+09,
-                          -1e+09,    -1e+09,    -1e+09,    -1e+09,
-                          -1e+09,    -1e+09,    -1e+09,    -1e+09,
-                          1.5,         1.5,         1.5,         1.5 };
-                        float cic4_allcuts_temp_sublead[] = { 
-                          1e+09,     1e+09,     1e+09,     1e+09,
-                          1e+09,     1e+09,     1e+09,     1e+09,
-                          1e+09,     1e+09,     1e+09,     1e+09,
-                          1e+09,     1e+09,     1e+09,     1e+09,
-                          1e+09,     1e+09,     1e+09,     1e+09,
-                          -1e+09,    -1e+09,    -1e+09,    -1e+09,
-                          -1e+09,    -1e+09,    -1e+09,    -1e+09,
-                          1.5,         1.5,         1.5,         1.5 };
-                        for(int i=0;i!=ncuts*ncat_cic6;++i) { cic6_allcuts_lead[i]=cic6_allcuts_temp_lead[i];
-                          cic6_allcuts_sublead[i]=cic6_allcuts_temp_sublead[i]; }
-                          for(int i=0;i!=ncuts*ncat_cic4;++i) { cic4_allcuts_lead[i]=cic4_allcuts_temp_lead[i];
-                            cic4_allcuts_sublead[i]=cic4_allcuts_temp_sublead[i]; }
+    const unsigned int ncuts = 8;
+    const unsigned int ncat_cic6 = 6;
+    const unsigned int ncat_cic4 = 4;
+    switch(cutlevel) {
+    case(phoNOCUTS) : {
+        float cic6_allcuts_temp_lead[] = { 
+            1e+09,     1e+09,     1e+09,     1e+09,     1e+09,     1e+09,
+            1e+09,     1e+09,     1e+09,     1e+09,     1e+09,     1e+09,
+            1e+09,     1e+09,     1e+09,     1e+09,     1e+09,     1e+09,
+            1e+09,     1e+09,     1e+09,     1e+09,     1e+09,     1e+09,
+            1e+09,     1e+09,     1e+09,     1e+09,     1e+09,     1e+09,
+            -1e+09,    -1e+09,    -1e+09,    -1e+09,    -1e+09,    -1e+09,
+            -1e+09,    -1e+09,    -1e+09,    -1e+09,    -1e+09,    -1e+09,
+            1.5,         1.5,         1.5,         1.5,         1.5,         1.5 };
+        float cic6_allcuts_temp_sublead[] = { 
+            1e+09,     1e+09,     1e+09,     1e+09,     1e+09,     1e+09,
+            1e+09,     1e+09,     1e+09,     1e+09,     1e+09,     1e+09,
+            1e+09,     1e+09,     1e+09,     1e+09,     1e+09,     1e+09,
+            1e+09,     1e+09,     1e+09,     1e+09,     1e+09,     1e+09,
+            1e+09,     1e+09,     1e+09,     1e+09,     1e+09,     1e+09,
+            -1e+09,    -1e+09,    -1e+09,    -1e+09,    -1e+09,    -1e+09,
+            -1e+09,    -1e+09,    -1e+09,    -1e+09,    -1e+09,    -1e+09,
+            1.5,         1.5,         1.5,         1.5,         1.5,         1.5 };
+        float cic4_allcuts_temp_lead[] = { 
+            1e+09,     1e+09,     1e+09,     1e+09,
+            1e+09,     1e+09,     1e+09,     1e+09,
+            1e+09,     1e+09,     1e+09,     1e+09,
+            1e+09,     1e+09,     1e+09,     1e+09,
+            1e+09,     1e+09,     1e+09,     1e+09,
+            -1e+09,    -1e+09,    -1e+09,    -1e+09,
+            -1e+09,    -1e+09,    -1e+09,    -1e+09,
+            1.5,         1.5,         1.5,         1.5 };
+        float cic4_allcuts_temp_sublead[] = { 
+            1e+09,     1e+09,     1e+09,     1e+09,
+            1e+09,     1e+09,     1e+09,     1e+09,
+            1e+09,     1e+09,     1e+09,     1e+09,
+            1e+09,     1e+09,     1e+09,     1e+09,
+            1e+09,     1e+09,     1e+09,     1e+09,
+            -1e+09,    -1e+09,    -1e+09,    -1e+09,
+            -1e+09,    -1e+09,    -1e+09,    -1e+09,
+            1.5,         1.5,         1.5,         1.5 };
+        for(int i=0;i!=ncuts*ncat_cic6;++i) { cic6_allcuts_lead[i]=cic6_allcuts_temp_lead[i];
+            cic6_allcuts_sublead[i]=cic6_allcuts_temp_sublead[i]; }
+        for(int i=0;i!=ncuts*ncat_cic4;++i) { cic4_allcuts_lead[i]=cic4_allcuts_temp_lead[i];
+            cic4_allcuts_sublead[i]=cic4_allcuts_temp_sublead[i]; }
 
-			  float cic4pf_allcuts_temp_lead[] = { 
-			    1e+09,     1e+09,     1e+09,     1e+09,
-			    1e+09,     1e+09,     1e+09,     1e+09,
-			    1e+09,     1e+09,     1e+09,     1e+09,
-			    1e+09,     1e+09,     1e+09,     1e+09,
-			    1e+09,     1e+09,     1e+09,     1e+09,
-			    -1e+09,    -1e+09,    -1e+09,    -1e+09,
-			    -1e+09,    -1e+09,    -1e+09,    -1e+09,
-			    1.5,         1.5,         1.5,         1.5 };
-			  float cic4pf_allcuts_temp_sublead[] = { 
-			    1e+09,     1e+09,     1e+09,     1e+09,
-			    1e+09,     1e+09,     1e+09,     1e+09,
-			    1e+09,     1e+09,     1e+09,     1e+09,
-			    1e+09,     1e+09,     1e+09,     1e+09,
-			    1e+09,     1e+09,     1e+09,     1e+09,
-			    -1e+09,    -1e+09,    -1e+09,    -1e+09,
-			    -1e+09,    -1e+09,    -1e+09,    -1e+09,
-			    1.5,         1.5,         1.5,         1.5 };
-                          for(int i=0;i!=ncuts*ncat_cic4;++i) { 
-			    cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
-                            cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i]; 
-			  }
-			  
-                      } break;
+        float cic4pf_allcuts_temp_lead[] = { 
+            1e+09,     1e+09,     1e+09,     1e+09,
+            1e+09,     1e+09,     1e+09,     1e+09,
+            1e+09,     1e+09,     1e+09,     1e+09,
+            1e+09,     1e+09,     1e+09,     1e+09,
+            1e+09,     1e+09,     1e+09,     1e+09,
+            -1e+09,    -1e+09,    -1e+09,    -1e+09,
+            -1e+09,    -1e+09,    -1e+09,    -1e+09,
+            1.5,         1.5,         1.5,         1.5 };
+        float cic4pf_allcuts_temp_sublead[] = { 
+            1e+09,     1e+09,     1e+09,     1e+09,
+            1e+09,     1e+09,     1e+09,     1e+09,
+            1e+09,     1e+09,     1e+09,     1e+09,
+            1e+09,     1e+09,     1e+09,     1e+09,
+            1e+09,     1e+09,     1e+09,     1e+09,
+            -1e+09,    -1e+09,    -1e+09,    -1e+09,
+            -1e+09,    -1e+09,    -1e+09,    -1e+09,
+            1.5,         1.5,         1.5,         1.5 };
+        for(int i=0;i!=ncuts*ncat_cic4;++i) { 
+            cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
+            cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i]; 
+        }
+          
+    } break;
     case(phoLOOSE) : {
-                       float cic6_allcuts_temp_lead[] = { 
-                         14.1278,     11.7187,     9.78826,     10.9814,     9.21945,     8.89621,
-                         72.5178,     59.1506,     85.1822,     93.8969,     74.2109,     14.4058,
-                         7.89015,     5.61652,     4.45536,     5.87563,     4.24725,     2.96206,
-                         0.0114196,   0.0109898,   0.0100549,    0.029265,   0.0290002,   0.0279397,
-                         0.0907646,   0.0791189,   0.0835245,    0.102617,   0.0596196,    0.098899,
-                         0.94,    0.899976,    0.262285,    0.94,    0.90,    0.276953,
-                         12.0314,     98.0038,  0.00968623,  0.00636153,  0.00476398,  0.00610842,
-                         1.5,         1.5,         1.5,         1.5,         1.5,         1.5 };
-                       float cic6_allcuts_temp_sublead[] = { 
-                         14.1278,     11.7187,     9.78826,     10.9814,     9.21945,     8.89621,
-                         72.5178,     59.1506,     85.1822,     93.8969,     74.2109,     14.4058,
-                         7.89015,     5.61652,     4.45536,     5.87563,     4.24725,     2.96206,
-                         0.0114196,   0.0109898,   0.0100549,    0.029265,   0.0290002,   0.0279397,
-                         0.0907646,   0.0791189,   0.0835245,    0.102617,   0.0596196,    0.098899,
-                         0.94,    0.899976,    0.262285,    0.94,    0.90,    0.276953,
-                         12.0314,     98.0038,  0.00968623,  0.00636153,  0.00476398,  0.00610842,
-                         1.5,         1.5,         1.5,         1.5,         1.5,         1.5 };
-                       float cic4_allcuts_temp_lead[] = { 
-			       8.2,       4.1,       5.4,       2.6,
-			       67,        69,        85,       7.2,
-			       7.5,       4.5,       5.2,       2.5,
-			       0.0112,    0.0102,     0.029,     0.028,
-			       0.09,     0.089,     0.101,     0.073,
-			       0.94,      0.31,      0.92,      0.29,
-			       0.26,     0.029,    0.0062,    0.0055,
-			       1.5,         1.5,         1.5,         1.5};
-                       float cic4_allcuts_temp_sublead[] = { 
-				       8.2,       4.1,       5.4,       2.6,
-				       67,        69,        85,       7.2,
-				       7.5,       4.5,       5.2,       2.5,
-				       0.0112,    0.0102,     0.029,     0.028,
-				       0.09,     0.089,     0.101,     0.073,
-				       0.94,      0.31,      0.92,      0.29,
-				       0.26,     0.029,    0.0062,    0.0055,
-				       1.5,         1.5,         1.5,         1.5};
-		       for(int i=0;i!=ncuts*ncat_cic6;++i) { cic6_allcuts_lead[i]=cic6_allcuts_temp_lead[i];
-                         cic6_allcuts_sublead[i]=cic6_allcuts_temp_sublead[i]; }
-                         for(int i=0;i!=ncuts*ncat_cic4;++i) { cic4_allcuts_lead[i]=cic4_allcuts_temp_lead[i];
+        float cic6_allcuts_temp_lead[] = { 
+            14.1278,     11.7187,     9.78826,     10.9814,     9.21945,     8.89621,
+            72.5178,     59.1506,     85.1822,     93.8969,     74.2109,     14.4058,
+            7.89015,     5.61652,     4.45536,     5.87563,     4.24725,     2.96206,
+            0.0114196,   0.0109898,   0.0100549,    0.029265,   0.0290002,   0.0279397,
+            0.0907646,   0.0791189,   0.0835245,    0.102617,   0.0596196,    0.098899,
+            0.94,    0.899976,    0.262285,    0.94,    0.90,    0.276953,
+            12.0314,     98.0038,  0.00968623,  0.00636153,  0.00476398,  0.00610842,
+            1.5,         1.5,         1.5,         1.5,         1.5,         1.5 };
+        float cic6_allcuts_temp_sublead[] = { 
+            14.1278,     11.7187,     9.78826,     10.9814,     9.21945,     8.89621,
+            72.5178,     59.1506,     85.1822,     93.8969,     74.2109,     14.4058,
+            7.89015,     5.61652,     4.45536,     5.87563,     4.24725,     2.96206,
+            0.0114196,   0.0109898,   0.0100549,    0.029265,   0.0290002,   0.0279397,
+            0.0907646,   0.0791189,   0.0835245,    0.102617,   0.0596196,    0.098899,
+            0.94,    0.899976,    0.262285,    0.94,    0.90,    0.276953,
+            12.0314,     98.0038,  0.00968623,  0.00636153,  0.00476398,  0.00610842,
+            1.5,         1.5,         1.5,         1.5,         1.5,         1.5 };
+        float cic4_allcuts_temp_lead[] = { 
+            8.2,       4.1,       5.4,       2.6,
+            67,        69,        85,       7.2,
+            7.5,       4.5,       5.2,       2.5,
+            0.0112,    0.0102,     0.029,     0.028,
+            0.09,     0.089,     0.101,     0.073,
+            0.94,      0.31,      0.92,      0.29,
+            0.26,     0.029,    0.0062,    0.0055,
+            1.5,         1.5,         1.5,         1.5};
+        float cic4_allcuts_temp_sublead[] = { 
+            8.2,       4.1,       5.4,       2.6,
+            67,        69,        85,       7.2,
+            7.5,       4.5,       5.2,       2.5,
+            0.0112,    0.0102,     0.029,     0.028,
+            0.09,     0.089,     0.101,     0.073,
+            0.94,      0.31,      0.92,      0.29,
+            0.26,     0.029,    0.0062,    0.0055,
+            1.5,         1.5,         1.5,         1.5};
+        for(int i=0;i!=ncuts*ncat_cic6;++i) { 
+            cic6_allcuts_lead[i]=cic6_allcuts_temp_lead[i];
+            cic6_allcuts_sublead[i]=cic6_allcuts_temp_sublead[i]; }
+        for(int i=0;i!=ncuts*ncat_cic4;++i) { cic4_allcuts_lead[i]=cic4_allcuts_temp_lead[i];
                            cic4_allcuts_sublead[i]=cic4_allcuts_temp_sublead[i]; }
 
-			 float cic4pf_allcuts_temp_lead[] = { 
-			   8.9,       6.3,       9.8,       6.8,
-			   43,      19.4,        24,       7.9,
-			   6.2,       4.3,         5,       4.3,
-			   0.0117,    0.0105,     0.031,     0.031,
-			   0.137,      0.14,     0.145,     0.143,
-			   0.94,      0.25,      0.93,      0.24,
-         1,    0.0136,    0.0138,    0.0122,
-			   1.5,         1.5,         1.5,         1.5};
-			 float cic4pf_allcuts_temp_sublead[] = { 
-			   8.9,       6.3,       9.8,       6.8,
-			   43,      19.4,        24,       7.9,
-			   6.2,       4.3,         5,       4.3,
-			   0.0117,    0.0105,     0.031,     0.031,
-			   0.137,      0.14,     0.145,     0.143,
-			   0.94,      0.25,      0.93,      0.24,
-         1,    0.0136,    0.0138,    0.0122,
-			   1.5,         1.5,         1.5,         1.5};
-
-                          for(int i=0;i!=ncuts*ncat_cic4;++i) { 
-			    cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
-                            cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i]; 
-			  }
-			  
-                     } break;
+        float cic4pf_allcuts_temp_lead[] = { 
+            8.9,       6.3,       9.8,       6.8,
+            43,      19.4,        24,       7.9,
+            6.2,       4.3,         5,       4.3,
+            0.0117,    0.0105,     0.031,     0.031,
+            0.137,      0.14,     0.145,     0.143,
+            0.94,      0.25,      0.93,      0.24,
+            1,    0.0136,    0.0138,    0.0122,
+            1.5,         1.5,         1.5,         1.5};
+        float cic4pf_allcuts_temp_sublead[] = { 
+            8.9,       6.3,       9.8,       6.8,
+            43,      19.4,        24,       7.9,
+            6.2,       4.3,         5,       4.3,
+            0.0117,    0.0105,     0.031,     0.031,
+            0.137,      0.14,     0.145,     0.143,
+            0.94,      0.25,      0.93,      0.24,
+            1,    0.0136,    0.0138,    0.0122,
+            1.5,         1.5,         1.5,         1.5};
+        for(int i=0;i!=ncuts*ncat_cic4;++i) { 
+            cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
+            cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i]; 
+        }
+    } break;
     case(phoMEDIUM) : {
-                        float cic6_allcuts_temp_lead[] = {  
-                          12.5084,      10.156,     9.23141,     10.0482,     8.34498,     8.73704,
-                          70.9011,     50.0742,     21.9926,     24.2436,     18.7884,     12.6882,
-                          6.58797,     4.68564,     4.38815,     5.67876,     2.41162,     2.19991,
-                          0.0110266,   0.0106749,  0.00983011,   0.0287021,   0.0286817,   0.0272739,
-                          0.0891215,   0.0763711,   0.0798623,   0.0911974,   0.0511163,   0.0627764,
-                          0.94,    0.90,    0.274434,    0.94,    0.90,    0.276953,
-                          96.5654,     98.9721,   0.0119942,   0.0111399,  0.00855448,    0.012159,
-                          1.5,         1.5,         1.5,         1.5,         1.5,         1.5 };
-                        float cic6_allcuts_temp_sublead[] = {  
-                          12.5084,      10.156,     9.23141,     10.0482,     8.34498,     8.73704,
-                          70.9011,     50.0742,     21.9926,     24.2436,     18.7884,     12.6882,
-                          6.58797,     4.68564,     4.38815,     5.67876,     2.41162,     2.19991,
-                          0.0110266,   0.0106749,  0.00983011,   0.0287021,   0.0286817,   0.0272739,
-                          0.0891215,   0.0763711,   0.0798623,   0.0911974,   0.0511163,   0.0627764,
-                          0.94,    0.90,    0.274434,    0.94,    0.90,    0.276953,
-                          96.5654,     98.9721,   0.0119942,   0.0111399,  0.00855448,    0.012159,
-                          1.5,         1.5,         1.5,         1.5,         1.5,         1.5 };
-                        float cic4_allcuts_temp_lead[] = {  
-				6.4,       3.2,       3.4,       2.2,
-				64,      10.8,        13,       3.5,
-				6.4,       3.4,       3.8,       2.1,
-				0.0109,      0.01,     0.029,     0.028,
-				0.089,     0.079,      0.09,     0.061,
-				0.94,      0.32,      0.94,      0.29,
-				0.98,     0.029,    0.0109,    0.0111,
-				1.5,         1.5,         1.5,         1.5 };
-                        float cic4_allcuts_temp_sublead[] = {  
-				6.4,       3.2,       3.4,       2.2,
-				64,      10.8,        13,       3.5,
-				6.4,       3.4,       3.8,       2.1,
-				0.0109,      0.01,     0.029,     0.028,
-				0.089,     0.079,      0.09,     0.061,
-				0.94,      0.32,      0.94,      0.29,
-				0.98,     0.029,    0.0109,    0.0111,
-				1.5,         1.5,         1.5,         1.5 };
-                        for(int i=0;i!=ncuts*ncat_cic6;++i) { cic6_allcuts_lead[i]=cic6_allcuts_temp_lead[i];
-                          cic6_allcuts_sublead[i]=cic6_allcuts_temp_sublead[i]; }
-			for(int i=0;i!=ncuts*ncat_cic4;++i) { cic4_allcuts_lead[i]=cic4_allcuts_temp_lead[i];
-			  cic4_allcuts_sublead[i]=cic4_allcuts_temp_sublead[i]; }
+        float cic6_allcuts_temp_lead[] = {  
+            12.5084,      10.156,     9.23141,     10.0482,     8.34498,     8.73704,
+            70.9011,     50.0742,     21.9926,     24.2436,     18.7884,     12.6882,
+            6.58797,     4.68564,     4.38815,     5.67876,     2.41162,     2.19991,
+            0.0110266,   0.0106749,  0.00983011,   0.0287021,   0.0286817,   0.0272739,
+            0.0891215,   0.0763711,   0.0798623,   0.0911974,   0.0511163,   0.0627764,
+            0.94,    0.90,    0.274434,    0.94,    0.90,    0.276953,
+            96.5654,     98.9721,   0.0119942,   0.0111399,  0.00855448,    0.012159,
+            1.5,         1.5,         1.5,         1.5,         1.5,         1.5 };
+        float cic6_allcuts_temp_sublead[] = {  
+            12.5084,      10.156,     9.23141,     10.0482,     8.34498,     8.73704,
+            70.9011,     50.0742,     21.9926,     24.2436,     18.7884,     12.6882,
+            6.58797,     4.68564,     4.38815,     5.67876,     2.41162,     2.19991,
+            0.0110266,   0.0106749,  0.00983011,   0.0287021,   0.0286817,   0.0272739,
+            0.0891215,   0.0763711,   0.0798623,   0.0911974,   0.0511163,   0.0627764,
+            0.94,    0.90,    0.274434,    0.94,    0.90,    0.276953,
+            96.5654,     98.9721,   0.0119942,   0.0111399,  0.00855448,    0.012159,
+            1.5,         1.5,         1.5,         1.5,         1.5,         1.5 };
+        float cic4_allcuts_temp_lead[] = {  
+            6.4,       3.2,       3.4,       2.2,
+            64,      10.8,        13,       3.5,
+            6.4,       3.4,       3.8,       2.1,
+            0.0109,      0.01,     0.029,     0.028,
+            0.089,     0.079,      0.09,     0.061,
+            0.94,      0.32,      0.94,      0.29,
+            0.98,     0.029,    0.0109,    0.0111,
+            1.5,         1.5,         1.5,         1.5 };
+        float cic4_allcuts_temp_sublead[] = {  
+            6.4,       3.2,       3.4,       2.2,
+            64,      10.8,        13,       3.5,
+            6.4,       3.4,       3.8,       2.1,
+            0.0109,      0.01,     0.029,     0.028,
+            0.089,     0.079,      0.09,     0.061,
+            0.94,      0.32,      0.94,      0.29,
+            0.98,     0.029,    0.0109,    0.0111,
+            1.5,         1.5,         1.5,         1.5 };
+        for(int i=0;i!=ncuts*ncat_cic6;++i) { 
+            cic6_allcuts_lead[i]=cic6_allcuts_temp_lead[i];
+            cic6_allcuts_sublead[i]=cic6_allcuts_temp_sublead[i]; }
+        for(int i=0;i!=ncuts*ncat_cic4;++i) { 
+            cic4_allcuts_lead[i]=cic4_allcuts_temp_lead[i];
+            cic4_allcuts_sublead[i]=cic4_allcuts_temp_sublead[i]; }
 
-			float cic4pf_allcuts_temp_lead[] = { 
-			  8.4,       5.4,       6.1,       6.2,
-			  43,       8.6,       8.9,       6.1,
-			  5.5,       3.8,       3.8,       3.4,
-			  0.0116,    0.0104,     0.031,     0.029,
-			  0.137,     0.103,     0.145,     0.128,
-			  0.94,      0.25,      0.94,      0.24,
-        1,     0.021,    0.0138,    0.0162, 
-			  1.5,         1.5,         1.5,         1.5};
-			float cic4pf_allcuts_temp_sublead[] = { 
-			  8.4,       5.4,       6.1,       6.2,
-			  43,       8.6,       8.9,       6.1,
-			  5.5,       3.8,       3.8,       3.4,
-			  0.0116,    0.0104,     0.031,     0.029,
-			  0.137,     0.103,     0.145,     0.128,
-			  0.94,      0.25,      0.94,      0.24,
-        1,     0.021,    0.0138,    0.0162, 
-			  1.5,         1.5,         1.5,         1.5};
+        float cic4pf_allcuts_temp_lead[] = { 
+            8.4,       5.4,       6.1,       6.2,
+            43,       8.6,       8.9,       6.1,
+            5.5,       3.8,       3.8,       3.4,
+            0.0116,    0.0104,     0.031,     0.029,
+            0.137,     0.103,     0.145,     0.128,
+            0.94,      0.25,      0.94,      0.24,
+            1,     0.021,    0.0138,    0.0162, 
+            1.5,         1.5,         1.5,         1.5};
+        float cic4pf_allcuts_temp_sublead[] = { 
+            8.4,       5.4,       6.1,       6.2,
+            43,       8.6,       8.9,       6.1,
+            5.5,       3.8,       3.8,       3.4,
+            0.0116,    0.0104,     0.031,     0.029,
+            0.137,     0.103,     0.145,     0.128,
+            0.94,      0.25,      0.94,      0.24,
+            1,     0.021,    0.0138,    0.0162, 
+            1.5,         1.5,         1.5,         1.5};
 
-			for(int i=0;i!=ncuts*ncat_cic4;++i) { 
-			  cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
-			  cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i]; 
-			}
-			
-                      } break;
+        for(int i=0;i!=ncuts*ncat_cic4;++i) { 
+            cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
+            cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i]; 
+        }
+    } break;
     case(phoTIGHT) : {
-                       float cic6_allcuts_temp_lead[] = { 
-                         11.1845,     9.28445,     8.98759,     9.19055,     7.94171,     8.16991,
-                         70.7835,     16.7873,     13.7361,     15.6259,     13.2407,     10.3932,
-                         5.76122,     3.97439,     2.89137,     4.62749,     2.34848,      1.9302,
-                         0.010781,   0.0104673,  0.00965497,   0.0284936,    0.028082,   0.0270328,
-                         0.0844869,   0.0703749,    0.060775,   0.0881813,   0.0502974,    0.060877,
-                         0.94,    0.90,       0.321,    0.94,    0.90,    0.279956,
-                         98.9318,     98.9992,   0.0146256,   0.0207672,     34.1809,   0.0261029,
-                         1.5,         1.5,         1.5,         1.5,         1.5,         1.5 };
-                       float cic6_allcuts_temp_sublead[] = { 
-                         11.1845,     9.28445,     8.98759,     9.19055,     7.94171,     8.16991,
-                         70.7835,     16.7873,     13.7361,     15.6259,     13.2407,     10.3932,
-                         5.76122,     3.97439,     2.89137,     4.62749,     2.34848,      1.9302,
-                         0.010781,   0.0104673,  0.00965497,   0.0284936,    0.028082,   0.0270328,
-                         0.0844869,   0.0703749,    0.060775,   0.0881813,   0.0502974,    0.060877,
-                         0.94,    0.90,       0.321,    0.94,    0.90,    0.279956,
-                         98.9318,     98.9992,   0.0146256,   0.0207672,     34.1809,   0.0261029,
-                         1.5,         1.5,         1.5,         1.5,         1.5,         1.5 };
-                       float cic4_allcuts_temp_lead[] = { 
-			       4.7,       2.8,       2.5,      1.46,
-			       62,       5.2,       7.3,       2.5,
-			       4.7,       2.9,       3.8,      1.63,
-			       0.0107,    0.0099,     0.028,     0.027,
-			       0.087,     0.065,     0.087,      0.05,
-			       0.94,      0.34,      0.94,      0.29,
-			       1,     0.029,     0.021,     0.028,
-			       1.5,         1.5,         1.5,         1.5 };
-                       float cic4_allcuts_temp_sublead[] = { 
-			       4.7,       2.8,       2.5,      1.46,
-			       62,       5.2,       7.3,       2.5,
-			       4.7,       2.9,       3.8,      1.63,
-			       0.0107,    0.0099,     0.028,     0.027,
-			       0.087,     0.065,     0.087,      0.05,
-			       0.94,      0.34,      0.94,      0.29,
-			       1,     0.029,     0.021,     0.028,
-			       1.5,         1.5,         1.5,         1.5 };
-                       for(int i=0;i!=ncuts*ncat_cic6;++i) { cic6_allcuts_lead[i]=cic6_allcuts_temp_lead[i];
-                         cic6_allcuts_sublead[i]=cic6_allcuts_temp_sublead[i]; }
-		       for(int i=0;i!=ncuts*ncat_cic4;++i) { cic4_allcuts_lead[i]=cic4_allcuts_temp_lead[i];
-			 cic4_allcuts_sublead[i]=cic4_allcuts_temp_sublead[i]; }
-		       
-			 float cic4pf_allcuts_temp_lead[] = {
-			   6.6,       4.9,       5.6,       4.2,
-			   11.5,       7.2,       8.4,       5.5,
-			   4.4,       2.7,       3.3,       2.5,
-			   0.0111,    0.0103,     0.028,     0.028,
-			   0.124,     0.103,     0.142,     0.128,
-			   0.94,      0.25,      0.94,      0.24,
-         1,     0.032,     0.024,    0.0173,
-			   1.5,         1.5,         1.5,         1.5};
-			 float cic4pf_allcuts_temp_sublead[] = { 
-			   6.6,       4.9,       5.6,       4.2,
-			   11.5,       7.2,       8.4,       5.5,
-			   4.4,       2.7,       3.3,       2.5,
-			   0.0111,    0.0103,     0.028,     0.028,
-			   0.124,     0.103,     0.142,     0.128,
-			   0.94,      0.25,      0.94,      0.24,
-         1,     0.032,     0.024,    0.0173,
-			   1.5,         1.5,         1.5,         1.5};
+        float cic6_allcuts_temp_lead[] = { 
+            11.1845,     9.28445,     8.98759,     9.19055,     7.94171,     8.16991,
+            70.7835,     16.7873,     13.7361,     15.6259,     13.2407,     10.3932,
+            5.76122,     3.97439,     2.89137,     4.62749,     2.34848,      1.9302,
+            0.010781,   0.0104673,  0.00965497,   0.0284936,    0.028082,   0.0270328,
+            0.0844869,   0.0703749,    0.060775,   0.0881813,   0.0502974,    0.060877,
+            0.94,    0.90,       0.321,    0.94,    0.90,    0.279956,
+            98.9318,     98.9992,   0.0146256,   0.0207672,     34.1809,   0.0261029,
+            1.5,         1.5,         1.5,         1.5,         1.5,         1.5 };
+        float cic6_allcuts_temp_sublead[] = { 
+            11.1845,     9.28445,     8.98759,     9.19055,     7.94171,     8.16991,
+            70.7835,     16.7873,     13.7361,     15.6259,     13.2407,     10.3932,
+            5.76122,     3.97439,     2.89137,     4.62749,     2.34848,      1.9302,
+            0.010781,   0.0104673,  0.00965497,   0.0284936,    0.028082,   0.0270328,
+            0.0844869,   0.0703749,    0.060775,   0.0881813,   0.0502974,    0.060877,
+            0.94,    0.90,       0.321,    0.94,    0.90,    0.279956,
+            98.9318,     98.9992,   0.0146256,   0.0207672,     34.1809,   0.0261029,
+            1.5,         1.5,         1.5,         1.5,         1.5,         1.5 };
+        float cic4_allcuts_temp_lead[] = { 
+            4.7,       2.8,       2.5,      1.46,
+            62,       5.2,       7.3,       2.5,
+            4.7,       2.9,       3.8,      1.63,
+            0.0107,    0.0099,     0.028,     0.027,
+            0.087,     0.065,     0.087,      0.05,
+            0.94,      0.34,      0.94,      0.29,
+            1,     0.029,     0.021,     0.028,
+            1.5,         1.5,         1.5,         1.5 };
+        float cic4_allcuts_temp_sublead[] = { 
+            4.7,       2.8,       2.5,      1.46,
+            62,       5.2,       7.3,       2.5,
+            4.7,       2.9,       3.8,      1.63,
+            0.0107,    0.0099,     0.028,     0.027,
+            0.087,     0.065,     0.087,      0.05,
+            0.94,      0.34,      0.94,      0.29,
+            1,     0.029,     0.021,     0.028,
+            1.5,         1.5,         1.5,         1.5 };
+        for(int i=0;i!=ncuts*ncat_cic6;++i) { 
+            cic6_allcuts_lead[i]=cic6_allcuts_temp_lead[i];
+            cic6_allcuts_sublead[i]=cic6_allcuts_temp_sublead[i]; }
+        for(int i=0;i!=ncuts*ncat_cic4;++i) { 
+            cic4_allcuts_lead[i]=cic4_allcuts_temp_lead[i];
+            cic4_allcuts_sublead[i]=cic4_allcuts_temp_sublead[i]; }
+           
+        float cic4pf_allcuts_temp_lead[] = {
+            6.6,       4.9,       5.6,       4.2,
+            11.5,       7.2,       8.4,       5.5,
+            4.4,       2.7,       3.3,       2.5,
+            0.0111,    0.0103,     0.028,     0.028,
+            0.124,     0.103,     0.142,     0.128,
+            0.94,      0.25,      0.94,      0.24,
+            1,     0.032,     0.024,    0.0173,
+            1.5,         1.5,         1.5,         1.5};
+        float cic4pf_allcuts_temp_sublead[] = { 
+            6.6,       4.9,       5.6,       4.2,
+            11.5,       7.2,       8.4,       5.5,
+            4.4,       2.7,       3.3,       2.5,
+            0.0111,    0.0103,     0.028,     0.028,
+            0.124,     0.103,     0.142,     0.128,
+            0.94,      0.25,      0.94,      0.24,
+            1,     0.032,     0.024,    0.0173,
+            1.5,         1.5,         1.5,         1.5};
 
-		       for(int i=0;i!=ncuts*ncat_cic4;++i) { 
-			 cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
-			 cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i]; 
-		       }
-		       
-                     } break;
+        for(int i=0;i!=ncuts*ncat_cic4;++i) { 
+            cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
+            cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i]; 
+        }
+           
+    } break;
     case(phoSUPERTIGHT) : {
-                            float cic6_allcuts_temp_lead[] = { 
-                              10.0171,     8.81037,     8.74909,     8.47393,     7.94171,     7.47883,
-                              54.9366,     14.3545,     11.5208,      12.939,     10.2496,      9.7095,
-                              4.11252,     3.35092,     2.49296,     2.05592,     1.67021,     1.66678,
-                              0.0106315,   0.0101656,  0.00950936,   0.0283215,   0.0276216,   0.0263378,
-                              0.0823828,   0.0598641,   0.0494497,   0.0706222,   0.0502974,    0.060877,
-                              0.94,    0.90,       0.321,    0.94,    0.90,    0.282153,
-                              98.9981,          99,   0.0216484,     96.2292,     97.1855,     96.2294,
-                              1.5,         1.5,         1.5,         1.5,         1.5,         1.5 };
-                            float cic6_allcuts_temp_sublead[] = { 
-                              10.0171,     8.81037,     8.74909,     8.47393,     7.94171,     7.47883,
-                              54.9366,     14.3545,     11.5208,      12.939,     10.2496,      9.7095,
-                              4.11252,     3.35092,     2.49296,     2.05592,     1.67021,     1.66678,
-                              0.0106315,   0.0101656,  0.00950936,   0.0283215,   0.0276216,   0.0263378,
-                              0.0823828,   0.0598641,   0.0494497,   0.0706222,   0.0502974,    0.060877,
-                              0.94,    0.90,       0.321,    0.94,    0.90,    0.282153,
-                              98.9981,          99,   0.0216484,     96.2292,     97.1855,     96.2294,
-                              1.5,         1.5,         1.5,         1.5,         1.5,         1.5 };
-                            float cic4_allcuts_temp_lead[] = { 
+        float cic6_allcuts_temp_lead[] = { 
+            10.0171,     8.81037,     8.74909,     8.47393,     7.94171,     7.47883,
+            54.9366,     14.3545,     11.5208,      12.939,     10.2496,      9.7095,
+            4.11252,     3.35092,     2.49296,     2.05592,     1.67021,     1.66678,
+            0.0106315,   0.0101656,  0.00950936,   0.0283215,   0.0276216,   0.0263378,
+            0.0823828,   0.0598641,   0.0494497,   0.0706222,   0.0502974,    0.060877,
+            0.94,    0.90,       0.321,    0.94,    0.90,    0.282153,
+            98.9981,          99,   0.0216484,     96.2292,     97.1855,     96.2294,
+            1.5,         1.5,         1.5,         1.5,         1.5,         1.5 };
+        float cic6_allcuts_temp_sublead[] = { 
+            10.0171,     8.81037,     8.74909,     8.47393,     7.94171,     7.47883,
+            54.9366,     14.3545,     11.5208,      12.939,     10.2496,      9.7095,
+            4.11252,     3.35092,     2.49296,     2.05592,     1.67021,     1.66678,
+            0.0106315,   0.0101656,  0.00950936,   0.0283215,   0.0276216,   0.0263378,
+            0.0823828,   0.0598641,   0.0494497,   0.0706222,   0.0502974,    0.060877,
+            0.94,    0.90,       0.321,    0.94,    0.90,    0.282153,
+            98.9981,          99,   0.0216484,     96.2292,     97.1855,     96.2294,
+            1.5,         1.5,         1.5,         1.5,         1.5,         1.5 };
+        float cic4_allcuts_temp_lead[] = { 
 
                          // category from PhotonCategory(..)
                          // cat 0      cat 1    cat 2    cat 3 
                          // high R9    low R9   high R9  low R9
                          // barrel     barrel   endcap   endcap
 
-                              3.8,     2.2,     1.77,    1.29,   // isosumoet       sum of isolation cone energies divided by Et (?)   (upper cut, maximum value)
-                              11.7,    3.4,     3.9,     1.84,   // isosumoetbad    same as isosumoet but for 'bad' (worst ?) vertex   (upper cut, maximum value)
-                              3.5,     2.2,     2.3,     1.45,   // trkisooetom     tracker isolation cone only (divided by Et)        (upper cut, maximum value)
-                              0.0106,  0.0097,  0.028,   0.027,  // sieie           sigma(ieta,ieta)                                   (upper cut, maximum value)
-                              0.082,   0.062,   0.065,   0.048,  // hovere          H/E                                                (upper cut, maximum value)
-                              0.94,    0.36,    0.94,    0.32,   // r9              R9                                               (lower cut, minimum value) 
-                              1.,      0.062,   0.97,    0.97,   // drtotk_25_99    Delta R to track ?                               (lower cut, minimum value)
-                              1.5,     1.5,     1.5,     1.5 };  // pixel           has pixel seed ?                                   (upper cut, maximum value)
-                            float cic4_allcuts_temp_sublead[] = { 
-                              3.8,     2.2,     1.77,    1.29,
-                              11.7,    3.4,     3.9,     1.84,
-                              3.5,     2.2,     2.3,     1.45,
-                              0.0106,  0.0097,  0.028,   0.027,
-                              0.082,   0.062,   0.065,   0.048,
-                              0.94,    0.36,    0.94,    0.32,
-                              1.,      0.062,   0.97,    0.97,
-                              1.5,     1.5,     1.5,     1.5 };
-                            for(int i=0;i!=ncuts*ncat_cic6;++i) { cic6_allcuts_lead[i]=cic6_allcuts_temp_lead[i];
-                              cic6_allcuts_sublead[i]=cic6_allcuts_temp_sublead[i]; }
-			    for(int i=0;i!=ncuts*ncat_cic4;++i) { cic4_allcuts_lead[i]=cic4_allcuts_temp_lead[i];
-			      cic4_allcuts_sublead[i]=cic4_allcuts_temp_sublead[i]; }
+            3.8,     2.2,     1.77,    1.29,   // isosumoet       sum of isolation cone energies divided by Et (?)   (upper cut, maximum value)
+            11.7,    3.4,     3.9,     1.84,   // isosumoetbad    same as isosumoet but for 'bad' (worst ?) vertex   (upper cut, maximum value)
+            3.5,     2.2,     2.3,     1.45,   // trkisooetom     tracker isolation cone only (divided by Et)        (upper cut, maximum value)
+            0.0106,  0.0097,  0.028,   0.027,  // sieie           sigma(ieta,ieta)                                   (upper cut, maximum value)
+            0.082,   0.062,   0.065,   0.048,  // hovere          H/E                                                (upper cut, maximum value)
+            0.94,    0.36,    0.94,    0.32,   // r9              R9                                               (lower cut, minimum value) 
+            1.,      0.062,   0.97,    0.97,   // drtotk_25_99    Delta R to track ?                               (lower cut, minimum value)
+            1.5,     1.5,     1.5,     1.5 };  // pixel           has pixel seed ?                                   (upper cut, maximum value)
+        float cic4_allcuts_temp_sublead[] = { 
+            3.8,     2.2,     1.77,    1.29,
+            11.7,    3.4,     3.9,     1.84,
+            3.5,     2.2,     2.3,     1.45,
+            0.0106,  0.0097,  0.028,   0.027,
+            0.082,   0.062,   0.065,   0.048,
+            0.94,    0.36,    0.94,    0.32,
+            1.,      0.062,   0.97,    0.97,
+            1.5,     1.5,     1.5,     1.5 };
+        for(int i=0;i!=ncuts*ncat_cic6;++i) { 
+            cic6_allcuts_lead[i]=cic6_allcuts_temp_lead[i];
+            cic6_allcuts_sublead[i]=cic6_allcuts_temp_sublead[i]; }
+        for(int i=0;i!=ncuts*ncat_cic4;++i) { 
+            cic4_allcuts_lead[i]=cic4_allcuts_temp_lead[i];
+            cic4_allcuts_sublead[i]=cic4_allcuts_temp_sublead[i]; }
 
-			    float cic4pf_allcuts_temp_lead[] = { 
-			      6,       4.7,       5.6,       3.6,
-			      10,       6.5,       5.6,       4.4,
-			      3.8,       2.5,       3.1,       2.2,
-			      0.0108,    0.0102,     0.028,     0.028,
-			      0.124,     0.092,     0.142,     0.063,
-			      0.94,      0.28,      0.94,      0.24,
-			      1,      0.99,      0.99,     0.028,
+        float cic4pf_allcuts_temp_lead[] = { 
+            6,       4.7,       5.6,       3.6,
+            10,       6.5,       5.6,       4.4,
+            3.8,       2.5,       3.1,       2.2,
+            0.0108,    0.0102,     0.028,     0.028,
+            0.124,     0.092,     0.142,     0.063,
+            0.94,      0.28,      0.94,      0.24,
+            1,      0.99,      0.99,     0.028,
             1.5,         1.5,         1.5,         1.5};
 
-			    float cic4pf_allcuts_temp_sublead[] = { 
-			      6,       4.7,       5.6,       3.6,
-			      10,       6.5,       5.6,       4.4,
-			      3.8,       2.5,       3.1,       2.2,
-			      0.0108,    0.0102,     0.028,     0.028,
-			      0.124,     0.092,     0.142,     0.063,
-			      0.94,      0.28,      0.94,      0.24,
-			      1,      0.99,      0.99,     0.028,
+        float cic4pf_allcuts_temp_sublead[] = { 
+            6,       4.7,       5.6,       3.6,
+            10,       6.5,       5.6,       4.4,
+            3.8,       2.5,       3.1,       2.2,
+            0.0108,    0.0102,     0.028,     0.028,
+            0.124,     0.092,     0.142,     0.063,
+            0.94,      0.28,      0.94,      0.24,
+            1,      0.99,      0.99,     0.028,
             1.5,         1.5,         1.5,         1.5};
-			    for(int i=0;i!=ncuts*ncat_cic4;++i) { 
-			      cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
-			      cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i]; 
-			    }
-
-                          } break;
+        for(int i=0;i!=ncuts*ncat_cic4;++i) { 
+            cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
+            cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i]; 
+        }
+    } break;
     case(phoHYPERTIGHT1) : {
-                             float cic6_allcuts_temp_lead[] = { 
-                               9.14323,     8.13617,     7.43416,     7.97795,     5.88227,     6.60691,
-                               16.4126,     10.7813,     10.1764,     11.3829,     8.63128,     8.75289,
-                               3.49873,     2.93013,     2.00419,     1.60673,     1.36163,     1.36132,
-                               0.0105033,  0.00999387,  0.00946607,   0.0282088,   0.0273334,   0.0256399,
-                               0.0782034,   0.0598641,   0.0273668,   0.0553324,   0.0502974,   0.0465477,
-                               0.94,    0.90,    0.347653,    0.94,    0.90,    0.301546,
-                               98.9999,          99,     1.92089,     98.9224,     98.9492,     98.9224,
-                               1.5,         1.5,         1.5,         1.5,         1.5,         1.5 };
-                             float cic6_allcuts_temp_sublead[] = { 
-                               9.14323,     8.13617,     7.43416,     7.97795,     5.88227,     6.60691,
-                               16.4126,     10.7813,     10.1764,     11.3829,     8.63128,     8.75289,
-                               3.49873,     2.93013,     2.00419,     1.60673,     1.36163,     1.36132,
-                               0.0105033,  0.00999387,  0.00946607,   0.0282088,   0.0273334,   0.0256399,
-                               0.0782034,   0.0598641,   0.0273668,   0.0553324,   0.0502974,   0.0465477,
-                               0.94,    0.90,    0.347653,    0.94,    0.90,    0.301546,
-                               98.9999,          99,     1.92089,     98.9224,     98.9492,     98.9224,
-                               1.5,         1.5,         1.5,         1.5,         1.5,         1.5 };
-                             float cic4_allcuts_temp_lead[] = { 
-				     3.2,      1.76,      1.39,      1.18,
-				     6.1,       2.7,       2.8,      0.66,
-				     3.4,      1.86,      1.67,      1.44,
-				     0.0104,    0.0094,     0.028,     0.025,
-				     0.076,      0.03,     0.047,     0.046,
-				     0.94,      0.41,      0.94,      0.34,
-				     1,      0.97,         1,         1,
-				     1.5,         1.5,         1.5,         1.5 };
-                             float cic4_allcuts_temp_sublead[] = { 
-				     3.2,      1.76,      1.39,      1.18,
-				     6.1,       2.7,       2.8,      0.66,
-				     3.4,      1.86,      1.67,      1.44,
-				     0.0104,    0.0094,     0.028,     0.025,
-				     0.076,      0.03,     0.047,     0.046,
-				     0.94,      0.41,      0.94,      0.34,
-				     1,      0.97,         1,         1,
-				     1.5,         1.5,         1.5,         1.5 };
-                             for(int i=0;i!=ncuts*ncat_cic6;++i) { cic6_allcuts_lead[i]=cic6_allcuts_temp_lead[i];
-                               cic6_allcuts_sublead[i]=cic6_allcuts_temp_sublead[i]; }
-                               for(int i=0;i!=ncuts*ncat_cic4;++i) { cic4_allcuts_lead[i]=cic4_allcuts_temp_lead[i];
-                                 cic4_allcuts_sublead[i]=cic4_allcuts_temp_sublead[i]; }
+        float cic6_allcuts_temp_lead[] = { 
+            9.14323,     8.13617,     7.43416,     7.97795,     5.88227,     6.60691,
+            16.4126,     10.7813,     10.1764,     11.3829,     8.63128,     8.75289,
+            3.49873,     2.93013,     2.00419,     1.60673,     1.36163,     1.36132,
+            0.0105033,  0.00999387,  0.00946607,   0.0282088,   0.0273334,   0.0256399,
+            0.0782034,   0.0598641,   0.0273668,   0.0553324,   0.0502974,   0.0465477,
+            0.94,    0.90,    0.347653,    0.94,    0.90,    0.301546,
+            98.9999,          99,     1.92089,     98.9224,     98.9492,     98.9224,
+            1.5,         1.5,         1.5,         1.5,         1.5,         1.5 };
+        float cic6_allcuts_temp_sublead[] = { 
+            9.14323,     8.13617,     7.43416,     7.97795,     5.88227,     6.60691,
+            16.4126,     10.7813,     10.1764,     11.3829,     8.63128,     8.75289,
+            3.49873,     2.93013,     2.00419,     1.60673,     1.36163,     1.36132,
+            0.0105033,  0.00999387,  0.00946607,   0.0282088,   0.0273334,   0.0256399,
+            0.0782034,   0.0598641,   0.0273668,   0.0553324,   0.0502974,   0.0465477,
+            0.94,    0.90,    0.347653,    0.94,    0.90,    0.301546,
+            98.9999,          99,     1.92089,     98.9224,     98.9492,     98.9224,
+            1.5,         1.5,         1.5,         1.5,         1.5,         1.5 };
+        float cic4_allcuts_temp_lead[] = { 
+            3.2,      1.76,      1.39,      1.18,
+            6.1,       2.7,       2.8,      0.66,
+            3.4,      1.86,      1.67,      1.44,
+            0.0104,    0.0094,     0.028,     0.025,
+            0.076,      0.03,     0.047,     0.046,
+            0.94,      0.41,      0.94,      0.34,
+            1,      0.97,         1,         1,
+            1.5,         1.5,         1.5,         1.5 };
+        float cic4_allcuts_temp_sublead[] = { 
+            3.2,      1.76,      1.39,      1.18,
+            6.1,       2.7,       2.8,      0.66,
+            3.4,      1.86,      1.67,      1.44,
+            0.0104,    0.0094,     0.028,     0.025,
+            0.076,      0.03,     0.047,     0.046,
+            0.94,      0.41,      0.94,      0.34,
+            1,      0.97,         1,         1,
+            1.5,         1.5,         1.5,         1.5 };
+        for(int i=0;i!=ncuts*ncat_cic6;++i) { 
+            cic6_allcuts_lead[i]=cic6_allcuts_temp_lead[i];
+            cic6_allcuts_sublead[i]=cic6_allcuts_temp_sublead[i]; }
+        for(int i=0;i!=ncuts*ncat_cic4;++i) { 
+            cic4_allcuts_lead[i]=cic4_allcuts_temp_lead[i];
+            cic4_allcuts_sublead[i]=cic4_allcuts_temp_sublead[i]; }
 
-			    float cic4pf_allcuts_temp_lead[] = { 
-			      5.6,       4.3,       5.5,       2.8,
-			      9.5,         6,       5.1,       4.3,
-			      3.3,       2.3,       2.2,       1.2,
-			      0.0107,    0.0101,     0.028,     0.028,
-			      0.124,     0.092,     0.116,     0.059,
-			      0.94,      0.38,      0.94,      0.24,
-			      1,      0.99,      0.99,     0.028,
+        float cic4pf_allcuts_temp_lead[] = { 
+            5.6,       4.3,       5.5,       2.8,
+            9.5,         6,       5.1,       4.3,
+            3.3,       2.3,       2.2,       1.2,
+            0.0107,    0.0101,     0.028,     0.028,
+            0.124,     0.092,     0.116,     0.059,
+            0.94,      0.38,      0.94,      0.24,
+            1,      0.99,      0.99,     0.028,
             1.5,         1.5,         1.5,         1.5};
 
-			    float cic4pf_allcuts_temp_sublead[] = { 
-			      5.6,       4.3,       5.5,       2.8,
-			      9.5,         6,       5.1,       4.3,
-			      3.3,       2.3,       2.2,       1.2,
-			      0.0107,    0.0101,     0.028,     0.028,
-			      0.124,     0.092,     0.116,     0.059,
-			      0.94,      0.38,      0.94,      0.24,
-			      1,      0.99,      0.99,     0.028,
+        float cic4pf_allcuts_temp_sublead[] = { 
+            5.6,       4.3,       5.5,       2.8,
+            9.5,         6,       5.1,       4.3,
+            3.3,       2.3,       2.2,       1.2,
+            0.0107,    0.0101,     0.028,     0.028,
+            0.124,     0.092,     0.116,     0.059,
+            0.94,      0.38,      0.94,      0.24,
+            1,      0.99,      0.99,     0.028,
             1.5,         1.5,         1.5,         1.5};
 
-			    for(int i=0;i!=ncuts*ncat_cic4;++i) { 
-			      cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
-			      cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i]; 
-			    }
-
-                           } break;
+        for(int i=0;i!=ncuts*ncat_cic4;++i) { 
+            cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
+            cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i]; 
+        }
+    } break;
     case(phoHYPERTIGHT2) : {
-                             float cic6_allcuts_temp_lead[] = { 
-                               8.57184,     6.64014,     6.82022,     7.13109,     5.88011,      6.2565,
-                               13.4065,     10.4316,     9.18551,     9.30193,     7.51729,     7.30382,
-                               2.73319,     2.93013,     1.55723,     1.54876,     1.05254,     1.36132,
-                               0.0103615,  0.00978982,  0.00940152,   0.0279141,   0.0260354,   0.0241246,
-                               0.0572816,   0.0232443,   0.0173437,   0.0553324,   0.0365276,   0.0465477,
-                               0.94,    0.90,    0.367082,    0.94,    0.90,    0.579434,
-                               99,          99,     96.2824,     98.9978,     98.9986,     98.9978,
-                               1.5,         1.5,         1.5,         1.5,         1.5,         1.5 };
-                             float cic6_allcuts_temp_sublead[] = { 
-                               8.57184,     6.64014,     6.82022,     7.13109,     5.88011,      6.2565,
-                               13.4065,     10.4316,     9.18551,     9.30193,     7.51729,     7.30382,
-                               2.73319,     2.93013,     1.55723,     1.54876,     1.05254,     1.36132,
-                               0.0103615,  0.00978982,  0.00940152,   0.0279141,   0.0260354,   0.0241246,
-                               0.0572816,   0.0232443,   0.0173437,   0.0553324,   0.0365276,   0.0465477,
-                               0.94,    0.90,    0.367082,    0.94,    0.90,    0.579434,
-                               99,          99,     96.2824,     98.9978,     98.9986,     98.9978,
-                               1.5,         1.5,         1.5,         1.5,         1.5,         1.5 };
-                             float cic4_allcuts_temp_lead[] = { 
-				     2.6,      1.31,      1.33,      0.82,
-				     5.1,      1.62,      1.38,  -0.224864,
-				     2.9,       1.6,      1.55,      1.44,
-				     0.0101,    0.0093,     0.027,     0.023,
-				     0.048,    0.0189,     0.032,    0.0085,
-				     0.94,      0.47,      0.94,      0.52,
-				     1,         1,         1,         1,
-				     1.5,         1.5,         1.5,         1.5 };
-                             float cic4_allcuts_temp_sublead[] = { 
-				     2.6,      1.31,      1.33,      0.82,
-				     5.1,      1.62,      1.38,  -0.224864,
-				     2.9,       1.6,      1.55,      1.44,
-				     0.0101,    0.0093,     0.027,     0.023,
-				     0.048,    0.0189,     0.032,    0.0085,
-				     0.94,      0.47,      0.94,      0.52,
-				     1,         1,         1,         1,
-				     1.5,         1.5,         1.5,         1.5 };
-                             for(int i=0;i!=ncuts*ncat_cic6;++i) { cic6_allcuts_lead[i]=cic6_allcuts_temp_lead[i];
-                               cic6_allcuts_sublead[i]=cic6_allcuts_temp_sublead[i]; }
-                               for(int i=0;i!=ncuts*ncat_cic4;++i) { cic4_allcuts_lead[i]=cic4_allcuts_temp_lead[i];
-                                 cic4_allcuts_sublead[i]=cic4_allcuts_temp_sublead[i]; }
+        float cic6_allcuts_temp_lead[] = { 
+            8.57184,     6.64014,     6.82022,     7.13109,     5.88011,      6.2565,
+            13.4065,     10.4316,     9.18551,     9.30193,     7.51729,     7.30382,
+            2.73319,     2.93013,     1.55723,     1.54876,     1.05254,     1.36132,
+            0.0103615,  0.00978982,  0.00940152,   0.0279141,   0.0260354,   0.0241246,
+            0.0572816,   0.0232443,   0.0173437,   0.0553324,   0.0365276,   0.0465477,
+            0.94,    0.90,    0.367082,    0.94,    0.90,    0.579434,
+            99,          99,     96.2824,     98.9978,     98.9986,     98.9978,
+            1.5,         1.5,         1.5,         1.5,         1.5,         1.5 };
+        float cic6_allcuts_temp_sublead[] = { 
+            8.57184,     6.64014,     6.82022,     7.13109,     5.88011,      6.2565,
+            13.4065,     10.4316,     9.18551,     9.30193,     7.51729,     7.30382,
+            2.73319,     2.93013,     1.55723,     1.54876,     1.05254,     1.36132,
+            0.0103615,  0.00978982,  0.00940152,   0.0279141,   0.0260354,   0.0241246,
+            0.0572816,   0.0232443,   0.0173437,   0.0553324,   0.0365276,   0.0465477,
+            0.94,    0.90,    0.367082,    0.94,    0.90,    0.579434,
+            99,          99,     96.2824,     98.9978,     98.9986,     98.9978,
+            1.5,         1.5,         1.5,         1.5,         1.5,         1.5 };
+        float cic4_allcuts_temp_lead[] = { 
+            2.6,      1.31,      1.33,      0.82,
+            5.1,      1.62,      1.38,  -0.224864,
+            2.9,       1.6,      1.55,      1.44,
+            0.0101,    0.0093,     0.027,     0.023,
+            0.048,    0.0189,     0.032,    0.0085,
+            0.94,      0.47,      0.94,      0.52,
+            1,         1,         1,         1,
+            1.5,         1.5,         1.5,         1.5 };
+        float cic4_allcuts_temp_sublead[] = { 
+            2.6,      1.31,      1.33,      0.82,
+            5.1,      1.62,      1.38,  -0.224864,
+            2.9,       1.6,      1.55,      1.44,
+            0.0101,    0.0093,     0.027,     0.023,
+            0.048,    0.0189,     0.032,    0.0085,
+            0.94,      0.47,      0.94,      0.52,
+            1,         1,         1,         1,
+            1.5,         1.5,         1.5,         1.5 };
+        for(int i=0;i!=ncuts*ncat_cic6;++i) { 
+            cic6_allcuts_lead[i]=cic6_allcuts_temp_lead[i];
+            cic6_allcuts_sublead[i]=cic6_allcuts_temp_sublead[i]; }
+        for(int i=0;i!=ncuts*ncat_cic4;++i) { 
+            cic4_allcuts_lead[i]=cic4_allcuts_temp_lead[i];
+            cic4_allcuts_sublead[i]=cic4_allcuts_temp_sublead[i]; }
 
-			    float cic4pf_allcuts_temp_lead[] = { 
-			      5.1,       3.8,       3.3,       2.6,
-			      7.5,         5,       4.7,         4,
-			      3,       2.2,      1.35,      0.38,
-			      0.0107,      0.01,     0.028,     0.027,
-			      0.124,     0.092,     0.116,     0.059,
-			      0.94,      0.39,      0.94,      0.24,
+        float cic4pf_allcuts_temp_lead[] = { 
+            5.1,       3.8,       3.3,       2.6,
+            7.5,         5,       4.7,         4,
+            3,       2.2,      1.35,      0.38,
+            0.0107,      0.01,     0.028,     0.027,
+            0.124,     0.092,     0.116,     0.059,
+            0.94,      0.39,      0.94,      0.24,
             1,         1,      0.99,      0.06,
-			      1.5,         1.5,         1.5,         1.5};
-			    float cic4pf_allcuts_temp_sublead[] = { 
-			      5.1,       3.8,       3.3,       2.6,
-			      7.5,         5,       4.7,         4,
-			      3,       2.2,      1.35,      0.38,
-			      0.0107,      0.01,     0.028,     0.027,
-			      0.124,     0.092,     0.116,     0.059,
-			      0.94,      0.39,      0.94,      0.24,
+            1.5,         1.5,         1.5,         1.5};
+        float cic4pf_allcuts_temp_sublead[] = { 
+            5.1,       3.8,       3.3,       2.6,
+            7.5,         5,       4.7,         4,
+            3,       2.2,      1.35,      0.38,
+            0.0107,      0.01,     0.028,     0.027,
+            0.124,     0.092,     0.116,     0.059,
+            0.94,      0.39,      0.94,      0.24,
             1,         1,      0.99,      0.06,
-			      1.5,         1.5,         1.5,         1.5};
-			    for(int i=0;i!=ncuts*ncat_cic4;++i) { 
-			      cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
-			      cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i]; 
-			    }
-
-                           } break;
+            1.5,         1.5,         1.5,         1.5};
+        for(int i=0;i!=ncuts*ncat_cic4;++i) { 
+            cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
+            cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i]; 
+        }
+    } break;
     case(phoHYPERTIGHT3) : {
-                             float cic6_allcuts_temp_lead[] = { 
-                               7.97897,     6.64014,     6.60332,     5.14765,     5.02192,     5.72775,
-                               11.3476,     8.93788,     8.36279,     7.88566,     5.83093,     6.66771,
-                               2.348,     2.59173,     1.55158,     1.54876,     0.98618,     1.06927,
-                               0.0100676,  0.00971589,  0.00932669,   0.0279141,    0.025781,   0.0229432,
-                               0.0372854,   0.0215628,   0.0132992,   0.0412051,   0.0322458,   0.0465477,
-                               0.94,    0.90,    0.375623,    0.94,    0.90,    0.579434,
-                               99,          99,     98.9239,     98.9999,     98.9997,     98.9987,
-                               1.5,         1.5,         1.5,         1.5,         1.5,         1.5 };
-                             float cic6_allcuts_temp_sublead[] = { 
-                               7.97897,     6.64014,     6.60332,     5.14765,     5.02192,     5.72775,
-                               11.3476,     8.93788,     8.36279,     7.88566,     5.83093,     6.66771,
-                               2.348,     2.59173,     1.55158,     1.54876,     0.98618,     1.06927,
-                               0.0100676,  0.00971589,  0.00932669,   0.0279141,    0.025781,   0.0229432,
-                               0.0372854,   0.0215628,   0.0132992,   0.0412051,   0.0322458,   0.0465477,
-                               0.94,    0.90,    0.375623,    0.94,    0.90,    0.579434,
-                               99,          99,     98.9239,     98.9999,     98.9997,     98.9987,
-                               1.5,         1.5,         1.5,         1.5,         1.5,         1.5 };
-                             float cic4_allcuts_temp_lead[] = { 
-				     1.85,      0.96,      1.21,  -0.028513,
-				     3.7,      0.97,      1.38,  -0.880416,
-				     1.93,       1.4,      1.48,     0.056,
-				     0.0099,    0.0092,     0.027,     0.023,
-				     0.042,    0.0173,     0.023,    0.0085,
-				     0.94,      0.69,      0.97,      0.52,
-				     1,         1,         1,         1,
-				     1.5,         1.5,         1.5,         1.5 };
-                             float cic4_allcuts_temp_sublead[] = { 
-				     1.85,      0.96,      1.21,  -0.028513,
-				     3.7,      0.97,      1.38,  -0.880416,
-				     1.93,       1.4,      1.48,     0.056,
-				     0.0099,    0.0092,     0.027,     0.023,
-				     0.042,    0.0173,     0.023,    0.0085,
-				     0.94,      0.69,      0.97,      0.52,
-				     1,         1,         1,         1,
-				     1.5,         1.5,         1.5,         1.5 };
-                             for(int i=0;i!=ncuts*ncat_cic6;++i) { cic6_allcuts_lead[i]=cic6_allcuts_temp_lead[i];
-                               cic6_allcuts_sublead[i]=cic6_allcuts_temp_sublead[i]; }
-                               for(int i=0;i!=ncuts*ncat_cic4;++i) { cic4_allcuts_lead[i]=cic4_allcuts_temp_lead[i];
-                                 cic4_allcuts_sublead[i]=cic4_allcuts_temp_sublead[i]; }
+        float cic6_allcuts_temp_lead[] = { 
+            7.97897,     6.64014,     6.60332,     5.14765,     5.02192,     5.72775,
+            11.3476,     8.93788,     8.36279,     7.88566,     5.83093,     6.66771,
+            2.348,     2.59173,     1.55158,     1.54876,     0.98618,     1.06927,
+            0.0100676,  0.00971589,  0.00932669,   0.0279141,    0.025781,   0.0229432,
+            0.0372854,   0.0215628,   0.0132992,   0.0412051,   0.0322458,   0.0465477,
+            0.94,    0.90,    0.375623,    0.94,    0.90,    0.579434,
+            99,          99,     98.9239,     98.9999,     98.9997,     98.9987,
+            1.5,         1.5,         1.5,         1.5,         1.5,         1.5 };
+        float cic6_allcuts_temp_sublead[] = { 
+            7.97897,     6.64014,     6.60332,     5.14765,     5.02192,     5.72775,
+            11.3476,     8.93788,     8.36279,     7.88566,     5.83093,     6.66771,
+            2.348,     2.59173,     1.55158,     1.54876,     0.98618,     1.06927,
+            0.0100676,  0.00971589,  0.00932669,   0.0279141,    0.025781,   0.0229432,
+            0.0372854,   0.0215628,   0.0132992,   0.0412051,   0.0322458,   0.0465477,
+            0.94,    0.90,    0.375623,    0.94,    0.90,    0.579434,
+            99,          99,     98.9239,     98.9999,     98.9997,     98.9987,
+            1.5,         1.5,         1.5,         1.5,         1.5,         1.5 };
+        float cic4_allcuts_temp_lead[] = { 
+            1.85,      0.96,      1.21,  -0.028513,
+            3.7,      0.97,      1.38,  -0.880416,
+            1.93,       1.4,      1.48,     0.056,
+            0.0099,    0.0092,     0.027,     0.023,
+            0.042,    0.0173,     0.023,    0.0085,
+            0.94,      0.69,      0.97,      0.52,
+            1,         1,         1,         1,
+            1.5,         1.5,         1.5,         1.5 };
+        float cic4_allcuts_temp_sublead[] = { 
+            1.85,      0.96,      1.21,  -0.028513,
+            3.7,      0.97,      1.38,  -0.880416,
+            1.93,       1.4,      1.48,     0.056,
+            0.0099,    0.0092,     0.027,     0.023,
+            0.042,    0.0173,     0.023,    0.0085,
+            0.94,      0.69,      0.97,      0.52,
+            1,         1,         1,         1,
+            1.5,         1.5,         1.5,         1.5 };
+        for(int i=0;i!=ncuts*ncat_cic6;++i) { 
+            cic6_allcuts_lead[i]=cic6_allcuts_temp_lead[i];
+            cic6_allcuts_sublead[i]=cic6_allcuts_temp_sublead[i]; }
+        for(int i=0;i!=ncuts*ncat_cic4;++i) { 
+            cic4_allcuts_lead[i]=cic4_allcuts_temp_lead[i];
+            cic4_allcuts_sublead[i]=cic4_allcuts_temp_sublead[i]; }
 
-			    float cic4pf_allcuts_temp_lead[] = { 
-			      4.5,       2.7,       2.6,       2.4,
-			      5.9,       4.8,       4.6,       3.7,
-			      2.5,      1.48,      0.87,      0.38,
-			      0.0106,      0.01,     0.028,     0.027,
-			      0.099,     0.092,     0.104,     0.059,
-			      0.94,      0.39,      0.94,      0.24,
+        float cic4pf_allcuts_temp_lead[] = { 
+            4.5,       2.7,       2.6,       2.4,
+            5.9,       4.8,       4.6,       3.7,
+            2.5,      1.48,      0.87,      0.38,
+            0.0106,      0.01,     0.028,     0.027,
+            0.099,     0.092,     0.104,     0.059,
+            0.94,      0.39,      0.94,      0.24,
             1,         1,         1,      0.78,
-			      1.5,         1.5,         1.5,         1.5};
-			    float cic4pf_allcuts_temp_sublead[] = { 
-			      4.5,       2.7,       2.6,       2.4,
-			      5.9,       4.8,       4.6,       3.7,
-			      2.5,      1.48,      0.87,      0.38,
-			      0.0106,      0.01,     0.028,     0.027,
-			      0.099,     0.092,     0.104,     0.059,
-			      0.94,      0.39,      0.94,      0.24,
+            1.5,         1.5,         1.5,         1.5};
+        float cic4pf_allcuts_temp_sublead[] = { 
+            4.5,       2.7,       2.6,       2.4,
+            5.9,       4.8,       4.6,       3.7,
+            2.5,      1.48,      0.87,      0.38,
+            0.0106,      0.01,     0.028,     0.027,
+            0.099,     0.092,     0.104,     0.059,
+            0.94,      0.39,      0.94,      0.24,
             1,         1,         1,      0.78,
-			      1.5,         1.5,         1.5,         1.5};
-			    for(int i=0;i!=ncuts*ncat_cic4;++i) { 
-			      cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
-			      cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i]; 
-			    }
-
-                           } break;
+            1.5,         1.5,         1.5,         1.5};
+        for(int i=0;i!=ncuts*ncat_cic4;++i) { 
+            cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
+            cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i]; 
+        }
+    } break;
     case(phoHYPERTIGHT4) : {
-                             float cic6_allcuts_temp_lead[] = { 
-                               6.53539,     6.07874,     5.51521,     4.78731,     5.00511,     4.90969,
-                               9.30747,      8.0574,     7.70153,     7.43339,     5.44326,     6.66771,
-                               1.96543,     1.78829,    0.819072,     1.54876,     0.98618,    0.255192,
-                               0.0100676,  0.00919753,  0.00911379,   0.0278098,   0.0249354,   0.0221531,
-                               0.03099,   0.0153957,   0.0132992,   0.0214415,   0.0322458,   0.0138186,
-                               0.94,    0.90,    0.397401,    0.94,    0.90,     0.68715,
-                               99,          99,     98.9979,          99,          99,     98.9987,
-                               1.5,         1.5,         1.5,         1.5,         1.5,         1.5 };
-                             float cic6_allcuts_temp_sublead[] = { 
-                               6.53539,     6.07874,     5.51521,     4.78731,     5.00511,     4.90969,
-                               9.30747,      8.0574,     7.70153,     7.43339,     5.44326,     6.66771,
-                               1.96543,     1.78829,    0.819072,     1.54876,     0.98618,    0.255192,
-                               0.0100676,  0.00919753,  0.00911379,   0.0278098,   0.0249354,   0.0221531,
-                               0.03099,   0.0153957,   0.0132992,   0.0214415,   0.0322458,   0.0138186,
-                               0.94,    0.90,    0.397401,    0.94,    0.90,     0.68715,
-                               99,          99,     98.9979,          99,          99,     98.9987,
-                               1.5,         1.5,         1.5,         1.5,         1.5,         1.5 };
-                             float cic4_allcuts_temp_lead[] = { 
-				     1.31,       0.3,      1.15,  -0.028513,
-				     1.72,      0.69,      1.14,  -0.880416,
-				     1.42,      0.76,      1.48,     0.056,
-				     0.0098,     0.009,     0.026,     0.023,
-				     0.037,   0.00049,    0.0198,   0.00024,
-				     0.94,      0.69,      0.97,      0.73,
-				     1,         1,         1,         1,
-				     1.5,         1.5,         1.5,         1.5 };
-                             float cic4_allcuts_temp_sublead[] = { 
-				     1.31,       0.3,      1.15,  -0.028513,
-				     1.72,      0.69,      1.14,  -0.880416,
-				     1.42,      0.76,      1.48,     0.056,
-				     0.0098,     0.009,     0.026,     0.023,
-				     0.037,   0.00049,    0.0198,   0.00024,
-				     0.94,      0.69,      0.97,      0.73,
-				     1,         1,         1,         1,
-				     1.5,         1.5,         1.5,         1.5 };
-                             for(int i=0;i!=ncuts*ncat_cic6;++i) { cic6_allcuts_lead[i]=cic6_allcuts_temp_lead[i];
-                               cic6_allcuts_sublead[i]=cic6_allcuts_temp_sublead[i]; }
-                               for(int i=0;i!=ncuts*ncat_cic4;++i) { cic4_allcuts_lead[i]=cic4_allcuts_temp_lead[i];
-                                 cic4_allcuts_sublead[i]=cic4_allcuts_temp_sublead[i]; }
+        float cic6_allcuts_temp_lead[] = { 
+            6.53539,     6.07874,     5.51521,     4.78731,     5.00511,     4.90969,
+            9.30747,      8.0574,     7.70153,     7.43339,     5.44326,     6.66771,
+            1.96543,     1.78829,    0.819072,     1.54876,     0.98618,    0.255192,
+            0.0100676,  0.00919753,  0.00911379,   0.0278098,   0.0249354,   0.0221531,
+            0.03099,   0.0153957,   0.0132992,   0.0214415,   0.0322458,   0.0138186,
+            0.94,    0.90,    0.397401,    0.94,    0.90,     0.68715,
+            99,          99,     98.9979,          99,          99,     98.9987,
+            1.5,         1.5,         1.5,         1.5,         1.5,         1.5 };
+        float cic6_allcuts_temp_sublead[] = { 
+            6.53539,     6.07874,     5.51521,     4.78731,     5.00511,     4.90969,
+            9.30747,      8.0574,     7.70153,     7.43339,     5.44326,     6.66771,
+            1.96543,     1.78829,    0.819072,     1.54876,     0.98618,    0.255192,
+            0.0100676,  0.00919753,  0.00911379,   0.0278098,   0.0249354,   0.0221531,
+            0.03099,   0.0153957,   0.0132992,   0.0214415,   0.0322458,   0.0138186,
+            0.94,    0.90,    0.397401,    0.94,    0.90,     0.68715,
+            99,          99,     98.9979,          99,          99,     98.9987,
+            1.5,         1.5,         1.5,         1.5,         1.5,         1.5 };
+        float cic4_allcuts_temp_lead[] = { 
+            1.31,       0.3,      1.15,  -0.028513,
+            1.72,      0.69,      1.14,  -0.880416,
+            1.42,      0.76,      1.48,     0.056,
+            0.0098,     0.009,     0.026,     0.023,
+            0.037,   0.00049,    0.0198,   0.00024,
+            0.94,      0.69,      0.97,      0.73,
+            1,         1,         1,         1,
+            1.5,         1.5,         1.5,         1.5 };
+        float cic4_allcuts_temp_sublead[] = { 
+            1.31,       0.3,      1.15,  -0.028513,
+            1.72,      0.69,      1.14,  -0.880416,
+            1.42,      0.76,      1.48,     0.056,
+            0.0098,     0.009,     0.026,     0.023,
+            0.037,   0.00049,    0.0198,   0.00024,
+            0.94,      0.69,      0.97,      0.73,
+            1,         1,         1,         1,
+            1.5,         1.5,         1.5,         1.5 };
+        for(int i=0;i!=ncuts*ncat_cic6;++i) { 
+            cic6_allcuts_lead[i]=cic6_allcuts_temp_lead[i];
+            cic6_allcuts_sublead[i]=cic6_allcuts_temp_sublead[i]; }
+        for(int i=0;i!=ncuts*ncat_cic4;++i) { 
+            cic4_allcuts_lead[i]=cic4_allcuts_temp_lead[i];
+            cic4_allcuts_sublead[i]=cic4_allcuts_temp_sublead[i]; }
 
-			    float cic4pf_allcuts_temp_lead[] = { 
-			      2.7,       2.4,       2.4,       2.3,
-			      5.9,       3.7,       4.6,       2.7,
-			      1.28,      1.15,      0.65,      0.38,
-			      .0106,    0.0099,     0.028,     0.027,
-			      0.095,     0.092,     0.065,     0.059,
-			      0.94,      0.39,      0.94,      0.24,
+        float cic4pf_allcuts_temp_lead[] = { 
+            2.7,       2.4,       2.4,       2.3,
+            5.9,       3.7,       4.6,       2.7,
+            1.28,      1.15,      0.65,      0.38,
+            .0106,    0.0099,     0.028,     0.027,
+            0.095,     0.092,     0.065,     0.059,
+            0.94,      0.39,      0.94,      0.24,
             1,         1,         1,      0.97,
-			      1.5,         1.5,         1.5,         1.5} ;
+            1.5,         1.5,         1.5,         1.5} ;
 
-			    float cic4pf_allcuts_temp_sublead[] = { 
-			      2.7,       2.4,       2.4,       2.3,
-			      5.9,       3.7,       4.6,       2.7,
-			      1.28,      1.15,      0.65,      0.38,
-			      .0106,     0.0099,     0.028,     0.027,
-			      0.095,     0.092,     0.065,     0.059,
-			      0.94,      0.39,      0.94,      0.24,
+        float cic4pf_allcuts_temp_sublead[] = { 
+            2.7,       2.4,       2.4,       2.3,
+            5.9,       3.7,       4.6,       2.7,
+            1.28,      1.15,      0.65,      0.38,
+            .0106,     0.0099,     0.028,     0.027,
+            0.095,     0.092,     0.065,     0.059,
+            0.94,      0.39,      0.94,      0.24,
             1,         1,         1,      0.97,
-			      1.5,         1.5,         1.5,         1.5} ;
+            1.5,         1.5,         1.5,         1.5} ;
 
-			    for(int i=0;i!=ncuts*ncat_cic4;++i) { 
-			      cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
-			      cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i]; 
-			    }
+        for(int i=0;i!=ncuts*ncat_cic4;++i) { 
+            cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
+            cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i]; 
+        }
+    } break;
+    
+    case(phoHYPERTIGHT5) : {
+        float cic6_allcuts_temp_lead[] = { 
+            6.53539,     6.07874,     5.51521,     4.78731,     5.00511,     4.90969,
+            9.30747,      8.0574,     7.70153,     7.43339,     5.44326,     6.66771,
+            1.96543,     1.78829,    0.819072,     1.54876,     0.98618,    0.255192,
+            0.0100676,  0.00919753,  0.00911379,   0.0278098,   0.0249354,   0.0221531,
+            0.03099,   0.0153957,   0.0132992,   0.0214415,   0.0322458,   0.0138186,
+            0.94,    0.90,    0.397401,    0.94,    0.90,     0.68715,
+            99,          99,     98.9979,          99,          99,     98.9987,
+            1.5,         1.5,         1.5,         1.5,         1.5,         1.5 };
+        float cic6_allcuts_temp_sublead[] = { 
+            6.53539,     6.07874,     5.51521,     4.78731,     5.00511,     4.90969,
+            9.30747,      8.0574,     7.70153,     7.43339,     5.44326,     6.66771,
+            1.96543,     1.78829,    0.819072,     1.54876,     0.98618,    0.255192,
+            0.0100676,  0.00919753,  0.00911379,   0.0278098,   0.0249354,   0.0221531,
+            0.03099,   0.0153957,   0.0132992,   0.0214415,   0.0322458,   0.0138186,
+            0.94,    0.90,    0.397401,    0.94,    0.90,     0.68715,
+            99,          99,     98.9979,          99,          99,     98.9987,
+            1.5,         1.5,         1.5,         1.5,         1.5,         1.5 };
+        float cic4_allcuts_temp_lead[] = { 
+            1.31,       0.3,      1.15,  -0.028513,
+            1.72,      0.69,      1.14,  -0.880416,
+            1.42,      0.76,      1.48,     0.056,
+            0.0098,     0.009,     0.026,     0.023,
+            0.037,   0.00049,    0.0198,   0.00024,
+            0.94,      0.69,      0.97,      0.73,
+            1,         1,         1,         1,
+            1.5,         1.5,         1.5,         1.5 };
+        float cic4_allcuts_temp_sublead[] = { 
+            1.31,       0.3,      1.15,  -0.028513,
+            1.72,      0.69,      1.14,  -0.880416,
+            1.42,      0.76,      1.48,     0.056,
+            0.0098,     0.009,     0.026,     0.023,
+            0.037,   0.00049,    0.0198,   0.00024,
+            0.94,      0.69,      0.97,      0.73,
+            1,         1,         1,         1,
+            1.5,         1.5,         1.5,         1.5 };
+        for(int i=0;i!=ncuts*ncat_cic6;++i) { 
+            cic6_allcuts_lead[i]=cic6_allcuts_temp_lead[i];
+            cic6_allcuts_sublead[i]=cic6_allcuts_temp_sublead[i]; }
+        for(int i=0;i!=ncuts*ncat_cic4;++i) { 
+            cic4_allcuts_lead[i]=cic4_allcuts_temp_lead[i];
+            cic4_allcuts_sublead[i]=cic4_allcuts_temp_sublead[i]; }
 
-                           } break;
+
+        float cic4pf_allcuts_temp_lead[] = { 
+            2.5,       2.2,       2.3,       2.2,
+            5.9,         3,       3.2,       2.7,
+            1.05,      1.15,    0.0065,    0.0038,
+            0.0106,    0.0099,     0.027,     0.027,
+            0.086,     0.055,     0.065,    0.0032,
+            0.94,      0.39,      0.95,      0.78,
+            1,         1,         1,      0.97,
+            1.5,         1.5,         1.5,         1.5} ;
+
+        float cic4pf_allcuts_temp_sublead[] = { 
+            2.5,       2.2,       2.3,       2.2,
+            5.9,         3,       3.2,       2.7,
+            1.05,      1.15,    0.0065,    0.0038,
+            0.0106,    0.0099,     0.027,     0.027,
+            0.086,     0.055,     0.065,    0.0032,
+            0.94,      0.39,      0.95,      0.78,
+            1,         1,         1,      0.97,
+            1.5,         1.5,         1.5,         1.5} ;
+
+        for(int i=0;i!=ncuts*ncat_cic4;++i) { 
+            cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
+            cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i]; 
+        }
+    } break;
+    
+    case(phoHYPERTIGHT6) : {
+        float cic6_allcuts_temp_lead[] = { 
+            6.53539,     6.07874,     5.51521,     4.78731,     5.00511,     4.90969,
+            9.30747,      8.0574,     7.70153,     7.43339,     5.44326,     6.66771,
+            1.96543,     1.78829,    0.819072,     1.54876,     0.98618,    0.255192,
+            0.0100676,  0.00919753,  0.00911379,   0.0278098,   0.0249354,   0.0221531,
+            0.03099,   0.0153957,   0.0132992,   0.0214415,   0.0322458,   0.0138186,
+            0.94,    0.90,    0.397401,    0.94,    0.90,     0.68715,
+            99,          99,     98.9979,          99,          99,     98.9987,
+            1.5,         1.5,         1.5,         1.5,         1.5,         1.5 };
+        float cic6_allcuts_temp_sublead[] = { 
+            6.53539,     6.07874,     5.51521,     4.78731,     5.00511,     4.90969,
+            9.30747,      8.0574,     7.70153,     7.43339,     5.44326,     6.66771,
+            1.96543,     1.78829,    0.819072,     1.54876,     0.98618,    0.255192,
+            0.0100676,  0.00919753,  0.00911379,   0.0278098,   0.0249354,   0.0221531,
+            0.03099,   0.0153957,   0.0132992,   0.0214415,   0.0322458,   0.0138186,
+            0.94,    0.90,    0.397401,    0.94,    0.90,     0.68715,
+            99,          99,     98.9979,          99,          99,     98.9987,
+            1.5,         1.5,         1.5,         1.5,         1.5,         1.5 };
+        float cic4_allcuts_temp_lead[] = { 
+            1.31,       0.3,      1.15,  -0.028513,
+            1.72,      0.69,      1.14,  -0.880416,
+            1.42,      0.76,      1.48,     0.056,
+            0.0098,     0.009,     0.026,     0.023,
+            0.037,   0.00049,    0.0198,   0.00024,
+            0.94,      0.69,      0.97,      0.73,
+            1,         1,         1,         1,
+            1.5,         1.5,         1.5,         1.5 };
+        float cic4_allcuts_temp_sublead[] = { 
+            1.31,       0.3,      1.15,  -0.028513,
+            1.72,      0.69,      1.14,  -0.880416,
+            1.42,      0.76,      1.48,     0.056,
+            0.0098,     0.009,     0.026,     0.023,
+            0.037,   0.00049,    0.0198,   0.00024,
+            0.94,      0.69,      0.97,      0.73,
+            1,         1,         1,         1,
+            1.5,         1.5,         1.5,         1.5 };
+        for(int i=0;i!=ncuts*ncat_cic6;++i) { 
+            cic6_allcuts_lead[i]=cic6_allcuts_temp_lead[i];
+            cic6_allcuts_sublead[i]=cic6_allcuts_temp_sublead[i]; }
+        for(int i=0;i!=ncuts*ncat_cic4;++i) { 
+            cic4_allcuts_lead[i]=cic4_allcuts_temp_lead[i];
+            cic4_allcuts_sublead[i]=cic4_allcuts_temp_sublead[i]; }
+
+        float cic4pf_allcuts_temp_lead[] = { 
+            2.3,         2,       2.2,      1.88,
+            5.5,       2.2,       2.1,      1.74,
+            0.96,      0.99,   6.6e-05,   3.9e-05,
+            0.0106,    0.0098,     0.026,     0.027,
+            0.032,     0.035,      0.03,   3.2e-05,
+            0.94,      0.39,      0.96,      0.86,
+            1,         1,         1,      0.97,
+            1.5,         1.5,         1.5,         1.5} ;
+
+        float cic4pf_allcuts_temp_sublead[] = { 
+            2.3,         2,       2.2,      1.88,
+            5.5,       2.2,       2.1,      1.74,
+            0.96,      0.99,   6.6e-05,   3.9e-05,
+            0.0106,    0.0098,     0.026,     0.027,
+            0.032,     0.035,      0.03,   3.2e-05,
+            0.94,      0.39,      0.96,      0.86,
+            1,         1,         1,      0.97,
+            1.5,         1.5,         1.5,         1.5} ;
+
+        for(int i=0;i!=ncuts*ncat_cic4;++i) { 
+            cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
+            cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i]; 
+        }
+    } break;
+    
+    case(phoHYPERTIGHT7) : {
+        float cic6_allcuts_temp_lead[] = { 
+            6.53539,     6.07874,     5.51521,     4.78731,     5.00511,     4.90969,
+            9.30747,      8.0574,     7.70153,     7.43339,     5.44326,     6.66771,
+            1.96543,     1.78829,    0.819072,     1.54876,     0.98618,    0.255192,
+            0.0100676,  0.00919753,  0.00911379,   0.0278098,   0.0249354,   0.0221531,
+            0.03099,   0.0153957,   0.0132992,   0.0214415,   0.0322458,   0.0138186,
+            0.94,    0.90,    0.397401,    0.94,    0.90,     0.68715,
+            99,          99,     98.9979,          99,          99,     98.9987,
+            1.5,         1.5,         1.5,         1.5,         1.5,         1.5 };
+        float cic6_allcuts_temp_sublead[] = { 
+            6.53539,     6.07874,     5.51521,     4.78731,     5.00511,     4.90969,
+            9.30747,      8.0574,     7.70153,     7.43339,     5.44326,     6.66771,
+            1.96543,     1.78829,    0.819072,     1.54876,     0.98618,    0.255192,
+            0.0100676,  0.00919753,  0.00911379,   0.0278098,   0.0249354,   0.0221531,
+            0.03099,   0.0153957,   0.0132992,   0.0214415,   0.0322458,   0.0138186,
+            0.94,    0.90,    0.397401,    0.94,    0.90,     0.68715,
+            99,          99,     98.9979,          99,          99,     98.9987,
+            1.5,         1.5,         1.5,         1.5,         1.5,         1.5 };
+        float cic4_allcuts_temp_lead[] = { 
+            1.31,       0.3,      1.15,  -0.028513,
+            1.72,      0.69,      1.14,  -0.880416,
+            1.42,      0.76,      1.48,     0.056,
+            0.0098,     0.009,     0.026,     0.023,
+            0.037,   0.00049,    0.0198,   0.00024,
+            0.94,      0.69,      0.97,      0.73,
+            1,         1,         1,         1,
+            1.5,         1.5,         1.5,         1.5 };
+        float cic4_allcuts_temp_sublead[] = { 
+            1.31,       0.3,      1.15,  -0.028513,
+            1.72,      0.69,      1.14,  -0.880416,
+            1.42,      0.76,      1.48,     0.056,
+            0.0098,     0.009,     0.026,     0.023,
+            0.037,   0.00049,    0.0198,   0.00024,
+            0.94,      0.69,      0.97,      0.73,
+            1,         1,         1,         1,
+            1.5,         1.5,         1.5,         1.5 };
+        for(int i=0;i!=ncuts*ncat_cic6;++i) { 
+            cic6_allcuts_lead[i]=cic6_allcuts_temp_lead[i];
+            cic6_allcuts_sublead[i]=cic6_allcuts_temp_sublead[i]; }
+        for(int i=0;i!=ncuts*ncat_cic4;++i) { 
+            cic4_allcuts_lead[i]=cic4_allcuts_temp_lead[i];
+            cic4_allcuts_sublead[i]=cic4_allcuts_temp_sublead[i]; }
+
+        float cic4pf_allcuts_temp_lead[] = { 
+            2.2,      1.64,         2,      1.88,
+            4.2,       2.2,       2.1,      1.39,
+            0.96,      0.01,     1e-06,         0,
+            0.0101,     0.009,     0.026,     0.027,
+            0.017,   0.00156,     0.023,   3.2e-05,
+            0.94,      0.68,      0.96,      0.86,
+            1,         1,         1,      0.99,
+            1.5,         1.5,         1.5,         1.5} ;
+
+        float cic4pf_allcuts_temp_sublead[] = { 
+            2.2,      1.64,         2,      1.88,
+            4.2,       2.2,       2.1,      1.39,
+            0.96,      0.01,     1e-06,         0,
+            0.0101,     0.009,     0.026,     0.027,
+            0.017,   0.00156,     0.023,   3.2e-05,
+            0.94,      0.68,      0.96,      0.86,
+            1,         1,         1,      0.99,
+            1.5,         1.5,         1.5,         1.5} ;
+
+        for(int i=0;i!=ncuts*ncat_cic4;++i) { 
+            cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
+            cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i]; 
+        }
+    } break;
+    
+    case(phoHYPERTIGHT8) : {
+        float cic6_allcuts_temp_lead[] = { 
+            6.53539,     6.07874,     5.51521,     4.78731,     5.00511,     4.90969,
+            9.30747,      8.0574,     7.70153,     7.43339,     5.44326,     6.66771,
+            1.96543,     1.78829,    0.819072,     1.54876,     0.98618,    0.255192,
+            0.0100676,  0.00919753,  0.00911379,   0.0278098,   0.0249354,   0.0221531,
+            0.03099,   0.0153957,   0.0132992,   0.0214415,   0.0322458,   0.0138186,
+            0.94,    0.90,    0.397401,    0.94,    0.90,     0.68715,
+            99,          99,     98.9979,          99,          99,     98.9987,
+            1.5,         1.5,         1.5,         1.5,         1.5,         1.5 };
+        float cic6_allcuts_temp_sublead[] = { 
+            6.53539,     6.07874,     5.51521,     4.78731,     5.00511,     4.90969,
+            9.30747,      8.0574,     7.70153,     7.43339,     5.44326,     6.66771,
+            1.96543,     1.78829,    0.819072,     1.54876,     0.98618,    0.255192,
+            0.0100676,  0.00919753,  0.00911379,   0.0278098,   0.0249354,   0.0221531,
+            0.03099,   0.0153957,   0.0132992,   0.0214415,   0.0322458,   0.0138186,
+            0.94,    0.90,    0.397401,    0.94,    0.90,     0.68715,
+            99,          99,     98.9979,          99,          99,     98.9987,
+            1.5,         1.5,         1.5,         1.5,         1.5,         1.5 };
+        float cic4_allcuts_temp_lead[] = { 
+            1.31,       0.3,      1.15,  -0.028513,
+            1.72,      0.69,      1.14,  -0.880416,
+            1.42,      0.76,      1.48,     0.056,
+            0.0098,     0.009,     0.026,     0.023,
+            0.037,   0.00049,    0.0198,   0.00024,
+            0.94,      0.69,      0.97,      0.73,
+            1,         1,         1,         1,
+            1.5,         1.5,         1.5,         1.5 };
+        float cic4_allcuts_temp_sublead[] = { 
+            1.31,       0.3,      1.15,  -0.028513,
+            1.72,      0.69,      1.14,  -0.880416,
+            1.42,      0.76,      1.48,     0.056,
+            0.0098,     0.009,     0.026,     0.023,
+            0.037,   0.00049,    0.0198,   0.00024,
+            0.94,      0.69,      0.97,      0.73,
+            1,         1,         1,         1,
+            1.5,         1.5,         1.5,         1.5 };
+        for(int i=0;i!=ncuts*ncat_cic6;++i) { 
+            cic6_allcuts_lead[i]=cic6_allcuts_temp_lead[i];
+            cic6_allcuts_sublead[i]=cic6_allcuts_temp_sublead[i]; }
+        for(int i=0;i!=ncuts*ncat_cic4;++i) { 
+            cic4_allcuts_lead[i]=cic4_allcuts_temp_lead[i];
+            cic4_allcuts_sublead[i]=cic4_allcuts_temp_sublead[i]; }
+
+        float cic4pf_allcuts_temp_lead[] = { 
+            2,      1.62,      1.87,      1.88,
+            4.2,      1.57,      1.38,      1.39,
+            0.0097,  0.000101,         0,         0,
+            0.0098,    0.0088,     0.025,     0.027,
+            0.0164,   0.00156,   0.00023,   3.2e-05,
+            0.95,      0.68,      0.97,      0.86,
+            1,         1,         1,         1,
+            1.5,         1.5,         1.5,         1.5} ;
+
+        float cic4pf_allcuts_temp_sublead[] = { 
+            2,      1.62,      1.87,      1.88,
+            4.2,      1.57,      1.38,      1.39,
+            0.0097,  0.000101,         0,         0,
+            0.0098,    0.0088,     0.025,     0.027,
+            0.0164,   0.00156,   0.00023,   3.2e-05,
+            0.95,      0.68,      0.97,      0.86,
+            1,         1,         1,         1,
+            1.5,         1.5,         1.5,         1.5} ;
+
+        for(int i=0;i!=ncuts*ncat_cic4;++i) { 
+            cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
+            cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i]; 
+        }
+    } break;
+    
+    case(phoHYPERTIGHT9) : {
+        float cic6_allcuts_temp_lead[] = { 
+            6.53539,     6.07874,     5.51521,     4.78731,     5.00511,     4.90969,
+            9.30747,      8.0574,     7.70153,     7.43339,     5.44326,     6.66771,
+            1.96543,     1.78829,    0.819072,     1.54876,     0.98618,    0.255192,
+            0.0100676,  0.00919753,  0.00911379,   0.0278098,   0.0249354,   0.0221531,
+            0.03099,   0.0153957,   0.0132992,   0.0214415,   0.0322458,   0.0138186,
+            0.94,    0.90,    0.397401,    0.94,    0.90,     0.68715,
+            99,          99,     98.9979,          99,          99,     98.9987,
+            1.5,         1.5,         1.5,         1.5,         1.5,         1.5 };
+        float cic6_allcuts_temp_sublead[] = { 
+            6.53539,     6.07874,     5.51521,     4.78731,     5.00511,     4.90969,
+            9.30747,      8.0574,     7.70153,     7.43339,     5.44326,     6.66771,
+            1.96543,     1.78829,    0.819072,     1.54876,     0.98618,    0.255192,
+            0.0100676,  0.00919753,  0.00911379,   0.0278098,   0.0249354,   0.0221531,
+            0.03099,   0.0153957,   0.0132992,   0.0214415,   0.0322458,   0.0138186,
+            0.94,    0.90,    0.397401,    0.94,    0.90,     0.68715,
+            99,          99,     98.9979,          99,          99,     98.9987,
+            1.5,         1.5,         1.5,         1.5,         1.5,         1.5 };
+        float cic4_allcuts_temp_lead[] = { 
+            1.31,       0.3,      1.15,  -0.028513,
+            1.72,      0.69,      1.14,  -0.880416,
+            1.42,      0.76,      1.48,     0.056,
+            0.0098,     0.009,     0.026,     0.023,
+            0.037,   0.00049,    0.0198,   0.00024,
+            0.94,      0.69,      0.97,      0.73,
+            1,         1,         1,         1,
+            1.5,         1.5,         1.5,         1.5 };
+        float cic4_allcuts_temp_sublead[] = { 
+            1.31,       0.3,      1.15,  -0.028513,
+            1.72,      0.69,      1.14,  -0.880416,
+            1.42,      0.76,      1.48,     0.056,
+            0.0098,     0.009,     0.026,     0.023,
+            0.037,   0.00049,    0.0198,   0.00024,
+            0.94,      0.69,      0.97,      0.73,
+            1,         1,         1,         1,
+            1.5,         1.5,         1.5,         1.5 };
+        for(int i=0;i!=ncuts*ncat_cic6;++i) { 
+            cic6_allcuts_lead[i]=cic6_allcuts_temp_lead[i];
+            cic6_allcuts_sublead[i]=cic6_allcuts_temp_sublead[i]; }
+        for(int i=0;i!=ncuts*ncat_cic4;++i) { 
+            cic4_allcuts_lead[i]=cic4_allcuts_temp_lead[i];
+            cic4_allcuts_sublead[i]=cic4_allcuts_temp_sublead[i]; }
+
+        float cic4pf_allcuts_temp_lead[] = { 
+            2,      1.47,      1.87,      1.88,
+            3.1,      1.37,      1.38,      1.39,
+            8e-05,     1e-06,         0,         0,
+            0.0098,    0.0087,     0.024,     0.027,
+            0.000165,   0.00093,   0.00023,   3.2e-05,
+            0.95,      0.68,      0.97,      0.86,
+            1,         1,         1,         1,
+            1.5,         1.5,         1.5,         1.5} ;
+
+        float cic4pf_allcuts_temp_sublead[] = { 
+            2,      1.47,      1.87,      1.88,
+            3.1,      1.37,      1.38,      1.39,
+            8e-05,     1e-06,         0,         0,
+            0.0098,    0.0087,     0.024,     0.027,
+            0.000165,   0.00093,   0.00023,   3.2e-05,
+            0.95,      0.68,      0.97,      0.86,
+            1,         1,         1,         1,
+            1.5,         1.5,         1.5,         1.5} ;
+
+        for(int i=0;i!=ncuts*ncat_cic4;++i) { 
+            cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
+            cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i]; 
+        }
+    } break;
+    
+    
+    
+    
     default:std::cout << "UNKNOWN phoCiCIDLevel: " << cutlevel << std::endl;
 
   }
@@ -1779,8 +2141,8 @@ void LoopAll::SetPhotonCutsInCategories(phoCiCIDLevel cutlevel, float * cic6_all
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 int LoopAll::DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL, phoCiCIDLevel SUBLEADCUTLEVEL, 
-				   Float_t leadPtMin, Float_t subleadPtMin, int ncategories, bool applyPtoverM, 
-				   float *pho_energy_array, bool split) {
+           Float_t leadPtMin, Float_t subleadPtMin, int ncategories, bool applyPtoverM, 
+           float *pho_energy_array, bool split) {
 
   //rho=0;// CAUTION SETTING RHO TO 0 FOR 2010 DATA FILES (RHO ISN'T IN THESE FILES)
   int selected_lead_index = -1;
@@ -1791,63 +2153,63 @@ int LoopAll::DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL, phoCiCIDLevel SUB
   std::vector<int> passing_dipho;
   std::vector<float> passing_sumpt;
   for(int idipho = 0; idipho < dipho_n; ++idipho ) {
-	  int ivtx = dipho_vtxind[idipho];
-	  int lead = dipho_leadind[idipho];
-	  int sublead = dipho_subleadind[idipho];
-	  
-	  if( lead == sublead ) { continue; }
+    int ivtx = dipho_vtxind[idipho];
+    int lead = dipho_leadind[idipho];
+    int sublead = dipho_subleadind[idipho];
+    
+    if( lead == sublead ) { continue; }
 
-	  TLorentzVector lead_p4 = get_pho_p4(lead,ivtx,pho_energy_array); 
-	  TLorentzVector sublead_p4 = get_pho_p4(sublead,ivtx,pho_energy_array); 
-	  if (sublead_p4.Pt() > lead_p4.Pt()){ // Swap them but also swap the indeces
-		int tmp = lead;
-		lead = sublead;
-		sublead =tmp;
-		dipho_leadind[idipho] = lead;
-		dipho_subleadind[idipho] = sublead;
-	  }
-	  
-	  float leadEta = fabs(((TVector3 *)sc_xyz->At(pho_scind[lead]))->Eta());
-	  float subleadEta = fabs(((TVector3 *)sc_xyz->At(pho_scind[sublead]))->Eta());
-	  float m_gamgam = (lead_p4+sublead_p4).M();
+    TLorentzVector lead_p4 = get_pho_p4(lead,ivtx,pho_energy_array); 
+    TLorentzVector sublead_p4 = get_pho_p4(sublead,ivtx,pho_energy_array); 
+    if (sublead_p4.Pt() > lead_p4.Pt()){ // Swap them but also swap the indeces
+    int tmp = lead;
+    lead = sublead;
+    sublead =tmp;
+    dipho_leadind[idipho] = lead;
+    dipho_subleadind[idipho] = sublead;
+    }
+    
+    float leadEta = fabs(((TVector3 *)sc_xyz->At(pho_scind[lead]))->Eta());
+    float subleadEta = fabs(((TVector3 *)sc_xyz->At(pho_scind[sublead]))->Eta());
+    float m_gamgam = (lead_p4+sublead_p4).M();
 
-	  if( leadEta > 2.5 || subleadEta > 2.5 || 
-	      ( leadEta > 1.4442 && leadEta < 1.566 ) ||
-	      ( subleadEta > 1.4442 && subleadEta < 1.566 ) ) { continue; }
+    if( leadEta > 2.5 || subleadEta > 2.5 || 
+        ( leadEta > 1.4442 && leadEta < 1.566 ) ||
+        ( subleadEta > 1.4442 && subleadEta < 1.566 ) ) { continue; }
 
-	  float leadpt = lead_p4.Pt() > sublead_p4.Pt() ? lead_p4.Pt() : sublead_p4.Pt();
-      	  float subleadpt = lead_p4.Pt() < sublead_p4.Pt() ? lead_p4.Pt() : sublead_p4.Pt(); 	  
+    float leadpt = lead_p4.Pt() > sublead_p4.Pt() ? lead_p4.Pt() : sublead_p4.Pt();
+          float subleadpt = lead_p4.Pt() < sublead_p4.Pt() ? lead_p4.Pt() : sublead_p4.Pt();     
     // Exclusive modes cut smoothly on lead pt/M but on straight pt on sublead to save sig eff and avoid HLT turn-on  
     if(split){   
         if ( leadpt/m_gamgam < leadPtMin/120. || subleadpt< subleadPtMin ) { continue; }  
     }else{
-	      if( applyPtoverM ) {
-	          if ( leadpt/m_gamgam < leadPtMin/120. || subleadpt/m_gamgam < subleadPtMin/120. ||
-		       leadpt < 100./3. || subleadpt < 100./4.) { continue; }
-	      } else {
-	          if ( leadpt < leadPtMin || subleadpt < subleadPtMin ) { continue; }
-	      }
+        if( applyPtoverM ) {
+            if ( leadpt/m_gamgam < leadPtMin/120. || subleadpt/m_gamgam < subleadPtMin/120. ||
+           leadpt < 100./3. || subleadpt < 100./4.) { continue; }
+        } else {
+            if ( leadpt < leadPtMin || subleadpt < subleadPtMin ) { continue; }
+        }
     }
-	  
+    
 
-	  std::vector<std::vector<bool> > ph_passcut;
-	  if( PhotonCiCSelectionLevel(lead, ivtx, ph_passcut, ncategories, 0, pho_energy_array ) < LEADCUTLEVEL ) { continue; }
-	  if( PhotonCiCSelectionLevel(sublead, ivtx, ph_passcut, ncategories, 1, pho_energy_array ) < SUBLEADCUTLEVEL ) { continue; }
-	  
-	  passing_dipho.push_back(idipho);
-	  passing_sumpt.push_back(leadpt+subleadpt);
+    std::vector<std::vector<bool> > ph_passcut;
+    if( PhotonCiCSelectionLevel(lead, ivtx, ph_passcut, ncategories, 0, pho_energy_array ) < LEADCUTLEVEL ) { continue; }
+    if( PhotonCiCSelectionLevel(sublead, ivtx, ph_passcut, ncategories, 1, pho_energy_array ) < SUBLEADCUTLEVEL ) { continue; }
+    
+    passing_dipho.push_back(idipho);
+    passing_sumpt.push_back(leadpt+subleadpt);
   }
   
   if( passing_dipho.empty() ) { return -1; }
 
    std::vector<int> passing_dipho_places;
    for (int counting=0;counting<passing_dipho.size();counting++){
-	  passing_dipho_places.push_back(counting); // This is very weird, but needed for later	
+    passing_dipho_places.push_back(counting); // This is very weird, but needed for later  
    }
    std::sort(passing_dipho_places.begin(),passing_dipho_places.end(),
-	    SimpleSorter<float,std::greater<float> >(&passing_sumpt[0]));
+      SimpleSorter<float,std::greater<float> >(&passing_sumpt[0]));
   //std::sort(passing_dipho.begin(),passing_dipho.end(),
-	//    SimpleSorter<float,std::greater<double> >(&passing_sumpt[0]));
+  //    SimpleSorter<float,std::greater<double> >(&passing_sumpt[0]));
 
   return passing_dipho[passing_dipho_places[0]];
 
@@ -1876,10 +2238,10 @@ int LoopAll::DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL, phoCiCIDLevel SUB
   /////     // if here, diphoton passed all cuts.
   /////     //std::cout << "FOUND DIPHOTON" << std::endl;
   /////     if( (iphop4->Et()>selected_lead_pt) || (ipho==selected_lead_index&&iiphop4->Et()>selected_sublead_pt) ) {
-  ///// 	      selected_lead_pt = iphop4->Et();
-  ///// 	      selected_sublead_pt = iiphop4->Et();
-  ///// 	      selected_lead_index = ipho;
-  ///// 	      selected_sublead_index = iipho;
+  /////         selected_lead_pt = iphop4->Et();
+  /////         selected_sublead_pt = iiphop4->Et();
+  /////         selected_lead_index = ipho;
+  /////         selected_sublead_index = iipho;
   /////     }
   /////     
   /////   }// end photon loop (iipho), aka sublead
@@ -1901,67 +2263,67 @@ int LoopAll::DiphotonMITPreSelection(Float_t leadPtMin, Float_t subleadPtMin, Fl
   std::vector<int> passing_dipho;
   std::vector<float> passing_sumpt;
   for(int idipho = 0; idipho < dipho_n; ++idipho ) {
-	  int ivtx = dipho_vtxind[idipho];
-	  int lead = dipho_leadind[idipho];
-	  int sublead = dipho_subleadind[idipho];
-	  
-	  if( lead == sublead ) { continue; }
+    int ivtx = dipho_vtxind[idipho];
+    int lead = dipho_leadind[idipho];
+    int sublead = dipho_subleadind[idipho];
+    
+    if( lead == sublead ) { continue; }
 
-	  TLorentzVector lead_p4 = get_pho_p4(lead,ivtx,pho_energy_array); 
-	  TLorentzVector sublead_p4 = get_pho_p4(sublead,ivtx,pho_energy_array);
+    TLorentzVector lead_p4 = get_pho_p4(lead,ivtx,pho_energy_array); 
+    TLorentzVector sublead_p4 = get_pho_p4(sublead,ivtx,pho_energy_array);
  
-	  if (sublead_p4.Pt() > lead_p4.Pt()){ // Swap them but also swap the indeces
-		int tmp = lead;
-		lead = sublead;
-		sublead =tmp;
-		dipho_leadind[idipho] = lead;
-		dipho_subleadind[idipho] = sublead;
-	  }
+    if (sublead_p4.Pt() > lead_p4.Pt()){ // Swap them but also swap the indeces
+    int tmp = lead;
+    lead = sublead;
+    sublead =tmp;
+    dipho_leadind[idipho] = lead;
+    dipho_subleadind[idipho] = sublead;
+    }
 
-	  float leadEta = fabs(((TVector3 *)sc_xyz->At(pho_scind[lead]))->Eta());
-	  float subleadEta = fabs(((TVector3 *)sc_xyz->At(pho_scind[sublead]))->Eta());
-	  float m_gamgam = (lead_p4+sublead_p4).M();
+    float leadEta = fabs(((TVector3 *)sc_xyz->At(pho_scind[lead]))->Eta());
+    float subleadEta = fabs(((TVector3 *)sc_xyz->At(pho_scind[sublead]))->Eta());
+    float m_gamgam = (lead_p4+sublead_p4).M();
 
-	  if( leadEta > 2.5 || subleadEta > 2.5 || 
-	      ( leadEta > 1.4442 && leadEta < 1.566 ) ||
-	      ( subleadEta > 1.4442 && subleadEta < 1.566 ) ) { continue; }
+    if( leadEta > 2.5 || subleadEta > 2.5 || 
+        ( leadEta > 1.4442 && leadEta < 1.566 ) ||
+        ( subleadEta > 1.4442 && subleadEta < 1.566 ) ) { continue; }
 
-	  float leadpt = lead_p4.Pt() > sublead_p4.Pt() ? lead_p4.Pt() : sublead_p4.Pt();
-      	  float subleadpt = lead_p4.Pt() < sublead_p4.Pt() ? lead_p4.Pt() : sublead_p4.Pt(); 	  
+    float leadpt = lead_p4.Pt() > sublead_p4.Pt() ? lead_p4.Pt() : sublead_p4.Pt();
+          float subleadpt = lead_p4.Pt() < sublead_p4.Pt() ? lead_p4.Pt() : sublead_p4.Pt();     
 
         if (run==170397 && lumis==279 && event==304405242){
- 		std::cout <<	"Inside diphotonSelection now" <<std::endl;
-		std::cout <<	"mass - " <<m_gamgam<<std::endl;
- 		std::cout <<	"lead ET - " <<leadpt<<std::endl;
- 		std::cout <<	"sublead ET - " <<subleadpt<<std::endl;
-	}
+     std::cout <<  "Inside diphotonSelection now" <<std::endl;
+    std::cout <<  "mass - " <<m_gamgam<<std::endl;
+     std::cout <<  "lead ET - " <<leadpt<<std::endl;
+     std::cout <<  "sublead ET - " <<subleadpt<<std::endl;
+  }
 
 
-	  if( applyPtoverM ) {
-	    if ( leadpt/m_gamgam < leadPtMin/120. || subleadpt/m_gamgam < subleadPtMin/120. ||
-		 leadpt < 100./3. || subleadpt < 100./4.) { continue; }
-	  } else {
-	    if ( leadpt < leadPtMin || subleadpt < subleadPtMin ) { continue; }
-	  }
-	  
+    if( applyPtoverM ) {
+      if ( leadpt/m_gamgam < leadPtMin/120. || subleadpt/m_gamgam < subleadPtMin/120. ||
+     leadpt < 100./3. || subleadpt < 100./4.) { continue; }
+    } else {
+      if ( leadpt < leadPtMin || subleadpt < subleadPtMin ) { continue; }
+    }
+    
 
-	  std::vector<std::vector<bool> > ph_passcut;
-	  if (!kinonly) {
-	    if (!( PhotonMITPreSelection(lead, ivtx, pho_energy_array ) && PhotonMITPreSelection(sublead, ivtx,  pho_energy_array ))) continue; 
-	  }
+    std::vector<std::vector<bool> > ph_passcut;
+    if (!kinonly) {
+      if (!( PhotonMITPreSelection(lead, ivtx, pho_energy_array ) && PhotonMITPreSelection(sublead, ivtx,  pho_energy_array ))) continue; 
+    }
 
-	  passing_dipho.push_back(idipho);
-	  passing_sumpt.push_back(leadpt+subleadpt); // need to use reordered pt!
+    passing_dipho.push_back(idipho);
+    passing_sumpt.push_back(leadpt+subleadpt); // need to use reordered pt!
   }
   
   if( passing_dipho.empty() ) { return -1; }
 
 /*   for (int KKK=0;KKK<passing_sumpt.size() ;KKK++){
-		std::cout <<	"diphoton index passing BEFORE SORT  -- "<< passing_dipho[KKK]<< " ";
+    std::cout <<  "diphoton index passing BEFORE SORT  -- "<< passing_dipho[KKK]<< " ";
    }
    std::cout << std::endl;
    for (int KKK=0;KKK<passing_sumpt.size() ;KKK++){
-		std::cout <<	"sumpt BEFORE SORT  -- "<< passing_sumpt[KKK]<< " ";
+    std::cout <<  "sumpt BEFORE SORT  -- "<< passing_sumpt[KKK]<< " ";
    }
    std::cout << std::endl;
 */
@@ -1970,20 +2332,20 @@ int LoopAll::DiphotonMITPreSelection(Float_t leadPtMin, Float_t subleadPtMin, Fl
 // EG if there are 2 diphotons passing , passing_dipho=[2,0], passing_sumpt=[100,30], then the Sorter was checking passing_sumpt[2] > passing_sumpt[0]
 // which is overflow!
 //  std::sort(passing_dipho.begin(),passing_dipho.end(),
-//	    SimpleSorter<float,std::greater<float> >(&(passing_sumpt[0])));
+//      SimpleSorter<float,std::greater<float> >(&(passing_sumpt[0])));
    std::vector<int> passing_dipho_places;
    for (int counting=0;counting<passing_dipho.size();counting++){
-	  passing_dipho_places.push_back(counting); // This is very weird, but needed for later	
+    passing_dipho_places.push_back(counting); // This is very weird, but needed for later  
    }
    std::sort(passing_dipho_places.begin(),passing_dipho_places.end(),
-	    SimpleSorter<float,std::greater<float> >(&passing_sumpt[0]));
+      SimpleSorter<float,std::greater<float> >(&passing_sumpt[0]));
 
 /*   for (int KKK=0;KKK<passing_sumpt.size() ;KKK++){
-		std::cout <<	"diphoton index passing AFTER SORT  -- "<< passing_dipho[KKK]<< " ";
+    std::cout <<  "diphoton index passing AFTER SORT  -- "<< passing_dipho[KKK]<< " ";
    }
    std::cout << std::endl;
    for (int KKK=0;KKK<passing_sumpt.size() ;KKK++){
-		std::cout <<	"sumpt AFTER SORT  -- "<< passing_sumpt[KKK]<< " ";
+    std::cout <<  "sumpt AFTER SORT  -- "<< passing_sumpt[KKK]<< " ";
    }
    std::cout << std::endl;
 */
@@ -1994,7 +2356,7 @@ int LoopAll::DiphotonMITPreSelection(Float_t leadPtMin, Float_t subleadPtMin, Fl
   TLorentzVector selected_lead_p4 = get_pho_p4(selected_dipho_lead,selected_dipho_vtx,pho_energy_array); 
   TLorentzVector selected_sublead_p4 = get_pho_p4(selected_dipho_sublead,selected_dipho_vtx,pho_energy_array);
    if (run==173439 && lumis==155 && event==236661419) {
- std::cout <<	"Inside diphotonSelection now" <<std::endl;
+ std::cout <<  "Inside diphotonSelection now" <<std::endl;
 std::cout << photonIDMVANew(selected_dipho_lead,selected_dipho_vtx,selected_lead_p4,"MIT")<<std::endl;
 std::cout << photonIDMVANew(selected_dipho_sublead,selected_dipho_vtx,selected_sublead_p4,"MIT")<<std::endl;
 
@@ -2002,15 +2364,15 @@ std::cout << photonIDMVANew(selected_dipho_sublead,selected_dipho_vtx,selected_s
  
   if (!kinonly) {
     if ( photonIDMVANew(selected_dipho_lead,selected_dipho_vtx,selected_lead_p4,"MIT") <= phoidMvaCut
-	 || photonIDMVANew(selected_dipho_sublead,selected_dipho_vtx,selected_sublead_p4,"MIT")	<= phoidMvaCut
-	 ) {return -1;}
+   || photonIDMVANew(selected_dipho_sublead,selected_dipho_vtx,selected_sublead_p4,"MIT")  <= phoidMvaCut
+   ) {return -1;}
   }
 
   if (run==170397 && lumis==279 && event==304405242){
-   std::cout <<	"Diphoton selected index -- "<< selected_dipho_ind <<std::endl;
-   std::cout <<	"N Passing Diphotons -- "<< passing_dipho.size() <<std::endl;
+   std::cout <<  "Diphoton selected index -- "<< selected_dipho_ind <<std::endl;
+   std::cout <<  "N Passing Diphotons -- "<< passing_dipho.size() <<std::endl;
    for (int KKK=0;KKK<passing_sumpt.size() ;KKK++){
-		std::cout <<	"diphotons PT  -- "<< passing_sumpt[KKK]<< " ";
+    std::cout <<  "diphotons PT  -- "<< passing_sumpt[KKK]<< " ";
    }
    std::cout << std::endl;
    std::cout << "Lead Index / sublead index -- "<<selected_dipho_lead<< " / " << selected_dipho_sublead <<std::endl;
@@ -2034,7 +2396,7 @@ bool LoopAll::PhotonMITPreSelection( int photon_index, int vertex_index, float *
    //float mitCuts_hcalecal[4]            = {3,3,3,3};                                                        
    //float mitCuts_abstrkiso[4]           = {2.8,2.8,2.8,2.8};                                                
    //float mitCuts_trkiso_hollow03[4]     = {4,4,4,4};                                                       
-   //float mitCuts_drtotk_25_99[4]	= {0.26,0.029,0.0062,0.0055};
+   //float mitCuts_drtotk_25_99[4]  = {0.26,0.029,0.0062,0.0055};
    float mitCuts_pfiso[4]               = {4,4,4,4};
 
    TLorentzVector phop4 = get_pho_p4( photon_index, vertex_index, pho_energy_array);                      
@@ -2094,7 +2456,7 @@ bool LoopAll::PhotonMITPreSelection( int photon_index, int vertex_index, float *
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 int LoopAll::PhotonCiCPFSelectionLevel( int photon_index, int vertex_index, std::vector<std::vector<bool> > & ph_passcut, int ncategories, 
-					int doSublead, float *pho_energy_array ) {
+          int doSublead, float *pho_energy_array ) {
 
   if( ! runCiC ) {
     switch(ncategories) {
@@ -2153,37 +2515,37 @@ int LoopAll::PhotonCiCPFSelectionLevel( int photon_index, int vertex_index, std:
       switch(ncategories) {
       case(4) :
         if(GFDEBUG) cout<<"iCUTLEVEL phoNCUTLEVELS "<<iCUTLEVEL<<" "<<phoNCUTLEVELS<<endl;
-	      ph_passcut[iCUTLEVEL][0] = (val_isosumoet        <=   cic4pf_cut_lead_isosumoet[iCUTLEVEL][photon_category]     );
-	      if(GFDEBUG) cout<<"pass, val, cut:  "<<ph_passcut[iCUTLEVEL][0] <<"   "<< val_isosumoet        <<"   "<<   cic4pf_cut_lead_isosumoet[iCUTLEVEL][photon_category]  <<std::endl;
-	      ph_passcut[iCUTLEVEL][1] = (val_isosumoetbad     <=   cic4pf_cut_lead_isosumoetbad[iCUTLEVEL][photon_category]  );
-	      if(GFDEBUG) cout<<"pass, val, cut:  "<<ph_passcut[iCUTLEVEL][1] <<"   "<< val_isosumoetbad     <<"   "<<   cic4pf_cut_lead_isosumoetbad[iCUTLEVEL][photon_category]<<std::endl;
-	      ph_passcut[iCUTLEVEL][2] = (val_trkisooet        <=   cic4pf_cut_lead_trkisooet[iCUTLEVEL][photon_category]     );
-	      if(GFDEBUG) cout<<"pass, val, cut:  "<<ph_passcut[iCUTLEVEL][2] <<"   "<< val_trkisooet        <<"   "<<   cic4pf_cut_lead_trkisooet[iCUTLEVEL][photon_category]  <<std::endl;
-	      ph_passcut[iCUTLEVEL][3] = (val_sieie            <=   cic4pf_cut_lead_sieie[iCUTLEVEL][photon_category]         );
-	      if(GFDEBUG) cout<<"pass, val, cut:  "<<ph_passcut[iCUTLEVEL][3] <<"   "<< val_sieie            <<"   "<<   cic4pf_cut_lead_sieie[iCUTLEVEL][photon_category]      <<std::endl;
-	      ph_passcut[iCUTLEVEL][4] = (val_hoe              <=   cic4pf_cut_lead_hovere[iCUTLEVEL][photon_category]        );
-	      if(GFDEBUG) cout<<"pass, val, cut:  "<<ph_passcut[iCUTLEVEL][4] <<"   "<< val_hoe              <<"   "<<   cic4pf_cut_lead_hovere[iCUTLEVEL][photon_category]     <<std::endl;
-	      ph_passcut[iCUTLEVEL][5] = (val_r9               >=   cic4pf_cut_lead_r9[iCUTLEVEL][photon_category]            );// gt cut
-	      if(GFDEBUG) cout<<"pass, val, cut:  "<<ph_passcut[iCUTLEVEL][5] <<"   "<< val_r9               <<"   "<<   cic4pf_cut_lead_r9[iCUTLEVEL][photon_category]         <<std::endl;
+        ph_passcut[iCUTLEVEL][0] = (val_isosumoet        <=   cic4pf_cut_lead_isosumoet[iCUTLEVEL][photon_category]     );
+        if(GFDEBUG) cout<<"pass, val, cut:  "<<ph_passcut[iCUTLEVEL][0] <<"   "<< val_isosumoet        <<"   "<<   cic4pf_cut_lead_isosumoet[iCUTLEVEL][photon_category]  <<std::endl;
+        ph_passcut[iCUTLEVEL][1] = (val_isosumoetbad     <=   cic4pf_cut_lead_isosumoetbad[iCUTLEVEL][photon_category]  );
+        if(GFDEBUG) cout<<"pass, val, cut:  "<<ph_passcut[iCUTLEVEL][1] <<"   "<< val_isosumoetbad     <<"   "<<   cic4pf_cut_lead_isosumoetbad[iCUTLEVEL][photon_category]<<std::endl;
+        ph_passcut[iCUTLEVEL][2] = (val_trkisooet        <=   cic4pf_cut_lead_trkisooet[iCUTLEVEL][photon_category]     );
+        if(GFDEBUG) cout<<"pass, val, cut:  "<<ph_passcut[iCUTLEVEL][2] <<"   "<< val_trkisooet        <<"   "<<   cic4pf_cut_lead_trkisooet[iCUTLEVEL][photon_category]  <<std::endl;
+        ph_passcut[iCUTLEVEL][3] = (val_sieie            <=   cic4pf_cut_lead_sieie[iCUTLEVEL][photon_category]         );
+        if(GFDEBUG) cout<<"pass, val, cut:  "<<ph_passcut[iCUTLEVEL][3] <<"   "<< val_sieie            <<"   "<<   cic4pf_cut_lead_sieie[iCUTLEVEL][photon_category]      <<std::endl;
+        ph_passcut[iCUTLEVEL][4] = (val_hoe              <=   cic4pf_cut_lead_hovere[iCUTLEVEL][photon_category]        );
+        if(GFDEBUG) cout<<"pass, val, cut:  "<<ph_passcut[iCUTLEVEL][4] <<"   "<< val_hoe              <<"   "<<   cic4pf_cut_lead_hovere[iCUTLEVEL][photon_category]     <<std::endl;
+        ph_passcut[iCUTLEVEL][5] = (val_r9               >=   cic4pf_cut_lead_r9[iCUTLEVEL][photon_category]            );// gt cut
+        if(GFDEBUG) cout<<"pass, val, cut:  "<<ph_passcut[iCUTLEVEL][5] <<"   "<< val_r9               <<"   "<<   cic4pf_cut_lead_r9[iCUTLEVEL][photon_category]         <<std::endl;
         if(GFDEBUG) cout<<"val_conv:  "<<val_conv<<endl;
-	      if( runZeeValidation ) { 
-	        ph_passcut[iCUTLEVEL][6] = !val_conv;
-	      } else {
-	        ph_passcut[iCUTLEVEL][6] = val_conv;
-	      }
-	      break;
+        if( runZeeValidation ) { 
+          ph_passcut[iCUTLEVEL][6] = !val_conv;
+        } else {
+          ph_passcut[iCUTLEVEL][6] = val_conv;
+        }
+        break;
       }
       bool ph_passcut_all = true;
       for(int icut=0;icut!=8;++icut) {
-	ph_passcut_all = ph_passcut_all && ph_passcut[iCUTLEVEL][icut];
+  ph_passcut_all = ph_passcut_all && ph_passcut[iCUTLEVEL][icut];
       }
       if(ph_passcut_all) {
-	if( cutlevelpassed != iCUTLEVEL - 1 ) {
-	  std::cerr << "photon " << photon_index << " (category " << photon_category << ") in run/event " << run << "/" << event << " passed CiC cut level " 
-		    << iCUTLEVEL << " but not "  << iCUTLEVEL - 1 << ". Did you load your cut values correctly? "<< std::endl;
-	  /// assert( 0 );
-	}
-	cutlevelpassed=iCUTLEVEL;
+  if( cutlevelpassed != iCUTLEVEL - 1 ) {
+    std::cerr << "photon " << photon_index << " (category " << photon_category << ") in run/event " << run << "/" << event << " passed CiC cut level " 
+        << iCUTLEVEL << " but not "  << iCUTLEVEL - 1 << ". Did you load your cut values correctly? "<< std::endl;
+    /// assert( 0 );
+  }
+  cutlevelpassed=iCUTLEVEL;
       }
     }
   } else if(doSublead) {
@@ -2193,35 +2555,35 @@ int LoopAll::PhotonCiCPFSelectionLevel( int photon_index, int vertex_index, std:
         if(GFDEBUG) cout<<"iCUTLEVEL phoNCUTLEVELS "<<iCUTLEVEL<<" "<<phoNCUTLEVELS<<endl;
         ph_passcut[iCUTLEVEL][0] = (val_isosumoet        <=   cic4pf_cut_sublead_isosumoet[iCUTLEVEL][photon_category]     );
         if(GFDEBUG) cout<<"pass, val, cut:  "<<ph_passcut[iCUTLEVEL][0] <<"   "<< val_isosumoet        <<"   "<<   cic4pf_cut_sublead_isosumoet[iCUTLEVEL][photon_category]  <<std::endl;
-	      ph_passcut[iCUTLEVEL][1] = (val_isosumoetbad     <=   cic4pf_cut_sublead_isosumoetbad[iCUTLEVEL][photon_category]  );
-	      if(GFDEBUG) cout<<"pass, val, cut:  "<<ph_passcut[iCUTLEVEL][1] <<"   "<< val_isosumoetbad     <<"   "<<   cic4pf_cut_sublead_isosumoetbad[iCUTLEVEL][photon_category]<<std::endl;
-	      ph_passcut[iCUTLEVEL][2] = (val_trkisooet        <=   cic4pf_cut_sublead_trkisooet[iCUTLEVEL][photon_category]     );
-	      if(GFDEBUG) cout<<"pass, val, cut:  "<<ph_passcut[iCUTLEVEL][2] <<"   "<< val_trkisooet        <<"   "<<   cic4pf_cut_sublead_trkisooet[iCUTLEVEL][photon_category]  <<std::endl;
-	      ph_passcut[iCUTLEVEL][3] = (val_sieie            <=   cic4pf_cut_sublead_sieie[iCUTLEVEL][photon_category]         );
-	      if(GFDEBUG) cout<<"pass, val, cut:  "<<ph_passcut[iCUTLEVEL][3] <<"   "<< val_sieie            <<"   "<<   cic4pf_cut_sublead_sieie[iCUTLEVEL][photon_category]      <<std::endl;
-	      ph_passcut[iCUTLEVEL][4] = (val_hoe              <=   cic4pf_cut_sublead_hovere[iCUTLEVEL][photon_category]        );
-	      if(GFDEBUG) cout<<"pass, val, cut:  "<<ph_passcut[iCUTLEVEL][4] <<"   "<< val_hoe              <<"   "<<   cic4pf_cut_sublead_hovere[iCUTLEVEL][photon_category]     <<std::endl;
-	      ph_passcut[iCUTLEVEL][5] = (val_r9               >=   cic4pf_cut_sublead_r9[iCUTLEVEL][photon_category]            );
-	      if(GFDEBUG) cout<<"pass, val, cut:  "<<ph_passcut[iCUTLEVEL][5] <<"   "<< val_r9               <<"   "<<   cic4pf_cut_sublead_r9[iCUTLEVEL][photon_category]         <<std::endl;
+        ph_passcut[iCUTLEVEL][1] = (val_isosumoetbad     <=   cic4pf_cut_sublead_isosumoetbad[iCUTLEVEL][photon_category]  );
+        if(GFDEBUG) cout<<"pass, val, cut:  "<<ph_passcut[iCUTLEVEL][1] <<"   "<< val_isosumoetbad     <<"   "<<   cic4pf_cut_sublead_isosumoetbad[iCUTLEVEL][photon_category]<<std::endl;
+        ph_passcut[iCUTLEVEL][2] = (val_trkisooet        <=   cic4pf_cut_sublead_trkisooet[iCUTLEVEL][photon_category]     );
+        if(GFDEBUG) cout<<"pass, val, cut:  "<<ph_passcut[iCUTLEVEL][2] <<"   "<< val_trkisooet        <<"   "<<   cic4pf_cut_sublead_trkisooet[iCUTLEVEL][photon_category]  <<std::endl;
+        ph_passcut[iCUTLEVEL][3] = (val_sieie            <=   cic4pf_cut_sublead_sieie[iCUTLEVEL][photon_category]         );
+        if(GFDEBUG) cout<<"pass, val, cut:  "<<ph_passcut[iCUTLEVEL][3] <<"   "<< val_sieie            <<"   "<<   cic4pf_cut_sublead_sieie[iCUTLEVEL][photon_category]      <<std::endl;
+        ph_passcut[iCUTLEVEL][4] = (val_hoe              <=   cic4pf_cut_sublead_hovere[iCUTLEVEL][photon_category]        );
+        if(GFDEBUG) cout<<"pass, val, cut:  "<<ph_passcut[iCUTLEVEL][4] <<"   "<< val_hoe              <<"   "<<   cic4pf_cut_sublead_hovere[iCUTLEVEL][photon_category]     <<std::endl;
+        ph_passcut[iCUTLEVEL][5] = (val_r9               >=   cic4pf_cut_sublead_r9[iCUTLEVEL][photon_category]            );
+        if(GFDEBUG) cout<<"pass, val, cut:  "<<ph_passcut[iCUTLEVEL][5] <<"   "<< val_r9               <<"   "<<   cic4pf_cut_sublead_r9[iCUTLEVEL][photon_category]         <<std::endl;
         if(GFDEBUG) cout<<"val_conv:  "<<val_conv<<endl;
-	      if( runZeeValidation ) { 
-	        ph_passcut[iCUTLEVEL][6] = !val_conv;
-	      } else {
-	        ph_passcut[iCUTLEVEL][6] = val_conv;
-	      }
-	      break;
+        if( runZeeValidation ) { 
+          ph_passcut[iCUTLEVEL][6] = !val_conv;
+        } else {
+          ph_passcut[iCUTLEVEL][6] = val_conv;
+        }
+        break;
       }
       bool ph_passcut_all = true;
       for(int icut=0;icut!=8;++icut) {
-	ph_passcut_all = ph_passcut_all && ph_passcut[iCUTLEVEL][icut];
+  ph_passcut_all = ph_passcut_all && ph_passcut[iCUTLEVEL][icut];
       }
       if(ph_passcut_all) {
-	if( cutlevelpassed != iCUTLEVEL - 1 ) {
-	  std::cerr << "photon " << photon_index << " (category " << photon_category << ") in run/event " << run << "/" << event << " passed CiC cut level " 
-		    << iCUTLEVEL << " but not "  << iCUTLEVEL - 1 << ". Did you load your cut values correctly? " << std::endl;
-	  //// assert( 0 );
-	}
-	cutlevelpassed=iCUTLEVEL;
+  if( cutlevelpassed != iCUTLEVEL - 1 ) {
+    std::cerr << "photon " << photon_index << " (category " << photon_category << ") in run/event " << run << "/" << event << " passed CiC cut level " 
+        << iCUTLEVEL << " but not "  << iCUTLEVEL - 1 << ". Did you load your cut values correctly? " << std::endl;
+    //// assert( 0 );
+  }
+  cutlevelpassed=iCUTLEVEL;
       }
     }
   }
@@ -2233,7 +2595,7 @@ int LoopAll::PhotonCiCPFSelectionLevel( int photon_index, int vertex_index, std:
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 int LoopAll::PhotonCiCSelectionLevel( int photon_index, int vertex_index, std::vector<std::vector<bool> > & ph_passcut, int ncategories, 
-				      int doSublead, float *pho_energy_array ) {
+              int doSublead, float *pho_energy_array ) {
   
   if( usePFCiC && ncategories==4 ) {
     return PhotonCiCPFSelectionLevel( photon_index, vertex_index, ph_passcut, ncategories, doSublead, pho_energy_array );
@@ -2310,11 +2672,11 @@ int LoopAll::PhotonCiCSelectionLevel( int photon_index, int vertex_index, std::v
           ph_passcut[iCUTLEVEL][3] = (val_sieie            <=   cic6_cut_lead_sieie[iCUTLEVEL][photon_category]         );
           ph_passcut[iCUTLEVEL][4] = (val_hoe              <=   cic6_cut_lead_hovere[iCUTLEVEL][photon_category]        );
           ph_passcut[iCUTLEVEL][5] = (val_r9             >=     cic6_cut_lead_r9[iCUTLEVEL][photon_category]            );// gt cut
-	  if( runZeeValidation ) { 
-		  ph_passcut[iCUTLEVEL][6] = ! val_pho_isconv;
-	  } else {
-		  ph_passcut[iCUTLEVEL][6] = (val_drtotk_25_99   >=     cic6_cut_lead_drtotk_25_99[iCUTLEVEL][photon_category]  );// gt cut
-	  }
+    if( runZeeValidation ) { 
+      ph_passcut[iCUTLEVEL][6] = ! val_pho_isconv;
+    } else {
+      ph_passcut[iCUTLEVEL][6] = (val_drtotk_25_99   >=     cic6_cut_lead_drtotk_25_99[iCUTLEVEL][photon_category]  );// gt cut
+    }
           ph_passcut[iCUTLEVEL][7] = (val_pixel            <=   cic6_cut_lead_pixel[iCUTLEVEL][photon_category]         );
           break;
         case(4) :
@@ -2324,25 +2686,25 @@ int LoopAll::PhotonCiCSelectionLevel( int photon_index, int vertex_index, std::v
           ph_passcut[iCUTLEVEL][3] = (val_sieie            <=   cic4_cut_lead_sieie[iCUTLEVEL][photon_category]         );
           ph_passcut[iCUTLEVEL][4] = (val_hoe              <=   cic4_cut_lead_hovere[iCUTLEVEL][photon_category]        );
           ph_passcut[iCUTLEVEL][5] = (val_r9             >=     cic4_cut_lead_r9[iCUTLEVEL][photon_category]            );// gt cut
-	  if( runZeeValidation ) { 
-		  ph_passcut[iCUTLEVEL][6] = ! val_pho_isconv;
-	  } else {
-		  ph_passcut[iCUTLEVEL][6] = (val_drtotk_25_99   >=     cic4_cut_lead_drtotk_25_99[iCUTLEVEL][photon_category]  );// gt cut
-	  }
+    if( runZeeValidation ) { 
+      ph_passcut[iCUTLEVEL][6] = ! val_pho_isconv;
+    } else {
+      ph_passcut[iCUTLEVEL][6] = (val_drtotk_25_99   >=     cic4_cut_lead_drtotk_25_99[iCUTLEVEL][photon_category]  );// gt cut
+    }
           ph_passcut[iCUTLEVEL][7] = (val_pixel            <=   cic4_cut_lead_pixel[iCUTLEVEL][photon_category]         );
           break;
       }
       bool ph_passcut_all = true;
       for(int icut=0;icut!=8;++icut) {
-	ph_passcut_all = ph_passcut_all && ph_passcut[iCUTLEVEL][icut];
+  ph_passcut_all = ph_passcut_all && ph_passcut[iCUTLEVEL][icut];
       }
       if(ph_passcut_all) {
-	if( cutlevelpassed != iCUTLEVEL - 1 && ! runZeeValidation) {
-	  std::cerr << "photon " << photon_index << " (category " << photon_category << ") in run/event " << run << "/" << event << " passed CiC cut level " 
-		    << iCUTLEVEL << " but not "  << iCUTLEVEL - 1 << ". Did you load your cut values correctly? "<< std::endl;
-	  /// assert( 0 );
-	}
-	cutlevelpassed=iCUTLEVEL;
+  if( cutlevelpassed != iCUTLEVEL - 1 && ! runZeeValidation) {
+    std::cerr << "photon " << photon_index << " (category " << photon_category << ") in run/event " << run << "/" << event << " passed CiC cut level " 
+        << iCUTLEVEL << " but not "  << iCUTLEVEL - 1 << ". Did you load your cut values correctly? "<< std::endl;
+    /// assert( 0 );
+  }
+  cutlevelpassed=iCUTLEVEL;
       }
     }
   } else if(doSublead) {
@@ -2355,11 +2717,11 @@ int LoopAll::PhotonCiCSelectionLevel( int photon_index, int vertex_index, std::v
           ph_passcut[iCUTLEVEL][3] = (val_sieie            <=   cic6_cut_sublead_sieie[iCUTLEVEL][photon_category]         );
           ph_passcut[iCUTLEVEL][4] = (val_hoe              <=   cic6_cut_sublead_hovere[iCUTLEVEL][photon_category]        );
           ph_passcut[iCUTLEVEL][5] = (val_r9             >=     cic6_cut_sublead_r9[iCUTLEVEL][photon_category]            );// gt cut
-	  if( runZeeValidation ) { 
-		  ph_passcut[iCUTLEVEL][6] = ! val_pho_isconv;
-	  } else {
-		  ph_passcut[iCUTLEVEL][6] = (val_drtotk_25_99   >=     cic6_cut_sublead_drtotk_25_99[iCUTLEVEL][photon_category]  );// gt cut
-	  }
+    if( runZeeValidation ) { 
+      ph_passcut[iCUTLEVEL][6] = ! val_pho_isconv;
+    } else {
+      ph_passcut[iCUTLEVEL][6] = (val_drtotk_25_99   >=     cic6_cut_sublead_drtotk_25_99[iCUTLEVEL][photon_category]  );// gt cut
+    }
           ph_passcut[iCUTLEVEL][7] = (val_pixel            <=   cic6_cut_sublead_pixel[iCUTLEVEL][photon_category]         );
           break;
         case(4) :
@@ -2369,25 +2731,25 @@ int LoopAll::PhotonCiCSelectionLevel( int photon_index, int vertex_index, std::v
           ph_passcut[iCUTLEVEL][3] = (val_sieie            <=   cic4_cut_sublead_sieie[iCUTLEVEL][photon_category]         );
           ph_passcut[iCUTLEVEL][4] = (val_hoe              <=   cic4_cut_sublead_hovere[iCUTLEVEL][photon_category]        );
           ph_passcut[iCUTLEVEL][5] = (val_r9             >=     cic4_cut_sublead_r9[iCUTLEVEL][photon_category]            );// gt cut
-	  if( runZeeValidation ) { 
-		  ph_passcut[iCUTLEVEL][6] = ! val_pho_isconv;
-	  } else {
-		  ph_passcut[iCUTLEVEL][6] = (val_drtotk_25_99   >=     cic4_cut_sublead_drtotk_25_99[iCUTLEVEL][photon_category]  );// gt cut
-	  }
+    if( runZeeValidation ) { 
+      ph_passcut[iCUTLEVEL][6] = ! val_pho_isconv;
+    } else {
+      ph_passcut[iCUTLEVEL][6] = (val_drtotk_25_99   >=     cic4_cut_sublead_drtotk_25_99[iCUTLEVEL][photon_category]  );// gt cut
+    }
           ph_passcut[iCUTLEVEL][7] = (val_pixel            <=   cic4_cut_sublead_pixel[iCUTLEVEL][photon_category]         );
           break;
       }
       bool ph_passcut_all = true;
       for(int icut=0;icut!=8;++icut) {
-	ph_passcut_all = ph_passcut_all && ph_passcut[iCUTLEVEL][icut];
+  ph_passcut_all = ph_passcut_all && ph_passcut[iCUTLEVEL][icut];
       }
       if(ph_passcut_all) {
-	if( cutlevelpassed != iCUTLEVEL - 1 && ! runZeeValidation ) {
-	  std::cerr << "photon " << photon_index << " (category " << photon_category << ") in run/event " << run << "/" << event << " passed CiC cut level " 
-		    << iCUTLEVEL << " but not "  << iCUTLEVEL - 1 << ". Did you load your cut values correctly? " << std::endl;
-	  //// assert( 0 );
-	}
-	cutlevelpassed=iCUTLEVEL;
+  if( cutlevelpassed != iCUTLEVEL - 1 && ! runZeeValidation ) {
+    std::cerr << "photon " << photon_index << " (category " << photon_category << ") in run/event " << run << "/" << event << " passed CiC cut level " 
+        << iCUTLEVEL << " but not "  << iCUTLEVEL - 1 << ". Did you load your cut values correctly? " << std::endl;
+    //// assert( 0 );
+  }
+  cutlevelpassed=iCUTLEVEL;
       }
     }
   }
@@ -2517,42 +2879,42 @@ Float_t LoopAll::SumTrackPtInCone(TLorentzVector *photon_p4, Int_t vtxind, Float
 
 void LoopAll::getIetaIPhi(int phoid, int & ieta, int & iphi ) const
 {
-	///// TLorentzVector *bcpos   = (TLorentzVector*)bc_p4->At(sc_bcseedind[pho_scind[phoid]]);
-	///// double minDR=999.;
-	///// int closestHit=-1;
-	///// for (int i=0;i<ecalhit_n;i++){
-	///// 	TLorentzVector *xtalpos = (TLorentzVector*)ecalhit_p4->At(i);
-	///// 	//TVector3 xtalxyz = xtalpos->Vect();
-	///// 	//double dR = (xtalxyz-bcxyz).Mag();
-	///// 	double dR = xtalpos->DeltaR(*bcpos);
-	///// 	if(dR<minDR){
-	///// 		closestHit = i;
-	///// 		minDR = dR;
-	///// 	}
-	///// }
-	///// if (closestHit<0) std::cout << "Fishy !!!!!!" <<std::endl;
-	
-	//// int detid = ecalhit_detid[closestHit];
-	int detid = ecalhit_detid[bc_seed[sc_bcseedind[pho_scind[phoid]]]];
-	ieta  = (detid>>9)&0x7F; 
-	iphi  = detid&0x1FF; 
+  ///// TLorentzVector *bcpos   = (TLorentzVector*)bc_p4->At(sc_bcseedind[pho_scind[phoid]]);
+  ///// double minDR=999.;
+  ///// int closestHit=-1;
+  ///// for (int i=0;i<ecalhit_n;i++){
+  /////   TLorentzVector *xtalpos = (TLorentzVector*)ecalhit_p4->At(i);
+  /////   //TVector3 xtalxyz = xtalpos->Vect();
+  /////   //double dR = (xtalxyz-bcxyz).Mag();
+  /////   double dR = xtalpos->DeltaR(*bcpos);
+  /////   if(dR<minDR){
+  /////     closestHit = i;
+  /////     minDR = dR;
+  /////   }
+  ///// }
+  ///// if (closestHit<0) std::cout << "Fishy !!!!!!" <<std::endl;
+  
+  //// int detid = ecalhit_detid[closestHit];
+  int detid = ecalhit_detid[bc_seed[sc_bcseedind[pho_scind[phoid]]]];
+  ieta  = (detid>>9)&0x7F; 
+  iphi  = detid&0x1FF; 
 }
 
 bool LoopAll::CheckSphericalPhoton(int ieta, int iphi) const 
 {
     if ((iphi %20)<=5 || (iphi%20)>=16){
-	return false;
+  return false;
     }
     
     int ietaTT=(std::abs(ieta)-1)/5+1;
     if
-	(
-	    (ietaTT>= 2&&     ietaTT<    5 ) ||
-	    (ietaTT>= 7&&     ietaTT<    9 ) ||
-	    (ietaTT>= 11&&    ietaTT<    13) ||
-	    (ietaTT>= 15&&    ietaTT<    17)
-	    ){	
-	return true; 
+  (
+      (ietaTT>= 2&&     ietaTT<    5 ) ||
+      (ietaTT>= 7&&     ietaTT<    9 ) ||
+      (ietaTT>= 11&&    ietaTT<    13) ||
+      (ietaTT>= 15&&    ietaTT<    17)
+      ){  
+  return true; 
     } 
     
     
@@ -2607,78 +2969,78 @@ void LoopAll::DefineUserBranches()
   BRANCH_DICT(gh_vh1_p4);
   BRANCH_DICT(gh_vh2_p4);
 
-	BRANCH_DICT(gv_n  );
-	BRANCH_DICT(gv_pos);
-	BRANCH_DICT(pu_n);
-	BRANCH_DICT(pu_zpos);
-	BRANCH_DICT(pu_sumpt_lowpt);
-	BRANCH_DICT(pu_sumpt_highpt);
-	BRANCH_DICT(pu_ntrks_lowpt);
-	BRANCH_DICT(pu_ntrks_highpt);
-	
-	BRANCH_DICT(rho);
-	
-	BRANCH_DICT(vtx_std_sel);
-	BRANCH_DICT(vtx_std_ranked_list);
-	BRANCH_DICT(vtx_std_evt_mva);
-	
-	BRANCH_DICT(pho_mitmva);
+  BRANCH_DICT(gv_n  );
+  BRANCH_DICT(gv_pos);
+  BRANCH_DICT(pu_n);
+  BRANCH_DICT(pu_zpos);
+  BRANCH_DICT(pu_sumpt_lowpt);
+  BRANCH_DICT(pu_sumpt_highpt);
+  BRANCH_DICT(pu_ntrks_lowpt);
+  BRANCH_DICT(pu_ntrks_highpt);
+  
+  BRANCH_DICT(rho);
+  
+  BRANCH_DICT(vtx_std_sel);
+  BRANCH_DICT(vtx_std_ranked_list);
+  BRANCH_DICT(vtx_std_evt_mva);
+  
+  BRANCH_DICT(pho_mitmva);
  
-	BRANCH_DICT(pho_tkiso_recvtx_030_002_0000_10_01);
-	BRANCH_DICT(pho_tkiso_badvtx_040_002_0000_10_01);
-	BRANCH_DICT(pho_pfiso_charged_badvtx_04);
-	BRANCH_DICT(pho_pfiso_charged_badvtx_id);
-	BRANCH_DICT(pho_tkiso_badvtx_id);
-	BRANCH_DICT(pho_ZeeVal_tkiso_recvtx_030_002_0000_10_01);
-	BRANCH_DICT(pho_ZeeVal_tkiso_badvtx_040_002_0000_10_01);
-	BRANCH_DICT(pho_ZeeVal_tkiso_badvtx_id);
-	BRANCH_DICT(pho_drtotk_25_99);
+  BRANCH_DICT(pho_tkiso_recvtx_030_002_0000_10_01);
+  BRANCH_DICT(pho_tkiso_badvtx_040_002_0000_10_01);
+  BRANCH_DICT(pho_pfiso_charged_badvtx_04);
+  BRANCH_DICT(pho_pfiso_charged_badvtx_id);
+  BRANCH_DICT(pho_tkiso_badvtx_id);
+  BRANCH_DICT(pho_ZeeVal_tkiso_recvtx_030_002_0000_10_01);
+  BRANCH_DICT(pho_ZeeVal_tkiso_badvtx_040_002_0000_10_01);
+  BRANCH_DICT(pho_ZeeVal_tkiso_badvtx_id);
+  BRANCH_DICT(pho_drtotk_25_99);
 
-	BRANCH_DICT(pho_cic6cutlevel_lead);
-	BRANCH_DICT(pho_cic6passcuts_lead);
-	BRANCH_DICT(pho_cic6cutlevel_sublead);
-	BRANCH_DICT(pho_cic6passcuts_sublead);
+  BRANCH_DICT(pho_cic6cutlevel_lead);
+  BRANCH_DICT(pho_cic6passcuts_lead);
+  BRANCH_DICT(pho_cic6cutlevel_sublead);
+  BRANCH_DICT(pho_cic6passcuts_sublead);
 
-	BRANCH_DICT(pho_cic4cutlevel_lead);
-	BRANCH_DICT(pho_cic4passcuts_lead);
-	BRANCH_DICT(pho_cic4cutlevel_sublead);
-	BRANCH_DICT(pho_cic4passcuts_sublead);
+  BRANCH_DICT(pho_cic4cutlevel_lead);
+  BRANCH_DICT(pho_cic4passcuts_lead);
+  BRANCH_DICT(pho_cic4cutlevel_sublead);
+  BRANCH_DICT(pho_cic4passcuts_sublead);
 
-	BRANCH_DICT(pho_cic4pfcutlevel_lead);
-	BRANCH_DICT(pho_cic4pfpasscuts_lead);
-	BRANCH_DICT(pho_cic4pfcutlevel_sublead);
-	BRANCH_DICT(pho_cic4pfpasscuts_sublead);
+  BRANCH_DICT(pho_cic4pfcutlevel_lead);
+  BRANCH_DICT(pho_cic4pfpasscuts_lead);
+  BRANCH_DICT(pho_cic4pfcutlevel_sublead);
+  BRANCH_DICT(pho_cic4pfpasscuts_sublead);
 
-	BRANCH_DICT(pho_cutlevel_lead);
-	BRANCH_DICT(pho_passcuts_lead);
-	BRANCH_DICT(pho_cutlevel_sublead);
-	BRANCH_DICT(pho_passcuts_sublead);
+  BRANCH_DICT(pho_cutlevel_lead);
+  BRANCH_DICT(pho_passcuts_lead);
+  BRANCH_DICT(pho_cutlevel_sublead);
+  BRANCH_DICT(pho_passcuts_sublead);
 
-	BRANCH_DICT(pho_matchingConv);
-	
-	BRANCH_DICT(dipho_n);
-	BRANCH_DICT(dipho_leadind);
-	BRANCH_DICT(dipho_subleadind);
-	BRANCH_DICT(dipho_vtxind);
-	BRANCH_DICT(dipho_sumpt);
-	BRANCH_DICT(pho_genmatched);
-	BRANCH_DICT(pho_regr_energy_otf);
-	BRANCH_DICT(pho_regr_energyerr_otf);
-	//// BRANCH_DICT(dipho_leadet);
-	//// BRANCH_DICT(dipho_subleadet);
-	//// BRANCH_DICT(dipho_leadeta);
-	//// BRANCH_DICT(dipho_subleadeta);
-	//// BRANCH_DICT(dipho_leadci6cindex);
-	//// BRANCH_DICT(dipho_subleadci6cindex);
-	//// BRANCH_DICT(dipho_leadci4cindex);
-	//// BRANCH_DICT(dipho_subleadci4cindex);
-	//// BRANCH_DICT(dipho_mass);
-	//// BRANCH_DICT(dipho_pt);
-	//// BRANCH_DICT(dipho_eta);
-	//// BRANCH_DICT(dipho_phi);
-	//// BRANCH_DICT(dipho_cts);
+  BRANCH_DICT(pho_matchingConv);
+  
+  BRANCH_DICT(dipho_n);
+  BRANCH_DICT(dipho_leadind);
+  BRANCH_DICT(dipho_subleadind);
+  BRANCH_DICT(dipho_vtxind);
+  BRANCH_DICT(dipho_sumpt);
+  BRANCH_DICT(pho_genmatched);
+  BRANCH_DICT(pho_regr_energy_otf);
+  BRANCH_DICT(pho_regr_energyerr_otf);
+  //// BRANCH_DICT(dipho_leadet);
+  //// BRANCH_DICT(dipho_subleadet);
+  //// BRANCH_DICT(dipho_leadeta);
+  //// BRANCH_DICT(dipho_subleadeta);
+  //// BRANCH_DICT(dipho_leadci6cindex);
+  //// BRANCH_DICT(dipho_subleadci6cindex);
+  //// BRANCH_DICT(dipho_leadci4cindex);
+  //// BRANCH_DICT(dipho_subleadci4cindex);
+  //// BRANCH_DICT(dipho_mass);
+  //// BRANCH_DICT(dipho_pt);
+  //// BRANCH_DICT(dipho_eta);
+  //// BRANCH_DICT(dipho_phi);
+  //// BRANCH_DICT(dipho_cts);
 
-	BRANCH_DICT(pho_matchingConv);
+  BRANCH_DICT(pho_matchingConv);
 
 #endif
 }
@@ -2891,33 +3253,33 @@ int LoopAll::ElectronSelection(TLorentzVector& pho1, TLorentzVector& pho2, int v
 
 //--- RECO-MC JET MATCHING --------------------------------------------------------------------------------------------------------
 void LoopAll::doJetMatching(TClonesArray & reco, TClonesArray & gen, 
-			    Bool_t  * match_flag, Bool_t * match_vbf_flag,  
-			    Float_t * match_pt,   Float_t * match_dr,      Float_t maxDr )
+          Bool_t  * match_flag, Bool_t * match_vbf_flag,  
+          Float_t * match_pt,   Float_t * match_dr,      Float_t maxDr )
 {
-	int ngen  = gen.GetEntries();
-	int nreco = reco.GetEntries();
-	
-	for(int ir=0; ir<nreco; ++ir) {
-	    match_flag[ir] = false;
-	    match_vbf_flag[ir] = false;
-	    match_pt[ir] = 0.;
-	    match_dr[ir] = 999.;
-	    TLorentzVector & recop4 = *(TLorentzVector*)reco.At(ir);
-	    for(int ig=0; ig<ngen; ++ig) {
-		    /// std::cerr << "ir "  << ir << " ig " << ig << std::endl; 
-		TLorentzVector & genp4 = *(TLorentzVector*)gen.At(ig);
-		Float_t dR = recop4.DeltaR(genp4);
-		if( dR < maxDr && dR < match_dr[ir] ) {
-		    match_flag[ir] = true;
-		    match_pt[ir]   = genp4.Pt();
-		    match_dr[ir]   = dR;
-		    if( ! match_vbf_flag[ir] ) {
-			match_vbf_flag[ir] = ( gh_vbfq1_pdgid != 0 && recop4.DeltaR( *(TLorentzVector*)gh_vbfq1_p4->At(0) ) < maxDr ||
-					       gh_vbfq2_pdgid != 0 && recop4.DeltaR( *(TLorentzVector*)gh_vbfq2_p4->At(0) ) < maxDr );
-		    }
-		}
-	    }
-	}
+  int ngen  = gen.GetEntries();
+  int nreco = reco.GetEntries();
+  
+  for(int ir=0; ir<nreco; ++ir) {
+      match_flag[ir] = false;
+      match_vbf_flag[ir] = false;
+      match_pt[ir] = 0.;
+      match_dr[ir] = 999.;
+      TLorentzVector & recop4 = *(TLorentzVector*)reco.At(ir);
+      for(int ig=0; ig<ngen; ++ig) {
+        /// std::cerr << "ir "  << ir << " ig " << ig << std::endl; 
+    TLorentzVector & genp4 = *(TLorentzVector*)gen.At(ig);
+    Float_t dR = recop4.DeltaR(genp4);
+    if( dR < maxDr && dR < match_dr[ir] ) {
+        match_flag[ir] = true;
+        match_pt[ir]   = genp4.Pt();
+        match_dr[ir]   = dR;
+        if( ! match_vbf_flag[ir] ) {
+      match_vbf_flag[ir] = ( gh_vbfq1_pdgid != 0 && recop4.DeltaR( *(TLorentzVector*)gh_vbfq1_p4->At(0) ) < maxDr ||
+                 gh_vbfq2_pdgid != 0 && recop4.DeltaR( *(TLorentzVector*)gh_vbfq2_p4->At(0) ) < maxDr );
+        }
+    }
+      }
+  }
 }
 
 
