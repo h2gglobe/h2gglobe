@@ -516,7 +516,7 @@ int DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL = phoLOOSE,
                           int ncategories=6, 
                           bool applyPtoverM=false, 
                           float *pho_energy_array=0, 
-                          bool split=false);
+                          bool split=false, std::vector<int> cutsbycat=std::vector<int>(0));
 
  int DiphotonMITPreSelection(Float_t leadPtMin, Float_t subleadPtMin, Float_t phoidMvaCut, bool applyPtoverM, float *pho_energy_array=0, bool kinonly=false);
 

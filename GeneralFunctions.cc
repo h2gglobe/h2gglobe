@@ -2141,14 +2141,19 @@ void LoopAll::SetPhotonCutsInCategories(phoCiCIDLevel cutlevel, float * cic6_all
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 int LoopAll::DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL, phoCiCIDLevel SUBLEADCUTLEVEL, 
-           Float_t leadPtMin, Float_t subleadPtMin, int ncategories, bool applyPtoverM, 
-           float *pho_energy_array, bool split) {
+				   Float_t leadPtMin, Float_t subleadPtMin, int ncategories, bool applyPtoverM, 
+				   float *pho_energy_array, bool split, std::vector<int> cutsbycat) {
 
   //rho=0;// CAUTION SETTING RHO TO 0 FOR 2010 DATA FILES (RHO ISN'T IN THESE FILES)
   int selected_lead_index = -1;
   int selected_sublead_index = -1;
   float selected_lead_pt = -1;
   float selected_sublead_pt = -1;
+
+  if( ! cutsbycat.empty() ) {
+	  assert( cutsbycat.size() == 4 );
+	  /// std::cout << "cutsbycat " << cutsbycat.size() <<std::endl;
+  }
   
   std::vector<int> passing_dipho;
   std::vector<float> passing_sumpt;
@@ -2177,27 +2182,33 @@ int LoopAll::DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL, phoCiCIDLevel SUB
         ( leadEta > 1.4442 && leadEta < 1.566 ) ||
         ( subleadEta > 1.4442 && subleadEta < 1.566 ) ) { continue; }
 
-    float leadpt = lead_p4.Pt() > sublead_p4.Pt() ? lead_p4.Pt() : sublead_p4.Pt();
-          float subleadpt = lead_p4.Pt() < sublead_p4.Pt() ? lead_p4.Pt() : sublead_p4.Pt();     
-    // Exclusive modes cut smoothly on lead pt/M but on straight pt on sublead to save sig eff and avoid HLT turn-on  
-    if(split){   
-        if ( leadpt/m_gamgam < leadPtMin/120. || subleadpt< subleadPtMin ) { continue; }  
-    }else{
-        if( applyPtoverM ) {
-            if ( leadpt/m_gamgam < leadPtMin/120. || subleadpt/m_gamgam < subleadPtMin/120. ||
-           leadpt < 100./3. || subleadpt < 100./4.) { continue; }
-        } else {
-            if ( leadpt < leadPtMin || subleadpt < subleadPtMin ) { continue; }
-        }
-    }
-    
+	  float leadpt = lead_p4.Pt() > sublead_p4.Pt() ? lead_p4.Pt() : sublead_p4.Pt();
+      	  float subleadpt = lead_p4.Pt() < sublead_p4.Pt() ? lead_p4.Pt() : sublead_p4.Pt(); 	  
+	  // Exclusive modes cut smoothly on lead pt/M but on straight pt on sublead to save sig eff and avoid HLT turn-on  
+	  if(split){   
+		  if ( leadpt/m_gamgam < leadPtMin/120. || subleadpt< subleadPtMin ) { continue; }  
+	  }else{
+		  if( applyPtoverM ) {
+			  if ( leadpt/m_gamgam < leadPtMin/120. || subleadpt/m_gamgam < subleadPtMin/120. ||
+			       leadpt < 100./3. || subleadpt < 100./4.) { continue; }
+		  } else {
+			  if ( leadpt < leadPtMin || subleadpt < subleadPtMin ) { continue; }
+		  }
+	  }
+	  
 
-    std::vector<std::vector<bool> > ph_passcut;
-    if( PhotonCiCSelectionLevel(lead, ivtx, ph_passcut, ncategories, 0, pho_energy_array ) < LEADCUTLEVEL ) { continue; }
-    if( PhotonCiCSelectionLevel(sublead, ivtx, ph_passcut, ncategories, 1, pho_energy_array ) < SUBLEADCUTLEVEL ) { continue; }
-    
-    passing_dipho.push_back(idipho);
-    passing_sumpt.push_back(leadpt+subleadpt);
+	  std::vector<std::vector<bool> > ph_passcut;
+	  if( ! cutsbycat.empty() ) {
+		  int leadCat = PhotonCategory(lead,2,2);
+		  int subleadCat = PhotonCategory(sublead,2,2);
+		  LEADCUTLEVEL    = (phoCiCIDLevel)cutsbycat[leadCat];
+		  SUBLEADCUTLEVEL = (phoCiCIDLevel)cutsbycat[subleadCat];
+	  }
+	  if( PhotonCiCSelectionLevel(lead, ivtx, ph_passcut, ncategories, 0, pho_energy_array ) < LEADCUTLEVEL ) { continue; }
+	  if( PhotonCiCSelectionLevel(sublead, ivtx, ph_passcut, ncategories, 1, pho_energy_array ) < SUBLEADCUTLEVEL ) { continue; }
+	  
+	  passing_dipho.push_back(idipho);
+	  passing_sumpt.push_back(leadpt+subleadpt);
   }
   
   if( passing_dipho.empty() ) { return -1; }
