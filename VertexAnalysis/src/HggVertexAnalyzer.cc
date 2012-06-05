@@ -77,7 +77,7 @@ void HggVertexAnalyzer::setupWithDefaultOptions(const std::string & pathToPerVer
 	params_.singlelegsigma2Tid=0.465;
 	params_.singlelegsigma2Tec=1.018;
     
-	params_.vtxProbFormula="1.-0.49*(x+1)";
+	params_.vtxProbFormula="1.-0.49*(x+1)*(y>0.)";
 	
 	std::vector<std::string>  perVtxVariables; 
 	perVtxMethod = "BDTCat";
@@ -146,7 +146,7 @@ HggVertexAnalyzer::HggVertexAnalyzer(AlgoParameters & ap, int nvtx) :
 	vertexProbability_(0)
 {
 	if( params_.vtxProbFormula != "" ) {
-		vertexProbability_ = new TF1("vtxProb",params_.vtxProbFormula.c_str());
+		vertexProbability_ = new TF2("vtxProb",params_.vtxProbFormula.c_str());
 	}
 	
 	pmva = &mva_;
@@ -384,13 +384,16 @@ float HggVertexAnalyzer::perEventMva(TMVA::Reader & reader,const  std::string & 
 }
 
 // -------------------------------------------------------------------------------------------------------------------------------------------------------------
-float HggVertexAnalyzer::vertexProbability(float perEventMva)
+float HggVertexAnalyzer::vertexProbability(float perEventMva,float nvtx)
 {
 	if( vertexProbability_ == 0 && params_.vtxProbFormula != "" ) {
-		vertexProbability_ = new TF1("vtxProb",params_.vtxProbFormula.c_str());
+		vertexProbability_ = new TF2("vtxProb",params_.vtxProbFormula.c_str());
 	}
 	assert(vertexProbability_!=0);
-	return vertexProbability_->Eval(perEventMva);
+	if( nvtx < 0. ) {
+		nvtx = vertexz_.size();
+	}
+	return vertexProbability_->Eval(perEventMva,nvtx);
 }
 
 // -------------------------------------------------------------------------------------------------------------------------------------------------------------

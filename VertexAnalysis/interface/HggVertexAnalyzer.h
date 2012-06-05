@@ -12,7 +12,7 @@
 #include "TVector2.h"
 #include "TVector3.h"
 #include "TMatrixDSym.h"
-#include "TF1.h"
+#include "TF2.h"
 
 namespace TMVA { class Reader; }
 
@@ -101,7 +101,7 @@ public:
 	
 	// Per-event MVA
 	float perEventMva(TMVA::Reader & reader,const  std::string & method, const std::vector<int> & rankedVertexes );
-	float vertexProbability(float perEventMva);
+	float vertexProbability(float perEventMva,float nvtx=-1);
 	
 	// getters
 	int pho1() const { return pho1_[ipair_]; };
@@ -267,7 +267,7 @@ private:
 	// per-event MVA
 	static float evt_diphoPt, evt_nvert, evt_nconv;
 	static std::vector<float> evt_mva, evt_dz;
-	TF1 * vertexProbability_;
+	TF2 * vertexProbability_;
 	
 };
 

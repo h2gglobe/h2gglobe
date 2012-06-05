@@ -52,6 +52,7 @@ class StatAnalysis : public PhotonAnalysis
     float systRange;
     int   nSystSteps;   
     //int   nEtaCategories, nR9Categories, nPtCategories;
+    std::vector<int> cicCutLevels;
     float massMin, massMax;
     int nDataBins;  
     bool dataIs2011;

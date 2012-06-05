@@ -9,6 +9,8 @@
 
 using namespace std;
 
+void dumpPhoton(std::ostream & eventListText,LoopAll & l, int ipho, int ivtx, TLorentzVector & phop4, float * pho_energy_array);
+
 // ----------------------------------------------------------------------------------------------------
 StatAnalysis::StatAnalysis()  : 
     name_("StatAnalysis"),
@@ -723,7 +725,7 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 
 	// inclusive category di-photon selection
 	// FIXME pass smeared R9
-	diphoton_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtCut, subleadEtCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
+	diphoton_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtCut, subleadEtCut, 4,applyPtoverM, &smeared_pho_energy[0], false, cicCutLevels ); 
 	//// diphoton_id = l.DiphotonCiCSelection(l.phoNOCUTS, l.phoNOCUTS, leadEtCut, subleadEtCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
 	
 	// N-1 plots
@@ -788,8 +790,7 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 	if(includeVHlep && (VHelevent || VHmuevent)) {
 	    diphoton_id = diphotonVHlep_id;
 	} else if(includeVBF&&VBFevent) {
-	    diphoton_id = diphotonVBF_id;
-	} else if(includeVHhad&&VHhadevent) {
+	    diphoton_id = diphotonVBF_id;	} else if(includeVHhad&&VHhadevent) {
 	    diphoton_id = diphotonVHhad_id;
 	}
 	// End exclusive mode selection
@@ -841,9 +842,20 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 	computeExclusiveCategory(l, category, diphoton_index, Higgs.Pt() );
   
         if (!isSyst && (cur_type==0||PADEBUG) ) {
-            eventListText << "Type = "<< cur_type <<  " Run = " << l.run << "  LS = " << l.lumis << "  Event = " <<  l.event << "  ggM = " << mass 
-			  <<  " CAT " << category << " Vertex = " <<  l.dipho_vtxind[diphoton_id];
-            eventListText << endl;
+            ////////// eventListText << "Type = "<< cur_type <<  " Run = " << l.run << "  LS = " << l.lumis << "  Event = " <<  l.event << "  ggM = " << mass 
+	    ////////// 		  <<  " CAT " << category << " Vertex = " <<  l.dipho_vtxind[diphoton_id];
+            ////////// eventListText << endl;
+	    
+	    eventListText << l.run << "\t" << l.event << "\t" << l.lumis << "\t" << l.rho_algo1 << "\t" 
+			  << lead_p4.Pt() << "\t" 
+			  << ((TVector3*)l.sc_xyz->At(l.pho_scind[l.dipho_leadind[diphoton_id]]))->Eta() << "\t" 
+			  << sublead_p4.Pt() << "\t" 
+			  << ((TVector3*)l.sc_xyz->At(l.pho_scind[l.dipho_subleadind[diphoton_id]]))->Eta()
+		;
+
+	    dumpPhoton(eventListText,l,l.dipho_leadind[diphoton_id],l.dipho_vtxind[diphoton_id],lead_p4,&smeared_pho_energy[0]);
+	    dumpPhoton(eventListText,l,l.dipho_subleadind[diphoton_id],l.dipho_vtxind[diphoton_id],sublead_p4,&smeared_pho_energy[0]);
+	    eventListText << std::endl;
         }
 	
 	return true;
@@ -956,7 +968,10 @@ void StatAnalysis::fillControlPlots(const TLorentzVector & lead_p4, const  TLore
         if( isCorrectVertex ) { l.FillHist("nvtx_rv",category+1, l.vtx_std_n, evweight); }
 	
 	vtxAna_.setPairID(diphoton_id);
-	float vtxProb = vtxAna_.vertexProbability(l.vtx_std_evt_mva->at(diphoton_id));
+	float vtxProb = vtxAna_.vertexProbability(l.vtx_std_evt_mva->at(diphoton_id), l.vtx_std_n);
+	l.FillHist2D("probmva_pt",category+1, Higgs.Pt(), l.vtx_std_evt_mva->at(diphoton_id), evweight);
+	l.FillHist2D("probmva_nvtx",category+1, l.vtx_std_n, l.vtx_std_evt_mva->at(diphoton_id), evweight);
+	if( isCorrectVertex ) { l.FillHist2D("probmva_rv_nvtx",category+1, l.vtx_std_n, l.vtx_std_evt_mva->at(diphoton_id), evweight); }
 	l.FillHist2D("vtxprob_pt",category+1, Higgs.Pt(), vtxProb, evweight);
 	l.FillHist2D("vtxprob_nvtx",category+1, l.vtx_std_n, vtxProb, evweight);
 	std::vector<int> & vtxlist = l.vtx_std_ranked_list->at(diphoton_id);
@@ -1128,6 +1143,43 @@ void StatAnalysis::ResetAnalysis(){
     eResolSmearer->resetRandom();
 }
 
+void dumpPhoton(std::ostream & eventListText,LoopAll & l, int ipho, int ivtx, TLorentzVector & phop4, float * pho_energy_array)
+{
+    float val_tkisobad = -99;
+    for(int iv=0; iv < l.vtx_std_n; iv++) {
+	if((*l.pho_pfiso_mycharged04)[ipho][iv] > val_tkisobad) {
+	    val_tkisobad = (*l.pho_pfiso_mycharged04)[ipho][iv];
+	}
+    }
+    TLorentzVector phop4_badvtx = l.get_pho_p4( ipho, l.pho_tkiso_badvtx_id[ipho], pho_energy_array  );
+
+    float val_tkiso        = (*l.pho_pfiso_mycharged03)[ipho][ivtx];
+    float val_ecaliso      = l.pho_pfiso_myphoton03[ipho];
+    float val_ecalisobad   = l.pho_pfiso_myphoton04[ipho];
+    float val_sieie        = l.pho_sieie[ipho];
+    float val_hoe          = l.pho_hoe[ipho];
+    float val_r9           = l.pho_r9[ipho];
+    float val_conv         = l.pho_isconv[ipho];
+    
+    float rhofacbad=0.23, rhofac=0.09;
+    
+    float val_isosumoet    = (val_tkiso    + val_ecaliso    - l.rho_algo1 * rhofac )   * 50. / phop4.Et();
+    float val_isosumoetbad = (val_tkisobad + val_ecalisobad - l.rho_algo1 * rhofacbad) * 50. / phop4_badvtx.Et();
+    
+    // tracker isolation cone energy divided by Et
+    float val_trkisooet    = (val_tkiso) * 50. / phop4.Pt();
+    
+    eventListText << std::setprecision(4) << std::scientific
+		  << "\t" << val_isosumoet << "\t" << val_isosumoetbad << "\t" << val_trkisooet 
+		  << "\t" << val_sieie
+		  << "\t" << val_hoe
+		  << "\t" << val_r9 
+		  << "\t" << val_tkiso
+		  << "\t" << val_ecaliso 
+		  << "\t" << val_tkisobad
+		  << "\t" << val_ecalisobad 
+	;
+}
 
 // Local Variables:
 // mode: c++

@@ -1628,7 +1628,7 @@ int PhotonAnalysis::DiphotonMVASelection(LoopAll &l, HggVertexAnalyzer & vtxAna,
 
         // FIXME call to (*vtx_std_evt_mva)[ivtx] crashes program
         //std::cout<<"(*vtx_std_evt_mva)["<<ivtx<<"] "<< (*vtx_std_evt_mva)[ivtx]<<std::endl; 
-        float vtxProb = vtxAna.vertexProbability((*l.vtx_std_evt_mva)[ivtx]);
+        float vtxProb = vtxAna.vertexProbability((*l.vtx_std_evt_mva)[idipho], l.vtx_std_n);
         //float vtxProb = vtxAna.vertexProbability(0.0);
         //float vtxProb = 0.3;
 
