@@ -4,20 +4,32 @@ import ROOT
 import sys
 import numpy
 
-ROOT.gROOT.ProcessLine(".L Normalization_7TeV.C++")
-from ROOT import GetBR
-from ROOT import GetXsection
- 
+#### ROOT.gROOT.ProcessLine(".L Normalization_7TeV.C++")
+### ROOT.gROOT.ProcessLine(".L Normalization_8TeV.C++")
+### from ROOT import GetBR
+### from ROOT import GetXsection
+### GetProcXsection = GetXsection
+
+ROOT.gSystem.Load("../libLoopAll.so")
+from ROOT import Normalization_8TeV
+norm = Normalization_8TeV()
+GetBR = lambda x : norm.GetBR(float(x))
+GetXsection = lambda x : norm.GetXsection(float(x))
+GetProcXsection = lambda x,y : norm.GetXsection(x,y)
+
 # ROOT Setup
 ROOT.gROOT.SetStyle("Plain")
 ROOT.gROOT.SetBatch(0)
 
 # Global Setup, Modify with each Reload
-NCAT = 5
-lumi = 5089
+##### NCAT = 5
+##### lumi = 5089
+NCAT = 6
+lumi = 1490
 #systematics = ["vtxEff","idEff","E_scale","E_res","triggerEff","regSig","phoIdMva"] # These are the main contributions to eff*Acc
 systematics = ["vtxEff","idEff","E_scale","E_res","triggerEff"] # These are the main contributions to eff*Acc
-Masses = range(110,152,2) 
+## Masses = range(110,152,2) 
+Masses = range(110,150,10) 
 # -------------------------------------------------------------
 
 f = ROOT.TFile(sys.argv[1])
@@ -27,6 +39,7 @@ printLine = "Data:      "
 Sum = 0
 for i in range(NCAT):
   h = f.Get("th1f_data_mass_cat%d"%i)
+  print "%d   %4.0f    %4.0f" % (i, h.Integral(1,160), h.Integral(21,100) )
   Sum+=h.Integral()
   printLine+="%3.0f"%(h.Integral())+" "
 printLine+="tot=%d"%Sum
@@ -54,9 +67,18 @@ for point,M in enumerate(Masses):
      hvb = f.Get("th1f_sig_vbf_mass_m%d_cat%d"%(int(M),i))
      hvh = f.Get("th1f_sig_wzh_mass_m%d_cat%d"%(int(M),i))
      htt = f.Get("th1f_sig_tth_mass_m%d_cat%d"%(int(M),i))
+
+     ggh = h.Integral()
+     vbf = hvb.Integral()
+     
      h.Add(hvb)
      h.Add(hvh)
      h.Add(htt)
+
+     print "%d %3.0f   %3.1f    %3.1f    %3.1f     %3.1f" % ( i, M,
+                                                              ggh, 100.*ggh/(lumi*GetBR(M)*GetProcXsection(M,"ggh")),
+                                                              vbf, 100.*vbf/(lumi*GetBR(M)*GetProcXsection(M,"vbf"))
+                                                              )
      
     else:
      h = f.Get("th1f_sig_mass_m%.1f_cat%d"%(M,i))
