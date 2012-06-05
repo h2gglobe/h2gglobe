@@ -190,7 +190,6 @@ class configProducer:
       self.conf_.print_conf()
     self.add_files()
     self.ut_.SetTypeRun(self.type_,self.conf_.histfile)
-    self.ut_.outputTextFileName = self.conf_.outfile
     for dum in self.conf_.confs:
       dataContainer = self.ut_.DefineSamples(dum['Nam'],dum['typ'],dum['ind'],dum['draw'],dum['red'],dum['tot'],dum['intL'],dum['lum'],dum['xsec'],dum['kfac'],dum['scal'],dum['addnevents'])
       if("json" in dum and dum["json"] != ""):
@@ -517,9 +516,12 @@ class configProducer:
       
       if val[0] == "output":
         self.conf_.outfile = str(val[1])
+        name,ext=self.conf_.outfile.rsplit(".",1)
         if self.njobs_ > 0:
-            name,ext=self.conf_.outfile.rsplit(".",1)
             self.conf_.outfile = "%s_%d.%s" % ( name, self.jobId_, ext )
+            self.ut_.outputTextFileName = "%s_%d.%s" % ( name, self.jobId_, "txt" )
+        else:
+            self.ut_.outputTextFileName = "%s.%s" % ( name, "txt" )
 
       elif val[0] == 'histfile':
         self.conf_.histfile = str(val[1])

@@ -36,7 +36,8 @@ if __name__  == "__main__":
 	parser.add_option("","--runIC",dest="runIC",default=False, action="store_true")
 	parser.add_option("-u","--user",dest="user",default="")
 	parser.add_option("-a","--addfile",dest="addfiles",action="append",default=[])
-
+	parser.add_option("-N","--notgz",dest="notgz",action="store_true",default=False)
+	
 	(options,args)=parser.parse_args()
 	
 	# Check IC user configs:
@@ -107,7 +108,7 @@ if __name__  == "__main__":
 	tmp  = open("%s" % tmpnam, "w+")
 	idat = open(options.inputDat, "r")
 	if options.runIC:tmp.write(idat.read().replace("%(label)s",options.label))
-	else:	tmp.write(idat.read().replace("split",""))
+	else:	tmp.write( idat.read().replace("split","") % { "label": options.label } )
 	
 
 	idat.close()
@@ -125,7 +126,7 @@ if __name__  == "__main__":
 		mkdir="rfmkdir"
 		cp="rfcp"
 	  elif cfg.histdir.startswith("/store"):
-		cp="cmsStage"
+		cp="cmsStage -f"
 		mkdir="cmsMkdir"
 	if cfg.histdir=="":
 		if os.path.isabs(scriptdir):
@@ -133,9 +134,10 @@ if __name__  == "__main__":
 		else:
 			cfg.histdir=os.path.join(os.getcwd(),scriptdir)
 
-	os.system("tar zcf %s.tgz $(find -name \*.dat -or -name \*.py) aux common" % options.outputScript)
 	os.system("%s %s" % ( mkdir, cfg.histdir) )
-	os.system("%s %s.tgz %s" % ( cp,  options.outputScript, cfg.histdir) )
+	if not options.notgz:
+		os.system("tar zcf %s.tgz $(find -name \*.dat -or -name \*.py) aux common" % options.outputScript)
+		os.system("%s %s.tgz %s" % ( cp,  options.outputScript, cfg.histdir) )
 	
 	if os.path.isfile("%s.pevents" % tmpnam):
 		q=open("%s.pevents" % tmpnam, "r")
@@ -202,7 +204,7 @@ if __name__  == "__main__":
 			f.write("if ( python fitter.py -i %s.dat -n %d -j %d ) "%(jobbasename,int(options.nJobs),i))
 			for fn in ["","histograms_"]+options.addfiles:
 				f.write("&& ( %s %s%s_%d.%s %s ) "        % ( cp, fn, cfg.histfile[0], i, cfg.histfile[1], cfg.histdir ) )
-			#f.write("&& ( %s %s_%d.%s_ascii_events.txt %s ) " % ( cp, cfg.histfile[0], i, cfg.histfile[1], cfg.histdir ) )
+			### f.write("&& ( %s %s_%d.%s_ascii_events.txt %s ) " % ( cp, cfg.histfile[0], i, cfg.histfile[1], cfg.histdir ) )
 			f.write("&& ( %s %s_%d.%s %s ) " % ( cp, cfg.outfile[0], i, cfg.outfile[1], cfg.histdir ) )
 			f.write("&& ( %s %s_%d.json %s ) "                % ( cp, cfg.histfile[0], i, cfg.histdir ) )
 			f.write("&& ( %s histograms_%s_%d.csv %s ) " % ( cp, cfg.histfile[0], i, cfg.histdir ) )
@@ -210,7 +212,7 @@ if __name__  == "__main__":
 			f.write("if ( python fitter.py -i %s.dat ) "%(jobbasename))
 			for fn in ["","histograms_"]+options.addfiles:
 				f.write("&& ( %s %s%s.%s %s/%s%s_%d.%s ) " % ( cp, fn, cfg.histfile[0], cfg.histfile[1], cfg.histdir, fn, cfg.histfile[0], i, cfg.histfile[1] ) )
-			#f.write("&& ( %s %s.%s_ascii_events.txt %s/%s_%d.%s_ascii_events.txt ) " % ( cp, cfg.histfile[0], cfg.histfile[1], cfg.histdir, cfg.histfile[0], i, cfg.histfile[1] ) )
+			### f.write("&& ( %s %s.%s_ascii_events.txt %s/%s_%d.%s_ascii_events.txt ) " % ( cp, cfg.histfile[0], cfg.histfile[1], cfg.histdir, cfg.histfile[0], i, cfg.histfile[1] ) )
 			f.write("&& ( %s %s.%s %s/%s_%d.%s ) " % ( cp, cfg.outfile[0], cfg.outfile[1], cfg.histdir, cfg.outfile[0], i, cfg.outfile[1]) )
 			f.write("&& ( %s %s.json %s/%s_%d.json ) " % ( cp, cfg.histfile[0], cfg.histdir, cfg.histfile[0], i ) )
 			f.write("&& ( %s histograms_%s.csv %s/%s_%d.csv ) " % ( cp, cfg.histfile[0], cfg.histdir, cfg.histfile[0], i ) )
