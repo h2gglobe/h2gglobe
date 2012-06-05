@@ -1,4 +1,4 @@
-intL=1490. histfile=/store/group/phys_higgs/cmshgg/analyzed/may31freeze/%(label)s/CMS-HGG.root output=./%(label)s/output.root
+intL=1490. histfile=/store/group/phys_higgs/cmshgg/analyzed/may31freeze/%(label)s/CMS-HGG.root output=eventList.txt
 
 #
 # Data
@@ -67,5 +67,5 @@ inputBranches minimal_statanalysis_input.dat
 ## 	analyzer <class_name> <config_file>
 ## 
 ## analyzer PhotonAnalysis photonanalysis.dat	
-analyzer StatAnalysis photonanalysis.dat statanalysis.dat
+analyzer StatAnalysis photonanalysis.dat analysis_settings.dat statanalysis.dat
 
