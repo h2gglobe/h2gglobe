@@ -144,6 +144,6 @@ mvaWeightsFolder=aux/wt_Jan16reload_v2/
 # - phoId and trigger: same as EPS,  https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/374.html
 # - vertexing from: https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/374/1.html
 
-efficiencyFile=aux/sig_reweighing_jan16rereco_mva_v3.root
+efficiencyFile=aux/sig_reweighing_may31freeze_mva_v3.root
 
 
