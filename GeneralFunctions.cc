@@ -2513,8 +2513,8 @@ int LoopAll::PhotonCiCPFSelectionLevel( int photon_index, int vertex_index, std:
 
   float rhofacbad=0.23, rhofac=0.09;
 
-  float val_isosumoet    = (val_tkiso    + val_ecaliso    - rho_algo1 * rhofac )   * 50. / phop4.Et();
-  float val_isosumoetbad = (val_tkisobad + val_ecalisobad - rho_algo1 * rhofacbad) * 50. / phop4_badvtx.Et();
+  float val_isosumoet    = (val_tkiso    + val_ecaliso    + pfisoOffset - rho_algo1 * rhofac )   * 50. / phop4.Et();
+  float val_isosumoetbad = (val_tkisobad + val_ecalisobad + pfisoOffset - rho_algo1 * rhofacbad) * 50. / phop4_badvtx.Et();
 
   // tracker isolation cone energy divided by Et
   float val_trkisooet    = (val_tkiso) * 50. / phop4.Et();

@@ -485,6 +485,7 @@ float cic4_cut_sublead_r9[phoNCUTLEVELS][4];
 float cic4_cut_sublead_drtotk_25_99[phoNCUTLEVELS][4];
 float cic4_cut_sublead_pixel[phoNCUTLEVELS][4];
 
+float pfisoOffset;
 //   leading photon
 float cic4pf_cut_lead_isosumoet[phoNCUTLEVELS][4];
 float cic4pf_cut_lead_isosumoetbad[phoNCUTLEVELS][4];

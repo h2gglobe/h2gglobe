@@ -404,8 +404,7 @@ LoopAll::LoopAll(TTree *tree) :
 
   runZeeValidation = false;
   usePFCiC = true;
-
-  
+  pfisoOffset=0.;
 }
 
 // ------------------------------------------------------------------------------------
