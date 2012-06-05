@@ -11,8 +11,8 @@ bool PhotonJetAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
     if(PADEBUG)  cout << " ****************** SelectEventsReduction " << endl;
     // require at least two reconstructed photons to store the event
     //if( pho_acc.size() < 2 || l.get_pho_p4( pho_acc[0], 0, &corrected_pho_energy[0] ).Pt() < presel_scet1 ) { return false; }
-    if (pho_acc.size() < 1) {return false;}
-    
+    if( pho_acc.size() < 1 || l.get_pho_p4( pho_acc[0], 0, &corrected_pho_energy[0] ).Pt() < presel_scet1 ) { return false; }
+
     vtxAna_.clear();
     l.vtx_std_ranked_list->clear();
     l.dipho_vtx_std_sel->clear();
@@ -23,20 +23,13 @@ bool PhotonJetAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
     l.dipho_n = 0;
 
     //Jet Stuff
-    vector <TLorentzVector> GoodJetVector;
+    TLorentzVector MaxPtJet(0,0,0,0);
     for (unsigned int ijet=0; ijet<(unsigned int) l.jet_algoPF1_n; ijet++) {
       TLorentzVector JetP4 = *((TLorentzVector*) l.jet_algoPF1_p4->At(ijet));
-      TLorentzVector TrackSumP4(0,0,0,0);
-      if (fabs(JetP4.Eta())>2.4 || l.jet_algoPF1_ntk[ijet]<3) continue;
-      for (unsigned int itrack=0; itrack<(unsigned int) l.jet_algoPF1_ntk[ijet]; itrack++) {
-        unsigned short trackindex = l.jet_algoPF1_tkind->at(ijet).at(itrack);
-        if (trackindex>=3000) continue;
-        TLorentzVector TrackP4 = *((TLorentzVector*) l.tk_p4->At(trackindex));
-        if (TrackP4.Pt()>1.0) TrackSumP4+=TrackP4;
-      }
-      if (JetP4.Pt()>30 && TrackSumP4.Pt()>30) {
-        GoodJetVector.push_back(JetP4);
-      }
+      if (fabs(JetP4.Eta())>2.4 || l.jet_algoPF1_ntk[ijet]<3 || JetP4.Pt()<30) continue;
+      TLorentzVector JetTrackSumP4(0,0,0,0);
+      for (unsigned int itk=0; itk<(unsigned int) l.jet_algoPF1_ntk[ijet]; itk++) JetTrackSumP4 += *((TLorentzVector*) l.tk_p4->At(itk));
+      if (JetP4.Pt()>30. && JetTrackSumP4.Pt()>30. && JetP4.Pt()>MaxPtJet.Pt()) MaxPtJet=JetP4;
     }
     
     // fill ID variables
@@ -61,7 +54,9 @@ bool PhotonJetAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
     l.doJetMatching(*l.jet_algoPF2_p4,*l.genjet_algo2_p4,l.jet_algoPF2_genMatched,l.jet_algoPF2_vbfMatched,l.jet_algoPF2_genPt,l.jet_algoPF2_genDr);
     // CHS ak5
     l.doJetMatching(*l.jet_algoPF3_p4,*l.genjet_algo1_p4,l.jet_algoPF3_genMatched,l.jet_algoPF3_vbfMatched,l.jet_algoPF3_genPt,l.jet_algoPF3_genDr);
-    
+
+    postProcessJets(l);
+
     if( pho_presel.size() < 1 ) {
         // zero or one photons, can't determine a vertex based on photon pairs
         l.vtx_std_ranked_list->push_back( std::vector<int>() );
@@ -83,13 +78,13 @@ bool PhotonJetAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
             if(PADEBUG)        cout << " SelectEventsReduction going to fill photon info " << endl;
             PhotonInfo pho1=l.fillPhotonInfos(ipho1,vtxAlgoParams.useAllConversions,&corrected_pho_energy[0]);
             //PhotonInfo pho2=l.fillPhotonInfos(ipho2,vtxAlgoParams.useAllConversions);
-            PhotonInfo pho2=PhotonInfo(-1,GoodJetVector[0].Vect(),GoodJetVector[0].E());
+            PhotonInfo pho2=PhotonInfo(-1,MaxPtJet.Vect(),MaxPtJet.E());
             pho2.isFake(true);
             if(PADEBUG) cout << " SelectEventsReduction done with fill photon info " << endl;
             
             l.vertexAnalysis(vtxAna_, pho1, pho2 );
             // make sure that vertex analysis indexes are in synch 
-            assert( (int)id == vtxAna_.pairID(ipho1,ipho2) );
+            assert( (int)id == vtxAna_.pairID(ipho1,-1) );
             
             l.vtx_std_ranked_list->push_back( l.vertexSelection(vtxAna_, vtxConv_, pho1, pho2, vtxVarNames, mvaVertexSelection, 
                                                                 tmvaPerVtxReader_, tmvaPerVtxMethod) );
@@ -109,8 +104,8 @@ bool PhotonJetAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
             l.dipho_vtxind[id] = l.dipho_vtx_std_sel->back();
             
             TLorentzVector lead_p4 = l.get_pho_p4( id, l.dipho_vtxind[id], &corrected_pho_energy[0] );
-            TLorentzVector sublead_p4 = GoodJetVector[0];
-            l.dipho_sumpt[id] = lead_p4.Pt() + sublead_p4.Pt();
+            TLorentzVector sublead_p4 = MaxPtJet;
+            l.dipho_sumpt[id] = lead_p4.Pt() + MaxPtJet.Pt();
             
             if( l.dipho_sumpt[id] > maxSumPt ) {
                 l.vtx_std_sel = l.dipho_vtx_std_sel->back();
@@ -128,28 +123,19 @@ bool PhotonJetAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
 bool PhotonJetAnalysis::SkimEvents(LoopAll& l, int jentry)
 {
     l.b_pho_n->GetEntry(jentry);
-    if( l.pho_n < 1 ) {
-        return false;
-    }
+    if( l.pho_n < 1 ) { return false; }
 
     //Jet Stuff
     vector <TLorentzVector> GoodJetVector;
     for (unsigned int ijet=0; ijet<(unsigned int) l.jet_algoPF1_n; ijet++) {
       TLorentzVector JetP4 = *((TLorentzVector*) l.jet_algoPF1_p4->At(ijet));
-      TLorentzVector TrackSumP4(0,0,0,0);
-      if (fabs(JetP4.Eta())>2.4 || l.jet_algoPF1_ntk[ijet]<3) continue;
-      for (unsigned int itrack=0; itrack<(unsigned int) l.jet_algoPF1_ntk[ijet]; itrack++) {
-        unsigned short trackindex = l.jet_algoPF1_tkind->at(ijet).at(itrack);
-        if (trackindex>=3000) continue;
-        TLorentzVector TrackP4 = *((TLorentzVector*) l.tk_p4->At(trackindex));
-        if (TrackP4.Pt()>1.0) TrackSumP4+=TrackP4;
-      }
-      if (JetP4.Pt()>30 && TrackSumP4.Pt()>30) {
-        GoodJetVector.push_back(JetP4);
-      }
+      if (fabs(JetP4.Eta())>2.4 || l.jet_algoPF1_ntk[ijet]<3 || JetP4.Pt()<30) continue;
+      TLorentzVector JetTrackSumP4(0,0,0,0);
+      for (unsigned int itk=0; itk<(unsigned int) l.jet_algoPF1_ntk[ijet]; itk++) JetTrackSumP4 += *((TLorentzVector*) l.tk_p4->At(itk));
+      if (JetP4.Pt()>30. && JetTrackSumP4.Pt()>30.) GoodJetVector.push_back(JetP4);
     }
 
-    if (GoodJetVector.size()!=1) return false;
+    if (GoodJetVector.size()<1) return false;
     
     return true;
 }
@@ -174,6 +160,10 @@ void PhotonJetAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree)
     l.pho_cic4passcuts_lead = new std::vector<std::vector<std::vector<UInt_t> > >();
     l.pho_cic4cutlevel_sublead = new std::vector<std::vector<Short_t> >();
     l.pho_cic4passcuts_sublead = new std::vector<std::vector<std::vector<UInt_t> > >();
+    l.pho_cic4pfcutlevel_lead = new std::vector<std::vector<Short_t> >();
+    l.pho_cic4pfpasscuts_lead = new std::vector<std::vector<std::vector<UInt_t> > >();
+    l.pho_cic4pfcutlevel_sublead = new std::vector<std::vector<Short_t> >();
+    l.pho_cic4pfpasscuts_sublead = new std::vector<std::vector<std::vector<UInt_t> > >();
     l.dipho_vtx_std_sel =  new std::vector<int>();
 
     l.Branch_vtx_std_evt_mva(outputTree);
@@ -182,9 +172,12 @@ void PhotonJetAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree)
     l.Branch_pho_tkiso_recvtx_030_002_0000_10_01(outputTree);
     l.Branch_pho_tkiso_badvtx_040_002_0000_10_01(outputTree);
     l.Branch_pho_tkiso_badvtx_id(outputTree);
+    l.Branch_pho_pfiso_charged_badvtx_04(outputTree);
+    l.Branch_pho_pfiso_charged_badvtx_id(outputTree);
     l.Branch_pho_ZeeVal_tkiso_recvtx_030_002_0000_10_01(outputTree);
     l.Branch_pho_ZeeVal_tkiso_badvtx_040_002_0000_10_01(outputTree);
     l.Branch_pho_ZeeVal_tkiso_badvtx_id(outputTree);
+    l.Branch_pho_mitmva(outputTree);
     l.Branch_pho_drtotk_25_99(outputTree);
 
     l.Branch_dipho_n(outputTree);
@@ -201,6 +194,10 @@ void PhotonJetAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree)
     l.Branch_pho_cic4passcuts_lead( outputTree );
     l.Branch_pho_cic4cutlevel_sublead( outputTree );
     l.Branch_pho_cic4passcuts_sublead( outputTree );
+    l.Branch_pho_cic4pfcutlevel_lead( outputTree );
+    l.Branch_pho_cic4pfpasscuts_lead( outputTree );
+    l.Branch_pho_cic4pfcutlevel_sublead( outputTree );
+    l.Branch_pho_cic4pfpasscuts_sublead( outputTree );
 
     l.Branch_pho_genmatched(outputTree);
     l.Branch_pho_regr_energy_otf(outputTree);
