@@ -44,6 +44,7 @@ void HistoContainer::Add(char* name, char* xaxis, char* yaxis, int categories,in
   for (int i=0; i<categories; i++) {
     std::string modName = ModifiedName(name, i);
     TH1F histo_temp(modName.c_str(), modName.c_str(), bins, xmin, xmax);
+    histo_temp.Sumw2();
     histo_temp.GetXaxis()->SetTitle(xaxis);
     histo_temp.GetYaxis()->SetTitle(yaxis);
     histo_temp.SetDirectory(0);
@@ -63,6 +64,7 @@ void HistoContainer::Add(char* name, char* xaxis, char* yaxis, int categories, i
   for (int i=0; i<categories; i++) {
     std::string modName = ModifiedName(name, i); 
     TH2F histo_temp(modName.c_str(), modName.c_str(), binsx, xmin, xmax, binsy, ymin, ymax);
+    histo_temp.Sumw2();
     histo_temp.GetXaxis()->SetTitle(xaxis);
     histo_temp.GetYaxis()->SetTitle(yaxis);
     temp.push_back(histo_temp);
