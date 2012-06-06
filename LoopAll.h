@@ -113,7 +113,7 @@ class LoopAll {
 
   // Zee Validaton Flag
   bool runZeeValidation;
-
+  std::string cicVersion;
   bool usePFCiC;
   
   std::vector<TTree*> Trees;

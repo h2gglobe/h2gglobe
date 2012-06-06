@@ -1500,9 +1500,35 @@ void LoopAll::SetPhotonCutsInCategories(phoCiCIDLevel cutlevel, float * cic6_all
             0.94,      0.28,      0.94,      0.24,
             1,      0.99,      0.99,     0.028,
             1.5,         1.5,         1.5,         1.5};
+
+	float cic4pf8tev_allcuts_temp_lead[] = {     
+	  6.3,       5.6,       5.8,       5.1,
+	  18.9,         8,        10,       6.2,
+	  4.5,       2.8,         4,      1.62,
+	  0.0125,    0.0103,     0.029,     0.028,
+	  0.141,     0.138,      0.12,     0.091,
+	  0.94,      0.33,      0.94,      0.37,
+	  1,     0.051,     0.054,     0.064,
+	  1.5,         1.5,         1.5,         1.5};
+	
+        float cic4pf8tev_allcuts_temp_sublead[] = {  
+	  6.3,       5.6,       5.8,       5.1,
+	  18.9,         8,        10,       6.2,
+	  4.5,       2.8,         4,      1.62,
+	  0.0125,    0.0103,     0.029,     0.028,
+	  0.141,     0.138,      0.12,     0.091,
+	  0.94,      0.33,      0.94,      0.37,
+	  1,     0.051,     0.054,     0.064,
+	  1.5,         1.5,         1.5,         1.5};
+	
         for(int i=0;i!=ncuts*ncat_cic4;++i) { 
-            cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
-            cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i]; 
+	  if (cicVersion == "7TeV") {
+	    cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
+	    cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i]; 
+	  } else {
+	    cic4pf_allcuts_lead[i]    = cic4pf8tev_allcuts_temp_lead[i];
+	    cic4pf_allcuts_sublead[i] = cic4pf8tev_allcuts_temp_sublead[i]; 
+	  }
         }
     } break;
     case(phoHYPERTIGHT1) : {
@@ -1569,9 +1595,36 @@ void LoopAll::SetPhotonCutsInCategories(phoCiCIDLevel cutlevel, float * cic6_all
             1,      0.99,      0.99,     0.028,
             1.5,         1.5,         1.5,         1.5};
 
+        float cic4pf8tev_allcuts_temp_lead[] = { 
+	       5.9,       4.8,       5.3,       3.9,
+	      11.2,         8,        10,       5.8,
+	       4.2,       2.8,       2.8,      1.41,
+	       9.4,       8.3,       5.9,       4.5,
+	    0.0125,    0.0101,     0.028,     0.028,
+	     0.141,     0.138,      0.12,     0.058,
+	      0.94,      0.33,      0.94,      0.39,
+	         1,     0.095,      0.77,       0.1,
+	       1.5,         1.5,         1.5,         1.5};
+
+        float cic4pf8tev_allcuts_temp_sublead[] = {   
+	  5.9,       4.8,       5.3,       3.9,
+	  11.2,         8,        10,       5.8,
+	  4.2,       2.8,       2.8,      1.41,
+	  9.4,       8.3,       5.9,       4.5,
+	  0.0125,    0.0101,     0.028,     0.028,
+	  0.141,     0.138,      0.12,     0.058,
+	  0.94,      0.33,      0.94,      0.39,
+	  1,     0.095,      0.77,       0.1,
+	  1.5,         1.5,         1.5,         1.5};
+
         for(int i=0;i!=ncuts*ncat_cic4;++i) { 
+	  if (cicVersion == "7TeV") {
             cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
             cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i]; 
+	  } else {
+	    cic4pf_allcuts_lead[i]    = cic4pf8tev_allcuts_temp_lead[i];
+            cic4pf_allcuts_sublead[i] = cic4pf8tev_allcuts_temp_sublead[i]; 
+	  }
         }
     } break;
     case(phoHYPERTIGHT2) : {
