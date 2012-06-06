@@ -1,0 +1,3 @@
+{ 
+  "variables"  : ["ptasym","ptbal","logsumpt2", "nch", "ptmax3", "limpulltoconv"]
+}
