@@ -279,6 +279,9 @@ class LoopAll {
   /** list of the analyses to be performed */
   std::vector<BaseAnalysis*> analyses;
 
+  float pfTkIsoWithVertex(int phoindex, int vtxInd, float dRmax, float dRvetoBarrel, float dRvetoEndcap, float ptMin, float dzMax, float dxyMax, int pfToUse=1);
+  float pfEcalIso(int phoindex, float dRmax, float dRVetoBarrel, float dRVetoEndcap, float etaStripBarrel, float etaStripEndcap, int pfToUse=4);
+
   TMVA::Reader *tmvaReaderID_UCSD, * tmvaReader_dipho_UCSD;
   TMVA::Reader *tmvaReaderID_MIT_Barrel, *tmvaReaderID_MIT_Endcap;
   TMVA::Reader *tmvaReader_dipho_MIT;

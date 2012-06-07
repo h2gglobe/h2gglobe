@@ -3,6 +3,101 @@
 #define GFDEBUG 0
 
 
+float LoopAll::pfTkIsoWithVertex(int phoindex, int vtxInd, float dRmax, float dRvetoBarrel, float dRvetoEndcap, 
+				 float ptMin, float dzMax, float dxyMax, int pfToUse) {
+  
+  float dRveto;
+  if (pho_isEB[phoindex])
+    dRveto = dRvetoBarrel;
+  else
+    dRveto = dRvetoEndcap;
+  
+  TLorentzVector photonDirectionWrtVtx = get_pho_p4(phoindex, vtxInd, 0);
+  
+  float sum = 0;
+  // Loop over the PFCandidates
+  for(unsigned i=0; i<pfcand_n; i++) {
+    
+    //require that PFCandidate is a charged hadron
+    if (pfcand_pdgid[i] == pfToUse) {
+      
+      TLorentzVector* pfc = (TLorentzVector*)pfcand_p4->At(i);
+      
+      if (pfc->Pt() < ptMin)
+	  continue;
+	
+      TVector3* vtx = (TVector3*)vtx_xyz->At(vtxInd);
+      TVector3* pfCandVtx = (TVector3*)pfcand_posvtx->At(vtxInd);
+
+      float dz = fabs(pfCandVtx->Z() - vtx->Z());
+      
+      if (dz > dzMax) 
+	continue;
+
+      double dxy = (-(pfCandVtx->X() - vtx->X())*pfc->Py() + (pfCandVtx->Y() - vtx->Y())*pfc->Px()) / pfc->Pt();
+      if(fabs(dxy) > dxyMax) 
+	continue;
+      
+      float dR = photonDirectionWrtVtx.DeltaR(*pfc);
+      if(dR > dRmax || dR < dRveto) 
+	continue;
+      
+      sum += pfc->Pt();
+    }
+  }
+  
+  return sum;
+}
+
+float LoopAll::pfEcalIso(int phoindex, float dRmax, float dRVetoBarrel, float dRVetoEndcap, float etaStripBarrel, float etaStripEndcap, int pfToUse) {
+  
+  float dRVeto, etaStrip;
+  if (pho_isEB[phoindex]) {
+    dRVeto = dRVetoBarrel;
+    etaStrip = etaStripBarrel;
+  } else {
+    dRVeto = dRVetoEndcap;
+    etaStrip = etaStripEndcap;
+  }
+
+  float sum = 0;
+  for(unsigned i=0; i<pfcand_n; i++) {
+    
+    if (pfcand_pdgid[i] == pfToUse) {
+      
+      // FIXME questo non so come implementarlo...
+      //if(pfc.superClusterRef().isNonnull() && localPho->superCluster().isNonnull()) {
+      //if (pfc.superClusterRef() == localPho->superCluster()) 
+      //  continue;
+      //}
+      
+      TVector3* pfvtx = (TVector3*)pfcand_posvtx->At(i);
+      TVector3* phoEcalPos = (TVector3*)sc_xyz->At(pho_scind[phoindex]);
+
+      TVector3 photonDirectionWrtVtx = TVector3(phoEcalPos->X() - pfvtx->X(),
+						phoEcalPos->Y() - pfvtx->Y(),
+						phoEcalPos->Z() - pfvtx->Z());
+
+      TLorentzVector* pfc = (TLorentzVector*)pfcand_p4->At(i);
+
+      float dEta = fabs(photonDirectionWrtVtx.Eta() - pfc->Eta());
+      float dR = photonDirectionWrtVtx.DeltaR(pfc->Vect());
+      
+      if (dEta < etaStrip)
+	continue;
+      
+      if(dR > dRmax || dR < dRVeto)
+	continue;
+      
+      sum += pfc->Pt();
+    }
+  }
+  
+  return sum;
+}
+
+
+
 void LoopAll::SetAllMVA() {
   tmvaReaderID_UCSD = new TMVA::Reader("!Color:Silent");
   tmvaReaderID_UCSD->AddVariable("sieie",      &tmva_id_ucsd_sieie);

@@ -1,3 +1,7 @@
+BRANCH_DICT(pfcand_n);
+BRANCH_DICT(pfcand_pdgid);
+BRANCH_DICT(pfcand_p4);
+BRANCH_DICT(pfcand_posvtx);
 BRANCH_DICT(event);
 BRANCH_DICT(run);
 BRANCH_DICT(process_id);

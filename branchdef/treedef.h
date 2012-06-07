@@ -1,3 +1,7 @@
+Int_t pfcand_n;
+Int_t pfcand_pdgid[MAX_PFCANDS];
+TClonesArray* pfcand_p4;
+TClonesArray* pfcand_posvtx;
 Int_t lumis;
 Int_t bx;
 Int_t event;

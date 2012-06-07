@@ -1,3 +1,6 @@
+pfcand_p4 = new TClonesArray("TLorentzVector", MAX_PFCANDS);
+pfcand_posvtx = new TClonesArray("TVector3", MAX_PFCANDS);
+
   ct_p4  = new TClonesArray("TLorentzVector", MAX_CALOTOWERS);
   sc_p4  = new TClonesArray("TLorentzVector", MAX_SUPERCLUSTERS);
   sc_xyz  = new TClonesArray("TVector3", MAX_SUPERCLUSTERS);

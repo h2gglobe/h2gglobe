@@ -1,3 +1,10 @@
+
+void Branch_pfcand_n(TTree * tree) { tree->Branch("pfcand_n",&pfcand_n, "pfcand_n/I");  }; 
+void Branch_pfcand_p4(TTree * tree) { tree->Branch("pfcand_p4", "TClonesArray",&pfcand_p4, 32000, 0); }; 
+void Branch_pfcand_posvtx(TTree * tree) { tree->Branch("pfcand_posvtx", "TClonesArray",&pfcand_posvtx, 32000, 0); }; 
+void Branch_pfcand_pdgid(TTree * tree) { tree->Branch("pfcand_pdgid",&pfcand_pdgid, "pfcand_pdgid[pfcand_n]/I");  };
+
+
 void Branch_event(TTree * tree) { tree->Branch("event",&event, "event/I");  }; 
 void Branch_run(TTree * tree) { tree->Branch("run",&run, "run/I");  }; 
 void Branch_process_id(TTree * tree) { tree->Branch("process_id",&process_id, "process_id/I");  }; 

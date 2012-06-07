@@ -1,3 +1,7 @@
+TBranch* b_pfcand_n;
+TBranch* b_pfcand_pdgid;
+TBranch* b_pfcand_p4;
+TBranch* b_pfcand_posvtx;
     TBranch *b_event;
     TBranch *b_run;
     TBranch *b_process_id;

@@ -1,3 +1,9 @@
+void SetBranchAddress_pfcand_n(TTree * tree) { tree->SetBranchAddress("pfcand_n", &pfcand_n, &b_pfcand_n); }; 
+void SetBranchAddress_pfcand_pdgid(TTree * tree) { tree->SetBranchAddress("pfcand_pdgid", &pfcand_pdgid, &b_pfcand_pdgid); }
+void SetBranchAddress_pfcand_p4(TTree * tree) { tree->SetBranchAddress("pfcand_p4", &pfcand_p4, &b_pfcand_p4); }; 
+void SetBranchAddress_pfcand_posvtx(TTree * tree) { tree->SetBranchAddress("pfcand_posvtx", &pfcand_posvtx, &b_pfcand_posvtx); };
+
+
 void SetBranchAddress_event(TTree * tree) { tree->SetBranchAddress("event", &event, &b_event); }; 
 void SetBranchAddress_run(TTree * tree) { tree->SetBranchAddress("run", &run, &b_run); }; 
 void SetBranchAddress_process_id(TTree * tree) { tree->SetBranchAddress("process_id", &process_id, &b_process_id); }; 
