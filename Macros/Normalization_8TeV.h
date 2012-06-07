@@ -9,6 +9,8 @@
 #include "TGraph.h"
 #include "TCanvas.h"
 #include "TString.h"
+#include "TROOT.h"
+#include "TLegend.h"
 
 using namespace std;
 
@@ -27,7 +29,7 @@ class Normalization_8TeV {
 	TString GetProcess(int);
 	void CheckNorm(double,double,double,TString);
 	void FillSignalTypes();
-	
+	void PlotExpected(double ,double);	
  private:
 	std::map<double,double> BranchingRatioMap;
 	std::map<double,double> XSectionMap_ggh;

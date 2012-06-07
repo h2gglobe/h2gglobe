@@ -1467,3 +1467,47 @@ void Normalization_8TeV::CheckNorm(double Min, double Max, double Step, TString 
   delete c1;
 
 }
+
+void Normalization_8TeV::PlotExpected(double Min, double Max){
+
+	gROOT->SetBatch(1);
+	TLegend *leg = new TLegend(0.65,0.7,0.89,0.89);
+	leg->SetFillColor(0);
+	leg->SetBorderSize(0);
+
+	TCanvas *can = new TCanvas("c","",800,800);
+	TGraph *ggh = new TGraph();
+	TGraph *vbf = new TGraph();
+	TGraph *wzh = new TGraph();
+	TGraph *tth = new TGraph();
+
+	ggh->SetLineColor(kBlue);
+	vbf->SetLineColor(kRed);
+	wzh->SetLineColor(kGreen+3);
+	tth->SetLineColor(kViolet);
+
+	leg->AddEntry(ggh,"gg fusion","L");
+	leg->AddEntry(vbf,"Vector boson fusion","L");
+	leg->AddEntry(wzh,"W/Z assoc","L");
+	leg->AddEntry(tth,"t#bar{t} assoc","L");
+
+	ggh->SetLineWidth(3);vbf->SetLineWidth(3);wzh->SetLineWidth(3);tth->SetLineWidth(3);
+	int i=0;
+	for(double mH = Min;mH<=Max;mH+=0.5){
+		ggh->SetPoint(i,mH,GetBR(mH)*GetXsection(mH,"ggh"));
+		vbf->SetPoint(i,mH,GetBR(mH)*GetXsection(mH,"vbf"));
+		wzh->SetPoint(i,mH,GetBR(mH)*GetXsection(mH,"wzh"));
+		tth->SetPoint(i,mH,GetBR(mH)*GetXsection(mH,"tth"));
+
+		i++;
+	}
+	can->SetLogy();
+	ggh->Draw("AL");vbf->Draw("L");wzh->Draw("L");tth->Draw("L");
+	ggh->SetTitle(""); ggh->GetYaxis()->SetRangeUser(0.001,10);
+	ggh->GetXaxis()->SetTitle("m_{H} (GeV)");
+	ggh->GetYaxis()->SetTitle("#sigma(pp#rightarrow H) #times BR(#rightarrow#gamma#gamma) ");
+	leg->Draw();
+	can->SaveAs("signalnormalization_8TeV.pdf");
+}
+
+
