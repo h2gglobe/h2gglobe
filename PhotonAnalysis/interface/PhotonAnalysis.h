@@ -44,12 +44,19 @@ class PhotonAnalysis : public BaseAnalysis
 
     virtual void ResetAnalysis();
     
+    float zero_;
     //void GetRegressionCorrections(LoopAll&);  
     //  void GetRegressionCorrections(LoopAll&);    
     // Public parameters to be read from config file
-    float zero_;
     VertexAlgoParameters vtxAlgoParams;  
     std::vector<std::string> vtxVarNames;
+    std::vector<string> tmvaPerVtxVariables;
+    
+    std::string tmvaPerVtxMethod;                           
+    std::string tmvaPerVtxWeights;                  
+    std::string tmvaPerEvtMethod;                   
+    std::string tmvaPerEvtWeights;                  
+                                                        
     bool useDefaultVertex;
     float forcedRho;
     bool applyPtoverM;  
@@ -124,11 +131,6 @@ class PhotonAnalysis : public BaseAnalysis
     std::string energyCorrectionMethod;
     //std::string massResolutionFileName;
 
-    std::string tmvaPerVtxMethod;                           
-    std::string tmvaPerVtxWeights;                  
-    std::string tmvaPerEvtMethod;                   
-    std::string tmvaPerEvtWeights;                  
-                                                        
     bool mvaVertexSelection, addConversionToMva;     
 
     // PhotonFix
@@ -200,6 +202,7 @@ class PhotonAnalysis : public BaseAnalysis
     // Vertex analysis
     HggVertexAnalyzer vtxAna_;
     HggVertexFromConversions vtxConv_;
+    void reVertex(LoopAll & l);
 
     // Jets
     JetHandler * jetHandler_;
@@ -240,7 +243,6 @@ class PhotonAnalysis : public BaseAnalysis
     Float_t *energyCorrected;
     Float_t *energyCorrectedError;
 
-    vector<string> tmvaPerVtxVariables_;
     TMVA::Reader *tmvaPerVtxReader_;
     TMVA::Reader *tmvaPerEvtReader_;
 

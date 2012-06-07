@@ -18,41 +18,41 @@ public:
   PhotonInfo(int id, const TVector3 & caloPosition, 
 	     const TVector3 &  bs, 
 	     const TVector3 &  convVtx,
-         const TVector3 &  refittedMomentum,
+	     const TVector3 &  refittedMomentum,
 	     float energy,
 	     int iDet,
 	     int nTracks,
 	     bool convVtxValid,
 	     float convVtxChi2Prob,
 	     float EoP
-	     );
-	
-	int id() const { return id_; }  
-	const TVector3 & beamSpot() const { return beamSpot_; }
-	const TVector3 & conversionVertex() const { return conversionVertex_; }
-	const TVector3 & caloPosition() const { return caloPosition_; }
-    const TVector3 & refittedMomentum() const { return refittedMomentum_; }
-    const int iDet() const {return iDet_;}
-    const int nTracks() const {return nTracks_;}
-    const float      energy()       const { return energy_; }
-	TLorentzVector p4(float vtxx, float vtxy, float vtxz) const;
-	bool isAConversion() const;
-	bool isFake() const { return isFake_; };
-	void isFake(bool x) { isFake_ = x; };
-	
+	  );
+  
+  int id() const { return id_; }  
+  const TVector3 & beamSpot() const { return beamSpot_; }
+  const TVector3 & conversionVertex() const { return conversionVertex_; }
+  const TVector3 & caloPosition() const { return caloPosition_; }
+  const TVector3 & refittedMomentum() const { return refittedMomentum_; }
+  const int iDet() const {return iDet_;}
+  const int nTracks() const {return nTracks_;}
+  const float      energy()       const { return energy_; }
+  TLorentzVector p4(float vtxx, float vtxy, float vtxz) const;
+  bool isAConversion() const;
+  bool isFake() const { return isFake_; };
+  void isFake(bool x) { isFake_ = x; };
+  
 protected:
-	int id_;
-	TVector3 caloPosition_;
-	TVector3 beamSpot_;
-	TVector3 conversionVertex_;
-    TVector3 refittedMomentum_;
-	float energy_;
-	int iDet_;
-	int nTracks_;
-	bool convVtxValid_;
-	float convVtxChi2Prob_;
-	float EoP_;
-	bool isFake_;
+  int id_;
+  TVector3 caloPosition_;
+  TVector3 beamSpot_;
+  TVector3 conversionVertex_;
+  TVector3 refittedMomentum_;
+  float energy_;
+  int iDet_;
+  int nTracks_;
+  bool convVtxValid_;
+  float convVtxChi2Prob_;
+  float EoP_;
+  bool isFake_;
 };
 
 

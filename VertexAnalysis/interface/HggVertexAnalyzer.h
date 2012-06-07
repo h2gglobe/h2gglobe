@@ -54,7 +54,8 @@ public:
 	static const float spherPwr_;
 	
 	// Zero-configuration method
-	void setupWithDefaultOptions(const std::string & pathToPerVertxMvaWeights, const std::string & pathToPerEventMvaWeights, 
+	void setupWithDefaultOptions(bool is2012, 
+				     const std::string & pathToPerVertxMvaWeights, const std::string & pathToPerEventMvaWeights, 
 				     std::vector<std::string> & rankVariables, 
 				     TMVA::Reader *& perVertexReader, std::string & perVertexMethod,
 				     TMVA::Reader *& perEventReader, std::string & perEventMethod);
@@ -115,6 +116,7 @@ public:
 	
 	// algorithm input variables
 	float vertexz(int i)            const { return vertexz_[i]; };	
+	float nlegs(int i)            const { return nlegs_[ipair_]; };	
 	float nconv(int i)            const { return nconv_[ipair_]; };	
 	float pulltoconv(int i)    const { return pulltoconv_[ipair_][i]; };	
 	float limpulltoconv(int i)    const { return limpulltoconv_[ipair_][i]; };	
@@ -184,7 +186,7 @@ private:
 	std::vector<std::vector<float> > diphopt_;
 	
 	std::vector<float> vertexz_;
-	std::vector<float> nconv_;
+	std::vector<float> nconv_, nlegs_;
 
         /** for the following variables, the first index is the 
             photon pair index, the second index is the index
@@ -234,7 +236,7 @@ private:
 	
 	std::vector<std::vector<float> > * pmva, * prcomb ;
 	std::vector<float>               * pvertexz ;
-	std::vector<float>               * pnconv ;
+	std::vector<float>               * pnconv, *pnlegs ;
 	std::vector<std::vector<float> > * ppulltoconv ;
 	std::vector<std::vector<float> > * plimpulltoconv ;
 	std::vector<std::vector<float> > * pdiphopt ;
@@ -377,6 +379,5 @@ private:
 
 // Local Variables:
 // mode: c++       
-// mode: sensitive 
 // c-basic-offset: 8
 // End:             

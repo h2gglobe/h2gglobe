@@ -13,14 +13,14 @@ void dumpPhoton(std::ostream & eventListText,LoopAll & l, int ipho, int ivtx, TL
 
 // ----------------------------------------------------------------------------------------------------
 StatAnalysis::StatAnalysis()  : 
-    name_("StatAnalysis"),
-    vtxAna_(vtxAlgoParams), vtxConv_(vtxAlgoParams)
+    name_("StatAnalysis")
 {
 
     systRange  = 3.; // in units of sigma
     nSystSteps = 1;    
     doSystematics = true;   
     dataIs2011 = false;
+    reRunVtx = false;
     nVBFDijetJetCategories=2;
 }
 
@@ -596,6 +596,9 @@ bool StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     if (cur_type !=0){
         rescaleClusterVariables(l);
     }
+    if( reRunVtx ) {
+	reVertex(l);
+    }
 
     // Re-apply JEC and / or recompute JetID
     if(includeVBF || includeVHhad) { postProcessJets(l); }
@@ -843,7 +846,7 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 	// see if the event falls into an exclusive category
 	computeExclusiveCategory(l, category, diphoton_index, Higgs.Pt() );
   
-        if (!isSyst && (cur_type==0||PADEBUG) ) {
+        if (!isSyst && (cur_type==0||PADEBUG) && mass>=massMin && mass<=massMax ) {
             ////////// eventListText << "Type = "<< cur_type <<  " Run = " << l.run << "  LS = " << l.lumis << "  Event = " <<  l.event << "  ggM = " << mass 
 	    ////////// 		  <<  " CAT " << category << " Vertex = " <<  l.dipho_vtxind[diphoton_id];
             ////////// eventListText << endl;

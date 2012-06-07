@@ -654,13 +654,15 @@ void PhotonAnalysis::Init(LoopAll& l)
     //--------------------
 
     if( tmvaPerVtxWeights != ""  ) {
-        tmvaPerVtxVariables_.push_back("ptbal"), tmvaPerVtxVariables_.push_back("ptasym"), tmvaPerVtxVariables_.push_back("logsumpt2");
-        if( addConversionToMva ) {
-            tmvaPerVtxVariables_.push_back("limPullToConv");
-            tmvaPerVtxVariables_.push_back("nConv");
-        }
+	if( tmvaPerVtxVariables.empty() ) {
+	    tmvaPerVtxVariables.push_back("ptbal"), tmvaPerVtxVariables.push_back("ptasym"), tmvaPerVtxVariables.push_back("logsumpt2");
+	    if( addConversionToMva ) {
+		tmvaPerVtxVariables.push_back("limPullToConv");
+		tmvaPerVtxVariables.push_back("nConv");
+	    }
+	}
         tmvaPerVtxReader_ = new TMVA::Reader( "!Color:!Silent" );
-        HggVertexAnalyzer::bookVariables( *tmvaPerVtxReader_, tmvaPerVtxVariables_ );
+        HggVertexAnalyzer::bookVariables( *tmvaPerVtxReader_, tmvaPerVtxVariables );
         tmvaPerVtxReader_->BookMVA( tmvaPerVtxMethod, tmvaPerVtxWeights );
     } else {
         tmvaPerVtxReader_ = 0;
@@ -1471,10 +1473,10 @@ bool PhotonAnalysis::SelectEvents(LoopAll& l, int jentry)
 // ----------------------------------------------------------------------------------------------------
 void PhotonAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree) 
 {
-    vtxAna_.branches(outputTree,"vtx_std_");    
+    if( outputTree ) { vtxAna_.branches(outputTree,"vtx_std_"); }
 
     l.pho_matchingConv = new  std::vector<int>();
-    l.Branch_pho_matchingConv(outputTree);
+    if( outputTree ) { l.Branch_pho_matchingConv(outputTree); }
     
     l.vtx_std_evt_mva = new std::vector<float>();
     l.vtx_std_ranked_list = new std::vector<std::vector<int> >();
@@ -1494,58 +1496,60 @@ void PhotonAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree)
     l.pho_cic4pfpasscuts_sublead = new std::vector<std::vector<std::vector<UInt_t> > >();
     l.dipho_vtx_std_sel =  new std::vector<int>();
 
-    l.Branch_vtx_std_evt_mva(outputTree);
-    l.Branch_vtx_std_ranked_list(outputTree);
-    l.Branch_vtx_std_sel(outputTree);
-    l.Branch_pho_tkiso_recvtx_030_002_0000_10_01(outputTree);
-    l.Branch_pho_tkiso_badvtx_040_002_0000_10_01(outputTree);
-    l.Branch_pho_tkiso_badvtx_id(outputTree);
-    l.Branch_pho_pfiso_charged_badvtx_04(outputTree);
-    l.Branch_pho_pfiso_charged_badvtx_id(outputTree);
-    l.Branch_pho_ZeeVal_tkiso_recvtx_030_002_0000_10_01(outputTree);
-    l.Branch_pho_ZeeVal_tkiso_badvtx_040_002_0000_10_01(outputTree);
-    l.Branch_pho_ZeeVal_tkiso_badvtx_id(outputTree);
-    l.Branch_pho_mitmva(outputTree);
-    l.Branch_pho_drtotk_25_99(outputTree);
+    if( outputTree ) {
+	l.Branch_vtx_std_evt_mva(outputTree);
+	l.Branch_vtx_std_ranked_list(outputTree);
+	l.Branch_vtx_std_sel(outputTree);
+	l.Branch_pho_tkiso_recvtx_030_002_0000_10_01(outputTree);
+	l.Branch_pho_tkiso_badvtx_040_002_0000_10_01(outputTree);
+	l.Branch_pho_tkiso_badvtx_id(outputTree);
+	l.Branch_pho_pfiso_charged_badvtx_04(outputTree);
+	l.Branch_pho_pfiso_charged_badvtx_id(outputTree);
+	l.Branch_pho_ZeeVal_tkiso_recvtx_030_002_0000_10_01(outputTree);
+	l.Branch_pho_ZeeVal_tkiso_badvtx_040_002_0000_10_01(outputTree);
+	l.Branch_pho_ZeeVal_tkiso_badvtx_id(outputTree);
+	l.Branch_pho_mitmva(outputTree);
+	l.Branch_pho_drtotk_25_99(outputTree);
+	
+	l.Branch_dipho_n(outputTree);
+	l.Branch_dipho_leadind(outputTree);
+	l.Branch_dipho_subleadind(outputTree);
+	l.Branch_dipho_vtxind(outputTree);
+	l.Branch_dipho_sumpt(outputTree);
+	
+	l.Branch_pho_cic6cutlevel_lead( outputTree );
+	l.Branch_pho_cic6passcuts_lead( outputTree );
+	l.Branch_pho_cic6cutlevel_sublead( outputTree );
+	l.Branch_pho_cic6passcuts_sublead( outputTree );
+	l.Branch_pho_cic4cutlevel_lead( outputTree );
+	l.Branch_pho_cic4passcuts_lead( outputTree );
+	l.Branch_pho_cic4cutlevel_sublead( outputTree );
+	l.Branch_pho_cic4passcuts_sublead( outputTree );
+	l.Branch_pho_cic4pfcutlevel_lead( outputTree );
+	l.Branch_pho_cic4pfpasscuts_lead( outputTree );
+	l.Branch_pho_cic4pfcutlevel_sublead( outputTree );
+	l.Branch_pho_cic4pfpasscuts_sublead( outputTree );
+	
+	l.Branch_pho_genmatched(outputTree);
+	l.Branch_pho_regr_energy_otf(outputTree);
+	l.Branch_pho_regr_energyerr_otf(outputTree);
+	
+	l.Branch_jet_algoPF1_genMatched(outputTree);
+	l.Branch_jet_algoPF1_vbfMatched(outputTree);
+	l.Branch_jet_algoPF1_genPt(outputTree);
+	l.Branch_jet_algoPF1_genDr(outputTree);
+	
+	l.Branch_jet_algoPF2_genMatched(outputTree);
+	l.Branch_jet_algoPF2_vbfMatched(outputTree);
+	l.Branch_jet_algoPF2_genPt(outputTree);
+	l.Branch_jet_algoPF2_genDr(outputTree);
+	
+	l.Branch_jet_algoPF3_genMatched(outputTree);
+	l.Branch_jet_algoPF3_vbfMatched(outputTree);
+	l.Branch_jet_algoPF3_genPt(outputTree);
+	l.Branch_jet_algoPF3_genDr(outputTree);
+    }
 
-    l.Branch_dipho_n(outputTree);
-    l.Branch_dipho_leadind(outputTree);
-    l.Branch_dipho_subleadind(outputTree);
-    l.Branch_dipho_vtxind(outputTree);
-    l.Branch_dipho_sumpt(outputTree);
-    
-    l.Branch_pho_cic6cutlevel_lead( outputTree );
-    l.Branch_pho_cic6passcuts_lead( outputTree );
-    l.Branch_pho_cic6cutlevel_sublead( outputTree );
-    l.Branch_pho_cic6passcuts_sublead( outputTree );
-    l.Branch_pho_cic4cutlevel_lead( outputTree );
-    l.Branch_pho_cic4passcuts_lead( outputTree );
-    l.Branch_pho_cic4cutlevel_sublead( outputTree );
-    l.Branch_pho_cic4passcuts_sublead( outputTree );
-    l.Branch_pho_cic4pfcutlevel_lead( outputTree );
-    l.Branch_pho_cic4pfpasscuts_lead( outputTree );
-    l.Branch_pho_cic4pfcutlevel_sublead( outputTree );
-    l.Branch_pho_cic4pfpasscuts_sublead( outputTree );
-
-    l.Branch_pho_genmatched(outputTree);
-    l.Branch_pho_regr_energy_otf(outputTree);
-    l.Branch_pho_regr_energyerr_otf(outputTree);
-    
-    l.Branch_jet_algoPF1_genMatched(outputTree);
-    l.Branch_jet_algoPF1_vbfMatched(outputTree);
-    l.Branch_jet_algoPF1_genPt(outputTree);
-    l.Branch_jet_algoPF1_genDr(outputTree);
-    
-    l.Branch_jet_algoPF2_genMatched(outputTree);
-    l.Branch_jet_algoPF2_vbfMatched(outputTree);
-    l.Branch_jet_algoPF2_genPt(outputTree);
-    l.Branch_jet_algoPF2_genDr(outputTree);
-    
-    l.Branch_jet_algoPF3_genMatched(outputTree);
-    l.Branch_jet_algoPF3_vbfMatched(outputTree);
-    l.Branch_jet_algoPF3_genPt(outputTree);
-    l.Branch_jet_algoPF3_genDr(outputTree);
-    
     l.gh_higgs_p4 = new TClonesArray("TLorentzVector", 1); 
     l.gh_higgs_p4->Clear();
     ((*l.gh_higgs_p4)[0]) = new TLorentzVector();
@@ -1573,21 +1577,22 @@ void PhotonAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree)
     l.gh_vh2_p4 = new TClonesArray("TLorentzVector", 1); 
     l.gh_vh2_p4->Clear();
     ((*l.gh_vh2_p4)[0]) = new TLorentzVector();
-    l.Branch_gh_gen2reco1( outputTree );
-    l.Branch_gh_gen2reco2( outputTree );
-    l.Branch_gh_vbfq1_pdgid( outputTree );
-    l.Branch_gh_vbfq2_pdgid( outputTree );
-    l.Branch_gh_vh_pdgid( outputTree );
-    l.Branch_gh_vh1_pdgid( outputTree );
-    l.Branch_gh_vh2_pdgid( outputTree );
-    l.Branch_gh_higgs_p4( outputTree );
-    l.Branch_gh_pho1_p4( outputTree );
-    l.Branch_gh_pho2_p4( outputTree );
-    l.Branch_gh_vbfq1_p4( outputTree );
-    l.Branch_gh_vbfq2_p4( outputTree );
-    l.Branch_gh_vh1_p4( outputTree );
-    l.Branch_gh_vh2_p4( outputTree );
-
+    if( outputTree ) {
+	l.Branch_gh_gen2reco1( outputTree );
+	l.Branch_gh_gen2reco2( outputTree );
+	l.Branch_gh_vbfq1_pdgid( outputTree );
+	l.Branch_gh_vbfq2_pdgid( outputTree );
+	l.Branch_gh_vh_pdgid( outputTree );
+	l.Branch_gh_vh1_pdgid( outputTree );
+	l.Branch_gh_vh2_pdgid( outputTree );
+	l.Branch_gh_higgs_p4( outputTree );
+	l.Branch_gh_pho1_p4( outputTree );
+	l.Branch_gh_pho2_p4( outputTree );
+	l.Branch_gh_vbfq1_p4( outputTree );
+	l.Branch_gh_vbfq2_p4( outputTree );
+	l.Branch_gh_vh1_p4( outputTree );
+	l.Branch_gh_vh2_p4( outputTree );
+    }
 }
 
 
@@ -2121,7 +2126,28 @@ bool PhotonAnalysis::VHhadronicTag2011(LoopAll& l, int diphotonVHhad_id, float* 
     return tag;
 }
 
-
+void PhotonAnalysis::reVertex(LoopAll & l)
+{
+    l.vtx_std_ranked_list->clear();
+    l.vtx_std_evt_mva->clear();
+    std::vector<int> preselAll;
+    for(int i=0; i<l.vtx_std_n ; i++) {
+	preselAll.push_back(i); 
+    }
+    vtxAna_.preselection( preselAll );
+    
+    for(int id=0; id<l.dipho_n; ++id ) {
+	
+	vtxAna_.setPairID(id);
+        
+	l.vtx_std_ranked_list->push_back( vtxAna_.rank(*tmvaPerVtxReader_,tmvaPerVtxMethod) );
+	l.dipho_vtxind[id] = l.vtx_std_ranked_list->back()[0];
+	if( tmvaPerEvtReader_ ) {
+	    float vtxEvtMva = vtxAna_.perEventMva( *tmvaPerEvtReader_, tmvaPerEvtMethod, l.vtx_std_ranked_list->back() );
+	    l.vtx_std_evt_mva->push_back(vtxEvtMva);
+	}
+    }
+}
 
 
 // Local Variables:

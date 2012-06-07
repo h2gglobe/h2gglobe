@@ -4,8 +4,8 @@ mvaVertexSelection=1
 addConversionToMva=1
 tmvaPerVtxWeights=aux/TMVAClassification_BDTCat_conversions_tmva_407.weights.xml
 tmvaPerVtxMethod=BDTCat
-tmvaPerEvtWeights=aux/TMVAClassification_evtBDTG_conversions_tmva_407.weights.xml
-tmvaPerEvtMethod=evtBDTG
+tmvaPerEvtWeights=aux/TMVAClassification_BDTvtxprob2012.weights.xml
+tmvaPerEvtMethod=BDTvtxprob2012
 
 ## Preselection cuts
 presel_scet1=20.

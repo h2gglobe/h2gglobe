@@ -57,6 +57,7 @@ class StatAnalysis : public PhotonAnalysis
     int nDataBins;  
     bool dataIs2011;
     bool scaleR9Only;
+    bool reRunVtx;
     float phoidMvaCut;
     std::vector<double> zeePtBinLowEdge, zeePtWeight;
 
@@ -113,10 +114,6 @@ class StatAnalysis : public PhotonAnalysis
     int nCategories_;
     int nPhotonCategories_;
     int diPhoCounter_;
-
-    // Vertex analysis
-    HggVertexAnalyzer vtxAna_;
-    HggVertexFromConversions vtxConv_;
     
     // RooStuff
     RooContainer *rooContainer;

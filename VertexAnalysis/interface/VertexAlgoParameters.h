@@ -16,7 +16,7 @@ public:
         float coneSize;
 
 	std::string vtxProbFormula; 
-
+	
 	bool useAllConversions;
 	float sigma1Pix;
 	float sigma1Tib;
@@ -32,7 +32,7 @@ public:
 	float sigma2Tid;
 	float sigma2Tec;
 
-    float singlelegsigma2Pix;
+	float singlelegsigma2Pix;
 	float singlelegsigma2Tib;
 	float singlelegsigma2Tob;
 	float singlelegsigma2PixFwd;
