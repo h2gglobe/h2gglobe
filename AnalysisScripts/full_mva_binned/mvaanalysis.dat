@@ -138,7 +138,7 @@ doKFactorSyst=0
 
 doInterferenceSmear=1
 
-mvaWeightsFolder=aux/wt_Jan16reload_v2/
+mvaWeightsFolder=aux/sidebandMVA_weights/
 
 # Inputs for reweighing
 # - phoId and trigger: same as EPS,  https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/374.html
