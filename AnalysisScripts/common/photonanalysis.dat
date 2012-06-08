@@ -8,16 +8,16 @@ tmvaPerEvtWeights=aux/TMVAClassification_BDTvtxprob2012.weights.xml
 tmvaPerEvtMethod=BDTvtxprob2012
 
 ## Preselection cuts
-presel_scet1=20.
-presel_scet2=20.
+presel_scet1=15.
+presel_scet2=15.
 presel_maxeta=2.5
 
-## selection of the di-photon pair to use for vertex analysis
-presel_ecaliso_eb=999.
-presel_ecaliso_ee=999.
-presel_sieie_eb=0.020
-presel_sieie_ee=0.040
-presel_hoe=0.15
+##### ## selection of the di-photon pair to use for vertex analysis
+##### presel_ecaliso_eb=999.
+##### presel_ecaliso_ee=999.
+##### presel_sieie_eb=0.020
+##### presel_sieie_ee=0.040
+##### presel_hoe=0.15
 
 ## forcedRho=0.
 ## useDefaultVertex=1

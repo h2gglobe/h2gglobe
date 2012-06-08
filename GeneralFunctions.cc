@@ -2414,11 +2414,11 @@ int LoopAll::DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL, phoCiCIDLevel SUB
     TLorentzVector lead_p4 = get_pho_p4(lead,ivtx,pho_energy_array); 
     TLorentzVector sublead_p4 = get_pho_p4(sublead,ivtx,pho_energy_array); 
     if (sublead_p4.Pt() > lead_p4.Pt()){ // Swap them but also swap the indeces
-    int tmp = lead;
-    lead = sublead;
-    sublead =tmp;
-    dipho_leadind[idipho] = lead;
-    dipho_subleadind[idipho] = sublead;
+	    int tmp = lead;
+	    lead = sublead;
+	    sublead =tmp;
+	    dipho_leadind[idipho] = lead;
+	    dipho_subleadind[idipho] = sublead;
     }
     
     float leadEta = fabs(((TVector3 *)sc_xyz->At(pho_scind[lead]))->Eta());
@@ -2442,7 +2442,6 @@ int LoopAll::DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL, phoCiCIDLevel SUB
 			  if ( leadpt < leadPtMin || subleadpt < subleadPtMin ) { continue; }
 		  }
 	  }
-	  
 
 	  std::vector<std::vector<bool> > ph_passcut;
 	  if( ! cutsbycat.empty() ) {
@@ -2470,43 +2469,6 @@ int LoopAll::DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL, phoCiCIDLevel SUB
   //    SimpleSorter<float,std::greater<double> >(&passing_sumpt[0]));
 
   return passing_dipho[passing_dipho_places[0]];
-
-  ///// std::vector<std::vector<bool> > ph_passcut;
-  ///// for(int ipho=0;ipho!=pho_n;++ipho) {
-  /////   TLorentzVector * iphop4 = (TLorentzVector*)pho_p4_array->At(ipho);
-  /////   /// float scEta = fabs(((TVector3 *)pho_calopos->At(ipho))->Eta());
-  /////   float scEta = fabs(((TVector3 *)sc_xyz->At(pho_scind[ipho]))->Eta());
-  /////   if(iphop4->Et() < leadPtMin || scEta > 2.5 || ( scEta > 1.4442 && scEta < 1.566 ) )continue;
-  ///// 
-  /////   if(PhotonCiCSelectionLevel(ipho, ivtx, ph_passcut, ncategories, 0) < LEADCUTLEVEL)continue;
-  ///// 
-  /////   for(int iipho=0;iipho!=pho_n;++iipho) {
-  /////     if(iipho == ipho)continue;
-  /////     TLorentzVector * iiphop4 = (TLorentzVector*)pho_p4_array->At(iipho);
-  /////     /// float iiscEta = fabs(((TVector3 *)pho_calopos->At(iipho))->Eta());
-  /////     float iiscEta = fabs(((TVector3 *)sc_xyz->At(pho_scind[iipho]))->Eta());
-  /////     if(iiphop4->Et() < subleadPtMin || iiscEta > 2.5 || ( iiscEta > 1.4442 && iiscEta < 1.566 ) )continue;
-  /////     if(iiphop4->Et() > iphop4->Et())continue;
-  /////     float m_gamgam = (*iphop4+*iiphop4).M();
-  /////     float L_ptom = iphop4->Et()/m_gamgam;
-  /////     float S_ptom = iiphop4->Et()/m_gamgam;
-  /////     if(applyPtoverM && (L_ptom < 0.33 || S_ptom<0.25))continue;
-  ///// 
-  /////     if(PhotonCiCSelectionLevel(iipho, ivtx, ph_passcut, ncategories, 1) < SUBLEADCUTLEVEL )continue;
-  /////     // if here, diphoton passed all cuts.
-  /////     //std::cout << "FOUND DIPHOTON" << std::endl;
-  /////     if( (iphop4->Et()>selected_lead_pt) || (ipho==selected_lead_index&&iiphop4->Et()>selected_sublead_pt) ) {
-  /////         selected_lead_pt = iphop4->Et();
-  /////         selected_sublead_pt = iiphop4->Et();
-  /////         selected_lead_index = ipho;
-  /////         selected_sublead_index = iipho;
-  /////     }
-  /////     
-  /////   }// end photon loop (iipho), aka sublead
-  ///// }// end photon loop (ipho), aka lead
-  ////  
-  ////  std::pair<int,int> dipho_inds(selected_lead_index,selected_sublead_index);
-  ////  return dipho_inds;
 
 }
 

@@ -1,2 +1,3 @@
 PhotonPromptReco2012A  0 
 DiPhotonPromptReco2012B  0 
+DiPhotonPromptReco2012B_p2  0 

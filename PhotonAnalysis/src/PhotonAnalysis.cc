@@ -1288,8 +1288,7 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
 
     if(PADEBUG)  cout << " ****************** SelectEventsReduction " << endl;
     // require at least two reconstructed photons to store the event
-    if( pho_acc.size() < 2 || l.get_pho_p4( pho_acc[0], 0, &corrected_pho_energy[0] ).Pt() < presel_scet1 ) { return false; }
-    
+    if( pho_acc.size() < 2 ) { return false; }
     
     vtxAna_.clear();
     l.vtx_std_ranked_list->clear();
@@ -1323,10 +1322,8 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
     l.doJetMatching(*l.jet_algoPF2_p4,*l.genjet_algo2_p4,l.jet_algoPF2_genMatched,l.jet_algoPF2_vbfMatched,l.jet_algoPF2_genPt,l.jet_algoPF2_genDr);
     // CHS ak5
     l.doJetMatching(*l.jet_algoPF3_p4,*l.genjet_algo1_p4,l.jet_algoPF3_genMatched,l.jet_algoPF3_vbfMatched,l.jet_algoPF3_genPt,l.jet_algoPF3_genDr);
-
-    postProcessJets(l);
-    //
     
+    postProcessJets(l);
 
     if( pho_presel.size() < 2 ) {
         // zero or one photons, can't determine a vertex based on photon pairs
@@ -1362,9 +1359,6 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
 	    	continue;
 	    }
 	    
-            // make sure that vertex analysis indexes are in synch 
-            assert( l.dipho_n == vtxAna_.pairID(ipho1,ipho2) );
-	    
             l.vtx_std_ranked_list->push_back(vtxs);
 	    if( tmvaPerEvtReader_ ) {
 		float vtxEvtMva = vtxAna_.perEventMva( *tmvaPerEvtReader_, tmvaPerEvtMethod, l.vtx_std_ranked_list->back() );
@@ -1377,29 +1371,40 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
                 std::cerr << "NO VERTEX SELECTED " << l.event << " " << l.run << " " << diphotons[id].first << " " << diphotons[id].second << std::endl;
             }
 	    
-	    if( l.get_pho_p4( ipho2, l.dipho_vtx_std_sel->back(), &corrected_pho_energy[0] ).Pt() >
-		l.get_pho_p4( ipho1, l.dipho_vtx_std_sel->back(), &corrected_pho_energy[0] ).Pt() ) {
+            TLorentzVector lead_p4 = l.get_pho_p4( ipho2, l.dipho_vtx_std_sel->back(), &corrected_pho_energy[0] ).Pt();
+            TLorentzVector sublead_p4 = l.get_pho_p4( ipho1, l.dipho_vtx_std_sel->back(), &corrected_pho_energy[0] ).Pt();
+
+	    if(sublead_p4.Pt()  > lead_p4.Pt() ) {
 		std::swap( diphotons[id].first,  diphotons[id].second );
+		std::swap( lead_p4,  sublead_p4 );
+	    }
+	    
+	    if( lead_p4.Pt() < presel_scet1 || sublead_p4.Pt() < presel_scet2 || 
+		fabs(lead_p4.Eta()) > presel_maxeta || fabs(sublead_p4.Eta()) > presel_maxeta ) {
+		vtxAna_.discardLastDipho();
+	    	continue;
 	    }
 	    
             l.dipho_leadind[l.dipho_n] = diphotons[id].first;
             l.dipho_subleadind[l.dipho_n] = diphotons[id].second;
             l.dipho_vtxind[l.dipho_n] = l.dipho_vtx_std_sel->back();
             
-            TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[l.dipho_n], l.dipho_vtxind[l.dipho_n], &corrected_pho_energy[0] );
-            TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[l.dipho_n], l.dipho_vtxind[l.dipho_n], &corrected_pho_energy[0] );
             l.dipho_sumpt[l.dipho_n] = lead_p4.Pt() + sublead_p4.Pt();
             
             if( l.dipho_sumpt[l.dipho_n] > maxSumPt ) {
                 l.vtx_std_sel = l.dipho_vtx_std_sel->back();
                 maxSumPt = l.dipho_sumpt[l.dipho_n];
             }
+
+            // make sure that vertex analysis indexes are in synch 
+            assert( l.dipho_n == vtxAna_.pairID(ipho1,ipho2) );
+	    
 	    l.dipho_n++;
         }
     }
     
 
-    return true;
+    return l.dipho_n > 0;
 }
 
 // ----------------------------------------------------------------------------------------------------
