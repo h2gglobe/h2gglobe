@@ -1352,6 +1352,20 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
             l.vertexAnalysis(vtxAna_, pho1, pho2 );
 	    std::vector<int> vtxs = l.vertexSelection(vtxAna_, vtxConv_, pho1, pho2, vtxVarNames, mvaVertexSelection, 
 						      tmvaPerVtxReader_, tmvaPerVtxMethod);
+	    
+            TLorentzVector lead_p4 = l.get_pho_p4( ipho2, vtxs[0], &corrected_pho_energy[0] ).Pt();
+            TLorentzVector sublead_p4 = l.get_pho_p4( ipho1, vtxs[0], &corrected_pho_energy[0] ).Pt();
+
+	    if(sublead_p4.Pt()  > lead_p4.Pt() ) {
+		std::swap( diphotons[id].first,  diphotons[id].second );
+		std::swap( lead_p4,  sublead_p4 );
+	    }
+	    
+	    if( lead_p4.Pt() < presel_scet1 || sublead_p4.Pt() < presel_scet2 || 
+		fabs(lead_p4.Eta()) > presel_maxeta || fabs(sublead_p4.Eta()) > presel_maxeta ) {
+		vtxAna_.discardLastDipho();
+	    	continue;
+	    }
 
 	    if( ! l.PhotonMITPreSelection(ipho1, vtxs[0], &corrected_pho_energy[0] )
 	    	|| ! l.PhotonMITPreSelection(ipho2, vtxs[0], &corrected_pho_energy[0] ) ) {
@@ -1370,21 +1384,7 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
                 l.dipho_vtx_std_sel->push_back(0);
                 std::cerr << "NO VERTEX SELECTED " << l.event << " " << l.run << " " << diphotons[id].first << " " << diphotons[id].second << std::endl;
             }
-	    
-            TLorentzVector lead_p4 = l.get_pho_p4( ipho2, l.dipho_vtx_std_sel->back(), &corrected_pho_energy[0] ).Pt();
-            TLorentzVector sublead_p4 = l.get_pho_p4( ipho1, l.dipho_vtx_std_sel->back(), &corrected_pho_energy[0] ).Pt();
 
-	    if(sublead_p4.Pt()  > lead_p4.Pt() ) {
-		std::swap( diphotons[id].first,  diphotons[id].second );
-		std::swap( lead_p4,  sublead_p4 );
-	    }
-	    
-	    if( lead_p4.Pt() < presel_scet1 || sublead_p4.Pt() < presel_scet2 || 
-		fabs(lead_p4.Eta()) > presel_maxeta || fabs(sublead_p4.Eta()) > presel_maxeta ) {
-		vtxAna_.discardLastDipho();
-	    	continue;
-	    }
-	    
             l.dipho_leadind[l.dipho_n] = diphotons[id].first;
             l.dipho_subleadind[l.dipho_n] = diphotons[id].second;
             l.dipho_vtxind[l.dipho_n] = l.dipho_vtx_std_sel->back();
@@ -1404,7 +1404,7 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
     }
     
 
-    return l.dipho_n > 0;
+    return true;
 }
 
 // ----------------------------------------------------------------------------------------------------
