@@ -44,6 +44,8 @@ PhotonAnalysis::PhotonAnalysis()  :
     rerunJetMva = false;
     recomputeJetWp = false;
     jetHandler_ = 0;
+
+    reComputeCiCPF = false;
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -1313,8 +1315,9 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
 	l.rho = l.rho_algo1;
     }
     l.FillCICInputs();
+    if(reComputeCiCPF) { l.FillCICPFInputs(); }
     l.FillCIC();
-    
+
     if(l.itype[l.current]<0) {
         bool foundHiggs=FindHiggsObjects(l);
         if(PADEBUG)  cout << " foundHiggs? "<<foundHiggs<<std::endl;

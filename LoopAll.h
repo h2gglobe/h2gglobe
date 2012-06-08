@@ -414,6 +414,7 @@ void set_pho_p4(int ipho, int ivtx, float *pho_energy_array=0);
 double get_pho_zposfromconv(TVector3 convvtx, TVector3 superclustervtx, TVector3 beamSpot);
 // end vertex analysis 
 
+void FillCICPFInputs();
 void FillCICInputs();
 void FillCIC();
 

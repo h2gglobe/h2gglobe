@@ -68,7 +68,8 @@ class PhotonAnalysis : public BaseAnalysis
     bool includeVHhad;
     bool includeVHlep;
     bool reRunCiCForData;
-
+    bool reComputeCiCPF;
+    
     float leadEtCut;
     float leadEtVBFCut;
     float leadEtVHhadCut;

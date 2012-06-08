@@ -26,8 +26,8 @@ float LoopAll::pfTkIsoWithVertex(int phoindex, int vtxInd, float dRmax, float dR
       if (pfc->Pt() < ptMin)
 	  continue;
 	
-      TVector3* vtx = (TVector3*)vtx_xyz->At(vtxInd);
-      TVector3* pfCandVtx = (TVector3*)pfcand_posvtx->At(vtxInd);
+      TVector3* vtx = (TVector3*)vtx_std_xyz->At(vtxInd);
+      TVector3* pfCandVtx = (TVector3*)pfcand_posvtx->At(i);
 
       float dz = fabs(pfCandVtx->Z() - vtx->Z());
       
@@ -49,7 +49,8 @@ float LoopAll::pfTkIsoWithVertex(int phoindex, int vtxInd, float dRmax, float dR
   return sum;
 }
 
-float LoopAll::pfEcalIso(int phoindex, float dRmax, float dRVetoBarrel, float dRVetoEndcap, float etaStripBarrel, float etaStripEndcap, int pfToUse) {
+float LoopAll::pfEcalIso(int phoindex, float dRmax, float dRVetoBarrel, float dRVetoEndcap, float etaStripBarrel, 
+			 float etaStripEndcap, int pfToUse) {
   
   float dRVeto, etaStrip;
   if (pho_isEB[phoindex]) {
@@ -1094,6 +1095,37 @@ void LoopAll::set_pho_p4(int ipho, int ivtx, float *pho_energy_array)
   *((TLorentzVector*)pho_p4->At(ipho)) = get_pho_p4(ipho,ivtx,pho_energy_array);
 }
 
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+void LoopAll::FillCICPFInputs()
+{
+	
+	for(int ipho=0; ipho<pho_n; ++ipho) {
+		float pho03 = pfEcalIso(ipho, 0.3, 0., 0.070, 0.015, 0.);  // FIXME thresholds
+		float pho04 = pfEcalIso(ipho, 0.4, 0., 0.070, 0.015, 0.); 
+		if( GFDEBUG ) std::cout << "pho03: " << pho_pfiso_myphoton03[ipho] << " " << pho03 
+					<< " pho04: " << pho_pfiso_myphoton04[ipho] << " " << pho04 
+					<< std::endl;
+		pho_pfiso_myphoton03[ipho] = pho03;
+		pho_pfiso_myphoton04[ipho] = pho04;
+		int badvtx = 0;
+		float badiso = 0.;
+		for(int ivtx=0; ivtx<vtx_std_n; ++ivtx) {
+			float ch03 = pfTkIsoWithVertex(ipho,ivtx,0.3,0.02,0.02,0.,0.2,0.1);
+			float ch04 = pfTkIsoWithVertex(ipho,ivtx,0.4,0.02,0.02,0.,0.2,0.1);
+			if( GFDEBUG ) std::cout << "ch03: " << pho_pfiso_mycharged03->at(ipho).at(ivtx) << " " << ch03 
+						<< "ch04: " << pho_pfiso_mycharged04->at(ipho).at(ivtx) << " " << ch04 
+						<< std::endl;
+			pho_pfiso_mycharged03->at(ipho).at(ivtx) = ch03;
+			pho_pfiso_mycharged04->at(ipho).at(ivtx) = ch04;
+			if( ch04 > badiso ) {
+				badiso = ch04;
+				badvtx = ivtx;
+			}
+		}
+		pho_tkiso_badvtx_id[ipho] = badvtx;
+	}
+}
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 void LoopAll::FillCICInputs()
