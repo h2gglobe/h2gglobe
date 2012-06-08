@@ -92,3 +92,8 @@ jet_algoPF2_ntk
 jet_algoPF3_ntk
 tk_p4
 tk_vtx_pos
+
+pfcand_n
+pfcand_pdgid
+pfcand_p4
+pfcand_posvtx
