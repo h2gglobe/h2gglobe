@@ -1386,11 +1386,11 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
             l.dipho_subleadind[l.dipho_n] = diphotons[id].second;
             l.dipho_vtxind[l.dipho_n] = l.dipho_vtx_std_sel->back();
             
-            TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[id], l.dipho_vtxind[id], &corrected_pho_energy[0] );
-            TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[id], l.dipho_vtxind[id], &corrected_pho_energy[0] );
+            TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[l.dipho_n], l.dipho_vtxind[l.dipho_n], &corrected_pho_energy[0] );
+            TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[l.dipho_n], l.dipho_vtxind[l.dipho_n], &corrected_pho_energy[0] );
             l.dipho_sumpt[l.dipho_n] = lead_p4.Pt() + sublead_p4.Pt();
             
-            if( l.dipho_sumpt[id] > maxSumPt ) {
+            if( l.dipho_sumpt[l.dipho_n] > maxSumPt ) {
                 l.vtx_std_sel = l.dipho_vtx_std_sel->back();
                 maxSumPt = l.dipho_sumpt[l.dipho_n];
             }
