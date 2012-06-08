@@ -75,7 +75,6 @@ float LoopAll::pfEcalIso(int phoindex, float dRmax, float dRVetoBarrel, float dR
       //}
       
       TVector3* pfvtx = (TVector3*)pfcand_posvtx->At(i);
-      if( pfvtx->X() == 0. && pfvtx->Y() == 0. && pfvtx->Z() == 0. ) { return -1.; }
       TVector3* phoEcalPos = (TVector3*)sc_xyz->At(pho_scind[phoindex]);
 
       TVector3 photonDirectionWrtVtx = TVector3(phoEcalPos->X() - pfvtx->X(),
