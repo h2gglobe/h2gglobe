@@ -50,15 +50,17 @@ float LoopAll::pfTkIsoWithVertex(int phoindex, int vtxInd, float dRmax, float dR
 }
 
 float LoopAll::pfEcalIso(int phoindex, float dRmax, float dRVetoBarrel, float dRVetoEndcap, float etaStripBarrel, 
-			 float etaStripEndcap, int pfToUse) {
+			 float etaStripEndcap, float thrBarrel, float thrEndcaps, int pfToUse) {
   
-  float dRVeto, etaStrip;
+	float dRVeto, etaStrip, thr;
   if (pho_isEB[phoindex]) {
     dRVeto = dRVetoBarrel;
     etaStrip = etaStripBarrel;
+    thr = thrBarrel;
   } else {
     dRVeto = dRVetoEndcap;
     etaStrip = etaStripEndcap;
+    thr = thrEndcaps;
   }
 
   float sum = 0;
@@ -73,6 +75,7 @@ float LoopAll::pfEcalIso(int phoindex, float dRmax, float dRVetoBarrel, float dR
       //}
       
       TVector3* pfvtx = (TVector3*)pfcand_posvtx->At(i);
+      if( pfvtx->X() == 0. && pfvtx->Y() == 0. && pfvtx->Z() == 0. ) { return -1.; }
       TVector3* phoEcalPos = (TVector3*)sc_xyz->At(pho_scind[phoindex]);
 
       TVector3 photonDirectionWrtVtx = TVector3(phoEcalPos->X() - pfvtx->X(),
@@ -80,6 +83,9 @@ float LoopAll::pfEcalIso(int phoindex, float dRmax, float dRVetoBarrel, float dR
 						phoEcalPos->Z() - pfvtx->Z());
 
       TLorentzVector* pfc = (TLorentzVector*)pfcand_p4->At(i);
+
+      if( pfc->Pt() < thr ) 
+	      continue;
 
       float dEta = fabs(photonDirectionWrtVtx.Eta() - pfc->Eta());
       float dR = photonDirectionWrtVtx.DeltaR(pfc->Vect());
@@ -1099,25 +1105,83 @@ void LoopAll::set_pho_p4(int ipho, int ivtx, float *pho_energy_array)
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 void LoopAll::FillCICPFInputs()
 {
-	
 	for(int ipho=0; ipho<pho_n; ++ipho) {
-		float pho03 = pfEcalIso(ipho, 0.3, 0., 0.070, 0.015, 0.);  // FIXME thresholds
-		float pho04 = pfEcalIso(ipho, 0.4, 0., 0.070, 0.015, 0.); 
-		if( GFDEBUG ) std::cout << "pho03: " << pho_pfiso_myphoton03[ipho] << " " << pho03 
-					<< " pho04: " << pho_pfiso_myphoton04[ipho] << " " << pho04 
-					<< std::endl;
+		float neu01 = pfEcalIso(ipho, 0.1, 0., 0., 0., 0., 0., 0., 5);
+		float neu02 = pfEcalIso(ipho, 0.2, 0., 0., 0., 0., 0., 0., 5);
+		float neu03 = pfEcalIso(ipho, 0.3, 0., 0., 0., 0., 0., 0., 5);
+		float neu04 = pfEcalIso(ipho, 0.4, 0., 0., 0., 0., 0., 0., 5); 
+		float neu05 = pfEcalIso(ipho, 0.5, 0., 0., 0., 0., 0., 0., 5); 
+		float neu06 = pfEcalIso(ipho, 0.6, 0., 0., 0., 0., 0., 0., 5); 
+		if( GFDEBUG ) {
+			if( ( pho_pfiso_myneutral03[ipho] != neu03 || 
+			      pho_pfiso_myneutral04[ipho] != neu04   )
+				) { std::cout << "Fishy... "; }
+			std::cout << "neu03: " << pho_pfiso_myneutral03[ipho] << " " << neu03 
+				  << " neu04: " << pho_pfiso_myneutral04[ipho] << " " << neu04 
+				  << " " << ((TLorentzVector*)pho_p4->At(ipho))->Pt() 
+				  << " " << ((TLorentzVector*)pho_p4->At(ipho))->Eta() 
+				  << std::endl;
+		}
+		pho_pfiso_myneutral01[ipho] = neu01;
+		pho_pfiso_myneutral02[ipho] = neu02;
+		pho_pfiso_myneutral03[ipho] = neu03;
+		pho_pfiso_myneutral04[ipho] = neu04;
+		pho_pfiso_myneutral05[ipho] = neu05;
+		pho_pfiso_myneutral06[ipho] = neu06;
+
+
+		float pho01 = pfEcalIso(ipho, 0.1, 0., 0.070, 0.015, 0., 0., 0.);
+		float pho02 = pfEcalIso(ipho, 0.2, 0., 0.070, 0.015, 0., 0., 0.);
+		float pho03 = pfEcalIso(ipho, 0.3, 0., 0.070, 0.015, 0., 0., 0.);
+		float pho04 = pfEcalIso(ipho, 0.4, 0., 0.070, 0.015, 0., 0., 0.); 
+		float pho05 = pfEcalIso(ipho, 0.5, 0., 0.070, 0.015, 0., 0., 0.); 
+		float pho06 = pfEcalIso(ipho, 0.6, 0., 0.070, 0.015, 0., 0., 0.); 
+		///// float pho03 = pfEcalIso(ipho, 0.3, 0.045, 0.070, 0.015, 0.015, 0.08, 0.1);
+		///// float pho04 = pfEcalIso(ipho, 0.4, 0.045, 0.070, 0.015, 0.015, 0.08, 0.1); 
+		if( GFDEBUG ) {
+			if( ( pho_pfiso_myphoton03[ipho] != pho03 || 
+			      pho_pfiso_myphoton04[ipho] != pho04   )
+				) { std::cout << "Fishy... "; }
+			std::cout << "pho03: " << pho_pfiso_myphoton03[ipho] << " " << pho03 
+				  << " pho04: " << pho_pfiso_myphoton04[ipho] << " " << pho04 
+				  << " " << ((TLorentzVector*)pho_p4->At(ipho))->Pt() 
+				  << " " << ((TLorentzVector*)pho_p4->At(ipho))->Eta() 
+				  << std::endl;
+		}
+		pho_pfiso_myphoton01[ipho] = pho01;
+		pho_pfiso_myphoton02[ipho] = pho02;
 		pho_pfiso_myphoton03[ipho] = pho03;
 		pho_pfiso_myphoton04[ipho] = pho04;
+		pho_pfiso_myphoton05[ipho] = pho05;
+		pho_pfiso_myphoton06[ipho] = pho06;
+
 		int badvtx = 0;
 		float badiso = 0.;
 		for(int ivtx=0; ivtx<vtx_std_n; ++ivtx) {
-			float ch03 = pfTkIsoWithVertex(ipho,ivtx,0.3,0.02,0.02,0.,0.2,0.1);
-			float ch04 = pfTkIsoWithVertex(ipho,ivtx,0.4,0.02,0.02,0.,0.2,0.1);
-			if( GFDEBUG ) std::cout << "ch03: " << pho_pfiso_mycharged03->at(ipho).at(ivtx) << " " << ch03 
-						<< "ch04: " << pho_pfiso_mycharged04->at(ipho).at(ivtx) << " " << ch04 
-						<< std::endl;
+			float ch01 = pfTkIsoWithVertex(ipho,ivtx,0.1,0.02,0.02,0.0,0.2,0.1);
+			float ch02 = pfTkIsoWithVertex(ipho,ivtx,0.2,0.02,0.02,0.0,0.2,0.1);
+			float ch03 = pfTkIsoWithVertex(ipho,ivtx,0.3,0.02,0.02,0.0,0.2,0.1);
+			float ch04 = pfTkIsoWithVertex(ipho,ivtx,0.4,0.02,0.02,0.0,0.2,0.1);
+			float ch05 = pfTkIsoWithVertex(ipho,ivtx,0.5,0.02,0.02,0.0,0.2,0.1);
+			float ch06 = pfTkIsoWithVertex(ipho,ivtx,0.6,0.02,0.02,0.0,0.2,0.1);
+			///// float ch03 = pfTkIsoWithVertex(ipho,ivtx,0.3,0.02,0.02,1.0,0.2,0.1);
+			///// float ch04 = pfTkIsoWithVertex(ipho,ivtx,0.4,0.02,0.02,1.0,0.2,0.1);
+			if( GFDEBUG ) {
+				if( ( pho_pfiso_mycharged03->at(ipho).at(ivtx) != ch03 ||
+				      pho_pfiso_mycharged04->at(ipho).at(ivtx) != ch04   )
+					)  { std::cout << "Fishy... "; }
+				std::cout << "ch03: " << pho_pfiso_mycharged03->at(ipho).at(ivtx) << " " << ch03 
+					  << " ch04: " << pho_pfiso_mycharged04->at(ipho).at(ivtx) << " " << ch04 
+					  << " " << ((TLorentzVector*)pho_p4->At(ipho))->Pt() 
+					  << " " << ((TLorentzVector*)pho_p4->At(ipho))->Eta() 
+					  << std::endl;
+			}
+			pho_pfiso_mycharged01->at(ipho).at(ivtx) = ch01;
+			pho_pfiso_mycharged02->at(ipho).at(ivtx) = ch02;
 			pho_pfiso_mycharged03->at(ipho).at(ivtx) = ch03;
 			pho_pfiso_mycharged04->at(ipho).at(ivtx) = ch04;
+			pho_pfiso_mycharged05->at(ipho).at(ivtx) = ch05;
+			pho_pfiso_mycharged06->at(ipho).at(ivtx) = ch06;
 			if( ch04 > badiso ) {
 				badiso = ch04;
 				badvtx = ivtx;
@@ -2344,6 +2408,10 @@ int LoopAll::DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL, phoCiCIDLevel SUB
     
     if( lead == sublead ) { continue; }
 
+    if( usePFCiC 
+	&& ( ! PhotonMITPreSelection(lead, ivtx, pho_energy_array) || 
+	     ! PhotonMITPreSelection(sublead, ivtx,  pho_energy_array) ) ) { continue; }
+    
     TLorentzVector lead_p4 = get_pho_p4(lead,ivtx,pho_energy_array); 
     TLorentzVector sublead_p4 = get_pho_p4(sublead,ivtx,pho_energy_array); 
     if (sublead_p4.Pt() > lead_p4.Pt()){ // Swap them but also swap the indeces
@@ -2588,7 +2656,7 @@ bool LoopAll::PhotonMITPreSelection( int photon_index, int vertex_index, float *
    //float mitCuts_abstrkiso[4]           = {2.8,2.8,2.8,2.8};                                                
    //float mitCuts_trkiso_hollow03[4]     = {4,4,4,4};                                                       
    //float mitCuts_drtotk_25_99[4]  = {0.26,0.029,0.0062,0.0055};
-   float mitCuts_pfiso[4]               = {4,4,4,4};
+   float mitCuts_pfiso[4]               = {4,4,4,4}; // WARN if depends on category should change below
 
    TLorentzVector phop4 = get_pho_p4( photon_index, vertex_index, pho_energy_array);                      
    //TLorentzVector phop4_badvtx = get_pho_p4( photon_index, pho_tkiso_badvtx_id[photon_index], pho_energy_array  );
@@ -2630,18 +2698,22 @@ bool LoopAll::PhotonMITPreSelection( int photon_index, int vertex_index, float *
      }
    */
   
-   if (val_hoe             >= mitCuts_hoe[photon_category]         ) return false;                                           
-   if (val_sieie           >= mitCuts_sieie[photon_category]       ) return false;
-   if (val_ecaliso         >= mitCuts_ecaliso[photon_category]     ) return false;
-   if (val_hcaliso         >= mitCuts_hcaliso[photon_category]     ) return false;                                           
-   if (val_trkiso          >= mitCuts_trkiso[photon_category]      ) return false;
-   //if (val_hcalecal        >= mitCuts_hcalecal[photon_category]    ) return false;
-   //if (val_abstrkiso       >= mitCuts_abstrkiso[photon_category]   ) return false;                   
-   // if (val_drtotk_25_99    <  mitCuts_drtotk_25_99[photon_category]   ) return false; // Electron Rejection based on CiC for now
-   if ((!val_pho_isconv && !runZeeValidation) || (runZeeValidation && val_pho_isconv) ) return false; // Electron Rejection based Conversion Safe Veto
-   //if (val_trkiso_hollow03 >= mitCuts_trkiso_hollow03[photon_category]) return false;                                        
+   // can't apply cuts in categories at reduction level because of the shape rescaling
+   if( itype[current] == 0 || typerun != kReduce ) {
+	   if (val_hoe             >= mitCuts_hoe[photon_category]         ) return false;                                           
+	   if (val_sieie           >= mitCuts_sieie[photon_category]       ) return false;
+	   if (val_ecaliso         >= mitCuts_ecaliso[photon_category]     ) return false;
+	   if (val_hcaliso         >= mitCuts_hcaliso[photon_category]     ) return false;                                           
+	   if (val_trkiso          >= mitCuts_trkiso[photon_category]      ) return false;
+	   //if (val_hcalecal        >= mitCuts_hcalecal[photon_category]    ) return false;
+	   //if (val_abstrkiso       >= mitCuts_abstrkiso[photon_category]   ) return false;                   
+	   // if (val_drtotk_25_99    <  mitCuts_drtotk_25_99[photon_category]   ) return false; // Electron Rejection based on CiC for now
+	   if ((!val_pho_isconv && !runZeeValidation) || (runZeeValidation && val_pho_isconv) ) return false; // Electron Rejection based Conversion Safe Veto
+	   //if (val_trkiso_hollow03 >= mitCuts_trkiso_hollow03[photon_category]) return false;                                        
+   }
+   // this does not depend on R9
    if (val_pfiso02 >= mitCuts_pfiso[photon_category]) return false;            
-
+   
    return true;
 }
 

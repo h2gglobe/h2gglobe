@@ -1127,10 +1127,10 @@ void StatAnalysis::rescaleClusterVariables(LoopAll &l){
 
      } else {    // For now ony know of s4 and ESEffSigmarr scalings
     
-	      if( !scaleR9Only ) {
+	 if( !scaleR9Only ) {
              // s4 Ratio is pho_e2x2/pho_e5x5 so scale numerator
              l.pho_e2x2[ipho]*= (l.pho_isEB[ipho]) ? 1.0055 : 1.0085 ;
-            
+	     
              // we actually scale sqrt(rr2)
              if (l.pho_isEB[ipho]==0) {
                 l.pho_eseffsixix[ipho]*=1.04;

@@ -779,7 +779,7 @@ void PhotonAnalysis::Init(LoopAll& l)
     eScaleSmearer->name("E_scale");
     eScaleSmearer->doEnergy(true);
     eScaleSmearer->scaleOrSmear(true);
-
+    
     if( doEcorrectionSmear ) {
         eCorrSmearer = new EnergySmearer( eSmearPars );
         eCorrSmearer->name("E_corr");
@@ -1150,6 +1150,13 @@ void PhotonAnalysis::PreselectPhotons(LoopAll& l, int jentry)
     // The following Fills the arrays with the ON-THE-FLY calculations
     //GetRegressionCorrections(l);  // need to pass LoopAll
     // -------------------------------------------------------------------------------------------//
+
+    
+    ////// std::vector<float> smeared_pho_r9, smeared_pho_weight;
+    ////// 
+    ////// applySinglePhotonSmearings(smeared_pho_energy, smeared_pho_r9, smeared_pho_weight,
+    ////// 			       cur_type, l, energyCorrected, energyCorrectedError);
+    
     for(int ipho=0; ipho<l.pho_n; ++ipho ) { 
         std::vector<std::vector<bool> > p;
         PhotonReducedInfo phoInfo (
@@ -1164,23 +1171,23 @@ void PhotonAnalysis::PreselectPhotons(LoopAll& l, int jentry)
         float pweight = 1.;
         float sweight = 1.;
         float eta = fabs(((TVector3 *)l.sc_xyz->At(l.pho_scind[ipho]))->Eta());
+    	
         if( doEcorrectionSmear )  { 
             eCorrSmearer->smearPhoton(phoInfo,sweight,l.run,0.); 
-        }
-        if( cur_type == 0 ) {          // correct energy scale in data
+        } 
+    	/// FIXME deterministic smearing on MC photons
+    	if( cur_type == 0 ) {          // correct energy scale in data
             float ebefore = phoInfo.energy();
-            //eScaleDataSmearer->smearPhoton(phoInfo,sweight,l.run,0.);
+            eScaleDataSmearer->smearPhoton(phoInfo,sweight,l.run,0.);
             pweight *= sweight;
-            /// std::cerr << std::setprecision(3) << "adjusting energy scale " << " run: "<< l.run << " " << phoInfo.caloPosition().Eta() << " " 
-            ///       << phoInfo.r9()<< " before: " << ebefore;
-            /// std::cerr << " after: " << phoInfo.energy() << " 1.-ratio " << 100.*(1. - phoInfo.energy()/ebefore) << "%"  << std::endl;
         }
         // apply mc-derived photon corrections, to data and MC alike
         corrected_pho_energy[ipho] = phoInfo.energy();
-        l.pho_genmatched[ipho]=GenMatchedPhoton( l, ipho);
     }
 
     for(int ipho=0; ipho<l.pho_n; ++ipho) {
+
+        l.pho_genmatched[ipho]=GenMatchedPhoton( l, ipho);
 
         // match all photons in the original tree with the conversions from the merged collection and save the indices
         int iConv  =l.matchPhotonToConversion(ipho);
@@ -1189,30 +1196,17 @@ void PhotonAnalysis::PreselectPhotons(LoopAll& l, int jentry)
         else
             (*l.pho_matchingConv).push_back(-1);
 
-        // TLorentzVector * p4 = (TLorentzVector *) l.pho_p4->At(ipho);
         TLorentzVector p4 = l.get_pho_p4(ipho,0,&corrected_pho_energy[0]);
-        // float eta  = fabs(((TVector3 *) l.pho_calopos->At(ipho))->Eta());
         float eta = fabs(((TVector3 *)l.sc_xyz->At(l.pho_scind[ipho]))->Eta());
         // photon et wrt 0,0,0
-        float et = p4.Pt();
+        float et = p4.Energy();
         pho_et.push_back(et);
-        /// std::cerr << " " << p4->Pt() << " " << et << " " << eta;
-      
-        if( p4.Pt() < presel_scet2 || (eta>1.4442 && eta<1.566) || eta>presel_maxeta ) { 
-            /// std::cerr << std::endl;
+    
+	if( eta>1.4442 && eta<1.566 ) { 
             continue;  
         }
-        /// std::cerr << "keeping " << ipho << std::endl;
         pho_acc.push_back(ipho);
       
-        bool isEB = l.pho_isEB[ipho];
-        float & ecaliso = isEB ? presel_ecaliso_eb : presel_ecaliso_ee;
-        float & sieie = isEB ? presel_sieie_eb : presel_sieie_ee;
-        if( l.pho_ecalsumetconedr03[ipho] >= ecaliso ||  l.pho_sieie[ipho] >= sieie || l.pho_hoe[ipho] >= presel_hoe ) {
-            continue;
-        }
-          
-        //FIXME trigger matching
         pho_presel.push_back(ipho);
     } 
 
@@ -1223,13 +1217,11 @@ void PhotonAnalysis::PreselectPhotons(LoopAll& l, int jentry)
 
     if( pho_presel.size() > 1 ) {
         for(size_t ipho=0; ipho<pho_presel.size()-1; ++ipho ) {
-            /// assert( ((TLorentzVector *)l.pho_p4->At(pho_presel[ipho]))->Pt() >= ((TLorentzVector *)l.pho_p4->At(pho_presel[ipho+1]))->Pt() );
             assert( pho_et[pho_presel[ipho]] >= pho_et[pho_presel[ipho+1]] );
         }
     }
     if( pho_acc.size()>1 ) {
         for(size_t ipho=0; ipho<pho_acc.size()-1; ++ipho ) {
-            /// assert( ((TLorentzVector *)l.pho_p4->At(pho_acc[ipho]))->Pt() >= ((TLorentzVector *)l.pho_p4->At(pho_acc[ipho+1]))->Pt() );
             assert( pho_et[pho_acc[ipho]] >= pho_et[pho_acc[ipho+1]] );
         }
     }
@@ -1333,7 +1325,9 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
     l.doJetMatching(*l.jet_algoPF3_p4,*l.genjet_algo1_p4,l.jet_algoPF3_genMatched,l.jet_algoPF3_vbfMatched,l.jet_algoPF3_genPt,l.jet_algoPF3_genDr);
 
     postProcessJets(l);
+    //
     
+
     if( pho_presel.size() < 2 ) {
         // zero or one photons, can't determine a vertex based on photon pairs
         l.vtx_std_ranked_list->push_back( std::vector<int>() );
@@ -1347,24 +1341,33 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
                 diphotons.push_back( std::make_pair( pho_presel[ip], pho_presel[jp] ) );
             }
         }
+	l.dipho_n = 0;
         for(size_t id=0; id<diphotons.size(); ++id ) {
             
             int ipho1 = diphotons[id].first;
             int ipho2 = diphotons[id].second;
-            
+
             if(PADEBUG)        cout << " SelectEventsReduction going to fill photon info " << endl;
             PhotonInfo pho1=l.fillPhotonInfos(ipho1,vtxAlgoParams.useAllConversions,&corrected_pho_energy[0]);
             PhotonInfo pho2=l.fillPhotonInfos(ipho2,vtxAlgoParams.useAllConversions,&corrected_pho_energy[0]);
             if(PADEBUG) cout << " SelectEventsReduction done with fill photon info " << endl;
             
             l.vertexAnalysis(vtxAna_, pho1, pho2 );
+	    std::vector<int> vtxs = l.vertexSelection(vtxAna_, vtxConv_, pho1, pho2, vtxVarNames, mvaVertexSelection, 
+						      tmvaPerVtxReader_, tmvaPerVtxMethod);
+
+	    if( ! l.PhotonMITPreSelection(ipho1, vtxs[0], &corrected_pho_energy[0] )
+	    	|| ! l.PhotonMITPreSelection(ipho2, vtxs[0], &corrected_pho_energy[0] ) ) {
+	    	vtxAna_.discardLastDipho();
+	    	continue;
+	    }
+	    
             // make sure that vertex analysis indexes are in synch 
-            assert( (int)id == vtxAna_.pairID(ipho1,ipho2) );
-            
-            l.vtx_std_ranked_list->push_back( l.vertexSelection(vtxAna_, vtxConv_, pho1, pho2, vtxVarNames, mvaVertexSelection, 
-                                                                tmvaPerVtxReader_, tmvaPerVtxMethod) );
-            if( tmvaPerEvtReader_ ) {
-                float vtxEvtMva = vtxAna_.perEventMva( *tmvaPerEvtReader_, tmvaPerEvtMethod, l.vtx_std_ranked_list->back() );
+            assert( l.dipho_n == vtxAna_.pairID(ipho1,ipho2) );
+	    
+            l.vtx_std_ranked_list->push_back(vtxs);
+	    if( tmvaPerEvtReader_ ) {
+		float vtxEvtMva = vtxAna_.perEventMva( *tmvaPerEvtReader_, tmvaPerEvtMethod, l.vtx_std_ranked_list->back() );
                 l.vtx_std_evt_mva->push_back(vtxEvtMva);
             }
             if( l.vtx_std_ranked_list->back().size() != 0 && ! useDefaultVertex ) {  
@@ -1373,19 +1376,25 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
                 l.dipho_vtx_std_sel->push_back(0);
                 std::cerr << "NO VERTEX SELECTED " << l.event << " " << l.run << " " << diphotons[id].first << " " << diphotons[id].second << std::endl;
             }
-            l.dipho_n = id+1;
-            l.dipho_leadind[id] = diphotons[id].first;
-            l.dipho_subleadind[id] = diphotons[id].second;
-            l.dipho_vtxind[id] = l.dipho_vtx_std_sel->back();
+	    
+	    if( l.get_pho_p4( ipho2, l.dipho_vtx_std_sel->back(), &corrected_pho_energy[0] ).Pt() >
+		l.get_pho_p4( ipho1, l.dipho_vtx_std_sel->back(), &corrected_pho_energy[0] ).Pt() ) {
+		std::swap( diphotons[id].first,  diphotons[id].second );
+	    }
+	    
+            l.dipho_leadind[l.dipho_n] = diphotons[id].first;
+            l.dipho_subleadind[l.dipho_n] = diphotons[id].second;
+            l.dipho_vtxind[l.dipho_n] = l.dipho_vtx_std_sel->back();
             
             TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[id], l.dipho_vtxind[id], &corrected_pho_energy[0] );
             TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[id], l.dipho_vtxind[id], &corrected_pho_energy[0] );
-            l.dipho_sumpt[id] = lead_p4.Pt() + sublead_p4.Pt();
+            l.dipho_sumpt[l.dipho_n] = lead_p4.Pt() + sublead_p4.Pt();
             
             if( l.dipho_sumpt[id] > maxSumPt ) {
                 l.vtx_std_sel = l.dipho_vtx_std_sel->back();
-                maxSumPt = l.dipho_sumpt[id];
+                maxSumPt = l.dipho_sumpt[l.dipho_n];
             }
+	    l.dipho_n++;
         }
     }
     

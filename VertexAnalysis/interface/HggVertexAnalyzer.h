@@ -67,6 +67,7 @@ public:
 
 	// Analyze di-photon - tracks correlations and fill algorithm input variables  
 	void analyze(const VertexInfoAdapter &, const PhotonInfo & pho1, const PhotonInfo & pho2);
+	void discardLastDipho();
 
 	// clear all the calculated values
 	void clear();

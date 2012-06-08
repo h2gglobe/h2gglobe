@@ -621,6 +621,61 @@ void HggVertexAnalyzer::setNConv(int n)
 	nconv_[ipair_]=n;
 }
 
+void HggVertexAnalyzer::discardLastDipho()
+{
+	pho1_.resize(ipair_);
+	pho2_.resize(ipair_);
+	
+	rcomb_.resize(ipair_);
+	mva_.resize(ipair_);
+	nconv_.resize(ipair_,0.);
+	nlegs_.resize(ipair_,0.);
+	pulltoconv_.resize(ipair_);
+	limpulltoconv_.resize(ipair_);
+	ptbal_.resize(ipair_);
+	thrust_.resize(ipair_);
+	sumpt_.resize(ipair_);
+	sumpt2_.resize(ipair_);
+	sumawy_.resize(ipair_);
+	sumtwd_.resize(ipair_);
+	sumtrv_.resize(ipair_);
+	sumweight_.resize(ipair_);
+	ptmax_.resize(ipair_);
+	nchthr_.resize(ipair_);
+	nch_.resize(ipair_);
+	vtxP_.resize(ipair_);
+	tksPt_.resize(ipair_);
+	sphers_.resize(ipair_);
+	sumpr_.resize(ipair_);
+	spher_.resize(ipair_);
+	tspher_.resize(ipair_);
+	aplan_.resize(ipair_);
+	threejetC_.resize(ipair_);
+	fourjetD_.resize(ipair_);
+	
+	diphopt_.resize(ipair_);
+	diPhotonPt_.resize(ipair_);
+	vtxPt_.resize(ipair_);
+	ptvtx_.resize(ipair_);
+	diPhotonPz_.resize(ipair_);
+		
+	acosA_.resize(ipair_);
+	ptasym_.resize(ipair_);
+		
+	ptmax3_.resize(ipair_);
+	thrust_.resize(ipair_);
+	
+	ptratio_.resize(ipair_);
+	pzasym_.resize(ipair_);
+		
+	awytwdasym_.resize(ipair_);
+	
+	diPhoton_.resize(ipair_);
+	
+	ipair_ -= 1;
+}
+
+
 // -------------------------------------------------------------------------------------------------------------------------------------------------------------
 void HggVertexAnalyzer::analyze(const VertexInfoAdapter & e, const PhotonInfo & p1, const PhotonInfo & p2)
 {
