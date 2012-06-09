@@ -28,8 +28,12 @@ bool PhotonJetAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
       TLorentzVector JetP4 = *((TLorentzVector*) l.jet_algoPF1_p4->At(ijet));
       if (fabs(JetP4.Eta())>2.4 || l.jet_algoPF1_ntk[ijet]<3 || JetP4.Pt()<30) continue;
       TLorentzVector JetTrackSumP4(0,0,0,0);
-      for (unsigned int itk=0; itk<(unsigned int) l.jet_algoPF1_ntk[ijet]; itk++) JetTrackSumP4 += *((TLorentzVector*) l.tk_p4->At(itk));
-      if (JetP4.Pt()>30. && JetTrackSumP4.Pt()>30. && JetP4.Pt()>MaxPtJet.Pt()) MaxPtJet=JetP4;
+      for (unsigned int itk=0; itk<(unsigned int) l.jet_algoPF1_ntk[ijet]; itk++) {
+        if (l.jet_algoPF1_tkind->at(ijet).at(itk)>=3000) continue;
+        TLorentzVector trackp4 = *((TLorentzVector*) l.tk_p4->At(l.jet_algoPF1_tkind->at(ijet).at(itk)));
+        if (trackp4.Pt()>1.0) JetTrackSumP4 += trackp4;
+      }
+      if (JetP4.Pt()>30.0 && JetTrackSumP4.Pt()>30.0 && JetP4.Pt()>MaxPtJet.Pt()) MaxPtJet=JetP4;
     }
     
     // fill ID variables
@@ -131,7 +135,11 @@ bool PhotonJetAnalysis::SkimEvents(LoopAll& l, int jentry)
       TLorentzVector JetP4 = *((TLorentzVector*) l.jet_algoPF1_p4->At(ijet));
       if (fabs(JetP4.Eta())>2.4 || l.jet_algoPF1_ntk[ijet]<3 || JetP4.Pt()<30) continue;
       TLorentzVector JetTrackSumP4(0,0,0,0);
-      for (unsigned int itk=0; itk<(unsigned int) l.jet_algoPF1_ntk[ijet]; itk++) JetTrackSumP4 += *((TLorentzVector*) l.tk_p4->At(itk));
+      for (unsigned int itk=0; itk<(unsigned int) l.jet_algoPF1_ntk[ijet]; itk++) {
+        if (l.jet_algoPF1_tkind->at(ijet).at(itk)>=3000) continue;
+        TLorentzVector trackp4 = *((TLorentzVector*) l.tk_p4->At(l.jet_algoPF1_tkind->at(ijet).at(itk)));
+        if (trackp4.Pt()>1.0) JetTrackSumP4 += *((TLorentzVector*) l.tk_p4->At(l.jet_algoPF1_tkind->at(ijet).at(itk)));
+      }
       if (JetP4.Pt()>30. && JetTrackSumP4.Pt()>30.) GoodJetVector.push_back(JetP4);
     }
 
