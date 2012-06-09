@@ -41,7 +41,7 @@
 #define MAX_L1 8 
 #define MAX_HLT 400
 
-#define MAX_TRACKS 3000
+#define MAX_TRACKS 10000
 #define MAX_TKRECHITS 10000
 
 #define MAX_TRACKINGPARTICLES 5000
