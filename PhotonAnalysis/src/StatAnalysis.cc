@@ -592,7 +592,16 @@ bool StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	gPT = gP4.Pt();
     }
 
-    // Dava driven MC corrections to cluster shape variables and energy resolution estimate
+    //Calculate preshower cluster shape variable
+    for (int ipho=0;ipho<l.pho_n;ipho++){
+	float rr2=l.pho_eseffsixix[ipho]*l.pho_eseffsixix[ipho]+l.pho_eseffsiyiy[ipho]*l.pho_eseffsiyiy[ipho];
+	l.pho_ESEffSigmaRR[ipho] = 0.0; 
+	if(rr2>0. && rr2<999999.) {
+	    l.pho_ESEffSigmaRR[ipho] = sqrt(rr2);
+	}
+    }
+
+    // Data driven MC corrections to cluster shape variables and energy resolution estimate
     if (cur_type !=0){
         rescaleClusterVariables(l);
     }
@@ -1111,35 +1120,53 @@ std::string StatAnalysis::GetSignalLabel(int id){
 
 void StatAnalysis::rescaleClusterVariables(LoopAll &l){
 
+    // Data-driven MC scalings 
     for (int ipho=0;ipho<l.pho_n;ipho++){
-     // Data-driven MC scalings 
-     if (dataIs2011) {
-	      if( scaleR9Only ) {
-		    double R9_rescale = (l.pho_isEB[ipho]) ? 1.0048 : 1.00492 ;
-		    l.pho_r9[ipho]*=R9_rescale;
-	      } else {
-		    l.pho_r9[ipho]*=1.0035;
-		    if (l.pho_isEB[ipho]){ l.pho_sieie[ipho] = (0.87*l.pho_sieie[ipho]) + 0.0011 ;}
+
+	if (dataIs2011) {
+
+	    if( scaleR9Only ) {
+		double R9_rescale = (l.pho_isEB[ipho]) ? 1.0048 : 1.00492 ;
+		l.pho_r9[ipho]*=R9_rescale;
+	    } else {
+		l.pho_r9[ipho]*=1.0035;
+		if (l.pho_isEB[ipho]){ l.pho_sieie[ipho] = (0.87*l.pho_sieie[ipho]) + 0.0011 ;}
 	    	else {l.pho_sieie[ipho]*=0.99;}
-		    l.sc_seta[l.pho_scind[ipho]]*=0.99;  
-		    l.sc_sphi[l.pho_scind[ipho]]*=0.99;  
-	      }
+		l.sc_seta[l.pho_scind[ipho]]*=0.99;  
+		l.sc_sphi[l.pho_scind[ipho]]*=0.99;  
+	    }
 
-     } else {    // For now ony know of s4 and ESEffSigmarr scalings
-    
-	 if( !scaleR9Only ) {
-             // s4 Ratio is pho_e2x2/pho_e5x5 so scale numerator
-             l.pho_e2x2[ipho]*= (l.pho_isEB[ipho]) ? 1.0055 : 1.0085 ;
-	     
-             // we actually scale sqrt(rr2)
-             if (l.pho_isEB[ipho]==0) {
-                l.pho_eseffsixix[ipho]*=1.04;
-                l.pho_eseffsiyiy[ipho]*=1.04;
-             }
-          }
-	 }
+	} else {
+	    //2012 rescaling from here https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/752/1/1/2/1/3.html
 
-	 energyCorrectedError[ipho] *=(l.pho_isEB[ipho]) ? 1.07 : 1.045 ;
+	    if (l.pho_isEB[ipho]) {
+		l.pho_r9[ipho] = 1.0045*l.pho_r9[ipho] + 0.0010;
+	    } else {
+		l.pho_r9[ipho] = 1.0086*l.pho_r9[ipho] - 0.0007;
+	    }
+	    if( !scaleR9Only ) {
+		if (l.pho_isEB[ipho]) {
+		    // s4 Ratio is pho_e2x2/pho_e5x5 so scale numerator
+		    l.pho_e2x2[ipho] = 1.01894*l.pho_e2x2[ipho] - 0.01034;
+		    if (l.pho_sieie[ipho]<0.0087) {
+			l.pho_sieie[ipho] = 0.976591*l.pho_sieie[ipho] + 0.000081;
+		    } else {
+			l.pho_sieie[ipho] = 0.980055*l.pho_sieie[ipho] + 0.000124;
+		    }
+		    l.sc_seta[l.pho_scind[ipho]] =  1.04302*l.sc_seta[l.pho_scind[ipho]] - 0.000618;
+		    l.sc_sphi[l.pho_scind[ipho]] =  1.00002*l.sc_sphi[l.pho_scind[ipho]] - 0.000371;
+		} else {
+		    // s4 Ratio is pho_e2x2/pho_e5x5 so scale numerator
+		    l.pho_e2x2[ipho] = 1.04969*l.pho_e2x2[ipho] - 0.03642;
+		    l.pho_sieie[ipho] = 0.99470*l.pho_sieie[ipho] + 0.00003;
+		    l.sc_seta[l.pho_scind[ipho]] =  0.903254*l.sc_seta[l.pho_scind[ipho]] - 0.001346;
+		    l.sc_sphi[l.pho_scind[ipho]] =  0.99992*l.sc_sphi[l.pho_scind[ipho]] - 0.00000048;
+		    if (l.pho_ESEffSigmaRR[ipho]>0) l.pho_ESEffSigmaRR[ipho] = 1.00023*l.pho_ESEffSigmaRR[ipho] + 0.0913;
+		}
+	    }
+	}
+
+	energyCorrectedError[ipho] *=(l.pho_isEB[ipho]) ? 1. : 1. ;
     }
 }
 
