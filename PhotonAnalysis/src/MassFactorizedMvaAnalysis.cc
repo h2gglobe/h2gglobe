@@ -1002,22 +1002,22 @@ void MassFactorizedMvaAnalysis::fillZeeControlPlots(const TLorentzVector & lead_
 
     if (fabs(lead_p4.Eta()) < 1.4442) {
       l.FillHist("pho1_sigmaEOverE_EB",0,pho1_sigmaE/lead_p4.E(), evweight);
-      l.FillHist("pho1_sigmaEOverE_EB_up",0,(pho1_sigmaE/1.07*1.17)/lead_p4.E(), evweight);
-      l.FillHist("pho1_sigmaEOverE_EB_down",0,(pho1_sigmaE/1.07*0.97)/lead_p4.E(), evweight);
+      l.FillHist("pho1_sigmaEOverE_EB_up",0,(pho1_sigmaE*1.1)/lead_p4.E(), evweight);
+      l.FillHist("pho1_sigmaEOverE_EB_down",0,(pho1_sigmaE*0.9)/lead_p4.E(), evweight);
     } else {
       l.FillHist("pho1_sigmaEOverE_EE",0,pho1_sigmaE/lead_p4.E(), evweight);
-      l.FillHist("pho1_sigmaEOverE_EE_up",0,(pho1_sigmaE/1.045*1.145)/lead_p4.E(), evweight);
-      l.FillHist("pho1_sigmaEOverE_EE_down",0,(pho1_sigmaE/1.045*0.945)/lead_p4.E(), evweight);
+      l.FillHist("pho1_sigmaEOverE_EE_up",0,(pho1_sigmaE*1.1)/lead_p4.E(), evweight);
+      l.FillHist("pho1_sigmaEOverE_EE_down",0,(pho1_sigmaE*0.9)/lead_p4.E(), evweight);
     }
 
     if (fabs(sublead_p4.Eta()) < 1.4442) {
       l.FillHist("pho2_sigmaEOverE_EB",0,pho2_sigmaE/sublead_p4.E(), evweight);
-      l.FillHist("pho2_sigmaEOverE_EB_up",0,(pho2_sigmaE/1.07*1.17)/sublead_p4.E(), evweight);
-      l.FillHist("pho2_sigmaEOverE_EB_down",0,(pho2_sigmaE/1.07*0.97)/sublead_p4.E(), evweight);
+      l.FillHist("pho2_sigmaEOverE_EB_up",0,(pho2_sigmaE*1.1)/sublead_p4.E(), evweight);
+      l.FillHist("pho2_sigmaEOverE_EB_down",0,(pho2_sigmaE*0.9)/sublead_p4.E(), evweight);
     } else {
       l.FillHist("pho2_sigmaEOverE_EE",0,pho2_sigmaE/sublead_p4.E(), evweight);
-      l.FillHist("pho2_sigmaEOverE_EE_up",0,(pho2_sigmaE/1.045*1.145)/sublead_p4.E(), evweight);
-      l.FillHist("pho2_sigmaEOverE_EE_down",0,(pho2_sigmaE/1.045*0.945)/sublead_p4.E(), evweight);
+      l.FillHist("pho2_sigmaEOverE_EE_up",0,(pho2_sigmaE*1.1)/sublead_p4.E(), evweight);
+      l.FillHist("pho2_sigmaEOverE_EE_down",0,(pho2_sigmaE*0.9)/sublead_p4.E(), evweight);
     }
 
     if (fabs(lead_p4.Eta()) < 1.4442) {
