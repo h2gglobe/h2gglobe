@@ -120,8 +120,9 @@ void StatAnalysis::Init(LoopAll& l)
     int nVBFCategories   = ((int)includeVBF)*nVBFEtaCategories*nVBFDijetJetCategories;
     int nVHhadCategories = ((int)includeVHhad)*nVHhadEtaCategories;
     int nVHlepCategories = (int)includeVHlep * 2;
-   
-    nCategories_=(nInclusiveCategories_+nVBFCategories+nVHhadCategories+nVHlepCategories);
+    int nVHmetCategories = (int)includeVHmet;
+    
+    nCategories_=(nInclusiveCategories_+nVBFCategories+nVHhadCategories+nVHlepCategories+nVHmetCategories);
 
     
 
@@ -403,9 +404,11 @@ void StatAnalysis::Init(LoopAll& l)
             cats_with_quad[i]=1;
         } else if(i<nInclusiveCategories_+nVBFCategories+nVHhadCategories){
             cats_with_quad[i]=1;
-        } else {
+        } else if(i<nInclusiveCategories_+nVBFCategories+nVHhadCategories+nVHlepCategories){
             cats_with_lin[i]=1;
-        }  
+        } else {
+            cats_with_cubic[i]=1;
+        }
     }
 
     std::vector<std::string> data_pol_pars(5,"p");   
@@ -757,10 +760,12 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 	int diphotonVBF_id = -1;
 	int diphotonVHhad_id = -1;
 	int diphotonVHlep_id = -1;
+	int diphotonVHmet_id = -1; //forMET
 	VHmuevent = false;
 	VHelevent = false;
 	VBFevent = false;
 	VHhadevent = false;
+	VHmetevent = false; //forMET
 	
 	// lepton tag
 	if(includeVHlep){
@@ -769,6 +774,14 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 	    if(l.pho_drtotk_25_99[l.dipho_leadind[diphotonVHlep_id]] < 1 || l.pho_drtotk_25_99[l.dipho_subleadind[diphotonVHlep_id]] < 1) diphotonVHlep_id = -1;
 	    VHmuevent=MuonTag2011(l, diphotonVHlep_id, &smeared_pho_energy[0]);
 	    VHelevent=ElectronTag2011(l, diphotonVHlep_id, &smeared_pho_energy[0]);
+	}
+	
+	//forMET tag
+	if(includeVHmet){
+	    diphotonVHmet_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVHlepCut, subleadEtVHlepCut, 4, false, &smeared_pho_energy[0], true );
+	    //Add tighter cut on dr to tk
+	    if(l.pho_drtotk_25_99[l.dipho_leadind[diphotonVHmet_id]] < 1 || l.pho_drtotk_25_99[l.dipho_subleadind[diphotonVHlep_id]] < 1) diphotonVHmet_id = -1;
+	    VHmetevent=METTag2012(l, diphotonVHmet_id, &smeared_pho_energy[0]);
 	}
 	
 	// VBF+hadronic VH
@@ -936,8 +949,9 @@ void StatAnalysis::computeExclusiveCategory(LoopAll & l, int & category, std::pa
 	category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFEtaCategories + ( (int)includeVHhad )*nVHhadEtaCategories;  
     } else if(VHelevent) { 
 	category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFEtaCategories + ( (int)includeVHhad )*nVHhadEtaCategories + (int)includeVHlep;
+    } else if(VHmetevent) { 
+	category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFEtaCategories + ( (int)includeVHhad )*nVHhadEtaCategories + (int)includeVHlep + (int)includeVHmet;
     }
-    
 }
 
 // ----------------------------------------------------------------------------------------------------

@@ -67,9 +67,13 @@ class PhotonAnalysis : public BaseAnalysis
     bool includeVBF;
     bool includeVHhad;
     bool includeVHlep;
+    bool includeVHmet;
+
+
+
     bool reRunCiCForData;
     bool reComputeCiCPF;
-    
+
     float leadEtCut;
     float leadEtVBFCut;
     float leadEtVHhadCut;
@@ -192,6 +196,7 @@ class PhotonAnalysis : public BaseAnalysis
     bool VHhadronicTag2011(LoopAll& l, int diphoton_id, float* smeared_pho_energy=0, bool nm1=false, float eventweight=1, float myweight=1);
     bool ElectronTag2011(LoopAll& l, int diphotonVHlep_id, float* smeared_pho_energy=0, bool nm1=false, float eventweight=1, float myweight=1);
     bool MuonTag2011(LoopAll& l, int diphotonVHlep_id, float* smeared_pho_energy=0, bool nm1=false, float eventweight=1, float myweight=1);
+    bool METTag2012(LoopAll& l, int diphotonVHmet_id, float* smeared_pho_energy);
     
     // Pile-up reweighing
     void loadPuMap(const char * fname, TDirectory * dir, TH1 * target=0);

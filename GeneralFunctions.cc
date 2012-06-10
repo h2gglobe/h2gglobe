@@ -1069,6 +1069,245 @@ double LoopAll::get_pho_zposfromconv(TVector3 convvtx, TVector3 superclustervtx,
 
 }
 
+
+
+//-Applying MET correction-------------
+
+// pfjet resolutions. taken from AN-2010-371
+// --------------------------------------------------------------------------
+double LoopAll::ErrEt( double Et, double Eta) {
+  
+  double InvPerr2;
+
+  double N, S, C, m;
+  if(fabs(Eta) < 0.5 ) {
+    N = 3.96859;
+    S = 0.18348;
+    C = 0.;
+    m = 0.62627;
+  } else if( fabs(Eta) < 1. ) {
+    N = 3.55226;
+    S = 0.24026;
+    C = 0.;
+    m = 0.52571;
+  } else if( fabs(Eta) < 1.5 ) {
+    N = 4.54826;
+    S = 0.22652;
+    C = 0.;
+    m = 0.58963;
+  } else if( fabs(Eta) < 2. ) {
+    N = 4.62622;
+    S = 0.23664;
+    C = 0.;
+    m = 0.48738;
+  } else if( fabs(Eta) < 3. ) {
+    N = 2.53324;
+    S = 0.34306;
+    C = 0.;
+    m = 0.28662;
+  } else if( fabs(Eta) < 5. ) {
+    N = 2.95397;
+    S = 0.11619;
+    C = 0.;
+    m = 0.96086;
+  }
+
+  // this is the absolute resolution (squared), not sigma(pt)/pt
+  // so have to multiply by pt^2, thats why m+1 instead of m-1
+  InvPerr2 =  (N * fabs(N) ) + (S * S) * pow(Et, m+1) + (C * C) * Et * Et ;
+
+
+  return sqrt(InvPerr2)/Et;
+
+}
+
+
+//------------------------------------------------------------------------
+
+TLorentzVector LoopAll::shiftMet(TLorentzVector& pho_lead, TLorentzVector& pho_sublead, int vtxind, TLorentzVector *uncormet, bool isMC) {
+
+  TLorentzVector correctedMet;
+  
+  // correction for METx, METy bias
+  double px(0), py(0), e(0);
+/*
+  //2011
+  // data
+  if(!isMC){
+    px = uncormet->Pt()*cos(uncormet->Phi())-0.00563109*met_sumet_pfmet+0.959742;
+    py = uncormet->Pt()*sin(uncormet->Phi())+0.00586162*met_sumet_pfmet-0.540137;
+  // MC
+  }else{
+    px = uncormet->Pt()*cos(uncormet->Phi())-0.00069992*met_sumet_pfmet+0.430059;
+    py = uncormet->Pt()*sin(uncormet->Phi())+0.00262869*met_sumet_pfmet+0.210784;
+  }
+*/
+  //2012
+  // data
+  if(!isMC){
+    px = uncormet->Pt()*cos(uncormet->Phi())-0.006239*met_sumet_pfmet+0.662;
+    py = uncormet->Pt()*sin(uncormet->Phi())+0.004613*met_sumet_pfmet-0.673;
+  // MC
+  }else{
+    px = uncormet->Pt()*cos(uncormet->Phi())+0.00135*met_sumet_pfmet-0.021;
+    py = uncormet->Pt()*sin(uncormet->Phi())+0.00371*met_sumet_pfmet-0.826;
+  }
+
+  e = sqrt(px*px+py*py);
+  
+  correctedMet.SetPxPyPzE(px,py,0,e);
+
+  return correctedMet;
+}
+
+
+//----------------------------------------------------------------------
+
+  #include "TRandom3.h"
+  
+TLorentzVector LoopAll::correctMet(TLorentzVector& pho_lead, TLorentzVector& pho_sublead, int vtxind, TLorentzVector *uncormet, bool smearing, bool scale) {
+
+  TRandom3 *jSmearRan= new TRandom3(event);
+  TLorentzVector jetSumSmeared;
+  jetSumSmeared.SetXYZT(0.,0.,0.,0);
+  TLorentzVector jetSumUnsmeared;
+  jetSumUnsmeared.SetXYZT(0.,0.,0.,0);
+  
+  //associating reco - gen met
+    for(int i=0; i<jet_algoPF1_n; i++){
+    TLorentzVector * p4_jet = (TLorentzVector *) jet_algoPF1_p4->At(i);
+    
+    //remove identified photons
+//    bool isJetPhoton = false;
+//    std::vector<float> pho_eng;
+    
+    for(int ipho = 0; ipho < pho_n; ++ipho ) {
+      
+//      pho_eng.push_back( ((TLorentzVector*)pho_p4->At(ipho))->Energy());
+//      TLorentzVector pho_p4_vtx_cor = get_pho_p4(ipho,0, &pho_eng[0]); 
+//      float pho_Eta = fabs(((TVector3 *)sc_xyz->At(pho_scind[ipho]))->Eta());
+//      
+//      if( pho_Eta > 2.5  || ( pho_Eta > 1.4442 && pho_Eta < 1.566 ) ) { continue; }
+//      if ( pho_p4_vtx_cor.Pt() < 25 ) { continue; }
+//      std::vector<std::vector<bool> > ph_passcut;
+//      if( PhotonCiCSelectionLevel(ipho, 0, ph_passcut, 4, 0, &pho_eng[0] ) < leadLevel ) { continue; }
+//      double dR_pho_jet = p4_jet->DeltaR(pho_p4_vtx_cor);
+//      if(dR_pho_jet < 0.5) isJetPhoton = true;
+      
+      double dR_lead_jet = p4_jet->DeltaR(pho_lead);
+      double dR_sublead_jet = p4_jet->DeltaR(pho_sublead);
+      
+      if( dR_lead_jet<0.5 ) continue;
+      if( dR_sublead_jet<0.5 ) continue;
+      
+    }
+    
+//    if( isJetPhoton ) continue;
+    
+    double ptJet_pfakt5 = p4_jet->Pt();
+    double eJet_pfakt5 = p4_jet->Energy();
+    double etaJet_pfakt5 = p4_jet->Eta();
+    double phiJet_pfakt5 = p4_jet->Phi();
+    double ptCorrJet_pfakt5 = ptJet_pfakt5*jet_algoPF1_erescale[i];
+    
+    //smearing via association with genjets
+//    int ass(-999);
+    double DRmin(999.);
+    
+/*
+    for(int j=0; j<genjet_algo1_n; j++){
+            
+      TLorentzVector * p4_genjet = (TLorentzVector *) genjet_algo1_p4->At(j);
+      double DR =  p4_jet->DeltaR((*p4_genjet));
+      double ptJetGen_akt5 =  p4_genjet->Pt();
+      double expres = ErrEt(ptCorrJet_pfakt5,etaJet_pfakt5);
+      
+      if(DR < DRmin && (ptCorrJet_pfakt5-ptJetGen_akt5)/ptCorrJet_pfakt5 < 5. * expres) {
+	ass = j;
+	DRmin = DR;
+      }
+    }
+    
+    double ptJetGen_akt5_ass;
+    
+    if (ass > -1) {
+      TLorentzVector * p4_genjet_ass = (TLorentzVector *) genjet_algo1_p4->At(ass);
+      ptJetGen_akt5_ass = p4_genjet_ass->Pt();
+      if(DRmin > 0.1 + 0.3 * exp(-0.05*(ptJetGen_akt5_ass-10)))  ass = -999;
+    }
+*/
+    
+    double expres = ErrEt(ptCorrJet_pfakt5,etaJet_pfakt5);
+    
+    if (jet_algoPF1_genMatched[i] && (ptCorrJet_pfakt5-jet_algoPF1_genPt[i])/ptCorrJet_pfakt5 < 5. * expres) {
+       DRmin=jet_algoPF1_genDr[i];
+    }
+    
+    if (jet_algoPF1_genMatched[i]) {
+      if(DRmin > 0.1 + 0.3 * exp(-0.05*(jet_algoPF1_genPt[i]-10)))  { jet_algoPF1_genMatched[i]=false; }
+    }
+    
+    
+    //smearing for non-associated jets, using expected resolutions
+    float smear = -999.;
+    if (fabs(etaJet_pfakt5)<=1.1)                            smear = 1.06177;
+    if (fabs(etaJet_pfakt5)<=1.7 && fabs(etaJet_pfakt5)>1.1) smear = 1.08352;
+    if (fabs(etaJet_pfakt5)<=2.3 && fabs(etaJet_pfakt5)>1.7) smear = 1.02911;
+    if (fabs(etaJet_pfakt5)>2.3)                             smear = 1.15288;
+    
+    double shift(0);
+    
+/*
+    if(ass>-1) {    
+      shift = (smear-1) * (ptCorrJet_pfakt5 - ptJetGen_akt5_ass)/ptCorrJet_pfakt5; }
+*/
+    if(jet_algoPF1_genMatched[i]) {    
+      shift = (smear-1) * (ptCorrJet_pfakt5 - jet_algoPF1_genPt[i])/ptCorrJet_pfakt5; }
+    else {
+      double expres = ErrEt(ptJet_pfakt5, etaJet_pfakt5);
+      double relsmear = expres * sqrt(smear*smear-1);
+      jSmearRan->SetSeed(event+(Int_t)(etaJet_pfakt5*1000));
+      shift = jSmearRan->Gaus(0.,relsmear);
+    }
+    
+    float ptSmeared  = ptJet_pfakt5;
+    float eneSmeared = eJet_pfakt5;
+
+    if(smearing && shift>-1 && shift < 2) {
+      ptSmeared  *= 1 + shift;
+      eneSmeared *= 1 + shift;
+    }
+
+    //JEC scaling to correct for residual jet corrections
+    if(scale) {
+      double factor(1);
+      if(TMath::Abs(etaJet_pfakt5)<1.5) factor = 1.015;
+      else if(TMath::Abs(etaJet_pfakt5)<3) factor = 1.04;
+      else factor = 1.15;
+      ptSmeared  *= factor;
+      eneSmeared *= factor;
+    }
+
+    TLorentzVector thisJetSmeared;
+    thisJetSmeared.SetPtEtaPhiE(ptSmeared,etaJet_pfakt5,phiJet_pfakt5,eneSmeared);
+    
+    TLorentzVector thisJetUnsmeared;
+    thisJetUnsmeared.SetPtEtaPhiE(ptJet_pfakt5,etaJet_pfakt5,phiJet_pfakt5,eJet_pfakt5);
+    
+    if (ptJet_pfakt5>10 && TMath::Abs(etaJet_pfakt5)<4.7) {
+      jetSumSmeared   += thisJetSmeared;
+      jetSumUnsmeared += thisJetUnsmeared;
+    }
+    
+  }
+
+  TLorentzVector correctedMet;
+  correctedMet = (*uncormet) + jetSumUnsmeared - jetSumSmeared;
+  
+  return correctedMet;
+}
+
+
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 TLorentzVector LoopAll::get_pho_p4(int ipho, int ivtx, const float * energy) const
 {
@@ -2384,7 +2623,7 @@ int LoopAll::DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL, phoCiCIDLevel SUB
 				   float *pho_energy_array, bool split, std::vector<int> cutsbycat) {
 
   //rho=0;// CAUTION SETTING RHO TO 0 FOR 2010 DATA FILES (RHO ISN'T IN THESE FILES)
-  int selected_lead_index = -1;
+  int g = -1;
   int selected_sublead_index = -1;
   float selected_lead_pt = -1;
   float selected_sublead_pt = -1;
@@ -3264,6 +3503,19 @@ void LoopAll::DefineUserBranches()
   //// BRANCH_DICT(dipho_cts);
 
   BRANCH_DICT(pho_matchingConv);
+
+/*
+  //forMET
+  BRANCH_DICT(shiftMET_corr_pt);
+  BRANCH_DICT(shiftMET_corr_phi);
+  BRANCH_DICT(smearMET_corr_pt);
+  BRANCH_DICT(smearMET_corr_phi);
+  BRANCH_DICT(shiftscaleMET_corr_pt);
+  BRANCH_DICT(shiftscaleMET_corr_phi);
+  BRANCH_DICT(shiftsmearMET_corr_pt);
+  BRANCH_DICT(shiftsmearMET_corr_phi);
+*/
+
 
 #endif
 }

@@ -1288,6 +1288,9 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
 
     if(PADEBUG)  cout << " ****************** SelectEventsReduction " << endl;
     // require at least two reconstructed photons to store the event
+
+    if( pho_acc.size() < 2 || l.get_pho_p4( pho_acc[0], 0, &corrected_pho_energy[0] ).Pt() < presel_scet1 ) { return false; }
+    
     if( pho_acc.size() < 2 ) { return false; }
     
     vtxAna_.clear();
@@ -1590,7 +1593,7 @@ void PhotonAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree)
     l.gh_vh1_p4 = new TClonesArray("TLorentzVector", 1); 
     l.gh_vh1_p4->Clear();
     ((*l.gh_vh1_p4)[0]) = new TLorentzVector();
-
+    
     l.gh_vh2_p4 = new TClonesArray("TLorentzVector", 1); 
     l.gh_vh2_p4->Clear();
     ((*l.gh_vh2_p4)[0]) = new TLorentzVector();
@@ -2143,6 +2146,47 @@ bool PhotonAnalysis::VHhadronicTag2011(LoopAll& l, int diphotonVHhad_id, float* 
     return tag;
 }
 
+
+
+//forMET
+bool PhotonAnalysis::METTag2012(LoopAll& l, int diphotonVHmet_id, float* smeared_pho_energy){
+    bool tag = false;
+
+    if(diphotonVHmet_id==-1) return tag;
+        
+    TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphotonVHmet_id], l.dipho_vtxind[diphotonVHmet_id], &smeared_pho_energy[0]);
+    TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphotonVHmet_id], l.dipho_vtxind[diphotonVHmet_id], &smeared_pho_energy[0]);
+    
+    //ADD SMEARING/SHIFTING HERE
+    int filetype = l.itype[l.current];
+    bool isMC = filetype!=0;
+    
+    TLorentzVector unpfMET;
+    unpfMET.SetPxPyPzE ( l.met_pfmet*cos(l.met_phi_pfmet), l.met_pfmet*sin(l.met_phi_pfmet),0,sqrt(l.met_pfmet*cos(l.met_phi_pfmet) *
+    l.met_pfmet*cos(l.met_phi_pfmet) + l.met_pfmet*sin(l.met_phi_pfmet) * l.met_pfmet*sin(l.met_phi_pfmet)));
+
+    TLorentzVector MET;
+    if ( isMC ) {
+    //isMC-->first smear then shift
+      TLorentzVector smearMET_corr = l.correctMet(lead_p4,sublead_p4,l.dipho_vtxind[diphotonVHmet_id],&unpfMET,true,false);
+      TLorentzVector shiftsmearMET_corr = l.shiftMet(lead_p4,sublead_p4,l.dipho_vtxind[diphotonVHmet_id],&smearMET_corr,isMC);
+      TLorentzVector MET = l.shiftMet(lead_p4, sublead_p4, l.dipho_vtxind[diphotonVHmet_id], &smearMET_corr,isMC);
+    } else {
+    //isData-->first shift then scale
+      TLorentzVector shiftMET_corr = l.shiftMet(lead_p4,sublead_p4,l.dipho_vtxind[diphotonVHmet_id],&unpfMET,isMC);
+      TLorentzVector shiftscaleMET_corr = l.correctMet(lead_p4,sublead_p4,l.dipho_vtxind[diphotonVHmet_id],&shiftMET_corr,false,true);
+      TLorentzVector MET = l.correctMet(lead_p4, sublead_p4, l.dipho_vtxind[diphotonVHmet_id], &shiftMET_corr,false,true);
+    }
+    
+    if( MET.Pt() > 70 ) tag = true;    
+
+    return tag;
+}
+
+
+
+
+
 void PhotonAnalysis::reVertex(LoopAll & l)
 {
     l.vtx_std_ranked_list->clear();
@@ -2165,6 +2209,7 @@ void PhotonAnalysis::reVertex(LoopAll & l)
 	}
     }
 }
+
 
 
 // Local Variables:

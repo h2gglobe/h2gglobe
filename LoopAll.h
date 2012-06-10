@@ -701,6 +701,18 @@ Float_t pho_ESEffSigmaRR[MAX_PHOTONS];
 //// Float_t dipho_phi[MAX_DIPHOTONS];
 //// Float_t dipho_cts[MAX_DIPHOTONS];
 
+/*
+//forMET
+Float_t shiftMET_corr_pt;
+Float_t shiftMET_corr_phi;
+Float_t smearMET_corr_pt;
+Float_t smearMET_corr_phi;
+Float_t shiftscaleMET_corr_pt;
+Float_t shiftscaleMET_corr_phi;
+Float_t shiftsmearMET_corr_pt;
+Float_t shiftsmearMET_corr_phi;
+*/
+
 TBranch *b_gh_gen2reco1;
 TBranch *b_gh_gen2reco2;
 TBranch *b_gh_vbfq1_pdgid;
@@ -737,6 +749,17 @@ TBranch * b_pho_regr_energyerr_otf;
 //// TBranch * b_dipho_phi;
 //// TBranch * b_dipho_cts;
 
+/*
+//forMET
+TBranch * b_shiftMET_corr_pt;
+TBranch * b_shiftMET_corr_phi;
+TBranch * b_smearMET_corr_pt;
+TBranch * b_smearMET_corr_phi;
+TBranch * b_shiftscaleMET_corr_pt;
+TBranch * b_shiftscaleMET_corr_phi;
+TBranch * b_shiftsmearMET_corr_pt;
+TBranch * b_shiftsmearMET_corr_phi;
+*/
 
 //----------------------------------------
 // photon and diphoton vertex selection
@@ -932,7 +955,26 @@ void SetBranchAddress_pho_regr_energyerr_otf(TTree * tree) { tree->SetBranchAddr
 //// void SetBranchAddress_dipho_phi(TTree * tree) { tree->SetBranchAddress("dipho_phi", &dipho_phi, &b_dipho_phi); };
 //// void SetBranchAddress_dipho_cts(TTree * tree) { tree->SetBranchAddress("dipho_cts", &dipho_cts, &b_dipho_cts); };
 
+/*
+//forMET
+void Branch_shiftMET_corr_pt(TTree * tree) { tree->Branch("shiftMET_corr_pt", &shiftMET_corr_pt, "shiftMET_corr_pt/F"); };
+void Branch_shiftMET_corr_phi(TTree * tree) { tree->Branch("shiftMET_corr_phi", &shiftMET_corr_phi, "shiftMET_corr_phi/F"); };
+void Branch_smearMET_corr_pt(TTree * tree) { tree->Branch("smearMET_corr_pt", &smearMET_corr_pt, "smearMET_corr_pt/F"); };
+void Branch_smearMET_corr_phi(TTree * tree) { tree->Branch("smearMET_corr_phi", &smearMET_corr_phi, "smearMET_corr_phi/F"); };
+void Branch_shiftscaleMET_corr_pt(TTree * tree) { tree->Branch("shiftscaleMET_corr_pt", &shiftscaleMET_corr_pt, "shiftscaleMET_corr_pt/F"); };
+void Branch_shiftscaleMET_corr_phi(TTree * tree) { tree->Branch("shiftscaleMET_corr_phi", &shiftscaleMET_corr_phi, "shiftscaleMET_corr_phi/F"); };
+void Branch_shiftsmearMET_corr_pt(TTree * tree) { tree->Branch("shiftsmearMET_corr_pt", &shiftsmearMET_corr_pt, "shiftsmearMET_corr_pt/F"); };
+void Branch_shiftsmearMET_corr_phi(TTree * tree) { tree->Branch("shiftsmearMET_corr_phi", &shiftsmearMET_corr_phi, "shiftsmearMET_corr_phi/F"); };
 
+void SetBranchAddress_shiftMET_corr_pt(TTree * tree) { tree->SetBranchAddress("shiftMET_corr_pt", &shiftMET_corr_pt, &b_shiftMET_corr_pt); };
+void SetBranchAddress_shiftMET_corr_phi(TTree * tree) { tree->SetBranchAddress("shiftMET_corr_phi", &shiftMET_corr_phi, &b_shiftMET_corr_phi); };
+void SetBranchAddress_smearMET_corr_pt(TTree * tree) { tree->SetBranchAddress("smearMET_corr_pt", &smearMET_corr_pt, &b_smearMET_corr_pt); };
+void SetBranchAddress_smearMET_corr_phi(TTree * tree) { tree->SetBranchAddress("smearMET_corr_phi", &smearMET_corr_phi, &b_smearMET_corr_phi); };
+void SetBranchAddress_shiftscaleMET_corr_pt(TTree * tree) { tree->SetBranchAddress("shiftscaleMET_corr_pt", &shiftscaleMET_corr_pt, &b_shiftscaleMET_corr_pt); };
+void SetBranchAddress_shiftscaleMET_corr_phi(TTree * tree) { tree->SetBranchAddress("shiftscaleMET_corr_phi", &shiftscaleMET_corr_phi, &b_shiftscaleMET_corr_phi); };
+void SetBranchAddress_shiftsmearMET_corr_pt(TTree * tree) { tree->SetBranchAddress("shiftsmearMET_corr_pt", &shiftsmearMET_corr_pt, &b_shiftsmearMET_corr_pt); };
+void SetBranchAddress_shiftsmearMET_corr_phi(TTree * tree) { tree->SetBranchAddress("shiftsmearMET_corr_phi", &shiftsmearMET_corr_phi, &b_shiftsmearMET_corr_phi); };
+*/
 
 // ID branches
 void Branch_pho_mitmva(TTree * tree) { tree->Branch("pho_mitmva", "std::vector<std::vector<float> >", &pho_mitmva); }; 
@@ -1033,6 +1075,11 @@ std::pair<int, int> Select2HighestPtJets(TLorentzVector& leadpho, TLorentzVector
 int RescaleJetEnergy(bool force=false);
 int MuonSelection(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind);
 int ElectronSelection(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind);
+
+//forMET
+double ErrEt( double Et, double Eta);
+TLorentzVector shiftMet(TLorentzVector& pho_lead, TLorentzVector& pho_sublead, int vtxind, TLorentzVector *uncormet, bool isMC);
+TLorentzVector correctMet(TLorentzVector& pho_lead, TLorentzVector& pho_sublead, int vtxind, TLorentzVector *uncormet, bool smearing, bool scale);
 
 void SetAllMVA();
 Float_t photonIDMVA(Int_t, Int_t, TLorentzVector &, const char*);
