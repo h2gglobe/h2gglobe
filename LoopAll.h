@@ -686,6 +686,7 @@ Float_t dipho_sumpt[MAX_DIPHOTONS];
 Bool_t pho_genmatched[MAX_PHOTONS];
 Float_t pho_regr_energy_otf[MAX_PHOTONS];
 Float_t pho_regr_energyerr_otf[MAX_PHOTONS];
+Float_t pho_ESEffSigmaRR[MAX_PHOTONS];
 //// Float_t dipho_leadet[MAX_DIPHOTONS];
 //// Float_t dipho_subleadet[MAX_DIPHOTONS];
 //// Float_t dipho_leadeta[MAX_DIPHOTONS];
