@@ -256,12 +256,8 @@ Float_t LoopAll::photonIDMVANew(Int_t iPhoton, Int_t vtx, TLorentzVector &p4, co
   tmva_photonid_s4ratio  = pho_e2x2[iPhoton]/pho_e5x5[iPhoton];
   tmva_photonid_eventrho = rho_algo1;
   tmva_photonid_sceta    = ((TVector3*)sc_xyz->At(pho_scind[iPhoton]))->Eta(); 
+  tmva_photonid_ESEffSigmaRR = pho_ESEffSigmaRR[iPhoton];
   
-  float rr2=pho_eseffsixix[iPhoton]*pho_eseffsixix[iPhoton]+pho_eseffsiyiy[iPhoton]*pho_eseffsiyiy[iPhoton];
-  tmva_photonid_ESEffSigmaRR = 0.0; 
-  if(rr2>0. && rr2<999999.) 
-    tmva_photonid_ESEffSigmaRR = sqrt(rr2);
-    
   if (pho_isEB[iPhoton])
     mva = tmvaReaderID_Single_Barrel->EvaluateMVA("AdaBoost");
   else
