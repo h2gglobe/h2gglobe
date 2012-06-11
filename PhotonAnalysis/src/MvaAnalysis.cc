@@ -656,6 +656,27 @@ float MvaAnalysis::tmvaGetVal(double mass, double mass_hypothesis, float kinemat
     return tmvaReader_->EvaluateMVA( "BDT_grad_123" );
 
 }
+
+int MvaAnalysis::byHandCat(double mass, double mass_hypothesis, float kinematic_bdt){
+   
+    int cat=-1;
+    double deltaMoM = (mass-mass_hypothesis)/mass_hypothesis;
+    if (kinematic_bdt>=0.89){
+        if (fabs(deltaMoM)<0.007) cat=7;
+        else if (deltaMoM>=-0.02 && deltaMoM<=-0.007) cat=6;
+        else if (deltaMoM<=0.02 && deltaMoM>=0.007) cat=5;
+    }
+    if (kinematic_bdt>=0.74 && kinematic_bdt<0.89){
+        if (fabs(deltaMoM)<0.007) cat=4;
+        else if (deltaMoM>=-0.02 && deltaMoM<=-0.007) cat=3;
+        else if (deltaMoM<=0.02 && deltaMoM>=0.007) cat=2;
+    }
+    if (kinematic_bdt >= 0.545 && kinematic_bdt < 0.74) return 1;
+    if (kinematic_bdt >= 0.05 && kinematic_bdt < 0.545) return 0;
+
+    return cat;
+}
+
 // ----------------------------------------------------------------------------------------------------
 int MvaAnalysis::GetBDTBoundaryCategory(float bdtout, bool isEB, bool VBFevent){
 
@@ -735,6 +756,7 @@ void MvaAnalysis::FillRooContainer(LoopAll& l, int cur_type, float mass, float d
 
 
   if (doTraining){
+    cout << "Filling training trees..." << endl;
     fillTMVATrees(l,mass,diphotonMVA,category,weight,cur_type);
   } else {
 
@@ -754,6 +776,7 @@ void MvaAnalysis::FillRooContainer(LoopAll& l, int cur_type, float mass, float d
             sideband_boundaries[0] = mass_hypothesis*(1-sidebandWidth);
             sideband_boundaries[1] = mass_hypothesis*(1+sidebandWidth);
             if( mass>sideband_boundaries[0] && mass<sideband_boundaries[1]){//Signal mass window cut
+                   if (catByHand && category<nInclusiveCategories_) category = byHandCat(mass,mass_hypothesis,diphotonMVA);
                    float bdt_grad =  tmvaGetVal(mass,mass_hypothesis,diphotonMVA);
                    l.rooContainer->InputBinnedDataPoint("sig_BDT_grad_"+currentTypeSignalLabel ,category,bdt_grad,weight);
             
@@ -767,6 +790,7 @@ void MvaAnalysis::FillRooContainer(LoopAll& l, int cur_type, float mass, float d
             sideband_boundaries[0] = mH*(1-sidebandWidth);
             sideband_boundaries[1] = mH*(1+sidebandWidth);
             if( mass>sideband_boundaries[0] && mass<sideband_boundaries[1]){//Signal mass window cut
+                if (catByHand && category<nInclusiveCategories_) category = byHandCat(mass,mH,diphotonMVA);
                 float bdt_grad =  tmvaGetVal(mass,mH,diphotonMVA);
                 if (cur_type==0) l.rooContainer->InputBinnedDataPoint(Form("data_BDT_grad_%3.1f",mH),category,bdt_grad,weight);
                 else if (cur_type > 0) l.rooContainer->InputBinnedDataPoint(Form("bkg_BDT_grad_%3.1f",mH) ,category,bdt_grad,weight);
@@ -780,6 +804,7 @@ void MvaAnalysis::FillRooContainer(LoopAll& l, int cur_type, float mass, float d
                 double sideband_boundaries_high= mass_hypothesis_low*(1.+sidebandWidth);
 
                 if ( mass>sideband_boundaries_low && mass<sideband_boundaries_high){
+                   if (catByHand && category<nInclusiveCategories_) category = byHandCat(mass,mH,diphotonMVA);
                    float bdt_grad =  tmvaGetVal(mass,mass_hypothesis_low,diphotonMVA);
                    if (cur_type==0) l.rooContainer->InputBinnedDataPoint(Form("data_%dlow_BDT_grad_%3.1f",sideband_i,mH) ,category,bdt_grad,weight);
                    else if (cur_type > 0) l.rooContainer->InputBinnedDataPoint(Form("bkg_%dlow_BDT_grad_%3.1f",sideband_i,mH) ,category,bdt_grad,weight);
@@ -795,6 +820,7 @@ void MvaAnalysis::FillRooContainer(LoopAll& l, int cur_type, float mass, float d
                 double sideband_boundaries_high= mass_hypothesis_high*(1.+sidebandWidth);
 
                 if ( mass>sideband_boundaries_low && mass<sideband_boundaries_high){
+                   if (catByHand && category<nInclusiveCategories_) category = byHandCat(mass,mH,diphotonMVA);
                    float bdt_grad =  tmvaGetVal(mass,mass_hypothesis_high,diphotonMVA);
                    if (cur_type==0) l.rooContainer->InputBinnedDataPoint(Form("data_%dhigh_BDT_grad_%3.1f",sideband_i,mH) ,category,bdt_grad,weight);
                    else if (cur_type > 0) l.rooContainer->InputBinnedDataPoint(Form("bkg_%dhigh_BDT_grad_%3.1f",sideband_i,mH) ,category,bdt_grad,weight);
@@ -821,6 +847,7 @@ void MvaAnalysis::AccumulateSyst(int cur_type, float mass, float diphotonMVA,
     sideband_boundaries[1] = mass_hypothesis*(1+sidebandWidth);
 	// Signal Window cut
 	if( mass>sideband_boundaries[0] && mass<sideband_boundaries[1]){
+            if (catByHand && category<nInclusiveCategories_) category = byHandCat(mass,mass_hypothesis,diphotonMVA);
 			double syst_bdt_grad = tmvaGetVal(mass,mass_hypothesis,diphotonMVA);
 			categories.push_back(category);
 			mva_errors.push_back(syst_bdt_grad);
