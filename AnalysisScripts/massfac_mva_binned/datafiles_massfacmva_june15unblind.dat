@@ -65,9 +65,9 @@ typ=+2    ind=93 draw=1  Nam=QCD40FF CaDir=/store/group/phys_higgs/cmshgg/reduce
 typ=+12   ind=94 draw=1  Nam=QCD40PF CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v3/Summer12_S7_8TeV/QCD_Pt-40_doubleEM_8TeV_pf    red=0   lum=1.e10 xsec=51439.   kfac=1.3  scal=1.
 typ=+22   ind=100 draw=1  Nam=QCD40PP CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v3/Summer12_S7_8TeV/QCD_Pt-40_doubleEM_8TeV_pp    red=0   lum=1.e10 xsec=51439.   kfac=1.3  scal=1.
 
-typ=+3    ind=95 draw=1  Nam=GJet20FF    CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v3/Summer12_S7_8TeV/GJet_Pt-20-40_doubleEM_8TeV_ff  red=0 lum=1.e10 xsec=150.34 kfac=1.  scal=1.
-typ=+13    ind=101 draw=1  Nam=GJet20PF    CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v3/Summer12_S7_8TeV/GJet_Pt-20-40_doubleEM_8TeV_pf  red=0 lum=1.e10 xsec=150.34 kfac=1.3  scal=1.
-typ=+23    ind=102 draw=1  Nam=GJet20PP    CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v3/Summer12_S7_8TeV/GJet_Pt-20-40_doubleEM_8TeV_pp  red=0 lum=1.e10 xsec=150.34 kfac=1.3  scal=1.
+typ=+3    ind=95 draw=1  Nam=GJet20FF    CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v3/Summer12_S7_8TeV/GJet_Pt-20to40_doubleEM_8TeV_ff  red=0 lum=1.e10 xsec=150.34 kfac=1.  scal=1.
+typ=+13    ind=101 draw=1  Nam=GJet20PF    CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v3/Summer12_S7_8TeV/GJet_Pt-20to40_doubleEM_8TeV_pf  red=0 lum=1.e10 xsec=150.34 kfac=1.3  scal=1.
+typ=+23    ind=102 draw=1  Nam=GJet20PP    CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v3/Summer12_S7_8TeV/GJet_Pt-20to40_doubleEM_8TeV_pp  red=0 lum=1.e10 xsec=150.34 kfac=1.3  scal=1.
 
 typ=+33    ind=103 draw=1  Nam=GJet40FF    CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v3/Summer12_S7_8TeV/GJet_Pt-40_doubleEM_8TeV_ff  red=0 lum=1.e10 xsec=478.58 kfac=1.  scal=1.
 typ=+43    ind=104 draw=1  Nam=GJet40PF    CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v3/Summer12_S7_8TeV/GJet_Pt-40_doubleEM_8TeV_pf  red=0 lum=1.e10 xsec=478.58 kfac=1.3  scal=1.
