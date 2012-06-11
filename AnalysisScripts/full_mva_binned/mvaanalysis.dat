@@ -44,6 +44,9 @@ numberOfSidebandGaps=1
 massSidebandMin=99.5
 massSidebandMax=180.
 
+# Categorize by hand
+catByHand=0
+
 #  OptimizedBinEdges
 rederiveOptimizedBinEdges=0
 VbfBinEdges_110=1,1.04,1.08
@@ -76,6 +79,10 @@ AdaBinEdges_150=-1,0.0024,0.0964,0.164,0.2336,0.282,0.3616,1
 
 nInclusiveCategories=1
 
+# Stuff for FullMvaToolkit
+nVBFCategories=2
+nLEPCategories=0
+
 nEtaCategories=2
 nR9Categories=2
 nPtCategories=1
@@ -92,8 +99,8 @@ splitBackgroundSample=0
 bdtTrainingPhilosophy=MIT
 photonLevelMvaUCSD=aux/ID_UCSD.weights.xml
 eventLevelMvaUCSD=aux/diphoton_UCSD.weights.xml
-photonLevelNewIDMVA_EB=aux/TMVA_EBpf_BDT.weights.xml
-photonLevelNewIDMVA_EE=aux/TMVA_EEpf_BDT.weights.xml
+photonLevelNewIDMVA_EB=aux/2012ICHEP_PhotonID_Barrel_BDT.weights.xml
+photonLevelNewIDMVA_EE=aux/2012ICHEP_PhotonID_Endcap_BDT.weights.xml
 photonLevelMvaMIT_EB=aux/TMVAClassificationPhotonID_Barrel_PassPreSel_Variable_10_BDTnCuts2000_BDT.weights.xml
 photonLevelMvaMIT_EE=aux/TMVAClassificationPhotonID_Endcap_PassPreSel_Variable_10_BDTnCuts2000_BDT.weights.xml
 eventLevelMvaMIT=aux/HggBambu_SMDipho_Jan16_BDTG.weights.xml
