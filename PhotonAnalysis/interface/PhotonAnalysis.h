@@ -69,8 +69,6 @@ class PhotonAnalysis : public BaseAnalysis
     bool includeVHlep;
     bool includeVHmet;
 
-
-
     bool reRunCiCForData;
     bool reComputeCiCPF;
 
@@ -78,10 +76,12 @@ class PhotonAnalysis : public BaseAnalysis
     float leadEtVBFCut;
     float leadEtVHhadCut;
     float leadEtVHlepCut;
+    float leadEtVHmetCut;
     float subleadEtCut;
     float subleadEtVBFCut;
     float subleadEtVHhadCut;
     float subleadEtVHlepCut;
+    float subleadEtVHmetCut;
     int nVBFEtaCategories;
     int nVHhadEtaCategories;
     int nVBFDijetJetCategories;

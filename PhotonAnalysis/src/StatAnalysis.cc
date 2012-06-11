@@ -778,9 +778,7 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 	
 	//forMET tag
 	if(includeVHmet){
-	    diphotonVHmet_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVHlepCut, subleadEtVHlepCut, 4, false, &smeared_pho_energy[0], true );
-	    //Add tighter cut on dr to tk
-	    if(l.pho_drtotk_25_99[l.dipho_leadind[diphotonVHmet_id]] < 1 || l.pho_drtotk_25_99[l.dipho_subleadind[diphotonVHlep_id]] < 1) diphotonVHmet_id = -1;
+	    diphotonVHmet_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVHmetCut, subleadEtVHmetCut, 4, false, &smeared_pho_energy[0], true );
 	    VHmetevent=METTag2012(l, diphotonVHmet_id, &smeared_pho_energy[0]);
 	}
 	

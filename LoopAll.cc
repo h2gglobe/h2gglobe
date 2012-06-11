@@ -403,6 +403,7 @@ LoopAll::LoopAll(TTree *tree) :
   signalNormalizer->FillSignalTypes();
 
   runZeeValidation = false;
+  makeDummyTrees = false;
   usePFCiC = true;
   pfisoOffset=2.5;
   cicVersion="7TeV";
@@ -1002,7 +1003,9 @@ int LoopAll::FillAndReduce(int jentry) {
   //
   // read all inputs 
   //
-  GetEntry(inputBranches, jentry);
+  if(!makeDummyTrees){
+    GetEntry(inputBranches, jentry);
+  }
   
 
   //b_run->GetEntry(jentry);
@@ -1062,6 +1065,7 @@ int LoopAll::FillAndReduce(int jentry) {
   // analysis step
   //
   if( typerun == kFill || typerun == kFillReduce ) {
+    if(makeDummyTrees) return hasoutputfile;
     // event selection
     for (size_t i=0; i<analyses.size(); i++) {
       if( ! analyses[i]->SelectEvents(*this, jentry) ) {

@@ -2,7 +2,6 @@
 includeVBF=1
 nVBFEtaCategories=1
 nVBFDijetJetCategories=2
-
 leadEtVBFCut=60
 subleadEtVBFCut=25
 
@@ -14,9 +13,13 @@ subleadEtVHhadCut=25
 
 ## Lepton tag
 includeVHlep=0
-
 leadEtVHlepCut=45
 subleadEtVHlepCut=25
+
+## MET tag
+includeVHmet=1
+leadEtVHmetCut=45
+subleadEtVHmetCut=25
 
 ## Inputs for reweighing
 doKFactorSmear=0
