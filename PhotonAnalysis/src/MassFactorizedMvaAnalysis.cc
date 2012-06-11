@@ -888,7 +888,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 	        sumaccept += weight;
 	        sumsmear += evweight;
 	        if (l.runZeeValidation) {
-		  fillZeeControlPlots(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, phoid_mvaout_lead, phoid_mvaout_sublead, diphobdt_output, sigmaMrv, sigmaMwv, vtxProb, diphoton_id, category, evweight, l );
+		  fillZeeControlPlots(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, phoid_mvaout_lead, phoid_mvaout_sublead, diphobdt_output, sigmaMrv, sigmaMwv, vtxProb, diphoton_id, category, selectioncategory, evweight, l );
 		} else {
 		  fillControlPlots(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9,  diphoton_id, 
 				   category, isCorrectVertex, evweight, l );
@@ -958,7 +958,7 @@ void MassFactorizedMvaAnalysis::fillZeeControlPlots(const TLorentzVector & lead_
 	                        const TLorentzVector & Higgs, float lead_r9, float sublead_r9,
 				float phoid_mvaout_lead, float phoid_mvaout_sublead, 
                                 float diphobdt_output, float sigmaMrv, float sigmaMwv, float vtxProb,
-				int diphoton_id, int category, float evweight, LoopAll & l )
+				int diphoton_id, int category, int selectioncategory, float evweight, LoopAll & l )
 {
 
   float mass = Higgs.M();
@@ -970,6 +970,7 @@ void MassFactorizedMvaAnalysis::fillZeeControlPlots(const TLorentzVector & lead_
 
   l.FillHist("mass",0, mass, evweight);
   l.FillHist("mass",category+1, mass, evweight);
+  l.FillHist("mass_basecat",selectioncategory, mass, evweight);
   if (ptHiggs<20.) {
     l.FillHist("mass_pt0to20",0, mass, evweight);
   } else if (ptHiggs<40.) {
@@ -987,6 +988,7 @@ void MassFactorizedMvaAnalysis::fillZeeControlPlots(const TLorentzVector & lead_
   if( mass>=60. && mass<=120.  ) {
 
     l.FillHist("bdtout",0,diphobdt_output,evweight);
+    l.FillHist("bdtout",selectioncategory+1,diphobdt_output,evweight);
     if (fabs(lead_p4.Eta() < 1.4442 ) && fabs(sublead_p4.Eta()<1.4442)){
       l.FillHist("bdtoutEB",0,diphobdt_output,evweight);
     } else if (fabs(lead_p4.Eta() > 1.566 ) && fabs(sublead_p4.Eta()>1.566)){

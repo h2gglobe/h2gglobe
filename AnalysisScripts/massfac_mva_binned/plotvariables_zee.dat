@@ -1,6 +1,7 @@
 default=2
 
 htyp=0 plot=-1  ncat=7  xbins=240   ybins=0       xmin=60.0  xmax=180.0  ymin=0      ymax=0       name=mass    xaxis= yaxis=
+htyp=0 plot=-1  ncat=4  xbins=240   ybins=0       xmin=60.0  xmax=180.0  ymin=0      ymax=0       name=mass_basecat    xaxis= yaxis=
 htyp=0 plot=-1  ncat=1  xbins=240   ybins=0       xmin=60.0  xmax=180.0  ymin=0      ymax=0       name=mass_pt0to20    xaxis= yaxis=
 htyp=0 plot=-1  ncat=1  xbins=240   ybins=0       xmin=60.0  xmax=180.0  ymin=0      ymax=0       name=mass_pt20to40    xaxis= yaxis=
 htyp=0 plot=-1  ncat=1  xbins=240   ybins=0       xmin=60.0  xmax=180.0  ymin=0      ymax=0       name=mass_pt40to60    xaxis= yaxis=
@@ -10,7 +11,7 @@ htyp=0 plot=-1  ncat=7  xbins=100   ybins=0       xmin=0.0  xmax=200.0  ymin=0  
 htyp=0 plot=-1  ncat=7  xbins=100   ybins=0       xmin=0.0  xmax=100.0  ymin=0      ymax=0       name=nvtx    xaxis= yaxis=
 
 htyp=0 plot=-1  ncat=1  xbins=200   ybins=0  xmin=-1.0  xmax=1.0  ymin=0 ymax=0 name=bdtout_m100to180    xaxis= yaxis=
-htyp=0 plot=-1  ncat=1  xbins=200   ybins=0  xmin=-1.0  xmax=1.0  ymin=0 ymax=0 name=bdtout    xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=200   ybins=0  xmin=-1.0  xmax=1.0  ymin=0 ymax=0 name=bdtout    xaxis= yaxis=
 htyp=0 plot=-1  ncat=1  xbins=200   ybins=0  xmin=-1.0  xmax=1.0  ymin=0 ymax=0 name=bdtoutEB    xaxis= yaxis=
 htyp=0 plot=-1  ncat=1  xbins=200   ybins=0  xmin=-1.0  xmax=1.0  ymin=0 ymax=0 name=bdtoutEBEE    xaxis= yaxis=
 htyp=0 plot=-1  ncat=1  xbins=200   ybins=0  xmin=-1.0  xmax=1.0  ymin=0 ymax=0 name=bdtoutEE    xaxis= yaxis=

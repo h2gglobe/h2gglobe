@@ -39,7 +39,7 @@ class MassFactorizedMvaAnalysis : public StatAnalysis
 	                     const TLorentzVector & Higgs, float lead_r9, float sublead_r9,
 			     float phoid_mvaout_lead, float phoid_mvaout_sublead, 
 			     float diphobdt_output, float sigmaMrv, float sigmaMwv, float vtxProb,
-			     int diphoton_id, int category, float evweight, LoopAll & l );
+			     int diphoton_id, int category, int selectioncategory, float evweight, LoopAll & l );
 
     bool doPhotonMvaIdSyst;
     bool doPhotonMvaIdSmear;
