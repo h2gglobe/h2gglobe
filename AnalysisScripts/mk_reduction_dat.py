@@ -28,6 +28,7 @@ except Exception, e:
 
 ds=open(datasets)
 
+props = ""
 mk_outdir( outdir )
 for d in ds.read().split("\n"):
     s = d.replace("\t","").lstrip(" ").lstrip(" ")
@@ -51,18 +52,21 @@ for d in ds.read().split("\n"):
             getanalyzer = True
         elif getanalyzer:
             analyzer += " %s" % s
+        else:
+            print s
+            props += s
     datname="%s/%s.dat" % (datasetsdir, dname)
     print "Making configuration for %s (type %s)" % ( datname, dtype )
     f = open(datname ,"w+")
     print >>f, """output=%s/%s/%s.root
         
-CaDir=%s/%s typ=%s
+CaDir=%s/%s typ=%s %s
 
 %s
 
 inputBranches reduction_input.dat
 outputBranches reduction_output.dat
-        """ % ( outdir, dname, dname, indir, iname, dtype, analyzer)
+        """ % ( outdir, dname, dname, indir, iname, dtype, props, analyzer)
     f.close()
 
     mk_outdir( "%s/%s" % ( outdir, dname )  )
