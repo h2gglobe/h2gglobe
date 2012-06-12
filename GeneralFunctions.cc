@@ -2073,10 +2073,10 @@ void LoopAll::SetPhotonCutsInCategories(phoCiCIDLevel cutlevel, float * cic6_all
 	  4.3,       2.5,      1.59,      1.53,
 	  7.1,       4.9,       4.3,      1.05,
 	  3.4,       2.4,       2.3,      1.02,
-	  0.019,      0.01,     0.027,     0.023,
+	  0.019,     0.01,     0.027,     0.023,
 	  0.23,      0.06,     0.041,     0.033,
 	  0.94,      0.36,      0.95,      0.45,
-	  1,      0.32,         1,         1,
+	  1,         0.32,         1,         1,
 	  1.5,         1.5,         1.5,         1.5};
         float cic4pfichep_allcuts_temp_sublead[] = {  
 	  4.3,       2.5,      1.59,      1.53,
@@ -2165,12 +2165,12 @@ void LoopAll::SetPhotonCutsInCategories(phoCiCIDLevel cutlevel, float * cic6_all
             1.5,         1.5,         1.5,         1.5};
 
 	float cic4pfichep_allcuts_temp_lead[] = {     
-	  4.7,       2.3,       1.4,     0.069,
+	  4.3,       2.3,       1.4,     0.069,
 	  6.4,       2.9,       4.8,      0.25,
 	  3.3,       2.3,      1.73,      1.02,
-	  0.0188,      0.01,     0.028,     0.023,
-	  0.23,     0.169,     0.041,     0.041,
-	  0.94,      0.46,      0.97,      0.59,
+	  0.0188,      0.01,    0.027,     0.023,
+	  0.23,     0.06,     0.041,     0.033,
+	  0.94,      0.36,      0.95,      0.45,
 	  1,      0.32,         1,         1,
 	  1.5,         1.5,         1.5,         1.5};	
         float cic4pfichep_allcuts_temp_sublead[] = {  
@@ -2259,27 +2259,27 @@ void LoopAll::SetPhotonCutsInCategories(phoCiCIDLevel cutlevel, float * cic6_all
             0.94,      0.39,      0.94,      0.24,
             1,         1,         1,      0.78,
             1.5,         1.5,         1.5,         1.5};
-	
+
 	float cic4pfichep_allcuts_temp_lead[] = {     
-	  3.5,      0.99,      1.34,   0.00131,
-	  4.1,      0.91,       4.8,     0.25,
-	  2.2,      1.35,      0.99,      1.02,
-          0.0104,    0.0096,     0.027,     0.023,
-	  0.23,     0.078,     0.028,      0.03,
-	  0.94,      0.46,      0.97,      0.88,
-	  1,      0.33,         1,         1,
-	  1.5,         1.5,         1.5,         1.5};
-	
+	  4.3,       2.3,       1.4,     0.069,
+	  6.4,       2.9,       4.8,      0.25,
+	  3.3,       2.3,      1.73,      1.02,
+	  0.0188,      0.01,    0.027,     0.023,
+	  0.23,     0.06,     0.041,     0.033,
+	  0.94,      0.36,      0.95,      0.45,
+	  1,      0.32,         1,         1,
+	  1.5,         1.5,         1.5,         1.5};	
         float cic4pfichep_allcuts_temp_sublead[] = {  
 	  4.7,       2.3,       1.4,     0.069,
-	  6.4,       2.9,       4.8,     0.25,
+	  6.4,       2.9,       4.8,      0.25,
 	  3.3,       2.3,      1.73,      1.02,
 	  0.0188,      0.01,     0.028,     0.023,
 	  0.23,     0.169,     0.041,     0.041,
 	  0.94,      0.46,      0.97,      0.59,
 	  1,      0.32,         1,         1,
-	  1.5,         1.5,         1.5,         1.5};
-	
+	  1.5,         1.5,         1.5,         1.5};	
+
+
         for(int i=0;i!=ncuts*ncat_cic4;++i) { 
 	  if (cicVersion == "7TeV") {
 	    cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
@@ -2356,10 +2356,37 @@ void LoopAll::SetPhotonCutsInCategories(phoCiCIDLevel cutlevel, float * cic6_all
             0.94,      0.39,      0.94,      0.24,
             1,         1,         1,      0.97,
             1.5,         1.5,         1.5,         1.5} ;
+	float cic4pfichep_allcuts_temp_lead[] = {
+          4.3,       2.3,       1.4,     0.069,
+          6.4,       2.9,       4.8,      0.25,
+          3.3,       2.3,      1.73,      1.02,
+          0.0188,      0.01,    0.027,     0.023,
+          0.23,     0.06,     0.041,     0.033,
+          0.94,      0.36,      0.95,      0.45,
+          1,      0.32,         1,         1,
+          1.5,         1.5,         1.5,         1.5};
+        float cic4pfichep_allcuts_temp_sublead[] = {
+          4.7,       2.3,       1.4,     0.069,
+          6.4,       2.9,       4.8,      0.25,
+          3.3,       2.3,      1.73,      1.02,
+          0.0188,      0.01,     0.028,     0.023,
+          0.23,     0.169,     0.041,     0.041,
+          0.94,      0.46,      0.97,      0.59,
+          1,      0.32,         1,         1,
+          1.5,         1.5,         1.5,         1.5};
 
-        for(int i=0;i!=ncuts*ncat_cic4;++i) { 
+
+        for(int i=0;i!=ncuts*ncat_cic4;++i) {
+          if (cicVersion == "7TeV") {
             cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
-            cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i]; 
+            cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i];
+          } else if (cicVersion == "ichep") {
+            cic4pf_allcuts_lead[i]    = cic4pfichep_allcuts_temp_lead[i];
+            cic4pf_allcuts_sublead[i] = cic4pfichep_allcuts_temp_sublead[i];
+          } else {
+            cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
+            cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i];
+          }
         }
     } break;
     
@@ -2428,10 +2455,40 @@ void LoopAll::SetPhotonCutsInCategories(phoCiCIDLevel cutlevel, float * cic6_all
             1,         1,         1,      0.97,
             1.5,         1.5,         1.5,         1.5} ;
 
-        for(int i=0;i!=ncuts*ncat_cic4;++i) { 
+
+	float cic4pfichep_allcuts_temp_lead[] = {
+          4.3,       2.3,       1.4,     0.069,
+          6.4,       2.9,       4.8,      0.25,
+          3.3,       2.3,      1.73,      1.02,
+          0.0188,      0.01,    0.027,     0.023,
+          0.23,     0.06,     0.041,     0.033,
+          0.94,      0.36,      0.95,      0.45,
+          1,      0.32,         1,         1,
+          1.5,         1.5,         1.5,         1.5};
+        float cic4pfichep_allcuts_temp_sublead[] = {
+          4.7,       2.3,       1.4,     0.069,
+          6.4,       2.9,       4.8,      0.25,
+          3.3,       2.3,      1.73,      1.02,
+          0.0188,      0.01,     0.028,     0.023,
+          0.23,     0.169,     0.041,     0.041,
+          0.94,      0.46,      0.97,      0.59,
+          1,      0.32,         1,         1,
+          1.5,         1.5,         1.5,         1.5};
+
+
+        for(int i=0;i!=ncuts*ncat_cic4;++i) {
+          if (cicVersion == "7TeV") {
             cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
-            cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i]; 
+            cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i];
+          } else if (cicVersion == "ichep") {
+            cic4pf_allcuts_lead[i]    = cic4pfichep_allcuts_temp_lead[i];
+            cic4pf_allcuts_sublead[i] = cic4pfichep_allcuts_temp_sublead[i];
+          } else {
+            cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
+            cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i];
+          }
         }
+
     } break;
     
     case(phoHYPERTIGHT6) : {
@@ -2497,11 +2554,39 @@ void LoopAll::SetPhotonCutsInCategories(phoCiCIDLevel cutlevel, float * cic6_all
             0.94,      0.39,      0.96,      0.86,
             1,         1,         1,      0.97,
             1.5,         1.5,         1.5,         1.5} ;
+	float cic4pfichep_allcuts_temp_lead[] = {
+          4.3,       2.3,       1.4,     0.069,
+          6.4,       2.9,       4.8,      0.25,
+          3.3,       2.3,      1.73,      1.02,
+          0.0188,      0.01,    0.027,     0.023,
+          0.23,     0.06,     0.041,     0.033,
+          0.94,      0.36,      0.95,      0.45,
+          1,      0.32,         1,         1,
+          1.5,         1.5,         1.5,         1.5};
+        float cic4pfichep_allcuts_temp_sublead[] = {
+          4.7,       2.3,       1.4,     0.069,
+          6.4,       2.9,       4.8,      0.25,
+          3.3,       2.3,      1.73,      1.02,
+          0.0188,      0.01,     0.028,     0.023,
+          0.23,     0.169,     0.041,     0.041,
+          0.94,      0.46,      0.97,      0.59,
+          1,      0.32,         1,         1,
+          1.5,         1.5,         1.5,         1.5};
 
-        for(int i=0;i!=ncuts*ncat_cic4;++i) { 
+
+        for(int i=0;i!=ncuts*ncat_cic4;++i) {
+          if (cicVersion == "7TeV") {
             cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
-            cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i]; 
+            cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i];
+          } else if (cicVersion == "ichep") {
+            cic4pf_allcuts_lead[i]    = cic4pfichep_allcuts_temp_lead[i];
+            cic4pf_allcuts_sublead[i] = cic4pfichep_allcuts_temp_sublead[i];
+          } else {
+            cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
+            cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i];
+          }
         }
+
     } break;
     
     case(phoHYPERTIGHT7) : {
@@ -2568,10 +2653,39 @@ void LoopAll::SetPhotonCutsInCategories(phoCiCIDLevel cutlevel, float * cic6_all
             1,         1,         1,      0.99,
             1.5,         1.5,         1.5,         1.5} ;
 
-        for(int i=0;i!=ncuts*ncat_cic4;++i) { 
+	float cic4pfichep_allcuts_temp_lead[] = {
+          4.3,       2.3,       1.4,     0.069,
+          6.4,       2.9,       4.8,      0.25,
+          3.3,       2.3,      1.73,      1.02,
+          0.0188,      0.01,    0.027,     0.023,
+          0.23,     0.06,     0.041,     0.033,
+          0.94,      0.36,      0.95,      0.45,
+          1,      0.32,         1,         1,
+          1.5,         1.5,         1.5,         1.5};
+        float cic4pfichep_allcuts_temp_sublead[] = {
+          4.7,       2.3,       1.4,     0.069,
+          6.4,       2.9,       4.8,      0.25,
+          3.3,       2.3,      1.73,      1.02,
+          0.0188,      0.01,     0.028,     0.023,
+          0.23,     0.169,     0.041,     0.041,
+          0.94,      0.46,      0.97,      0.59,
+          1,      0.32,         1,         1,
+          1.5,         1.5,         1.5,         1.5};
+
+
+        for(int i=0;i!=ncuts*ncat_cic4;++i) {
+          if (cicVersion == "7TeV") {
             cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
-            cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i]; 
+            cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i];
+          } else if (cicVersion == "ichep") {
+            cic4pf_allcuts_lead[i]    = cic4pfichep_allcuts_temp_lead[i];
+            cic4pf_allcuts_sublead[i] = cic4pfichep_allcuts_temp_sublead[i];
+          } else {
+            cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
+            cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i];
+          }
         }
+
     } break;
     
     case(phoHYPERTIGHT8) : {
@@ -2638,10 +2752,39 @@ void LoopAll::SetPhotonCutsInCategories(phoCiCIDLevel cutlevel, float * cic6_all
             1,         1,         1,         1,
             1.5,         1.5,         1.5,         1.5} ;
 
-        for(int i=0;i!=ncuts*ncat_cic4;++i) { 
+	float cic4pfichep_allcuts_temp_lead[] = {
+          4.3,       2.3,       1.4,     0.069,
+          6.4,       2.9,       4.8,      0.25,
+          3.3,       2.3,      1.73,      1.02,
+          0.0188,      0.01,    0.027,     0.023,
+          0.23,     0.06,     0.041,     0.033,
+          0.94,      0.36,      0.95,      0.45,
+          1,      0.32,         1,         1,
+          1.5,         1.5,         1.5,         1.5};
+        float cic4pfichep_allcuts_temp_sublead[] = {
+          4.7,       2.3,       1.4,     0.069,
+          6.4,       2.9,       4.8,      0.25,
+          3.3,       2.3,      1.73,      1.02,
+          0.0188,      0.01,     0.028,     0.023,
+          0.23,     0.169,     0.041,     0.041,
+          0.94,      0.46,      0.97,      0.59,
+          1,      0.32,         1,         1,
+          1.5,         1.5,         1.5,         1.5};
+
+
+        for(int i=0;i!=ncuts*ncat_cic4;++i) {
+          if (cicVersion == "7TeV") {
             cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
-            cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i]; 
+            cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i];
+          } else if (cicVersion == "ichep") {
+            cic4pf_allcuts_lead[i]    = cic4pfichep_allcuts_temp_lead[i];
+            cic4pf_allcuts_sublead[i] = cic4pfichep_allcuts_temp_sublead[i];
+          } else {
+            cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
+            cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i];
+          }
         }
+
     } break;
     
     case(phoHYPERTIGHT9) : {
@@ -2708,10 +2851,39 @@ void LoopAll::SetPhotonCutsInCategories(phoCiCIDLevel cutlevel, float * cic6_all
             1,         1,         1,         1,
             1.5,         1.5,         1.5,         1.5} ;
 
-        for(int i=0;i!=ncuts*ncat_cic4;++i) { 
+	float cic4pfichep_allcuts_temp_lead[] = {
+          4.3,       2.3,       1.4,     0.069,
+          6.4,       2.9,       4.8,      0.25,
+          3.3,       2.3,      1.73,      1.02,
+          0.0188,      0.01,    0.027,     0.023,
+          0.23,     0.06,     0.041,     0.033,
+          0.94,      0.36,      0.95,      0.45,
+          1,      0.32,         1,         1,
+          1.5,         1.5,         1.5,         1.5};
+        float cic4pfichep_allcuts_temp_sublead[] = {
+          4.7,       2.3,       1.4,     0.069,
+          6.4,       2.9,       4.8,      0.25,
+          3.3,       2.3,      1.73,      1.02,
+          0.0188,      0.01,     0.028,     0.023,
+          0.23,     0.169,     0.041,     0.041,
+          0.94,      0.46,      0.97,      0.59,
+          1,      0.32,         1,         1,
+          1.5,         1.5,         1.5,         1.5};
+
+
+        for(int i=0;i!=ncuts*ncat_cic4;++i) {
+          if (cicVersion == "7TeV") {
             cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
-            cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i]; 
+            cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i];
+          } else if (cicVersion == "ichep") {
+            cic4pf_allcuts_lead[i]    = cic4pfichep_allcuts_temp_lead[i];
+            cic4pf_allcuts_sublead[i] = cic4pfichep_allcuts_temp_sublead[i];
+          } else {
+            cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
+            cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i];
+          }
         }
+
     } break;
     
     
