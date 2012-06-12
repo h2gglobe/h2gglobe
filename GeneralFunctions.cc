@@ -4005,6 +4005,120 @@ int LoopAll::ElectronSelection(TLorentzVector& pho1, TLorentzVector& pho2, int v
   return myel;
 }
 
+int LoopAll::MuonSelection2012(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind){
+  int mymu = -1;
+  
+  TLorentzVector* thismu;
+  float thiseta = -100;
+  float thispt = -100;
+  float thisiso =1000;
+
+  int passingMu = 0;
+
+  for( int indmu=0; indmu<mu_glo_n; indmu++){
+    thismu = (TLorentzVector*) mu_glo_p4->At(indmu);
+    thiseta = fabs(thismu->Eta());
+    if(thiseta>2.4) continue;
+    thispt = thismu->Pt();
+    if(thispt<20) continue;
+    if(mu_glo_type[indmu]<11000) continue;  // global and PF Muon
+    if(mu_glo_chi2[indmu]/mu_glo_dof[indmu]>=10) continue;
+    if(mu_glo_validhits[indmu]<=10) continue;
+    if(mu_glo_nmatches[indmu]<=1) continue;
+
+    // need to calculate d0, dz wrt chosen vtx
+    if(fabs(mu_glo_D0Vtx[indmu][vtxind]) > 0.2) continue;
+    if(fabs(mu_glo_DZVtx[indmu][vtxind]) > 0.5)  continue;
+
+    if(mu_glo_pixelhits[indmu]<=0) continue;
+
+    
+    if(mu_tkLayers[indmu]<=5) continue;
+    thisiso=((mu_glo_nehadiso04[indmu]+mu_glo_photiso04[indmu])>mu_dbCorr[indmu]) ?
+      mu_glo_chhadiso04[indmu]+mu_glo_nehadiso04[indmu]+mu_glo_photiso04[indmu]-mu_dbCorr[indmu] : mu_glo_chhadiso04[indmu];    
+    if ((thisiso/thispt)>0.2) continue;
+    if(std::min(pho1.DeltaR(*thismu),pho2.DeltaR(*thismu)) < 0.7) continue;
+    
+  
+
+
+    passingMu++;
+
+
+    mymu = indmu;
+  }
+
+  return mymu;
+}
+
+int LoopAll::ElectronSelection2012(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind){
+  int myel = -1;
+
+  //Loose CUT-BASED ELECTRON ID
+  //https://twiki.cern.ch/twiki/bin/viewauth/CMS/EgammaCutBasedIdentification
+
+  TLorentzVector* thisel;
+  TLorentzVector* thissc;
+  float thiseta = -100;
+  float thispt = -100;
+  float thisiso =1000;
+
+  int passingEl = 0;
+
+  for( int indel=0; indel<el_std_n; indel++){
+    if(el_std_hp_expin[indel]!=0) continue;
+
+    thisel = (TLorentzVector*) el_std_p4->At(indel);
+    thissc = (TLorentzVector*) el_std_sc->At(indel);
+    thiseta = fabs(thissc->Eta());
+
+    thisiso=el_std_pfiso_charged[indel]+el_std_pfiso_neutral[indel]+ el_std_pfiso_photon[indel];
+    if(thiseta>2.5 || (thiseta>1.442 && thiseta<1.566)) continue;
+    thispt = thisel->Pt();
+    float overE_overP=fabs((1/el_std_pin[indel])-(el_std_pin[indel]/el_std_eopin[indel]));
+    if(thispt<20) continue;
+    //EE-EB common cuts
+    if(fabs(el_std_D0Vtx[indel][vtxind]) > 0.02) continue;
+    if(fabs(el_std_DZVtx[indel][vtxind]) > 0.2)  continue;
+    if (overE_overP>0.05)continue;
+    if (thisiso/thispt >0.15) continue;      
+    if (el_std_hp_expin[indel]>1) continue;
+    if (el_std_conv_vtxProb[indel]<0.000001) continue;
+
+    if(thiseta<1.442) {   // EB cuts
+      if(fabs(el_std_detain[indel])>=0.007) continue;
+      if(fabs(el_std_dphiin[indel])>=0.15) continue;
+      if(el_std_sieie[indel]>=0.01) continue; 
+      if (el_std_hoe[indel]>=0.12) continue;
+    } else {  // EE cuts
+      if(fabs(el_std_detain[indel])>=0.009) continue;
+      if(fabs(el_std_dphiin[indel])>=0.10) continue;
+      if(el_std_sieie[indel]>=0.03) continue; 
+      if (el_std_hoe[indel]>=0.10) continue;
+    }
+			   
+    
+  
+    
+    if(std::min( pho1.DeltaR(*thisel), pho2.DeltaR(*thisel))<=0.7) continue;
+
+    TLorentzVector elpho1 = *thisel + pho1;
+    if( fabs(elpho1.M() - 91.19) <= 5) continue;
+
+    TLorentzVector elpho2 = *thisel + pho2;
+    if( fabs(elpho2.M() - 91.19) <= 5) continue;
+
+ 
+
+    passingEl++;
+
+  
+
+    myel = indel;
+  }
+
+
+
 //--- RECO-MC JET MATCHING --------------------------------------------------------------------------------------------------------
 void LoopAll::doJetMatching(TClonesArray & reco, TClonesArray & gen, 
           Bool_t  * match_flag, Bool_t * match_vbf_flag,  
