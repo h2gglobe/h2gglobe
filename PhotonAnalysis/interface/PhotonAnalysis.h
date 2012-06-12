@@ -71,6 +71,7 @@ class PhotonAnalysis : public BaseAnalysis
 
     bool reRunCiCForData;
     bool reComputeCiCPF;
+    bool skimOnDiphoN;
 
     float leadEtCut;
     float leadEtVBFCut;
@@ -191,7 +192,8 @@ class PhotonAnalysis : public BaseAnalysis
     bool ClassicCatsNm1Plots(LoopAll& l, int diphoton_nm1_id, float* smeared_pho_energy, float eventweight, float myweight);
     
     // Exclusive tags
-    bool VBFTag2012(LoopAll& l, int diphoton_id, float* smeared_pho_energy=0, bool nm1=false, float eventweight=1, float myweight=1,bool * jetid_flags=0);
+    bool VBFTag2012(int & ijet1, int & ijet2, LoopAll& l, int diphoton_id, 
+		    float* smeared_pho_energy=0, bool nm1=false, float eventweight=1, float myweight=1,bool * jetid_flags=0);
     bool VBFTag2011(LoopAll& l, int diphoton_id, float* smeared_pho_energy=0, bool nm1=false, float eventweight=1, float myweight=1);
     bool VHhadronicTag2011(LoopAll& l, int diphoton_id, float* smeared_pho_energy=0, bool nm1=false, float eventweight=1, float myweight=1);
     bool ElectronTag2011(LoopAll& l, int diphotonVHlep_id, float* smeared_pho_energy=0, bool nm1=false, float eventweight=1, float myweight=1);
@@ -201,8 +203,9 @@ class PhotonAnalysis : public BaseAnalysis
     // Pile-up reweighing
     void loadPuMap(const char * fname, TDirectory * dir, TH1 * target=0);
     void loadPuWeights(int typid, TDirectory * dir, TH1 * target=0);
-    float getPuWeight(int npu, int sample_type, bool warnMe); 
-	
+    float getPuWeight(int npu, int sample_type, SampleContainer* container, bool warnMe); 
+    TH1 * puTargetHist;
+
     std::string name_;
     
     // Vertex analysis

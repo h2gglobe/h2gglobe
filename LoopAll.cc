@@ -136,7 +136,8 @@ SampleContainer & LoopAll::DefineSamples(const char *filesshortnam,
 					 float xsec,
 					 float kfactor,
 					 float scale,
-					 bool addnevents
+					 bool addnevents,
+					 TString pileup
 					 ) {
   
   // set intlumi in LoopAll
@@ -170,7 +171,10 @@ SampleContainer & LoopAll::DefineSamples(const char *filesshortnam,
   sampleContainer.back().kfactor = kfactor;
   sampleContainer.back().scale = scale;
   sampleContainer.back().computeWeight(intlumi);
-
+  if( pileup != "" ) { 
+	  sampleContainer.back().pileup = pileup;
+  }
+  
   return sampleContainer.back();
 }
 

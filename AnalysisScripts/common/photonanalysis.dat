@@ -24,9 +24,9 @@ presel_maxeta=2.5
 
 applyPtoverM=1
 doTriggerSelection=0
-puHist=aux/2012_weights.root
-puMap=pu_weights_map.dat
-puTarget=aux/nov08_rereco.json.68000.pileup.root
+puHist=auto
+puMap=
+puTarget=aux/2012_weights.root
 
 energyCorrectionMethod=Bendavid
 doEcorrectionSmear=1

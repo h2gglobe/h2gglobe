@@ -49,7 +49,7 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
 
     //  std::string outputfilename = (std::string) l.histFileName;
     eventListText.open(Form("%s",l.outputTextFileName.c_str()));
-    FillSignalLabelMap();
+    FillSignalLabelMap(l);
     //
     // These parameters are set in the configuration file
     std::cout
@@ -537,7 +537,7 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
     */
 
     // Make sure the Map is filled
-    FillSignalLabelMap();
+    FillSignalLabelMap(l);
 
     // Initialize all MVA ---------------------------------------------------//
     l.SetAllMVA();
@@ -790,6 +790,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
             
         // Exclusive Modes
         int diphotonVBF_id = -1;
+	int ijet1, ijet2;
         VBFevent = false;
         
         // VBF
@@ -805,7 +806,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
             
 	    VBFevent= ( dataIs2011 ? 
 			VBFTag2011(l, diphotonVBF_id, &smeared_pho_energy[0], true, eventweight, myweight) :
-			VBFTag2012(l, diphotonVBF_id, &smeared_pho_energy[0], true, eventweight, myweight) )
+			VBFTag2012(ijet1, ijet2, l, diphotonVBF_id, &smeared_pho_energy[0], true, eventweight, myweight) )
 		    ;
         }
         

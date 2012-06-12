@@ -27,9 +27,9 @@ doKFactorSyst=0
 kfacHist=
 ## For 7TeV samples
 ## kfacHist=aux/KFactors_AllScales_interpolated.root
-puMap=pu_weights_map.dat
-puHist=aux/2012_weights.root
-puTarget=
+puMap=
+puHist=auto
+puTarget=aux/2012_weights.root
 
 ## energy scale adjustement and errors
 scale_offset_file=energy_scale_offsets.dat

@@ -20,6 +20,7 @@ SampleContainer::SampleContainer() {
   lumireal = 1;
   hasLumiSelection = false;
   hasEventList = false;
+  pileup = "";
 }
 
 void SampleContainer::computeWeight(float intL) {

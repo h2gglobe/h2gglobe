@@ -40,7 +40,8 @@ class SampleContainer {
   bool hasLumiSelection, hasEventList;
   std::map<int, std::vector<std::pair<int,int> > > goodLumis;
   std::map<int, std::vector<std::pair<int,int> > > eventList;
-
+  
+  std::string pileup;
   
  private:
 

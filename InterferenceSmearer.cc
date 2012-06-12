@@ -34,8 +34,9 @@ bool InterferenceSmearer::smearEvent( float & weight, const TLorentzVector & p4,
   else if (sample_type == -61) genMassPoint=150;  // FIXME  this is mass=155; remapped into 150: no kfactors currently available for 155;
   else if (sample_type == -65) genMassPoint=150;  // FIXME  this is mass=160; remapped into 150: no kfactors currently available for 160;
   else if (sample_type == -69) genMassPoint=105;  // FIXME  this is mass=100; remapped into 105: no kfactors currently available for 100;
-
-  else if (sample_type <=-62) assert(0);   // this is the case of non-existing sample
+  else if (sample_type == -73) genMassPoint=124;
+  
+  else if (sample_type <=-76) assert(0);   // this is the case of non-existing sample
   else    return true;                     // this is the case of backgrounds
 
   weight = 1.-(correction_+syst_shift*error_);

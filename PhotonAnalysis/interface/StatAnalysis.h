@@ -43,7 +43,7 @@ class StatAnalysis : public PhotonAnalysis
 
     double GetDifferentialKfactor(double, int);
 
-    void FillSignalLabelMap();
+    void FillSignalLabelMap(LoopAll &l);
     std::string GetSignalLabel(int) ;
 
     bool  doEscaleSyst, doEresolSyst, doPhotonIdEffSyst, doVtxEffSyst, doR9Syst, doTriggerEffSyst, doKFactorSyst;
@@ -56,8 +56,9 @@ class StatAnalysis : public PhotonAnalysis
     float massMin, massMax;
     int nDataBins;  
     bool dataIs2011;
-    bool scaleR9Only;
+    bool scaleClusterShapes, scaleR9Only;
     bool reRunVtx;
+    bool dumpAscii;
     float phoidMvaCut;
     std::vector<double> zeePtBinLowEdge, zeePtWeight;
 

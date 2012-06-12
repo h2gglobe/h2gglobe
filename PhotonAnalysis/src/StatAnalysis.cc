@@ -9,7 +9,9 @@
 
 using namespace std;
 
-void dumpPhoton(std::ostream & eventListText,LoopAll & l, int ipho, int ivtx, TLorentzVector & phop4, float * pho_energy_array);
+void dumpPhoton(std::ostream & eventListText, int lab, 
+		LoopAll & l, int ipho, int ivtx, TLorentzVector & phop4, float * pho_energy_array);
+void dumpJet(std::ostream & eventListText, int lab, LoopAll & l, int ijet);
 
 // ----------------------------------------------------------------------------------------------------
 StatAnalysis::StatAnalysis()  : 
@@ -22,6 +24,8 @@ StatAnalysis::StatAnalysis()  :
     dataIs2011 = false;
     reRunVtx = false;
     nVBFDijetJetCategories=2;
+    scaleClusterShapes = true;
+    dumpAscii = false;
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -67,7 +71,7 @@ void StatAnalysis::Init(LoopAll& l)
     std::string outputfilename = (std::string) l.histFileName;
     eventListText.open(Form("%s",l.outputTextFileName.c_str()));
     //eventListText.open(Form("%s_ascii_events.txt",outputfilename.c_str()));
-    FillSignalLabelMap();
+    FillSignalLabelMap(l);
     //
     // These parameters are set in the configuration file
     std::cout
@@ -514,6 +518,21 @@ void StatAnalysis::Init(LoopAll& l)
     l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_wzh_mass_m123_wv",nDataBins);    
     l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_tth_mass_m123_wv",nDataBins);    
 
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_ggh_mass_m124",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_vbf_mass_m124",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_wzh_mass_m124",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_tth_mass_m124",nDataBins);   
+ 
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_ggh_mass_m124_rv",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_vbf_mass_m124_rv",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_wzh_mass_m124_rv",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_tth_mass_m124_rv",nDataBins);    
+                                                                      
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_ggh_mass_m124_wv",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_vbf_mass_m124_wv",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_wzh_mass_m124_wv",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_tth_mass_m124_wv",nDataBins);    
+
     // Make more datasets representing Systematic Shifts of various quantities
 
     for (int sig=105;sig<=150;sig+=5){
@@ -534,8 +553,13 @@ void StatAnalysis::Init(LoopAll& l)
     l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_vbf_mass_m123",-1); 
     l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_wzh_mass_m123",-1); 
     l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_tth_mass_m123",-1); 
+    
+    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_ggh_mass_m124",-1); 
+    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_vbf_mass_m124",-1); 
+    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_wzh_mass_m124",-1); 
+    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_tth_mass_m124",-1);
     // Make sure the Map is filled
-    FillSignalLabelMap();
+    FillSignalLabelMap(l);
 
     if(PADEBUG) 
         cout << "InitRealStatAnalysis END"<<endl;
@@ -572,7 +596,7 @@ bool StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     nevents+=1.;
 
     //PU reweighting
-    double pileupWeight=getPuWeight( l.pu_n, cur_type, jentry == 1);
+    double pileupWeight=getPuWeight( l.pu_n, cur_type, &(l.sampleContainer[l.current_sample_index]), jentry == 1);
     sumwei +=pileupWeight;
     weight *= pileupWeight;
     sumev  += weight;
@@ -605,7 +629,7 @@ bool StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     }
 
     // Data driven MC corrections to cluster shape variables and energy resolution estimate
-    if (cur_type !=0){
+    if (cur_type !=0 && scaleClusterShapes ){
         rescaleClusterVariables(l);
     }
     if( reRunVtx ) {
@@ -723,6 +747,7 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
     /// diphoton_id = -1;
     
     std::pair<int,int> diphoton_index;
+    int ijet1=0, ijet2=0;
    
     // do gen-level dependent first (e.g. k-factor); only for signal
     genLevWeight=1.;
@@ -797,7 +822,7 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 		
 		VBFevent= ( dataIs2011 ? 
 			    VBFTag2011(l, diphotonVBF_id, &smeared_pho_energy[0], true, eventweight, myweight) :
-			    VBFTag2012(l, diphotonVBF_id, &smeared_pho_energy[0], true, eventweight, myweight) )
+			    VBFTag2012(ijet1, ijet2, l, diphotonVBF_id, &smeared_pho_energy[0], true, eventweight, myweight) )
 		    ;
 	    }
 	    if(includeVHhad) {
@@ -866,20 +891,39 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 	// see if the event falls into an exclusive category
 	computeExclusiveCategory(l, category, diphoton_index, Higgs.Pt() );
   
-        if (!isSyst && (cur_type==0||PADEBUG) && mass>=massMin && mass<=massMax ) {
-            ////////// eventListText << "Type = "<< cur_type <<  " Run = " << l.run << "  LS = " << l.lumis << "  Event = " <<  l.event << "  ggM = " << mass 
-	    ////////// 		  <<  " CAT " << category << " Vertex = " <<  l.dipho_vtxind[diphoton_id];
-            ////////// eventListText << endl;
-	    
-	    eventListText << l.run << "\t" << l.event << "\t" << l.lumis << "\t" << l.rho_algo1 << "\t" 
-			  << lead_p4.Pt() << "\t" 
-			  << ((TVector3*)l.sc_xyz->At(l.pho_scind[l.dipho_leadind[diphoton_id]]))->Eta() << "\t" 
-			  << sublead_p4.Pt() << "\t" 
-			  << ((TVector3*)l.sc_xyz->At(l.pho_scind[l.dipho_subleadind[diphoton_id]]))->Eta()
-		;
+        if (dumpAscii && !isSyst && (cur_type==0||PADEBUG) && mass>=massMin && mass<=massMax ) {
 
-	    dumpPhoton(eventListText,l,l.dipho_leadind[diphoton_id],l.dipho_vtxind[diphoton_id],lead_p4,&smeared_pho_energy[0]);
-	    dumpPhoton(eventListText,l,l.dipho_subleadind[diphoton_id],l.dipho_vtxind[diphoton_id],sublead_p4,&smeared_pho_energy[0]);
+	    eventListText << "run:" << l.run 
+			  << "\tlumi:" << l.lumis 
+			  << "\tevent:" << l.event 
+			  << "\trho:" << l.rho_algo1 
+			  << "\tenergy1:" << lead_p4.Energy() 
+			  << "\tenergy2:" << sublead_p4.Energy()
+			  << "\tscEta1:" << ((TVector3*)l.sc_xyz->At(l.pho_scind[l.dipho_leadind[diphoton_id]]))->Eta()
+			  << "\tscEta2:" << ((TVector3*)l.sc_xyz->At(l.pho_scind[l.dipho_subleadind[diphoton_id]]))->Eta()
+			  << "\tr91:" << l.pho_r9[l.dipho_leadind[diphoton_id]]
+			  << "\tr92:" << l.pho_r9[l.dipho_subleadind[diphoton_id]]
+		;
+	    vtxAna_.setPairID(diphoton_id);
+	    std::vector<int> & vtxlist = l.vtx_std_ranked_list->at(diphoton_id);
+	    for(size_t ii=0; ii<3; ++ii ) {
+		eventListText << "\tvertexId"<< ii+1 <<":" << (ii < vtxlist.size() ? vtxlist[ii] : -1);
+	    }
+	    for(size_t ii=0; ii<3; ++ii ) {
+		eventListText << "\tvertexMva"<< ii+1 <<":" << (ii < vtxlist.size() ? vtxAna_.mva(ii) : -2.);
+	    }
+	    dumpPhoton(eventListText,1,l,l.dipho_leadind[diphoton_id],l.dipho_vtxind[diphoton_id],lead_p4,&smeared_pho_energy[0]);
+	    dumpPhoton(eventListText,2,l,l.dipho_subleadind[diphoton_id],l.dipho_vtxind[diphoton_id],sublead_p4,&smeared_pho_energy[0]);
+	    if( VBFevent ) {
+		eventListText << "\tnvtx:" << l.vtx_std_n 
+			      << "\tjetPt1:"  << ( (TLorentzVector*)l.jet_algoPF1_p4->At(ijet1) )->Pt()
+			      << "\tjetPt2:"  << ( (TLorentzVector*)l.jet_algoPF1_p4->At(ijet2) )->Pt()
+			      << "\tjetEta1:" << ( (TLorentzVector*)l.jet_algoPF1_p4->At(ijet1) )->Eta()
+			      << "\tjetEta2:" << ( (TLorentzVector*)l.jet_algoPF1_p4->At(ijet2) )->Eta()
+		    ;
+		dumpJet(eventListText,1,l,ijet1);
+		dumpJet(eventListText,2,l,ijet2);
+	    }
 	    eventListText << std::endl;
         }
 	
@@ -1049,69 +1093,76 @@ double StatAnalysis::GetDifferentialKfactor(double gPT, int Mass)
     return 1.0;
 }
 
-void StatAnalysis::FillSignalLabelMap()
+void StatAnalysis::FillSignalLabelMap(LoopAll & l)
 {
-    // Basically A Map of the ID (type) to the signal's name which can be filled Now:
-    signalLabels[-57]="ggh_mass_m123";
-    signalLabels[-58]="vbf_mass_m123";
-    signalLabels[-60]="wzh_mass_m123";
-    signalLabels[-59]="tth_mass_m123";
-    signalLabels[-53]="ggh_mass_m121";
-    signalLabels[-54]="vbf_mass_m121";
-    signalLabels[-56]="wzh_mass_m121";
-    signalLabels[-55]="tth_mass_m121";
-    signalLabels[-65]="ggh_mass_m160";
-    signalLabels[-66]="vbf_mass_m160";
-    signalLabels[-68]="wzh_mass_m160";
-    signalLabels[-67]="tth_mass_m160";
-    signalLabels[-61]="ggh_mass_m155";
-    signalLabels[-62]="vbf_mass_m155";
-    signalLabels[-64]="wzh_mass_m155";
-    signalLabels[-63]="tth_mass_m155";
-    signalLabels[-49]="ggh_mass_m150";
-    signalLabels[-50]="vbf_mass_m150";
-    signalLabels[-52]="wzh_mass_m150";
-    signalLabels[-51]="tth_mass_m150";
-    signalLabels[-45]="ggh_mass_m145";
-    signalLabels[-46]="vbf_mass_m145";
-    signalLabels[-48]="wzh_mass_m145";
-    signalLabels[-47]="tth_mass_m145";
-    signalLabels[-33]="ggh_mass_m140";
-    signalLabels[-34]="vbf_mass_m140";
-    signalLabels[-36]="wzh_mass_m140";
-    signalLabels[-35]="tth_mass_m140";
-    signalLabels[-41]="ggh_mass_m135";
-    signalLabels[-42]="vbf_mass_m135";
-    signalLabels[-44]="wzh_mass_m135";
-    signalLabels[-43]="tth_mass_m135";
-    signalLabels[-29]="ggh_mass_m130";
-    signalLabels[-30]="vbf_mass_m130";
-    signalLabels[-32]="wzh_mass_m130";
-    signalLabels[-31]="tth_mass_m130";
-    signalLabels[-37]="ggh_mass_m125";
-    signalLabels[-38]="vbf_mass_m125";
-    signalLabels[-40]="wzh_mass_m125";
-    signalLabels[-39]="tth_mass_m125";
-    signalLabels[-25]="ggh_mass_m120";
-    signalLabels[-26]="vbf_mass_m120";
-    signalLabels[-28]="wzh_mass_m120";
-    signalLabels[-27]="tth_mass_m120";
-    signalLabels[-21]="ggh_mass_m115";
-    signalLabels[-22]="vbf_mass_m115";
-    signalLabels[-24]="wzh_mass_m115";
-    signalLabels[-23]="tth_mass_m115";
-    signalLabels[-17]="ggh_mass_m110";
-    signalLabels[-18]="vbf_mass_m110";
-    signalLabels[-19]="wzh_mass_m110";
-    signalLabels[-20]="tth_mass_m110";
-    signalLabels[-13]="ggh_mass_m105";
-    signalLabels[-14]="vbf_mass_m105";
-    signalLabels[-16]="wzh_mass_m105";
-    signalLabels[-15]="tth_mass_m105";
-    signalLabels[-69]="ggh_mass_m100";
-    signalLabels[-70]="vbf_mass_m100";
-    signalLabels[-72]="wzh_mass_m100";
-    signalLabels[-71]="tth_mass_m100";
+    std::map<int,std::pair<TString,double > > & signalMap = l.signalNormalizer->SignalType();
+    
+    for( std::map<int,std::pair<TString,double > >::iterator it=signalMap.begin();
+	 it!=signalMap.end(); ++it ) {
+	signalLabels[it->first] = it->second.first+Form("_mass_m%1.0f", it->second.second);
+    }
+    
+    /////////// // Basically A Map of the ID (type) to the signal's name which can be filled Now:
+    /////////// signalLabels[-57]="ggh_mass_m123";
+    /////////// signalLabels[-58]="vbf_mass_m123";
+    /////////// signalLabels[-60]="wzh_mass_m123";
+    /////////// signalLabels[-59]="tth_mass_m123";
+    /////////// signalLabels[-53]="ggh_mass_m121";
+    /////////// signalLabels[-54]="vbf_mass_m121";
+    /////////// signalLabels[-56]="wzh_mass_m121";
+    /////////// signalLabels[-55]="tth_mass_m121";
+    /////////// signalLabels[-65]="ggh_mass_m160";
+    /////////// signalLabels[-66]="vbf_mass_m160";
+    /////////// signalLabels[-68]="wzh_mass_m160";
+    /////////// signalLabels[-67]="tth_mass_m160";
+    /////////// signalLabels[-61]="ggh_mass_m155";
+    /////////// signalLabels[-62]="vbf_mass_m155";
+    /////////// signalLabels[-64]="wzh_mass_m155";
+    /////////// signalLabels[-63]="tth_mass_m155";
+    /////////// signalLabels[-49]="ggh_mass_m150";
+    /////////// signalLabels[-50]="vbf_mass_m150";
+    /////////// signalLabels[-52]="wzh_mass_m150";
+    /////////// signalLabels[-51]="tth_mass_m150";
+    /////////// signalLabels[-45]="ggh_mass_m145";
+    /////////// signalLabels[-46]="vbf_mass_m145";
+    /////////// signalLabels[-48]="wzh_mass_m145";
+    /////////// signalLabels[-47]="tth_mass_m145";
+    /////////// signalLabels[-33]="ggh_mass_m140";
+    /////////// signalLabels[-34]="vbf_mass_m140";
+    /////////// signalLabels[-36]="wzh_mass_m140";
+    /////////// signalLabels[-35]="tth_mass_m140";
+    /////////// signalLabels[-41]="ggh_mass_m135";
+    /////////// signalLabels[-42]="vbf_mass_m135";
+    /////////// signalLabels[-44]="wzh_mass_m135";
+    /////////// signalLabels[-43]="tth_mass_m135";
+    /////////// signalLabels[-29]="ggh_mass_m130";
+    /////////// signalLabels[-30]="vbf_mass_m130";
+    /////////// signalLabels[-32]="wzh_mass_m130";
+    /////////// signalLabels[-31]="tth_mass_m130";
+    /////////// signalLabels[-37]="ggh_mass_m125";
+    /////////// signalLabels[-38]="vbf_mass_m125";
+    /////////// signalLabels[-40]="wzh_mass_m125";
+    /////////// signalLabels[-39]="tth_mass_m125";
+    /////////// signalLabels[-25]="ggh_mass_m120";
+    /////////// signalLabels[-26]="vbf_mass_m120";
+    /////////// signalLabels[-28]="wzh_mass_m120";
+    /////////// signalLabels[-27]="tth_mass_m120";
+    /////////// signalLabels[-21]="ggh_mass_m115";
+    /////////// signalLabels[-22]="vbf_mass_m115";
+    /////////// signalLabels[-24]="wzh_mass_m115";
+    /////////// signalLabels[-23]="tth_mass_m115";
+    /////////// signalLabels[-17]="ggh_mass_m110";
+    /////////// signalLabels[-18]="vbf_mass_m110";
+    /////////// signalLabels[-19]="wzh_mass_m110";
+    /////////// signalLabels[-20]="tth_mass_m110";
+    /////////// signalLabels[-13]="ggh_mass_m105";
+    /////////// signalLabels[-14]="vbf_mass_m105";
+    /////////// signalLabels[-16]="wzh_mass_m105";
+    /////////// signalLabels[-15]="tth_mass_m105";
+    /////////// signalLabels[-69]="ggh_mass_m100";
+    /////////// signalLabels[-70]="vbf_mass_m100";
+    /////////// signalLabels[-72]="wzh_mass_m100";
+    /////////// signalLabels[-71]="tth_mass_m100";
 }
 
 std::string StatAnalysis::GetSignalLabel(int id){
@@ -1184,10 +1235,22 @@ void StatAnalysis::rescaleClusterVariables(LoopAll &l){
 
 void StatAnalysis::ResetAnalysis(){
     // Reset Random Variable on the EnergyResolution Smearer
-    eResolSmearer->resetRandom();
+    if( doEresolSmear ) {
+	eResolSmearer->resetRandom();
+    }
 }
 
-void dumpPhoton(std::ostream & eventListText,LoopAll & l, int ipho, int ivtx, TLorentzVector & phop4, float * pho_energy_array)
+void dumpJet(std::ostream & eventListText, int lab, LoopAll & l, int ijet)
+{
+    eventListText << std::setprecision(4) << std::scientific
+		  << "\tjec"      << lab << ":" << l.jet_algoPF1_erescale[ijet]
+		  << "\tbetaStar" << lab << ":" << l.jet_algoPF1_betaStarClassic[ijet]
+		  << "\tRMS"      << lab << ":" << l.jet_algoPF1_dRMean[ijet]
+	;
+}
+
+void dumpPhoton(std::ostream & eventListText, int lab, 
+		LoopAll & l, int ipho, int ivtx, TLorentzVector & phop4, float * pho_energy_array)
 {
     float val_tkisobad = -99;
     for(int iv=0; iv < l.vtx_std_n; iv++) {
@@ -1212,16 +1275,12 @@ void dumpPhoton(std::ostream & eventListText,LoopAll & l, int ipho, int ivtx, TL
     
     // tracker isolation cone energy divided by Et
     float val_trkisooet    = (val_tkiso) * 50. / phop4.Pt();
-    
+
     eventListText << std::setprecision(4) << std::scientific
-		  << "\t" << val_isosumoet << "\t" << val_isosumoetbad << "\t" << val_trkisooet 
-		  << "\t" << val_sieie
-		  << "\t" << val_hoe
-		  << "\t" << val_r9 
-		  << "\t" << val_tkiso
-		  << "\t" << val_ecaliso 
-		  << "\t" << val_tkisobad
-		  << "\t" << val_ecalisobad 
+		  << "\tchIso03" << lab << ":" << val_tkiso
+		  << "\tphoIso03" << lab << ":" << val_ecaliso 
+		  << "\tchIso04" << lab << ":" << val_tkisobad
+		  << "\tphoIso04" << lab << ":" << val_ecalisobad 
 	;
 }
 

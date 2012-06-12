@@ -46,7 +46,7 @@ void CategoryAnalysis::Init(LoopAll& l)
 
     //  std::string outputfilename = (std::string) l.histFileName;
     eventListText.open(Form("%s",l.outputTextFileName.c_str()));
-    FillSignalLabelMap();
+    FillSignalLabelMap(l);
     //
     // These parameters are set in the configuration file
     std::cout
@@ -178,7 +178,7 @@ void CategoryAnalysis::Init(LoopAll& l)
     }
 
     // Make sure the Map is filled
-    FillSignalLabelMap();
+    FillSignalLabelMap(l);
 
     // Initialize all MVA ---------------------------------------------------//
     l.SetAllMVA();

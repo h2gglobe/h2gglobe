@@ -191,7 +191,7 @@ class configProducer:
     self.add_files()
     self.ut_.SetTypeRun(self.type_,self.conf_.histfile)
     for dum in self.conf_.confs:
-      dataContainer = self.ut_.DefineSamples(dum['Nam'],dum['typ'],dum['ind'],dum['draw'],dum['red'],dum['tot'],dum['intL'],dum['lum'],dum['xsec'],dum['kfac'],dum['scal'],dum['addnevents'])
+      dataContainer = self.ut_.DefineSamples(dum['Nam'],dum['typ'],dum['ind'],dum['draw'],dum['red'],dum['tot'],dum['intL'],dum['lum'],dum['xsec'],dum['kfac'],dum['scal'],dum['addnevents'],dum["pileup"])
       if("json" in dum and dum["json"] != ""):
         defineJsonFilter(dum["json"], dataContainer)
       if("evlist" in dum and dum["evlist"] != ""):
@@ -627,7 +627,7 @@ class configProducer:
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def read_input_files_loop(self,line):
     print "read_input_files_loop"
-    map_c = {"typ":99999,"Nam":"default","draw":-999,"ind":-999,"tot":0,"red":-999,"lum":1.0,"xsec":1.0,"kfac":1.0,"scal":1.0,"json":"","evlist":""}
+    map_c = {"typ":99999,"Nam":"default","draw":-999,"ind":-999,"tot":0,"red":-999,"lum":1.0,"xsec":1.0,"kfac":1.0,"scal":1.0,"json":"","evlist":"","pileup":""}
     #map_c["tot"]=-1
     map_c["addnevents"]=0
     directory = ''
@@ -705,6 +705,10 @@ class configProducer:
       files = mkFiles(dir,self.njobs_,self.jobId_,self.nf_)
       if fi_type!=0 and fi_type!=-99999 and map_c["tot"] == 0:
           allfiles = mkFiles(dir,-1,-1)
+          if map_c["pileup"] == "":
+              map_c["pileup"] = "%s.pileup.root" % dir
+              if( dir.startswith("/store") ):
+                  map_c["pileup"] = 'root://eoscms//eos/cms'+map_c["pileup"]
           for file_s in allfiles:
 	      if self.sample_weights_file_==0 :
 	        print "Calculating N Processed Events for - ", file_s[0]

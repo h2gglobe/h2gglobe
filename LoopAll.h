@@ -94,10 +94,10 @@ class LoopAll {
   /** adds a new entry to sampleContainer and returns a reference
       to this entry. */
   SampleContainer & DefineSamples(const char *filesshortnam,
-                            int type, int histtoindfromfiles, int histoplotit,
-                            int nred, long long ntot, float intlumi,
-                            float lumi, float xsec, float kfactor,
-			    float scale, bool addnevents=false);
+				  int type, int histtoindfromfiles, int histoplotit,
+				  int nred, long long ntot, float intlumi,
+				  float lumi, float xsec, float kfactor,
+				  float scale, bool addnevents=false, TString pileup="");
 
   void Term(); 
 

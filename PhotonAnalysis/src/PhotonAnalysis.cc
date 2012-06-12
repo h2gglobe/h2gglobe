@@ -46,6 +46,7 @@ PhotonAnalysis::PhotonAnalysis()  :
     jetHandler_ = 0;
 
     reComputeCiCPF = false;
+    skimOnDiphoN = true;
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -143,53 +144,63 @@ void PhotonAnalysis::loadPuMap(const char * fname, TDirectory * dir, TH1 * targe
 // ----------------------------------------------------------------------------------------------------
 void PhotonAnalysis::loadPuWeights(int typid, TDirectory * puFile, TH1 * target)
 {
-    cout<<"Reweighting events for pileup."<<endl;
-    // 2011 PU weights file:
-    // TH1 * hweigh = (TH1*) puFile->Get("weights");
-    // 2012 PU weights file:
-    TH1 * hweigh = (TH1*) puFile->Get("pileup_weights");
+    cout<<"Loading pileup weights for typid " << typid <<endl;
 
+    TH1 * hweigh = (TH1*) puFile->Get("pileup_weights");
     if( hweigh == 0 ) {
-        hweigh = (TH1*) puFile->Get("NPUWeights");
+	if( PADEBUG ) std::cout << "pileup_weights not found: trying weights " << endl;
+	hweigh = (TH1*) puFile->Get("weights");
     }
-    if( hweigh != 0 ) { 
-        cout<< " This is a pre-processed pileup reweighing file." <<endl;
-        // 2011 PU file:
-        // TH1 * gen_pu = (TH1*)puFile->Get("generated_pu");
-        // 2012 PU file:
-        TH1 * gen_pu = (TH1*)puFile->Get("pileup");
-        if( gen_pu == 0 ) {
-            gen_pu = (TH1*)puFile->Get("NPUSource");
-        }
-	if( target != 0 ) {
-	    hweigh->Reset("ICE");
-	    for( int ii=1; ii<hweigh->GetNbinsX(); ++ii ) {
-		hweigh->SetBinContent( ii, target->GetBinContent( target->FindBin( hweigh->GetBinCenter(ii) ) ) );
-	    }
-	    hweigh->Divide(hweigh, gen_pu, 1., 1./gen_pu->Integral() );
-	} else { 
-	    // Normalize weights such that the total cross section is unchanged
-	    TH1 * eff = (TH1*)hweigh->Clone("eff");
-	    eff->Multiply(gen_pu);
-	    hweigh->Scale( gen_pu->Integral() / eff->Integral()  );
-	    delete eff;
+    TH1 * gen_pu = (TH1*)puFile->Get("pileup");
+    if( gen_pu == 0 ) {
+	if( PADEBUG ) std::cout << "pileup not found: trying generated_pu " << endl;
+	gen_pu = (TH1*)puFile->Get("generated_pu");
+    }
+    
+    assert( gen_pu != 0 );
+    bool delHwei = false;
+    if( target != 0 ) {
+	// compute weights on the fly based on the target pileup scenario
+	if( hweigh == 0 ) { 
+	    hweigh = (TH1*)gen_pu->Clone(); 
+	    delHwei = true;
 	}
-        weights[typid].clear();
-        for( int ii=1; ii<hweigh->GetNbinsX(); ++ii ) {
-            weights[typid].push_back(hweigh->GetBinContent(ii)); 
-        }
-    } 
+	hweigh->Reset("ICE");
+	for( int ii=1; ii<hweigh->GetNbinsX(); ++ii ) {
+	    hweigh->SetBinContent( ii, target->GetBinContent( target->FindBin( hweigh->GetBinCenter(ii) ) ) );
+	}
+	hweigh->Divide(hweigh, gen_pu, 1., 1./gen_pu->Integral() );
+    } else { 
+	// Normalize weights such that the total cross section is unchanged
+	TH1 * eff = (TH1*)hweigh->Clone("eff");
+	eff->Multiply(gen_pu);
+	hweigh->Scale( gen_pu->Integral() / eff->Integral()  );
+	delete eff;
+    }
+    weights[typid].clear();
+    for( int ii=1; ii<hweigh->GetNbinsX(); ++ii ) {
+	weights[typid].push_back(hweigh->GetBinContent(ii)); 
+    }
+
     std::cout << "pile-up weights: ["<<typid<<"]";
     std::copy(weights[typid].begin(), weights[typid].end(), std::ostream_iterator<double>(std::cout,","));
     std::cout << std::endl;
+    
+    if( delHwei ) { delete hweigh; }
 }
 
 // ----------------------------------------------------------------------------------------------------
-float PhotonAnalysis::getPuWeight(int n_pu, int sample_type, bool warnMe)
+float PhotonAnalysis::getPuWeight(int n_pu, int sample_type, SampleContainer* container, bool warnMe)
 {
     if ( sample_type !=0 && puHist != "") {
         bool hasSpecificWeight = weights.find( sample_type ) != weights.end() ; 
-        if( sample_type < 0 && !hasSpecificWeight && warnMe ) {
+	if( ! hasSpecificWeight && container != 0 && container->pileup != 0 ) {
+	    std::cout << "On-the fly pileup reweighing typeid " << sample_type << " " << container->pileup << std::endl;
+	    TFile * samplePu = TFile::Open(container->pileup.c_str());
+	    loadPuWeights(sample_type, samplePu, puTargetHist);
+	    samplePu->Close();
+	    hasSpecificWeight = true;
+	} else if( sample_type < 0 && !hasSpecificWeight && warnMe ) {
             std::cerr  << "WARNING no pu weights specific for sample " << sample_type << std::endl;
         }
         std::vector<double> & puweights = hasSpecificWeight ? weights[ sample_type ] : weights[0]; 
@@ -795,7 +806,7 @@ void PhotonAnalysis::Init(LoopAll& l)
        Pileup Reweighting
        https://twiki.cern.ch/twiki/bin/viewauth/CMS/PileupReweighting
        ----------------------------------------------------------------------------------------------  */
-    if (puHist != "") {
+    if (puHist != "" && puHist != "auto" ) {
         if(PADEBUG) 
             cout << "Opening PU file"<<endl;
         TFile* puFile = TFile::Open( puHist );
@@ -806,6 +817,7 @@ void PhotonAnalysis::Init(LoopAll& l)
 		TFile * puTargetFile = TFile::Open( puTarget ); 
 		assert( puTargetFile != 0 );
 		target = (TH1*)puTargetFile->Get("pileup");
+		if( target == 0 ) { target = (TH1*)puTargetFile->Get("target_pileup"); }
 		target->Scale( 1. / target->Integral() );
 	    }
 	    
@@ -823,7 +835,16 @@ void PhotonAnalysis::Init(LoopAll& l)
         }
         if(PADEBUG) 
             cout << "Opening PU file END"<<endl;
-    } 
+    } else if ( puHist == "auto" ) {
+	TFile * puTargetFile = TFile::Open( puTarget ); 
+	assert( puTargetFile != 0 );
+	puTargetHist = (TH1*)puTargetFile->Get("pileup");
+	if( puTargetHist == 0 ) { puTargetHist = (TH1*)puTargetFile->Get("target_pileup"); }
+	puTargetHist = (TH1*)puTargetHist->Clone();
+	puTargetHist->SetDirectory(0);
+	puTargetHist->Scale( 1. / puTargetHist->Integral() );
+	puTargetFile->Close();
+    }
 
     if( recomputeBetas || recorrectJets || rerunJetMva || recomputeJetWp ) {
 	std::cout << "JetHandler: \n" 
@@ -1417,6 +1438,13 @@ bool PhotonAnalysis::SkimEvents(LoopAll& l, int jentry)
     l.b_pho_n->GetEntry(jentry);
     if( l.pho_n < 2 ) {
         return false;
+    }
+    
+    if( skimOnDiphoN && l.typerun == l.kFill ) {
+	l.b_dipho_n->GetEntry(jentry);
+	if( l.dipho_n < 1 ) {
+	    return false;
+	}
     }
 
     // do not run trigger selection on MC
@@ -2059,8 +2087,9 @@ bool PhotonAnalysis::VBFTag2011(LoopAll& l, int diphoton_id, float* smeared_pho_
     return tag;
 }
 
-bool PhotonAnalysis::VBFTag2012(LoopAll& l, int diphoton_id, float* smeared_pho_energy, bool nm1, float eventweight, 
-				float myweight, bool * jetid_flags) 
+bool PhotonAnalysis::VBFTag2012(int & ijet1, int & ijet2, 
+				LoopAll& l, int diphoton_id, float* smeared_pho_energy, bool nm1, float eventweight, 
+				float myweight, bool * jetid_flags)
 {
     static std::vector<unsigned char> id_flags;
     bool tag = false;
@@ -2085,7 +2114,8 @@ bool PhotonAnalysis::VBFTag2012(LoopAll& l, int diphoton_id, float* smeared_pho_
     if(jets.first==-1 || jets.second==-1) return tag;
     
     TLorentzVector diphoton = lead_p4+sublead_p4;
-  
+    
+    ijet1 = jets.first; ijet2 = jets.second;
     TLorentzVector* jet1 = (TLorentzVector*)l.jet_algoPF1_p4->At(jets.first);
     TLorentzVector* jet2 = (TLorentzVector*)l.jet_algoPF1_p4->At(jets.second);
     TLorentzVector dijet = (*jet1) + (*jet2);

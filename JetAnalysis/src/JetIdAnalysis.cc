@@ -278,7 +278,9 @@ bool JetIdAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorent
 	    
 	    /// Test effect of different jet IDs on the event selection
 	    for(int ijetid=jetids.size()-1; ijetid>=0;--ijetid) {
-		VBFevent=VBFTag2012(l, diphotonVBF_id, &smeared_pho_energy[0], true, eventweight, myweight,(bool*)&(jetids[ijetid][0]));
+		int ijet1, ijet2;
+		VBFevent=VBFTag2012(ijet1, ijet2, 
+				    l, diphotonVBF_id, &smeared_pho_energy[0], true, eventweight, myweight,(bool*)&(jetids[ijetid][0]));
 		if( VBFevent ) {
 		    diphoton_id = diphotonVBF_id;
 		    l.FillHist2D("dijet_count_vs_nvtx",ijetid,l.vtx_std_n,1.,eventweight);
