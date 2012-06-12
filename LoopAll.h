@@ -1076,6 +1076,8 @@ std::pair<int, int> Select2HighestPtJets(TLorentzVector& leadpho, TLorentzVector
 int RescaleJetEnergy(bool force=false);
 int MuonSelection(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind);
 int ElectronSelection(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind);
+int MuonSelection2012(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind);
+int ElectronSelection2012(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind);
 
 //forMET
 double ErrEt( double Et, double Eta);
