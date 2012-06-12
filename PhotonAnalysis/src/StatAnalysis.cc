@@ -26,6 +26,7 @@ StatAnalysis::StatAnalysis()  :
     nVBFDijetJetCategories=2;
     scaleClusterShapes = true;
     dumpAscii = false;
+    dumpMcAscii = false;
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -891,7 +892,7 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 	// see if the event falls into an exclusive category
 	computeExclusiveCategory(l, category, diphoton_index, Higgs.Pt() );
   
-        if (dumpAscii && !isSyst && (cur_type==0||PADEBUG) && mass>=massMin && mass<=massMax ) {
+        if (dumpAscii && !isSyst && (cur_type==0||dumpMcAscii) && mass>=massMin && mass<=massMax ) {
 
 	    eventListText << "run:" << l.run 
 			  << "\tlumi:" << l.lumis 

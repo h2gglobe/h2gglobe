@@ -58,7 +58,7 @@ class StatAnalysis : public PhotonAnalysis
     bool dataIs2011;
     bool scaleClusterShapes, scaleR9Only;
     bool reRunVtx;
-    bool dumpAscii;
+    bool dumpAscii, dumpMcAscii;
     float phoidMvaCut;
     std::vector<double> zeePtBinLowEdge, zeePtWeight;
 
