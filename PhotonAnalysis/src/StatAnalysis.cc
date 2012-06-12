@@ -1225,7 +1225,8 @@ void StatAnalysis::rescaleClusterVariables(LoopAll &l){
 		    l.pho_sieie[ipho] = 0.99470*l.pho_sieie[ipho] + 0.00003;
 		    l.sc_seta[l.pho_scind[ipho]] =  0.903254*l.sc_seta[l.pho_scind[ipho]] - 0.001346;
 		    l.sc_sphi[l.pho_scind[ipho]] =  0.99992*l.sc_sphi[l.pho_scind[ipho]] - 0.00000048;
-		    if (l.pho_ESEffSigmaRR[ipho]>0) l.pho_ESEffSigmaRR[ipho] = 1.00023*l.pho_ESEffSigmaRR[ipho] + 0.0913;
+		    //Agreement not to rescale ES shape (https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/789/1/1/1/1/1/1/2/1/1.html)
+		    //if (l.pho_ESEffSigmaRR[ipho]>0) l.pho_ESEffSigmaRR[ipho] = 1.00023*l.pho_ESEffSigmaRR[ipho] + 0.0913;
 		}
 	    }
 	}
