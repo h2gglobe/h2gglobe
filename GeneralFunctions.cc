@@ -4116,7 +4116,7 @@ int LoopAll::ElectronSelection2012(TLorentzVector& pho1, TLorentzVector& pho2, i
 
     myel = indel;
   }
-
+  return myel;
 }
 
 //--- RECO-MC JET MATCHING --------------------------------------------------------------------------------------------------------
