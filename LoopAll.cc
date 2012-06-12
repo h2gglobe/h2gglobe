@@ -275,7 +275,7 @@ void LoopAll::LoopAndFillHistos(TString treename) {
 
   cout << "SAMPLE CONTAINER SIZE " << sampleContainer.size() <<endl;
   for (;it!=files.end()
-         ;it_file++,it_tree++,it_treelumi++,it_treepar++,it++){ 
+	       ;it_file++,it_tree++,it_treelumi++,it_treepar++,it++,i++){ 
     
     this->current = i;
 	
@@ -309,6 +309,7 @@ void LoopAll::LoopAndFillHistos(TString treename) {
       cout<<"NO global_variables tree ... the C-step job must have crashed ... SKIP THE FILE"<<endl;
       tot_events=0;
       sel_events=0;
+      continue;
     }
     
     *it_treelumi = (TTree*) (*it_file)->Get("lumi");
@@ -354,7 +355,6 @@ void LoopAll::LoopAndFillHistos(TString treename) {
     if (i>0)
       if((*it_file)->IsOpen())
         (*it_file)->Close();
-    i++;
   }
   
   TermReal(typerun);
