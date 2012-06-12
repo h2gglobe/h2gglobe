@@ -15,7 +15,7 @@ class FMTBase {
 
 	public:
 		FMTBase(){};
-		FMTBase(double,bool,int, int, double, double, double, int, double, double, int, int, int, double, double, bool, int, bool, int, vector<string>, bool, vector<map<int,vector<double> > >, bool verbose=false); 
+		FMTBase(double,bool,int, int, double, double, double, int, double, double, int, int, int, double, double, int, bool, int, bool, int, vector<string>, bool, vector<map<int,vector<double> > >, bool verbose=false); 
 		~FMTBase(){};
 
 		void checkMCMass(int);
@@ -44,7 +44,8 @@ class FMTBase {
 		vector<double> getLowerSidebandEdges(double);
 		vector<double> getUpperSidebandEdges(double);
     vector<string> getProdTypes();
-	
+
+    int getnIncCategories();
 		bool getincludeVBF();
     int getnVBFCategories();
 		bool getincludeLEP();
@@ -90,7 +91,8 @@ class FMTBase {
 		void setnumberOfSidebandGaps(int);
 		void setmassSidebandMin(double);
 		void setmassSidebandMax(double);
-	
+
+    void setnIncCateogies(int);
 		void setincludeVBF(bool);
     void setnVBFCategories(int);
 		void setincludeLEP(bool);
@@ -138,7 +140,8 @@ class FMTBase {
 		int numberOfSidebandGaps_;
 		double massSidebandMin_;
 		double massSidebandMax_;
-	
+
+    int nIncCategories_;
 		bool includeVBF_;
     int nVBFCategories_;
 		bool includeLEP_;

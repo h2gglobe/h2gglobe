@@ -56,6 +56,7 @@ class FMTSetup : public FMTBase {
 		bool all_;
 		bool fit_;
 		bool rebin_;
+    bool catByHand_;
 		bool skipRebin_;
 		bool binEdges_;
     bool dumpDatFile_;

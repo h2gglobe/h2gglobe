@@ -11,14 +11,14 @@
 
 using namespace std;
 
-FMTRebin::FMTRebin(string filename, double intLumi, bool is2011, int mHMinimum, int mHMaximum, double mHStep, double massMin, double massMax, int nDataBins, double signalRegionWidth, double sidebandWidth, int numberOfSidebands, int numberOfSidebandsForAlgos, int numberOfSidebandGaps, double massSidebandMin, double massSidebandMax, bool includeVBF, int nVBFCategories, bool includeLEP, int nLEPCategories, vector<string> systematics, bool rederiveOptimizedBinEdges, vector<map<int,vector<double> > > AllBinEdges, bool verbose):
+FMTRebin::FMTRebin(string filename, double intLumi, bool is2011, int mHMinimum, int mHMaximum, double mHStep, double massMin, double massMax, int nDataBins, double signalRegionWidth, double sidebandWidth, int numberOfSidebands, int numberOfSidebandsForAlgos, int numberOfSidebandGaps, double massSidebandMin, double massSidebandMax, int nIncCategories, bool includeVBF, int nVBFCategories, bool includeLEP, int nLEPCategories, vector<string> systematics, bool rederiveOptimizedBinEdges, vector<map<int,vector<double> > > AllBinEdges, bool verbose):
 	
-	FMTBase(intLumi, is2011, mHMinimum, mHMaximum, mHStep, massMin, massMax, nDataBins, signalRegionWidth, sidebandWidth, numberOfSidebands, numberOfSidebandsForAlgos, numberOfSidebandGaps, massSidebandMin, massSidebandMax, includeVBF, nVBFCategories, includeLEP, nLEPCategories, systematics, rederiveOptimizedBinEdges, AllBinEdges, verbose)
+	FMTBase(intLumi, is2011, mHMinimum, mHMaximum, mHStep, massMin, massMax, nDataBins, signalRegionWidth, sidebandWidth, numberOfSidebands, numberOfSidebandsForAlgos, numberOfSidebandGaps, massSidebandMin, massSidebandMax, nIncCategories, includeVBF, nVBFCategories, includeLEP, nLEPCategories, systematics, rederiveOptimizedBinEdges, AllBinEdges, verbose)
 {
 	signalVector1 = new double[25];
 	backgroundVector1 = new double[25];
 	tFile = TFile::Open(filename.c_str(),"UPDATE");
-	fitter = new FMTFit(tFile,intLumi,is2011,mHMinimum, mHMaximum, mHStep, massMin, massMax, nDataBins, signalRegionWidth, sidebandWidth, numberOfSidebands, numberOfSidebandsForAlgos, numberOfSidebandGaps, massSidebandMin, massSidebandMax, includeVBF, nVBFCategories, includeLEP, nLEPCategories, systematics, rederiveOptimizedBinEdges, AllBinEdges, verbose);
+	fitter = new FMTFit(tFile,intLumi,is2011,mHMinimum, mHMaximum, mHStep, massMin, massMax, nDataBins, signalRegionWidth, sidebandWidth, numberOfSidebands, numberOfSidebandsForAlgos, numberOfSidebandGaps, massSidebandMin, massSidebandMax, nIncCategories, includeVBF, nVBFCategories, includeLEP, nLEPCategories, systematics, rederiveOptimizedBinEdges, AllBinEdges, verbose);
 
 }
 
@@ -301,21 +301,29 @@ TH1F* FMTRebin::rebinBinnedDataset(std::string new_name, TH1F *hb,std::vector<do
 
   if (isVBFCat(cat)){
     // do VBF
-    hbnew = new TH1F("hV","hV",1,arrBins[cat-1],arrBins[cat]);
-    for (int i=0; i<hb->GetEntries(); i++) hbnew->Fill(1.+(cat*0.02));
+    int vbfIt = cat-getnIncCategories();
+    hbnew = new TH1F("hV","hV",1,arrBins[vbfIt],arrBins[vbfIt+1]);
+    for (int i=0; i<hb->GetEntries(); i++) hbnew->Fill(1.+((vbfIt+1)*0.02));
     hbnew->Sumw2();
     if (hb->GetEntries()!=0) hbnew->Scale(hb->Integral()/hbnew->Integral());
   }
   else if (isLEPCat(cat)){
     // do LEP
-    int lepIt = cat-getnVBFCategories();
-    hbnew = new TH1F("hL","hL",1,arrBins[lepIt-1],arrBins[lepIt]);
-    for (int i=0; i<hb->GetEntries(); i++) hbnew->Fill(2.+(lepIt*0.02));
+    int lepIt = cat-getnVBFCategories()-getnIncCategories();
+    hbnew = new TH1F("hL","hL",1,arrBins[lepIt],arrBins[lepIt+1]);
+    for (int i=0; i<hb->GetEntries(); i++) hbnew->Fill(2.+((lepIt+1)*0.02));
     hbnew->Sumw2();
     if (hb->GetEntries()!=0) hbnew->Scale(hb->Integral()/hbnew->Integral());
   }
   else if (isIncCat(cat)){
-    hbnew =(TH1F*) hb->Rebin(binEdges.size()-1,hb->GetName(),arrBins);
+    if (getcatByHand()){
+      double incBinWidth=2./float(getnIncCategories());
+      hbnew = new TH1F("hI","hI",1,-1.+(cat*incBinWidth),-1.+((cat+1)*incBinWidth));
+      for (int i=0; i<hb->GetEntries(); i++) hbnew->Fill(-1.+((cat+0.5)*incBinWidth));
+      hbnew->Sumw2();
+      if (hb->GetEntries()!=0) hbnew->Scale(hb->Integral()/hbnew->Integral());
+    }
+    else hbnew =(TH1F*) hb->Rebin(binEdges.size()-1,hb->GetName(),arrBins);
   }
   else {
     cerr << "ERROR -- FMTRebin::rebinBinnedDataset - cat " << cat << " is not recognised. Bailing out" << endl;
@@ -750,4 +758,9 @@ void FMTRebin::executeRebinning(int mass){
 	cout << Form("------ REBINNING MASS %3d.0 COMPLETE ------",mass) << endl;
 }
 
-	
+bool FMTRebin::getcatByHand(){
+  return catByHand_;
+}
+void FMTRebin::setcatByHand(bool catBH){
+  catByHand_=catBH;
+}

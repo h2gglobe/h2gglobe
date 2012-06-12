@@ -7,7 +7,7 @@
 
 using namespace std;
 
-FMTBase::FMTBase(double intLumi, bool is2011, int mHMinimum, int mHMaximum, double mHStep, double massMin, double massMax, int nDataBins, double signalRegionWidth, double sidebandWidth, int numberOfSidebands, int numberOfSidebandsForAlgos, int numberOfSidebandGaps, double massSidebandMin, double massSidebandMax, bool includeVBF, int nVBFCategories, bool includeLEP, int nLEPCategories, vector<string> systematics, bool rederiveOptimizedBinEdges, vector<map<int, vector<double> > > AllBinEdges, bool verbose):
+FMTBase::FMTBase(double intLumi, bool is2011, int mHMinimum, int mHMaximum, double mHStep, double massMin, double massMax, int nDataBins, double signalRegionWidth, double sidebandWidth, int numberOfSidebands, int numberOfSidebandsForAlgos, int numberOfSidebandGaps, double massSidebandMin, double massSidebandMax, int nIncCategories, bool includeVBF, int nVBFCategories, bool includeLEP, int nLEPCategories, vector<string> systematics, bool rederiveOptimizedBinEdges, vector<map<int, vector<double> > > AllBinEdges, bool verbose):
 
   intLumi_(intLumi),
   is2011_(is2011),
@@ -25,7 +25,8 @@ FMTBase::FMTBase(double intLumi, bool is2011, int mHMinimum, int mHMaximum, doub
 	numberOfSidebandGaps_(numberOfSidebandGaps),
 	massSidebandMin_(massSidebandMin),
 	massSidebandMax_(massSidebandMax),
-
+  
+  nIncCategories_(nIncCategories),
 	includeVBF_(includeVBF),
   nVBFCategories_(nVBFCategories),
 	includeLEP_(includeLEP),
@@ -180,6 +181,9 @@ vector<string> FMTBase::getProdTypes(){
   return productionTypes;
 }
 
+int FMTBase::getnIncCategories(){
+  return nIncCategories_;
+}
 bool FMTBase::getincludeVBF(){
 	return includeVBF_;
 }
@@ -193,7 +197,7 @@ int FMTBase::getnLEPCategories(){
   return nLEPCategories_;
 }
 const int FMTBase::getNcats(){
-	int ncats=1;
+	int ncats=nIncCategories_;
 	if (includeVBF_) ncats+=nVBFCategories_;
 	if (includeLEP_) ncats+=nLEPCategories_;
 	return ncats;
@@ -433,6 +437,9 @@ void FMTBase::setmassSidebandMax(double massSidebandMax){
 	massSidebandMax_=massSidebandMax;
 }
 
+void FMTBase::setnIncCateogies(int nIncCats){
+  nIncCategories_=nIncCats;
+}
 void FMTBase::setincludeVBF(bool includeVBF){
 	includeVBF_=includeVBF;
 }
@@ -511,16 +518,16 @@ void FMTBase::setintLumi(double lumi){
 }
 
 bool FMTBase::isIncCat(int cat){
-  if (cat==0) return true;
+  if (cat<getnIncCategories()) return true;
   else return false;
 }
 
 bool FMTBase::isVBFCat(int cat){
-  if (cat>0 && cat<=getnVBFCategories()) return true;
+  if (cat>=getnIncCategories() && cat<(getnIncCategories()+getnVBFCategories())) return true;
   else return false;
 }
 bool FMTBase::isLEPCat(int cat){
-  if (cat>getnVBFCategories() && cat<=(getnVBFCategories()+getnLEPCategories())) return true;
+  if (cat>=(getnIncCategories()+getnVBFCategories()) && cat<(getnIncCategories()+getnVBFCategories()+getnLEPCategories())) return true;
   else return false;
 }
 

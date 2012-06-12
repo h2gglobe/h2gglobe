@@ -9,7 +9,7 @@ using namespace std;
 class FMTRebin : public FMTBase {
 	
 	public:
-		FMTRebin(string filename, double intLumi, bool is2011, int mHMinimum, int mHMaximum, double mHStep, double massMin, double massMax, int nDataBins, double signalRegionWidth, double sidebandWidth, int numberOfSidebands, int numberOfSidebandsForAlgos, int numberOfSidebandGaps, double massSidebandMin, double massSidebandMax, bool includeVBF, int nVBFCategories, bool includeLEP, int nLEPCategories, vector<string> systematics, bool rederiveOptimizedBinEdges, vector<map<int,vector<double> > > AllBinEdges, bool verbose=false);
+		FMTRebin(string filename, double intLumi, bool is2011, int mHMinimum, int mHMaximum, double mHStep, double massMin, double massMax, int nDataBins, double signalRegionWidth, double sidebandWidth, int numberOfSidebands, int numberOfSidebandsForAlgos, int numberOfSidebandGaps, double massSidebandMin, double massSidebandMax, int nIncCategories, bool includeVBF, int nVBFCategories, bool includeLEP, int nLEPCategories, vector<string> systematics, bool rederiveOptimizedBinEdges, vector<map<int,vector<double> > > AllBinEdges, bool verbose=false);
 		~FMTRebin();
 
 		// rebinning methods
@@ -38,11 +38,13 @@ class FMTRebin : public FMTBase {
 		int getsweepmode();
 		double *getsignalVector1();
 		double *getbackgroundVector1();
+    bool getcatByHand();
 
 		void setg_step(int);
 		void setsweepmode();
 		void setsignalVector1(double*);
 		void setbackgroundVector1(double*);
+    void setcatByHand(bool);
 
 		FMTFit *fitter;
 
@@ -52,6 +54,8 @@ class FMTRebin : public FMTBase {
 		double *signalVector1;
 		double *backgroundVector1;
 		TFile *tFile;
+
+    bool catByHand_;
 
 };
 
