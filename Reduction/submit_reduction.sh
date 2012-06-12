@@ -15,13 +15,19 @@ wildcard=\*
 [[ -n $1 ]] && wildcard=$1 && shift
 
 for f in ${dir}/${wildcard}.dat; do
-    if [[ -n $1 ]]; then
+    if [[ -n $2  ]]; then
+	njobs=$1 && shift
+	for i in $@; do
+	    rm -f ${f}_${i}.log
+	    bsub -q $queue -o ${f}_${i}.log run.sh -- ./reduce.py --inputDat $PWD/$f --nJobs $njobs --jobId $i
+	done
+    elif [[ -n $1 ]]; then
 	for i in $(seq 0 $(($1-1))); do
 	    rm -f ${f}_${i}.log
-	    bsub -q $queue -o ${f}_${i}.log run.sh -- ./reduce.py --inputDat $PWD/$f --nJobs $1 --jobId $i
+	    echo bsub -q $queue -o ${f}_${i}.log run.sh -- ./reduce.py --inputDat $PWD/$f --nJobs $1 --jobId $i
 	done
     else
 	rm -f $f.log
-	bsub -q $queue -o $f.log run.sh -- ./reduce.py --inputDat $PWD/$f
+	echo bsub -q $queue -o $f.log run.sh -- ./reduce.py --inputDat $PWD/$f
     fi
 done
