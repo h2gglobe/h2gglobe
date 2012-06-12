@@ -1177,6 +1177,11 @@ TLorentzVector LoopAll::correctMet(TLorentzVector& pho_lead, TLorentzVector& pho
     for(int i=0; i<jet_algoPF1_n; i++){
     TLorentzVector * p4_jet = (TLorentzVector *) jet_algoPF1_p4->At(i);
     
+    if( version >= 13 ) {
+      p4_jet = (TLorentzVector *) p4_jet->Clone();
+      *p4_jet = (*p4_jet) * (1/jet_algoPF1_erescale[i]);
+    }
+    
     //remove identified photons
 //    bool isJetPhoton = false;
 //    std::vector<float> pho_eng;
