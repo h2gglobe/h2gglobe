@@ -52,9 +52,9 @@ void MvaAnalysis::Init(LoopAll& l)
         BDTnames[0]="_121";
         masses[0] = 121.;
 
-        names[1]="_123.0";
-        BDTnames[1]="_123";
-        masses[1] = 123.;
+        names[1]="_124.0";
+        BDTnames[1]="_124";
+        masses[1] = 124.;
     }
     else {
         names[0]="_105.0";
@@ -362,6 +362,7 @@ void MvaAnalysis::Init(LoopAll& l)
     l.tmvaReaderID_MIT_Barrel->BookMVA("AdaBoost",photonLevelMvaMIT_EB.c_str());
     l.tmvaReaderID_MIT_Endcap->BookMVA("AdaBoost",photonLevelMvaMIT_EE.c_str());
     l.tmvaReader_dipho_MIT->BookMVA("Gradient"   ,eventLevelMvaMIT.c_str()    );
+    cout << "... done booking" << endl;
     // ----------------------------------------------------------------------//
 
     if (doTraining){ // do nothing since Trees are setup inside TreeContainers
@@ -650,7 +651,8 @@ void MvaAnalysis::SetBDTInputTree(TTree *tree){
 
 
 float MvaAnalysis::tmvaGetVal(double mass, double mass_hypothesis, float kinematic_bdt){
-
+    
+    if (doTraining) return -2.;
     _deltaMOverM = (mass-mass_hypothesis)/mass_hypothesis;
     _bdtoutput = kinematic_bdt;
     return tmvaReader_->EvaluateMVA( "BDT_grad_123" );
@@ -704,6 +706,12 @@ void MvaAnalysis::fillTMVATrees(LoopAll& l,float mass,float diphotonMVA,int cate
         if( mass>sideband_boundaries[0] && mass<sideband_boundaries[1]){//Signal mass window cut
 
             // Signal Region
+            l.FillTree("bdtoutput",diphotonMVA);
+            l.FillTree("mass",mass);
+            l.FillTree("category",category);
+            l.FillTree("weight",evweight);
+            l.FillTree("deltaMoverM",(float)((mass-mH)/mH));
+            
             l.FillHist("diphotonMVA",diphotonMVA);
             l.FillHist("mass",mass);
             l.FillHist("category",category);
@@ -722,6 +730,12 @@ void MvaAnalysis::fillTMVATrees(LoopAll& l,float mass,float diphotonMVA,int cate
                 double sideband_boundaries_high= mass_hypothesis_low*(1.+sidebandWidth);
 
                 if ( mass>sideband_boundaries_low && mass<sideband_boundaries_high){
+                    l.FillTree("bdtoutput",diphotonMVA);
+                    l.FillTree("mass",mass);
+                    l.FillTree("category",category);
+                    l.FillTree("weight",evweight);
+                    l.FillTree("deltaMoverM",(float)((mass-mass_hypothesis_low)/mass_hypothesis_low));
+                    
                     l.FillHist("diphotonMVA",diphotonMVA);
                     l.FillHist("mass",mass);
                     l.FillHist("category",category);
@@ -738,6 +752,12 @@ void MvaAnalysis::fillTMVATrees(LoopAll& l,float mass,float diphotonMVA,int cate
                 double sideband_boundaries_high= mass_hypothesis_high*(1.+sidebandWidth);
 
                 if ( mass>sideband_boundaries_low && mass<sideband_boundaries_high){
+                    l.FillTree("bdtoutput",diphotonMVA);
+                    l.FillTree("mass",mass);
+                    l.FillTree("category",category);
+                    l.FillTree("weight",evweight);
+                    l.FillTree("deltaMoverM",(float)((mass-mass_hypothesis_high)/mass_hypothesis_high));
+                    
                     l.FillHist("diphotonMVA",diphotonMVA);
                     l.FillHist("mass",mass);
                     l.FillHist("category",category);
@@ -756,7 +776,6 @@ void MvaAnalysis::FillRooContainer(LoopAll& l, int cur_type, float mass, float d
 
 
   if (doTraining){
-    cout << "Filling training trees..." << endl;
     fillTMVATrees(l,mass,diphotonMVA,category,weight,cur_type);
   } else {
 
@@ -840,6 +859,9 @@ void MvaAnalysis::AccumulateSyst(int cur_type, float mass, float diphotonMVA,
 				  std::vector<int>    & categories,
 				  std::vector<double> & weights)
 {
+    if (doTraining){
+        return;
+    }
     float mass_hypothesis = masses[SignalType(cur_type)];
     // define the sidebands
     float sideband_boundaries[2];
@@ -864,7 +886,7 @@ void MvaAnalysis::FillRooContainerSyst(LoopAll& l, const std::string &name, int 
 			  std::vector<int>    & categories, std::vector<double> & weights) 
 {
         // Get Signal Label for the current type
-        if (cur_type<0){
+        if (cur_type<0 && !doTraining){
             std::string currentTypeSignalLabel = GetSignalLabel(cur_type);
 		    l.rooContainer->InputSystematicSet("sig_BDT_grad_"+currentTypeSignalLabel,name,categories,mva_errors,weights);
         }
