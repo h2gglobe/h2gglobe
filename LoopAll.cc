@@ -372,7 +372,7 @@ void LoopAll::StoreProcessedLumis(TTree * tree){
   for( int ii=0; ii<tree->GetEntries(); ++ii) {
     tree->GetEntry(ii);
     if( !CheckLumiSelection(run,lumis)  ) { continue; }
-    if( outputFile ) outputTreeLumi->Fill();
+    if( outputTreeLumi ) outputTreeLumi->Fill();
   }
   if(typerun != kFill && outputFile) {
     outputFile->cd();
@@ -1371,7 +1371,8 @@ void LoopAll::FillCounter(std::string name, float weight, int category )
 // ----------------------------------------------------------------------------------------------------------------------
 bool LoopAll::CheckLumiSelection( int run, int lumi )
 {
-  if(typerun == kReduce || ! sampleContainer[current_sample_index].hasLumiSelection ){
+  if( (typerun == kReduce && current_sample_index > sampleContainer.size() ) ||
+      ! sampleContainer[current_sample_index].hasLumiSelection ) {
     return true;
   }
 

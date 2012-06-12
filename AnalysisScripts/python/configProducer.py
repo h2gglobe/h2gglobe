@@ -183,6 +183,12 @@ class configProducer:
       self.conf_.print_conf()
     self.add_files()
     self.ut_.SetTypeRun(self.type_,self.conf_.outfile)
+    for dum in self.conf_.confs:
+      dataContainer = self.ut_.DefineSamples(dum['Nam'],dum['typ'],dum['ind'],dum['draw'],dum['red'],dum['tot'],dum['intL'],dum['lum'],dum['xsec'],dum['kfac'],dum['scal'],dum['addnevents'],dum["pileup"])
+      if("json" in dum and dum["json"] != ""):
+        defineJsonFilter(dum["json"], dataContainer)
+      if("evlist" in dum and dum["evlist"] != ""):
+        defineEvList(dum["evlist"], dataContainer)
 
   def init_loop(self):
     self.read_config_loop(self.conf_filename)
@@ -576,7 +582,10 @@ class configProducer:
 
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def read_input_files_reduce(self,line):
-    values = { "CaDir" : "","DcDir" : "","EosDir":"", "Dir" : "", "typ" : -1, "Fil" : ""  }; 
+    values = { "CaDir" : "","DcDir" : "","EosDir":"", "Dir" : "", "typ" : -1, "Fil" : "",
+               "Nam":"default","draw":-999,"ind":-999,"tot":0,"red":-999,"lum":1.0,"xsec":1.0,"kfac":1.0,
+               "scal":1.0,"json":"","evlist":"","pileup":""
+               }; 
     # We have one of the file def lines
     split_line = line.split()
     for sp in split_line:
@@ -599,7 +608,8 @@ class configProducer:
         sys.exit("No Input File Named: %s"%fi_name)
       tuple_n = fi_name, fi_type
       self.conf_.files.append(tuple_n)
-        
+      self.conf_.confs.append(values.copy())
+      
     if cas_directory != '':
       ca_files = makeCaFiles(cas_directory,self.njobs_,self.jobId_)
       for file_s in ca_files:
