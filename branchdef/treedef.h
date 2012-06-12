@@ -411,6 +411,13 @@ Float_t mu_glo_ecaliso03[MAX_MUONS];
 Float_t mu_glo_hcaliso03[MAX_MUONS];
 Float_t mu_glo_tkiso03[MAX_MUONS];
 Float_t mu_glo_dz[MAX_MUONS];
+//MU ID 2012
+Int_t mu_tkLayers[MAX_MUONS];
+Float_t mu_glo_chhadiso04[MAX_MUONS];
+Float_t mu_glo_nehadiso04[MAX_MUONS];
+Float_t mu_glo_photiso04[MAX_MUONS];
+Float_t mu_dbCorr[MAX_MUONS];
+//
 TClonesArray *mu_glo_p4;
 TClonesArray *mu_glo_momvtx;
 TClonesArray *mu_glo_posvtx;
@@ -736,9 +743,12 @@ Float_t jet_algoPF3_genDr[MAX_JETS];
 Bool_t jet_algoPF3_vbfMatched[MAX_JETS];
 Bool_t jet_algoPF2_vbfMatched[MAX_JETS];
 Bool_t jet_algoPF1_vbfMatched[MAX_JETS];
+// ELE ID 2012
+Float_t  el_std_conv_vtxProb[MAX_ELECTRONS];
 Float_t el_std_pfiso_charged[MAX_ELECTRONS];
 Float_t el_std_pfiso_neutral[MAX_ELECTRONS];
 Float_t el_std_pfiso_photon[MAX_ELECTRONS];
+//
 Float_t pho_hcalbcsumetconedr03[MAX_PHOTONS];
 Float_t pho_hcalbcsumetconedr04[MAX_PHOTONS];
 Float_t pho_hoe_bc[MAX_PHOTONS];

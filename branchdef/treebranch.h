@@ -394,6 +394,13 @@ void Branch_mu_glo_ecaliso03(TTree * tree) { tree->Branch("mu_glo_ecaliso03",&mu
 void Branch_mu_glo_hcaliso03(TTree * tree) { tree->Branch("mu_glo_hcaliso03",&mu_glo_hcaliso03, "mu_glo_hcaliso03[mu_glo_n]/F");  }; 
 void Branch_mu_glo_tkiso03(TTree * tree) { tree->Branch("mu_glo_tkiso03",&mu_glo_tkiso03, "mu_glo_tkiso03[mu_glo_n]/F");  }; 
 void Branch_mu_glo_dz(TTree * tree) { tree->Branch("mu_glo_dz",&mu_glo_dz, "mu_glo_dz[mu_glo_n]/F");  }; 
+//MU ID 2012
+void Branch_mu_tkLayers(TTree * tree) { tree->Branch("mu_tkLayers",&mu_tkLayers, "mu_tkLayers[mu_glo_n]/I");  }; 
+void Branch_mu_glo_chhadiso04(TTree * tree) { tree->Branch("mu_glo_chhadiso04",&mu_glo_chhadiso04, "mu_glo_chhadiso04[mu_glo_n]/F");  }; 
+void Branch_mu_glo_nehadiso04(TTree * tree) { tree->Branch("mu_glo_nehadiso04",&mu_glo_nehadiso04, "mu_glo_nehadiso04[mu_glo_n]/F");  }; 
+void Branch_mu_glo_photiso04(TTree * tree) { tree->Branch("mu_glo_photiso04",&mu_glo_photiso04, "mu_glo_photiso04[mu_glo_n]/F");  }; 
+void Branch_mu_dbCorr(TTree * tree) { tree->Branch("mu_dbCorr",&mu_dbCorr, "mu_dbCorr[mu_glo_n]/F");  }; 
+//
 void Branch_pho_n(TTree * tree) { tree->Branch("pho_n",&pho_n, "pho_n/I");  }; 
 void Branch_pho_feta(TTree * tree) { tree->Branch("pho_feta",&pho_feta,"pho_feta[pho_n][5]/F");  }; 
 void Branch_pho_crackcorr(TTree * tree) { tree->Branch("pho_crackcorr",&pho_crackcorr,"pho_crackcorr[pho_n]/F");  }; 
@@ -712,9 +719,12 @@ void Branch_jet_algoPF3_genDr(TTree* tree) { tree->Branch("jet_algoPF3_genDr", &
 void Branch_jet_algoPF3_vbfMatched(TTree* tree) { tree->Branch("jet_algoPF3_vbfMatched", &jet_algoPF3_vbfMatched, "jet_algoPF3_vbfMatched[jet_algoPF3_n]/O"); };
 void Branch_jet_algoPF2_vbfMatched(TTree* tree) { tree->Branch("jet_algoPF2_vbfMatched", &jet_algoPF2_vbfMatched, "jet_algoPF2_vbfMatched[jet_algoPF2_n]/O"); };
 void Branch_jet_algoPF1_vbfMatched(TTree* tree) { tree->Branch("jet_algoPF1_vbfMatched", &jet_algoPF1_vbfMatched, "jet_algoPF1_vbfMatched[jet_algoPF1_n]/O"); };
+//ELE ID 2012
+void Branch_el_std_conv_vtxProb(TTree * tree) { tree->Branch("el_std_conv_vtxProb",&el_std_conv_vtxProb, "el_std_conv_vtxProb[el_std_n]/F"); };
 void Branch_el_std_pfiso_charged(TTree* tree) { tree->Branch("el_std_pfiso_charged", &el_std_pfiso_charged, "el_std_pfiso_charged[el_std_n]/F"); };
 void Branch_el_std_pfiso_neutral(TTree* tree) { tree->Branch("el_std_pfiso_neutral", &el_std_pfiso_neutral, "el_std_pfiso_neutral[el_std_n]/F"); };
 void Branch_el_std_pfiso_photon(TTree* tree) { tree->Branch("el_std_pfiso_photon", &el_std_pfiso_photon, "el_std_pfiso_photon[el_std_n]/F"); };
+//
 void Branch_pho_hcalbcsumetconedr03(TTree* tree) { tree->Branch("pho_hcalbcsumetconedr03", &pho_hcalbcsumetconedr03, "pho_hcalbcsumetconedr03[pho_n]/F"); };
 void Branch_pho_hcalbcsumetconedr04(TTree* tree) { tree->Branch("pho_hcalbcsumetconedr04", &pho_hcalbcsumetconedr04, "pho_hcalbcsumetconedr04[pho_n]/F"); };
 void Branch_pho_hoe_bc(TTree* tree) { tree->Branch("pho_hoe_bc", &pho_hoe_bc, "pho_hoe_bc[pho_n]/F"); };

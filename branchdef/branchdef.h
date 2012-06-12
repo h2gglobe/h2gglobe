@@ -340,6 +340,13 @@ TBranch* b_pfcand_posvtx;
     TBranch *b_mu_glo_hcaliso03;
     TBranch *b_mu_glo_tkiso03;
     TBranch *b_mu_glo_dz;
+    //MU ID 2012
+    TBranch *b_mu_tkLayers;
+    TBranch *b_mu_glo_chhadiso04;
+    TBranch *b_mu_glo_nehadiso04;
+    TBranch *b_mu_glo_photiso04;
+    TBranch *b_mu_dbCorr;
+     //
     TBranch *b_pho_n;
     TBranch *b_pho_feta;
     TBranch *b_pho_crackcorr;
@@ -711,9 +718,12 @@ TBranch* b_jet_algoPF3_genDr;
 TBranch* b_jet_algoPF3_vbfMatched;
 TBranch* b_jet_algoPF2_vbfMatched;
 TBranch* b_jet_algoPF1_vbfMatched;
+//ELE ID 2012
+TBranch* b_el_std_conv_vtxProb;
 TBranch* b_el_std_pfiso_charged;
 TBranch* b_el_std_pfiso_neutral;
 TBranch* b_el_std_pfiso_photon;
+//
 TBranch* b_pho_hcalbcsumetconedr03;
 TBranch* b_pho_hcalbcsumetconedr04;
 TBranch* b_pho_hoe_bc;

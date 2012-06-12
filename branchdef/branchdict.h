@@ -391,6 +391,13 @@ BRANCH_DICT(mu_glo_ecaliso03);
 BRANCH_DICT(mu_glo_hcaliso03);
 BRANCH_DICT(mu_glo_tkiso03);
 BRANCH_DICT(mu_glo_dz);
+//MU ID 2012
+BRANCH_DICT(mu_tkLayers);
+BRANCH_DICT(mu_glo_chhadiso04);
+BRANCH_DICT(mu_glo_nehadiso04);
+BRANCH_DICT(mu_glo_photiso04);
+BRANCH_DICT(mu_dbCorr);
+//
 BRANCH_DICT(pho_n);
 BRANCH_DICT(pho_feta);
 BRANCH_DICT(pho_crackcorr);
@@ -709,9 +716,12 @@ BRANCH_DICT(jet_algoPF3_genDr);
 BRANCH_DICT(jet_algoPF3_vbfMatched);
 BRANCH_DICT(jet_algoPF2_vbfMatched);
 BRANCH_DICT(jet_algoPF1_vbfMatched);
+//ELE ID 2012
 BRANCH_DICT(el_std_pfiso_charged);
 BRANCH_DICT(el_std_pfiso_neutral);
 BRANCH_DICT(el_std_pfiso_photon);
+BRANCH_DICT(el_std_conv_vtxProb);
+//
 BRANCH_DICT(pho_hcalbcsumetconedr03);
 BRANCH_DICT(pho_hcalbcsumetconedr04);
 BRANCH_DICT(pho_hoe_bc);

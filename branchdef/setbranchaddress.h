@@ -393,6 +393,13 @@ void SetBranchAddress_mu_glo_ecaliso03(TTree * tree) { tree->SetBranchAddress("m
 void SetBranchAddress_mu_glo_hcaliso03(TTree * tree) { tree->SetBranchAddress("mu_glo_hcaliso03", mu_glo_hcaliso03, &b_mu_glo_hcaliso03); }; 
 void SetBranchAddress_mu_glo_tkiso03(TTree * tree) { tree->SetBranchAddress("mu_glo_tkiso03", mu_glo_tkiso03, &b_mu_glo_tkiso03); }; 
 void SetBranchAddress_mu_glo_dz(TTree * tree) { tree->SetBranchAddress("mu_glo_dz", mu_glo_dz, &b_mu_glo_dz); }; 
+//MU ID 2012
+void SetBranchAddress_mu_tkLayers(TTree * tree) { tree->SetBranchAddress("mu_tkLayers",mu_tkLayers , &b_mu_tkLayers); }; 
+void SetBranchAddress_mu_glo_chhadiso04(TTree * tree) { tree->SetBranchAddress("mu_glo_chhadiso04",mu_glo_chhadiso04 , &b_mu_glo_chhadiso04); }; 
+void SetBranchAddress_mu_glo_nehadiso04(TTree * tree) { tree->SetBranchAddress("mu_glo_nehadiso04",mu_glo_nehadiso04 , &b_mu_glo_nehadiso04); }; 
+void SetBranchAddress_mu_glo_photiso04(TTree * tree) { tree->SetBranchAddress("mu_glo_photiso04",mu_glo_photiso04 , &b_mu_glo_photiso04); }; 
+void SetBranchAddress_mu_dbCorr(TTree * tree) { tree->SetBranchAddress("mu_dbCorr",mu_dbCorr , &b_mu_dbCorr); }; 
+//
 void SetBranchAddress_pho_n(TTree * tree) { tree->SetBranchAddress("pho_n", &pho_n, &b_pho_n); }; 
 void SetBranchAddress_pho_feta(TTree * tree) { tree->SetBranchAddress("pho_feta", pho_feta, &b_pho_feta); }; 
 void SetBranchAddress_pho_crackcorr(TTree * tree) { tree->SetBranchAddress("pho_crackcorr", pho_crackcorr, &b_pho_crackcorr); }; 
@@ -711,9 +718,12 @@ void SetBranchAddress_jet_algoPF3_genDr(TTree* tree) { tree->SetBranchAddress("j
 void SetBranchAddress_jet_algoPF3_vbfMatched(TTree* tree) { tree->SetBranchAddress("jet_algoPF3_vbfMatched", &jet_algoPF3_vbfMatched, &b_jet_algoPF3_vbfMatched); };
 void SetBranchAddress_jet_algoPF2_vbfMatched(TTree* tree) { tree->SetBranchAddress("jet_algoPF2_vbfMatched", &jet_algoPF2_vbfMatched, &b_jet_algoPF2_vbfMatched); };
 void SetBranchAddress_jet_algoPF1_vbfMatched(TTree* tree) { tree->SetBranchAddress("jet_algoPF1_vbfMatched", &jet_algoPF1_vbfMatched, &b_jet_algoPF1_vbfMatched); };
+//ELE ID 2012
 void SetBranchAddress_el_std_pfiso_charged(TTree* tree) { tree->SetBranchAddress("el_std_pfiso_charged", &el_std_pfiso_charged, &b_el_std_pfiso_charged); };
 void SetBranchAddress_el_std_pfiso_neutral(TTree* tree) { tree->SetBranchAddress("el_std_pfiso_neutral", &el_std_pfiso_neutral, &b_el_std_pfiso_neutral); };
 void SetBranchAddress_el_std_pfiso_photon(TTree* tree) { tree->SetBranchAddress("el_std_pfiso_photon", &el_std_pfiso_photon, &b_el_std_pfiso_photon); };
+void SetBranchAddress_el_std_conv_vtxProb(TTree* tree) { tree->SetBranchAddress("el_std_conv_vtxProb",&el_std_conv_vtxProb, &b_el_std_conv_vtxProb); };
+//
 void SetBranchAddress_pho_hcalbcsumetconedr03(TTree* tree) { tree->SetBranchAddress("pho_hcalbcsumetconedr03", &pho_hcalbcsumetconedr03, &b_pho_hcalbcsumetconedr03); };
 void SetBranchAddress_pho_hcalbcsumetconedr04(TTree* tree) { tree->SetBranchAddress("pho_hcalbcsumetconedr04", &pho_hcalbcsumetconedr04, &b_pho_hcalbcsumetconedr04); };
 void SetBranchAddress_pho_hoe_bc(TTree* tree) { tree->SetBranchAddress("pho_hoe_bc", &pho_hoe_bc, &b_pho_hoe_bc); };
