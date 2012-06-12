@@ -30,6 +30,8 @@ class Normalization_8TeV {
 	void CheckNorm(double,double,double,TString);
 	void FillSignalTypes();
 	void PlotExpected(double ,double);	
+	
+	std::map<int,std::pair<TString,double > > & SignalType() { return SignalTypeMap; }
  private:
 	std::map<double,double> BranchingRatioMap;
 	std::map<double,double> XSectionMap_ggh;
