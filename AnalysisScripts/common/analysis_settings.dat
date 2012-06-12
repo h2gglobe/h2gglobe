@@ -17,7 +17,7 @@ leadEtVHlepCut=45
 subleadEtVHlepCut=25
 
 ## MET tag
-includeVHmet=1
+includeVHmet=0
 leadEtVHmetCut=45
 subleadEtVHmetCut=25
 
