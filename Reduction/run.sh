@@ -30,6 +30,7 @@ shift
 
 cd $workdir
 cp -pv $(dirname $(which $0))/*.sh .
+cp -rpv $(dirname $(which $0))/JSON .
 cp -pv $mydir/*.dat . 
 cp -prv $(find $mydir/ -name \*.dat -or -name \*.root -or -name \*.xml | xargs -n 1 dirname  | sort -u) .
 source version.sh
