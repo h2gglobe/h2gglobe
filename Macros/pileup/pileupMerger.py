@@ -21,22 +21,24 @@ if len(args) != 1:
 
 options.inDir = args[0]
 options.inDirName = p.basename(options.inDir)
+options.inDirBase = p.dirname(options.inDir)
+options.eosLs = "/afs/cern.ch/project/eos/installation/pro/bin/eos root://eoscms ls /eos/cms"
 
 if not options.inDirName:
     raise RuntimeError("Empty target directory name (which defines the sample name). Check path.")
 
-
-call( """cmsLs %(inDir)s | awk '{ print $5 }' | xargs cmsPfn | sed 's/\?.*$//' > %(inDirName)s.files.txt""" % vars(options), shell=True)
+call( """%(eosLs)s %(inDir)s | awk '/root$/ { print \"root://eoscms//eos/cms%(inDir)s/$1\"  }' | sed 's/\?.*$//' > %(inDirName)s.files.txt"""
+      % vars(options), shell=True)
 call( """rm -f %(inDirName)s.pileup.root %(inDirName)s.pileup.root.log""" % vars(options), shell=True)
 #call( """hadd -k -T %(inDirName)s.pileup.root @%(inDirName)s.files.txt &> %(inDirName)s.pileup.root.log""" % vars(options), shell=True)
 call( """hadd -k -T %(inDirName)s.pileup.root `cat %(inDirName)s.files.txt | paste -s` &> %(inDirName)s.pileup.root.log""" % vars(options), shell=True)
 
 if options.putBack:
-    cmd = """xrdcp %(inDirName)s.pileup.root `cmsPfn %(inDir)s | sed 's/\?.*$//'`/%(inDirName)s.pileup.root"""
+    cmd = """cmsStage -f %(inDirName)s.pileup.root %(inDirBase)s/%(inDirName)s.pileup.root"""
     print "Copying back root"
     call(cmd % vars(options), shell=True)
     
-    cmd = """xrdcp %(inDirName)s.pileup.root.log `cmsPfn %(inDir)s | sed 's/\?.*$//'`/%(inDirName)s.pileup.root.log"""
-    print "Copying back log"
-    call(cmd % vars(options), shell=True)
+    #### cmd = """xrdcp %(inDirName)s.pileup.root.log %(inDirBase)/%(inDirName)s.pileup.root.log"""
+    #### print "Copying back log"
+    #### call(cmd % vars(options), shell=True)
 
