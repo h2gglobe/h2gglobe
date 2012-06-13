@@ -1,4 +1,4 @@
-intL=1490. histfile=/store/group/phys_higgs/cmshgg/analyzed/june11unblinding/cic_optimization/%(label)s/CMS-HGG.root output=output.txt
+intL=1490. histfile=/store/group/phys_higgs/cmshgg/analyzed/june11unblinding/cic_optimization_nodijet/%(label)s/CMS-HGG.root output=output.txt
 
 #
 # Data
@@ -27,7 +27,7 @@ inputBranches minimal_statanalysis_input.dat
 ## 	analyzer <class_name> <config_file>
 ## 
 ## analyzer PhotonAnalysis photonanalysis.dat	
-analyzer StatAnalysis photonanalysis.dat analysis_settings.dat statanalysis.dat
+analyzer StatAnalysis photonanalysis.dat analysis_settings.dat statanalysis.dat  includeVBF=0
 
 pfisoOffset=2.5
 usePFCiC=0
