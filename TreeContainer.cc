@@ -36,12 +36,17 @@ void TreeContainer::AddTreeBranch(std::string name,int type){
 		tr_->Branch(name.c_str(),&(int_branches[name]),Form("%s/Int_t",name.c_str()));
 		if (TCDEBUG)	std::cout << "TreeContainer -- Creating Int Branch " << name << std::endl;
 	}
-	else if (type==1){	// Float_t
+	else if (type==1){	// Unsigned Int_t
+		uint_branches.insert(std::pair<std::string,unsigned int> (name,-999.) );	
+		tr_->Branch(name.c_str(),&(uint_branches[name]),Form("%s/UInt_t",name.c_str()));
+		if (TCDEBUG)	std::cout << "TreeContainer -- Creating UInt Branch " << name << std::endl;
+	}
+  else if (type==2){	// Float_t
 		float_branches.insert(std::pair<std::string,float> (name,-999.) );
 		tr_->Branch(name.c_str(),&(float_branches[name]),Form("%s/Float_t",name.c_str()));
 		if (TCDEBUG)	std::cout << "TreeContainer -- Creating Float Branch " << name << std::endl;
 	}
-	else if (type==2){	// Double_t
+	else if (type==3){	// Double_t
 		double_branches.insert(std::pair<std::string,double> (name,-999.) );	
 		tr_->Branch(name.c_str(),&(double_branches[name]),Form("%s/Double_t",name.c_str()));
 		if (TCDEBUG)	std::cout << "TreeContainer -- Creating Double Branch " << name << std::endl;
@@ -59,6 +64,7 @@ void TreeContainer::FillFloat(std::string name, float x){
 		std::cerr << "TreeContainer -- No Float Tree " << name << std::endl;
 	}
 }
+
 void TreeContainer::FillInt(std::string name, int x){
 
 	std::map<std::string,int>::iterator it = int_branches.find(name);
@@ -66,6 +72,16 @@ void TreeContainer::FillInt(std::string name, int x){
 		(*it).second = x;
 	} else {
 		std::cerr << "TreeContainer -- No Int Tree " << name << std::endl;
+	}
+}
+
+void TreeContainer::FillUInt(std::string name, unsigned int x){
+
+	std::map<std::string,unsigned int>::iterator it = uint_branches.find(name);
+	if (it!=uint_branches.end()){
+		(*it).second = x;
+	} else {
+		std::cerr << "TreeContainer -- No UInt Tree " << name << std::endl;
 	}
 }
 
@@ -91,6 +107,9 @@ void TreeContainer::Save(){
 
 void TreeContainer::resetDefaults(){
 	for (std::map<std::string,int>::iterator it = int_branches.begin();it!=int_branches.end() ;it++){
+		(*it).second=-999;
+	}
+	for (std::map<std::string,unsigned int>::iterator it = uint_branches.begin();it!=uint_branches.end() ;it++){
 		(*it).second=-999;
 	}
 	for (std::map<std::string,float>::iterator it = float_branches.begin();it!=float_branches.end() ;it++){

@@ -14,6 +14,7 @@ class TreeContainer {
 
   void FillFloat(std::string,  float);
   void FillDouble(std::string, double);
+  void FillUInt(std::string,  unsigned int);
   void FillInt(std::string,  int);
 
   void AddTreeBranch(std::string, int);
@@ -32,9 +33,10 @@ class TreeContainer {
   std::string treeNam;
    
   TTree *tr_;
-  std::map<std::string, double> double_branches;
-  std::map<std::string, float>  float_branches;
-  std::map<std::string, int>    int_branches;
+  std::map<std::string, double>         double_branches;
+  std::map<std::string, float>          float_branches;
+  std::map<std::string, int>            int_branches;
+  std::map<std::string, unsigned int>   uint_branches;
 
   void resetDefaults();
 
