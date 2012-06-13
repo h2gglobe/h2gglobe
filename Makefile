@@ -65,7 +65,6 @@ CXXFLAGS+=-I$(shell pwd)
 SubPkgs     += $(UserPkgs)
 SubPkgsDict += $(UserDict)
 
-
 ############################################################################################################################
 ###
 ### Do not modify below this point, unless you have a good reason

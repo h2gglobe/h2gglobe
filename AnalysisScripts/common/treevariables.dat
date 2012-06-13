@@ -9,5 +9,17 @@ type=0 name=category
 type=1 name=mass
 type=1 name=deltaMoverM
 type=1 name=bdtoutput
-type=0 name=cur_type
+type=1 name=weight
 
+->
+type=1 name=dmom
+type=1 name=dmom_wrong_vtx
+type=1 name=vtxprob
+type=1 name=ptom1
+type=1 name=ptom2
+type=1 name=eta1
+type=1 name=eta2
+type=1 name=dphi
+type=1 name=ph1mva
+type=1 name=ph2mva
+->

@@ -41,6 +41,8 @@ class MassFactorizedMvaAnalysis : public StatAnalysis
 			     float diphobdt_output, float sigmaMrv, float sigmaMwv, float vtxProb,
 			     int diphoton_id, int category, int selectioncategory, float evweight, LoopAll & l );
 
+    void fillTrainTree(LoopAll&, Int_t, Int_t, Int_t, float, TLorentzVector &, TLorentzVector &, float,float,float,const char*,float photonID_1=-50.,float photonID_2=-50.);
+
     bool doPhotonMvaIdSyst;
     bool doPhotonMvaIdSmear;
     bool doRegressionSmear, doRegressionSyst;

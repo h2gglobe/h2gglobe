@@ -34,7 +34,7 @@ SMFILLSTYLE=3244
 FILLCOLOR_95=ROOT.kYellow
 FILLCOLOR_68=ROOT.kGreen
 RANGEYABS=[0.0,0.6]
-RANGEYRAT=[0.0,4]
+RANGEYRAT=[0.0,6]
 #-------------------------------------------------------------------------
 # UserInput
 parser=OptionParser()
@@ -45,7 +45,10 @@ parser.add_option("-b","--bayes",dest="bayes")
 parser.add_option("-o","--outputLimits",dest="outputLimits")
 parser.add_option("-e","--expectedOnly",action="store_true")
 parser.add_option("-p","--path",dest="path")
+parser.add_option("","--massfac",action="store_true",default=False,dest="massfac")
+parser.add_option("","--addLine",action="store_true",default=False,dest="addLine")
 parser.add_option("","--pval",action="store_true")
+parser.add_option("","--is2011",action="store_true",default=False,dest="is2011")
 (options,args)=parser.parse_args()
 # ------------------------------------------------------------------------
 # SM Signal Normalizer
@@ -129,7 +132,7 @@ else:
   OBSfiles = obs[:]
 #-------------------------------------------------------------------------
 # Set-up the GRAPHS
-leg=ROOT.TLegend(0.16,0.61,0.47,0.89)
+leg=ROOT.TLegend(0.16,0.61,0.57,0.89)
 leg.SetFillColor(0)
 leg.SetBorderSize(0)
 
@@ -146,11 +149,44 @@ graph95up = ROOT.TGraphErrors()
 graph95dn = ROOT.TGraphErrors()
 graphmede = ROOT.TGraphErrors()
 
-baseFile = ROOT.TFile.Open("baseline_may31freeze_limit.root")
-graphBase = baseFile.Get("median")
-graphBase.SetLineColor(4)
-graphBase.SetLineStyle(3)
-graphBase.SetLineWidth(3)
+if options.massfac:
+  lim2011 = ROOT.TFile.Open("FullMvaToolkit/CombineCards/7TeV_5.1fb/MassFacMVA/limit.root")
+else:
+  lim2011 = ROOT.TFile.Open("FullMvaToolkit/CombineCards/7TeV_5.1fb/SidebandMVA/limit.root")
+graph2011 = lim2011.Get("median")
+graph2011.SetLineColor(ROOT.kBlue+2)
+graph2011.SetLineStyle(7)
+graph2011.SetLineWidth(3)
+if options.massfac:
+  lim2012 = ROOT.TFile.Open("FullMvaToolkit/CombineCards/8TeV_1.5fb/MassFacMVA/limit.root")
+else:
+  lim2012 = ROOT.TFile.Open("FullMvaToolkit/CombineCards/8TeV_1.5fb/SidebandMVA/limit.root")
+graph2012 = lim2012.Get("median")
+graph2012.SetLineColor(ROOT.kMagenta+1)
+graph2012.SetLineStyle(7)
+graph2012.SetLineWidth(3)
+
+# Stuff for bkg smooth test
+regFile = ROOT.TFile.Open("BkgSmoothTest/ZeeReg/limit.root")
+noRegFile = ROOT.TFile.Open("BkgSmoothTest/ZeeNoReg/limit.root")
+
+graphRegExp = regFile.Get("median")
+graphRegObs = regFile.Get("observed")
+graphNoRegExp = noRegFile.Get("median")
+graphNoRegObs = noRegFile.Get("observed")
+
+graphRegExp.SetLineColor(ROOT.kRed)
+graphRegExp.SetLineStyle(7)
+graphRegExp.SetLineWidth(3)
+graphRegObs.SetLineColor(ROOT.kRed)
+graphRegObs.SetLineWidth(3)
+
+graphNoRegExp.SetLineColor(ROOT.kBlue)
+graphNoRegExp.SetLineStyle(7)
+graphNoRegExp.SetLineWidth(3)
+graphNoRegObs.SetLineColor(ROOT.kBlue)
+graphNoRegObs.SetLineWidth(3)
+
 #-------------------------------------------------------------------------
 # Different entries for the different methods
 LegendEntry = ""
@@ -160,13 +196,20 @@ if Method == "HybridNew": LegendEntry = "CLs"
 if Method == "Asymptotic": LegendEntry = "CLs (Asymptotic)"
 if Method == "AsymptoticNew": LegendEntry = "CLs (AsymptoticNew)"
 
-leg.SetTextSize(0.035);
+leg.SetTextSize(0.025);
 leg.SetHeader("%s"%LegendEntry)
+#leg.AddEntry(graphObs,"Baseline","L")
+#leg.AddEntry(graphRegObs,"Zee regression","L")
+#leg.AddEntry(graphNoRegObs,"Zee no regression","L")
 if not options.expectedOnly: leg.AddEntry(graphObs,"Observed","L")
 if options.bayes and not options.expectedOnly: leg.AddEntry(bayesObs,"Observed Bayesian Limit","L")
-leg.AddEntry(graphMed,"Expected ","L")
+if options.addLine: leg.AddEntry(graphMed,"Expected (combined)","L")
+else: leg.AddEntry(graphMed,"Expected","L")
 leg.AddEntry(graph68,"#pm 1#sigma","F")
 leg.AddEntry(graph95,"#pm 2#sigma","F")
+if options.addLine:
+  leg.AddEntry(graph2011,"Expected (\sqrt{s}=7TeV L=5.1fb^{-1})","L")
+  leg.AddEntry(graph2012,"Expected (\sqrt{s}=8TeV L=1.5fb^{-1})","L")
 
 MG = ROOT.TMultiGraph()
 
@@ -299,10 +342,19 @@ graphObs.SetMarkerStyle(20)
 graphObs.SetMarkerSize(2.0)
 graphObs.SetLineColor(1)
 
+graphMed.SetLineStyle(7)
+graphMed.SetLineColor(ROOT.kBlack)
 MG.Add(graph95)
 MG.Add(graph68)
 MG.Add(graphMed)
+if options.addLine:
+  MG.Add(graph2011)
+  MG.Add(graph2012)
 #MG.Add(graphBase)
+#MG.Add(graphRegExp)
+#MG.Add(graphRegObs)
+#MG.Add(graphNoRegExp)
+#MG.Add(graphNoRegObs)
 
 if not options.expectedOnly:
   MG.Add(graphObs)
@@ -319,7 +371,7 @@ dummyHist.Draw("AXIS")
 MG.Draw("L3")
 dummyHist.Draw("AXIGSAME")
 
-dummyHist.GetXaxis().SetTitle("m_{H} GeV")
+dummyHist.GetXaxis().SetTitle("m_{H} (GeV)")
 dummyHist.GetXaxis().SetRangeUser(min(OBSmasses)-OFFSETLOW,max(OBSmasses)+OFFSETHIGH)
 if options.doRatio:
  dummyHist.GetYaxis().SetRangeUser(RANGEYRAT[0],RANGEYRAT[1])
@@ -334,8 +386,14 @@ mytext = ROOT.TLatex()
 mytext.SetTextSize(0.04)
 
 mytext.SetNDC()
-mytext.DrawLatex(0.48,0.85,"CMS preliminary")
-mytext.DrawLatex(0.48,0.77,"#splitline{#sqrt{s} = 7 TeV L = 5.1 fb^{-1} (2011)}{#sqrt{s} = 8 TeV L = 1.5 fb^{-1}(2012)}")
+mytext.SetTextSize(0.03)
+if options.addLine:
+  mytext.DrawLatex(0.58,0.85,"CMS preliminary")
+  mytext.DrawLatex(0.58,0.77,"#splitline{#sqrt{s} = 7 TeV L = 5.1 fb^{-1} (2011)}{#sqrt{s} = 8 TeV L = 1.5 fb^{-1} (2012)}")
+else:
+  if options.is2011: mytext.DrawLatex(0.58,0.77,"#splitline{CMS preliminary}{#sqrt{s} = 7 TeV L = 5.1 fb^{-1}}")
+  else: mytext.DrawLatex(0.58,0.77,"#splitline{CMS preliminary}{#sqrt{s} = 8 TeV L = 1.5 fb^{-1}}")
+  
 leg.Draw()
 
 #Make a bunch of extensions to the plots

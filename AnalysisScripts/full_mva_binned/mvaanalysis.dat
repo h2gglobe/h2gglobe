@@ -90,7 +90,7 @@ nPtCategories=1
 doTriggerSelection=0
 reRunCiCForData=1
 
-doTraining=0
+doTraining=1
 splitSignalSample=0
 splitBackgroundSample=0
 

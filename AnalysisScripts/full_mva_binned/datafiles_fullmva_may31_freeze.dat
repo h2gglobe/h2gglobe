@@ -1,4 +1,5 @@
-intL=1490. histfile=/castor/cern.ch/user/c/cmshgg/MvaAnalysis/may31freeze/%(label)s/CMS-HGG.root output=eventsList.txt
+intL=1490. histfile=/castor/cern.ch/user/m/mkenzie/h2g/fitter_output/may31freeze/%(label)s/CMS-HGG.root output=eventsList.txt
+#intL=1490. histfile=CMS-HGG.root output=eventsList.txt
 
 #
 # Data

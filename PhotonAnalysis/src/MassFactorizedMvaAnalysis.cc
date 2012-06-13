@@ -873,7 +873,8 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
         }
                            
         // Must be calculated after photon id has potentially been smeared
-        float diphobdt_output = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id] ,vtxProb,lead_p4,sublead_p4 ,sigmaMrv,sigmaMwv,sigmaMeonly ,bdtTrainingPhilosophy.c_str() ,phoid_mvaout_lead,phoid_mvaout_sublead);
+        //fillTrainTree(l,diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id] ,vtxProb,lead_p4,sublead_p4 ,sigmaMrv,sigmaMwv,sigmaMeonly ,bdtTrainingPhilosophy.c_str() ,phoid_mvaout_lead,phoid_mvaout_sublead);
+            float diphobdt_output = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id] ,vtxProb,lead_p4,sublead_p4 ,sigmaMrv,sigmaMwv,sigmaMeonly ,bdtTrainingPhilosophy.c_str() ,phoid_mvaout_lead,phoid_mvaout_sublead);
         kinematic_bdtout = diphobdt_output;
         bool isEBEB  = (lead_p4.Eta() < 1.4442 ) && fabs(sublead_p4.Eta()<1.4442);
         category = GetBDTBoundaryCategory(diphobdt_output,isEBEB,VBFevent);
@@ -1161,6 +1162,26 @@ int MassFactorizedMvaAnalysis::GetBDTBoundaryCategory(float bdtout, bool isEB, b
         }
 
     } else std::cerr << "No BDT Philosophy known - " << bdtTrainingPhilosophy << std::endl;
+}
+void MassFactorizedMvaAnalysis::fillTrainTree(LoopAll &l, Int_t leadingPho, Int_t subleadingPho, Int_t vtx, float vtxProb, TLorentzVector &leadP4, TLorentzVector &subleadP4, float sigmaMrv, float sigmaMwv, float sigmaMeonly, const char* type, float photonID_1,float photonID_2){
+    
+      Float_t mva = 99.;
+      TLorentzVector Higgs = leadP4+subleadP4;
+      float leadPt    = leadP4.Pt();
+      float subleadPt = subleadP4.Pt();
+      float mass     = Higgs.M();
+      float diphopt   = Higgs.Pt();
+
+    l.FillTree("dmom",sigmaMrv/mass);
+    l.FillTree("dmom_wrong_vtx",sigmaMwv/mass);
+    l.FillTree("vtxprob",vtxProb);
+    l.FillTree("ptom1",leadPt/mass);
+    l.FillTree("ptom2",subleadPt/mass);
+    l.FillTree("eta1",leadP4.Eta());
+    l.FillTree("eta2",subleadP4.Eta());
+    l.FillTree("dphi",TMath::Cos(leadP4.Phi()-subleadP4.Phi()));
+    l.FillTree("ph1mva",photonID_1);
+    l.FillTree("ph2mva",photonID_2);
 }
 
 void MassFactorizedMvaAnalysis::ResetAnalysis(){
