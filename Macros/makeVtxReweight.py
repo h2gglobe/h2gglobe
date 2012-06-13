@@ -8,7 +8,7 @@ class options:
    def __init__(self):
       ## self.eff = "/afs/cern.ch/user/m/malberti/public/scaleFactors/vtxIdEff_vs_bosonPt_globe_Glu120_S6_PUweights_2011_68000.root"
       self.eff = "../AnalysisScripts/aux/vtxEff_mH120_Summer12_S7.root"
-      self.eff_ratio = "/afs/cern.ch/user/m/malberti/public/scaleFactors/BDT_vtxIdScaleFactorFromZmumu_DYJetsToLL_Fall11_S6_Run2011all_reload.root"
+      self.eff_ratio = "/afs/cern.ch/user/m/malberti/public/scaleFactors/vtxIdScaleFactorFromZmumu_Summer12_PUweights_minBiasXsec69000_observed.root"
       self.n_categories = 8
       self.outfile = "vertex_reweighing.root"
       
@@ -57,7 +57,7 @@ for i in range(mc_eff.GetN()):
     if( x < 40 ):
        effe = 0.005
     else:
-       effe = 0.002
+       effe = 0.0005
     ## if eff < 0.95 and eff*pw <0.95:
     if eff < 0.98:
         fw  = (1. - eff*pw)  / (1. - eff)
