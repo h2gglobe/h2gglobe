@@ -30,7 +30,8 @@ void MassFactorizedMvaAnalysis::Term(LoopAll& l)
 
     if (! l.is_subjob){ // no need to waste time when running a subjob
         std::string outputfilename = (std::string) l.histFileName;
-        l.rooContainer->FitToData("data_pol_model","data_mass");  // Fit to full range of dataset
+        if (dataIs2011) l.rooContainer->FitToData("data_pol_model_7TeV","data_mass");
+        else l.rooContainer->FitToData("data_pol_model_8TeV","data_mass");  // Fit to full range of dataset
     }
 
     eventListText.close();
@@ -366,12 +367,12 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
         // UCSD BDT Categories
 
         std::vector<std::string> data_pol5_pars(5,"p");   
-        data_pol5_pars[0] = "modpol0";
-        data_pol5_pars[1] = "modpol1";
-        data_pol5_pars[2] = "modpol2";
-        data_pol5_pars[3] = "modpol3";
-        data_pol5_pars[4] = "modpol4";
-        l.rooContainer->AddGenericPdf("data_pol_model","0","CMS_hgg_mass",data_pol5_pars,75); // >= 71 means RooBernstein of order >= 1
+        data_pol5_pars[0] = "modpol0_8TeV";
+        data_pol5_pars[1] = "modpol1_8TeV";
+        data_pol5_pars[2] = "modpol2_8TeV";
+        data_pol5_pars[3] = "modpol3_8TeV";
+        data_pol5_pars[4] = "modpol4_8TeV";
+        l.rooContainer->AddGenericPdf("data_pol_model_8TeV","0","CMS_hgg_mass",data_pol5_pars,75); // >= 71 means RooBernstein of order >= 1
 
     } else if (bdtTrainingPhilosophy=="MIT"){
         // MIT BDT Categories
@@ -401,27 +402,27 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
             int poly5cats[6] = {0,1,1,1,0,0};
 
             std::vector<std::string> data_pol5_pars(5,"p");   
-            data_pol5_pars[0] = "modpol0";
-            data_pol5_pars[1] = "modpol1";
-            data_pol5_pars[2] = "modpol2";
-            data_pol5_pars[3] = "modpol3";
-            data_pol5_pars[4] = "modpol4";
-            l.rooContainer->AddSpecificCategoryPdf(poly5cats,"data_pol_model",
+            data_pol5_pars[0] = "modpol0_8TeV";
+            data_pol5_pars[1] = "modpol1_8TeV";
+            data_pol5_pars[2] = "modpol2_8TeV";
+            data_pol5_pars[3] = "modpol3_8TeV";
+            data_pol5_pars[4] = "modpol4_8TeV";
+            l.rooContainer->AddSpecificCategoryPdf(poly5cats,"data_pol_model_8TeV",
                                                    "0","CMS_hgg_mass",data_pol5_pars,75);  // >= 71 means RooBernstein of order >= 1
 
             std::vector<std::string> data_pol4_pars(4,"p");   
-            data_pol4_pars[0] = "modpol0";
-            data_pol4_pars[1] = "modpol1";
-            data_pol4_pars[2] = "modpol2";
-            data_pol4_pars[3] = "modpol3";
-            l.rooContainer->AddSpecificCategoryPdf(poly4cats,"data_pol_model",
+            data_pol4_pars[0] = "modpol0_8TeV";
+            data_pol4_pars[1] = "modpol1_8TeV";
+            data_pol4_pars[2] = "modpol2_8TeV";
+            data_pol4_pars[3] = "modpol3_8TeV";
+            l.rooContainer->AddSpecificCategoryPdf(poly4cats,"data_pol_model_8TeV",
                                                    "0","CMS_hgg_mass",data_pol4_pars,74);    // >= 71 means RooBernstein of order >= 1
 
             std::vector<std::string> data_pol3_pars(3,"p");   
-            data_pol3_pars[0] = "modpol0";
-            data_pol3_pars[1] = "modpol1";
-            data_pol3_pars[2] = "modpol2";
-            l.rooContainer->AddSpecificCategoryPdf(poly3cats,"data_pol_model",
+            data_pol3_pars[0] = "modpol0_8TeV";
+            data_pol3_pars[1] = "modpol1_8TeV";
+            data_pol3_pars[2] = "modpol2_8TeV";
+            l.rooContainer->AddSpecificCategoryPdf(poly3cats,"data_pol_model_8TeV",
                                                    "0","CMS_hgg_mass",data_pol3_pars,73);    // >= 71 means RooBernstein of order >= 1
         }
         else{
@@ -430,26 +431,26 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
             int poly5cats[4] = {0,0,1,1};
 
             std::vector<std::string> data_pol5_pars(5,"p");   
-            data_pol5_pars[0] = "modpol0";
-            data_pol5_pars[1] = "modpol1";
-            data_pol5_pars[2] = "modpol2";
-            data_pol5_pars[3] = "modpol3";
-            data_pol5_pars[4] = "modpol4";
-            l.rooContainer->AddSpecificCategoryPdf(poly5cats,"data_pol_model",
+            data_pol5_pars[0] = "modpol0_8TeV";
+            data_pol5_pars[1] = "modpol1_8TeV";
+            data_pol5_pars[2] = "modpol2_8TeV";
+            data_pol5_pars[3] = "modpol3_8TeV";
+            data_pol5_pars[4] = "modpol4_8TeV";
+            l.rooContainer->AddSpecificCategoryPdf(poly5cats,"data_pol_model_8TeV",
                                                    "0","CMS_hgg_mass",data_pol5_pars,75);  // >= 71 means RooBernstein of order >= 1
 
             std::vector<std::string> data_pol4_pars(4,"p");   
-            data_pol4_pars[0] = "modpol0";
-            data_pol4_pars[1] = "modpol1";
-            data_pol4_pars[2] = "modpol2";
-            data_pol4_pars[3] = "modpol3";
-            l.rooContainer->AddSpecificCategoryPdf(poly4cats,"data_pol_model",
+            data_pol4_pars[0] = "modpol0_8TeV";
+            data_pol4_pars[1] = "modpol1_8TeV";
+            data_pol4_pars[2] = "modpol2_8TeV";
+            data_pol4_pars[3] = "modpol3_8TeV";
+            l.rooContainer->AddSpecificCategoryPdf(poly4cats,"data_pol_model_8TeV",
                                                    "0","CMS_hgg_mass",data_pol4_pars,74);    // >= 71 means RooBernstein of order >= 1
 
             std::vector<std::string> data_pol2_pars(2,"p");   
-            data_pol2_pars[0] = "modpol0";
-            data_pol2_pars[1] = "modpol1";
-            l.rooContainer->AddSpecificCategoryPdf(poly2cats,"data_pol_model",
+            data_pol2_pars[0] = "modpol0_8TeV";
+            data_pol2_pars[1] = "modpol1_8TeV";
+            l.rooContainer->AddSpecificCategoryPdf(poly2cats,"data_pol_model_8TeV",
                                                    "0","CMS_hgg_mass",data_pol2_pars,72);    // >= 71 means RooBernstein of order >= 1
             // -----------------------------------------------------
         }
