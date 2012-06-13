@@ -5,6 +5,8 @@ nVBFDijetJetCategories=2
 leadEtVBFCut=60
 subleadEtVBFCut=25
 
+usePUjetveto=1
+
 ## Hadronic V tag
 includeVHhad=0
 nVHhadEtaCategories=1

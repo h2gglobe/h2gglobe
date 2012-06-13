@@ -2089,7 +2089,7 @@ bool PhotonAnalysis::VBFTag2011(LoopAll& l, int diphoton_id, float* smeared_pho_
 
 bool PhotonAnalysis::VBFTag2012(int & ijet1, int & ijet2, 
 				LoopAll& l, int diphoton_id, float* smeared_pho_energy, bool nm1, float eventweight, 
-				float myweight, bool * jetid_flags)
+				float myweight, bool * jetid_flags, bool usepuveto)
 {
     static std::vector<unsigned char> id_flags;
     bool tag = false;
@@ -2110,7 +2110,13 @@ bool PhotonAnalysis::VBFTag2012(int & ijet1, int & ijet2,
     TLorentzVector lead_p4    = l.get_pho_p4( l.dipho_leadind[diphoton_id], l.dipho_vtxind[diphoton_id], &smeared_pho_energy[0]);
     TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphoton_id], l.dipho_vtxind[diphoton_id], &smeared_pho_energy[0]);
           
-    std::pair<int, int> jets = l.Select2HighestPtJets(lead_p4, sublead_p4, jet1ptcut, jet2ptcut, jetid_flags );
+    std::pair<int, int> jets;
+    if(usepuveto){
+        jets = l.Select2HighestPtJets(lead_p4, sublead_p4, jet1ptcut, jet2ptcut, jetid_flags );
+    } else {
+        jets = l.Select2HighestPtJets(lead_p4, sublead_p4, jet1ptcut, jet2ptcut);
+    }
+
     if(jets.first==-1 || jets.second==-1) return tag;
     
     TLorentzVector diphoton = lead_p4+sublead_p4;
