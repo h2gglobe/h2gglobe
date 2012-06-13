@@ -1334,7 +1334,7 @@ void LoopAll::FillTree(std::string name,int x){
 }
 // ------------------------------------------------------------------------------------
 void LoopAll::FillTree(std::string name,unsigned int x){
-  treeContainer[current_sample_index].FillInt(name, x);
+  treeContainer[current_sample_index].FillUInt(name, x);
 }
  
 // ------------------------------------------------------------------------------------
