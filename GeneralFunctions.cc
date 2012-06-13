@@ -1038,9 +1038,9 @@ int  LoopAll::matchPhotonToConversion( int lpho) {
     phi  = refittedPairMomentum.Phi();
     conv_phi  = phiNorm(phi);
     float eta  = refittedPairMomentum.Eta();
-    float zpositionfromconv = get_pho_zposfromconv(*((TVector3*) conv_vtx->At(iconv)),*((TVector3*) sc_xyz->At(pho_scind[lpho])),*((TVector3*) bs_xyz->At(0)));
-    //conv_eta = etaTransformation(eta, conv_zofprimvtxfromtrks[iconv] );
-    conv_eta = etaTransformation(eta, zpositionfromconv );
+    //float zpositionfromconv = get_pho_zposfromconv(*((TVector3*) conv_vtx->At(iconv)),*((TVector3*) sc_xyz->At(pho_scind[lpho])),*((TVector3*) bs_xyz->At(0)));
+    conv_eta = etaTransformation(eta, conv_zofprimvtxfromtrks[iconv] );
+    //conv_eta = etaTransformation(eta, zpositionfromconv );
 
     //    cout << " conversion index " << iconv << " eta " <<conv_eta<<  " norm phi " << conv_phi << " PT " << conv_pt << endl; 
 
