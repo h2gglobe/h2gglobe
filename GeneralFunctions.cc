@@ -1015,8 +1015,8 @@ int  LoopAll::matchPhotonToConversion( int lpho) {
 //  float  phi  = ((TVector3 *) pho_calopos->At(lpho))->Phi();
   double sc_phi = phiNorm(phi);
   
-  TLorentzVector * p4 = (TLorentzVector *) pho_p4->At(lpho);
-  float et = p4->Energy() / cosh(sc_eta);
+  /// TLorentzVector * p4 = (TLorentzVector *) pho_p4->At(lpho);
+  /// float et = p4->Energy() / cosh(sc_eta);
   //  cout << " photon index " << lpho << " eta " <<sc_eta<< " phi " << sc_phi << " et " << et << endl; 
   
   float detaMin=999.;
@@ -3307,15 +3307,15 @@ int LoopAll::PhotonCiCPFSelectionLevel( int photon_index, int vertex_index, std:
       }
       bool ph_passcut_all = true;
       for(int icut=0;icut!=8;++icut) {
-  ph_passcut_all = ph_passcut_all && ph_passcut[iCUTLEVEL][icut];
+	ph_passcut_all = ph_passcut_all && ph_passcut[iCUTLEVEL][icut];
       }
       if(ph_passcut_all) {
-  if( cutlevelpassed != iCUTLEVEL - 1 ) {
-    std::cerr << "photon " << photon_index << " (category " << photon_category << ") in run/event " << run << "/" << event << " passed CiC cut level " 
-        << iCUTLEVEL << " but not "  << iCUTLEVEL - 1 << ". Did you load your cut values correctly? "<< std::endl;
-    /// assert( 0 );
-  }
-  cutlevelpassed=iCUTLEVEL;
+	if( cutlevelpassed != iCUTLEVEL - 1 && ( cicVersion != "ichep" || cutlevelpassed >4 ) ) {
+	  std::cerr << "photon " << photon_index << " (category " << photon_category << ") in run/event " << run << "/" << event << " passed CiC cut level " 
+		    << iCUTLEVEL << " but not "  << iCUTLEVEL - 1 << ". Did you load your cut values correctly? "<< std::endl;
+	  /// assert( 0 );
+	}
+	cutlevelpassed=iCUTLEVEL;
       }
     }
   } else if(doSublead) {
@@ -3348,12 +3348,12 @@ int LoopAll::PhotonCiCPFSelectionLevel( int photon_index, int vertex_index, std:
   ph_passcut_all = ph_passcut_all && ph_passcut[iCUTLEVEL][icut];
       }
       if(ph_passcut_all) {
-  if( cutlevelpassed != iCUTLEVEL - 1 ) {
-    std::cerr << "photon " << photon_index << " (category " << photon_category << ") in run/event " << run << "/" << event << " passed CiC cut level " 
-        << iCUTLEVEL << " but not "  << iCUTLEVEL - 1 << ". Did you load your cut values correctly? " << std::endl;
-    //// assert( 0 );
-  }
-  cutlevelpassed=iCUTLEVEL;
+	if( cutlevelpassed != iCUTLEVEL - 1  && ( cicVersion != "ichep" || cutlevelpassed >4 ) ) {
+	  std::cerr << "photon " << photon_index << " (category " << photon_category << ") in run/event " << run << "/" << event << " passed CiC cut level " 
+		    << iCUTLEVEL << " but not "  << iCUTLEVEL - 1 << ". Did you load your cut values correctly? " << std::endl;
+	  //// assert( 0 );
+	}
+	cutlevelpassed=iCUTLEVEL;
       }
     }
   }
