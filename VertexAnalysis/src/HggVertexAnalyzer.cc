@@ -766,27 +766,27 @@ void HggVertexAnalyzer::analyze(const VertexInfoAdapter & e, const PhotonInfo & 
 	float zconv=0., szconv=0.;
 	float nlegs1 = 0., nlegs2 = 0.;
 	if ( (p1.isAConversion() || p2.isAConversion() ) )  {
-		setNConv(1);
-		if (p1.isAConversion()  && !p2.isAConversion() ){
-			zconv  = vtxZFromConv (p1);
-			szconv = vtxdZFromConv(p1);
-		}
-		if (p2.isAConversion() && !p1.isAConversion()){
-			zconv  = vtxZFromConv (p2);
-			szconv = vtxdZFromConv(p2);
-		}
-		
-		if (p1.isAConversion() && p2.isAConversion()){
-			setNConv(2);
-			float z1  = vtxZFromConv (p1);
-			float sz1 = vtxdZFromConv(p1);
-			
-			float z2  = vtxZFromConv (p2);
-			float sz2 = vtxdZFromConv(p2);
-			
-			zconv  = (z1/sz1/sz1 + z2/sz2/sz2)/(1./sz1/sz1 + 1./sz2/sz2 );  // weighted average
-			szconv = sqrt( 1./(1./sz1/sz1 + 1./sz2/sz2)) ;
-		}
+		getZFromConvPair(zconv,szconv,p1,p2);
+		///////// if (p1.isAConversion()  && !p2.isAConversion() ){
+		///////// 	zconv  = vtxZFromConv (p1);
+		///////// 	szconv = vtxdZFromConv(p1);
+		///////// }
+		///////// if (p2.isAConversion() && !p1.isAConversion()){
+		///////// 	zconv  = vtxZFromConv (p2);
+		///////// 	szconv = vtxdZFromConv(p2);
+		///////// }
+		///////// 
+		///////// if (p1.isAConversion() && p2.isAConversion()){
+		///////// 	setNConv(2);
+		///////// 	float z1  = vtxZFromConv (p1);
+		///////// 	float sz1 = vtxdZFromConv(p1);
+		///////// 	
+		///////// 	float z2  = vtxZFromConv (p2);
+		///////// 	float sz2 = vtxdZFromConv(p2);
+		///////// 	
+		///////// 	zconv  = (z1/sz1/sz1 + z2/sz2/sz2)/(1./sz1/sz1 + 1./sz2/sz2 );  // weighted average
+		///////// 	szconv = sqrt( 1./(1./sz1/sz1 + 1./sz2/sz2)) ;
+		///////// }
 		if (p1.isAConversion()) {
 			nlegs1 = p1.nTracks();
 		}
@@ -928,6 +928,34 @@ void HggVertexAnalyzer::analyze(const VertexInfoAdapter & e, const PhotonInfo & 
 		preselection_.push_back(vid);
 	}
 	
+}
+
+
+// -------------------------------------------------------------------------------------------------------------------------------------------------------------
+void HggVertexAnalyzer::getZFromConvPair(float & zconv,float & szconv, const PhotonInfo & p1, const PhotonInfo &p2)
+{
+	if (p1.isAConversion()  && !p2.isAConversion() ){
+		setNConv(1);
+		zconv  = vtxZFromConv (p1);
+		szconv = vtxdZFromConv(p1);
+	}
+	if (p2.isAConversion() && !p1.isAConversion()){
+		setNConv(1);
+		zconv  = vtxZFromConv (p2);
+		szconv = vtxdZFromConv(p2);
+	}
+	
+	if (p1.isAConversion() && p2.isAConversion()){
+		setNConv(2);
+		float z1  = vtxZFromConv (p1);
+		float sz1 = vtxdZFromConv(p1);
+		
+		float z2  = vtxZFromConv (p2);
+		float sz2 = vtxdZFromConv(p2);
+		
+		zconv  = (z1/sz1/sz1 + z2/sz2/sz2)/(1./sz1/sz1 + 1./sz2/sz2 );  // weighted average
+		szconv = sqrt( 1./(1./sz1/sz1 + 1./sz2/sz2)) ;
+	}
 }
 
 // -------------------------------------------------------------------------------------------------------------------------------------------------------------

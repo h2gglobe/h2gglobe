@@ -51,6 +51,8 @@ class PhotonAnalysis : public BaseAnalysis
     VertexAlgoParameters vtxAlgoParams;  
     std::vector<std::string> vtxVarNames;
     std::vector<string> tmvaPerVtxVariables;
+
+    bool reRunVtx, rematchConversions;
     
     std::string tmvaPerVtxMethod;                           
     std::string tmvaPerVtxWeights;                  

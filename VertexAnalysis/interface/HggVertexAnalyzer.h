@@ -98,6 +98,7 @@ public:
 	double vtxZFromConv(const PhotonInfo & pho, int method=0);
 	double vtxZFromConvSuperCluster(const PhotonInfo & pho);
 	double vtxZFromConvOnly(const PhotonInfo & pho);
+	void getZFromConvPair(float & zconv,float & szconv, const PhotonInfo & p1,const PhotonInfo &p2);
 	void setPullToConv(int ivert, float pull, float lim=10.);
 	void setNConv(int n);
 	

@@ -31,6 +31,9 @@ PhotonAnalysis::PhotonAnalysis()  :
     useDefaultVertex=false;
     forcedRho = -1.;
 
+    reRunVtx = false;
+    rematchConversions = true;
+    
     keepPP = true;
     keepPF = true;
     keepFF = true; 
@@ -2228,6 +2231,7 @@ void PhotonAnalysis::reVertex(LoopAll & l)
     l.vtx_std_ranked_list->clear();
     l.vtx_std_evt_mva->clear();
     std::vector<int> preselAll;
+
     for(int i=0; i<l.vtx_std_n ; i++) {
 	preselAll.push_back(i); 
     }
@@ -2236,7 +2240,23 @@ void PhotonAnalysis::reVertex(LoopAll & l)
     for(int id=0; id<l.dipho_n; ++id ) {
 	
 	vtxAna_.setPairID(id);
-        
+	
+	if( rematchConversions ) {
+	    PhotonInfo p1 = l.fillPhotonInfos(l.dipho_leadind[id], true, 0); // WARNING using default photon energy: it's ok because we only re-do the conversion part
+	    PhotonInfo p2 = l.fillPhotonInfos(l.dipho_subleadind[id], true, 0); // WARNING using default photon energy: it's ok because we only re-do the conversion part
+	    
+	    float zconv, szconv;
+	    vtxAna_.getZFromConvPair(zconv,  szconv, p1, p2);
+	    
+	    for(int vid=0; vid<l.vtx_std_n; ++vid) {
+		if( vtxAna_.nconv(vid) > 0 ) {
+		    vtxAna_.setPullToConv( vid, fabs(  ((TVector3 *)l.vtx_std_xyz->At(vid))->Z() - zconv ) / szconv );
+		} else {
+		    vtxAna_.setPullToConv( vid, -1. );
+		}
+	    }
+	}
+	
 	l.vtx_std_ranked_list->push_back( vtxAna_.rank(*tmvaPerVtxReader_,tmvaPerVtxMethod) );
 	l.dipho_vtxind[id] = l.vtx_std_ranked_list->back()[0];
 	if( tmvaPerEvtReader_ ) {

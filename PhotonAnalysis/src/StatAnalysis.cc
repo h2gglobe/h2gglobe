@@ -22,7 +22,6 @@ StatAnalysis::StatAnalysis()  :
     nSystSteps = 1;    
     doSystematics = true;   
     dataIs2011 = false;
-    reRunVtx = false;
     nVBFDijetJetCategories=2;
     scaleClusterShapes = true;
     dumpAscii = false;
@@ -705,8 +704,8 @@ bool StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		FillRooContainerSyst(l, (*si)->name(), cur_type, mass_errors, mva_errors, categories, weights);
 	    }
 	}
-
-    int diphoton_id_syst;	
+	
+	int diphoton_id_syst;	
 	// single photon level systematics: several
 	for(std::vector<BaseSmearer *>::iterator  si=systPhotonSmearers_.begin(); si!= systPhotonSmearers_.end(); ++si ) {
 	    mass_errors.clear(), weights.clear(), categories.clear(), mva_errors.clear();
@@ -911,8 +910,13 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 		eventListText << "\tvertexId"<< ii+1 <<":" << (ii < vtxlist.size() ? vtxlist[ii] : -1);
 	    }
 	    for(size_t ii=0; ii<3; ++ii ) {
-		eventListText << "\tvertexMva"<< ii+1 <<":" << (ii < vtxlist.size() ? vtxAna_.mva(ii) : -2.);
+		eventListText << "\tvertexMva"<< ii+1 <<":" << (ii < vtxlist.size() ? vtxAna_.mva(vtxlist[ii]) : -2.);
 	    }
+	    eventListText << "\tptbal:"   << vtxAna_.ptbal(0)
+			  << "\tptasym:"  << vtxAna_.ptasym(0)
+			  << "\tlogspt2:" << vtxAna_.logsumpt2(0)
+			  << "\tp2conv:"  << vtxAna_.pulltoconv(0)
+		;
 	    dumpPhoton(eventListText,1,l,l.dipho_leadind[diphoton_id],l.dipho_vtxind[diphoton_id],lead_p4,&smeared_pho_energy[0]);
 	    dumpPhoton(eventListText,2,l,l.dipho_subleadind[diphoton_id],l.dipho_vtxind[diphoton_id],sublead_p4,&smeared_pho_energy[0]);
 	    if( VBFevent ) {
@@ -1247,7 +1251,7 @@ void dumpJet(std::ostream & eventListText, int lab, LoopAll & l, int ijet)
     eventListText << std::setprecision(4) << std::scientific
 		  << "\tjec"      << lab << ":" << l.jet_algoPF1_erescale[ijet]
 		  << "\tbetaStar" << lab << ":" << l.jet_algoPF1_betaStarClassic[ijet]
-		  << "\tRMS"      << lab << ":" << l.jet_algoPF1_dRMean[ijet]
+		  << "\tRMS"      << lab << ":" << l.jet_algoPF1_dR2Mean[ijet]
 	;
 }
 
@@ -1279,10 +1283,17 @@ void dumpPhoton(std::ostream & eventListText, int lab,
     float val_trkisooet    = (val_tkiso) * 50. / phop4.Pt();
 
     eventListText << std::setprecision(4) << std::scientific
-		  << "\tchIso03" << lab << ":" << val_tkiso
+		  << "\tchIso03"  << lab << ":" << val_tkiso
 		  << "\tphoIso03" << lab << ":" << val_ecaliso 
-		  << "\tchIso04" << lab << ":" << val_tkisobad
+		  << "\tchIso04"  << lab << ":" << val_tkisobad
 		  << "\tphoIso04" << lab << ":" << val_ecalisobad 
+		  << "\tsIeIe"    << lab << ":" << val_sieie
+		  << "\thoe"      << lab << ":" << val_hoe
+		  << "\tecalIso"  << lab << ":" << l.pho_ecalsumetconedr03[ipho]
+		  << "\thcalIso"  << lab << ":" << l.pho_hcalsumetconedr03[ipho]
+		  << "\ttrkIso"   << lab << ":" << l.pho_trksumpthollowconedr03[ipho]
+		  << "\tchIso02"  << lab << ":" << (*l.pho_pfiso_mycharged02)[ipho][ivtx]
+		  << "\teleVeto"  << lab << ":" << !val_conv
 	;
 }
 
