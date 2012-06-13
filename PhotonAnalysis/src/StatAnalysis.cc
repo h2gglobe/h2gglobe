@@ -577,6 +577,23 @@ bool StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     float weight = l.sampleContainer[l.current_sample_index].weight;
     float sampleweight = l.sampleContainer[l.current_sample_index].weight;
 
+    //remove bad events for DiPhotonJets
+    if (cur_type==4) {
+	if ((l.event>=270000 && l.event<=390000) ||
+	    (l.event>=480000 && l.event<=510000) ||
+	    (l.event>=1170000 && l.event<=1200000) ||
+	    (l.event>=1230000 && l.event<=1260000) ||
+	    (l.event>=1890000 && l.event<=1920000) ||
+	    (l.event>=2670000 && l.event<=2730000) ||
+	    (l.event>=3090000 && l.event<=3210000) ||
+	    (l.event>=3270000 && l.event<=3300000) ||
+	    (l.event>=3510000 && l.event<=3600000) ||
+	    (l.event>=4890000 && l.event<=5010000) ||
+	    (l.event>=5340000 && l.event<=5370000) ||
+	    (l.event>=5430000 && l.event<=5500000))
+	    return false;
+    }
+
     // Set reRunCiC Only if this is an MC event since scaling of R9 and Energy isn't done at reduction
     if (cur_type==0) {
         l.runCiC=reRunCiCForData;
@@ -764,6 +781,7 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 	smeared_pho_weight.clear(); smeared_pho_weight.resize(l.pho_n,1.);
 	applySinglePhotonSmearings(smeared_pho_energy, smeared_pho_r9, smeared_pho_weight, cur_type, l, energyCorrected, energyCorrectedError,
 				   phoSys, syst_shift);
+
 
 	// inclusive category di-photon selection
 	// FIXME pass smeared R9
@@ -1235,7 +1253,11 @@ void StatAnalysis::rescaleClusterVariables(LoopAll &l){
 	    }
 	}
 
-	energyCorrectedError[ipho] *=(l.pho_isEB[ipho]) ? 1. : 1. ;
+	if (l.pho_isEB[ipho]) {
+	    energyCorrectedError[ipho] = 1.0265*energyCorrectedError[ipho]-0.0000317466;
+	} else {
+	    energyCorrectedError[ipho] = 1.0326*energyCorrectedError[ipho]+0.0018304;
+	}
     }
 }
 
