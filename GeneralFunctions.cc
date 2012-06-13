@@ -3219,7 +3219,9 @@ bool LoopAll::PhotonMITPreSelection( int photon_index, int vertex_index, float *
    }
    
    // this does not depend on R9
-   if (val_pfiso02 >= mitCuts_pfiso[photon_category]) return false;            
+   if( typerun != kReduce ) {
+	   if (val_pfiso02 >= mitCuts_pfiso[photon_category]) return false;            
+   }
    
    return true;
 }
