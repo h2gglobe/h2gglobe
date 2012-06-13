@@ -1,15 +1,15 @@
 ->
 Declare Branches for flat tree which will be saved in output
 delare:
-	type=0,1,2 (int,float,double)
+	type=0,1,2,3 (int,unsigned int,float,double)
 	name=name 
 ->
 
 type=0 name=category
-type=1 name=mass
-type=1 name=deltaMoverM
-type=1 name=bdtoutput
-type=1 name=weight
+type=2 name=mass
+type=2 name=deltaMoverM
+type=2 name=bdtoutput
+type=2 name=weight
 
 ->
 type=1 name=dmom
