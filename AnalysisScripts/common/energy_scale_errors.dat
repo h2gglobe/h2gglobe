@@ -3,13 +3,19 @@
 # these numbers for june15unblind - https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/779.html
 # also see https://twiki.cern.ch/twiki/pub/CMS/EcalEnergyResolutionWithZee/Hgg-rerecoICHEP2012.pdfEBlowEtaBad  
 
-EBlowEtaGoldGAP    2    0    1    0.94    999    000000    999999  0.00000  0.0002
-EBlowEtaGoldCM    1    0    1    0.94    999    000000    999999    0.00000  0.0002
-EBlowEtaBadGAP    2    0    1    -999    0.94    000000    999999    0.00000   0.0002
-EBlowEtaBadCM    1    0    1    -999    0.94    000000    999999    0.00000   0.0002
-EBhighEtaBad    0    1    1.4442    -999    0.94    000000    999999    0.00000   0.0005
-EBhighEtaGold    0    1    1.4442    0.94    999    000000    999999    0.00000  0.0018
-EElowEtaBad    0    1.566    2    -999    0.94    000000    999999    0.00000   0.0007
-EElowEtaGold    0    1.566    2    0.94    999    000000    999999    0.00000  0.0016
-EEhighEtaBad    0    2    2.5    -999    0.94    000000    999999    0.00000   0.0120
-EEhighEtaGold    0    2    2.5    0.94    999    000000    999999    0.00000  0.0120
+# category      type(0=any,1=CM,2=GAP) minEta  MaxEta   mr9    Mr9      mrun    Mrun   scaleC  scaleErr    
+EBlowEtaGoldGAP	2    0.0	1.0	0.94	999.00	-999999	999999	0.0	0.2e-2
+EBlowEtaGoldCM	1    0.0	1.0	0.94	999.00	-999999	999999	0.0	0.2e-2
+EBlowEtaBadGAP	2    0.0	1.0	-999.00	0.94	-999999	999999	0.0	0.2e-2
+EBlowEtaBadCM	1    0.0	1.0	-999.00	0.94	-999999	999999	0.0	0.2e-2
+
+EBhighEtaGold	0    1.0	1.5	0.94	999.00	-999999	999999	0.0	0.71e-2
+EBhighEtaBad	0    1.0	1.5	-999.00	0.94	-999999	999999	0.0	0.51e-2
+
+EElowEtaBad	0    1.5	2.0	-999.00	0.94	-999999	999999	0.0	0.18e-2
+EElowEtaGold	0    1.5	2.0	0.94	999.00	-999999	999999	0.0	0.88e-2
+
+EEhighEtaGold	0    2.0	3.0	-999.	0.94	-999999	999999	0.0	1.2e-2
+EEhighEtaBad	0    2.0	3.0	0.94	999.00	-999999	999999	0.0	1.2e-2
+
+
