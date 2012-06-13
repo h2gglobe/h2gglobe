@@ -1,18 +1,49 @@
 ## self-describing format: eta and R9 boundaries need be explicit
 # http://indico.cern.ch/getFile.py/access?contribId=2&resId=0&materialId=slides&confId=176520
-##########################       EBlowEtaBad           ######################
-EBlowEtaBad      0     0       1       -999    0.94    190456          999999          0.        0.
-##########################       EBlowEtaGold           ######################
-EBlowEtaGold     0     0       1       0.94    999     190456          999999          0.        0.
-##########################       EBhighEtaBad           ######################
-EBhighEtaBad     0     1       1.5          -999    0.94    190456          999999     0.        0.
-##########################       EBhighEtaGold           ######################
-EBhighEtaGold    0     1       1.5          0.94    999     190456          999999     0.        0.
-##########################       EElowEtaBad           ######################
-EElowEtaBad      0     1.5   2       -999    0.94    190456          999999            0.        0.
-##########################       EElowEtaGold           ######################
-EElowEtaGold     0     1.5   2       0.94    999     190456          999999            0.        0.
-##########################       EEhighEtaBad           ######################
-EEhighEtaBad     0     2       3.0     -999    0.94    190456          999999          0.        0.
-##########################       EEhighEtaGold           ######################
-EEhighEtaGold    0     2       3.0     0.94    999     190456          999999          0.        0.
+# these numbers for june15unblind - https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/779.html
+# also see https://twiki.cern.ch/twiki/pub/CMS/EcalEnergyResolutionWithZee/Hgg-rerecoICHEP2012.pdfEBlowEtaBad  
+
+EBlowEtaBad 	      0 	 0 	 1 	 -999 	 0.94 	 190450 	 190781 	 -0.0049 	0.0000
+EBlowEtaBad 	      0 	 0 	 1 	 -999 	 0.94 	 190782 	 190949 	 -0.0146 	0.0000
+EBlowEtaBad 	      0 	 0 	 1 	 -999 	 0.94 	 190950 	 193193 	 -0.004 	0.0000
+EBlowEtaBad 	      0 	 0 	 1 	 -999 	 0.94 	 193746 	 195655 	 -0.0034 	0.0000
+
+EBlowEtaGoldGAP 	  2 	 0 	 1 	 0.94 	 999 	   190450 	 190781 	 0.0019 	0.0000
+EBlowEtaGoldGAP 	  2 	 0 	 1 	 0.94 	 999 	   190782 	 190949 	 -0.0079 	0.0000
+EBlowEtaGoldGAP 	  2 	 0 	 1 	 0.94 	 999 	   190950 	 193193 	 0.0028 	0.0000
+EBlowEtaGoldGAP 	  2 	 0 	 1 	 0.94 	 999 	   193746 	 195655 	 0.0034 	0.0000
+
+EBlowEtaGoldCM 	    1 	 0 	 1 	 0.94 	 999 	   190450 	 190781 	 0.0019 	0.0000
+EBlowEtaGoldCM 	    1 	 0 	 1 	 0.94 	 999 	   190782 	 190949 	 -0.0079 	0.0000
+EBlowEtaGoldCM 	    1 	 0 	 1 	 0.94 	 999 	   190950 	 193193 	 0.0028 	0.0000
+EBlowEtaGoldCM 	    1 	 0 	 1 	 0.94 	 999 	   193746 	 195655 	 0.0034 	0.0000
+
+EBhighEtaBad 	      0 	 1 	 1.4442 	 -999 	 0.94 	 190450 	 190781 	 -0.0176 	0.0000
+EBhighEtaBad 	      0 	 1 	 1.4442 	 -999 	 0.94 	 190782 	 190949 	 0.0003 	0.0000
+EBhighEtaBad 	      0 	 1 	 1.4442 	 -999 	 0.94 	 190950 	 193193 	 -0.0137 	0.0000
+EBhighEtaBad 	      0 	 1 	 1.4442 	 -999 	 0.94 	 193746 	 195655 	 -0.0121 	0.0000
+
+EBhighEtaGold 	    0 	 1 	 1.4442 	 0.94 	 999 	 190450 	 190781 	 -0.0005 	0.0000
+EBhighEtaGold 	    0 	 1 	 1.4442 	 0.94 	 999 	 190782 	 190949 	 0.0177 	0.0000
+EBhighEtaGold 	    0 	 1 	 1.4442 	 0.94 	 999 	 190950 	 193193 	 0.0035 	0.0000
+EBhighEtaGold 	    0 	 1 	 1.4442 	 0.94 	 999 	 193746 	 195655 	 0.0051 	0.0000
+
+EElowEtaBad 	      0 	 1.566 	 2 	 -999 	 0.94 	 190450 	 190781 	 -0.0057 	0.0000
+EElowEtaBad 	      0 	 1.566 	 2 	 -999 	 0.94 	 190782 	 190949 	 -0.0113 	0.0000
+EElowEtaBad 	      0 	 1.566 	 2 	 -999 	 0.94 	 190950 	 193193 	 -0.0058 	0.0000
+EElowEtaBad 	      0 	 1.566 	 2 	 -999 	 0.94 	 193746 	 195655 	 -0.0047 	0.0000
+
+EElowEtaGold 	      0 	 1.566 	 2 	 0.94 	 999 	 190450 	 190781 	 0.0002 	0.0000
+EElowEtaGold 	      0 	 1.566 	 2 	 0.94 	 999 	 190782 	 190949 	 -0.0054 	0.0000
+EElowEtaGold 	      0 	 1.566 	 2 	 0.94 	 999 	 190950 	 193193 	 0.0001 	0.0000
+EElowEtaGold 	      0 	 1.566 	 2 	 0.94 	 999 	 193746 	 195655 	 0.0012 	0.0000
+
+EEhighEtaBad 	      0 	 2 	 2.5 	 -999 	 0.94 	 190450 	 190781 	 -0.0051 	0.0000
+EEhighEtaBad 	      0 	 2 	 2.5 	 -999 	 0.94 	 190782 	 190949 	 -0.0106 	0.0000
+EEhighEtaBad 	      0 	 2 	 2.5 	 -999 	 0.94 	 190950 	 193193 	 0.0088 	0.0000
+EEhighEtaBad 	      0 	 2 	 2.5 	 -999 	 0.94 	 193746 	 195655 	 -0.0061 	0.0000
+
+EEhighEtaGold 	    0 	 2 	 2.5 	 0.94 	 999 	 190450 	 190781 	 0.0107 	0.0000
+EEhighEtaGold 	    0 	 2 	 2.5 	 0.94 	 999 	 190782 	 190949 	 0.005 	  0.0000
+EEhighEtaGold 	    0 	 2 	 2.5 	 0.94 	 999 	 190950 	 193193 	 0.0247 	0.0000
+EEhighEtaGold 	    0 	 2 	 2.5 	 0.94 	 999 	 193746 	 195655 	 0.0097 	0.0000
