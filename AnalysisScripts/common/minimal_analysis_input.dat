@@ -147,7 +147,31 @@ hlt_path_names_HLT
 vtx_std_sel
 vtx_std_ranked_list
 vtx_std_evt_mva
+sc_xyz
+conv_ntracks
+conv_singleleg_momentum
+conv_refitted_momentum
+conv_validvtx
+conv_chi2_probability
+conv_zofprimvtxfromtrks
+bs_xyz
+conv_n
+conv_vtx
+conv_ntracks
+conv_singleleg_momentum
+conv_refitted_momentum
+conv_ntracks
+conv_validvtx
+conv_chi2_probability
+conv_eoverp
+pho_conv_refitted_momentum
+pho_conv_vtx
+pho_conv_ntracks
+pho_conv_validvtx
+pho_conv_chi2_probability
+pho_conv_eoverp
 
+	
 ##
 ## di-photons
 ##
