@@ -21,5 +21,6 @@ inputBranches minimal_statanalysis_input.dat
 ## 	analyzer <class_name> <config_file>
 ## 
 ## analyzer PhotonAnalysis photonanalysis.dat	
-analyzer StatAnalysis photonanalysis.dat analysis_settings.dat statanalysis.dat puHist= doEscaleSmear=0 doEresolSmear=0 doPhotonIdEffSmear=0 doVtxEffSmear=0 doTriggerEffSmear=0   dumpAscii=1 dumpMcAscii=1 doSystematics=0 
+analyzer StatAnalysis photonanalysis.dat analysis_settings.dat statanalysis.dat puHist= doEscaleSmear=0 doEresolSmear=0 doPhotonIdEffSmear=0 doVtxEffSmear=0 doTriggerEffSmear=0   dumpAscii=1 dumpMcAscii=1 doSystematics=0 jetHandlerCfg=jetHandler_V1_cfg.py
+
 
