@@ -1,8 +1,8 @@
 ## Di-jet tag
 includeVBF=1
 nVBFEtaCategories=1
-nVBFDijetJetCategories=2
-leadEtVBFCut=60
+nVBFDijetJetCategories=1
+leadEtVBFCut=55
 subleadEtVBFCut=25
 
 usePUjetveto=0
