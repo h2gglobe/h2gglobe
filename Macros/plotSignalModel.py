@@ -1,9 +1,11 @@
 #!/bin/env python
 
 from optparse import OptionParser, make_option
-import sys, json, copy, itertools 
+import sys, json, copy, itertools, os.path, os
 
 from math import sqrt,fabs
+
+import rootglobestyle
 
 class Helper:
     def __init__(self):
@@ -15,6 +17,23 @@ class Helper:
     def add(self,val,nam):
         self.histos[nam] = val
 
+# doesn't work yet
+#def apply_modifs(obj,modifs):
+#    for mod in modifs:
+#        if type(mod) != tuple:
+#            if type(mod) == str:
+#                mod = obj.__getattribute__(mod)
+#                mod(obj)
+#        else:
+#            (func,args) = mod
+#            if type(func) == str:
+#                obj.__getattribute__(func)(args)
+#            else:
+#                try:
+#                    func(obj,args)
+#                except Exception, e:
+#                    func(obj,*args)
+#
 def build_pdf(ws,cat,ngaus=3,final=True):
     name = "hggpdfrel%s_%d" % (cat,ngaus)
     if final:
@@ -82,12 +101,12 @@ def main(options,args):
         from lip.Tools.rootutils import loadToolsLib, apply_modifs
         loadToolsLib()
     
-    from ROOT import TFile, RooFit, RooArgSet, RooDataHist, RooKeysPdf, RooHistPdf, setStyle, TCanvas, TLegend, TLatex, TArrow, TPaveText, RooAddPdf, RooArgList
+    from ROOT import TFile, RooFit, RooArgSet, RooDataHist, RooKeysPdf, RooHistPdf, TCanvas, TLegend, TLatex, TArrow, TPaveText, RooAddPdf, RooArgList
     from ROOT import kWhite, kBlue, kOpenSquare
     if options.doWebPage:
         from ROOT import HtmlHelper, HtmlTag, HtmlTable, HtmlPlot
 
-    setStyle()
+    rootglobestyle.setTDRStyle()
     gStyle.SetMarkerSize(1.5)
     gStyle.SetTitleYOffset(1.5)
     
@@ -114,7 +133,6 @@ def main(options,args):
 
     ncat=options.ncat
     cats=options.cats
-    print cats
     if cats is "":
         categories =[  "_cat%d" % i for i in range(0,ncat) ]
     else:
@@ -294,7 +312,7 @@ def main(options,args):
         
         ### leg = TLegend(0.4345638,0.6835664,0.9362416,0.9178322)
         leg = TLegend(0.2,0.96,0.5,0.55)
-        apply_modifs( leg, [("SetLineColor",kWhite),("SetFillColor",kWhite),("SetFillStyle",0),("SetLineStyle",0)] )
+        #apply_modifs( leg, [("SetLineColor",kWhite),("SetFillColor",kWhite),("SetFillStyle",0),("SetLineStyle",0)] )
         
         hplotcompint = mass.frame(RooFit.Bins(250),RooFit.Range("higgsrange"))
         helper.objs.append(hplotcompint)
@@ -364,7 +382,8 @@ def main(options,args):
             hpl.caption("<i>%s</i>" % canv.GetTitle())
             row.cell( hpl )
         else:
-            os.path.mkdir(options.outdir)
+            if os.path.isdir(options.outdir) is False:
+                os.mkdir(options.outdir)
             for ext in "C","png","pdf":
                 canv.SaveAs( os.path.join(options.outdir,"%s.%s" % (canv.GetName(), ext)) )
         
