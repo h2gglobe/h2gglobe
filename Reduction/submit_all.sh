@@ -1,12 +1,21 @@
 #!/bin/bash
 
-## ./submit_reduction.sh data_2012  PhotonPromptReco2012A  50 & 
-## ./submit_reduction.sh data_2012  PhotonPromptReco2012A_missing  25 & 
-./submit_reduction.sh data_2012  DoublePhotonPromptReco2012B  100 & 
-./submit_reduction.sh data_2012  DoublePhotonPromptReco2012B_missing  50 & 
-## ./submit_reduction.sh data_2012  PhotonReRecoMay23_2012_missing 50 &
+### ./submit_reduction.sh data_2012  PhotonPromptReco2012A  50 & 
+### ./submit_reduction.sh data_2012  PhotonPromptReco2012A_missing  10 & 
+./submit_reduction.sh data_2012  PhotonPromptReco2012A_missing_try2  5 & 
+### 
+### ./submit_reduction.sh data_2012  DoublePhotonPromptReco2012B  100 & 
+### ./submit_reduction.sh data_2012  DoublePhotonPromptReco2012B_missing  50 & 
+### ./submit_reduction.sh data_2012  DoublePhotonPromptReco2012B_missing_try2 25 & 
+### 
+### ./submit_reduction.sh data_2012  PhotonReRecoMay23_2012_missing 44 &
+### ./submit_reduction.sh data_2012  PhotonReRecoMay23_2012_missing_try2 1 &
 
-## ./submit_reduction.sh mc_sig_summer12_s7 TTH_HToGG_M-130_8TeV 5 &
+
+### 
+### ./submit_reduction.sh mc_sig_summer12_s7 TTH_HToGG_M-130_8TeV 5 &
+
+## ./submit_reduction.sh data_2012  DoublePhotonPromptReco2012B  100 88 & 
 
 ### ./submit_reduction.sh mc_sig_summer12_s7 \* 5 & 
 ### 
