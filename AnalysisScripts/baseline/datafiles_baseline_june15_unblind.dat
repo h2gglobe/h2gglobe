@@ -1,4 +1,4 @@
-intL=3000. histfile=/store/group/phys_higgs/cmshgg/analyzed/june15unblind/%(label)s/CMS-HGG.root output=eventsList.txt
+intL=3016. histfile=/store/group/phys_higgs/cmshgg/analyzed/june15unblind/%(label)s/CMS-HGG.root output=eventsList.txt
 
 #
 # Data
@@ -23,10 +23,10 @@ split typ=-50 ind=2 draw=1  Nam=vbf_m150_8TeV     CaDir=/store/group/phys_higgs/
 split typ=-52 ind=4 draw=1  Nam=wzh_m150_8TeV      CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v3/Summer12_S7_8TeV/WH_ZH_HToGG_M-150_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
 split typ=-51 ind=3 draw=1  Nam=tth_m150_8TeV      CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v3/Summer12_S7_8TeV/TTH_HToGG_M-150_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
 
-split typ=-45 ind=1 draw=1  Nam=ggh_m145_8TeV  CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v3/Summer12_S7_8TeV/GluGluToHToGG_M-145_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
-split typ=-46 ind=2 draw=1  Nam=vbf_m145_8TeV     CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v3/Summer12_S7_8TeV/GluGluToHToGG_M-145_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
-split typ=-48 ind=4 draw=1  Nam=wzh_m145_8TeV      CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v3/Summer12_S7_8TeV/WH_ZH_HToGG_M-145_8TeV      red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
-split typ=-47 ind=3 draw=1  Nam=tth_m145_8TeV      CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v3/Summer12_S7_8TeV/TTH_HToGG_M-145_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+### split typ=-45 ind=1 draw=1  Nam=ggh_m145_8TeV  CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v3/Summer12_S7_8TeV/GluGluToHToGG_M-145_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+### split typ=-46 ind=2 draw=1  Nam=vbf_m145_8TeV     CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v3/Summer12_S7_8TeV/GluGluToHToGG_M-145_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+### split typ=-48 ind=4 draw=1  Nam=wzh_m145_8TeV      CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v3/Summer12_S7_8TeV/WH_ZH_HToGG_M-145_8TeV      red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+### split typ=-47 ind=3 draw=1  Nam=tth_m145_8TeV      CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v3/Summer12_S7_8TeV/TTH_HToGG_M-145_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
 
 split typ=-33 ind=1 draw=1  Nam=ggh_m140_8TeV  CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v3/Summer12_S7_8TeV/GluGluToHToGG_M-140_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
 split typ=-34 ind=2 draw=1  Nam=vbf_m140_8TeV     CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v3/Summer12_S7_8TeV/VBF_HToGG_M-140_8TeV        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
@@ -105,6 +105,6 @@ inputBranches minimal_statanalysis_input.dat
 ## 	analyzer <class_name> <config_file>
 ## 
 ## analyzer PhotonAnalysis photonanalysis.dat	
-analyzer StatAnalysis photonanalysis.dat analysis_settings.dat statanalysis.dat
+analyzer StatAnalysis photonanalysis.dat analysis_settings.dat statanalysis.dat dumpAscii=1 dumpMcAscii=0
 
 

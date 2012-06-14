@@ -20,7 +20,7 @@ nPtCategories=1
 phoidMvaCut=-0.3
 
 ## Corrections and smearings
-scaleR9Only=1
+scaleR9Only=0
 doMCSmearing=1 
 
 ## Individual smearing flags
@@ -49,4 +49,4 @@ doR9Syst=1
 doInterferenceSmear=1
 
 ## 
-efficiencyFile=aux/sig_reweighing_june15unblind_baseline_v1.root
+efficiencyFile=aux/sig_reweighing_june15unblind_baseline_v2.root
