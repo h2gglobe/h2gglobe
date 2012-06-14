@@ -901,7 +901,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
         //if (cur_type==0 && mass >= 100. && mass < 180. && !isSyst /*should never be if running data anyway*/){
         if (mass >= 100. && mass < 180. && !isSyst){
         //if (1>0){
-            eventListText <<"Type="<< cur_type 
+/*            eventListText <<"Type="<< cur_type 
             <<" Run=" << l.run 
             <<" LS=" << l.lumis 
             <<" Event=" << l.event 
@@ -949,6 +949,49 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
             <<" sigietaieta2="<<l.pho_sieie[diphoton_index.second]
             <<" VBFevent="<<VBFevent
             <<" FileName="<<l.files[l.current];
+            eventListText << endl;
+*/
+            // New ascii event list for syncrhonizing MVA Preselection + Diphoton MVA
+            eventListText <<"type:"<< cur_type 
+            << "    run:"   <<  l.run
+            << "    lumi:"  <<  l.lumis
+            << "    event:" <<  l.event
+            // Preselection Lead
+            << "    r9_1:"  <<  lead_r9
+            << "    sceta_1:"   << fabs((photonInfoCollection[diphoton_index.first]).caloPosition().Eta()) 
+            << "    hoe_1:" <<  l.pho_hoe[diphoton_index.first]
+            << "    sigieie_1:" <<  l.pho_sieie[diphoton_index.first]
+            << "    ecaliso_1:" <<  l.pho_ecalsumetconedr03[diphoton_index.first] - 0.012*lead_p4.Et()
+            << "    hcaliso_1:" <<  l.pho_hcalsumetconedr03[diphoton_index.first] - 0.005*lead_p4.Et()
+            << "    trckiso_1:" <<  l.pho_trksumpthollowconedr03[diphoton_index.first] - 0.002*lead_p4.Et()
+            << "    chpfiso_1:" <<  (*l.pho_pfiso_mycharged02)[diphoton_index.first][l.dipho_vtxind[diphoton_id]] 
+            // Preselection SubLead
+            << "    r9_2:"  <<  sublead_r9
+            << "    sceta_2:"   << fabs((photonInfoCollection[diphoton_index.second]).caloPosition().Eta()) 
+            << "    hoe_2:" <<  l.pho_hoe[diphoton_index.second]
+            << "    sigieie_2:" <<  l.pho_sieie[diphoton_index.second]
+            << "    ecaliso_2:" <<  l.pho_ecalsumetconedr03[diphoton_index.second] - 0.012*lead_p4.Et()
+            << "    hcaliso_2:" <<  l.pho_hcalsumetconedr03[diphoton_index.second] - 0.005*lead_p4.Et()
+            << "    trckiso_2:" <<  l.pho_trksumpthollowconedr03[diphoton_index.second] - 0.002*lead_p4.Et()
+            << "    chpfiso_2:" <<  (*l.pho_pfiso_mycharged02)[diphoton_index.second][l.dipho_vtxind[diphoton_id]] 
+            // Diphoton MVA inputs
+            << "    mgg:"  <<  mass 
+            << "    ptH:"  <<  ptHiggs 
+            << "    phoid_1:"   <<  phoid_mvaout_lead 
+            << "    phoid_2:"   <<  phoid_mvaout_sublead 
+            << "    phoeta_1:"  <<  lead_p4.Eta() 
+            << "    phoeta_2:"  <<  sublead_p4.Eta() 
+            << "    sigmrv:"    <<  sigmaMrv 
+            << "    sigmwv:"    <<  sigmaMwv 
+            << "    pt_1:"      <<  lead_p4.Pt()
+            << "    pt_2:"      <<  sublead_p4.Pt()
+            << "    vtxprob:"   <<  vtxProb 
+            << "    cosdphi:"   <<  TMath::Cos(lead_p4.Phi() - sublead_p4.Phi()) 
+            << "    diphoBDT:"  <<  diphobdt_output 
+            // Extra
+            << "    vbfevent:"  <<  VBFevent
+            << "    evcat:"     <<  category
+            << "    FileName:"  <<  l.files[l.current];
             eventListText << endl;
         }
 	    return true;
