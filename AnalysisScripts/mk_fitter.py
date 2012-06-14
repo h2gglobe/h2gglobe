@@ -82,7 +82,7 @@ if __name__  == "__main__":
 				has_polder = True
 		else:
 			datfile += "%s\n" % line
-
+  
 	mydir=os.getcwd()
 	scriptdir=os.path.dirname(options.outputScript)
 	os.system("mkdir -p %s" % scriptdir)
