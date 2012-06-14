@@ -53,6 +53,8 @@ class configProducer:
 	
     self.make_histograms=makehistos
 
+    self.black_list = ["root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/processed/V13_03_05/data/DoublePhotonPromptReco2012B/PromptPhoton2012Data_628_1_MEr.root"]
+
     # configurable from .dat file
     self.plottingvariables_ = "plotvariables.dat"
     self.cutvariables_ = "cuts.dat"
@@ -186,6 +188,7 @@ class configProducer:
     for dum in self.conf_.confs:
       dataContainer = self.ut_.DefineSamples(dum['Nam'],dum['typ'],dum['ind'],dum['draw'],dum['red'],dum['tot'],dum['intL'],dum['lum'],dum['xsec'],dum['kfac'],dum['scal'],dum['addnevents'],dum["pileup"])
       if("json" in dum and dum["json"] != ""):
+        print "Using json %s " % dum["json"]
         defineJsonFilter(dum["json"], dataContainer)
       if("evlist" in dum and dum["evlist"] != ""):
         defineEvList(dum["evlist"], dataContainer)
@@ -205,8 +208,13 @@ class configProducer:
         
   def add_files(self):
     for t_f in self.conf_.files:
-      if (t_f[0]):  # only adding files which aren't Null
-        self.ut_.AddFile(t_f[0],t_f[1])
+      if not t_f[0]: ## only adding files which aren't Null
+          continue
+      ## print t_f
+      if t_f[0] in self.black_list:
+          print "Skipping %s " % t_f[0]
+          continue 
+      self.ut_.AddFile(t_f[0],t_f[1])
       
   # File Parsers ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
