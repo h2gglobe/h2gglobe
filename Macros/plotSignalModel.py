@@ -113,7 +113,13 @@ def main(options,args):
         options.outdir += "_fp"
 
     ncat=options.ncat
-    categories =[  "_cat%d" % i for i in range(0,ncat) ]
+    cats=options.cats
+    print cats
+    if cats is "":
+        categories =[  "_cat%d" % i for i in range(0,ncat) ]
+    else:
+        categories =[  "_cat%s" % i for i in cats.split(",") ]
+    
     if options.mva:
         clables = { "_cat0" : ("MVA > 0.89",""),
                     "_cat1" : ("0.74 #leq MVA","MVA < 0.89"),
@@ -192,7 +198,7 @@ def main(options,args):
                     pdf = RooAddPdf("hggpdfrel%s" % c, "hggpdfrel%s" % c, RooArgList(*tuple(rpdfs) ))
                 else:
                     if options.refitall and clables[c][0] == "Di-jet":
-                        for ngaus in range(1,6):
+                        for ngaus in range(1,5):
                             pdf = build_pdf(ws,c,ngaus,ngaus==5)
                             pdf.fitTo(ds, RooFit.Strategy(0), *fitopt )
                     else:
@@ -437,6 +443,12 @@ if __name__ == "__main__":
                     default=5,
                     help="", metavar=""
                     ),
+        make_option("-c","--cats",
+                    action="store",type='string',dest="cats",
+                    default="",
+                    help="", metavar="",
+                    ),
+                    
         ])
     
     (options, args) = parser.parse_args()
