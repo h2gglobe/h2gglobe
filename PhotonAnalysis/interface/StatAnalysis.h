@@ -98,6 +98,8 @@ class StatAnalysis : public PhotonAnalysis
 			  float lead_r9, float sublead_r9, int diphoton_index, 
 			  int category, bool rightvtx, float evweight , LoopAll &);
 
+    void fillSignalEfficiencyPlots(float weight, LoopAll & l );
+
     void rescaleClusterVariables(LoopAll &l);
 
     EnergySmearer /* *eScaleSmearer,*/ *eResolSmearer ; // moved to PhotonAnalysis GF 

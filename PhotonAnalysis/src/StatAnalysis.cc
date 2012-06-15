@@ -783,6 +783,9 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 	applySinglePhotonSmearings(smeared_pho_energy, smeared_pho_r9, smeared_pho_weight, cur_type, l, energyCorrected, energyCorrectedError,
 				   phoSys, syst_shift);
 
+	// Fill CiC efficiency plots for ggH, mH=124
+	if (cur_type==-73) fillSignalEfficiencyPlots(weight, l);
+
 	// inclusive category di-photon selection
 	// FIXME pass smeared R9
 	diphoton_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtCut, subleadEtCut, 4,applyPtoverM, &smeared_pho_energy[0], false, cicCutLevels ); 
@@ -1072,6 +1075,57 @@ void StatAnalysis::fillControlPlots(const TLorentzVector & lead_p4, const  TLore
 	l.FillHist("pho2_r9",category+1, sublead_r9, evweight);
 
 	l.FillHist("pho_n",category+1,l.pho_n, evweight);
+    }
+}
+
+// ----------------------------------------------------------------------------------------------------
+void StatAnalysis::fillSignalEfficiencyPlots(float weight, LoopAll & l)
+{
+    //Fill histograms to use as denominator (kinematic pre-selection only) and numerator (selection applied)
+    //for single photon ID efficiency calculation.
+    int diphoton_id_kinpresel = l.DiphotonMITPreSelection(leadEtCut,subleadEtCut,-1.,applyPtoverM, &smeared_pho_energy[0], true ); 
+    if (diphoton_id_kinpresel>-1) {
+
+	TLorentzVector lead_p4, sublead_p4, Higgs;
+	float lead_r9, sublead_r9;
+	TVector3 * vtx;
+	fillDiphoton(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, vtx, &smeared_pho_energy[0], l, diphoton_id_kinpresel);  
+
+	int ivtx = l.dipho_vtxind[diphoton_id_kinpresel];
+	int lead = l.dipho_leadind[diphoton_id_kinpresel];
+	int sublead = l.dipho_subleadind[diphoton_id_kinpresel];
+	int leadpho_category = l.PhotonCategory(lead, 2, 2);
+	int subleadpho_category = l.PhotonCategory(sublead, 2, 2);
+	float leadEta = ((TVector3 *)l.sc_xyz->At(l.pho_scind[lead]))->Eta();
+	float subleadEta = ((TVector3 *)l.sc_xyz->At(l.pho_scind[sublead]))->Eta();
+
+	float evweight = weight * smeared_pho_weight[lead] * smeared_pho_weight[sublead] * genLevWeight;
+
+	//Fill eta and pt distributions after pre-selection only (efficiency denominator)
+	l.FillHist("pho1_pt_presel",0,lead_p4.Pt(), evweight);
+	l.FillHist("pho2_pt_presel",0,sublead_p4.Pt(), evweight);
+	l.FillHist("pho1_eta_presel",0,leadEta, evweight);
+	l.FillHist("pho2_eta_presel",0,subleadEta, evweight);
+
+	l.FillHist("pho1_pt_presel",leadpho_category+1,lead_p4.Pt(), evweight);
+	l.FillHist("pho2_pt_presel",subleadpho_category+1,sublead_p4.Pt(), evweight);
+	l.FillHist("pho1_eta_presel",leadpho_category+1,leadEta, evweight);
+	l.FillHist("pho2_eta_presel",subleadpho_category+1,subleadEta, evweight);
+
+	//Apply single photon CiC selection and fill eta and pt distributions (efficiency numerator)
+	std::vector<std::vector<bool> > ph_passcut;
+	if( l.PhotonCiCSelectionLevel(lead, ivtx, ph_passcut, 4, 0, &smeared_pho_energy[0]) >=  (LoopAll::phoCiCIDLevel) l.phoSUPERTIGHT) {
+	    l.FillHist("pho1_pt_sel",0,lead_p4.Pt(), evweight);
+	    l.FillHist("pho1_eta_sel",0,leadEta, evweight);
+	    l.FillHist("pho1_pt_sel",leadpho_category+1,lead_p4.Pt(), evweight);
+	    l.FillHist("pho1_eta_sel",leadpho_category+1,leadEta, evweight);
+	}
+	if( l.PhotonCiCSelectionLevel(sublead, ivtx, ph_passcut, 4, 1, &smeared_pho_energy[0]) >=  (LoopAll::phoCiCIDLevel) l.phoSUPERTIGHT ) {
+	    l.FillHist("pho2_pt_sel",0,sublead_p4.Pt(), evweight);
+	    l.FillHist("pho2_eta_sel",0,subleadEta, evweight);
+	    l.FillHist("pho2_pt_sel",subleadpho_category+1,sublead_p4.Pt(), evweight);
+	    l.FillHist("pho2_eta_sel",subleadpho_category+1,subleadEta, evweight);
+	}
     }
 }
 
