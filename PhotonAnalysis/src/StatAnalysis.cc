@@ -636,8 +636,9 @@ bool StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	gPT = gP4.Pt();
     }
 
-    //Calculate preshower cluster shape variable
+    //Calculate cluster shape variables prior to shape rescaling
     for (int ipho=0;ipho<l.pho_n;ipho++){
+	l.pho_s4ratio[ipho]  = l.pho_e2x2[ipho]/l.pho_e5x5[ipho];
 	float rr2=l.pho_eseffsixix[ipho]*l.pho_eseffsixix[ipho]+l.pho_eseffsiyiy[ipho]*l.pho_eseffsiyiy[ipho];
 	l.pho_ESEffSigmaRR[ipho] = 0.0; 
 	if(rr2>0. && rr2<999999.) {
@@ -781,7 +782,6 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 	smeared_pho_weight.clear(); smeared_pho_weight.resize(l.pho_n,1.);
 	applySinglePhotonSmearings(smeared_pho_energy, smeared_pho_r9, smeared_pho_weight, cur_type, l, energyCorrected, energyCorrectedError,
 				   phoSys, syst_shift);
-
 
 	// inclusive category di-photon selection
 	// FIXME pass smeared R9
@@ -1029,34 +1029,12 @@ void StatAnalysis::fillControlPlots(const TLorentzVector & lead_p4, const  TLore
 	fillControlPlots( lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, diphoton_id, -1, isCorrectVertex, evweight, l ); 
     }
     float mass = Higgs.M();
-    //// l.FillHist("all_mass",0, Higgs.M(), evweight);
     l.FillHist("all_mass",category+1, Higgs.M(), evweight);
     if( mass>=massMin && mass<=massMax  ) {
-	///// l.FillHist("mass",0, Higgs.M(), evweight);
-	///// l.FillHist("pt",0, Higgs.Pt(), evweight);
-	///// if( isCorrectVertex ) { l.FillHist("pt_rv",0, Higgs.Pt(), evweight); }
-	///// l.FillHist("eta",0, Higgs.Eta(), evweight);
-        ///// 
-	///// l.FillHist("pho_pt",0,lead_p4.Pt(), evweight);
-	///// l.FillHist("pho1_pt",0,lead_p4.Pt(), evweight);
-	///// l.FillHist("pho_eta",0,lead_p4.Eta(), evweight);
-	///// l.FillHist("pho1_eta",0,lead_p4.Eta(), evweight);
-	///// l.FillHist("pho_r9",0, lead_r9, evweight);
-	///// l.FillHist("pho1_r9",0, lead_r9, evweight);
-        ///// 
-	///// l.FillHist("pho_pt",0,sublead_p4.Pt(), evweight);
-	///// l.FillHist("pho2_pt",0,sublead_p4.Pt(), evweight);
-	///// l.FillHist("pho_eta",0,sublead_p4.Eta(), evweight);
-	///// l.FillHist("pho2_eta",0,sublead_p4.Eta(), evweight);
-	///// l.FillHist("pho_r9",0, sublead_r9, evweight);
-	///// l.FillHist("pho1_r9",0, sublead_r9, evweight);
-        
 	l.FillHist("mass",category+1, Higgs.M(), evweight);
 	l.FillHist("eta",category+1, Higgs.Eta(), evweight);
-
 	l.FillHist("pt",category+1, Higgs.Pt(), evweight);
 	if( isCorrectVertex ) { l.FillHist("pt_rv",category+1, Higgs.Pt(), evweight); }
-
 	l.FillHist("nvtx",category+1, l.vtx_std_n, evweight);
         if( isCorrectVertex ) { l.FillHist("nvtx_rv",category+1, l.vtx_std_n, evweight); }
 	
@@ -1078,22 +1056,21 @@ void StatAnalysis::fillControlPlots(const TLorentzVector & lead_p4, const  TLore
 	    }
 	}
 	l.FillHist("vtx_nconv",vtxAna_.nconv(0));
-	// l.FillHist("vtx_legs",vtxAna_.nlegs(0));
-	
+
 	l.FillHist("pho_pt",category+1,lead_p4.Pt(), evweight);
 	l.FillHist("pho1_pt",category+1,lead_p4.Pt(), evweight);
 	l.FillHist("pho_eta",category+1,lead_p4.Eta(), evweight);
 	l.FillHist("pho1_eta",category+1,lead_p4.Eta(), evweight);
 	l.FillHist("pho_r9",category+1, lead_r9, evweight);
 	l.FillHist("pho1_r9",category+1, lead_r9, evweight);
-        
+
 	l.FillHist("pho_pt",category+1,sublead_p4.Pt(), evweight);
 	l.FillHist("pho2_pt",category+1,sublead_p4.Pt(), evweight);
 	l.FillHist("pho_eta",category+1,sublead_p4.Eta(), evweight);
 	l.FillHist("pho2_eta",category+1,sublead_p4.Eta(), evweight);
 	l.FillHist("pho_r9",category+1, sublead_r9, evweight);
-	l.FillHist("pho1_r9",category+1, sublead_r9, evweight);
-        
+	l.FillHist("pho2_r9",category+1, sublead_r9, evweight);
+
 	l.FillHist("pho_n",category+1,l.pho_n, evweight);
     }
 }
@@ -1232,20 +1209,18 @@ void StatAnalysis::rescaleClusterVariables(LoopAll &l){
 	    }
 	    if( !scaleR9Only ) {
 		if (l.pho_isEB[ipho]) {
-		    // s4 Ratio is pho_e2x2/pho_e5x5 so scale numerator
-		    l.pho_e2x2[ipho] = 1.01894*l.pho_e2x2[ipho] - 0.01034;
+		    l.pho_s4ratio[ipho] = 1.01894*l.pho_s4ratio[ipho] - 0.01034;
 		    if (l.pho_sieie[ipho]<0.0087) {
 			l.pho_sieie[ipho] = 0.976591*l.pho_sieie[ipho] + 0.000081;
 		    } else {
-			l.pho_sieie[ipho] = 0.980055*l.pho_sieie[ipho] + 0.000124;
+			l.pho_sieie[ipho] = 0.980055*l.pho_sieie[ipho] + 0.0000508632;
 		    }
-		    l.sc_seta[l.pho_scind[ipho]] =  1.04302*l.sc_seta[l.pho_scind[ipho]] - 0.000618;
+		    l.pho_etawidth[ipho] =  1.04302*l.pho_etawidth[ipho] - 0.000618;
 		    l.sc_sphi[l.pho_scind[ipho]] =  1.00002*l.sc_sphi[l.pho_scind[ipho]] - 0.000371;
 		} else {
-		    // s4 Ratio is pho_e2x2/pho_e5x5 so scale numerator
-		    l.pho_e2x2[ipho] = 1.04969*l.pho_e2x2[ipho] - 0.03642;
+		    l.pho_s4ratio[ipho] = 1.04969*l.pho_s4ratio[ipho] - 0.03642;
 		    l.pho_sieie[ipho] = 0.99470*l.pho_sieie[ipho] + 0.00003;
-		    l.sc_seta[l.pho_scind[ipho]] =  0.903254*l.sc_seta[l.pho_scind[ipho]] - 0.001346;
+		    l.pho_etawidth[ipho] =  0.903254*l.pho_etawidth[ipho] + 0.001346;
 		    l.sc_sphi[l.pho_scind[ipho]] =  0.99992*l.sc_sphi[l.pho_scind[ipho]] - 0.00000048;
 		    //Agreement not to rescale ES shape (https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/789/1/1/1/1/1/1/2/1/1.html)
 		    //if (l.pho_ESEffSigmaRR[ipho]>0) l.pho_ESEffSigmaRR[ipho] = 1.00023*l.pho_ESEffSigmaRR[ipho] + 0.0913;
@@ -1254,9 +1229,9 @@ void StatAnalysis::rescaleClusterVariables(LoopAll &l){
 	}
 
 	if (l.pho_isEB[ipho]) {
-	    energyCorrectedError[ipho] = 1.0265*energyCorrectedError[ipho]-0.0000317466;
+	    energyCorrectedError[ipho] = 1.02693*energyCorrectedError[ipho]-0.0042793;
 	} else {
-	    energyCorrectedError[ipho] = 1.0326*energyCorrectedError[ipho]+0.0018304;
+	    energyCorrectedError[ipho] = 1.01372*energyCorrectedError[ipho]+0.000156943;
 	}
     }
 }
