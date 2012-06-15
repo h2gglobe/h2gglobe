@@ -236,7 +236,7 @@ void LoopAll::SetAllMVA() {
   tmvaReaderID_Single_Barrel->AddVariable("myphoton_pfchargedisobad03",   &tmva_photonid_pfchargedisobad03 );
   tmvaReaderID_Single_Barrel->AddVariable("myphoton_pfphotoniso03",   &tmva_photonid_pfphotoniso03 );
   tmvaReaderID_Single_Barrel->AddVariable("myphoton_sieie",   &tmva_photonid_sieie );
-  tmvaReaderID_Single_Barrel->AddVariable("myphoton_sieip",   &tmva_photonid_sieip );
+  tmvaReaderID_Single_Barrel->AddVariable("myphoton_covieip",   &tmva_photonid_sieip );
   tmvaReaderID_Single_Barrel->AddVariable("myphoton_etawidth",   &tmva_photonid_etawidth );
   tmvaReaderID_Single_Barrel->AddVariable("myphoton_phiwidth",   &tmva_photonid_phiwidth );
   tmvaReaderID_Single_Barrel->AddVariable("myphoton_r9",   &tmva_photonid_r9 );
@@ -249,7 +249,7 @@ void LoopAll::SetAllMVA() {
   tmvaReaderID_Single_Endcap->AddVariable("myphoton_pfchargedisobad03",   &tmva_photonid_pfchargedisobad03 );
   tmvaReaderID_Single_Endcap->AddVariable("myphoton_pfphotoniso03",   &tmva_photonid_pfphotoniso03 );
   tmvaReaderID_Single_Endcap->AddVariable("myphoton_sieie",   &tmva_photonid_sieie );
-  tmvaReaderID_Single_Endcap->AddVariable("myphoton_sieip",   &tmva_photonid_sieip );
+  tmvaReaderID_Single_Endcap->AddVariable("myphoton_covieip",   &tmva_photonid_sieip );
   tmvaReaderID_Single_Endcap->AddVariable("myphoton_etawidth",   &tmva_photonid_etawidth );
   tmvaReaderID_Single_Endcap->AddVariable("myphoton_phiwidth",   &tmva_photonid_phiwidth );
   tmvaReaderID_Single_Endcap->AddVariable("myphoton_r9",   &tmva_photonid_r9 );
@@ -282,7 +282,7 @@ Float_t LoopAll::photonIDMVANew(Int_t iPhoton, Int_t vtx, TLorentzVector &p4, co
   tmva_photonid_r9           = pho_r9[iPhoton];
   tmva_photonid_lambdaratio  = pho_lambdaratio[iPhoton];
   
-  tmva_photonid_s4ratio  = pho_e2x2[iPhoton]/pho_e5x5[iPhoton];
+  tmva_photonid_s4ratio  = pho_s4ratio[iPhoton];
   tmva_photonid_eventrho = rho_algo1;
   tmva_photonid_sceta    = ((TVector3*)sc_xyz->At(pho_scind[iPhoton]))->Eta(); 
   tmva_photonid_ESEffSigmaRR = pho_ESEffSigmaRR[iPhoton];
