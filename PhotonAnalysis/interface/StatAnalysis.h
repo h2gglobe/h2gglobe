@@ -85,7 +85,7 @@ class StatAnalysis : public PhotonAnalysis
 				      std::vector<double> & mass_errors, std::vector<double> & mva_errors,
 				      std::vector<int>    & categories, std::vector<double> & weights);
     
-    bool VHmuevent, VHelevent, VBFevent, VHhadevent, VHmetevent;
+    bool VHmuevent, VHelevent, VBFevent, VHhadevent;       //, VHmetevent;  //met at analysis step
     double genLevWeight; 
 
     std::vector<float> smeared_pho_energy;

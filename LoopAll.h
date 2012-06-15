@@ -668,6 +668,7 @@ TClonesArray *gh_vbfq1_p4;
 TClonesArray *gh_vbfq2_p4;
 TClonesArray *gh_vh1_p4;
 TClonesArray *gh_vh2_p4;
+//TClonesArray *METcorrected;  //met at analysis step
 
 Float_t rho;
 Int_t gv_n; 
@@ -704,17 +705,17 @@ Float_t pho_s4ratio[MAX_PHOTONS];
 //// Float_t dipho_phi[MAX_DIPHOTONS];
 //// Float_t dipho_cts[MAX_DIPHOTONS];
 
-/*
-//forMET
-Float_t shiftMET_corr_pt;
-Float_t shiftMET_corr_phi;
-Float_t smearMET_corr_pt;
-Float_t smearMET_corr_phi;
-Float_t shiftscaleMET_corr_pt;
-Float_t shiftscaleMET_corr_phi;
-Float_t shiftsmearMET_corr_pt;
-Float_t shiftsmearMET_corr_phi;
-*/
+
+//correctMETinRED
+Float_t shiftMET_pt;
+Float_t shiftMET_phi;
+Float_t smearMET_pt;
+Float_t smearMET_phi;
+Float_t shiftscaleMET_pt;
+Float_t shiftscaleMET_phi;
+Float_t shiftsmearMET_pt;
+Float_t shiftsmearMET_phi;
+
 
 TBranch *b_gh_gen2reco1;
 TBranch *b_gh_gen2reco2;
@@ -723,6 +724,7 @@ TBranch *b_gh_vbfq2_pdgid;
 TBranch *b_gh_vh_pdgid;
 TBranch *b_gh_vh1_pdgid;
 TBranch *b_gh_vh2_pdgid;
+//TBranch *b_METcorrected;  //met at analysis step
 TBranch *b_gh_higgs_p4;
 TBranch *b_gh_pho1_p4;
 TBranch *b_gh_pho2_p4;
@@ -752,17 +754,17 @@ TBranch * b_pho_regr_energyerr_otf;
 //// TBranch * b_dipho_phi;
 //// TBranch * b_dipho_cts;
 
-/*
-//forMET
-TBranch * b_shiftMET_corr_pt;
-TBranch * b_shiftMET_corr_phi;
-TBranch * b_smearMET_corr_pt;
-TBranch * b_smearMET_corr_phi;
-TBranch * b_shiftscaleMET_corr_pt;
-TBranch * b_shiftscaleMET_corr_phi;
-TBranch * b_shiftsmearMET_corr_pt;
-TBranch * b_shiftsmearMET_corr_phi;
-*/
+
+//correctMETinRED
+TBranch * b_shiftMET_pt;
+TBranch * b_shiftMET_phi;
+TBranch * b_smearMET_pt;
+TBranch * b_smearMET_phi;
+TBranch * b_shiftscaleMET_pt;
+TBranch * b_shiftscaleMET_phi;
+TBranch * b_shiftsmearMET_pt;
+TBranch * b_shiftsmearMET_phi;
+
 
 //----------------------------------------
 // photon and diphoton vertex selection
@@ -881,6 +883,7 @@ void Branch_gh_vbfq2_pdgid(TTree * tree) { tree->Branch("gh_vbfq2_pdgid",&gh_vbf
 void Branch_gh_vh_pdgid(TTree * tree) { tree->Branch("gh_vh_pdgid",&gh_vh_pdgid, "gh_vh_pdgid/I");  }; 
 void Branch_gh_vh1_pdgid(TTree * tree) { tree->Branch("gh_vh1_pdgid",&gh_vh1_pdgid, "gh_vh1_pdgid/I");  }; 
 void Branch_gh_vh2_pdgid(TTree * tree) { tree->Branch("gh_vh2_pdgid",&gh_vh2_pdgid, "gh_vh2_pdgid/I");  }; 
+//void Branch_METcorrected(TTree * tree) { tree->Branch("METcorrected", "TClonesArray",&METcorrected, 32000, 0); }; //met at analysis step
 void Branch_gh_higgs_p4(TTree * tree) { tree->Branch("gh_higgs_p4", "TClonesArray",&gh_higgs_p4, 32000, 0); }; 
 void Branch_gh_pho1_p4(TTree * tree) { tree->Branch("gh_pho1_p4", "TClonesArray",&gh_pho1_p4, 32000, 0); }; 
 void Branch_gh_pho2_p4(TTree * tree) { tree->Branch("gh_pho2_p4", "TClonesArray",&gh_pho2_p4, 32000, 0); }; 
@@ -902,6 +905,7 @@ void SetBranchAddress_gh_vbfq2_pdgid(TTree * tree) { tree->SetBranchAddress("gh_
 void SetBranchAddress_gh_vh_pdgid(TTree * tree) { tree->SetBranchAddress("gh_vh_pdgid", &gh_vh_pdgid, &b_gh_vh_pdgid); }; 
 void SetBranchAddress_gh_vh1_pdgid(TTree * tree) { tree->SetBranchAddress("gh_vh1_pdgid", &gh_vh1_pdgid, &b_gh_vh1_pdgid); }; 
 void SetBranchAddress_gh_vh2_pdgid(TTree * tree) { tree->SetBranchAddress("gh_vh2_pdgid", &gh_vh2_pdgid, &b_gh_vh2_pdgid); }; 
+//void SetBranchAddress_METcorrected(TTree * tree) { tree->SetBranchAddress("METcorrected", &METcorrected, &b_METcorrected); }; //met at analysis step
 void SetBranchAddress_gh_higgs_p4(TTree * tree) { tree->SetBranchAddress("gh_higgs_p4", &gh_higgs_p4, &b_gh_higgs_p4); }; 
 void SetBranchAddress_gh_pho1_p4(TTree * tree) { tree->SetBranchAddress("gh_pho1_p4", &gh_pho1_p4, &b_gh_pho1_p4); }; 
 void SetBranchAddress_gh_pho2_p4(TTree * tree) { tree->SetBranchAddress("gh_pho2_p4", &gh_pho2_p4, &b_gh_pho2_p4); }; 
@@ -958,26 +962,26 @@ void SetBranchAddress_pho_regr_energyerr_otf(TTree * tree) { tree->SetBranchAddr
 //// void SetBranchAddress_dipho_phi(TTree * tree) { tree->SetBranchAddress("dipho_phi", &dipho_phi, &b_dipho_phi); };
 //// void SetBranchAddress_dipho_cts(TTree * tree) { tree->SetBranchAddress("dipho_cts", &dipho_cts, &b_dipho_cts); };
 
-/*
-//forMET
-void Branch_shiftMET_corr_pt(TTree * tree) { tree->Branch("shiftMET_corr_pt", &shiftMET_corr_pt, "shiftMET_corr_pt/F"); };
-void Branch_shiftMET_corr_phi(TTree * tree) { tree->Branch("shiftMET_corr_phi", &shiftMET_corr_phi, "shiftMET_corr_phi/F"); };
-void Branch_smearMET_corr_pt(TTree * tree) { tree->Branch("smearMET_corr_pt", &smearMET_corr_pt, "smearMET_corr_pt/F"); };
-void Branch_smearMET_corr_phi(TTree * tree) { tree->Branch("smearMET_corr_phi", &smearMET_corr_phi, "smearMET_corr_phi/F"); };
-void Branch_shiftscaleMET_corr_pt(TTree * tree) { tree->Branch("shiftscaleMET_corr_pt", &shiftscaleMET_corr_pt, "shiftscaleMET_corr_pt/F"); };
-void Branch_shiftscaleMET_corr_phi(TTree * tree) { tree->Branch("shiftscaleMET_corr_phi", &shiftscaleMET_corr_phi, "shiftscaleMET_corr_phi/F"); };
-void Branch_shiftsmearMET_corr_pt(TTree * tree) { tree->Branch("shiftsmearMET_corr_pt", &shiftsmearMET_corr_pt, "shiftsmearMET_corr_pt/F"); };
-void Branch_shiftsmearMET_corr_phi(TTree * tree) { tree->Branch("shiftsmearMET_corr_phi", &shiftsmearMET_corr_phi, "shiftsmearMET_corr_phi/F"); };
 
-void SetBranchAddress_shiftMET_corr_pt(TTree * tree) { tree->SetBranchAddress("shiftMET_corr_pt", &shiftMET_corr_pt, &b_shiftMET_corr_pt); };
-void SetBranchAddress_shiftMET_corr_phi(TTree * tree) { tree->SetBranchAddress("shiftMET_corr_phi", &shiftMET_corr_phi, &b_shiftMET_corr_phi); };
-void SetBranchAddress_smearMET_corr_pt(TTree * tree) { tree->SetBranchAddress("smearMET_corr_pt", &smearMET_corr_pt, &b_smearMET_corr_pt); };
-void SetBranchAddress_smearMET_corr_phi(TTree * tree) { tree->SetBranchAddress("smearMET_corr_phi", &smearMET_corr_phi, &b_smearMET_corr_phi); };
-void SetBranchAddress_shiftscaleMET_corr_pt(TTree * tree) { tree->SetBranchAddress("shiftscaleMET_corr_pt", &shiftscaleMET_corr_pt, &b_shiftscaleMET_corr_pt); };
-void SetBranchAddress_shiftscaleMET_corr_phi(TTree * tree) { tree->SetBranchAddress("shiftscaleMET_corr_phi", &shiftscaleMET_corr_phi, &b_shiftscaleMET_corr_phi); };
-void SetBranchAddress_shiftsmearMET_corr_pt(TTree * tree) { tree->SetBranchAddress("shiftsmearMET_corr_pt", &shiftsmearMET_corr_pt, &b_shiftsmearMET_corr_pt); };
-void SetBranchAddress_shiftsmearMET_corr_phi(TTree * tree) { tree->SetBranchAddress("shiftsmearMET_corr_phi", &shiftsmearMET_corr_phi, &b_shiftsmearMET_corr_phi); };
-*/
+//correctMETinRED
+void Branch_shiftMET_pt(TTree * tree) { tree->Branch("shiftMET_pt", &shiftMET_pt, "shiftMET_pt/F"); };
+void Branch_shiftMET_phi(TTree * tree) { tree->Branch("shiftMET_phi", &shiftMET_phi, "shiftMET_phi/F"); };
+void Branch_smearMET_pt(TTree * tree) { tree->Branch("smearMET_pt", &smearMET_pt, "smearMET_pt/F"); };
+void Branch_smearMET_phi(TTree * tree) { tree->Branch("smearMET_phi", &smearMET_phi, "smearMET_phi/F"); };
+void Branch_shiftscaleMET_pt(TTree * tree) { tree->Branch("shiftscaleMET_pt", &shiftscaleMET_pt, "shiftscaleMET_pt/F"); };
+void Branch_shiftscaleMET_phi(TTree * tree) { tree->Branch("shiftscaleMET_phi", &shiftscaleMET_phi, "shiftscaleMET_phi/F"); };
+void Branch_shiftsmearMET_pt(TTree * tree) { tree->Branch("shiftsmearMET_pt", &shiftsmearMET_pt, "shiftsmearMET_pt/F"); };
+void Branch_shiftsmearMET_phi(TTree * tree) { tree->Branch("shiftsmearMET_phi", &shiftsmearMET_phi, "shiftsmearMET_phi/F"); };
+
+void SetBranchAddress_shiftMET_pt(TTree * tree) { tree->SetBranchAddress("shiftMET_pt", &shiftMET_pt, &b_shiftMET_pt); };
+void SetBranchAddress_shiftMET_phi(TTree * tree) { tree->SetBranchAddress("shiftMET_phi", &shiftMET_phi, &b_shiftMET_phi); };
+void SetBranchAddress_smearMET_pt(TTree * tree) { tree->SetBranchAddress("smearMET_pt", &smearMET_pt, &b_smearMET_pt); };
+void SetBranchAddress_smearMET_phi(TTree * tree) { tree->SetBranchAddress("smearMET_phi", &smearMET_phi, &b_smearMET_phi); };
+void SetBranchAddress_shiftscaleMET_pt(TTree * tree) { tree->SetBranchAddress("shiftscaleMET_pt", &shiftscaleMET_pt, &b_shiftscaleMET_pt); };
+void SetBranchAddress_shiftscaleMET_phi(TTree * tree) { tree->SetBranchAddress("shiftscaleMET_phi", &shiftscaleMET_phi, &b_shiftscaleMET_phi); };
+void SetBranchAddress_shiftsmearMET_pt(TTree * tree) { tree->SetBranchAddress("shiftsmearMET_pt", &shiftsmearMET_pt, &b_shiftsmearMET_pt); };
+void SetBranchAddress_shiftsmearMET_phi(TTree * tree) { tree->SetBranchAddress("shiftsmearMET_phi", &shiftsmearMET_phi, &b_shiftsmearMET_phi); };
+
 
 // ID branches
 void Branch_pho_mitmva(TTree * tree) { tree->Branch("pho_mitmva", "std::vector<std::vector<float> >", &pho_mitmva); }; 
@@ -1081,10 +1085,16 @@ int ElectronSelection(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind);
 int MuonSelection2012(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind);
 int ElectronSelection2012(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind);
 
-//forMET
+//correctMETinRED
+double ErrEt( double Et, double Eta);
+TLorentzVector shiftMet(TLorentzVector *uncormet, bool isMC);
+TLorentzVector correctMet(TLorentzVector *uncormet, bool smearing, bool scale);
+
+/*  //met at analysis step
 double ErrEt( double Et, double Eta);
 TLorentzVector shiftMet(TLorentzVector& pho_lead, TLorentzVector& pho_sublead, int vtxind, TLorentzVector *uncormet, bool isMC);
 TLorentzVector correctMet(TLorentzVector& pho_lead, TLorentzVector& pho_sublead, int vtxind, TLorentzVector *uncormet, bool smearing, bool scale);
+*/
 
 void SetAllMVA();
 Float_t photonIDMVA(Int_t, Int_t, TLorentzVector &, const char*);

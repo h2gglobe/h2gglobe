@@ -236,7 +236,7 @@ void LoopAll::SetAllMVA() {
   tmvaReaderID_Single_Barrel->AddVariable("myphoton_pfchargedisobad03",   &tmva_photonid_pfchargedisobad03 );
   tmvaReaderID_Single_Barrel->AddVariable("myphoton_pfphotoniso03",   &tmva_photonid_pfphotoniso03 );
   tmvaReaderID_Single_Barrel->AddVariable("myphoton_sieie",   &tmva_photonid_sieie );
-  tmvaReaderID_Single_Barrel->AddVariable("myphoton_covieip",   &tmva_photonid_sieip );
+  tmvaReaderID_Single_Barrel->AddVariable("myphoton_sieip",   &tmva_photonid_sieip );
   tmvaReaderID_Single_Barrel->AddVariable("myphoton_etawidth",   &tmva_photonid_etawidth );
   tmvaReaderID_Single_Barrel->AddVariable("myphoton_phiwidth",   &tmva_photonid_phiwidth );
   tmvaReaderID_Single_Barrel->AddVariable("myphoton_r9",   &tmva_photonid_r9 );
@@ -249,7 +249,7 @@ void LoopAll::SetAllMVA() {
   tmvaReaderID_Single_Endcap->AddVariable("myphoton_pfchargedisobad03",   &tmva_photonid_pfchargedisobad03 );
   tmvaReaderID_Single_Endcap->AddVariable("myphoton_pfphotoniso03",   &tmva_photonid_pfphotoniso03 );
   tmvaReaderID_Single_Endcap->AddVariable("myphoton_sieie",   &tmva_photonid_sieie );
-  tmvaReaderID_Single_Endcap->AddVariable("myphoton_covieip",   &tmva_photonid_sieip );
+  tmvaReaderID_Single_Endcap->AddVariable("myphoton_sieip",   &tmva_photonid_sieip );
   tmvaReaderID_Single_Endcap->AddVariable("myphoton_etawidth",   &tmva_photonid_etawidth );
   tmvaReaderID_Single_Endcap->AddVariable("myphoton_phiwidth",   &tmva_photonid_phiwidth );
   tmvaReaderID_Single_Endcap->AddVariable("myphoton_r9",   &tmva_photonid_r9 );
@@ -282,6 +282,7 @@ Float_t LoopAll::photonIDMVANew(Int_t iPhoton, Int_t vtx, TLorentzVector &p4, co
   tmva_photonid_r9           = pho_r9[iPhoton];
   tmva_photonid_lambdaratio  = pho_lambdaratio[iPhoton];
   
+//  tmva_photonid_s4ratio  = pho_e2x2[iPhoton]/pho_e5x5[iPhoton];
   tmva_photonid_s4ratio  = pho_s4ratio[iPhoton];
   tmva_photonid_eventrho = rho_algo1;
   tmva_photonid_sceta    = ((TVector3*)sc_xyz->At(pho_scind[iPhoton]))->Eta(); 
@@ -1101,7 +1102,7 @@ double LoopAll::get_pho_zposfromconv(TVector3 convvtx, TVector3 superclustervtx,
 
 
 //-Applying MET correction-------------
-
+//correctMETinRED
 // pfjet resolutions. taken from AN-2010-371
 // --------------------------------------------------------------------------
 double LoopAll::ErrEt( double Et, double Eta) {
@@ -1151,9 +1152,7 @@ double LoopAll::ErrEt( double Et, double Eta) {
 }
 
 
-//------------------------------------------------------------------------
-
-TLorentzVector LoopAll::shiftMet(TLorentzVector& pho_lead, TLorentzVector& pho_sublead, int vtxind, TLorentzVector *uncormet, bool isMC) {
+TLorentzVector LoopAll::shiftMet(TLorentzVector *uncormet, bool isMC) {
 
   TLorentzVector correctedMet;
   
@@ -1189,9 +1188,151 @@ TLorentzVector LoopAll::shiftMet(TLorentzVector& pho_lead, TLorentzVector& pho_s
   return correctedMet;
 }
 
+//correctMETinRED
+//THIS PART HAS SOME CHANGES COMPARED WITH THE PART FOR ANALYSIS
 
-//----------------------------------------------------------------------
+  #include "TRandom3.h"
+  
+TLorentzVector LoopAll::correctMet(TLorentzVector *uncormet, bool smearing, bool scale) {
+  
+  TLorentzVector jetSumSmeared;
+  jetSumSmeared.SetXYZT(0.,0.,0.,0);
+  TRandom3 *jSmearRan= new TRandom3(event);
+  
+  TLorentzVector jetSumUnsmeared;
+  jetSumUnsmeared.SetXYZT(0.,0.,0.,0);
+  int leadLevel=LoopAll::phoSUPERTIGHT;
+  FillCICInputs();
+  FillCIC();
+  
+  //associating reco - gen met
+    for(int i=0; i<jet_algoPF1_n; i++){
+    TLorentzVector * p4_jet = (TLorentzVector *) jet_algoPF1_p4->At(i);
+    
+    if( version >= 13 ) {
+      p4_jet = (TLorentzVector *) p4_jet->Clone();
+      *p4_jet = (*p4_jet) * (1/jet_algoPF1_erescale[i]);
+    }
+    
+    //remove identified photons
+    bool isJetPhoton = false;
+    std::vector<float> pho_eng;
+    
+    for(int ipho = 0; ipho < pho_n; ++ipho ) {
+      
+      pho_eng.push_back( ((TLorentzVector*)pho_p4->At(ipho))->Energy());
+      TLorentzVector pho_p4_vtx_cor = get_pho_p4(ipho,0, &pho_eng[0]); 
+      float pho_Eta = fabs(((TVector3 *)sc_xyz->At(pho_scind[ipho]))->Eta());
+      
+      if( pho_Eta > 2.5  || ( pho_Eta > 1.4442 && pho_Eta < 1.566 ) ) { continue; }
+      if ( pho_p4_vtx_cor.Pt() < 25 ) { continue; }
+      
+      std::vector<std::vector<bool> > ph_passcut;
+      
+      if( PhotonCiCSelectionLevel(ipho, 0, ph_passcut, 4, 0, &pho_eng[0] ) < leadLevel ) { continue; }
+      
+      double dR_pho_jet = p4_jet->DeltaR(pho_p4_vtx_cor);
+      
+      if(dR_pho_jet < 0.5) isJetPhoton = true;
+      
+    }
+    
+    if( isJetPhoton ) continue;
+    
+    double ptJet_pfakt5 = p4_jet->Pt();
+    double eJet_pfakt5 = p4_jet->Energy();
+    double etaJet_pfakt5 = p4_jet->Eta();
+    double phiJet_pfakt5 = p4_jet->Phi();
+    double ptCorrJet_pfakt5 = ptJet_pfakt5*jet_algoPF1_erescale[i];
+    
+    float ptSmeared  = ptJet_pfakt5;
+    float eneSmeared = eJet_pfakt5;
+    
+    if (smearing) {
+    //smearing via association with genjets
+     int ass(-999);
+     double DRmin(999.);
+     
+     
+     for(int j=0; j<genjet_algo1_n; j++){
+            
+      TLorentzVector * p4_genjet = (TLorentzVector *) genjet_algo1_p4->At(j);
+      double DR =  p4_jet->DeltaR((*p4_genjet));
+      double ptJetGen_akt5 =  p4_genjet->Pt();
+      double expres = ErrEt(ptCorrJet_pfakt5,etaJet_pfakt5);
+      
+      if(DR < DRmin && (ptCorrJet_pfakt5-ptJetGen_akt5)/ptCorrJet_pfakt5 < 5. * expres) {
+	ass = j;
+	DRmin = DR;
+       }
+     }
+     
+     double ptJetGen_akt5_ass;
+     
+     if (ass > -1) {
+       TLorentzVector * p4_genjet_ass = (TLorentzVector *) genjet_algo1_p4->At(ass);
+       ptJetGen_akt5_ass = p4_genjet_ass->Pt();
+       if(DRmin > 0.1 + 0.3 * exp(-0.05*(ptJetGen_akt5_ass-10)))  ass = -999;
+     }
+     
+     
+     //smearing for non-associated jets, using expected resolutions
+     float smear = -999.;
+     if (fabs(etaJet_pfakt5)<=1.1)                            smear = 1.06177;
+     if (fabs(etaJet_pfakt5)<=1.7 && fabs(etaJet_pfakt5)>1.1) smear = 1.08352;
+     if (fabs(etaJet_pfakt5)<=2.3 && fabs(etaJet_pfakt5)>1.7) smear = 1.02911;
+     if (fabs(etaJet_pfakt5)>2.3)                             smear = 1.15288;
+     
+     double shift(0);
+     
+     if(ass>-1) {    
+       shift = (smear-1) * (ptCorrJet_pfakt5 - ptJetGen_akt5_ass)/ptCorrJet_pfakt5; }
+     else {
+       double expres = ErrEt(ptJet_pfakt5, etaJet_pfakt5);
+       double relsmear = expres * sqrt(smear*smear-1);
+       jSmearRan->SetSeed(event+(Int_t)(etaJet_pfakt5*1000));
+       shift = jSmearRan->Gaus(0.,relsmear);
+     }
+     
+     float ptSmeared  = ptJet_pfakt5;
+     float eneSmeared = eJet_pfakt5;
+     
+     if(smearing && shift>-1 && shift < 2) {
+       ptSmeared  *= 1 + shift;
+       eneSmeared *= 1 + shift;
+     }
+    }
+    
+    //JEC scaling to correct for residual jet corrections
+    if(scale) {
+      double factor(1);
+      if(TMath::Abs(etaJet_pfakt5)<1.5) factor = 1.015;
+      else if(TMath::Abs(etaJet_pfakt5)<3) factor = 1.04;
+      else factor = 1.15;
+      ptSmeared  *= factor;
+      eneSmeared *= factor;
+    }
+    
+    TLorentzVector thisJetSmeared;
+    thisJetSmeared.SetPtEtaPhiE(ptSmeared,etaJet_pfakt5,phiJet_pfakt5,eneSmeared);
+    
+    TLorentzVector thisJetUnsmeared;
+    thisJetUnsmeared.SetPtEtaPhiE(ptJet_pfakt5,etaJet_pfakt5,phiJet_pfakt5,eJet_pfakt5);
+    
+    if (ptJet_pfakt5>10 && TMath::Abs(etaJet_pfakt5)<4.7) {
+      jetSumSmeared   += thisJetSmeared;
+      jetSumUnsmeared += thisJetUnsmeared;
+    }
+    
+  }
 
+  TLorentzVector correctedMet;
+  correctedMet = (*uncormet) + jetSumUnsmeared - jetSumSmeared;
+  
+  return correctedMet;
+}
+
+/*  //met at analysis step
   #include "TRandom3.h"
   
 TLorentzVector LoopAll::correctMet(TLorentzVector& pho_lead, TLorentzVector& pho_sublead, int vtxind, TLorentzVector *uncormet, bool smearing, bool scale) {
@@ -1212,21 +1353,8 @@ TLorentzVector LoopAll::correctMet(TLorentzVector& pho_lead, TLorentzVector& pho
     }
     
     //remove identified photons
-//    bool isJetPhoton = false;
-//    std::vector<float> pho_eng;
-    
     for(int ipho = 0; ipho < pho_n; ++ipho ) {
       
-//      pho_eng.push_back( ((TLorentzVector*)pho_p4->At(ipho))->Energy());
-//      TLorentzVector pho_p4_vtx_cor = get_pho_p4(ipho,0, &pho_eng[0]); 
-//      float pho_Eta = fabs(((TVector3 *)sc_xyz->At(pho_scind[ipho]))->Eta());
-//      
-//      if( pho_Eta > 2.5  || ( pho_Eta > 1.4442 && pho_Eta < 1.566 ) ) { continue; }
-//      if ( pho_p4_vtx_cor.Pt() < 25 ) { continue; }
-//      std::vector<std::vector<bool> > ph_passcut;
-//      if( PhotonCiCSelectionLevel(ipho, 0, ph_passcut, 4, 0, &pho_eng[0] ) < leadLevel ) { continue; }
-//      double dR_pho_jet = p4_jet->DeltaR(pho_p4_vtx_cor);
-//      if(dR_pho_jet < 0.5) isJetPhoton = true;
       
       double dR_lead_jet = p4_jet->DeltaR(pho_lead);
       double dR_sublead_jet = p4_jet->DeltaR(pho_sublead);
@@ -1236,8 +1364,7 @@ TLorentzVector LoopAll::correctMet(TLorentzVector& pho_lead, TLorentzVector& pho
       
     }
     
-//    if( isJetPhoton ) continue;
-    
+
     double ptJet_pfakt5 = p4_jet->Pt();
     double eJet_pfakt5 = p4_jet->Energy();
     double etaJet_pfakt5 = p4_jet->Eta();
@@ -1245,32 +1372,7 @@ TLorentzVector LoopAll::correctMet(TLorentzVector& pho_lead, TLorentzVector& pho
     double ptCorrJet_pfakt5 = ptJet_pfakt5*jet_algoPF1_erescale[i];
     
     //smearing via association with genjets
-//    int ass(-999);
-    double DRmin(999.);
-    
-/*
-    for(int j=0; j<genjet_algo1_n; j++){
-            
-      TLorentzVector * p4_genjet = (TLorentzVector *) genjet_algo1_p4->At(j);
-      double DR =  p4_jet->DeltaR((*p4_genjet));
-      double ptJetGen_akt5 =  p4_genjet->Pt();
-      double expres = ErrEt(ptCorrJet_pfakt5,etaJet_pfakt5);
-      
-      if(DR < DRmin && (ptCorrJet_pfakt5-ptJetGen_akt5)/ptCorrJet_pfakt5 < 5. * expres) {
-	ass = j;
-	DRmin = DR;
-      }
-    }
-    
-    double ptJetGen_akt5_ass;
-    
-    if (ass > -1) {
-      TLorentzVector * p4_genjet_ass = (TLorentzVector *) genjet_algo1_p4->At(ass);
-      ptJetGen_akt5_ass = p4_genjet_ass->Pt();
-      if(DRmin > 0.1 + 0.3 * exp(-0.05*(ptJetGen_akt5_ass-10)))  ass = -999;
-    }
-*/
-    
+    double DRmin(999.);    
     double expres = ErrEt(ptCorrJet_pfakt5,etaJet_pfakt5);
     
     if (jet_algoPF1_genMatched[i] && (ptCorrJet_pfakt5-jet_algoPF1_genPt[i])/ptCorrJet_pfakt5 < 5. * expres) {
@@ -1291,10 +1393,6 @@ TLorentzVector LoopAll::correctMet(TLorentzVector& pho_lead, TLorentzVector& pho
     
     double shift(0);
     
-/*
-    if(ass>-1) {    
-      shift = (smear-1) * (ptCorrJet_pfakt5 - ptJetGen_akt5_ass)/ptCorrJet_pfakt5; }
-*/
     if(jet_algoPF1_genMatched[i]) {    
       shift = (smear-1) * (ptCorrJet_pfakt5 - jet_algoPF1_genPt[i])/ptCorrJet_pfakt5; }
     else {
@@ -1340,7 +1438,7 @@ TLorentzVector LoopAll::correctMet(TLorentzVector& pho_lead, TLorentzVector& pho
   
   return correctedMet;
 }
-
+*/
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 TLorentzVector LoopAll::get_pho_p4(int ipho, int ivtx, const float * energy) const
@@ -3733,6 +3831,7 @@ void LoopAll::DefineUserBranches()
   BRANCH_DICT(gh_vh_pdgid);
   BRANCH_DICT(gh_vh1_pdgid);
   BRANCH_DICT(gh_vh2_pdgid);
+//  BRANCH_DICT(METcorrected); //met at analysis step
   BRANCH_DICT(gh_higgs_p4);
   BRANCH_DICT(gh_pho1_p4);
   BRANCH_DICT(gh_pho2_p4);
@@ -3814,17 +3913,17 @@ void LoopAll::DefineUserBranches()
 
   BRANCH_DICT(pho_matchingConv);
 
-/*
-  //forMET
-  BRANCH_DICT(shiftMET_corr_pt);
-  BRANCH_DICT(shiftMET_corr_phi);
-  BRANCH_DICT(smearMET_corr_pt);
-  BRANCH_DICT(smearMET_corr_phi);
-  BRANCH_DICT(shiftscaleMET_corr_pt);
-  BRANCH_DICT(shiftscaleMET_corr_phi);
-  BRANCH_DICT(shiftsmearMET_corr_pt);
-  BRANCH_DICT(shiftsmearMET_corr_phi);
-*/
+
+  //correctMETinRED
+	BRANCH_DICT(shiftMET_pt);
+	BRANCH_DICT(shiftMET_phi);
+	BRANCH_DICT(smearMET_pt);
+	BRANCH_DICT(smearMET_phi);
+	BRANCH_DICT(shiftscaleMET_pt);
+	BRANCH_DICT(shiftscaleMET_phi);
+	BRANCH_DICT(shiftsmearMET_pt);
+	BRANCH_DICT(shiftsmearMET_phi);
+
 
 
 #endif

@@ -1313,7 +1313,7 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
     if(PADEBUG)  cout << " ****************** SelectEventsReduction " << endl;
     // require at least two reconstructed photons to store the event
 
-    if( pho_acc.size() < 2 || l.get_pho_p4( pho_acc[0], 0, &corrected_pho_energy[0] ).Pt() < presel_scet1 ) { return false; }
+//    if( pho_acc.size() < 2 || l.get_pho_p4( pho_acc[0], 0, &corrected_pho_energy[0] ).Pt() < presel_scet1 ) { return false; }
     
     if( pho_acc.size() < 2 ) { return false; }
     
@@ -1430,6 +1430,31 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
         }
     }
     
+        //correctMETinRED
+	//correctedMETvariables
+	TLorentzVector unpfMET;
+	unpfMET.SetPxPyPzE ( l.met_pfmet*cos(l.met_phi_pfmet), l.met_pfmet*sin(l.met_phi_pfmet),0,sqrt(l.met_pfmet*cos(l.met_phi_pfmet) 
+	* l.met_pfmet*cos(l.met_phi_pfmet) + l.met_pfmet*sin(l.met_phi_pfmet)
+	* l.met_pfmet*sin(l.met_phi_pfmet)));
+	
+	int filetype = l.itype[l.current];
+	bool isMC = filetype!=0;
+	
+	TLorentzVector shiftMET_corr = l.shiftMet(&unpfMET,isMC);
+	l.shiftMET_pt = shiftMET_corr.Pt();
+	l.shiftMET_phi = shiftMET_corr.Phi();
+	if (isMC) {
+	  TLorentzVector smearMET_corr = l.correctMet(&unpfMET,true,false);
+	  l.smearMET_pt = smearMET_corr.Pt();
+	  l.smearMET_phi = smearMET_corr.Phi();
+	
+	  TLorentzVector shiftsmearMET_corr = l.shiftMet(&smearMET_corr,isMC);
+	  l.shiftsmearMET_pt = shiftsmearMET_corr.Pt();
+	  l.shiftsmearMET_phi = shiftsmearMET_corr.Phi();
+	}	
+	TLorentzVector shiftscaleMET_corr = l.correctMet(&shiftMET_corr,false,true);
+	l.shiftscaleMET_pt = shiftscaleMET_corr.Pt();
+	l.shiftscaleMET_phi = shiftscaleMET_corr.Phi();
 
     return true;
 }
@@ -1599,6 +1624,16 @@ void PhotonAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree)
 	l.Branch_jet_algoPF3_vbfMatched(outputTree);
 	l.Branch_jet_algoPF3_genPt(outputTree);
 	l.Branch_jet_algoPF3_genDr(outputTree);
+	
+	//correctMETinRED
+	l.Branch_shiftMET_pt(outputTree);
+	l.Branch_shiftMET_phi(outputTree);
+	 l.Branch_smearMET_pt(outputTree);
+	 l.Branch_smearMET_phi(outputTree);
+	 l.Branch_shiftsmearMET_pt(outputTree);
+	 l.Branch_shiftsmearMET_phi(outputTree);
+	l.Branch_shiftscaleMET_pt(outputTree);
+	l.Branch_shiftscaleMET_phi(outputTree);
     }
 
     l.gh_higgs_p4 = new TClonesArray("TLorentzVector", 1); 
@@ -1628,6 +1663,12 @@ void PhotonAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree)
     l.gh_vh2_p4 = new TClonesArray("TLorentzVector", 1); 
     l.gh_vh2_p4->Clear();
     ((*l.gh_vh2_p4)[0]) = new TLorentzVector();
+    
+//    l.METcorrected = new TClonesArray("TLorentzVector", 1); 	//met at analysis step
+//    l.METcorrected->Clear();					//met at analysis step
+//    ((*l.METcorrected)[0]) = new TLorentzVector();		//met at analysis step
+    
+    
     if( outputTree ) {
 	l.Branch_gh_gen2reco1( outputTree );
 	l.Branch_gh_gen2reco2( outputTree );
@@ -1636,6 +1677,7 @@ void PhotonAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree)
 	l.Branch_gh_vh_pdgid( outputTree );
 	l.Branch_gh_vh1_pdgid( outputTree );
 	l.Branch_gh_vh2_pdgid( outputTree );
+//	l.Branch_METcorrected( outputTree );  //met at analysis step
 	l.Branch_gh_higgs_p4( outputTree );
 	l.Branch_gh_pho1_p4( outputTree );
 	l.Branch_gh_pho2_p4( outputTree );
@@ -2186,8 +2228,8 @@ bool PhotonAnalysis::VHhadronicTag2011(LoopAll& l, int diphotonVHhad_id, float* 
 }
 
 
-
-//forMET
+/*
+//met at analysis step
 bool PhotonAnalysis::METTag2012(LoopAll& l, int diphotonVHmet_id, float* smeared_pho_energy){
     bool tag = false;
 
@@ -2209,19 +2251,21 @@ bool PhotonAnalysis::METTag2012(LoopAll& l, int diphotonVHmet_id, float* smeared
     //isMC-->first smear then shift
       TLorentzVector smearMET_corr = l.correctMet(lead_p4,sublead_p4,l.dipho_vtxind[diphotonVHmet_id],&unpfMET,true,false);
       TLorentzVector shiftsmearMET_corr = l.shiftMet(lead_p4,sublead_p4,l.dipho_vtxind[diphotonVHmet_id],&smearMET_corr,isMC);
-      TLorentzVector MET = l.shiftMet(lead_p4, sublead_p4, l.dipho_vtxind[diphotonVHmet_id], &smearMET_corr,isMC);
+      MET = l.shiftMet(lead_p4, sublead_p4, l.dipho_vtxind[diphotonVHmet_id], &smearMET_corr,isMC);
+      ((TLorentzVector *)l.METcorrected->At(0))->SetXYZT(MET.Px(),MET.Py(),MET.Pz(),MET.E());
     } else {
     //isData-->first shift then scale
       TLorentzVector shiftMET_corr = l.shiftMet(lead_p4,sublead_p4,l.dipho_vtxind[diphotonVHmet_id],&unpfMET,isMC);
       TLorentzVector shiftscaleMET_corr = l.correctMet(lead_p4,sublead_p4,l.dipho_vtxind[diphotonVHmet_id],&shiftMET_corr,false,true);
-      TLorentzVector MET = l.correctMet(lead_p4, sublead_p4, l.dipho_vtxind[diphotonVHmet_id], &shiftMET_corr,false,true);
+      MET = l.correctMet(lead_p4, sublead_p4, l.dipho_vtxind[diphotonVHmet_id], &shiftMET_corr,false,true);
+      ((TLorentzVector *)l.METcorrected->At(0))->SetXYZT(MET.Px(),MET.Py(),MET.Pz(),MET.E());
     }
     
     if( MET.Pt() > 70 ) tag = true;    
-
+    
     return tag;
 }
-
+*/
 
 
 
