@@ -1,8 +1,7 @@
 
-source /afs/cern.ch/sw/lcg/external/gcc/4.4.3/x86_64-slc5/setup.sh
-export ROOTSYS=/afs/cern.ch/sw/lcg/app/releases/ROOT/5.26.00b/x86_64-slc5-gcc44-opt/root
+source /afs/cern.ch/sw/lcg/external/gcc/4.6.2/x86_64-slc5-gcc46-opt/setup.csh
+export ROOTSYS=/afs/cern.ch/sw/lcg/app/releases/ROOT/5.32.00/x86_64-slc5-gcc46-opt/root/
 export PATH="$ROOTSYS/bin:$PATH"
-
 
 if [ -n "${LD_LIBRARY_PATH:+x}" ]
 then
