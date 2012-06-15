@@ -8,7 +8,9 @@ htyp=0 plot=-1  ncat=1  xbins=240   ybins=0       xmin=60.0  xmax=180.0  ymin=0 
 htyp=0 plot=-1  ncat=1  xbins=240   ybins=0       xmin=60.0  xmax=180.0  ymin=0      ymax=0       name=mass_pt60to100    xaxis= yaxis=
 htyp=0 plot=-1  ncat=1  xbins=240   ybins=0       xmin=60.0  xmax=180.0  ymin=0      ymax=0       name=mass_pt100up    xaxis= yaxis=
 htyp=0 plot=-1  ncat=7  xbins=100   ybins=0       xmin=0.0  xmax=200.0  ymin=0      ymax=0       name=pt    xaxis= yaxis=
-htyp=0 plot=-1  ncat=7  xbins=100   ybins=0       xmin=0.0  xmax=100.0  ymin=0      ymax=0       name=nvtx    xaxis= yaxis=
+htyp=0 plot=-1  ncat=7  xbins=40   ybins=0       xmin=0.0  xmax=40.0  ymin=0      ymax=0       name=nvtx    xaxis= yaxis=
+htyp=0 plot=-1  ncat=7  xbins=40   ybins=0       xmin=0.0  xmax=40.0  ymin=0      ymax=0       name=nvtx_83to96    xaxis= yaxis=
+htyp=0 plot=-1  ncat=7  xbins=70    ybins=0       xmin=-7. xmax=7.  ymin=0     ymax=0      name=eta xaxis=x yaxis=y
 
 htyp=0 plot=-1  ncat=1  xbins=200   ybins=0  xmin=-1.0  xmax=1.0  ymin=0 ymax=0 name=bdtout_m100to180    xaxis= yaxis=
 htyp=0 plot=-1  ncat=5  xbins=200   ybins=0  xmin=-1.0  xmax=1.0  ymin=0 ymax=0 name=bdtout    xaxis= yaxis=
@@ -66,3 +68,35 @@ htyp=0 plot=-1  ncat=4  xbins=120   ybins=0       xmin=0.  xmax=0.06  ymin=0    
 
 htyp=0 plot=-1  ncat=4  xbins=120   ybins=0       xmin=0.  xmax=0.06  ymin=0      ymax=0       name=sigmaMOverM_EE    xaxis= yaxis=
 htyp=0 plot=-1  ncat=4  xbins=120   ybins=0       xmin=0.  xmax=0.06  ymin=0      ymax=0       name=sigmaMOverM_wrongVtx_EE    xaxis= yaxis=
+
+
+htyp=0 plot=-1  ncat=1  xbins=120   ybins=0       xmin=0.  xmax=8.  ymin=0      ymax=0       name=pfchargedisogood03_EB    xaxis= yaxis=
+htyp=0 plot=-1  ncat=1  xbins=120   ybins=0       xmin=0.  xmax=16.  ymin=0      ymax=0       name=pfchargedisobad03_EB    xaxis= yaxis=
+htyp=0 plot=-1  ncat=1  xbins=120   ybins=0       xmin=0.  xmax=12.  ymin=0      ymax=0       name=pfphotoniso03_EB    xaxis= yaxis=
+htyp=0 plot=-1  ncat=1  xbins=120   ybins=0       xmin=0.  xmax=15.  ymin=0      ymax=0       name=pfchargedisogood03_tail_EB    xaxis= yaxis=
+htyp=0 plot=-1  ncat=1  xbins=120   ybins=0       xmin=0.  xmax=25.  ymin=0      ymax=0       name=pfchargedisobad03_tail_EB    xaxis= yaxis=
+htyp=0 plot=-1  ncat=1  xbins=120   ybins=0       xmin=0.  xmax=20.  ymin=0      ymax=0       name=pfphotoniso03_tail_EB    xaxis= yaxis=
+htyp=0 plot=-1  ncat=1  xbins=120   ybins=0       xmin=0.  xmax=2.  ymin=0      ymax=0       name=pfchargedisogood03_rel_EB    xaxis= yaxis=
+htyp=0 plot=-1  ncat=1  xbins=120   ybins=0       xmin=0.  xmax=2.  ymin=0      ymax=0       name=pfchargedisobad03_rel_EB    xaxis= yaxis=
+htyp=0 plot=-1  ncat=1  xbins=120   ybins=0       xmin=0.  xmax=2.  ymin=0      ymax=0       name=pfphotoniso03_rel_EB    xaxis= yaxis=
+htyp=0 plot=-1  ncat=1  xbins=200   ybins=0       xmin=0.004  xmax=0.014  ymin=0      ymax=0       name=sieie_EB    xaxis= yaxis=
+htyp=0 plot=-1  ncat=1  xbins=200   ybins=0       xmin=-0.00015  xmax=0.00015  ymin=0      ymax=0       name=sieip_EB    xaxis= yaxis=
+htyp=0 plot=-1  ncat=1  xbins=200   ybins=0       xmin=0.  xmax=0.02  ymin=0      ymax=0       name=etawidth_EB    xaxis= yaxis=
+htyp=0 plot=-1  ncat=1  xbins=120   ybins=0       xmin=0.  xmax=0.12  ymin=0      ymax=0       name=phiwidth_EB    xaxis= yaxis=
+htyp=0 plot=-1  ncat=1  xbins=140   ybins=0       xmin=0.3  xmax=1.  ymin=0      ymax=0       name=s4ratio_EB    xaxis= yaxis=
+
+htyp=0 plot=-1  ncat=1  xbins=120   ybins=0       xmin=0.  xmax=8.  ymin=0      ymax=0       name=pfchargedisogood03_EE    xaxis= yaxis=
+htyp=0 plot=-1  ncat=1  xbins=120   ybins=0       xmin=0.  xmax=16.  ymin=0      ymax=0       name=pfchargedisobad03_EE    xaxis= yaxis=
+htyp=0 plot=-1  ncat=1  xbins=120   ybins=0       xmin=0.  xmax=20.  ymin=0      ymax=0       name=pfphotoniso03_EE    xaxis= yaxis=
+htyp=0 plot=-1  ncat=1  xbins=120   ybins=0       xmin=0.  xmax=15.  ymin=0      ymax=0       name=pfchargedisogood03_tail_EE    xaxis= yaxis=
+htyp=0 plot=-1  ncat=1  xbins=120   ybins=0       xmin=0.  xmax=16.  ymin=0      ymax=0       name=pfchargedisobad03_tail_EE    xaxis= yaxis=
+htyp=0 plot=-1  ncat=1  xbins=120   ybins=0       xmin=0.  xmax=25.  ymin=0      ymax=0       name=pfphotoniso03_tail_EE    xaxis= yaxis=
+htyp=0 plot=-1  ncat=1  xbins=120   ybins=0       xmin=0.  xmax=2.  ymin=0      ymax=0       name=pfchargedisogood03_rel_EE    xaxis= yaxis=
+htyp=0 plot=-1  ncat=1  xbins=120   ybins=0       xmin=0.  xmax=2.  ymin=0      ymax=0       name=pfchargedisobad03_rel_EE    xaxis= yaxis=
+htyp=0 plot=-1  ncat=1  xbins=120   ybins=0       xmin=0.  xmax=2.  ymin=0      ymax=0       name=pfphotoniso03_rel_EE    xaxis= yaxis=
+htyp=0 plot=-1  ncat=1  xbins=150   ybins=0       xmin=0.01  xmax=0.04  ymin=0      ymax=0       name=sieie_EE    xaxis= yaxis=
+htyp=0 plot=-1  ncat=1  xbins=200   ybins=0       xmin=-0.001  xmax=0.001  ymin=0      ymax=0       name=sieip_EE    xaxis= yaxis=
+htyp=0 plot=-1  ncat=1  xbins=200   ybins=0       xmin=0.  xmax=0.05  ymin=0      ymax=0       name=etawidth_EE    xaxis= yaxis=
+htyp=0 plot=-1  ncat=1  xbins=140   ybins=0       xmin=0.  xmax=0.14  ymin=0      ymax=0       name=phiwidth_EE    xaxis= yaxis=
+htyp=0 plot=-1  ncat=1  xbins=140   ybins=0       xmin=0.3  xmax=1.  ymin=0      ymax=0       name=s4ratio_EE    xaxis= yaxis=
+htyp=0 plot=-1  ncat=1  xbins=140   ybins=0       xmin=0.  xmax=14.  ymin=0      ymax=0       name=ESEffSigmaRR_EE    xaxis= yaxis=
