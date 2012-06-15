@@ -41,7 +41,7 @@ void dofit(double fitmass, vector <TString> InterpolationList, TFile* SourceFile
   //double Masses[5] = {110.0, 120.0, 130.0, 140.0, 150.0};
   double lowerbound = 0;
   double upperbound = 0;
-  for (unsigned int i=0; i<5; i++) {
+  for (unsigned int i=0; i<9; i++) {
     if (fitmass>Masses[i] && fitmass<Masses[i+1]) {
       lowerbound = Masses[i];
       upperbound = Masses[i+1];
