@@ -1,5 +1,5 @@
 
-source /afs/cern.ch/sw/lcg/external/gcc/4.6.2/x86_64-slc5-gcc46-opt/setup.csh
+source /afs/cern.ch/sw/lcg/external/gcc/4.6.2/x86_64-slc5-gcc46-opt/setup.sh
 export ROOTSYS=/afs/cern.ch/sw/lcg/app/releases/ROOT/5.32.00/x86_64-slc5-gcc46-opt/root/
 export PATH="$ROOTSYS/bin:$PATH"
 
