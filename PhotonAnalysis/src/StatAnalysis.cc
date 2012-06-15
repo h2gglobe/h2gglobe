@@ -470,7 +470,8 @@ void StatAnalysis::Init(LoopAll& l)
     // Create Signal DataSets:
     for (int sig=105;sig<=150;sig+=5){
         // Needed to use S4 for the GGH 145 Signal which has the BUG so no 145 sample
-        if ( sig==145 && dataIs2011 ) continue;
+        if ( sig==145 // && dataIs2011 
+	    ) continue;
         l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_ggh_mass_m%d",sig),nDataBins);    
         l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_vbf_mass_m%d",sig),nDataBins);    
         l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wzh_mass_m%d",sig),nDataBins);    
@@ -487,56 +488,57 @@ void StatAnalysis::Init(LoopAll& l)
         l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_tth_mass_m%d_wv",sig),nDataBins);    
     }
 
-    // Also create the 121 and 123 test points
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_ggh_mass_m121",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_vbf_mass_m121",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_wzh_mass_m121",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_tth_mass_m121",nDataBins);   
- 
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_ggh_mass_m121_rv",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_vbf_mass_m121_rv",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_wzh_mass_m121_rv",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_tth_mass_m121_rv",nDataBins);    
-                                                                      
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_ggh_mass_m121_wv",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_vbf_mass_m121_wv",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_wzh_mass_m121_wv",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_tth_mass_m121_wv",nDataBins);    
-    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_ggh_mass_m123",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_vbf_mass_m123",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_wzh_mass_m123",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_tth_mass_m123",nDataBins);   
- 
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_ggh_mass_m123_rv",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_vbf_mass_m123_rv",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_wzh_mass_m123_rv",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_tth_mass_m123_rv",nDataBins);    
-                                                                      
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_ggh_mass_m123_wv",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_vbf_mass_m123_wv",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_wzh_mass_m123_wv",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_tth_mass_m123_wv",nDataBins);    
-
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_ggh_mass_m124",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_vbf_mass_m124",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_wzh_mass_m124",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_tth_mass_m124",nDataBins);   
- 
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_ggh_mass_m124_rv",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_vbf_mass_m124_rv",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_wzh_mass_m124_rv",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_tth_mass_m124_rv",nDataBins);    
-                                                                      
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_ggh_mass_m124_wv",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_vbf_mass_m124_wv",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_wzh_mass_m124_wv",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_tth_mass_m124_wv",nDataBins);    
+    ///// // Also create the 121 and 123 test points
+    ///// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_ggh_mass_m121",nDataBins);    
+    ///// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_vbf_mass_m121",nDataBins);    
+    ///// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_wzh_mass_m121",nDataBins);    
+    ///// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_tth_mass_m121",nDataBins);   
+    ///// 
+    ///// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_ggh_mass_m121_rv",nDataBins);    
+    ///// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_vbf_mass_m121_rv",nDataBins);    
+    ///// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_wzh_mass_m121_rv",nDataBins);    
+    ///// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_tth_mass_m121_rv",nDataBins);    
+    /////                                                                   
+    ///// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_ggh_mass_m121_wv",nDataBins);    
+    ///// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_vbf_mass_m121_wv",nDataBins);    
+    ///// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_wzh_mass_m121_wv",nDataBins);    
+    ///// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_tth_mass_m121_wv",nDataBins);    
+    ///// 
+    ///// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_ggh_mass_m123",nDataBins);    
+    ///// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_vbf_mass_m123",nDataBins);    
+    ///// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_wzh_mass_m123",nDataBins);    
+    ///// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_tth_mass_m123",nDataBins);   
+    ///// 
+    ///// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_ggh_mass_m123_rv",nDataBins);    
+    ///// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_vbf_mass_m123_rv",nDataBins);    
+    ///// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_wzh_mass_m123_rv",nDataBins);    
+    ///// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_tth_mass_m123_rv",nDataBins);    
+    /////                                                                   
+    ///// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_ggh_mass_m123_wv",nDataBins);    
+    ///// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_vbf_mass_m123_wv",nDataBins);    
+    ///// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_wzh_mass_m123_wv",nDataBins);    
+    ///// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_tth_mass_m123_wv",nDataBins);    
+    ///// 
+    ///// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_ggh_mass_m124",nDataBins);    
+    ///// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_vbf_mass_m124",nDataBins);    
+    ///// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_wzh_mass_m124",nDataBins);    
+    ///// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_tth_mass_m124",nDataBins);   
+    ///// 
+    ///// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_ggh_mass_m124_rv",nDataBins);    
+    ///// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_vbf_mass_m124_rv",nDataBins);    
+    ///// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_wzh_mass_m124_rv",nDataBins);    
+    ///// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_tth_mass_m124_rv",nDataBins);    
+    /////                                                                   
+    ///// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_ggh_mass_m124_wv",nDataBins);    
+    ///// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_vbf_mass_m124_wv",nDataBins);    
+    ///// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_wzh_mass_m124_wv",nDataBins);    
+    ///// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_tth_mass_m124_wv",nDataBins);    
 
     // Make more datasets representing Systematic Shifts of various quantities
 
     for (int sig=105;sig<=150;sig+=5){
-        if (sig==145) continue;
+        if (sig==145 // && dataIs2011 
+	    ) continue;
         l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_ggh_mass_m%d",sig),-1);    
         l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_vbf_mass_m%d",sig),-1);    
         l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_wzh_mass_m%d",sig),-1);    
@@ -544,20 +546,20 @@ void StatAnalysis::Init(LoopAll& l)
     }
     // additional TTH155 needed for interpolation -> sigh!
 
-    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_ggh_mass_m121",-1); 
-    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_vbf_mass_m121",-1); 
-    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_wzh_mass_m121",-1); 
-    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_tth_mass_m121",-1);
-    
-    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_ggh_mass_m123",-1); 
-    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_vbf_mass_m123",-1); 
-    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_wzh_mass_m123",-1); 
-    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_tth_mass_m123",-1); 
-    
-    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_ggh_mass_m124",-1); 
-    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_vbf_mass_m124",-1); 
-    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_wzh_mass_m124",-1); 
-    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_tth_mass_m124",-1);
+    ///// l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_ggh_mass_m121",-1); 
+    ///// l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_vbf_mass_m121",-1); 
+    ///// l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_wzh_mass_m121",-1); 
+    ///// l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_tth_mass_m121",-1);
+    ///// 
+    ///// l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_ggh_mass_m123",-1); 
+    ///// l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_vbf_mass_m123",-1); 
+    ///// l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_wzh_mass_m123",-1); 
+    ///// l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_tth_mass_m123",-1); 
+    ///// 
+    ///// l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_ggh_mass_m124",-1); 
+    ///// l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_vbf_mass_m124",-1); 
+    ///// l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_wzh_mass_m124",-1); 
+    ///// l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_tth_mass_m124",-1);
     // Make sure the Map is filled
     FillSignalLabelMap(l);
 
@@ -917,40 +919,49 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 	    eventListText << "run:" << l.run 
 			  << "\tlumi:" << l.lumis 
 			  << "\tevent:" << l.event 
-			  << "\trho:" << l.rho_algo1 
-			  << "\tenergy1:" << lead_p4.Energy() 
-			  << "\tenergy2:" << sublead_p4.Energy()
+			  << "\tcat:" << category
 			  << "\tscEta1:" << ((TVector3*)l.sc_xyz->At(l.pho_scind[l.dipho_leadind[diphoton_id]]))->Eta()
 			  << "\tscEta2:" << ((TVector3*)l.sc_xyz->At(l.pho_scind[l.dipho_subleadind[diphoton_id]]))->Eta()
-			  << "\tr91:" << l.pho_r9[l.dipho_leadind[diphoton_id]]
-			  << "\tr92:" << l.pho_r9[l.dipho_subleadind[diphoton_id]]
-		;
-	    vtxAna_.setPairID(diphoton_id);
-	    std::vector<int> & vtxlist = l.vtx_std_ranked_list->at(diphoton_id);
-	    for(size_t ii=0; ii<3; ++ii ) {
-		eventListText << "\tvertexId"<< ii+1 <<":" << (ii < vtxlist.size() ? vtxlist[ii] : -1);
-	    }
-	    for(size_t ii=0; ii<3; ++ii ) {
-		eventListText << "\tvertexMva"<< ii+1 <<":" << (ii < vtxlist.size() ? vtxAna_.mva(vtxlist[ii]) : -2.);
-	    }
-	    eventListText << "\tptbal:"   << vtxAna_.ptbal(0)
-			  << "\tptasym:"  << vtxAna_.ptasym(0)
-			  << "\tlogspt2:" << vtxAna_.logsumpt2(0)
-			  << "\tp2conv:"  << vtxAna_.pulltoconv(0)
-		;
-	    dumpPhoton(eventListText,1,l,l.dipho_leadind[diphoton_id],l.dipho_vtxind[diphoton_id],lead_p4,&smeared_pho_energy[0]);
-	    dumpPhoton(eventListText,2,l,l.dipho_subleadind[diphoton_id],l.dipho_vtxind[diphoton_id],sublead_p4,&smeared_pho_energy[0]);
-	    if( VBFevent ) {
-		eventListText << "\tnvtx:" << l.vtx_std_n 
-			      << "\tjetPt1:"  << ( (TLorentzVector*)l.jet_algoPF1_p4->At(ijet1) )->Pt()
-			      << "\tjetPt2:"  << ( (TLorentzVector*)l.jet_algoPF1_p4->At(ijet2) )->Pt()
-			      << "\tjetEta1:" << ( (TLorentzVector*)l.jet_algoPF1_p4->At(ijet1) )->Eta()
-			      << "\tjetEta2:" << ( (TLorentzVector*)l.jet_algoPF1_p4->At(ijet2) )->Eta()
-		    ;
-		dumpJet(eventListText,1,l,ijet1);
-		dumpJet(eventListText,2,l,ijet2);
-	    }
-	    eventListText << std::endl;
+			  << "\tmass:" << Higgs.M()
+			  << std::endl;
+	    
+	    ///// eventListText << "run:" << l.run 
+	    ///// 		  << "\tlumi:" << l.lumis 
+	    ///// 		  << "\tevent:" << l.event 
+	    ///// 		  << "\trho:" << l.rho_algo1 
+	    ///// 		  << "\tenergy1:" << lead_p4.Energy() 
+	    ///// 		  << "\tenergy2:" << sublead_p4.Energy()
+	    ///// 		  << "\tscEta1:" << ((TVector3*)l.sc_xyz->At(l.pho_scind[l.dipho_leadind[diphoton_id]]))->Eta()
+	    ///// 		  << "\tscEta2:" << ((TVector3*)l.sc_xyz->At(l.pho_scind[l.dipho_subleadind[diphoton_id]]))->Eta()
+	    ///// 		  << "\tr91:" << l.pho_r9[l.dipho_leadind[diphoton_id]]
+	    ///// 		  << "\tr92:" << l.pho_r9[l.dipho_subleadind[diphoton_id]]
+	    ///// 	;
+	    ///// vtxAna_.setPairID(diphoton_id);
+	    ///// std::vector<int> & vtxlist = l.vtx_std_ranked_list->at(diphoton_id);
+	    ///// for(size_t ii=0; ii<3; ++ii ) {
+	    ///// 	eventListText << "\tvertexId"<< ii+1 <<":" << (ii < vtxlist.size() ? vtxlist[ii] : -1);
+	    ///// }
+	    ///// for(size_t ii=0; ii<3; ++ii ) {
+	    ///// 	eventListText << "\tvertexMva"<< ii+1 <<":" << (ii < vtxlist.size() ? vtxAna_.mva(vtxlist[ii]) : -2.);
+	    ///// }
+	    ///// eventListText << "\tptbal:"   << vtxAna_.ptbal(0)
+	    ///// 		  << "\tptasym:"  << vtxAna_.ptasym(0)
+	    ///// 		  << "\tlogspt2:" << vtxAna_.logsumpt2(0)
+	    ///// 		  << "\tp2conv:"  << vtxAna_.pulltoconv(0)
+	    ///// 	;
+	    ///// dumpPhoton(eventListText,1,l,l.dipho_leadind[diphoton_id],l.dipho_vtxind[diphoton_id],lead_p4,&smeared_pho_energy[0]);
+	    ///// dumpPhoton(eventListText,2,l,l.dipho_subleadind[diphoton_id],l.dipho_vtxind[diphoton_id],sublead_p4,&smeared_pho_energy[0]);
+	    ///// if( VBFevent ) {
+	    ///// 	eventListText << "\tnvtx:" << l.vtx_std_n 
+	    ///// 		      << "\tjetPt1:"  << ( (TLorentzVector*)l.jet_algoPF1_p4->At(ijet1) )->Pt()
+	    ///// 		      << "\tjetPt2:"  << ( (TLorentzVector*)l.jet_algoPF1_p4->At(ijet2) )->Pt()
+	    ///// 		      << "\tjetEta1:" << ( (TLorentzVector*)l.jet_algoPF1_p4->At(ijet1) )->Eta()
+	    ///// 		      << "\tjetEta2:" << ( (TLorentzVector*)l.jet_algoPF1_p4->At(ijet2) )->Eta()
+	    ///// 	    ;
+	    ///// 	dumpJet(eventListText,1,l,ijet1);
+	    ///// 	dumpJet(eventListText,2,l,ijet2);
+	    ///// }
+	    ///// eventListText << std::endl;
         }
 	
 	return true;
