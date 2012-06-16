@@ -965,13 +965,14 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 			      << "\tr91:" << l.pho_r9[l.dipho_leadind[diphoton_id]]
 			      << "\tr92:" << l.pho_r9[l.dipho_subleadind[diphoton_id]]
 	    	;
+	    }
 	    vtxAna_.setPairID(diphoton_id);
 	    std::vector<int> & vtxlist = l.vtx_std_ranked_list->at(diphoton_id);
 	    for(size_t ii=0; ii<3; ++ii ) {
-	    	eventListText << "\tvertexId"<< ii+1 <<":" << (ii < vtxlist.size() ? vtxlist[ii] : -1);
+		eventListText << "\tvertexId"<< ii+1 <<":" << (ii < vtxlist.size() ? vtxlist[ii] : -1);
 	    }
 	    for(size_t ii=0; ii<3; ++ii ) {
-	    	eventListText << "\tvertexMva"<< ii+1 <<":" << (ii < vtxlist.size() ? vtxAna_.mva(vtxlist[ii]) : -2.);
+		eventListText << "\tvertexMva"<< ii+1 <<":" << (ii < vtxlist.size() ? vtxAna_.mva(vtxlist[ii]) : -2.);
 	    }
 	    eventListText << "\tptbal:"   << vtxAna_.ptbal(0)
 	    		  << "\tptasym:"  << vtxAna_.ptasym(0)
@@ -991,7 +992,7 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 	    	dumpJet(eventListText,2,l,ijet2);
 	    }
 	    eventListText << std::endl;
-        }
+	}
 	
 	return true;
     }
