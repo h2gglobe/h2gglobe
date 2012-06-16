@@ -1313,7 +1313,7 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
     if(PADEBUG)  cout << " ****************** SelectEventsReduction " << endl;
     // require at least two reconstructed photons to store the event
 
-//    if( pho_acc.size() < 2 || l.get_pho_p4( pho_acc[0], 0, &corrected_pho_energy[0] ).Pt() < presel_scet1 ) { return false; }
+    if( pho_acc.size() < 2 || l.get_pho_p4( pho_acc[0], 0, &corrected_pho_energy[0] ).Pt() < presel_scet1 ) { return false; }
     
     if( pho_acc.size() < 2 ) { return false; }
     
