@@ -124,10 +124,10 @@ void StatAnalysis::Init(LoopAll& l)
     int nVBFCategories   = ((int)includeVBF)*nVBFEtaCategories*nVBFDijetJetCategories;
     int nVHhadCategories = ((int)includeVHhad)*nVHhadEtaCategories;
     int nVHlepCategories = (int)includeVHlep * 2;
-//    int nVHmetCategories = (int)includeVHmet;  //met at analysis step
+    int nVHmetCategories = (int)includeVHmet;  //met at analysis step
     
-//    nCategories_=(nInclusiveCategories_+nVBFCategories+nVHhadCategories+nVHlepCategories+nVHmetCategories);  //met at analysis step
-    nCategories_=(nInclusiveCategories_+nVBFCategories+nVHhadCategories+nVHlepCategories);
+    nCategories_=(nInclusiveCategories_+nVBFCategories+nVHhadCategories+nVHlepCategories+nVHmetCategories);  //met at analysis step
+//    nCategories_=(nInclusiveCategories_+nVBFCategories+nVHhadCategories+nVHlepCategories);
     
 
     effSmearPars.categoryType = "2CatR9_EBEE";
@@ -808,12 +808,12 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 	int diphotonVBF_id = -1;
 	int diphotonVHhad_id = -1;
 	int diphotonVHlep_id = -1;
-//	int diphotonVHmet_id = -1; //met at analysis step
+	int diphotonVHmet_id = -1; //met at analysis step
 	VHmuevent = false;
 	VHelevent = false;
 	VBFevent = false;
 	VHhadevent = false;
-//	VHmetevent = false; //met at analysis step
+	VHmetevent = false; //met at analysis step
 	
 	// lepton tag
 	if(includeVHlep){
@@ -824,13 +824,33 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 	    VHelevent=ElectronTag2011(l, diphotonVHlep_id, &smeared_pho_energy[0]);
 	}
 	
-/*	
+	
 	//Met tag //met at analysis step
 	if(includeVHmet){
 	    diphotonVHmet_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVHmetCut, subleadEtVHmetCut, 4, false, &smeared_pho_energy[0], true );
+	    if(diphotonVHmet_id>-1) {
+	    TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphotonVHmet_id], l.dipho_vtxind[diphotonVHmet_id], &smeared_pho_energy[0]);
+	    TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphotonVHmet_id], l.dipho_vtxind[diphotonVHmet_id], &smeared_pho_energy[0]);
+		printf("run:%d",l.run);
+		printf("\tlumi:%d",l.lumis);
+		printf("\tevent:%lld",l.event);
+		printf("\trho:%.4e",l.rho_algo1);
+		printf("\tenergy1:%.4e",lead_p4.Energy());
+		printf("\tenergy2:%.4e",sublead_p4.Energy());
+		printf("\tscEta1:%.4e",((TVector3*)l.sc_xyz->At(l.pho_scind[l.dipho_leadind[diphoton_id]]))->Eta());
+		printf("\tscEta2:%.4e",((TVector3*)l.sc_xyz->At(l.pho_scind[l.dipho_subleadind[diphoton_id]]))->Eta());
+		printf("\tr91:%.4e",l.pho_r9[l.dipho_leadind[diphoton_id]]);
+		printf("\tr92:%.4e",l.pho_r9[l.dipho_leadind[diphoton_id]]);
+		printf("\tvertexId1:%d",l.dipho_vtxind[diphotonVHmet_id]);
+		printf("\tcorrMET:%.4e",l.shiftscaleMET_pt[diphotonVHmet_id]);
+		printf("\tcorrMETPhi:%.4e",l.shiftscaleMET_phi[diphotonVHmet_id]);
+		printf("\trawMET:%.4e",l.met_pfmet);
+		printf("\trawMETPhi:%.4e",l.met_phi_pfmet);
+		printf("\tnvtx:%d",l.vtx_std_n);
+	    }
 	    VHmetevent=METTag2012(l, diphotonVHmet_id, &smeared_pho_energy[0]);
 	}
-*/
+
 	
 	// VBF+hadronic VH
 	if((includeVBF || includeVHhad)&&l.jet_algoPF1_n>1 && !isSyst /*avoid rescale > once*/) {
@@ -1066,8 +1086,8 @@ void StatAnalysis::computeExclusiveCategory(LoopAll & l, int & category, std::pa
 	category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFEtaCategories + ( (int)includeVHhad )*nVHhadEtaCategories;  
     } else if(VHelevent) { 
 	category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFEtaCategories + ( (int)includeVHhad )*nVHhadEtaCategories + (int)includeVHlep;
-//    } else if(VHmetevent) { 
-//	category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFEtaCategories + ( (int)includeVHhad )*nVHhadEtaCategories + (int)includeVHlep + (int)includeVHmet;  //met at analysis step
+    } else if(VHmetevent) { 
+	category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFEtaCategories + ( (int)includeVHhad )*nVHhadEtaCategories + (int)includeVHlep + (int)includeVHmet;  //met at analysis step
     }
 }
 

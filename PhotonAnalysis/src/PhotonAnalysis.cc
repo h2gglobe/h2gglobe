@@ -2229,7 +2229,7 @@ bool PhotonAnalysis::VHhadronicTag2011(LoopAll& l, int diphotonVHhad_id, float* 
 }
 
 
-/*
+
 //met at analysis step
 bool PhotonAnalysis::METTag2012(LoopAll& l, int diphotonVHmet_id, float* smeared_pho_energy){
     bool tag = false;
@@ -2239,10 +2239,19 @@ bool PhotonAnalysis::METTag2012(LoopAll& l, int diphotonVHmet_id, float* smeared
     TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphotonVHmet_id], l.dipho_vtxind[diphotonVHmet_id], &smeared_pho_energy[0]);
     TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphotonVHmet_id], l.dipho_vtxind[diphotonVHmet_id], &smeared_pho_energy[0]);
     
+    TLorentzVector TwoPhoton_Vector = (lead_p4) + (sublead_p4);  
+    float m_gamgam = TwoPhoton_Vector.M();
+    
     //ADD SMEARING/SHIFTING HERE
     int filetype = l.itype[l.current];
     bool isMC = filetype!=0;
+
+    if( l.shiftscaleMET_pt[l.dipho_n] > 70 ) tag = true;    
     
+    return tag;
+    
+}
+/*
     TLorentzVector unpfMET;
     unpfMET.SetPxPyPzE ( l.met_pfmet*cos(l.met_phi_pfmet), l.met_pfmet*sin(l.met_phi_pfmet),0,sqrt(l.met_pfmet*cos(l.met_phi_pfmet) *
     l.met_pfmet*cos(l.met_phi_pfmet) + l.met_pfmet*sin(l.met_phi_pfmet) * l.met_pfmet*sin(l.met_phi_pfmet)));
