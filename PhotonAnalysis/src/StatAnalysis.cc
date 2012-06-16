@@ -24,8 +24,9 @@ StatAnalysis::StatAnalysis()  :
     dataIs2011 = false;
     nVBFDijetJetCategories=2;
     scaleClusterShapes = true;
-    dumpAscii = true;  
-    dumpMcAscii = true;  
+    dumpAscii = false;
+    dumpMcAscii = false;
+    unblind = false;
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -942,89 +943,54 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 	computeExclusiveCategory(l, category, diphoton_index, Higgs.Pt() );
   
         if (dumpAscii && !isSyst && (cur_type==0||dumpMcAscii) && mass>=massMin && mass<=massMax ) {
-//        if ((cur_type==0||dumpMcAscii) && mass>=massMin && mass<=massMax ) {
-
-	    eventListText << "run:" << l.run 
-			  << "\tlumi:" << l.lumis 
-			  << "\tevent:" << l.event 
-			  << "\trho:" << l.rho_algo1 
-			  << "\tenergy1:" << lead_p4.Energy() 
-			  << "\tenergy2:" << sublead_p4.Energy() 
-			  << "\tscEta1:" << ((TVector3*)l.sc_xyz->At(l.pho_scind[l.dipho_leadind[diphoton_id]]))->Eta()
-			  << "\tscEta2:" << ((TVector3*)l.sc_xyz->At(l.pho_scind[l.dipho_subleadind[diphoton_id]]))->Eta()
-			  << "\tr91:" << l.pho_r9[l.dipho_leadind[diphoton_id]]
-			  << "\tr92:" << l.pho_r9[l.dipho_subleadind[diphoton_id]]
-		;
+	    
+	    if( unblind ) {
+		eventListText << "run:" << l.run 
+			      << "\tlumi:" << l.lumis 
+			      << "\tevent:" << l.event 
+			      << "\tcat:" << category
+			      << "\tscEta1:" << ((TVector3*)l.sc_xyz->At(l.pho_scind[l.dipho_leadind[diphoton_id]]))->Eta()
+			      << "\tscEta2:" << ((TVector3*)l.sc_xyz->At(l.pho_scind[l.dipho_subleadind[diphoton_id]]))->Eta()
+			      << "\tmass:" << Higgs.M()
+			      << std::endl;
+	    } else { 
+		eventListText << "run:" << l.run 
+			      << "\tlumi:" << l.lumis 
+			      << "\tevent:" << l.event 
+			      << "\trho:" << l.rho_algo1 
+			      << "\tenergy1:" << lead_p4.Energy() 
+			      << "\tenergy2:" << sublead_p4.Energy()
+			      << "\tscEta1:" << ((TVector3*)l.sc_xyz->At(l.pho_scind[l.dipho_leadind[diphoton_id]]))->Eta()
+			      << "\tscEta2:" << ((TVector3*)l.sc_xyz->At(l.pho_scind[l.dipho_subleadind[diphoton_id]]))->Eta()
+			      << "\tr91:" << l.pho_r9[l.dipho_leadind[diphoton_id]]
+			      << "\tr92:" << l.pho_r9[l.dipho_subleadind[diphoton_id]]
+	    	;
 	    vtxAna_.setPairID(diphoton_id);
 	    std::vector<int> & vtxlist = l.vtx_std_ranked_list->at(diphoton_id);
 	    for(size_t ii=0; ii<3; ++ii ) {
-		eventListText << "\tvertexId"<< ii+1 <<":" << (ii < vtxlist.size() ? vtxlist[ii] : -1);
+	    	eventListText << "\tvertexId"<< ii+1 <<":" << (ii < vtxlist.size() ? vtxlist[ii] : -1);
 	    }
 	    for(size_t ii=0; ii<3; ++ii ) {
-		eventListText << "\tvertexMva"<< ii+1 <<":" << (ii < vtxlist.size() ? vtxAna_.mva(vtxlist[ii]) : -2.);
+	    	eventListText << "\tvertexMva"<< ii+1 <<":" << (ii < vtxlist.size() ? vtxAna_.mva(vtxlist[ii]) : -2.);
 	    }
 	    eventListText << "\tptbal:"   << vtxAna_.ptbal(0)
-			  << "\tptasym:"  << vtxAna_.ptasym(0)
-			  << "\tlogspt2:" << vtxAna_.logsumpt2(0)
-			  << "\tp2conv:"  << vtxAna_.pulltoconv(0)
-		;
+	    		  << "\tptasym:"  << vtxAna_.ptasym(0)
+	    		  << "\tlogspt2:" << vtxAna_.logsumpt2(0)
+	    		  << "\tp2conv:"  << vtxAna_.pulltoconv(0)
+	    	;
 	    dumpPhoton(eventListText,1,l,l.dipho_leadind[diphoton_id],l.dipho_vtxind[diphoton_id],lead_p4,&smeared_pho_energy[0]);
 	    dumpPhoton(eventListText,2,l,l.dipho_subleadind[diphoton_id],l.dipho_vtxind[diphoton_id],sublead_p4,&smeared_pho_energy[0]);
 	    if( VBFevent ) {
-		eventListText << "\tnvtx:" << l.vtx_std_n 
-			      << "\tjetPt1:"  << ( (TLorentzVector*)l.jet_algoPF1_p4->At(ijet1) )->Pt()
-			      << "\tjetPt2:"  << ( (TLorentzVector*)l.jet_algoPF1_p4->At(ijet2) )->Pt()
-			      << "\tjetEta1:" << ( (TLorentzVector*)l.jet_algoPF1_p4->At(ijet1) )->Eta()
-			      << "\tjetEta2:" << ( (TLorentzVector*)l.jet_algoPF1_p4->At(ijet2) )->Eta()
-		    ;
-		dumpJet(eventListText,1,l,ijet1);
-		dumpJet(eventListText,2,l,ijet2);
+	    	eventListText << "\tnvtx:" << l.vtx_std_n 
+	    		      << "\tjetPt1:"  << ( (TLorentzVector*)l.jet_algoPF1_p4->At(ijet1) )->Pt()
+	    		      << "\tjetPt2:"  << ( (TLorentzVector*)l.jet_algoPF1_p4->At(ijet2) )->Pt()
+	    		      << "\tjetEta1:" << ( (TLorentzVector*)l.jet_algoPF1_p4->At(ijet1) )->Eta()
+	    		      << "\tjetEta2:" << ( (TLorentzVector*)l.jet_algoPF1_p4->At(ijet2) )->Eta()
+	    	    ;
+	    	dumpJet(eventListText,1,l,ijet1);
+	    	dumpJet(eventListText,2,l,ijet2);
 	    }
-	    eventListText << std::endl
-			  << "\tcat:" << category
-			  << "\tscEta1:" << ((TVector3*)l.sc_xyz->At(l.pho_scind[l.dipho_leadind[diphoton_id]]))->Eta()
-			  << "\tscEta2:" << ((TVector3*)l.sc_xyz->At(l.pho_scind[l.dipho_subleadind[diphoton_id]]))->Eta()
-			  << "\tmass:" << Higgs.M()
-			  << std::endl;
-	    
-	    ///// eventListText << "run:" << l.run 
-	    ///// 		  << "\tlumi:" << l.lumis 
-	    ///// 		  << "\tevent:" << l.event 
-	    ///// 		  << "\trho:" << l.rho_algo1 
-	    ///// 		  << "\tenergy1:" << lead_p4.Energy() 
-	    ///// 		  << "\tenergy2:" << sublead_p4.Energy()
-	    ///// 		  << "\tscEta1:" << ((TVector3*)l.sc_xyz->At(l.pho_scind[l.dipho_leadind[diphoton_id]]))->Eta()
-	    ///// 		  << "\tscEta2:" << ((TVector3*)l.sc_xyz->At(l.pho_scind[l.dipho_subleadind[diphoton_id]]))->Eta()
-	    ///// 		  << "\tr91:" << l.pho_r9[l.dipho_leadind[diphoton_id]]
-	    ///// 		  << "\tr92:" << l.pho_r9[l.dipho_subleadind[diphoton_id]]
-	    ///// 	;
-	    ///// vtxAna_.setPairID(diphoton_id);
-	    ///// std::vector<int> & vtxlist = l.vtx_std_ranked_list->at(diphoton_id);
-	    ///// for(size_t ii=0; ii<3; ++ii ) {
-	    ///// 	eventListText << "\tvertexId"<< ii+1 <<":" << (ii < vtxlist.size() ? vtxlist[ii] : -1);
-	    ///// }
-	    ///// for(size_t ii=0; ii<3; ++ii ) {
-	    ///// 	eventListText << "\tvertexMva"<< ii+1 <<":" << (ii < vtxlist.size() ? vtxAna_.mva(vtxlist[ii]) : -2.);
-	    ///// }
-	    ///// eventListText << "\tptbal:"   << vtxAna_.ptbal(0)
-	    ///// 		  << "\tptasym:"  << vtxAna_.ptasym(0)
-	    ///// 		  << "\tlogspt2:" << vtxAna_.logsumpt2(0)
-	    ///// 		  << "\tp2conv:"  << vtxAna_.pulltoconv(0)
-	    ///// 	;
-	    ///// dumpPhoton(eventListText,1,l,l.dipho_leadind[diphoton_id],l.dipho_vtxind[diphoton_id],lead_p4,&smeared_pho_energy[0]);
-	    ///// dumpPhoton(eventListText,2,l,l.dipho_subleadind[diphoton_id],l.dipho_vtxind[diphoton_id],sublead_p4,&smeared_pho_energy[0]);
-	    ///// if( VBFevent ) {
-	    ///// 	eventListText << "\tnvtx:" << l.vtx_std_n 
-	    ///// 		      << "\tjetPt1:"  << ( (TLorentzVector*)l.jet_algoPF1_p4->At(ijet1) )->Pt()
-	    ///// 		      << "\tjetPt2:"  << ( (TLorentzVector*)l.jet_algoPF1_p4->At(ijet2) )->Pt()
-	    ///// 		      << "\tjetEta1:" << ( (TLorentzVector*)l.jet_algoPF1_p4->At(ijet1) )->Eta()
-	    ///// 		      << "\tjetEta2:" << ( (TLorentzVector*)l.jet_algoPF1_p4->At(ijet2) )->Eta()
-	    ///// 	    ;
-	    ///// 	dumpJet(eventListText,1,l,ijet1);
-	    ///// 	dumpJet(eventListText,2,l,ijet2);
-	    ///// }
-	    ///// eventListText << std::endl;
-
+	    eventListText << std::endl;
         }
 	
 	return true;

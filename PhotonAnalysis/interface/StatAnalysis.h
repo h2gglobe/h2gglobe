@@ -45,7 +45,9 @@ class StatAnalysis : public PhotonAnalysis
 
     void FillSignalLabelMap(LoopAll &l);
     std::string GetSignalLabel(int) ;
-
+    
+    bool unblind;
+    
     bool  doEscaleSyst, doEresolSyst, doPhotonIdEffSyst, doVtxEffSyst, doR9Syst, doTriggerEffSyst, doKFactorSyst;
     bool  doEscaleSmear, doEresolSmear, doPhotonIdEffSmear, doVtxEffSmear, doR9Smear, doTriggerEffSmear, 
 	doKFactorSmear, doInterferenceSmear;
