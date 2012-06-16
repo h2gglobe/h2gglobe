@@ -2077,8 +2077,21 @@ bool PhotonAnalysis::ElectronTag2011(LoopAll& l, int diphotonVHlep_id, float* sm
     
     return tag;
 }
+	        
+bool PhotonAnalysis::ElectronTag2012(LoopAll& l, int diphotonVHlep_id, float* smeared_pho_energy, bool nm1, float eventweight, float myweight){
+    bool tag = false;
 
-
+    if(diphotonVHlep_id==-1) return tag;
+    TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphotonVHlep_id], l.dipho_vtxind[diphotonVHlep_id], &smeared_pho_energy[0]);
+    TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphotonVHlep_id], l.dipho_vtxind[diphotonVHlep_id], &smeared_pho_energy[0]);
+    
+    int elInd = l.ElectronSelection2012(lead_p4, sublead_p4, l.dipho_vtxind[diphotonVHlep_id]);
+    if(elInd!=-1) tag = true;
+    
+    return tag;
+}
+	        
+            
 
 bool PhotonAnalysis::MuonTag2011(LoopAll& l, int diphotonVHlep_id, float* smeared_pho_energy, bool nm1, float eventweight, float myweight){
     bool tag = false;
@@ -2089,6 +2102,20 @@ bool PhotonAnalysis::MuonTag2011(LoopAll& l, int diphotonVHlep_id, float* smeare
     TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphotonVHlep_id], l.dipho_vtxind[diphotonVHlep_id], &smeared_pho_energy[0]);
     
     int muonInd = l.MuonSelection(lead_p4, sublead_p4, l.dipho_vtxind[diphotonVHlep_id]);
+    if(muonInd!=-1) tag = true;
+    
+    return tag;
+}
+
+bool PhotonAnalysis::MuonTag2012(LoopAll& l, int diphotonVHlep_id, float* smeared_pho_energy, bool nm1, float eventweight, float myweight){
+    bool tag = false;
+
+    if(diphotonVHlep_id==-1) return tag;
+        
+    TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphotonVHlep_id], l.dipho_vtxind[diphotonVHlep_id], &smeared_pho_energy[0]);
+    TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphotonVHlep_id], l.dipho_vtxind[diphotonVHlep_id], &smeared_pho_energy[0]);
+    
+    int muonInd = l.MuonSelection2012(lead_p4, sublead_p4, l.dipho_vtxind[diphotonVHlep_id]);
     if(muonInd!=-1) tag = true;
     
     return tag;
