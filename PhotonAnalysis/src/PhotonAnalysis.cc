@@ -1223,7 +1223,7 @@ void PhotonAnalysis::PreselectPhotons(LoopAll& l, int jentry)
         TLorentzVector p4 = l.get_pho_p4(ipho,0,&corrected_pho_energy[0]);
         float eta = fabs(((TVector3 *)l.sc_xyz->At(l.pho_scind[ipho]))->Eta());
         // photon et wrt 0,0,0
-        float et = p4.Energy();
+        float et = p4.Pt();
         pho_et.push_back(et);
     
     if( eta>1.4442 && eta<1.566 ) { 
