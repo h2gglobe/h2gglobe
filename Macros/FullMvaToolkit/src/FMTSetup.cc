@@ -141,8 +141,9 @@ void FMTSetup::OptionParser(int argc, char *argv[]){
 
   //FIXME TEST
 	if (checkHistos_) checkAllHistos();
-	
-	rebinner = new FMTRebin(filename_, getintLumi(), getis2011(), getmHMinimum(), getmHMaximum(), getmHStep(), getmassMin(), getmassMax(), getnDataBins(), getsignalRegionWidth(), getsidebandWidth(), getnumberOfSidebands(), getnumberOfSidebandsForAlgos(), getnumberOfSidebandGaps(), getmassSidebandMin(), getmassSidebandMax(), getnIncCategories(),getincludeVBF(), getnVBFCategories(), getincludeLEP(), getnLEPCategories(), getsystematics(), getrederiveOptimizedBinEdges(), getAllBinEdges(),verbose_);
+  
+  rebinner = new FMTRebin(filename_, getintLumi(), getis2011(), getmHMinimum(), getmHMaximum(), getmHStep(), getmassMin(), getmassMax(), getnDataBins(), getsignalRegionWidth(), getsidebandWidth(), getnumberOfSidebands(), getnumberOfSidebandsForAlgos(), getnumberOfSidebandGaps(), getmassSidebandMin(), getmassSidebandMax(), getnIncCategories(),getincludeVBF(), getnVBFCategories(), getincludeLEP(), getnLEPCategories(), getsystematics(), getrederiveOptimizedBinEdges(), getAllBinEdges(),verbose_);
+  rebinner->setAllBinEdges(getAllBinEdges());
 	rebinner->fitter->setblind(blinding_);
 	rebinner->fitter->setplot(diagnose_);
   rebinner->setcatByHand(catByHand_);

@@ -632,7 +632,7 @@ void createCorrectedBackgroundModel(std::string fileName, int nsidebands=6, doub
 
 		//TH1F *originalHist      = (TH1F*) in->Get(Form("th1f_bkg_%s_%3.1f",type.c_str(),mH)); // This histogram is normalized to the inclusive fit (will not include VBF cat)
 		RooRealVar *nSignalVar = (RooRealVar*)work->var(Form("NBkgInSignal_mH%3.1f",mH));
-		TH1F *dataHist  = (TH1F*) in->Get(Form("th1f_data_%s_%3.1f",type.c_str(),mH)); // Data Histogram, includes VBF category
+		TH1F *dataHist  = (TH1F*) in->Get(Form("th1f_data_%s_%3.1f_cat0",type.c_str(),mH)); // Data Histogram, includes VBF category
 		int nBins = dataHist->GetNbinsX();
 
 		// Want to make a "corrected" histogram 

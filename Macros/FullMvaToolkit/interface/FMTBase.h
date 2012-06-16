@@ -20,7 +20,7 @@ class FMTBase {
 
 		void checkMCMass(int);
 		template <class T>
-		void printVec(vector<T>);
+    void printVec(vector<T>);
     template <class T>
     string returnVecAsString(vector<T>);
 
@@ -117,6 +117,7 @@ class FMTBase {
     bool isVBFCat(int);
     bool isLEPCat(int);
 		void printRunOptions(string filename="0");
+    void printBinEdges(string filename="0");
     void dumpDatFile(string filename="mvaanalysis.dat");
 		void checkHisto(TH1F*);
 
@@ -169,6 +170,7 @@ string FMTBase::returnVecAsString(vector<T> vec){
 
 template <class T>
 void FMTBase::printVec(vector<T> vec){
+  if (vec.size()==0) return;
 	for (typename vector<T>::iterator it=vec.begin(); it!=vec.end()-1; it++) cout << *it << ",";
 	cout << *(vec.end()-1);
 }

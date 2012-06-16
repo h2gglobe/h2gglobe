@@ -706,7 +706,7 @@ void FMTRebin::executeRebinning(int mass){
 	cout << "File attempt" << endl;
 	cout << tFile->GetName() << endl;
 	RooWorkspace *tempWS = (RooWorkspace*)tFile->Get("cms_hgg_workspace");
-	
+
 	vector<double> BinEdges, VBFBinEdges,LEPBinEdges;
 	if (!getrederiveOptimizedBinEdges()){
 		BinEdges = getBinEdges(mass);

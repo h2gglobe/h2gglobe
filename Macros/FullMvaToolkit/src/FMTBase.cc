@@ -216,11 +216,16 @@ bool FMTBase::getrederiveOptimizedBinEdges(){
 
 vector<map<int, vector<double> > > FMTBase::getAllBinEdges(){
 	vector<map<int, vector<double> > > theEdges;
+  theEdges.push_back(getBinEdges());
+  theEdges.push_back(getVBFBinEdges());
+  theEdges.push_back(getLEPBinEdges());
+  /*
   for (int cat=0; cat<getNcats(); cat++){
     if (isIncCat(cat)) theEdges.push_back(getBinEdges());
 	  if (isVBFCat(cat)) theEdges.push_back(getVBFBinEdges());
 	  if (isLEPCat(cat)) theEdges.push_back(getLEPBinEdges());
   }
+  */
 	return theEdges;
 }
 
@@ -472,8 +477,8 @@ void FMTBase::setrederiveOptimizedBinEdges(bool rederiveOptimizedBinEdges){
 
 void FMTBase::setAllBinEdges(vector<map<int,vector<double> > > theEdges){
 	setBinEdges(*(theEdges.begin()));
-	for (int cat=0; cat<nVBFCategories_; cat++) setVBFBinEdges(*(theEdges.begin()+cat+1));
-	for (int cat=0; cat<nLEPCategories_; cat++) setLEPBinEdges(*(theEdges.begin()+nVBFCategories_+cat+1));
+	setVBFBinEdges(*(theEdges.begin()+1));
+	setLEPBinEdges(*(theEdges.begin()+2));
 }
 
 void FMTBase::setBinEdges(int mass, vector<double> BinEdges){
@@ -593,9 +598,9 @@ void FMTBase::dumpDatFile(string filename){
   outFile.close();
 }
 
-void FMTBase::printRunOptions(string filename){
-
-	ofstream outFile;
+void FMTBase::printBinEdges(string filename){
+	
+  ofstream outFile;
 	bool outFileReq;
 	if (filename=="0") outFileReq=false;
 	else {
@@ -603,33 +608,7 @@ void FMTBase::printRunOptions(string filename){
 		outFile.open(filename.c_str());
 	}
 	ostream &out = (outFileReq ? outFile : cout);
-	
-	out << "Running with following options:" << endl;
-  out << "\tintLumi                   " << intLumi_ << endl;
- 	out << "\tmHMinimum                 " << mHMinimum_  << endl;               
- 	out << "\tmHMaximum                 " << mHMaximum_  << endl;               
- 	out << "\tmHStep                    " << mHStep_  << endl;               
- 	out << "\tmassMin                   " << massMin_  << endl;               
- 	out << "\tmassMax                   " << massMax_  << endl;               
- 	out << "\tnDataBins                 " << nDataBins_  << endl;               
- 	out << "\tsignalRegionWidth         " << signalRegionWidth_  << endl;               
- 	out << "\tsidebandWidth             " << sidebandWidth_  << endl;               
- 	out << "\tnumberOfSidebands         " << numberOfSidebands_  << endl;               
- 	out << "\tnumberOfSidebandsForAlgos " << numberOfSidebandsForAlgos_  << endl;               
- 	out << "\tnumberOfSidebandGaps      " << numberOfSidebandGaps_  << endl;               
- 	out << "\tmassSidebandMin           " << massSidebandMin_  << endl;               
- 	out << "\tmassSidebandMax           " << massSidebandMax_  << endl;               
- 	out << "\tincludeVBF                " << includeVBF_  << endl;
-  out << "\tnVBFCategories            " << nVBFCategories_ << endl;
- 	out << "\tincludeLEP                " << includeLEP_  << endl;
-  out << "\tnLEPCategories            " << nLEPCategories_ << endl;
-  out << "\tsystematics               [";
-  if (systematics_.size()>0) {
-    for (int i=0; i<systematics_.size()-1; i++) out << systematics_[i] << ",";
-    out << systematics_[systematics_.size()-1] << "]" << endl;
-  }
-	else out << "]" << endl;
-  out << "\trederiveOptimizedBinEdges " << rederiveOptimizedBinEdges_ << endl;
+  
   out << "\tBinEdges                  " << endl;
   for (int m=110; m<=150; m+=5){
     if (m==145) continue;
@@ -660,7 +639,52 @@ void FMTBase::printRunOptions(string filename){
     }
 		out << "]" << endl;
   }
-	outFile.close();
+
+  outFile.close();
+}
+
+void FMTBase::printRunOptions(string filename){
+
+	ofstream outFile;
+	bool outFileReq;
+	if (filename=="0") outFileReq=false;
+	else {
+		outFileReq=true;
+		outFile.open(filename.c_str());
+	}
+	ostream &out = (outFileReq ? outFile : cout);
+	
+	out << "Running with following options:" << endl;
+  out << "\tintLumi                   " << intLumi_ << endl;
+ 	out << "\tmHMinimum                 " << mHMinimum_  << endl;               
+ 	out << "\tmHMaximum                 " << mHMaximum_  << endl;               
+ 	out << "\tmHStep                    " << mHStep_  << endl;               
+ 	out << "\tmassMin                   " << massMin_  << endl;               
+ 	out << "\tmassMax                   " << massMax_  << endl;               
+ 	out << "\tnDataBins                 " << nDataBins_  << endl;               
+ 	out << "\tsignalRegionWidth         " << signalRegionWidth_  << endl;               
+ 	out << "\tsidebandWidth             " << sidebandWidth_  << endl;               
+ 	out << "\tnumberOfSidebands         " << numberOfSidebands_  << endl;               
+ 	out << "\tnumberOfSidebandsForAlgos " << numberOfSidebandsForAlgos_  << endl;               
+ 	out << "\tnumberOfSidebandGaps      " << numberOfSidebandGaps_  << endl;               
+ 	out << "\tmassSidebandMin           " << massSidebandMin_  << endl;               
+ 	out << "\tmassSidebandMax           " << massSidebandMax_  << endl;
+  out << "\tnInclusiveCategories      " << nIncCategories_ << endl;
+ 	out << "\tincludeVBF                " << includeVBF_  << endl;
+  out << "\tnVBFCategories            " << nVBFCategories_ << endl;
+ 	out << "\tincludeLEP                " << includeLEP_  << endl;
+  out << "\tnLEPCategories            " << nLEPCategories_ << endl;
+  out << "\tsystematics               [";
+  if (systematics_.size()>0) {
+    for (int i=0; i<systematics_.size()-1; i++) out << systematics_[i] << ",";
+    out << systematics_[systematics_.size()-1] << "]" << endl;
+  }
+	else out << "]" << endl;
+  out << "\trederiveOptimizedBinEdges " << rederiveOptimizedBinEdges_ << endl;
+
+  printBinEdges(filename);
+	
+  outFile.close();
 }
 
 void FMTBase::checkHisto(TH1F *h){
