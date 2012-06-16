@@ -28,13 +28,13 @@ except Exception, e:
 
 ds=open(datasets)
 
-props = ""
 mk_outdir( outdir )
 for d in ds.read().split("\n"):
     s = d.replace("\t","").lstrip(" ").lstrip(" ")
     if s == "" or s.startswith("#"):
         continue
 
+    props = ""
     sl = [ t for t in s.split(" ") if t != "" ]
     dname = sl.pop(0)
     dtype = sl.pop(0)
