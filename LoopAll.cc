@@ -647,6 +647,7 @@ void LoopAll::Loop(Int_t a) {
       copy(countersred.begin(), countersred.end(), std::ostream_iterator<float>(cout, "_") );
       cout << endl;
     }
+    if(makeDummyTrees) continue;
     
     if(LDEBUG) 
       cout<<"call LoadTree"<<endl;
@@ -1010,7 +1011,6 @@ int LoopAll::FillAndReduce(int jentry) {
   if(!makeDummyTrees){
     GetEntry(inputBranches, jentry);
   }
-  
 
   //b_run->GetEntry(jentry);
   //b_lumis->GetEntry(jentry);

@@ -1,10 +1,11 @@
 #include "LoopAll.h"
 #include "Sorters.h"
+#include "TRandom3.h"
 #define GFDEBUG 0
 
 
 float LoopAll::pfTkIsoWithVertex(int phoindex, int vtxInd, float dRmax, float dRvetoBarrel, float dRvetoEndcap, 
-				 float ptMin, float dzMax, float dxyMax, int pfToUse) {
+                 float ptMin, float dzMax, float dxyMax, int pfToUse) {
   
   float dRveto;
   if (pho_isEB[phoindex])
@@ -24,23 +25,23 @@ float LoopAll::pfTkIsoWithVertex(int phoindex, int vtxInd, float dRmax, float dR
       TLorentzVector* pfc = (TLorentzVector*)pfcand_p4->At(i);
       
       if (pfc->Pt() < ptMin)
-	  continue;
-	
+      continue;
+    
       TVector3* vtx = (TVector3*)vtx_std_xyz->At(vtxInd);
       TVector3* pfCandVtx = (TVector3*)pfcand_posvtx->At(i);
 
       float dz = fabs(pfCandVtx->Z() - vtx->Z());
       
       if (dz > dzMax) 
-	continue;
+    continue;
 
       double dxy = (-(pfCandVtx->X() - vtx->X())*pfc->Py() + (pfCandVtx->Y() - vtx->Y())*pfc->Px()) / pfc->Pt();
       if(fabs(dxy) > dxyMax) 
-	continue;
+    continue;
       
       float dR = photonDirectionWrtVtx.DeltaR(*pfc);
       if(dR > dRmax || dR < dRveto) 
-	continue;
+    continue;
       
       sum += pfc->Pt();
     }
@@ -50,9 +51,9 @@ float LoopAll::pfTkIsoWithVertex(int phoindex, int vtxInd, float dRmax, float dR
 }
 
 float LoopAll::pfEcalIso(int phoindex, float dRmax, float dRVetoBarrel, float dRVetoEndcap, float etaStripBarrel, 
-			 float etaStripEndcap, float thrBarrel, float thrEndcaps, int pfToUse) {
+             float etaStripEndcap, float thrBarrel, float thrEndcaps, int pfToUse) {
   
-	float dRVeto, etaStrip, thr;
+    float dRVeto, etaStrip, thr;
   if (pho_isEB[phoindex]) {
     dRVeto = dRVetoBarrel;
     etaStrip = etaStripBarrel;
@@ -78,22 +79,22 @@ float LoopAll::pfEcalIso(int phoindex, float dRmax, float dRVetoBarrel, float dR
       TVector3* phoEcalPos = (TVector3*)sc_xyz->At(pho_scind[phoindex]);
 
       TVector3 photonDirectionWrtVtx = TVector3(phoEcalPos->X() - pfvtx->X(),
-						phoEcalPos->Y() - pfvtx->Y(),
-						phoEcalPos->Z() - pfvtx->Z());
+                        phoEcalPos->Y() - pfvtx->Y(),
+                        phoEcalPos->Z() - pfvtx->Z());
 
       TLorentzVector* pfc = (TLorentzVector*)pfcand_p4->At(i);
 
       if( pfc->Pt() < thr ) 
-	      continue;
+          continue;
 
       float dEta = fabs(photonDirectionWrtVtx.Eta() - pfc->Eta());
       float dR = photonDirectionWrtVtx.DeltaR(pfc->Vect());
       
       if (dEta < etaStrip)
-	continue;
+    continue;
       
       if(dR > dRmax || dR < dRVeto)
-	continue;
+    continue;
       
       sum += pfc->Pt();
     }
@@ -1107,57 +1108,57 @@ double LoopAll::get_pho_zposfromconv(TVector3 convvtx, TVector3 superclustervtx,
 // --------------------------------------------------------------------------
 double LoopAll::ErrEt( double Et, double Eta) {
   
-  double InvPerr2;
-
-  double N, S, C, m;
-  if(fabs(Eta) < 0.5 ) {
-    N = 3.96859;
-    S = 0.18348;
-    C = 0.;
-    m = 0.62627;
-  } else if( fabs(Eta) < 1. ) {
-    N = 3.55226;
-    S = 0.24026;
-    C = 0.;
-    m = 0.52571;
-  } else if( fabs(Eta) < 1.5 ) {
-    N = 4.54826;
-    S = 0.22652;
-    C = 0.;
-    m = 0.58963;
-  } else if( fabs(Eta) < 2. ) {
-    N = 4.62622;
-    S = 0.23664;
-    C = 0.;
-    m = 0.48738;
-  } else if( fabs(Eta) < 3. ) {
-    N = 2.53324;
-    S = 0.34306;
-    C = 0.;
-    m = 0.28662;
-  } else if( fabs(Eta) < 5. ) {
-    N = 2.95397;
-    S = 0.11619;
-    C = 0.;
-    m = 0.96086;
-  }
-
-  // this is the absolute resolution (squared), not sigma(pt)/pt
-  // so have to multiply by pt^2, thats why m+1 instead of m-1
-  InvPerr2 =  (N * fabs(N) ) + (S * S) * pow(Et, m+1) + (C * C) * Et * Et ;
-
-
-  return sqrt(InvPerr2)/Et;
+    double InvPerr2;
+  
+    double N, S, C, m;
+    if(fabs(Eta) < 0.5 ) {
+        N = 3.96859;
+        S = 0.18348;
+        C = 0.;
+        m = 0.62627;
+    } else if( fabs(Eta) < 1. ) {
+        N = 3.55226;
+        S = 0.24026;
+        C = 0.;
+        m = 0.52571;
+    } else if( fabs(Eta) < 1.5 ) {
+        N = 4.54826;
+        S = 0.22652;
+        C = 0.;
+        m = 0.58963;
+    } else if( fabs(Eta) < 2. ) {
+        N = 4.62622;
+        S = 0.23664;
+        C = 0.;
+        m = 0.48738;
+    } else if( fabs(Eta) < 3. ) {
+        N = 2.53324;
+        S = 0.34306;
+        C = 0.;
+        m = 0.28662;
+    } else if( fabs(Eta) < 5. ) {
+        N = 2.95397;
+        S = 0.11619;
+        C = 0.;
+        m = 0.96086;
+    }
+  
+    // this is the absolute resolution (squared), not sigma(pt)/pt
+    // so have to multiply by pt^2, thats why m+1 instead of m-1
+    InvPerr2 =  (N * fabs(N) ) + (S * S) * pow(Et, m+1) + (C * C) * Et * Et ;
+  
+  
+    return sqrt(InvPerr2)/Et;
 
 }
 
 
 TLorentzVector LoopAll::shiftMet(TLorentzVector *uncormet, bool isMC) {
 
-  TLorentzVector correctedMet;
-  
-  // correction for METx, METy bias
-  double px(0), py(0), e(0);
+    TLorentzVector correctedMet;
+    
+    // correction for METx, METy bias
+    double px(0), py(0), e(0);
 /*
   //2011
   // data
@@ -1172,273 +1173,270 @@ TLorentzVector LoopAll::shiftMet(TLorentzVector *uncormet, bool isMC) {
 */
   //2012
   // data
-  if(!isMC){
-    px = uncormet->Pt()*cos(uncormet->Phi())-0.006239*met_sumet_pfmet+0.662;
-    py = uncormet->Pt()*sin(uncormet->Phi())+0.004613*met_sumet_pfmet-0.673;
-  // MC
-  }else{
-    px = uncormet->Pt()*cos(uncormet->Phi())+0.00135*met_sumet_pfmet-0.021;
-    py = uncormet->Pt()*sin(uncormet->Phi())+0.00371*met_sumet_pfmet-0.826;
-  }
+    if(!isMC){
+        px = uncormet->Pt()*cos(uncormet->Phi())-0.006239*met_sumet_pfmet+0.662;
+        py = uncormet->Pt()*sin(uncormet->Phi())+0.004613*met_sumet_pfmet-0.673;
+    // MC
+    }else{
+        px = uncormet->Pt()*cos(uncormet->Phi())+0.00135*met_sumet_pfmet-0.021;
+        py = uncormet->Pt()*sin(uncormet->Phi())+0.00371*met_sumet_pfmet-0.826;
+    }
 
-  e = sqrt(px*px+py*py);
-  
-  correctedMet.SetPxPyPzE(px,py,0,e);
-
-  return correctedMet;
+    e = sqrt(px*px+py*py);
+    
+    correctedMet.SetPxPyPzE(px,py,0,e);
+   
+    return correctedMet;
 }
 
 //correctMETinRED
 //THIS PART HAS SOME CHANGES COMPARED WITH THE PART FOR ANALYSIS
 
-  #include "TRandom3.h"
   
-TLorentzVector LoopAll::correctMet(TLorentzVector *uncormet, bool smearing, bool scale) {
-  
-  TLorentzVector jetSumSmeared;
-  jetSumSmeared.SetXYZT(0.,0.,0.,0);
-  TRandom3 *jSmearRan= new TRandom3(event);
-  
-  TLorentzVector jetSumUnsmeared;
-  jetSumUnsmeared.SetXYZT(0.,0.,0.,0);
-  int leadLevel=LoopAll::phoSUPERTIGHT;
-  FillCICInputs();
-  FillCIC();
-  
-  //associating reco - gen met
-    for(int i=0; i<jet_algoPF1_n; i++){
-    TLorentzVector * p4_jet = (TLorentzVector *) jet_algoPF1_p4->At(i);
-    
-    if( version >= 13 ) {
-      p4_jet = (TLorentzVector *) p4_jet->Clone();
-      *p4_jet = (*p4_jet) * (1/jet_algoPF1_erescale[i]);
-    }
-    
-    //remove identified photons
-    bool isJetPhoton = false;
-    std::vector<float> pho_eng;
-    
-    for(int ipho = 0; ipho < pho_n; ++ipho ) {
-      
-      pho_eng.push_back( ((TLorentzVector*)pho_p4->At(ipho))->Energy());
-      TLorentzVector pho_p4_vtx_cor = get_pho_p4(ipho,0, &pho_eng[0]); 
-      float pho_Eta = fabs(((TVector3 *)sc_xyz->At(pho_scind[ipho]))->Eta());
-      
-      if( pho_Eta > 2.5  || ( pho_Eta > 1.4442 && pho_Eta < 1.566 ) ) { continue; }
-      if ( pho_p4_vtx_cor.Pt() < 25 ) { continue; }
-      
-      std::vector<std::vector<bool> > ph_passcut;
-      
-      if( PhotonCiCSelectionLevel(ipho, 0, ph_passcut, 4, 0, &pho_eng[0] ) < leadLevel ) { continue; }
-      
-      double dR_pho_jet = p4_jet->DeltaR(pho_p4_vtx_cor);
-      
-      if(dR_pho_jet < 0.5) isJetPhoton = true;
-      
-    }
-    
-    if( isJetPhoton ) continue;
-    
-    double ptJet_pfakt5 = p4_jet->Pt();
-    double eJet_pfakt5 = p4_jet->Energy();
-    double etaJet_pfakt5 = p4_jet->Eta();
-    double phiJet_pfakt5 = p4_jet->Phi();
-    double ptCorrJet_pfakt5 = ptJet_pfakt5*jet_algoPF1_erescale[i];
-    
-    float ptSmeared  = ptJet_pfakt5;
-    float eneSmeared = eJet_pfakt5;
-    
-    if (smearing) {
-    //smearing via association with genjets
-     int ass(-999);
-     double DRmin(999.);
-     
-     
-     for(int j=0; j<genjet_algo1_n; j++){
-            
-      TLorentzVector * p4_genjet = (TLorentzVector *) genjet_algo1_p4->At(j);
-      double DR =  p4_jet->DeltaR((*p4_genjet));
-      double ptJetGen_akt5 =  p4_genjet->Pt();
-      double expres = ErrEt(ptCorrJet_pfakt5,etaJet_pfakt5);
-      
-      if(DR < DRmin && (ptCorrJet_pfakt5-ptJetGen_akt5)/ptCorrJet_pfakt5 < 5. * expres) {
-	ass = j;
-	DRmin = DR;
-       }
-     }
-     
-     double ptJetGen_akt5_ass;
-     
-     if (ass > -1) {
-       TLorentzVector * p4_genjet_ass = (TLorentzVector *) genjet_algo1_p4->At(ass);
-       ptJetGen_akt5_ass = p4_genjet_ass->Pt();
-       if(DRmin > 0.1 + 0.3 * exp(-0.05*(ptJetGen_akt5_ass-10)))  ass = -999;
-     }
-     
-     
-     //smearing for non-associated jets, using expected resolutions
-     float smear = -999.;
-     if (fabs(etaJet_pfakt5)<=1.1)                            smear = 1.06177;
-     if (fabs(etaJet_pfakt5)<=1.7 && fabs(etaJet_pfakt5)>1.1) smear = 1.08352;
-     if (fabs(etaJet_pfakt5)<=2.3 && fabs(etaJet_pfakt5)>1.7) smear = 1.02911;
-     if (fabs(etaJet_pfakt5)>2.3)                             smear = 1.15288;
-     
-     double shift(0);
-     
-     if(ass>-1) {    
-       shift = (smear-1) * (ptCorrJet_pfakt5 - ptJetGen_akt5_ass)/ptCorrJet_pfakt5; }
-     else {
-       double expres = ErrEt(ptJet_pfakt5, etaJet_pfakt5);
-       double relsmear = expres * sqrt(smear*smear-1);
-       jSmearRan->SetSeed(event+(Int_t)(etaJet_pfakt5*1000));
-       shift = jSmearRan->Gaus(0.,relsmear);
-     }
-     
-     float ptSmeared  = ptJet_pfakt5;
-     float eneSmeared = eJet_pfakt5;
-     
-     if(smearing && shift>-1 && shift < 2) {
-       ptSmeared  *= 1 + shift;
-       eneSmeared *= 1 + shift;
-     }
-    }
-    
-    //JEC scaling to correct for residual jet corrections
-    if(scale) {
-      double factor(1);
-      if(TMath::Abs(etaJet_pfakt5)<1.5) factor = 1.015;
-      else if(TMath::Abs(etaJet_pfakt5)<3) factor = 1.04;
-      else factor = 1.15;
-      ptSmeared  *= factor;
-      eneSmeared *= factor;
-    }
-    
-    TLorentzVector thisJetSmeared;
-    thisJetSmeared.SetPtEtaPhiE(ptSmeared,etaJet_pfakt5,phiJet_pfakt5,eneSmeared);
-    
-    TLorentzVector thisJetUnsmeared;
-    thisJetUnsmeared.SetPtEtaPhiE(ptJet_pfakt5,etaJet_pfakt5,phiJet_pfakt5,eJet_pfakt5);
-    
-    if (ptJet_pfakt5>10 && TMath::Abs(etaJet_pfakt5)<4.7) {
-      jetSumSmeared   += thisJetSmeared;
-      jetSumUnsmeared += thisJetUnsmeared;
-    }
-    
-  }
+//TLorentzVector LoopAll::correctMet(TLorentzVector *uncormet, bool smearing, bool scale) {
+//  
+//    TLorentzVector jetSumSmeared;
+//    jetSumSmeared.SetXYZT(0.,0.,0.,0);
+//    TRandom3 *jSmearRan= new TRandom3(event);
+//    
+//    TLorentzVector jetSumUnsmeared;
+//    jetSumUnsmeared.SetXYZT(0.,0.,0.,0);
+//    //int leadLevel=LoopAll::phoSUPERTIGHT;
+//    //FillCICInputs();
+//    //FillCIC();
+//  
+//    //associating reco - gen met
+//    for(int i=0; i<jet_algoPF1_n; i++){
+//        TLorentzVector * p4_jet = (TLorentzVector *) jet_algoPF1_p4->At(i);
+//        
+//        if( version >= 13 ) {
+//            p4_jet = (TLorentzVector *) p4_jet->Clone();
+//            *p4_jet = (*p4_jet) * (1/jet_algoPF1_erescale[i]);
+//        }
+//        
+//        //remove identified photons
+//        bool isJetPhoton = false;
+//        std::vector<float> pho_eng;
+//        
+//        for(int ipho = 0; ipho < pho_n; ++ipho ) {
+//          
+//            pho_eng.push_back( ((TLorentzVector*)pho_p4->At(ipho))->Energy());
+//            TLorentzVector pho_p4_vtx_cor = get_pho_p4(ipho,0, &pho_eng[0]); 
+//            float pho_Eta = fabs(((TVector3 *)sc_xyz->At(pho_scind[ipho]))->Eta());
+//            
+//            if( pho_Eta > 2.5  || ( pho_Eta > 1.4442 && pho_Eta < 1.566 ) ) { continue; }
+//            if ( pho_p4_vtx_cor.Pt() < 25 ) { continue; }
+//            
+//            std::vector<std::vector<bool> > ph_passcut;
+//            
+//            if( PhotonCiCSelectionLevel(ipho, 0, ph_passcut, 4, 0, &pho_eng[0] ) < leadLevel ) { continue; }
+//            
+//            double dR_pho_jet = p4_jet->DeltaR(pho_p4_vtx_cor);
+//            
+//            if(dR_pho_jet < 0.5) isJetPhoton = true;
+//          
+//        }
+//        
+//        if( isJetPhoton ) continue;
+//        
+//        double ptJet_pfakt5 = p4_jet->Pt();
+//        double eJet_pfakt5 = p4_jet->Energy();
+//        double etaJet_pfakt5 = p4_jet->Eta();
+//        double phiJet_pfakt5 = p4_jet->Phi();
+//        double ptCorrJet_pfakt5 = ptJet_pfakt5*jet_algoPF1_erescale[i];
+//        
+//        float ptSmeared  = ptJet_pfakt5;
+//        float eneSmeared = eJet_pfakt5;
+//        
+//        if (smearing) {
+//            //smearing via association with genjets
+//            int ass(-999);
+//            double DRmin(999.);
+//            
+//            
+//            for(int j=0; j<genjet_algo1_n; j++){
+//                   
+//                TLorentzVector * p4_genjet = (TLorentzVector *) genjet_algo1_p4->At(j);
+//                double DR =  p4_jet->DeltaR((*p4_genjet));
+//                double ptJetGen_akt5 =  p4_genjet->Pt();
+//                double expres = ErrEt(ptCorrJet_pfakt5,etaJet_pfakt5);
+//                
+//                if(DR < DRmin && (ptCorrJet_pfakt5-ptJetGen_akt5)/ptCorrJet_pfakt5 < 5. * expres) {
+//                    ass = j;
+//                    DRmin = DR;
+//                }
+//            }
+//     
+//            double ptJetGen_akt5_ass;
+//            
+//            if (ass > -1) {
+//              TLorentzVector * p4_genjet_ass = (TLorentzVector *) genjet_algo1_p4->At(ass);
+//              ptJetGen_akt5_ass = p4_genjet_ass->Pt();
+//              if(DRmin > 0.1 + 0.3 * exp(-0.05*(ptJetGen_akt5_ass-10)))  ass = -999;
+//            }
+//            
+//            
+//            //smearing for non-associated jets, using expected resolutions
+//            float smear = -999.;
+//            if (fabs(etaJet_pfakt5)<=1.1)                            smear = 1.06177;
+//            if (fabs(etaJet_pfakt5)<=1.7 && fabs(etaJet_pfakt5)>1.1) smear = 1.08352;
+//            if (fabs(etaJet_pfakt5)<=2.3 && fabs(etaJet_pfakt5)>1.7) smear = 1.02911;
+//            if (fabs(etaJet_pfakt5)>2.3)                             smear = 1.15288;
+//            
+//            double shift(0);
+//            
+//            if(ass>-1) {    
+//              shift = (smear-1) * (ptCorrJet_pfakt5 - ptJetGen_akt5_ass)/ptCorrJet_pfakt5; }
+//            else {
+//              double expres = ErrEt(ptJet_pfakt5, etaJet_pfakt5);
+//              double relsmear = expres * sqrt(smear*smear-1);
+//              jSmearRan->SetSeed(event+(Int_t)(etaJet_pfakt5*1000));
+//              shift = jSmearRan->Gaus(0.,relsmear);
+//            }
+//            
+//            float ptSmeared  = ptJet_pfakt5;
+//            float eneSmeared = eJet_pfakt5;
+//            
+//            if(smearing && shift>-1 && shift < 2) {
+//              ptSmeared  *= 1 + shift;
+//              eneSmeared *= 1 + shift;
+//            }
+//        }
+//        
+//        //JEC scaling to correct for residual jet corrections
+//        if(scale) {
+//          double factor(1);
+//          if(TMath::Abs(etaJet_pfakt5)<1.5) factor = 1.015;
+//          else if(TMath::Abs(etaJet_pfakt5)<3) factor = 1.04;
+//          else factor = 1.15;
+//          ptSmeared  *= factor;
+//          eneSmeared *= factor;
+//        }
+//        
+//        TLorentzVector thisJetSmeared;
+//        thisJetSmeared.SetPtEtaPhiE(ptSmeared,etaJet_pfakt5,phiJet_pfakt5,eneSmeared);
+//        
+//        TLorentzVector thisJetUnsmeared;
+//        thisJetUnsmeared.SetPtEtaPhiE(ptJet_pfakt5,etaJet_pfakt5,phiJet_pfakt5,eJet_pfakt5);
+//        
+//        if (ptJet_pfakt5>10 && TMath::Abs(etaJet_pfakt5)<4.7) {
+//          jetSumSmeared   += thisJetSmeared;
+//          jetSumUnsmeared += thisJetUnsmeared;
+//        }
+//    
+//    }
+//
+//    TLorentzVector correctedMet;
+//    correctedMet = (*uncormet) + jetSumUnsmeared - jetSumSmeared;
+//    
+//    return correctedMet;
+//}
 
-  TLorentzVector correctedMet;
-  correctedMet = (*uncormet) + jetSumUnsmeared - jetSumSmeared;
-  
-  return correctedMet;
-}
-
-/*  //met at analysis step
-  #include "TRandom3.h"
+//met at analysis step
   
 TLorentzVector LoopAll::correctMet(TLorentzVector& pho_lead, TLorentzVector& pho_sublead, int vtxind, TLorentzVector *uncormet, bool smearing, bool scale) {
 
-  TRandom3 *jSmearRan= new TRandom3(event);
-  TLorentzVector jetSumSmeared;
-  jetSumSmeared.SetXYZT(0.,0.,0.,0);
-  TLorentzVector jetSumUnsmeared;
-  jetSumUnsmeared.SetXYZT(0.,0.,0.,0);
+    TRandom3 *jSmearRan= new TRandom3(event);
+    TLorentzVector jetSumSmeared;
+    jetSumSmeared.SetXYZT(0.,0.,0.,0);
+    TLorentzVector jetSumUnsmeared;
+    jetSumUnsmeared.SetXYZT(0.,0.,0.,0);
   
-  //associating reco - gen met
+    //associating reco - gen met
     for(int i=0; i<jet_algoPF1_n; i++){
-    TLorentzVector * p4_jet = (TLorentzVector *) jet_algoPF1_p4->At(i);
+        TLorentzVector * p4_jet = (TLorentzVector *) jet_algoPF1_p4->At(i);
     
-    if( version >= 13 ) {
-      p4_jet = (TLorentzVector *) p4_jet->Clone();
-      *p4_jet = (*p4_jet) * (1/jet_algoPF1_erescale[i]);
-    }
-    
-    //remove identified photons
-    for(int ipho = 0; ipho < pho_n; ++ipho ) {
+        if( version >= 13 ) {
+            p4_jet = (TLorentzVector *) p4_jet->Clone();
+            *p4_jet = (*p4_jet) * (1/jet_algoPF1_erescale[i]);
+        }
+        
+        //remove identified photons
+        for(int ipho = 0; ipho < pho_n; ++ipho ) {
       
+            double dR_lead_jet = p4_jet->DeltaR(pho_lead);
+            double dR_sublead_jet = p4_jet->DeltaR(pho_sublead);
+            
+            if( dR_lead_jet<0.5 ) continue;
+            if( dR_sublead_jet<0.5 ) continue;
       
-      double dR_lead_jet = p4_jet->DeltaR(pho_lead);
-      double dR_sublead_jet = p4_jet->DeltaR(pho_sublead);
-      
-      if( dR_lead_jet<0.5 ) continue;
-      if( dR_sublead_jet<0.5 ) continue;
-      
-    }
+        }
     
 
-    double ptJet_pfakt5 = p4_jet->Pt();
-    double eJet_pfakt5 = p4_jet->Energy();
-    double etaJet_pfakt5 = p4_jet->Eta();
-    double phiJet_pfakt5 = p4_jet->Phi();
-    double ptCorrJet_pfakt5 = ptJet_pfakt5*jet_algoPF1_erescale[i];
-    
-    //smearing via association with genjets
-    double DRmin(999.);    
-    double expres = ErrEt(ptCorrJet_pfakt5,etaJet_pfakt5);
-    
-    if (jet_algoPF1_genMatched[i] && (ptCorrJet_pfakt5-jet_algoPF1_genPt[i])/ptCorrJet_pfakt5 < 5. * expres) {
-       DRmin=jet_algoPF1_genDr[i];
-    }
-    
-    if (jet_algoPF1_genMatched[i]) {
-      if(DRmin > 0.1 + 0.3 * exp(-0.05*(jet_algoPF1_genPt[i]-10)))  { jet_algoPF1_genMatched[i]=false; }
-    }
-    
-    
-    //smearing for non-associated jets, using expected resolutions
-    float smear = -999.;
-    if (fabs(etaJet_pfakt5)<=1.1)                            smear = 1.06177;
-    if (fabs(etaJet_pfakt5)<=1.7 && fabs(etaJet_pfakt5)>1.1) smear = 1.08352;
-    if (fabs(etaJet_pfakt5)<=2.3 && fabs(etaJet_pfakt5)>1.7) smear = 1.02911;
-    if (fabs(etaJet_pfakt5)>2.3)                             smear = 1.15288;
-    
-    double shift(0);
-    
-    if(jet_algoPF1_genMatched[i]) {    
-      shift = (smear-1) * (ptCorrJet_pfakt5 - jet_algoPF1_genPt[i])/ptCorrJet_pfakt5; }
-    else {
-      double expres = ErrEt(ptJet_pfakt5, etaJet_pfakt5);
-      double relsmear = expres * sqrt(smear*smear-1);
-      jSmearRan->SetSeed(event+(Int_t)(etaJet_pfakt5*1000));
-      shift = jSmearRan->Gaus(0.,relsmear);
-    }
-    
-    float ptSmeared  = ptJet_pfakt5;
-    float eneSmeared = eJet_pfakt5;
+        double ptJet_pfakt5 = p4_jet->Pt();
+        double eJet_pfakt5 = p4_jet->Energy();
+        double etaJet_pfakt5 = p4_jet->Eta();
+        double phiJet_pfakt5 = p4_jet->Phi();
+        double ptCorrJet_pfakt5 = ptJet_pfakt5*jet_algoPF1_erescale[i];
+        
+        //smearing via association with genjets
+        double DRmin(999.);    
+        double expres = ErrEt(ptCorrJet_pfakt5,etaJet_pfakt5);
+        
+        if (jet_algoPF1_genMatched[i] && (ptCorrJet_pfakt5-jet_algoPF1_genPt[i])/ptCorrJet_pfakt5 < 5. * expres) {
+            DRmin=jet_algoPF1_genDr[i];
+        }
+        
+        if (jet_algoPF1_genMatched[i]) {
+            if(DRmin > 0.1 + 0.3 * exp(-0.05*(jet_algoPF1_genPt[i]-10)))  { jet_algoPF1_genMatched[i]=false; }
+        }
+        
+        
+        //smearing for non-associated jets, using expected resolutions
+        float smear = -999.;
+        if (fabs(etaJet_pfakt5)<=1.1)                            smear = 1.06177;
+        if (fabs(etaJet_pfakt5)<=1.7 && fabs(etaJet_pfakt5)>1.1) smear = 1.08352;
+        if (fabs(etaJet_pfakt5)<=2.3 && fabs(etaJet_pfakt5)>1.7) smear = 1.02911;
+        if (fabs(etaJet_pfakt5)>2.3)                             smear = 1.15288;
+        
+        double shift(0);
+        
+        if(jet_algoPF1_genMatched[i]) {    
+            shift = (smear-1) * (ptCorrJet_pfakt5 - jet_algoPF1_genPt[i])/ptCorrJet_pfakt5; }
+        else {
+            double expres = ErrEt(ptJet_pfakt5, etaJet_pfakt5);
+            double relsmear = expres * sqrt(smear*smear-1);
+            jSmearRan->SetSeed(event+(Int_t)(etaJet_pfakt5*1000));
+            shift = jSmearRan->Gaus(0.,relsmear);
+        }
+        
+        float ptSmeared  = ptJet_pfakt5;
+        float eneSmeared = eJet_pfakt5;
 
-    if(smearing && shift>-1 && shift < 2) {
-      ptSmeared  *= 1 + shift;
-      eneSmeared *= 1 + shift;
+        if(smearing && shift>-1 && shift < 2) {
+            ptSmeared  *= 1 + shift;
+            eneSmeared *= 1 + shift;
+        }
+
+        //JEC scaling to correct for residual jet corrections
+        if(scale) {
+            double factor(1);
+            if(TMath::Abs(etaJet_pfakt5)<1.5) factor = 1.015;
+            else if(TMath::Abs(etaJet_pfakt5)<3) factor = 1.04;
+            else factor = 1.15;
+            ptSmeared  *= factor;
+            eneSmeared *= factor;
+        }
+
+        TLorentzVector thisJetSmeared;
+        thisJetSmeared.SetPtEtaPhiE(ptSmeared,etaJet_pfakt5,phiJet_pfakt5,eneSmeared);
+        
+        TLorentzVector thisJetUnsmeared;
+        thisJetUnsmeared.SetPtEtaPhiE(ptJet_pfakt5,etaJet_pfakt5,phiJet_pfakt5,eJet_pfakt5);
+        
+        if (ptJet_pfakt5>10 && TMath::Abs(etaJet_pfakt5)<4.7) {
+            jetSumSmeared   += thisJetSmeared;
+            jetSumUnsmeared += thisJetUnsmeared;
+        }
+    
     }
 
-    //JEC scaling to correct for residual jet corrections
-    if(scale) {
-      double factor(1);
-      if(TMath::Abs(etaJet_pfakt5)<1.5) factor = 1.015;
-      else if(TMath::Abs(etaJet_pfakt5)<3) factor = 1.04;
-      else factor = 1.15;
-      ptSmeared  *= factor;
-      eneSmeared *= factor;
-    }
-
-    TLorentzVector thisJetSmeared;
-    thisJetSmeared.SetPtEtaPhiE(ptSmeared,etaJet_pfakt5,phiJet_pfakt5,eneSmeared);
-    
-    TLorentzVector thisJetUnsmeared;
-    thisJetUnsmeared.SetPtEtaPhiE(ptJet_pfakt5,etaJet_pfakt5,phiJet_pfakt5,eJet_pfakt5);
-    
-    if (ptJet_pfakt5>10 && TMath::Abs(etaJet_pfakt5)<4.7) {
-      jetSumSmeared   += thisJetSmeared;
-      jetSumUnsmeared += thisJetUnsmeared;
-    }
-    
-  }
-
-  TLorentzVector correctedMet;
-  correctedMet = (*uncormet) + jetSumUnsmeared - jetSumSmeared;
+    TLorentzVector correctedMet;
+    correctedMet = (*uncormet) + jetSumUnsmeared - jetSumSmeared;
   
-  return correctedMet;
+    return correctedMet;
 }
-*/
+
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 TLorentzVector LoopAll::get_pho_p4(int ipho, int ivtx, const float * energy) const
@@ -1471,90 +1469,90 @@ void LoopAll::set_pho_p4(int ipho, int ivtx, float *pho_energy_array)
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 void LoopAll::FillCICPFInputs()
 {
-	for(int ipho=0; ipho<pho_n; ++ipho) {
-		float neu01 = pfEcalIso(ipho, 0.1, 0., 0., 0., 0., 0., 0., 5);
-		float neu02 = pfEcalIso(ipho, 0.2, 0., 0., 0., 0., 0., 0., 5);
-		float neu03 = pfEcalIso(ipho, 0.3, 0., 0., 0., 0., 0., 0., 5);
-		float neu04 = pfEcalIso(ipho, 0.4, 0., 0., 0., 0., 0., 0., 5); 
-		float neu05 = pfEcalIso(ipho, 0.5, 0., 0., 0., 0., 0., 0., 5); 
-		float neu06 = pfEcalIso(ipho, 0.6, 0., 0., 0., 0., 0., 0., 5); 
-		if( GFDEBUG ) {
-			if( ( pho_pfiso_myneutral03[ipho] != neu03 || 
-			      pho_pfiso_myneutral04[ipho] != neu04   )
-				) { std::cout << "Fishy... "; }
-			std::cout << "neu03: " << pho_pfiso_myneutral03[ipho] << " " << neu03 
-				  << " neu04: " << pho_pfiso_myneutral04[ipho] << " " << neu04 
-				  << " " << ((TLorentzVector*)pho_p4->At(ipho))->Pt() 
-				  << " " << ((TLorentzVector*)pho_p4->At(ipho))->Eta() 
-				  << std::endl;
-		}
-		pho_pfiso_myneutral01[ipho] = neu01;
-		pho_pfiso_myneutral02[ipho] = neu02;
-		pho_pfiso_myneutral03[ipho] = neu03;
-		pho_pfiso_myneutral04[ipho] = neu04;
-		pho_pfiso_myneutral05[ipho] = neu05;
-		pho_pfiso_myneutral06[ipho] = neu06;
+    for(int ipho=0; ipho<pho_n; ++ipho) {
+        float neu01 = pfEcalIso(ipho, 0.1, 0., 0., 0., 0., 0., 0., 5);
+        float neu02 = pfEcalIso(ipho, 0.2, 0., 0., 0., 0., 0., 0., 5);
+        float neu03 = pfEcalIso(ipho, 0.3, 0., 0., 0., 0., 0., 0., 5);
+        float neu04 = pfEcalIso(ipho, 0.4, 0., 0., 0., 0., 0., 0., 5); 
+        float neu05 = pfEcalIso(ipho, 0.5, 0., 0., 0., 0., 0., 0., 5); 
+        float neu06 = pfEcalIso(ipho, 0.6, 0., 0., 0., 0., 0., 0., 5); 
+        if( GFDEBUG ) {
+            if( ( pho_pfiso_myneutral03[ipho] != neu03 || 
+                  pho_pfiso_myneutral04[ipho] != neu04   )
+                ) { std::cout << "Fishy... "; }
+            std::cout << "neu03: " << pho_pfiso_myneutral03[ipho] << " " << neu03 
+                  << " neu04: " << pho_pfiso_myneutral04[ipho] << " " << neu04 
+                  << " " << ((TLorentzVector*)pho_p4->At(ipho))->Pt() 
+                  << " " << ((TLorentzVector*)pho_p4->At(ipho))->Eta() 
+                  << std::endl;
+        }
+        pho_pfiso_myneutral01[ipho] = neu01;
+        pho_pfiso_myneutral02[ipho] = neu02;
+        pho_pfiso_myneutral03[ipho] = neu03;
+        pho_pfiso_myneutral04[ipho] = neu04;
+        pho_pfiso_myneutral05[ipho] = neu05;
+        pho_pfiso_myneutral06[ipho] = neu06;
 
 
-		float pho01 = pfEcalIso(ipho, 0.1, 0., 0.070, 0.015, 0., 0., 0.);
-		float pho02 = pfEcalIso(ipho, 0.2, 0., 0.070, 0.015, 0., 0., 0.);
-		float pho03 = pfEcalIso(ipho, 0.3, 0., 0.070, 0.015, 0., 0., 0.);
-		float pho04 = pfEcalIso(ipho, 0.4, 0., 0.070, 0.015, 0., 0., 0.); 
-		float pho05 = pfEcalIso(ipho, 0.5, 0., 0.070, 0.015, 0., 0., 0.); 
-		float pho06 = pfEcalIso(ipho, 0.6, 0., 0.070, 0.015, 0., 0., 0.); 
-		///// float pho03 = pfEcalIso(ipho, 0.3, 0.045, 0.070, 0.015, 0.015, 0.08, 0.1);
-		///// float pho04 = pfEcalIso(ipho, 0.4, 0.045, 0.070, 0.015, 0.015, 0.08, 0.1); 
-		if( GFDEBUG ) {
-			if( ( pho_pfiso_myphoton03[ipho] != pho03 || 
-			      pho_pfiso_myphoton04[ipho] != pho04   )
-				) { std::cout << "Fishy... "; }
-			std::cout << "pho03: " << pho_pfiso_myphoton03[ipho] << " " << pho03 
-				  << " pho04: " << pho_pfiso_myphoton04[ipho] << " " << pho04 
-				  << " " << ((TLorentzVector*)pho_p4->At(ipho))->Pt() 
-				  << " " << ((TLorentzVector*)pho_p4->At(ipho))->Eta() 
-				  << std::endl;
-		}
-		pho_pfiso_myphoton01[ipho] = pho01;
-		pho_pfiso_myphoton02[ipho] = pho02;
-		pho_pfiso_myphoton03[ipho] = pho03;
-		pho_pfiso_myphoton04[ipho] = pho04;
-		pho_pfiso_myphoton05[ipho] = pho05;
-		pho_pfiso_myphoton06[ipho] = pho06;
+        float pho01 = pfEcalIso(ipho, 0.1, 0., 0.070, 0.015, 0., 0., 0.);
+        float pho02 = pfEcalIso(ipho, 0.2, 0., 0.070, 0.015, 0., 0., 0.);
+        float pho03 = pfEcalIso(ipho, 0.3, 0., 0.070, 0.015, 0., 0., 0.);
+        float pho04 = pfEcalIso(ipho, 0.4, 0., 0.070, 0.015, 0., 0., 0.); 
+        float pho05 = pfEcalIso(ipho, 0.5, 0., 0.070, 0.015, 0., 0., 0.); 
+        float pho06 = pfEcalIso(ipho, 0.6, 0., 0.070, 0.015, 0., 0., 0.); 
+        ///// float pho03 = pfEcalIso(ipho, 0.3, 0.045, 0.070, 0.015, 0.015, 0.08, 0.1);
+        ///// float pho04 = pfEcalIso(ipho, 0.4, 0.045, 0.070, 0.015, 0.015, 0.08, 0.1); 
+        if( GFDEBUG ) {
+            if( ( pho_pfiso_myphoton03[ipho] != pho03 || 
+                  pho_pfiso_myphoton04[ipho] != pho04   )
+                ) { std::cout << "Fishy... "; }
+            std::cout << "pho03: " << pho_pfiso_myphoton03[ipho] << " " << pho03 
+                  << " pho04: " << pho_pfiso_myphoton04[ipho] << " " << pho04 
+                  << " " << ((TLorentzVector*)pho_p4->At(ipho))->Pt() 
+                  << " " << ((TLorentzVector*)pho_p4->At(ipho))->Eta() 
+                  << std::endl;
+        }
+        pho_pfiso_myphoton01[ipho] = pho01;
+        pho_pfiso_myphoton02[ipho] = pho02;
+        pho_pfiso_myphoton03[ipho] = pho03;
+        pho_pfiso_myphoton04[ipho] = pho04;
+        pho_pfiso_myphoton05[ipho] = pho05;
+        pho_pfiso_myphoton06[ipho] = pho06;
 
-		int badvtx = 0;
-		float badiso = 0.;
-		for(int ivtx=0; ivtx<vtx_std_n; ++ivtx) {
-			float ch01 = pfTkIsoWithVertex(ipho,ivtx,0.1,0.02,0.02,0.0,0.2,0.1);
-			float ch02 = pfTkIsoWithVertex(ipho,ivtx,0.2,0.02,0.02,0.0,0.2,0.1);
-			float ch03 = pfTkIsoWithVertex(ipho,ivtx,0.3,0.02,0.02,0.0,0.2,0.1);
-			float ch04 = pfTkIsoWithVertex(ipho,ivtx,0.4,0.02,0.02,0.0,0.2,0.1);
-			float ch05 = pfTkIsoWithVertex(ipho,ivtx,0.5,0.02,0.02,0.0,0.2,0.1);
-			float ch06 = pfTkIsoWithVertex(ipho,ivtx,0.6,0.02,0.02,0.0,0.2,0.1);
-			///// float ch03 = pfTkIsoWithVertex(ipho,ivtx,0.3,0.02,0.02,1.0,0.2,0.1);
-			///// float ch04 = pfTkIsoWithVertex(ipho,ivtx,0.4,0.02,0.02,1.0,0.2,0.1);
-			if( GFDEBUG ) {
-				if( ( pho_pfiso_mycharged03->at(ipho).at(ivtx) != ch03 ||
-				      pho_pfiso_mycharged04->at(ipho).at(ivtx) != ch04   )
-					)  { std::cout << "Fishy... "; }
-				std::cout << "ch03: " << pho_pfiso_mycharged03->at(ipho).at(ivtx) << " " << ch03 
-					  << " ch04: " << pho_pfiso_mycharged04->at(ipho).at(ivtx) << " " << ch04 
-					  << " " << ((TLorentzVector*)pho_p4->At(ipho))->Pt() 
-					  << " " << ((TLorentzVector*)pho_p4->At(ipho))->Eta() 
-					  << std::endl;
-			}
-			pho_pfiso_mycharged01->at(ipho).at(ivtx) = ch01;
-			pho_pfiso_mycharged02->at(ipho).at(ivtx) = ch02;
-			pho_pfiso_mycharged03->at(ipho).at(ivtx) = ch03;
-			pho_pfiso_mycharged04->at(ipho).at(ivtx) = ch04;
-			pho_pfiso_mycharged05->at(ipho).at(ivtx) = ch05;
-			pho_pfiso_mycharged06->at(ipho).at(ivtx) = ch06;
-			if( ch04 > badiso ) {
-				badiso = ch04;
-				badvtx = ivtx;
-			}
-		}
-		pho_tkiso_badvtx_id[ipho] = badvtx;
-	}
+        int badvtx = 0;
+        float badiso = 0.;
+        for(int ivtx=0; ivtx<vtx_std_n; ++ivtx) {
+            float ch01 = pfTkIsoWithVertex(ipho,ivtx,0.1,0.02,0.02,0.0,0.2,0.1);
+            float ch02 = pfTkIsoWithVertex(ipho,ivtx,0.2,0.02,0.02,0.0,0.2,0.1);
+            float ch03 = pfTkIsoWithVertex(ipho,ivtx,0.3,0.02,0.02,0.0,0.2,0.1);
+            float ch04 = pfTkIsoWithVertex(ipho,ivtx,0.4,0.02,0.02,0.0,0.2,0.1);
+            float ch05 = pfTkIsoWithVertex(ipho,ivtx,0.5,0.02,0.02,0.0,0.2,0.1);
+            float ch06 = pfTkIsoWithVertex(ipho,ivtx,0.6,0.02,0.02,0.0,0.2,0.1);
+            ///// float ch03 = pfTkIsoWithVertex(ipho,ivtx,0.3,0.02,0.02,1.0,0.2,0.1);
+            ///// float ch04 = pfTkIsoWithVertex(ipho,ivtx,0.4,0.02,0.02,1.0,0.2,0.1);
+            if( GFDEBUG ) {
+                if( ( pho_pfiso_mycharged03->at(ipho).at(ivtx) != ch03 ||
+                      pho_pfiso_mycharged04->at(ipho).at(ivtx) != ch04   )
+                    )  { std::cout << "Fishy... "; }
+                std::cout << "ch03: " << pho_pfiso_mycharged03->at(ipho).at(ivtx) << " " << ch03 
+                      << " ch04: " << pho_pfiso_mycharged04->at(ipho).at(ivtx) << " " << ch04 
+                      << " " << ((TLorentzVector*)pho_p4->At(ipho))->Pt() 
+                      << " " << ((TLorentzVector*)pho_p4->At(ipho))->Eta() 
+                      << std::endl;
+            }
+            pho_pfiso_mycharged01->at(ipho).at(ivtx) = ch01;
+            pho_pfiso_mycharged02->at(ipho).at(ivtx) = ch02;
+            pho_pfiso_mycharged03->at(ipho).at(ivtx) = ch03;
+            pho_pfiso_mycharged04->at(ipho).at(ivtx) = ch04;
+            pho_pfiso_mycharged05->at(ipho).at(ivtx) = ch05;
+            pho_pfiso_mycharged06->at(ipho).at(ivtx) = ch06;
+            if( ch04 > badiso ) {
+                badiso = ch04;
+                badvtx = ivtx;
+            }
+        }
+        pho_tkiso_badvtx_id[ipho] = badvtx;
+    }
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
@@ -2058,57 +2056,57 @@ void LoopAll::SetPhotonCutsInCategories(phoCiCIDLevel cutlevel, float * cic6_all
             1,      0.99,      0.99,     0.028,
             1.5,         1.5,         1.5,         1.5};
 
-	float cic4pf8tev_allcuts_temp_lead[] = {     
-	  6.3,       5.6,       5.8,       5.1,
-	  18.9,         8,        10,       6.2,
-	  4.5,       2.8,         4,      1.62,
-	  0.0125,    0.0103,     0.029,     0.028,
-	  0.141,     0.138,      0.12,     0.091,
-	  0.94,      0.33,      0.94,      0.37,
-	  1,     0.051,     0.054,     0.064,
-	  1.5,         1.5,         1.5,         1.5};
-	
+    float cic4pf8tev_allcuts_temp_lead[] = {     
+      6.3,       5.6,       5.8,       5.1,
+      18.9,         8,        10,       6.2,
+      4.5,       2.8,         4,      1.62,
+      0.0125,    0.0103,     0.029,     0.028,
+      0.141,     0.138,      0.12,     0.091,
+      0.94,      0.33,      0.94,      0.37,
+      1,     0.051,     0.054,     0.064,
+      1.5,         1.5,         1.5,         1.5};
+    
         float cic4pf8tev_allcuts_temp_sublead[] = {  
-	  6.3,       5.6,       5.8,       5.1,
-	  18.9,         8,        10,       6.2,
-	  4.5,       2.8,         4,      1.62,
-	  0.0125,    0.0103,     0.029,     0.028,
-	  0.141,     0.138,      0.12,     0.091,
-	  0.94,      0.33,      0.94,      0.37,
-	  1,     0.051,     0.054,     0.064,
-	  1.5,         1.5,         1.5,         1.5};
-	
-	float cic4pfichep_allcuts_temp_lead[] = {     
-	  7.7,       4.1,       1.8,       2.1,
-	  8,       6.3,       8.6,         4,
+      6.3,       5.6,       5.8,       5.1,
+      18.9,         8,        10,       6.2,
+      4.5,       2.8,         4,      1.62,
+      0.0125,    0.0103,     0.029,     0.028,
+      0.141,     0.138,      0.12,     0.091,
+      0.94,      0.33,      0.94,      0.37,
+      1,     0.051,     0.054,     0.064,
+      1.5,         1.5,         1.5,         1.5};
+    
+    float cic4pfichep_allcuts_temp_lead[] = {     
+      7.7,       4.1,       1.8,       2.1,
+      8,       6.3,       8.6,         4,
           5.7,       3.4,       2.3,       2.4,
           0.0191,    0.0101,     0.033,     0.025,
           0.23,      0.38,     0.168,     0.055,
           0.94,      0.35,      0.95,      0.41,    
           1,      0.31,      0.85,      0.99,
-	    1.5,         1.5,         1.5,         1.5};
-	
+        1.5,         1.5,         1.5,         1.5};
+    
         float cic4pfichep_allcuts_temp_sublead[] = {  
-	  7.7,       4.1,       1.8,       2.1,
-	  8,       6.3,       8.6,         4,
+      7.7,       4.1,       1.8,       2.1,
+      8,       6.3,       8.6,         4,
           5.7,       3.4,       2.3,       2.4,
           0.0191,    0.0101,     0.033,     0.025,
           0.23,      0.38,     0.168,     0.055,
           0.94,      0.35,      0.95,      0.41,    
           1,      0.31,      0.85,      0.99,
-	    1.5,         1.5,         1.5,         1.5};
+        1.5,         1.5,         1.5,         1.5};
 
         for(int i=0;i!=ncuts*ncat_cic4;++i) { 
-	  if (cicVersion == "7TeV") {
-	    cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
-	    cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i]; 
-	  } else if (cicVersion == "ichep") {
-	    cic4pf_allcuts_lead[i]    = cic4pfichep_allcuts_temp_lead[i];
-	    cic4pf_allcuts_sublead[i] = cic4pfichep_allcuts_temp_sublead[i]; 
-	  } else {
-	    cic4pf_allcuts_lead[i]    = cic4pf8tev_allcuts_temp_lead[i];
-	    cic4pf_allcuts_sublead[i] = cic4pf8tev_allcuts_temp_sublead[i]; 
-	  }
+      if (cicVersion == "7TeV") {
+        cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
+        cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i]; 
+      } else if (cicVersion == "ichep") {
+        cic4pf_allcuts_lead[i]    = cic4pfichep_allcuts_temp_lead[i];
+        cic4pf_allcuts_sublead[i] = cic4pfichep_allcuts_temp_sublead[i]; 
+      } else {
+        cic4pf_allcuts_lead[i]    = cic4pf8tev_allcuts_temp_lead[i];
+        cic4pf_allcuts_sublead[i] = cic4pf8tev_allcuts_temp_sublead[i]; 
+      }
         }
     } break;
     case(phoHYPERTIGHT1) : {
@@ -2176,56 +2174,56 @@ void LoopAll::SetPhotonCutsInCategories(phoCiCIDLevel cutlevel, float * cic6_all
             1.5,         1.5,         1.5,         1.5};
 
         float cic4pf8tev_allcuts_temp_lead[] = { 
-	       5.9,       4.8,       5.3,       3.9,
-	      11.2,         8,        10,       5.8,
-	       4.2,       2.8,       2.8,      1.41,
-	    0.0125,    0.0101,     0.028,     0.028,
-	     0.141,     0.138,      0.12,     0.058,
-	      0.94,      0.33,      0.94,      0.39,
-	         1,     0.095,      0.77,       0.1,
-	       1.5,         1.5,         1.5,         1.5};
+           5.9,       4.8,       5.3,       3.9,
+          11.2,         8,        10,       5.8,
+           4.2,       2.8,       2.8,      1.41,
+        0.0125,    0.0101,     0.028,     0.028,
+         0.141,     0.138,      0.12,     0.058,
+          0.94,      0.33,      0.94,      0.39,
+             1,     0.095,      0.77,       0.1,
+           1.5,         1.5,         1.5,         1.5};
 
         float cic4pf8tev_allcuts_temp_sublead[] = {   
-	  5.9,       4.8,       5.3,       3.9,
-	  11.2,         8,        10,       5.8,
-	  4.2,       2.8,       2.8,      1.41,
-	  0.0125,    0.0101,     0.028,     0.028,
-	  0.141,     0.138,      0.12,     0.058,
-	  0.94,      0.33,      0.94,      0.39,
-	  1,     0.095,      0.77,       0.1,
-	  1.5,         1.5,         1.5,         1.5};
+      5.9,       4.8,       5.3,       3.9,
+      11.2,         8,        10,       5.8,
+      4.2,       2.8,       2.8,      1.41,
+      0.0125,    0.0101,     0.028,     0.028,
+      0.141,     0.138,      0.12,     0.058,
+      0.94,      0.33,      0.94,      0.39,
+      1,     0.095,      0.77,       0.1,
+      1.5,         1.5,         1.5,         1.5};
 
 
-	float cic4pfichep_allcuts_temp_lead[] = {     
-	  4.3,       2.5,      1.59,      1.53,
-	  7.1,       4.9,       4.3,      1.05,
-	  3.4,       2.4,       2.3,      1.02,
-	  0.019,     0.01,     0.027,     0.023,
-	  0.23,      0.06,     0.041,     0.033,
-	  0.94,      0.36,      0.95,      0.45,
-	  1,         0.32,         1,         1,
-	  1.5,         1.5,         1.5,         1.5};
+    float cic4pfichep_allcuts_temp_lead[] = {     
+      4.3,       2.5,      1.59,      1.53,
+      7.1,       4.9,       4.3,      1.05,
+      3.4,       2.4,       2.3,      1.02,
+      0.019,     0.01,     0.027,     0.023,
+      0.23,      0.06,     0.041,     0.033,
+      0.94,      0.36,      0.95,      0.45,
+      1,         0.32,         1,         1,
+      1.5,         1.5,         1.5,         1.5};
         float cic4pfichep_allcuts_temp_sublead[] = {  
-	  4.3,       2.5,      1.59,      1.53,
-	  7.1,       4.9,       4.3,      1.05,
-	  3.4,       2.4,       2.3,      1.02,
-	  0.019,      0.01,     0.027,     0.023,
-	  0.23,      0.06,     0.041,     0.033,
-	  0.94,      0.36,      0.95,      0.45,
-	  1,      0.32,         1,         1,
-	  1.5,         1.5,         1.5,         1.5};
+      4.3,       2.5,      1.59,      1.53,
+      7.1,       4.9,       4.3,      1.05,
+      3.4,       2.4,       2.3,      1.02,
+      0.019,      0.01,     0.027,     0.023,
+      0.23,      0.06,     0.041,     0.033,
+      0.94,      0.36,      0.95,      0.45,
+      1,      0.32,         1,         1,
+      1.5,         1.5,         1.5,         1.5};
 
         for(int i=0;i!=ncuts*ncat_cic4;++i) { 
-	  if (cicVersion == "7TeV") {
-	    cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
-	    cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i]; 
-	  } else if (cicVersion == "ichep") {
-	    cic4pf_allcuts_lead[i]    = cic4pfichep_allcuts_temp_lead[i];
-	    cic4pf_allcuts_sublead[i] = cic4pfichep_allcuts_temp_sublead[i]; 
-	  } else {
-	    cic4pf_allcuts_lead[i]    = cic4pf8tev_allcuts_temp_lead[i];
-	    cic4pf_allcuts_sublead[i] = cic4pf8tev_allcuts_temp_sublead[i]; 
-	  }
+      if (cicVersion == "7TeV") {
+        cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
+        cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i]; 
+      } else if (cicVersion == "ichep") {
+        cic4pf_allcuts_lead[i]    = cic4pfichep_allcuts_temp_lead[i];
+        cic4pf_allcuts_sublead[i] = cic4pfichep_allcuts_temp_sublead[i]; 
+      } else {
+        cic4pf_allcuts_lead[i]    = cic4pf8tev_allcuts_temp_lead[i];
+        cic4pf_allcuts_sublead[i] = cic4pf8tev_allcuts_temp_sublead[i]; 
+      }
         }
     } break;
     case(phoHYPERTIGHT2) : {
@@ -2291,37 +2289,37 @@ void LoopAll::SetPhotonCutsInCategories(phoCiCIDLevel cutlevel, float * cic6_all
             1,         1,      0.99,      0.06,
             1.5,         1.5,         1.5,         1.5};
 
-	float cic4pfichep_allcuts_temp_lead[] = {     
-	  4.3,       2.3,       1.4,     0.069,
-	  6.4,       2.9,       4.8,      0.25,
-	  3.3,       2.3,      1.73,      1.02,
-	  0.0188,      0.01,    0.027,     0.023,
-	  0.23,     0.06,     0.041,     0.033,
-	  0.94,      0.36,      0.95,      0.45,
-	  1,      0.32,         1,         1,
-	  1.5,         1.5,         1.5,         1.5};	
+    float cic4pfichep_allcuts_temp_lead[] = {     
+      4.3,       2.3,       1.4,     0.069,
+      6.4,       2.9,       4.8,      0.25,
+      3.3,       2.3,      1.73,      1.02,
+      0.0188,      0.01,    0.027,     0.023,
+      0.23,     0.06,     0.041,     0.033,
+      0.94,      0.36,      0.95,      0.45,
+      1,      0.32,         1,         1,
+      1.5,         1.5,         1.5,         1.5};    
         float cic4pfichep_allcuts_temp_sublead[] = {  
-	  4.7,       2.3,       1.4,     0.069,
-	  6.4,       2.9,       4.8,      0.25,
-	  3.3,       2.3,      1.73,      1.02,
-	  0.0188,      0.01,     0.028,     0.023,
-	  0.23,     0.169,     0.041,     0.041,
-	  0.94,      0.46,      0.97,      0.59,
-	  1,      0.32,         1,         1,
-	  1.5,         1.5,         1.5,         1.5};	
+      4.7,       2.3,       1.4,     0.069,
+      6.4,       2.9,       4.8,      0.25,
+      3.3,       2.3,      1.73,      1.02,
+      0.0188,      0.01,     0.028,     0.023,
+      0.23,     0.169,     0.041,     0.041,
+      0.94,      0.46,      0.97,      0.59,
+      1,      0.32,         1,         1,
+      1.5,         1.5,         1.5,         1.5};    
 
 
         for(int i=0;i!=ncuts*ncat_cic4;++i) { 
-	  if (cicVersion == "7TeV") {
-	    cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
-	    cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i]; 
-	  } else if (cicVersion == "ichep") {
-	    cic4pf_allcuts_lead[i]    = cic4pfichep_allcuts_temp_lead[i];
-	    cic4pf_allcuts_sublead[i] = cic4pfichep_allcuts_temp_sublead[i]; 
-	  } else {
-	    cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
-	    cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i]; 
-	  }
+      if (cicVersion == "7TeV") {
+        cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
+        cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i]; 
+      } else if (cicVersion == "ichep") {
+        cic4pf_allcuts_lead[i]    = cic4pfichep_allcuts_temp_lead[i];
+        cic4pf_allcuts_sublead[i] = cic4pfichep_allcuts_temp_sublead[i]; 
+      } else {
+        cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
+        cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i]; 
+      }
         }
     } break;
     case(phoHYPERTIGHT3) : {
@@ -2387,37 +2385,37 @@ void LoopAll::SetPhotonCutsInCategories(phoCiCIDLevel cutlevel, float * cic6_all
             1,         1,         1,      0.78,
             1.5,         1.5,         1.5,         1.5};
 
-	float cic4pfichep_allcuts_temp_lead[] = {     
-	  4.3,       2.3,       1.4,     0.069,
-	  6.4,       2.9,       4.8,      0.25,
-	  3.3,       2.3,      1.73,      1.02,
-	  0.0188,      0.01,    0.027,     0.023,
-	  0.23,     0.06,     0.041,     0.033,
-	  0.94,      0.36,      0.95,      0.45,
-	  1,      0.32,         1,         1,
-	  1.5,         1.5,         1.5,         1.5};	
+    float cic4pfichep_allcuts_temp_lead[] = {     
+      4.3,       2.3,       1.4,     0.069,
+      6.4,       2.9,       4.8,      0.25,
+      3.3,       2.3,      1.73,      1.02,
+      0.0188,      0.01,    0.027,     0.023,
+      0.23,     0.06,     0.041,     0.033,
+      0.94,      0.36,      0.95,      0.45,
+      1,      0.32,         1,         1,
+      1.5,         1.5,         1.5,         1.5};    
         float cic4pfichep_allcuts_temp_sublead[] = {  
-	  4.7,       2.3,       1.4,     0.069,
-	  6.4,       2.9,       4.8,      0.25,
-	  3.3,       2.3,      1.73,      1.02,
-	  0.0188,      0.01,     0.028,     0.023,
-	  0.23,     0.169,     0.041,     0.041,
-	  0.94,      0.46,      0.97,      0.59,
-	  1,      0.32,         1,         1,
-	  1.5,         1.5,         1.5,         1.5};	
+      4.7,       2.3,       1.4,     0.069,
+      6.4,       2.9,       4.8,      0.25,
+      3.3,       2.3,      1.73,      1.02,
+      0.0188,      0.01,     0.028,     0.023,
+      0.23,     0.169,     0.041,     0.041,
+      0.94,      0.46,      0.97,      0.59,
+      1,      0.32,         1,         1,
+      1.5,         1.5,         1.5,         1.5};    
 
 
         for(int i=0;i!=ncuts*ncat_cic4;++i) { 
-	  if (cicVersion == "7TeV") {
-	    cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
-	    cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i]; 
-	  } else if (cicVersion == "ichep") {
-	    cic4pf_allcuts_lead[i]    = cic4pfichep_allcuts_temp_lead[i];
-	    cic4pf_allcuts_sublead[i] = cic4pfichep_allcuts_temp_sublead[i]; 
-	  } else {
-	    cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
-	    cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i]; 
-	  }
+      if (cicVersion == "7TeV") {
+        cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
+        cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i]; 
+      } else if (cicVersion == "ichep") {
+        cic4pf_allcuts_lead[i]    = cic4pfichep_allcuts_temp_lead[i];
+        cic4pf_allcuts_sublead[i] = cic4pfichep_allcuts_temp_sublead[i]; 
+      } else {
+        cic4pf_allcuts_lead[i]    = cic4pf_allcuts_temp_lead[i];
+        cic4pf_allcuts_sublead[i] = cic4pf_allcuts_temp_sublead[i]; 
+      }
         }
     } break;
     case(phoHYPERTIGHT4) : {
@@ -2483,7 +2481,7 @@ void LoopAll::SetPhotonCutsInCategories(phoCiCIDLevel cutlevel, float * cic6_all
             0.94,      0.39,      0.94,      0.24,
             1,         1,         1,      0.97,
             1.5,         1.5,         1.5,         1.5} ;
-	float cic4pfichep_allcuts_temp_lead[] = {
+    float cic4pfichep_allcuts_temp_lead[] = {
           4.3,       2.3,       1.4,     0.069,
           6.4,       2.9,       4.8,      0.25,
           3.3,       2.3,      1.73,      1.02,
@@ -2583,7 +2581,7 @@ void LoopAll::SetPhotonCutsInCategories(phoCiCIDLevel cutlevel, float * cic6_all
             1.5,         1.5,         1.5,         1.5} ;
 
 
-	float cic4pfichep_allcuts_temp_lead[] = {
+    float cic4pfichep_allcuts_temp_lead[] = {
           4.3,       2.3,       1.4,     0.069,
           6.4,       2.9,       4.8,      0.25,
           3.3,       2.3,      1.73,      1.02,
@@ -2681,7 +2679,7 @@ void LoopAll::SetPhotonCutsInCategories(phoCiCIDLevel cutlevel, float * cic6_all
             0.94,      0.39,      0.96,      0.86,
             1,         1,         1,      0.97,
             1.5,         1.5,         1.5,         1.5} ;
-	float cic4pfichep_allcuts_temp_lead[] = {
+    float cic4pfichep_allcuts_temp_lead[] = {
           4.3,       2.3,       1.4,     0.069,
           6.4,       2.9,       4.8,      0.25,
           3.3,       2.3,      1.73,      1.02,
@@ -2780,7 +2778,7 @@ void LoopAll::SetPhotonCutsInCategories(phoCiCIDLevel cutlevel, float * cic6_all
             1,         1,         1,      0.99,
             1.5,         1.5,         1.5,         1.5} ;
 
-	float cic4pfichep_allcuts_temp_lead[] = {
+    float cic4pfichep_allcuts_temp_lead[] = {
           4.3,       2.3,       1.4,     0.069,
           6.4,       2.9,       4.8,      0.25,
           3.3,       2.3,      1.73,      1.02,
@@ -2879,7 +2877,7 @@ void LoopAll::SetPhotonCutsInCategories(phoCiCIDLevel cutlevel, float * cic6_all
             1,         1,         1,         1,
             1.5,         1.5,         1.5,         1.5} ;
 
-	float cic4pfichep_allcuts_temp_lead[] = {
+    float cic4pfichep_allcuts_temp_lead[] = {
           4.3,       2.3,       1.4,     0.069,
           6.4,       2.9,       4.8,      0.25,
           3.3,       2.3,      1.73,      1.02,
@@ -2978,7 +2976,7 @@ void LoopAll::SetPhotonCutsInCategories(phoCiCIDLevel cutlevel, float * cic6_all
             1,         1,         1,         1,
             1.5,         1.5,         1.5,         1.5} ;
 
-	float cic4pfichep_allcuts_temp_lead[] = {
+    float cic4pfichep_allcuts_temp_lead[] = {
           4.3,       2.3,       1.4,     0.069,
           6.4,       2.9,       4.8,      0.25,
           3.3,       2.3,      1.73,      1.02,
@@ -3025,8 +3023,8 @@ void LoopAll::SetPhotonCutsInCategories(phoCiCIDLevel cutlevel, float * cic6_all
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 int LoopAll::DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL, phoCiCIDLevel SUBLEADCUTLEVEL, 
-				   Float_t leadPtMin, Float_t subleadPtMin, int ncategories, bool applyPtoverM, 
-				   float *pho_energy_array, bool split, std::vector<int> cutsbycat) {
+                   Float_t leadPtMin, Float_t subleadPtMin, int ncategories, bool applyPtoverM, 
+                   float *pho_energy_array, bool split, std::vector<int> cutsbycat) {
 
   //rho=0;// CAUTION SETTING RHO TO 0 FOR 2010 DATA FILES (RHO ISN'T IN THESE FILES)
   int g = -1;
@@ -3035,8 +3033,8 @@ int LoopAll::DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL, phoCiCIDLevel SUB
   float selected_sublead_pt = -1;
 
   if( ! cutsbycat.empty() ) {
-	  assert( cutsbycat.size() == 4 );
-	  /// std::cout << "cutsbycat " << cutsbycat.size() <<std::endl;
+      assert( cutsbycat.size() == 4 );
+      /// std::cout << "cutsbycat " << cutsbycat.size() <<std::endl;
   }
   
   std::vector<int> passing_dipho;
@@ -3049,17 +3047,17 @@ int LoopAll::DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL, phoCiCIDLevel SUB
     if( lead == sublead ) { continue; }
 
     if( usePFCiC 
-	&& ( ! PhotonMITPreSelection(lead, ivtx, pho_energy_array) || 
-	     ! PhotonMITPreSelection(sublead, ivtx,  pho_energy_array) ) ) { continue; }
-    
+    && ( ! PhotonMITPreSelection(lead, ivtx, pho_energy_array) || 
+         ! PhotonMITPreSelection(sublead, ivtx,  pho_energy_array) ) ) { continue; }
+   
     TLorentzVector lead_p4 = get_pho_p4(lead,ivtx,pho_energy_array); 
     TLorentzVector sublead_p4 = get_pho_p4(sublead,ivtx,pho_energy_array); 
     if (sublead_p4.Pt() > lead_p4.Pt()){ // Swap them but also swap the indeces
-	    int tmp = lead;
-	    lead = sublead;
-	    sublead =tmp;
-	    dipho_leadind[idipho] = lead;
-	    dipho_subleadind[idipho] = sublead;
+        int tmp = lead;
+        lead = sublead;
+        sublead =tmp;
+        dipho_leadind[idipho] = lead;
+        dipho_subleadind[idipho] = sublead;
     }
     
     float leadEta = fabs(((TVector3 *)sc_xyz->At(pho_scind[lead]))->Eta());
@@ -3070,32 +3068,32 @@ int LoopAll::DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL, phoCiCIDLevel SUB
         ( leadEta > 1.4442 && leadEta < 1.566 ) ||
         ( subleadEta > 1.4442 && subleadEta < 1.566 ) ) { continue; }
 
-	  float leadpt = lead_p4.Pt() > sublead_p4.Pt() ? lead_p4.Pt() : sublead_p4.Pt();
-      	  float subleadpt = lead_p4.Pt() < sublead_p4.Pt() ? lead_p4.Pt() : sublead_p4.Pt(); 	  
-	  // Exclusive modes cut smoothly on lead pt/M but on straight pt on sublead to save sig eff and avoid HLT turn-on  
-	  if(split){   
-		  if ( leadpt/m_gamgam < leadPtMin/120. || subleadpt< subleadPtMin ) { continue; }  
-	  }else{
-		  if( applyPtoverM ) {
-			  if ( leadpt/m_gamgam < leadPtMin/120. || subleadpt/m_gamgam < subleadPtMin/120. ||
-			       leadpt < 100./3. || subleadpt < 100./4.) { continue; }
-		  } else {
-			  if ( leadpt < leadPtMin || subleadpt < subleadPtMin ) { continue; }
-		  }
-	  }
+      float leadpt = lead_p4.Pt() > sublead_p4.Pt() ? lead_p4.Pt() : sublead_p4.Pt();
+            float subleadpt = lead_p4.Pt() < sublead_p4.Pt() ? lead_p4.Pt() : sublead_p4.Pt();       
+      // Exclusive modes cut smoothly on lead pt/M but on straight pt on sublead to save sig eff and avoid HLT turn-on  
+      if(split){   
+          if ( leadpt/m_gamgam < leadPtMin/120. || subleadpt< subleadPtMin ) { continue; }  
+      }else{
+          if( applyPtoverM ) {
+              if ( leadpt/m_gamgam < leadPtMin/120. || subleadpt/m_gamgam < subleadPtMin/120. ||
+                   leadpt < 100./3. || subleadpt < 100./4.) { continue; }
+          } else {
+              if ( leadpt < leadPtMin || subleadpt < subleadPtMin ) { continue; }
+          }
+      }
 
-	  std::vector<std::vector<bool> > ph_passcut;
-	  if( ! cutsbycat.empty() ) {
-		  int leadCat = PhotonCategory(lead,2,2);
-		  int subleadCat = PhotonCategory(sublead,2,2);
-		  LEADCUTLEVEL    = (phoCiCIDLevel)cutsbycat[leadCat];
-		  SUBLEADCUTLEVEL = (phoCiCIDLevel)cutsbycat[subleadCat];
-	  }
-	  if( PhotonCiCSelectionLevel(lead, ivtx, ph_passcut, ncategories, 0, pho_energy_array ) < LEADCUTLEVEL ) { continue; }
-	  if( PhotonCiCSelectionLevel(sublead, ivtx, ph_passcut, ncategories, 1, pho_energy_array ) < SUBLEADCUTLEVEL ) { continue; }
-	  
-	  passing_dipho.push_back(idipho);
-	  passing_sumpt.push_back(leadpt+subleadpt);
+      std::vector<std::vector<bool> > ph_passcut;
+      if( ! cutsbycat.empty() ) {
+          int leadCat = PhotonCategory(lead,2,2);
+          int subleadCat = PhotonCategory(sublead,2,2);
+          LEADCUTLEVEL    = (phoCiCIDLevel)cutsbycat[leadCat];
+          SUBLEADCUTLEVEL = (phoCiCIDLevel)cutsbycat[subleadCat];
+      }
+      if( PhotonCiCSelectionLevel(lead, ivtx, ph_passcut, ncategories, 0, pho_energy_array ) < LEADCUTLEVEL ) { continue; }
+      if( PhotonCiCSelectionLevel(sublead, ivtx, ph_passcut, ncategories, 1, pho_energy_array ) < SUBLEADCUTLEVEL ) { continue; }
+      
+      passing_dipho.push_back(idipho);
+      passing_sumpt.push_back(leadpt+subleadpt);
   }
   
   if( passing_dipho.empty() ) { return -1; }
@@ -3302,23 +3300,23 @@ bool LoopAll::PhotonMITPreSelection( int photon_index, int vertex_index, float *
   
    // can't apply cuts in categories at reduction level because of the shape rescaling
    if( itype[current] == 0 || typerun != kReduce ) {
-	   if (val_hoe             >= mitCuts_hoe[photon_category]         ) return false;                                           
-	   if (val_sieie           >= mitCuts_sieie[photon_category]       ) return false;
-	   if (val_ecaliso         >= mitCuts_ecaliso[photon_category]     ) return false;
-	   if (val_hcaliso         >= mitCuts_hcaliso[photon_category]     ) return false;                                           
-	   if (val_trkiso          >= mitCuts_trkiso[photon_category]      ) return false;
-	   //if (val_hcalecal        >= mitCuts_hcalecal[photon_category]    ) return false;
-	   //if (val_abstrkiso       >= mitCuts_abstrkiso[photon_category]   ) return false;                   
-	   //if (val_trkiso_hollow03 >= mitCuts_trkiso_hollow03[photon_category]) return false;                                        
+       if (val_hoe             >= mitCuts_hoe[photon_category]         ) return false;                                           
+       if (val_sieie           >= mitCuts_sieie[photon_category]       ) return false;
+       if (val_ecaliso         >= mitCuts_ecaliso[photon_category]     ) return false;
+       if (val_hcaliso         >= mitCuts_hcaliso[photon_category]     ) return false;                                           
+       if (val_trkiso          >= mitCuts_trkiso[photon_category]      ) return false;
+       //if (val_hcalecal        >= mitCuts_hcalecal[photon_category]    ) return false;
+       //if (val_abstrkiso       >= mitCuts_abstrkiso[photon_category]   ) return false;                   
+       //if (val_trkiso_hollow03 >= mitCuts_trkiso_hollow03[photon_category]) return false;                                        
    }
    if( typerun != kReduce ) {
-	   // if (val_drtotk_25_99    <  mitCuts_drtotk_25_99[photon_category]   ) return false; // Electron Rejection based on CiC for now
-	   if ((!val_pho_isconv && !runZeeValidation) || (runZeeValidation && val_pho_isconv) ) return false; // Electron Rejection based Conversion Safe Veto
+       // if (val_drtotk_25_99    <  mitCuts_drtotk_25_99[photon_category]   ) return false; // Electron Rejection based on CiC for now
+       if ((!val_pho_isconv && !runZeeValidation) || (runZeeValidation && val_pho_isconv) ) return false; // Electron Rejection based Conversion Safe Veto
    }
    
    // this does not depend on R9
    if( typerun != kReduce ) {
-	   if (val_pfiso02 >= mitCuts_pfiso[photon_category]) return false;            
+       if (val_pfiso02 >= mitCuts_pfiso[photon_category]) return false;            
    }
    
    return true;
@@ -3407,15 +3405,15 @@ int LoopAll::PhotonCiCPFSelectionLevel( int photon_index, int vertex_index, std:
       }
       bool ph_passcut_all = true;
       for(int icut=0;icut!=8;++icut) {
-	ph_passcut_all = ph_passcut_all && ph_passcut[iCUTLEVEL][icut];
+    ph_passcut_all = ph_passcut_all && ph_passcut[iCUTLEVEL][icut];
       }
       if(ph_passcut_all) {
-	if( cutlevelpassed != iCUTLEVEL - 1 && ( cicVersion != "ichep" || cutlevelpassed >4 ) ) {
-	  std::cerr << "photon " << photon_index << " (category " << photon_category << ") in run/event " << run << "/" << event << " passed CiC cut level " 
-		    << iCUTLEVEL << " but not "  << iCUTLEVEL - 1 << ". Did you load your cut values correctly? "<< std::endl;
-	  /// assert( 0 );
-	}
-	cutlevelpassed=iCUTLEVEL;
+    if( cutlevelpassed != iCUTLEVEL - 1 && ( cicVersion != "ichep" || cutlevelpassed >4 ) ) {
+      std::cerr << "photon " << photon_index << " (category " << photon_category << ") in run/event " << run << "/" << event << " passed CiC cut level " 
+            << iCUTLEVEL << " but not "  << iCUTLEVEL - 1 << ". Did you load your cut values correctly? "<< std::endl;
+      /// assert( 0 );
+    }
+    cutlevelpassed=iCUTLEVEL;
       }
     }
   } else if(doSublead) {
@@ -3448,12 +3446,12 @@ int LoopAll::PhotonCiCPFSelectionLevel( int photon_index, int vertex_index, std:
   ph_passcut_all = ph_passcut_all && ph_passcut[iCUTLEVEL][icut];
       }
       if(ph_passcut_all) {
-	if( cutlevelpassed != iCUTLEVEL - 1  && ( cicVersion != "ichep" || cutlevelpassed >4 ) ) {
-	  std::cerr << "photon " << photon_index << " (category " << photon_category << ") in run/event " << run << "/" << event << " passed CiC cut level " 
-		    << iCUTLEVEL << " but not "  << iCUTLEVEL - 1 << ". Did you load your cut values correctly? " << std::endl;
-	  //// assert( 0 );
-	}
-	cutlevelpassed=iCUTLEVEL;
+    if( cutlevelpassed != iCUTLEVEL - 1  && ( cicVersion != "ichep" || cutlevelpassed >4 ) ) {
+      std::cerr << "photon " << photon_index << " (category " << photon_category << ") in run/event " << run << "/" << event << " passed CiC cut level " 
+            << iCUTLEVEL << " but not "  << iCUTLEVEL - 1 << ". Did you load your cut values correctly? " << std::endl;
+      //// assert( 0 );
+    }
+    cutlevelpassed=iCUTLEVEL;
       }
     }
   }
@@ -3542,12 +3540,12 @@ int LoopAll::PhotonCiCSelectionLevel( int photon_index, int vertex_index, std::v
           ph_passcut[iCUTLEVEL][3] = (val_sieie            <=   cic6_cut_lead_sieie[iCUTLEVEL][photon_category]         );
           ph_passcut[iCUTLEVEL][4] = (val_hoe              <=   cic6_cut_lead_hovere[iCUTLEVEL][photon_category]        );
           ph_passcut[iCUTLEVEL][5] = (val_r9             >=     cic6_cut_lead_r9[iCUTLEVEL][photon_category]            );// gt cut
-	  if( runZeeValidation ) { 
-	    ph_passcut[iCUTLEVEL][6] = ! val_pho_isconv;
-	  } else {
-	    ph_passcut[iCUTLEVEL][6] = (val_drtotk_25_99   >=     cic6_cut_lead_drtotk_25_99[iCUTLEVEL][photon_category]  );// gt cut
-	    ph_passcut[iCUTLEVEL][7] = (val_pixel            <=   cic6_cut_lead_pixel[iCUTLEVEL][photon_category]         );
-	  }
+      if( runZeeValidation ) { 
+        ph_passcut[iCUTLEVEL][6] = ! val_pho_isconv;
+      } else {
+        ph_passcut[iCUTLEVEL][6] = (val_drtotk_25_99   >=     cic6_cut_lead_drtotk_25_99[iCUTLEVEL][photon_category]  );// gt cut
+        ph_passcut[iCUTLEVEL][7] = (val_pixel            <=   cic6_cut_lead_pixel[iCUTLEVEL][photon_category]         );
+      }
           break;
         case(4) :
           ph_passcut[iCUTLEVEL][0] = (val_isosumoet        <=   cic4_cut_lead_isosumoet[iCUTLEVEL][photon_category]     );
@@ -3556,12 +3554,12 @@ int LoopAll::PhotonCiCSelectionLevel( int photon_index, int vertex_index, std::v
           ph_passcut[iCUTLEVEL][3] = (val_sieie            <=   cic4_cut_lead_sieie[iCUTLEVEL][photon_category]         );
           ph_passcut[iCUTLEVEL][4] = (val_hoe              <=   cic4_cut_lead_hovere[iCUTLEVEL][photon_category]        );
           ph_passcut[iCUTLEVEL][5] = (val_r9             >=     cic4_cut_lead_r9[iCUTLEVEL][photon_category]            );// gt cut
-	  if( runZeeValidation ) { 
-	    ph_passcut[iCUTLEVEL][6] = ! val_pho_isconv;
-	  } else {
-	    ph_passcut[iCUTLEVEL][6] = (val_drtotk_25_99   >=     cic4_cut_lead_drtotk_25_99[iCUTLEVEL][photon_category]  );// gt cut
-	    ph_passcut[iCUTLEVEL][7] = (val_pixel            <=   cic4_cut_lead_pixel[iCUTLEVEL][photon_category]         );
-	  }
+      if( runZeeValidation ) { 
+        ph_passcut[iCUTLEVEL][6] = ! val_pho_isconv;
+      } else {
+        ph_passcut[iCUTLEVEL][6] = (val_drtotk_25_99   >=     cic4_cut_lead_drtotk_25_99[iCUTLEVEL][photon_category]  );// gt cut
+        ph_passcut[iCUTLEVEL][7] = (val_pixel            <=   cic4_cut_lead_pixel[iCUTLEVEL][photon_category]         );
+      }
           break;
       }
       bool ph_passcut_all = true;
@@ -3587,12 +3585,12 @@ int LoopAll::PhotonCiCSelectionLevel( int photon_index, int vertex_index, std::v
           ph_passcut[iCUTLEVEL][3] = (val_sieie            <=   cic6_cut_sublead_sieie[iCUTLEVEL][photon_category]         );
           ph_passcut[iCUTLEVEL][4] = (val_hoe              <=   cic6_cut_sublead_hovere[iCUTLEVEL][photon_category]        );
           ph_passcut[iCUTLEVEL][5] = (val_r9             >=     cic6_cut_sublead_r9[iCUTLEVEL][photon_category]            );// gt cut
-	  if( runZeeValidation ) { 
-	    ph_passcut[iCUTLEVEL][6] = ! val_pho_isconv;
-	  } else {
-	    ph_passcut[iCUTLEVEL][6] = (val_drtotk_25_99   >=     cic6_cut_sublead_drtotk_25_99[iCUTLEVEL][photon_category]  );// gt cut
-	    ph_passcut[iCUTLEVEL][7] = (val_pixel            <=   cic6_cut_sublead_pixel[iCUTLEVEL][photon_category]         );
-	  }
+      if( runZeeValidation ) { 
+        ph_passcut[iCUTLEVEL][6] = ! val_pho_isconv;
+      } else {
+        ph_passcut[iCUTLEVEL][6] = (val_drtotk_25_99   >=     cic6_cut_sublead_drtotk_25_99[iCUTLEVEL][photon_category]  );// gt cut
+        ph_passcut[iCUTLEVEL][7] = (val_pixel            <=   cic6_cut_sublead_pixel[iCUTLEVEL][photon_category]         );
+      }
           break;
         case(4) :
           ph_passcut[iCUTLEVEL][0] = (val_isosumoet        <=   cic4_cut_sublead_isosumoet[iCUTLEVEL][photon_category]     );
@@ -3601,12 +3599,12 @@ int LoopAll::PhotonCiCSelectionLevel( int photon_index, int vertex_index, std::v
           ph_passcut[iCUTLEVEL][3] = (val_sieie            <=   cic4_cut_sublead_sieie[iCUTLEVEL][photon_category]         );
           ph_passcut[iCUTLEVEL][4] = (val_hoe              <=   cic4_cut_sublead_hovere[iCUTLEVEL][photon_category]        );
           ph_passcut[iCUTLEVEL][5] = (val_r9             >=     cic4_cut_sublead_r9[iCUTLEVEL][photon_category]            );// gt cut
-	  if( runZeeValidation ) { 
-	    ph_passcut[iCUTLEVEL][6] = ! val_pho_isconv;
-	  } else {
-	    ph_passcut[iCUTLEVEL][6] = (val_drtotk_25_99   >=     cic4_cut_sublead_drtotk_25_99[iCUTLEVEL][photon_category]  );// gt cut
-	    ph_passcut[iCUTLEVEL][7] = (val_pixel            <=   cic4_cut_sublead_pixel[iCUTLEVEL][photon_category]         );
-	  }
+      if( runZeeValidation ) { 
+        ph_passcut[iCUTLEVEL][6] = ! val_pho_isconv;
+      } else {
+        ph_passcut[iCUTLEVEL][6] = (val_drtotk_25_99   >=     cic4_cut_sublead_drtotk_25_99[iCUTLEVEL][photon_category]  );// gt cut
+        ph_passcut[iCUTLEVEL][7] = (val_pixel            <=   cic4_cut_sublead_pixel[iCUTLEVEL][photon_category]         );
+      }
           break;
       }
       bool ph_passcut_all = true;
@@ -3915,14 +3913,14 @@ void LoopAll::DefineUserBranches()
 
 
   //correctMETinRED
-	BRANCH_DICT(shiftMET_pt);
-	BRANCH_DICT(shiftMET_phi);
-	BRANCH_DICT(smearMET_pt);
-	BRANCH_DICT(smearMET_phi);
-	BRANCH_DICT(shiftscaleMET_pt);
-	BRANCH_DICT(shiftscaleMET_phi);
-	BRANCH_DICT(shiftsmearMET_pt);
-	BRANCH_DICT(shiftsmearMET_phi);
+    BRANCH_DICT(shiftMET_pt);
+    BRANCH_DICT(shiftMET_phi);
+    BRANCH_DICT(smearMET_pt);
+    BRANCH_DICT(smearMET_phi);
+    BRANCH_DICT(shiftscaleMET_pt);
+    BRANCH_DICT(shiftscaleMET_phi);
+    BRANCH_DICT(shiftsmearMET_pt);
+    BRANCH_DICT(shiftsmearMET_phi);
 
 
 
@@ -4226,8 +4224,6 @@ int LoopAll::ElectronSelection2012(TLorentzVector& pho1, TLorentzVector& pho2, i
       if(el_std_sieie[indel]>=0.03) continue; 
       if (el_std_hoe[indel]>=0.10) continue;
     }
-			   
-    
   
     
     if(std::min( pho1.DeltaR(*thisel), pho2.DeltaR(*thisel))<=0.7) continue;

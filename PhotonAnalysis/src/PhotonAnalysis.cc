@@ -97,9 +97,9 @@ void readEnergyScaleOffsets(const std::string &fname, EnergySmearer::energySmear
             escaleOffsets.back().scale_offset_error["EEHighR9"] = 0.;
             escaleOffsets.back().scale_offset_error["EELowR9"]  = 0.;
         } else if( sscanf(line,"%s %d %f %f %f %f %d %d %f %f", &catname, &type, &mineta, &maxeta, &minr9, &maxr9, &first, &last, &offset, &err  ) == 10 ) { 
-	    std::cerr << "Energy scale (or smering) by run " <<  catname << " " << type << " " << mineta << " " << maxeta << " " << minr9 << " " << maxr9 << " " << first << " " << last << " " << offset << " " << err << std::endl;
-	    
-	    assert( type>=0 && type<=2 );
+        std::cerr << "Energy scale (or smering) by run " <<  catname << " " << type << " " << mineta << " " << maxeta << " " << minr9 << " " << maxr9 << " " << first << " " << last << " " << offset << " " << err << std::endl;
+        
+        assert( type>=0 && type<=2 );
 
             EnergySmearer::energySmearingParameters::eScaleVector::reverse_iterator escaleOffset = 
                 find(escaleOffsets.rbegin(),escaleOffsets.rend(),std::make_pair(first,last));
@@ -151,38 +151,38 @@ void PhotonAnalysis::loadPuWeights(int typid, TDirectory * puFile, TH1 * target)
 
     TH1 * hweigh = (TH1*) puFile->Get("pileup_weights");
     if( hweigh == 0 ) {
-	if( PADEBUG ) std::cout << "pileup_weights not found: trying weights " << endl;
-	hweigh = (TH1*) puFile->Get("weights");
+    if( PADEBUG ) std::cout << "pileup_weights not found: trying weights " << endl;
+    hweigh = (TH1*) puFile->Get("weights");
     }
     TH1 * gen_pu = (TH1*)puFile->Get("pileup");
     if( gen_pu == 0 ) {
-	if( PADEBUG ) std::cout << "pileup not found: trying generated_pu " << endl;
-	gen_pu = (TH1*)puFile->Get("generated_pu");
+    if( PADEBUG ) std::cout << "pileup not found: trying generated_pu " << endl;
+    gen_pu = (TH1*)puFile->Get("generated_pu");
     }
     
     assert( gen_pu != 0 );
     bool delHwei = false;
     if( target != 0 ) {
-	// compute weights on the fly based on the target pileup scenario
-	if( hweigh == 0 ) { 
-	    hweigh = (TH1*)gen_pu->Clone(); 
-	    delHwei = true;
-	}
-	hweigh->Reset("ICE");
-	for( int ii=1; ii<hweigh->GetNbinsX(); ++ii ) {
-	    hweigh->SetBinContent( ii, target->GetBinContent( target->FindBin( hweigh->GetBinCenter(ii) ) ) );
-	}
-	hweigh->Divide(hweigh, gen_pu, 1., 1./gen_pu->Integral() );
+    // compute weights on the fly based on the target pileup scenario
+    if( hweigh == 0 ) { 
+        hweigh = (TH1*)gen_pu->Clone(); 
+        delHwei = true;
+    }
+    hweigh->Reset("ICE");
+    for( int ii=1; ii<hweigh->GetNbinsX(); ++ii ) {
+        hweigh->SetBinContent( ii, target->GetBinContent( target->FindBin( hweigh->GetBinCenter(ii) ) ) );
+    }
+    hweigh->Divide(hweigh, gen_pu, 1., 1./gen_pu->Integral() );
     } else { 
-	// Normalize weights such that the total cross section is unchanged
-	TH1 * eff = (TH1*)hweigh->Clone("eff");
-	eff->Multiply(gen_pu);
-	hweigh->Scale( gen_pu->Integral() / eff->Integral()  );
-	delete eff;
+    // Normalize weights such that the total cross section is unchanged
+    TH1 * eff = (TH1*)hweigh->Clone("eff");
+    eff->Multiply(gen_pu);
+    hweigh->Scale( gen_pu->Integral() / eff->Integral()  );
+    delete eff;
     }
     weights[typid].clear();
     for( int ii=1; ii<hweigh->GetNbinsX(); ++ii ) {
-	weights[typid].push_back(hweigh->GetBinContent(ii)); 
+    weights[typid].push_back(hweigh->GetBinContent(ii)); 
     }
 
     std::cout << "pile-up weights: ["<<typid<<"]";
@@ -197,13 +197,13 @@ float PhotonAnalysis::getPuWeight(int n_pu, int sample_type, SampleContainer* co
 {
     if ( sample_type !=0 && puHist != "") {
         bool hasSpecificWeight = weights.find( sample_type ) != weights.end() ; 
-	if( ! hasSpecificWeight && container != 0 && container->pileup != 0 ) {
-	    std::cout << "On-the fly pileup reweighing typeid " << sample_type << " " << container->pileup << std::endl;
-	    TFile * samplePu = TFile::Open(container->pileup.c_str());
-	    loadPuWeights(sample_type, samplePu, puTargetHist);
-	    samplePu->Close();
-	    hasSpecificWeight = true;
-	} else if( sample_type < 0 && !hasSpecificWeight && warnMe ) {
+    if( ! hasSpecificWeight && container != 0 && container->pileup != 0 ) {
+        std::cout << "On-the fly pileup reweighing typeid " << sample_type << " " << container->pileup << std::endl;
+        TFile * samplePu = TFile::Open(container->pileup.c_str());
+        loadPuWeights(sample_type, samplePu, puTargetHist);
+        samplePu->Close();
+        hasSpecificWeight = true;
+    } else if( sample_type < 0 && !hasSpecificWeight && warnMe ) {
             std::cerr  << "WARNING no pu weights specific for sample " << sample_type << std::endl;
         }
         std::vector<double> & puweights = hasSpecificWeight ? weights[ sample_type ] : weights[0]; 
@@ -222,32 +222,32 @@ void PhotonAnalysis::applyGenLevelSmearings(double & genLevWeight, const TLorent
 {
     static int nwarnings=10;
     for(std::vector<BaseGenLevelSmearer*>::iterator si=genLevelSmearers_.begin(); si!=genLevelSmearers_.end(); si++){
-	float genWeight=1;
-	if( sys != 0 && *si == *sys ) { 
-	    (*si)->smearEvent(genWeight, gP4, npu, sample_type, syst_shift );
-	} else {
-	    (*si)->smearEvent(genWeight, gP4, npu, sample_type, 0. );
-	}
-	if( genWeight < 0. ) {
-	    if( syst_shift == 0. ) {
-		std::cerr << "Negative weight from smearer " << (*si)->name() << std::endl;
-		assert(0);
-	    } else { 
-		if( nwarnings-- > 0 ) {
-		    std::cout <<  "WARNING: negative during systematic scan in " << (*si)->name() << " " << genWeight << std::endl;
-		}
-		genWeight = 0.;
-	    }
-	}
-	genLevWeight*=genWeight;
+    float genWeight=1;
+    if( sys != 0 && *si == *sys ) { 
+        (*si)->smearEvent(genWeight, gP4, npu, sample_type, syst_shift );
+    } else {
+        (*si)->smearEvent(genWeight, gP4, npu, sample_type, 0. );
+    }
+    if( genWeight < 0. ) {
+        if( syst_shift == 0. ) {
+        std::cerr << "Negative weight from smearer " << (*si)->name() << std::endl;
+        assert(0);
+        } else { 
+        if( nwarnings-- > 0 ) {
+            std::cout <<  "WARNING: negative during systematic scan in " << (*si)->name() << " " << genWeight << std::endl;
+        }
+        genWeight = 0.;
+        }
+    }
+    genLevWeight*=genWeight;
     }
 }
 
 // ----------------------------------------------------------------------------------------------------
 void PhotonAnalysis::applySinglePhotonSmearings(std::vector<float> & smeared_pho_energy, std::vector<float> & smeared_pho_r9, std::vector<float> & smeared_pho_weight,
-						int cur_type, const LoopAll & l, const float * energyCorrected, const float * energyCorrectedError,
-						BaseSmearer * sys, float syst_shift
-						
+                        int cur_type, const LoopAll & l, const float * energyCorrected, const float * energyCorrectedError,
+                        BaseSmearer * sys, float syst_shift
+                        
     )
 {
     static int nwarnings = 10;
@@ -256,46 +256,46 @@ void PhotonAnalysis::applySinglePhotonSmearings(std::vector<float> & smeared_pho
     smeared_pho_r9.resize(l.pho_n,0.);
     smeared_pho_weight.resize(l.pho_n,0.);
     for(int ipho=0; ipho<l.pho_n; ++ipho ) { 
-	
+    
         std::vector<std::vector<bool> > p;
         PhotonReducedInfo phoInfo (
-	    *((TVector3*)     l.sc_xyz->At(l.pho_scind[ipho])), 
-	    ((TLorentzVector*)l.pho_p4->At(ipho))->Energy(), 
-	    energyCorrected[ipho],
-	    l.pho_isEB[ipho], l.pho_r9[ipho],
-	    true, // WARNING  setting pass photon ID flag for all photons. This is safe as long as only selected photons are used
-	    (energyCorrectedError!=0?energyCorrectedError[ipho]:0)
-	    );
-	
-	int ieta, iphi;
-	l.getIetaIPhi(ipho,ieta,iphi);
-	phoInfo.addSmearingSeed( (unsigned int)l.sc_raw[l.pho_scind[ipho]] + abs(ieta) + abs(iphi) + l.run + l.event + l.lumis ); 
-	phoInfo.setSphericalPhoton(l.CheckSphericalPhoton(ieta,iphi));
+        *((TVector3*)     l.sc_xyz->At(l.pho_scind[ipho])), 
+        ((TLorentzVector*)l.pho_p4->At(ipho))->Energy(), 
+        energyCorrected[ipho],
+        l.pho_isEB[ipho], l.pho_r9[ipho],
+        true, // WARNING  setting pass photon ID flag for all photons. This is safe as long as only selected photons are used
+        (energyCorrectedError!=0?energyCorrectedError[ipho]:0)
+        );
+    
+    int ieta, iphi;
+    l.getIetaIPhi(ipho,ieta,iphi);
+    phoInfo.addSmearingSeed( (unsigned int)l.sc_raw[l.pho_scind[ipho]] + abs(ieta) + abs(iphi) + l.run + l.event + l.lumis ); 
+    phoInfo.setSphericalPhoton(l.CheckSphericalPhoton(ieta,iphi));
 
-	// FIXME add seed to syst smearings
-	
+    // FIXME add seed to syst smearings
+    
         float pweight = 1.;
         // smear MC. But apply energy corrections and scale adjustement to data 
         if( cur_type != 0 && doMCSmearing ) {
             for(std::vector<BaseSmearer *>::iterator si=photonSmearers_.begin(); si!= photonSmearers_.end(); ++si ) {
                 float sweight = 1.;
-		if( sys != 0 && *si == *sys ) {
-		    // move the smearer under study by syst_shift
-		    (*si)->smearPhoton(phoInfo,sweight,l.run,syst_shift);
-		} else {
-		    // for the other use the nominal points
-		    (*si)->smearPhoton(phoInfo,sweight,l.run,0.);
-		}
+        if( sys != 0 && *si == *sys ) {
+            // move the smearer under study by syst_shift
+            (*si)->smearPhoton(phoInfo,sweight,l.run,syst_shift);
+        } else {
+            // for the other use the nominal points
+            (*si)->smearPhoton(phoInfo,sweight,l.run,0.);
+        }
                 if( sweight < 0. ) {
-		    if( syst_shift == 0. ) {
-			std::cerr << "Negative weight from smearer " << (*si)->name() << std::endl;
-			assert(0);
-		    } else { 
-			if( nwarnings-- > 0 ) {
-			    std::cout <<  "WARNING: negative during systematic scan in " << (*si)->name() << std::endl;
-			}
-			sweight = 0.;
-		    }
+            if( syst_shift == 0. ) {
+            std::cerr << "Negative weight from smearer " << (*si)->name() << std::endl;
+            assert(0);
+            } else { 
+            if( nwarnings-- > 0 ) {
+                std::cout <<  "WARNING: negative during systematic scan in " << (*si)->name() << std::endl;
+            }
+            sweight = 0.;
+            }
                 }
                 pweight *= sweight;
             }
@@ -316,8 +316,8 @@ void PhotonAnalysis::applySinglePhotonSmearings(std::vector<float> & smeared_pho
 
 // ----------------------------------------------------------------------------------------------------
 void PhotonAnalysis::fillDiphoton(TLorentzVector & lead_p4, TLorentzVector & sublead_p4, TLorentzVector & Higgs,
-				  float & lead_r9, float & sublead_r9, TVector3 *& vtx, const float * energy,
-				  const LoopAll & l, int diphoton_id)
+                  float & lead_r9, float & sublead_r9, TVector3 *& vtx, const float * energy,
+                  const LoopAll & l, int diphoton_id)
 {
     lead_p4 = l.get_pho_p4( l.dipho_leadind[diphoton_id], l.dipho_vtxind[diphoton_id], energy);
     sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphoton_id], l.dipho_vtxind[diphoton_id], energy);
@@ -329,28 +329,28 @@ void PhotonAnalysis::fillDiphoton(TLorentzVector & lead_p4, TLorentzVector & sub
 
 // ----------------------------------------------------------------------------------------------------
 void PhotonAnalysis::applyDiPhotonSmearings(TLorentzVector & Higgs, TVector3 & vtx, int category, int cur_type, const TVector3 & truevtx, 
-					    float & evweight, float & idmva1, float & idmva2,
-					    BaseDiPhotonSmearer * sys, float syst_shift)
+                        float & evweight, float & idmva1, float & idmva2,
+                        BaseDiPhotonSmearer * sys, float syst_shift)
 {
     static int nwarnings=10;
     float pth = Higgs.Pt();
     for(std::vector<BaseDiPhotonSmearer *>::iterator si=diPhotonSmearers_.begin(); si!= diPhotonSmearers_.end(); ++si ) {
         float rewei=1.;
-	if( sys != 0 && *si == *sys ) { 
-	    (*si)->smearDiPhoton( Higgs, vtx, rewei, category, cur_type, truevtx, idmva1, idmva2, syst_shift );
-	} else {
-	    (*si)->smearDiPhoton( Higgs, vtx, rewei, category, cur_type, truevtx, idmva1, idmva2, 0. );
-	}
+    if( sys != 0 && *si == *sys ) { 
+        (*si)->smearDiPhoton( Higgs, vtx, rewei, category, cur_type, truevtx, idmva1, idmva2, syst_shift );
+    } else {
+        (*si)->smearDiPhoton( Higgs, vtx, rewei, category, cur_type, truevtx, idmva1, idmva2, 0. );
+    }
         if( rewei < 0. ) {
-	    if( syst_shift == 0. ) {
-		std::cerr << "Negative weight from smearer " << (*si)->name() << std::endl;
-		assert(0);
-	    } else { 
-		if( nwarnings-- > 0 ) {
-		    std::cout <<  "WARNING: negative during systematic scan in " << (*si)->name() << std::endl;
-		}
-		rewei = 0.;
-	    }
+        if( syst_shift == 0. ) {
+        std::cerr << "Negative weight from smearer " << (*si)->name() << std::endl;
+        assert(0);
+        } else { 
+        if( nwarnings-- > 0 ) {
+            std::cout <<  "WARNING: negative during systematic scan in " << (*si)->name() << std::endl;
+        }
+        rewei = 0.;
+        }
         }
         evweight *= rewei;
     }
@@ -576,14 +576,14 @@ void PhotonAnalysis::Init(LoopAll& l)
         float cic6_cuts_sublead[phoNCUTS][phoCiC6NCATEGORIES];
         float cic4_cuts_lead[phoNCUTS][phoCiC4NCATEGORIES];
         float cic4_cuts_sublead[phoNCUTS][phoCiC4NCATEGORIES];
-	    float cic4pf_cuts_lead[phoNCUTS][phoCiC4NCATEGORIES];
+        float cic4pf_cuts_lead[phoNCUTS][phoCiC4NCATEGORIES];
         float cic4pf_cuts_sublead[phoNCUTS][phoCiC4NCATEGORIES];
 
         // get the cut values for the current photon CIC level 
         l.SetPhotonCutsInCategories((LoopAll::phoCiCIDLevel)iLevel, 
                 &cic6_cuts_lead[0][0], &cic6_cuts_sublead[0][0], 
                 &cic4_cuts_lead[0][0], &cic4_cuts_sublead[0][0],
-	            &cic4pf_cuts_lead[0][0], &cic4pf_cuts_sublead[0][0]);
+                &cic4pf_cuts_lead[0][0], &cic4pf_cuts_sublead[0][0]);
         
         // rearrange the returned values to arrays with more meaningful names
         float * cic6_cuts_arrays_lead[phoNCUTS] = {
@@ -629,8 +629,8 @@ void PhotonAnalysis::Init(LoopAll& l)
             &l.cic4_cut_sublead_drtotk_25_99[0][0], 
             &l.cic4_cut_sublead_pixel[0][0]
         };
-	
-	float * cic4pf_cuts_arrays_lead[phoNCUTS] = {
+    
+    float * cic4pf_cuts_arrays_lead[phoNCUTS] = {
             &l.cic4pf_cut_lead_isosumoet[0][0], 
             &l.cic4pf_cut_lead_isosumoetbad[0][0], 
             &l.cic4pf_cut_lead_trkisooet[0][0], 
@@ -663,20 +663,20 @@ void PhotonAnalysis::Init(LoopAll& l)
             for(int iCat=0; iCat<phoCiC4NCATEGORIES; ++iCat) {
                 cic4pf_cuts_arrays_lead[iCut][iLevel*phoCiC4NCATEGORIES+iCat] = cic4pf_cuts_lead[iCut][iCat];
                 cic4pf_cuts_arrays_sublead[iCut][iLevel*phoCiC4NCATEGORIES+iCat] = cic4pf_cuts_sublead[iCut][iCat];
-	    }
+        }
         }
     } // end of loop over all photon cut levels
     
     //--------------------
 
     if( tmvaPerVtxWeights != ""  ) {
-	if( tmvaPerVtxVariables.empty() ) {
-	    tmvaPerVtxVariables.push_back("ptbal"), tmvaPerVtxVariables.push_back("ptasym"), tmvaPerVtxVariables.push_back("logsumpt2");
-	    if( addConversionToMva ) {
-		tmvaPerVtxVariables.push_back("limPullToConv");
-		tmvaPerVtxVariables.push_back("nConv");
-	    }
-	}
+    if( tmvaPerVtxVariables.empty() ) {
+        tmvaPerVtxVariables.push_back("ptbal"), tmvaPerVtxVariables.push_back("ptasym"), tmvaPerVtxVariables.push_back("logsumpt2");
+        if( addConversionToMva ) {
+        tmvaPerVtxVariables.push_back("limPullToConv");
+        tmvaPerVtxVariables.push_back("nConv");
+        }
+    }
         tmvaPerVtxReader_ = new TMVA::Reader( "!Color:!Silent" );
         HggVertexAnalyzer::bookVariables( *tmvaPerVtxReader_, tmvaPerVtxVariables );
         tmvaPerVtxReader_->BookMVA( tmvaPerVtxMethod, tmvaPerVtxWeights );
@@ -814,16 +814,16 @@ void PhotonAnalysis::Init(LoopAll& l)
             cout << "Opening PU file"<<endl;
         TFile* puFile = TFile::Open( puHist );
         if (puFile) {
-	    TH1 * target = 0;
-	    
-	    if( puTarget != "" ) {
-		TFile * puTargetFile = TFile::Open( puTarget ); 
-		assert( puTargetFile != 0 );
-		target = (TH1*)puTargetFile->Get("pileup");
-		if( target == 0 ) { target = (TH1*)puTargetFile->Get("target_pileup"); }
-		target->Scale( 1. / target->Integral() );
-	    }
-	    
+        TH1 * target = 0;
+        
+        if( puTarget != "" ) {
+        TFile * puTargetFile = TFile::Open( puTarget ); 
+        assert( puTargetFile != 0 );
+        target = (TH1*)puTargetFile->Get("pileup");
+        if( target == 0 ) { target = (TH1*)puTargetFile->Get("target_pileup"); }
+        target->Scale( 1. / target->Integral() );
+        }
+        
             if( puMap != "" ) {
                 loadPuMap(puMap, puFile, target); 
             } else {
@@ -839,24 +839,24 @@ void PhotonAnalysis::Init(LoopAll& l)
         if(PADEBUG) 
             cout << "Opening PU file END"<<endl;
     } else if ( puHist == "auto" ) {
-	TFile * puTargetFile = TFile::Open( puTarget ); 
-	assert( puTargetFile != 0 );
-	puTargetHist = (TH1*)puTargetFile->Get("pileup");
-	if( puTargetHist == 0 ) { puTargetHist = (TH1*)puTargetFile->Get("target_pileup"); }
-	puTargetHist = (TH1*)puTargetHist->Clone();
-	puTargetHist->SetDirectory(0);
-	puTargetHist->Scale( 1. / puTargetHist->Integral() );
-	puTargetFile->Close();
+    TFile * puTargetFile = TFile::Open( puTarget ); 
+    assert( puTargetFile != 0 );
+    puTargetHist = (TH1*)puTargetFile->Get("pileup");
+    if( puTargetHist == 0 ) { puTargetHist = (TH1*)puTargetFile->Get("target_pileup"); }
+    puTargetHist = (TH1*)puTargetHist->Clone();
+    puTargetHist->SetDirectory(0);
+    puTargetHist->Scale( 1. / puTargetHist->Integral() );
+    puTargetFile->Close();
     }
 
     if( recomputeBetas || recorrectJets || rerunJetMva || recomputeJetWp ) {
-	std::cout << "JetHandler: \n" 
-		  << "recomputeBetas " << recomputeBetas << "\n" 
-		  << "recorrectJets " << recorrectJets << "\n" 
-		  << "rerunJetMva " << rerunJetMva << "\n" 
-		  << "recomputeJetWp " << recomputeJetWp 
-		  << std::endl;
-	jetHandler_ = new JetHandler(jetHandlerCfg, l);
+    std::cout << "JetHandler: \n" 
+          << "recomputeBetas " << recomputeBetas << "\n" 
+          << "recorrectJets " << recorrectJets << "\n" 
+          << "rerunJetMva " << rerunJetMva << "\n" 
+          << "recomputeJetWp " << recomputeJetWp 
+          << std::endl;
+    jetHandler_ = new JetHandler(jetHandlerCfg, l);
     }
 
     // Load up instances of PhotonFix for local coordinate calculations
@@ -1179,7 +1179,7 @@ void PhotonAnalysis::PreselectPhotons(LoopAll& l, int jentry)
     ////// std::vector<float> smeared_pho_r9, smeared_pho_weight;
     ////// 
     ////// applySinglePhotonSmearings(smeared_pho_energy, smeared_pho_r9, smeared_pho_weight,
-    ////// 			       cur_type, l, energyCorrected, energyCorrectedError);
+    //////                    cur_type, l, energyCorrected, energyCorrectedError);
     
     for(int ipho=0; ipho<l.pho_n; ++ipho ) { 
         std::vector<std::vector<bool> > p;
@@ -1195,12 +1195,12 @@ void PhotonAnalysis::PreselectPhotons(LoopAll& l, int jentry)
         float pweight = 1.;
         float sweight = 1.;
         float eta = fabs(((TVector3 *)l.sc_xyz->At(l.pho_scind[ipho]))->Eta());
-    	
+        
         if( doEcorrectionSmear )  { 
             eCorrSmearer->smearPhoton(phoInfo,sweight,l.run,0.); 
         } 
-    	/// FIXME deterministic smearing on MC photons
-    	if( cur_type == 0 ) {          // correct energy scale in data
+        /// FIXME deterministic smearing on MC photons
+        if( cur_type == 0 ) {          // correct energy scale in data
             float ebefore = phoInfo.energy();
             eScaleDataSmearer->smearPhoton(phoInfo,sweight,l.run,0.);
             pweight *= sweight;
@@ -1226,7 +1226,7 @@ void PhotonAnalysis::PreselectPhotons(LoopAll& l, int jentry)
         float et = p4.Energy();
         pho_et.push_back(et);
     
-	if( eta>1.4442 && eta<1.566 ) { 
+    if( eta>1.4442 && eta<1.566 ) { 
             continue;  
         }
         pho_acc.push_back(ipho);
@@ -1269,24 +1269,24 @@ void PhotonAnalysis::FillReductionVariables(LoopAll& l, int jentry)
 void PhotonAnalysis::postProcessJets(LoopAll & l, int vtx) 
 {
     for(int ijet=0; ijet<l.jet_algoPF1_n; ++ijet) {
-	int minv = 0, maxv = l.vtx_std_n;
-	if( vtx!=-1 ){
-	    minv = vtx;
-	    maxv = vtx+1;
-	}
-	if( recorrectJets ) {
-	    jetHandler_->recomputeJec(ijet, true);
-	}
-	for(int ivtx=minv;ivtx<maxv; ++ivtx) {
-	    if( recomputeBetas ) {
-		jetHandler_->computeBetas(ijet, ivtx);
-	    }
-	    if( rerunJetMva ) {
-		jetHandler_->computeMva(ijet, ivtx);
-	    } else if ( recomputeJetWp ) {
-		jetHandler_->computeWp(ijet, ivtx);
-	    }
-	}
+    int minv = 0, maxv = l.vtx_std_n;
+    if( vtx!=-1 ){
+        minv = vtx;
+        maxv = vtx+1;
+    }
+    if( recorrectJets ) {
+        jetHandler_->recomputeJec(ijet, true);
+    }
+    for(int ivtx=minv;ivtx<maxv; ++ivtx) {
+        if( recomputeBetas ) {
+        jetHandler_->computeBetas(ijet, ivtx);
+        }
+        if( rerunJetMva ) {
+        jetHandler_->computeMva(ijet, ivtx);
+        } else if ( recomputeJetWp ) {
+        jetHandler_->computeWp(ijet, ivtx);
+        }
+    }
     }
 }
 
@@ -1294,14 +1294,14 @@ void PhotonAnalysis::postProcessJets(LoopAll & l, int vtx)
 void PhotonAnalysis::switchJetIdVertex(LoopAll &l, int ivtx) 
 {
     for(int ii=0; ii<l.jet_algoPF1_n; ++ii) {
-	l.jet_algoPF1_beta[ii]              = (*l.jet_algoPF1_beta_ext)[ii][ivtx];
-    	l.jet_algoPF1_betaStar[ii]          = (*l.jet_algoPF1_betaStar_ext)[ii][ivtx];
-    	l.jet_algoPF1_betaStarClassic[ii]   = (*l.jet_algoPF1_betaStarClassic_ext)[ii][ivtx];
-    	l.jet_algoPF1_simple_mva[ii]        = (*l.jet_algoPF1_simple_mva_ext)[ii][ivtx];
-    	l.jet_algoPF1_full_mva[ii]          = (*l.jet_algoPF1_full_mva_ext)[ii][ivtx];
-    	l.jet_algoPF1_simple_wp_level[ii]   = (*l.jet_algoPF1_simple_wp_level_ext)[ii][ivtx];
-    	l.jet_algoPF1_full_wp_level[ii]     = (*l.jet_algoPF1_full_wp_level_ext)[ii][ivtx];
-    	l.jet_algoPF1_cutbased_wp_level[ii] = (*l.jet_algoPF1_cutbased_wp_level_ext)[ii][ivtx];
+    l.jet_algoPF1_beta[ii]              = (*l.jet_algoPF1_beta_ext)[ii][ivtx];
+        l.jet_algoPF1_betaStar[ii]          = (*l.jet_algoPF1_betaStar_ext)[ii][ivtx];
+        l.jet_algoPF1_betaStarClassic[ii]   = (*l.jet_algoPF1_betaStarClassic_ext)[ii][ivtx];
+        l.jet_algoPF1_simple_mva[ii]        = (*l.jet_algoPF1_simple_mva_ext)[ii][ivtx];
+        l.jet_algoPF1_full_mva[ii]          = (*l.jet_algoPF1_full_mva_ext)[ii][ivtx];
+        l.jet_algoPF1_simple_wp_level[ii]   = (*l.jet_algoPF1_simple_wp_level_ext)[ii][ivtx];
+        l.jet_algoPF1_full_wp_level[ii]     = (*l.jet_algoPF1_full_wp_level_ext)[ii][ivtx];
+        l.jet_algoPF1_cutbased_wp_level[ii] = (*l.jet_algoPF1_cutbased_wp_level_ext)[ii][ivtx];
     }
 }
 
@@ -1330,7 +1330,7 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
     if( forcedRho >= 0. ) {
         l.rho = forcedRho;
     } else if ( l.rho == 0. ) {
-	l.rho = l.rho_algo1;
+        l.rho = l.rho_algo1;
     }
     l.FillCICInputs();
     if(reComputeCiCPF) { l.FillCICPFInputs(); }
@@ -1365,7 +1365,7 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
                 diphotons.push_back( std::make_pair( pho_presel[ip], pho_presel[jp] ) );
             }
         }
-	l.dipho_n = 0;
+        l.dipho_n = 0;
         for(size_t id=0; id<diphotons.size(); ++id ) {
             
             int ipho1 = diphotons[id].first;
@@ -1377,32 +1377,32 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
             if(PADEBUG) cout << " SelectEventsReduction done with fill photon info " << endl;
             
             l.vertexAnalysis(vtxAna_, pho1, pho2 );
-	    std::vector<int> vtxs = l.vertexSelection(vtxAna_, vtxConv_, pho1, pho2, vtxVarNames, mvaVertexSelection, 
-						      tmvaPerVtxReader_, tmvaPerVtxMethod);
-	    
+            std::vector<int> vtxs = l.vertexSelection(vtxAna_, vtxConv_, pho1, pho2, vtxVarNames, mvaVertexSelection, 
+                              tmvaPerVtxReader_, tmvaPerVtxMethod);
+        
             TLorentzVector lead_p4 = l.get_pho_p4( ipho2, vtxs[0], &corrected_pho_energy[0] ).Pt();
             TLorentzVector sublead_p4 = l.get_pho_p4( ipho1, vtxs[0], &corrected_pho_energy[0] ).Pt();
 
-	    if(sublead_p4.Pt()  > lead_p4.Pt() ) {
-		std::swap( diphotons[id].first,  diphotons[id].second );
-		std::swap( lead_p4,  sublead_p4 );
-	    }
-	    
-	    if( lead_p4.Pt() < presel_scet1 || sublead_p4.Pt() < presel_scet2 || 
-		fabs(lead_p4.Eta()) > presel_maxeta || fabs(sublead_p4.Eta()) > presel_maxeta ) {
-		vtxAna_.discardLastDipho();
-	    	continue;
-	    }
+            if(sublead_p4.Pt()  > lead_p4.Pt() ) {
+                std::swap( diphotons[id].first,  diphotons[id].second );
+                std::swap( lead_p4,  sublead_p4 );
+            }
+        
+            if( lead_p4.Pt() < presel_scet1 || sublead_p4.Pt() < presel_scet2 || 
+                fabs(lead_p4.Eta()) > presel_maxeta || fabs(sublead_p4.Eta()) > presel_maxeta ) {
+                vtxAna_.discardLastDipho();
+                continue;
+            }
 
-	    if( ! l.PhotonMITPreSelection(ipho1, vtxs[0], &corrected_pho_energy[0] )
-	    	|| ! l.PhotonMITPreSelection(ipho2, vtxs[0], &corrected_pho_energy[0] ) ) {
-	    	vtxAna_.discardLastDipho();
-	    	continue;
-	    }
-	    
+            if( ! l.PhotonMITPreSelection(ipho1, vtxs[0], &corrected_pho_energy[0] )
+                || ! l.PhotonMITPreSelection(ipho2, vtxs[0], &corrected_pho_energy[0] ) ) {
+                vtxAna_.discardLastDipho();
+                continue;
+            }
+            
             l.vtx_std_ranked_list->push_back(vtxs);
-	    if( tmvaPerEvtReader_ ) {
-		float vtxEvtMva = vtxAna_.perEventMva( *tmvaPerEvtReader_, tmvaPerEvtMethod, l.vtx_std_ranked_list->back() );
+            if( tmvaPerEvtReader_ ) {
+                float vtxEvtMva = vtxAna_.perEventMva( *tmvaPerEvtReader_, tmvaPerEvtMethod, l.vtx_std_ranked_list->back() );
                 l.vtx_std_evt_mva->push_back(vtxEvtMva);
             }
             if( l.vtx_std_ranked_list->back().size() != 0 && ! useDefaultVertex ) {  
@@ -1423,38 +1423,39 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
                 maxSumPt = l.dipho_sumpt[l.dipho_n];
             }
 
+            //correctedMETvariables
+            TLorentzVector unpfMET;
+            unpfMET.SetPxPyPzE (l.met_pfmet*cos(l.met_phi_pfmet), 
+                                l.met_pfmet*sin(l.met_phi_pfmet),
+                                0,
+                                sqrt(l.met_pfmet*cos(l.met_phi_pfmet) * l.met_pfmet*cos(l.met_phi_pfmet) 
+                                    + l.met_pfmet*sin(l.met_phi_pfmet) * l.met_pfmet*sin(l.met_phi_pfmet)));
+            
+            bool isMC = l.itype[l.current]!=0;
+            
+            TLorentzVector shiftMET_corr = l.shiftMet(&unpfMET,isMC);
+            l.shiftMET_pt[l.dipho_n] = shiftMET_corr.Pt();
+            l.shiftMET_phi[l.dipho_n] = shiftMET_corr.Phi();
+            if (isMC) {
+                TLorentzVector smearMET_corr = l.correctMet(lead_p4, sublead_p4, l.dipho_vtxind[l.dipho_n], &unpfMET, true, false);
+                l.smearMET_pt[l.dipho_n] = smearMET_corr.Pt();
+                l.smearMET_phi[l.dipho_n] = smearMET_corr.Phi();
+            
+                TLorentzVector shiftsmearMET_corr = l.shiftMet(&smearMET_corr,isMC);
+                l.shiftsmearMET_pt[l.dipho_n] = shiftsmearMET_corr.Pt();
+                l.shiftsmearMET_phi[l.dipho_n] = shiftsmearMET_corr.Phi();
+            }    
+            TLorentzVector shiftscaleMET_corr = l.correctMet(lead_p4, sublead_p4, l.dipho_vtxind[l.dipho_n], &shiftMET_corr,false,true);
+            l.shiftscaleMET_pt[l.dipho_n] = shiftscaleMET_corr.Pt();
+            l.shiftscaleMET_phi[l.dipho_n] = shiftscaleMET_corr.Phi();
+            
             // make sure that vertex analysis indexes are in synch 
             assert( l.dipho_n == vtxAna_.pairID(ipho1,ipho2) );
-	    
-	    l.dipho_n++;
+            
+            l.dipho_n++;
         }
     }
     
-        //correctMETinRED
-	//correctedMETvariables
-	TLorentzVector unpfMET;
-	unpfMET.SetPxPyPzE ( l.met_pfmet*cos(l.met_phi_pfmet), l.met_pfmet*sin(l.met_phi_pfmet),0,sqrt(l.met_pfmet*cos(l.met_phi_pfmet) 
-	* l.met_pfmet*cos(l.met_phi_pfmet) + l.met_pfmet*sin(l.met_phi_pfmet)
-	* l.met_pfmet*sin(l.met_phi_pfmet)));
-	
-	int filetype = l.itype[l.current];
-	bool isMC = filetype!=0;
-	
-	TLorentzVector shiftMET_corr = l.shiftMet(&unpfMET,isMC);
-	l.shiftMET_pt = shiftMET_corr.Pt();
-	l.shiftMET_phi = shiftMET_corr.Phi();
-	if (isMC) {
-	  TLorentzVector smearMET_corr = l.correctMet(&unpfMET,true,false);
-	  l.smearMET_pt = smearMET_corr.Pt();
-	  l.smearMET_phi = smearMET_corr.Phi();
-	
-	  TLorentzVector shiftsmearMET_corr = l.shiftMet(&smearMET_corr,isMC);
-	  l.shiftsmearMET_pt = shiftsmearMET_corr.Pt();
-	  l.shiftsmearMET_phi = shiftsmearMET_corr.Phi();
-	}	
-	TLorentzVector shiftscaleMET_corr = l.correctMet(&shiftMET_corr,false,true);
-	l.shiftscaleMET_pt = shiftscaleMET_corr.Pt();
-	l.shiftscaleMET_phi = shiftscaleMET_corr.Phi();
 
     return true;
 }
@@ -1469,10 +1470,10 @@ bool PhotonAnalysis::SkimEvents(LoopAll& l, int jentry)
     }
     
     if( skimOnDiphoN && l.typerun == l.kFill ) {
-	l.b_dipho_n->GetEntry(jentry);
-	if( l.dipho_n < 1 ) {
-	    return false;
-	}
+    l.b_dipho_n->GetEntry(jentry);
+    if( l.dipho_n < 1 ) {
+        return false;
+    }
     }
 
     // do not run trigger selection on MC
@@ -1487,21 +1488,21 @@ bool PhotonAnalysis::SkimEvents(LoopAll& l, int jentry)
             return true;
         }
 
-	// get the trigger data
-	if( l.version < 13 ) { 
-	    l.b_hlt1_bit->GetEntry(jentry); 
-	    l.b_hlt_path_names_HLT1->GetEntry(jentry);
-	    if( !  isel->pass( *(l.hlt_path_names_HLT1), *(l.hlt1_bit) ) ) {
-		return false;
-	    }
-	} else {  
-	    l.b_hlt_bit->GetEntry(jentry); 
-	    l.b_hlt_path_names_HLT->GetEntry(jentry);
-	    if( !  isel->pass( *(l.hlt_path_names_HLT), *(l.hlt_bit) ) ) {
-		return false;
-	    }
-	}
-	//l.countersred[trigCounter_]++;
+    // get the trigger data
+    if( l.version < 13 ) { 
+        l.b_hlt1_bit->GetEntry(jentry); 
+        l.b_hlt_path_names_HLT1->GetEntry(jentry);
+        if( !  isel->pass( *(l.hlt_path_names_HLT1), *(l.hlt1_bit) ) ) {
+        return false;
+        }
+    } else {  
+        l.b_hlt_bit->GetEntry(jentry); 
+        l.b_hlt_path_names_HLT->GetEntry(jentry);
+        if( !  isel->pass( *(l.hlt_path_names_HLT), *(l.hlt_bit) ) ) {
+        return false;
+        }
+    }
+    //l.countersred[trigCounter_]++;
     }
     
     if( l.typerun == l.kReduce || l.typerun == l.kFillReduce ) {
@@ -1573,67 +1574,67 @@ void PhotonAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree)
     l.dipho_vtx_std_sel =  new std::vector<int>();
 
     if( outputTree ) {
-	l.Branch_vtx_std_evt_mva(outputTree);
-	l.Branch_vtx_std_ranked_list(outputTree);
-	l.Branch_vtx_std_sel(outputTree);
-	l.Branch_pho_tkiso_recvtx_030_002_0000_10_01(outputTree);
-	l.Branch_pho_tkiso_badvtx_040_002_0000_10_01(outputTree);
-	l.Branch_pho_tkiso_badvtx_id(outputTree);
-	l.Branch_pho_pfiso_charged_badvtx_04(outputTree);
-	l.Branch_pho_pfiso_charged_badvtx_id(outputTree);
-	l.Branch_pho_ZeeVal_tkiso_recvtx_030_002_0000_10_01(outputTree);
-	l.Branch_pho_ZeeVal_tkiso_badvtx_040_002_0000_10_01(outputTree);
-	l.Branch_pho_ZeeVal_tkiso_badvtx_id(outputTree);
-	l.Branch_pho_mitmva(outputTree);
-	l.Branch_pho_drtotk_25_99(outputTree);
-	
-	l.Branch_dipho_n(outputTree);
-	l.Branch_dipho_leadind(outputTree);
-	l.Branch_dipho_subleadind(outputTree);
-	l.Branch_dipho_vtxind(outputTree);
-	l.Branch_dipho_sumpt(outputTree);
-	
-	l.Branch_pho_cic6cutlevel_lead( outputTree );
-	l.Branch_pho_cic6passcuts_lead( outputTree );
-	l.Branch_pho_cic6cutlevel_sublead( outputTree );
-	l.Branch_pho_cic6passcuts_sublead( outputTree );
-	l.Branch_pho_cic4cutlevel_lead( outputTree );
-	l.Branch_pho_cic4passcuts_lead( outputTree );
-	l.Branch_pho_cic4cutlevel_sublead( outputTree );
-	l.Branch_pho_cic4passcuts_sublead( outputTree );
-	l.Branch_pho_cic4pfcutlevel_lead( outputTree );
-	l.Branch_pho_cic4pfpasscuts_lead( outputTree );
-	l.Branch_pho_cic4pfcutlevel_sublead( outputTree );
-	l.Branch_pho_cic4pfpasscuts_sublead( outputTree );
-	
-	l.Branch_pho_genmatched(outputTree);
-	l.Branch_pho_regr_energy_otf(outputTree);
-	l.Branch_pho_regr_energyerr_otf(outputTree);
-	
-	l.Branch_jet_algoPF1_genMatched(outputTree);
-	l.Branch_jet_algoPF1_vbfMatched(outputTree);
-	l.Branch_jet_algoPF1_genPt(outputTree);
-	l.Branch_jet_algoPF1_genDr(outputTree);
-	
-	l.Branch_jet_algoPF2_genMatched(outputTree);
-	l.Branch_jet_algoPF2_vbfMatched(outputTree);
-	l.Branch_jet_algoPF2_genPt(outputTree);
-	l.Branch_jet_algoPF2_genDr(outputTree);
-	
-	l.Branch_jet_algoPF3_genMatched(outputTree);
-	l.Branch_jet_algoPF3_vbfMatched(outputTree);
-	l.Branch_jet_algoPF3_genPt(outputTree);
-	l.Branch_jet_algoPF3_genDr(outputTree);
-	
-	//correctMETinRED
-	l.Branch_shiftMET_pt(outputTree);
-	l.Branch_shiftMET_phi(outputTree);
-	 l.Branch_smearMET_pt(outputTree);
-	 l.Branch_smearMET_phi(outputTree);
-	 l.Branch_shiftsmearMET_pt(outputTree);
-	 l.Branch_shiftsmearMET_phi(outputTree);
-	l.Branch_shiftscaleMET_pt(outputTree);
-	l.Branch_shiftscaleMET_phi(outputTree);
+    l.Branch_vtx_std_evt_mva(outputTree);
+    l.Branch_vtx_std_ranked_list(outputTree);
+    l.Branch_vtx_std_sel(outputTree);
+    l.Branch_pho_tkiso_recvtx_030_002_0000_10_01(outputTree);
+    l.Branch_pho_tkiso_badvtx_040_002_0000_10_01(outputTree);
+    l.Branch_pho_tkiso_badvtx_id(outputTree);
+    l.Branch_pho_pfiso_charged_badvtx_04(outputTree);
+    l.Branch_pho_pfiso_charged_badvtx_id(outputTree);
+    l.Branch_pho_ZeeVal_tkiso_recvtx_030_002_0000_10_01(outputTree);
+    l.Branch_pho_ZeeVal_tkiso_badvtx_040_002_0000_10_01(outputTree);
+    l.Branch_pho_ZeeVal_tkiso_badvtx_id(outputTree);
+    l.Branch_pho_mitmva(outputTree);
+    l.Branch_pho_drtotk_25_99(outputTree);
+    
+    l.Branch_dipho_n(outputTree);
+    l.Branch_dipho_leadind(outputTree);
+    l.Branch_dipho_subleadind(outputTree);
+    l.Branch_dipho_vtxind(outputTree);
+    l.Branch_dipho_sumpt(outputTree);
+    
+    l.Branch_pho_cic6cutlevel_lead( outputTree );
+    l.Branch_pho_cic6passcuts_lead( outputTree );
+    l.Branch_pho_cic6cutlevel_sublead( outputTree );
+    l.Branch_pho_cic6passcuts_sublead( outputTree );
+    l.Branch_pho_cic4cutlevel_lead( outputTree );
+    l.Branch_pho_cic4passcuts_lead( outputTree );
+    l.Branch_pho_cic4cutlevel_sublead( outputTree );
+    l.Branch_pho_cic4passcuts_sublead( outputTree );
+    l.Branch_pho_cic4pfcutlevel_lead( outputTree );
+    l.Branch_pho_cic4pfpasscuts_lead( outputTree );
+    l.Branch_pho_cic4pfcutlevel_sublead( outputTree );
+    l.Branch_pho_cic4pfpasscuts_sublead( outputTree );
+    
+    l.Branch_pho_genmatched(outputTree);
+    l.Branch_pho_regr_energy_otf(outputTree);
+    l.Branch_pho_regr_energyerr_otf(outputTree);
+    
+    l.Branch_jet_algoPF1_genMatched(outputTree);
+    l.Branch_jet_algoPF1_vbfMatched(outputTree);
+    l.Branch_jet_algoPF1_genPt(outputTree);
+    l.Branch_jet_algoPF1_genDr(outputTree);
+    
+    l.Branch_jet_algoPF2_genMatched(outputTree);
+    l.Branch_jet_algoPF2_vbfMatched(outputTree);
+    l.Branch_jet_algoPF2_genPt(outputTree);
+    l.Branch_jet_algoPF2_genDr(outputTree);
+    
+    l.Branch_jet_algoPF3_genMatched(outputTree);
+    l.Branch_jet_algoPF3_vbfMatched(outputTree);
+    l.Branch_jet_algoPF3_genPt(outputTree);
+    l.Branch_jet_algoPF3_genDr(outputTree);
+    
+    //correctMETinRED
+    l.Branch_shiftMET_pt(outputTree);
+    l.Branch_shiftMET_phi(outputTree);
+     l.Branch_smearMET_pt(outputTree);
+     l.Branch_smearMET_phi(outputTree);
+     l.Branch_shiftsmearMET_pt(outputTree);
+     l.Branch_shiftsmearMET_phi(outputTree);
+    l.Branch_shiftscaleMET_pt(outputTree);
+    l.Branch_shiftscaleMET_phi(outputTree);
     }
 
     l.gh_higgs_p4 = new TClonesArray("TLorentzVector", 1); 
@@ -1664,27 +1665,27 @@ void PhotonAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree)
     l.gh_vh2_p4->Clear();
     ((*l.gh_vh2_p4)[0]) = new TLorentzVector();
     
-//    l.METcorrected = new TClonesArray("TLorentzVector", 1); 	//met at analysis step
-//    l.METcorrected->Clear();					//met at analysis step
-//    ((*l.METcorrected)[0]) = new TLorentzVector();		//met at analysis step
+//    l.METcorrected = new TClonesArray("TLorentzVector", 1);     //met at analysis step
+//    l.METcorrected->Clear();                    //met at analysis step
+//    ((*l.METcorrected)[0]) = new TLorentzVector();        //met at analysis step
     
     
     if( outputTree ) {
-	l.Branch_gh_gen2reco1( outputTree );
-	l.Branch_gh_gen2reco2( outputTree );
-	l.Branch_gh_vbfq1_pdgid( outputTree );
-	l.Branch_gh_vbfq2_pdgid( outputTree );
-	l.Branch_gh_vh_pdgid( outputTree );
-	l.Branch_gh_vh1_pdgid( outputTree );
-	l.Branch_gh_vh2_pdgid( outputTree );
-//	l.Branch_METcorrected( outputTree );  //met at analysis step
-	l.Branch_gh_higgs_p4( outputTree );
-	l.Branch_gh_pho1_p4( outputTree );
-	l.Branch_gh_pho2_p4( outputTree );
-	l.Branch_gh_vbfq1_p4( outputTree );
-	l.Branch_gh_vbfq2_p4( outputTree );
-	l.Branch_gh_vh1_p4( outputTree );
-	l.Branch_gh_vh2_p4( outputTree );
+    l.Branch_gh_gen2reco1( outputTree );
+    l.Branch_gh_gen2reco2( outputTree );
+    l.Branch_gh_vbfq1_pdgid( outputTree );
+    l.Branch_gh_vbfq2_pdgid( outputTree );
+    l.Branch_gh_vh_pdgid( outputTree );
+    l.Branch_gh_vh1_pdgid( outputTree );
+    l.Branch_gh_vh2_pdgid( outputTree );
+//    l.Branch_METcorrected( outputTree );  //met at analysis step
+    l.Branch_gh_higgs_p4( outputTree );
+    l.Branch_gh_pho1_p4( outputTree );
+    l.Branch_gh_pho2_p4( outputTree );
+    l.Branch_gh_vbfq1_p4( outputTree );
+    l.Branch_gh_vbfq2_p4( outputTree );
+    l.Branch_gh_vh1_p4( outputTree );
+    l.Branch_gh_vh2_p4( outputTree );
     }
 }
 
@@ -2133,8 +2134,8 @@ bool PhotonAnalysis::VBFTag2011(LoopAll& l, int diphoton_id, float* smeared_pho_
 }
 
 bool PhotonAnalysis::VBFTag2012(int & ijet1, int & ijet2, 
-				LoopAll& l, int diphoton_id, float* smeared_pho_energy, bool nm1, float eventweight, 
-				float myweight, bool * jetid_flags)
+                LoopAll& l, int diphoton_id, float* smeared_pho_energy, bool nm1, float eventweight, 
+                float myweight, bool * jetid_flags)
 {
     static std::vector<unsigned char> id_flags;
     bool tag = false;
@@ -2144,12 +2145,12 @@ bool PhotonAnalysis::VBFTag2012(int & ijet1, int & ijet2,
     float jet2ptcut =25.0;
       
     if( jetid_flags == 0 ) { 
-	switchJetIdVertex( l, l.dipho_vtxind[diphoton_id] );
-	id_flags.resize(l.jet_algoPF1_n);
-	for(int ijet=0; ijet<l.jet_algoPF1_n; ++ijet ) {
-	    id_flags[ijet] = PileupJetIdentifier::passJetId(l.jet_algoPF1_cutbased_wp_level[ijet], PileupJetIdentifier::kLoose);
-	}
-	jetid_flags = (bool*)&id_flags[0];
+    switchJetIdVertex( l, l.dipho_vtxind[diphoton_id] );
+    id_flags.resize(l.jet_algoPF1_n);
+    for(int ijet=0; ijet<l.jet_algoPF1_n; ++ijet ) {
+        id_flags[ijet] = PileupJetIdentifier::passJetId(l.jet_algoPF1_cutbased_wp_level[ijet], PileupJetIdentifier::kLoose);
+    }
+    jetid_flags = (bool*)&id_flags[0];
     }
     
     TLorentzVector lead_p4    = l.get_pho_p4( l.dipho_leadind[diphoton_id], l.dipho_vtxind[diphoton_id], &smeared_pho_energy[0]);
@@ -2277,38 +2278,38 @@ void PhotonAnalysis::reVertex(LoopAll & l)
     std::vector<int> preselAll;
 
     for(int i=0; i<l.vtx_std_n ; i++) {
-	preselAll.push_back(i); 
+    preselAll.push_back(i); 
     }
     vtxAna_.preselection( preselAll );
     
     for(int id=0; id<l.dipho_n; ++id ) {
-	
-	vtxAna_.setPairID(id);
-	
-	if( rematchConversions ) {
-	    vtxAna_.setNConv(0);
-	    PhotonInfo p1 = l.fillPhotonInfos(l.dipho_leadind[id], true, 0); // WARNING using default photon energy: it's ok because we only re-do the conversion part
-	    PhotonInfo p2 = l.fillPhotonInfos(l.dipho_subleadind[id], true, 0); // WARNING using default photon energy: it's ok because we only re-do the conversion part
-	    
-	    float zconv=0., szconv=0.;
-	    vtxAna_.getZFromConvPair(zconv,  szconv, p1, p2);
-	    
-	    for(int vid=0; vid<l.vtx_std_n; ++vid) {
-		if( vtxAna_.nconv(vid) > 0 ) {
-		    assert( szconv > 0. );
-		    vtxAna_.setPullToConv( vid, fabs(  ((TVector3 *)l.vtx_std_xyz->At(vid))->Z() - zconv ) / szconv );
-		} else {
-		    vtxAna_.setPullToConv( vid, -1. );
-		}
-	    }
-	}
-	
-	l.vtx_std_ranked_list->push_back( vtxAna_.rank(*tmvaPerVtxReader_,tmvaPerVtxMethod) );
-	l.dipho_vtxind[id] = l.vtx_std_ranked_list->back()[0];
-	if( tmvaPerEvtReader_ ) {
-	    float vtxEvtMva = vtxAna_.perEventMva( *tmvaPerEvtReader_, tmvaPerEvtMethod, l.vtx_std_ranked_list->back() );
-	    l.vtx_std_evt_mva->push_back(vtxEvtMva);
-	}
+    
+    vtxAna_.setPairID(id);
+    
+    if( rematchConversions ) {
+        vtxAna_.setNConv(0);
+        PhotonInfo p1 = l.fillPhotonInfos(l.dipho_leadind[id], true, 0); // WARNING using default photon energy: it's ok because we only re-do the conversion part
+        PhotonInfo p2 = l.fillPhotonInfos(l.dipho_subleadind[id], true, 0); // WARNING using default photon energy: it's ok because we only re-do the conversion part
+        
+        float zconv=0., szconv=0.;
+        vtxAna_.getZFromConvPair(zconv,  szconv, p1, p2);
+        
+        for(int vid=0; vid<l.vtx_std_n; ++vid) {
+        if( vtxAna_.nconv(vid) > 0 ) {
+            assert( szconv > 0. );
+            vtxAna_.setPullToConv( vid, fabs(  ((TVector3 *)l.vtx_std_xyz->At(vid))->Z() - zconv ) / szconv );
+        } else {
+            vtxAna_.setPullToConv( vid, -1. );
+        }
+        }
+    }
+    
+    l.vtx_std_ranked_list->push_back( vtxAna_.rank(*tmvaPerVtxReader_,tmvaPerVtxMethod) );
+    l.dipho_vtxind[id] = l.vtx_std_ranked_list->back()[0];
+    if( tmvaPerEvtReader_ ) {
+        float vtxEvtMva = vtxAna_.perEventMva( *tmvaPerEvtReader_, tmvaPerEvtMethod, l.vtx_std_ranked_list->back() );
+        l.vtx_std_evt_mva->push_back(vtxEvtMva);
+    }
     }
 }
 
