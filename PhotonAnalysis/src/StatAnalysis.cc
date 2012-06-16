@@ -1313,11 +1313,7 @@ void StatAnalysis::rescaleClusterVariables(LoopAll &l){
 	    if( !scaleR9Only ) {
 		if (l.pho_isEB[ipho]) {
 		    l.pho_s4ratio[ipho] = 1.01894*l.pho_s4ratio[ipho] - 0.01034;
-		    if (l.pho_sieie[ipho]<0.0087) {
-			l.pho_sieie[ipho] = 0.976591*l.pho_sieie[ipho] + 0.000081;
-		    } else {
-			l.pho_sieie[ipho] = 0.980055*l.pho_sieie[ipho] + 0.0000508632;
-		    }
+		    l.pho_sieie[ipho] = 0.891832*l.pho_sieie[ipho] + 0.0009133;
 		    l.pho_etawidth[ipho] =  1.04302*l.pho_etawidth[ipho] - 0.000618;
 		    l.sc_sphi[l.pho_scind[ipho]] =  1.00002*l.sc_sphi[l.pho_scind[ipho]] - 0.000371;
 		} else {
