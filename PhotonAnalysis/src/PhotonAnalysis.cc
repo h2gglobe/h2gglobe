@@ -1226,7 +1226,7 @@ void PhotonAnalysis::PreselectPhotons(LoopAll& l, int jentry)
         float et = p4.Pt();
         pho_et.push_back(et);
     
-    if( eta>1.4442 && eta<1.566 ) { 
+	if( (eta>1.4442 && eta<1.566) || eta > 2.5 ) { 
             continue;  
         }
         pho_acc.push_back(ipho);
@@ -1313,8 +1313,6 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
     if(PADEBUG)  cout << " ****************** SelectEventsReduction " << endl;
     // require at least two reconstructed photons to store the event
 
-    if( pho_acc.size() < 2 || l.get_pho_p4( pho_acc[0], 0, &corrected_pho_energy[0] ).Pt() < presel_scet1 ) { return false; }
-    
     if( pho_acc.size() < 2 ) { return false; }
     
     vtxAna_.clear();
@@ -1325,7 +1323,8 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
     l.vtx_std_sel=0;
     float maxSumPt = 0.;
     l.dipho_n = 0;
-
+    bool oneKinSelected = false;
+    
     // fill ID variables
     if( forcedRho >= 0. ) {
         l.rho = forcedRho;
@@ -1393,6 +1392,7 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
                 vtxAna_.discardLastDipho();
                 continue;
             }
+	    oneKinSelected = true;
 
             if( ! l.PhotonMITPreSelection(ipho1, vtxs[0], &corrected_pho_energy[0] )
                 || ! l.PhotonMITPreSelection(ipho2, vtxs[0], &corrected_pho_energy[0] ) ) {
@@ -1457,7 +1457,7 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
     }
     
 
-    return true;
+    return oneKinSelected;
 }
 
 // ----------------------------------------------------------------------------------------------------
