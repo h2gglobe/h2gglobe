@@ -163,7 +163,7 @@ def main(options,args):
     ws = fin.Get("cms_hgg_workspace")
     mass = ws.var("CMS_hgg_mass")
     mass.SetTitle("m_{#gamma#gamma}");
-    mass.setUnit("GeV/c^{2}");
+    mass.setUnit("GeV");
     mass.setRange(100.,150.)
     mass.setBins(100,"plot")
     mass.setBins(5000)
@@ -248,10 +248,10 @@ def main(options,args):
 
         mass.setRange("countRange",float(options.mH)-10.,float(options.mH)+10.)
         helper.add( data.sumEntries("CMS_hgg_mass>=%1.4f && CMS_hgg_mass<=%1.4f"%(options.mH-10.,options.mH+10)),"data_sumEntries%s"%c)
-        print '---------------------------'
-        print data.sumEntries()
-        print data.sumEntries("CMS_hgg_mass>=%1.4f && CMS_hgg_mass<=%1.4f"%(options.mH-10.,options.mH+10))
-        print '------- FIND ME --------'
+        # print '---------------------------'
+        # print data.sumEntries()
+        # print data.sumEntries("CMS_hgg_mass>=%1.4f && CMS_hgg_mass<=%1.4f"%(options.mH-10.,options.mH+10))
+        # print '------- FIND ME --------'
         
         del cdf
         del pdf
@@ -354,7 +354,7 @@ def main(options,args):
         iob = int( hplotcompint.numItems() - 1 )
         leg.AddEntry( pointsleg,  "Simulation", "pe" )  
         leg.AddEntry( pdfleg,  "Parametric model", "l" )  
-        leg.AddEntry( seffleg, "#sigma_{eff} = %1.2f GeV/c^{2} " % ( 0.5*(wmax-wmin) ), "fl" )  
+        leg.AddEntry( seffleg, "#sigma_{eff} = %1.2f GeV " % ( 0.5*(wmax-wmin) ), "fl" )  
 
         clabel = TLatex(0.74,0.65,"#scale[0.65]{#splitline{%s}{%s}}" % clables[c])
         clabel.SetNDC(1)
@@ -368,12 +368,12 @@ def main(options,args):
         fwhmlabel = TPaveText(0.28,0.58,0.56,0.48,"brNDC")
         fwhmlabel.SetFillStyle(0)
         fwhmlabel.SetLineColor(kWhite)
-        fwhmlabel.AddText("FWHM = %1.2f GeV/c^{2}" % (hmax-hmin))
+        fwhmlabel.AddText("FWHM = %1.2f GeV" % (hmax-hmin))
         helper.objs.append(fwhmlabel)
 
         hplotcompint.SetTitle("");
         hplotcompint.GetXaxis().SetNoExponent(True);
-        hplotcompint.GetXaxis().SetTitle("m_{#gamma#gamma} (GeV/c^{2})");
+        hplotcompint.GetXaxis().SetTitle("m_{#gamma#gamma} (GeV)");
         hplotcompint.GetXaxis().SetNdivisions(509);
         ## hplotcompint.GetYaxis().SetTitle("A.U.");
         ## hplotcompint.GetYaxis().SetRangeUser(0.,hplotcompint.GetMaximum()*1.4);
@@ -408,8 +408,8 @@ def main(options,args):
         f.Close()
     gROOT.Reset()
  
-    print 'Data count in each cateogry'
-    print 'Cat  Signal  Data (%3.1f +- 10)  sigEff  FWHM'%options.mH
+    print 'Summary statistics per event class'
+    print 'Cat  Signal                  Data/GeV (in %3.1f +- 10 GeV)  sigEff  FWHM/2.35'%options.mH
     sigTotal=0.
     dataTotal=0.
     for c in categories:
@@ -417,9 +417,12 @@ def main(options,args):
       datVal = helper.histos["data_sumEntries%s"%c]
       sigTotal+=sigVal
       dataTotal+=datVal
+    for c in categories:
+      sigVal = helper.histos["sumEntries%s"%c]
+      datVal = helper.histos["data_sumEntries%s"%c]
       effSig = 0.5*(helper.histos["eff_sigma%s"%c][1]-helper.histos["eff_sigma%s"%c][0])
-      fwhm = (helper.histos["FWHM%s"%c][1]-helper.histos["FWHM%s"%c][0])
-      print c, ' %3.1f  %3.1f  %1.2f  %1.2f'%(sigVal,datVal,effSig,fwhm)
+      fwhm = (helper.histos["FWHM%s"%c][1]-helper.histos["FWHM%s"%c][0]) / 2.35482
+      print c, ' %.1f (%.1f%%)  %.1f (%.1f%%)        %.2f  %.2f'%(sigVal,100.*sigVal/sigTotal,datVal/(10.+10.),100.*datVal/dataTotal,effSig,fwhm)
 
     print "Done."
 
