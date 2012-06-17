@@ -148,9 +148,9 @@ bool EnergySmearer::smearPhoton(PhotonReducedInfo & aPho, float & weight, int ru
     // leave energy alone, bus change resolution (10% uncertainty on sigmaE/E scaling)
     float newSigma;
     if (fabs(aPho.caloPosition().Eta())<1.5){
-    	newSigma = (aPho.corrEnergyErr()/1.)*(1.+syst_shift*0.1);
+    	newSigma = aPho.corrEnergyErr()*(1.+syst_shift*0.1);
     } else {
-    	newSigma = (aPho.corrEnergyErr()/1.)*(1.+syst_shift*0.1);
+    	newSigma = aPho.corrEnergyErr()*(1.+syst_shift*0.1);
     }
     aPho.setCorrEnergyErr(newSigma);
   } else {
