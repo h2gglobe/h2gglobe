@@ -27,7 +27,7 @@ options.eosLs = "/afs/cern.ch/project/eos/installation/pro/bin/eos root://eoscms
 if not options.inDirName:
     raise RuntimeError("Empty target directory name (which defines the sample name). Check path.")
 
-call( """%(eosLs)s %(inDir)s | awk '/root$/ { print \"root://eoscms//eos/cms%(inDir)s/$1\"  }' | sed 's/\?.*$//' > %(inDirName)s.files.txt"""
+call( """%(eosLs)s%(inDir)s | awk '/root$/ { print \"root://eoscms//eos/cms%(inDir)s/\"$1  }' | sed 's/\?.*$//' > %(inDirName)s.files.txt"""
       % vars(options), shell=True)
 call( """rm -f %(inDirName)s.pileup.root %(inDirName)s.pileup.root.log""" % vars(options), shell=True)
 #call( """hadd -k -T %(inDirName)s.pileup.root @%(inDirName)s.files.txt &> %(inDirName)s.pileup.root.log""" % vars(options), shell=True)
