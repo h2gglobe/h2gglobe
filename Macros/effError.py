@@ -36,6 +36,6 @@ for line in errFile.readlines():
   #print 'Total eff %s: %1.3f +/- %1.3f'%(cat,toteff,toterr)
 
 print '\nFor mergeGlobeSystematics.C :'
-print 'Double_t ratioTP_[nphocats]            = {%1.3f,%1.3f,%1.3f,%1.3f}'%(totEffs[0],totEffs[1],totEffs[2],totEffs[3])
-print 'Double_t ratioTP_low_err_[nphocats]    = {%1.3f,%1.3f,%1.3f,%1.3f}'%(totEffErrs[0],totEffErrs[1],totEffErrs[2],totEffErrs[3])
-print 'Double_t ratioTP_high_err_[nphocats]   = {%1.3f,%1.3f,%1.3f,%1.3f}'%(totEffErrs[0],totEffErrs[1],totEffErrs[2],totEffErrs[3])
+print 'Double_t ratioTP_[nphocats]            = {%1.3f,%1.3f,%1.3f,%1.3f};'%(totEffs[0],totEffs[1],totEffs[2],totEffs[3])
+print 'Double_t ratioTP_low_err_[nphocats]    = {%1.3f,%1.3f,%1.3f,%1.3f};'%(totEffErrs[0],totEffErrs[1],totEffErrs[2],totEffErrs[3])
+print 'Double_t ratioTP_high_err_[nphocats]   = {%1.3f,%1.3f,%1.3f,%1.3f};'%(totEffErrs[0],totEffErrs[1],totEffErrs[2],totEffErrs[3])
