@@ -145,7 +145,7 @@ def main(options,args):
                     "_cat3" : ("0.05 #leq MVA","MVA < 0.545"),
                     "_cat4" : ("Di-jet","Tagged"),
                     "_cat5" : ("Di-jet","Tagged"),
-                    "_combcat" : ("All Categories","Combined")
+                    "_combcat" : ("All Classes","Combined")
                     }
     else:
         clables = { "_cat0" : ("max(|#eta|<1.5","min(R_{9})>0.94"),
@@ -154,7 +154,7 @@ def main(options,args):
                     "_cat3" : ("max(|#eta|>1.5","min(R_{9})<0.94"),
                     "_cat4" : ("Di-jet","Tagged"),
                     "_cat5" : ("Di-jet","Tagged"),
-                    "_combcat" : ("All Categories","Combined")
+                    "_combcat" : ("All Classes","Combined")
                     }
     helper = Helper()
 
@@ -198,8 +198,7 @@ def main(options,args):
         for proc in processes[1:]:
             ds.append( ws.data( "sig_%s_mass_m%1.0f%s" % (proc,options.mH,c)  ) )
         helper.dsets.append( ds )
-        data = ws.data( "data_mass%s"%c)
-        helper.dsets.append( data )
+
 
         if options.binned:
             binned_ds = RooDataHist( "binned_%s" % dsname,"binned_%s" % dsname,aset, ds)
@@ -243,15 +242,12 @@ def main(options,args):
         helper.add( plot_pdf,     plot_pdf.GetName()   )
         helper.add( (wmin,wmax),  "eff_sigma%s" % c    )
         helper.add( (hmin, hmax, hm),  "FWHM%s" % c    )
-        helper.add( ds.sumEntries(), "sumEntries%s" %c )
-        
+        helper.add( ds.sumEntries(), "sumEntries%s" %c ) # signal model integral
 
-        mass.setRange("countRange",float(options.mH)-10.,float(options.mH)+10.)
-        helper.add( data.sumEntries("CMS_hgg_mass>=%1.4f && CMS_hgg_mass<=%1.4f"%(options.mH-10.,options.mH+10)),"data_sumEntries%s"%c)
-        # print '---------------------------'
-        # print data.sumEntries()
-        # print data.sumEntries("CMS_hgg_mass>=%1.4f && CMS_hgg_mass<=%1.4f"%(options.mH-10.,options.mH+10))
-        # print '------- FIND ME --------'
+        # data integral for PAS tables
+        data = ws.data( "data_mass%s"%c)
+        helper.add( data.sumEntries("CMS_hgg_mass>=%1.4f && CMS_hgg_mass<=%1.4f"%(options.mH-10.,options.mH+10.)),"data_sumEntries%s"%c)
+
         
         del cdf
         del pdf
@@ -407,9 +403,12 @@ def main(options,args):
     for f in helper.files:
         f.Close()
     gROOT.Reset()
+
+    from pprint import pprint
+    pprint(helper)
  
     print 'Summary statistics per event class'
-    print 'Cat  Signal                  Data/GeV (in %3.1f +- 10 GeV)  sigEff  FWHM/2.35'%options.mH
+    print 'Cat\tSignal\t\tData/GeV (in %3.1f+/-10)\tsigEff\tFWHM/2.35'%options.mH
     sigTotal=0.
     dataTotal=0.
     for c in categories:
@@ -422,7 +421,7 @@ def main(options,args):
       datVal = helper.histos["data_sumEntries%s"%c]
       effSig = 0.5*(helper.histos["eff_sigma%s"%c][1]-helper.histos["eff_sigma%s"%c][0])
       fwhm = (helper.histos["FWHM%s"%c][1]-helper.histos["FWHM%s"%c][0]) / 2.35482
-      print c, ' %.1f (%.1f%%)  %.1f (%.1f%%)        %.2f  %.2f'%(sigVal,100.*sigVal/sigTotal,datVal/(10.+10.),100.*datVal/dataTotal,effSig,fwhm)
+      print c, '\t%3.1f (%3.1f%%)\t%3.1f (%3.1f%%)\t\t\t%2.2f\t%2.2f'%(sigVal,100.*sigVal/sigTotal,datVal/(10.+10.),100.*datVal/dataTotal,effSig,fwhm)
 
     print "Done."
 
