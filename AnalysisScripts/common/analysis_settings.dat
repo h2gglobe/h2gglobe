@@ -46,5 +46,5 @@ recorrectJets=1
 rerunJetMva=0
 recomputeJetWp=1
 
-reRunVtx=1
+reRunVtx=0
 rematchConversions=1
