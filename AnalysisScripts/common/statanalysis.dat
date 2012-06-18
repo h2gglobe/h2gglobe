@@ -49,4 +49,7 @@ doR9Syst=1
 doInterferenceSmear=1
 
 ## 
-efficiencyFile=aux/sig_reweighing_june15unblind_baseline_v2.root
+efficiencyFile=aux/sig_reweighing_june15unblind_baseline_v4.root
+
+## Singal mass points to book
+sigPointsToBook=105,110,115,120,125,130,135,140,145,150

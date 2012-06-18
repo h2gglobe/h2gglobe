@@ -8,7 +8,8 @@ class options:
    def __init__(self):
       ## self.eff = "/afs/cern.ch/user/m/malberti/public/scaleFactors/vtxIdEff_vs_bosonPt_globe_Glu120_S6_PUweights_2011_68000.root"
       self.eff = "../AnalysisScripts/aux/vtxEff_mH120_Summer12_S7.root"
-      self.eff_ratio = "/afs/cern.ch/user/m/malberti/public/scaleFactors/vtxIdScaleFactorFromZmumu_Summer12_PUweights_minBiasXsec69000_observed.root"
+      self.eff_ratio = "/afs/cern.ch/user/d/deguio/public/Hgg/vtxIdScaleFactorFromZmumu_Summer12_Puweights_minBiasXsec71000_observed_ichep_12JuneJSON.root"
+      ### /afs/cern.ch/user/d/deguio/public/Hgg/vtxIdScaleFactorFromZmumu_Summer12_Puweights_minBiasXsec69000_observed_ichep_8JuneJSON.root
       self.n_categories = 8
       self.outfile = "vertex_reweighing.root"
       
