@@ -1,16 +1,16 @@
 # category      type(0=any,1=CM,2=GAP) minEta  MaxEta   mr9    Mr9      mrun    Mrun   smear   smearErr    
-# These numbers correspong to June15unblind - https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/798.html
+# These numbers correspong to June15unblind (training) - https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/829.html
 
-EBlowEtaGoldGAP	2 0.0	1.0	0.94	999.00	-999999	999999	1.03e-2	0.10e-2
-EBlowEtaGoldCM	1 0.0	1.0	0.94	999.00	-999999	999999	0.81e-2	0.13e-2
-EBlowEtaBadGAP	2 0.0	1.0	-999.00	0.94	-999999	999999	1.13e-2	0.10e-2
-EBlowEtaBadCM	1 0.0	1.0	-999.00	0.94	-999999	999999	1.26e-2	0.10e-2
+EBlowEtaGoldGAP	2 0.0	1.0	0.94	999.00	-999999	999999	1.12e-2	0.09e-2
+EBlowEtaGoldCM	1 0.0	1.0	0.94	999.00	-999999	999999	0.91e-2	0.18e-2
+EBlowEtaBadGAP	2 0.0	1.0	-999.00	0.94	-999999	999999	1.23e-2	0.04e-2
+EBlowEtaBadCM	1 0.0	1.0	-999.00	0.94	-999999	999999	1.23e-2	0.04e-2
 
-EBhighEtaGold	  0 1.0	1.5	0.94	999.00	-999999	999999	1.95e-2	0.30e-2
-EBhighEtaBad	  0 1.0	1.5	-999.00	0.94	-999999	999999	2.22e-2	0.13e-2
+EBhighEtaGold	  0 1.0	1.5	0.94	999.00	-999999	999999	1.52e-2	0.65e-2
+EBhighEtaBad	  0 1.0	1.5	-999.00	0.94	-999999	999999	2.24e-2	0.10e-2
 
-EElowEtaGold	  0 1.5	2.0	0.94	999.00	-999999	999999	3.66e-2	0.41e-2
-EElowEtaBad	    0 1.5	2.0	-999.00	0.94	-999999	999999	3.34e-2	0.13e-2
+EElowEtaGold	  0 1.5	2.0	0.94	999.00	-999999	999999	3.72e-2	0.35e-2
+EElowEtaBad	    0 1.5	2.0	-999.00	0.94	-999999	999999	3.28e-2	0.12e-2
 
-EEhighEtaGold	  0 2.0	3.0	0.94	999.00	-999999	999999	5.28e-2	0.12e-2
-EEhighEtaBad	  0 2.0	3.0	-999.00	0.94	-999999	999999	5.58e-2	0.20e-2
+EEhighEtaGold	  0 2.0	3.0	0.94	999.00	-999999	999999	5.64e-2	0.12e-2
+EEhighEtaBad	  0 2.0	3.0	-999.00	0.94	-999999	999999	5.68e-2	0.16e-2
