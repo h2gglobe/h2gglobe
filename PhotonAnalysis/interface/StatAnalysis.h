@@ -62,7 +62,8 @@ class StatAnalysis : public PhotonAnalysis
     bool dumpAscii, dumpMcAscii;
     float phoidMvaCut;
     std::vector<double> zeePtBinLowEdge, zeePtWeight;
-
+    std::vector<int> sigPointsToBook;
+    
     std::string kfacHist;
 
     TH1D *thm110,*thm120,*thm130,*thm140;
