@@ -123,8 +123,8 @@ class MvaAnalysis : public MassFactorizedMvaAnalysis
     
     int nPhotonCategories_;
     // Vertex analysis
-    HggVertexAnalyzer vtxAna_;
-    HggVertexFromConversions vtxConv_;
+    //HggVertexAnalyzer vtxAna_;
+    //HggVertexFromConversions vtxConv_;
     
     // RooStuff
     //RooContainer *rooContainer;

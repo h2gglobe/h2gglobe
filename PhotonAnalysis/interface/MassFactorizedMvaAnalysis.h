@@ -71,8 +71,8 @@ class MassFactorizedMvaAnalysis : public StatAnalysis
     std::map<int,std::string> signalLabels;
     
     
-    HggVertexAnalyzer vtxAna_;
-    HggVertexFromConversions vtxConv_;
+    //HggVertexAnalyzer vtxAna_;
+    //HggVertexFromConversions vtxConv_;
 };
 
 #endif
