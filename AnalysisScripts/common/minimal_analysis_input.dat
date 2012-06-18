@@ -137,9 +137,9 @@ bs_xyz
 ## 
 ## Trigger
 ## 
-hlt_bit
-hlt_n
-hlt_path_names_HLT
+hlt_bit:2
+hlt_n:2
+hlt_path_names_HLT:2
 
 ## 
 ## Vertex selection

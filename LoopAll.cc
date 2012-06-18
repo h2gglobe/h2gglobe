@@ -1098,13 +1098,14 @@ void LoopAll::GetBranches(std::map<std::string,int> & names, std::set<TBranch *>
       std::cerr << "no branch '"<< name << "'" << std::endl;
       assert( 0 );
     }
-    if ( itype[current]!=0 || typ!=1){
-      *(info.branch) = fChain->GetBranch( name.c_str() );
-      if (*(info.branch) == NULL)
-	cerr << "WARNING: in LoopAll::GetBranches(..): got null pointer for branch '" << name << "', typ=" << typ << endl;
-
-      branches.insert( *(info.branch) );
-    }
+    if ( itype[current]==0 && typ==1 || itype[current]!=0 && typ == 2 ){ continue; }
+    /// if ( itype[current]!=0 || typ!=1 ){
+    *(info.branch) = fChain->GetBranch( name.c_str() );
+    if (*(info.branch) == NULL)
+	    cerr << "WARNING: in LoopAll::GetBranches(..): got null pointer for branch '" << name << "', typ=" << typ << endl;
+    
+    branches.insert( *(info.branch) );
+    // }
   }
 }
 
@@ -1118,8 +1119,9 @@ void LoopAll::SetBranchAddresses(std::map<std::string,int> & names) {
       std::cerr << "no read function for branch '"<< name << "'" << std::endl;
       assert( 0 );
     }
-    if ( itype[current]!=0 || typ!=1)
-      (this->*(info.read)) (fChain);
+    if ( itype[current]==0 && typ==1 || itype[current]!=0 && typ == 2 ){ continue; }
+    /// if ( itype[current]!=0 || typ!=1)
+    (this->*(info.read)) (fChain);
   }
 }
 
