@@ -11,8 +11,8 @@ using namespace std;
 
 // ----------------------------------------------------------------------------------------------------
 MvaAnalysis::MvaAnalysis()  : 
-    name_("MvaAnalysis"),
-    vtxAna_(vtxAlgoParams), vtxConv_(vtxAlgoParams)
+    name_("MvaAnalysis")
+    //vtxAna_(vtxAlgoParams), vtxConv_(vtxAlgoParams)
 {
 
     nMasses  = 9;
@@ -711,12 +711,14 @@ void MvaAnalysis::fillTMVATrees(LoopAll& l,float mass,float diphotonMVA,int cate
             l.FillTree("category",category);
             l.FillTree("weight",evweight);
             l.FillTree("deltaMoverM",(float)((mass-mH)/mH));
-            
+           
+           /*
             l.FillHist("diphotonMVA",diphotonMVA);
             l.FillHist("mass",mass);
             l.FillHist("category",category);
             l.FillHist("weight",evweight);
             l.FillHist("deltaMoverM",(float)((mass-mH)/mH));
+            */
             return;
         }
 
@@ -735,12 +737,14 @@ void MvaAnalysis::fillTMVATrees(LoopAll& l,float mass,float diphotonMVA,int cate
                     l.FillTree("category",category);
                     l.FillTree("weight",evweight);
                     l.FillTree("deltaMoverM",(float)((mass-mass_hypothesis_low)/mass_hypothesis_low));
-                    
+                   
+                   /*
                     l.FillHist("diphotonMVA",diphotonMVA);
                     l.FillHist("mass",mass);
                     l.FillHist("category",category);
                     l.FillHist("weight",evweight);
                     l.FillHist("deltaMoverM",(float)((mass-mass_hypothesis_low)/mass_hypothesis_low));
+                    */
                     return;
                 }
             }
@@ -757,12 +761,14 @@ void MvaAnalysis::fillTMVATrees(LoopAll& l,float mass,float diphotonMVA,int cate
                     l.FillTree("category",category);
                     l.FillTree("weight",evweight);
                     l.FillTree("deltaMoverM",(float)((mass-mass_hypothesis_high)/mass_hypothesis_high));
-                    
+                   
+                   /*
                     l.FillHist("diphotonMVA",diphotonMVA);
                     l.FillHist("mass",mass);
                     l.FillHist("category",category);
                     l.FillHist("weight",evweight);
                     l.FillHist("deltaMoverM",(float)((mass-mass_hypothesis_high)/mass_hypothesis_high));
+                    */
                     return;
                 }
             }

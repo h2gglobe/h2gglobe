@@ -11,8 +11,8 @@ using namespace std;
 
 // ----------------------------------------------------------------------------------------------------
 MassFactorizedMvaAnalysis::MassFactorizedMvaAnalysis()  : 
-    name_("MassFactorizedMvaAnalysis"),
-    vtxAna_(vtxAlgoParams), vtxConv_(vtxAlgoParams)
+    name_("MassFactorizedMvaAnalysis")
+    //vtxAna_(vtxAlgoParams), vtxConv_(vtxAlgoParams)
 {
 
     systRange  = 3.; // in units of sigma
@@ -352,16 +352,16 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
     l.rooContainer->AddConstant("ff_XSBR_vbf_105",0.151616);
     l.rooContainer->AddConstant("ff_XSBR_wzh_105",0.1609787);
 
-    l.rooContainer->AddRealVar("pol0",-0.01,-1.5,1.5);
-    l.rooContainer->AddRealVar("pol1",-0.01,-1.5,1.5);
-    l.rooContainer->AddRealVar("pol2",-0.01,-1.5,1.5);
-    l.rooContainer->AddRealVar("pol3",-0.01,-1.5,1.5);
-    l.rooContainer->AddRealVar("pol4",-0.01,-1.5,1.5);
-    l.rooContainer->AddFormulaVar("modpol0","@0*@0","pol0");
-    l.rooContainer->AddFormulaVar("modpol1","@0*@0","pol1");
-    l.rooContainer->AddFormulaVar("modpol2","@0*@0","pol2");
-    l.rooContainer->AddFormulaVar("modpol3","@0*@0","pol3");
-    l.rooContainer->AddFormulaVar("modpol4","@0*@0","pol4");
+    l.rooContainer->AddRealVar("pol0_8TeV",-0.01,-1.5,1.5);
+    l.rooContainer->AddRealVar("pol1_8TeV",-0.01,-1.5,1.5);
+    l.rooContainer->AddRealVar("pol2_8TeV",-0.01,-1.5,1.5);
+    l.rooContainer->AddRealVar("pol3_8TeV",-0.01,-1.5,1.5);
+    l.rooContainer->AddRealVar("pol4_8TeV",-0.01,-1.5,1.5);
+    l.rooContainer->AddFormulaVar("modpol0_8TeV","@0*@0","pol0_8TeV");
+    l.rooContainer->AddFormulaVar("modpol1_8TeV","@0*@0","pol1_8TeV");
+    l.rooContainer->AddFormulaVar("modpol2_8TeV","@0*@0","pol2_8TeV");
+    l.rooContainer->AddFormulaVar("modpol3_8TeV","@0*@0","pol3_8TeV");
+    l.rooContainer->AddFormulaVar("modpol4_8TeV","@0*@0","pol4_8TeV");
 
     if (bdtTrainingPhilosophy=="UCSD"){
         // UCSD BDT Categories
