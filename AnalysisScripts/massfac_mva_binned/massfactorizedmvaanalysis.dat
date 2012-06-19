@@ -1,6 +1,7 @@
 leadEtCut=40.0
 subleadEtCut=30.0
 
+# Options for the mass spectrum range
 massMin=100.
 massMax=180.
 nDataBins=160
@@ -32,22 +33,22 @@ phoidMvaCut=-0.2
 
 # BDT categories
 bdtCategoryBoundaries=1,0.89,0.74,0.545,0.05
-photonIDMVAShift_EB = 0.
-photonIDMVAShift_EE = 0.
+photonIDMVAShift_EB=0.
+photonIDMVAShift_EE=0.
 
 # Turn on-off all smearings 
 doMCSmearing=1 
 
 # Individual smearing flags
-energyCorrectionMethod=Bendavid
-doEcorrectionSmear=1
-doEcorrectionSyst=0
-
 doEscaleSmear=1
 doEscaleSyst=1
 
 doEresolSmear=1
 doEresolSyst=1
+
+energyCorrectionMethod=Bendavid
+doEcorrectionSmear=1
+doEcorrectionSyst=0
 
 doRegressionSmear=1
 doRegressionSyst=1
@@ -69,6 +70,8 @@ doR9Syst=0
 
 doKFactorSmear=0
 doKFactorSyst=0
+
+doInterferenceSmear=1
 
 # Inputs for reweighing
 # - phoId and trigger: same as EPS,  https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/374.html
