@@ -26,7 +26,7 @@ photonLevelNewIDMVA_EB=aux/2012ICHEP_PhotonID_Barrel_BDT.weights.xml
 photonLevelNewIDMVA_EE=aux/2012ICHEP_PhotonID_Endcap_BDT.weights_PSCorr.xml
 photonLevelMvaMIT_EB=aux/TMVAClassificationPhotonID_Barrel_PassPreSel_Variable_10_BDTnCuts2000_BDT.weights.xml
 photonLevelMvaMIT_EE=aux/TMVAClassificationPhotonID_Endcap_PassPreSel_Variable_10_BDTnCuts2000_BDT.weights.xml
-eventLevelMvaMIT=aux/HggBambu_SMDipho_Jan16_BDTG.weights.xml
+eventLevelMvaMIT=aux/HggBambu_SMDipho_Jan19_BDTG.weights.xml
 
 # photon ID preselection
 phoidMvaCut=-0.2
