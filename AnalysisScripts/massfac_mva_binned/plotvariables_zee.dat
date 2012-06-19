@@ -12,6 +12,9 @@ htyp=0 plot=-1  ncat=7  xbins=40   ybins=0       xmin=0.0  xmax=40.0  ymin=0    
 htyp=0 plot=-1  ncat=7  xbins=40   ybins=0       xmin=0.0  xmax=40.0  ymin=0      ymax=0       name=nvtx_83to96    xaxis= yaxis=
 htyp=0 plot=-1  ncat=7  xbins=70    ybins=0       xmin=-7. xmax=7.  ymin=0     ymax=0      name=eta xaxis=x yaxis=y
 
+htyp=0 plot=-1  ncat=7  xbins=200    ybins=0       xmin=0.   xmax=50.0  ymin=0      ymax=0       name=rho    xaxis= yaxis=
+htyp=1 plot=-1  ncat=1  xbins=40   ybins=100       xmin=0.0  xmax=40.0  ymin=0.0      ymax=50.0       name=rhoVsNvtx    xaxis= yaxis=
+
 htyp=0 plot=-1  ncat=1  xbins=200   ybins=0  xmin=-1.0  xmax=1.0  ymin=0 ymax=0 name=bdtout_m100to180    xaxis= yaxis=
 htyp=0 plot=-1  ncat=5  xbins=200   ybins=0  xmin=-1.0  xmax=1.0  ymin=0 ymax=0 name=bdtout    xaxis= yaxis=
 htyp=0 plot=-1  ncat=1  xbins=200   ybins=0  xmin=-1.0  xmax=1.0  ymin=0 ymax=0 name=bdtoutEB    xaxis= yaxis=
@@ -33,23 +36,33 @@ htyp=0 plot=-1  ncat=1  xbins=200    ybins=0       xmin=0.0   xmax=0.1  ymin=0  
 htyp=0 plot=-1  ncat=1  xbins=200    ybins=0       xmin=0.0   xmax=0.1  ymin=0      ymax=0       name=pho2_sigmaEOverE_EB_down    xaxis= yaxis=
 htyp=0 plot=-1  ncat=1  xbins=200    ybins=0       xmin=0.0   xmax=0.1  ymin=0      ymax=0       name=pho2_sigmaEOverE_EE_down    xaxis= yaxis=
 
-htyp=0 plot=-1  ncat=1  xbins=200    ybins=0       xmin=-1.0   xmax=1.0  ymin=0      ymax=0       name=pho1_phoidMva_EB    xaxis= yaxis=
-htyp=0 plot=-1  ncat=1  xbins=200    ybins=0       xmin=-1.0   xmax=1.0  ymin=0      ymax=0       name=pho1_phoidMva_EE    xaxis= yaxis=
-htyp=0 plot=-1  ncat=1  xbins=200    ybins=0       xmin=-1.0   xmax=1.0  ymin=0      ymax=0       name=pho2_phoidMva_EB    xaxis= yaxis=
-htyp=0 plot=-1  ncat=1  xbins=200    ybins=0       xmin=-1.0   xmax=1.0  ymin=0      ymax=0       name=pho2_phoidMva_EE    xaxis= yaxis=
+htyp=0 plot=-1  ncat=1  xbins=400    ybins=0       xmin=-1.0   xmax=1.0  ymin=0      ymax=0       name=pho1_phoidMva_EB    xaxis= yaxis=
+htyp=0 plot=-1  ncat=1  xbins=400    ybins=0       xmin=-1.0   xmax=1.0  ymin=0      ymax=0       name=pho1_phoidMva_EE    xaxis= yaxis=
+htyp=0 plot=-1  ncat=1  xbins=400    ybins=0       xmin=-1.0   xmax=1.0  ymin=0      ymax=0       name=pho2_phoidMva_EB    xaxis= yaxis=
+htyp=0 plot=-1  ncat=1  xbins=400    ybins=0       xmin=-1.0   xmax=1.0  ymin=0      ymax=0       name=pho2_phoidMva_EE    xaxis= yaxis=
 
-htyp=0 plot=-1  ncat=1  xbins=200    ybins=0       xmin=-1.0   xmax=1.0  ymin=0      ymax=0       name=pho1_phoidMva_EB_up    xaxis= yaxis=
-htyp=0 plot=-1  ncat=1  xbins=200    ybins=0       xmin=-1.0   xmax=1.0  ymin=0      ymax=0       name=pho1_phoidMva_EE_up    xaxis= yaxis=
-htyp=0 plot=-1  ncat=1  xbins=200    ybins=0       xmin=-1.0   xmax=1.0  ymin=0      ymax=0       name=pho2_phoidMva_EB_up    xaxis= yaxis=
-htyp=0 plot=-1  ncat=1  xbins=200    ybins=0       xmin=-1.0   xmax=1.0  ymin=0      ymax=0       name=pho2_phoidMva_EE_up    xaxis= yaxis=
+htyp=0 plot=-1  ncat=1  xbins=400    ybins=0       xmin=-1.0   xmax=1.0  ymin=0      ymax=0       name=pho1_phoidMva_EB_nvtxgt15    xaxis= yaxis=
+htyp=0 plot=-1  ncat=1  xbins=400    ybins=0       xmin=-1.0   xmax=1.0  ymin=0      ymax=0       name=pho1_phoidMva_EE_nvtxgt15    xaxis= yaxis=
+htyp=0 plot=-1  ncat=1  xbins=400    ybins=0       xmin=-1.0   xmax=1.0  ymin=0      ymax=0       name=pho2_phoidMva_EB_nvtxgt15    xaxis= yaxis=
+htyp=0 plot=-1  ncat=1  xbins=400    ybins=0       xmin=-1.0   xmax=1.0  ymin=0      ymax=0       name=pho2_phoidMva_EE_nvtxgt15    xaxis= yaxis=
 
-htyp=0 plot=-1  ncat=1  xbins=200    ybins=0       xmin=-1.0   xmax=1.0  ymin=0      ymax=0       name=pho1_phoidMva_EB_down    xaxis= yaxis=
-htyp=0 plot=-1  ncat=1  xbins=200    ybins=0       xmin=-1.0   xmax=1.0  ymin=0      ymax=0       name=pho1_phoidMva_EE_down    xaxis= yaxis=
-htyp=0 plot=-1  ncat=1  xbins=200    ybins=0       xmin=-1.0   xmax=1.0  ymin=0      ymax=0       name=pho2_phoidMva_EB_down    xaxis= yaxis=
-htyp=0 plot=-1  ncat=1  xbins=200    ybins=0       xmin=-1.0   xmax=1.0  ymin=0      ymax=0       name=pho2_phoidMva_EE_down    xaxis= yaxis=
+htyp=0 plot=-1  ncat=1  xbins=400    ybins=0       xmin=-1.0   xmax=1.0  ymin=0      ymax=0       name=pho1_phoidMva_EB_nvtxlt15    xaxis= yaxis=
+htyp=0 plot=-1  ncat=1  xbins=400    ybins=0       xmin=-1.0   xmax=1.0  ymin=0      ymax=0       name=pho1_phoidMva_EE_nvtxlt15    xaxis= yaxis=
+htyp=0 plot=-1  ncat=1  xbins=400    ybins=0       xmin=-1.0   xmax=1.0  ymin=0      ymax=0       name=pho2_phoidMva_EB_nvtxlt15    xaxis= yaxis=
+htyp=0 plot=-1  ncat=1  xbins=400    ybins=0       xmin=-1.0   xmax=1.0  ymin=0      ymax=0       name=pho2_phoidMva_EE_nvtxlt15    xaxis= yaxis=
 
-htyp=0 plot=-1  ncat=7  xbins=200    ybins=0       xmin=-1.0   xmax=1.0  ymin=0      ymax=0       name=pho1_phoidMva    xaxis= yaxis=
-htyp=0 plot=-1  ncat=7  xbins=200    ybins=0       xmin=-1.0   xmax=1.0  ymin=0      ymax=0       name=pho2_phoidMva    xaxis= yaxis=
+htyp=0 plot=-1  ncat=1  xbins=400    ybins=0       xmin=-1.0   xmax=1.0  ymin=0      ymax=0       name=pho1_phoidMva_EB_up    xaxis= yaxis=
+htyp=0 plot=-1  ncat=1  xbins=400    ybins=0       xmin=-1.0   xmax=1.0  ymin=0      ymax=0       name=pho1_phoidMva_EE_up    xaxis= yaxis=
+htyp=0 plot=-1  ncat=1  xbins=400    ybins=0       xmin=-1.0   xmax=1.0  ymin=0      ymax=0       name=pho2_phoidMva_EB_up    xaxis= yaxis=
+htyp=0 plot=-1  ncat=1  xbins=400    ybins=0       xmin=-1.0   xmax=1.0  ymin=0      ymax=0       name=pho2_phoidMva_EE_up    xaxis= yaxis=
+
+htyp=0 plot=-1  ncat=1  xbins=400    ybins=0       xmin=-1.0   xmax=1.0  ymin=0      ymax=0       name=pho1_phoidMva_EB_down    xaxis= yaxis=
+htyp=0 plot=-1  ncat=1  xbins=400    ybins=0       xmin=-1.0   xmax=1.0  ymin=0      ymax=0       name=pho1_phoidMva_EE_down    xaxis= yaxis=
+htyp=0 plot=-1  ncat=1  xbins=400    ybins=0       xmin=-1.0   xmax=1.0  ymin=0      ymax=0       name=pho2_phoidMva_EB_down    xaxis= yaxis=
+htyp=0 plot=-1  ncat=1  xbins=400    ybins=0       xmin=-1.0   xmax=1.0  ymin=0      ymax=0       name=pho2_phoidMva_EE_down    xaxis= yaxis=
+
+htyp=0 plot=-1  ncat=7  xbins=400    ybins=0       xmin=-1.0   xmax=1.0  ymin=0      ymax=0       name=pho1_phoidMva    xaxis= yaxis=
+htyp=0 plot=-1  ncat=7  xbins=400    ybins=0       xmin=-1.0   xmax=1.0  ymin=0      ymax=0       name=pho2_phoidMva    xaxis= yaxis=
 htyp=0 plot=-1  ncat=7  xbins=100   ybins=0       xmin=-1.0  xmax=1.0  ymin=0      ymax=0       name=cosDeltaPhi    xaxis= yaxis=
 htyp=0 plot=-1  ncat=7  xbins=120    ybins=0       xmin=0.0   xmax=1.2  ymin=0      ymax=0       name=pho1_ptOverM    xaxis= yaxis=
 htyp=0 plot=-1  ncat=7  xbins=120    ybins=0       xmin=0.0   xmax=1.2  ymin=0      ymax=0       name=pho2_ptOverM    xaxis= yaxis=
@@ -84,6 +97,8 @@ htyp=0 plot=-1  ncat=1  xbins=200   ybins=0       xmin=-0.00015  xmax=0.00015  y
 htyp=0 plot=-1  ncat=1  xbins=200   ybins=0       xmin=0.  xmax=0.02  ymin=0      ymax=0       name=etawidth_EB    xaxis= yaxis=
 htyp=0 plot=-1  ncat=1  xbins=120   ybins=0       xmin=0.  xmax=0.12  ymin=0      ymax=0       name=phiwidth_EB    xaxis= yaxis=
 htyp=0 plot=-1  ncat=1  xbins=140   ybins=0       xmin=0.3  xmax=1.  ymin=0      ymax=0       name=s4ratio_EB    xaxis= yaxis=
+htyp=0 plot=-1  ncat=7  xbins=200    ybins=0       xmin=0.   xmax=1.0  ymin=0      ymax=0       name=r9_EB    xaxis= yaxis=
+htyp=0 plot=-1  ncat=7  xbins=200    ybins=0       xmin=0.   xmax=50.0  ymin=0      ymax=0       name=rho_EB    xaxis= yaxis=
 
 htyp=0 plot=-1  ncat=1  xbins=120   ybins=0       xmin=0.  xmax=8.  ymin=0      ymax=0       name=pfchargedisogood03_EE    xaxis= yaxis=
 htyp=0 plot=-1  ncat=1  xbins=120   ybins=0       xmin=0.  xmax=16.  ymin=0      ymax=0       name=pfchargedisobad03_EE    xaxis= yaxis=
@@ -100,3 +115,5 @@ htyp=0 plot=-1  ncat=1  xbins=200   ybins=0       xmin=0.  xmax=0.05  ymin=0    
 htyp=0 plot=-1  ncat=1  xbins=140   ybins=0       xmin=0.  xmax=0.14  ymin=0      ymax=0       name=phiwidth_EE    xaxis= yaxis=
 htyp=0 plot=-1  ncat=1  xbins=140   ybins=0       xmin=0.3  xmax=1.  ymin=0      ymax=0       name=s4ratio_EE    xaxis= yaxis=
 htyp=0 plot=-1  ncat=1  xbins=140   ybins=0       xmin=0.  xmax=14.  ymin=0      ymax=0       name=ESEffSigmaRR_EE    xaxis= yaxis=
+htyp=0 plot=-1  ncat=7  xbins=200    ybins=0       xmin=0.   xmax=1.0  ymin=0      ymax=0       name=r9_EE    xaxis= yaxis=
+htyp=0 plot=-1  ncat=7  xbins=200    ybins=0       xmin=0.   xmax=50.0  ymin=0      ymax=0       name=rho_EE    xaxis= yaxis=
