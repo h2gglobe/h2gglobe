@@ -538,7 +538,9 @@ int HggVertexAnalyzer::pairID(int pho1, int pho2)
 	assert( pho1_.size() == pho2_.size() );
 	int ipair = 0;
 	for( ; (size_t)ipair<pho1_.size(); ++ipair ) {
-		if( pho1_[ipair] == pho1 && pho2_[ipair] == pho2 ) { break; }
+		if( pho1_[ipair] == pho1 && pho2_[ipair] == pho2 || 
+		    pho1_[ipair] == pho2 && pho2_[ipair] == pho1
+			) { break; }
 	}
 	return ipair;
 }
