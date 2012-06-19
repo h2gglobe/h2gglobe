@@ -1,16 +1,16 @@
-CMS-HGG_bdt DataCard for Binned Limit Setting with RooDataHist+Parameterised Background
+CMS-HGG_110_150_0_5_bdt DataCard for Binned Limit Setting with RooDataHist+Parameterised Background
 Run with: combine cms-hgg-datacard.txt -M Routine -D data_mass -m MASS --generateBinnedWorkaround -S 1
 ---------------------------------------------
 imax *
 jmax *
 kmax *
 ---------------------------------------------
-shapes data_obs * May31.root cms_hgg_workspace:roohist_data_mass_$CHANNEL
-shapes ggh * May31.root cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_$CHANNEL cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_$CHANNEL_$SYSTEMATIC01_sigma
-shapes vbf * May31.root cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_$CHANNEL cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_$CHANNEL_$SYSTEMATIC01_sigma
-shapes wzh * May31.root cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_$CHANNEL cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_$CHANNEL_$SYSTEMATIC01_sigma
-shapes tth * May31.root cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_$CHANNEL cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_$CHANNEL_$SYSTEMATIC01_sigma
-shapes bkg * May31.root cms_hgg_workspace:pdf_data_pol_model_8TeV_$CHANNEL 
+shapes data_obs * CMS-HGG_110_150_0_5.root cms_hgg_workspace:roohist_data_mass_$CHANNEL
+shapes ggH * CMS-HGG_110_150_0_5.root cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_$CHANNEL cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_$CHANNEL_$SYSTEMATIC01_sigma
+shapes qqH * CMS-HGG_110_150_0_5.root cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_$CHANNEL cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_$CHANNEL_$SYSTEMATIC01_sigma
+shapes VH  * CMS-HGG_110_150_0_5.root cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_$CHANNEL cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_$CHANNEL_$SYSTEMATIC01_sigma
+shapes ttH * CMS-HGG_110_150_0_5.root cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_$CHANNEL cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_$CHANNEL_$SYSTEMATIC01_sigma
+shapes bkg * CMS-HGG_110_150_0_5.root cms_hgg_workspace:pdf_data_pol_model_8TeV_$CHANNEL 
 ---------------------------------------------
 bin	      cat0 cat1 cat2 cat3 cat4 cat5
 observation   -1   -1   -1   -1   -1   -1
@@ -25,7 +25,7 @@ rate     -1   -1   -1   -1   1    -1   -1   -1   -1   1    -1   -1   -1   -1   1
 jet_inclusive_migration    lnN  0.986 0.927 0.927 0.986 -     0.990 0.935 0.935 0.990 -     0.990 0.959 0.959 0.990 -    0.992 0.958 0.958 0.990 -      1.531 1.094 1.094 1.531 -  1.532 1.099 1.099 1.532 -  
 intra_jet_migration        lnN  - - - - -     - - - - -     - - - - -    - - - - -      0.630 0.945 0.945 0.630 -  1.150 1.080 1.080 1.150 -  
 
-lumi                 lnN  1.050 1.050 1.050 1.050  -    1.050 1.050 1.050 1.050  -    1.050 1.050 1.050 1.050  -    1.050 1.050 1.050 1.050  -    1.050 1.050 1.050 1.050  -  1.050 1.050 1.050 1.050  -    
+lumi_8TeV                 lnN  1.050 1.050 1.050 1.050  -    1.050 1.050 1.050 1.050  -    1.050 1.050 1.050 1.050  -    1.050 1.050 1.050 1.050  -    1.050 1.050 1.050 1.050  -  1.050 1.050 1.050 1.050  -    
 QCDscale_ggH         lnN  0.918/1.125 - - - - 		0.918/1.125 - - - - 	      0.918/1.125 - - - -           0.918/1.125  - - - -          0.918/1.125 - - - -         0.918/1.125 - - - - 
 PDF_gg               lnN  0.923/1.079 - - 0.915/1.085 - 0.923/1.079 - - 0.915/1.085 - 0.923/1.079 - - 0.915/1.085 - 0.923/1.079 - - 0.915/1.085 - 0.923/1.079 - - 0.915/1.085 - 0.923/1.079 - - 0.915/1.085 - 
 QCDscale_qqH         lnN  - 0.997/1.005 - - - 		- 0.997/1.005 - - - 	      - 0.997/1.005 - - -           - 0.997/1.005 - - -           - 0.997/1.005 - - - 	      - 0.997/1.005 - - -
