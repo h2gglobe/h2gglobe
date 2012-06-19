@@ -1,0 +1,6 @@
+# BDT categories
+eventLevelMvaMIT=aux/HggBambu_SMDipho_Jan16_BDTG.weights.xml
+
+bdtCategoryBoundaries=1,0.91,,0.68,0.39,0.05
+photonIDMVAShift_EB = -0.1
+photonIDMVAShift_EE = -0.13

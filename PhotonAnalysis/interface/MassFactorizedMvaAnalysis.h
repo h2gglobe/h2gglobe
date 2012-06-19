@@ -56,6 +56,9 @@ class MassFactorizedMvaAnalysis : public StatAnalysis
     std::string photonLevelNewIDMVA_EB;
     std::string photonLevelNewIDMVA_EE;
 
+    std::vector<float> bdtCategoryBoundaries;
+    float photonIDMVAShift_EB, photonIDMVAShift_EE;
+
  protected:
 
     virtual bool AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentzVector & gP4, float & mass, float & evweight, int & category, int & diphoton_id,
@@ -80,7 +83,6 @@ class MassFactorizedMvaAnalysis : public StatAnalysis
 
 // Local Variables:
 // mode: c++
-// mode: sensitive
 // c-basic-offset: 4
 // End:
 // vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4

@@ -36,7 +36,16 @@ void MassFactorizedMvaAnalysis::Term(LoopAll& l)
 
     eventListText.close();
     std::cout << " nevents " <<  nevents << " " << sumwei << std::endl;
+    
+    // default categories: Jan16
+    bdtCategoryBoundaries.push_back(0.05);
+    bdtCategoryBoundaries.push_back(0.545);
+    bdtCategoryBoundaries.push_back(0.74);
+    bdtCategoryBoundaries.push_back(0.89);
+    bdtCategoryBoundaries.push_back(1.);
 
+    photonIDMVAShift_EB = 0.;
+    photonIDMVAShift_EE = 0.;
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -191,15 +200,14 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
 
     // Define the number of categories for the statistical analysis and
     // the systematic sets to be formed
-
-    // FIXME move these params to config file
+    int nVBFCategories   = ((int)includeVBF)*nVBFEtaCategories*nVBFDijetJetCategories;
+    std::sort(bdtCategoryBoundaries.begin(),bdtCategoryBoundaries.end(), std::greater<float>() );
     if (bdtTrainingPhilosophy == "UCSD") {
         l.rooContainer->SetNCategories(8);
     } else if (bdtTrainingPhilosophy == "MIT") {
-        if (includeVBF)  l.rooContainer->SetNCategories(6);
-        else l.rooContainer->SetNCategories(4);
+        l.rooContainer->SetNCategories(bdtCategoryBoundaries.size() - 1 + nVBFCategories);
     }
-
+    
     l.rooContainer->nsigmas = nSystSteps;
     l.rooContainer->sigmaRange = systRange;
     l.rooContainer->SaveRooDataHists(true);
@@ -862,8 +870,8 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
         // easy to calculate vertex probability from vtx mva output
         float vtxProb   = 1.-0.49*(vtx_mva+1.0); /// should better use this: vtxAna_.setPairID(diphoton_id); vtxAna_.vertexProbability(vtx_mva); PM
 
-        float phoid_mvaout_lead = l.photonIDMVANew(diphoton_index.first,l.dipho_vtxind[diphoton_id],lead_p4,bdtTrainingPhilosophy.c_str());
-        float phoid_mvaout_sublead = l.photonIDMVANew(diphoton_index.second,l.dipho_vtxind[diphoton_id],sublead_p4,bdtTrainingPhilosophy.c_str());
+        float phoid_mvaout_lead = l.photonIDMVANew(diphoton_index.first,l.dipho_vtxind[diphoton_id],lead_p4,bdtTrainingPhilosophy.c_str()) + photonIDMVAShift_EB;
+        float phoid_mvaout_sublead = l.photonIDMVANew(diphoton_index.second,l.dipho_vtxind[diphoton_id],sublead_p4,bdtTrainingPhilosophy.c_str()) + + photonIDMVAShift_EE;
 
 	    // apply di-photon level smearings and corrections
         int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,0);
@@ -1228,6 +1236,16 @@ void MassFactorizedMvaAnalysis::fillZeeControlPlots(const TLorentzVector & lead_
 }
 
 
+int category(std::vector<float> & v, float val)
+{
+	if( val == v[0] ) { return 0; }
+	std::vector<float>::iterator bound =  lower_bound( v.begin(), v.end(), val, std::greater<float>  ());
+	int cat = ( val == *bound ? bound - v.begin() - 1 : bound - v.begin() );
+	if( cat >= v.size() - 1 ) { cat = -1; }
+	return cat;
+}
+
+
 // ----------------------------------------------------------------------------------------------------
 int MassFactorizedMvaAnalysis::GetBDTBoundaryCategory(float bdtout, bool isEB, bool VBFevent){
 
@@ -1256,19 +1274,28 @@ int MassFactorizedMvaAnalysis::GetBDTBoundaryCategory(float bdtout, bool isEB, b
           return -1;
         */
         //       if (bdtout >=-0.50 && bdtout < 0.05) return 4;
-        if (VBFevent) {
-            //if (bdtout >= 0.05 && VBFevent==1) return 4;
-            //if (bdtout >= 0.05 && VBFevent==2) return 5;
-            if (bdtout >= 0.05) return 4;
-            else return -1;
-        } else {
-            if (bdtout >= 0.05 && bdtout < 0.545) return 3;
-            if (bdtout >= 0.545 && bdtout < 0.74) return 2;
-            if (bdtout >= 0.74 && bdtout < 0.89) return 1;
-            if (bdtout >= 0.89) return 0;
-            return -1;
-        }
-
+        //// if (VBFevent) {
+        ////     //if (bdtout >= 0.05 && VBFevent==1) return 4;
+        ////     //if (bdtout >= 0.05 && VBFevent==2) return 5;
+        ////     if (bdtout >= 0.05) return 4;
+        ////     else return -1;
+        //// } else {
+	////     //// [0.91,1]
+	////     //// [0.68,0.91)
+	////     //// [0.39, 0.68)
+	////     //// [0.05, 0.39)
+	////     // lower_bound( bdtcats.begin(), bdtcats.end(), bdtout, std::greater<float>());
+	////     std::vector<int>::iterator = std::lower_bound( (bdtCategoryBoundaries.begin(),bdtCategoryBoundaries.end(), bdtout, std::greater<float> ) );
+	////     
+        ////     if (bdtout >= 0.05 && bdtout < 0.545) return 3;
+        ////     if (bdtout >= 0.545 && bdtout < 0.74) return 2;
+        ////     if (bdtout >= 0.74 && bdtout < 0.89) return 1;
+        ////     if (bdtout >= 0.89) return 0;
+        ////     return -1;
+        //// }
+	int cat = category( bdtCategoryBoundaries, bdtout );
+	if( VBFevent && cat > -1 ) cat = bdtCategoryBoundaries.size();
+	return cat;
     } else std::cerr << "No BDT Philosophy known - " << bdtTrainingPhilosophy << std::endl;
 }
 void MassFactorizedMvaAnalysis::fillTrainTree(LoopAll &l, Int_t leadingPho, Int_t subleadingPho, Int_t vtx, float vtxProb, TLorentzVector &leadP4, TLorentzVector &subleadP4, float sigmaMrv, float sigmaMwv, float sigmaMeonly, const char* type, float photonID_1,float photonID_2){
@@ -1301,7 +1328,6 @@ void MassFactorizedMvaAnalysis::ResetAnalysis(){
 
 // Local Variables:
 // mode: c++
-// mode: sensitive
 // c-basic-offset: 4
 // End:
 // vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4
