@@ -141,6 +141,9 @@ void FMTSetup::OptionParser(int argc, char *argv[]){
 
   //FIXME TEST
 	if (checkHistos_) checkAllHistos();
+
+  //FIXME overwrite miss in mvaanalysis.dat
+  setincludeVBF(true);
   
   rebinner = new FMTRebin(filename_, getintLumi(), getis2011(), getmHMinimum(), getmHMaximum(), getmHStep(), getmassMin(), getmassMax(), getnDataBins(), getsignalRegionWidth(), getsidebandWidth(), getnumberOfSidebands(), getnumberOfSidebandsForAlgos(), getnumberOfSidebandGaps(), getmassSidebandMin(), getmassSidebandMax(), getnIncCategories(),getincludeVBF(), getnVBFCategories(), getincludeLEP(), getnLEPCategories(), getsystematics(), getrederiveOptimizedBinEdges(), getAllBinEdges(),verbose_);
   rebinner->setAllBinEdges(getAllBinEdges());
@@ -240,7 +243,7 @@ double FMTSetup::getLumiFromWorkspace(){
   RooWorkspace *inWS = (RooWorkspace*)inFile->Get("cms_hgg_workspace");
   RooRealVar *tempLumi = (RooRealVar*)inWS->var("IntLumi");
   inFile->Close();
-  return tempLumi->getVal();
+  return (tempLumi->getVal())/1000.;
 }
 
 vector<double> FMTSetup::getBinEdgesFromString(string name){

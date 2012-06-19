@@ -40,6 +40,7 @@ void makeBkgPlots(std::string filebkg){
 	TFile *fb = TFile::Open(filebkg.c_str());
 
 	RooWorkspace *w_bkg  = (RooWorkspace*) fb->Get("cms_hgg_workspace");
+  w_bkg->Print();
 
 	RooRealVar *x = (RooRealVar*) w_bkg->var("CMS_hgg_mass");
 
@@ -70,9 +71,12 @@ void makeBkgPlots(std::string filebkg){
 
 		// Get Dataset ->
 		RooDataSet *data =  (RooDataSet*)w_bkg->data(Form("data_mass_cat%d",cat));
-		
+	  data->Print();
+
 		// Background Pdf ->
-		RooExtendPdf *bkg =  (RooExtendPdf*)w_bkg->pdf(Form("data_pol_model_cat%d",cat));
+		RooExtendPdf *bkg =  (RooExtendPdf*)w_bkg->pdf(Form("data_pol_model_8TeV_cat%d",cat));
+    bkg->Print();
+    bkg->fitTo(*data);
 		RooFitResult *r = bkg->fitTo(*data,RooFit::Save(1));
 		
 		// Get Signal pdf norms
@@ -120,8 +124,10 @@ void makeBkgPlots(std::string filebkg){
 		bkg->plotOn(frame,RooFit::LineColor(kRed));
 		allsig->SetLineColor(1);
 		allsig->SetFillColor(38);
-		x->setRange("unblind",150,180);
-		data->plotOn(frame,RooFit::Binning(80),RooFit::CutRange("unblind"));
+		x->setRange("unblind_1",100,110);
+		x->setRange("unblind_2",150,180);
+		data->plotOn(frame,RooFit::Binning(80),RooFit::CutRange("unblind_1"));
+		data->plotOn(frame,RooFit::Binning(80),RooFit::CutRange("unblind_2"));
 
 		frame->SetTitle("");
 		frame->GetXaxis()->SetTitle("m_{#gamma#gamma} (GeV)");
@@ -139,9 +145,10 @@ void makeBkgPlots(std::string filebkg){
 		frame->SetMinimum(0.0001);
 		allsig->Draw("samehistF");
 		leg->Draw();
-		cmslatex->DrawLatex(0.15,0.8,"#splitline{CMS Preliminary}{#sqrt{s} = 8TeV L = 1.5fb^{-1}}");
+		cmslatex->DrawLatex(0.15,0.8,"#splitline{CMS Preliminary}{#sqrt{s} = 8TeV L = 3.0fb^{-1}}");
 		latex->DrawLatex(0.1,0.92,labels[cat].c_str());
 		can->SaveAs(Form("massfacmvacat%d.pdf",cat));
+		can->SaveAs(Form("massfacmvacat%d.png",cat));
 	}
 
 	// JET ID Systematics

@@ -25,11 +25,11 @@ ROOT.gROOT.SetBatch(0)
 ##### NCAT = 5
 ##### lumi = 5089
 NCAT = 6
-lumi = 1490
+lumi = 3016
 #systematics = ["vtxEff","idEff","E_scale","E_res","triggerEff","regSig","phoIdMva"] # These are the main contributions to eff*Acc
 systematics = ["vtxEff","idEff","E_scale","E_res","triggerEff"] # These are the main contributions to eff*Acc
 ## Masses = range(110,152,2) 
-Masses = range(110,150,10) 
+Masses = range(110,151,1) 
 # -------------------------------------------------------------
 
 f = ROOT.TFile(sys.argv[1])
@@ -171,6 +171,7 @@ raw_input("Looks OK?")
 can.Update()
 print "Saving plot as effAcc_vs_mass.pdf"
 can.SaveAs("effAcc_vs_mass.pdf")
+can.SaveAs("effAcc_vs_mass.png")
 
   
 

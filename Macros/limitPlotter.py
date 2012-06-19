@@ -132,7 +132,7 @@ else:
   OBSfiles = obs[:]
 #-------------------------------------------------------------------------
 # Set-up the GRAPHS
-leg=ROOT.TLegend(0.16,0.61,0.57,0.89)
+leg=ROOT.TLegend(0.16,0.65,0.57,0.89)
 leg.SetFillColor(0)
 leg.SetBorderSize(0)
 
@@ -153,39 +153,45 @@ if options.massfac:
   lim2011 = ROOT.TFile.Open("FullMvaToolkit/CombineCards/7TeV_5.1fb/MassFacMVA/limit.root")
 else:
   lim2011 = ROOT.TFile.Open("FullMvaToolkit/CombineCards/7TeV_5.1fb/SidebandMVA/limit.root")
+
+lim2011 = ROOT.TFile.Open("ResultScripts/Jun15UnblindOldWeights3fb/FullMva3fbOldWeights/limit_7TeV_5fb.root")
 graph2011 = lim2011.Get("median")
 graph2011.SetLineColor(ROOT.kBlue+2)
 graph2011.SetLineStyle(7)
 graph2011.SetLineWidth(3)
+
 if options.massfac:
   lim2012 = ROOT.TFile.Open("FullMvaToolkit/CombineCards/8TeV_1.5fb/MassFacMVA/limit.root")
 else:
   lim2012 = ROOT.TFile.Open("FullMvaToolkit/CombineCards/8TeV_1.5fb/SidebandMVA/limit.root")
+
+lim2012 = ROOT.TFile.Open("ResultScripts/Jun15UnblindOldWeights3fb/FullMva3fbOldWeights/limit_8TeV_3fb.root")
 graph2012 = lim2012.Get("median")
-graph2012.SetLineColor(ROOT.kMagenta+1)
+graph2012.SetLineColor(ROOT.kRed)
 graph2012.SetLineStyle(7)
 graph2012.SetLineWidth(3)
 
+
 # Stuff for bkg smooth test
-regFile = ROOT.TFile.Open("BkgSmoothTest/ZeeReg/limit.root")
-noRegFile = ROOT.TFile.Open("BkgSmoothTest/ZeeNoReg/limit.root")
+#regFile = ROOT.TFile.Open("BkgSmoothTest/ZeeReg/limit.root")
+#noRegFile = ROOT.TFile.Open("BkgSmoothTest/ZeeNoReg/limit.root")
 
-graphRegExp = regFile.Get("median")
-graphRegObs = regFile.Get("observed")
-graphNoRegExp = noRegFile.Get("median")
-graphNoRegObs = noRegFile.Get("observed")
+#graphRegExp = regFile.Get("median")
+#graphRegObs = regFile.Get("observed")
+#graphNoRegExp = noRegFile.Get("median")
+#graphNoRegObs = noRegFile.Get("observed")
 
-graphRegExp.SetLineColor(ROOT.kRed)
-graphRegExp.SetLineStyle(7)
-graphRegExp.SetLineWidth(3)
-graphRegObs.SetLineColor(ROOT.kRed)
-graphRegObs.SetLineWidth(3)
+#graphRegExp.SetLineColor(ROOT.kRed)
+#graphRegExp.SetLineStyle(7)
+#graphRegExp.SetLineWidth(3)
+#graphRegObs.SetLineColor(ROOT.kRed)
+#graphRegObs.SetLineWidth(3)
 
-graphNoRegExp.SetLineColor(ROOT.kBlue)
-graphNoRegExp.SetLineStyle(7)
-graphNoRegExp.SetLineWidth(3)
-graphNoRegObs.SetLineColor(ROOT.kBlue)
-graphNoRegObs.SetLineWidth(3)
+#graphNoRegExp.SetLineColor(ROOT.kBlue)
+#graphNoRegExp.SetLineStyle(7)
+#graphNoRegExp.SetLineWidth(3)
+#graphNoRegObs.SetLineColor(ROOT.kBlue)
+#graphNoRegObs.SetLineWidth(3)
 
 #-------------------------------------------------------------------------
 # Different entries for the different methods
@@ -201,15 +207,15 @@ leg.SetHeader("%s"%LegendEntry)
 #leg.AddEntry(graphObs,"Baseline","L")
 #leg.AddEntry(graphRegObs,"Zee regression","L")
 #leg.AddEntry(graphNoRegObs,"Zee no regression","L")
-if not options.expectedOnly: leg.AddEntry(graphObs,"Observed","L")
+if not options.expectedOnly: leg.AddEntry(graphObs,"Observed (Baseline)","L")
 if options.bayes and not options.expectedOnly: leg.AddEntry(bayesObs,"Observed Bayesian Limit","L")
 if options.addLine: leg.AddEntry(graphMed,"Expected (combined)","L")
-else: leg.AddEntry(graphMed,"Expected","L")
+else: leg.AddEntry(graphMed,"Expected (Baseline)","L")
 leg.AddEntry(graph68,"#pm 1#sigma","F")
 leg.AddEntry(graph95,"#pm 2#sigma","F")
 if options.addLine:
   leg.AddEntry(graph2011,"Expected (\sqrt{s}=7TeV L=5.1fb^{-1})","L")
-  leg.AddEntry(graph2012,"Expected (\sqrt{s}=8TeV L=1.5fb^{-1})","L")
+  leg.AddEntry(graph2012,"Expected (\sqrt{s}=8TeV L=3.1fb^{-1})","L")
 
 MG = ROOT.TMultiGraph()
 
@@ -389,21 +395,23 @@ mytext.SetNDC()
 mytext.SetTextSize(0.03)
 if options.addLine:
   mytext.DrawLatex(0.58,0.85,"CMS preliminary")
-  mytext.DrawLatex(0.58,0.77,"#splitline{#sqrt{s} = 7 TeV L = 5.1 fb^{-1} (2011)}{#sqrt{s} = 8 TeV L = 1.5 fb^{-1} (2012)}")
+  mytext.DrawLatex(0.58,0.77,"#splitline{#sqrt{s} = 7 TeV L = 5.1 fb^{-1} (2011)}{#sqrt{s} = 8 TeV L = 3.1 fb^{-1} (2012)}")
 else:
   if options.is2011: mytext.DrawLatex(0.58,0.77,"#splitline{CMS preliminary}{#sqrt{s} = 7 TeV L = 5.1 fb^{-1}}")
-  else: mytext.DrawLatex(0.58,0.77,"#splitline{CMS preliminary}{#sqrt{s} = 8 TeV L = 1.5 fb^{-1}}")
+  else: mytext.DrawLatex(0.58,0.77,"#splitline{CMS preliminary}{#sqrt{s} = 8 TeV L = 3.1 fb^{-1}}")
   
 leg.Draw()
 
 #Make a bunch of extensions to the plots
 if options.doRatio:
  C.SaveAs("limit_%s_%s_ratio.pdf"%(options.doSmooth and "smooth" or "",Method))
+ C.SaveAs("limit_%s_%s_ratio.png"%(options.doSmooth and "smooth" or "",Method))
  C.SaveAs("limit_%s_%s_ratio.gif"%(options.doSmooth and "smooth" or "",Method))
  C.SaveAs("limit_%s_%s_ratio.eps"%(options.doSmooth and "smooth" or "",Method))
  C.SaveAs("limit_%s_%s_ratio.ps"%(options.doSmooth and "smooth" or "",Method))
 else:
  C.SaveAs("limit_%s_%s.pdf"%(options.doSmooth and "smooth" or "",Method))
+ C.SaveAs("limit_%s_%s.png"%(options.doSmooth and "smooth" or "",Method))
  C.SaveAs("limit_%s_%s.gif"%(options.doSmooth and "smooth" or "",Method))
  C.SaveAs("limit_%s_%s.eps"%(options.doSmooth and "smooth" or "",Method))
  C.SaveAs("limit_%s_%s.ps"%(options.doSmooth and "smooth" or "",Method))

@@ -26,9 +26,9 @@ files=[]
 for key in tfile.GetListOfKeys():
   if 'th1f' in key.GetName() and 'VBF' not in key.GetName() and grepBit in key.GetName() and antiGrepBit not in key.GetName():
     th1f = tfile.Get(key.GetName())
-    files.append([th1f.GetName(),th1f.GetEntries(),th1f.Integral()])
+    files.append([th1f.GetName(),th1f.GetNbinsX(),th1f.GetEntries(),th1f.Integral()])
 
 if options.Sort: files.sort(key=lambda x: x[0])
 
 for f in files:
-	print "%60s %10d %4.4f"%(f[0],f[1],f[2])
+	print "%60s %10d %10d %4.4f"%(f[0],f[1],f[2],f[3])

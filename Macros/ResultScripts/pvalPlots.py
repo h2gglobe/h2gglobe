@@ -2,11 +2,11 @@ import sys
 import ROOT
 from ROOT import TColor
 ROOT.gROOT.SetBatch(1)
-intlumi="2.84"
-bin=0
-def Setup(gr,col,style,leg,name,MG):
-	gr.SetLineWidth(2)
+intlumi="3.06"
+
+def Setup(gr,col,style,width,leg,name,MG):
 	gr.SetLineColor(col)
+	gr.SetLineWidth(width)
 	#gr.SetLineColor(0)
 	gr.SetLineStyle(style)
 	gr.SetMarkerColor(col)
@@ -18,7 +18,7 @@ def Setup(gr,col,style,leg,name,MG):
 	#grSmooth.SetLineWidth(2)
 	#grSmooth.SetLineColor(col)
 	MG.Add(gr)
-	leg.AddEntry(grSmooth,name,"L")
+	leg.AddEntry(gr,name,"L")
 	return grSmooth
 
 def fitSetup(gr,col,style,MG):
@@ -34,43 +34,17 @@ def fitSetup(gr,col,style,MG):
 MG=ROOT.TMultiGraph()
 fitMG=ROOT.TMultiGraph()
 
-if int(bin)>0 and int(bin)<10:
-  files = [
-  #"/vols/cms02/nw709/hgg/src_cvs/dec14/CMSSW_4_2_8/src/HiggsAnalysis/CombinedLimit/appmva/bdtcount/limit/pvals.root",
-  #"/vols/cms02/nw709/hgg/src_cvs/dec14/CMSSW_4_2_8/src/HiggsAnalysis/CombinedLimit/appmva/bdtcount/limit/pvals_vbf.root",
-  #"/vols/cms02/nw709/hgg/src_cvs/dec14/CMSSW_4_2_8/src/HiggsAnalysis/CombinedLimit/appmva/bdtcount/limit/pvals_novbf.root"
-  ]
-  fitfiles = [
-  #"/vols/cms02/nw709/hgg/src_cvs/dec14/CMSSW_4_2_8/src/HiggsAnalysis/CombinedLimit/appmva/bdtcount/limit/bf.root"
-  #"mva-datacards-grad-bin"+bin+"/bf_noerr.root"
-  ]
-else:
-  files = [
-  #"/vols/cms02/nw709/hgg/src_cvs/dec14/CMSSW_4_2_8/src/HiggsAnalysis/CombinedLimit/appmva/bdtcount/limit/pvals.root",
-  #"mva-datacards-grad-bin1/pvals.root",
-  #"mva-datacards-grad-bin2/pvals.root",
-  #"mva-datacards-grad-bin3/pvals.root",
-  #"mva-datacards-grad-bin4/pvals.root",
-  #"mva-datacards-grad-bin5/pvals.root",
- # "mva-datacards-grad-bin6/pvals.root"
- "exppval.root"
-  #"CombineCards/7TeV_5.1fb/pval.root",
-	#"CombineCards/8TeV_1.5fb/pval.root",
-	#"CombineCards/2011-2012_comb/pval.root"
-  ]
-  fitfiles = [
-  #"/vols/cms02/nw709/hgg/src_cvs/dec14/CMSSW_4_2_8/src/HiggsAnalysis/CombinedLimit/appmva/bdtcount/limit/bf.root",
-  #"mva-datacards-grad-bin1/bf_noerr.root",
-  #"mva-datacards-grad-bin2/bf_noerr.root",
-  #"mva-datacards-grad-bin3/bf_noerr.root",
-  #"mva-datacards-grad-bin4/bf_noerr.root",
-  #"mva-datacards-grad-bin5/bf_noerr.root",
- # "mva-datacards-grad-bin6/bf_noerr.root"
-  #sys.argv[1]+"/bf.root"
-  ]
+files = [
+"Jun15UnblindOldWeights3fb/MassFac3fbOldWeights/exppval_comb.root",
+"Jun15UnblindOldWeights3fb/MassFac3fbOldWeights/exppval_7TeV_5fb.root",
+"Jun15UnblindOldWeights3fb/MassFac3fbOldWeights/exppval_8TeV_3fb.root"
+]
+
+fitfiles = [
+#"/vols/cms02/nw709/hgg/src_cvs/dec14/CMSSW_4_2_8/src/HiggsAnalysis/CombinedLimit/appmva/bdtcount/limit/bf.root",
+]
 
 medfiles = [
-#"/vols/cms02/nw709/hgg/src_cvs/dec14/CMSSW_4_2_8/src/HiggsAnalysis/CombinedLimit/appmva/bdtcount/limit/pvals.root"
 ]
 
 onepoint = ROOT.TGraphErrors()
@@ -86,32 +60,27 @@ GR=[]
 fitFILES = []
 fitGR=[]
 
-colors=[2,TColor.GetColorDark(3),4,6,7,8]
-styles=[1,1,1,1,1,1,1]
+colors=[1,ROOT.kBlue+2,ROOT.kRed]
+styles=[9,9,9]
+widths=[3,2,2]
 colors_med=[38]
 styles_med=[7]
+widths_med=[2,2,2]
 
 fitcolors=[1,2,3,4,6,7,9]
 fitstyles=[1,1,1,1,1,1,1,1]
 
-if int(bin)==1: names=["Local P-value (Bin VBF)"]
-else:
-  names=[
-  #"Local P-value (Bin "+str(int(bin)-1)+")"
-	#"1xSM Higgs \sqrt{s}=7TeV L=5.1fb^{-1}",
-	"1xSM Higgs \sqrt{s}=8TeV L=2.8fb^{-1}",
-	#"1xSM Higgs combined"
+names=[
+#"Local P-value (Bin "+str(int(bin)-1)+")"
+#"1xSM Higgs \sqrt{s}=7TeV L=5.1fb^{-1}",
+#"Basline",
+#"MassFactorized MVA",
+#"Sideband MVA"
+"#splitline{Combined}{(1xSM Higgs Expected)}",
+"\sqrt{s}=7TeV L=5.1fb^{-1}",
+"\sqrt{s}=8TeV L=3.1fb^{-1}"
+]
 
-  #"#splitline{Local P-value}{(combined)}",
-  #"#splitline{Local P-value}{(Bin VBF)}",
-  #"#splitline{Local P-value}{(Bin 1)}",
-  #"#splitline{Local P-value}{(Bin 2)}",
-  #"#splitline{Local P-value}{(Bin 3)}",
-  #"#splitline{Local P-value}{(Bin 4)}",
-  #"#splitline{Local P-value}{(Bin 5)}",
-  #"#splitline{Local P-value}{(no di-jet)}",
-  #"#splitline{Local P-value}{(di-jet only)}"
-  ]
 names_med=["1xSM Higgs Median Expected"]
 
 # significance lines
@@ -130,7 +99,7 @@ legend.SetBorderSize(0)
 for i in range(len(medfiles)):
 	MEDFILES.append(ROOT.TFile(medfiles[i]))
 	GR.append(MEDFILES[i].Get("median"))
-	Setup(GR[-1],colors_med[i],styles_med[i],legend,names_med[i],MG)
+	Setup(GR[-1],colors_med[i],styles_med[i],widths_med[i],legend,names_med[i],MG)
 
 GRsmooth=[]
 for i in range(len(files)):
@@ -141,7 +110,7 @@ for i in range(len(files)):
 	print ggr.Eval(124.0)
 	GR.append(FILES[i].Get("observed"))
 	
-	GRsmooth.append(Setup(GR[-1],colors[i],styles[i],legend,names[i],MG))
+	GRsmooth.append(Setup(GR[-1],colors[i],styles[i],widths[i],legend,names[i],MG))
 
 #MG.Add(onepoint)
 #legend.AddEntry(onepoint,"Observed p-value (Ensemble)","PEl")
@@ -200,7 +169,7 @@ c.cd(2)
 """
 MG.Draw("AL")#LP")
 MG.GetXaxis().SetRangeUser(110,150)
-MG.GetYaxis().SetRangeUser(1.e-4,2.5)
+MG.GetYaxis().SetRangeUser(1.e-4,1.)
 for i, grSmo in enumerate(GRsmooth):
 	grSmo.SetLineColor(colors[i])
 	#grSmo.Draw("same")
@@ -217,8 +186,8 @@ text = ROOT.TLatex()
 
 #text.SetNDC()
 for j,TL in enumerate(TLines):
-	TL.SetLineStyle(7)
-	TL.SetLineColor(2)
+	TL.SetLineStyle(2)
+	TL.SetLineColor(1)
 	TL.SetLineWidth(1)
 	TL.Draw("same")
 	text.DrawLatex(150.5,Vals[j]*0.88,"%d #sigma"%Lines[j])
@@ -233,20 +202,18 @@ Box.SetFillColor(10)
 Box.SetFillStyle(1001)
 #Box.Draw()
 #mytext
-#mytext.DrawLatex(0.55,0.30,"CMS preliminary")
-#mytext.DrawLatex(0.55,0.22,"#splitline{#sqrt{s} = 7 TeV L = 5.1 fb^{-1}}{#sqrt{s} = 8 TeV L = 1.5 fb^{-1}}")
-mytext.DrawLatex(0.55,0.22,"#splitline{CMS preliminary}{#sqrt{s} = 8 TeV L = 2.8 fb^{-1}}")
-c.SetGrid(True)
+mytext.DrawLatex(0.55,0.30,"CMS preliminary")
+mytext.DrawLatex(0.55,0.22,"#splitline{#sqrt{s} = 7 TeV L = 5.1 fb^{-1}}{#sqrt{s} = 8 TeV L = 3.1 fb^{-1}}")
+#mytext.DrawLatex(0.55,0.22,"#splitline{CMS preliminary}{#sqrt{s} = 8 TeV L = 3.1 fb^{-1}}")
+c.SetGridx()
 c.SetLogy()
 
 
 #raw_input() 
 #dp.SaveAs("pvals_bin"+bin+".pdf")
-if int(bin)==1: c.SaveAs("pvalues_binVBF.pdf")
-if int(bin)>1 and int(bin)<10: c.SaveAs("pvalues_bin"+str(int(bin)-1)+".pdf")
-else: 
-  c.SaveAs(sys.argv[1]+"/pvalues.pdf")
- # dp.SaveAs(sys.argv[1]+"/pvalues_nobf.pdf")
-  c.SaveAs(sys.argv[1]+"/pvalues.png")
- # dp.SaveAs(sys.argv[1]+"/pvalues_nobf.png")
+c.SaveAs(sys.argv[1]+"/pvalues.pdf")
+# dp.SaveAs(sys.argv[1]+"/pvalues_nobf.pdf")
+c.SaveAs(sys.argv[1]+"/pvalues.png")
+c.SaveAs(sys.argv[1]+"/pvalues.C")
+# dp.SaveAs(sys.argv[1]+"/pvalues_nobf.png")
 

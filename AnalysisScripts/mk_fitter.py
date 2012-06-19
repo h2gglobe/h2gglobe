@@ -60,6 +60,9 @@ if __name__  == "__main__":
 		if in_comment:
 			datfile += "%s\n" % line
 			continue
+
+		if line.startswith("#"):
+			continue
 		
 		line = line % { "label" : options.label } 
 

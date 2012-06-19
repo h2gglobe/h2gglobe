@@ -1005,6 +1005,8 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
             << "    cosdphi:"   <<  TMath::Cos(lead_p4.Phi() - sublead_p4.Phi()) 
             << "    diphoBDT:"  <<  diphobdt_output 
             // Extra
+            << "    e_1:"       <<  lead_p4.E()
+            << "    e_2:"       <<  sublead_p4.E()
             << "    vbfevent:"  <<  VBFevent
             << "    evcat:"     <<  category
             << "    FileName:"  <<  l.files[l.current];

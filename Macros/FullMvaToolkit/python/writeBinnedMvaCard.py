@@ -358,7 +358,7 @@ def writeCard(tfile,mass,scaleErr):
 
   # This next bit is for the signal systematics, first lets do the easy ones, lumi and theory
   if options.is2011: outPut.write("\nlumi          lnN ")
-  else: outPut.write("\nlumi_8Tev       lnN ")
+  else: outPut.write("\nlumi       lnN ")
 
   if options.theorySys:
     for b in range(binL,binH): outPut.write(" %s  %s  %s  %s  -  "%(lumi,lumi,lumi,lumi))
@@ -402,7 +402,7 @@ def writeCard(tfile,mass,scaleErr):
     numberOfWZH_incl  = sum([wzhHist.GetBinContent(b) for b in range(binL,nBins_inclusive+binL)])
 
     if options.is2011: outPut.write("\nJetID_ggh  lnN ")
-    else: outPut.write("\nJetID_ggh_8Tev  lnN ")
+    else: outPut.write("\nJetID_ggh  lnN ")
     # inclusive bins
     for b in range(binL,nBins_inclusive+binL): outPut.write(" %.3f/%.3f   -   -   %.3f/%.3f   -  "%\
 		    (1.-(numberOfGGH_dijet/numberOfGGH_incl),1.+(numberOfGGH_dijet/numberOfGGH_incl),\
@@ -410,7 +410,7 @@ def writeCard(tfile,mass,scaleErr):
     # exclusive bins
     for b in range(binH-nBins_exclusive,binH): outPut.write(" %.3f/%.3f   -   -   %.3f/%.3f   -  "%(1+JetID_ggh,1-JetID_ggh,1+JetID_ggh,1-JetID_ggh))
     if options.is2011: outPut.write("\nJetID_vbf  lnN ")
-    else: outPut.write("\nJetID_vbf_8Tev  lnN ")
+    else: outPut.write("\nJetID_vbf  lnN ")
     # inclusive bins
     for b in range(binL,nBins_inclusive+binL): outPut.write(" -  %.3f/%.3f  %.3f/%.3f  -   -  "%\
 		    (1.-(numberOfVBF_dijet/numberOfVBF_incl),1.+(numberOfVBF_dijet/numberOfVBF_incl),\
@@ -445,7 +445,7 @@ def writeCard(tfile,mass,scaleErr):
       tthHistD.Scale(signalyieldsweight)
 
     if options.is2011: outPut.write("\n%s lnN "%sys)
-    else: outPut.write("\n%s_8Tev lnN "%sys)
+    else: outPut.write("\n%s lnN "%sys)
 
     for b in range(binL,binH): 
 	 outPut.write(" %s %s %s %s - "%(\
