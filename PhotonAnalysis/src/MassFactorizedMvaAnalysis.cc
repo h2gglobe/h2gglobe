@@ -16,7 +16,8 @@ MassFactorizedMvaAnalysis::MassFactorizedMvaAnalysis()  :
 {
 
     systRange  = 3.; // in units of sigma
-    nSystSteps = 1;    
+    nSystSteps = 1;
+
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -800,7 +801,14 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
         // Exclusive Modes
         int diphotonVBF_id = -1;
 	int ijet1, ijet2;
+        int diphotonVHhad_id = -1;
+        int diphotonVHlep_id = -1;
+        int diphotonVHmet_id = -1; //met at analysis step
+        VHmuevent = false;
+        VHelevent = false;
         VBFevent = false;
+        VHhadevent = false;
+        VHmetevent = false; //met at analysis step
         
         // VBF
         if((includeVBF || includeVHhad)&&l.jet_algoPF1_n>1 && !isSyst /*avoid rescale > once*/) {
@@ -891,7 +899,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
         if (PADEBUG) std::cout << " Diphoton Category " <<category <<std::endl;
     	// sanity check
         assert( evweight >= 0. ); 
-	
+
 	    // fill control plots and counters
 	    if( ! isSyst ) {
 	        l.FillCounter( "Accepted", weight );
@@ -1264,11 +1272,12 @@ void MassFactorizedMvaAnalysis::fillZeeControlPlots(const TLorentzVector & lead_
 }
 
 
-int category(std::vector<float> & v, float val)
+int MassFactorizedMvaAnalysis::category(std::vector<float> & v, float val)
 {
 	if( val == v[0] ) { return 0; }
 	std::vector<float>::iterator bound =  lower_bound( v.begin(), v.end(), val, std::greater<float>  ());
-	int cat = ( val == *bound ? bound - v.begin() - 1 : bound - v.begin() );
+	int cat = ( val >= *bound ? bound - v.begin() - 1 : bound - v.begin() );
+    //for (int i=0; i<v.size(); i++) cout << v[i] << endl;
 	if( cat >= v.size() - 1 ) { cat = -1; }
 	return cat;
 }
@@ -1326,6 +1335,7 @@ int MassFactorizedMvaAnalysis::GetBDTBoundaryCategory(float bdtout, bool isEB, b
 	return cat;
     } else std::cerr << "No BDT Philosophy known - " << bdtTrainingPhilosophy << std::endl;
 }
+
 void MassFactorizedMvaAnalysis::fillTrainTree(LoopAll &l, Int_t leadingPho, Int_t subleadingPho, Int_t vtx, float vtxProb, TLorentzVector &leadP4, TLorentzVector &subleadP4, float sigmaMrv, float sigmaMwv, float sigmaMeonly, const char* type, float photonID_1,float photonID_2){
     
       Float_t mva = 99.;
