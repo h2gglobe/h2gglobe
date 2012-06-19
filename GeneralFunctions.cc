@@ -4203,7 +4203,7 @@ int LoopAll::ElectronSelection2012(TLorentzVector& pho1, TLorentzVector& pho2, i
     thisiso=el_std_pfiso_charged[indel]+el_std_pfiso_neutral[indel]+ el_std_pfiso_photon[indel];
     if(thiseta>2.5 || (thiseta>1.442 && thiseta<1.566)) continue;
     thispt = thisel->Pt();
-    float overE_overP=fabs((1/el_std_pin[indel])-(el_std_pin[indel]/el_std_eopin[indel]));
+    float overE_overP=fabs((1/el_std_pin[indel])-(1/(el_std_pin[indel]*el_std_eopin[indel])));
     if(thispt<20) continue;
     //EE-EB common cuts
     if(fabs(el_std_D0Vtx[indel][vtxind]) > 0.02) continue;
