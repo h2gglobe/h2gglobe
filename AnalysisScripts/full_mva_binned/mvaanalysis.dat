@@ -1,5 +1,10 @@
-leadEtCut=40.0
-subleadEtCut=30.0
+#leadEtCut=40.0
+#subleadEtCut=30.0
+
+# Options for the mass spectrum range
+#massMin=100.
+#massMax=180.
+#nDataBins=160
 
 systRange=3.
 nSystSteps=1    
@@ -10,11 +15,6 @@ scaleR9Only=0
 mHMinimum=110.0
 mHMaximum=150.0
 mHStep=0.5
-
-# Options for the mass spectrum range
-massMin=100.
-massMax=180.
-nDataBins=160
 
 # Options for the sidebands mH ranges
 # These define how the sidebands are calculated
@@ -95,58 +95,57 @@ splitSignalSample=0
 splitBackgroundSample=0
 
 # choose between UCSD and MIT trainings
-
-bdtTrainingPhilosophy=MIT
-photonLevelMvaUCSD=aux/ID_UCSD.weights.xml
-eventLevelMvaUCSD=aux/diphoton_UCSD.weights.xml
-photonLevelNewIDMVA_EB=aux/2012ICHEP_PhotonID_Barrel_BDT.weights.xml
-photonLevelNewIDMVA_EE=aux/2012ICHEP_PhotonID_Endcap_BDT.weights_PSCorr.xml
-photonLevelMvaMIT_EB=aux/TMVAClassificationPhotonID_Barrel_PassPreSel_Variable_10_BDTnCuts2000_BDT.weights.xml
-photonLevelMvaMIT_EE=aux/TMVAClassificationPhotonID_Endcap_PassPreSel_Variable_10_BDTnCuts2000_BDT.weights.xml
-eventLevelMvaMIT=aux/HggBambu_SMDipho_Jan16_BDTG.weights.xml
-
-# photon ID preselection
-phoidMvaCut=-0.2
+#bdtTrainingPhilosophy=MIT
+#photonLevelMvaUCSD=aux/ID_UCSD.weights.xml
+#eventLevelMvaUCSD=aux/diphoton_UCSD.weights.xml
+#photonLevelNewIDMVA_EB=aux/2012ICHEP_PhotonID_Barrel_BDT.weights.xml
+#photonLevelNewIDMVA_EE=aux/2012ICHEP_PhotonID_Endcap_BDT.weights_PSCorr.xml
+#photonLevelMvaMIT_EB=aux/TMVAClassificationPhotonID_Barrel_PassPreSel_Variable_10_BDTnCuts2000_BDT.weights.xml
+#photonLevelMvaMIT_EE=aux/TMVAClassificationPhotonID_Endcap_PassPreSel_Variable_10_BDTnCuts2000_BDT.weights.xml
+#eventLevelMvaMIT=aux/HggBambu_SMDipho_Jan16_BDTG.weights.xml
 
 MVAtype=BDT
 
+# photon ID preselection
+#phoidMvaCut=-0.2
+
 # Turn on-off all smearings 
-doMCSmearing=1 
+#doMCSmearing=1 
 
 # Individual smearing flags
 
-doEscaleSmear=1
-doEscaleSyst=1
+#doEscaleSmear=1
+#doEscaleSyst=1
 
-doEresolSmear=1
-doEresolSyst=1
+#doEresolSmear=1
+#doEresolSyst=1
 
-energyCorrectionMethod=Bendavid
-doEcorrectionSmear=1
-doEcorrectionSyst=0
+#energyCorrectionMethod=Bendavid
+#doEcorrectionSmear=1
+#doEcorrectionSyst=0
 
-doRegressionSmear=1
-doRegressionSyst=1
+#doRegressionSmear=1
+#doRegressionSyst=1
 
-doPhotonIdEffSyst=1
-doPhotonIdEffSmear=1
+#doPhotonIdEffSyst=1
+#doPhotonIdEffSmear=1
 
-doVtxEffSyst=1
-doVtxEffSmear=1
+#doVtxEffSyst=1
+#doVtxEffSmear=1
 
-doTriggerEffSmear=1
-doTriggerEffSyst=1
+#doTriggerEffSmear=1
+#doTriggerEffSyst=1
 
-doPhotonMvaIdSmear=1
-doPhotonMvaIdSyst=1
+#doPhotonMvaIdSmear=1
+#doPhotonMvaIdSyst=1
 
-doR9Smear=0
-doR9Syst=0
+#doR9Smear=0
+#doR9Syst=0
 
-doKFactorSmear=0
-doKFactorSyst=0
+#doKFactorSmear=0
+#doKFactorSyst=0
 
-doInterferenceSmear=1
+#doInterferenceSmear=1
 
 mvaWeightsFolder=aux/sidebandMVA_weights/
 
@@ -154,6 +153,6 @@ mvaWeightsFolder=aux/sidebandMVA_weights/
 # - phoId and trigger: same as EPS,  https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/374.html
 # - vertexing from: https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/374/1.html
 
-efficiencyFile=aux/sig_reweighing_june15unblind_mva_v4.root
+#efficiencyFile=aux/sig_reweighing_june15unblind_mva_v4.root
 
 
