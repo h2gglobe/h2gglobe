@@ -17,7 +17,7 @@ nR9Categories=2
 nPtCategories=1
 
 ##
-phoidMvaCut=-0.3
+phoidMvaCut=-0.2
 
 ## Corrections and smearings
 scaleR9Only=0

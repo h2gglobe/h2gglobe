@@ -28,7 +28,7 @@ photonLevelMvaMIT_EE=aux/TMVAClassificationPhotonID_Endcap_PassPreSel_Variable_1
 eventLevelMvaMIT=aux/HggBambu_SMDipho_Jan16_BDTG.weights.xml
 
 # photon ID preselection
-phoidMvaCut=-0.3
+phoidMvaCut=-0.2
 
 # BDT categories
 bdtCategoryBoundaries=1,0.89,0.74,0.545,0.05
