@@ -1,4 +1,4 @@
-intL=3788 histfile=/store/group/phys_higgs/cmshgg/analyzed/june15unblind/%(label)s/CMS-HGG.root output=eventsList.txt
+intL=3770 histfile=/store/group/phys_higgs/cmshgg/analyzed/june15unblind/%(label)s/CMS-HGG.root output=eventsList.txt
 
 #
 # Data
