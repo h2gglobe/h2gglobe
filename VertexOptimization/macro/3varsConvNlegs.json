@@ -1,8 +1,0 @@
-{ 
-  "categories" : [],
-  "variables"  : ["ptasym","ptbal","logsumpt2","limpulltoconv","nlegs"],
-
-  "sigcut"   : "isClosestToGen  && ptbal < 500 && logsumpt2 > -10 && nconv>0",
-  "bkgcut"   : "!isClosestToGen && ptbal < 500 && logsumpt2 > -10 && nconv>0"
-
-}

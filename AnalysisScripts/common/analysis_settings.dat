@@ -31,7 +31,7 @@ kfacHist=
 ## kfacHist=aux/KFactors_AllScales_interpolated.root
 puMap=
 puHist=auto
-puTarget=aux/rereco_prompt_2012_120608.69000.observed.pileup.root
+puTarget=aux/ichep_approval_38fb.71000.observed.pileup.root
 
 ## energy scale adjustement and errors
 scale_offset_file=energy_scale_offsets.dat
@@ -46,5 +46,5 @@ recorrectJets=1
 rerunJetMva=0
 recomputeJetWp=1
 
-reRunVtx=1
+reRunVtx=0
 rematchConversions=1
