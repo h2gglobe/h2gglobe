@@ -3040,7 +3040,7 @@ int LoopAll::DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL, phoCiCIDLevel SUB
   std::vector<int> passing_dipho;
   std::vector<float> passing_sumpt;
   for(int idipho = 0; idipho < dipho_n; ++idipho ) {
-    if( idipho > MAX_DIPHOTONS ) { 
+    if( idipho >= MAX_DIPHOTONS-1 ) { 
       std::cout << "Warning diphoton index exceeds array capacity. Throwing even away " << idipho << " " << MAX_DIPHOTONS <<  dipho_n << " " << run << " " << lumis << " " << event << " " << std::endl;
       if( itype[current] == 0 ) { assert( 0 ); }
       return -1;
@@ -3127,6 +3127,12 @@ int LoopAll::DiphotonMITPreSelection(Float_t leadPtMin, Float_t subleadPtMin, Fl
   std::vector<int> passing_dipho;
   std::vector<float> passing_sumpt;
   for(int idipho = 0; idipho < dipho_n; ++idipho ) {
+      if( idipho >= MAX_DIPHOTONS-1 ) { 
+	  std::cout << "Warning diphoton index exceeds array capacity. Throwing event away " << idipho << " " << MAX_DIPHOTONS <<  dipho_n << " " << run << " " << lumis << " " << event << " " << std::endl;
+	  if( itype[current] == 0 ) { assert( 0 ); }
+	  return -1;
+      }
+      
     int ivtx = dipho_vtxind[idipho];
     int lead = dipho_leadind[idipho];
     int sublead = dipho_subleadind[idipho];
