@@ -895,7 +895,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
         kinematic_bdtout = diphobdt_output;
         bool isEBEB  = (lead_p4.Eta() < 1.4442 ) && fabs(sublead_p4.Eta()<1.4442);
         category = GetBDTBoundaryCategory(diphobdt_output,isEBEB,VBFevent);
-        if (diphobdt_output>=0.05) computeExclusiveCategory(l,category,diphoton_index,Higgs.Pt()); 
+        if (diphobdt_output>=-0.05) computeExclusiveCategory(l,category,diphoton_index,Higgs.Pt()); 
         if (PADEBUG) std::cout << " Diphoton Category " <<category <<std::endl;
     	// sanity check
         assert( evweight >= 0. ); 
@@ -1134,7 +1134,7 @@ void MassFactorizedMvaAnalysis::fillZeeControlPlots(const TLorentzVector & lead_
       l.FillHist("pho2_phoidMva_EE_down",0,(phoid_mvaout_sublead-0.025), evweight);
     }
 
-    if (diphobdt_output > 0.05) {
+    if (diphobdt_output > -0.05) {
 
       if( mass>=83. && mass<=96. ) {
 	l.FillHist("nvtx_83to96",0, l.vtx_std_n, evweight);
