@@ -55,7 +55,7 @@ jet_algoPF1_area
 pho_scind
 sc_xyz
 sc_raw
-bc_seed
+## bc_seed
 sc_bcseedind
 ecalhit_n
 ecalhit_detid
