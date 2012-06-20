@@ -34,6 +34,7 @@ class CategoryAnalysis : public StatAnalysis
     //// virtual void Analysis(LoopAll&, Int_t); 
 
     virtual int GetBDTBoundaryCategory(float,bool,bool);
+    int category(std::vector<float>&,float);
 
     bool doPhotonMvaIdSyst;
     bool doPhotonMvaIdSmear;
@@ -45,6 +46,11 @@ class CategoryAnalysis : public StatAnalysis
     std::string photonLevelMvaMIT_EB;
     std::string photonLevelMvaMIT_EE;
     std::string eventLevelMvaMIT    ;
+    std::string photonLevelNewIDMVA_EB;
+    std::string photonLevelNewIDMVA_EE;
+
+    std::vector<float> bdtCategoryBoundaries;
+    float photonIDMVAShift_EB, photonIDMVAShift_EE;
 
  protected:
 
@@ -60,9 +66,6 @@ class CategoryAnalysis : public StatAnalysis
     std::string name_;
     std::map<int,std::string> signalLabels;
     
-    
-    HggVertexAnalyzer vtxAna_;
-    HggVertexFromConversions vtxConv_;
 };
 
 #endif

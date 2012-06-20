@@ -406,7 +406,8 @@ void StatAnalysis::Init(LoopAll& l)
         if(i<nInclusiveCategories_) {
             cats_with_std[i]=1;
         } else if(i<nInclusiveCategories_+nVBFCategories){
-            cats_with_quad[i]=1;
+            /// cats_with_quad[i]=1;
+            cats_with_cubic[i]=1;
         } else if(i<nInclusiveCategories_+nVBFCategories+nVHhadCategories){
             cats_with_quad[i]=1;
         } else if(i<nInclusiveCategories_+nVBFCategories+nVHhadCategories+nVHlepCategories){

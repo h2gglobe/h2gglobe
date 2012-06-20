@@ -289,10 +289,12 @@ Float_t LoopAll::photonIDMVANew(Int_t iPhoton, Int_t vtx, TLorentzVector &p4, co
   tmva_photonid_sceta    = ((TVector3*)sc_xyz->At(pho_scind[iPhoton]))->Eta(); 
   tmva_photonid_ESEffSigmaRR = pho_ESEffSigmaRR[iPhoton];
   
-  if (pho_isEB[iPhoton])
+  if (pho_isEB[iPhoton]) {
     mva = tmvaReaderID_Single_Barrel->EvaluateMVA("AdaBoost");
-  else
+  }
+  else {
     mva = tmvaReaderID_Single_Endcap->EvaluateMVA("AdaBoost");
+  }
 
   return mva;
 }
@@ -3040,6 +3042,11 @@ int LoopAll::DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL, phoCiCIDLevel SUB
   std::vector<int> passing_dipho;
   std::vector<float> passing_sumpt;
   for(int idipho = 0; idipho < dipho_n; ++idipho ) {
+    if( idipho >= MAX_DIPHOTONS-1 ) { 
+      std::cout << "Warning diphoton index exceeds array capacity. Throwing even away " << idipho << " " << MAX_DIPHOTONS <<  dipho_n << " " << run << " " << lumis << " " << event << " " << std::endl;
+      if( itype[current] == 0 ) { assert( 0 ); }
+      return -1;
+    }
     int ivtx = dipho_vtxind[idipho];
     int lead = dipho_leadind[idipho];
     int sublead = dipho_subleadind[idipho];
@@ -3122,6 +3129,12 @@ int LoopAll::DiphotonMITPreSelection(Float_t leadPtMin, Float_t subleadPtMin, Fl
   std::vector<int> passing_dipho;
   std::vector<float> passing_sumpt;
   for(int idipho = 0; idipho < dipho_n; ++idipho ) {
+      if( idipho >= MAX_DIPHOTONS-1 ) { 
+	  std::cout << "Warning diphoton index exceeds array capacity. Throwing event away " << idipho << " " << MAX_DIPHOTONS <<  dipho_n << " " << run << " " << lumis << " " << event << " " << std::endl;
+	  if( itype[current] == 0 ) { assert( 0 ); }
+	  return -1;
+      }
+      
     int ivtx = dipho_vtxind[idipho];
     int lead = dipho_leadind[idipho];
     int sublead = dipho_subleadind[idipho];
@@ -3747,25 +3760,25 @@ Float_t LoopAll::SumTrackPtInCone(TLorentzVector *photon_p4, Int_t vtxind, Float
 
 void LoopAll::getIetaIPhi(int phoid, int & ieta, int & iphi ) const
 {
-  ///// TLorentzVector *bcpos   = (TLorentzVector*)bc_p4->At(sc_bcseedind[pho_scind[phoid]]);
-  ///// double minDR=999.;
-  ///// int closestHit=-1;
-  ///// for (int i=0;i<ecalhit_n;i++){
-  /////   TLorentzVector *xtalpos = (TLorentzVector*)ecalhit_p4->At(i);
-  /////   //TVector3 xtalxyz = xtalpos->Vect();
-  /////   //double dR = (xtalxyz-bcxyz).Mag();
-  /////   double dR = xtalpos->DeltaR(*bcpos);
-  /////   if(dR<minDR){
-  /////     closestHit = i;
-  /////     minDR = dR;
-  /////   }
-  ///// }
-  ///// if (closestHit<0) std::cout << "Fishy !!!!!!" <<std::endl;
-  
-  //// int detid = ecalhit_detid[closestHit];
-  int detid = ecalhit_detid[bc_seed[sc_bcseedind[pho_scind[phoid]]]];
-  ieta  = (detid>>9)&0x7F; 
-  iphi  = detid&0x1FF; 
+    TLorentzVector *bcpos   = (TLorentzVector*)bc_p4->At(sc_bcseedind[pho_scind[phoid]]);
+    double minDR=999.;
+    int closestHit=-1;
+    for (int i=0;i<ecalhit_n;i++){
+	TLorentzVector *xtalpos = (TLorentzVector*)ecalhit_p4->At(i);
+	//TVector3 xtalxyz = xtalpos->Vect();
+	//double dR = (xtalxyz-bcxyz).Mag();
+	double dR = xtalpos->DeltaR(*bcpos);
+	if(dR<minDR){
+	    closestHit = i;
+	    minDR = dR;
+	}
+    }
+    if (closestHit<0) std::cout << "Fishy !!!!!!" <<std::endl;
+    
+    int detid = ecalhit_detid[closestHit];
+    //// int detid = ecalhit_detid[bc_seed[sc_bcseedind[pho_scind[phoid]]]];
+    ieta  = (detid>>9)&0x7F; 
+    iphi  = detid&0x1FF; 
 }
 
 bool LoopAll::CheckSphericalPhoton(int ieta, int iphi) const 

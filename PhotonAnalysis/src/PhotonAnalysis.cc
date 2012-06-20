@@ -1829,7 +1829,7 @@ int PhotonAnalysis::DiphotonMVAEventClass(LoopAll &l, float diphoMVA, int nCat, 
   
     int eventClass = -1;
 
-    float class5threshMIT[4]  = { 0.05,  0.55, 0.72, 0.89 };
+    float class5threshMIT[4]  = { -0.05,  0.5, 0.71, 0.88 };
     float class6threshUCSD[6] = { -0.4, -0.0356,  0.3889, 0.592, 0.6669,  0.7583 };
     // first 2 for (ebee+eeee) and last 6 for ebeb
     float class8threshUCSD[8]={-0.7, -0.11, -0.4, -0.0356,  0.3889, 0.592, 0.6669,  0.7583 };

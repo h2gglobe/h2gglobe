@@ -2,7 +2,6 @@
 
 #include "Sorters.h"
 #include "PhotonReducedInfo.h"
-#include "VertexAnalysis/interface/PhotonInfo.h"
 #include <iostream>
 #include <algorithm>
 
@@ -12,8 +11,7 @@ using namespace std;
 
 // ----------------------------------------------------------------------------------------------------
 CategoryAnalysis::CategoryAnalysis()  : 
-    name_("CategoryAnalysis"),
-    vtxAna_(vtxAlgoParams), vtxConv_(vtxAlgoParams)
+    name_("CategoryAnalysis")
 {
 }
 
@@ -78,6 +76,7 @@ void CategoryAnalysis::Init(LoopAll& l)
     // initialize the analysis variables
     nPhotonCategories_ = nEtaCategories;
     if( nR9Categories != 0 ) nPhotonCategories_ *= nR9Categories;
+    nInclusiveCategories_ = 4;
 
   
     effSmearPars.categoryType = "2CatR9_EBEE";
@@ -177,6 +176,11 @@ void CategoryAnalysis::Init(LoopAll& l)
         genLevelSmearers_.push_back(interferenceSmearer);
     }
 
+    // Define the number of categories for the statistical analysis and
+    // the systematic sets to be formed
+    int nVBFCategories   = ((int)includeVBF)*nVBFEtaCategories*nVBFDijetJetCategories;
+    std::sort(bdtCategoryBoundaries.begin(),bdtCategoryBoundaries.end(), std::greater<float>() );
+
     // Make sure the Map is filled
     FillSignalLabelMap(l);
 
@@ -185,6 +189,9 @@ void CategoryAnalysis::Init(LoopAll& l)
     // UCSD
     l.tmvaReaderID_UCSD->BookMVA("Gradient"      ,photonLevelMvaUCSD.c_str()  );
     l.tmvaReader_dipho_UCSD->BookMVA("Gradient"  ,eventLevelMvaUCSD.c_str()   );
+    // New ID MVA
+    l.tmvaReaderID_Single_Barrel->BookMVA("AdaBoost",photonLevelNewIDMVA_EB.c_str());
+    l.tmvaReaderID_Single_Endcap->BookMVA("AdaBoost",photonLevelNewIDMVA_EE.c_str());
     // MIT 
     l.tmvaReaderID_MIT_Barrel->BookMVA("AdaBoost",photonLevelMvaMIT_EB.c_str());
     l.tmvaReaderID_MIT_Endcap->BookMVA("AdaBoost",photonLevelMvaMIT_EE.c_str());
@@ -229,6 +236,7 @@ bool CategoryAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLor
 
     // Exclusive Modes
     int diphotonVBF_id = -1;
+    int ijet1, ijet2;
     VBFevent = false;
     int diphotonVBF_id_CIC=-1;
     bool VBFevent_CIC = false;
@@ -242,10 +250,10 @@ bool CategoryAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLor
     // Flag whether this is a VBF event (separately for MVA and CIC because sublead Et cut is different)
     if(includeVBF) {
       diphotonVBF_id = l.DiphotonMITPreSelection(leadEtVBFCut,subleadEtVBFCut,phoidMvaCut,applyPtoverM, &smeared_pho_energy[0] );
-      VBFevent=VBFTag2011(l, diphotonVBF_id, &smeared_pho_energy[0], false, 0., 0.);
+      VBFevent=VBFTag2012(ijet1, ijet2, l, diphotonVBF_id, &smeared_pho_energy[0], false, 0., 0.);
 
       diphotonVBF_id_CIC = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVBFCut, subleadEtVBFCut_CIC, 4,false, &smeared_pho_energy[0], true); 
-      VBFevent_CIC=VBFTag2011(l, diphotonVBF_id_CIC, &smeared_pho_energy[0], false, 0., 0.);
+      VBFevent_CIC=VBFTag2012(ijet1, ijet2, l, diphotonVBF_id_CIC, &smeared_pho_energy[0], false, 0., 0.);
     }
 
 
@@ -340,10 +348,10 @@ bool CategoryAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLor
       float sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
       float sigmaMeonly = massResolutionCalculator->massResolutionEonly();
       // easy to calculate vertex probability from vtx mva output
-      float vtxProb   = 1.-0.49*(vtx_mva+1.0);
+      float vtxProb   = 1.-0.49*(vtx_mva+1.0); /// should better use this: vtxAna_.setPairID(diphoton_id); vtxAna_.vertexProbability(vtx_mva); PM
 
-      float phoid_mvaout_lead = l.photonIDMVA(diphoton_index.first,l.dipho_vtxind[diphoton_id],lead_p4,bdtTrainingPhilosophy.c_str());
-      float phoid_mvaout_sublead = l.photonIDMVA(diphoton_index.second,l.dipho_vtxind[diphoton_id],sublead_p4,bdtTrainingPhilosophy.c_str());
+      float phoid_mvaout_lead = l.photonIDMVANew(diphoton_index.first,l.dipho_vtxind[diphoton_id],lead_p4,bdtTrainingPhilosophy.c_str()) + photonIDMVAShift_EB;
+      float phoid_mvaout_sublead = l.photonIDMVANew(diphoton_index.second,l.dipho_vtxind[diphoton_id],sublead_p4,bdtTrainingPhilosophy.c_str()) + photonIDMVAShift_EE;
 
       // apply di-photon level smearings and corrections
       selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,0);
@@ -373,13 +381,13 @@ bool CategoryAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLor
 	if (!VBFevent) {
 
 	  if (passMVApresel) {
-	    if (diphobdt_output>0.05) {
+	    if (diphobdt_output>-0.05) {
 	      l.FillHist("mass_mva",0, mass, evweight);
 	    } else {
 	      l.FillHist("mass_mva_bdtoutlt05",0, mass, evweight);
 	    }
 	  } else if (passCiC) {
-	    if (diphobdt_output>0.05) {
+	    if (diphobdt_output>-0.05) {
 	      l.FillHist("mass_failpresel_bdtoutgt05",0, mass, evweight);
 	    } else {
 	      l.FillHist("mass_failpresel_bdtoutlt05",0, mass, evweight);
@@ -388,7 +396,7 @@ bool CategoryAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLor
 
 	  if( mass>=massMin && mass<=massMax) {
 
-	    if (diphobdt_output > 0.05) {
+	    if (diphobdt_output > -0.05) {
 	      float deltaEta = lead_p4.Eta()-sublead_p4.Eta();     
 	      float max_eta = max(fabs(lead_p4.Eta()),fabs(sublead_p4.Eta()));
 	      float min_r9  = min(lead_r9,sublead_r9);
@@ -447,10 +455,21 @@ bool CategoryAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLor
     l.FillHist2D("passCiC_vs_passMVA_cat",0, float(catMVA), float(catCiC), weight*genLevWeight);
 
     bool VBFevent_MVA = false;
-    if (VBFevent && diphobdt_output>0.05) VBFevent_MVA = true;
+    if (VBFevent && diphobdt_output>-0.05) VBFevent_MVA = true;
     l.FillHist2D("passVBFCiC_vs_passVBFMVA",0, float(VBFevent_MVA), float(VBFevent_CIC), weight*genLevWeight);
 
     return false;
+}
+
+
+int CategoryAnalysis::category(std::vector<float> & v, float val)
+{
+	if( val == v[0] ) { return 0; }
+	std::vector<float>::iterator bound =  lower_bound( v.begin(), v.end(), val, std::greater<float>  ());
+	int cat = ( val >= *bound ? bound - v.begin() - 1 : bound - v.begin() );
+    //for (int i=0; i<v.size(); i++) cout << v[i] << endl;
+	if( cat >= v.size() - 1 ) { cat = -1; }
+	return cat;
 }
 
 
@@ -472,29 +491,12 @@ int CategoryAnalysis::GetBDTBoundaryCategory(float bdtout, bool isEB, bool VBFev
         }
 
     } else if (bdtTrainingPhilosophy=="MIT"){
-        /*
-          if (bdtout >=-0.50 && bdtout < 0.3) return 4;
-          //     if (bdtout < 0.3) return 4;
-          if (bdtout >= 0.3 && bdtout < 0.65) return 3;
-          if (bdtout >= 0.65 && bdtout < 0.84) return 2;
-          if (bdtout >= 0.84 && bdtout < 0.90) return 1;
-          if (bdtout >= 0.90) return 0;
-          return -1;
-        */
-        //       if (bdtout >=-0.50 && bdtout < 0.05) return 4;
-        if (VBFevent) {
-            if (bdtout >= 0.05) return 4;
-            else return -1;
-        } else {
-            if (bdtout >= 0.05 && bdtout < 0.545) return 3;
-            if (bdtout >= 0.545 && bdtout < 0.74) return 2;
-            if (bdtout >= 0.74 && bdtout < 0.89) return 1;
-            if (bdtout >= 0.89) return 0;
-            return -1;
-        }
-
+	int cat = category( bdtCategoryBoundaries, bdtout );
+	if( VBFevent && cat > -1 ) cat = bdtCategoryBoundaries.size();
+	return cat;
     } else std::cerr << "No BDT Philosophy known - " << bdtTrainingPhilosophy << std::endl;
 }
+
 
 void CategoryAnalysis::ResetAnalysis(){
     // Reset Random Variable on the EnergyResolution Smearer
@@ -505,7 +507,6 @@ void CategoryAnalysis::ResetAnalysis(){
 
 // Local Variables:
 // mode: c++
-// mode: sensitive
 // c-basic-offset: 4
 // End:
 // vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4

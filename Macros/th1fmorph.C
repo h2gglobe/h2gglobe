@@ -323,7 +323,7 @@ TH1F *th1fmorph(Char_t *chname="TH1F-interpolated",
   Double_t y,x20,x21,y20,y21; // Interpolation points along cdfs 0,1,2
   Double_t x10,x11,y10,y11;
 
-  while((ix1 < ix1l) | (ix2 < ix2l)) {
+  while(ix1 < ix1l | ix2 < ix2l) {
     if (idebug >= 1 ) cout << "----Top of while with ix1=" << ix1 
 			   << ", ix1l=" << ix1l << ", ix2=" << ix2 
 			   << ", ix2l=" << ix2l << endl;
