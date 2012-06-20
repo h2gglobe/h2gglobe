@@ -1101,8 +1101,8 @@ void MassFactorizedMvaAnalysis::fillZeeControlPlots(const TLorentzVector & lead_
       } else {
 	l.FillHist("pho1_phoidMva_EB_nvtxlt15",0,phoid_mvaout_lead, evweight);
       }
-      l.FillHist("pho1_phoidMva_EB_up",0,(phoid_mvaout_lead+0.025), evweight);
-      l.FillHist("pho1_phoidMva_EB_down",0,(phoid_mvaout_lead-0.025), evweight);
+      l.FillHist("pho1_phoidMva_EB_up",0,(phoid_mvaout_lead+0.01), evweight);
+      l.FillHist("pho1_phoidMva_EB_down",0,(phoid_mvaout_lead-0.01), evweight);
     } else {
       l.FillHist("pho1_phoidMva_EE",0,phoid_mvaout_lead, evweight);
       if (l.vtx_std_n>15) {
@@ -1110,8 +1110,8 @@ void MassFactorizedMvaAnalysis::fillZeeControlPlots(const TLorentzVector & lead_
       } else {
 	l.FillHist("pho1_phoidMva_EE_nvtxlt15",0,phoid_mvaout_lead, evweight);
       }
-      l.FillHist("pho1_phoidMva_EE_up",0,(phoid_mvaout_lead+0.025), evweight);
-      l.FillHist("pho1_phoidMva_EE_down",0,(phoid_mvaout_lead-0.025), evweight);
+      l.FillHist("pho1_phoidMva_EE_up",0,(phoid_mvaout_lead+0.01), evweight);
+      l.FillHist("pho1_phoidMva_EE_down",0,(phoid_mvaout_lead-0.01), evweight);
     }
 
     if (fabs(sublead_p4.Eta()) < 1.4442) {
@@ -1121,8 +1121,8 @@ void MassFactorizedMvaAnalysis::fillZeeControlPlots(const TLorentzVector & lead_
       } else {
 	l.FillHist("pho2_phoidMva_EB_nvtxlt15",0,phoid_mvaout_lead, evweight);
       }
-      l.FillHist("pho2_phoidMva_EB_up",0,(phoid_mvaout_sublead+0.025), evweight);
-      l.FillHist("pho2_phoidMva_EB_down",0,(phoid_mvaout_sublead-0.025), evweight);
+      l.FillHist("pho2_phoidMva_EB_up",0,(phoid_mvaout_sublead+0.01), evweight);
+      l.FillHist("pho2_phoidMva_EB_down",0,(phoid_mvaout_sublead-0.01), evweight);
     } else {
       l.FillHist("pho2_phoidMva_EE",0,phoid_mvaout_sublead, evweight);
       if (l.vtx_std_n>15) {
@@ -1130,8 +1130,8 @@ void MassFactorizedMvaAnalysis::fillZeeControlPlots(const TLorentzVector & lead_
       } else {
 	l.FillHist("pho2_phoidMva_EE_nvtxlt15",0,phoid_mvaout_lead, evweight);
       }
-      l.FillHist("pho2_phoidMva_EE_up",0,(phoid_mvaout_sublead+0.025), evweight);
-      l.FillHist("pho2_phoidMva_EE_down",0,(phoid_mvaout_sublead-0.025), evweight);
+      l.FillHist("pho2_phoidMva_EE_up",0,(phoid_mvaout_sublead+0.01), evweight);
+      l.FillHist("pho2_phoidMva_EE_down",0,(phoid_mvaout_sublead-0.01), evweight);
     }
 
     if (diphobdt_output > -0.05) {
