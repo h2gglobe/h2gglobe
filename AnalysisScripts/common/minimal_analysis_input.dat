@@ -56,6 +56,7 @@ pho_scind
 sc_xyz
 sc_raw
 ## bc_seed
+bc_p4
 sc_bcseedind
 ecalhit_n
 ecalhit_detid
