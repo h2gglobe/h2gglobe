@@ -1223,10 +1223,10 @@ void PhotonAnalysis::PreselectPhotons(LoopAll& l, int jentry)
         TLorentzVector p4 = l.get_pho_p4(ipho,0,&corrected_pho_energy[0]);
         float eta = fabs(((TVector3 *)l.sc_xyz->At(l.pho_scind[ipho]))->Eta());
         // photon et wrt 0,0,0
-        float et = p4.Energy();
+        float et = p4.Pt();
         pho_et.push_back(et);
     
-    if( eta>1.4442 && eta<1.566 ) { 
+	if( (eta>1.4442 && eta<1.566) || eta > 2.5 ) { 
             continue;  
         }
         pho_acc.push_back(ipho);
@@ -1313,8 +1313,6 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
     if(PADEBUG)  cout << " ****************** SelectEventsReduction " << endl;
     // require at least two reconstructed photons to store the event
 
-//    if( pho_acc.size() < 2 || l.get_pho_p4( pho_acc[0], 0, &corrected_pho_energy[0] ).Pt() < presel_scet1 ) { return false; }
-    
     if( pho_acc.size() < 2 ) { return false; }
     
     vtxAna_.clear();
@@ -1325,7 +1323,8 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
     l.vtx_std_sel=0;
     float maxSumPt = 0.;
     l.dipho_n = 0;
-
+    bool oneKinSelected = false;
+    
     // fill ID variables
     if( forcedRho >= 0. ) {
         l.rho = forcedRho;
@@ -1368,6 +1367,7 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
         l.dipho_n = 0;
         for(size_t id=0; id<diphotons.size(); ++id ) {
             
+	    if( l.dipho_n >= MAX_DIPHOTONS-1 ) { continue; }
             int ipho1 = diphotons[id].first;
             int ipho2 = diphotons[id].second;
 
@@ -1393,6 +1393,7 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
                 vtxAna_.discardLastDipho();
                 continue;
             }
+	    oneKinSelected = true;
 
             if( ! l.PhotonMITPreSelection(ipho1, vtxs[0], &corrected_pho_energy[0] )
                 || ! l.PhotonMITPreSelection(ipho2, vtxs[0], &corrected_pho_energy[0] ) ) {
@@ -1457,7 +1458,7 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
     }
     
 
-    return true;
+    return oneKinSelected;
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -1470,10 +1471,10 @@ bool PhotonAnalysis::SkimEvents(LoopAll& l, int jentry)
     }
     
     if( skimOnDiphoN && l.typerun == l.kFill ) {
-    l.b_dipho_n->GetEntry(jentry);
-    if( l.dipho_n < 1 ) {
-        return false;
-    }
+	l.b_dipho_n->GetEntry(jentry);
+	if( l.dipho_n < 1 ) {
+	    return false;
+	}
     }
 
     // do not run trigger selection on MC
@@ -1487,22 +1488,22 @@ bool PhotonAnalysis::SkimEvents(LoopAll& l, int jentry)
             std::cerr << "No trigger selection for run " << l.run << "defined" << std::endl;
             return true;
         }
-
-    // get the trigger data
-    if( l.version < 13 ) { 
-        l.b_hlt1_bit->GetEntry(jentry); 
-        l.b_hlt_path_names_HLT1->GetEntry(jentry);
-        if( !  isel->pass( *(l.hlt_path_names_HLT1), *(l.hlt1_bit) ) ) {
-        return false;
-        }
-    } else {  
-        l.b_hlt_bit->GetEntry(jentry); 
-        l.b_hlt_path_names_HLT->GetEntry(jentry);
-        if( !  isel->pass( *(l.hlt_path_names_HLT), *(l.hlt_bit) ) ) {
-        return false;
-        }
-    }
-    //l.countersred[trigCounter_]++;
+	
+	// get the trigger data
+	if( l.version < 13 ) { 
+	    l.b_hlt1_bit->GetEntry(jentry); 
+	    l.b_hlt_path_names_HLT1->GetEntry(jentry);
+	    if( !  isel->pass( *(l.hlt_path_names_HLT1), *(l.hlt1_bit) ) ) {
+		return false;
+	    }
+	} else {  
+	    l.b_hlt_bit->GetEntry(jentry); 
+	    l.b_hlt_path_names_HLT->GetEntry(jentry);
+	    if( !  isel->pass( *(l.hlt_path_names_HLT), *(l.hlt_bit) ) ) {
+		return false;
+	    }
+	}
+	//l.countersred[trigCounter_]++;
     }
     
     if( l.typerun == l.kReduce || l.typerun == l.kFillReduce ) {
@@ -1574,69 +1575,69 @@ void PhotonAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree)
     l.dipho_vtx_std_sel =  new std::vector<int>();
 
     if( outputTree ) {
-    l.Branch_vtx_std_evt_mva(outputTree);
-    l.Branch_vtx_std_ranked_list(outputTree);
-    l.Branch_vtx_std_sel(outputTree);
-    l.Branch_pho_tkiso_recvtx_030_002_0000_10_01(outputTree);
-    l.Branch_pho_tkiso_badvtx_040_002_0000_10_01(outputTree);
-    l.Branch_pho_tkiso_badvtx_id(outputTree);
-    l.Branch_pho_pfiso_charged_badvtx_04(outputTree);
-    l.Branch_pho_pfiso_charged_badvtx_id(outputTree);
-    l.Branch_pho_ZeeVal_tkiso_recvtx_030_002_0000_10_01(outputTree);
-    l.Branch_pho_ZeeVal_tkiso_badvtx_040_002_0000_10_01(outputTree);
-    l.Branch_pho_ZeeVal_tkiso_badvtx_id(outputTree);
-    l.Branch_pho_mitmva(outputTree);
-    l.Branch_pho_drtotk_25_99(outputTree);
-    
-    l.Branch_dipho_n(outputTree);
-    l.Branch_dipho_leadind(outputTree);
-    l.Branch_dipho_subleadind(outputTree);
-    l.Branch_dipho_vtxind(outputTree);
-    l.Branch_dipho_sumpt(outputTree);
-    
-    l.Branch_pho_cic6cutlevel_lead( outputTree );
-    l.Branch_pho_cic6passcuts_lead( outputTree );
-    l.Branch_pho_cic6cutlevel_sublead( outputTree );
-    l.Branch_pho_cic6passcuts_sublead( outputTree );
-    l.Branch_pho_cic4cutlevel_lead( outputTree );
-    l.Branch_pho_cic4passcuts_lead( outputTree );
-    l.Branch_pho_cic4cutlevel_sublead( outputTree );
-    l.Branch_pho_cic4passcuts_sublead( outputTree );
-    l.Branch_pho_cic4pfcutlevel_lead( outputTree );
-    l.Branch_pho_cic4pfpasscuts_lead( outputTree );
-    l.Branch_pho_cic4pfcutlevel_sublead( outputTree );
-    l.Branch_pho_cic4pfpasscuts_sublead( outputTree );
-    
-    l.Branch_pho_genmatched(outputTree);
-    l.Branch_pho_regr_energy_otf(outputTree);
-    l.Branch_pho_regr_energyerr_otf(outputTree);
-    
-    l.Branch_jet_algoPF1_genMatched(outputTree);
-    l.Branch_jet_algoPF1_vbfMatched(outputTree);
-    l.Branch_jet_algoPF1_genPt(outputTree);
-    l.Branch_jet_algoPF1_genDr(outputTree);
-    
-    l.Branch_jet_algoPF2_genMatched(outputTree);
-    l.Branch_jet_algoPF2_vbfMatched(outputTree);
-    l.Branch_jet_algoPF2_genPt(outputTree);
-    l.Branch_jet_algoPF2_genDr(outputTree);
-    
-    l.Branch_jet_algoPF3_genMatched(outputTree);
-    l.Branch_jet_algoPF3_vbfMatched(outputTree);
-    l.Branch_jet_algoPF3_genPt(outputTree);
-    l.Branch_jet_algoPF3_genDr(outputTree);
-    
-    //correctMETinRED
-    l.Branch_shiftMET_pt(outputTree);
-    l.Branch_shiftMET_phi(outputTree);
-     l.Branch_smearMET_pt(outputTree);
-     l.Branch_smearMET_phi(outputTree);
-     l.Branch_shiftsmearMET_pt(outputTree);
-     l.Branch_shiftsmearMET_phi(outputTree);
-    l.Branch_shiftscaleMET_pt(outputTree);
-    l.Branch_shiftscaleMET_phi(outputTree);
+	l.Branch_vtx_std_evt_mva(outputTree);
+	l.Branch_vtx_std_ranked_list(outputTree);
+	l.Branch_vtx_std_sel(outputTree);
+	l.Branch_pho_tkiso_recvtx_030_002_0000_10_01(outputTree);
+	l.Branch_pho_tkiso_badvtx_040_002_0000_10_01(outputTree);
+	l.Branch_pho_tkiso_badvtx_id(outputTree);
+	l.Branch_pho_pfiso_charged_badvtx_04(outputTree);
+	l.Branch_pho_pfiso_charged_badvtx_id(outputTree);
+	l.Branch_pho_ZeeVal_tkiso_recvtx_030_002_0000_10_01(outputTree);
+	l.Branch_pho_ZeeVal_tkiso_badvtx_040_002_0000_10_01(outputTree);
+	l.Branch_pho_ZeeVal_tkiso_badvtx_id(outputTree);
+	l.Branch_pho_mitmva(outputTree);
+	l.Branch_pho_drtotk_25_99(outputTree);
+	
+	l.Branch_dipho_n(outputTree);
+	l.Branch_dipho_leadind(outputTree);
+	l.Branch_dipho_subleadind(outputTree);
+	l.Branch_dipho_vtxind(outputTree);
+	l.Branch_dipho_sumpt(outputTree);
+	
+	l.Branch_pho_cic6cutlevel_lead( outputTree );
+	l.Branch_pho_cic6passcuts_lead( outputTree );
+	l.Branch_pho_cic6cutlevel_sublead( outputTree );
+	l.Branch_pho_cic6passcuts_sublead( outputTree );
+	l.Branch_pho_cic4cutlevel_lead( outputTree );
+	l.Branch_pho_cic4passcuts_lead( outputTree );
+	l.Branch_pho_cic4cutlevel_sublead( outputTree );
+	l.Branch_pho_cic4passcuts_sublead( outputTree );
+	l.Branch_pho_cic4pfcutlevel_lead( outputTree );
+	l.Branch_pho_cic4pfpasscuts_lead( outputTree );
+	l.Branch_pho_cic4pfcutlevel_sublead( outputTree );
+	l.Branch_pho_cic4pfpasscuts_sublead( outputTree );
+	
+	l.Branch_pho_genmatched(outputTree);
+	l.Branch_pho_regr_energy_otf(outputTree);
+	l.Branch_pho_regr_energyerr_otf(outputTree);
+	
+	l.Branch_jet_algoPF1_genMatched(outputTree);
+	l.Branch_jet_algoPF1_vbfMatched(outputTree);
+	l.Branch_jet_algoPF1_genPt(outputTree);
+	l.Branch_jet_algoPF1_genDr(outputTree);
+	
+	l.Branch_jet_algoPF2_genMatched(outputTree);
+	l.Branch_jet_algoPF2_vbfMatched(outputTree);
+	l.Branch_jet_algoPF2_genPt(outputTree);
+	l.Branch_jet_algoPF2_genDr(outputTree);
+	
+	l.Branch_jet_algoPF3_genMatched(outputTree);
+	l.Branch_jet_algoPF3_vbfMatched(outputTree);
+	l.Branch_jet_algoPF3_genPt(outputTree);
+	l.Branch_jet_algoPF3_genDr(outputTree);
+	
+	//correctMETinRED
+	l.Branch_shiftMET_pt(outputTree);
+	l.Branch_shiftMET_phi(outputTree);
+	l.Branch_smearMET_pt(outputTree);
+	l.Branch_smearMET_phi(outputTree);
+	l.Branch_shiftsmearMET_pt(outputTree);
+	l.Branch_shiftsmearMET_phi(outputTree);
+	l.Branch_shiftscaleMET_pt(outputTree);
+	l.Branch_shiftscaleMET_phi(outputTree);
     }
-
+    
     l.gh_higgs_p4 = new TClonesArray("TLorentzVector", 1); 
     l.gh_higgs_p4->Clear();
     ((*l.gh_higgs_p4)[0]) = new TLorentzVector();
@@ -2020,7 +2021,7 @@ Bool_t PhotonAnalysis::GenMatchedPhoton(LoopAll& l, int ipho){
         int mother_id = abs( l.gp_pdgid[ l.gp_mother[ip] ] );
         if( mother_id <= 25 ) {
             float dr = phop4->DeltaR(*p4);
-            if (dr<0.2) {
+            if (dr<0.3 && fabs((p4->Pt()-phop4->Pt())/p4->Pt()) < 0.5) {
                 is_prompt = true;
                 break;
             }
@@ -2077,8 +2078,21 @@ bool PhotonAnalysis::ElectronTag2011(LoopAll& l, int diphotonVHlep_id, float* sm
     
     return tag;
 }
+	        
+bool PhotonAnalysis::ElectronTag2012(LoopAll& l, int diphotonVHlep_id, float* smeared_pho_energy, bool nm1, float eventweight, float myweight){
+    bool tag = false;
 
-
+    if(diphotonVHlep_id==-1) return tag;
+    TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphotonVHlep_id], l.dipho_vtxind[diphotonVHlep_id], &smeared_pho_energy[0]);
+    TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphotonVHlep_id], l.dipho_vtxind[diphotonVHlep_id], &smeared_pho_energy[0]);
+    
+    int elInd = l.ElectronSelection2012(lead_p4, sublead_p4, l.dipho_vtxind[diphotonVHlep_id]);
+    if(elInd!=-1) tag = true;
+    
+    return tag;
+}
+	        
+            
 
 bool PhotonAnalysis::MuonTag2011(LoopAll& l, int diphotonVHlep_id, float* smeared_pho_energy, bool nm1, float eventweight, float myweight){
     bool tag = false;
@@ -2089,6 +2103,20 @@ bool PhotonAnalysis::MuonTag2011(LoopAll& l, int diphotonVHlep_id, float* smeare
     TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphotonVHlep_id], l.dipho_vtxind[diphotonVHlep_id], &smeared_pho_energy[0]);
     
     int muonInd = l.MuonSelection(lead_p4, sublead_p4, l.dipho_vtxind[diphotonVHlep_id]);
+    if(muonInd!=-1) tag = true;
+    
+    return tag;
+}
+
+bool PhotonAnalysis::MuonTag2012(LoopAll& l, int diphotonVHlep_id, float* smeared_pho_energy, bool nm1, float eventweight, float myweight){
+    bool tag = false;
+
+    if(diphotonVHlep_id==-1) return tag;
+        
+    TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphotonVHlep_id], l.dipho_vtxind[diphotonVHlep_id], &smeared_pho_energy[0]);
+    TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphotonVHlep_id], l.dipho_vtxind[diphotonVHlep_id], &smeared_pho_energy[0]);
+    
+    int muonInd = l.MuonSelection2012(lead_p4, sublead_p4, l.dipho_vtxind[diphotonVHlep_id]);
     if(muonInd!=-1) tag = true;
     
     return tag;
@@ -2229,7 +2257,7 @@ bool PhotonAnalysis::VHhadronicTag2011(LoopAll& l, int diphotonVHhad_id, float* 
 }
 
 
-/*
+
 //met at analysis step
 bool PhotonAnalysis::METTag2012(LoopAll& l, int diphotonVHmet_id, float* smeared_pho_energy){
     bool tag = false;
@@ -2239,10 +2267,19 @@ bool PhotonAnalysis::METTag2012(LoopAll& l, int diphotonVHmet_id, float* smeared
     TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphotonVHmet_id], l.dipho_vtxind[diphotonVHmet_id], &smeared_pho_energy[0]);
     TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphotonVHmet_id], l.dipho_vtxind[diphotonVHmet_id], &smeared_pho_energy[0]);
     
+    TLorentzVector TwoPhoton_Vector = (lead_p4) + (sublead_p4);  
+    float m_gamgam = TwoPhoton_Vector.M();
+    
     //ADD SMEARING/SHIFTING HERE
     int filetype = l.itype[l.current];
     bool isMC = filetype!=0;
+
+    if( l.shiftscaleMET_pt[l.dipho_n] > 70 ) tag = true;    
     
+    return tag;
+    
+}
+/*
     TLorentzVector unpfMET;
     unpfMET.SetPxPyPzE ( l.met_pfmet*cos(l.met_phi_pfmet), l.met_pfmet*sin(l.met_phi_pfmet),0,sqrt(l.met_pfmet*cos(l.met_phi_pfmet) *
     l.met_pfmet*cos(l.met_phi_pfmet) + l.met_pfmet*sin(l.met_phi_pfmet) * l.met_pfmet*sin(l.met_phi_pfmet)));
