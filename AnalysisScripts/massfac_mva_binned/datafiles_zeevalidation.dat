@@ -1,4 +1,4 @@
-intL=3770. histfile=CMS-HGG_zeevalidation.root output=eventsList.txt
+intL=3770. histfile=zee_approval/CMS-HGG_zeevalidation.root output=eventsList.txt
 
 #
 # Data
@@ -29,7 +29,7 @@ inputBranches massfactorizedmvaanalysis_input.dat
 
 runZeeValidation=1
 plotvariables massfac_mva_binned/plotvariables_zee.dat
-cuts massfac_mva_binned/cuts_zee.dat
+cuts common/cuts_zee.dat
 
 ## define analyses to run
 ## 	a library containing the class dictionary has loaded before parsing the 
