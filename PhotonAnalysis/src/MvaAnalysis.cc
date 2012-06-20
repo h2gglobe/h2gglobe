@@ -663,18 +663,18 @@ int MvaAnalysis::byHandCat(double mass, double mass_hypothesis, float kinematic_
    
     int cat=-1;
     double deltaMoM = (mass-mass_hypothesis)/mass_hypothesis;
-    if (kinematic_bdt>=0.89){
+    if (kinematic_bdt>=0.88){
         if (fabs(deltaMoM)<0.007) cat=7;
         else if (deltaMoM>=-0.02 && deltaMoM<=-0.007) cat=6;
         else if (deltaMoM<=0.02 && deltaMoM>=0.007) cat=5;
     }
-    if (kinematic_bdt>=0.74 && kinematic_bdt<0.89){
+    if (kinematic_bdt>=0.71 && kinematic_bdt<0.88){
         if (fabs(deltaMoM)<0.007) cat=4;
         else if (deltaMoM>=-0.02 && deltaMoM<=-0.007) cat=3;
         else if (deltaMoM<=0.02 && deltaMoM>=0.007) cat=2;
     }
-    if (kinematic_bdt >= 0.545 && kinematic_bdt < 0.74) return 1;
-    if (kinematic_bdt >= 0.05 && kinematic_bdt < 0.545) return 0;
+    if (kinematic_bdt >= 0.5 && kinematic_bdt < 0.71) return 1;
+    if (kinematic_bdt >= -0.05 && kinematic_bdt < 0.5) return 0;
 
     return cat;
 }
@@ -683,12 +683,12 @@ int MvaAnalysis::byHandCat(double mass, double mass_hypothesis, float kinematic_
 int MvaAnalysis::GetBDTBoundaryCategory(float bdtout, bool isEB, bool VBFevent){
 
     if (VBFevent) {
-        //if (bdtout >= 0.05 && VBFevent==1) return 1;
-        //if (bdtout >= 0.05 && VBFevent==2) return 2;
-        if (bdtout >= 0.05) return 1;
+        //if (bdtout >= -0.05 && VBFevent==1) return 1;
+        //if (bdtout >= -0.05 && VBFevent==2) return 2;
+        if (bdtout >= -0.05) return 1;
         return -1;
     } else {
-        if (bdtout >= 0.05) return 0;
+        if (bdtout >= -0.05) return 0;
         return -1;
     }
 }

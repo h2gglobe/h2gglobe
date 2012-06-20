@@ -39,10 +39,10 @@ void MassFactorizedMvaAnalysis::Term(LoopAll& l)
     std::cout << " nevents " <<  nevents << " " << sumwei << std::endl;
     
     // default categories: Jan16
-    bdtCategoryBoundaries.push_back(0.05);
-    bdtCategoryBoundaries.push_back(0.545);
-    bdtCategoryBoundaries.push_back(0.74);
-    bdtCategoryBoundaries.push_back(0.89);
+    bdtCategoryBoundaries.push_back(-0.05);
+    bdtCategoryBoundaries.push_back(0.5);
+    bdtCategoryBoundaries.push_back(0.71);
+    bdtCategoryBoundaries.push_back(0.88);
     bdtCategoryBoundaries.push_back(1.);
 
     photonIDMVAShift_EB = 0.;
