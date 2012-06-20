@@ -1,4 +1,4 @@
-intL=3788. histfile=/castor/cern.ch/user/m/mkenzie/h2g/fitter_output/june15unblind/%(label)s/CMS-HGG.root output=eventsList.txt
+intL=3770. histfile=/castor/cern.ch/user/m/mkenzie/h2g/fitter_output/june15unblind/%(label)s/CMS-HGG.root output=eventsList.txt
 
 #
 # Data
