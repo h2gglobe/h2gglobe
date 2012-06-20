@@ -3760,25 +3760,25 @@ Float_t LoopAll::SumTrackPtInCone(TLorentzVector *photon_p4, Int_t vtxind, Float
 
 void LoopAll::getIetaIPhi(int phoid, int & ieta, int & iphi ) const
 {
-  ///// TLorentzVector *bcpos   = (TLorentzVector*)bc_p4->At(sc_bcseedind[pho_scind[phoid]]);
-  ///// double minDR=999.;
-  ///// int closestHit=-1;
-  ///// for (int i=0;i<ecalhit_n;i++){
-  /////   TLorentzVector *xtalpos = (TLorentzVector*)ecalhit_p4->At(i);
-  /////   //TVector3 xtalxyz = xtalpos->Vect();
-  /////   //double dR = (xtalxyz-bcxyz).Mag();
-  /////   double dR = xtalpos->DeltaR(*bcpos);
-  /////   if(dR<minDR){
-  /////     closestHit = i;
-  /////     minDR = dR;
-  /////   }
-  ///// }
-  ///// if (closestHit<0) std::cout << "Fishy !!!!!!" <<std::endl;
-  
-  //// int detid = ecalhit_detid[closestHit];
-  int detid = ecalhit_detid[bc_seed[sc_bcseedind[pho_scind[phoid]]]];
-  ieta  = (detid>>9)&0x7F; 
-  iphi  = detid&0x1FF; 
+    TLorentzVector *bcpos   = (TLorentzVector*)bc_p4->At(sc_bcseedind[pho_scind[phoid]]);
+    double minDR=999.;
+    int closestHit=-1;
+    for (int i=0;i<ecalhit_n;i++){
+	TLorentzVector *xtalpos = (TLorentzVector*)ecalhit_p4->At(i);
+	//TVector3 xtalxyz = xtalpos->Vect();
+	//double dR = (xtalxyz-bcxyz).Mag();
+	double dR = xtalpos->DeltaR(*bcpos);
+	if(dR<minDR){
+	    closestHit = i;
+	    minDR = dR;
+	}
+    }
+    if (closestHit<0) std::cout << "Fishy !!!!!!" <<std::endl;
+    
+    int detid = ecalhit_detid[closestHit];
+    //// int detid = ecalhit_detid[bc_seed[sc_bcseedind[pho_scind[phoid]]]];
+    ieta  = (detid>>9)&0x7F; 
+    iphi  = detid&0x1FF; 
 }
 
 bool LoopAll::CheckSphericalPhoton(int ieta, int iphi) const 

@@ -59,6 +59,10 @@ bc_seed
 sc_bcseedind
 ecalhit_n
 ecalhit_detid
+sc_bcseedind
+pho_scind
+ecalhit_p4
+ecalhit_n
 
 ##
 ## Photons 
