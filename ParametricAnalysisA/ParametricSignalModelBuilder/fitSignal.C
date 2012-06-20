@@ -305,17 +305,42 @@ public:
 
     if (! config.fermiophobic)
     {
-      sm_xs_br["ggh"] = SMCrossSections::xs_br_ggh;
-      sm_xs_br["vbf"] = SMCrossSections::xs_br_vbf;
-      sm_xs_br["wzh"] = SMCrossSections::xs_br_wzh;
-      sm_xs_br["tth"] = SMCrossSections::xs_br_tth;
-      sm_xs_br["sum"] = SMCrossSections::xs_br_sum;
+      if (config.sqrts == 7)
+        {
+          sm_xs_br["ggh"] = SMCrossSections::Sqrts7TeV::xs_br_ggh;
+          sm_xs_br["vbf"] = SMCrossSections::Sqrts7TeV::xs_br_vbf;
+          sm_xs_br["wzh"] = SMCrossSections::Sqrts7TeV::xs_br_wzh;
+          sm_xs_br["tth"] = SMCrossSections::Sqrts7TeV::xs_br_tth;
+          sm_xs_br["sum"] = SMCrossSections::Sqrts7TeV::xs_br_sum;
+        }
+      else if (config.sqrts == 8)
+        {
+          sm_xs_br["ggh"] = SMCrossSections::Sqrts8TeV::xs_br_ggh;
+          sm_xs_br["vbf"] = SMCrossSections::Sqrts8TeV::xs_br_vbf;
+          sm_xs_br["wzh"] = SMCrossSections::Sqrts8TeV::xs_br_wzh;
+          sm_xs_br["tth"] = SMCrossSections::Sqrts8TeV::xs_br_tth;
+          sm_xs_br["sum"] = SMCrossSections::Sqrts8TeV::xs_br_sum;
+        }
+      else
+        ASSERT(0);
+
     }
     else
     {
-      sm_xs_br["vbf"] = FPCrossSections::xs_br_vbf;
-      sm_xs_br["wzh"] = FPCrossSections::xs_br_wzh;
-      sm_xs_br["sum"] = FPCrossSections::xs_br_sum;
+      if (config.sqrts == 7)
+        {
+          sm_xs_br["vbf"] = FPCrossSections::Sqrts7TeV::xs_br_vbf;
+          sm_xs_br["wzh"] = FPCrossSections::Sqrts7TeV::xs_br_wzh;
+          sm_xs_br["sum"] = FPCrossSections::Sqrts7TeV::xs_br_sum;
+        }
+      else if (config.sqrts == 8)
+        {
+          sm_xs_br["vbf"] = FPCrossSections::Sqrts8TeV::xs_br_vbf;
+          sm_xs_br["wzh"] = FPCrossSections::Sqrts8TeV::xs_br_wzh;
+          sm_xs_br["sum"] = FPCrossSections::Sqrts8TeV::xs_br_sum;
+        }
+      else
+        ASSERT(0);
     }
     //--------------------
 
@@ -835,7 +860,16 @@ private:
 
     crossSectionHistogram = new TH1F(Form("hsmxsecs_%s", sigProcName.c_str()), "", 81, 109.75, 150.25);
 
-    for (unsigned ipoint = 0; ipoint < SMCrossSections::numPoints; ++ipoint)
+    // TODO: should we check for fermiophobic here ?
+    unsigned numPoints = 0;
+    if (config.sqrts == 7)
+      numPoints = SMCrossSections::Sqrts7TeV::numPoints;
+    else if (config.sqrts == 8)
+      numPoints = SMCrossSections::Sqrts8TeV::numPoints;
+    else
+      ASSERT(0);
+
+    for (unsigned ipoint = 0; ipoint < numPoints; ++ipoint)
     {
       //hsmxsecs->Fill(smmasses[ipoint],smxsecs[ipoint]*smbrs[ipoint]);
 
@@ -844,13 +878,23 @@ private:
       if (!config.fermiophobic)
       {
         // STANDARD MODEL
-        crossSectionHistogram->Fill(SMCrossSections::masses[ipoint], sm_xs_br[sigProcName][ipoint]);
+        if (config.sqrts == 7)
+          crossSectionHistogram->Fill(SMCrossSections::Sqrts7TeV::masses[ipoint], sm_xs_br[sigProcName][ipoint]);
+        else if (config.sqrts == 8)
+          crossSectionHistogram->Fill(SMCrossSections::Sqrts8TeV::masses[ipoint], sm_xs_br[sigProcName][ipoint]);
+        else
+          {
+            cerr << "unsupported center of mass energy " << config.sqrts << endl;
+            exit(1);
+          }
       }
       else
       {
         // FERMIOPHOBIC
-        crossSectionHistogram->Fill(FPCrossSections::masses[ipoint], sm_xs_br[sigProcName][ipoint]);
-         // crossSectionHistogram[sigProcName]->Fill(SMCrossSections::smmasses[ipoint], SMCrossSections::ffxsbr[ipoint]);
+        if (config.sqrts == 7)
+          crossSectionHistogram->Fill(FPCrossSections::Sqrts7TeV::masses[ipoint], sm_xs_br[sigProcName][ipoint]);
+        else if (config.sqrts == 8)
+          crossSectionHistogram->Fill(FPCrossSections::Sqrts8TeV::masses[ipoint], sm_xs_br[sigProcName][ipoint]);
       }
 
       // FOUR GENERATIONS STANDARD MODEL

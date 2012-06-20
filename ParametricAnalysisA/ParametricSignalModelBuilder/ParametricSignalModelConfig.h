@@ -55,6 +55,9 @@ public:
    */
   std::vector<double> smearingv;
 
+  /** center of mass energy (used for cross sections) */
+  int sqrts;
+
   //----------------------------------------------------------------------
 
   /** constructor to initialize some default values */

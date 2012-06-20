@@ -16,7 +16,8 @@ using namespace std;
 
 //----------------------------------------------------------------------
 ParametricSignalModelConfig::ParametricSignalModelConfig() :
-  fermiophobic(false), numCategories(0), numInclusiveCategories(0), useRightWrongVertex(true), massmax(-1), massInterpolationWidth(-1), weightscale(2e3)
+  fermiophobic(false), numCategories(0), numInclusiveCategories(0), useRightWrongVertex(true), massmax(-1), massInterpolationWidth(-1), weightscale(2e3),
+  sqrts(0)
 {
   // initialize a default signal process mapping
   initializeSignalProcessMergingMapping(fermiophobic);
@@ -64,6 +65,8 @@ ParametricSignalModelConfig::read(const std::string &configFname)
     config.massmax = XMLUtils::getDoubleContent(root, "maxMassHypothesis", 160);
 
     config.massInterpolationWidth = XMLUtils::getDoubleContent(root, "massInterpolationWidth", 10);
+
+    config.sqrts = XMLUtils::getIntegerContent(XMLUtils::getSingleChild(root, "sqrts"));
 
     //----------
     // read the signal process mapping (which input signal processes should be merged
