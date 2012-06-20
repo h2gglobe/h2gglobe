@@ -879,7 +879,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
         float vtxProb   = 1.-0.49*(vtx_mva+1.0); /// should better use this: vtxAna_.setPairID(diphoton_id); vtxAna_.vertexProbability(vtx_mva); PM
 
         float phoid_mvaout_lead = l.photonIDMVANew(diphoton_index.first,l.dipho_vtxind[diphoton_id],lead_p4,bdtTrainingPhilosophy.c_str()) + photonIDMVAShift_EB;
-        float phoid_mvaout_sublead = l.photonIDMVANew(diphoton_index.second,l.dipho_vtxind[diphoton_id],sublead_p4,bdtTrainingPhilosophy.c_str()) + + photonIDMVAShift_EE;
+        float phoid_mvaout_sublead = l.photonIDMVANew(diphoton_index.second,l.dipho_vtxind[diphoton_id],sublead_p4,bdtTrainingPhilosophy.c_str()) + photonIDMVAShift_EE;
 
 	    // apply di-photon level smearings and corrections
         int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,0);
