@@ -4006,7 +4006,6 @@ std::pair<int, int> LoopAll::Select2HighestPtJets(TLorentzVector& leadpho, TLore
 
 int LoopAll::MuonSelection(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind){
   int mymu = -1;
-
   if(run == 170249 && (lumis>= 37 && lumis<= 191 )) return mymu;
   if(run == 170249 && (lumis>= 191 && lumis<= 507 )) return mymu;
   if(run == 170255 && (lumis>= 1 && lumis<= 387 )) return mymu;
@@ -4045,22 +4044,8 @@ int LoopAll::MuonSelection(TLorentzVector& pho1, TLorentzVector& pho2, int vtxin
     // need to calculate d0, dz wrt chosen vtx
     if(fabs(mu_glo_D0Vtx[indmu][vtxind]) > 0.02) continue;
     if(fabs(mu_glo_DZVtx[indmu][vtxind]) > 0.1)  continue;
-
-
-    passingMu++;
-
-    //std::cout << setprecision(4) << "Run = " << run << "  LS = " << lumis << "  Event = " << event << "  SelVtx = " << vtxind << " muEta = " << thiseta << "  muPhi = " << thismu->Phi() <<  "  muEt = " << thismu->Et() << endl;
-
-    mymu = indmu;
+    passingMu++;mymu = indmu;
   }
-
-  //if(passingMu>1) std::cout<<"There are "<<passingMu<<" passing muons!!"<<std::endl;
-
-
-  /////////////////fabs(muD0Vtx[i][vtx]) < 0.02 &&       
-  /////////////////fabs(muDzVtx[i][vtx]) < 0.1 
-  /////////////////(here D0 and DZ are wrt vertex selected by the mva vertexing)
-
   return mymu;
 }
 
@@ -4147,13 +4132,11 @@ int LoopAll::ElectronSelection(TLorentzVector& pho1, TLorentzVector& pho2, int v
 }
 
 int LoopAll::MuonSelection2012(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind){
-  int mymu = -1;
-  
+  int mymu = -1;  
   TLorentzVector* thismu;
   float thiseta = -100;
   float thispt = -100;
   float thisiso =1000;
-
   int passingMu = 0;
 
   for( int indmu=0; indmu<mu_glo_n; indmu++){
@@ -4164,31 +4147,22 @@ int LoopAll::MuonSelection2012(TLorentzVector& pho1, TLorentzVector& pho2, int v
     if(thispt<20) continue;
     if(mu_glo_type[indmu]<11000) continue;  // global and PF Muon
     if(mu_glo_chi2[indmu]/mu_glo_dof[indmu]>=10) continue;
-    if(mu_glo_validhits[indmu]<=10) continue;
+    if(mu_glo_validChmbhits[indmu]<=0) continue;
     if(mu_glo_nmatches[indmu]<=1) continue;
 
     // need to calculate d0, dz wrt chosen vtx
     if(fabs(mu_glo_D0Vtx[indmu][vtxind]) > 0.2) continue;
     if(fabs(mu_glo_DZVtx[indmu][vtxind]) > 0.5)  continue;
-
-    if(mu_glo_pixelhits[indmu]<=0) continue;
-
-    
+    if(mu_glo_pixelhits[indmu]<=0) continue;  
     if(mu_tkLayers[indmu]<=5) continue;
     thisiso=((mu_glo_nehadiso04[indmu]+mu_glo_photiso04[indmu])>mu_dbCorr[indmu]) ?
       mu_glo_chhadiso04[indmu]+mu_glo_nehadiso04[indmu]+mu_glo_photiso04[indmu]-mu_dbCorr[indmu] : mu_glo_chhadiso04[indmu];    
     if ((thisiso/thispt)>0.2) continue;
-    if(std::min(pho1.DeltaR(*thismu),pho2.DeltaR(*thismu)) < 0.7) continue;
-    
+    if(std::min(pho1.DeltaR(*thismu),pho2.DeltaR(*thismu)) < 0.7) continue;   
   
-
-
     passingMu++;
-
-
     mymu = indmu;
   }
-
   return mymu;
 }
 
@@ -4203,16 +4177,13 @@ int LoopAll::ElectronSelection2012(TLorentzVector& pho1, TLorentzVector& pho2, i
   float thiseta = -100;
   float thispt = -100;
   float thisiso =1000;
-
   int passingEl = 0;
 
   for( int indel=0; indel<el_std_n; indel++){
     if(el_std_hp_expin[indel]!=0) continue;
-
     thisel = (TLorentzVector*) el_std_p4->At(indel);
     thissc = (TLorentzVector*) el_std_sc->At(indel);
     thiseta = fabs(thissc->Eta());
-
     thisiso=el_std_pfiso_charged[indel]+el_std_pfiso_neutral[indel]+ el_std_pfiso_photon[indel];
     if(thiseta>2.5 || (thiseta>1.442 && thiseta<1.566)) continue;
     thispt = thisel->Pt();
@@ -4225,11 +4196,10 @@ int LoopAll::ElectronSelection2012(TLorentzVector& pho1, TLorentzVector& pho2, i
     if (thisiso/thispt >0.15) continue;      
     if (el_std_hp_expin[indel]>1) continue;
     if (el_std_conv_vtxProb[indel]<0.000001) continue;
-
     if(thiseta<1.442) {   // EB cuts
       if(fabs(el_std_detain[indel])>=0.007) continue;
       if(fabs(el_std_dphiin[indel])>=0.15) continue;
-      if(el_std_sieie[indel]>=0.01) continue; 
+      if(el_std_sieie[indel]>=0.01) continue;
       if (el_std_hoe[indel]>=0.12) continue;
     } else {  // EE cuts
       if(fabs(el_std_detain[indel])>=0.009) continue;
@@ -4237,22 +4207,12 @@ int LoopAll::ElectronSelection2012(TLorentzVector& pho1, TLorentzVector& pho2, i
       if(el_std_sieie[indel]>=0.03) continue; 
       if (el_std_hoe[indel]>=0.10) continue;
     }
-  
-    
     if(std::min( pho1.DeltaR(*thisel), pho2.DeltaR(*thisel))<=0.7) continue;
-
     TLorentzVector elpho1 = *thisel + pho1;
     if( fabs(elpho1.M() - 91.19) <= 5) continue;
-
     TLorentzVector elpho2 = *thisel + pho2;
     if( fabs(elpho2.M() - 91.19) <= 5) continue;
-
- 
-
     passingEl++;
-
-  
-
     myel = indel;
   }
   return myel;
