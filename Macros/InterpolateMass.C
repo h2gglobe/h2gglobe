@@ -161,13 +161,13 @@ void InterpolateMass(double fitmass, TString SourceFileName="CMS-HGG.root", cons
   cout << "Done!" << endl;
 }
 
-void InterpolateMassRange(double Min, double Max, double Step, TString SourceFileName="CMS-HGG.root", const vector<double>& OverWriteMassVector = vector<double>()) {
+void InterpolateMassPoints(int nmasses, double * masses, TString SourceFileName="CMS-HGG",
+			   TString FileName="") 
+{
+  if( FileName == "" ) { FileName = SourceFileName + "_interpolated.root"; }
 
-  TString FileNameMod = Form("_%s_%s_%s.root",makestring(Min).c_str(),makestring(Max).c_str(),makestring(Step).c_str());
-  TString FileName = SourceFileName;
-  FileName.ReplaceAll(".root",FileNameMod.Data());
-
-  TFile* SourceFile = new TFile(SourceFileName.Data());
+  SourceFileName += ".root";
+  TFile* SourceFile = new TFile(SourceFileName);
   TList* HistList = SourceFile->GetListOfKeys();
   RooWorkspace * WorkSpace = (RooWorkspace*) SourceFile->Get("cms_hgg_workspace");
   TFile* OutputFile = new TFile(FileName.Data(),"RECREATE");
@@ -181,7 +181,8 @@ void InterpolateMassRange(double Min, double Max, double Step, TString SourceFil
     if (HistName.Contains("th1f")) {
       TH1F* temphist = (TH1F*) SourceFile->Get(HistName.Data());
       TString temphistname = temphist->GetName();
-      if (!(temphistname.Contains("m121") || temphistname.Contains("m123") || temphistname.Contains("m124") || temphistname.Contains("m145"))) OutputFile->WriteTObject(temphist);
+      //// if (!(temphistname.Contains("m121") || temphistname.Contains("m123") || temphistname.Contains("m124") || temphistname.Contains("m145"))) 
+      OutputFile->WriteTObject(temphist);
     }
     if (HistName.Contains("plot_data_pol_model")) {
       TCanvas* tempcan = (TCanvas*) SourceFile->Get(HistName.Data());
@@ -190,10 +191,14 @@ void InterpolateMassRange(double Min, double Max, double Step, TString SourceFil
     
   }
     
-  for (double fitmass=Min; fitmass<Max; fitmass+=Step) {
-    dofit(fitmass, InterpolationList, SourceFile, OutputFile, WorkSpace, OverWriteMassVector);
+  //// for (double fitmass=Min; fitmass<Max; fitmass+=Step) {
+  ////   dofit(fitmass, InterpolationList, SourceFile, OutputFile, WorkSpace);
+  //// }
+  
+  for(int imass=0; imass<nmasses; ++imass) {
+    dofit(masses[imass], InterpolationList, SourceFile, OutputFile, WorkSpace);
   }
-
+  
   cout << "Writing data to disk..." << endl;
   WorkSpace->Write();
   OutputFile->Close();
@@ -202,6 +207,26 @@ void InterpolateMassRange(double Min, double Max, double Step, TString SourceFil
   delete OutputFile;
   cout << "Done!" << endl;
 
+}
+
+void InterpolateMassRange(double Min, double Max, double Step, TString SourceFileName="CMS-HGG") 
+{
+  TString FileName = SourceFileName+"_";
+  FileName += dtoa(Min);
+  FileName += "_";
+  FileName += dtoa(Max);
+  FileName += "_";
+  FileName += dtoa(Step);
+  FileName.ReplaceAll(".","_");
+  FileName += ".root";
+
+  std::vector<double> masses;
+  for (double fitmass=Min; fitmass<Max; fitmass+=Step) {
+    masses.push_back(fitmass);
+  }
+
+  InterpolateMassPoints(masses.size(), &masses[0], SourceFileName,FileName=""); 
+  
 }
 
 
