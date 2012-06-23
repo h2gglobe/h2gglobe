@@ -1425,33 +1425,9 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
                 l.vtx_std_sel = l.dipho_vtx_std_sel->back();
                 maxSumPt = l.dipho_sumpt[l.dipho_n];
             }
-
-            //correctedMETvariables
-            TLorentzVector unpfMET;
-            unpfMET.SetPxPyPzE (l.met_pfmet*cos(l.met_phi_pfmet), 
-                                l.met_pfmet*sin(l.met_phi_pfmet),
-                                0,
-                                sqrt(l.met_pfmet*cos(l.met_phi_pfmet) * l.met_pfmet*cos(l.met_phi_pfmet) 
-                                    + l.met_pfmet*sin(l.met_phi_pfmet) * l.met_pfmet*sin(l.met_phi_pfmet)));
-            
-            bool isMC = l.itype[l.current]!=0;
-            
-            TLorentzVector shiftMET_corr = l.shiftMet(&unpfMET,isMC);
-            l.shiftMET_pt[l.dipho_n] = shiftMET_corr.Pt();
-            l.shiftMET_phi[l.dipho_n] = shiftMET_corr.Phi();
-            if (isMC) {
-                TLorentzVector smearMET_corr = l.correctMet(lead_p4, sublead_p4, l.dipho_vtxind[l.dipho_n], &unpfMET, true, false);
-                l.smearMET_pt[l.dipho_n] = smearMET_corr.Pt();
-                l.smearMET_phi[l.dipho_n] = smearMET_corr.Phi();
-            
-                TLorentzVector shiftsmearMET_corr = l.shiftMet(&smearMET_corr,isMC);
-                l.shiftsmearMET_pt[l.dipho_n] = shiftsmearMET_corr.Pt();
-                l.shiftsmearMET_phi[l.dipho_n] = shiftsmearMET_corr.Phi();
-            }    
-            TLorentzVector shiftscaleMET_corr = l.correctMet(lead_p4, sublead_p4, l.dipho_vtxind[l.dipho_n], &shiftMET_corr,false,true);
-            l.shiftscaleMET_pt[l.dipho_n] = shiftscaleMET_corr.Pt();
-            l.shiftscaleMET_phi[l.dipho_n] = shiftscaleMET_corr.Phi();
-            
+	    
+	    MetCorrections2012( l, lead_p4 , sublead_p4 ,l.dipho_n );
+	    
             // make sure that vertex analysis indexes are in synch 
             assert( l.dipho_n == vtxAna_.pairID(ipho1,ipho2) );
             
@@ -1465,6 +1441,37 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
 
 // ----------------------------------------------------------------------------------------------------
 
+void PhotonAnalysis::MetCorrections2012(LoopAll& l,TLorentzVector lead_p4 ,TLorentzVector sublead_p4 , int dipho_ind)
+{
+           //correctedMETvariables
+            TLorentzVector unpfMET;
+            unpfMET.SetPxPyPzE (l.met_pfmet*cos(l.met_phi_pfmet), 
+                                l.met_pfmet*sin(l.met_phi_pfmet),
+                                0,
+                                sqrt(l.met_pfmet*cos(l.met_phi_pfmet) * l.met_pfmet*cos(l.met_phi_pfmet) 
+                                    + l.met_pfmet*sin(l.met_phi_pfmet) * l.met_pfmet*sin(l.met_phi_pfmet)));
+            
+            bool isMC = l.itype[l.current]!=0;
+            
+            TLorentzVector shiftMET_corr = l.shiftMet(&unpfMET,isMC);
+            l.shiftMET_pt[dipho_ind] = shiftMET_corr.Pt();
+            l.shiftMET_phi[dipho_ind] = shiftMET_corr.Phi();
+            if (isMC) {
+                TLorentzVector smearMET_corr = l.correctMet(lead_p4, sublead_p4, l.dipho_vtxind[dipho_ind], &unpfMET, true, false);
+                l.smearMET_pt[dipho_ind] = smearMET_corr.Pt();
+                l.smearMET_phi[dipho_ind] = smearMET_corr.Phi();
+            
+                TLorentzVector shiftsmearMET_corr = l.shiftMet(&smearMET_corr,isMC);
+                l.shiftsmearMET_pt[dipho_ind] = shiftsmearMET_corr.Pt();
+                l.shiftsmearMET_phi[dipho_ind] = shiftsmearMET_corr.Phi();
+            }    
+            TLorentzVector shiftscaleMET_corr = l.correctMet(lead_p4, sublead_p4, l.dipho_vtxind[dipho_ind], &shiftMET_corr,false,true);
+            l.shiftscaleMET_pt[dipho_ind] = shiftscaleMET_corr.Pt();
+            l.shiftscaleMET_phi[dipho_ind] = shiftscaleMET_corr.Phi();
+	    
+}
+	    
+	    
 bool PhotonAnalysis::SkimEvents(LoopAll& l, int jentry)
 {
     l.b_pho_n->GetEntry(jentry);
@@ -2299,49 +2306,14 @@ bool PhotonAnalysis::METTag2012(LoopAll& l, int diphotonVHmet_id, float* smeared
     bool tag = false;
 
     if(diphotonVHmet_id==-1) return tag;
-        
-    TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphotonVHmet_id], l.dipho_vtxind[diphotonVHmet_id], &smeared_pho_energy[0]);
-    TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphotonVHmet_id], l.dipho_vtxind[diphotonVHmet_id], &smeared_pho_energy[0]);
     
-    TLorentzVector TwoPhoton_Vector = (lead_p4) + (sublead_p4);  
-    float m_gamgam = TwoPhoton_Vector.M();
+    //
     
-    //ADD SMEARING/SHIFTING HERE
-    int filetype = l.itype[l.current];
-    bool isMC = filetype!=0;
-
     if( l.shiftscaleMET_pt[l.dipho_n] > 70 ) tag = true;    
     
     return tag;
     
 }
-/*
-    TLorentzVector unpfMET;
-    unpfMET.SetPxPyPzE ( l.met_pfmet*cos(l.met_phi_pfmet), l.met_pfmet*sin(l.met_phi_pfmet),0,sqrt(l.met_pfmet*cos(l.met_phi_pfmet) *
-    l.met_pfmet*cos(l.met_phi_pfmet) + l.met_pfmet*sin(l.met_phi_pfmet) * l.met_pfmet*sin(l.met_phi_pfmet)));
-
-    TLorentzVector MET;
-    if ( isMC ) {
-    //isMC-->first smear then shift
-      TLorentzVector smearMET_corr = l.correctMet(lead_p4,sublead_p4,l.dipho_vtxind[diphotonVHmet_id],&unpfMET,true,false);
-      TLorentzVector shiftsmearMET_corr = l.shiftMet(lead_p4,sublead_p4,l.dipho_vtxind[diphotonVHmet_id],&smearMET_corr,isMC);
-      MET = l.shiftMet(lead_p4, sublead_p4, l.dipho_vtxind[diphotonVHmet_id], &smearMET_corr,isMC);
-      ((TLorentzVector *)l.METcorrected->At(0))->SetXYZT(MET.Px(),MET.Py(),MET.Pz(),MET.E());
-    } else {
-    //isData-->first shift then scale
-      TLorentzVector shiftMET_corr = l.shiftMet(lead_p4,sublead_p4,l.dipho_vtxind[diphotonVHmet_id],&unpfMET,isMC);
-      TLorentzVector shiftscaleMET_corr = l.correctMet(lead_p4,sublead_p4,l.dipho_vtxind[diphotonVHmet_id],&shiftMET_corr,false,true);
-      MET = l.correctMet(lead_p4, sublead_p4, l.dipho_vtxind[diphotonVHmet_id], &shiftMET_corr,false,true);
-      ((TLorentzVector *)l.METcorrected->At(0))->SetXYZT(MET.Px(),MET.Py(),MET.Pz(),MET.E());
-    }
-    
-    if( MET.Pt() > 70 ) tag = true;    
-    
-    return tag;
-}
-*/
-
-
 
 
 void PhotonAnalysis::reVertex(LoopAll & l)

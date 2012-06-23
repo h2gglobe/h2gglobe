@@ -4,6 +4,7 @@
 #include "PhotonReducedInfo.h"
 #include <iostream>
 #include <algorithm>
+#include <stdio.h>
 
 #define PADEBUG 0
 
@@ -13,6 +14,9 @@ void dumpPhoton(std::ostream & eventListText, int lab,
 		LoopAll & l, int ipho, int ivtx, TLorentzVector & phop4, float * pho_energy_array);
 void dumpJet(std::ostream & eventListText, int lab, LoopAll & l, int ijet);
 
+    ofstream met_sync;
+    ofstream lep_sync;
+    
 // ----------------------------------------------------------------------------------------------------
 StatAnalysis::StatAnalysis()  : 
     name_("StatAnalysis")
@@ -57,6 +61,8 @@ void StatAnalysis::Term(LoopAll& l)
 
     std::cout << " nevents " <<  nevents << " " << sumwei << std::endl;
 
+    met_sync.close();
+
     //  kfacFile->Close();
     //  PhotonAnalysis::Term(l);
 }
@@ -69,6 +75,8 @@ void StatAnalysis::Init(LoopAll& l)
 
     nevents=0., sumwei=0.; 
     sumaccept=0., sumsmear=0., sumev=0.;
+    
+    met_sync.open ("met_sync.txt");
     
     std::string outputfilename = (std::string) l.histFileName;
     eventListText.open(Form("%s",l.outputTextFileName.c_str()));
@@ -765,28 +773,30 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 	if(includeVHmet){
 	    diphotonVHmet_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVHmetCut, subleadEtVHmetCut, 4, false, &smeared_pho_energy[0], true, true);
 	    if(diphotonVHmet_id>-1) {
-	    TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphotonVHmet_id], 0, &smeared_pho_energy[0]);
-	    TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphotonVHmet_id], 0, &smeared_pho_energy[0]);
-		printf("run:%d",l.run);
-		printf("\tlumi:%d",l.lumis);
-		printf("\tevent:%lld",l.event);
-		printf("\trho:%.4e",l.rho_algo1);
-		printf("\tenergy1:%.4e",lead_p4.Energy());
-		printf("\tenergy2:%.4e",sublead_p4.Energy());
-		printf("\tscEta1:%.4e",((TVector3*)l.sc_xyz->At(l.pho_scind[l.dipho_leadind[diphoton_id]]))->Eta());
-		printf("\tscEta2:%.4e",((TVector3*)l.sc_xyz->At(l.pho_scind[l.dipho_subleadind[diphoton_id]]))->Eta());
-		printf("\tr91:%.4e",l.pho_r9[l.dipho_leadind[diphoton_id]]);
-		printf("\tr92:%.4e",l.pho_r9[l.dipho_leadind[diphoton_id]]);
-		printf("\tvertexId1:%d",0);
-		printf("\tcorrMET:%.4e",l.shiftscaleMET_pt[diphotonVHmet_id]);
-		printf("\tcorrMETPhi:%.4e",l.shiftscaleMET_phi[diphotonVHmet_id]);
-		printf("\trawMET:%.4e",l.met_pfmet);
-		printf("\trawMETPhi:%.4e",l.met_phi_pfmet);
-		printf("\tnvtx:%d",l.vtx_std_n);
-	    }
+	      TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphotonVHmet_id], 0, &smeared_pho_energy[0]);
+	      TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphotonVHmet_id], 0, &smeared_pho_energy[0]);	    
+	      TLorentzVector TwoPhoton_Vector = (lead_p4) + (sublead_p4);  
+	      float m_gamgam = TwoPhoton_Vector.M();
+		
+//		PhotonAnalysis::MetCorrections2012( l, lead_p4 , sublead_p4 ,diphotonVHmet_id );
+		
+		if (m_gamgam>100 && m_gamgam<180 && ( lead_p4.Pt() > 45*m_gamgam/120.) && sublead_p4.Pt() > 25. && l.shiftscaleMET_pt[diphotonVHmet_id]>70) {
+		  met_sync << " run: " << l.run
+		    << "\tevent: " << l.event
+		    << "\tleadPt: " << lead_p4.Pt()
+		    << "\tsubleadPt: " << sublead_p4.Pt()
+		    << "\tdiphomass: " << m_gamgam
+		    << "\traw_met: " << l.met_pfmet
+		    << "\traw_met_phi: " << l.met_phi_pfmet
+		    << "\tshifted_met: " << l.shiftMET_pt[diphotonVHmet_id]
+		    << "\tcorrected_met: " << l.shiftscaleMET_pt[diphotonVHmet_id]
+		    << "\tcorrected_met_phi: " << l.shiftscaleMET_phi[diphotonVHmet_id]
+		    << "\tjet_algoPF1_n: " << l.jet_algoPF1_n
+		    << endl;
+	        }		
 	    VHmetevent=METTag2012(l, diphotonVHmet_id, &smeared_pho_energy[0]);
+	   }
 	}
-
 	
 	// VBF+hadronic VH
 	if((includeVBF || includeVHhad)&&l.jet_algoPF1_n>1 && !isSyst /*avoid rescale > once*/) {
