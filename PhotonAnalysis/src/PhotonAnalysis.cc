@@ -317,14 +317,16 @@ void PhotonAnalysis::applySinglePhotonSmearings(std::vector<float> & smeared_pho
 // ----------------------------------------------------------------------------------------------------
 void PhotonAnalysis::fillDiphoton(TLorentzVector & lead_p4, TLorentzVector & sublead_p4, TLorentzVector & Higgs,
                   float & lead_r9, float & sublead_r9, TVector3 *& vtx, const float * energy,
-                  const LoopAll & l, int diphoton_id)
+                  const LoopAll & l, int diphoton_id, bool defaultvtx)
 {
-    lead_p4 = l.get_pho_p4( l.dipho_leadind[diphoton_id], l.dipho_vtxind[diphoton_id], energy);
-    sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphoton_id], l.dipho_vtxind[diphoton_id], energy);
+    int vtx_ind = defaultvtx ? 0 : l.dipho_vtxind[diphoton_id];
+    
+    lead_p4 = l.get_pho_p4( l.dipho_leadind[diphoton_id], vtx_ind, energy);
+    sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphoton_id], vtx_ind, energy);
     lead_r9    = l.pho_r9[l.dipho_leadind[diphoton_id]];
     sublead_r9 = l.pho_r9[l.dipho_subleadind[diphoton_id]];
     Higgs = lead_p4 + sublead_p4;    
-    vtx = (TVector3*)l.vtx_std_xyz->At(l.dipho_vtxind[diphoton_id]);
+    vtx = (TVector3*)l.vtx_std_xyz->At(vtx_ind);
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -2079,7 +2081,7 @@ bool PhotonAnalysis::ElectronTag2011(LoopAll& l, int diphotonVHlep_id, float* sm
     return tag;
 }
 	        
-bool PhotonAnalysis::ElectronTag2012(LoopAll& l, int diphotonVHlep_id, float* smeared_pho_energy, bool nm1, float eventweight, float myweight){
+bool PhotonAnalysis::ElectronTag2012(LoopAll& l, int diphotonVHlep_id, float* smeared_pho_energy, ofstream& lep_sync, bool nm1, float eventweight, float myweight){
     bool tag = false;
 
     if(diphotonVHlep_id==-1) return tag;
@@ -2088,7 +2090,24 @@ bool PhotonAnalysis::ElectronTag2012(LoopAll& l, int diphotonVHlep_id, float* sm
     
     int elInd = l.ElectronSelection2012(lead_p4, sublead_p4, l.dipho_vtxind[diphotonVHlep_id]);
     if(elInd!=-1) tag = true;
-    
+
+        TLorentzVector dipho_p4 = lead_p4+sublead_p4;
+        lep_sync<<"run="<<l.run<<"\t";
+        lep_sync<<"lumis"<<l.lumis<<"\t";
+        lep_sync<<"event="<<(unsigned int) l.event<<"\t";
+        lep_sync<<"pt1="<<lead_p4.Pt()<<"\t";
+        lep_sync<<"eta1="<<lead_p4.Eta()<<"\t";
+        lep_sync<<"pt2="<<sublead_p4.Pt()<<"\t";
+        lep_sync<<"eta2="<<sublead_p4.Eta()<<"\t";
+        lep_sync<<"ptgg="<<dipho_p4.Pt()<<"\t";
+    if(tag){
+        TLorentzVector* el_p4 = (TLorentzVector*) l.el_std_p4->At(elInd);
+        lep_sync<<"elpt="<<el_p4->Pt()<<"\t";
+        lep_sync<<"eleta="<<el_p4->Eta()<<"  ELTAG\n";
+    } else {
+        lep_sync<<"ELNOTAG\n";
+    }
+
     return tag;
 }
 	        
@@ -2108,7 +2127,7 @@ bool PhotonAnalysis::MuonTag2011(LoopAll& l, int diphotonVHlep_id, float* smeare
     return tag;
 }
 
-bool PhotonAnalysis::MuonTag2012(LoopAll& l, int diphotonVHlep_id, float* smeared_pho_energy, bool nm1, float eventweight, float myweight){
+bool PhotonAnalysis::MuonTag2012(LoopAll& l, int diphotonVHlep_id, float* smeared_pho_energy, ofstream& lep_sync, bool nm1, float eventweight, float myweight){
     bool tag = false;
 
     if(diphotonVHlep_id==-1) return tag;
@@ -2118,6 +2137,23 @@ bool PhotonAnalysis::MuonTag2012(LoopAll& l, int diphotonVHlep_id, float* smeare
     
     int muonInd = l.MuonSelection2012(lead_p4, sublead_p4, l.dipho_vtxind[diphotonVHlep_id]);
     if(muonInd!=-1) tag = true;
+    
+        TLorentzVector dipho_p4 = lead_p4+sublead_p4;
+        lep_sync<<"run="<<l.run<<"\t";
+        lep_sync<<"lumis"<<l.lumis<<"\t";
+        lep_sync<<"event="<<(unsigned int) l.event<<"\t";
+        lep_sync<<"pt1="<<lead_p4.Pt()<<"\t";
+        lep_sync<<"eta1="<<lead_p4.Eta()<<"\t";
+        lep_sync<<"pt2="<<sublead_p4.Pt()<<"\t";
+        lep_sync<<"eta2="<<sublead_p4.Eta()<<"\t";
+        lep_sync<<"ptgg="<<dipho_p4.Pt()<<"\t";
+    if(tag){
+        TLorentzVector* mu_p4 = (TLorentzVector*) l.mu_glo_p4->At(muonInd);
+        lep_sync<<"mupt="<<mu_p4->Pt()<<"\t";
+        lep_sync<<"mueta="<<mu_p4->Eta()<<"  MUTAG\n";
+    } else {
+        lep_sync<<"MUNOTAG\n";
+    }
     
     return tag;
 }

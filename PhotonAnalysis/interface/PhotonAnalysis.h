@@ -12,6 +12,7 @@
 
 #include "TMVA/Reader.h"
 #include "PhotonFix.h"
+#include <stdio.h>
 // #include "HiggsToGammaGamma/interface/GBRForest.h"
 //#include "../../../../HiggsToGammaGamma/interface/GBRForest.h"
 //#include "HiggsAnalysis/HiggsToGammaGamma/interface/GBRForest.h"
@@ -200,9 +201,9 @@ class PhotonAnalysis : public BaseAnalysis
     bool VBFTag2011(LoopAll& l, int diphoton_id, float* smeared_pho_energy=0, bool nm1=false, float eventweight=1, float myweight=1);
     bool VHhadronicTag2011(LoopAll& l, int diphoton_id, float* smeared_pho_energy=0, bool nm1=false, float eventweight=1, float myweight=1);
     bool ElectronTag2011(LoopAll& l, int diphotonVHlep_id, float* smeared_pho_energy=0, bool nm1=false, float eventweight=1, float myweight=1);
-    bool ElectronTag2012(LoopAll& l, int diphotonVHlep_id, float* smeared_pho_energy=0, bool nm1=false, float eventweight=1, float myweight=1);
+    bool ElectronTag2012(LoopAll& l, int diphotonVHlep_id, float* smeared_pho_energy, ofstream& lep_sync, bool nm1=false, float eventweight=1, float myweight=1);
     bool MuonTag2011(LoopAll& l, int diphotonVHlep_id, float* smeared_pho_energy=0, bool nm1=false, float eventweight=1, float myweight=1);
-    bool MuonTag2012(LoopAll& l, int diphotonVHlep_id, float* smeared_pho_energy=0, bool nm1=false, float eventweight=1, float myweight=1);
+    bool MuonTag2012(LoopAll& l, int diphotonVHlep_id, float* smeared_pho_energy, ofstream& lep_sync, bool nm1=false, float eventweight=1, float myweight=1);
     bool METTag2012(LoopAll& l, int diphotonVHmet_id, float* smeared_pho_energy);  //met at analysis step
     
     // Pile-up reweighing
@@ -234,7 +235,7 @@ class PhotonAnalysis : public BaseAnalysis
 				    BaseSmearer * sys=0, float syst_shift=0.);
     
     void fillDiphoton(TLorentzVector & lead_p4, TLorentzVector & sublead_p4, TLorentzVector & Higgs, float & lead_r9, float & sublead_r9, TVector3 *& vtx, 
-		      const float * energy, const LoopAll & l,  int diphoton_id);
+		      const float * energy, const LoopAll & l,  int diphoton_id, bool defaultvtx=false);
     
     void applyDiPhotonSmearings(TLorentzVector & Higgs, TVector3 & vtx, int category, int cur_type, const TVector3 & truevtx, 
 				float & evweight, float & idmva1, float & idmva2,

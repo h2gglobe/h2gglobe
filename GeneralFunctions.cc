@@ -3026,7 +3026,7 @@ void LoopAll::SetPhotonCutsInCategories(phoCiCIDLevel cutlevel, float * cic6_all
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 int LoopAll::DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL, phoCiCIDLevel SUBLEADCUTLEVEL, 
                    Float_t leadPtMin, Float_t subleadPtMin, int ncategories, bool applyPtoverM, 
-                   float *pho_energy_array, bool split, std::vector<int> cutsbycat) {
+                   float *pho_energy_array, bool split, bool defaultvtx, std::vector<int> cutsbycat) {
 
   //rho=0;// CAUTION SETTING RHO TO 0 FOR 2010 DATA FILES (RHO ISN'T IN THESE FILES)
   int g = -1;
@@ -3048,6 +3048,7 @@ int LoopAll::DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL, phoCiCIDLevel SUB
       return -1;
     }
     int ivtx = dipho_vtxind[idipho];
+    if(defaultvtx) ivtx=0;
     int lead = dipho_leadind[idipho];
     int sublead = dipho_subleadind[idipho];
     
@@ -3926,14 +3927,14 @@ void LoopAll::DefineUserBranches()
 
 
   //correctMETinRED
-    BRANCH_DICT(shiftMET_pt);
-    BRANCH_DICT(shiftMET_phi);
-    BRANCH_DICT(smearMET_pt);
-    BRANCH_DICT(smearMET_phi);
-    BRANCH_DICT(shiftscaleMET_pt);
-    BRANCH_DICT(shiftscaleMET_phi);
-    BRANCH_DICT(shiftsmearMET_pt);
-    BRANCH_DICT(shiftsmearMET_phi);
+  BRANCH_DICT(shiftMET_pt);
+  BRANCH_DICT(shiftMET_phi);
+  BRANCH_DICT(smearMET_pt);
+  BRANCH_DICT(smearMET_phi);
+  BRANCH_DICT(shiftscaleMET_pt);
+  BRANCH_DICT(shiftscaleMET_phi);
+  BRANCH_DICT(shiftsmearMET_pt);
+  BRANCH_DICT(shiftsmearMET_phi);
 
 
 

@@ -53,6 +53,7 @@ void StatAnalysis::Term(LoopAll& l)
     //    l.rooContainer->WriteDataCard(outputfilename,"data_mass","sig_mass","bkg_mass_rebinned");
 
     eventListText.close();
+    lep_sync.close();
 
     std::cout << " nevents " <<  nevents << " " << sumwei << std::endl;
 
@@ -71,6 +72,7 @@ void StatAnalysis::Init(LoopAll& l)
     
     std::string outputfilename = (std::string) l.histFileName;
     eventListText.open(Form("%s",l.outputTextFileName.c_str()));
+    lep_sync.open ("lep_sync.txt");
     //eventListText.open(Form("%s_ascii_events.txt",outputfilename.c_str()));
     FillSignalLabelMap(l);
     //
@@ -454,7 +456,7 @@ void StatAnalysis::Init(LoopAll& l)
     
     
     std::vector<std::string> data_lin_pars(1,"p");   
-    data_lin_pars[0] = "CMS_hgg_modlin0";
+    data_lin_pars[0] = "CMS_hgg_modlin0"+postfix;
     
     l.rooContainer->AddSpecificCategoryPdf(cats_with_lin, "data_pol_model"+postfix,
                                            "0","CMS_hgg_mass",data_lin_pars,71);    // >= 71 means RooBernstein of order >= 1
@@ -591,6 +593,7 @@ bool StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     float mass, evweight, diphotonMVA;
     int diphoton_id, category;
     bool isCorrectVertex;
+
     if( AnalyseEvent(l,jentry, weight, gP4, mass,  evweight, category, diphoton_id, isCorrectVertex,diphotonMVA) ) {
 	// feed the event to the RooContainer 
 	FillRooContainer(l, cur_type, mass, diphotonMVA, category, evweight, isCorrectVertex);
@@ -718,7 +721,7 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 
 	// inclusive category di-photon selection
 	// FIXME pass smeared R9
-	diphoton_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtCut, subleadEtCut, 4,applyPtoverM, &smeared_pho_energy[0], false, cicCutLevels ); 
+	diphoton_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtCut, subleadEtCut, 4,applyPtoverM, &smeared_pho_energy[0], false, false, cicCutLevels ); 
 	//// diphoton_id = l.DiphotonCiCSelection(l.phoNOCUTS, l.phoNOCUTS, leadEtCut, subleadEtCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
 	
 	// N-1 plots
@@ -745,25 +748,25 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 	
 	// lepton tag
 	if(includeVHlep){
-	    diphotonVHlep_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVHlepCut, subleadEtVHlepCut, 4, false, &smeared_pho_energy[0], true );
+	    diphotonVHlep_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVHlepCut, subleadEtVHlepCut, 4, false, &smeared_pho_energy[0], true, true );
 	    //Add tighter cut on dr to tk
 	    if(dataIs2011){
             if(l.pho_drtotk_25_99[l.dipho_leadind[diphotonVHlep_id]] < 1 || l.pho_drtotk_25_99[l.dipho_subleadind[diphotonVHlep_id]] < 1) diphotonVHlep_id = -1;
 	        VHmuevent=MuonTag2011(l, diphotonVHlep_id, &smeared_pho_energy[0]);
 	        VHelevent=ElectronTag2011(l, diphotonVHlep_id, &smeared_pho_energy[0]);
 	    } else {
-	        VHmuevent=MuonTag2012(l, diphotonVHlep_id, &smeared_pho_energy[0]);
-	        VHelevent=ElectronTag2012(l, diphotonVHlep_id, &smeared_pho_energy[0]);
+	        VHmuevent=MuonTag2012(l, diphotonVHlep_id, &smeared_pho_energy[0],lep_sync);
+	        VHelevent=ElectronTag2012(l, diphotonVHlep_id, &smeared_pho_energy[0],lep_sync);
         }
     }
 	
 	
 	//Met tag //met at analysis step
 	if(includeVHmet){
-	    diphotonVHmet_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVHmetCut, subleadEtVHmetCut, 4, false, &smeared_pho_energy[0], true );
+	    diphotonVHmet_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVHmetCut, subleadEtVHmetCut, 4, false, &smeared_pho_energy[0], true, true);
 	    if(diphotonVHmet_id>-1) {
-	    TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphotonVHmet_id], l.dipho_vtxind[diphotonVHmet_id], &smeared_pho_energy[0]);
-	    TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphotonVHmet_id], l.dipho_vtxind[diphotonVHmet_id], &smeared_pho_energy[0]);
+	    TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphotonVHmet_id], 0, &smeared_pho_energy[0]);
+	    TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphotonVHmet_id], 0, &smeared_pho_energy[0]);
 		printf("run:%d",l.run);
 		printf("\tlumi:%d",l.lumis);
 		printf("\tevent:%lld",l.event);
@@ -774,7 +777,7 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 		printf("\tscEta2:%.4e",((TVector3*)l.sc_xyz->At(l.pho_scind[l.dipho_subleadind[diphoton_id]]))->Eta());
 		printf("\tr91:%.4e",l.pho_r9[l.dipho_leadind[diphoton_id]]);
 		printf("\tr92:%.4e",l.pho_r9[l.dipho_leadind[diphoton_id]]);
-		printf("\tvertexId1:%d",l.dipho_vtxind[diphotonVHmet_id]);
+		printf("\tvertexId1:%d",0);
 		printf("\tcorrMET:%.4e",l.shiftscaleMET_pt[diphotonVHmet_id]);
 		printf("\tcorrMETPhi:%.4e",l.shiftscaleMET_phi[diphotonVHmet_id]);
 		printf("\trawMET:%.4e",l.met_pfmet);
@@ -818,7 +821,10 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 	if(includeVHlep && (VHelevent || VHmuevent)) {
 	    diphoton_id = diphotonVHlep_id;
 	} else if(includeVBF&&VBFevent) {
-	    diphoton_id = diphotonVBF_id;	} else if(includeVHhad&&VHhadevent) {
+	    diphoton_id = diphotonVBF_id;	
+    } else if(includeVHmet&&VHmetevent) {
+	    diphoton_id = diphotonVHmet_id;
+    } else if(includeVHhad&&VHhadevent) {
 	    diphoton_id = diphotonVHhad_id;
 	}
 	// End exclusive mode selection
@@ -838,7 +844,9 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
         TLorentzVector lead_p4, sublead_p4, Higgs;
         float lead_r9, sublead_r9;
         TVector3 * vtx;
-	fillDiphoton(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, vtx, &smeared_pho_energy[0], l, diphoton_id);  
+        bool defaultvtx=false;
+        if(((includeVHmet&&VHmetevent) || (includeVHlep && (VHelevent || VHmuevent))) && !(includeVBF&&VBFevent) ) defaultvtx=true;
+	fillDiphoton(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, vtx, &smeared_pho_energy[0], l, diphoton_id, defaultvtx);  
       
         // FIXME pass smeared R9
 	category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,nPtCategories);
