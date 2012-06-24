@@ -1336,7 +1336,7 @@ py = uncormet->Pt()*sin(uncormet->Phi())+0.00262869*met_sumet_pfmet+0.210784;
 
 //met at analysis step
   
-TLorentzVector LoopAll::correctMet(TLorentzVector& pho_lead, TLorentzVector& pho_sublead, int vtxind, TLorentzVector *uncormet, bool smearing, bool scale) {
+TLorentzVector LoopAll::correctMet( TLorentzVector *uncormet, bool smearing, bool scale) {
 
     TRandom3 *jSmearRan= new TRandom3(event);
     TLorentzVector jetSumSmeared;

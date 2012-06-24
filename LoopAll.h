@@ -707,14 +707,14 @@ Float_t pho_s4ratio[MAX_PHOTONS];
 
 
 //correctMETinRED
-Float_t shiftMET_pt[MAX_DIPHOTONS];
-Float_t shiftMET_phi[MAX_DIPHOTONS];
-Float_t smearMET_pt[MAX_DIPHOTONS];
-Float_t smearMET_phi[MAX_DIPHOTONS];
-Float_t shiftscaleMET_pt[MAX_DIPHOTONS];
-Float_t shiftscaleMET_phi[MAX_DIPHOTONS];
-Float_t shiftsmearMET_pt[MAX_DIPHOTONS];
-Float_t shiftsmearMET_phi[MAX_DIPHOTONS];
+Float_t shiftMET_pt;
+Float_t shiftMET_phi;
+Float_t smearMET_pt;
+Float_t smearMET_phi;
+Float_t shiftscaleMET_pt;
+Float_t shiftscaleMET_phi;
+Float_t shiftsmearMET_pt;
+Float_t shiftsmearMET_phi;
 
 
 TBranch *b_gh_gen2reco1;
@@ -1088,11 +1088,11 @@ int ElectronSelection2012(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind
 //correctMETinRED
 double ErrEt( double Et, double Eta);
 TLorentzVector shiftMet(TLorentzVector *uncormet, bool isMC);
-//TLorentzVector correctMet(TLorentzVector *uncormet, bool smearing, bool scale);
+TLorentzVector correctMet(TLorentzVector *uncormet, bool smearing, bool scale);
 
 //met at analysis step
 //TLorentzVector shiftMet(TLorentzVector& pho_lead, TLorentzVector& pho_sublead, int vtxind, TLorentzVector *uncormet, bool isMC);
-TLorentzVector correctMet(TLorentzVector& pho_lead, TLorentzVector& pho_sublead, int vtxind, TLorentzVector *uncormet, bool smearing, bool scale);
+//TLorentzVector correctMet(TLorentzVector& pho_lead, TLorentzVector& pho_sublead, int vtxind, TLorentzVector *uncormet, bool smearing, bool scale);
 
 
 void SetAllMVA();

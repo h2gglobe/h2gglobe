@@ -771,17 +771,17 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 	
 	//Met tag //met at analysis step
 	if(includeVHmet){
-	    diphotonVHmet_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVHmetCut, subleadEtVHmetCut, 4, false, &smeared_pho_energy[0], true, true);
+	    diphotonVHmet_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVHmetCut, subleadEtVHmetCut, 4, false, &smeared_pho_energy[0], true);
 	    if(diphotonVHmet_id>-1) {
-	      TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphotonVHmet_id], 0, &smeared_pho_energy[0]);
-	      TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphotonVHmet_id], 0, &smeared_pho_energy[0]);	    
+	      TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphotonVHmet_id], l.dipho_vtxind[diphoton_id] , &smeared_pho_energy[0]);
+	      TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphotonVHmet_id], l.dipho_vtxind[diphoton_id] , &smeared_pho_energy[0]);	    
 	      TLorentzVector TwoPhoton_Vector = (lead_p4) + (sublead_p4);  
 	      float m_gamgam = TwoPhoton_Vector.M();
 		
-//		PhotonAnalysis::MetCorrections2012( l, lead_p4 , sublead_p4 ,diphotonVHmet_id );
-                PhotonAnalysis::MetCorrections2012( l, lead_p4 , sublead_p4 ,0 );
+		PhotonAnalysis::MetCorrections2012( l );
+//                PhotonAnalysis::MetCorrections2012( l, lead_p4 , sublead_p4 ,0 );
 		
-		if (m_gamgam>100 && m_gamgam<180 && ( lead_p4.Pt() > 45*m_gamgam/120.) && sublead_p4.Pt() > 25. && l.shiftscaleMET_pt[diphotonVHmet_id]>70) {
+		if (m_gamgam>100 && m_gamgam<180 && ( lead_p4.Pt() > 45*m_gamgam/120.) && sublead_p4.Pt() > 25. && l.shiftscaleMET_pt>70) {
 		  met_sync << " run: " << l.run
 		    << "\tevent: " << l.event
 		    << "\tleadPt: " << lead_p4.Pt()
@@ -789,9 +789,9 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 		    << "\tdiphomass: " << m_gamgam
 		    << "\traw_met: " << l.met_pfmet
 		    << "\traw_met_phi: " << l.met_phi_pfmet
-		    << "\tshifted_met: " << l.shiftMET_pt[diphotonVHmet_id]
-		    << "\tcorrected_met: " << l.shiftscaleMET_pt[diphotonVHmet_id]
-		    << "\tcorrected_met_phi: " << l.shiftscaleMET_phi[diphotonVHmet_id]
+		    << "\tshifted_met: " << l.shiftMET_pt
+		    << "\tcorrected_met: " << l.shiftscaleMET_pt
+		    << "\tcorrected_met_phi: " << l.shiftscaleMET_phi
 		    << "\tjet_algoPF1_n: " << l.jet_algoPF1_n
 		    << endl;
 	        }		
@@ -856,7 +856,7 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
         float lead_r9, sublead_r9;
         TVector3 * vtx;
         bool defaultvtx=false;
-        if(((includeVHmet&&VHmetevent) || (includeVHlep && (VHelevent || VHmuevent))) && !(includeVBF&&VBFevent) ) defaultvtx=true;
+        if(( (includeVHlep && (VHelevent || VHmuevent))) && !(includeVBF&&VBFevent) ) defaultvtx=true;
 	fillDiphoton(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, vtx, &smeared_pho_energy[0], l, diphoton_id, defaultvtx);  
       
         // FIXME pass smeared R9

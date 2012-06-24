@@ -1426,13 +1426,13 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
                 maxSumPt = l.dipho_sumpt[l.dipho_n];
             }
 	    
-	    MetCorrections2012( l, lead_p4 , sublead_p4 ,l.dipho_n );
-	    
             // make sure that vertex analysis indexes are in synch 
             assert( l.dipho_n == vtxAna_.pairID(ipho1,ipho2) );
             
             l.dipho_n++;
         }
+       
+       MetCorrections2012( l );
     }
     
 
@@ -1441,7 +1441,7 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
 
 // ----------------------------------------------------------------------------------------------------
 
-void PhotonAnalysis::MetCorrections2012(LoopAll& l,TLorentzVector lead_p4 ,TLorentzVector sublead_p4 , int dipho_ind)
+void PhotonAnalysis::MetCorrections2012(LoopAll& l)
 {
            //correctedMETvariables
             TLorentzVector unpfMET;
@@ -1454,20 +1454,20 @@ void PhotonAnalysis::MetCorrections2012(LoopAll& l,TLorentzVector lead_p4 ,TLore
             bool isMC = l.itype[l.current]!=0;
             
             TLorentzVector shiftMET_corr = l.shiftMet(&unpfMET,isMC);
-            l.shiftMET_pt[dipho_ind] = shiftMET_corr.Pt();
-            l.shiftMET_phi[dipho_ind] = shiftMET_corr.Phi();
+            l.shiftMET_pt = shiftMET_corr.Pt();
+            l.shiftMET_phi = shiftMET_corr.Phi();
             if (isMC) {
-                TLorentzVector smearMET_corr = l.correctMet(lead_p4, sublead_p4, l.dipho_vtxind[dipho_ind], &unpfMET, true, false);
-                l.smearMET_pt[dipho_ind] = smearMET_corr.Pt();
-                l.smearMET_phi[dipho_ind] = smearMET_corr.Phi();
+                TLorentzVector smearMET_corr = l.correctMet( &unpfMET, true, false);
+                l.smearMET_pt = smearMET_corr.Pt();
+                l.smearMET_phi = smearMET_corr.Phi();
             
                 TLorentzVector shiftsmearMET_corr = l.shiftMet(&smearMET_corr,isMC);
-                l.shiftsmearMET_pt[dipho_ind] = shiftsmearMET_corr.Pt();
-                l.shiftsmearMET_phi[dipho_ind] = shiftsmearMET_corr.Phi();
+                l.shiftsmearMET_pt = shiftsmearMET_corr.Pt();
+                l.shiftsmearMET_phi = shiftsmearMET_corr.Phi();
             }    
-            TLorentzVector shiftscaleMET_corr = l.correctMet(lead_p4, sublead_p4, l.dipho_vtxind[dipho_ind], &shiftMET_corr,false,true);
-            l.shiftscaleMET_pt[dipho_ind] = shiftscaleMET_corr.Pt();
-            l.shiftscaleMET_phi[dipho_ind] = shiftscaleMET_corr.Phi();
+            TLorentzVector shiftscaleMET_corr = l.correctMet( &shiftMET_corr,false,true);
+            l.shiftscaleMET_pt = shiftscaleMET_corr.Pt();
+            l.shiftscaleMET_phi = shiftscaleMET_corr.Phi();
 	    
 }
 	    
@@ -2309,7 +2309,7 @@ bool PhotonAnalysis::METTag2012(LoopAll& l, int diphotonVHmet_id, float* smeared
     
     //
     
-    if( l.shiftscaleMET_pt[l.dipho_n] > 70 ) tag = true;    
+    if( l.shiftscaleMET_pt > 70 ) tag = true;    
     
     return tag;
     
