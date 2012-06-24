@@ -1343,7 +1343,32 @@ TLorentzVector LoopAll::correctMet(TLorentzVector& pho_lead, TLorentzVector& pho
     jetSumSmeared.SetXYZT(0.,0.,0.,0);
     TLorentzVector jetSumUnsmeared;
     jetSumUnsmeared.SetXYZT(0.,0.,0.,0);
-  
+    
+    
+    
+    int pho_ST[pho_n];
+    std::vector<float> pho_eng;
+    std::vector<std::vector<bool> > ph_passcut;
+    int leadLevel=LoopAll::phoSUPERTIGHT;
+    
+    for(int ipho = 0; ipho < pho_n; ++ipho ) {
+      TLorentzVector pho_p4_vtx_cor = get_pho_p4(ipho,0, &pho_eng[0]);
+      float pho_Eta = fabs(((TVector3*)sc_xyz->At(pho_scind[ipho]))->Eta());
+      pho_eng.push_back( ((TLorentzVector*)pho_p4->At(ipho))->Energy());
+      
+     if( pho_Eta > 2.5  || ( pho_Eta > 1.4442 && pho_Eta < 1.566 ) ) {
+        pho_ST[ipho]=0;
+        continue; }
+     if ( pho_p4_vtx_cor.Pt() < 25 ) {
+        pho_ST[ipho]=0;
+        continue; }
+     if( PhotonCiCSelectionLevel(ipho, 0, ph_passcut, 4, 0, &pho_eng[0] ) < leadLevel ) {
+        pho_ST[ipho]=0;
+        continue; }
+        
+        pho_ST[ipho]=1;
+    }
+    
     //associating reco - gen met
     for(int i=0; i<jet_algoPF1_n; i++){
         TLorentzVector * p4_jet = (TLorentzVector *) jet_algoPF1_p4->At(i);
@@ -1353,18 +1378,14 @@ TLorentzVector LoopAll::correctMet(TLorentzVector& pho_lead, TLorentzVector& pho
             *p4_jet = (*p4_jet) * (1/jet_algoPF1_erescale[i]);
         }
         
-        //remove identified photons
-        for(int ipho = 0; ipho < pho_n; ++ipho ) {
-      
-            double dR_lead_jet = p4_jet->DeltaR(pho_lead);
-            double dR_sublead_jet = p4_jet->DeltaR(pho_sublead);
-            
-            if( dR_lead_jet<0.5 ) continue;
-            if( dR_sublead_jet<0.5 ) continue;
-      
-        }
+     //remove identified photons        
+     for(int ipho = 0; ipho < pho_n; ++ipho ) {
+     if(pho_ST[ipho]==1) {
+     double dR_jet = p4_jet->DeltaR(pho_ST[ipho]);
+       if( dR_jet<0.5 ) continue;
+       }
+     }
     
-
         double ptJet_pfakt5 = p4_jet->Pt();
         double eJet_pfakt5 = p4_jet->Energy();
         double etaJet_pfakt5 = p4_jet->Eta();
