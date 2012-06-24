@@ -779,6 +779,7 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 	      float m_gamgam = TwoPhoton_Vector.M();
 		
 //		PhotonAnalysis::MetCorrections2012( l, lead_p4 , sublead_p4 ,diphotonVHmet_id );
+                PhotonAnalysis::MetCorrections2012( l, lead_p4 , sublead_p4 ,0 );
 		
 		if (m_gamgam>100 && m_gamgam<180 && ( lead_p4.Pt() > 45*m_gamgam/120.) && sublead_p4.Pt() > 25. && l.shiftscaleMET_pt[diphotonVHmet_id]>70) {
 		  met_sync << " run: " << l.run
