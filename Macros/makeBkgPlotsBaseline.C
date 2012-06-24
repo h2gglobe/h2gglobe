@@ -21,6 +21,8 @@
 #include "RooFitResult.h"
 #include <iostream>
 
+#include "doBandsFit.h"
+
 void makeBkgPlots(std::string filebkg,std::string filesig){
 
 	// Globals
@@ -114,9 +116,10 @@ void makeBkgPlots(std::string filebkg,std::string filesig){
 
 		std::cout << "Plotting Components" << std::endl;
 		data->plotOn(frame,RooFit::Binning(80),RooFit::Invisible());
-		bkg->plotOn(frame,RooFit::VisualizeError(*r,2,1),RooFit::FillColor(kGreen));
-		bkg->plotOn(frame,RooFit::VisualizeError(*r,1,1),RooFit::FillColor(kYellow));
-		bkg->plotOn(frame,RooFit::LineColor(kRed));
+		
+		//// bkg->plotOn(frame,RooFit::VisualizeError(*r,2,1),RooFit::FillColor(kGreen));
+		//// bkg->plotOn(frame,RooFit::VisualizeError(*r,1,1),RooFit::FillColor(kYellow));
+		//// bkg->plotOn(frame,RooFit::LineColor(kRed));
 		allsig.plotOn(frame,RooFit::LineColor(kBlue),RooFit::FillColor(38), RooFit::Normalization(totalSig,RooAbsReal::NumEvent));
 		x->setRange("unblind",150,180);
 		data->plotOn(frame,RooFit::Binning(80),RooFit::CutRange("unblind"));

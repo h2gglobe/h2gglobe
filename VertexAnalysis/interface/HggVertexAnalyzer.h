@@ -123,10 +123,14 @@ public:
 	float pulltoconv(int i)    const { return pulltoconv_[ipair_][i]; };	
 	float limpulltoconv(int i)    const { return limpulltoconv_[ipair_][i]; };	
 	float diphopt(int i)    const { return diphopt_[ipair_][i]; };	
+	float diphopx(int i)    const { return diphopx_[ipair_][i]; };	
+	float diphopy(int i)    const { return diphopy_[ipair_][i]; };	
 	float nch(int i)    const { return 	nch_[ipair_][i]; };	
 	float ptmax(int i)  const { return 	ptmax_[ipair_][i]; };	
 	float sumpt(int i)  const { return 	sumpt_[ipair_][i]; };	
 	float ptvtx(int i)  const { return 	ptvtx_[ipair_][i]; };	
+	float pxvtx(int i)  const { return 	pxvtx_[ipair_][i]; };	
+	float pyvtx(int i)  const { return 	pyvtx_[ipair_][i]; };	
 	float acosA(int i)  const { return  	acosA_[ipair_][i]; }; 	
 	float ptasym(int i) const { return 	ptasym_[ipair_][i]; };	
 	float ptbal(int i)  const { return 	ptbal_[ipair_][i]; };	
@@ -186,6 +190,8 @@ private:
 	// buffers
 	std::vector<std::vector<TLorentzVector> > diPhoton_;
 	std::vector<std::vector<float> > diphopt_;
+	std::vector<std::vector<float> > diphopx_;
+	std::vector<std::vector<float> > diphopy_;
 	
 	std::vector<float> vertexz_;
 	std::vector<float> nconv_, nlegs_;
@@ -218,6 +224,8 @@ private:
 	std::vector<std::vector<TVector3> > vtxP_;
 	std::vector<std::vector<TVector2> > vtxPt_;
 	std::vector<std::vector<float> > ptvtx_;
+	std::vector<std::vector<float> > pxvtx_;
+	std::vector<std::vector<float> > pyvtx_;
 
 	std::vector<std::vector<TVector2> > diPhotonPt_;
 	std::vector<std::vector<float> > diPhotonPz_;
@@ -242,10 +250,14 @@ private:
 	std::vector<std::vector<float> > * ppulltoconv ;
 	std::vector<std::vector<float> > * plimpulltoconv ;
 	std::vector<std::vector<float> > * pdiphopt ;
+	std::vector<std::vector<float> > * pdiphopx ;
+	std::vector<std::vector<float> > * pdiphopy ;
 	std::vector<std::vector<float> > * pnch ;
 	std::vector<std::vector<float> > * pptmax ;
 	std::vector<std::vector<float> > * psumpt ;
 	std::vector<std::vector<float> > * pptvtx ;
+	std::vector<std::vector<float> > * ppxvtx ;
+	std::vector<std::vector<float> > * ppyvtx ;
 	std::vector<std::vector<float> > * pacosA ;
 	std::vector<std::vector<float> > * pptasym ;
 	std::vector<std::vector<float> > * pptbal ;

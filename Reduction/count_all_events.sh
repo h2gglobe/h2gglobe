@@ -8,5 +8,7 @@ fi
 for f in $1/*.dat; do 
     echo
     echo $f;  
+    echo "---------------------------------------"
+    grep CaDir $f
     . count_events.sh $f*.log; 
 done

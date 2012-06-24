@@ -1,4 +1,6 @@
 if [ -n "${BATCH+x}" ]; then
+    ls -R ${storedir}
+
     if ( ! echo ${storeremote} | egrep '(castor|store)'  ); then
 	rsync -avz ${storedir}/ ${storeremote}/${version}
     else 

@@ -16,5 +16,5 @@ echo "Hadding..."
 ../parallel --eta --joblog parallel_pileupMerger.log --progress "python ../Macros/pileup/pileupMerger.py {1}" :::: samples.txt
 
 echo "Copying to eos..."
-../parallel --eta --joblog parallel_pileupCopy.log --progress "cmsStage `basename {1}`.pileup.root $dir" :::: samples.txt
+../parallel --eta --joblog parallel_pileupCopy.log --progress "cmsStage -f `basename {1}`.pileup.root $dir" :::: samples.txt
 

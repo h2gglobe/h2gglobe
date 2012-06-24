@@ -20,7 +20,7 @@ def makeCaFiles(dir,njobs=-1,jobid=0,nf=[0]):
       for f in files:
          if '.root' in f:
             nf[0] += 1
-            fname = "%s%s/%s" % ( prepend, dir, f) 
+            fname = "%s%s/%s" % ( prepend, dir, f)
             if (njobs > 0) and (nf[0] % njobs != jobid):
                return_files.append((fname,False))
 	    else:

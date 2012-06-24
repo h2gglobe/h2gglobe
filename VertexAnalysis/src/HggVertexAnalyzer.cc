@@ -113,10 +113,14 @@ void HggVertexAnalyzer::fillDictionary(HggVertexAnalyzer::dict_t& dictionary)
 	dictionary["limPullToConv"]   = make_pair(&HggVertexAnalyzer::limpulltoconv,true);
 
 	dictionary["diphopt"]   = make_pair(&HggVertexAnalyzer::diphopt,false);
+	dictionary["diphopx"]   = make_pair(&HggVertexAnalyzer::diphopx,false);
+	dictionary["diphopy"]   = make_pair(&HggVertexAnalyzer::diphopy,false);
 	dictionary["nch"]   = make_pair(&HggVertexAnalyzer::nch,false);
 	dictionary["ptmax"] = make_pair(&HggVertexAnalyzer::ptmax,false);
 	dictionary["sumpt"] = make_pair(&HggVertexAnalyzer::sumpt,false);
 	dictionary["ptvtx"] = make_pair(&HggVertexAnalyzer::ptvtx,false);
+	dictionary["pxvtx"] = make_pair(&HggVertexAnalyzer::pxvtx,false);
+	dictionary["pyvtx"] = make_pair(&HggVertexAnalyzer::pyvtx,false);
 	dictionary["acosA"] = make_pair(&HggVertexAnalyzer::acosA,false);
 	dictionary["ptasym"] = make_pair(&HggVertexAnalyzer::ptasym,false);
 	dictionary["ptbal"] = make_pair(&HggVertexAnalyzer::ptbal,false);
@@ -159,10 +163,14 @@ HggVertexAnalyzer::HggVertexAnalyzer(AlgoParameters & ap, int nvtx) :
 	ppulltoconv = &pulltoconv_;
 	plimpulltoconv = &limpulltoconv_;
 	pdiphopt = &diphopt_;
+	pdiphopx = &diphopx_;
+	pdiphopy = &diphopy_;
 	pnch = &nch_;
 	pptmax = &ptmax_;
 	psumpt = &sumpt_;
 	pptvtx = &ptvtx_;
+	ppxvtx = &pxvtx_;
+	ppyvtx = &pyvtx_;
 	pacosA = &acosA_;
 	pptasym = &ptasym_;
 	pptbal = &ptbal_;
@@ -200,10 +208,14 @@ void HggVertexAnalyzer::branches(TTree * tree, const std::string & pfx)
 	tree->Branch((pfx+"pulltoconv").c_str(), &pulltoconv_ );
 	tree->Branch((pfx+"limpulltoconv").c_str(), &limpulltoconv_ );
 	tree->Branch((pfx+"diphopt").c_str(), &diphopt_ );
+	tree->Branch((pfx+"diphopx").c_str(), &diphopx_ );
+	tree->Branch((pfx+"diphopy").c_str(), &diphopy_ );
 	tree->Branch((pfx+"nch").c_str(), &nch_ )  ;
 	tree->Branch((pfx+"ptmax").c_str(), &ptmax_ );
 	tree->Branch((pfx+"sumpt").c_str(), &sumpt_ );
 	tree->Branch((pfx+"ptvtx").c_str(), &ptvtx_ );
+	tree->Branch((pfx+"pxvtx").c_str(), &pxvtx_ );
+	tree->Branch((pfx+"pyvtx").c_str(), &pyvtx_ );
 	tree->Branch((pfx+"acosA").c_str(), &acosA_ );
 	tree->Branch((pfx+"ptasym").c_str(), &ptasym_ );
 	tree->Branch((pfx+"ptbal").c_str(), &ptbal_ );
@@ -248,6 +260,13 @@ void HggVertexAnalyzer::setBranchAdresses(TTree * tree, const std::string & pfx)
 		tree->SetBranchAddress((pfx+"nlegs").c_str(), &pnlegs );
 	}
 	tree->SetBranchAddress((pfx+"diphopt").c_str(), &pdiphopt );
+	if( tree->GetBranch((pfx+"diphopx").c_str() ) ) {
+		tree->SetBranchAddress((pfx+"diphopx").c_str(), &pdiphopx );
+		tree->SetBranchAddress((pfx+"diphopy").c_str(), &pdiphopy );
+		tree->SetBranchAddress((pfx+"pxvtx").c_str(), &ppxvtx );
+		tree->SetBranchAddress((pfx+"pyvtx").c_str(), &ppyvtx );
+	}
+	
 	tree->SetBranchAddress((pfx+"nch").c_str(), &pnch )  ;
 	tree->SetBranchAddress((pfx+"ptmax").c_str(), &pptmax );
 	tree->SetBranchAddress((pfx+"sumpt").c_str(), &psumpt );
@@ -296,6 +315,12 @@ void HggVertexAnalyzer::getBranches(TTree * tree, const std::string & pfx, std::
 		ret.insert(tree->GetBranch((pfx+"nlegs").c_str()));
 	}		
 	ret.insert(tree->GetBranch((pfx+"diphopt").c_str()));
+	if( tree->GetBranch((pfx+"diphopx").c_str() ) ) {
+		ret.insert(tree->GetBranch((pfx+"diphopx").c_str()));
+		ret.insert(tree->GetBranch((pfx+"diphopy").c_str()));
+		ret.insert(tree->GetBranch((pfx+"pxvtx").c_str()));
+		ret.insert(tree->GetBranch((pfx+"pyvtx").c_str()));
+	}
 	ret.insert(tree->GetBranch((pfx+"nch").c_str()));
 	ret.insert(tree->GetBranch((pfx+"ptmax").c_str()));
 	ret.insert(tree->GetBranch((pfx+"sumpt").c_str()));
@@ -581,9 +606,13 @@ void HggVertexAnalyzer::clear()
 	fourjetD_.clear();
 	
 	diphopt_.clear();
+	diphopx_.clear();
+	diphopy_.clear();
 	diPhotonPt_.clear();
 	vtxPt_.clear();
 	ptvtx_.clear();
+	pxvtx_.clear();
+	pyvtx_.clear();
 	diPhotonPz_.clear();
 	
 	acosA_.clear();
@@ -656,9 +685,13 @@ void HggVertexAnalyzer::discardLastDipho()
 	fourjetD_.resize(ipair_);
 	
 	diphopt_.resize(ipair_);
+	diphopx_.resize(ipair_);
+	diphopy_.resize(ipair_);
 	diPhotonPt_.resize(ipair_);
 	vtxPt_.resize(ipair_);
 	ptvtx_.resize(ipair_);
+	pxvtx_.resize(ipair_);
+	pyvtx_.resize(ipair_);
 	diPhotonPz_.resize(ipair_);
 		
 	acosA_.resize(ipair_);
@@ -724,9 +757,13 @@ void HggVertexAnalyzer::analyze(const VertexInfoAdapter & e, const PhotonInfo & 
 		fourjetD_.resize(ipair_+1); fourjetD_[ipair_].resize(nvtx,0.);
 		
 		diphopt_.resize(ipair_+1); diphopt_[ipair_].resize(nvtx);
+		diphopx_.resize(ipair_+1); diphopx_[ipair_].resize(nvtx);
+		diphopy_.resize(ipair_+1); diphopy_[ipair_].resize(nvtx);
 		diPhotonPt_.resize(ipair_+1); diPhotonPt_[ipair_].resize(nvtx);
 		vtxPt_.resize(ipair_+1); vtxPt_[ipair_].resize(nvtx);
 		ptvtx_.resize(ipair_+1); ptvtx_[ipair_].resize(nvtx);
+		pxvtx_.resize(ipair_+1); pxvtx_[ipair_].resize(nvtx);
+		pyvtx_.resize(ipair_+1); pyvtx_[ipair_].resize(nvtx);
 		diPhotonPz_.resize(ipair_+1); diPhotonPz_[ipair_].resize(nvtx);
 		
 		acosA_.resize(ipair_+1); acosA_[ipair_].resize(nvtx);
@@ -909,8 +946,12 @@ void HggVertexAnalyzer::analyze(const VertexInfoAdapter & e, const PhotonInfo & 
 
 		diPhotonPt_[ipair_][vid] = diPhoton_[ipair_][vid].Vect().XYvector();
 		diphopt_[ipair_][vid]    = diPhotonPt_[ipair_][vid].Mod();
+		diphopx_[ipair_][vid]    = diPhotonPt_[ipair_][vid].X();
+		diphopy_[ipair_][vid]    = diPhotonPt_[ipair_][vid].Y();
 		vtxPt_[ipair_][vid]      = vtxP_[ipair_][vid].XYvector();
 		ptvtx_[ipair_][vid]      = vtxPt_[ipair_][vid].Mod();
+		pxvtx_[ipair_][vid]      = vtxPt_[ipair_][vid].X();
+		pyvtx_[ipair_][vid]      = vtxPt_[ipair_][vid].Y();
 		diPhotonPz_[ipair_][vid]   = diPhoton_[ipair_][vid].Vect().Pz();
 		
  		sort(tksPt_[ipair_][vid].begin(), tksPt_[ipair_][vid].end(), greater<float>());
