@@ -8,7 +8,7 @@
 class FMTSetup : public FMTBase {
 	
 	public:
-		FMTSetup();
+		FMTSetup(string="0");
 		~FMTSetup();
 
 		void OptionParser(int argc, char *argv[]);

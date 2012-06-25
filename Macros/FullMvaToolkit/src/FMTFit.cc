@@ -23,9 +23,9 @@ FMTFit::FMTFit(TFile *tFile, double intLumi, bool is2011, int mHMinimum, int mHM
 	plot_(true)
 {
   gROOT->SetStyle("Plain");
-  r1 = new RooRealVar("r1","r1",-8.,-50.,0.); 
-  r2 = new RooRealVar("r2","r2",-1.,-50.,0.); 
-  f1 = new RooRealVar("f1","f1",0.5,0.,1.); 
+  r1 = new RooRealVar("r1","r1",-8.,-20.,0.001); 
+  r2 = new RooRealVar("r2","r2",-1.,-20.,0.001); 
+  f1 = new RooRealVar("f1","f1",0.2,0.001,0.49); 
   nBkgInSigReg = new RooRealVar("nbis","nbis",10,0,100000);
 	outWS = (RooWorkspace*)tFile->Get("cms_hgg_workspace");
   mass_var = (RooRealVar*)outWS->var("CMS_hgg_mass");
@@ -164,7 +164,7 @@ void FMTFit::Plot(double mass){
 		text->SetNDC();
 		text->DrawLatex(0.68,0.85,"CMS preliminary");
     text->DrawLatex(0.75,0.78,"#sqrt{s} = 8 TeV");
-		text->DrawLatex(0.73,0.71,Form("#int L = 3.1 fb^{-1}",(getintLumi()/1000.)));
+		text->DrawLatex(0.73,0.71,Form("#int L = %3.1f fb^{-1}",(getintLumi())));
     if (blind_) text->DrawLatex(0.67,0.64,"Blinded: [110,150]");
     c1->SaveAs(Form("plots/pdf/fit_m%3.1f.pdf",mass));
     c1->SaveAs(Form("plots/png/fit_m%3.1f.png",mass));

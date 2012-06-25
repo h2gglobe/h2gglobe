@@ -16,7 +16,7 @@
 using namespace std;
 namespace po = boost::program_options;
 
-FMTSetup::FMTSetup():
+FMTSetup::FMTSetup(string filename):
 	all_(false),
 	fit_(false),
   catByHand_(false),
@@ -35,11 +35,17 @@ FMTSetup::FMTSetup():
 	runSB_(false),
 	cleaned(false)
 {
-	
+  if (filename!="0") system(Form("cp %s %s_beforeFMT.root",filename.c_str(),filename.c_str()));
+  	
 }
 
 FMTSetup::~FMTSetup(){
 	if (!cleaned) delete rebinner;
+  system(Form("cp %s %s_afterFMT.root",filename_.c_str(),filename_.c_str()));
+  cout << "Original file " << filename_ << " backed up to " << Form("%s_beforeFMT.root",filename_.c_str()) << endl;
+  cout << "Original file " << filename_ << " updated." << endl;
+  cout << "Complete file copied to " << Form("%s_afterFMT.root",filename_.c_str()) << endl; 
+
 }
 
 void FMTSetup::OptionParser(int argc, char *argv[]){
@@ -156,6 +162,7 @@ void FMTSetup::OptionParser(int argc, char *argv[]){
     system("mkdir -p plots/pdf");
   }
 	printPassedOptions();
+  if (dumpDatFile_) dumpDatFile(dumpDatFil_); 
 }
 
 void FMTSetup::checkAllHistos(){
@@ -300,6 +307,7 @@ void FMTSetup::printPassedOptions(){
   cout << "\tIs 2011 data:           " << getis2011() << endl;
   cout << "\tWeb publish:            " << web_ << endl;
   cout << "\tCheck histos:           " << checkHistos_ << endl;
+  cout << "\tDump dat file:          " << dumpDatFile_ << endl;
 }
 
 void FMTSetup::CheckRunOptions(){
@@ -413,7 +421,7 @@ void FMTSetup::publishToWeb(){
 	if (web_){
 		cout << "Publishing to web: " << webDir_ << "/plots/png/home.html" << endl;
 		if (blinding_) system(Form("python python/publish_plots.py %s --blind",filename_.c_str()));
-		else system(Form("python python/publish_plots.py %s",filename_.c_str()));
+		else system(Form("python python/publish_plots.py %s --not",filename_.c_str()));
 		system(Form("rm -r %s",webDir_.c_str()));
 		system(Form("mkdir %s",webDir_.c_str()));
 		system(Form("cp -r plots %s",webDir_.c_str()));

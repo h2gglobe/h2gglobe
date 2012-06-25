@@ -575,6 +575,7 @@ void FMTBase::dumpDatFile(string filename){
   }
   outFile << endl;
   outFile << "# General options" << endl;
+  outFile << "nInclusiveCategories=" << nIncCategories_ << endl;
   outFile << "includeVBF=" << includeVBF_ << endl;
   outFile << "nVBFCategories=" << nVBFCategories_ << endl;
   outFile << "includeLEP=" << includeLEP_ << endl;

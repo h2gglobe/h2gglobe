@@ -32,9 +32,8 @@ string getFileName(int argc, char* argv[]){
 int main(int argc, char* argv[]){
 
   string filename = getFileName(argc,argv);
-  if (filename!="0") system(Form("cp %s %s_beforeFMT.root",filename.c_str(),filename.c_str()));
 
-	FMTSetup *runner = new FMTSetup();
+	FMTSetup *runner = new FMTSetup(filename);
 	runner->OptionParser(argc,argv);
 	runner->CheckRunOptions();
 
@@ -49,9 +48,6 @@ int main(int argc, char* argv[]){
 	runner->publishToWeb();
 	runner->runCombine();
 
-  cout << "Original file " << filename << " updated." << endl;
-  cout << "Old file copied to " << filename << "_beforeFMT.root" << endl;
-	
 	delete runner;
 	
   return 0;

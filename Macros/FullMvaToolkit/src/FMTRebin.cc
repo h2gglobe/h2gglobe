@@ -6,6 +6,7 @@
 #include "TMath.h"
 #include "TTree.h"
 #include "TText.h"
+#include "TCanvas.h"
 
 #include "../interface/FMTRebin.h"
 
@@ -62,7 +63,6 @@ std::vector<double> FMTRebin::significanceOptimizedBinning(TH1F *hs,TH1F *hb,int
   // Create new rebinned histograms (only temporary)
   TH1F *hbnew =(TH1F*) hb->Rebin(binEdges.size()-1,"hbnew",arrBins);
   TH1F *hsnew =(TH1F*) hs->Rebin(binEdges.size()-1,"hsnew",arrBins);
-
 
   // Better smoothing which doesn't use the first and last binsi, performs a fit to the histogram	
   if (hsnew->Integral()!=0 && hbnew->Integral()!=0 && binEdges.size()-1 > 10){
@@ -253,6 +253,10 @@ void FMTRebin::histogramSmoothing(TH1F* h, int n){
 void FMTRebin::histogramSmoothingFit(TH1F* h){
   // Nothing too special, a function which will smooth a histogram but ignore the first and last
   // bins, useful for the "flat-binning" approach! 
+  //TCanvas *c = new TCanvas();
+  //TH1F *old = (TH1F*)h->Clone();
+  //old->SetLineColor(kRed);
+  //old->SetLineWidth(2);
   float originalIntegral=h->Integral();
   if (h->GetNbinsX()>3){
     int nbin = h->GetNbinsX();
@@ -273,6 +277,10 @@ void FMTRebin::histogramSmoothingFit(TH1F* h){
 
   }
   h->Scale(originalIntegral/h->Integral());
+  //old->Draw("hist");
+  //h->SetLineColor(kBlack);
+  //h->Draw("hist same");
+  //c->SaveAs(Form("test_%s.pdf",h->GetName()));
   return;
 }
 
@@ -702,6 +710,8 @@ TH1F* FMTRebin::getCombSignal(int mass_hyp,int cat){
 
 void FMTRebin::executeRebinning(int mass){
 	checkMCMass(mass);
+
+  if (verbose_) printRunOptions();
 
 	cout << "File attempt" << endl;
 	cout << tFile->GetName() << endl;
