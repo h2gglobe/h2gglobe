@@ -387,8 +387,10 @@ void FMTSetup::writeDataCards(){
 	if (datacards_){
 		cout << "Preparing to write datacards...." << endl;
 		if (getis2011()){
-      if (blinding_) system(Form("python python/writeBinnedMvaCard.py -i %s -p plots --makePlot --mhLow %3d.0 --mhHigh %3d.0 --mhStep %1.1f --intLumi %1.1f --is2011 --blind",filename_.c_str(),getmHMinimum(),getmHMaximum(),getmHStep(),getintLumi()));
-      else system(Form("python python/writeBinnedMvaCard.py -i %s -p plots --makePlot --mhLow %3d.0 --mhHigh %3d.0 --mhStep %1.1f --intLumi %1.1f --is2011",filename_.c_str(),getmHMinimum(),getmHMaximum(),getmHStep(),getintLumi()));
+      cerr << "This option isn't supported yet. You will have to do this by hand. Sorry :( " << endl;
+      exit(0);
+      //if (blinding_) system(Form("python python/writeBinnedMvaCard.py -i %s -p plots --makePlot --mhLow %3d.0 --mhHigh %3d.0 --mhStep %1.1f --intLumi %1.1f --is2011 --blind",filename_.c_str(),getmHMinimum(),getmHMaximum(),getmHStep(),getintLumi()));
+      //else system(Form("python python/writeBinnedMvaCard.py -i %s -p plots --makePlot --mhLow %3d.0 --mhHigh %3d.0 --mhStep %1.1f --intLumi %1.1f --is2011",filename_.c_str(),getmHMinimum(),getmHMaximum(),getmHStep(),getintLumi()));
     }
     else {
       if (blinding_) system(Form("python python/writeBinnedMvaCard.py -i %s -p plots --makePlot --mhLow %3d.0 --mhHigh %3d.0 --mhStep %1.1f --intLumi %1.1f --blind",filename_.c_str(),getmHMinimum(),getmHMaximum(),getmHStep(),getintLumi()));
