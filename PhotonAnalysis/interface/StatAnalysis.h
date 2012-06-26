@@ -55,6 +55,8 @@ class StatAnalysis : public PhotonAnalysis
     int   nSystSteps;   
     //int   nEtaCategories, nR9Categories, nPtCategories;
     std::vector<int> cicCutLevels;
+    std::vector<int> bkgPolOrderByCat;
+
     float massMin, massMax;
     int nDataBins;  
     bool dataIs2011;
@@ -90,6 +92,8 @@ class StatAnalysis : public PhotonAnalysis
     
     bool VHmuevent, VHelevent, VBFevent, VHhadevent, VHmetevent;  //met at analysis step
     double genLevWeight; 
+    
+    void buildBkgModel(LoopAll& l, const std::string & postfix);
 
     std::vector<float> smeared_pho_energy;
     std::vector<float> smeared_pho_r9;

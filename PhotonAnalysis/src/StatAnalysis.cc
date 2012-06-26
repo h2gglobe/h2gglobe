@@ -367,115 +367,131 @@ void StatAnalysis::Init(LoopAll& l)
 
     // Background modeling 
     std::string postfix=(dataIs2011?"":"_8TeV");
-    l.rooContainer->AddRealVar("CMS_hgg_pol0"+postfix,-0.1,-1.0,1.0);
-    l.rooContainer->AddRealVar("CMS_hgg_pol1"+postfix,-0.1,-1.0,1.0);
-    l.rooContainer->AddRealVar("CMS_hgg_pol2"+postfix,-0.1,-1.0,1.0);
-    l.rooContainer->AddRealVar("CMS_hgg_pol3"+postfix,-0.01,-1.0,1.0);
-    l.rooContainer->AddRealVar("CMS_hgg_pol4"+postfix,-0.01,-1.0,1.0);
-    l.rooContainer->AddFormulaVar("CMS_hgg_modpol0"+postfix,"@0*@0","CMS_hgg_pol0"+postfix);
-    l.rooContainer->AddFormulaVar("CMS_hgg_modpol1"+postfix,"@0*@0","CMS_hgg_pol1"+postfix);
-    l.rooContainer->AddFormulaVar("CMS_hgg_modpol2"+postfix,"@0*@0","CMS_hgg_pol2"+postfix);
-    l.rooContainer->AddFormulaVar("CMS_hgg_modpol3"+postfix,"@0*@0","CMS_hgg_pol3"+postfix);
-    l.rooContainer->AddFormulaVar("CMS_hgg_modpol4"+postfix,"@0*@0","CMS_hgg_pol4"+postfix);
+    /////// l.rooContainer->AddRealVar("CMS_hgg_pol0"+postfix,-0.1,-1.0,1.0);
+    /////// l.rooContainer->AddRealVar("CMS_hgg_pol1"+postfix,-0.1,-1.0,1.0);
+    /////// l.rooContainer->AddRealVar("CMS_hgg_pol2"+postfix,-0.1,-1.0,1.0);
+    /////// l.rooContainer->AddRealVar("CMS_hgg_pol3"+postfix,-0.01,-1.0,1.0);
+    /////// l.rooContainer->AddRealVar("CMS_hgg_pol4"+postfix,-0.01,-1.0,1.0);
+    /////// l.rooContainer->AddFormulaVar("CMS_hgg_modpol0"+postfix,"@0*@0","CMS_hgg_pol0"+postfix);
+    /////// l.rooContainer->AddFormulaVar("CMS_hgg_modpol1"+postfix,"@0*@0","CMS_hgg_pol1"+postfix);
+    /////// l.rooContainer->AddFormulaVar("CMS_hgg_modpol2"+postfix,"@0*@0","CMS_hgg_pol2"+postfix);
+    /////// l.rooContainer->AddFormulaVar("CMS_hgg_modpol3"+postfix,"@0*@0","CMS_hgg_pol3"+postfix);
+    /////// l.rooContainer->AddFormulaVar("CMS_hgg_modpol4"+postfix,"@0*@0","CMS_hgg_pol4"+postfix);
+    /////// 
+    /////// l.rooContainer->AddRealVar("CMS_hgg_quartic0"+postfix,-0.1,-1.0,1.0);
+    /////// l.rooContainer->AddRealVar("CMS_hgg_quartic1"+postfix,-0.1,-1.0,1.0);
+    /////// l.rooContainer->AddRealVar("CMS_hgg_quartic2"+postfix,-0.1,-1.0,1.0);
+    /////// l.rooContainer->AddRealVar("CMS_hgg_quartic3"+postfix,-0.01,-1.0,1.0);
+    /////// l.rooContainer->AddFormulaVar("CMS_hgg_modquartic0"+postfix,"@0*@0","CMS_hgg_quartic0"+postfix);
+    /////// l.rooContainer->AddFormulaVar("CMS_hgg_modquartic1"+postfix,"@0*@0","CMS_hgg_quartic1"+postfix);
+    /////// l.rooContainer->AddFormulaVar("CMS_hgg_modquartic2"+postfix,"@0*@0","CMS_hgg_quartic2"+postfix);
+    /////// l.rooContainer->AddFormulaVar("CMS_hgg_modquartic3"+postfix,"@0*@0","CMS_hgg_quartic3"+postfix);
+    /////// 
+    /////// l.rooContainer->AddRealVar("CMS_hgg_quad0"+postfix,-0.1,-1.5,1.5);
+    /////// l.rooContainer->AddRealVar("CMS_hgg_quad1"+postfix,-0.01,-1.5,1.5);
+    /////// l.rooContainer->AddFormulaVar("CMS_hgg_modquad0"+postfix,"@0*@0","CMS_hgg_quad0"+postfix);
+    /////// l.rooContainer->AddFormulaVar("CMS_hgg_modquad1"+postfix,"@0*@0","CMS_hgg_quad1"+postfix);
+    /////// 
+    /////// l.rooContainer->AddRealVar("CMS_hgg_cubic0"+postfix,-0.1,-1.5,1.5);
+    /////// l.rooContainer->AddRealVar("CMS_hgg_cubic1"+postfix,-0.1,-1.5,1.5);
+    /////// l.rooContainer->AddRealVar("CMS_hgg_cubic2"+postfix,-0.01,-1.5,1.5);
+    /////// l.rooContainer->AddFormulaVar("CMS_hgg_modcubic0"+postfix,"@0*@0","CMS_hgg_cubic0"+postfix);
+    /////// l.rooContainer->AddFormulaVar("CMS_hgg_modcubic1"+postfix,"@0*@0","CMS_hgg_cubic1"+postfix);
+    /////// l.rooContainer->AddFormulaVar("CMS_hgg_modcubic2"+postfix,"@0*@0","CMS_hgg_cubic2"+postfix);
+    /////// 
+    /////// l.rooContainer->AddRealVar("CMS_hgg_lin0"+postfix,-0.01,-1.5,1.5);
+    /////// l.rooContainer->AddFormulaVar("CMS_hgg_modlin0"+postfix,"@0*@0","CMS_hgg_lin0"+postfix);
+    /////// 
+    /////// // Generic PDF ok in the std analysis but excluisve channels need different models CP
+    /////// //l.rooContainer->AddGenericPdf("data_pol_model",
+    /////// //"0","CMS_hgg_mass",data_pol_pars,73); // >= 71 means RooBernstein of order >= 1
+    //////// int cats_with_std[]     = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+    //////// int cats_with_lin[]     = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+    //////// int cats_with_quad[]    = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+    //////// int cats_with_cubic[]   = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+    //////// int cats_with_quartic[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
-    l.rooContainer->AddRealVar("CMS_hgg_quartic0"+postfix,-0.1,-1.0,1.0);
-    l.rooContainer->AddRealVar("CMS_hgg_quartic1"+postfix,-0.1,-1.0,1.0);
-    l.rooContainer->AddRealVar("CMS_hgg_quartic2"+postfix,-0.1,-1.0,1.0);
-    l.rooContainer->AddRealVar("CMS_hgg_quartic3"+postfix,-0.01,-1.0,1.0);
-    l.rooContainer->AddFormulaVar("CMS_hgg_modquartic0"+postfix,"@0*@0","CMS_hgg_quartic0"+postfix);
-    l.rooContainer->AddFormulaVar("CMS_hgg_modquartic1"+postfix,"@0*@0","CMS_hgg_quartic1"+postfix);
-    l.rooContainer->AddFormulaVar("CMS_hgg_modquartic2"+postfix,"@0*@0","CMS_hgg_quartic2"+postfix);
-    l.rooContainer->AddFormulaVar("CMS_hgg_modquartic3"+postfix,"@0*@0","CMS_hgg_quartic3"+postfix);
-
-    l.rooContainer->AddRealVar("CMS_hgg_quad0"+postfix,-0.1,-1.5,1.5);
-    l.rooContainer->AddRealVar("CMS_hgg_quad1"+postfix,-0.01,-1.5,1.5);
-    l.rooContainer->AddFormulaVar("CMS_hgg_modquad0"+postfix,"@0*@0","CMS_hgg_quad0"+postfix);
-    l.rooContainer->AddFormulaVar("CMS_hgg_modquad1"+postfix,"@0*@0","CMS_hgg_quad1"+postfix);
-    
-    l.rooContainer->AddRealVar("CMS_hgg_cubic0"+postfix,-0.1,-1.5,1.5);
-    l.rooContainer->AddRealVar("CMS_hgg_cubic1"+postfix,-0.1,-1.5,1.5);
-    l.rooContainer->AddRealVar("CMS_hgg_cubic2"+postfix,-0.01,-1.5,1.5);
-    l.rooContainer->AddFormulaVar("CMS_hgg_modcubic0"+postfix,"@0*@0","CMS_hgg_cubic0"+postfix);
-    l.rooContainer->AddFormulaVar("CMS_hgg_modcubic1"+postfix,"@0*@0","CMS_hgg_cubic1"+postfix);
-    l.rooContainer->AddFormulaVar("CMS_hgg_modcubic2"+postfix,"@0*@0","CMS_hgg_cubic2"+postfix);
-    
-    l.rooContainer->AddRealVar("CMS_hgg_lin0"+postfix,-0.01,-1.5,1.5);
-    l.rooContainer->AddFormulaVar("CMS_hgg_modlin0"+postfix,"@0*@0","CMS_hgg_lin0"+postfix);
-    
-    // Generic PDF ok in the std analysis but excluisve channels need different models CP
-    //l.rooContainer->AddGenericPdf("data_pol_model",
-    //"0","CMS_hgg_mass",data_pol_pars,73); // >= 71 means RooBernstein of order >= 1
-    int cats_with_std[]     = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-    int cats_with_lin[]     = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-    int cats_with_quad[]    = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-    int cats_with_cubic[]   = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-    int cats_with_quartic[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-
-    std::cout << "Number of categories: " << nCategories_ << std::endl;
-    for(int i=0; i<nCategories_; i++){
-        if(i<nInclusiveCategories_) {
-            cats_with_std[i]=1;
-        } else if(i<nInclusiveCategories_+nVBFCategories){
-            /// cats_with_quad[i]=1;
-            cats_with_cubic[i]=1;
-        } else if(i<nInclusiveCategories_+nVBFCategories+nVHhadCategories){
-            cats_with_quad[i]=1;
-        } else if(i<nInclusiveCategories_+nVBFCategories+nVHhadCategories+nVHlepCategories){
-            cats_with_lin[i]=1;
-        } else {
-            cats_with_cubic[i]=1;
-        }
-    }
-
-    std::vector<std::string> data_pol_pars(5,"p");   
-    data_pol_pars[0] = "CMS_hgg_modpol0"+postfix;
-    data_pol_pars[1] = "CMS_hgg_modpol1"+postfix;
-    data_pol_pars[2] = "CMS_hgg_modpol2"+postfix;
-    data_pol_pars[3] = "CMS_hgg_modpol3"+postfix;
-    data_pol_pars[4] = "CMS_hgg_modpol4"+postfix;
-    
-    l.rooContainer->AddSpecificCategoryPdf(cats_with_std,"data_pol_model"+postfix,
-                                           "0","CMS_hgg_mass",data_pol_pars,75);    // >= 71 means RooBernstein of order >= 1
-    
-    std::vector<std::string> data_quartic_pars(4,"p");   
-    data_quartic_pars[0] = "CMS_hgg_modquartic0"+postfix;
-    data_quartic_pars[1] = "CMS_hgg_modquartic1"+postfix;
-    data_quartic_pars[2] = "CMS_hgg_modquartic2"+postfix;
-    data_quartic_pars[3] = "CMS_hgg_modquartic3"+postfix;
-    
-    l.rooContainer->AddSpecificCategoryPdf(cats_with_quartic,"data_pol_model"+postfix,
-                                           "0","CMS_hgg_mass",data_quartic_pars,74);    // >= 71 means RooBernstein of order >= 1
-
-    std::vector<std::string> data_cubic_pars(3,"p");     
-    data_cubic_pars[0] = "CMS_hgg_modcubic0"+postfix;
-    data_cubic_pars[1] = "CMS_hgg_modcubic1"+postfix;
-    data_cubic_pars[2] = "CMS_hgg_modcubic2"+postfix;
-    
-    l.rooContainer->AddSpecificCategoryPdf(cats_with_cubic, "data_pol_model"+postfix,
-                                           "0","CMS_hgg_mass",data_cubic_pars,73);  // >= 71 means RooBernstein of order >= 1
-    
-
-    std::vector<std::string> data_quad_pars(2,"p");  
-    data_quad_pars[0] = "CMS_hgg_modquad0"+postfix;
-    data_quad_pars[1] = "CMS_hgg_modquad1"+postfix;
-    
-    l.rooContainer->AddSpecificCategoryPdf(cats_with_quad, "data_pol_model"+postfix,
-                                           "0","CMS_hgg_mass",data_quad_pars,72);   // >= 71 means RooBernstein of order >= 1
-    
-    
-    std::vector<std::string> data_lin_pars(1,"p");   
-    data_lin_pars[0] = "CMS_hgg_modlin0"+postfix;
-    
-    l.rooContainer->AddSpecificCategoryPdf(cats_with_lin, "data_pol_model"+postfix,
-                                           "0","CMS_hgg_mass",data_lin_pars,71);    // >= 71 means RooBernstein of order >= 1
-
-
+    //////////// std::cout << "Number of categories: " << nCategories_ << std::endl;
+    //////////// for(int i=0; i<nCategories_; i++){
+    ////////////     if(i<nInclusiveCategories_) {
+    ////////////         cats_with_std[i]=1;
+    ////////////     } else if(i<nInclusiveCategories_+nVBFCategories){
+    ////////////         /// cats_with_quad[i]=1;
+    ////////////         cats_with_cubic[i]=1;
+    ////////////     } else if(i<nInclusiveCategories_+nVBFCategories+nVHhadCategories){
+    ////////////         cats_with_quad[i]=1;
+    ////////////     } else if(i<nInclusiveCategories_+nVBFCategories+nVHhadCategories+nVHlepCategories){
+    ////////////         cats_with_lin[i]=1;
+    ////////////     } else {
+    ////////////         cats_with_cubic[i]=1;
+    ////////////     }
+    //////////// }
+    /////// 
+    /////// std::vector<std::string> data_pol_pars(5,"p");   
+    /////// data_pol_pars[0] = "CMS_hgg_modpol0"+postfix;
+    /////// data_pol_pars[1] = "CMS_hgg_modpol1"+postfix;
+    /////// data_pol_pars[2] = "CMS_hgg_modpol2"+postfix;
+    /////// data_pol_pars[3] = "CMS_hgg_modpol3"+postfix;
+    /////// data_pol_pars[4] = "CMS_hgg_modpol4"+postfix;
+    /////// 
+    /////// l.rooContainer->AddSpecificCategoryPdf(cats_with_std,"data_pol_model"+postfix,
+    ///////                                        "0","CMS_hgg_mass",data_pol_pars,75);    // >= 71 means RooBernstein of order >= 1
+    /////// 
+    /////// std::vector<std::string> data_quartic_pars(4,"p");   
+    /////// data_quartic_pars[0] = "CMS_hgg_modquartic0"+postfix;
+    /////// data_quartic_pars[1] = "CMS_hgg_modquartic1"+postfix;
+    /////// data_quartic_pars[2] = "CMS_hgg_modquartic2"+postfix;
+    /////// data_quartic_pars[3] = "CMS_hgg_modquartic3"+postfix;
+    /////// 
+    /////// l.rooContainer->AddSpecificCategoryPdf(cats_with_quartic,"data_pol_model"+postfix,
+    ///////                                        "0","CMS_hgg_mass",data_quartic_pars,74);    // >= 71 means RooBernstein of order >= 1
+    /////// 
+    /////// std::vector<std::string> data_cubic_pars(3,"p");     
+    /////// data_cubic_pars[0] = "CMS_hgg_modcubic0"+postfix;
+    /////// data_cubic_pars[1] = "CMS_hgg_modcubic1"+postfix;
+    /////// data_cubic_pars[2] = "CMS_hgg_modcubic2"+postfix;
+    /////// 
+    /////// l.rooContainer->AddSpecificCategoryPdf(cats_with_cubic, "data_pol_model"+postfix,
+    ///////                                        "0","CMS_hgg_mass",data_cubic_pars,73);  // >= 71 means RooBernstein of order >= 1
+    /////// 
+    /////// 
+    /////// std::vector<std::string> data_quad_pars(2,"p");  
+    /////// data_quad_pars[0] = "CMS_hgg_modquad0"+postfix;
+    /////// data_quad_pars[1] = "CMS_hgg_modquad1"+postfix;
+    /////// 
+    /////// l.rooContainer->AddSpecificCategoryPdf(cats_with_quad, "data_pol_model"+postfix,
+    ///////                                        "0","CMS_hgg_mass",data_quad_pars,72);   // >= 71 means RooBernstein of order >= 1
+    /////// 
+    /////// 
+    /////// std::vector<std::string> data_lin_pars(1,"p");   
+    /////// data_lin_pars[0] = "CMS_hgg_modlin0"+postfix;
+    /////// 
+    /////// l.rooContainer->AddSpecificCategoryPdf(cats_with_lin, "data_pol_model"+postfix,
+    /////// "0","CMS_hgg_mass",data_lin_pars,71);    // >= 71 means RooBernstein of order >= 1
     // CP
+
+    // -----------------------------------------------------
+    // Configurable background model
+    // if no configuration was given, set some defaults
+    if( bkgPolOrderByCat.empty() ) {
+	for(int i=0; i<nCategories_; i++){
+	    if(i<nInclusiveCategories_) {
+		bkgPolOrderByCat.push_back(5);
+	    } else if(i<nInclusiveCategories_+nVBFCategories){
+		bkgPolOrderByCat.push_back(3);
+	    } else if(i<nInclusiveCategories_+nVBFCategories+nVHhadCategories){
+		bkgPolOrderByCat.push_back(2);
+	    } else if(i<nInclusiveCategories_+nVBFCategories+nVHhadCategories+nVHlepCategories){
+		bkgPolOrderByCat.push_back(1);
+	    }
+	}
+    }
+    // build the model
+    buildBkgModel(l, postfix);
 
     // -----------------------------------------------------
     // Make some data sets from the observables to fill in the event loop         
     // Binning is for histograms (will also produce unbinned data sets)
-
     l.rooContainer->CreateDataSet("CMS_hgg_mass","data_mass"    ,nDataBins); // (100,110,150) -> for a window, else full obs range is taken 
     l.rooContainer->CreateDataSet("CMS_hgg_mass","bkg_mass"     ,nDataBins);            
 
@@ -522,6 +538,94 @@ void StatAnalysis::Init(LoopAll& l)
         cout << "InitRealStatAnalysis END"<<endl;
     
     // FIXME book of additional variables
+}
+
+
+// ----------------------------------------------------------------------------------------------------
+void StatAnalysis::buildBkgModel(LoopAll& l, const std::string & postfix) 
+{ 
+
+    // sanity check
+    assert( bkgPolOrderByCat.size() == nCategories_ );
+
+    l.rooContainer->AddRealVar("CMS_hgg_pol0"+postfix,-0.1,-1.0,1.0);
+    l.rooContainer->AddRealVar("CMS_hgg_pol1"+postfix,-0.1,-1.0,1.0);
+    l.rooContainer->AddRealVar("CMS_hgg_pol2"+postfix,-0.1,-1.0,1.0);
+    l.rooContainer->AddRealVar("CMS_hgg_pol3"+postfix,-0.01,-1.0,1.0);
+    l.rooContainer->AddRealVar("CMS_hgg_pol4"+postfix,-0.01,-1.0,1.0);
+    l.rooContainer->AddFormulaVar("CMS_hgg_modpol0"+postfix,"@0*@0","CMS_hgg_pol0"+postfix);
+    l.rooContainer->AddFormulaVar("CMS_hgg_modpol1"+postfix,"@0*@0","CMS_hgg_pol1"+postfix);
+    l.rooContainer->AddFormulaVar("CMS_hgg_modpol2"+postfix,"@0*@0","CMS_hgg_pol2"+postfix);
+    l.rooContainer->AddFormulaVar("CMS_hgg_modpol3"+postfix,"@0*@0","CMS_hgg_pol3"+postfix);
+    l.rooContainer->AddFormulaVar("CMS_hgg_modpol4"+postfix,"@0*@0","CMS_hgg_pol4"+postfix);
+
+    l.rooContainer->AddRealVar("CMS_hgg_quartic0"+postfix,-0.1,-1.0,1.0);
+    l.rooContainer->AddRealVar("CMS_hgg_quartic1"+postfix,-0.1,-1.0,1.0);
+    l.rooContainer->AddRealVar("CMS_hgg_quartic2"+postfix,-0.1,-1.0,1.0);
+    l.rooContainer->AddRealVar("CMS_hgg_quartic3"+postfix,-0.01,-1.0,1.0);
+    l.rooContainer->AddFormulaVar("CMS_hgg_modquartic0"+postfix,"@0*@0","CMS_hgg_quartic0"+postfix);
+    l.rooContainer->AddFormulaVar("CMS_hgg_modquartic1"+postfix,"@0*@0","CMS_hgg_quartic1"+postfix);
+    l.rooContainer->AddFormulaVar("CMS_hgg_modquartic2"+postfix,"@0*@0","CMS_hgg_quartic2"+postfix);
+    l.rooContainer->AddFormulaVar("CMS_hgg_modquartic3"+postfix,"@0*@0","CMS_hgg_quartic3"+postfix);
+
+    l.rooContainer->AddRealVar("CMS_hgg_quad0"+postfix,-0.1,-1.5,1.5);
+    l.rooContainer->AddRealVar("CMS_hgg_quad1"+postfix,-0.01,-1.5,1.5);
+    l.rooContainer->AddFormulaVar("CMS_hgg_modquad0"+postfix,"@0*@0","CMS_hgg_quad0"+postfix);
+    l.rooContainer->AddFormulaVar("CMS_hgg_modquad1"+postfix,"@0*@0","CMS_hgg_quad1"+postfix);
+    
+    l.rooContainer->AddRealVar("CMS_hgg_cubic0"+postfix,-0.1,-1.5,1.5);
+    l.rooContainer->AddRealVar("CMS_hgg_cubic1"+postfix,-0.1,-1.5,1.5);
+    l.rooContainer->AddRealVar("CMS_hgg_cubic2"+postfix,-0.01,-1.5,1.5);
+    l.rooContainer->AddFormulaVar("CMS_hgg_modcubic0"+postfix,"@0*@0","CMS_hgg_cubic0"+postfix);
+    l.rooContainer->AddFormulaVar("CMS_hgg_modcubic1"+postfix,"@0*@0","CMS_hgg_cubic1"+postfix);
+    l.rooContainer->AddFormulaVar("CMS_hgg_modcubic2"+postfix,"@0*@0","CMS_hgg_cubic2"+postfix);
+    
+    l.rooContainer->AddRealVar("CMS_hgg_lin0"+postfix,-0.01,-1.5,1.5);
+    l.rooContainer->AddFormulaVar("CMS_hgg_modlin0"+postfix,"@0*@0","CMS_hgg_lin0"+postfix);
+
+    // prefix for models parameters
+    std::map<int,std::string> parnames;
+    parnames[1] = "modlin";
+    parnames[2] = "modquad";
+    parnames[3] = "modcubic";
+    parnames[4] = "modquartic";
+    parnames[5] = "modpol";
+    
+    // map order to categories flags + parameters names
+    std::map<int, std::pair<std::vector<int>, std::vector<std::string> > > catmodels;
+    // fill the map
+    for(int icat=0; icat<nCategories_; ++icat) {
+	// get the poly order for this category
+	int catmodel = bkgPolOrderByCat[icat];
+	std::vector<int> & catflags = catmodels[catmodel].first;
+	std::vector<std::string> & catpars = catmodels[catmodel].second;
+	// if this is the first time we find this order, build the parameters
+	if( catflags.empty() ) {
+	    assert( catpars.empty() );
+	    // by default no category has the new model
+	    catflags.resize(nCategories_, 0);
+	    std::string & parname = parnames[catmodel];
+	    for(int iorder = 0; iorder<catmodel; ++iorder) {
+		catpars.push_back( Form( "CMS_hgg_%s%d%s", parname.c_str(), iorder, +postfix.c_str() ) );
+	    }
+	} else {
+	    assert( catflags.size() == nCategories_ && catpars.size() == catmodel );
+	}
+	// chose category order
+	catflags[icat] = 1;
+    }
+
+    // now loop over the models and allocate the pdfs
+    /// for(size_t imodel=0; imodel<catmodels.size(); ++imodel ) {
+    for(std::map<int, std::pair<std::vector<int>, std::vector<std::string> > >::iterator modit = catmodels.begin();
+	modit!=catmodels.end(); ++modit ) {
+	std::vector<int> & catflags = modit->second.first;
+	std::vector<std::string> & catpars = modit->second.second;
+	
+	l.rooContainer->AddSpecificCategoryPdf(&catflags[0],"data_pol_model"+postfix,
+					       "0","CMS_hgg_mass",catpars,70+catpars.size()); 
+	// >= 71 means RooBernstein of order >= 1
+    }
 }
 
 // ----------------------------------------------------------------------------------------------------
