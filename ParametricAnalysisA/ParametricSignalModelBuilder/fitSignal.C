@@ -686,7 +686,7 @@ private:
       }
 
       //                                                                   mhGen *(mcToDataMassSmearingVar + nuissancedeltasmears)
-      smearmods[icat] = new RooFormulaVar(TString("smearmod") + catname, "", "@0 * (@1 + @2)", RooArgList(*mnom, *mcToDataMassSmearingVar[icat], *nuissanceDeltaSmears[icat]));
+      smearmods[icat] = new RooFormulaVar(TString("smearmod") + catname + config.nameSuffix, "", "@0 * (@1 + @2)", RooArgList(*mnom, *mcToDataMassSmearingVar[icat], *nuissanceDeltaSmears[icat]));
 
       BOOST_FOREACH(string inputSigProcName, inputSigProcessNames)
             // BOOST_FOREACH(string sigProcName, inputSigProcessNames)
@@ -702,47 +702,48 @@ private:
               string mergedSigProcName = this->config.signalProcessMergingMapping[inputSigProcName];
 
               // fitted delta means (w.r.t to generated Higgs mass), depending on nuisance parameter                                                          fitted delta mean                 nuisance parameter
-              mean1slides[icat][inputSigProcName] = new RooFormulaVar(TString("mean1slide") + catname + "_" + inputSigProcName, "", "@0 + @1 + @0*@2", RooArgList(*mnom, *fitparmfuncs[icat][mergedSigProcName][0], *nuissanceDeltaMs[icat]));
-              mean2slides[icat][inputSigProcName] = new RooFormulaVar(TString("mean2slide") + catname + "_" + inputSigProcName, "", "@0 + @1 + @0*@2", RooArgList(*mnom, *fitparmfuncs[icat][mergedSigProcName][1], *nuissanceDeltaMs[icat]));
-              mean3slides[icat][inputSigProcName] = new RooFormulaVar(TString("mean3slide") + catname + "_" + inputSigProcName, "", "@0 + @1 + @0*@2", RooArgList(*mnom, *fitparmfuncs[icat][mergedSigProcName][2], *nuissanceDeltaMs[icat]));
+              mean1slides[icat][inputSigProcName] = new RooFormulaVar(TString("mean1slide") + catname + "_" + inputSigProcName + config.nameSuffix, "", "@0 + @1 + @0*@2", RooArgList(*mnom, *fitparmfuncs[icat][mergedSigProcName][0], *nuissanceDeltaMs[icat]));
+              mean2slides[icat][inputSigProcName] = new RooFormulaVar(TString("mean2slide") + catname + "_" + inputSigProcName + config.nameSuffix, "", "@0 + @1 + @0*@2", RooArgList(*mnom, *fitparmfuncs[icat][mergedSigProcName][1], *nuissanceDeltaMs[icat]));
+              mean3slides[icat][inputSigProcName] = new RooFormulaVar(TString("mean3slide") + catname + "_" + inputSigProcName + config.nameSuffix, "", "@0 + @1 + @0*@2", RooArgList(*mnom, *fitparmfuncs[icat][mergedSigProcName][2], *nuissanceDeltaMs[icat]));
 
               // sqrt[ (fitted sigma)^2 - (mHgen * smears)^2 + smearmods^2 ]
-              sigma1slides[icat][inputSigProcName] = new RooFormulaVar(TString("sigma1slide") + catname + "_" + inputSigProcName, "", "TMath::Max(0.01,sqrt(@0*@0-@3*@3*@2*@2 +@1*@1))",
+              sigma1slides[icat][inputSigProcName] = new RooFormulaVar(TString("sigma1slide") + catname + "_" + inputSigProcName + config.nameSuffix, "", "TMath::Max(0.01,sqrt(@0*@0-@3*@3*@2*@2 +@1*@1))",
                   RooArgList(*fitparmfuncs[icat][mergedSigProcName][3], *smearmods[icat], *mcToDataMassSmearingVar[icat], *mnom));
-              sigma2slides[icat][inputSigProcName] = new RooFormulaVar(TString("sigma2slide") + catname + "_" + inputSigProcName, "", "TMath::Max(0.01,sqrt(@0*@0-@3*@3*@2*@2 +@1*@1))",
+              sigma2slides[icat][inputSigProcName] = new RooFormulaVar(TString("sigma2slide") + catname + "_" + inputSigProcName + config.nameSuffix, "", "TMath::Max(0.01,sqrt(@0*@0-@3*@3*@2*@2 +@1*@1))",
                   RooArgList(*fitparmfuncs[icat][mergedSigProcName][4], *smearmods[icat], *mcToDataMassSmearingVar[icat], *mnom));
-              sigma3slides[icat][inputSigProcName] = new RooFormulaVar(TString("sigma3slide") + catname + "_" + inputSigProcName, "", "TMath::Max(0.01,sqrt(@0*@0-@3*@3*@2*@2 +@1*@1))",
+              sigma3slides[icat][inputSigProcName] = new RooFormulaVar(TString("sigma3slide") + catname + "_" + inputSigProcName + config.nameSuffix, "", "TMath::Max(0.01,sqrt(@0*@0-@3*@3*@2*@2 +@1*@1))",
                   RooArgList(*fitparmfuncs[icat][mergedSigProcName][5], *smearmods[icat], *mcToDataMassSmearingVar[icat], *mnom));
 
               wmean1slides[icat][inputSigProcName] = new RooFormulaVar(TString("wmean1slide") + catname + "_" + inputSigProcName + config.nameSuffix, "", "@0 + @1 + @0*@2", RooArgList(*mnom, *fitparmfuncs[icat][mergedSigProcName][8], *nuissanceDeltaMs[icat]));
               wmean2slides[icat][inputSigProcName] = new RooFormulaVar(TString("wmean2slide") + catname + "_" + inputSigProcName + config.nameSuffix, "", "@0 + @1 + @0*@2", RooArgList(*mnom, *fitparmfuncs[icat][mergedSigProcName][9], *nuissanceDeltaMs[icat]));
               wsigma1slides[icat][inputSigProcName] = new RooFormulaVar(TString("wsigma1slide") + catname + "_" + inputSigProcName + config.nameSuffix, "", "TMath::Max(0.01,sqrt(@0*@0-@3*@3*@2*@2 +@1*@1))",
                   RooArgList(*fitparmfuncs[icat][mergedSigProcName][10], *smearmods[icat], *mcToDataMassSmearingVar[icat], *mnom));
-              wsigma2slides[icat][inputSigProcName] = new RooFormulaVar(TString("wsigma2slide") + catname, "", "TMath::Max(0.01,sqrt(@0*@0-@3*@3*@2*@2 +@1*@1))", RooArgList(*fitparmfuncs[icat][mergedSigProcName][11], *smearmods[icat], *mcToDataMassSmearingVar[icat], *mnom));
+              // TODO: why here was no input process name used ?
+              wsigma2slides[icat][inputSigProcName] = new RooFormulaVar(TString("wsigma2slide") + catname + "_" + inputSigProcName + config.nameSuffix, "", "TMath::Max(0.01,sqrt(@0*@0-@3*@3*@2*@2 +@1*@1))", RooArgList(*fitparmfuncs[icat][mergedSigProcName][11], *smearmods[icat], *mcToDataMassSmearingVar[icat], *mnom));
 
               //                                     name                                              indep var
               //                                                                                    title      mean               sigma
-              g1slides[icat][inputSigProcName] = new RooGaussian(TString("g1slide") + catname + "_" + inputSigProcName, "", *hmass, *mean1slides[icat][inputSigProcName], *sigma1slides[icat][inputSigProcName]);
-              g2slides[icat][inputSigProcName] = new RooGaussian(TString("g2slide") + catname + "_" + inputSigProcName, "", *hmass, *mean2slides[icat][inputSigProcName], *sigma2slides[icat][inputSigProcName]);
-              g3slides[icat][inputSigProcName] = new RooGaussian(TString("g3slide") + catname + "_" + inputSigProcName, "", *hmass, *mean3slides[icat][inputSigProcName], *sigma3slides[icat][inputSigProcName]);
+              g1slides[icat][inputSigProcName] = new RooGaussian(TString("g1slide") + catname + "_" + inputSigProcName + config.nameSuffix, "", *hmass, *mean1slides[icat][inputSigProcName], *sigma1slides[icat][inputSigProcName]);
+              g2slides[icat][inputSigProcName] = new RooGaussian(TString("g2slide") + catname + "_" + inputSigProcName + config.nameSuffix, "", *hmass, *mean2slides[icat][inputSigProcName], *sigma2slides[icat][inputSigProcName]);
+              g3slides[icat][inputSigProcName] = new RooGaussian(TString("g3slide") + catname + "_" + inputSigProcName + config.nameSuffix, "", *hmass, *mean3slides[icat][inputSigProcName], *sigma3slides[icat][inputSigProcName]);
 
-              combhslides[icat][inputSigProcName] = new RooAddPdf(TString("combhslide") + catname + "_" + inputSigProcName, "", RooArgList(*g1slides[icat][inputSigProcName], *g2slides[icat][inputSigProcName], *g3slides[icat][inputSigProcName]),
+              combhslides[icat][inputSigProcName] = new RooAddPdf(TString("combhslide") + catname + "_" + inputSigProcName + config.nameSuffix, "", RooArgList(*g1slides[icat][inputSigProcName], *g2slides[icat][inputSigProcName], *g3slides[icat][inputSigProcName]),
                   RooArgList(*fitparmfuncs[icat][mergedSigProcName][6], *fitparmfuncs[icat][mergedSigProcName][7]), kTRUE);
               
               // 2 gaussians is the new standard in complex
-              combhminslides[icat][inputSigProcName] = new RooAddPdf(TString("combhminslide") + catname + "_" + inputSigProcName, "", RooArgList(*g1slides[icat][inputSigProcName], *g2slides[icat][inputSigProcName]), RooArgList(*fitparmfuncs[icat][mergedSigProcName][6]), kTRUE);
+              combhminslides[icat][inputSigProcName] = new RooAddPdf(TString("combhminslide") + catname + "_" + inputSigProcName + config.nameSuffix, "", RooArgList(*g1slides[icat][inputSigProcName], *g2slides[icat][inputSigProcName]), RooArgList(*fitparmfuncs[icat][mergedSigProcName][6]), kTRUE);
 
-              wg1slides[icat][inputSigProcName] = new RooGaussian(TString("wg1slide") + catname + "_" + inputSigProcName, "", *hmass, *wmean1slides[icat][inputSigProcName], *wsigma1slides[icat][inputSigProcName]);
-              wg2slides[icat][inputSigProcName] = new RooGaussian(TString("wg2slide") + catname + "_" + inputSigProcName, "", *hmass, *wmean2slides[icat][inputSigProcName], *wsigma2slides[icat][inputSigProcName]);
-              combhwrongslides[icat][inputSigProcName] = new RooAddPdf(TString("combhwrongslide") + catname + "_" + inputSigProcName, "", RooArgList(*wg1slides[icat][inputSigProcName], *wg2slides[icat][inputSigProcName]), RooArgList(*fitparmfuncs[icat][mergedSigProcName][12]));
+              wg1slides[icat][inputSigProcName] = new RooGaussian(TString("wg1slide") + catname + "_" + inputSigProcName + config.nameSuffix, "", *hmass, *wmean1slides[icat][inputSigProcName], *wsigma1slides[icat][inputSigProcName]);
+              wg2slides[icat][inputSigProcName] = new RooGaussian(TString("wg2slide") + catname + "_" + inputSigProcName + config.nameSuffix, "", *hmass, *wmean2slides[icat][inputSigProcName], *wsigma2slides[icat][inputSigProcName]);
+              combhwrongslides[icat][inputSigProcName] = new RooAddPdf(TString("combhwrongslide") + catname + "_" + inputSigProcName + config.nameSuffix, "", RooArgList(*wg1slides[icat][inputSigProcName], *wg2slides[icat][inputSigProcName]), RooArgList(*fitparmfuncs[icat][mergedSigProcName][12]));
 
-              fracrightmodslides[icat][inputSigProcName] = new RooFormulaVar(TString("fracrightmodslide") + catname + "_" + inputSigProcName, "", "@0*@1", RooArgList(nuissancedeltafracright, *fitparmfuncs[icat][mergedSigProcName][13]));
-              combHVtxSlides[icat][inputSigProcName] = new RooAddPdf(TString("combhvtxslide") + catname + "_" + inputSigProcName, "", RooArgList(*combhslides[icat][inputSigProcName], *combhwrongslides[icat][inputSigProcName]),
+              fracrightmodslides[icat][inputSigProcName] = new RooFormulaVar(TString("fracrightmodslide") + catname + "_" + inputSigProcName + config.nameSuffix, "", "@0*@1", RooArgList(nuissancedeltafracright, *fitparmfuncs[icat][mergedSigProcName][13]));
+              combHVtxSlides[icat][inputSigProcName] = new RooAddPdf(TString("combhvtxslide") + catname + "_" + inputSigProcName + config.nameSuffix, "", RooArgList(*combhslides[icat][inputSigProcName], *combhwrongslides[icat][inputSigProcName]),
                   RooArgList(*fracrightmodslides[icat][inputSigProcName]), kTRUE);
               
-              combhvtxminslides[icat][inputSigProcName] = new RooAddPdf(TString("combhvtxminslide") + catname + "_" + inputSigProcName, "", RooArgList(*combhminslides[icat][inputSigProcName], *wg1slides[icat][inputSigProcName]),
+              combhvtxminslides[icat][inputSigProcName] = new RooAddPdf(TString("combhvtxminslide") + catname + "_" + inputSigProcName + config.nameSuffix, "", RooArgList(*combhminslides[icat][inputSigProcName], *wg1slides[icat][inputSigProcName]),
                   RooArgList(*fracrightmodslides[icat][inputSigProcName]), kTRUE);
-              combhvtxsimpleslides[icat][inputSigProcName] = new RooAddPdf(TString("combhvtxsimpleslide") + catname + "_" + inputSigProcName, "", RooArgList(*g1slides[icat][inputSigProcName], *wg1slides[icat][inputSigProcName]),
+              combhvtxsimpleslides[icat][inputSigProcName] = new RooAddPdf(TString("combhvtxsimpleslide") + catname + "_" + inputSigProcName + config.nameSuffix, "", RooArgList(*g1slides[icat][inputSigProcName], *wg1slides[icat][inputSigProcName]),
                   RooArgList(*fracrightmodslides[icat][inputSigProcName]), kTRUE);
 
               //                                   14th fit parameter
@@ -764,7 +765,7 @@ private:
               else
                 finalpdfslides[icat][inputSigProcName] = combhvtxminslides[icat][inputSigProcName];
 
-              finalpdfslides[icat][inputSigProcName]->SetName(TString("hggpdf_") + catname + "_" + inputSigProcName);
+              finalpdfslides[icat][inputSigProcName]->SetName(TString("hggpdf_") + catname + "_" + inputSigProcName + config.nameSuffix);
             } // loop over signal processes
     } // loop over categories
   }
@@ -894,7 +895,7 @@ private:
 
     dsmxsecs = new RooDataHist(Form("dsmxsecs_%s", sigProcName.c_str()), "", RooArgList(*mnom), crossSectionHistogram);
 
-    RooHistFunc *funcXsecNorm = new RooHistFunc(Form("fsmxsecs_%s", sigProcName.c_str()), "", RooArgList(*mnom), *dsmxsecs, 1);
+    RooHistFunc *funcXsecNorm = new RooHistFunc(Form("fsmxsecs_%s%s", sigProcName.c_str(), config.nameSuffix.c_str()), "", RooArgList(*mnom), *dsmxsecs, 1);
     //--------------------
     // plot the cross section times branching ratio
     //--------------------
@@ -1110,7 +1111,7 @@ private:
     //      args.add(*fitparmfuncsX[cat]["wzh"][FITPARAM_INDEX_EFFACC]);
     //      args.add(*fitparmfuncsX[cat]["tth"][FITPARAM_INDEX_EFFACC]);
 
-    return new RooFormulaVar(Form("hggpdf_cat%d_%s_norm", cat, inputSigProcName.c_str()), // name
+    return new RooFormulaVar(Form("hggpdf_cat%d_%s%s_norm", cat, inputSigProcName.c_str(), config.nameSuffix.c_str()), // name
         "", // title
         varExp.c_str(), // formula
         args);
@@ -1984,7 +1985,8 @@ public:
       BOOST_FOREACH(string inputSigProcName, inputSigProcessNames)
             //for (unsigned sigProcessIndex = 0; sigProcessIndex < sigProcessNames.size(); ++sigProcessIndex)
             {
-              additionalUCSDcatEffaccHist[j][inputSigProcName] = makeMassFunctionHist(Form("effaccCat%dHist_%s", j, inputSigProcName.c_str()));
+              // TODO: why does this have a capital C for Cat ?
+              additionalUCSDcatEffaccHist[j][inputSigProcName] = makeMassFunctionHist(Form("effaccCat%dHist_%s%s", j, inputSigProcName.c_str(), config.nameSuffix.c_str()));
             }
     } // loop over all categories
 
@@ -2177,8 +2179,8 @@ public:
             {
               for (UInt_t iparm = 0; iparm < fitparms.size(); ++iparm)
               {
-                TString dataname = TString("data") + TString(fitparms.at(iparm)->GetName()) + catnames.at(icat) + "_" + mergedSigProcName;
-                TString funcname = TString("func") + TString(fitparms.at(iparm)->GetName()) + catnames.at(icat) + "_" + mergedSigProcName;
+                TString dataname = TString("data") + TString(fitparms.at(iparm)->GetName()) + catnames.at(icat) + "_" + mergedSigProcName + config.nameSuffix;
+                TString funcname = TString("func") + TString(fitparms.at(iparm)->GetName()) + catnames.at(icat) + "_" + mergedSigProcName + config.nameSuffix;
 
                 fitparmdatasX[icat][mergedSigProcName][iparm] = new RooDataHist(dataname, dataname, RooArgList(*mnom), fitparmhistsX[icat][mergedSigProcName][iparm]);
                 fitparmfuncsX[icat][mergedSigProcName][iparm] = new RooHistFunc(funcname, funcname, RooArgList(*mnom), *fitparmdatasX[icat][mergedSigProcName][iparm], 1);
@@ -2190,8 +2192,8 @@ public:
       // also create the histogram functions for the efficiency*acceptance
       BOOST_FOREACH(string inputSigProcName, inputSigProcessNames)
             {
-              TString dataname = TString("data") + TString("effacc") + catnames.at(icat) + "_" + inputSigProcName;
-              TString funcname = TString("func") + TString("effacc") + catnames.at(icat) + "_" + inputSigProcName;
+              TString dataname = TString("data") + TString("effacc") + catnames.at(icat) + "_" + inputSigProcName + config.nameSuffix;
+              TString funcname = TString("func") + TString("effacc") + catnames.at(icat) + "_" + inputSigProcName + config.nameSuffix;
 
               effaccDatasX[icat][inputSigProcName] = new RooDataHist(dataname, dataname, RooArgList(*mnom), effaccHistsX[icat][inputSigProcName]);
               effaccFuncsX[icat][inputSigProcName] = new RooHistFunc(funcname, funcname, RooArgList(*mnom), *effaccDatasX[icat][inputSigProcName], 1);
@@ -2478,19 +2480,19 @@ public:
     // Note that this adds up all finalnormslides functions
     // 4 categories: cats 0 and 1 are barrel
     // 8 categories: cats 0,1,4,5
-    effaccbarrel = makeEffAccVar("effaccbarrel", finalnormslides, nuissancedeltaeffaccbarrel, getBarrelCategories());
+    effaccbarrel = makeEffAccVar("effaccbarrel" + config.nameSuffix, finalnormslides, nuissancedeltaeffaccbarrel, getBarrelCategories());
 
     // 4 categories: cats 2 and 3 are mixed
     // 8 categories: cats 2,3,6,7 are mixed
-    effaccmixed = makeEffAccVar("effaccmixed", finalnormslides, nuissancedeltaeffaccmixed, getEndcapCategories());
+    effaccmixed = makeEffAccVar("effaccmixed" + config.nameSuffix, finalnormslides, nuissancedeltaeffaccmixed, getEndcapCategories());
 
     if (config.numInclusiveCategories == 4)
     {
       // cat 0 and 1 (barrel)
       // cat 0 [BB, high R9] / (cat 0 [BB, high R9] + cat 1 [BB, low R9])
-      r9fracbarrel = makeFracVar("r9fracbarrel", finalnormslides, nuissancedeltar9fracbarrel, list_of(0), list_of(1));
+      r9fracbarrel = makeFracVar("r9fracbarrel" + config.nameSuffix, finalnormslides, nuissancedeltar9fracbarrel, list_of(0), list_of(1));
 
-      r9fracmixed = makeFracVar("r9fracmixed", finalnormslides, nuissancedeltar9fracmixed, list_of(2), list_of(3));
+      r9fracmixed = makeFracVar("r9fracmixed" + config.nameSuffix, finalnormslides, nuissancedeltar9fracmixed, list_of(2), list_of(3));
       //      r9fracmixed = new RooFormulaVar("r9fracmixed", "", "@0*(@1+@2+@3+@4)/(@1+@2+@3+@4 + @5+@6+@7+@8)", RooArgList(nuissancedeltar9fracmixed,
       //          // cat 2
       //          *finalnormslides[2][sigProcessNames[0]], *finalnormslides[2][sigProcessNames[1]], *finalnormslides[2][sigProcessNames[2]], *finalnormslides[2][sigProcessNames[3]],
@@ -2674,7 +2676,7 @@ public:
               //                                                 xsecnorm
               //                                                     nsigcatX
               // TODO: clarify why using the 'sum' cross section (instead of sigProcName) here gives the right values
-              nsigrelcat[cat][sigProcName] = new RooFormulaVar(Form("hggpdfrel_cat%d_%s_norm", cat, sigProcName.c_str()), "", "@0*@1", RooArgList(*funcXsecNorm["sum"], *nsigcat[cat]));
+              nsigrelcat[cat][sigProcName] = new RooFormulaVar(Form("hggpdfrel_cat%d_%s%s_norm", cat, sigProcName.c_str(), config.nameSuffix.c_str()), "", "@0*@1", RooArgList(*funcXsecNorm["sum"], *nsigcat[cat]));
 
             } // loop over categories
           } // loop over unmerged signal process names
@@ -2695,14 +2697,14 @@ public:
             for (unsigned cat = 0; cat < config.numInclusiveCategories; ++cat)
             {
               // final extended pdf's in each category
-              //                                                                                            normalized pdf     normalization
-              sigpdfcat[cat] = new RooExtendPdf(Form("sigpdfcat%d_%s", cat, inputSigProcName.c_str()), "", *finalpdfslides[cat][inputSigProcName], *nsigcats[cat][inputSigProcName]);
+              //                                                                                                                           normalized pdf     normalization
+              sigpdfcat[cat] = new RooExtendPdf(Form("sigpdfcat%d_%s%s", cat, inputSigProcName.c_str(), config.nameSuffix.c_str()), "", *finalpdfslides[cat][inputSigProcName], *nsigcats[cat][inputSigProcName]);
 
               // relative cross section version of pdfs and normalization
-              hggpdfrel_cat[cat] = (RooAbsPdf*) finalpdfslides[cat][inputSigProcName]->Clone(Form("hggpdfrel_cat%d_%s", cat, inputSigProcName.c_str()));
+              hggpdfrel_cat[cat] = (RooAbsPdf*) finalpdfslides[cat][inputSigProcName]->Clone(Form("hggpdfrel_cat%d_%s%s", cat, inputSigProcName.c_str(), config.nameSuffix.c_str()));
               pdfsToAdd.push_back(hggpdfrel_cat[cat]);
 
-              sigpdfrelcat[cat] = new RooExtendPdf(Form("sigpdfrelcat%d_%s", cat, inputSigProcName.c_str()), "", *hggpdfrel_cat[cat], *nsigrelcat[cat][inputSigProcName]);
+              sigpdfrelcat[cat] = new RooExtendPdf(Form("sigpdfrelcat%d_%s%s", cat, inputSigProcName.c_str(), config.nameSuffix.c_str()), "", *hggpdfrel_cat[cat], *nsigrelcat[cat][inputSigProcName]);
               pdfsToAdd.push_back(sigpdfrelcat[cat]);
 
               // does this work: adding to each category more than once ? No, it does NOT (gives RooFit error messages).
@@ -2731,46 +2733,51 @@ public:
 
               // create a RooHistFunc from a RooDataHist from the TH1F filled with the total
               // efficiencies in category 'numInclusiveCategories'
-              RooDataHist *dataHist = new RooDataHist(Form("effaccCat%dDataHist_%s", j, inputSigProcName.c_str()), Form("effaccCat%dDataHist_%s", j, inputSigProcName.c_str()), RooArgList(*mnom), additionalUCSDcatEffaccHist[j][inputSigProcName]);
-              RooHistFunc *histFunc = new RooHistFunc(Form("effaccCat%dHistFunc_%s", j, inputSigProcName.c_str()), Form("effaccCat%dHistFunc_%s", j, inputSigProcName.c_str()), RooArgList(*mnom), *dataHist, 1);
+              RooDataHist *dataHist = new RooDataHist(Form("effaccCat%dDataHist_%s%s", j, inputSigProcName.c_str(), config.nameSuffix.c_str()), 
+                                                      Form("effaccCat%dDataHist_%s%s", j, inputSigProcName.c_str(), config.nameSuffix.c_str()), 
+                                                      RooArgList(*mnom), additionalUCSDcatEffaccHist[j][inputSigProcName]);
+              RooHistFunc *histFunc = new RooHistFunc(Form("effaccCat%dHistFunc_%s%s", j, inputSigProcName.c_str(), config.nameSuffix.c_str()), 
+                                                      Form("effaccCat%dHistFunc_%s%s", j, inputSigProcName.c_str(), config.nameSuffix.c_str()), 
+                                                      RooArgList(*mnom), *dataHist, 1);
 
               // TODO: CHECK WHETHER THIS GIVES THE CORRECT NORMALIZATION
               // request 2011-12-19: use the merged PDF but use per unmerged pdf normalization factors
-              additionalUCSDnsigcat[j][inputSigProcName] = new RooFormulaVar(Form("hggpdf_cat%d_%s_norm", j, inputSigProcName.c_str()), "", "@0*@1*@2", RooArgList(intlumi, *totalxsec, *histFunc));
+              additionalUCSDnsigcat[j][inputSigProcName] = new RooFormulaVar(Form("hggpdf_cat%d_%s%s_norm", j, inputSigProcName.c_str(), config.nameSuffix.c_str()), "", "@0*@1*@2", RooArgList(intlumi, *totalxsec, *histFunc));
               pdfsToAdd.push_back(additionalUCSDnsigcat[j][inputSigProcName]);
             } // loop over categories
 
             map<unsigned, map<string, RooExtendPdf*> > additionalUCSDsigpdfcat;
             for (unsigned j = config.numInclusiveCategories; j < catnames.size(); ++j)
-              additionalUCSDsigpdfcat[j][inputSigProcName] = new RooExtendPdf(Form("sigpdfcat%d_%s", j, inputSigProcName.c_str()), "", *finalpdfslides[0][inputSigProcName], *additionalUCSDnsigcat[j][inputSigProcName]);
+              additionalUCSDsigpdfcat[j][inputSigProcName] = new RooExtendPdf(Form("sigpdfcat%d_%s%s", j, inputSigProcName.c_str(), config.nameSuffix.c_str()), "", *finalpdfslides[0][inputSigProcName], *additionalUCSDnsigcat[j][inputSigProcName]);
 
             map<unsigned, map<string, RooAbsPdf*> > additionalUCSDhggpdfrel;
             for (unsigned j = config.numInclusiveCategories; j < catnames.size(); ++j)
             {
-              additionalUCSDhggpdfrel[j][inputSigProcName] = ((RooAbsPdf*) finalpdfslides[j][inputSigProcName]->Clone(Form("hggpdfrel_cat%d_%s", j, inputSigProcName.c_str())));
+              additionalUCSDhggpdfrel[j][inputSigProcName] = ((RooAbsPdf*) finalpdfslides[j][inputSigProcName]->Clone(Form("hggpdfrel_cat%d_%s%s", j, inputSigProcName.c_str(), config.nameSuffix.c_str())));
               pdfsToAdd.push_back(additionalUCSDhggpdfrel[j][inputSigProcName]);
             }
 
             map<unsigned, map<string, RooFormulaVar*> > additionalUCSDnsigrel;
             for (unsigned j = config.numInclusiveCategories; j < catnames.size(); ++j)
               // TODO: clarify why using the 'sum' cross section (instead of sigProcName) here gives the right values
-              additionalUCSDnsigrel[j][inputSigProcName] = new RooFormulaVar(Form("hggpdfrel_cat%d_%s_norm", j, inputSigProcName.c_str()), "", "@0*@1", RooArgList(*funcXsecNorm["sum"], *additionalUCSDnsigcat[j][inputSigProcName]));
+              additionalUCSDnsigrel[j][inputSigProcName] = new RooFormulaVar(Form("hggpdfrel_cat%d_%s%s_norm", j, inputSigProcName.c_str(), config.nameSuffix.c_str()), "", "@0*@1", RooArgList(*funcXsecNorm["sum"], *additionalUCSDnsigcat[j][inputSigProcName]));
 
             map<unsigned, map<string, RooExtendPdf*> > additionalUCSDsigpdfrel;
             for (unsigned j = config.numInclusiveCategories; j < catnames.size(); ++j)
             {
-              additionalUCSDsigpdfrel[j][inputSigProcName] = new RooExtendPdf(Form("sigpdfrelcat%d_%s", j, inputSigProcName.c_str()), "", *additionalUCSDhggpdfrel[j][inputSigProcName], *additionalUCSDnsigrel[j][inputSigProcName]);
+              additionalUCSDsigpdfrel[j][inputSigProcName] = new RooExtendPdf(Form("sigpdfrelcat%d_%s%s", j, inputSigProcName.c_str(), config.nameSuffix.c_str()), "", *additionalUCSDhggpdfrel[j][inputSigProcName], *additionalUCSDnsigrel[j][inputSigProcName]);
               pdfsToAdd.push_back(additionalUCSDsigpdfrel[j][inputSigProcName]);
             }
 
             for (unsigned j = config.numInclusiveCategories; j < catnames.size(); ++j)
             {
+              // todo: why does this not use the inputSigProcName ?
               fullsigpdf.addPdf(*additionalUCSDsigpdfcat[j][inputSigProcName], Form("cat%d", j));
               pdfsToAdd.push_back(additionalUCSDsigpdfcat[j][inputSigProcName]);
             }
 
             for (unsigned j = config.numInclusiveCategories; j < catnames.size(); ++j)
-              fullsigpdfrel.addPdf(*additionalUCSDsigpdfrel[j][inputSigProcName], Form("cat%d_%s", j, inputSigProcName.c_str()));
+              fullsigpdfrel.addPdf(*additionalUCSDsigpdfrel[j][inputSigProcName], Form("cat%d_%s%s", j, inputSigProcName.c_str(), config.nameSuffix.c_str()));
 
             for (unsigned j = config.numInclusiveCategories; j < catnames.size(); ++j)
               nsigcats[j][inputSigProcName] = additionalUCSDnsigcat[j][inputSigProcName];
