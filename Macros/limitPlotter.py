@@ -1,40 +1,40 @@
 # Original Authors - Nicholas Wardle, Nancy Marinelli, Doug Berry
 
 # Major cleanup from limit-plotter-complete.py
-
 # Standard Imports and calculators
 import ROOT
 import array,sys,numpy
 ROOT.gROOT.ProcessLine(".L medianCalc.C++")
-ROOT.gROOT.ProcessLine(".L ../libLoopAll.so")
+ROOT.gROOT.ProcessLine(".x tdrstyle.cc")
 
 from ROOT import medianCalc
 from ROOT import FrequentistLimits
 from optparse import OptionParser
 
-ROOT.gROOT.SetStyle("Plain")
 ROOT.gROOT.SetBatch(True)
 ROOT.gStyle.SetOptStat(0)
-ROOT.gStyle.SetOptFit(1111)
+ROOT.gStyle.SetOptFit(0)
 
 #-------------------------------------------------------------------------
 # Configuration for the Plotter
-intlumi = "1.5 (2012) + 5.1 (2011)"
-#EXPmasses = [110.,115.,120.,125.,130.,135.,140.,150.]     
 OBSmasses = numpy.arange(110,150.5,1.)
 EXPmasses = numpy.arange(110,150.5,1.)
-#OBSmasses = [110.,115.,120.,125.,130.,135.,140.,150.]
 
 # Plotting Styles --------------------------------------------------------
 OFFSETLOW=0
 OFFSETHIGH=0
-
+FONTSIZE=0.027
 FILLSTYLE=1001
 SMFILLSTYLE=3244
 FILLCOLOR_95=ROOT.kYellow
 FILLCOLOR_68=ROOT.kGreen
 RANGEYABS=[0.0,0.6]
 RANGEYRAT=[0.0,6]
+MINPV = 10E-7
+MAXPV = 1.0
+Lines = [1.,2.,3.,4.]
+MINMH=int(min(EXPmasses))
+MAXMH=int(max(EXPmasses))
 #-------------------------------------------------------------------------
 # UserInput
 parser=OptionParser()
@@ -44,37 +44,39 @@ parser.add_option("-s","--doSmooth",action="store_true")
 parser.add_option("-b","--bayes",dest="bayes")
 parser.add_option("-o","--outputLimits",dest="outputLimits")
 parser.add_option("-e","--expectedOnly",action="store_true")
-parser.add_option("-p","--path",dest="path")
-parser.add_option("","--massfac",action="store_true",default=False,dest="massfac")
-parser.add_option("","--addLine",action="store_true",default=False,dest="addLine")
+parser.add_option("-p","--path",dest="path",default="",type="str")
 parser.add_option("","--pval",action="store_true")
-parser.add_option("","--is2011",action="store_true",default=False,dest="is2011")
+parser.add_option("","--lumistr",type="str",default="L = 5.1 fb^{-1} (2011) + 5.1 fb^{-1} (2012)")
+parser.add_option("","--egrstr",type="str",default="#sqrt{s} = 7-8 TeV")
 (options,args)=parser.parse_args()
+
 # ------------------------------------------------------------------------
 # SM Signal Normalizer
-signalNormalizer = ROOT.Normalization_8TeV()
+if not options.doRatio:
+	ROOT.gROOT.ProcessLine(".L ../libLoopAll.so")
+	signalNormalizer = ROOT.Normalization_8TeV()
 extraString = "SM"
 # ------------------------------------------------------------------------
-if options.pval: EXPmasses=[]
+if options.pval:
+	 EXPmasses=[]
+	 options.doRatio=True
 
 if options.bayes:
   BayesianFile =ROOT.TFile(options.bayes) 
   bayesObs = BayesianFile.Get("observed")
  
 Method = options.Method
+if not options.path: options.path=Method
 
-EXPName = Method+"/higgsCombineEXPECTED."+Method
-if Method == "Asymptotic" or Method == "AsymptoticNew":  EXPName = Method+"/higgsCombineTest."+Method  # everyhting contained here
+EXPName = options.path+"/higgsCombineEXPECTED."+Method
+if Method == "Asymptotic" or Method == "AsymptoticNew":  EXPName = options.path+"/higgsCombineTest."+Method  # everyhting contained here
 if Method == "ProfileLikelihood" or Method=="Asymptotic" or Method=="AsymptoticNew":
-  OBSName = Method+"/higgsCombineTest."+Method
+  OBSName = options.path+"/higgsCombineTest."+Method
 if Method == "Bayesian":
-  OBSName = Method+"/higgsCombineOBSERVED.MarkovChainMC"
+  OBSName = options.path+"/higgsCombineOBSERVED.MarkovChainMC"
 if Method == "HybridNew":
-  OBSName = Method+"/higgsCombineOBSERVED.HybridNew"
+  OBSName = options.path+"/higgsCombineOBSERVED.HybridNew"
 
-if options.path:
-  OBSName = options.path+'/'+OBSName
-  EXPName = options.path+'/'+EXPName
 
 if Method == "HybridNew" or Method == "Asymptotic" or Method == "AsymptoticNew": EXPmasses = OBSmasses[:]
 # Done with setip
@@ -110,9 +112,9 @@ elif Method=="Asymptotic" or Method=="AsymptoticNew":
   EXPmasses = OBSmasses[:]
   for m in EXPmasses:
     if int(m)==m:
-      EXPfiles.append(ROOT.TFile(EXPName+".mH%.1f.root"%m))
+      EXPfiles.append(ROOT.TFile(EXPName+".mH%d.root"%m))
     else:
-      EXPfiles.append(ROOT.TFile(EXPName+".mH%.1f.root"%m))
+      EXPfiles.append(ROOT.TFile(EXPName+".mH%d.root"%m))
 
 else:
   EXPfiles = [ROOT.TFile(EXPName+".mH%d.root"%m) for m in EXPmasses]
@@ -122,19 +124,16 @@ OBSfiles = []
 if not options.expectedOnly:
   for m in OBSmasses:
     if int(m)==m:
-      OBSfiles.append(ROOT.TFile(OBSName+".mH%.1f.root"%m))
+      OBSfiles.append(ROOT.TFile(OBSName+".mH%d.root"%m))
     else:
-      OBSfiles.append(ROOT.TFile(OBSName+".mH%.1f.root"%m))
+      OBSfiles.append(ROOT.TFile(OBSName+".mH%d.root"%m))
   if Method == "Asymptotic" or Method =="AsymptoticNew":  obs = [getOBSERVED(O,5) for O in OBSfiles] # observed is last entry in these files
   else: obs = [getOBSERVED(O) for O in OBSfiles]
 else:
   obs = [0 for O in OBSmasses]
   OBSfiles = obs[:]
-#-------------------------------------------------------------------------
+
 # Set-up the GRAPHS
-leg=ROOT.TLegend(0.16,0.65,0.57,0.89)
-leg.SetFillColor(0)
-leg.SetBorderSize(0)
 
 graph68  = ROOT.TGraphAsymmErrors()
 graph95  = ROOT.TGraphAsymmErrors()
@@ -149,75 +148,140 @@ graph95up = ROOT.TGraphErrors()
 graph95dn = ROOT.TGraphErrors()
 graphmede = ROOT.TGraphErrors()
 
-if options.massfac:
-  lim2011 = ROOT.TFile.Open("FullMvaToolkit/CombineCards/7TeV_5.1fb/MassFacMVA/limit.root")
-else:
-  lim2011 = ROOT.TFile.Open("FullMvaToolkit/CombineCards/7TeV_5.1fb/SidebandMVA/limit.root")
+graph68.SetLineColor(1)
+graph95.SetLineColor(1)
+graph68.SetLineStyle(2)
+graph95.SetLineStyle(2)
+graph68.SetLineWidth(2)
+graph95.SetLineWidth(2)
 
-lim2011 = ROOT.TFile.Open("ResultScripts/Jun15UnblindOldWeights3fb/FullMva3fbOldWeights/limit_7TeV_5fb.root")
-graph2011 = lim2011.Get("median")
-graph2011.SetLineColor(ROOT.kBlue+2)
-graph2011.SetLineStyle(7)
-graph2011.SetLineWidth(3)
-
-if options.massfac:
-  lim2012 = ROOT.TFile.Open("FullMvaToolkit/CombineCards/8TeV_1.5fb/MassFacMVA/limit.root")
-else:
-  lim2012 = ROOT.TFile.Open("FullMvaToolkit/CombineCards/8TeV_1.5fb/SidebandMVA/limit.root")
-
-lim2012 = ROOT.TFile.Open("ResultScripts/Jun15UnblindOldWeights3fb/FullMva3fbOldWeights/limit_8TeV_3fb.root")
-graph2012 = lim2012.Get("median")
-graph2012.SetLineColor(ROOT.kRed)
-graph2012.SetLineStyle(7)
-graph2012.SetLineWidth(3)
-
-
-# Stuff for bkg smooth test
-#regFile = ROOT.TFile.Open("BkgSmoothTest/ZeeReg/limit.root")
-#noRegFile = ROOT.TFile.Open("BkgSmoothTest/ZeeNoReg/limit.root")
-
-#graphRegExp = regFile.Get("median")
-#graphRegObs = regFile.Get("observed")
-#graphNoRegExp = noRegFile.Get("median")
-#graphNoRegObs = noRegFile.Get("observed")
-
-#graphRegExp.SetLineColor(ROOT.kRed)
-#graphRegExp.SetLineStyle(7)
-#graphRegExp.SetLineWidth(3)
-#graphRegObs.SetLineColor(ROOT.kRed)
-#graphRegObs.SetLineWidth(3)
-
-#graphNoRegExp.SetLineColor(ROOT.kBlue)
-#graphNoRegExp.SetLineStyle(7)
-#graphNoRegExp.SetLineWidth(3)
-#graphNoRegObs.SetLineColor(ROOT.kBlue)
-#graphNoRegObs.SetLineWidth(3)
-
-#-------------------------------------------------------------------------
-# Different entries for the different methods
-LegendEntry = ""
-if Method == "ProfileLikelihood": LegendEntry = "PL"
-if Method == "Bayesian": LegendEntry = "Bayesian"
-if Method == "HybridNew": LegendEntry = "CLs"
-if Method == "Asymptotic": LegendEntry = "CLs (Asymptotic)"
-if Method == "AsymptoticNew": LegendEntry = "CLs (AsymptoticNew)"
-
-leg.SetTextSize(0.025);
-leg.SetHeader("%s"%LegendEntry)
-#leg.AddEntry(graphObs,"Baseline","L")
-#leg.AddEntry(graphRegObs,"Zee regression","L")
-#leg.AddEntry(graphNoRegObs,"Zee no regression","L")
-if not options.expectedOnly: leg.AddEntry(graphObs,"Observed (Baseline)","L")
-if options.bayes and not options.expectedOnly: leg.AddEntry(bayesObs,"Observed Bayesian Limit","L")
-if options.addLine: leg.AddEntry(graphMed,"Expected (combined)","L")
-else: leg.AddEntry(graphMed,"Expected (Baseline)","L")
-leg.AddEntry(graph68,"#pm 1#sigma","F")
-leg.AddEntry(graph95,"#pm 2#sigma","F")
-if options.addLine:
-  leg.AddEntry(graph2011,"Expected (\sqrt{s}=7TeV L=5.1fb^{-1})","L")
-  leg.AddEntry(graph2012,"Expected (\sqrt{s}=8TeV L=3.1fb^{-1})","L")
 
 MG = ROOT.TMultiGraph()
+#-------------------------------------------------------------------------
+def MakePvalPlot(MG):
+
+	legend=ROOT.TLegend(0.65,0.15,0.89,0.3)
+	legend.SetFillColor(10)
+	legend.SetTextFont(42)
+	legend.SetTextSize(FONTSIZE)
+	legend.AddEntry(graphObs,"Observed","L")
+
+	c = ROOT.TCanvas("c","c",600,600)
+
+	dhist = ROOT.TH1F("dh","dh",100,MINMH,MAXMH)
+	dhist.GetYaxis().SetTitleOffset(1.4)
+	dhist.GetXaxis().SetTitleOffset(1.2)
+	dhist.GetYaxis().SetTitleSize(0.04)
+	dhist.GetXaxis().SetTitleSize(0.04)
+	dhist.GetYaxis().SetLabelSize(0.04)
+	dhist.GetXaxis().SetLabelSize(0.04)
+	dhist.GetXaxis().SetRangeUser(MINMH,MAXMH)
+	dhist.GetYaxis().SetRangeUser(MINPV,MAXPV)
+	dhist.GetXaxis().SetTitle("m_{H} (GeV)")
+	dhist.GetYaxis().SetTitle("Local p-value")
+	dhist.Draw("AXIS")
+
+	MG.Draw("L")
+
+	c.Update()
+	text = ROOT.TLatex()
+	text.SetTextColor(ROOT.kRed)
+	text.SetTextSize(FONTSIZE)
+	text.SetTextFont(42)
+
+	Vals=[ROOT.RooStats.SignificanceToPValue(L) for L in Lines]
+	TLines=[ROOT.TLine(MINMH,V,MAXMH,V) for V in Vals]
+
+	for j,TL in enumerate(TLines):
+		TL.SetLineStyle(1)
+		TL.SetLineColor(2)
+		TL.SetLineWidth(1)
+		TL.Draw("same")
+		text.DrawLatex(MAXMH+0.2,Vals[j]*0.88,"%d #sigma"%Lines[j])
+
+	mytext= ROOT.TLatex()
+	mytext.SetTextSize(FONTSIZE)
+	mytext.SetTextFont(42)
+	mytext.SetNDC()
+
+	mytext.DrawLatex(0.18,0.22,"#splitline{CMS Preliminary, %s}{%s}"%(options.egrstr,options.lumistr))
+	legend.Draw()
+	c.SetLogy()
+	c.SaveAs("pvaluesplot.pdf")
+	c.SaveAs("pvaluesplot.png")
+
+def MakeLimitPlot(MG):
+
+	leg=ROOT.TLegend(0.53,0.66,0.89,0.90)
+	leg.SetFillColor(10)
+
+	# Different entries for the different methods
+	LegendEntry = ""
+	if Method == "ProfileLikelihood": LegendEntry = "PL"
+	if Method == "Bayesian": LegendEntry = "Bayesian"
+	if Method == "HybridNew": LegendEntry = "CLs"
+	if Method == "Asymptotic": LegendEntry = "CLs (Asymptotic)"
+	if Method == "AsymptoticNew": LegendEntry = "CLs (Asymptotic)"
+
+	if not options.expectedOnly: leg.AddEntry(graphObs,"Observed","L")
+	if options.bayes and not options.expectedOnly: leg.AddEntry(bayesObs,"Observed Bayesian Limit","L")
+	leg.AddEntry(graph68,"Expected #pm 1#sigma","FL")
+	leg.AddEntry(graph95,"Expected #pm 2#sigma","FL")
+
+	leg.SetTextFont(42)
+	leg.SetTextSize(FONTSIZE)
+
+	C = ROOT.TCanvas("c","c",600,600)
+#	C.SetGrid(True)
+
+	dummyHist = ROOT.TH1D("dummy","",1,min(OBSmasses)-OFFSETLOW,max(OBSmasses)+OFFSETHIGH)
+	dummyHist.SetTitleSize(0.04,"XY")
+	dummyHist.Draw("AXIS")
+	MG.Draw("L3")
+	#dummyHist.Draw("AXIGSAME")
+
+	dummyHist.GetXaxis().SetTitle("m_{H} (GeV)")
+	dummyHist.GetXaxis().SetRangeUser(min(OBSmasses)-OFFSETLOW,max(OBSmasses)+OFFSETHIGH)
+	if options.doRatio:
+	 dummyHist.GetYaxis().SetRangeUser(RANGEYRAT[0],RANGEYRAT[1])
+	 dummyHist.GetYaxis().SetTitle("\sigma(H#rightarrow #gamma #gamma)_{95%%CL} / \sigma(H#rightarrow #gamma #gamma)_{%s}"%extraString)
+	else: 
+	 dummyHist.GetYaxis().SetRangeUser(RANGEYABS[0],RANGEYABS[1])
+	 dummyHist.GetYaxis().SetTitle("\sigma #times BR(H#rightarrow #gamma #gamma)_{95%CL} (pb)")
+
+	dummyHist.GetYaxis().SetTitleOffset(1.2)
+	dummyHist.GetXaxis().SetTitleOffset(1.25)
+
+	MG.SetTitle("")
+	mytext = ROOT.TLatex()
+	mytext.SetTextSize(FONTSIZE)
+
+	mytext.SetNDC()
+	mytext.SetTextFont(42)
+	mytext.SetTextSize(FONTSIZE)
+	mytext.DrawLatex(0.14,0.85,"CMS Preliminary, %s"%options.egrstr)
+	mytext.DrawLatex(0.14,0.77,"%s"%(options.lumistr))
+  
+	leg.Draw()
+
+	#Make a bunch of extensions to the plots
+	if options.doRatio:
+	 C.SaveAs("limit_%s_%s_ratio.pdf"%(options.doSmooth and "smooth" or "",Method))
+	 C.SaveAs("limit_%s_%s_ratio.png"%(options.doSmooth and "smooth" or "",Method))
+	 C.SaveAs("limit_%s_%s_ratio.gif"%(options.doSmooth and "smooth" or "",Method))
+	 C.SaveAs("limit_%s_%s_ratio.eps"%(options.doSmooth and "smooth" or "",Method))
+	 C.SaveAs("limit_%s_%s_ratio.ps"%(options.doSmooth and "smooth" or "",Method))
+	else:
+	 C.SaveAs("limit_%s_%s.pdf"%(options.doSmooth and "smooth" or "",Method))
+	 C.SaveAs("limit_%s_%s.png"%(options.doSmooth and "smooth" or "",Method))
+	 C.SaveAs("limit_%s_%s.gif"%(options.doSmooth and "smooth" or "",Method))
+	 C.SaveAs("limit_%s_%s.eps"%(options.doSmooth and "smooth" or "",Method))
+	 C.SaveAs("limit_%s_%s.ps"%(options.doSmooth and "smooth" or "",Method))
+
+#-------------------------------------------------------------------------
+
+
+#-------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------
 #EXPECTED + Bands
@@ -230,7 +294,7 @@ for i,mass,f in zip(range(len(EXPfiles)),EXPmasses,EXPfiles):
   up95   = array.array('d',[0])
   dn95   = array.array('d',[0])
 
-  if not options.doRatio: sm = signalNormalizer.GetBR(mass)*signalNormaliser.GetXsection(mass) 
+  if not options.doRatio: sm = signalNormalizer.GetBR(mass)*signalNormalizer.GetXsection(mass) 
   if Method == "Asymptotic" or Method=="AsymptoticNew":   
       median[0] = getOBSERVED(f,2)
       up95[0]   = getOBSERVED(f,4)
@@ -321,7 +385,7 @@ for i,mass in zip(range(len(OBSfiles)),OBSmasses):
 
     sm = 1.;
     if obs[i] ==-1: continue
-    if not options.doRatio: sm = signalNormalizer.GetBR(M)*signalNormaliser.GetXsection(M)
+    if not options.doRatio: sm = signalNormalizer.GetBR(M)*signalNormalizer.GetXsection(M)
     graphObs.SetPoint(i,float(mass),obs[i]*sm)
     graphObs.SetPointError(i,0,0,0,0)
 
@@ -343,79 +407,29 @@ if options.bayes:
  bayesObs.SetLineStyle(7)
 
 graphOne.SetLineWidth(3)
-graphOne.SetLineColor(ROOT.kAzure+7)
+graphOne.SetLineColor(ROOT.kRed)
+graphOne.SetMarkerColor(ROOT.kRed)
 graphObs.SetMarkerStyle(20)
 graphObs.SetMarkerSize(2.0)
 graphObs.SetLineColor(1)
 
-graphMed.SetLineStyle(7)
+graphMed.SetLineStyle(2)
 graphMed.SetLineColor(ROOT.kBlack)
-MG.Add(graph95)
-MG.Add(graph68)
-MG.Add(graphMed)
-if options.addLine:
-  MG.Add(graph2011)
-  MG.Add(graph2012)
-#MG.Add(graphBase)
-#MG.Add(graphRegExp)
-#MG.Add(graphRegObs)
-#MG.Add(graphNoRegExp)
-#MG.Add(graphNoRegObs)
+if not options.pval:MG.Add(graph95)
+if not options.pval:MG.Add(graph68)
+if not options.pval:MG.Add(graphMed)
 
 if not options.expectedOnly:
   MG.Add(graphObs)
   if options.bayes:
    MG.Add(bayesObs)
 
-MG.Add(graphOne)
+if not options.pval: MG.Add(graphOne)
+
 # Plot -------------------------------------
-C = ROOT.TCanvas("#int L = %s"%intlumi,"#int L = %s"%intlumi,1260,1100)
-C.SetGrid(True)
-
-dummyHist = ROOT.TH1D("dummy","",1,min(OBSmasses)-OFFSETLOW,max(OBSmasses)+OFFSETHIGH)
-dummyHist.Draw("AXIS")
-MG.Draw("L3")
-dummyHist.Draw("AXIGSAME")
-
-dummyHist.GetXaxis().SetTitle("m_{H} (GeV)")
-dummyHist.GetXaxis().SetRangeUser(min(OBSmasses)-OFFSETLOW,max(OBSmasses)+OFFSETHIGH)
-if options.doRatio:
- dummyHist.GetYaxis().SetRangeUser(RANGEYRAT[0],RANGEYRAT[1])
- dummyHist.GetYaxis().SetTitle("\sigma(H#rightarrow #gamma #gamma)_{95%%CL} / \sigma(H#rightarrow #gamma #gamma)_{%s}"%extraString)
-else: 
- dummyHist.GetYaxis().SetRangeUser(RANGEYABS[0],RANGEYABS[1])
- dummyHist.GetYaxis().SetTitle("\sigma #times BR(H#rightarrow #gamma #gamma)_{95%CL} (pb)")
-dummyHist.GetYaxis().SetTitleOffset(1.2)
-
-MG.SetTitle("#int L = %s"%intlumi)
-mytext = ROOT.TLatex()
-mytext.SetTextSize(0.04)
-
-mytext.SetNDC()
-mytext.SetTextSize(0.03)
-if options.addLine:
-  mytext.DrawLatex(0.58,0.85,"CMS preliminary")
-  mytext.DrawLatex(0.58,0.77,"#splitline{#sqrt{s} = 7 TeV L = 5.1 fb^{-1} (2011)}{#sqrt{s} = 8 TeV L = 3.1 fb^{-1} (2012)}")
-else:
-  if options.is2011: mytext.DrawLatex(0.58,0.77,"#splitline{CMS preliminary}{#sqrt{s} = 7 TeV L = 5.1 fb^{-1}}")
-  else: mytext.DrawLatex(0.58,0.77,"#splitline{CMS preliminary}{#sqrt{s} = 8 TeV L = 3.1 fb^{-1}}")
-  
-leg.Draw()
-
-#Make a bunch of extensions to the plots
-if options.doRatio:
- C.SaveAs("limit_%s_%s_ratio.pdf"%(options.doSmooth and "smooth" or "",Method))
- C.SaveAs("limit_%s_%s_ratio.png"%(options.doSmooth and "smooth" or "",Method))
- C.SaveAs("limit_%s_%s_ratio.gif"%(options.doSmooth and "smooth" or "",Method))
- C.SaveAs("limit_%s_%s_ratio.eps"%(options.doSmooth and "smooth" or "",Method))
- C.SaveAs("limit_%s_%s_ratio.ps"%(options.doSmooth and "smooth" or "",Method))
-else:
- C.SaveAs("limit_%s_%s.pdf"%(options.doSmooth and "smooth" or "",Method))
- C.SaveAs("limit_%s_%s.png"%(options.doSmooth and "smooth" or "",Method))
- C.SaveAs("limit_%s_%s.gif"%(options.doSmooth and "smooth" or "",Method))
- C.SaveAs("limit_%s_%s.eps"%(options.doSmooth and "smooth" or "",Method))
- C.SaveAs("limit_%s_%s.ps"%(options.doSmooth and "smooth" or "",Method))
-
+if options.pval: MakePvalPlot(MG)
+else: MakeLimitPlot(MG) 
+# ------------------------------------------
 if options.outputLimits:
   print "Writing Limits To ROOT file --> ",options.outputLimits
   OUTTgraphs = ROOT.TFile(options.outputLimits,"RECREATE")
