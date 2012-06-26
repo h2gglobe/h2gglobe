@@ -42,13 +42,15 @@ class CombinedToyMaker:
   def loadPdfs(self,filename,expSig=0):
     fi = r.TFile(filename)
     self.keyws_           = fi.Get("fits_workspace")
+    print 'Loading from.. '
+    self.keyws_.Print()
     self.bdtvar_          = self.keyws_.var("bdtoutput")
     self.bdtmgg_          = self.keyws_.var("CMS_hgg_mass")
     self.bdtvbf_          = self.keyws_.var("vbf")
-    self.bdtdatakeys_     = self.keyws_.data("data_forkeyspdf")
+    #self.bdtdatakeys_     = self.keyws_.data("data_forkeyspdf")
     self.bdtdata_         = self.keyws_.data("data_bdt_novbf")
     self.bdtdatavbf_      = self.keyws_.data("data_bdt_vbf")
-    self.bdtdatacut_      = self.keyws_.data("data_bdt_cut_all")
+    #self.bdtdatacut_      = self.keyws_.data("data_bdt_cut_all")
     self.icpdf_           = self.keyws_.pdf("data_pow_model")
     self.bdtpdf_          = self.keyws_.pdf("data_pdf")
     self.dataNoVBFEvents_ = self.bdtdata_.sumEntries("bdtoutput>=0.05")
@@ -264,7 +266,42 @@ class CombinedToyMaker:
         if val_m > mHL and val_m < mHH and val_b >=0.05: returnList.append((val_b,((val_m-mH)/mH)))
 
     return returnList
-      
+  
+  def returnSignalAsimovData(self,mH,size):
+    returnList = []
+
+    mHL = mH*(1.-size)
+    mHH = mH*(1.+size)
+
+    print self.bdtsigdata_.numEntries()
+    print self.bdtsigdata_.sumEntries()
+    print self.bdtsigdatavbf_.numEntries()
+    print self.bdtsigdatavbf_.sumEntries()
+
+    self.bdtsigdata_.Print()
+    self.bdtsigdatavbf_.Print()
+
+    test = r.TH1F("t","t",100,-1,1)
+    for i in range(self.bdtsigdata_.numEntries()):
+      val_m = (self.bdtsigdata_.get(i)).getRealValue("CMS_hgg_mass")
+      val_b = (self.bdtsigdata_.get(i)).getRealValue("bdtoutput")
+      val_w = self.bdtsigdata_.weight()
+      if val_m > mHL and val_m < mHH and val_b>=0.05:
+        print val_m, val_b, val_w
+        returnList.append((val_b,((val_m-mH)/mH),val_w))
+        test.Fill(val_b,val_w)
+
+    for i in range(self.bdtsigdatavbf_.numEntries()):
+      val_m = (self.bdtsigdatavbf_.get(i)).getRealValue("CMS_hgg_mass")
+      val_b = 1.01
+      val_w = self.bdtsigdatavbf_.weight()
+      if val_m > mHL and val_m < mHH and val_b>=0.05: returnList.append((val_b,((val_m-mH)/mH),val_w))
+    
+    c = r.TCanvas()
+    test.Draw()
+    c.SaveAs("test.pdf")
+    return returnList    
+
   def plotData(self,path,nbinsMass,nbinsBDT):
     
     if not os.path.isdir(path+"/PlotsForToys"):
@@ -277,7 +314,7 @@ class CombinedToyMaker:
     
     frame1 = self.bdtvar_.frame()
     frame1.SetTitle("BDT output in data")
-    self.bdtdatakeys_.plotOn(frame1,r.RooFit.Binning(nbinsBDT))
+    self.bdtdata_.plotOn(frame1,r.RooFit.Binning(nbinsBDT))
     self.bdtpdf_.plotOn(frame1,r.RooFit.NormRange("allcats"))
     frame1.Draw()
     can.SaveAs(path+"/PlotsForToys/data/data_bdt.pdf")
@@ -292,7 +329,7 @@ class CombinedToyMaker:
     can.SaveAs(path+"/PlotsForToys/data/data_bdt_zoom.pdf")
     
     frame3 = self.bdtmgg_.frame()
-    self.bdtdatacut_.plotOn(frame3,r.RooFit.Binning(nbinsMass))
+    self.bdtdata_.plotOn(frame3,r.RooFit.Binning(nbinsMass))
     self.icpdf_.plotOn(frame3)
     frame3.SetTitle("Mass in data for bdtoutput>=0.05")
     frame3.Draw()
