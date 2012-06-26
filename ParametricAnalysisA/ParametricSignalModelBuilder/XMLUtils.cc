@@ -8,6 +8,12 @@
 
 #include <stdexcept>
 
+#include <boost/regex.hpp>
+#include <boost/algorithm/string/regex.hpp>
+#include <boost/foreach.hpp>
+#include <boost/lexical_cast.hpp>
+
+
 using std::cout;
 using std::cerr;
 using std::endl;
@@ -228,7 +234,41 @@ XMLUtils::getStringContent(TXMLNode *parentNode, const std::string &childNodeNam
     exit(1);
   }
 
-  std::string text = getTextContent(parentNode);
+  std::string text = getTextContent(children[0]);
   boost::trim(text);
   return text;
+}
+
+
+//----------------------------------------------------------------------
+std::set<unsigned> 
+XMLUtils::getUnsignedSet(TXMLNode *parentNode, const std::string &childNodeName, const std::set<unsigned> &defaultValue)
+{
+  std::vector<TXMLNode *> children = getChildren(parentNode, childNodeName);
+  if (children.size() < 1)
+    return defaultValue;
+
+  if (children.size() > 1)
+  {
+    cerr << "more than one child with name '" << childNodeName << "' found " << endl;
+    exit(1);
+  }
+
+  // get the text
+  std::string text = getTextContent(children[0]);
+  boost::trim(text);
+
+  // split the text (should be a comma separated list of integers)
+  std::vector <std::string> parts;
+  boost::algorithm::split_regex(parts, text,
+                                boost::regex( "\\s*,\\s*"));
+
+  std::set<unsigned> retval;
+  BOOST_FOREACH(std::string part, parts)
+  {
+    std::cout << "PART='" << part << "'" << std::endl;
+    retval.insert(boost::lexical_cast<unsigned>(part));
+  }
+
+  return retval;  
 }

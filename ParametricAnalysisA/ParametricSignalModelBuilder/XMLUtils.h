@@ -4,6 +4,7 @@
 #include <TXMLNode.h>
 #include <TXMLAttr.h>
 
+#include <set>
 #include <vector>
 #include <string>
 
@@ -71,6 +72,9 @@ public:
 
   /** method for getting optional strings value parameters */
   static std::string getStringContent(TXMLNode *parentNode, const std::string &childNodeName, const std::string &defaultValue);
+
+
+  static std::set<unsigned> getUnsignedSet(TXMLNode *parentNode, const std::string &childNodeName, const std::set<unsigned> &defaultValue);
 
   //--------------------
 
