@@ -5,6 +5,13 @@ def makeCaFiles(dir,njobs=-1,jobid=0,nf=[0]):
    dir = str(dir)
    return_files = []
 
+   try:
+      ld_path = os.getenv("LD_LIBRAY_PATH")
+   except:
+      ld_path = ""
+   if not "/afs/cern.ch/project/eos/installation/pro/lib64/" in ld_path:
+      os.putenv("LD_LIBRAY_PATH", "%s:%s" % ( ld_path:, "/afs/cern.ch/project/eos/installation/pro/lib64/" ) )
+
    iscastor = False
    if dir.startswith("/castor"):
       sc,flist = commands.getstatusoutput('nsls %s'%(dir))
