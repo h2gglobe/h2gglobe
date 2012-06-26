@@ -68,6 +68,8 @@ ParametricSignalModelConfig::read(const std::string &configFname)
 
     config.sqrts = XMLUtils::getIntegerContent(XMLUtils::getSingleChild(root, "sqrts"));
 
+    config.nameSuffix = XMLUtils::getTextContent(XMLUtils::getSingleChild(root, "nameSuffix"));
+
     //----------
     // read the signal process mapping (which input signal processes should be merged
     // into what output process names for fitting the signal shape)

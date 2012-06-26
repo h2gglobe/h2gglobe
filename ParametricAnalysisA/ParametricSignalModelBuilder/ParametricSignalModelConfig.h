@@ -58,6 +58,12 @@ public:
   /** center of mass energy (used for cross sections) */
   int sqrts;
 
+  /** a suffix to be used in the names of the generated
+      objects which can e.g. be used to distinguish
+      the datasets of different CM energies
+      in order to run them in combination */
+  std::string nameSuffix;
+
   //----------------------------------------------------------------------
 
   /** constructor to initialize some default values */
