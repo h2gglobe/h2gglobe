@@ -90,16 +90,19 @@ def fillToyBDT(histogram):
 	for b in range(1,histNew.GetNbinsX()+1):listret.append(histNew.GetBinContent(b))
 	return listret
 
-def fillAsimovBDT(histogram):
+def fillAsimovBDT(data,histogram):
 	
 	toydata = g_toysiglist[:]
-	histNew = histogram.Clone()
+	histNew = data.Clone()
 	for b in range(1,histNew.GetNbinsX()+1): histNew.SetBinContent(b,0)
 	for j in range(len(toydata)):
 		val = array.array('f',[0])
 		if toydata[j][0]>1. : val[0] = toydata[j][0]
 		else: val[0] = g_tmva.tmvaGetVal(toydata[j][0],toydata[j][1])	
+		print "input to tmva -> ",toydata[j][0],toydata[j][1]
+		print "But inside writeBinnedDatacard bdt, weight",val[0], toydata[j][2]
 		histNew.Fill(val[0],toydata[j][2])
+		print "Signal is --> ",histNew.Integral()
 	histNew.Add(histogram)
 	listret = []
 	for b in range(1,histNew.GetNbinsX()+1):listret.append(histNew.GetBinContent(b))
@@ -323,7 +326,7 @@ def writeCard(tfile,mass,scaleErr):
 	if options.throwGlobalToy and not options.throwAsimov :pseudoBackgroundOnlyDataset=fillToyBDT(dataHist)
 	else: pseudoBackgroundOnlyDataset=[g_r.Poisson(backgroundContents[b-1]) for b in range(1,nBins+1)]
 
-	if options.throwAsimov: pseudoBackgroundOnlyDataset=fillAsimovBDT(bkgHistCorr)
+	if options.throwAsimov: pseudoBackgroundOnlyDataset=fillAsimovBDT(dataHist,bkgHistCorr)
 
 	for b in range(1,nBins+1): 
 		nd = pseudoBackgroundOnlyDataset[b-1]
