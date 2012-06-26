@@ -1,3 +1,0 @@
-DiPhotonJets_8TeV 3
-
-TTH_HToGG_M-130_8TeV_sub2:TTH_HToGG_M-130_8TeV -1

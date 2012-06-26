@@ -1,6 +1,0 @@
-<use   name="root"/>
-<use   name="rootrflx"/>
-<use   name="roottmva"/>
-<export>
-  <lib   name="1"/>
-</export>
