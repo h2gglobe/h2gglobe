@@ -82,8 +82,8 @@ line.Draw()
 can.RedrawAxis();
 can.SetGrid(True)
 
-#if len(intlumi)==2: mytext.DrawLatex(0.18,0.82,"#splitline{CMS preliminary}{#splitline{#sqrt{s} = %i TeV L = %.1f fb^{-1}}{#sqrt{s} = %i TeV L = %.1f fb^{-1}}}" %(int(Energy[0]),float(intlumi[0]),int(Energy[1]),float(intlumi[1])))
-#else: mytext.DrawLatex(0.18,0.8,"#splitline{CMS preliminary}{#sqrt{s} = %i TeV L = %.1f fb^{-1}}" %(int(Energy[0]),float(intlumi[0])))
+if len(intlumi)==2: mytext.DrawLatex(0.13,0.8,"#splitline{CMS preliminary}{#splitline{#sqrt{s} = %i TeV L = %.1f fb^{-1}}{#sqrt{s} = %i TeV L = %.1f fb^{-1}}}" %(int(Energy[0]),float(intlumi[0]),int(Energy[1]),float(intlumi[1])))
+else: mytext.DrawLatex(0.13,0.8,"#splitline{CMS preliminary}{#sqrt{s} = %i TeV L = %.1f fb^{-1}}" %(int(Energy[0]),float(intlumi[0])))
 
 can.SaveAs(sys.argv[2])
 print "Done!"
