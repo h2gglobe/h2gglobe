@@ -366,22 +366,25 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
     l.rooContainer->AddRealVar("pol2_8TeV",-0.01,-1.5,1.5);
     l.rooContainer->AddRealVar("pol3_8TeV",-0.01,-1.5,1.5);
     l.rooContainer->AddRealVar("pol4_8TeV",-0.01,-1.5,1.5);
+    l.rooContainer->AddRealVar("pol5_8TeV",-0.01,-1.5,1.5);
     l.rooContainer->AddFormulaVar("modpol0_8TeV","@0*@0","pol0_8TeV");
     l.rooContainer->AddFormulaVar("modpol1_8TeV","@0*@0","pol1_8TeV");
     l.rooContainer->AddFormulaVar("modpol2_8TeV","@0*@0","pol2_8TeV");
     l.rooContainer->AddFormulaVar("modpol3_8TeV","@0*@0","pol3_8TeV");
     l.rooContainer->AddFormulaVar("modpol4_8TeV","@0*@0","pol4_8TeV");
+    l.rooContainer->AddFormulaVar("modpol5_8TeV","@0*@0","pol5_8TeV");
 
     if (bdtTrainingPhilosophy=="UCSD"){
         // UCSD BDT Categories
 
-        std::vector<std::string> data_pol5_pars(5,"p");   
+        std::vector<std::string> data_pol5_pars(6,"p");   
         data_pol5_pars[0] = "modpol0_8TeV";
         data_pol5_pars[1] = "modpol1_8TeV";
         data_pol5_pars[2] = "modpol2_8TeV";
         data_pol5_pars[3] = "modpol3_8TeV";
         data_pol5_pars[4] = "modpol4_8TeV";
-        l.rooContainer->AddGenericPdf("data_pol_model_8TeV","0","CMS_hgg_mass",data_pol5_pars,75); // >= 71 means RooBernstein of order >= 1
+        data_pol5_pars[5] = "modpol5_8TeV";
+        l.rooContainer->AddGenericPdf("data_pol_model_8TeV","0","CMS_hgg_mass",data_pol5_pars,76); // >= 71 means RooBernstein of order >= 1
 
     } else if (bdtTrainingPhilosophy=="MIT"){
         // MIT BDT Categories
@@ -406,9 +409,20 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
           "0","CMS_hgg_mass",data_pol3_pars,73);    // >= 71 means RooBernstein of order >= 1
         */
         if (includeVBF){
-            int poly3cats[6] = {0,0,0,0,1,1};
-            int poly4cats[6] = {1,0,0,0,0,0};
-            int poly5cats[6] = {0,1,1,1,0,0};
+            int poly3cats[6] = {0,0,0,0,1,0};
+            int poly4cats[6] = {0,0,0,0,0,1};
+            int poly5cats[6] = {1,1,0,0,0,0};
+            int poly6cats[6] = {0,0,1,1,0,0};
+
+            std::vector<std::string> data_pol6_pars(6,"p");   
+            data_pol6_pars[0] = "modpol0_8TeV";
+            data_pol6_pars[1] = "modpol1_8TeV";
+            data_pol6_pars[2] = "modpol2_8TeV";
+            data_pol6_pars[3] = "modpol3_8TeV";
+            data_pol6_pars[4] = "modpol4_8TeV";
+            data_pol6_pars[4] = "modpol5_8TeV";
+            l.rooContainer->AddSpecificCategoryPdf(poly6cats,"data_pol_model_8TeV",
+                                                   "0","CMS_hgg_mass",data_pol6_pars,76);  // >= 71 means RooBernstein of order >= 1
 
             std::vector<std::string> data_pol5_pars(5,"p");   
             data_pol5_pars[0] = "modpol0_8TeV";
@@ -474,7 +488,7 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
     // Create Signal DataSets:
     for (int sig=105;sig<=150;sig+=5){
         // Needed to use S4 for the GGH 145 Signal which has the BUG so no 145 sample
-        if (sig==145) continue;
+        //if (sig==145) continue;
         l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_ggh_mass_m%d",sig),nDataBins);    
         l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_vbf_mass_m%d",sig),nDataBins);    
         l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wzh_mass_m%d",sig),nDataBins);    
@@ -527,7 +541,7 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
     // Make more datasets representing Systematic Shifts of various quantities
 
     for (int sig=105;sig<=150;sig+=5){
-        if (sig==145) continue;
+        //if (sig==145) continue;
         l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_ggh_mass_m%d",sig),-1);  
         l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_vbf_mass_m%d",sig),-1);  
         l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_wzh_mass_m%d",sig),-1);  
@@ -902,6 +916,15 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 
 	    // fill control plots and counters
 	    if( ! isSyst ) {
+            
+            float myMet = l.shiftscaleMET_pt;
+            l.FillTree("category",category);
+            l.FillTree("cur_type",cur_type);
+            l.FillTree("bdtoutput",diphobdt_output);
+            l.FillTree("CMS_hgg_mass",float(Higgs.M()));
+            l.FillTree("weight",weight);
+            l.FillTree("MET",myMet);
+            
 	        l.FillCounter( "Accepted", weight );
 	        l.FillCounter( "Smeared", evweight );
 	        sumaccept += weight;
@@ -974,7 +997,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
             << "    event:" <<  l.event
             // Preselection Lead
             << "    r9_1:"  <<  lead_r9
-            << "    sceta_1:"   << fabs((photonInfoCollection[diphoton_index.first]).caloPosition().Eta()) 
+            << "    sceta_1:"   << (photonInfoCollection[diphoton_index.first]).caloPosition().Eta() 
             << "    hoe_1:" <<  l.pho_hoe[diphoton_index.first]
             << "    sigieie_1:" <<  l.pho_sieie[diphoton_index.first]
             << "    ecaliso_1:" <<  l.pho_ecalsumetconedr03[diphoton_index.first] - 0.012*lead_p4.Et()
@@ -983,7 +1006,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
             << "    chpfiso_1:" <<  (*l.pho_pfiso_mycharged02)[diphoton_index.first][l.dipho_vtxind[diphoton_id]] 
             // Preselection SubLead
             << "    r9_2:"  <<  sublead_r9
-            << "    sceta_2:"   << fabs((photonInfoCollection[diphoton_index.second]).caloPosition().Eta()) 
+            << "    sceta_2:"   << (photonInfoCollection[diphoton_index.second]).caloPosition().Eta() 
             << "    hoe_2:" <<  l.pho_hoe[diphoton_index.second]
             << "    sigieie_2:" <<  l.pho_sieie[diphoton_index.second]
             << "    ecaliso_2:" <<  l.pho_ecalsumetconedr03[diphoton_index.second] - 0.012*lead_p4.Et()
@@ -991,22 +1014,26 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
             << "    trckiso_2:" <<  l.pho_trksumpthollowconedr03[diphoton_index.second] - 0.002*lead_p4.Et()
             << "    chpfiso_2:" <<  (*l.pho_pfiso_mycharged02)[diphoton_index.second][l.dipho_vtxind[diphoton_id]] 
             // Diphoton MVA inputs
-            << "    mgg:"  <<  mass 
             << "    ptH:"  <<  ptHiggs 
             << "    phoid_1:"   <<  phoid_mvaout_lead 
-            << "    phoid_2:"   <<  phoid_mvaout_sublead 
+            << "    phoid_2:"   <<  phoid_mvaout_sublead
             << "    phoeta_1:"  <<  lead_p4.Eta() 
             << "    phoeta_2:"  <<  sublead_p4.Eta() 
             << "    sigmrv:"    <<  sigmaMrv 
             << "    sigmwv:"    <<  sigmaMwv 
-            << "    pt_1:"      <<  lead_p4.Pt()
-            << "    pt_2:"      <<  sublead_p4.Pt()
+            << "    pt_1/m:"      <<  lead_p4.Pt()/mass
+            << "    pt_2/m:"      <<  sublead_p4.Pt()/mass
             << "    vtxprob:"   <<  vtxProb 
             << "    cosdphi:"   <<  TMath::Cos(lead_p4.Phi() - sublead_p4.Phi()) 
             << "    diphoBDT:"  <<  diphobdt_output 
             // Extra
+            << "    mgg:"       <<  mass 
             << "    e_1:"       <<  lead_p4.E()
             << "    e_2:"       <<  sublead_p4.E()
+            << "    eerr_1:"    << massResolutionCalculator->leadPhotonResolution()
+            << "    eerr_2:"    << massResolutionCalculator->subleadPhotonResolution()
+            << "    eerrsmeared_1:" << massResolutionCalculator->leadPhotonResolutionNoSmear()
+            << "    eerrsmeared_2:" << massResolutionCalculator->subleadPhotonResolutionNoSmear()
             << "    vbfevent:"  <<  VBFevent
             << "    evcat:"     <<  category
             << "    FileName:"  <<  l.files[l.current];

@@ -6,20 +6,8 @@ delare:
 ->
 
 type=0 name=category
-type=2 name=mass
-type=2 name=deltaMoverM
+type=0 name=cur_type
 type=2 name=bdtoutput
+type=2 name=CMS_hgg_mass
 type=2 name=weight
-
-->
-type=1 name=dmom
-type=1 name=dmom_wrong_vtx
-type=1 name=vtxprob
-type=1 name=ptom1
-type=1 name=ptom2
-type=1 name=eta1
-type=1 name=eta2
-type=1 name=dphi
-type=1 name=ph1mva
-type=1 name=ph2mva
-->
+type=2 name=MET

@@ -69,13 +69,14 @@ class MassResolution {
     double massResolutionWrongVtx();
     double massResolutionEonly();
 
-  private:
     double leadPhotonResolution();
     double subleadPhotonResolution();
-    double getPhotonResolution(double,double,double,double,bool, bool ispherical=false);
     
     double leadPhotonResolutionNoSmear();
     double subleadPhotonResolutionNoSmear();
+  
+  private:
+    double getPhotonResolution(double,double,double,double,bool, bool ispherical=false);
     
     double angleResolution();
     double angleResolutionCorrVtx();

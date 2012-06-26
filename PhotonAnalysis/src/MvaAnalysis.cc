@@ -780,7 +780,6 @@ void MvaAnalysis::FillRooContainer(LoopAll& l, int cur_type, float mass, float d
 				    int category, float weight, bool isCorrectVertex) 
 {
 
-
   if (doTraining){
     fillTMVATrees(l,mass,diphotonMVA,category,weight,cur_type);
   } else {

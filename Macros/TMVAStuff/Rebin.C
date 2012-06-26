@@ -280,13 +280,14 @@ TH1F* neatBin(TH1F* hist){
 
 void Rebin(){
   
-  TFile *inFile = TFile::Open("07_01_12_MIT_all.root");
+  TFile *inFile = TFile::Open("SidebandMvaTrain_v3.root");
 
   TTree *testTree = (TTree*)inFile->FindObjectAny("TestTree");
   TTree *trainTree = (TTree*)inFile->FindObjectAny("TrainTree");
 
-  const int nMeths=4;
-  string methods[nMeths] = {"Likelihood","LikelihoodD","BDTada","BDTgrad"};
+  const int nMeths=1;
+  string methods[nMeths] = {"BDTgrad"};
+  //string methods[nMeths] = {"Likelihood","LikelihoodD","BDTada","BDTgrad"};
   //string methods[nMeths] = {"Likelihood","LikelihoodD"};
 
   for (int m=0; m<nMeths; m++){

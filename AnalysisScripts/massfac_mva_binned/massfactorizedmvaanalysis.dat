@@ -77,6 +77,6 @@ doInterferenceSmear=1
 # - phoId and trigger: same as EPS,  https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/374.html
 # - vertexing from: https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/374/1.html
 
-efficiencyFile=aux/sig_reweighing_june15unblind_mva_idcut02.root
+efficiencyFile=aux/sig_reweighing_ichep2012topup_mva_v2.root
 
 

@@ -1368,6 +1368,16 @@ void StatAnalysis::rescaleClusterVariables(LoopAll &l){
 		}
 	    }
 	}
+    // Scale DYJets sample for now
+    /*
+    if (l.itype[l.current]==6){
+    if (l.pho_isEB[ipho]) {
+        energyCorrectedError[ipho] = 1.02693*energyCorrectedError[ipho]-0.0042793;
+    } else {
+        energyCorrectedError[ipho] = 1.01372*energyCorrectedError[ipho]+0.000156943;
+    }
+    }
+    */
     }
 }
 

@@ -23,6 +23,7 @@ typ=0    ind=0 draw=1  Nam=Data    CaDir=/store/group/phys_higgs/cmshgg/reduced/
 #
 # Signal
 #
+->
 typ=-49 ind=1 draw=1  Nam=ggh_m150_8TeV  CaDir=/store/group/phys_higgs/cmshgg/reduced/june15unblinding_reduction_v7/Summer12_S7_8TeV/GluGluToHToGG_M-150_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
 typ=-50 ind=2 draw=1  Nam=vbf_m150_8TeV     CaDir=/store/group/phys_higgs/cmshgg/reduced/june15unblinding_reduction_v7/Summer12_S7_8TeV/VBF_HToGG_M-150_8TeV        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
 typ=-52 ind=4 draw=1  Nam=wzh_m150_8TeV      CaDir=/store/group/phys_higgs/cmshgg/reduced/june15unblinding_reduction_v7/Summer12_S7_8TeV/WH_ZH_HToGG_M-150_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
@@ -47,12 +48,12 @@ typ=-29 ind=1 draw=1  Nam=ggh_m130_8TeV  CaDir=/store/group/phys_higgs/cmshgg/re
 typ=-30 ind=2 draw=1  Nam=vbf_m130_8TeV     CaDir=/store/group/phys_higgs/cmshgg/reduced/june15unblinding_reduction_v7/Summer12_S7_8TeV/VBF_HToGG_M-130_8TeV        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
 typ=-32 ind=4 draw=1  Nam=wzh_m130_8TeV      CaDir=/store/group/phys_higgs/cmshgg/reduced/june15unblinding_reduction_v7/Summer12_S7_8TeV/WH_ZH_HToGG_M-130_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
 typ=-31 ind=3 draw=1  Nam=tth_m130_8TeV      CaDir=/store/group/phys_higgs/cmshgg/reduced/june15unblinding_reduction_v7/Summer12_S7_8TeV/TTH_HToGG_M-130_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
-
+->
 typ=-37 ind=1 draw=1  Nam=ggh_m125_8TeV  CaDir=/store/group/phys_higgs/cmshgg/reduced/june15unblinding_reduction_v7/Summer12_S7_8TeV/GluGluToHToGG_M-125_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
 typ=-38 ind=2 draw=1  Nam=vbf_m125_8TeV     CaDir=/store/group/phys_higgs/cmshgg/reduced/june15unblinding_reduction_v7/Summer12_S7_8TeV/VBF_HToGG_M-125_8TeV        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
 typ=-40 ind=4 draw=1  Nam=wzh_m125_8TeV      CaDir=/store/group/phys_higgs/cmshgg/reduced/june15unblinding_reduction_v7/Summer12_S7_8TeV/WH_ZH_HToGG_M-125_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
 typ=-39 ind=3 draw=1  Nam=tth_m125_8TeV      CaDir=/store/group/phys_higgs/cmshgg/reduced/june15unblinding_reduction_v7/Summer12_S7_8TeV/TTH_HToGG_M-125_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
-
+->
 typ=-25 ind=1 draw=1  Nam=ggh_m120_8TeV  CaDir=/store/group/phys_higgs/cmshgg/reduced/june15unblinding_reduction_v7/Summer12_S7_8TeV/GluGluToHToGG_M-120_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
 typ=-26 ind=2 draw=1  Nam=vbf_m120_8TeV     CaDir=/store/group/phys_higgs/cmshgg/reduced/june15unblinding_reduction_v7/Summer12_S7_8TeV/VBF_HToGG_M-120_8TeV        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
 typ=-28 ind=4 draw=1  Nam=wzh_m120_8TeV      CaDir=/store/group/phys_higgs/cmshgg/reduced/june15unblinding_reduction_v7/Summer12_S7_8TeV/WH_ZH_HToGG_M-120_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
@@ -92,7 +93,7 @@ typ=+15    ind=107 draw=1  Nam=dipho_Box_25_8TeV        CaDir=/store/group/phys_
 typ=+25    ind=108 draw=1  Nam=dipho_Box_250_8TeV        CaDir=/store/group/phys_higgs/cmshgg/reduced/june15unblinding_reduction_v7/Summer12_S7_8TeV/DiPhotonBox_Pt-250ToInf_8TeV    red=0   lum=1.e10   xsec=0.029038   kfac=1.3  scal=1.
 
 typ=+6    ind=98 draw=1  Nam=dyjetsll_50_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/june15unblinding_reduction_v7/Summer12_S7_8TeV/DYJetsToLL_M-50_TuneZ2Star_8TeV    red=0   lum=1.e10  xsec=2950.0   kfac=1.15  scal=1.
-
+->
 # 
 # Branches to use
 #
