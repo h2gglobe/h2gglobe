@@ -4,6 +4,8 @@
 #include "TFile.h"
 #include "TH1F.h"
 #include "RooDataSet.h"
+#include "RooDataHist.h"
+#include "RooMsgService.h"
 #include "RooAbsPdf.h"
 #include "RooExtendPdf.h"
 #include "RooWorkspace.h"
@@ -29,13 +31,15 @@ void doBandsFit(TGraphAsymmErrors *onesigma, TGraphAsymmErrors *twosigma,
 		RooPlot *plot, 
 		TString & catname);
 
-void makeBkgPlotsGeneric(std::string filebkg, bool blind=true, bool doBands=true, bool baseline=false){
+void makeBkgPlotsGeneric(std::string filebkg, bool blind=true, bool doBands=true, bool baseline=false, bool useBinnedData=false){
 
 	// Globals
 	gROOT->SetStyle("Plain");
 	gROOT->SetBatch(1);
 	gStyle->SetOptStat(0);
 	const int ncats = 1;
+
+	RooMsgService::instance().setGlobalKillBelow(RooFit::MsgLevel(RooFit::WARNING));
 
 	std::string * labels;
 	
@@ -60,7 +64,7 @@ void makeBkgPlotsGeneric(std::string filebkg, bool blind=true, bool doBands=true
 	TFile *fb = TFile::Open(filebkg.c_str());
 	
 	RooWorkspace *w_bkg  = (RooWorkspace*) fb->Get("cms_hgg_workspace");
-	w_bkg->Print();
+//	w_bkg->Print();
 
 	RooRealVar *x = (RooRealVar*) w_bkg->var("CMS_hgg_mass");
 
@@ -90,7 +94,9 @@ void makeBkgPlotsGeneric(std::string filebkg, bool blind=true, bool doBands=true
 		leg->SetBorderSize(0);
 
 		// Get Dataset ->
-		RooDataSet *data =  (RooDataSet*)w_bkg->data(Form("data_mass_cat%d",cat));
+		RooAbsData *data;
+		if (useBinnedData) data =  (RooDataSet*)w_bkg->data(Form("data_mass_cat%d",cat));
+		else  data =  (RooDataHist*)w_bkg->data(Form("roohist_data_mass_cat%d",cat));
 		data->Print();
 
 		// Background Pdf ->
@@ -212,6 +218,7 @@ void makeBkgPlotsGeneric(std::string filebkg, bool blind=true, bool doBands=true
 
 
 using namespace RooFit;
+
 
 void doBandsFit(TGraphAsymmErrors *onesigma, TGraphAsymmErrors *twosigma, 
 		RooRealVar * hmass,
