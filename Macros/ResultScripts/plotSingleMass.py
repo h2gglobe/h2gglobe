@@ -45,7 +45,7 @@ for Mass in Masses:
   BestFitErrorUp=[]
   BestFitErrorDown=[]
   for i in range(altername.floatParsFinal().getSize()):
-    print i,altername.floatParsFinal().at(i).GetName(),altername.floatParsFinal().at(i).getVal(),altername.floatParsFinal().at(i).getAsymErrorHi(),altername.floatParsFinal().at(i).getAsymErrorLo()
+    #print i,altername.floatParsFinal().at(i).GetName(),altername.floatParsFinal().at(i).getVal(),altername.floatParsFinal().at(i).getAsymErrorHi(),altername.floatParsFinal().at(i).getAsymErrorLo()
     chrFit=altername.floatParsFinal().at(i)
     if chrFit.GetName().find("ChannelCompatibilityCheck")!=-1:
       Channels.append(chrFit.GetName())
