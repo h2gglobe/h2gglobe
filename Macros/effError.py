@@ -1,7 +1,7 @@
 import sys
 
 nCats=4
-errFile = open("eff_errs.dat")
+errFile = open(sys.argv[1])
 
 totEffs=[]
 totEffErrs=[]
