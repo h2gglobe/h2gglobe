@@ -266,7 +266,6 @@ XMLUtils::getUnsignedSet(TXMLNode *parentNode, const std::string &childNodeName,
   std::set<unsigned> retval;
   BOOST_FOREACH(std::string part, parts)
   {
-    std::cout << "PART='" << part << "'" << std::endl;
     retval.insert(boost::lexical_cast<unsigned>(part));
   }
 
