@@ -409,7 +409,7 @@ private:
     }
 
     // newer version depends on the given parameters
-    for (double mass = 110; mass <= 150; mass += config.massInterpolationWidth)
+    for (double mass = 110; mass <= config.massmax; mass += config.massInterpolationWidth)
       mhs.push_back((int) (mass + 0.5));
 
     // testing / debugging
@@ -724,9 +724,9 @@ private:
               sigma3slides[icat][inputSigProcName] = new RooFormulaVar(TString("sigma3slide") + catname + "_" + inputSigProcName, "", "TMath::Max(0.01,sqrt(@0*@0-@3*@3*@2*@2 +@1*@1))",
                   RooArgList(*fitparmfuncs[icat][mergedSigProcName][5], *smearmods[icat], *mcToDataMassSmearingVar[icat], *mnom));
 
-              wmean1slides[icat][inputSigProcName] = new RooFormulaVar(TString("wmean1slide") + catname + "_" + inputSigProcName, "", "@0 + @1 + @0*@2", RooArgList(*mnom, *fitparmfuncs[icat][mergedSigProcName][8], *nuissanceDeltaMs[icat]));
-              wmean2slides[icat][inputSigProcName] = new RooFormulaVar(TString("wmean2slide") + catname + "_" + inputSigProcName, "", "@0 + @1 + @0*@2", RooArgList(*mnom, *fitparmfuncs[icat][mergedSigProcName][9], *nuissanceDeltaMs[icat]));
-              wsigma1slides[icat][inputSigProcName] = new RooFormulaVar(TString("wsigma1slide") + catname + "_" + inputSigProcName, "", "TMath::Max(0.01,sqrt(@0*@0-@3*@3*@2*@2 +@1*@1))",
+              wmean1slides[icat][inputSigProcName] = new RooFormulaVar(TString("wmean1slide") + catname + "_" + inputSigProcName + config.nameSuffix, "", "@0 + @1 + @0*@2", RooArgList(*mnom, *fitparmfuncs[icat][mergedSigProcName][8], *nuissanceDeltaMs[icat]));
+              wmean2slides[icat][inputSigProcName] = new RooFormulaVar(TString("wmean2slide") + catname + "_" + inputSigProcName + config.nameSuffix, "", "@0 + @1 + @0*@2", RooArgList(*mnom, *fitparmfuncs[icat][mergedSigProcName][9], *nuissanceDeltaMs[icat]));
+              wsigma1slides[icat][inputSigProcName] = new RooFormulaVar(TString("wsigma1slide") + catname + "_" + inputSigProcName + config.nameSuffix, "", "TMath::Max(0.01,sqrt(@0*@0-@3*@3*@2*@2 +@1*@1))",
                   RooArgList(*fitparmfuncs[icat][mergedSigProcName][10], *smearmods[icat], *mcToDataMassSmearingVar[icat], *mnom));
               wsigma2slides[icat][inputSigProcName] = new RooFormulaVar(TString("wsigma2slide") + catname, "", "TMath::Max(0.01,sqrt(@0*@0-@3*@3*@2*@2 +@1*@1))", RooArgList(*fitparmfuncs[icat][mergedSigProcName][11], *smearmods[icat], *mcToDataMassSmearingVar[icat], *mnom));
 
