@@ -1,0 +1,112 @@
+intL=5346. histfile=/store/group/phys_higgs/cmshgg/analyzed/ichep2012topup/%(label)s/CMS-HGG.root output=eventsList.txt
+
+#
+# Data
+#
+#typ=0    ind=0 draw=1  Nam=Data    Fil=root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/data/PhotonPromptReco2012A/PhotonPromptReco2012A_0.root tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=aux/Cert_ICHEP_TopUp_535fb.json
+# Run2012A
+typ=0    ind=0 draw=1  Nam=Data    CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/data/PhotonPromptReco2012A tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=aux/Cert_ICHEP_TopUp_535fb.json
+typ=0    ind=0 draw=1  Nam=Data    CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/data/PhotonPromptReco2012A_120625Recovery tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=aux/Cert_ICHEP_TopUp_535fb.json
+typ=0    ind=0 draw=1  Nam=Data    CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/data/PhotonPromptReco2012A_TopUp_sub1 tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=aux/Cert_ICHEP_TopUp_535fb.json
+typ=0    ind=0 draw=1  Nam=Data    CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/data/PhotonPromptReco2012A_sub2 tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=aux/Cert_ICHEP_TopUp_535fb.json
+
+# May23ReReco
+typ=0    ind=0 draw=1  Nam=Data    CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/data/PhotonReRecoMay23_2012 tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=aux/Cert_ICHEP_TopUp_535fb.json
+typ=0    ind=0 draw=1  Nam=Data    CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/data/PhotonReRecoMay23_2012_missing2 tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=aux/Cert_ICHEP_TopUp_535fb.json
+
+# Run2012B
+typ=0    ind=0 draw=1  Nam=Data    CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/data/DoublePhotonPromptReco2012B  tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=aux/Cert_ICHEP_TopUp_535fb.json
+typ=0    ind=0 draw=1  Nam=Data    CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/data/DoublePhotonPromptReco2012B_120624jsonTopUp tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=aux/Cert_ICHEP_TopUp_535fb.json
+typ=0    ind=0 draw=1  Nam=Data    CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/data/DoublePhotonPromptReco2012B_TopUp_sub1 tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=aux/Cert_ICHEP_TopUp_535fb.json
+typ=0    ind=0 draw=1  Nam=Data    CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/data/DoublePhotonPromptReco2012B_TopUp_sub3 tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=aux/Cert_ICHEP_TopUp_535fb.json
+typ=0    ind=0 draw=1  Nam=Data    CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/data/DoublePhotonPromptReco2012B_sub2  tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=aux/Cert_ICHEP_TopUp_535fb.json
+typ=0    ind=0 draw=1  Nam=Data    CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/data/DoublePhotonPromptReco2012B_sub3  tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=aux/Cert_ICHEP_TopUp_535fb.json
+
+
+#
+# Signal
+#
+typ=-49 ind=1 draw=1  Nam=ggh_m150_8TeV  CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/GluGluToHToGG_M-150_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-50 ind=2 draw=1  Nam=vbf_m150_8TeV     CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/VBF_HToGG_M-150_8TeV        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-52 ind=4 draw=1  Nam=wzh_m150_8TeV      CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/WH_ZH_HToGG_M-150_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-51 ind=3 draw=1  Nam=tth_m150_8TeV      CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/TTH_HToGG_M-150_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+
+typ=-45 ind=1 draw=1  Nam=ggh_m145_8TeV  CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/GluGluToHToGG_M-145_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-46 ind=2 draw=1  Nam=vbf_m145_8TeV     CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/GluGluToHToGG_M-145_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-48 ind=4 draw=1  Nam=wzh_m145_8TeV      CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/WH_ZH_HToGG_M-145_8TeV      red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-47 ind=3 draw=1  Nam=tth_m145_8TeV      CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/TTH_HToGG_M-145_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+
+typ=-33 ind=1 draw=1  Nam=ggh_m140_8TeV  CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/GluGluToHToGG_M-140_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-34 ind=2 draw=1  Nam=vbf_m140_8TeV     CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/VBF_HToGG_M-140_8TeV        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-36 ind=4 draw=1  Nam=wzh_m140_8TeV      CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/WH_ZH_HToGG_M-140_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-35 ind=3 draw=1  Nam=tth_m140_8TeV      CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/TTH_HToGG_M-140_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+
+typ=-41 ind=1 draw=1  Nam=ggh_m135_8TeV  CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/GluGluToHToGG_M-135_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-42 ind=2 draw=1  Nam=vbf_m135_8TeV     CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/VBF_HToGG_M-135_8TeV        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-44 ind=4 draw=1  Nam=wzh_m135_8TeV      CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/WH_ZH_HToGG_M-135_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-43 ind=3 draw=1  Nam=tth_m135_8TeV      CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/TTH_HToGG_M-135_8TeV        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+
+typ=-29 ind=1 draw=1  Nam=ggh_m130_8TeV  CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/GluGluToHToGG_M-130_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-30 ind=2 draw=1  Nam=vbf_m130_8TeV     CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/VBF_HToGG_M-130_8TeV        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-32 ind=4 draw=1  Nam=wzh_m130_8TeV      CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/WH_ZH_HToGG_M-130_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-31 ind=3 draw=1  Nam=tth_m130_8TeV      CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/TTH_HToGG_M-130_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+->
+typ=-37 ind=1 draw=1  Nam=ggh_m125_8TeV  CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/GluGluToHToGG_M-125_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-38 ind=2 draw=1  Nam=vbf_m125_8TeV     CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/VBF_HToGG_M-125_8TeV        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-40 ind=4 draw=1  Nam=wzh_m125_8TeV      CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/WH_ZH_HToGG_M-125_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-39 ind=3 draw=1  Nam=tth_m125_8TeV      CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/TTH_HToGG_M-125_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+->
+typ=-25 ind=1 draw=1  Nam=ggh_m120_8TeV  CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/GluGluToHToGG_M-120_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-26 ind=2 draw=1  Nam=vbf_m120_8TeV     CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/VBF_HToGG_M-120_8TeV        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-28 ind=4 draw=1  Nam=wzh_m120_8TeV      CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/WH_ZH_HToGG_M-120_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-27 ind=3 draw=1  Nam=tth_m120_8TeV      CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/TTH_HToGG_M-120_8TeV        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+
+typ=-21 ind=1 draw=1  Nam=ggh_m115_8TeV  CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/GluGluToHToGG_M-115_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-22 ind=2 draw=1  Nam=vbf_m115_8TeV     CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/VBF_HToGG_M-115_8TeV        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-24 ind=4 draw=1  Nam=wzh_m115_8TeV      CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/WH_ZH_HToGG_M-115_8TeV      red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-23 ind=3 draw=1  Nam=tth_m115_8TeV      CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/TTH_HToGG_M-115_8TeV        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+
+typ=-17 ind=1 draw=1  Nam=ggh_m110_8TeV  CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/GluGluToHToGG_M-110_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-18 ind=2 draw=1  Nam=vbf_m110_8TeV     CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/VBF_HToGG_M-110_8TeV        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-19 ind=4 draw=1  Nam=wzh_m110_8TeV      CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/WH_ZH_HToGG_M-110_8TeV      red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-20 ind=3 draw=1  Nam=tth_m110_8TeV      CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/TTH_HToGG_M-110_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+
+#Background MC
+typ=+1    ind=91 draw=1  Nam=qcd_30_8TeV_ff CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/QCD_Pt-30to40_doubleEM_8TeV_ff    red=0   lum=1.e10 xsec=12208.   kfac=1.  scal=1.
+typ=+11   ind=92 draw=1  Nam=qcd_30_8TeV_pf CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/QCD_Pt-30to40_doubleEM_8TeV_pf    red=0   lum=1.e10 xsec=12208.   kfac=1.3  scal=1.
+typ=+21   ind=99 draw=1  Nam=qcd_30_8TeV_pp CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/QCD_Pt-30to40_doubleEM_8TeV_pp    red=0   lum=1.e10 xsec=12208.   kfac=1.3  scal=1.
+
+typ=+2    ind=93 draw=1  Nam=qcd_40_8TeV_ff CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/QCD_Pt-40_doubleEM_8TeV_ff    red=0   lum=1.e10 xsec=51439.   kfac=1.  scal=1.
+typ=+12   ind=94 draw=1  Nam=qcd_40_8TeV_pf CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/QCD_Pt-40_doubleEM_8TeV_pf    red=0   lum=1.e10 xsec=51439.   kfac=1.3  scal=1.
+typ=+22   ind=100 draw=1  Nam=qcd_40_8TeV_pp CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/QCD_Pt-40_doubleEM_8TeV_pp    red=0   lum=1.e10 xsec=51439.   kfac=1.3  scal=1.
+
+typ=+3    ind=95 draw=1  Nam=gjet_20_8TeV_ff    CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/GJet_Pt-20to40_doubleEM_8TeV_ff  red=0 lum=1.e10 xsec=150.34 kfac=1.  scal=1.
+typ=+13    ind=101 draw=1  Nam=gjet_20_8TeV_pf    CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/GJet_Pt-20to40_doubleEM_8TeV_pf  red=0 lum=1.e10 xsec=150.34 kfac=1.3  scal=1.
+typ=+23    ind=102 draw=1  Nam=gjet_20_8TeV_pp    CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/GJet_Pt-20to40_doubleEM_8TeV_pp  red=0 lum=1.e10 xsec=150.34 kfac=1.3  scal=1.
+
+typ=+33    ind=103 draw=1  Nam=gjet_40_8TeV_ff    CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/GJet_Pt-40_doubleEM_8TeV_ff  red=0 lum=1.e10 xsec=478.58 kfac=1.  scal=1.
+typ=+43    ind=104 draw=1  Nam=gjet_40_8TeV_pf    CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/GJet_Pt-40_doubleEM_8TeV_pf  red=0 lum=1.e10 xsec=478.58 kfac=1.3  scal=1.
+typ=+53    ind=105 draw=1  Nam=gjet_40_8TeV_pp    CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/GJet_Pt-40_doubleEM_8TeV_pp  red=0 lum=1.e10 xsec=478.58 kfac=1.3  scal=1.
+
+typ=+4    ind=96 draw=1  Nam=diphojet_8TeV CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/DiPhotonJets_8TeV    red=0   lum=1.e10  xsec=66.59   kfac=1.15  scal=1.
+
+typ=+5    ind=106 draw=1  Nam=dipho_Box_10_8TeV        CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/DiPhotonBox_Pt-10To25_8TeV    red=0   lum=1.e10   xsec=424.8   kfac=1.3  scal=1.
+typ=+15    ind=107 draw=1  Nam=dipho_Box_25_8TeV        CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/DiPhotonBox_Pt-25To250_8TeV    red=0   lum=1.e10   xsec=15.54   kfac=1.3  scal=1.
+typ=+25    ind=108 draw=1  Nam=dipho_Box_250_8TeV        CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/DiPhotonBox_Pt-250ToInf_8TeV    red=0   lum=1.e10   xsec=0.029038   kfac=1.3  scal=1.
+
+typ=+6    ind=98 draw=1  Nam=dyjetsll_50_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/DYJetsToLL_M-50_TuneZ2Star_8TeV    red=0   lum=1.e10  xsec=2950.0   kfac=1.15  scal=1.
+# 
+# Branches to use
+#
+inputBranches minimal_analysis_input.dat
+inputBranches mvaanalysis_input.dat
+
+## define analyses to run
+## 	a library containing the class dictionary has loaded before parsing the 
+## 	configuration file
+## syntax:
+## 	analyzer <class_name> <config_file>
+## 
+## analyzer PhotonAnalysis photonanalysis.dat	
+analyzer MvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat mvaanalysis.dat
+
