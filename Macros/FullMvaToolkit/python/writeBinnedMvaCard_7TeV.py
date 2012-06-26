@@ -97,7 +97,7 @@ def fillAsimovBDT(data,histogram):
 		else: val[0] = g_tmva.tmvaGetVal(toydata[j][0],toydata[j][1])	
 		print "input to tmva -> ",toydata[j][0],toydata[j][1]
 		print "But inside writeBinnedDatacard bdt, weight",val[0], toydata[j][2]
-		histNew.Fill(val[0],toydata[j][2])
+		histNew.Fill(val[0],options.expSig*toydata[j][2])
 		print "Signal is --> ",histNew.Integral()
 	histNew.Add(histogram)
 	listret = []
@@ -610,6 +610,8 @@ can.SaveAs("normErrors_%s.pdf"%options.tfileName)
 toymaker=0
 if options.throwGlobalToy:
   toymaker = CombinedToyMaker(options.inputmassfacws)
+  toymaker.setIs2011()
+
   if not options.inputpdfworkspace: 
     toymaker.createPdfs(options.treefilename,options.outputpdfworkspace,options.expSig)
   else:

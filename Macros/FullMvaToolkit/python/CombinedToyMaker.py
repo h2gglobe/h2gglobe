@@ -14,6 +14,7 @@ class CombinedToyMaker:
     r.gROOT.SetStyle("Plain")
     r.gROOT.SetBatch(True)
 
+    self.is2011_      = False
     self.mitFileName_ = mitFileName
     self.mitFile_     = r.TFile(mitFileName)
     self.mitWS_       = self.mitFile_.Get("cms_hgg_workspace")
@@ -35,11 +36,18 @@ class CombinedToyMaker:
     self.hasFit_      = False
     self.rand_        = r.TRandom3(0)
 
+  def setIs2011(isit=True):
+    self.is2011_ = isit
+
   def createPdfs(self,infile,outfile,expSig=0):
     makeToyWS(infile,outfile)
     self.loadPdfs(outfile,expSig)
 
   def loadPdfs(self,filename,expSig=0):
+
+    if self.is2011_ :bdtcutstring = "bdtoutput>0.05" 
+    else: bdtcutstring = "bdtoutput>-0.05" 
+
     fi = r.TFile(filename)
     self.keyws_           = fi.Get("fits_workspace")
     print 'Loading from.. '
@@ -50,18 +58,21 @@ class CombinedToyMaker:
     #self.bdtdatakeys_     = self.keyws_.data("data_forkeyspdf")
     self.bdtdata_         = self.keyws_.data("data_bdt_novbf")
     self.bdtdatavbf_      = self.keyws_.data("data_bdt_vbf")
+    if not self.is2011_: self.bdtdatavbftight_      = self.keyws_.data("data_bdt_vbf_tight")
     #self.bdtdatacut_      = self.keyws_.data("data_bdt_cut_all")
     self.icpdf_           = self.keyws_.pdf("data_pow_model")
     self.bdtpdf_          = self.keyws_.pdf("data_pdf")
-    self.dataNoVBFEvents_ = self.bdtdata_.sumEntries("bdtoutput>=0.05")
-    self.dataVBFEvents_   = self.bdtdatavbf_.sumEntries("bdtoutput>=0.05")
+    self.dataNoVBFEvents_ = self.bdtdata_.sumEntries(bdtcutstring)
+    self.dataVBFEvents_   = self.bdtdatavbf_.sumEntries(bdtcutstring)
     if expSig>0:
       self.bdtweight_     = self.keyws_.var("weight")
       self.bdtsigpdf_     = self.keyws_.pdf("sig_pdf")
       self.bdtsigdata_    = self.keyws_.data("sig_bdt_novbf")
       self.bdtsigdatavbf_ = self.keyws_.data("sig_bdt_vbf")
-      self.sigNoVBFEvents_= self.bdtsigdata_.sumEntries("bdtoutput>=0.05")
-      self.sigVBFEvents_  = self.bdtsigdatavbf_.sumEntries("bdtoutput>=0.05")
+      if not self.is2011_: self.bdtsigdatavbftight_ = self.keyws_.data("sig_bdt_vbf_tight")
+      self.sigNoVBFEvents_= self.bdtsigdata_.sumEntries(bdtcutstring)
+      self.sigVBFEvents_  = self.bdtsigdatavbf_.sumEntries(bdtcutstring)
+      if not self.is2011_:self.sigVBFEventstight_  = self.bdtsigdatavbftight_.sumEntries(bdtcutstring)
     
     print "Non VBF events (data):  ", self.dataNoVBFEvents_
     print "VBF events (data):      ",self.dataVBFEvents_
@@ -240,15 +251,25 @@ class CombinedToyMaker:
     mHL = mH*(1.-size)
     mHH = mH*(1.+size)
 
+    if self.is2011_ : bdtcut = 0.05
+    else	    : bdtcut = -0.05
+
     for i in range(self.bdtdata_.numEntries()):
       val_m = (self.bdtdata_.get(i)).getRealValue("CMS_hgg_mass")
       val_b = (self.bdtdata_.get(i)).getRealValue("bdtoutput")
-      if val_m > mHL and val_m < mHH and val_b >=0.05: returnList.append((val_b,((val_m-mH)/mH)))
+      if val_m > mHL and val_m < mHH and val_b >=bdtcut: returnList.append((val_b,((val_m-mH)/mH)))
 
     for i in range(self.bdtdatavbf_.numEntries()):
       val_m = (self.bdtdatavbf_.get(i)).getRealValue("CMS_hgg_mass")
       val_b = 1.01
-      if val_m > mHL and val_m < mHH and val_b >=0.05: returnList.append((val_b,((val_m-mH)/mH)))
+      if val_m > mHL and val_m < mHH and val_b >=bdtcut: returnList.append((val_b,((val_m-mH)/mH)))
+
+    if self.is2011_:return returnlist
+
+    for i in range(self.bdtdatavbftight_.numEntries()):
+      val_m = (self.bdtdatavbf_.get(i)).getRealValue("CMS_hgg_mass")
+      val_b = 1.05
+      if val_m > mHL and val_m < mHH and val_b >=bdtcut: returnList.append((val_b,((val_m-mH)/mH)))
 
     return returnList
 
@@ -258,12 +279,15 @@ class CombinedToyMaker:
     mHL = mH*(1.-size)
     mHH = mH*(1.+size)
 
+    if self.is2011_ : bdtcut = 0.05
+    else	    : bdtcut = -0.05
+
     for cat, dset in enumerate(self.genmassdata_):
       for ev in range(dset.numEntries()):
         val_m = (self.genmassdata_[cat].get(ev)).getRealValue("CMS_hgg_mass");
         if cat<4: val_b = (self.genbdtdatacats_[cat].get(ev)).getRealValue("bdtoutput");
         else: val_b = 1.01
-        if val_m > mHL and val_m < mHH and val_b >=0.05: returnList.append((val_b,((val_m-mH)/mH)))
+        if val_m > mHL and val_m < mHH and val_b >=bdtcut: returnList.append((val_b,((val_m-mH)/mH)))
 
     return returnList
   
@@ -281,7 +305,11 @@ class CombinedToyMaker:
     self.bdtsigdata_.Print()
     self.bdtsigdatavbf_.Print()
 
+    if self.is2011_ : bdtcut = 0.05
+    else	    : bdtcut = -0.05
+
     test = r.TH1F("t","t",100,-1,1)
+
     for i in range(self.bdtsigdata_.numEntries()):
       val_m = (self.bdtsigdata_.get(i)).getRealValue("CMS_hgg_mass")
       val_b = (self.bdtsigdata_.get(i)).getRealValue("bdtoutput")
@@ -296,10 +324,20 @@ class CombinedToyMaker:
       val_b = 1.01
       val_w = self.bdtsigdatavbf_.weight()
       if val_m > mHL and val_m < mHH and val_b>=0.05: returnList.append((val_b,((val_m-mH)/mH),val_w))
-    
+
     c = r.TCanvas()
     test.Draw()
     c.SaveAs("test.pdf")
+
+    if self.is2011_:return returnlist
+
+    for i in range(self.bdtsigdatavbftight_.numEntries()):
+      val_m = (self.bdtsigdatavbftight_.get(i)).getRealValue("CMS_hgg_mass")
+      val_b = 1.05
+      val_w = self.bdtsigdatavbftight_.weight()
+      if val_m > mHL and val_m < mHH and val_b >=bdtcut: returnList.append((val_b,((val_m-mH)/mH),val_w))
+
+    
     return returnList    
 
   def plotData(self,path,nbinsMass,nbinsBDT):
@@ -616,6 +654,7 @@ class CombinedToyMaker:
     self.weight_ = r.RooRealVar("weight","weight",0,1)
     self.bdtsigdata_    = r.RooDataSet("sigdata_bdt","sigdata_bdt",r.RooArgSet(self.bdtvar_,self.var_,self.bdtvbf_,self.weight_),r.RooFit.Import(tree),r.RooFit.Cut("vbf==0"),"weight")
     self.bdtsigdatavbf_ = r.RooDataSet("sigdata_bdtVBF","sigdata_bdtVBF",r.RooArgSet(self.bdtvar_,self.var_,self.bdtvbf_,self.weight_),r.RooFit.Import(tree),r.RooFit.Cut("vbf==1"),"weight")
+    self.bdtsigdatavbftight_ = r.RooDataSet("sigdata_bdtVBF_tight","sigdata_bdtVBF",r.RooArgSet(self.bdtvar_,self.var_,self.bdtvbf_,self.weight_),r.RooFit.Import(tree),r.RooFit.Cut("vbf==1"),"weight")
 
     self.sigNoVBFEvents_= self.bdtsigdata_.sumEntries("bdtoutput>=0.05")
     self.sigVBFEvents_  = self.bdtsigdatavbf_.sumEntries("bdtoutput>=0.05")

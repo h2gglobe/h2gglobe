@@ -92,15 +92,16 @@ void makeToyWS(string inFileName, string outFileName){
   bdtoutput->setRange(bLow,1.);
   
   // data datasets
-  RooDataSet *data_novbf = new RooDataSet("data_bdt_novbf","data_bdt",RooArgSet(*bdtoutput,*mass,*category),Import(*dataTree),Cut("category<4 && bdtoutput>=0.05"));
-  RooDataSet *data_vbf = new RooDataSet("data_bdt_vbf","data_bdt",RooArgSet(*bdtoutput,*mass,*category),Import(*dataTree),Cut("category>3 && bdtoutput>=0.05"));
+  RooDataSet *data_novbf = new RooDataSet("data_bdt_novbf","data_bdt",RooArgSet(*bdtoutput,*mass,*category),Import(*dataTree),Cut("category<4 && bdtoutput>=-0.05"));
+  RooDataSet *data_vbf = new RooDataSet("data_bdt_vbf","data_bdt",RooArgSet(*bdtoutput,*mass,*category),Import(*dataTree),Cut("category==5 && bdtoutput>=-0.05"));
+  RooDataSet *data_vbf_tight = new RooDataSet("data_bdt_vbf_tight","data_bdt",RooArgSet(*bdtoutput,*mass,*category),Import(*dataTree),Cut("category==4 && bdtoutput>=-0.05"));
 
   // data pdfs
   RooDataHist *data_hist = new RooDataHist("data_bdt_hist","data_bdt",RooArgSet(*bdtoutput,*mass),*data_novbf);
   RooHistPdf *data_hist_pdf = new RooHistPdf("data_hist_pdf","data_hist_pdf",RooArgSet(*bdtoutput,*mass),*data_hist);
 
   // ic data pdf
-  RooDataSet *data_formass_all = new RooDataSet("data_bdt_cut_all","data_bdt",RooArgSet(*bdtoutput,*mass,*category),Import(*dataTree),Cut("bdtoutput>=0.05"));
+  RooDataSet *data_formass_all = new RooDataSet("data_bdt_cut_all","data_bdt",RooArgSet(*bdtoutput,*mass,*category),Import(*dataTree),Cut("bdtoutput>=-0.05"));
   RooRealVar *r1 = new RooRealVar("r1","r1",-8.,-50.,0.); 
   RooRealVar *r2 = new RooRealVar("r2","r2",-1.,-50.,0.); 
   RooRealVar *f1 = new RooRealVar("f1","f1",0.5,0.,1.); 
@@ -136,10 +137,12 @@ void makeToyWS(string inFileName, string outFileName){
   
   if (doBkg){
     // background datasets
-    RooDataSet *bkg_novbf = new RooDataSet("bkg_bdt_novbf","bkg_bdt",RooArgSet(*bdtoutput,*mass,*category,*weight),Import(*bkgTree),Cut("category<4 && bdtoutput>=0.05"),WeightVar(*weight));
-    RooDataSet *bkg_vbf = new RooDataSet("bkg_bdt_vbf","bkg_bdt",RooArgSet(*bdtoutput,*mass,*category,*weight),Import(*bkgTree),Cut("category>3 && bdtoutput>=0.05"),WeightVar(*weight));
+    RooDataSet *bkg_novbf = new RooDataSet("bkg_bdt_novbf","bkg_bdt",RooArgSet(*bdtoutput,*mass,*category,*weight),Import(*bkgTree),Cut("category<4 && bdtoutput>=-0.05"),WeightVar(*weight));
+    RooDataSet *bkg_vbf = new RooDataSet("bkg_bdt_vbf","bkg_bdt",RooArgSet(*bdtoutput,*mass,*category,*weight),Import(*bkgTree),Cut("category==5 && bdtoutput>=-0.05"),WeightVar(*weight));
+    RooDataSet *bkg_vbf_tight = new RooDataSet("bkg_bdt_vbf_tight","bkg_bdt",RooArgSet(*bdtoutput,*mass,*category,*weight),Import(*bkgTree),Cut("category==4 && bdtoutput>=-0.05"),WeightVar(*weight));
     outWS->import(*bkg_novbf);
     outWS->import(*bkg_vbf);
+    outWS->import(*bkg_vbf_tight);
 
     // bkg pdfs
     RooDataHist *bkg_hist = new RooDataHist("bkg_bdt_hist","bkg_bdt",RooArgSet(*bdtoutput,*mass),*bkg_novbf);
@@ -171,15 +174,20 @@ void makeToyWS(string inFileName, string outFileName){
 
   // signal datasets
   
-	RooDataSet *ggh_novbf = new RooDataSet("ggh_bdt_novbf","ggh_bdt",RooArgSet(*bdtoutput,*mass,*category,*weight),Import(*gghTree),Cut("category<4 && bdtoutput>=0.05"),WeightVar(*weight));
-  RooDataSet *vbf_novbf = new RooDataSet("vbf_bdt_novbf","vbf_bdt",RooArgSet(*bdtoutput,*mass,*category,*weight),Import(*vbfTree),Cut("category<4 && bdtoutput>=0.05"),WeightVar(*weight));
-  RooDataSet *wzh_novbf = new RooDataSet("wzh_bdt_novbf","wzh_bdt",RooArgSet(*bdtoutput,*mass,*category,*weight),Import(*wzhTree),Cut("category<4 && bdtoutput>=0.05"),WeightVar(*weight));
-  RooDataSet *tth_novbf = new RooDataSet("tth_bdt_novbf","tth_bdt",RooArgSet(*bdtoutput,*mass,*category,*weight),Import(*tthTree),Cut("category<4 && bdtoutput>=0.05"),WeightVar(*weight));
+	RooDataSet *ggh_novbf = new RooDataSet("ggh_bdt_novbf","ggh_bdt",RooArgSet(*bdtoutput,*mass,*category,*weight),Import(*gghTree),Cut("category<4 && bdtoutput>=-0.05"),WeightVar(*weight));
+  RooDataSet *vbf_novbf = new RooDataSet("vbf_bdt_novbf","vbf_bdt",RooArgSet(*bdtoutput,*mass,*category,*weight),Import(*vbfTree),Cut("category<4 && bdtoutput>=-0.05"),WeightVar(*weight));
+  RooDataSet *wzh_novbf = new RooDataSet("wzh_bdt_novbf","wzh_bdt",RooArgSet(*bdtoutput,*mass,*category,*weight),Import(*wzhTree),Cut("category<4 && bdtoutput>=-0.05"),WeightVar(*weight));
+  RooDataSet *tth_novbf = new RooDataSet("tth_bdt_novbf","tth_bdt",RooArgSet(*bdtoutput,*mass,*category,*weight),Import(*tthTree),Cut("category<4 && bdtoutput>=-0.05"),WeightVar(*weight));
 
-	RooDataSet *ggh_vbf = new RooDataSet("ggh_bdt_vbf","ggh_bdt",RooArgSet(*bdtoutput,*mass,*category,*weight),Import(*gghTree),Cut("category>3 && bdtoutput>=0.05"),WeightVar(*weight));
-  RooDataSet *vbf_vbf = new RooDataSet("vbf_bdt_vbf","vbf_bdt",RooArgSet(*bdtoutput,*mass,*category,*weight),Import(*vbfTree),Cut("category>3 && bdtoutput>=0.05"),WeightVar(*weight));
-  RooDataSet *wzh_vbf = new RooDataSet("wzh_bdt_vbf","wzh_bdt",RooArgSet(*bdtoutput,*mass,*category,*weight),Import(*wzhTree),Cut("category>3 && bdtoutput>=0.05"),WeightVar(*weight));
-  RooDataSet *tth_vbf = new RooDataSet("tth_bdt_vbf","tth_bdt",RooArgSet(*bdtoutput,*mass,*category,*weight),Import(*tthTree),Cut("category>3 && bdtoutput>=0.05"),WeightVar(*weight));
+	RooDataSet *ggh_vbf = new RooDataSet("ggh_bdt_vbf","ggh_bdt",RooArgSet(*bdtoutput,*mass,*category,*weight),Import(*gghTree),Cut("category==5 && bdtoutput>=-0.05"),WeightVar(*weight));
+  RooDataSet *vbf_vbf = new RooDataSet("vbf_bdt_vbf","vbf_bdt",RooArgSet(*bdtoutput,*mass,*category,*weight),Import(*vbfTree),Cut("category==5 && bdtoutput>=-0.05"),WeightVar(*weight));
+  RooDataSet *wzh_vbf = new RooDataSet("wzh_bdt_vbf","wzh_bdt",RooArgSet(*bdtoutput,*mass,*category,*weight),Import(*wzhTree),Cut("category==5 && bdtoutput>=-0.05"),WeightVar(*weight));
+  RooDataSet *tth_vbf = new RooDataSet("tth_bdt_vbf","tth_bdt",RooArgSet(*bdtoutput,*mass,*category,*weight),Import(*tthTree),Cut("category==5 && bdtoutput>=-0.05"),WeightVar(*weight));
+
+	RooDataSet *ggh_vbf_tight = new RooDataSet("ggh_bdt_vbf_tight","ggh_bdt",RooArgSet(*bdtoutput,*mass,*category,*weight),Import(*gghTree),Cut("category==4 && bdtoutput>=-0.05"),WeightVar(*weight));
+  RooDataSet *vbf_vbf_tight = new RooDataSet("vbf_bdt_vbf_tight","vbf_bdt",RooArgSet(*bdtoutput,*mass,*category,*weight),Import(*vbfTree),Cut("category==4 && bdtoutput>=-0.05"),WeightVar(*weight));
+  RooDataSet *wzh_vbf_tight = new RooDataSet("wzh_bdt_vbf_tight","wzh_bdt",RooArgSet(*bdtoutput,*mass,*category,*weight),Import(*wzhTree),Cut("category==4 && bdtoutput>=-0.05"),WeightVar(*weight));
+  RooDataSet *tth_vbf_tight = new RooDataSet("tth_bdt_vbf_tight","tth_bdt",RooArgSet(*bdtoutput,*mass,*category,*weight),Import(*tthTree),Cut("category==4 && bdtoutput>=-0.05"),WeightVar(*weight));
 
 	RooDataSet *sig_novbf = (RooDataSet*)ggh_novbf->Clone("sig_bdt_novbf");
 	sig_novbf->append(*vbf_novbf);
@@ -189,6 +197,10 @@ void makeToyWS(string inFileName, string outFileName){
 	sig_vbf->append(*vbf_vbf);
 	sig_vbf->append(*wzh_vbf);
 	sig_vbf->append(*tth_vbf);
+	RooDataSet *sig_vbf_tight = (RooDataSet*)ggh_vbf_tight->Clone("sig_bdt_vbf_tight");
+	sig_vbf_tight->append(*vbf_vbf_tight);
+	sig_vbf_tight->append(*wzh_vbf_tight);
+	sig_vbf_tight->append(*tth_vbf_tight);
   //RooDataSet *sig_novbf = new RooDataSet("sig_bdt_novbf","sig_bdt",RooArgSet(*bdtoutput,*mass,*category,*weight),Import(*sigTree),Cut("category<4 && bdtoutput>=0.05"),WeightVar(*weight));
   //RooDataSet *sig_vbf = new RooDataSet("sig_bdt_vbf","sig_bdt",RooArgSet(*bdtoutput,*mass,*category,*weight),Import(*sigTree),Cut("category>3 && bdtoutput>=0.05"),WeightVar(*weight));
   
@@ -211,6 +223,7 @@ void makeToyWS(string inFileName, string outFileName){
 
   outWS->import(*data_novbf);
   outWS->import(*data_vbf);
+  outWS->import(*data_vbf_tight);
   outWS->import(*data_pdf);
   outWS->import(*data_formass_all);
   outWS->import(*data_hist);
@@ -218,6 +231,7 @@ void makeToyWS(string inFileName, string outFileName){
   outWS->import(*fit);
   outWS->import(*sig_novbf);
   outWS->import(*sig_vbf);
+  outWS->import(*sig_vbf_tight);
   outWS->import(*sig_pdf);
 
   outFile->cd();
