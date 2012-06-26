@@ -4,5 +4,5 @@
 #
 #   source setup.sh
 #
-
-export BOOST_DIR=$(scram tool tag boost BOOST_BASE)
+cd $(scram list -c CMSSW CMSSW_5_2_0 | awk '{print $3}') && cmsenv && cd -
+export BOOST_DIR=$(cd $CMSSW_BASE && scram tool tag boost BOOST_BASE)
