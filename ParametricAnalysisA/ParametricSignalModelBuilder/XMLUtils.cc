@@ -214,3 +214,21 @@ XMLUtils::getDoubleContent(TXMLNode *parentNode, const std::string &childNodeNam
 }
 
 //----------------------------------------------------------------------
+
+std::string
+XMLUtils::getStringContent(TXMLNode *parentNode, const std::string &childNodeName, const std::string &defaultValue)
+{
+  std::vector<TXMLNode *> children = getChildren(parentNode, childNodeName);
+  if (children.size() < 1)
+    return defaultValue;
+
+  if (children.size() > 1)
+  {
+    cerr << "more than one child with name '" << childNodeName << "' found " << endl;
+    exit(1);
+  }
+
+  std::string text = getTextContent(parentNode);
+  boost::trim(text);
+  return text;
+}

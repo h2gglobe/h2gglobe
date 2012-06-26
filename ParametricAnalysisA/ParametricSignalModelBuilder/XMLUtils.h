@@ -69,6 +69,11 @@ public:
   static double getDoubleContent(TXMLNode *parentNode, const std::string &childNodeName, double defaultValue);
   //--------------------
 
+  /** method for getting optional strings value parameters */
+  static std::string getStringContent(TXMLNode *parentNode, const std::string &childNodeName, const std::string &defaultValue);
+
+  //--------------------
+
 };
 
 
