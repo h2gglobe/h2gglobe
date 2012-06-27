@@ -24,8 +24,7 @@ ROOT.gROOT.SetBatch(0)
 # Global Setup, Modify with each Reload
 ##### NCAT = 5
 ##### lumi = 5089
-NCAT = 6
-lumi = 3016
+#lumi=3770
 #systematics = ["vtxEff","idEff","E_scale","E_res","triggerEff","regSig","phoIdMva"] # These are the main contributions to eff*Acc
 systematics = ["vtxEff","idEff","E_scale","E_res","triggerEff"] # These are the main contributions to eff*Acc
 ## Masses = range(110,152,2) 
@@ -33,6 +32,12 @@ Masses = range(110,151,1)
 # -------------------------------------------------------------
 
 f = ROOT.TFile(sys.argv[1])
+NCAT = 6
+# Get The lumi from the workspace!
+ws = f.Get("cms_hgg_workspace")
+lRRV = ws.var("IntLumi")
+lumi = lRRV.getVal()
+
 # Some helpful output
 print "File - ", sys.argv[1]
 printLine = "Data:      "
@@ -70,15 +75,14 @@ for point,M in enumerate(Masses):
 
      ggh = h.Integral()
      vbf = hvb.Integral()
+     tth = htt.Integral()
+     wzh = hvh.Integral()
      
      h.Add(hvb)
      h.Add(hvh)
      h.Add(htt)
 
-     print "%d %3.0f   %3.1f    %3.1f    %3.1f     %3.1f" % ( i, M,
-                                                              ggh, 100.*ggh/(lumi*GetBR(M)*GetProcXsection(M,"ggh")),
-                                                              vbf, 100.*vbf/(lumi*GetBR(M)*GetProcXsection(M,"vbf"))
-                                                              )
+     print "%d %.3f   %.3f    %.3f    %.3f     %.3f" % ( i, M, 100*ggh/lumi,100*vbf/lumi,100*wzh/lumi,100*tth/lumi )
      
     else:
      h = f.Get("th1f_sig_mass_m%.1f_cat%d"%(M,i))
@@ -86,7 +90,7 @@ for point,M in enumerate(Masses):
     printLine+="%3.5f"%h.Integral()+" "
   printLine+="tot=%3.5f"%Sum
   
-  sm = GetBR(M)*GetXsection(M)
+  sm =GetBR(M)*( GetProcXsection(M,"ggh")/(1.025) + GetProcXsection(M,"vbf") + GetProcXsection(M,"wzh") + GetProcXsection(M,"tth") )
   effAcc = 100*Sum/(sm*lumi) # calculate Efficiency at mH
   centralsmooth.SetPoint(point,M,effAcc)
   central.SetPoint(point,M,effAcc)
@@ -166,6 +170,7 @@ MG.GetYaxis().SetTitle("Efficiency #times Acceptance - %")
 mytext.DrawLatex(0.15,0.8,"CMS Simulation")
 can.Update()
 leg.Draw("same")
+print "Int Lumi from workspace ", lumi
 raw_input("Looks OK?")
 
 can.Update()
