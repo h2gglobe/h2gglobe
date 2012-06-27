@@ -70,8 +70,6 @@ ParametricSignalModelConfig::read(const std::string &configFname)
 
     config.nameSuffix = XMLUtils::getTextContent(XMLUtils::getSingleChild(root, "nameSuffix"));
 
-    config.excludedMasses = XMLUtils::getUnsignedSet(root, "excludedMasses", std::set<unsigned>());
-
     //----------
     // read the signal process mapping (which input signal processes should be merged
     // into what output process names for fitting the signal shape)

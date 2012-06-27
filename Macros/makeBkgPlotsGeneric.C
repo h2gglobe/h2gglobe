@@ -3,6 +3,7 @@
 #ifndef __CINT__
 #include "TFile.h"
 #include "TH1F.h"
+#include "TGraphAsymmErrors.h"
 #include "RooDataSet.h"
 #include "RooDataHist.h"
 #include "RooMsgService.h"

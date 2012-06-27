@@ -3,7 +3,6 @@
 
 #include <string>
 #include <map>
-#include <set>
 #include <vector>
 
 /** class for reading / keeping the configuration given by the user */
@@ -64,10 +63,6 @@ public:
       the datasets of different CM energies
       in order to run them in combination */
   std::string nameSuffix;
-
-  /** masses to exclude (not to perform a fit). Useful for speeding up
-      testing. */
-  std::set<unsigned> excludedMasses;
 
   //----------------------------------------------------------------------
 

@@ -393,18 +393,28 @@ private:
   initializeMassPoints()
   {
     //define mass points
+    if (0)
+    {
+      // older version
+      mhs.push_back(110);
+      mhs.push_back(115);
+      mhs.push_back(120);
+      //mhs.push_back(123);
+      //mhs.push_back(125);
+      mhs.push_back(130);
+      //mhs.push_back(135);
+      mhs.push_back(140);
+      //mhs.push_back(145);
+      mhs.push_back(150);
+    }
 
     // newer version depends on the given parameters
     for (double mass = 110; mass <= config.massmax; mass += config.massInterpolationWidth)
-    {
-      int intMass = (int) (mass + 0.5);
+      mhs.push_back((int) (mass + 0.5));
 
-      if (config.excludedMasses.count(intMass) > 0)
-        // don't add excluded mass points
-        continue;
-
-      mhs.push_back(intMass);
-    }
+    // testing / debugging
+    // mhs.clear();
+    // mhs.push_back(130);
   }
   //----------------------------------------------------------------------
 
