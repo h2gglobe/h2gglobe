@@ -82,7 +82,7 @@ for point,M in enumerate(Masses):
      h.Add(hvh)
      h.Add(htt)
 
-     print "%d %.3f   %.3f    %.3f    %.3f     %.3f" % ( i, M, 100*ggh/lumi,100*vbf/lumi,100*wzh/lumi,100*tth/lumi )
+     print "%d %3.1f   %.5f    %.5f    %.5f     %.5f" % ( i, M, 1000*ggh/lumi,1000*vbf/lumi,1000*wzh/lumi,1000*tth/lumi )
      
     else:
      h = f.Get("th1f_sig_mass_m%.1f_cat%d"%(M,i))
