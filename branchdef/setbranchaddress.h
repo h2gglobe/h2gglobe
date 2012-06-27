@@ -723,6 +723,7 @@ void SetBranchAddress_el_std_pfiso_charged(TTree* tree) { tree->SetBranchAddress
 void SetBranchAddress_el_std_pfiso_neutral(TTree* tree) { tree->SetBranchAddress("el_std_pfiso_neutral", &el_std_pfiso_neutral, &b_el_std_pfiso_neutral); };
 void SetBranchAddress_el_std_pfiso_photon(TTree* tree) { tree->SetBranchAddress("el_std_pfiso_photon", &el_std_pfiso_photon, &b_el_std_pfiso_photon); };
 void SetBranchAddress_el_std_conv_vtxProb(TTree* tree) { tree->SetBranchAddress("el_std_conv_vtxProb",&el_std_conv_vtxProb, &b_el_std_conv_vtxProb); };
+void SetBranchAddress_el_std_conv(TTree* tree) { tree->SetBranchAddress("el_std_conv",&el_std_conv, &b_el_std_conv); };
 //
 void SetBranchAddress_pho_hcalbcsumetconedr03(TTree* tree) { tree->SetBranchAddress("pho_hcalbcsumetconedr03", &pho_hcalbcsumetconedr03, &b_pho_hcalbcsumetconedr03); };
 void SetBranchAddress_pho_hcalbcsumetconedr04(TTree* tree) { tree->SetBranchAddress("pho_hcalbcsumetconedr04", &pho_hcalbcsumetconedr04, &b_pho_hcalbcsumetconedr04); };

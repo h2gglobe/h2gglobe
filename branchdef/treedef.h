@@ -745,6 +745,7 @@ Bool_t jet_algoPF2_vbfMatched[MAX_JETS];
 Bool_t jet_algoPF1_vbfMatched[MAX_JETS];
 // ELE ID 2012
 Float_t  el_std_conv_vtxProb[MAX_ELECTRONS];
+Int_t  el_std_conv[MAX_ELECTRONS];
 Float_t el_std_pfiso_charged[MAX_ELECTRONS];
 Float_t el_std_pfiso_neutral[MAX_ELECTRONS];
 Float_t el_std_pfiso_photon[MAX_ELECTRONS];
