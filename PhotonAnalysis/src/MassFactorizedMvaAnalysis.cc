@@ -410,9 +410,9 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
         */
         if (includeVBF){
             int poly3cats[6] = {0,0,0,0,1,0};
-            int poly4cats[6] = {0,0,0,0,0,1};
-            int poly5cats[6] = {1,1,0,0,0,0};
-            int poly6cats[6] = {0,0,1,1,0,0};
+            int poly4cats[6] = {1,0,0,0,0,1};
+            int poly5cats[6] = {0,1,1,1,0,0};
+            int poly6cats[6] = {0,0,0,0,0,0};
 
             std::vector<std::string> data_pol6_pars(6,"p");   
             data_pol6_pars[0] = "modpol0_8TeV";
