@@ -5,7 +5,7 @@
 #include <iostream>
 #include <algorithm>
 
-#define PADEBUG 0 
+#define PADEBUG 0
 
 using namespace std;
 

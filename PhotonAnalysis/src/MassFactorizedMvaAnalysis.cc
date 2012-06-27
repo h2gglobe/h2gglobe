@@ -420,7 +420,7 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
             data_pol6_pars[2] = "modpol2_8TeV";
             data_pol6_pars[3] = "modpol3_8TeV";
             data_pol6_pars[4] = "modpol4_8TeV";
-            data_pol6_pars[4] = "modpol5_8TeV";
+            data_pol6_pars[5] = "modpol5_8TeV";
             l.rooContainer->AddSpecificCategoryPdf(poly6cats,"data_pol_model_8TeV",
                                                    "0","CMS_hgg_mass",data_pol6_pars,76);  // >= 71 means RooBernstein of order >= 1
 
@@ -810,8 +810,8 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 
         // inclusive category di-photon selection
         // FIXME pass smeared R9
-        diphoton_id = l.DiphotonMITPreSelection(leadEtCut,subleadEtCut,phoidMvaCut,applyPtoverM, &smeared_pho_energy[0] ); 
-            
+        diphoton_id = l.DiphotonMITPreSelection(leadEtCut,subleadEtCut,phoidMvaCut,applyPtoverM, &smeared_pho_energy[0] );
+
         // Exclusive Modes
         int diphotonVBF_id = -1;
 	int ijet1, ijet2;
@@ -913,17 +913,17 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
         if (PADEBUG) std::cout << " Diphoton Category " <<category <<std::endl;
     	// sanity check
         assert( evweight >= 0. ); 
-
-	    // fill control plots and counters
+	    
+        // fill control plots and counters
 	    if( ! isSyst ) {
             
-            float myMet = l.shiftscaleMET_pt;
+            //float myMet = l.shiftscaleMET_pt;
             l.FillTree("category",category);
             l.FillTree("cur_type",cur_type);
             l.FillTree("bdtoutput",diphobdt_output);
             l.FillTree("CMS_hgg_mass",float(Higgs.M()));
             l.FillTree("weight",weight);
-            l.FillTree("MET",myMet);
+            //l.FillTree("MET",myMet);
             
 	        l.FillCounter( "Accepted", weight );
 	        l.FillCounter( "Smeared", evweight );
