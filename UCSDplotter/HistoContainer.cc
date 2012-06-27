@@ -4,32 +4,44 @@
 
 #define HCDEBUG 1
 
+//----------------------------------------------------------------------
 
 HistoContainer::HistoContainer() {}
 
+//----------------------------------------------------------------------
 HistoContainer::HistoContainer(int setTo, std::string setName) {
   setHistVal(setTo);
   setHistNam(setName);
 }
 
+//----------------------------------------------------------------------
+
 HistoContainer::~HistoContainer() 
 {}
 
+//----------------------------------------------------------------------
 void HistoContainer::setHistVal(int setTo) {
   histVal = setTo;
 }
+
+//----------------------------------------------------------------------
 
 void HistoContainer::setHistNam(std::string setName) {
   histNam = setName;
 }
 
+//----------------------------------------------------------------------
 int HistoContainer::getHistVal() {
   return histVal;
 }
 
+//----------------------------------------------------------------------
+
 void HistoContainer::setScale(float scale){
   total_scale = scale;
 }
+
+//----------------------------------------------------------------------
 
 std::string HistoContainer::ModifiedName(char* name, int i) {
   char* modName= new char[500];
@@ -38,6 +50,7 @@ std::string HistoContainer::ModifiedName(char* name, int i) {
   return output;
 }
 
+//----------------------------------------------------------------------
 void HistoContainer::Add(char* name, char* xaxis, char* yaxis, int categories,int bins, float xmin, float xmax) {
 
   std::vector<TH1F> temp;
@@ -56,6 +69,7 @@ void HistoContainer::Add(char* name, char* xaxis, char* yaxis, int categories,in
   h1[std::string(name)] = temp;
 }
 
+//----------------------------------------------------------------------
 
 void HistoContainer::Add(char* name, char* xaxis, char* yaxis, int categories, int binsx, float xmin, float xmax,
 			 int binsy, float ymin, float ymax) {
@@ -74,6 +88,8 @@ void HistoContainer::Add(char* name, char* xaxis, char* yaxis, int categories, i
   h2[std::string(name)] = temp;
 }
 
+//----------------------------------------------------------------------
+
 void HistoContainer::Add(char* name, char* xaxis, char* yaxis, int categories, int binsx, 
 			 float xmin, float xmax,
 			 float ymin, float ymax) {
@@ -91,9 +107,13 @@ void HistoContainer::Add(char* name, char* xaxis, char* yaxis, int categories, i
   hp[std::string(name)] = temp;
 } 
 
+//----------------------------------------------------------------------
+
 void HistoContainer::Fill(std::string name, int category, float value) {
   Fill(name, category, value, 1.0);
 }
+
+//----------------------------------------------------------------------
 
 void HistoContainer::Fill(std::string name, int category, float value, float weight) {
 
@@ -106,9 +126,13 @@ void HistoContainer::Fill(std::string name, int category, float value, float wei
   }
 }
 
+//----------------------------------------------------------------------
+
 void HistoContainer::Fill2D(std::string name, int category, float valuex, float valuey) { 
   Fill2D(name, category, valuex, valuey, 1.0);
 }
+
+//----------------------------------------------------------------------
 
 void HistoContainer::Fill2D(std::string name, int category, float valuex, float valuey, float weight) { 
 
@@ -168,6 +192,8 @@ int HistoContainer::getDimension(int n) {
     return 3;
 }
 
+//----------------------------------------------------------------------
+
 int HistoContainer::ncat(int n) {
   
   std::map<std::string, std::vector<TH1F> >::iterator it = h1.find(names[n]);
@@ -184,6 +210,8 @@ int HistoContainer::ncat(int n) {
   
   return -1;
 }
+
+//----------------------------------------------------------------------
 
 int HistoContainer::nbins(int n, bool isX) {
   
@@ -214,6 +242,8 @@ int HistoContainer::nbins(int n, bool isX) {
   return -1;
 }
 
+//----------------------------------------------------------------------
+
 float HistoContainer::max(int n, bool isX) {
   
   std::map<std::string, std::vector<TH1F> >::iterator it = h1.find(names[n]);
@@ -242,6 +272,8 @@ float HistoContainer::max(int n, bool isX) {
 
   return -1;
 }
+
+//----------------------------------------------------------------------
 
 float HistoContainer::min(int n, bool isX) {
   
@@ -272,6 +304,8 @@ float HistoContainer::min(int n, bool isX) {
   return -1;
 }
 
+//----------------------------------------------------------------------
+
 std::string HistoContainer::axisName(int n, bool isX) {
   
   std::map<std::string, std::vector<TH1F> >::iterator it = h1.find(names[n]);
@@ -300,3 +334,5 @@ std::string HistoContainer::axisName(int n, bool isX) {
 
   return "";
 }
+
+//----------------------------------------------------------------------
