@@ -17,8 +17,16 @@ ROOT.gStyle.SetOptFit(0)
 
 #-------------------------------------------------------------------------
 # Configuration for the Plotter
-OBSmasses = numpy.arange(110,150.5,1.)
-EXPmasses = numpy.arange(110,150.5,1.)
+OBSmasses = []
+EXPmasses = []
+
+OBSmassesT = numpy.arange(110,150.5,0.5)
+EXPmassesT = numpy.arange(110,150.5,0.5)
+
+for i in OBSmassesT:
+	if i == 145 or i==145.5: continue
+	OBSmasses.append(i)
+	EXPmasses.append(i)
 
 # Plotting Styles --------------------------------------------------------
 OFFSETLOW=0
@@ -29,10 +37,10 @@ SMFILLSTYLE=3244
 FILLCOLOR_95=ROOT.kYellow
 FILLCOLOR_68=ROOT.kGreen
 RANGEYABS=[0.0,0.6]
-RANGEYRAT=[0.0,6]
-MINPV = 10E-7
+RANGEYRAT=[0.0,4]
+MINPV = 10E-9
 MAXPV = 1.0
-Lines = [1.,2.,3.,4.]
+Lines = [1.,2.,3.,4.,5.,6.]
 MINMH=int(min(EXPmasses))
 MAXMH=int(max(EXPmasses))
 #-------------------------------------------------------------------------
@@ -114,7 +122,7 @@ elif Method=="Asymptotic" or Method=="AsymptoticNew":
     if int(m)==m:
       EXPfiles.append(ROOT.TFile(EXPName+".mH%d.root"%m))
     else:
-      EXPfiles.append(ROOT.TFile(EXPName+".mH%d.root"%m))
+      EXPfiles.append(ROOT.TFile(EXPName+".mH%.1f.root"%m))
 
 else:
   EXPfiles = [ROOT.TFile(EXPName+".mH%d.root"%m) for m in EXPmasses]
@@ -126,7 +134,7 @@ if not options.expectedOnly:
     if int(m)==m:
       OBSfiles.append(ROOT.TFile(OBSName+".mH%d.root"%m))
     else:
-      OBSfiles.append(ROOT.TFile(OBSName+".mH%d.root"%m))
+      OBSfiles.append(ROOT.TFile(OBSName+".mH%.1f.root"%m))
   if Method == "Asymptotic" or Method =="AsymptoticNew":  obs = [getOBSERVED(O,5) for O in OBSfiles] # observed is last entry in these files
   else: obs = [getOBSERVED(O) for O in OBSfiles]
 else:
@@ -207,6 +215,7 @@ def MakePvalPlot(MG):
 	mytext.DrawLatex(0.18,0.22,"#splitline{CMS Preliminary, %s}{%s}"%(options.egrstr,options.lumistr))
 	legend.Draw()
 	c.SetLogy()
+	ROOT.gPad.RedrawAxis();
 	c.SaveAs("pvaluesplot.pdf")
 	c.SaveAs("pvaluesplot.png")
 
@@ -263,6 +272,7 @@ def MakeLimitPlot(MG):
 	mytext.DrawLatex(0.14,0.77,"%s"%(options.lumistr))
   
 	leg.Draw()
+	ROOT.gPad.RedrawAxis();
 
 	#Make a bunch of extensions to the plots
 	if options.doRatio:
