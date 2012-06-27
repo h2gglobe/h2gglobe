@@ -38,7 +38,7 @@ void makeBkgPlotsGeneric(std::string filebkg, bool blind=true, bool doBands=true
 	gROOT->SetStyle("Plain");
 	gROOT->SetBatch(1);
 	gStyle->SetOptStat(0);
-	const int ncats = 1;
+	const int ncats = 6;
 
 	RooMsgService::instance().setGlobalKillBelow(RooFit::MsgLevel(RooFit::WARNING));
 
@@ -51,12 +51,13 @@ void makeBkgPlotsGeneric(std::string filebkg, bool blind=true, bool doBands=true
 					  ,"Dijet-tagged class m_{jj} > 500 GeV"
 					  ,"Dijet-tagged class 250 < m_{jj} < 500 GeV"
 	};
-	std::string massfactlabels[6] = { "BDT >= 0.89"
-					  ,"0.74  <= BDT < 0.89"
-					  ,"0.545 <= BDT < 0.74"
-					  ,"0.05  <= BDT < 0.545"
-					  ,"Dijet-tagged class m_{jj} > 500 GeV"
-					  ,"Dijet-tagged class 250 < m_{jj} < 500 GeV"
+	std::string massfactlabels[6] = { 
+					"BDT >= 0.88"
+					,"0.71  <= BDT < 0.88"
+					,"0.5 <= BDT < 0.71"
+					,"-0.05  <= BDT < 0.5"
+					,"Dijet-tagged class m_{jj} > 500 GeV"
+					,"Dijet-tagged class 250 < m_{jj} < 500 GeV"
 	};
 	
 	if( baseline ) { labels = baselinelabels; }
@@ -203,7 +204,7 @@ void makeBkgPlotsGeneric(std::string filebkg, bool blind=true, bool doBands=true
  		}
 		allsig->Draw("samehistF");
 		leg->Draw();
-		cmslatex->DrawLatex(0.15,0.8,"#splitline{CMS Preliminary}{#sqrt{s} = 8TeV L = 3.8fb^{-1}}");
+		cmslatex->DrawLatex(0.15,0.8,"#splitline{CMS Preliminary}{#sqrt{s} = 8TeV L = 5.3fb^{-1}}");
 		latex->DrawLatex(0.1,0.92,labels[cat].c_str());
 		can->SaveAs(Form( (baseline ? "baselinecat%d.pdf" : "massfacmvacat%d.pdf"),cat));
 		can->SaveAs(Form( (baseline ? "baselinecat%d.png" : "massfacmvacat%d.png"),cat));
