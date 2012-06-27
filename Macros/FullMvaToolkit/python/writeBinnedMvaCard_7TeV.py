@@ -305,7 +305,7 @@ def writeCard(tfile,mass,scaleErr):
 	if options.throwGlobalToy:pseudoBackgroundOnlyDataset=fillToyBDT(dataHist)
 	else: pseudoBackgroundOnlyDataset=[g_r.Poisson(backgroundContents[b-1]) for b in range(1,nBins+1)]
 
-	if options.throwAsimov: pseudoBackgroundOnlyDataset=fillAsimovBDT(bkgHistCorr)
+	if options.throwAsimov: pseudoBackgroundOnlyDataset=fillAsimovBDT(dataHist,bkgHistCorr)
 
 	for b in range(1,nBins+1): 
 		nd = pseudoBackgroundOnlyDataset[b-1]

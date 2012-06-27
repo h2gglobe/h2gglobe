@@ -36,7 +36,7 @@ class CombinedToyMaker:
     self.hasFit_      = False
     self.rand_        = r.TRandom3(0)
 
-  def setIs2011(isit=True):
+  def setIs2011(self,isit=True):
     self.is2011_ = isit
 
   def createPdfs(self,infile,outfile,expSig=0):
@@ -264,7 +264,7 @@ class CombinedToyMaker:
       val_b = 1.01
       if val_m > mHL and val_m < mHH and val_b >=bdtcut: returnList.append((val_b,((val_m-mH)/mH)))
 
-    if self.is2011_:return returnlist
+    if self.is2011_:return returnList
 
     for i in range(self.bdtdatavbftight_.numEntries()):
       val_m = (self.bdtdatavbf_.get(i)).getRealValue("CMS_hgg_mass")
@@ -329,7 +329,7 @@ class CombinedToyMaker:
     test.Draw()
     c.SaveAs("test.pdf")
 
-    if self.is2011_:return returnlist
+    if self.is2011_:return returnList
 
     for i in range(self.bdtsigdatavbftight_.numEntries()):
       val_m = (self.bdtsigdatavbftight_.get(i)).getRealValue("CMS_hgg_mass")
