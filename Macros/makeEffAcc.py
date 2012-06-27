@@ -82,7 +82,11 @@ for point,M in enumerate(Masses):
      h.Add(hvh)
      h.Add(htt)
 
-     print "%d %3.1f   %.5f    %.5f    %.5f     %.5f" % ( i, M, 1000*ggh/lumi,1000*vbf/lumi,1000*wzh/lumi,1000*tth/lumi )
+     print "%d %3.1f   %.5f    %.5f    %.5f     %.5f" % ( i, M, 100*ggh/(GetBR(M)*( GetProcXsection(M,"ggh")*(0.975))*lumi)
+							,100*vbf/(GetBR(M)*(GetProcXsection(M,"vbf"))*lumi)
+							,100*wzh/(GetBR(M)*(GetProcXsection(M,"wzh"))*lumi)
+							,100*tth/(GetBR(M)*(GetProcXsection(M,"tth"))*lumi)
+							)
      
     else:
      h = f.Get("th1f_sig_mass_m%.1f_cat%d"%(M,i))
@@ -90,7 +94,7 @@ for point,M in enumerate(Masses):
     printLine+="%3.5f"%h.Integral()+" "
   printLine+="tot=%3.5f"%Sum
   
-  sm =GetBR(M)*( GetProcXsection(M,"ggh")/(1.025) + GetProcXsection(M,"vbf") + GetProcXsection(M,"wzh") + GetProcXsection(M,"tth") )
+  sm =GetBR(M)*( GetProcXsection(M,"ggh")*0.975 + GetProcXsection(M,"vbf") + GetProcXsection(M,"wzh") + GetProcXsection(M,"tth") )
   effAcc = 100*Sum/(sm*lumi) # calculate Efficiency at mH
   centralsmooth.SetPoint(point,M,effAcc)
   central.SetPoint(point,M,effAcc)
