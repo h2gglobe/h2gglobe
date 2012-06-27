@@ -1,4 +1,4 @@
-intL=5346. histfile=zee_topup/CMS-HGG_zeevalidation.root output=eventsList.txt
+intL=5346. histfile=zee_topup/CMS-HGG_zeevalidation.root output=zee_topup/eventsList.txt
 
 #
 # Data
