@@ -548,16 +548,29 @@ void StatAnalysis::buildBkgModel(LoopAll& l, const std::string & postfix)
     // sanity check
     assert( bkgPolOrderByCat.size() == nCategories_ );
 
-    l.rooContainer->AddRealVar("CMS_hgg_pol0"+postfix,-0.1,-1.0,1.0);
-    l.rooContainer->AddRealVar("CMS_hgg_pol1"+postfix,-0.1,-1.0,1.0);
-    l.rooContainer->AddRealVar("CMS_hgg_pol2"+postfix,-0.1,-1.0,1.0);
-    l.rooContainer->AddRealVar("CMS_hgg_pol3"+postfix,-0.01,-1.0,1.0);
-    l.rooContainer->AddRealVar("CMS_hgg_pol4"+postfix,-0.01,-1.0,1.0);
-    l.rooContainer->AddFormulaVar("CMS_hgg_modpol0"+postfix,"@0*@0","CMS_hgg_pol0"+postfix);
-    l.rooContainer->AddFormulaVar("CMS_hgg_modpol1"+postfix,"@0*@0","CMS_hgg_pol1"+postfix);
-    l.rooContainer->AddFormulaVar("CMS_hgg_modpol2"+postfix,"@0*@0","CMS_hgg_pol2"+postfix);
-    l.rooContainer->AddFormulaVar("CMS_hgg_modpol3"+postfix,"@0*@0","CMS_hgg_pol3"+postfix);
-    l.rooContainer->AddFormulaVar("CMS_hgg_modpol4"+postfix,"@0*@0","CMS_hgg_pol4"+postfix);
+    l.rooContainer->AddRealVar("CMS_hgg_pol6_0"+postfix,-0.1,-1.0,1.0);
+    l.rooContainer->AddRealVar("CMS_hgg_pol6_1"+postfix,-0.1,-1.0,1.0);
+    l.rooContainer->AddRealVar("CMS_hgg_pol6_2"+postfix,-0.1,-1.0,1.0);
+    l.rooContainer->AddRealVar("CMS_hgg_pol6_3"+postfix,-0.01,-1.0,1.0);
+    l.rooContainer->AddRealVar("CMS_hgg_pol6_4"+postfix,-0.01,-1.0,1.0);
+    l.rooContainer->AddRealVar("CMS_hgg_pol6_5"+postfix,-0.01,-1.0,1.0);
+    l.rooContainer->AddFormulaVar("CMS_hgg_modpol6_0"+postfix,"@0*@0","CMS_hgg_pol6_0"+postfix);
+    l.rooContainer->AddFormulaVar("CMS_hgg_modpol6_1"+postfix,"@0*@0","CMS_hgg_pol6_1"+postfix);
+    l.rooContainer->AddFormulaVar("CMS_hgg_modpol6_2"+postfix,"@0*@0","CMS_hgg_pol6_2"+postfix);
+    l.rooContainer->AddFormulaVar("CMS_hgg_modpol6_3"+postfix,"@0*@0","CMS_hgg_pol6_3"+postfix);
+    l.rooContainer->AddFormulaVar("CMS_hgg_modpol6_4"+postfix,"@0*@0","CMS_hgg_pol6_4"+postfix);
+    l.rooContainer->AddFormulaVar("CMS_hgg_modpol6_5"+postfix,"@0*@0","CMS_hgg_pol6_4"+postfix);
+
+    l.rooContainer->AddRealVar("CMS_hgg_pol5_0"+postfix,-0.1,-1.0,1.0);
+    l.rooContainer->AddRealVar("CMS_hgg_pol5_1"+postfix,-0.1,-1.0,1.0);
+    l.rooContainer->AddRealVar("CMS_hgg_pol5_2"+postfix,-0.1,-1.0,1.0);
+    l.rooContainer->AddRealVar("CMS_hgg_pol5_3"+postfix,-0.01,-1.0,1.0);
+    l.rooContainer->AddRealVar("CMS_hgg_pol5_4"+postfix,-0.01,-1.0,1.0);
+    l.rooContainer->AddFormulaVar("CMS_hgg_modpol5_0"+postfix,"@0*@0","CMS_hgg_pol5_0"+postfix);
+    l.rooContainer->AddFormulaVar("CMS_hgg_modpol5_1"+postfix,"@0*@0","CMS_hgg_pol5_1"+postfix);
+    l.rooContainer->AddFormulaVar("CMS_hgg_modpol5_2"+postfix,"@0*@0","CMS_hgg_pol5_2"+postfix);
+    l.rooContainer->AddFormulaVar("CMS_hgg_modpol5_3"+postfix,"@0*@0","CMS_hgg_pol5_3"+postfix);
+    l.rooContainer->AddFormulaVar("CMS_hgg_modpol5_4"+postfix,"@0*@0","CMS_hgg_pol5_4"+postfix);
 
     l.rooContainer->AddRealVar("CMS_hgg_quartic0"+postfix,-0.1,-1.0,1.0);
     l.rooContainer->AddRealVar("CMS_hgg_quartic1"+postfix,-0.1,-1.0,1.0);
@@ -589,7 +602,8 @@ void StatAnalysis::buildBkgModel(LoopAll& l, const std::string & postfix)
     parnames[2] = "modquad";
     parnames[3] = "modcubic";
     parnames[4] = "modquartic";
-    parnames[5] = "modpol";
+    parnames[5] = "modpol5_";
+    parnames[6] = "modpol6_";
     
     // map order to categories flags + parameters names
     std::map<int, std::pair<std::vector<int>, std::vector<std::string> > > catmodels;
@@ -665,7 +679,7 @@ bool StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     assert( weight >= 0. );  
     l.FillCounter( "PUWeighted", weight );
     
-    if( jentry % 10000 ==  0 ) {
+    if( jentry % 1000 ==  0 ) {
         std::cout << " nevents " <<  nevents << " sumpuweights " << sumwei << " ratio " << sumwei / nevents 
                   << " equiv events " << sumev << " accepted " << sumaccept << " smeared " << sumsmear << " "  
                   <<  sumaccept / sumev << " " << sumsmear / sumaccept
@@ -937,13 +951,15 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 	    diphoton_id = diphotonVHlep_id;
 	} else if(includeVBF&&VBFevent) {
 	    diphoton_id = diphotonVBF_id;	
-    } else if(includeVHmet&&VHmetevent) {
+	} else if(includeVHmet&&VHmetevent) {
 	    diphoton_id = diphotonVHmet_id;
-    } else if(includeVHhad&&VHhadevent) {
+	} else if(includeVHhad&&VHhadevent) {
 	    diphoton_id = diphotonVHhad_id;
 	}
 	// End exclusive mode selection
     }
+    
+    //// std::cout << isSyst << " " << diphoton_id << " " << sumaccept << std::endl;
     
     // if we selected any di-photon, compute the Higgs candidate kinematics
     // and compute the event category 
