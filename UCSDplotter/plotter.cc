@@ -165,9 +165,21 @@ GenericAnalysis *openAnalysisCode(const string &fname)
 
 //----------------------------------------------------------------------
 
+void usage()
+{
+  cerr << endl
+       << "usage:   plotter plotvariables.dat myanalysis.so input.root output.root" << endl
+       << endl
+    ;
+  exit(1);
+}
+
+//----------------------------------------------------------------------
+
 int main(int argc, char **argv)
 {
-  assert(argc == 4 + 1);
+  if (argc != 4 + 1)
+    usage();
 
   string configFname = argv[1];
   string analysisCodeFname = argv[2];
@@ -175,7 +187,6 @@ int main(int argc, char **argv)
   string outputFname = argv[4];
 
   parseConfigFile(configFname);
-
 
   HistoContainer *histoContainer = new HistoContainer();
 
