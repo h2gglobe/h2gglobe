@@ -28,8 +28,6 @@ class HistoContainer {
 
   void Add(char *, char*, char*, int, int, float, float, float, float);
 
-  void Fill(const std::string &name, int category, float value);
-
   /** fills a histogram given by the name and category */
   void Fill(const std::string &name, int category, float value, float weight = 1.0);
   
