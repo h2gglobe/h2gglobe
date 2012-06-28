@@ -2,7 +2,7 @@
 
 void JimAnalysis::setBranchAddresses(TTree* tree) {
   
-  tree->SetBranchAddress("run",        , &run);	       
+  tree->SetBranchAddress("run"         , &run);	       
   tree->SetBranchAddress("lumis"       , &lumis);       
   tree->SetBranchAddress("event"       , &event);       
   tree->SetBranchAddress("itype"       , &itype);       
@@ -31,6 +31,6 @@ void JimAnalysis::setBranchAddresses(TTree* tree) {
 
 void JimAnalysis::analyze(HistoContainer* container) {
 
-  container[itype]->Fill("run", 0, run, weight);
+  container->Fill("run", 0, run, full_weight);
   
 }

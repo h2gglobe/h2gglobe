@@ -1,8 +1,10 @@
 #ifndef _JimAnalysis_h
 #define _JimAnalysis_h
 
-
+#include "GenericAnalysis.h"
 #include "HistoContainer.h"
+
+#include "TTree.h"
 
 /** base class from which user analyses must inherit */
 class JimAnalysis : public GenericAnalysis {
@@ -39,7 +41,7 @@ class JimAnalysis : public GenericAnalysis {
   Float_t pu_weight;
   Float_t full_weight;
   Int_t pu_n;
-  Float mass;
+  Float_t mass;
   Int_t vbfcat;
   Float_t MET;
   Float_t MET_phi;
