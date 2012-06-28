@@ -25,7 +25,8 @@ class JimAnalysis : public GenericAnalysis {
   Int_t run;
   Int_t lumis;
   Int_t event;
-  Int_t itype;
+  // Int_t itype;
+  Float_t itype;
   Float_t sigmaMrvoM;
   Float_t sigmaMwvoM;
   Float_t ptoM1;
@@ -46,7 +47,8 @@ class JimAnalysis : public GenericAnalysis {
   Float_t MET;
   Float_t MET_phi;
   Float_t bdt;
-  Int_t bdt_cat;
+  // Int_t bdt_cat;
+  Float_t bdt_cat;
 
 
 };
