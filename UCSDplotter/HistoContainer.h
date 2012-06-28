@@ -28,52 +28,96 @@ class HistoContainer {
 
   void Add(char *, char*, char*, int, int, float, float, float, float);
 
-  /** fills a histogram given by the name and category */
-  void Fill(const std::string &name, int category, float value, float weight = 1.0);
-  
-  /** fills a 2D histogram or a profile histogram given by name and category */
-  void Fill2D(const std::string &name, int category, float valuex, float valuey, float weight = 1.0);
+  /** fills a histogram given by the name and category
 
-  int ncat(int n);
+      @param itype is typically the process number (data, background MC, signal MC)
+  */
+  void Fill(const std::string &name, int itype, int category, float value, float weight = 1.0);
+  
+  /** fills a 2D histogram or a profile histogram given by name and category
+
+      @param itype is typically the process number (data, background MC, signal MC)
+  */
+  void Fill2D(const std::string &name, int itype, int category, float valuex, float valuey, float weight = 1.0);
+
+  // int ncat(int n);
 
   /** number of different plots ('names') booked */
   int size() { return (int)names.size(); }
 
-  int nbins(int, bool);
-  std::string axisName(int, bool);
-  float max(int, bool);
-  float min(int, bool);
+  // int nbins(int, bool);
+  // std::string axisName(int, bool);
+  // float max(int, bool);
+  // float min(int, bool);
   std::string getName(int n) { return names[n]; }
   
   /** write histograms to the output file */
   void Save();
 
-  int getDimension(int);
+  // int getDimension(int);
   int getHistVal();
   void setHistVal(int);
+
+  /** sets the global suffix for the histogram names */
   void setHistNam(std::string);
+
   void setScale(float);
-  std::string ModifiedName(const char* name, int i);
+
+  /** builds the full histogram name from the given name,
+      the category etc. */
+  std::string ModifiedName(const char* name, int itype, int cat);
 
   /** overall scaling factor (with which
       the given weights are multiplied) */
   float total_scale;
 
  private:
+  /** returns an 1D histogram from the list of histograms
+      or creates it if the corresponding process type
+      was never seen before */
+  TH1F *Get1Dhisto(const std::string &name, int itype, int category);
+
+  TH2F *Get2Dhisto(const std::string &name, int itype, int category);
+
+  TProfile *GetProfileHisto(const std::string &name, int itype, int category);
+
+  //----------
+  /** class with histogram definition parameters (except the name) */
+  struct HistoDef
+  {
+    std::string xtitle;
+    std::string ytitle;
+
+    unsigned xbins;
+
+    float xmin, xmax;
+
+    unsigned ybins;
+    float ymin, ymax;
+    
+  };
+
+  /** we must keep these here in order to book the histograms
+      per process on demand */
+  std::map<std::string, HistoDef> histoDefs;
+  //----------
+
   int histVal;
   std::string histNam;
   std::vector<std::string> names;
   
   /** list of 1D histograms. 
       First index is the 'plot name',
-      the second index is the 'category / process' number */
-  std::map<std::string, std::vector<TH1F> > h1;
+      the second index is the category number 
+      the third index is the process number
+  */
+  std::map<std::string, std::vector< std::map<int, TH1F *> > > h1;
 
   /** similar to h1 but for 2d histograms */
-  std::map<std::string, std::vector<TH2F> > h2;
+  std::map<std::string, std::vector< std::map<int, TH2F *> > > h2;
 
   /** similar to h1 but for profile histograms */
-  std::map<std::string, std::vector<TProfile> > hp;
+  std::map<std::string, std::vector< std::map<int, TProfile *> > > hp;
 };
 
 #endif
