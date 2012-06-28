@@ -4,6 +4,9 @@
 
 #define HCDEBUG 1
 
+using std::cerr;
+using std::endl;
+
 //----------------------------------------------------------------------
 
 HistoContainer::HistoContainer() {}
@@ -119,6 +122,8 @@ void HistoContainer::Fill(const std::string &name, int category, float value, fl
     (it->second)[category].Fill(value, total_scale*weight);
     return;
   }
+
+  cerr << "ERROR: trying to fill non-existing plot '" << name << "'" << endl;
 }
 
 //----------------------------------------------------------------------
@@ -137,6 +142,8 @@ void HistoContainer::Fill2D(const std::string &name, int category, float valuex,
     (it2->second)[category].Fill(valuex, valuey, total_scale*weight);
     return;
   }
+
+  cerr << "ERROR: trying to fill non-existing plot '" << name << "'" << endl;
 }
 
 //----------------------------------------------------------------------
