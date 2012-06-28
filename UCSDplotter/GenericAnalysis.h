@@ -4,6 +4,7 @@
 
 #include "HistoContainer.h"
 
+/** base class from which user analyses must inherit */
 class GenericAnalysis
 {
 public:
@@ -11,9 +12,22 @@ public:
       and set active / inactivate the branches */
   virtual void setBranchAddresses(TTree *tree) = 0;
 
+  /** this is called for each event in the input tree
+      and is typically the place to fill histograms
+      using container->Fill(..) and container->Fill2D(..)
+  */
   virtual void analyze(HistoContainer *container) = 0;
 
 };
 
-// GenericAnalysis *makeInstance();
+/*
+
+  a shared object with a user analysis must also contain the following
+  function:
+
+  GenericAnalysis *makeInstance();
+
+  This must create an instance of the user analysis class and return it.
+
+*/
 #endif
