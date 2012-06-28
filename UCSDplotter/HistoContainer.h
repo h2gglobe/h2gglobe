@@ -28,11 +28,13 @@ class HistoContainer {
 
   void Add(char *, char*, char*, int, int, float, float, float, float);
 
-  void Fill(std::string, int, float);
-  void Fill(std::string, int, float, float);
+  void Fill(const std::string &name, int category, float value);
+
+  /** fills a histogram given by the name and category */
+  void Fill(const std::string &name, int category, float value, float weight = 1.0);
   
-  void Fill2D(std::string, int, float, float);
-  void Fill2D(std::string, int, float, float, float);
+  /** fills a 2D histogram given by name and category */
+  void Fill2D(const std::string &name, int category, float valuex, float valuey, float weight = 1.0);
 
   int ncat(int n);
 

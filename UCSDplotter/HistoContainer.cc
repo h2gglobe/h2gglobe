@@ -110,13 +110,7 @@ void HistoContainer::Add(char* name, char* xaxis, char* yaxis, int categories, i
 
 //----------------------------------------------------------------------
 
-void HistoContainer::Fill(std::string name, int category, float value) {
-  Fill(name, category, value, 1.0);
-}
-
-//----------------------------------------------------------------------
-
-void HistoContainer::Fill(std::string name, int category, float value, float weight) {
+void HistoContainer::Fill(const std::string &name, int category, float value, float weight) {
 
   //std::string modName = ModifiedName(name);
   std::map<std::string, std::vector<TH1F> >::iterator it = h1.find(std::string(name));
@@ -129,13 +123,7 @@ void HistoContainer::Fill(std::string name, int category, float value, float wei
 
 //----------------------------------------------------------------------
 
-void HistoContainer::Fill2D(std::string name, int category, float valuex, float valuey) { 
-  Fill2D(name, category, valuex, valuey, 1.0);
-}
-
-//----------------------------------------------------------------------
-
-void HistoContainer::Fill2D(std::string name, int category, float valuex, float valuey, float weight) { 
+void HistoContainer::Fill2D(const std::string &name, int category, float valuex, float valuey, float weight) { 
 
   //std::string modName = ModifiedName(name);
   std::map<std::string, std::vector<TProfile> >::iterator itp = hp.find(std::string(name));
