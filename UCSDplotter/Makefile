@@ -4,6 +4,9 @@ LDLIBS += $(shell $$ROOTSYS/bin/root-config --glibs)
 # for building the shared libraries
 CXXFLAGS += -fPIC
 
+# include debugging information
+CXXFLAGS += -g
+
 #----------------------------------------
 # boost
 #----------------------------------------
