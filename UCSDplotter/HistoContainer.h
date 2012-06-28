@@ -33,7 +33,7 @@ class HistoContainer {
   /** fills a histogram given by the name and category */
   void Fill(const std::string &name, int category, float value, float weight = 1.0);
   
-  /** fills a 2D histogram given by name and category */
+  /** fills a 2D histogram or a profile histogram given by name and category */
   void Fill2D(const std::string &name, int category, float valuex, float valuey, float weight = 1.0);
 
   int ncat(int n);
