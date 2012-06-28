@@ -24,110 +24,165 @@
 using namespace std;
 
 //----------------------------------------------------------------------
-// some constants
+// some constants / parameters
 //----------------------------------------------------------------------
 
+/** the name of the tree within the input file */
 const string inputTreeName = "opttree";
 
-vector<map<string, string> > histogramDefinitions;
+//----------------------------------------------------------------------
+std::string 
+getString(const map<string, string> &values, const std::string &paramName)
+{
+  map<string, string>::const_iterator it = values.find(paramName);
+  if (it == values.end())
+    throw std::runtime_error("no parameter named '" + paramName + "' found");
+
+  return it->second;
+}
 
 //----------------------------------------------------------------------
-void parseConfigFile(const std::string &configFname)
+
+/** for optional parameters */
+std::string 
+getString(const map<string, string> &values, const std::string &paramName, const std::string &defaultValue)
+{
+  map<string, string>::const_iterator it = values.find(paramName);
+  if (it == values.end())
+    return defaultValue;
+  else
+    return it->second;
+}
+
+//----------------------------------------------------------------------
+unsigned getUint(const map<string, string> &values, const std::string &paramName)
+{
+  try
+    {
+      return boost::lexical_cast<unsigned>(getString(values, paramName));
+    }
+  catch (const boost::bad_lexical_cast &ex)
+    {
+      throw std::runtime_error("value of parameter '" + paramName + "' is not a valid unsigned integer");
+    }
+}
+
+//----------------------------------------------------------------------
+unsigned getFloat(const map<string, string> &values, const std::string &paramName)
+{
+  try
+    {
+      return boost::lexical_cast<float>(getString(values, paramName));
+    }
+  catch (const boost::bad_lexical_cast &ex)
+    {
+      throw std::runtime_error("value of parameter '" + paramName + "' is not a valid float");
+    }
+}
+
+//----------------------------------------------------------------------
+
+void bookHistogram(HistoContainer *container, map<string, string> values)
+{
+  int htyp = getUint(values,"htyp");
+  switch (htyp)
+    {
+    case 0: // 1D histos
+      container->Add(getString(values,"name"),
+                     getString(values,"xaxis", ""),
+                     getString(values,"yaxis", ""),
+                     getUint(values,"ncat"),
+                     getUint(values,"xbins"),
+                     getFloat(values,"xmin"),
+                     getFloat(values,"xmax")
+                     );
+      break;
+
+
+    case 1: // 2D histos
+      container->Add(getString(values,"name"),
+                     getString(values,"xaxis", ""),
+                     getString(values,"yaxis", ""),
+                     getUint(values,"ncat"),
+
+                     getUint(values,"xbins"),
+                     getFloat(values,"xmin"),
+                     getFloat(values,"xmax"),
+
+                     getUint(values,"ybins"),
+                     getFloat(values,"ymin"),
+                     getFloat(values,"ymax")
+                     );
+      break;
+
+      
+    default:
+      throw std::runtime_error("unknown htyp " + boost::lexical_cast<string>(htyp));
+    }
+}
+
+//----------------------------------------------------------------------
+void parseConfigFile(const std::string &configFname, HistoContainer *histoContainer)
 {
   ifstream infile(configFname.c_str());
   string line;
 
+  int lineNum = 0;
+
   while ( infile.good() )
   {
-    getline (infile,line);
-    cout << line << endl;
+    try
+      {
+        getline (infile,line);
+        ++lineNum;
+        // cout << line << endl;
 
-    // remove everything after the first #
-    size_t pos = line.find('#');
-    if (pos != string::npos)
-      line.erase(pos);
+        // remove everything after the first #
+        size_t pos = line.find('#');
+        if (pos != string::npos)
+          line.erase(pos);
 
-    // remove leading a trailing white space
-    boost::algorithm::trim(line);
+        // remove leading a trailing white space
+        boost::algorithm::trim(line);
 
-    if (line == "")
-      continue;
+        if (line == "")
+          continue;
 
-    // split line into name=value pairs, separated by whitespace
-    vector<string> parts;
+        // split line into name=value pairs, separated by whitespace
+        vector<string> parts;
     
-    boost::algorithm::split_regex(parts, line,
-                                  boost::regex( "\\s+"));
+        boost::algorithm::split_regex(parts, line,
+                                      boost::regex( "\\s+"));
 
     
-    map<string, string> values;
+        map<string, string> values;
 
-    BOOST_FOREACH(std::string part, parts)
-    {
-      // loop over all parts of this line
-      pos = part.find('=');
-      assert(pos != string::npos);
+        BOOST_FOREACH(std::string part, parts)
+          {
+            // loop over all parts of this line
+            pos = part.find('=');
+            assert(pos != string::npos);
 
-      string key = part.substr(0,pos);
-      string value = part.substr(pos+1);
-      values[key] = value;
-    }
+            string key = part.substr(0,pos);
+            string value = part.substr(pos+1);
+            values[key] = value;
+          }
 
-    histogramDefinitions.push_back(values);
+        //histogramDefinitions.push_back(ConfigLineData(lineNum, values));
+
+        bookHistogram(histoContainer, values);
+      } // try
+    catch (const std::exception &ex)
+      {
+        cerr << "exception caught while reading line " << lineNum << " of file " << configFname << ": " << ex.what() << endl;
+        exit(1);
+      }
 
   } // loop over lines
 }
 
 //----------------------------------------------------------------------
 
-void bookHistograms(HistoContainer *container)
-{
-  for (vector<map<string, string> >::iterator it = histogramDefinitions.begin();
-       it != histogramDefinitions.end();
-       ++it)
-  {
-    map<string, string> &histoDef = *it;
-
-    int htyp = boost::lexical_cast<int>(histoDef["htyp"]);
-    switch (htyp)
-    {
-    case 0: // 1D histos
-      container->Add(histoDef["name"],
-                     histoDef["xaxis"],
-                     histoDef["yaxis"],
-                     boost::lexical_cast<unsigned>(histoDef["ncat"]),
-                     boost::lexical_cast<unsigned>(histoDef["xbins"]),
-                     boost::lexical_cast<unsigned>(histoDef["xmin"]),
-                     boost::lexical_cast<unsigned>(histoDef["xmax"])
-                     );
-      break;
-
-
-    case 1: // 2D histos
-      container->Add(histoDef["name"],
-                     histoDef["xaxis"],
-                     histoDef["yaxis"],
-                     boost::lexical_cast<unsigned>(histoDef["ncat"]),
-
-                     boost::lexical_cast<unsigned>(histoDef["xbins"]),
-                     boost::lexical_cast<unsigned>(histoDef["xmin"]),
-                     boost::lexical_cast<unsigned>(histoDef["xmax"]),
-
-                     boost::lexical_cast<unsigned>(histoDef["ybins"]),
-                     boost::lexical_cast<unsigned>(histoDef["ymin"]),
-                     boost::lexical_cast<unsigned>(histoDef["ymax"])
-                     );
-      break;
-
-      
-    default:
-      cerr << "unknown htyp " << htyp << endl;
-      exit(1);
-    }
-  }
-}
-
-//----------------------------------------------------------------------
 
 GenericAnalysis *openAnalysisCode(const string &fname)
 {
@@ -186,11 +241,10 @@ int main(int argc, char **argv)
   string inputFname = argv[3];
   string outputFname = argv[4];
 
-  parseConfigFile(configFname);
-
   HistoContainer *histoContainer = new HistoContainer();
 
-  bookHistograms(histoContainer); // use HistoContainer
+  // read the configuration file and book histograms 
+  parseConfigFile(configFname, histoContainer);
 
   //--------------------
   // open the input file
