@@ -17,7 +17,7 @@ class JimAnalysis : public GenericAnalysis {
       and is typically the place to fill histograms
       using container->Fill(..) and container->Fill2D(..)
   */
-  void analyze(HistoContainer *container) = 0;
+  void analyze(HistoContainer *container);
 
 
   // List of opttree branches
