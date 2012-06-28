@@ -1,6 +1,8 @@
 #ifndef _GenericAnalysis_h
 #define _GenericAnalysis_h
 
+#include <TTree.h>
+
 
 #include "HistoContainer.h"
 
