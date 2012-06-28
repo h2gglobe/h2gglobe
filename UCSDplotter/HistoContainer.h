@@ -40,7 +40,8 @@ class HistoContainer {
   */
   void Fill2D(const std::string &name, int itype, int category, float valuex, float valuey, float weight = 1.0);
 
-  // int ncat(int n);
+  /** @return -1 if the plot name is not found */
+  int getNumCategories(const std::string &catname);
 
   /** number of different plots ('names') booked */
   int size() { return (int)names.size(); }
@@ -51,6 +52,9 @@ class HistoContainer {
   // float min(int, bool);
   std::string getName(int n) { return names[n]; }
   
+  /** @return a list of the names of all booked plots */
+  std::vector<std::string> getAllNames() { return names; }
+
   /** write histograms to the output file */
   void Save();
 

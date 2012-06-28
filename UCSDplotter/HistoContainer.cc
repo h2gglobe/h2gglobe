@@ -431,22 +431,22 @@ void HistoContainer::Save() {
 
 //----------------------------------------------------------------------
 
-// int HistoContainer::ncat(int n) {
-//   
-//   std::map<std::string, std::vector<TH1F> >::iterator it = h1.find(names[n]);
-//   if (it != h1.end())
-//     return it->second.size();
-//   
-//   std::map<std::string, std::vector<TH2F> >::iterator it2 = h2.find(names[n]);
-//   if (it2 != h2.end())
-//     return it2->second.size();
-//   
-//   std::map<std::string, std::vector<TProfile> >::iterator itp = hp.find(names[n]);
-//   if (itp != hp.end())
-//     return itp->second.size(); 
-//   
-//   return -1;
-// }
+int HistoContainer::getNumCategories(const std::string &name)
+{
+   map<string, vector<map<int, TH1F *> > >::iterator it = h1.find(name);
+   if (it != h1.end())
+     return it->second.size();
+
+   map<string, vector<map<int, TH2F *> > >::iterator it2 = h2.find(name);
+   if (it2 != h2.end())
+     return it2->second.size();
+
+   map<string, vector<map<int, TProfile *> > >::iterator itp = hp.find(name);
+   if (itp != hp.end())
+     return itp->second.size();
+
+   return -1;
+ }
 
 //----------------------------------------------------------------------
 
