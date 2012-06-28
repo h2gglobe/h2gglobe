@@ -11,6 +11,15 @@
 #include "GenericAnalysis.h"
 
 #include <cstdlib>
+#include <boost/algorithm/string.hpp>
+#include <boost/foreach.hpp>
+#include <boost/lexical_cast.hpp>
+
+#include <boost/algorithm/string/regex.hpp>
+
+
+#include <vector>
+
 
 using namespace std;
 
@@ -20,11 +29,12 @@ using namespace std;
 
 const string inputTreeName = "opttree";
 
+vector<map<string, string> > histogramDefinitions;
 
 //----------------------------------------------------------------------
 void parseConfigFile(const std::string &configFname)
 {
-  ifstream infile(configFname);
+  ifstream infile(configFname.c_str());
   string line;
 
   while ( infile.good() )
@@ -33,18 +43,89 @@ void parseConfigFile(const std::string &configFname)
     cout << line << endl;
 
     // remove everything after the first #
+    size_t pos = line.find('#');
+    if (pos != string::npos)
+      line.erase(pos);
+
+    // remove leading a trailing white space
+    boost::algorithm::trim(line);
+
+    if (line == "")
+      continue;
+
+    // split line into name=value pairs, separated by whitespace
+    vector<string> parts;
     
-   }
+    boost::algorithm::split_regex(parts, line,
+                                  boost::regex( "\\s+"));
 
+    
+    map<string, string> values;
 
+    BOOST_FOREACH(std::string part, parts)
+    {
+      // loop over all parts of this line
+      pos = part.find('=');
+      assert(pos != string::npos);
 
+      string key = part.substr(0,pos);
+      string value = part.substr(pos+1);
+      values[key] = value;
+    }
+
+    histogramDefinitions.push_back(values);
+
+  } // loop over lines
 }
 
 //----------------------------------------------------------------------
 
+void bookHistograms(HistoContainer *container)
+{
+  for (vector<map<string, string> >::iterator it = histogramDefinitions.begin();
+       it != histogramDefinitions.end();
+       ++it)
+  {
+    map<string, string> &histoDef = *it;
+
+    int htyp = boost::lexical_cast<int>(histoDef["htyp"]);
+    switch (htyp)
+    {
+    case 0: // 1D histos
+      container->Add(histoDef["name"],
+                     histoDef["xaxis"],
+                     histoDef["yaxis"],
+                     boost::lexical_cast<unsigned>(histoDef["ncat"]),
+                     boost::lexical_cast<unsigned>(histoDef["xbins"]),
+                     boost::lexical_cast<unsigned>(histoDef["xmin"]),
+                     boost::lexical_cast<unsigned>(histoDef["xmax"])
+                     );
+      break;
 
 
+    case 1: // 2D histos
+      container->Add(histoDef["name"],
+                     histoDef["xaxis"],
+                     histoDef["yaxis"],
+                     boost::lexical_cast<unsigned>(histoDef["ncat"]),
 
+                     boost::lexical_cast<unsigned>(histoDef["xbins"]),
+                     boost::lexical_cast<unsigned>(histoDef["xmin"]),
+                     boost::lexical_cast<unsigned>(histoDef["xmax"]),
+
+                     boost::lexical_cast<unsigned>(histoDef["ybins"]),
+                     boost::lexical_cast<unsigned>(histoDef["ymin"]),
+                     boost::lexical_cast<unsigned>(histoDef["ymax"])
+                     );
+      break;
+
+      
+    default:
+      cerr << "unknown htyp " << htyp << endl;
+      exit(1);
+    }
+  }
+}
 
 //----------------------------------------------------------------------
 
@@ -98,8 +179,7 @@ int main(int argc, char **argv)
 
   HistoContainer *histoContainer = new HistoContainer();
 
-  // bookHistograms(); // use HistoContainer
-
+  bookHistograms(histoContainer); // use HistoContainer
 
   //--------------------
   // open the input file

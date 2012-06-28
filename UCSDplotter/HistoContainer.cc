@@ -43,7 +43,7 @@ void HistoContainer::setScale(float scale){
 
 //----------------------------------------------------------------------
 
-std::string HistoContainer::ModifiedName(char* name, int i) {
+std::string HistoContainer::ModifiedName(const char* name, int i) {
   char* modName= new char[500];
   sprintf(modName,"%s_cat%d_%s",name,i,histNam.c_str());
   std::string output(modName);
@@ -51,15 +51,16 @@ std::string HistoContainer::ModifiedName(char* name, int i) {
 }
 
 //----------------------------------------------------------------------
-void HistoContainer::Add(char* name, char* xaxis, char* yaxis, int categories,int bins, float xmin, float xmax) {
+void HistoContainer::Add(const std::string &name, const std::string &xaxis, const std::string &yaxis, int categories,int bins, float xmin, float xmax) 
+{
 
   std::vector<TH1F> temp;
   for (int i=0; i<categories; i++) {
-    std::string modName = ModifiedName(name, i);
+    std::string modName = ModifiedName(name.c_str(), i);
     TH1F histo_temp(modName.c_str(), modName.c_str(), bins, xmin, xmax);
     histo_temp.Sumw2();
-    histo_temp.GetXaxis()->SetTitle(xaxis);
-    histo_temp.GetYaxis()->SetTitle(yaxis);
+    histo_temp.GetXaxis()->SetTitle(xaxis.c_str());
+    histo_temp.GetYaxis()->SetTitle(yaxis.c_str());
     histo_temp.SetDirectory(0);
     temp.push_back(histo_temp);
     temp.back().SetDirectory(0);
@@ -71,16 +72,16 @@ void HistoContainer::Add(char* name, char* xaxis, char* yaxis, int categories,in
 
 //----------------------------------------------------------------------
 
-void HistoContainer::Add(char* name, char* xaxis, char* yaxis, int categories, int binsx, float xmin, float xmax,
+void HistoContainer::Add(const std::string &name, const std::string &xaxis, const std::string &yaxis, int categories, int binsx, float xmin, float xmax,
 			 int binsy, float ymin, float ymax) {
   
   std::vector<TH2F> temp;
   for (int i=0; i<categories; i++) {
-    std::string modName = ModifiedName(name, i); 
+    std::string modName = ModifiedName(name.c_str(), i); 
     TH2F histo_temp(modName.c_str(), modName.c_str(), binsx, xmin, xmax, binsy, ymin, ymax);
     histo_temp.Sumw2();
-    histo_temp.GetXaxis()->SetTitle(xaxis);
-    histo_temp.GetYaxis()->SetTitle(yaxis);
+    histo_temp.GetXaxis()->SetTitle(xaxis.c_str());
+    histo_temp.GetYaxis()->SetTitle(yaxis.c_str());
     temp.push_back(histo_temp);
     //temp.push_back(TH2F(modName.c_str(), modName.c_str(), binsx, xmin, xmax, binsy, ymin, ymax));
   }

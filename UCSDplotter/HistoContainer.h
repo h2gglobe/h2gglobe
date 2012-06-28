@@ -16,10 +16,16 @@ class HistoContainer {
     
 
   /** books a set of 1D histograms for a plot */
-  void Add(char *name, char *xaxisTitle, char *yaxisTitle, int categories, int bins, float xmin, float xmax);
+  void Add(const std::string &name, const std::string &xaxisTitle,const std::string &yaxisTitle, 
+           int categories, int bins, float xmin, float xmax);
 
-  
-  void Add(char *, char*, char*, int, int, float, float, int, float, float);
+  /** books a set of 2D histograms for a plot */
+  void Add(const std::string &name, const std::string &xaxisTitle, const std::string &yaxisTitle, 
+           int categories, 
+           int xbins, float xmin, float xmax, 
+           int ybins, float ymin, float ymax);
+
+
   void Add(char *, char*, char*, int, int, float, float, float, float);
 
   void Fill(std::string, int, float);
@@ -47,7 +53,7 @@ class HistoContainer {
   void setHistVal(int);
   void setHistNam(std::string);
   void setScale(float);
-  std::string ModifiedName(char*, int);
+  std::string ModifiedName(const char* name, int i);
 
   /** overall scaling factor (with which
       the given weights are multiplied) */
