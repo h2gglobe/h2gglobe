@@ -1,5 +1,7 @@
 #include "JimAnalysis.h"
 
+
+//----------------------------------------------------------------------
 void JimAnalysis::setBranchAddresses(TTree* tree) {
   
   tree->SetBranchAddress("run"         , &run);	       
@@ -29,8 +31,17 @@ void JimAnalysis::setBranchAddresses(TTree* tree) {
   tree->SetBranchAddress("bdt_cat"     , &bdt_cat);      
 }
 
+//----------------------------------------------------------------------
+
 void JimAnalysis::analyze(HistoContainer* container) {
 
   container->Fill("run", 0, run, full_weight);
   
 }
+
+//----------------------------------------------------------------------
+extern "C" GenericAnalysis *makeInstance()
+{
+  return new JimAnalysis();
+}
+//----------------------------------------------------------------------
