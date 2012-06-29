@@ -519,7 +519,7 @@ private:
     //complexset.insert("cat2");
     //complexset.insert("cat3");
     complexset.insert("cat4");
-    //complexset.insert("cat5");
+    complexset.insert("cat5");
     //complexset.insert("cat6");
     //complexset.insert("cat4");
     //complexset.insert("cat5");

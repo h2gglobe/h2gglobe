@@ -62,9 +62,9 @@ ParametricSignalModelConfig::read(const std::string &configFname)
 
     config.useRightWrongVertex = XMLUtils::getBooleanContent(root, "useRightWrongVertex", true);
 
-    config.massmax = XMLUtils::getDoubleContent(root, "maxMassHypothesis", 160);
+    config.massmax = XMLUtils::getDoubleContent(root, "maxMassHypothesis", 150);
 
-    config.massInterpolationWidth = XMLUtils::getDoubleContent(root, "massInterpolationWidth", 10);
+    config.massInterpolationWidth = XMLUtils::getDoubleContent(root, "massInterpolationWidth", 5);
 
     config.sqrts = XMLUtils::getIntegerContent(XMLUtils::getSingleChild(root, "sqrts"));
 
