@@ -8,6 +8,12 @@
 
   <sqrts>7</sqrts>
 
+  <!-- optional, can be used to avoid name clashes
+       when using more than one input file 
+       to the combination -->
+  <nameSuffix>_8TeV</nameSuffix>
+
+
   <!-- optional, this here is the same as the default SM mapping hardwired into the code -->
   <signalProcessMerging>
     <map from="ggh" to="ggh" />
