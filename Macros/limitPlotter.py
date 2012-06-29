@@ -31,16 +31,16 @@ for i in OBSmassesT:
 # Plotting Styles --------------------------------------------------------
 OFFSETLOW=0
 OFFSETHIGH=0
-FONTSIZE=0.027
+FONTSIZE=0.03
 FILLSTYLE=1001
 SMFILLSTYLE=3244
 FILLCOLOR_95=ROOT.kYellow
 FILLCOLOR_68=ROOT.kGreen
 RANGEYABS=[0.0,0.6]
-RANGEYRAT=[0.0,4]
-MINPV = 10E-9
+RANGEYRAT=[0.0,5]
+MINPV = 0.5*10E-9
 MAXPV = 1.0
-Lines = [1.,2.,3.,4.,5.,6.]
+Lines = [1.,2.,3.,4.,5.]
 MINMH=int(min(EXPmasses))
 MAXMH=int(max(EXPmasses))
 #-------------------------------------------------------------------------
@@ -53,11 +53,17 @@ parser.add_option("-b","--bayes",dest="bayes")
 parser.add_option("-o","--outputLimits",dest="outputLimits")
 parser.add_option("-e","--expectedOnly",action="store_true")
 parser.add_option("-p","--path",dest="path",default="",type="str")
+parser.add_option("","--addline",action="append",type="str",help="add lines to the plot file.root:color:linestyle:legend entry")
+parser.add_option("","--show",action="store_true")
 parser.add_option("","--pval",action="store_true")
 parser.add_option("","--lumistr",type="str",default="L = 5.1 fb^{-1} (2011) + 5.1 fb^{-1} (2012)")
 parser.add_option("","--egrstr",type="str",default="#sqrt{s} = 7-8 TeV")
 (options,args)=parser.parse_args()
 
+if options.show : ROOT.gROOT.SetBatch(False)
+if options.addline and not options.pval : sys.exit("Cannot addlines unless running in pvalue")
+
+	
 # ------------------------------------------------------------------------
 # SM Signal Normalizer
 if not options.doRatio:
@@ -120,19 +126,19 @@ elif Method=="Asymptotic" or Method=="AsymptoticNew":
   EXPmasses = OBSmasses[:]
   for m in EXPmasses:
     if int(m)==m:
-      EXPfiles.append(ROOT.TFile(EXPName+".mH%d.root"%m))
+      EXPfiles.append(ROOT.TFile(EXPName+".mH%.1f.root"%m))
     else:
       EXPfiles.append(ROOT.TFile(EXPName+".mH%.1f.root"%m))
 
 else:
-  EXPfiles = [ROOT.TFile(EXPName+".mH%d.root"%m) for m in EXPmasses]
+  EXPfiles = [ROOT.TFile(EXPName+".mH%.1f.root"%m) for m in EXPmasses]
 
 # Get the observed limits - Currently only does up to 1 decimal mass points
 OBSfiles = []
 if not options.expectedOnly:
   for m in OBSmasses:
     if int(m)==m:
-      OBSfiles.append(ROOT.TFile(OBSName+".mH%d.root"%m))
+      OBSfiles.append(ROOT.TFile(OBSName+".mH%.1f.root"%m))
     else:
       OBSfiles.append(ROOT.TFile(OBSName+".mH%.1f.root"%m))
   if Method == "Asymptotic" or Method =="AsymptoticNew":  obs = [getOBSERVED(O,5) for O in OBSfiles] # observed is last entry in these files
@@ -177,7 +183,7 @@ def MakePvalPlot(MG):
 	c = ROOT.TCanvas("c","c",600,600)
 
 	dhist = ROOT.TH1F("dh","dh",100,MINMH,MAXMH)
-	dhist.GetYaxis().SetTitleOffset(1.4)
+	dhist.GetYaxis().SetTitleOffset(1.5)
 	dhist.GetXaxis().SetTitleOffset(1.2)
 	dhist.GetYaxis().SetTitleSize(0.04)
 	dhist.GetXaxis().SetTitleSize(0.04)
@@ -190,6 +196,22 @@ def MakePvalPlot(MG):
 	dhist.Draw("AXIS")
 
 	MG.Draw("L")
+
+	# ------------------------------------------------------------------------
+	# Additional Lines stored in --addline -----------------------------------
+	for lineF in options.addline:
+
+		# Parse the string, should be file.root:color:linestyle:legend entry	
+		vals = lineF.split(":")
+		ftmp = ROOT.TFile(vals[0])
+		grext = ftmp.Get("observed")
+		grext.SetLineColor(int(vals[1]))
+		grext.SetLineStyle(int(vals[2]))
+		grext.SetLineWidth(2)
+		legend.AddEntry(grext,vals[3],"L")
+		grext.Draw("same")
+	# ------------------------------------------------------------------------
+		
 
 	c.Update()
 	text = ROOT.TLatex()
@@ -216,6 +238,8 @@ def MakePvalPlot(MG):
 	legend.Draw()
 	c.SetLogy()
 	ROOT.gPad.RedrawAxis();
+	
+	if options.show:raw_input("Looks Ok?")
 	c.SaveAs("pvaluesplot.pdf")
 	c.SaveAs("pvaluesplot.png")
 
@@ -253,12 +277,14 @@ def MakeLimitPlot(MG):
 	dummyHist.GetXaxis().SetRangeUser(min(OBSmasses)-OFFSETLOW,max(OBSmasses)+OFFSETHIGH)
 	if options.doRatio:
 	 dummyHist.GetYaxis().SetRangeUser(RANGEYRAT[0],RANGEYRAT[1])
+	 dummyHist.GetYaxis().SetNdivisions(5,int("%d"%(RANGEYRAT[1]-RANGEYRAT[0])),0)
 	 dummyHist.GetYaxis().SetTitle("\sigma(H#rightarrow #gamma #gamma)_{95%%CL} / \sigma(H#rightarrow #gamma #gamma)_{%s}"%extraString)
 	else: 
 	 dummyHist.GetYaxis().SetRangeUser(RANGEYABS[0],RANGEYABS[1])
+	 dummyHist.GetYaxis().SetNdivisions(5,int("%d"%(RANGEYABS[1]-RANGEYABS[0])),0)
 	 dummyHist.GetYaxis().SetTitle("\sigma #times BR(H#rightarrow #gamma #gamma)_{95%CL} (pb)")
 
-	dummyHist.GetYaxis().SetTitleOffset(1.2)
+	dummyHist.GetYaxis().SetTitleOffset(1.3)
 	dummyHist.GetXaxis().SetTitleOffset(1.25)
 
 	MG.SetTitle("")
@@ -273,6 +299,7 @@ def MakeLimitPlot(MG):
   
 	leg.Draw()
 	ROOT.gPad.RedrawAxis();
+	if options.show:raw_input("Looks Ok?")
 
 	#Make a bunch of extensions to the plots
 	if options.doRatio:
@@ -443,13 +470,16 @@ else: MakeLimitPlot(MG)
 if options.outputLimits:
   print "Writing Limits To ROOT file --> ",options.outputLimits
   OUTTgraphs = ROOT.TFile(options.outputLimits,"RECREATE")
-  graphMed.SetName("median")
-  graphMed.Write()
   graphObs.SetName("observed")
   graphObs.Write()
-  graph68.SetName("sig1")
-  graph68.Write()
-  graph95.SetName("sig2")
-  graph95.Write()
+
+  if not options.pval:
+   graphMed.SetName("median")
+   graphMed.Write()
+   graph68.SetName("sig1")
+   graph68.Write()
+   graph95.SetName("sig2")
+   graph95.Write()
+
   OUTTgraphs.Write()
 
