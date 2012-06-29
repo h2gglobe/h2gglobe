@@ -361,10 +361,11 @@ def main(options,args):
         fwhmarrow = TArrow(hmin,hm,hmax,hm)
         fwhmarrow.SetArrowSize(0.03)
         helper.objs.append(fwhmarrow)
-        fwhmlabel = TPaveText(0.28,0.58,0.56,0.48,"brNDC")
+        fwhmlabel = TPaveText(0.20,0.58,0.56,0.48,"brNDC")
         fwhmlabel.SetFillStyle(0)
         fwhmlabel.SetLineColor(kWhite)
-        fwhmlabel.AddText("FWHM = %1.2f GeV" % (hmax-hmin))
+        reducedFWHM = (hmax-hmin)/2.3548200
+        fwhmlabel.AddText("FWHM/2.35 = %1.2f GeV" % reducedFWHM)
         helper.objs.append(fwhmlabel)
 
         hplotcompint.SetTitle("");
@@ -420,7 +421,7 @@ def main(options,args):
       sigVal = helper.histos["sumEntries%s"%c]
       datVal = helper.histos["data_sumEntries%s"%c]
       effSig = 0.5*(helper.histos["eff_sigma%s"%c][1]-helper.histos["eff_sigma%s"%c][0])
-      fwhm = (helper.histos["FWHM%s"%c][1]-helper.histos["FWHM%s"%c][0]) / 2.35482
+      fwhm = (helper.histos["FWHM%s"%c][1]-helper.histos["FWHM%s"%c][0]) / 2.3548200
       print c, '\t%3.1f (%3.1f%%)\t%3.1f (%3.1f%%)\t\t\t%2.2f\t%2.2f'%(sigVal,100.*sigVal/sigTotal,datVal/(10.+10.),100.*datVal/dataTotal,effSig,fwhm)
 
     print "Done."
