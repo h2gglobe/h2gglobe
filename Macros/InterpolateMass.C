@@ -7,6 +7,7 @@
 #include "RooDataHist.h"
 #include "RooRealVar.h"
 #include "RooWorkspace.h"
+#include "RooMsgService.h"
 
 #include <iostream>
 #include <sstream>
@@ -33,8 +34,8 @@ void dofit(double fitmass, vector <TString> InterpolationList, TFile* SourceFile
   if (floor(fitmass)-fitmass<0.0000001 && floor(fitmass)-fitmass>0) fitmass=floor(fitmass);
   if (fitmass-ceil(fitmass)>-0.0000001 && fitmass-ceil(fitmass)<0) fitmass=ceil(fitmass);
   
-  if (fitmass>=150 || fitmass<=110) {
-    cout << "Warning!!!!!!!!!!! You must have an input mass between 110 and 150 GeV!" << endl << "Exiting Program!!!!" << endl;
+  if (fitmass>150 || fitmass<110) {
+    cout << "Warning!!!!!!!!!!! You must have an input mass between 110 and 150 GeV!" << endl << "Skipping !!!!" << endl;
     return;
   }
 
@@ -45,7 +46,7 @@ void dofit(double fitmass, vector <TString> InterpolationList, TFile* SourceFile
     }
   }
   
-  double Masses[] = {105.0, 110.0, 115.0, 120.0, 125.0, 130.0, 135.0, 140.0, 150.0}; //Mass points used for interpolation
+  double Masses[] = {105.0, 110.0, 115.0, 120.0, 125.0, 130.0, 135.0, 140.0, 145.0, 150.0}; //Mass points used for interpolation
   size_t NumMasses = sizeof(Masses)/sizeof(Masses[0]);
   double lowerbound = 0;
   double upperbound = 0;
@@ -53,6 +54,9 @@ void dofit(double fitmass, vector <TString> InterpolationList, TFile* SourceFile
     if (fitmass>Masses[i] && fitmass<Masses[i+1]) {
       lowerbound = Masses[i];
       upperbound = Masses[i+1];
+    } else if (fitmass==Masses[0] || fitmass==Masses[NumMasses-1]) {
+      lowerbound = Masses[i];
+      upperbound = Masses[i];
     } else if (fitmass==Masses[i]) {
       lowerbound = Masses[i-1];
       upperbound = Masses[i+1];
@@ -66,6 +70,8 @@ void dofit(double fitmass, vector <TString> InterpolationList, TFile* SourceFile
   TString UpperBoundString = makestring(upperbound);
   UpperBoundString.ReplaceAll(".0","");
   RooRealVar RooRealMass = *(WorkSpace->var("CMS_hgg_mass"));
+  
+  cout << "Calculating mass point at " << fitmass << endl;
   
   for (unsigned int k=0; k < InterpolationList.size(); k++) {
 
@@ -119,6 +125,7 @@ void dofit(double fitmass, vector <TString> InterpolationList, TFile* SourceFile
       
     }
   }
+  cout << "Done " << fitmass << endl;
 
 }
 
@@ -142,7 +149,7 @@ void InterpolateMass(double fitmass, TString SourceFileName="CMS-HGG.root", doub
   vector<TString> InterpolationList;
   for (Int_t j=0; j<HistList->GetSize(); ++j) {
     TString HistName(HistList->At(j)->GetName());
-    if (HistName.Contains("110")) InterpolationList.push_back(HistName);
+    if (HistName.Contains("110_")) InterpolationList.push_back(HistName);
     if (HistName.Contains("th1f")) {
       TH1F* temphist = (TH1F*) SourceFile->Get(HistName.Data());
       OutputFile->WriteTObject(temphist);
@@ -166,6 +173,8 @@ void InterpolateMass(double fitmass, TString SourceFileName="CMS-HGG.root", doub
 void InterpolateMassPoints(int nmasses, double * masses, TString SourceFileName="CMS-HGG",
                            TString FileName="", int noverwritemasses=0, double *overwritemasses=NULL) 
 {
+	RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING);
+
   if( FileName == "" ) { FileName = SourceFileName + "_interpolated.root"; }
 
   SourceFileName += ".root";
@@ -179,7 +188,7 @@ void InterpolateMassPoints(int nmasses, double * masses, TString SourceFileName=
   for (Int_t j=0; j<HistList->GetSize(); ++j) {
 
     TString HistName(HistList->At(j)->GetName());
-    if (HistName.Contains("110")) InterpolationList.push_back(HistName);
+    if (HistName.Contains("110_")) InterpolationList.push_back(HistName);
     if (HistName.Contains("th1f")) {
       TH1F* temphist = (TH1F*) SourceFile->Get(HistName.Data());
       TString temphistname = temphist->GetName();
@@ -210,7 +219,7 @@ void InterpolateMassRange(double Min, double Max, double Step, TString SourceFil
 {
   TString FileName = "";
   std::vector<double> masses;
-  for (double fitmass=Min; fitmass<Max; fitmass+=Step) {
+  for (double fitmass=Min; fitmass<=Max; fitmass+=Step) {
     masses.push_back(fitmass);
   }
 
