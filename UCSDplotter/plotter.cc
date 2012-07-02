@@ -20,6 +20,10 @@
 
 #include <vector>
 
+#include <TRint.h>
+
+#include "Plotting.h"
+
 
 using namespace std;
 
@@ -29,6 +33,8 @@ using namespace std;
 
 /** the name of the tree within the input file */
 const string inputTreeName = "opttree";
+
+bool interactive = true;
 
 //----------------------------------------------------------------------
 std::string 
@@ -245,6 +251,18 @@ int main(int argc, char **argv)
 
   // read the configuration file and book histograms 
   parseConfigFile(configFname, histoContainer);
+  //--------------------
+
+  TRint *myapp = NULL;
+  if (interactive)
+  {
+    int dummyArgc = 1;
+    char* dummyArgv[2];
+    dummyArgv[0] = argv[0];
+    dummyArgv[1] = NULL;
+
+    myapp = new TRint("rint", &dummyArgc, &dummyArgv[0]);
+  }
 
   //--------------------
   // open the input file
@@ -252,8 +270,11 @@ int main(int argc, char **argv)
 
   TFile *fin = TFile::Open(inputFname.c_str());
 
-  assert(fin != NULL);
-  assert(fin->IsOpen());
+  if (fin == NULL || !fin->IsOpen())
+  {
+    cerr << "could not open input file '" << inputFname << "'" << endl;
+    exit(1);
+  }
 
   TTree *tree = (TTree*)(fin->Get(inputTreeName.c_str()));
   assert(tree != NULL);
@@ -282,12 +303,34 @@ int main(int argc, char **argv)
 
   //--------------------
 
+
   TFile *fout = TFile::Open(outputFname.c_str(), "RECREATE");
 
   // write out histograms to output file
   fout->cd();
   histoContainer->Save();
 
+  // do plotting
+  Plotting plotter(histoContainer);
+
+  // see http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/UserCode/HiggsAnalysis/HiggsTo2photons/h2gglobe/Macros/Normalization_8TeV.cc?revision=1.10&view=markup
+  // for itype numbers for each mass
+
+  // mh = 125 GeV
+  plotter.addSignalItype(-37);
+  plotter.addSignalItype(-38);
+  plotter.addSignalItype(-39);
+  plotter.addSignalItype(-40);
+
+
+  plotter.plotAll();
+
+  if (interactive)
+  {
+    myapp->Run(kTRUE);            // run ROOT interactively
+  }
+
   // close output file
   fout->Close();
+
 }
