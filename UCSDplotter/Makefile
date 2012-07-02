@@ -22,7 +22,7 @@ ALL_TARGETS = plotter JimAnalysis.so
 
 all:			$(ALL_TARGETS)
 
-plotter:		plotter.o HistoContainer.o 
+plotter:		plotter.o HistoContainer.o Plotting.o 
 
 
 JimAnalysis.so:		JimAnalysis.o 
