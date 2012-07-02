@@ -49,7 +49,6 @@ class MvaAnalysis : public MassFactorizedMvaAnalysis
     float systRange;
     int   nSystSteps;  
     int nInclusiveCategories, nVBFCategories, nLEPCategories;
-    int   nEtaCategories, nR9Categories, nPtCategories;
     float massMin, massMax;
     int nDataBins;  
     float signalRegionWidth;
