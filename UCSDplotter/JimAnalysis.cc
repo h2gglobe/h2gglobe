@@ -1,5 +1,9 @@
 #include "JimAnalysis.h"
 
+#include <iostream>
+using std::cout;
+using std::cerr;
+using std::endl;
 
 //----------------------------------------------------------------------
 void JimAnalysis::setBranchAddresses(TTree* tree) {
@@ -35,8 +39,16 @@ void JimAnalysis::setBranchAddresses(TTree* tree) {
 
 void JimAnalysis::analyze(HistoContainer* container) {
 
-  container->Fill("run", 0, run, full_weight);
+  // cout << "run=" << run << endl;
+  // container->Fill("run", 0, run, full_weight);
+
+  // fill mass per BDT category
+  if (bdt_cat >= 0)
+  {
+    container->Fill("reco_mass", int(itype + 0.5), int(bdt_cat + 0.5), mass, full_weight);
+  }
   
+
 }
 
 //----------------------------------------------------------------------
