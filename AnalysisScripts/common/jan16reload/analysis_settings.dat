@@ -1,3 +1,5 @@
+datais2011=1
+
 ## Di-jet tag
 includeVBF=1
 nVBFEtaCategories=1
@@ -5,46 +7,41 @@ nVBFDijetJetCategories=1
 leadEtVBFCut=55
 subleadEtVBFCut=25
 
-usePUjetveto=1
+usePUjetveto=0
 
 ## Hadronic V tag
 includeVHhad=0
-nVHhadEtaCategories=1
-leadEtVHhadCut=60
-subleadEtVHhadCut=25
 
 ## Lepton tag
 includeVHlep=0
-leadEtVHlepCut=45
-subleadEtVHlepCut=25
 
 ## MET tag
 includeVHmet=0
-leadEtVHmetCut=45
-subleadEtVHmetCut=25
 
 ## Inputs for reweighing
-doKFactorSmear=0
-doKFactorSyst=0
-kfacHist=
+doKFactorSmear=1
+doKFactorSyst=1
+
 ## For 7TeV samples
-## kfacHist=aux/KFactors_AllScales_interpolated.root
-puMap=
-puHist=auto
-puTarget=aux/rereco_prompt_2012_120608.69000.observed.pileup.root
+kfacHist=aux/KFactors_AllScales_interpolated.root
 
 ## energy scale adjustement and errors
-scale_offset_file=energy_scale_offsets.dat
-scale_offset_error_file=energy_scale_errors.dat
+scale_offset_file=jan16reload/energy_scale_offsets.dat
+scale_offset_error_file=jan16reload/energy_scale_errors.dat
 
 ## additional MC smearing
-smearing_file=smearing_sigma_and_errors.dat
+smearing_file=jan16reload/smearing_sigma_and_errors.dat
 
 ## jets
 recomputeBetas=0
-recorrectJets=1
+recorrectJets=0
 rerunJetMva=0
-recomputeJetWp=1
+recomputeJetWp=0
 
-reRunVtx=1
-rematchConversions=1
+reRunVtx=0
+rematchConversions=0
+
+kfacHist=aux/KFactors_AllScales_interpolated.root
+puMap=jan16/pu_weights_map.dat
+puHist=aux/2011_0100_73500.weights3.root
+puTarget=aux/nov08_rereco.json.68000.pileup.root

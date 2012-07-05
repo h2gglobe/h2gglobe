@@ -1,0 +1,26 @@
+# BDTs
+bdtTrainingPhilosophy=MIT
+photonLevelMvaUCSD=aux/ID_UCSD.weights.xml
+eventLevelMvaUCSD=aux/diphoton_UCSD.weights.xml
+photonLevelMvaMIT_EB=aux/TMVAClassificationPhotonID_Barrel_PassPreSel_Variable_10_BDTnCuts2000_BDT.weights.xml
+photonLevelMvaMIT_EE=aux/TMVAClassificationPhotonID_Endcap_PassPreSel_Variable_10_BDTnCuts2000_BDT.weights.xml
+eventLevelMvaMIT=aux/HggBambu_SMDipho_Jan16_BDTG.weights.xml
+
+
+# photon ID preselection
+phoidMvaCut=-0.3
+
+# BDT categories
+bdtCategoryBoundaries=1,0.89,0.74,0.545,0.05
+photonIDMVAShift_EB=0.
+photonIDMVAShift_EE=0.
+
+# k-factor
+doKFactorSmear=1
+doKFactorSyst=1
+
+efficiencyFile=aux/sig_reweighing_jan16rereco_mva_v2.root
+
+
+## FIXME 
+## change bkg model to run on data
