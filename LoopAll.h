@@ -716,6 +716,12 @@ Float_t shiftscaleMET_phi;
 Float_t shiftsmearMET_pt;
 Float_t shiftsmearMET_phi;
 
+Float_t shiftMET_eta;
+Float_t shiftMET_e;
+Float_t shiftscaleMET_eta;
+Float_t shiftscaleMET_e;
+
+
 
 TBranch *b_gh_gen2reco1;
 TBranch *b_gh_gen2reco2;
@@ -765,6 +771,10 @@ TBranch * b_shiftscaleMET_phi;
 TBranch * b_shiftsmearMET_pt;
 TBranch * b_shiftsmearMET_phi;
 
+TBranch * b_shiftMET_eta;
+TBranch * b_shiftMET_e;
+TBranch * b_shiftscaleMET_eta;
+TBranch * b_shiftscaleMET_e;
 
 //----------------------------------------
 // photon and diphoton vertex selection
@@ -982,6 +992,15 @@ void SetBranchAddress_shiftscaleMET_phi(TTree * tree) { tree->SetBranchAddress("
 void SetBranchAddress_shiftsmearMET_pt(TTree * tree) { tree->SetBranchAddress("shiftsmearMET_pt", &shiftsmearMET_pt, &b_shiftsmearMET_pt); };
 void SetBranchAddress_shiftsmearMET_phi(TTree * tree) { tree->SetBranchAddress("shiftsmearMET_phi", &shiftsmearMET_phi, &b_shiftsmearMET_phi); };
 
+void Branch_shiftMET_eta(TTree * tree) { tree->Branch("shiftMET_eta", &shiftMET_eta, "shiftMET_eta[dipho_n]/F"); };
+void Branch_shiftMET_e(TTree * tree) { tree->Branch("shiftMET_e", &shiftMET_e, "shiftMET_e[dipho_n]/F"); };
+void Branch_shiftscaleMET_eta(TTree * tree) { tree->Branch("shiftscaleMET_eta", &shiftscaleMET_eta, "shiftscaleMET_eta[dipho_n]/F"); };
+void Branch_shiftscaleMET_e(TTree * tree) { tree->Branch("shiftscaleMET_e", &shiftscaleMET_e, "shiftscaleMET_e[dipho_n]/F"); };
+
+void SetBranchAddress_shiftMET_eta(TTree * tree) { tree->SetBranchAddress("shiftMET_eta", &shiftMET_eta, &b_shiftMET_eta); };
+void SetBranchAddress_shiftMET_e(TTree * tree) { tree->SetBranchAddress("shiftMET_e", &shiftMET_e, &b_shiftMET_e); };
+void SetBranchAddress_shiftscaleMET_eta(TTree * tree) { tree->SetBranchAddress("shiftscaleMET_eta", &shiftscaleMET_eta, &b_shiftscaleMET_eta); };
+void SetBranchAddress_shiftscaleMET_e(TTree * tree) { tree->SetBranchAddress("shiftscaleMET_e", &shiftscaleMET_e, &b_shiftscaleMET_e); };
 
 // ID branches
 void Branch_pho_mitmva(TTree * tree) { tree->Branch("pho_mitmva", "std::vector<std::vector<float> >", &pho_mitmva); }; 
@@ -1085,14 +1104,10 @@ int ElectronSelection(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind);
 int MuonSelection2012(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind);
 int ElectronSelection2012(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind);
 
-//correctMETinRED
+//correct met
 double ErrEt( double Et, double Eta);
 TLorentzVector shiftMet(TLorentzVector *uncormet, bool isMC);
-TLorentzVector correctMet(TLorentzVector *uncormet, bool smearing, bool scale);
-
-//met at analysis step
-//TLorentzVector shiftMet(TLorentzVector& pho_lead, TLorentzVector& pho_sublead, int vtxind, TLorentzVector *uncormet, bool isMC);
-//TLorentzVector correctMet(TLorentzVector& pho_lead, TLorentzVector& pho_sublead, int vtxind, TLorentzVector *uncormet, bool smearing, bool scale);
+TLorentzVector correctMet_Simple(TLorentzVector& pho_lead, TLorentzVector& pho_sublead, TLorentzVector *uncormet, bool smearing, bool scale);
 
 
 void SetAllMVA();

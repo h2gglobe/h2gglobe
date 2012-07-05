@@ -886,19 +886,17 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
         }
     }
 	
-	
 	//Met tag //met at analysis step
 	if(includeVHmet){
 	    diphotonVHmet_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVHmetCut, subleadEtVHmetCut, 4, false, &smeared_pho_energy[0], true);
 	    if(diphotonVHmet_id>-1) {
-	      TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphotonVHmet_id], l.dipho_vtxind[diphoton_id] , &smeared_pho_energy[0]);
-	      TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphotonVHmet_id], l.dipho_vtxind[diphoton_id] , &smeared_pho_energy[0]);	    
-	      TLorentzVector TwoPhoton_Vector = (lead_p4) + (sublead_p4);  
-	      float m_gamgam = TwoPhoton_Vector.M();
-		
-		PhotonAnalysis::MetCorrections2012( l );
-//                PhotonAnalysis::MetCorrections2012( l, lead_p4 , sublead_p4 ,0 );
-		
+            TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphotonVHmet_id], l.dipho_vtxind[diphoton_id] , &smeared_pho_energy[0]);
+            TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphotonVHmet_id], l.dipho_vtxind[diphoton_id] , &smeared_pho_energy[0]);	    
+            TLorentzVector TwoPhoton_Vector = (lead_p4) + (sublead_p4);  
+            float m_gamgam = TwoPhoton_Vector.M();
+                
+                PhotonAnalysis::MetCorrections2012_Simple( l, lead_p4 , sublead_p4 );
+                
 		if (m_gamgam>100 && m_gamgam<180 && ( lead_p4.Pt() > 45*m_gamgam/120.) && sublead_p4.Pt() > 25. && l.shiftscaleMET_pt>70) {
 		  met_sync << " run: " << l.run
 		    << "\tevent: " << l.event

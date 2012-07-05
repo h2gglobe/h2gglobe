@@ -206,6 +206,7 @@ class PhotonAnalysis : public BaseAnalysis
     bool MuonTag2012(LoopAll& l, int diphotonVHlep_id, float* smeared_pho_energy, ofstream& lep_sync, bool nm1=false, float eventweight=1, float myweight=1);
     bool METTag2012(LoopAll& l, int diphotonVHmet_id , float* smeared_pho_energy);  //met at analysis step
     void MetCorrections2012(LoopAll& l);
+    void MetCorrections2012_Simple(LoopAll& l, TLorentzVector lead_p4, TLorentzVector sublead_p4);
     
     // Pile-up reweighing
     void loadPuMap(const char * fname, TDirectory * dir, TH1 * target=0);
