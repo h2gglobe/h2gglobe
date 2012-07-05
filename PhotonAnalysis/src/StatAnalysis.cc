@@ -751,7 +751,7 @@ bool StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		    
 		    // re-analyse the event without redoing the event selection as we use nominal values for the single photon
 		    // corrections and smearings
-		    AnalyseEvent(l, jentry, weight, gP4, syst_mass,  syst_weight, syst_category, diphoton_id, isCorrectVertex,zero_,
+		    AnalyseEvent(l, jentry, weight, gP4, syst_mass,  syst_weight, syst_category, diphoton_id, isCorrectVertex,syst_diphotonMVA,
 				 true, syst_shift, true, *si, 0, 0 );
 		    
 		    AccumulateSyst( cur_type, syst_mass, syst_diphotonMVA, syst_category, syst_weight,
@@ -771,7 +771,7 @@ bool StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		    
 		    // re-analyse the event without redoing the event selection as we use nominal values for the single photon
 		    // corrections and smearings
-		    AnalyseEvent(l,jentry, weight, gP4, syst_mass,  syst_weight, syst_category, diphoton_id, isCorrectVertex,zero_,
+		    AnalyseEvent(l,jentry, weight, gP4, syst_mass,  syst_weight, syst_category, diphoton_id, isCorrectVertex,syst_diphotonMVA,
 				 true, syst_shift, true,  0, 0, *si );
 		    
 		    AccumulateSyst( cur_type, syst_mass, syst_diphotonMVA, syst_category, syst_weight,
@@ -792,7 +792,7 @@ bool StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		syst_mass     =  0., syst_category = -1, syst_weight   =  0.;
 		
 		// re-analyse the event redoing the event selection this time
-		AnalyseEvent(l,jentry, weight, gP4, syst_mass,  syst_weight, syst_category, diphoton_id_syst, isCorrectVertex,zero_,
+		AnalyseEvent(l,jentry, weight, gP4, syst_mass,  syst_weight, syst_category, diphoton_id_syst, isCorrectVertex,syst_diphotonMVA,
 			     true, syst_shift, false,  0, *si, 0 );
 		
 		AccumulateSyst( cur_type, syst_mass, syst_diphotonMVA, syst_category, syst_weight,
