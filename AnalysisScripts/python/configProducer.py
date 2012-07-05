@@ -503,7 +503,9 @@ class configProducer:
       	    if "," in val:
 	     ele = val.split(",")
              value_type = type( type(struct.__getattribute__(name))(1)[0] )
-	     for v in ele: (struct.__getattribute__(name)).push_back(value_type(v))
+             print value_type
+	     for v in ele:
+                 (struct.__getattribute__(name)).push_back(value_type(v))
             else :
              t = type( struct.__getattribute__(name) )
              struct.__setattr__(name, t(val) )

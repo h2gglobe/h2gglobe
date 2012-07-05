@@ -27,6 +27,8 @@ htyp=0 plot=-1  ncat=18  xbins=200   ybins=0    xmin=-10  xmax=10   ymin=0      
 htyp=0 plot=-1  ncat=18  xbins=200   ybins=0    xmin=-10  xmax=10   ymin=0       ymax=0       name=vtx_dz_4
 htyp=0 plot=-1  ncat=18  xbins=3     ybins=0    xmin=-0.5  xmax=2.5   ymin=0       ymax=0       name=vtx_nconv
 
+htyp=0 plot=-1  ncat=18  xbins=100    ybins=0       xmin=0.0   xmax=500.0  ymin=0      ymax=0       name=pho_rawe
+
 htyp=0 plot=-1  ncat=18  xbins=50    ybins=0       xmin=0.0   xmax=120.0  ymin=0      ymax=0       name=pho_pt
 htyp=0 plot=-1  ncat=18  xbins=60    ybins=0       xmin=0.0   xmax=120.0  ymin=0      ymax=0       name=pho1_pt
 htyp=0 plot=-1  ncat=18  xbins=60    ybins=0       xmin=0.0   xmax=120.0  ymin=0      ymax=0       name=pho2_pt

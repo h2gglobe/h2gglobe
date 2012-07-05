@@ -2205,14 +2205,11 @@ bool PhotonAnalysis::VBFTag2011(LoopAll& l, int diphoton_id, float* smeared_pho_
     bool tag = false;
 
     if(diphoton_id==-1) return tag;
-    float jet1ptcut =15.0;
-    float jet2ptcut =15.0;
-  
   
     TLorentzVector lead_p4    = l.get_pho_p4( l.dipho_leadind[diphoton_id], l.dipho_vtxind[diphoton_id], &smeared_pho_energy[0]);
     TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphoton_id], l.dipho_vtxind[diphoton_id], &smeared_pho_energy[0]);
           
-    std::pair<int, int> jets = l.Select2HighestPtJets(lead_p4, sublead_p4, jet1ptcut, jet2ptcut );
+    std::pair<int, int> jets = l.Select2HighestPtJets(lead_p4, sublead_p4 );
     if(jets.first==-1 or jets.second==-1) return tag;
     
     TLorentzVector diphoton = lead_p4+sublead_p4;
@@ -2246,9 +2243,7 @@ bool PhotonAnalysis::VBFTag2012(int & ijet1, int & ijet2,
     bool tag = false;
     
     if(diphoton_id==-1) return tag;
-    float jet1ptcut =30.0;
-    float jet2ptcut =25.0;
-      
+    
     if( jetid_flags == 0 ) { 
     switchJetIdVertex( l, l.dipho_vtxind[diphoton_id] );
     id_flags.resize(l.jet_algoPF1_n);
@@ -2263,9 +2258,9 @@ bool PhotonAnalysis::VBFTag2012(int & ijet1, int & ijet2,
           
     std::pair<int, int> jets;
     if(usePUjetveto){
-        jets = l.Select2HighestPtJets(lead_p4, sublead_p4, jet1ptcut, jet2ptcut, jetid_flags );
+        jets = l.Select2HighestPtJets(lead_p4, sublead_p4, jetid_flags );
     } else {
-        jets = l.Select2HighestPtJets(lead_p4, sublead_p4, jet1ptcut, jet2ptcut);
+        jets = l.Select2HighestPtJets(lead_p4, sublead_p4);
     }
 
     if(jets.first==-1 || jets.second==-1) return tag;
@@ -2299,14 +2294,11 @@ bool PhotonAnalysis::VHhadronicTag2011(LoopAll& l, int diphotonVHhad_id, float* 
     bool tag = false;
 
     if(diphotonVHhad_id==-1) return tag;
-    float jet1ptcut =15.0;
-    float jet2ptcut =15.0;
-  
   
     TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphotonVHhad_id], l.dipho_vtxind[diphotonVHhad_id], &smeared_pho_energy[0]);
     TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphotonVHhad_id], l.dipho_vtxind[diphotonVHhad_id], &smeared_pho_energy[0]);
     
-    std::pair<int, int> jets = l.Select2HighestPtJets(lead_p4, sublead_p4, jet1ptcut, jet2ptcut );
+    std::pair<int, int> jets = l.Select2HighestPtJets(lead_p4, sublead_p4 );
     if(jets.first==-1 or jets.second==-1) return tag;
   
     TLorentzVector* jet1 = (TLorentzVector*)l.jet_algoPF1_p4->At(jets.first);

@@ -90,7 +90,7 @@ public:
           float       corrRelErr;
   };
   
-  EnergySmearer(const energySmearingParameters& par);
+  EnergySmearer(const energySmearingParameters& par, const std::vector<PhotonCategory> & presel=std::vector<PhotonCategory>());
   virtual ~EnergySmearer();
   
   virtual const std::string & name() const { return name_; };
@@ -122,6 +122,8 @@ public:
   bool doEnergy_, scaleOrSmear_, doEfficiencies_, doCorrections_, doRegressionSmear_;
   int baseSeed_;
 
+  std::vector<PhotonCategory> preselCategories_;
+  
   std::string photonCategory(PhotonReducedInfo &) const;
 
   double getWeight(double pt, std::string theCategory, float syst_shift) const;

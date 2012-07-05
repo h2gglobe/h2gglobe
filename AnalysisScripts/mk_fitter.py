@@ -31,7 +31,7 @@ if __name__  == "__main__":
 	parser = OptionParser()
 	parser.add_option("-i","--inputDat",dest="inputDat")
 	parser.add_option("-n","--nJobs",type="int", dest="nJobs",default=-1)
-	parser.add_option("-o","--outputScript",dest="outputScript",default="sub")
+	parser.add_option("-o","--outputScript",dest="outputScript",default="")
 	parser.add_option("-l","--label",dest="label",default="")
 	parser.add_option("","--runIC",dest="runIC",default=False, action="store_true")
 	parser.add_option("-u","--user",dest="user",default="")
@@ -39,6 +39,8 @@ if __name__  == "__main__":
 	parser.add_option("-N","--notgz",dest="notgz",action="store_true",default=False)
 	
 	(options,args)=parser.parse_args()
+	if options.outputScript == "":
+		options.outputScript = "%s/sub" % options.label
 	
 	# Check IC user configs:
 	if options.runIC:

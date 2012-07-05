@@ -2,7 +2,9 @@
 #include "PhotonReducedInfo.h"
 #include <assert.h>
 
-EnergySmearer::EnergySmearer(const energySmearingParameters& par) : myParameters_(par), scaleOrSmear_(true), doCorrections_(false), doRegressionSmear_(false)
+EnergySmearer::EnergySmearer(const energySmearingParameters& par, const std::vector<PhotonCategory> & presel) : 
+	myParameters_(par), scaleOrSmear_(true), doCorrections_(false), doRegressionSmear_(false),
+	preselCategories_(presel)
 {
   rgen_ = new TRandom3(12345);
   baseSeed_ = 0;
@@ -43,16 +45,19 @@ std::string EnergySmearer::photonCategory(PhotonReducedInfo & aPho) const
   std::string myCategory="";
   if (myParameters_.categoryType=="Automagic") 
     {
-	    EnergySmearer::energySmearingParameters::phoCatVectorConstIt vit = find(myParameters_.photon_categories.begin(), myParameters_.photon_categories.end(), 
-										    std::make_pair( aPho.isSphericalPhoton(), 
-												    std::make_pair( fabs((float)aPho.caloPosition().PseudoRapidity()), 
-														    (float)aPho.r9() ) )
+	    EnergySmearer::energySmearingParameters::phoCatVectorConstIt vit = 
+		find(myParameters_.photon_categories.begin(), 
+		     myParameters_.photon_categories.end(),   
+		     std::make_pair( aPho.isSphericalPhoton(),
+				     std::make_pair( fabs((float)aPho.caloPosition().PseudoRapidity()),(float)aPho.r9() ) )
 		    );
 	    if( vit ==  myParameters_.photon_categories.end() ) {
 		    std::cerr << "Could not find energy scale correction for this photon " << aPho.isSphericalPhoton() << " " << (float)aPho.caloPosition().PseudoRapidity() << " " <<  (float)aPho.r9() << std::endl;
 		    assert( 0 );
 	    }
 	    myCategory = vit->name;
+	    /// /std::cout << myCategory << " "  << aPho.isSphericalPhoton() << " " << (float)aPho.caloPosition().PseudoRapidity() << " " <<  (float)aPho.r9() << std::endl;
+
     } 
   else if (myParameters_.categoryType=="2CatR9_EBEE")
     {
@@ -116,89 +121,75 @@ float EnergySmearer::getScaleOffset(int run, const std::string & category) const
 
 bool EnergySmearer::smearPhoton(PhotonReducedInfo & aPho, float & weight, int run, float syst_shift) const
 {
-  std::string category=photonCategory(aPho);
+    if( ! preselCategories_.empty() ) {
+	if( find(preselCategories_.begin(), preselCategories_.end(),
+		 std::make_pair( aPho.isSphericalPhoton(),
+				 std::make_pair( fabs((float)aPho.caloPosition().PseudoRapidity()),(float)aPho.r9() ) )
+		) ==  preselCategories_.end() ) { 
+	    return true; 
+	}
+    }
     
-  if (category == "")
+    std::string category=photonCategory(aPho);
+    
+    if (category == "")
     {
-      std::cout << "No category has been found associated with this photon. G<iving Up" << std::endl;
-      return false;
+	std::cout << "No category has been found associated with this photon. Giving Up" << std::endl;
+	return false;
     }
+    
+    float scale_offset   = getScaleOffset(run, category);
+    float smearing_sigma = myParameters_.smearing_sigma.find(category)->second;
+    
+    /////////////////////// smearing or re-scaling photon energy ///////////////////////////////////////////
+    float newEnergy=aPho.energy();
 
-  float scale_offset   = getScaleOffset(run, category);
-  float smearing_sigma = myParameters_.smearing_sigma.find(category)->second;
-
-  /// Moved to configuration file PM 4/4/12
-  ////// // special category for Unconverted photons in EB "far" from boundary (Haven't made this configrable yet in the smearers .dats)
-  ////// float sphericalPhotonSigma     =0.0067;
-  ////// float sphericalPhotonSigmaError=0.0040;
-  ////// // Will move this soon to an additional category in dats which is configurable
-  ////// bool is_specialPhoton = aPho.isSphericalPhoton();
-  ////// if (is_specialPhoton) smearing_sigma=sphericalPhotonSigma;
-  //
-
-
-  /////////////////////// smearing or re-scaling photon energy ///////////////////////////////////////////
-  
-  float newEnergy=aPho.energy();
-  /////////////////////// apply MC-based photon energy corrections ///////////////////////////////////////////
-  if (  doCorrections_ ) {
-    // corrEnergy is the corrected photon energy
-    newEnergy = aPho.corrEnergy() + syst_shift * myParameters_.corrRelErr * (aPho.corrEnergy() - aPho.energy());
-  } else if ( doRegressionSmear_){
-    // leave energy alone, bus change resolution (10% uncertainty on sigmaE/E scaling)
-    float newSigma;
-    if (fabs(aPho.caloPosition().Eta())<1.5){
-    	newSigma = aPho.corrEnergyErr()*(1.+syst_shift*0.1);
+    /////////////////////// apply MC-based photon energy corrections ///////////////////////////////////////////
+    if (  doCorrections_ ) {
+	// corrEnergy is the corrected photon energy
+	newEnergy = aPho.corrEnergy() + syst_shift * myParameters_.corrRelErr * (aPho.corrEnergy() - aPho.energy());
+    } else if ( doRegressionSmear_){
+	// leave energy alone, bus change resolution (10% uncertainty on sigmaE/E scaling)
+	float newSigma;
+	if (fabs(aPho.caloPosition().Eta())<1.5){
+	    newSigma = aPho.corrEnergyErr()*(1.+syst_shift*0.1);
+	} else {
+	    newSigma = aPho.corrEnergyErr()*(1.+syst_shift*0.1);
+	}
+	aPho.setCorrEnergyErr(newSigma);
     } else {
-    	newSigma = aPho.corrEnergyErr()*(1.+syst_shift*0.1);
+	if( scaleOrSmear_ ) {
+	    scale_offset   += syst_shift * myParameters_.scale_offset_error.find(category)->second;
+	    newEnergy *=  scale_offset;
+	} else {
+	    float err_sigma= myParameters_.smearing_sigma_error.find(category)->second;
+	    smearing_sigma += syst_shift * err_sigma;
+	    // Careful here, if sigma < 0 now, it will be squared and so not correct, set to 0 in this case.
+	    if (smearing_sigma < 0) smearing_sigma=0;
+	    
+	    // deterministic smearing
+	    int nsigmas = round(syst_shift);
+	    if( nsigmas < 0 ) nsigmas = 1-nsigmas;
+	    if( nsigmas < aPho.nSmearingSeeds() ) {
+		rgen_->SetSeed( baseSeed_+aPho.smearingSeed(nsigmas) );
+	    }
+	    
+	    float smear = rgen_->Gaus(1.,smearing_sigma);
+	    newEnergy *=  smear;
+	}
     }
-    aPho.setCorrEnergyErr(newSigma);
-  } else {
-    if( scaleOrSmear_ ) {
-	  scale_offset   += syst_shift * myParameters_.scale_offset_error.find(category)->second;
-	  /// std::cerr << "photon category " << category << " syst_shift " <<  syst_shift << " scale_offset " << scale_offset << std::endl;
-	  newEnergy *=  scale_offset;
-    } else {
-	  /// float err_sigma= is_specialPhoton ? sphericalPhotonSigmaError : myParameters_.smearing_sigma_error.find(category)->second;
-	  float err_sigma= myParameters_.smearing_sigma_error.find(category)->second;
-	  smearing_sigma += syst_shift * err_sigma;
-	  //// std::cerr << "photon category " <<  aPho.isSphericalPhoton() << " " << fabs((float)aPho.caloPosition().PseudoRapidity()) << " " << (float)aPho.r9() << " " << category << " syst_shift " <<  syst_shift << " smearing_sigma " << smearing_sigma << std::endl;
-          // Careful here, if sigma < 0 now, it will be squared and so not correct, set to 0 in this case.
-          if (smearing_sigma < 0) smearing_sigma=0;
-
-
-	  // deterministic smearing
-	  int nsigmas = round(syst_shift);
-	  if( nsigmas < 0 ) nsigmas = 1-nsigmas;
-	  if( nsigmas < aPho.nSmearingSeeds() ) {
-		  rgen_->SetSeed( baseSeed_+aPho.smearingSeed(nsigmas) );
-	  }
-	  
-	  float smear = rgen_->Gaus(1.,smearing_sigma);
-	  //// if( syst_shift == 0. ) {
-	  //// 	  std::cerr << "photon  " << newEnergy << " " <<  aPho.caloPosition().Eta() << " " << aPho.r9() << " " << nsigmas << " " << smear << " " << aPho.smearingSeed(nsigmas) << " " << rgen_->GetSeed() << std::endl;
-	  //// }
-	  newEnergy *=  smear;
-	  //// newEnergy *=  rgen_->Gaus(1.,smearing_sigma);
+    assert( newEnergy != 0. );
+    aPho.setEnergy(newEnergy);
+    
+    /////////////////////// changing weigh of photon according to efficiencies ///////////////////////////////////////////
+    //////////////////////  if you're doing corrections, don't touch the weights ////////////////////////////////////////
+    if(doEfficiencies_ && (!doCorrections_) ) {
+	if( !smearing_eff_graph_.empty()  ){
+	    weight = getWeight( ( aPho.energy() / cosh(aPho.caloPosition().PseudoRapidity()) ) ,category, syst_shift);
+	}
     }
-  }
-  
-  //std::cout << "doCorrections: " << doCorrections_ << " ene: " <<  aPho.energy() 
-  //<< " corr ene: " <<  aPho.corrEnergy() << " newEne: " << newEnergy << " syst_shift: " 
-  //<< syst_shift << std::endl; 
-
-  assert( newEnergy != 0. );
-  aPho.setEnergy(newEnergy);
-  
-  /////////////////////// changing weigh of photon according to efficiencies ///////////////////////////////////////////
-  //////////////////////  if you're doing corrections, don't touch the weights ////////////////////////////////////////
-  if(doEfficiencies_ && (!doCorrections_) ) {
-    if( !smearing_eff_graph_.empty()  ){
-      weight = getWeight( ( aPho.energy() / cosh(aPho.caloPosition().PseudoRapidity()) ) ,category, syst_shift);
-    }
-  }
-
-  return true;
+    
+    return true;
 }
 
 

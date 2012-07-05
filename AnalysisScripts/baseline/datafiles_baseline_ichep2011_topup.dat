@@ -1,4 +1,4 @@
-intL=5346 histfile=/store/group/phys_higgs/cmshgg/analyzed/june15unblind/%(label)s/CMS-HGG.root output=eventsList.txt
+intL=5346 histfile=/store/group/phys_higgs/cmshgg/analyzed/ichep2012topup/%(label)s/CMS-HGG.root output=eventsList.txt
 
 #
 # Data
@@ -10,7 +10,7 @@ typ=0    ind=0 draw=1  Nam=Data    CaDir=/store/group/phys_higgs/cmshgg/reduced/
 typ=0    ind=0 draw=1  Nam=Data    CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/data/DoublePhotonPromptReco2012B_TopUp_sub1  tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=aux/Cert_ICHEP_TopUp_535fb.json
 typ=0    ind=0 draw=1  Nam=Data    CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/data/DoublePhotonPromptReco2012B_TopUp_sub3  tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=aux/Cert_ICHEP_TopUp_535fb.json
 
-typ=0    ind=0 draw=1  Nam=Data    CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/data/PhotonPromptReco2012A  tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=aux/Cert_ICHEP_TopUp_535fb.Json
+typ=0    ind=0 draw=1  Nam=Data    CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/data/PhotonPromptReco2012A  tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=aux/Cert_ICHEP_TopUp_535fb.json
 typ=0    ind=0 draw=1  Nam=Data    CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/data/PhotonPromptReco2012A_sub2  tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=aux/Cert_ICHEP_TopUp_535fb.json
 typ=0    ind=0 draw=1  Nam=Data    CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/data/PhotonJune8ReReco2012A_120625Recovery  tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=aux/Cert_ICHEP_TopUp_535fb.json
 typ=0    ind=0 draw=1  Nam=Data    CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/data/PhotonJune8ReReco2012A_TopUp_sub1  tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=aux/Cert_ICHEP_TopUp_535fb.json
@@ -108,7 +108,7 @@ inputBranches minimal_statanalysis_input.dat
 ## 	analyzer <class_name> <config_file>
 ## 
 ## analyzer PhotonAnalysis photonanalysis.dat	
-analyzer StatAnalysis photonanalysis.dat analysis_settings.dat statanalysis.dat dumpAscii=1 dumpMcAscii=0 scaleR9Only=0 unblind=1
+analyzer StatAnalysis photonanalysis.dat analysis_settings.dat statanalysis.dat dumpAscii=1 dumpMcAscii=0 scaleR9Only=0 unblind=0 bkgPolOrderByCat=5,6,6,6,3,4
 
 
 

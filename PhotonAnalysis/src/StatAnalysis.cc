@@ -1180,6 +1180,9 @@ void StatAnalysis::fillControlPlots(const TLorentzVector & lead_p4, const  TLore
 	l.FillHist("pho2_r9",category+1, sublead_r9, evweight);
 
 	l.FillHist("pho_n",category+1,l.pho_n, evweight);
+	
+	l.FillHist("pho_rawe",category+1,l.sc_raw[l.pho_scind[l.dipho_leadind[diphoton_id]]], evweight);
+	l.FillHist("pho_rawe",category+1,l.sc_raw[l.pho_scind[l.dipho_subleadind[diphoton_id]]], evweight);
     }
 }
 

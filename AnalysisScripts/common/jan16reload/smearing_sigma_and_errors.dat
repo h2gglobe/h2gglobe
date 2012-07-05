@@ -1,8 +1,9 @@
 # category      type(0=any,1=CM,2=GAP) minEta  MaxEta   mr9    Mr9      mrun    Mrun   smear   smearErr    
 # update on EBlowEtaGold since new special photon boundary
 # These numbers correspong to Jan16 Re-reco
-EBlowEtaGoldGAP	2 0.0	1.0	0.94	999.00	-999999	999999	0.77e-2	0.22e-2
 EBlowEtaGoldCM	1 0.0	1.0	0.94	999.00	-999999	999999	0.67e-2	0.40e-2
+EBlowEtaGoldGAP	2 0.0	1.0	0.94	999.00	-999999	999999	0.77e-2	0.22e-2
+
 EBlowEtaBad	0 0.0	1.0	-999.00	0.94	-999999	999999	0.96e-2	0.24e-2
 
 EBhighEtaGold	0 1.0	1.5	0.94	999.00	-999999	999999	1.41e-2	0.60e-2
