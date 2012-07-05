@@ -159,12 +159,13 @@ void FMTFit::Plot(double mass){
       l2.DrawLine(highEdges[i],frame->GetMinimum(),highEdges[i],frame->GetMaximum()); 
       if (i>0) b2.DrawBox(highEdges[i-1],frame->GetMinimum(),highEdges[i],frame->GetMaximum());
     }
+		frame->Draw("same");
 		TLatex *text = new TLatex();
 		text->SetTextSize(0.04);
 		text->SetNDC();
 		text->DrawLatex(0.68,0.85,"CMS preliminary");
     text->DrawLatex(0.75,0.78,"#sqrt{s} = 8 TeV");
-		text->DrawLatex(0.73,0.71,Form("#int L = %3.1f fb^{-1}",(getintLumi())));
+		text->DrawLatex(0.75,0.71,Form("L = %3.1f fb^{-1}",(getintLumi())));
     if (blind_) text->DrawLatex(0.67,0.64,"Blinded: [110,150]");
     c1->SaveAs(Form("plots/pdf/fit_m%3.1f.pdf",mass));
     c1->SaveAs(Form("plots/png/fit_m%3.1f.png",mass));

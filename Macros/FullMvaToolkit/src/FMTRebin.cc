@@ -14,7 +14,9 @@ using namespace std;
 
 FMTRebin::FMTRebin(string filename, double intLumi, bool is2011, int mHMinimum, int mHMaximum, double mHStep, double massMin, double massMax, int nDataBins, double signalRegionWidth, double sidebandWidth, int numberOfSidebands, int numberOfSidebandsForAlgos, int numberOfSidebandGaps, double massSidebandMin, double massSidebandMax, int nIncCategories, bool includeVBF, int nVBFCategories, bool includeLEP, int nLEPCategories, vector<string> systematics, bool rederiveOptimizedBinEdges, vector<map<int,vector<double> > > AllBinEdges, bool verbose):
 	
-	FMTBase(intLumi, is2011, mHMinimum, mHMaximum, mHStep, massMin, massMax, nDataBins, signalRegionWidth, sidebandWidth, numberOfSidebands, numberOfSidebandsForAlgos, numberOfSidebandGaps, massSidebandMin, massSidebandMax, nIncCategories, includeVBF, nVBFCategories, includeLEP, nLEPCategories, systematics, rederiveOptimizedBinEdges, AllBinEdges, verbose)
+	FMTBase(intLumi, is2011, mHMinimum, mHMaximum, mHStep, massMin, massMax, nDataBins, signalRegionWidth, sidebandWidth, numberOfSidebands, numberOfSidebandsForAlgos, numberOfSidebandGaps, massSidebandMin, massSidebandMax, nIncCategories, includeVBF, nVBFCategories, includeLEP, nLEPCategories, systematics, rederiveOptimizedBinEdges, AllBinEdges, verbose),
+	justRebin_(false),
+	catByHand_(false)
 {
 	signalVector1 = new double[25];
 	backgroundVector1 = new double[25];
@@ -133,7 +135,8 @@ std::vector<double> FMTRebin::significanceOptimizedBinning(TH1F *hs,TH1F *hb,int
     std::cout << "N Bins, Max Significance -> " << N+1 << " "<<maximumSignificance << std::endl;
 
 
-    if ((maximumSignificance-highestMaxSignificance)/highestMaxSignificance > 0.001){
+    //if ((maximumSignificance-highestMaxSignificance)/highestMaxSignificance > 0.001){
+		if ((N+1)<8) {
       highestMaxSignificance = maximumSignificance ;
       finalCounters= new int[N];
       chosenN = N;
@@ -753,17 +756,20 @@ void FMTRebin::executeRebinning(int mass){
 	cout << "Extrated bin edges - mass " << mass << endl;
   cout << (getBinEdges(mass)).size() << " " << (getVBFBinEdges(mass)).size() << " " << (getLEPBinEdges(mass)).size() << endl;
 	// now rebin background at +- mHStep and do the fit
-  vector<double> theMasses = getMHMasses(mass);
-  for (vector<double>::iterator mH = theMasses.begin(); mH != theMasses.end(); mH++){
-    fitter->FitPow(*mH);
-    rebinBackground(*mH,mass);
-  }
+ 	
+	if (!justRebin_){
+		vector<double> theMasses = getMHMasses(mass);
+		for (vector<double>::iterator mH = theMasses.begin(); mH != theMasses.end(); mH++){
+			fitter->FitPow(*mH);
+			rebinBackground(*mH,mass);
+		}
 
-	// now rebin signal at +- 5GeV for interpolation
-  vector<int> theMCMasses = getUandDMCMasses(mass);
-  for (vector<int>::iterator mH = theMCMasses.begin(); mH != theMCMasses.end(); mH++){
-    rebinSignal(*mH,mass);
-  }
+		// now rebin signal at +- 5GeV for interpolation
+		vector<int> theMCMasses = getUandDMCMasses(mass);
+		for (vector<int>::iterator mH = theMCMasses.begin(); mH != theMCMasses.end(); mH++){
+			rebinSignal(*mH,mass);
+		}
+	}
 
 	cout << Form("------ REBINNING MASS %3d.0 COMPLETE ------",mass) << endl;
 }
@@ -773,4 +779,10 @@ bool FMTRebin::getcatByHand(){
 }
 void FMTRebin::setcatByHand(bool catBH){
   catByHand_=catBH;
+}
+bool FMTRebin::getjustRebin(){
+	return justRebin_;
+}
+void FMTRebin::setjustRebin(bool reb){
+	justRebin_=reb;
 }

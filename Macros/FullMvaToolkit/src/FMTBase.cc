@@ -294,28 +294,15 @@ vector<double> FMTBase::getLEPBinEdges(int mass){
 vector<double> FMTBase::getMHMasses(int mass){
 	vector<double> theMasses;
 	checkMCMass(mass);
-	double m_low=0;
-	double m_high=0;
-	if (mass==mHMinimum_){
-		m_low=0.;
-		m_high=2.5;
-	}
-	else if (mass==mHMaximum_){
-		m_low=-2.5;
-		m_high=mHStep_;
-		if (mass==150) m_low=-5.0;
-	}
-	else if (mass==140){
-		m_low=-2.5;
-		m_high=5.0;
-	}
-	else {
-		m_low=-2.5;
-		m_high=2.5;
-	}
+	double m_low=mass-(floor(2.5/mHStep_)*mHStep_);
+	double m_high=mass+(ceil(2.5/mHStep_)*mHStep_);
+	if (mass==140) m_high=mass+(ceil(5.0/mHStep_)*mHStep_);
+	if (mass==150) m_low=mass-(floor(5.0/mHStep_)*mHStep_);
+	
 	for (double m=m_low; m<m_high-(mHStep_/2.); m+=mHStep_){
-		theMasses.push_back(mass+m);
+		if (m>=mHMinimum_ && m<=mHMaximum_) theMasses.push_back(m);
 	}
+	
 	return theMasses;
 }
 

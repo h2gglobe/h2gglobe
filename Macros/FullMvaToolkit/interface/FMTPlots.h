@@ -28,6 +28,7 @@ class FMTPlots : public FMTBase {
 		void plotByMH(string, double, TH1F*, TH1F*, TH1F*);
 		pair<pair<double,double>,pair<double,double> > getBandSB(string,int);
 		vector<double> getNormErrs(string);
+		double quadInterp(double, double, double, double, double, double, double);
 
   private:
     

@@ -39,12 +39,14 @@ class FMTRebin : public FMTBase {
 		double *getsignalVector1();
 		double *getbackgroundVector1();
     bool getcatByHand();
+		bool getjustRebin();
 
 		void setg_step(int);
 		void setsweepmode();
 		void setsignalVector1(double*);
 		void setbackgroundVector1(double*);
     void setcatByHand(bool);
+		void setjustRebin(bool);
 
 		FMTFit *fitter;
 
@@ -56,6 +58,7 @@ class FMTRebin : public FMTBase {
 		TFile *tFile;
 
     bool catByHand_;
+		bool justRebin_;
 
 };
 

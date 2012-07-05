@@ -22,6 +22,7 @@ FMTSetup::FMTSetup(string filename):
   catByHand_(false),
 	rebin_(false),
 	skipRebin_(false),
+	justRebin_(false),
 	binEdges_(false),
   dumpDatFile_(false),
 	interp_(false),
@@ -41,6 +42,7 @@ FMTSetup::FMTSetup(string filename):
 
 FMTSetup::~FMTSetup(){
 	if (!cleaned) delete rebinner;
+	cout << "Exiting..." << endl;
   system(Form("cp %s %s_afterFMT.root",filename_.c_str(),filename_.c_str()));
   cout << "Original file " << filename_ << " backed up to " << Form("%s_beforeFMT.root",filename_.c_str()) << endl;
   cout << "Original file " << filename_ << " updated." << endl;
@@ -72,6 +74,7 @@ void FMTSetup::OptionParser(int argc, char *argv[]){
                                                                         "  - \tNOTE: this will re-run all fits and rebinnings around this mass. This is the recommended way of executing any refit or re-rebinning. You should opt to run on the nearest MC mass. E.g. to refit and rebin 112.5 use --rebin 115")
     ("catByHand,H",                                                     "Categorize events by hand")
     ("skipRebin,N",  																										"Skip the rebinning stage")
+		("justRebin,J",																											"Just extract bin edges don't do anything else")
     ("getBinEdges,B",																										"Use bin edges from mvaanalysis")
     ("dumpDatFile,F",po::value<string>(&dumpDatFil_),                   "Save a new .dat file. For example if you want to save the bin edges so they can be read in later.")
     ("bkgModel,b",  																										"Correct the background model")
@@ -120,6 +123,7 @@ void FMTSetup::OptionParser(int argc, char *argv[]){
   if (rebinMasses_.size()>0)      rebin_=true;
   if (vm.count("catByHand"))      catByHand_=true;
 	if (vm.count("skipRebin")) 			skipRebin_=true;
+	if (vm.count("justRebin")) 			justRebin_=true;
 	if (vm.count("getBinEdges")) 		binEdges_=true;
   if (vm.count("dumpDatFile"))    dumpDatFile_=true;
 	if (vm.count("bkgModel")) 			bkgModel_=true;
@@ -148,21 +152,43 @@ void FMTSetup::OptionParser(int argc, char *argv[]){
   //FIXME TEST
 	if (checkHistos_) checkAllHistos();
 
-  //FIXME overwrite miss in mvaanalysis.dat
-  setincludeVBF(true);
-  
   rebinner = new FMTRebin(filename_, getintLumi(), getis2011(), getmHMinimum(), getmHMaximum(), getmHStep(), getmassMin(), getmassMax(), getnDataBins(), getsignalRegionWidth(), getsidebandWidth(), getnumberOfSidebands(), getnumberOfSidebandsForAlgos(), getnumberOfSidebandGaps(), getmassSidebandMin(), getmassSidebandMax(), getnIncCategories(),getincludeVBF(), getnVBFCategories(), getincludeLEP(), getnLEPCategories(), getsystematics(), getrederiveOptimizedBinEdges(), getAllBinEdges(),verbose_);
   rebinner->setAllBinEdges(getAllBinEdges());
 	rebinner->fitter->setblind(blinding_);
 	rebinner->fitter->setplot(diagnose_);
   rebinner->setcatByHand(catByHand_);
+	rebinner->setjustRebin(justRebin_);
 
   if (diagnose_) {
     system("mkdir -p plots/png");
     system("mkdir -p plots/pdf");
   }
 	printPassedOptions();
-  if (dumpDatFile_) dumpDatFile(dumpDatFil_); 
+  if (dumpDatFile_) dumpDatFile(dumpDatFil_);
+
+	cout << "MC: [";
+	printVec(getMCMasses());
+	cout << "] " << endl;
+	cout << "MH: [";
+	printVec(getAllMH());
+	cout << "] " << endl;
+
+	// clean plots
+	if (diagnose_) {
+		cout << "Diagnostics are turned on. Do you want to clean up old plots? (yes/no)" << endl;
+		string temp;
+		cin >> temp;
+    if (temp=="yes") {
+			cout << "Removing...." << endl;
+			system("rm -rf plots/pdf/*");
+			system("cp plots/png/PhoPhoDraw.png plots/");
+			system("cp plots/png/PhotPhotEvent.png plots/");
+			system("rm -rf plots/png/*");
+			system("mv plots/PhoPhoDraw.png plots/png");
+			system("mv plots/PhotPhotEvent.png plots/png");
+		}
+	}
+
 }
 
 void FMTSetup::checkAllHistos(){

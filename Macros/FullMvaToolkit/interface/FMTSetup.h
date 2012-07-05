@@ -58,6 +58,7 @@ class FMTSetup : public FMTBase {
 		bool rebin_;
     bool catByHand_;
 		bool skipRebin_;
+		bool justRebin_;
 		bool binEdges_;
     bool dumpDatFile_;
 		bool bkgModel_;

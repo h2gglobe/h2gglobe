@@ -25,7 +25,7 @@ g_expdijet		= 0.00495
 
 # Some "Global" Variables
 # PLOT OPS ----------------
-sigscale   = 5.
+sigscale   = 1.
 # THEORY SYSTEMATICS ------
 lumi          = "1.045"
 QCDscale_ggH  = "0.918/1.125"
@@ -117,8 +117,10 @@ def plainBin(hist):
 		if (options.includeVBF):
 			if hist.GetBinLowEdge(i+1) <= 1.:
 			  h2.GetXaxis().SetBinLabel(i,"BDT Bin %d "%(i))
+			elif hist.GetBinLowEdge(i+1) <= 1.04:
+			  h2.GetXaxis().SetBinLabel(i," Tight di-jet ")
 			else: 
-			  h2.GetXaxis().SetBinLabel(i," Di-jet ")
+			  h2.GetXaxis().SetBinLabel(i," Loose di-jet ")
 	h2.GetXaxis().SetNdivisions(nb)
 	return h2
 
@@ -179,14 +181,15 @@ def plotDistributions(mass,data,signals,bkg,errors):
 
 	if (not options.blind): leg.AddEntry(flatdata,"Data","PLE")
 	if options.splitSignal:
-	  leg.AddEntry(flatsignal,"Higgs (GG,WZ,TT), m_{H}=%3.1f GeV (x%d)"%(mass,int(sigscale)) ,"L")
-	  leg.AddEntry(flatsignal1,"Higgs, m_{H}=%3.1f GeV (x%d)"%(mass,int(sigscale)) ,"L")
+	  leg.AddEntry(flatsignal,"Higgs (GG,WZ,TT), m_{H}=%3.1f GeV (%dxSM)"%(mass,int(sigscale)) ,"L")
+	  leg.AddEntry(flatsignal1,"Higgs, m_{H}=%3.1f GeV (%dxSM)"%(mass,int(sigscale)) ,"L")
 
-	else: leg.AddEntry(flatsignal,"Higgs, m_{H}=%3.1f GeV (x%d)"%(mass,int(sigscale)) ,"L")
+	else: leg.AddEntry(flatsignal,"Higgs, m_{H}=%3.1f GeV (%dxSM)"%(mass,int(sigscale)) ,"L")
 	leg.AddEntry(flatbkg,"Background","L");leg.AddEntry(fNewT,"\pm 1\sigma","F");leg.AddEntry(fNew2T,"\pm 2\sigma","F")
 	leg.Draw()
-	mytext = ROOT.TLatex();mytext.SetTextSize(0.03);mytext.SetNDC();mytext.DrawLatex(0.1,0.92,"CMS preliminary,  #sqrt{s} = 8 TeV ");mytext.SetTextSize(0.04)
-	mytext.DrawLatex(0.2,0.8,"#int L = %s"%(lumistring))
+	mytext = ROOT.TLatex();mytext.SetTextSize(0.03);mytext.SetNDC();#mytext.DrawLatex(0.1,0.92,"CMS preliminary,  #sqrt{s} = 8 TeV ");
+	mytext.SetTextSize(0.04)
+	mytext.DrawLatex(0.25,0.8,"#splitline{CMS preliminary}{L = %s #sqrt{s} = 8 TeV}"%(lumistring))
 	leg.Draw()
 	c.SaveAs(plotOutDir+"/pdf/model_m%3.1f.pdf"%mass);c.SaveAs(plotOutDir+"/png/model_m%3.1f.png"%mass)
 	
@@ -218,17 +221,18 @@ def plotDistributions(mass,data,signals,bkg,errors):
 
 	if (not options.blind): leg2.AddEntry(flatdata,"Data","PLE")
 	if options.splitSignal:
-	  leg2.AddEntry(flatsignal,"Higgs (GG,WZ,TT), m_{H}=%3.0f GeV (x%d)"%(mass,int(sigscale)) ,"L")
-	  leg2.AddEntry(flatsignal1,"Higgs, m_{H}=%3.0f GeV (x%d)"%(mass,int(sigscale)) ,"L")
+	  leg2.AddEntry(flatsignal,"Higgs (GG,WZ,TT), m_{H}=%3.0f GeV (%dxSM)"%(mass,int(sigscale)) ,"L")
+	  leg2.AddEntry(flatsignal1,"Higgs, m_{H}=%3.0f GeV (%dxSM)"%(mass,int(sigscale)) ,"L")
 
-	else: leg2.AddEntry(flatsignal,"Higgs, m_{H}=%3.0f GeV (x%d)"%(mass,int(sigscale)) ,"L")
+	else: leg2.AddEntry(flatsignal,"Higgs, m_{H}=%3.0f GeV (%dxSM)"%(mass,int(sigscale)) ,"L")
 	leg2.AddEntry(flatbkg,"Background","L")
 
 	mytext.SetTextSize(0.04)
 
 	leg2.Draw()
-	mytext = ROOT.TLatex();mytext.SetTextSize(0.03);mytext.SetNDC();mytext.DrawLatex(0.1,0.92,"CMS preliminary,  #sqrt{s} = 7 TeV ");mytext.SetTextSize(0.04)
-	mytext.DrawLatex(0.2,0.8,"#int L = %s"%(lumistring))
+	mytext = ROOT.TLatex();mytext.SetTextSize(0.03);mytext.SetNDC();#mytext.DrawLatex(0.1,0.92,"CMS preliminary,  #sqrt{s} = 7 TeV ");
+	mytext.SetTextSize(0.04)
+	mytext.DrawLatex(0.25,0.8,"#splitline{CMS preliminary}{L = %s #sqrt{s} = 8 TeV}"%(lumistring))
 	d.SaveAs(plotOutDir+"/pdf/diff_model_m%3.1f.pdf"%mass);d.SaveAs(plotOutDir+"/png/diff_model_m%3.1f.png"%mass)
 	
 

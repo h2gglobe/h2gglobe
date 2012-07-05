@@ -17,6 +17,8 @@
 #include "TLine.h"
 #include "TMacro.h"
 #include "TObjString.h"
+#include "TF1.h"
+#include "TMatrix.h"
 
 #include "RooWorkspace.h"
 #include "RooRealVar.h"
@@ -99,11 +101,63 @@ void FMTPlots::makePlots(TH1F* dataH, TH1F *sigH, TH1F *bkgH, TH1F *bkgmcH, vect
   delete highInterp;
 }
 
+double FMTPlots::quadInterp(double C, double X1,double X2,double X3,double Y1,double Y2,double Y3){
+
+	// Use the 3 points to determine a,b,c
+	TF1 func("f1","[0]*x*x+[1]*x+[2]",-5,5);
+
+	double entries[9];
+	entries[0]=X1*X1; entries[1]=X1; entries[2]=1;
+	entries[3]=X2*X2; entries[4]=X2; entries[5]=1;
+	entries[6]=X3*X3; entries[7]=X3; entries[8]=1;
+	
+	//create the Matrix;
+	TMatrixD M(3,3);
+	M.SetMatrixArray(entries);
+	M.Invert();
+
+	double a = M(0,0)*Y1+M(0,1)*Y2+M(0,2)*Y3;
+	double b = M(1,0)*Y1+M(1,1)*Y2+M(1,2)*Y3;
+	double c = M(2,0)*Y1+M(2,1)*Y2+M(2,2)*Y3;
+
+	func.SetParameter(0,a);
+	func.SetParameter(1,b);
+	func.SetParameter(2,c);
+
+	//delete entries;
+	return func.Eval(C);
+}
+
 void FMTPlots::plotSystFracs(TH1F *sig, vector<pair<TH1F*,TH1F*> > sigSyst, double mh){
+ 	
+	sig->SetLineColor(kBlue);
+	sig->SetLineWidth(2);
   
-  TCanvas *canv = new TCanvas();
-  canv->Print(Form("plots/png/systs_mH_%3.1f.png",mh));
-  canv->Print(Form("plots/pdf/systs_mH_%3.1f.pdf",mh));
+	TCanvas *canv = new TCanvas();
+	
+	for (vector<pair<TH1F*,TH1F*> >::iterator it = sigSyst.begin(); it != sigSyst.end(); it++){
+		(it->first)->SetLineColor(kBlack);
+		(it->first)->SetLineWidth(2);
+		(it->second)->SetLineColor(kBlack);
+		(it->second)->SetLineWidth(2);
+		TH1F *tempUp = (TH1F*)(it->first)->Clone();
+		TH1F *tempDown = (TH1F*)(it->second)->Clone();
+		for (int bin=1; bin<=sig->GetNbinsX(); bin++){
+			tempUp->SetBinContent(bin,quadInterp(1.,-3.,0.,3.,(it->second)->GetBinContent(bin),sig->GetBinContent(bin),(it->first)->GetBinContent(bin)));
+			tempDown->SetBinContent(bin,quadInterp(-1.,-3.,0.,3.,(it->second)->GetBinContent(bin),sig->GetBinContent(bin),(it->first)->GetBinContent(bin)));
+		}
+		tempUp->SetLineStyle(kDashed);
+		tempDown->SetLineStyle(kDashed);
+		(it->first)->Draw();
+		sig->Draw("same");
+		(it->second)->Draw("same");
+		tempUp->Draw("same");
+		tempDown->Draw("same");
+		string temp((it->second)->GetName());
+		string name = temp.substr(temp.find(".")+3,temp.find("Down")-temp.find(".")-3);
+		canv->Print(Form("plots/png/systs_mH_%3.1f_%s.png",mh,name.c_str()));
+		canv->Print(Form("plots/pdf/systs_mH_%3.1f_%s.pdf",mh,name.c_str()));
+	}
   delete canv;
 }
 
