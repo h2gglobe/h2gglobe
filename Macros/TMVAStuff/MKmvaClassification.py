@@ -1,6 +1,6 @@
 
 #!/usr/bin/env python
-# @(#)root/tmva $Id: MKmvaClassification.py,v 1.1 2012/04/12 15:46:11 mkenzie Exp $
+# @(#)root/tmva $Id: MKmvaClassification.py,v 1.2 2012/06/26 22:04:01 mkenzie Exp $
 # ------------------------------------------------------------------------------
 # based on TMVA Python script: TMVAClassification.py
 # ------------------------------------------------------------------------------
@@ -62,7 +62,7 @@ factory = TMVA.Factory( "TMVAClassification", outputFile, "!V:!Silent:Color:Draw
 factory.SetVerbose( verbose )
 
 factory.AddVariable( "bdtoutput","BDT Output", 'F')
-factory.AddVariable( "deltaMoverM","#DeltaM / M_{Hypth}.",  'F' )
+factory.AddVariable( "deltaMOverM","#DeltaM / M_{Hypth}.",  'F' )
 input = TFile.Open( infname )
 
 # Global event weights (see below for setting event-wise weights)
@@ -102,28 +102,6 @@ for tree in signalTrees:
 for tree in backgroundTrees:
   factory.AddBackgroundTree(tree, backgroundWeight)
 
-#factory.AddSignalTree     (input.Get("ggh_m124_pu2012"), signalWeight)
-#factory.AddSignalTree     (input.Get("vbf_m124_pu2012"), signalWeight)
-#factory.AddSignalTree     (input.Get("wzh_m124_pu2012"), signalWeight)
-#factory.AddSignalTree     (input.Get("tth_m124_pu2012"), signalWeight)
-
-#factory.AddBackgroundTree (input.Get("qcd_30_8TeV_ff"), backgroundWeight)
-#factory.AddBackgroundTree (input.Get("qcd_30_8TeV_pf"), backgroundWeight)
-#factory.AddBackgroundTree (input.Get("qcd_30_8TeV_pp"), backgroundWeight)
-#factory.AddBackgroundTree (input.Get("qcd_40_8TeV_ff"), backgroundWeight)
-#factory.AddBackgroundTree (input.Get("qcd_40_8TeV_pf"), backgroundWeight)
-#factory.AddBackgroundTree (input.Get("qcd_40_8TeV_pp"), backgroundWeight)
-#factory.AddBackgroundTree (input.Get("gjet_20_8TeV_ff"), backgroundWeight)
-#factory.AddBackgroundTree (input.Get("gjet_20_8TeV_pf"), backgroundWeight)
-#factory.AddBackgroundTree (input.Get("gjet_20_8TeV_pp"), backgroundWeight)
-#factory.AddBackgroundTree (input.Get("gjet_40_8TeV_ff"), backgroundWeight)
-#factory.AddBackgroundTree (input.Get("gjet_40_8TeV_pf"), backgroundWeight)
-#factory.AddBackgroundTree (input.Get("gjet_40_8TeV_pp"), backgroundWeight)
-#factory.AddBackgroundTree (input.Get("diphojet_8TeV"), backgroundWeight)
-#factory.AddBackgroundTree (input.Get("dipho_Box_10_8TeV"), backgroundWeight)
-#factory.AddBackgroundTree (input.Get("dipho_Box_25_8TeV"), backgroundWeight)
-#factory.AddBackgroundTree (input.Get("dipho_Box_250_8TeV"), backgroundWeight)
-        
 # Set individual event weights (the variables must exist in the original
 # TTree)
 factory.SetBackgroundWeightExpression( "weight" )
@@ -139,7 +117,10 @@ factory.PrepareTrainingAndTestTree( mycut, mycut, "nTrain_Signal=0:nTrain_Backgr
 # NEW PARAMETERS
 
 # BDT
-factory.BookMethod( TMVA.Types.kBDT, "BDTgrad_3"+phil, "!H:!V:NTrees=500:MaxDepth=10:BoostType=Grad:Shrinkage=0.5:UseBaggedGrad:GradBaggingFraction=1.0:SeparationType=GiniIndex:nCuts=50:NNodesMax=10" )
+# 2011 default:
+factory.BookMethod( TMVA.Types.kBDT, "BDTgrad"+phil, "!H:!V:NTrees=200:MaxDepth=3:BoostType=Grad:Shrinkage=0.5:UseBaggedGrad:GradBaggingFraction=1.0:SeparationType=GiniIndex:nCuts=50:NNodesMax=10" )
+# ICHEP topup:
+#factory.BookMethod( TMVA.Types.kBDT, "BDTgrad"+phil, "!H:!V:NTrees=500:MaxDepth=10:BoostType=Grad:Shrinkage=0.5:UseBaggedGrad:GradBaggingFraction=1.0:SeparationType=GiniIndex:nCuts=50:NNodesMax=10" )
 
 
 # --------------------------------------------------------------------------------------------------
