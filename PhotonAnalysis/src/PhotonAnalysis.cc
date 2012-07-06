@@ -321,12 +321,37 @@ void PhotonAnalysis::fillDiphoton(TLorentzVector & lead_p4, TLorentzVector & sub
 {
     int vtx_ind = defaultvtx ? 0 : l.dipho_vtxind[diphoton_id];
     
+    bool isCorrectVertex = (*((TVector3*)l.vtx_std_xyz->At(vtx_ind))-*((TVector3*)l.gv_pos->At(0))).Mag() < 1.;
+    int cur_type = l.itype[l.current];
+   
+    TLorentzVector lead_p4_bef = l.get_pho_p4( l.dipho_leadind[diphoton_id], vtx_ind, energy);
+    TLorentzVector sublead_p4_bef = l.get_pho_p4( l.dipho_subleadind[diphoton_id], vtx_ind, energy);
+    TLorentzVector Higgs_bef = lead_p4_bef + sublead_p4_bef;
+    
+    TRandom3 rand;
+    rand.SetSeed(0);
+    bool changed=false;
+    if (emulateBeamspot && cur_type!=0 && !isCorrectVertex && (lastRun!=l.run || lastEvent!=l.event || lastLumi!=l.lumis)){
+        double randVtxZ = rand.Gaus(0,emulatedBeamspotWidth);
+        ((TVector3*)l.vtx_std_xyz->At(vtx_ind))->SetZ(randVtxZ);
+        changed=true;
+    }
+
     lead_p4 = l.get_pho_p4( l.dipho_leadind[diphoton_id], vtx_ind, energy);
     sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphoton_id], vtx_ind, energy);
     lead_r9    = l.pho_r9[l.dipho_leadind[diphoton_id]];
     sublead_r9 = l.pho_r9[l.dipho_subleadind[diphoton_id]];
     Higgs = lead_p4 + sublead_p4;    
     vtx = (TVector3*)l.vtx_std_xyz->At(vtx_ind);
+
+    if (changed && PADEBUG){
+        cout << "Before (eta1,eta2,mh): " << lead_p4_bef.Eta() << " " << sublead_p4_bef.Eta() << " " << Higgs_bef.M() << endl;
+        cout << "After  (eta1,eta2,mh): " << lead_p4.Eta() << " " << sublead_p4.Eta() << " " << Higgs.M() << endl;
+    }
+    
+    lastRun = l.run;
+    lastEvent = l.event;
+    lastLumi = l.lumis;
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -1145,7 +1170,7 @@ bool PhotonAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
     if(PADEBUG) 
         cout<<"myFillHistRed END"<<endl;
-
+    
     return true;
 }
 

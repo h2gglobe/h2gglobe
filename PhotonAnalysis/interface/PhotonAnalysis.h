@@ -89,6 +89,9 @@ class PhotonAnalysis : public BaseAnalysis
     int nVBFEtaCategories;
     int nVHhadEtaCategories;
     int nVBFDijetJetCategories;
+
+    bool emulateBeamspot;
+    double emulatedBeamspotWidth;
     
     // Preselection indexes
     float presel_scet1, presel_scet2, presel_maxeta;
@@ -184,6 +187,11 @@ class PhotonAnalysis : public BaseAnalysis
 
     bool recomputeBetas, recorrectJets, rerunJetMva, recomputeJetWp;
     std::string jetHandlerCfg;
+
+    // progress
+    int lastRun;
+    int lastEvent;
+    int lastLumi;
     
  protected:
     void PreselectPhotons(LoopAll& l, int jentry);

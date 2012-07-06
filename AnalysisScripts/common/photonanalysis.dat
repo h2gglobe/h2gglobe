@@ -6,6 +6,9 @@ tmvaPerVtxWeights=aux/TMVAClassification_BDTCat_conversions_tmva_407.weights.xml
 tmvaPerVtxMethod=BDTCat
 tmvaPerEvtWeights=aux/TMVAClassification_BDTvtxprob2012.weights.xml
 tmvaPerEvtMethod=BDTvtxprob2012
+## Emulate beamspot
+emulateBeamspot=1
+emulatedBeamspotWidth=5.
 
 ## Preselection cuts
 presel_scet1=15.
