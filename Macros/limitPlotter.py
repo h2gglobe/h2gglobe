@@ -31,16 +31,16 @@ for i in OBSmassesT:
 # Plotting Styles --------------------------------------------------------
 OFFSETLOW=0
 OFFSETHIGH=0
-FONTSIZE=0.03
+FONTSIZE=0.035
 FILLSTYLE=1001
 SMFILLSTYLE=3244
 FILLCOLOR_95=ROOT.kYellow
 FILLCOLOR_68=ROOT.kGreen
 RANGEYABS=[0.0,0.6]
-RANGEYRAT=[0.0,5]
-MINPV = 0.5*10E-9
+RANGEYRAT=[0.0,4]
+MINPV = 0.5*10E-8
 MAXPV = 1.0
-Lines = [1.,2.,3.,4.,5.]
+Lines = [1.,2.,3.,4.]
 MINMH=int(min(EXPmasses))
 MAXMH=int(max(EXPmasses))
 #-------------------------------------------------------------------------
@@ -56,8 +56,7 @@ parser.add_option("-p","--path",dest="path",default="",type="str")
 parser.add_option("","--addline",action="append",type="str",help="add lines to the plot file.root:color:linestyle:legend entry")
 parser.add_option("","--show",action="store_true")
 parser.add_option("","--pval",action="store_true")
-parser.add_option("","--lumistr",type="str",default="L = 5.1 fb^{-1} (2011) + 5.1 fb^{-1} (2012)")
-parser.add_option("","--egrstr",type="str",default="#sqrt{s} = 7-8 TeV")
+parser.add_option("","--addtxt",action="append",type="str", help="Add lines of text under CMS Preliminary")
 (options,args)=parser.parse_args()
 
 if options.show : ROOT.gROOT.SetBatch(False)
@@ -126,7 +125,7 @@ elif Method=="Asymptotic" or Method=="AsymptoticNew":
   EXPmasses = OBSmasses[:]
   for m in EXPmasses:
     if int(m)==m:
-      EXPfiles.append(ROOT.TFile(EXPName+".mH%.1f.root"%m))
+      EXPfiles.append(ROOT.TFile(EXPName+".mH%d.root"%m))
     else:
       EXPfiles.append(ROOT.TFile(EXPName+".mH%.1f.root"%m))
 
@@ -138,7 +137,7 @@ OBSfiles = []
 if not options.expectedOnly:
   for m in OBSmasses:
     if int(m)==m:
-      OBSfiles.append(ROOT.TFile(OBSName+".mH%.1f.root"%m))
+      OBSfiles.append(ROOT.TFile(OBSName+".mH%d.root"%m))
     else:
       OBSfiles.append(ROOT.TFile(OBSName+".mH%.1f.root"%m))
   if Method == "Asymptotic" or Method =="AsymptoticNew":  obs = [getOBSERVED(O,5) for O in OBSfiles] # observed is last entry in these files
@@ -180,7 +179,7 @@ def MakePvalPlot(MG):
 	legend.SetTextSize(FONTSIZE)
 	legend.AddEntry(graphObs,"Observed","L")
 
-	c = ROOT.TCanvas("c","c",600,600)
+	c = ROOT.TCanvas("c","c",800,600)
 
 	dhist = ROOT.TH1F("dh","dh",100,MINMH,MAXMH)
 	dhist.GetYaxis().SetTitleOffset(1.5)
@@ -228,13 +227,17 @@ def MakePvalPlot(MG):
 		TL.SetLineWidth(1)
 		TL.Draw("same")
 		text.DrawLatex(MAXMH+0.2,Vals[j]*0.88,"%d #sigma"%Lines[j])
+	c.SetGrid(True)
+	dhist.Draw("AXIGSAME")
 
 	mytext= ROOT.TLatex()
 	mytext.SetTextSize(FONTSIZE)
 	mytext.SetTextFont(42)
 	mytext.SetNDC()
 
-	mytext.DrawLatex(0.18,0.22,"#splitline{CMS Preliminary, %s}{%s}"%(options.egrstr,options.lumistr))
+	mytext.DrawLatex(0.18,0.24,"CMS Preliminary")
+	for t,lineT in enumerate(options.addtxt):
+		mytext.DrawLatex(0.18,0.23-t*0.04,"%s"%(lineT)
 	legend.Draw()
 	c.SetLogy()
 	ROOT.gPad.RedrawAxis();
@@ -264,14 +267,14 @@ def MakeLimitPlot(MG):
 	leg.SetTextFont(42)
 	leg.SetTextSize(FONTSIZE)
 
-	C = ROOT.TCanvas("c","c",600,600)
-#	C.SetGrid(True)
+	C = ROOT.TCanvas("c","c",800,600)
 
+	C.SetGrid(True)
 	dummyHist = ROOT.TH1D("dummy","",1,min(OBSmasses)-OFFSETLOW,max(OBSmasses)+OFFSETHIGH)
 	dummyHist.SetTitleSize(0.04,"XY")
 	dummyHist.Draw("AXIS")
 	MG.Draw("L3")
-	#dummyHist.Draw("AXIGSAME")
+	dummyHist.Draw("AXIGSAME")
 
 	dummyHist.GetXaxis().SetTitle("m_{H} (GeV)")
 	dummyHist.GetXaxis().SetRangeUser(min(OBSmasses)-OFFSETLOW,max(OBSmasses)+OFFSETHIGH)
@@ -294,8 +297,9 @@ def MakeLimitPlot(MG):
 	mytext.SetNDC()
 	mytext.SetTextFont(42)
 	mytext.SetTextSize(FONTSIZE)
-	mytext.DrawLatex(0.14,0.85,"CMS Preliminary, %s"%options.egrstr)
-	mytext.DrawLatex(0.14,0.77,"%s"%(options.lumistr))
+	mytext.DrawLatex(0.16,0.85,"CMS Preliminary")
+	for t,lineT in enumerate(options.addtxt):
+		mytext.DrawLatex(0.16,0.84-t,0.04,"%s"%lineT)
   
 	leg.Draw()
 	ROOT.gPad.RedrawAxis();

@@ -37,11 +37,11 @@ void setTDRStyle(bool force) {
   gStyle->SetPadBorderMode(0);
   // gStyle->SetPadBorderSize(Width_t size = 1);
   gStyle->SetPadColor(kWhite);
-  gStyle->SetPadGridX(false);
-  gStyle->SetPadGridY(false);
-  gStyle->SetGridColor(0);
-  gStyle->SetGridStyle(3);
-  gStyle->SetGridWidth(1);
+//  gStyle->SetPadGridX(false);
+//  gStyle->SetPadGridY(false);
+  //gStyle->SetGridColor(0);
+  //gStyle->SetGridStyle(3);
+  //gStyle->SetGridWidth(1);
 
 // For the frame:
   gStyle->SetFrameBorderMode(0);
