@@ -63,7 +63,10 @@ void cdf2pdf(TH1F *h){
         TH1F *pdf = (TH1F*) h->Clone();
 
         for (int b=1;b<=pdf->GetNbinsX();b++){
-                h->SetBinContent(b,pdf->GetBinContent(b)-pdf->GetBinContent(b-1))       ;
+		double y1 = pdf->GetBinContent(b-1);
+		double y2 = pdf->GetBinContent(b);
+                if (y2>y1) h->SetBinContent(b,y2-y1) ;
+		else h->SetBinContent(b,0);
 
         }
 
@@ -259,7 +262,9 @@ void dofit(double fitmass, vector <TString> InterpolationList, TFile* SourceFile
     }
 	
     if (debug>=1) cout << "About to run horizontal Interpolation" << endl;
-    TH1F* InterpolatedHist = (TH1F*) th1fmorph((Char_t*) HistName.Data(),(Char_t*) HistTitle.Data(),LowerHist,UpperHist,lowerbound,upperbound,fitmass,Normalization,0);
+    TH1F *InterpolatedHist;
+    if (doSmoothing && MCHist!=NULL) InterpolatedHist = (TH1F*) MCHist->Clone();
+    else  InterpolatedHist = (TH1F*) th1fmorph((Char_t*) HistName.Data(),(Char_t*) HistTitle.Data(),LowerHist,UpperHist,lowerbound,upperbound,fitmass,Normalization,0);
 
     if (MCHist!=NULL && !OverWriteMass) {
       TString ResidualHistName = HistName;
