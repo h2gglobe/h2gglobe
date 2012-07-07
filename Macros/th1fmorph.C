@@ -532,7 +532,11 @@ TH1F *th1fmorph(Char_t *chname="TH1F-interpolated",
   for(Int_t ixx=nbn-1;ixx>-1;ixx--) {
     x = xminn + double(ixx)*dx;
     y =  sigdisf[ixx+1]-sigdisf[ixx];
-    if (y<0) cout << "huh??? " << ixx << " " << sigdisf[ixx] << " " << sigdisf[ixx+1] << endl;
+    if (y<0){
+	 cout << "huh??? " << ixx << " " << sigdisf[ixx] << " " << sigdisf[ixx+1] << endl;
+	 y = 0;
+    }
+   
     morphedhist->SetBinContent(ixx+1,y*norm);
   }
   
