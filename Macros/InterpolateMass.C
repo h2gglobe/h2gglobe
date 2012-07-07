@@ -4,6 +4,9 @@
 #include "TList.h"
 #include "TString.h"
 #include "TFile.h"
+#include "TF1.h"
+#include "TROOT.h"
+#include "TMatrixD.h"
 #include "RooDataHist.h"
 #include "RooRealVar.h"
 #include "RooWorkspace.h"
@@ -13,6 +16,8 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <list>
+#include <algorithm>
 
 #include "th1fmorph.C"
 #include "Normalization_8TeV.h"
@@ -21,7 +26,132 @@
 using namespace std;
 using namespace RooFit;
 
+bool MAKE_PLOTS=false;
+
+TCanvas *can = new TCanvas();
 Normalization_8TeV *normalizer = new Normalization_8TeV();
+double getInterp(double C, double X1,double X2,double X3,double X4,double Y1,double Y2,double Y3,double Y4){
+
+
+	TF1 func("f1","[0]*x*x*x+[1]*x*x+[2]*x+[3]",X1,X4);
+
+	double entries[16];
+	entries[0]=X1*X1*X1; entries[1]=X1*X1; entries[2]=X1; entries[3]=1;
+	entries[4]=X2*X2*X2; entries[5]=X2*X2; entries[6]=X2; entries[7]=1;
+	entries[8]=X3*X3*X3; entries[9]=X3*X3; entries[10]=X3; entries[11]=1;
+	entries[12]=X4*X4*X4; entries[13]=X4*X4; entries[14]=X4; entries[15]=1;
+	
+	//create the Matrix;
+	TMatrixD M(4,4);
+	M.SetMatrixArray(entries);
+	M.Invert();
+
+	double a = M(0,0)*Y1+M(0,1)*Y2+M(0,2)*Y3+M(0,3)*Y4;
+	double b = M(1,0)*Y1+M(1,1)*Y2+M(1,2)*Y3+M(1,3)*Y4;
+	double c = M(2,0)*Y1+M(2,1)*Y2+M(2,2)*Y3+M(2,3)*Y4;
+	double d = M(3,0)*Y1+M(3,1)*Y2+M(3,2)*Y3+M(3,3)*Y4;
+
+	func.SetParameter(0,a);
+	func.SetParameter(1,b);
+	func.SetParameter(2,c);
+	func.SetParameter(3,d);
+	return func.Eval(C);
+}
+
+void cdf2pdf(TH1F *h){
+
+        TH1F *pdf = (TH1F*) h->Clone();
+
+        for (int b=1;b<=pdf->GetNbinsX();b++){
+                h->SetBinContent(b,pdf->GetBinContent(b)-pdf->GetBinContent(b-1))       ;
+
+        }
+
+	//return pdf;
+}
+
+
+void pdf2cdf(TH1F *hb){
+
+        // Make a CDF for this guy ..... 
+
+        TH1F *cdf = (TH1F*) hb->Clone();
+
+        for (int b=1;b<=cdf->GetNbinsX();b++){
+
+                hb->SetBinContent(b,cdf->Integral(1,b));
+        }
+
+      //  return cdf;
+}
+
+void SmoothMe(TH1F *hist){
+
+        int nEntriesPB = hist->GetEntries()/(hist->FindBin(hist->GetMean()+hist->GetRMS())-hist->FindBin(hist->GetMean()-hist->GetRMS()));
+
+	int nBins = hist->GetNbinsX();
+	// Make cdf histogram 	
+	pdf2cdf(hist);
+
+	if (nEntriesPB>100) {
+
+  	  for (int b=1;b<=nBins;b++){
+	
+		if (b<3 || b>nBins-2) continue;
+		else{
+
+			double x1 = hist->GetBinCenter(b-2);
+			double x2 = hist->GetBinCenter(b-1);
+			double x3 = hist->GetBinCenter(b+1);
+			double x4 = hist->GetBinCenter(b+2);
+
+			double y1 = hist->GetBinContent(b-2);
+			double y2 = hist->GetBinContent(b-1);
+			double y3 = hist->GetBinContent(b+1);
+			double y4 = hist->GetBinContent(b+2);
+
+			hist->SetBinContent(b,getInterp(hist->GetBinCenter(b),x1,x2,x3,x4,y1,y2,y3,y4));
+		
+		}
+	  }
+	} else {
+		hist->Smooth(20);
+	}
+
+	cdf2pdf(hist);
+	
+}
+
+
+void HistogramSmooth(TH1F* hist){
+	static std::list<const char*> existingPlots;
+
+	TH1F * newhist = (TH1F*)hist->Clone();
+	double integral = hist->Integral();
+	int nBins = hist->GetNbinsX();
+
+	SmoothMe(hist);
+
+	hist->Scale(integral/hist->Integral());
+
+	std::list<const char*>::iterator findIter = std::find(existingPlots.begin(), existingPlots.end(), hist->GetName());
+
+	if (MAKE_PLOTS && findIter==existingPlots.end()){
+		newhist->GetXaxis()->SetTitle("m_{#gamma#gamma}");
+		newhist->SetMarkerStyle(20);
+		newhist->SetMarkerColor(1);
+		newhist->SetLineColor(1);
+		newhist->SetMarkerSize(0.5);
+		newhist->SetTitle(hist->GetName());
+		newhist->Draw("P");
+		hist->SetLineColor(4);
+		hist->SetLineWidth(2);
+		hist->Draw("histsame");
+		std::cout << "Smoothed -- " << hist->GetName() <<std::endl;
+		can->SaveAs("histogramsmoothcheck.pdf");
+		existingPlots.push_back(hist->GetName());
+	}
+}
 
 template <class type> string makestring(type value) {
   stringstream sstr;
@@ -29,7 +159,10 @@ template <class type> string makestring(type value) {
   return sstr.str();
 }
 
-void dofit(double fitmass, vector <TString> InterpolationList, TFile* SourceFile, TFile* OutputFile, RooWorkspace* WorkSpace, int noverwritemasses=0, double *overwritemasses=NULL, int debug=0) {
+void dofit(double fitmass, vector <TString> InterpolationList, TFile* SourceFile, TFile* OutputFile, RooWorkspace* WorkSpace, int doSmoothing=0,int noverwritemasses=0, double *overwritemasses=NULL, int debug=1) {
+
+
+  static map<const char*, TH1F*> existingHists;
 
   if (floor(fitmass)-fitmass<0.0000001 && floor(fitmass)-fitmass>0) fitmass=floor(fitmass);
   if (fitmass-ceil(fitmass)>-0.0000001 && fitmass-ceil(fitmass)<0) fitmass=ceil(fitmass);
@@ -40,6 +173,7 @@ void dofit(double fitmass, vector <TString> InterpolationList, TFile* SourceFile
   }
 
   bool OverWriteMass = false;
+  if (doSmoothing) OverWriteMass = true;
   if (overwritemasses!=NULL) {
     for (int i=0; i<noverwritemasses; i++) {
       if (fabs(overwritemasses[i]-fitmass)<0.0000001) OverWriteMass=true;
@@ -84,13 +218,47 @@ void dofit(double fitmass, vector <TString> InterpolationList, TFile* SourceFile
     
     TString HistTitle(Form("Interpolated Mass at %fGeV",fitmass));
 
-    TH1F* LowerHist = (TH1F*) SourceFile->Get(LowerHistName.Data());
-    TH1F* UpperHist = (TH1F*) SourceFile->Get(UpperHistName.Data());
+    TH1F* LowerHist;
+    TH1F* UpperHist;
+	
+    std::map<const char*,TH1F*>::iterator itHL = existingHists.find(LowerHistName.Data());
+    std::map<const char*,TH1F*>::iterator itHU = existingHists.find(UpperHistName.Data());
+
+    if (itHL == existingHists.end()) {
+	LowerHist =(TH1F*)SourceFile->Get(LowerHistName.Data());
+    	if (doSmoothing) HistogramSmooth(LowerHist);
+	existingHists[LowerHistName.Data()]=LowerHist;
+	
+    } else {
+	LowerHist =(*itHL).second;
+    }
+
+    if (itHU == existingHists.end()) {
+	UpperHist =(TH1F*)SourceFile->Get(UpperHistName.Data());
+    	if (doSmoothing)HistogramSmooth(UpperHist);
+	existingHists[UpperHistName.Data()]=UpperHist;
+    } else {
+	UpperHist =(*itHU).second;
+    }
+
+
     if (debug>=1) cout << "Calculating mass point at " << fitmass << "GeV with histograms " << LowerHistName << " and " << UpperHistName << endl;
 
     double Normalization = normalizer->GetNorm(lowerbound, LowerHist, upperbound, UpperHist, fitmass);
 
-    TH1F* MCHist = (TH1F*) SourceFile->Get(HistName.Data());
+    TH1F* MCHist= (TH1F*) SourceFile->Get(HistName.Data());
+
+    if (MCHist!=NULL && doSmoothing){
+    		std::map<const char*,TH1F*>::iterator itH = existingHists.find(HistName.Data());
+		if (itH==existingHists.end()){
+			HistogramSmooth(MCHist);
+			existingHists[UpperHistName.Data()]=UpperHist;
+		} else {
+			MCHist = (*itH).second;
+		}
+    }
+	
+    if (debug>=1) cout << "About to run horizontal Interpolation" << endl;
     TH1F* InterpolatedHist = (TH1F*) th1fmorph((Char_t*) HistName.Data(),(Char_t*) HistTitle.Data(),LowerHist,UpperHist,lowerbound,upperbound,fitmass,Normalization,0);
 
     if (MCHist!=NULL && !OverWriteMass) {
@@ -159,7 +327,7 @@ void InterpolateMass(double fitmass, TString SourceFileName="CMS-HGG.root", doub
       OutputFile->WriteTObject(tempcan);
     }
   }
-  dofit(fitmass, InterpolationList, SourceFile, OutputFile, WorkSpace, 1, &overwritemass);
+  dofit(fitmass, InterpolationList, SourceFile, OutputFile, WorkSpace, 0,1, &overwritemass);
 
   cout << "Writing data to disk..." << endl;
   WorkSpace->Write();
@@ -171,7 +339,7 @@ void InterpolateMass(double fitmass, TString SourceFileName="CMS-HGG.root", doub
 }
 
 void InterpolateMassPoints(int nmasses, double * masses, TString SourceFileName="CMS-HGG",
-                           TString FileName="", int noverwritemasses=0, double *overwritemasses=NULL) 
+                           TString FileName="", int doSmoothing=0,int noverwritemasses=0, double *overwritemasses=NULL) 
 {
 	RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING);
 
@@ -202,7 +370,7 @@ void InterpolateMassPoints(int nmasses, double * masses, TString SourceFileName=
   }
   
   for(int imass=0; imass<nmasses; ++imass) {
-    dofit(masses[imass], InterpolationList, SourceFile, OutputFile, WorkSpace, noverwritemasses, overwritemasses);
+    dofit(masses[imass], InterpolationList, SourceFile, OutputFile, WorkSpace,doSmoothing, noverwritemasses, overwritemasses);
   }
   
   cout << "Writing data to disk..." << endl;
@@ -215,15 +383,19 @@ void InterpolateMassPoints(int nmasses, double * masses, TString SourceFileName=
 
 }
 
-void InterpolateMassRange(double Min, double Max, double Step, TString SourceFileName="CMS-HGG", int noverwritemasses=0, double *overwritemasses=NULL) 
+void InterpolateMassRange(double Min, double Max, double Step, TString SourceFileName="CMS-HGG", int doSmoothing=0, int noverwritemasses=0, double *overwritemasses=NULL) 
 {
+  gROOT->SetBatch(1);
   TString FileName = "";
   std::vector<double> masses;
   for (double fitmass=Min; fitmass<=Max; fitmass+=Step) {
     masses.push_back(fitmass);
   }
 
-  InterpolateMassPoints(masses.size(), &masses[0], SourceFileName,FileName, noverwritemasses, overwritemasses); 
+  if (MAKE_PLOTS && doSmoothing) can->SaveAs("histogramsmoothcheck.pdf[");
+
+  InterpolateMassPoints(masses.size(), &masses[0], SourceFileName,FileName, doSmoothing,noverwritemasses, overwritemasses); 
+  if (MAKE_PLOTS && doSmoothing) can->SaveAs("histogramsmoothcheck.pdf]");
   
 }
 
