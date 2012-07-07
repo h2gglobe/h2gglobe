@@ -63,7 +63,9 @@ class MassResolution {
   public:
     MassResolution();
 
-    void Setup(LoopAll&,PhotonReducedInfo*,PhotonReducedInfo*,int,EnergySmearer::energySmearingParameters,int,int);
+    void Setup(LoopAll&,PhotonReducedInfo*,PhotonReducedInfo*,int,EnergySmearer::energySmearingParameters,int,int,double);
+
+    double beamspotSigma;
 
     double massResolutionCorrVtx();
     double massResolutionWrongVtx();

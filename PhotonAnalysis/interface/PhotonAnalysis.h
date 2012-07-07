@@ -223,7 +223,10 @@ class PhotonAnalysis : public BaseAnalysis
     TH1 * puTargetHist;
 
     std::string name_;
-    
+   
+    // Beamsport reweighting
+    float BeamspotReweight(double hardInterZ);
+
     // Vertex analysis
     HggVertexAnalyzer vtxAna_;
     HggVertexFromConversions vtxConv_;

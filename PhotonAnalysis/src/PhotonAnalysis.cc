@@ -332,8 +332,14 @@ void PhotonAnalysis::fillDiphoton(TLorentzVector & lead_p4, TLorentzVector & sub
     rand.SetSeed(0);
     bool changed=false;
     if (emulateBeamspot && cur_type!=0 && !isCorrectVertex && (lastRun!=l.run || lastEvent!=l.event || lastLumi!=l.lumis)){
-        double randVtxZ = rand.Gaus(0,emulatedBeamspotWidth);
-        ((TVector3*)l.vtx_std_xyz->At(vtx_ind))->SetZ(randVtxZ);
+        double beamspotZ = 0.4145;
+        double randVtxZ = -100;
+        bool tooClose=true;
+        while(tooClose){
+            randVtxZ = rand.Gaus(beamspotZ,emulatedBeamspotWidth);
+            ((TVector3*)l.vtx_std_xyz->At(vtx_ind))->SetZ(randVtxZ);
+            tooClose = (*((TVector3*)l.vtx_std_xyz->At(vtx_ind))-*((TVector3*)l.gv_pos->At(0))).Mag() < 1.;
+        }
         changed=true;
     }
 
@@ -1835,7 +1841,13 @@ int PhotonAnalysis::DiphotonMVASelection(LoopAll &l, HggVertexAnalyzer & vtxAna,
      
         if(PADEBUG)  std::cout << "getting di-photon MVA" << std::endl;
 
-        massResolutionCalculator->Setup(l,&photonInfoCollection[lead],&photonInfoCollection[sublead],idipho,eSmearPars,nR9Categories,nEtaCategories);
+        double beamspotSigma=-100;
+        if(l.version<13) {
+            beamspotSigma=5.8;
+        } else {
+            beamspotSigma=4.8;
+        }
+        massResolutionCalculator->Setup(l,&photonInfoCollection[lead],&photonInfoCollection[sublead],idipho,eSmearPars,nR9Categories,nEtaCategories,beamspotSigma);
         //massResolutionCalculator->Setup(l,&lead_p4,&sublead_p4,lead,sublead,idipho,pt_gamgam, m_gamgam,eSmearPars,nR9Categories,nEtaCategories);
 
         float sigmaMrv = massResolutionCalculator->massResolutionCorrVtx();
@@ -2409,6 +2421,23 @@ void PhotonAnalysis::reVertex(LoopAll & l)
     }
 }
 
+
+float PhotonAnalysis::BeamspotReweight(double hardInterZ) {
+    if (hardInterZ<(-100)) return 1.0;
+
+    const double beamspotZ = 0.4145;
+    const double sourcesigma = 6.16;
+    const double targetsigma = 4.8;
+
+    float sourceweight = exp(-pow(hardInterZ-beamspotZ,2)/2.0/sourcesigma/sourcesigma)/sourcesigma;
+    float targetweight = exp(-pow(hardInterZ-beamspotZ,2)/2.0/targetsigma/targetsigma)/targetsigma;
+
+    float reweight = targetweight/sourceweight;
+
+    if(PADEBUG) std::cout<<"hardInterZ targetweight/sourceweight reweight "<<hardInterZ<<" "<<targetweight<<"/"<<sourceweight<<" "<<reweight<<std::endl;
+
+    return reweight;
+}
 
 
 // Local Variables:

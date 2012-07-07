@@ -13,8 +13,10 @@ See MassResolution.h for instructions
 
 MassResolution::MassResolution(){}
 
-void MassResolution::Setup(LoopAll &l, PhotonReducedInfo *leadInfo, PhotonReducedInfo *subleadInfo,int diphoton_index,EnergySmearer::energySmearingParameters eSmearPars, int nR9Categories, int nEtaCategories) 
+void MassResolution::Setup(LoopAll &l, PhotonReducedInfo *leadInfo, PhotonReducedInfo *subleadInfo,int diphoton_index,EnergySmearer::energySmearingParameters eSmearPars, int nR9Categories, int nEtaCategories, double beamspotSigma_in) 
 {
+
+  beamspotSigma= beamspotSigma_in;
 
   leadPhoton= leadInfo;	
   subleadPhoton= subleadInfo;	
@@ -202,7 +204,7 @@ double MassResolution::dzResolutionCorrVtx() {
 }
 //return dz resolution given wrong vertex (using sqrt(2)*5.8cm)
 double MassResolution::dzResolutionWrongVtx() {
-  return TMath::Sqrt(2.)*5.8;
+  return TMath::Sqrt(2.)*beamspotSigma;
 }
   
 //return dz resolution from dz wrong and dz right (stored in TGraph as func of higgsPt)

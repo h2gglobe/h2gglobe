@@ -652,6 +652,10 @@ bool StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     float weight = l.sampleContainer[l.current_sample_index].weight;
     float sampleweight = l.sampleContainer[l.current_sample_index].weight;
 
+    if(emulateBeamspot) {
+        weight*=BeamspotReweight(((TVector3*)l.gv_pos->At(0))->Z());
+    }
+
     // Set reRunCiC Only if this is an MC event since scaling of R9 and Energy isn't done at reduction
     if (cur_type==0) {
         l.runCiC=reRunCiCForData;
