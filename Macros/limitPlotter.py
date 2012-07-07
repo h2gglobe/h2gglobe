@@ -24,7 +24,7 @@ OBSmassesT = numpy.arange(110,150.5,0.5)
 EXPmassesT = numpy.arange(110,150.5,0.5)
 
 for i in OBSmassesT:
-	if i == 145 or i==145.5: continue
+	if i == 145: continue
 	OBSmasses.append(i)
 	EXPmasses.append(i)
 
@@ -237,7 +237,7 @@ def MakePvalPlot(MG):
 
 	mytext.DrawLatex(0.18,0.24,"CMS Preliminary")
 	for t,lineT in enumerate(options.addtxt):
-		mytext.DrawLatex(0.18,0.23-t*0.04,"%s"%(lineT)
+		mytext.DrawLatex(0.18,0.23-t*0.04,"%s"%(lineT))
 	legend.Draw()
 	c.SetLogy()
 	ROOT.gPad.RedrawAxis();
