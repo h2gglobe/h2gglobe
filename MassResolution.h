@@ -67,9 +67,15 @@ class MassResolution {
 
     double beamspotSigma;
 
+   // double massResolution();
     double massResolutionCorrVtx();
     double massResolutionWrongVtx();
     double massResolutionEonly();
+    double massResolutionAonly();
+    double massResolutionEonlyNoSmear();
+    double massResolutionCorrVtxNoSmear();
+    double massResolutionWrongVtxNoSmear();
+
 
     double leadPhotonResolution();
     double subleadPhotonResolution();
@@ -88,12 +94,6 @@ class MassResolution {
     double dzResolutionCorrVtx();
     double dzResolutionWrongVtx();
     
-   // double massResolution();
-    double massResolutionAonly();
-    double massResolutionEonlyNoSmear();
-    double massResolutionCorrVtxNoSmear();
-    double massResolutionWrongVtxNoSmear();
-
     //double getEffectiveSigma(TF1*, int);
     double propagateDz(double);
 
