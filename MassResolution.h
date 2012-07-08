@@ -76,7 +76,6 @@ class MassResolution {
     double massResolutionCorrVtxNoSmear();
     double massResolutionWrongVtxNoSmear();
 
-
     double leadPhotonResolution();
     double subleadPhotonResolution();
     

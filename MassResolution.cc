@@ -97,6 +97,11 @@ double MassResolution::massResolutionEonly() {
   return 0.5*higgsMass*TMath::Sqrt((lead_sig*lead_sig)/(lead_E*lead_E)+(sublead_sig*sublead_sig)/(sublead_E*sublead_E));
 }
 
+double MassResolution::massResolutionAonly(){
+	double aRes = angleResolution();
+	return 0.5*higgsMass*aRes;
+}
+
 
 // return angle resolution given the vertex choice is correct
 double MassResolution::angleResolutionCorrVtx() {
