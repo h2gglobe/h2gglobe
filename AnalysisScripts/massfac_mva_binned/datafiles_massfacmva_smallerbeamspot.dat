@@ -1,0 +1,22 @@
+intL=5346. histfile=/store/group/phys_higgs/cmshgg/analyzed/beamspotclosure/%(label)s/CMS-HGG.root output=eventsList.txt
+
+typ=-73 ind=1 draw=1  Nam=ggh_m124_8TeV_newBS  CaDir=/store/group/phys_higgs/cmshgg/reduced/beamspotcomparison_july6/Summer12_S7_8TeV/GluGluToHToGG_M-124_8TeV-powheg-pythia6_Summer12-newBS_PU_S7_START52_V9A-v2_AODSIM    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-37 ind=1 draw=1  Nam=ggh_m125_8TeV_newBS  CaDir=/store/group/phys_higgs/cmshgg/reduced/beamspotcomparison_july6/Summer12_S7_8TeV/GluGluToHToGG_M-125_8TeV-powheg-pythia6_Summer12-newBS_PU_S7_START52_V9A-v2_AODSIM    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+
+
+
+# 
+# Branches to use
+#
+inputBranches minimal_analysis_input.dat
+inputBranches massfactorizedmvaanalysis_input.dat
+
+## define analyses to run
+## 	a library containing the class dictionary has loaded before parsing the 
+## 	configuration file
+## syntax:
+## 	analyzer <class_name> <config_file>
+## 
+## analyzer PhotonAnalysis photonanalysis.dat	
+analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat emulateBeamspot=0
+
