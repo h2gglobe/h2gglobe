@@ -791,6 +791,10 @@ void MvaAnalysis::FillRooContainer(LoopAll& l, int cur_type, float mass, float d
                 l.rooContainer->InputBinnedDataPoint("bkg_mass",category,mass,weight);
     }
 
+    // Re-order the DijetCategories:
+    if (category>=nInclusiveCategories_&& category<nInclusiveCategories_+nVBFDijetJetCategories && includeVBF){
+        category = nVBFDijetJetCategories - category + 1;
+    }
 
     if (cur_type<0){ // signal MC
 
@@ -876,6 +880,7 @@ void MvaAnalysis::AccumulateSyst(int cur_type, float mass, float diphotonMVA,
 	if( mass>sideband_boundaries[0] && mass<sideband_boundaries[1]){
             if (catByHand && category<nInclusiveCategories_) category = byHandCat(mass,mass_hypothesis,diphotonMVA);
 			double syst_bdt_grad = tmvaGetVal(mass,mass_hypothesis,diphotonMVA);
+            std::cout << "In the systematics Loop --> " << category << " " << syst_bdt_grad << " " << diphotonMVA << " " <<weight << std::endl;
 			categories.push_back(category);
 			mva_errors.push_back(syst_bdt_grad);
 			weights.push_back(weight);
@@ -890,6 +895,16 @@ void MvaAnalysis::FillRooContainerSyst(LoopAll& l, const std::string &name, int 
 			  std::vector<double> & mass_errors, std::vector<double> & mva_errors,
 			  std::vector<int>    & categories, std::vector<double> & weights) 
 {
+        // Re-order the DijetCategories:
+        for (int c=0;c<categories.size();c++){
+         
+               int category = categories[c];
+
+               if (category>=nInclusiveCategories_ && category<nInclusiveCategories_+nVBFDijetJetCategories && includeVBF){
+                categories[c] = nVBFDijetJetCategories - category + 1;
+             }
+        }
+
         // Get Signal Label for the current type
         if (cur_type<0 && !doTraining){
             std::string currentTypeSignalLabel = GetSignalLabel(cur_type);
