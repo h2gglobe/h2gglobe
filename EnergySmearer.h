@@ -90,6 +90,8 @@ public:
           float       corrRelErr;
   };
   
+  EnergySmearer(EnergySmearer * orig, const std::vector<PhotonCategory> & presel=std::vector<PhotonCategory>());
+
   EnergySmearer(const energySmearingParameters& par, const std::vector<PhotonCategory> & presel=std::vector<PhotonCategory>());
   virtual ~EnergySmearer();
   

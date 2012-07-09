@@ -31,7 +31,8 @@ void MassFactorizedMvaAnalysis::Term(LoopAll& l)
 
     if (! l.is_subjob){ // no need to waste time when running a subjob
         std::string outputfilename = (std::string) l.histFileName;
-        if (dataIs2011) l.rooContainer->FitToData("data_pol_model_7TeV","data_mass");
+        // if (dataIs2011) l.rooContainer->FitToData("data_pol_model_7TeV","data_mass");
+        if (dataIs2011) l.rooContainer->FitToData("data_pol_model","data_mass");
         else l.rooContainer->FitToData("data_pol_model_8TeV","data_mass");  // Fit to full range of dataset
     }
 
@@ -96,12 +97,6 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
     diPhoCounter_ = l.countersred.size();
     l.countersred.resize(diPhoCounter_+1);
 
-    // initialize the analysis variables
-    nPhotonCategories_ = nEtaCategories;
-    if( nR9Categories != 0 ) nPhotonCategories_ *= nR9Categories;
-    nInclusiveCategories_ = 4;
-
-  
     effSmearPars.categoryType = "2CatR9_EBEE";
     effSmearPars.n_categories = 4;
     effSmearPars.efficiency_file = efficiencyFile;
@@ -114,16 +109,11 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
         photonSmearers_.push_back(eCorrSmearer);
     }
     if( doEscaleSmear ) {
-        photonSmearers_.push_back(eScaleSmearer);
+	setupEscaleSmearer();
     }
     if( doEresolSmear ) {
         // energy resolution smearing
-        std::cerr << __LINE__ << std::endl; 
-        eResolSmearer = new EnergySmearer( eSmearPars );
-        eResolSmearer->name("E_res");
-        eResolSmearer->doEnergy(false); // allows for future reweighting also
-        eResolSmearer->scaleOrSmear(false);
-        photonSmearers_.push_back(eResolSmearer);
+	setupEresolSmearer();
     }
     if( doRegressionSmear ) {
         // energy regression. smearing
@@ -201,12 +191,20 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
 
     // Define the number of categories for the statistical analysis and
     // the systematic sets to be formed
-    int nVBFCategories   = ((int)includeVBF)*nVBFEtaCategories*nVBFDijetJetCategories;
+    // initialize the analysis variables
+    nPhotonCategories_ = nEtaCategories;
+    if( nR9Categories != 0 ) nPhotonCategories_ *= nR9Categories;
+
     std::sort(bdtCategoryBoundaries.begin(),bdtCategoryBoundaries.end(), std::greater<float>() );
+    nInclusiveCategories_ = bdtCategoryBoundaries.size()-1;
+
+    int nVBFCategories   = ((int)includeVBF)*nVBFEtaCategories*nVBFDijetJetCategories;
+    nCategories_=(nInclusiveCategories_+nVBFCategories);
+
     if (bdtTrainingPhilosophy == "UCSD") {
         l.rooContainer->SetNCategories(8);
     } else if (bdtTrainingPhilosophy == "MIT") {
-        l.rooContainer->SetNCategories(bdtCategoryBoundaries.size() - 1 + nVBFCategories);
+        l.rooContainer->SetNCategories(nCategories_);
     }
     
     l.rooContainer->nsigmas = nSystSteps;
@@ -222,16 +220,18 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
         l.rooContainer->MakeSystematicStudy(sys,sys_t);
     }
     if( doEscaleSmear && doEscaleSyst ) {
-        systPhotonSmearers_.push_back( eScaleSmearer );
-        std::vector<std::string> sys(1,eScaleSmearer->name());
-        std::vector<int> sys_t(1,-1);  // -1 for signal, 1 for background 0 for both
-        l.rooContainer->MakeSystematicStudy(sys,sys_t);
+	setupEscaleSyst(l);
+        //// systPhotonSmearers_.push_back( eScaleSmearer );
+        //// std::vector<std::string> sys(1,eScaleSmearer->name());
+        //// std::vector<int> sys_t(1,-1);  // -1 for signal, 1 for background 0 for both
+        //// l.rooContainer->MakeSystematicStudy(sys,sys_t);
     }
     if( doEresolSmear && doEresolSyst ) {
-        systPhotonSmearers_.push_back( eResolSmearer );
-        std::vector<std::string> sys(1,eResolSmearer->name());
-        std::vector<int> sys_t(1,-1);  // -1 for signal, 1 for background 0 for both
-        l.rooContainer->MakeSystematicStudy(sys,sys_t);
+	setupEresolSyst(l);
+        //// systPhotonSmearers_.push_back( eResolSmearer );
+        //// std::vector<std::string> sys(1,eResolSmearer->name());
+        //// std::vector<int> sys_t(1,-1);  // -1 for signal, 1 for background 0 for both
+        //// l.rooContainer->MakeSystematicStudy(sys,sys_t);
     }
     if( doRegressionSmear && doRegressionSyst ) {
         systPhotonSmearers_.push_back( eRegressionSmearer );
@@ -387,96 +387,115 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
         l.rooContainer->AddGenericPdf("data_pol_model_8TeV","0","CMS_hgg_mass",data_pol5_pars,76); // >= 71 means RooBernstein of order >= 1
 
     } else if (bdtTrainingPhilosophy=="MIT"){
-        // MIT BDT Categories
-        // Background modeling - Separate Polynomial models for the different categories in MVA
-        /*
-          int poly3cats[5] = {1,1,0,0,0};
-          int poly5cats[5] = {0,0,1,1,1};
+	
+	// -----------------------------------------------------
+	// Configurable background model
+	// if no configuration was given, set some defaults
+	std::string postfix=(dataIs2011?"":"_8TeV");
+	if( bkgPolOrderByCat.empty() ) {
+	    for(int i=0; i<nCategories_; i++){
+		if(i<1) {
+		    bkgPolOrderByCat.push_back(4);
+		} else if(i<nInclusiveCategories_) {
+		    bkgPolOrderByCat.push_back(5);
+		} else if(i<nInclusiveCategories_+nVBFCategories){
+		    bkgPolOrderByCat.push_back(3);
+		} 
+	    }
+	}
+	// build the model
+	buildBkgModel(l, postfix);
 
-          std::vector<std::string> data_pol5_pars(5,"p");   
-          data_pol5_pars[0] = "modpol0";
-          data_pol5_pars[1] = "modpol1";
-          data_pol5_pars[2] = "modpol2";
-          data_pol5_pars[3] = "modpol3";
-          data_pol5_pars[4] = "modpol4";
-          l.rooContainer->AddSpecificCategoryPdf(poly5cats,"data_pol_model",
-          "0","CMS_hgg_mass",data_pol5_pars,75);  // >= 71 means RooBernstein of order >= 1
-          std::vector<std::string> data_pol3_pars(3,"p");   
-          data_pol3_pars[0] = "modpol0";
-          data_pol3_pars[1] = "modpol1";
-          data_pol3_pars[2] = "modpol2";
-          l.rooContainer->AddSpecificCategoryPdf(poly3cats,"data_pol_model",
-          "0","CMS_hgg_mass",data_pol3_pars,73);    // >= 71 means RooBernstein of order >= 1
-        */
-        if (includeVBF){
-            int poly3cats[6] = {0,0,0,0,1,0};
-            int poly4cats[6] = {1,0,0,0,0,1};
-            int poly5cats[6] = {0,1,1,1,0,0};
-            int poly6cats[6] = {0,0,0,0,0,0};
-
-            std::vector<std::string> data_pol6_pars(6,"p");   
-            data_pol6_pars[0] = "modpol0_8TeV";
-            data_pol6_pars[1] = "modpol1_8TeV";
-            data_pol6_pars[2] = "modpol2_8TeV";
-            data_pol6_pars[3] = "modpol3_8TeV";
-            data_pol6_pars[4] = "modpol4_8TeV";
-            data_pol6_pars[5] = "modpol5_8TeV";
-            l.rooContainer->AddSpecificCategoryPdf(poly6cats,"data_pol_model_8TeV",
-                                                   "0","CMS_hgg_mass",data_pol6_pars,76);  // >= 71 means RooBernstein of order >= 1
-
-            std::vector<std::string> data_pol5_pars(5,"p");   
-            data_pol5_pars[0] = "modpol0_8TeV";
-            data_pol5_pars[1] = "modpol1_8TeV";
-            data_pol5_pars[2] = "modpol2_8TeV";
-            data_pol5_pars[3] = "modpol3_8TeV";
-            data_pol5_pars[4] = "modpol4_8TeV";
-            l.rooContainer->AddSpecificCategoryPdf(poly5cats,"data_pol_model_8TeV",
-                                                   "0","CMS_hgg_mass",data_pol5_pars,75);  // >= 71 means RooBernstein of order >= 1
-
-            std::vector<std::string> data_pol4_pars(4,"p");   
-            data_pol4_pars[0] = "modpol0_8TeV";
-            data_pol4_pars[1] = "modpol1_8TeV";
-            data_pol4_pars[2] = "modpol2_8TeV";
-            data_pol4_pars[3] = "modpol3_8TeV";
-            l.rooContainer->AddSpecificCategoryPdf(poly4cats,"data_pol_model_8TeV",
-                                                   "0","CMS_hgg_mass",data_pol4_pars,74);    // >= 71 means RooBernstein of order >= 1
-
-            std::vector<std::string> data_pol3_pars(3,"p");   
-            data_pol3_pars[0] = "modpol0_8TeV";
-            data_pol3_pars[1] = "modpol1_8TeV";
-            data_pol3_pars[2] = "modpol2_8TeV";
-            l.rooContainer->AddSpecificCategoryPdf(poly3cats,"data_pol_model_8TeV",
-                                                   "0","CMS_hgg_mass",data_pol3_pars,73);    // >= 71 means RooBernstein of order >= 1
-        }
-        else{
-            int poly2cats[4] = {1,0,0,0};
-            int poly4cats[4] = {0,1,0,0};
-            int poly5cats[4] = {0,0,1,1};
-
-            std::vector<std::string> data_pol5_pars(5,"p");   
-            data_pol5_pars[0] = "modpol0_8TeV";
-            data_pol5_pars[1] = "modpol1_8TeV";
-            data_pol5_pars[2] = "modpol2_8TeV";
-            data_pol5_pars[3] = "modpol3_8TeV";
-            data_pol5_pars[4] = "modpol4_8TeV";
-            l.rooContainer->AddSpecificCategoryPdf(poly5cats,"data_pol_model_8TeV",
-                                                   "0","CMS_hgg_mass",data_pol5_pars,75);  // >= 71 means RooBernstein of order >= 1
-
-            std::vector<std::string> data_pol4_pars(4,"p");   
-            data_pol4_pars[0] = "modpol0_8TeV";
-            data_pol4_pars[1] = "modpol1_8TeV";
-            data_pol4_pars[2] = "modpol2_8TeV";
-            data_pol4_pars[3] = "modpol3_8TeV";
-            l.rooContainer->AddSpecificCategoryPdf(poly4cats,"data_pol_model_8TeV",
-                                                   "0","CMS_hgg_mass",data_pol4_pars,74);    // >= 71 means RooBernstein of order >= 1
-
-            std::vector<std::string> data_pol2_pars(2,"p");   
-            data_pol2_pars[0] = "modpol0_8TeV";
-            data_pol2_pars[1] = "modpol1_8TeV";
-            l.rooContainer->AddSpecificCategoryPdf(poly2cats,"data_pol_model_8TeV",
-                                                   "0","CMS_hgg_mass",data_pol2_pars,72);    // >= 71 means RooBernstein of order >= 1
-            // -----------------------------------------------------
-        }
+        ////////// // MIT BDT Categories
+        ////////// // Background modeling - Separate Polynomial models for the different categories in MVA
+        ////////// /*
+        //////////   int poly3cats[5] = {1,1,0,0,0};
+        //////////   int poly5cats[5] = {0,0,1,1,1};
+	////////// 
+        //////////   std::vector<std::string> data_pol5_pars(5,"p");   
+        //////////   data_pol5_pars[0] = "modpol0";
+        //////////   data_pol5_pars[1] = "modpol1";
+        //////////   data_pol5_pars[2] = "modpol2";
+        //////////   data_pol5_pars[3] = "modpol3";
+        //////////   data_pol5_pars[4] = "modpol4";
+        //////////   l.rooContainer->AddSpecificCategoryPdf(poly5cats,"data_pol_model",
+        //////////   "0","CMS_hgg_mass",data_pol5_pars,75);  // >= 71 means RooBernstein of order >= 1
+        //////////   std::vector<std::string> data_pol3_pars(3,"p");   
+        //////////   data_pol3_pars[0] = "modpol0";
+        //////////   data_pol3_pars[1] = "modpol1";
+        //////////   data_pol3_pars[2] = "modpol2";
+        //////////   l.rooContainer->AddSpecificCategoryPdf(poly3cats,"data_pol_model",
+        //////////   "0","CMS_hgg_mass",data_pol3_pars,73);    // >= 71 means RooBernstein of order >= 1
+        ////////// */
+        ////////// if (includeVBF){
+        //////////     int poly3cats[6] = {0,0,0,0,1,0};
+        //////////     int poly4cats[6] = {1,0,0,0,0,1};
+        //////////     int poly5cats[6] = {0,1,1,1,0,0};
+        //////////     int poly6cats[6] = {0,0,0,0,0,0};
+	////////// 
+        //////////     std::vector<std::string> data_pol6_pars(6,"p");   
+        //////////     data_pol6_pars[0] = "modpol0_8TeV";
+        //////////     data_pol6_pars[1] = "modpol1_8TeV";
+        //////////     data_pol6_pars[2] = "modpol2_8TeV";
+        //////////     data_pol6_pars[3] = "modpol3_8TeV";
+        //////////     data_pol6_pars[4] = "modpol4_8TeV";
+        //////////     data_pol6_pars[5] = "modpol5_8TeV";
+        //////////     l.rooContainer->AddSpecificCategoryPdf(poly6cats,"data_pol_model_8TeV",
+        //////////                                            "0","CMS_hgg_mass",data_pol6_pars,76);  // >= 71 means RooBernstein of order >= 1
+	////////// 
+        //////////     std::vector<std::string> data_pol5_pars(5,"p");   
+        //////////     data_pol5_pars[0] = "modpol0_8TeV";
+        //////////     data_pol5_pars[1] = "modpol1_8TeV";
+        //////////     data_pol5_pars[2] = "modpol2_8TeV";
+        //////////     data_pol5_pars[3] = "modpol3_8TeV";
+        //////////     data_pol5_pars[4] = "modpol4_8TeV";
+        //////////     l.rooContainer->AddSpecificCategoryPdf(poly5cats,"data_pol_model_8TeV",
+        //////////                                            "0","CMS_hgg_mass",data_pol5_pars,75);  // >= 71 means RooBernstein of order >= 1
+	////////// 
+        //////////     std::vector<std::string> data_pol4_pars(4,"p");   
+        //////////     data_pol4_pars[0] = "modpol0_8TeV";
+        //////////     data_pol4_pars[1] = "modpol1_8TeV";
+        //////////     data_pol4_pars[2] = "modpol2_8TeV";
+        //////////     data_pol4_pars[3] = "modpol3_8TeV";
+        //////////     l.rooContainer->AddSpecificCategoryPdf(poly4cats,"data_pol_model_8TeV",
+        //////////                                            "0","CMS_hgg_mass",data_pol4_pars,74);    // >= 71 means RooBernstein of order >= 1
+	////////// 
+        //////////     std::vector<std::string> data_pol3_pars(3,"p");   
+        //////////     data_pol3_pars[0] = "modpol0_8TeV";
+        //////////     data_pol3_pars[1] = "modpol1_8TeV";
+        //////////     data_pol3_pars[2] = "modpol2_8TeV";
+        //////////     l.rooContainer->AddSpecificCategoryPdf(poly3cats,"data_pol_model_8TeV",
+        //////////                                            "0","CMS_hgg_mass",data_pol3_pars,73);    // >= 71 means RooBernstein of order >= 1
+        ////////// }
+        ////////// else{
+        //////////     int poly2cats[4] = {1,0,0,0};
+        //////////     int poly4cats[4] = {0,1,0,0};
+        //////////     int poly5cats[4] = {0,0,1,1};
+	////////// 
+        //////////     std::vector<std::string> data_pol5_pars(5,"p");   
+        //////////     data_pol5_pars[0] = "modpol0_8TeV";
+        //////////     data_pol5_pars[1] = "modpol1_8TeV";
+        //////////     data_pol5_pars[2] = "modpol2_8TeV";
+        //////////     data_pol5_pars[3] = "modpol3_8TeV";
+        //////////     data_pol5_pars[4] = "modpol4_8TeV";
+        //////////     l.rooContainer->AddSpecificCategoryPdf(poly5cats,"data_pol_model_8TeV",
+        //////////                                            "0","CMS_hgg_mass",data_pol5_pars,75);  // >= 71 means RooBernstein of order >= 1
+	////////// 
+        //////////     std::vector<std::string> data_pol4_pars(4,"p");   
+        //////////     data_pol4_pars[0] = "modpol0_8TeV";
+        //////////     data_pol4_pars[1] = "modpol1_8TeV";
+        //////////     data_pol4_pars[2] = "modpol2_8TeV";
+        //////////     data_pol4_pars[3] = "modpol3_8TeV";
+        //////////     l.rooContainer->AddSpecificCategoryPdf(poly4cats,"data_pol_model_8TeV",
+        //////////                                            "0","CMS_hgg_mass",data_pol4_pars,74);    // >= 71 means RooBernstein of order >= 1
+	////////// 
+        //////////     std::vector<std::string> data_pol2_pars(2,"p");   
+        //////////     data_pol2_pars[0] = "modpol0_8TeV";
+        //////////     data_pol2_pars[1] = "modpol1_8TeV";
+        //////////     l.rooContainer->AddSpecificCategoryPdf(poly2cats,"data_pol_model_8TeV",
+        //////////                                            "0","CMS_hgg_mass",data_pol2_pars,72);    // >= 71 means RooBernstein of order >= 1
+        //////////     // -----------------------------------------------------
+        ////////// }
     }
 
     // Make some data sets from the observables to fill in the event loop      
@@ -486,79 +505,107 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
     l.rooContainer->CreateDataSet("CMS_hgg_mass","bkg_mass"     ,nDataBins);          
 
     // Create Signal DataSets:
-    for (int sig=105;sig<=150;sig+=5){
-        // Needed to use S4 for the GGH 145 Signal which has the BUG so no 145 sample
-        //if (sig==145) continue;
+    for(size_t isig=0; isig<sigPointsToBook.size(); ++isig) {
+	int sig = sigPointsToBook[isig];
         l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_ggh_mass_m%d",sig),nDataBins);    
         l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_vbf_mass_m%d",sig),nDataBins);    
         l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wzh_mass_m%d",sig),nDataBins);    
         l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_tth_mass_m%d",sig),nDataBins);   
-
+ 
         l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_ggh_mass_m%d_rv",sig),nDataBins);    
         l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_vbf_mass_m%d_rv",sig),nDataBins);    
         l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wzh_mass_m%d_rv",sig),nDataBins);    
         l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_tth_mass_m%d_rv",sig),nDataBins);    
-
+                                                                              
         l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_ggh_mass_m%d_wv",sig),nDataBins);    
         l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_vbf_mass_m%d_wv",sig),nDataBins);    
         l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wzh_mass_m%d_wv",sig),nDataBins);    
         l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_tth_mass_m%d_wv",sig),nDataBins);    
     }
-    /*
-    // Also create the 121 and 123 test points
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_ggh_mass_m121",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_vbf_mass_m121",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_wzh_mass_m121",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_tth_mass_m121",nDataBins);   
-
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_ggh_mass_m121_rv",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_vbf_mass_m121_rv",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_wzh_mass_m121_rv",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_tth_mass_m121_rv",nDataBins);    
-
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_ggh_mass_m121_wv",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_vbf_mass_m121_wv",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_wzh_mass_m121_wv",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_tth_mass_m121_wv",nDataBins);    
-
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_ggh_mass_m123",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_vbf_mass_m123",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_wzh_mass_m123",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_tth_mass_m123",nDataBins);   
-
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_ggh_mass_m123_rv",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_vbf_mass_m123_rv",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_wzh_mass_m123_rv",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_tth_mass_m123_rv",nDataBins);    
-
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_ggh_mass_m123_wv",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_vbf_mass_m123_wv",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_wzh_mass_m123_wv",nDataBins);    
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_tth_mass_m123_wv",nDataBins);    
-
-    */
 
     // Make more datasets representing Systematic Shifts of various quantities
-
-    for (int sig=105;sig<=150;sig+=5){
-        //if (sig==145) continue;
-        l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_ggh_mass_m%d",sig),-1);  
-        l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_vbf_mass_m%d",sig),-1);  
-        l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_wzh_mass_m%d",sig),-1);  
-        l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_tth_mass_m%d",sig),-1);  
+    for(size_t isig=0; isig<sigPointsToBook.size(); ++isig) {
+	int sig = sigPointsToBook[isig];
+        l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_ggh_mass_m%d",sig),-1);    
+        l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_vbf_mass_m%d",sig),-1);    
+        l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_wzh_mass_m%d",sig),-1);    
+        l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_tth_mass_m%d",sig),-1);    
     }
 
-    /*
-      l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_ggh_mass_m121",-1);  
-      l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_vbf_mass_m121",-1);  
-      l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_wzh_mass_m121",-1);  
-      l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_tth_mass_m121",-1);
-
-      l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_ggh_mass_m123",-1);  
-      l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_vbf_mass_m123",-1);  
-      l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_wzh_mass_m123",-1);  
-      l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_tth_mass_m123",-1);  
-    */
+    /////// // Create Signal DataSets:
+    /////// for (int sig=105;sig<=150;sig+=5){
+    ///////     // Needed to use S4 for the GGH 145 Signal which has the BUG so no 145 sample
+    ///////     //if (sig==145) continue;
+    ///////     l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_ggh_mass_m%d",sig),nDataBins);    
+    ///////     l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_vbf_mass_m%d",sig),nDataBins);    
+    ///////     l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wzh_mass_m%d",sig),nDataBins);    
+    ///////     l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_tth_mass_m%d",sig),nDataBins);   
+    /////// 
+    ///////     l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_ggh_mass_m%d_rv",sig),nDataBins);    
+    ///////     l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_vbf_mass_m%d_rv",sig),nDataBins);    
+    ///////     l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wzh_mass_m%d_rv",sig),nDataBins);    
+    ///////     l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_tth_mass_m%d_rv",sig),nDataBins);    
+    /////// 
+    ///////     l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_ggh_mass_m%d_wv",sig),nDataBins);    
+    ///////     l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_vbf_mass_m%d_wv",sig),nDataBins);    
+    ///////     l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wzh_mass_m%d_wv",sig),nDataBins);    
+    ///////     l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_tth_mass_m%d_wv",sig),nDataBins);    
+    /////// }
+    /////// /*
+    /////// // Also create the 121 and 123 test points
+    /////// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_ggh_mass_m121",nDataBins);    
+    /////// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_vbf_mass_m121",nDataBins);    
+    /////// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_wzh_mass_m121",nDataBins);    
+    /////// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_tth_mass_m121",nDataBins);   
+    /////// 
+    /////// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_ggh_mass_m121_rv",nDataBins);    
+    /////// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_vbf_mass_m121_rv",nDataBins);    
+    /////// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_wzh_mass_m121_rv",nDataBins);    
+    /////// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_tth_mass_m121_rv",nDataBins);    
+    /////// 
+    /////// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_ggh_mass_m121_wv",nDataBins);    
+    /////// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_vbf_mass_m121_wv",nDataBins);    
+    /////// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_wzh_mass_m121_wv",nDataBins);    
+    /////// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_tth_mass_m121_wv",nDataBins);    
+    /////// 
+    /////// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_ggh_mass_m123",nDataBins);    
+    /////// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_vbf_mass_m123",nDataBins);    
+    /////// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_wzh_mass_m123",nDataBins);    
+    /////// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_tth_mass_m123",nDataBins);   
+    /////// 
+    /////// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_ggh_mass_m123_rv",nDataBins);    
+    /////// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_vbf_mass_m123_rv",nDataBins);    
+    /////// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_wzh_mass_m123_rv",nDataBins);    
+    /////// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_tth_mass_m123_rv",nDataBins);    
+    /////// 
+    /////// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_ggh_mass_m123_wv",nDataBins);    
+    /////// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_vbf_mass_m123_wv",nDataBins);    
+    /////// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_wzh_mass_m123_wv",nDataBins);    
+    /////// l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_tth_mass_m123_wv",nDataBins);    
+    /////// 
+    /////// */
+    /////// 
+    /////// // Make more datasets representing Systematic Shifts of various quantities
+    /////// 
+    /////// for (int sig=105;sig<=150;sig+=5){
+    ///////     //if (sig==145) continue;
+    ///////     l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_ggh_mass_m%d",sig),-1);  
+    ///////     l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_vbf_mass_m%d",sig),-1);  
+    ///////     l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_wzh_mass_m%d",sig),-1);  
+    ///////     l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_tth_mass_m%d",sig),-1);  
+    /////// }
+    /////// 
+    /////// /*
+    ///////   l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_ggh_mass_m121",-1);  
+    ///////   l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_vbf_mass_m121",-1);  
+    ///////   l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_wzh_mass_m121",-1);  
+    ///////   l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_tth_mass_m121",-1);
+    /////// 
+    ///////   l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_ggh_mass_m123",-1);  
+    ///////   l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_vbf_mass_m123",-1);  
+    ///////   l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_wzh_mass_m123",-1);  
+    ///////   l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_tth_mass_m123",-1);  
+    /////// */
 
     // Make sure the Map is filled
     FillSignalLabelMap(l);
@@ -569,11 +616,19 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
     l.tmvaReaderID_UCSD->BookMVA("Gradient"      ,photonLevelMvaUCSD.c_str()  );
     l.tmvaReader_dipho_UCSD->BookMVA("Gradient"  ,eventLevelMvaUCSD.c_str()   );
     // New ID MVA
-    l.tmvaReaderID_Single_Barrel->BookMVA("AdaBoost",photonLevelNewIDMVA_EB.c_str());
-    l.tmvaReaderID_Single_Endcap->BookMVA("AdaBoost",photonLevelNewIDMVA_EE.c_str());
+    if( photonLevelNewIDMVA_EB != "" && photonLevelNewIDMVA_EE != "" ) {
+	l.tmvaReaderID_Single_Barrel->BookMVA("AdaBoost",photonLevelNewIDMVA_EB.c_str());
+	l.tmvaReaderID_Single_Endcap->BookMVA("AdaBoost",photonLevelNewIDMVA_EE.c_str());
+    } else { 
+	assert( dataIs2011 );
+    }
     // MIT 
-    l.tmvaReaderID_MIT_Barrel->BookMVA("AdaBoost",photonLevelMvaMIT_EB.c_str());
-    l.tmvaReaderID_MIT_Endcap->BookMVA("AdaBoost",photonLevelMvaMIT_EE.c_str());
+    if( photonLevelMvaMIT_EB != "" && photonLevelMvaMIT_EE != "" ) {
+	l.tmvaReaderID_MIT_Barrel->BookMVA("AdaBoost",photonLevelMvaMIT_EB.c_str());
+	l.tmvaReaderID_MIT_Endcap->BookMVA("AdaBoost",photonLevelMvaMIT_EE.c_str());
+    } else {
+	assert( ! dataIs2011 );
+    }
     l.tmvaReader_dipho_MIT->BookMVA("Gradient"   ,eventLevelMvaMIT.c_str()    );
     // ----------------------------------------------------------------------//
 
@@ -898,24 +953,38 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
         // easy to calculate vertex probability from vtx mva output
         float vtxProb   = 1.-0.49*(vtx_mva+1.0); /// should better use this: vtxAna_.setPairID(diphoton_id); vtxAna_.vertexProbability(vtx_mva); PM
 
-        float phoid_mvaout_lead = l.photonIDMVANew(diphoton_index.first,l.dipho_vtxind[diphoton_id],lead_p4,bdtTrainingPhilosophy.c_str()) + photonIDMVAShift_EB;
-        float phoid_mvaout_sublead = l.photonIDMVANew(diphoton_index.second,l.dipho_vtxind[diphoton_id],sublead_p4,bdtTrainingPhilosophy.c_str()) + photonIDMVAShift_EE;
-
-	    // apply di-photon level smearings and corrections
+        float phoid_mvaout_lead = ( dataIs2011 ? 
+				    l.photonIDMVA(diphoton_index.first,l.dipho_vtxind[diphoton_id],
+						  lead_p4,bdtTrainingPhilosophy.c_str()) :
+				    l.photonIDMVANew(diphoton_index.first,l.dipho_vtxind[diphoton_id],
+						     lead_p4,bdtTrainingPhilosophy.c_str()) + photonIDMVAShift_EB );
+        float phoid_mvaout_sublead = ( dataIs2011 ? 
+				       l.photonIDMVA(diphoton_index.second,l.dipho_vtxind[diphoton_id],
+						     sublead_p4,bdtTrainingPhilosophy.c_str()) : 
+				       l.photonIDMVANew(diphoton_index.second,l.dipho_vtxind[diphoton_id],
+							sublead_p4,bdtTrainingPhilosophy.c_str()) + photonIDMVAShift_EE );
+	// apply di-photon level smearings and corrections
         int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,0);
         if( cur_type != 0 && doMCSmearing ) {
-	    applyDiPhotonSmearings(Higgs, *vtx, selectioncategory, cur_type, *((TVector3*)l.gv_pos->At(0)), evweight, phoid_mvaout_lead,phoid_mvaout_sublead,
+	    applyDiPhotonSmearings(Higgs, *vtx, selectioncategory, cur_type, *((TVector3*)l.gv_pos->At(0)), evweight, 
+				   phoid_mvaout_lead,phoid_mvaout_sublead,
 				   diPhoSys, syst_shift);
             isCorrectVertex=(*vtx- *((TVector3*)l.gv_pos->At(0))).Mag() < 1.;
         }
                            
         // Must be calculated after photon id has potentially been smeared
         //fillTrainTree(l,diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id] ,vtxProb,lead_p4,sublead_p4 ,sigmaMrv,sigmaMwv,sigmaMeonly ,bdtTrainingPhilosophy.c_str() ,phoid_mvaout_lead,phoid_mvaout_sublead);
-            float diphobdt_output = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id] ,vtxProb,lead_p4,sublead_p4 ,sigmaMrv,sigmaMwv,sigmaMeonly ,bdtTrainingPhilosophy.c_str() ,phoid_mvaout_lead,phoid_mvaout_sublead);
-        kinematic_bdtout = diphobdt_output;
+	float diphobdt_output = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id] ,
+					      vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMeonly,
+					      bdtTrainingPhilosophy.c_str(),
+					      phoid_mvaout_lead,phoid_mvaout_sublead);
+	kinematic_bdtout = diphobdt_output;
+	
         bool isEBEB  = (lead_p4.Eta() < 1.4442 ) && fabs(sublead_p4.Eta()<1.4442);
         category = GetBDTBoundaryCategory(diphobdt_output,isEBEB,VBFevent);
-        if (diphobdt_output>=-0.05) computeExclusiveCategory(l,category,diphoton_index,Higgs.Pt()); 
+        if (diphobdt_output>=bdtCategoryBoundaries.back()) { 
+	    computeExclusiveCategory(l,category,diphoton_index,Higgs.Pt()); 
+	}
         if (PADEBUG) std::cout << " Diphoton Category " <<category <<std::endl;
     	// sanity check
         assert( evweight >= 0. ); 
@@ -944,7 +1013,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 	    }
 	
         //if (cur_type==0 && mass >= 100. && mass < 180. && !isSyst /*should never be if running data anyway*/){
-        if (mass >= 100. && mass < 180. && !isSyst){
+        if (dumpAscii && mass >= 100. && mass < 180. && !isSyst){
         //if (1>0){
 /*            eventListText <<"Type="<< cur_type 
             <<" Run=" << l.run 
@@ -1336,35 +1405,6 @@ int MassFactorizedMvaAnalysis::GetBDTBoundaryCategory(float bdtout, bool isEB, b
         }
 
     } else if (bdtTrainingPhilosophy=="MIT"){
-        /*
-          if (bdtout >=-0.50 && bdtout < 0.3) return 4;
-          //     if (bdtout < 0.3) return 4;
-          if (bdtout >= 0.3 && bdtout < 0.65) return 3;
-          if (bdtout >= 0.65 && bdtout < 0.84) return 2;
-          if (bdtout >= 0.84 && bdtout < 0.90) return 1;
-          if (bdtout >= 0.90) return 0;
-          return -1;
-        */
-        //       if (bdtout >=-0.50 && bdtout < 0.05) return 4;
-        //// if (VBFevent) {
-        ////     //if (bdtout >= 0.05 && VBFevent==1) return 4;
-        ////     //if (bdtout >= 0.05 && VBFevent==2) return 5;
-        ////     if (bdtout >= 0.05) return 4;
-        ////     else return -1;
-        //// } else {
-	////     //// [0.91,1]
-	////     //// [0.68,0.91)
-	////     //// [0.39, 0.68)
-	////     //// [0.05, 0.39)
-	////     // lower_bound( bdtcats.begin(), bdtcats.end(), bdtout, std::greater<float>());
-	////     std::vector<int>::iterator = std::lower_bound( (bdtCategoryBoundaries.begin(),bdtCategoryBoundaries.end(), bdtout, std::greater<float> ) );
-	////     
-        ////     if (bdtout >= 0.05 && bdtout < 0.545) return 3;
-        ////     if (bdtout >= 0.545 && bdtout < 0.74) return 2;
-        ////     if (bdtout >= 0.74 && bdtout < 0.89) return 1;
-        ////     if (bdtout >= 0.89) return 0;
-        ////     return -1;
-        //// }
 	int cat = category( bdtCategoryBoundaries, bdtout );
 	if( VBFevent && cat > -1 ) cat = bdtCategoryBoundaries.size();
 	return cat;

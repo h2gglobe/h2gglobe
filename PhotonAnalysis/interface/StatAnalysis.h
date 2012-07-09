@@ -109,7 +109,6 @@ class StatAnalysis : public PhotonAnalysis
 
     void rescaleClusterVariables(LoopAll &l);
 
-    EnergySmearer /* *eScaleSmearer,*/ *eResolSmearer ; // moved to PhotonAnalysis GF 
     EfficiencySmearer *idEffSmearer, *r9Smearer;
     DiPhoEfficiencySmearer *vtxEffSmearer, *triggerEffSmearer;
     KFactorSmearer * kFactorSmearer;

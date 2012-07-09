@@ -50,6 +50,11 @@ PhotonAnalysis::PhotonAnalysis()  :
 
     reComputeCiCPF = false;
     skimOnDiphoN = true;
+
+    splitEscaleSyst = false;
+    scale_offset_corr_error_file = "";
+    splitEresolSyst = false;
+    corr_smearing_file = "";
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -826,7 +831,12 @@ void PhotonAnalysis::Init(LoopAll& l)
     eScaleSmearer->name("E_scale");
     eScaleSmearer->doEnergy(true);
     eScaleSmearer->scaleOrSmear(true);
-    
+
+    eResolSmearer = new EnergySmearer( eSmearPars );
+    eResolSmearer->name("E_res");
+    eResolSmearer->doEnergy(false);
+    eResolSmearer->scaleOrSmear(false);
+
     if( doEcorrectionSmear ) {
         eCorrSmearer = new EnergySmearer( eSmearPars );
         eCorrSmearer->name("E_corr");
@@ -910,6 +920,120 @@ void PhotonAnalysis::Init(LoopAll& l)
 
     // FIXME book of additional variables
 
+}
+
+// ----------------------------------------------------------------------------------------------------
+void PhotonAnalysis::setupEscaleSmearer()
+{
+    if( splitEscaleSyst ) {
+        EnergySmearer::energySmearingParameters::eScaleVector tmp_scale_offset;
+	EnergySmearer::energySmearingParameters::phoCatVector tmp_scale_cat;
+	readEnergyScaleOffsets(scale_offset_corr_error_file, tmp_scale_offset, tmp_scale_cat,false);
+	assert( tmp_scale_offset.size() == 1); assert( ! tmp_scale_cat.empty() );
+	
+	eScaleCorrPars.categoryType = "Automagic";
+	eScaleCorrPars.byRun = false;
+        eScaleCorrPars.n_categories = tmp_scale_cat.size();
+        eScaleCorrPars.photon_categories = tmp_scale_cat;
+
+	eScaleCorrPars.scale_offset = tmp_scale_offset[0].scale_offset;
+        eScaleCorrPars.scale_offset_error = tmp_scale_offset[0].scale_offset_error;
+
+        eScaleCorrPars.smearing_sigma = tmp_scale_offset[0].scale_offset;
+        eScaleCorrPars.smearing_sigma_error = tmp_scale_offset[0].scale_offset_error;
+        
+	EnergySmearer::energySmearingParameters::phoCatVectorIt icat = tmp_scale_cat.begin();
+	for( ; icat != tmp_scale_cat.end(); ++icat ) {
+	    EnergySmearer * theSmear = new EnergySmearer( eScaleSmearer, EnergySmearer::energySmearingParameters::phoCatVector(1,*icat) );
+	    theSmear->name( eScaleSmearer->name()+"_"+icat->name );
+	    std::cout << "Uncorrelated single photon category smearer " << theSmear->name() << std::endl; 
+	    photonSmearers_.push_back(theSmear);
+	    eScaleSmearers_.push_back(theSmear);
+	}
+
+	eScaleCorrSmearer = new EnergySmearer( eScaleCorrPars );
+	eScaleCorrSmearer->name("E_scaleCorr");
+	eScaleCorrSmearer->doEnergy(true);
+	eScaleCorrSmearer->scaleOrSmear(true);
+	photonSmearers_.push_back(eScaleCorrSmearer);
+	eScaleSmearers_.push_back(eScaleCorrSmearer);
+
+	std::cout << "Uncorrelated single photon category smearer " << eScaleCorrSmearer->name() << std::endl; 
+	
+    } else {
+	photonSmearers_.push_back(eScaleSmearer);
+	eScaleSmearers_.push_back(eScaleSmearer);
+    }
+}
+
+// ----------------------------------------------------------------------------------------------------
+void PhotonAnalysis::setupEscaleSyst(LoopAll &l)
+{
+    for(std::vector<EnergySmearer*>::iterator ei=eScaleSmearers_.begin(); ei!=eScaleSmearers_.end(); ++ei){
+	systPhotonSmearers_.push_back( *ei );
+	std::vector<std::string> sys(1,(*ei)->name());
+	std::vector<int> sys_t(1,-1);   // -1 for signal, 1 for background 0 for both
+	l.rooContainer->MakeSystematicStudy(sys,sys_t);
+    }
+}
+
+// ----------------------------------------------------------------------------------------------------
+void PhotonAnalysis::setupEresolSmearer()
+{
+    if( splitEresolSyst ) {
+        // Use the same format used for the run-dependent energy corrections
+        EnergySmearer::energySmearingParameters::eScaleVector tmp_smearing;
+        EnergySmearer::energySmearingParameters::phoCatVector tmp_smearing_cat;
+        readEnergyScaleOffsets(corr_smearing_file, tmp_smearing, tmp_smearing_cat,false);
+
+        // make sure that the scale correction and smearing info is as expected
+        assert( tmp_smearing.size() == 1 );
+        assert( ! tmp_smearing_cat.empty() );
+
+        // copy the read info to the smarer parameters
+        eResolCorrPars.categoryType = "Automagic";
+        eResolCorrPars.byRun = false;
+        eResolCorrPars.n_categories = tmp_smearing_cat.size();
+        eResolCorrPars.photon_categories = tmp_smearing_cat;
+        
+        eResolCorrPars.scale_offset = tmp_smearing[0].scale_offset;
+        eResolCorrPars.scale_offset_error = tmp_smearing[0].scale_offset_error;
+        
+        eResolCorrPars.smearing_sigma = tmp_smearing[0].scale_offset;
+        eResolCorrPars.smearing_sigma_error = tmp_smearing[0].scale_offset_error;
+
+	EnergySmearer::energySmearingParameters::phoCatVectorIt icat = tmp_smearing_cat.begin();
+	for( ; icat != tmp_smearing_cat.end(); ++icat ) {
+	    EnergySmearer * theSmear = new EnergySmearer( eResolSmearer, EnergySmearer::energySmearingParameters::phoCatVector(1,*icat) );
+	    theSmear->name( eResolSmearer->name()+"_"+icat->name );
+	    std::cout << "Uncorrelated single photon category smearer " << theSmear->name() << std::endl; 
+	    photonSmearers_.push_back(theSmear);
+	    eResolSmearers_.push_back(theSmear);
+	}
+	
+	eResolCorrSmearer = new EnergySmearer( eResolCorrPars );
+	eResolCorrSmearer->name("E_resCorr");
+	eResolCorrSmearer->doEnergy(true);
+	eResolCorrSmearer->scaleOrSmear(true);
+	photonSmearers_.push_back(eResolCorrSmearer);
+	eResolSmearers_.push_back(eResolCorrSmearer);
+	std::cout << "Uncorrelated single photon category smearer " << eResolCorrSmearer->name() << std::endl; 
+
+    } else {
+	photonSmearers_.push_back(eResolSmearer);
+	eResolSmearers_.push_back(eResolSmearer);
+    }
+}
+
+// ----------------------------------------------------------------------------------------------------
+void PhotonAnalysis::setupEresolSyst(LoopAll &l)
+{
+    for(std::vector<EnergySmearer*>::iterator ei=eResolSmearers_.begin(); ei!=eResolSmearers_.end(); ++ei){
+	systPhotonSmearers_.push_back( *ei );
+	std::vector<std::string> sys(1,(*ei)->name());
+	std::vector<int> sys_t(1,-1);   // -1 for signal, 1 for background 0 for both
+	l.rooContainer->MakeSystematicStudy(sys,sys_t);
+    }
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -2282,12 +2406,12 @@ bool PhotonAnalysis::VBFTag2012(int & ijet1, int & ijet2,
     if(diphoton_id==-1) return tag;
     
     if( jetid_flags == 0 ) { 
-    switchJetIdVertex( l, l.dipho_vtxind[diphoton_id] );
-    id_flags.resize(l.jet_algoPF1_n);
-    for(int ijet=0; ijet<l.jet_algoPF1_n; ++ijet ) {
-        id_flags[ijet] = PileupJetIdentifier::passJetId(l.jet_algoPF1_cutbased_wp_level[ijet], PileupJetIdentifier::kLoose);
-    }
-    jetid_flags = (bool*)&id_flags[0];
+	switchJetIdVertex( l, l.dipho_vtxind[diphoton_id] );
+	id_flags.resize(l.jet_algoPF1_n);
+	for(int ijet=0; ijet<l.jet_algoPF1_n; ++ijet ) {
+	    id_flags[ijet] = PileupJetIdentifier::passJetId(l.jet_algoPF1_cutbased_wp_level[ijet], PileupJetIdentifier::kLoose);
+	}
+	jetid_flags = (bool*)&id_flags[0];
     }
     
     TLorentzVector lead_p4    = l.get_pho_p4( l.dipho_leadind[diphoton_id], l.dipho_vtxind[diphoton_id], &smeared_pho_energy[0]);

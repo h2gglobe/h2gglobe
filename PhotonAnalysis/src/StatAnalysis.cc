@@ -153,16 +153,10 @@ void StatAnalysis::Init(LoopAll& l)
         photonSmearers_.push_back(eCorrSmearer);
     }
     if( doEscaleSmear ) {
-        photonSmearers_.push_back(eScaleSmearer);
+        setupEscaleSmearer();
     }
     if( doEresolSmear ) {
-        // energy resolution smearing
-        std::cerr << __LINE__ << std::endl; 
-        eResolSmearer = new EnergySmearer( eSmearPars );
-        eResolSmearer->name("E_res");
-        eResolSmearer->doEnergy(false);
-        eResolSmearer->scaleOrSmear(false);
-        photonSmearers_.push_back(eResolSmearer);
+	setupEresolSmearer();
     }
     if( doPhotonIdEffSmear ) {
         // photon ID efficiency 
@@ -234,16 +228,18 @@ void StatAnalysis::Init(LoopAll& l)
         l.rooContainer->MakeSystematicStudy(sys,sys_t);
     }
     if( doEscaleSmear && doEscaleSyst ) {
-        systPhotonSmearers_.push_back( eScaleSmearer );
-        std::vector<std::string> sys(1,eScaleSmearer->name());
-        std::vector<int> sys_t(1,-1);   // -1 for signal, 1 for background 0 for both
-        l.rooContainer->MakeSystematicStudy(sys,sys_t);
+	setupEscaleSyst(l);
+        //// systPhotonSmearers_.push_back( eScaleSmearer );
+        //// std::vector<std::string> sys(1,eScaleSmearer->name());
+        //// std::vector<int> sys_t(1,-1);   // -1 for signal, 1 for background 0 for both
+        //// l.rooContainer->MakeSystematicStudy(sys,sys_t);
     }
     if( doEresolSmear && doEresolSyst ) {
-        systPhotonSmearers_.push_back( eResolSmearer );
-        std::vector<std::string> sys(1,eResolSmearer->name());
-        std::vector<int> sys_t(1,-1);   // -1 for signal, 1 for background 0 for both
-        l.rooContainer->MakeSystematicStudy(sys,sys_t);
+	setupEresolSyst(l);
+        //// systPhotonSmearers_.push_back( eResolSmearer );
+        //// std::vector<std::string> sys(1,eResolSmearer->name());
+        //// std::vector<int> sys_t(1,-1);   // -1 for signal, 1 for background 0 for both
+        //// l.rooContainer->MakeSystematicStudy(sys,sys_t);
     }
     if( doPhotonIdEffSmear && doPhotonIdEffSyst ) {
         systPhotonSmearers_.push_back( idEffSmearer );
@@ -365,114 +361,10 @@ void StatAnalysis::Init(LoopAll& l)
     l.rooContainer->AddConstant("ff_XSBR_vbf_105",0.151616);
     l.rooContainer->AddConstant("ff_XSBR_wzh_105",0.1609787);
 
-    // Background modeling 
-    std::string postfix=(dataIs2011?"":"_8TeV");
-    /////// l.rooContainer->AddRealVar("CMS_hgg_pol0"+postfix,-0.1,-1.0,1.0);
-    /////// l.rooContainer->AddRealVar("CMS_hgg_pol1"+postfix,-0.1,-1.0,1.0);
-    /////// l.rooContainer->AddRealVar("CMS_hgg_pol2"+postfix,-0.1,-1.0,1.0);
-    /////// l.rooContainer->AddRealVar("CMS_hgg_pol3"+postfix,-0.01,-1.0,1.0);
-    /////// l.rooContainer->AddRealVar("CMS_hgg_pol4"+postfix,-0.01,-1.0,1.0);
-    /////// l.rooContainer->AddFormulaVar("CMS_hgg_modpol0"+postfix,"@0*@0","CMS_hgg_pol0"+postfix);
-    /////// l.rooContainer->AddFormulaVar("CMS_hgg_modpol1"+postfix,"@0*@0","CMS_hgg_pol1"+postfix);
-    /////// l.rooContainer->AddFormulaVar("CMS_hgg_modpol2"+postfix,"@0*@0","CMS_hgg_pol2"+postfix);
-    /////// l.rooContainer->AddFormulaVar("CMS_hgg_modpol3"+postfix,"@0*@0","CMS_hgg_pol3"+postfix);
-    /////// l.rooContainer->AddFormulaVar("CMS_hgg_modpol4"+postfix,"@0*@0","CMS_hgg_pol4"+postfix);
-    /////// 
-    /////// l.rooContainer->AddRealVar("CMS_hgg_quartic0"+postfix,-0.1,-1.0,1.0);
-    /////// l.rooContainer->AddRealVar("CMS_hgg_quartic1"+postfix,-0.1,-1.0,1.0);
-    /////// l.rooContainer->AddRealVar("CMS_hgg_quartic2"+postfix,-0.1,-1.0,1.0);
-    /////// l.rooContainer->AddRealVar("CMS_hgg_quartic3"+postfix,-0.01,-1.0,1.0);
-    /////// l.rooContainer->AddFormulaVar("CMS_hgg_modquartic0"+postfix,"@0*@0","CMS_hgg_quartic0"+postfix);
-    /////// l.rooContainer->AddFormulaVar("CMS_hgg_modquartic1"+postfix,"@0*@0","CMS_hgg_quartic1"+postfix);
-    /////// l.rooContainer->AddFormulaVar("CMS_hgg_modquartic2"+postfix,"@0*@0","CMS_hgg_quartic2"+postfix);
-    /////// l.rooContainer->AddFormulaVar("CMS_hgg_modquartic3"+postfix,"@0*@0","CMS_hgg_quartic3"+postfix);
-    /////// 
-    /////// l.rooContainer->AddRealVar("CMS_hgg_quad0"+postfix,-0.1,-1.5,1.5);
-    /////// l.rooContainer->AddRealVar("CMS_hgg_quad1"+postfix,-0.01,-1.5,1.5);
-    /////// l.rooContainer->AddFormulaVar("CMS_hgg_modquad0"+postfix,"@0*@0","CMS_hgg_quad0"+postfix);
-    /////// l.rooContainer->AddFormulaVar("CMS_hgg_modquad1"+postfix,"@0*@0","CMS_hgg_quad1"+postfix);
-    /////// 
-    /////// l.rooContainer->AddRealVar("CMS_hgg_cubic0"+postfix,-0.1,-1.5,1.5);
-    /////// l.rooContainer->AddRealVar("CMS_hgg_cubic1"+postfix,-0.1,-1.5,1.5);
-    /////// l.rooContainer->AddRealVar("CMS_hgg_cubic2"+postfix,-0.01,-1.5,1.5);
-    /////// l.rooContainer->AddFormulaVar("CMS_hgg_modcubic0"+postfix,"@0*@0","CMS_hgg_cubic0"+postfix);
-    /////// l.rooContainer->AddFormulaVar("CMS_hgg_modcubic1"+postfix,"@0*@0","CMS_hgg_cubic1"+postfix);
-    /////// l.rooContainer->AddFormulaVar("CMS_hgg_modcubic2"+postfix,"@0*@0","CMS_hgg_cubic2"+postfix);
-    /////// 
-    /////// l.rooContainer->AddRealVar("CMS_hgg_lin0"+postfix,-0.01,-1.5,1.5);
-    /////// l.rooContainer->AddFormulaVar("CMS_hgg_modlin0"+postfix,"@0*@0","CMS_hgg_lin0"+postfix);
-    /////// 
-    /////// // Generic PDF ok in the std analysis but excluisve channels need different models CP
-    /////// //l.rooContainer->AddGenericPdf("data_pol_model",
-    /////// //"0","CMS_hgg_mass",data_pol_pars,73); // >= 71 means RooBernstein of order >= 1
-    //////// int cats_with_std[]     = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-    //////// int cats_with_lin[]     = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-    //////// int cats_with_quad[]    = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-    //////// int cats_with_cubic[]   = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-    //////// int cats_with_quartic[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-
-    //////////// std::cout << "Number of categories: " << nCategories_ << std::endl;
-    //////////// for(int i=0; i<nCategories_; i++){
-    ////////////     if(i<nInclusiveCategories_) {
-    ////////////         cats_with_std[i]=1;
-    ////////////     } else if(i<nInclusiveCategories_+nVBFCategories){
-    ////////////         /// cats_with_quad[i]=1;
-    ////////////         cats_with_cubic[i]=1;
-    ////////////     } else if(i<nInclusiveCategories_+nVBFCategories+nVHhadCategories){
-    ////////////         cats_with_quad[i]=1;
-    ////////////     } else if(i<nInclusiveCategories_+nVBFCategories+nVHhadCategories+nVHlepCategories){
-    ////////////         cats_with_lin[i]=1;
-    ////////////     } else {
-    ////////////         cats_with_cubic[i]=1;
-    ////////////     }
-    //////////// }
-    /////// 
-    /////// std::vector<std::string> data_pol_pars(5,"p");   
-    /////// data_pol_pars[0] = "CMS_hgg_modpol0"+postfix;
-    /////// data_pol_pars[1] = "CMS_hgg_modpol1"+postfix;
-    /////// data_pol_pars[2] = "CMS_hgg_modpol2"+postfix;
-    /////// data_pol_pars[3] = "CMS_hgg_modpol3"+postfix;
-    /////// data_pol_pars[4] = "CMS_hgg_modpol4"+postfix;
-    /////// 
-    /////// l.rooContainer->AddSpecificCategoryPdf(cats_with_std,"data_pol_model"+postfix,
-    ///////                                        "0","CMS_hgg_mass",data_pol_pars,75);    // >= 71 means RooBernstein of order >= 1
-    /////// 
-    /////// std::vector<std::string> data_quartic_pars(4,"p");   
-    /////// data_quartic_pars[0] = "CMS_hgg_modquartic0"+postfix;
-    /////// data_quartic_pars[1] = "CMS_hgg_modquartic1"+postfix;
-    /////// data_quartic_pars[2] = "CMS_hgg_modquartic2"+postfix;
-    /////// data_quartic_pars[3] = "CMS_hgg_modquartic3"+postfix;
-    /////// 
-    /////// l.rooContainer->AddSpecificCategoryPdf(cats_with_quartic,"data_pol_model"+postfix,
-    ///////                                        "0","CMS_hgg_mass",data_quartic_pars,74);    // >= 71 means RooBernstein of order >= 1
-    /////// 
-    /////// std::vector<std::string> data_cubic_pars(3,"p");     
-    /////// data_cubic_pars[0] = "CMS_hgg_modcubic0"+postfix;
-    /////// data_cubic_pars[1] = "CMS_hgg_modcubic1"+postfix;
-    /////// data_cubic_pars[2] = "CMS_hgg_modcubic2"+postfix;
-    /////// 
-    /////// l.rooContainer->AddSpecificCategoryPdf(cats_with_cubic, "data_pol_model"+postfix,
-    ///////                                        "0","CMS_hgg_mass",data_cubic_pars,73);  // >= 71 means RooBernstein of order >= 1
-    /////// 
-    /////// 
-    /////// std::vector<std::string> data_quad_pars(2,"p");  
-    /////// data_quad_pars[0] = "CMS_hgg_modquad0"+postfix;
-    /////// data_quad_pars[1] = "CMS_hgg_modquad1"+postfix;
-    /////// 
-    /////// l.rooContainer->AddSpecificCategoryPdf(cats_with_quad, "data_pol_model"+postfix,
-    ///////                                        "0","CMS_hgg_mass",data_quad_pars,72);   // >= 71 means RooBernstein of order >= 1
-    /////// 
-    /////// 
-    /////// std::vector<std::string> data_lin_pars(1,"p");   
-    /////// data_lin_pars[0] = "CMS_hgg_modlin0"+postfix;
-    /////// 
-    /////// l.rooContainer->AddSpecificCategoryPdf(cats_with_lin, "data_pol_model"+postfix,
-    /////// "0","CMS_hgg_mass",data_lin_pars,71);    // >= 71 means RooBernstein of order >= 1
-    // CP
-
     // -----------------------------------------------------
     // Configurable background model
     // if no configuration was given, set some defaults
+    std::string postfix=(dataIs2011?"":"_8TeV");
     if( bkgPolOrderByCat.empty() ) {
 	for(int i=0; i<nCategories_; i++){
 	    if(i<nInclusiveCategories_) {
@@ -497,10 +389,6 @@ void StatAnalysis::Init(LoopAll& l)
 
     // Create Signal DataSets:
     for(size_t isig=0; isig<sigPointsToBook.size(); ++isig) {
-	////// for (int sig=105;sig<=150;sig+=5){
-	//////     // Needed to use S4 for the GGH 145 Signal which has the BUG so no 145 sample
-        ////// if ( sig==145 // && dataIs2011 
-	//////     ) continue;
 	int sig = sigPointsToBook[isig];
         l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_ggh_mass_m%d",sig),nDataBins);    
         l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_vbf_mass_m%d",sig),nDataBins);    
@@ -520,10 +408,6 @@ void StatAnalysis::Init(LoopAll& l)
 
     // Make more datasets representing Systematic Shifts of various quantities
     for(size_t isig=0; isig<sigPointsToBook.size(); ++isig) {
-	////// for (int sig=105;sig<=150;sig+=5){
-	//////     // Needed to use S4 for the GGH 145 Signal which has the BUG so no 145 sample
-        ////// if ( sig==145 // && dataIs2011 
-	//////     ) continue;
 	int sig = sigPointsToBook[isig];
         l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_ggh_mass_m%d",sig),-1);    
         l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_vbf_mass_m%d",sig),-1);    
@@ -665,6 +549,9 @@ bool StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     if (l.runZeeValidation) l.runCiC=true;
 
     // make sure that rho is properly set
+    if( dataIs2011 ) {
+	l.version = 12;
+    }
     if( l.version >= 13 && forcedRho < 0. ) {
 	l.rho = l.rho_algo1;
     }
@@ -696,6 +583,7 @@ bool StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     if (cur_type<0){
 	gP4 = l.GetHiggs();
 	gPT = gP4.Pt();
+	assert( gP4.M() > 0. );
     }
 
     //Calculate cluster shape variables prior to shape rescaling
@@ -1116,7 +1004,7 @@ void StatAnalysis::FillRooContainerSyst(LoopAll& l, const std::string &name, int
 void StatAnalysis::computeExclusiveCategory(LoopAll & l, int & category, std::pair<int,int> diphoton_index, float pt)
 {
     if(VBFevent)        {
-    category=nInclusiveCategories_ + 
+	category=nInclusiveCategories_ + 
 	    l.DiphotonCategory(diphoton_index.first,diphoton_index.second,pt,nVBFEtaCategories,1,1) 
 	    + nVBFEtaCategories*l.DijetSubCategory(myVBF_Mjj,myVBFLeadJPt,myVBFSubJPt,nVBFDijetJetCategories)
 	    ;
@@ -1363,6 +1251,7 @@ void StatAnalysis::rescaleClusterVariables(LoopAll &l){
 	    	else {l.pho_sieie[ipho]*=0.99;}
 		l.sc_seta[l.pho_scind[ipho]]*=0.99;  
 		l.sc_sphi[l.pho_scind[ipho]]*=0.99;  
+		energyCorrectedError[ipho] *=(l.pho_isEB[ipho]) ? 1.07 : 1.045 ;
 	    }
 
 	} else {

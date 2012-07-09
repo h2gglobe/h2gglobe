@@ -432,9 +432,10 @@ Float_t LoopAll::diphotonMVA(Int_t leadingPho, Int_t subleadingPho, Int_t vtx, f
         tmva_dipho_MIT_dphi = TMath::Cos(leadP4.Phi() - subleadP4.Phi());
       
         if (photonID_1 < -1. && photonID_2 < -1.){
-            tmva_dipho_MIT_ph1mva = photonIDMVANew(leadingPho,vtx, leadP4, "MIT");
-            tmva_dipho_MIT_ph2mva = photonIDMVANew(subleadingPho,vtx, subleadP4, "MIT");
-
+	    tmva_dipho_MIT_ph1mva = ( version >= 13 ? photonIDMVANew(leadingPho,vtx, leadP4, "MIT") : 
+				      photonIDMVA(leadingPho,vtx, leadP4, "MIT") );
+            tmva_dipho_MIT_ph2mva = ( version >= 13 ? photonIDMVANew(subleadingPho,vtx, subleadP4, "MIT") :
+				      photonIDMVANew(subleadingPho,vtx, subleadP4, "MIT") );
         } else {
             tmva_dipho_MIT_ph1mva = photonID_1;//photonIDMVANew(leadingPho,vtx, leadP4, "MIT");
             tmva_dipho_MIT_ph2mva = photonID_2;//photonIDMVANew(subleadingPho,vtx, subleadP4, "MIT");
@@ -876,20 +877,6 @@ std::vector<int> LoopAll::vertexSelection(HggVertexAnalyzer & vtxAna, HggVertexF
     
     } // end if at least one photon is a conversion
   
-    // ---- METHOD 1   
-    // preselection 
-    //  if ( preselConv.size()==0 )
-    //  vtxAna.preselection(preselAll);
-    //else
-    //  vtxAna.preselection(preselConv);
-  
-    //std::vector<int> rankprod = vtxAna.rankprod(vtxVarNames);
-  
-    // ---- METHOD 1 
-
-  
-    // ---- NEW METHOD 2 (suggested by MarcoP) : first use ranking, then conversions info, e.g. on the N vtxs with best rank
-    // preselection  : all vtxs
     std::vector<int> rankprodAll = useMva ? vtxAna.rank(*tmvaReader,tmvaMethod) : vtxAna.rankprod(vtxVarNames);
     int iClosestConv = -1;
     float dminconv = 9999999;

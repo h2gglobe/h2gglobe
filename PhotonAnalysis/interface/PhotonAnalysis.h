@@ -114,6 +114,18 @@ class PhotonAnalysis : public BaseAnalysis
     float scale_offset_error_EEHighR9   ;
     float scale_offset_error_EELowR9    ;
 
+    bool splitEscaleSyst;
+    std::string scale_offset_error_file, scale_offset_corr_error_file;
+    EnergySmearer::energySmearingParameters eScaleCorrPars;
+    void setupEscaleSmearer();
+    void setupEscaleSyst(LoopAll &l);
+
+    bool splitEresolSyst;
+    std::string corr_smearing_file, smearing_file;
+    EnergySmearer::energySmearingParameters eResolCorrPars;
+    void setupEresolSmearer();
+    void setupEresolSyst(LoopAll &l);
+    
     EnergySmearer::energySmearingParameters eSmearPars;
     float smearing_sigma_EBHighR9       ;
     float smearing_sigma_EBLowR9        ;
@@ -139,7 +151,6 @@ class PhotonAnalysis : public BaseAnalysis
     enum BkgCategory{promptprompt,promptfake,fakefake};
     bool keepPP, keepPF, keepFF;
 
-    std::string scale_offset_error_file, smearing_file;
     std::string energyCorrectionMethod;
     //std::string massResolutionFileName;
 
@@ -260,13 +271,18 @@ class PhotonAnalysis : public BaseAnalysis
     std::vector<BaseDiPhotonSmearer *> systDiPhotonSmearers_;
     std::vector<BaseGenLevelSmearer *> genLevelSmearers_;
     std::vector<BaseGenLevelSmearer *> systGenLevelSmearers_;
-    
+     
     // common smearers
     EnergySmearer *eScaleDataSmearer ; // corrections for energy scale data
-    EnergySmearer *eScaleSmearer;      // corrections for energy scale  MC
+    EnergySmearer *eScaleSmearer, *eScaleCorrSmearer;      // corrections for energy scale  MC
+    std::vector<EnergySmearer *> eScaleSmearers_;
+    EnergySmearer *eResolSmearer, *eResolCorrSmearer;
+    std::vector<EnergySmearer *> eResolSmearers_;
     EnergySmearer *eCorrSmearer;      // corrections for energy scale  MC
     std::vector<float> corrected_pho_energy;
     std::vector<PhotonReducedInfo> photonInfoCollection;
+
+    
     
     Float_t *energyCorrected;
     Float_t *energyCorrectedError;

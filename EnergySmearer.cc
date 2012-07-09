@@ -35,6 +35,13 @@ EnergySmearer::EnergySmearer(const energySmearingParameters& par, const std::vec
   }
 }
 
+EnergySmearer::EnergySmearer(EnergySmearer * orig, const std::vector<PhotonCategory> & presel)
+{
+	*this = *orig;
+	preselCategories_ = presel;
+}
+
+
 EnergySmearer::~EnergySmearer()
 {
   delete rgen_;
@@ -138,9 +145,6 @@ bool EnergySmearer::smearPhoton(PhotonReducedInfo & aPho, float & weight, int ru
 	return false;
     }
     
-    float scale_offset   = getScaleOffset(run, category);
-    float smearing_sigma = myParameters_.smearing_sigma.find(category)->second;
-    
     /////////////////////// smearing or re-scaling photon energy ///////////////////////////////////////////
     float newEnergy=aPho.energy();
 
@@ -159,9 +163,13 @@ bool EnergySmearer::smearPhoton(PhotonReducedInfo & aPho, float & weight, int ru
 	aPho.setCorrEnergyErr(newSigma);
     } else {
 	if( scaleOrSmear_ ) {
+	    float scale_offset   = getScaleOffset(run, category);
+
 	    scale_offset   += syst_shift * myParameters_.scale_offset_error.find(category)->second;
 	    newEnergy *=  scale_offset;
 	} else {
+	    float smearing_sigma = myParameters_.smearing_sigma.find(category)->second;
+		
 	    float err_sigma= myParameters_.smearing_sigma_error.find(category)->second;
 	    smearing_sigma += syst_shift * err_sigma;
 	    // Careful here, if sigma < 0 now, it will be squared and so not correct, set to 0 in this case.
@@ -178,7 +186,10 @@ bool EnergySmearer::smearPhoton(PhotonReducedInfo & aPho, float & weight, int ru
 	    newEnergy *=  smear;
 	}
     }
-    assert( newEnergy != 0. );
+    if( newEnergy == 0. ) {
+	std::cerr << "New energy is 0.: aborting " << this->name() << std::endl;
+	assert( newEnergy != 0. );
+    }
     aPho.setEnergy(newEnergy);
     
     /////////////////////// changing weigh of photon according to efficiencies ///////////////////////////////////////////
