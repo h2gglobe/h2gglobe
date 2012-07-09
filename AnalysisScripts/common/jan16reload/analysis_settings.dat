@@ -10,9 +10,7 @@ subleadEtVBFCut=25
 usePUjetveto=0
 
 ## Singal mass points to book
-sigPointsToBook=105,110,115,120,125,130,135,140,145,150
-
-## bkgPolOrderByCat=5,5,5,5,2
+sigPointsToBook=105,110,115,120,121,123,125,130,135,140,150
 
 ## Hadronic V tag
 includeVHhad=0

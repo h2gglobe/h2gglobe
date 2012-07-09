@@ -10,17 +10,16 @@ typ=0    ind=0 draw=1  Nam=Data    CaDir=/store/group/phys_higgs/cmshgg/reduced/
 #
 # Signal samples
 #
-->
-typ=-57 ind=1 draw=1  Nam=gluglu_H_gg_123_pu2011  CaDir=/store/group/phys_higgs/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/GluGluToHToGG_M-123_7TeV    red=0 lum=1000000.0  xsec=0.0360696 kfac=1.000000  scal=1.000000
-typ=-58 ind=2 draw=1  Nam=vbf_H_gg_123_pu2011     CaDir=/store/group/phys_higgs/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/VBF_HToGG_M-123_7TeV    red=0 lum=1000000.0  xsec=0.00281352 kfac=1.000000  scal=1.000000
-typ=-60 ind=4 draw=1  Nam=wz_H_gg_123_pu2011      CaDir=/store/group/phys_higgs/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/WH_ZH_HToGG_M-123_7TeV    red=0 lum=1000000.0  xsec=0.002136816 kfac=1.000000  scal=1.000000
-typ=-59 ind=3 draw=1  Nam=tt_H_gg_123_pu2011      CaDir=/store/group/phys_higgs/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/TTH_HToGG_M-123_7TeV    red=0 lum=1000000.0  xsec=0.0002066364 kfac=1.000000  scal=1.000000
+### typ=-57 ind=1 draw=1  Nam=gluglu_H_gg_123_pu2011  CaDir=/store/group/phys_higgs/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/GluGluToHToGG_M-123_7TeV    red=0 lum=1000000.0  xsec=0.0360696 kfac=1.000000  scal=1.000000
+### typ=-58 ind=2 draw=1  Nam=vbf_H_gg_123_pu2011     CaDir=/store/group/phys_higgs/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/VBF_HToGG_M-123_7TeV    red=0 lum=1000000.0  xsec=0.00281352 kfac=1.000000  scal=1.000000
+### typ=-60 ind=4 draw=1  Nam=wz_H_gg_123_pu2011      CaDir=/store/group/phys_higgs/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/WH_ZH_HToGG_M-123_7TeV    red=0 lum=1000000.0  xsec=0.002136816 kfac=1.000000  scal=1.000000
+### typ=-59 ind=3 draw=1  Nam=tt_H_gg_123_pu2011      CaDir=/store/group/phys_higgs/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/TTH_HToGG_M-123_7TeV    red=0 lum=1000000.0  xsec=0.0002066364 kfac=1.000000  scal=1.000000
+### 
+### typ=-53 ind=1 draw=1  Nam=gluglu_H_gg_121_pu2011  CaDir=/store/group/phys_higgs/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/GluGluToHToGG_M-121_7TeV    red=0 lum=1000000.0  xsec=0.0369736 kfac=1.000000  scal=1.000000
+### typ=-54 ind=2 draw=1  Nam=vbf_H_gg_121_pu2011     CaDir=/store/group/phys_higgs/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/VBF_HToGG_M-121_7TeV    red=0 lum=1000000.0  xsec=0.00284082 kfac=1.000000  scal=1.000000
+### typ=-56 ind=4 draw=1  Nam=wz_H_gg_121_pu2011      CaDir=/store/group/phys_higgs/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/WH_ZH_HToGG_M-121_7TeV    red=0 lum=1000000.0  xsec=0.002234914 kfac=1.000000  scal=1.000000
+### typ=-55 ind=3 draw=1  Nam=tt_H_gg_121_pu2011      CaDir=/store/group/phys_higgs/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/TTH_HToGG_M-121_7TeV    red=0 lum=1000000.0  xsec=0.0002151068 kfac=1.000000  scal=1.000000
 
-typ=-53 ind=1 draw=1  Nam=gluglu_H_gg_121_pu2011  CaDir=/store/group/phys_higgs/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/GluGluToHToGG_M-121_7TeV    red=0 lum=1000000.0  xsec=0.0369736 kfac=1.000000  scal=1.000000
-typ=-54 ind=2 draw=1  Nam=vbf_H_gg_121_pu2011     CaDir=/store/group/phys_higgs/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/VBF_HToGG_M-121_7TeV    red=0 lum=1000000.0  xsec=0.00284082 kfac=1.000000  scal=1.000000
-typ=-56 ind=4 draw=1  Nam=wz_H_gg_121_pu2011      CaDir=/store/group/phys_higgs/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/WH_ZH_HToGG_M-121_7TeV    red=0 lum=1000000.0  xsec=0.002234914 kfac=1.000000  scal=1.000000
-typ=-55 ind=3 draw=1  Nam=tt_H_gg_121_pu2011      CaDir=/store/group/phys_higgs/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/TTH_HToGG_M-121_7TeV    red=0 lum=1000000.0  xsec=0.0002151068 kfac=1.000000  scal=1.000000
-->
 
 typ=-49 ind=1 draw=1  Nam=gluglu_H_gg_150_pu2011  CaDir=/store/group/phys_higgs/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/GluGluToHToGG_M-150_7TeV    red=0 lum=1000000.0  xsec=0.01428 kfac=1.000000  scal=1.000000
 typ=-50 ind=2 draw=1  Nam=vbf_H_gg_150_pu2011     CaDir=/store/group/phys_higgs/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/VBF_HToGG_M-150_7TeV    red=0 lum=1000000.0  xsec=0.001307912 kfac=1.000000  scal=1.000000
