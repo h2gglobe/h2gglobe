@@ -7,6 +7,9 @@ subleadEtVBFCut=25
 
 usePUjetveto=1
 
+## Singal mass points to book
+sigPointsToBook=105,110,115,120,125,130,135,140,145,150
+
 ## Hadronic V tag
 includeVHhad=0
 nVHhadEtaCategories=1
@@ -33,6 +36,11 @@ puMap=
 puHist=auto
 puTarget=aux/latest_prompt_NoLowPU_ICHEP_535.json.71000.observed.pileup.root
 
+## energy regression
+energyCorrectionMethod=Bendavid
+doEcorrectionSmear=1
+doEcorrectionSyst=0
+
 ## energy scale adjustement and errors
 scale_offset_file=energy_scale_offsets.dat
 scale_offset_error_file=energy_scale_errors.dat
@@ -49,4 +57,6 @@ recomputeJetWp=1
 ## revertex
 reRunVtx=0
 rematchConversions=1
+
+doInterferenceSmear=1
 

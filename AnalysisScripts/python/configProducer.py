@@ -504,6 +504,7 @@ class configProducer:
 	     ele = val.split(",")
              value_type = type( type(struct.__getattribute__(name))(1)[0] )
              print value_type
+             (struct.__getattribute__(name)).clear()
 	     for v in ele:
                  (struct.__getattribute__(name)).push_back(value_type(v))
             else :
@@ -597,7 +598,7 @@ class configProducer:
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def read_input_files_reduce(self,line):
     values = { "CaDir" : "","DcDir" : "","EosDir":"", "Dir" : "", "typ" : -1, "Fil" : "",
-               "Nam":"default","draw":-999,"ind":-999,"tot":0,"red":-999,"lum":1.0,"xsec":1.0,"kfac":1.0,
+               "Nam":"default","draw":-999,"ind":-999,"tot":0,"red":-999,"lum":1.0,"xsec":-1.0,"kfac":1.0,
                "scal":1.0,"json":"","evlist":"","pileup":"","intL":1.,"addnevents":0
                }; 
     # We have one of the file def lines
@@ -651,7 +652,7 @@ class configProducer:
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def read_input_files_loop(self,line):
     print "read_input_files_loop"
-    map_c = {"typ":99999,"Nam":"default","draw":-999,"ind":-999,"tot":0,"red":-999,"lum":1.0,"xsec":1.0,"kfac":1.0,"scal":1.0,"json":"","evlist":"","pileup":""}
+    map_c = {"typ":99999,"Nam":"default","draw":-999,"ind":-999,"tot":0,"red":-999,"lum":1.0,"xsec":-1.0,"kfac":1.0,"scal":1.0,"json":"","evlist":"","pileup":""}
     #map_c["tot"]=-1
     map_c["addnevents"]=0
     directory = ''
@@ -685,7 +686,7 @@ class configProducer:
       self.is_data_ = False
 
     # First check if its a signal sample we are defining, in which case calculate the x-section and BR
-    if map_c["typ"] < 0: 
+    if map_c["typ"] < 0 and map_c["xsec"] < 0: 
       map_c["xsec"] = self.ut_.signalNormalizer.GetXsection(map_c["typ"]) * self.ut_.signalNormalizer.GetBR(map_c["typ"])
       
     if fi_name != '':

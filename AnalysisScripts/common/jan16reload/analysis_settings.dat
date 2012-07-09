@@ -1,4 +1,4 @@
-datais2011=1
+dataIs2011=1
 
 ## Di-jet tag
 includeVBF=1
@@ -8,6 +8,11 @@ leadEtVBFCut=55
 subleadEtVBFCut=25
 
 usePUjetveto=0
+
+## Singal mass points to book
+sigPointsToBook=105,110,115,120,125,130,135,140,145,150
+
+## bkgPolOrderByCat=5,5,5,5,2
 
 ## Hadronic V tag
 includeVHhad=0
@@ -24,6 +29,14 @@ doKFactorSyst=1
 
 ## For 7TeV samples
 kfacHist=aux/KFactors_AllScales_interpolated.root
+puMap=
+puHist=auto
+puTarget=aux/nov08_rereco.json.68000.pileup.root
+
+## energy regression
+energyCorrectionMethod=Bendavid
+doEcorrectionSmear=1
+doEcorrectionSyst=0
 
 ## energy scale adjustement and errors
 scale_offset_file=jan16reload/energy_scale_offsets.dat
@@ -41,17 +54,14 @@ recomputeJetWp=0
 reRunVtx=0
 rematchConversions=0
 
-kfacHist=aux/KFactors_AllScales_interpolated.root
-puMap=jan16/pu_weights_map.dat
-puHist=aux/2011_0100_73500.weights3.root
-puTarget=aux/nov08_rereco.json.68000.pileup.root
-
 # vertex
-vtxAlgoParams vertex_selection.dat
+vtxAlgoParams jan16reload/vertex_selection.dat
 mvaVertexSelection=1
 addConversionToMva=1
 tmvaPerVtxWeights=aux/TMVAClassification_BDTCat_conversions_tmva_407.weights.xml
 tmvaPerVtxMethod=BDTCat
 tmvaPerEvtWeights=aux/TMVAClassification_evtBDTG_conversions_tmva_407.weights.xml
 tmvaPerEvtMethod=evtBDTG
+
+doInterferenceSmear=1
 

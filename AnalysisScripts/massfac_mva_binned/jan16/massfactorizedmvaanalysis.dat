@@ -1,3 +1,59 @@
+leadEtCut=40.0
+subleadEtCut=30.0
+
+leadEtVBFCut=55
+subleadEtVBFCut=30
+
+usePUjetveto=0
+
+massMin=100.
+massMax=180.
+nDataBins=160
+
+nEtaCategories=2
+nR9Categories=2
+
+scaleR9Only=0
+
+doTriggerSelection=1 
+reRunCiCForData=1
+
+includeVBF=1
+
+# smearing
+doMCSmearing=1 
+
+doEcorrectionSmear=1
+doEcorrectionSyst=0
+
+doEscaleSmear=1
+doEscaleSyst=1
+
+doEresolSmear=1
+doEresolSyst=1
+
+doRegressionSmear=1
+doRegressionSyst=1
+
+doPhotonIdEffSyst=1
+doPhotonIdEffSmear=1
+
+doVtxEffSyst=1
+doVtxEffSmear=1
+
+doTriggerEffSmear=1
+doTriggerEffSyst=1
+
+doPhotonMvaIdSmear=1
+doPhotonMvaIdSyst=1
+
+doR9Smear=0
+doR9Syst=0
+
+doKFactorSmear=1
+doKFactorSyst=1
+
+
 # BDTs
 bdtTrainingPhilosophy=MIT
 photonLevelMvaUCSD=aux/ID_UCSD.weights.xml
@@ -6,6 +62,7 @@ photonLevelMvaMIT_EB=aux/TMVAClassificationPhotonID_Barrel_PassPreSel_Variable_1
 photonLevelMvaMIT_EE=aux/TMVAClassificationPhotonID_Endcap_PassPreSel_Variable_10_BDTnCuts2000_BDT.weights.xml
 eventLevelMvaMIT=aux/HggBambu_SMDipho_Jan16_BDTG.weights.xml
 
+bkgPolOrderByCat=4,5,5,5,3
 
 # photon ID preselection
 phoidMvaCut=-0.3
@@ -14,10 +71,6 @@ phoidMvaCut=-0.3
 bdtCategoryBoundaries=1,0.89,0.74,0.545,0.05
 photonIDMVAShift_EB=0.
 photonIDMVAShift_EE=0.
-
-# k-factor
-doKFactorSmear=1
-doKFactorSyst=1
 
 efficiencyFile=aux/sig_reweighing_jan16rereco_mva_v2.root
 

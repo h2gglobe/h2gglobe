@@ -28,6 +28,8 @@ photonLevelMvaMIT_EB=aux/TMVAClassificationPhotonID_Barrel_PassPreSel_Variable_1
 photonLevelMvaMIT_EE=aux/TMVAClassificationPhotonID_Endcap_PassPreSel_Variable_10_BDTnCuts2000_BDT.weights.xml
 eventLevelMvaMIT=aux/HggBambu_SMDipho_Jun19_BDTG.weights.xml
 
+bkgPolOrderByCat=4,5,5,5,3,4
+
 # photon ID preselection
 phoidMvaCut=-0.2
 
