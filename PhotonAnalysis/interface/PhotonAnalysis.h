@@ -67,6 +67,7 @@ class PhotonAnalysis : public BaseAnalysis
     std::vector<TriggerSelection> triggerSelections;
     
     // Options
+    bool dataIs2011;
     bool includeVBF;
     bool includeVHhad;
     bool includeVHlep;
@@ -90,8 +91,9 @@ class PhotonAnalysis : public BaseAnalysis
     int nVHhadEtaCategories;
     int nVBFDijetJetCategories;
 
-    bool emulateBeamspot;
-    double emulatedBeamspotWidth;
+    bool emulateBeamspot, reweighBeamspot;
+    float emulatedBeamspotWidth;
+    float beamspotWidth;
     
     // Preselection indexes
     float presel_scet1, presel_scet2, presel_maxeta;

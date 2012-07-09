@@ -59,7 +59,6 @@ class StatAnalysis : public PhotonAnalysis
 
     float massMin, massMax;
     int nDataBins;  
-    bool dataIs2011;
     bool scaleClusterShapes, scaleR9Only;
     bool dumpAscii, dumpMcAscii;
     float phoidMvaCut;

@@ -55,6 +55,13 @@ PhotonAnalysis::PhotonAnalysis()  :
     scale_offset_corr_error_file = "";
     splitEresolSyst = false;
     corr_smearing_file = "";
+
+    dataIs2011 = false;
+    
+    emulateBeamspot = false;
+    reweighBeamspot = false;
+    beamspotWidth   = 0.;
+    emulatedBeamspotWidth = 0.;
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -337,6 +344,7 @@ void PhotonAnalysis::fillDiphoton(TLorentzVector & lead_p4, TLorentzVector & sub
     rand.SetSeed(0);
     bool changed=false;
     if (emulateBeamspot && cur_type!=0 && !isCorrectVertex && (lastRun!=l.run || lastEvent!=l.event || lastLumi!=l.lumis)){
+	// FIXME use beam spot from event/pass parameter. Do not hardcode.
         double beamspotZ = 0.4145;
         double randVtxZ = -100;
         bool tooClose=true;
@@ -893,15 +901,23 @@ void PhotonAnalysis::Init(LoopAll& l)
     }
 
     if( recomputeBetas || recorrectJets || rerunJetMva || recomputeJetWp ) {
-    std::cout << "JetHandler: \n" 
-          << "recomputeBetas " << recomputeBetas << "\n" 
-          << "recorrectJets " << recorrectJets << "\n" 
-          << "rerunJetMva " << rerunJetMva << "\n" 
-          << "recomputeJetWp " << recomputeJetWp 
-          << std::endl;
-    jetHandler_ = new JetHandler(jetHandlerCfg, l);
+	std::cout << "JetHandler: \n" 
+		  << "recomputeBetas " << recomputeBetas << "\n" 
+		  << "recorrectJets " << recorrectJets << "\n" 
+		  << "rerunJetMva " << rerunJetMva << "\n" 
+		  << "recomputeJetWp " << recomputeJetWp 
+		  << std::endl;
+	jetHandler_ = new JetHandler(jetHandlerCfg, l);
     }
 
+    if( emulateBeamspot || reweighBeamspot ) {
+	assert( emulatedBeamspotWidth != 0. );
+	beamspotWidth = emulatedBeamspotWidth;
+    }
+    if( beamspotWidth == 0. ) {
+	beamspotWidth = (dataIs2011 ? 5.8 : 4.8);
+    }
+    
     // Load up instances of PhotonFix for local coordinate calculations
     /*  
         PhotonFix::initialise("4_2",photonFixDat);  
@@ -2549,9 +2565,11 @@ void PhotonAnalysis::reVertex(LoopAll & l)
 float PhotonAnalysis::BeamspotReweight(double hardInterZ) {
     if (hardInterZ<(-100)) return 1.0;
 
+    // FIXME use beam spot from event do not hardcode
     const double beamspotZ = 0.4145;
     const double sourcesigma = 6.16;
-    const double targetsigma = 4.8;
+    // const double targetsigma = 4.8;
+    const double targetsigma = emulatedBeamspotWidth;
 
     float sourceweight = exp(-pow(hardInterZ-beamspotZ,2)/2.0/sourcesigma/sourcesigma)/sourcesigma;
     float targetweight = exp(-pow(hardInterZ-beamspotZ,2)/2.0/targetsigma/targetsigma)/targetsigma;

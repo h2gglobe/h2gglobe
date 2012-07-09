@@ -25,7 +25,6 @@ StatAnalysis::StatAnalysis()  :
     systRange  = 3.; // in units of sigma
     nSystSteps = 1;    
     doSystematics = true;   
-    dataIs2011 = false;
     nVBFDijetJetCategories=2;
     scaleClusterShapes = true;
     dumpAscii = false;
@@ -536,7 +535,7 @@ bool StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     float weight = l.sampleContainer[l.current_sample_index].weight;
     float sampleweight = l.sampleContainer[l.current_sample_index].weight;
 
-    if(emulateBeamspot) {
+    if(reweighBeamspot) {
         weight*=BeamspotReweight(((TVector3*)l.gv_pos->At(0))->Z());
     }
 

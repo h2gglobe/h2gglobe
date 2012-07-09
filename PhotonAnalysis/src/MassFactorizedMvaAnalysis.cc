@@ -939,13 +939,14 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 	}
 
         // Mass Resolution of the Event
-        double beamspotSigma=-100;
-        if(l.version<13) {
-            beamspotSigma=5.8;
-        } else {
-            beamspotSigma=4.8;
-        }
-        massResolutionCalculator->Setup(l,&photonInfoCollection[diphoton_index.first],&photonInfoCollection[diphoton_index.second],diphoton_id,eSmearPars,nR9Categories,nEtaCategories,beamspotSigma);
+        //// double beamspotSigma=-100;
+        //// if(l.version<13) {
+        ////     beamspotSigma=5.8;
+        //// } else {
+        ////     beamspotSigma=4.8;
+        //// }
+        //// massResolutionCalculator->Setup(l,&photonInfoCollection[diphoton_index.first],&photonInfoCollection[diphoton_index.second],diphoton_id,eSmearPars,nR9Categories,nEtaCategories,beamspotSigma);
+        massResolutionCalculator->Setup(l,&photonInfoCollection[diphoton_index.first],&photonInfoCollection[diphoton_index.second],diphoton_id,eSmearPars,nR9Categories,nEtaCategories,beamspotWidth);
         float vtx_mva  = l.vtx_std_evt_mva->at(diphoton_id);
         float sigmaMrv = massResolutionCalculator->massResolutionEonly();
         float sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
