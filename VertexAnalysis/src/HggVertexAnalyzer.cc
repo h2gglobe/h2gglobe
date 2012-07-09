@@ -403,7 +403,8 @@ void HggVertexAnalyzer::fillVariables(int iv)
 }
 
 // -------------------------------------------------------------------------------------------------------------------------------------------------------------
-float HggVertexAnalyzer::perEventMva(TMVA::Reader & reader,const  std::string & method, const std::vector<int> & rankedVertexes )
+float HggVertexAnalyzer::perEventMva(TMVA::Reader & reader,const  std::string & method, const std::vector<int> & rankedVertexes, 
+				     float deltaZRescale )
 {
 	int v0      = rankedVertexes[0];
 	float z0    = vertexz(v0);
@@ -413,7 +414,7 @@ float HggVertexAnalyzer::perEventMva(TMVA::Reader & reader,const  std::string & 
 	for(int vi=0; vi<(int)rankedVertexes.size() && vi<(int)evt_mva.size(); ++vi ) {
 		int vtxid = rankedVertexes[vi];
 		evt_mva[vi] = mva(vtxid);
-		evt_dz[vi]  = vertexz(vtxid) - z0;
+		evt_dz[vi]  = deltaZRescale*(vertexz(vtxid) - z0);
 	}
 	return reader.EvaluateMVA(method);
 }

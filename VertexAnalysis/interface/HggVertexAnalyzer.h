@@ -103,7 +103,8 @@ public:
 	void setNConv(int n);
 	
 	// Per-event MVA
-	float perEventMva(TMVA::Reader & reader,const  std::string & method, const std::vector<int> & rankedVertexes );
+	float perEventMva(TMVA::Reader & reader,const  std::string & method, const std::vector<int> & rankedVertexes,
+		float deltaZRescale=1.);
 	float vertexProbability(float perEventMva,float nvtx=-1);
 	
 	// getters
