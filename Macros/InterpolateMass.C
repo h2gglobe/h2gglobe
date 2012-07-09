@@ -29,7 +29,7 @@ using namespace RooFit;
 bool MAKE_PLOTS=false;
 
 TCanvas *can = new TCanvas();
-Normalization_8TeV *normalizer = new Normalization_8TeV();
+Normalization_8TeV *normalizer;
 double getInterp(double C, double X1,double X2,double X3,double X4,double Y1,double Y2,double Y3,double Y4){
 
 
@@ -344,10 +344,12 @@ void InterpolateMass(double fitmass, TString SourceFileName="CMS-HGG.root", doub
 }
 
 void InterpolateMassPoints(int nmasses, double * masses, TString SourceFileName="CMS-HGG",
-                           TString FileName="", int doSmoothing=0,int noverwritemasses=0, double *overwritemasses=NULL) 
+                           TString FileName="", int doSmoothing=0, bool is2011=false, int noverwritemasses=0, double *overwritemasses=NULL) 
 {
 	RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING);
 
+  normalizer = new Normalization_8TeV(is2011);
+  
   if( FileName == "" ) { FileName = SourceFileName + "_interpolated.root"; }
 
   SourceFileName += ".root";
@@ -374,9 +376,11 @@ void InterpolateMassPoints(int nmasses, double * masses, TString SourceFileName=
     
   }
   
+  if (MAKE_PLOTS && doSmoothing) can->SaveAs("histogramsmoothcheck.pdf[");
   for(int imass=0; imass<nmasses; ++imass) {
     dofit(masses[imass], InterpolationList, SourceFile, OutputFile, WorkSpace,doSmoothing, noverwritemasses, overwritemasses);
   }
+  if (MAKE_PLOTS && doSmoothing) can->SaveAs("histogramsmoothcheck.pdf]");
   
   cout << "Writing data to disk..." << endl;
   WorkSpace->Write();
@@ -388,7 +392,7 @@ void InterpolateMassPoints(int nmasses, double * masses, TString SourceFileName=
 
 }
 
-void InterpolateMassRange(double Min, double Max, double Step, TString SourceFileName="CMS-HGG", int doSmoothing=0, int noverwritemasses=0, double *overwritemasses=NULL) 
+void InterpolateMassRange(double Min, double Max, double Step, TString SourceFileName="CMS-HGG", int doSmoothing=0, bool is2011=false,int noverwritemasses=0, double *overwritemasses=NULL) 
 {
   gROOT->SetBatch(1);
   TString FileName = "";
@@ -399,7 +403,7 @@ void InterpolateMassRange(double Min, double Max, double Step, TString SourceFil
 
   if (MAKE_PLOTS && doSmoothing) can->SaveAs("histogramsmoothcheck.pdf[");
 
-  InterpolateMassPoints(masses.size(), &masses[0], SourceFileName,FileName, doSmoothing,noverwritemasses, overwritemasses); 
+  InterpolateMassPoints(masses.size(), &masses[0], SourceFileName,FileName, doSmoothing,is2011,noverwritemasses, overwritemasses); 
   if (MAKE_PLOTS && doSmoothing) can->SaveAs("histogramsmoothcheck.pdf]");
   
 }

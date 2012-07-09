@@ -18,6 +18,10 @@ class Normalization_8TeV {
 
   public:
 	Normalization_8TeV();
+	Normalization_8TeV(bool is2011);
+
+	void Init8TeV();
+	void Init7TeV();
 	
 	double GetBR(double);
 	double GetBR(int);
