@@ -40,6 +40,10 @@ doEcorrectionSyst=0
 scale_offset_file=jan16reload/energy_scale_offsets.dat
 scale_offset_error_file=jan16reload/energy_scale_errors.dat
 
+## uncorrelated part of the uncertainties
+splitEscaleSyst=0
+scale_offset_corr_error_file=energy_scale_corr_errors.dat
+
 ## additional MC smearing
 smearing_file=jan16reload/smearing_sigma_and_errors.dat
 

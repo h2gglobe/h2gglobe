@@ -1,17 +1,18 @@
-# category      type(0=any,1=CM,2=GAP) minEta  MaxEta   mr9    Mr9      mrun    Mrun   scaleC  scaleErr    
-# http://indico.cern.ch/getFile.py/access?contribId=2&resId=0&materialId=slides&confId=176520
+# This file has two purposes:
+# - defines the uncorrelated energy scale nuisances
+# - defines the magnitude of the correlated energy scale nuisances
 
 # category      type(0=any,1=CM,2=GAP) minEta  MaxEta   mr9    Mr9      mrun    Mrun   scaleC  scaleErr    
-EBlowEtaGold	0    0.0	1.0	0.94	999.00	-999999	999999	0.0	0.47e-2
-EBlowEtaBad	0    0.0	1.0	-999.00	0.94	-999999	999999	0.0	0.47e-2
-
-EBhighEtaGold	0    1.0	1.5	0.94	999.00	-999999	999999	0.0	0.47e-2
-EBhighEtaBad	0    1.0	1.5	-999.00	0.94	-999999	999999	0.0	0.47e-2
-
-EElowEtaBad	0    1.5	2.0	-999.00	0.94	-999999	999999	0.0	0.47e-2
-EElowEtaGold	0    1.5	2.0	0.94	999.00	-999999	999999	0.0	0.47e-2
-
-EEhighEtaGold	0    2.0	3.0	-999.	0.94	-999999	999999	0.0	0.47e-2
-EEhighEtaBad	0    2.0	3.0	0.94	999.00	-999999	999999	0.0	0.47e-2
+EBlowEtaGold_8TeV  0    0.0	1.0	0.94	999.00	-999999	999999	0.0	0.47e-2
+EBlowEtaBad_8TeV   0    0.0	1.0	-999.00	0.94	-999999	999999	0.0	0.47e-2
+		   
+EBhighEtaGold_8TeV 0    1.0	1.5	0.94	999.00	-999999	999999	0.0	0.47e-2
+EBhighEtaBad_8TeV  0    1.0	1.5	-999.00	0.94	-999999	999999	0.0	0.47e-2
+		   
+EElowEtaBad_8TeV   0    1.5	2.0	-999.00	0.94	-999999	999999	0.0	0.47e-2
+EElowEtaGold_8TeV  0    1.5	2.0	0.94	999.00	-999999	999999	0.0	0.47e-2
+		  
+EEhighEtaGold_8TeV 0    2.0	3.0	-999.	0.94	-999999	999999	0.0	0.47e-2
+EEhighEtaBad_8TeV  0    2.0	3.0	0.94	999.00	-999999	999999	0.0	0.47e-2
 
 

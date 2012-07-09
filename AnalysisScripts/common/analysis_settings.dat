@@ -29,9 +29,8 @@ subleadEtVHmetCut=25
 ## Inputs for reweighing
 doKFactorSmear=0
 doKFactorSyst=0
+
 kfacHist=
-## For 7TeV samples
-## kfacHist=aux/KFactors_AllScales_interpolated.root
 puMap=
 puHist=auto
 puTarget=aux/latest_prompt_NoLowPU_ICHEP_535.json.71000.observed.pileup.root
@@ -44,6 +43,10 @@ doEcorrectionSyst=0
 ## energy scale adjustement and errors
 scale_offset_file=energy_scale_offsets.dat
 scale_offset_error_file=energy_scale_errors.dat
+
+## uncorrelated part of the uncertainties
+splitEscaleSyst=0
+scale_offset_corr_error_file=jan16reload/energy_scale_corr_errors.dat
 
 ## additional MC smearing
 smearing_file=smearing_sigma_and_errors.dat

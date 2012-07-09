@@ -1,0 +1,16 @@
+# This file has two purposes:
+# - defines the uncorrelated energy scale nuisances
+# - defines the magnitude of the correlated energy scale nuisances
+
+# category      type(0=any,1=CM,2=GAP) minEta  MaxEta   mr9    Mr9      mrun    Mrun   scaleC  scaleErr    
+EBlowEtaGold_7TeV  0    0.0	1.0	0.94	999.00	-999999	999999	0.0	0.47e-2
+EBlowEtaBad_7TeV   0    0.0	1.0	-999.00	0.94	-999999	999999	0.0	0.47e-2
+		   
+EBhighEtaGold_7TeV 0    1.0	1.5	0.94	999.00	-999999	999999	0.0	0.47e-2
+EBhighEtaBad_7TeV  0    1.0	1.5	-999.00	0.94	-999999	999999	0.0	0.47e-2
+		   
+EElowEtaBad_7TeV   0    1.5	2.0	-999.00	0.94	-999999	999999	0.0	0.47e-2
+EElowEtaGold_7TeV  0    1.5	2.0	0.94	999.00	-999999	999999	0.0	0.47e-2
+		  
+EEhighEtaGold_7TeV 0    2.0	3.0	-999.	0.94	-999999	999999	0.0	0.47e-2
+EEhighEtaBad_7TeV  0    2.0	3.0	0.94	999.00	-999999	999999	0.0	0.47e-2
