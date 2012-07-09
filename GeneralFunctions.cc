@@ -3993,10 +3993,12 @@ int LoopAll::MuonSelection2012(TLorentzVector& pho1, TLorentzVector& pho2, int v
   int passingMu = 0;
 
   for( int indmu=0; indmu<mu_glo_n; indmu++){
+
     thismu = (TLorentzVector*) mu_glo_p4->At(indmu);
     thiseta = fabs(thismu->Eta());
-    if(thiseta>2.4) continue;
     thispt = thismu->Pt();
+
+    if(thiseta>2.4) continue;
     if(thispt<20) continue;
     if(mu_glo_type[indmu]<11000) continue;  // global and PF Muon
     if(mu_glo_chi2[indmu]/mu_glo_dof[indmu]>=10) continue;
@@ -4015,15 +4017,18 @@ int LoopAll::MuonSelection2012(TLorentzVector& pho1, TLorentzVector& pho2, int v
   
     passingMu++;
     mymu = indmu;
+    std::cout << setprecision(4) << "MUON EVENT -> Run = " << run << "  Lumis = " << lumis << "  Event = " << event << "  SelVtx = " << vtxind << " muEta = " << thiseta << "  muPhi = " << thismu->Phi() <<  "  muPt = " << thismu->Pt() <<   "  muCHIso = " << mu_glo_chhadiso04[indmu] <<endl;
+
   }
   return mymu;
 }
 
 int LoopAll::ElectronSelection2012(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind){
-    int myel = -1;
 
-    //Loose CUT-BASED ELECTRON ID
-    //https://twiki.cern.ch/twiki/bin/viewauth/CMS/EgammaCutBasedIdentification
+  int myel = -1;
+  
+  //Loose CUT-BASED ELECTRON ID
+  //https://twiki.cern.ch/twiki/bin/viewauth/CMS/EgammaCutBasedIdentification
 
   TLorentzVector* thisel;
   TLorentzVector* thissc;
@@ -4031,13 +4036,28 @@ int LoopAll::ElectronSelection2012(TLorentzVector& pho1, TLorentzVector& pho2, i
   float thispt = -100;
   float thisiso =1000;
   int passingEl = 0;
-
+  
   for( int indel=0; indel<el_std_n; indel++){
+
     if(el_std_hp_expin[indel]!=0) continue;
+
     thisel = (TLorentzVector*) el_std_p4->At(indel);
     thissc = (TLorentzVector*) el_std_sc->At(indel);
     thiseta = fabs(thissc->Eta());
-    thisiso=el_std_pfiso_charged[indel]+el_std_pfiso_neutral[indel]+ el_std_pfiso_photon[indel];
+
+    double Aeff=0.;
+    if(thiseta<1.0)                   Aeff=0.10;
+    if(thiseta>=1.0 && thiseta<1.479) Aeff=0.12;
+    if(thiseta>=1.479 && thiseta<2.0) Aeff=0.085;
+    if(thiseta>=2.0 && thiseta<2.2)   Aeff=0.11;
+    if(thiseta>=2.2 && thiseta<2.3)   Aeff=0.12;
+    if(thiseta>=2.3 && thiseta<2.4)   Aeff=0.12;
+    if(thiseta>=2.4)                  Aeff=0.13;
+
+    thisiso=el_std_pfiso_charged[indel]+std::max(el_std_pfiso_neutral[indel]+el_std_pfiso_photon[indel]-rho*Aeff,0.);
+    TLorentzVector elpho1 = *thisel + pho1;
+    TLorentzVector elpho2 = *thisel + pho2;
+
     if(thiseta>2.5 || (thiseta>1.442 && thiseta<1.566)) continue;
     thispt = thisel->Pt();
     float overE_overP=fabs((1/el_std_pin[indel])-(1/(el_std_pin[indel]*el_std_eopin[indel])));
@@ -4045,10 +4065,9 @@ int LoopAll::ElectronSelection2012(TLorentzVector& pho1, TLorentzVector& pho2, i
     //EE-EB common cuts
     if(fabs(el_std_D0Vtx[indel][vtxind]) > 0.02) continue;
     if(fabs(el_std_DZVtx[indel][vtxind]) > 0.2)  continue;
-    if (overE_overP>0.05)continue;
-    if (thisiso/thispt >0.15) continue;      
+    if (overE_overP>0.05)continue;    
     if (el_std_hp_expin[indel]>1) continue;
-    if (el_std_conv_vtxProb[indel]<0.000001) continue;
+    if(el_std_conv[indel]==0) continue;
     if(thiseta<1.442) {   // EB cuts
       if(fabs(el_std_detain[indel])>=0.007) continue;
       if(fabs(el_std_dphiin[indel])>=0.15) continue;
@@ -4061,12 +4080,18 @@ int LoopAll::ElectronSelection2012(TLorentzVector& pho1, TLorentzVector& pho2, i
       if (el_std_hoe[indel]>=0.10) continue;
     }
     if(std::min( pho1.DeltaR(*thisel), pho2.DeltaR(*thisel))<=0.7) continue;
-    TLorentzVector elpho1 = *thisel + pho1;
     if( fabs(elpho1.M() - 91.19) <= 5) continue;
-    TLorentzVector elpho2 = *thisel + pho2;
     if( fabs(elpho2.M() - 91.19) <= 5) continue;
+
+    if (thisiso/thispt >0.15) continue;  
+
     passingEl++;
     myel = indel;
+
+    cout<<endl;
+    std::cout << setprecision(4) << "ELECTRON EVENT -> Run = " << run << "  Lumis = " << lumis << "  Event = " << event << "  SelVtx = " << vtxind << " elEta = " << thiseta << "  elPhi = " << thisel->Phi() <<  "  elPt = " << thispt <<   "  elIso = " << thisiso/thispt << " pfiso_charged = " <<el_std_pfiso_charged[indel]<<"  pfiso_neutral = "<<el_std_pfiso_neutral[indel]<<"  pfiso_photon = "<<el_std_pfiso_photon[indel] << "  rho = "<<rho<<endl;
+    cout<<endl;
+
   }
   return myel;
 }
