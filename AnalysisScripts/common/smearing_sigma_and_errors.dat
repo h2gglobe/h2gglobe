@@ -19,16 +19,16 @@
 # category      type(0=any,1=CM,2=GAP) minEta  MaxEta   mr9    Mr9      mrun    Mrun   smear   smearErr    
 # These numbers correspond to ichep2012 top up - https://twiki.cern.ch/twiki/pub/CMS/EcalEnergyResolutionWithZee/oriented-ICHEP-scales_resolution.pdf
 
-EBlowEtaGoldCM	1 0.0	1.0	0.94	999.00	-999999	999999	1.06e-2	0.40e-2
-EBlowEtaGoldGAP	2 0.0	1.0	0.94	999.00	-999999	999999	1.08e-2	0.23e-2
+EBlowEtaGoldCM	1 0.0	1.0	0.94	999.00	-999999	999999	1.06e-2	4.57e-3
+EBlowEtaGoldGAP	2 0.0	1.0	0.94	999.00	-999999	999999	1.08e-2	3.18e-3
 
-EBlowEtaBad  	0 0.0	1.0	-999.00	0.94	-999999	999999	1.19e-2	0.12e-2
+EBlowEtaBad  	0 0.0	1.0	-999.00	0.94	-999999	999999	1.19e-2	2.68e-3
 
-EBhighEtaGold	  0 1.0	1.5	0.94	999.00	-999999	999999	1.49e-2	0.49e-2
-EBhighEtaBad	  0 1.0	1.5	-999.00	0.94	-999999	999999	2.40e-2	0.18e-2
+EBhighEtaGold	  0 1.0	1.5	0.94	999.00	-999999	999999	1.49e-2	7.75e-3
+EBhighEtaBad	  0 1.0	1.5	-999.00	0.94	-999999	999999	2.40e-2	6.17e-3
 
-EElowEtaGold	  0 1.5	2.0	0.94	999.00	-999999	999999	3.75e-2	0.52e-2
-EElowEtaBad	  0 1.5	2.0	-999.00	0.94	-999999	999999	3.30e-2	0.25e-2
+EElowEtaGold	  0 1.5	2.0	0.94	999.00	-999999	999999	3.75e-2	1.04e-2
+EElowEtaBad	  0 1.5	2.0	-999.00	0.94	-999999	999999	3.30e-2	3.91e-3
 
-EEhighEtaGold	  0 2.0	3.0	0.94	999.00	-999999	999999	6.07e-2	0.28e-2
-EEhighEtaBad	  0 2.0	3.0	-999.00	0.94	-999999	999999	6.02e-2	0.30e-2
+EEhighEtaGold	  0 2.0	3.0	0.94	999.00	-999999	999999	6.07e-2	4.40e-3
+EEhighEtaBad	  0 2.0	3.0	-999.00	0.94	-999999	999999	6.02e-2	6.00e-3
