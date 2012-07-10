@@ -103,7 +103,13 @@ std::vector<double> FMTRebin::significanceOptimizedBinning(TH1F *hs,TH1F *hb,int
   g_step = (int)TMath::Exp(TMath::Log(nNewBins/2)/2);
   if (g_step < 1) g_step=1;
 
+  int Retry=0;
+
   for (int N=1;N<7;N++){				// Refuse to go beyond 7 Bins, will take forever
+    sweepmode=0;	// First perform Broad Scan with optimized step size (g_step)
+    bool skipBroad = false;
+    if ( nNewBins < (N-1+2+Retry) ) {std::cout << "Forced to perform Fine scan since all the Retries failed to find a nice minimum :("<<std::endl; skipBroad=true;}
+
     double maximumSignificance=0;
     counters = new int[N];
     chosen_counters = new int[N];
@@ -115,10 +121,9 @@ std::vector<double> FMTRebin::significanceOptimizedBinning(TH1F *hs,TH1F *hb,int
     double diff;
     clock_t start;
 
-    sweepmode=0;	// First perform Broad Scan with optimized step size (g_step)
     std::cout << "Performing Fully optimized Scan"	<<std::endl;
     start=clock();
-    maxSigScan(&maximumSignificance,frozen_counters,chosen_counters,hsnew,hbnew,N,counters,N-1);
+    if (!skipBroad) maxSigScan(&maximumSignificance,frozen_counters,chosen_counters,hsnew,hbnew,N,counters,N-1);
 
     sweepmode=1;	// Now do Fine scan after having found rough maximum
     for (int c=0;c<N;c++) counters[c]=chosen_counters[c]; // init to rough guess
@@ -133,6 +138,15 @@ std::vector<double> FMTRebin::significanceOptimizedBinning(TH1F *hs,TH1F *hb,int
     diff = ( std::clock() - start ) / (double)CLOCKS_PER_SEC;
     std::cout << Form("Finished, time taken = %3.5f",diff)<<std::endl;
     std::cout << "N Bins, Max Significance -> " << N+1 << " "<<maximumSignificance << std::endl;
+
+    if (maximumSignificance < highestMaxSignificance){
+ 
+         std::cout << "Looks like the Broad Scan found a local maxmimum and got stuck there (can happen if the initial number of bins is small), Try again " <<std::endl;
+         N--; Retry++;
+         continue;
+ 
+    }
+    else Retry =0;
 
 
     //if ((maximumSignificance-highestMaxSignificance)/highestMaxSignificance > 0.001){
