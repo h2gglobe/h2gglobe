@@ -67,4 +67,7 @@ if not options.dryRun:
       ut.histFileName="histograms_"+name
     ut.WriteCounters();  
 
+else:
+  cfg.print_members()
+
 ROOT.gROOT.Reset()

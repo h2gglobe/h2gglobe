@@ -75,6 +75,8 @@ class configProducer:
 
     self.tmac = []
 
+    self.member_lines=[]
+
     ## search path
     mydir = os.path.dirname(os.path.realpath(__file__))
     basedir = os.path.dirname(mydir)
@@ -112,8 +114,30 @@ class configProducer:
     else: 
       sys.exit("No Such Type As: %d"%self.type_)
 
+  def print_members(self):
+    self.member_lines.reverse()
+    printmem = []
+    keepmem = []
+    for mem in self.member_lines: 
+	var,val = mem.split("=")
+	if var in keepmem: continue
+	else :
+		keepmem.append(var)
+		printmem.append(mem)
+    print "The following members will be set in the Analysis -- "
+    for pm in printmem: print pm
+
+  def hold_members(self,filename):
+    if not ".pevents" in filename:  # Ingore the pevents file for this!"
+      f = open(filename,"r")
+      lines = f.readlines()
+      for ll in lines:
+	  if len(ll.split())==1 and "=" in ll: self.member_lines.append(ll)
+      f.close()
+
   def store_config_file(self,filename):
-    self.ut_.StoreConfigFile(filename) 
+    self.ut_.StoreConfigFile(filename)
+    self.hold_members(filename)
 
   def read_weights_file(self):
     weights_lines=[];
