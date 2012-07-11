@@ -45,6 +45,7 @@ systematics = [
 	      ,"regSig"
 	      #,"kFactor"
 	      ,"triggerEff"
+	      ,"pdfWeight"
 	      ,"vtxEff"
 	      ]
 # ADDITIONAL SYSTEMATICS --
