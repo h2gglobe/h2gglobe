@@ -47,6 +47,7 @@ class MassFactorizedMvaAnalysis : public StatAnalysis
     bool doPhotonMvaIdSyst;
     bool doPhotonMvaIdSmear;
     bool doRegressionSmear, doRegressionSyst;
+    bool doPdfWeightSmear, doPdfWeightSyst;
 
     std::string bdtTrainingPhilosophy;
     std::string photonLevelMvaUCSD  ;

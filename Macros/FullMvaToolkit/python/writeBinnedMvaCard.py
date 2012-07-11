@@ -253,6 +253,7 @@ def py_quadInterpolate(C,X1,X2,X3,Y1,Y2,Y3):
 	if math.isnan(resL) or math.isinf(resL) or  math.isnan(resH) or math.isinf(resL): return " - "
 	if abs(resL - 1) < 0.00001 or abs(resL - 1) > 1: return " - "
 	if abs(resH - 1) < 0.00001 or abs(resH - 1) > 1: return " - "
+	print "Returning -> ",resL,resH
 	return " %.3f/%.3f "%(resL,resH) 
 
 def getBinContent(hist,b):

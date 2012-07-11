@@ -74,6 +74,7 @@ typ=-19 ind=4 draw=1  Nam=wzh_m110_8TeV      CaDir=/store/group/phys_higgs/cmshg
 typ=-20 ind=3 draw=1  Nam=tth_m110_8TeV      CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/TTH_HToGG_M-110_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
 
 #Background MC
+->
 typ=+1    ind=91 draw=1  Nam=qcd_30_8TeV_ff CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/QCD_Pt-30to40_doubleEM_8TeV_ff    red=0   lum=1.e10 xsec=12208.   kfac=1.  scal=1.
 typ=+11   ind=92 draw=1  Nam=qcd_30_8TeV_pf CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/QCD_Pt-30to40_doubleEM_8TeV_pf    red=0   lum=1.e10 xsec=12208.   kfac=1.3  scal=1.
 typ=+21   ind=99 draw=1  Nam=qcd_30_8TeV_pp CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/QCD_Pt-30to40_doubleEM_8TeV_pp    red=0   lum=1.e10 xsec=12208.   kfac=1.3  scal=1.
@@ -95,8 +96,8 @@ typ=+4    ind=96 draw=1  Nam=diphojet_8TeV CaDir=/store/group/phys_higgs/cmshgg/
 typ=+5    ind=106 draw=1  Nam=dipho_Box_10_8TeV        CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/DiPhotonBox_Pt-10To25_8TeV    red=0   lum=1.e10   xsec=424.8   kfac=1.15  scal=1.
 typ=+15    ind=107 draw=1  Nam=dipho_Box_25_8TeV        CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/DiPhotonBox_Pt-25To250_8TeV    red=0   lum=1.e10   xsec=15.54   kfac=1.15  scal=1.
 typ=+25    ind=108 draw=1  Nam=dipho_Box_250_8TeV        CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/DiPhotonBox_Pt-250ToInf_8TeV    red=0   lum=1.e10   xsec=0.029038   kfac=1.15  scal=1.
-
 typ=+6    ind=98 draw=1  Nam=dyjetsll_50_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/DYJetsToLL_M-50_TuneZ2Star_8TeV    red=0   lum=1.e10  xsec=2950.0   kfac=1.15  scal=1.
+->
 # 
 # Branches to use
 #

@@ -73,6 +73,9 @@ doR9Syst=0
 doKFactorSmear=0
 doKFactorSyst=0
 
+doPdfWeightSmear=1
+doPdfWeightSyst=1
+
 doInterferenceSmear=1
 
 # Inputs for reweighing

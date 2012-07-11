@@ -26,11 +26,15 @@ includeVHmet=0
 leadEtVHmetCut=45
 subleadEtVHmetCut=25
 
-## Inputs for reweighing
 doKFactorSmear=0
 doKFactorSyst=0
 
+## Inputs for reweighing
 kfacHist=
+# ggh scale uncertainties
+pdfWeightHist=aux/GF_mvasys.root
+## For 7TeV samples
+## kfacHist=aux/KFactors_AllScales_interpolated.root
 puMap=
 puHist=auto
 puTarget=aux/latest_prompt_NoLowPU_ICHEP_535.json.71000.observed.pileup.root

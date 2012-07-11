@@ -11,6 +11,7 @@
 #include "EfficiencySmearer.h"
 #include "DiPhoEfficiencySmearer.h"
 #include "KFactorSmearer.h"
+#include "PdfWeightSmearer.h"
 #include "InterferenceSmearer.h"
 #include <iostream>
 #include <fstream>
@@ -66,6 +67,7 @@ class StatAnalysis : public PhotonAnalysis
     std::vector<int> sigPointsToBook;
     
     std::string kfacHist;
+    std::string pdfWeightHist;
 
     TH1D *thm110,*thm120,*thm130,*thm140;
 
@@ -111,6 +113,7 @@ class StatAnalysis : public PhotonAnalysis
     EfficiencySmearer *idEffSmearer, *r9Smearer;
     DiPhoEfficiencySmearer *vtxEffSmearer, *triggerEffSmearer;
     KFactorSmearer * kFactorSmearer;
+    PdfWeightSmearer * pdfWeightSmearer;
     InterferenceSmearer * interferenceSmearer;
     
     std::string name_;

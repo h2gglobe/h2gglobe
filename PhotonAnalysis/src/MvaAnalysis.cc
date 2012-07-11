@@ -129,6 +129,7 @@ void MvaAnalysis::Init(LoopAll& l)
         << "doVtxEffSyst "<< doVtxEffSyst << "\n"
         << "doTriggerEffSyst "<< doTriggerEffSyst << "\n"
         << "doKFactorSyst "<< doKFactorSyst << "\n"
+        << "doPdfWeightSyst "<< doPdfWeightSyst  << "\n"
         << "-------------------------------------------------------------------------------------- \n"
         << std::endl;
 
@@ -242,6 +243,15 @@ void MvaAnalysis::Init(LoopAll& l)
         genLevelSmearers_.push_back(kFactorSmearer);
     }
 
+    if(doPdfWeightSmear) {
+        // PdfWeights efficiency (For now only consider QCD Scale Uncertainty 
+        std::cerr << __LINE__ << std::endl; 
+        pdfWeightSmearer = new PdfWeightSmearer( pdfWeightHist,"up","down");
+        pdfWeightSmearer->name("pdfWeight");
+        pdfWeightSmearer->init();
+        genLevelSmearers_.push_back(pdfWeightSmearer);
+    }
+
     if(doInterferenceSmear) {
         // interference efficiency
         std::cerr << __LINE__ << std::endl; 
@@ -338,6 +348,12 @@ void MvaAnalysis::Init(LoopAll& l)
           l.rooContainer->MakeSystematicStudy(sys,sys_t);
           }
     */
+    if(doPdfWeightSmear && doPdfWeightSyst) {
+        systGenLevelSmearers_.push_back(pdfWeightSmearer);
+        std::vector<std::string> sys(1,pdfWeightSmearer->name());
+        std::vector<int> sys_t(1,-1);  // -1 for signal, 1 for background 0 for both
+        l.rooContainer->MakeSystematicStudy(sys,sys_t);
+    }
 
     // ----------------------------------------------------
     // ----------------------------------------------------

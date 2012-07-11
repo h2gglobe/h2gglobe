@@ -16,7 +16,7 @@ subleadEtVBFCut=30
 # Testing Hypothesis
 mHMinimum=110.0
 mHMaximum=150.0
-mHStep=0.5
+mHStep=0.1
 
 # choose between UCSD and MIT trainings
 bdtTrainingPhilosophy=MIT
@@ -159,6 +159,9 @@ doR9Syst=0
 
 doKFactorSmear=0
 doKFactorSyst=0
+
+doPdfWeightSmear=1
+doPdfWeightSyst=1
 
 doInterferenceSmear=1
 
