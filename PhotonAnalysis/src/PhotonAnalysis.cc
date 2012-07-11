@@ -62,6 +62,9 @@ PhotonAnalysis::PhotonAnalysis()  :
     reweighBeamspot = false;
     beamspotWidth   = 0.;
     emulatedBeamspotWidth = 0.;
+    targetsigma=1.0;
+    sourcesigma=1.0;
+    rescaleDZforVtxMVA=false;
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -333,7 +336,6 @@ void PhotonAnalysis::fillDiphoton(TLorentzVector & lead_p4, TLorentzVector & sub
 {
     int vtx_ind = defaultvtx ? 0 : l.dipho_vtxind[diphoton_id];
     
-    bool isCorrectVertex =  false;
     int cur_type = l.itype[l.current];
     if (cur_type!=0) isCorrectVertex= (*((TVector3*)l.vtx_std_xyz->At(vtx_ind))-*((TVector3*)l.gv_pos->At(0))).Mag() < 1.;
    
@@ -341,9 +343,19 @@ void PhotonAnalysis::fillDiphoton(TLorentzVector & lead_p4, TLorentzVector & sub
     TLorentzVector sublead_p4_bef = l.get_pho_p4( l.dipho_subleadind[diphoton_id], vtx_ind, energy);
     TLorentzVector Higgs_bef = lead_p4_bef + sublead_p4_bef;
     
-    TRandom3 rand;
-    rand.SetSeed(0);
+    //TRandom3 rand;
+    //rand.SetSeed(0);
     bool changed=false;
+    if (emulateBeamspot && cur_type!=0 && (lastRun!=l.run || lastEvent!=l.event || lastLumi!=l.lumis)){
+        double genVtxZ = ((TVector3*)l.gv_pos->At(0))->Z();
+        double myVtxZ = ((TVector3*)l.vtx_std_xyz->At(vtx_ind))->Z();
+        ((TVector3*)l.vtx_std_xyz->At(vtx_ind))->SetZ(genVtxZ+(targetsigma/sourcesigma)*(myVtxZ-genVtxZ));
+        changed=true;
+    }
+
+        /*
+    if (emulateBeamspot) isCorrectVertex=(*((TVector3*)l.vtx_std_xyz->At(vtx_ind)) - *((TVector3*)l.gv_pos->At(0))).Mag() < (sourcesigma/targetsigma);
+    else isCorrectVertex=(*((TVector3*)l.vtx_std_xyz->At(vtx_ind))- *((TVector3*)l.gv_pos->At(0))).Mag() < 1.;
     if (emulateBeamspot && cur_type!=0 && !isCorrectVertex && (lastRun!=l.run || lastEvent!=l.event || lastLumi!=l.lumis)){
 	// FIXME use beam spot from event/pass parameter. Do not hardcode.
         double beamspotZ = 0.4145;
@@ -354,8 +366,12 @@ void PhotonAnalysis::fillDiphoton(TLorentzVector & lead_p4, TLorentzVector & sub
             ((TVector3*)l.vtx_std_xyz->At(vtx_ind))->SetZ(randVtxZ);
             tooClose = (*((TVector3*)l.vtx_std_xyz->At(vtx_ind))-*((TVector3*)l.gv_pos->At(0))).Mag() < 1.;
         }
+        double genVtxZ = ((TVector3*)l.gv_pos->At(0))->Z();
+        double myVtxZ = ((TVector3*)l.vtx_std_xyz->At(vtx_ind))->Z();
+        ((TVector3*)l.vtx_std_xyz->At(vtx_ind))->SetZ(genVtxZ+(targetsigma/sourcesigma)*(myVtxZ-genVtxZ));
         changed=true;
     }
+        */
 
     lead_p4 = l.get_pho_p4( l.dipho_leadind[diphoton_id], vtx_ind, energy);
     sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphoton_id], vtx_ind, energy);
@@ -365,6 +381,7 @@ void PhotonAnalysis::fillDiphoton(TLorentzVector & lead_p4, TLorentzVector & sub
     vtx = (TVector3*)l.vtx_std_xyz->At(vtx_ind);
 
     if (changed && PADEBUG){
+        cout << "emBS: " << emulateBeamspot << " rwBS: " << reweighBeamspot << " tS: " << targetsigma << " sS: " << sourcesigma << " bW: " << beamspotWidth << endl;
         cout << "Before (eta1,eta2,mh): " << lead_p4_bef.Eta() << " " << sublead_p4_bef.Eta() << " " << Higgs_bef.M() << endl;
         cout << "After  (eta1,eta2,mh): " << lead_p4.Eta() << " " << sublead_p4.Eta() << " " << Higgs.M() << endl;
     }
@@ -1982,12 +1999,6 @@ int PhotonAnalysis::DiphotonMVASelection(LoopAll &l, HggVertexAnalyzer & vtxAna,
      
         if(PADEBUG)  std::cout << "getting di-photon MVA" << std::endl;
 
-        double beamspotSigma=-100;
-        if(l.version<13) {
-            beamspotSigma=5.8;
-        } else {
-            beamspotSigma=4.8;
-        }
         massResolutionCalculator->Setup(l,&photonInfoCollection[lead],&photonInfoCollection[sublead],idipho,eSmearPars,nR9Categories,nEtaCategories,beamspotSigma);
         //massResolutionCalculator->Setup(l,&lead_p4,&sublead_p4,lead,sublead,idipho,pt_gamgam, m_gamgam,eSmearPars,nR9Categories,nEtaCategories);
 
@@ -2556,21 +2567,17 @@ void PhotonAnalysis::reVertex(LoopAll & l)
 	l.vtx_std_ranked_list->push_back( vtxAna_.rank(*tmvaPerVtxReader_,tmvaPerVtxMethod) );
 	l.dipho_vtxind[id] = l.vtx_std_ranked_list->back()[0];
 	if( tmvaPerEvtReader_ ) {
-	    float vtxEvtMva = vtxAna_.perEventMva( *tmvaPerEvtReader_, tmvaPerEvtMethod, l.vtx_std_ranked_list->back() );
+	    float vtxEvtMva;
+        if (rescaleDZforVtxMVA) vtxEvtMva = vtxAna_.perEventMva( *tmvaPerEvtReader_, tmvaPerEvtMethod, l.vtx_std_ranked_list->back(),targetsigma/sourcesigma );
+        else vtxEvtMva = vtxAna_.perEventMva( *tmvaPerEvtReader_, tmvaPerEvtMethod, l.vtx_std_ranked_list->back());
 	    l.vtx_std_evt_mva->push_back(vtxEvtMva);
 	}
     }
 }
 
 
-float PhotonAnalysis::BeamspotReweight(double hardInterZ) {
+float PhotonAnalysis::BeamspotReweight(double hardInterZ, double beamspotZ) {
     if (hardInterZ<(-100)) return 1.0;
-
-    // FIXME use beam spot from event do not hardcode
-    const double beamspotZ = 0.4145;
-    const double sourcesigma = 6.16;
-    // const double targetsigma = 4.8;
-    const double targetsigma = emulatedBeamspotWidth;
 
     float sourceweight = exp(-pow(hardInterZ-beamspotZ,2)/2.0/sourcesigma/sourcesigma)/sourcesigma;
     float targetweight = exp(-pow(hardInterZ-beamspotZ,2)/2.0/targetsigma/targetsigma)/targetsigma;

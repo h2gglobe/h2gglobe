@@ -9,7 +9,12 @@ tmvaPerEvtMethod=BDTvtxprob2012
 
 ## Emulate beamspot
 emulateBeamspot=0
-emulatedBeamspotWidth=5.
+emulatedBeamspotWidth=4.8
+beamspotSigma=4.8
+targetsigma=4.8
+sourcesigma=6.16
+reweighBeamspot=0
+rescaleDZforVtxMVA=0
 
 ## Preselection cuts
 presel_scet1=15.

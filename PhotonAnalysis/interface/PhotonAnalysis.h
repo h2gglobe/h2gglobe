@@ -91,10 +91,15 @@ class PhotonAnalysis : public BaseAnalysis
     int nVHhadEtaCategories;
     int nVBFDijetJetCategories;
 
-    bool emulateBeamspot, reweighBeamspot;
-    float emulatedBeamspotWidth;
-    float beamspotWidth;
-    
+    bool emulateBeamspot;
+    double emulatedBeamspotWidth;
+    double beamspotWidth;
+    double beamspotSigma; // for massResolution
+    double targetsigma;
+    double sourcesigma;
+    bool reweighBeamspot;
+    bool rescaleDZforVtxMVA;
+
     // Preselection indexes
     float presel_scet1, presel_scet2, presel_maxeta;
     float presel_ecaliso_eb, presel_ecaliso_ee, presel_sieie_eb, presel_sieie_ee, presel_hoe;
@@ -238,7 +243,7 @@ class PhotonAnalysis : public BaseAnalysis
     std::string name_;
    
     // Beamsport reweighting
-    float BeamspotReweight(double hardInterZ);
+    float BeamspotReweight(double hardInterZ, double beamSpotZ);
 
     // Vertex analysis
     HggVertexAnalyzer vtxAna_;

@@ -954,14 +954,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 	}
 
         // Mass Resolution of the Event
-        //// double beamspotSigma=-100;
-        //// if(l.version<13) {
-        ////     beamspotSigma=5.8;
-        //// } else {
-        ////     beamspotSigma=4.8;
-        //// }
-        //// massResolutionCalculator->Setup(l,&photonInfoCollection[diphoton_index.first],&photonInfoCollection[diphoton_index.second],diphoton_id,eSmearPars,nR9Categories,nEtaCategories,beamspotSigma);
-        massResolutionCalculator->Setup(l,&photonInfoCollection[diphoton_index.first],&photonInfoCollection[diphoton_index.second],diphoton_id,eSmearPars,nR9Categories,nEtaCategories,beamspotWidth);
+        massResolutionCalculator->Setup(l,&photonInfoCollection[diphoton_index.first],&photonInfoCollection[diphoton_index.second],diphoton_id,eSmearPars,nR9Categories,nEtaCategories,beamspotSigma);
         float vtx_mva  = l.vtx_std_evt_mva->at(diphoton_id);
         float sigmaMrv = massResolutionCalculator->massResolutionEonly();
         float sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
@@ -1008,13 +1001,33 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
         // fill control plots and counters
 	    if( ! isSyst ) {
             
-            //float myMet = l.shiftscaleMET_pt;
-            l.FillTree("category",category);
-            l.FillTree("cur_type",cur_type);
-            l.FillTree("bdtoutput",diphobdt_output);
-            l.FillTree("CMS_hgg_mass",float(Higgs.M()));
+            if(category>-1){
+                l.FillHist("sigmaMrv",category,sigmaMrv,evweight);
+                l.FillHist("sigmaMwv",category,sigmaMwv,evweight);
+                l.FillHist("vertexZ_gen",category,((TVector3*)l.gv_pos->At(0))->Z(),evweight);
+                if(isCorrectVertex){
+                    l.FillHist("vertexZ_rv",category,vtx->Z(),evweight);
+                    l.FillHist("vertexprob_rv",category, vtxProb, evweight);
+                }else{
+                    l.FillHist("ZfromWVtoRV",category,(*vtx-*((TVector3*)l.gv_pos->At(0))).Z(),evweight);
+                    l.FillHist("vertexZ_wv",category,vtx->Z(),evweight);
+                    l.FillHist("vertexprob_wv",category, vtxProb, evweight);
+                }
+            }
+
             l.FillTree("weight",weight);
-            //l.FillTree("MET",myMet);
+            l.FillTree("category",category);
+            l.FillTree("vtxCorr",isCorrectVertex);
+            l.FillTree("vtxZ",vtx->Z());
+            l.FillTree("genVtxZ",((TVector3*)l.gv_pos->At(0))->Z());
+            l.FillTree("ZfromWtoR",(*vtx-*((TVector3*)l.gv_pos->At(0))).Z());
+            l.FillTree("sigmaMrv",sigmaMrv);
+            l.FillTree("sigmaMwv",sigmaMwv);
+            l.FillTree("sigmaMEonly",sigmaMeonly);
+            l.FillTree("sigmaMAonly",massResolutionCalculator->massResolutionAonly());
+            l.FillTree("vtxProb",vtxProb);
+            l.FillTree("cur_type",cur_type);
+            l.FillTree("CMS_hgg_mass",float(Higgs.M()));
             
 	        l.FillCounter( "Accepted", weight );
 	        l.FillCounter( "Smeared", evweight );

@@ -535,8 +535,9 @@ bool StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     float weight = l.sampleContainer[l.current_sample_index].weight;
     float sampleweight = l.sampleContainer[l.current_sample_index].weight;
 
-    if(reweighBeamspot) {
-        weight*=BeamspotReweight(((TVector3*)l.gv_pos->At(0))->Z());
+    if(emulateBeamspot && reweighBeamspot) {
+        weight*=BeamspotReweight(((TVector3*)l.gv_pos->At(0))->Z(),((TVector3*)l.bs_xyz)->Z());
+        //weight*=BeamspotReweight(((TVector3*)l.gv_pos->At(0))->Z(),0.4145);
     }
 
     // Set reRunCiC Only if this is an MC event since scaling of R9 and Energy isn't done at reduction
@@ -696,7 +697,7 @@ bool StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
     if(PADEBUG) 
         cout<<"myFillHistRed END"<<endl;
-
+    
     return (diphoton_id > -1);
 }
 
@@ -880,7 +881,7 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
             isCorrectVertex=(*vtx- *((TVector3*)l.gv_pos->At(0))).Mag() < 1.;
         }
         float ptHiggs = Higgs.Pt();
-      
+        if (cur_type != 0) cout << "vtxAn: " << isCorrectVertex << endl; 
 	// sanity check
         assert( evweight >= 0. ); 
 	
