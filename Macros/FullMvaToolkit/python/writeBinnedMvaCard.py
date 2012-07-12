@@ -435,26 +435,19 @@ def writeCard(tfile,mass,scaleErr):
     numberOfVBF_incl  = sum([vbfHist.GetBinContent(b) for b in range(binL,nBins_inclusive+binL)])
     numberOfWZH_incl  = sum([wzhHist.GetBinContent(b) for b in range(binL,nBins_inclusive+binL)])
 
-    if options.is2011: outPut.write("\nJetID_ggh  lnN ")
-    else: outPut.write("\nJetID_ggh  lnN ")
+    if options.is2011: outPut.write("\nUEPS  lnN ")
+    else: outPut.write("\nUEPS  lnN ")
     # inclusive bins
-    for b in range(binL,nBins_inclusive+binL): outPut.write(" %.3f/%.3f   -   %.3f/%.3f   %.3f/%.3f   -  "%\
+    for b in range(binL,nBins_inclusive+binL): outPut.write(" %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   -  "%\
 		    (1.-(numberOfGGH_dijet/numberOfGGH_incl),1.+(numberOfGGH_dijet/numberOfGGH_incl),\
+		     1.-(numberOfVBF_dijet/numberOfVBF_incl),1.+(numberOfVBF_dijet/numberOfVBF_incl),\
 		     1.-(numberOfWZH_dijet/numberOfWZH_incl),1.+(numberOfWZH_dijet/numberOfWZH_incl),\
 		     1.-(numberOfTTH_dijet/numberOfTTH_incl),1.+(numberOfTTH_dijet/numberOfTTH_incl)))
     # exclusive bins
-    for b in range(binH-nBins_exclusive,binH): outPut.write(" %.3f/%.3f   -   %.3f/%.3f   %.3f/%.3f   -  "%\
-      (1+JetID_gg,1-JetID_gg,1+JetID_gg,1-JetID_gg,1+JetID_gg,1-JetID_gg))
+    for b in range(binH-nBins_exclusive,binH): outPut.write(" %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   -  "%\
+      (1+JetID_gg,1-JetID_gg,1+JetID_qq,1-JetID_qq,1+JetID_gg,1-JetID_gg,1+JetID_gg,1-JetID_gg))
     outPut.write("\n")
-    if options.is2011: outPut.write("\nJetID_vbf  lnN ")
-    else: outPut.write("\nJetID_vbf  lnN ")
-    # inclusive bins
-    for b in range(binL,nBins_inclusive+binL): outPut.write(" -   %.3f/%.3f   -   -   -  "%\
-		     (1.-(numberOfVBF_dijet/numberOfVBF_incl),1.+(numberOfVBF_dijet/numberOfVBF_incl)))\
-    # exclusive bins
-    for b in range(binH-nBins_exclusive,binH): outPut.write(" -   %.3f/%.3f  -  -   -  "%\
-      (1+JetID_qq,1-JetID_qq))
-    outPut.write("\n")
+
     # inclusive bins
 
     numberOfGGH_dijet = sum([gghHist.GetBinContent(b)*JEC_gg for b in range(binH-nBins_exclusive,binH)])
