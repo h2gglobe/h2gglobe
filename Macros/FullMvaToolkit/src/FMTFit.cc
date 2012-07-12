@@ -49,7 +49,7 @@ FMTFit::~FMTFit(){
 pair<double,double> FMTFit::FitPow(double mass){
   
   gROOT->SetBatch();
-  if (mass<getmHMinimum() || mass>getmHMaximum()) {
+  if (mass<(getmHMinimum()-(getmHStep()/2.)) || mass>(getmHMaximum()+(getmHStep()/2.))) {
     cout << Form("%3.1f invalid mass. Not in range [",mass) << getmHMinimum() << "," << getmHMaximum() << "]" << endl;
     exit(1);
   }
