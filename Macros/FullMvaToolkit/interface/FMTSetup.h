@@ -71,6 +71,7 @@ class FMTSetup : public FMTBase {
 		bool checkHistos_;
     bool noPlot_;
 		bool runSB_;
+		bool safeMode_;
 
 		int tempmHMin_;
 		int tempmHMax_;

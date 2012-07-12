@@ -32,6 +32,7 @@ FMTSetup::FMTSetup(string filename):
 	blinding_(true),
 	runCombine_(false),
 	checkHistos_(false),
+	safeMode_(true),
   noPlot_(true),
 	runSB_(false),
 	cleaned(false)
@@ -91,6 +92,7 @@ void FMTSetup::OptionParser(int argc, char *argv[]){
     ("verbose,v",                                                       "Increase output level")
 		("useDat,U", po::value<string>(&datFil_)->default_value("0"),				"Get options from .dat file not TFile")
     ("doPlot,P",                                                        "Remake plots")
+    ("safeModeOff,S",                                                        "Do not run in safe mode (will delete plots)")
     ("setLumi,L",po::value<double>(&userLumi_),                         "Set luminosity (by default read from datafiles.dat)")
     ("is2011,7",                                                        "Is data run 2011 (7TeV) - default is 2012 (8TeV)")
 		("runSB,R",																													"Make S/B plots - in development (please don\'t use yet)")
@@ -132,6 +134,7 @@ void FMTSetup::OptionParser(int argc, char *argv[]){
 	if (vm.count("diagnose")) 			diagnose_=true;
 	if (vm.count("unblind")) 				blinding_=false;
 	if (vm.count("checkHistos")) 		checkHistos_=true;
+	if (vm.count("safeModeOff")) 		safeMode_=false;
   if (vm.count("www"))            web_=true;
   if (vm.count("doPlot"))         noPlot_=false;
 	if (vm.count("runSB"))					runSB_=true;
@@ -174,19 +177,14 @@ void FMTSetup::OptionParser(int argc, char *argv[]){
 	cout << "] " << endl;
 
 	// clean plots
-	if (diagnose_) {
-		cout << "Diagnostics are turned on. Do you want to clean up old plots? (yes/no)" << endl;
-		string temp;
-		cin >> temp;
-    if (temp=="yes") {
-			cout << "Removing...." << endl;
-			system("rm -rf plots/pdf/*");
-			system("cp plots/png/PhoPhoDraw.png plots/");
-			system("cp plots/png/PhotPhotEvent.png plots/");
-			system("rm -rf plots/png/*");
-			system("mv plots/PhoPhoDraw.png plots/png");
-			system("mv plots/PhotPhotEvent.png plots/png");
-		}
+	if (diagnose_ && !safeMode_) {
+		cout << "WARNING! -- Removing...." << endl;
+		system("rm -rf plots/pdf/*");
+		system("cp plots/png/PhoPhoDraw.png plots/");
+		system("cp plots/png/PhotPhotEvent.png plots/");
+		system("rm -rf plots/png/*");
+		system("mv plots/PhoPhoDraw.png plots/png");
+		system("mv plots/PhotPhotEvent.png plots/png");
 	}
 
 }
