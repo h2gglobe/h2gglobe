@@ -7,7 +7,7 @@ BOOSTLIBS=$(BOOSTBASE)/lib
 BOOSTINCS=$(BOOSTBASE)/include
 
 DEPENDENTS = `root-config --cflags --libs` -L$(ROOFITLIBS) -I$(ROOFITINCS) -lMinuit -lFoam -lRooFit -lRooFitCore -I$(BOOSTINCS) -L$(BOOSTLIBS) -lboost_program_options 
-FILES = RunFullMvaAnalysis.cc src/FMTBase.o src/FMTFit.o src/FMTRebin.o src/FMTSetup.o src/FMTSigInterp.o src/FMTPlots.o ../Normalization_8TeV.cc
+FILES = RunFullMvaAnalysis.cc src/FMTBase.cc src/FMTFit.cc src/FMTRebin.cc src/FMTSetup.cc src/FMTSigInterp.cc src/FMTPlots.cc ../Normalization_8TeV.cc
 OUT_EXE = runIt.exe
 
 all: RunFullMvaAnalysis
