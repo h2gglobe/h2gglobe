@@ -51,10 +51,14 @@ parser.add_option("-b","--bayes",dest="bayes")
 parser.add_option("-o","--outputLimits",dest="outputLimits")
 parser.add_option("-e","--expectedOnly",action="store_true")
 parser.add_option("-p","--path",dest="path",default="",type="str")
+parser.add_option("-v","--verbose",dest="verbose",action="store_true")
 parser.add_option("","--addline",action="append",type="str",help="add lines to the plot file.root:color:linestyle:legend entry", default = [])
 parser.add_option("","--show",action="store_true")
 parser.add_option("","--pval",action="store_true")
 parser.add_option("","--addtxt",action="append",type="str", help="Add lines of text under CMS Preliminary",default=[])
+parser.add_option("","--square",dest="square",help="Make square plots",action="store_true")
+parser.add_option("","--nogrid",dest="nogrid",help="Remove grid from plots",action="store_true")
+
 (options,args)=parser.parse_args()
 
 if options.show : ROOT.gROOT.SetBatch(False)
@@ -122,6 +126,7 @@ if Method=="HybridNew":
       EXPfiles.append(ROOT.TFile(EXPName+".mH%d.quant0.500.root"%m))
     else:
       EXPfiles.append(ROOT.TFile(EXPName+".mH%.1f.quant0.500.root"%m))
+    if options.verbose: print "expected MH - ", m, "File - ", EXPfiles[-1].GetName()
   
 elif Method=="Asymptotic" or Method=="AsymptoticNew":
   EXPfiles=[]
@@ -131,6 +136,7 @@ elif Method=="Asymptotic" or Method=="AsymptoticNew":
       EXPfiles.append(ROOT.TFile(EXPName+".mH%d.root"%(m+epsilon)))
     else:
       EXPfiles.append(ROOT.TFile(EXPName+".mH%.1f.root"%m))
+    if options.verbose: print "expected MH - ", m, "File - ", EXPfiles[-1].GetName()
 
 else:
   EXPfiles=[]
@@ -139,6 +145,7 @@ else:
       EXPfiles.append(ROOT.TFile(EXPName+".mH%d.root"%(m+epsilon)))
     else:
       EXPfiles.append(ROOT.TFile(EXPName+".mH%.1f.root"%m))
+    if options.verbose: print "expected MH - ", m, "File - ", EXPfiles[-1].GetName()
 
 # Get the observed limits - Currently only does up to 1 decimal mass points
 OBSfiles = []
@@ -148,6 +155,7 @@ if not options.expectedOnly:
       OBSfiles.append(ROOT.TFile(OBSName+".mH%d.root"%(m+epsilon)))
     else:
       OBSfiles.append(ROOT.TFile(OBSName+".mH%.1f.root"%m))
+    if options.verbose: print "observed MH - ", m, "File - ", OBSfiles[-1].GetName()
 
   if Method == "Asymptotic" or Method =="AsymptoticNew" :  obs = [getOBSERVED(O,5) for O in OBSfiles] # observed is last entry in these files
   else: obs = [getOBSERVED(O) for O in OBSfiles]
@@ -190,7 +198,8 @@ def MakePvalPlot(MG):
 	legend.SetTextSize(FONTSIZE)
 	legend.AddEntry(graphObs,"Observed","L")
 
-	c = ROOT.TCanvas("c","c",800,600)
+	if options.square : c = ROOT.TCanvas("c","c",600,600)
+	else :c = ROOT.TCanvas("c","c",800,600)
 
 	dhist = ROOT.TH1F("dh","dh",100,MINMH,MAXMH)
 	dhist.GetYaxis().SetTitleOffset(1.5)
@@ -238,8 +247,8 @@ def MakePvalPlot(MG):
 		TL.SetLineWidth(1)
 		TL.Draw("same")
 		text.DrawLatex(MAXMH+0.2,Vals[j]*0.88,"%d #sigma"%Lines[j])
-	c.SetGrid(True)
-	dhist.Draw("AXIGSAME")
+	c.SetGrid(not options.nogrid)
+	if not options.nogrid: dhist.Draw("AXIGSAME")
 
 	mytext= ROOT.TLatex()
 	mytext.SetTextSize(FONTSIZE)
@@ -278,14 +287,15 @@ def MakeLimitPlot(MG):
 	leg.SetTextFont(42)
 	leg.SetTextSize(FONTSIZE)
 
-	C = ROOT.TCanvas("c","c",800,600)
+	if options.square : C = ROOT.TCanvas("c","c",600,600)
+	else: C = ROOT.TCanvas("c","c",800,600)
 
-	C.SetGrid(True)
+	C.SetGrid(not options.nogrid)
 	dummyHist = ROOT.TH1D("dummy","",1,min(OBSmasses)-OFFSETLOW,max(OBSmasses)+OFFSETHIGH)
 	dummyHist.SetTitleSize(0.04,"XY")
 	dummyHist.Draw("AXIS")
 	MG.Draw("L3")
-	dummyHist.Draw("AXIGSAME")
+	if not options.nogrid: dummyHist.Draw("AXIGSAME")
 
 	dummyHist.GetXaxis().SetTitle("m_{H} (GeV)")
 	dummyHist.GetXaxis().SetRangeUser(min(OBSmasses)-OFFSETLOW,max(OBSmasses)+OFFSETHIGH)
