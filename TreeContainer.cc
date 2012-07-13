@@ -2,7 +2,7 @@
 #include <utility>
 #include <iostream>
 
-#define TCDEBUG 1
+#define TCDEBUG 0
 
 TreeContainer::TreeContainer() {}
 
