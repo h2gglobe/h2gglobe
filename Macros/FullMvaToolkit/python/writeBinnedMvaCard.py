@@ -45,7 +45,7 @@ systematics = [
 	      ,"regSig"
 	      #,"kFactor"
 	      ,"triggerEff"
-#	      ,"pdfWeight"
+	      ,"pdfWeight"
 	      ,"vtxEff"
 	      ]
 # ADDITIONAL SYSTEMATICS --
@@ -249,13 +249,11 @@ def plotDistributions(mass,data,signals,bkg,errors):
 #	if mass >= 145.0 and mass <= 150.0: return "150"
 
 def py_quadInterpolate(C,X1,X2,X3,Y1,Y2,Y3):
-	print "Inputting -> ",C,X1,X2,X3,Y1,Y2,Y3
 	resL = quadInterpolate(-1*C,X1,X2,X3,Y1,Y2,Y3)
 	resH = quadInterpolate(C,X1,X2,X3,Y1,Y2,Y3)
 	if math.isnan(resL) or math.isinf(resL) or  math.isnan(resH) or math.isinf(resL): return " - "
 	if abs(resL - 1) < 0.00001 or abs(resL - 1) > 1: return " - "
 	if abs(resH - 1) < 0.00001 or abs(resH - 1) > 1: return " - "
-	print "Returning -> ",resL,resH
 	return " %.3f/%.3f "%(resL,resH) 
 
 def getBinContent(hist,b):
@@ -503,7 +501,6 @@ def writeCard(tfile,mass,scaleErr):
     else: outPut.write("\n%s lnN "%sys)
 
     for b in range(binL,binH):
-	 print "Systematic -> ","th1f_sig_"+runtype+"_ggh_%3.1f_%sUp01_sigma"%(mass,sys)
 	 outPut.write(" %s %s %s %s - "%(\
 				     py_quadInterpolate(1.,-3.,0.,3.,gghHistD.GetBinContent(b)  \
 				        			  ,gghHist.GetBinContent(b)  \
