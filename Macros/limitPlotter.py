@@ -4,11 +4,8 @@
 # Standard Imports and calculators
 import ROOT
 import array,sys,numpy
-ROOT.gROOT.ProcessLine(".L medianCalc.C++")
 ROOT.gROOT.ProcessLine(".x tdrstyle.cc")
 
-from ROOT import medianCalc
-from ROOT import FrequentistLimits
 from optparse import OptionParser
 
 ROOT.gROOT.SetBatch(True)
@@ -20,13 +17,14 @@ ROOT.gStyle.SetOptFit(0)
 OBSmasses = []
 EXPmasses = []
 
-OBSmassesT = numpy.arange(110,150.5,0.5)
-EXPmassesT = numpy.arange(110,150.5,0.5)
+OBSmassesT = numpy.arange(110,150.1,0.1)
+EXPmassesT = numpy.arange(110,150.1,0.1)
+epsilon = 0.001  # make this smaller than your smallest step size
 
-for i in OBSmassesT:
-	if i in [110,111,115,120,125,130,135,140,145,150]: continue
-	OBSmasses.append(i)
-	EXPmasses.append(i)
+for m in OBSmassesT:
+    	#if "%.1f"%m=="%d.0"%(m+epsilon):continue	# sigh!
+	OBSmasses.append(m)
+	EXPmasses.append(m)
 
 # Plotting Styles --------------------------------------------------------
 OFFSETLOW=0
@@ -53,16 +51,15 @@ parser.add_option("-b","--bayes",dest="bayes")
 parser.add_option("-o","--outputLimits",dest="outputLimits")
 parser.add_option("-e","--expectedOnly",action="store_true")
 parser.add_option("-p","--path",dest="path",default="",type="str")
-parser.add_option("","--addline",action="append",type="str",help="add lines to the plot file.root:color:linestyle:legend entry")
+parser.add_option("","--addline",action="append",type="str",help="add lines to the plot file.root:color:linestyle:legend entry", default = [])
 parser.add_option("","--show",action="store_true")
 parser.add_option("","--pval",action="store_true")
-parser.add_option("","--addtxt",action="append",type="str", help="Add lines of text under CMS Preliminary")
+parser.add_option("","--addtxt",action="append",type="str", help="Add lines of text under CMS Preliminary",default=[])
 (options,args)=parser.parse_args()
 
 if options.show : ROOT.gROOT.SetBatch(False)
 if options.addline and not options.pval : sys.exit("Cannot addlines unless running in pvalue")
 
-	
 # ------------------------------------------------------------------------
 # SM Signal Normalizer
 if not options.doRatio:
@@ -73,6 +70,12 @@ extraString = "SM"
 if options.pval:
 	 EXPmasses=[]
 	 options.doRatio=True
+
+if not options.doRatio and options.Method != "Frequentist": 
+	ROOT.gROOT.ProcessLine(".L medianCalc.C++")
+	from ROOT import medianCalc
+	from ROOT import FrequentistLimits
+	
 
 if options.bayes:
   BayesianFile =ROOT.TFile(options.bayes) 
@@ -115,7 +118,7 @@ if Method=="HybridNew":
   EXPfiles=[]
   EXPmasses = OBSmasses[:]
   for m in EXPmasses:
-    if int(m)==m:
+    if "%.1f"%m=="%d.0"%(m+epsilon):	# sigh!
       EXPfiles.append(ROOT.TFile(EXPName+".mH%d.quant0.500.root"%m))
     else:
       EXPfiles.append(ROOT.TFile(EXPName+".mH%.1f.quant0.500.root"%m))
@@ -124,28 +127,36 @@ elif Method=="Asymptotic" or Method=="AsymptoticNew":
   EXPfiles=[]
   EXPmasses = OBSmasses[:]
   for m in EXPmasses:
-    if int(m)==m:
-      EXPfiles.append(ROOT.TFile(EXPName+".mH%d.root"%m))
+    if "%.1f"%m=="%d.0"%(m+epsilon):	# sigh!
+      EXPfiles.append(ROOT.TFile(EXPName+".mH%d.root"%(m+epsilon)))
     else:
       EXPfiles.append(ROOT.TFile(EXPName+".mH%.1f.root"%m))
 
 else:
-  EXPfiles = [ROOT.TFile(EXPName+".mH%.1f.root"%m) for m in EXPmasses]
+  EXPfiles=[]
+  for m in EXPmasses:
+    if "%.1f"%m=="%d.0"%(m+epsilon):	# sigh!
+      EXPfiles.append(ROOT.TFile(EXPName+".mH%d.root"%(m+epsilon)))
+    else:
+      EXPfiles.append(ROOT.TFile(EXPName+".mH%.1f.root"%m))
 
 # Get the observed limits - Currently only does up to 1 decimal mass points
 OBSfiles = []
 if not options.expectedOnly:
   for m in OBSmasses:
-    if int(m)==m:
-      OBSfiles.append(ROOT.TFile(OBSName+".mH%d.root"%m))
+    if "%.1f"%m=="%d.0"%(m+epsilon):	# sigh!
+      OBSfiles.append(ROOT.TFile(OBSName+".mH%d.root"%(m+epsilon)))
     else:
       OBSfiles.append(ROOT.TFile(OBSName+".mH%.1f.root"%m))
-  if Method == "Asymptotic" or Method =="AsymptoticNew":  obs = [getOBSERVED(O,5) for O in OBSfiles] # observed is last entry in these files
+
+  if Method == "Asymptotic" or Method =="AsymptoticNew" :  obs = [getOBSERVED(O,5) for O in OBSfiles] # observed is last entry in these files
   else: obs = [getOBSERVED(O) for O in OBSfiles]
+
 else:
   obs = [0 for O in OBSmasses]
   OBSfiles = obs[:]
 
+# -------------------------------------------------------------------------------------------------------------------------------------------
 # Set-up the GRAPHS
 
 graph68  = ROOT.TGraphAsymmErrors()
