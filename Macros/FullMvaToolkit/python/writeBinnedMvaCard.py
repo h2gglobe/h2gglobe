@@ -45,7 +45,7 @@ systematics = [
 	      ,"regSig"
 	      #,"kFactor"
 	      ,"triggerEff"
-	      ,"pdfWeight"
+#	      ,"pdfWeight"
 	      ,"vtxEff"
 	      ]
 # ADDITIONAL SYSTEMATICS --
@@ -119,9 +119,9 @@ def plainBin(hist):
 			if hist.GetBinLowEdge(i+1) <= 1.:
 			  h2.GetXaxis().SetBinLabel(i,"BDT Bin %d "%(i))
 			elif hist.GetBinLowEdge(i+1) <= 1.04:
-			  h2.GetXaxis().SetBinLabel(i," Tight di-jet ")
-			else: 
 			  h2.GetXaxis().SetBinLabel(i," Loose di-jet ")
+			else: 
+			  h2.GetXaxis().SetBinLabel(i," Tight di-jet ")
 	h2.GetXaxis().SetNdivisions(nb)
 	return h2
 
@@ -249,6 +249,7 @@ def plotDistributions(mass,data,signals,bkg,errors):
 #	if mass >= 145.0 and mass <= 150.0: return "150"
 
 def py_quadInterpolate(C,X1,X2,X3,Y1,Y2,Y3):
+	print "Inputting -> ",C,X1,X2,X3,Y1,Y2,Y3
 	resL = quadInterpolate(-1*C,X1,X2,X3,Y1,Y2,Y3)
 	resH = quadInterpolate(C,X1,X2,X3,Y1,Y2,Y3)
 	if math.isnan(resL) or math.isinf(resL) or  math.isnan(resH) or math.isinf(resL): return " - "
@@ -501,7 +502,8 @@ def writeCard(tfile,mass,scaleErr):
     if options.is2011: outPut.write("\n%s lnN "%sys)
     else: outPut.write("\n%s lnN "%sys)
 
-    for b in range(binL,binH): 
+    for b in range(binL,binH):
+	 print "Systematic -> ","th1f_sig_"+runtype+"_ggh_%3.1f_%sUp01_sigma"%(mass,sys)
 	 outPut.write(" %s %s %s %s - "%(\
 				     py_quadInterpolate(1.,-3.,0.,3.,gghHistD.GetBinContent(b)  \
 				        			  ,gghHist.GetBinContent(b)  \
