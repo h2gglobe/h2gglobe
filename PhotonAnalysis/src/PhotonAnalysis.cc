@@ -337,6 +337,7 @@ void PhotonAnalysis::fillDiphoton(TLorentzVector & lead_p4, TLorentzVector & sub
     int vtx_ind = defaultvtx ? 0 : l.dipho_vtxind[diphoton_id];
     
     int cur_type = l.itype[l.current];
+    bool isCorrectVertex;
     if (cur_type!=0) isCorrectVertex= (*((TVector3*)l.vtx_std_xyz->At(vtx_ind))-*((TVector3*)l.gv_pos->At(0))).Mag() < 1.;
    
     TLorentzVector lead_p4_bef = l.get_pho_p4( l.dipho_leadind[diphoton_id], vtx_ind, energy);
