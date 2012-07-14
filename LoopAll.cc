@@ -222,7 +222,7 @@ void LoopAll::MergeContainers(){
 			
       TH1F *histExtra = (TH1F*) (*it_file)->Get(Form("th1f_%s",it_hist->c_str()));
       rooContainer->AppendTH1F(*it_hist,histExtra);	
-      delete histExtra;
+      //delete histExtra;
     }
 		
     RooWorkspace *work = (RooWorkspace*) (*it_file)->Get("cms_hgg_workspace");
@@ -232,7 +232,7 @@ void LoopAll::MergeContainers(){
 
       RooDataSet *dataExtra = (RooDataSet*) work->data(Form("%s",it_data->c_str()));
       rooContainer->AppendDataSet(*it_data,dataExtra);	
-      delete dataExtra;
+      //delete dataExtra;
     }
 
     delete work;
