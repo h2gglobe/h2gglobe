@@ -104,6 +104,7 @@ typ=+6    ind=98 draw=1  Nam=dyjetsll_50_8TeV   CaDir=/store/group/phys_higgs/cm
 inputBranches minimal_analysis_input.dat
 inputBranches mvaanalysis_input.dat
 
+treevariables mvaleetrees.dat
 ## define analyses to run
 ## 	a library containing the class dictionary has loaded before parsing the 
 ## 	configuration file

@@ -684,7 +684,7 @@ class configProducer:
     dcs_directory = ''
     eos_directory = ''
     fi_name   = ''
-    fi_type   = -99999
+    fi_type   = 99999
     # We have one of the file def lines
     split_line = [ s for s in line.replace("split","").split() if s != "" ]
     for sp in split_line:
@@ -722,7 +722,7 @@ class configProducer:
       if not ( (self.njobs_>0) and (self.nf_[0] % self.njobs_ != self.jobId_) ):
         self.conf_.files.append(tuple_n)
       else: self.conf_.files.append((None,fi_type));
-      if fi_type!=0 and fi_type!=-99999 and map_c["tot"] == 0:
+      if fi_type!=0 and fi_type!=99999 and map_c["tot"] == 0:
 	if self.sample_weights_file_==0 :
 	  nEventsInFile = getTreeEntry(fi_name,"global_variables","processedEvents")
 	  self.file_processed_events_[fi_name] = nEventsInFile
@@ -757,7 +757,8 @@ class configProducer:
           if map_c["pileup"] == "":
               map_c["pileup"] = "%s.pileup.root" % dir
               if( dir.startswith("/store") ):
-                  map_c["pileup"] = 'root://eoscms//eos/cms'+map_c["pileup"]
+                  if not dcs_directory :map_c["pileup"] = 'root://eoscms//eos/cms'+map_c["pileup"]
+                  else: map_c["pileup"] = 'root://xrootd.grid.hep.ph.ic.ac.uk/'+map_c["pileup"]
           for file_s in allfiles:
 	      if self.sample_weights_file_==0 :
 	        print "Calculating N Processed Events for - ", file_s[0]

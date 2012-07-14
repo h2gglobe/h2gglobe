@@ -37,8 +37,11 @@ if __name__  == "__main__":
 	parser.add_option("-u","--user",dest="user",default="")
 	parser.add_option("-a","--addfile",dest="addfiles",action="append",default=[])
 	parser.add_option("-N","--notgz",dest="notgz",action="store_true",default=False)
+	parser.add_option("","--combine",dest="combine",action="store_true",default=False, help="make combiner.py jobs")
 	
 	(options,args)=parser.parse_args()
+
+        if options.combine and not options.runIC : sys.exit("Sorry, no support for submitting combiner jobs at CERN available yet!")
 	if options.outputScript == "":
 		options.outputScript = "%s/sub" % options.label
 	
@@ -97,16 +100,16 @@ if __name__  == "__main__":
 	if options.runIC:
 	  filestocmb = ""
 	  for i in xrange(len(files)):
-		filestocmb += "Fil=%s/%s_%d.%s\n"  %(cfg.histdir,cfg.histfile[0],i,cfg.histfile[1])
-	  g.write( (datfile % filestocmb).replace("histfile=","histfile=%s" % scriptdir ) )
+		filestocmb += "typ=99999 Fil=%s/%s_%d.%s\n"  %(cfg.histdir,cfg.histfile[0],i,cfg.histfile[1])
+	  g.write( (datfile % filestocmb).replace("histfile=./","histfile=%s" % scriptdir ) )
 	  g.close()	
 		
 	if not options.runIC:
 	  filestocmb = ""
 	  for i in xrange(len(files)):
 		fil = commands.getoutput("cmsPfn %s_%d.%s" % ( os.path.join(cfg.histdir,cfg.histfile[0]), i, cfg.histfile[1] ))
-		filestocmb += "Fil=%s\n" % fil
-	  g.write( (datfile % filestocmb).replace("histfile=","histfile=%s" % scriptdir ) )
+		filestocmb += "typ=99999 Fil=%s\n" % fil
+	  g.write( (datfile % filestocmb).replace("histfile=./","histfile=%s" % scriptdir ) )
 	  g.close()	
 
 	tmpnam = os.path.join(os.path.dirname(options.inputDat), "tmp_%s" % os.path.basename(options.inputDat))
@@ -118,7 +121,7 @@ if __name__  == "__main__":
 
 	idat.close()
 	tmp.close()
-	if not os.path.isfile("%s.pevents" % tmpnam):
+	if not os.path.isfile("%s.pevents" % tmpnam) and not options.combine:
 		print "Generating the pevents file...",
 		print "python fitter.py -i %s --dryRun >& %s.log\n" % (tmpnam,tmpnam)
 		os.system("python fitter.py -i %s --dryRun >& %s.log" % (tmpnam,tmpnam) )
@@ -144,10 +147,11 @@ if __name__  == "__main__":
 		os.system("tar zcf %s.tgz $(find -name \*.dat -or -name \*.py) aux common" % options.outputScript)
 		os.system("%s %s.tgz %s" % ( cp,  options.outputScript, cfg.histdir) )
 	
-	if os.path.isfile("%s.pevents" % tmpnam):
+        if not options.combine:
+	  if os.path.isfile("%s.pevents" % tmpnam):
 		q=open("%s.pevents" % tmpnam, "r")
 		pevents=q.read()
-	else: 
+	  else: 
 		print "Warning, %s.pevents doesn't exist.\nEither you only intend to run on Data or something went wrong (check the log and re-run if you are running on MC)."%tmpnam
 		pevents=""
 
@@ -160,10 +164,12 @@ if __name__  == "__main__":
 		f.write("#!/bin/bash\n")
 		f.write("source /vols/cms/grid/setup.sh\n")
 		f.write("export X509_USER_PROXY=/home/hep/%s/.myproxy\n"%options.user)
+		f.write("export SCRAM_ARCH=slc5_amd64_gcc462\n")
 		f.write("cd %s\n"%mydir)
 		f.write("touch %s.sh.run\n" % os.path.join(mydir,jobname))
 		f.write("eval `scramv1 runtime -sh`\n")
-		f.write("if ( python fitter.py -i %s -n %d -j %d )\n "%(tmpnam,int(options.nJobs),i))
+                whatRun = options.combine and "combiner.py" or "fitter.py"
+		f.write("if ( python %s -i %s -n %d -j %d )\n "%(whatRun,tmpnam,int(options.nJobs),i))
 		f.write("then\n")
 		
 		f.write("   touch %s.sh.done\n" % os.path.join(mydir,jobname))
@@ -199,28 +205,31 @@ if __name__  == "__main__":
 		f.write(datfile % files[i])
 		f.write("\nEOF\n")
 		
-		f.write("cat > %s.dat.pevents << EOF\n" % jobbasename)
-		f.write(pevents)
-		f.write("\nEOF\n")
+                if not options.combine:
+		  f.write("cat > %s.dat.pevents << EOF\n" % jobbasename)
+	  	  f.write(pevents)
+		  f.write("\nEOF\n")
 		
 		f.write("ls\n")
-		
+		whatRun = options.combine and "combiner.py" or "fitter.py"
 		if i < options.nJobs:
-			f.write("if ( python fitter.py -i %s.dat -n %d -j %d ) "%(jobbasename,int(options.nJobs),i))
+			f.write("if ( python %s -i %s.dat -n %d -j %d ) "%(whatRun,jobbasename,int(options.nJobs),i))
 			for fn in ["","histograms_"]+options.addfiles:
 				f.write("&& ( %s %s%s_%d.%s %s ) "        % ( cp, fn, cfg.histfile[0], i, cfg.histfile[1], cfg.histdir ) )
 			### f.write("&& ( %s %s_%d.%s_ascii_events.txt %s ) " % ( cp, cfg.histfile[0], i, cfg.histfile[1], cfg.histdir ) )
 			f.write("&& ( %s %s_%d.%s %s ) " % ( cp, cfg.outfile[0], i, cfg.outfile[1], cfg.histdir ) )
-			f.write("&& ( %s %s_%d.json %s ) "                % ( cp, cfg.histfile[0], i, cfg.histdir ) )
-			f.write("&& ( %s histograms_%s_%d.csv %s ) " % ( cp, cfg.histfile[0], i, cfg.histdir ) )
+                        if not options.combine:
+			  f.write("&& ( %s %s_%d.json %s ) "                % ( cp, cfg.histfile[0], i, cfg.histdir ) )
+			  f.write("&& ( %s histograms_%s_%d.csv %s ) " % ( cp, cfg.histfile[0], i, cfg.histdir ) )
 		else:
-			f.write("if ( python fitter.py -i %s.dat ) "%(jobbasename))
+			f.write("if ( python %s -i %s.dat ) "%(whatRun,jobbasename))
 			for fn in ["","histograms_"]+options.addfiles:
 				f.write("&& ( %s %s%s.%s %s/%s%s_%d.%s ) " % ( cp, fn, cfg.histfile[0], cfg.histfile[1], cfg.histdir, fn, cfg.histfile[0], i, cfg.histfile[1] ) )
 			### f.write("&& ( %s %s.%s_ascii_events.txt %s/%s_%d.%s_ascii_events.txt ) " % ( cp, cfg.histfile[0], cfg.histfile[1], cfg.histdir, cfg.histfile[0], i, cfg.histfile[1] ) )
 			f.write("&& ( %s %s.%s %s/%s_%d.%s ) " % ( cp, cfg.outfile[0], cfg.outfile[1], cfg.histdir, cfg.outfile[0], i, cfg.outfile[1]) )
-			f.write("&& ( %s %s.json %s/%s_%d.json ) " % ( cp, cfg.histfile[0], cfg.histdir, cfg.histfile[0], i ) )
-			f.write("&& ( %s histograms_%s.csv %s/%s_%d.csv ) " % ( cp, cfg.histfile[0], cfg.histdir, cfg.histfile[0], i ) )
+                        if not options.combine:
+			  f.write("&& ( %s %s.json %s/%s_%d.json ) " % ( cp, cfg.histfile[0], cfg.histdir, cfg.histfile[0], i ) )
+		  	  f.write("&& ( %s histograms_%s.csv %s/%s_%d.csv ) " % ( cp, cfg.histfile[0], cfg.histdir, cfg.histfile[0], i ) )
 			
 				
 		f.write("; then\n")

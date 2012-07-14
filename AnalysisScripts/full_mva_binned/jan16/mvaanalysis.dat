@@ -11,6 +11,7 @@ nSystSteps=1
 
 scaleR9Only=0
 
+leadEtVBFCut=55
 subleadEtVBFCut=30
 
 # Testing Hypothesis
@@ -18,21 +19,26 @@ mHMinimum=110.0
 mHMaximum=150.0
 mHStep=0.1
 
-# choose between UCSD and MIT trainings
+
+# BDTs
 bdtTrainingPhilosophy=MIT
 photonLevelMvaUCSD=aux/ID_UCSD.weights.xml
 eventLevelMvaUCSD=aux/diphoton_UCSD.weights.xml
-photonLevelNewIDMVA_EB=aux/2012ICHEP_PhotonID_Barrel_BDT.weights.xml
-photonLevelNewIDMVA_EE=aux/2012ICHEP_PhotonID_Endcap_BDT.weights_PSCorr.xml
 photonLevelMvaMIT_EB=aux/TMVAClassificationPhotonID_Barrel_PassPreSel_Variable_10_BDTnCuts2000_BDT.weights.xml
 photonLevelMvaMIT_EE=aux/TMVAClassificationPhotonID_Endcap_PassPreSel_Variable_10_BDTnCuts2000_BDT.weights.xml
-eventLevelMvaMIT=aux/HggBambu_SMDipho_Jun19_BDTG.weights.xml
+eventLevelMvaMIT=aux/HggBambu_SMDipho_Jan16_BDTG.weights.xml
+
+# Signal reweighting file
+efficiencyFile=aux/sig_reweighing_jan16rereco_mva_v2.root
 
 # photon ID preselection
-phoidMvaCut=-0.2
+phoidMvaCut=-0.3
 
 # diphoton MVA cut
-diphotonMVAcut=-0.05
+diphotonMVAcut=0.05
+
+photonIDMVAShift_EB=0.
+photonIDMVAShift_EE=0.
 
 # Options for the sidebands mH ranges
 # These define how the sidebands are calculated
@@ -66,15 +72,15 @@ massSidebandMax=180.
 catByHand=0
 
 #  OptimizedBinEdges
-rederiveOptimizedBinEdges=0
-VbfBinEdges_110=1,1.04,1.08
-VbfBinEdges_115=1,1.04,1.08
-VbfBinEdges_120=1,1.04,1.08
-VbfBinEdges_125=1,1.04,1.08
-VbfBinEdges_130=1,1.04,1.08
-VbfBinEdges_135=1,1.04,1.08
-VbfBinEdges_140=1,1.04,1.08
-VbfBinEdges_150=1,1.04,1.08
+rederiveOptimizedBinEdges=0 
+VbfBinEdges_110=1,1.04
+VbfBinEdges_115=1,1.04
+VbfBinEdges_120=1,1.04
+VbfBinEdges_125=1,1.04
+VbfBinEdges_130=1,1.04
+VbfBinEdges_135=1,1.04
+VbfBinEdges_140=1,1.04
+VbfBinEdges_150=1,1.04
 GradBinEdges_110=-1,0.2016,0.4352,0.6068,0.7056,0.762,0.8152,1
 AdaBinEdges_110=-1,0.0688,0.156,0.2548,0.3316,0.3616,0.4304,1
 GradBinEdges_115=-1,0.1788,0.3984,0.5496,0.6452,0.7516,0.8068,1
@@ -91,14 +97,13 @@ GradBinEdges_140=-1,0.0008,0.2544,0.4856,0.6108,0.684,0.7808,1
 AdaBinEdges_140=-1,0.0708,0.1424,0.2208,0.268,0.3284,0.3812,1
 GradBinEdges_150=-1,0.0636,0.2716,0.478,0.5968,0.662,0.7636,1
 AdaBinEdges_150=-1,0.0024,0.0964,0.164,0.2336,0.282,0.3616,1
- 
                  
 # General Options
 
 nInclusiveCategories=1
 
 # Stuff for FullMvaToolkit
-nVBFCategories=2
+nVBFCategories=1
 nLEPCategories=0
 
 nEtaCategories=2
@@ -112,20 +117,8 @@ doTraining=0
 splitSignalSample=0
 splitBackgroundSample=0
 
-# choose between UCSD and MIT trainings
-#bdtTrainingPhilosophy=MIT
-#photonLevelMvaUCSD=aux/ID_UCSD.weights.xml
-#eventLevelMvaUCSD=aux/diphoton_UCSD.weights.xml
-#photonLevelNewIDMVA_EB=aux/2012ICHEP_PhotonID_Barrel_BDT.weights.xml
-#photonLevelNewIDMVA_EE=aux/2012ICHEP_PhotonID_Endcap_BDT.weights_PSCorr.xml
-#photonLevelMvaMIT_EB=aux/TMVAClassificationPhotonID_Barrel_PassPreSel_Variable_10_BDTnCuts2000_BDT.weights.xml
-#photonLevelMvaMIT_EE=aux/TMVAClassificationPhotonID_Endcap_PassPreSel_Variable_10_BDTnCuts2000_BDT.weights.xml
-#eventLevelMvaMIT=aux/HggBambu_SMDipho_Jan16_BDTG.weights.xml
 
 MVAtype=BDT
-
-# photon ID preselection
-#phoidMvaCut=-0.2
 
 # Turn on-off all smearings 
 doMCSmearing=1 
@@ -160,7 +153,8 @@ doPhotonMvaIdSyst=1
 doR9Smear=0
 doR9Syst=0
 
-doKFactorSmear=0
+# Correct central weight of ggh, but use scale variation only in Pt-Y
+doKFactorSmear=1
 doKFactorSyst=0
 
 doPdfWeightSmear=1
@@ -168,12 +162,8 @@ doPdfWeightSyst=1
 
 doInterferenceSmear=1
 
-mvaWeightsFolder=aux/sidebandMVA_weights_2012_test/
+mvaWeightsFolder=aux/sidebandMVA_weights/
 
-# Inputs for reweighing
-# - phoId and trigger: same as EPS,  https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/374.html
-# - vertexing from: https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/374/1.html
 
-efficiencyFile=aux/sig_reweighing_ichep2012topup_mva_v2.root
 
 

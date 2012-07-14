@@ -31,6 +31,9 @@ puMap=
 puHist=auto
 puTarget=aux/nov08_rereco.json.68000.pileup.root
 
+# ggh scale uncertainties (mva analyses)
+pdfWeightHist=aux/GF_mvasys.root
+
 ## energy regression
 energyCorrectionMethod=Bendavid
 doEcorrectionSmear=1
