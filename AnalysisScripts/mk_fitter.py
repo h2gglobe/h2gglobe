@@ -100,6 +100,7 @@ if __name__  == "__main__":
 	if options.runIC:
 	  filestocmb = ""
 	  for i in xrange(len(files)):
+                if cfg.histdir=='':cfg.histdir='./'
 		filestocmb += "typ=99999 Fil=%s/%s_%d.%s\n"  %(cfg.histdir,cfg.histfile[0],i,cfg.histfile[1])
 	  g.write( (datfile % filestocmb).replace("histfile=./","histfile=%s" % scriptdir ) )
 	  g.close()	
