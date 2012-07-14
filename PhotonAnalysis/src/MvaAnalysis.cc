@@ -370,13 +370,17 @@ void MvaAnalysis::Init(LoopAll& l)
     // UCSD
     l.tmvaReaderID_UCSD->BookMVA("Gradient"      ,photonLevelMvaUCSD.c_str()  );
     l.tmvaReader_dipho_UCSD->BookMVA("Gradient"  ,eventLevelMvaUCSD.c_str()   );
-    // New ID MVA
     cout << "Booking MVA..." << endl;
-    l.tmvaReaderID_Single_Barrel->BookMVA("AdaBoost",photonLevelNewIDMVA_EB.c_str());
-    l.tmvaReaderID_Single_Endcap->BookMVA("AdaBoost",photonLevelNewIDMVA_EE.c_str());
-    // MIT 
-    l.tmvaReaderID_MIT_Barrel->BookMVA("AdaBoost",photonLevelMvaMIT_EB.c_str());
-    l.tmvaReaderID_MIT_Endcap->BookMVA("AdaBoost",photonLevelMvaMIT_EE.c_str());
+    if (dataIs2011){
+        // MIT ID MVA
+        l.tmvaReaderID_MIT_Barrel->BookMVA("AdaBoost",photonLevelMvaMIT_EB.c_str());
+        l.tmvaReaderID_MIT_Endcap->BookMVA("AdaBoost",photonLevelMvaMIT_EE.c_str());
+    } else{
+      // New ID MVA
+      l.tmvaReaderID_Single_Barrel->BookMVA("AdaBoost",photonLevelNewIDMVA_EB.c_str());
+      l.tmvaReaderID_Single_Endcap->BookMVA("AdaBoost",photonLevelNewIDMVA_EE.c_str());
+    }
+
     l.tmvaReader_dipho_MIT->BookMVA("Gradient"   ,eventLevelMvaMIT.c_str()    );
     cout << "... done booking" << endl;
     // ----------------------------------------------------------------------//
@@ -412,14 +416,11 @@ void MvaAnalysis::Init(LoopAll& l)
 
             //Gradient Boost
             l.rooContainer->CreateDataSet("BDT",Form("data_BDT_grad_%3.1f",mass)     ,nBDTbins);
-            l.rooContainer->CreateDataSet("BDT",Form("bkg_BDT_grad_%3.1f",mass)      ,nBDTbins);
 
             for (int sideband_i=1;sideband_i<=numberOfSidebands;sideband_i++){
                 // Always create all of the sidebands, even if we skip some of them
                 // later on for the sums
 
-                l.rooContainer->CreateDataSet("BDT",Form("bkg_%dlow_BDT_grad_%3.1f",sideband_i,mass)  ,nBDTbins);
-                l.rooContainer->CreateDataSet("BDT",Form("bkg_%dhigh_BDT_grad_%3.1f",sideband_i,mass) ,nBDTbins);
                 l.rooContainer->CreateDataSet("BDT",Form("data_%dlow_BDT_grad_%3.1f",sideband_i,mass) ,nBDTbins);
                 l.rooContainer->CreateDataSet("BDT",Form("data_%dhigh_BDT_grad_%3.1f",sideband_i,mass),nBDTbins);
 
@@ -429,6 +430,21 @@ void MvaAnalysis::Init(LoopAll& l)
 
         // loop signal mass points signal datasets
         for (double sig=mHMinimum;sig<=mHMaximum;sig+=5.0){  // We are ignoring mass 105 for now
+
+            // Need background only in the 5GeV steps 
+
+            l.rooContainer->CreateDataSet("BDT",Form("bkg_BDT_grad_%3.1f",sig)      ,nBDTbins);
+            for (int sideband_i=1;sideband_i<=numberOfSidebands;sideband_i++){
+                // Always create all of the sidebands, even if we skip some of them
+                // later on for the sums
+
+                l.rooContainer->CreateDataSet("BDT",Form("bkg_%dlow_BDT_grad_%3.1f",sideband_i,sig) ,nBDTbins);
+                l.rooContainer->CreateDataSet("BDT",Form("bkg_%dhigh_BDT_grad_%3.1f",sideband_i,sig),nBDTbins);
+
+            }
+
+
+    
             if (sig==145.0) continue;
             l.rooContainer->CreateDataSet("BDT",Form("sig_BDT_grad_ggh_%3.1f",sig)      ,nBDTbins); 
             l.rooContainer->CreateDataSet("BDT",Form("sig_BDT_grad_vbf_%3.1f",sig)      ,nBDTbins); 
@@ -701,12 +717,20 @@ int MvaAnalysis::GetBDTBoundaryCategory(float bdtout, bool isEB, bool VBFevent){
     if (VBFevent) {
         //if (bdtout >= -0.05 && VBFevent==1) return 1;
         //if (bdtout >= -0.05 && VBFevent==2) return 2;
-        if (bdtout >= -0.05) return 1;
+        if (bdtout >= diphotonMVAcut) return 1;
         return -1;
     } else {
-        if (bdtout >= -0.05) return 0;
+        if (bdtout >= diphotonMVAcut) return 0;
         return -1;
     }
+}
+// ----------------------------------------------------------------------------------------------------
+void MvaAnalysis::fillLEETrees(LoopAll & l,float mass,float diphotonMVA, int category, float evweight, int cur_type){
+
+            l.FillTree("bdtoutput",diphotonMVA);
+            l.FillTree("CMS_hgg_mass",mass);
+            l.FillTree("category",category);
+            l.FillTree("weight",evweight);
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -799,6 +823,9 @@ void MvaAnalysis::FillRooContainer(LoopAll& l, int cur_type, float mass, float d
   if (doTraining){
     fillTMVATrees(l,mass,diphotonMVA,category,weight,cur_type);
   } else {
+
+    // Fill trees used for LEE / Asimov datacards
+    fillLEETrees(l,mass,diphotonMVA,category,weight,cur_type);
 
     // --- Fill invariant mass spectrum -------
     if (cur_type==0){  // Data
@@ -896,7 +923,6 @@ void MvaAnalysis::AccumulateSyst(int cur_type, float mass, float diphotonMVA,
 	if( mass>sideband_boundaries[0] && mass<sideband_boundaries[1]){
             if (catByHand && category<nInclusiveCategories_) category = byHandCat(mass,mass_hypothesis,diphotonMVA);
 			double syst_bdt_grad = tmvaGetVal(mass,mass_hypothesis,diphotonMVA);
-            std::cout << "In the systematics Loop --> " << category << " " << syst_bdt_grad << " " << diphotonMVA << " " <<weight << std::endl;
 			categories.push_back(category);
 			mva_errors.push_back(syst_bdt_grad);
 			weights.push_back(weight);

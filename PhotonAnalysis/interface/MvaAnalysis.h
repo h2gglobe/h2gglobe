@@ -89,6 +89,8 @@ class MvaAnalysis : public MassFactorizedMvaAnalysis
     // Categorize by hand
     bool catByHand;
 
+    double diphotonMVAcut;
+
     // Bin edges pre-defined
     bool rederiveOptimizedBinEdges;
     std::vector<double> VbfBinEdges_110, GradBinEdges_110, AdaBinEdges_110;
@@ -105,6 +107,7 @@ class MvaAnalysis : public MassFactorizedMvaAnalysis
     float tmvaGetVal(double,double,float);
     int byHandCat(double,double,float);
     void fillTMVATrees(LoopAll &l,float,float,int,float,int);
+    void fillLEETrees(LoopAll &l,float,float,int,float,int);
 
     virtual void FillRooContainer(LoopAll& l, int cur_type, float mass, float diphotonMVA, int category, float weight, bool isCorrectVertex);
 
