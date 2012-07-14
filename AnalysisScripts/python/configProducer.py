@@ -752,7 +752,7 @@ class configProducer:
         
     if dir:
       files = mkFiles(dir,self.njobs_,self.jobId_,self.nf_)
-      if fi_type!=0 and fi_type!=-99999 and map_c["tot"] == 0:
+      if fi_type!=0 and fi_type!=99999 and map_c["tot"] == 0:
           allfiles = mkFiles(dir,-1,-1)
           if map_c["pileup"] == "":
               map_c["pileup"] = "%s.pileup.root" % dir
