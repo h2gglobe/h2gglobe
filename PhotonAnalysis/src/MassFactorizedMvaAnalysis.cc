@@ -1001,7 +1001,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
         // fill control plots and counters
 	    if( ! isSyst ) {
             
-            if(category>-1){
+        /*    if(category>-1){
                 l.FillHist("sigmaMrv",category,sigmaMrv,evweight);
                 l.FillHist("sigmaMwv",category,sigmaMwv,evweight);
                 l.FillHist("vertexZ_gen",category,((TVector3*)l.gv_pos->At(0))->Z(),evweight);
@@ -1028,6 +1028,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
             l.FillTree("vtxProb",vtxProb);
             l.FillTree("cur_type",cur_type);
             l.FillTree("CMS_hgg_mass",float(Higgs.M()));
+        */
             
 	        l.FillCounter( "Accepted", weight );
 	        l.FillCounter( "Smeared", evweight );
