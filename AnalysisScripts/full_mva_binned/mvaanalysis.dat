@@ -98,7 +98,9 @@ AdaBinEdges_150=-1,0.0024,0.0964,0.164,0.2336,0.282,0.3616,1
 nInclusiveCategories=1
 
 # Stuff for FullMvaToolkit
+includeVBF=1
 nVBFCategories=2
+includeLEP=0
 nLEPCategories=0
 
 nEtaCategories=2
