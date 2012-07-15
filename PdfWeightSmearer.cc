@@ -3,6 +3,7 @@
 #include "TRandom3.h"
 #include "TMath.h"
 #include <assert.h>
+#include <algorithm>
 
 PdfWeightSmearer::PdfWeightSmearer(const  std::string & theFile,  std::string dId , std::string uId ) : efficiency_file(theFile) , downId(dId), upId(uId)
 {
@@ -93,5 +94,6 @@ double PdfWeightSmearer::getWeight( const TLorentzVector & p4, const int nPu, fl
   double nominal   = getPdfWeight( 0, 0, gPT, gY );
   double variation = getPdfWeight( 0, varId, gPT, gY );
 
-  return ( TMath::Power(variation/nominal, syst_shift) );
+  return ( max( 1. + syst_shift * (1.-variation/nominal), 0.) ) ;
+
 }
