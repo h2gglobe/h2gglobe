@@ -31,7 +31,7 @@ public:
   
  protected:
   
-  double getWeight( const TLorentzVector & p4, const int nPu, const int & genMassPoint, float syst_shift=0.) const;
+  double getWeight( const TLorentzVector & p4, const int nPu, float syst_shift=0.) const;
   
   std::string   name_;
   std::string   KFName_;
