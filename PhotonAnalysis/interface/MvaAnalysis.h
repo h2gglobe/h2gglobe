@@ -46,8 +46,6 @@ class MvaAnalysis : public MassFactorizedMvaAnalysis
     
    
     double mHMaximum, mHMinimum, mHStep; 
-    float systRange;
-    int   nSystSteps;  
     int nInclusiveCategories, nVBFCategories, nLEPCategories;
     float massMin, massMax;
     int nDataBins;  
