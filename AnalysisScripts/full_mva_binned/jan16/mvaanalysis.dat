@@ -17,7 +17,7 @@ subleadEtVBFCut=30
 # Testing Hypothesis
 mHMinimum=110.0
 mHMaximum=150.0
-mHStep=0.1
+mHStep=10
 
 
 # BDTs
@@ -72,7 +72,8 @@ massSidebandMax=180.
 catByHand=0
 
 #  OptimizedBinEdges
-rederiveOptimizedBinEdges=0 
+
+rederiveOptimizedBinEdges=0
 VbfBinEdges_110=1,1.04
 VbfBinEdges_115=1,1.04
 VbfBinEdges_120=1,1.04
