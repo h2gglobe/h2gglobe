@@ -22,15 +22,16 @@ void PdfWeightSmearer::readFile(std::string uId, std::string dId ){
   assert(temp!=0);    kFactorSmearers_[0]=(TH2F*) temp->Clone(("Hmasscent")); kFactorSmearers_[0]->SetDirectory(0);
 
   temp = (TH2F*) thePdfWeightFile_->Get( Form("GF_%s",uId.c_str()) );
-  // There is a problem with the "up" histogram, its 10x as big as it should be !"
   assert(temp!=0);    kFactorSmearers_[1]=(TH2F*) temp->Clone(("Hmass_up")); kFactorSmearers_[1]->SetDirectory(0);
-  if (uId=="up"){
-	std::cout << "PdfWeightSmearer -- Up Histogram seems to be larger by a factor of 10 than it should be !, scaling it down!!" <<std::endl;
-	kFactorSmearers_[1]->Scale(0.1);
+  if (uId=="up"|| uId=="down"){
+	kFactorSmearers_[1]->Scale(kFactorSmearers_[0]->Integral()/kFactorSmearers_[1]->Integral());
   }
 
   temp = (TH2F*) thePdfWeightFile_->Get( Form("GF_%s",dId.c_str()) );
   assert(temp!=0);    kFactorSmearers_[2]=(TH2F*) temp->Clone(("Hmass_down")); kFactorSmearers_[2]->SetDirectory(0);
+  if (dId=="up"|| dId=="down"){
+	kFactorSmearers_[2]->Scale(kFactorSmearers_[0]->Integral()/kFactorSmearers_[2]->Integral());
+  }
 
 }
 
