@@ -23,7 +23,7 @@ FMTSigInterp::FMTSigInterp(string filename, double intLumi, bool is2011, bool di
   blind_(blind)
 {
   tFile = TFile::Open(filename.c_str(),"UPDATE");
-  normalizer = new Normalization_8TeV();
+  normalizer = new Normalization_8TeV(is2011);
 
 }
 

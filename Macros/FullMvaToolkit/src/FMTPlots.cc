@@ -280,12 +280,14 @@ void FMTPlots::plotSidebands(TH1F *bkg, vector<TH1F*> dataSideLow, vector<TH1F*>
   c1->cd();
   leg1->Draw("same");
   text->DrawLatex(0.13,0.30,"CMS preliminary");
-  text->DrawLatex(0.20,0.23,"#sqrt{s} = 7 TeV");
+  if (getis2011()) text->DrawLatex(0.20,0.23,"#sqrt{s} = 7 TeV");
+  else text->DrawLatex(0.20,0.23,"#sqrt{s} = 8 TeV");
   text->DrawLatex(0.18,0.15,Form("#int L = %1.1f fb^{-1}",getintLumi()));
   c2->cd();
   leg2->Draw("same");
   text->DrawLatex(0.13,0.30,"CMS preliminary");
-  text->DrawLatex(0.20,0.23,"#sqrt{s} = 7 TeV");
+  if (getis2011())text->DrawLatex(0.20,0.23,"#sqrt{s} = 7 TeV");
+  else text->DrawLatex(0.20,0.23,"#sqrt{s} = 8 TeV");
   text->DrawLatex(0.18,0.15,Form("#int L = %1.1f fb^{-1}",getintLumi()));
 
   c1->SetLogy();
@@ -331,6 +333,7 @@ void FMTPlots::plotOutput(TH1F* data, TH1F* bkg, TH1F* sig, TH1F* sig3, TH1F* si
   txt->Draw("same");
   canv->SetLogy();
   canv->SaveAs(Form("plots/pdf/output_mH_%3.1f.pdf",mh));
+  canv->SaveAs(Form("plots/macro/output_mH_%3.1f.C",mh));
   canv->SaveAs(Form("plots/png/output_mH_%3.1f.png",mh));
 
   TH1F *diff = (TH1F*)data->Clone();
@@ -349,6 +352,7 @@ void FMTPlots::plotOutput(TH1F* data, TH1F* bkg, TH1F* sig, TH1F* sig3, TH1F* si
   txt->Draw("same");
   canv->SetLogy();
   canv->SaveAs(Form("plots/pdf/diff_output_mH_%3.1f.pdf",mh));
+  canv->SaveAs(Form("plots/macro/diff_output_mH_%3.1f.C",mh));
   canv->SaveAs(Form("plots/png/diff_output_mH_%3.1f.png",mh));
 
   delete canv;
@@ -359,10 +363,15 @@ void FMTPlots::plotOutput(TH1F* data, TH1F* bkg, TH1F* sig, TH1F* sig3, TH1F* si
 
 
 void FMTPlots::plotAll(double mh){
-  
+ 
+  if (!(mh==110||mh==120||mh==130||mh==140||mh==150) ) {
+	return;
+  }
+  std::cout << "Plotting MC/Data for mass "<<mh<<std::endl;
   TH1F *bkg = (TH1F*)tFile->Get(Form("th1f_bkg_grad_%3.1f_fitsb_biascorr",mh));
   TH1F *bkgmc = (TH1F*)tFile->Get(Form("th1f_bkg_mc_grad_%3.1f",mh));
   TH1F *data = (TH1F*)tFile->Get(Form("th1f_data_grad_%3.1f",mh));
+ // TH1F *bkgmc = (TH1F*) data->Clone();
 
   TH1F *sig = (TH1F*)((TH1F*)tFile->Get(Form("th1f_sig_grad_ggh_%3.1f",mh)))->Clone();
   sig->Add((TH1F*)tFile->Get(Form("th1f_sig_grad_vbf_%3.1f",mh)));
@@ -458,9 +467,11 @@ void FMTPlots::makeNormPlot(){
 	text->SetTextSize(0.04);
 	text->SetNDC();
 	text->DrawLatex(0.68,0.85,"CMS preliminary");
-  text->DrawLatex(0.75,0.78,"#sqrt{s} = 7 TeV");
+  if (getis2011()) text->DrawLatex(0.75,0.78,"#sqrt{s} = 7 TeV");
+  else text->DrawLatex(0.75,0.78,"#sqrt{s} = 8 TeV");
   text->DrawLatex(0.73,0.71,Form("#int L = %1.1f fb^{-1}",getintLumi()));
   canv->SaveAs("plots/pdf/fit_all_norm.pdf");
+  canv->SaveAs("plots/macro/fit_all_norm.C");
   canv->SaveAs("plots/png/fit_all_norm.png");
 	delete normG;
 	delete canv;
@@ -567,7 +578,8 @@ void FMTPlots::plotByMH(string pathname, double mh, TH1F *data, TH1F *sig, TH1F 
 	text->Draw("same");
 	massText->Draw("same");
 	up->SetLogy();
-	runText->DrawLatex(0.1,0.94,"CMS preliminary, #sqrt{s} = 7 TeV");
+	if (getis2011())runText->DrawLatex(0.1,0.94,"CMS preliminary, #sqrt{s} = 7 TeV");
+	else runText->DrawLatex(0.1,0.94,"CMS preliminary, #sqrt{s} = 8 TeV");
 	runText->SetTextSize(0.04);
 	runText->DrawLatex(0.5,0.94,"#int L = 5.1");
 

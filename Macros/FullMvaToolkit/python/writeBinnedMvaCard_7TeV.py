@@ -25,7 +25,6 @@ g_expdijet		= 0.00495
 
 # Some "Global" Variables
 # PLOT OPS ----------------
-lumistring = "5.1 fb^{-1}"
 sigscale   = 5.
 # THEORY SYSTEMATICS ------
 lumi 		= "1.022"
@@ -44,7 +43,8 @@ systematics = [
 	      ,"idEff"
 	      ,"phoIdMva"
 	      ,"regSig"
-	      ,"kFactor"
+	      #,"kFactor"
+	      ,"pdfWeight"
 	      ,"triggerEff"
 	      ,"vtxEff"
 	      ]
@@ -122,6 +122,7 @@ def plainBin(hist):
 
 def plotDistributions(mass,data,signals,bkg,errors):
 
+	lumistring = "%1.1f fb^{-1}"%(options.intLumi)
 	if options.splitSignal: # last signal is separated off
 	  for i in range(1,len(signals)-1):
 		signals[0].Add(signals[i])
@@ -176,7 +177,7 @@ def plotDistributions(mass,data,signals,bkg,errors):
 	mytext = ROOT.TLatex();mytext.SetTextSize(0.03);mytext.SetNDC();mytext.DrawLatex(0.1,0.92,"CMS preliminary,  #sqrt{s} = 7 TeV ");mytext.SetTextSize(0.04)
 	mytext.DrawLatex(0.2,0.8,"#int L = %s"%(lumistring))
 	leg.Draw()
-	c.SaveAs(plotOutDir+"/model_m%3.1f.pdf"%mass);c.SaveAs(plotOutDir+"/model_m%3.1f.png"%mass)
+	c.SaveAs(plotOutDir+"/pdf/model_m%3.1f.pdf"%mass);c.SaveAs(plotOutDir+"/macro/model_m%3.1f.C"%mass);c.SaveAs(plotOutDir+"/png/model_m%3.1f.png"%mass)
 	
 	d = ROOT.TCanvas()
 	leg2 = ROOT.TLegend(0.56,0.56,0.88,0.88)
@@ -211,7 +212,7 @@ def plotDistributions(mass,data,signals,bkg,errors):
 	leg2.Draw()
 	mytext = ROOT.TLatex();mytext.SetTextSize(0.03);mytext.SetNDC();mytext.DrawLatex(0.1,0.92,"CMS preliminary,  #sqrt{s} = 7 TeV ");mytext.SetTextSize(0.04)
 	mytext.DrawLatex(0.2,0.8,"#int L = %s"%(lumistring))
-	d.SaveAs(plotOutDir+"/diff_model_m%3.1f.pdf"%mass);d.SaveAs(plotOutDir+"/diff_model_m%3.1f.png"%mass)
+	d.SaveAs(plotOutDir+"/pdf/diff_model_m%3.1f.pdf"%mass);d.SaveAs(plotOutDir+"/macro/diff_model_m%3.1f.C"%mass);d.SaveAs(plotOutDir+"/png/diff_model_m%3.1f.png"%mass)
 	
 
 
@@ -247,23 +248,24 @@ def getPoissonBinContent(hist,b,exp):
 
 def writeCard(tfile,mass,scaleErr):
 
+  lumistring = "%1.1f fb^{-1}"%(options.intLumi)
   print "Writing Datacard for mass -> ", mass
   outPut = open(cardOutDir+"/mva-datacard_"+runtype+"_%3.1f.txt"%mass,"w")
 
   # Get All of the histograms we are going to use
   # Data ->
-  dataHist = tfile.Get("th1f_data_"+runtype+"_%3.1f_cat0"%mass)
+  dataHist = tfile.Get("th1f_data_"+runtype+"_%3.1f"%mass)
   nBins    = dataHist.GetNbinsX()
   print "Number of Channels -> ", nBins
   # bkg model ->
-  bkgHist  	= tfile.Get("th1f_bkg_"+runtype+"_%3.1f_cat0"%mass)
+  bkgHist  	= tfile.Get("th1f_bkg_"+runtype+"_%3.1f"%mass)
   
-  if options.Bias: bkgHistCorr   = tfile.Get("th1f_bkg_"+runtype+"_%3.1f_cat0_fitsb_biascorr"%mass)
+  if options.Bias: bkgHistCorr   = tfile.Get("th1f_bkg_"+runtype+"_%3.1f_fitsb_biascorr"%mass)
   # 4 signal channels ->
-  gghHist  = tfile.Get("th1f_sig_"+runtype+"_ggh_%3.1f_cat0"%mass)
-  vbfHist  = tfile.Get("th1f_sig_"+runtype+"_vbf_%3.1f_cat0"%mass)
-  wzhHist  = tfile.Get("th1f_sig_"+runtype+"_wzh_%3.1f_cat0"%mass)
-  tthHist  = tfile.Get("th1f_sig_"+runtype+"_tth_%3.1f_cat0"%mass)
+  gghHist  = tfile.Get("th1f_sig_"+runtype+"_ggh_%3.1f"%mass)
+  vbfHist  = tfile.Get("th1f_sig_"+runtype+"_vbf_%3.1f"%mass)
+  wzhHist  = tfile.Get("th1f_sig_"+runtype+"_wzh_%3.1f"%mass)
+  tthHist  = tfile.Get("th1f_sig_"+runtype+"_tth_%3.1f"%mass)
 
   if options.signalyieldsweight > 0:
     print "Re-weighting Signal yields x %d"%signalyieldsweight
@@ -451,14 +453,14 @@ def writeCard(tfile,mass,scaleErr):
    print "Writing Systematics Part (could be slow)"
    for sys in systematics:
 
-    gghHistU  = tfile.Get("th1f_sig_"+runtype+"_ggh_%3.1f_cat0_%sUp01_sigma"%(mass,sys))
-    vbfHistU  = tfile.Get("th1f_sig_"+runtype+"_vbf_%3.1f_cat0_%sUp01_sigma"%(mass,sys))
-    wzhHistU  = tfile.Get("th1f_sig_"+runtype+"_wzh_%3.1f_cat0_%sUp01_sigma"%(mass,sys))
-    tthHistU  = tfile.Get("th1f_sig_"+runtype+"_tth_%3.1f_cat0_%sUp01_sigma"%(mass,sys))
-    gghHistD  = tfile.Get("th1f_sig_"+runtype+"_ggh_%3.1f_cat0_%sDown01_sigma"%(mass,sys))
-    vbfHistD  = tfile.Get("th1f_sig_"+runtype+"_vbf_%3.1f_cat0_%sDown01_sigma"%(mass,sys))
-    wzhHistD  = tfile.Get("th1f_sig_"+runtype+"_wzh_%3.1f_cat0_%sDown01_sigma"%(mass,sys))
-    tthHistD  = tfile.Get("th1f_sig_"+runtype+"_tth_%3.1f_cat0_%sDown01_sigma"%(mass,sys))
+    gghHistU  = tfile.Get("th1f_sig_"+runtype+"_ggh_%3.1f_%sUp01_sigma"%(mass,sys))
+    vbfHistU  = tfile.Get("th1f_sig_"+runtype+"_vbf_%3.1f_%sUp01_sigma"%(mass,sys))
+    wzhHistU  = tfile.Get("th1f_sig_"+runtype+"_wzh_%3.1f_%sUp01_sigma"%(mass,sys))
+    tthHistU  = tfile.Get("th1f_sig_"+runtype+"_tth_%3.1f_%sUp01_sigma"%(mass,sys))
+    gghHistD  = tfile.Get("th1f_sig_"+runtype+"_ggh_%3.1f_%sDown01_sigma"%(mass,sys))
+    vbfHistD  = tfile.Get("th1f_sig_"+runtype+"_vbf_%3.1f_%sDown01_sigma"%(mass,sys))
+    wzhHistD  = tfile.Get("th1f_sig_"+runtype+"_wzh_%3.1f_%sDown01_sigma"%(mass,sys))
+    tthHistD  = tfile.Get("th1f_sig_"+runtype+"_tth_%3.1f_%sDown01_sigma"%(mass,sys))
 
     if options.signalyieldsweight > 0:
       gghHistU.Scale(signalyieldsweight)
@@ -534,6 +536,7 @@ def writeCard(tfile,mass,scaleErr):
 
 parser = OptionParser()
 parser.add_option("-i","--input",dest="tfileName")
+parser.add_option("","--intLumi",dest="intLumi",type="float")
 parser.add_option("","--noB2B",action="store_false",dest="B2B",default=True)
 #parser.add_option("","--addBias",dest="biasFile",default=None)
 parser.add_option("","--noBias",dest="Bias",default=True,action="store_false")
@@ -561,9 +564,17 @@ parser.add_option("-m","--mass",dest="singleMass",default=-1.,type="float")
 parser.add_option("-t","--type",dest="bdtType",default="grad");
 parser.add_option("-o","--outputDir",dest="outputDir",default="mva-datacards-")
 parser.add_option("-p","--outputPlot",dest="outputPlot")
+parser.add_option("-l","--mhLow",dest="mhLow",type="float",default=110.)
+parser.add_option("-u","--mhHigh",dest="mhHigh",type="float",default=150.)
+parser.add_option("-s","--mhStep",dest="mhStep",type="float",default=0.5)
 
 
 (options,args)=parser.parse_args()
+
+# This script will always be 2011, all editing for 2012 and 2011 should be done in writeBinnedMvaCard.py
+options.is2011 = True
+# -------------------------------------------------------------------
+
 print "Creating Binned Datacards from workspace -> ", options.tfileName
 if options.throwToy: print ("Throwing Toy dataset from BKG")
 if options.throwGlobalToy: print ("Throwing Global Toy dataset from BKG"); options.throwToy=True
@@ -613,7 +624,7 @@ genMasses     = [110,115,120,125,130,135,140,145,150]
 scalingErrors = [1.01072,1.01097,1.01061,1.01019,1.01234,1.01306,1.01519,1.01554,1.01412] # P.Dauncey 100-180, 2% window, MIT presel + BDT > 0.05 , Jan16 ReReco 15Apr (Pow2 Fit)
 
 #evalMasses    = numpy.arange(110,150.5,0.5)
-evalMasses    = numpy.arange(110.0,150.5,0.5)
+evalMasses    = numpy.arange(options.mhLow,options.mhHigh+options.mhStep,options.mhStep)
 normG = ROOT.TGraph(len(genMasses))
 
 # Fill the errors graph

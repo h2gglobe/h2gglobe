@@ -546,6 +546,7 @@ void paulFit(TDirectory *mDir,TH1F* fMFitS,TH1F* hMFitS,TH2F* hFCovar, bool make
 		if (makePlots){
 			can->Print(Form("plots/png/fit_m%3.1f_bin%d.png",global_mH,j));
 			can->Print(Form("plots/pdf/fit_m%3.1f_bin%d.pdf",global_mH,j));
+			can->Print(Form("plots/macro/fit_m%3.1f_bin%d.C",global_mH,j));
 		}
 	}
 
@@ -565,10 +566,12 @@ void paulFit(TDirectory *mDir,TH1F* fMFitS,TH1F* hMFitS,TH2F* hFCovar, bool make
 		hFCorr->Draw("colz text");
 		canv->Print(Form("plots/png/fCorr_m%3.1f.png",global_mH));
 		canv->Print(Form("plots/pdf/fCorr_m%3.1f.pdf",global_mH));
+		canv->Print(Form("plots/macro/fCorr_m%3.1f.C",global_mH));
 		hFCovar->SetMarkerColor(kGray+2);
 		hFCovar->Draw("colz text");
 		canv->Print(Form("plots/png/fCovar_m%3.1f.png",global_mH));
 		canv->Print(Form("plots/pdf/fCovar_m%3.1f.pdf",global_mH));
+		canv->Print(Form("plots/macro/fCovar_m%3.1f.C",global_mH));
 	}
 
 }
@@ -617,6 +620,7 @@ void createCorrectedBackgroundModel(std::string fileName, int nsidebands=6, doub
 	double massMax = mHHigh;
 	double dM  = mHStep;
 
+	std::cout<< "STARTING HERE" <<std::endl;
 	// Open the original Workspace
 	TFile *in = TFile::Open(fileName.c_str(),"UPDATE");
 	RooWorkspace *work = (RooWorkspace*)in->Get("cms_hgg_workspace");
@@ -628,12 +632,16 @@ void createCorrectedBackgroundModel(std::string fileName, int nsidebands=6, doub
 	std::string pathToFile=fileName.substr(0,fileName.find(defaultPrepend.c_str()));
 	std::string fName=fileName.substr(fileName.find(defaultPrepend.c_str()),fileName.size());
 	TFile *out = new TFile(Form("%sbdtSidebandFits_%s_%s",pathToFile.c_str(),type.c_str(),fName.c_str()),"RECREATE");
+	std::cout<< "STARTING LOOP OVER MH" <<std::endl;
 	for (double mH=massMin;mH<=massMax;mH+=dM){
 
 		//TH1F *originalHist      = (TH1F*) in->Get(Form("th1f_bkg_%s_%3.1f",type.c_str(),mH)); // This histogram is normalized to the inclusive fit (will not include VBF cat)
 		RooRealVar *nSignalVar = (RooRealVar*)work->var(Form("NBkgInSignal_mH%3.1f",mH));
+		std::cout<< "Got NBKG" <<std::endl;
 		TH1F *dataHist  = (TH1F*) in->Get(Form("th1f_data_%s_%3.1f",type.c_str(),mH)); // Data Histogram, includes VBF category
+		std::cout<< "Got data" <<std::endl;
 		int nBins = dataHist->GetNbinsX();
+		std::cout<< "Get Norm and datahist" <<std::endl;
 
 		// Want to make a "corrected" histogram 
 		TH1F *correctedHist = new TH1F(Form("th1f_bkg_%s_%3.1f_fitsb_biascorr",type.c_str(),mH),Form("th1f_bkg_%s_%3.1f_fitsb_biascorr",type.c_str(),mH),nBins,0,nBins);		     
@@ -652,7 +660,9 @@ void createCorrectedBackgroundModel(std::string fileName, int nsidebands=6, doub
 		global_mH=mH;
 		global_nSignalRegion=nSignalVar->getVal();
 
+		std::cout<< "Getting Sidebands" <<std::endl;
 		fillData(mH,in,type);
+		std::cout<< "Run Paul Fit" <<std::endl;
 		paulFit(mass_dir,correctedHistFR,correctedHist,hFCovar,makePlots,type);
 
 		// Finally Get the uncorrleated errors from the covariance matrix
@@ -680,6 +690,7 @@ void createCorrectedBackgroundModel(std::string fileName, int nsidebands=6, doub
 			uCorrErr->Draw("colz text");
 			canv->Print(Form("plots/png/uncorrErr_m%3.1f.png",mH));
 			canv->Print(Form("plots/pdf/uncorrErr_m%3.1f.pdf",mH));
+			canv->Print(Form("plots/macro/uncorrErr_m%3.1f.C",mH));
 		}
 	}
 	std::cout << "Saving Fits to file -> " << out->GetName() << std::endl;

@@ -165,6 +165,7 @@ void FMTSetup::OptionParser(int argc, char *argv[]){
   if (diagnose_) {
     system("mkdir -p plots/png");
     system("mkdir -p plots/pdf");
+    system("mkdir -p plots/macro");
   }
 	printPassedOptions();
   if (dumpDatFile_) dumpDatFile(dumpDatFil_);
@@ -238,7 +239,6 @@ void FMTSetup::ReadRunConfig(){
 		if (sline.find("numberOfSidebandGaps=")!=string::npos)				setnumberOfSidebandGaps(getOptFromConfig<int>(sline));
 		if (sline.find("massSidebandMin=")!=string::npos)							setmassSidebandMin(getOptFromConfig<double>(sline));
 		if (sline.find("massSidebandMax=")!=string::npos)							setmassSidebandMax(getOptFromConfig<double>(sline));
-
     if (sline.find("nInclusiveCategories=")!=string::npos)        setnIncCateogies(getOptFromConfig<int>(sline));
 		if (sline.find("includeVBF=")!=string::npos)									setincludeVBF(getOptFromConfig<bool>(sline));
     if (sline.find("nVBFCategories=")!=string::npos)              setnVBFCategories(getOptFromConfig<int>(sline));
@@ -255,6 +255,7 @@ void FMTSetup::ReadRunConfig(){
     if (sline.find("doPhotonMvaIdSyst=")!=string::npos)           if (getOptFromConfig<bool>(sline)) setsystematic("phoIdMva"); 
     if (sline.find("doR9Syst=")!=string::npos)                    if (getOptFromConfig<bool>(sline)) setsystematic("r9Eff"); 
     if (sline.find("doKFactorSyst=")!=string::npos)               if (getOptFromConfig<bool>(sline)) setsystematic("kFactor");
+    if (sline.find("doPdfWeightSyst=")!=string::npos)             if (getOptFromConfig<bool>(sline)) setsystematic("pdfWeight");
 
     if (sline.find("rederiveOptimizedBinEdges=")!=string::npos)   setrederiveOptimizedBinEdges(getOptFromConfig<bool>(sline));
     for (int m=110; m<=150; m+=5){
@@ -411,10 +412,10 @@ void FMTSetup::writeDataCards(){
 	if (datacards_){
 		cout << "Preparing to write datacards...." << endl;
 		if (getis2011()){
-      cerr << "This option isn't supported yet. You will have to do this by hand. Sorry :( " << endl;
-      exit(0);
-      //if (blinding_) system(Form("python python/writeBinnedMvaCard.py -i %s -p plots --makePlot --mhLow %3d.0 --mhHigh %3d.0 --mhStep %1.1f --intLumi %1.1f --is2011 --blind",filename_.c_str(),getmHMinimum(),getmHMaximum(),getmHStep(),getintLumi()));
-      //else system(Form("python python/writeBinnedMvaCard.py -i %s -p plots --makePlot --mhLow %3d.0 --mhHigh %3d.0 --mhStep %1.1f --intLumi %1.1f --is2011",filename_.c_str(),getmHMinimum(),getmHMaximum(),getmHStep(),getintLumi()));
+     // cerr << "This option isn't supported yet. You will have to do this by hand. Sorry :( " << endl;
+     // exit(0);
+      if (blinding_) system(Form("python python/writeBinnedMvaCard_7TeV.py -i %s -p plots --makePlot --mhLow %3d.0 --mhHigh %3d.0 --mhStep %1.1f --intLumi %1.1f --blind",filename_.c_str(),getmHMinimum(),getmHMaximum(),getmHStep(),getintLumi()));
+      else system(Form("python python/writeBinnedMvaCard_7TeV.py -i %s -p plots --makePlot --mhLow %3d.0 --mhHigh %3d.0 --mhStep %1.1f --intLumi %1.1f ",filename_.c_str(),getmHMinimum(),getmHMaximum(),getmHStep(),getintLumi()));
     }
     else {
       if (blinding_) system(Form("python python/writeBinnedMvaCard.py -i %s -p plots --makePlot --mhLow %3d.0 --mhHigh %3d.0 --mhStep %1.1f --intLumi %1.1f --blind",filename_.c_str(),getmHMinimum(),getmHMaximum(),getmHStep(),getintLumi()));
