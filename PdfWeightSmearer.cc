@@ -23,14 +23,17 @@ void PdfWeightSmearer::readFile(std::string uId, std::string dId ){
 
   temp = (TH2F*) thePdfWeightFile_->Get( Form("GF_%s",uId.c_str()) );
   assert(temp!=0);    kFactorSmearers_[1]=(TH2F*) temp->Clone(("Hmass_up")); kFactorSmearers_[1]->SetDirectory(0);
-  if (uId=="up"|| uId=="down"){
-	kFactorSmearers_[1]->Scale(kFactorSmearers_[0]->Integral()/kFactorSmearers_[1]->Integral());
+  if (uId=="up"){
+	// up seems to be a factor of 10 larger than it should!
+	kFactorSmearers_[1]->Scale(0.1);
+//	kFactorSmearers_[1]->Scale(kFactorSmearers_[0]->Integral()/kFactorSmearers_[1]->Integral());
   }
 
   temp = (TH2F*) thePdfWeightFile_->Get( Form("GF_%s",dId.c_str()) );
   assert(temp!=0);    kFactorSmearers_[2]=(TH2F*) temp->Clone(("Hmass_down")); kFactorSmearers_[2]->SetDirectory(0);
-  if (dId=="up"|| dId=="down"){
-	kFactorSmearers_[2]->Scale(kFactorSmearers_[0]->Integral()/kFactorSmearers_[2]->Integral());
+  if (dId=="up"){
+	kFactorSmearers_[2]->Scale(0.1);
+//	kFactorSmearers_[2]->Scale(kFactorSmearers_[0]->Integral()/kFactorSmearers_[2]->Integral());
   }
 
 }
