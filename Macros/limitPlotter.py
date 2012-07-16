@@ -36,6 +36,7 @@ FILLCOLOR_95=ROOT.kYellow
 FILLCOLOR_68=ROOT.kGreen
 RANGEYABS=[0.0,0.6]
 RANGEYRAT=[0.0,4]
+RANGEMU = [-1,2.0]
 MINPV = 0.5*10E-8
 MAXPV = 1.0
 Lines = [1.,2.,3.,4.]
@@ -75,6 +76,9 @@ if options.pval:
 	 EXPmasses=[]
 	 options.doRatio=True
 
+if options.Method=="MaxLikelihoodFit": 
+	options.doRatio = True
+
 if not options.doRatio and options.Method != "Frequentist": 
 	ROOT.gROOT.ProcessLine(".L medianCalc.C++")
 	from ROOT import medianCalc
@@ -88,9 +92,11 @@ if options.bayes:
 Method = options.Method
 if not options.path: options.path=Method
 
+
 EXPName = options.path+"/higgsCombineEXPECTED."+Method
+if Method =="MaxLikelihoodFit": EXPName = options.path+"/higgsCombineTest."+Method
 if Method == "Asymptotic" or Method == "AsymptoticNew":  EXPName = options.path+"/higgsCombineTest."+Method  # everyhting contained here
-if Method == "ProfileLikelihood" or Method=="Asymptotic" or Method=="AsymptoticNew":
+if Method == "ProfileLikelihood" or Method=="Asymptotic" or Method=="AsymptoticNew" or Method=="MaxLikelihoodFit":
   OBSName = options.path+"/higgsCombineTest."+Method
 if Method == "Bayesian":
   OBSName = options.path+"/higgsCombineOBSERVED.MarkovChainMC"
@@ -128,7 +134,7 @@ if Method=="HybridNew":
       EXPfiles.append(ROOT.TFile(EXPName+".mH%.1f.quant0.500.root"%m))
     if options.verbose: print "expected MH - ", m, "File - ", EXPfiles[-1].GetName()
   
-elif Method=="Asymptotic" or Method=="AsymptoticNew":
+elif Method=="Asymptotic" or Method=="AsymptoticNew" or Method=="MaxLikelihoodFit":
   EXPfiles=[]
   EXPmasses = OBSmasses[:]
   for m in EXPmasses:
@@ -182,13 +188,80 @@ graphmede = ROOT.TGraphErrors()
 
 graph68.SetLineColor(1)
 graph95.SetLineColor(1)
-graph68.SetLineStyle(2)
-graph95.SetLineStyle(2)
+graph68.SetLineStyle(1)
+graph95.SetLineStyle(1)
 graph68.SetLineWidth(2)
 graph95.SetLineWidth(2)
 
 
 MG = ROOT.TMultiGraph()
+
+def MakeMlfPlot(MG):
+	legend=ROOT.TLegend(0.65,0.15,0.89,0.3)
+	legend.SetFillColor(10)
+	legend.SetTextFont(42)
+	legend.SetTextSize(FONTSIZE)
+	legend.AddEntry(graph68,"#pm 1#sigma Uncertainty","F")
+
+	if options.square : c = ROOT.TCanvas("c","c",600,600)
+	else :c = ROOT.TCanvas("c","c",800,600)
+
+	dhist = ROOT.TH1F("dh","dh",100,MINMH,MAXMH)
+	dhist.GetYaxis().SetTitleOffset(1.5)
+	dhist.GetXaxis().SetTitleOffset(1.2)
+	dhist.GetYaxis().SetTitleSize(0.04)
+	dhist.GetXaxis().SetTitleSize(0.04)
+	dhist.GetYaxis().SetLabelSize(0.04)
+	dhist.GetXaxis().SetLabelSize(0.04)
+	dhist.GetXaxis().SetRangeUser(MINMH,MAXMH)
+	dhist.GetYaxis().SetRangeUser(RANGEMU[0],RANGEMU[1])
+	dhist.GetXaxis().SetTitle("m_{H} (GeV)")
+	dhist.GetYaxis().SetTitle("Best fit #sigma/#sigma_{SM}")
+	dhist.Draw("AXIS")
+
+	MG.Draw("L3")
+
+	# ------------------------------------------------------------------------
+	# Additional Lines stored in --addline -----------------------------------
+	for lineF in options.addline:
+
+		# Parse the string, should be file.root:color:linestyle:legend entry	
+		vals = lineF.split(":")
+		ftmp = ROOT.TFile(vals[0])
+		grext = ftmp.Get("observed")
+		grext.SetLineColor(int(vals[1]))
+		grext.SetLineStyle(int(vals[2]))
+		grext.SetLineWidth(2)
+		legend.AddEntry(grext,vals[3],"L")
+		grext.Draw("same")
+	# ------------------------------------------------------------------------
+		
+
+	c.Update()
+	text = ROOT.TLatex()
+	text.SetTextColor(ROOT.kRed)
+	text.SetTextSize(FONTSIZE)
+	text.SetTextFont(42)
+
+	graphOne.Draw("L")
+	c.SetGrid(not options.nogrid)
+	if not options.nogrid: dhist.Draw("AXIGSAME")
+
+	mytext= ROOT.TLatex()
+	mytext.SetTextSize(FONTSIZE)
+	mytext.SetTextFont(42)
+	mytext.SetNDC()
+
+	mytext.DrawLatex(0.18,0.24,"CMS Preliminary")
+	for t,lineT in enumerate(options.addtxt):
+		mytext.DrawLatex(0.18,0.23-(t+1)*0.04,"%s"%(lineT))
+	legend.Draw()
+	ROOT.gPad.RedrawAxis();
+	
+	if options.show:raw_input("Looks Ok?")
+	c.SaveAs("maxlhplot.pdf")
+	c.SaveAs("maxlhplot.png")
+
 #-------------------------------------------------------------------------
 def MakePvalPlot(MG):
 
@@ -214,7 +287,7 @@ def MakePvalPlot(MG):
 	dhist.GetYaxis().SetTitle("Local p-value")
 	dhist.Draw("AXIS")
 
-	MG.Draw("L")
+	MG.Draw("L3")
 
 	# ------------------------------------------------------------------------
 	# Additional Lines stored in --addline -----------------------------------
@@ -238,7 +311,7 @@ def MakePvalPlot(MG):
 	text.SetTextSize(FONTSIZE)
 	text.SetTextFont(42)
 
-	Vals=[ROOT.RooStats.SignificanceToPValue(L) for L in Lines]
+	Vals=[1]
 	TLines=[ROOT.TLine(MINMH,V,MAXMH,V) for V in Vals]
 
 	for j,TL in enumerate(TLines):
@@ -246,7 +319,6 @@ def MakePvalPlot(MG):
 		TL.SetLineColor(2)
 		TL.SetLineWidth(1)
 		TL.Draw("same")
-		text.DrawLatex(MAXMH+0.2,Vals[j]*0.88,"%d #sigma"%Lines[j])
 	c.SetGrid(not options.nogrid)
 	if not options.nogrid: dhist.Draw("AXIGSAME")
 
@@ -259,12 +331,12 @@ def MakePvalPlot(MG):
 	for t,lineT in enumerate(options.addtxt):
 		mytext.DrawLatex(0.18,0.23-(t+1)*0.04,"%s"%(lineT))
 	legend.Draw()
-	c.SetLogy()
 	ROOT.gPad.RedrawAxis();
 	
 	if options.show:raw_input("Looks Ok?")
-	c.SaveAs("pvaluesplot.pdf")
-	c.SaveAs("pvaluesplot.png")
+	c.SaveAs("maxlhfit.pdf")
+	c.SaveAs("maxlhfit.png")
+#-------------------------------------------------------------------------
 
 def MakeLimitPlot(MG):
 
@@ -362,6 +434,13 @@ for i,mass,f in zip(range(len(EXPfiles)),EXPmasses,EXPfiles):
       up95[0]   = getOBSERVED(f,4)
       dn95[0]   = getOBSERVED(f,0)
       up68[0]   = getOBSERVED(f,3)
+      dn68[0]   = getOBSERVED(f,1)
+
+  elif Method=="MaxLikelihoodFit":
+      median[0] = getOBSERVED(f,0)
+      up95[0]   = median[0]
+      dn95[0]   = median[0]
+      up68[0]   = getOBSERVED(f,2)
       dn68[0]   = getOBSERVED(f,1)
 
   else:
@@ -490,7 +569,8 @@ if not options.pval: MG.Add(graphOne)
 
 # Plot -------------------------------------
 if options.pval: MakePvalPlot(MG)
-else: MakeLimitPlot(MG) 
+elif Method=="MaxLikelihoodFit":  MakeMlfPlot(MG)
+else:MakeLimitPlot(MG)
 # ------------------------------------------
 if options.outputLimits:
   print "Writing Limits To ROOT file --> ",options.outputLimits
