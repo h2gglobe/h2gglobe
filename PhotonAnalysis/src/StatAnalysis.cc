@@ -580,7 +580,8 @@ bool StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     //PT-H K-factors
     double gPT = 0;
     TLorentzVector gP4(0,0,0,0);
-    if (cur_type<0){
+
+    if (!l.runZeeValidation && cur_type<0){
 	gP4 = l.GetHiggs();
 	gPT = gP4.Pt();
 	assert( gP4.M() > 0. );
