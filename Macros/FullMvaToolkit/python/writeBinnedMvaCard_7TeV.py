@@ -43,8 +43,8 @@ systematics = [
 	      ,"idEff"
 	      ,"phoIdMva"
 	      ,"regSig"
-	      #,"kFactor"
-	      ,"pdfWeight"
+	      ,"kFactor"
+	      #,"pdfWeight"
 	      ,"triggerEff"
 	      ,"vtxEff"
 	      ]
@@ -97,11 +97,9 @@ def fillAsimovBDT(data,histogram):
 		val = array.array('f',[0])
 		if toydata[j][0]>1. : val[0] = toydata[j][0]
 		else: val[0] = g_tmva.tmvaGetVal(toydata[j][0],toydata[j][1])	
-		print "input to tmva -> ",toydata[j][0],toydata[j][1]
-		print "But inside writeBinnedDatacard bdt, weight",val[0], toydata[j][2]
 		histNew.Fill(val[0],options.expSig*toydata[j][2])
-		print "Signal is --> ",histNew.Integral()
-	histNew.Add(histogram)
+	#histNew.Add(histogram) #this obviousley doesn't work
+	for b in range(1,histNew.GetNbinsX()+1):histNew.SetBinContent(b,histNew.GetBinContent(b)+histogram.GetBinContent(b))
 	listret = []
 	for b in range(1,histNew.GetNbinsX()+1):listret.append(histNew.GetBinContent(b))
 	return listret
@@ -575,6 +573,8 @@ parser.add_option("-s","--mhStep",dest="mhStep",type="float",default=0.5)
 options.is2011 = True
 # -------------------------------------------------------------------
 
+if options.throwAsimov : options.throwGlobalToy = True
+
 print "Creating Binned Datacards from workspace -> ", options.tfileName
 if options.throwToy: print ("Throwing Toy dataset from BKG")
 if options.throwGlobalToy: print ("Throwing Global Toy dataset from BKG"); options.throwToy=True
@@ -650,10 +650,12 @@ if options.throwGlobalToy:
   else:
     toymaker.loadPdfs(options.inputpdfworkspace,options.expSig)
 
-  toymaker.plotData(cardOutDir,160,200)
-  toymaker.genData(cardOutDir+"/"+options.outputmassfactoy,options.expSig)
-  toymaker.plotToy(cardOutDir,160,95,options.expSig)
-  toymaker.saveToyWorkspace(cardOutDir+"/testToyWS.root")
+  if not options.throwAsimov: 
+	toymaker.plotData(cardOutDir,160,200)
+  	toymaker.genData(cardOutDir+"/"+options.outputmassfactoy,options.expSig)
+  	toymaker.plotToy(cardOutDir,160,95,options.expSig)
+  	toymaker.saveToyWorkspace(cardOutDir+"/testToyWS.root")
+
   ROOT.gROOT.ProcessLine(".L python/tmvaLoader.C+")
   from ROOT import tmvaLoader
   g_tmva = tmvaLoader(options.tmvaweightsfolder+"/TMVAClassification_BDT%sMIT.weights.xml"%options.bdtType,options.bdtType)
@@ -664,9 +666,9 @@ if options.singleMass>0: evalMasses=[float(options.singleMass)]
 for m in evalMasses: 
 	if options.throwGlobalToy: 
 		#g_toydatalist=toymaker.returnWindowData(float(m),g_SIDEBANDWIDTH)
-		g_toydatalist=toymaker.returnWindowToyData(float(m),g_SIDEBANDWIDTH)
 		if options.throwAsimov:
 			g_toysiglist = toymaker.returnSignalAsimovData(float(m),g_SIDEBANDWIDTH)
+		else :g_toydatalist=toymaker.returnWindowToyData(float(m),g_SIDEBANDWIDTH)
 		#tagging of jets now implicitly taken car of in CombinedToyMaker
     #if options.includeVBF: tagPseudoDijets()
 	#print toymaker.getN(m,0.02)

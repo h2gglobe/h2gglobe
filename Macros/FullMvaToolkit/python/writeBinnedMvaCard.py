@@ -104,7 +104,7 @@ def fillAsimovBDT(data,histogram):
 		print "But inside writeBinnedDatacard bdt, weight",val[0], toydata[j][2]
 		histNew.Fill(val[0],options.expSig*toydata[j][2])
 		print "Signal is --> ",histNew.Integral()
-	histNew.Add(histogram)
+	for b in range(1,histNew.GetNbinsX()+1): histNew.SetBinContent(b,histNew.GetBinContent(b)+histogram.GetBinContent(b))
 	listret = []
 	for b in range(1,histNew.GetNbinsX()+1):listret.append(histNew.GetBinContent(b))
 	return listret
@@ -600,6 +600,8 @@ parser.add_option("-l","--mhLow",dest="mhLow",type="float",default=110.)
 parser.add_option("-u","--mhHigh",dest="mhHigh",type="float",default=150.)
 parser.add_option("-s","--mhStep",dest="mhStep",type="float",default=0.5)
 (options,args)=parser.parse_args()
+
+if options.throwAsimov : options.throwGlobalToy = True
 
 print "Creating Binned Datacards from workspace -> ", options.tfileName
 if options.throwToy: print ("Throwing Toy dataset from BKG")
