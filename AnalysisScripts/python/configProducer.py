@@ -133,6 +133,10 @@ class configProducer:
       lines = f.readlines()
       for ll in lines:
 	  if len(ll.split())==1 and "=" in ll: self.member_lines.append(ll)
+	  elif "analyzer" in ll:
+		parts = ll.split()
+		for pp in parts: 
+			if "=" in pp:self.member_lines.append(pp)
       f.close()
 
   def store_config_file(self,filename):
