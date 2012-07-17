@@ -1,24 +1,24 @@
 #!/bin/bash
 
 ## submit data rereco
-./submit_reduction.sh   data_2012_rereco   DoublePhoton_Run2012B-29Jun2012-v1_sub1  350
-./submit_reduction.sh   data_2012_rereco   DoublePhoton_Run2012B-29Jun2012-v1_sub2  10
-./submit_reduction.sh   data_2012_rereco   Photon_Run2012A-29Jun2012-v1_sub1  130
-./submit_reduction.sh   data_2012_rereco   Photon_Run2012A-29Jun2012-v1_sub2  1
-./submit_reduction.sh   data_2012_rereco   Photon_Run2012A-recover_29Jun2012-v1_sub1  15
-./submit_reduction.sh   data_2012_rereco   Photon_Run2012A-recover_29Jun2012-v1_sub2  1
+./submit_reduction.sh   data2012_rereco   DoublePhoton_Run2012B-29Jun2012-v1_sub1  350
+./submit_reduction.sh   data2012_rereco   DoublePhoton_Run2012B-29Jun2012-v1_sub2  10
+./submit_reduction.sh   data2012_rereco   Photon_Run2012A-29Jun2012-v1_sub1  130
+./submit_reduction.sh   data2012_rereco   Photon_Run2012A-29Jun2012-v1_sub2  1
+./submit_reduction.sh   data2012_rereco   Photon_Run2012A-recover_29Jun2012-v1_sub1  15
+./submit_reduction.sh   data2012_rereco   Photon_Run2012A-recover_29Jun2012-v1_sub2  1
 
 
 ## submit data prompt
-./submit_reduction.sh   data_2012_prompt   DoublePhoton_Run2012B-PromptReco-v1_sub1  400
-./submit_reduction.sh   data_2012_prompt   DoublePhoton_Run2012B-PromptReco-v1_sub2  20
-./submit_reduction.sh   data_2012_prompt   Photon_Run2012A-08Jun2012-v2_sub1  30
-./submit_reduction.sh   data_2012_prompt   Photon_Run2012A-08Jun2012-v2_sub2  1
-./submit_reduction.sh   data_2012_prompt   Photon_Run2012A-08Jun2012-v2_sub3  1
-./submit_reduction.sh   data_2012_prompt   Photon_Run2012A-23May2012-v2_sub1  10
-./submit_reduction.sh   data_2012_prompt   Photon_Run2012A-23May2012-v2_sub2  1
-./submit_reduction.sh   data_2012_prompt   Photon_Run2012A-PromptReco-v1_sub1  120
-./submit_reduction.sh   data_2012_prompt   Photon_Run2012A-PromptReco-v1_sub2  5
+./submit_reduction.sh   data2012_prompt   DoublePhoton_Run2012B-PromptReco-v1_sub1  400
+./submit_reduction.sh   data2012_prompt   DoublePhoton_Run2012B-PromptReco-v1_sub2  20
+./submit_reduction.sh   data2012_prompt   Photon_Run2012A-08Jun2012-v2_sub1  30
+./submit_reduction.sh   data2012_prompt   Photon_Run2012A-08Jun2012-v2_sub2  1
+./submit_reduction.sh   data2012_prompt   Photon_Run2012A-08Jun2012-v2_sub3  1
+./submit_reduction.sh   data2012_prompt   Photon_Run2012A-23May2012-v2_sub1  10
+./submit_reduction.sh   data2012_prompt   Photon_Run2012A-23May2012-v2_sub2  1
+./submit_reduction.sh   data2012_prompt   Photon_Run2012A-PromptReco-v1_sub1  120
+./submit_reduction.sh   data2012_prompt   Photon_Run2012A-PromptReco-v1_sub2  5
 
 
 
