@@ -35,8 +35,8 @@ SMFILLSTYLE=3244
 FILLCOLOR_95=ROOT.kYellow
 FILLCOLOR_68=ROOT.kGreen
 RANGEYABS=[0.0,0.6]
-RANGEYRAT=[0.0,4]
-RANGEMU = [-1,2.0]
+RANGEYRAT=[0.0,5]
+RANGEMU = [-4,3.0]
 MINPV = 0.5*10E-8
 MAXPV = 1.0
 Lines = [1.,2.,3.,4.]
@@ -188,8 +188,8 @@ graphmede = ROOT.TGraphErrors()
 
 graph68.SetLineColor(1)
 graph95.SetLineColor(1)
-graph68.SetLineStyle(1)
-graph95.SetLineStyle(1)
+graph68.SetLineStyle(2)
+graph95.SetLineStyle(2)
 graph68.SetLineWidth(2)
 graph95.SetLineWidth(2)
 
@@ -197,17 +197,18 @@ graph95.SetLineWidth(2)
 MG = ROOT.TMultiGraph()
 
 def MakeMlfPlot(MG):
-	legend=ROOT.TLegend(0.65,0.15,0.89,0.3)
+	legend=ROOT.TLegend(0.55,0.15,0.89,0.3)
 	legend.SetFillColor(10)
 	legend.SetTextFont(42)
 	legend.SetTextSize(FONTSIZE)
+	graph68.SetLineStyle(1)
 	legend.AddEntry(graph68,"#pm 1#sigma Uncertainty","F")
 
 	if options.square : c = ROOT.TCanvas("c","c",600,600)
 	else :c = ROOT.TCanvas("c","c",800,600)
 
 	dhist = ROOT.TH1F("dh","dh",100,MINMH,MAXMH)
-	dhist.GetYaxis().SetTitleOffset(1.5)
+	dhist.GetYaxis().SetTitleOffset(1.2)
 	dhist.GetXaxis().SetTitleOffset(1.2)
 	dhist.GetYaxis().SetTitleSize(0.04)
 	dhist.GetXaxis().SetTitleSize(0.04)
@@ -320,6 +321,7 @@ def MakePvalPlot(MG):
 		TL.SetLineWidth(1)
 		TL.Draw("same")
 	c.SetGrid(not options.nogrid)
+	c.SetLogy();
 	if not options.nogrid: dhist.Draw("AXIGSAME")
 
 	mytext= ROOT.TLatex()
@@ -334,8 +336,8 @@ def MakePvalPlot(MG):
 	ROOT.gPad.RedrawAxis();
 	
 	if options.show:raw_input("Looks Ok?")
-	c.SaveAs("maxlhfit.pdf")
-	c.SaveAs("maxlhfit.png")
+	c.SaveAs("pvaluesplot.pdf")
+	c.SaveAs("pvaluesplot.png")
 #-------------------------------------------------------------------------
 
 def MakeLimitPlot(MG):
@@ -360,7 +362,7 @@ def MakeLimitPlot(MG):
 	leg.SetTextSize(FONTSIZE)
 
 	if options.square : C = ROOT.TCanvas("c","c",600,600)
-	else: C = ROOT.TCanvas("c","c",800,600)
+	else: C = ROOT.TCanvas("c","c",700,600)
 
 	C.SetGrid(not options.nogrid)
 	dummyHist = ROOT.TH1D("dummy","",1,min(OBSmasses)-OFFSETLOW,max(OBSmasses)+OFFSETHIGH)
