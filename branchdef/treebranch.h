@@ -118,6 +118,8 @@ void Branch_el_std_d0err(TTree * tree) { tree->Branch("el_std_d0err",&el_std_d0e
 void Branch_el_std_chi2(TTree * tree) { tree->Branch("el_std_chi2",&el_std_chi2, "el_std_chi2[el_std_n]/F"); }; 
 void Branch_el_std_dof(TTree * tree) { tree->Branch("el_std_dof",&el_std_dof, "el_std_dof[el_std_n]/F"); }; 
 void Branch_el_std_mva(TTree * tree) { tree->Branch("el_std_mva",&el_std_mva, "el_std_mva[el_std_n]/F"); }; 
+void Branch_el_std_mva_trig(TTree * tree) { tree->Branch("el_std_mva_trig",&el_std_mva_trig, "el_std_mva_trig[el_std_n]/F"); }; 
+void Branch_el_std_mva_nontrig(TTree * tree) { tree->Branch("el_std_mva_nontrig",&el_std_mva_nontrig, "el_std_mva_nontrig[el_std_n]/F"); }; 
 void Branch_el_std_ch_gsf(TTree * tree) { tree->Branch("el_std_ch_gsf",&el_std_ch_gsf, "el_std_ch_gsf[el_std_n]/I"); }; 
 void Branch_el_std_ch_scpix(TTree * tree) { tree->Branch("el_std_ch_scpix",&el_std_ch_scpix, "el_std_ch_scpix[el_std_n]/I"); }; 
 void Branch_el_std_charge(TTree * tree) { tree->Branch("el_std_charge",&el_std_charge, "el_std_charge[el_std_n]/I"); }; 
@@ -358,6 +360,11 @@ void Branch_met_phi_pfmet(TTree * tree) { tree->Branch("met_phi_pfmet",&met_phi_
 void Branch_met_sumet_pfmet(TTree * tree) { tree->Branch("met_sumet_pfmet",&met_sumet_pfmet, "met_sumet_pfmet/F");  }; 
 void Branch_met_mEtSig_pfmet(TTree * tree) { tree->Branch("met_mEtSig_pfmet",&met_mEtSig_pfmet, "met_mEtSig_pfmet/F");  }; 
 void Branch_met_significance_pfmet(TTree * tree) { tree->Branch("met_significance_pfmet",&met_significance_pfmet, "met_significance_pfmet/F");  }; 
+void Branch_met_pfmetType1(TTree * tree) { tree->Branch("met_pfmetType1",&met_pfmetType1, "met_pfmetType1/F");  }; 
+void Branch_met_phi_pfmetType1(TTree * tree) { tree->Branch("met_phi_pfmetType1",&met_phi_pfmetType1, "met_phi_pfmetType1");  }; 
+void Branch_met_sumet_pfmetType1(TTree * tree) { tree->Branch("met_sumet_pfmetType1",&met_sumet_pfmetType1, "met_sumet_pfmetType1/F");  }; 
+void Branch_met_mEtSig_pfmetType1(TTree * tree) { tree->Branch("met_mEtSig_pfmetType1",&met_mEtSig_pfmetType1, "met_mEtSig_pfmetType1/F");  }; 
+void Branch_met_significance_pfmetType1(TTree * tree) { tree->Branch("met_significance_pfmetType1",&met_significance_pfmetType1, "met_significance_pfmetType1/F");  }; 
 void Branch_mu_glo_n(TTree * tree) { tree->Branch("mu_glo_n",&mu_glo_n, "mu_glo_n/I");  }; 
 void Branch_mu_glo_p4(TTree * tree) { tree->Branch("mu_glo_p4", "TClonesArray",&mu_glo_p4, 32000, 0); }; 
 void Branch_mu_glo_momvtx(TTree * tree) { tree->Branch("mu_glo_momvtx", "TClonesArray",&mu_glo_momvtx, 32000, 0); }; 

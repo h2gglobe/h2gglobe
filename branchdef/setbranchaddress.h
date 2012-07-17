@@ -117,6 +117,8 @@ void SetBranchAddress_el_std_d0err(TTree * tree) { tree->SetBranchAddress("el_st
 void SetBranchAddress_el_std_chi2(TTree * tree) { tree->SetBranchAddress("el_std_chi2", el_std_chi2, &b_el_std_chi2); }; 
 void SetBranchAddress_el_std_dof(TTree * tree) { tree->SetBranchAddress("el_std_dof", el_std_dof, &b_el_std_dof); }; 
 void SetBranchAddress_el_std_mva(TTree * tree) { tree->SetBranchAddress("el_std_mva", el_std_mva, &b_el_std_mva); }; 
+void SetBranchAddress_el_std_mva_trig(TTree * tree) { tree->SetBranchAddress("el_std_mva_trig", el_std_mva_trig, &b_el_std_mva_trig); }; 
+void SetBranchAddress_el_std_mva_nontrig(TTree * tree) { tree->SetBranchAddress("el_std_mva_nontrig", el_std_mva_nontrig, &b_el_std_mva_nontrig); }; 
 void SetBranchAddress_el_std_ch_gsf(TTree * tree) { tree->SetBranchAddress("el_std_ch_gsf", el_std_ch_gsf, &b_el_std_ch_gsf); }; 
 void SetBranchAddress_el_std_ch_scpix(TTree * tree) { tree->SetBranchAddress("el_std_ch_scpix", el_std_ch_scpix, &b_el_std_ch_scpix); }; 
 void SetBranchAddress_el_std_charge(TTree * tree) { tree->SetBranchAddress("el_std_charge", el_std_charge, &b_el_std_charge); }; 
@@ -357,6 +359,11 @@ void SetBranchAddress_met_phi_pfmet(TTree * tree) { tree->SetBranchAddress("met_
 void SetBranchAddress_met_sumet_pfmet(TTree * tree) { tree->SetBranchAddress("met_sumet_pfmet", &met_sumet_pfmet, &b_met_sumet_pfmet); }; 
 void SetBranchAddress_met_mEtSig_pfmet(TTree * tree) { tree->SetBranchAddress("met_mEtSig_pfmet", &met_mEtSig_pfmet, &b_met_mEtSig_pfmet); }; 
 void SetBranchAddress_met_significance_pfmet(TTree * tree) { tree->SetBranchAddress("met_significance_pfmet", &met_significance_pfmet, &b_met_significance_pfmet); }; 
+void SetBranchAddress_met_pfmetType1(TTree * tree) { tree->SetBranchAddress("met_pfmetType1", &met_pfmetType1, &b_met_pfmetType1); }; 
+void SetBranchAddress_met_phi_pfmetType1(TTree * tree) { tree->SetBranchAddress("met_phi_pfmetType1", &met_phi_pfmetType1, &b_met_phi_pfmetType1); }; 
+void SetBranchAddress_met_sumet_pfmetType1(TTree * tree) { tree->SetBranchAddress("met_sumet_pfmetType1", &met_sumet_pfmetType1, &b_met_sumet_pfmetType1); }; 
+void SetBranchAddress_met_mEtSig_pfmetType1(TTree * tree) { tree->SetBranchAddress("met_mEtSig_pfmetType1", &met_mEtSig_pfmetType1, &b_met_mEtSig_pfmetType1); }; 
+void SetBranchAddress_met_significance_pfmetType1(TTree * tree) { tree->SetBranchAddress("met_significance_pfmetType1", &met_significance_pfmetType1, &b_met_significance_pfmetType1); }; 
 void SetBranchAddress_mu_glo_n(TTree * tree) { tree->SetBranchAddress("mu_glo_n", &mu_glo_n, &b_mu_glo_n); }; 
 void SetBranchAddress_mu_glo_p4(TTree * tree) { tree->SetBranchAddress("mu_glo_p4", &mu_glo_p4, &b_mu_glo_p4); }; 
 void SetBranchAddress_mu_glo_momvtx(TTree * tree) { tree->SetBranchAddress("mu_glo_momvtx", &mu_glo_momvtx, &b_mu_glo_momvtx); }; 

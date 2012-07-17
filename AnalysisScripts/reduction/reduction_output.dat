@@ -40,6 +40,12 @@ met_sumet_pfmet
 met_mEtSig_pfmet
 met_significance_pfmet
 
+met_pfmetType1
+met_phi_pfmetType1
+met_sumet_pfmetType1
+met_mEtSig_pfmetType1
+met_significance_pfmetType1
+
 # Electrons
 el_std_n
 el_std_p4
@@ -77,6 +83,9 @@ el_std_pfiso_photon
 el_std_conv_vtxProb
 el_std_conv
 el_std_pin
+el_std_mva_nontrig
+el_std_mva_trig
+
 
 # Muons
 mu_glo_n
