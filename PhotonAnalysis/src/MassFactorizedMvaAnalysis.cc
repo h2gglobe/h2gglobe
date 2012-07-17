@@ -1464,7 +1464,7 @@ void MassFactorizedMvaAnalysis::fillTrainTree(LoopAll &l, Int_t leadingPho, Int_
 
 void MassFactorizedMvaAnalysis::ResetAnalysis(){
     // Reset Random Variable on the EnergyResolution Smearer
-    eResolSmearer->resetRandom();
+    if ( doEresolSmear ) eResolSmearer->resetRandom();
 }
 
 
