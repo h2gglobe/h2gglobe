@@ -1,0 +1,9 @@
+DoublePhoton_Run2012B-PromptReco-v1_sub1   0  json=/afs/cern.ch/work/c/cmshgg/private/V13_03_08/524p4/src/HiggsAnalysis/HiggsTo2photons/scripts/JSON/V13_03_08_data_output/DoublePhoton_Run2012B-PromptReco-v1_sub1_output.json
+DoublePhoton_Run2012B-PromptReco-v1_sub2   0  json=/afs/cern.ch/work/c/cmshgg/private/V13_03_08/524p4/src/HiggsAnalysis/HiggsTo2photons/scripts/JSON/V13_03_08_data_output/DoublePhoton_Run2012B-PromptReco-v1_sub2_output.json
+Photon_Run2012A-08Jun2012-v2_sub1          0  json=/afs/cern.ch/work/c/cmshgg/private/V13_03_08/524p4/src/HiggsAnalysis/HiggsTo2photons/scripts/JSON/V13_03_08_data_output/Photon_Run2012A-08Jun2012-v2_sub1_output.json
+Photon_Run2012A-08Jun2012-v2_sub2          0  json=/afs/cern.ch/work/c/cmshgg/private/V13_03_08/524p4/src/HiggsAnalysis/HiggsTo2photons/scripts/JSON/V13_03_08_data_output/Photon_Run2012A-08Jun2012-v2_sub2_output.json
+Photon_Run2012A-08Jun2012-v2_sub3          0  json=/afs/cern.ch/work/c/cmshgg/private/V13_03_08/524p4/src/HiggsAnalysis/HiggsTo2photons/scripts/JSON/V13_03_08_data_output/Photon_Run2012A-08Jun2012-v2_sub3_output.json
+Photon_Run2012A-23May2012-v2_sub1          0  json=/afs/cern.ch/work/c/cmshgg/private/V13_03_08/524p4/src/HiggsAnalysis/HiggsTo2photons/scripts/JSON/V13_03_08_data_output/Photon_Run2012A-23May2012-v2_sub1_output.json
+Photon_Run2012A-23May2012-v2_sub2          0  json=/afs/cern.ch/work/c/cmshgg/private/V13_03_08/524p4/src/HiggsAnalysis/HiggsTo2photons/scripts/JSON/V13_03_08_data_output/Photon_Run2012A-23May2012-v2_sub2_output.json
+Photon_Run2012A-PromptReco-v1_sub1         0  json=/afs/cern.ch/work/c/cmshgg/private/V13_03_08/524p4/src/HiggsAnalysis/HiggsTo2photons/scripts/JSON/V13_03_08_data_output/Photon_Run2012A-PromptReco-v1_sub1_output.json
+Photon_Run2012A-PromptReco-v1_sub2         0  json=/afs/cern.ch/work/c/cmshgg/private/V13_03_08/524p4/src/HiggsAnalysis/HiggsTo2photons/scripts/JSON/V13_03_08_data_output/Photon_Run2012A-PromptReco-v1_sub2_output.json
