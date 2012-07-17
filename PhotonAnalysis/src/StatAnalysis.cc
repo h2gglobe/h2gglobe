@@ -881,7 +881,7 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
             isCorrectVertex=(*vtx- *((TVector3*)l.gv_pos->At(0))).Mag() < 1.;
         }
         float ptHiggs = Higgs.Pt();
-        if (cur_type != 0) cout << "vtxAn: " << isCorrectVertex << endl; 
+        //if (cur_type != 0) cout << "vtxAn: " << isCorrectVertex << endl; 
 	// sanity check
         assert( evweight >= 0. ); 
 	
