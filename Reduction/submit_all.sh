@@ -1,69 +1,134 @@
 #!/bin/bash
 
-./submit_reduction.sh data_2012  PhotonPromptReco2012A      200 &
-./submit_reduction.sh data_2012  PhotonPromptReco2012A_sub2 30  &
-
-./submit_reduction.sh data_2012  PhotonReRecoMay23_2012          20 &
-./submit_reduction.sh data_2012  PhotonReRecoMay23_2012_missing2 1  & 
-
-./submit_reduction.sh data_2012  DoublePhotonPromptReco2012B      500 &
-./submit_reduction.sh data_2012  DoublePhotonPromptReco2012B_sub2 15 &
-
-#### ./submit_reduction.sh data_2012  DoublePhotonPromptReco2012B_TopUp_sub1 200
-#### ./submit_reduction.sh data_2012  PhotonJune8ReReco2012A_TopUp_sub1 60
+## submit data rereco
+./submit_reduction.sh   data_2012_rereco   DoublePhoton_Run2012B-29Jun2012-v1_sub1  350
+./submit_reduction.sh   data_2012_rereco   DoublePhoton_Run2012B-29Jun2012-v1_sub2  10
+./submit_reduction.sh   data_2012_rereco   Photon_Run2012A-29Jun2012-v1_sub1  130
+./submit_reduction.sh   data_2012_rereco   Photon_Run2012A-29Jun2012-v1_sub2  1
+./submit_reduction.sh   data_2012_rereco   Photon_Run2012A-recover_29Jun2012-v1_sub1  15
+./submit_reduction.sh   data_2012_rereco   Photon_Run2012A-recover_29Jun2012-v1_sub2  1
 
 
+## submit data prompt
+./submit_reduction.sh   data_2012_prompt   DoublePhoton_Run2012B-PromptReco-v1_sub1  400
+./submit_reduction.sh   data_2012_prompt   DoublePhoton_Run2012B-PromptReco-v1_sub2  20
+./submit_reduction.sh   data_2012_prompt   Photon_Run2012A-08Jun2012-v2_sub1  30
+./submit_reduction.sh   data_2012_prompt   Photon_Run2012A-08Jun2012-v2_sub2  1
+./submit_reduction.sh   data_2012_prompt   Photon_Run2012A-08Jun2012-v2_sub3  1
+./submit_reduction.sh   data_2012_prompt   Photon_Run2012A-23May2012-v2_sub1  10
+./submit_reduction.sh   data_2012_prompt   Photon_Run2012A-23May2012-v2_sub2  1
+./submit_reduction.sh   data_2012_prompt   Photon_Run2012A-PromptReco-v1_sub1  120
+./submit_reduction.sh   data_2012_prompt   Photon_Run2012A-PromptReco-v1_sub2  5
 
-################ ./submit_reduction.sh data_2012  DoublePhotonPromptReco2012B_TopUp1_glidein 50
-################ ./submit_reduction.sh data_2012  PhotonPromptReco2012A  50 & 
-################ ./submit_reduction.sh data_2012  PhotonPromptReco2012A_missing  10 & 
-################ ./submit_reduction.sh data_2012  PhotonPromptReco2012A_missing_try2  5 & 
-################ 
-################ ./submit_reduction.sh data_2012  DoublePhotonPromptReco2012B  200 & 
-################ ./submit_reduction.sh data_2012  DoublePhotonPromptReco2012B_missing  50 & 
-################ ./submit_reduction.sh data_2012  DoublePhotonPromptReco2012B_missing_try2 25 & 
-################ 
-################ ./submit_reduction.sh data_2012  PhotonReRecoMay23_2012_missing 44 &
-################ ./submit_reduction.sh data_2012  PhotonReRecoMay23_2012_missing_try2 1 &
-################ 
-################ 
-./submit_reduction.sh mc_sig_summer12_s7_03_06 \* 5 &
 
-./submit_reduction.sh mc_bkg_summer12_s7 QCD_Pt\* 40 & 
-./submit_reduction.sh mc_bkg_summer12_s7 GJet\* 40 &
 
-./submit_reduction.sh mc_bkg_summer12_s7 DiPhotonJets\*   150 & 
-./submit_reduction.sh mc_bkg_summer12_s7 DiPhoton\*_Pt-10To25\*   20 & 
-./submit_reduction.sh mc_bkg_summer12_s7 DiPhoton\*_Pt-25To250\*  30 & 
-./submit_reduction.sh mc_bkg_summer12_s7 DiPhoton\*_Pt-250ToInf\* 20 & 
 
-./submit_reduction.sh mc_bkg_summer12_s7 DYJetsToLL_M-50_TuneZ2Star_8TeV 300 & 
+## submit bgr
+./submit_reduction.sh    mc_bkg_summer12_s7   DYJetsToLL_M-50  20
 
-## to resubmit failed jobs
-## ------------------------
+./submit_reduction.sh    mc_bkg_summer12_s7   DiPhotonBorn_Pt-10To25     10
+./submit_reduction.sh    mc_bkg_summer12_s7   DiPhotonBorn_Pt-250ToInf   10
+./submit_reduction.sh    mc_bkg_summer12_s7   DiPhotonBorn_Pt-25To250    10
+./submit_reduction.sh    mc_bkg_summer12_s7   DiPhotonBox_Pt-10To25      10
+./submit_reduction.sh    mc_bkg_summer12_s7   DiPhotonBox_Pt-250ToInf    10
+./submit_reduction.sh    mc_bkg_summer12_s7   DiPhotonBox_Pt-25To250     10
+./submit_reduction.sh    mc_bkg_summer12_s7   DiPhotonJets_8TeV   20
 
-### ./submit_reduction.sh mc_sig_summer12_s7_03_05 WH_ZH_HToGG_M-140_8TeV_lepTag 5 1
-### 
-### ./submit_reduction.sh mc_sig_summer12_s7_03_05 WH_ZH_HToGG_M-125_8TeV_lepTag 5 4
-### ./submit_reduction.sh mc_sig_summer12_s7_03_05 WH_ZH_HToGG_M-124_8TeV_lepTag 5 3
-### ./submit_reduction.sh mc_sig_summer12_s7_03_05 VBF_HToGG_M-145_8TeV_lepTag 5 0
+./submit_reduction.sh    mc_bkg_summer12_s7   GJet_Pt-20to40   50
 
-### ./submit_reduction.sh  data_2012 PhotonPromptReco2012A 50 49
-### ./submit_reduction.sh  mc_sig_summer12_s7 TTH_HToGG_M-140_8TeV.dat 5 0
+./submit_reduction.sh    mc_bkg_summer12_s7   GJet_Pt40   50
 
-#### ./submit_reduction.sh  mc_sig_summer12_s7_03_06 GluGluToHToGG_M-120_8TeV 5 2
+./submit_reduction.sh    mc_bkg_summer12_s7   QCD_Pt-40_v2   1
 
-### ./submit_reduction.sh  mc_sig_summer12_s7_03_05 VBF_HToGG_M-145_8TeV_lepTag 5 0
+./submit_reduction.sh    mc_bkg_summer12_s7   QCD_Pt-30to40   50
 
-### ./submit_reduction.sh  data_2012 DoublePhotonPromptReco2012B_missing 50 13 20 & 
-### 
-### ./submit_reduction.sh data_2012  DoublePhotonPromptReco2012B  200 88 & 
+./submit_reduction.sh    mc_bkg_summer12_s7   QCD_Pt-40   60
 
-## ./submit_reduction.sh data_2012  DiPhotonPromptReco2012B  50 46 48 &
-##  ./submit_reduction.sh data_2012  PhotonPromptReco2012A  50 15 &
+./submit_reduction.sh    mc_bkg_summer12_s7   TTJets             60
+./submit_reduction.sh    mc_bkg_summer12_s7   TTbarGG_0Jet_S1    2
+./submit_reduction.sh    mc_bkg_summer12_s7   WGToLNuG           15
+./submit_reduction.sh    mc_bkg_summer12_s7   WJetsToLNu         150
+./submit_reduction.sh    mc_bkg_summer12_s7   WZJetsTo3LNu       7
+./submit_reduction.sh    mc_bkg_summer12_s7   WmGG_S3            3
+./submit_reduction.sh    mc_bkg_summer12_s7   WmGG_S6            3
+./submit_reduction.sh    mc_bkg_summer12_s7   WpGG_S2            3
+./submit_reduction.sh    mc_bkg_summer12_s7   WpGG_S8            3
+./submit_reduction.sh    mc_bkg_summer12_s7   ZGG_S46            1
+./submit_reduction.sh    mc_bkg_summer12_s7   ZGG_S47            1
+./submit_reduction.sh    mc_bkg_summer12_s7   ZGG_S50            1
+./submit_reduction.sh    mc_bkg_summer12_s7   ZGG_S51            1
+./submit_reduction.sh    mc_bkg_summer12_s7   ZGG_S52            1
+./submit_reduction.sh    mc_bkg_summer12_s7   ZGG_S56            1
+./submit_reduction.sh    mc_bkg_summer12_s7   ZGG_S58            1
+./submit_reduction.sh    mc_bkg_summer12_s7   ZGG_S60            1
+./submit_reduction.sh    mc_bkg_summer12_s7   ZGG_S62            1
+./submit_reduction.sh    mc_bkg_summer12_s7   ZGG_S66            1
+./submit_reduction.sh    mc_bkg_summer12_s7   ZGG_S70            1
+./submit_reduction.sh    mc_bkg_summer12_s7   ZGG_S72            1
+./submit_reduction.sh    mc_bkg_summer12_s7   ZGToLLG            1
+./submit_reduction.sh    mc_bkg_summer12_s7   ZZJetsTo2L2Nu      3
+./submit_reduction.sh    mc_bkg_summer12_s7   ZZJetsTo2L2Q       2
+./submit_reduction.sh    mc_bkg_summer12_s7   ZZJetsTo4L         4
 
-## ./submit_reduction.sh mc_bkg_summer12_s7 QCD_Pt-40\*ff\* 40 12 21 24 27 5 6  & 
-## ./submit_reduction.sh mc_bkg_summer12_s7 GJet_Pt-40\*pf\* 40 13 28 &
+
+
+
+## submit sig
+./submit_reduction.sh    mc_sig_summer12_s7   GluGluToHToGG_M-105 1
+./submit_reduction.sh    mc_sig_summer12_s7   GluGluToHToGG_M-115 1
+./submit_reduction.sh    mc_sig_summer12_s7   GluGluToHToGG_M-120 1
+./submit_reduction.sh    mc_sig_summer12_s7   GluGluToHToGG_M-123 1
+./submit_reduction.sh    mc_sig_summer12_s7   GluGluToHToGG_M-124 1
+./submit_reduction.sh    mc_sig_summer12_s7   GluGluToHToGG_M-125 1
+./submit_reduction.sh    mc_sig_summer12_s7   GluGluToHToGG_M-125-newBS  1
+./submit_reduction.sh    mc_sig_summer12_s7   GluGluToHToGG_M-126  1
+./submit_reduction.sh    mc_sig_summer12_s7   GluGluToHToGG_M-130  1
+./submit_reduction.sh    mc_sig_summer12_s7   GluGluToHToGG_M-135  1
+./submit_reduction.sh    mc_sig_summer12_s7   GluGluToHToGG_M-140  1
+./submit_reduction.sh    mc_sig_summer12_s7   GluGluToHToGG_M-145  1
+./submit_reduction.sh    mc_sig_summer12_s7   GluGluToHToGG_M-150  1
+./submit_reduction.sh    mc_sig_summer12_s7   GluGluToHToGG_M-90  1
+
+./submit_reduction.sh    mc_sig_summer12_s7   TTH_HToGG_M-100  1
+./submit_reduction.sh    mc_sig_summer12_s7   TTH_HToGG_M-105  1
+./submit_reduction.sh    mc_sig_summer12_s7   TTH_HToGG_M-110  1
+./submit_reduction.sh    mc_sig_summer12_s7   TTH_HToGG_M-115  1
+./submit_reduction.sh    mc_sig_summer12_s7   TTH_HToGG_M-120  1
+./submit_reduction.sh    mc_sig_summer12_s7   TTH_HToGG_M-123  1
+./submit_reduction.sh    mc_sig_summer12_s7   TTH_HToGG_M-124  1
+./submit_reduction.sh    mc_sig_summer12_s7   TTH_HToGG_M-125  1
+./submit_reduction.sh    mc_sig_summer12_s7   TTH_HToGG_M-130  1
+./submit_reduction.sh    mc_sig_summer12_s7   TTH_HToGG_M-135  1
+./submit_reduction.sh    mc_sig_summer12_s7   TTH_HToGG_M-140  1
+./submit_reduction.sh    mc_sig_summer12_s7   TTH_HToGG_M-145  1
+./submit_reduction.sh    mc_sig_summer12_s7   TTH_HToGG_M-150  1
+./submit_reduction.sh    mc_sig_summer12_s7   TTH_HToGG_M-90  1
+
+./submit_reduction.sh    mc_sig_summer12_s7   VBF_HToGG_M-105  1
+./submit_reduction.sh    mc_sig_summer12_s7   VBF_HToGG_M-115  1
+./submit_reduction.sh    mc_sig_summer12_s7   VBF_HToGG_M-120  1
+./submit_reduction.sh    mc_sig_summer12_s7   VBF_HToGG_M-123  1
+./submit_reduction.sh    mc_sig_summer12_s7   VBF_HToGG_M-124  1
+./submit_reduction.sh    mc_sig_summer12_s7   VBF_HToGG_M-125  1
+./submit_reduction.sh    mc_sig_summer12_s7   VBF_HToGG_M-130  1
+./submit_reduction.sh    mc_sig_summer12_s7   VBF_HToGG_M-135  1
+./submit_reduction.sh    mc_sig_summer12_s7   VBF_HToGG_M-145  1
+./submit_reduction.sh    mc_sig_summer12_s7   VBF_HToGG_M-150  1
+./submit_reduction.sh    mc_sig_summer12_s7   VBF_HToGG_M-90  1
+
+./submit_reduction.sh    mc_sig_summer12_s7   WH_ZH_HToGG_M-100  1
+./submit_reduction.sh    mc_sig_summer12_s7   WH_ZH_HToGG_M-110  1
+./submit_reduction.sh    mc_sig_summer12_s7   WH_ZH_HToGG_M-120  1
+./submit_reduction.sh    mc_sig_summer12_s7   WH_ZH_HToGG_M-123  1
+./submit_reduction.sh    mc_sig_summer12_s7   WH_ZH_HToGG_M-124  1
+./submit_reduction.sh    mc_sig_summer12_s7   WH_ZH_HToGG_M-125  1
+./submit_reduction.sh    mc_sig_summer12_s7   WH_ZH_HToGG_M-130  1
+./submit_reduction.sh    mc_sig_summer12_s7   WH_ZH_HToGG_M-135  1
+./submit_reduction.sh    mc_sig_summer12_s7   WH_ZH_HToGG_M-140  1
+./submit_reduction.sh    mc_sig_summer12_s7   WH_ZH_HToGG_M-145  1
+./submit_reduction.sh    mc_sig_summer12_s7   WH_ZH_HToGG_M-150  1
+./submit_reduction.sh    mc_sig_summer12_s7   WH_ZH_HToGG_M-90  1
+
 
 wait
 
