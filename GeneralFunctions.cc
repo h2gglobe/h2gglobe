@@ -3172,7 +3172,7 @@ bool LoopAll::PhotonMITPreSelection2011( int photon_index, int vertex_index, flo
    if (val_trkiso          >= mitCuts_trkiso[photon_category]      ) return false;
    if (val_hcalecal        >= mitCuts_hcalecal[photon_category]    ) return false;
    if (val_abstrkiso       >= mitCuts_abstrkiso[photon_category]   ) return false;                   
-   if (!val_pho_isconv						   ) return false; // Electron Rejection based Conversion Safe Veto
+   if ((!val_pho_isconv && !runZeeValidation) || (runZeeValidation && val_pho_isconv) ) return false; // Electron Rejection based Conversion Safe Veto
    if (val_trkiso_hollow03 >= mitCuts_trkiso_hollow03[photon_category]) return false;                                        
 
    return true;
