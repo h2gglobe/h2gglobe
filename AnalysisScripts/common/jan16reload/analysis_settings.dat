@@ -9,6 +9,12 @@ subleadEtVBFCut=25
 
 usePUjetveto=0
 
+# beamspot emulation off in 2011 (correct in MC)
+emulateBeamspot=0
+emulatedBeamspotWidth=5.8
+beamspotSigma=5.8
+
+
 ## Singal mass points to book
 sigPointsToBook=105,110,115,120,121,123,125,130,135,140,150
 
