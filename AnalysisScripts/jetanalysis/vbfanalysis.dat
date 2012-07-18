@@ -1,0 +1,30 @@
+includeVBF=1
+includeVHhad=0
+includeVHlep=0
+
+nVBFEtaCategories=1
+
+# test
+leadEtVBFCut=40
+subleadEtVBFCut=25
+
+doTriggerSelection=0
+reRunCiCForData=0
+
+# Turn on-off all smearings 
+doMCSmearing=1 
+
+# Individual smearing flags
+energyCorrectionMethod=Bendavid
+doEcorrectionSmear=1
+doEcorrectionSyst=0
+
+doPhotonIdEffSmear=0
+doVtxEffSmear=0
+doR9Smear=0
+doTriggerEffSmear=0
+doKFactorSmear=0
+doInterferenceSmear=0
+doSystematics=0
+
+dumpFlatTree=1
