@@ -1694,6 +1694,8 @@ void PhotonAnalysis::MetCorrections2012_Simple(LoopAll& l,TLorentzVector lead_p4
 
 bool PhotonAnalysis::SkimEvents(LoopAll& l, int jentry)
 {
+    if( dataIs2011 ) { l.version=12; }
+
     l.b_pho_n->GetEntry(jentry);
     if( l.pho_n < 2 ) {
         return false;
