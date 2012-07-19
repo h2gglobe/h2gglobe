@@ -2096,6 +2096,10 @@ void Normalization_8TeV::FillSignalTypes(){
   SignalTypeMap[-74]=std::make_pair<TString,double>("vbf",124);
   SignalTypeMap[-76]=std::make_pair<TString,double>("wzh",124);
   SignalTypeMap[-75]=std::make_pair<TString,double>("tth",124);
+  SignalTypeMap[-77]=std::make_pair<TString,double>("ggh",126);
+  SignalTypeMap[-78]=std::make_pair<TString,double>("vbf",126);
+  SignalTypeMap[-80]=std::make_pair<TString,double>("wzh",126);
+  SignalTypeMap[-79]=std::make_pair<TString,double>("tth",126);
   
   SignalTypeMap[-57]=std::make_pair<TString,double>("ggh",123);
   SignalTypeMap[-58]=std::make_pair<TString,double>("vbf",123);
@@ -2158,6 +2162,11 @@ void Normalization_8TeV::FillSignalTypes(){
   SignalTypeMap[-70]=std::make_pair<TString,double>("vbf",100);
   SignalTypeMap[-72]=std::make_pair<TString,double>("wzh",100);
   SignalTypeMap[-71]=std::make_pair<TString,double>("tth",100);
+
+  SignalTypeMap[-81]=std::make_pair<TString,double>("ggh",90);
+  SignalTypeMap[-82]=std::make_pair<TString,double>("vbf",90);
+  SignalTypeMap[-84]=std::make_pair<TString,double>("wzh",90);
+  SignalTypeMap[-83]=std::make_pair<TString,double>("tth",90);
 
 }
 double Normalization_8TeV::GetBR(double mass) {

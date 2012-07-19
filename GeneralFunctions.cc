@@ -3779,6 +3779,8 @@ void LoopAll::DefineUserBranches()
   BRANCH_DICT(shiftscaleMET_phi);
   BRANCH_DICT(shiftsmearMET_pt);
   BRANCH_DICT(shiftsmearMET_phi);
+  BRANCH_DICT(correctedpfMET);
+  BRANCH_DICT(correctedpfMET_phi);
 
   BRANCH_DICT(shiftMET_e);
   BRANCH_DICT(shiftMET_eta);

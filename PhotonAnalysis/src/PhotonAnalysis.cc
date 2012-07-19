@@ -1683,11 +1683,15 @@ void PhotonAnalysis::MetCorrections2012_Simple(LoopAll& l,TLorentzVector lead_p4
        TLorentzVector shiftsmearMET_corr = l.shiftMet(&smearMET_corr,isMC);
        l.shiftsmearMET_pt = shiftsmearMET_corr.Pt();
        l.shiftsmearMET_phi = shiftsmearMET_corr.Phi();
+       l.correctedpfMET = l.shiftsmearMET_pt;
+       l.correctedpfMET_phi = l.shiftsmearMET_phi;
      } else {
        //scale shifted met for data
        TLorentzVector shiftscaleMET_corr = l.correctMet_Simple( lead_p4, sublead_p4 , &shiftedMET, false , true);
        l.shiftscaleMET_pt = shiftscaleMET_corr.Pt();
        l.shiftscaleMET_phi = shiftscaleMET_corr.Phi();
+       l.correctedpfMET = l.shiftscaleMET_pt;
+       l.correctedpfMET_phi = l.shiftscaleMET_phi;
      }
 }
 
@@ -2520,14 +2524,35 @@ bool PhotonAnalysis::VHhadronicTag2011(LoopAll& l, int diphotonVHhad_id, float* 
 
 
 //met at analysis step
-bool PhotonAnalysis::METTag2012(LoopAll& l, int diphotonVHmet_id, float* smeared_pho_energy){
+bool PhotonAnalysis::METTag2012(LoopAll& l, int& diphotonVHmet_id, float* smeared_pho_energy){
     bool tag = false;
+    diphotonVHmet_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVHmetCut, subleadEtVHmetCut, 4, false, &smeared_pho_energy[0], true);
+    if(diphotonVHmet_id>-1) {
+        TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphotonVHmet_id], l.dipho_vtxind[diphotonVHmet_id] , &smeared_pho_energy[0]);
+        TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphotonVHmet_id], l.dipho_vtxind[diphotonVHmet_id] , &smeared_pho_energy[0]);        
+        TLorentzVector TwoPhoton_Vector = (lead_p4) + (sublead_p4);  
+        float m_gamgam = TwoPhoton_Vector.M();
+    
+        MetCorrections2012_Simple( l, lead_p4 , sublead_p4 );
+            
+        if (m_gamgam>100 && m_gamgam<180) {
+          met_sync << " run: " << l.run
+            << "\tevent: " << l.event
+            << "\tleadPt: " << lead_p4.Pt()
+            << "\tsubleadPt: " << sublead_p4.Pt()
+            << "\tdiphomass: " << m_gamgam
+            << "\traw_met: " << l.met_pfmet
+            << "\traw_met_phi: " << l.met_phi_pfmet
+            << "\tshifted_met: " << l.shiftMET_pt
+            << "\tcorrected_met: " << l.shiftscaleMET_pt
+            << "\tcorrected_met_phi: " << l.shiftscaleMET_phi
+            << "\tjet_algoPF1_n: " << l.jet_algoPF1_n
+            << endl;
+        }        
+    }
 
     if(diphotonVHmet_id==-1) return tag;
-    
-    //
-    
-    if( l.shiftscaleMET_pt > 70 ) tag = true;    
+    if( l.correctedpfMET > 70 ) tag = true;    
     
     return tag;
     
