@@ -129,8 +129,6 @@ class MvaAnalysis : public MassFactorizedMvaAnalysis
     // RooStuff
     //RooContainer *rooContainer;
 
-    ofstream eventListText;
-
     std::map<int,std::string> signalLabels;
 
     //MVA variables
