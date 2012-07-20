@@ -13,6 +13,7 @@ typ=-38    ind=98 draw=1  Nam=DYJetsToLL   CaDir=/castor/cern.ch/user/c/cmshgg/r
 ##
 ## inputBranches jan16reload/minimal_analysis_inputs.dat
 inputBranches jan16/massfactorizedmvaanalysis_input.dat
+inputBranches escaleTrees_input.dat
 
 runZeeValidation=1
 cuts jan16reload/cuts.dat
@@ -26,4 +27,4 @@ treevariables treevariables_escale.dat
 ## 	analyzer <class_name> <config_file>
 ## 
 ## analyzer PhotonAnalysis photonanalysis.dat	
-analyzer MassFactorizedMvaAnalysis jan16reload/analysis_settings.dat jan16/massfactorizedmvaanalysis.dat zeevalidation.dat nosyst.dat jan16/noEnergyScaleOrSmear.dat
+analyzer MassFactorizedMvaAnalysis jan16reload/analysis_settings.dat jan16/massfactorizedmvaanalysis.dat zeevalidation.dat nosyst.dat jan16/noEnergyScaleOrSmear.dat fillEscaleTrees=1

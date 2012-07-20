@@ -13,6 +13,7 @@ split typ=-39 ind=3 draw=1  Nam=tth_m125_8TeV      CaDir=/store/group/phys_higgs
 ##
 inputBranches minimal_analysis_input.dat 
 inputBranches massfactorizedmvaanalysis_input.dat
+inputBranches escaleTrees_input.dat
 
 plotvariables common/plotvariables_none.dat
 treevariables treevariables_escale.dat
@@ -24,4 +25,4 @@ treevariables treevariables_escale.dat
 ## 	analyzer <class_name> <config_file>
 ## 
 ## analyzer PhotonAnalysis photonanalysis.dat	
-analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat nosyst.dat noEnergyScaleOrSmear.dat
+analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat nosyst.dat noEnergyScaleOrSmear.dat fillEscaleTrees=1

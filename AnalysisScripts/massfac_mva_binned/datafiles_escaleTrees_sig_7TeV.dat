@@ -13,6 +13,7 @@ typ=-39 ind=28 draw=1  Nam=tt_H_gg_125_pu2011     CaDir=/store/group/phys_higgs/
 ##
 ## inputBranches jan16reload/minimal_analysis_inputs.dat
 inputBranches jan16/massfactorizedmvaanalysis_input.dat
+inputBranches escaleTrees_input.dat
 
 cuts jan16reload/cuts.dat
 plotvariables common/plotvariables_none.dat
@@ -25,4 +26,4 @@ treevariables treevariables_escale.dat
 ## 	analyzer <class_name> <config_file>
 ## 
 ## analyzer PhotonAnalysis photonanalysis.dat	
-analyzer MassFactorizedMvaAnalysis jan16reload/analysis_settings.dat jan16/massfactorizedmvaanalysis.dat nosyst.dat jan16/noEnergyScaleOrSmear.dat
+analyzer MassFactorizedMvaAnalysis jan16reload/analysis_settings.dat jan16/massfactorizedmvaanalysis.dat nosyst.dat jan16/noEnergyScaleOrSmear.dat fillEscaleTrees=1

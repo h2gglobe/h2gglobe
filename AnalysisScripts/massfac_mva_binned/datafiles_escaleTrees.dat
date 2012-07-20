@@ -34,6 +34,7 @@ typ=-38    ind=98 draw=1  Nam=DYJetsToLL   CaDir=/store/group/phys_higgs/cmshgg/
 ##
 inputBranches minimal_analysis_input.dat 
 inputBranches massfactorizedmvaanalysis_input.dat
+inputBranches escaleTrees_input.dat
 
 runZeeValidation=1
 cuts common/cuts_zee.dat
@@ -47,4 +48,4 @@ treevariables treevariables_escale.dat
 ## 	analyzer <class_name> <config_file>
 ## 
 ## analyzer PhotonAnalysis photonanalysis.dat	
-analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat zeevalidation.dat nosyst.dat noEnergyScaleOrSmear.dat
+analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat zeevalidation.dat nosyst.dat noEnergyScaleOrSmear.dat fillEscaleTrees=1
