@@ -52,7 +52,7 @@ public:
 
 protected:
 
-  TVector3 caloPosition_;
+  TVector3 caloPosition_, rawCaloPosition_;
   float energy_;
   float corrEnergy_;
   float corrEnergyErr_;
@@ -60,7 +60,7 @@ protected:
   float r9_;
   bool passId_;
   bool sphericalPhoton_;
-  float rawCaloPosition_, rawEnergy_, rawCorrEnergy_, rawR9_, rawCorrEnergyErr_;
+  float rawEnergy_, rawCorrEnergy_, rawR9_, rawCorrEnergyErr_;
 
   std::vector<int> smearingSeeds_;
   std::vector<std::pair<const BaseSmearer *, float> > cache_;
