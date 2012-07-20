@@ -2169,6 +2169,41 @@ void Normalization_8TeV::FillSignalTypes(){
   SignalTypeMap[-83]=std::make_pair<TString,double>("tth",90);
 
 }
+
+TGraph * Normalization_8TeV::GetSigmaGraph(TString process)
+{
+	TGraph * gr = new TGraph();
+	std::map<double, double> * XSectionMap = 0 ;
+	if ( process == "ggh") {
+		XSectionMap = &XSectionMap_ggh;
+	} else if ( process == "vbf") {
+		XSectionMap = &XSectionMap_vbf;
+	} else if ( process == "wzh") {
+		XSectionMap = &XSectionMap_wzh;
+	} else if ( process == "tth") {
+		XSectionMap = &XSectionMap_tth;
+	} else if ( process == "wh") {
+		XSectionMap = &XSectionMap_wh;
+	} else if ( process == "zh") {
+		XSectionMap = &XSectionMap_zh;
+	}
+	
+	for (std::map<double, double>::const_iterator iter = XSectionMap->begin();  iter != XSectionMap->end(); ++iter) {
+		gr->SetPoint(gr->GetN(),iter->first, iter->second );
+	}
+	
+	return gr;
+}
+
+TGraph * Normalization_8TeV::GetBrGraph()
+{
+	TGraph * gr = new TGraph();
+	for (std::map<double, double>::const_iterator iter = BranchingRatioMap.begin();  iter != BranchingRatioMap.end(); ++iter) {
+		gr->SetPoint(gr->GetN(),iter->first, iter->second );
+	}
+	return gr;
+}
+
 double Normalization_8TeV::GetBR(double mass) {
 
   for (std::map<double, double>::const_iterator iter = BranchingRatioMap.begin();  iter != BranchingRatioMap.end(); ++iter) {
@@ -2270,6 +2305,12 @@ double Normalization_8TeV::GetNorm(double mass1, TH1F* hist1, double mass2, TH1F
   double effAcc2 = hist2->Integral()/(xsec2*br2);
 
   double Normalization = (xsec*br)*(effAcc1 + alpha * (effAcc2 - effAcc1));
+
+  /// std::cout << mass1 << " " << hist1->GetName() << " " << mass2 << " " << hist2->GetName() << " " << mass 
+  /// 	    << br << " " << br1 << " " << br2 << " " << xsec << " " << xsec1 << " " << xsec2 << " " << alpha << " " 
+  /// 	    << effAcc1 << " " << effAcc2 << " " << Normalization << std::endl;
+	  
+
   return Normalization;
   
 }
@@ -2341,7 +2382,7 @@ void Normalization_8TeV::PlotExpected(double Min, double Max){
 		vbf->SetPoint(i,mH,GetBR(mH)*GetXsection(mH,"vbf"));
 		wzh->SetPoint(i,mH,GetBR(mH)*GetXsection(mH,"wzh"));
 		tth->SetPoint(i,mH,GetBR(mH)*GetXsection(mH,"tth"));
-
+		
 		i++;
 	}
 	can->SetLogy();

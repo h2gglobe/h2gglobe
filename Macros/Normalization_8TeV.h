@@ -34,6 +34,9 @@ class Normalization_8TeV {
 	void CheckNorm(double,double,double,TString);
 	void FillSignalTypes();
 	void PlotExpected(double ,double);	
+
+	TGraph * GetSigmaGraph(TString process);
+	TGraph * GetBrGraph();
 	
 	std::map<int,std::pair<TString,double > > & SignalType() { return SignalTypeMap; }
  private:
