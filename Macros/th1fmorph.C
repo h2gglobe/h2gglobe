@@ -4,12 +4,12 @@
 #include <TROOT.h>
 using namespace std;
 
-TH1F *th1fmorph(Char_t *chname="TH1F-interpolated", 
-		Char_t *chtitle="Interpolated histogram",
-		TH1F *hist1=0,TH1F *hist2=0,
+TH1F *th1fmorph(const Char_t *chname="TH1F-interpolated", 
+		const Char_t *chtitle="Interpolated histogram",
+		const TH1F *hist1=0,const TH1F *hist2=0,
 		Double_t par1=0,Double_t par2=1,Double_t parinterp=0,
 		Double_t morphedhistnorm=-1,
-		Int_t idebug=0)
+		Int_t idebug=0, bool fast=true)
 {
   //--------------------------------------------------------------------------
   // Author           : Alex Read 
@@ -197,8 +197,8 @@ TH1F *th1fmorph(Char_t *chname="TH1F-interpolated",
 // *      sigdisn[i] (cummulative probability up this edge) before we project 
 // *      into the final binning.
 
-  Float_t *dist1=hist1->GetArray(); 
-  Float_t *dist2=hist2->GetArray();
+  const Float_t *dist1=hist1->GetArray(); 
+  const Float_t *dist2=hist2->GetArray();
   Double_t *sigdis1 = new Double_t[1+nb1];
   Double_t *sigdis2 = new Double_t[1+nb2];
   Double_t *sigdisn = new Double_t[2+nb1+nb2];
@@ -515,7 +515,10 @@ TH1F *th1fmorph(Char_t *chname="TH1F-interpolated",
   //......Differentiate interpolated cdf and return renormalized result in 
   //      new histogram. 
 
-  TH1F *morphedhist = (TH1F *)gROOT->FindObject(chname);
+  TH1F *morphedhist = 0;
+  if( ! fast ) {
+	  morphedhist = (TH1F *)gROOT->FindObject(chname);
+  }
   if (morphedhist) delete morphedhist;
   morphedhist = new TH1F(chname,chtitle,nbn,xminn,xmaxn);
  
