@@ -1,0 +1,9 @@
+#switch off systematics
+doSystematics=0
+doEscaleSmear=0
+
+#switch off efficiency reweightings
+doPhotonIdEffSmear=0
+doVtxEffSmear=0
+doTriggerEffSmear=0
+doPhotonMvaIdSmear=0
