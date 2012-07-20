@@ -78,6 +78,8 @@ doPdfWeightSyst=1
 
 doInterferenceSmear=1
 
+fillEscaleTrees=0
+
 # Inputs for reweighing
 # - phoId and trigger: same as EPS,  https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/374.html
 # - vertexing from: https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/374/1.html

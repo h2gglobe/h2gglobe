@@ -1040,6 +1040,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 		  fillControlPlots(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9,  diphoton_id, 
 				   category, isCorrectVertex, evweight, l );
 		}
+		if (fillEscaleTrees) fillEscaleTree(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, phoid_mvaout_lead, phoid_mvaout_sublead, diphobdt_output, sigmaMrv, sigmaMwv, vtxProb, diphoton_id, category, selectioncategory, evweight, l );
 	    }
 	
         //if (cur_type==0 && mass >= 100. && mass < 180. && !isSyst /*should never be if running data anyway*/){
@@ -1148,6 +1149,124 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 	    return true;
     }
     return false;
+}
+
+
+// ----------------------------------------------------------------------------------------------------
+void MassFactorizedMvaAnalysis::fillEscaleTree(const TLorentzVector & lead_p4, const  TLorentzVector & sublead_p4, 
+	                        const TLorentzVector & Higgs, float lead_r9, float sublead_r9,
+				float phoid_mvaout_lead, float phoid_mvaout_sublead, 
+                                float diphobdt_output, float sigmaMrv, float sigmaMwv, float vtxProb,
+				int diphoton_id, int category, int selectioncategory, float evweight, LoopAll & l )
+{
+
+  int lead = l.dipho_leadind[diphoton_id];
+  int sublead = l.dipho_subleadind[diphoton_id];
+
+  float mass = Higgs.M();
+  float ptHiggs = Higgs.Pt();
+
+  float cos_dphi = TMath::Cos(lead_p4.Phi()-sublead_p4.Phi());
+  float pho1_sigmaE = energyCorrectedError[lead];
+  float pho2_sigmaE = energyCorrectedError[sublead];
+
+  float pho1_e5x5  = l.pho_e5x5[l.pho_scind[lead]];
+  float pho2_e5x5  = l.pho_e5x5[l.pho_scind[sublead]];
+
+  float pho1_energy_noregr = ((TLorentzVector*)l.pho_p4->At(lead))->Energy();
+  float pho2_energy_noregr = ((TLorentzVector*)l.pho_p4->At(sublead))->Energy();
+
+  float pho1_scEnergy  = ((TLorentzVector *)l.sc_p4->At(l.pho_scind[lead]))->Energy();
+  float pho1_scEraw  = l.sc_raw[l.pho_scind[lead]];
+  float pho1_scEpresh  = l.sc_pre[l.pho_scind[lead]];
+  float pho1_sceta  = ((TVector3 *)l.sc_xyz->At(l.pho_scind[lead]))->Eta();
+  float pho1_scphi  = ((TVector3 *)l.sc_xyz->At(l.pho_scind[lead]))->Phi();
+
+  float pho2_scEnergy  = ((TLorentzVector *)l.sc_p4->At(l.pho_scind[sublead]))->Energy();
+  float pho2_scEraw  = l.sc_raw[l.pho_scind[sublead]];
+  float pho2_scEpresh  = l.sc_pre[l.pho_scind[sublead]];
+  float pho2_sceta  = ((TVector3 *)l.sc_xyz->At(l.pho_scind[sublead]))->Eta();
+  float pho2_scphi  = ((TVector3 *)l.sc_xyz->At(l.pho_scind[sublead]))->Phi();
+
+  float el1_eta=-99.;
+  float el1_phi=-99.;
+  float el2_eta=-99.;
+  float el2_phi=-99.;
+  for (int iel=0;iel<l.el_std_n;iel++){
+      if (l.el_std_scind[iel] == l.pho_scind[lead]) {
+	  el1_eta  = ((TLorentzVector *)l.el_std_p4->At(iel))->Eta();
+	  el1_phi  = ((TLorentzVector *)l.el_std_p4->At(iel))->Phi();
+      }
+      if (l.el_std_scind[iel] == l.pho_scind[sublead]) {
+	  el2_eta  = ((TLorentzVector *)l.el_std_p4->At(iel))->Eta();
+	  el2_phi  = ((TLorentzVector *)l.el_std_p4->At(iel))->Phi();
+      }
+  }
+
+  TVector3* vtx = (TVector3*)l.vtx_std_xyz->At(l.dipho_vtxind[diphoton_id]);
+
+  l.FillTree("run",l.run);
+  l.FillTree("event",l.event);
+  l.FillTree("lumi",l.lumis);
+  l.FillTree("weight", evweight);
+  l.FillTree("category",category);
+  l.FillTree("category_baseline",selectioncategory);
+
+  l.FillTree("pho1_energy",lead_p4.E());
+  l.FillTree("pho1_energy_regr",l.pho_regr_energy[lead]);
+  l.FillTree("pho1_energy_noregr",pho1_energy_noregr);
+  l.FillTree("pho1_pt",lead_p4.Pt());
+  l.FillTree("pho1_eta",lead_p4.Eta());
+  l.FillTree("pho1_phi",lead_p4.Phi());
+  l.FillTree("pho1_r9",lead_r9);
+  l.FillTree("pho1_phoidMva",phoid_mvaout_lead);
+  l.FillTree("pho1_ptOverM",lead_p4.Pt()/mass);
+  l.FillTree("pho1_sceta",pho1_sceta);
+  l.FillTree("pho1_scphi",pho1_scphi);
+  l.FillTree("pho1_e5x5",pho1_e5x5);
+  l.FillTree("pho1_sigmaE",pho1_sigmaE);
+  l.FillTree("pho1_scEnergy",pho1_scEnergy);
+  l.FillTree("pho1_scEraw",pho1_scEraw);
+  l.FillTree("pho1_scEpresh",pho1_scEpresh);
+  l.FillTree("pho1_isconv",l.pho_isconv[lead]);
+
+  l.FillTree("pho2_energy",sublead_p4.E());
+  l.FillTree("pho2_energy_regr",l.pho_regr_energy[sublead]);
+  l.FillTree("pho2_energy_noregr",pho2_energy_noregr);
+  l.FillTree("pho2_pt",sublead_p4.Pt());
+  l.FillTree("pho2_eta",sublead_p4.Eta());
+  l.FillTree("pho2_phi",sublead_p4.Phi());
+  l.FillTree("pho2_r9",sublead_r9);
+  l.FillTree("pho2_phoidMva",phoid_mvaout_sublead);
+  l.FillTree("pho2_ptOverM",sublead_p4.Pt()/mass);
+  l.FillTree("pho2_sceta",pho2_sceta);
+  l.FillTree("pho2_scphi",pho2_scphi);
+  l.FillTree("pho2_e5x5",pho2_e5x5);
+  l.FillTree("pho2_sigmaE",pho2_sigmaE);
+  l.FillTree("pho2_scEnergy",pho2_scEnergy);
+  l.FillTree("pho2_scEraw",pho2_scEraw);
+  l.FillTree("pho2_scEpresh",pho2_scEpresh);
+  l.FillTree("pho2_isconv",l.pho_isconv[sublead]);
+
+  l.FillTree("sigmaMOverM",sigmaMrv/mass);
+  l.FillTree("sigmaMOverM_wrongVtx",sigmaMwv/mass);
+  l.FillTree("vtxProb",vtxProb);
+  l.FillTree("cosDeltaPhi",cos_dphi);
+
+  l.FillTree("dipho_mass",mass);
+  l.FillTree("dipho_pt",ptHiggs);
+  l.FillTree("dipho_mvaout",diphobdt_output);
+
+  l.FillTree("nvtx",l.vtx_std_n);
+  l.FillTree("vtx_x",vtx->x());
+  l.FillTree("vtx_y",vtx->y());
+  l.FillTree("vtx_z",vtx->z());
+
+  l.FillTree("el1_eta",el1_eta);
+  l.FillTree("el1_phi",el1_phi);
+  l.FillTree("el2_eta",el2_eta);
+  l.FillTree("el2_phi",el2_phi);
+
 }
 
 // ----------------------------------------------------------------------------------------------------

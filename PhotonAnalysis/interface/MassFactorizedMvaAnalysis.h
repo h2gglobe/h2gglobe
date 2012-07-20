@@ -42,12 +42,19 @@ class MassFactorizedMvaAnalysis : public StatAnalysis
 			     float diphobdt_output, float sigmaMrv, float sigmaMwv, float vtxProb,
 			     int diphoton_id, int category, int selectioncategory, float evweight, LoopAll & l );
 
+    void fillEscaleTree(const TLorentzVector & lead_p4, const  TLorentzVector & sublead_p4, 
+	                     const TLorentzVector & Higgs, float lead_r9, float sublead_r9,
+			     float phoid_mvaout_lead, float phoid_mvaout_sublead, 
+			     float diphobdt_output, float sigmaMrv, float sigmaMwv, float vtxProb,
+			     int diphoton_id, int category, int selectioncategory, float evweight, LoopAll & l );
+
     void fillTrainTree(LoopAll&, Int_t, Int_t, Int_t, float, TLorentzVector &, TLorentzVector &, float,float,float,const char*,float photonID_1=-50.,float photonID_2=-50.);
 
     bool doPhotonMvaIdSyst;
     bool doPhotonMvaIdSmear;
     bool doRegressionSmear, doRegressionSyst;
     bool doPdfWeightSmear, doPdfWeightSyst;
+    bool fillEscaleTrees;
 
     std::string bdtTrainingPhilosophy;
     std::string photonLevelMvaUCSD  ;
