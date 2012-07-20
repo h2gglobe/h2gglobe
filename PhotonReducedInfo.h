@@ -4,6 +4,9 @@
 #include "TVector3.h"
 #include "TLorentzVector.h"
 #include <iostream>
+
+#include "BaseSmearer.h"
+
 class PhotonReducedInfo
 {
 public:
@@ -38,6 +41,14 @@ public:
   int smearingSeed(int ised=0) { return smearingSeeds_[ised];  };
   void addSmearingSeed(int seed) { return smearingSeeds_.push_back(seed);  };
   void dump();
+  void reset();
+  
+  void cacheVal(int id, const BaseSmearer * smearer, float val) { 
+	  cache_.resize(BaseSmearer::nRegisteredSmerers(),std::make_pair((const BaseSmearer *)0,0.)); 
+	  cache_[id] = std::make_pair(smearer,val); 
+  };
+  bool hasCachedVal(int id) { return cache_.size() > id && cache_[id].first != 0; };
+  const std::pair<const BaseSmearer *, float> & cachedVal(int id) { return cache_[id]; };
 
 protected:
 
@@ -49,7 +60,10 @@ protected:
   float r9_;
   bool passId_;
   bool sphericalPhoton_;
+  float rawCaloPosition_, rawEnergy_, rawCorrEnergy_, rawR9_, rawCorrEnergyErr_;
+
   std::vector<int> smearingSeeds_;
+  std::vector<std::pair<const BaseSmearer *, float> > cache_;
   void copy_(const PhotonReducedInfo &);
 };
 

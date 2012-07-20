@@ -6,6 +6,7 @@ EnergySmearer::EnergySmearer(const energySmearingParameters& par, const std::vec
 	myParameters_(par), scaleOrSmear_(true), doCorrections_(false), doRegressionSmear_(false),
 	preselCategories_(presel)
 {
+  syst_only_ = false;
   rgen_ = new TRandom3(12345);
   baseSeed_ = 0;
   name_="EnergySmearer_"+ par.categoryType + "_" + par.parameterSetName;
@@ -18,7 +19,8 @@ EnergySmearer::EnergySmearer(const energySmearingParameters& par, const std::vec
 	  ( myParameters_.categoryType == "2CatR9_EBEE_ByRun" && myParameters_.n_categories == 4 ) ||
 	  ( myParameters_.categoryType == "2CatR9_EBEBm4EE" && myParameters_.n_categories == 6 ) ||
 	  ( myParameters_.categoryType == "2CatR9_EBEBm4EE_ByRun" && myParameters_.n_categories == 6 ) || 
-	  ( myParameters_.categoryType == "Automagic" && ( myParameters_.byRun || myParameters_.n_categories == myParameters_.photon_categories.size() ) )
+	  ( myParameters_.categoryType == "Automagic" && 
+	    ( myParameters_.byRun || myParameters_.n_categories == myParameters_.photon_categories.size() ) )
 	  );
   if( myParameters_.categoryType == "Automagic" ) {
 	  myParameters_.n_categories = myParameters_.photon_categories.size();
@@ -33,12 +35,16 @@ EnergySmearer::EnergySmearer(const energySmearingParameters& par, const std::vec
     assert( myParameters_.n_categories == myParameters_.scale_offset.size() );
     assert( myParameters_.n_categories == myParameters_.scale_offset_error.size() );
   }
+  
+  registerMe();
 }
 
 EnergySmearer::EnergySmearer(EnergySmearer * orig, const std::vector<PhotonCategory> & presel)
 {
-	*this = *orig;
-	preselCategories_ = presel;
+    *this = *orig;
+    preselCategories_ = presel;
+
+    registerMe();
 }
 
 
@@ -128,6 +134,15 @@ float EnergySmearer::getScaleOffset(int run, const std::string & category) const
 
 bool EnergySmearer::smearPhoton(PhotonReducedInfo & aPho, float & weight, int run, float syst_shift) const
 {
+    if( syst_only_ && syst_shift == 0. ) { return true; }
+    if( ! doEfficiencies_ && ! doCorrections_ && ! doRegressionSmear_ && syst_shift == 0. ) {
+	    int myId = smearerId();
+	    if( aPho.hasCachedVal(myId) ) {
+		    const std::pair<const BaseSmearer *, float> & cachedVal = aPho.cachedVal(myId);
+		    assert( cachedVal.first == this );
+		    aPho.setEnergy(aPho.energy() * cachedVal.second );
+	    }
+    }
     if( ! preselCategories_.empty() ) {
 	if( find(preselCategories_.begin(), preselCategories_.end(),
 		 std::make_pair( aPho.isSphericalPhoton(),
@@ -167,22 +182,30 @@ bool EnergySmearer::smearPhoton(PhotonReducedInfo & aPho, float & weight, int ru
 
 	    scale_offset   += syst_shift * myParameters_.scale_offset_error.find(category)->second;
 	    newEnergy *=  scale_offset;
+	    if( syst_shift == 0. ) {
+		    aPho.cacheVal( smearerId(), this, scale_offset );
+	    }
 	} else {
 	    float smearing_sigma = myParameters_.smearing_sigma.find(category)->second;
-		
 	    float err_sigma= myParameters_.smearing_sigma_error.find(category)->second;
+	    
 	    smearing_sigma += syst_shift * err_sigma;
 	    // Careful here, if sigma < 0 now, it will be squared and so not correct, set to 0 in this case.
-	    if (smearing_sigma < 0) smearing_sigma=0;
+	    if (smearing_sigma < 0.) smearing_sigma=0.;
 	    
-	    // deterministic smearing
-	    int nsigmas = round(syst_shift);
-	    if( nsigmas < 0 ) nsigmas = 1-nsigmas;
-	    if( nsigmas < aPho.nSmearingSeeds() ) {
-		rgen_->SetSeed( baseSeed_+aPho.smearingSeed(nsigmas) );
+	    float smear = 1.;
+	    if( smearing_sigma > 0. ) {
+		// deterministic smearing
+		int nsigmas = round(syst_shift);
+		if( nsigmas < 0 ) nsigmas = 1-nsigmas;
+		if( nsigmas < aPho.nSmearingSeeds() ) {
+		    rgen_->SetSeed( baseSeed_+aPho.smearingSeed(nsigmas) );
+		}
+		smear = rgen_->Gaus(1.,smearing_sigma) ;
 	    }
-	    
-	    float smear = rgen_->Gaus(1.,smearing_sigma);
+	    if( syst_shift == 0. ) {
+		    aPho.cacheVal( smearerId(), this, smear );
+	    }
 	    newEnergy *=  smear;
 	}
     }

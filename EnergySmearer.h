@@ -117,6 +117,8 @@ public:
   void resetRandom(){rgen_->SetSeed(12345);};
 
   bool initEfficiency();
+  
+  void syst_only(bool x) { syst_only_ = x; };
 
   energySmearingParameters  myParameters_;
   
@@ -134,6 +136,7 @@ public:
   TRandom3     *rgen_;
   std::string   effName_;
   TFile        *theEfficiencyFile_; 
+  bool syst_only_;
   std::map<std::string,TGraphAsymmErrors*> smearing_eff_graph_;
 };
 

@@ -32,6 +32,17 @@ public:
 	// ! return smeared photon informations
 	virtual bool smearPhoton( PhotonReducedInfo & pho, float & weight, int run, float syst_shift=0. ) const = 0;
 
+	int  smearerId()    const  { return smearerId_; };
+	bool amRegistered() const  { return smearerId_ > -1; };
+
+	static int nRegisteredSmerers() { return nRegisteredSmerers_; };
+	
+protected:
+	static int nRegisteredSmerers_;
+	int smearerId_;
+	
+	void registerMe();
+	
 	/// virtual bool smearDiPhoton( TLorentzVector & 4p, const TVector3 & selVtx, const TVector3 & trueVtx);
 };
 

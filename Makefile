@@ -30,7 +30,7 @@ MainHead+=$(wildcard branchdef/*.$(HeadSuf))
 
 ## Sources
 MainSrc=$(filter-out dict.cc, $(filter-out LoopAllDict.cc,$(wildcard *.$(SrcSuf))) )
-MainSrc+=LoopAllDict.cc dict.cc Macros/Normalization_8TeV.cc
+MainSrc+=LoopAllDict.cc dict.cc Macros/Normalization_8TeV.cc Macros/MassInterpolator.cc
 MainObjs=$(patsubst %$(SrcSuf), %$(ObjSuf), $(MainSrc))
 
 ## ROOT dictionary
@@ -39,7 +39,7 @@ MainDicts=LoopAll.h
 MainDicts+=$(wildcard Base*.$(HeadSuf))
 MainDicts+=$(wildcard *Smearer.$(HeadSuf))
 MainDicts+=$(wildcard *Container.$(HeadSuf))
-MainDicts+=PhotonFix.h MassResolution.h HtmlHelper.h Macros/Normalization_8TeV.h
+MainDicts+=PhotonFix.h MassResolution.h HtmlHelper.h Macros/Normalization_8TeV.h Macros/MassInterpolator.h
 
 
 ##
@@ -56,7 +56,7 @@ LDFLAGS+=-L$(ROOFIT_BASE)/lib $(ROOTLIBS) -lRooFitCore -lRooFit -lTMVA
 LDFLAGS+= $(patsubst %, -L%, $(shell echo ${LD_LIBRARY_PATH} | tr ':' '\n')) -lFWCorePythonParameterSet -lFWCoreParameterSet -lCMGToolsExternal -lCondFormatsJetMETObjects
 CXXFLAGS+=-I$(ROOFIT_BASE)/include -I$(CMSSW_BASE)/src  -I$(CMSSW_RELEASE_BASE)/src 
 CXXFLAGS+= $(patsubst %, -I%, $(shell echo ${CMSSW_FWLITE_INCLUDE_PATH} | tr ':' '\n'))
-CXXFLAGS+=-I$(shell pwd)
+CXXFLAGS+=-I$(shell pwd) -g
 
 ##
 ## Code from users

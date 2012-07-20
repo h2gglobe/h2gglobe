@@ -1125,6 +1125,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
             << "    phoeta_1:"  <<  lead_p4.Eta() 
             << "    phoeta_2:"  <<  sublead_p4.Eta() 
             << "    sigmrv:"    <<  sigmaMrv 
+            << "    bsw:"       <<  beamspotWidth 
             << "    sigmwv:"    <<  sigmaMwv 
             << "    pt_1/m:"      <<  lead_p4.Pt()/mass
             << "    pt_2/m:"      <<  sublead_p4.Pt()/mass

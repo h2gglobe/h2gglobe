@@ -1,12 +1,22 @@
 #include "BaseSmearer.h"
 
-BaseSmearer::BaseSmearer()
+int BaseSmearer::nRegisteredSmerers_ = 0;
+
+BaseSmearer::BaseSmearer():
+	smearerId_(-1)
 {}
 
 BaseSmearer::~BaseSmearer() 
 {}
 
 bool operator == (BaseSmearer * a, const std::string & b) { return a->name() == b; };
+
+void BaseSmearer::registerMe()
+{
+	smearerId_ = nRegisteredSmerers_;
+	++nRegisteredSmerers_;
+}
+
 
 BaseDiPhotonSmearer::BaseDiPhotonSmearer()
 {}

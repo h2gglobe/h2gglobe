@@ -266,53 +266,70 @@ void PhotonAnalysis::applySinglePhotonSmearings(std::vector<float> & smeared_pho
     )
 {
     static int nwarnings = 10;
-    photonInfoCollection.clear();
+    static int cache_run = -1, cache_lumis = -1, cache_event = -1;
+    bool fillInfo = false;
+    if( l.run != cache_run || l.lumis != cache_lumis || l.event != cache_event ) {
+	fillInfo = true;
+	cache_run   = l.run  ;
+	cache_lumis = l.lumis;
+	cache_event = l.event;
+    }
+    
+    if( fillInfo ) {
+	photonInfoCollection.clear();
+    }
     smeared_pho_energy.resize(l.pho_n,0.);
     smeared_pho_r9.resize(l.pho_n,0.);
     smeared_pho_weight.resize(l.pho_n,0.);
     for(int ipho=0; ipho<l.pho_n; ++ipho ) { 
     
         std::vector<std::vector<bool> > p;
-        PhotonReducedInfo phoInfo (
-        *((TVector3*)     l.sc_xyz->At(l.pho_scind[ipho])), 
-        ((TLorentzVector*)l.pho_p4->At(ipho))->Energy(), 
-        energyCorrected[ipho],
-        l.pho_isEB[ipho], l.pho_r9[ipho],
-        true, // WARNING  setting pass photon ID flag for all photons. This is safe as long as only selected photons are used
-        (energyCorrectedError!=0?energyCorrectedError[ipho]:0)
-        );
-    
-    int ieta, iphi;
-    l.getIetaIPhi(ipho,ieta,iphi);
-    phoInfo.addSmearingSeed( (unsigned int)l.sc_raw[l.pho_scind[ipho]] + abs(ieta) + abs(iphi) + l.run + l.event + l.lumis ); 
-    phoInfo.setSphericalPhoton(l.CheckSphericalPhoton(ieta,iphi));
-
-    // FIXME add seed to syst smearings
-    
+	if( fillInfo ) {
+	    PhotonReducedInfo info (
+		*((TVector3*)     l.sc_xyz->At(l.pho_scind[ipho])), 
+		((TLorentzVector*)l.pho_p4->At(ipho))->Energy(), 
+		energyCorrected[ipho],
+		l.pho_isEB[ipho], l.pho_r9[ipho],
+		true, // WARNING  setting pass photon ID flag for all photons. This is safe as long as only selected photons are used
+		(energyCorrectedError!=0?energyCorrectedError[ipho]:0)
+		);
+	    photonInfoCollection.push_back(info);
+	} else {
+	    photonInfoCollection[ipho].reset();
+	}
+	PhotonReducedInfo & phoInfo = photonInfoCollection[ipho];
+	
+	int ieta, iphi;
+	l.getIetaIPhi(ipho,ieta,iphi);
+	phoInfo.addSmearingSeed( (unsigned int)l.sc_raw[l.pho_scind[ipho]] + abs(ieta) + abs(iphi) + l.run + l.event + l.lumis ); 
+	phoInfo.setSphericalPhoton(l.CheckSphericalPhoton(ieta,iphi));
+	
+	// FIXME add seed to syst smearings
+	
         float pweight = 1.;
         // smear MC. But apply energy corrections and scale adjustement to data 
         if( cur_type != 0 && doMCSmearing ) {
             for(std::vector<BaseSmearer *>::iterator si=photonSmearers_.begin(); si!= photonSmearers_.end(); ++si ) {
                 float sweight = 1.;
-        if( sys != 0 && *si == *sys ) {
-            // move the smearer under study by syst_shift
-            (*si)->smearPhoton(phoInfo,sweight,l.run,syst_shift);
-        } else {
-            // for the other use the nominal points
-            (*si)->smearPhoton(phoInfo,sweight,l.run,0.);
-        }
-                if( sweight < 0. ) {
-            if( syst_shift == 0. ) {
-            std::cerr << "Negative weight from smearer " << (*si)->name() << std::endl;
-            assert(0);
-            } else { 
-            if( nwarnings-- > 0 ) {
-                std::cout <<  "WARNING: negative during systematic scan in " << (*si)->name() << std::endl;
-            }
-            sweight = 0.;
-            }
-                }
-                pweight *= sweight;
+		if( sys != 0 && *si == *sys ) {
+		    // move the smearer under study by syst_shift
+		    (*si)->smearPhoton(phoInfo,sweight,l.run,syst_shift);
+		} else {
+		    // for the other use the nominal points
+		    (*si)->smearPhoton(phoInfo,sweight,l.run,0.);
+		}
+		if( sweight < 0. ) {
+		    if( syst_shift == 0. ) {
+			std::cerr << "Negative weight from smearer " << (*si)->name() << std::endl;
+			assert(0);
+		    } else { 
+			if( nwarnings-- > 0 ) {
+			    std::cout <<  "WARNING: negative during systematic scan in " << (*si)->name() << std::endl;
+			}
+			sweight = 0.;
+		    }
+		}
+		pweight *= sweight;
             }
         } else if( cur_type == 0 ) {
             float sweight = 1.;
@@ -323,9 +340,9 @@ void PhotonAnalysis::applySinglePhotonSmearings(std::vector<float> & smeared_pho
             pweight *= sweight;
         }
         smeared_pho_energy[ipho] = phoInfo.energy();
-        smeared_pho_r9[ipho] = phoInfo.r9();
+        smeared_pho_r9[ipho]     = phoInfo.r9();
         smeared_pho_weight[ipho] = pweight;
-        photonInfoCollection.push_back(phoInfo);
+        
     }
 }
 
@@ -858,7 +875,8 @@ void PhotonAnalysis::Init(LoopAll& l)
     eScaleSmearer->name("E_scale");
     eScaleSmearer->doEnergy(true);
     eScaleSmearer->scaleOrSmear(true);
-
+    eScaleSmearer->syst_only(true);
+    
     eResolSmearer = new EnergySmearer( eSmearPars );
     eResolSmearer->name("E_res");
     eResolSmearer->doEnergy(false);
@@ -981,6 +999,7 @@ void PhotonAnalysis::setupEscaleSmearer()
 	for( ; icat != tmp_scale_cat.end(); ++icat ) {
 	    EnergySmearer * theSmear = new EnergySmearer( eScaleSmearer, EnergySmearer::energySmearingParameters::phoCatVector(1,*icat) );
 	    theSmear->name( eScaleSmearer->name()+"_"+icat->name );
+	    theSmear->syst_only(true);
 	    std::cout << "Uncorrelated single photon category smearer " << theSmear->name() << std::endl; 
 	    photonSmearers_.push_back(theSmear);
 	    eScaleSmearers_.push_back(theSmear);
@@ -990,6 +1009,7 @@ void PhotonAnalysis::setupEscaleSmearer()
 	eScaleCorrSmearer->name("E_scaleCorr");
 	eScaleCorrSmearer->doEnergy(true);
 	eScaleCorrSmearer->scaleOrSmear(true);
+	eScaleCorrSmearer->syst_only(true);
 	photonSmearers_.push_back(eScaleCorrSmearer);
 	eScaleSmearers_.push_back(eScaleCorrSmearer);
 
@@ -1050,6 +1070,7 @@ void PhotonAnalysis::setupEresolSmearer()
 	eResolCorrSmearer->name("E_resCorr");
 	eResolCorrSmearer->doEnergy(true);
 	eResolCorrSmearer->scaleOrSmear(true);
+	eResolCorrSmearer->syst_only(true);
 	photonSmearers_.push_back(eResolCorrSmearer);
 	eResolSmearers_.push_back(eResolCorrSmearer);
 	std::cout << "Uncorrelated single photon category smearer " << eResolCorrSmearer->name() << std::endl; 
