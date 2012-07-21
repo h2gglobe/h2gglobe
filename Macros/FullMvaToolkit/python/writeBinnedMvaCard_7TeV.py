@@ -642,7 +642,8 @@ can.SaveAs("normErrors_%s.pdf"%options.tfileName)
 # can make a special "global toy" set of datacards
 toymaker=0
 if options.throwGlobalToy:
-  toymaker = CombinedToyMaker(options.inputmassfacws)
+  if not options.throwAsimov: toymaker = CombinedToyMaker(options.inputmassfacws)
+  else: toymaker = CombinedToyMaker("")	# Dont need mass-fact workspace for asimov cards
   toymaker.setIs2011()
 
   if not options.inputpdfworkspace: 

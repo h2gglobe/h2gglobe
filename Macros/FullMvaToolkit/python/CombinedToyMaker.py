@@ -15,23 +15,25 @@ class CombinedToyMaker:
     r.gROOT.SetBatch(True)
 
     self.is2011_      = False
-    self.mitFileName_ = mitFileName
-    self.mitFile_     = r.TFile(mitFileName)
-    self.mitWS_       = self.mitFile_.Get("cms_hgg_workspace")
-    self.mitvar_      = self.mitWS_.var("CMS_hgg_mass")
-    self.mitpdfs_     =[]
-    self.mitsighists_ =[]
-    self.mitsigpdfs_  =[]
-    # get background pdf for each mit mass cat
-    for cat in range(5): 
-      self.mitpdfs_.append(self.mitWS_.pdf("pdf_data_pol_model_cat%i"%cat))
-    # get signal histpdf for each mit mass cat
-    for cat in range(5):
-      temp = self.mitWS_.data("roohist_sig_ggh_mass_m124_cat%i"%cat)
-      temp.add(self.mitWS_.data("roohist_sig_vbf_mass_m124_cat%i"%cat))
-      temp.add(self.mitWS_.data("roohist_sig_wzh_mass_m124_cat%i"%cat))
-      temp.add(self.mitWS_.data("roohist_sig_tth_mass_m124_cat%i"%cat))
-      self.mitsigpdfs_.append(r.RooHistPdf("sigmasspdf_cat%i"%cat,"sigmasspdf_cat%i"%cat,r.RooArgSet(self.mitvar_),temp))
+    if mitFileName:
+
+	    self.mitFileName_ = mitFileName
+	    self.mitFile_     = r.TFile(mitFileName)
+	    self.mitWS_       = self.mitFile_.Get("cms_hgg_workspace")
+	    self.mitvar_      = self.mitWS_.var("CMS_hgg_mass")
+	    self.mitpdfs_     =[]
+	    self.mitsighists_ =[]
+	    self.mitsigpdfs_  =[]
+	    # get background pdf for each mit mass cat
+	    for cat in range(5): 
+	      self.mitpdfs_.append(self.mitWS_.pdf("pdf_data_pol_model_cat%i"%cat))
+	    # get signal histpdf for each mit mass cat
+	    for cat in range(5):
+	      temp = self.mitWS_.data("roohist_sig_ggh_mass_m124_cat%i"%cat)
+	      temp.add(self.mitWS_.data("roohist_sig_vbf_mass_m124_cat%i"%cat))
+	      temp.add(self.mitWS_.data("roohist_sig_wzh_mass_m124_cat%i"%cat))
+	      temp.add(self.mitWS_.data("roohist_sig_tth_mass_m124_cat%i"%cat))
+      	      self.mitsigpdfs_.append(r.RooHistPdf("sigmasspdf_cat%i"%cat,"sigmasspdf_cat%i"%cat,r.RooArgSet(self.mitvar_),temp))
 
     self.hasFit_      = False
     self.rand_        = r.TRandom3(0)
@@ -315,7 +317,6 @@ class CombinedToyMaker:
       val_b = (self.bdtsigdata_.get(i)).getRealValue("bdtoutput")
       val_w = self.bdtsigdata_.weight()
       if val_m > mHL and val_m < mHH and val_b>=0.05:
-        print val_m, val_b, val_w
         returnList.append((val_b,((val_m-mH)/mH),val_w))
         test.Fill(val_b,val_w)
 
