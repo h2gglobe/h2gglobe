@@ -207,7 +207,8 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
     std::sort(bdtCategoryBoundaries.begin(),bdtCategoryBoundaries.end(), std::greater<float>() );
     nInclusiveCategories_ = bdtCategoryBoundaries.size()-1;
 
-    int nVBFCategories   = ((int)includeVBF)*nVBFEtaCategories*nVBFDijetJetCategories;
+    nVBFCategories   = ((int)includeVBF)*( mvaVbfSelection ? mvaVbfCatBoundaries.size()-1 : nVBFEtaCategories*nVBFDijetJetCategories );
+    std::sort(mvaVbfCatBoundaries.begin(),mvaVbfCatBoundaries.end(), std::greater<float>() );
     nCategories_=(nInclusiveCategories_+nVBFCategories);
 
     if (bdtTrainingPhilosophy == "UCSD") {
@@ -920,12 +921,12 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
     if (PADEBUG) std::cout << "Found a Diphoton , diphoton ID " <<diphoton_id << std::endl; 
     if (diphoton_id > -1 ) {
         diphoton_index = std::make_pair( l.dipho_leadind[diphoton_id],  l.dipho_subleadind[diphoton_id] );
-
+	
         // bring all the weights together: lumi & Xsection, single gammas, pt kfactor
-	    evweight = weight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second] * genLevWeight;
-	    if( ! isSyst ) {
-	        l.countersred[diPhoCounter_]++;
-	    }
+	evweight = weight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second] * genLevWeight;
+	if( ! isSyst ) {
+	    l.countersred[diPhoCounter_]++;
+	}
 	
         TLorentzVector lead_p4, sublead_p4, Higgs;
         float lead_r9, sublead_r9;
@@ -1526,16 +1527,6 @@ void MassFactorizedMvaAnalysis::fillZeeControlPlots(const TLorentzVector & lead_
 }
 
 
-int MassFactorizedMvaAnalysis::category(std::vector<float> & v, float val)
-{
-	if( val == v[0] ) { return 0; }
-	std::vector<float>::iterator bound =  lower_bound( v.begin(), v.end(), val, std::greater<float>  ());
-	int cat = ( val >= *bound ? bound - v.begin() - 1 : bound - v.begin() );
-    //for (int i=0; i<v.size(); i++) cout << v[i] << endl;
-	if( cat >= v.size() - 1 ) { cat = -1; }
-	return cat;
-}
-
 
 // ----------------------------------------------------------------------------------------------------
 int MassFactorizedMvaAnalysis::GetBDTBoundaryCategory(float bdtout, bool isEB, bool VBFevent){
@@ -1555,7 +1546,7 @@ int MassFactorizedMvaAnalysis::GetBDTBoundaryCategory(float bdtout, bool isEB, b
         }
 
     } else if (bdtTrainingPhilosophy=="MIT"){
-	int cat = category( bdtCategoryBoundaries, bdtout );
+	int cat = categoryFromBoundaries( bdtCategoryBoundaries, bdtout );
 	if( VBFevent && cat > -1 ) cat = bdtCategoryBoundaries.size();
 	return cat;
     } else std::cerr << "No BDT Philosophy known - " << bdtTrainingPhilosophy << std::endl;

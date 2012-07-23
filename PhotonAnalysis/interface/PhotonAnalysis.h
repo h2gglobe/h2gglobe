@@ -199,6 +199,14 @@ class PhotonAnalysis : public BaseAnalysis
     float  myVBFdPhi;
     float  myVBF_Mjj;
     float  myVBF_Mgg;
+    float  myVBFLeadPhoPtOverM;
+    float  myVBFSubPhoPtOverM;
+    float  myVBFDiPhoPtOverM;
+    float  myVBF_MVA;
+
+    bool    mvaVbfSelection;
+    TString mvaVbfWeights, mvaVbfMethod; 
+    std::vector<float> mvaVbfCatBoundaries;
 
     // Smearings / corrections and systematics
     bool  doMCSmearing, doSystematics;
@@ -224,6 +232,8 @@ class PhotonAnalysis : public BaseAnalysis
     // Exclusive tags
     bool VBFTag2012(int & ijet1, int & ijet2, LoopAll& l, int diphoton_id, 
 		    float* smeared_pho_energy=0, bool nm1=false, float eventweight=1, float myweight=1,bool * jetid_flags=0);
+    TMVA::Reader *tmvaVbfReader_;
+    
     bool VBFTag2011(LoopAll& l, int diphoton_id, float* smeared_pho_energy=0, bool nm1=false, float eventweight=1, float myweight=1);
     bool VHhadronicTag2011(LoopAll& l, int diphoton_id, float* smeared_pho_energy=0, bool nm1=false, float eventweight=1, float myweight=1);
     bool ElectronTag2011(LoopAll& l, int diphotonVHlep_id, float* smeared_pho_energy=0, bool nm1=false, float eventweight=1, float myweight=1);

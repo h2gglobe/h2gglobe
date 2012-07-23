@@ -65,6 +65,8 @@ PhotonAnalysis::PhotonAnalysis()  :
     targetsigma=1.0;
     sourcesigma=1.0;
     rescaleDZforVtxMVA=false;
+
+    mvaVbfSelection=false;
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -592,6 +594,24 @@ void PhotonAnalysis::Init(LoopAll& l)
     l.SetCutVariables("cut_VBF_Mgg10",        &myVBF_Mgg);
     l.SetCutVariables("cut_VBF_Mgg4_100_180",        &myVBF_Mgg);
     l.SetCutVariables("cut_VBF_Mgg2_100_180",        &myVBF_Mgg);
+    
+    if( mvaVbfSelection ) {
+	tmvaVbfReader_ = new TMVA::Reader( "!Color:!Silent" );
+
+	tmvaVbfReader_->AddVariable("jet1pt"              , &myVBFLeadJPt);
+	tmvaVbfReader_->AddVariable("jet2pt"	          , &myVBFSubJPt);
+	tmvaVbfReader_->AddVariable("abs(jet1eta-jet2eta)", &myVBFdEta);
+	tmvaVbfReader_->AddVariable("mj1j2"		  , &myVBF_Mjj);
+	tmvaVbfReader_->AddVariable("zepp"		  , &myVBFZep);
+	tmvaVbfReader_->AddVariable("dphi"		  , &myVBFdPhi);
+	tmvaVbfReader_->AddVariable("diphopt/diphoM"      , &myVBFDiPhoPtOverM);
+	tmvaVbfReader_->AddVariable("pho1pt/diphoM"	  , &myVBFLeadPhoPtOverM);
+	tmvaVbfReader_->AddVariable("pho2pt/diphoM"       , &myVBFSubPhoPtOverM);
+	
+	tmvaVbfReader_->BookMVA( mvaVbfMethod, mvaVbfWeights );
+
+    }
+    
 
     // n-1 plots for VH hadronic tag 2011
     l.SetCutVariables("cut_VHhadLeadJPt",      &myVHhadLeadJPt);
@@ -752,13 +772,13 @@ void PhotonAnalysis::Init(LoopAll& l)
     //--------------------
 
     if( tmvaPerVtxWeights != ""  ) {
-    if( tmvaPerVtxVariables.empty() ) {
-        tmvaPerVtxVariables.push_back("ptbal"), tmvaPerVtxVariables.push_back("ptasym"), tmvaPerVtxVariables.push_back("logsumpt2");
-        if( addConversionToMva ) {
-        tmvaPerVtxVariables.push_back("limPullToConv");
-        tmvaPerVtxVariables.push_back("nConv");
-        }
-    }
+	if( tmvaPerVtxVariables.empty() ) {
+	    tmvaPerVtxVariables.push_back("ptbal"), tmvaPerVtxVariables.push_back("ptasym"), tmvaPerVtxVariables.push_back("logsumpt2");
+	    if( addConversionToMva ) {
+		tmvaPerVtxVariables.push_back("limPullToConv");
+		tmvaPerVtxVariables.push_back("nConv");
+	    }
+	}
         tmvaPerVtxReader_ = new TMVA::Reader( "!Color:!Silent" );
         HggVertexAnalyzer::bookVariables( *tmvaPerVtxReader_, tmvaPerVtxVariables );
         tmvaPerVtxReader_->BookMVA( tmvaPerVtxMethod, tmvaPerVtxWeights );
@@ -1561,7 +1581,7 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
     l.doJetMatching(*l.jet_algoPF2_p4,*l.genjet_algo2_p4,l.jet_algoPF2_genMatched,l.jet_algoPF2_vbfMatched,l.jet_algoPF2_genPt,l.jet_algoPF2_genDr);
     // CHS ak5
     l.doJetMatching(*l.jet_algoPF3_p4,*l.genjet_algo1_p4,l.jet_algoPF3_genMatched,l.jet_algoPF3_vbfMatched,l.jet_algoPF3_genPt,l.jet_algoPF3_genDr);
-    
+
     postProcessJets(l);
 
     if( pho_presel.size() < 2 ) {
@@ -2472,7 +2492,7 @@ bool PhotonAnalysis::VBFTag2012(int & ijet1, int & ijet2,
     
     TLorentzVector lead_p4    = l.get_pho_p4( l.dipho_leadind[diphoton_id], l.dipho_vtxind[diphoton_id], &smeared_pho_energy[0]);
     TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphoton_id], l.dipho_vtxind[diphoton_id], &smeared_pho_energy[0]);
-          
+
     std::pair<int, int> jets;
     if(usePUjetveto){
         jets = l.Select2HighestPtJets(lead_p4, sublead_p4, jetid_flags );
@@ -2496,16 +2516,24 @@ bool PhotonAnalysis::VBFTag2012(int & ijet1, int & ijet2,
     myVBFZep    = fabs(diphoton.Eta() - 0.5*(jet1->Eta() + jet2->Eta()));
     myVBFdPhi   = fabs(diphoton.DeltaPhi(dijet));
     myVBF_Mgg   = diphoton.M();
-  
-    if(nm1){
-        tag = l.ApplyCutsFill(0,1, eventweight, myweight);
+ 
+    if( mvaVbfSelection ) {
+	myVBFDiPhoPtOverM   = diphoton.Pt()   / myVBF_Mgg;
+	myVBFLeadPhoPtOverM = lead_p4.Pt()    / myVBF_Mgg;
+	myVBFSubPhoPtOverM  = sublead_p4.Pt() / myVBF_Mgg;
+	
+	myVBF_MVA = tmvaVbfReader_->EvaluateMVA(mvaVbfMethod);
+	tag       = (myVBF_MVA > mvaVbfCatBoundaries.back());
     } else {
-        tag = l.ApplyCuts(0,1);
+	if(nm1){
+	    tag = l.ApplyCutsFill(0,1, eventweight, myweight);
+	} else {
+	    tag = l.ApplyCuts(0,1);
+	}
     }
-  
+    
     return tag;
 }
-
 
 bool PhotonAnalysis::VHhadronicTag2011(LoopAll& l, int diphotonVHhad_id, float* smeared_pho_energy, bool nm1, float eventweight, float myweight){
     bool tag = false;

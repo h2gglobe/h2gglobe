@@ -101,6 +101,7 @@ class StatAnalysis : public PhotonAnalysis
     std::vector<float> smeared_pho_weight;
 
     void  computeExclusiveCategory(LoopAll & l, int & category, std::pair<int,int> diphoton_index, float pt);	
+    int  categoryFromBoundaries(std::vector<float> & v, float val);
 
     void fillControlPlots(const TLorentzVector & lead_p4, const  TLorentzVector & sublead_p4, const TLorentzVector & Higgs, 
 			  float lead_r9, float sublead_r9, int diphoton_index, 
@@ -124,6 +125,10 @@ class StatAnalysis : public PhotonAnalysis
     int nCategories_;
     int nPhotonCategories_;
     int diPhoCounter_;
+    int nVBFCategories  ; 
+    int nVHhadCategories; 
+    int nVHlepCategories; 
+    int nVHmetCategories; 
     
     // RooStuff
     RooContainer *rooContainer;

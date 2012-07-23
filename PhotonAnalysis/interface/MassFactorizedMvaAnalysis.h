@@ -34,7 +34,6 @@ class MassFactorizedMvaAnalysis : public StatAnalysis
     //// virtual void Analysis(LoopAll&, Int_t); 
 
     virtual int GetBDTBoundaryCategory(float,bool,bool);
-    int category(std::vector<float>&,float);
 
     void fillZeeControlPlots(const TLorentzVector & lead_p4, const  TLorentzVector & sublead_p4, 
 	                     const TLorentzVector & Higgs, float lead_r9, float sublead_r9,

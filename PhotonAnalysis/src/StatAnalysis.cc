@@ -28,6 +28,12 @@ StatAnalysis::StatAnalysis()  :
     dumpAscii = false;
     dumpMcAscii = false;
     unblind = false;
+
+    nVBFCategories   = 0;
+    nVHhadCategories = 0;
+    nVHlepCategories = 0;
+    nVHmetCategories = 0;
+
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -129,10 +135,11 @@ void StatAnalysis::Init(LoopAll& l)
     nPhotonCategories_ = nEtaCategories;
     if( nR9Categories != 0 ) nPhotonCategories_ *= nR9Categories;
     
-    int nVBFCategories   = ((int)includeVBF)*nVBFEtaCategories*nVBFDijetJetCategories;
-    int nVHhadCategories = ((int)includeVHhad)*nVHhadEtaCategories;
-    int nVHlepCategories = (int)includeVHlep * 2;
-    int nVHmetCategories = (int)includeVHmet;  //met at analysis step
+    nVBFCategories   = ((int)includeVBF)*( mvaVbfSelection ? nVBFEtaCategories*nVBFDijetJetCategories : mvaVbfCatBoundaries.size()-1);
+    std::sort(mvaVbfCatBoundaries.begin(),mvaVbfCatBoundaries.end(), std::greater<float>() );
+    nVHhadCategories = ((int)includeVHhad)*nVHhadEtaCategories;
+    nVHlepCategories = (int)includeVHlep * 2;
+    nVHmetCategories = (int)includeVHmet;  //met at analysis step
     
     nCategories_=(nInclusiveCategories_+nVBFCategories+nVHhadCategories+nVHlepCategories+nVHmetCategories);  //met at analysis step
 //    nCategories_=(nInclusiveCategories_+nVBFCategories+nVHhadCategories+nVHlepCategories);
@@ -365,13 +372,13 @@ void StatAnalysis::Init(LoopAll& l)
     if( bkgPolOrderByCat.empty() ) {
     for(int i=0; i<nCategories_; i++){
         if(i<nInclusiveCategories_) {
-        bkgPolOrderByCat.push_back(5);
+	    bkgPolOrderByCat.push_back(5);
         } else if(i<nInclusiveCategories_+nVBFCategories){
-        bkgPolOrderByCat.push_back(3);
+	    bkgPolOrderByCat.push_back(3);
         } else if(i<nInclusiveCategories_+nVBFCategories+nVHhadCategories){
-        bkgPolOrderByCat.push_back(2);
+	    bkgPolOrderByCat.push_back(2);
         } else if(i<nInclusiveCategories_+nVBFCategories+nVHhadCategories+nVHlepCategories){
-        bkgPolOrderByCat.push_back(1);
+	    bkgPolOrderByCat.push_back(1);
         }
     }
     }
@@ -896,7 +903,7 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 
     // see if the event falls into an exclusive category
     computeExclusiveCategory(l, category, diphoton_index, Higgs.Pt() );
-  
+    
         if (dumpAscii && !isSyst && (cur_type==0||dumpMcAscii) && mass>=massMin && mass<=massMax ) {
         
         if( unblind ) {
@@ -1003,20 +1010,35 @@ void StatAnalysis::FillRooContainerSyst(LoopAll& l, const std::string &name, int
 void StatAnalysis::computeExclusiveCategory(LoopAll & l, int & category, std::pair<int,int> diphoton_index, float pt)
 {
     if(VBFevent)        {
-    category=nInclusiveCategories_ + 
-        l.DiphotonCategory(diphoton_index.first,diphoton_index.second,pt,nVBFEtaCategories,1,1) 
-        + nVBFEtaCategories*l.DijetSubCategory(myVBF_Mjj,myVBFLeadJPt,myVBFSubJPt,nVBFDijetJetCategories)
-        ;
-    } else if(VHhadevent) { category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFEtaCategories
-        + l.DiphotonCategory(diphoton_index.first,diphoton_index.second,pt,nVHhadEtaCategories,1,1); 
+	category=nInclusiveCategories_;
+	if( mvaVbfSelection ) { 
+	    category += categoryFromBoundaries(mvaVbfCatBoundaries, myVBF_MVA);
+	} else {
+	    category += l.DiphotonCategory(diphoton_index.first,diphoton_index.second,pt,nVBFEtaCategories,1,1) 
+	    + nVBFEtaCategories*l.DijetSubCategory(myVBF_Mjj,myVBFLeadJPt,myVBFSubJPt,nVBFDijetJetCategories)
+	    ;
+	}
+    } else if(VHhadevent) { category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories
+	    + l.DiphotonCategory(diphoton_index.first,diphoton_index.second,pt,nVHhadEtaCategories,1,1); 
     } else if(VHmuevent) {
-    category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFEtaCategories + ( (int)includeVHhad )*nVHhadEtaCategories;  
+	category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories + ( (int)includeVHhad )*nVHhadEtaCategories;  
     } else if(VHelevent) { 
-    category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFEtaCategories + ( (int)includeVHhad )*nVHhadEtaCategories + (int)includeVHlep;
+	category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories + ( (int)includeVHhad )*nVHhadEtaCategories + (int)includeVHlep;
     } else if(VHmetevent) { 
-    category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFEtaCategories + ( (int)includeVHhad )*nVHhadEtaCategories + (int)includeVHlep + (int)includeVHmet;  //met at analysis step
+	category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories + ( (int)includeVHhad )*nVHhadEtaCategories + (int)includeVHlep + (int)includeVHmet;  //met at analysis step
     }
 }
+
+int StatAnalysis::categoryFromBoundaries(std::vector<float> & v, float val)
+{
+	if( val == v[0] ) { return 0; }
+	std::vector<float>::iterator bound =  lower_bound( v.begin(), v.end(), val, std::greater<float>  ());
+	int cat = ( val >= *bound ? bound - v.begin() - 1 : bound - v.begin() );
+	if( cat >= v.size() - 1 ) { cat = -1; }
+	return cat;
+}
+
+
 
 // ----------------------------------------------------------------------------------------------------
 void StatAnalysis::fillControlPlots(const TLorentzVector & lead_p4, const  TLorentzVector & sublead_p4, const TLorentzVector & Higgs, 
