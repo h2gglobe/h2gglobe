@@ -2517,13 +2517,15 @@ bool PhotonAnalysis::VBFTag2012(int & ijet1, int & ijet2,
     myVBFdPhi   = fabs(diphoton.DeltaPhi(dijet));
     myVBF_Mgg   = diphoton.M();
  
-    if( mvaVbfSelection ) {
-	myVBFDiPhoPtOverM   = diphoton.Pt()   / myVBF_Mgg;
-	myVBFLeadPhoPtOverM = lead_p4.Pt()    / myVBF_Mgg;
-	myVBFSubPhoPtOverM  = sublead_p4.Pt() / myVBF_Mgg;
-	
-	myVBF_MVA = tmvaVbfReader_->EvaluateMVA(mvaVbfMethod);
-	tag       = (myVBF_MVA > mvaVbfCatBoundaries.back());
+    if( mvaVbfSelection ) { 
+	if( myVBFLeadJPt>20. && myVBFSubJPt>20. ) { // FIXME hardcoded pre-selection thresholds
+	    myVBFDiPhoPtOverM   = diphoton.Pt()   / myVBF_Mgg;
+	    myVBFLeadPhoPtOverM = lead_p4.Pt()    / myVBF_Mgg;
+	    myVBFSubPhoPtOverM  = sublead_p4.Pt() / myVBF_Mgg;
+	    
+	    myVBF_MVA = tmvaVbfReader_->EvaluateMVA(mvaVbfMethod);
+	    tag       = (myVBF_MVA > mvaVbfCatBoundaries.back());
+	}
     } else {
 	if(nm1){
 	    tag = l.ApplyCutsFill(0,1, eventweight, myweight);
