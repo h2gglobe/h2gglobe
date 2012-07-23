@@ -37,9 +37,9 @@ FILLCOLOR_68=ROOT.kGreen
 RANGEYABS=[0.0,0.6]
 RANGEYRAT=[0.0,5]
 RANGEMU = [-4,3.0]
-MINPV = 0.5*10E-8
+MINPV = 0.5*10E-5
 MAXPV = 1.0
-Lines = [1.,2.,3.,4.]
+Lines = [1.,2.,3.]
 MINMH=int(min(EXPmasses))
 MAXMH=int(max(EXPmasses))
 #-------------------------------------------------------------------------
@@ -266,7 +266,7 @@ def MakeMlfPlot(MG):
 #-------------------------------------------------------------------------
 def MakePvalPlot(MG):
 
-	legend=ROOT.TLegend(0.65,0.15,0.89,0.3)
+	legend=ROOT.TLegend(0.55,0.15,0.89,0.3)
 	legend.SetFillColor(10)
 	legend.SetTextFont(42)
 	legend.SetTextSize(FONTSIZE)
@@ -311,8 +311,9 @@ def MakePvalPlot(MG):
 	text.SetTextColor(ROOT.kRed)
 	text.SetTextSize(FONTSIZE)
 	text.SetTextFont(42)
-
-	Vals=[1]
+	
+		
+	Vals=[ROOT.RooStats.SignificanceToPValue(L) for L in Lines]
 	TLines=[ROOT.TLine(MINMH,V,MAXMH,V) for V in Vals]
 
 	for j,TL in enumerate(TLines):
@@ -320,6 +321,8 @@ def MakePvalPlot(MG):
 		TL.SetLineColor(2)
 		TL.SetLineWidth(1)
 		TL.Draw("same")
+		text.DrawLatex(MAXMH+0.2,Vals[j]*0.88,"%d #sigma"%Lines[j])
+
 	c.SetGrid(not options.nogrid)
 	c.SetLogy();
 	if not options.nogrid: dhist.Draw("AXIGSAME")
