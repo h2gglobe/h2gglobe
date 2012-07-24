@@ -182,7 +182,8 @@ class LoopAll {
 
   int ApplyCut(int, float, int);
   int ApplyCut(std::string, float, int);
-
+  void FillCutPlots(int icat, int cutset, std::string postfix, float histweight, float countweight);
+  
   void myPrintCounters();
   void myPrintCountersNew();
 

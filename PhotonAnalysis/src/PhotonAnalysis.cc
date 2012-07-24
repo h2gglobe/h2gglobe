@@ -582,20 +582,24 @@ void PhotonAnalysis::Init(LoopAll& l)
     triggerSelections.back().addpath("HLT_Photon36_R9Id85_Photon22_R9Id85_v");
 
     // n-1 plots for VBF tag 2011 
-    l.SetCutVariables("cut_VBFLeadJPt",       &myVBFLeadJPt);
-    l.SetCutVariables("cut_VBFSubJPt",        &myVBFSubJPt);
-    l.SetCutVariables("cut_VBF_Mjj",          &myVBF_Mjj);
-    l.SetCutVariables("cut_VBF_dEta",         &myVBFdEta);
-    l.SetCutVariables("cut_VBF_Zep",          &myVBFZep);
-    l.SetCutVariables("cut_VBF_dPhi",         &myVBFdPhi);
-    l.SetCutVariables("cut_VBF_Mgg0",         &myVBF_Mgg);
-    l.SetCutVariables("cut_VBF_Mgg2",         &myVBF_Mgg);
-    l.SetCutVariables("cut_VBF_Mgg4",         &myVBF_Mgg);
-    l.SetCutVariables("cut_VBF_Mgg10",        &myVBF_Mgg);
-    l.SetCutVariables("cut_VBF_Mgg4_100_180",        &myVBF_Mgg);
-    l.SetCutVariables("cut_VBF_Mgg2_100_180",        &myVBF_Mgg);
+    l.SetCutVariables("cut_VBFLeadJPt",         &myVBFLeadJPt);
+    l.SetCutVariables("cut_VBFSubJPt",          &myVBFSubJPt); 
+    l.SetCutVariables("cut_VBF_Mjj",            &myVBF_Mjj);   
+    l.SetCutVariables("cut_VBF_dEta",           &myVBFdEta);   
+    l.SetCutVariables("cut_VBF_Zep",            &myVBFZep);    
+    l.SetCutVariables("cut_VBF_dPhi",           &myVBFdPhi);   
+    l.SetCutVariables("cut_VBF_Mgg0",           &myVBF_Mgg);   
+    l.SetCutVariables("cut_VBF_Mgg2",           &myVBF_Mgg);   
+    l.SetCutVariables("cut_VBF_Mgg4",           &myVBF_Mgg);   
+    l.SetCutVariables("cut_VBF_Mgg10",          &myVBF_Mgg);   
+    l.SetCutVariables("cut_VBF_Mgg4_100_180",   &myVBF_Mgg);   
+    l.SetCutVariables("cut_VBF_Mgg2_100_180",   &myVBF_Mgg);   
     
     if( mvaVbfSelection ) {
+	l.SetCutVariables("cut_VBF_DiPhoPtOverM",   &myVBFDiPhoPtOverM);
+	l.SetCutVariables("cut_VBF_LeadPhoPtOverM", &myVBFLeadPhoPtOverM);
+	l.SetCutVariables("cut_VBF_SubPhoPtOverM",  &myVBFSubPhoPtOverM);
+	
 	tmvaVbfReader_ = new TMVA::Reader( "!Color:!Silent" );
 
 	tmvaVbfReader_->AddVariable("jet1pt"              , &myVBFLeadJPt);
@@ -609,7 +613,6 @@ void PhotonAnalysis::Init(LoopAll& l)
 	tmvaVbfReader_->AddVariable("pho2pt/diphoM"       , &myVBFSubPhoPtOverM);
 	
 	tmvaVbfReader_->BookMVA( mvaVbfMethod, mvaVbfWeights );
-
     }
     
 
@@ -2516,15 +2519,21 @@ bool PhotonAnalysis::VBFTag2012(int & ijet1, int & ijet2,
     myVBFZep    = fabs(diphoton.Eta() - 0.5*(jet1->Eta() + jet2->Eta()));
     myVBFdPhi   = fabs(diphoton.DeltaPhi(dijet));
     myVBF_Mgg   = diphoton.M();
- 
+    myVBFDiPhoPtOverM   = diphoton.Pt()   / myVBF_Mgg;
+    myVBFLeadPhoPtOverM = lead_p4.Pt()    / myVBF_Mgg;
+    myVBFSubPhoPtOverM  = sublead_p4.Pt() / myVBF_Mgg;
+    myVBF_MVA = -2.;
+    
     if( mvaVbfSelection ) { 
-	if( myVBFLeadJPt>20. && myVBFSubJPt>20. ) { // FIXME hardcoded pre-selection thresholds
-	    myVBFDiPhoPtOverM   = diphoton.Pt()   / myVBF_Mgg;
-	    myVBFLeadPhoPtOverM = lead_p4.Pt()    / myVBF_Mgg;
-	    myVBFSubPhoPtOverM  = sublead_p4.Pt() / myVBF_Mgg;
-	    
+	if( myVBFLeadJPt>20. && myVBFSubJPt>20. && myVBF_Mjj > 100. ) { // FIXME hardcoded pre-selection thresholds
+	    if(nm1 && myVBF_Mgg>massMin && myVBF_Mgg<massMax) { 
+		l.FillCutPlots(0,1,"_nminus1",eventweight,myweight); 
+	    }
 	    myVBF_MVA = tmvaVbfReader_->EvaluateMVA(mvaVbfMethod);
 	    tag       = (myVBF_MVA > mvaVbfCatBoundaries.back());
+	    if(nm1 && tag && myVBF_Mgg>massMin && myVBF_Mgg<massMax ) { 
+		l.FillCutPlots(0,1,"_sequential",eventweight,myweight); 
+	    }
 	}
     } else {
 	if(nm1){

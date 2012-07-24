@@ -1557,17 +1557,17 @@ int LoopAll::ApplyCutsFill(int icat, int cutset, int & ncutsapplied, int & ncuts
   }
   //cout<<"ApplyCutsFill "<<ncutsapplied<<" "<<ncutsfailed<<" "<<ncutspassed<<" "<<endl;
 
-  //n-1 cut histograms
+  //// //n-1 cut histograms
   if(ncutsfailed==1||ncutsfailed==0) {
     for(int i=0; i<ntmpcuts; i++) {
       if(ncutsfailed==0||tmppasscut[i]==0) {
-	FillHist(cutContainer[indexcut[i]].name+"_nminus1", icat, *(cutContainer[indexcut[i]].mycutvar), histweight);
-	FillCounter(cutContainer[indexcut[i]].name+"_nminus1", countweight, icat);
-	
+  	FillHist(cutContainer[indexcut[i]].name+"_nminus1", icat, *(cutContainer[indexcut[i]].mycutvar), histweight);
+  	FillCounter(cutContainer[indexcut[i]].name+"_nminus1", countweight, icat);
+  	
       }
     } 
   }
-
+  
   for(int i=0; i<ntmpcuts; i++) {
     FillHist(cutContainer[indexcut[i]].name+"_sequential", icat, *(cutContainer[indexcut[i]].mycutvar), histweight);
     FillCounter(cutContainer[indexcut[i]].name+"_sequential", countweight, icat);
@@ -1577,6 +1577,16 @@ int LoopAll::ApplyCutsFill(int icat, int cutset, int & ncutsapplied, int & ncuts
   //remember to divide by the first for efficiencies
 
   return passcuts;
+}
+
+void LoopAll::FillCutPlots(int icat, int cutset, std::string postfix, float histweight, float countweight)
+{
+    for (unsigned int i=0; i<cutContainer.size(); i++) {
+	if(cutContainer[i].finalcut!=cutset) { continue; }
+	FillHist(cutContainer[i].name+postfix, icat, *(cutContainer[i].mycutvar), histweight);
+	FillCounter(cutContainer[i].name+postfix, countweight, icat);
+    }
+
 }
 
 int LoopAll::ApplyCuts(int icat, int cutset) {
