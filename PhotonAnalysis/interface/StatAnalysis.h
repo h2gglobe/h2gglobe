@@ -58,7 +58,6 @@ class StatAnalysis : public PhotonAnalysis
     std::vector<int> cicCutLevels;
     std::vector<int> bkgPolOrderByCat;
 
-    float massMin, massMax;
     int nDataBins;  
     bool scaleClusterShapes, scaleR9Only;
     bool dumpAscii, dumpMcAscii;

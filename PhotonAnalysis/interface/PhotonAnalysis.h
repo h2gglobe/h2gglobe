@@ -63,6 +63,7 @@ class PhotonAnalysis : public BaseAnalysis
     bool useDefaultVertex;
     float forcedRho;
     bool applyPtoverM;  
+    float massMin, massMax;
     bool doTriggerSelection; 
     std::vector<TriggerSelection> triggerSelections;
     
@@ -203,7 +204,7 @@ class PhotonAnalysis : public BaseAnalysis
     float  myVBFSubPhoPtOverM;
     float  myVBFDiPhoPtOverM;
     float  myVBF_MVA;
-
+    
     bool    mvaVbfSelection;
     TString mvaVbfWeights, mvaVbfMethod; 
     std::vector<float> mvaVbfCatBoundaries;
