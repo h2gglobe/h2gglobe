@@ -1052,50 +1052,56 @@ void StatAnalysis::fillControlPlots(const TLorentzVector & lead_p4, const  TLore
     float mass = Higgs.M();
     l.FillHist("all_mass",category+1, Higgs.M(), evweight);
     if( mass>=massMin && mass<=massMax  ) {
-    l.FillHist("mass",category+1, Higgs.M(), evweight);
-    l.FillHist("eta",category+1, Higgs.Eta(), evweight);
-    l.FillHist("pt",category+1, Higgs.Pt(), evweight);
-    if( isCorrectVertex ) { l.FillHist("pt_rv",category+1, Higgs.Pt(), evweight); }
-    l.FillHist("nvtx",category+1, l.vtx_std_n, evweight);
+	l.FillHist("mass",category+1, Higgs.M(), evweight);
+	l.FillHist("eta",category+1, Higgs.Eta(), evweight);
+	l.FillHist("pt",category+1, Higgs.Pt(), evweight);
+	if( isCorrectVertex ) { l.FillHist("pt_rv",category+1, Higgs.Pt(), evweight); }
+	l.FillHist("nvtx",category+1, l.vtx_std_n, evweight);
         if( isCorrectVertex ) { l.FillHist("nvtx_rv",category+1, l.vtx_std_n, evweight); }
-    
-    vtxAna_.setPairID(diphoton_id);
-    float vtxProb = vtxAna_.vertexProbability(l.vtx_std_evt_mva->at(diphoton_id), l.vtx_std_n);
-    l.FillHist2D("probmva_pt",category+1, Higgs.Pt(), l.vtx_std_evt_mva->at(diphoton_id), evweight);
-    l.FillHist2D("probmva_nvtx",category+1, l.vtx_std_n, l.vtx_std_evt_mva->at(diphoton_id), evweight);
-    if( isCorrectVertex ) { l.FillHist2D("probmva_rv_nvtx",category+1, l.vtx_std_n, l.vtx_std_evt_mva->at(diphoton_id), evweight); }
-    l.FillHist2D("vtxprob_pt",category+1, Higgs.Pt(), vtxProb, evweight);
-    l.FillHist2D("vtxprob_nvtx",category+1, l.vtx_std_n, vtxProb, evweight);
-    std::vector<int> & vtxlist = l.vtx_std_ranked_list->at(diphoton_id);
-    size_t maxv = std::min(vtxlist.size(),(size_t)5);
-    for(size_t ivtx=0; ivtx<maxv; ++ivtx) {
-        int vtxid = vtxlist.at(ivtx);
-        l.FillHist(Form("vtx_mva_%d",ivtx),category+1,vtxAna_.mva(ivtx),evweight);
-        if( ivtx > 0 ) {
-        l.FillHist(Form("vtx_dz_%d",ivtx),category+1,
-               vtxAna_.vertexz(ivtx)-vtxAna_.vertexz(l.dipho_vtxind[diphoton_id]),evweight);
-        }
-    }
-    l.FillHist("vtx_nconv",vtxAna_.nconv(0));
-
-    l.FillHist("pho_pt",category+1,lead_p4.Pt(), evweight);
-    l.FillHist("pho1_pt",category+1,lead_p4.Pt(), evweight);
-    l.FillHist("pho_eta",category+1,lead_p4.Eta(), evweight);
-    l.FillHist("pho1_eta",category+1,lead_p4.Eta(), evweight);
-    l.FillHist("pho_r9",category+1, lead_r9, evweight);
-    l.FillHist("pho1_r9",category+1, lead_r9, evweight);
-
-    l.FillHist("pho_pt",category+1,sublead_p4.Pt(), evweight);
-    l.FillHist("pho2_pt",category+1,sublead_p4.Pt(), evweight);
-    l.FillHist("pho_eta",category+1,sublead_p4.Eta(), evweight);
-    l.FillHist("pho2_eta",category+1,sublead_p4.Eta(), evweight);
-    l.FillHist("pho_r9",category+1, sublead_r9, evweight);
-    l.FillHist("pho2_r9",category+1, sublead_r9, evweight);
-
-    l.FillHist("pho_n",category+1,l.pho_n, evweight);
-    
-    l.FillHist("pho_rawe",category+1,l.sc_raw[l.pho_scind[l.dipho_leadind[diphoton_id]]], evweight);
-    l.FillHist("pho_rawe",category+1,l.sc_raw[l.pho_scind[l.dipho_subleadind[diphoton_id]]], evweight);
+	
+	vtxAna_.setPairID(diphoton_id);
+	float vtxProb = vtxAna_.vertexProbability(l.vtx_std_evt_mva->at(diphoton_id), l.vtx_std_n);
+	l.FillHist2D("probmva_pt",category+1, Higgs.Pt(), l.vtx_std_evt_mva->at(diphoton_id), evweight);
+	l.FillHist2D("probmva_nvtx",category+1, l.vtx_std_n, l.vtx_std_evt_mva->at(diphoton_id), evweight);
+	if( isCorrectVertex ) { 
+	    l.FillHist2D("probmva_rv_nvtx",category+1, l.vtx_std_n, l.vtx_std_evt_mva->at(diphoton_id), evweight); 
+	}
+	l.FillHist2D("vtxprob_pt",category+1, Higgs.Pt(), vtxProb, evweight);
+	l.FillHist2D("vtxprob_nvtx",category+1, l.vtx_std_n, vtxProb, evweight);
+	std::vector<int> & vtxlist = l.vtx_std_ranked_list->at(diphoton_id);
+	size_t maxv = std::min(vtxlist.size(),(size_t)5);
+	for(size_t ivtx=0; ivtx<maxv; ++ivtx) {
+	    int vtxid = vtxlist.at(ivtx);
+	    l.FillHist(Form("vtx_mva_%d",ivtx),category+1,vtxAna_.mva(ivtx),evweight);
+	    if( ivtx > 0 ) {
+		l.FillHist(Form("vtx_dz_%d",ivtx),category+1,
+			   vtxAna_.vertexz(ivtx)-vtxAna_.vertexz(l.dipho_vtxind[diphoton_id]),evweight);
+	    }
+	}
+	l.FillHist("vtx_nconv",vtxAna_.nconv(0));
+	
+	l.FillHist("pho_pt",category+1,lead_p4.Pt(), evweight);
+	l.FillHist("pho1_pt",category+1,lead_p4.Pt(), evweight);
+	l.FillHist("pho_eta",category+1,lead_p4.Eta(), evweight);
+	l.FillHist("pho1_eta",category+1,lead_p4.Eta(), evweight);
+	l.FillHist("pho_r9",category+1, lead_r9, evweight);
+	l.FillHist("pho1_r9",category+1, lead_r9, evweight);
+	
+	l.FillHist("pho_pt",category+1,sublead_p4.Pt(), evweight);
+	l.FillHist("pho2_pt",category+1,sublead_p4.Pt(), evweight);
+	l.FillHist("pho_eta",category+1,sublead_p4.Eta(), evweight);
+	l.FillHist("pho2_eta",category+1,sublead_p4.Eta(), evweight);
+	l.FillHist("pho_r9",category+1, sublead_r9, evweight);
+	l.FillHist("pho2_r9",category+1, sublead_r9, evweight);
+	
+	l.FillHist("pho_n",category+1,l.pho_n, evweight);
+	
+	l.FillHist("pho_rawe",category+1,l.sc_raw[l.pho_scind[l.dipho_leadind[diphoton_id]]], evweight);
+	l.FillHist("pho_rawe",category+1,l.sc_raw[l.pho_scind[l.dipho_subleadind[diphoton_id]]], evweight);
+	
+	if( mvaVbfSelection ) {
+	    l.FillHist("vbf_mva",category+1,myVBF_MVA,evweight);
+	}
     }
 }
 
