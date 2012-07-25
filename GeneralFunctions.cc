@@ -4002,7 +4002,7 @@ int LoopAll::MuonSelection2012(TLorentzVector& pho1, TLorentzVector& pho2, int v
     thisiso=((mu_glo_nehadiso04[indmu]+mu_glo_photiso04[indmu])>mu_dbCorr[indmu]) ?
       mu_glo_chhadiso04[indmu]+mu_glo_nehadiso04[indmu]+mu_glo_photiso04[indmu]-mu_dbCorr[indmu] : mu_glo_chhadiso04[indmu];    
     if ((thisiso/thispt)>0.2) continue;
-    if(std::min(pho1.DeltaR(*thismu),pho2.DeltaR(*thismu)) < 0.7) continue;   
+    if(std::min(pho1.DeltaR(*thismu),pho2.DeltaR(*thismu)) < 1) continue;   
   
     passingMu++;
     mymu = indmu;
@@ -4068,7 +4068,7 @@ int LoopAll::ElectronSelection2012(TLorentzVector& pho1, TLorentzVector& pho2, i
       if(el_std_sieie[indel]>=0.03) continue; 
       if (el_std_hoe[indel]>=0.10) continue;
     }
-    if(std::min( pho1.DeltaR(*thisel), pho2.DeltaR(*thisel))<=0.7) continue;
+    if(std::min( pho1.DeltaR(*thisel), pho2.DeltaR(*thisel))<=1) continue;
     if( fabs(elpho1.M() - 91.19) <= 5) continue;
     if( fabs(elpho2.M() - 91.19) <= 5) continue;
 
