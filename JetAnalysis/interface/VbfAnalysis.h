@@ -46,25 +46,25 @@ class VbfAnalysis : public MassFactorizedMvaAnalysis
     
     
 private:
-    std::vector<std::string> vtxVarNames_;
-    std::vector<float> vtxVars_;
-
     TFile * outputFile_;
     TTree * flatTree_;
-    int   tree_nPU_, tree_nVertices;
+    int tree_entry;
+    int   tree_nPU,_nVertices;
     float tree_evWeight;
 
-    
     float tree_pho1pt;
     float tree_pho2pt;
     float tree_diphopt;
     float tree_diphoM;
+    float tree_diphoEta;
+    float tree_dijetEta;
     float tree_jet1isMatched,tree_jet2isMatched;
     float tree_jet1genPt,tree_jet2genPt;
     float tree_jet1genDr,tree_jet2genDr;
     float tree_jet1pt, tree_jet2pt, tree_jet1eta, tree_jet2eta, tree_zepp, tree_mj1j2, tree_dphi;
     bool  tree_jet1PileupID,tree_jet2PileupID ;
     bool  tree_isSignal;
+    int   tree_mctype;
 };
 
 #endif

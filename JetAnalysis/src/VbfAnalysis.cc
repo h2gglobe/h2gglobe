@@ -52,14 +52,14 @@ void VbfAnalysis::Term(LoopAll& l)
 // ----------------------------------------------------------------------------------------------------
 void VbfAnalysis::Init(LoopAll& l) 
 {
-    if( l.runZeeValidation ) {
-	leadEtCut = 15;
-	subleadEtCut = 15;
-	leadEtVBFCut = 15.;
-	subleadEtVBFCut = 15.;
-	massMin = 60, massMax = 120.;
-	applyPtoverM = false;
-    }
+//     if( l.runZeeValidation ) {
+// 	leadEtCut = 15;
+// 	subleadEtCut = 15;
+// 	leadEtVBFCut = 15.;
+// 	subleadEtVBFCut = 15.;
+// 	massMin = 60, massMax = 120.;
+// 	applyPtoverM = false;
+//     }
     MassFactorizedMvaAnalysis::Init(l);
     if( jetHandler_ == 0 ) {
     	jetHandler_ = new JetHandler(jetHandlerCfg, l);
@@ -69,12 +69,15 @@ void VbfAnalysis::Init(LoopAll& l)
 	if( flatTree_ == 0 ) { 
 	    outputFile_ = TFile::Open("vbfAnalysisTree_"+l.histFileName,"recreate");
 	    flatTree_ = new TTree("flatTree","flatTree");
+	    tree_entry = 0;
 	}
-	flatTree_->Branch( "pho1pt", &tree_pho1pt );
-	flatTree_->Branch( "pho2pt", &tree_pho2pt );
+	flatTree_->Branch( "entry",   &tree_entry );
+	flatTree_->Branch( "pho1pt",  &tree_pho1pt );
+	flatTree_->Branch( "pho2pt",  &tree_pho2pt );
 	flatTree_->Branch( "diphopt", &tree_diphopt );
-	flatTree_->Branch( "diphoM", &tree_diphoM );
-
+	flatTree_->Branch( "diphoM",  &tree_diphoM );
+	flatTree_->Branch( "diphoEta",  &tree_diphoEta );
+	flatTree_->Branch( "dijetEta",  &tree_dijetEta );
 	flatTree_->Branch( "jet1isMatched", &tree_jet1isMatched );
 	flatTree_->Branch( "jet2isMatched", &tree_jet2isMatched );
 	flatTree_->Branch( "jet1genPt",     &tree_jet1genPt );
@@ -91,6 +94,7 @@ void VbfAnalysis::Init(LoopAll& l)
 	flatTree_->Branch( "jet1PileupID",  &tree_jet1PileupID );
 	flatTree_->Branch( "jet2PileupID",  &tree_jet2PileupID );
 	flatTree_->Branch( "isSignal",      &tree_isSignal );
+	flatTree_->Branch( "mctype",        &tree_mctype );
    }
 }
 
@@ -160,6 +164,7 @@ bool VbfAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentzV
 	VBFevent = false;
 	VHhadevent = false;
 	
+	// preselection 
 	diphotonVBF_id = l.DiphotonMITPreSelection(leadEtVBFCut,subleadEtVBFCut,phoidMvaCut,applyPtoverM, &smeared_pho_energy[0] );
 
 	diphoton_id = diphotonVBF_id; 
@@ -192,11 +197,6 @@ bool VbfAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentzV
 	int ijet2 = -1;
 	for(size_t itjet=0; itjet<sorted_jets.size(); ++itjet ) {
 	    int ijet = sorted_jets[itjet];
-	    //bool pfloose = l.jet_algoPF1_pfloose[ijet];
-	    //if ( pfloose && ijet1<0 ) ijet1 = ijet;
-	    //else if ( pfloose && ijet2<0 ) ijet2 = ijet;
-	    //else if (ijet1!=-1 && ijet2!=-1) break;
-	    // consider only jets with PT > 20 GeV and passing loose PUJetId
 	    bool PUjetId = PileupJetIdentifier::passJetId(l.jet_algoPF1_simple_wp_level[ijet], PileupJetIdentifier::kLoose);
 	    if ( PUjetId && ijet1<0 ) ijet1 = ijet;
 	    else if ( PUjetId && ijet2<0 ) ijet2 = ijet;
@@ -216,7 +216,8 @@ bool VbfAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentzV
 	    tree_pho2pt        = sublead_p4.Pt();
 	    tree_diphopt       = diphoton.Pt();
 	    tree_diphoM        = diphoton.M();
-
+	    tree_diphoEta      = diphoton.Eta();
+  
 	    tree_jet1isMatched = l.jet_algoPF1_genMatched[ijet1];
 	    tree_jet1genPt     = l.jet_algoPF1_genPt[ijet1];
 	    tree_jet1genDr     = l.jet_algoPF1_genDr[ijet1];
@@ -234,11 +235,17 @@ bool VbfAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentzV
 	    tree_zepp          = fabs(diphoton.Eta() - 0.5*(jet1->Eta() + jet2->Eta())); 
 	    tree_mj1j2         = dijet.M();
 	    tree_dphi          = fabs(diphoton.DeltaPhi(dijet));
+	    tree_dijetEta      = dijet.Eta();
+
+	    tree_mctype        = cur_type;
 	    
 	    if ( cur_type < 0 ) 
 		tree_isSignal  = true;
 	    else 
 		tree_isSignal  = false;
+
+	    tree_entry++;
+
 	    flatTree_->Fill();
 	}
 
