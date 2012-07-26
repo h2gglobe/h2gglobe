@@ -28,7 +28,8 @@ StatAnalysis::StatAnalysis()  :
     dumpAscii = false;
     dumpMcAscii = false;
     unblind = false;
-
+    doMcOptimization = false;
+    
     nVBFCategories   = 0;
     nVHhadCategories = 0;
     nVHlepCategories = 0;
@@ -497,36 +498,36 @@ void StatAnalysis::buildBkgModel(LoopAll& l, const std::string & postfix)
     std::map<int, std::pair<std::vector<int>, std::vector<std::string> > > catmodels;
     // fill the map
     for(int icat=0; icat<nCategories_; ++icat) {
-    // get the poly order for this category
-    int catmodel = bkgPolOrderByCat[icat];
-    std::vector<int> & catflags = catmodels[catmodel].first;
-    std::vector<std::string> & catpars = catmodels[catmodel].second;
-    // if this is the first time we find this order, build the parameters
-    if( catflags.empty() ) {
-        assert( catpars.empty() );
-        // by default no category has the new model
-        catflags.resize(nCategories_, 0);
-        std::string & parname = parnames[catmodel];
-        for(int iorder = 0; iorder<catmodel; ++iorder) {
-        catpars.push_back( Form( "CMS_hgg_%s%d%s", parname.c_str(), iorder, +postfix.c_str() ) );
-        }
-    } else {
-        assert( catflags.size() == nCategories_ && catpars.size() == catmodel );
+	// get the poly order for this category
+	int catmodel = bkgPolOrderByCat[icat];
+	std::vector<int> & catflags = catmodels[catmodel].first;
+	std::vector<std::string> & catpars = catmodels[catmodel].second;
+	// if this is the first time we find this order, build the parameters
+	if( catflags.empty() ) {
+	    assert( catpars.empty() );
+	    // by default no category has the new model
+	    catflags.resize(nCategories_, 0);
+	    std::string & parname = parnames[catmodel];
+	    for(int iorder = 0; iorder<catmodel; ++iorder) {
+		catpars.push_back( Form( "CMS_hgg_%s%d%s", parname.c_str(), iorder, +postfix.c_str() ) );
+	    }
+	} else {
+	    assert( catflags.size() == nCategories_ && catpars.size() == catmodel );
+	}
+	// chose category order
+	catflags[icat] = 1;
     }
-    // chose category order
-    catflags[icat] = 1;
-    }
-
+    
     // now loop over the models and allocate the pdfs
     /// for(size_t imodel=0; imodel<catmodels.size(); ++imodel ) {
     for(std::map<int, std::pair<std::vector<int>, std::vector<std::string> > >::iterator modit = catmodels.begin();
-    modit!=catmodels.end(); ++modit ) {
-    std::vector<int> & catflags = modit->second.first;
-    std::vector<std::string> & catpars = modit->second.second;
-    
-    l.rooContainer->AddSpecificCategoryPdf(&catflags[0],"data_pol_model"+postfix,
-                           "0","CMS_hgg_mass",catpars,70+catpars.size()); 
-    // >= 71 means RooBernstein of order >= 1
+	modit!=catmodels.end(); ++modit ) {
+	std::vector<int> & catflags = modit->second.first;
+	std::vector<std::string> & catpars = modit->second.second;
+	
+	l.rooContainer->AddSpecificCategoryPdf(&catflags[0],"data_pol_model"+postfix,
+					       "0","CMS_hgg_mass",catpars,70+catpars.size()); 
+	// >= 71 means RooBernstein of order >= 1
     }
 }
 
@@ -968,16 +969,18 @@ void StatAnalysis::FillRooContainer(LoopAll& l, int cur_type, float mass, float 
 {
 
 
-    if (cur_type == 0 ){
-            l.rooContainer->InputDataPoint("data_mass",category,mass);
-    }
-    if (cur_type > 0 && cur_type != 3 && cur_type != 4) {
+    if (cur_type == 0 ) {
+	l.rooContainer->InputDataPoint("data_mass",category,mass);
+    } else if (cur_type > 0 ) {
+	if( doMcOptimization ) {
+	    l.rooContainer->InputDataPoint("data_mass",category,mass,weight);
+	} else if ( cur_type != 3 && cur_type != 4 ) {
             l.rooContainer->InputDataPoint("bkg_mass",category,mass,weight);
-    }
-    else if (cur_type < 0){
-            l.rooContainer->InputDataPoint("sig_"+GetSignalLabel(cur_type),category,mass,weight);
-            if (isCorrectVertex) l.rooContainer->InputDataPoint("sig_"+GetSignalLabel(cur_type)+"_rv",category,mass,weight);
-            else l.rooContainer->InputDataPoint("sig_"+GetSignalLabel(cur_type)+"_wv",category,mass,weight);
+	}
+    } else if (cur_type < 0) {
+	l.rooContainer->InputDataPoint("sig_"+GetSignalLabel(cur_type),category,mass,weight);
+	if (isCorrectVertex) l.rooContainer->InputDataPoint("sig_"+GetSignalLabel(cur_type)+"_rv",category,mass,weight);
+	else l.rooContainer->InputDataPoint("sig_"+GetSignalLabel(cur_type)+"_wv",category,mass,weight);
     }
 }
 

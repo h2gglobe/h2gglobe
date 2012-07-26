@@ -57,6 +57,7 @@ class StatAnalysis : public PhotonAnalysis
     //int   nEtaCategories, nR9Categories, nPtCategories;
     std::vector<int> cicCutLevels;
     std::vector<int> bkgPolOrderByCat;
+    bool doMcOptimization;
 
     int nDataBins;  
     bool scaleClusterShapes, scaleR9Only;
