@@ -57,12 +57,15 @@ def main(options,args):
         if options.th1Prefix in k.GetName():
             decomp = str(k.GetName()).replace(options.th1Prefix,"").split("_",3)
             proc, mass, channel = decomp[0], float(decomp[2].replace("m","")), decomp[3]
+            h = k.ReadObj()
             if mass in inputMasses:
-                inputs[ (mass, proc, channel) ] = k.ReadObj()
+                inputs[ (mass, proc, channel) ] = h
                 procs.add(proc)
                 channels.add(channel)
+                if options.scaleSignal>0.:
+                    h.Scale(options.scaleSignal)                
             else:
-                tocopy.append(k.ReadObj())
+                tocopy.append(h)
         elif "TH1" in k.GetClassName() or "TCanvas" in k.GetClassName():
             tocopy.append(k.ReadObj())
             
@@ -78,6 +81,7 @@ def main(options,args):
         print "Will generate the following mass points: ", masses
         print "Output file   : ", file
         print "Input masses  : ", inputMasses
+        print "Sig k-factor  : ", options.scaleSignal
         print "Processes     : ", procs
         print "# of channels : ", len(channels)
         
@@ -172,6 +176,11 @@ if __name__ == "__main__":
         make_option("-s","--massScanType",
                     action="store", type="string", dest="massScanType",
                     default="",
+                    help="", metavar=""
+                    ),
+        make_option("-k","--scaleSignal",
+                    action="store", type="float", dest="scaleSignal",
+                    default=0.,
                     help="", metavar=""
                     ),
         make_option("-t","--th1Prefix",
