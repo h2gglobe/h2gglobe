@@ -1035,9 +1035,9 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 	        l.FillCounter( "Smeared", evweight );
 	        sumaccept += weight;
 	        sumsmear += evweight;
-	        if (l.runZeeValidation) {
+	        if (l.runZeeValidation && !mvaVbfSelection) {
 		  fillZeeControlPlots(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, phoid_mvaout_lead, phoid_mvaout_sublead, diphobdt_output, sigmaMrv, sigmaMwv, vtxProb, diphoton_id, category, selectioncategory, evweight, l );
-		} else {
+		} else  {
 		  fillControlPlots(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9,  diphoton_id, 
 				   category, isCorrectVertex, evweight, l );
 		}
@@ -1047,7 +1047,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
         //if (cur_type==0 && mass >= 100. && mass < 180. && !isSyst /*should never be if running data anyway*/){
         if (dumpAscii && mass >= 100. && mass < 180. && !isSyst){
         //if (1>0){
-/*            eventListText <<"Type="<< cur_type 
+	    /*            eventListText <<"Type="<< cur_type 
             <<" Run=" << l.run 
             <<" LS=" << l.lumis 
             <<" Event=" << l.event 
