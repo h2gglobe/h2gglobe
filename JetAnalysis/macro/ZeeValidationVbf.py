@@ -5,10 +5,12 @@ from ROOT import TFile, TCanvas, TStyle, TApplication, TLegend, TGraph, TGraphEr
 
 # ROOT Setup
 ROOT.gROOT.SetStyle("Plain")
+ROOT.gStyle.SetOptStat(0)
+ROOT.gStyle.SetOptTitle(0)
 
-fin=TFile.Open("root://eoscms//eos/cms/store/cmst3/user/malberti/HIGGS/VBF/zee_validation/zeevalidation-26-07-2012_new/histograms_CMS-HGG_test.root")
+fin=TFile.Open("root://eoscms//eos/cms/store/cmst3/user/malberti/HIGGS/VBF/zee_validation/zeevalidation-27-07-2012/histograms_CMS-HGG_test.root")
 
-savePlots = "false"
+savePlots = "true"
 
 vars = ["_Mgg0",
         "LeadJPt",
@@ -45,6 +47,7 @@ for i,v in enumerate(vars):
                 
     hdata[i].SetMarkerStyle(20)
     hdata[i].SetMarkerColor(1)
+    hdata[i].SetLineColor(1)
     hdata_seq[i].SetMarkerStyle(20)
     hdata_seq[i].SetMarkerColor(1)
     hmc[i].SetFillStyle(3000)
@@ -58,10 +61,12 @@ for n in range(len(hmc)):
     canvas[n] = TCanvas(cname,cname,800,500)
     canvas[n].Divide(2,1)
     canvas[n].cd(1)
+    hmc[n].GetYaxis().SetTitleOffset(1.4)
     hmc[n].DrawNormalized("histo")
     hdata[n].DrawNormalized("esame")
     canvas[n].cd(2)
     if n < (len(vars)-1):
+        hmc_seq[n].GetYaxis().SetTitleOffset(1.4)
         hmc_seq[n].DrawNormalized("histo")
         hdata_seq[n].DrawNormalized("esame")
     if savePlots == "true":
