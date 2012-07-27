@@ -35,7 +35,7 @@ def main(options,args):
 
         bkgPolySrt="bkgPolOrderByCat=4,5,5,5"
         
-        f = open("%s/point%d.dat" % ( options.output,ip ), "w+" ) 
+        f = open("%s/step%d_point%d.dat" % ( options.output,options.step,ip ), "w+" ) 
         f.write( "%s=" % (options.vectorName) )
         srted=sorted(thisPoint)
         f.write("%1.4g" % srted[0])
@@ -61,7 +61,7 @@ if __name__ == "__main__":
                     ),
         make_option("-r", "--scanRange",
                     action="store", type="string", dest="scanRange",
-                    default="90,0.85,1.",
+                    default="36,0.9,0.99",
                     help="default=%default", metavar=""
                     ),
         make_option("-s", "--step",
