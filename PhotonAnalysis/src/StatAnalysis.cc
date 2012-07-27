@@ -1,5 +1,4 @@
 #include "../interface/StatAnalysis.h"
-
 #include "Sorters.h"
 #include "PhotonReducedInfo.h"
 #include <iostream>
@@ -1104,6 +1103,12 @@ void StatAnalysis::fillControlPlots(const TLorentzVector & lead_p4, const  TLore
 	
 	if( mvaVbfSelection ) {
 	    l.FillHist("vbf_mva",category+1,myVBF_MVA,evweight);
+	    if (VBFevent){
+		float myweight =  1;
+		float sampleweight = l.sampleContainer[l.current_sample_index].weight;
+		if(evweight*sampleweight!=0) myweight=evweight/sampleweight;
+		l.FillCutPlots(category+1,1,"_sequential",evweight,myweight); 
+	    }
 	}
     }
 }

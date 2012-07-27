@@ -611,7 +611,7 @@ void PhotonAnalysis::Init(LoopAll& l)
 	tmvaVbfReader_->AddVariable("diphopt/diphoM"      , &myVBFDiPhoPtOverM);
 	tmvaVbfReader_->AddVariable("pho1pt/diphoM"	  , &myVBFLeadPhoPtOverM);
 	tmvaVbfReader_->AddVariable("pho2pt/diphoM"       , &myVBFSubPhoPtOverM);
-	
+	tmvaVbfReader_->AddSpectator("diphoM"       , &myVBF_Mgg);
 	tmvaVbfReader_->BookMVA( mvaVbfMethod, mvaVbfWeights );
     }
     
@@ -2531,9 +2531,11 @@ bool PhotonAnalysis::VBFTag2012(int & ijet1, int & ijet2,
 	    }
 	    myVBF_MVA = tmvaVbfReader_->EvaluateMVA(mvaVbfMethod);
 	    tag       = (myVBF_MVA > mvaVbfCatBoundaries.back());
-	    if(nm1 && tag && myVBF_Mgg>massMin && myVBF_Mgg<massMax ) { 
-		l.FillCutPlots(0,1,"_sequential",eventweight,myweight); 
-	    }
+
+	    // this is moved to StatAnalysis::fillControlPlots
+	    // 	    if(nm1 && tag && myVBF_Mgg>massMin && myVBF_Mgg<massMax ) { 
+	    // 		l.FillCutPlots(0,1,"_sequential",eventweight,myweight); 
+	    // 	    }
 	}
     } else {
 	if(nm1){
