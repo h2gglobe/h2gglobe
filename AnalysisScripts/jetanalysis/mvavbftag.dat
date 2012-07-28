@@ -1,0 +1,10 @@
+mvaVbfSelection=1
+mvaVbfWeights=aux/TMVA_vbf_6var_mjj100_diphopt_phopt_BDTG.weights.xml
+mvaVbfMethod=BDTG
+leadEtVBFCut=40
+subleadEtVBFCut=25
+
+mvaVbfCatBoundaries=1.,0.985,0.93 
+
+## mvaVbfCatBoundaries=1.,0.985,0.968,0.92 
+## bkgPolOrderByCat=4,5,5,5,3,3,4
