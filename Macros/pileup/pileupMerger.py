@@ -8,6 +8,7 @@
 from optparse import OptionParser
 from pprint import pprint
 import os.path as p
+import os
 from subprocess import check_call as call
 
 parser = OptionParser(usage="usage: %prog [options] EOS_source_directory\nrun with --help to get list of options")
@@ -27,10 +28,12 @@ options.eosLs = "/afs/cern.ch/project/eos/installation/pro/bin/eos root://eoscms
 if not options.inDirName:
     raise RuntimeError("Empty target directory name (which defines the sample name). Check path.")
 
+
+if not "/afs/cern.ch/project/eos/installation/pro/lib64/" in ld_path:
+    os.putenv("LD_LIBRARY_PATH", "%s:%s" % ( ld_path, "/afs/cern.ch/project/eos/installation/pro/lib64/" ) )
 call( """%(eosLs)s%(inDir)s | awk '/root$/ { print \"root://eoscms//eos/cms%(inDir)s/\"$1  }' | sed 's/\?.*$//' > %(inDirName)s.files.txt"""
       % vars(options), shell=True)
 call( """rm -f %(inDirName)s.pileup.root %(inDirName)s.pileup.root.log""" % vars(options), shell=True)
-#call( """hadd -k -T %(inDirName)s.pileup.root @%(inDirName)s.files.txt &> %(inDirName)s.pileup.root.log""" % vars(options), shell=True)
 call( """hadd -k -T %(inDirName)s.pileup.root `cat %(inDirName)s.files.txt | paste -s` &> %(inDirName)s.pileup.root.log""" % vars(options), shell=True)
 
 if options.putBack:
