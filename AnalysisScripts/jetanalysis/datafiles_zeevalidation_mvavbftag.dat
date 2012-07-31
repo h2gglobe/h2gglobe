@@ -51,6 +51,6 @@ cuts jetanalysis/cuts_zee_vbfmva.dat
 ## 	analyzer <class_name> <config_file>
 ## 
 ## analyzer PhotonAnalysis photonanalysis.dat	
-analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat zeevalidation.dat mvaVbfSelection=1 mvaVbfWeights=aux/TMVA_vbf_6var_mjj100_diphopt_phopt_BDTG.weights.xml mvaVbfMethod=BDTG mvaVbfCatBoundaries=1.,0.985,0.93 doSystematics=0 leadEtVBFCut=40 subleadEtVBFCut=25 massMin=60 massMax=180
+analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat zeevalidation.dat jetanalysis/mvavbftag.dat doSystematics=0 massMin=60 massMax=180 forceStdPlotsOnZee=1
 
 

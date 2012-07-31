@@ -205,7 +205,7 @@ class PhotonAnalysis : public BaseAnalysis
     float  myVBFDiPhoPtOverM;
     float  myVBF_MVA;
     
-    bool    mvaVbfSelection;
+    bool    mvaVbfSelection, mvaVbfUseDiPhoPt, mvaVbfUsePhoPt;
     TString mvaVbfWeights, mvaVbfMethod; 
     std::vector<float> mvaVbfCatBoundaries;
 

@@ -67,6 +67,8 @@ PhotonAnalysis::PhotonAnalysis()  :
     rescaleDZforVtxMVA=false;
 
     mvaVbfSelection=false;
+    mvaVbfUseDiPhoPt=true;
+    mvaVbfUsePhoPt=true;
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -608,10 +610,14 @@ void PhotonAnalysis::Init(LoopAll& l)
 	tmvaVbfReader_->AddVariable("mj1j2"		  , &myVBF_Mjj);
 	tmvaVbfReader_->AddVariable("zepp"		  , &myVBFZep);
 	tmvaVbfReader_->AddVariable("dphi"		  , &myVBFdPhi);
-	tmvaVbfReader_->AddVariable("diphopt/diphoM"      , &myVBFDiPhoPtOverM);
-	tmvaVbfReader_->AddVariable("pho1pt/diphoM"	  , &myVBFLeadPhoPtOverM);
-	tmvaVbfReader_->AddVariable("pho2pt/diphoM"       , &myVBFSubPhoPtOverM);
-	tmvaVbfReader_->AddSpectator("diphoM"       , &myVBF_Mgg);
+	if( mvaVbfUseDiPhoPt ) {
+	    tmvaVbfReader_->AddVariable("diphopt/diphoM"      , &myVBFDiPhoPtOverM); 
+	}
+	if( mvaVbfUsePhoPt   ) {
+	    tmvaVbfReader_->AddVariable("pho1pt/diphoM"	  , &myVBFLeadPhoPtOverM);
+	    tmvaVbfReader_->AddVariable("pho2pt/diphoM"       , &myVBFSubPhoPtOverM);
+	}
+	
 	tmvaVbfReader_->BookMVA( mvaVbfMethod, mvaVbfWeights );
     }
     
