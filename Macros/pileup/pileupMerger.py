@@ -29,8 +29,13 @@ if not options.inDirName:
     raise RuntimeError("Empty target directory name (which defines the sample name). Check path.")
 
 
+try:
+    ld_path = os.getenv("LD_LIBRARY_PATH")
+except:
+    ld_path = ""
 if not "/afs/cern.ch/project/eos/installation/pro/lib64/" in ld_path:
     os.putenv("LD_LIBRARY_PATH", "%s:%s" % ( ld_path, "/afs/cern.ch/project/eos/installation/pro/lib64/" ) )
+    
 call( """%(eosLs)s%(inDir)s | awk '/root$/ { print \"root://eoscms//eos/cms%(inDir)s/\"$1  }' | sed 's/\?.*$//' > %(inDirName)s.files.txt"""
       % vars(options), shell=True)
 call( """rm -f %(inDirName)s.pileup.root %(inDirName)s.pileup.root.log""" % vars(options), shell=True)
