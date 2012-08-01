@@ -94,7 +94,8 @@ class StatAnalysis : public PhotonAnalysis
     
     bool VHmuevent, VHelevent, VBFevent, VHhadevent, VHmetevent;  //met at analysis step
     double genLevWeight; 
-    
+    float sigmaMrv, sigmaMwv;
+
     void buildBkgModel(LoopAll& l, const std::string & postfix);
 
     std::vector<float> smeared_pho_energy;

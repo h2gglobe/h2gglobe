@@ -67,7 +67,7 @@ class MassFactorizedMvaAnalysis : public StatAnalysis
 
     std::vector<float> bdtCategoryBoundaries;
     float photonIDMVAShift_EB, photonIDMVAShift_EE;
-
+    
  protected:
 
     virtual bool AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentzVector & gP4, float & mass, float & evweight, int & category, int & diphoton_id,

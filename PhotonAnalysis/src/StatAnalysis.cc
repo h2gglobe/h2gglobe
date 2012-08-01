@@ -35,6 +35,9 @@ StatAnalysis::StatAnalysis()  :
     nVHmetCategories = 0;
 
     fillOptTree = false;
+
+    sigmaMrv=0.;
+    sigmaMwv=0.;
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -989,12 +992,26 @@ void StatAnalysis::FillRooContainer(LoopAll& l, int cur_type, float mass, float 
 	l.FillTree("category",category);
 	l.FillTree("diphotonMVA",diphotonMVA);
 	l.FillTree("vbfMVA",myVBF_MVA);
+	if( myVBF_MVA > -2. || VBFevent ) {
+	    l.FillTree("deltaPhiJJ",myVBF_deltaPhiJJ);
+	}
 	l.FillTree("sampleType",cur_type);
 	//// l.FillTree("isCorrectVertex",isCorrectVertex);
 	//// l.FillTree("metTag",VHmetevent);
 	//// l.FillTree("eleTag",VHelevent);
 	//// l.FillTree("muTag",VHmuevent);
 	
+	TLorentzVector lead_p4, sublead_p4, Higgs;
+	float lead_r9, sublead_r9;
+	TVector3 * vtx;
+	fillDiphoton(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, vtx, &smeared_pho_energy[0], l, diphoton_id);  
+	l.FillTree("leadPt",(float)lead_p4.Pt());
+	l.FillTree("subleadPt",(float)sublead_p4.Pt());
+	l.FillTree("leadR9",lead_r9);
+	l.FillTree("subleadR9",sublead_r9);
+	l.FillTree("sigmaMrv",sigmaMrv);
+	l.FillTree("sigmaMwv",sigmaMwv);
+
 	vtxAna_.setPairID(diphoton_id);
 	float vtxProb = vtxAna_.vertexProbability(l.vtx_std_evt_mva->at(diphoton_id), l.vtx_std_n);
 	float altMass = 0.;

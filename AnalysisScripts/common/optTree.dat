@@ -3,6 +3,9 @@
 ## 	type=0,1,2,3 (int,unsigned int,float,double)
 ## 	name=name 
 
+type=0 name=run
+type=0 name=event
+type=0 name=lumis
 type=0 name=category
 type=2 name=weight
 type=0 name=sampleType
@@ -11,4 +14,10 @@ type=2 name=diphotonMVA
 type=2 name=vbfMVA
 type=2 name=vtxProb
 type=2 name=altMass
-
+type=2 name=leadPt
+type=2 name=subleadPt
+type=2 name=leadR9
+type=2 name=subleadR9
+type=2 name=sigmaMrv
+type=2 name=sigmaMwv
+type=2 name=deltaPhiJJ

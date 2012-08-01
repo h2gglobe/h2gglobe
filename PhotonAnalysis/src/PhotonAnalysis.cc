@@ -2529,6 +2529,7 @@ bool PhotonAnalysis::VBFTag2012(int & ijet1, int & ijet2,
     myVBFLeadPhoPtOverM = lead_p4.Pt()    / myVBF_Mgg;
     myVBFSubPhoPtOverM  = sublead_p4.Pt() / myVBF_Mgg;
     myVBF_MVA = -2.;
+    myVBF_deltaPhiJJ = jet1->DeltaPhi(*jet2);
     
     if( mvaVbfSelection ) { 
 	if( myVBFLeadJPt>20. && myVBFSubJPt>20. && myVBF_Mjj > 100. ) { // FIXME hardcoded pre-selection thresholds

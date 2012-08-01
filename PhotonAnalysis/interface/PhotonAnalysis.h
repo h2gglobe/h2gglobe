@@ -200,6 +200,7 @@ class PhotonAnalysis : public BaseAnalysis
     float  myVBFdPhi;
     float  myVBF_Mjj;
     float  myVBF_Mgg;
+    float  myVBF_deltaPhiJJ;
     float  myVBFLeadPhoPtOverM;
     float  myVBFSubPhoPtOverM;
     float  myVBFDiPhoPtOverM;
