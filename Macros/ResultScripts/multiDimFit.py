@@ -1,7 +1,7 @@
 #!/bin/env python
 
 from optparse import OptionParser, make_option
-import sys, os
+import sys, os, glob
 
 def extract_par_limits(pars, model_name, mass, cl=0.05):
     
@@ -55,7 +55,7 @@ def main(options, args):
                             "rVrF"   : "",
                             "rV"     : "--floatOtherPOIs=0 -P RV",
         }
-u   
+   
     model_pars  = { "ggHqqH" : ["r_ggH","r_qqH"],
                     "cVcF"   : ["CV","CF"],
                     "rVrF"   : ["RV","RF"],
@@ -66,8 +66,8 @@ u
                     "r_qqH"  : (0.,999999.,False),
                     "CV"     : (-5.,5.,True),
                     "CF"     : (-5.,5.,True),
-                    "RV"     : (-10.,999999.,False),
-                    "RF"     : (-10.,999999.,False),
+                    "RV"     : (0.,999999.,False),
+                    "RF"     : (0.,999999.,False),
                     }
 
     os.chdir( options.workdir )
@@ -119,9 +119,12 @@ u
     for ip in range(options.npoints/step+1):
         jobs="%s %d %d " % ( jobs, ip*step, (ip+1)*step-1 )
     print jobs
-    system( "%s N2 --eta '%s -M MultiDimFit %s_grid_test.root -m %s -v2 -n %s_grid{1} --algo=grid --points=%d --firstPoint={1} --lastPoint={2} | tee combine_%s_grid{1}.log' ::: %s " % ( parallel, combine, model_name, mass, model_name, options.npoints, model_name, jobs ) )
-    
-    system("hadd higgsCombine%s_grid.MultiDimFit.mH%1.3g.root higgsCombine%s_grid[0-9]*.MultiDimFit.m%1.3g.root" % (model_name,mass,model_name,mass))
+    system( "%s -N2 --eta '%s -M MultiDimFit %s_grid_test.root -m %s -v2 -n %s_grid{1} --algo=grid --points=%d --firstPoint={1} --lastPoint={2} | tee combine_%s_grid{1}.log' ::: %s " % ( parallel, combine, model_name, mass, model_name, options.npoints, model_name, jobs ) )
+
+    hadd = "hadd higgsCombine%s_grid.MultiDimFit.mH%s.root" % (model_name,mass)
+    for f in glob.glob("higgsCombine%s_grid[0-9]*.MultiDimFit.mH%s.root" % (model_name,mass) ):
+        hadd += " %s" % f
+    system(hadd)
     
 if __name__ == "__main__":
     parser = OptionParser(option_list=[
