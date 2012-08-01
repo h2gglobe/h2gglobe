@@ -107,7 +107,7 @@ class MvaAnalysis : public MassFactorizedMvaAnalysis
     void fillTMVATrees(LoopAll &l,float,float,int,float,int);
     void fillLEETrees(LoopAll &l,float,float,int,float,int);
 
-    virtual void FillRooContainer(LoopAll& l, int cur_type, float mass, float diphotonMVA, int category, float weight, bool isCorrectVertex);
+    virtual void FillRooContainer(LoopAll& l, int cur_type, float mass, float diphotonMVA, int category, float weight, bool isCorrectVertex, int diphoton_ind=-1);
 
     virtual void AccumulateSyst(int cur_type, float mass, float diphotonMVA, int category, float weight,
 				std::vector<double> & mass_errors,

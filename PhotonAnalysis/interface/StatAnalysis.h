@@ -82,7 +82,7 @@ class StatAnalysis : public PhotonAnalysis
 			      BaseGenLevelSmearer *genSys=0, BaseSmearer *phoSys=0, BaseDiPhotonSmearer * diPhoSys=0); 
 
     virtual void FillRooContainer(LoopAll& l, int cur_type, float mass, float diphotonMVA, int category, float weight, 
-				  bool isCorrectVertex);
+				  bool isCorrectVertex, int diphoton_ind=-1);
     virtual void AccumulateSyst(int cur_type, float mass, float diphotonMVA, int category, float weight,
 				std::vector<double> & mass_errors,
 				std::vector<double> & mva_errors,

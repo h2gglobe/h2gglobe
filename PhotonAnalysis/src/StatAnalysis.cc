@@ -621,7 +621,7 @@ bool StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
     if( AnalyseEvent(l,jentry, weight, gP4, mass,  evweight, category, diphoton_id, isCorrectVertex,diphotonMVA) ) {
 	// feed the event to the RooContainer 
-	FillRooContainer(l, cur_type, mass, diphotonMVA, category, evweight, isCorrectVertex);
+	FillRooContainer(l, cur_type, mass, diphotonMVA, category, evweight, isCorrectVertex, diphoton_id);
     }
     
     // Systematics uncertaities for the binned model
@@ -965,7 +965,7 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 
 // ----------------------------------------------------------------------------------------------------
 void StatAnalysis::FillRooContainer(LoopAll& l, int cur_type, float mass, float diphotonMVA, 
-				    int category, float weight, bool isCorrectVertex) 
+				    int category, float weight, bool isCorrectVertex, int diphoton_id) 
 {
     if (cur_type == 0 ) {
 	l.rooContainer->InputDataPoint("data_mass",category,mass);
@@ -980,16 +980,31 @@ void StatAnalysis::FillRooContainer(LoopAll& l, int cur_type, float mass, float 
 	if (isCorrectVertex) l.rooContainer->InputDataPoint("sig_"+GetSignalLabel(cur_type)+"_rv",category,mass,weight);
 	else l.rooContainer->InputDataPoint("sig_"+GetSignalLabel(cur_type)+"_wv",category,mass,weight);
     }
-    if( fillOptTree ) {
+    if( category>0 && fillOptTree ) {
+	l.FillTree("run",l.run);
+	l.FillTree("lumis",l.lumis);
+	l.FillTree("event",l.event);
 	l.FillTree("mass",mass);
 	l.FillTree("weight",weight);
+	l.FillTree("category",category);
 	l.FillTree("diphotonMVA",diphotonMVA);
 	l.FillTree("vbfMVA",myVBF_MVA);
-	l.FillTree("type",cur_type);
-	l.FillTree("isCorrectVertex",isCorrectVertex);
-	l.FillTree("VHmetevent",VHmetevent);
-	l.FillTree("VHelevent",VHelevent);
-	l.FillTree("VHmuevent",VHmuevent);
+	l.FillTree("sampleType",cur_type);
+	//// l.FillTree("isCorrectVertex",isCorrectVertex);
+	//// l.FillTree("metTag",VHmetevent);
+	//// l.FillTree("eleTag",VHelevent);
+	//// l.FillTree("muTag",VHmuevent);
+	
+	vtxAna_.setPairID(diphoton_id);
+	float vtxProb = vtxAna_.vertexProbability(l.vtx_std_evt_mva->at(diphoton_id), l.vtx_std_n);
+	float altMass = 0.;
+	if( l.vtx_std_n > 1 ) {
+	    int altvtx = (*l.vtx_std_ranked_list)[diphoton_id][1];
+	    altMass = ( l.get_pho_p4( l.dipho_leadind[diphoton_id], altvtx, &smeared_pho_energy[0]) + 
+			l.get_pho_p4( l.dipho_subleadind[diphoton_id], altvtx, &smeared_pho_energy[0]) ).M();
+	}
+	l.FillTree("altMass",altMass);
+	l.FillTree("vtxProb",vtxProb);
     }
 }
 

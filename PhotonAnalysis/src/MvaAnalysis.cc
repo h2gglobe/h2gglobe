@@ -817,7 +817,7 @@ void MvaAnalysis::fillTMVATrees(LoopAll& l,float mass,float diphotonMVA,int cate
 }
 // ----------------------------------------------------------------------------------------------------
 void MvaAnalysis::FillRooContainer(LoopAll& l, int cur_type, float mass, float diphotonMVA, 
-				    int category, float weight, bool isCorrectVertex) 
+				   int category, float weight, bool isCorrectVertex, int diphoton_id) 
 {
 
   if (doTraining){
