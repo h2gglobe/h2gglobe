@@ -1,0 +1,32 @@
+Combination of datacard.txt
+imax 3 number of bins
+jmax 4 number of processes minus 1
+kmax 0 number of nuisance parameters
+----------------------------------------------------------------------------------------------------------------------------------
+shapes VH        hgg_8TeV_cat0  CMS-HGG_test_x6_interpolated.root cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_cat0 cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_cat0_$SYSTEMATIC01_sigma
+shapes bkg       hgg_8TeV_cat0  CMS-HGG_test_x6_interpolated.root cms_hgg_workspace:pdf_data_pol_model_8TeV_cat0
+shapes data_obs  hgg_8TeV_cat0  CMS-HGG_test_x6_interpolated.root cms_hgg_workspace:roohist_data_mass_cat0
+shapes ggH       hgg_8TeV_cat0  CMS-HGG_test_x6_interpolated.root cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_cat0 cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_cat0_$SYSTEMATIC01_sigma
+shapes qqH       hgg_8TeV_cat0  CMS-HGG_test_x6_interpolated.root cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_cat0 cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_cat0_$SYSTEMATIC01_sigma
+shapes ttH       hgg_8TeV_cat0  CMS-HGG_test_x6_interpolated.root cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_cat0 cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_cat0_$SYSTEMATIC01_sigma
+shapes VH        hgg_8TeV_cat4  CMS-HGG_test_x6_interpolated.root cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_cat4 cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_cat4_$SYSTEMATIC01_sigma
+shapes bkg       hgg_8TeV_cat4  CMS-HGG_test_x6_interpolated.root cms_hgg_workspace:pdf_data_pol_model_8TeV_cat4
+shapes data_obs  hgg_8TeV_cat4  CMS-HGG_test_x6_interpolated.root cms_hgg_workspace:roohist_data_mass_cat4
+shapes ggH       hgg_8TeV_cat4  CMS-HGG_test_x6_interpolated.root cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_cat4 cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_cat4_$SYSTEMATIC01_sigma
+shapes qqH       hgg_8TeV_cat4  CMS-HGG_test_x6_interpolated.root cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_cat4 cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_cat4_$SYSTEMATIC01_sigma
+shapes ttH       hgg_8TeV_cat4  CMS-HGG_test_x6_interpolated.root cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_cat4 cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_cat4_$SYSTEMATIC01_sigma
+shapes VH        hgg_8TeV_cat5  CMS-HGG_test_x6_interpolated.root cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_cat5 cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_cat5_$SYSTEMATIC01_sigma
+shapes bkg       hgg_8TeV_cat5  CMS-HGG_test_x6_interpolated.root cms_hgg_workspace:pdf_data_pol_model_8TeV_cat5
+shapes data_obs  hgg_8TeV_cat5  CMS-HGG_test_x6_interpolated.root cms_hgg_workspace:roohist_data_mass_cat5
+shapes ggH       hgg_8TeV_cat5  CMS-HGG_test_x6_interpolated.root cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_cat5 cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_cat5_$SYSTEMATIC01_sigma
+shapes qqH       hgg_8TeV_cat5  CMS-HGG_test_x6_interpolated.root cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_cat5 cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_cat5_$SYSTEMATIC01_sigma
+shapes ttH       hgg_8TeV_cat5  CMS-HGG_test_x6_interpolated.root cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_cat5 cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_cat5_$SYSTEMATIC01_sigma
+----------------------------------------------------------------------------------------------------------------------------------
+bin          hgg_8TeV_cat0  hgg_8TeV_cat4  hgg_8TeV_cat5
+observation  -1.0      -1.0      -1.0    
+----------------------------------------------------------------------------------------------------------------------------------
+bin          hgg_8TeV_cat0  hgg_8TeV_cat0  hgg_8TeV_cat0  hgg_8TeV_cat0  hgg_8TeV_cat0  hgg_8TeV_cat4  hgg_8TeV_cat4  hgg_8TeV_cat4  hgg_8TeV_cat4  hgg_8TeV_cat4  hgg_8TeV_cat5  hgg_8TeV_cat5  hgg_8TeV_cat5  hgg_8TeV_cat5  hgg_8TeV_cat5
+process      VH        ttH       ggH       qqH       bkg       VH        ttH       ggH       qqH       bkg       VH        ttH       ggH       qqH       bkg     
+process      -3        -2        -1        0         1         -3        -2        -1        0         1         -3        -2        -1        0         1       
+rate         -1.0000   -1.0000   -1.0000   -1.0000   6.0000    -1.0000   -1.0000   -1.0000   -1.0000   6.0000    -1.0000   -1.0000   -1.0000   -1.0000   6.0000  
+----------------------------------------------------------------------------------------------------------------------------------

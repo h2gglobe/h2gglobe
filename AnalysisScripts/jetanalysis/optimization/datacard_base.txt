@@ -1,0 +1,23 @@
+CMS-HGG_bdt DataCard for Binned Limit Setting with RooDataHist+Parameterised Background
+Run with: combine cms-hgg-datacard.txt -M Routine -D data_mass -m MASS --generateBinnedWorkaround -S 1
+---------------------------------------------
+imax *
+jmax *
+kmax *
+---------------------------------------------
+shapes data_obs * CMS-HGG_test_x6_interpolated.root cms_hgg_workspace:roohist_data_mass_$CHANNEL
+shapes ggH * 	  CMS-HGG_test_x6_interpolated.root cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_$CHANNEL cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_$CHANNEL_$SYSTEMATIC01_sigma
+shapes qqH * 	  CMS-HGG_test_x6_interpolated.root cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_$CHANNEL cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_$CHANNEL_$SYSTEMATIC01_sigma
+shapes VH * 	  CMS-HGG_test_x6_interpolated.root cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_$CHANNEL cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_$CHANNEL_$SYSTEMATIC01_sigma
+shapes ttH * 	  CMS-HGG_test_x6_interpolated.root cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_$CHANNEL cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_$CHANNEL_$SYSTEMATIC01_sigma
+shapes bkg * 	  CMS-HGG_test_x6_interpolated.root cms_hgg_workspace:pdf_data_pol_model_8TeV_$CHANNEL 
+---------------------------------------------
+bin	      cat0 cat1 cat2 cat3 cat4 cat5
+observation   -1   -1   -1   -1   -1   -1
+---------------------------------------------
+bin	 cat0 cat0 cat0 cat0 cat0 cat1 cat1 cat1 cat1 cat1 cat2 cat2 cat2 cat2 cat2 cat3 cat3 cat3 cat3 cat3 cat4 cat4 cat4 cat4 cat4 cat5 cat5 cat5 cat5 cat5
+process  ggH  qqH  VH  ttH  bkg  ggH  qqH  VH  ttH  bkg  ggH  qqH  VH  ttH  bkg  ggH  qqH  VH  ttH  bkg  ggH  qqH  VH  ttH  bkg  ggH  qqH  VH  ttH  bkg
+process  0    0    0    0    1    0    0    0    0    1    0    0    0    0    1    0    0    0    0    1    0    0    0    0    1    0    0    0    0    1
+rate     -1   -1   -1   -1   1    -1   -1   -1   -1   1    -1   -1   -1   -1   1    -1   -1   -1   -1   1    -1   -1   -1   -1   1    -1   -1   -1   -1   1
+---------------------------------------------
+
