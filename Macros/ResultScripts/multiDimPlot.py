@@ -129,7 +129,7 @@ if __name__ == "__main__":
                     action="append", dest="labels",
                     default=[],
                     ),
-        make_option("-v", "--variable",
+        make_option("-v", "--variables",
                     action="append", dest="variables",
                     default=[],
                     ),

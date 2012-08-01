@@ -55,7 +55,7 @@ def main(options, args):
                             "rVrF"   : "",
                             "rV"     : "--floatOtherPOIs=0 -P RV",
         }
-    
+u   
     model_pars  = { "ggHqqH" : ["r_ggH","r_qqH"],
                     "cVcF"   : ["CV","CF"],
                     "rVrF"   : ["RV","RF"],
@@ -71,7 +71,8 @@ def main(options, args):
                     }
 
     os.chdir( options.workdir )
-
+    parallel = "%s/parallel" % ( os.path.dirname(sys.argv[0]) )
+    
     combine = "combine %s " % model_combine_args[options.model]
     if options.expected > 0.:
         combine += " -t -1 --expectSignal=%f" % options.expected
@@ -118,8 +119,9 @@ def main(options, args):
     for ip in range(options.npoints/step+1):
         jobs="%s %d %d " % ( jobs, ip*step, (ip+1)*step-1 )
     print jobs
-    system( "parallel -N2 --eta '%s -M MultiDimFit %s_grid_test.root -m %s -v2 -n %s_grid{1} --algo=grid --points=%d --firstPoint={1} --lastPoint={2} | tee combine_%s_grid{1}.log' ::: %s " % ( combine, model_name, mass, model_name, options.npoints, model_name, jobs ) )
-
+    system( "%s N2 --eta '%s -M MultiDimFit %s_grid_test.root -m %s -v2 -n %s_grid{1} --algo=grid --points=%d --firstPoint={1} --lastPoint={2} | tee combine_%s_grid{1}.log' ::: %s " % ( parallel, combine, model_name, mass, model_name, options.npoints, model_name, jobs ) )
+    
+    system("hadd higgsCombine%s_grid.MultiDimFit.mH%1.3g.root higgsCombine%s_grid[0-9]*.MultiDimFit.m%1.3g.root" % (model_name,mass,model_name,mass))
     
 if __name__ == "__main__":
     parser = OptionParser(option_list=[
@@ -140,7 +142,7 @@ if __name__ == "__main__":
                     ),
         make_option("-r", "--scanrange",
                     action="store", type="float", dest="scanrange",
-                    default=3.,
+                    default=4.,
                     help="default : [%default]", metavar="SCANRANGE"
                     ),
         make_option("-m", "--mass",
