@@ -21,6 +21,7 @@ bool PhotonJetAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
     l.vtx_std_sel=0;
     float maxSumPt = 0.;
     l.dipho_n = 0;
+    bool oneKinSelected = false;
 
     //Jet Stuff
     TLorentzVector MaxPtJet(0,0,0,0);
@@ -29,7 +30,7 @@ bool PhotonJetAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
       if (fabs(JetP4.Eta())>2.4 || l.jet_algoPF1_ntk[ijet]<3 || JetP4.Pt()<30) continue;
       TLorentzVector JetTrackSumP4(0,0,0,0);
       for (unsigned int itk=0; itk<(unsigned int) l.jet_algoPF1_ntk[ijet]; itk++) {
-        if (l.jet_algoPF1_tkind->at(ijet).at(itk)>=3000) continue;
+        if (l.jet_algoPF1_tkind->at(ijet).at(itk)>=10000) continue;
         TLorentzVector trackp4 = *((TLorentzVector*) l.tk_p4->At(l.jet_algoPF1_tkind->at(ijet).at(itk)));
         if (trackp4.Pt()>1.0) JetTrackSumP4 += trackp4;
       }
@@ -43,6 +44,7 @@ bool PhotonJetAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
       l.rho = l.rho_algo1;
     }
     l.FillCICInputs();
+    if(reComputeCiCPF) { l.FillCICPFInputs(); }
     l.FillCIC();
 
     if(l.itype[l.current]<0) {
@@ -76,50 +78,73 @@ bool PhotonJetAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
         }
         for(size_t id=0; id<l.pho_n; ++id ) {
             
-            int ipho1 = id;
-            int ipho2 = id;
+          int ipho1 = id;
+          int ipho2 = id;
             
-            if(PADEBUG)        cout << " SelectEventsReduction going to fill photon info " << endl;
-            PhotonInfo pho1=l.fillPhotonInfos(ipho1,vtxAlgoParams.useAllConversions,&corrected_pho_energy[0]);
-            //PhotonInfo pho2=l.fillPhotonInfos(ipho2,vtxAlgoParams.useAllConversions);
-            PhotonInfo pho2=PhotonInfo(-1,MaxPtJet.Vect(),MaxPtJet.E());
-            pho2.isFake(true);
-            if(PADEBUG) cout << " SelectEventsReduction done with fill photon info " << endl;
+          if(PADEBUG)        cout << " SelectEventsReduction going to fill photon info " << endl;
+          PhotonInfo pho1=l.fillPhotonInfos(ipho1,vtxAlgoParams.useAllConversions,&corrected_pho_energy[0]);
+          //PhotonInfo pho2=l.fillPhotonInfos(ipho2,vtxAlgoParams.useAllConversions);
+          PhotonInfo pho2=PhotonInfo(-1,MaxPtJet.Vect(),MaxPtJet.E());
+          pho2.isFake(true);
+          if(PADEBUG) cout << " SelectEventsReduction done with fill photon info " << endl;
             
-            l.vertexAnalysis(vtxAna_, pho1, pho2 );
-            // make sure that vertex analysis indexes are in synch 
-            assert( (int)id == vtxAna_.pairID(ipho1,-1) );
+          l.vertexAnalysis(vtxAna_, pho1, pho2 );
+          std::vector<int> vtxs = l.vertexSelection(vtxAna_, vtxConv_, pho1, pho2, vtxVarNames, mvaVertexSelection, 
+                                                    tmvaPerVtxReader_, tmvaPerVtxMethod);
+
+          TLorentzVector lead_p4 = l.get_pho_p4( ipho1, vtxs[0], &corrected_pho_energy[0] ).Pt();
+          TLorentzVector sublead_p4 = MaxPtJet;
+
+//           if(sublead_p4.Pt()  > lead_p4.Pt() ) {
+//             std::swap( diphotons[id].first,  diphotons[id].second );
+//             std::swap( lead_p4,  sublead_p4 );
+//           }
+	    
+//           if( lead_p4.Pt() < presel_scet1 || sublead_p4.Pt() < presel_scet2 || 
+//               fabs(lead_p4.Eta()) > presel_maxeta || fabs(sublead_p4.Eta()) > presel_maxeta ) {
+//             vtxAna_.discardLastDipho();
+// 	    	continue;
+//           }
+          oneKinSelected = true;
+
+//           if( ! l.PhotonMITPreSelection(ipho1, vtxs[0], &corrected_pho_energy[0] )
+//               || ! l.PhotonMITPreSelection(ipho2, vtxs[0], &corrected_pho_energy[0] ) ) {
+// 	    	vtxAna_.discardLastDipho();
+// 	    	continue;
+//           }
+	    
+          l.vtx_std_ranked_list->push_back(vtxs);
+          if( tmvaPerEvtReader_ ) {
+            float vtxEvtMva = vtxAna_.perEventMva( *tmvaPerEvtReader_, tmvaPerEvtMethod, l.vtx_std_ranked_list->back() );
+            l.vtx_std_evt_mva->push_back(vtxEvtMva);
+          }
+          if( l.vtx_std_ranked_list->back().size() != 0 && ! useDefaultVertex ) {  
+            l.dipho_vtx_std_sel->push_back( (l.vtx_std_ranked_list)->back()[0] );
+          } else {
+            l.dipho_vtx_std_sel->push_back(0);
+            std::cerr << "NO VERTEX SELECTED " << l.event << " " << l.run << " " << id << " " << id << std::endl;
+          }
+
+          l.dipho_leadind[id] = id;
+          l.dipho_subleadind[id] = id;
+          l.dipho_vtxind[id] = l.dipho_vtx_std_sel->back();
             
-            l.vtx_std_ranked_list->push_back( l.vertexSelection(vtxAna_, vtxConv_, pho1, pho2, vtxVarNames, mvaVertexSelection, 
-                                                                tmvaPerVtxReader_, tmvaPerVtxMethod) );
-            if( tmvaPerEvtReader_ ) {
-                float vtxEvtMva = vtxAna_.perEventMva( *tmvaPerEvtReader_, tmvaPerEvtMethod, l.vtx_std_ranked_list->back() );
-                l.vtx_std_evt_mva->push_back(vtxEvtMva);
-            }
-            if( l.vtx_std_ranked_list->back().size() != 0 && ! useDefaultVertex ) {  
-                l.dipho_vtx_std_sel->push_back( (l.vtx_std_ranked_list)->back()[0] );
-            } else {
-                l.dipho_vtx_std_sel->push_back(0);
-                std::cerr << "NO VERTEX SELECTED " << l.event << " " << l.run << " " << diphotons[id].first << " " << diphotons[id].second << std::endl;
-            }
-            l.dipho_n = id+1;
-            l.dipho_leadind[id] = id;
-            l.dipho_subleadind[id] = id;
-            l.dipho_vtxind[id] = l.dipho_vtx_std_sel->back();
+          l.dipho_sumpt[id] = lead_p4.Pt() + MaxPtJet.Pt();
             
-            TLorentzVector lead_p4 = l.get_pho_p4( id, l.dipho_vtxind[id], &corrected_pho_energy[0] );
-            TLorentzVector sublead_p4 = MaxPtJet;
-            l.dipho_sumpt[id] = lead_p4.Pt() + MaxPtJet.Pt();
-            
-            if( l.dipho_sumpt[id] > maxSumPt ) {
-                l.vtx_std_sel = l.dipho_vtx_std_sel->back();
-                maxSumPt = l.dipho_sumpt[id];
-            }
+          if( l.dipho_sumpt[id] > maxSumPt ) {
+            l.vtx_std_sel = l.dipho_vtx_std_sel->back();
+            maxSumPt = l.dipho_sumpt[id];
+          }
+
+          // make sure that vertex analysis indexes are in synch 
+          assert( id == vtxAna_.pairID(ipho1,-1) );
+	    
+          //l.dipho_n++;
         }
     }
     
 
-    return true;
+    return oneKinSelected;
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -129,6 +154,13 @@ bool PhotonJetAnalysis::SkimEvents(LoopAll& l, int jentry)
     l.b_pho_n->GetEntry(jentry);
     if( l.pho_n < 1 ) { return false; }
 
+    if( skimOnDiphoN && l.typerun == l.kFill ) {
+      l.b_dipho_n->GetEntry(jentry);
+      if( l.dipho_n < 1 ) {
+	    return false;
+      }
+    }
+    
     //Jet Stuff
     vector <TLorentzVector> GoodJetVector;
     for (unsigned int ijet=0; ijet<(unsigned int) l.jet_algoPF1_n; ijet++) {
@@ -136,7 +168,7 @@ bool PhotonJetAnalysis::SkimEvents(LoopAll& l, int jentry)
       if (fabs(JetP4.Eta())>2.4 || l.jet_algoPF1_ntk[ijet]<3 || JetP4.Pt()<30) continue;
       TLorentzVector JetTrackSumP4(0,0,0,0);
       for (unsigned int itk=0; itk<(unsigned int) l.jet_algoPF1_ntk[ijet]; itk++) {
-        if (l.jet_algoPF1_tkind->at(ijet).at(itk)>=3000) continue;
+        //if (l.jet_algoPF1_tkind->at(ijet).at(itk)>=3000) continue;
         TLorentzVector trackp4 = *((TLorentzVector*) l.tk_p4->At(l.jet_algoPF1_tkind->at(ijet).at(itk)));
         if (trackp4.Pt()>1.0) JetTrackSumP4 += *((TLorentzVector*) l.tk_p4->At(l.jet_algoPF1_tkind->at(ijet).at(itk)));
       }
@@ -144,6 +176,40 @@ bool PhotonJetAnalysis::SkimEvents(LoopAll& l, int jentry)
     }
 
     if (GoodJetVector.size()<1) return false;
+
+    // do not run trigger selection on MC
+    int filetype = l.itype[l.current];
+    if( l.typerun == l.kReduce || l.typerun == l.kFillReduce ) {
+      //// if( filetype == 2 ) { // photon+jet
+      ////    l.b_process_id->GetEntry(jentry);
+      ////    if( l.process_id == 18 ) {
+      ////        return false;
+      ////    }
+      //// }
+        
+      if( filetype != 0 && ! (keepPP && keepPF && keepFF) ) {
+        l.b_gp_n->GetEntry(jentry);
+        l.b_gp_mother->GetEntry(jentry);
+        l.b_gp_status->GetEntry(jentry);
+        l.b_gp_pdgid->GetEntry(jentry);
+        l.b_gp_p4->GetEntry(jentry);
+            
+        int np = 0;
+        for(int ip=0;ip<l.gp_n;++ip) {
+          if( l.gp_status[ip] != 1 || l.gp_pdgid[ip] != 22 ) { 
+            continue; 
+          }
+          TLorentzVector * p4 = (TLorentzVector*) l.gp_p4->At(ip);
+          if( p4->Pt() < 20. || fabs(p4->Eta()) > 3. ) { continue; }
+          int mother_id = abs( l.gp_pdgid[ l.gp_mother[ip] ] );
+          if( mother_id <= 25 ) { ++np; }
+          if( np >= 2 ) { break; }
+        }
+        if( np >= 2 && ! keepPP ) { return false; }
+        if( np == 1 && ! keepPF ) { return false; }
+        if( np == 0 && ! keepFF ) { return false; }
+      }
+    }
     
     return true;
 }
@@ -151,10 +217,10 @@ bool PhotonJetAnalysis::SkimEvents(LoopAll& l, int jentry)
 // ----------------------------------------------------------------------------------------------------
 void PhotonJetAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree) 
 {
-    vtxAna_.branches(outputTree,"vtx_std_");    
+    if( outputTree ) { vtxAna_.branches(outputTree,"vtx_std_"); }
 
     l.pho_matchingConv = new  std::vector<int>();
-    l.Branch_pho_matchingConv(outputTree);
+    if( outputTree ) { l.Branch_pho_matchingConv(outputTree); }
     
     l.vtx_std_evt_mva = new std::vector<float>();
     l.vtx_std_ranked_list = new std::vector<std::vector<int> >();
@@ -174,6 +240,7 @@ void PhotonJetAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree)
     l.pho_cic4pfpasscuts_sublead = new std::vector<std::vector<std::vector<UInt_t> > >();
     l.dipho_vtx_std_sel =  new std::vector<int>();
 
+    if( outputTree ) {
     l.Branch_vtx_std_evt_mva(outputTree);
     l.Branch_vtx_std_ranked_list(outputTree);
     l.Branch_vtx_std_sel(outputTree);
@@ -225,6 +292,17 @@ void PhotonJetAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree)
     l.Branch_jet_algoPF3_vbfMatched(outputTree);
     l.Branch_jet_algoPF3_genPt(outputTree);
     l.Branch_jet_algoPF3_genDr(outputTree);
+
+    //correctMETinRED
+	l.Branch_shiftMET_pt(outputTree);
+	l.Branch_shiftMET_phi(outputTree);
+	l.Branch_smearMET_pt(outputTree);
+	l.Branch_smearMET_phi(outputTree);
+	l.Branch_shiftsmearMET_pt(outputTree);
+	l.Branch_shiftsmearMET_phi(outputTree);
+	l.Branch_shiftscaleMET_pt(outputTree);
+	l.Branch_shiftscaleMET_phi(outputTree);
+    }
     
     l.gh_higgs_p4 = new TClonesArray("TLorentzVector", 1); 
     l.gh_higgs_p4->Clear();
@@ -253,6 +331,7 @@ void PhotonJetAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree)
     l.gh_vh2_p4 = new TClonesArray("TLorentzVector", 1); 
     l.gh_vh2_p4->Clear();
     ((*l.gh_vh2_p4)[0]) = new TLorentzVector();
+    if( outputTree ) {
     l.Branch_gh_gen2reco1( outputTree );
     l.Branch_gh_gen2reco2( outputTree );
     l.Branch_gh_vbfq1_pdgid( outputTree );
@@ -267,5 +346,6 @@ void PhotonJetAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree)
     l.Branch_gh_vbfq2_p4( outputTree );
     l.Branch_gh_vh1_p4( outputTree );
     l.Branch_gh_vh2_p4( outputTree );
+    }
 }
 

@@ -1,6 +1,6 @@
-output=photonjet/PhotonPlusJetMCTest.root
+output=photonjet/PhotonPlusJetTestMC.root
 
-Fil=/data/ndpc2/c/HiggsGammaGamma/PhotonPlusJet/CMSSW_5_2_4_patch4/src/HiggsAnalysis/HiggsTo2photons/h2gglobe/G_Pt-50to80_TuneZ2star_8TeV.root typ=1
+CaDir=/store/group/phys_higgs/cmshgg/processed/PhotonPlusJet/V13_03_08/mc/Summer12_S7_8TeV/PhotonPlusJetMC/G_Pt-120to170_TuneZ2star_8TeV_sub2 typ=2
 
 ->
 input and output branches

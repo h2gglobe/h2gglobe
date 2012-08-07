@@ -23,11 +23,12 @@ sc_bcseedind
 
 ecalhit_n
 ecalhit_detid
-### ecalhit_p4
+ecalhit_p4
 bc_n
-### bc_p4
+### bc_seed
+bc_p4
 
-#Tracks 
+# Tracks 
 tk_n
 tk_p4
 tk_vtx_pos
@@ -76,7 +77,8 @@ el_std_ecaldrv
 el_std_pfiso_charged
 el_std_pfiso_neutral
 el_std_pfiso_photon
-
+el_std_conv_vtxProb
+el_std_pin
 
 # Muons
 mu_glo_n
@@ -98,6 +100,11 @@ mu_glo_tkiso03
 mu_glo_dz
 mu_glo_D0Vtx
 mu_glo_DZVtx
+mu_tkLayers
+mu_glo_chhadiso04
+mu_glo_nehadiso04
+mu_glo_photiso04
+mu_dbCorr
 
 # Photons 
 pho_n
@@ -391,8 +398,8 @@ jet_algoPF1_cutbased_wp_level
 jet_algoPF1_pfloose
 jet_algoPF1_ntk
 jet_algoPF1_tkind
-->
 jet_algoPF1_area
+
 jet_algoPF1_beta_ext
 jet_algoPF1_betaStar_ext
 jet_algoPF1_betaStarClassic_ext
@@ -401,7 +408,7 @@ jet_algoPF1_simple_wp_level_ext
 jet_algoPF1_cutbased_wp_level_ext
 jet_algoPF1_full_mva_ext
 jet_algoPF1_simple_mva_ext
-->
+
 jet_algoPF2_n
 jet_algoPF2_erescale
 jet_algoPF2_p4
@@ -426,8 +433,8 @@ jet_algoPF2_cutbased_wp_level
 jet_algoPF2_pfloose
 jet_algoPF2_ntk
 jet_algoPF2_tkind
-->
 jet_algoPF2_area
+
 jet_algoPF2_beta_ext
 jet_algoPF2_betaStar_ext
 jet_algoPF2_betaStarClassic_ext
@@ -436,7 +443,7 @@ jet_algoPF2_simple_wp_level_ext
 jet_algoPF2_cutbased_wp_level_ext
 jet_algoPF2_full_mva_ext
 jet_algoPF2_simple_mva_ext
-->
+
 jet_algoPF3_n
 jet_algoPF3_erescale
 jet_algoPF3_p4
@@ -461,8 +468,8 @@ jet_algoPF3_cutbased_wp_level
 jet_algoPF3_pfloose
 jet_algoPF3_ntk
 jet_algoPF3_tkind
-->
 jet_algoPF3_area
+
 jet_algoPF3_beta_ext
 jet_algoPF3_betaStar_ext
 jet_algoPF3_betaStarClassic_ext
@@ -471,7 +478,7 @@ jet_algoPF3_simple_wp_level_ext
 jet_algoPF3_cutbased_wp_level_ext
 jet_algoPF3_full_mva_ext
 jet_algoPF3_simple_mva_ext
-->
+
 # New photon variables 
 pho_pfRawEnergy
 pho_pfe2x2
