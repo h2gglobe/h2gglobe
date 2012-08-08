@@ -211,10 +211,10 @@ bool VbfAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentzV
     
 
 	//--- compute dphiJJ2 [http://arxiv.org/pdf/1001.3822.pdf]
-	TLorentzVector* sumj1 ;
-	TLorentzVector* sumj2 ;
-	sumj1->SetPxPyPzE(0,0,0,0);
-	sumj2->SetPxPyPzE(0,0,0,0);
+	TLorentzVector* sumj1 = new TLorentzVector() ;
+	TLorentzVector* sumj2 = new TLorentzVector();
+	sumj1->SetPxPyPzE(0.,0.,0.,0.);
+	sumj2->SetPxPyPzE(0.,0.,0.,0.);
 	for(size_t itjet=0; itjet<sorted_jets.size(); ++itjet ) {
 	    int ijet = sorted_jets[itjet];
 	    bool PUjetId = PileupJetIdentifier::passJetId(l.jet_algoPF1_simple_wp_level[ijet], PileupJetIdentifier::kLoose);
