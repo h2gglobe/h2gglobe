@@ -61,7 +61,7 @@ private:
     float tree_jet1isMatched,tree_jet2isMatched;
     float tree_jet1genPt,tree_jet2genPt;
     float tree_jet1genDr,tree_jet2genDr;
-    float tree_jet1pt, tree_jet2pt, tree_jet1eta, tree_jet2eta, tree_zepp, tree_mj1j2, tree_dphi;
+    float tree_jet1pt, tree_jet2pt, tree_jet1eta, tree_jet2eta, tree_zepp, tree_mj1j2, tree_dphi, tree_dphiJJ, tree_dphiJJ2, tree_deltaEta3;    
     bool  tree_jet1PileupID,tree_jet2PileupID ;
     bool  tree_isSignal;
     int   tree_mctype;
