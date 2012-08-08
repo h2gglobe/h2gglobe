@@ -84,6 +84,7 @@ void VbfAnalysis::Init(LoopAll& l)
 	flatTree_->Branch( "mj1j2",         &tree_mj1j2 );
 	flatTree_->Branch( "dphi",          &tree_dphi);
 	flatTree_->Branch( "dphiJJ",        &tree_dphiJJ);
+	flatTree_->Branch( "dphiJJ2",       &tree_dphiJJ2);
 	flatTree_->Branch( "deltaEta3",     &tree_deltaEta3);
 	flatTree_->Branch( "jet1PileupID",  &tree_jet1PileupID );
 	flatTree_->Branch( "jet2PileupID",  &tree_jet2PileupID );
