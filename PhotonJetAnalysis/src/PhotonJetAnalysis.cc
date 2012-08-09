@@ -4,6 +4,9 @@
 
 using namespace std;
 
+PhotonJetAnalysis::PhotonJetAnalysis(){}
+PhotonJetAnalysis::~PhotonJetAnalysis(){}
+
 // ----------------------------------------------------------------------------------------------------
 bool PhotonJetAnalysis::SelectEventsReduction(LoopAll& l, int jentry) 
 {
@@ -141,6 +144,8 @@ bool PhotonJetAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
 	    
           //l.dipho_n++;
         }
+
+        MetCorrections2012( l );
     }
     
 
@@ -151,6 +156,9 @@ bool PhotonJetAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
 
 bool PhotonJetAnalysis::SkimEvents(LoopAll& l, int jentry)
 {
+
+    if( dataIs2011 ) { l.version=12; }
+
     l.b_pho_n->GetEntry(jentry);
     if( l.pho_n < 1 ) { return false; }
 
@@ -168,7 +176,7 @@ bool PhotonJetAnalysis::SkimEvents(LoopAll& l, int jentry)
       if (fabs(JetP4.Eta())>2.4 || l.jet_algoPF1_ntk[ijet]<3 || JetP4.Pt()<30) continue;
       TLorentzVector JetTrackSumP4(0,0,0,0);
       for (unsigned int itk=0; itk<(unsigned int) l.jet_algoPF1_ntk[ijet]; itk++) {
-        //if (l.jet_algoPF1_tkind->at(ijet).at(itk)>=3000) continue;
+        if (l.jet_algoPF1_tkind->at(ijet).at(itk)>=10000) continue;
         TLorentzVector trackp4 = *((TLorentzVector*) l.tk_p4->At(l.jet_algoPF1_tkind->at(ijet).at(itk)));
         if (trackp4.Pt()>1.0) JetTrackSumP4 += *((TLorentzVector*) l.tk_p4->At(l.jet_algoPF1_tkind->at(ijet).at(itk)));
       }
@@ -179,6 +187,33 @@ bool PhotonJetAnalysis::SkimEvents(LoopAll& l, int jentry)
 
     // do not run trigger selection on MC
     int filetype = l.itype[l.current];
+    bool skipTrigger = !doTriggerSelection || filetype != 0 || triggerSelections.empty();
+    if( ! skipTrigger ) {
+      // get the trigger selection for this run 
+      l.b_run->GetEntry(jentry);
+      std::vector<TriggerSelection>::iterator isel = find(triggerSelections.begin(), triggerSelections.end(), l.run );
+      if(isel == triggerSelections.end() ) {
+        std::cerr << "No trigger selection for run " << l.run << "defined" << std::endl;
+        return true;
+      }
+	
+      // get the trigger data
+      if( l.version < 13 ) { 
+	    l.b_hlt1_bit->GetEntry(jentry); 
+	    l.b_hlt_path_names_HLT1->GetEntry(jentry);
+	    if( !  isel->pass( *(l.hlt_path_names_HLT1), *(l.hlt1_bit) ) ) {
+          return false;
+	    }
+      } else {  
+	    l.b_hlt_bit->GetEntry(jentry); 
+	    l.b_hlt_path_names_HLT->GetEntry(jentry);
+	    if( !  isel->pass( *(l.hlt_path_names_HLT), *(l.hlt_bit) ) ) {
+          return false;
+	    }
+      }
+      //l.countersred[trigCounter_]++;
+    }
+    
     if( l.typerun == l.kReduce || l.typerun == l.kFillReduce ) {
       //// if( filetype == 2 ) { // photon+jet
       ////    l.b_process_id->GetEntry(jentry);
@@ -302,6 +337,10 @@ void PhotonJetAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree)
 	l.Branch_shiftsmearMET_phi(outputTree);
 	l.Branch_shiftscaleMET_pt(outputTree);
 	l.Branch_shiftscaleMET_phi(outputTree);
+    l.Branch_shiftMET_eta(outputTree);
+	l.Branch_shiftMET_e(outputTree);
+	l.Branch_shiftscaleMET_eta(outputTree);
+	l.Branch_shiftscaleMET_e(outputTree);
     }
     
     l.gh_higgs_p4 = new TClonesArray("TLorentzVector", 1); 
@@ -331,6 +370,12 @@ void PhotonJetAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree)
     l.gh_vh2_p4 = new TClonesArray("TLorentzVector", 1); 
     l.gh_vh2_p4->Clear();
     ((*l.gh_vh2_p4)[0]) = new TLorentzVector();
+
+//    l.METcorrected = new TClonesArray("TLorentzVector", 1);     //met at analysis step
+//    l.METcorrected->Clear();                    //met at analysis step
+//    ((*l.METcorrected)[0]) = new TLorentzVector();        //met at analysis step
+
+    
     if( outputTree ) {
     l.Branch_gh_gen2reco1( outputTree );
     l.Branch_gh_gen2reco2( outputTree );
@@ -339,6 +384,7 @@ void PhotonJetAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree)
     l.Branch_gh_vh_pdgid( outputTree );
     l.Branch_gh_vh1_pdgid( outputTree );
     l.Branch_gh_vh2_pdgid( outputTree );
+//    l.Branch_METcorrected( outputTree );  //met at analysis step
     l.Branch_gh_higgs_p4( outputTree );
     l.Branch_gh_pho1_p4( outputTree );
     l.Branch_gh_pho2_p4( outputTree );
