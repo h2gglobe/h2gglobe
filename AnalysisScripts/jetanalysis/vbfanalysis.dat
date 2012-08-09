@@ -28,3 +28,8 @@ doInterferenceSmear=0
 doSystematics=0
 
 dumpFlatTree=1
+
+#no pile-up reweighting
+puMap=
+puHist=
+puTarget=
