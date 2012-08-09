@@ -40,6 +40,12 @@ void VbfGenAnalysis::Init(LoopAll& l)
 }
 
 // ----------------------------------------------------------------------------------------------------
+bool VbfGenAnalysis::SkimEvents(LoopAll&, int)
+{
+    return true;
+}
+
+// ----------------------------------------------------------------------------------------------------
 bool VbfGenAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentzVector & gP4, float & mass, float & evweight, 
 				 int & category, int & diphoton_id,
 				 bool & isCorrectVertex,
