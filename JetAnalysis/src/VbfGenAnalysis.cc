@@ -121,7 +121,6 @@ bool VbfGenAnalysis::SkimEvents(LoopAll& l, int)
     return true;
 }
 
-
 // ----------------------------------------------------------------------------------------------------
 void VbfGenAnalysis::GetBranches(TTree *t, std::set<TBranch *>& s )
 {
@@ -150,6 +149,7 @@ bool VbfGenAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLoren
     if(cur_type!=0 ) {
 	applyGenLevelSmearings(genLevWeight,gP4,l.pu_n,cur_type,genSys,syst_shift);
     }
+    evweight = genLevWeight;
 
     TLorentzVector lead_p4    = *((TLorentzVector*)l.gh_pho1_p4->At(0));
     TLorentzVector sublead_p4 = *((TLorentzVector*)l.gh_pho2_p4->At(0));
@@ -176,6 +176,7 @@ bool VbfGenAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLoren
     myVBFZep    = fabs(diphoton.Eta() - 0.5*(jet1.Eta() + jet2.Eta()));
     myVBFdPhi   = fabs(diphoton.DeltaPhi(dijet));
     myVBF_Mgg   = diphoton.M();
+    mass = myVBF_Mgg;
     myVBFDiPhoPtOverM   = diphoton.Pt()   / myVBF_Mgg;
     myVBFLeadPhoPtOverM = lead_p4.Pt()    / myVBF_Mgg;
     myVBFSubPhoPtOverM  = sublead_p4.Pt() / myVBF_Mgg;
@@ -193,13 +194,18 @@ bool VbfGenAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLoren
     myVBF_thetaJ1 = leadingBoosted.Angle(jet1Boosted.Vect());
     myVBF_thetaJ2 = leadingBoosted.Angle(jet2Boosted.Vect());
 
-    return (myVBFLeadPhoPtOverM > 0.5 && myVBFSubPhoPtOverM > 0.3) && (jet1.Pt() > 20 && jet2.Pt() > 20) && myVBF_Mjj > 50;
+    /*cout << "M: " << mass << "; lead/M " << myVBFLeadPhoPtOverM << "; sublead/M " << myVBFSubPhoPtOverM;
+    cout << endl << "jet1 Pt " << jet1.Pt() << "; jet2 pt " << jet2.Pt() << "; Mjj " << myVBF_Mjj << endl;
+    cout << "retval " << ((myVBFLeadPhoPtOverM > 0.5 && myVBFSubPhoPtOverM > 0.3) && (jet1.Pt() > 20 && jet2.Pt() > 20) && myVBF_Mjj > 50) << endl;*/
+
+    return (fabs(lead_p4.Eta()) < 2.5 && fabs(sublead_p4.Eta()) < 2.5) && (myVBFLeadPhoPtOverM > 0.5 && myVBFSubPhoPtOverM > 0.3) && (jet1.Pt() > 20 && jet2.Pt() > 20) && myVBF_Mjj > 50;
 }
 
 // ----------------------------------------------------------------------------------------------------
 void VbfGenAnalysis::FillRooContainer(LoopAll& l, int cur_type, float mass, float diphotonMVA, 
 				    int category, float weight, bool isCorrectVertex, int diphoton_id) 
 {
+    
     l.FillTree("run",l.run);
     l.FillTree("lumis",l.lumis);
     l.FillTree("event",l.event);
@@ -209,12 +215,14 @@ void VbfGenAnalysis::FillRooContainer(LoopAll& l, int cur_type, float mass, floa
     l.FillTree("diphotonMVA",diphotonMVA);
     l.FillTree("vbfMVA",myVBF_MVA);
     l.FillTree("VBFevent", VBFevent);
-    if( myVBF_MVA > -2. || VBFevent ) {
-	/// l.FillTree("deltaPhiJJ",myVBF_deltaPhiJJ);
-	/// l.FillTree("deltaPhiGamGam", myVBF_deltaPhiGamGam);
-	/// l.FillTree("etaJJ", myVBF_etaJJ);
-	/// l.FillTree("thetaJ1", myVBF_thetaJ1);
-	/// l.FillTree("thetaJ2", myVBF_thetaJ2);
+    
+    if( VBFevent ) {
+	
+	l.FillTree("deltaPhiJJ",myVBF_deltaPhiJJ);
+	l.FillTree("deltaPhiGamGam", myVBF_deltaPhiGamGam);
+	l.FillTree("etaJJ", myVBF_etaJJ);
+	l.FillTree("thetaJ1", myVBF_thetaJ1);
+	l.FillTree("thetaJ2", myVBF_thetaJ2);
 	
 	l.FillTree("leadJPt", myVBFLeadJPt);
 	l.FillTree("subleadJPt", myVBFSubJPt);
@@ -226,7 +234,9 @@ void VbfGenAnalysis::FillRooContainer(LoopAll& l, int cur_type, float mass, floa
 	l.FillTree("diphoPtOverM", myVBFDiPhoPtOverM);
 	l.FillTree("leadPtOverM", myVBFLeadPhoPtOverM);
 	l.FillTree("subleadPtOverM", myVBFSubPhoPtOverM);
+	
     }
+    
     l.FillTree("sampleType",cur_type);
     //// l.FillTree("isCorrectVertex",isCorrectVertex);
     //// l.FillTree("metTag",VHmetevent);
@@ -236,7 +246,9 @@ void VbfGenAnalysis::FillRooContainer(LoopAll& l, int cur_type, float mass, floa
     TLorentzVector lead_p4, sublead_p4, Higgs;
     float lead_r9 = 0., sublead_r9 = 0.;
     TVector3 * vtx;
+    
     fillGenDiphoton(lead_p4, sublead_p4, Higgs,l);
+    
     l.FillTree("leadPt",(float)lead_p4.Pt());
     l.FillTree("subleadPt",(float)sublead_p4.Pt());
     l.FillTree("leadR9",lead_r9);
@@ -256,7 +268,8 @@ void VbfGenAnalysis::FillRooContainer(LoopAll& l, int cur_type, float mass, floa
     //// l.FillTree("vtxProb",vtxProb);
     
     
-    fillControlPlots(lead_p4, sublead_p4, Higgs, category, weight, l);
+    VbfGenAnalysis::fillControlPlots(lead_p4, sublead_p4, Higgs, category, weight, l);
+    
     
 }
 
@@ -266,6 +279,9 @@ void VbfGenAnalysis::fillGenDiphoton(TLorentzVector & lead_p4, TLorentzVector & 
     lead_p4 = *((TLorentzVector *)l.gh_pho1_p4->At(0));
     sublead_p4 = *((TLorentzVector *)l.gh_pho2_p4->At(0));
     
+    if(lead_p4.Pt() < sublead_p4.Pt())
+      std::swap(lead_p4, sublead_p4);
+
     Higgs = lead_p4 + sublead_p4;
 }
 
@@ -275,12 +291,18 @@ void VbfGenAnalysis::fillControlPlots(const TLorentzVector & lead_p4, const  TLo
 				      int category, float evweight, LoopAll & l )
 {   
     // control plots 
+    
     if( category>=0 ) { 
-	fillControlPlots( lead_p4, sublead_p4, Higgs, 0, evweight, l ); 
+        
+	fillControlPlots( lead_p4, sublead_p4, Higgs, -1, evweight, l );
+         
     }
+    
     float mass = Higgs.M();
     l.FillHist("all_mass",category+1, Higgs.M(), evweight);
+    
     if( mass>=massMin && mass<=massMax  ) {
+        
 	l.FillHist("mass",category+1, Higgs.M(), evweight);
 	l.FillHist("eta",category+1, Higgs.Eta(), evweight);
 	l.FillHist("pt",category+1, Higgs.Pt(), evweight);
@@ -295,16 +317,19 @@ void VbfGenAnalysis::fillControlPlots(const TLorentzVector & lead_p4, const  TLo
 	l.FillHist("pho_eta",category+1,sublead_p4.Eta(), evweight);
 	l.FillHist("pho2_eta",category+1,sublead_p4.Eta(), evweight);
 	
-	if( mvaVbfSelection ) {
-	    l.FillHist("vbf_mva",category+1,myVBF_MVA,evweight);
-	    if (VBFevent){
-		float myweight =  1;
-		float sampleweight = l.sampleContainer[l.current_sample_index].weight;
-		if(evweight*sampleweight!=0) myweight=evweight/sampleweight;
-		l.FillCutPlots(category+1,1,"_sequential",evweight,myweight); 
-	    }
-	}
+    
+	
+        if (VBFevent){
+	   float myweight =  1;
+	   float sampleweight = l.sampleContainer[l.current_sample_index].weight;
+	   if(evweight*sampleweight!=0) myweight=evweight/sampleweight;
+	   
+           l.FillCutPlots(category+1,1,"_sequential",evweight,myweight); 
+	   	
+        }
     }
+    
+        
 }
 
 // Local Variables:

@@ -210,6 +210,7 @@ class PhotonAnalysis : public BaseAnalysis
     float  myVBF_thetaJ1;
     float  myVBF_thetaJ2;
     
+    bool bookDiPhoCutsInVbf;
     bool    mvaVbfSelection, mvaVbfUseDiPhoPt, mvaVbfUsePhoPt;
     TString mvaVbfWeights, mvaVbfMethod; 
     std::vector<float> mvaVbfCatBoundaries;

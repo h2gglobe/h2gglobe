@@ -69,6 +69,7 @@ PhotonAnalysis::PhotonAnalysis()  :
     mvaVbfSelection=false;
     mvaVbfUseDiPhoPt=true;
     mvaVbfUsePhoPt=true;
+    bookDiPhoCutsInVbf=false;
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -595,12 +596,15 @@ void PhotonAnalysis::Init(LoopAll& l)
     l.SetCutVariables("cut_VBF_Mgg4",           &myVBF_Mgg);   
     l.SetCutVariables("cut_VBF_Mgg10",          &myVBF_Mgg);   
     l.SetCutVariables("cut_VBF_Mgg4_100_180",   &myVBF_Mgg);   
-    l.SetCutVariables("cut_VBF_Mgg2_100_180",   &myVBF_Mgg);   
+    l.SetCutVariables("cut_VBF_Mgg2_100_180",   &myVBF_Mgg);
     
+    if( mvaVbfSelection || bookDiPhoCutsInVbf ) {
+        l.SetCutVariables("cut_VBF_DiPhoPtOverM",   &myVBFDiPhoPtOverM);
+        l.SetCutVariables("cut_VBF_LeadPhoPtOverM", &myVBFLeadPhoPtOverM);
+        l.SetCutVariables("cut_VBF_SubPhoPtOverM",  &myVBFSubPhoPtOverM);
+    }
+
     if( mvaVbfSelection ) {
-	l.SetCutVariables("cut_VBF_DiPhoPtOverM",   &myVBFDiPhoPtOverM);
-	l.SetCutVariables("cut_VBF_LeadPhoPtOverM", &myVBFLeadPhoPtOverM);
-	l.SetCutVariables("cut_VBF_SubPhoPtOverM",  &myVBFSubPhoPtOverM);
 	
 	tmvaVbfReader_ = new TMVA::Reader( "!Color:!Silent" );
 
