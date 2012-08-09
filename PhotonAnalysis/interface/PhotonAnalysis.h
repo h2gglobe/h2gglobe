@@ -201,10 +201,14 @@ class PhotonAnalysis : public BaseAnalysis
     float  myVBF_Mjj;
     float  myVBF_Mgg;
     float  myVBF_deltaPhiJJ;
+    float  myVBF_deltaPhiGamGam;
+    float  myVBF_etaJJ;
     float  myVBFLeadPhoPtOverM;
     float  myVBFSubPhoPtOverM;
     float  myVBFDiPhoPtOverM;
     float  myVBF_MVA;
+    float  myVBF_thetaJ1;
+    float  myVBF_thetaJ2;
     
     bool    mvaVbfSelection, mvaVbfUseDiPhoPt, mvaVbfUsePhoPt;
     TString mvaVbfWeights, mvaVbfMethod; 

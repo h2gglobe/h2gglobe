@@ -735,7 +735,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 			  << "    FileName:"  <<  l.files[l.current];
             eventListText << endl;
         }
-	return true;
+	return (category >= 0 && mass>=massMin && mass<=massMax);
     }
     return false;
 }

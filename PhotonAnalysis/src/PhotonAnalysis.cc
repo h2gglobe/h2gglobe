@@ -2530,6 +2530,18 @@ bool PhotonAnalysis::VBFTag2012(int & ijet1, int & ijet2,
     myVBFSubPhoPtOverM  = sublead_p4.Pt() / myVBF_Mgg;
     myVBF_MVA = -2.;
     myVBF_deltaPhiJJ = jet1->DeltaPhi(*jet2);
+    myVBF_deltaPhiGamGam = lead_p4.DeltaPhi(sublead_p4);
+    myVBF_etaJJ = (jet1->Eta() + jet2->Eta())/2;
+
+    TVector3 boost = diphoton.BoostVector();
+    TLorentzVector jet1Boosted = *jet1, jet2Boosted = *jet2, leadingBoosted = lead_p4, subleadingBoosted = sublead_p4;
+    jet1Boosted.Boost(-boost);
+    jet2Boosted.Boost(-boost);
+    leadingBoosted.Boost(-boost);
+    subleadingBoosted.Boost(-boost);
+
+    myVBF_thetaJ1 = leadingBoosted.Angle(jet1Boosted.Vect());
+    myVBF_thetaJ2 = leadingBoosted.Angle(jet2Boosted.Vect());
     
     if( mvaVbfSelection ) { 
 	if( myVBFLeadJPt>20. && myVBFSubJPt>20. && myVBF_Mjj > 100. ) { // FIXME hardcoded pre-selection thresholds

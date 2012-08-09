@@ -621,10 +621,11 @@ bool StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     float mass, evweight, diphotonMVA;
     int diphoton_id, category;
     bool isCorrectVertex;
-
+    bool storeEvent = false;
     if( AnalyseEvent(l,jentry, weight, gP4, mass,  evweight, category, diphoton_id, isCorrectVertex,diphotonMVA) ) {
 	// feed the event to the RooContainer 
 	FillRooContainer(l, cur_type, mass, diphotonMVA, category, evweight, isCorrectVertex, diphoton_id);
+    	storeEvent = true;
     }
     
     // Systematics uncertaities for the binned model
@@ -708,7 +709,7 @@ bool StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     if(PADEBUG) 
         cout<<"myFillHistRed END"<<endl;
     
-    return (diphoton_id > -1);
+    return storeEvent;
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -960,7 +961,7 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 	    eventListText << std::endl;
 	}
     
-	return true;
+	return (category >= 0 && mass>=massMin && mass<=massMax);
     }
     
     return false;
@@ -992,8 +993,24 @@ void StatAnalysis::FillRooContainer(LoopAll& l, int cur_type, float mass, float 
 	l.FillTree("category",category);
 	l.FillTree("diphotonMVA",diphotonMVA);
 	l.FillTree("vbfMVA",myVBF_MVA);
+	l.FillTree("VBFevent", VBFevent);
 	if( myVBF_MVA > -2. || VBFevent ) {
 	    l.FillTree("deltaPhiJJ",myVBF_deltaPhiJJ);
+	    l.FillTree("deltaPhiGamGam", myVBF_deltaPhiGamGam);
+	    l.FillTree("etaJJ", myVBF_etaJJ);
+	    l.FillTree("thetaJ1", myVBF_thetaJ1);
+	    l.FillTree("thetaJ2", myVBF_thetaJ2);
+
+	    l.FillTree("leadJPt", myVBFLeadJPt);
+	    l.FillTree("subleadJPt", myVBFSubJPt);
+	    l.FillTree("MJJ", myVBF_Mjj);
+	    l.FillTree("deltaEtaJJ", myVBFdEta);
+	    l.FillTree("Zep", myVBFZep);
+	    l.FillTree("deltaPhiJJGamGam", myVBFdPhi);
+	    l.FillTree("MGamGam", myVBF_Mgg);
+	    l.FillTree("diphoPtOverM", myVBFDiPhoPtOverM);
+	    l.FillTree("leadPtOverM", myVBFLeadPhoPtOverM);
+	    l.FillTree("subleadPtOverM", myVBFSubPhoPtOverM);
 	}
 	l.FillTree("sampleType",cur_type);
 	//// l.FillTree("isCorrectVertex",isCorrectVertex);
