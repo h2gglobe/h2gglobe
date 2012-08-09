@@ -39,9 +39,15 @@ class VbfGenAnalysis : public StatAnalysis
 
     void FillRooContainer(LoopAll& l, int cur_type, float mass, float diphotonMVA, 
 			  int category, float weight, bool isCorrectVertex, int diphoton_id);
-    
-private:
 
+    bool isLHE, isVBFNLO;
+    
+protected:
+    
+    void fillGenDiphoton(TLorentzVector & lead_p4, TLorentzVector & sublead_p4, TLorentzVector & Higgs, LoopAll &l);
+    void fillControlPlots(const TLorentzVector & lead_p4, const  TLorentzVector & sublead_p4, const TLorentzVector & Higgs,
+			  int category, float evweight, LoopAll & l );
+    
 };
 
 #endif
