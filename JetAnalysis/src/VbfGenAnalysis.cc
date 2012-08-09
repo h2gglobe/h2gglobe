@@ -40,34 +40,8 @@ void VbfGenAnalysis::Init(LoopAll& l)
 }
 
 // ----------------------------------------------------------------------------------------------------
-bool VbfGenAnalysis::SkimEvents(LoopAll&, int)
+bool VbfGenAnalysis::SkimEvents(LoopAll& l, int)
 {
-    return true;
-}
-
-// ----------------------------------------------------------------------------------------------------
-bool VbfGenAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentzVector & gP4, float & mass, float & evweight, 
-				 int & category, int & diphoton_id,
-				 bool & isCorrectVertex,
-				 float &kinematic_bdtout,
-				 bool isSyst, 
-				 float syst_shift, bool skipSelection,
-				 BaseGenLevelSmearer *genSys, BaseSmearer *phoSys, BaseDiPhotonSmearer * diPhoSys)
-{
-    assert( isSyst || ! skipSelection );
-
-    int cur_type = l.itype[l.current];
-    float sampleweight = l.sampleContainer[l.current_sample_index].weight;
-    /// diphoton_id = -1;
-    
-    std::pair<int,int> diphoton_index;
-   
-    // do gen-level dependent first (e.g. k-factor); only for signal
-    genLevWeight=1.;
-    if(cur_type!=0 ) {
-	applyGenLevelSmearings(genLevWeight,gP4,l.pu_n,cur_type,genSys,syst_shift);
-    }
-
     if( isLHE ) {
 	if( l.gh_higgs_p4 == 0 ) {
 	    l.gh_higgs_p4 = new TClonesArray("TLorentzVector", 1); 
@@ -139,7 +113,42 @@ bool VbfGenAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLoren
 	    *((TLorentzVector *)l.gh_vbfq2_p4->At(0)) = q2;
 	    l.gh_vbfq1_pdgid=l.gp_pdgid[gen_quarks[0]];
 	    l.gh_vbfq2_pdgid=l.gp_pdgid[gen_quarks[1]];
+	} else {
+	    return false;
 	}
+    }
+
+    return true;
+}
+
+
+// ----------------------------------------------------------------------------------------------------
+void VbfGenAnalysis::GetBranches(TTree *t, std::set<TBranch *>& s )
+{
+
+}
+
+// ----------------------------------------------------------------------------------------------------
+bool VbfGenAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentzVector & gP4, float & mass, float & evweight, 
+				 int & category, int & diphoton_id,
+				 bool & isCorrectVertex,
+				 float &kinematic_bdtout,
+				 bool isSyst, 
+				 float syst_shift, bool skipSelection,
+				 BaseGenLevelSmearer *genSys, BaseSmearer *phoSys, BaseDiPhotonSmearer * diPhoSys)
+{
+    assert( isSyst || ! skipSelection );
+
+    int cur_type = l.itype[l.current];
+    float sampleweight = l.sampleContainer[l.current_sample_index].weight;
+    /// diphoton_id = -1;
+    
+    std::pair<int,int> diphoton_index;
+   
+    // do gen-level dependent first (e.g. k-factor); only for signal
+    genLevWeight=1.;
+    if(cur_type!=0 ) {
+	applyGenLevelSmearings(genLevWeight,gP4,l.pu_n,cur_type,genSys,syst_shift);
     }
 
     TLorentzVector lead_p4    = *((TLorentzVector*)l.gh_pho1_p4->At(0));

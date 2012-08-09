@@ -26,6 +26,7 @@ class VbfGenAnalysis : public StatAnalysis
     virtual const std::string & name() const { return name_; };
     
     // LoopAll analysis interface implementation
+    void GetBranches(TTree *t, std::set<TBranch *>& s );
     bool SkimEvents(LoopAll&, int);
     void Init(LoopAll&);
     void Term(LoopAll&);
