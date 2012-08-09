@@ -20,4 +20,21 @@ type=2 name=leadR9
 type=2 name=subleadR9
 type=2 name=sigmaMrv
 type=2 name=sigmaMwv
+
+type=0 name=VBFevent
 type=2 name=deltaPhiJJ
+type=2 name=deltaPhiGamGam
+type=2 name=etaJJ
+type=2 name=thetaJ1
+type=2 name=thetaJ2
+
+type=2 name=leadJPt
+type=2 name=subleadJPt
+type=2 name=MJJ
+type=2 name=deltaEtaJJ
+type=2 name=Zep
+type=2 name=deltaPhiJJGamGam
+type=2 name=MGamGam
+type=2 name=diphoPtOverM
+type=2 name=leadPtOverM
+type=2 name=subleadPtOverM
