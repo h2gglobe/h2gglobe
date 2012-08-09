@@ -58,6 +58,51 @@ bool VbfGenAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLoren
 	applyGenLevelSmearings(genLevWeight,gP4,l.pu_n,cur_type,genSys,syst_shift);
     }
 
+    TLorentzVector lead_p4    = *((TLorentzVector*)l.gh_pho1_p4->At(0));
+    TLorentzVector sublead_p4 = *((TLorentzVector*)l.gh_pho2_p4->At(0));
+    TLorentzVector jet1       = *((TLorentzVector*)l.gh_vbfq1_p4->At(0));
+    TLorentzVector jet2       = *((TLorentzVector*)l.gh_vbfq2_p4->At(0));
+
+    if(jet1.Pt() < jet2.Pt())
+      std::swap(jet1, jet2);
+
+    if(lead_p4.Pt() < sublead_p4.Pt())
+      std::swap(lead_p4, sublead_p4);
+
+    TLorentzVector diphoton   = lead_p4 + sublead_p4;
+    TLorentzVector dijet      = jet1 + jet2;
+
+    myVBF_MVA = -2.;
+    VBFevent = true;
+    category = 1;
+
+    myVBFLeadJPt= jet1.Pt();
+    myVBFSubJPt = jet2.Pt();
+    myVBF_Mjj   = dijet.M();
+    myVBFdEta   = fabs(jet1.Eta() - jet2.Eta());
+    myVBFZep    = fabs(diphoton.Eta() - 0.5*(jet1.Eta() + jet2.Eta()));
+    myVBFdPhi   = fabs(diphoton.DeltaPhi(dijet));
+    myVBF_Mgg   = diphoton.M();
+    myVBFDiPhoPtOverM   = diphoton.Pt()   / myVBF_Mgg;
+    myVBFLeadPhoPtOverM = lead_p4.Pt()    / myVBF_Mgg;
+    myVBFSubPhoPtOverM  = sublead_p4.Pt() / myVBF_Mgg;
+    myVBF_deltaPhiJJ = jet1.DeltaPhi(jet2);
+    myVBF_deltaPhiGamGam = lead_p4.DeltaPhi(sublead_p4);
+    myVBF_etaJJ = (jet1.Eta() + jet2.Eta())/2;
+
+    TVector3 boost = diphoton.BoostVector();
+    TLorentzVector jet1Boosted = jet1, jet2Boosted = jet2, leadingBoosted = lead_p4, subleadingBoosted = sublead_p4;
+    jet1Boosted.Boost(-boost);
+    jet2Boosted.Boost(-boost);
+    leadingBoosted.Boost(-boost);
+    subleadingBoosted.Boost(-boost);
+
+    myVBF_thetaJ1 = leadingBoosted.Angle(jet1Boosted.Vect());
+    myVBF_thetaJ2 = leadingBoosted.Angle(jet2Boosted.Vect());
+
+    return (myVBFLeadPhoPtOverM > 0.5 && myVBFSubPhoPtOverM > 0.3) && (jet1.Pt() > 20 && jet2.Pt() > 20) && myVBF_Mjj > 50;
+
+
     //// // event selection
     //// if( ! skipSelection ) {
     //// 	
