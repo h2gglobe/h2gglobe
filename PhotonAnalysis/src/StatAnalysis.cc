@@ -139,7 +139,7 @@ void StatAnalysis::Init(LoopAll& l)
     nPhotonCategories_ = nEtaCategories;
     if( nR9Categories != 0 ) nPhotonCategories_ *= nR9Categories;
     
-    nVBFCategories   = ((int)includeVBF)*( mvaVbfSelection ? nVBFEtaCategories*nVBFDijetJetCategories : mvaVbfCatBoundaries.size()-1);
+    nVBFCategories   = ((int)includeVBF)*( mvaVbfSelection ? mvaVbfCatBoundaries.size()-1 : nVBFEtaCategories*nVBFDijetJetCategories );
     std::sort(mvaVbfCatBoundaries.begin(),mvaVbfCatBoundaries.end(), std::greater<float>() );
     nVHhadCategories = ((int)includeVHhad)*nVHhadEtaCategories;
     nVHlepCategories = (int)includeVHlep * 2;
@@ -438,7 +438,10 @@ void StatAnalysis::buildBkgModel(LoopAll& l, const std::string & postfix)
 { 
 
     // sanity check
-    assert( bkgPolOrderByCat.size() == nCategories_ );
+    if( bkgPolOrderByCat.size() != nCategories_ ) {
+	std::cout << "Number of categories not consistent with specified background model " << nCategories_ << " " << bkgPolOrderByCat.size() << std::endl;
+	assert( 0 );
+    }
 
     l.rooContainer->AddRealVar("CMS_hgg_pol6_0"+postfix,-0.1,-1.0,1.0);
     l.rooContainer->AddRealVar("CMS_hgg_pol6_1"+postfix,-0.1,-1.0,1.0);
