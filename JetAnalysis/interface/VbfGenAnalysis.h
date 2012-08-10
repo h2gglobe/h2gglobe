@@ -42,7 +42,7 @@ class VbfGenAnalysis : public StatAnalysis
     void FillRooContainer(LoopAll& l, int cur_type, float mass, float diphotonMVA, 
 			  int category, float weight, bool isCorrectVertex, int diphoton_id);
 
-    bool isLHE, isVBFNLO;
+    bool fillGhBranches, useGenJets;
     
 protected:
     

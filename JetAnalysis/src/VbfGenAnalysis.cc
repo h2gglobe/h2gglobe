@@ -18,8 +18,8 @@ VbfGenAnalysis::VbfGenAnalysis()
 {
     name_ = "VbfGenAnalysis";
 
-    isLHE    = false;
-    isVBFNLO = false;
+    fillGhBranches = false;
+    useGenJets     = false;
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -42,7 +42,7 @@ void VbfGenAnalysis::Init(LoopAll& l)
 // ----------------------------------------------------------------------------------------------------
 bool VbfGenAnalysis::SkimEvents(LoopAll& l, int)
 {
-    if( isLHE ) {
+    if( fillGhBranches ) {
 	if( l.gh_higgs_p4 == 0 ) {
 	    l.gh_higgs_p4 = new TClonesArray("TLorentzVector", 1); 
 	    l.gh_higgs_p4->Clear();
@@ -91,31 +91,42 @@ bool VbfGenAnalysis::SkimEvents(LoopAll& l, int)
 	    }
 	}
 
-	/// std::cout << "SkimEvents gen_particles " << l.gp_n 
-	/// 	  <<  " gen_photons " <<  gen_photons.size() << " gen_quarks " << gen_quarks.size() << std::endl;
-	if( gen_photons.size() > 1 && gen_quarks.size() > 1 ) {
+	if( gen_photons.size() > 1 ) {
 	    std::sort(gen_photons.begin(),gen_photons.end(),
-		      ClonesSorter<TLorentzVector,double,std::greater<double> >(l.gp_p4,&TLorentzVector::Pt));
-	    std::sort(gen_quarks.begin(),gen_quarks.end(),
 		      ClonesSorter<TLorentzVector,double,std::greater<double> >(l.gp_p4,&TLorentzVector::Pt));
 
 	    TLorentzVector & pho1 = *((TLorentzVector *)l.gp_p4->At(gen_photons[0]));
 	    TLorentzVector & pho2 = *((TLorentzVector *)l.gp_p4->At(gen_photons[1]));
 
-	    TLorentzVector & q1 = *((TLorentzVector *)l.gp_p4->At(gen_quarks[0]));
-	    TLorentzVector & q2 = *((TLorentzVector *)l.gp_p4->At(gen_quarks[1]));
-	    
 	    *((TLorentzVector *)l.gh_pho1_p4->At(0)) =  pho1;
 	    *((TLorentzVector *)l.gh_pho2_p4->At(0)) =  pho2;
 	    
 	    *((TLorentzVector*)l.gh_higgs_p4->At(0)) = pho1 + pho2;
 	    
-	    *((TLorentzVector *)l.gh_vbfq1_p4->At(0)) = q1;
-	    *((TLorentzVector *)l.gh_vbfq2_p4->At(0)) = q2;
-	    l.gh_vbfq1_pdgid=l.gp_pdgid[gen_quarks[0]];
-	    l.gh_vbfq2_pdgid=l.gp_pdgid[gen_quarks[1]];
 	} else {
+	    /// Require at least two photons
 	    return false;
+	}
+	
+	if( useGenJets ) {
+	    /// PUT gen jet selection here
+	} else {
+	    if( gen_quarks.size() > 1 ) {
+	
+		std::sort(gen_quarks.begin(),gen_quarks.end(),
+			  ClonesSorter<TLorentzVector,double,std::greater<double> >(l.gp_p4,&TLorentzVector::Pt));
+		
+		TLorentzVector & q1 = *((TLorentzVector *)l.gp_p4->At(gen_quarks[0]));
+		TLorentzVector & q2 = *((TLorentzVector *)l.gp_p4->At(gen_quarks[1]));
+		
+		*((TLorentzVector *)l.gh_vbfq1_p4->At(0)) = q1;
+		*((TLorentzVector *)l.gh_vbfq2_p4->At(0)) = q2;
+		l.gh_vbfq1_pdgid=l.gp_pdgid[gen_quarks[0]];
+		l.gh_vbfq2_pdgid=l.gp_pdgid[gen_quarks[1]];
+	    } else {
+		/// Also require two jets
+		return false;
+	    }
 	}
     }
 
