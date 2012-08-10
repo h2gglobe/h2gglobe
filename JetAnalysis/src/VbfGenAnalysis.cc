@@ -210,12 +210,12 @@ bool VbfGenAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLoren
     cout << endl << "jet1 Pt " << jet1.Pt() << "; jet2 pt " << jet2.Pt() << "; Mjj " << myVBF_Mjj << endl;
     cout << "retval " << ((myVBFLeadPhoPtOverM > 0.5 && myVBFSubPhoPtOverM > 0.3) && (jet1.Pt() > 20 && jet2.Pt() > 20) && myVBF_Mjj > 50) << endl;*/
 
-    if((fabs(lead_p4.Eta()) < 2.5 && fabs(sublead_p4.Eta()) < 2.5) && (myVBFLeadPhoPtOverM > 0.5 && myVBFSubPhoPtOverM > 0.3) && (jet1.Pt() > 20 && jet2.Pt() > 20) && myVBF_Mjj > 100)
+    if((fabs(lead_p4.Eta()) < 2.5 && fabs(sublead_p4.Eta()) < 2.5) && (myVBFLeadPhoPtOverM > 0.3 && myVBFSubPhoPtOverM > 25./120. && sublead_p4.Pt() > 25.) && (jet1.Pt() > 20. && jet2.Pt() > 20.) && myVBF_Mjj > 100.)
     {
-      if(myVBFLeadPhoPtOverM > 0.5 && myVBFSubPhoPtOverM > 0.3 && myVBFLeadJPt > 30 && myVBFSubJPt > 20 && myVBF_Mjj > 250 && TMath::Abs(myVBFdEta) > 3 && TMath::Abs(myVBFZep) < 2.5 && TMath::Abs(myVBFdPhi) > 2.6)
+      if(myVBFLeadPhoPtOverM > 0.5 && myVBFSubPhoPtOverM > 0.3 && myVBFLeadJPt > 30. && myVBFSubJPt > 20. && myVBF_Mjj > 250. && TMath::Abs(myVBFdEta) > 3. && TMath::Abs(myVBFZep) < 2.5 && TMath::Abs(myVBFdPhi) > 2.6)
       {
         category = 5;
-        if(myVBFSubJPt > 30 && myVBF_Mjj > 500)
+        if(myVBFSubJPt > 30. && myVBF_Mjj > 500.)
           category = 4;
       }
       return true;
