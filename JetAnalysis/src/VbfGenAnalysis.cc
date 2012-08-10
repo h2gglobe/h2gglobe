@@ -77,21 +77,22 @@ bool VbfGenAnalysis::SkimEvents(LoopAll& l, int)
 	std::vector<int> gen_photons;
 	std::vector<int> gen_quarks;
 	for(int ii=0; ii<l.gp_n; ++ii) {
-	    if( isVBFNLO ) {
-		if( l.gp_status[ii] == 1 && l.gp_pdgid[ii] != 0 ) {
-		    float eta = fabs( ((TLorentzVector *)l.gp_p4->At(ii))->Eta() );
-		    if( l.gp_pdgid[ii] == 22 ) {
-			if( eta < 2.5 ) {
-			    gen_photons.push_back(ii);
-			}
-		    } else if ( abs(l.gp_pdgid[ii]) < 7 ) {
-			if( eta < 4.7 ) {
-			    gen_quarks.push_back(ii);
-			}
+	    if( l.gp_status[ii] == 1 && l.gp_pdgid[ii] != 0 ) {
+		float eta = fabs( ((TLorentzVector *)l.gp_p4->At(ii))->Eta() );
+		if( l.gp_pdgid[ii] == 22 ) {
+		    if( eta < 2.5 ) {
+			gen_photons.push_back(ii);
+		    }
+		} else if ( abs(l.gp_pdgid[ii]) < 7 ) {
+		    if( eta < 4.7 ) {
+			gen_quarks.push_back(ii);
 		    }
 		}
 	    }
 	}
+
+	/// std::cout << "SkimEvents gen_particles " << l.gp_n 
+	/// 	  <<  " gen_photons " <<  gen_photons.size() << " gen_quarks " << gen_quarks.size() << std::endl;
 	if( gen_photons.size() > 1 && gen_quarks.size() > 1 ) {
 	    std::sort(gen_photons.begin(),gen_photons.end(),
 		      ClonesSorter<TLorentzVector,double,std::greater<double> >(l.gp_p4,&TLorentzVector::Pt));
@@ -107,7 +108,7 @@ bool VbfGenAnalysis::SkimEvents(LoopAll& l, int)
 	    *((TLorentzVector *)l.gh_pho1_p4->At(0)) =  pho1;
 	    *((TLorentzVector *)l.gh_pho2_p4->At(0)) =  pho2;
 	    
-	    *((TLorentzVector*)l.gh_higgs_p4 ) = pho1 + pho2;
+	    *((TLorentzVector*)l.gh_higgs_p4->At(0)) = pho1 + pho2;
 	    
 	    *((TLorentzVector *)l.gh_vbfq1_p4->At(0)) = q1;
 	    *((TLorentzVector *)l.gh_vbfq2_p4->At(0)) = q2;
