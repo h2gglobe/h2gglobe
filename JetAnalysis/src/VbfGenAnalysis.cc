@@ -40,7 +40,7 @@ void VbfGenAnalysis::Init(LoopAll& l)
 }
 
 // ----------------------------------------------------------------------------------------------------
-bool VbfGenAnalysis::SkimEvents(LoopAll& l, int)
+bool VbfGenAnalysis::SkimEvents(LoopAll& l, int jentry)
 {
     if( fillGhBranches ) {
 	if( l.gh_higgs_p4 == 0 ) {
@@ -74,6 +74,11 @@ bool VbfGenAnalysis::SkimEvents(LoopAll& l, int)
 	}
 	SetNullHiggs(l);
 	
+	l.b_gp_n->GetEntry(jentry);
+	l.b_gp_p4->GetEntry(jentry);
+	l.b_gp_status->GetEntry(jentry);
+	l.b_gp_pdgid->GetEntry(jentry);
+
 	std::vector<int> gen_photons;
 	std::vector<int> gen_quarks;
 	for(int ii=0; ii<l.gp_n; ++ii) {
@@ -214,9 +219,10 @@ bool VbfGenAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLoren
     {
       if(myVBFLeadPhoPtOverM > 0.5 && myVBFSubPhoPtOverM > 0.3 && myVBFLeadJPt > 30. && myVBFSubJPt > 20. && myVBF_Mjj > 250. && TMath::Abs(myVBFdEta) > 3. && TMath::Abs(myVBFZep) < 2.5 && TMath::Abs(myVBFdPhi) > 2.6)
       {
-        category = 5;
         if(myVBFSubJPt > 30. && myVBF_Mjj > 500.)
           category = 4;
+	else
+	  category = 5;
       }
       return true;
     }
