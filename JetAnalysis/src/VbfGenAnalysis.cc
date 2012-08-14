@@ -20,6 +20,7 @@ VbfGenAnalysis::VbfGenAnalysis()
 
     fillGhBranches = false;
     useGenJets     = false;
+    analyzeJetVariablesOnly = false;
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -110,7 +111,8 @@ bool VbfGenAnalysis::SkimEvents(LoopAll& l, int jentry)
 	    
 	} else {
 	    /// Require at least two photons
-	    //return false;
+	    if(!analyzeJetVariablesOnly)
+		return false;
 	    for(int ii=0; ii<l.gp_n; ++ii) {
 		if( l.gp_pdgid[ii] == 25 ) {
 		    *((TLorentzVector*)l.gh_higgs_p4->At(0)) = *((TLorentzVector*)l.gp_p4->At(ii)) ;
