@@ -43,7 +43,7 @@ class VbfGenAnalysis : public StatAnalysis
 			  int category, float weight, bool isCorrectVertex, int diphoton_id);
 
     bool fillGhBranches, useGenJets;
-    
+    bool analyzeJetVariablesOnly;
 protected:
     
     void fillGenDiphoton(TLorentzVector & lead_p4, TLorentzVector & sublead_p4, TLorentzVector & Higgs, LoopAll &l);

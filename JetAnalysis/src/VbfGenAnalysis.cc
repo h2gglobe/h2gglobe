@@ -42,7 +42,7 @@ void VbfGenAnalysis::Init(LoopAll& l)
 // ----------------------------------------------------------------------------------------------------
 bool VbfGenAnalysis::SkimEvents(LoopAll& l, int jentry)
 {
-    if( fillGhBranches ) {
+   if( fillGhBranches ) {
 	if( l.gh_higgs_p4 == 0 ) {
 	    l.gh_higgs_p4 = new TClonesArray("TLorentzVector", 1); 
 	    l.gh_higgs_p4->Clear();
@@ -110,7 +110,12 @@ bool VbfGenAnalysis::SkimEvents(LoopAll& l, int jentry)
 	    
 	} else {
 	    /// Require at least two photons
-	    return false;
+	    //return false;
+	    for(int ii=0; ii<l.gp_n; ++ii) {
+		if( l.gp_pdgid[ii] == 25 ) {
+		    *((TLorentzVector*)l.gh_higgs_p4->At(0)) = *((TLorentzVector*)l.gp_p4->At(ii)) ;
+		}
+	    }
 	}
 	
 	if( useGenJets ) {
@@ -153,7 +158,12 @@ bool VbfGenAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLoren
 				 float syst_shift, bool skipSelection,
 				 BaseGenLevelSmearer *genSys, BaseSmearer *phoSys, BaseDiPhotonSmearer * diPhoSys)
 {
+  
+   
+
     assert( isSyst || ! skipSelection );
+
+   
 
     int cur_type = l.itype[l.current];
     float sampleweight = l.sampleContainer[l.current_sample_index].weight;
@@ -161,73 +171,118 @@ bool VbfGenAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLoren
     
     std::pair<int,int> diphoton_index;
    
-    // do gen-level dependent first (e.g. k-factor); only for signal
-    genLevWeight=1.;
-    if(cur_type!=0 ) {
-	applyGenLevelSmearings(genLevWeight,gP4,l.pu_n,cur_type,genSys,syst_shift);
-    }
-    evweight = genLevWeight;
+    if (!analyzeJetVariablesOnly){
 
-    TLorentzVector lead_p4    = *((TLorentzVector*)l.gh_pho1_p4->At(0));
-    TLorentzVector sublead_p4 = *((TLorentzVector*)l.gh_pho2_p4->At(0));
-    TLorentzVector jet1       = *((TLorentzVector*)l.gh_vbfq1_p4->At(0));
-    TLorentzVector jet2       = *((TLorentzVector*)l.gh_vbfq2_p4->At(0));
-
-    if(jet1.Pt() < jet2.Pt())
-      std::swap(jet1, jet2);
-
-    if(lead_p4.Pt() < sublead_p4.Pt())
-      std::swap(lead_p4, sublead_p4);
-
-    TLorentzVector diphoton   = lead_p4 + sublead_p4;
-    TLorentzVector dijet      = jet1 + jet2;
-
-    myVBF_MVA = -2.;
-    VBFevent = true;
-    category = 6;
-
-    myVBFLeadJPt= jet1.Pt();
-    myVBFSubJPt = jet2.Pt();
-    myVBF_Mjj   = dijet.M();
-    myVBFdEta   = fabs(jet1.Eta() - jet2.Eta());
-    myVBFZep    = fabs(diphoton.Eta() - 0.5*(jet1.Eta() + jet2.Eta()));
-    myVBFdPhi   = fabs(diphoton.DeltaPhi(dijet));
-    myVBF_Mgg   = diphoton.M();
-    mass = myVBF_Mgg;
-    myVBFDiPhoPtOverM   = diphoton.Pt()   / myVBF_Mgg;
-    myVBFLeadPhoPtOverM = lead_p4.Pt()    / myVBF_Mgg;
-    myVBFSubPhoPtOverM  = sublead_p4.Pt() / myVBF_Mgg;
-    myVBF_deltaPhiJJ = jet1.DeltaPhi(jet2);
-    myVBF_deltaPhiGamGam = lead_p4.DeltaPhi(sublead_p4);
-    myVBF_etaJJ = (jet1.Eta() + jet2.Eta())/2;
-
-    TVector3 boost = diphoton.BoostVector();
-    TLorentzVector jet1Boosted = jet1, jet2Boosted = jet2, leadingBoosted = lead_p4, subleadingBoosted = sublead_p4;
-    jet1Boosted.Boost(-boost);
-    jet2Boosted.Boost(-boost);
-    leadingBoosted.Boost(-boost);
-    subleadingBoosted.Boost(-boost);
-
-    myVBF_thetaJ1 = leadingBoosted.Angle(jet1Boosted.Vect());
-    myVBF_thetaJ2 = leadingBoosted.Angle(jet2Boosted.Vect());
-
-    /*cout << "M: " << mass << "; lead/M " << myVBFLeadPhoPtOverM << "; sublead/M " << myVBFSubPhoPtOverM;
-    cout << endl << "jet1 Pt " << jet1.Pt() << "; jet2 pt " << jet2.Pt() << "; Mjj " << myVBF_Mjj << endl;
-    cout << "retval " << ((myVBFLeadPhoPtOverM > 0.5 && myVBFSubPhoPtOverM > 0.3) && (jet1.Pt() > 20 && jet2.Pt() > 20) && myVBF_Mjj > 50) << endl;*/
-
-    if((fabs(lead_p4.Eta()) < 2.5 && fabs(sublead_p4.Eta()) < 2.5) && (myVBFLeadPhoPtOverM > 0.3 && myVBFSubPhoPtOverM > 25./120. && sublead_p4.Pt() > 25.) && (jet1.Pt() > 20. && jet2.Pt() > 20.) && myVBF_Mjj > 100.)
-    {
-      if(myVBFLeadPhoPtOverM > 0.5 && myVBFSubPhoPtOverM > 0.3 && myVBFLeadJPt > 30. && myVBFSubJPt > 20. && myVBF_Mjj > 250. && TMath::Abs(myVBFdEta) > 3. && TMath::Abs(myVBFZep) < 2.5 && TMath::Abs(myVBFdPhi) > 2.6)
-      {
-        if(myVBFSubJPt > 30. && myVBF_Mjj > 500.)
-          category = 4;
+	// do gen-level dependent first (e.g. k-factor); only for signal
+	genLevWeight=1.;
+	if(cur_type!=0 ) {
+	    applyGenLevelSmearings(genLevWeight,gP4,l.pu_n,cur_type,genSys,syst_shift);
+	}
+	evweight = genLevWeight;
+	
+	
+	TLorentzVector lead_p4    = *((TLorentzVector*)l.gh_pho1_p4->At(0));
+	TLorentzVector sublead_p4 = *((TLorentzVector*)l.gh_pho2_p4->At(0));
+	TLorentzVector jet1       = *((TLorentzVector*)l.gh_vbfq1_p4->At(0));
+	TLorentzVector jet2       = *((TLorentzVector*)l.gh_vbfq2_p4->At(0));
+	
+	if(jet1.Pt() < jet2.Pt())
+	    std::swap(jet1, jet2);
+	
+	if(lead_p4.Pt() < sublead_p4.Pt())
+	    std::swap(lead_p4, sublead_p4);
+	
+	TLorentzVector diphoton   = lead_p4 + sublead_p4;
+	TLorentzVector dijet      = jet1 + jet2;
+	
+	myVBF_MVA = -2.;
+	VBFevent = true;
+	category = 6;
+	
+	myVBFLeadJPt= jet1.Pt();
+	myVBFSubJPt = jet2.Pt();
+	myVBF_Mjj   = dijet.M();
+	myVBFdEta   = fabs(jet1.Eta() - jet2.Eta());
+	myVBFZep    = fabs(diphoton.Eta() - 0.5*(jet1.Eta() + jet2.Eta()));
+	myVBFdPhi   = fabs(diphoton.DeltaPhi(dijet));
+	myVBF_Mgg   = diphoton.M();
+	mass = myVBF_Mgg;
+	myVBFDiPhoPtOverM   = diphoton.Pt()   / myVBF_Mgg;
+	myVBFLeadPhoPtOverM = lead_p4.Pt()    / myVBF_Mgg;
+	myVBFSubPhoPtOverM  = sublead_p4.Pt() / myVBF_Mgg;
+	myVBF_deltaPhiJJ = jet1.DeltaPhi(jet2);
+	myVBF_deltaPhiGamGam = lead_p4.DeltaPhi(sublead_p4);
+	myVBF_etaJJ = (jet1.Eta() + jet2.Eta())/2;
+	
+	TVector3 boost = diphoton.BoostVector();
+	TLorentzVector jet1Boosted = jet1, jet2Boosted = jet2, leadingBoosted = lead_p4, subleadingBoosted = sublead_p4;
+	jet1Boosted.Boost(-boost);
+	jet2Boosted.Boost(-boost);
+	leadingBoosted.Boost(-boost);
+	subleadingBoosted.Boost(-boost);
+	
+	myVBF_thetaJ1 = leadingBoosted.Angle(jet1Boosted.Vect());
+	myVBF_thetaJ2 = leadingBoosted.Angle(jet2Boosted.Vect());
+	
+	/*cout << "M: " << mass << "; lead/M " << myVBFLeadPhoPtOverM << "; sublead/M " << myVBFSubPhoPtOverM;
+	  cout << endl << "jet1 Pt " << jet1.Pt() << "; jet2 pt " << jet2.Pt() << "; Mjj " << myVBF_Mjj << endl;
+	  cout << "retval " << ((myVBFLeadPhoPtOverM > 0.5 && myVBFSubPhoPtOverM > 0.3) && (jet1.Pt() > 20 && jet2.Pt() > 20) && myVBF_Mjj > 50) << endl;*/
+	
+	if((fabs(lead_p4.Eta()) < 2.5 && fabs(sublead_p4.Eta()) < 2.5) && (myVBFLeadPhoPtOverM > 0.3 && myVBFSubPhoPtOverM > 25./120. && sublead_p4.Pt() > 25.) && (jet1.Pt() > 20. && jet2.Pt() > 20.) && myVBF_Mjj > 100.)
+	    {
+		if(myVBFLeadPhoPtOverM > 0.5 && myVBFSubPhoPtOverM > 0.3 && myVBFLeadJPt > 30. && myVBFSubJPt > 20. && myVBF_Mjj > 250. && TMath::Abs(myVBFdEta) > 3. && TMath::Abs(myVBFZep) < 2.5 && TMath::Abs(myVBFdPhi) > 2.6)
+		    {
+			if(myVBFSubJPt > 30. && myVBF_Mjj > 500.)
+			    category = 4;
+			else
+			    category = 5;
+		    }
+		return true;
+	    }
 	else
-	  category = 5;
-      }
-      return true;
+	    return false;
     }
-    else
-      return false;
+    else { // for lhe files without higgs decay to photons
+	
+	TLorentzVector jet1       = *((TLorentzVector*)l.gh_vbfq1_p4->At(0));
+	TLorentzVector jet2       = *((TLorentzVector*)l.gh_vbfq2_p4->At(0));
+	
+	if(jet1.Pt() < jet2.Pt())
+	    std::swap(jet1, jet2);
+	
+	TLorentzVector diphoton   = *((TLorentzVector*)l.gh_higgs_p4->At(0));
+	TLorentzVector dijet      = jet1 + jet2;
+	
+	myVBF_MVA = -2.;
+	VBFevent = true;
+	category = 6;
+	
+	myVBFLeadJPt= jet1.Pt();
+	myVBFSubJPt = jet2.Pt();
+	myVBF_Mjj   = dijet.M();
+	myVBFdEta   = fabs(jet1.Eta() - jet2.Eta());
+	myVBFZep    = fabs(diphoton.Eta() - 0.5*(jet1.Eta() + jet2.Eta()));
+	myVBFdPhi   = fabs(diphoton.DeltaPhi(dijet));
+	myVBF_Mgg   = diphoton.M();
+	mass = myVBF_Mgg;
+	myVBFDiPhoPtOverM   = diphoton.Pt()   / myVBF_Mgg;
+	myVBF_deltaPhiJJ = jet1.DeltaPhi(jet2);
+	myVBF_etaJJ = (jet1.Eta() + jet2.Eta())/2;
+	
+	if( jet1.Pt() > 20. && jet2.Pt() > 20. && myVBF_Mjj > 100.)
+	    {
+		if( myVBFLeadJPt > 30. && myVBFSubJPt > 20. && myVBF_Mjj > 250. && TMath::Abs(myVBFdEta) > 3. && TMath::Abs(myVBFZep) < 2.5 && TMath::Abs(myVBFdPhi) > 2.6)
+		    {
+			if(myVBFSubJPt > 30. && myVBF_Mjj > 500.)
+			    category = 4;
+			else
+			    category = 5;
+		    }
+		return true;
+	    }
+	else
+	    return false;
+    }
 
     return true;
 }
