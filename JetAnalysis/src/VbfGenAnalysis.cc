@@ -43,6 +43,7 @@ void VbfGenAnalysis::Init(LoopAll& l)
 // ----------------------------------------------------------------------------------------------------
 bool VbfGenAnalysis::SkimEvents(LoopAll& l, int jentry)
 {
+  
    if( fillGhBranches ) {
 	if( l.gh_higgs_p4 == 0 ) {
 	    l.gh_higgs_p4 = new TClonesArray("TLorentzVector", 1); 
@@ -97,13 +98,14 @@ bool VbfGenAnalysis::SkimEvents(LoopAll& l, int jentry)
 	    }
 	}
 
+
 	if( gen_photons.size() > 1 ) {
 	    std::sort(gen_photons.begin(),gen_photons.end(),
 		      ClonesSorter<TLorentzVector,double,std::greater<double> >(l.gp_p4,&TLorentzVector::Pt));
-
+	    
 	    TLorentzVector & pho1 = *((TLorentzVector *)l.gp_p4->At(gen_photons[0]));
 	    TLorentzVector & pho2 = *((TLorentzVector *)l.gp_p4->At(gen_photons[1]));
-
+	    
 	    *((TLorentzVector *)l.gh_pho1_p4->At(0)) =  pho1;
 	    *((TLorentzVector *)l.gh_pho2_p4->At(0)) =  pho2;
 	    
@@ -119,9 +121,31 @@ bool VbfGenAnalysis::SkimEvents(LoopAll& l, int jentry)
 		}
 	    }
 	}
-	
+
+
 	if( useGenJets ) {
 	    /// PUT gen jet selection here
+	    // clean and sort jets
+	    std::vector<int> sorted_jets;
+	    for(int ijet=0; ijet<l.genjet_algo1_n; ++ijet) { 
+		TLorentzVector * p4 = (TLorentzVector*)l.genjet_algo1_p4->At(ijet);
+		if( p4->DeltaR(  *((TLorentzVector *)l.gp_p4->At(gen_photons[0]))   ) > 0.5 && p4->DeltaR( *((TLorentzVector *)l.gp_p4->At(gen_photons[1]))) > 0.5  ) {
+		    sorted_jets.push_back(ijet);
+		}
+	    }
+	    std::sort(sorted_jets.begin(),sorted_jets.end(),
+		      ClonesSorter<TLorentzVector,double,std::greater<double> >(l.genjet_algo1_p4,&TLorentzVector::Pt));
+	    
+	    if ( sorted_jets.size() > 1){
+		TLorentzVector & q1 = *((TLorentzVector *)l.genjet_algo1_p4->At(sorted_jets[0]));
+		TLorentzVector & q2 = *((TLorentzVector *)l.genjet_algo1_p4->At(sorted_jets[1]));
+	    	*((TLorentzVector *)l.gh_vbfq1_p4->At(0)) = q1;
+		*((TLorentzVector *)l.gh_vbfq2_p4->At(0)) = q2;
+	    }
+	    else {
+		/// Also require two jets
+		return false;
+	    }
 	} else {
 	    if( gen_quarks.size() > 1 ) {
 	
@@ -142,6 +166,7 @@ bool VbfGenAnalysis::SkimEvents(LoopAll& l, int jentry)
 	}
     }
 
+ 
     return true;
 }
 
@@ -172,7 +197,7 @@ bool VbfGenAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLoren
     /// diphoton_id = -1;
     
     std::pair<int,int> diphoton_index;
-   
+ 
     if (!analyzeJetVariablesOnly){
 
 	// do gen-level dependent first (e.g. k-factor); only for signal
@@ -188,6 +213,8 @@ bool VbfGenAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLoren
 	TLorentzVector jet1       = *((TLorentzVector*)l.gh_vbfq1_p4->At(0));
 	TLorentzVector jet2       = *((TLorentzVector*)l.gh_vbfq2_p4->At(0));
 	
+	
+
 	if(jet1.Pt() < jet2.Pt())
 	    std::swap(jet1, jet2);
 	
@@ -226,14 +253,17 @@ bool VbfGenAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLoren
 	myVBF_thetaJ1 = leadingBoosted.Angle(jet1Boosted.Vect());
 	myVBF_thetaJ2 = leadingBoosted.Angle(jet2Boosted.Vect());
 	
+
 	/*cout << "M: " << mass << "; lead/M " << myVBFLeadPhoPtOverM << "; sublead/M " << myVBFSubPhoPtOverM;
 	  cout << endl << "jet1 Pt " << jet1.Pt() << "; jet2 pt " << jet2.Pt() << "; Mjj " << myVBF_Mjj << endl;
 	  cout << "retval " << ((myVBFLeadPhoPtOverM > 0.5 && myVBFSubPhoPtOverM > 0.3) && (jet1.Pt() > 20 && jet2.Pt() > 20) && myVBF_Mjj > 50) << endl;*/
 	
 	if((fabs(lead_p4.Eta()) < 2.5 && fabs(sublead_p4.Eta()) < 2.5) && (myVBFLeadPhoPtOverM > 0.3 && myVBFSubPhoPtOverM > 25./120. && sublead_p4.Pt() > 25.) && (jet1.Pt() > 20. && jet2.Pt() > 20.) && myVBF_Mjj > 100.)
 	    {
+		
 		if(myVBFLeadPhoPtOverM > 0.5 && myVBFSubPhoPtOverM > 0.3 && myVBFLeadJPt > 30. && myVBFSubJPt > 20. && myVBF_Mjj > 250. && TMath::Abs(myVBFdEta) > 3. && TMath::Abs(myVBFZep) < 2.5 && TMath::Abs(myVBFdPhi) > 2.6)
 		    {
+			
 			if(myVBFSubJPt > 30. && myVBF_Mjj > 500.)
 			    category = 4;
 			else
@@ -270,7 +300,8 @@ bool VbfGenAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLoren
 	myVBFDiPhoPtOverM   = diphoton.Pt()   / myVBF_Mgg;
 	myVBF_deltaPhiJJ = jet1.DeltaPhi(jet2);
 	myVBF_etaJJ = (jet1.Eta() + jet2.Eta())/2;
-	
+
+
 	if( jet1.Pt() > 20. && jet2.Pt() > 20. && myVBF_Mjj > 100.)
 	    {
 		if( myVBFLeadJPt > 30. && myVBFSubJPt > 20. && myVBF_Mjj > 250. && TMath::Abs(myVBFdEta) > 3. && TMath::Abs(myVBFZep) < 2.5 && TMath::Abs(myVBFdPhi) > 2.6)
@@ -293,7 +324,7 @@ bool VbfGenAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLoren
 void VbfGenAnalysis::FillRooContainer(LoopAll& l, int cur_type, float mass, float diphotonMVA, 
 				    int category, float weight, bool isCorrectVertex, int diphoton_id) 
 {
-    
+        
     l.FillTree("run",l.run);
     l.FillTree("lumis",l.lumis);
     l.FillTree("event",l.event);
