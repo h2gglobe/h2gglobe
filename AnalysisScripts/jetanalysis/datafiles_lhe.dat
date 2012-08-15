@@ -2,7 +2,8 @@ intL=5346. histfile=CMS-HGG_test.root output=eventsList.txt
 
 ### ## POWHEG
 
-#typ=-38 ind=2 draw=1  Nam=powheg_ggH1jet_m125_8TeV     Fil=/afs/cern.ch/user/m/malberti/scratch0/HGG/CMSSW_5_2_3_patch4/src/HiggsAnalysis/HiggsTo2photons/h2gglobe/JetAnalysis/macro/testlhe_globe.root        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000 tot=100000
+### POWHEG ggH+1jet
+#typ=-38 ind=2 draw=1  Nam=powheg_ggH1jet_m125_8TeV      Fil=root://eoscms//eos/cms/store/cmst3/user/malberti/HIGGS/VBF/vbf_spin_studies/powheg_ggHj_125_globe.root
 
 ###typ=-38 ind=2 draw=1  Nam=powheg_vbf_m125_8TeV     Fil=root://eoscms//eos/cms/store/cmst3/user/musella/hgg/vbf_spin_studies/powheg_vbf_spin0/hgg_POWEG_VBF_globe.root        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000 tot=100000
 
