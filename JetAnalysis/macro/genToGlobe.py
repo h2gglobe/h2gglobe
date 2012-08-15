@@ -61,7 +61,6 @@ process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(1000)
 ## Globe ntuplizer
 process.load("HiggsAnalysis.HiggsTo2photons.h2ganalyzer_GEN_cfi")
 process.h2ganalyzer.RootFileName = output.replace(".root","_globe.root")
-process.h2ganalyzer.GenParticlesColl = cms.InputTag("genParticles")
 
 ## Output
 process.p = cms.Path(
