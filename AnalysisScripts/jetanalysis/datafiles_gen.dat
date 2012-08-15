@@ -1,12 +1,14 @@
 intL=5346. histfile=CMS-HGG_test.root output=eventsList.txt
 
 ## Signal
-typ=-38 ind=2 draw=1  Nam=vbf_m125_8TeV     CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/VBF_HToGG_M-125_8TeV        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+#typ=-38 ind=2 draw=1  Nam=vbf_m125_8TeV     CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/VBF_HToGG_M-125_8TeV        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000 
+
+typ=-38 ind=2 draw=1  Nam=ggHj_m125_8TeV     Fil=/afs/cern.ch/user/m/malberti/scratch0/HGG/CMSSW_5_2_3_patch4/src/HiggsAnalysis/HiggsTo2photons/h2gglobe/JetAnalysis/macro/h_ggHj_YY_125_GEN_globe.root      red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000 tot=100
 
 # 
 # Branches to use
 #
-inputBranches gh_only_input.dat
+inputBranches gp_only_input.dat
 
 cuts jetanalysis/cuts_vbfmva.dat
 treevariables optTree.dat
@@ -19,7 +21,7 @@ treevariables optTree.dat
 ## 	analyzer <class_name> <config_file>
 ## 
 ## analyzer PhotonAnalysis photonanalysis.dat	
-analyzer VbfGenAnalysis photonanalysis.dat analysis_settings.dat statanalysis.dat doSystematics=0  bookDiPhoCutsInVbf=1
+analyzer VbfGenAnalysis photonanalysis.dat analysis_settings.dat statanalysis.dat doSystematics=0   puHist=  fillGhBranches=1 bookDiPhoCutsInVbf=1 analyzeJetVariablesOnly=0 useGenJets=1
 
 ## fillOptTree=1
 ## mvaVbfCatBoundaries=1.,0.985,0.968,0.92 bkgPolOrderByCat=4,5,5,5,3,3,4
