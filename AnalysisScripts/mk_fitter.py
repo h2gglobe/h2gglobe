@@ -74,7 +74,7 @@ if __name__  == "__main__":
 		if "histfile" in line:
 			cfg.read_histfile(line)
 			if( cfg.histdir != "" ):
-				line = line.replace(cfg.histdir,"./").replace(".//","")
+				line = line.replace(cfg.histdir,"$histdir").replace("$histdir/","$histdir")
 			
 
 		if line.startswith("split"):
@@ -102,7 +102,7 @@ if __name__  == "__main__":
 	  for i in xrange(len(files)):
                 if cfg.histdir=='':cfg.histdir='./'
 		filestocmb += "typ=99999 Fil=%s/%s_%d.%s\n"  %(cfg.histdir,cfg.histfile[0],i,cfg.histfile[1])
-	  g.write( (datfile % filestocmb).replace("histfile=./","histfile=%s" % scriptdir ) )
+	  g.write( (datfile % filestocmb).replace("$histdir",scriptdir ) )
 	  g.close()	
 		
 	if not options.runIC:
@@ -110,14 +110,14 @@ if __name__  == "__main__":
 	  for i in xrange(len(files)):
 		fil = commands.getoutput("cmsPfn %s_%d.%s" % ( os.path.join(cfg.histdir,cfg.histfile[0]), i, cfg.histfile[1] ))
 		filestocmb += "typ=99999 Fil=%s\n" % fil
-	  g.write( (datfile % filestocmb).replace("histfile=./","histfile=%s" % scriptdir ) )
+	  g.write( (datfile % filestocmb).replace("$histdir", "%s/" % scriptdir ) )
 	  g.close()	
 
 	tmpnam = os.path.join(os.path.dirname(options.inputDat), "tmp_%s" % os.path.basename(options.inputDat))
 	tmp  = open("%s" % tmpnam, "w+")
 	idat = open(options.inputDat, "r")
 	if options.runIC:tmp.write(idat.read().replace("%(label)s",options.label))
-	else:	tmp.write( idat.read().replace("split","") % { "label": options.label } )
+	else:	tmp.write( idat.read() % { "label": options.label } )
 	
 
 	idat.close()
@@ -203,7 +203,7 @@ if __name__  == "__main__":
 		f.write("cd scratch\n")
 		
 		f.write("cat > %s.dat << EOF\n" % jobbasename)
-		f.write(datfile % files[i])
+		f.write((datfile % files[i]).replace("$histdir",""))
 		f.write("\nEOF\n")
 		
                 if not options.combine:

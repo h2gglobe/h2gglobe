@@ -32,6 +32,7 @@ for g,jo in groups.iteritems():
 if len(groups["done"]) == len(jobs):
     print "All jobs completed"
     filestocmb=glob.glob("%s/filestocombine_*.dat" % taskdir)
+    print filestocmb
     if len(filestocmb) == 1:
         cfg = Conf() 
         cfile = open( filestocmb[0], "r" )
@@ -41,9 +42,10 @@ if len(groups["done"]) == len(jobs):
 		cfg.read_histfile(line)
 		line = line.replace(cfg.histdir,"./")
                 break
+        combinedws="%s.%s" % ( os.path.join(cfg.histdir,cfg.histfile[0]), cfg.histfile[1] )
+        print combinedws
 
-
-        if not os.path.isfile( "%s.%s" % ( os.path.join(cfg.histdir,cfg.histfile[0]), cfg.histfile[1] ) ):
+        if not os.path.isfile( combinedws  ):
             ## sys.argv = [ "combiner.py", "-i", filestocmb[0] ]
             ## import combiner
             os.system("python combiner.py -i %s" % filestocmb[0] )
