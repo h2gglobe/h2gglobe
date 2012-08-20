@@ -1,6 +1,6 @@
 import commands,sys,os
 
-def makeCaFiles(dir,njobs=-1,jobid=0,nf=[0]):
+def makeCaFiles(dir,njobs=-1,jobid=0,nf=[0],maxfiles=-1):
 
    dir = str(dir)
    return_files = []
@@ -25,8 +25,12 @@ def makeCaFiles(dir,njobs=-1,jobid=0,nf=[0]):
       
    if not sc:
       files = flist.split('\n')
+      ifile = 0
       for f in files:
          if '.root' in f:
+            if( maxfiles > 0 and ifile >= maxfiles):
+               break
+            ifile += 1
             nf[0] += 1
             fname = "%s%s/%s" % ( prepend, dir, f)
             if (njobs > 0) and (nf[0] % njobs != jobid):
@@ -41,7 +45,7 @@ def makeCaFiles(dir,njobs=-1,jobid=0,nf=[0]):
    return return_files
 
 
-def makeDcFiles(dir,njobs=-1,jobid=0,nf=[0]):
+def makeDcFiles(dir,njobs=-1,jobid=0,nf=[0],maxfiles=-1):
 
    #dcache_prepend = 'dcap://gfe02.grid.hep.ph.ic.ac.uk/pnfs/hep.ph.ic.ac.uk/data/cms'
    dcache_prepend = 'root://xrootd.grid.hep.ph.ic.ac.uk/'
@@ -57,7 +61,11 @@ def makeDcFiles(dir,njobs=-1,jobid=0,nf=[0]):
       for f in files:
          if len(f) < 1: continue
          f = (f.split()[-1]).split('/')[-1]
+         ifile = 0
          if '.root' in f:
+            if( maxfiles > 0 and ifile >= maxfiles):
+               break
+            ifile += 1
             nf[0] += 1
             if (njobs > 0) and (nf[0] % njobs != jobid):
                return_files.append((dcache_prepend+dir+'/'+f,False))
@@ -89,7 +97,11 @@ def makeEosFiles(dir,njobs=-1,jobid=0,nf=[0]):
    if os.path.isdir(eoslsprepend+dir): 
       files = os.listdir(eoslsprepend+dir)
       for f in files:
+         ifile = 0
          if '.root' in f:
+            if( maxfiles > 0 and ifile >= maxfiles):
+               break
+            ifile += 1
             nf[0] += 1
             if (njobs > 0) and (nf[0] % njobs != jobid):
                return_files.append((eosprepend+dir+'/'+f,False))
@@ -106,7 +118,7 @@ def makeEosFiles(dir,njobs=-1,jobid=0,nf=[0]):
    unmounteos("eosfoo")
    return return_files  
 
-def makeFiles(dir,njobs=-1,jobid=0,nf=[0]):
+def makeFiles(dir,njobs=-1,jobid=0,nf=[0],maxfiles=-1):
 
    dir = str(dir)
    return_files = []
@@ -114,7 +126,11 @@ def makeFiles(dir,njobs=-1,jobid=0,nf=[0]):
    if os.path.isdir(dir): 
       files = os.listdir(dir)
       for f in files:
+         ifile = 0
          if '.root' in f:
+            if( maxfiles > 0 and ifile >= maxfiles):
+               break
+            ifile += 1
             nf[0] += 1
             if (njobs > 0) and (nf[0] % njobs != jobid):
                return_files.append((dir+'/'+f,False))

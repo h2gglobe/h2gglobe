@@ -354,6 +354,7 @@ class configProducer:
         maxval_arr = []
 
         for sp in split_line:
+          ## print sp
           name, val = sp.split("=")
           if name in  map_dict :
             map_c[name] = map_dict[name](val)
@@ -528,13 +529,14 @@ class configProducer:
           val = self.expand_file(val)
           try:
 	    if ".root" in val and not "/castor" in val and not os.path.isfile(val): sys.exit("No File found - %s, check the line %s"%(val,line))
-      	    if "," in val:
+      	    if "," in val or "vector<" in str(type(val)):
 	     ele = val.split(",")
              value_type = type( type(struct.__getattribute__(name))(1)[0] )
              print value_type
              (struct.__getattribute__(name)).clear()
-	     for v in ele:
-                 (struct.__getattribute__(name)).push_back(value_type(v))
+             if val != "":
+                 for v in ele:
+                     (struct.__getattribute__(name)).push_back(value_type(v))
             else :
              t = type( struct.__getattribute__(name) )
              struct.__setattr__(name, t(val) )
@@ -590,7 +592,8 @@ class configProducer:
     name = sl.pop(0)
     analyzer = ROOT.__getattr__(name)()
     print "Loading analyzer %s " % name
-    self.ut_.AddAnalysis( analyzer )
+    print analyzer
+    a = self.ut_.AddAnalysis( analyzer )
     for config in sl:
         ## print config, os.path.isfile(config)
         try:
@@ -627,7 +630,7 @@ class configProducer:
   def read_input_files_reduce(self,line):
     values = { "CaDir" : "","DcDir" : "","EosDir":"", "Dir" : "", "typ" : -1, "Fil" : "",
                "Nam":"default","draw":-999,"ind":-999,"tot":0,"red":-999,"lum":1.0,"xsec":-1.0,"kfac":1.0,
-               "scal":1.0,"json":"","evlist":"","pileup":"","intL":1.,"addnevents":0
+               "scal":1.0,"json":"","evlist":"","pileup":"","intL":1.,"addnevents":0,
                }; 
     # We have one of the file def lines
     split_line = line.split()
@@ -680,7 +683,8 @@ class configProducer:
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def read_input_files_loop(self,line):
     print "read_input_files_loop"
-    map_c = {"typ":99999,"Nam":"default","draw":-999,"ind":-999,"tot":0,"red":-999,"lum":1.0,"xsec":-1.0,"kfac":1.0,"scal":1.0,"json":"","evlist":"","pileup":""}
+    map_c = {"typ":99999,"Nam":"default","draw":-999,"ind":-999,"tot":0,"red":-999,"lum":1.0,"xsec":-1.0,"kfac":1.0,"scal":1.0,"json":"","evlist":"","pileup":"",
+             "maxfiles":-1}
     #map_c["tot"]=-1
     map_c["addnevents"]=0
     directory = ''
@@ -728,7 +732,10 @@ class configProducer:
       else: self.conf_.files.append((None,fi_type));
       if fi_type!=0 and fi_type!=99999 and map_c["tot"] == 0:
 	if self.sample_weights_file_==0 :
-	  nEventsInFile = getTreeEntry(fi_name,"global_variables","processedEvents")
+	  if map_c["tot"] <= 0:
+              nEventsInFile = getTreeEntry(fi_name,"global_variables","processedEvents")
+          else:
+              nEventsInFile = map_c["tot"]
 	  self.file_processed_events_[fi_name] = nEventsInFile
           map_c["tot"] = nEventsInFile;
 	  
@@ -755,9 +762,9 @@ class configProducer:
         dir = directory  
         
     if dir:
-      files = mkFiles(dir,self.njobs_,self.jobId_,self.nf_)
+      files = mkFiles(dir,self.njobs_,self.jobId_,self.nf_,maxfiles=map_c["maxfiles"])
       if fi_type!=0 and fi_type!=99999 and map_c["tot"] == 0:
-          allfiles = mkFiles(dir,-1,-1)
+          allfiles = mkFiles(dir,-1,-1,maxfiles=map_c["maxfiles"])
           if map_c["pileup"] == "":
               map_c["pileup"] = "%s.pileup.root" % dir
               if( dir.startswith("/store") ):
