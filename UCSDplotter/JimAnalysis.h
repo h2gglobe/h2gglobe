@@ -3,6 +3,7 @@
 
 #include "GenericAnalysis.h"
 #include "HistoContainer.h"
+#include "RooContainer.h"
 
 #include "TTree.h"
 
@@ -13,20 +14,26 @@ class JimAnalysis : public GenericAnalysis {
       and set active / inactivate the branches */
   void setBranchAddresses(TTree *tree);
 
+  void defineLabels();
+  std::string GetSignalLabel(int id);
+
   /** this is called for each event in the input tree
       and is typically the place to fill histograms
       using container->Fill(..) and container->Fill2D(..)
   */
-  void analyze(HistoContainer *container);
+  void analyze(HistoContainer *container, RooContainer* rooContainer);
 
-
+  void FillRooContainer(RooContainer* rooContainer, bool isCorrectVertex);
+  void FillRooContainerSyst(RooContainer* rooContainer, const std::string &name, int cur_type,
+			    std::vector<double> & mass_errors, std::vector<double> & mva_errors,
+			    std::vector<int>    & categories, std::vector<double> & weights);
   // List of opttree branches
 
   Int_t run;
   Int_t lumis;
   Int_t event;
-  // Int_t itype;
-  Float_t itype;
+  Int_t itype;
+  //Float_t itype;
   Float_t sigmaMrvoM;
   Float_t sigmaMwvoM;
   Float_t ptoM1;
@@ -47,10 +54,10 @@ class JimAnalysis : public GenericAnalysis {
   Float_t MET;
   Float_t MET_phi;
   Float_t bdt;
-  // Int_t bdt_cat;
-  Float_t bdt_cat;
+  Int_t bdt_cat;
+  //Float_t bdt_cat;
 
-
+  std::map<int,std::string> signalLabels;
 };
 
 /*

@@ -5,6 +5,8 @@
 
 
 #include "HistoContainer.h"
+#include "RooContainer.h"
+
 
 /** base class from which user analyses must inherit */
 class GenericAnalysis
@@ -18,7 +20,7 @@ public:
       and is typically the place to fill histograms
       using container->Fill(..) and container->Fill2D(..)
   */
-  virtual void analyze(HistoContainer *container) = 0;
+  virtual void analyze(HistoContainer *container, RooContainer* container2) = 0;
 
 };
 

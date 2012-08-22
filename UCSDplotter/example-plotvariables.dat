@@ -1,8 +1,6 @@
 # default=2
 
-
-# reconstructed mass per category
-htyp=0  ncat=6      xbins=70       xmin=100 xmax=180   name=reco_mass
+nCategories=4 nSystSteps=1 systRange=1 massMax=150 massMin=100 intlumi=5 nDataBins=10 signalPoints=100,105,110,115,120,125,130,135,140,145,150 htyp=0  ncat=6      xbins=70       xmin=100 xmax=180   name=reco_mass
 
 # run number
 # htyp=0  ncat=1      xbins=100        xmin=160000 xmax=199000   name=run

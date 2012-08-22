@@ -1,5 +1,7 @@
-CXXFLAGS += $(shell $$ROOTSYS/bin/root-config --cflags)
+ROOFIT_BASE=$(ROOFITSYS)
+CXXFLAGS += $(shell $$ROOTSYS/bin/root-config --cflags) -I$(ROOFIT_BASE)/include
 LDLIBS += $(shell $$ROOTSYS/bin/root-config --glibs)
+LDFLAGS += -L$(ROOFIT_BASE)/lib -L$(ROOTSYS)/lib -lRooFitCore -lRooFit -lTMVA 
 
 # for building the shared libraries
 CXXFLAGS += -fPIC
@@ -18,11 +20,11 @@ LDLIBS +=  -lboost_regex
 #----------------------------------------
 CC = $(CXX)
 
-ALL_TARGETS = plotter JimAnalysis.so
+ALL_TARGETS = plotter JimAnalysis.so 
 
 all:			$(ALL_TARGETS)
 
-plotter:		plotter.o HistoContainer.o Plotting.o 
+plotter:		plotter.o HistoContainer.o RooContainer.o Plotting.o 
 
 
 JimAnalysis.so:		JimAnalysis.o 
