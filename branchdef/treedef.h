@@ -459,7 +459,14 @@ Float_t pho_zernike42[MAX_PHOTONS];
 Float_t pho_e2nd[MAX_PHOTONS];
 Float_t pho_e2x5right[MAX_PHOTONS];
 Float_t pho_e2x5left[MAX_PHOTONS];
-Float_t pho_e2x5Top[MAX_PHOTONS];
+Float_t pho_e2x5top[MAX_PHOTONS];
+Float_t pho_e2x5max[MAX_PHOTONS];
+Int_t pho_bieta[MAX_PHOTONS];
+Int_t pho_biphi[MAX_PHOTONS];
+Float_t pho_betacry[MAX_PHOTONS];
+Float_t pho_bphicry[MAX_PHOTONS];
+Float_t pho_bthetatilt[MAX_PHOTONS];
+Float_t pho_bphitilt[MAX_PHOTONS];
 Float_t pho_e2x5bottom[MAX_PHOTONS];
 Float_t pho_eright[MAX_PHOTONS];
 Float_t pho_eleft[MAX_PHOTONS];
@@ -529,6 +536,10 @@ Float_t pho_residCorrEnergy[MAX_PHOTONS];
 Float_t pho_residCorrResn[MAX_PHOTONS];
 Float_t pho_regr_energy[MAX_PHOTONS];
 Float_t pho_regr_energyerr[MAX_PHOTONS];
+
+Float_t el_std_regr_energy[MAX_ELECTRONS];
+Float_t el_std_regr_energyerr[MAX_ELECTRONS];
+
 Int_t conv_n;
 TClonesArray *conv_p4;
 Int_t conv_ntracks[MAX_CONVERTEDPHOTONS];

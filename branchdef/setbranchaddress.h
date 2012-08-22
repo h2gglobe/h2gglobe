@@ -486,7 +486,14 @@ void SetBranchAddress_pho_zernike42(TTree * tree) { tree->SetBranchAddress("pho_
 void SetBranchAddress_pho_e2nd(TTree * tree) { tree->SetBranchAddress("pho_e2nd", pho_e2nd, &b_pho_e2nd); }; 
 void SetBranchAddress_pho_e2x5right(TTree * tree) { tree->SetBranchAddress("pho_e2x5right", pho_e2x5right, &b_pho_e2x5right); }; 
 void SetBranchAddress_pho_e2x5left(TTree * tree) { tree->SetBranchAddress("pho_e2x5left", pho_e2x5left, &b_pho_e2x5left); }; 
-void SetBranchAddress_pho_e2x5Top(TTree * tree) { tree->SetBranchAddress("pho_e2x5Top", pho_e2x5Top, &b_pho_e2x5Top); }; 
+void SetBranchAddress_pho_e2x5top(TTree * tree) { tree->SetBranchAddress("pho_e2x5top", pho_e2x5top, &b_pho_e2x5top); }; 
+void SetBranchAddress_pho_e2x5max(TTree * tree) { tree->SetBranchAddress("pho_e2x5max", pho_e2x5max, &b_pho_e2x5max); }; 
+void SetBranchAddress_pho_bieta(TTree * tree) { tree->SetBranchAddress("pho_bieta", pho_bieta, &b_pho_bieta); }; 
+void SetBranchAddress_pho_biphi(TTree * tree) { tree->SetBranchAddress("pho_biphi", pho_biphi, &b_pho_biphi); }; 
+void SetBranchAddress_pho_betacry(TTree * tree) { tree->SetBranchAddress("pho_betacry", pho_betacry, &b_pho_betacry); }; 
+void SetBranchAddress_pho_bphicry(TTree * tree) { tree->SetBranchAddress("pho_bphicry", pho_bphicry, &b_pho_bphicry); }; 
+void SetBranchAddress_pho_bthetatilt(TTree * tree) { tree->SetBranchAddress("pho_bthetatilt", pho_bthetatilt, &b_pho_bthetatilt); }; 
+void SetBranchAddress_pho_bphitilt(TTree * tree) { tree->SetBranchAddress("pho_bphitilt", pho_bphitilt, &b_pho_bphitilt); }; 
 void SetBranchAddress_pho_e2x5bottom(TTree * tree) { tree->SetBranchAddress("pho_e2x5bottom", pho_e2x5bottom, &b_pho_e2x5bottom); }; 
 void SetBranchAddress_pho_eright(TTree * tree) { tree->SetBranchAddress("pho_eright", pho_eright, &b_pho_eright); }; 
 void SetBranchAddress_pho_eleft(TTree * tree) { tree->SetBranchAddress("pho_eleft", pho_eleft, &b_pho_eleft); }; 
@@ -506,6 +513,10 @@ void SetBranchAddress_pho_residCorrEnergy(TTree * tree) { tree->SetBranchAddress
 void SetBranchAddress_pho_residCorrResn(TTree * tree) { tree->SetBranchAddress("pho_residCorrResn", pho_residCorrResn, &b_pho_residCorrResn); }; 
 void SetBranchAddress_pho_regr_energy(TTree * tree) { tree->SetBranchAddress("pho_regr_energy", pho_regr_energy, &b_pho_regr_energy); };
 void SetBranchAddress_pho_regr_energyerr(TTree * tree) { tree->SetBranchAddress("pho_regr_energyerr", pho_regr_energyerr, &b_pho_regr_energyerr); };
+
+void SetBranchAddress_el_std_regr_energy(TTree * tree) { tree->SetBranchAddress("el_std_regr_energy", el_std_regr_energy, &b_el_std_regr_energy); };
+void SetBranchAddress_el_std_regr_energyerr(TTree * tree) { tree->SetBranchAddress("el_std_regr_energyerr", el_std_regr_energyerr, &b_el_std_regr_energyerr); };
+
 void SetBranchAddress_conv_n(TTree * tree) { tree->SetBranchAddress("conv_n", &conv_n, &b_conv_n); };
 void SetBranchAddress_conv_p4(TTree * tree) { tree->SetBranchAddress("conv_p4", &conv_p4, &b_conv_p4); };
 void SetBranchAddress_conv_ntracks(TTree * tree) { tree->SetBranchAddress("conv_ntracks", conv_ntracks, &b_conv_ntracks); };
