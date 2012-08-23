@@ -52,6 +52,7 @@ private:
     int   tree_nPU,_nVertices;
     float tree_evWeight;
 
+    float tree_diphomva;
     float tree_pho1pt;
     float tree_pho2pt;
     float tree_diphopt;

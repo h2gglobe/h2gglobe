@@ -34,7 +34,6 @@ VbfAnalysis::~VbfAnalysis()
 // ----------------------------------------------------------------------------------------------------
 void VbfAnalysis::Term(LoopAll& l) 
 {
-    /// l.outputFile->cd();
     if( dumpFlatTree ) {
 	if( outputFile_ ) {
 	    outputFile_->cd();
@@ -51,7 +50,17 @@ void VbfAnalysis::Term(LoopAll& l)
 
 // ----------------------------------------------------------------------------------------------------
 void VbfAnalysis::Init(LoopAll& l) 
-{
+{  
+    if( l.runZeeValidation ) {
+	leadEtCut = 15;
+	subleadEtCut = 15;
+	leadEtVBFCut = 15.;
+	subleadEtVBFCut = 15.;
+	massMin = 60, massMax = 120.;
+	applyPtoverM = false;
+    }
+    
+
     MassFactorizedMvaAnalysis::Init(l);
     if( jetHandler_ == 0 ) {
     	jetHandler_ = new JetHandler(jetHandlerCfg, l);
@@ -90,6 +99,7 @@ void VbfAnalysis::Init(LoopAll& l)
 	flatTree_->Branch( "jet2PileupID",  &tree_jet2PileupID );
 	flatTree_->Branch( "isSignal",      &tree_isSignal );
 	flatTree_->Branch( "mctype",        &tree_mctype );
+	flatTree_->Branch( "diphomva",      &tree_diphomva );
    }
 }
 
@@ -162,9 +172,10 @@ bool VbfAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentzV
 	// preselection 
 	diphotonVBF_id = l.DiphotonMITPreSelection(leadEtVBFCut,subleadEtVBFCut,phoidMvaCut,applyPtoverM, &smeared_pho_energy[0] );
 
+
 	diphoton_id = diphotonVBF_id; 
 	if( diphoton_id == -1 ) { return false; }
-
+	
 	/// l.RescaleJetEnergy();
 	/// postProcessJets(l,l.dipho_vtxind[diphoton_id]);
 		
@@ -173,6 +184,47 @@ bool VbfAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentzV
 	TVector3 * vtx;
 	fillDiphoton(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, vtx, &smeared_pho_energy[0], l, diphoton_id);  
 	if( Higgs.M() < massMin || Higgs.M() > massMax )  { return false; }
+
+
+	// ---- evaluate dipho MVA
+	diphoton_index = std::make_pair( l.dipho_leadind[diphoton_id],  l.dipho_subleadind[diphoton_id] );
+
+        // Mass Resolution of the Event
+        massResolutionCalculator->Setup(l,&photonInfoCollection[diphoton_index.first],&photonInfoCollection[diphoton_index.second],diphoton_id,eSmearPars,nR9Categories,nEtaCategories,beamspotSigma);
+        float vtx_mva  = l.vtx_std_evt_mva->at(diphoton_id);
+        sigmaMrv = massResolutionCalculator->massResolutionEonly();
+        sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
+        float sigmaMeonly = massResolutionCalculator->massResolutionEonly();
+        // easy to calculate vertex probability from vtx mva output
+        float vtxProb   = 1.-0.49*(vtx_mva+1.0); 
+
+        float phoid_mvaout_lead = ( dataIs2011 ? 
+				    l.photonIDMVA(diphoton_index.first,l.dipho_vtxind[diphoton_id],
+						  lead_p4,bdtTrainingPhilosophy.c_str()) :
+				    l.photonIDMVANew(diphoton_index.first,l.dipho_vtxind[diphoton_id],
+						     lead_p4,bdtTrainingPhilosophy.c_str()) + photonIDMVAShift_EB );
+        float phoid_mvaout_sublead = ( dataIs2011 ? 
+				       l.photonIDMVA(diphoton_index.second,l.dipho_vtxind[diphoton_id],
+						     sublead_p4,bdtTrainingPhilosophy.c_str()) : 
+				       l.photonIDMVANew(diphoton_index.second,l.dipho_vtxind[diphoton_id],
+							sublead_p4,bdtTrainingPhilosophy.c_str()) + photonIDMVAShift_EE );
+	// apply di-photon level smearings and corrections
+        int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,0);
+        if( cur_type != 0 && doMCSmearing ) {
+	    applyDiPhotonSmearings(Higgs, *vtx, selectioncategory, cur_type, *((TVector3*)l.gv_pos->At(0)), evweight, 
+				   phoid_mvaout_lead,phoid_mvaout_sublead,
+				   diPhoSys, syst_shift);
+            isCorrectVertex=(*vtx- *((TVector3*)l.gv_pos->At(0))).Mag() < 1.;
+        }
+
+	float diphobdt_output = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id] ,
+					      vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMeonly,
+					      bdtTrainingPhilosophy.c_str(),
+					      phoid_mvaout_lead,phoid_mvaout_sublead);
+
+
+
+
 	
 	// clean and sort jets
 	std::vector<int> sorted_jets;
@@ -232,6 +284,7 @@ bool VbfAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentzV
 	    tree_diphopt       = diphoton.Pt();
 	    tree_diphoM        = diphoton.M();
 	    tree_diphoEta      = diphoton.Eta();
+	    tree_diphomva      = diphobdt_output;
   
 	    tree_jet1isMatched = l.jet_algoPF1_genMatched[ijet1];
 	    tree_jet1genPt     = l.jet_algoPF1_genPt[ijet1];
