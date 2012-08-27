@@ -783,10 +783,10 @@ void LoopAll::vertexAnalysis(HggVertexAnalyzer & vtxAna,  PhotonInfo pho1, Photo
 
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
-PhotonInfo LoopAll::fillPhotonInfos(int p1, bool useAllConvs, float * energy) 
+PhotonInfo LoopAll::fillPhotonInfos(int p1, int useAllConvs, float * energy) 
 {
   
-    int iConv1 = useAllConvs ? matchPhotonToConversion(p1) : -1;
+    int iConv1 = useAllConvs>0 ? matchPhotonToConversion(p1,useAllConvs) : -1;
     
     if ( iConv1 >= 0) {
         // conversions infos
@@ -946,150 +946,46 @@ vector<double> LoopAll::generate_flat10_weights(TH1D* data_npu_estimated){
     return result;
 }
 
+int  LoopAll::matchPhotonToConversion( int lpho, int useAllConvs) {
 
-double LoopAll::phiNorm(float &phi) {
+    int iMatch=-1;
+    TVector3 Photonxyz = *((TVector3*) sc_xyz->At(pho_scind[lpho]));
 
-    const float pi = 3.1415927;
-    const float twopi = 2.0*pi;
-
-    if(phi >  pi) {phi = phi - twopi;}
-    if(phi < -pi) {phi = phi + twopi;}
-
-    return phi;
-}
-
-
-double LoopAll::etaTransformation(  float EtaParticle , float Zvertex)  {
-
-    //---Definitions
-    const float pi = 3.1415927;
-
-    //---Definitions for ECAL
-    const float R_ECAL           = 136.5;
-    const float Z_Endcap         = 328.0;
-    const float etaBarrelEndcap  = 1.479; 
-   
-    //---ETA correction
-
-    float Theta = 0.0  ; 
-    float ZEcal = R_ECAL*sinh(EtaParticle)+Zvertex;
-
-    if(ZEcal != 0.0) Theta = atan(R_ECAL/ZEcal);
-    if(Theta<0.0) Theta = Theta+pi ;
-    double ETA = - log(tan(0.5*Theta));
-         
-    if( fabs(ETA) > etaBarrelEndcap )
-    {
-        float Zend = Z_Endcap ;
-        if(EtaParticle<0.0 )  Zend = -Zend ;
-        float Zlen = Zend - Zvertex ;
-        float RR = Zlen/sinh(EtaParticle); 
-        Theta = atan(RR/Zend);
-        if(Theta<0.0) Theta = Theta+pi ;
-        ETA = - log(tan(0.5*Theta));          
-    } 
-    //---Return the result
-    return ETA;
-    //---end
-}
-
-
-int  LoopAll::matchPhotonToConversion( int lpho) {
-
-    int result=-99;
-    double conv_eta=-999.;
-    double conv_phi=-999.;
-  
-    // float sc_eta  = ((TVector3 *) pho_calopos->At(lpho))->Eta();
-    float sc_eta  = ((TVector3 *) sc_xyz->At(pho_scind[lpho]))->Eta();
-    float phi  = ((TVector3 *) sc_xyz->At(pho_scind[lpho]))->Phi();
-//  float  phi  = ((TVector3 *) pho_calopos->At(lpho))->Phi();
-    double sc_phi = phiNorm(phi);
-  
-    /// TLorentzVector * p4 = (TLorentzVector *) pho_p4->At(lpho);
-    /// float et = p4->Energy() / cosh(sc_eta);
-    //  cout << " photon index " << lpho << " eta " <<sc_eta<< " phi " << sc_phi << " et " << et << endl; 
-  
     float detaMin=999.;
     float dphiMin=999.;   
     float dRMin = 999.;
 
-    float mconv_pt=-999999;
-    int iMatch=-1;     
-    float conv_pt = -9999;
-
     for(int iconv=0; iconv<conv_n; iconv++) {
+
         TVector3 refittedPairMomentum= conv_ntracks[iconv]==1 ? *((TVector3*) conv_singleleg_momentum->At(iconv)) : *((TVector3*) conv_refitted_momentum->At(iconv));
-        conv_pt =  refittedPairMomentum.Pt();
-        if (conv_pt < 1 ) continue;
-        //if ( conv_ntracks[iconv]!=1 && conv_ntracks[iconv]!=2) continue;
-        if ( conv_ntracks[iconv]!=2) continue;
-        if ( conv_ntracks[iconv]==2 && (!conv_validvtx[iconv] || conv_chi2_probability[iconv]<0.000001)) continue; // Changed back based on meeting on 21.03.2012
 
-        phi  = refittedPairMomentum.Phi();
-        conv_phi  = phiNorm(phi);
-        float eta  = refittedPairMomentum.Eta();
-        //float zpositionfromconv = get_pho_zposfromconv(*((TVector3*) conv_vtx->At(iconv)),*((TVector3*) sc_xyz->At(pho_scind[lpho])),*((TVector3*) bs_xyz->At(0)));
-        conv_eta = etaTransformation(eta, conv_zofprimvtxfromtrks[iconv] );
-        //conv_eta = etaTransformation(eta, zpositionfromconv );
+        //Conversion Selection
+        if ( refittedPairMomentum.Pt() < 10 ) continue;
+        if ( useAllConvs==1 && conv_ntracks[iconv]!=1 ) continue;
+        if ( useAllConvs==2 && conv_ntracks[iconv]!=2 ) continue;
+        if ( useAllConvs==3 && conv_ntracks[iconv]!=1 && conv_ntracks[iconv]!=2 ) continue;
+        if ( conv_ntracks[iconv]==2 && (!conv_validvtx[iconv] || conv_chi2_probability[iconv]<0.000001) ) continue; // Changed back based on meeting on 21.03.2012
 
-        //    cout << " conversion index " << iconv << " eta " <<conv_eta<<  " norm phi " << conv_phi << " PT " << conv_pt << endl; 
+        //New matching technique from meeting on 06.08.12
+        TVector3 ConversionVertex = *((TVector3*) conv_vtx->At(iconv));
+        TVector3 NewPhotonxyz = Photonxyz-ConversionVertex;
+        double dR = NewPhotonxyz.DeltaR(refittedPairMomentum);
+        double delta_eta = NewPhotonxyz.Eta()-refittedPairMomentum.Eta();
+        double delta_phi = NewPhotonxyz.DeltaPhi(refittedPairMomentum);
 
-        //  float dPhi =conv_phi - sc_phi;       
-        /// double delta_phi = conv_phi - sc_phi;       
-        double delta_phi = acos( cos(conv_phi - sc_phi) );       
-        double delta_eta = conv_eta - sc_eta;
-
-        //// assert( delta_phi >= 0. && delta_phi <= TMath::Pi() ); 
- 
-        //cout << " delta_eta " << delta_eta << " delta_phi " << delta_phi << endl;
-        delta_phi*=delta_phi;
-        delta_eta*=delta_eta;
-        float dR = sqrt( delta_phi + delta_eta ); 
-    
-        //if ( fabs(delta_eta) < detaMin && fabs(delta_phi) < dphiMin ) {
         if ( dR < dRMin ) {
-            detaMin=  fabs(delta_eta);
-            dphiMin=  fabs(delta_phi);
+            detaMin=fabs(delta_eta);
+            dphiMin=fabs(delta_phi);
             dRMin=dR;
             iMatch=iconv;
-            mconv_pt = conv_pt;
         }
     
     }
-  
-    //  cout << " minimized conversion index " << iMatch << " eta " <<conv_eta<< " phi " << conv_phi <<endl; 
 
-    //if ( detaMin < 0.1 && dphiMin < 0.1 ) {
-    if ( dRMin< 0.1 ) {
-        result = iMatch;
-    } else {
-        result = -1;
-    }
-  
-    return result;
-  
-
+    if ( dRMin< 0.1 ) return iMatch;
+    else return -1;
+    
 }
-
-double LoopAll::get_pho_zposfromconv(TVector3 convvtx, TVector3 superclustervtx, TVector3 beamSpot) {
-  
-    double deltaX1 = superclustervtx.X()-convvtx.X();
-    double deltaY1 = superclustervtx.Y()-convvtx.Y();
-    double deltaZ1 = superclustervtx.Z()-convvtx.Z();
-    double R1 = sqrt(deltaX1*deltaX1+deltaY1*deltaY1);
-    double tantheta = R1/deltaZ1;
-  
-    double deltaX2 = convvtx.X()-beamSpot.X();
-    double deltaY2 = convvtx.Y()-beamSpot.Y();
-    double R2 = sqrt(deltaX2*deltaX2+deltaY2*deltaY2);
-    double deltaZ2 = R2/tantheta;
-    double primaryvertexZ = superclustervtx.Z()-deltaZ1-deltaZ2;
-    return primaryvertexZ;
-
-}
-
-
 
 //-Applying MET correction-------------
 //correctMETinRED

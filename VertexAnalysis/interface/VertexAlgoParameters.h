@@ -17,7 +17,7 @@ public:
 
 	std::string vtxProbFormula; 
 	
-	bool useAllConversions;
+	int useAllConversions;
 	float sigma1Pix;
 	float sigma1Tib;
 	float sigma1Tob;
@@ -32,6 +32,13 @@ public:
 	float sigma2Tid;
 	float sigma2Tec;
 
+  	float singlelegsigma1Pix;
+	float singlelegsigma1Tib;
+	float singlelegsigma1Tob;
+	float singlelegsigma1PixFwd;
+	float singlelegsigma1Tid;
+	float singlelegsigma1Tec;
+  
 	float singlelegsigma2Pix;
 	float singlelegsigma2Tib;
 	float singlelegsigma2Tob;

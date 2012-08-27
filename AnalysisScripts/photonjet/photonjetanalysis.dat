@@ -43,4 +43,4 @@ rerunJetMva=0
 recomputeJetWp=0
 jetHandlerCfg=jetHandler_cfg.py
 
-reComputeCiCPF=1
+reComputeCiCPF=0

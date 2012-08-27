@@ -37,6 +37,13 @@ public:
   float & sigma2Tid_;
   float & sigma2Tec_;
 
+  float & singlelegsigma1Pix_;
+  float & singlelegsigma1Tib_;
+  float & singlelegsigma1Tob_;
+  float & singlelegsigma1PixFwd_;
+  float & singlelegsigma1Tid_;
+  float & singlelegsigma1Tec_;
+  
   float & singlelegsigma2Pix_;
   float & singlelegsigma2Tib_;
   float & singlelegsigma2Tob_;
