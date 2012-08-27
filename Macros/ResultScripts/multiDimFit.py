@@ -64,8 +64,8 @@ def main(options, args):
                     }
     pars_ranges = { "r_ggH"  : (0.,999999.,False),
                     "r_qqH"  : (0.,999999.,False),
-                    "CV"     : (-5.,5.,True),
-                    "CF"     : (-5.,5.,True),
+                    "CV"     : (0.,2.,False),
+                    "CF"     : (0.,3.,True),
                     "RV"     : (0.,999999.,False),
                     "RF"     : (0.,999999.,False),
                     }
