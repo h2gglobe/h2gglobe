@@ -138,9 +138,10 @@ pho_isEBEEGap
 pho_zernike20
 pho_zernike42
 pho_e2nd
+pho_e2x5max
 pho_e2x5right
 pho_e2x5left
-pho_e2x5Top
+pho_e2x5top
 pho_e2x5bottom
 pho_eright
 pho_eleft
@@ -255,6 +256,10 @@ pho_eseffsiyiy
 #### pho_hcalbcsumetconedr03
 #### pho_hcalbcsumetconedr04
 pho_hoe_bc
+pho_biphi
+pho_bieta
+pho_betacry
+pho_phicry
 
 # All Conversions
 conv_n
