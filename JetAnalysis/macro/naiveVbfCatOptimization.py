@@ -27,9 +27,10 @@ def optmizeCats(func, ws, args):
     grS = ROOT.TGraph()
     grS.SetName("zVsNcat")
     summary = {}
-    for iter in range(1,7):
+    for iter in range(1,9):
+    ## for iter in [2]:
         boundaries,z = func(iter,ws,*args)
-        ncat = len(boundaries)-1
+        ncat = iter ## len(boundaries)-1
         if not ncat in summary or summary[ncat]["z"] < z: 
             summary[ncat] =  { "z" : z, "boundaries" : boundaries, "ncat": ncat }
     for ncat,val in summary.iteritems():
@@ -43,7 +44,7 @@ def optmizeCats(func, ws, args):
     ws.rooImport(canv1)
     ws.rooImport(grS)
     
-    raw_input("aa")
+    raw_input("Done")
 
     sout = open("vbfmva_opt.json","w+")
     sout.write( json.dumps(summary) )
@@ -51,11 +52,11 @@ def optmizeCats(func, ws, args):
     ws.writeToFile("vbfmva_opt.root")
 
 # -----------------------------------------------------------------------------------------------------------
-def optimizeNcat2D(ncat, ws, sigPx, sigPy, sigIntegral, bkgIntegral1, bkgIntegral2, xmin1, xmin2,
+def optimizeNcat2D(ncat, ws, isCdf, sigPx, sigPy, sigIntegral, bkgIntegral1, bkgIntegral2, xmin1, xmin2,
                    cutoff1, cutoff2,
-                   sigNorm, bkg1Norm, bkg2Norm, relNorm=0.1, syst=0.5):
+                   sigNorm, bkg1Norm, bkg2Norm, relNorm=0.1, syst=0.5, cnst=0.):
 
-    nbound = ncat+1
+    nbound = ncat+2 ## book one fake category, since the last boundary is not floated by Minuit for some reason
     quantilesX = numpy.zeros(nbound)
     quantilesY = numpy.zeros(nbound)
     prbs      = numpy.arange(0.,1.,1./ncat)
@@ -64,13 +65,13 @@ def optimizeNcat2D(ncat, ws, sigPx, sigPy, sigIntegral, bkgIntegral1, bkgIntegra
     sigPy.GetQuantiles(ncat,quantilesY,prbs)
     quantilesX[ncat] = 1.
     quantilesY[ncat] = 1.
-    print quantilesX, quantilesY
 
-    fomDen = ROOT.TF3("fomden","x[1]+[1]*x[2] + 2*[0]*[1]*sqrt(x[1]+[1]*x[2])*x[2] + [0]*[0]*[1]*[1]*x[2]*x[2]",0.,1.e+3,0.,1.e+3,0.,1.e+3)
+    fomDen = ROOT.TF3("fomden","x[1]+[1]*x[2] + 2*[0]*[1]*sqrt(x[1]+[1]*x[2])*x[2] + [0]*[0]*[1]*[1]*x[2]*x[2] + [2]*[2]",0.,1.e+3,0.,1.e+3,0.,1.e+3)
     fomDen.SetParameter(0,syst)
     fomDen.SetParameter(1,relNorm)
+    fomDen.SetParameter(2,cnst)
 
-    pws = ROOT.PieceWise2DSignif(nbound,sigIntegral,bkgIntegral1,bkgIntegral2,fomDen,cutoff1,cutoff2,sigNorm,bkg1Norm,bkg2Norm)
+    pws = ROOT.PieceWise2DSignif(nbound,isCdf,sigIntegral,bkgIntegral1,bkgIntegral2,fomDen,cutoff1,cutoff2,sigNorm,bkg1Norm,bkg2Norm)
         
     minimizer = ROOT.TMinuitMinimizer()
     minimizer.SetFunction(pws)
@@ -80,21 +81,20 @@ def optimizeNcat2D(ncat, ws, sigPx, sigPy, sigIntegral, bkgIntegral1, bkgIntegra
         minimizer.SetLimitedVariable(ivar,       "deltaBoundX%d" % ivar, quantilesX[nbound-ivar]-quantilesX[nbound-ivar-1],1.e-3,cutoff1,1.)
         minimizer.SetLimitedVariable(ivar+nbound,"deltaBoundY%d" % ivar, quantilesY[nbound-ivar]-quantilesY[nbound-ivar-1],1.e-3,cutoff2,1.)
 
-    minimizer.PrintResults()
+    ### minimizer.PrintResults()
     minimizer.Minimize()
     minimizer.PrintResults()
     maxval = sqrt(-minimizer.MinValue())
     xvar = minimizer.X()
     boundariesX = [ xvar[0] ]
     boundariesY = [ xvar[nbound] ]
-    for ivar in range(1,nbound):
+    for ivar in range(1,nbound-1):
         boundariesX.append( boundariesX[-1] - xvar[ivar] )
         boundariesY.append( boundariesY[-1] - xvar[ivar+nbound] )
         
     print "---------------------------------------------"
     print "input  ncat: ", ncat
     print "output ncat: ", len(boundariesX)-1, len(boundariesY)-1
-    ## print "max: %1.3g %1.3g" % ( maxval, maxval2 )
     print "max: %1.3g" % ( maxval )
     print "boundariesX: ",
     for b in boundariesX:
@@ -134,10 +134,13 @@ def optimize2D(fin):
     except:
         ws = ROOT.RooWorkspace("ws","ws")
         ws.rooImport = getattr(ws,'import')
-        mva1 = ws.factory("mva1[1.,%f.,1.]" % xmin1 )
-        mva2 = ws.factory("mva2[1.,%f.,1.]" % xmin2 )
+        mva1 = ws.factory("mva1[1.,%f.,1.001]" % xmin1 )
+        mva2 = ws.factory("mva2[1.,%f.,1.001]" % xmin2 )
         varSet = ROOT.RooArgSet(mva1,mva2)
         varList = ROOT.RooArgList(mva1,mva2)
+
+        mva1.setBins(1001)
+        mva2.setBins(1001)
 
         sig = fin.Get("sig")
         bkg1 = fin.Get("bkg1")
@@ -146,22 +149,45 @@ def optimize2D(fin):
         sigDs = ROOT.RooDataSet("sigDs","sigDs",sig,varSet)
         bkg1Ds = ROOT.RooDataSet("bkg1Ds","bkg1Ds",bkg1,varSet)
         bkg2Ds = ROOT.RooDataSet("bkg2Ds","bkg2Ds",bkg2,varSet)
-        
+
+        ### sigHDs  = sigDs.binnedClone()
+        ### bkg1HDs = bkg1Ds.binnedClone()
+        ### bkg2HDs = bkg2Ds.binnedClone()
+
         sigHisto = sigDs.createHistogram(mva1,mva2)
+        bkg1Histo = bkg1Ds.createHistogram(mva1,mva2)
+        bkg2Histo = bkg2Ds.createHistogram(mva1,mva2)
         sigHistoX = sigHisto.ProjectionX()
         sigHistoY = sigHisto.ProjectionY()
 
         print
         print "-----------------------------------------------------------------------------"
         print
-        print "Fitting RooKeyPdfs: this takes a while (and they cannot be persisted.....)"
-        sigPdf = ROOT.RooNDKeysPdf("sigPdf","sigPdf",varList,sigDs,"amvv")
-        print "sigPdf done"
-        bkg1Pdf = ROOT.RooNDKeysPdf("bkg1Pdf","bkg1Pdf",varList,bkg1Ds,"amvv")
-        print "bkg1Pdf done"
-        bkg2Pdf = ROOT.RooNDKeysPdf("bkg2Pdf","bkg2Pdf",varList,bkg2Ds,"amvv")
-        print "bkg2Pdf done"
-        
+        ### print "Fitting RooKeyPdfs: this takes a while (and they cannot be persisted.....)"
+        ### sigPdf = ROOT.RooNDKeysPdf("sigPdf","sigPdf",varList,sigDs,"amvv")
+        ### print "sigPdf done"
+        ### bkg1Pdf = ROOT.RooNDKeysPdf("bkg1Pdf","bkg1Pdf",varList,bkg1Ds,"amvv")
+        ### print "bkg1Pdf done"
+        ### bkg2Pdf = ROOT.RooNDKeysPdf("bkg2Pdf","bkg2Pdf",varList,bkg2Ds,"amvv")
+        ### print "bkg2Pdf done"
+
+        ### sigPdf = ROOT.RooHistPdf("sigPdf","sigPdf",varSet,sigHDs)
+        ### print "sigPdf done"
+        ### bkg1Pdf = ROOT.RooHistPdf("bkg1Pdf","bkg1Pdf",varSet,bkg1HDs)
+        ### print "bkg1Pdf done"
+        ### bkg2Pdf = ROOT.RooHistPdf("bkg2Pdf","bkg2Pdf",varSet,bkg2HDs)
+        ### print "bkg2Pdf done"
+
+        #### sigCdf = sigPdf.createCdf(varSet)
+        #### bkg1Cdf = bkg1Pdf.createCdf(varSet)
+        #### bkg2Cdf = bkg2Pdf.createCdf(varSet)
+        #### 
+        #### sigCdf.getObservables(sigDs).dump()
+
+        sigHistoIntegral  = ROOT.integrate2D(sigHisto)
+        bkg1HistoIntegral = ROOT.integrate2D(bkg1Histo)
+        bkg2HistoIntegral = ROOT.integrate2D(bkg2Histo)
+
         ws.rooImport(mva1)
         ws.rooImport(mva2)
         ws.rooImport(sig)
@@ -173,22 +199,46 @@ def optimize2D(fin):
 
         ##ws.writeToFile("vbfmva_input.root")
 
-    sigTF2 = sigPdf.asTF(varList)
-    bkg1TF2 = bkg1Pdf.asTF(varList)
-    bkg2TF2 = bkg2Pdf.asTF(varList)
+    ### sigTF2 = sigPdf.asTF(varList)
+    ### bkg1TF2 = bkg1Pdf.asTF(varList)
+    ### bkg2TF2 = bkg2Pdf.asTF(varList)
+    ### isCdf=False
+        
+    ### sigTF2 = sigCdf.asTF(varList)
+    ### bkg1TF2 = bkg1Cdf.asTF(varList)
+    ### bkg2TF2 = bkg2Cdf.asTF(varList)
+    ### isCdf = True
+
+    ### sigHistoToTF2  = ROOT.SimpleHistoToTF2("sigHistoToTF2",sigHisto)
+    ### sigTF2         = ROOT.TF2("sigTF2",sigHistoToTF2,xmin1,1,xmin2,1,0,"SimpleHistoToTF2")
+    ### bkg1HistoToTF2 = ROOT.SimpleHistoToTF2("bkg1HistoToTF2",bkg1Histo)
+    ### bkg1TF2        = ROOT.TF2("bkg1TF2",bkg1HistoToTF2,xmin1,1,xmin2,1,0,"SimpleHistoToTF2")
+    ### bkg2HistoToTF2 = ROOT.SimpleHistoToTF2("bkg2HistoToTF2",bkg2Histo)
+    ### bkg2TF2        = ROOT.TF2("bkg2TF2",bkg2HistoToTF2,xmin1,1,xmin2,1,0,"SimpleHistoToTF2")
+    ### isCdf = False
+
+    sigHistoToTF2  = ROOT.SimpleHistoToTF2("sigHistoToTF2",sigHistoIntegral)
+    sigTF2         = ROOT.TF2("sigTF2",sigHistoToTF2,xmin1,1,xmin2,1,0,"SimpleHistoToTF2")
+    bkg1HistoToTF2 = ROOT.SimpleHistoToTF2("bkg1HistoToTF2",bkg1HistoIntegral)
+    bkg1TF2        = ROOT.TF2("bkg1TF2",bkg1HistoToTF2,xmin1,1,xmin2,1,0,"SimpleHistoToTF2")
+    bkg2HistoToTF2 = ROOT.SimpleHistoToTF2("bkg2HistoToTF2",bkg2HistoIntegral)
+    bkg2TF2        = ROOT.TF2("bkg2TF2",bkg2HistoToTF2,xmin1,1,xmin2,1,0,"SimpleHistoToTF2")
+    isCdf = True
 
     canv2 = ROOT.TCanvas("canv2","canv2")
     canv2.cd()
-    sigTF2.SetLineColor(ROOT.kRed)
-    bkg1TF2.SetLineColor(ROOT.kMagenta)
+    ## sigHisto.Draw("colz")
+    sigTF2.SetLineColor(ROOT.kBlue)
+    bkg1TF2.SetLineColor(ROOT.kRed)
+    bkg2TF2.SetLineColor(ROOT.kMagenta)
     sigTF2.Draw("")
     bkg1TF2.Draw("SAME")
     bkg2TF2.Draw("SAME")
 
-
-    raw_input("aa")
-    optmizeCats( optimizeNcat2D, ws, (sigHistoX,sigHistoY,sigTF2,bkg1TF2,bkg2TF2,xmin1,xmin2,cutoff1,cutoff2,
+    raw_input("Go?")
+    optmizeCats( optimizeNcat2D, ws, (isCdf,sigHistoX,sigHistoY,sigTF2,bkg1TF2,bkg2TF2,xmin1,xmin2,cutoff1,cutoff2,
                                       sigDs.sumEntries(), bkg1Ds.sumEntries(), bkg2Ds.sumEntries() ) )
+    #### 1., 1., 1. ) )
 
     return ws
 
@@ -285,40 +335,6 @@ def optimize1D(fin):
     sigTF1.Draw("")
     bkgTF1.Draw("SAME")
     ws.rooImport(canv2)
-    
-    #### grS = ROOT.TGraph()
-    #### grS.SetName("zVsNcat")
-    #### summary = {}
-    #### for iter in range(1,9):
-    ####     boundaries,z = optimizeNcat(iter,ws,mva,hsig,sigTF1,bkgTF1,xmin,cutoff)
-    ####     z*=sqrt(6.7)
-    ####     ncat = len(boundaries)-1
-    ####     if not ncat in summary or summary[ncat]["z"] < z: 
-    ####         summary[ncat] =  { "z" : z, "boundaries" : boundaries, "ncat": ncat }
-    #### for ncat,val in summary.iteritems():
-    ####     grS.SetPoint( grS.GetN(), ncat, val["z"] )
-    #### 
-    #### canv1 = ROOT.TCanvas("canv1","canv1")
-    #### canv1.cd()
-    #### grS.SetMarkerStyle(ROOT.kFullCircle)
-    #### grS.Draw("AP")
-    #### 
-    #### canv2 = ROOT.TCanvas("canv2","canv2")
-    #### canv2.cd()
-    #### sigTF1.SetLineColor(ROOT.kRed)
-    #### sigTF1.Draw("")
-    #### bkgTF1.Draw("SAME")
-    #### 
-    #### ws.rooImport(canv1)
-    #### ws.rooImport(canv2)
-    #### ws.rooImport(grS)
-    #### 
-    #### raw_input("aa")
-    #### 
-    #### sout = open("vbfmva_opt.json","w+")
-    #### sout.write( json.dumps(summary) )
-    #### 
-    #### ws.writeToFile("vbfmva_opt.root")
 
     return ws
 
@@ -329,7 +345,7 @@ def main(fname):
     ROOT.gSystem.SetIncludePath("-I$ROOTSYS/include -I$ROOFITSYS/include")
     ROOT.gROOT.LoadMacro("NaiveBoundaryOptimization.C+")
 
-    ROOT.RooMsgService.instance().setGlobalKillBelow(ROOT.RooFit.ERROR)
+    ### ROOT.RooMsgService.instance().setGlobalKillBelow(ROOT.RooFit.ERROR)
     
     ## ws = optimize1D(fin)
     ws = optimize2D(fin)
