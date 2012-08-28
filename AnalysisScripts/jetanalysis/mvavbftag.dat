@@ -6,5 +6,10 @@ subleadEtVBFCut=25
 
 mvaVbfCatBoundaries=1.,0.985,0.93 
 
+multiclassVbfSelection=0
+multiclassVbfCatBoundaries1=1.,0.9,0.
+multiclassVbfCatBoundaries2=1.,0.95,0.
+#mvaVbfWeights=aux/TMVA_multiclass_vbf_diphopt_phopt_BDTG.weights.xml
+
 ## mvaVbfCatBoundaries=1.,0.985,0.968,0.92 
 ## bkgPolOrderByCat=4,5,5,5,3,3,4
