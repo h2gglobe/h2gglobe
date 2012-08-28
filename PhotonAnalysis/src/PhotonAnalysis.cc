@@ -2555,7 +2555,7 @@ bool PhotonAnalysis::VBFTag2012(int & ijet1, int & ijet2,
     myVBF_thetaJ1 = leadingBoosted.Angle(jet1Boosted.Vect());
     myVBF_thetaJ2 = leadingBoosted.Angle(jet2Boosted.Vect());
     
-    if( mvaVbfSelection || multiclassVbfSelection ) { 
+    if( mvaVbfSelection ) { 
 	if( myVBFLeadJPt>20. && myVBFSubJPt>20. && myVBF_Mjj > 100. ) { // FIXME hardcoded pre-selection thresholds
 	    if(nm1 && myVBF_Mgg>massMin && myVBF_Mgg<massMax) { 
 		l.FillCutPlots(0,1,"_nminus1",eventweight,myweight); 
@@ -2565,13 +2565,13 @@ bool PhotonAnalysis::VBFTag2012(int & ijet1, int & ijet2,
 		tag       = (myVBF_MVA > mvaVbfCatBoundaries.back());
 	    }
 	    else {
-		myVBF_MVA0 = tmvaVbfReader_->EvaluateMulticlass(mvaVbfMethod)[0]; // signal BDTG
+		myVBF_MVA0 = tmvaVbfReader_->EvaluateMulticlass(mvaVbfMethod)[0]; // signal vbf
 		myVBF_MVA1 = tmvaVbfReader_->EvaluateMulticlass(mvaVbfMethod)[1]; // dipho
 		myVBF_MVA2 = tmvaVbfReader_->EvaluateMulticlass(mvaVbfMethod)[2]; // gluglu
-		// FIXME : check that the transformation for mva1 and mva2 is OK
-		myVBF_MVA1=-myVBF_MVA1+1;
-		myVBF_MVA2=-myVBF_MVA2+1;
-		tag        = (myVBF_MVA0 > multiclassVbfCatBoundaries1.back() || myVBF_MVA2 > multiclassVbfCatBoundaries2.back() );
+		//do transformation for bkg mvas
+		myVBF_MVA1 = -myVBF_MVA1+1;
+		myVBF_MVA2 = -myVBF_MVA2+1;
+		tag        = (myVBF_MVA0 > multiclassVbfCatBoundaries1.back() && myVBF_MVA2 > multiclassVbfCatBoundaries2.back() );
 	    }
 	    
 	    // this is moved to StatAnalysis::fillControlPlots
