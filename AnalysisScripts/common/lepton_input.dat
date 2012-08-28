@@ -1,0 +1,66 @@
+## File format:
+## 	<branc_name>[:<branch_type>] 
+## where:
+## 	<branch_type> = 0 for branches to be always read
+## 	<branch_type> = 1 for branches to be read only for MC
+
+###
+### photon/electron branches
+###
+pho_drtotk_25_99
+
+met_pfmet
+met_phi_pfmet
+
+###
+### muons
+###
+mu_glo_n
+mu_glo_p4
+mu_glo_type
+mu_glo_chi2
+mu_glo_dof
+mu_glo_pixelhits
+mu_glo_validhits
+mu_glo_validChmbhits
+mu_glo_nmatches
+mu_glo_ecaliso03
+mu_glo_hcaliso03
+mu_glo_tkiso03
+mu_glo_D0Vtx
+mu_glo_DZVtx
+mu_tkLayers
+mu_glo_chhadiso04
+mu_glo_nehadiso04
+mu_glo_photiso04
+mu_dbCorr
+
+###
+### electrons
+###
+el_std_n
+el_std_p4
+el_std_sc
+el_std_sieie
+el_std_dphiin
+el_std_detain
+el_std_tkiso03
+el_std_ecaliso03
+el_std_hcaliso03
+el_std_dcot
+el_std_dist
+el_std_hoe
+el_std_hp_expin
+el_std_D0Vtx
+el_std_DZVtx
+el_std_pfiso_charged
+el_std_pfiso_neutral
+el_std_pfiso_photon
+el_std_conv_vtxProb
+el_std_conv
+el_std_eopin
+el_std_pin
+el_std_posvtx
+el_std_mva_trig
+el_std_mva_nontrig
+
