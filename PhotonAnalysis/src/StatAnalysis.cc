@@ -139,7 +139,7 @@ void StatAnalysis::Init(LoopAll& l)
     nPhotonCategories_ = nEtaCategories;
     if( nR9Categories != 0 ) nPhotonCategories_ *= nR9Categories;
     
-    nVBFCategories   = ((int)includeVBF)*( mvaVbfSelection ? mvaVbfCatBoundaries.size()-1 : nVBFEtaCategories*nVBFDijetJetCategories );
+    nVBFCategories   = ((int)includeVBF)*( (mvaVbfSelection && !multiclassVbfSelection) ? mvaVbfCatBoundaries.size()-1 : nVBFEtaCategories*nVBFDijetJetCategories );
     std::sort(mvaVbfCatBoundaries.begin(),mvaVbfCatBoundaries.end(), std::greater<float>() );
     if (multiclassVbfSelection) {
 	nVBFCategories   = (max(multiclassVbfCatBoundaries1.size(), multiclassVbfCatBoundaries2.size())-1);
@@ -1002,8 +1002,11 @@ void StatAnalysis::FillRooContainer(LoopAll& l, int cur_type, float mass, float 
 	l.FillTree("category",category);
 	l.FillTree("diphotonMVA",diphotonMVA);
 	l.FillTree("vbfMVA",myVBF_MVA);
+	l.FillTree("vbfMVA0",myVBF_MVA0);
+	l.FillTree("vbfMVA1",myVBF_MVA1);
+	l.FillTree("vbfMVA2",myVBF_MVA2);
 	l.FillTree("VBFevent", VBFevent);
-	if( myVBF_MVA > -2. || VBFevent ) {
+	if( myVBF_MVA > -2. ||  myVBF_MVA0 > -2 || myVBF_MVA1 > -2 || myVBF_MVA2 > -2 || VBFevent ) {
 	    l.FillTree("deltaPhiJJ",myVBF_deltaPhiJJ);
 	    l.FillTree("deltaPhiGamGam", myVBF_deltaPhiGamGam);
 	    l.FillTree("etaJJ", myVBF_etaJJ);
@@ -1081,12 +1084,12 @@ void StatAnalysis::computeExclusiveCategory(LoopAll & l, int & category, std::pa
 {
     if(VBFevent)        {
 	category=nInclusiveCategories_;
-	if( mvaVbfSelection && !multiclassVbfSelection) { 
-	    category += categoryFromBoundaries(mvaVbfCatBoundaries, myVBF_MVA);
+	if( mvaVbfSelection ) { 
+	    if (!multiclassVbfSelection) 
+		category += categoryFromBoundaries(mvaVbfCatBoundaries, myVBF_MVA);
+	    else 
+		category += categoryFromBoundaries2D(multiclassVbfCatBoundaries1, multiclassVbfCatBoundaries2, myVBF_MVA0, myVBF_MVA2);
 	} 
-	else if (multiclassVbfSelection) {
-	    category += categoryFromBoundaries2D(multiclassVbfCatBoundaries1, multiclassVbfCatBoundaries2, myVBF_MVA0, myVBF_MVA2);
-	}
  	else {
 	    category += l.DiphotonCategory(diphoton_index.first,diphoton_index.second,pt,nVBFEtaCategories,1,1) 
 		+ nVBFEtaCategories*l.DijetSubCategory(myVBF_Mjj,myVBFLeadJPt,myVBFSubJPt,nVBFDijetJetCategories)
@@ -1179,11 +1182,12 @@ void StatAnalysis::fillControlPlots(const TLorentzVector & lead_p4, const  TLore
 	l.FillHist("pho_rawe",category+1,l.sc_raw[l.pho_scind[l.dipho_leadind[diphoton_id]]], evweight);
 	l.FillHist("pho_rawe",category+1,l.sc_raw[l.pho_scind[l.dipho_subleadind[diphoton_id]]], evweight);
 	
-	if( mvaVbfSelection || multiclassVbfSelection ) {
+	if( mvaVbfSelection ) {
 	    if (!multiclassVbfSelection) 
 		l.FillHist("vbf_mva",category+1,myVBF_MVA,evweight);
 	    else {
-		l.FillHist("vbf_mva1",category+1,myVBF_MVA0,evweight);
+		l.FillHist("vbf_mva0",category+1,myVBF_MVA0,evweight);
+		l.FillHist("vbf_mva1",category+1,myVBF_MVA1,evweight);
 		l.FillHist("vbf_mva2",category+1,myVBF_MVA2,evweight);
 	    }
 
