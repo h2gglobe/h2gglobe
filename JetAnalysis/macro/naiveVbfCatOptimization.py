@@ -6,6 +6,7 @@ import numpy
 from math import sqrt
 import json
 
+# -----------------------------------------------------------------------------------------------------------
 def readPlot(fin, name, cat=0, which=[""], samples=["diphojet_8TeV","ggh_m125_8TeV","vbf_m125_8TeV",]):
 
     ret = []
@@ -20,6 +21,7 @@ def readPlot(fin, name, cat=0, which=[""], samples=["diphojet_8TeV","ggh_m125_8T
             
     return ret
 
+# -----------------------------------------------------------------------------------------------------------
 def optmizeCats(func, ws, args):
     
     grS = ROOT.TGraph()
@@ -48,7 +50,9 @@ def optmizeCats(func, ws, args):
 
     ws.writeToFile("vbfmva_opt.root")
 
-def optimizeNcat2D(ncat, ws, sigPx, sigPy, sigIntegral, bkgIntegral1, bkgIntegral2, xmin1, xmin2, cutoff1, cutoff2,
+# -----------------------------------------------------------------------------------------------------------
+def optimizeNcat2D(ncat, ws, sigPx, sigPy, sigIntegral, bkgIntegral1, bkgIntegral2, xmin1, xmin2,
+                   cutoff1, cutoff2,
                    sigNorm, bkg1Norm, bkg2Norm, relNorm=0.1, syst=0.5):
 
     nbound = ncat+1
@@ -105,7 +109,7 @@ def optimizeNcat2D(ncat, ws, sigPx, sigPy, sigIntegral, bkgIntegral1, bkgIntegra
     return (boundariesX,boundariesY),maxval
 
 
-
+# -----------------------------------------------------------------------------------------------------------
 def optimize2D(fin):
     xmin1 = 0.
     xmin2 = 0.
@@ -147,6 +151,9 @@ def optimize2D(fin):
         sigHistoX = sigHisto.ProjectionX()
         sigHistoY = sigHisto.ProjectionY()
 
+        print
+        print "-----------------------------------------------------------------------------"
+        print
         print "Fitting RooKeyPdfs: this takes a while (and they cannot be persisted.....)"
         sigPdf = ROOT.RooNDKeysPdf("sigPdf","sigPdf",varList,sigDs,"amvv")
         print "sigPdf done"
@@ -181,10 +188,11 @@ def optimize2D(fin):
 
     raw_input("aa")
     optmizeCats( optimizeNcat2D, ws, (sigHistoX,sigHistoY,sigTF2,bkg1TF2,bkg2TF2,xmin1,xmin2,cutoff1,cutoff2,
-                                      sigDs.sumEntries(), bkg1Pdf.sumEntries(), bkg2Pdf.sumEntries() ) )
+                                      sigDs.sumEntries(), bkg1Ds.sumEntries(), bkg2Ds.sumEntries() ) )
 
     return ws
 
+# -----------------------------------------------------------------------------------------------------------
 def optimizeNcat(ncat, ws, sig, sigIntegral, bkgIntegral, xmin, cutoff):
 
     nbound = ncat+1
@@ -224,6 +232,7 @@ def optimizeNcat(ncat, ws, sig, sigIntegral, bkgIntegral, xmin, cutoff):
     
     return boundaries,maxval
 
+# -----------------------------------------------------------------------------------------------------------
 def optimize1D(fin):
     xmin = -1.
     cutoff = 0.015
@@ -312,14 +321,15 @@ def optimize1D(fin):
     #### ws.writeToFile("vbfmva_opt.root")
 
     return ws
-        
+
+# -----------------------------------------------------------------------------------------------------------
 def main(fname):
 
     fin = ROOT.TFile.Open(fname)
     ROOT.gSystem.SetIncludePath("-I$ROOTSYS/include -I$ROOFITSYS/include")
     ROOT.gROOT.LoadMacro("NaiveBoundaryOptimization.C+")
 
-    ## ROOT.RooMsgService.instance().setGlobalKillBelow(ROOT.RooFit.ERROR)
+    ROOT.RooMsgService.instance().setGlobalKillBelow(ROOT.RooFit.ERROR)
     
     ## ws = optimize1D(fin)
     ws = optimize2D(fin)
