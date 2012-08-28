@@ -1,0 +1,7 @@
+output=my_reduced_tuple_foo.root
+Fil=/home/users/matteo/run2012C.root typ=0
+
+inputBranches tapanalysis/reduction_input.dat
+outputBranches tapanalysis/reduction_output.dat
+
+analyzer TapAnalysis tapanalysis/tapanalysis.dat

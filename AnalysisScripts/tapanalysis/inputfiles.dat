@@ -1,0 +1,10 @@
+intL=3770. histfile=out.root output=eventList.txt
+
+typ=0 ind=0 draw=1 Nam=Data Fil=/home/users/matteo/CMSSW_5_2_6/src/h2gglobe/AnalysisScripts/my_reduced_tuple_foo.root lum=1.0e+10 xsec=1.0      kfac=1.0  scal=1. 
+#json=tapanalysis/latest_prompt_noCSC_NoLowPU_2012.json
+
+plotvariables tapanalysis/plotvariables_tapanalysis.dat
+treevariables tapanalysis/treevariables_tapanalysis.dat
+inputBranches tapanalysis/process_input.dat
+
+analyzer TapAnalysis tapanalysis/tapanalysis.dat

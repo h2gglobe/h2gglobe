@@ -1,0 +1,56 @@
+->
+File format:
+        <branch_name>[:<branch_type>]
+where:
+        <branch_type> = 0 for branches to be always read
+        <branch_type> = 1 for branches to be read only for MC
+->
+rho_algo1
+
+el_std_n
+el_std_sc
+el_std_posvtx
+
+el_std_scind
+el_std_tkind
+
+hlt_path_names_HLT
+hlt_bit
+
+tk_n
+tk_p4
+tk_vtx_pos
+
+pho_n
+pho_p4
+pho_pfiso_mycharged02
+pho_pfiso_mycharged03
+pho_pfiso_mycharged04
+pho_scind
+pho_pfiso_myphoton03
+pho_pfiso_myneutral03
+pho_sieie
+pho_sieip
+pho_etawidth
+pho_r9
+pho_lambdaratio
+pho_isEB
+# FIXME witht the correct value
+pho_e2x2
+pho_e5x5
+# FIXME witht the correct value
+pho_eseffsixix
+pho_eseffsiyiy
+
+vtx_std_n
+vtx_std_xyz
+
+sc_xyz
+sc_seta
+sc_sphi
+
+pfcand_n                                                                                                                                                                       
+pfcand_p4                                                                                                                                                                      
+pfcand_pdgid                                                                                                                                                                   
+pfcand_posvtx                                                                                                                                                                  
+

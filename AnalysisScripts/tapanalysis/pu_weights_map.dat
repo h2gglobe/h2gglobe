@@ -1,0 +1,85 @@
+## Format: <type_id> <TDirectory name>
+
+## 0 is the default set
+0 gluglu_H_gg_124_0 
+
+11 qcd_pp_30
+12 qcd_pf_30
+13 qcd_ff_30
+#21 qcd_pp_40
+#22 qcd_pf_40
+#23 qcd_ff_40
+31 gjet_pp_20
+32 gjet_pf_20
+33 gjet_ff_20
+34 gjet_pp_40
+35 gjet_pf_40
+36 gjet_ff_40
+#4 di_photon_jets_0
+41 di_photon_born_T2_10
+42 di_photon_born_Ro_25
+43 di_photon_born_T2_250
+44 di_photon_box_T2_10
+45 di_photon_box_T2_25
+46 di_photon_box_T2_250
+5 dy_jets_50
+
+#-57 gluglu_H_gg_123_0
+#-58 vbf_H_gg_123_0    
+#-60 wz_H_gg_123_0     
+#-59 tt_H_gg_123_0     
+#
+#-53 gluglu_H_gg_121_0 
+#-54 vbf_H_gg_121_0    
+#-56 wz_H_gg_121_0    
+#-55 tt_H_gg_121_0    
+
+-49 gluglu_H_gg_150_0 
+-50 vbf_H_gg_150_0    
+#-52 wz_H_gg_150_0     
+#-51 tt_H_gg_150_0     
+#
+#-45 gluglu_H_gg_145_0 
+#-46 vbf_H_gg_145_0    
+#-48 wz_H_gg_145_0     
+#-47 tt_H_gg_145_0     
+
+-33 gluglu_H_gg_140_0 
+-34 vbf_H_gg_140_0 
+#-36 wz_H_gg_140_0 
+#-35 tt_H_gg_140_0 
+#
+#-41 gluglu_H_gg_135_0
+#-42 vbf_H_gg_135_0   
+#-44 wz_H_gg_135_0    
+#-43 tt_H_gg_135_0    
+#
+#-29 gluglu_H_gg_130_0 
+#-30 vbf_H_gg_130_0 
+#-32 wz_H_gg_130_0 
+#-31 tt_H_gg_130_0 
+
+-37 gluglu_H_gg_124_0
+-38 vbf_H_gg_124_0    
+#-40 wz_H_gg_124_0     
+#-39 tt_H_gg_124_0     
+
+-25 gluglu_H_gg_120_0 
+-26 vbf_H_gg_120_0 
+#-28 wz_H_gg_120_0 
+#-27 tt_H_gg_120_0
+#
+#-21 gluglu_H_gg_115_0 
+#-22 vbf_H_gg_115_0 
+#-24 wz_H_gg_115_0 
+#-23 tt_H_gg_115_0 
+
+-17 gluglu_H_gg_110_0 
+-18 vbf_H_gg_110_0 
+#-19 wz_H_gg_110_0 
+#-20 tt_H_gg_110_0
+
+#-13 gluglu_H_gg_105_0
+#-14 vbf_H_gg_105_0 	 
+#-16 wz_H_gg_105_0    
+#-15 tt_H_gg_105_0    
