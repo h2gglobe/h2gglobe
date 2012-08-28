@@ -43,7 +43,7 @@ text = """
 #ifndef __XXX__
 #define __XXX__
 
-#include \"YYY.h\"
+#include \"YYY\"
 
 // ------------------------------------------------------------------------------------
 class XXX : public ZZZ {
@@ -67,7 +67,7 @@ class XXX : public ZZZ {
   
   virtual bool SkimEvents(LoopAll&, int);
   virtual bool SelectEvents(LoopAll&, int);
-  virtual void Analysis(LoopAll&, Int_t);
+  virtual bool Analysis(LoopAll&, Int_t);
   
  protected:
   std::string name_;
@@ -80,7 +80,7 @@ text = text.replace("ZZZ", parent)
 if (parent == "BaseAnalysis"):
     text = text.replace("YYY", parent+".h")
 else:
-    text = text.replace("YYY", parent+"/include/"+parent+".h")
+    text = text.replace("YYY", parent+"/interface/"+parent+".h")
 file.write(text)
 file.close()
 
@@ -117,7 +117,7 @@ void XXX::Init(LoopAll& l) {
 }
 
 // ----------------------------------------------------------------------------------------------------
-void XXX::Analysis(LoopAll& l, Int_t jentry) {
+bool XXX::Analysis(LoopAll& l, Int_t jentry) {
   if(XXXDEBUG) 
     cout <<\"Analysis START\"<<endl;
   

@@ -1773,6 +1773,7 @@ bool PhotonAnalysis::SkimEvents(LoopAll& l, int jentry)
     // do not run trigger selection on MC
     int filetype = l.itype[l.current];
     bool skipTrigger = !doTriggerSelection || filetype != 0 || triggerSelections.empty();
+
     if( ! skipTrigger ) {
         // get the trigger selection for this run 
         l.b_run->GetEntry(jentry);
@@ -1798,7 +1799,7 @@ bool PhotonAnalysis::SkimEvents(LoopAll& l, int jentry)
 	}
 	//l.countersred[trigCounter_]++;
     }
-    
+
     if( l.typerun == l.kReduce || l.typerun == l.kFillReduce ) {
         //// if( filetype == 2 ) { // photon+jet
         ////    l.b_process_id->GetEntry(jentry);
