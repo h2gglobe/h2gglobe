@@ -141,6 +141,12 @@ void StatAnalysis::Init(LoopAll& l)
     
     nVBFCategories   = ((int)includeVBF)*( mvaVbfSelection ? mvaVbfCatBoundaries.size()-1 : nVBFEtaCategories*nVBFDijetJetCategories );
     std::sort(mvaVbfCatBoundaries.begin(),mvaVbfCatBoundaries.end(), std::greater<float>() );
+    if (multiclassVbfSelection) {
+	nVBFCategories   = (max(multiclassVbfCatBoundaries1.size(), multiclassVbfCatBoundaries2.size())-1);
+	std::sort(multiclassVbfCatBoundaries1.begin(),multiclassVbfCatBoundaries1.end(), std::greater<float>() );
+	std::sort(multiclassVbfCatBoundaries2.begin(),multiclassVbfCatBoundaries2.end(), std::greater<float>() );
+    }
+
     nVHhadCategories = ((int)includeVHhad)*nVHhadEtaCategories;
     nVHlepCategories = (int)includeVHlep * 2;
     nVHmetCategories = (int)includeVHmet;  //met at analysis step
@@ -1075,9 +1081,13 @@ void StatAnalysis::computeExclusiveCategory(LoopAll & l, int & category, std::pa
 {
     if(VBFevent)        {
 	category=nInclusiveCategories_;
-	if( mvaVbfSelection ) { 
+	if( mvaVbfSelection && !multiclassVbfSelection) { 
 	    category += categoryFromBoundaries(mvaVbfCatBoundaries, myVBF_MVA);
-	} else {
+	} 
+	else if (multiclassVbfSelection) {
+	    category += categoryFromBoundaries2D(multiclassVbfCatBoundaries1, multiclassVbfCatBoundaries2, myVBF_MVA0, myVBF_MVA2);
+	}
+ 	else {
 	    category += l.DiphotonCategory(diphoton_index.first,diphoton_index.second,pt,nVBFEtaCategories,1,1) 
 		+ nVBFEtaCategories*l.DijetSubCategory(myVBF_Mjj,myVBFLeadJPt,myVBFSubJPt,nVBFDijetJetCategories)
 		;
@@ -1102,7 +1112,13 @@ int StatAnalysis::categoryFromBoundaries(std::vector<float> & v, float val)
     return cat;
 }
 
-
+int StatAnalysis::categoryFromBoundaries2D(std::vector<float> & v1, std::vector<float> & v2, float val1, float val2)
+{
+    int cat1temp =  categoryFromBoundaries(v1,val1);
+    int cat2temp =  categoryFromBoundaries(v2,val2);
+    int cat = max(cat1temp, cat2temp);
+    return cat;
+}
 
 // ----------------------------------------------------------------------------------------------------
 void StatAnalysis::fillControlPlots(const TLorentzVector & lead_p4, const  TLorentzVector & sublead_p4, const TLorentzVector & Higgs, 
@@ -1163,8 +1179,14 @@ void StatAnalysis::fillControlPlots(const TLorentzVector & lead_p4, const  TLore
 	l.FillHist("pho_rawe",category+1,l.sc_raw[l.pho_scind[l.dipho_leadind[diphoton_id]]], evweight);
 	l.FillHist("pho_rawe",category+1,l.sc_raw[l.pho_scind[l.dipho_subleadind[diphoton_id]]], evweight);
 	
-	if( mvaVbfSelection ) {
-	    l.FillHist("vbf_mva",category+1,myVBF_MVA,evweight);
+	if( mvaVbfSelection || multiclassVbfSelection ) {
+	    if (!multiclassVbfSelection) 
+		l.FillHist("vbf_mva",category+1,myVBF_MVA,evweight);
+	    else {
+		l.FillHist("vbf_mva1",category+1,myVBF_MVA0,evweight);
+		l.FillHist("vbf_mva2",category+1,myVBF_MVA2,evweight);
+	    }
+
 	    if (VBFevent){
 		float myweight =  1;
 		float sampleweight = l.sampleContainer[l.current_sample_index].weight;

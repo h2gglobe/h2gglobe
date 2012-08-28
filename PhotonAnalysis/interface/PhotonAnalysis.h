@@ -209,11 +209,17 @@ class PhotonAnalysis : public BaseAnalysis
     float  myVBF_MVA;
     float  myVBF_thetaJ1;
     float  myVBF_thetaJ2;
+    float  myVBF_MVA0;
+    float  myVBF_MVA1;
+    float  myVBF_MVA2;
     
     bool bookDiPhoCutsInVbf;
-    bool    mvaVbfSelection, mvaVbfUseDiPhoPt, mvaVbfUsePhoPt;
+    bool mvaVbfSelection, mvaVbfUseDiPhoPt, mvaVbfUsePhoPt;
+    bool multiclassVbfSelection;
     TString mvaVbfWeights, mvaVbfMethod; 
     std::vector<float> mvaVbfCatBoundaries;
+    std::vector<float> multiclassVbfCatBoundaries1;
+    std::vector<float> multiclassVbfCatBoundaries2;
 
     // Smearings / corrections and systematics
     bool  doMCSmearing, doSystematics;

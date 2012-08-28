@@ -104,6 +104,7 @@ class StatAnalysis : public PhotonAnalysis
 
     void  computeExclusiveCategory(LoopAll & l, int & category, std::pair<int,int> diphoton_index, float pt);	
     int  categoryFromBoundaries(std::vector<float> & v, float val);
+    int  categoryFromBoundaries2D(std::vector<float> & v1, std::vector<float> & v2, float val1, float val2);
 
     void fillControlPlots(const TLorentzVector & lead_p4, const  TLorentzVector & sublead_p4, const TLorentzVector & Higgs, 
 			  float lead_r9, float sublead_r9, int diphoton_index, 

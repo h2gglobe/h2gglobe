@@ -70,6 +70,7 @@ PhotonAnalysis::PhotonAnalysis()  :
     mvaVbfUseDiPhoPt=true;
     mvaVbfUsePhoPt=true;
     bookDiPhoCutsInVbf=false;
+    multiclassVbfSelection=false;
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -598,13 +599,13 @@ void PhotonAnalysis::Init(LoopAll& l)
     l.SetCutVariables("cut_VBF_Mgg4_100_180",   &myVBF_Mgg);   
     l.SetCutVariables("cut_VBF_Mgg2_100_180",   &myVBF_Mgg);
     
-    if( mvaVbfSelection || bookDiPhoCutsInVbf ) {
+    if( mvaVbfSelection || multiclassVbfSelection || bookDiPhoCutsInVbf  ) {
         l.SetCutVariables("cut_VBF_DiPhoPtOverM",   &myVBFDiPhoPtOverM);
         l.SetCutVariables("cut_VBF_LeadPhoPtOverM", &myVBFLeadPhoPtOverM);
         l.SetCutVariables("cut_VBF_SubPhoPtOverM",  &myVBFSubPhoPtOverM);
     }
 
-    if( mvaVbfSelection ) {
+    if( mvaVbfSelection || multiclassVbfSelection ) {
 	
 	tmvaVbfReader_ = new TMVA::Reader( "!Color:!Silent" );
 
@@ -623,7 +624,10 @@ void PhotonAnalysis::Init(LoopAll& l)
 	}
 	
 	tmvaVbfReader_->BookMVA( mvaVbfMethod, mvaVbfWeights );
+    
     }
+
+    
     
 
     // n-1 plots for VH hadronic tag 2011
@@ -2532,7 +2536,10 @@ bool PhotonAnalysis::VBFTag2012(int & ijet1, int & ijet2,
     myVBFDiPhoPtOverM   = diphoton.Pt()   / myVBF_Mgg;
     myVBFLeadPhoPtOverM = lead_p4.Pt()    / myVBF_Mgg;
     myVBFSubPhoPtOverM  = sublead_p4.Pt() / myVBF_Mgg;
-    myVBF_MVA = -2.;
+    myVBF_MVA  = -2.;
+    myVBF_MVA0 = -2.;
+    myVBF_MVA1 = -2.;
+    myVBF_MVA2 = -2.;
     myVBF_deltaPhiJJ = jet1->DeltaPhi(*jet2);
     myVBF_deltaPhiGamGam = lead_p4.DeltaPhi(sublead_p4);
     myVBF_etaJJ = (jet1->Eta() + jet2->Eta())/2;
@@ -2547,14 +2554,25 @@ bool PhotonAnalysis::VBFTag2012(int & ijet1, int & ijet2,
     myVBF_thetaJ1 = leadingBoosted.Angle(jet1Boosted.Vect());
     myVBF_thetaJ2 = leadingBoosted.Angle(jet2Boosted.Vect());
     
-    if( mvaVbfSelection ) { 
+    if( mvaVbfSelection || multiclassVbfSelection ) { 
 	if( myVBFLeadJPt>20. && myVBFSubJPt>20. && myVBF_Mjj > 100. ) { // FIXME hardcoded pre-selection thresholds
 	    if(nm1 && myVBF_Mgg>massMin && myVBF_Mgg<massMax) { 
 		l.FillCutPlots(0,1,"_nminus1",eventweight,myweight); 
 	    }
-	    myVBF_MVA = tmvaVbfReader_->EvaluateMVA(mvaVbfMethod);
-	    tag       = (myVBF_MVA > mvaVbfCatBoundaries.back());
-
+	    if (!multiclassVbfSelection){
+		myVBF_MVA = tmvaVbfReader_->EvaluateMVA(mvaVbfMethod);
+		tag       = (myVBF_MVA > mvaVbfCatBoundaries.back());
+	    }
+	    else {
+		myVBF_MVA0 = tmvaVbfReader_->EvaluateMulticlass(mvaVbfMethod)[0]; // signal BDTG
+		myVBF_MVA1 = tmvaVbfReader_->EvaluateMulticlass(mvaVbfMethod)[1]; // dipho
+		myVBF_MVA2 = tmvaVbfReader_->EvaluateMulticlass(mvaVbfMethod)[2]; // gluglu
+		// FIXME : check that the transformation for mva1 and mva2 is OK
+		myVBF_MVA1=-myVBF_MVA1+1;
+		myVBF_MVA2=-myVBF_MVA2+1;
+		tag        = (myVBF_MVA0 > multiclassVbfCatBoundaries1.back() || myVBF_MVA2 > multiclassVbfCatBoundaries2.back() );
+	    }
+	    
 	    // this is moved to StatAnalysis::fillControlPlots
 	    // 	    if(nm1 && tag && myVBF_Mgg>massMin && myVBF_Mgg<massMax ) { 
 	    // 		l.FillCutPlots(0,1,"_sequential",eventweight,myweight); 

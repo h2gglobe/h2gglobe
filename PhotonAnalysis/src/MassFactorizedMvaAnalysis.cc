@@ -211,6 +211,12 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
 
     nVBFCategories   = ((int)includeVBF)*( mvaVbfSelection ? mvaVbfCatBoundaries.size()-1 : nVBFEtaCategories*nVBFDijetJetCategories );
     std::sort(mvaVbfCatBoundaries.begin(),mvaVbfCatBoundaries.end(), std::greater<float>() );
+    if (multiclassVbfSelection) {
+	nVBFCategories   = (max(multiclassVbfCatBoundaries1.size(), multiclassVbfCatBoundaries2.size())-1);
+	std::sort(multiclassVbfCatBoundaries1.begin(),multiclassVbfCatBoundaries1.end(), std::greater<float>() );
+	std::sort(multiclassVbfCatBoundaries2.begin(),multiclassVbfCatBoundaries2.end(), std::greater<float>() );
+    }
+
     nCategories_=(nInclusiveCategories_+nVBFCategories);
 
     if (bdtTrainingPhilosophy == "UCSD") {
