@@ -1,0 +1,67 @@
+->
+Declare Branches for flat tree which will be saved in output
+delare:
+	type=0,1,2,3 (int, unsigned int, float, double)
+	name=name 
+->
+
+
+type=2 name=run
+type=2 name=lumis
+type=3 name=event
+type=2 name=itype
+type=2 name=nvtx
+type=2 name=rho
+type=2 name=pu_n
+type=2 name=xsec_weight
+type=2 name=pu_weight
+type=2 name=full_weight
+type=2 name=MET
+type=2 name=MET_phi
+
+type=2 name=sigmaMrvoM
+type=2 name=sigmaMwvoM
+type=2 name=ptoM1
+type=2 name=ptoM2
+type=2 name=vtxprob
+type=2 name=mass
+type=2 name=vbfcat
+type=2 name=dipho_pt
+type=2 name=dipho_mva
+type=2 name=dipho_mva_cat
+
+type=2 name=et1
+type=2 name=et2
+type=2 name=eta1
+type=2 name=eta2
+type=2 name=cosphi
+type=2 name=idmva1
+type=2 name=idmva2
+type=2 name=full_cat
+type=2 name=genmatch1
+type=2 name=genmatch2
+type=2 name=drtoeltk1
+type=2 name=drtoeltk2
+type=2 name=cicpf4cutlevel1
+type=2 name=cicpf4cutlevel2
+type=2 name=r91
+type=2 name=r92
+ 
+type=2 name=sieie1
+type=2 name=sieie2
+type=2 name=chiso1
+type=2 name=chiso2
+type=2 name=isorv1
+type=2 name=isowv1
+type=2 name=isorv2
+type=2 name=isowv2
+type=2 name=hoe1
+type=2 name=hoe2
+type=0 name=conv1
+type=0 name=conv2
+type=2 name=chisow1
+type=2 name=chisow2
+type=2 name=phoiso031
+type=2 name=phoiso032
+
+
