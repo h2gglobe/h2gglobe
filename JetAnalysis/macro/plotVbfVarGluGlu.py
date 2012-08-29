@@ -29,8 +29,8 @@ fin = ["root://eoscms//eos/cms/store/cmst3/user/malberti/HIGGS/VBF/vbf_spin_stud
        "root://eoscms//eos/cms/store/cmst3/user/malberti/HIGGS/VBF/vbf_spin_studies/CMS-HGG_powheg_ggHj.root",
        "root://eoscms//eos/cms/store/cmst3/user/malberti/HIGGS/VBF/vbf_spin_studies/CMS-HGG_powheg_ggHjj.root"]
 
-bins=[100, 100, 50, 100, 100, 200,50,50,50,50,50,50,50,50]
-low=[0, 0, 0 , 0 , 0 , 0 , 0, 0, 0, 0, 0, 0, 0, 0 ,0,0]
+bins=[50, 50, 50, 50, 50, 50,50,50,25,50,50,50,50,50]
+low =[0, 0, 0 , 0 , 0 , 0 , 0, 0, 0, 0, 0, 0, 0, 0 ,0,0]
 high=[300, 300, 2, 300, 300, 1000, 10, 10, 3.5, 3.5, 3.5, 3.5, 3.5,5]
 
 file=[]
@@ -46,30 +46,30 @@ for isample,f in enumerate(fin):
         h.SetLineWidth(2)
         todraw = ' abs(' + v + ' )' 
         #print todraw
-        tree.Project(hname,todraw,'')
+        tree.Project(hname,todraw,'category==4 || category==5 ')
+        #tree.Project(hname,todraw,'category==6')
             
         if (isample < 1):
             cname = hname.replace('h','c')
             #print cname
             canvas.append(TCanvas(cname,cname,500,500))
             max=h.GetMaximum()
-            h.GetYaxis().SetRangeUser(0,max*1.3)
+            h.GetYaxis().SetRangeUser(0,max*1.5)
             h.DrawNormalized()
-            if (isample < 1):
-                legend = ROOT.TLegend(0.7,0.7,0.89,0.89)
-                legend.AddEntry(h,samples[isample],"L")
+            if (jvar < 1):
+                legend = ROOT.TLegend(0.6,0.7,0.85,0.85)
+                legend.SetFillColor(0)
+                legend.AddEntry(h,samples[isample].replace('_m125_8TeV',''),"L")
         else:
             canvas[jvar].cd()
-            h.SetLineColor(isample+1)
+            h.SetLineColor(isample*2)
             h.DrawNormalized("same")
-            #canvas[jvar].Update()
-            legend.AddEntry(h,samples[isample],"L")
+            if (jvar < 1):
+                legend.AddEntry(h,samples[isample].replace('_m125_8TeV',''),"L")
+            legend.Draw("same")
+            canvas[jvar].Update()
             if (isample == 2 ):
                 out = (h.GetName().replace('_ggHjj',''))+'.png'
                 canvas[jvar].SaveAs(out)
-            #    print 'ciao'
-            #    #canvas[jvar].cd()
-            #    legend.Draw("same")
-            #    #canvas[jvar].Update()
-            
+                       
 s = raw_input("OK?")
