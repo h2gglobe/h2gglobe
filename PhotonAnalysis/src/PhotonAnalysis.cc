@@ -2571,7 +2571,7 @@ bool PhotonAnalysis::VBFTag2012(int & ijet1, int & ijet2,
 		//do transformation for bkg mvas
 		myVBF_MVA1 = -myVBF_MVA1+1;
 		myVBF_MVA2 = -myVBF_MVA2+1;
-		tag        = (myVBF_MVA0 > multiclassVbfCatBoundaries1.back() && myVBF_MVA2 > multiclassVbfCatBoundaries2.back() );
+		tag        = (myVBF_MVA0 > multiclassVbfCatBoundaries0.back() && myVBF_MVA1 > multiclassVbfCatBoundaries1.back() && myVBF_MVA2 > multiclassVbfCatBoundaries2.back());
 	    }
 	    
 	    // this is moved to StatAnalysis::fillControlPlots

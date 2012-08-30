@@ -7,8 +7,12 @@ subleadEtVBFCut=25
 mvaVbfCatBoundaries=1.,0.985,0.93 
 
 multiclassVbfSelection=0
-multiclassVbfCatBoundaries1=1.,0.9,0.
-multiclassVbfCatBoundaries2=1.,0.95,0.
+#multiclassVbfCatBoundaries0=1.000,0.978,0.919
+#multiclassVbfCatBoundaries1=1.000,0.990,0.960
+#multiclassVbfCatBoundaries2=1.,0.
+multiclassVbfCatBoundaries0=1.000,0.911,0.556
+multiclassVbfCatBoundaries1=1.000,0.
+multiclassVbfCatBoundaries2=1.,0.99,0.98
 #mvaVbfWeights=aux/TMVA_multiclass_vbf_diphopt_phopt_BDTG.weights.xml
 
 ## mvaVbfCatBoundaries=1.,0.985,0.968,0.92 

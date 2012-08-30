@@ -218,6 +218,7 @@ class PhotonAnalysis : public BaseAnalysis
     bool multiclassVbfSelection;
     TString mvaVbfWeights, mvaVbfMethod; 
     std::vector<float> mvaVbfCatBoundaries;
+    std::vector<float> multiclassVbfCatBoundaries0;
     std::vector<float> multiclassVbfCatBoundaries1;
     std::vector<float> multiclassVbfCatBoundaries2;
 

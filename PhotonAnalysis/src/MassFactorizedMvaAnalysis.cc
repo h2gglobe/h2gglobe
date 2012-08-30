@@ -212,7 +212,22 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
     nVBFCategories   = ((int)includeVBF)*( (mvaVbfSelection && !multiclassVbfSelection) ? mvaVbfCatBoundaries.size()-1 : nVBFEtaCategories*nVBFDijetJetCategories );
     std::sort(mvaVbfCatBoundaries.begin(),mvaVbfCatBoundaries.end(), std::greater<float>() );
     if (multiclassVbfSelection) {
-	nVBFCategories   = (max(multiclassVbfCatBoundaries1.size(), multiclassVbfCatBoundaries2.size())-1);
+	std::vector<int> vsize;
+  	vsize.push_back((int)multiclassVbfCatBoundaries0.size());
+  	vsize.push_back((int)multiclassVbfCatBoundaries1.size());
+  	vsize.push_back((int)multiclassVbfCatBoundaries2.size());
+ 	std::sort(vsize.begin(),vsize.end(), std::greater<int>());
+	// sanity check: there sould be at least 2 vectors with size==2
+	if (vsize[0]<2 || vsize[1]<2 ){
+	    std::cout << "Not enough category boundaries:" << std::endl;
+	    std::cout << "multiclassVbfCatBoundaries0 size = " << multiclassVbfCatBoundaries0.size() << endl;
+	    std::cout << "multiclassVbfCatBoundaries1 size = " << multiclassVbfCatBoundaries1.size() << endl;
+	    std::cout << "multiclassVbfCatBoundaries2 size = " << multiclassVbfCatBoundaries2.size() << endl;
+	    assert( 0 );
+	}
+	nVBFCategories   = vsize[0]-1;
+	cout << "@@@@@@@@@@@@@@@@@ 	nVBFCategories = " << 	nVBFCategories << endl;
+	std::sort(multiclassVbfCatBoundaries0.begin(),multiclassVbfCatBoundaries0.end(), std::greater<float>() );
 	std::sort(multiclassVbfCatBoundaries1.begin(),multiclassVbfCatBoundaries1.end(), std::greater<float>() );
 	std::sort(multiclassVbfCatBoundaries2.begin(),multiclassVbfCatBoundaries2.end(), std::greater<float>() );
     }

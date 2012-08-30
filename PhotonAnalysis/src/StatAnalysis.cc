@@ -142,7 +142,21 @@ void StatAnalysis::Init(LoopAll& l)
     nVBFCategories   = ((int)includeVBF)*( (mvaVbfSelection && !multiclassVbfSelection) ? mvaVbfCatBoundaries.size()-1 : nVBFEtaCategories*nVBFDijetJetCategories );
     std::sort(mvaVbfCatBoundaries.begin(),mvaVbfCatBoundaries.end(), std::greater<float>() );
     if (multiclassVbfSelection) {
-	nVBFCategories   = (max(multiclassVbfCatBoundaries1.size(), multiclassVbfCatBoundaries2.size())-1);
+	std::vector<int> vsize;
+	vsize.push_back((int)multiclassVbfCatBoundaries0.size());
+	vsize.push_back((int)multiclassVbfCatBoundaries1.size());
+	vsize.push_back((int)multiclassVbfCatBoundaries2.size());
+	std::sort(vsize.begin(),vsize.end(), std::greater<int>());
+	// sanity check: there sould be at least 2 vectors with size==2
+       	if (vsize[0]<2 || vsize[1]<2 ){
+	    std::cout << "Not enough category boundaries:" << std::endl;
+	    std::cout << "multiclassVbfCatBoundaries0 size = " << multiclassVbfCatBoundaries0.size() << endl;
+	    std::cout << "multiclassVbfCatBoundaries1 size = " << multiclassVbfCatBoundaries1.size() << endl;
+	    std::cout << "multiclassVbfCatBoundaries2 size = " << multiclassVbfCatBoundaries2.size() << endl;
+	    assert( 0 );
+	}
+	nVBFCategories   = vsize[0]-1;
+	std::sort(multiclassVbfCatBoundaries0.begin(),multiclassVbfCatBoundaries0.end(), std::greater<float>() );
 	std::sort(multiclassVbfCatBoundaries1.begin(),multiclassVbfCatBoundaries1.end(), std::greater<float>() );
 	std::sort(multiclassVbfCatBoundaries2.begin(),multiclassVbfCatBoundaries2.end(), std::greater<float>() );
     }
@@ -1088,7 +1102,7 @@ void StatAnalysis::computeExclusiveCategory(LoopAll & l, int & category, std::pa
 	    if (!multiclassVbfSelection) 
 		category += categoryFromBoundaries(mvaVbfCatBoundaries, myVBF_MVA);
 	    else 
-		category += categoryFromBoundaries2D(multiclassVbfCatBoundaries1, multiclassVbfCatBoundaries2, myVBF_MVA0, myVBF_MVA2);
+		category += categoryFromBoundaries2D(multiclassVbfCatBoundaries0, multiclassVbfCatBoundaries1, multiclassVbfCatBoundaries2, myVBF_MVA0, myVBF_MVA1, myVBF_MVA2);
 	} 
  	else {
 	    category += l.DiphotonCategory(diphoton_index.first,diphoton_index.second,pt,nVBFEtaCategories,1,1) 
@@ -1115,11 +1129,16 @@ int StatAnalysis::categoryFromBoundaries(std::vector<float> & v, float val)
     return cat;
 }
 
-int StatAnalysis::categoryFromBoundaries2D(std::vector<float> & v1, std::vector<float> & v2, float val1, float val2)
+int StatAnalysis::categoryFromBoundaries2D(std::vector<float> & v1, std::vector<float> & v2, std::vector<float> & v3, float val1, float val2, float val3 )
 {
     int cat1temp =  categoryFromBoundaries(v1,val1);
     int cat2temp =  categoryFromBoundaries(v2,val2);
-    int cat = max(cat1temp, cat2temp);
+    int cat3temp =  categoryFromBoundaries(v3,val3);
+    std::vector<int> vcat;
+    vcat.push_back(cat1temp);
+    vcat.push_back(cat2temp);
+    vcat.push_back(cat3temp);
+    int cat = *max_element(vcat.begin(), vcat.end());
     return cat;
 }
 
