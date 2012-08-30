@@ -1,4 +1,4 @@
-#define LDEBUG 0 
+#define LDEBUG 0
 
 #include "LoopAll.h"
 
@@ -1147,6 +1147,9 @@ void LoopAll::Branches(std::list<std::string> & names) {
 void LoopAll::GetEntry(std::set<TBranch *> & branches, int jentry)
 {
   for(std::set<TBranch *>::iterator it=branches.begin(); it!=branches.end(); ++it ) {
+    if(LDEBUG){
+        std::cout<<"getting entry:  "<<(*it)->GetName()<<std::endl;
+    }
     if( (*it)->GetReadEntry() != jentry ) {  (*it)->GetEntry(jentry); }
   }
 }
