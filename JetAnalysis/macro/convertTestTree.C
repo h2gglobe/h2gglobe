@@ -5,7 +5,7 @@ struct MultiBDT {
 };
 
 
-void convertTestTree(TString fname="naiveOptimization.root",TTree *tr=0)
+void convertTestTree(TString fname="naiveOptimization.root",TTree *tr=0, int maxEntries=-1)
 {
 	if( tr == 0 ) { tr = (TTree*)gROOT->FindObject("TestTree"); }
 	
@@ -24,9 +24,9 @@ void convertTestTree(TString fname="naiveOptimization.root",TTree *tr=0)
 	tr->SetBranchAddress("BDTG", &mvas );
 	tr->SetBranchAddress("classID", &classID );
 	for(int ii=0; ii<nclass; ++ii) {
-		tout[ii]->Branch("mva1",&mvas.Signal);
-		tout[ii]->Branch("mva2",&mvas.bg0);
-		tout[ii]->Branch("mva3",&mvas.bg1);
+		tout[ii]->Branch("mva0",&mvas.Signal);
+		tout[ii]->Branch("mva1",&mvas.bg0);
+		tout[ii]->Branch("mva2",&mvas.bg1);
 	}
 	
 	for(int ii=0;ii<tr->GetEntries(); ++ii) {
@@ -35,7 +35,9 @@ void convertTestTree(TString fname="naiveOptimization.root",TTree *tr=0)
 		// convert bg0 and bg1 such that signal peaks at 1.
 		mvas.bg0 = 1. - mvas.bg0;
 		mvas.bg1 = 1. - mvas.bg1;
-		tout[classID]->Fill();
+		if( maxEntries < 0 || tout[classID]->GetEntries() < maxEntries ) {
+			tout[classID]->Fill();
+		}
 	}
 		
 	for(int ii=0; ii<nclass; ++ii) {
