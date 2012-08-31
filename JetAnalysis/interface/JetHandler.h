@@ -1,6 +1,12 @@
 #ifndef __JetHandler__
 #define __JetHandler__
 
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
+
+#ifndef noexcept
+#define noexcept
+#endif
+
 #include "CMGTools/External/interface/PileupJetIdAlgo.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 #include "CondFormats/JetMETObjects/interface/FactorizedJetCorrector.h"
