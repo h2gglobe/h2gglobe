@@ -51,14 +51,20 @@ public:
 // -----------------------------------------------------------------------------------------------------------------------------------------
 TH2 * integrate2D(TH2 * h) {
 	TH2 * ret= (TH2*)h->Clone( Form("%s_cdf", h->GetName() ) );
-	for(int xx=0; xx<ret->GetNbinsX()+1; ++xx) {
-		for(int yy=1; yy<ret->GetNbinsY()+1; ++yy) {
-			ret->SetBinContent( xx, yy, ret->GetBinContent(xx,yy) + ret->GetBinContent(xx,yy-1) );
+	///// for(int xx=0; xx<ret->GetNbinsX()+1; ++xx) {
+	///// 	for(int yy=1; yy<ret->GetNbinsY()+1; ++yy) {
+	for(int xx=ret->GetNbinsX(); xx>=0; --xx) {
+		for(int yy=ret->GetNbinsY()-1; yy>=0; --yy) {
+			/// ret->SetBinContent( xx, yy, ret->GetBinContent(xx,yy) + ret->GetBinContent(xx,yy-1) );
+			ret->SetBinContent( xx, yy, ret->GetBinContent(xx,yy) + ret->GetBinContent(xx,yy+1) );
 		}
 	}
-	for(int yy=0; yy<ret->GetNbinsY()+1; ++yy) {
-		for(int xx=1; xx<ret->GetNbinsX()+1; ++xx) {
-			ret->SetBinContent( xx, yy, ret->GetBinContent(xx,yy) + ret->GetBinContent(xx-1,yy) );
+	///// for(int yy=0; yy<ret->GetNbinsY()+1; ++yy) {
+	///// 	for(int xx=1; xx<ret->GetNbinsX()+1; ++xx) {
+	for(int yy=ret->GetNbinsY(); yy>=0; --yy) {
+		for(int xx=ret->GetNbinsX()-1; xx>=0; --xx) {
+			//// ret->SetBinContent( xx, yy, ret->GetBinContent(xx,yy) + ret->GetBinContent(xx-1,yy) );
+			ret->SetBinContent( xx, yy, ret->GetBinContent(xx,yy) + ret->GetBinContent(xx+1,yy) );
 		}
 	}
 	ret->Scale( 1./h->Integral() );
@@ -102,8 +108,7 @@ public:
 			lastb = newb;
 		}
 		return nsig2;
-        };
-	
+        };	
 	virtual double DoEval(const double * x) const { 
 		std::vector<double> xv(x,x+nbound_);
 		std::vector<double> pv(1,cutoff_);
@@ -164,17 +169,17 @@ public:
 		double lastSigInt,lastBkg1Int,lastBkg2Int;
 
 		if( isCdf_ ) {
-			lastSigInt=sigInt_->Eval(firstxb,firstyb) ;
-			lastBkg1Int=bkg1Int_->Eval(firstxb,firstyb);
-			lastBkg2Int=bkg2Int_->Eval(firstxb,firstyb);
+			lastSigInt=0.;/// sigInt_->Eval(firstxb,firstyb) ;
+			lastBkg1Int=0.;/// bkg1Int_->Eval(firstxb,firstyb);
+			lastBkg2Int=0.;/// bkg2Int_->Eval(firstxb,firstyb);
 		} else {
 			lastSigInt=sigInt_->Integral(xmin,firstxb,ymin,firstyb) / sigNorm_; 
 			lastBkg1Int=bkg1Int_->Integral(xmin,firstxb,ymin,firstyb) / bkg1Norm_; 
 			lastBkg2Int=bkg2Int_->Integral(xmin,firstxb,ymin,firstyb) / bkg2Norm_;
 		}
-		/// std::ostream_iterator< double > output( cout, "," );
-		/// std::copy(&x[0],&x[2*nbound_],output); 
-		/// std::cout << std::endl;
+		//// std::ostream_iterator< double > output( cout, "," );
+		//// std::copy(&x[0],&x[2*nbound_],output); 
+		//// std::cout << std::endl;
 		
 		/// std::cout << xmin<< " " << firstxb<< " " << ymin<< " " << firstyb << " " << lastSigInt << " " << lastBkg1Int << " " <<  lastBkg2Int << std::endl;
 		/// nsig2 = -lastSigInt*lastSigInt / fomden_->Eval(lastSigInt,lastBkg1Int,lastBkg2Int);
@@ -210,19 +215,19 @@ public:
 					bkg1Int = bkg1Int_->Integral(xmin,newxb,ymin,newyb) / bkg1Norm_;
 					bkg2Int = bkg2Int_->Integral(xmin,newxb,ymin,newyb) / bkg2Norm_;
 				}
-				float sig  = lastSigInt  - sigInt  ;
-				float bkg1 = lastBkg1Int - bkg1Int ;
-				float bkg2 = lastBkg2Int - bkg2Int ;
+				float sig  = sigInt  - lastSigInt ;
+				float bkg1 = bkg1Int - lastBkg1Int;
+				float bkg2 = bkg2Int - lastBkg2Int;
 
-				/// std::cout << " " << lastSigInt << " " << sigInt << sig 
-				/// 	  << " " << lastBkg1Int << " "<< bkg1Int << bkg1 
-				/// 	  << " " << lastBkg2Int << " "<< bkg2Int << bkg2
-				/// 	;
+				//// std::cout << "sig " << lastSigInt << " " << sigInt  << " " << sig
+				//// 	  << " bkg1 " << lastBkg1Int << " "<< bkg1Int << " " << bkg1 
+				//// 	  << " bkg2 " << lastBkg2Int << " "<< bkg2Int << " " << bkg2
+				//// 	;
 				
 				float num = sig*sig;
 				float den = fomden_->Eval(sig,bkg1,bkg2);
 				
-				/// std::cout << " " << num << " " << den;
+				//// std::cout << " " << num << " " << den;
 
 				lastSigInt = sigInt;
 				lastBkg1Int = bkg1Int;
@@ -232,6 +237,8 @@ public:
 			}
 			ii = jj;
 			//// std::cout << " " << nsig2 << std::endl;
+			int a;
+			//// std::cin >> a;
 			lastxb = newxb;
 			lastyb = newyb;
 		}

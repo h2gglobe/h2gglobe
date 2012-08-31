@@ -13,8 +13,8 @@ void convertTestTree(TString fname="naiveOptimization.root",TTree *tr=0, int max
 	fout->cd();
 	
 	TTree * sig  = new TTree("sig","sig");
-	TTree * bkg1 = new TTree("bkg1","bkg1");
-	TTree * bkg2 = new TTree("bkg2","bkg2");
+	TTree * bkg1 = new TTree("bkg0","bkg0");
+	TTree * bkg2 = new TTree("bkg1","bkg1");
 	
 	TTree * tout[] = { sig, bkg1, bkg2 };
 	int nclass = 3; // sizeof(tuot) / sizeof(TTree *);
