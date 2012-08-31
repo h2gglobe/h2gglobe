@@ -1519,24 +1519,27 @@ void PhotonAnalysis::FillReductionVariables(LoopAll& l, int jentry)
 void PhotonAnalysis::postProcessJets(LoopAll & l, int vtx) 
 {
     for(int ijet=0; ijet<l.jet_algoPF1_n; ++ijet) {
-    int minv = 0, maxv = l.vtx_std_n;
-    if( vtx!=-1 ){
-        minv = vtx;
-        maxv = vtx+1;
-    }
-    if( recorrectJets ) {
-        jetHandler_->recomputeJec(ijet, true);
-    }
-    for(int ivtx=minv;ivtx<maxv; ++ivtx) {
-        if( recomputeBetas ) {
-        jetHandler_->computeBetas(ijet, ivtx);
-        }
-        if( rerunJetMva ) {
-        jetHandler_->computeMva(ijet, ivtx);
-        } else if ( recomputeJetWp ) {
-        jetHandler_->computeWp(ijet, ivtx);
-        }
-    }
+	int minv = 0, maxv = l.vtx_std_n;
+	if( l.version > 14 && maxv > 10 ) {
+	    maxv = 10;
+	}
+	if( vtx!=-1 ){
+	    minv = vtx;
+	    maxv = vtx+1;
+	}
+	if( recorrectJets ) {
+	    jetHandler_->recomputeJec(ijet, true);
+	}
+	for(int ivtx=minv;ivtx<maxv; ++ivtx) {
+	    if( recomputeBetas ) {
+		jetHandler_->computeBetas(ijet, ivtx);
+	    }
+	    if( rerunJetMva ) {
+		jetHandler_->computeMva(ijet, ivtx);
+	    } else if ( recomputeJetWp ) {
+		jetHandler_->computeWp(ijet, ivtx);
+	    }
+	}
     }
 }
 
