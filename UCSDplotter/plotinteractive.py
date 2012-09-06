@@ -36,9 +36,12 @@ stackmin=0
 maxscaleup=1.1
 linewidth=2
 NReBin=1
+plotscale=xsize/1000
+
+cutline=ROOT.TLine()
 
 Debug=False
-DebugNew=True
+DebugNew=False
 
 dolog=False
 dogridx=False
@@ -52,14 +55,13 @@ douflow=False
 doscale=True
 docats=True
 singalcat=-1
-
-
+doline=False
+linex=-2.0
+domergecats=False
 StaticMin=False
 StaticMax=False
-
-
-DoTitles=True
-
+dotitles=False
+cattitles=["EB-EB-EB","!(EB-EB-EB)"]
 
 
 linex=-1
@@ -200,7 +202,7 @@ class SampleInfo:
    
 
 
-PLOTPROPS=["dolog","dogridx","dogridy","Debug","DebugNew","doreplot","doxtitle","doytitle","dooflow","douflow","dorebin","StaticMin","StaticMax","dolegend","dotext","Debug","DebugNew"]
+PLOTPROPS=["dolog","dogridx","dogridy","doline","domergecats","doreplot","dotitles","doxtitle","doytitle","dooflow","douflow","dorebin","StaticMin","StaticMax","dolegend","dotext","Debug","DebugNew"]
 def FindFunction(option):
     print option
     if option == "START":
@@ -210,7 +212,7 @@ def FindFunction(option):
         print "Running startup"
         Startup(sys.argv[1])
     elif option.split()[0] == "setleg":
-        Setleg(float(option.split()[1]),
+        SetLeg(float(option.split()[1]),
         float(option.split()[2]),
         float(option.split()[3]),
         float(option.split()[4]))
@@ -220,6 +222,8 @@ def FindFunction(option):
         PrintSamples(samples)
     elif option == "vars":
         PrintAllVariables()
+    elif option.split()[0] == "linex":
+        SetLine(float(option.split()[1]))
     elif option.split()[0] == "mvlegx":
         MoveLegX(float(option.split()[1]))
     elif option.split()[0] == "mvlegy":
@@ -236,6 +240,8 @@ def FindFunction(option):
         PlotSample(int(option.split()[1]))
     elif option.split()[0] == "j":
         Plot(option.split()[1])
+    elif option.split()[0] == "cmds":
+        ParseTextCommands(option.split()[1])
     elif option == "n":
         NextPlot()
     elif option == "p":
@@ -269,19 +275,22 @@ def ListCMDs():
     print "START:               Read in plotvariables and inputfiles trees"
     print "ls:                  List plots"
     print "samples:             List samples"
+    print "ploton itype:        Turns sample with itype on/off"
+    print "resize x y           Resizes the canvas"
     print "j #:                 Standard plot of #th plot in plot list"
     print "p:                   Previous plot"
     print "n:                   Next plot"
     print "rebin #:             Rebin histograms by #"
     print "maxval #:            Set the maximum of the plot (0 turns off)"
     print "minval #:            Set the minimum of the plot (0 turns off)"
-    print "ploton itype:        Turns sample with itype on/off"
     print "setleg x1 x2 y1 y2   Moves position of the legend"
     print "variable num:        Change variable to num"
     print "vars:                Prints all global variables"
     print "singlecat #:         Display only # cat (-1 turns off)"
     print "mvlegx/y #:          Move legend by # in x/y"
     print "mvtextx/y #:         Move text by # in x/y"
+    print "cmds:             Will loop over the lines of a file and"
+    print "                     excute those lines as commands"
     print "Switch on/off:      ",PLOTPROPS
 
 
@@ -307,6 +316,23 @@ def PrintAllVariables():
         if var == "plotinfos":
             continue
         print "Name Val",var, globals()[var]
+
+
+def ParseTextCommands(textfilename):
+    try:
+        textfile=open(str(textfilename))
+    except:
+        print "There is no file",textfilename
+        return;
+
+    for line in textfile:
+        line=line.split("\n")[0]
+        try:
+            FindFunction(line)
+        except:
+            print "This line cannot be parsed:"
+            print line
+
 
 
 ### Plot settings / Canvas Properties
@@ -338,7 +364,7 @@ def SetReBin(nrebin):
 
 def SetMin(minval):
     global StaticMin,stackmin
-    stackmin=int(minval)
+    stackmin=float(minval)
     if stackmin==0:
         StaticMin=False
     else:
@@ -348,7 +374,7 @@ def SetMin(minval):
 
 def SetMax(maxval):
     global StaticMax,stackmax
-    stackmax=int(maxval)
+    stackmax=float(maxval)
     if stackmax==0:
         StaticMax=False
     else:
@@ -565,7 +591,14 @@ def Plot(num,printsuffix="",printcat=-1):
     can.Clear()
     can.SetWindowSize(xsize,ysize)
     can.SetCanvasSize(xsize-4,ysize-28)
-    if docats:
+    
+    if domergecats:
+        can.cd()
+        can.cd().SetLogy(dolog)
+        can.cd().SetGridx(dogridx)
+        can.cd().SetGridy(dogridy)
+        
+    elif docats:
         can.Divide(Ncol,Nrow)
    
         for ican in range(1,Ncol*Nrow+1):
@@ -579,21 +612,30 @@ def Plot(num,printsuffix="",printcat=-1):
     stacktypes=["bkg","sig","data"]
     first=1
     stackmaxima={}
-    for icat in xrange(cur_plot.ncat):
-        stackmaxima[icat]=[]
+    if domergecats:
+        stackmaxima[0]=[]
         for stacktype in stacktypes:
-            stacks[stacktype+str(icat)]=MakeStack(stacktype,icat)
-            stacks[stacktype+"lines"+str(icat)]=MakeOverlayLines(stacktype, icat)
-            stackmaxima[icat].append(stacks[stacktype+str(icat)].GetMaximum())          
+            if DebugNew:
+                print "stacktype",stacktype
+                print "MakeMergeStack"
+            stacks[stacktype]=MakeMergeStack(stacktype)
+            if DebugNew:
+                print "MakeMergeOverlayLines"
+            stacks[stacktype+"lines"]=MakeMergeOverlayLines(stacktype)
+            stackmaxima[0].append(stacks[stacktype].GetMaximum())          
+    else:
+        for icat in xrange(cur_plot.ncat):
+            stackmaxima[icat]=[]
+            for stacktype in stacktypes:
+                stacks[stacktype+str(icat)]=MakeStack(stacktype,icat)
+                stacks[stacktype+"lines"+str(icat)]=MakeOverlayLines(stacktype, icat)
+                stackmaxima[icat].append(stacks[stacktype+str(icat)].GetMaximum())          
 
     if dolegend:
         SetLegend()
 
     if dotext:
         SetText()
-
-    if DoTitles:
-        can.cd().SetTitle(str(cur_plot.plotvarname))
 
     if docats:
         cats=xrange(cur_plot.ncat)
@@ -602,62 +644,57 @@ def Plot(num,printsuffix="",printcat=-1):
         cats.append(singlecat)
 
 
-    for icat in cats:
-        stackmaxima[icat].sort()
+    if domergecats:
+        stackmaxima[0].sort()
         
         if StaticMax:
             global stackmax
         else:
-            stackmax=stackmaxima[icat][-1]*maxscaleup
+            stackmax=stackmaxima[0][-1]*maxscaleup
         if DebugNew:
             print "stackmaxima",stackmaxima
             print "stackmax",stackmax
 
-        if docats:
-            can.cd(icat+1)
       
-        stacks["bkg"+str(icat)].Draw("hist")
-        stacks["bkg"+str(icat)].SetMaximum(stackmax)
+        stacks["bkg"].Draw("hist")
+        stacks["bkg"].SetMaximum(stackmax)
         if StaticMin:
-            stacks["bkg"+str(icat)].SetMinimum(stackmin)
+            stacks["bkg"].SetMinimum(stackmin)
 
         if doxtitle==True:
-            stacks["bkg"+str(icat)].GetXaxis().SetTitle(str(cur_plot.xaxislabel))
+            stacks["bkg"].GetXaxis().SetTitle(str(cur_plot.xaxislabel))
         else:
-            stacks["bkg"+str(icat)].GetXaxis().SetTitle("")
+            stacks["bkg"].GetXaxis().SetTitle("")
         
         if doytitle==True:
-            stacks["bkg"+str(icat)].GetYaxis().SetTitle(str(cur_plot.yaxislabel))
+            stacks["bkg"].GetYaxis().SetTitle(str(cur_plot.yaxislabel))
         else:
-            stacks["bkg"+str(icat)].GetYaxis().SetTitle("")
+            stacks["bkg"].GetYaxis().SetTitle("")
             
         
-        stacks["bkg"+str(icat)].GetXaxis().SetTitleSize(0.05)
-        stacks["bkg"+str(icat)].GetYaxis().SetTitleSize(0.06)
-        stacks["bkg"+str(icat)].GetYaxis().SetTitleOffset(0.8)
-        #if DoTitles:
-        #    stacks["bkg"+str(icat)].SetTitle(str(cur_plot.plotvarname))
-        #else:
-        stacks["bkg"+str(icat)].SetTitle("")
+        stacks["bkg"].GetXaxis().SetTitleSize(0.04)
+        stacks["bkg"].GetYaxis().SetTitleSize(0.06)
+        stacks["bkg"].GetYaxis().SetTitleOffset(0.8)
+        stacks["bkg"].SetTitle("All Categories")
         
-        lineorder = stacks["datalines"+str(icat)].keys()
+        lineorder = stacks["datalines"].keys()
         lineorder.sort()
         lineorder.reverse()
         for index in lineorder:
             itype=index[1]
-            if dolegend and icat==0:
-                legend.AddEntry(stacks["datalines"+str(icat)][index],str(samples[itype].displayname),"ep"); 
+            if dolegend:
+                legend.AddEntry(stacks["datalines"][index],str(samples[itype].displayname),"ep"); 
             #stacks["datalines"+str(icat)][index].Draw("ep same")
         
-        lineorder = stacks["siglines"+str(icat)].keys()
+        lineorder = stacks["siglines"].keys()
         lineorder.sort()
         lineorder.reverse()
         for index in lineorder:
             itype=index[1]
-            if dolegend and icat==0:
-                legend.AddEntry(stacks["siglines"+str(icat)][index],str(samples[itype].displayname),"l"); 
+            if dolegend:
+                legend.AddEntry(stacks["siglines"][index],str(samples[itype].displayname),"l"); 
         
-        lineorder = stacks["bkglines"+str(icat)].keys()
+        lineorder = stacks["bkglines"].keys()
         lineorder.sort()
         lineorder.reverse()
         if DebugNew:
@@ -669,31 +706,159 @@ def Plot(num,printsuffix="",printcat=-1):
                 print "index",index
                 print "itype",itype
                 print "samples[itype].color",samples[itype].color
-            stacks["bkglines"+str(icat)][index].SetLineColor(ROOT.kBlack)
-            stacks["bkglines"+str(icat)][index].SetLineWidth(linewidth)
-            stacks["bkglines"+str(icat)][index].SetFillStyle(1001)
-            stacks["bkglines"+str(icat)][index].SetFillColor(int(samples[itype].color))
-            stacks["bkglines"+str(icat)][index].Draw("histsame")
-            if dolegend and icat==0:
-                legend.AddEntry(stacks["bkglines"+str(icat)][index],str(samples[itype].displayname),"f"); 
+            stacks["bkglines"][index].SetLineColor(ROOT.kBlack)
+            stacks["bkglines"][index].SetLineWidth(linewidth*plotscale)
+            stacks["bkglines"][index].SetFillStyle(1001)
+            stacks["bkglines"][index].SetFillColor(int(samples[itype].color))
+            stacks["bkglines"][index].Draw("histsame")
+            if dolegend:
+                legend.AddEntry(stacks["bkglines"][index],str(samples[itype].displayname),"f"); 
         
 
-        stacks["sig"+str(icat)].Draw("histsame")
-        stacks["data"+str(icat)].Draw("pesame")
         
-        if docats:            
-            can.cd(icat+1).Modified()
-            can.cd(icat+1).Update()
-        else:
-            can.cd().Modified()
-            can.cd().Update()
-            
-
+        lineorder = stacks["siglines"].keys()
+        lineorder.sort()
+        lineorder.reverse()
+        for index in lineorder:
+            itype=index[1]
+            stacks["siglines"][index].Draw("histsame")
+            #stacks["siglines"+str(icat)][index].Draw("histsame")
+       
+        
+        lineorder = stacks["datalines"].keys()
+        lineorder.sort()
+        lineorder.reverse()
+        for index in lineorder:
+            itype=index[1]
+            stacks["datalines"][index].Draw("epsame")
+            #stacks["datalines"+str(icat)][index].Draw("epsame")
+        
         if dolegend:
             legend.Draw()
 
         if dotext:
             plottext.Draw()
+    
+        if doline:
+            cutline.SetLineWidth(4*plotscale)
+            cutline.SetLineColor(633)
+            cutline.DrawLine(linex,0.0,linex,stackmax/1.1);
+            
+    else:   #  this is the typical plot, domergecats plots all cats together
+        for icat in cats:
+            stackmaxima[icat].sort()
+            
+            if StaticMax:
+                global stackmax
+            else:
+                stackmax=stackmaxima[icat][-1]*maxscaleup
+            if DebugNew:
+                print "stackmaxima",stackmaxima
+                print "stackmax",stackmax
+
+            if docats:
+                can.cd(icat+1)
+          
+            stacks["bkg"+str(icat)].Draw("hist")
+            stacks["bkg"+str(icat)].SetMaximum(stackmax)
+            if StaticMin:
+                stacks["bkg"+str(icat)].SetMinimum(stackmin)
+
+            if doxtitle==True:
+                stacks["bkg"+str(icat)].GetXaxis().SetTitle(str(cur_plot.xaxislabel))
+            else:
+                stacks["bkg"+str(icat)].GetXaxis().SetTitle("")
+            
+            if doytitle==True:
+                stacks["bkg"+str(icat)].GetYaxis().SetTitle(str(cur_plot.yaxislabel))
+            else:
+                stacks["bkg"+str(icat)].GetYaxis().SetTitle("")
+                
+            
+            stacks["bkg"+str(icat)].GetXaxis().SetTitleSize(0.045)
+            stacks["bkg"+str(icat)].GetYaxis().SetTitleSize(0.06)
+            stacks["bkg"+str(icat)].GetYaxis().SetTitleOffset(0.8)
+            if dotitles:
+                if len(cattitles)==int(cur_plot.ncat):
+                    stacks["bkg"+str(icat)].SetTitle(str(cattitles[icat]))
+                else:
+                    stacks["bkg"+str(icat)].SetTitle(str(cur_plot.plotvarname))
+            else:
+                stacks["bkg"+str(icat)].SetTitle("")
+            
+            lineorder = stacks["datalines"+str(icat)].keys()
+            lineorder.sort()
+            lineorder.reverse()
+            for index in lineorder:
+                itype=index[1]
+                if dolegend and icat==0:
+                    legend.AddEntry(stacks["datalines"+str(icat)][index],str(samples[itype].displayname),"ep"); 
+                #stacks["datalines"+str(icat)][index].Draw("ep same")
+            
+            lineorder = stacks["siglines"+str(icat)].keys()
+            lineorder.sort()
+            lineorder.reverse()
+            for index in lineorder:
+                itype=index[1]
+                if dolegend and icat==0:
+                    legend.AddEntry(stacks["siglines"+str(icat)][index],str(samples[itype].displayname),"l"); 
+            
+            lineorder = stacks["bkglines"+str(icat)].keys()
+            lineorder.sort()
+            lineorder.reverse()
+            if DebugNew:
+                print "lineorder",lineorder
+            first=1
+            for index in lineorder:
+                itype=index[1]
+                if DebugNew:
+                    print "index",index
+                    print "itype",itype
+                    print "samples[itype].color",samples[itype].color
+                stacks["bkglines"+str(icat)][index].SetLineColor(ROOT.kBlack)
+                stacks["bkglines"+str(icat)][index].SetLineWidth(linewidth*plotscale)
+                stacks["bkglines"+str(icat)][index].SetFillStyle(1001)
+                stacks["bkglines"+str(icat)][index].SetFillColor(int(samples[itype].color))
+                stacks["bkglines"+str(icat)][index].Draw("histsame")
+                if dolegend and icat==0:
+                    legend.AddEntry(stacks["bkglines"+str(icat)][index],str(samples[itype].displayname),"f"); 
+            
+
+            lineorder = stacks["siglines"+str(icat)].keys()
+            lineorder.sort()
+            lineorder.reverse()
+            for index in lineorder:
+                itype=index[1]
+                stacks["siglines"+str(icat)][index].Draw("histsame")
+       
+            
+            lineorder = stacks["datalines"+str(icat)].keys()
+            lineorder.sort()
+            lineorder.reverse()
+            for index in lineorder:
+                itype=index[1]
+                stacks["datalines"+str(icat)][index].Draw("epsame")
+        
+            
+            if docats:            
+                can.cd(icat+1).Modified()
+                can.cd(icat+1).Update()
+            else:
+                can.cd().Modified()
+                can.cd().Update()
+                
+
+            if dolegend:
+                legend.Draw()
+
+            if dotext:
+                plottext.Draw()
+        
+            if doline:
+                cutline.SetLineWidth(4*plotscale)
+                cutline.SetLineColor(633)
+                cutline.DrawLine(linex,0.0,linex,stackmax/1.1);
+            
     can.cd()    
     can.Update()
     if printsuffix is not "":
@@ -718,6 +883,41 @@ def SampleMap(sampletype):
     return itypes
 
 
+def MakeMergeStack(sampletype):
+        
+    theStack = ROOT.THStack(sampletype,sampletype)
+    if DebugNew:
+        print "MakeMergeStack(sampletype)",sampletype
+    
+    itypes=SampleMap(sampletype)
+    order = itypes.keys()
+    order.sort()
+
+    for index in order:
+        itype = itypes[index]
+        stacktop=False
+        if DebugNew:
+            print "SampleMap  index", index
+            print "SampleMap samples[itype].plotsample",samples[itype].plotsample
+        if samples[itype].plotsample == 1:
+            for icat in xrange(cur_plot.ncat):
+                if icat == xrange(cur_plot.ncat)[-1] and index == order[-1]:
+                    if DebugNew:
+                        print "icat,cur_plot.ncat,index,order[-1]",icat,cur_plot.ncat,index,order[-1]
+                        print "icat == xrange(cur_plot.ncat)[-1]",icat == xrange(cur_plot.ncat)[-1]
+                    stacktop=True
+                histname=str(cur_plot.plotvarname)+"_cat"+str(icat)+"_"+str(samples[itype].inshortnames)
+                if DebugNew:
+                    print "SampleMap histname",histname
+                rootfile.cd()
+                hist=ROOT.gROOT.FindObject(histname).Clone()
+                hist=FormatHistFull(hist,itype,sampletype,stacktop)
+                theStack.Add(hist)
+        
+    return theStack
+    
+
+
 def MakeStack(sampletype, icat):
 
     itypes=SampleMap(sampletype)
@@ -740,6 +940,60 @@ def MakeStack(sampletype, icat):
             theStack.Add(hist)
         
     return theStack
+
+
+def MakeMergeOverlayLines(sampletype):
+
+    itypes=SampleMap(sampletype)
+    if DebugNew:
+        print "MakeOverlayLines", itypes
+    order = itypes.keys()
+    order.sort()
+    if Debug:
+        print "order",order
+   
+    # the key is a dictionary from order to itype
+    # need itype info for plot properties 
+    histmap={}
+
+    first=1
+    for index in order:
+        if DebugNew:
+            print "index",index
+        itype = itypes[index]
+        if DebugNew:
+            print "samples[itype].plotsample",samples[itype].plotsample
+            print "samples[itype].addtoleg",samples[itype].addtoleg
+        if samples[itype].plotsample == 1:
+            for icat in xrange(cur_plot.ncat):
+                histname=str(cur_plot.plotvarname)+"_cat"+str(icat)+"_"+str(samples[itype].inshortnames)
+                if DebugNew:
+                    print "histname",histname
+                rootfile.cd()
+                if first == 1:
+                    first=0
+                    thishist=ROOT.gROOT.FindObject(histname).Clone("stacklines_index"+str(index))
+                    thishist=FormatHist(thishist,itype,sampletype)
+                    fullhist=thishist.Clone("fullhist")
+                else:
+                    thishist=ROOT.gROOT.FindObject(histname).Clone("stacklines_index"+str(index))
+                    thishist=FormatHist(thishist,itype,sampletype)
+                    thishist.Add(fullhist)
+                    fullhist.Add(FormatHist(ROOT.gROOT.FindObject(histname).Clone(),itype,sampletype))
+                        
+                if  samples[itype].addtoleg is 1:
+                    if DebugNew:
+                        print "thishist.GetMaximum()",thishist.GetMaximum()
+                        print "fullhist.GetMaximum()",fullhist.GetMaximum()
+                        print "index,itype",index,itype
+                    # individual histogram properties
+                    #thishist.SetFillColor(samples[itype].color)
+                    key=index,itype
+                    histmap[key]=thishist
+
+    if DebugNew:
+        print "len(histmap)",len(histmap)
+    return histmap
 
 
 def MakeOverlayLines(sampletype, icat):
@@ -778,7 +1032,7 @@ def MakeOverlayLines(sampletype, icat):
                 thishist=ROOT.gROOT.FindObject(histname).Clone("stacklines_cat"+str(icat)+"_index"+str(index))
                 thishist=FormatHist(thishist,itype,sampletype)
                 thishist.Add(fullhist)
-                fullhist.Add(FormatHist(ROOT.gROOT.FindObject(histname),itype,sampletype))
+                fullhist.Add(FormatHist(ROOT.gROOT.FindObject(histname).Clone(),itype,sampletype))
                     
             if  samples[itype].addtoleg is 1:
                 if DebugNew:
@@ -796,7 +1050,14 @@ def MakeOverlayLines(sampletype, icat):
             
 
 def FormatHist(hist,itype,sampletype):
-   
+    return FormatHistFull(hist,itype,sampletype,True)
+
+
+def FormatHistFull(hist,itype,sampletype,stacktop):
+  
+    if DebugNew:
+        print "stacktop",stacktop
+ 
     if doscale: 
         hist.Scale(samples[itype].scale)
     
@@ -811,16 +1072,21 @@ def FormatHist(hist,itype,sampletype):
         binNcontent = hist.GetBinContent(binN)
         hist.SetBinContent(binN,binNcontent+oflow)
     
-    if sampletype=="sig":
-        hist.SetLineColor(int(samples[itype].color))
-        hist.SetLineWidth(linewidth)
+    if stacktop == True:
+        if sampletype=="sig":
+            hist.SetLineColor(int(samples[itype].color))
+            hist.SetLineWidth(linewidth*plotscale)
 
-    if sampletype=="data":
-        hist.SetFillColor(ROOT.kBlack)
+        if sampletype=="data":
+            hist.SetFillColor(ROOT.kBlack)
+            hist.SetFillStyle(0)
+            hist.SetMarkerStyle(20)
+            hist.SetMarkerSize(1.1*plotscale)
+    else:
+        hist.SetLineWidth(0)   
         hist.SetFillStyle(0)
-        hist.SetMarkerStyle(20)
-        hist.SetMarkerSize(1.1)
-    
+        hist.SetMarkerSize(0)
+ 
     if dorebin:
         hist.Rebin(NReBin)
 
@@ -835,9 +1101,19 @@ def SetLegend():
     legend.SetTextFont(62)
     legend.SetLineColor(0)
     legend.SetLineStyle(1)
-    legend.SetLineWidth(linewidth)
+    legend.SetLineWidth(linewidth*plotscale)
     legend.SetFillColor(ROOT.kWhite)
     legend.SetFillStyle(0)
+
+
+def SetLine(newx):
+    global linex,doline
+    if newx==-1000:
+        doline=False
+    else:
+        doline=True
+    linex=newx
+    ReDraw()
 
 
 def MoveLegX(dx):
@@ -937,6 +1213,8 @@ def NextPlot():
     Plot(nextnum)
 
 def ReDraw():
+    global plotscale
+    plotscale=xsize/1000
     if doreplot==True:
         num=cur_plot.index
         Plot(num)
