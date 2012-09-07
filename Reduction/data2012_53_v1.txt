@@ -1,0 +1,7 @@
+Run2012A-13Jul2012-v1         0   json=/afs/cern.ch/work/c/cmshgg/private/V14_00_02/CMSSW_5_3_3_patch3/src/HiggsAnalysis/HiggsTo2photons/scripts/Run2012A-13Jul2012-v1.json
+Run2012A-recover-06Aug2012-v1 0   json=/afs/cern.ch/work/c/cmshgg/private/V14_00_02/CMSSW_5_3_3_patch3/src/HiggsAnalysis/HiggsTo2photons/scripts/Run2012A-recover-06Aug2012-v1.json
+Run2012B-13Jul2012-v1         0   json=/afs/cern.ch/work/c/cmshgg/private/V14_00_02/CMSSW_5_3_3_patch3/src/HiggsAnalysis/HiggsTo2photons/scripts/Run2012B-13Jul2012-v1.json
+Run2012C-PromptReco-v1        0   json=/afs/cern.ch/work/c/cmshgg/private/V14_00_02/CMSSW_5_3_3_patch3/src/HiggsAnalysis/HiggsTo2photons/scripts/Run2012C-PromptReco-v1.json    analyzer PhotonAnalysis photonanalysis.dat  scale_offset_file=no_energy_scale_offsets.dat
+Run2012C-PromptReco-v2        0   json=/afs/cern.ch/work/c/cmshgg/private/V14_00_02/CMSSW_5_3_3_patch3/src/HiggsAnalysis/HiggsTo2photons/scripts/Run2012C-PromptReco-v2.json    analyzer PhotonAnalysis photonanalysis.dat  scale_offset_file=no_energy_scale_offsets.dat
+
+
