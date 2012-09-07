@@ -2,7 +2,8 @@
 . setup.sh
 make
 # You can take an example opttree from my public area.
-# Otherwise a custom optree can be done running the code available in h2gglobe.
+# Otherwise a custom optree can be done running the code available in h2gglobe:
+# look at AnalysisScripts/massfac_mva_binned/datafiles_optree.dat for an example.
 # If you split the files for different samples you have to hadd them and 
 # finally you can run the merger.C macro (in UCSDPlotter) to produce the final tree
 cp /afs/cern.ch/user/s/sani/public/opttree.root .

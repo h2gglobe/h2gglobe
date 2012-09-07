@@ -1,7 +1,7 @@
-#! /usr/bin/python
+#! /usr/bin/env python
 
-import ROOT, sys
-import getopt
+import ROOT
+import getopt, sys
 
 class histoContainer:
     def __init__(self):
@@ -131,9 +131,10 @@ plotFromOptree [options]
     print use
 
 if __name__ == "__main__":  
+
     # default parameters
-    weightName = "weight"
-    rootInputFile = "opttree.root"
+    weightName = ""
+    rootInputFile = ""
     rootOutputFile = "output.root"
     treeName = "opttree"
     selectionFile = "selection.dat"
@@ -169,7 +170,15 @@ if __name__ == "__main__":
             categoriesFile = arg
         else:
             print "Unrecongnized option " + opt
-            
+
+    if (rootInputFile == ""):
+        print "You have to select one input file."
+        usage()
+        sys.exit(3)
+
+    if (weightName == ""):
+        weightName = "1"
+        
     finalHistos = []
     selection_cut = parseSelection(selectionFile)
     samples = parseInputfiles(inputfilesFile)
@@ -186,7 +195,7 @@ if __name__ == "__main__":
                 temp_hist = "temp_hist("+ str(allHistos.xbins[nv])+","+str(allHistos.xmin[nv])+","+str(allHistos.xmax[nv])+")"
             for nc in xrange(allHistos.ncat[nv]):
 
-                itype_cut = str(s[0])
+                itype_cut = "itype=="+str(s[0])
 
                 if (allHistos.ncat[nv] > len(categories[allHistos.catTypes[nv]])):
                     print "Wrong category definition !!!"
@@ -205,18 +214,21 @@ if __name__ == "__main__":
                 if (cut == ""):
                     cut = "(1)* " + weightName
                 else:
-                    cut = "(" + cut + ")*" + weightName 
-         
-                tree.Draw(v+" >> "+temp_hist, cut, "goff")
+                    cut = "(" + cut + ")*" + weightName
+                    
+                try:
+                    tree.Draw(v+" >> "+temp_hist, cut, "goff")
             
-                final_h = ROOT.gDirectory.Get("temp_hist")
-                final_name = allHistos.name[nv] + "_cat"+str(nc)+"_"+s[1]
-                final_h.SetName(final_name)
-                final_h.SetTitle(final_name)
-                final_h.GetXaxis().SetTitle(allHistos.xaxis[nv])
-                final_h.GetYaxis().SetTitle(allHistos.yaxis[nv])
-                finalHistos.append(final_h)
-    
+                    final_h = ROOT.gDirectory.Get("temp_hist")
+                    final_name = allHistos.name[nv] + "_cat"+str(nc)+"_"+s[1]
+                    final_h.SetName(final_name)
+                    final_h.SetTitle(final_name)
+                    final_h.GetXaxis().SetTitle(allHistos.xaxis[nv])
+                    final_h.GetYaxis().SetTitle(allHistos.yaxis[nv])
+                    finalHistos.append(final_h)
+                except:
+                    sys.exit(4)
+                    
     output = ROOT.TFile(rootOutputFile, "recreate")
     for h in finalHistos:
         h.Write()
