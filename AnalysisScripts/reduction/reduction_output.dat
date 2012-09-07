@@ -20,6 +20,7 @@ sc_seta
 sc_raw
 sc_pre
 sc_bcseedind
+sc_nbc
 
 ecalhit_n
 ecalhit_detid
@@ -266,6 +267,7 @@ pho_hoe_bc
 pho_biphi
 pho_bieta
 pho_betacry
+pho_bphicry
 pho_phicry
 
 # All Conversions
