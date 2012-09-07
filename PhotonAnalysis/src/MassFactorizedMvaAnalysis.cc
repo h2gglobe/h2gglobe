@@ -777,7 +777,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 			  << "    FileName:"  <<  l.files[l.current];
             eventListText << endl;
         }
-	return true; //(category >= 0 && mass>=massMin && mass<=massMax);
+	return (category >= 0 && mass>=massMin && mass<=massMax);
     }
     return false;
 }
@@ -1236,8 +1236,8 @@ void MassFactorizedMvaAnalysis::fillOptTree(LoopAll& l, const TLorentzVector & l
     l.FillTree("et2", (float)sublead_p4.Et());
     l.FillTree("eta1", (float)lead_p4.Eta());
     l.FillTree("eta2", (float)sublead_p4.Eta());
-    //l.FillTree("ncrys1", (int)l.pho_ncrys[diphoton_index.first]);
-    //l.FillTree("ncrys2", (int)l.pho_ncrys[diphoton_index.second]);
+    l.FillTree("ncrys1", (int)999);
+    l.FillTree("ncrys2", (int)999);
 
     l.FillTree("cosphi", (float)TMath::Cos(lead_p4.Phi()-sublead_p4.Phi()));
     l.FillTree("genmatch1", (float)l.pho_genmatched[diphoton_index.first]);
@@ -1292,10 +1292,10 @@ void MassFactorizedMvaAnalysis::fillOptTree(LoopAll& l, const TLorentzVector & l
     l.FillTree("conv1", (int)l.pho_isconv[diphoton_index.first]);
     l.FillTree("conv2", (int)l.pho_isconv[diphoton_index.second]);
     
-    //l.FillTree("etawidth1", (float)l.sc_seta[l.pho_scind[diphoton_index.first]]);
-    //l.FillTree("etawidth2", (float)l.sc_seta[l.pho_scind[diphoton_index.second]]);
-    //l.FillTree("phiwidth1", (float)l.sc_sphi[l.pho_scind[diphoton_index.first]]);
-    //l.FillTree("phiwidth2", (float)l.sc_sphi[l.pho_scind[diphoton_index.second]]);
+    l.FillTree("etawidth1", (float)999.);
+    l.FillTree("etawidth2", (float)999.);
+    l.FillTree("phiwidth1", (float)999.);
+    l.FillTree("phiwidth2", (float)999.);
 
     TVector3* vtx = (TVector3*)l.vtx_std_xyz->At(l.dipho_vtxind[diphoton_id]);
     l.FillTree("vtx_x", (float)vtx->X());
