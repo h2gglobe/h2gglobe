@@ -24,7 +24,8 @@ ALL_TARGETS = plotter JimAnalysis.so
 
 all:			$(ALL_TARGETS)
 
-plotter:		plotter.o HistoContainer.o RooContainer.o Plotting.o 
+plotter:		plotter.o parser.o HistoContainer.o ../RooContainer.o Plotting.o ../BaseSmearer.o ../EnergySmearer.o \
+			../EfficiencySmearer.o	../DiPhoEfficiencySmearer.o ../KFactorSmearer.o ../InterferenceSmearer.o
 
 
 JimAnalysis.so:		JimAnalysis.o 

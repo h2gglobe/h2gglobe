@@ -1,0 +1,223 @@
+#! /usr/bin/python
+
+import ROOT, sys
+import getopt
+
+class histoContainer:
+    def __init__(self):
+        self.histo_type = []
+        self.ncat = []
+        self.xbins = []
+        self.ybins = []
+        self.xmin, self.xmax = [], []
+        self.ymin, self.ymax = [], []
+        self.name = []
+        self.xaxis = []
+        self.yaxis = []
+        self.vars = []
+        self.catTypes =[]
+
+def parseSelection(filename):    
+    file = open(filename)
+    lines = file.readlines()
+    file.close()
+
+    return lines[0].split("\n")[0]
+
+def parseCategories(filename):
+    categories = dict()
+    file = open(filename)
+    lines = file.readlines()
+    file.close()
+    
+    for l in lines:
+        if ("#" not in l):
+            catname = ""
+            catdef = []
+            items = l.split()
+            for item in items:
+                if (item.find("catName=") is not -1):
+                    catname = str(item.split("=")[1])
+                elif (item.find("catDef=") is not -1):
+                    temp = (str(item.split("=")[1])).split(",")
+                    for t in temp:
+                        catdef.append(t)
+                #else:
+                #    print "Cannot parse categories"
+            categories[catname] = catdef 
+
+    return categories
+
+def parseInputfiles(filename):
+    samples = []
+    file = open(filename)
+    lines = file.readlines()
+    file.close()
+    for l in lines:
+        if ("#" not in l and "typ" in l):
+            items = l.split()
+            itype = -1
+            name = ""
+            for item in items:
+                if (item.find("typ=") is not -1):
+                    itype = int(item.split("=")[1])
+                elif (item.find("Nam=") is not -1):
+                    name = str(item.split("=")[1])
+                #else:
+                #    print "Item",item,"not parsed."
+            samples.append((itype, name))
+
+    return samples
+
+def parsePlotvariables(filename, samples):
+    h = histoContainer()
+
+    file = open(filename)
+    lines = file.readlines()
+    file.close()
+
+    for l in lines:
+        
+        items = l.split()
+        for item in items:
+            if ("default" in item or item == ""):
+                continue
+            elif (item.find("htyp=") is not -1):
+                h.histo_type.append(int(item.split("=")[1]))
+            elif item.find("ncat=") is not -1:
+                h.ncat.append(int(item.split("=")[1]))
+            elif item.find("xbins=") is not -1:
+                h.xbins.append(int(item.split("=")[1]))
+            elif item.find("ybins=") is not -1:
+                h.ybins.append(int(item.split("=")[1]))
+            elif item.find("xmin=") is not -1:
+                h.xmin.append(float(item.split("=")[1]))
+            elif item.find("xmax=") is not -1:
+                h.xmax.append(float(item.split("=")[1]))
+            elif item.find("ymin=") is not -1:
+                h.ymin.append(float(item.split("=")[1]))
+            elif item.find("ymax=") is not -1:
+                h.ymax.append(float(item.split("=")[1]))
+            elif item.find("name=") is not -1:
+                h.name.append(str(item.split("=")[1]))
+            elif item.find("xaxis=") is not -1:
+                h.xaxis.append(str(item.split("=")[1]))
+            elif item.find("yaxis=") is not -1:
+                h.yaxis.append(str(item.split("=")[1]))
+            elif item.find("name=") is not -1:
+                h.name.append(str(item.split("=")[1]))
+            elif item.find("var=") is not -1:
+                h.vars.append(str(item.split("=")[1]))
+            elif item.find("catType=") is not -1:
+                h.catTypes.append(str(item.split("=")[1]))
+            #else:
+            #    print "Item",item,"not parsed."
+    return h
+
+def usage():
+    use="""
+plotFromOptree [options]
+
+-h, --help               print this message
+-w, --weight             weight branchname (default "weight")
+-i, --rootinputfile      inputfile name  (default "opttree.root")
+-o, --rootoutputfile     outputfile name (default "output.root")
+-t, --treename           inputtree name (default "opttree")
+-S, --selectionfile      selection .dat (default "selection.dat")
+-I, --inputfile          inputfiles .dat (default "inputfiles.dat")
+-P, --plotvariables      plotvariables .dat (default "plotvariables.dat")
+-C, --categories         categories .dat (default "categories.dat")
+"""
+    print use
+
+if __name__ == "__main__":  
+    # default parameters
+    weightName = "weight"
+    rootInputFile = "opttree.root"
+    rootOutputFile = "output.root"
+    treeName = "opttree"
+    selectionFile = "selection.dat"
+    inputfilesFile = "inputfiles.dat"
+    plotvariablesFile = "plotvariables.dat"
+    categoriesFile = "categories.dat"
+
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "hw:i:o:t:S:I:P:C:", ["help", "weight", "rootinputfile", "roototputfile", "treename", "selectionfile", "inputfile", "plotvariables", "categories"])
+    except getopt.GetoptError:
+        usage()
+        sys.exit(2)
+    
+    for opt, arg in opts:
+        if opt in ("-h", "--help"):
+            usage()
+            sys.exit()
+        elif opt in ("-w", "--weight"):
+            weightName = arg
+        elif opt in ("-i", "--rootinputfile"):
+            rootInputFile = arg
+        elif opt in ("-o", "--rootoutputfile"):
+            rootOutputFile = arg
+        elif opt in ("-t", "--treename"):
+            treeName = arg
+        elif opt in ("-S", "--selectionFile"):
+            selectionFile = arg
+        elif opt in ("-I", "--inputfile"):
+            inputfilesFile = arg
+        elif opt in ("-P", "--plotvariables"):
+            plotvariablesFile = arg
+        elif opt in ("-C", "--categories"):
+            categoriesFile = arg
+        else:
+            print "Unrecongnized option " + opt
+            
+    finalHistos = []
+    selection_cut = parseSelection(selectionFile)
+    samples = parseInputfiles(inputfilesFile)
+    allHistos = parsePlotvariables(plotvariablesFile, samples)
+    categories = parseCategories(categoriesFile)
+
+    file = ROOT.TFile(rootInputFile)
+    tree = file.Get(treeName)
+
+    for ns, s in enumerate(samples):
+        for nv, v in enumerate(allHistos.vars):
+            temp_hist = ""
+            if (allHistos.histo_type[nv] == 1):
+                temp_hist = "temp_hist("+ str(allHistos.xbins[nv])+","+str(allHistos.xmin[nv])+","+str(allHistos.xmax[nv])+")"
+            for nc in xrange(allHistos.ncat[nv]):
+
+                itype_cut = str(s[0])
+
+                if (allHistos.ncat[nv] > len(categories[allHistos.catTypes[nv]])):
+                    print "Wrong category definition !!!"
+                    sys.exit(-1)           
+                category_cut = categories[allHistos.catTypes[nv]][nc]
+
+                cut = itype_cut
+                if (cut == ""):
+                    cut = category_cut
+                else:
+                    cut = cut + " && " + category_cut
+                if (cut == ""):
+                    cut = selection_cut
+                else:
+                    cut = cut + " && " + selection_cut
+                if (cut == ""):
+                    cut = "(1)* " + weightName
+                else:
+                    cut = "(" + cut + ")*" + weightName 
+         
+                tree.Draw(v+" >> "+temp_hist, cut, "goff")
+            
+                final_h = ROOT.gDirectory.Get("temp_hist")
+                final_name = allHistos.name[nv] + "_cat"+str(nc)+"_"+s[1]
+                final_h.SetName(final_name)
+                final_h.SetTitle(final_name)
+                final_h.GetXaxis().SetTitle(allHistos.xaxis[nv])
+                final_h.GetYaxis().SetTitle(allHistos.yaxis[nv])
+                finalHistos.append(final_h)
+    
+    output = ROOT.TFile(rootOutputFile, "recreate")
+    for h in finalHistos:
+        h.Write()
+    output.Close()

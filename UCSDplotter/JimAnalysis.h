@@ -3,7 +3,9 @@
 
 #include "GenericAnalysis.h"
 #include "HistoContainer.h"
-#include "RooContainer.h"
+#include "../RooContainer.h"
+
+#include "Smearing.h"
 
 #include "TTree.h"
 
@@ -12,7 +14,7 @@ class JimAnalysis : public GenericAnalysis {
  public:
   /** set branch addresses for the given tree
       and set active / inactivate the branches */
-  void setBranchAddresses(TTree *tree);
+  void setBranchAddresses(TTree *tree, std::map<std::string, std::string>& values);
 
   void defineLabels();
   std::string GetSignalLabel(int id);
@@ -21,18 +23,17 @@ class JimAnalysis : public GenericAnalysis {
       and is typically the place to fill histograms
       using container->Fill(..) and container->Fill2D(..)
   */
-  void analyze(HistoContainer *container, RooContainer* rooContainer);
+  void analyze(HistoContainer *container, RooContainer* rooContainer, Smearing s);
 
   void FillRooContainer(RooContainer* rooContainer, bool isCorrectVertex);
-  void FillRooContainerSyst(RooContainer* rooContainer, const std::string &name, int cur_type,
-			    std::vector<double> & mass_errors, std::vector<double> & mva_errors,
-			    std::vector<int>    & categories, std::vector<double> & weights);
+  void FillRooContainerSyst(RooContainer* rooContainer);
+
   // List of opttree branches
 
-  Int_t run;
-  Int_t lumis;
-  Int_t event;
-  Int_t itype;
+  Float_t run;
+  Float_t lumis;
+  Double_t event;
+  Float_t itype;
   //Float_t itype;
   Float_t sigmaMrvoM;
   Float_t sigmaMwvoM;
@@ -48,16 +49,22 @@ class JimAnalysis : public GenericAnalysis {
   Float_t xsec_weight;
   Float_t pu_weight;
   Float_t full_weight;
-  Int_t pu_n;
+  Float_t pu_n;
   Float_t mass;
-  Int_t vbfcat;
+  Float_t vbfcat;
   Float_t MET;
   Float_t MET_phi;
   Float_t bdt;
-  Int_t bdt_cat;
-  //Float_t bdt_cat;
+  Float_t bdt_cat;
+  Float_t vtx_x, vtx_y, vtx_z;
+  Float_t gv_x, gv_y, gv_z;
+  Int_t isSyst;
+  std::string* name1;
 
   std::map<int,std::string> signalLabels;
+  bool doMCSmearing, doSystematics;
+  bool doMCOptimization;
+  
 };
 
 /*

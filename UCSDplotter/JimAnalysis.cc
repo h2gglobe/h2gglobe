@@ -1,53 +1,80 @@
 #include "JimAnalysis.h"
 
+#include "parser.h"
+
 #include <iostream>
 using std::cout;
 using std::cerr;
 using std::endl;
 
 //----------------------------------------------------------------------
-void JimAnalysis::setBranchAddresses(TTree* tree) {
+void JimAnalysis::setBranchAddresses(TTree* tree, std::map<std::string, std::string>& values) {
   
-  tree->SetBranchAddress("run"         , &run);	       
-  tree->SetBranchAddress("lumis"       , &lumis);       
-  tree->SetBranchAddress("event"       , &event);       
-  tree->SetBranchAddress("itype"       , &itype);       
-  tree->SetBranchAddress("sigmaMrvoM"  , &sigmaMrvoM);  
-  tree->SetBranchAddress("sigmaMwvoM"  , &sigmaMwvoM);  
-  tree->SetBranchAddress("ptoM1"       , &ptoM1);       
-  tree->SetBranchAddress("ptoM2"       , &ptoM2);       
-  tree->SetBranchAddress("vtxprob"     , &vtxprob);     
-  tree->SetBranchAddress("eta1"	       , &eta1);	       
-  tree->SetBranchAddress("eta2"	       , &eta2);	       
-  tree->SetBranchAddress("cosphi"      , &cosphi);      
-  tree->SetBranchAddress("idmva1"      , &idmva1);      
-  tree->SetBranchAddress("idmva2"      , &idmva2);      
-  tree->SetBranchAddress("rho"	       , &rho);	       
-  tree->SetBranchAddress("xsec_weight" , &xsec_weight); 
-  tree->SetBranchAddress("pu_weight"   , &pu_weight);   
-  tree->SetBranchAddress("w" , &full_weight); 
-  tree->SetBranchAddress("pu_n"	       , &pu_n);	       
-  tree->SetBranchAddress("mass"	       , &mass);	       
-  tree->SetBranchAddress("vbfcat"      , &vbfcat);      
-  tree->SetBranchAddress("MET"	       , &MET);	       
-  tree->SetBranchAddress("MET_phi"     , &MET_phi);     
-  tree->SetBranchAddress("bdt"	       , &bdt);	       
-  tree->SetBranchAddress("diphocat2r92eta"     , &bdt_cat);      
+  tree->SetBranchAddress("run"          , &run);	       
+  tree->SetBranchAddress("lumis"        , &lumis);       
+  tree->SetBranchAddress("event"        , &event);       
+  tree->SetBranchAddress("itype"        , &itype);       
+  tree->SetBranchAddress("sigmaMrvoM"   , &sigmaMrvoM);  
+  tree->SetBranchAddress("sigmaMwvoM"   , &sigmaMwvoM);  
+  tree->SetBranchAddress("ptoM1"        , &ptoM1);       
+  tree->SetBranchAddress("ptoM2"        , &ptoM2);       
+  tree->SetBranchAddress("vtxprob"      , &vtxprob);     
+  tree->SetBranchAddress("eta1"	        , &eta1);	       
+  tree->SetBranchAddress("eta2"	        , &eta2);	       
+  tree->SetBranchAddress("cosphi"       , &cosphi);      
+  tree->SetBranchAddress("idmva1"       , &idmva1);      
+  tree->SetBranchAddress("idmva2"       , &idmva2);      
+  tree->SetBranchAddress("rho"	        , &rho);	       
+  tree->SetBranchAddress("xsec_weight"  , &xsec_weight); 
+  tree->SetBranchAddress("pu_weight"    , &pu_weight);   
+  tree->SetBranchAddress("full_weight"  , &full_weight); 
+  tree->SetBranchAddress("pu_n"	        , &pu_n);	       
+  tree->SetBranchAddress("mass"	        , &mass);	       
+  tree->SetBranchAddress("vbfcat"       , &vbfcat);      
+  tree->SetBranchAddress("MET"	        , &MET);	       
+  tree->SetBranchAddress("MET_phi"      , &MET_phi);     
+  tree->SetBranchAddress("dipho_mva"	, &bdt);	       
+  tree->SetBranchAddress("dipho_mva_cat", &bdt_cat);    
+  tree->SetBranchAddress("vtx_x"        , &vtx_x);
+  tree->SetBranchAddress("vtx_y"        , &vtx_y);
+  tree->SetBranchAddress("vtx_z"        , &vtx_z);
+  tree->SetBranchAddress("gv_x"         , &gv_x);
+  tree->SetBranchAddress("gv_y"         , &gv_y);
+  tree->SetBranchAddress("gv_z"         , &gv_z);
+  tree->SetBranchAddress("issyst"       , &isSyst);
+  tree->SetBranchAddress("name1"        , &name1);
 
   defineLabels();
+
+  doMCSmearing = (bool)getUint(values, "doMCSmearing");
+  doSystematics = (bool)getUint(values, "doSystematics");
+  doMCOptimization = (bool)getUint(values, "doMCOptimization");
 }
 
 //----------------------------------------------------------------------
 
-void JimAnalysis::analyze(HistoContainer* container, RooContainer* rooContainer) {
+void JimAnalysis::analyze(HistoContainer* container, RooContainer* rooContainer, Smearing smearing) {
 
   // cout << "run=" << run << endl;
   // container->Fill("run", 0, run, full_weight);
 
-  // fill mass per BDT category
   if (bdt_cat >= 0) {
     container->Fill("reco_mass", int(itype + 0.5), int(bdt_cat + 0.5), mass, full_weight);
-    FillRooContainer(rooContainer, true);
+
+    bool isCorrectVertex = true;
+    if(itype != 0) {
+      float dr = sqrt(pow(vtx_x - gv_x,2) + pow(vtx_y - gv_y, 2) + pow(vtx_z - gv_z, 2));
+      isCorrectVertex = (dr < 1.);
+    }
+
+    if (!doSystematics || (doSystematics && isSyst == 0))
+      FillRooContainer(rooContainer, isCorrectVertex);
+    
+    // Systematics uncertaities for the binned model
+    // We re-analyse the event several times for different values of corrections and smearings
+    if(itype < 0 && doMCSmearing && doSystematics && isSyst == 1)
+      FillRooContainerSyst(rooContainer);      
+   
   }
 }
 
@@ -62,14 +89,13 @@ void JimAnalysis::FillRooContainer(RooContainer* rooContainer, bool isCorrectVer
 
   if (itype == 0 ) {
     rooContainer->InputDataPoint("data_mass", bdt_cat, mass);
-  } else if (itype < 0 ) {
-    //if(doMcOptimization) {
-    //rooContainer->InputDataPoint("data_mass", bdt_cat, mass, full_weight);
-    //} else if (itype != 3 && itype != 4 ) {
-    //rooContainer->InputDataPoint("bkg_mass", bdt_cat, mass, full_weight);
-    //}
-    // FIXME FOR NEW ITYPES
-  } else if (itype > 0) {
+  } else if (itype > 0 ) {
+    if(doMCOptimization) {
+      rooContainer->InputDataPoint("data_mass", bdt_cat, mass, full_weight);
+    } else if (itype != 3 && itype != 4 ) {
+      rooContainer->InputDataPoint("bkg_mass", bdt_cat, mass, full_weight);
+    }
+  } else if (itype < 0) {
     rooContainer->InputDataPoint("sig_" + GetSignalLabel(itype), bdt_cat, mass, full_weight);
     if (isCorrectVertex) 
       rooContainer->InputDataPoint("sig_" + GetSignalLabel(itype) + "_rv", bdt_cat, mass, full_weight);
@@ -78,18 +104,24 @@ void JimAnalysis::FillRooContainer(RooContainer* rooContainer, bool isCorrectVer
   }
 }
 
-void JimAnalysis::FillRooContainerSyst(RooContainer* rooContainer, const std::string &name, int cur_type,
-				       std::vector<double> & mass_errors, std::vector<double> & mva_errors,
-				       std::vector<int>    & categories, std::vector<double> & weights) {    
+void JimAnalysis::FillRooContainerSyst(RooContainer* rooContainer) {
+
   if (itype < 0){
-    // feed the modified signal model to the RooContainer
-    rooContainer->InputSystematicSet("sig_" + GetSignalLabel(cur_type), name, categories, mass_errors, weights);
+
+    std::vector<double> mass_errors, weights;
+    std::vector<int> categories;
+    
+    mass_errors.push_back(mass);
+    weights.push_back(full_weight);
+    categories.push_back(bdt_cat);
+
+    rooContainer->InputSystematicSet("sig_" + GetSignalLabel(itype), *name1, categories, mass_errors, weights);
   }
 }
     
 
 std::string JimAnalysis::GetSignalLabel(int id) {
-
+  /*
   if (id == 100001) id = -69;
   if (id == 100002) id = -70;
   if (id == 100003) id = -72;
@@ -154,7 +186,7 @@ std::string JimAnalysis::GetSignalLabel(int id) {
   if (id == 150002) id = -50;
   if (id == 150003) id = -52;
   if (id == 150004) id = -51;
-
+  */
   // Basically A Map of the ID (type) to the signal's name which can be filled Now:
   // For the lazy man, can return a memeber of the map rather than doing it yourself
   std::map<int,std::string>::iterator it = signalLabels.find(id);
