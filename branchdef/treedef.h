@@ -1,3 +1,4 @@
+Int_t pho_ncrys[MAX_PHOTONS];
 Int_t pfcand_n;
 Int_t pfcand_pdgid[MAX_PFCANDS];
 TClonesArray* pfcand_p4;

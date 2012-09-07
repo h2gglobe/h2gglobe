@@ -21,6 +21,8 @@ type=2 name=MET_phi
 
 type=2 name=sigmaMrvoM
 type=2 name=sigmaMwvoM
+type=2 name=sigmaEoE1
+type=2 name=sigmaEoE2
 type=2 name=ptoM1
 type=2 name=ptoM2
 type=2 name=vtxprob
@@ -46,6 +48,8 @@ type=2 name=cicpf4cutlevel1
 type=2 name=cicpf4cutlevel2
 type=2 name=r91
 type=2 name=r92
+#type=0 name=ncrys1
+#type=0 name=ncrys2
  
 type=2 name=sieie1
 type=2 name=sieie2
@@ -63,5 +67,21 @@ type=2 name=chisow1
 type=2 name=chisow2
 type=2 name=phoiso031
 type=2 name=phoiso032
+
+#type=2 name=etawidth1
+#type=2 name=etawidth2
+#type=2 name=phiwidth1
+#type=2 name=phiwidth2
+
+type=2 name=vtx_x
+type=2 name=vtx_y
+type=2 name=vtx_z
+
+type=2 name=gv_x
+type=2 name=gv_y
+type=2 name=gv_z
+
+type=0 name=issyst
+type=4 name=name1
 
 

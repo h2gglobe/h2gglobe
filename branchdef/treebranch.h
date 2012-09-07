@@ -1,3 +1,4 @@
+void Branch_pho_ncrys(TTree * tree) { tree->Branch("pho_ncrys",&pho_ncrys, "pho_ncrys[pho_n]/I");  }; 
 
 void Branch_pfcand_n(TTree * tree) { tree->Branch("pfcand_n",&pfcand_n, "pfcand_n/I");  }; 
 void Branch_pfcand_p4(TTree * tree) { tree->Branch("pfcand_p4", "TClonesArray",&pfcand_p4, 32000, 0); }; 

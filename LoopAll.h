@@ -200,6 +200,7 @@ class LoopAll {
   void FillTree(std::string name,double x);
   void FillTree(std::string name,int x);
   void FillTree(std::string name,unsigned int x);
+  void FillTree(std::string name,std::string x);
  
 
   void WritePI();

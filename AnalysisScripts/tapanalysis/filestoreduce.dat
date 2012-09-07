@@ -1,7 +1,7 @@
 output=my_reduced_tuple_foo.root
-Fil=/home/users/matteo/run2012C.root typ=0
+Fil=/afs/cern.ch/user/s/sani/work/Run2012A-13Jul2012-v1_9_1_1Jo.root typ=0
 
-inputBranches tapanalysis/reduction_input.dat
-outputBranches tapanalysis/reduction_output.dat
+inputBranches reduction/reduction_input.dat
+outputBranches reduction/reduction_output.dat
 
-analyzer TapAnalysis tapanalysis/tapanalysis.dat
+analyzer PhotonAnalysis common/photonanalysis.dat

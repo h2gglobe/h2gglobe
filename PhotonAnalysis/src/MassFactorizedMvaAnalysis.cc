@@ -656,10 +656,25 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 	    computeExclusiveCategory(l,category,diphoton_index,Higgs.Pt()); 
 	}
 	
-	if (fillOptree) 
-	    fillOptTree(l, lead_p4, sublead_p4, vtxProb, diphoton_index, diphoton_id, phoid_mvaout_lead, phoid_mvaout_sublead, weight, 
-			mass, sigmaMrv, sigmaMwv, Higgs, diphobdt_output, category, VBFevent, myVBF_Mjj, myVBFLeadJPt, 
-			myVBFSubJPt, nVBFDijetJetCategories);
+	if (fillOptree) {
+	    std::string name;
+	    if (genSys != 0)
+		name = genSys->name();
+	    if (phoSys != 0)
+	    	name = phoSys->name();
+	    if (diPhoSys != 0)
+	    	name = diPhoSys->name();
+
+	    if (!isSyst)
+		fillOptTree(l, lead_p4, sublead_p4, vtxProb, diphoton_index, diphoton_id, phoid_mvaout_lead, phoid_mvaout_sublead, weight, 
+			    mass, sigmaMrv, sigmaMwv, Higgs, diphobdt_output, category, VBFevent, myVBF_Mjj, myVBFLeadJPt, 
+			    myVBFSubJPt, nVBFDijetJetCategories, isSyst, "no-syst");
+	    else
+		fillOptTree(l, lead_p4, sublead_p4, vtxProb, diphoton_index, diphoton_id, phoid_mvaout_lead, phoid_mvaout_sublead, weight, 
+			    mass, sigmaMrv, sigmaMwv, Higgs, diphobdt_output, category, VBFevent, myVBF_Mjj, myVBFLeadJPt, 
+			    myVBFSubJPt, nVBFDijetJetCategories, isSyst, name);
+
+	}
 
         if (PADEBUG) std::cout << " Diphoton Category " <<category <<std::endl;
     	// sanity check
@@ -762,7 +777,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 			  << "    FileName:"  <<  l.files[l.current];
             eventListText << endl;
         }
-	return (category >= 0 && mass>=massMin && mass<=massMax);
+	return true; //(category >= 0 && mass>=massMin && mass<=massMax);
     }
     return false;
 }
@@ -1198,13 +1213,13 @@ void MassFactorizedMvaAnalysis::fillOptTree(LoopAll& l, const TLorentzVector & l
 					    std::pair<int, int> diphoton_index, Int_t diphoton_id, Float_t phoid_mvaout_lead, Float_t phoid_mvaout_sublead,
 					    Float_t weight, Float_t mass, Float_t sigmaMrv, Float_t sigmaMwv,
 					    const TLorentzVector & Higgs, Float_t diphobdt_output, Int_t category, bool VBFevent, Float_t myVBF_Mjj, Float_t myVBFLeadJPt, 
-					    Float_t myVBFSubJPt, Int_t nVBFDijetJetCategories) {
+					    Float_t myVBFSubJPt, Int_t nVBFDijetJetCategories, bool isSyst, std::string name1) {
 
     int vbfcat=-1;
     if(VBFevent){
 	vbfcat=l.DijetSubCategory(myVBF_Mjj,myVBFLeadJPt,myVBFSubJPt,nVBFDijetJetCategories);
     }
-    
+
     l.FillTree("run", (float)l.run);
     l.FillTree("lumis", (float)l.lumis);
     l.FillTree("event", (double)l.event);
@@ -1212,6 +1227,8 @@ void MassFactorizedMvaAnalysis::fillOptTree(LoopAll& l, const TLorentzVector & l
     l.FillTree("nvtx", (float)l.vtx_std_n);
     l.FillTree("sigmaMrvoM", (float)sigmaMrv/mass);
     l.FillTree("sigmaMwvoM", (float)sigmaMwv/mass);
+    l.FillTree("sigmaEoE1", (float)l.pho_regr_energyerr[diphoton_index.first]/(float)l.pho_regr_energy[diphoton_index.first]);
+    l.FillTree("sigmaEoE2", (float)l.pho_regr_energyerr[diphoton_index.second]/(float)l.pho_regr_energy[diphoton_index.second]);
     l.FillTree("ptoM1", (float)lead_p4.Pt()/mass);
     l.FillTree("ptoM2", (float)sublead_p4.Pt()/mass);
     l.FillTree("vtxprob", (float)vtxProb);
@@ -1219,6 +1236,9 @@ void MassFactorizedMvaAnalysis::fillOptTree(LoopAll& l, const TLorentzVector & l
     l.FillTree("et2", (float)sublead_p4.Et());
     l.FillTree("eta1", (float)lead_p4.Eta());
     l.FillTree("eta2", (float)sublead_p4.Eta());
+    //l.FillTree("ncrys1", (int)l.pho_ncrys[diphoton_index.first]);
+    //l.FillTree("ncrys2", (int)l.pho_ncrys[diphoton_index.second]);
+
     l.FillTree("cosphi", (float)TMath::Cos(lead_p4.Phi()-sublead_p4.Phi()));
     l.FillTree("genmatch1", (float)l.pho_genmatched[diphoton_index.first]);
     l.FillTree("genmatch2", (float)l.pho_genmatched[diphoton_index.second]);
@@ -1271,6 +1291,31 @@ void MassFactorizedMvaAnalysis::fillOptTree(LoopAll& l, const TLorentzVector & l
     l.FillTree("hoe2", l.pho_hoe[diphoton_index.second]);
     l.FillTree("conv1", (int)l.pho_isconv[diphoton_index.first]);
     l.FillTree("conv2", (int)l.pho_isconv[diphoton_index.second]);
+    
+    //l.FillTree("etawidth1", (float)l.sc_seta[l.pho_scind[diphoton_index.first]]);
+    //l.FillTree("etawidth2", (float)l.sc_seta[l.pho_scind[diphoton_index.second]]);
+    //l.FillTree("phiwidth1", (float)l.sc_sphi[l.pho_scind[diphoton_index.first]]);
+    //l.FillTree("phiwidth2", (float)l.sc_sphi[l.pho_scind[diphoton_index.second]]);
+
+    TVector3* vtx = (TVector3*)l.vtx_std_xyz->At(l.dipho_vtxind[diphoton_id]);
+    l.FillTree("vtx_x", (float)vtx->X());
+    l.FillTree("vtx_y", (float)vtx->Y());
+    l.FillTree("vtx_z", (float)vtx->Z());
+
+    if (l.itype[l.current] != 0) {
+	TVector3* gv = (TVector3*)l.gv_pos->At(0);
+	l.FillTree("gv_x", (float)gv->X());
+	l.FillTree("gv_y", (float)gv->Y());
+	l.FillTree("gv_z", (float)gv->Z());
+    } else {
+	l.FillTree("gv_x", (float)9999.);
+	l.FillTree("gv_y", (float)9999.);
+	l.FillTree("gv_z", (float)9999.);
+    }
+    
+    l.FillTree("issyst", (int)isSyst);
+    l.FillTree("name1", name1);
+
 };
 
 

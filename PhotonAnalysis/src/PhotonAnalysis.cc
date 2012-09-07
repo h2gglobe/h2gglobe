@@ -1509,7 +1509,16 @@ void PhotonAnalysis::FillReductionVariables(LoopAll& l, int jentry)
         cout<<"myFillReduceVar START"<<endl;
     
     PreselectPhotons(l,jentry);
-        
+    
+    /*
+    for (int i=0; i<l.pho_n; i++) {
+	l.pho_ncrys[i] = 0;
+	for (int j=0; j<l.sc_nbc[l.pho_scind[i]]; j++) {
+	    l.pho_ncrys[i] += l.bc_nhits[l.sc_bcind[l.pho_scind[i]][j]];
+	}
+    }
+    */
+  
     if(PADEBUG) 
         cout<<"myFillReduceVar END"<<endl;
 
@@ -1547,7 +1556,7 @@ void PhotonAnalysis::postProcessJets(LoopAll & l, int vtx)
 void PhotonAnalysis::switchJetIdVertex(LoopAll &l, int ivtx) 
 {
     for(int ii=0; ii<l.jet_algoPF1_n; ++ii) {
-    l.jet_algoPF1_beta[ii]              = (*l.jet_algoPF1_beta_ext)[ii][ivtx];
+	l.jet_algoPF1_beta[ii]              = (*l.jet_algoPF1_beta_ext)[ii][ivtx];
         l.jet_algoPF1_betaStar[ii]          = (*l.jet_algoPF1_betaStar_ext)[ii][ivtx];
         l.jet_algoPF1_betaStarClassic[ii]   = (*l.jet_algoPF1_betaStarClassic_ext)[ii][ivtx];
         l.jet_algoPF1_simple_mva[ii]        = (*l.jet_algoPF1_simple_mva_ext)[ii][ivtx];
@@ -1872,6 +1881,8 @@ void PhotonAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree)
     l.dipho_vtx_std_sel =  new std::vector<int>();
 
     if( outputTree ) {
+	//l.Branch_pho_ncrys(outputTree);
+
 	l.Branch_vtx_std_evt_mva(outputTree);
 	l.Branch_vtx_std_ranked_list(outputTree);
 	l.Branch_vtx_std_sel(outputTree);

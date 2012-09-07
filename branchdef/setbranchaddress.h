@@ -1,3 +1,4 @@
+void SetBranchAddress_pho_ncrys(TTree * tree) { tree->SetBranchAddress("pho_ncrys", &pho_ncrys, &b_pho_ncrys); }; 
 void SetBranchAddress_pfcand_n(TTree * tree) { tree->SetBranchAddress("pfcand_n", &pfcand_n, &b_pfcand_n); }; 
 void SetBranchAddress_pfcand_pdgid(TTree * tree) { tree->SetBranchAddress("pfcand_pdgid", &pfcand_pdgid, &b_pfcand_pdgid); }
 void SetBranchAddress_pfcand_p4(TTree * tree) { tree->SetBranchAddress("pfcand_p4", &pfcand_p4, &b_pfcand_p4); }; 
