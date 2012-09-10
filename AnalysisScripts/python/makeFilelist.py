@@ -83,7 +83,10 @@ def unmounteos(dir):
    
    unmount = 'csh -c "eosumount %s "'%dir
    sc,flist = commands.getstatusoutput(unmount) 
-   sc,flist = commands.getstatusoutput("rm -r %s"%dir) 
+   if sc==0: #status must be completed for unmount
+      sc,flist = commands.getstatusoutput("rm -r %s"%dir) 
+   else:
+      sys.exit("Unmount",dir,"failed. Exiting.")
    
 
 def makeEosFiles(dir,njobs=-1,jobid=0,nf=[0]):
