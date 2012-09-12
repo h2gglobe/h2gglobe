@@ -1,5 +1,4 @@
-DYJetsToLL_M-50_TuneZ2Star_8TeV    4
-#DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12-PU_S7_START52_V9-v2:DYJetsToLL_M-50_v2    4
+DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1:DYJetsToLL_M-50    4
 
 #DiPhotonBorn_Pt-10To25_8TeV-pythia6_Summer12-PU_S7_START52_V9-v1:DiPhotonBorn_Pt-10To25     3
 #DiPhotonBorn_Pt-250ToInf_8TeV-pythia6_Summer12-PU_S7_START52_V9-v1:DiPhotonBorn_Pt-250ToInf   3
