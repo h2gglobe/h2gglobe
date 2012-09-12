@@ -146,10 +146,10 @@ pho_isEBEEGap
 pho_zernike20
 pho_zernike42
 pho_e2nd
-#pho_e2x5max
+pho_e2x5max
 pho_e2x5right
 pho_e2x5left
-#pho_e2x5top
+pho_e2x5top
 pho_e2x5bottom
 pho_eright
 pho_eleft
@@ -264,10 +264,10 @@ pho_eseffsiyiy
 #### pho_hcalbcsumetconedr03
 #### pho_hcalbcsumetconedr04
 pho_hoe_bc
-#pho_biphi
-#pho_bieta
-#pho_betacry
-#pho_phicry
+pho_biphi
+pho_bieta
+pho_betacry
+pho_phicry
 
 # All Conversions
 conv_n
@@ -453,6 +453,39 @@ jet_algoPF1_simple_mva_ext
 #jet_algoPF2_full_mva_ext
 #jet_algoPF2_simple_mva_ext
 
+jet_algoPF3_n
+jet_algoPF3_erescale
+jet_algoPF3_p4
+jet_algoPF3_beta
+jet_algoPF3_betaStar
+jet_algoPF3_betaStarClassic
+jet_algoPF3_dR2Mean
+jet_algoPF3_dRMean
+jet_algoPF3_dZ
+jet_algoPF3_frac01
+jet_algoPF3_frac02
+jet_algoPF3_frac03
+jet_algoPF3_frac04
+jet_algoPF3_frac05
+jet_algoPF3_full_mva
+jet_algoPF3_simple_mva
+jet_algoPF3_nCharged
+jet_algoPF3_nNeutrals
+jet_algoPF3_full_wp_level
+jet_algoPF3_simple_wp_level
+jet_algoPF3_cutbased_wp_level
+jet_algoPF3_pfloose
+jet_algoPF3_area
+
+jet_algoPF3_beta_ext
+jet_algoPF3_betaStar_ext
+jet_algoPF3_betaStarClassic_ext
+jet_algoPF3_full_wp_level_ext
+jet_algoPF3_simple_wp_level_ext
+jet_algoPF3_cutbased_wp_level_ext
+jet_algoPF3_full_mva_ext
+jet_algoPF3_simple_mva_ext
+
 # New photon variables 
 pho_pfRawEnergy
 pho_pfe2x2
@@ -488,3 +521,4 @@ pho_pfe2nd
 #pho_pfiso_egcharged04
 #pho_pfiso_egcharged05
 #pho_pfiso_egcharged06
+

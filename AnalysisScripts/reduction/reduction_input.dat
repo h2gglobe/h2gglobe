@@ -23,7 +23,6 @@ sc_raw
 sc_pre
 sc_seta
 sc_sphi
-
 pho_hoe
 pho_sieie
 pho_e5x5
@@ -87,6 +86,8 @@ vtx_std_tkind
 vtx_std_xyz
 jet_algoPF1_tkind
 #jet_algoPF2_tkind
+jet_algoPF3_tkind
+jet_algoPF1_ntk
 #jet_algoPF2_ntk
 jet_algoPF3_ntk
 tk_p4
