@@ -465,7 +465,7 @@ Float_t pho_e2x5max[MAX_PHOTONS];
 Int_t pho_bieta[MAX_PHOTONS];
 Int_t pho_biphi[MAX_PHOTONS];
 Float_t pho_betacry[MAX_PHOTONS];
-Float_t pho_bphicry[MAX_PHOTONS];
+Float_t pho_phicry[MAX_PHOTONS];
 Float_t pho_bthetatilt[MAX_PHOTONS];
 Float_t pho_bphitilt[MAX_PHOTONS];
 Float_t pho_e2x5bottom[MAX_PHOTONS];

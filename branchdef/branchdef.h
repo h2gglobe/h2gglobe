@@ -2,7 +2,7 @@ TBranch* b_pho_ncrys;
 TBranch* b_pho_bieta;
 TBranch* b_pho_biphi;
 TBranch* b_pho_betacry;
-TBranch* b_pho_bphicry;
+TBranch* b_pho_phicry;
 TBranch* b_pho_bphitilt;
 TBranch* b_pho_bthetatilt;
 TBranch* b_pfcand_n;

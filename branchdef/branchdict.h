@@ -490,7 +490,7 @@ BRANCH_DICT(pho_e2x5max);
 BRANCH_DICT(pho_bieta);
 BRANCH_DICT(pho_biphi);
 BRANCH_DICT(pho_betacry);
-BRANCH_DICT(pho_bphicry);
+BRANCH_DICT(pho_phicry);
 BRANCH_DICT(pho_bthetatilt);
 BRANCH_DICT(pho_bphitilt);
 BRANCH_DICT(pho_e2x5bottom);

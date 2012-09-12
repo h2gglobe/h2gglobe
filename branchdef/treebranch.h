@@ -493,7 +493,7 @@ void Branch_pho_e2x5max(TTree * tree) { tree->Branch("pho_e2x5max",&pho_e2x5max,
 void Branch_pho_bieta(TTree * tree) { tree->Branch("pho_bieta",&pho_bieta,"pho_bieta[pho_n]/I");  }; 
 void Branch_pho_biphi(TTree * tree) { tree->Branch("pho_biphi",&pho_biphi,"pho_biphi[pho_n]/I");  }; 
 void Branch_pho_betacry(TTree * tree) { tree->Branch("pho_betacry",&pho_betacry,"pho_betacry[pho_n]/F");  }; 
-void Branch_pho_bphicry(TTree * tree) { tree->Branch("pho_bphicry",&pho_bphicry,"pho_bphicry[pho_n]/F");  }; 
+void Branch_pho_phicry(TTree * tree) { tree->Branch("pho_phicry",&pho_phicry,"pho_phicry[pho_n]/F");  }; 
 void Branch_pho_bthetatilt(TTree * tree) { tree->Branch("pho_bthetatilt",&pho_bthetatilt,"pho_bthetatitl[pho_n]/F");  }; 
 void Branch_pho_bphitilt(TTree * tree) { tree->Branch("pho_bphitilt",&pho_bphitilt,"pho_bphitilt[pho_n]/F");  }; 
 void Branch_pho_e2x5bottom(TTree * tree) { tree->Branch("pho_e2x5bottom",&pho_e2x5bottom,"pho_e2x5bottom[pho_n]/F");  }; 

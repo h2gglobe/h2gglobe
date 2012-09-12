@@ -492,7 +492,7 @@ void SetBranchAddress_pho_e2x5max(TTree * tree) { tree->SetBranchAddress("pho_e2
 void SetBranchAddress_pho_bieta(TTree * tree) { tree->SetBranchAddress("pho_bieta", pho_bieta, &b_pho_bieta); }; 
 void SetBranchAddress_pho_biphi(TTree * tree) { tree->SetBranchAddress("pho_biphi", pho_biphi, &b_pho_biphi); }; 
 void SetBranchAddress_pho_betacry(TTree * tree) { tree->SetBranchAddress("pho_betacry", pho_betacry, &b_pho_betacry); }; 
-void SetBranchAddress_pho_bphicry(TTree * tree) { tree->SetBranchAddress("pho_bphicry", pho_bphicry, &b_pho_bphicry); }; 
+void SetBranchAddress_pho_phicry(TTree * tree) { tree->SetBranchAddress("pho_phicry", pho_phicry, &b_pho_phicry); }; 
 void SetBranchAddress_pho_bthetatilt(TTree * tree) { tree->SetBranchAddress("pho_bthetatilt", pho_bthetatilt, &b_pho_bthetatilt); }; 
 void SetBranchAddress_pho_bphitilt(TTree * tree) { tree->SetBranchAddress("pho_bphitilt", pho_bphitilt, &b_pho_bphitilt); }; 
 void SetBranchAddress_pho_e2x5bottom(TTree * tree) { tree->SetBranchAddress("pho_e2x5bottom", pho_e2x5bottom, &b_pho_e2x5bottom); }; 
