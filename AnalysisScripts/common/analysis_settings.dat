@@ -37,7 +37,7 @@ pdfWeightHist=aux/GF_mvasys.root
 ## kfacHist=aux/KFactors_AllScales_interpolated.root
 puMap=
 puHist=auto
-puTarget=aux/latest_prompt_NoLowPU_ICHEP_535.json.71000.observed.pileup.root
+puTarget=aux/nPU-Summer12_DD3.190456-200245-29Jun_Prompt.observed.root
 
 ## energy regression
 energyCorrectionMethod=Bendavid
