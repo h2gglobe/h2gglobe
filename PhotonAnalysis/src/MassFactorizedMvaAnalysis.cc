@@ -18,6 +18,10 @@ MassFactorizedMvaAnalysis::MassFactorizedMvaAnalysis()  :
     systRange  = 3.; // in units of sigma
     nSystSteps = 1;
 
+    photonIDMVAShift_EB = 0.;
+    photonIDMVAShift_EE = 0.;
+    forceStdPlotsOnZee = false;
+
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -45,11 +49,6 @@ void MassFactorizedMvaAnalysis::Term(LoopAll& l)
     bdtCategoryBoundaries.push_back(0.71);
     bdtCategoryBoundaries.push_back(0.88);
     bdtCategoryBoundaries.push_back(1.);
-
-    photonIDMVAShift_EB = 0.;
-    photonIDMVAShift_EE = 0.;
-
-    forceStdPlotsOnZee = false;
 }
 
 // ----------------------------------------------------------------------------------------------------
