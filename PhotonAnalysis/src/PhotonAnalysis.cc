@@ -1607,7 +1607,7 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
     // pfJets ak5
     l.doJetMatching(*l.jet_algoPF1_p4,*l.genjet_algo1_p4,l.jet_algoPF1_genMatched,l.jet_algoPF1_vbfMatched,l.jet_algoPF1_genPt,l.jet_algoPF1_genDr);
     // pfJets ak7
-    l.doJetMatching(*l.jet_algoPF2_p4,*l.genjet_algo2_p4,l.jet_algoPF2_genMatched,l.jet_algoPF2_vbfMatched,l.jet_algoPF2_genPt,l.jet_algoPF2_genDr);
+    //l.doJetMatching(*l.jet_algoPF2_p4,*l.genjet_algo2_p4,l.jet_algoPF2_genMatched,l.jet_algoPF2_vbfMatched,l.jet_algoPF2_genPt,l.jet_algoPF2_genDr);
     // CHS ak5
     l.doJetMatching(*l.jet_algoPF3_p4,*l.genjet_algo1_p4,l.jet_algoPF3_genMatched,l.jet_algoPF3_vbfMatched,l.jet_algoPF3_genPt,l.jet_algoPF3_genDr);
 
@@ -1925,10 +1925,10 @@ void PhotonAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree)
 	l.Branch_jet_algoPF1_genPt(outputTree);
 	l.Branch_jet_algoPF1_genDr(outputTree);
 	
-	l.Branch_jet_algoPF2_genMatched(outputTree);
-	l.Branch_jet_algoPF2_vbfMatched(outputTree);
-	l.Branch_jet_algoPF2_genPt(outputTree);
-	l.Branch_jet_algoPF2_genDr(outputTree);
+	//l.Branch_jet_algoPF2_genMatched(outputTree);
+	//l.Branch_jet_algoPF2_vbfMatched(outputTree);
+	//l.Branch_jet_algoPF2_genPt(outputTree);
+	//l.Branch_jet_algoPF2_genDr(outputTree);
 	
 	l.Branch_jet_algoPF3_genMatched(outputTree);
 	l.Branch_jet_algoPF3_vbfMatched(outputTree);
