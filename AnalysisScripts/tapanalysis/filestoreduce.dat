@@ -1,7 +1,7 @@
 output=my_reduced_tuple_foo.root
-Fil=/afs/cern.ch/user/s/sani/work/Run2012A-13Jul2012-v1_9_1_1Jo.root typ=0
+typ=0 Fil=root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/processed/V14_00_02/data/DoubleElectron_Run2012C-PromptReco-v1/DoubleElectron_Run2012C-PromptReco-v1_9_2_WG8.root
 
-inputBranches reduction/reduction_input.dat
-outputBranches reduction/reduction_output.dat
+inputBranches tapanalysis/reduction_input.dat
+outputBranches tapanalysis/reduction_output.dat
 
-analyzer PhotonAnalysis common/photonanalysis.dat
+analyzer TapAnalysis tapanalysis/tapanalysis.dat

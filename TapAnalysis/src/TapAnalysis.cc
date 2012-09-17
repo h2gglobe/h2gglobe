@@ -369,6 +369,20 @@ void TapAnalysis::GetBranches(TTree *t, std::set<TBranch *>& s )
 // ----------------------------------------------------------------------------------------------------
 void TapAnalysis::FillReductionVariables(LoopAll& l, int jentry) {
 
+  // FIX PILEUP
+  for (int ipho=0;ipho<l.pho_n;ipho++){
+    l.pho_s4ratio[ipho]  = l.pho_e2x2[ipho]/l.pho_e5x5[ipho];
+    float rr2=l.pho_eseffsixix[ipho]*l.pho_eseffsixix[ipho]+l.pho_eseffsiyiy[ipho]*l.pho_eseffsiyiy[ipho];
+    l.pho_ESEffSigmaRR[ipho] = 0.0; 
+    if(rr2>0. && rr2<999999.) {
+      l.pho_ESEffSigmaRR[ipho] = sqrt(rr2);
+    }
+  }
+
+  // Data driven MC corrections to cluster shape variables and energy resolution estimate
+  if (l.itype[l.current] !=0)
+    rescaleClusterVariables(l);
+
   for(int ipho=0; ipho<l.pho_n; ++ipho) {
     std::vector<float> temp;
 
@@ -418,16 +432,14 @@ void TapAnalysis::FillReductionVariables(LoopAll& l, int jentry) {
       //l.pho_pfiso_mycharged06->at(ipho).at(ivtx) = ch06;
       
       TLorentzVector* p4 = (TLorentzVector*)l.pho_p4->At(ipho);
-
-      // FIX PILEUP
-      // FIXME SHIFT VARIABLES FOR REDUCTION
       temp.push_back(l.photonIDMVANew(ipho, ivtx, *p4, ""));
-
+      
       if( ch04 > badiso ) {
 	badiso = ch04;
 	//badvtx = ivtx;
       }
     }
+   
     //pho_tkiso_badvtx_id[ipho] = badvtx;
     l.pho_pfiso_charged_badvtx_04[ipho] = badiso;
     l.pho_mitmva->push_back(temp);
@@ -460,7 +472,7 @@ bool TapAnalysis::SelectEventsReduction(LoopAll& l, int jentry) {
       }
     }
     
-    if (mass > 50.)
+    if (mass > 60.)
       return 1;
   }
     

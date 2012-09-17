@@ -51,11 +51,10 @@ minZMass=60
 maxZMass=120
 
 ### Example of .dat 
-#puMap=tapanalysis/pu_weights_map.dat
+puMap=tapanalysis/pu_weights_map.dat
 #puHist=aux/pu_weights.root
-#puTarget=aux/latest_prompt_noCSC_NoLowPU_2012.json.71000.observed.pileup.root
+puTarget=aux/latest_prompt_NoLowPU_Jun12_2012.json.71000.observed.pileup.root
 
-#puTarget=aux/latest_prompt_NoLowPU_Jun12_2012.json.71000.observed.pileup.root
 #latest_prompt_NoLowPU_Jun12_2012.json.73000.observed.pileup.root
 #puTarget=aux/latest_prompt_NoLowPU_Jun12_2012.json.69000.observed.pileup.root
 #rereco_prompt_2012.json.69000.observed.pileup.root
