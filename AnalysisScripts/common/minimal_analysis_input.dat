@@ -12,6 +12,7 @@ lumis
 run
 bx
 
+
 ## 
 ## Jets for VBF
 ## 
@@ -41,7 +42,7 @@ jet_algoPF1_genDr
 jet_algoPF1_full_mva_ext
 jet_algoPF1_simple_mva_ext
 jet_algoPF1_full_wp_level_ext
-#jet_algoPF1_simple_wp_level_ext
+jet_algoPF1_simple_wp_level_ext
 jet_algoPF1_cutbased_wp_level_ext
 jet_algoPF1_beta_ext
 jet_algoPF1_betaStar_ext
