@@ -966,8 +966,7 @@ void PhotonAnalysis::Init(LoopAll& l)
     } else if ( puHist == "auto" ) {
     TFile * puTargetFile = TFile::Open( puTarget ); 
     assert( puTargetFile != 0 );
-    //puTargetHist = (TH1*)puTargetFile->Get("pileup");
-    puTargetHist = (TH1*)puTargetFile->Get("target_pu");
+    puTargetHist = (TH1*)puTargetFile->Get("pileup");
     if( puTargetHist == 0 ) { puTargetHist = (TH1*)puTargetFile->Get("target_pileup"); }
     puTargetHist = (TH1*)puTargetHist->Clone();
     puTargetHist->SetDirectory(0);
