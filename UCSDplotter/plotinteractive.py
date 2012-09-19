@@ -90,11 +90,7 @@ DoRevInt=False
 
 class PlotInfo:
     def __init__(self):
-        self.doplot=0
-        self.h2d=0
-        self.typplot=0
         self.ncat=1
-        self.histoncatindtonames=0
         self.nbinsx=1
         self.nbinsy=1
         self.lowlim=0
@@ -111,11 +107,7 @@ class PlotInfo:
             "New PlotInfo"
         
     def Print(self):
-        print "doplot",self.doplot
-        print "h2d",self.h2d
-        print "typplot",self.typplot
         print "ncat",self.ncat
-        print "histoncatindtonames",self.histoncatindtonames
         print "nbinsx",self.nbinsx
         print "nbinsy",self.nbinsy
         print "lowlim",self.lowlim
@@ -151,7 +143,6 @@ class SampleInfo:
         self.histfilename=""
         self.itype=-99999
         self.inshortnames=""
-        #self.infilenames=""
         self.plotsample=1
         self.addtoleg=1
         self.order=-1
@@ -524,11 +515,7 @@ def ReadPlotVariables(rootfile):
         newplotinfo=PlotInfo()
    
         newplotinfo.index=i 
-        newplotinfo.doplot=plotvariables.doplot[i]
-        newplotinfo.h2d=plotvariables.h2d[i]
-        newplotinfo.typplot=plotvariables.typplot[i]
         newplotinfo.ncat=plotvariables.histoncat[i]
-        newplotinfo.histoncatindtonames=plotvariables.histoncatindtonames[i]
         newplotinfo.nbinsx=plotvariables.nbinsx[i]
         newplotinfo.nbinsy=plotvariables.nbinsy[i]
         newplotinfo.lowlim=plotvariables.lowlim[i]
@@ -553,9 +540,7 @@ def ReadInputFiles(rootfile):
     rootfile.cd()
     inputfiles=ROOT.gDirectory.Get("inputfiles")
     entries=inputfiles.GetEntriesFast()
-    filenames=ROOT.TClonesArray("TObjString",entries)
     shortnames=ROOT.TClonesArray("TObjString",entries)
-    inputfiles.SetBranchAddress("infilenames",ROOT.AddressOf(filenames))
     inputfiles.SetBranchAddress("inshortnames",ROOT.AddressOf(shortnames))
     
     ientry = inputfiles.LoadTree(0)
@@ -565,16 +550,12 @@ def ReadInputFiles(rootfile):
     NIND        =inputfiles.nindfiles
     intlumi     =inputfiles.intlumi
 
-
     for ifile in xrange(NIND):
         #print ifile
         newsample=SampleInfo()
         
         newsample.itype           =inputfiles.itype[ifile]
-        newsample.infoind         =inputfiles.infoind[ifile]
-        newsample.histoind        =inputfiles.histoind[ifile]
         newsample.inshortnames    =inputfiles.inshortnames[ifile].GetString()
-        newsample.infilenames     =inputfiles.infilenames[ifile].GetString()
        
         samples[inputfiles.itype[ifile]]=newsample
  
