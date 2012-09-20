@@ -1,0 +1,8 @@
+fillOptree=1 
+doSystematics=1 
+massMin=60. 
+massMax=1000. 
+
+puMap=
+puHist=auto
+puTarget=aux/nPU-Summer12_DD3.190456-200245-29Jun_Prompt.observed.root
