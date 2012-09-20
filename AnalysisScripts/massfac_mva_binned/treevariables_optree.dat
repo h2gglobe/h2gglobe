@@ -48,30 +48,27 @@ type=2 name=cicpf4cutlevel1
 type=2 name=cicpf4cutlevel2
 type=2 name=r91
 type=2 name=r92
-#type=0 name=ncrys1
-#type=0 name=ncrys2
+type=0 name=ncrys1
+type=0 name=ncrys2
  
 type=2 name=sieie1
 type=2 name=sieie2
 type=2 name=chiso1
 type=2 name=chiso2
-type=2 name=isorv1
-type=2 name=isowv1
-type=2 name=isorv2
-type=2 name=isowv2
+
 type=2 name=hoe1
 type=2 name=hoe2
 type=0 name=conv1
 type=0 name=conv2
 type=2 name=chisow1
 type=2 name=chisow2
-type=2 name=phoiso031
-type=2 name=phoiso032
+type=2 name=phoiso1
+type=2 name=phoiso2
 
-#type=2 name=etawidth1
-#type=2 name=etawidth2
-#type=2 name=phiwidth1
-#type=2 name=phiwidth2
+type=2 name=etawidth1
+type=2 name=etawidth2
+type=2 name=phiwidth1
+type=2 name=phiwidth2
 
 type=2 name=vtx_x
 type=2 name=vtx_y
@@ -84,4 +81,56 @@ type=2 name=gv_z
 type=0 name=issyst
 type=4 name=name1
 
-
+type=0 name=isEB1
+type=0 name=isEB2
+type=2 name=sieip1
+type=2 name=sieip2
+type=2 name=s4ratio1
+type=2 name=s4ratio2
+type=2 name=effSigma1
+type=2 name=effSigma2
+type=2 name=regrerr1
+type=2 name=regrerr2
+type=2 name=eleregr1
+type=2 name=eleregrerr1
+type=2 name=eleregr2
+type=2 name=eleregrerr2
+type=2 name=sceta1
+type=2 name=scphi1
+type=2 name=scraw1
+type=2 name=e5x51
+type=2 name=e3x31
+type=2 name=sipip1
+type=2 name=emax1
+type=2 name=e2nd1
+type=2 name=eright1
+type=2 name=eleft1
+type=2 name=etop1
+type=2 name=ebottom1
+type=2 name=bceta1
+type=2 name=bcphi1
+type=2 name=bce1
+type=2 name=bieta1
+type=2 name=biphi1
+type=2 name=betacry1
+type=2 name=bphicry1
+type=2 name=sceta2
+type=2 name=scphi2
+type=2 name=scraw2
+type=2 name=e5x52
+type=2 name=e3x32
+type=2 name=sipip2
+type=2 name=emax2
+type=2 name=e2nd2
+type=2 name=eright2
+type=2 name=eleft2
+type=2 name=etop2
+type=2 name=ebottom2
+type=2 name=bceta2
+type=2 name=bcphi2
+type=2 name=bce2
+type=2 name=bieta2
+type=2 name=biphi2
+type=2 name=betacry2
+type=2 name=bphicry2
+    

@@ -1,0 +1,31 @@
+->
+File format:
+	<branc_name>[:<branch_type>] 
+where:
+	<branch_type> = 0 for branches to be always read
+	<branch_type> = 1 for branches to be read only for MC
+->
+
+shiftMET_pt
+shiftMET_phi
+
+pho_scind
+pho_pfiso_charged_badvtx_04
+pho_e3x3
+pho_e2x2
+pho_e2nd
+pho_ebottom
+pho_eleft
+pho_eright
+pho_etop
+pho_emaxxtal
+pho_eseffsixix
+pho_eseffsiyiy
+
+el_std_regr_energy
+el_std_regr_energyerr
+el_std_scind
+el_std_n
+
+sc_sphi
+sc_seta

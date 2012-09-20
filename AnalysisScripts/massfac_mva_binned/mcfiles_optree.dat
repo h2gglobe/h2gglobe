@@ -1,0 +1,17 @@
+intL=10200 histfile=optree.root output=eventsList.txt
+
+runZeeValidation=1
+
+treevariables treevariables_optree.dat
+
+# 
+# Branches to use
+#
+inputBranches minimal_analysis_input.dat
+inputBranches minimal_statanalysis_input.dat
+inputBranches massfactorizedmvaanalysis_input.dat
+inputBranches opttree_input.dat
+
+analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat opttree.dat
+
+typ=41    ind=0 draw=1  Nam=DYJetsToll    CaDir=/store/group/phys_higgs/cmshgg/reduced_matteo/17_09_2012/mc/Summer12_S10_8TeV/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1 red=0 lum=1. xsec=3532.8 kfac=1.000 scal=1.
