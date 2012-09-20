@@ -13,15 +13,14 @@ See MassResolution.h for instructions
 
 MassResolution::MassResolution(){}
 
-void MassResolution::Setup(LoopAll &l, PhotonReducedInfo *leadInfo, PhotonReducedInfo *subleadInfo,int diphoton_index,EnergySmearer::energySmearingParameters eSmearPars, int nR9Categories, int nEtaCategories, double beamspotSigma_in) 
-{
-
+void MassResolution::Setup(LoopAll &l, PhotonReducedInfo *leadInfo, PhotonReducedInfo *subleadInfo,int vtx_index,EnergySmearer::energySmearingParameters eSmearPars, int nR9Categories, int nEtaCategories, double beamspotSigma_in, bool usethisvtx) {
+  
   beamspotSigma= beamspotSigma_in;
 
   leadPhoton= leadInfo;	
   subleadPhoton= subleadInfo;	
-  vertex = (TVector3*)l.vtx_std_xyz->At(l.dipho_vtxind[diphoton_index]);
-  vtx_dxdydz = (TVector3*)l.vtx_std_dxdydz->At(l.dipho_vtxind[diphoton_index]);
+  vertex = (TVector3*)l.vtx_std_xyz->At(vtx_index);
+  vtx_dxdydz = (TVector3*)l.vtx_std_dxdydz->At(vtx_index);
 
   //lead_sc_pos    = leadPhoton->caloPosition();
   //sublead_sc_pos = subleadPhoton->caloPosition();
@@ -49,6 +48,14 @@ void MassResolution::Setup(LoopAll &l, PhotonReducedInfo *leadInfo, PhotonReduce
   std::cout << "Inside the mmassreso calc -- calopos Eta1 - " <<leadPhoton->caloPosition().Eta() <<std::endl;
   std::cout << "Inside the mmassreso calc -- calopos Eta2 - " <<subleadPhoton->caloPosition().Eta() <<std::endl;
 */
+
+
+}
+
+
+void MassResolution::Setup(LoopAll &l, PhotonReducedInfo *leadInfo, PhotonReducedInfo *subleadInfo,int diphoton_index,EnergySmearer::energySmearingParameters eSmearPars, int nR9Categories, int nEtaCategories, double beamspotSigma_in) 
+{
+  Setup(l, leadInfo, subleadInfo, l.dipho_vtxind[diphoton_index], eSmearPars, nR9Categories, nEtaCategories, beamspotSigma_in, true);
 
 }
 // return the mass resolution given correct vertex

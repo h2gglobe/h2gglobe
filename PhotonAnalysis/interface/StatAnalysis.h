@@ -93,6 +93,7 @@ class StatAnalysis : public PhotonAnalysis
 				      std::vector<int>    & categories, std::vector<double> & weights);
     
     bool VHmuevent, VHelevent, VBFevent, VHhadevent, VHmetevent;  //met at analysis step
+    int VHelevent_cat;
     double genLevWeight; 
     float sigmaMrv, sigmaMwv;
 

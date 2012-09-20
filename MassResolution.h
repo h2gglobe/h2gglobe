@@ -64,6 +64,7 @@ class MassResolution {
     MassResolution();
 
     void Setup(LoopAll&,PhotonReducedInfo*,PhotonReducedInfo*,int,EnergySmearer::energySmearingParameters,int,int,double);
+    void Setup(LoopAll&,PhotonReducedInfo*,PhotonReducedInfo*,int,EnergySmearer::energySmearingParameters,int,int,double,bool);
 
     double beamspotSigma;
 

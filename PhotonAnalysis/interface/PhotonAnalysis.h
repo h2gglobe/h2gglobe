@@ -72,6 +72,8 @@ class PhotonAnalysis : public BaseAnalysis
     bool includeVBF;
     bool includeVHhad;
     bool includeVHlep;
+    int nElectronCategories;
+    int nMuonCategories;
     bool includeVHmet;  //met at analysis step
 
     bool reRunCiCForData;
@@ -183,6 +185,74 @@ class PhotonAnalysis : public BaseAnalysis
     float sublead_hovere;
     float sublead_mgg;
   
+    // n-1 plots for VH electron tag 
+    float myEl_leptonSig ;
+    float myEl_elpt      ;
+    float myEl_oEsuboP   ;
+    float myEl_D0        ;
+    float myEl_DZ        ;
+    float myEl_mishit    ;
+    float myEl_conv      ;
+    float myEl_detain    ;
+    float myEl_dphiin    ;
+    float myEl_sieie     ;
+    float myEl_hoe       ;
+    float myEl_drlead    ;
+    float myEl_drsub     ;
+    float myEl_melead    ;
+    float myEl_meleadveto10;
+    float myEl_meleadveto15;
+    float myEl_mesub     ;
+    float myEl_mesubveto5 ;
+    float myEl_mesubveto10;
+    float myEl_elvetolead;
+    float myEl_elvetosub ;
+    float myEl_reliso    ;
+    float myEl_iso       ;
+    float myEl_mvaTrig   ;
+    float myEl_mvaNonTrig;
+    float myEl_dZ_ee     ;
+    float myEl_mass_ee   ;
+    float myEl_inwindow_ee;
+    float myEl_ptlead    ;
+    float myEl_ptsub     ;
+    float myEl_ptleadom  ;
+    float myEl_ptsubom   ;
+    float myEl_ptgg      ;
+    float myEl_phomaxeta ;
+    float myEl_sumpt3    ;
+    float myEl_sumpt4    ;
+    float myEl_dRtklead  ;
+    float myEl_dRtksub   ;
+    float myEl_MVAlead   ;
+    float myEl_MVAsub    ;
+    float myEl_CiClead   ;
+    float myEl_CiCsub    ;
+    float myEl_mgg       ;
+    float myEl_MET       ;
+    float myEl_METphi    ;
+    float myEl_diphomva  ; 
+    float myEl_presellead ;
+    float myEl_matchellead;
+    float myEl_preselsub  ;
+    float myEl_matchelsub ;
+    float myEl_category ;
+    float myEl_ElePho   ;
+
+    // Chris' extras 
+    std::string bdtTrainingPhilosophy;
+    std::string photonLevelMvaUCSD  ;
+    std::string eventLevelMvaUCSD   ;                    
+    std::string photonLevelMvaMIT_EB;
+    std::string photonLevelMvaMIT_EE;
+    std::string eventLevelMvaMIT    ;
+    std::string photonLevelNewIDMVA_EB;
+    std::string photonLevelNewIDMVA_EE;
+
+
+
+
+
     // n-1 plots for VH hadronic tag 2011
     float  myVHhadLeadJPt;
     float  myVHhadSubJPt;
@@ -252,11 +322,23 @@ class PhotonAnalysis : public BaseAnalysis
     bool VHhadronicTag2011(LoopAll& l, int diphoton_id, float* smeared_pho_energy=0, bool nm1=false, float eventweight=1, float myweight=1);
     bool ElectronTag2011(LoopAll& l, int diphotonVHlep_id, float* smeared_pho_energy=0, bool nm1=false, float eventweight=1, float myweight=1);
     bool ElectronTag2012(LoopAll& l, int diphotonVHlep_id, float* smeared_pho_energy, ofstream& lep_sync, bool nm1=false, float eventweight=1, float myweight=1);
+    bool ElectronTag2012(LoopAll& l, int highptind, int nextptind,  int elVtx, float* smeared_pho_energy);
+    
+    bool ElectronSelection_Tag2012B(LoopAll& l, TLorentzVector*& el_tag, TLorentzVector*& el_sc, TLorentzVector& lead_p4, TLorentzVector& sublead_p4, int& elVtx, int& elInd, int& leadpho_ind, int& subleadpho_ind, float elptcut, float leadptcut, float subleadptcut, float* smeared_pho_energy, bool tightID=false);
+    bool ElectronPhotonCuts_Tag2012B(LoopAll& l, TLorentzVector* el_tag, TLorentzVector* el_sc, TLorentzVector lead_p4, TLorentzVector sublead_p4, int elVtx, int leadpho_ind, int subleadpho_ind);
+    bool ElectronTag2012B(LoopAll& l, int& leadpho_ind, int& subleadpho_ind, int& elVtx, int& el_cat, float* smeared_pho_energy);
+    bool ElectronTagStudies2012(LoopAll& l, int diphotonVHlep_id, float* smeared_pho_energy, bool nm1=true, float eventweight=1, float myweight=1, int jentry=-1);
+
     bool MuonTag2011(LoopAll& l, int diphotonVHlep_id, float* smeared_pho_energy=0, bool nm1=false, float eventweight=1, float myweight=1);
     bool MuonTag2012(LoopAll& l, int diphotonVHlep_id, float* smeared_pho_energy, ofstream& lep_sync, bool nm1=false, float eventweight=1, float myweight=1);
+    
     bool METTag2012(LoopAll& l, int& diphotonVHmet_id , float* smeared_pho_energy);  //met at analysis step
     void MetCorrections2012(LoopAll& l);
     void MetCorrections2012_Simple(LoopAll& l, TLorentzVector lead_p4, TLorentzVector sublead_p4);
+    int GenMatch(LoopAll& l, TLorentzVector* recop4);
+    bool PhotonMatchElectron(LoopAll& l, TLorentzVector* pho_p4);
+    bool PhotonMatchElectron(LoopAll& l, TLorentzVector* pho_p4, int& el_match_ind);
+    bool HLTPhotonPreselection(LoopAll& l, TLorentzVector* pho_p4, int phoind);
     
     ofstream met_sync;
     ofstream lep_sync;
@@ -292,8 +374,12 @@ class PhotonAnalysis : public BaseAnalysis
 				    int cur_type, const LoopAll & l, const float * energyCorrected, const float * energyCorrectedError,
 				    BaseSmearer * sys=0, float syst_shift=0.);
     
-    void fillDiphoton(TLorentzVector & lead_p4, TLorentzVector & sublead_p4, TLorentzVector & Higgs, float & lead_r9, float & sublead_r9, TVector3 *& vtx, 
-		      const float * energy, const LoopAll & l,  int diphoton_id, bool defaultvtx=false);
+    void fillDiphoton(TLorentzVector & lead_p4, TLorentzVector & sublead_p4, TLorentzVector & Higgs,
+                  float & lead_r9, float & sublead_r9, TVector3 *& vtx, const float * energy,
+                  const LoopAll & l, int diphoton_id);
+    void fillDiphoton(TLorentzVector & lead_p4, TLorentzVector & sublead_p4, TLorentzVector & Higgs,
+                  float & lead_r9, float & sublead_r9, TVector3 *& vtx, const float * energy,
+                  const LoopAll & l, int leadind, int subleadind, int myvtx);
     
     void applyDiPhotonSmearings(TLorentzVector & Higgs, TVector3 & vtx, int category, int cur_type, const TVector3 & truevtx, 
 				float & evweight, float & idmva1, float & idmva2,

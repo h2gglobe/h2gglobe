@@ -1114,7 +1114,11 @@ int RescaleJetEnergy(bool force=false);
 int MuonSelection(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind);
 int ElectronSelection(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind);
 int MuonSelection2012(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind);
-int ElectronSelection2012(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind);
+int ElectronSelection2012(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind,  bool phodepend=true);
+int ElectronPreSelection2012(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind, float ptcut=10.0, int firstveto=-1);
+bool ElectronLooseEGammaID(int electronindex, int vertexindex=-1);
+bool ElectronTightEGammaID(int electronindex, int vertexindex=-1);
+bool ElectronPhotonCuts(TLorentzVector& pho1, TLorentzVector& pho2, TLorentzVector& ele);
 
 //correct met
 double ErrEt( double Et, double Eta);

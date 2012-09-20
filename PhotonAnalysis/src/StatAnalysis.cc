@@ -162,7 +162,9 @@ void StatAnalysis::Init(LoopAll& l)
     }
 
     nVHhadCategories = ((int)includeVHhad)*nVHhadEtaCategories;
-    nVHlepCategories = (int)includeVHlep * 2;
+    if(includeVHlep){
+        nVHlepCategories = nElectronCategories + nMuonCategories;
+    }
     nVHmetCategories = (int)includeVHmet;  //met at analysis step
     
     nCategories_=(nInclusiveCategories_+nVBFCategories+nVHhadCategories+nVHlepCategories+nVHmetCategories);  //met at analysis step
@@ -759,6 +761,9 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
     }
 
     // event selection
+    int elVtx = 0; 
+    int leadpho_ind=-1;
+    int subleadpho_ind=-1;
     if( ! skipSelection ) {
 	
 	// first apply corrections and smearing on the single photons 
@@ -794,6 +799,7 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 	int diphotonVHmet_id = -1; //met at analysis step
 	VHmuevent = false;
 	VHelevent = false;
+	VHelevent_cat = 0;
 	VBFevent = false;
 	VHhadevent = false;
 	VHmetevent = false; //met at analysis step
@@ -899,10 +905,22 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
         TLorentzVector lead_p4, sublead_p4, Higgs;
         float lead_r9, sublead_r9;
         TVector3 * vtx;
-        bool defaultvtx=false;
-        if(( (includeVHlep && (VHelevent || VHmuevent))) && !(includeVBF&&VBFevent) ) defaultvtx=true;
-	fillDiphoton(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, vtx, &smeared_pho_energy[0], l, diphoton_id, defaultvtx);  
-      
+        if(( (includeVHlep && (VHelevent || VHmuevent))) && !(includeVBF&&VBFevent) ) {
+            if(VHmuevent){
+	            fillDiphoton(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, vtx, &smeared_pho_energy[0], l, l.dipho_leadind[diphoton_id],  l.dipho_subleadind[diphoton_id], 0);  // use default vertex for the muon tag
+            } else if(VHelevent){
+                if(nElectronCategories==2){
+                    if(PADEBUG) std::cout<<"nElectronCategories "<<nElectronCategories<<std::endl;
+	                fillDiphoton(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, vtx, &smeared_pho_energy[0], l, leadpho_ind, subleadpho_ind, elVtx);  // use elVtx for ElectronTag2012B
+                    if(PADEBUG) std::cout<<"post fillDiphoton Higgs.Pt() "<<Higgs.Pt()<<std::endl;
+                } else {
+                    fillDiphoton(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, vtx, &smeared_pho_energy[0], l, l.dipho_leadind[diphoton_id],  l.dipho_subleadind[diphoton_id], 0);  // use default vertex for old electron tag
+                }
+            }
+        } else {
+	        fillDiphoton(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, vtx, &smeared_pho_energy[0], l, diphoton_id);  
+        }
+
         // FIXME pass smeared R9
 	category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,nPtCategories);
 	mass     = Higgs.M();
@@ -1114,9 +1132,9 @@ void StatAnalysis::computeExclusiveCategory(LoopAll & l, int & category, std::pa
     } else if(VHmuevent) {
 	category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories + ( (int)includeVHhad )*nVHhadEtaCategories;  
     } else if(VHelevent) { 
-	category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories + ( (int)includeVHhad )*nVHhadEtaCategories + (int)includeVHlep;
+	category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories + ( (int)includeVHhad )*nVHhadEtaCategories + nMuonCategories + VHelevent_cat;
     } else if(VHmetevent) { 
-	category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories + ( (int)includeVHhad )*nVHhadEtaCategories + (int)includeVHlep + (int)includeVHmet;  //met at analysis step
+	category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories + ( (int)includeVHhad )*nVHhadEtaCategories + nVHlepCategories + (int)includeVHmet;  //met at analysis step
     }
 }
 

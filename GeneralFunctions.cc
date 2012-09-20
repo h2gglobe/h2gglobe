@@ -3908,7 +3908,7 @@ int LoopAll::MuonSelection2012(TLorentzVector& pho1, TLorentzVector& pho2, int v
   return mymu;
 }
 
-int LoopAll::ElectronSelection2012(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind){
+int LoopAll::ElectronSelection2012(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind, bool phodepend){
 
   int myel = -1;
   
@@ -3923,8 +3923,176 @@ int LoopAll::ElectronSelection2012(TLorentzVector& pho1, TLorentzVector& pho2, i
   int passingEl = 0;
   
   for( int indel=0; indel<el_std_n; indel++){
+    
+    if(!ElectronLooseEGammaID(indel,vtxind)) continue;
+    
+    thisel = (TLorentzVector*) el_std_p4->At(indel);
+    thissc = (TLorentzVector*) el_std_sc->At(indel);
+    thispt = thisel->Pt();
+    thiseta = fabs(thissc->Eta());
+    if(thispt<20) continue;
+    if(thiseta>2.5 || (thiseta>1.442 && thiseta<1.566)) continue;
+    
+    if(phodepend){
+        if(!ElectronPhotonCuts(pho1, pho2, *thisel)) continue;
+    }
 
-    if(el_std_hp_expin[indel]!=0) continue;
+    passingEl++;
+    myel = indel;
+
+    //std::cout << setprecision(4) << "ELECTRON EVENT -> Run = " << run << "  Lumis = " << lumis << "  Event = " << event << "  SelVtx = " << vtxind << " elEta = " << thiseta << "  elPhi = " << thisel->Phi() <<  "  elPt = " << thispt <<   "  elIso = " << thisiso/thispt << " pfiso_charged = " <<el_std_pfiso_charged[indel]<<"  pfiso_neutral = "<<el_std_pfiso_neutral[indel]<<"  pfiso_photon = "<<el_std_pfiso_photon[indel] << "  rho = "<<rho<<endl;
+
+  }
+  return myel;
+}
+
+bool LoopAll::ElectronLooseEGammaID(int electron_index, int vtxind){
+
+    bool pass=false;
+
+    if(electron_index<0 || electron_index>=el_std_n){
+        std::cout<<"LoopAll::ElectronLooseEGammaID:  electron_index "<<electron_index<<" is out of bounds."<<std::endl;
+        std::cout<<"el_std_n "<<el_std_n<<std::endl;
+        return pass;
+    }
+
+    TLorentzVector* thisel = (TLorentzVector*) el_std_p4->At(electron_index);
+    TLorentzVector* thissc = (TLorentzVector*) el_std_sc->At(electron_index);
+    
+    float thiseta = fabs(thissc->Eta());
+    float thispt = thisel->Pt();
+
+    double Aeff=0.;
+    if(thiseta<1.0)                   Aeff=0.10;
+    if(thiseta>=1.0 && thiseta<1.479) Aeff=0.12;
+    if(thiseta>=1.479 && thiseta<2.0) Aeff=0.085;
+    if(thiseta>=2.0 && thiseta<2.2)   Aeff=0.11;
+    if(thiseta>=2.2 && thiseta<2.3)   Aeff=0.12;
+    if(thiseta>=2.3 && thiseta<2.4)   Aeff=0.12;
+    if(thiseta>=2.4)                  Aeff=0.13;
+
+    
+    //EE-EB common cuts
+    float overE_overP=fabs((1/el_std_pin[electron_index])-(1/(el_std_pin[electron_index]*el_std_eopin[electron_index])));
+    if(vtxind!=-1){
+        if(fabs(el_std_D0Vtx[electron_index][vtxind]) > 0.02) return pass;
+        if(fabs(el_std_DZVtx[electron_index][vtxind]) > 0.2)  return pass;
+    }
+    if(overE_overP>0.05)return pass;    
+    if(el_std_hp_expin[electron_index]>1) return pass;
+    if(el_std_conv[electron_index]==0) return pass;
+    float thisiso=el_std_pfiso_charged[electron_index]+std::max(el_std_pfiso_neutral[electron_index]+el_std_pfiso_photon[electron_index]-rho*Aeff,0.);
+    if (thisiso/thispt >0.15) return pass;  
+    
+    if(thiseta<1.442) {   // EB cuts
+      if(fabs(el_std_detain[electron_index])>=0.007) return pass;
+      if(fabs(el_std_dphiin[electron_index])>=0.15) return pass;
+      if(el_std_sieie[electron_index]>=0.01) return pass;
+      if(el_std_hoe[electron_index]>=0.12) return pass;
+    } else {  // EE cuts
+      if(fabs(el_std_detain[electron_index])>=0.009) return pass;
+      if(fabs(el_std_dphiin[electron_index])>=0.10) return pass;
+      if(el_std_sieie[electron_index]>=0.03) return pass; 
+      if(el_std_hoe[electron_index]>=0.10) return pass;
+      if(thispt<10){
+        if (thisiso/thispt >0.1) return pass;  
+      } 
+    }
+
+    pass=true;
+    return pass;
+
+}
+
+bool LoopAll::ElectronTightEGammaID(int electron_index, int vtxind){
+
+    bool pass=false;
+
+    if(electron_index<0 || electron_index>=el_std_n){
+        std::cout<<"LoopAll::ElectronTightEGammaID:  electron_index "<<electron_index<<" is out of bounds."<<std::endl;
+        std::cout<<"el_std_n "<<el_std_n<<std::endl;
+        return pass;
+    }
+
+    TLorentzVector* thisel = (TLorentzVector*) el_std_p4->At(electron_index);
+    TLorentzVector* thissc = (TLorentzVector*) el_std_sc->At(electron_index);
+    
+    float thiseta = fabs(thissc->Eta());
+    float thispt = thisel->Pt();
+
+    double Aeff=0.;
+    if(thiseta<1.0)                   Aeff=0.10;
+    if(thiseta>=1.0 && thiseta<1.479) Aeff=0.12;
+    if(thiseta>=1.479 && thiseta<2.0) Aeff=0.085;
+    if(thiseta>=2.0 && thiseta<2.2)   Aeff=0.11;
+    if(thiseta>=2.2 && thiseta<2.3)   Aeff=0.12;
+    if(thiseta>=2.3 && thiseta<2.4)   Aeff=0.12;
+    if(thiseta>=2.4)                  Aeff=0.13;
+
+    
+    //EE-EB common cuts
+    float overE_overP=fabs((1/el_std_pin[electron_index])-(1/(el_std_pin[electron_index]*el_std_eopin[electron_index])));
+    if(vtxind!=-1){
+        if(fabs(el_std_D0Vtx[electron_index][vtxind]) > 0.02) return pass;
+        if(fabs(el_std_DZVtx[electron_index][vtxind]) > 0.1)  return pass;
+    }
+    if(overE_overP>0.05)return pass;    
+    if(el_std_hp_expin[electron_index]>0) return pass;
+    if(el_std_conv[electron_index]==0) return pass;
+    float thisiso=el_std_pfiso_charged[electron_index]+std::max(el_std_pfiso_neutral[electron_index]+el_std_pfiso_photon[electron_index]-rho*Aeff,0.);
+    if (thisiso/thispt >0.1) return pass;  
+    
+    if(thiseta<1.442) {   // EB cuts
+      if(fabs(el_std_detain[electron_index])>=0.004) return pass;
+      if(fabs(el_std_dphiin[electron_index])>=0.03) return pass;
+      if(el_std_sieie[electron_index]>=0.01) return pass;
+      if(el_std_hoe[electron_index]>=0.12) return pass;
+    } else {  // EE cuts
+      if(fabs(el_std_detain[electron_index])>=0.005) return pass;
+      if(fabs(el_std_dphiin[electron_index])>=0.02) return pass;
+      if(el_std_sieie[electron_index]>=0.03) return pass; 
+      if(el_std_hoe[electron_index]>=0.10) return pass;
+      if(thispt<10){
+        if (thisiso/thispt >0.07) return pass;  
+      } 
+    }
+
+    pass=true;
+    return pass;
+}
+
+
+bool LoopAll::ElectronPhotonCuts(TLorentzVector& pho1, TLorentzVector& pho2, TLorentzVector& ele){
+    bool pass=false;
+    if(std::min( pho1.DeltaR(ele), pho2.DeltaR(ele))<=1) return pass;
+    TLorentzVector elpho1=ele + pho1;
+    TLorentzVector elpho2=ele + pho2;
+    if( fabs(elpho1.M() - 91.19) <= 5) return pass;
+    if( fabs(elpho2.M() - 91.19) <= 5) return pass;
+    
+    pass=true;
+    return pass;
+}
+
+int LoopAll::ElectronPreSelection2012(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind, float ptcut, int firstveto){
+
+  int myel = -1;
+  
+  //Veto CUT-BASED ELECTRON ID
+  //https://twiki.cern.ch/twiki/bin/viewauth/CMS/EgammaCutBasedIdentification
+
+  TLorentzVector* thisel;
+  TLorentzVector* thissc;
+  float thiseta = -100;
+  float thispt = -100;
+  float thisiso =1000;
+  int passingEl = 0;
+  bool ELDEBUG=false;
+
+  for( int indel=0; indel<el_std_n; indel++){
+    if(firstveto==indel) continue;
+    // present in v1; should not have been
+    //if(el_std_hp_expin[indel]!=0) continue;
 
     thisel = (TLorentzVector*) el_std_p4->At(indel);
     thissc = (TLorentzVector*) el_std_sc->At(indel);
@@ -3943,39 +4111,48 @@ int LoopAll::ElectronSelection2012(TLorentzVector& pho1, TLorentzVector& pho2, i
     TLorentzVector elpho1 = *thisel + pho1;
     TLorentzVector elpho2 = *thisel + pho2;
 
+    if(ELDEBUG) std::cout<<"thiseta "<<thiseta<<std::endl;
     if(thiseta>2.5 || (thiseta>1.442 && thiseta<1.566)) continue;
     thispt = thisel->Pt();
-    float overE_overP=fabs((1/el_std_pin[indel])-(1/(el_std_pin[indel]*el_std_eopin[indel])));
-    if(thispt<20) continue;
+    //float overE_overP=fabs((1/el_std_pin[indel])-(1/(el_std_pin[indel]*el_std_eopin[indel])));
+    //if (overE_overP>0.05)continue;    
+    //if(fabs(el_std_D0Vtx[indel][vtxind]) > 0.02) continue;
+    //if(fabs(el_std_DZVtx[indel][vtxind]) > 0.2)  continue;
+    if(ELDEBUG) std::cout<<"thispt "<<thispt<<std::endl;
+    if(thispt<ptcut) continue;
+    
+    
     //EE-EB common cuts
-    if(fabs(el_std_D0Vtx[indel][vtxind]) > 0.02) continue;
-    if(fabs(el_std_DZVtx[indel][vtxind]) > 0.2)  continue;
-    if (overE_overP>0.05)continue;    
-    if (el_std_hp_expin[indel]>1) continue;
-    if(el_std_conv[indel]==0) continue;
+    if(ELDEBUG) std::cout<<"el_std_hp_expin[indel] "<<el_std_hp_expin[indel]<<std::endl;
+    //if (el_std_hp_expin[indel]>1) continue;
+    //if(el_std_conv[indel]==0) continue;
     if(thiseta<1.442) {   // EB cuts
+      if(ELDEBUG) std::cout<<"el_std_detain[indel] "<<el_std_detain[indel]<<std::endl;
       if(fabs(el_std_detain[indel])>=0.007) continue;
-      if(fabs(el_std_dphiin[indel])>=0.15) continue;
+      if(ELDEBUG) std::cout<<"el_std_dphiin[indel] "<<el_std_dphiin[indel]<<std::endl;
+      if(fabs(el_std_dphiin[indel])>=0.8) continue;
+      if(ELDEBUG) std::cout<<"el_std_sieie[indel] "<<el_std_sieie[indel]<<std::endl;
       if(el_std_sieie[indel]>=0.01) continue;
-      if (el_std_hoe[indel]>=0.12) continue;
+      if(ELDEBUG) std::cout<<"el_std_hoe[indel] "<<el_std_hoe[indel]<<std::endl;
+      if(el_std_hoe[indel]>=0.15) continue;
     } else {  // EE cuts
-      if(fabs(el_std_detain[indel])>=0.009) continue;
-      if(fabs(el_std_dphiin[indel])>=0.10) continue;
+      if(ELDEBUG) std::cout<<"el_std_detain[indel] "<<el_std_detain[indel]<<std::endl;
+      if(fabs(el_std_detain[indel])>=0.01) continue;
+      if(ELDEBUG) std::cout<<"el_std_dphiin[indel] "<<el_std_dphiin[indel]<<std::endl;
+      if(fabs(el_std_dphiin[indel])>=0.7) continue;
+      if(ELDEBUG) std::cout<<"el_std_sieie[indel] "<<el_std_sieie[indel]<<std::endl;
       if(el_std_sieie[indel]>=0.03) continue; 
-      if (el_std_hoe[indel]>=0.10) continue;
+      //if(el_std_hoe[indel]>=0.10) continue;
     }
-    if(std::min( pho1.DeltaR(*thisel), pho2.DeltaR(*thisel))<=1) continue;
-    if( fabs(elpho1.M() - 91.19) <= 5) continue;
-    if( fabs(elpho2.M() - 91.19) <= 5) continue;
+    //if(std::min( pho1.DeltaR(*thisel), pho2.DeltaR(*thisel))<=1) continue;
+    //if( fabs(elpho1.M() - 91.19) <= 5) continue;
+    //if( fabs(elpho2.M() - 91.19) <= 5) continue;
 
+    if(ELDEBUG) std::cout<<"thisiso/thispt "<<thisiso<<"/"<<thispt<<" "<<thisiso/thispt<<std::endl;
     if (thisiso/thispt >0.15) continue;  
 
     passingEl++;
     myel = indel;
-
-    cout<<endl;
-    std::cout << setprecision(4) << "ELECTRON EVENT -> Run = " << run << "  Lumis = " << lumis << "  Event = " << event << "  SelVtx = " << vtxind << " elEta = " << thiseta << "  elPhi = " << thisel->Phi() <<  "  elPt = " << thispt <<   "  elIso = " << thisiso/thispt << " pfiso_charged = " <<el_std_pfiso_charged[indel]<<"  pfiso_neutral = "<<el_std_pfiso_neutral[indel]<<"  pfiso_photon = "<<el_std_pfiso_photon[indel] << "  rho = "<<rho<<endl;
-    cout<<endl;
 
   }
   return myel;
