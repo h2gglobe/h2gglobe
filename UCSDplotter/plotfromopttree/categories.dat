@@ -1,1 +1,1 @@
-catName=barrelendcap catDef=abs(eta1)<1.479,abs(eta1)>1.479
+catName=barrelendcap catDef=abs(eta1)<1.479&&abs(eta2)<1.479,abs(eta1)>1.479||abs(eta2)>1.479

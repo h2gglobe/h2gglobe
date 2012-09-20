@@ -86,7 +86,8 @@ el_std_conv
 el_std_pin
 el_std_mva_nontrig
 el_std_mva_trig
-
+el_std_regr_energy
+el_std_regr_energyerr
 
 # Muons
 mu_glo_n
@@ -182,7 +183,7 @@ pho_trksumptsolidconedr03
 pho_trksumpthollowconedr03
 pho_ntrksolidconedr03
 pho_ntrkhollowconedr03
-pho_barrel
+#pho_barrel
 pho_haspixseed
 pho_hasconvtks
 pho_nconv
@@ -219,7 +220,7 @@ pho_conv_pair_momentum
 pho_conv_refitted_momentum
 pho_conv_vertexcorrected_p4
 pho_scind
-sc_xyz
+#sc_xyz
 pho_residCorrEnergy
 pho_residCorrResn
 pho_regr_energy

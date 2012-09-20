@@ -1,2 +1,14 @@
 default=2
-htyp=1 plot=-1 ncat=2 xbins=25 ybins=0 xmin=-2.5 xmax=2.5 ymin=0 ymax=0 name=eta1 xaxis=x yaxis=y var=eta1 catType=barrelendcap
+htyp=0 plot=-1 ncat=2 xbins=60  ybins=0 xmin=60    xmax=120  ymin=0 ymax=0 name=mass       xaxis=Mass@(GeV)   yaxis=@ var=mass       catType=barrelendcap
+htyp=0 plot=-1 ncat=1 xbins=100 ybins=0 xmin=0     xmax=100  ymin=0 ymax=0 name=nvtx       xaxis=nVtx         yaxis=@ var=nvtx       catType=
+htyp=0 plot=-1 ncat=2 xbins=200 ybins=0 xmin=-0.05 xmax=1    ymin=0 ymax=0 name=dipho_mva  xaxis=diphoton@mva yaxis=@ var=dipho_mva  catType=barrelendcap
+htyp=0 plot=-1 ncat=2 xbins=100 ybins=0 xmin=0     xmax=0.05 ymin=0 ymax=0 name=sigmaMrvoM xaxis=sigmaMrvoM   yaxis=@ var=sigmaMrvoM catType=barrelendcap	
+htyp=0 plot=-1 ncat=2 xbins=120 ybins=0 xmin=0     xmax=0.06 ymin=0 ymax=0 name=sigmaMwvoM xaxis=sigmaMwvoM   yaxis=@ var=sigmaMwvoM catType=barrelendcap	
+htyp=0 plot=-1 ncat=2 xbins=100 ybins=0 xmin=0     xmax=1    ymin=0 ymax=0 name=vtxprob	   xaxis=vtxprob      yaxis=@ var=vtxprob    catType=barrelendcap	
+htyp=0 plot=-1 ncat=2 xbins=100 ybins=0 xmin=0     xmax=2    ymin=0 ymax=0 name=ptoM1	   xaxis=pToM      yaxis=@ var=ptoM1      catType=barrelendcap	
+htyp=0 plot=-1 ncat=2 xbins=100 ybins=0 xmin=0     xmax=2    ymin=0 ymax=0 name=ptoM2	   xaxis=pToM      yaxis=@ var=ptoM2      catType=barrelendcap	
+htyp=0 plot=-1 ncat=1 xbins=50  ybins=0 xmin=-2.5  xmax=2.5  ymin=0 ymax=0 name=eta1	   xaxis=eta         yaxis=@ var=eta1	     catType=
+htyp=0 plot=-1 ncat=1 xbins=50  ybins=0 xmin=-2.5  xmax=2.5  ymin=0 ymax=0 name=eta2	   xaxis=eta         yaxis=@ var=eta2	     catType=
+htyp=0 plot=-1 ncat=2 xbins=100 ybins=0 xmin=-1    xmax=1    ymin=0 ymax=0 name=cosphi	   xaxis=cos(Deltaphi) yaxis=@ var=cosphi  catType=barrelendcap	
+htyp=0 plot=-1 ncat=2 xbins=100 ybins=0 xmin=-0.2  xmax=0.4  ymin=0 ymax=0 name=idmva1	   xaxis=ID MVA       yaxis=@ var=idmva1     catType=barrelendcap	
+htyp=0 plot=-1 ncat=2 xbins=100 ybins=0 xmin=-0.2  xmax=0.4  ymin=0 ymax=0 name=idmva2     xaxis=ID MVA       yaxis=@ var=idmva2     catType=barrelendcap
