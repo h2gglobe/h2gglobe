@@ -8,24 +8,7 @@
 #include<vector>
 #include<string>
 
-
-std::vector<std::string> checkNames(TFile* f, const char* s) {
-
-  std::vector<std::string> results;
-  char a[100];
-  for (int i=0; i<100; i++) {
-    sprintf(a, "%s;%d", s, i);  
-    std::cout << a << std::endl;
-    if (f->GetObjectUnchecked(a) != 0) {
-      std::cout << a << std::endl;
-      results.push_back(a);
-    }
-  }
-
-  return results;
-}
-
-int merger(const char* filename = "all.root") {
+int merger(char* filename = "all.root", char* outfilename = "opttree.root", char* treename = "opttree") {
 
   int nTrees = 0;
   TTree *tree[100];
@@ -59,20 +42,35 @@ int merger(const char* filename = "all.root") {
     }
   }
 
-  TFile* out = new TFile("opttree.root", "recreate");
+  TFile* out = new TFile(outfilename, "recreate");
+  out->cd();
   TTree *opttree = TTree::MergeTrees(list);
-  opttree->SetName("opttree");
+  std::cout << list->GetName() << std::endl;
+  opttree->SetName(treename);
   f->Close();
   
   opttree->Write();
   out->Close();
   
-  //out = new TFile("opttree.root", "update");
-  //std::vector<std::string> temp2 = checkNames(f, firstName);
-  //for (unsigned int y=0; y<temp2.size()-1; y++) 
-  //  f->Delete(temp2[y].c_str());
-  //out->Write();
-  //out->Close();
+
+   out = new TFile(outfilename, "update");
+  TIter nextKey(out->GetListOfKeys());
+  TKey* key;
+  
+  while (key = (TKey*)nextKey()) {
+    TString name(key->GetName());
+    TString className(key->GetClassName());
+    if (className.CompareTo("TTree") == 0) {
+      if (name.CompareTo(treename) != 0) {
+	std::cout << "Cleaning " << key->GetName() << std::endl;
+	key->Delete();
+      } else {
+	key->SetTitle("Opttree");
+      }
+    }
+  }
+
+  out->Close();
   
   return 0;
 }
