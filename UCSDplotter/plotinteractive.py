@@ -20,6 +20,8 @@ legy2=0.9
 legend = ROOT.TLegend(legx1,legy1,legx2,legy2)
 dolegend=True
 
+Normalize = False
+
 textx1=0.3
 textx2=0.6
 texty1=0.8
@@ -61,7 +63,7 @@ domergecats=False
 StaticMin=False
 StaticMax=False
 dotitles=False
-cattitles=["EB-EB-EB","!(EB-EB-EB)"]
+cattitles=["EB-EB","!(EB-EB)"]
 
 
 linex=-1
@@ -193,7 +195,7 @@ class SampleInfo:
    
 
 
-PLOTPROPS=["dolog","dogridx","dogridy","doline","domergecats","doreplot","dotitles","doxtitle","doytitle","dooflow","douflow","dorebin","StaticMin","StaticMax","dolegend","dotext","Debug","DebugNew"]
+PLOTPROPS=["dolog","dogridx","dogridy","doline","domergecats","doreplot","dotitles","doxtitle","doytitle","dooflow","douflow","dorebin","StaticMin","StaticMax","dolegend","dotext", "Normalize" ,"Debug","DebugNew"]
 def FindFunction(option):
     print option
     if option == "START":
@@ -546,20 +548,15 @@ def ReadInputFiles(rootfile):
     ientry = inputfiles.LoadTree(0)
     inputfiles.GetEntry(0)
 
-    NFILES      =inputfiles.nfiles
-    NIND        =inputfiles.nindfiles
-    intlumi     =inputfiles.intlumi
+    NFILES      = inputfiles.nfiles
+    NIND        = inputfiles.nindfiles
+    intlumi     = inputfiles.intlumi
 
-    for ifile in xrange(NIND):
-        #print ifile
+    for ifile in range(NIND):
         newsample=SampleInfo()
-        
         newsample.itype           =inputfiles.itype[ifile]
         newsample.inshortnames    =inputfiles.inshortnames[ifile].GetString()
-       
         samples[inputfiles.itype[ifile]]=newsample
- 
-            
 
 ### Ploting Functions 
 
@@ -610,7 +607,8 @@ def Plot(num,printsuffix="",printcat=-1):
             for stacktype in stacktypes:
                 stacks[stacktype+str(icat)]=MakeStack(stacktype,icat)
                 stacks[stacktype+"lines"+str(icat)]=MakeOverlayLines(stacktype, icat)
-                stackmaxima[icat].append(stacks[stacktype+str(icat)].GetMaximum())          
+                stackmaxima[icat].append(stacks[stacktype+str(icat)].GetMaximum())
+                    
 
     if dolegend:
         SetLegend()
@@ -637,8 +635,12 @@ def Plot(num,printsuffix="",printcat=-1):
             print "stackmax",stackmax
 
       
-        stacks["bkg"].Draw("hist")
-        stacks["bkg"].SetMaximum(stackmax)
+        stacks["bkg"].Draw("axis")
+        ROOT.gStyle.SetOptStat(0)
+        
+        if StaticMax:
+            stacks["bkg"].SetMaximum(stackmax)
+            
         if StaticMin:
             stacks["bkg"].SetMinimum(stackmin)
 
@@ -657,14 +659,16 @@ def Plot(num,printsuffix="",printcat=-1):
         stacks["bkg"].GetYaxis().SetTitleSize(0.06)
         stacks["bkg"].GetYaxis().SetTitleOffset(0.8)
         stacks["bkg"].SetTitle("All Categories")
-        
+
+        dataIntegral = -1
         lineorder = stacks["datalines"].keys()
         lineorder.sort()
         lineorder.reverse()
         for index in lineorder:
             itype=index[1]
             if dolegend:
-                legend.AddEntry(stacks["datalines"][index],str(samples[itype].displayname),"ep"); 
+                legend.AddEntry(stacks["datalines"][index],str(samples[itype].displayname),"ep");
+            dataIntegral = stacks["datalines"+str(icat)][index].Integral()
             #stacks["datalines"+str(icat)][index].Draw("ep same")
         
         lineorder = stacks["siglines"].keys()
@@ -691,12 +695,12 @@ def Plot(num,printsuffix="",printcat=-1):
             stacks["bkglines"][index].SetLineWidth(linewidth*plotscale)
             stacks["bkglines"][index].SetFillStyle(1001)
             stacks["bkglines"][index].SetFillColor(int(samples[itype].color))
+            if (Normalize and (index == lineorder[-1])):
+                stacks["bkglines"+str(icat)][index].Scale(dataIntegral/stacks["bkglines"+str(icat)][index].Integral())
             stacks["bkglines"][index].Draw("histsame")
             if dolegend:
                 legend.AddEntry(stacks["bkglines"][index],str(samples[itype].displayname),"f"); 
-        
 
-        
         lineorder = stacks["siglines"].keys()
         lineorder.sort()
         lineorder.reverse()
@@ -705,7 +709,6 @@ def Plot(num,printsuffix="",printcat=-1):
             stacks["siglines"][index].Draw("histsame")
             #stacks["siglines"+str(icat)][index].Draw("histsame")
        
-        
         lineorder = stacks["datalines"].keys()
         lineorder.sort()
         lineorder.reverse()
@@ -739,8 +742,11 @@ def Plot(num,printsuffix="",printcat=-1):
 
             if docats:
                 can.cd(icat+1)
-          
-            stacks["bkg"+str(icat)].Draw("hist")
+
+            # Matteo no stack is plotted to allow normalization (and stats are not plot as well)
+            ROOT.gStyle.SetOptStat(0)
+            stacks["bkg"+str(icat)].Draw("axis")
+
             stacks["bkg"+str(icat)].SetMaximum(stackmax)
             if StaticMin:
                 stacks["bkg"+str(icat)].SetMinimum(stackmin)
@@ -766,14 +772,16 @@ def Plot(num,printsuffix="",printcat=-1):
                     stacks["bkg"+str(icat)].SetTitle(str(cur_plot.plotvarname))
             else:
                 stacks["bkg"+str(icat)].SetTitle("")
-            
+
+            dataIntegral = -1
             lineorder = stacks["datalines"+str(icat)].keys()
             lineorder.sort()
             lineorder.reverse()
             for index in lineorder:
                 itype=index[1]
                 if dolegend and icat==0:
-                    legend.AddEntry(stacks["datalines"+str(icat)][index],str(samples[itype].displayname),"ep"); 
+                    legend.AddEntry(stacks["datalines"+str(icat)][index],str(samples[itype].displayname),"ep");
+                dataIntegral = stacks["datalines"+str(icat)][index].Integral()
                 #stacks["datalines"+str(icat)][index].Draw("ep same")
             
             lineorder = stacks["siglines"+str(icat)].keys()
@@ -783,7 +791,6 @@ def Plot(num,printsuffix="",printcat=-1):
                 itype=index[1]
                 if dolegend and icat==0:
                     legend.AddEntry(stacks["siglines"+str(icat)][index],str(samples[itype].displayname),"l"); 
-            
             lineorder = stacks["bkglines"+str(icat)].keys()
             lineorder.sort()
             lineorder.reverse()
@@ -800,6 +807,8 @@ def Plot(num,printsuffix="",printcat=-1):
                 stacks["bkglines"+str(icat)][index].SetLineWidth(linewidth*plotscale)
                 stacks["bkglines"+str(icat)][index].SetFillStyle(1001)
                 stacks["bkglines"+str(icat)][index].SetFillColor(int(samples[itype].color))
+                if (Normalize and (index == lineorder[-1])):
+                    stacks["bkglines"+str(icat)][index].Scale(dataIntegral/stacks["bkglines"+str(icat)][index].Integral())
                 stacks["bkglines"+str(icat)][index].Draw("histsame")
                 if dolegend and icat==0:
                     legend.AddEntry(stacks["bkglines"+str(icat)][index],str(samples[itype].displayname),"f"); 
