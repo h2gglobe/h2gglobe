@@ -1,62 +1,47 @@
-#outputFileName=tapanalysis/25Jun_mva
-
 cutPFMET=30.
 cutETTag=30.
-cutETProbe=20.
+cutETProbe=25.
 
-applyPreselection=10.
+applyPreselection=0.
 
 # presel vs CiC
 #selectionTypeTag=CiC4PF
-#cutSelectionTag=3.
+#cutSelectionTag=4.
 #selectionTypeProbe=CiC4PF
-#cutSelectionProbe=3. 
+#cutSelectionProbe=4. 
 #selectionTypeToMeasure=Presel
 #cutSelectionToMeasure=0.
 
 #CiC 
 #selectionTypeTag=CiC4PF
-#cutSelectionTag=3.
+#cutSelectionTag=4.
 #selectionTypeProbe=CiC4PF
-#cutSelectionProbe=-10. 
+#cutSelectionProbe=0. 
 #selectionTypeToMeasure=CiC4PF
-#cutSelectionToMeasure=3.
+#cutSelectionToMeasure=4.
 
 #MVA
-selectionTypeTag=MVA
-cutSelectionTag=-0.05
-selectionTypeProbe=MVA
-cutSelectionProbe=-10. 
-selectionTypeToMeasure=MVA
-cutSelectionToMeasure=-0.2
+#selectionTypeTag=MVA
+#cutSelectionTag=-0.05
+#selectionTypeProbe=MVA
+#cutSelectionProbe=-10. 
+#selectionTypeToMeasure=MVA
+#cutSelectionToMeasure=-0.2
 
 # presel
-#selectionTypeTag=MVA
-#cutSelectionTag=0.05
-#selectionTypeProbe=MVA
-#cutSelectionProbe=-10.
-#selectionTypeToMeasure=Presel
-#cutSelectionToMeasure=1.
-
-
-# special
-#selectionTypeTag=CiC4PF
-#cutSelectionTag=3.
-#selectionTypeProbe=CiC4PF
-#cutSelectionProbe=3.
-#selectionTypeToMeasure=Presel
-#cutSelectionToMeasure=0.
+selectionTypeTag=MVA
+cutSelectionTag=0.05
+selectionTypeProbe=MVA
+cutSelectionProbe=-10.
+selectionTypeToMeasure=Presel
+cutSelectionToMeasure=10.
 
 minZMass=60
 maxZMass=120
 
 ### Example of .dat 
-puMap=tapanalysis/pu_weights_map.dat
-#puHist=aux/pu_weights.root
-puTarget=aux/latest_prompt_NoLowPU_Jun12_2012.json.71000.observed.pileup.root
+puMap=
+puHist=auto
+puTarget=aux/nPU-Summer12_DD3.190456-200245-29Jun_Prompt.observed.root
 
-#latest_prompt_NoLowPU_Jun12_2012.json.73000.observed.pileup.root
-#puTarget=aux/latest_prompt_NoLowPU_Jun12_2012.json.69000.observed.pileup.root
-#rereco_prompt_2012.json.69000.observed.pileup.root
-#puTarget=aux/rereco_prompt_2012.json.68300.observed.pileup.root
-#puTarget=aux/rereco_prompt_2012.json.67500.observed.pileup.root
+

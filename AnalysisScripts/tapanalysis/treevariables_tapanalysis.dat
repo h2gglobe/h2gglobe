@@ -10,7 +10,6 @@ type=0 name=event
 type=0 name=lumis
 type=0 name=type
 type=2 name=weight
-
 type=0 name=charge
 type=0 name=chargeTag
 type=2 name=eta
@@ -23,3 +22,5 @@ type=2 name=et
 type=2 name=ettag
 type=0 name=nvtx
 type=2 name=id
+type=0 name=catTag
+type=0 name=cat

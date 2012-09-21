@@ -32,7 +32,8 @@ el_std_posvtx
 #el_std_ip_ctf
 #el_std_ip_gsf
 #el_std_eseedopin
-#el_std_fbrem
+el_std_fbrem
+el_std_charge
 #el_std_hoe
 #el_std_detain
 #el_std_dphiin
