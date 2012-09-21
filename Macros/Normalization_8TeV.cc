@@ -825,7 +825,10 @@ void Normalization_8TeV::Init7TeV(){
     XSectionMap_tth[295.0]=0.004975;
     XSectionMap_tth[300.0]=0.004719;
 
- 
+    //Graviton X-Sections - assume the same as SM
+    for (std::map<double, double>::const_iterator iter = XSectionMap_ggh.begin(); iter != XSectionMap_ggh.end(); ++iter)
+      XSectionMap_graviton[iter->first]=iter->second+XSectionMap_vbf[iter->first]+XSectionMap_wzh[iter->first]+XSectionMap_tth[iter->first];
+   
 }
 
 void Normalization_8TeV::Init8TeV(){
@@ -2088,6 +2091,10 @@ void Normalization_8TeV::Init8TeV(){
   XSectionMap_tth[295.0]=0.008267;
   XSectionMap_tth[300.0]=0.007862;
   
+  //Graviton X-Sections - assume the same as SM
+  for (std::map<double, double>::const_iterator iter = XSectionMap_ggh.begin(); iter != XSectionMap_ggh.end(); ++iter)
+    XSectionMap_graviton[iter->first]=iter->second+XSectionMap_vbf[iter->first]+XSectionMap_wzh[iter->first]+XSectionMap_tth[iter->first];
+  
 }
 
 void Normalization_8TeV::FillSignalTypes(){
@@ -2168,6 +2175,8 @@ void Normalization_8TeV::FillSignalTypes(){
   SignalTypeMap[-84]=std::make_pair<TString,double>("wzh",90);
   SignalTypeMap[-83]=std::make_pair<TString,double>("tth",90);
 
+  SignalTypeMap[-1000]=std::make_pair<TString,double>("graviton",125);
+
 }
 
 TGraph * Normalization_8TeV::GetSigmaGraph(TString process)
@@ -2186,7 +2195,9 @@ TGraph * Normalization_8TeV::GetSigmaGraph(TString process)
 		XSectionMap = &XSectionMap_wh;
 	} else if ( process == "zh") {
 		XSectionMap = &XSectionMap_zh;
-	}
+	} else if (process == "graviton"){
+    XSectionMap = &XSectionMap_graviton;
+  }
 	
 	for (std::map<double, double>::const_iterator iter = XSectionMap->begin();  iter != XSectionMap->end(); ++iter) {
 		gr->SetPoint(gr->GetN(),iter->first, iter->second );
@@ -2244,6 +2255,8 @@ double Normalization_8TeV::GetXsection(double mass, TString HistName) {
     XSectionMap = &XSectionMap_wzh;
   } else if (HistName.Contains("tth")) {
     XSectionMap = &XSectionMap_tth;
+  } else if (HistName.Contains("graviton")) {
+    XSectionMap = &XSectionMap_graviton;
   } else {
     std::cout << "Warning ggh, vbf, wh, zh, wzh, or tth not found in histname!!!!" << std::endl;
     //exit(1);
