@@ -12,7 +12,6 @@ using namespace std;
 void TapAnalysis::FillFlatTree(LoopAll& l, Int_t type, Int_t ipho1, Int_t ipho2, Int_t iele1, Int_t iele2,
 			       Float_t mass, Float_t weight, Float_t id) {
 
-  std::cout << l.run << std::endl;
   l.FillTree("run", l.run);
   l.FillTree("lumis", l.lumis);
   l.FillTree("event", l.event);
@@ -21,8 +20,8 @@ void TapAnalysis::FillFlatTree(LoopAll& l, Int_t type, Int_t ipho1, Int_t ipho2,
   l.FillTree("chargeTag", l.el_std_charge[iele2]);
   TLorentzVector* p4_tag = (TLorentzVector*) l.el_std_p4->At(iele1);
   TLorentzVector* p4_probe = (TLorentzVector*) l.el_std_p4->At(iele2);
-  l.FillTree("eta", p4_probe->Eta());
-  l.FillTree("etatag", p4_tag->Eta());
+  l.FillTree("eta", (float)p4_probe->Eta());
+  l.FillTree("etatag", (float)p4_tag->Eta());
   l.FillTree("mass", mass);
   l.FillTree("weight", weight);
   l.FillTree("fbrem", l.el_std_fbrem[iele2]);  
@@ -31,10 +30,13 @@ void TapAnalysis::FillFlatTree(LoopAll& l, Int_t type, Int_t ipho1, Int_t ipho2,
 
   TLorentzVector* p4_pho_tag = (TLorentzVector*) l.pho_p4->At(ipho1);
   TLorentzVector* p4_pho_probe = (TLorentzVector*) l.pho_p4->At(ipho2);
-  l.FillTree("ettag", p4_pho_tag->Eta()*sin(p4_tag->Theta()));
-  l.FillTree("et",  p4_pho_probe->Eta()*sin(p4_probe->Theta()));
+  l.FillTree("ettag", (float)p4_pho_tag->E()*(float)sin(p4_tag->Theta()));
+  l.FillTree("et",  (float)p4_pho_probe->E()*(float)sin(p4_probe->Theta()));
   l.FillTree("nvtx", l.vtx_std_n);
   l.FillTree("id", id);
+
+  l.FillTree("catTag",  PhotonIDCategory(l, ipho1, 4));
+  l.FillTree("cat", PhotonIDCategory(l, ipho2, 4));
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -83,16 +85,169 @@ void TapAnalysis::Init(LoopAll& l) {
   l.tmvaReaderID_Single_Endcap->AddVariable("rho",   &l.tmva_photonid_eventrho );
   l.tmvaReaderID_Single_Endcap->AddVariable("ph.idmva_PsEffWidthSigmaRR",   &l.tmva_photonid_ESEffSigmaRR );
   l.tmvaReaderID_Single_Endcap->BookMVA("AdaBoost", "aux/2012ICHEP_PhotonID_Endcap_BDT.weights_PSCorr.xml");
+
   
+  const int phoNCUTS = LoopAll::phoNCUTS;
+  const int phoCiC6NCATEGORIES = LoopAll::phoCiC6NCATEGORIES;
+  const int phoCiC4NCATEGORIES = LoopAll::phoCiC4NCATEGORIES;
+  const int phoNCUTLEVELS = LoopAll::phoNCUTLEVELS;
+  
+  for(int iLevel=0; iLevel<phoNCUTLEVELS; ++iLevel) {
+    float cic6_cuts_lead[phoNCUTS][phoCiC6NCATEGORIES];
+    float cic6_cuts_sublead[phoNCUTS][phoCiC6NCATEGORIES];
+    float cic4_cuts_lead[phoNCUTS][phoCiC4NCATEGORIES];
+    float cic4_cuts_sublead[phoNCUTS][phoCiC4NCATEGORIES];
+    float cic4pf_cuts_lead[phoNCUTS][phoCiC4NCATEGORIES];
+    float cic4pf_cuts_sublead[phoNCUTS][phoCiC4NCATEGORIES];
+    
+    // get the cut values for the current photon CIC level 
+    l.SetPhotonCutsInCategories((LoopAll::phoCiCIDLevel)iLevel, 
+				&cic6_cuts_lead[0][0], &cic6_cuts_sublead[0][0], 
+				&cic4_cuts_lead[0][0], &cic4_cuts_sublead[0][0],
+				&cic4pf_cuts_lead[0][0], &cic4pf_cuts_sublead[0][0]);
+    
+    // rearrange the returned values to arrays with more meaningful names
+    float * cic6_cuts_arrays_lead[phoNCUTS] = {
+      &l.cic6_cut_lead_isosumoet[0][0], 
+      &l.cic6_cut_lead_isosumoetbad[0][0], 
+      &l.cic6_cut_lead_trkisooet[0][0], 
+      &l.cic6_cut_lead_sieie[0][0],
+      &l.cic6_cut_lead_hovere[0][0],
+      &l.cic6_cut_lead_r9[0][0], 
+      &l.cic6_cut_lead_drtotk_25_99[0][0], 
+      &l.cic6_cut_lead_pixel[0][0] 
+    };
+    
+    float * cic6_cuts_arrays_sublead[phoNCUTS] = {
+      &l.cic6_cut_sublead_isosumoet[0][0], 
+      &l.cic6_cut_sublead_isosumoetbad[0][0], 
+      &l.cic6_cut_sublead_trkisooet[0][0], 
+      &l.cic6_cut_sublead_sieie[0][0], 
+      &l.cic6_cut_sublead_hovere[0][0], 
+      &l.cic6_cut_sublead_r9[0][0],
+      &l.cic6_cut_sublead_drtotk_25_99[0][0], 
+      &l.cic6_cut_sublead_pixel[0][0]
+    };
+    
+    float * cic4_cuts_arrays_lead[phoNCUTS] = {
+      &l.cic4_cut_lead_isosumoet[0][0], 
+      &l.cic4_cut_lead_isosumoetbad[0][0], 
+      &l.cic4_cut_lead_trkisooet[0][0], 
+      &l.cic4_cut_lead_sieie[0][0],
+      &l.cic4_cut_lead_hovere[0][0], 
+      &l.cic4_cut_lead_r9[0][0], 
+      &l.cic4_cut_lead_drtotk_25_99[0][0], 
+      &l.cic4_cut_lead_pixel[0][0] 
+    };
+    
+    float * cic4_cuts_arrays_sublead[phoNCUTS] = {
+      &l.cic4_cut_sublead_isosumoet[0][0], 
+      &l.cic4_cut_sublead_isosumoetbad[0][0], 
+      &l.cic4_cut_sublead_trkisooet[0][0], 
+      &l.cic4_cut_sublead_sieie[0][0], 
+      &l.cic4_cut_sublead_hovere[0][0], 
+      &l.cic4_cut_sublead_r9[0][0],
+      &l.cic4_cut_sublead_drtotk_25_99[0][0], 
+      &l.cic4_cut_sublead_pixel[0][0]
+    };
+    
+    float * cic4pf_cuts_arrays_lead[phoNCUTS] = {
+      &l.cic4pf_cut_lead_isosumoet[0][0], 
+      &l.cic4pf_cut_lead_isosumoetbad[0][0], 
+      &l.cic4pf_cut_lead_trkisooet[0][0], 
+      &l.cic4pf_cut_lead_sieie[0][0],
+      &l.cic4pf_cut_lead_hovere[0][0], 
+      &l.cic4pf_cut_lead_r9[0][0], 
+      &l.cic4pf_cut_lead_drtotk_25_99[0][0], 
+      &l.cic4pf_cut_lead_pixel[0][0] 
+    };
+    
+    float * cic4pf_cuts_arrays_sublead[phoNCUTS] = {
+      &l.cic4pf_cut_sublead_isosumoet[0][0], 
+      &l.cic4pf_cut_sublead_isosumoetbad[0][0], 
+      &l.cic4pf_cut_sublead_trkisooet[0][0], 
+      &l.cic4pf_cut_sublead_sieie[0][0], 
+      &l.cic4pf_cut_sublead_hovere[0][0], 
+      &l.cic4pf_cut_sublead_r9[0][0],
+      &l.cic4pf_cut_sublead_drtotk_25_99[0][0], 
+      &l.cic4pf_cut_sublead_pixel[0][0]
+    };
+    for(int iCut=0; iCut<phoNCUTS; ++iCut) {
+      for(int iCat=0; iCat<phoCiC6NCATEGORIES; ++iCat) {
+	cic6_cuts_arrays_lead[iCut][iLevel*phoCiC6NCATEGORIES+iCat] = cic6_cuts_lead[iCut][iCat];
+	cic6_cuts_arrays_sublead[iCut][iLevel*phoCiC6NCATEGORIES+iCat] = cic6_cuts_sublead[iCut][iCat];
+      }
+      for(int iCat=0; iCat<phoCiC4NCATEGORIES; ++iCat) {
+	cic4_cuts_arrays_lead[iCut][iLevel*phoCiC4NCATEGORIES+iCat] = cic4_cuts_lead[iCut][iCat];
+	cic4_cuts_arrays_sublead[iCut][iLevel*phoCiC4NCATEGORIES+iCat] = cic4_cuts_sublead[iCut][iCat];
+      }
+      for(int iCat=0; iCat<phoCiC4NCATEGORIES; ++iCat) {
+	cic4pf_cuts_arrays_lead[iCut][iLevel*phoCiC4NCATEGORIES+iCat] = cic4pf_cuts_lead[iCut][iCat];
+	cic4pf_cuts_arrays_sublead[iCut][iLevel*phoCiC4NCATEGORIES+iCat] = cic4pf_cuts_sublead[iCut][iCat];
+      }
+    }
+  } // end of loop over all photon cut levels
+  
+
+  /* -------------------------------------------------------------------------------------------
+     Pileup Reweighting
+     https://twiki.cern.ch/twiki/bin/viewauth/CMS/PileupReweighting
+     ----------------------------------------------------------------------------------------------  */
+  if (puHist != "" && puHist != "auto" ) {
+    if(DEBUG) 
+      cout << "Opening PU file"<<endl;
+    TFile* puFile = TFile::Open( puHist );
+    if (puFile) {
+      TH1 * target = 0;
+      
+      if( puTarget != "" ) {
+        TFile * puTargetFile = TFile::Open( puTarget ); 
+        assert( puTargetFile != 0 );
+        target = (TH1*)puTargetFile->Get("pileup");
+        if( target == 0 ) { target = (TH1*)puTargetFile->Get("target_pu"); }
+        target->Scale( 1. / target->Integral() );
+      }
+      
+      if( puMap != "" ) {
+	loadPuMap(puMap, puFile, target); 
+      } else {
+	loadPuWeights(0, puFile, target);
+      }
+      puFile->Close();
+    }
+    else {
+      cout<<"Error opening " <<puHist<<" pileup reweighting histogram, using 1.0"<<endl; 
+      weights[0].resize(50);
+      for (unsigned int i=0; i<weights[0].size(); i++) weights[0][i] = 1.0;
+    }
+    if(DEBUG) 
+      cout << "Opening PU file END"<<endl;
+  } else if ( puHist == "auto" ) {
+    TFile * puTargetFile = TFile::Open( puTarget ); 
+    assert( puTargetFile != 0 );
+    puTargetHist = (TH1*)puTargetFile->Get("pileup");
+    if( puTargetHist == 0 ) { 
+      puTargetHist = (TH1*)puTargetFile->Get("target_pu"); 
+    }
+    puTargetHist = (TH1*)puTargetHist->Clone();
+    puTargetHist->SetDirectory(0);
+    puTargetHist->Scale( 1. / puTargetHist->Integral() );
+    puTargetFile->Close();
+  }
+
   if(TapAnalysisDEBUG) 
     cout <<"InitRealTapAnalysis END"<<endl;
 }
 
 // ----------------------------------------------------------------------------------------------------
 bool TapAnalysis::Analysis(LoopAll& l, Int_t jentry) {
+
   if(TapAnalysisDEBUG) 
     cout <<"Analysis START"<<endl;
+  /*
    if (puHist != "" && puHist != "auto" ) {
+
+
         if(TapAnalysisDEBUG) 
             cout << "Opening PU file"<<endl;
         TFile* puFile = TFile::Open( puHist );
@@ -125,15 +280,17 @@ bool TapAnalysis::Analysis(LoopAll& l, Int_t jentry) {
     TFile * puTargetFile = TFile::Open( puTarget ); 
     assert( puTargetFile != 0 );
     puTargetHist = (TH1*)puTargetFile->Get("pileup");
-    if( puTargetHist == 0 ) { puTargetHist = (TH1*)puTargetFile->Get("target_pileup"); }
+    if( puTargetHist == 0 ) { puTargetHist = (TH1*)puTargetFile->Get("target_pu"); }
     puTargetHist = (TH1*)puTargetHist->Clone();
     puTargetHist->SetDirectory(0);
     puTargetHist->Scale( 1. / puTargetHist->Integral() );
     puTargetFile->Close();
     }
-
+  */
     //apply pileup reweighting
     unsigned int n_pu = l.pu_n;
+    float weight = getPuWeight(l.pu_n, l.itype[l.current], &(l.sampleContainer[l.current_sample_index]), jentry == 1) * l.sampleContainer[l.current_sample_index].weight;
+    /*
     float weight =1.;
     if (l.itype[l.current] !=0 && puHist != "") {
         std::vector<double> & puweights = weights.find( l.itype[l.current] ) != weights.end() ? weights[ l.itype[l.current] ] : weights[0]; 
@@ -144,7 +301,7 @@ bool TapAnalysis::Analysis(LoopAll& l, Int_t jentry) {
             cout<<"n_pu ("<< n_pu<<") too big ("<<puweights.size()<<"), event will not be reweighted for pileup"<<endl;
         }
     }
-
+    */
   // move ate reduction level
   bool hlTrigger = true; //checkElectronHLT(iElectron, mp, indexfiles, itype, jentry);
   if(!hlTrigger)
@@ -181,7 +338,8 @@ bool TapAnalysis::Analysis(LoopAll& l, Int_t jentry) {
     }
  
     if (phoindex != -1) {
-       if ((applyPreselection > 0) && PhotonId(l, iElectron, phoindex, std::string("Presel"), 1)) {
+      if (((applyPreselection > 0) && PhotonId(l, iElectron, phoindex, std::string("Presel"), 1)) ||
+	  applyPreselection == 0) {
 	 if (PhotonId(l, iElectron, phoindex, selectionTypeTag, cutSelectionTag)) {
 	  selectedTags.push_back(iElectron);
 	}
@@ -219,7 +377,8 @@ bool TapAnalysis::Analysis(LoopAll& l, Int_t jentry) {
     }
 	  
     if (phoindex != -1) {
-      if ((applyPreselection > 0) && PhotonId(l, iEl, phoindex, std::string("Presel"), 1)) {
+      if (((applyPreselection > 0) && PhotonId(l, iEl, phoindex, std::string("Presel"), 1)) ||
+	  applyPreselection == 0) {
 	if (PhotonId(l, iEl, phoindex, selectionTypeProbe, cutSelectionProbe))
 	  selectedProbes.push_back(iEl);
       }
@@ -230,7 +389,7 @@ bool TapAnalysis::Analysis(LoopAll& l, Int_t jentry) {
 
   std::vector<std::pair<int, int> > phoEffPairs; phoEffPairs.clear();
   phoEffPairs = TPPairs(l, selectedTags, selectedProbes, 1, 0);
-
+  
   for (unsigned int tpPair=0; tpPair<phoEffPairs.size(); tpPair++) {
     
     TLorentzVector p4_tag = *((TLorentzVector*) l.el_std_p4->At(phoEffPairs[tpPair].first));
@@ -257,7 +416,6 @@ bool TapAnalysis::Analysis(LoopAll& l, Int_t jentry) {
 	p4_probe->SetPy(p4_probe->Py() *  (double)GetCutValue("value_EnergyCorrection_EB",0));
 	p4_probe->SetPz(p4_probe->Pz() *  (double)GetCutValue("value_EnergyCorrection_EB",0));
       } else {
-	p4_probe->SetE(p4_probe->E() *  (double)GetCutValue("value_EnergyCorrection_EE",0));
 	p4_probe->SetPx(p4_probe->Px() *  (double)GetCutValue("value_EnergyCorrection_EE",0));
 	p4_probe->SetPy(p4_probe->Py() *  (double)GetCutValue("value_EnergyCorrection_EE",0));
 	p4_probe->SetPz(p4_probe->Pz() *  (double)GetCutValue("value_EnergyCorrection_EE",0));
@@ -266,7 +424,7 @@ bool TapAnalysis::Analysis(LoopAll& l, Int_t jentry) {
     */
 
     double zMass = (p4_tag + *p4_probe).Mag();
-    //cout<<l.run << " zmass = "<<zMass<<endl;
+    //cout<< " zmass = "<<zMass<<endl;
 	
     if ((zMass > minZMass) && (zMass < maxZMass)) {
       
@@ -287,13 +445,17 @@ bool TapAnalysis::Analysis(LoopAll& l, Int_t jentry) {
       if (phoindex != -1) {
 	int type = l.itype[l.current];
 	Float_t id = PhotonId(l, iEl, phoindex, selectionTypeToMeasure, cutSelectionToMeasure);
-	
 	FillFlatTree(l, type, phoindex_tag, phoindex, iElTag, iEl, zMass, weight, id);
+	
+	return true;
       }
     }
   }    
+
   if(TapAnalysisDEBUG) 
     cout<<"Analysis END"<<endl;
+  
+  return false;
 }
 
 std::vector<std::pair<int, int> > TapAnalysis::TPPairs(LoopAll& l, std::vector<int> tags, std::vector<int> probes, int type, int chargePairing) {
@@ -308,46 +470,22 @@ std::vector<std::pair<int, int> > TapAnalysis::TPPairs(LoopAll& l, std::vector<i
     chargePairing = -1;
   
   // PRODUCE TAG AND PROBE PAIRS
-  /*
   for(unsigned int i=0; i<tags.size(); i++) {
     for(unsigned int j=0; j<probes.size(); j++) {
-      
       
       // CHECK TAG != PROBE
       if (type == 1) {
 	if(probes[j] == tags[i])
 	  continue;
       } else { // FOR SC PROBES
-	if (probes[j] == el_std_scind[tags[i]])
+	if (probes[j] == l.el_std_scind[tags[i]])
 	  continue;
       }
       
       if (chargePairing == 0)
 	tpPairs.push_back( std::pair<int, int>(tags[i], probes[j]));
-      else if (chargePairing == (el_std_charge[tags[i]]*el_std_charge[probes[j]]))
+      else if (chargePairing == (l.el_std_charge[tags[i]]*l.el_std_charge[probes[j]]))
 	tpPairs.push_back( std::pair<int, int>(tags[i], probes[j]));
-    }
-  }
-  */
-  if (tags.size() > 0) {
-    for(unsigned int i=0; i<tags.size()-1; i++) {
-      for(unsigned int j=i+1; j<tags.size(); j++) {
-	//std::cout << "COPPIE" <<  i << " " << j << std::endl;
-	
-      // CHECK TAG != PROBE
-	if (type == 1) {
-	  if(tags[j] == tags[i])
-	    continue;
-	} else { // FOR SC PROBES
-	  if (tags[j] == l.el_std_scind[tags[i]])
-	    continue;
-	}
-	
-	if (chargePairing == 0)
-	  tpPairs.push_back( std::pair<int, int>(tags[i], tags[j]));
-	else if (chargePairing == (l.el_std_charge[tags[i]]*l.el_std_charge[tags[j]]))
-	  tpPairs.push_back( std::pair<int, int>(tags[i], tags[j]));
-      }
     }
   }
 
@@ -369,7 +507,6 @@ void TapAnalysis::GetBranches(TTree *t, std::set<TBranch *>& s )
 // ----------------------------------------------------------------------------------------------------
 void TapAnalysis::FillReductionVariables(LoopAll& l, int jentry) {
 
-  // FIX PILEUP
   for (int ipho=0;ipho<l.pho_n;ipho++){
     l.pho_s4ratio[ipho]  = l.pho_e2x2[ipho]/l.pho_e5x5[ipho];
     float rr2=l.pho_eseffsixix[ipho]*l.pho_eseffsixix[ipho]+l.pho_eseffsiyiy[ipho]*l.pho_eseffsiyiy[ipho];
@@ -385,51 +522,25 @@ void TapAnalysis::FillReductionVariables(LoopAll& l, int jentry) {
 
   for(int ipho=0; ipho<l.pho_n; ++ipho) {
     std::vector<float> temp;
-
-    //float neu01 = l.pfEcalIso(ipho, 0.1, 0., 0., 0., 0., 0., 0., 5);
-    //float neu02 = l.pfEcalIso(ipho, 0.2, 0., 0., 0., 0., 0., 0., 5);
     float neu03 = l.pfEcalIso(ipho, 0.3, 0., 0., 0., 0., 0., 0., 5);
     float neu04 = l.pfEcalIso(ipho, 0.4, 0., 0., 0., 0., 0., 0., 5); 
-    //float neu05 = l.pfEcalIso(ipho, 0.5, 0., 0., 0., 0., 0., 0., 5); 
-    //float neu06 = l.pfEcalIso(ipho, 0.6, 0., 0., 0., 0., 0., 0., 5); 
-    
-    //l.pho_pfiso_myneutral01[ipho] = neu01;
-    //l.pho_pfiso_myneutral02[ipho] = neu02;
     l.pho_pfiso_myneutral03[ipho] = neu03;
     l.pho_pfiso_myneutral04[ipho] = neu04;
-    //l.pho_pfiso_myneutral05[ipho] = neu05;
-    //l.pho_pfiso_myneutral06[ipho] = neu06;
-    
-    //float pho01 = l.pfEcalIso(ipho, 0.1, 0., 0.070, 0.015, 0., 0., 0.);
-    //float pho02 = l.pfEcalIso(ipho, 0.2, 0., 0.070, 0.015, 0., 0., 0.);
+
     float pho03 = l.pfEcalIso(ipho, 0.3, 0., 0.070, 0.015, 0., 0., 0.);
     float pho04 = l.pfEcalIso(ipho, 0.4, 0., 0.070, 0.015, 0., 0., 0.); 
-    //float pho05 = l.pfEcalIso(ipho, 0.5, 0., 0.070, 0.015, 0., 0., 0.); 
-    //float pho06 = l.pfEcalIso(ipho, 0.6, 0., 0.070, 0.015, 0., 0., 0.); 
-    
-    //l.pho_pfiso_myphoton01[ipho] = pho01;
-    //l.pho_pfiso_myphoton02[ipho] = pho02;
     l.pho_pfiso_myphoton03[ipho] = pho03;
     l.pho_pfiso_myphoton04[ipho] = pho04;
-    //l.pho_pfiso_myphoton05[ipho] = pho05;
-    //l.pho_pfiso_myphoton06[ipho] = pho06;
 	
     float badiso = 0;
     for(int ivtx=0; ivtx<l.vtx_std_n; ++ivtx) {
       
-      //float ch01 = l.pfTkIsoWithVertex(ipho,ivtx,0.1,0.02,0.02,0.0,0.2,0.1);
       float ch02 = l.pfTkIsoWithVertex(ipho,ivtx,0.2,0.02,0.02,0.0,0.2,0.1);
       float ch03 = l.pfTkIsoWithVertex(ipho,ivtx,0.3,0.02,0.02,0.0,0.2,0.1);
       float ch04 = l.pfTkIsoWithVertex(ipho,ivtx,0.4,0.02,0.02,0.0,0.2,0.1);
-      //float ch05 = l.pfTkIsoWithVertex(ipho,ivtx,0.5,0.02,0.02,0.0,0.2,0.1);
-      //float ch06 = l.pfTkIsoWithVertex(ipho,ivtx,0.6,0.02,0.02,0.0,0.2,0.1);
-      
-      //l.pho_pfiso_mycharged01->at(ipho).at(ivtx) = ch01;
       l.pho_pfiso_mycharged02->at(ipho).at(ivtx) = ch02;
       l.pho_pfiso_mycharged03->at(ipho).at(ivtx) = ch03;
       l.pho_pfiso_mycharged04->at(ipho).at(ivtx) = ch04;
-      //l.pho_pfiso_mycharged05->at(ipho).at(ivtx) = ch05;
-      //l.pho_pfiso_mycharged06->at(ipho).at(ivtx) = ch06;
       
       TLorentzVector* p4 = (TLorentzVector*)l.pho_p4->At(ipho);
       temp.push_back(l.photonIDMVANew(ipho, ivtx, *p4, ""));
@@ -515,8 +626,15 @@ bool TapAnalysis::PhotonId(LoopAll& l, Int_t eleIndex, Int_t phoIndex, std::stri
 
   int thevertexind = ChooseVertex(l, eleIndex, true);
 
-  if (type == "CiC") {
-    result = CiCPhotonIDPF(l, 4, phoIndex, thevertexind, (int)selection);
+  if (type == "CiC4PF") {
+    std::vector<std::vector<bool> > ph_passcut;
+    int level = l.PhotonCiCPFSelectionLevel(phoIndex, thevertexind, ph_passcut, 4, 0);
+    result = (level >= selection); 
+
+  } else if (type == "CiC2") {
+    std::vector<std::vector<bool> > ph_passcut;
+    int level = l.PhotonCiCPFSelectionLevel(phoIndex, thevertexind, ph_passcut, 4, 0);
+    result = (level >= selection); 
   } else if (type == "MVA") {
     result = ((*l.pho_mitmva)[phoIndex][thevertexind] > selection);
   } else if (type == "Presel") {
@@ -626,8 +744,8 @@ bool TapAnalysis::CiCPhotonIDPF(LoopAll& l, int nCategories, int photonindex, in
 
   float rhofac = 0.09;
   float rhofacbad = 0.23;
-  float isosumconst    = 2.8;
-  float isosumconstbad = 4.8;
+  float isosumconst    = 2.5;
+  float isosumconstbad = 2.5;
 
   float val_isosumoet    = ((*l.pho_pfiso_mycharged03)[photonindex][chosenVtx] + l.pho_pfiso_myphoton03[photonindex] + isosumconst - l.rho_algo1*rhofac)*50./phop4.Et();
   float val_isosumoetbad = (l.pho_pfiso_myphoton04[photonindex] + l.pho_pfiso_charged_badvtx_04[photonindex] + isosumconstbad - l.rho_algo1*rhofacbad)*50./phop4.Et();
@@ -642,23 +760,22 @@ bool TapAnalysis::CiCPhotonIDPF(LoopAll& l, int nCategories, int photonindex, in
   vars[5] = l.pho_r9[photonindex];
   vars[6] = 99.; //DeltaRToTrackHgg(jentry, photonindex, chosenVtx, 2.5, 1., 0.1,0);
   vars[7] = 0;//(float)pho_haspixseed[photonindex];
-  
+
   for(int var=0; var<NVARS; var++){
-    if (nCategories == 6) {
-      if(var == 5 || var == 6){   //cuts from below
-	if(vars[var] < phoIDcuts6catPF[IDlevel][var][thisCat]) {
-	  passes =false;
-	  break;
-	}
-      } else {                    //cuts from above
-	if (vars[var] > phoIDcuts4catPF[IDlevel][var][thisCat]) {
-	  passes =false;
-	  break;
-	}
+    std::cout << vars[var] << " " << phoIDcuts4catPF[IDlevel][var][thisCat] << std::endl;
+    if(var == 5 || var == 6){   //cuts from below
+      if(vars[var] < phoIDcuts4catPF[IDlevel][var][thisCat]) {
+	passes =false;
+	break;
+      }
+    } else {                    //cuts from above
+      if (vars[var] > phoIDcuts4catPF[IDlevel][var][thisCat]) {
+	passes =false;
+	break;
       }
     }
-  } 
-  
+  }
+  std::cout << "_______________" << std::endl;
   //std::cout << passes << std::endl;
   return passes;
 }
