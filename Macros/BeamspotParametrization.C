@@ -6,11 +6,13 @@
 #include "TTree.h"
 #include "TCanvas.h"
 #include "TROOT.h"
+#include "TAxis.h"
 
 #include "RooRealVar.h"
 #include "RooDataSet.h"
 #include "RooGaussian.h"
 #include "RooAddPdf.h"
+#include "RooExtendPdf.h"
 #include "RooFitResult.h"
 #include "RooAbsArg.h"
 #include "RooArgList.h"
@@ -20,7 +22,7 @@ using namespace std;
 using namespace RooFit;
 
 void BeamspotParametrization(string filename_newBS, string filename_oldBS){
-  
+ 
   gROOT->SetBatch();
 
   TFile *newFile = TFile::Open(filename_newBS.c_str());
@@ -41,42 +43,97 @@ void BeamspotParametrization(string filename_newBS, string filename_oldBS){
   //trees.insert(pair<string,TTree*>("ggh_m123_oldBS",(TTree*)oldFile->Get("ggh_m123_8TeV")));
 
   // set up triple gaussian
-  RooRealVar *g0_p0 = new RooRealVar("g0_p0","g0_p0",21294,0.,1e6);
-  RooRealVar *g0_p1 = new RooRealVar("g0_p1","g0_p1",0.);//,-0.02,0.02);
-  RooRealVar *g0_p2 = new RooRealVar("g0_p2","g0_p2",0.003);//,0.,0.01);
-  RooRealVar *g1_p0 = new RooRealVar("g1_p0","g1_p0",500,0.,1e3);
-  RooRealVar *g1_p1 = new RooRealVar("g1_p1","g1_p1",0.015,-1.,1.);
-  RooRealVar *g1_p2 = new RooRealVar("g1_p2","g1_p2",0.5,0.,1.);
-  RooRealVar *g2_p0 = new RooRealVar("g2_p0","g2_p0",250.,0.,1e5);
-  RooRealVar *g2_p1 = new RooRealVar("g2_p1","g2_p1",-0.08,-20.,20.);
-  RooRealVar *g2_p2 = new RooRealVar("g2_p2","g2_p2",6.,0.,10.);
+  // norm terms
+  RooRealVar *norm0 = new RooRealVar("n0","n0",2e4,0,1e6);
+  RooRealVar *norm1 = new RooRealVar("n1","n1",500,0,1e6);
+  RooRealVar *norm2 = new RooRealVar("n2","n2",500,0,1e6);
 
-  RooGaussian *g0 = new RooGaussian("g0","g0",*deltaZ,*g0_p1,*g0_p2);
-  RooGaussian *g1 = new RooGaussian("g1","g1",*deltaZ,*g1_p1,*g1_p2);
-  RooGaussian *g2 = new RooGaussian("g2","g2",*deltaZ,*g2_p1,*g2_p2);
+  // mean terms
+  RooRealVar *mean0 = new RooRealVar("m0","m0",0.,-0.02,0.02);
+  RooRealVar *mean1 = new RooRealVar("m1","m1",0.,-1.,1.);
+  RooRealVar *mean2 = new RooRealVar("m2","m2",0.,-10.,10.);
 
-  RooAddPdf *gausPdf = new RooAddPdf("gausPdf","gausPdf",RooArgList(*g0,*g1,*g2),RooArgList(*g0_p0,*g1_p0,*g2_p0));
+  // sigma terms
+  RooRealVar *sigma0 = new RooRealVar("s0","s0",0.003,0.,0.02);
+  RooRealVar *sigma1 = new RooRealVar("s1","s1",0.5,0.,5.);
+  RooRealVar *sigma2 = new RooRealVar("s2","s2",6.,0.,10.);
+
+  RooGaussian *gaus0 = new RooGaussian("g0","g0",*deltaZ,*mean0,*sigma0);
+  RooGaussian *gaus1 = new RooGaussian("g1","g1",*deltaZ,*mean1,*sigma1);
+  RooGaussian *gaus2 = new RooGaussian("g2","g2",*deltaZ,*mean2,*sigma2);
+  
+  RooExtendPdf *ext0 = new RooExtendPdf("e0","e0",*gaus0,*norm0);
+  RooExtendPdf *ext1 = new RooExtendPdf("e1","e1",*gaus1,*norm1);
+  RooExtendPdf *ext2 = new RooExtendPdf("e2","e2",*gaus2,*norm2);
+  
+  RooAddPdf *gausPdf = new RooAddPdf("gausPdf","gausPdf",RooArgList(*ext0,*ext1,*ext2));
 
   map<string,RooFitResult*> fitResults;
 
+  deltaZ->setRange("narrow",-0.02,0.02);
+  deltaZ->setRange("wide_low",-25.,-2.);
+  deltaZ->setRange("wide_high",2.,25.);
+  deltaZ->setRange("mid_low",-2.,-0.02);
+  deltaZ->setRange("mid_high",0.02,2.);
+
+  TCanvas *canv = new TCanvas();
   // loop trees and fit gaussian
   for (map<string,TTree*>::iterator mapIt=trees.begin(); mapIt!=trees.end(); mapIt++){
    
     cout << (mapIt->second)->GetName() << " " << (mapIt->second)->GetEntries() << endl;
     RooDataSet *data = new RooDataSet((mapIt->first).c_str(),(mapIt->first).c_str(),RooArgSet(*deltaZ,*bdtoutput),Import(*(mapIt->second)),Cut("bdtoutput>=0.05"));
+    // first fit narrow gaussian
+    ext0->fitTo(*data,Range("narrow"),Save());
+    mean0->setRange(mean0->getVal(),mean0->getVal());
+    sigma0->setRange(sigma0->getVal(),sigma0->getVal());
+    // then fit mid gaussian
+    ext1->fitTo(*data,Range("mid_low,mid_high"),Save());
+    mean1->setRange(mean1->getVal(),mean1->getVal());
+    sigma1->setRange(sigma1->getVal(),sigma1->getVal());
+    // then fit wide gaussian
+    ext2->fitTo(*data,Range("wide_low,wide_high"),Save());
+    mean2->setRange(mean2->getVal(),mean2->getVal());
+    sigma2->setRange(sigma2->getVal(),sigma2->getVal());
+    
+    RooPlot *plotN = deltaZ->frame();
+    data->plotOn(plotN,Binning(200));
+    ext0->plotOn(plotN,Range("narrow"),NormRange("narrow"));
+    plotN->Draw();
+    plotN->GetXaxis()->SetRangeUser(-0.05,0.05);
+    canv->Print(Form("BSplots/nar_%s.pdf",(mapIt->first).c_str()));
+    
+    RooPlot *plotM = deltaZ->frame();
+    data->plotOn(plotM,Binning(200));
+    ext1->plotOn(plotM,Range("mid_low,mid_high"),NormRange("mid_low,mid_high"));
+    plotM->Draw();
+    plotM->GetYaxis()->SetRangeUser(0,500);
+    canv->Print(Form("BSplots/mid_%s.pdf",(mapIt->first).c_str()));
+    
+    RooPlot *plotW = deltaZ->frame();
+    data->plotOn(plotW,Binning(200));
+    ext2->plotOn(plotW,Range("wide_low,wide_high"),NormRange("wide_low,wide_high"));
+    plotW->Draw();
+    plotW->GetYaxis()->SetRangeUser(0,500);
+    canv->Print(Form("BSplots/wide_%s.pdf",(mapIt->first).c_str()));
+   
+    // then fit all
     RooFitResult *fitRes = gausPdf->fitTo(*data,Save());
+    
     fitResults.insert(pair<string,RooFitResult*>(mapIt->first,fitRes));
 
-    TCanvas *canv = new TCanvas();
     RooPlot *plot = deltaZ->frame();
-    data->plotOn(plot,Binning(200));
+    data->plotOn(plotW,Binning(200));
     gausPdf->plotOn(plot);
+    plot->GetYaxis()->SetRangeUser(0,500);
     plot->Draw();
     canv->SaveAs(Form("BSplots/%s.C",(mapIt->first).c_str()));
     canv->Print(Form("BSplots/%s.pdf",(mapIt->first).c_str()));
     canv->Write();
-    delete canv;
-    delete data;
+    
+    system(Form("cp BSplots/%s.pdf ~/www/",(mapIt->first).c_str()));
+    system(Form("cp BSplots/nar_%s.pdf ~/www/",(mapIt->first).c_str()));
+    system(Form("cp BSplots/mid_%s.pdf ~/www/",(mapIt->first).c_str()));
+    system(Form("cp BSplots/wide_%s.pdf ~/www/",(mapIt->first).c_str()));
   }
 
   for (map<string,RooFitResult*>::iterator iter=fitResults.begin(); iter!=fitResults.end(); iter++){
