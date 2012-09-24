@@ -1507,6 +1507,20 @@ void RooContainer::addGenericPdf(std::string name,std::string formula,std::strin
 	            << std::endl;
 	  return;
 	}
+     } else if (form == 6) { //RooPowerLaw - x,slope
+	if (var.size() == 1){
+          if (!form_vars)  temp_1 = new RooGenericPdf(Form("pdf_%s",name.c_str()),name.c_str(),"pow(@0,-@1)", 
+						      RooArgList( (*obs_real_var).second,m_real_var_[var[0]] ) );
+          else  temp_1 = new RooGenericPdf(Form("pdf_%s",name.c_str()),name.c_str(),"pow(@0,-@1)", 
+					   RooArgList( (*obs_real_var).second, m_form_var_[var[0]]) );
+          //v_gen_.push_back(temp_1);
+	} else {
+		
+          std::cerr << "WARNING -- RooContainer::AddGenericPdf -- Need 1 arguments for RooPowerLaw, was given: "
+		    << var.size() << " -- WARNING"
+	            << std::endl;
+	  return;
+	}
      } else if (form>60 && form < 70) { // RooChebychev - x, p1....pform-1
 
 	if ((int)var.size() == form-60){
