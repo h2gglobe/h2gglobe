@@ -4139,9 +4139,9 @@ bool LoopAll::ElectronEGammaBDTID(int electron_index, int vtxind){
   
     // eleID BDT
     if(thiseta<1.442) {                                                                                                                 
-      if(el_std_mva_nontrig[indel]<0.90) return pass;
+      if(el_std_mva_nontrig[electron_index]<0.90) return pass;
     } else {                                                                                                                            
-      if(el_std_mva_nontrig[indel]<0.90) return pass;
+      if(el_std_mva_nontrig[electron_index]<0.90) return pass;
     }    
     
     pass=true;
