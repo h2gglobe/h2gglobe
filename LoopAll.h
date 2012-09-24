@@ -526,9 +526,9 @@ int DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL = phoLOOSE,
                           int ncategories=6, 
                           bool applyPtoverM=false, 
                           float *pho_energy_array=0, 
-                          bool split=false, bool defaultvtx=false, std::vector<int> cutsbycat=std::vector<int>(0));
+                          bool split=false, int fixedvtx=-1, std::vector<int> cutsbycat=std::vector<int>(0));
 
- int DiphotonMITPreSelection(Float_t leadPtMin, Float_t subleadPtMin, Float_t phoidMvaCut, bool applyPtoverM, float *pho_energy_array=0, bool kinonly=false);
+ int DiphotonMITPreSelection(Float_t leadPtMin, Float_t subleadPtMin, Float_t phoidMvaCut, bool applyPtoverM, float *pho_energy_array=0, int fixedvtx=-1, bool split=false, bool kinonly=false);
  int DiphotonMITPreSelection2011(Float_t leadPtMin, Float_t subleadPtMin, Float_t phoidMvaCut, bool applyPtoverM, float *pho_energy_array=0, bool kinonly=false);
 
 /** for a photon index, applies all levels of cuts and returns the
@@ -1115,12 +1115,20 @@ int MuonSelection(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind);
 int ElectronSelection(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind);
 int MuonSelection2012(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind);
 int ElectronSelection2012(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind,  bool phodepend=true);
-int ElectronSelection2012BDT(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind, bool phodepend=true);
 int ElectronPreSelection2012(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind, float ptcut=10.0, int firstveto=-1);
 bool ElectronLooseEGammaID(int electronindex, int vertexindex=-1);
 bool ElectronTightEGammaID(int electronindex, int vertexindex=-1);
-bool ElectronEGammaBDTID(int electronindex, int vertexindex=-1);
+int ElectronSelectionMVA2012();
+bool ElectronMVACuts(int el_ind, int vtx_ind=-1);
 bool ElectronPhotonCuts(TLorentzVector& pho1, TLorentzVector& pho2, TLorentzVector& ele);
+bool ElectronPhotonCuts2012B(TLorentzVector& pho1, TLorentzVector& pho2, TLorentzVector& ele);
+int FindElectronVertex(int el_ind);
+bool MuonTightID2012(int indmu, int vtxind=-1);
+bool MuonIsolation2012(int indmu, float mupt, bool isTight=false);
+bool MuonPhotonCuts2012(TLorentzVector& pho1, TLorentzVector& pho2, TLorentzVector* thismu);
+bool MuonPhotonCuts2012B(TLorentzVector& pho1, TLorentzVector& pho2, TLorentzVector* thismu);
+int MuonSelection2012B();
+int FindMuonVertex(int mu_ind);
 
 //correct met
 double ErrEt( double Et, double Eta);

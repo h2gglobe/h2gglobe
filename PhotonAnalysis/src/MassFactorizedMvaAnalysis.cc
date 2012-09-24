@@ -209,6 +209,11 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
     nInclusiveCategories_ = bdtCategoryBoundaries.size()-1;
 
     nVBFCategories   = ((int)includeVBF)*( (mvaVbfSelection && !multiclassVbfSelection) ? mvaVbfCatBoundaries.size()-1 : nVBFEtaCategories*nVBFDijetJetCategories );
+    if(includeVHlep){
+        nVHlepCategories = nElectronCategories + nMuonCategories;
+    }
+    nVHmetCategories = (int)includeVHmet;  //met at analysis step
+    
     std::sort(mvaVbfCatBoundaries.begin(),mvaVbfCatBoundaries.end(), std::greater<float>() );
     if (multiclassVbfSelection) {
 	std::vector<int> vsize;
@@ -231,7 +236,7 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
 	std::sort(multiclassVbfCatBoundaries2.begin(),multiclassVbfCatBoundaries2.end(), std::greater<float>() );
     }
 
-    nCategories_=(nInclusiveCategories_+nVBFCategories);
+    nCategories_=(nInclusiveCategories_+nVBFCategories+nVHlepCategories+nVHmetCategories);
 
     if (bdtTrainingPhilosophy == "UCSD") {
         l.rooContainer->SetNCategories(8);
@@ -550,10 +555,32 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
         int diphotonVHmet_id = -1; //met at analysis step
         VHmuevent = false;
         VHelevent = false;
+        VHelevent_cat=0;
+	    VHmuevent_cat=0;
         VBFevent = false;
         VHhadevent = false;
         VHmetevent = false; //met at analysis step
-        
+       
+        int leadpho_ind=-1;
+        int subleadpho_ind=-1;
+        int mu_ind=-1;
+        int el_ind=-1;
+        int muVtx=-1;
+        int elVtx=-1;
+
+        if(includeVHlep){
+            float eventweight = weight * genLevWeight;
+            float myweight=1.;
+            if(eventweight*sampleweight!=0) myweight=eventweight/sampleweight;
+            VHmuevent=MuonTag2012B(l, diphotonVHlep_id, muVtx, VHmuevent_cat, &smeared_pho_energy[0], lep_sync, true, phoidMvaCut);
+            if(!VHmuevent){
+                ElectronStudies2012B(l, &smeared_pho_energy[0], true,  -0.3, eventweight, myweight, jentry);
+                VHelevent=ElectronTag2012B(l, diphotonVHlep_id, elVtx, VHelevent_cat, &smeared_pho_energy[0], lep_sync, true, phoidMvaCut);
+            }
+            //ElectronTagStudies2012(l, diphotonVHlep_id, &smeared_pho_energy[0], true, eventweight, myweight, jentry);
+        }
+
+
         // VBF
         if((includeVBF || includeVHhad)&&l.jet_algoPF1_n>1 && !isSyst /*avoid rescale > once*/) {
             l.RescaleJetEnergy();
@@ -643,12 +670,12 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
                            
         // Must be calculated after photon id has potentially been smeared
         //fillTrainTree(l,diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id] ,vtxProb,lead_p4,sublead_p4 ,sigmaMrv,sigmaMwv,sigmaMeonly ,bdtTrainingPhilosophy.c_str() ,phoid_mvaout_lead,phoid_mvaout_sublead);
-	float diphobdt_output = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id] ,
+	    float diphobdt_output = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id] ,
 					      vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMeonly,
 					      bdtTrainingPhilosophy.c_str(),
 					      phoid_mvaout_lead,phoid_mvaout_sublead);
-	kinematic_bdtout = diphobdt_output;
-	
+	    kinematic_bdtout = diphobdt_output;
+
         bool isEBEB  = (lead_p4.Eta() < 1.4442 ) && fabs(sublead_p4.Eta()<1.4442);
         category = GetBDTBoundaryCategory(diphobdt_output,isEBEB,VBFevent);
         if (diphobdt_output>=bdtCategoryBoundaries.back()) { 
@@ -1175,9 +1202,9 @@ int MassFactorizedMvaAnalysis::GetBDTBoundaryCategory(float bdtout, bool isEB, b
         }
 
     } else if (bdtTrainingPhilosophy=="MIT"){
-	int cat = categoryFromBoundaries( bdtCategoryBoundaries, bdtout );
-	if( VBFevent && cat > -1 ) cat = bdtCategoryBoundaries.size();
-	return cat;
+	    int cat = categoryFromBoundaries( bdtCategoryBoundaries, bdtout );
+	    if( VBFevent && cat > -1 ) cat = bdtCategoryBoundaries.size();
+	    return cat;
     } else std::cerr << "No BDT Philosophy known - " << bdtTrainingPhilosophy << std::endl;
 }
 

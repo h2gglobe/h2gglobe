@@ -743,6 +743,7 @@ void PhotonAnalysis::Init(LoopAll& l)
         l.SetCutVariables("cutEl_matchelsub",   &myEl_matchelsub );
         l.SetCutVariables("cutEl_category",     &myEl_category );
         l.SetCutVariables("cutEl_ElePho",       &myEl_ElePho );
+        l.SetCutVariables("cutEl_passelcuts",   &myEl_passelcuts );
     }
 
 
@@ -2497,7 +2498,7 @@ bool PhotonAnalysis::ElectronTag2012(LoopAll& l, int leadpho_ind, int subleadpho
     return tag;
 }
 
-bool PhotonAnalysis::ElectronSelection_Tag2012B(LoopAll& l, TLorentzVector*& el_tag, TLorentzVector*& el_sc, TLorentzVector& lead_p4, TLorentzVector& sublead_p4, int& elVtx, int& elInd, int& leadpho_ind, int& subleadpho_ind, float elptcut, float leadptcut, float subleadptcut, float* smeared_pho_energy, bool tightID){
+bool PhotonAnalysis::ElectronSelection_Tag2012_CP(LoopAll& l, TLorentzVector*& el_tag, TLorentzVector*& el_sc, TLorentzVector& lead_p4, TLorentzVector& sublead_p4, int& elVtx, int& elInd, int& leadpho_ind, int& subleadpho_ind, float elptcut, float leadptcut, float subleadptcut, float* smeared_pho_energy, bool tightID){
     bool tag = false;
     bool debuglocal=false;
     float highestmva=-2;
@@ -2603,48 +2604,463 @@ bool PhotonAnalysis::ElectronSelection_Tag2012B(LoopAll& l, TLorentzVector*& el_
     tag=true;
 
     if(tightID==false&&(fabs(sublead_p4.Eta())>1.5||fabs(lead_p4.Eta())>1.5||fabs(el_sc->Eta())>1.5))
-        tag = ElectronSelection_Tag2012B(l, el_tag, el_sc, lead_p4, sublead_p4, elVtx, elInd, leadpho_ind, subleadpho_ind, elptcut, leadptcut, subleadptcut, &smeared_pho_energy[0], true);
+        tag = ElectronSelection_Tag2012_CP(l, el_tag, el_sc, lead_p4, sublead_p4, elVtx, elInd, leadpho_ind, subleadpho_ind, elptcut, leadptcut, subleadptcut, &smeared_pho_energy[0], true);
 
     return tag;
 }
 
-bool PhotonAnalysis::ElectronPhotonCuts_Tag2012B(LoopAll& l, TLorentzVector* el_tag, TLorentzVector* el_sc, TLorentzVector lead_p4, TLorentzVector sublead_p4, int elVtx, int leadpho_ind, int subleadpho_ind){
+bool PhotonAnalysis::ElectronPhotonCuts_Tag2012_CP(LoopAll& l, TLorentzVector* el_tag, TLorentzVector* el_sc, TLorentzVector lead_p4, TLorentzVector sublead_p4, int elVtx, int leadpho_ind, int subleadpho_ind){
     bool tag = false;
-    bool debuglocal=false;
 
-    if(debuglocal) std::cout<<"l.pho_drtotk_25_99[leadpho_ind] "<<l.pho_drtotk_25_99[leadpho_ind]<<std::endl;
     if(l.pho_drtotk_25_99[leadpho_ind]<0.02) return tag;
-    if(debuglocal) std::cout<<"l.pho_drtotk_25_99[subleadpho_ind] "<<l.pho_drtotk_25_99[subleadpho_ind]<<std::endl;
     if(l.pho_drtotk_25_99[subleadpho_ind]<0.02) return tag;
     
-    if(debuglocal) std::cout<<"lead_p4.DeltaR(*el_tag) "<<lead_p4.DeltaR(*el_tag)<<std::endl;
     if(lead_p4.DeltaR(*el_tag)<0.8) return tag;
-    if(debuglocal) std::cout<<"sublead_p4.DeltaR(*el_tag) "<<sublead_p4.DeltaR(*el_tag)<<std::endl;
     if(sublead_p4.DeltaR(*el_tag)<0.8) return tag;
 
     TLorentzVector elpho1 = *el_tag + lead_p4;
     TLorentzVector elpho2 = *el_tag + sublead_p4;
 
     if(fabs(el_sc->Eta())<1.5 && fabs(lead_p4.Eta())<1.5 && fabs(sublead_p4.Eta())<1.5) { //EB-EB-EB
-        if(debuglocal) std::cout<<"EB^3"<<std::endl;
-        if(debuglocal) std::cout<<"fabs(elpho1.M()-91.2) "<<fabs(elpho1.M()-91.2)<<std::endl;
         if(fabs(elpho1.M()-91.2)<10) return tag;
-        if(debuglocal) std::cout<<"fabs(elpho2.M()-91.2) "<<fabs(elpho2.M()-91.2)<<std::endl;
         if(fabs(elpho2.M()-91.2)<5) return tag;
     } else {
-        if(debuglocal) std::cout<<"!EB^3"<<std::endl;
-        if(debuglocal) std::cout<<"fabs(elpho1.M()-91.2) "<<fabs(elpho1.M()-91.2)<<std::endl;
         if(fabs(elpho1.M()-91.2)<15) return tag;
-        if(debuglocal) std::cout<<"fabs(elpho2.M()-91.2) "<<fabs(elpho2.M()-91.2)<<std::endl;
         if(fabs(elpho2.M()-91.2)<10) return tag;
     }
 
     tag = true;
-    if(debuglocal) std::cout<<"tag "<<tag<<std::endl;
     return tag;    
 }
 
-bool PhotonAnalysis::ElectronTag2012B(LoopAll& l, int& leadpho_ind, int& subleadpho_ind, int& elVtx, int& el_cat, float* smeared_pho_energy){
+bool PhotonAnalysis::ElectronTag2012B(LoopAll& l, int& diphotonVHlep_id, int& elVtx, int& el_cat, float* smeared_pho_energy, ofstream& lep_sync, bool mvaselection, float phoidMvaCut){
+    bool tag = false;
+
+    int el_ind=l.ElectronSelectionMVA2012();
+    if(el_ind!=-1) {
+        TLorentzVector* myel = (TLorentzVector*) l.el_std_p4->At(el_ind);
+        elVtx=l.FindElectronVertex(el_ind);
+    
+        if(mvaselection) {
+            diphotonVHlep_id = l.DiphotonMITPreSelection(leadEtVHlepCut,subleadEtVHlepCut,phoidMvaCut,
+                applyPtoverM, &smeared_pho_energy[0], elVtx, true );
+        } else {
+            diphotonVHlep_id = l.DiphotonCiCSelection( l.phoLOOSE, l.phoLOOSE, leadEtVHlepCut,subleadEtVHlepCut, 4, 
+                applyPtoverM, &smeared_pho_energy[0], true, elVtx);
+        }
+       
+        if(diphotonVHlep_id!=-1){
+            TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphotonVHlep_id], elVtx, &smeared_pho_energy[0]);
+            TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphotonVHlep_id], elVtx, &smeared_pho_energy[0]);
+
+            // need to check again for d0 and dZ (couldn't before because we didn't have the vertex)
+            if(l.ElectronMVACuts(el_ind, elVtx)){
+                if(l.ElectronPhotonCuts2012B(lead_p4, sublead_p4, *myel)){
+                    tag=true;
+                    el_cat=(int)(abs(lead_p4.Eta())<1.5 && abs(sublead_p4.Eta())<1.5); 
+                }
+            }
+
+            if(tag){
+                TLorentzVector dipho_p4 = lead_p4 + sublead_p4;
+                lep_sync<<"run="<<l.run<<"\t";
+                lep_sync<<"lumis"<<l.lumis<<"\t";
+                lep_sync<<"event="<<(unsigned int) l.event<<"\t";
+                lep_sync<<"pt1="<<lead_p4.Pt()<<"\t";
+                lep_sync<<"eta1="<<lead_p4.Eta()<<"\t";
+                lep_sync<<"pt2="<<sublead_p4.Pt()<<"\t";
+                lep_sync<<"eta2="<<sublead_p4.Eta()<<"\t";
+                lep_sync<<"ptgg="<<dipho_p4.Pt()<<"\t";
+                lep_sync<<"elpt="<<myel->Pt()<<"\t";
+                lep_sync<<"eleta="<<myel->Eta()<<"  ELTAG\n";
+            }
+        }
+    }
+        
+    return tag;
+}
+
+
+bool PhotonAnalysis::ElectronStudies2012B(LoopAll& l, float* smeared_pho_energy, bool mvaselection, float phoidMvaCut, float eventweight, float myweight, int jentry){
+    int diphotonVHlep_id=-1;
+    int elVtx=-1;
+    bool tag = false;
+ 
+    bool debuglocal=false;
+
+    TLorentzVector* el_tag;
+    TLorentzVector* el_sc;
+    int elInd = -1;
+    
+    float leadptcut=30;
+    float subleadptcut=20;
+    float elptcut=10;
+    
+    int el_ind=l.ElectronSelectionMVA2012();
+    if(el_ind==-1) return tag;
+    
+    if(debuglocal)  std::cout<<"ElectronSelection_Tag2012B electron"<<el_ind<<std::endl;
+
+    el_tag = (TLorentzVector*) l.el_std_p4->At(el_ind);
+    if(debuglocal)  std::cout<<"ElectronSelection_Tag2012B got p4"<<std::endl;
+    el_sc = (TLorentzVector*) l.el_std_sc->At(el_ind);
+    if(debuglocal)  std::cout<<"ElectronSelection_Tag2012B got sc p4"<<std::endl;
+    elVtx=l.FindElectronVertex(el_ind);
+    
+    if(mvaselection) {
+        diphotonVHlep_id = l.DiphotonMITPreSelection(leadEtVHlepCut,subleadEtVHlepCut,phoidMvaCut,
+            applyPtoverM, &smeared_pho_energy[0], elVtx, true );
+    } else {
+        diphotonVHlep_id = l.DiphotonCiCSelection( l.phoLOOSE, l.phoLOOSE, leadEtVHlepCut,subleadEtVHlepCut, 4, 
+            applyPtoverM, &smeared_pho_energy[0], true, elVtx);
+    }
+       
+    if(diphotonVHlep_id==-1) return tag;
+    
+    if(debuglocal)  std::cout<<"ElectronSelection_Tag2012B diphoton "<<diphotonVHlep_id<<std::endl;
+
+    TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphotonVHlep_id], elVtx, &smeared_pho_energy[0]);
+    TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphotonVHlep_id], elVtx, &smeared_pho_energy[0]);
+
+    if(debuglocal){
+        std::cout<<"lead pt "<<lead_p4.Pt()<<std::endl;
+        std::cout<<"sublead pt "<<sublead_p4.Pt()<<std::endl;
+        std::cout<<"el pt "<<el_tag->Pt()<<std::endl;
+    }
+    // need to check again for d0 and dZ (couldn't before because we didn't have the vertex)
+    myEl_passelcuts = l.ElectronMVACuts(el_ind, elVtx);
+    myEl_ElePho     = l.ElectronPhotonCuts2012B(lead_p4, sublead_p4, *el_tag);
+    if(myEl_passelcuts){
+        if(myEl_ElePho){
+            tag=true;
+        }
+    }
+
+    if(debuglocal){
+        std::cout<<"ElectronSelection_Tag2012B "<<tag<<std::endl;
+    }
+   
+    int el_cat=-1;
+    if(fabs(el_sc->Eta())<1.5 && fabs(lead_p4.Eta())<1.5 && fabs(sublead_p4.Eta())<1.5) el_cat=0;
+    else el_cat=1;
+
+    if(debuglocal)  std::cout<<"ElectronSelection_Tag2012B el_cat "<<el_cat<<std::endl;
+
+    TLorentzVector gg_p4 = lead_p4 + sublead_p4;
+    if(debuglocal){
+        std::cout<<"el_tag->Pt(),sublead_p4.Pt(),lead_p4.Pt()/gg_p4.M() "<<el_tag->Pt()<<","<<sublead_p4.Pt()<<","<<lead_p4.Pt()/gg_p4.M()<<std::endl;
+        std::cout<<"pt cuts "<<tag<<std::endl;
+    }
+
+    float thiseta = fabs(el_sc->Eta());
+    float thispt  = fabs(el_tag->Pt());
+
+    double Aeff=0.;
+    if(thiseta<1.0)                   Aeff=0.10;
+    if(thiseta>=1.0 && thiseta<1.479) Aeff=0.12;
+    if(thiseta>=1.479 && thiseta<2.0) Aeff=0.085;
+    if(thiseta>=2.0 && thiseta<2.2)   Aeff=0.11;
+    if(thiseta>=2.2 && thiseta<2.3)   Aeff=0.12;
+    if(thiseta>=2.3 && thiseta<2.4)   Aeff=0.12;
+    if(thiseta>=2.4)                  Aeff=0.13;
+
+    float thisiso=l.el_std_pfiso_charged[elInd]+std::max(l.el_std_pfiso_neutral[elInd]+l.el_std_pfiso_photon[elInd]-l.rho*Aeff,0.);
+    TLorentzVector elpho1 = *el_tag + lead_p4;
+    TLorentzVector elpho2 = *el_tag + sublead_p4;
+    
+    int cur_type = l.itype[l.current];
+    if( cur_type<0 && (abs(l.gh_vh_pdgid)==24 || abs(l.gh_vh_pdgid)==26) ) {
+        myEl_leptonSig = (abs(l.gh_vh1_pdgid)>10 && abs(l.gh_vh1_pdgid)<19);
+    } else {
+        myEl_leptonSig = 1;
+    }
+
+    float overE_overP=fabs((1/l.el_std_pin[elInd])-(1/(l.el_std_pin[elInd]*l.el_std_eopin[elInd])));
+    myEl_presellead =   HLTPhotonPreselection(l, &lead_p4, elVtx);
+    int matchlead=-1;
+    myEl_matchellead=   PhotonMatchElectron(l, &lead_p4, matchlead);
+    myEl_preselsub  =   HLTPhotonPreselection(l, &sublead_p4, elVtx);
+    int matchsub=-1;
+    myEl_matchelsub =   PhotonMatchElectron(l, &sublead_p4, matchsub);
+    myEl_ptlead     =   lead_p4.Pt();
+    myEl_ptsub      =   sublead_p4.Pt();
+    myEl_elvetolead =   l.pho_isconv[l.dipho_leadind[diphotonVHlep_id]];
+    myEl_elvetosub  =   l.pho_isconv[l.dipho_subleadind[diphotonVHlep_id]];
+
+    int lead_cat = abs(lead_p4.Eta())>1.5;
+    int sublead_cat = abs(sublead_p4.Eta())>1.5;
+    l.FillHist("PhoMatchEl",lead_cat,   myEl_matchellead);
+    l.FillHist("PhoMatchEl",sublead_cat,myEl_matchelsub);
+
+    if(myEl_matchellead==1){
+        if(cur_type==0) std::cout<<"badphoton event,lumis,run:  "<<l.event<<","<<l.lumis<<","<<l.run<<std::endl;
+        l.FillHist("MatchedPhoPt",      lead_cat, myEl_ptlead);
+        l.FillHist("MatchedPhoElVeto",  lead_cat, myEl_elvetolead);
+        l.FillHist("MatchedPhoElTrk",   lead_cat, l.el_std_tkdrv[matchlead]);
+        l.FillHist("MatchedPhoElEcal",  lead_cat, l.el_std_ecaldrv[matchlead]);
+        l.FillHist("MatchedPhoGenPho",  lead_cat, l.pho_genmatched[l.dipho_leadind[diphotonVHlep_id]]);
+        l.FillHist("MatchedSCIndex",    lead_cat, (int)(l.el_std_scind[matchlead]==l.pho_scind[l.dipho_leadind[diphotonVHlep_id]]));
+    }
+
+    if(myEl_matchelsub==1){
+        if(cur_type==0) std::cout<<"badphoton event,lumis,run:  "<<l.event<<","<<l.lumis<<","<<l.run<<std::endl;
+        l.FillHist("MatchedPhoPt",      sublead_cat, myEl_ptsub);
+        l.FillHist("MatchedPhoElVeto",  sublead_cat, myEl_elvetosub);
+        l.FillHist("MatchedPhoElTrk",   sublead_cat, l.el_std_tkdrv[matchsub]);
+        l.FillHist("MatchedPhoElEcal",  sublead_cat, l.el_std_ecaldrv[matchsub]);
+        l.FillHist("MatchedPhoGenPho",  sublead_cat, l.pho_genmatched[l.dipho_subleadind[diphotonVHlep_id]]);
+        l.FillHist("MatchedSCIndex",    sublead_cat, (int)(l.el_std_scind[matchsub]==l.pho_scind[l.dipho_subleadind[diphotonVHlep_id]]));
+    }
+    
+    if(debuglocal)  std::cout<<"ElectronSelection_Tag2012B filled pho variables "<<std::endl;
+
+    myEl_elpt       =   thispt;
+    myEl_oEsuboP    =   overE_overP;
+    myEl_D0         =   l.el_std_D0Vtx[elInd][elVtx];
+    myEl_DZ         =   l.el_std_DZVtx[elInd][elVtx];
+    myEl_conv       =   l.el_std_conv[elInd];
+    myEl_mishit     =   l.el_std_hp_expin[elInd];
+    myEl_reliso     =   thisiso/thispt;
+    myEl_iso        =   thisiso;
+    myEl_detain     =   l.el_std_detain[elInd];
+    myEl_dphiin     =   l.el_std_dphiin[elInd];
+    myEl_sieie      =   l.el_std_sieie[elInd];
+    myEl_hoe        =   l.el_std_hoe[elInd];
+    
+    if(debuglocal)  std::cout<<"ElectronSelection_Tag2012B filled pho+ele variables "<<std::endl;
+    
+    myEl_drlead     =   lead_p4.DeltaR(*el_tag);
+    myEl_drsub      =   sublead_p4.DeltaR(*el_tag);
+    myEl_melead     =   elpho1.M();
+    myEl_meleadveto15 = abs(myEl_melead-91.2)<15;
+    myEl_meleadveto10 = abs(myEl_melead-91.2)<10;
+    myEl_mesub      =   elpho2.M();
+    myEl_mesubveto10=   abs(myEl_mesub -91.2)<10;
+    myEl_mesubveto5 =   abs(myEl_mesub -91.2)<5;
+    //myEl_mvaTrig    =   l.el_std_mva_trig[elInd];
+    myEl_mvaNonTrig =   l.el_std_mva_nontrig[elInd];
+    if(myEl_meleadveto15){
+        l.FillHist("NearZ_leadr9",    0,   (float)l.pho_r9[l.dipho_leadind[diphotonVHlep_id]]);
+    }
+    if(myEl_mesubveto10){
+        l.FillHist("NearZ_subleadr9", 0,   (float)l.pho_r9[l.dipho_subleadind[diphotonVHlep_id]]);
+    }
+
+    //myEl_ElePho     =   ElectronPhotonCuts_Tag2012_CP(l, el_tag, el_sc, lead_p4, sublead_p4, elVtx, l.dipho_leadind[diphotonVHlep_id], l.dipho_subleadind[diphotonVHlep_id]);
+    //std::cout<<"myEl_ElePho "<<myEl_ElePho<<std::endl;
+            
+    myEl_ptgg       =   gg_p4.Pt();
+    myEl_mgg        =   gg_p4.M();
+    myEl_ptleadom   =   myEl_ptlead/myEl_mgg;
+    myEl_ptsubom    =   myEl_ptsub/myEl_mgg;
+    myEl_phomaxeta  =   std::max(lead_p4.Eta(),sublead_p4.Eta());
+    myEl_sumpt3     =   lead_p4.Pt()+sublead_p4.Pt()+el_tag->Pt();
+    myEl_dRtklead   =   l.pho_drtotk_25_99[l.dipho_leadind[diphotonVHlep_id]];
+    myEl_dRtksub    =   l.pho_drtotk_25_99[l.dipho_subleadind[diphotonVHlep_id]];
+
+    if( debuglocal ) {
+        if(myEl_dRtklead<1.0 || myEl_dRtksub<1.0 || myEl_matchellead==1 || myEl_matchelsub==1){
+            std::cout<<"myEl_dRtklead,myEl_dRtksub,myEl_matchellead,myEl_matchelsub "<<
+                    myEl_dRtklead<<","<<
+                    myEl_dRtksub<<","<<
+                    myEl_matchellead<<","<<
+                    myEl_matchelsub<<std::endl;
+        }
+    }
+
+    myEl_MVAlead    = ( dataIs2011 ? 
+                    l.photonIDMVA(l.dipho_leadind[diphotonVHlep_id], elVtx,
+                        lead_p4,bdtTrainingPhilosophy.c_str()) :
+                    l.photonIDMVANew(l.dipho_leadind[diphotonVHlep_id], elVtx,
+                        lead_p4,bdtTrainingPhilosophy.c_str()) ); //photonIDMVAShift_EB );
+    myEl_MVAsub     = ( dataIs2011 ?   
+                    l.photonIDMVA(l.dipho_subleadind[diphotonVHlep_id], elVtx,
+                        sublead_p4,bdtTrainingPhilosophy.c_str()) : 
+                    l.photonIDMVANew(l.dipho_subleadind[diphotonVHlep_id], elVtx,
+                        sublead_p4,bdtTrainingPhilosophy.c_str()) ); // photonIDMVAShift_EE );
+    
+    if(debuglocal && myEl_ElePho){
+        std::cout<<"myEl_mvaNonTrig,myEl_MVAlead,myEl_MVAsub "
+            <<myEl_mvaNonTrig<<","<<myEl_MVAlead<<","<<myEl_MVAsub<<std::endl;
+    }
+    
+    if( debuglocal ) std::cout<<"test01"<<std::endl;
+
+    // Mass Resolution of the Event
+    massResolutionCalculator->Setup(l,&photonInfoCollection[l.dipho_leadind[diphotonVHlep_id]],&photonInfoCollection[l.dipho_subleadind[diphotonVHlep_id]],elVtx,eSmearPars,nR9Categories,nEtaCategories,beamspotSigma,true);
+//    float vtx_mva  = l.vtx_std_evt_mva->at(diphotonVHlep_id);
+    //for(int rankind=0; rankind<l.vtx_std_ranked_list->size(); rankind++){
+    //    if(l.vtx_std_ranked_list[rankind]==elVtx){
+    //        l.vtx_std_ranked_list->erase(l.vtx_std_ranked_list->begin()+rankind);
+    //    }
+    //}
+    //l.vtx_std_ranked_list->insert(l.vtx_std_ranked_list->begin(),elVtx);
+    float vtx_mva = -0.9;// vtxAna_.perEventMva( *tmvaPerEvtReader_, tmvaPerEvtMethod, l.vtx_std_ranked_list->back()  );
+    float sigmaMrv = massResolutionCalculator->massResolutionEonly();
+    float sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
+    float sigmaMeonly = massResolutionCalculator->massResolutionEonly();
+    // easy to calculate vertex probability from vtx mva output
+    float vtxProb   = 1.-0.49*(vtx_mva+1.0); /// should better use this: vtxAna_.setPairID(diphoton_id); vtxAna_.vertexProbability(vtx_mva); PM
+    if( debuglocal ) std::cout<<"test02"<<std::endl;
+
+	float diphobdt_output = l.diphotonMVA(l.dipho_leadind[diphotonVHlep_id], l.dipho_subleadind[diphotonVHlep_id], elVtx,
+					      vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMeonly,
+					      bdtTrainingPhilosophy.c_str(),
+					      myEl_MVAlead,myEl_MVAsub);
+
+    myEl_diphomva    =   diphobdt_output; 
+
+    std::vector<std::vector<bool> > ph_passcut;
+    if( debuglocal ) std::cout<<"test03"<<std::endl;
+    myEl_CiClead    =   l.PhotonCiCPFSelectionLevel(l.dipho_leadind[diphotonVHlep_id], elVtx, ph_passcut, 4, 0, smeared_pho_energy );
+    if( debuglocal ) std::cout<<"test04"<<std::endl;
+    myEl_CiCsub     =   l.PhotonCiCPFSelectionLevel(l.dipho_subleadind[diphotonVHlep_id], elVtx, ph_passcut, 4, 1, smeared_pho_energy );
+    if( debuglocal ) std::cout<<"test05"<<std::endl;
+    myEl_MET        =   l.met_pfmet;
+    myEl_METphi     =   l.met_phi_pfmet;
+
+    int el2Ind = l.ElectronPreSelection2012(lead_p4, sublead_p4, elVtx,5.0, elInd);
+    if( debuglocal ) std::cout<<"test06"<<std::endl;
+    //if(el2Ind==-1){ 
+        myEl_dZ_ee=-100;
+        myEl_mass_ee=-100;
+        myEl_sumpt4=-100;
+        myEl_inwindow_ee=-1;
+    //} else {
+    //    if( debuglocal ) std::cout<<"test06.1"<<std::endl;
+    //    TLorentzVector* ele2 = (TLorentzVector*) l.el_std_p4->At(el2Ind);
+    //    if( debuglocal ) std::cout<<"test06.2"<<std::endl;
+    //    TLorentzVector ee_p4 = *el_tag + *ele2;
+    //    if( debuglocal ) std::cout<<"test06.3"<<std::endl;
+    //    myEl_dZ_ee=((TVector3*)l.el_std_posvtx->At(elInd))->Z()-((TVector3*)l.el_std_posvtx->At(el2Ind))->Z();
+    //    if( debuglocal ) std::cout<<"test06.4"<<std::endl;
+    //    myEl_mass_ee=ee_p4.M();
+    //    myEl_inwindow_ee= abs(myEl_mass_ee-91.2)>10;
+    //    myEl_sumpt4   =  lead_p4.Pt()+sublead_p4.Pt()+el_tag->Pt()+ele2->Pt();
+    //}
+
+    if( debuglocal ) std::cout<<"test07"<<std::endl;
+
+    int elcat = (thiseta>1.5 || fabs(lead_p4.Eta())>1.5 || fabs(sublead_p4.Eta())>1.5);
+    myEl_category=(int)(fabs(lead_p4.Eta())>1.5)+2*(int)(fabs(sublead_p4.Eta())>1.5) +4*(int)(thiseta>1.5);
+    if( debuglocal ) std::cout<<"test08"<<std::endl;
+    tag = l.ApplyCutsFill(elcat,10, eventweight, myweight);
+    if(tag&&cur_type==0) std::cout<<"selected electron tag event,lumis,run:  "<<l.event<<","<<l.lumis<<","<<l.run<<std::endl;
+    if( debuglocal ) std::cout<<"test09"<<std::endl;
+    //std::cout<<"tag in studies "<<tag<<std::endl;
+    //std::cout<<"event,lumi,run "<<l.event<<","<<l.lumi<<","<<l.run<<std::endl;
+    //if(jentry>-1) {
+    //    if(cur_type!=0){
+    //        std::map<std::string,int> genbranchnames;
+    //        const char* branchchar[] = {"gp_n",
+    //            "gp_mother",
+    //            "gp_status",
+    //            "gp_pdgid",
+    //            "gp_p4"};
+    //        std::vector<std::string> branchstrings(branchchar,branchchar + 5);;
+    //        
+    //        for (int istr=0; istr<branchstrings.size(); istr++){
+    //            genbranchnames[branchstrings[istr]]=1;
+    //        }
+    //   
+    //        std::set<TBranch *> genbranches;
+    //        genbranches.clear();
+    //        l.GetBranches(genbranchnames, genbranches);
+    //        l.SetBranchAddresses(genbranchnames);
+    //        l.GetEntry(genbranches, jentry);
+    //    }
+    //    
+    //    int el_gen_ind = -1;
+    //    if( debuglocal ) std::cout<<"about to gen match el"<<std::endl;
+    //    if(cur_type!=0){
+    //        el_gen_ind=GenMatch(l, el_tag);
+    //    }
+    //    l.FillTree("elGenIndex",(float)el_gen_ind);
+    //    l.FillTree("elEta",     (float)el_tag->Eta());
+    //    l.FillTree("elPhi",     (float)el_tag->Phi());
+    //    l.FillTree("elPt",      (float)el_tag->Pt());
+    //    if(el_gen_ind!=-1){
+    //        TLorentzVector* genel_p4=(TLorentzVector*) l.gp_p4->At(el_gen_ind);
+    //        l.FillTree("elGenEta",  (float)genel_p4->Eta());
+    //        l.FillTree("elGenPhi",  (float)genel_p4->Phi());
+    //        l.FillTree("elGenPt",   (float)genel_p4->Pt());
+    //        l.FillTree("elGenPDGID",(float)l.gp_pdgid[el_gen_ind]);
+    //        float dr_min = el_tag->DeltaR(*genel_p4);
+    //        float dpt_min = el_tag->Pt() - genel_p4->Pt();
+    //        l.FillTree("elGenDR",   (float)dr_min);
+    //        l.FillTree("elGenDPT",  (float)dpt_min);
+    //    }
+    //    l.FillTree("elmva", (float)myEl_mvaNonTrig);
+
+    //    int pholead_gen_ind = -1;
+    //    if(cur_type!=0){
+    //        pholead_gen_ind=GenMatch(l, &lead_p4);
+    //    }
+    //    l.FillTree("leadGenIndex",(float)pholead_gen_ind);
+    //    l.FillTree("leadEta",     (float)lead_p4.Eta());
+    //    l.FillTree("leadPhi",     (float)lead_p4.Phi());
+    //    l.FillTree("leadPt",      (float)lead_p4.Pt());
+    //    l.FillTree("leadr9",      (float)l.pho_r9[l.dipho_leadind[diphotonVHlep_id]]);
+    //    if(pholead_gen_ind!=-1){
+    //        TLorentzVector* genlead_p4=(TLorentzVector*) l.gp_p4->At(pholead_gen_ind);
+    //        l.FillTree("leadGenEta",  (float)genlead_p4->Eta());
+    //        l.FillTree("leadGenPhi",  (float)genlead_p4->Phi());
+    //        l.FillTree("leadGenPt",   (float)genlead_p4->Pt());
+    //        l.FillTree("leadGenPDGID",(float)l.gp_pdgid[pholead_gen_ind]);
+    //        float dr_min  = lead_p4.DeltaR(*genlead_p4);
+    //        float dpt_min = lead_p4.Pt() - genlead_p4->Pt();
+    //        l.FillTree("leadGenDR",   (float)dr_min);
+    //        l.FillTree("leadGenDPT",  (float)dpt_min);
+    //    }
+    //    l.FillTree("lead_eleveto", (float)myEl_elvetolead);
+    //    l.FillTree("sub_eleveto", (float)myEl_elvetosub);
+    //    l.FillTree("leadCIC", (float)myEl_CiClead);
+    //    l.FillTree("subCIC", (float)myEl_CiCsub);
+    //    l.FillTree("lead_Elmatched", (float)myEl_matchellead);
+    //    l.FillTree("sub_Elmatched", (float)myEl_matchelsub);
+    //    l.FillTree("leadmva", (float)myEl_MVAlead);
+    //    l.FillTree("submva", (float)myEl_MVAsub);
+
+    //    int phosublead_gen_ind=-1;
+    //    if(cur_type!=0){
+    //        phosublead_gen_ind=GenMatch(l, &sublead_p4);
+    //    }
+    //    l.FillTree("subleadGenIndex",(float)phosublead_gen_ind);
+    //    l.FillTree("subleadEta",     (float)sublead_p4.Eta());
+    //    l.FillTree("subleadPhi",     (float)sublead_p4.Phi());
+    //    l.FillTree("subleadPt",      (float)sublead_p4.Pt());
+    //    l.FillTree("subleadr9",      (float)l.pho_r9[l.dipho_subleadind[diphotonVHlep_id]]);
+    //    if(phosublead_gen_ind!=-1){
+    //        TLorentzVector* gensublead_p4=(TLorentzVector*) l.gp_p4->At(phosublead_gen_ind);
+    //        l.FillTree("subleadGenEta",  (float)gensublead_p4->Eta());
+    //        l.FillTree("subleadGenPhi",  (float)gensublead_p4->Phi());
+    //        l.FillTree("subleadGenPt",   (float)gensublead_p4->Pt());
+    //        l.FillTree("subleadGenPDGID",(float)l.gp_pdgid[phosublead_gen_ind]);
+    //        float dr_min  = sublead_p4.DeltaR(*gensublead_p4);
+    //        float dpt_min = sublead_p4.Pt() - gensublead_p4->Pt();
+    //        l.FillTree("subleadGenDR",   (float)dr_min);
+    //        l.FillTree("subleadGenDPT",  (float)dpt_min);
+    //    }
+
+
+    //    l.FillTree("dipho_mva", (float)myEl_diphomva);
+    //    l.FillTree("cur_type",  (int)cur_type);
+    //    
+    //    l.FillTree("tagged",    (float)tag);
+    //    l.FillTree("weight",    (float)eventweight);
+    //}
+
+    //plots for comparing selection
+
+    if(diphotonVHlep_id!=-1){
+        l.FillHist("ElectronTag_MethodA_MethodB_samevtx", 0,(float)(l.dipho_vtxind[diphotonVHlep_id]==elVtx));
+    }
+    
+    return tag;
+}
+
+
+bool PhotonAnalysis::ElectronTag2012_CP(LoopAll& l, int& leadpho_ind, int& subleadpho_ind, int& elVtx, int& el_cat, float* smeared_pho_energy){
     bool tag = false;
  
     bool debuglocal=false;
@@ -2661,9 +3077,9 @@ bool PhotonAnalysis::ElectronTag2012B(LoopAll& l, int& leadpho_ind, int& sublead
     float subleadptcut=20;
     float elptcut=10;
 
-    tag=ElectronSelection_Tag2012B(l, el_tag, el_sc, lead_p4, sublead_p4, elVtx, elInd, leadpho_ind, subleadpho_ind, elptcut, leadptcut, subleadptcut, &smeared_pho_energy[0]);
+    tag=ElectronSelection_Tag2012_CP(l, el_tag, el_sc, lead_p4, sublead_p4, elVtx, elInd, leadpho_ind, subleadpho_ind, elptcut, leadptcut, subleadptcut, &smeared_pho_energy[0]);
     if(debuglocal){
-        std::cout<<"ElectronSelection_Tag2012B "<<tag<<std::endl;
+        std::cout<<"ElectronSelection_Tag2012_CP "<<tag<<std::endl;
     }
     if(!tag) return tag;
     
@@ -2683,9 +3099,9 @@ bool PhotonAnalysis::ElectronTag2012B(LoopAll& l, int& leadpho_ind, int& sublead
 
     if(!tag) return tag;
     
-    tag=ElectronPhotonCuts_Tag2012B(l, el_tag, el_sc, lead_p4, sublead_p4, elVtx, leadpho_ind, subleadpho_ind);
+    tag=ElectronPhotonCuts_Tag2012_CP(l, el_tag, el_sc, lead_p4, sublead_p4, elVtx, leadpho_ind, subleadpho_ind);
     if(debuglocal){
-        std::cout<<"ElectronPhotonCuts_Tag2012B "<<tag<<std::endl;
+        std::cout<<"ElectronPhotonCuts_Tag2012_CP "<<tag<<std::endl;
     }
 
     if(!tag) return tag;
@@ -2719,7 +3135,7 @@ bool PhotonAnalysis::ElectronTagStudies2012(LoopAll& l, int diphotonVHlep_id, fl
     float subleadptcut=20;
     float elptcut=10;
 
-    tag=ElectronSelection_Tag2012B(l, el_tag, el_sc, lead_p4, sublead_p4, elVtx, elInd, leadpho_ind, subleadpho_ind, elptcut, leadptcut, subleadptcut, &smeared_pho_energy[0]);
+    tag=ElectronSelection_Tag2012_CP(l, el_tag, el_sc, lead_p4, sublead_p4, elVtx, elInd, leadpho_ind, subleadpho_ind, elptcut, leadptcut, subleadptcut, &smeared_pho_energy[0]);
 
     if(!tag) return tag;
 
@@ -2816,7 +3232,7 @@ bool PhotonAnalysis::ElectronTagStudies2012(LoopAll& l, int diphotonVHlep_id, fl
     //myEl_mvaTrig    =   l.el_std_mva_trig[elInd];
     myEl_mvaNonTrig =   l.el_std_mva_nontrig[elInd];
 
-    myEl_ElePho     =   ElectronPhotonCuts_Tag2012B(l, el_tag, el_sc, lead_p4, sublead_p4, elVtx, leadpho_ind, subleadpho_ind);
+    myEl_ElePho     =   ElectronPhotonCuts_Tag2012_CP(l, el_tag, el_sc, lead_p4, sublead_p4, elVtx, leadpho_ind, subleadpho_ind);
     //std::cout<<"myEl_ElePho "<<myEl_ElePho<<std::endl;
             
     TLorentzVector gg_p4 = lead_p4+sublead_p4;
@@ -2889,7 +3305,10 @@ bool PhotonAnalysis::ElectronTagStudies2012(LoopAll& l, int diphotonVHlep_id, fl
     if( debuglocal ) std::cout<<"test05"<<std::endl;
     myEl_MET        =   l.met_pfmet;
     myEl_METphi     =   l.met_phi_pfmet;
+
+
     
+
     int el2Ind = l.ElectronPreSelection2012(lead_p4, sublead_p4, elVtx,5.0, elInd);
     if( debuglocal ) std::cout<<"test06"<<std::endl;
     if(el2Ind==-1){ 
@@ -3014,13 +3433,19 @@ bool PhotonAnalysis::ElectronTagStudies2012(LoopAll& l, int diphotonVHlep_id, fl
         }
 
 
-        l.FillTree("mgg",       (float)myEl_mgg);
         l.FillTree("dipho_mva", (float)myEl_diphomva);
         l.FillTree("cur_type",  (int)cur_type);
         
         l.FillTree("tagged",    (float)tag);
         l.FillTree("weight",    (float)eventweight);
-        //l.FillTree("",);
+    }
+
+    //plots for comparing selection
+
+    if(diphotonVHlep_id!=-1){
+        l.FillHist("ElectronTag_MethodA_MethodB_samelead",0,(float)(l.dipho_leadind[diphotonVHlep_id]==leadpho_ind));
+        l.FillHist("ElectronTag_MethodA_MethodB_samesub", 0,(float)(l.dipho_subleadind[diphotonVHlep_id]==subleadpho_ind));
+        l.FillHist("ElectronTag_MethodA_MethodB_samevtx", 0,(float)(l.dipho_vtxind[diphotonVHlep_id]==elVtx));
     }
 
     return tag;
@@ -3167,6 +3592,47 @@ bool PhotonAnalysis::MuonTag2012(LoopAll& l, int diphotonVHlep_id, float* smeare
         lep_sync<<"mueta="<<mu_p4->Eta()<<"  MUTAG\n";
     } else {
         lep_sync<<"MUNOTAG\n";
+    }
+    
+    return tag;
+}
+
+bool PhotonAnalysis::MuonTag2012B(LoopAll& l, int& diphotonVHlep_id, int& muVtx, int& mu_cat, float* smeared_pho_energy, ofstream& lep_sync, bool mvaselection, float phoidMvaCut){
+    bool tag = false;
+
+    int mu_ind=l.MuonSelection2012B();
+    if(mu_ind!=-1) {
+        TLorentzVector* mymu = (TLorentzVector*) l.mu_glo_p4->At(mu_ind);
+        muVtx=l.FindMuonVertex(mu_ind);
+    
+        if(mvaselection) {
+            diphotonVHlep_id = l.DiphotonMITPreSelection(leadEtVHlepCut,subleadEtVHlepCut,phoidMvaCut,
+                applyPtoverM, &smeared_pho_energy[0], muVtx, true );
+        } else {
+            diphotonVHlep_id = l.DiphotonCiCSelection( l.phoLOOSE, l.phoLOOSE, leadEtVHlepCut,subleadEtVHlepCut, 4, 
+                applyPtoverM, &smeared_pho_energy[0], true, muVtx);
+        }
+       
+        if(diphotonVHlep_id!=-1){ 
+            TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphotonVHlep_id], muVtx, &smeared_pho_energy[0]);
+            TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphotonVHlep_id], muVtx, &smeared_pho_energy[0]);
+
+            tag = l.MuonPhotonCuts2012B(lead_p4, sublead_p4, mymu);
+            mu_cat=(int)(abs(lead_p4.Eta())<1.5 && abs(sublead_p4.Eta())<1.5); 
+            TLorentzVector dipho_p4 = lead_p4+sublead_p4;
+            if(tag){
+                lep_sync<<"run="<<l.run<<"\t";
+                lep_sync<<"lumis"<<l.lumis<<"\t";
+                lep_sync<<"event="<<(unsigned int) l.event<<"\t";
+                lep_sync<<"pt1="<<lead_p4.Pt()<<"\t";
+                lep_sync<<"eta1="<<lead_p4.Eta()<<"\t";
+                lep_sync<<"pt2="<<sublead_p4.Pt()<<"\t";
+                lep_sync<<"eta2="<<sublead_p4.Eta()<<"\t";
+                lep_sync<<"ptgg="<<dipho_p4.Pt()<<"\t";
+                lep_sync<<"mupt="<<mymu->Pt()<<"\t";
+                lep_sync<<"mueta="<<mymu->Eta()<<"  MUTAG\n";
+            }
+        }
     }
     
     return tag;
@@ -3438,6 +3904,7 @@ float PhotonAnalysis::BeamspotReweight(double hardInterZ, double beamspotZ) {
 
     return reweight;
 }
+
 
 
 // Local Variables:

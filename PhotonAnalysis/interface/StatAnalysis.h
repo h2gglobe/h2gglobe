@@ -94,6 +94,7 @@ class StatAnalysis : public PhotonAnalysis
     
     bool VHmuevent, VHelevent, VBFevent, VHhadevent, VHmetevent;  //met at analysis step
     int VHelevent_cat;
+	int VHmuevent_cat;
     double genLevWeight; 
     float sigmaMrv, sigmaMwv;
 

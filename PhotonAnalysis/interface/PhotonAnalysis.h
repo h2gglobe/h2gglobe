@@ -238,6 +238,7 @@ class PhotonAnalysis : public BaseAnalysis
     float myEl_matchelsub ;
     float myEl_category ;
     float myEl_ElePho   ;
+    float myEl_passelcuts ;
 
     // Chris' extras 
     std::string bdtTrainingPhilosophy;
@@ -324,13 +325,16 @@ class PhotonAnalysis : public BaseAnalysis
     bool ElectronTag2012(LoopAll& l, int diphotonVHlep_id, float* smeared_pho_energy, ofstream& lep_sync, bool nm1=false, float eventweight=1, float myweight=1);
     bool ElectronTag2012(LoopAll& l, int highptind, int nextptind,  int elVtx, float* smeared_pho_energy);
     
-    bool ElectronSelection_Tag2012B(LoopAll& l, TLorentzVector*& el_tag, TLorentzVector*& el_sc, TLorentzVector& lead_p4, TLorentzVector& sublead_p4, int& elVtx, int& elInd, int& leadpho_ind, int& subleadpho_ind, float elptcut, float leadptcut, float subleadptcut, float* smeared_pho_energy, bool tightID=false);
-    bool ElectronPhotonCuts_Tag2012B(LoopAll& l, TLorentzVector* el_tag, TLorentzVector* el_sc, TLorentzVector lead_p4, TLorentzVector sublead_p4, int elVtx, int leadpho_ind, int subleadpho_ind);
-    bool ElectronTag2012B(LoopAll& l, int& leadpho_ind, int& subleadpho_ind, int& elVtx, int& el_cat, float* smeared_pho_energy);
+    bool ElectronSelection_Tag2012_CP(LoopAll& l, TLorentzVector*& el_tag, TLorentzVector*& el_sc, TLorentzVector& lead_p4, TLorentzVector& sublead_p4, int& elVtx, int& elInd, int& leadpho_ind, int& subleadpho_ind, float elptcut, float leadptcut, float subleadptcut, float* smeared_pho_energy, bool tightID=false);
+    bool ElectronPhotonCuts_Tag2012_CP(LoopAll& l, TLorentzVector* el_tag, TLorentzVector* el_sc, TLorentzVector lead_p4, TLorentzVector sublead_p4, int elVtx, int leadpho_ind, int subleadpho_ind);
+    bool ElectronTag2012_CP(LoopAll& l, int& leadpho_ind, int& subleadpho_ind, int& elVtx, int& el_cat, float* smeared_pho_energy);
+    bool ElectronTag2012B(LoopAll& l, int& diphotonVHlep_id, int& elVtx, int& el_cat, float* smeared_pho_energy, ofstream& lep_sync, bool mvaselection=true, float phoidMvaCut=-0.3);
+    bool ElectronStudies2012B(LoopAll& l, float* smeared_pho_energy, bool mvaselection, float phoidMvaCut, float eventweight=1, float myweight=1, int jentry=-1);
     bool ElectronTagStudies2012(LoopAll& l, int diphotonVHlep_id, float* smeared_pho_energy, bool nm1=true, float eventweight=1, float myweight=1, int jentry=-1);
 
     bool MuonTag2011(LoopAll& l, int diphotonVHlep_id, float* smeared_pho_energy=0, bool nm1=false, float eventweight=1, float myweight=1);
     bool MuonTag2012(LoopAll& l, int diphotonVHlep_id, float* smeared_pho_energy, ofstream& lep_sync, bool nm1=false, float eventweight=1, float myweight=1);
+    bool MuonTag2012B(LoopAll& l, int& diphotonVHlep_id, int& muVtx, int& mu_cat, float* smeared_pho_energy, ofstream& lep_sync, bool mvaselection=true, float phoidMvaCut=-0.3);
     
     bool METTag2012(LoopAll& l, int& diphotonVHmet_id , float* smeared_pho_energy);  //met at analysis step
     void MetCorrections2012(LoopAll& l);

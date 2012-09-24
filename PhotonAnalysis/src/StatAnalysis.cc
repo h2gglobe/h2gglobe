@@ -799,6 +799,7 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 	int diphotonVHmet_id = -1; //met at analysis step
 	VHmuevent = false;
 	VHelevent = false;
+	VHmuevent_cat = 0;
 	VHelevent_cat = 0;
 	VBFevent = false;
 	VHhadevent = false;
@@ -1130,9 +1131,11 @@ void StatAnalysis::computeExclusiveCategory(LoopAll & l, int & category, std::pa
     } else if(VHhadevent) { category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories
 	    + l.DiphotonCategory(diphoton_index.first,diphoton_index.second,pt,nVHhadEtaCategories,1,1); 
     } else if(VHmuevent) {
-	category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories + ( (int)includeVHhad )*nVHhadEtaCategories;  
+	category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories + ( (int)includeVHhad )*nVHhadEtaCategories;
+    if(nMuonCategories>1) category+=VHmuevent_cat;  
     } else if(VHelevent) { 
-	category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories + ( (int)includeVHhad )*nVHhadEtaCategories + nMuonCategories + VHelevent_cat;
+	category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories + ( (int)includeVHhad )*nVHhadEtaCategories + nMuonCategories;
+    if(nElectronCategories>1) category+=VHelevent_cat;  
     } else if(VHmetevent) { 
 	category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories + ( (int)includeVHhad )*nVHhadEtaCategories + nVHlepCategories + (int)includeVHmet;  //met at analysis step
     }
