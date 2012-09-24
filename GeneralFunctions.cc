@@ -3946,6 +3946,38 @@ int LoopAll::ElectronSelection2012(TLorentzVector& pho1, TLorentzVector& pho2, i
   return myel;
 }
 
+int LoopAll::ElectronSelection2012BDT(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind, bool phodepend){
+  
+  int myel = -1;
+  
+  TLorentzVector* thisel;
+  TLorentzVector* thissc;
+  float thiseta = -100;
+  float thispt  = -100;
+  float thisiso = 1000;
+  int passingEl = 0;
+  
+  for( int indel=0; indel<el_std_n; indel++){
+    
+    if(!ElectronEGammaBDTID(indel,vtxind)) continue; 
+    
+    thisel = (TLorentzVector*) el_std_p4->At(indel);
+    thissc = (TLorentzVector*) el_std_sc->At(indel);
+    thispt = thisel->Pt();
+    thiseta = fabs(thissc->Eta());
+    if(thispt<20) continue;
+    if(thiseta>2.5 || (thiseta>1.442 && thiseta<1.566)) continue;
+    
+    if(phodepend){
+      if(!ElectronPhotonCuts(pho1, pho2, *thisel)) continue;  
+    }
+
+    passingEl++;
+    myel = indel;
+  }
+  return myel;
+}
+
 bool LoopAll::ElectronLooseEGammaID(int electron_index, int vtxind){
 
     bool pass=false;
@@ -4061,6 +4093,60 @@ bool LoopAll::ElectronTightEGammaID(int electron_index, int vtxind){
     return pass;
 }
 
+bool LoopAll::ElectronEGammaBDTID(int electron_index, int vtxind){
+
+  bool pass=false;
+
+    if(electron_index<0 || electron_index>=el_std_n){
+        std::cout<<"LoopAll::ElectronLooseEGammaID:  electron_index "<<electron_index<<" is out of bounds."<<std::endl;
+        std::cout<<"el_std_n "<<el_std_n<<std::endl;
+        return pass;
+    }
+
+    TLorentzVector* thisel = (TLorentzVector*) el_std_p4->At(electron_index);
+    TLorentzVector* thissc = (TLorentzVector*) el_std_sc->At(electron_index);
+    
+    float thiseta = fabs(thissc->Eta());
+    float thispt  = thisel->Pt();
+
+    // isolation
+    double Aeff=0.;
+    if(thiseta<1.0)                   Aeff=0.10;
+    if(thiseta>=1.0 && thiseta<1.479) Aeff=0.12;
+    if(thiseta>=1.479 && thiseta<2.0) Aeff=0.085;
+    if(thiseta>=2.0 && thiseta<2.2)   Aeff=0.11;
+    if(thiseta>=2.2 && thiseta<2.3)   Aeff=0.12;
+    if(thiseta>=2.3 && thiseta<2.4)   Aeff=0.12;
+    if(thiseta>=2.4)                  Aeff=0.13;
+
+    float thisiso=el_std_pfiso_charged[electron_index]+std::max(el_std_pfiso_neutral[electron_index]+el_std_pfiso_photon[electron_index]-rho*Aeff,0.);
+    if (thisiso/thispt >0.15) return pass;  
+    if(thiseta>=1.442) {   // EE only
+      if(thispt<10){
+        if (thisiso/thispt >0.1) return pass;  
+      } 
+    }
+    
+    // IP cuts
+    if(vtxind!=-1){
+      if(fabs(el_std_D0Vtx[electron_index][vtxind]) > 0.02)  return pass;
+      if(fabs(el_std_DZVtx[electron_index][vtxind]) > 0.2)   return pass;
+    }
+
+    // conversion rejection
+    if(el_std_hp_expin[electron_index]>1) return pass;
+    if(el_std_conv[electron_index]==0)    return pass;
+  
+    // eleID BDT
+    if(thiseta<1.442) {                                                                                                                 
+      if(el_std_mva_nontrig[indel]<0.90) return pass;
+    } else {                                                                                                                            
+      if(el_std_mva_nontrig[indel]<0.90) return pass;
+    }    
+    
+    pass=true;
+    return pass;
+}
 
 bool LoopAll::ElectronPhotonCuts(TLorentzVector& pho1, TLorentzVector& pho2, TLorentzVector& ele){
     bool pass=false;
