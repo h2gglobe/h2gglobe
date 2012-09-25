@@ -4,30 +4,19 @@ import sys
 import os
 import ROOT
 
-def setcolors(h,color):
-    h.SetLineColor(color)
-    h.SetFillColor(color)
-    h.SetMarkerColor(color)
-
-def legopt(h,opt):
-    h.legopt = opt
-
-def xrange(h,a,b):
-    h.GetXaxis().SetRangeUser(a,b)
-
-def xtitle(h,tit):
-    h.GetXaxis().SetTitle(tit)
-
-def ytitle(h,tit):
-    h.GetYaxis().SetTitle(tit % { "binw" : h.GetBinWidth(0) } )
-
+#
+# Handy histogram manipulation
+# 
 def applyModifs(h,modifs):
     for method in modifs:
         args = None
         if type(method) == tuple:
             method, args = method
         if type(method) == str:
-            method = getattr(h,method)
+            if hasattr(h,method):
+                method = getattr(h,method)
+            else:
+                method = globals()[method]
         if args == None:            
             try:
                 method(h)
@@ -40,9 +29,28 @@ def applyModifs(h,modifs):
                 method(h,*args)
             except:
                 method(*args)
+                
+# 
+def setcolors(h,color):
+    h.SetLineColor(color)
+    h.SetFillColor(color)
+    h.SetMarkerColor(color)
+# 
+def legopt(h,opt):
+    h.legopt = opt
+# 
+def xrange(h,a,b):
+    h.GetXaxis().SetRangeUser(a,b)
+# 
+def xtitle(h,tit):
+    h.GetXaxis().SetTitle(tit)
+# 
+def ytitle(h,tit):
+    h.GetYaxis().SetTitle(tit % { "binw" : h.GetBinWidth(0) } )
             
-            
-
+#
+# Read plots from globe histogram files
+#
 def readPlot(fin, name, cat=0, which=["_sequential","_nminus1"], samples=["diphojet_8TeV","ggh_m125_8TeV","vbf_m125_8TeV",]):
 
     ret = []
@@ -51,6 +59,7 @@ def readPlot(fin, name, cat=0, which=["_sequential","_nminus1"], samples=["dipho
         for s in samples:
             nam = "%s%s_cat%d_%s" % ( name, p, cat, s )
             h = fin.Get(nam)
+            print nam
             h.GetXaxis().SetTitle(  h.GetXaxis().GetTitle().replace("@"," ") )
             ## print nam, h
             hists.append(h)
@@ -58,7 +67,9 @@ def readPlot(fin, name, cat=0, which=["_sequential","_nminus1"], samples=["dipho
             
     return ret
 
-
+#
+# Quick MVA control plots selection
+#
 def selectionControlPlots(fname):
     vars=[("vbf_mva",               [""]),
           ("cut_VBFLeadJPt",        ["_sequential","_nminus1"]),
@@ -123,6 +134,9 @@ def selectionControlPlots(fname):
                 
     return objs
 
+#
+# Dump event yields for different samples
+#
 def eventYield(filenames,categories=[5,6],procs=["ggh_m125_8TeV","vbf_m125_8TeV","diphojet_8TeV"]):
     files = [ ROOT.TFile.Open(f) for f in filenames ]
 
@@ -137,10 +151,13 @@ def eventYield(filenames,categories=[5,6],procs=["ggh_m125_8TeV","vbf_m125_8TeV"
                 print "%1.3g" % plots[iproc].Integral(18,28),
             print
 
-
+#
+# Read histograms for a given process, applying manipulators
+#
 def readProc(fin,name,title,style,subproc,plot,plotmodifs,category):
 
     names = subproc.keys()
+    print fin, plot, names
     histos = readPlot(fin,plot,which=[""],samples=names)[0]
     for iplot in range(len(histos)):
         h = histos[iplot]
@@ -156,9 +173,11 @@ def readProc(fin,name,title,style,subproc,plot,plotmodifs,category):
     applyModifs(sum,plotmodifs)
     applyModifs(sum,style)
     
-    
     return sum
 
+#
+# Prepare canvas and legend
+#
 def makeCanvAndLeg(name,legPos):
     canv = ROOT.TCanvas(name)
     leg  = ROOT.TLegend(*legPos)
@@ -167,12 +186,18 @@ def makeCanvAndLeg(name,legPos):
 
     return canv, leg
 
+#
+# Make THStack out of python list
+#
 def makeStack(name,histos):
     stk = ROOT.THStack()
     for h in histos:
         stk.Add(h)
     return stk
 
+#
+# Draw a THStack
+#
 def drawStack(stk, method, option):
     ymax = 0.
     if "DrawNormalized" in method:
@@ -200,12 +225,17 @@ def drawStack(stk, method, option):
         ymax = stk.GetMaximum(option)
         
     return ymax
-    
+
+#
+# Perform data/MC comparison for many plots and categories
+#
 def dataMcComparison(data, bkg, sig, plots, categories=[0], savefmts=["C","png","pdf"]):
 
     objs = []
     canvs = []
+    # loop over categories
     for cat in categories:
+        # loop over plots
         for plot in plots:
 
             plotname, plotmodifs, drawopts, legPos = plot
@@ -215,35 +245,41 @@ def dataMcComparison(data, bkg, sig, plots, categories=[0], savefmts=["C","png",
             sighists = []
             datahists = []
 
+            # read background MC
             if bkg != None:
                 bkgfile, bkgprocs = bkg
                 bkghists = [ readProc(bkgfile,*subprocs,plot=plotname,plotmodifs=plotmodifs,category=cat) for subprocs in bkgprocs ]
-                
+
+            # read signal MC
             if sig != None:
                 sigfile, sigprocs = sig
                 sighists = [ readProc(sigfile,*subprocs,plot=plotname,plotmodifs=plotmodifs,category=cat) for subprocs in sigprocs ]
 
+            # read data
             if data != None:
                 datafile, dataprocs = data
                 datahists = [ readProc(datafile,*subprocs,plot=plotname,plotmodifs=plotmodifs,category=cat) for subprocs in dataprocs ]
-            
+
+            # collect histograms
             allhists = datahists+bkghists+sighists
             objs += allhists
-            
+
+            # make empty frame histogram for convenience
             frame = allhists[0].Clone()
             frame.Reset("ICE")
             frame.SetEntries(0)
             objs.append(frame)
             ymax = 0.
             ymin = 0.
-            
+
+            # allocate canvas and legend and draw frame
             canv,leg = makeCanvAndLeg("%s_cat%d" % ( plotname, cat), legPos )
             objs.append(canv)
             objs.append(leg)
             canvs.append(canv)
-            
             frame.Draw()
 
+            # draw background first
             if len(bkghists) > 0:
                 bkgstk = makeStack("bkg_%s_cat%d" % ( plotname, cat), bkghists)
                 ### getattr(bkgstk,dm)("%s SAME" % bkgopt)
@@ -251,15 +287,15 @@ def dataMcComparison(data, bkg, sig, plots, categories=[0], savefmts=["C","png",
                 ymax = max(ymax,drawStack(bkgstk,dm,bkgopt))
                 objs.append(bkgstk)
                 
-                
+            # then data
             if len(datahists) > 0:
                 datastk = makeStack("data_%s_cat%d" % ( plotname, cat),datahists)
                 ### getattr(datastk,dm)("%s SAME" % dataopt)
                 ### ymax = max(ymax,datastk.GetMaximum())
                 ymax = max(ymax,drawStack(datastk,dm,dataopt))
                 objs.append(datastk)
-                
 
+            # and finally signal
             if len(sighists) > 0:
                 sigstk = makeStack("sig_%s_cat%d" % ( plotname, cat),sighists)
                 ### getattr(sigstk,dm)("%s SAME" % sigopt)
@@ -267,16 +303,19 @@ def dataMcComparison(data, bkg, sig, plots, categories=[0], savefmts=["C","png",
                 ymax = max(ymax,drawStack(sigstk,dm,sigopt))
                 objs.append(sigstk)
 
+            # make legend
             for h in allhists:
                 legopt = "f"
                 if hasattr(h,"legopt"):
                     legopt = h.legopt
                 leg.AddEntry(h,"",legopt)
 
+            # adjust yaxis
             frame.GetYaxis().SetRangeUser(ymin,ymax*2)
             leg.Draw("same")
             canv.RedrawAxis()
-            
+
+            # if needed draw inset with zoom-in
             if "DrawInset" in dm:
                 inset =  [ float(f) for f in dm.split("DrawInset")[1].split("[")[1].split("]")[0].split(",") ]
                 rng = inset[0:2]
@@ -306,6 +345,7 @@ def dataMcComparison(data, bkg, sig, plots, categories=[0], savefmts=["C","png",
 
                 pad.RedrawAxis()
                 
+    # save plots
     for c in canvs:
         for fmt in savefmts:
             c.SaveAs("%s.%s" % (c.GetName(),fmt))
@@ -313,12 +353,17 @@ def dataMcComparison(data, bkg, sig, plots, categories=[0], savefmts=["C","png",
     return objs
 
 if __name__ == "__main__":
-    
-    ## objs=selectionControlPlots(sys.argv[1])
+
+    #
+    # open input files
+    #
     fdata = ROOT.TFile.Open(sys.argv[1])
     fbkg  = ROOT.TFile.Open(sys.argv[2])
     fsig  = ROOT.TFile.Open(sys.argv[3])
 
+    #
+    # prepare output folder
+    #
     outdir = sys.argv[4]
     try:
         os.mkdir(outdir)
@@ -326,7 +371,10 @@ if __name__ == "__main__":
         pass
     os.chdir(outdir)
 
-    defdrawopt = ("Draw","e","hist","hist nostack")
+    #
+    # draw options and style
+    # 
+    defdrawopt = ("Draw","e","hist","hist nostack") ## drawing method(s), drawing option data, MC background, MC signal
     mvadrawopt = ("Draw,DrawInset[0.85,1,0.45,0.48,0.9,0.92]","e","hist","hist nostack")
     ## ## mvadrawopt = ("DrawNormalized[0.9,1]","e","hist nostack","hist nostack")
     ## mvadrawopt = ("DrawNormalized[0.9,1],DrawInset[0.85,1,0.45,0.426,0.9,0.9]","e","hist nostack","hist nostack")
@@ -334,21 +382,27 @@ if __name__ == "__main__":
     deflegPos  = (0.137,0.525,0.474,0.888)
     ROOT.gStyle.SetOptTitle(0)
     ROOT.gStyle.SetOptStat(0)
+    
+    #
+    # datasets to be plot
+    #
+    mcFudge = 1.4*2.
 
+    # data
     data = [ fdata, [ ("data", "data",
                        [("SetMarkerStyle",(ROOT.kFullCircle)),(legopt,"pl")],
                        { "Data" : [] }
                        )
                       ]
              ]
-    
+    # background
     bkg  = [ fbkg,  [ ("pp","2 Prompt #gamma",          ## process name
-                       [(setcolors,591),(legopt,"f"),("Scale",1.4)], ## style
+                       [(setcolors,591),(legopt,"f"),("Scale",mcFudge)], ## style
                        { "diphojet_8TeV"      : [],     ## subprocesses to add, with possible manpulators
                          "dipho_Box_25_8TeV"  : [],
                          "dipho_Box_250_8TeV" : [],
-                         "gjet_20_8TeV_pp"    : [],
-                         "gjet_40_8TeV_pp"    : []
+                         ### "gjet_20_8TeV_pp"    : [],
+                         ### "gjet_40_8TeV_pp"    : []
                          }
                        ),
                       ("pp","1 Prompt #gamma 1 Fake #gamma",
@@ -361,7 +415,7 @@ if __name__ == "__main__":
                        ),
                       ]
              ]
-    
+    # signal
     sig   = [ fsig,  [ ("ggH", "25 x ggH H #rightarrow #gamma #gamma",
                         [(setcolors,ROOT.kMagenta),("SetLineWidth",2),("SetFillStyle",0),("Scale",25.),(legopt,"l")],
                         { "ggh_m125_8TeV" : [] }
@@ -373,7 +427,7 @@ if __name__ == "__main__":
                        ]
               ]
     
-    
+    # Make data/MC comparison
     objs=dataMcComparison( data = data,
                            sig = sig,
                            bkg = bkg,
@@ -383,25 +437,25 @@ if __name__ == "__main__":
                                                  ],
                                       mvadrawopt,deflegPos),
                                      
-                                     ### ("cut_VBFLeadJPt_sequential",[],defdrawopt,deflegPos),
-                                     ### ("cut_VBFSubJPt_sequential",[],defdrawopt,deflegPos),
-                                     ### ("cut_VBF_dEta_sequential",[],defdrawopt,deflegPos),
-                                     ### ("cut_VBF_Zep_sequential",[],defdrawopt,deflegPos),
-                                     ### ("cut_VBF_Mjj_sequential",[],defdrawopt,deflegPos),
-                                     ### ("cut_VBF_dPhi_sequential",[],defdrawopt,deflegPos),
-                                     ### ("cut_VBF_DiPhoPtOverM_sequential",[],defdrawopt,deflegPos),
-                                     ### ("cut_VBF_LeadPhoPtOverM_sequential",[],defdrawopt,deflegPos),
-                                     ### ("cut_VBF_SubPhoPtOverM_sequential",[],defdrawopt,deflegPos),
-                                     ### 
-                                     ### ("cut_VBFLeadJPt_nminus1",[],defdrawopt,deflegPos),
-                                     ### ("cut_VBFSubJPt_nminus1",[],defdrawopt,deflegPos),
-                                     ### ("cut_VBF_dEta_nminus1",[],defdrawopt,deflegPos),
-                                     ### ("cut_VBF_Zep_nminus1",[],defdrawopt,deflegPos),
-                                     ### ("cut_VBF_Mjj_nminus1",[],defdrawopt,deflegPos),
-                                     ### ("cut_VBF_dPhi_nminus1",[],defdrawopt,deflegPos),
-                                     ### ("cut_VBF_DiPhoPtOverM_nminus1",[],defdrawopt,deflegPos),
-                                     ### ("cut_VBF_LeadPhoPtOverM_nminus1",[],defdrawopt,deflegPos),
-                                     ### ("cut_VBF_SubPhoPtOverM_nminus1",[],defdrawopt,deflegPos),
+                                     ("cut_VBFLeadJPt_sequential",[],defdrawopt,deflegPos),
+                                     ("cut_VBFSubJPt_sequential",[],defdrawopt,deflegPos),
+                                     ("cut_VBF_dEta_sequential",[],defdrawopt,deflegPos),
+                                     ("cut_VBF_Zep_sequential",[],defdrawopt,deflegPos),
+                                     ("cut_VBF_Mjj_sequential",[],defdrawopt,deflegPos),
+                                     ("cut_VBF_dPhi_sequential",[],defdrawopt,deflegPos),
+                                     ("cut_VBF_DiPhoPtOverM_sequential",[],defdrawopt,deflegPos),
+                                     ("cut_VBF_LeadPhoPtOverM_sequential",[],defdrawopt,deflegPos),
+                                     ("cut_VBF_SubPhoPtOverM_sequential",[],defdrawopt,deflegPos),
+                                     
+                                     ("cut_VBFLeadJPt_nminus1",[],defdrawopt,deflegPos),
+                                     ("cut_VBFSubJPt_nminus1",[],defdrawopt,deflegPos),
+                                     ("cut_VBF_dEta_nminus1",[],defdrawopt,deflegPos),
+                                     ("cut_VBF_Zep_nminus1",[],defdrawopt,deflegPos),
+                                     ("cut_VBF_Mjj_nminus1",[],defdrawopt,deflegPos),
+                                     ("cut_VBF_dPhi_nminus1",[],defdrawopt,deflegPos),
+                                     ("cut_VBF_DiPhoPtOverM_nminus1",[],defdrawopt,deflegPos),
+                                     ("cut_VBF_LeadPhoPtOverM_nminus1",[],defdrawopt,deflegPos),
+                                     ("cut_VBF_SubPhoPtOverM_nminus1",[],defdrawopt,deflegPos),
                                      
                                      ] 
                            )
