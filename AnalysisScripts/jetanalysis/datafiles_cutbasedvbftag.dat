@@ -43,7 +43,6 @@ typ=-38    ind=98 draw=1  Nam=DYJetsToLL   CaDir=/store/group/phys_higgs/cmshgg/
 inputBranches minimal_analysis_input.dat
 inputBranches massfactorizedmvaanalysis_input.dat
 
-cuts jetanalysis/cuts_vbfmva.dat
 treevariables optTree.dat
 
 
@@ -54,4 +53,4 @@ treevariables optTree.dat
 ## 	analyzer <class_name> <config_file>
 ## 
 ## analyzer PhotonAnalysis photonanalysis.dat	
-analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat doSystematics=0
+analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat doSystematics=0 fillOptTree=1

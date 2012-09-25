@@ -54,8 +54,7 @@ treevariables optTree.dat
 ## 	analyzer <class_name> <config_file>
 ## 
 ## analyzer PhotonAnalysis photonanalysis.dat	
-analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat jetanalysis/mvavbftag.dat doSystematics=0
-## mvaVbfCatBoundaries=1.,0.985,-1.
+analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat jetanalysis/mvavbftag.dat doSystematics=0 fillOptTree=1 
 
 ## fillOptTree=1
 ## mvaVbfCatBoundaries=1.,0.985,0.968,0.92 bkgPolOrderByCat=4,5,5,5,3,3,4
