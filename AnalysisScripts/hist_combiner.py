@@ -19,13 +19,16 @@ if len(filestocomb)==1:
     longl = line.split('Fil=')
     if len(longl)>1:
       path = os.path.dirname(longl[1])+"/histograms_"+os.path.basename(longl[1])
-      listofhists += "rfio:"+path+" "
+      if 'castor' in path:
+        listofhists += "rfio:"+path+" "
+      else:
+        listofhists += path+" "
 
 print "Will execute: \n"
-print "\t\t hadd "+taskdir+"/histograms_CMS-HGG.root "+listofhists
+print "\t\t hadd "+taskdir+"/histograms_CMS-HGG.root"+listofhists
 print "Happy to hadd?\n"
 raw_input()
-os.system("hadd "+taskdir+"/histograms_CMS-HGG.root "+listofhists)
+os.system("hadd "+taskdir+"/histograms_CMS-HGG.root"+listofhists)
     
 
 
