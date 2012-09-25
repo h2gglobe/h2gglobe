@@ -1,11 +1,8 @@
-#intL=5346. histfile=/store/group/phys_higgs/cmshgg/analyzed/beamspotclosure/%(label)s/CMS-HGG.root output=eventsList.txt
-intL=5346. histfile=/store/group/phys_higgs/cmshgg/analyzed/beamspotclosure/%(label)s/CMS-HGG_fixedBS_eB1_rB0_rV0.root output=eventsList.txt
+intL=10000. histfile=/store/group/phys_higgs/cmshgg/analyzed/beamspot/%(label)s/CMS-HGG_oldsample.root output=eventsList.txt
 
-#typ=-73 ind=1 draw=1  Nam=ggh_m124_8TeV  CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/GluGluToHToGG_M-124_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
-#typ=-74 ind=2 draw=1  Nam=vbf_m124_8TeV     CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/VBF_HToGG_M-124_8TeV        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
-
-typ=-37 ind=1 draw=1  Nam=ggh_m125_8TeV  CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/GluGluToHToGG_M-125_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
-#typ=-38 ind=2 draw=1  Nam=vbf_m125_8TeV     CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/VBF_HToGG_M-125_8TeV        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-73 ind=1 draw=1  Nam=ggh_m124_8TeV  CaDir=/store/group/phys_higgs/cmshgg/reduced/V13_04_00_v1/mc/Summer12_S7_8TeV/GluGluToHToGG_M-124_8TeV-powheg-pythia6_Summer12-PU_S7_START52_V9-v1    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-37 ind=1 draw=1  Nam=ggh_m125_8TeV  CaDir=/store/group/phys_higgs/cmshgg/reduced/V13_04_00_v1/mc/Summer12_S7_8TeV/GluGluToHToGG_M-125_8TeV-powheg-pythia6_Summer12-PU_S7_START52_V9-v1    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-77 ind=1 draw=1  Nam=ggh_m123_8TeV  CaDir=/store/group/phys_higgs/cmshgg/reduced/V13_04_00_v1/mc/Summer12_S7_8TeV/GluGluToHToGG_M-123_8TeV-powheg-pythia6_Summer12-PU_S7_START52_V9-v1    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
 
 
 
@@ -22,7 +19,6 @@ inputBranches massfactorizedmvaanalysis_input.dat
 ## 	analyzer <class_name> <config_file>
 ## 
 ## analyzer PhotonAnalysis photonanalysis.dat	
-#analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat
-#analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat emulateBeamspot=1 reRunVtx=1 reweighBeamspot=1
-analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat emulateBeamspot=1 reweighBeamspot=0 reRunVtx=1 doVtxEffSyst=0 emulatedBeamspotWidth=4.8 beamspotSigma=4.8 rescaleDZforVtxMVA=1
+analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat emulateBeamspot=0   doSystematics=0 
+#analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat emulateBeamspot=1 reweighBeamspot=0 reRunVtx=1 doVtxEffSyst=0 emulatedBeamspotWidth=4.8 beamspotSigma=4.8 rescaleDZforVtxMVA=1
 
