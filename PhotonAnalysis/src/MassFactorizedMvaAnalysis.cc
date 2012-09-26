@@ -549,22 +549,21 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 
         // Exclusive Modes
         int diphotonVBF_id = -1;
-	int ijet1, ijet2;
-        int diphotonVHhad_id = -1;
+	    int ijet1, ijet2;
+        VBFevent = false;
+        
         int diphotonVHlep_id = -1;
-        int diphotonVHmet_id = -1; //met at analysis step
         VHmuevent = false;
+	    VHmuevent_cat=0;
         VHelevent = false;
         VHelevent_cat=0;
-	    VHmuevent_cat=0;
-        VBFevent = false;
-        VHhadevent = false;
+        
+        int diphotonVHmet_id = -1; //met at analysis step
         VHmetevent = false; //met at analysis step
+        
+        int diphotonVHhad_id = -1;
+        VHhadevent = false;
        
-        int leadpho_ind=-1;
-        int subleadpho_ind=-1;
-        int mu_ind=-1;
-        int el_ind=-1;
         int muVtx=-1;
         int elVtx=-1;
 
@@ -574,19 +573,23 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
             if(eventweight*sampleweight!=0) myweight=eventweight/sampleweight;
             VHmuevent=MuonTag2012B(l, diphotonVHlep_id, muVtx, VHmuevent_cat, &smeared_pho_energy[0], lep_sync, true, phoidMvaCut);
             if(!VHmuevent){
+                ZWithFakeGammaCS(l, &smeared_pho_energy[0]);
                 ElectronStudies2012B(l, &smeared_pho_energy[0], true,  -0.3, eventweight, myweight, jentry);
                 VHelevent=ElectronTag2012B(l, diphotonVHlep_id, elVtx, VHelevent_cat, &smeared_pho_energy[0], lep_sync, true, phoidMvaCut);
             }
             //ElectronTagStudies2012(l, diphotonVHlep_id, &smeared_pho_energy[0], true, eventweight, myweight, jentry);
         }
 
+        if(includeVHmet && !VHmuevent && !VHmuevent) {
+            VHmetevent=METTag2012(l, diphotonVHmet_id, &smeared_pho_energy[0]);
+        }
 
         // VBF
         if((includeVBF || includeVHhad)&&l.jet_algoPF1_n>1 && !isSyst /*avoid rescale > once*/) {
             l.RescaleJetEnergy();
         }
 
-        if(includeVBF) {
+        if(includeVBF && !VHmetevent) {
             diphotonVBF_id = l.DiphotonMITPreSelection(leadEtVBFCut,subleadEtVBFCut,phoidMvaCut,applyPtoverM, &smeared_pho_energy[0] );
             float eventweight = weight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second] * genLevWeight;
             float myweight=1.;
@@ -597,8 +600,14 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 			VBFTag2012(ijet1, ijet2, l, diphotonVBF_id, &smeared_pho_energy[0], true, eventweight, myweight) )
 		;
         }
-        
-        if(includeVBF&&VBFevent) {
+       
+        if(includeVHlep&&VHmuevent){
+            diphoton_id = diphotonVHlep_id;
+            l.dipho_vtxind[diphoton_id] = muVtx;
+        } else if (includeVHlep&&VHelevent){
+            diphoton_id = diphotonVHlep_id;
+            l.dipho_vtxind[diphoton_id] = elVtx;
+        } else if(includeVBF&&VBFevent) {
             diphoton_id = diphotonVBF_id;
         }
     }
@@ -649,6 +658,10 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
         // easy to calculate vertex probability from vtx mva output
         float vtxProb   = 1.-0.49*(vtx_mva+1.0); /// should better use this: vtxAna_.setPairID(diphoton_id); vtxAna_.vertexProbability(vtx_mva); PM
 
+        if(includeVHlep&&(VHmuevent||VHelevent)){
+            vtxProb=1.0;
+        }
+
         float phoid_mvaout_lead = ( dataIs2011 ? 
 				    l.photonIDMVA(diphoton_index.first,l.dipho_vtxind[diphoton_id],
 						  lead_p4,bdtTrainingPhilosophy.c_str()) :
@@ -678,9 +691,10 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 
         bool isEBEB  = (lead_p4.Eta() < 1.4442 ) && fabs(sublead_p4.Eta()<1.4442);
         category = GetBDTBoundaryCategory(diphobdt_output,isEBEB,VBFevent);
-        if (diphobdt_output>=bdtCategoryBoundaries.back()) { 
-	    computeExclusiveCategory(l,category,diphoton_index,Higgs.Pt()); 
-	}
+        if (diphobdt_output>0.05) { 
+        //if (diphobdt_output>=bdtCategoryBoundaries.back()) { 
+	        computeExclusiveCategory(l,category,diphoton_index,Higgs.Pt()); 
+	    }
 	
 	if (fillOptree) {
 	    std::string name;

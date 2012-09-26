@@ -526,9 +526,10 @@ int DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL = phoLOOSE,
                           int ncategories=6, 
                           bool applyPtoverM=false, 
                           float *pho_energy_array=0, 
-                          bool split=false, int fixedvtx=-1, std::vector<int> cutsbycat=std::vector<int>(0));
+                          bool split=false, int fixedvtx=-1, std::vector<bool> veto_indices=std::vector<bool>(false),
+                          std::vector<int> cutsbycat=std::vector<int>(0));
 
- int DiphotonMITPreSelection(Float_t leadPtMin, Float_t subleadPtMin, Float_t phoidMvaCut, bool applyPtoverM, float *pho_energy_array=0, int fixedvtx=-1, bool split=false, bool kinonly=false);
+ int DiphotonMITPreSelection(Float_t leadPtMin, Float_t subleadPtMin, Float_t phoidMvaCut, bool applyPtoverM, float *pho_energy_array=0, int fixedvtx=-1, bool split=false, bool kinonly=false, std::vector<bool> veto_indices=std::vector<bool>(false));
  int DiphotonMITPreSelection2011(Float_t leadPtMin, Float_t subleadPtMin, Float_t phoidMvaCut, bool applyPtoverM, float *pho_energy_array=0, bool kinonly=false);
 
 /** for a photon index, applies all levels of cuts and returns the
@@ -1111,25 +1112,38 @@ void doJetMatching(TClonesArray & reco, TClonesArray & gen, Bool_t * match_flag,
 
 std::pair<int, int> Select2HighestPtJets(TLorentzVector& leadpho, TLorentzVector& subleadpho, Bool_t * jetid_flags=0);
 int RescaleJetEnergy(bool force=false);
+
+//Moriond2012
 int MuonSelection(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind);
-int ElectronSelection(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind);
+//ICHEP2012
 int MuonSelection2012(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind);
-int ElectronSelection2012(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind,  bool phodepend=true);
-int ElectronPreSelection2012(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind, float ptcut=10.0, int firstveto=-1);
-bool ElectronLooseEGammaID(int electronindex, int vertexindex=-1);
-bool ElectronTightEGammaID(int electronindex, int vertexindex=-1);
-int ElectronSelectionMVA2012();
-bool ElectronMVACuts(int el_ind, int vtx_ind=-1);
-bool ElectronPhotonCuts(TLorentzVector& pho1, TLorentzVector& pho2, TLorentzVector& ele);
-bool ElectronPhotonCuts2012B(TLorentzVector& pho1, TLorentzVector& pho2, TLorentzVector& ele);
-int FindElectronVertex(int el_ind);
+bool MuonPhotonCuts2012(TLorentzVector& pho1, TLorentzVector& pho2, TLorentzVector* thismu);
+//HCP2012
+int MuonSelection2012B();
+bool MuonPhotonCuts2012B(TLorentzVector& pho1, TLorentzVector& pho2, TLorentzVector* thismu);
 bool MuonTightID2012(int indmu, int vtxind=-1);
 bool MuonIsolation2012(int indmu, float mupt, bool isTight=false);
-bool MuonPhotonCuts2012(TLorentzVector& pho1, TLorentzVector& pho2, TLorentzVector* thismu);
-bool MuonPhotonCuts2012B(TLorentzVector& pho1, TLorentzVector& pho2, TLorentzVector* thismu);
-int MuonSelection2012B();
 int FindMuonVertex(int mu_ind);
 
+//Moriond2012
+int ElectronSelection(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind);
+bool ElectronPhotonCuts(TLorentzVector& pho1, TLorentzVector& pho2, TLorentzVector& ele);
+//ICHEP2012
+int ElectronSelection2012(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind,  bool phodepend=true);
+bool ElectronLooseEGammaID(int electronindex, int vertexindex=-1);
+bool ElectronTightEGammaID(int electronindex, int vertexindex=-1);
+//HCP2012
+int ElectronSelectionMVA2012();
+bool ElectronMVACuts(int el_ind, int vtx_ind=-1);
+bool ElectronPhotonCuts2012B(TLorentzVector& pho1, TLorentzVector& pho2, TLorentzVector& ele);
+int FindElectronVertex(int el_ind);
+void PhotonsToVeto(TLorentzVector* veto_p4, float drtoveto, std::vector<bool>& vetos);
+
+//HCP2012
+float METCorrection2012B(TLorentzVector lead_p4, TLorentzVector sublead_p4);
+bool METAnalysis2012B(float MET);
+
+//~ICHEP2012
 //correct met
 double ErrEt( double Et, double Eta);
 TLorentzVector shiftMet(TLorentzVector *uncormet, bool isMC);
