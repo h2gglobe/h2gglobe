@@ -18,7 +18,7 @@ applyPreselection=0.
 #selectionTypeProbe=CiC4PF
 #cutSelectionProbe=0. 
 #selectionTypeToMeasure=CiC4PF
-#cutSelectionToMeasure=4.
+#cutSelectionToMeasure=3.
 
 #MVA
 #selectionTypeTag=MVA
@@ -42,6 +42,6 @@ maxZMass=120
 ### Example of .dat 
 puMap=
 puHist=auto
-puTarget=aux/nPU-Summer12_DD3.190456-200245-29Jun_Prompt.observed.root
+puTarget=aux/Cert_190456-202016_8TeV_PromptReco_Collisions12_JSON.txt.69400.observed.pileup.root
 
 

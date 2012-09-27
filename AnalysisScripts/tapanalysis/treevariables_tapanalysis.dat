@@ -24,3 +24,11 @@ type=0 name=nvtx
 type=2 name=id
 type=0 name=catTag
 type=0 name=cat
+type=2 name=mva1
+type=2 name=mva2
+type=2 name=sieie
+type=2 name=hoe
+type=2 name=isoRvtx
+type=2 name=isoWvtx
+type=2 name=isoTk
+

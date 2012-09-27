@@ -35,8 +35,31 @@ void TapAnalysis::FillFlatTree(LoopAll& l, Int_t type, Int_t ipho1, Int_t ipho2,
   l.FillTree("nvtx", l.vtx_std_n);
   l.FillTree("id", id);
 
+  int thevertexind = ChooseVertex(l, iele2, true);
+  Float_t mva1 = (*l.pho_mitmva)[ipho1][thevertexind];
+  Float_t mva2 = (*l.pho_mitmva)[ipho2][thevertexind];
+  std::cout << "Fill: " << mva1 << " "<< mva2 << std::endl;
+  l.FillTree("mva1", mva1);
+  l.FillTree("mva2", mva2);
+
   l.FillTree("catTag",  PhotonIDCategory(l, ipho1, 4));
   l.FillTree("cat", PhotonIDCategory(l, ipho2, 4));
+
+  float rhofac = 0.09;
+  float rhofacbad = 0.23;
+  float isosumconst    = 2.5;
+  float isosumconstbad = 2.5;
+
+  float val_isosumoet    = ((*l.pho_pfiso_mycharged03)[ipho2][thevertexind] + l.pho_pfiso_myphoton03[ipho2] + isosumconst - l.rho_algo1*rhofac)*50./((float)p4_pho_tag->E()*(float)sin(p4_tag->Theta()));
+  float val_isoqsumoetbad = (l.pho_pfiso_myphoton04[ipho2] + l.pho_pfiso_charged_badvtx_04[ipho2] + isosumconstbad - l.rho_algo1*rhofacbad)*50./((float)p4_pho_tag->E()*(float)sin(p4_tag->Theta()));
+  float val_trkisooet    = ((*l.pho_pfiso_mycharged03)[ipho2][thevertexind])*50./((float)p4_pho_tag->E()*(float)sin(p4_tag->Theta()));
+
+  l.FillTree("sieie", l.pho_sieie[ipho2]);
+  l.FillTree("isoRvtx", val_isosumoet);
+  l.FillTree("isoWvtx", val_isoqsumoetbad);
+  l.FillTree("hoe", l.pho_hoe[ipho2]);
+  l.FillTree("isoTk", val_trkisooet);
+
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -338,9 +361,9 @@ bool TapAnalysis::Analysis(LoopAll& l, Int_t jentry) {
     }
  
     if (phoindex != -1) {
-      if (((applyPreselection > 0) && PhotonId(l, iElectron, phoindex, std::string("Presel"), 1)) ||
+      if (((applyPreselection > 0) && (PhotonId(l, iElectron, phoindex, std::string("Presel"), 1) > 0)) ||
 	  applyPreselection == 0) {
-	 if (PhotonId(l, iElectron, phoindex, selectionTypeTag, cutSelectionTag)) {
+	 if (PhotonId(l, iElectron, phoindex, selectionTypeTag, cutSelectionTag) > 0.) {
 	  selectedTags.push_back(iElectron);
 	}
       }
@@ -377,9 +400,9 @@ bool TapAnalysis::Analysis(LoopAll& l, Int_t jentry) {
     }
 	  
     if (phoindex != -1) {
-      if (((applyPreselection > 0) && PhotonId(l, iEl, phoindex, std::string("Presel"), 1)) ||
+      if (((applyPreselection > 0) && (PhotonId(l, iEl, phoindex, std::string("Presel"), 1) > 0)) ||
 	  applyPreselection == 0) {
-	if (PhotonId(l, iEl, phoindex, selectionTypeProbe, cutSelectionProbe))
+	if (PhotonId(l, iEl, phoindex, selectionTypeProbe, cutSelectionProbe) > 0)
 	  selectedProbes.push_back(iEl);
       }
     }
@@ -444,7 +467,7 @@ bool TapAnalysis::Analysis(LoopAll& l, Int_t jentry) {
       
       if (phoindex != -1) {
 	int type = l.itype[l.current];
-	Float_t id = PhotonId(l, iEl, phoindex, selectionTypeToMeasure, cutSelectionToMeasure);
+	Float_t id = PhotonId(l, iEl, phoindex, selectionTypeToMeasure, cutSelectionToMeasure);	
 	FillFlatTree(l, type, phoindex_tag, phoindex, iElTag, iEl, zMass, weight, id);
 	
 	return true;
@@ -507,6 +530,14 @@ void TapAnalysis::GetBranches(TTree *t, std::set<TBranch *>& s )
 // ----------------------------------------------------------------------------------------------------
 void TapAnalysis::FillReductionVariables(LoopAll& l, int jentry) {
 
+  l.pho_mitmva->clear();
+  l.pho_pfiso_mycharged02->clear();
+  l.pho_pfiso_mycharged03->clear();
+  l.pho_pfiso_mycharged04->clear();
+  l.pho_pfiso_mycharged02->resize(l.pho_n, std::vector<float>(l.vtx_std_n, 0));
+  l.pho_pfiso_mycharged03->resize(l.pho_n, std::vector<float>(l.vtx_std_n, 0));
+  l.pho_pfiso_mycharged04->resize(l.pho_n, std::vector<float>(l.vtx_std_n, 0));
+
   for (int ipho=0;ipho<l.pho_n;ipho++){
     l.pho_s4ratio[ipho]  = l.pho_e2x2[ipho]/l.pho_e5x5[ipho];
     float rr2=l.pho_eseffsixix[ipho]*l.pho_eseffsixix[ipho]+l.pho_eseffsiyiy[ipho]*l.pho_eseffsiyiy[ipho];
@@ -542,8 +573,9 @@ void TapAnalysis::FillReductionVariables(LoopAll& l, int jentry) {
       l.pho_pfiso_mycharged03->at(ipho).at(ivtx) = ch03;
       l.pho_pfiso_mycharged04->at(ipho).at(ivtx) = ch04;
       
-      TLorentzVector* p4 = (TLorentzVector*)l.pho_p4->At(ipho);
-      temp.push_back(l.photonIDMVANew(ipho, ivtx, *p4, ""));
+      TLorentzVector p4 = get_pho_p4(l, ipho, ivtx);//(TLorentzVector*)l.pho_p4->At(ipho);
+      //std::cout << ipho << " "<< ivtx << " " << l.photonIDMVANew(ipho, ivtx, p4, "") << std::endl;
+      temp.push_back(l.photonIDMVANew(ipho, ivtx, p4, ""));
       
       if( ch04 > badiso ) {
 	badiso = ch04;
@@ -617,28 +649,29 @@ void TapAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree) {
 void TapAnalysis::ResetAnalysis()
 {}
 
-bool TapAnalysis::PhotonId(LoopAll& l, Int_t eleIndex, Int_t phoIndex, std::string type, Float_t selection) {
+Float_t TapAnalysis::PhotonId(LoopAll& l, Int_t eleIndex, Int_t phoIndex, std::string type, Float_t selection) {
 
   if (selection < -10.)
     return true;
  
-  bool result = false;
+  Float_t result = 0.;
 
   int thevertexind = ChooseVertex(l, eleIndex, true);
 
   if (type == "CiC4PF") {
     std::vector<std::vector<bool> > ph_passcut;
     int level = l.PhotonCiCPFSelectionLevel(phoIndex, thevertexind, ph_passcut, 4, 0);
-    result = (level >= selection); 
-
-  } else if (type == "CiC2") {
-    std::vector<std::vector<bool> > ph_passcut;
-    int level = l.PhotonCiCPFSelectionLevel(phoIndex, thevertexind, ph_passcut, 4, 0);
-    result = (level >= selection); 
+    if (level >= selection)
+      result = 1;
   } else if (type == "MVA") {
-    result = ((*l.pho_mitmva)[phoIndex][thevertexind] > selection);
+    std::cout << "MVA: " << (*l.pho_mitmva)[phoIndex][thevertexind]  << std::endl;
+    if ((*l.pho_mitmva)[phoIndex][thevertexind] > selection)
+      result = 1.;
+    //result = ((*l.pho_mitmva)[phoIndex][thevertexind] > selection);
   } else if (type == "Presel") {
-    result = l.PhotonMITPreSelection(phoIndex, thevertexind, 0);
+    if (l.PhotonMITPreSelection(phoIndex, thevertexind, 0))
+      result = 1.0;
+    //result = l.PhotonMITPreSelection(phoIndex, thevertexind, 0);
   }
 
   return result;

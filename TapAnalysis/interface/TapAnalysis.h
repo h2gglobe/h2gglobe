@@ -33,7 +33,7 @@ class TapAnalysis : public StatAnalysis {
   void FillFlatTree(LoopAll&, Int_t, Int_t, Int_t, Int_t, Int_t,
 		    Float_t, Float_t, Float_t);
 
-  bool PhotonId(LoopAll&, Int_t, Int_t, std::string, Float_t);
+  Float_t PhotonId(LoopAll&, Int_t, Int_t, std::string, Float_t);
   bool checkEventHLT(LoopAll&, std::vector<std::string>);
   std::vector<std::pair<int, int> > TPPairs(LoopAll&, std::vector<int> tags, std::vector<int> probes, int type, int chargePairing);
   Int_t ChooseVertex(LoopAll&, int, bool);

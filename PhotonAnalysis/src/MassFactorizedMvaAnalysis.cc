@@ -537,7 +537,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 	
     if (!skipSelection){
         // first apply corrections and smearing on the single photons 
-        smeared_pho_energy.clear(); smeared_pho_energy.resize(l.pho_n,0.); 
+	smeared_pho_energy.clear(); smeared_pho_energy.resize(l.pho_n,0.); 
         smeared_pho_r9.clear();     smeared_pho_r9.resize(l.pho_n,0.); 
         smeared_pho_weight.clear(); smeared_pho_weight.resize(l.pho_n,1.);
         applySinglePhotonSmearings(smeared_pho_energy, smeared_pho_r9, smeared_pho_weight, cur_type, l, energyCorrected, energyCorrectedError,
@@ -1327,12 +1327,12 @@ void MassFactorizedMvaAnalysis::fillOpTree(LoopAll& l, const TLorentzVector & le
 
     for (int iel=0; iel<l.el_std_n; iel++){
 	if (l.el_std_scind[iel] == l.pho_scind[diphoton_index.first]) {
-	    r1  = l.el_std_regr_energy[iel];
-	    er1 = l.el_std_regr_energyerr[iel];
+	    r1  = 0;//l.el_std_regr_energy[iel];
+	    er1 = 0;//l.el_std_regr_energyerr[iel];
 	}
 	if (l.el_std_scind[iel] == l.pho_scind[diphoton_index.second]) {
-	    r2  = l.el_std_regr_energy[iel];
-	    er2 = l.el_std_regr_energyerr[iel];
+	    r2  = 0;//l.el_std_regr_energy[iel];
+	    er2 = 0;//l.el_std_regr_energyerr[iel];
 	}
     }
     l.FillTree("eleregr1", r1);
