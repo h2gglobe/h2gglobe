@@ -4021,8 +4021,8 @@ int LoopAll::FindMuonVertex(int mu_ind){
     int vtx_ind=-1;
     float vtx_dz=10000;
     for(int ivtx=0; ivtx<vtx_std_n; ivtx++){
-        if(vtx_dz>mu_glo_DZVtx[mu_ind][ivtx]) {
-            vtx_dz=mu_glo_DZVtx[mu_ind][ivtx];
+      if(vtx_dz>fabs(mu_glo_DZVtx[mu_ind][ivtx])) {
+	vtx_dz=fabs(mu_glo_DZVtx[mu_ind][ivtx]);
             vtx_ind=ivtx;
         }
     }
@@ -4229,6 +4229,9 @@ bool LoopAll::ElectronMVACuts(int el_ind, int vtx_ind){
     float thiseta = fabs(thissc->Eta());
     float thispt = thisel->Pt();
 
+    if(thispt<20) return pass;
+    if(thiseta>2.5 || (thiseta>1.442 && thiseta<1.566)) return pass;
+
     double Aeff=0.;
     if(thiseta<1.0)                   Aeff=0.10;
     if(thiseta>=1.0 && thiseta<1.479) Aeff=0.12;
@@ -4240,13 +4243,16 @@ bool LoopAll::ElectronMVACuts(int el_ind, int vtx_ind){
     float thisiso=el_std_pfiso_charged[el_ind]+std::max(el_std_pfiso_neutral[el_ind]+el_std_pfiso_photon[el_ind]-rho*Aeff,0.);
     
     if(GFDEBUG) std::cout<<"Passes el iso/pt?  iso pt "<<thisiso<<" "<<thispt<<std::endl;
-    if (thisiso/thispt >0.1) return pass;  
+    if (thisiso/thispt >0.15) return pass;  
 
     if(vtx_ind!=-1){
         if(GFDEBUG) std::cout<<"Passes d0 and dZ cuts?  d0 dZ "<<el_std_D0Vtx[el_ind][vtx_ind]<<" "<<el_std_DZVtx[el_ind][vtx_ind]<<std::endl;
         if(fabs(el_std_D0Vtx[el_ind][vtx_ind]) > 0.02) return pass;
         if(fabs(el_std_DZVtx[el_ind][vtx_ind]) > 0.2)  return pass;
     }
+
+    if(el_std_hp_expin[el_ind]>1) return pass;
+    if(el_std_conv[el_ind]==0)    return pass;
 
     pass=true;
     return pass;
@@ -4270,8 +4276,8 @@ int LoopAll::FindElectronVertex(int el_ind){
     int vtx_ind=-1;
     float vtx_dz=10000;
     for(int ivtx=0; ivtx<vtx_std_n; ivtx++){
-        if(vtx_dz>el_std_DZVtx[el_ind][ivtx]) {
-            vtx_dz=el_std_DZVtx[el_ind][ivtx];
+      if(vtx_dz>fabs(el_std_DZVtx[el_ind][ivtx])) {
+	vtx_dz=fabs(el_std_DZVtx[el_ind][ivtx]);
             vtx_ind=ivtx;
         }
     }
