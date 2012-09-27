@@ -1620,6 +1620,10 @@ void PhotonAnalysis::postProcessJets(LoopAll & l, int vtx)
 // ----------------------------------------------------------------------------------------------------
 void PhotonAnalysis::switchJetIdVertex(LoopAll &l, int ivtx) 
 {
+    if( l.version > 14 && ivtx > 10 ) {                                                                                                    
+	std::cout << "WARNING choosen vertex beyond 10 and jet ID was not computed. Falling back to vertex 0." << std::endl;
+	ivtx = 0;
+    }               
     for(int ii=0; ii<l.jet_algoPF1_n; ++ii) {
 	l.jet_algoPF1_beta[ii]              = (*l.jet_algoPF1_beta_ext)[ii][ivtx];
         l.jet_algoPF1_betaStar[ii]          = (*l.jet_algoPF1_betaStar_ext)[ii][ivtx];
