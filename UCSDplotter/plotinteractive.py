@@ -8,6 +8,7 @@ plotinfos={}
 samples={}
 
 # Set Defaults
+pads = []
 
 xsize=1000
 ysize=800
@@ -45,6 +46,7 @@ cutline=ROOT.TLine()
 Debug=False
 DebugNew=False
 
+dodivide=False
 dolog=False
 dogridx=False
 dogridy=False
@@ -195,7 +197,7 @@ class SampleInfo:
    
 
 
-PLOTPROPS=["dolog","dogridx","dogridy","doline","domergecats","doreplot","dotitles","doxtitle","doytitle","dooflow","douflow","dorebin","StaticMin","StaticMax","dolegend","dotext", "Normalize" ,"Debug","DebugNew"]
+PLOTPROPS=["dolog","dogridx","dogridy","doline","domergecats","doreplot","dotitles","doxtitle","doytitle","dooflow","douflow","dorebin","StaticMin","StaticMax","dolegend","dotext", "dodivide", "Normalize" ,"Debug","DebugNew"]
 def FindFunction(option):
     print option
     if option == "START":
@@ -382,7 +384,6 @@ def Resize(x,y):
     ysize = int(y)
     ReDraw()
 
-
 def SetLeg(x1,x2,y1,y2):
     global dolegend,legx1,legx2,legy1,legy2
     legx1=x1
@@ -563,7 +564,7 @@ def ReadInputFiles(rootfile):
 def Plot(num,printsuffix="",printcat=-1):
     global cur_plot
     cur_plot=plotinfos[int(num)]
-    print num, cur_plot.plotvarname
+    #print num, cur_plot.plotvarname
     Ncol,Nrow=cur_plot.ColsRows()
 
     can.Clear()
@@ -577,15 +578,54 @@ def Plot(num,printsuffix="",printcat=-1):
         can.cd().SetGridy(dogridy)
         
     elif docats:
-        can.Divide(Ncol,Nrow)
-   
-        for ican in range(1,Ncol*Nrow+1):
-            can.cd(ican)
-            can.cd(ican).SetLogy(dolog)
-            can.cd(ican).SetGridx(dogridx)
-            can.cd(ican).SetGridy(dogridy)
-    
-    
+        nCavases = Ncol+Nrow
+        if (not dodivide):
+            can.Divide(Ncol, Nrow)
+            for ican in range(1, nCavases+1):
+                can.cd(ican)
+                can.cd(ican).SetLogy(dolog)
+                can.cd(ican).SetGridx(dogridx)
+                can.cd(ican).SetGridy(dogridy)
+        else:
+            global pads
+            pads = []
+            nCavases = Ncol+Nrow*2
+            nx = Ncol
+            ny = Nrow*2
+            xmargin=0.01
+            ymargin=0.01
+            dy = 1./float(ny)
+            dx = 1./float(nx)
+            for iy in range(ny):
+                dy1 = dy*.2/.5
+                dy2 = dy*.8/.5
+                if ((iy%2)==0):
+                    dy1 = dy*.8/.5
+                    dy2 = dy*.2/.5
+                y2 = 1 - iy*dy2 - ymargin
+                y1 = y2 - dy1 + 2*ymargin
+                if (y1 < 0):
+                    y1 = 0
+                if (y1 > y2): 
+                    continue
+                for ix in range(nx):
+                    x1 = ix*dx + xmargin
+                    x2 = x1 +dx -2*xmargin
+                    if (x1 > x2):
+                        continue
+                    name = can.GetName()+"_"+str(ix+iy*nx)
+                    pads.append(ROOT.TPad(name, name, x1, y1, x2, y2, ROOT.kWhite))
+                    pads[-1].SetNumber(ix+iy*nx+1)
+                    print "NUMBERS", (ix+iy*nx+1)
+                    pads[-1].Draw()
+
+            for ican in range(1, nCavases+1):
+                if ((ican/(Ncol+1))%2 == 0):
+                    can.cd(ican)
+                    can.cd(ican).SetLogy(dolog)
+                    can.cd(ican).SetGridx(dogridx)
+                    can.cd(ican).SetGridy(dogridy)
+                
     stacks={}
     stacktypes=["bkg","sig","data"]
     first=1
@@ -608,8 +648,7 @@ def Plot(num,printsuffix="",printcat=-1):
                 stacks[stacktype+str(icat)]=MakeStack(stacktype,icat)
                 stacks[stacktype+"lines"+str(icat)]=MakeOverlayLines(stacktype, icat)
                 stackmaxima[icat].append(stacks[stacktype+str(icat)].GetMaximum())
-                    
-
+            
     if dolegend:
         SetLegend()
 
@@ -621,7 +660,6 @@ def Plot(num,printsuffix="",printcat=-1):
     else:
         cats=[]
         cats.append(singlecat)
-
 
     if domergecats:
         stackmaxima[0].sort()
@@ -729,9 +767,12 @@ def Plot(num,printsuffix="",printcat=-1):
             cutline.DrawLine(linex,0.0,linex,stackmax/1.1);
             
     else:   #  this is the typical plot, domergecats plots all cats together
+        
+        hist_1 = [""]*cur_plot.ncat
+        dataTot = [""]*cur_plot.ncat
+        mcTot = [""]*cur_plot.ncat
         for icat in cats:
             stackmaxima[icat].sort()
-            
             if StaticMax:
                 global stackmax
             else:
@@ -741,8 +782,12 @@ def Plot(num,printsuffix="",printcat=-1):
                 print "stackmax",stackmax
 
             if docats:
-                can.cd(icat+1)
-
+                if (not dodivide):
+                    can.cd(icat+1)
+                else:
+                    cat = (icat%Ncol)+1 +(icat/Ncol)*Ncol
+                    can.cd(cat)
+       
             # Matteo no stack is plotted to allow normalization (and stats are not plot as well)
             ROOT.gStyle.SetOptStat(0)
             stacks["bkg"+str(icat)].Draw("axis")
@@ -760,8 +805,7 @@ def Plot(num,printsuffix="",printcat=-1):
                 stacks["bkg"+str(icat)].GetYaxis().SetTitle(str(cur_plot.yaxislabel))
             else:
                 stacks["bkg"+str(icat)].GetYaxis().SetTitle("")
-                
-            
+                          
             stacks["bkg"+str(icat)].GetXaxis().SetTitleSize(0.045)
             stacks["bkg"+str(icat)].GetYaxis().SetTitleSize(0.06)
             stacks["bkg"+str(icat)].GetYaxis().SetTitleOffset(0.8)
@@ -783,7 +827,12 @@ def Plot(num,printsuffix="",printcat=-1):
                     legend.AddEntry(stacks["datalines"+str(icat)][index],str(samples[itype].displayname),"ep");
                 dataIntegral = stacks["datalines"+str(icat)][index].Integral()
                 #stacks["datalines"+str(icat)][index].Draw("ep same")
-            
+                if dodivide:
+                    if (index == lineorder[0]):
+                        dataTot[icat] =  stacks["datalines"+str(icat)][index].Clone("dataTot")
+                    else:
+                        dataTot[icat].Add(stacks["datalines"+str(icat)][index])
+ 
             lineorder = stacks["siglines"+str(icat)].keys()
             lineorder.sort()
             lineorder.reverse()
@@ -791,6 +840,7 @@ def Plot(num,printsuffix="",printcat=-1):
                 itype=index[1]
                 if dolegend and icat==0:
                     legend.AddEntry(stacks["siglines"+str(icat)][index],str(samples[itype].displayname),"l"); 
+ 
             lineorder = stacks["bkglines"+str(icat)].keys()
             lineorder.sort()
             lineorder.reverse()
@@ -812,43 +862,75 @@ def Plot(num,printsuffix="",printcat=-1):
                 stacks["bkglines"+str(icat)][index].Draw("histsame")
                 if dolegend and icat==0:
                     legend.AddEntry(stacks["bkglines"+str(icat)][index],str(samples[itype].displayname),"f"); 
-            
-
+                if dodivide:
+                    if (index == lineorder[0]):
+                        mcTot[icat] = stacks["bkglines"+str(icat)][index].Clone("mcTot")
+                    else:
+                        mcTot[icat].Add(stacks["bkglines"+str(icat)][index])
+ 
             lineorder = stacks["siglines"+str(icat)].keys()
             lineorder.sort()
             lineorder.reverse()
             for index in lineorder:
                 itype=index[1]
                 stacks["siglines"+str(icat)][index].Draw("histsame")
-       
-            
+                if dodivide:
+                    if (index == lineorder[0] and mcTot[icat] == ""):
+                        mcTot[icat] = stacks["siglines"+str(icat)][index].Clone("mcTot")
+                    else:
+                        mcTot[icat].Add(stacks["siglines"+str(icat)][index])
+ 
             lineorder = stacks["datalines"+str(icat)].keys()
             lineorder.sort()
             lineorder.reverse()
             for index in lineorder:
                 itype=index[1]
                 stacks["datalines"+str(icat)][index].Draw("epsame")
+ 
+            if dodivide:
+                cat = (icat%Ncol)+1 + ((icat/Ncol)+1)*Ncol
+                can.cd(cat)
+                can.GetPad(cat).SetGrid(True)
+                dataTot[icat].Sumw2()
+                mcTot[icat].Sumw2()
+                dataTot[icat].Divide(mcTot[icat])
+                dataTot[icat].SetMarkerColor(4)
+                dataTot[icat].SetLineColor(4)
+                dataTot[icat].SetLineWidth(3)
+                dataTot[icat].SetMaximum(2)
+                dataTot[icat].SetMinimum(0)
+                dataTot[icat].SetTitle('')
+                dataTot[icat].GetXaxis().SetTitle('')
+                dataTot[icat].GetYaxis().SetTitle('')
+                dataTot[icat].Draw('PE')
+
+            if dolegend:
+                if dodivide:
+                    cat = (icat%Ncol)+1+(icat/Ncol)*Ncol
+                    can.cd(cat)
+                legend.Draw()
+ 
+            if dotext:
+                if dodivide:
+                    cat = (icat%Ncol)+1+(icat/Ncol)*Ncol
+                    can.cd(cat)
+                plottext.Draw()
         
-            
-            if docats:            
+            if doline:
+                if dodivide:
+                    cat = (icat%Ncol)+1+(icat/Ncol)*Ncol
+                    can.cd(cat)
+                cutline.SetLineWidth(4*plotscale)
+                cutline.SetLineColor(633)
+                cutline.DrawLine(linex,0.0,linex,stackmax/1.1);
+ 
+            if docats: 
                 can.cd(icat+1).Modified()
                 can.cd(icat+1).Update()
             else:
                 can.cd().Modified()
                 can.cd().Update()
-                
 
-            if dolegend:
-                legend.Draw()
-
-            if dotext:
-                plottext.Draw()
-        
-            if doline:
-                cutline.SetLineWidth(4*plotscale)
-                cutline.SetLineColor(633)
-                cutline.DrawLine(linex,0.0,linex,stackmax/1.1);
-            
     can.cd()    
     can.Update()
     if printsuffix is not "":
@@ -1204,7 +1286,7 @@ def NextPlot():
 
 def ReDraw():
     global plotscale
-    plotscale=xsize/1000
+    plotscale=max(1, xsize/1000)
     if doreplot==True:
         num=cur_plot.index
         Plot(num)
@@ -1218,18 +1300,14 @@ def WriteCat(suffix, icat):
     Plot(num,suffix,icat)
 
 
-
-
-
-
 option="START"
 ENDLIST=[".q","q","quit","end","exit"]
 
 while option not in ENDLIST:
-    try:
+    #try:
         FindFunction(option)
-    except:
-        print "Option",option,"failed to run."
-    option=str(raw_input("Enter option:  "))
+    #except:
+    #    print "Option",option,"failed to run."
+        option=str(raw_input("Enter option:  "))
 
 
