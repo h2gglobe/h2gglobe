@@ -513,6 +513,8 @@ void StatAnalysis::buildBkgModel(LoopAll& l, const std::string & postfix)
     l.rooContainer->AddRealVar("CMS_hgg_lin0"+postfix,-0.01,-1.5,1.5);
     l.rooContainer->AddFormulaVar("CMS_hgg_modlin0"+postfix,"@0*@0","CMS_hgg_lin0"+postfix);
 
+    l.rooContainer->AddRealVar("CMS_hgg_plaw0"+postfix,0.01,-10,10);
+
     // prefix for models parameters
     std::map<int,std::string> parnames;
     parnames[1] = "modlin";
@@ -521,7 +523,8 @@ void StatAnalysis::buildBkgModel(LoopAll& l, const std::string & postfix)
     parnames[4] = "modquartic";
     parnames[5] = "modpol5_";
     parnames[6] = "modpol6_";
-    
+    parnames[-1] = "plaw";
+
     // map order to categories flags + parameters names
     std::map<int, std::pair<std::vector<int>, std::vector<std::string> > > catmodels;
     // fill the map
@@ -536,10 +539,18 @@ void StatAnalysis::buildBkgModel(LoopAll& l, const std::string & postfix)
 	    // by default no category has the new model
 	    catflags.resize(nCategories_, 0);
 	    std::string & parname = parnames[catmodel];
-	    for(int iorder = 0; iorder<catmodel; ++iorder) {
-		catpars.push_back( Form( "CMS_hgg_%s%d%s", parname.c_str(), iorder, +postfix.c_str() ) );
+	    if( catmodel > 0 ) {
+		for(int iorder = 0; iorder<catmodel; ++iorder) {
+		    catpars.push_back( Form( "CMS_hgg_%s%d%s", parname.c_str(), iorder, +postfix.c_str() ) );
+		}
+	    } else {
+		if( catmodel != -1 ) {
+		    std::cout << "The only supported negative bkg poly order is -1, ie 1-parmeter power law" << std::endl;
+                    assert( 0 );
+                }
+		catpars.push_back( Form( "CMS_hgg_%s%d%s", parname.c_str(), 0, +postfix.c_str() ) );
 	    }
-	} else {
+	} else if ( catmodel != -1 ) {
 	    assert( catflags.size() == nCategories_ && catpars.size() == catmodel );
 	}
 	// chose category order
@@ -553,9 +564,15 @@ void StatAnalysis::buildBkgModel(LoopAll& l, const std::string & postfix)
 	std::vector<int> & catflags = modit->second.first;
 	std::vector<std::string> & catpars = modit->second.second;
 	
-	l.rooContainer->AddSpecificCategoryPdf(&catflags[0],"data_pol_model"+postfix,
-					       "0","CMS_hgg_mass",catpars,70+catpars.size()); 
-	// >= 71 means RooBernstein of order >= 1
+	if( modit->first > 0 ) {
+	    l.rooContainer->AddSpecificCategoryPdf(&catflags[0],"data_pol_model"+postfix,
+						   "0","CMS_hgg_mass",catpars,70+catpars.size()); 
+	    // >= 71 means RooBernstein of order >= 1
+	} else {
+            l.rooContainer->AddSpecificCategoryPdf(&catflags[0],"data_pol_model"+postfix,
+                                                   "0","CMS_hgg_mass",catpars,6);
+            // 6 is power law                                                                                                                     
+        }
     }
 }
 
