@@ -4233,6 +4233,7 @@ bool LoopAll::ElectronMVACuts(int el_ind, int vtx_ind){
     if(thiseta>2.5 || (thiseta>1.442 && thiseta<1.566)) return pass;
 
     double Aeff=0.;
+    /*
     if(thiseta<1.0)                   Aeff=0.10;
     if(thiseta>=1.0 && thiseta<1.479) Aeff=0.12;
     if(thiseta>=1.479 && thiseta<2.0) Aeff=0.085;
@@ -4240,6 +4241,14 @@ bool LoopAll::ElectronMVACuts(int el_ind, int vtx_ind){
     if(thiseta>=2.2 && thiseta<2.3)   Aeff=0.12;
     if(thiseta>=2.3 && thiseta<2.4)   Aeff=0.12;
     if(thiseta>=2.4)                  Aeff=0.13;
+    */
+    if(thiseta<1.0)                   Aeff=0.135;
+    if(thiseta>=1.0 && thiseta<1.479) Aeff=0.168;
+    if(thiseta>=1.479 && thiseta<2.0) Aeff=0.068;
+    if(thiseta>=2.0 && thiseta<2.2)   Aeff=0.116;
+    if(thiseta>=2.2 && thiseta<2.3)   Aeff=0.162;
+    if(thiseta>=2.3 && thiseta<2.4)   Aeff=0.241;
+    if(thiseta>=2.4)                  Aeff=0.23;
     float thisiso=el_std_pfiso_charged[el_ind]+std::max(el_std_pfiso_neutral[el_ind]+el_std_pfiso_photon[el_ind]-rho*Aeff,0.);
     
     if(GFDEBUG) std::cout<<"Passes el iso/pt?  iso pt "<<thisiso<<" "<<thispt<<std::endl;
