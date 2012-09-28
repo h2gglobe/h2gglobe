@@ -19,12 +19,12 @@ subleadEtVHhadCut=25
 ## Lepton tag
 includeVHlep=0
 leadEtVHlepCut=45
-subleadEtVHlepCut=25
+subleadEtVHlepCut=30
 
 ## MET tag
 includeVHmet=0
 leadEtVHmetCut=45
-subleadEtVHmetCut=25
+subleadEtVHmetCut=30
 
 doKFactorSmear=0
 doKFactorSyst=0
