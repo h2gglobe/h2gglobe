@@ -4011,8 +4011,8 @@ int LoopAll::MuonSelection2012B(){
 
 bool LoopAll::MuonPhotonCuts2012B(TLorentzVector& pho1, TLorentzVector& pho2, TLorentzVector* thismu){
    
-    if(pho1.DeltaR(*thismu)<0.5) return false;
-    if(pho2.DeltaR(*thismu)<0.5) return false;   
+    if(pho1.DeltaR(*thismu)<1.0) return false;
+    if(pho2.DeltaR(*thismu)<1.0) return false;   
 
     return true;
 }
@@ -4270,12 +4270,12 @@ bool LoopAll::ElectronMVACuts(int el_ind, int vtx_ind){
 
 bool LoopAll::ElectronPhotonCuts2012B(TLorentzVector& pho1, TLorentzVector& pho2, TLorentzVector& ele){
     bool pass=false;
-    if( pho1.DeltaR(ele) <= 0.5) return pass;
-    if( pho2.DeltaR(ele) <= 0.5) return pass;
+    if( pho1.DeltaR(ele) <= 1.0) return pass;
+    if( pho2.DeltaR(ele) <= 1.0) return pass;
     TLorentzVector elpho1=ele + pho1;
     TLorentzVector elpho2=ele + pho2;
-    if( fabs(elpho1.M() - 91.19) <= 5) return pass;
-    if( fabs(elpho2.M() - 91.19) <= 5) return pass;
+    if( fabs(elpho1.M() - 91.19) <= 10) return pass;
+    if( fabs(elpho2.M() - 91.19) <= 10) return pass;
     
     pass=true;
     return pass;
