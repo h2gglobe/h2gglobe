@@ -691,8 +691,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 
         bool isEBEB  = (lead_p4.Eta() < 1.4442 ) && fabs(sublead_p4.Eta()<1.4442);
         category = GetBDTBoundaryCategory(diphobdt_output,isEBEB,VBFevent);
-        if (diphobdt_output>0.05) { 
-        //if (diphobdt_output>=bdtCategoryBoundaries.back()) { 
+        if (diphobdt_output>=bdtCategoryBoundaries.back()) { 
 	        computeExclusiveCategory(l,category,diphoton_index,Higgs.Pt()); 
 	    }
 	
