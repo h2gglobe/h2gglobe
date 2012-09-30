@@ -823,48 +823,57 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 	VBFevent = false;
 	VHhadevent = false;
 	VHmetevent = false; //met at analysis step
+        
+    int muVtx=-1;
+    int elVtx=-1;
 	
 	// lepton tag
 	if(includeVHlep){
-	    diphotonVHlep_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVHlepCut, subleadEtVHlepCut, 4, false, &smeared_pho_energy[0], true, true );
 	    //Add tighter cut on dr to tk
-	    if(l.pho_drtotk_25_99[l.dipho_leadind[diphotonVHlep_id]] < 1 || l.pho_drtotk_25_99[l.dipho_subleadind[diphotonVHlep_id]] < 1) diphotonVHlep_id = -1;
 	    if(dataIs2011){
+	        diphotonVHlep_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVHlepCut, subleadEtVHlepCut, 4, false, &smeared_pho_energy[0], true, true );
+	        if(l.pho_drtotk_25_99[l.dipho_leadind[diphotonVHlep_id]] < 1 || l.pho_drtotk_25_99[l.dipho_subleadind[diphotonVHlep_id]] < 1) diphotonVHlep_id = -1;
 	        VHmuevent=MuonTag2011(l, diphotonVHlep_id, &smeared_pho_energy[0]);
 	        VHelevent=ElectronTag2011(l, diphotonVHlep_id, &smeared_pho_energy[0]);
 	    } else {
-	        VHmuevent=MuonTag2012(l, diphotonVHlep_id, &smeared_pho_energy[0],lep_sync);
-	        VHelevent=ElectronTag2012(l, diphotonVHlep_id, &smeared_pho_energy[0],lep_sync);
+	        //VHmuevent=MuonTag2012(l, diphotonVHlep_id, &smeared_pho_energy[0],lep_sync);
+	        //VHelevent=ElectronTag2012(l, diphotonVHlep_id, &smeared_pho_energy[0],lep_sync);
+            VHmuevent=MuonTag2012B(l, diphotonVHlep_id, muVtx, VHmuevent_cat, &smeared_pho_energy[0], lep_sync, false);
+            if(!VHmuevent){
+                VHelevent=ElectronTag2012B(l, diphotonVHlep_id, elVtx, VHelevent_cat, &smeared_pho_energy[0], lep_sync, false);
 	    }
 	}
 	
 	//Met tag //met at analysis step
-	if(includeVHmet){
-	    diphotonVHmet_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVHmetCut, subleadEtVHmetCut, 4, false, &smeared_pho_energy[0], true);
-	    if(diphotonVHmet_id>-1) {
-		TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphotonVHmet_id], l.dipho_vtxind[diphoton_id] , &smeared_pho_energy[0]);
-		TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphotonVHmet_id], l.dipho_vtxind[diphoton_id] , &smeared_pho_energy[0]);	    
-		TLorentzVector TwoPhoton_Vector = (lead_p4) + (sublead_p4);  
-		float m_gamgam = TwoPhoton_Vector.M();
-                
-                PhotonAnalysis::MetCorrections2012_Simple( l, lead_p4 , sublead_p4 );
-                
-		if (m_gamgam>100 && m_gamgam<180 && ( lead_p4.Pt() > 45*m_gamgam/120.) && sublead_p4.Pt() > 25. && l.shiftscaleMET_pt>70) {
-		    met_sync << " run: " << l.run
-			     << "\tevent: " << l.event
-			     << "\tleadPt: " << lead_p4.Pt()
-			     << "\tsubleadPt: " << sublead_p4.Pt()
-			     << "\tdiphomass: " << m_gamgam
-			     << "\traw_met: " << l.met_pfmet
-			     << "\traw_met_phi: " << l.met_phi_pfmet
-			     << "\tshifted_met: " << l.shiftMET_pt
-			     << "\tcorrected_met: " << l.shiftscaleMET_pt
-			     << "\tcorrected_met_phi: " << l.shiftscaleMET_phi
-			     << "\tjet_algoPF1_n: " << l.jet_algoPF1_n
-			     << endl;
-	        }		
-		VHmetevent=METTag2012(l, diphotonVHmet_id, &smeared_pho_energy[0]);
-	    }
+    if(includeVHmet && !VHmuevent && !VHmuevent) {
+        VHmetevent=METTag2012(l, diphotonVHmet_id, &smeared_pho_energy[0]);
+    }
+	//if(includeVHmet){
+	    //diphotonVHmet_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVHmetCut, subleadEtVHmetCut, 4, false, &smeared_pho_energy[0], true);
+	    //if(diphotonVHmet_id>-1) {
+		//TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphotonVHmet_id], l.dipho_vtxind[diphoton_id] , &smeared_pho_energy[0]);
+		//TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphotonVHmet_id], l.dipho_vtxind[diphoton_id] , &smeared_pho_energy[0]);	    
+		//TLorentzVector TwoPhoton_Vector = (lead_p4) + (sublead_p4);  
+		//float m_gamgam = TwoPhoton_Vector.M();
+        //        
+        //        PhotonAnalysis::MetCorrections2012_Simple( l, lead_p4 , sublead_p4 );
+        //        
+		//if (m_gamgam>100 && m_gamgam<180 && ( lead_p4.Pt() > 45*m_gamgam/120.) && sublead_p4.Pt() > 25. && l.shiftscaleMET_pt>70) {
+		//    met_sync << " run: " << l.run
+		//	     << "\tevent: " << l.event
+		//	     << "\tleadPt: " << lead_p4.Pt()
+		//	     << "\tsubleadPt: " << sublead_p4.Pt()
+		//	     << "\tdiphomass: " << m_gamgam
+		//	     << "\traw_met: " << l.met_pfmet
+		//	     << "\traw_met_phi: " << l.met_phi_pfmet
+		//	     << "\tshifted_met: " << l.shiftMET_pt
+		//	     << "\tcorrected_met: " << l.shiftscaleMET_pt
+		//	     << "\tcorrected_met_phi: " << l.shiftscaleMET_phi
+		//	     << "\tjet_algoPF1_n: " << l.jet_algoPF1_n
+		//	     << endl;
+	    //    }		
+		//VHmetevent=METTag2012(l, diphotonVHmet_id, &smeared_pho_energy[0]);
+	    //}
 	}
 	
 	// VBF+hadronic VH
@@ -897,12 +906,17 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 	}
 	
 	// priority of analysis:  lepton tag, vbf, VH hadronic
-	if(includeVHlep && (VHelevent || VHmuevent)) {
-	    diphoton_id = diphotonVHlep_id;
+    if(includeVHlep&&VHmuevent){
+        diphoton_id = diphotonVHlep_id;
+        l.dipho_vtxind[diphoton_id] = muVtx;
+    } else if (includeVHlep&&VHelevent){
+        diphoton_id = diphotonVHlep_id;
+        l.dipho_vtxind[diphoton_id] = elVtx;
 	} else if(includeVBF&&VBFevent) {
 	    diphoton_id = diphotonVBF_id;	
 	} else if(includeVHmet&&VHmetevent) {
 	    diphoton_id = diphotonVHmet_id;
+        l.dipho_vtxind[diphoton_id] = 0;
 	} else if(includeVHhad&&VHhadevent) {
 	    diphoton_id = diphotonVHhad_id;
 	}

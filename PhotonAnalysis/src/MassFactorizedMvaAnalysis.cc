@@ -609,6 +609,9 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
             l.dipho_vtxind[diphoton_id] = elVtx;
         } else if(includeVBF&&VBFevent) {
             diphoton_id = diphotonVBF_id;
+	    } else if(includeVHmet&&VHmetevent) {
+	        diphoton_id = diphotonVHmet_id;
+            l.dipho_vtxind[diphoton_id] = 0;
         }
     }
     // if we selected any di-photon, compute the Higgs candidate kinematics
