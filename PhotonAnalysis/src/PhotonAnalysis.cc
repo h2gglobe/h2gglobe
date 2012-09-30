@@ -2511,7 +2511,7 @@ bool PhotonAnalysis::ElectronTag2012B(LoopAll& l, int& diphotonVHlep_id, int& el
                 diphotonVHlep_id = l.DiphotonMITPreSelection(leadEtVHlepCut,subleadEtVHlepCut,phoidMvaCut,
                     applyPtoverM, &smeared_pho_energy[0], elVtx, true, false, veto_indices);
             } else {
-                diphotonVHlep_id = l.DiphotonCiCSelection( l.phoLOOSE, l.phoLOOSE, leadEtVHlepCut,subleadEtVHlepCut, 4, 
+                diphotonVHlep_id = l.DiphotonCiCSelection( l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVHlepCut,subleadEtVHlepCut, 4, 
                     applyPtoverM, &smeared_pho_energy[0], true, elVtx, veto_indices);
             }
        
@@ -2632,9 +2632,9 @@ bool PhotonAnalysis::ElectronStudies2012B(LoopAll& l, float* smeared_pho_energy,
 
     if(mvaselection) {
         diphotonVHlep_id = l.DiphotonMITPreSelection(leadEtVHlepCut,subleadEtVHlepCut,phoidMvaCut,
-            applyPtoverM, &smeared_pho_energy[0], elVtx, true, false, veto_indices);
+            applyPtoverM, &smeared_pho_energy[0], elVtx, false, false, veto_indices);
     } else {
-        diphotonVHlep_id = l.DiphotonCiCSelection( l.phoLOOSE, l.phoLOOSE, leadEtVHlepCut,subleadEtVHlepCut, 4, 
+        diphotonVHlep_id = l.DiphotonCiCSelection( l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVHlepCut,subleadEtVHlepCut, 4, 
             applyPtoverM, &smeared_pho_energy[0], true, elVtx, veto_indices);
     }
        
@@ -2898,7 +2898,7 @@ bool PhotonAnalysis::ElectronTagStudies2012(LoopAll& l, int diphotonVHlep_id, fl
             l.PhotonsToVeto(el_sc, drtoveto, veto_indices);
 
             diphotonVHlep_id = l.DiphotonMITPreSelection(leadptcut,subleadptcut,-0.2,
-                    applyPtoverM, &smeared_pho_energy[0], elVtx, true, false, veto_indices);
+                    applyPtoverM, &smeared_pho_energy[0], elVtx, false, false, veto_indices);
             //    diphotonVHlep_id = l.DiphotonCiCSelection( l.phoLOOSE, l.phoLOOSE, leadEtVHlepCut,subleadEtVHlepCut, 4, 
             //        applyPtoverM, &smeared_pho_energy[0], true, elVtx, veto_indices);
        
@@ -3354,9 +3354,9 @@ bool PhotonAnalysis::MuonTag2012B(LoopAll& l, int& diphotonVHlep_id, int& muVtx,
     
         if(mvaselection) {
             diphotonVHlep_id = l.DiphotonMITPreSelection(leadEtVHlepCut,subleadEtVHlepCut,phoidMvaCut,
-                applyPtoverM, &smeared_pho_energy[0], muVtx, true);
+                applyPtoverM, &smeared_pho_energy[0], muVtx, false);
         } else {
-            diphotonVHlep_id = l.DiphotonCiCSelection( l.phoLOOSE, l.phoLOOSE, leadEtVHlepCut,subleadEtVHlepCut, 4, 
+            diphotonVHlep_id = l.DiphotonCiCSelection( l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVHlepCut,subleadEtVHlepCut, 4, 
                 applyPtoverM, &smeared_pho_energy[0], true, muVtx);
         }
        
@@ -3601,9 +3601,9 @@ bool PhotonAnalysis::METTag2012B(LoopAll& l, int& diphotonVHmet_id, int& met_cat
     int metVtx=0;  // use default
     if(mvaselection) {
         diphotonVHmet_id = l.DiphotonMITPreSelection(leadEtVHmetCut,subleadEtVHmetCut,phoidMvaCut,
-            applyPtoverM, &smeared_pho_energy[0], metVtx, true);
+            applyPtoverM, &smeared_pho_energy[0], metVtx, false);
     } else {
-        diphotonVHmet_id = l.DiphotonCiCSelection( l.phoLOOSE, l.phoLOOSE, leadEtVHmetCut,subleadEtVHmetCut, 4, 
+        diphotonVHmet_id = l.DiphotonCiCSelection( l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVHmetCut,subleadEtVHmetCut, 4, 
             applyPtoverM, &smeared_pho_energy[0], true, metVtx);
     }
     
