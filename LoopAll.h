@@ -1119,7 +1119,7 @@ int MuonSelection(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind);
 int MuonSelection2012(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind);
 bool MuonPhotonCuts2012(TLorentzVector& pho1, TLorentzVector& pho2, TLorentzVector* thismu);
 //HCP2012
-int MuonSelection2012B();
+int MuonSelection2012B(float muptcut=20.);
 bool MuonPhotonCuts2012B(TLorentzVector& pho1, TLorentzVector& pho2, TLorentzVector* thismu);
 bool MuonTightID2012(int indmu, int vtxind=-1);
 bool MuonIsolation2012(int indmu, float mupt, bool isTight=false);
@@ -1133,7 +1133,7 @@ int ElectronSelection2012(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind
 bool ElectronLooseEGammaID(int electronindex, int vertexindex=-1);
 bool ElectronTightEGammaID(int electronindex, int vertexindex=-1);
 //HCP2012
-int ElectronSelectionMVA2012();
+int ElectronSelectionMVA2012(float elptcut=20.);
 bool ElectronMVACuts(int el_ind, int vtx_ind=-1);
 bool ElectronPhotonCuts2012B(TLorentzVector& pho1, TLorentzVector& pho2, TLorentzVector& ele);
 int FindElectronVertex(int el_ind);

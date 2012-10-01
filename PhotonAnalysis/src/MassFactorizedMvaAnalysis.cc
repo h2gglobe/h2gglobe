@@ -580,8 +580,10 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
             //ElectronTagStudies2012(l, diphotonVHlep_id, &smeared_pho_energy[0], true, eventweight, myweight, jentry);
         }
 
-        if(includeVHmet && !VHmuevent && !VHmuevent) {
-            VHmetevent=METTag2012(l, diphotonVHmet_id, &smeared_pho_energy[0]);
+        if(includeVHmet && !VHmuevent && !VHmuevent && !dataIs2011) {
+            //VHmetevent=METTag2012(l, diphotonVHmet_id, &smeared_pho_energy[0]);
+            int met_cat=0;
+            VHmetevent=METTag2012B(l, diphotonVHmet_id, met_cat, &smeared_pho_energy[0], met_sync, true, phoidMvaCut);
         }
 
         // VBF

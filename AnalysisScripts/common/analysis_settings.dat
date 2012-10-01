@@ -17,9 +17,11 @@ leadEtVHhadCut=60
 subleadEtVHhadCut=25
 
 ## Lepton tag
-includeVHlep=0
+includeVHlep=1
 leadEtVHlepCut=45
 subleadEtVHlepCut=30
+nElectronCategories=1 
+nMuonCategories=1 
 
 ## MET tag
 includeVHmet=0

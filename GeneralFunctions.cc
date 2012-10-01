@@ -3736,7 +3736,7 @@ void LoopAll::PhotonsToVeto(TLorentzVector* veto_p4, float drtoveto, std::vector
 
     for(int ipho=0; ipho<pho_n; ipho++){
         TLorentzVector* photon = (TLorentzVector*) pho_p4->At(ipho);
-        if(photon->DeltaR(*veto_p4)<drtoveto) {
+        if(photon->DeltaR(*veto_p4)<drtoveto || pho_drtotk_25_99[ipho]<1.0) {
             vetos.push_back(true);
         } else {
             vetos.push_back(false);
@@ -3979,7 +3979,7 @@ bool LoopAll::MuonPhotonCuts2012(TLorentzVector& pho1, TLorentzVector& pho2, TLo
 }
 
 
-int LoopAll::MuonSelection2012B(){
+int LoopAll::MuonSelection2012B(float muptcut){
 
     int mymu = -1;  
     TLorentzVector* thismu;
@@ -3996,7 +3996,7 @@ int LoopAll::MuonSelection2012B(){
         thispt = thismu->Pt();
 
         if(thiseta>2.4) continue;
-        if(thispt<20) continue;
+        if(thispt<muptcut) continue;
 
         if(!MuonTightID2012(indmu)) continue;
         if(!MuonIsolation2012(indmu, thispt)) continue;
@@ -4196,16 +4196,19 @@ bool LoopAll::ElectronPhotonCuts(TLorentzVector& pho1, TLorentzVector& pho2, TLo
 }
 
 
-int LoopAll::ElectronSelectionMVA2012(){
+int LoopAll::ElectronSelectionMVA2012(float elptcut){
     
     int el_ind=-1;
     float bestmvaval=-2;
 
     for(int iel=0; iel<el_std_n; iel++){
         if(ElectronMVACuts(iel)){
-            if(bestmvaval<el_std_mva_nontrig[iel]) {
-                bestmvaval=el_std_mva_nontrig[iel];
-                el_ind=iel;
+            TLorentzVector* thiselp4 = (TLorentzVector*) el_std_p4->At(iel);
+            if(elptcut>thiselp4->Pt()){
+                if(bestmvaval<el_std_mva_nontrig[iel]) {
+                    bestmvaval=el_std_mva_nontrig[iel];
+                    el_ind=iel;
+                }
             }
         }
     }
@@ -4229,7 +4232,6 @@ bool LoopAll::ElectronMVACuts(int el_ind, int vtx_ind){
     float thiseta = fabs(thissc->Eta());
     float thispt = thisel->Pt();
 
-    if(thispt<20) return pass;
     if(thiseta>2.5 || (thiseta>1.442 && thiseta<1.566)) return pass;
 
     double Aeff=0.;
