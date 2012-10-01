@@ -66,10 +66,11 @@ StaticMin=False
 StaticMax=False
 dotitles=False
 cattitles=["EB-EB","!(EB-EB)"]
+dointegrals=False
 
 
 linex=-1
-
+dodata=True
 
 
 DoBigLegend=False
@@ -197,7 +198,7 @@ class SampleInfo:
    
 
 
-PLOTPROPS=["dolog","dogridx","dogridy","doline","domergecats","doreplot","dotitles","doxtitle","doytitle","dooflow","douflow","dorebin","StaticMin","StaticMax","dolegend","dotext", "dodivide", "Normalize" ,"Debug","DebugNew"]
+PLOTPROPS=["dolog","dogridx","dogridy","doline","domergecats","doreplot","dointegrals","dotitles","doxtitle","doytitle","dooflow","douflow","dorebin","StaticMin","StaticMax","dolegend","dotext","dodata","dodivide", "Normalize" ,"Debug","DebugNew"]
 def FindFunction(option):
     print option
     if option == "START":
@@ -564,7 +565,7 @@ def ReadInputFiles(rootfile):
 def Plot(num,printsuffix="",printcat=-1):
     global cur_plot
     cur_plot=plotinfos[int(num)]
-    #print num, cur_plot.plotvarname
+    print num, cur_plot.plotvarname
     Ncol,Nrow=cur_plot.ColsRows()
 
     can.Clear()
@@ -627,7 +628,10 @@ def Plot(num,printsuffix="",printcat=-1):
                     can.cd(ican).SetGridy(dogridy)
                 
     stacks={}
-    stacktypes=["bkg","sig","data"]
+    if dodata:
+        stacktypes=["bkg","sig","data"]
+    else:
+        stacktypes=["bkg","sig"]
     first=1
     stackmaxima={}
     if domergecats:
@@ -660,6 +664,10 @@ def Plot(num,printsuffix="",printcat=-1):
     else:
         cats=[]
         cats.append(singlecat)
+    
+    if dointegrals:
+        stackintegrals={}
+
 
     if domergecats:
         stackmaxima[0].sort()
@@ -669,15 +677,14 @@ def Plot(num,printsuffix="",printcat=-1):
         else:
             stackmax=stackmaxima[0][-1]*maxscaleup
         if DebugNew:
-            print "stackmaxima",stackmaxima
-            print "stackmax",stackmax
+            print "mergecats stackmaxima",stackmaxima
+            print "mergecats stackmax",stackmax
 
       
-        stacks["bkg"].Draw("axis")
+        stacks["bkg"].Draw("hist")
         ROOT.gStyle.SetOptStat(0)
         
-        if StaticMax:
-            stacks["bkg"].SetMaximum(stackmax)
+        stacks["bkg"].SetMaximum(stackmax)
             
         if StaticMin:
             stacks["bkg"].SetMinimum(stackmin)
@@ -699,15 +706,16 @@ def Plot(num,printsuffix="",printcat=-1):
         stacks["bkg"].SetTitle("All Categories")
 
         dataIntegral = -1
-        lineorder = stacks["datalines"].keys()
-        lineorder.sort()
-        lineorder.reverse()
-        for index in lineorder:
-            itype=index[1]
-            if dolegend:
-                legend.AddEntry(stacks["datalines"][index],str(samples[itype].displayname),"ep");
-            dataIntegral = stacks["datalines"+str(icat)][index].Integral()
-            #stacks["datalines"+str(icat)][index].Draw("ep same")
+       
+        if dodata: 
+            lineorder = stacks["datalines"].keys()
+            lineorder.sort()
+            lineorder.reverse()
+            for index in lineorder:
+                itype=index[1]
+                if dolegend:
+                    legend.AddEntry(stacks["datalines"][index],str(samples[itype].displayname),"ep"); 
+                dataIntegral = stacks["datalines"+str(icat)][index].Integral()
         
         lineorder = stacks["siglines"].keys()
         lineorder.sort()
@@ -738,7 +746,11 @@ def Plot(num,printsuffix="",printcat=-1):
             stacks["bkglines"][index].Draw("histsame")
             if dolegend:
                 legend.AddEntry(stacks["bkglines"][index],str(samples[itype].displayname),"f"); 
-
+        
+        if dointegrals:
+            oflowbin = int(stacks["bkglines"][lineorder[0]].GetNbinsX()+1)
+            stackintegrals["bkg"]=stacks["bkglines"][lineorder[0]].Integral(0,oflowbin)
+        
         lineorder = stacks["siglines"].keys()
         lineorder.sort()
         lineorder.reverse()
@@ -747,13 +759,23 @@ def Plot(num,printsuffix="",printcat=-1):
             stacks["siglines"][index].Draw("histsame")
             #stacks["siglines"+str(icat)][index].Draw("histsame")
        
-        lineorder = stacks["datalines"].keys()
-        lineorder.sort()
-        lineorder.reverse()
-        for index in lineorder:
-            itype=index[1]
-            stacks["datalines"][index].Draw("epsame")
-            #stacks["datalines"+str(icat)][index].Draw("epsame")
+        if dointegrals:
+            oflowbin = int(stacks["siglines"][lineorder[0]].GetNbinsX()+1)
+            stackintegrals["sig"]=stacks["siglines"][lineorder[0]].Integral(0,oflowbin)
+       
+        
+        if dodata: 
+            lineorder = stacks["datalines"].keys()
+            lineorder.sort()
+            lineorder.reverse()
+            for index in lineorder:
+                itype=index[1]
+                stacks["datalines"][index].Draw("epsame")
+                #stacks["datalines"+str(icat)][index].Draw("epsame")
+            
+            if dointegrals:
+                oflowbin = int(stacks["datalines"][lineorder[0]].GetNbinsX()+1)
+                stackintegrals["data"]=stacks["datalines"][lineorder[0]].Integral(0,oflowbin)
         
         if dolegend:
             legend.Draw()
@@ -778,21 +800,25 @@ def Plot(num,printsuffix="",printcat=-1):
             else:
                 stackmax=stackmaxima[icat][-1]*maxscaleup
             if DebugNew:
-                print "stackmaxima",stackmaxima
-                print "stackmax",stackmax
+                print "docats stackmaxima",stackmaxima
+                print "docats stackmax",stackmax
 
             if docats:
                 if (not dodivide):
+                    if DebugNew:
+                        print "don't divide"
                     can.cd(icat+1)
                 else:
                     cat = (icat%Ncol)+1 +(icat/Ncol)*Ncol
+                    if DebugNew:
+                        print "divide"
                     can.cd(cat)
        
             # Matteo no stack is plotted to allow normalization (and stats are not plot as well)
             ROOT.gStyle.SetOptStat(0)
-            stacks["bkg"+str(icat)].Draw("axis")
-
+            stacks["bkg"+str(icat)].Draw("hist")
             stacks["bkg"+str(icat)].SetMaximum(stackmax)
+
             if StaticMin:
                 stacks["bkg"+str(icat)].SetMinimum(stackmin)
 
@@ -818,20 +844,24 @@ def Plot(num,printsuffix="",printcat=-1):
                 stacks["bkg"+str(icat)].SetTitle("")
 
             dataIntegral = -1
-            lineorder = stacks["datalines"+str(icat)].keys()
-            lineorder.sort()
-            lineorder.reverse()
-            for index in lineorder:
-                itype=index[1]
-                if dolegend and icat==0:
-                    legend.AddEntry(stacks["datalines"+str(icat)][index],str(samples[itype].displayname),"ep");
-                dataIntegral = stacks["datalines"+str(icat)][index].Integral()
-                #stacks["datalines"+str(icat)][index].Draw("ep same")
-                if dodivide:
-                    if (index == lineorder[0]):
-                        dataTot[icat] =  stacks["datalines"+str(icat)][index].Clone("dataTot")
-                    else:
-                        dataTot[icat].Add(stacks["datalines"+str(icat)][index])
+            if dodata: 
+                lineorder = stacks["datalines"+str(icat)].keys()
+                lineorder.sort()
+                lineorder.reverse()
+                for index in lineorder:
+                    itype=index[1]
+                    if dolegend and icat==0:
+                        legend.AddEntry(stacks["datalines"+str(icat)][index],str(samples[itype].displayname),"ep"); 
+                    if DebugNew:
+                        print "about to dataIntegral"
+                    dataIntegral = stacks["datalines"+str(icat)][index].Integral()
+                    if DebugNew:
+                        print "have data Integral"
+                    if dodivide:
+                        if (index == lineorder[0]):
+                            dataTot[icat] =  stacks["datalines"+str(icat)][index].Clone("dataTot")
+                        else:
+                            dataTot[icat].Add(stacks["datalines"+str(icat)][index])
  
             lineorder = stacks["siglines"+str(icat)].keys()
             lineorder.sort()
@@ -868,6 +898,14 @@ def Plot(num,printsuffix="",printcat=-1):
                     else:
                         mcTot[icat].Add(stacks["bkglines"+str(icat)][index])
  
+            if dointegrals:
+                oflowbin = int(stacks["bkglines"+str(icat)][lineorder[0]].GetNbinsX()+1)
+                stackintegrals["bkg"+str(icat)]=stacks["bkglines"+str(icat)][lineorder[0]].Integral(0,oflowbin)
+                if DebugNew:
+                    print "stack integrals"
+                    print "last lineorder",lineorder[0]
+                    print "bkg"+str(icat),stackintegrals["bkg"+str(icat)]
+            
             lineorder = stacks["siglines"+str(icat)].keys()
             lineorder.sort()
             lineorder.reverse()
@@ -880,12 +918,21 @@ def Plot(num,printsuffix="",printcat=-1):
                     else:
                         mcTot[icat].Add(stacks["siglines"+str(icat)][index])
  
-            lineorder = stacks["datalines"+str(icat)].keys()
-            lineorder.sort()
-            lineorder.reverse()
-            for index in lineorder:
-                itype=index[1]
-                stacks["datalines"+str(icat)][index].Draw("epsame")
+            if dodata:
+                lineorder = stacks["datalines"+str(icat)].keys()
+                lineorder.sort()
+                lineorder.reverse()
+                for index in lineorder:
+                    itype=index[1]
+                    stacks["datalines"+str(icat)][index].Draw("epsame")
+                
+                if dointegrals:
+                    oflowbin = int(stacks["datalines"+str(icat)][lineorder[0]].GetNbinsX()+1)
+                    stackintegrals["data"+str(icat)]=stacks["datalines"+str(icat)][lineorder[0]].Integral(0,oflowbin)
+                    if DebugNew:
+                        print "stack integrals"
+                        print "last lineorder",lineorder[-1]
+                        print "data"+str(icat),stackintegrals["data"+str(icat)]
  
             if dodivide:
                 cat = (icat%Ncol)+1 + ((icat/Ncol)+1)*Ncol
@@ -930,6 +977,10 @@ def Plot(num,printsuffix="",printcat=-1):
             else:
                 can.cd().Modified()
                 can.cd().Update()
+            
+    if dointegrals:
+        for stackkey in stackintegrals:
+            print stackkey,'%.3e' %stackintegrals[stackkey]
 
     can.cd()    
     can.Update()
@@ -1304,10 +1355,10 @@ option="START"
 ENDLIST=[".q","q","quit","end","exit"]
 
 while option not in ENDLIST:
-    #try:
+    try:
         FindFunction(option)
-    #except:
-    #    print "Option",option,"failed to run."
-        option=str(raw_input("Enter option:  "))
+    except:
+        print "Option",option,"failed to run."
+    option=str(raw_input("Enter option:  "))
 
 
