@@ -4204,7 +4204,7 @@ int LoopAll::ElectronSelectionMVA2012(float elptcut){
     for(int iel=0; iel<el_std_n; iel++){
         if(ElectronMVACuts(iel)){
             TLorentzVector* thiselp4 = (TLorentzVector*) el_std_p4->At(iel);
-            if(elptcut>thiselp4->Pt()){
+            if(elptcut<thiselp4->Pt()){
                 if(bestmvaval<el_std_mva_nontrig[iel]) {
                     bestmvaval=el_std_mva_nontrig[iel];
                     el_ind=iel;
