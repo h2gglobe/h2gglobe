@@ -248,8 +248,8 @@ void Branch_jet_algoPF1_frac04(TTree * tree) { tree->Branch("jet_algoPF1_frac04"
 void Branch_jet_algoPF1_frac05(TTree * tree) { tree->Branch("jet_algoPF1_frac05",&jet_algoPF1_frac05, "jet_algoPF1_frac05[jet_algoPF1_n]/F"); }; 
 void Branch_jet_algoPF1_full_mva(TTree * tree) { tree->Branch("jet_algoPF1_full_mva",&jet_algoPF1_full_mva, "jet_algoPF1_full_mva[jet_algoPF1_n]/F"); }; 
 void Branch_jet_algoPF1_simple_mva(TTree * tree) { tree->Branch("jet_algoPF1_simple_mva",&jet_algoPF1_simple_mva, "jet_algoPF1_simple_mva[jet_algoPF1_n]/F"); }; 
-void Branch_jet_algoPF1_nCharged(TTree * tree) { tree->Branch("jet_algoPF1_nCharged",&jet_algoPF1_nCharged, "jet_algoPF1_nCharged[jet_algoPF1_n]/F"); }; 
-void Branch_jet_algoPF1_nNeutrals(TTree * tree) { tree->Branch("jet_algoPF1_nNeutrals",&jet_algoPF1_nNeutrals, "jet_algoPF1_nNeutrals[jet_algoPF1_n]/F"); }; 
+void Branch_jet_algoPF1_nCharged(TTree * tree) { tree->Branch("jet_algoPF1_nCharged",&jet_algoPF1_nCharged, "jet_algoPF1_nCharged[jet_algoPF1_n]/I"); }; 
+void Branch_jet_algoPF1_nNeutrals(TTree * tree) { tree->Branch("jet_algoPF1_nNeutrals",&jet_algoPF1_nNeutrals, "jet_algoPF1_nNeutrals[jet_algoPF1_n]/I"); }; 
 void Branch_jet_algoPF1_full_wp_level(TTree * tree) { tree->Branch("jet_algoPF1_full_wp_level",&jet_algoPF1_full_wp_level, "jet_algoPF1_full_wp_level[jet_algoPF1_n]/I"); }; 
 void Branch_jet_algoPF1_simple_wp_level(TTree * tree) { tree->Branch("jet_algoPF1_simple_wp_level",&jet_algoPF1_simple_wp_level, "jet_algoPF1_simple_wp_level[jet_algoPF1_n]/I"); }; 
 void Branch_jet_algoPF2_n(TTree * tree) { tree->Branch("jet_algoPF2_n",&jet_algoPF2_n, "jet_algoPF2_n/I"); }; 
@@ -302,6 +302,22 @@ void Branch_jet_algoPF3_nCharged(TTree * tree) { tree->Branch("jet_algoPF3_nChar
 void Branch_jet_algoPF3_nNeutrals(TTree * tree) { tree->Branch("jet_algoPF3_nNeutrals",&jet_algoPF3_nNeutrals, "jet_algoPF3_nNeutrals[jet_algoPF3_n]/F"); }; 
 void Branch_jet_algoPF3_full_wp_level(TTree * tree) { tree->Branch("jet_algoPF3_full_wp_level",&jet_algoPF3_full_wp_level, "jet_algoPF3_full_wp_level[jet_algoPF3_n]/I"); }; 
 void Branch_jet_algoPF3_simple_wp_level(TTree * tree) { tree->Branch("jet_algoPF3_simple_wp_level",&jet_algoPF3_simple_wp_level, "jet_algoPF3_simple_wp_level[jet_algoPF3_n]/I"); }; 
+
+void Branch_jet_algoPF1_csvBtag(TTree * tree) { tree->Branch("jet_algoPF1_csvBtag",&jet_algoPF1_csvBtag, "jet_algoPF1_csvBtag[jet_algoPF1_n]/F"); }; 
+void Branch_jet_algoPF1_csvMvaBtag(TTree * tree) { tree->Branch("jet_algoPF1_csvMvaBtag",&jet_algoPF1_csvMvaBtag, "jet_algoPF1_csvMvaBtag[jet_algoPF1_n]/F"); }; 
+void Branch_jet_algoPF1_jetProbBtag(TTree * tree) { tree->Branch("jet_algoPF1_jetProbBtag",&jet_algoPF1_jetProbBtag, "jet_algoPF1_jetProbBtag[jet_algoPF1_n]/F"); }; 
+void Branch_jet_algoPF1_tcheBtag(TTree * tree) { tree->Branch("jet_algoPF1_tcheBtag",&jet_algoPF1_tcheBtag, "jet_algoPF1_tcheBtag[jet_algoPF1_n]/F"); }; 
+
+void Branch_jet_algoPF2_csvBtag(TTree * tree) { tree->Branch("jet_algoPF2_csvBtag",&jet_algoPF2_csvBtag, "jet_algoPF2_csvBtag[jet_algoPF2_n]/F"); }; 
+void Branch_jet_algoPF2_csvMvaBtag(TTree * tree) { tree->Branch("jet_algoPF2_csvMvaBtag",&jet_algoPF2_csvMvaBtag, "jet_algoPF2_csvMvaBtag[jet_algoPF2_n]/F"); }; 
+void Branch_jet_algoPF2_jetProbBtag(TTree * tree) { tree->Branch("jet_algoPF2_jetProbBtag",&jet_algoPF2_jetProbBtag, "jet_algoPF2_jetProbBtag[jet_algoPF2_n]/F"); }; 
+void Branch_jet_algoPF2_tcheBtag(TTree * tree) { tree->Branch("jet_algoPF2_tcheBtag",&jet_algoPF2_tcheBtag, "jet_algoPF2_tcheBtag[jet_algoPF2_n]/F"); }; 
+
+void Branch_jet_algoPF3_csvBtag(TTree * tree) { tree->Branch("jet_algoPF3_csvBtag",&jet_algoPF3_csvBtag, "jet_algoPF3_csvBtag[jet_algoPF3_n]/F"); }; 
+void Branch_jet_algoPF3_csvMvaBtag(TTree * tree) { tree->Branch("jet_algoPF3_csvMvaBtag",&jet_algoPF3_csvMvaBtag, "jet_algoPF3_csvMvaBtag[jet_algoPF3_n]/F"); }; 
+void Branch_jet_algoPF3_jetProbBtag(TTree * tree) { tree->Branch("jet_algoPF3_jetProbBtag",&jet_algoPF3_jetProbBtag, "jet_algoPF3_jetProbBtag[jet_algoPF3_n]/F"); }; 
+void Branch_jet_algoPF3_tcheBtag(TTree * tree) { tree->Branch("jet_algoPF3_tcheBtag",&jet_algoPF3_tcheBtag, "jet_algoPF3_tcheBtag[jet_algoPF3_n]/F"); }; 
+
 void Branch_l1emiso_n(TTree * tree) { tree->Branch("l1emiso_n",&l1emiso_n,"l1emiso_n/I");  }; 
 void Branch_l1emiso_eta(TTree * tree) { tree->Branch("l1emiso_eta",&l1emiso_eta,"l1emiso_eta[l1emiso_n]/F");  }; 
 void Branch_l1emiso_et(TTree * tree) { tree->Branch("l1emiso_et",&l1emiso_et,"l1emiso_et[l1emiso_n]/F");  }; 

@@ -714,6 +714,25 @@ TBranch *b_jet_algoPF3_nCharged;
 TBranch *b_jet_algoPF3_nNeutrals;
 TBranch *b_jet_algoPF3_full_wp_level;
 TBranch *b_jet_algoPF3_simple_wp_level;
+
+TBranch *b_jet_algoPF1_csvBtag;
+TBranch *b_jet_algoPF1_csvMvaBtag;
+TBranch *b_jet_algoPF1_jetProbBtag;
+TBranch *b_jet_algoPF1_tcheBtag;
+
+TBranch *b_jet_algoPF2_csvBtag;
+TBranch *b_jet_algoPF2_csvMvaBtag;
+TBranch *b_jet_algoPF2_jetProbBtag;
+TBranch *b_jet_algoPF2_tcheBtag;
+
+TBranch *b_jet_algoPF3_csvBtag;
+TBranch *b_jet_algoPF3_csvMvaBtag;
+TBranch *b_jet_algoPF3_jetProbBtag;
+TBranch *b_jet_algoPF3_tcheBtag;
+
+
+
+
 TBranch* b_jet_algoPF1_pfloose;
 TBranch* b_jet_algoPF2_pfloose;
 TBranch* b_jet_algoPF3_pfloose;

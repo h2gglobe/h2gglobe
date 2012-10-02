@@ -324,6 +324,22 @@ Float_t jet_algoPF3_nCharged[MAX_JETS];
 Float_t jet_algoPF3_nNeutrals[MAX_JETS];
 Int_t jet_algoPF3_full_wp_level[MAX_JETS];
 Int_t jet_algoPF3_simple_wp_level[MAX_JETS];
+
+Float_t jet_algoPF1_csvBtag[MAX_JETS];
+Float_t jet_algoPF1_csvMvaBtag[MAX_JETS];
+Float_t jet_algoPF1_jetProbBtag[MAX_JETS];
+Float_t jet_algoPF1_tcheBtag[MAX_JETS];
+
+Float_t jet_algoPF2_csvBtag[MAX_JETS];
+Float_t jet_algoPF2_csvMvaBtag[MAX_JETS];
+Float_t jet_algoPF2_jetProbBtag[MAX_JETS];
+Float_t jet_algoPF2_tcheBtag[MAX_JETS];
+
+Float_t jet_algoPF3_csvBtag[MAX_JETS];
+Float_t jet_algoPF3_csvMvaBtag[MAX_JETS];
+Float_t jet_algoPF3_jetProbBtag[MAX_JETS];
+Float_t jet_algoPF3_tcheBtag[MAX_JETS];
+
 Int_t l1emiso_n;
 Float_t l1emiso_et[MAX_L1]; 
 Float_t l1emiso_eta[MAX_L1]; 

@@ -421,6 +421,11 @@ jet_algoPF1_cutbased_wp_level_ext
 jet_algoPF1_full_mva_ext
 jet_algoPF1_simple_mva_ext
 
+#jet_algoPF1_csvBtag
+#jet_algoPF1_csvMvaBtag
+#jet_algoPF1_jetProbBtag
+#jet_algoPF1_tcheBtag
+
 #jet_algoPF2_n
 #jet_algoPF2_erescale
 #jet_algoPF2_p4
@@ -454,6 +459,11 @@ jet_algoPF1_simple_mva_ext
 #jet_algoPF2_full_mva_ext
 #jet_algoPF2_simple_mva_ext
 
+#jet_algoPF2_csvBtag
+#jet_algoPF2_csvMvaBtag
+#jet_algoPF2_jetProbBtag
+#jet_algoPF2_tcheBtag
+
 jet_algoPF3_n
 jet_algoPF3_erescale
 jet_algoPF3_p4
@@ -486,6 +496,11 @@ jet_algoPF3_simple_wp_level_ext
 jet_algoPF3_cutbased_wp_level_ext
 jet_algoPF3_full_mva_ext
 jet_algoPF3_simple_mva_ext
+
+#jet_algoPF3_csvBtag
+#jet_algoPF3_csvMvaBtag
+#jet_algoPF3_jetProbBtag
+#jet_algoPF3_tcheBtag
 
 # New photon variables 
 pho_pfRawEnergy
