@@ -733,28 +733,13 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
         if (PADEBUG) std::cout << " Diphoton Category " <<category <<std::endl;
     	// sanity check
         assert( evweight >= 0. ); 
-	
+
+        // dump BS trees in requested
+        if (!isSyst && cur_type!=0 && saveBSTrees_) saveBSTrees(l,evweight,category,Higgs, vtx, (TVector3*)l.gv_pos->At(0),diphobdt_output);
+
         // fill control plots and counters
 	if( ! isSyst ) {
 	    
-		  l.FillTree("weight",evweight);
-		  l.FillTree("category",category);
-          l.FillTree("bdtoutput",diphobdt_output);
-          l.FillTree("mass",Higgs.M());
-		  if (cur_type!=0) {
-              l.FillTree("ZfromGenToChosen",(*vtx-*((TVector3*)l.gv_pos->At(0))).Z());
-              double distance=1000.;
-              int index;
-              for (int i=0; i<l.vtx_std_n; i++){
-                TVector3 *tempVtx = (TVector3*)l.vtx_std_xyz->At(i); 
-                if (TMath::Abs(distance)>TMath::Abs((*tempVtx-*((TVector3*)l.gv_pos->At(0))).Z())){
-                    distance=(*tempVtx-*((TVector3*)l.gv_pos->At(0))).Z();
-                    index=i;
-                }
-              }
-              l.FillTree("ZfromGenToBest",distance);
-            }
-
 	    /*    if(category>-1){
 		  l.FillHist("sigmaMrv",category,sigmaMrv,evweight);
 		  l.FillHist("sigmaMwv",category,sigmaMwv,evweight);

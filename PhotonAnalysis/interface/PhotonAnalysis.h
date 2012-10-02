@@ -101,6 +101,7 @@ class PhotonAnalysis : public BaseAnalysis
     double targetsigma;
     double sourcesigma;
     bool reweighBeamspot;
+    bool saveBSTrees_;
     bool rescaleDZforVtxMVA;
 
     // Preselection indexes
@@ -371,6 +372,7 @@ class PhotonAnalysis : public BaseAnalysis
    
     // Beamsport reweighting
     float BeamspotReweight(double vtxZ, double genZ);
+    void saveBSTrees(LoopAll &l, float evweight, int category, TLorentzVector Higgs, TVector3 *chosenVtx, TVector3 *genVtx, float diphobdt_output=-100.);
 
     // Vertex analysis
     HggVertexAnalyzer vtxAna_;

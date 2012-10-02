@@ -1,0 +1,13 @@
+->
+Declare Branches for flat tree which will be saved in output
+delare:
+	type=0,1,2,3 (int,unsigned int,float,double)
+	name=name 
+->
+
+type=0 name=category
+type=2 name=weight
+type=2 name=bdtoutput
+type=3 name=mass
+type=3 name=ZfromGenToChosen
+type=3 name=ZfromGenToBest

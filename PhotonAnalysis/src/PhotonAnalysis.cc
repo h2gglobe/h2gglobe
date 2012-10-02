@@ -60,6 +60,7 @@ PhotonAnalysis::PhotonAnalysis()  :
     
     emulateBeamspot = false;
     reweighBeamspot = false;
+    saveBSTrees_=false;
     beamspotWidth   = 0.;
     emulatedBeamspotWidth = 0.;
     targetsigma=1.0;
@@ -3777,6 +3778,26 @@ float PhotonAnalysis::BeamspotReweight(double vtxZ, double genZ) {
     if(PADEBUG) std::cout<< "vtxZ genZ newBSgaus1 newBSgaus2 oldBSgaus1 oldBSgaus2 reweight "<< vtxZ << " " << genZ << " " << newBSgaus1 << " " << newBSgaus2 << " " << oldBSgaus1 << " " << oldBSgaus2 << " " << reweight << " " << std::endl;
 
     return reweight;
+}
+
+void PhotonAnalysis::saveBSTrees(LoopAll &l, float evweight, int category, TLorentzVector Higgs, TVector3 *chosenVtx, TVector3 *genVtx, float diphobdt_output){
+    
+  l.FillTree("weight",evweight);
+  l.FillTree("category",category);
+  l.FillTree("bdtoutput",diphobdt_output);
+  l.FillTree("mass",Higgs.M());
+  l.FillTree("ZfromGenToChosen",(*chosenVtx-*genVtx).Z());
+  double distance=1000.;
+  int index;
+  for (int i=0; i<l.vtx_std_n; i++){
+    TVector3 *tempVtx = (TVector3*)l.vtx_std_xyz->At(i);
+    if (TMath::Abs(distance)>TMath::Abs((*tempVtx-*genVtx).Z())){
+        distance = (*tempVtx-*genVtx).Z();
+        index=i;
+    }
+  }
+  l.FillTree("ZfromGenToBest",distance);
+
 }
 
 

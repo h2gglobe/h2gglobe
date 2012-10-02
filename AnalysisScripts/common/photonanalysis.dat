@@ -15,6 +15,7 @@ targetsigma=4.8
 sourcesigma=6.16
 reweighBeamspot=0
 rescaleDZforVtxMVA=0
+saveBSTrees_=0
 
 ## Preselection cuts
 presel_scet1=15.
