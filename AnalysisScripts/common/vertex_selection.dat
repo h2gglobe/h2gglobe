@@ -11,35 +11,35 @@ removeTracksInCone=1
 coneSize=0.05
 
 #Conversion Flag: 0 is no conversions. 1 is single leg conversions. 2 is double leg conversions. 3 is both single and double leg conversions.
-useAllConversions=2
+useAllConversions=3
 
 sigma1Pix=0.011
-sigma1Tib=0.492
-sigma1Tob=4.398
-sigma1PixFwd=0.054
-sigma1Tid=0.320
-sigma1Tec=1.092
+sigma1Tib=0.491
+sigma1Tob=4.196
+sigma1PixFwd=0.057
+sigma1Tid=0.316
+sigma1Tec=1.064
 
-sigma2Pix=0.022
-sigma2Tib=0.297
-sigma2Tob=1.728
-sigma2PixFwd=0.150
-sigma2Tid=0.393
-sigma2Tec=1.008
+sigma2Pix=0.023
+sigma2Tib=0.301
+sigma2Tob=1.603
+sigma2PixFwd=0.158
+sigma2Tid=0.413
+sigma2Tec=1.026
 
-singlelegsigma1Pix=0.009
-singlelegsigma1Tib=1.163
-singlelegsigma1Tob=2.130
-singlelegsigma1PixFwd=0.071
-singlelegsigma1Tid=0.384
-singlelegsigma1Tec=1.923
+singlelegsigma1Pix=0.007
+singlelegsigma1Tib=0.946
+singlelegsigma1Tob=2.495
+singlelegsigma1PixFwd=0.039
+singlelegsigma1Tid=0.349
+singlelegsigma1Tec=1.581
 
-singlelegsigma2Pix=0.054
-singlelegsigma2Tib=0.597
-singlelegsigma2Tob=0.480
-singlelegsigma2PixFwd=0.276
-singlelegsigma2Tid=0.497
-singlelegsigma2Tec=1.046
+singlelegsigma2Pix=0.017
+singlelegsigma2Tib=0.472
+singlelegsigma2Tob=0.540
+singlelegsigma2PixFwd=0.119
+singlelegsigma2Tid=0.392
+singlelegsigma2Tec=1.022
 
 ## x=prob MVA, y=nvtx
 vtxProbFormula=1.-0.49*(x+1)*(y>0.)
