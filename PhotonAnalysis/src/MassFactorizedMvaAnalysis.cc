@@ -329,6 +329,11 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
     l.rooContainer->AddConstant("IntLumi",l.intlumi_);
 
     // SM Model
+    for(size_t isig=0; isig<sigPointsToBook.size(); ++isig) {
+        int sig = sigPointsToBook[isig];
+        l.rooContainer->AddConstant(Form("XSBR_ggh_%d",sig),l.signalNormalizer->GetXsection(double(sig),"ggh")*l.signalNormalizer->GetBR(double(sig)));
+    }
+    /*
     l.rooContainer->AddConstant("XSBR_ggh_150",0.01428);
     l.rooContainer->AddConstant("XSBR_vbf_150",0.001308);
     l.rooContainer->AddConstant("XSBR_wzh_150",0.000641);
@@ -377,7 +382,7 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
     l.rooContainer->AddConstant("XSBR_vbf_105",0.00262016);
     l.rooContainer->AddConstant("XSBR_wzh_105",0.002781962);
     l.rooContainer->AddConstant("XSBR_tth_105",0.000255074);
-
+    */
     // FF model  
     l.rooContainer->AddConstant("ff_XSBR_vbf_150",0.00259659);
     l.rooContainer->AddConstant("ff_XSBR_wzh_150",0.00127278);
@@ -632,6 +637,11 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
         float lead_r9, sublead_r9;
         TVector3 * vtx;
 	fillDiphoton(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, vtx, &smeared_pho_energy[0], l, diphoton_id);  
+        
+    // apply beamspot reweighting if necessary
+    if(reweighBeamspot && cur_type!=0) {
+        evweight*=BeamspotReweight(vtx->Z(),((TVector3*)l.gv_pos->At(0))->Z());
+    }
 	
 	// FIXME pass smeared R9
 	mass     = Higgs.M();
@@ -727,6 +737,24 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
         // fill control plots and counters
 	if( ! isSyst ) {
 	    
+		  l.FillTree("weight",evweight);
+		  l.FillTree("category",category);
+          l.FillTree("bdtoutput",diphobdt_output);
+          l.FillTree("mass",Higgs.M());
+		  if (cur_type!=0) {
+              l.FillTree("ZfromGenToChosen",(*vtx-*((TVector3*)l.gv_pos->At(0))).Z());
+              double distance=1000.;
+              int index;
+              for (int i=0; i<l.vtx_std_n; i++){
+                TVector3 *tempVtx = (TVector3*)l.vtx_std_xyz->At(i); 
+                if (TMath::Abs(distance)>TMath::Abs((*tempVtx-*((TVector3*)l.gv_pos->At(0))).Z())){
+                    distance=(*tempVtx-*((TVector3*)l.gv_pos->At(0))).Z();
+                    index=i;
+                }
+              }
+              l.FillTree("ZfromGenToBest",distance);
+            }
+
 	    /*    if(category>-1){
 		  l.FillHist("sigmaMrv",category,sigmaMrv,evweight);
 		  l.FillHist("sigmaMwv",category,sigmaMwv,evweight);
@@ -769,7 +797,6 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 	    if (fillEscaleTrees) fillEscaleTree(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, phoid_mvaout_lead, phoid_mvaout_sublead, diphobdt_output, sigmaMrv, sigmaMwv, vtxProb, diphoton_id, category, selectioncategory, evweight, l );
 	}
 	
-        //if (cur_type==0 && mass >= 100. && mass < 180. && !isSyst /*should never be if running data anyway*/){
         if (dumpAscii && mass >= 100. && mass < 180. && !isSyst){
             // New ascii event list for syncrhonizing MVA Preselection + Diphoton MVA
             eventListText <<"type:"<< cur_type 

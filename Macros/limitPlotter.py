@@ -17,8 +17,8 @@ ROOT.gStyle.SetOptFit(0)
 OBSmasses = []
 EXPmasses = []
 
-OBSmassesT = numpy.arange(110,150.1,0.1)
-EXPmassesT = numpy.arange(110,150.1,0.1)
+OBSmassesT = numpy.arange(110,150.1,5)
+EXPmassesT = numpy.arange(110,150.1,5)
 epsilon = 0.001  # make this smaller than your smallest step size
 
 for m in OBSmassesT:
@@ -80,7 +80,7 @@ if options.Method=="MaxLikelihoodFit":
 	options.doRatio = True
 
 if not options.doRatio and options.Method != "Frequentist": 
-	ROOT.gROOT.ProcessLine(".L medianCalc.C++")
+	ROOT.gROOT.ProcessLine(".L medianCalc.C+g")
 	from ROOT import medianCalc
 	from ROOT import FrequentistLimits
 	

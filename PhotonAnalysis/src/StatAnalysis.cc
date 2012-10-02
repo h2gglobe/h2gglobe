@@ -581,15 +581,10 @@ bool StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 {
     if(PADEBUG) 
         cout << "Analysis START; cur_type is: " << l.itype[l.current] <<endl;
-   
+  
     int cur_type = l.itype[l.current];
     float weight = l.sampleContainer[l.current_sample_index].weight;
     float sampleweight = l.sampleContainer[l.current_sample_index].weight;
-
-    if(emulateBeamspot && reweighBeamspot) {
-        weight*=BeamspotReweight(((TVector3*)l.gv_pos->At(0))->Z(),((TVector3*)l.bs_xyz)->Z());
-        //weight*=BeamspotReweight(((TVector3*)l.gv_pos->At(0))->Z(),0.4145);
-    }
 
     // Set reRunCiC Only if this is an MC event since scaling of R9 and Energy isn't done at reduction
     if (cur_type==0) {
@@ -954,6 +949,10 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
         } else {
 	        fillDiphoton(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, vtx, &smeared_pho_energy[0], l, diphoton_id);  
         }
+        // apply beamspot reweighting if necessary
+        if(reweighBeamspot && cur_type!=0) {
+            evweight*=BeamspotReweight(vtx->Z(),((TVector3*)l.gv_pos->At(0))->Z());
+        }
 
         // FIXME pass smeared R9
 	category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,nPtCategories);
@@ -966,6 +965,7 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 				   diPhoSys, syst_shift);
             isCorrectVertex=(*vtx- *((TVector3*)l.gv_pos->At(0))).Mag() < 1.;
         }
+    
         float ptHiggs = Higgs.Pt();
         //if (cur_type != 0) cout << "vtxAn: " << isCorrectVertex << endl; 
 	// sanity check

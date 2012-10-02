@@ -370,7 +370,7 @@ class PhotonAnalysis : public BaseAnalysis
     std::string name_;
    
     // Beamsport reweighting
-    float BeamspotReweight(double hardInterZ, double beamSpotZ);
+    float BeamspotReweight(double vtxZ, double genZ);
 
     // Vertex analysis
     HggVertexAnalyzer vtxAna_;

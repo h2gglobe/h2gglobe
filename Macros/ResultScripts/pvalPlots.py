@@ -35,6 +35,7 @@ def fitSetup(gr,col,style,MG):
 MG=ROOT.TMultiGraph()
 fitMG=ROOT.TMultiGraph()
 
+bin=0
 if int(bin)>0 and int(bin)<10:
   files = [
   #"/vols/cms02/nw709/hgg/src_cvs/dec14/CMSSW_4_2_8/src/HiggsAnalysis/CombinedLimit/appmva/bdtcount/limit/pvals.root",
@@ -55,13 +56,13 @@ else:
   #"mva-datacards-grad-bin5/pvals.root",
  # "mva-datacards-grad-bin6/pvals.root"
 
-  ### sys.argv[1]+"/exppval.root",
+  sys.argv[1]+"/exppval.root",
   ### sys.argv[1]+"/obspval.root"
 
- sys.argv[1]+"combination_june15_v1/exppval.root",
- sys.argv[1]+"combination_june15_v1/obspval.root",
- sys.argv[1]+"jan16/obspval.root",
- sys.argv[1]+"june15unblinding_baseline_v6/obspval.root",
+ #sys.argv[1]+"combination_june15_v1/exppval.root",
+ #sys.argv[1]+"combination_june15_v1/obspval.root",
+ #sys.argv[1]+"jan16/obspval.root",
+ #sys.argv[1]+"june15unblinding_baseline_v6/obspval.root",
 
   #"CombineCards/7TeV_5.1fb/pval.root",
 	#"CombineCards/8TeV_1.5fb/pval.root",
@@ -111,6 +112,7 @@ styles=[9,1,1,1,1,1,1]
 colors_med=[38]
 styles_med=[7]
 widths_med=[2,2,2]
+widths=[2,2,2]
 
 fitcolors=[1,2,3,4,6,7,9]
 fitstyles=[1,1,1,1,1,1,1,1]

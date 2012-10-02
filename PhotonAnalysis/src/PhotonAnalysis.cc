@@ -1624,6 +1624,7 @@ void PhotonAnalysis::switchJetIdVertex(LoopAll &l, int ivtx)
 	std::cout << "WARNING choosen vertex beyond 10 and jet ID was not computed. Falling back to vertex 0." << std::endl;
 	ivtx = 0;
     }               
+    
     for(int ii=0; ii<l.jet_algoPF1_n; ++ii) {
 	l.jet_algoPF1_beta[ii]              = (*l.jet_algoPF1_beta_ext)[ii][ivtx];
         l.jet_algoPF1_betaStar[ii]          = (*l.jet_algoPF1_betaStar_ext)[ii][ivtx];
@@ -3740,15 +3741,40 @@ void PhotonAnalysis::reVertex(LoopAll & l)
 }
 
 
-float PhotonAnalysis::BeamspotReweight(double hardInterZ, double beamspotZ) {
-    if (hardInterZ<(-100)) return 1.0;
+float PhotonAnalysis::BeamspotReweight(double vtxZ, double genZ) {
+    if (genZ<(-100)) return 1.0;
+   
+    float diffVar = vtxZ-genZ;
+    if (TMath::Abs(diffVar)<0.02) return 1.0;
 
-    float sourceweight = exp(-pow(hardInterZ-beamspotZ,2)/2.0/sourcesigma/sourcesigma)/sourcesigma;
-    float targetweight = exp(-pow(hardInterZ-beamspotZ,2)/2.0/targetsigma/targetsigma)/targetsigma;
+    float newBSmean1  = 9.9391e-02;
+    float newBSmean2  = 1.8902e-01;
+    float newBSnorm1  = 5.3210e+00;
+    float newBSnorm2  = 4.1813e+01;
+    float newBSsigma1 = 9.7530e-01;
+    float newBSsigma2 = 7.0811e+00;
+    
+    float oldBSmean1  = 7.2055e-02;
+    float oldBSmean2  = 4.9986e-01;
+    float oldBSnorm1  = 3.5411e+00;
+    float oldBSnorm2  = 4.0258e+01;
+    float oldBSsigma1 = 7.9678e-01;
+    float oldBSsigma2 = 8.5356e+00;
+    
+    float newBSgaus1 = newBSnorm1*exp(-0.5*pow((diffVar-newBSmean1)/newBSsigma1,2));
+    float newBSgaus2 = newBSnorm2*exp(-0.5*pow((diffVar-newBSmean2)/newBSsigma2,2));
+    float oldBSgaus1 = oldBSnorm1*exp(-0.5*pow((diffVar-oldBSmean1)/oldBSsigma1,2));
+    float oldBSgaus2 = oldBSnorm2*exp(-0.5*pow((diffVar-oldBSmean2)/oldBSsigma2,2));
+    
+    float reweight = (newBSgaus1+newBSgaus2)/(oldBSgaus1+oldBSgaus2);
 
-    float reweight = targetweight/sourceweight;
+    //float sourceweight = exp(-pow(hardInterZ-beamspotZ,2)/2.0/sourcesigma/sourcesigma)/sourcesigma;
+    //float targetweight = exp(-pow(hardInterZ-beamspotZ,2)/2.0/targetsigma/targetsigma)/targetsigma;
 
-    if(PADEBUG) std::cout<<"hardInterZ targetweight/sourceweight reweight "<<hardInterZ<<" "<<targetweight<<"/"<<sourceweight<<" "<<reweight<<std::endl;
+    //float reweight = targetweight/sourceweight;
+
+    //if(PADEBUG) std::cout<<"hardInterZ targetweight/sourceweight reweight "<<hardInterZ<<" "<<targetweight<<"/"<<sourceweight<<" "<<reweight<<std::endl;
+    if(PADEBUG) std::cout<< "vtxZ genZ newBSgaus1 newBSgaus2 oldBSgaus1 oldBSgaus2 reweight "<< vtxZ << " " << genZ << " " << newBSgaus1 << " " << newBSgaus2 << " " << oldBSgaus1 << " " << oldBSgaus2 << " " << reweight << " " << std::endl;
 
     return reweight;
 }

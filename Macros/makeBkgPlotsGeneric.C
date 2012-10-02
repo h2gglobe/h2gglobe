@@ -204,7 +204,7 @@ void makeBkgPlotsGeneric(std::string filebkg, bool blind=true, bool doBands=true
  		}
 		allsig->Draw("samehistF");
 		leg->Draw();
-		cmslatex->DrawLatex(0.15,0.8,"#splitline{CMS Preliminary}{#sqrt{s} = 8TeV L = 5.3fb^{-1}}");
+		cmslatex->DrawLatex(0.15,0.8,"#splitline{CMS Preliminary}{#sqrt{s} = 8TeV L = 10.4fb^{-1}}");
 		latex->DrawLatex(0.1,0.92,labels[cat].c_str());
 		can->SaveAs(Form( (baseline ? "baselinecat%d.pdf" : "massfacmvacat%d.pdf"),cat));
 		can->SaveAs(Form( (baseline ? "baselinecat%d.png" : "massfacmvacat%d.png"),cat));
