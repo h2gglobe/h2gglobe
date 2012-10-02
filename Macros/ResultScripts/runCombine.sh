@@ -13,10 +13,12 @@ datcard=$3
 mass=$4
 
 if [ "$method" == "ExpProfileLikelihood" ]; then
-  folder=ExpProfileLikelihood
   method=ProfileLikelihood
+  folder=ProfileLikelihood
+  naming=EXPECTED
 else
   folder=$method
+  naming=Test
 fi
 
 cd $dir
@@ -31,4 +33,4 @@ if [ ! -d "$folder" ]; then
   mkdir $folder
 fi
 
-mv higgsCombineTest.$method.mH$mass.root $folder/higgsCombineTest.$method.mH$mass.0.root
+mv higgsCombineTest.$method.mH$mass.root $folder/higgsCombine$naming.$method.mH$mass.0.root
