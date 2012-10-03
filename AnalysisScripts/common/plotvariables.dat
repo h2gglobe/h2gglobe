@@ -1,32 +1,36 @@
 default=2
 
-htyp=0 plot=-1  ncat=2  xbins=30   ybins=0   xmin=15.0  xmax=100.0  ymin=0      ymax=0    name=MuonTag_mupt     xaxis=P_{T.#mu}                    yaxis=Events
-htyp=0 plot=-1  ncat=2  xbins=30   ybins=0   xmin=-2.6  xmax=2.6    ymin=0      ymax=0    name=MuonTag_mueta    xaxis=#eta_{#mu}                   yaxis=Events
-htyp=0 plot=-1  ncat=2  xbins=30   ybins=0   xmin=-3.2  xmax=3.2    ymin=0      ymax=0    name=MuonTag_muphi    xaxis=#phi_{#mu}                   yaxis=Events
-htyp=0 plot=-1  ncat=2  xbins=30   ybins=0   xmin=0.    xmax=0.2    ymin=0      ymax=0    name=MuonTag_muisoopt xaxis=Iso/P_{T.#mu}                yaxis=Events
-htyp=0 plot=-1  ncat=2  xbins=30   ybins=0   xmin=0.    xmax=1.5    ymin=0      ymax=0    name=MuonTag_drmulead xaxis=#DeltaR(#mu,#gamma_{Lead})   yaxis=Events
-htyp=0 plot=-1  ncat=2  xbins=30   ybins=0   xmin=0.    xmax=1.5    ymin=0      ymax=0    name=MuonTag_drmusub  xaxis=#DeltaR(#mu,#gamma_{Sub})    yaxis=Events
-htyp=0 plot=-1  ncat=2  xbins=30   ybins=0   xmin=-0.03 xmax=0.03   ymin=0      ymax=0    name=MuonTag_d0       xaxis=Impact@Parameter@#mu         yaxis=Events
-htyp=0 plot=-1  ncat=2  xbins=30   ybins=0   xmin=-0.3  xmax=0.3    ymin=0      ymax=0    name=MuonTag_dZ       xaxis=#DeltaZ(#mu,Vtx)             yaxis=Events
-htyp=0 plot=-1  ncat=2  xbins=300  ybins=0   xmin=-3.   xmax=3.     ymin=0      ymax=0    name=MuonTag_dZtogen  xaxis=#DeltaZ(#mu,GenVtx)          yaxis=Events
-htyp=0 plot=-1  ncat=2  xbins=2    ybins=0   xmin=0.    xmax=2.     ymin=0      ymax=0    name=MuonTag_sameVtx  xaxis=Same@Vertex@#mu              yaxis=Events
+htyp=0 plot=-1  ncat=2  xbins=30   ybins=0   xmin=15.0  xmax=100.0  ymin=0      ymax=0    name=MuonTag_mupt_final     xaxis=P_{T.#mu}                    yaxis=Events
+htyp=0 plot=-1  ncat=2  xbins=30   ybins=0   xmin=-2.6  xmax=2.6    ymin=0      ymax=0    name=MuonTag_mueta_final    xaxis=#eta_{#mu}                   yaxis=Events
+htyp=0 plot=-1  ncat=2  xbins=30   ybins=0   xmin=-3.2  xmax=3.2    ymin=0      ymax=0    name=MuonTag_muphi_final    xaxis=#phi_{#mu}                   yaxis=Events
+htyp=0 plot=-1  ncat=2  xbins=30   ybins=0   xmin=0.    xmax=0.2    ymin=0      ymax=0    name=MuonTag_muisoopt_final xaxis=Iso/P_{T.#mu}                yaxis=Events
+htyp=0 plot=-1  ncat=2  xbins=30   ybins=0   xmin=0.    xmax=1.5    ymin=0      ymax=0    name=MuonTag_drmulead_final xaxis=#DeltaR(#mu,#gamma_{Lead})   yaxis=Events
+htyp=0 plot=-1  ncat=2  xbins=30   ybins=0   xmin=0.    xmax=1.5    ymin=0      ymax=0    name=MuonTag_drmusub_final  xaxis=#DeltaR(#mu,#gamma_{Sub})    yaxis=Events
+htyp=0 plot=-1  ncat=2  xbins=30   ybins=0   xmin=-0.03 xmax=0.03   ymin=0      ymax=0    name=MuonTag_d0_final       xaxis=Impact@Parameter@#mu         yaxis=Events
+htyp=0 plot=-1  ncat=2  xbins=30   ybins=0   xmin=-0.3  xmax=0.3    ymin=0      ymax=0    name=MuonTag_dZ_final       xaxis=#DeltaZ(#mu,Vtx)             yaxis=Events
+htyp=0 plot=-1  ncat=2  xbins=300  ybins=0   xmin=-3.   xmax=3.     ymin=0      ymax=0    name=MuonTag_dZtogen_final  xaxis=#DeltaZ(#mu,GenVtx)          yaxis=Events
+htyp=0 plot=-1  ncat=2  xbins=40   ybins=0   xmin=-1.   xmax=1.     ymin=0      ymax=0    name=MuonTag_diphomva_final xaxis=MVA_{#gamma#gamma}@Electron  yaxis=Events
 
-htyp=0 plot=-1  ncat=2  xbins=30   ybins=0   xmin=15.0  xmax=100.   ymin=0      ymax=0    name=ElectronTag_elpt           xaxis=P_{T.Electron}               yaxis=Events
-htyp=0 plot=-1  ncat=2  xbins=30   ybins=0   xmin=-2.6  xmax=2.6    ymin=0      ymax=0    name=ElectronTag_eleta          xaxis=#eta_{Electron}              yaxis=Events
-htyp=0 plot=-1  ncat=2  xbins=30   ybins=0   xmin=-3.2  xmax=3.2    ymin=0      ymax=0    name=ElectronTag_elPhi          xaxis=#phi_{Electron}              yaxis=Events
-htyp=0 plot=-1  ncat=2  xbins=30   ybins=0   xmin=0.7   xmax=1.0    ymin=0      ymax=0    name=ElectronTag_elmva          xaxis=MVA_{Electron}               yaxis=Events
-htyp=0 plot=-1  ncat=2  xbins=30   ybins=0   xmin=0.0   xmax=0.2    ymin=0      ymax=0    name=ElectronTag_elisoopt       xaxis=Iso/P_{T.Electron}           yaxis=Events
-htyp=0 plot=-1  ncat=2  xbins=3    ybins=0   xmin=-1    xmax=2      ymin=0      ymax=0    name=ElectronTag_missinghits    xaxis=Missing@Hits                 yaxis=Events
-htyp=0 plot=-1  ncat=2  xbins=2    ybins=0   xmin=0.    xmax=2.     ymin=0      ymax=0    name=ElectronTag_passconvveto   xaxis=Pass@Conversion@Veto         yaxis=Events
-htyp=0 plot=-1  ncat=2  xbins=30   ybins=0   xmin=0.    xmax=1.5    ymin=0      ymax=0    name=ElectronTag_drellead       xaxis=#DeltaR(electron,#gamma_{Lead}) yaxis=Events
-htyp=0 plot=-1  ncat=2  xbins=30   ybins=0   xmin=0.    xmax=1.5    ymin=0      ymax=0    name=ElectronTag_drelsub        xaxis=#DeltaR(electron,#gamma_{Sub})  yaxis=Events
-htyp=0 plot=-1  ncat=2  xbins=30   ybins=0   xmin=-0.03 xmax=0.03   ymin=0      ymax=0    name=ElectronTag_d0             xaxis=Impact@Parameter@Electron    yaxis=Events
-htyp=0 plot=-1  ncat=2  xbins=30   ybins=0   xmin=-0.3  xmax=0.3    ymin=0      ymax=0    name=ElectronTag_dZ             xaxis=#DeltaZ(Electron,Vtx)        yaxis=Events
-htyp=0 plot=-1  ncat=2  xbins=30   ybins=0   xmin=60.   xmax=120    ymin=0      ymax=0    name=ElectronTag_Melsub         xaxis=M_{electron,#gamma_{Lead}}   yaxis=Events
-htyp=0 plot=-1  ncat=2  xbins=30   ybins=0   xmin=60.   xmax=120    ymin=0      ymax=0    name=ElectronTag_Mellead        xaxis=M_{electron,#gamma_{Sub}}    yaxis=Events
-htyp=0 plot=-1  ncat=2  xbins=30   ybins=0   xmin=0.    xmax=60     ymin=0      ymax=0    name=ElectronTag_dMelsub        xaxis=#DeltaM(e#gamma_{Lead},Z)    yaxis=Events
-htyp=0 plot=-1  ncat=2  xbins=30   ybins=0   xmin=0.    xmax=60     ymin=0      ymax=0    name=ElectronTag_dMellead       xaxis=#DeltaM(e#gamma_{Sub},Z)     yaxis=Events
-htyp=0 plot=-1  ncat=2  xbins=300  ybins=0   xmin=-3.   xmax=3.     ymin=0      ymax=0    name=ElectronTag_dZtogen        xaxis=#DeltaZ(ele,GenVtx)          yaxis=Events
+htyp=0 plot=-1  ncat=2  xbins=30   ybins=0   xmin=15.0  xmax=100.   ymin=0      ymax=0    name=ElectronTag_elpt_final           xaxis=P_{T.Electron}               yaxis=Events
+htyp=0 plot=-1  ncat=2  xbins=30   ybins=0   xmin=-2.6  xmax=2.6    ymin=0      ymax=0    name=ElectronTag_eleta_final          xaxis=#eta_{Electron}              yaxis=Events
+htyp=0 plot=-1  ncat=2  xbins=30   ybins=0   xmin=-3.2  xmax=3.2    ymin=0      ymax=0    name=ElectronTag_elPhi_final          xaxis=#phi_{Electron}              yaxis=Events
+htyp=0 plot=-1  ncat=2  xbins=30   ybins=0   xmin=0.7   xmax=1.0    ymin=0      ymax=0    name=ElectronTag_elmva_final          xaxis=MVA_{Electron}               yaxis=Events
+htyp=0 plot=-1  ncat=2  xbins=30   ybins=0   xmin=0.0   xmax=0.2    ymin=0      ymax=0    name=ElectronTag_elisoopt_final       xaxis=Iso/P_{T.Electron}           yaxis=Events
+htyp=0 plot=-1  ncat=2  xbins=3    ybins=0   xmin=-1    xmax=2      ymin=0      ymax=0    name=ElectronTag_missinghits_final    xaxis=Missing@Hits                 yaxis=Events
+htyp=0 plot=-1  ncat=2  xbins=2    ybins=0   xmin=0.    xmax=2.     ymin=0      ymax=0    name=ElectronTag_passconvveto_final   xaxis=Pass@Conversion@Veto         yaxis=Events
+htyp=0 plot=-1  ncat=2  xbins=30   ybins=0   xmin=0.    xmax=1.5    ymin=0      ymax=0    name=ElectronTag_drellead_final       xaxis=#DeltaR(electron,#gamma_{Lead}) yaxis=Events
+htyp=0 plot=-1  ncat=2  xbins=30   ybins=0   xmin=0.    xmax=1.5    ymin=0      ymax=0    name=ElectronTag_drelsub_final        xaxis=#DeltaR(electron,#gamma_{Sub})  yaxis=Events
+htyp=0 plot=-1  ncat=2  xbins=30   ybins=0   xmin=-0.03 xmax=0.03   ymin=0      ymax=0    name=ElectronTag_d0_final             xaxis=Impact@Parameter@Electron    yaxis=Events
+htyp=0 plot=-1  ncat=2  xbins=30   ybins=0   xmin=-0.3  xmax=0.3    ymin=0      ymax=0    name=ElectronTag_dZ_final             xaxis=#DeltaZ(Electron,Vtx)        yaxis=Events
+htyp=0 plot=-1  ncat=2  xbins=30   ybins=0   xmin=60.   xmax=120    ymin=0      ymax=0    name=ElectronTag_Melsub_final         xaxis=M_{electron,#gamma_{Lead}}   yaxis=Events
+htyp=0 plot=-1  ncat=2  xbins=30   ybins=0   xmin=60.   xmax=120    ymin=0      ymax=0    name=ElectronTag_Mellead_final        xaxis=M_{electron,#gamma_{Sub}}    yaxis=Events
+htyp=0 plot=-1  ncat=2  xbins=30   ybins=0   xmin=0.    xmax=60     ymin=0      ymax=0    name=ElectronTag_dMelsub_final        xaxis=#DeltaM(e#gamma_{Lead},Z)    yaxis=Events
+htyp=0 plot=-1  ncat=2  xbins=30   ybins=0   xmin=0.    xmax=60     ymin=0      ymax=0    name=ElectronTag_dMellead_final       xaxis=#DeltaM(e#gamma_{Sub},Z)     yaxis=Events
+htyp=0 plot=-1  ncat=2  xbins=300  ybins=0   xmin=-3.   xmax=3.     ymin=0      ymax=0    name=ElectronTag_dZtogen_final        xaxis=#DeltaZ(ele,GenVtx)          yaxis=Events
+htyp=0 plot=-1  ncat=2  xbins=40   ybins=0   xmin=-1.   xmax=1.     ymin=0      ymax=0    name=ElectronTag_diphomva_final       xaxis=MVA_{#gamma#gamma}@Muon      yaxis=Events
+
+htyp=0 plot=-1  ncat=2  xbins=2    ybins=0   xmin=0.    xmax=2.     ymin=0      ymax=0    name=METTag_sameVtx  xaxis=Same@Vertex@MET             yaxis=Events
+htyp=0 plot=-1  ncat=2  xbins=2    ybins=0   xmin=0.    xmax=2.     ymin=0      ymax=0    name=MuonTag_sameVtx  xaxis=Same@Vertex@#mu              yaxis=Events
 htyp=0 plot=-1  ncat=2  xbins=2    ybins=0   xmin=0.    xmax=2.     ymin=0      ymax=0    name=ElectronTag_sameVtx        xaxis=Same@Vertex@Electron         yaxis=Events
 
 

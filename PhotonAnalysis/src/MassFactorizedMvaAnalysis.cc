@@ -539,6 +539,10 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
     if(cur_type!=0 ) {
 	applyGenLevelSmearings(genLevWeight,gP4,l.pu_n,cur_type,genSys,syst_shift);
     }
+        
+    int mu_ind=-1;
+    int el_ind=-1;
+
 	
     if (!skipSelection){
         // first apply corrections and smearing on the single photons 
@@ -576,11 +580,11 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
             float eventweight = weight * genLevWeight;
             float myweight=1.;
             if(eventweight*sampleweight!=0) myweight=eventweight/sampleweight;
-            VHmuevent=MuonTag2012B(l, diphotonVHlep_id, muVtx, VHmuevent_cat, &smeared_pho_energy[0], lep_sync, true, phoidMvaCut);
+            VHmuevent=MuonTag2012B(l, diphotonVHlep_id, mu_ind, muVtx, VHmuevent_cat, &smeared_pho_energy[0], lep_sync, true, phoidMvaCut);
             if(!VHmuevent){
                 ZWithFakeGammaCS(l, &smeared_pho_energy[0]);
                 ElectronStudies2012B(l, &smeared_pho_energy[0], true,  -0.3, eventweight, myweight, jentry);
-                VHelevent=ElectronTag2012B(l, diphotonVHlep_id, elVtx, VHelevent_cat, &smeared_pho_energy[0], lep_sync, true, phoidMvaCut);
+                VHelevent=ElectronTag2012B(l, diphotonVHlep_id, el_ind, elVtx, VHelevent_cat, &smeared_pho_energy[0], lep_sync, true, phoidMvaCut);
             }
             //ElectronTagStudies2012(l, diphotonVHlep_id, &smeared_pho_energy[0], true, eventweight, myweight, jentry);
         }
@@ -610,14 +614,20 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
        
         if(includeVHlep&&VHmuevent){
             diphoton_id = diphotonVHlep_id;
+            float eventweight = weight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second] * genLevWeight;
+            l.FillHist("MuonTag_sameVtx",   0, (float)(muVtx==l.dipho_vtxind[diphotonVHlep_id]), eventweight);
             l.dipho_vtxind[diphoton_id] = muVtx;
         } else if (includeVHlep&&VHelevent){
             diphoton_id = diphotonVHlep_id;
+            float eventweight = weight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second] * genLevWeight;
+            l.FillHist("ElectronTag_sameVtx",   0, (float)(elVtx==l.dipho_vtxind[diphotonVHlep_id]), eventweight);
             l.dipho_vtxind[diphoton_id] = elVtx;
         } else if(includeVBF&&VBFevent) {
             diphoton_id = diphotonVBF_id;
 	    } else if(includeVHmet&&VHmetevent) {
 	        diphoton_id = diphotonVHmet_id;
+            float eventweight = weight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second] * genLevWeight;
+            l.FillHist("METTag_sameVtx",   0, (float)(0==l.dipho_vtxind[diphotonVHmet_id]), eventweight);
             l.dipho_vtxind[diphoton_id] = 0;
         }
     }
@@ -708,7 +718,28 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
         category = GetBDTBoundaryCategory(diphobdt_output,isEBEB,VBFevent);
         if (diphobdt_output>=bdtCategoryBoundaries.back()) { 
 	        computeExclusiveCategory(l,category,diphoton_index,Higgs.Pt()); 
+            if (mass >= 100. && mass < 180. && !isSyst){
+                if (includeVHlep&&VHelevent){
+                    std::string label("final");
+                    ControlPlotsElectronTag2012B(l, lead_p4, sublead_p4, el_ind, diphobdt_output, evweight, label);
+                    // vertex plots
+                    if(cur_type!=0){
+                        l.FillHist(Form("ElectronTag_dZtogen_%s",label.c_str()),    (int)isEBEB, (float)((*vtx - *((TVector3*)l.gv_pos->At(0))).Z()), evweight);
+                    }
+
+                }
+                
+                if (includeVHlep&&VHmuevent){
+                    std::string label("final");
+                    ControlPlotsMuonTag2012B(l, lead_p4, sublead_p4, mu_ind, diphobdt_output, evweight, label);
+                    // vertex plots
+                    if(cur_type!=0){
+                        l.FillHist(Form("MuonTag_dZtogen_%s",label.c_str()),   (int)isEBEB, (float)((*vtx - *((TVector3*)l.gv_pos->At(0))).Z()), evweight);
+                    }
+                }
+            }
 	    }
+        
 	
 	if (fillOptree) {
 	    std::string name;
@@ -829,6 +860,9 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 			  << "    eerrsmeared_1:" << massResolutionCalculator->leadPhotonResolutionNoSmear()
 			  << "    eerrsmeared_2:" << massResolutionCalculator->subleadPhotonResolutionNoSmear()
 			  << "    vbfevent:"  <<  VBFevent
+			  << "    muontag:"   <<  VHmuevent
+			  << "    electrontag:"<< VHelevent
+			  << "    mettag:"    <<  VHmetevent
 			  << "    evcat:"     <<  category
 			  << "    FileName:"  <<  l.files[l.current];
             eventListText << endl;

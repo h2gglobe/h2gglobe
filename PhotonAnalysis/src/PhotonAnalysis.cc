@@ -2494,11 +2494,11 @@ bool PhotonAnalysis::ElectronTag2012(LoopAll& l, int diphotonVHlep_id, float* sm
 	        
             
 
-bool PhotonAnalysis::ElectronTag2012B(LoopAll& l, int& diphotonVHlep_id, int& elVtx, int& el_cat, float* smeared_pho_energy, ofstream& lep_sync, bool mvaselection, float phoidMvaCut){
+bool PhotonAnalysis::ElectronTag2012B(LoopAll& l, int& diphotonVHlep_id, int& el_ind, int& elVtx, int& el_cat, float* smeared_pho_energy, ofstream& lep_sync, bool mvaselection, float phoidMvaCut){
     bool tag = false;
     float elptcut=20;
 
-    int el_ind=l.ElectronSelectionMVA2012(elptcut);
+    el_ind=l.ElectronSelectionMVA2012(elptcut);
     if(el_ind!=-1) {
         TLorentzVector* myel = (TLorentzVector*) l.el_std_p4->At(el_ind);
         TLorentzVector* myelsc = (TLorentzVector*) l.el_std_sc->At(el_ind);
@@ -2525,50 +2525,13 @@ bool PhotonAnalysis::ElectronTag2012B(LoopAll& l, int& diphotonVHlep_id, int& el
             if(l.ElectronMVACuts(el_ind, elVtx)){
                 if(l.ElectronPhotonCuts2012B(lead_p4, sublead_p4, *myel)){
                     tag=true;
-                    el_cat=(int)(abs(lead_p4.Eta())<1.5 && abs(sublead_p4.Eta())<1.5); 
+                    el_cat=(int)(abs(lead_p4.Eta())>1.5 || abs(sublead_p4.Eta())>1.5); 
                 } else {
                     diphotonVHlep_id=-1;
                 }
             }
 
             if(tag){
-                double Aeff=0.;
-                float thiseta = fabs(myelsc->Eta());
-                if(thiseta<1.0)                   Aeff=0.135;
-                if(thiseta>=1.0 && thiseta<1.479) Aeff=0.168;
-                if(thiseta>=1.479 && thiseta<2.0) Aeff=0.068;
-                if(thiseta>=2.0 && thiseta<2.2)   Aeff=0.116;
-                if(thiseta>=2.2 && thiseta<2.3)   Aeff=0.162;
-                if(thiseta>=2.3 && thiseta<2.4)   Aeff=0.241;
-                if(thiseta>=2.4)                  Aeff=0.23;
-                float thisiso=l.el_std_pfiso_charged[el_ind]+std::max(l.el_std_pfiso_neutral[el_ind]+l.el_std_pfiso_photon[el_ind]-l.rho*Aeff,0.);
-                TLorentzVector elead_p4 = *myel + lead_p4;
-                TLorentzVector esub_p4 = *myel + sublead_p4;
-                
-                l.FillHist("ElectronTag_elpt",          el_cat, myel->Pt());
-                l.FillHist("ElectronTag_eleta",         el_cat, myelsc->Eta());
-                l.FillHist("ElectronTag_elPhi",         el_cat, myelsc->Phi());
-                l.FillHist("ElectronTag_elmva",         el_cat, l.el_std_mva_nontrig[el_ind]);
-                l.FillHist("ElectronTag_elisoopt",      el_cat, thisiso/myel->Pt());
-                l.FillHist("ElectronTag_missinghits",   el_cat, l.el_std_hp_expin[el_ind]);
-                l.FillHist("ElectronTag_passconvveto",  el_cat, l.el_std_conv[el_ind]);
-                l.FillHist("ElectronTag_drellead",      el_cat, myel->DeltaR(lead_p4));
-                l.FillHist("ElectronTag_drelsub",       el_cat, myel->DeltaR(sublead_p4));
-                l.FillHist("ElectronTag_d0",            el_cat, l.el_std_D0Vtx[el_ind][elVtx]);
-                l.FillHist("ElectronTag_dZ",            el_cat, l.el_std_DZVtx[el_ind][elVtx]);
-                l.FillHist("ElectronTag_Melsub",        el_cat, esub_p4.M());
-                l.FillHist("ElectronTag_Mellead",       el_cat, elead_p4.M());
-                l.FillHist("ElectronTag_dMelsub",       el_cat, abs(esub_p4.M()-91.2));
-                l.FillHist("ElectronTag_dMellead",      el_cat, abs(elead_p4.M()-91.2));
-                
-                // vertex plots
-                TVector3* vtx = (TVector3*) l.vtx_std_xyz->At(elVtx);
-                int cur_type = l.itype[l.current];
-                if(cur_type!=0){
-                    l.FillHist("ElectronTag_dZtogen",        el_cat, (float)((*vtx - *((TVector3*)l.gv_pos->At(0))).Z()));
-                }
-                l.FillHist("ElectronTag_sameVtx",        el_cat, (float)(elVtx==l.dipho_vtxind[diphotonVHlep_id]));
-
                 TLorentzVector dipho_p4 = lead_p4 + sublead_p4;
                 lep_sync<<"run="<<l.run<<"\t";
                 lep_sync<<"lumis"<<l.lumis<<"\t";
@@ -2585,6 +2548,49 @@ bool PhotonAnalysis::ElectronTag2012B(LoopAll& l, int& diphotonVHlep_id, int& el
     }
         
     return tag;
+}
+
+void PhotonAnalysis::ControlPlotsElectronTag2012B(LoopAll& l, TLorentzVector lead_p4, TLorentzVector sublead_p4, int el_ind, float bdtoutput, float evweight, std::string label){
+    if(el_ind<0) {
+        std::cout<<"el_ind is "<<el_ind<<std::endl;
+        std::cout<<"leaving ControlPlotsElectronTag2012B"<<std::endl;
+        return;
+    }
+    TLorentzVector* myel = (TLorentzVector*) l.el_std_p4->At(el_ind);
+    TLorentzVector* myelsc = (TLorentzVector*) l.el_std_sc->At(el_ind);
+    int elVtx=l.FindElectronVertex(el_ind);
+
+    double Aeff=0.;
+    float thiseta = fabs(myelsc->Eta());
+    if(thiseta<1.0)                   Aeff=0.135;
+    if(thiseta>=1.0 && thiseta<1.479) Aeff=0.168;
+    if(thiseta>=1.479 && thiseta<2.0) Aeff=0.068;
+    if(thiseta>=2.0 && thiseta<2.2)   Aeff=0.116;
+    if(thiseta>=2.2 && thiseta<2.3)   Aeff=0.162;
+    if(thiseta>=2.3 && thiseta<2.4)   Aeff=0.241;
+    if(thiseta>=2.4)                  Aeff=0.23;
+    float thisiso=l.el_std_pfiso_charged[el_ind]+std::max(l.el_std_pfiso_neutral[el_ind]+l.el_std_pfiso_photon[el_ind]-l.rho*Aeff,0.);
+    TLorentzVector elead_p4 = *myel + lead_p4;
+    TLorentzVector esub_p4 = *myel + sublead_p4;
+    
+    int el_cat=(int)(abs(lead_p4.Eta())>1.5 || abs(sublead_p4.Eta())>1.5); 
+    l.FillHist(Form("ElectronTag_elpt_%s",label.c_str()),          el_cat, myel->Pt(), evweight);
+    l.FillHist(Form("ElectronTag_eleta_%s",label.c_str()),         el_cat, myelsc->Eta(), evweight);
+    l.FillHist(Form("ElectronTag_elPhi_%s",label.c_str()),         el_cat, myelsc->Phi(), evweight);
+    l.FillHist(Form("ElectronTag_elmva_%s",label.c_str()),         el_cat, l.el_std_mva_nontrig[el_ind], evweight);
+    l.FillHist(Form("ElectronTag_elisoopt_%s",label.c_str()),      el_cat, thisiso/myel->Pt(), evweight);
+    l.FillHist(Form("ElectronTag_missinghits_%s",label.c_str()),   el_cat, l.el_std_hp_expin[el_ind], evweight);
+    l.FillHist(Form("ElectronTag_passconvveto_%s",label.c_str()),  el_cat, l.el_std_conv[el_ind], evweight);
+    l.FillHist(Form("ElectronTag_drellead_%s",label.c_str()),      el_cat, myel->DeltaR(lead_p4), evweight);
+    l.FillHist(Form("ElectronTag_drelsub_%s",label.c_str()),       el_cat, myel->DeltaR(sublead_p4), evweight);
+    l.FillHist(Form("ElectronTag_d0_%s",label.c_str()),            el_cat, l.el_std_D0Vtx[el_ind][elVtx], evweight);
+    l.FillHist(Form("ElectronTag_dZ_%s",label.c_str()),            el_cat, l.el_std_DZVtx[el_ind][elVtx], evweight);
+    l.FillHist(Form("ElectronTag_Melsub_%s",label.c_str()),        el_cat, esub_p4.M(), evweight);
+    l.FillHist(Form("ElectronTag_Mellead_%s",label.c_str()),       el_cat, elead_p4.M(), evweight);
+    l.FillHist(Form("ElectronTag_dMelsub_%s",label.c_str()),       el_cat, abs(esub_p4.M()-91.2), evweight);
+    l.FillHist(Form("ElectronTag_dMellead_%s",label.c_str()),      el_cat, abs(elead_p4.M()-91.2), evweight);
+    l.FillHist(Form("ElectronTag_diphomva_%s",label.c_str()),      el_cat, bdtoutput, evweight);
+    
 }
 
 
@@ -3382,11 +3388,11 @@ bool PhotonAnalysis::MuonTag2012(LoopAll& l, int diphotonVHlep_id, float* smeare
     return tag;
 }
 
-bool PhotonAnalysis::MuonTag2012B(LoopAll& l, int& diphotonVHlep_id, int& muVtx, int& mu_cat, float* smeared_pho_energy, ofstream& lep_sync, bool mvaselection, float phoidMvaCut){
+bool PhotonAnalysis::MuonTag2012B(LoopAll& l, int& diphotonVHlep_id, int& mu_ind, int& muVtx, int& mu_cat, float* smeared_pho_energy, ofstream& lep_sync, bool mvaselection, float phoidMvaCut){
     bool tag = false;
     float muptcut=20.;
 
-    int mu_ind=l.MuonSelection2012B(muptcut);
+    mu_ind=l.MuonSelection2012B(muptcut);
     if(mu_ind!=-1) {
         TLorentzVector* mymu = (TLorentzVector*) l.mu_glo_p4->At(mu_ind);
         muVtx=l.FindMuonVertex(mu_ind);
@@ -3405,28 +3411,9 @@ bool PhotonAnalysis::MuonTag2012B(LoopAll& l, int& diphotonVHlep_id, int& muVtx,
 
             tag = l.MuonPhotonCuts2012B(lead_p4, sublead_p4, mymu);
             if(!tag) diphotonVHlep_id=-1;
-            mu_cat=(int)(abs(lead_p4.Eta())<1.5 && abs(sublead_p4.Eta())<1.5); 
+            mu_cat=(int)(abs(lead_p4.Eta())>1.5 || abs(sublead_p4.Eta())>1.5); 
             TLorentzVector dipho_p4 = lead_p4+sublead_p4;
             if(tag){
-                l.FillHist("MuonTag_mupt",      mu_cat, mymu->Pt());
-                l.FillHist("MuonTag_mueta",     mu_cat, mymu->Eta());
-                l.FillHist("MuonTag_muphi",     mu_cat, mymu->Phi());
-                float thisiso=((l.mu_glo_nehadiso04[mu_ind]+l.mu_glo_photiso04[mu_ind])>l.mu_dbCorr[mu_ind]) ?
-                l.mu_glo_chhadiso04[mu_ind]+l.mu_glo_nehadiso04[mu_ind]+l.mu_glo_photiso04[mu_ind]-l.mu_dbCorr[mu_ind] : l.mu_glo_chhadiso04[mu_ind];    
-                l.FillHist("MuonTag_muisoopt",  mu_cat, thisiso/mymu->Pt());
-                l.FillHist("MuonTag_drmulead",  mu_cat, mymu->DeltaR(lead_p4));
-                l.FillHist("MuonTag_drmusub",   mu_cat, mymu->DeltaR(sublead_p4));
-                l.FillHist("MuonTag_d0",        mu_cat, l.mu_glo_D0Vtx[mu_ind][muVtx]);
-                l.FillHist("MuonTag_dZ",        mu_cat, l.mu_glo_DZVtx[mu_ind][muVtx]);
-                
-                // vertex plots
-                TVector3* vtx = (TVector3*) l.vtx_std_xyz->At(muVtx);
-                int cur_type = l.itype[l.current];
-                if(cur_type!=0){
-                    l.FillHist("MuonTag_dZtogen",   mu_cat, (float)((*vtx - *((TVector3*)l.gv_pos->At(0))).Z()));
-                }
-                l.FillHist("MuonTag_sameVtx",   mu_cat, (float)(muVtx==l.dipho_vtxind[diphotonVHlep_id]));
-
 
                 lep_sync<<"run="<<l.run<<"\t";
                 lep_sync<<"lumis"<<l.lumis<<"\t";
@@ -3445,6 +3432,33 @@ bool PhotonAnalysis::MuonTag2012B(LoopAll& l, int& diphotonVHlep_id, int& muVtx,
     return tag;
 }
 
+
+void PhotonAnalysis::ControlPlotsMuonTag2012B(LoopAll& l, TLorentzVector lead_p4, TLorentzVector sublead_p4, int mu_ind, float bdtoutput, float evweight, std::string label){
+    
+    if(mu_ind<0) {
+        std::cout<<"mu_ind is "<<mu_ind<<std::endl;
+        std::cout<<"leaving ControlPlotsMuonTag2012B"<<std::endl;
+        return;
+    }
+   
+    TLorentzVector* mymu=(TLorentzVector*) l.mu_glo_p4->At(mu_ind);
+    int muVtx=l.FindMuonVertex(mu_ind);
+    int mu_cat=(int)(abs(lead_p4.Eta())>1.5 || abs(sublead_p4.Eta())>1.5); 
+
+    l.FillHist(Form("MuonTag_mupt_%s",label.c_str()),       mu_cat, mymu->Pt(), evweight);
+    l.FillHist(Form("MuonTag_mueta_%s",label.c_str()),      mu_cat, mymu->Eta(), evweight);
+    l.FillHist(Form("MuonTag_muphi_%s",label.c_str()),      mu_cat, mymu->Phi(), evweight);
+    float thisiso=((l.mu_glo_nehadiso04[mu_ind]+l.mu_glo_photiso04[mu_ind])>l.mu_dbCorr[mu_ind]) ?
+    l.mu_glo_chhadiso04[mu_ind]+l.mu_glo_nehadiso04[mu_ind]+l.mu_glo_photiso04[mu_ind]-l.mu_dbCorr[mu_ind] : l.mu_glo_chhadiso04[mu_ind];    
+    l.FillHist(Form("MuonTag_muisoopt_%s",label.c_str()),   mu_cat, thisiso/mymu->Pt(), evweight);
+    l.FillHist(Form("MuonTag_drmulead_%s",label.c_str()),   mu_cat, mymu->DeltaR(lead_p4), evweight);
+    l.FillHist(Form("MuonTag_drmusub_%s",label.c_str()),    mu_cat, mymu->DeltaR(sublead_p4), evweight);
+    l.FillHist(Form("MuonTag_d0_%s",label.c_str()),         mu_cat, l.mu_glo_D0Vtx[mu_ind][muVtx], evweight);
+    l.FillHist(Form("MuonTag_dZ_%s",label.c_str()),         mu_cat, l.mu_glo_DZVtx[mu_ind][muVtx], evweight);
+    l.FillHist(Form("MuonTag_diphomva_%s",label.c_str()),   mu_cat, bdtoutput, evweight);
+    
+
+}
 
 
 bool PhotonAnalysis::VBFTag2011(LoopAll& l, int diphoton_id, float* smeared_pho_energy, bool nm1, float eventweight, float myweight){

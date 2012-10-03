@@ -820,7 +820,9 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 	VHmetevent = false; //met at analysis step
         
     int muVtx=-1;
+    int mu_ind=-1;
     int elVtx=-1;
+    int el_ind=-1;
 	
 	// lepton tag
 	if(includeVHlep){
@@ -833,9 +835,9 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 	    } else {
 	        //VHmuevent=MuonTag2012(l, diphotonVHlep_id, &smeared_pho_energy[0],lep_sync);
 	        //VHelevent=ElectronTag2012(l, diphotonVHlep_id, &smeared_pho_energy[0],lep_sync);
-            VHmuevent=MuonTag2012B(l, diphotonVHlep_id, muVtx, VHmuevent_cat, &smeared_pho_energy[0], lep_sync, false);
+            VHmuevent=MuonTag2012B(l, diphotonVHlep_id, mu_ind, muVtx, VHmuevent_cat, &smeared_pho_energy[0], lep_sync, false);
             if(!VHmuevent){
-                VHelevent=ElectronTag2012B(l, diphotonVHlep_id, elVtx, VHelevent_cat, &smeared_pho_energy[0], lep_sync, false);
+                VHelevent=ElectronTag2012B(l, diphotonVHlep_id, el_ind, elVtx, VHelevent_cat, &smeared_pho_energy[0], lep_sync, false);
 	    }
 	}
 	
