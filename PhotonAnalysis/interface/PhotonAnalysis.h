@@ -348,18 +348,16 @@ class PhotonAnalysis : public BaseAnalysis
     // ~ ICHEP2012
     bool METTag2012(LoopAll& l, int& diphotonVHmet_id , float* smeared_pho_energy);  //met at analysis step
     void MetCorrections2012(LoopAll& l);
-    void MetCorrections2012_Simple(LoopAll& l, TLorentzVector lead_p4, TLorentzVector sublead_p4, Int_t i_dipho=0);
+    void MetCorrections2012_Simple(LoopAll& l, TLorentzVector lead_p4, TLorentzVector sublead_p4);
     
     // HCP2012
     bool METTag2012B(LoopAll& l, int& diphotonVHmet_id, int& met_cat, float* smeared_pho_energy, ofstream& met_sync, bool mvaselection=true, float phoidMvaCut=-0.2);
     
     
-
     int GenMatch(LoopAll& l, TLorentzVector* recop4);
     bool PhotonMatchElectron(LoopAll& l, TLorentzVector* pho_p4);
     bool PhotonMatchElectron(LoopAll& l, TLorentzVector* pho_p4, int& el_match_ind);
     bool HLTPhotonPreselection(LoopAll& l, TLorentzVector* pho_p4, int phoind);
-
     
     ofstream met_sync;
     ofstream lep_sync;
