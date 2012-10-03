@@ -315,7 +315,7 @@ Float_t LoopAll::photonIDMVA(Int_t iPhoton, Int_t vtx, TLorentzVector &p4, const
                 isomax=(*pho_pfiso_mycharged04)[iPhoton][iv]; 
             }
         }
-    
+   
         float rhofacpf[6]    = {0.075, 0.082, 0.143, 0.050, 0.091, 0.106};
         float rhofacbadpf[6] = {0.141, 0.149, 0.208, 0.135, 0.162, 0.165};
         float rhofac         = rhofacpf[cat];
@@ -1085,18 +1085,11 @@ TLorentzVector LoopAll::correctMet_Simple( TLorentzVector & pho_lead, TLorentzVe
         TLorentzVector * p4_jet = (TLorentzVector *) jet_algoPF1_p4->At(i);
         if( version >= 13 ) {
             p4_jet = (TLorentzVector *) p4_jet->Clone();
-            *p4_jet = (*p4_jet) * (1/jet_algoPF1_erescale[i]);
+            *p4_jet = (*p4_jet) * (1./jet_algoPF1_erescale[i]);
         }
-        bool isJet_LeadPho = false;
-        bool isJet_SubLeadPho = false;
-        
-        double dR_jet_PhoLead = p4_jet->DeltaR(pho_lead);
-        if( dR_jet_PhoLead<0.5 ) isJet_LeadPho = true;
-        
-        double dR_jet_PhoSubLead = p4_jet->DeltaR(pho_sublead);
-        if( dR_jet_PhoSubLead<0.5 ) isJet_SubLeadPho = true;
-        
-        if( isJet_LeadPho || isJet_SubLeadPho ) continue;
+
+	// if Jet matches the photons ignore it
+        if(p4_jet->DeltaR(pho_lead) < 0.5 || p4_jet->DeltaR(pho_sublead) < 0.5) continue;
         
         double ptJet_pfakt5 = p4_jet->Pt();
         double eJet_pfakt5 = p4_jet->Energy();
@@ -1130,7 +1123,7 @@ TLorentzVector LoopAll::correctMet_Simple( TLorentzVector & pho_lead, TLorentzVe
         else {
             double expres = ErrEt(ptJet_pfakt5, etaJet_pfakt5);
             double relsmear = expres * sqrt(smear*smear-1);
-            jSmearRan->SetSeed(event+(Int_t)(etaJet_pfakt5*1000));
+	    jSmearRan->SetSeed(event+(Int_t)(etaJet_pfakt5*1000)); 
             shift = jSmearRan->Gaus(0.,relsmear);
         }
         

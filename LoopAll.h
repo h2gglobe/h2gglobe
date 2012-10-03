@@ -713,20 +713,21 @@ Float_t pho_s4ratio[MAX_PHOTONS];
 
 //correctMETinRED
 Float_t shiftMET_pt;
-Float_t shiftMET_phi;
-Float_t smearMET_pt;
-Float_t smearMET_phi;
-Float_t shiftscaleMET_pt;
-Float_t shiftscaleMET_phi;
-Float_t shiftsmearMET_pt;
-Float_t shiftsmearMET_phi;
-Float_t correctedpfMET;
-Float_t correctedpfMET_phi;
-
-Float_t shiftMET_eta;
 Float_t shiftMET_e;
-Float_t shiftscaleMET_eta;
-Float_t shiftscaleMET_e;
+Float_t shiftMET_eta;
+Float_t shiftMET_phi;
+
+Float_t smearMET_pt[MAX_DIPHOTONS];
+Float_t smearMET_phi[MAX_DIPHOTONS];
+Float_t shiftscaleMET_pt[MAX_DIPHOTONS];
+Float_t shiftscaleMET_phi[MAX_DIPHOTONS];
+Float_t shiftsmearMET_pt[MAX_DIPHOTONS];
+Float_t shiftsmearMET_phi[MAX_DIPHOTONS];
+Float_t correctedpfMET[MAX_DIPHOTONS];
+Float_t correctedpfMET_phi[MAX_DIPHOTONS];
+
+Float_t shiftscaleMET_eta[MAX_DIPHOTONS];
+Float_t shiftscaleMET_e[MAX_DIPHOTONS];
 
 
 
@@ -983,38 +984,41 @@ void SetBranchAddress_pho_regr_energyerr_otf(TTree * tree) { tree->SetBranchAddr
 
 
 //correctMETinRED
-void Branch_shiftMET_pt(TTree * tree) { tree->Branch("shiftMET_pt", &shiftMET_pt, "shiftMET_pt[dipho_n]/F"); };
-void Branch_shiftMET_phi(TTree * tree) { tree->Branch("shiftMET_phi", &shiftMET_phi, "shiftMET_phi[dipho_n]/F"); };
-void Branch_smearMET_pt(TTree * tree) { tree->Branch("smearMET_pt", &smearMET_pt, "smearMET_pt[dipho_n]/F"); };
-void Branch_smearMET_phi(TTree * tree) { tree->Branch("smearMET_phi", &smearMET_phi, "smearMET_phi[dipho_n]/F"); };
-void Branch_shiftscaleMET_pt(TTree * tree) { tree->Branch("shiftscaleMET_pt", &shiftscaleMET_pt, "shiftscaleMET_pt[dipho_n]/F"); };
-void Branch_shiftscaleMET_phi(TTree * tree) { tree->Branch("shiftscaleMET_phi", &shiftscaleMET_phi, "shiftscaleMET_phi[dipho_n]/F"); };
-void Branch_shiftsmearMET_pt(TTree * tree) { tree->Branch("shiftsmearMET_pt", &shiftsmearMET_pt, "shiftsmearMET_pt[dipho_n]/F"); };
-void Branch_shiftsmearMET_phi(TTree * tree) { tree->Branch("shiftsmearMET_phi", &shiftsmearMET_phi, "shiftsmearMET_phi[dipho_n]/F"); };
-void Branch_correctedpfMET(TTree * tree) { tree->Branch("correctedpfMET", &correctedpfMET, "correctedpfMET[dipho_n]/F"); };
-void Branch_correctedpfMET_phi(TTree * tree) { tree->Branch("correctedpfMET_phi", &correctedpfMET_phi, "correctedpfMET_phi[dipho_n]/F"); };
+void Branch_shiftMET_pt(TTree * tree) { tree->Branch("shiftMET_pt", &shiftMET_pt, "shiftMET_pt/F"); };
+void Branch_shiftMET_e(TTree * tree) { tree->Branch("shiftMET_e", &shiftMET_e, "shiftMET_e/F"); };
+void Branch_shiftMET_eta(TTree * tree) { tree->Branch("shiftMET_eta", &shiftMET_eta, "shiftMET_eta/F"); };
+void Branch_shiftMET_phi(TTree * tree) { tree->Branch("shiftMET_phi", &shiftMET_phi, "shiftMET_phi/F"); };
+
+void Branch_smearMET_pt(TTree * tree) { tree->Branch("smearMET_pt", smearMET_pt, "smearMET_pt[dipho_n]/F"); };
+void Branch_smearMET_phi(TTree * tree) { tree->Branch("smearMET_phi", smearMET_phi, "smearMET_phi[dipho_n]/F"); };
+void Branch_shiftscaleMET_pt(TTree * tree) { tree->Branch("shiftscaleMET_pt", shiftscaleMET_pt, "shiftscaleMET_pt[dipho_n]/F"); };
+void Branch_shiftscaleMET_phi(TTree * tree) { tree->Branch("shiftscaleMET_phi", shiftscaleMET_phi, "shiftscaleMET_phi[dipho_n]/F"); };
+void Branch_shiftsmearMET_pt(TTree * tree) { tree->Branch("shiftsmearMET_pt", shiftsmearMET_pt, "shiftsmearMET_pt[dipho_n]/F"); };
+void Branch_shiftsmearMET_phi(TTree * tree) { tree->Branch("shiftsmearMET_phi", shiftsmearMET_phi, "shiftsmearMET_phi[dipho_n]/F"); };
+void Branch_correctedpfMET(TTree * tree) { tree->Branch("correctedpfMET", correctedpfMET, "correctedpfMET[dipho_n]/F"); };
+void Branch_correctedpfMET_phi(TTree * tree) { tree->Branch("correctedpfMET_phi", correctedpfMET_phi, "correctedpfMET_phi[dipho_n]/F"); };
 
 void SetBranchAddress_shiftMET_pt(TTree * tree) { tree->SetBranchAddress("shiftMET_pt", &shiftMET_pt, &b_shiftMET_pt); };
+void SetBranchAddress_shiftMET_e(TTree * tree) { tree->SetBranchAddress("shiftMET_e", &shiftMET_e, &b_shiftMET_e); };
+void SetBranchAddress_shiftMET_eta(TTree * tree) { tree->SetBranchAddress("shiftMET_eta", &shiftMET_eta, &b_shiftMET_eta); };
 void SetBranchAddress_shiftMET_phi(TTree * tree) { tree->SetBranchAddress("shiftMET_phi", &shiftMET_phi, &b_shiftMET_phi); };
-void SetBranchAddress_smearMET_pt(TTree * tree) { tree->SetBranchAddress("smearMET_pt", &smearMET_pt, &b_smearMET_pt); };
-void SetBranchAddress_smearMET_phi(TTree * tree) { tree->SetBranchAddress("smearMET_phi", &smearMET_phi, &b_smearMET_phi); };
-void SetBranchAddress_shiftscaleMET_pt(TTree * tree) { tree->SetBranchAddress("shiftscaleMET_pt", &shiftscaleMET_pt, &b_shiftscaleMET_pt); };
-void SetBranchAddress_shiftscaleMET_phi(TTree * tree) { tree->SetBranchAddress("shiftscaleMET_phi", &shiftscaleMET_phi, &b_shiftscaleMET_phi); };
-void SetBranchAddress_shiftsmearMET_pt(TTree * tree) { tree->SetBranchAddress("shiftsmearMET_pt", &shiftsmearMET_pt, &b_shiftsmearMET_pt); };
-void SetBranchAddress_shiftsmearMET_phi(TTree * tree) { tree->SetBranchAddress("shiftsmearMET_phi", &shiftsmearMET_phi, &b_shiftsmearMET_phi); };
-void SetBranchAddress_correctedpfMET(TTree * tree) { tree->SetBranchAddress("correctedpfMET", &correctedpfMET, &b_correctedpfMET); };
-void SetBranchAddress_correctedpfMET_phi(TTree * tree) { tree->SetBranchAddress("correctedpfMET_phi", &correctedpfMET_phi, &b_correctedpfMET_phi); };
 
-void Branch_shiftMET_eta(TTree * tree) { tree->Branch("shiftMET_eta", &shiftMET_eta, "shiftMET_eta[dipho_n]/F"); };
-void Branch_shiftMET_e(TTree * tree) { tree->Branch("shiftMET_e", &shiftMET_e, "shiftMET_e[dipho_n]/F"); };
+void SetBranchAddress_smearMET_pt(TTree * tree) { tree->SetBranchAddress("smearMET_pt", smearMET_pt, &b_smearMET_pt); };
+void SetBranchAddress_smearMET_phi(TTree * tree) { tree->SetBranchAddress("smearMET_phi", smearMET_phi, &b_smearMET_phi); };
+void SetBranchAddress_shiftscaleMET_pt(TTree * tree) { tree->SetBranchAddress("shiftscaleMET_pt", shiftscaleMET_pt, &b_shiftscaleMET_pt); };
+void SetBranchAddress_shiftscaleMET_phi(TTree * tree) { tree->SetBranchAddress("shiftscaleMET_phi", shiftscaleMET_phi, &b_shiftscaleMET_phi); };
+void SetBranchAddress_shiftsmearMET_pt(TTree * tree) { tree->SetBranchAddress("shiftsmearMET_pt", shiftsmearMET_pt, &b_shiftsmearMET_pt); };
+void SetBranchAddress_shiftsmearMET_phi(TTree * tree) { tree->SetBranchAddress("shiftsmearMET_phi", shiftsmearMET_phi, &b_shiftsmearMET_phi); };
+void SetBranchAddress_correctedpfMET(TTree * tree) { tree->SetBranchAddress("correctedpfMET", correctedpfMET, &b_correctedpfMET); };
+void SetBranchAddress_correctedpfMET_phi(TTree * tree) { tree->SetBranchAddress("correctedpfMET_phi", correctedpfMET_phi, &b_correctedpfMET_phi); };
+
+//------------------------------ not used!!!
 void Branch_shiftscaleMET_eta(TTree * tree) { tree->Branch("shiftscaleMET_eta", &shiftscaleMET_eta, "shiftscaleMET_eta[dipho_n]/F"); };
 void Branch_shiftscaleMET_e(TTree * tree) { tree->Branch("shiftscaleMET_e", &shiftscaleMET_e, "shiftscaleMET_e[dipho_n]/F"); };
 
-void SetBranchAddress_shiftMET_eta(TTree * tree) { tree->SetBranchAddress("shiftMET_eta", &shiftMET_eta, &b_shiftMET_eta); };
-void SetBranchAddress_shiftMET_e(TTree * tree) { tree->SetBranchAddress("shiftMET_e", &shiftMET_e, &b_shiftMET_e); };
 void SetBranchAddress_shiftscaleMET_eta(TTree * tree) { tree->SetBranchAddress("shiftscaleMET_eta", &shiftscaleMET_eta, &b_shiftscaleMET_eta); };
 void SetBranchAddress_shiftscaleMET_e(TTree * tree) { tree->SetBranchAddress("shiftscaleMET_e", &shiftscaleMET_e, &b_shiftscaleMET_e); };
-
+//------------------------------
 // ID branches
 void Branch_pho_mitmva(TTree * tree) { tree->Branch("pho_mitmva", "std::vector<std::vector<float> >", &pho_mitmva); }; 
 
