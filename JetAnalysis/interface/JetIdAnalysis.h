@@ -34,6 +34,9 @@ class JetIdAnalysis : public StatAnalysis
     void ReducedOutputTree(LoopAll &l, TTree * outputTree);
     bool SelectEventsReduction(LoopAll&, int);
 
+    bool SkimEvents(LoopAll& l, int jentry);
+    void GetBranches(TTree *t, std::set<TBranch *>& s ) ;
+
     bool AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentzVector & gP4, float & mass, float & evweight, int & category, 
 		      int & diphoton_id,
 		      bool & isCorrectVertex,
@@ -43,9 +46,11 @@ class JetIdAnalysis : public StatAnalysis
 		      BaseGenLevelSmearer *genSys=0, BaseSmearer *phoSys=0, BaseDiPhotonSmearer * diPhoSys=0); 
 
     void fillJetIdPlots(LoopAll & l, int ijet, int icat, float wei, const char * label, bool kinOnly=true);
-    
+
+    void DiMuonSelection(LoopAll & l, int& goodMuon1, int& goodMuon2, bool& isZcandidate);
+
     bool recomputeJetId, expoMatching, dumpFlatTree;
-    
+    bool runZmumuValidation;
     
 private:
     std::vector<std::string> vtxVarNames_;
@@ -65,6 +70,9 @@ private:
     float tree_genPt, tree_genDr, tree_njets;
     bool tree_jetLooseID, tree_isMatched;
 
+    int tree_simpleId , tree_fullId,  tree_cutbasedId ;
+    float tree_simpleDiscriminant, tree_fullDiscriminant, tree_cutbasedDiscriminant;
+    float  tree_dphiZJet,  tree_dimuonPt, tree_dimuonMass;
 };
 
 #endif

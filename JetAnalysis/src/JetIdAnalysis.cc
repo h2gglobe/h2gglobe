@@ -21,9 +21,12 @@ JetIdAnalysis::JetIdAnalysis()
     recomputeJetId = false;
     expoMatching   = false;
     dumpFlatTree   = false;
-    
+    runZmumuValidation=false;
+
     flatTree_ = 0;
     outputFile_ = 0;
+
+   
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -78,8 +81,39 @@ void JetIdAnalysis::Init(LoopAll& l)
 	flatTree_->Branch( "jetHenDr", &tree_genDr );
 	flatTree_->Branch( "njets", &tree_njets );
 	flatTree_->Branch( "jetLooseID", &tree_jetLooseID );
+	flatTree_->Branch( "simpleId",&tree_simpleId );
+	flatTree_->Branch( "fullId",&tree_fullId );
+	flatTree_->Branch( "cutbasedId",&tree_cutbasedId );
+	flatTree_->Branch( "simpleDiscriminant",&tree_simpleDiscriminant );
+	flatTree_->Branch( "fullDiscriminant",&tree_fullDiscriminant );
+	flatTree_->Branch( "cutbasedDiscriminant",&tree_cutbasedDiscriminant );
+	
+	flatTree_->Branch( "dimuonMass",&tree_dimuonMass);
+	flatTree_->Branch( "dimuonPt",&tree_dimuonPt);
+	flatTree_->Branch( "dphiZJet",&tree_dphiZJet);
+
+	
     }
 }
+
+// ----------------------------------------------------------------------------------------------------
+bool JetIdAnalysis::SkimEvents(LoopAll& l, int jentry){
+    
+    if (runZmumuValidation) {
+	return true;
+    }
+    else{
+	SkimEvents(l,jentry);
+    }
+}
+  
+// ----------------------------------------------------------------------------------------------------
+void JetIdAnalysis::GetBranches(TTree *t, std::set<TBranch *>& s ) {
+  
+    if (!runZmumuValidation) GetBranches(t,s);
+   
+}
+
 
 // ----------------------------------------------------------------------------------------------------
 void JetIdAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree) 
@@ -92,7 +126,7 @@ void JetIdAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree)
 void JetIdAnalysis::FillReductionVariables(LoopAll& l, int jentry)
 {
 }
-   
+
 // ----------------------------------------------------------------------------------------------------
 bool JetIdAnalysis::SelectEventsReduction(LoopAll&, int)
 {
@@ -116,6 +150,8 @@ bool JetIdAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorent
     float sampleweight = l.sampleContainer[l.current_sample_index].weight;
     /// diphoton_id = -1;
     
+    if (!runZmumuValidation){
+
     std::pair<int,int> diphoton_index;
    
     // do gen-level dependent first (e.g. k-factor); only for signal
@@ -342,7 +378,82 @@ bool JetIdAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorent
   
 	return true;
     }
-    
+    }
+
+    //**** runZmumuValidation
+    else {
+
+	// check if there is a good Zmumu candidate
+	bool selectEvent=false;
+	int goodMuon1=-1, goodMuon2=-1;
+	DiMuonSelection(l, goodMuon1, goodMuon2, selectEvent);
+	if( ! selectEvent ) { return false; }
+	
+	TLorentzVector *lead_p4 = (TLorentzVector*) l.mu_glo_p4->At(goodMuon1);
+	TLorentzVector *sublead_p4 = (TLorentzVector*) l.mu_glo_p4->At(goodMuon1);
+
+	// clean and sort jets
+	std::vector<int> sorted_jets;
+	for(int ijet=0; ijet<l.jet_algoPF1_n; ++ijet) { 
+	    TLorentzVector * p4 = (TLorentzVector*)l.jet_algoPF1_p4->At(ijet);
+	    if( p4->DeltaR(*lead_p4) > 0.5 && p4->DeltaR(*sublead_p4) > 0.5 ) {
+		sorted_jets.push_back(ijet);
+	    }
+	}
+	std::sort(sorted_jets.begin(),sorted_jets.end(),
+		  ClonesSorter<TLorentzVector,double,std::greater<double> >(l.jet_algoPF1_p4,&TLorentzVector::Pt));
+
+
+	// jet mc matching  
+	if (cur_type !=0) 
+	    l.doJetMatching(*l.jet_algoPF1_p4,*l.genjet_algo1_p4,l.jet_algoPF1_genMatched,l.jet_algoPF1_vbfMatched,l.jet_algoPF1_genPt,l.jet_algoPF1_genDr);
+
+	// post process jets (recompute mvas and wp)
+	postProcessJets(l, 0) ;
+		
+	// loop over sorted and cleaned jets
+	for(size_t itjet=0; itjet<sorted_jets.size(); ++itjet ) {
+	    int & ijet = sorted_jets[itjet];
+	    int ijetid = 0;
+	    TLorentzVector * p4 = (TLorentzVector*)l.jet_algoPF1_p4->At(ijet);
+	    
+	    if( dumpFlatTree ) {
+		tree_ievent = l.event;
+		tree_ijet = itjet;
+		if (cur_type != 0){
+		    tree_isMatched = l.jet_algoPF1_genMatched[ijet];
+		    tree_genPt = l.jet_algoPF1_genPt[ijet];
+		    tree_genDr = l.jet_algoPF1_genDr[ijet];
+		    // save also pu weights?
+		    //double pileupWeight=getPuWeight( l.pu_n, cur_type, &(l.sampleContainer[l.current_sample_index]), jentry == 1);
+
+		}
+		tree_njets = l.jet_algoPF1_n;
+		tree_jetLooseID = l.jet_algoPF1_pfloose[ijet];
+		
+		// jet eta, phi, pt, dphiZ, dimuonpt
+		jetHandler_->fillFromJet(ijet,0);
+		tree_simpleId   =  l.jet_algoPF1_simple_wp_level[ijet];
+		tree_fullId     =  l.jet_algoPF1_full_wp_level[ijet];
+		tree_cutbasedId =  l.jet_algoPF1_cutbased_wp_level[ijet];
+
+		tree_simpleDiscriminant   =  l.jet_algoPF1_simple_mva[ijet];
+		tree_fullDiscriminant     =  l.jet_algoPF1_full_mva[ijet];
+		tree_cutbasedDiscriminant =  -999;
+		
+		tree_dimuonPt   = (*lead_p4 + *sublead_p4).Pt() ;
+		tree_dimuonMass = (*lead_p4 + *sublead_p4).M() ;
+		tree_dphiZJet   = (*lead_p4 + *sublead_p4).DeltaPhi(*p4);
+
+		flatTree_->Fill();
+	    }
+	}
+	
+	return true;
+	
+    }
+
+
     return false;
 }
 
@@ -414,6 +525,54 @@ void switchJetIdVertex(LoopAll &l, int ivtx)
     }
 }
 
+
+
+
+void JetIdAnalysis::DiMuonSelection(LoopAll & l, int& goodMuon1, int& goodMuon2, bool& isZcandidate)
+{
+
+    float ZMASS = 91.188;
+    float minDeltaM = 9999;
+    
+    goodMuon1 = -1 ;
+    goodMuon2 = -1 ;
+    
+    std::vector<int> goodMuonIndex;
+    int nGoodMuons  = 0;
+    
+    //---preselect muons
+    for ( unsigned int imu=0; imu< l.mu_glo_n; ++imu ) {
+	// muon pt
+	float muonpt = ((TLorentzVector*) l.mu_glo_p4->At(imu)) -> Pt();
+	// require tight muon : tight ID and isolation
+	if ( !(l.MuonTightID2012(imu, 0)) || !(l.MuonIsolation2012(imu,  muonpt))) continue;
+	goodMuonIndex.push_back(imu);
+	nGoodMuons++;
+    }
+    
+    //  std::cout <<  goodMuonIndex.size() << "  " << nGoodMuons << std::endl;
+    
+    if (nGoodMuons > 1){
+	for ( unsigned int i = 0; i < goodMuonIndex.size(); ++i ) {
+	    for ( unsigned int j = i+1; j < goodMuonIndex.size(); ++j ) {
+		int ii =  goodMuonIndex.at(i);
+		int jj =  goodMuonIndex.at(j);
+		
+		TLorentzVector *mu1  = (TLorentzVector*) l.mu_glo_p4->At(ii);
+		TLorentzVector *mu2  = (TLorentzVector*) l.mu_glo_p4->At(jj);
+		float invmass = (*mu1+*mu2).M();
+		if ( fabs(invmass-ZMASS) < 30 && fabs(invmass-ZMASS) < minDeltaM ) {
+		    goodMuon1 = ii;
+		    goodMuon2 = jj;
+		    minDeltaM = fabs(invmass-ZMASS);
+		}
+	    }
+	}
+    }
+    
+    if (goodMuon1!=-1 && goodMuon2!=-1) isZcandidate = true;
+    
+}
 // Local Variables:
 // mode: c++
 // c-basic-offset: 4
