@@ -24,9 +24,10 @@ nElectronCategories=1
 nMuonCategories=1 
 
 ## MET tag
-includeVHmet=0
+includeVHmet=1
 leadEtVHmetCut=45
 subleadEtVHmetCut=30
+nMetCategories=1 
 
 doKFactorSmear=0
 doKFactorSyst=0

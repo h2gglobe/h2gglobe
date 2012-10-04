@@ -12,7 +12,7 @@ using namespace std;
 // ----------------------------------------------------------------------------------------------------
 MassFactorizedMvaAnalysis::MassFactorizedMvaAnalysis()  : 
     name_("MassFactorizedMvaAnalysis")
-						    //vtxAna_(vtxAlgoParams), vtxConv_(vtxAlgoParams)
+                            //vtxAna_(vtxAlgoParams), vtxConv_(vtxAlgoParams)
 {
 
     systRange  = 3.; // in units of sigma
@@ -111,11 +111,11 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
         photonSmearers_.push_back(eCorrSmearer);
     }
     if( doEscaleSmear ) {
-	setupEscaleSmearer();
+    setupEscaleSmearer();
     }
     if( doEresolSmear ) {
         // energy resolution smearing
-	setupEresolSmearer();
+    setupEresolSmearer();
     }
     if( doRegressionSmear ) {
         // energy regression. smearing
@@ -212,28 +212,30 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
     if(includeVHlep){
         nVHlepCategories = nElectronCategories + nMuonCategories;
     }
-    nVHmetCategories = (int)includeVHmet;  //met at analysis step
+    if(includeVHmet){
+    nVHmetCategories = nMetCategories;
+    }
     
     std::sort(mvaVbfCatBoundaries.begin(),mvaVbfCatBoundaries.end(), std::greater<float>() );
     if (multiclassVbfSelection) {
-	std::vector<int> vsize;
-  	vsize.push_back((int)multiclassVbfCatBoundaries0.size());
-  	vsize.push_back((int)multiclassVbfCatBoundaries1.size());
-  	vsize.push_back((int)multiclassVbfCatBoundaries2.size());
- 	std::sort(vsize.begin(),vsize.end(), std::greater<int>());
-	// sanity check: there sould be at least 2 vectors with size==2
-	if (vsize[0]<2 || vsize[1]<2 ){
-	    std::cout << "Not enough category boundaries:" << std::endl;
-	    std::cout << "multiclassVbfCatBoundaries0 size = " << multiclassVbfCatBoundaries0.size() << endl;
-	    std::cout << "multiclassVbfCatBoundaries1 size = " << multiclassVbfCatBoundaries1.size() << endl;
-	    std::cout << "multiclassVbfCatBoundaries2 size = " << multiclassVbfCatBoundaries2.size() << endl;
-	    assert( 0 );
-	}
-	nVBFCategories   = vsize[0]-1;
-	cout << "@@@@@@@@@@@@@@@@@ 	nVBFCategories = " << 	nVBFCategories << endl;
-	std::sort(multiclassVbfCatBoundaries0.begin(),multiclassVbfCatBoundaries0.end(), std::greater<float>() );
-	std::sort(multiclassVbfCatBoundaries1.begin(),multiclassVbfCatBoundaries1.end(), std::greater<float>() );
-	std::sort(multiclassVbfCatBoundaries2.begin(),multiclassVbfCatBoundaries2.end(), std::greater<float>() );
+        std::vector<int> vsize;
+        vsize.push_back((int)multiclassVbfCatBoundaries0.size());
+        vsize.push_back((int)multiclassVbfCatBoundaries1.size());
+        vsize.push_back((int)multiclassVbfCatBoundaries2.size());
+        std::sort(vsize.begin(),vsize.end(), std::greater<int>());
+        // sanity check: there sould be at least 2 vectors with size==2
+        if (vsize[0]<2 || vsize[1]<2 ){
+            std::cout << "Not enough category boundaries:" << std::endl;
+            std::cout << "multiclassVbfCatBoundaries0 size = " << multiclassVbfCatBoundaries0.size() << endl;
+            std::cout << "multiclassVbfCatBoundaries1 size = " << multiclassVbfCatBoundaries1.size() << endl;
+            std::cout << "multiclassVbfCatBoundaries2 size = " << multiclassVbfCatBoundaries2.size() << endl;
+            assert( 0 );
+        }
+        nVBFCategories   = vsize[0]-1;
+        cout << "@@@@@@@@@@@@@@@@@ 	nVBFCategories = " << 	nVBFCategories << endl;
+        std::sort(multiclassVbfCatBoundaries0.begin(),multiclassVbfCatBoundaries0.end(), std::greater<float>() );
+        std::sort(multiclassVbfCatBoundaries1.begin(),multiclassVbfCatBoundaries1.end(), std::greater<float>() );
+        std::sort(multiclassVbfCatBoundaries2.begin(),multiclassVbfCatBoundaries2.end(), std::greater<float>() );
     }
 
     nCategories_=(nInclusiveCategories_+nVBFCategories+nVHlepCategories+nVHmetCategories);
@@ -257,14 +259,14 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
         l.rooContainer->MakeSystematicStudy(sys,sys_t);
     }
     if( doEscaleSmear && doEscaleSyst ) {
-	setupEscaleSyst(l);
+    setupEscaleSyst(l);
         //// systPhotonSmearers_.push_back( eScaleSmearer );
         //// std::vector<std::string> sys(1,eScaleSmearer->name());
         //// std::vector<int> sys_t(1,-1);  // -1 for signal, 1 for background 0 for both
         //// l.rooContainer->MakeSystematicStudy(sys,sys_t);
     }
     if( doEresolSmear && doEresolSyst ) {
-	setupEresolSyst(l);
+    setupEresolSyst(l);
         //// systPhotonSmearers_.push_back( eResolSmearer );
         //// std::vector<std::string> sys(1,eResolSmearer->name());
         //// std::vector<int> sys_t(1,-1);  // -1 for signal, 1 for background 0 for both
@@ -435,24 +437,28 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
         l.rooContainer->AddGenericPdf("data_pol_model_8TeV","0","CMS_hgg_mass",data_pol5_pars,76); // >= 71 means RooBernstein of order >= 1
 
     } else if (bdtTrainingPhilosophy=="MIT"){
-	
-	// -----------------------------------------------------
-	// Configurable background model
-	// if no configuration was given, set some defaults
-	std::string postfix=(dataIs2011?"":"_8TeV");
-	if( bkgPolOrderByCat.empty() ) {
-	    for(int i=0; i<nCategories_; i++){
-		if(i<1) {
-		    bkgPolOrderByCat.push_back(4);
-		} else if(i<nInclusiveCategories_) {
-		    bkgPolOrderByCat.push_back(5);
-		} else if(i<nInclusiveCategories_+nVBFCategories){
-		    bkgPolOrderByCat.push_back(3);
-		} 
-	    }
-	}
-	// build the model
-	buildBkgModel(l, postfix);
+    
+    // -----------------------------------------------------
+    // Configurable background model
+    // if no configuration was given, set some defaults
+    std::string postfix=(dataIs2011?"":"_8TeV");
+    if( bkgPolOrderByCat.empty() ) {
+        for(int i=0; i<nCategories_; i++){
+        if(i<1) {
+            bkgPolOrderByCat.push_back(4);
+        } else if(i<nInclusiveCategories_) {
+            bkgPolOrderByCat.push_back(5);
+        } else if(i<nInclusiveCategories_+nVBFCategories){
+            bkgPolOrderByCat.push_back(3);
+        } else if(i<nInclusiveCategories_+nVBFCategories+nVHlepCategories){
+            bkgPolOrderByCat.push_back(-1);
+                } else if(i<nInclusiveCategories_+nVBFCategories+nVHlepCategories+nVHmetCategories){
+                    bkgPolOrderByCat.push_back(3);
+                }
+        }
+    }
+    // build the model
+    buildBkgModel(l, postfix);
     }
     
     // Make some data sets from the observables to fill in the event loop      
@@ -462,7 +468,7 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
     
     // Create Signal DataSets:
     for(size_t isig=0; isig<sigPointsToBook.size(); ++isig) {
-	int sig = sigPointsToBook[isig];
+    int sig = sigPointsToBook[isig];
         l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_ggh_mass_m%d",sig),nDataBins);    
         l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_vbf_mass_m%d",sig),nDataBins);    
         l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wzh_mass_m%d",sig),nDataBins);    
@@ -481,7 +487,7 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
 
     // Make more datasets representing Systematic Shifts of various quantities
     for(size_t isig=0; isig<sigPointsToBook.size(); ++isig) {
-	int sig = sigPointsToBook[isig];
+    int sig = sigPointsToBook[isig];
         l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_ggh_mass_m%d",sig),-1);    
         l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_vbf_mass_m%d",sig),-1);    
         l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_wzh_mass_m%d",sig),-1);    
@@ -498,17 +504,17 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
     l.tmvaReader_dipho_UCSD->BookMVA("Gradient"  ,eventLevelMvaUCSD.c_str()   );
     // New ID MVA
     if( photonLevelNewIDMVA_EB != "" && photonLevelNewIDMVA_EE != "" ) {
-	l.tmvaReaderID_Single_Barrel->BookMVA("AdaBoost",photonLevelNewIDMVA_EB.c_str());
-	l.tmvaReaderID_Single_Endcap->BookMVA("AdaBoost",photonLevelNewIDMVA_EE.c_str());
+    l.tmvaReaderID_Single_Barrel->BookMVA("AdaBoost",photonLevelNewIDMVA_EB.c_str());
+    l.tmvaReaderID_Single_Endcap->BookMVA("AdaBoost",photonLevelNewIDMVA_EE.c_str());
     } else { 
-	assert( dataIs2011 );
+    assert( dataIs2011 );
     }
     // MIT 
     if( photonLevelMvaMIT_EB != "" && photonLevelMvaMIT_EE != "" ) {
-	l.tmvaReaderID_MIT_Barrel->BookMVA("AdaBoost",photonLevelMvaMIT_EB.c_str());
-	l.tmvaReaderID_MIT_Endcap->BookMVA("AdaBoost",photonLevelMvaMIT_EE.c_str());
+    l.tmvaReaderID_MIT_Barrel->BookMVA("AdaBoost",photonLevelMvaMIT_EB.c_str());
+    l.tmvaReaderID_MIT_Endcap->BookMVA("AdaBoost",photonLevelMvaMIT_EE.c_str());
     } else {
-	assert( ! dataIs2011 );
+    assert( ! dataIs2011 );
     }
     l.tmvaReader_dipho_MIT->BookMVA("Gradient"   ,eventLevelMvaMIT.c_str()    );
     // ----------------------------------------------------------------------//
@@ -520,10 +526,10 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
 }
 
 bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentzVector & gP4,
-					     float & mass, float & evweight, int & category, int & diphoton_id, bool & isCorrectVertex, float &kinematic_bdtout,
-					     bool isSyst, 
-					     float syst_shift, bool skipSelection, 
-					     BaseGenLevelSmearer *genSys, BaseSmearer *phoSys, BaseDiPhotonSmearer * diPhoSys) 
+                         float & mass, float & evweight, int & category, int & diphoton_id, bool & isCorrectVertex, float &kinematic_bdtout,
+                         bool isSyst, 
+                         float syst_shift, bool skipSelection, 
+                         BaseGenLevelSmearer *genSys, BaseSmearer *phoSys, BaseDiPhotonSmearer * diPhoSys) 
 {
 
     assert( isSyst || ! skipSelection );
@@ -537,20 +543,20 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
     // do gen-level dependent first (e.g. k-factor); only for signal
     genLevWeight=1.;
     if(cur_type!=0 ) {
-	applyGenLevelSmearings(genLevWeight,gP4,l.pu_n,cur_type,genSys,syst_shift);
+    applyGenLevelSmearings(genLevWeight,gP4,l.pu_n,cur_type,genSys,syst_shift);
     }
         
     int mu_ind=-1;
     int el_ind=-1;
 
-	
+    
     if (!skipSelection){
         // first apply corrections and smearing on the single photons 
-	smeared_pho_energy.clear(); smeared_pho_energy.resize(l.pho_n,0.); 
+        smeared_pho_energy.clear(); smeared_pho_energy.resize(l.pho_n,0.); 
         smeared_pho_r9.clear();     smeared_pho_r9.resize(l.pho_n,0.); 
         smeared_pho_weight.clear(); smeared_pho_weight.resize(l.pho_n,1.);
         applySinglePhotonSmearings(smeared_pho_energy, smeared_pho_r9, smeared_pho_weight, cur_type, l, energyCorrected, energyCorrectedError,
-				   phoSys, syst_shift);
+                   phoSys, syst_shift);
 
         // inclusive category di-photon selection
         // FIXME pass smeared R9
@@ -558,18 +564,19 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 
         // Exclusive Modes
         int diphotonVBF_id = -1;
-	    int ijet1, ijet2;
+        int ijet1, ijet2;
         VBFevent = false;
         
         int diphotonVHlep_id = -1;
         VHmuevent = false;
-	    VHmuevent_cat=0;
+        VHmuevent_cat=0;
         VHelevent = false;
         VHelevent_cat=0;
         
-        int diphotonVHmet_id = -1; //met at analysis step
-        VHmetevent = false; //met at analysis step
-        
+        int diphotonVHmet_id = -1; 
+        VHmetevent = false; 
+        VHmetevent_cat=0; 
+
         int diphotonVHhad_id = -1;
         VHhadevent = false;
        
@@ -581,18 +588,138 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
             float myweight=1.;
             if(eventweight*sampleweight!=0) myweight=eventweight/sampleweight;
             VHmuevent=MuonTag2012B(l, diphotonVHlep_id, mu_ind, muVtx, VHmuevent_cat, &smeared_pho_energy[0], lep_sync, true, phoidMvaCut);
-            if(!VHmuevent){
-                ZWithFakeGammaCS(l, &smeared_pho_energy[0]);
-                ElectronStudies2012B(l, &smeared_pho_energy[0], true,  -0.3, eventweight, myweight, jentry);
-                VHelevent=ElectronTag2012B(l, diphotonVHlep_id, el_ind, elVtx, VHelevent_cat, &smeared_pho_energy[0], lep_sync, true, phoidMvaCut);
+            ZWithFakeGammaCS(l, &smeared_pho_energy[0]);
+            ElectronStudies2012B(l, &smeared_pho_energy[0], true,  -0.3, eventweight, myweight, jentry);
+            int diphotonVH_ele_id=-1;
+            VHelevent=ElectronTag2012B(l, diphotonVH_ele_id, el_ind, elVtx, VHelevent_cat, &smeared_pho_energy[0], lep_sync, true, phoidMvaCut);
+            
+            if(VHmuevent){
+                TLorentzVector lead_p4, sublead_p4, Higgs;
+                float lead_r9, sublead_r9;
+                TVector3 * vtx;
+                fillDiphoton(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, vtx, &smeared_pho_energy[0], l, l.dipho_leadind[diphotonVHlep_id], l.dipho_subleadind[diphotonVHlep_id], muVtx);  
+                
+                massResolutionCalculator->Setup(l,&photonInfoCollection[l.dipho_leadind[diphotonVHlep_id]],&photonInfoCollection[l.dipho_subleadind[diphotonVHlep_id]],muVtx,eSmearPars,nR9Categories,nEtaCategories,beamspotSigma, true);
+                sigmaMrv = massResolutionCalculator->massResolutionEonly();
+                sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
+                float sigmaMeonly = massResolutionCalculator->massResolutionEonly();
+                float vtxProb=1.0;
+
+                float phoid_mvaout_lead = ( dataIs2011 ? 
+                    l.photonIDMVA(l.dipho_leadind[diphotonVHlep_id],muVtx,
+                          lead_p4,bdtTrainingPhilosophy.c_str()) :
+                    l.photonIDMVANew(l.dipho_leadind[diphotonVHlep_id],muVtx,
+                             lead_p4,bdtTrainingPhilosophy.c_str()) + photonIDMVAShift_EB );
+                float phoid_mvaout_sublead = ( dataIs2011 ? 
+                       l.photonIDMVA(l.dipho_subleadind[diphotonVHlep_id],muVtx,
+                             sublead_p4,bdtTrainingPhilosophy.c_str()) : 
+                       l.photonIDMVANew(l.dipho_subleadind[diphotonVHlep_id],muVtx,
+                            sublead_p4,bdtTrainingPhilosophy.c_str()) + photonIDMVAShift_EE );
+        
+                int selectioncategory = l.DiphotonCategory(l.dipho_leadind[diphotonVHlep_id], l.dipho_subleadind[diphotonVHlep_id], Higgs.Pt(),nEtaCategories,nR9Categories,0);
+                if( cur_type != 0 && doMCSmearing ) {
+                    applyDiPhotonSmearings(Higgs, *vtx, selectioncategory, cur_type, *((TVector3*)l.gv_pos->At(0)), evweight, 
+                            phoid_mvaout_lead,phoid_mvaout_sublead,
+                            diPhoSys, syst_shift);
+                }
+                           
+                float diphobdt_output = l.diphotonMVA( l.dipho_leadind[diphotonVHlep_id], l.dipho_subleadind[diphotonVHlep_id], muVtx,
+                          vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMeonly,
+                          bdtTrainingPhilosophy.c_str(),
+                          phoid_mvaout_lead,phoid_mvaout_sublead);
+
+                if (diphobdt_output<bdtCategoryBoundaries.back()) { 
+                    VHelevent=false;
+                }
             }
-            //ElectronTagStudies2012(l, diphotonVHlep_id, &smeared_pho_energy[0], true, eventweight, myweight, jentry);
+            
+            if(VHelevent){
+                TLorentzVector lead_p4, sublead_p4, Higgs;
+                float lead_r9, sublead_r9;
+                TVector3 * vtx;
+                fillDiphoton(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, vtx, &smeared_pho_energy[0], l, l.dipho_leadind[diphotonVH_ele_id], l.dipho_subleadind[diphotonVH_ele_id], elVtx);  
+                
+                massResolutionCalculator->Setup(l,&photonInfoCollection[l.dipho_leadind[diphotonVH_ele_id]],&photonInfoCollection[l.dipho_subleadind[diphotonVH_ele_id]],elVtx,eSmearPars,nR9Categories,nEtaCategories,beamspotSigma, true);
+                sigmaMrv = massResolutionCalculator->massResolutionEonly();
+                sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
+                float sigmaMeonly = massResolutionCalculator->massResolutionEonly();
+                float vtxProb=1.0;
+
+                float phoid_mvaout_lead = ( dataIs2011 ? 
+                    l.photonIDMVA(l.dipho_leadind[diphotonVH_ele_id],elVtx,
+                          lead_p4,bdtTrainingPhilosophy.c_str()) :
+                    l.photonIDMVANew(l.dipho_leadind[diphotonVH_ele_id],elVtx,
+                             lead_p4,bdtTrainingPhilosophy.c_str()) + photonIDMVAShift_EB );
+                float phoid_mvaout_sublead = ( dataIs2011 ? 
+                       l.photonIDMVA(l.dipho_subleadind[diphotonVH_ele_id],elVtx,
+                             sublead_p4,bdtTrainingPhilosophy.c_str()) : 
+                       l.photonIDMVANew(l.dipho_subleadind[diphotonVH_ele_id],elVtx,
+                            sublead_p4,bdtTrainingPhilosophy.c_str()) + photonIDMVAShift_EE );
+        
+                int selectioncategory = l.DiphotonCategory(l.dipho_leadind[diphotonVH_ele_id], l.dipho_subleadind[diphotonVH_ele_id], Higgs.Pt(),nEtaCategories,nR9Categories,0);
+                if( cur_type != 0 && doMCSmearing ) {
+                    applyDiPhotonSmearings(Higgs, *vtx, selectioncategory, cur_type, *((TVector3*)l.gv_pos->At(0)), evweight, 
+                            phoid_mvaout_lead,phoid_mvaout_sublead,
+                            diPhoSys, syst_shift);
+                }
+                           
+                float diphobdt_output = l.diphotonMVA( l.dipho_leadind[diphotonVH_ele_id], l.dipho_subleadind[diphotonVH_ele_id], elVtx,
+                          vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMeonly,
+                          bdtTrainingPhilosophy.c_str(),
+                          phoid_mvaout_lead,phoid_mvaout_sublead);
+
+                if (diphobdt_output<bdtCategoryBoundaries.back()) { 
+                    VHmuevent=false;
+                }
+            }
+            
+            if(!VHmuevent && VHelevent){
+                diphotonVHlep_id=diphotonVH_ele_id;
+            }
         }
 
-        if(includeVHmet && !VHmuevent && !VHmuevent && !dataIs2011) {
-            //VHmetevent=METTag2012(l, diphotonVHmet_id, &smeared_pho_energy[0]);
-            int met_cat=0;
-            VHmetevent=METTag2012B(l, diphotonVHmet_id, met_cat, &smeared_pho_energy[0], met_sync, true, phoidMvaCut);
+        if(includeVHmet && !dataIs2011) {
+            if(!isSyst) VHmetevent=METTag2012B(l, diphotonVHmet_id, VHmetevent_cat, &smeared_pho_energy[0], met_sync, true, phoidMvaCut, false); 
+            if(isSyst)  VHmetevent=METTag2012B(l, diphotonVHmet_id, VHmetevent_cat, &smeared_pho_energy[0], met_sync, true, phoidMvaCut, true); 
+            if(VHmetevent){
+                TLorentzVector lead_p4, sublead_p4, Higgs;
+                float lead_r9, sublead_r9;
+                TVector3 * vtx;
+                fillDiphoton(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, vtx, &smeared_pho_energy[0], l, l.dipho_leadind[diphotonVHmet_id], l.dipho_subleadind[diphotonVHmet_id], 0);  
+                
+                massResolutionCalculator->Setup(l,&photonInfoCollection[l.dipho_leadind[diphotonVHmet_id]],&photonInfoCollection[l.dipho_subleadind[diphotonVHmet_id]],0,eSmearPars,nR9Categories,nEtaCategories,beamspotSigma, true);
+                sigmaMrv = massResolutionCalculator->massResolutionEonly();
+                sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
+                float sigmaMeonly = massResolutionCalculator->massResolutionEonly();
+                float vtxProb=1.0;
+
+                float phoid_mvaout_lead = ( dataIs2011 ? 
+                    l.photonIDMVA(l.dipho_leadind[diphotonVHmet_id],0,
+                          lead_p4,bdtTrainingPhilosophy.c_str()) :
+                    l.photonIDMVANew(l.dipho_leadind[diphotonVHmet_id],0,
+                             lead_p4,bdtTrainingPhilosophy.c_str()) + photonIDMVAShift_EB );
+                float phoid_mvaout_sublead = ( dataIs2011 ? 
+                       l.photonIDMVA(l.dipho_subleadind[diphotonVHmet_id],0,
+                             sublead_p4,bdtTrainingPhilosophy.c_str()) : 
+                       l.photonIDMVANew(l.dipho_subleadind[diphotonVHmet_id],0,
+                            sublead_p4,bdtTrainingPhilosophy.c_str()) + photonIDMVAShift_EE );
+        
+                int selectioncategory = l.DiphotonCategory(l.dipho_leadind[diphotonVHmet_id], l.dipho_subleadind[diphotonVHmet_id], Higgs.Pt(),nEtaCategories,nR9Categories,0);
+                if( cur_type != 0 && doMCSmearing ) {
+                    applyDiPhotonSmearings(Higgs, *vtx, selectioncategory, cur_type, *((TVector3*)l.gv_pos->At(0)), evweight, 
+                            phoid_mvaout_lead,phoid_mvaout_sublead,
+                            diPhoSys, syst_shift);
+                }
+                           
+                float diphobdt_output = l.diphotonMVA( l.dipho_leadind[diphotonVHmet_id], l.dipho_subleadind[diphotonVHmet_id], 0,
+                          vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMeonly,
+                          bdtTrainingPhilosophy.c_str(),
+                          phoid_mvaout_lead,phoid_mvaout_sublead);
+
+                if (diphobdt_output<bdtCategoryBoundaries.back()) { 
+                    VHmetevent=false;
+                }
+            }
         }
 
         // VBF
@@ -600,18 +727,17 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
             l.RescaleJetEnergy();
         }
 
-        if(includeVBF && !VHmetevent) {
+        if(includeVBF) {   
             diphotonVBF_id = l.DiphotonMITPreSelection(leadEtVBFCut,subleadEtVBFCut,phoidMvaCut,applyPtoverM, &smeared_pho_energy[0] );
             float eventweight = weight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second] * genLevWeight;
             float myweight=1.;
             if(eventweight*sampleweight!=0) myweight=eventweight/sampleweight;
             
-	    VBFevent= ( dataIs2011 ? 
-			VBFTag2011(l, diphotonVBF_id, &smeared_pho_energy[0], true, eventweight, myweight) :
-			VBFTag2012(ijet1, ijet2, l, diphotonVBF_id, &smeared_pho_energy[0], true, eventweight, myweight) )
-		;
+            VBFevent= ( dataIs2011 ? 
+                VBFTag2011(l, diphotonVBF_id, &smeared_pho_energy[0], true, eventweight, myweight) :
+                VBFTag2012(ijet1, ijet2, l, diphotonVBF_id, &smeared_pho_energy[0], true, eventweight, myweight) );
         }
-       
+    
         if(includeVHlep&&VHmuevent){
             diphoton_id = diphotonVHlep_id;
             float eventweight = weight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second] * genLevWeight;
@@ -624,8 +750,8 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
             l.dipho_vtxind[diphoton_id] = elVtx;
         } else if(includeVBF&&VBFevent) {
             diphoton_id = diphotonVBF_id;
-	    } else if(includeVHmet&&VHmetevent) {
-	        diphoton_id = diphotonVHmet_id;
+        } else if(includeVHmet&&VHmetevent) {
+            diphoton_id = diphotonVHmet_id;
             float eventweight = weight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second] * genLevWeight;
             l.FillHist("METTag_sameVtx",   0, (float)(0==l.dipho_vtxind[diphotonVHmet_id]), eventweight);
             l.dipho_vtxind[diphoton_id] = 0;
@@ -636,43 +762,43 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
     if (PADEBUG) std::cout << "Found a Diphoton , diphoton ID " <<diphoton_id << std::endl; 
     if (diphoton_id > -1 ) {
         diphoton_index = std::make_pair( l.dipho_leadind[diphoton_id],  l.dipho_subleadind[diphoton_id] );
-	
+    
         // bring all the weights together: lumi & Xsection, single gammas, pt kfactor
-	evweight = weight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second] * genLevWeight;
-	if( ! isSyst ) {
-	    l.countersred[diPhoCounter_]++;
-	}
-	
+        evweight = weight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second] * genLevWeight;
+        if( ! isSyst ) {
+            l.countersred[diPhoCounter_]++;
+        }
+    
         TLorentzVector lead_p4, sublead_p4, Higgs;
         float lead_r9, sublead_r9;
         TVector3 * vtx;
-	fillDiphoton(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, vtx, &smeared_pho_energy[0], l, diphoton_id);  
+        fillDiphoton(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, vtx, &smeared_pho_energy[0], l, diphoton_id);  
         
-    // apply beamspot reweighting if necessary
-    if(reweighBeamspot && cur_type!=0) {
-        evweight*=BeamspotReweight(vtx->Z(),((TVector3*)l.gv_pos->At(0))->Z());
-    }
-	
-	// FIXME pass smeared R9
-	mass     = Higgs.M();
-	float ptHiggs = Higgs.Pt();
-	
-	// For Zee validation, reweight MC pT distribution to match data 
-	if( l.runZeeValidation && cur_type != 0) {
-	    if (zeePtBinLowEdge.size() != zeePtWeight.size()) {
-		std::cout << "Array size mismatch: zeePtBinLowEdge[" << zeePtBinLowEdge.size()
-			  << "], zeePtWeight[" << zeePtWeight.size() << "]" <<diphoton_id << std::endl;
-	    }
-	    for (int i=0; i<zeePtBinLowEdge.size(); i++) {
-		float zeePtBinHighEdge = 999.;
-		if (i<zeePtBinLowEdge.size()-1) zeePtBinHighEdge = zeePtBinLowEdge[i+1];
-		if (ptHiggs>zeePtBinLowEdge[i] && ptHiggs<zeePtBinHighEdge) {
-		    evweight *= zeePtWeight[i];
-		    //cout << ptHiggs << " " << zeePtWeight[i] << endl;
-		    break;
-		}
-	    }
-	}
+        // apply beamspot reweighting if necessary
+        if(reweighBeamspot && cur_type!=0) {
+            evweight*=BeamspotReweight(vtx->Z(),((TVector3*)l.gv_pos->At(0))->Z());
+        }
+    
+        // FIXME pass smeared R9
+        mass     = Higgs.M();
+        float ptHiggs = Higgs.Pt();
+    
+        // For Zee validation, reweight MC pT distribution to match data 
+        if( l.runZeeValidation && cur_type != 0) {
+            if (zeePtBinLowEdge.size() != zeePtWeight.size()) {
+            std::cout << "Array size mismatch: zeePtBinLowEdge[" << zeePtBinLowEdge.size()
+                  << "], zeePtWeight[" << zeePtWeight.size() << "]" <<diphoton_id << std::endl;
+            }
+            for (int i=0; i<zeePtBinLowEdge.size(); i++) {
+            float zeePtBinHighEdge = 999.;
+            if (i<zeePtBinLowEdge.size()-1) zeePtBinHighEdge = zeePtBinLowEdge[i+1];
+            if (ptHiggs>zeePtBinLowEdge[i] && ptHiggs<zeePtBinHighEdge) {
+                evweight *= zeePtWeight[i];
+                //cout << ptHiggs << " " << zeePtWeight[i] << endl;
+                break;
+            }
+            }
+        }
 
         // Mass Resolution of the Event
         massResolutionCalculator->Setup(l,&photonInfoCollection[diphoton_index.first],&photonInfoCollection[diphoton_index.second],diphoton_id,eSmearPars,nR9Categories,nEtaCategories,beamspotSigma);
@@ -687,37 +813,44 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
             vtxProb=1.0;
         }
 
+        if(includeVHmet && VHmetevent){
+            vtxProb=1.0;  // chiara
+        }
+
         float phoid_mvaout_lead = ( dataIs2011 ? 
-				    l.photonIDMVA(diphoton_index.first,l.dipho_vtxind[diphoton_id],
-						  lead_p4,bdtTrainingPhilosophy.c_str()) :
-				    l.photonIDMVANew(diphoton_index.first,l.dipho_vtxind[diphoton_id],
-						     lead_p4,bdtTrainingPhilosophy.c_str()) + photonIDMVAShift_EB );
+                    l.photonIDMVA(diphoton_index.first,l.dipho_vtxind[diphoton_id],
+                          lead_p4,bdtTrainingPhilosophy.c_str()) :
+                    l.photonIDMVANew(diphoton_index.first,l.dipho_vtxind[diphoton_id],
+                             lead_p4,bdtTrainingPhilosophy.c_str()) + photonIDMVAShift_EB );
         float phoid_mvaout_sublead = ( dataIs2011 ? 
-				       l.photonIDMVA(diphoton_index.second,l.dipho_vtxind[diphoton_id],
-						     sublead_p4,bdtTrainingPhilosophy.c_str()) : 
-				       l.photonIDMVANew(diphoton_index.second,l.dipho_vtxind[diphoton_id],
-							sublead_p4,bdtTrainingPhilosophy.c_str()) + photonIDMVAShift_EE );
-	// apply di-photon level smearings and corrections
+                       l.photonIDMVA(diphoton_index.second,l.dipho_vtxind[diphoton_id],
+                             sublead_p4,bdtTrainingPhilosophy.c_str()) : 
+                       l.photonIDMVANew(diphoton_index.second,l.dipho_vtxind[diphoton_id],
+                            sublead_p4,bdtTrainingPhilosophy.c_str()) + photonIDMVAShift_EE );
+    // apply di-photon level smearings and corrections
         int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,0);
         if( cur_type != 0 && doMCSmearing ) {
-	    applyDiPhotonSmearings(Higgs, *vtx, selectioncategory, cur_type, *((TVector3*)l.gv_pos->At(0)), evweight, 
-				   phoid_mvaout_lead,phoid_mvaout_sublead,
-				   diPhoSys, syst_shift);
+        applyDiPhotonSmearings(Higgs, *vtx, selectioncategory, cur_type, *((TVector3*)l.gv_pos->At(0)), evweight, 
+                   phoid_mvaout_lead,phoid_mvaout_sublead,
+                   diPhoSys, syst_shift);
             isCorrectVertex=(*vtx- *((TVector3*)l.gv_pos->At(0))).Mag() < 1.;
         }
                            
         // Must be calculated after photon id has potentially been smeared
         //fillTrainTree(l,diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id] ,vtxProb,lead_p4,sublead_p4 ,sigmaMrv,sigmaMwv,sigmaMeonly ,bdtTrainingPhilosophy.c_str() ,phoid_mvaout_lead,phoid_mvaout_sublead);
-	    float diphobdt_output = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id] ,
-					      vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMeonly,
-					      bdtTrainingPhilosophy.c_str(),
-					      phoid_mvaout_lead,phoid_mvaout_sublead);
-	    kinematic_bdtout = diphobdt_output;
+        float diphobdt_output = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id] ,
+                          vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMeonly,
+                          bdtTrainingPhilosophy.c_str(),
+                          phoid_mvaout_lead,phoid_mvaout_sublead);
+        kinematic_bdtout = diphobdt_output;
 
         bool isEBEB  = (lead_p4.Eta() < 1.4442 ) && fabs(sublead_p4.Eta()<1.4442);
         category = GetBDTBoundaryCategory(diphobdt_output,isEBEB,VBFevent);
         if (diphobdt_output>=bdtCategoryBoundaries.back()) { 
-	        computeExclusiveCategory(l,category,diphoton_index,Higgs.Pt()); 
+            computeExclusiveCategory(l,category,diphoton_index,Higgs.Pt()); 
+            if(VHelevent){
+                std::cout<<"VHelevent is cat "<<category<<std::endl;
+            }
             if (mass >= 100. && mass < 180. && !isSyst){
                 if (includeVHlep&&VHelevent){
                     std::string label("final");
@@ -738,136 +871,136 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
                     }
                 }
             }
-	    }
+        }
         
-	
-	if (fillOptree) {
-	    std::string name;
-	    if (genSys != 0)
-		name = genSys->name();
-	    if (phoSys != 0)
-	    	name = phoSys->name();
-	    if (diPhoSys != 0)
-	    	name = diPhoSys->name();
+    
+    if (fillOptree) {
+        std::string name;
+        if (genSys != 0)
+        name = genSys->name();
+        if (phoSys != 0)
+            name = phoSys->name();
+        if (diPhoSys != 0)
+            name = diPhoSys->name();
 
-	    if (!isSyst)
-		fillOpTree(l, lead_p4, sublead_p4, vtxProb, diphoton_index, diphoton_id, phoid_mvaout_lead, phoid_mvaout_sublead, weight, 
-			    mass, sigmaMrv, sigmaMwv, Higgs, diphobdt_output, category, VBFevent, myVBF_Mjj, myVBFLeadJPt, 
-			    myVBFSubJPt, nVBFDijetJetCategories, isSyst, "no-syst");
-	    else
-		fillOpTree(l, lead_p4, sublead_p4, vtxProb, diphoton_index, diphoton_id, phoid_mvaout_lead, phoid_mvaout_sublead, weight, 
-			    mass, sigmaMrv, sigmaMwv, Higgs, diphobdt_output, category, VBFevent, myVBF_Mjj, myVBFLeadJPt, 
-			    myVBFSubJPt, nVBFDijetJetCategories, isSyst, name);
+        if (!isSyst)
+        fillOpTree(l, lead_p4, sublead_p4, vtxProb, diphoton_index, diphoton_id, phoid_mvaout_lead, phoid_mvaout_sublead, weight, 
+                mass, sigmaMrv, sigmaMwv, Higgs, diphobdt_output, category, VBFevent, myVBF_Mjj, myVBFLeadJPt, 
+                myVBFSubJPt, nVBFDijetJetCategories, isSyst, "no-syst");
+        else
+        fillOpTree(l, lead_p4, sublead_p4, vtxProb, diphoton_index, diphoton_id, phoid_mvaout_lead, phoid_mvaout_sublead, weight, 
+                mass, sigmaMrv, sigmaMwv, Higgs, diphobdt_output, category, VBFevent, myVBF_Mjj, myVBFLeadJPt, 
+                myVBFSubJPt, nVBFDijetJetCategories, isSyst, name);
 
-	}
+    }
 
         if (PADEBUG) std::cout << " Diphoton Category " <<category <<std::endl;
-    	// sanity check
+        // sanity check
         assert( evweight >= 0. ); 
 
         // dump BS trees in requested
         if (!isSyst && cur_type!=0 && saveBSTrees_) saveBSTrees(l,evweight,category,Higgs, vtx, (TVector3*)l.gv_pos->At(0),diphobdt_output);
 
         // fill control plots and counters
-	if( ! isSyst ) {
-	    
-	    /*    if(category>-1){
-		  l.FillHist("sigmaMrv",category,sigmaMrv,evweight);
-		  l.FillHist("sigmaMwv",category,sigmaMwv,evweight);
-		  l.FillHist("vertexZ_gen",category,((TVector3*)l.gv_pos->At(0))->Z(),evweight);
-		  if(isCorrectVertex){
-		  l.FillHist("vertexZ_rv",category,vtx->Z(),evweight);
-		  l.FillHist("vertexprob_rv",category, vtxProb, evweight);
-		  }else{
-		  l.FillHist("ZfromWVtoRV",category,(*vtx-*((TVector3*)l.gv_pos->At(0))).Z(),evweight);
-		  l.FillHist("vertexZ_wv",category,vtx->Z(),evweight);
-		  l.FillHist("vertexprob_wv",category, vtxProb, evweight);
-		  }
-		  }
-		  
-		  l.FillTree("weight",weight);
-		  l.FillTree("category",category);
-		  l.FillTree("vtxCorr",isCorrectVertex);
-		  l.FillTree("vtxZ",vtx->Z());
-		  l.FillTree("genVtxZ",((TVector3*)l.gv_pos->At(0))->Z());
-		  l.FillTree("ZfromWtoR",(*vtx-*((TVector3*)l.gv_pos->At(0))).Z());
-		  l.FillTree("sigmaMrv",sigmaMrv);
-		  l.FillTree("sigmaMwv",sigmaMwv);
-		  l.FillTree("sigmaMEonly",sigmaMeonly);
-		  l.FillTree("sigmaMAonly",massResolutionCalculator->massResolutionAonly());
-		  l.FillTree("vtxProb",vtxProb);
-		  l.FillTree("cur_type",cur_type);
-		  l.FillTree("CMS_hgg_mass",float(Higgs.M()));
-	    */
+    if( ! isSyst ) {
+        
+        /*    if(category>-1){
+          l.FillHist("sigmaMrv",category,sigmaMrv,evweight);
+          l.FillHist("sigmaMwv",category,sigmaMwv,evweight);
+          l.FillHist("vertexZ_gen",category,((TVector3*)l.gv_pos->At(0))->Z(),evweight);
+          if(isCorrectVertex){
+          l.FillHist("vertexZ_rv",category,vtx->Z(),evweight);
+          l.FillHist("vertexprob_rv",category, vtxProb, evweight);
+          }else{
+          l.FillHist("ZfromWVtoRV",category,(*vtx-*((TVector3*)l.gv_pos->At(0))).Z(),evweight);
+          l.FillHist("vertexZ_wv",category,vtx->Z(),evweight);
+          l.FillHist("vertexprob_wv",category, vtxProb, evweight);
+          }
+          }
+          
+          l.FillTree("weight",weight);
+          l.FillTree("category",category);
+          l.FillTree("vtxCorr",isCorrectVertex);
+          l.FillTree("vtxZ",vtx->Z());
+          l.FillTree("genVtxZ",((TVector3*)l.gv_pos->At(0))->Z());
+          l.FillTree("ZfromWtoR",(*vtx-*((TVector3*)l.gv_pos->At(0))).Z());
+          l.FillTree("sigmaMrv",sigmaMrv);
+          l.FillTree("sigmaMwv",sigmaMwv);
+          l.FillTree("sigmaMEonly",sigmaMeonly);
+          l.FillTree("sigmaMAonly",massResolutionCalculator->massResolutionAonly());
+          l.FillTree("vtxProb",vtxProb);
+          l.FillTree("cur_type",cur_type);
+          l.FillTree("CMS_hgg_mass",float(Higgs.M()));
+        */
 
-	    l.FillCounter( "Accepted", weight );
-	    l.FillCounter( "Smeared", evweight );
-	    sumaccept += weight;
-	    sumsmear += evweight;
-	    if (l.runZeeValidation && !forceStdPlotsOnZee) {
-		fillZeeControlPlots(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, phoid_mvaout_lead, phoid_mvaout_sublead, diphobdt_output, sigmaMrv, sigmaMwv, vtxProb, diphoton_id, category, selectioncategory, evweight, l );
-	    } else {
-		fillControlPlots(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9,  diphoton_id, 
-				 category, isCorrectVertex, evweight, l );
-	    }
-	    if (fillEscaleTrees) fillEscaleTree(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, phoid_mvaout_lead, phoid_mvaout_sublead, diphobdt_output, sigmaMrv, sigmaMwv, vtxProb, diphoton_id, category, selectioncategory, evweight, l );
-	}
-	
+        l.FillCounter( "Accepted", weight );
+        l.FillCounter( "Smeared", evweight );
+        sumaccept += weight;
+        sumsmear += evweight;
+        if (l.runZeeValidation && !forceStdPlotsOnZee) {
+        fillZeeControlPlots(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, phoid_mvaout_lead, phoid_mvaout_sublead, diphobdt_output, sigmaMrv, sigmaMwv, vtxProb, diphoton_id, category, selectioncategory, evweight, l );
+        } else {
+        fillControlPlots(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9,  diphoton_id, 
+                 category, isCorrectVertex, evweight, l );
+        }
+        if (fillEscaleTrees) fillEscaleTree(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, phoid_mvaout_lead, phoid_mvaout_sublead, diphobdt_output, sigmaMrv, sigmaMwv, vtxProb, diphoton_id, category, selectioncategory, evweight, l );
+    }
+    
         if (dumpAscii && mass >= 100. && mass < 180. && !isSyst){
             // New ascii event list for syncrhonizing MVA Preselection + Diphoton MVA
             eventListText <<"type:"<< cur_type 
-			  << "    run:"   <<  l.run
-			  << "    lumi:"  <<  l.lumis
-			  << "    event:" <<  l.event
-		// Preselection Lead
-			  << "    r9_1:"  <<  lead_r9
-			  << "    sceta_1:"   << (photonInfoCollection[diphoton_index.first]).caloPosition().Eta() 
-			  << "    hoe_1:" <<  l.pho_hoe[diphoton_index.first]
-			  << "    sigieie_1:" <<  l.pho_sieie[diphoton_index.first]
-			  << "    ecaliso_1:" <<  l.pho_ecalsumetconedr03[diphoton_index.first] - 0.012*lead_p4.Et()
-			  << "    hcaliso_1:" <<  l.pho_hcalsumetconedr03[diphoton_index.first] - 0.005*lead_p4.Et()
-			  << "    trckiso_1:" <<  l.pho_trksumpthollowconedr03[diphoton_index.first] - 0.002*lead_p4.Et()
-			  << "    chpfiso_1:" <<  (*l.pho_pfiso_mycharged02)[diphoton_index.first][l.dipho_vtxind[diphoton_id]] 
-		// Preselection SubLead
-			  << "    r9_2:"  <<  sublead_r9
-			  << "    sceta_2:"   << (photonInfoCollection[diphoton_index.second]).caloPosition().Eta() 
-			  << "    hoe_2:" <<  l.pho_hoe[diphoton_index.second]
-			  << "    sigieie_2:" <<  l.pho_sieie[diphoton_index.second]
-			  << "    ecaliso_2:" <<  l.pho_ecalsumetconedr03[diphoton_index.second] - 0.012*lead_p4.Et()
-			  << "    hcaliso_2:" <<  l.pho_hcalsumetconedr03[diphoton_index.second] - 0.005*lead_p4.Et()
-			  << "    trckiso_2:" <<  l.pho_trksumpthollowconedr03[diphoton_index.second] - 0.002*lead_p4.Et()
-			  << "    chpfiso_2:" <<  (*l.pho_pfiso_mycharged02)[diphoton_index.second][l.dipho_vtxind[diphoton_id]] 
-		// Diphoton MVA inputs
-			  << "    ptH:"  <<  ptHiggs 
-			  << "    phoid_1:"   <<  phoid_mvaout_lead 
-			  << "    phoid_2:"   <<  phoid_mvaout_sublead
-			  << "    phoeta_1:"  <<  lead_p4.Eta() 
-			  << "    phoeta_2:"  <<  sublead_p4.Eta() 
-			  << "    sigmrv:"    <<  sigmaMrv 
-			  << "    bsw:"       <<  beamspotWidth 
-			  << "    sigmwv:"    <<  sigmaMwv 
-			  << "    pt_1/m:"      <<  lead_p4.Pt()/mass
-			  << "    pt_2/m:"      <<  sublead_p4.Pt()/mass
-			  << "    vtxprob:"   <<  vtxProb 
-			  << "    cosdphi:"   <<  TMath::Cos(lead_p4.Phi() - sublead_p4.Phi()) 
-			  << "    diphoBDT:"  <<  diphobdt_output 
-		// Extra
-			  << "    mgg:"       <<  mass 
-			  << "    e_1:"       <<  lead_p4.E()
-			  << "    e_2:"       <<  sublead_p4.E()
-			  << "    eerr_1:"    << massResolutionCalculator->leadPhotonResolution()
-			  << "    eerr_2:"    << massResolutionCalculator->subleadPhotonResolution()
-			  << "    eerrsmeared_1:" << massResolutionCalculator->leadPhotonResolutionNoSmear()
-			  << "    eerrsmeared_2:" << massResolutionCalculator->subleadPhotonResolutionNoSmear()
-			  << "    vbfevent:"  <<  VBFevent
-			  << "    muontag:"   <<  VHmuevent
-			  << "    electrontag:"<< VHelevent
-			  << "    mettag:"    <<  VHmetevent
-			  << "    evcat:"     <<  category
-			  << "    FileName:"  <<  l.files[l.current];
+              << "    run:"   <<  l.run
+              << "    lumi:"  <<  l.lumis
+              << "    event:" <<  l.event
+        // Preselection Lead
+              << "    r9_1:"  <<  lead_r9
+              << "    sceta_1:"   << (photonInfoCollection[diphoton_index.first]).caloPosition().Eta() 
+              << "    hoe_1:" <<  l.pho_hoe[diphoton_index.first]
+              << "    sigieie_1:" <<  l.pho_sieie[diphoton_index.first]
+              << "    ecaliso_1:" <<  l.pho_ecalsumetconedr03[diphoton_index.first] - 0.012*lead_p4.Et()
+              << "    hcaliso_1:" <<  l.pho_hcalsumetconedr03[diphoton_index.first] - 0.005*lead_p4.Et()
+              << "    trckiso_1:" <<  l.pho_trksumpthollowconedr03[diphoton_index.first] - 0.002*lead_p4.Et()
+              << "    chpfiso_1:" <<  (*l.pho_pfiso_mycharged02)[diphoton_index.first][l.dipho_vtxind[diphoton_id]] 
+        // Preselection SubLead
+              << "    r9_2:"  <<  sublead_r9
+              << "    sceta_2:"   << (photonInfoCollection[diphoton_index.second]).caloPosition().Eta() 
+              << "    hoe_2:" <<  l.pho_hoe[diphoton_index.second]
+              << "    sigieie_2:" <<  l.pho_sieie[diphoton_index.second]
+              << "    ecaliso_2:" <<  l.pho_ecalsumetconedr03[diphoton_index.second] - 0.012*lead_p4.Et()
+              << "    hcaliso_2:" <<  l.pho_hcalsumetconedr03[diphoton_index.second] - 0.005*lead_p4.Et()
+              << "    trckiso_2:" <<  l.pho_trksumpthollowconedr03[diphoton_index.second] - 0.002*lead_p4.Et()
+              << "    chpfiso_2:" <<  (*l.pho_pfiso_mycharged02)[diphoton_index.second][l.dipho_vtxind[diphoton_id]] 
+        // Diphoton MVA inputs
+              << "    ptH:"  <<  ptHiggs 
+              << "    phoid_1:"   <<  phoid_mvaout_lead 
+              << "    phoid_2:"   <<  phoid_mvaout_sublead
+              << "    phoeta_1:"  <<  lead_p4.Eta() 
+              << "    phoeta_2:"  <<  sublead_p4.Eta() 
+              << "    sigmrv:"    <<  sigmaMrv 
+              << "    bsw:"       <<  beamspotWidth 
+              << "    sigmwv:"    <<  sigmaMwv 
+              << "    pt_1/m:"      <<  lead_p4.Pt()/mass
+              << "    pt_2/m:"      <<  sublead_p4.Pt()/mass
+              << "    vtxprob:"   <<  vtxProb 
+              << "    cosdphi:"   <<  TMath::Cos(lead_p4.Phi() - sublead_p4.Phi()) 
+              << "    diphoBDT:"  <<  diphobdt_output 
+        // Extra
+              << "    mgg:"       <<  mass 
+              << "    e_1:"       <<  lead_p4.E()
+              << "    e_2:"       <<  sublead_p4.E()
+              << "    eerr_1:"    << massResolutionCalculator->leadPhotonResolution()
+              << "    eerr_2:"    << massResolutionCalculator->subleadPhotonResolution()
+              << "    eerrsmeared_1:" << massResolutionCalculator->leadPhotonResolutionNoSmear()
+              << "    eerrsmeared_2:" << massResolutionCalculator->subleadPhotonResolutionNoSmear()
+              << "    vbfevent:"  <<  VBFevent
+              << "    muontag:"   <<  VHmuevent
+              << "    electrontag:"<< VHelevent
+              << "    mettag:"    <<  VHmetevent
+              << "    evcat:"     <<  category
+              << "    FileName:"  <<  l.files[l.current];
             eventListText << endl;
         }
-	return (category >= 0 && mass>=massMin && mass<=massMax);
+    return (category >= 0 && mass>=massMin && mass<=massMax);
     }
     return false;
 }
@@ -875,7 +1008,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 
 // ----------------------------------------------------------------------------------------------------
 void MassFactorizedMvaAnalysis::fillEscaleTree(const TLorentzVector & lead_p4, const  TLorentzVector & sublead_p4, 
-					       const TLorentzVector & Higgs, float lead_r9, float sublead_r9,
+                           const TLorentzVector & Higgs, float lead_r9, float sublead_r9,
 					       float phoid_mvaout_lead, float phoid_mvaout_sublead, 
 					       float diphobdt_output, float sigmaMrv, float sigmaMwv, float vtxProb,
 					       int diphoton_id, int category, int selectioncategory, float evweight, LoopAll & l )

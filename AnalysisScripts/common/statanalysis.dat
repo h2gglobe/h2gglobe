@@ -52,4 +52,4 @@ doInterferenceSmear=1
 efficiencyFile=aux/sig_reweighing_ichep2012topup_baseline_v2.root
 
 
-bkgPolOrderByCat=4,5,5,5,3,4,-1,-1
+bkgPolOrderByCat=4,5,5,5,3,4,-1,-1,3

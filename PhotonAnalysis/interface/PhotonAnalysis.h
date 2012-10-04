@@ -75,6 +75,7 @@ class PhotonAnalysis : public BaseAnalysis
     int nElectronCategories;
     int nMuonCategories;
     bool includeVHmet;  //met at analysis step
+    int nMetCategories;
 
     bool reRunCiCForData;
     bool reComputeCiCPF;
@@ -353,7 +354,7 @@ class PhotonAnalysis : public BaseAnalysis
     void MetCorrections2012_Simple(LoopAll& l, TLorentzVector lead_p4, TLorentzVector sublead_p4);
     
     // HCP2012
-    bool METTag2012B(LoopAll& l, int& diphotonVHmet_id, int& met_cat, float* smeared_pho_energy, ofstream& met_sync, bool mvaselection=true, float phoidMvaCut=-0.2);
+    bool METTag2012B(LoopAll& l, int& diphotonVHmet_id, int& met_cat, float* smeared_pho_energy, ofstream& met_sync, bool mvaselection=true, float phoidMvaCut=-0.2, bool useUncor=true);
     
     
     int GenMatch(LoopAll& l, TLorentzVector* recop4);

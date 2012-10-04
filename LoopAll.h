@@ -1140,8 +1140,9 @@ int FindElectronVertex(int el_ind);
 void PhotonsToVeto(TLorentzVector* veto_p4, float drtoveto, std::vector<bool>& vetos);
 
 //HCP2012
-float METCorrection2012B(TLorentzVector lead_p4, TLorentzVector sublead_p4);
-bool METAnalysis2012B(float MET);
+TLorentzVector METCorrection2012B(TLorentzVector lead_p4, TLorentzVector sublead_p4);
+//bool METAnalysis2012B(float MET);
+bool METAnalysis2012B(TLorentzVector lead_p4, TLorentzVector sublead_p4, bool useUncor );
 
 //~ICHEP2012
 //correct met

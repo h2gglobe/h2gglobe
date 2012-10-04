@@ -1175,7 +1175,8 @@ void StatAnalysis::computeExclusiveCategory(LoopAll & l, int & category, std::pa
 	category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories + ( (int)includeVHhad )*nVHhadEtaCategories + nMuonCategories;
     if(nElectronCategories>1) category+=VHelevent_cat;  
     } else if(VHmetevent) { 
-	category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories + ( (int)includeVHhad )*nVHhadEtaCategories + nVHlepCategories + (int)includeVHmet;  //met at analysis step
+	category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories + ( (int)includeVHhad )*nVHhadEtaCategories + nVHlepCategories;
+    if(nVHmetCategories>1) category+=VHmetevent_cat;
     }
 }
 

@@ -1170,19 +1170,75 @@ TLorentzVector LoopAll::correctMet_Simple( TLorentzVector & pho_lead, TLorentzVe
     return correctedMet;
 }
 
-float LoopAll::METCorrection2012B(TLorentzVector lead_p4, TLorentzVector sublead_p4){
+TLorentzVector LoopAll::METCorrection2012B(TLorentzVector lead_p4, TLorentzVector sublead_p4){
+  
+  // uncorrected PF met
+  TLorentzVector unpfMET;
+  unpfMET.SetPxPyPzE (met_pfmet*cos(met_phi_pfmet),met_pfmet*sin(met_phi_pfmet),0,
+		      sqrt(met_pfmet*cos(met_phi_pfmet) * met_pfmet*cos(met_phi_pfmet) 
+			   + met_pfmet*sin(met_phi_pfmet) * met_pfmet*sin(met_phi_pfmet))); 
+  
+  bool isMC = itype[current]!=0;
 
-    // apply corrections here
+  // corrected met
+  TLorentzVector finalCorrMET;
 
-    return 0;
+  if (isMC) {
+    // smear raw met
+    TLorentzVector smearMET_corr = correctMet_Simple( lead_p4, sublead_p4 , &unpfMET, true, false);
+    // then shift smeared met
+    float px  = smearMET_corr.Pt()*cos(smearMET_corr.Phi())+0.00135*met_sumet_pfmet-0.021;
+    float py  = smearMET_corr.Pt()*sin(smearMET_corr.Phi())+0.00371*met_sumet_pfmet-0.826;
+    float ene = sqrt(px*px+py*py);
+    finalCorrMET.SetPxPyPzE(px,py,0,ene);
+  } else {
+    // shifted met for data
+    float px  = unpfMET.Pt()*cos(unpfMET.Phi())-0.006239*met_sumet_pfmet+0.662;
+    float py  = unpfMET.Pt()*sin(unpfMET.Phi())+0.004613*met_sumet_pfmet-0.673;
+    float ene = sqrt(px*px+py*py);
+    TLorentzVector shiftedMET;
+    shiftedMET.SetPxPyPzE(px,py,0,ene);
+    // scale shifted met
+    TLorentzVector shiftscaleMET_corr = correctMet_Simple( lead_p4, sublead_p4 , &shiftedMET, false , true);
+    finalCorrMET = shiftscaleMET_corr;
+  }
+  
+  return finalCorrMET;
 }
 
-bool LoopAll::METAnalysis2012B(float MET){
-    // Analysis here
-    bool tag=false;
-    if(MET>70) tag=true;
+bool LoopAll::METAnalysis2012B(TLorentzVector lead_p4, TLorentzVector sublead_p4, bool useUncorr){
 
-    return tag;
+  bool tag=false;
+
+  TLorentzVector myMet;
+  if (useUncorr) {
+    myMet.SetPxPyPzE (met_pfmet*cos(met_phi_pfmet),met_pfmet*sin(met_phi_pfmet),0, sqrt(met_pfmet*cos(met_phi_pfmet) * met_pfmet*cos(met_phi_pfmet) + met_pfmet*sin(met_phi_pfmet) * met_pfmet*sin(met_phi_pfmet))); 
+  } else {
+    myMet = METCorrection2012B(lead_p4, sublead_p4);
+  }		   
+
+  // TLorentzVector TwoPhoton_p4 = lead_p4 + sublead_p4;
+  // TVector3 lead_p3      = lead_p4.Vect();
+  // TVector3 TwoPhoton_p3 = TwoPhoton_p4.Vect();
+
+  // additional angular cuts
+  // TVector3 met_p3;
+  // met_p3.SetPtEtaPhi(met_pfmet,0,met_phi_pfmet);
+  // float dPhiMetGG   = fabs(180./3.1415927 * TwoPhoton_p3.DeltaPhi(met_p3));
+  // float dPhiMetLead = fabs(180./3.1415927 * lead_p3.DeltaPhi(met_p3));
+  // if ( dPhiMetGG<40)             return tag;
+  // if ( dPhiMetLead<40)           return tag;
+  // if( l.correctedpfMET > 70 )    tag = true;
+
+  // EBEB only
+  // float leadEta    = lead_p4.Eta();
+  // float subleadEta = sublead_p4.Eta();
+  // if (fabs(leadEta)>1.5)    return tag;
+  // if (fabs(subleadEta)>1.5) return tag;
+
+  if ( myMet.E() > 70 ) tag = true;
+
+  return tag;
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
