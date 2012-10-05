@@ -1064,7 +1064,7 @@ void StatAnalysis::FillRooContainer(LoopAll& l, int cur_type, float mass, float 
 	if (isCorrectVertex) l.rooContainer->InputDataPoint("sig_"+GetSignalLabel(cur_type)+"_rv",category,mass,weight);
 	else l.rooContainer->InputDataPoint("sig_"+GetSignalLabel(cur_type)+"_wv",category,mass,weight);
     }
-    if( category>0 && fillOptTree ) {
+    if( category>=0 && fillOptTree ) {
 	l.FillTree("run",l.run);
 	l.FillTree("lumis",l.lumis);
 	l.FillTree("event",l.event);
