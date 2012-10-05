@@ -72,6 +72,7 @@ private:
     float tree_puweight;
     int tree_npu;
 
+    int tree_isData;
     int tree_simpleId , tree_fullId,  tree_cutbasedId ;
     float tree_simpleDiscriminant, tree_fullDiscriminant, tree_cutbasedDiscriminant;
     float  tree_dphiZJet,  tree_dimuonPt, tree_dimuonMass;

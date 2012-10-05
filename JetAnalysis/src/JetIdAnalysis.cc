@@ -81,6 +81,7 @@ void JetIdAnalysis::Init(LoopAll& l)
 	flatTree_->Branch( "jetHenDr", &tree_genDr );
 	flatTree_->Branch( "puweight", &tree_puweight );
 	flatTree_->Branch( "npu", &tree_npu );
+	flatTree_->Branch( "isData", &tree_isData );
 	
 	flatTree_->Branch( "njets", &tree_njets );
 	flatTree_->Branch( "jetLooseID", &tree_jetLooseID );
@@ -414,6 +415,7 @@ bool JetIdAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorent
 	// post process jets (recompute mvas and wp)
 	postProcessJets(l, 0) ;
 		
+	
 	// loop over sorted and cleaned jets
 	for(size_t itjet=0; itjet<sorted_jets.size(); ++itjet ) {
 	    int & ijet = sorted_jets[itjet];
@@ -421,16 +423,17 @@ bool JetIdAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorent
 	    TLorentzVector * p4 = (TLorentzVector*)l.jet_algoPF1_p4->At(ijet);
 	    
 	    if( dumpFlatTree ) {
+		tree_isData=1;
 		tree_ievent = l.event;
 		tree_ijet = itjet;
+		tree_puweight = 1;
 		if (cur_type != 0){
 		    tree_isMatched = l.jet_algoPF1_genMatched[ijet];
 		    tree_genPt = l.jet_algoPF1_genPt[ijet];
 		    tree_genDr = l.jet_algoPF1_genDr[ijet];
 		    tree_npu   = l.pu_n;
-		    // save also pu weights?
-		    // tree_puweight = getPuWeight( l.pu_n, cur_type, &(l.sampleContainer[l.current_sample_index]),0);
-		   
+		    tree_puweight = getPuWeight( l.pu_n, cur_type, &(l.sampleContainer[l.current_sample_index]),0);
+		    tree_isData=0;
 		}
 		tree_njets = l.jet_algoPF1_n;
 		tree_jetLooseID = l.jet_algoPF1_pfloose[ijet];
