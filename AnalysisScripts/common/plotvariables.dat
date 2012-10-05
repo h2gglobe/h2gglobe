@@ -30,6 +30,7 @@ htyp=0 plot=-1  ncat=2  xbins=300  ybins=0   xmin=-3.   xmax=3.     ymin=0      
 htyp=0 plot=-1  ncat=2  xbins=40   ybins=0   xmin=-1.   xmax=1.     ymin=0      ymax=0    name=ElectronTag_diphomva_final       xaxis=MVA_{#gamma#gamma}@Muon      yaxis=Events
 
 htyp=0 plot=-1  ncat=2  xbins=2    ybins=0   xmin=0.    xmax=2.     ymin=0      ymax=0    name=METTag_sameVtx  xaxis=Same@Vertex@MET             yaxis=Events
+htyp=0 plot=-1  ncat=2  xbins=2    ybins=0   xmin=0.    xmax=2.     ymin=0      ymax=0    name=METTag_gentochosen   xaxis=Gen@To@Chosen@#DeltaZ       yaxis=Events
 htyp=0 plot=-1  ncat=2  xbins=2    ybins=0   xmin=0.    xmax=2.     ymin=0      ymax=0    name=MuonTag_sameVtx  xaxis=Same@Vertex@#mu              yaxis=Events
 htyp=0 plot=-1  ncat=2  xbins=2    ybins=0   xmin=0.    xmax=2.     ymin=0      ymax=0    name=ElectronTag_sameVtx        xaxis=Same@Vertex@Electron         yaxis=Events
 

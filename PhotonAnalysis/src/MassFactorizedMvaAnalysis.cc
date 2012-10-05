@@ -718,6 +718,8 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 
                 if (diphobdt_output<bdtCategoryBoundaries.back()) { 
                     VHmetevent=false;
+                } else {
+                    l.FillHist("METtag_gentochosen",VHmetevent_cat, (float)(*vtx- *((TVector3*)l.gv_pos->At(0))).Z(), evweight);
                 }
             }
         }
@@ -848,9 +850,6 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
         category = GetBDTBoundaryCategory(diphobdt_output,isEBEB,VBFevent);
         if (diphobdt_output>=bdtCategoryBoundaries.back()) { 
             computeExclusiveCategory(l,category,diphoton_index,Higgs.Pt()); 
-            if(VHelevent){
-                std::cout<<"VHelevent is cat "<<category<<std::endl;
-            }
             if (mass >= 100. && mass < 180. && !isSyst){
                 if (includeVHlep&&VHelevent){
                     std::string label("final");

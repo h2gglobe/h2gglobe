@@ -1153,30 +1153,30 @@ void StatAnalysis::FillRooContainerSyst(LoopAll& l, const std::string &name, int
 // ----------------------------------------------------------------------------------------------------
 void StatAnalysis::computeExclusiveCategory(LoopAll & l, int & category, std::pair<int,int> diphoton_index, float pt)
 {
-    if(VBFevent)        {
-	category=nInclusiveCategories_;
-	if( mvaVbfSelection ) { 
-	    if (!multiclassVbfSelection) 
-		category += categoryFromBoundaries(mvaVbfCatBoundaries, myVBF_MVA);
-	    else 
-		category += categoryFromBoundaries2D(multiclassVbfCatBoundaries0, multiclassVbfCatBoundaries1, multiclassVbfCatBoundaries2, myVBF_MVA0, myVBF_MVA1, myVBF_MVA2);
-	} 
- 	else {
-	    category += l.DiphotonCategory(diphoton_index.first,diphoton_index.second,pt,nVBFEtaCategories,1,1) 
-		+ nVBFEtaCategories*l.DijetSubCategory(myVBF_Mjj,myVBFLeadJPt,myVBFSubJPt,nVBFDijetJetCategories)
-		;
-	}
-    } else if(VHhadevent) { category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories
-	    + l.DiphotonCategory(diphoton_index.first,diphoton_index.second,pt,nVHhadEtaCategories,1,1); 
-    } else if(VHmuevent) {
-	category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories + ( (int)includeVHhad )*nVHhadEtaCategories;
-    if(nMuonCategories>1) category+=VHmuevent_cat;  
+    if(VHmuevent) {
+	    category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories + ( (int)includeVHhad )*nVHhadEtaCategories;
+        if(nMuonCategories>1) category+=VHmuevent_cat;  
     } else if(VHelevent) { 
-	category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories + ( (int)includeVHhad )*nVHhadEtaCategories + nMuonCategories;
-    if(nElectronCategories>1) category+=VHelevent_cat;  
+	    category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories + ( (int)includeVHhad )*nVHhadEtaCategories + nMuonCategories;
+        if(nElectronCategories>1) category+=VHelevent_cat;  
+    } else if(VBFevent) {
+	    category=nInclusiveCategories_;
+	    if( mvaVbfSelection ) { 
+	        if (!multiclassVbfSelection) 
+		    category += categoryFromBoundaries(mvaVbfCatBoundaries, myVBF_MVA);
+	        else 
+		    category += categoryFromBoundaries2D(multiclassVbfCatBoundaries0, multiclassVbfCatBoundaries1, multiclassVbfCatBoundaries2, myVBF_MVA0, myVBF_MVA1, myVBF_MVA2);
+	    } 
+ 	    else {
+	        category += l.DiphotonCategory(diphoton_index.first,diphoton_index.second,pt,nVBFEtaCategories,1,1) 
+		    + nVBFEtaCategories*l.DijetSubCategory(myVBF_Mjj,myVBFLeadJPt,myVBFSubJPt,nVBFDijetJetCategories);
+	    }
+    } else if(VHhadevent) { 
+        category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories
+	        + l.DiphotonCategory(diphoton_index.first,diphoton_index.second,pt,nVHhadEtaCategories,1,1); 
     } else if(VHmetevent) { 
-	category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories + ( (int)includeVHhad )*nVHhadEtaCategories + nVHlepCategories;
-    if(nVHmetCategories>1) category+=VHmetevent_cat;
+	    category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories + ( (int)includeVHhad )*nVHhadEtaCategories + nVHlepCategories;
+        if(nVHmetCategories>1) category+=VHmetevent_cat;
     }
 }
 
