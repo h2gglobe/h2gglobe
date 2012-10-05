@@ -2603,6 +2603,20 @@ void PhotonAnalysis::ControlPlotsElectronTag2012B(LoopAll& l, TLorentzVector lea
     
 }
 
+void PhotonAnalysis::ControlPlotsMetTag2012B(LoopAll& l, TLorentzVector lead_p4, TLorentzVector sublead_p4, float bdtoutput, float evweight, std::string label){
+    TLorentzVector myMet = l.METCorrection2012B(lead_p4, sublead_p4); 
+    float corrMet    = myMet.E();
+    float corrMetPhi = myMet.Phi();
+    
+    int met_cat=(int)(abs(lead_p4.Eta())>1.5 || abs(sublead_p4.Eta())>1.5); 
+    l.FillHist(Form("MetTag_leadGammaPt_%s",label.c_str()),    met_cat, lead_p4.Pt(), evweight);
+    l.FillHist(Form("MetTag_subleadGammaPt_%s",label.c_str()), met_cat, sublead_p4.Pt(), evweight);
+    l.FillHist(Form("MetTag_diphomva_%s",label.c_str()),       met_cat, bdtoutput, evweight);
+    l.FillHist(Form("MetTag_uncorrmet_%s",label.c_str()),      met_cat, l.met_pfmet, evweight);
+    l.FillHist(Form("MetTag_uncorrmetPhi_%s",label.c_str()),   met_cat, l.met_phi_pfmet, evweight);
+    l.FillHist(Form("MetTag_corrmet_%s",label.c_str()),        met_cat, corrMet,    evweight);
+    l.FillHist(Form("MetTag_corrmetPhi_%s",label.c_str()),     met_cat, corrMetPhi, evweight);
+}
 
 void PhotonAnalysis::ZWithFakeGammaCS(LoopAll& l, float* smeared_pho_energy){
     int elVtx=-1;

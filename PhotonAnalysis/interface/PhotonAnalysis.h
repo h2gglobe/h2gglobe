@@ -338,6 +338,7 @@ class PhotonAnalysis : public BaseAnalysis
     bool ElectronTagStudies2012(LoopAll& l, int diphotonVHlep_id, float* smeared_pho_energy, bool nm1=true, float eventweight=1, float myweight=1, int jentry=-1);
     void ZWithFakeGammaCS(LoopAll& l, float* smeared_pho_energy);
     void ControlPlotsElectronTag2012B(LoopAll& l, TLorentzVector lead_p4, TLorentzVector sublead_p4, int el_ind, float bdtoutput, float evweight, std::string label);
+    void ControlPlotsMetTag2012B(LoopAll& l, TLorentzVector lead_p4, TLorentzVector sublead_p4, float bdtoutput, float evweight, std::string label);
 
     // Moriond 2012
     bool MuonTag2011(LoopAll& l, int diphotonVHlep_id, float* smeared_pho_energy=0, bool nm1=false, float eventweight=1, float myweight=1);
