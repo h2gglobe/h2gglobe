@@ -5,7 +5,6 @@ PYDEBUG = 1
 
 # System python imports
 import sys,os, json
-import time
 import array
 import ROOT
 
@@ -684,7 +683,6 @@ class configProducer:
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def read_input_files_loop(self,line):
     print "read_input_files_loop"
-    t0=time.time()
     map_c = {"typ":99999,"Nam":"default","draw":-999,"ind":-999,"tot":0,"red":-999,"lum":1.0,"xsec":-1.0,"kfac":1.0,"scal":1.0,"json":"","evlist":"","pileup":"",
              "maxfiles":-1}
     #map_c["tot"]=-1
@@ -751,14 +749,12 @@ class configProducer:
     mkFiles = None
     dir = None
     if cas_directory != '':
-        print "cas_directory"
         mkFiles = makeCaFiles
         dir = cas_directory  
     if dcs_directory != '':
         mkFiles = makeDcFiles
         dir = dcs_directory  
     if eos_directory != '':
-        print "eos_directory"
         mkFiles = makeEosFiles
         dir = eos_directory  
     if directory != '':
