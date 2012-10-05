@@ -69,6 +69,8 @@ private:
     int tree_ijet, tree_ievent;
     float tree_genPt, tree_genDr, tree_njets;
     bool tree_jetLooseID, tree_isMatched;
+    float tree_puweight;
+    int tree_npu;
 
     int tree_simpleId , tree_fullId,  tree_cutbasedId ;
     float tree_simpleDiscriminant, tree_fullDiscriminant, tree_cutbasedDiscriminant;

@@ -79,6 +79,9 @@ void JetIdAnalysis::Init(LoopAll& l)
 	flatTree_->Branch( "isMatched", &tree_isMatched );
 	flatTree_->Branch( "jetGenPt", &tree_genPt );
 	flatTree_->Branch( "jetHenDr", &tree_genDr );
+	flatTree_->Branch( "puweight", &tree_puweight );
+	flatTree_->Branch( "npu", &tree_npu );
+	
 	flatTree_->Branch( "njets", &tree_njets );
 	flatTree_->Branch( "jetLooseID", &tree_jetLooseID );
 	flatTree_->Branch( "simpleId",&tree_simpleId );
@@ -389,8 +392,8 @@ bool JetIdAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorent
 	DiMuonSelection(l, goodMuon1, goodMuon2, selectEvent);
 	if( ! selectEvent ) { return false; }
 	
-	TLorentzVector *lead_p4 = (TLorentzVector*) l.mu_glo_p4->At(goodMuon1);
-	TLorentzVector *sublead_p4 = (TLorentzVector*) l.mu_glo_p4->At(goodMuon1);
+	TLorentzVector *lead_p4    = (TLorentzVector*) l.mu_glo_p4->At(goodMuon1);
+	TLorentzVector *sublead_p4 = (TLorentzVector*) l.mu_glo_p4->At(goodMuon2);
 
 	// clean and sort jets
 	std::vector<int> sorted_jets;
@@ -424,19 +427,18 @@ bool JetIdAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorent
 		    tree_isMatched = l.jet_algoPF1_genMatched[ijet];
 		    tree_genPt = l.jet_algoPF1_genPt[ijet];
 		    tree_genDr = l.jet_algoPF1_genDr[ijet];
+		    tree_npu   = l.pu_n;
 		    // save also pu weights?
-		    //double pileupWeight=getPuWeight( l.pu_n, cur_type, &(l.sampleContainer[l.current_sample_index]), jentry == 1);
-
+		    // tree_puweight = getPuWeight( l.pu_n, cur_type, &(l.sampleContainer[l.current_sample_index]),0);
+		   
 		}
 		tree_njets = l.jet_algoPF1_n;
 		tree_jetLooseID = l.jet_algoPF1_pfloose[ijet];
 		
-		// jet eta, phi, pt, dphiZ, dimuonpt
 		jetHandler_->fillFromJet(ijet,0);
 		tree_simpleId   =  l.jet_algoPF1_simple_wp_level[ijet];
 		tree_fullId     =  l.jet_algoPF1_full_wp_level[ijet];
 		tree_cutbasedId =  l.jet_algoPF1_cutbased_wp_level[ijet];
-
 		tree_simpleDiscriminant   =  l.jet_algoPF1_simple_mva[ijet];
 		tree_fullDiscriminant     =  l.jet_algoPF1_full_mva[ijet];
 		tree_cutbasedDiscriminant =  -999;
