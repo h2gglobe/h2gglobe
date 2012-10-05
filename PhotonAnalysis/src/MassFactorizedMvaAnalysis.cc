@@ -629,7 +629,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
                           phoid_mvaout_lead,phoid_mvaout_sublead);
 
                 if (diphobdt_output<bdtCategoryBoundaries.back()) { 
-                    VHelevent=false;
+                    VHmuevent=false;
                 }
             }
             
@@ -669,7 +669,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
                           phoid_mvaout_lead,phoid_mvaout_sublead);
 
                 if (diphobdt_output<bdtCategoryBoundaries.back()) { 
-                    VHmuevent=false;
+                    VHelevent=false;
                 }
             }
             
