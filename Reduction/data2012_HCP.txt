@@ -1,0 +1,12 @@
+DoublePhoton_Run2012B-13Jul2012-v1            0   json=
+DoublePhoton_Run2012B-13Jul2012-v1_sub2       0   json=
+DoublePhoton_Run2012B-13Jul2012-v1_sub3       0   json=
+DoublePhoton_Run2012C-PromptReco-v2           0   json=
+DoublePhoton_Run2012C-PromptReco-v2_sub2      0   json=
+DoublePhoton_Run2012C-PromptReco-v2_sub4      0   json=
+Photon_Run2012A-13Jul2012-v1                  0   json=
+Photon_Run2012A-13Jul2012-v1_sub2             0   json=
+Photon_Run2012A-13Jul2012-v1_sub3             0   json=
+Photon_Run2012A-recover-06Aug2012-v1          0   json=
+Photon_Run2012A-recover-06Aug2012-v1__sub1    0   json=
+Run2012C-24Aug2012-v2                         0   json=
