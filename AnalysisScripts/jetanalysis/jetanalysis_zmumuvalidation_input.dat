@@ -51,8 +51,12 @@ jet_algoPF1_frac02
 jet_algoPF1_frac03
 jet_algoPF1_frac04
 jet_algoPF1_frac05
+jet_algoPF1_pfloose
 jet_algoPF1_full_mva
 jet_algoPF1_simple_mva
+jet_algoPF1_full_wp_level
+jet_algoPF1_simple_wp_level
+jet_algoPF1_cutbased_wp_level
 jet_algoPF1_nCharged
 jet_algoPF1_nNeutrals
 jet_algoPF1_full_mva_ext
