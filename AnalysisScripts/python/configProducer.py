@@ -49,8 +49,8 @@ class configProducer:
 
     self.njobs_ = njobs
     self.jobId_ = jobId
-    self.nf_   = [0]
-  
+    self.nf_ 	= [0]
+	
     self.make_histograms=makehistos
 
     self.black_list = ["root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/processed/V13_03_05/data/DoublePhotonPromptReco2012B/PromptPhoton2012Data_628_1_MEr.root",
@@ -119,25 +119,25 @@ class configProducer:
     printmem = []
     keepmem = []
     for mem in self.member_lines: 
-      var,val = mem.split("=")
-      if var in keepmem: continue
-      else :
-        keepmem.append(var)
-        printmem.append(mem)
-        print "The following members will be set in the Analysis -- "
-        for pm in printmem: print pm
+	var,val = mem.split("=")
+	if var in keepmem: continue
+	else :
+		keepmem.append(var)
+		printmem.append(mem)
+    print "The following members will be set in the Analysis -- "
+    for pm in printmem: print pm
 
   def hold_members(self,filename):
     if not ".pevents" in filename:  # Ingore the pevents file for this!"
       f = open(filename,"r")
       lines = f.readlines()
       for ll in lines:
-        if len(ll.split())==1 and "=" in ll: self.member_lines.append(ll)
-        elif "analyzer" in ll:
-          parts = ll.split()
-          for pp in parts: 
-            if "=" in pp:self.member_lines.append(pp)
-            f.close()
+	  if len(ll.split())==1 and "=" in ll: self.member_lines.append(ll)
+	  elif "analyzer" in ll:
+		parts = ll.split()
+		for pp in parts: 
+			if "=" in pp:self.member_lines.append(pp)
+      f.close()
 
   def store_config_file(self,filename):
     self.ut_.StoreConfigFile(filename)
@@ -147,8 +147,8 @@ class configProducer:
     weights_lines=[];
     self.read_file(self.sample_weights_file_,weights_lines) 
     for line in weights_lines:
-      file,pEvents = line.split("=")
-      self.file_processed_events_[file]=int(pEvents)
+	file,pEvents = line.split("=")
+	self.file_processed_events_[file]=int(pEvents)
 
   def find_file(self,name):
       if not os.path.isabs(name):
@@ -174,7 +174,7 @@ class configProducer:
         line = l.strip(" ").lstrip(" ")
         if len(line) < 2:
           continue
-        if line[0:2] == '->':  
+        if line[0:2] == '->':	
           if comment_status:
             comment_status = False
           else:
@@ -368,13 +368,13 @@ class configProducer:
           else: sys.exit("Unrecognised Argument:\n ' %s ' in line:\n ' %s '" (val[0],line))
           
         if map_c["dir"] == 2 : 
-          map_c["cutValuel"] = array.array('f',minval_arr)
-          map_c["cutValueh"] = array.array('f',maxval_arr)
-        else: 
-          map_c["cutValuel"] = array.array('f',val_arr)
-          map_c["cutValueh"] = array.array('f',[float(-9999.)\
-                   for v in val_arr])
-  
+	   map_c["cutValuel"] = array.array('f',minval_arr)
+	   map_c["cutValueh"] = array.array('f',maxval_arr)
+	else: 
+	   map_c["cutValuel"] = array.array('f',val_arr)
+	   map_c["cutValueh"] = array.array('f',[float(-9999.)\
+					         for v in val_arr])
+	
         self.plotvar_.vardef.append(map_c.copy())
       else: sys.exit("Config Line Unrecognised:\n ' %s '"%line)
 
@@ -414,18 +414,18 @@ class configProducer:
      if len(self.file_processed_events_):
        wfile = open(filename,"w")
        for samplefile in self.file_processed_events_:
-          wfile.write("%s=%d\n"%(samplefile,self.file_processed_events_[samplefile]) )
-          wfile.close()
-          print "Written Number Of Processed Events file -- ",filename
+	 wfile.write("%s=%d\n"%(samplefile,self.file_processed_events_[samplefile]) )
+       wfile.close()
+       print "Written Number Of Processed Events file -- ",filename
 
   def read_config_loop(self,f):
      "Parsing of the looper configuration"        
      self.read_file(f)
-     self.intL      = 0
+     self.intL	    = 0
      # look for a file called f.weights
      if os.path.isfile(f+".pevents") : 
-        self.sample_weights_file_= f+".pevents"
-        self.read_weights_file()
+	self.sample_weights_file_= f+".pevents"
+	self.read_weights_file()
 
      for line in self.lines_:
        # Decide whether this is a define line or a file line:
@@ -449,15 +449,15 @@ class configProducer:
 
        # choose plotvariables for analysis
        elif line.startswith("plotvariables"):
-         self.plottingvariables_ = line.split(" ")[1]
+	 self.plottingvariables_ = line.split(" ")[1]
 
        # choose cuts for analysis
        elif line.startswith("cuts"):
-         self.cutvariables_ = line.split(" ")[1]
+	 self.cutvariables_ = line.split(" ")[1]
 
        # choose trees for analysis
        elif line.startswith("treevariables"):
-         self.treevariables_ = line.split(" ")[1]
+	 self.treevariables_ = line.split(" ")[1]
 
        # Read a generic member of the LoopAll class
        else:
@@ -467,8 +467,8 @@ class configProducer:
        cc["intL"] = self.intL 
 
      if  self.sample_weights_file_==0:
-        if self.njobs_==-1 or self.jobId_==0:
-            self.generate_weights_file(f+".pevents")
+	 if self.njobs_==-1 or self.jobId_==0:
+	    self.generate_weights_file(f+".pevents")
 
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def expand_file(self,val):
@@ -528,18 +528,18 @@ class configProducer:
           name,val = [ s.lstrip(" ").rstrip(" ") for s in sp.split("=") ]
           val = self.expand_file(val)
           try:
-            if ".root" in val and not "/castor" in val and not os.path.isfile(val): sys.exit("No File found - %s, check the line %s"%(val,line))
-            if "," in val or "vector<" in str(type(val)):
-              ele = val.split(",")
-              value_type = type( type(struct.__getattribute__(name))(1)[0] )
-              print value_type
-              (struct.__getattribute__(name)).clear()
-              if val != "":
-                for v in ele:
-                  (struct.__getattribute__(name)).push_back(value_type(v))
+	    if ".root" in val and not "/castor" in val and not os.path.isfile(val): sys.exit("No File found - %s, check the line %s"%(val,line))
+      	    if "," in val or "vector<" in str(type(val)):
+	     ele = val.split(",")
+             value_type = type( type(struct.__getattribute__(name))(1)[0] )
+             print value_type
+             (struct.__getattribute__(name)).clear()
+             if val != "":
+                 for v in ele:
+                     (struct.__getattribute__(name)).push_back(value_type(v))
             else :
-              t = type( struct.__getattribute__(name) )
-              struct.__setattr__(name, t(val) )
+             t = type( struct.__getattribute__(name) )
+             struct.__setattr__(name, t(val) )
             print "%s = %s" % ( name, str(struct.__getattribute__(name)) )
           except AttributeError:
             sys.exit( "Error: unkown attribute: %s\nline: %s\n%s" % ( name, line, struct ) )
@@ -659,26 +659,26 @@ class configProducer:
     if cas_directory != '':
       ca_files = makeCaFiles(cas_directory,self.njobs_,self.jobId_)
       for file_s in ca_files:
-        if file_s[1]:self.conf_.files.append((file_s[0],fi_type))
-        else      :self.conf_.files.append((None,fi_type))
+	if file_s[1]:self.conf_.files.append((file_s[0],fi_type))
+	else	    :self.conf_.files.append((None,fi_type))
 
     if dcs_directory != '':
       dc_files = makeDcFiles(dcs_directory,self.njobs_,self.jobId_)
       for file_s in dc_files:
-        if file_s[1]:self.conf_.files.append((file_s[0],fi_type))
-        else      :self.conf_.files.append((None,fi_type))
+	if file_s[1]:self.conf_.files.append((file_s[0],fi_type))
+	else	    :self.conf_.files.append((None,fi_type))
 
     if eos_directory != '':
       eo_files = makeEosFiles(eos_directory,self.njobs_,self.jobId_)
       for file_s in eo_files:
-        if file_s[1]:self.conf_.files.append((file_s[0],fi_type))
-        else      :self.conf_.files.append((None,fi_type))
+	if file_s[1]:self.conf_.files.append((file_s[0],fi_type))
+	else	    :self.conf_.files.append((None,fi_type))
 
     if directory != '':
         files = makeFiles(directory,self.njobs_,self.jobId_)
         for file_s in files:
-          if file_s[1]:self.conf_.files.append((file_s[0],fi_type))
-          else      :self.conf_.files.append((None,fi_type))
+	  if file_s[1]:self.conf_.files.append((file_s[0],fi_type))
+	  else	    :self.conf_.files.append((None,fi_type))
 
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def read_input_files_loop(self,line):
@@ -731,20 +731,20 @@ class configProducer:
         self.conf_.files.append(tuple_n)
       else: self.conf_.files.append((None,fi_type));
       if fi_type!=0 and fi_type!=99999 and map_c["tot"] == 0:
-        if self.sample_weights_file_==0 :
-          if map_c["tot"] <= 0:
+	if self.sample_weights_file_==0 :
+	  if map_c["tot"] <= 0:
               nEventsInFile = getTreeEntry(fi_name,"global_variables","processedEvents")
           else:
               nEventsInFile = map_c["tot"]
-          self.file_processed_events_[fi_name] = nEventsInFile
+	  self.file_processed_events_[fi_name] = nEventsInFile
           map_c["tot"] = nEventsInFile;
-    
-      else:  
-        if fi_name in self.file_processed_events_:map_c["tot"] = self.file_processed_events_[fi_name]
-        else: (sys.exit("No Entry for %s found in %s, Please Delete %s and re-run with option --dryRun to regenerate it"%(fi_name,self.sample_weights_file_,self.sample_weights_file_)))
+	  
+	else:  
+	  if fi_name in self.file_processed_events_:map_c["tot"] = self.file_processed_events_[fi_name]
+	  else: (sys.exit("No Entry for %s found in %s, Please Delete %s and re-run with option --dryRun to regenerate it"%(fi_name,self.sample_weights_file_,self.sample_weights_file_)))
 
-      map_c["addnevents"] = int(1)
-    self.conf_.confs.append(map_c.copy())
+	map_c["addnevents"] = int(1)
+      self.conf_.confs.append(map_c.copy())
 
     mkFiles = None
     dir = None
@@ -771,19 +771,19 @@ class configProducer:
                   if not dcs_directory :map_c["pileup"] = 'root://eoscms//eos/cms'+map_c["pileup"]
                   else: map_c["pileup"] = 'root://xrootd.grid.hep.ph.ic.ac.uk/'+map_c["pileup"]
           for file_s in allfiles:
-            if self.sample_weights_file_==0 :
-              print "Calculating N Processed Events for - ", file_s[0]
-              nEventsInFile = getTreeEntry(file_s[0],"global_variables","processedEvents")
-              map_c["tot"] = map_c["tot"] + nEventsInFile
-              self.file_processed_events_[file_s[0]] = nEventsInFile
-      else:
-          print "Reading N Processed Events for - ", file_s[0]
-          if file_s[0] in self.file_processed_events_: map_c["tot"] = map_c["tot"] + self.file_processed_events_[file_s[0]]
-          else: (sys.exit("No Entry for %s found in %s, Please Delete %s and re-run with option --dryRun to regenerate it"%(file_s[0],self.sample_weights_file_,self.sample_weights_file_)))
+	      if self.sample_weights_file_==0 :
+	        print "Calculating N Processed Events for - ", file_s[0]
+		nEventsInFile = getTreeEntry(file_s[0],"global_variables","processedEvents")
+                map_c["tot"] = map_c["tot"] + nEventsInFile
+		self.file_processed_events_[file_s[0]] = nEventsInFile
+	      else:
+	        print "Reading N Processed Events for - ", file_s[0]
+		if file_s[0] in self.file_processed_events_: map_c["tot"] = map_c["tot"] + self.file_processed_events_[file_s[0]]
+		else: (sys.exit("No Entry for %s found in %s, Please Delete %s and re-run with option --dryRun to regenerate it"%(file_s[0],self.sample_weights_file_,self.sample_weights_file_)))
 
       for file_s in files:
-          if file_s[1]: self.conf_.files.append((file_s[0],fi_type))
-          else:      self.conf_.files.append((None,fi_type))
+	  if file_s[1]: self.conf_.files.append((file_s[0],fi_type))
+	  else:      self.conf_.files.append((None,fi_type))
           self.conf_.confs.append(map_c.copy())
 
           
