@@ -691,7 +691,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
                 sigmaMrv = massResolutionCalculator->massResolutionEonly();
                 sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
                 float sigmaMeonly = massResolutionCalculator->massResolutionEonly();
-                float vtxProb=1.0;
+                float vtxProb=1.0;      // still to be studied
 
                 float phoid_mvaout_lead = ( dataIs2011 ? 
                     l.photonIDMVA(l.dipho_leadind[diphotonVHmet_id],0,
@@ -814,7 +814,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
         }
 
         if(includeVHmet && VHmetevent){
-            vtxProb=1.0;  // chiara
+            vtxProb=1.0;  // still to be studied
         }
 
         float phoid_mvaout_lead = ( dataIs2011 ? 

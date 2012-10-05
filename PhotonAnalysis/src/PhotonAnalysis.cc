@@ -3699,7 +3699,7 @@ bool PhotonAnalysis::METTag2012B(LoopAll& l, int& diphotonVHmet_id, int& met_cat
 
         if(!tag) diphotonVHmet_id=-1;
         
-        met_cat=(int)(abs(lead_p4.Eta())<1.5 && abs(sublead_p4.Eta())<1.5); 
+        // met_cat=(int)(abs(lead_p4.Eta())<1.5 && abs(sublead_p4.Eta())<1.5); 
         
         // for synchronization
         TLorentzVector dipho_p4 = lead_p4+sublead_p4;
