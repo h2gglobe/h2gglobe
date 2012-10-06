@@ -228,6 +228,7 @@ void Branch_jet_algo3_ntk(TTree * tree) { tree->Branch("jet_algo3_ntk",&jet_algo
 void Branch_jet_algo3_tkind(TTree * tree) { tree->Branch("jet_algo3_tkind", "std::vector<std::vector<unsigned short> >", &jet_algo3_tkind); }; 
 void Branch_jet_algo3_calotwind(TTree * tree) { tree->Branch("jet_algo3_calotwind", "std::vector<std::vector<unsigned short> >", &jet_algo3_calotwind); }; 
 void Branch_jet_algoPF1_n(TTree * tree) { tree->Branch("jet_algoPF1_n",&jet_algoPF1_n, "jet_algoPF1_n/I"); }; 
+void Branch_jet_algoPF1_nvtx(TTree * tree) { tree->Branch("jet_algoPF1_nvtx",&jet_algoPF1_nvtx, "jet_algoPF1_nvtx/I"); }; 
 void Branch_jet_algoPF1_p4(TTree * tree) { tree->Branch("jet_algoPF1_p4", "TClonesArray",&jet_algoPF1_p4, 32000, 0); }; 
 void Branch_jet_algoPF1_emfrac(TTree * tree) { tree->Branch("jet_algoPF1_emfrac",&jet_algoPF1_emfrac, "jet_algoPF1_emfrac[jet_algoPF1_n]/F"); }; 
 void Branch_jet_algoPF1_hadfrac(TTree * tree) { tree->Branch("jet_algoPF1_hadfrac",&jet_algoPF1_hadfrac, "jet_algoPF1_hadfrac[jet_algoPF1_n]/F"); }; 
@@ -278,6 +279,7 @@ void Branch_jet_algoPF2_nNeutrals(TTree * tree) { tree->Branch("jet_algoPF2_nNeu
 void Branch_jet_algoPF2_full_wp_level(TTree * tree) { tree->Branch("jet_algoPF2_full_wp_level",&jet_algoPF2_full_wp_level, "jet_algoPF2_full_wp_level[jet_algoPF2_n]/I"); }; 
 void Branch_jet_algoPF2_simple_wp_level(TTree * tree) { tree->Branch("jet_algoPF2_simple_wp_level",&jet_algoPF2_simple_wp_level, "jet_algoPF2_simple_wp_level[jet_algoPF2_n]/I"); }; 
 void Branch_jet_algoPF3_n(TTree * tree) { tree->Branch("jet_algoPF3_n",&jet_algoPF3_n, "jet_algoPF3_n/I"); }; 
+void Branch_jet_algoPF3_nvtx(TTree * tree) { tree->Branch("jet_algoPF3_nvtx",&jet_algoPF3_nvtx, "jet_algoPF3_nvtx/I"); }; 
 void Branch_jet_algoPF3_p4(TTree * tree) { tree->Branch("jet_algoPF3_p4", "TClonesArray",&jet_algoPF3_p4, 32000, 0); }; 
 void Branch_jet_algoPF3_emfrac(TTree * tree) { tree->Branch("jet_algoPF3_emfrac",&jet_algoPF3_emfrac, "jet_algoPF3_emfrac[jet_algoPF3_n]/F"); }; 
 void Branch_jet_algoPF3_hadfrac(TTree * tree) { tree->Branch("jet_algoPF3_hadfrac",&jet_algoPF3_hadfrac, "jet_algoPF3_hadfrac[jet_algoPF3_n]/F"); }; 

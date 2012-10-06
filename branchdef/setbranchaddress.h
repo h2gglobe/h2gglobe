@@ -227,6 +227,7 @@ void SetBranchAddress_jet_algo3_ntk(TTree * tree) { tree->SetBranchAddress("jet_
 void SetBranchAddress_jet_algo3_tkind(TTree * tree) { tree->SetBranchAddress("jet_algo3_tkind", &jet_algo3_tkind, &b_jet_algo3_tkind); }; 
 void SetBranchAddress_jet_algo3_calotwind(TTree * tree) { tree->SetBranchAddress("jet_algo3_calotwind", &jet_algo3_calotwind, &b_jet_algo3_calotwind); }; 
 void SetBranchAddress_jet_algoPF1_n(TTree * tree) { tree->SetBranchAddress("jet_algoPF1_n", &jet_algoPF1_n, &b_jet_algoPF1_n); }; 
+void SetBranchAddress_jet_algoPF1_nvtx(TTree * tree) { tree->SetBranchAddress("jet_algoPF1_nvtx", &jet_algoPF1_nvtx, &b_jet_algoPF1_nvtx); }; 
 void SetBranchAddress_jet_algoPF1_p4(TTree * tree) { tree->SetBranchAddress("jet_algoPF1_p4", &jet_algoPF1_p4, &b_jet_algoPF1_p4); }; 
 void SetBranchAddress_jet_algoPF1_emfrac(TTree * tree) { tree->SetBranchAddress("jet_algoPF1_emfrac", jet_algoPF1_emfrac, &b_jet_algoPF1_emfrac); }; 
 void SetBranchAddress_jet_algoPF1_hadfrac(TTree * tree) { tree->SetBranchAddress("jet_algoPF1_hadfrac", jet_algoPF1_hadfrac, &b_jet_algoPF1_hadfrac); }; 
@@ -277,6 +278,7 @@ void SetBranchAddress_jet_algoPF2_nNeutrals(TTree * tree) { tree->SetBranchAddre
 void SetBranchAddress_jet_algoPF2_full_wp_level(TTree * tree) { tree->SetBranchAddress("jet_algoPF2_full_wp_level", jet_algoPF2_full_wp_level, &b_jet_algoPF2_full_wp_level); }; 
 void SetBranchAddress_jet_algoPF2_simple_wp_level(TTree * tree) { tree->SetBranchAddress("jet_algoPF2_simple_wp_level", jet_algoPF2_simple_wp_level, &b_jet_algoPF2_simple_wp_level); }; 
 void SetBranchAddress_jet_algoPF3_n(TTree * tree) { tree->SetBranchAddress("jet_algoPF3_n", &jet_algoPF3_n, &b_jet_algoPF3_n); }; 
+void SetBranchAddress_jet_algoPF3_nvtx(TTree * tree) { tree->SetBranchAddress("jet_algoPF3_nvtx", &jet_algoPF3_nvtx, &b_jet_algoPF3_nvtx); }; 
 void SetBranchAddress_jet_algoPF3_p4(TTree * tree) { tree->SetBranchAddress("jet_algoPF3_p4", &jet_algoPF3_p4, &b_jet_algoPF3_p4); }; 
 void SetBranchAddress_jet_algoPF3_emfrac(TTree * tree) { tree->SetBranchAddress("jet_algoPF3_emfrac", jet_algoPF3_emfrac, &b_jet_algoPF3_emfrac); }; 
 void SetBranchAddress_jet_algoPF3_hadfrac(TTree * tree) { tree->SetBranchAddress("jet_algoPF3_hadfrac", jet_algoPF3_hadfrac, &b_jet_algoPF3_hadfrac); }; 
