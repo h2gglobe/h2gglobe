@@ -522,6 +522,10 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
     if(PADEBUG) 
         cout << "InitRealMassFactorizedMvaAnalysis END"<<endl;
 
+    cout << "------- BUTTERY BUS ---- " << endl;
+    cout << "reweighBS - " << reweighBeamspot << endl;
+    cout << "saveDatTr - " << saveDatacardTrees_ << endl;
+    cout << "-------------------------" << endl;
     // FIXME book of additional variables
 }
 
@@ -786,6 +790,9 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 
         // dump BS trees in requested
         if (!isSyst && cur_type!=0 && saveBSTrees_) saveBSTrees(l,evweight,category,Higgs, vtx, (TVector3*)l.gv_pos->At(0),diphobdt_output);
+
+        // save trees for unbinned datacards
+        if (!isSyst && cur_type<0 && saveDatacardTrees_) saveMassFacDatCardTree(l,cur_type,category, evweight, diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMeonly,bdtTrainingPhilosophy.c_str(),phoid_mvaout_lead,phoid_mvaout_sublead);
 
         // fill control plots and counters
     if( ! isSyst ) {

@@ -122,14 +122,14 @@ public:
 
   energySmearingParameters  myParameters_;
   
+  std::string photonCategory(PhotonReducedInfo &) const;
+
  protected:
   bool doEnergy_, scaleOrSmear_, doEfficiencies_, doCorrections_, doRegressionSmear_;
   int baseSeed_;
 
   std::vector<PhotonCategory> preselCategories_;
   
-  std::string photonCategory(PhotonReducedInfo &) const;
-
   double getWeight(double pt, std::string theCategory, float syst_shift) const;
   
   std::string   name_;

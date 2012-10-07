@@ -17,6 +17,7 @@ class TreeContainer {
   void FillUInt(std::string,  unsigned int);
   void FillInt(std::string,  int);
   void FillString(std::string, std::string);
+  void FillBool(std::string, bool);
 
   void AddTreeBranch(std::string, int);
   void FillTree();
@@ -39,6 +40,7 @@ class TreeContainer {
   std::map<std::string, int>            int_branches;
   std::map<std::string, unsigned int>   uint_branches;
   std::map<std::string, std::string>    string_branches;
+  std::map<std::string, bool>           bool_branches;
 
   void resetDefaults();
 

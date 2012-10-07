@@ -67,6 +67,8 @@ PhotonAnalysis::PhotonAnalysis()  :
     sourcesigma=1.0;
     rescaleDZforVtxMVA=false;
 
+    saveDatacardTrees_=false;
+
     mvaVbfSelection=false;
     mvaVbfUseDiPhoPt=true;
     mvaVbfUsePhoPt=true;
@@ -3837,6 +3839,155 @@ void PhotonAnalysis::saveBSTrees(LoopAll &l, float evweight, int category, TLore
 
 }
 
+float PhotonAnalysis::ComputeEventScaleError(LoopAll& l, int ipho1, int ipho2) {
+    PhotonReducedInfo pho1 (
+        *((TVector3*)     l.sc_xyz->At(l.pho_scind[ipho1])), 
+        ((TLorentzVector*)l.pho_p4->At(ipho1))->Energy(), 
+        energyCorrected[ipho1],
+        l.pho_isEB[ipho1], l.pho_r9[ipho1],
+        true, // WARNING  setting pass photon ID flag for all photons. This is safe as long as only selected photons are used
+        0 //only for category --> correct energy NOT needed
+    );
+    
+    int ieta, iphi;
+    l.getIetaIPhi(ipho1,ieta,iphi);
+    pho1.addSmearingSeed( (unsigned int)l.sc_raw[l.pho_scind[ipho1]] + abs(ieta) + abs(iphi) + l.run + l.event + l.lumis ); 
+    pho1.setSphericalPhoton(l.CheckSphericalPhoton(ieta,iphi));
+    
+    PhotonReducedInfo pho2 (
+        *((TVector3*)     l.sc_xyz->At(l.pho_scind[ipho2])), 
+        ((TLorentzVector*)l.pho_p4->At(ipho2))->Energy(), 
+        energyCorrected[ipho2],
+        l.pho_isEB[ipho2], l.pho_r9[ipho2],
+        true, // WARNING  setting pass photon ID flag for all photons. This is safe as long as only selected photons are used
+        0 //only for category --> correct energy NOT needed
+    );
+    
+    l.getIetaIPhi(ipho2,ieta,iphi);
+    pho2.addSmearingSeed( (unsigned int)l.sc_raw[l.pho_scind[ipho2]] + abs(ieta) + abs(iphi) + l.run + l.event + l.lumis ); 
+    pho2.setSphericalPhoton(l.CheckSphericalPhoton(ieta,iphi));
+    
+    std::string cat1=eScaleSmearer->photonCategory(pho1);
+    std::string cat2=eScaleSmearer->photonCategory(pho2);
+    if( PADEBUG ) std::cout<<"cat1 "<<cat1<<std::endl;
+    if( PADEBUG ) std::cout<<"cat2 "<<cat2<<std::endl;
+
+    float scale1 = 1.0;
+    float scale2 = 1.0;
+    
+    float scale_syst_err1 = eScaleSmearer->myParameters_.scale_offset_error[cat1];
+    float scale_syst_err2 = eScaleSmearer->myParameters_.scale_offset_error[cat2];
+    if( PADEBUG ) std::cout<<"scale_syst_err1 "<<scale_syst_err1<<std::endl;
+    if( PADEBUG ) std::cout<<"scale_syst_err2 "<<scale_syst_err2<<std::endl;
+
+    float scale_event = -1;
+    float scale_event_err = -1;
+
+    if(cat1==cat2){
+        scale_event=scale1;
+        scale_event_err=scale_syst_err1;
+    } else {
+        scale_event=sqrt(scale1*scale2);
+        scale_event_err=0.5*scale_event*sqrt(
+                (scale_syst_err1*scale_syst_err1)/(scale1*scale2) +
+                (scale_syst_err2*scale_syst_err2)/(scale2*scale2) );
+    }
+
+    return scale_event_err/scale_event;
+}
+
+float PhotonAnalysis::ComputeEventSmearError(LoopAll& l, int ipho1, int ipho2) {
+    PhotonReducedInfo pho1 (
+        *((TVector3*)     l.sc_xyz->At(l.pho_scind[ipho1])), 
+        ((TLorentzVector*)l.pho_p4->At(ipho1))->Energy(), 
+        energyCorrected[ipho1],
+        l.pho_isEB[ipho1], l.pho_r9[ipho1],
+        true, // WARNING  setting pass photon ID flag for all photons. This is safe as long as only selected photons are used
+        0 //only for category --> correct energy NOT needed
+    );
+    
+    int ieta, iphi;
+    l.getIetaIPhi(ipho1,ieta,iphi);
+    pho1.addSmearingSeed( (unsigned int)l.sc_raw[l.pho_scind[ipho1]] + abs(ieta) + abs(iphi) + l.run + l.event + l.lumis ); 
+    pho1.setSphericalPhoton(l.CheckSphericalPhoton(ieta,iphi));
+    
+    PhotonReducedInfo pho2 (
+        *((TVector3*)     l.sc_xyz->At(l.pho_scind[ipho2])), 
+        ((TLorentzVector*)l.pho_p4->At(ipho2))->Energy(), 
+        energyCorrected[ipho2],
+        l.pho_isEB[ipho2], l.pho_r9[ipho2],
+        true, // WARNING  setting pass photon ID flag for all photons. This is safe as long as only selected photons are used
+        0 //only for category --> correct energy NOT needed
+    );
+    
+    l.getIetaIPhi(ipho2,ieta,iphi);
+    pho2.addSmearingSeed( (unsigned int)l.sc_raw[l.pho_scind[ipho2]] + abs(ieta) + abs(iphi) + l.run + l.event + l.lumis ); 
+    pho2.setSphericalPhoton(l.CheckSphericalPhoton(ieta,iphi));
+    
+    std::string cat1=eScaleSmearer->photonCategory(pho1);
+    std::string cat2=eScaleSmearer->photonCategory(pho2);
+    if( PADEBUG ) std::cout<<"cat1 "<<cat1<<std::endl;
+    if( PADEBUG ) std::cout<<"cat2 "<<cat2<<std::endl;
+
+    float smear1 = eScaleSmearer->myParameters_.smearing_sigma[cat1];
+    float smear2 = eScaleSmearer->myParameters_.smearing_sigma[cat2];
+    if( PADEBUG ) std::cout<<"smear1 "<<smear1<<std::endl;
+    if( PADEBUG ) std::cout<<"smear2 "<<smear2<<std::endl;
+    
+    float smear_stat_err1 = eScaleSmearer->myParameters_.smearing_sigma_error[cat1];
+    float smear_stat_err2 = eScaleSmearer->myParameters_.smearing_sigma_error[cat2];
+    if( PADEBUG ) std::cout<<"smear_stat_err1 "<<smear_stat_err1<<std::endl;
+    if( PADEBUG ) std::cout<<"smear_stat_err2 "<<smear_stat_err2<<std::endl;
+
+    float smear_event = -1;
+    float smear_event_err = -1;
+
+    if(cat1==cat2) {
+        smear_event=sqrt(0.5)*smear1;
+        smear_event_err=sqrt(0.5)*smear_stat_err1;
+    } else {
+        smear_event=0.5*sqrt(smear1*smear1 + smear2*smear2);
+        smear_event_err=0.25/smear_event*sqrt(
+                (smear1*smear1*smear_stat_err1*smear_stat_err1) +
+                (smear2*smear2*smear_stat_err2*smear_stat_err2) );
+    }
+
+    return smear_event_err/smear_event;
+}
+
+void PhotonAnalysis::saveMassFacDatCardTree(LoopAll &l, int cur_type, int category, float evweight, int ipho1, int ipho2, int ivtx, float vtxP, TLorentzVector lead_p4, TLorentzVector sublead_p4, double sigmaMrv, double sigmaMwv, double sigmaMeonly, string trainPhil, float lead_id_mva, float sublead_id_mva){
+    
+   float scale_err = ComputeEventScaleError(l,ipho1,ipho2);
+   float smear_err = ComputeEventSmearError(l,ipho1,ipho2);
+
+   float bdtout = l.diphotonMVA(ipho1,ipho2,ivtx,vtxP,lead_p4,sublead_p4,sigmaMrv, sigmaMwv, sigmaMeonly, trainPhil.c_str(), lead_id_mva, sublead_id_mva);
+   float bdtout_id_up   = l.diphotonMVA(ipho1,ipho2,ivtx,vtxP,lead_p4,sublead_p4,sigmaMrv, sigmaMwv, sigmaMeonly, trainPhil.c_str(), lead_id_mva+0.01, sublead_id_mva+0.01); // ?????
+   float bdtout_id_down = l.diphotonMVA(ipho1,ipho2,ivtx,vtxP,lead_p4,sublead_p4,sigmaMrv, sigmaMwv, sigmaMeonly, trainPhil.c_str(), lead_id_mva-0.01, sublead_id_mva-0.01); // ????
+
+   int proc_id=-1;
+   if (l.signalNormalizer->GetProcess(cur_type)=="ggh") proc_id=0;
+   if (l.signalNormalizer->GetProcess(cur_type)=="vbf") proc_id=1;
+   if (l.signalNormalizer->GetProcess(cur_type)=="wzh") proc_id=2;
+   if (l.signalNormalizer->GetProcess(cur_type)=="tth") proc_id=3;
+
+   l.FillTree("category",category);
+   l.FillTree("process_id",proc_id);
+   l.FillTree("weight",evweight);
+   l.FillTree("scale_err",scale_err);
+   l.FillTree("w_scale_err_2",evweight*scale_err*scale_err);
+   l.FillTree("smear_err",smear_err);
+   l.FillTree("w_smear_err_2",evweight*smear_err*smear_err);
+   l.FillTree("bdtout",bdtout);
+   l.FillTree("bdtout_id_up",bdtout_id_up);
+   l.FillTree("bdtout_id_down",bdtout_id_down);
+   l.FillTree("lead_eta",lead_p4.Eta());
+   l.FillTree("sublead_eta",sublead_p4.Eta());
+   l.FillTree("lead_r9",l.pho_r9[ipho1]);
+   l.FillTree("sublead_r9",l.pho_r9[ipho2]);
+   l.FillTree("lead_isEB",TMath::Abs(lead_p4.Eta())<1.444);
+   l.FillTree("sublead_isEB",TMath::Abs(sublead_p4.Eta())<1.444);
+
+}
 
 
 // Local Variables:

@@ -56,7 +56,13 @@ void TreeContainer::AddTreeBranch(std::string name,int type){
 	  //tr_->Branch(name.c_str(), &(string_branches[name]),Form("%s/C",name.c_str()));
 	  tr_->Branch(name.c_str(), "std::string", &(string_branches[name]));
 	  if (TCDEBUG)	std::cout << "TreeContainer -- Creating String Branch " << name << std::endl;
-	  
+	
+  }
+  else if (type==5){
+    bool_branches.insert(std::pair<std::string,bool> (name,false) );
+    tr_->Branch(name.c_str(),&(bool_branches[name]),Form("%s/Bool_t",name.c_str()));
+    if (TCDEBUG) std::cout << "TreeContainer -- Creating Bool Branch " << name << std::endl;
+
 	} else { 
 		std::cerr << "TreeContainer -- No Type " << type << std::endl;
 	}
@@ -111,6 +117,15 @@ void TreeContainer::FillString(std::string name, std::string x) {
   }
 }
 
+void TreeContainer::FillBool(std::string name, bool x){
+  std::map<std::string,bool>::iterator it = bool_branches.find(name);
+  if (it!=bool_branches.end()){
+    (*it).second = x;
+  } else {
+    std::cerr << "TreeeContainer -- No Bool Tree " << name << std::endl;
+  }
+}
+
 void TreeContainer::FillTree(){
 	tr_->Fill();
 	resetDefaults();
@@ -132,6 +147,9 @@ void TreeContainer::resetDefaults(){
     (*it).second=-999.;
   }
   for (std::map<std::string,double>::iterator it = double_branches.begin();it!=double_branches.end() ;it++){
+    (*it).second=-999.;
+	}
+  for (std::map<std::string,bool>::iterator it = bool_branches.begin();it!=bool_branches.end() ;it++){
     (*it).second=-999.;
 	}
 }
