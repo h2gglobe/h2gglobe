@@ -89,7 +89,6 @@ inputBranches minimal_analysis_input.dat
 inputBranches massfactorizedmvaanalysis_input.dat
 inputBranches lepton_input.dat
 
-cuts jetanalysis/cuts_vbfmva.dat
 treevariables massfac_mva_binned/unbinned_datacard_trees.dat
 
 ## define analyses to run
