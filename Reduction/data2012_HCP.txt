@@ -1,9 +1,11 @@
 DoublePhoton_Run2012B-13Jul2012-v1            0  
-DoublePhoton_Run2012B-13Jul2012-v1_sub2       0 
-DoublePhoton_Run2012B-13Jul2012-v1_sub3       0
+DoublePhoton_Run2012B-13Jul2012-v1_sub2       0
+DoublePhoton_Run2012B-13Jul2012-v1_sub3       0   json=/afs/cern.ch/user/d/drberry/public/ForChris/DoublePhoton_Run2012B-13Jul2012-v1_sub3_cleaned.json
+DoublePhoton_Run2012B-13Jul2012-v1_sub4       0
 DoublePhoton_Run2012C-PromptReco-v2           0
 DoublePhoton_Run2012C-PromptReco-v2_sub2      0   json=/afs/cern.ch/user/m/musella/public/higgs/53overlaps/DoublePhoton_Run2012C-PromptReco-v2_sub2_cleaned.json
 DoublePhoton_Run2012C-PromptReco-v2_sub4      0
+DoublePhoton_Run2012C-PromptReco-v2_sub5      0
 Photon_Run2012A-13Jul2012-v1                  0
 Photon_Run2012A-13Jul2012-v1_sub2             0
 Photon_Run2012A-13Jul2012-v1_sub3             0
