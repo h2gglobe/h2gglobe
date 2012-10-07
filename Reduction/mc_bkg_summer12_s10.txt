@@ -1,56 +1,30 @@
-DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1:DYJetsToLL_M-50    4
+DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1               4
+DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1_ZMuMuFilter   4
 
-#DiPhotonBorn_Pt-10To25_8TeV-pythia6_Summer12-PU_S7_START52_V9-v1:DiPhotonBorn_Pt-10To25     3
-#DiPhotonBorn_Pt-250ToInf_8TeV-pythia6_Summer12-PU_S7_START52_V9-v1:DiPhotonBorn_Pt-250ToInf   3
-#DiPhotonBorn_Pt-25To250_8TeV-pythia6_Summer12-PU_S7_START52_V9-v1:DiPhotonBorn_Pt-25To250    3
-#DiPhotonBox_Pt-10To25_8TeV-pythia6_Summer12-PU_S7_START52_V9-v1:DiPhotonBox_Pt-10To25      3
-#DiPhotonBox_Pt-250ToInf_8TeV-pythia6_Summer12-PU_S7_START52_V9-v1:DiPhotonBox_Pt-250ToInf    3
-#DiPhotonBox_Pt-25To250_8TeV-pythia6_Summer12-PU_S7_START52_V9-v1:DiPhotonBox_Pt-25To250     3
-#DiPhotonJets_8TeV-madgraph-tarball-v2_Summer12-PU_S7_START52_V9-v1:DiPhotonJets_8TeV   3
-#
-#GJet_Pt-20to40_doubleEMEnriched_TuneZ2star_8TeV-pythia6_Summer12-PU_S7_START52_V9-v1:GJet_Pt-20to40   2 append=_pp analyzer PhotonAnalysis photonanalysis.dat keep_pp.dat 
-#GJet_Pt-20to40_doubleEMEnriched_TuneZ2star_8TeV-pythia6_Summer12-PU_S7_START52_V9-v1:GJet_Pt-20to40   2 append=_pf analyzer PhotonAnalysis photonanalysis.dat keep_pf.dat 
-#GJet_Pt-20to40_doubleEMEnriched_TuneZ2star_8TeV-pythia6_Summer12-PU_S7_START52_V9-v1:GJet_Pt-20to40   2 append=_ff analyzer PhotonAnalysis photonanalysis.dat keep_ff.dat 
-#
-#GJet_Pt40_doubleEMEnriched_TuneZ2star_8TeV-pythia6_Summer12-PU_S7_START52_V9-v1:GJet_Pt40   2 append=_pp analyzer PhotonAnalysis photonanalysis.dat keep_pp.dat 
-#GJet_Pt40_doubleEMEnriched_TuneZ2star_8TeV-pythia6_Summer12-PU_S7_START52_V9-v1:GJet_Pt40   2 append=_pf analyzer PhotonAnalysis photonanalysis.dat keep_pf.dat 
-#GJet_Pt40_doubleEMEnriched_TuneZ2star_8TeV-pythia6_Summer12-PU_S7_START52_V9-v1:GJet_Pt40   2 append=_ff analyzer PhotonAnalysis photonanalysis.dat keep_ff.dat 
-#
-#QCD_40_111:QCD_Pt-40_v2   1 append=_pp analyzer PhotonAnalysis photonanalysis.dat keep_pp.dat 
-#QCD_40_111:QCD_Pt-40_v2   1 append=_pf analyzer PhotonAnalysis photonanalysis.dat keep_pf.dat 
-#QCD_40_111:QCD_Pt-40_v2   1 append=_ff analyzer PhotonAnalysis photonanalysis.dat keep_ff.dat 
-#
-#QCD_Pt-30to40_doubleEMEnriched_TuneZ2star_8TeV-pythia6_Summer12-PU_S7_START52_V9-v1:QCD_Pt-30to40   1 append=_pp analyzer PhotonAnalysis photonanalysis.dat keep_pp.dat 
-#QCD_Pt-30to40_doubleEMEnriched_TuneZ2star_8TeV-pythia6_Summer12-PU_S7_START52_V9-v1:QCD_Pt-30to40   1 append=_pf analyzer PhotonAnalysis photonanalysis.dat keep_pf.dat 
-#QCD_Pt-30to40_doubleEMEnriched_TuneZ2star_8TeV-pythia6_Summer12-PU_S7_START52_V9-v1:QCD_Pt-30to40   1 append=_ff analyzer PhotonAnalysis photonanalysis.dat keep_ff.dat 
-#
-#QCD_Pt-40_doubleEMEnriched_TuneZ2star_8TeV-pythia6_Summer12-PU_S7_START52_V9-v1:QCD_Pt-40   1 append=_pp analyzer PhotonAnalysis photonanalysis.dat keep_pp.dat 
-#QCD_Pt-40_doubleEMEnriched_TuneZ2star_8TeV-pythia6_Summer12-PU_S7_START52_V9-v1:QCD_Pt-40   1 append=_pf analyzer PhotonAnalysis photonanalysis.dat keep_pf.dat 
-#QCD_Pt-40_doubleEMEnriched_TuneZ2star_8TeV-pythia6_Summer12-PU_S7_START52_V9-v1:QCD_Pt-40   1 append=_ff analyzer PhotonAnalysis photonanalysis.dat keep_ff.dat 
-#
-#TTJets_TuneZ2star_8TeV-madgraph-tauola_Summer12-PU_S7_START52_V9-v1:TTJets                  1
-#TTbarGG_0Jet_S1_cmkuo-TTGG_525_RECO_s46_v1-73bbc99420432e4b1d4b0a77a2e93bf2:TTbarGG_0Jet_S1          1
-#WGToLNuG_TuneZ2star_8TeV-madgraph-tauola_Summer12-PU_S7_START52_V9-v2:WGToLNuG                1
-#WJetsToLNu_TuneZ2Star_8TeV-madgraph-tarball_Summer12-PU_S7_START52_V9-v1:WJetsToLNu             1
-#WZJetsTo3LNu_TuneZ2_8TeV-madgraph-tauola_Summer12-PU_S7_START52_V9-v2:WZJetsTo3LNu                1
-#WmGG_S3_cmkuo-WmGG_525_RECO_s3_v1-73bbc99420432e4b1d4b0a77a2e93bf2:WmGG_S3                   1
-#WmGG_S6_cmkuo-WmGG_525_RECO_s6_v1-73bbc99420432e4b1d4b0a77a2e93bf2:WmGG_S6                   1
-#WpGG_S2_cmkuo-WpGG_525_RECO_s2_v1-73bbc99420432e4b1d4b0a77a2e93bf2:WpGG_S2                   1
-#WpGG_S8_cmkuo-WpGG_525_RECO_s8_v1-73bbc99420432e4b1d4b0a77a2e93bf2:WpGG_S8                   1
-#ZGG_S46_cmkuo-ZGG_525_RECO_s46_v1-73bbc99420432e4b1d4b0a77a2e93bf2:ZGG_S46                   1
-#ZGG_S47_cmkuo-ZGG_525_RECO_s47_v1-73bbc99420432e4b1d4b0a77a2e93bf2:ZGG_S47                   1
-#ZGG_S50_cmkuo-ZGG_525_RECO_s50_v1-73bbc99420432e4b1d4b0a77a2e93bf2:ZGG_S50                   1
-#ZGG_S51_cmkuo-ZGG_525_RECO_s51_v1-73bbc99420432e4b1d4b0a77a2e93bf2:ZGG_S51                   1
-#ZGG_S52_cmkuo-ZGG_525_RECO_s52_v1-73bbc99420432e4b1d4b0a77a2e93bf2:ZGG_S52                   1
-#ZGG_S56_cmkuo-ZGG_525_RECO_s56_v1-73bbc99420432e4b1d4b0a77a2e93bf2:ZGG_S56                   1
-#ZGG_S58_cmkuo-ZGG_525_RECO_s58_v1-73bbc99420432e4b1d4b0a77a2e93bf2:ZGG_S58                   1
-#ZGG_S60_cmkuo-ZGG_525_RECO_s60_v1-73bbc99420432e4b1d4b0a77a2e93bf2:ZGG_S60                   1
-#ZGG_S62_cmkuo-ZGG_525_RECO_s62_v1-73bbc99420432e4b1d4b0a77a2e93bf2:ZGG_S62                   1
-#ZGG_S66_cmkuo-ZGG_525_RECO_s66_v1-73bbc99420432e4b1d4b0a77a2e93bf2:ZGG_S66                   1
-#ZGG_S70_cmkuo-ZGG_525_RECO_s70_v1-73bbc99420432e4b1d4b0a77a2e93bf2:ZGG_S70                   1
-#ZGG_S72_cmkuo-ZGG_525_RECO_s72_v1-73bbc99420432e4b1d4b0a77a2e93bf2:ZGG_S72                   1
-#ZGToLLG_8TeV-madgraph_Summer12-PU_S7_START52_V9-v1:ZGToLLG                   1
-#ZZJetsTo2L2Nu_TuneZ2star_8TeV-madgraph-tauola_Summer12-PU_S7_START52_V9-v3:ZZJetsTo2L2Nu           1
-#ZZJetsTo2L2Q_TuneZ2star_8TeV-madgraph-tauola_Summer12-PU_S7_START52_V9-v3:ZZJetsTo2L2Q            1
-#ZZJetsTo4L_TuneZ2star_8TeV-madgraph-tauola_Summer12-PU_S7_START52_V9-v3:ZZJetsTo4L              1
+DiPhotonBox_Pt-10To25_8TeV-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1     3
+DiPhotonBox_Pt-250ToInf_8TeV-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1   3
+DiPhotonBox_Pt-25To250_8TeV-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1    3
 
+DiPhotonJets_8TeV-madgraph_Summer12_DR53X-PU_S10_START53_V7A-v1     3
+
+GJet_Pt-20to40_doubleEMEnriched_TuneZ2star_8TeV-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1   2 append=_pp analyzer PhotonAnalysis photonanalysis.dat keep_pp.dat 
+GJet_Pt-20to40_doubleEMEnriched_TuneZ2star_8TeV-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1   2 append=_pf analyzer PhotonAnalysis photonanalysis.dat keep_pf.dat 
+GJet_Pt-20to40_doubleEMEnriched_TuneZ2star_8TeV-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1   2 append=_ff analyzer PhotonAnalysis photonanalysis.dat keep_ff.dat 
+
+QCD_Pt-30to40_doubleEMEnriched_TuneZ2star_8TeV-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1   1 append=_pp analyzer PhotonAnalysis photonanalysis.dat keep_pp.dat 
+QCD_Pt-30to40_doubleEMEnriched_TuneZ2star_8TeV-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1   1 append=_pf analyzer PhotonAnalysis photonanalysis.dat keep_pf.dat 
+QCD_Pt-30to40_doubleEMEnriched_TuneZ2star_8TeV-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1   1 append=_ff analyzer PhotonAnalysis photonanalysis.dat keep_ff.dat 
+
+QCD_Pt-40_doubleEMEnriched_TuneZ2star_8TeV-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1   1 append=_pp analyzer PhotonAnalysis photonanalysis.dat keep_pp.dat 
+QCD_Pt-40_doubleEMEnriched_TuneZ2star_8TeV-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1   1 append=_pf analyzer PhotonAnalysis photonanalysis.dat keep_pf.dat 
+QCD_Pt-40_doubleEMEnriched_TuneZ2star_8TeV-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1   1 append=_ff analyzer PhotonAnalysis photonanalysis.dat keep_ff.dat 
+
+WGToLNuG_TuneZ2star_8TeV-madgraph-tauola_Summer12_DR53X-PU_S10_START53_V7A-v1       1
+WJetsToLNu_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1    1
+
+WWJetsTo2L2Nu_TuneZ2star_8TeV-madgraph-tauola_Summer12_DR53X-PU_S10_START53_V7A-v1  1
+WZJetsTo3LNu_TuneZ2_8TeV-madgraph-tauola_Summer12_DR53X-PU_S10_START53_V7A-v1       1
+ZGToLLG_8TeV-madgraph_Summer12_DR53X-PU_S10_START53_V7A-v1                          1
+ZZJetsTo2L2Nu_TuneZ2star_8TeV-madgraph-tauola_Summer12_DR53X-PU_S10_START53_V7A-v3  1
+ZZJetsTo2L2Q_TuneZ2star_8TeV-madgraph-tauola_Summer12_DR53X-PU_S10_START53_V7A-v1   1
+ZZJetsTo4L_TuneZ2star_8TeV-madgraph-tauola_Summer12_DR53X-PU_S10_START53_V7A-v1     1
