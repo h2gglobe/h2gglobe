@@ -1,21 +1,11 @@
 ## Di-jet tag
 includeVBF=1
+nVBFEtaCategories=1
+nVBFDijetJetCategories=2
+leadEtVBFCut=60
+subleadEtVBFCut=25
+
 usePUjetveto=1
-
-## 2-categories cut-based
-### nVBFEtaCategories=1
-### nVBFDijetJetCategories=2
-### leadEtVBFCut=60
-### subleadEtVBFCut=25
-
-## MVA tag
-mvaVbfSelection=1
-multiclassVbfSelection=0
-mvaVbfWeights=aux/TMVA_vbf_6var_mjj100_diphopt_phopt_BDTG.weights.xml
-mvaVbfMethod=BDTG
-leadEtVBFCut=40
-subleadEtVBFCut=30
-mvaVbfCatBoundaries=1.,0.985,0.93 
 
 ## Singal mass points to book
 sigPointsToBook=105,110,115,120,125,130,135,140,145,150
