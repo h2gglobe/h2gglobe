@@ -219,6 +219,24 @@ int main (int argc, char *argv[]){
   if (Methods_["PDEFoam"]) // PDE-Foam approach
     factory->BookMethod( TMVA::Types::kPDEFoam, "PDEFoam", "!H:!V:TailCut=0.001:VolFrac=0.0666:nActiveCells=500:nSampl=2000:nBin=5:Nmin=100:Kernel=None:Compress=T" );
 
+  /*
+  // To do multiple tests of one BDT use e.g
+  int nTrees[3] = {100,200,500};
+  int maxDepth[4] = {3,5,10,50};
+  float shrinkage[3] = {0.1,0.5,1.};
+  float bagFrac[3] = {0.1,0.5,1.};
+  for (int n=0; n<3; n++){
+    for (int d=0; d<4;d++){
+      for (int s=0; s<3; s++){
+        for (int b=0; b<3; b++){
+          factory->BookMethod( TMVA::Types::kBDT, 
+                  Form("BDTG_Test_nTrees%d_mDepth%d_shr%1.2f_bf%1.2f",nTrees[n],maxDepth[d],shrinkage[s],bagFrac[b]), 
+                  Form("!H:!V:NTrees=%d:MaxDepth=%d:BoostType=Grad:Shrinkage=%1.2f:UseBaggedGrad:GradBaggingFraction=%1.2f:nCuts=20:NNodesMax=8",nTrees[n],maxDepth[d],shrinkage[s],bagFrac[b])); 
+        }
+      }
+    }
+  }
+  */
 
   // Train MVAs using the set of training events
   if (!skipTraining_) factory->TrainAllMethods();
