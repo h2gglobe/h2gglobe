@@ -2,7 +2,7 @@ mvaVbfSelection=1
 mvaVbfWeights=aux/TMVA_vbf_6var_mjj100_diphopt_phopt_BDTG.weights.xml
 mvaVbfMethod=BDTG
 leadEtVBFCut=40
-subleadEtVBFCut=25
+subleadEtVBFCut=30
 
 mvaVbfCatBoundaries=1.,0.985,0.93 
 

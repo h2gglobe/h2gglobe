@@ -3585,7 +3585,7 @@ bool PhotonAnalysis::VBFTag2012(int & ijet1, int & ijet2,
     myVBF_thetaJ2 = leadingBoosted.Angle(jet2Boosted.Vect());
     
     if( mvaVbfSelection ) { 
-	if( myVBFLeadJPt>20. && myVBFSubJPt>20. && myVBF_Mjj > 100. ) { // FIXME hardcoded pre-selection thresholds
+	if( myVBFLeadJPt>30. && myVBFSubJPt>20. && myVBF_Mjj > 250. ) { // FIXME hardcoded pre-selection thresholds
 	    if(nm1 && myVBF_Mgg>massMin && myVBF_Mgg<massMax) { 
 		l.FillCutPlots(0,1,"_nminus1",eventweight,myweight); 
 	    }
