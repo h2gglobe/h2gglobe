@@ -74,6 +74,22 @@ double MassResolution::massResolutionCorrVtx(){
   return 0.5*higgsMass*TMath::Sqrt(((lead_sig*lead_sig)/(lead_E*lead_E))+((sublead_sig*sublead_sig)/(sublead_E*sublead_E))+((alpha_sig*alpha_sig)*(TMath::Sin(alpha)/(1.-TMath::Cos(alpha)))*(TMath::Sin(alpha)/(1.-TMath::Cos(alpha)))));
 
 }
+
+double MassResolution::massResolutionCorrVtxNoSmear(){
+
+  TLorentzVector lead_p4=leadPhoton->p4(vertex->X(),vertex->Y(),vertex->Z());
+  TLorentzVector sublead_p4=subleadPhoton->p4(vertex->X(),vertex->Y(),vertex->Z());
+
+  double lead_E = lead_p4.E();
+  double sublead_E = sublead_p4.E();
+  double alpha = lead_p4.Angle(sublead_p4.Vect());
+  double lead_sig = leadPhotonResolutionNoSmear();
+  double sublead_sig = subleadPhotonResolutionNoSmear();
+  double alpha_sig = angleResolutionCorrVtx();
+  
+  return 0.5*higgsMass*TMath::Sqrt(((lead_sig*lead_sig)/(lead_E*lead_E))+((sublead_sig*sublead_sig)/(sublead_E*sublead_E))+((alpha_sig*alpha_sig)*(TMath::Sin(alpha)/(1.-TMath::Cos(alpha)))*(TMath::Sin(alpha)/(1.-TMath::Cos(alpha)))));
+
+}
 // return the mass resolution wrong vertex
 double MassResolution::massResolutionWrongVtx(){
   
@@ -93,6 +109,14 @@ double MassResolution::massResolutionWrongVtx(){
 
 }
 
+double MassResolution::massResolutionWrongVtxNoSmear(){
+  double alpha_sig = higgsMass*0.5*angleResolutionWrongVtx();
+  
+   double sigmaM = massResolutionEonlyNoSmear();
+//  return 0.5*higgsMass*TMath::Sqrt(((lead_sig*lead_sig)/(lead_E*lead_E))+((sublead_sig*sublead_sig)/(sublead_E*sublead_E))+((alpha_sig*alpha_sig)));
+  return TMath::Sqrt((sigmaM*sigmaM)+(alpha_sig*alpha_sig));
+}
+
 // return energy contribution to mass resolution only
 double MassResolution::massResolutionEonly() {
 
@@ -102,6 +126,17 @@ double MassResolution::massResolutionEonly() {
   double sublead_sig = subleadPhotonResolution();
 
   return 0.5*higgsMass*TMath::Sqrt((lead_sig*lead_sig)/(lead_E*lead_E)+(sublead_sig*sublead_sig)/(sublead_E*sublead_E));
+}
+
+double MassResolution::massResolutionEonlyNoSmear(){
+  
+  double lead_E = leadPhoton->energy();
+  double sublead_E = subleadPhoton->energy();
+  double lead_sig = leadPhotonResolutionNoSmear();
+  double sublead_sig = subleadPhotonResolutionNoSmear();
+
+  return 0.5*higgsMass*TMath::Sqrt((lead_sig*lead_sig)/(lead_E*lead_E)+(sublead_sig*sublead_sig)/(sublead_E*sublead_E));
+
 }
 
 double MassResolution::massResolutionAonly(){
