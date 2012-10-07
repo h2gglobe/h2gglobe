@@ -1236,7 +1236,7 @@ bool LoopAll::METAnalysis2012B(TLorentzVector lead_p4, TLorentzVector sublead_p4
   // if (fabs(leadEta)>1.5)    return tag;
   // if (fabs(subleadEta)>1.5) return tag;
 
-  if ( myMet.E() > 70 ) tag = true;
+  if ( myMet.Pt() > 70 ) tag = true;
 
   return tag;
 }
