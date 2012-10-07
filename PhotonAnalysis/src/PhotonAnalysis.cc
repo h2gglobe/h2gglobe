@@ -3955,15 +3955,52 @@ float PhotonAnalysis::ComputeEventSmearError(LoopAll& l, int ipho1, int ipho2) {
     return smear_event_err/smear_event;
 }
 
+pair<double,double> PhotonAnalysis::ComputeNewSigmaMs(LoopAll &l, int ipho1, int ipho2, int ivtx, float sys_shift){
+
+    PhotonReducedInfo pho1 (
+        *((TVector3*)     l.sc_xyz->At(l.pho_scind[ipho1])), 
+        ((TLorentzVector*)l.pho_p4->At(ipho1))->Energy(), 
+        energyCorrected[ipho1],
+        l.pho_isEB[ipho1], l.pho_r9[ipho1],
+        true, // WARNING  setting pass photon ID flag for all photons. This is safe as long as only selected photons are used
+        0 // gets set just below
+    );
+    PhotonReducedInfo pho2 (
+        *((TVector3*)     l.sc_xyz->At(l.pho_scind[ipho2])), 
+        ((TLorentzVector*)l.pho_p4->At(ipho2))->Energy(), 
+        energyCorrected[ipho2],
+        l.pho_isEB[ipho2], l.pho_r9[ipho2],
+        true, // WARNING  setting pass photon ID flag for all photons. This is safe as long as only selected photons are used
+        0 // gets set just below
+    );
+    pho1.setCorrEnergyErr(pho1.corrEnergyErr()*(1.+sys_shift*0.1));
+    pho2.setCorrEnergyErr(pho1.corrEnergyErr()*(1.+sys_shift*0.1));
+
+    MassResolution *tempMassRes = new MassResolution();
+    tempMassRes->Setup(l,&pho1,&pho2,ivtx,eSmearPars, nR9Categories, nEtaCategories,beamspotSigma);
+    double sigMright = tempMassRes->massResolutionEonlyNoSmear();
+    double sigMwrong = tempMassRes->massResolutionWrongVtxNoSmear();
+    pair<double,double> result(sigMright,sigMwrong);
+    return result;
+}
+
 void PhotonAnalysis::saveMassFacDatCardTree(LoopAll &l, int cur_type, int category, float evweight, int ipho1, int ipho2, int ivtx, float vtxP, TLorentzVector lead_p4, TLorentzVector sublead_p4, double sigmaMrv, double sigmaMwv, double sigmaMeonly, string trainPhil, float lead_id_mva, float sublead_id_mva){
-    
+   
+   // track the scale and smear uncertainties per event
    float scale_err = ComputeEventScaleError(l,ipho1,ipho2);
    float smear_err = ComputeEventSmearError(l,ipho1,ipho2);
 
    float bdtout = l.diphotonMVA(ipho1,ipho2,ivtx,vtxP,lead_p4,sublead_p4,sigmaMrv, sigmaMwv, sigmaMeonly, trainPhil.c_str(), lead_id_mva, sublead_id_mva);
-   float bdtout_id_up   = l.diphotonMVA(ipho1,ipho2,ivtx,vtxP,lead_p4,sublead_p4,sigmaMrv, sigmaMwv, sigmaMeonly, trainPhil.c_str(), lead_id_mva+0.01, sublead_id_mva+0.01); // ?????
-   float bdtout_id_down = l.diphotonMVA(ipho1,ipho2,ivtx,vtxP,lead_p4,sublead_p4,sigmaMrv, sigmaMwv, sigmaMeonly, trainPhil.c_str(), lead_id_mva-0.01, sublead_id_mva-0.01); // ????
 
+   // calculate diphobdt given shift in idMVA
+   float bdtout_id_up   = l.diphotonMVA(ipho1,ipho2,ivtx,vtxP,lead_p4,sublead_p4,sigmaMrv, sigmaMwv, sigmaMeonly, trainPhil.c_str(), lead_id_mva+0.01, sublead_id_mva+0.01);
+   float bdtout_id_down = l.diphotonMVA(ipho1,ipho2,ivtx,vtxP,lead_p4,sublead_p4,sigmaMrv, sigmaMwv, sigmaMeonly, trainPhil.c_str(), lead_id_mva-0.01, sublead_id_mva-0.01);
+
+   // calculate diphobdt given shift in sigmaE from regression
+   pair<double,double> newSigmaMsUp = ComputeNewSigmaMs(l,ipho1,ipho2,ivtx,3.);
+   pair<double,double> newSigmaMsDown = ComputeNewSigmaMs(l,ipho1,ipho2,ivtx,-3.);
+   float bdtout_sigE_up =   l.diphotonMVA(ipho1,ipho2,ivtx,vtxP,lead_p4,sublead_p4,newSigmaMsUp.first, newSigmaMsUp.second, newSigmaMsUp.first, trainPhil.c_str(), lead_id_mva+0.01, sublead_id_mva+0.01); 
+   float bdtout_sigE_down = l.diphotonMVA(ipho1,ipho2,ivtx,vtxP,lead_p4,sublead_p4,newSigmaMsDown.first, newSigmaMsDown.second, newSigmaMsDown.first, trainPhil.c_str(), lead_id_mva-0.01, sublead_id_mva-0.01);
    int proc_id=-1;
    if (l.signalNormalizer->GetProcess(cur_type)=="ggh") proc_id=0;
    if (l.signalNormalizer->GetProcess(cur_type)=="vbf") proc_id=1;
@@ -3980,12 +4017,15 @@ void PhotonAnalysis::saveMassFacDatCardTree(LoopAll &l, int cur_type, int catego
    l.FillTree("bdtout",bdtout);
    l.FillTree("bdtout_id_up",bdtout_id_up);
    l.FillTree("bdtout_id_down",bdtout_id_down);
+   l.FillTree("bdtout_sigE_up",bdtout_sigE_up);
+   l.FillTree("bdtout_sigE_down",bdtout_sigE_down);
    l.FillTree("lead_eta",lead_p4.Eta());
    l.FillTree("sublead_eta",sublead_p4.Eta());
    l.FillTree("lead_r9",l.pho_r9[ipho1]);
    l.FillTree("sublead_r9",l.pho_r9[ipho2]);
    l.FillTree("lead_isEB",TMath::Abs(lead_p4.Eta())<1.444);
    l.FillTree("sublead_isEB",TMath::Abs(sublead_p4.Eta())<1.444);
+   l.FillTree("vbfmva",myVBF_MVA);
 
 }
 

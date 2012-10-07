@@ -8,9 +8,12 @@ type=2 name=w_smear_err_2
 type=2 name=bdtout
 type=2 name=bdtout_id_up
 type=2 name=bdtout_id_down
+type=2 name=bdtout_sigE_up
+type=2 name=bdtout_sigE_down
 type=3 name=lead_eta
 type=3 name=sublead_eta
 type=2 name=lead_r9
 type=2 name=sublead_r9
 type=5 name=lead_isEB
 type=5 name=sublead_isEB
+type=2 name=vbfmva
