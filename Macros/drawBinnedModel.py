@@ -38,7 +38,12 @@ def getPoint(h):
     return h.Integral(), h.Integral()/sqrt(h.GetEntries()), high-low, h.GetMean()
     
 
-def drawYields(masses,ncat=6,color=ROOT.kBlue,opt="APL",procs = [ "ggh", "vbf", "wzh", "tth" ]):
+def commit(obj,color):
+    obj.SetLineColor(color)
+    obj.SetMarkerColor(color)
+    globals()[obj.GetName().replace(".","_")] = obj
+
+def drawYields(masses,ncat=6,color=ROOT.kBlue,opt="PL",procs = [ "ggh", "vbf", "wzh", "tth" ],syst=None,colorUp=ROOT.kMagenta,colorDown=ROOT.kGreen):
     
     ROOT.gROOT.LoadMacro("ResultScripts/GraphToTF1.C+")
 
@@ -62,9 +67,36 @@ def drawYields(masses,ncat=6,color=ROOT.kBlue,opt="APL",procs = [ "ggh", "vbf", 
             gcatFWHM.SetName("%s_cat%d_FWMH" % ( p, cat) )
             gcatMean = ROOT.TGraphErrors()
             gcatMean.SetName("%s_cat%d_Mean" % ( p, cat) )
-            globals()[gcat.GetName().replace(".","_")] = gcat
-            globals()[gcatFWHM.GetName().replace(".","_")] = gcatFWHM
-            globals()[gcatMean.GetName().replace(".","_")] = gcatMean
+            commit(gcat,color)
+            commit(gcatFWHM,color)
+            commit(gcatMean,color)
+            
+            if syst!= None:
+                gcatUp = ROOT.TGraph()
+                gcatUp.SetName("%s_cat%d_%sUp" % ( p, cat, syst ) )
+                commit(gcatUp,colorUp)
+
+                gcatDown = ROOT.TGraph()
+                gcatDown.SetName("%s_cat%d_%sDown" % ( p, cat, syst ) )
+                commit(gcatDown,colorDown)
+
+                gcatFWHMUp = ROOT.TGraph()
+                gcatFWHMUp.SetName("%s_cat%d_%sUp" % ( p, cat, syst ) )
+                commit(gcatFWHMUp,colorUp)
+
+                gcatFWHMDown = ROOT.TGraph()
+                gcatFWHMDown.SetName("%s_cat%d_%sDown" % ( p, cat, syst ) )
+                commit(gcatFWHMDown,colorDown)
+
+                gcatMeanUp = ROOT.TGraph()
+                gcatMeanUp.SetName("%s_cat%d_%sUp" % ( p, cat, syst ) )
+                commit(gcatMeanUp,colorUp)
+
+                gcatMeanDown = ROOT.TGraph()
+                gcatMeanDown.SetName("%s_cat%d_%sDown" % ( p, cat, syst ) )
+                commit(gcatMeanDown,colorDown)
+
+
             for mh in masses:
                 name = "th1f_sig_%s_mass_m%1.5g_cat%d" % ( p, mh, cat )
                 h = ROOT.gDirectory.Get(name)
@@ -77,31 +109,45 @@ def drawYields(masses,ncat=6,color=ROOT.kBlue,opt="APL",procs = [ "ggh", "vbf", 
                     
                     gcatFWHM.SetPoint(ip,mh,fwhm)
                     gcatMean.SetPoint(ip,mh,mean)
-                    
+
+                    if syst!= None:
+                        hup   = ROOT.gDirectory.Get("%s_%sUp01_sigma" % ( name, syst ) )
+                        hdown = ROOT.gDirectory.Get("%s_%sDown01_sigma" % ( name, syst ) )
+                        integralUp, integralEUp, fwhmUp, meanUp = getPoint(hup)
+                        integralDown, integralEDown, fwhmDown, meanDown = getPoint(hdown)
+
+                        gcatUp.SetPoint(ip,mh,integralUp)
+                        gcatFWHMUp.SetPoint(ip,mh,fwhmUp)
+                        gcatMeanUp.SetPoint(ip,mh,meanUp)
+
+                        gcatDown.SetPoint(ip,mh,integralDown)
+                        gcatFWHMDown.SetPoint(ip,mh,fwhmDown)
+                        gcatMeanDown.SetPoint(ip,mh,meanDown)
+
                 except:
                     print "%s not found" % name
-
+                    
+                    
+                    
             
             c.cd(cat+1)
-            gcat.SetLineColor(color)
-            gcat.SetMarkerColor(color)
             gcat.SetMarkerStyle(ROOT.kFullCircle)
-            
-            gcat.Print()
-            gcat.Draw(opt)
-
+            gcat.Draw("A%s" % opt)
+            if syst != None:
+                gcatUp.Draw(opt)
+                gcatDown.Draw(opt)
+                
             d.cd(cat+1)
-            gcatFWHM.SetLineColor(color)
-            gcatFWHM.SetMarkerColor(color)
             gcatFWHM.SetMarkerStyle(ROOT.kFullCircle)
-
-            gcatFWHM.Print()
-            gcatFWHM.Draw(opt)
+            gcatFWHM.Draw("A%s" % opt)
+            if syst != None:
+                gcatFWHMUp.Draw(opt)
+                gcatFWHMDown.Draw(opt)
 
             e.cd(cat+1)
-            gcatMean.SetLineColor(color)
-            gcatMean.SetMarkerColor(color)
             gcatMean.SetMarkerStyle(ROOT.kFullCircle)
-
-            gcatMean.Print()
-            gcatMean.Draw(opt)
+            gcatMean.Draw("A%s" % opt)
+            if syst != None:
+                gcatMeanUp.Draw(opt)
+                gcatMeanDown.Draw(opt)
+            
