@@ -13,7 +13,7 @@ emulatedBeamspotWidth=4.8
 beamspotSigma=4.8
 targetsigma=4.8
 sourcesigma=6.16
-reweighBeamspot=0
+reweighBeamspot=1
 rescaleDZforVtxMVA=0
 saveBSTrees_=0
 
@@ -36,7 +36,7 @@ applyPtoverM=1
 doTriggerSelection=0
 puHist=auto
 puMap=
-puTarget=aux/2012_weights.root
+puTarget=aux/HCP2012_freezing_v2.json.69400.observed.pileup.root
 
 energyCorrectionMethod=Bendavid
 doEcorrectionSmear=1
@@ -53,4 +53,4 @@ rerunJetMva=0
 recomputeJetWp=0
 jetHandlerCfg=jetHandler_cfg.py
 
-reComputeCiCPF=1
+reComputeCiCPF=0

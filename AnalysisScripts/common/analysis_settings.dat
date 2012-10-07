@@ -40,7 +40,7 @@ pdfWeightHist=aux/GF_mvasys.root
 ## kfacHist=aux/KFactors_AllScales_interpolated.root
 puMap=
 puHist=auto
-puTarget=aux/Cert_190456-202016_8TeV_PromptReco_Collisions12_JSON.txt.69400.observed.pileup.root
+puTarget=aux/HCP2012_freezing_v2.json.69400.observed.pileup.root
 
 ## energy regression
 energyCorrectionMethod=Bendavid
@@ -53,7 +53,7 @@ scale_offset_error_file=energy_scale_errors.dat
 
 ## uncorrelated part of the uncertainties
 splitEscaleSyst=0
-scale_offset_corr_error_file=jan16reload/energy_scale_corr_errors.dat
+scale_offset_corr_error_file=energy_scale_corr_errors.dat
 
 ## additional MC smearing
 smearing_file=smearing_sigma_and_errors.dat
@@ -70,7 +70,7 @@ recomputeJetWp=1
 
 ## revertex
 reRunVtx=0
-rematchConversions=1
+rematchConversions=0
 
 doInterferenceSmear=1
 
