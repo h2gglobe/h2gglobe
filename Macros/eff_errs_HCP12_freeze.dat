@@ -1,0 +1,17 @@
+# cat eff err eff err eff err
+# NUMBERS for HCP 2012
+# https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/995/1.html
+# electron veto not yet updated
+# eleV: https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/819/1/1.html
+
+# baseline: presel  id (cic4pf) eleV 
+cat0  0.998 0.003   1.007 0.003   1.000   0.000
+cat1  1.002 0.006   0.994 0.011   0.983   0.006
+cat2  1.008 0.009   1.015 0.008   0.998   0.006
+cat3  0.996 0.017   1.028 0.026   0.995   0.012
+
+# id for phoID  > -0.2
+## cat0  0.998 0.003   1.0001 0.0001   1.000   0.000
+## cat1  1.002 0.006   0.9995 0.0002   0.983   0.006
+## cat2  1.008 0.009   0.9998 0.0001   0.998   0.006
+## cat3  0.996 0.017   0.9968 0.0002   0.995   0.012

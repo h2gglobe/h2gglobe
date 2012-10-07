@@ -1,10 +1,10 @@
 {
-TFile *oldFILE = new TFile("./vertex_reweighing_mva.root");
+TFile *oldFILE = new TFile("./vertex_reweighing_mva_HCP2012_freeze.root");
 
 oldFILE->Print();
 oldFILE->ls();
 
-TFile *newFILE = TFile::Open("../AnalysisScripts/aux/sig_reweighing_ichep2012topup_mva_v2.root","recreate");
+TFile *newFILE = TFile::Open("../AnalysisScripts/aux/sig_reweighing_hcp2012_mva_v1.root","recreate");
 newFILE->cd();
 
 TGraphAsymmErrors * toCopy;
@@ -15,18 +15,16 @@ int ncats = 8;
 // HIGHPT - EBhighr9, EBlowR9, EEhighR9, EElowR9
 // Since this is a Diphoton Smear, keep the 8 categories for back compatibility
 // L1HLT ------------------------
-// Numbers from https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/476.html
-// New numbers from Matteo for the errors with systematics (14th Nov 2011 h->gg meeting)
-// Numbers from Xiaohang: https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/826.html
+// Numbers from Xiaohang: https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/995.html
 
 // baseline:
-//Double_t effL1HLT_[ncats] 	       = {0.9973,0.9973,0.9973,0.9973,0.9973,0.9973,0.9973,0.9973};
+//Double_t effL1HLT_[ncats] 	       = {0.9979,0.9979,0.9979,0.9979,0.9979,0.9979,0.9979,0.9979};
 
 // mva:
-Double_t effL1HLT_[ncats] 	       = {0.9949,0.9949,0.9949,0.9949,0.9949,0.9949,0.9949,0.9949};
+Double_t effL1HLT_[ncats] 	       = {0.9946,0.9946,0.9946,0.9946,0.9946,0.9946,0.9946,0.9946};
 
-Double_t effL1HLT_low_err_[ncats]  = {0.0009,0.0009,0.0009,0.0009,0.0009,0.0009,0.0009,0.0009};
-Double_t effL1HLT_high_err_[ncats] = {0.0009,0.0009,0.0009,0.0009,0.0009,0.0009,0.0009,0.0009};
+Double_t effL1HLT_low_err_[ncats]  = {0.0005,0.0005,0.0005,0.0005,0.0005,0.0005,0.0005,0.0005};
+Double_t effL1HLT_high_err_[ncats] = {0.0005,0.0005,0.0005,0.0005,0.0005,0.0005,0.0005,0.0005};
 
 for (int cat=0;cat<ncats;cat++){
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -47,20 +45,20 @@ for (int cat=0;cat<ncats;cat++){
 }
 // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // ID efficieny corrections ------------------------------------------------------------------------------------------------------------------------------------------------------
-// presel and id numbers from matteo: https://hypernews.cern.ch/HyperNews/CMS/get/AUX/2012/06/17/11:07:56-41033-scale_factors_approval.pdf
+// presel and id numbers from matteo: https://hypernews.cern.ch/HyperNews/CMS/get/AUX/2012/10/07/08:20:52-62393-photonID_scaleFactors_HCP_Freezing.dat
 // eleVeto numbers from Nancy: https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/819/1/1.html
 // Errors all listed in eff_errs.dat
 // can combine efficiencies and errors with effError.py 
 int nphocats=4;
 
 // baseline
-//Double_t ratioTP_[nphocats]            = {1.000,0.971,1.025,1.021};
-//Double_t ratioTP_low_err_[nphocats]    = {0.004,0.014,0.014,0.034};
-//Double_t ratioTP_high_err_[nphocats]   = {0.004,0.014,0.014,0.034};
+Double_t ratioTP_[nphocats]            = {1.005,0.979,1.021,1.019};
+Double_t ratioTP_low_err_[nphocats]    = {0.004,0.014,0.014,0.033};
+Double_t ratioTP_high_err_[nphocats]   = {0.004,0.014,0.014,0.033};
 // mva
-Double_t ratioTP_[nphocats]            = {0.998,0.980,1.004,0.994};
-Double_t ratioTP_low_err_[nphocats]    = {0.003,0.008,0.011,0.022};
-Double_t ratioTP_high_err_[nphocats]   = {0.003,0.008,0.011,0.022};
+Double_t ratioTP_[nphocats]            = {0.998,0.984,1.006,0.988};
+Double_t ratioTP_low_err_[nphocats]    = {0.003,0.008,0.011,0.021};
+Double_t ratioTP_high_err_[nphocats]   = {0.003,0.008,0.011,0.021};
 
 std::string iDLabels_[nphocats] 	    = {"EBHighR9","EBLowR9","EEHighR9","EELowR9"};
 

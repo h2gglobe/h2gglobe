@@ -81,9 +81,5 @@ doInterferenceSmear=1
 
 fillEscaleTrees=0
 
-# Inputs for reweighing
-# - phoId and trigger: same as EPS,  https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/374.html
-# - vertexing from: https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/374/1.html
-
-efficiencyFile=aux/sig_reweighing_ichep2012topup_mva_v2.root
+efficiencyFile=aux/sig_reweighing_hcp2012_mva_v1.root
 
