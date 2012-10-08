@@ -1,12 +1,32 @@
+#!/usr/bin/env python
 # Original Authors - Nicholas Wardle, Nancy Marinelli, Doug Berry
 
 # Major cleanup from limit-plotter-complete.py
+#-------------------------------------------------------------------------
+# UserInput
+from optparse import OptionParser
+parser=OptionParser()
+parser.add_option("-M","--Method",dest="Method")
+parser.add_option("-r","--doRatio",action="store_true")
+parser.add_option("-s","--doSmooth",action="store_true")
+parser.add_option("-b","--bayes",dest="bayes")
+parser.add_option("-o","--outputLimits",dest="outputLimits")
+parser.add_option("-e","--expectedOnly",action="store_true")
+parser.add_option("-p","--path",dest="path",default="",type="str")
+parser.add_option("-v","--verbose",dest="verbose",action="store_true")
+parser.add_option("","--addline",action="append",type="str",help="add lines to the plot file.root:color:linestyle:legend entry", default = [])
+parser.add_option("","--show",action="store_true")
+parser.add_option("","--pval",action="store_true")
+parser.add_option("","--addtxt",action="append",type="str", help="Add lines of text under CMS Preliminary",default=[])
+parser.add_option("","--square",dest="square",help="Make square plots",action="store_true")
+parser.add_option("","--nogrid",dest="nogrid",help="Remove grid from plots",action="store_true")
+
+(options,args)=parser.parse_args()
+
 # Standard Imports and calculators
 import ROOT
 import array,sys,numpy
 ROOT.gROOT.ProcessLine(".x tdrstyle.cc")
-
-from optparse import OptionParser
 
 ROOT.gROOT.SetBatch(True)
 ROOT.gStyle.SetOptStat(0)
@@ -17,8 +37,8 @@ ROOT.gStyle.SetOptFit(0)
 OBSmasses = []
 EXPmasses = []
 
-OBSmassesT = numpy.arange(110,150.1,5)
-EXPmassesT = numpy.arange(110,150.1,5)
+OBSmassesT = numpy.arange(110,149.1,1)
+EXPmassesT = numpy.arange(110,149.1,1)
 epsilon = 0.001  # make this smaller than your smallest step size
 
 for m in OBSmassesT:
@@ -42,25 +62,6 @@ MAXPV = 1.0
 Lines = [1.,2.,3.]
 MINMH=int(min(EXPmasses))
 MAXMH=int(max(EXPmasses))
-#-------------------------------------------------------------------------
-# UserInput
-parser=OptionParser()
-parser.add_option("-M","--Method",dest="Method")
-parser.add_option("-r","--doRatio",action="store_true")
-parser.add_option("-s","--doSmooth",action="store_true")
-parser.add_option("-b","--bayes",dest="bayes")
-parser.add_option("-o","--outputLimits",dest="outputLimits")
-parser.add_option("-e","--expectedOnly",action="store_true")
-parser.add_option("-p","--path",dest="path",default="",type="str")
-parser.add_option("-v","--verbose",dest="verbose",action="store_true")
-parser.add_option("","--addline",action="append",type="str",help="add lines to the plot file.root:color:linestyle:legend entry", default = [])
-parser.add_option("","--show",action="store_true")
-parser.add_option("","--pval",action="store_true")
-parser.add_option("","--addtxt",action="append",type="str", help="Add lines of text under CMS Preliminary",default=[])
-parser.add_option("","--square",dest="square",help="Make square plots",action="store_true")
-parser.add_option("","--nogrid",dest="nogrid",help="Remove grid from plots",action="store_true")
-
-(options,args)=parser.parse_args()
 
 if options.show : ROOT.gROOT.SetBatch(False)
 if options.addline and not options.pval : sys.exit("Cannot addlines unless running in pvalue")
