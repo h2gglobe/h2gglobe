@@ -3977,7 +3977,11 @@ pair<double,double> PhotonAnalysis::ComputeNewSigmaMs(LoopAll &l, int ipho1, int
     pho2.setCorrEnergyErr(pho1.corrEnergyErr()*(1.+sys_shift*0.1));
 
     MassResolution *tempMassRes = new MassResolution();
-    tempMassRes->Setup(l,&pho1,&pho2,ivtx,eSmearPars, nR9Categories, nEtaCategories,beamspotSigma);
+    
+    //cout << pho1.p4().X() << endl;
+    //cout << pho2.p4().X() << endl;
+    //cout << ((TVector3*)l.vtx_std_xyz->At(ivtx))->Z() << endl;
+    tempMassRes->Setup(l,&pho1,&pho2,ivtx,eSmearPars, nR9Categories, nEtaCategories,beamspotSigma,true);
     double sigMright = tempMassRes->massResolutionEonlyNoSmear();
     double sigMwrong = tempMassRes->massResolutionWrongVtxNoSmear();
     pair<double,double> result(sigMright,sigMwrong);
