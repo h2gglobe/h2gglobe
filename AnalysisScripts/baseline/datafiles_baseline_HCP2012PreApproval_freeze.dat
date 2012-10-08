@@ -87,7 +87,8 @@ split typ=-15 ind=3 draw=1   Nam=tth_m105_8TeV   CaDir=/store/group/phys_higgs/c
 #
 inputBranches minimal_analysis_input.dat
 inputBranches minimal_statanalysis_input.dat
-inputBranches lepton_input.dat
+#inputBranches lepton_input.dat
+inputBranches minimal_leptmetanalysis_input.dat
 
 treevariables massfac_mva_binned/unbinned_datacard_trees.dat
 
