@@ -52,7 +52,7 @@ for m in numpy.arange(ml,mh+1,1):
   if method=='ProfileLikelihood':
     line += ' --signif --pvalue'
   if method=='ExpProfileLikelihood':
-    line += ' -t -1 --expectSignal=1'
+    line += ' --signif --pvalue -t -1 --expectSignal=1'
   if expectedOnly:
     line += ' --run=expected'
   f.write(line+'\n')
