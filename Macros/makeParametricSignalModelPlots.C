@@ -407,8 +407,10 @@ void makeParametricSignalModelPlots(string hggFileName, string pathName, bool do
   else sqrts="8TeV";
 
   RooWorkspace *hggWS;
-  if (ncats==5) hggWS = (RooWorkspace*)hggFile->Get(Form("wsig_%s",sqrts.c_str()));
-  if (ncats==6) hggWS = (RooWorkspace*)hggFile->Get(Form("wsig_%s",sqrts.c_str()));
+  if (is2011) hggWS = (RooWorkspace*)hggFile->Get(Form("wsig_%s",sqrts.c_str()));
+  else        hggWS = (RooWorkspace*)hggFile->Get(Form("wsig_%s",sqrts.c_str()));
+ 
+  if (!hggWS) cerr << "Workspace is null" << endl;
 
   RooRealVar *mass = (RooRealVar*)hggWS->var("CMS_hgg_mass");
   RooRealVar *mh = (RooRealVar*)hggWS->var("MH");
@@ -416,7 +418,7 @@ void makeParametricSignalModelPlots(string hggFileName, string pathName, bool do
   mass->setRange("higgsRange",m_hyp-20.,m_hyp+15.);
 
   map<string,string> labels;
-  if (ncats==5) {
+  if (is2011) {
     labels.insert(pair<string,string>("cat0","BDT >= 0.89"));
     labels.insert(pair<string,string>("cat1","0.72 <= BDT <= 0.89"));
     labels.insert(pair<string,string>("cat2","0.55 <= BDT <= 0.72"));
@@ -424,7 +426,21 @@ void makeParametricSignalModelPlots(string hggFileName, string pathName, bool do
     labels.insert(pair<string,string>("cat4","BDT >= 0.05 VBF Tag"));
     labels.insert(pair<string,string>("all","All Categories Combined"));
   }
-  if (ncats==6) {
+  else {
+    labels.insert(pair<string,string>("cat0","BDT_{#gamma#gamma} >= 0.88"));
+    labels.insert(pair<string,string>("cat1","0.71 <= BDT_{#gamma#gamma} <= 0.88"));
+    labels.insert(pair<string,string>("cat2","0.50 <= BDT_{#gamma#gamma} <= 0.71"));
+    labels.insert(pair<string,string>("cat3","-0.05 <= BDT_{#gamma#gamma} <= 0.50"));
+    labels.insert(pair<string,string>("cat4","BDT_{jj} >= 0.985 Dijet Tag"));
+    labels.insert(pair<string,string>("cat5","BDT_{jj} >= 0.93 Dijet Tag")); 
+    labels.insert(pair<string,string>("cat6","BDT_{#gamma#gamma} >= -0.05 Electron Tag")); 
+    labels.insert(pair<string,string>("cat7","BDT_{#gamma#gamma} >= -0.05 Muon Tag")); 
+    labels.insert(pair<string,string>("cat8","BDT_{#gamma#gamma} >= -0.05 MET Tag")); 
+    
+    labels.insert(pair<string,string>("all","All Categories Combined"));
+  }
+  /*
+  else {
     labels.insert(pair<string,string>("cat0","BDT >= 0.88"));
     labels.insert(pair<string,string>("cat1","0.71 <= BDT <= 0.88"));
     labels.insert(pair<string,string>("cat2","0.50 <= BDT <= 0.71"));
@@ -433,6 +449,7 @@ void makeParametricSignalModelPlots(string hggFileName, string pathName, bool do
     labels.insert(pair<string,string>("cat5","BDT >= -0.05 Loose VBF")); 
     labels.insert(pair<string,string>("all","All Categories Combined"));
   }
+  */
 
   map<string,RooDataSet*> dataSets;
   map<string,RooAddPdf*> pdfs;
