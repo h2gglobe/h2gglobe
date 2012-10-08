@@ -33,4 +33,4 @@ if [ ! -d "$folder" ]; then
   mkdir $folder
 fi
 
-mv higgsCombineTest.$method.mH$mass.root $folder/higgsCombine$naming.$method.mH$mass.0.root
+mv higgsCombineTest.$method.mH$mass.root $folder/higgsCombine$naming.$method.mH$mass.root
