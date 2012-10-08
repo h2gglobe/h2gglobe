@@ -16,4 +16,7 @@ multiclassVbfCatBoundaries2=1.,0.99,0.98
 #mvaVbfWeights=aux/TMVA_multiclass_vbf_diphopt_phopt_BDTG.weights.xml
 
 ## mvaVbfCatBoundaries=1.,0.985,0.968,0.92 
-## bkgPolOrderByCat=4,5,5,5,3,3,4
+
+bkgPolOrderByCat=4,5,5,5,3,3,4,-1,-1
+
+includeVHmet=1
