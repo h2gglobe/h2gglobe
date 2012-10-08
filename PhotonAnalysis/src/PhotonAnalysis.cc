@@ -2607,7 +2607,7 @@ void PhotonAnalysis::ControlPlotsElectronTag2012B(LoopAll& l, TLorentzVector lea
 
 void PhotonAnalysis::ControlPlotsMetTag2012B(LoopAll& l, TLorentzVector lead_p4, TLorentzVector sublead_p4, float bdtoutput, float evweight, std::string label){
     TLorentzVector myMet = l.METCorrection2012B(lead_p4, sublead_p4); 
-    float corrMet    = myMet.E();
+    float corrMet    = myMet.Pt();
     float corrMetPhi = myMet.Phi();
     
     int met_cat=(int)(abs(lead_p4.Eta())>1.5 || abs(sublead_p4.Eta())>1.5); 
