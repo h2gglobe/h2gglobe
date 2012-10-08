@@ -38,7 +38,7 @@ void makeBkgPlotsGeneric(std::string filebkg, bool blind=true, bool doBands=true
 	gROOT->SetStyle("Plain");
 	gROOT->SetBatch(1);
 	gStyle->SetOptStat(0);
-	const int ncats = 6;
+	const int ncats = 9;
 
 	RooMsgService::instance().setGlobalKillBelow(RooFit::MsgLevel(RooFit::WARNING));
 
@@ -51,13 +51,16 @@ void makeBkgPlotsGeneric(std::string filebkg, bool blind=true, bool doBands=true
 					  ,"Dijet-tagged class m_{jj} > 500 GeV"
 					  ,"Dijet-tagged class 250 < m_{jj} < 500 GeV"
 	};
-	std::string massfactlabels[6] = { 
-					"BDT >= 0.88"
-					,"0.71  <= BDT < 0.88"
-					,"0.5 <= BDT < 0.71"
-					,"-0.05  <= BDT < 0.5"
-					,"Dijet-tagged class m_{jj} > 500 GeV"
-					,"Dijet-tagged class 250 < m_{jj} < 500 GeV"
+	std::string massfactlabels[ncats] = { 
+					"BDT_{#gamma#gamma} >= 0.88"
+					,"0.71  <= BDT_{#gamma#gamma} < 0.88"
+					,"0.5 <= BDT_{#gamma#gamma} < 0.71"
+					,"-0.05  <= BDT_{#gamma#gamma} < 0.5"
+					,"Dijet-tagged class BDT_{#gamma#gamma}_{jj} > 0.93"
+					,"Dijet-tagged class BDT_{jj} > 0.98"
+          ,"Muon-tagged class"
+          ,"Electron-tagged class"
+          ,"MET-tagged class"
 	};
 	
 	if( baseline ) { labels = baselinelabels; }
@@ -69,6 +72,7 @@ void makeBkgPlotsGeneric(std::string filebkg, bool blind=true, bool doBands=true
 //	w_bkg->Print();
 
 	RooRealVar *x = (RooRealVar*) w_bkg->var("CMS_hgg_mass");
+  RooRealVar *intL = (RooRealVar*) w_bkg->var("IntLumi");
 
 	TLatex *latex = new TLatex();	
 	latex->SetTextSize(0.025);
@@ -204,7 +208,7 @@ void makeBkgPlotsGeneric(std::string filebkg, bool blind=true, bool doBands=true
  		}
 		allsig->Draw("samehistF");
 		leg->Draw();
-		cmslatex->DrawLatex(0.15,0.8,"#splitline{CMS Preliminary}{#sqrt{s} = 8TeV L = 10.4fb^{-1}}");
+		cmslatex->DrawLatex(Form(0.15,0.8,"#splitline{CMS Preliminary}{#sqrt{s} = 8TeV L = %2.1fb^{-1}}",intL->getVal()));
 		latex->DrawLatex(0.1,0.92,labels[cat].c_str());
 		can->SaveAs(Form( (baseline ? "baselinecat%d.pdf" : "massfacmvacat%d.pdf"),cat));
 		can->SaveAs(Form( (baseline ? "baselinecat%d.png" : "massfacmvacat%d.png"),cat));
