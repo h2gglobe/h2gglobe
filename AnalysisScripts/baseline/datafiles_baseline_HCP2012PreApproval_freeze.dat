@@ -98,4 +98,4 @@ treevariables massfac_mva_binned/unbinned_datacard_trees.dat
 ##   analyzer <class_name> <config_file>
 ##
 ## analyzer PhotonAnalysis photonanalysis.dat
-analyzer StatAnalysis photonanalysis.dat analysis_settings.dat statanalysis.dat jetanalysis/mvavbftag.dat saveDatacardTrees_=1 dumpAscii=1 dumpMcAscii=0 scaleR9Only=0
+analyzer StatAnalysis photonanalysis.dat analysis_settings.dat statanalysis.dat jetanalysis/mvavbftag.dat saveDatacardTrees_=0 dumpAscii=1 dumpMcAscii=0 scaleR9Only=0
