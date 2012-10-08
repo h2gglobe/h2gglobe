@@ -1,4 +1,4 @@
-intL=11854. histfile=/store/group/phys_higgs/meridian/analyzed/%(label)s/CMS-HGG.root output=eventsList.txt
+intL=11854. histfile=/store/group/phys_higgs/cmshgg/analyzed/%(label)s/CMS-HGG.root output=eventsList.txt
 
 #
 # Data
