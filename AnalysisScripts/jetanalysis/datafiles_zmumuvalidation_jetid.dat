@@ -1,13 +1,33 @@
 ## intL=1. histfile=jetid_vbf.root output=shifo.root
 ## intL=1. histfile=jetid_nowei_true_vtx0.root output=shifo.root
-intL=1. histfile=jetanalysis.root output=shifo.root
+#intL=11834. histfile=jetanalysis.root output=shifo.root
+intL=11854. histfile=/store/cmst3/user/malberti/HIGGS/VBF/zmumu_validation_jetid/%(label)s/CMS-HGG_test.root output=eventsList.txt
+
+##
+##Data
+##
+
+typ=0 ind=1 draw=1  Nam=Data   CaDir=/store/group/phys_higgs/cmshgg/processed/V14_00_03/data/DoubleMu_Run2012A-13Jul2012-v1_AOD/  red=0 lum=1.0  xsec=-1.0     kfac=1.000000  scal=1.000000  json=aux/2012-onOct06.json
+
+typ=0 ind=1 draw=1  Nam=Data   CaDir=/store/group/phys_higgs/cmshgg/processed/V14_00_03/data/DoubleMu_Run2012B-13Jul2012-v4_AOD/  red=0 lum=1.0  xsec=-1.0     kfac=1.000000  scal=1.000000  json=aux/2012-onOct06.json
+
+typ=0 ind=1 draw=1  Nam=Data   CaDir=/store/group/phys_higgs/cmshgg/processed/V14_00_03/data/DoubleMu_Run2012C-24Aug2012-v1_AOD/    red=0 lum=1.0  xsec=-1.0     kfac=1.000000  scal=1.000000  json=aux/2012-onOct06.json
+
+typ=0 ind=1 draw=1  Nam=Data   CaDir=/store/group/phys_higgs/cmshgg/processed/V14_00_03/data/DoubleMu_Run2012C-PromptReco-v2_AOD/ red=0 lum=1.0  xsec=-1.0     kfac=1.000000  scal=1.000000  json=aux/2012-onOct06.json
 
 
 #typ=0 ind=1 draw=1  Nam=Data   Fil=root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/processed/V14_00_03/data/DoubleMu_Run2012C-24Aug2012-v1_AOD/GlobeTuples_90_1_p41.root    red=0 lum=1.0  xsec=-1.0     kfac=1.000000  scal=1.000000
 
-typ=+6 ind=1 draw=1  Nam=DYJetsToLL   Fil=root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/processed/V14_00_03/mc/Summer12_S10_8TeV/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1_ZMuMuFilter/GlobeTuples_99_1_2fh.root  red=0 lum=1000000.0  xsec=1.0     kfac=1.000000  scal=1.000000 
+#typ=0 ind=1 draw=1  Nam=Data   Fil=root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/processed/V14_00_03/data/DoubleMu_Run2012C-PromptReco-v2_AOD/GlobeTuples_993_1_QyZ.root   red=0 lum=1.0  xsec=-1.0     kfac=1.000000  scal=1.000000
 
-typ=+6 ind=1 draw=1  Nam=DYJetsToLL   Fil=root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/processed/V14_00_03/mc/Summer12_S10_8TeV/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1_ZMuMuFilter/GlobeTuples_9_1_8OS.root  red=0 lum=1000000.0  xsec=1.0     kfac=1.000000  scal=1.000000 
+#typ=0 ind=1 draw=1  Nam=Data   Fil=root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/processed/V14_00_03/data/DoubleMu_Run2012C-PromptReco-v2_AOD/GlobeTuples_999_1_bgR.root   red=0 lum=1.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+
+
+##
+##MC
+##
+
+typ=+6 ind=1 draw=1  Nam=DYJetsToLL   CaDir=/store/group/phys_higgs/cmshgg/processed/V14_00_03/mc/Summer12_S10_8TeV/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1_ZMuMuFilter/  red=0  lum=1.0   xsec=3532.8   kfac=1.15  scal=1. pileup=root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/reduced/V14_00_02_v2/Summer12_S10_8TeV/DYJetsToLL_M-50.pileup.root
 
 ##
 ## Branches to use
@@ -26,4 +46,5 @@ runZeeValidation=0
 ## 	analyzer <class_name> <config_file>
 ## 
 ## analyzer PhotonAnalysis photonanalysis.dat	
-analyzer JetIdAnalysis photonanalysis.dat statanalysis.dat jetanalysis/jetanalysis.dat recomputeBetas=0 recorrectJets=0 rerunJetMva=0 recomputeJetWp=0 runZmumuValidation=1
+analyzer JetIdAnalysis photonanalysis.dat analysis_settings.dat statanalysis.dat jetanalysis/jetanalysis.dat recomputeBetas=0 recorrectJets=0 rerunJetMva=0 recomputeJetWp=1 runZmumuValidation=1
+
