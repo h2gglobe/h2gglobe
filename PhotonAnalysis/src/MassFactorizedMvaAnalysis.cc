@@ -756,6 +756,11 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
                     }
                 }
 
+                if(isEBEB){
+                    std::string label("nometcut");
+                    ControlPlotsMetTag2012B(l, lead_p4, sublead_p4, diphobdt_output, evweight, label);
+                }
+
                 if (includeVHmet&&VHmetevent){
                     std::string label("final");
                     ControlPlotsMetTag2012B(l, lead_p4, sublead_p4, diphobdt_output, evweight, label);
