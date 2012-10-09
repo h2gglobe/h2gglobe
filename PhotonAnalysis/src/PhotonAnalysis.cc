@@ -3714,11 +3714,6 @@ bool PhotonAnalysis::METTag2012B(LoopAll& l, int& diphotonVHmet_id, int& met_cat
         float mass = dipho_p4.M();
         met_cat=(int)(abs(lead_p4.Eta())>1.5 || abs(sublead_p4.Eta())>1.5);
 
-        if (mass >= 100. && mass < 180. && !isSyst && met_cat==0){
-            std::string label("premetcut");
-            ControlPlotsMetTag2012B(l, lead_p4, sublead_p4, diphobdt_output, evweight, label);
-        }
-
         tag = l.METAnalysis2012B(lead_p4, sublead_p4, useUncorrMet);
         if (tag) {
             if(met_cat!=0) tag=false;
