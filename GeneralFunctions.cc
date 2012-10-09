@@ -1231,10 +1231,10 @@ bool LoopAll::METAnalysis2012B(TLorentzVector lead_p4, TLorentzVector sublead_p4
   // if( l.correctedpfMET > 70 )    tag = true;
 
   // EBEB only
-  // float leadEta    = lead_p4.Eta();
-  // float subleadEta = sublead_p4.Eta();
-  // if (fabs(leadEta)>1.5)    return tag;
-  // if (fabs(subleadEta)>1.5) return tag;
+  float leadEta    = lead_p4.Eta();
+  float subleadEta = sublead_p4.Eta();
+  if (fabs(leadEta)>1.5)    return tag;
+  if (fabs(subleadEta)>1.5) return tag;
 
   if ( myMet.Pt() > 70 ) tag = true;
 
