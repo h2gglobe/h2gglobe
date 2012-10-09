@@ -29,6 +29,14 @@ htyp=0 plot=-1  ncat=2  xbins=30   ybins=0   xmin=0.    xmax=60     ymin=0      
 htyp=0 plot=-1  ncat=2  xbins=300  ybins=0   xmin=-3.   xmax=3.     ymin=0      ymax=0    name=ElectronTag_dZtogen_final        xaxis=#DeltaZ(ele,GenVtx)          yaxis=Events
 htyp=0 plot=-1  ncat=2  xbins=40   ybins=0   xmin=-1.   xmax=1.     ymin=0      ymax=0    name=ElectronTag_diphomva_final       xaxis=MVA_{#gamma#gamma}@Muon      yaxis=Events
 
+htyp=0 plot=-1  ncat=2  xbins=30   ybins=0   xmin=15.0  xmax=100.   ymin=0      ymax=0    name=MetTag_leadGammaPt_premetcut     xaxis=P_{T.LeadingGamma}           yaxis=Events
+htyp=0 plot=-1  ncat=2  xbins=30   ybins=0   xmin=15.0  xmax=100.   ymin=0      ymax=0    name=MetTag_subleadGammaPt_premetcut  xaxis=P_{T.SubleadingGamma}        yaxis=Events
+htyp=0 plot=-1  ncat=2  xbins=40   ybins=0   xmin=-1.   xmax=1.     ymin=0      ymax=0    name=MetTag_diphomva_premetcut        xaxis=MVA_{#gamma#gamma}@MET       yaxis=Events
+htyp=0 plot=-1  ncat=2  xbins=40   ybins=0   xmin=0.0   xmax=160    ymin=0      ymax=0    name=MetTag_uncorrmet_premetcut       xaxis=MET                          yaxis=Events
+htyp=0 plot=-1  ncat=2  xbins=50   ybins=0   xmin=-3.15 xmax=3.15   ymin=0      ymax=0    name=MetTag_uncorrmetPhi_premetcut    xaxis=MET#phi                      yaxis=Events
+htyp=0 plot=-1  ncat=2  xbins=40   ybins=0   xmin=0.0   xmax=160    ymin=0      ymax=0    name=MetTag_corrmet_premetcut         xaxis=correctedMET                 yaxis=Events
+htyp=0 plot=-1  ncat=2  xbins=50   ybins=0   xmin=-3.15 xmax=3.15   ymin=0      ymax=0    name=MetTag_corrmetPhi_premetcut      xaxis=correctedMET#phi             yaxis=Events
+
 htyp=0 plot=-1  ncat=2  xbins=30   ybins=0   xmin=15.0  xmax=100.   ymin=0      ymax=0    name=MetTag_leadGammaPt_final         xaxis=P_{T.LeadingGamma}           yaxis=Events
 htyp=0 plot=-1  ncat=2  xbins=30   ybins=0   xmin=15.0  xmax=100.   ymin=0      ymax=0    name=MetTag_subleadGammaPt_final      xaxis=P_{T.SubleadingGamma}        yaxis=Events
 htyp=0 plot=-1  ncat=2  xbins=40   ybins=0   xmin=-1.   xmax=1.     ymin=0      ymax=0    name=MetTag_diphomva_final            xaxis=MVA_{#gamma#gamma}@MET       yaxis=Events

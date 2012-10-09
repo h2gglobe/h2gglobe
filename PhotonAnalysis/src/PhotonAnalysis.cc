@@ -3709,16 +3709,24 @@ bool PhotonAnalysis::METTag2012B(LoopAll& l, int& diphotonVHmet_id, int& met_cat
     if(diphotonVHmet_id!=-1){ 
         TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphotonVHmet_id], metVtx, &smeared_pho_energy[0]);
         TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphotonVHmet_id], metVtx, &smeared_pho_energy[0]);
+        TLorentzVector dipho_p4 = lead_p4+sublead_p4;
+            
+        float mass = dipho_p4.M();
 
-	tag = l.METAnalysis2012B(lead_p4, sublead_p4, useUncorrMet);
-	if (tag) met_cat=(int)(abs(lead_p4.Eta())>1.5 || abs(sublead_p4.Eta())>1.5);
+        if (mass >= 100. && mass < 180. && !isSyst){
+            std::string label("premetcut");
+            ControlPlotsMetTag2012B(l, lead_p4, sublead_p4, diphobdt_output, evweight, label);
+        }
+
+        tag = l.METAnalysis2012B(lead_p4, sublead_p4, useUncorrMet);
+        if (tag) {
+            met_cat=(int)(abs(lead_p4.Eta())>1.5 || abs(sublead_p4.Eta())>1.5);
+            if(met_cat!=0) tag=false;
+        }
 
         if(!tag) diphotonVHmet_id=-1;
         
-        // met_cat=(int)(abs(lead_p4.Eta())<1.5 && abs(sublead_p4.Eta())<1.5); 
-        
         // for synchronization
-        TLorentzVector dipho_p4 = lead_p4+sublead_p4;
         if(tag){
             met_sync<<"run="<<l.run<<"\t";
             met_sync<<"lumis"<<l.lumis<<"\t";
