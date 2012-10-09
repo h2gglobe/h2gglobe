@@ -38,8 +38,6 @@ if method=='ExpProfileLikelihood':
 
 if not os.path.isdir('%s/%s'%(path,method)):
   os.makedirs('%s/%s'%(path,method))
-else:
-  os.system("rm %s/%s/%s*.sh.log"%(path,method,method))
 
 files=[]
 
@@ -66,6 +64,7 @@ a = raw_input()
 
 if a!='No' and a!='no' and a!='n' and a!='N':
   for f in files:
+    os.system('rm %s.log'%(f.name))
     os.system('bsub -q %s -o %s.log %s'%(queue,f.name,f.name))  
     #print 'bsub -q %s -o %s.log %s'%(queue,f.name,f.name)  
 
