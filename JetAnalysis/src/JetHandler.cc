@@ -58,9 +58,17 @@ float dz(TLorentzVector * tkp4, TVector3 * tkpos, TVector3 * vtxpos)
 void JetHandler::computeBetas(int ijet, int vtx)
 {
     float sumTkPt = 0.;
+    if( (*l_.jet_algoPF1_beta_ext)[ijet].size() <= vtx ) {
+	(*l_.jet_algoPF1_beta_ext)[ijet].resize(vtx+1);
+	(*l_.jet_algoPF1_betaStar_ext)[ijet].resize(vtx+1);
+	(*l_.jet_algoPF1_betaStarClassic_ext)[ijet].resize(vtx+1);
+    }
+
     float & beta = (*l_.jet_algoPF1_beta_ext)[ijet][vtx];
     float & betaStar = (*l_.jet_algoPF1_betaStar_ext)[ijet][vtx];
     float & betaStarClassic = (*l_.jet_algoPF1_betaStarClassic_ext)[ijet][vtx];
+
+    /// std::cout << "JetHandler::computeBetas before " << ijet << " " << vtx << " " << beta << " " << betaStar << " " << betaStarClassic << std::endl;
     beta = 0., betaStar = 0., betaStarClassic = 0.;
 
     const std::vector<unsigned short> & vtx_tracks = (*l_.vtx_std_tkind)[vtx];
@@ -106,6 +114,8 @@ void JetHandler::computeBetas(int ijet, int vtx)
     } else {
 	assert( beta == 0. && betaStar == 0. && betaStarClassic == 0. );
     }
+
+    /// std::cout << "JetHandler::computeBetas after "  << ijet << " " << vtx << " " << beta << " " << betaStar << " " << betaStarClassic << std::endl;
     
 }
 

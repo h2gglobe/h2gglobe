@@ -74,7 +74,7 @@ corr_smearing_file=smearing_sigma_corr_errors.dat
 
 ## jets
 recomputeBetas=0
-recorrectJets=1
+recorrectJets=0
 rerunJetMva=0
 recomputeJetWp=1
 
