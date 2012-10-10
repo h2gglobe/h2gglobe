@@ -2547,7 +2547,9 @@ bool PhotonAnalysis::ElectronTag2012B(LoopAll& l, int& diphotonVHlep_id, int& el
 
             // need to check again for d0 and dZ (couldn't before because we didn't have the vertex)
             if(l.ElectronMVACuts(el_ind, elVtx)){
-                eventweight*=(smeared_pho_weight[l.dipho_leadind[diphotonVHlep_id]] * smeared_pho_weight[l.dipho_subleadind[diphotonVHlep_id]]);
+                if(smeared_pho_weight.size()!=0){
+                    eventweight*=(smeared_pho_weight[l.dipho_leadind[diphotonVHlep_id]] * smeared_pho_weight[l.dipho_subleadind[diphotonVHlep_id]]);
+                }
                 std::string label("noleppho_nomva");
                 if(mass>=100 && mass<180){
                     int cur_type = l.itype[l.current];
@@ -3462,7 +3464,9 @@ bool PhotonAnalysis::MuonTag2012B(LoopAll& l, int& diphotonVHlep_id, int& mu_ind
             TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphotonVHlep_id], muVtx, &smeared_pho_energy[0]);
             TLorentzVector dipho_p4 = lead_p4 + sublead_p4;
             float mass = dipho_p4.M();
-            eventweight*=(smeared_pho_weight[l.dipho_leadind[diphotonVHlep_id]] * smeared_pho_weight[l.dipho_subleadind[diphotonVHlep_id]]);
+            if(smeared_pho_weight.size()!=0){
+                eventweight*=(smeared_pho_weight[l.dipho_leadind[diphotonVHlep_id]] * smeared_pho_weight[l.dipho_subleadind[diphotonVHlep_id]]);
+            }
             std::string label("noleppho_nomva");
             if(mass>=100 && mass<180){
                 int cur_type = l.itype[l.current];
