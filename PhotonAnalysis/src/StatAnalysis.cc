@@ -1258,11 +1258,20 @@ void StatAnalysis::fillControlPlots(const TLorentzVector & lead_p4, const  TLore
 	l.FillHist("pho2_eta",category+1,sublead_p4.Eta(), evweight);
 	l.FillHist("pho_r9",category+1, sublead_r9, evweight);
 	l.FillHist("pho2_r9",category+1, sublead_r9, evweight);
-	
+
 	l.FillHist("pho_n",category+1,l.pho_n, evweight);
 	
 	l.FillHist("pho_rawe",category+1,l.sc_raw[l.pho_scind[l.dipho_leadind[diphoton_id]]], evweight);
 	l.FillHist("pho_rawe",category+1,l.sc_raw[l.pho_scind[l.dipho_subleadind[diphoton_id]]], evweight);
+
+	TLorentzVector myMet = l.METCorrection2012B(lead_p4, sublead_p4); 
+	float corrMet    = myMet.Pt();
+	float corrMetPhi = myMet.Phi();
+
+	l.FillHist("uncorrmet",     category+1, l.met_pfmet, evweight);
+	l.FillHist("uncorrmetPhi",  category+1, l.met_phi_pfmet, evweight);
+	l.FillHist("corrmet",       category+1, corrMet,    evweight);
+	l.FillHist("corrmetPhi",    category+1, corrMetPhi, evweight);	
 	
 	if( mvaVbfSelection ) {
 	    if (!multiclassVbfSelection) 

@@ -2622,8 +2622,11 @@ void PhotonAnalysis::ControlPlotsMetTag2012B(LoopAll& l, TLorentzVector lead_p4,
     TLorentzVector myMet = l.METCorrection2012B(lead_p4, sublead_p4); 
     float corrMet    = myMet.Pt();
     float corrMetPhi = myMet.Phi();
-    
+
+    //    std::cout << "***corrMet " << corrMet << " corrPhi " << corrMetPhi << std::endl;
+
     int met_cat=(int)(abs(lead_p4.Eta())>1.5 || abs(sublead_p4.Eta())>1.5); 
+
     l.FillHist(Form("MetTag_leadGammaPt_%s",label.c_str()),    met_cat, lead_p4.Pt(), evweight);
     l.FillHist(Form("MetTag_subleadGammaPt_%s",label.c_str()), met_cat, sublead_p4.Pt(), evweight);
     l.FillHist(Form("MetTag_diphomva_%s",label.c_str()),       met_cat, bdtoutput, evweight);
@@ -3720,6 +3723,7 @@ bool PhotonAnalysis::METTag2012B(LoopAll& l, int& diphotonVHmet_id, int& met_cat
     }
     
     if(diphotonVHmet_id!=-1){ 
+	//	std::cout << "+++PFMET UNCORR " << l.met_pfmet << std::endl;
         TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphotonVHmet_id], metVtx, &smeared_pho_energy[0]);
         TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphotonVHmet_id], metVtx, &smeared_pho_energy[0]);
         TLorentzVector dipho_p4 = lead_p4+sublead_p4;

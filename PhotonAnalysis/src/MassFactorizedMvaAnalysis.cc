@@ -604,6 +604,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
         }
 
         if(includeVHmet && !dataIs2011) {
+	    //	    std::cout << "+++PFMET UNCORR " << l.met_pfmet << std::endl;
             if(!isSyst) VHmetevent=METTag2012B(l, diphotonVHmet_id, VHmetevent_cat, &smeared_pho_energy[0], met_sync, true, phoidMvaCut, false); 
             if(isSyst)  VHmetevent=METTag2012B(l, diphotonVHmet_id, VHmetevent_cat, &smeared_pho_energy[0], met_sync, true, phoidMvaCut, true); 
             // FIXME  need to un-flag events failing the diphoton mva cut.
@@ -732,43 +733,38 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
                           phoid_mvaout_lead,phoid_mvaout_sublead);
         kinematic_bdtout = diphobdt_output;
 
-        bool isEBEB  = (lead_p4.Eta() < 1.4442 ) && fabs(sublead_p4.Eta()<1.4442);
-        category = GetBDTBoundaryCategory(diphobdt_output,isEBEB,VBFevent);
+        bool isEBEB  = fabs(lead_p4.Eta() < 1.4442 ) && fabs(sublead_p4.Eta()<1.4442);
+	category = GetBDTBoundaryCategory(diphobdt_output,isEBEB,VBFevent);
         if (diphobdt_output>=bdtCategoryBoundaries.back()) { 
-            computeExclusiveCategory(l,category,diphoton_index,Higgs.Pt()); 
-            if (mass >= 100. && mass < 180. && !isSyst){
-                if (includeVHlep&&VHelevent){
-                    std::string label("final");
-                    ControlPlotsElectronTag2012B(l, lead_p4, sublead_p4, el_ind, diphobdt_output, evweight, label);
-                    // vertex plots
-                    if(cur_type!=0){
-                        l.FillHist(Form("ElectronTag_dZtogen_%s",label.c_str()),    (int)isEBEB, (float)((*vtx - *((TVector3*)l.gv_pos->At(0))).Z()), evweight);
-                    }
-
-                }
-                
-                if (includeVHlep&&VHmuevent){
-                    std::string label("final");
-                    ControlPlotsMuonTag2012B(l, lead_p4, sublead_p4, mu_ind, diphobdt_output, evweight, label);
-                    // vertex plots
-                    if(cur_type!=0){
-                        l.FillHist(Form("MuonTag_dZtogen_%s",label.c_str()),   (int)isEBEB, (float)((*vtx - *((TVector3*)l.gv_pos->At(0))).Z()), evweight);
-                    }
-                }
-
-                if(isEBEB){
-                    std::string label("nometcut");
-                    ControlPlotsMetTag2012B(l, lead_p4, sublead_p4, diphobdt_output, evweight, label);
-                }
-
-                if (includeVHmet&&VHmetevent){
-                    std::string label("final");
-                    ControlPlotsMetTag2012B(l, lead_p4, sublead_p4, diphobdt_output, evweight, label);
-                }
-            }
-        }
+	    computeExclusiveCategory(l,category,diphoton_index,Higgs.Pt()); 
+	    if (mass >= 100. && mass < 180. && !isSyst){
+		if (includeVHlep&&VHelevent){
+		    std::string label("final");
+		    ControlPlotsElectronTag2012B(l, lead_p4, sublead_p4, el_ind, diphobdt_output, evweight, label);
+		    // vertex plots
+		    if(cur_type!=0){
+			l.FillHist(Form("ElectronTag_dZtogen_%s",label.c_str()),    (int)isEBEB, (float)((*vtx - *((TVector3*)l.gv_pos->At(0))).Z()), evweight);
+		    }
+		    
+		}
+		
+		if (includeVHlep&&VHmuevent){
+		    std::string label("final");
+		    ControlPlotsMuonTag2012B(l, lead_p4, sublead_p4, mu_ind, diphobdt_output, evweight, label);
+		    // vertex plots
+		    if(cur_type!=0){
+			l.FillHist(Form("MuonTag_dZtogen_%s",label.c_str()),   (int)isEBEB, (float)((*vtx - *((TVector3*)l.gv_pos->At(0))).Z()), evweight);
+		    }
+		}
+		
+		if (includeVHmet&&VHmetevent){
+		    std::string label("final");
+ 		    ControlPlotsMetTag2012B(l, lead_p4, sublead_p4, diphobdt_output, evweight, label);
+ 		    //		    std::cout << "***PFMET UNCORR " << l.met_pfmet << std::endl;
+		}
+	    }
+	}
         
-    
     if (fillOptree) {
         std::string name;
         if (genSys != 0)
@@ -838,8 +834,9 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
         if (l.runZeeValidation && !forceStdPlotsOnZee) {
         fillZeeControlPlots(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, phoid_mvaout_lead, phoid_mvaout_sublead, diphobdt_output, sigmaMrv, sigmaMwv, vtxProb, diphoton_id, category, selectioncategory, evweight, l );
         } else {
-        fillControlPlots(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9,  diphoton_id, 
-                 category, isCorrectVertex, evweight, l );
+	    if (category>-1)
+		fillControlPlots(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9,  diphoton_id, 
+				 category, isCorrectVertex, evweight, l );
         }
         if (fillEscaleTrees) fillEscaleTree(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, phoid_mvaout_lead, phoid_mvaout_sublead, diphobdt_output, sigmaMrv, sigmaMwv, vtxProb, diphoton_id, category, selectioncategory, evweight, l );
     }
