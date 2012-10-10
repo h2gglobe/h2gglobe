@@ -42,7 +42,7 @@ int main(int argc, char** argv)
 	      << "  <max jet pt>  "  
 	      << "  <data flag>  "
 	      << std::endl; 
-    std::cout <<"Example: " << argv[0] << "jetid_jetanalysis.root flatTree testjetid ALL 20 100 0" << std::endl;
+    std::cout <<"Example: " << argv[0] << " jetid_jetanalysis.root flatTree testjetid ALL 20 100 0" << std::endl;
     exit(0); 
   }
    
@@ -123,6 +123,10 @@ int main(int argc, char** argv)
   TH1F *hjetEta_PU   = new TH1F("hjetEta_PU","jet eta (PU)", 100, -5, 5.);
 
   // -- deltaR
+  TH1F *hdRMean      = new TH1F("hdRMean","dRMean", 100, 0, 1.);
+  TH1F *hdRMean_NoPU = new TH1F("hdRMean_NoPU","dRMean (NoPU)", 100, 0, 1.);
+  TH1F *hdRMean_PU   = new TH1F("hdRMean_PU","dRMean (PU)", 100, 0, 1.);
+
   TH1F *hdR2Mean      = new TH1F("hdR2Mean","dR2Mean", 100, 0, 1.);
   TH1F *hdR2Mean_NoPU = new TH1F("hdR2Mean_NoPU","dR2Mean (NoPU)", 100, 0, 1.);
   TH1F *hdR2Mean_PU   = new TH1F("hdR2Mean_PU","dR2Mean (PU)", 100, 0, 1.);
@@ -161,6 +165,15 @@ int main(int argc, char** argv)
   TH1F *hbetaStar_NoPU = new TH1F("hbetaStar_NoPU","betaStar (NoPU)", 400, 0, 1.);
   TH1F *hbetaStar_PU   = new TH1F("hbetaStar_PU","betaStar (PU)", 400, 0, 1.);
 
+
+  // -- particles multiplicity
+  TH1F *hnCharged      = new TH1F("hnCharged","nCharged", 100, 0, 100.);
+  TH1F *hnCharged_NoPU = new TH1F("hnCharged_NoPU","nCharged (NoPU)", 100, 0, 100.);
+  TH1F *hnCharged_PU   = new TH1F("hnCharged_PU","nCharged (PU)", 100, 0, 100.);
+
+  TH1F *hnNeutrals      = new TH1F("hnNeutrals","nNeutrals", 100, 0, 100.);
+  TH1F *hnNeutrals_NoPU = new TH1F("hnNeutrals_NoPU","nNeutrals (NoPU)", 100, 0, 100.);
+  TH1F *hnNeutrals_PU   = new TH1F("hnNeutrals_PU","nNeutrals (PU)", 100, 0, 100.);
 
   // -- mva output
 
@@ -305,12 +318,12 @@ int main(int argc, char** argv)
   float scaleFactor =  (TMath::Pi() - dphiCut)/dphiCutB;
 
   for (int ientry = 0; ientry  < chain->GetEntries(); ientry++ ){
-    
+        
     t.GetEntry(ientry);
 
     if (t.isData!=dataFlag_) continue;
     
-    if (ientry%100000==0) std::cout << "Analyzing entry : " << ientry << "\r" << std::flush;
+    if (ientry%10000==0) std::cout << "Analyzing entry : " << ientry << "\r" << std::flush;
 
     if (!t.jetLooseID) continue;
     
@@ -325,7 +338,7 @@ int main(int argc, char** argv)
     else w=t.puweight;
       
     // -- fill histograms for leading jet
-    if ( t.ijet==1 ) {
+    if ( t.ijet==0 ) {
       hNvtx->Fill(t.nvtx,w);
       float ptratio = 0;
       if ( t.dimuonPt > 0. ) ptratio = t.jetPt/t.dimuonPt;
@@ -474,7 +487,10 @@ int main(int argc, char** argv)
     //-- kinematic and jet id variables 
     hjetPt        -> Fill(t.jetPt,w);
     hjetEta       -> Fill(t.jetEta,w);
+    hdRMean       -> Fill(t.dRMean,w);
     hdR2Mean      -> Fill(t.dR2Mean,w);
+    hnCharged     -> Fill(t.nCharged,w);
+    hnNeutrals    -> Fill(t.nNeutrals,w);
     hfrac01       -> Fill(t.frac01,w);
     hfrac02       -> Fill(t.frac02,w);
     hfrac03       -> Fill(t.frac03,w);
@@ -489,7 +505,10 @@ int main(int argc, char** argv)
     if ( t.isMatched ) {
       hjetPt_NoPU        -> Fill(t.jetPt,w);
       hjetEta_NoPU       -> Fill(t.jetEta,w);
+      hdRMean_NoPU       -> Fill(t.dRMean,w);
       hdR2Mean_NoPU      -> Fill(t.dR2Mean,w);
+      hnCharged_NoPU     -> Fill(t.nCharged,w);
+      hnNeutrals_NoPU    -> Fill(t.nNeutrals,w);
       hfrac01_NoPU       -> Fill(t.frac01,w);
       hfrac02_NoPU       -> Fill(t.frac02,w);
       hfrac03_NoPU       -> Fill(t.frac03,w);
@@ -504,7 +523,10 @@ int main(int argc, char** argv)
     else{
       hjetPt_PU        -> Fill(t.jetPt,w);
       hjetEta_PU       -> Fill(t.jetEta,w);
+      hdRMean_PU       -> Fill(t.dRMean,w);
       hdR2Mean_PU      -> Fill(t.dR2Mean,w);
+      hnCharged_PU     -> Fill(t.nCharged,w);
+      hnNeutrals_PU    -> Fill(t.nNeutrals,w);
       hfrac01_PU       -> Fill(t.frac01,w);
       hfrac02_PU       -> Fill(t.frac02,w);
       hfrac03_PU       -> Fill(t.frac03,w);
@@ -666,7 +688,10 @@ int main(int argc, char** argv)
   
   hjetPt        -> Write();
   hjetEta       -> Write();
+  hdRMean       -> Write();
   hdR2Mean      -> Write();
+  hnCharged     -> Write();
+  hnNeutrals    -> Write();
   hfrac01       -> Write();
   hfrac02       -> Write();
   hfrac03       -> Write();
@@ -681,7 +706,10 @@ int main(int argc, char** argv)
 
   hjetPt_NoPU       -> Write();
   hjetEta_NoPU      -> Write();
+  hdRMean_NoPU      -> Write();
   hdR2Mean_NoPU     -> Write();
+  hnCharged_NoPU    -> Write();
+  hnNeutrals_NoPU   -> Write();
   hfrac01_NoPU      -> Write();
   hfrac02_NoPU      -> Write();
   hfrac03_NoPU      -> Write();
@@ -695,7 +723,10 @@ int main(int argc, char** argv)
 
   hjetPt_PU        -> Write();
   hjetEta_PU       -> Write();
+  hdRMean_PU       -> Write();
   hdR2Mean_PU      -> Write();
+  hnCharged_PU     -> Write();
+  hnNeutrals_PU    -> Write();
   hfrac01_PU       -> Write();
   hfrac02_PU       -> Write();
   hfrac03_PU       -> Write();
