@@ -58,8 +58,6 @@ htyp=0 plot=-1  ncat=2  xbins=2    ybins=0   xmin=0.    xmax=2.     ymin=0      
 htyp=0 plot=-1  ncat=2  xbins=2    ybins=0   xmin=0.    xmax=2.     ymin=0      ymax=0    name=MuonTag_sameVtx  xaxis=Same@Vertex@#mu              yaxis=Events
 htyp=0 plot=-1  ncat=2  xbins=2    ybins=0   xmin=0.    xmax=2.     ymin=0      ymax=0    name=ElectronTag_sameVtx        xaxis=Same@Vertex@Electron         yaxis=Events
 
-
-
 htyp=0 plot=-1  ncat=18  xbins=160   ybins=0       xmin=80.0  xmax=240.0  ymin=0      ymax=0       name=all_mass xaxis=x yaxis=y
 
 htyp=0 plot=-1  ncat=18  xbins=250    ybins=0       xmin=0.0   xmax=250.0  ymin=0      ymax=0       name=pt
@@ -118,3 +116,8 @@ htyp=0 plot=-1  ncat=18  xbins=620  ybins=0    xmin=-2     xmax=1.1   ymin=0    
 htyp=0 plot=-1  ncat=18  xbins=620  ybins=0    xmin=-2     xmax=1.1   ymin=0       ymax=0       name=vbf_mva0
 htyp=0 plot=-1  ncat=18  xbins=620  ybins=0    xmin=-2     xmax=1.1   ymin=0       ymax=0       name=vbf_mva1
 htyp=0 plot=-1  ncat=18  xbins=620  ybins=0    xmin=-2     xmax=1.1   ymin=0       ymax=0       name=vbf_mva2
+
+htyp=0 plot=-1  ncat=18  xbins=200   ybins=0       xmin=0.0  xmax=200.0  ymin=0      ymax=0   name=uncorrmet xaxis=MET_{uncorr} yaxis=y
+htyp=0 plot=-1  ncat=18  xbins=200   ybins=0       xmin=0.0  xmax=200.0  ymin=0      ymax=0   name=corrmet xaxis=MET_{corr} yaxis=y
+htyp=0 plot=-1  ncat=18  xbins=100   ybins=0       xmin=-3.15  xmax=3.15  ymin=0      ymax=0   name=uncorrmetPhi xaxis=MET#phi_{uncorr} yaxis=y
+htyp=0 plot=-1  ncat=18  xbins=100   ybins=0       xmin=-3.15  xmax=3.15  ymin=0      ymax=0   name=corrmetPhi xaxis=MET#phi_{corr} yaxis=y
