@@ -405,7 +405,7 @@ pair<double,double> bkgEvPerGeV(RooWorkspace *work, int m_hyp, int cat){
   data->plotOn(tempFrame,Binning(80));
   pdf->plotOn(tempFrame);
   RooCurve *curve = (RooCurve*)tempFrame->getObject(tempFrame->numItems()-1);
-  double nombkg = curve->Eval(125.);
+  double nombkg = curve->Eval(double(m_hyp));
  
   RooRealVar *nlim = new RooRealVar(Form("nlim%d",cat),"",0.,0.,1.e5);
   //double lowedge = tempFrame->GetXaxis()->GetBinLowEdge(FindBin(double(m_hyp)));
@@ -527,7 +527,7 @@ void makeParametricSignalModelPlots(string hggFileName, string pathName, int nca
     pair<double,double> thisSigRange = getEffSigma(mass,pdfs[dataIt->first],m_hyp-10.,m_hyp+10.);
     //pair<double,double> thisSigRange = getEffSigBinned(mass,pdf[dataIt->first],m_hyp-10.,m_hyp+10);
     vector<double> thisFWHMRange = getFWHM(mass,pdfs[dataIt->first],dataIt->second,m_hyp-10.,m_hyp+10.);
-    sigEffs.insert(pair<string,double>(dataIt->first,thisSigRange.second-thisSigRange.first));
+    sigEffs.insert(pair<string,double>(dataIt->first,(thisSigRange.second-thisSigRange.first)/2.));
     fwhms.insert(pair<string,double>(dataIt->first,thisFWHMRange[1]-thisFWHMRange[0]));
     if (doCrossCheck) performClosure(mass,pdfs[dataIt->first],dataIt->second,Form("%s/closure_%s.pdf",pathName.c_str(),dataIt->first.c_str()),m_hyp-10.,m_hyp+10.,thisSigRange.first,thisSigRange.second);
     Plot(mass,dataIt->second,pdfs[dataIt->first],thisSigRange,thisFWHMRange,labels[dataIt->first],Form("%s/%s.pdf",pathName.c_str(),dataIt->first.c_str()));
@@ -548,10 +548,14 @@ void makeParametricSignalModelPlots(string hggFileName, string pathName, int nca
     }
     bkgFile->Close();
     
-    FILE *file = fopen("table.tex","w");
+    FILE *file = fopen(Form("%s/table.tex",pathName.c_str()),"w");
+    FILE *nfile = fopen(Form("%s/table.txt",pathName.c_str()),"w");
     printf("--------------------------------------------------------------\n");
-    printf("Cat   SigY    ggh    vbf    wzh    tth   sEff  FWHM  BkgEv/GeV\n");
+    printf("Cat   SigY    ggh    vbf    wzh    tth   sEff  FWHM  FWHM/2.35  BkgEv/GeV\n");
     printf("--------------------------------------------------------------\n");
+    fprintf(nfile,"--------------------------------------------------------------\n");
+    fprintf(nfile,"Cat   SigY    ggh    vbf    wzh    tth   sEff  FWHM  FWHM/2.35  BkgEv/GeV\n");
+    fprintf(nfile,"--------------------------------------------------------------\n");
     for (int cat=0; cat<ncats; cat++){
       pair<double,double> bkg = bkgVals[Form("cat%d",cat)];
       vector<double> sigs = sigVals[Form("cat%d",cat)];
@@ -564,23 +568,38 @@ void makeParametricSignalModelPlots(string hggFileName, string pathName, int nca
       printf("%4.1f%%  ",sigs[4]);
       printf("%4.2f  ",sigEffs[Form("cat%d",cat)]);
       printf("%4.2f  ",fwhms[Form("cat%d",cat)]);
+      printf("%4.2f  ",fwhms[Form("cat%d",cat)]/2.35);
       printf("%5.1f +/- %3.1f  ",bkg.first,bkg.second);
       printf("\n");
       // print to file
+      fprintf(nfile,"cat%d  ",cat);
+      fprintf(nfile,"%5.1f  ",sigs[0]);
+      fprintf(nfile,"%4.1f%%  ",sigs[1]);
+      fprintf(nfile,"%4.1f%%  ",sigs[2]);
+      fprintf(nfile,"%4.1f%%  ",sigs[3]);
+      fprintf(nfile,"%4.1f%%  ",sigs[4]);
+      fprintf(nfile,"%4.2f  ",sigEffs[Form("cat%d",cat)]);
+      fprintf(nfile,"%4.2f  ",fwhms[Form("cat%d",cat)]);
+      fprintf(nfile,"%4.2f  ",fwhms[Form("cat%d",cat)]/2.35);
+      fprintf(nfile,"%5.1f +/- %3.1f  ",bkg.first,bkg.second);
+      fprintf(nfile,"\n");
+      // print to file
       fprintf(file,"&  cat%d  ",cat);
       fprintf(file,"&  %5.1f  ",sigs[0]);
-      fprintf(file,"&  %4.1f%%  ",sigs[1]);
-      fprintf(file,"&  %4.1f%%  ",sigs[2]);
-      fprintf(file,"&  %4.1f%%  ",sigs[3]);
-      fprintf(file,"&  %4.1f%%  ",sigs[4]);
+      fprintf(file,"&  %4.1f\\%%  ",sigs[1]);
+      fprintf(file,"&  %4.1f\\%%  ",sigs[2]);
+      fprintf(file,"&  %4.1f\\%%  ",sigs[3]);
+      fprintf(file,"&  %4.1f\\%%  ",sigs[4]);
       fprintf(file,"&  %4.2f  ",sigEffs[Form("cat%d",cat)]);
       fprintf(file,"&  %4.2f  ",fwhms[Form("cat%d",cat)]);
+      fprintf(file,"&  %4.2f  ",fwhms[Form("cat%d",cat)]/2.35);
       fprintf(file,"&  %5.1f & $\\pm$ %3.1f \\tabularnewline ",bkg.first,bkg.second);
       fprintf(file,"\n");
     }
+    fclose(nfile);
     fclose(file);
     cout << "-->" << endl;
-    cout << "--> LaTeX version of this table has been written to table.tex" << endl;
+    cout << Form("--> LaTeX version of this table has been written to %s/table.tex",pathName.c_str()) << endl;
   }
 
   hggFile->Close();
