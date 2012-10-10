@@ -73,6 +73,7 @@ void makeBkgPlotsGeneric(std::string filebkg, bool blind=true, bool doBands=true
 
 	RooRealVar *x = (RooRealVar*) w_bkg->var("CMS_hgg_mass");
   RooRealVar *intL = (RooRealVar*) w_bkg->var("IntLumi");
+  double lumi = intL->getVal()/1000.;
 
 	TLatex *latex = new TLatex();	
 	latex->SetTextSize(0.025);
@@ -208,7 +209,7 @@ void makeBkgPlotsGeneric(std::string filebkg, bool blind=true, bool doBands=true
  		}
 		allsig->Draw("samehistF");
 		leg->Draw();
-		cmslatex->DrawLatex(Form(0.15,0.8,"#splitline{CMS Preliminary}{#sqrt{s} = 8TeV L = %2.1fb^{-1}}",intL->getVal()));
+		cmslatex->DrawLatex(0.15,0.8,Form("#splitline{CMS Preliminary}{#sqrt{s} = 8TeV L = %2.1ffb^{-1}}",lumi));
 		latex->DrawLatex(0.1,0.92,labels[cat].c_str());
 		can->SaveAs(Form( (baseline ? "baselinecat%d.pdf" : "massfacmvacat%d.pdf"),cat));
 		can->SaveAs(Form( (baseline ? "baselinecat%d.png" : "massfacmvacat%d.png"),cat));
