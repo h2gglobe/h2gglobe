@@ -2553,9 +2553,7 @@ bool PhotonAnalysis::ElectronTag2012B(LoopAll& l, int& diphotonVHlep_id, int& el
                 std::string label("noleppho_nomva");
                 if(mass>=100 && mass<180){
                     int cur_type = l.itype[l.current];
-                    if(!(mass < 110. && mass > 150. && cur_type==0)){
-                        ControlPlotsElectronTag2012B(l, lead_p4, sublead_p4, el_ind, 0., eventweight, label);
-                    }
+                    ControlPlotsElectronTag2012B(l, lead_p4, sublead_p4, el_ind, 0., eventweight, label);
                 }
             
                 if(l.ElectronPhotonCuts2012B(lead_p4, sublead_p4, *myel)){
@@ -3470,9 +3468,7 @@ bool PhotonAnalysis::MuonTag2012B(LoopAll& l, int& diphotonVHlep_id, int& mu_ind
             std::string label("noleppho_nomva");
             if(mass>=100 && mass<180){
                 int cur_type = l.itype[l.current];
-                if(!(mass < 110. && mass > 150. && cur_type==0)){
-                    ControlPlotsMuonTag2012B(l, lead_p4, sublead_p4, mu_ind, 0, eventweight, label);
-                }
+                ControlPlotsMuonTag2012B(l, lead_p4, sublead_p4, mu_ind, 0, eventweight, label);
             }
 
             tag = l.MuonPhotonCuts2012B(lead_p4, sublead_p4, mymu);

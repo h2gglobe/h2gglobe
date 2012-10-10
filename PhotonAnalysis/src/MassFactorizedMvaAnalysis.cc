@@ -630,17 +630,12 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
     
         if(includeVHlep&&VHmuevent){
             diphoton_id = diphotonVHlep_id;
-            l.dipho_vtxind[diphoton_id] = muVtx;
         } else if (includeVHlep&&VHelevent){
             diphoton_id = diphotonVHlep_id;
-            l.dipho_vtxind[diphoton_id] = elVtx;
         } else if(includeVBF&&VBFevent) {
             diphoton_id = diphotonVBF_id;
         } else if(includeVHmet&&VHmetevent) {
             diphoton_id = diphotonVHmet_id;
-            float eventweight = weight * smeared_pho_weight[l.dipho_leadind[diphotonVHmet_id]] * smeared_pho_weight[l.dipho_subleadind[diphotonVHmet_id]] * genLevWeight;
-            l.FillHist("METTag_sameVtx",   0, (float)(0==l.dipho_vtxind[diphotonVHmet_id]), eventweight);
-            l.dipho_vtxind[diphoton_id] = 0;
         }
     }
     // if we selected any di-photon, compute the Higgs candidate kinematics
@@ -695,10 +690,6 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
         // easy to calculate vertex probability from vtx mva output
         float vtxProb   = 1.-0.49*(vtx_mva+1.0); /// should better use this: vtxAna_.setPairID(diphoton_id); vtxAna_.vertexProbability(vtx_mva); PM
 
-        if(includeVHlep&&(VHmuevent||VHelevent)){
-            vtxProb=1.0;
-        }
-
         float phoid_mvaout_lead = ( dataIs2011 ? 
                     l.photonIDMVA(diphoton_index.first,l.dipho_vtxind[diphoton_id],
                           lead_p4,bdtTrainingPhilosophy.c_str()) :
@@ -726,10 +717,9 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
                           phoid_mvaout_lead,phoid_mvaout_sublead);
         kinematic_bdtout = diphobdt_output;
 
-        bool plot = !(mass < 110. && mass > 150. && cur_type==0);
         bool isEBEB  = fabs(lead_p4.Eta() < 1.4442 ) && fabs(sublead_p4.Eta()<1.4442);
         category = GetBDTBoundaryCategory(diphobdt_output,isEBEB,VBFevent);
-        if (mass >= 100. && mass < 180. && !isSyst && plot){
+        if (mass >= 100. && mass < 180. && !isSyst ){
             if (includeVHlep&&VHmuevent){
                 l.FillHist("MuonTag_sameVtx",   0, (float)(muVtx==l.dipho_vtxind[diphoton_id]), evweight);
                 std::string label("nomvacut");
@@ -743,15 +733,15 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
             if (includeVHmet&&VHmetevent){
                 std::string label("nomvacut");
                 ControlPlotsMetTag2012B(l, lead_p4, sublead_p4, diphobdt_output, evweight, label);
+                l.FillHist("METTag_sameVtx",   0, (float)(0==l.dipho_vtxind[diphoton_id]), evweight);
             }
         }
         if (diphobdt_output>=bdtCategoryBoundaries.back()) { 
             computeExclusiveCategory(l,category,diphoton_index,Higgs.Pt()); 
-            if (mass >= 100. && mass < 180. && !isSyst && plot){
+            if (mass >= 100. && mass < 180. && !isSyst ){
                 if (includeVHlep&&VHelevent){
                     std::string label("final");
                     ControlPlotsElectronTag2012B(l, lead_p4, sublead_p4, el_ind, diphobdt_output, evweight, label);
-                    // vertex plots
                     if(cur_type!=0){
                         l.FillHist(Form("ElectronTag_dZtogen_%s",label.c_str()),    (int)isEBEB, (float)((*vtx - *((TVector3*)l.gv_pos->At(0))).Z()), evweight);
                     }
@@ -761,7 +751,6 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
                 if (includeVHlep&&VHmuevent){
                     std::string label("final");
                     ControlPlotsMuonTag2012B(l, lead_p4, sublead_p4, mu_ind, diphobdt_output, evweight, label);
-                    // vertex plots
                     if(cur_type!=0){
                         l.FillHist(Form("MuonTag_dZtogen_%s",label.c_str()),   (int)isEBEB, (float)((*vtx - *((TVector3*)l.gv_pos->At(0))).Z()), evweight);
                     }

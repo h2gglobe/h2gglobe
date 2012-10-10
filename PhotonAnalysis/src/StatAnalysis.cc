@@ -844,7 +844,7 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 	}
 	
 	//Met tag //met at analysis step
-    if(includeVHmet && !VHmuevent && !VHmuevent) {
+    if(includeVHmet){
         VHmetevent=METTag2012(l, diphotonVHmet_id, &smeared_pho_energy[0]);
 	}
 	
@@ -853,46 +853,43 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 	    l.RescaleJetEnergy();
 	}
 
-	if( !( VHmuevent || VHelevent ) && (includeVBF || includeVHhad)) {
-	    if(includeVBF) {
-		    diphotonVBF_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVBFCut, subleadEtVBFCut, 4,false, &smeared_pho_energy[0], true); 
-		    
-            if(diphotonVBF_id!=-1){
-		        float eventweight = weight * smeared_pho_weight[l.dipho_leadind[diphotonVBF_id]] * smeared_pho_weight[l.dipho_subleadind[diphotonVBF_id]] * genLevWeight;
-		        float myweight=1.;
-		        if(eventweight*sampleweight!=0) myweight=eventweight/sampleweight;
-		        
-		        VBFevent= ( dataIs2011 ? 
-		    	    VBFTag2011(l, diphotonVBF_id, &smeared_pho_energy[0], true, eventweight, myweight) :
-		    	    VBFTag2012(ijet1, ijet2, l, diphotonVBF_id, &smeared_pho_energy[0], true, eventweight, myweight) )
-		        ;
-	        }
-        }
-	    if(includeVHhad) {
-		    diphotonVHhad_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVHhadCut, subleadEtVHhadCut, 4,false, &smeared_pho_energy[0], true); 
+	if(includeVBF) {
+	    diphotonVBF_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVBFCut, subleadEtVBFCut, 4,false, &smeared_pho_energy[0], true); 
+	    
+        if(diphotonVBF_id!=-1){
+	        float eventweight = weight * smeared_pho_weight[l.dipho_leadind[diphotonVBF_id]] * smeared_pho_weight[l.dipho_subleadind[diphotonVBF_id]] * genLevWeight;
+	        float myweight=1.;
+	        if(eventweight*sampleweight!=0) myweight=eventweight/sampleweight;
+	        
+	        VBFevent= ( dataIs2011 ? 
+	    	    VBFTag2011(l, diphotonVBF_id, &smeared_pho_energy[0], true, eventweight, myweight) :
+	    	    VBFTag2012(ijet1, ijet2, l, diphotonVBF_id, &smeared_pho_energy[0], true, eventweight, myweight) )
+	        ;
+	    }
+    }
 	
-            if(diphotonVHhad_id!=-1){
-		        float eventweight = weight * smeared_pho_weight[l.dipho_leadind[diphotonVHhad_id]] * smeared_pho_weight[l.dipho_subleadind[diphotonVHhad_id]] * genLevWeight;
-		        float myweight=1.;
-		        if(eventweight*sampleweight!=0) myweight=eventweight/sampleweight;
-		        
-		        VHhadevent = VHhadronicTag2011(l, diphotonVHhad_id, &smeared_pho_energy[0], true, eventweight, myweight);
-	        }
+    if(includeVHhad) {
+	    diphotonVHhad_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVHhadCut, subleadEtVHhadCut, 4,false, &smeared_pho_energy[0], true); 
+	
+        if(diphotonVHhad_id!=-1){
+	        float eventweight = weight * smeared_pho_weight[l.dipho_leadind[diphotonVHhad_id]] * smeared_pho_weight[l.dipho_subleadind[diphotonVHhad_id]] * genLevWeight;
+	        float myweight=1.;
+	        if(eventweight*sampleweight!=0) myweight=eventweight/sampleweight;
+	        
+	        VHhadevent = VHhadronicTag2011(l, diphotonVHhad_id, &smeared_pho_energy[0], true, eventweight, myweight);
 	    }
 	}
+	
 	
 	// priority of analysis:  lepton tag, vbf, VH hadronic
     if(includeVHlep&&VHmuevent){
         diphoton_id = diphotonVHlep_id;
-        l.dipho_vtxind[diphoton_id] = muVtx;
     } else if (includeVHlep&&VHelevent){
         diphoton_id = diphotonVHlep_id;
-        l.dipho_vtxind[diphoton_id] = elVtx;
 	} else if(includeVBF&&VBFevent) {
 	    diphoton_id = diphotonVBF_id;	
 	} else if(includeVHmet&&VHmetevent) {
 	    diphoton_id = diphotonVHmet_id;
-        l.dipho_vtxind[diphoton_id] = 0;
 	} else if(includeVHhad&&VHhadevent) {
 	    diphoton_id = diphotonVHhad_id;
 	}
