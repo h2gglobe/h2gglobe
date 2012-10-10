@@ -14,6 +14,9 @@
 #include "TStopwatch.h"
 #include "TMath.h"
 
+#include "RooStats/NumberCountingUtils.h"
+#include "RooStats/RooStatsUtils.h"
+
 #include "RooWorkspace.h"
 #include "RooRealVar.h"
 #include "RooDataSet.h"
@@ -22,6 +25,8 @@
 #include "RooArgList.h"
 #include "RooAbsReal.h"
 #include "RooGaussian.h"
+#include "RooMinimizer.h"
+#include "RooExtendPdf.h"
 
 using namespace std;
 using namespace RooFit;
@@ -390,8 +395,59 @@ map<string,RooAddPdf*> getMITPdfs(RooWorkspace *work, int ncats, bool is2011){
 
 }
 
+pair<double,double> bkgEvPerGeV(RooWorkspace *work, int m_hyp, int cat){
+  
+  RooRealVar *mass = (RooRealVar*)work->var("CMS_hgg_mass");
+  mass->setRange(100,180);
+  RooAbsPdf *pdf = (RooAbsPdf*)work->pdf(Form("pdf_data_pol_model_8TeV_cat%d",cat));
+  RooAbsData *data = (RooDataSet*)work->data(Form("data_mass_cat%d",cat));
+  RooPlot *tempFrame = mass->frame();
+  data->plotOn(tempFrame,Binning(80));
+  pdf->plotOn(tempFrame);
+  RooCurve *curve = (RooCurve*)tempFrame->getObject(tempFrame->numItems()-1);
+  double nombkg = curve->Eval(125.);
+ 
+  RooRealVar *nlim = new RooRealVar(Form("nlim%d",cat),"",0.,0.,1.e5);
+  //double lowedge = tempFrame->GetXaxis()->GetBinLowEdge(FindBin(double(m_hyp)));
+  //double upedge  = tempFrame->GetXaxis()->GetBinUpEdge(FindBin(double(m_hyp)));
+  //double center  = tempFrame->GetXaxis()->GetBinUpCenter(FindBin(double(m_hyp)));
 
-void makeParametricSignalModelPlots(string hggFileName, string pathName, bool doCrossCheck=false, bool doMIT=false, bool rejig=false, int ncats=6, bool is2011=false, int m_hyp=120){
+  nlim->setVal(nombkg);
+  mass->setRange("errRange",m_hyp-0.5,m_hyp+0.5);
+  RooAbsPdf *epdf = 0;
+  epdf = new RooExtendPdf("epdf","",*pdf,*nlim,"errRange");
+		
+  RooAbsReal *nll = epdf->createNLL(*data,Extended(),NumCPU(4));
+  RooMinimizer minim(*nll);
+  minim.setStrategy(0);
+  minim.setPrintLevel(-1);
+  minim.migrad();
+  minim.minos(*nlim);
+  
+  double error = (nlim->getErrorLo(),nlim->getErrorHi())/2.;
+  
+  return pair<double,double>(nombkg,error); 
+}
+
+vector<double> sigEvents(RooWorkspace *work, int m_hyp, int cat){
+
+  vector<double> result;
+  RooDataSet *ggh = (RooDataSet*)work->data(Form("sig_ggh_mass_m%d_cat%d",m_hyp,cat));
+  RooDataSet *vbf = (RooDataSet*)work->data(Form("sig_vbf_mass_m%d_cat%d",m_hyp,cat));
+  RooDataSet *wzh = (RooDataSet*)work->data(Form("sig_wzh_mass_m%d_cat%d",m_hyp,cat));
+  RooDataSet *tth = (RooDataSet*)work->data(Form("sig_tth_mass_m%d_cat%d",m_hyp,cat));
+  
+  double total = ggh->sumEntries()+vbf->sumEntries()+wzh->sumEntries()+tth->sumEntries();
+  result.push_back(total);
+  result.push_back(100*ggh->sumEntries()/total);
+  result.push_back(100*vbf->sumEntries()/total);
+  result.push_back(100*wzh->sumEntries()/total);
+  result.push_back(100*tth->sumEntries()/total);
+  return result;
+}
+
+
+void makeParametricSignalModelPlots(string hggFileName, string pathName, int ncats=9, bool is2011=false, int m_hyp=120, string bkgdatFileName="0", bool doCrossCheck=false, bool doMIT=false, bool rejig=false){
 
   gROOT->SetBatch();
   gStyle->SetTextFont(42);
@@ -463,14 +519,68 @@ void makeParametricSignalModelPlots(string hggFileName, string pathName, bool do
     pdfs = getGlobePdfs(hggWS,ncats); 
   }
   
+  map<string,double> sigEffs;
+  map<string,double> fwhms;
+  
   system(Form("mkdir -p %s",pathName.c_str()));
   for (map<string,RooDataSet*>::iterator dataIt=dataSets.begin(); dataIt!=dataSets.end(); dataIt++){
     pair<double,double> thisSigRange = getEffSigma(mass,pdfs[dataIt->first],m_hyp-10.,m_hyp+10.);
     //pair<double,double> thisSigRange = getEffSigBinned(mass,pdf[dataIt->first],m_hyp-10.,m_hyp+10);
     vector<double> thisFWHMRange = getFWHM(mass,pdfs[dataIt->first],dataIt->second,m_hyp-10.,m_hyp+10.);
+    sigEffs.insert(pair<string,double>(dataIt->first,thisSigRange.second-thisSigRange.first));
+    fwhms.insert(pair<string,double>(dataIt->first,thisFWHMRange[1]-thisFWHMRange[0]));
     if (doCrossCheck) performClosure(mass,pdfs[dataIt->first],dataIt->second,Form("%s/closure_%s.pdf",pathName.c_str(),dataIt->first.c_str()),m_hyp-10.,m_hyp+10.,thisSigRange.first,thisSigRange.second);
     Plot(mass,dataIt->second,pdfs[dataIt->first],thisSigRange,thisFWHMRange,labels[dataIt->first],Form("%s/%s.pdf",pathName.c_str(),dataIt->first.c_str()));
+  }
   
+  map<string,pair<double,double> > bkgVals;
+  map<string,vector<double> > sigVals;
+
+  // make PAS table
+  if (bkgdatFileName!="0"){
+    TFile *bkgFile = TFile::Open(bkgdatFileName.c_str());
+    RooWorkspace *bkgWS = (RooWorkspace*)bkgFile->Get("cms_hgg_workspace");
+    for (int cat=0; cat<ncats; cat++){
+      bkgVals.insert(pair<string,pair<double,double> >(Form("cat%d",cat),bkgEvPerGeV(bkgWS,m_hyp,cat)));
+      sigVals.insert(pair<string,vector<double> >(Form("cat%d",cat),sigEvents(bkgWS,m_hyp,cat)));
+      //pair<double,double> bkg = bkgEvPerGeV(bkgWS,m_hyp,cat);
+      //vector<double> sigs = sigEvents(bkgWS,m_hyp,cat);
+    }
+    bkgFile->Close();
+    
+    FILE *file = fopen("table.tex","w");
+    printf("--------------------------------------------------------------\n");
+    printf("Cat   SigY    ggh    vbf    wzh    tth   sEff  FWHM  BkgEv/GeV\n");
+    printf("--------------------------------------------------------------\n");
+    for (int cat=0; cat<ncats; cat++){
+      pair<double,double> bkg = bkgVals[Form("cat%d",cat)];
+      vector<double> sigs = sigVals[Form("cat%d",cat)];
+      // cout 
+      printf("cat%d  ",cat);
+      printf("%5.1f  ",sigs[0]);
+      printf("%4.1f%%  ",sigs[1]);
+      printf("%4.1f%%  ",sigs[2]);
+      printf("%4.1f%%  ",sigs[3]);
+      printf("%4.1f%%  ",sigs[4]);
+      printf("%4.2f  ",sigEffs[Form("cat%d",cat)]);
+      printf("%4.2f  ",fwhms[Form("cat%d",cat)]);
+      printf("%5.1f +/- %3.1f  ",bkg.first,bkg.second);
+      printf("\n");
+      // print to file
+      fprintf(file,"&  cat%d  ",cat);
+      fprintf(file,"&  %5.1f  ",sigs[0]);
+      fprintf(file,"&  %4.1f%%  ",sigs[1]);
+      fprintf(file,"&  %4.1f%%  ",sigs[2]);
+      fprintf(file,"&  %4.1f%%  ",sigs[3]);
+      fprintf(file,"&  %4.1f%%  ",sigs[4]);
+      fprintf(file,"&  %4.2f  ",sigEffs[Form("cat%d",cat)]);
+      fprintf(file,"&  %4.2f  ",fwhms[Form("cat%d",cat)]);
+      fprintf(file,"&  %5.1f & $\\pm$ %3.1f \\tabularnewline ",bkg.first,bkg.second);
+      fprintf(file,"\n");
+    }
+    fclose(file);
+    cout << "-->" << endl;
+    cout << "--> LaTeX version of this table has been written to table.tex" << endl;
   }
 
   hggFile->Close();
