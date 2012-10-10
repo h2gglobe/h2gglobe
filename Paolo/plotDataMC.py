@@ -10,11 +10,44 @@ from array import array
 from ROOT import *
 #print "done."
 
+
+def getFilesEos(files,dir):
+    command='/afs/cern.ch/project/eos/installation/0.2.5/bin/eos.select find -f '+dir+' | grep root  | grep histograms' 
+    p = sub.Popen(command,shell=True,stdout=sub.PIPE,stderr=sub.PIPE)
+    for line in iter(p.stdout.readline,''):
+#        print line.rstrip()
+        files.append(line.rstrip())
+
+def haddFiles(files,output):
+    command='hadd -f '+output+' '
+    for file in files:
+        print file
+        command=command+' '+file 
+    p = sub.Popen(command,shell=True,stdout=sub.PIPE,stderr=sub.PIPE)
+    stdout, stderr = p.communicate()
+    print "Created file "+output
+
 def main(options,args):
     # if you want to run in batch mode
     ROOT.gROOT.SetBatch()
 
-    plots = [ "pho1_pt", "pho1_eta", "pho2_pt", "pho2_eta", "mass", "all_mass", "nvtx" ]
+    #    prefixCern = 'root://eoscms/'
+    prefix = 'root://eoscms/'
+
+    # PAT ntuples with electronCollection
+    files = [ ]
+    getFilesEos(files,"/eos/cms/store/group/phys_higgs/meridian/analyzed/HCP2012DataMC_3/")
+
+    fullpath_files = []
+    for afile in files:
+        fullpath_files.append( prefix+afile )
+
+    if (options.hadd):
+        haddFiles(fullpath_files,options.outfile)
+
+    input = TFile.Open(options.outfile)
+    
+    plots = ["pho_pt", "pho_eta",  "pho1_pt", "pho1_eta", "pho2_pt", "pho2_eta", "mass", "all_mass", "nvtx", "uncorrmet", "corrmet", "uncorrmetPhi", "corrmetPhi" ]
     datasets = {}
     datasets["0_data"] = [ "Data" ]
     datasets["1_prompt_prompt"] = [ "diphojet_8TeV", "dipho_Box_25_8TeV", "dipho_Box_250_8TeV" ]
@@ -31,7 +64,6 @@ def main(options,args):
     color["4_DY"] = kCyan
     color["5_signal"] = kYellow
 
-    input = TFile( options.infile )
     input.Print()
     ROOT.gStyle.SetOptFit(11111)
     ROOT.gStyle.SetOptStat(0)
@@ -67,9 +99,14 @@ def main(options,args):
                     a.AddEntry(histos["%s_cat%d_%s" % (plot,cat,type)],"%s=%7.1f" % (type,histos["%s_cat%d_%s" % (plot,cat,type)].Integral()),"F")
 
             canv = TCanvas("%s_cat%d" % (plot,cat), "%s_cat%d" % (plot,cat), 800,600)
+            if ( plot ==  "corrmet" or plot == "uncorrmet" ):
+                canv.SetLogy(1)
             histos["%s_cat%d_%s" % (plot,cat,"0_data")].SetMarkerStyle(20)
             histos["%s_cat%d_%s" % (plot,cat,"0_data")].SetMarkerSize(1.3)
             histos["%s_cat%d_%s" % (plot,cat,"0_data")].GetXaxis().SetTitle(plot)
+            histos["%s_cat%d_%s" % (plot,cat,"0_data")].SetMinimum(0.000001)
+            if ( plot ==  "corrmetPhi" or plot == "uncorrmetPhi" ):
+                histos["%s_cat%d_%s" % (plot,cat,"0_data")].SetMaximum(histos["%s_cat%d_%s" % (plot,cat,"0_data")].GetMaximum()*1.5)
             histos["%s_cat%d_%s" % (plot,cat,"0_data")].Draw("PE")
             mc.Draw("HSAME")
             histos["%s_cat%d_%s" % (plot,cat,"5_signal")].Draw("HSAME")
@@ -80,8 +117,8 @@ def main(options,args):
 
 if __name__ == "__main__":
     parser = OptionParser(option_list=[
-        make_option("-i", "--infile",
-                    action="store", type="string", dest="infile",
+                make_option("-o", "--outfile",
+                    action="store", type="string", dest="outfile",
                     default="histograms_dataMC.root",
                     help="", metavar=""
                     ),
@@ -89,7 +126,11 @@ if __name__ == "__main__":
                     action="store", type="string", dest="outdir",
                     default="plots",
                     help="", metavar=""
-                    )
+                    ),
+        make_option("-r", "--recreate_hadd",
+                    action="store_true", dest="hadd",
+                help="", metavar=""
+                )
         ])
     
     (options, args) = parser.parse_args()
