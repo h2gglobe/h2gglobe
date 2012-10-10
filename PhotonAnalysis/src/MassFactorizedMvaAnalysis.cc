@@ -553,6 +553,8 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
     int mu_ind=-1;
     int el_ind=-1;
 
+    int muVtx=-1;
+    int elVtx=-1;
     
     if (!skipSelection){
         // first apply corrections and smearing on the single photons 
@@ -584,18 +586,17 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
         int diphotonVHhad_id = -1;
         VHhadevent = false;
        
-        int muVtx=-1;
-        int elVtx=-1;
 
         if(includeVHlep){
             float eventweight = weight * genLevWeight;
+            //float eventweight = weight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second] * genLevWeight;
             float myweight=1.;
             if(eventweight*sampleweight!=0) myweight=eventweight/sampleweight;
-            VHmuevent=MuonTag2012B(l, diphotonVHlep_id, mu_ind, muVtx, VHmuevent_cat, &smeared_pho_energy[0], lep_sync, true, phoidMvaCut);
+            VHmuevent=MuonTag2012B(l, diphotonVHlep_id, mu_ind, muVtx, VHmuevent_cat, &smeared_pho_energy[0], lep_sync, true, phoidMvaCut, eventweight,  smeared_pho_weight);
             ZWithFakeGammaCS(l, &smeared_pho_energy[0]);
             ElectronStudies2012B(l, &smeared_pho_energy[0], true,  -0.3, eventweight, myweight, jentry);
             int diphotonVH_ele_id=-1;
-            VHelevent=ElectronTag2012B(l, diphotonVH_ele_id, el_ind, elVtx, VHelevent_cat, &smeared_pho_energy[0], lep_sync, true, phoidMvaCut);
+            VHelevent=ElectronTag2012B(l, diphotonVH_ele_id, el_ind, elVtx, VHelevent_cat, &smeared_pho_energy[0], lep_sync, true, phoidMvaCut, eventweight,  smeared_pho_weight);
             // FIXME  need to un-flag events failing the diphoton mva cut.
             
             if(!VHmuevent && VHelevent){
@@ -617,7 +618,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 
         if(includeVBF) {   
             diphotonVBF_id = l.DiphotonMITPreSelection(leadEtVBFCut,subleadEtVBFCut,phoidMvaCut,applyPtoverM, &smeared_pho_energy[0] );
-            float eventweight = weight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second] * genLevWeight;
+            float eventweight = weight * smeared_pho_weight[l.dipho_leadind[diphotonVBF_id]] * smeared_pho_weight[l.dipho_subleadind[diphotonVBF_id]] * genLevWeight;
             float myweight=1.;
             if(eventweight*sampleweight!=0) myweight=eventweight/sampleweight;
             
@@ -629,19 +630,15 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
     
         if(includeVHlep&&VHmuevent){
             diphoton_id = diphotonVHlep_id;
-            float eventweight = weight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second] * genLevWeight;
-            l.FillHist("MuonTag_sameVtx",   0, (float)(muVtx==l.dipho_vtxind[diphotonVHlep_id]), eventweight);
             l.dipho_vtxind[diphoton_id] = muVtx;
         } else if (includeVHlep&&VHelevent){
             diphoton_id = diphotonVHlep_id;
-            float eventweight = weight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second] * genLevWeight;
-            l.FillHist("ElectronTag_sameVtx",   0, (float)(elVtx==l.dipho_vtxind[diphotonVHlep_id]), eventweight);
             l.dipho_vtxind[diphoton_id] = elVtx;
         } else if(includeVBF&&VBFevent) {
             diphoton_id = diphotonVBF_id;
         } else if(includeVHmet&&VHmetevent) {
             diphoton_id = diphotonVHmet_id;
-            float eventweight = weight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second] * genLevWeight;
+            float eventweight = weight * smeared_pho_weight[l.dipho_leadind[diphotonVHmet_id]] * smeared_pho_weight[l.dipho_subleadind[diphotonVHmet_id]] * genLevWeight;
             l.FillHist("METTag_sameVtx",   0, (float)(0==l.dipho_vtxind[diphotonVHmet_id]), eventweight);
             l.dipho_vtxind[diphoton_id] = 0;
         }
@@ -702,10 +699,6 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
             vtxProb=1.0;
         }
 
-        if(includeVHmet && VHmetevent){
-            vtxProb=1.0;  // still to be studied
-        }
-
         float phoid_mvaout_lead = ( dataIs2011 ? 
                     l.photonIDMVA(diphoton_index.first,l.dipho_vtxind[diphoton_id],
                           lead_p4,bdtTrainingPhilosophy.c_str()) :
@@ -733,37 +726,58 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
                           phoid_mvaout_lead,phoid_mvaout_sublead);
         kinematic_bdtout = diphobdt_output;
 
+        bool plot = !(mass < 110. && mass > 150. && cur_type==0);
         bool isEBEB  = fabs(lead_p4.Eta() < 1.4442 ) && fabs(sublead_p4.Eta()<1.4442);
-	category = GetBDTBoundaryCategory(diphobdt_output,isEBEB,VBFevent);
+        category = GetBDTBoundaryCategory(diphobdt_output,isEBEB,VBFevent);
+        if (mass >= 100. && mass < 180. && !isSyst && plot){
+            if (includeVHlep&&VHmuevent){
+                l.FillHist("MuonTag_sameVtx",   0, (float)(muVtx==l.dipho_vtxind[diphoton_id]), evweight);
+                std::string label("nomvacut");
+                ControlPlotsMuonTag2012B(l, lead_p4, sublead_p4, mu_ind, diphobdt_output, evweight, label);
+            }
+            if (includeVHlep&&VHelevent){
+                l.FillHist("ElectronTag_sameVtx",   0, (float)(elVtx==l.dipho_vtxind[diphoton_id]), evweight);
+                std::string label("nomvacut");
+                ControlPlotsElectronTag2012B(l, lead_p4, sublead_p4, el_ind, diphobdt_output, evweight, label);
+            }
+            if (includeVHmet&&VHmetevent){
+                std::string label("nomvacut");
+                ControlPlotsMetTag2012B(l, lead_p4, sublead_p4, diphobdt_output, evweight, label);
+            }
+        }
         if (diphobdt_output>=bdtCategoryBoundaries.back()) { 
-	    computeExclusiveCategory(l,category,diphoton_index,Higgs.Pt()); 
-	    if (mass >= 100. && mass < 180. && !isSyst){
-		if (includeVHlep&&VHelevent){
-		    std::string label("final");
-		    ControlPlotsElectronTag2012B(l, lead_p4, sublead_p4, el_ind, diphobdt_output, evweight, label);
-		    // vertex plots
-		    if(cur_type!=0){
-			l.FillHist(Form("ElectronTag_dZtogen_%s",label.c_str()),    (int)isEBEB, (float)((*vtx - *((TVector3*)l.gv_pos->At(0))).Z()), evweight);
-		    }
-		    
-		}
-		
-		if (includeVHlep&&VHmuevent){
-		    std::string label("final");
-		    ControlPlotsMuonTag2012B(l, lead_p4, sublead_p4, mu_ind, diphobdt_output, evweight, label);
-		    // vertex plots
-		    if(cur_type!=0){
-			l.FillHist(Form("MuonTag_dZtogen_%s",label.c_str()),   (int)isEBEB, (float)((*vtx - *((TVector3*)l.gv_pos->At(0))).Z()), evweight);
-		    }
-		}
-		
-		if (includeVHmet&&VHmetevent){
-		    std::string label("final");
- 		    ControlPlotsMetTag2012B(l, lead_p4, sublead_p4, diphobdt_output, evweight, label);
- 		    //		    std::cout << "***PFMET UNCORR " << l.met_pfmet << std::endl;
-		}
-	    }
-	}
+            computeExclusiveCategory(l,category,diphoton_index,Higgs.Pt()); 
+            if (mass >= 100. && mass < 180. && !isSyst && plot){
+                if (includeVHlep&&VHelevent){
+                    std::string label("final");
+                    ControlPlotsElectronTag2012B(l, lead_p4, sublead_p4, el_ind, diphobdt_output, evweight, label);
+                    // vertex plots
+                    if(cur_type!=0){
+                        l.FillHist(Form("ElectronTag_dZtogen_%s",label.c_str()),    (int)isEBEB, (float)((*vtx - *((TVector3*)l.gv_pos->At(0))).Z()), evweight);
+                    }
+
+                }
+                
+                if (includeVHlep&&VHmuevent){
+                    std::string label("final");
+                    ControlPlotsMuonTag2012B(l, lead_p4, sublead_p4, mu_ind, diphobdt_output, evweight, label);
+                    // vertex plots
+                    if(cur_type!=0){
+                        l.FillHist(Form("MuonTag_dZtogen_%s",label.c_str()),   (int)isEBEB, (float)((*vtx - *((TVector3*)l.gv_pos->At(0))).Z()), evweight);
+                    }
+                }
+
+                if(isEBEB){
+                    std::string label("nometcut");
+                    ControlPlotsMetTag2012B(l, lead_p4, sublead_p4, diphobdt_output, evweight, label);
+                }
+
+                if (includeVHmet&&VHmetevent){
+                    std::string label("final");
+                    ControlPlotsMetTag2012B(l, lead_p4, sublead_p4, diphobdt_output, evweight, label);
+                }
+            }
+        }
         
     if (fillOptree) {
         std::string name;

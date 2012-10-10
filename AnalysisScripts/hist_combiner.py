@@ -25,10 +25,10 @@ if len(filestocomb)==1:
         listofhists += path+" "
 
 print "Will execute: \n"
-print "\t\t hadd "+taskdir+"/histograms_CMS-HGG.root"+listofhists
+print "\t\t hadd -f "+taskdir+"/histograms_CMS-HGG.root"+listofhists
 print "Happy to hadd?\n"
 raw_input()
-os.system("hadd "+taskdir+"/histograms_CMS-HGG.root"+listofhists)
+os.system("hadd -f "+taskdir+"/histograms_CMS-HGG.root"+listofhists)
     
 
 

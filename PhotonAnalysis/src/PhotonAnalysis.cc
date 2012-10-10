@@ -2509,12 +2509,11 @@ bool PhotonAnalysis::ElectronTag2012(LoopAll& l, int diphotonVHlep_id, float* sm
 	        
             
 
-bool PhotonAnalysis::ElectronTag2012B(LoopAll& l, int& diphotonVHlep_id, int& el_ind, int& elVtx, int& el_cat, float* smeared_pho_energy, ofstream& lep_sync, bool mvaselection, float phoidMvaCut){
+bool PhotonAnalysis::ElectronTag2012B(LoopAll& l, int& diphotonVHlep_id, int& el_ind, int& elVtx, int& el_cat, float* smeared_pho_energy, ofstream& lep_sync, bool mvaselection, float phoidMvaCut, float eventweight, std::vector<float> smeared_pho_weight){
     bool tag = false;
     float elptcut=20;
     bool localdebug=false;
 
-    
     el_ind=l.ElectronSelectionMVA2012(elptcut);
     if(el_ind!=-1) {
         if(localdebug) cout<<"in ElectronTag2012B and selected "<<el_ind<<endl;
@@ -2543,9 +2542,20 @@ bool PhotonAnalysis::ElectronTag2012B(LoopAll& l, int& diphotonVHlep_id, int& el
         if(diphotonVHlep_id!=-1){
             TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphotonVHlep_id], elVtx, &smeared_pho_energy[0]);
             TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphotonVHlep_id], elVtx, &smeared_pho_energy[0]);
+            TLorentzVector dipho_p4 = lead_p4 + sublead_p4;
+            float mass = dipho_p4.M();
 
             // need to check again for d0 and dZ (couldn't before because we didn't have the vertex)
             if(l.ElectronMVACuts(el_ind, elVtx)){
+                eventweight*=(smeared_pho_weight[l.dipho_leadind[diphotonVHlep_id]] * smeared_pho_weight[l.dipho_subleadind[diphotonVHlep_id]]);
+                std::string label("noleppho_nomva");
+                if(mass>=100 && mass<180){
+                    int cur_type = l.itype[l.current];
+                    if(!(mass < 110. && mass > 150. && cur_type==0)){
+                        ControlPlotsElectronTag2012B(l, lead_p4, sublead_p4, el_ind, 0., eventweight, label);
+                    }
+                }
+            
                 if(l.ElectronPhotonCuts2012B(lead_p4, sublead_p4, *myel)){
                     tag=true;
                     el_cat=(int)(abs(lead_p4.Eta())>1.5 || abs(sublead_p4.Eta())>1.5); 
@@ -2557,7 +2567,6 @@ bool PhotonAnalysis::ElectronTag2012B(LoopAll& l, int& diphotonVHlep_id, int& el
             }
 
             if(tag){
-                TLorentzVector dipho_p4 = lead_p4 + sublead_p4;
                 lep_sync<<"run="<<l.run<<"\t";
                 lep_sync<<"lumis"<<l.lumis<<"\t";
                 lep_sync<<"event="<<(unsigned int) l.event<<"\t";
@@ -2614,6 +2623,7 @@ void PhotonAnalysis::ControlPlotsElectronTag2012B(LoopAll& l, TLorentzVector lea
     l.FillHist(Form("ElectronTag_Mellead_%s",label.c_str()),       el_cat, elead_p4.M(), evweight);
     l.FillHist(Form("ElectronTag_dMelsub_%s",label.c_str()),       el_cat, abs(esub_p4.M()-91.2), evweight);
     l.FillHist(Form("ElectronTag_dMellead_%s",label.c_str()),      el_cat, abs(elead_p4.M()-91.2), evweight);
+    l.FillHist(Form("ElectronTag_mindMel_%s",label.c_str()),       el_cat, (float)min(abs(esub_p4.M()-91.2),abs(elead_p4.M()-91.2)), evweight);
     l.FillHist(Form("ElectronTag_diphomva_%s",label.c_str()),      el_cat, bdtoutput, evweight);
     
 }
@@ -3430,7 +3440,7 @@ bool PhotonAnalysis::MuonTag2012(LoopAll& l, int diphotonVHlep_id, float* smeare
     return tag;
 }
 
-bool PhotonAnalysis::MuonTag2012B(LoopAll& l, int& diphotonVHlep_id, int& mu_ind, int& muVtx, int& mu_cat, float* smeared_pho_energy, ofstream& lep_sync, bool mvaselection, float phoidMvaCut){
+bool PhotonAnalysis::MuonTag2012B(LoopAll& l, int& diphotonVHlep_id, int& mu_ind, int& muVtx, int& mu_cat, float* smeared_pho_energy, ofstream& lep_sync, bool mvaselection, float phoidMvaCut, float eventweight, std::vector<float> smeared_pho_weight){
     bool tag = false;
     float muptcut=20.;
 
@@ -3450,11 +3460,20 @@ bool PhotonAnalysis::MuonTag2012B(LoopAll& l, int& diphotonVHlep_id, int& mu_ind
         if(diphotonVHlep_id!=-1){ 
             TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphotonVHlep_id], muVtx, &smeared_pho_energy[0]);
             TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphotonVHlep_id], muVtx, &smeared_pho_energy[0]);
+            TLorentzVector dipho_p4 = lead_p4 + sublead_p4;
+            float mass = dipho_p4.M();
+            eventweight*=(smeared_pho_weight[l.dipho_leadind[diphotonVHlep_id]] * smeared_pho_weight[l.dipho_subleadind[diphotonVHlep_id]]);
+            std::string label("noleppho_nomva");
+            if(mass>=100 && mass<180){
+                int cur_type = l.itype[l.current];
+                if(!(mass < 110. && mass > 150. && cur_type==0)){
+                    ControlPlotsMuonTag2012B(l, lead_p4, sublead_p4, mu_ind, 0, eventweight, label);
+                }
+            }
 
             tag = l.MuonPhotonCuts2012B(lead_p4, sublead_p4, mymu);
             if(!tag) diphotonVHlep_id=-1;
             mu_cat=(int)(abs(lead_p4.Eta())>1.5 || abs(sublead_p4.Eta())>1.5); 
-            TLorentzVector dipho_p4 = lead_p4+sublead_p4;
             if(tag){
 
                 lep_sync<<"run="<<l.run<<"\t";
