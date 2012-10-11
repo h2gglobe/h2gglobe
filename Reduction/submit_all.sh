@@ -53,5 +53,10 @@
 ./submit_reduction.sh     mc_bkg_summer12_s10   GJet_Pt40_v2_pf   80
 ./submit_reduction.sh     mc_bkg_summer12_s10   GJet_Pt40_v2_pp   60
 
+./submit_reduction.sh     mc_bkg_summer12_s10   TTJets_TuneZ2star_8TeV-madgraph-tauola_Summer12-PU_S8_START52_V9-v1    20
+
+./submit_reduction.sh     mc_bkg_summer12_s7   TTJets_TuneZ2star_8TeV-madgraph-tauola_Summer12-PU_S7_START52_V9-v1    20
+./submit_reduction.sh     mc_bkg_summer12_s8   TTJets_TuneZ2star_8TeV-madgraph-tauola_Summer12-PU_S8_START52_V9-v1    20
+
 
 wait
