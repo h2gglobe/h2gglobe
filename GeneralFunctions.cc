@@ -3787,12 +3787,14 @@ int  LoopAll::RescaleJetEnergy(bool force) {
     return 1;
 }
    
-void LoopAll::PhotonsToVeto(TLorentzVector* veto_p4, float drtoveto, std::vector<bool>& vetos){
+void LoopAll::PhotonsToVeto(TLorentzVector* veto_p4, float drtoveto, std::vector<bool>& vetos, bool drtotkveto){
     vetos.clear();
 
     for(int ipho=0; ipho<pho_n; ipho++){
         TLorentzVector* photon = (TLorentzVector*) pho_p4->At(ipho);
-        if(photon->DeltaR(*veto_p4)<drtoveto || pho_drtotk_25_99[ipho]<1.0) {
+        if(photon->DeltaR(*veto_p4)<drtoveto) {
+            vetos.push_back(true);
+        } else if (drtotkveto  &&  pho_drtotk_25_99[ipho]<1.0) {
             vetos.push_back(true);
         } else {
             vetos.push_back(false);

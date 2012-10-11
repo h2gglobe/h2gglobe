@@ -1141,7 +1141,7 @@ int ElectronSelectionMVA2012(float elptcut=20.);
 bool ElectronMVACuts(int el_ind, int vtx_ind=-1);
 bool ElectronPhotonCuts2012B(TLorentzVector& pho1, TLorentzVector& pho2, TLorentzVector& ele);
 int FindElectronVertex(int el_ind);
-void PhotonsToVeto(TLorentzVector* veto_p4, float drtoveto, std::vector<bool>& vetos);
+void PhotonsToVeto(TLorentzVector* veto_p4, float drtoveto, std::vector<bool>& vetos, bool drtotkveto);
 
 //HCP2012
 TLorentzVector METCorrection2012B(TLorentzVector lead_p4, TLorentzVector sublead_p4);

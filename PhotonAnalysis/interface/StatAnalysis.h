@@ -111,7 +111,8 @@ class StatAnalysis : public PhotonAnalysis
 
     void fillControlPlots(const TLorentzVector & lead_p4, const  TLorentzVector & sublead_p4, const TLorentzVector & Higgs, 
 			  float lead_r9, float sublead_r9, int diphoton_index, 
-			  int category, bool rightvtx, float evweight , LoopAll &);
+              int category, bool rightvtx, float evweight , TVector3* vtx, LoopAll &, 
+              int muVtx=-1, int mu_ind=-1, int elVtx=-1, int el_ind=-1, float bdtoutput=-10);
 
     void fillSignalEfficiencyPlots(float weight, LoopAll & l );
 
