@@ -135,8 +135,8 @@ def parseCategories(filename):
             for item in items:
                 if (item.find("catName=") is not -1):
                     catname = str(item.split("=")[1])
-                elif (item.find("catDef=") is not -1):
-                    temp = (str(item.split("=")[1])).split(",")
+                elif (item.find("catDef:") is not -1):
+                    temp = (str(item.split(":")[1])).split(",")
                     for t in temp:
                         catdef.append(t)
                 #else:
@@ -178,7 +178,7 @@ def parsePlotvariables(filename, samples):
     file.close()
 
     for l in lines:
-        
+      if ("#" not in l and "htyp" in l):
         items = l.split()
         for item in items:
             if ("default" in item or item == ""):
@@ -314,6 +314,7 @@ if __name__ == "__main__":
                 cut = "itype==" + str(s[0])
 
                 if (allHistos.ncat[nv] > 1 and allHistos.ncat[nv] > len(categories[allHistos.catTypes[nv]])):
+                    print categories
                     print "Wrong category definition !!!"
                     sys.exit(-1)
 

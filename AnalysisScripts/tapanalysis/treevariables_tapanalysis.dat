@@ -4,11 +4,11 @@ delare:
 	type=0,1,2,3 (int,unsigned int,float,double)
 	name=name 
 ->
-
+dir=tap
 type=0 name=run
 type=0 name=event
 type=0 name=lumis
-type=0 name=type
+type=0 name=itype
 type=2 name=weight
 type=0 name=charge
 type=0 name=chargeTag
@@ -22,6 +22,7 @@ type=2 name=et
 type=2 name=ettag
 type=0 name=nvtx
 type=2 name=id
+type=2 name=idtag
 type=0 name=catTag
 type=0 name=cat
 type=2 name=mva1
@@ -31,4 +32,12 @@ type=2 name=hoe
 type=2 name=isoRvtx
 type=2 name=isoWvtx
 type=2 name=isoTk
-
+type=2 name=chIso
+type=2 name=chIsoBad
+type=2 name=phoIso03
+type=2 name=phoIso04
+type=2 name=rho
+type=0 name=pass_hlt
+type=0 name=pass_hlt_de
+type=0 name=conv
+type=0 name=convTag

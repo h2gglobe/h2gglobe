@@ -15,11 +15,11 @@ rho_algo1
 
 pu_n:1
 
-#hlt_n
-#hlt_p4
-#hlt_bit
-#hlt_path_names_HLT
-#hlt_candpath
+hlt_n
+hlt_p4
+hlt_bit
+hlt_path_names_HLT
+hlt_candpath
 
 sc_xyz
 
@@ -36,8 +36,8 @@ el_std_fbrem
 el_std_hoe
 el_std_detain
 el_std_dphiin
-el_std_dcot
-el_std_dist
+#el_std_dcot
+#el_std_dist
 el_std_scind
 el_std_hp_expin
 el_std_tkdrv
@@ -52,6 +52,12 @@ el_std_pfiso_charged
 el_std_pfiso_neutral
 el_std_pfiso_photon
 el_std_charge 
+el_std_mva_trig
+el_std_mva_nontrig
+el_std_D0Vtx
+el_std_DZVtx
+el_std_conv
+
 
 pho_n
 pho_p4
