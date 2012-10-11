@@ -844,7 +844,9 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 	    
 	    //Met tag //met at analysis step
         if(includeVHmet){
-            VHmetevent=METTag2012(l, diphotonVHmet_id, &smeared_pho_energy[0]);
+            int met_cat=-1;
+            if( isSyst) VHmetevent=METTag2012B(l, diphotonVHmet_id, met_cat, &smeared_pho_energy[0], met_sync, false, -0.2, false);
+            else        VHmetevent=METTag2012B(l, diphotonVHmet_id, met_cat, &smeared_pho_energy[0], met_sync, false, -0.2, true);
 	    }
 	    
 	    // VBF+hadronic VH
