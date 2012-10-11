@@ -1,6 +1,7 @@
 #ifndef TREECONTAINER
 #define TREECONTAINER
 
+#include <TFile.h>
 #include <TTree.h>
 #include <map>
 #include <string>
@@ -9,7 +10,7 @@ class TreeContainer {
 
  public:
   TreeContainer();
-  TreeContainer(int,std::string);
+  TreeContainer(int,std::string, std::string);
   ~TreeContainer();
 
   void FillFloat(std::string,  float);
@@ -23,8 +24,9 @@ class TreeContainer {
   void FillTree();
 
   int ncat(int n);
-  void Save();
+  void Save(TFile*);
 
+  void setDirName(std::string);
   void setTreeVal(int);
   int getTreeVal();
   void setTreeNam(std::string);
@@ -33,6 +35,7 @@ class TreeContainer {
  private:
   int treeVal;
   std::string treeNam;
+  std::string dirName;
    
   TTree *tr_;
   std::map<std::string, double>         double_branches;

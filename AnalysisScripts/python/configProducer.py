@@ -206,10 +206,11 @@ class configProducer:
       self.ut_.BookHisto(dum['htyp'],dum['plot'],dum['default'],dum['ncat'],dum['xbins'],dum['ybins'],dum['xmin'],dum['xmax'],dum['ymin'],dum['ymax'],dum['name'], dum['xaxis'], dum['yaxis'])
 
   def init_trees(self):
-    self.read_dat_treevariables(self.treevariables_)
-    self.ut_.InitTrees()
-    for dum in self.plotvar_.vardef:
-      self.ut_.BookTreeBranch(dum['name'],dum['type'])
+    for tv in self.treevariables_:
+      dirname = self.read_dat_treevariables(tv)
+      self.ut_.InitTrees(dirname)
+      for dum in self.plotvar_.vardef:
+        self.ut_.BookTreeBranch(dum['name'],dum['type'], dirname)
       
   def init_reduce(self):
     self.read_config_reduce(self.conf_filename)
@@ -315,25 +316,30 @@ class configProducer:
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def read_dat_treevariables(self,f): 
      print "Parsing of the treevariables dat"
+     dirname = ""
      self.plotvar_.clear()
      self.read_file(f)
-     map_dict = { "type":int, "name": str }
+     map_dict = { "type":int, "name": str}
      map_c   = {}
      for line in self.lines_:       
-      if len(line) < 2: continue
-      if (len(line.split()) < 1): continue
+         if len(line) < 2: continue
+         if (len(line.split()) < 1): continue
+         if "dir" in line:
+             split_line = line.split("=")
+             dirname = str(split_line[1])             
+         elif "name" in line:
+             # We have one of the file def lines
+             split_line = line.split()
+             for sp in split_line:
+                 name, val = sp.split("=")
+                 if name in  map_dict :
+                     map_c[name] = map_dict[name](val)
+                 else:
+                     sys.exit("Unrecognised Argument:\n ' %s ' in line:\n ' %s '" %(name,line))
 
-      if "name" in line:
-        # We have one of the file def lines
-        split_line = line.split()
-        for sp in split_line:
-          name, val = sp.split("=")
-          if name in  map_dict :
-            map_c[name] = map_dict[name](val)
-          else: sys.exit("Unrecognised Argument:\n ' %s ' in line:\n ' %s '" %(name,line))
-
-        self.plotvar_.vardef.append(map_c.copy())
-      else: sys.exit("Config Line Unrecognised:\n ' %s '"%line)
+             self.plotvar_.vardef.append(map_c.copy())
+         else: sys.exit("Config Line Unrecognised:\n ' %s '"%line)
+     return dirname
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def read_dat_cuts(self,f): 
      "Parsing of the cuts dat"
@@ -457,7 +463,7 @@ class configProducer:
 
        # choose trees for analysis
        elif line.startswith("treevariables"):
-	 self.treevariables_ = line.split(" ")[1]
+	 self.treevariables_ = line.split(" ")[1:]
 
        # Read a generic member of the LoopAll class
        else:

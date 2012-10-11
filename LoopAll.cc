@@ -474,13 +474,16 @@ void LoopAll::InitHistos(){
 }
 
 // ------------------------------------------------------------------------------------
-void LoopAll::InitTrees(){
+void LoopAll::InitTrees(std::string dirName){
 
+  std::vector<TreeContainer> vTemp;
   for(int ind=0; ind<sampleContainer.size(); ind++) {
     SampleContainer thisSample = (SampleContainer) sampleContainer.at(ind);
-    TreeContainer temp(ind,thisSample.filesshortnam);
-    treeContainer.push_back(temp);
+    TreeContainer temp(ind,thisSample.filesshortnam, dirName);
+    vTemp.push_back(temp);
   }
+
+  treeContainer[dirName] = vTemp;
 }
 
 // ------------------------------------------------------------------------------------
@@ -766,9 +769,14 @@ void LoopAll::WriteHist() {
   for(unsigned int ind=0; ind<histoContainer.size(); ind++) {
     histoContainer[ind].Save();
   }
-  for(unsigned int ind=0; ind<treeContainer.size(); ind++) {
-    treeContainer[ind].Save();
+
+  for (std::map<std::string, std::vector<TreeContainer> >::iterator ii = treeContainer.begin(); ii!=treeContainer.end(); ++ii) {
+    for(unsigned int ind=0; ind<(*ii).second.size(); ind++) {
+      ((*ii).second)[ind].Save(hfile);
+      
+    }
   }
+
   outputTreeLumi->Write();
 
   WritePI();
@@ -1080,7 +1088,7 @@ int LoopAll::FillAndReduce(int jentry) {
     }
     // final analysis
     for (size_t i=0; i<analyses.size(); i++) {
-      if ( analyses[i]->Analysis(*this, jentry) ) { 
+      if (analyses[i]->Analysis(*this, jentry)) { 
       	FillTreeContainer();
       }
     }
@@ -1154,9 +1162,9 @@ void LoopAll::GetEntry(std::set<TBranch *> & branches, int jentry)
   }
 }
 // ------------------------------------------------------------------------------------
-void LoopAll::BookTreeBranch(std::string name, int type){
-  for(unsigned int ind=0; ind<treeContainer.size(); ind++) {
-	treeContainer[ind].AddTreeBranch(name,type);
+void LoopAll::BookTreeBranch(std::string name, int type, std::string dirName){
+  for(unsigned int ind=0; ind<treeContainer[dirName].size(); ind++) {
+    treeContainer[dirName][ind].AddTreeBranch(name,type);
   }
 }
 // ------------------------------------------------------------------------------------
@@ -1325,29 +1333,50 @@ int LoopAll::ApplyCut(std::string cutname, float var, int icat) {
 }
 // ------------------------------------------------------------------------------------
 void LoopAll::FillTreeContainer(){	// To Be Called after each jentry
-  treeContainer[current_sample_index].FillTree();
+  for (std::map<std::string, std::vector<TreeContainer> >::iterator ii = treeContainer.begin(); ii!=treeContainer.end(); ++ii) {
+    (((*ii).second)[current_sample_index]).FillTree();
+  }
 }
 // ------------------------------------------------------------------------------------
-void LoopAll::FillTree(std::string name,float x){
-  treeContainer[current_sample_index].FillFloat(name, x);
+void LoopAll::FillTree(std::string name, float x, std::string dirName){
+  if (treeContainer.find(dirName) != treeContainer.end())
+    treeContainer[dirName][current_sample_index].FillFloat(name, x);
+  else
+    std::cout << "Tree type " << dirName << " not defined" << std::endl;
 }
 // ------------------------------------------------------------------------------------
-void LoopAll::FillTree(std::string name,double x){
-  treeContainer[current_sample_index].FillDouble(name, x);
+void LoopAll::FillTree(std::string name, double x, std::string dirName){
+  if (treeContainer.find(dirName) != treeContainer.end())
+    treeContainer[dirName][current_sample_index].FillDouble(name, x);
+  else
+    std::cout << "Tree type " << dirName << " not defined" << std::endl;
 }
 // ------------------------------------------------------------------------------------
-void LoopAll::FillTree(std::string name,int x){
-  treeContainer[current_sample_index].FillInt(name, x);
+void LoopAll::FillTree(std::string name, int x, std::string dirName){
+  if (treeContainer.find(dirName) != treeContainer.end())
+    treeContainer[dirName][current_sample_index].FillInt(name, x);
+  else
+    std::cout << "Tree type " << dirName << " not defined" << std::endl;
 }
 // ------------------------------------------------------------------------------------
-void LoopAll::FillTree(std::string name,unsigned int x){
-  treeContainer[current_sample_index].FillUInt(name, x);
+void LoopAll::FillTree(std::string name, unsigned int x, std::string dirName){
+  if (treeContainer.find(dirName) != treeContainer.end())
+    treeContainer[dirName][current_sample_index].FillUInt(name, x);
+  else
+    std::cout << "Tree type " << dirName << " not defined" << std::endl;
 }
-void LoopAll::FillTree(std::string name, std::string x) {
-  treeContainer[current_sample_index].FillString(name, x);
+
+void LoopAll::FillTree(std::string name, std::string x, std::string dirName) {
+  if (treeContainer.find(dirName) != treeContainer.end())
+    treeContainer[dirName][current_sample_index].FillString(name, x);
+  else
+    std::cout << "Tree type " << dirName << " not defined" << std::endl;
 }
-void LoopAll::FillTree(std::string name, bool x){
-  treeContainer[current_sample_index].FillBool(name, x);
+void LoopAll::FillTree(std::string name, bool x, std::string dirName) {
+  if (treeContainer.find(dirName) != treeContainer.end())
+    treeContainer[dirName][current_sample_index].FillBool(name, x);
+  else
+    std::cout << "Tree type " << dirName << " not defined" << std::endl;
 }
  
 // ------------------------------------------------------------------------------------

@@ -31,8 +31,9 @@ class TapAnalysis : public StatAnalysis {
   virtual bool Analysis(LoopAll&, Int_t);
 
   void FillFlatTree(LoopAll&, Int_t, Int_t, Int_t, Int_t, Int_t,
-		    Float_t, Float_t, Float_t);
+		    Float_t, Float_t, Float_t, Float_t);
 
+  bool ElectronId(LoopAll&, Int_t, Int_t, std::string, Float_t);
   Float_t PhotonId(LoopAll&, Int_t, Int_t, std::string, Float_t);
   bool checkEventHLT(LoopAll&, std::vector<std::string>);
   std::vector<std::pair<int, int> > TPPairs(LoopAll&, std::vector<int> tags, std::vector<int> probes, int type, int chargePairing);
@@ -41,7 +42,7 @@ class TapAnalysis : public StatAnalysis {
   bool CiCPhotonIDPF(LoopAll& l, int nCategories, int photonindex, int chosenVtx, int IDlevel);
   TLorentzVector get_pho_p4(LoopAll& l, Int_t ipho, int ivtx);
 
-
+  Float_t forElectrons;
   Float_t cutPFMET, cutETTag, cutETProbe;
   std::string selectionTypeTag, selectionTypeProbe, selectionTypeToMeasure;
   Float_t cutSelectionTag, cutSelectionProbe, cutSelectionToMeasure;
@@ -51,7 +52,8 @@ class TapAnalysis : public StatAnalysis {
  protected:
   std::string name_;
   TMVA::Reader *tmvaReaderID_Single_Barrel, *tmvaReaderID_Single_Endcap;
-
+  std::vector<std::string> hltPaths;
+  std::vector<std::string> hltPathsDE;
 };
 
 #endif

@@ -14,6 +14,7 @@
 #include <set>
 #include <string>
 #include <list>
+#include <map>
 
 #include <THStack.h>
 #include <TLegend.h>
@@ -54,7 +55,9 @@ class LoopAll {
   std::vector<CounterContainer> counterContainer;
   std::vector<SampleContainer> sampleContainer;
   std::vector<Cut> cutContainer;
-  std::vector<TreeContainer> treeContainer;	 
+  //std::vector<TreeContainer> treeContainer;	 
+  std::map<std::string, std::vector<TreeContainer> > treeContainer;	 
+
   RooContainer *rooContainer;
   Normalization_8TeV *signalNormalizer;
   
@@ -193,17 +196,17 @@ class LoopAll {
 
   
   // Cut down (flat) trees for MVA Training 
-  void InitTrees();
-  void BookTreeBranch(std::string name, int type);
+  void InitTrees(std::string);
+  void BookTreeBranch(std::string name, int type, std::string dirName="");
   void FillTreeContainer();
-  void FillTree(std::string name,float x);
-  void FillTree(std::string name,double x);
-  void FillTree(std::string name,int x);
-  void FillTree(std::string name,unsigned int x);
-  void FillTree(std::string name,std::string x);
-  void FillTree(std::string name,bool x);
- 
 
+  void FillTree(std::string name, float x, std::string dirName="");
+  void FillTree(std::string name, double x, std::string dirName="");
+  void FillTree(std::string name, int x, std::string dirName="");
+  void FillTree(std::string name, unsigned int x, std::string dirName="");
+  void FillTree(std::string name, std::string x, std::string dirName="");
+  void FillTree(std::string name, bool x, std::string dirName="");
+ 
   void WritePI();
   void AddCut2(char*, int, int, int, float*, float*, int, int, int, float, float, char*, char*);
 
