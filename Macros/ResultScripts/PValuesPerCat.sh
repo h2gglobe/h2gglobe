@@ -6,7 +6,8 @@
 #5 THREADS
 
 DEBUG=0
-CUSTUMCAT=""
+TOYFILE=""
+SIGNAL_STRENGTH=1
 
 SCRAM_ARCH=slc5_amd64_gcc462
 export SCRAM_ARCH
@@ -24,10 +25,11 @@ else
 fi
 echo "Max Threads: $MAXTHREADS"
 
-if [ "$2" == "" ]; then DOOBSERVED=1; else DOOBSERVED=$2; fi
+if [ "$2" == "" ]; then DOOBSERVED=0; else DOOBSERVED=$2; fi
 if [ "$3" == "" ]; then DOEXPECTED=1; else DOEXPECTED=$3; fi
-if [ "$4" == "" ]; then DOCATEGORIES=1; else DOCATEGORIES=$4; fi
+if [ "$4" == "" ]; then DOCATEGORIES=0; else DOCATEGORIES=$4; fi
 
+#MASSES=`seq 110 5.0 150`
 MASSES=`seq 110 0.5 150`
 THREADS=0
 DIRNAME=`echo $1 | sed 's|.txt||'`
@@ -45,7 +47,8 @@ if [ $DOOBSERVED -eq 1 -o $DOEXPECTED -eq 1 ]; then
 			THREADS=`ps | grep combine | wc -l`
 		done
 		if [ $DOOBSERVED -eq 1 ]; then combine $1 -m $MASS -M ProfileLikelihood -t 0 -s -1 -n PValue --signif --pvalue >& $DIRNAME/higgsCombinePValue.ProfileLikelihood.mH${MASS}.log & fi
-		if [ $DOEXPECTED -eq 1 ]; then combine $1 -m $MASS -M ProfileLikelihood -t -1 -s -1 -n PValueExpected --signif --pvalue --expectSignal=1 >& ${DIRNAME}_Expected/higgsCombinePValueExpected.ProfileLikelihood.mH${MASS}.log & fi
+		if [ $DOEXPECTED -eq 1 -a "$TOYFILE"=="" ]; then combine $1 -m $MASS -M ProfileLikelihood -t -1 -s -1 -n PValueExpected --signif --pvalue --expectSignal=1 >& ${DIRNAME}_Expected/higgsCombinePValueExpected.ProfileLikelihood.mH${MASS}.log & fi
+		if [ $DOEXPECTED -eq 1 -a "$TOYFILE"!="" ]; then combine $1 -m $MASS -M ProfileLikelihood -t -1 -s -1 -n PValueExpected --signif --pvalue --expectSignal=1 --toysFile=$TOYFILE >& ${DIRNAME}_Expected/higgsCombinePValueExpected.ProfileLikelihood.mH${MASS}.log & fi
 		sleep 0.25
 		THREADS=`ps | grep combine | wc -l`
 	done
@@ -81,40 +84,9 @@ if [ $DOCATEGORIES -eq 1 ]; then
 			  sleep 2
 			  THREADS=`ps | grep combine | wc -l`
 		  done
-		  combine $OUTFILE -m $MASS -M ProfileLikelihood -t 0 -s -1 -n PValue$CAT --signif --pvalue >& $DIRNAME/higgsCombinePValuePerCat.ProfileLikelihood.$CAT.mH${MASS}.log &
-		  sleep 0.25
-		  THREADS=`ps | grep combine | wc -l`
-	  done
-	  while [ ! $THREADS -eq 0 ]; do
-		  sleep 2
-		  THREADS=`ps | grep combine | wc -l`
-	  done
-	  hadd higgsCombine.${JOBNAME}.ProfileLikelihood.$CAT.root higgsCombinePValue$CAT.ProfileLikelihood.mH[0-9][0-9]*.[0-9-][0-9]*.root >& $DIRNAME/higgsCombine.ProfileLikelihood.$CAT.log
-	  mv higgsCombinePValue$CAT.ProfileLikelihood.mH[0-9][0-9]*.[0-9-][0-9]*.root $DIRNAME
-	done
-fi
-
-if [ "$CUSTUMCAT" != "" ]; then
-	echo "Making DataCard for Custum Catagory $CUSTUMCAT"
-	for CAT in $CATAGORIES
-	  do
-	  echo "Making DataCard for $CAT"
-	  OUTFILE=`echo $1 | sed "s|.txt|_$CAT.txt|"`
-	  if [ $DEBUG -gt 1 ]; then echo $CUSTUMCAT; fi
-	  combineCards.py --xc="$CUSTUMCAT" $1 >& $OUTFILE
-	  THREADS=0
-	  DIRNAME=`echo $OUTFILE | sed 's|.txt||'`
-	  if [ ! -d $DIRNAME ]; then
-		  mkdir $DIRNAME
-	  fi
-	  echo "Calculating PValues for $CAT"
-	  for MASS in $MASSES; do
-		  if [ $DEBUG -gt 1 ]; then echo "THREADS: $THREADS and MAXTHREADS: $MAXTHREADS"; fi
-		  while [ ! $THREADS -lt $MAXTHREADS ]; do
-			  sleep 2
-			  THREADS=`ps | grep combine | wc -l`
-		  done
-		  combine $OUTFILE -m $MASS -M ProfileLikelihood -t 0 -s -1 -n PValue$CAT --signif --pvalue >& $DIRNAME/higgsCombinePValuePerCat.ProfileLikelihood.$CAT.mH${MASS}.log &
+		  if [ $DOOBSERVED -eq 1 ]; then combine $OUTFILE -m $MASS -M ProfileLikelihood -t 0 -s -1 -n PValue$CAT --signif --pvalue >& $DIRNAME/higgsCombinePValuePerCat.ProfileLikelihood.$CAT.mH${MASS}.log &
+		  if [ $$DOEXPECTED -eq 1 -a "$TOYFILE"=="" ]; then combine $OUTFILE -m $MASS -M ProfileLikelihood -t -1 -s -1 -n PValueExpected$CAT --signif --pvalue --expectSignal=1 >& $DIRNAME/higgsCombinePValuePerCat.ProfileLikelihood.$CAT.mH${MASS}.log &
+		  if [ $$DOEXPECTED -eq 1 -a "$TOYFILE"!="" ]; then combine $OUTFILE -m $MASS -M ProfileLikelihood -t -1 -s -1 -n PValueExpected$CAT --signif --pvalue --expectSignal=1 --toysFile=$TOYFILE >& $DIRNAME/higgsCombinePValuePerCat.ProfileLikelihood.$CAT.mH${MASS}.log &
 		  sleep 0.25
 		  THREADS=`ps | grep combine | wc -l`
 	  done
