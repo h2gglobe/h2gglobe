@@ -47,8 +47,8 @@ if [ $DOOBSERVED -eq 1 -o $DOEXPECTED -eq 1 ]; then
 			THREADS=`ps | grep combine | wc -l`
 		done
 		if [ $DOOBSERVED -eq 1 ]; then combine $1 -m $MASS -M ProfileLikelihood -t 0 -s -1 -n PValue --signif --pvalue >& $DIRNAME/higgsCombinePValue.ProfileLikelihood.mH${MASS}.log & fi
-		if [ $DOEXPECTED -eq 1 -a "$TOYFILE"=="" ]; then combine $1 -m $MASS -M ProfileLikelihood -t -1 -s -1 -n PValueExpected --signif --pvalue --expectSignal=1 >& ${DIRNAME}_Expected/higgsCombinePValueExpected.ProfileLikelihood.mH${MASS}.log & fi
-		if [ $DOEXPECTED -eq 1 -a "$TOYFILE"!="" ]; then combine $1 -m $MASS -M ProfileLikelihood -t -1 -s -1 -n PValueExpected --signif --pvalue --expectSignal=1 --toysFile=$TOYFILE >& ${DIRNAME}_Expected/higgsCombinePValueExpected.ProfileLikelihood.mH${MASS}.log & fi
+		if [ $DOEXPECTED -eq 1 -a "$TOYFILE"=="" ]; then combine $1 -m $MASS -M ProfileLikelihood -t -1 -s -1 -n PValueExpected --signif --pvalue --expectSignal=$SIGNAL_STRENGTH >& ${DIRNAME}_Expected/higgsCombinePValueExpected.ProfileLikelihood.mH${MASS}.log & fi
+		if [ $DOEXPECTED -eq 1 -a "$TOYFILE"!="" ]; then combine $1 -m $MASS -M ProfileLikelihood -t -1 -s -1 -n PValueExpected --signif --pvalue --expectSignal=$SIGNAL_STRENGTH --toysFile=$TOYFILE >& ${DIRNAME}_Expected/higgsCombinePValueExpected.ProfileLikelihood.mH${MASS}.log & fi
 		sleep 0.25
 		THREADS=`ps | grep combine | wc -l`
 	done
@@ -85,8 +85,8 @@ if [ $DOCATEGORIES -eq 1 ]; then
 			  THREADS=`ps | grep combine | wc -l`
 		  done
 		  if [ $DOOBSERVED -eq 1 ]; then combine $OUTFILE -m $MASS -M ProfileLikelihood -t 0 -s -1 -n PValue$CAT --signif --pvalue >& $DIRNAME/higgsCombinePValuePerCat.ProfileLikelihood.$CAT.mH${MASS}.log &
-		  if [ $$DOEXPECTED -eq 1 -a "$TOYFILE"=="" ]; then combine $OUTFILE -m $MASS -M ProfileLikelihood -t -1 -s -1 -n PValueExpected$CAT --signif --pvalue --expectSignal=1 >& $DIRNAME/higgsCombinePValuePerCat.ProfileLikelihood.$CAT.mH${MASS}.log &
-		  if [ $$DOEXPECTED -eq 1 -a "$TOYFILE"!="" ]; then combine $OUTFILE -m $MASS -M ProfileLikelihood -t -1 -s -1 -n PValueExpected$CAT --signif --pvalue --expectSignal=1 --toysFile=$TOYFILE >& $DIRNAME/higgsCombinePValuePerCat.ProfileLikelihood.$CAT.mH${MASS}.log &
+		  if [ $$DOEXPECTED -eq 1 -a "$TOYFILE"=="" ]; then combine $OUTFILE -m $MASS -M ProfileLikelihood -t -1 -s -1 -n PValueExpected$CAT --signif --pvalue --expectSignal=$SIGNAL_STRENGTH >& $DIRNAME/higgsCombinePValuePerCat.ProfileLikelihood.$CAT.mH${MASS}.log &
+		  if [ $$DOEXPECTED -eq 1 -a "$TOYFILE"!="" ]; then combine $OUTFILE -m $MASS -M ProfileLikelihood -t -1 -s -1 -n PValueExpected$CAT --signif --pvalue --expectSignal=$SIGNAL_STRENGTH --toysFile=$TOYFILE >& $DIRNAME/higgsCombinePValuePerCat.ProfileLikelihood.$CAT.mH${MASS}.log &
 		  sleep 0.25
 		  THREADS=`ps | grep combine | wc -l`
 	  done
