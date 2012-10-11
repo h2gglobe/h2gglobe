@@ -374,7 +374,7 @@ bool JetIdAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorent
 	    sumaccept += weight;
 	    sumsmear += evweight;
 	    fillControlPlots(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, diphoton_id, category,
-			     isCorrectVertex, evweight, l );
+			     isCorrectVertex, evweight, vtx, l);
 	}
 
 	// see if the event falls into an exclusive category
