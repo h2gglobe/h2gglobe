@@ -202,12 +202,12 @@ bool VbfAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentzV
 				    l.photonIDMVA(diphoton_index.first,l.dipho_vtxind[diphoton_id],
 						  lead_p4,bdtTrainingPhilosophy.c_str()) :
 				    l.photonIDMVANew(diphoton_index.first,l.dipho_vtxind[diphoton_id],
-						     lead_p4,bdtTrainingPhilosophy.c_str()) + photonIDMVAShift_EB );
+						     lead_p4,bdtTrainingPhilosophy.c_str()) );
         float phoid_mvaout_sublead = ( dataIs2011 ? 
 				       l.photonIDMVA(diphoton_index.second,l.dipho_vtxind[diphoton_id],
 						     sublead_p4,bdtTrainingPhilosophy.c_str()) : 
 				       l.photonIDMVANew(diphoton_index.second,l.dipho_vtxind[diphoton_id],
-							sublead_p4,bdtTrainingPhilosophy.c_str()) + photonIDMVAShift_EE );
+							sublead_p4,bdtTrainingPhilosophy.c_str()) );
 	// apply di-photon level smearings and corrections
         int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,0);
         if( cur_type != 0 && doMCSmearing ) {
