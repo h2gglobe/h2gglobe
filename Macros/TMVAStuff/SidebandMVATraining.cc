@@ -30,6 +30,7 @@ string methodname_;
 map<string,int> Methods_;
 vector<string> allowedMethods_;
 vector<string> chosenMethods_;
+bool optimize_=false;
 bool skipTraining_=false;
 bool skipTesting_=false;
 bool skipEvaluation_=false;
@@ -84,6 +85,7 @@ void OptionParser(int argc, char *argv[]){
     ("filename,i", po::value<string>(&filename_),                                           "Input file name")
     ("outfile,o", po::value<string>(&outfilename_)->default_value("MKMulticlassOut.root"),  "Output file name")
     ("method,m", po::value<string>(&methodname_)->default_value("BDTG"),                    "Training method")
+    ("optimize,O",                                                                          "Optimize training - takes time")
     ("skipTraining,s",                                                                      "Skip training")
     ("skipTesting,t",                                                                       "Skip testing")
     ("skipEvaluation,e",                                                                    "Skip evaluation")
@@ -99,6 +101,7 @@ void OptionParser(int argc, char *argv[]){
 
   if (vm.count("help")){ cout << desc << endl; exit(1);}
   if (!vm.count("filename")){ cerr << "WARNING -- A FILENAME MUST BE PROVIDED" << endl; exit(1);}
+  if (vm.count("optimize")) optimize_=true;
   if (vm.count("skipTraining")) skipTraining_=true;
   if (vm.count("skipTesting")) skipTesting_=true;
   if (vm.count("skipEvaluation")) skipEvaluation_=true;
@@ -111,22 +114,22 @@ void OptionParser(int argc, char *argv[]){
 vector<pair<string,string> > getSignalTreeNames(){
 
   vector<pair<string,string> > treeNames;
-  treeNames.push_back(pair<string,string>("ggh_m124_8TeV","signal"));
-  treeNames.push_back(pair<string,string>("vbf_m124_8TeV","signal"));
-  treeNames.push_back(pair<string,string>("wzh_m124_8TeV","signal"));
-  treeNames.push_back(pair<string,string>("tth_m124_8TeV","signal"));
+  treeNames.push_back(pair<string,string>("ggh_m124_pu2012","signal"));
+  treeNames.push_back(pair<string,string>("vbf_m124_pu2012","signal"));
+  treeNames.push_back(pair<string,string>("wzh_m124_pu2012","signal"));
+  treeNames.push_back(pair<string,string>("tth_m124_pu2012","signal"));
   return treeNames;
 }
 
 vector<pair<string,string> > getBackgroundTreeNames(){
 
   vector<pair<string,string> > treeNames;
-  treeNames.push_back(pair<string,string>("qcd_30_8TeV_ff","background"));
-  treeNames.push_back(pair<string,string>("qcd_30_8TeV_pf","background"));
-  treeNames.push_back(pair<string,string>("qcd_30_8TeV_pp","background"));
-  treeNames.push_back(pair<string,string>("qcd_40_8TeV_ff","background"));
-  treeNames.push_back(pair<string,string>("qcd_40_8TeV_pf","background"));
-  treeNames.push_back(pair<string,string>("qcd_40_8TeV_pp","background"));
+  //treeNames.push_back(pair<string,string>("qcd_30_8TeV_ff","background"));
+  //treeNames.push_back(pair<string,string>("qcd_30_8TeV_pf","background"));
+  //treeNames.push_back(pair<string,string>("qcd_30_8TeV_pp","background"));
+  //treeNames.push_back(pair<string,string>("qcd_40_8TeV_ff","background"));
+  //treeNames.push_back(pair<string,string>("qcd_40_8TeV_pf","background"));
+  //treeNames.push_back(pair<string,string>("qcd_40_8TeV_pp","background"));
   treeNames.push_back(pair<string,string>("gjet_20_8TeV_ff","background"));
   treeNames.push_back(pair<string,string>("gjet_20_8TeV_pf","background"));
   treeNames.push_back(pair<string,string>("gjet_20_8TeV_pp","background"));
@@ -137,10 +140,10 @@ vector<pair<string,string> > getBackgroundTreeNames(){
   treeNames.push_back(pair<string,string>("dipho_Box_10_8TeV","background"));
   treeNames.push_back(pair<string,string>("dipho_Box_25_8TeV","background"));
   treeNames.push_back(pair<string,string>("dipho_Box_250_8TeV","background"));
-  treeNames.push_back(pair<string,string>("dipho_Born_10_8TeV","background"));
-  treeNames.push_back(pair<string,string>("dipho_Born_25_8TeV","background"));
-  treeNames.push_back(pair<string,string>("dipho_Born_250_8TeV","background"));
-  treeNames.push_back(pair<string,string>("dyjetsll_50_8TeV","background"));
+  //treeNames.push_back(pair<string,string>("dipho_Born_10_8TeV","background"));
+  //treeNames.push_back(pair<string,string>("dipho_Born_25_8TeV","background"));
+  //treeNames.push_back(pair<string,string>("dipho_Born_250_8TeV","background"));
+  //treeNames.push_back(pair<string,string>("dyjetsll_50_8TeV","background"));
 
   return treeNames;
 }
@@ -170,8 +173,8 @@ int main (int argc, char *argv[]){
 
   TMVA::Factory *factory = new TMVA::Factory("TMVA_SidebandMVA", outFile, "!V:!Silent:Color:DrawProgressBar:Transformations=I;D;P;G,D:AnalysisType=Classification");
       
-  factory->AddVariable("diphobdt_out", "Diphoton BDT", 'F');
-  factory->AddVariable("deltaMOverM",  "#DeltaM / M_{H}", 'F');
+  factory->AddVariable("bdtoutput", "Diphoton BDT", 'F');
+  factory->AddVariable("deltaMoverM",  "#DeltaM / M_{H}", 'F');
 
   // Get all the Trees and assign them to the factory by their type (signal,background)
   vector<pair<string,string> > signalTrees = getSignalTreeNames();
@@ -196,7 +199,7 @@ int main (int argc, char *argv[]){
     if (temp!=NULL) {
       if (temp->GetEntries()==0) continue;
       trees[bkg->first] = temp;
-      factory->AddSignalTree(trees[bkg->first],backgroundWeight);
+      factory->AddBackgroundTree(trees[bkg->first],backgroundWeight);
     }
     else { cerr << "WARNING -- invalid pointer -- " << bkg->first << endl; exit(1); }
   }
@@ -209,9 +212,9 @@ int main (int argc, char *argv[]){
   TCut cuts("TMath::Abs(deltaMoverM)<=0.02 && bdtoutput >= -0.05");
 
   factory->PrepareTrainingAndTestTree( cuts, cuts, "SplitMode=Random:NormMode=NumEvents:!V" );
-
   if (Methods_["BDTG"]) // gradient boosted decision trees
-    factory->BookMethod( TMVA::Types::kBDT, "BDTG", "!H:!V:NTrees=200:MaxDepth=3:BoostType=Grad:Shrinkage=0.10:UseBaggedGrad:GradBaggingFraction=0.50:nCuts=20:NNodesMax=8"); 
+    //factory->BookMethod( TMVA::Types::kBDT, "BDTG", "!H:!V:NTrees=200:MaxDepth=3:BoostType=Grad:Shrinkage=0.10:UseBaggedGrad:GradBaggingFraction=0.50:nCuts=20:NNodesMax=8"); 
+    factory->BookMethod( TMVA::Types::kBDT, "BDTG", "!H:!V:NTrees=1000:BoostType=Grad:Shrinkage=0.10:UseBaggedGrad:GradBaggingFraction=0.5:nCuts=20:NNodesMax=5"); 
   if (Methods_["MLP"]) // neural network
     factory->BookMethod( TMVA::Types::kMLP, "MLP", "!H:!V:NeuronType=tanh:NCycles=300:HiddenLayers=N+5,5:TestRate=5:EstimatorType=MSE");   
   if (Methods_["FDA_GA"]) // functional discriminant with GA minimizer
@@ -219,7 +222,7 @@ int main (int argc, char *argv[]){
   if (Methods_["PDEFoam"]) // PDE-Foam approach
     factory->BookMethod( TMVA::Types::kPDEFoam, "PDEFoam", "!H:!V:TailCut=0.001:VolFrac=0.0666:nActiveCells=500:nSampl=2000:nBin=5:Nmin=100:Kernel=None:Compress=T" );
 
-  /*
+/*
   // To do multiple tests of one BDT use e.g
   int nTrees[3] = {100,200,500};
   int maxDepth[4] = {3,5,10,50};
@@ -236,8 +239,8 @@ int main (int argc, char *argv[]){
       }
     }
   }
-  */
-
+*/
+  if (optimize_) factory->OptimizeAllMethodsForClassification();
   // Train MVAs using the set of training events
   if (!skipTraining_) factory->TrainAllMethods();
 
