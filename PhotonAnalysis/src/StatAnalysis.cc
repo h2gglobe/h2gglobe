@@ -395,18 +395,19 @@ void StatAnalysis::Init(LoopAll& l)
     // Configurable background model
     // if no configuration was given, set some defaults
     std::string postfix=(dataIs2011?"":"_8TeV");
+
     if( bkgPolOrderByCat.empty() ) {
-	for(int i=0; i<nCategories_; i++){
-	    if(i<nInclusiveCategories_) {
-		bkgPolOrderByCat.push_back(5);
-	    } else if(i<nInclusiveCategories_+nVBFCategories){
-		bkgPolOrderByCat.push_back(3);
-	    } else if(i<nInclusiveCategories_+nVBFCategories+nVHhadCategories){
-		bkgPolOrderByCat.push_back(2);
-	    } else if(i<nInclusiveCategories_+nVBFCategories+nVHhadCategories+nVHlepCategories){
-		bkgPolOrderByCat.push_back(1);
+	    for(int i=0; i<nCategories_; i++){
+	        if(i<nInclusiveCategories_) {
+	    	bkgPolOrderByCat.push_back(5);
+	        } else if(i<nInclusiveCategories_+nVBFCategories){
+	    	bkgPolOrderByCat.push_back(3);
+	        } else if(i<nInclusiveCategories_+nVBFCategories+nVHhadCategories){
+	    	bkgPolOrderByCat.push_back(2);
+	        } else if(i<nInclusiveCategories_+nVBFCategories+nVHhadCategories+nVHlepCategories){
+	    	bkgPolOrderByCat.push_back(1);
+	        }
 	    }
-	}
     }
     // build the model
     buildBkgModel(l, postfix);
@@ -529,48 +530,48 @@ void StatAnalysis::buildBkgModel(LoopAll& l, const std::string & postfix)
     std::map<int, std::pair<std::vector<int>, std::vector<std::string> > > catmodels;
     // fill the map
     for(int icat=0; icat<nCategories_; ++icat) {
-	// get the poly order for this category
-	int catmodel = bkgPolOrderByCat[icat];
-	std::vector<int> & catflags = catmodels[catmodel].first;
-	std::vector<std::string> & catpars = catmodels[catmodel].second;
-	// if this is the first time we find this order, build the parameters
-	if( catflags.empty() ) {
-	    assert( catpars.empty() );
-	    // by default no category has the new model
-	    catflags.resize(nCategories_, 0);
-	    std::string & parname = parnames[catmodel];
-	    if( catmodel > 0 ) {
-		for(int iorder = 0; iorder<catmodel; ++iorder) {
-		    catpars.push_back( Form( "CMS_hgg_%s%d%s", parname.c_str(), iorder, +postfix.c_str() ) );
-		}
-	    } else {
-		if( catmodel != -1 ) {
-		    std::cout << "The only supported negative bkg poly order is -1, ie 1-parmeter power law" << std::endl;
+        // get the poly order for this category
+        int catmodel = bkgPolOrderByCat[icat];
+        std::vector<int> & catflags = catmodels[catmodel].first;
+        std::vector<std::string> & catpars = catmodels[catmodel].second;
+        // if this is the first time we find this order, build the parameters
+        if( catflags.empty() ) {
+            assert( catpars.empty() );
+            // by default no category has the new model
+            catflags.resize(nCategories_, 0);
+            std::string & parname = parnames[catmodel];
+            if( catmodel > 0 ) {
+                for(int iorder = 0; iorder<catmodel; ++iorder) {
+                    catpars.push_back( Form( "CMS_hgg_%s%d%s", parname.c_str(), iorder, +postfix.c_str() ) );
+                }
+            } else {
+                if( catmodel != -1 ) {
+                    std::cout << "The only supported negative bkg poly order is -1, ie 1-parmeter power law" << std::endl;
                     assert( 0 );
                 }
-		catpars.push_back( Form( "CMS_hgg_%s%d%s", parname.c_str(), 0, +postfix.c_str() ) );
-	    }
-	} else if ( catmodel != -1 ) {
-	    assert( catflags.size() == nCategories_ && catpars.size() == catmodel );
-	}
-	// chose category order
-	catflags[icat] = 1;
+                catpars.push_back( Form( "CMS_hgg_%s%d%s", parname.c_str(), 0, +postfix.c_str() ) );
+            }
+        } else if ( catmodel != -1 ) {
+            assert( catflags.size() == nCategories_ && catpars.size() == catmodel );
+        }
+        // chose category order
+        catflags[icat] = 1;
     }
     
     // now loop over the models and allocate the pdfs
     /// for(size_t imodel=0; imodel<catmodels.size(); ++imodel ) {
     for(std::map<int, std::pair<std::vector<int>, std::vector<std::string> > >::iterator modit = catmodels.begin();
-	modit!=catmodels.end(); ++modit ) {
-	std::vector<int> & catflags = modit->second.first;
-	std::vector<std::string> & catpars = modit->second.second;
-	
-	if( modit->first > 0 ) {
-	    l.rooContainer->AddSpecificCategoryPdf(&catflags[0],"data_pol_model"+postfix,
-						   "0","CMS_hgg_mass",catpars,70+catpars.size()); 
-	    // >= 71 means RooBernstein of order >= 1
-	} else {
+    modit!=catmodels.end(); ++modit ) {
+        std::vector<int> & catflags = modit->second.first;
+        std::vector<std::string> & catpars = modit->second.second;
+    
+        if( modit->first > 0 ) {
             l.rooContainer->AddSpecificCategoryPdf(&catflags[0],"data_pol_model"+postfix,
-                                                   "0","CMS_hgg_mass",catpars,6);
+                "0","CMS_hgg_mass",catpars,70+catpars.size()); 
+            // >= 71 means RooBernstein of order >= 1
+        } else {
+            l.rooContainer->AddSpecificCategoryPdf(&catflags[0],"data_pol_model"+postfix,
+                "0","CMS_hgg_mass",catpars,6);
             // 6 is power law                                                                                                                     
         }
     }
