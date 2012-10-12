@@ -69,8 +69,6 @@ phoidMvaCut=-0.3
 
 # BDT categories
 bdtCategoryBoundaries=1,0.89,0.74,0.545,0.05
-photonIDMVAShift_EB=0.
-photonIDMVAShift_EE=0.
 
 efficiencyFile=aux/sig_reweighing_jan16rereco_mva_v2.root
 

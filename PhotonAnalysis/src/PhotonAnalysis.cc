@@ -46,6 +46,10 @@ PhotonAnalysis::PhotonAnalysis()  :
     recorrectJets = false;
     rerunJetMva = false;
     recomputeJetWp = false;
+    applyJer = false;
+    jerShift = 0.;
+    applyJecUnc = false;
+    jecShift = 0.;
     jetHandler_ = 0;
 
     reComputeCiCPF = false;
@@ -74,6 +78,7 @@ PhotonAnalysis::PhotonAnalysis()  :
     mvaVbfUsePhoPt=true;
     bookDiPhoCutsInVbf=false;
     multiclassVbfSelection=false;
+    vbfVsDiphoVbfSelection=false;
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -611,6 +616,11 @@ void PhotonAnalysis::Init(LoopAll& l)
     l.SetCutVariables("cut_VBF_Mgg4_100_180",   &myVBF_Mgg);   
     l.SetCutVariables("cut_VBF_Mgg2_100_180",   &myVBF_Mgg);
     
+    if( vbfVsDiphoVbfSelection ) {
+	multiclassVbfSelection = true;
+	assert(mvaVbfCatBoundaries.empty() );
+	mvaVbfCatBoundaries = multiclassVbfCatBoundaries0;
+    }
     if( mvaVbfSelection || multiclassVbfSelection || bookDiPhoCutsInVbf  ) {
         l.SetCutVariables("cut_VBF_DiPhoPtOverM",   &myVBFDiPhoPtOverM);
         l.SetCutVariables("cut_VBF_LeadPhoPtOverM", &myVBFLeadPhoPtOverM);
@@ -1042,7 +1052,7 @@ void PhotonAnalysis::Init(LoopAll& l)
 	puTargetFile->Close();
     }
     
-    if( recomputeBetas || recorrectJets || rerunJetMva || recomputeJetWp || l.typerun != l.kFill ) {
+    if( recomputeBetas || recorrectJets || rerunJetMva || recomputeJetWp || applyJer || applyJecUnc || l.typerun != l.kFill ) {
 	std::cout << "JetHandler: \n" 
 		  << "recomputeBetas " << recomputeBetas << "\n" 
 		  << "recorrectJets " << recorrectJets << "\n" 
@@ -1607,6 +1617,13 @@ void PhotonAnalysis::postProcessJets(LoopAll & l, int vtx)
 	for(int ijet=0; ijet<l.jet_algoPF1_n; ++ijet) {
 	    if( recorrectJets ) {
 		jetHandler_->recomputeJec(ijet, true);
+	    }
+	    if( applyJer ) {
+		jetHandler_->applyJerUncertainty(ijet, jerShift);
+	    }
+	    if( applyJecUnc ) {
+		jetHandler_->applyJecUncertainty(ijet, jecShift);
+
 	    }
 	}
     }
@@ -3631,10 +3648,10 @@ bool PhotonAnalysis::VBFTag2012(int & ijet1, int & ijet2,
 	    if(nm1 && myVBF_Mgg>massMin && myVBF_Mgg<massMax) { 
 		l.FillCutPlots(0,1,"_nminus1",eventweight,myweight); 
 	    }
-	    if (!multiclassVbfSelection){
+	    if (!multiclassVbfSelection || vbfVsDiphoVbfSelection ){
 		myVBF_MVA = tmvaVbfReader_->EvaluateMVA(mvaVbfMethod);
 		tag       = (myVBF_MVA > mvaVbfCatBoundaries.back());
-	    }
+	    } 
 	    else {
 		myVBF_MVA0 = tmvaVbfReader_->EvaluateMulticlass(mvaVbfMethod)[0]; // signal vbf
 		myVBF_MVA1 = tmvaVbfReader_->EvaluateMulticlass(mvaVbfMethod)[1]; // dipho

@@ -6,14 +6,22 @@ subleadEtVBFCut=30
 
 mvaVbfCatBoundaries=1.,0.985,0.93 
 
-multiclassVbfSelection=0
-#multiclassVbfCatBoundaries0=1.000,0.978,0.919
-#multiclassVbfCatBoundaries1=1.000,0.990,0.960
-#multiclassVbfCatBoundaries2=1.,0.
-multiclassVbfCatBoundaries0=1.000,0.911,0.556
-multiclassVbfCatBoundaries1=1.000,0.
-multiclassVbfCatBoundaries2=1.,0.99,0.98
-#mvaVbfWeights=aux/TMVA_multiclass_vbf_diphopt_phopt_BDTG.weights.xml
+## Multi class selection
+### multiclassVbfSelection=0
+### #multiclassVbfCatBoundaries0=1.000,0.978,0.919
+### #multiclassVbfCatBoundaries1=1.000,0.990,0.960
+### #multiclassVbfCatBoundaries2=1.,0.
+### multiclassVbfCatBoundaries0=1.000,0.911,0.556
+### multiclassVbfCatBoundaries1=1.000,0.
+### multiclassVbfCatBoundaries2=1.,0.99,0.98
+### #mvaVbfWeights=aux/TMVA_multiclass_vbf_diphopt_phopt_BDTG.weights.xml
+
+## ## 2D VBF vs dipho MVA
+## vbfVsDiphoVbfSelection=1
+## mvaVbfCatBoundaries=
+## multiclassVbfCatBoundaries0=1.,0.985,0.93
+## multiclassVbfCatBoundaries1=1.,0.5,-0.05
+## multiclassVbfCatBoundaries2=10.,-10.
 
 ## mvaVbfCatBoundaries=1.,0.985,0.968,0.92 
 

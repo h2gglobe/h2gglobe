@@ -18,8 +18,6 @@ MassFactorizedMvaAnalysis::MassFactorizedMvaAnalysis()  :
     systRange  = 3.; // in units of sigma
     nSystSteps = 1;
 
-    photonIDMVAShift_EB = 0.;
-    photonIDMVAShift_EE = 0.;
     forceStdPlotsOnZee = false;
 
 }
@@ -529,6 +527,43 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
     // FIXME book of additional variables
 }
 
+
+
+///// float MassFactorizedMvaAnalysis::getDiphoMva(LoopAll & l, int diphotonId, bool smear, float syst_shift) 
+///// {
+/////     massResolutionCalculator->Setup(l,&photonInfoCollection[l.dipho_leadind[diphotonId]],&photonInfoCollection[l.dipho_subleadind[diphotonId]],diphotonId,
+///// 				    eSmearPars,nR9Categories,nEtaCategories,beamspotSigma);
+/////     float vtx_mva  = l.vtx_std_evt_mva->at(diphotonId);
+/////     sigmaMrv = massResolutionCalculator->massResolutionEonly();
+/////     sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
+/////     float sigmaMeonly = massResolutionCalculator->massResolutionEonly();
+/////     // easy to calculate vertex probability from vtx mva output
+/////     float vtxProb   = 1.-0.49*(vtx_mva+1.0); /// should better use this: vtxAna_.setPairID(diphotonId); vtxAna_.vertexProbability(vtx_mva); PM
+/////     
+/////     float phoid_mvaout_lead = ( dataIs2011 ? 
+///// 				l.photonIDMVA(l.dipho_leadind[diphotonId],l.dipho_vtxind[diphotonId],
+///// 					      lead_p4,bdtTrainingPhilosophy.c_str()) :
+///// 				l.photonIDMVANew(l.dipho_leadind[diphotonId],l.dipho_vtxind[diphotonId],
+///// 						 lead_p4,bdtTrainingPhilosophy.c_str()));
+/////     float phoid_mvaout_sublead = ( dataIs2011 ? 
+///// 				   l.photonIDMVA(l.dipho_subleadind[diphotonId],l.dipho_vtxind[diphotonId],
+///// 						 sublead_p4,bdtTrainingPhilosophy.c_str()) : 
+///// 				   l.photonIDMVANew(l.dipho_subleadind[diphotonId],l.dipho_vtxind[diphotonId],
+///// 						    sublead_p4,bdtTrainingPhilosophy.c_str()));
+/////     // apply di-photon level smearings and corrections
+/////     int selectioncategory = l.DiphotonCategory(l.dipho_leadind[diphotonId],l.dipho_subleadind[diphotonId],Higgs.Pt(),nEtaCategories,nR9Categories,0);
+/////     if( smear && ur_type != 0 ) {
+///// 	applyDiPhotonSmearings(Higgs, *vtx, selectioncategory, cur_type, *((TVector3*)l.gv_pos->At(0)), evweight, 
+///// 			       phoid_mvaout_lead,phoid_mvaout_sublead,
+///// 			       diPhoSys, syst_shift);
+/////     }
+/////     
+/////     return l.diphotonMVA(l.dipho_leadind[diphotonId],l.dipho_subleadind[diphotonId],l.dipho_vtxind[diphotonId] ,
+///// 			 vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMeonly,
+///// 			 bdtTrainingPhilosophy.c_str(),
+///// 			 phoid_mvaout_lead,phoid_mvaout_sublead);
+///// }
+
 bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentzVector & gP4,
                          float & mass, float & evweight, int & category, int & diphoton_id, bool & isCorrectVertex, float &kinematic_bdtout,
                          bool isSyst, 
@@ -625,7 +660,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
             VBFevent= ( dataIs2011 ? 
                 VBFTag2011(l, diphotonVBF_id, &smeared_pho_energy[0], true, eventweight, myweight) :
                 VBFTag2012(ijet1, ijet2, l, diphotonVBF_id, &smeared_pho_energy[0], true, eventweight, myweight) );
-            // FIXME  need to un-flag events failing the diphoton mva cut.
+
         }
     
         if(includeVHlep&&VHmuevent){
@@ -682,7 +717,8 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
         }
 
         // Mass Resolution of the Event
-        massResolutionCalculator->Setup(l,&photonInfoCollection[diphoton_index.first],&photonInfoCollection[diphoton_index.second],diphoton_id,eSmearPars,nR9Categories,nEtaCategories,beamspotSigma);
+        massResolutionCalculator->Setup(l,&photonInfoCollection[diphoton_index.first],&photonInfoCollection[diphoton_index.second],diphoton_id,
+					eSmearPars,nR9Categories,nEtaCategories,beamspotSigma);
         float vtx_mva  = l.vtx_std_evt_mva->at(diphoton_id);
         sigmaMrv = massResolutionCalculator->massResolutionEonly();
         sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
@@ -694,23 +730,24 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
                     l.photonIDMVA(diphoton_index.first,l.dipho_vtxind[diphoton_id],
                           lead_p4,bdtTrainingPhilosophy.c_str()) :
                     l.photonIDMVANew(diphoton_index.first,l.dipho_vtxind[diphoton_id],
-                             lead_p4,bdtTrainingPhilosophy.c_str()) + photonIDMVAShift_EB );
+                             lead_p4,bdtTrainingPhilosophy.c_str()) );
         float phoid_mvaout_sublead = ( dataIs2011 ? 
                        l.photonIDMVA(diphoton_index.second,l.dipho_vtxind[diphoton_id],
                              sublead_p4,bdtTrainingPhilosophy.c_str()) : 
                        l.photonIDMVANew(diphoton_index.second,l.dipho_vtxind[diphoton_id],
-                            sublead_p4,bdtTrainingPhilosophy.c_str()) + photonIDMVAShift_EE );
-    // apply di-photon level smearings and corrections
+					sublead_p4,bdtTrainingPhilosophy.c_str()));
+	// apply di-photon level smearings and corrections
         int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,0);
         if( cur_type != 0 && doMCSmearing ) {
-        applyDiPhotonSmearings(Higgs, *vtx, selectioncategory, cur_type, *((TVector3*)l.gv_pos->At(0)), evweight, 
-                   phoid_mvaout_lead,phoid_mvaout_sublead,
-                   diPhoSys, syst_shift);
+	    applyDiPhotonSmearings(Higgs, *vtx, selectioncategory, cur_type, *((TVector3*)l.gv_pos->At(0)), evweight, 
+				   phoid_mvaout_lead,phoid_mvaout_sublead,
+				   diPhoSys, syst_shift);
             isCorrectVertex=(*vtx- *((TVector3*)l.gv_pos->At(0))).Mag() < 1.;
         }
-                           
+	
         // Must be calculated after photon id has potentially been smeared
-        //fillTrainTree(l,diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id] ,vtxProb,lead_p4,sublead_p4 ,sigmaMrv,sigmaMwv,sigmaMeonly ,bdtTrainingPhilosophy.c_str() ,phoid_mvaout_lead,phoid_mvaout_sublead);
+        //fillTrainTree(l,diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id] ,
+	/// vtxProb,lead_p4,sublead_p4 ,sigmaMrv,sigmaMwv,sigmaMeonly ,bdtTrainingPhilosophy.c_str() ,phoid_mvaout_lead,phoid_mvaout_sublead);
         float diphobdt_output = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id] ,
                           vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMeonly,
                           bdtTrainingPhilosophy.c_str(),

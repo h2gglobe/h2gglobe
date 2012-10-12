@@ -13,9 +13,11 @@ JetHandler::JetHandler(const std::string & cfg, LoopAll & l):
     
     jecCorData_ = 0;
     jecCorMc_   = 0;
+    jecUnc_     = 0;
     edm::ParameterSet jec = myPset->getParameter<edm::ParameterSet>("jec");
     std::vector<std::string> dataJEC = jec.getParameter<std::vector<std::string> >("data");
     std::vector<std::string> mcJEC   = jec.getParameter<std::vector<std::string> >("mc");
+    std::string                unc   = jec.getParameter<std::string>("unc");
     
     for(std::vector<std::string>::iterator corr = dataJEC.begin(); corr!=dataJEC.end(); ++corr) {
 	std::cout << "JetHandler JEC data " << *corr << std::endl;
@@ -34,6 +36,17 @@ JetHandler::JetHandler(const std::string & cfg, LoopAll & l):
 	std::cout << "Booking JEC MC " << std::endl;
     	jecCorMc_ = new FactorizedJetCorrector(jetCorParsMc_);
     }
+    if( ! unc.empty() ) { 
+	std::cout << "Booking JEC uncertainties " << unc << std::endl;
+	JetCorrectorParameters params (unc, "");
+	jecUnc_ = new JetCorrectionUncertainty( params );
+    }
+
+    edm::ParameterSet jer = myPset->getParameter<edm::ParameterSet>("jer");
+    jerEtaBins_  = jer.getParameter<std::vector<double> >("etaBins");
+    jerResSf_    = jer.getParameter<std::vector<double> >("resSf");
+    jerResSfErr_ = jer.getParameter<std::vector<double> >("resSfErr");
+
 }
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -45,6 +58,7 @@ JetHandler::~JetHandler()
     
     if( jecCorData_ != 0 ) { delete jecCorData_; }
     if( jecCorMc_ != 0 )   { delete jecCorMc_;   }
+    if( jecUnc_ != 0 )     { delete jecUnc_;   }
 }
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -242,6 +256,36 @@ void JetHandler::recomputeJec(int ijet, bool correct)
     ////  		  << " " << p4->Pt() << std::endl;
     //// }
 }
+
+// ---------------------------------------------------------------------------------------------------------------
+void JetHandler::applyJecUncertainty(int ijet, float shift)
+{
+    TLorentzVector * p4 = (TLorentzVector*)l_.jet_algoPF1_p4->At(ijet);
+    double eta = p4->Eta();
+    double ptCor = p4->Pt();
+    
+    jecUnc_->setJetEta(eta);
+    jecUnc_->setJetPt(ptCor); // here you must use the CORRECTED jet pt
+    double unc = shift*fabs(jecUnc_->getUncertainty(shift > 0.));
+    *p4 *= 1. + unc;
+}
+
+// ---------------------------------------------------------------------------------------------------------------
+void JetHandler::applyJerUncertainty(int ijet, float shift)
+{
+    TLorentzVector * p4 = (TLorentzVector*)l_.jet_algoPF1_p4->At(ijet);
+    double eta = p4->Eta();
+    double ptCor = p4->Pt();
+    double genPt = l_.jet_algoPF1_genPt[ijet];
+
+    std::vector<double>::iterator bound =  std::lower_bound( jerEtaBins_.begin(), jerEtaBins_.end(), eta );
+    int bin = bound - jerEtaBins_.begin();
+    double resSf = jerResSf_[bin] + shift*jerResSfErr_[bin]; 
+
+    double jetSf=max(0.,(genPt+resSf*(ptCor-genPt)))/ptCor;
+    *p4 *= jetSf;
+}
+
 
 // Local Variables:
 // mode: c++

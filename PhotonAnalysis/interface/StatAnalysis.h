@@ -105,7 +105,7 @@ class StatAnalysis : public PhotonAnalysis
     std::vector<float> smeared_pho_r9;
     std::vector<float> smeared_pho_weight;
 
-    void  computeExclusiveCategory(LoopAll & l, int & category, std::pair<int,int> diphoton_index, float pt);	
+    void  computeExclusiveCategory(LoopAll & l, int & category, std::pair<int,int> diphoton_index, float pt, float diphoBDT=1. );	
     int  categoryFromBoundaries(std::vector<float> & v, float val);
     int  categoryFromBoundaries2D(std::vector<float> & v1, std::vector<float> & v2, std::vector<float> & v3, float val1, float val2, float val3);
 

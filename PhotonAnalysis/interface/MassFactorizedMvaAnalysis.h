@@ -73,7 +73,6 @@ class MassFactorizedMvaAnalysis : public StatAnalysis
     std::string photonLevelNewIDMVA_EE;
 
     std::vector<float> bdtCategoryBoundaries;
-    float photonIDMVAShift_EB, photonIDMVAShift_EE;
     
  protected:
 

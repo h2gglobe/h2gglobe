@@ -240,30 +240,30 @@ def dataMcComparison(data, bkg, sig, plots, categories=[0], savefmts=["C","png",
 
             plotname, plotmodifs, drawopts, legPos = plot
             dm, dataopt, bkgopt, sigopt = drawopts
-
+            
             bkghists = []
             sighists = []
             datahists = []
-
+            
             # read background MC
             if bkg != None:
                 bkgfile, bkgprocs = bkg
                 bkghists = [ readProc(bkgfile,*subprocs,plot=plotname,plotmodifs=plotmodifs,category=cat) for subprocs in bkgprocs ]
-
+                
             # read signal MC
             if sig != None:
                 sigfile, sigprocs = sig
                 sighists = [ readProc(sigfile,*subprocs,plot=plotname,plotmodifs=plotmodifs,category=cat) for subprocs in sigprocs ]
-
+                
             # read data
             if data != None:
                 datafile, dataprocs = data
                 datahists = [ readProc(datafile,*subprocs,plot=plotname,plotmodifs=plotmodifs,category=cat) for subprocs in dataprocs ]
-
+                
             # collect histograms
             allhists = datahists+bkghists+sighists
             objs += allhists
-
+            
             # make empty frame histogram for convenience
             frame = allhists[0].Clone()
             frame.Reset("ICE")
@@ -386,7 +386,7 @@ if __name__ == "__main__":
     #
     # datasets to be plot
     #
-    mcFudge = 1.4*2.
+    mcFudge = 2.
 
     # data
     data = [ fdata, [ ("data", "data",
@@ -406,13 +406,18 @@ if __name__ == "__main__":
                          }
                        ),
                       ("pp","1 Prompt #gamma 1 Fake #gamma",
-                       [(setcolors,406),(legopt,"f"),("Scale",1.4)],
+                       [(setcolors,406),(legopt,"f"),("Scale",mcFudge)],
                        { ## "qcd_30_8TeV_pf"   : [("Smooth",25)],
                          ## "qcd_40_8TeV_pf"   : [("Smooth",25)],
                         "gjet_20_8TeV_pf"  : [],
                         "gjet_40_8TeV_pf"  : []
                         }
                        ),
+                      ### ("dy","Z/#gamma^{*} #rightarrow ee",
+                      ###  [(setcolors,606),(legopt,"f"),("Scale",mcFudge)],
+                      ###  { "DYJetsToLL"  : []
+                      ###   }
+                      ###  ),
                       ]
              ]
     # signal
@@ -431,7 +436,7 @@ if __name__ == "__main__":
     objs=dataMcComparison( data = data,
                            sig = sig,
                            bkg = bkg,
-                           plots = [ ("vbf_mva",[("SetBinContent",(1,0.)),("Rebin",5),(xrange,(-1.,1)),
+                           plots = [ ("vbf_mva",[("SetBinContent",(1,0.)),("Rebin",2),(xrange,(-1.,1)),
                                                  ("SetBinError",(1,0.)),(xtitle,"MVA"),## (ytitle,"A.U.")
                                                  (ytitle,"Events/%(binw)1.2g")
                                                  ],

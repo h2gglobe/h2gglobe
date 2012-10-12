@@ -603,7 +603,10 @@ bool StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     }
 
     l.FillCounter( "Processed", 1. );
-    assert( weight > 0. );  
+    if( weight <= 0. ) { 
+	std::cout << "Zero or negative weight " << cur_type << " " << weight << std::endl;
+	assert( 0 );  
+    }
     l.FillCounter( "XSWeighted", weight );
     nevents+=1.;
 
@@ -1056,7 +1059,7 @@ void StatAnalysis::FillRooContainer(LoopAll& l, int cur_type, float mass, float 
 	l.FillTree("vbfMVA0",myVBF_MVA0);
 	l.FillTree("vbfMVA1",myVBF_MVA1);
 	l.FillTree("vbfMVA2",myVBF_MVA2);
-	l.FillTree("VBFevent", VBFevent);
+	/// l.FillTree("VBFevent", VBFevent);
 	if( myVBF_MVA > -2. ||  myVBF_MVA0 > -2 || myVBF_MVA1 > -2 || myVBF_MVA2 > -2 || VBFevent ) {
 	    l.FillTree("deltaPhiJJ",myVBF_deltaPhiJJ);
 	    l.FillTree("deltaPhiGamGam", myVBF_deltaPhiGamGam);
@@ -1131,21 +1134,24 @@ void StatAnalysis::FillRooContainerSyst(LoopAll& l, const std::string &name, int
 }
 
 // ----------------------------------------------------------------------------------------------------
-void StatAnalysis::computeExclusiveCategory(LoopAll & l, int & category, std::pair<int,int> diphoton_index, float pt)
+void StatAnalysis::computeExclusiveCategory(LoopAll & l, int & category, std::pair<int,int> diphoton_index, float pt, float diphobdt_output)
 {
     if(VHmuevent) {
-	    category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories + ( (int)includeVHhad )*nVHhadEtaCategories;
-        if(nMuonCategories>1) category+=VHmuevent_cat;  
+	category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories + ( (int)includeVHhad )*nVHhadEtaCategories;
+	if(nMuonCategories>1) category+=VHmuevent_cat;
     } else if(VHelevent) { 
 	    category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories + ( (int)includeVHhad )*nVHhadEtaCategories + nMuonCategories;
         if(nElectronCategories>1) category+=VHelevent_cat;  
     } else if(VBFevent) {
 	    category=nInclusiveCategories_;
 	    if( mvaVbfSelection ) { 
-	        if (!multiclassVbfSelection) 
+	        if (!multiclassVbfSelection) {
 		    category += categoryFromBoundaries(mvaVbfCatBoundaries, myVBF_MVA);
-	        else 
+		} else if ( vbfVsDiphoVbfSelection ) {
+		    category += categoryFromBoundaries2D(multiclassVbfCatBoundaries0, multiclassVbfCatBoundaries1, multiclassVbfCatBoundaries2, myVBF_MVA, diphobdt_output, 1.);
+	        } else {
 		    category += categoryFromBoundaries2D(multiclassVbfCatBoundaries0, multiclassVbfCatBoundaries1, multiclassVbfCatBoundaries2, myVBF_MVA0, myVBF_MVA1, myVBF_MVA2);
+		}
 	    } 
  	    else {
 	        category += l.DiphotonCategory(diphoton_index.first,diphoton_index.second,pt,nVBFEtaCategories,1,1) 

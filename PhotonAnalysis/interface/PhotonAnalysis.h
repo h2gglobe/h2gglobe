@@ -290,7 +290,7 @@ class PhotonAnalysis : public BaseAnalysis
     
     bool bookDiPhoCutsInVbf;
     bool mvaVbfSelection, mvaVbfUseDiPhoPt, mvaVbfUsePhoPt;
-    bool multiclassVbfSelection;
+    bool multiclassVbfSelection, vbfVsDiphoVbfSelection;
     TString mvaVbfWeights, mvaVbfMethod; 
     std::vector<float> mvaVbfCatBoundaries;
     std::vector<float> multiclassVbfCatBoundaries0;
@@ -301,6 +301,8 @@ class PhotonAnalysis : public BaseAnalysis
     bool  doMCSmearing, doSystematics;
 
     bool recomputeBetas, recorrectJets, rerunJetMva, recomputeJetWp;
+    bool applyJer, applyJecUnc;
+    float jerShift, jecShift;
     std::string jetHandlerCfg;
 
     // progress

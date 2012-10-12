@@ -10,6 +10,7 @@
 #include "CMGTools/External/interface/PileupJetIdAlgo.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 #include "CondFormats/JetMETObjects/interface/FactorizedJetCorrector.h"
+#include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PythonParameterSet/interface/MakeParameterSets.h"
@@ -32,7 +33,9 @@ public:
     void computeWp(int ijet, int ivtx=-1);
     
     void recomputeJec(int ijet, bool correct=false);
-    
+    void applyJecUncertainty(int ijet, float shift);
+    void applyJerUncertainty(int ijet, float shift);
+
     void bookFlatTree(TTree * tree);
     
     virtual ~JetHandler();
@@ -43,7 +46,10 @@ private:
     PileupJetIdentifier internalId_;
     
     FactorizedJetCorrector *jecCorData_, *jecCorMc_;
+    JetCorrectionUncertainty *jecUnc_;
     std::vector<JetCorrectorParameters> jetCorParsData_, jetCorParsMc_;
+
+    std::vector<double> jerEtaBins_, jerResSf_, jerResSfErr_;
     
     TTree * flatTree;
     boost::shared_ptr<edm::ParameterSet> myPset;

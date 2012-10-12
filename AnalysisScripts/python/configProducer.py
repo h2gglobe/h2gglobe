@@ -56,7 +56,9 @@ class configProducer:
     self.black_list = ["root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/processed/V13_03_05/data/DoublePhotonPromptReco2012B/PromptPhoton2012Data_628_1_MEr.root",
                        "root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/processed/V13_03_05/mc/Summer12_S7_8TeV/VBF_HToGG_M-145_8TeV_sub2/SignalMC_19_2_g4J.root",
                        "root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/processed/V13_03_06/mc/Summer12_S7_8TeV/GluGluToHToGG_M-110_8TeV/Signal_MC_3_1_QrU.root",
-                       "root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/processed/V13_03_06/mc/Summer12_S7_8TeV/GluGluToHToGG_M-120_8TeV/Signal_MC_11_1_YC2.root"
+                       "root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/processed/V13_03_06/mc/Summer12_S7_8TeV/GluGluToHToGG_M-120_8TeV/Signal_MC_11_1_YC2.root",
+                       ## "root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/reduced/HCP2012_freezing_v2/mc/Summer12_S10_8TeV/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1_4.root",
+                       ## "root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/reduced/HCP2012_freezing_v2/mc/Summer12_S10_8TeV/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1_7.root"
                        ]
 
     # configurable from .dat file
@@ -523,7 +525,7 @@ class configProducer:
         lines = [lines]
     for line in lines:
       split_line = line.split()
-
+      ## print split_line
       # check if this line specify a complex structure
       if not "=" in split_line[0]:
         self.read_struct_line(line,struct)
@@ -533,9 +535,10 @@ class configProducer:
         for sp in split_line:
           name,val = [ s.lstrip(" ").rstrip(" ") for s in sp.split("=") ]
           val = self.expand_file(val)
+          ## print val, str(type(struct.__getattribute__(name)))
           try:
 	    if ".root" in val and not "/castor" in val and not os.path.isfile(val): sys.exit("No File found - %s, check the line %s"%(val,line))
-      	    if "," in val or "vector<" in str(type(val)):
+      	    if "," in val or "vector<" in str(type(struct.__getattribute__(name))):
 	     ele = val.split(",")
              value_type = type( type(struct.__getattribute__(name))(1)[0] )
              print value_type
@@ -724,8 +727,10 @@ class configProducer:
       self.is_data_ = False
 
     # First check if its a signal sample we are defining, in which case calculate the x-section and BR
+    ## print map_c["typ"], map_c["xsec"]
     if map_c["typ"] < 0 and map_c["xsec"] < 0: 
       map_c["xsec"] = self.ut_.signalNormalizer.GetXsection(map_c["typ"]) * self.ut_.signalNormalizer.GetBR(map_c["typ"])
+    ## print map_c["typ"], map_c["xsec"]
       
     if fi_name != '':
 
@@ -770,7 +775,8 @@ class configProducer:
     if dir:
       files = mkFiles(dir,self.njobs_,self.jobId_,self.nf_,maxfiles=map_c["maxfiles"])
       if fi_type!=0 and fi_type!=99999 and map_c["tot"] == 0:
-          allfiles = mkFiles(dir,-1,-1,maxfiles=map_c["maxfiles"])
+          allfiles = [ f for f in mkFiles(dir,-1,-1,maxfiles=map_c["maxfiles"]) if not f[0] in self.black_list ]
+          ## print allfiles
           if map_c["pileup"] == "":
               map_c["pileup"] = "%s.pileup.root" % dir
               if( dir.startswith("/store") ):

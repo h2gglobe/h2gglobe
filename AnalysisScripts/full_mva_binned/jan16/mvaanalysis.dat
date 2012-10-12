@@ -37,9 +37,6 @@ phoidMvaCut=-0.3
 # diphoton MVA cut
 diphotonMVAcut=0.05
 
-photonIDMVAShift_EB=0.
-photonIDMVAShift_EE=0.
-
 # Options for the sidebands mH ranges
 # These define how the sidebands are calculated
 
