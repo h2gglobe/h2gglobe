@@ -446,8 +446,17 @@ vector<double> sigEvents(RooWorkspace *work, int m_hyp, int cat){
   return result;
 }
 
+pair<double,double> datEvents(RooWorkspace *work, int m_hyp, int cat){
+  
+  vector<double> result;
+  RooDataSet *data = (RooDataSet*)work->data(Form("data_mass_cat%d",cat));
+  double evs = data->numEntries();
+  double evsPerGev = data->sumEntries(Form("CMS_hgg_mass>=%4.1f && CMS_hgg_mass<%4.1f",double(m_hyp)-0.5,double(m_hyp)+0.5));
+  return pair<double,double>(evs,evsPerGev);
+}
 
-void makeParametricSignalModelPlots(string hggFileName, string pathName, int ncats=9, bool is2011=false, int m_hyp=120, string bkgdatFileName="0", bool doCrossCheck=false, bool doMIT=false, bool rejig=false){
+
+void makeParametricSignalModelPlots(string hggFileName, string pathName, int ncats=9, bool is2011=false, int m_hyp=120, string bkgdatFileName="0", bool blind=true, bool doCrossCheck=false, bool doMIT=false, bool rejig=false){
 
   gROOT->SetBatch();
   gStyle->SetTextFont(42);
@@ -535,6 +544,7 @@ void makeParametricSignalModelPlots(string hggFileName, string pathName, int nca
   
   map<string,pair<double,double> > bkgVals;
   map<string,vector<double> > sigVals;
+  map<string,pair<double,double> > datVals;
 
   // make PAS table
   if (bkgdatFileName!="0"){
@@ -543,6 +553,7 @@ void makeParametricSignalModelPlots(string hggFileName, string pathName, int nca
     for (int cat=0; cat<ncats; cat++){
       bkgVals.insert(pair<string,pair<double,double> >(Form("cat%d",cat),bkgEvPerGeV(bkgWS,m_hyp,cat)));
       sigVals.insert(pair<string,vector<double> >(Form("cat%d",cat),sigEvents(bkgWS,m_hyp,cat)));
+      datVals.insert(pair<string,pair<double,double> >(Form("cat%d",cat),datEvents(bkgWS,m_hyp,cat)));
       //pair<double,double> bkg = bkgEvPerGeV(bkgWS,m_hyp,cat);
       //vector<double> sigs = sigEvents(bkgWS,m_hyp,cat);
     }
@@ -551,14 +562,15 @@ void makeParametricSignalModelPlots(string hggFileName, string pathName, int nca
     FILE *file = fopen(Form("%s/table.tex",pathName.c_str()),"w");
     FILE *nfile = fopen(Form("%s/table.txt",pathName.c_str()),"w");
     printf("--------------------------------------------------------------\n");
-    printf("Cat   SigY    ggh    vbf    wzh    tth   sEff  FWHM  FWHM/2.35  BkgEv/GeV\n");
+    printf("Cat   SigY    ggh    vbf    wzh    tth   sEff  FWHM  FWHM/2.35  BkgEv/GeV    Data  DataEv/GeV\n");
     printf("--------------------------------------------------------------\n");
     fprintf(nfile,"--------------------------------------------------------------\n");
-    fprintf(nfile,"Cat   SigY    ggh    vbf    wzh    tth   sEff  FWHM  FWHM/2.35  BkgEv/GeV\n");
+    fprintf(nfile,"Cat   SigY    ggh    vbf    wzh    tth   sEff  FWHM  FWHM/2.35  BkgEv/GeV    Data  DataEv/GeV\n");
     fprintf(nfile,"--------------------------------------------------------------\n");
     for (int cat=0; cat<ncats; cat++){
       pair<double,double> bkg = bkgVals[Form("cat%d",cat)];
       vector<double> sigs = sigVals[Form("cat%d",cat)];
+      pair<double,double> dat = datVals[Form("cat%d",cat)];
       // cout 
       printf("cat%d  ",cat);
       printf("%5.1f  ",sigs[0]);
@@ -568,8 +580,11 @@ void makeParametricSignalModelPlots(string hggFileName, string pathName, int nca
       printf("%4.1f%%  ",sigs[4]);
       printf("%4.2f  ",sigEffs[Form("cat%d",cat)]);
       printf("%4.2f  ",fwhms[Form("cat%d",cat)]);
-      printf("%4.2f  ",fwhms[Form("cat%d",cat)]/2.35);
+      printf("%4.2f   ",fwhms[Form("cat%d",cat)]/2.35);
       printf("%5.1f +/- %3.1f  ",bkg.first,bkg.second);
+      printf("%6.0f    ",dat.first);
+      if (blind) printf("%7s","----");
+      else printf("%7.1f  ",dat.second);
       printf("\n");
       // print to file
       fprintf(nfile,"cat%d  ",cat);
@@ -580,8 +595,11 @@ void makeParametricSignalModelPlots(string hggFileName, string pathName, int nca
       fprintf(nfile,"%4.1f%%  ",sigs[4]);
       fprintf(nfile,"%4.2f  ",sigEffs[Form("cat%d",cat)]);
       fprintf(nfile,"%4.2f  ",fwhms[Form("cat%d",cat)]);
-      fprintf(nfile,"%4.2f  ",fwhms[Form("cat%d",cat)]/2.35);
+      fprintf(nfile,"%4.2f   ",fwhms[Form("cat%d",cat)]/2.35);
       fprintf(nfile,"%5.1f +/- %3.1f  ",bkg.first,bkg.second);
+      fprintf(nfile,"%6.0f    ",dat.first);
+      if (blind) fprintf(nfile,"%7s","----");
+      else fprintf(nfile,"%7.1f  ",dat.second);
       fprintf(nfile,"\n");
       // print to file
       fprintf(file,"&  cat%d  ",cat);
@@ -594,6 +612,9 @@ void makeParametricSignalModelPlots(string hggFileName, string pathName, int nca
       fprintf(file,"&  %4.2f  ",fwhms[Form("cat%d",cat)]);
       fprintf(file,"&  %4.2f  ",fwhms[Form("cat%d",cat)]/2.35);
       fprintf(file,"&  %5.1f & $\\pm$ %3.1f \\tabularnewline ",bkg.first,bkg.second);
+      fprintf(file,"&  %7.1f  ",dat.first);
+      if (blind) fprintf(file,"& %7s","----");
+      else fprintf(file,"&  %7.1f  ",dat.second);
       fprintf(file,"\n");
     }
     fclose(nfile);
