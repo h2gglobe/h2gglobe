@@ -36,8 +36,8 @@ phoidMvaCut=-0.2
 
 # BDT categories
 bdtCategoryBoundaries=1,0.88,0.71,0.50,-0.05
-photonIDMVAShift_EB=0.
-photonIDMVAShift_EE=0.
+## photonIDMVAShift_EB=0.
+## photonIDMVAShift_EE=0.
 
 # Turn on-off all smearings 
 doMCSmearing=1 
