@@ -157,19 +157,22 @@ def eventYield(filenames,categories=[5,6],procs=["ggh_m125_8TeV","vbf_m125_8TeV"
 def readProc(fin,name,title,style,subproc,plot,plotmodifs,category):
 
     names = subproc.keys()
-    print fin, plot, names
+    print fin, plot, names, name
     histos = readPlot(fin,plot,which=[""],samples=names)[0]
+    print histos
     for iplot in range(len(histos)):
         h = histos[iplot]
         hname = names[iplot]
+        print h,hname
         applyModifs(h,subproc[hname])
 
+    print len(histos)
     sum = histos[0].Clone(name)
     sum.SetTitle(title)
-
+    
     for h in histos[1:]:
         sum.Add(h)
-
+        
     applyModifs(sum,plotmodifs)
     applyModifs(sum,style)
     
@@ -221,7 +224,7 @@ def drawStack(stk, method, option):
             h.Draw("%s SAME" % option)
             ymax = max(ymax, h.GetMaximum()) 
     else:
-        getattr(stk,method.split(",")[0])("%s SAME" % option)
+        getattr(stk,method.split(",")[0])("%s" % option)
         ymax = stk.GetMaximum(option)
         
     return ymax
@@ -284,7 +287,7 @@ def dataMcComparison(data, bkg, sig, plots, categories=[0], savefmts=["C","png",
                 bkgstk = makeStack("bkg_%s_cat%d" % ( plotname, cat), bkghists)
                 ### getattr(bkgstk,dm)("%s SAME" % bkgopt)
                 ### ymax = max(ymax,bkgstk.GetMaximum(bkgopt))
-                ymax = max(ymax,drawStack(bkgstk,dm,bkgopt))
+                ymax = max(ymax,drawStack(bkgstk,dm,"%s SAME"%bkgopt))
                 objs.append(bkgstk)
                 
             # then data
@@ -292,7 +295,7 @@ def dataMcComparison(data, bkg, sig, plots, categories=[0], savefmts=["C","png",
                 datastk = makeStack("data_%s_cat%d" % ( plotname, cat),datahists)
                 ### getattr(datastk,dm)("%s SAME" % dataopt)
                 ### ymax = max(ymax,datastk.GetMaximum())
-                ymax = max(ymax,drawStack(datastk,dm,dataopt))
+                ymax = max(ymax,drawStack(datastk,dm,"%s SAME"%dataopt))
                 objs.append(datastk)
 
             # and finally signal
@@ -300,7 +303,7 @@ def dataMcComparison(data, bkg, sig, plots, categories=[0], savefmts=["C","png",
                 sigstk = makeStack("sig_%s_cat%d" % ( plotname, cat),sighists)
                 ### getattr(sigstk,dm)("%s SAME" % sigopt)
                 ### ymax = max(ymax,sigstk.GetMaximum(sigopt))
-                ymax = max(ymax,drawStack(sigstk,dm,sigopt))
+                ymax = max(ymax,drawStack(sigstk,dm,"%s SAME"%sigopt))
                 objs.append(sigstk)
 
             # make legend

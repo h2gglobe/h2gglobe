@@ -272,8 +272,8 @@ def optimize1D(fin):
     xmin = -1.
     cutoff = 0.015
     
-    ## histos = readPlot(fin,"vbf_mva",0,[""],["vbf_m125_8TeV","diphojet_8TeV"])[0] ## ,"ggh_m125_8TeV"
-    histos = readPlot(fin,"vbf_mva",0,[""],["vbf_m125_8TeV","Data"])[0] ## ,"ggh_m125_8TeV"
+    histos = readPlot(fin,"vbf_mva",0,[""],["vbf_m125_8TeV","diphojet_8TeV"])[0] ## ,"ggh_m125_8TeV"
+    ## histos = readPlot(fin,"vbf_mva",0,[""],["vbf_m125_8TeV","Data"])[0] ## ,"ggh_m125_8TeV"
     ## histos = readPlot(fin,"vbf_mva",0,[""],["vbf_m125_8TeV","ggh_m125_8TeV"])[0]
     sig = histos[0]
     bkg = histos[1].Clone()
