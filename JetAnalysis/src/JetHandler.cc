@@ -191,6 +191,14 @@ void JetHandler::fillFromJet(int ijet, int ivtx)
 void JetHandler::computeMva(int ijet, int ivtx)
 {
     fillFromJet(ijet,ivtx);
+    if( (*l_.jet_algoPF1_full_mva_ext)[ijet].size() <= ivtx ) {
+	(*l_.jet_algoPF1_full_mva_ext)[ijet].resize(ivtx+1);
+	(*l_.jet_algoPF1_full_wp_level_ext)[ijet].resize(ivtx+1);
+	(*l_.jet_algoPF1_simple_mva_ext)[ijet].resize(ivtx+1);
+	(*l_.jet_algoPF1_simple_wp_level_ext)[ijet].resize(ivtx+1);
+	(*l_.jet_algoPF1_cutbased_wp_level_ext)[ijet].resize(ivtx+1);
+    }
+
     
     // full->set(internalId_);
     PileupJetIdentifier fullId = full->computeMva();
@@ -214,6 +222,14 @@ void JetHandler::computeMva(int ijet, int ivtx)
 void JetHandler::computeWp(int ijet, int ivtx)
 {
     TLorentzVector * p4 = (TLorentzVector*)l_.jet_algoPF1_p4->At(ijet);
+
+    if( (*l_.jet_algoPF1_full_mva_ext)[ijet].size() <= ivtx ) {
+	(*l_.jet_algoPF1_full_mva_ext)[ijet].resize(ivtx+1);
+	(*l_.jet_algoPF1_full_wp_level_ext)[ijet].resize(ivtx+1);
+	(*l_.jet_algoPF1_simple_mva_ext)[ijet].resize(ivtx+1);
+	(*l_.jet_algoPF1_simple_wp_level_ext)[ijet].resize(ivtx+1);
+	(*l_.jet_algoPF1_cutbased_wp_level_ext)[ijet].resize(ivtx+1);
+    }
     
     (*l_.jet_algoPF1_full_wp_level_ext)[ijet][ivtx] 
 	= full->computeIDflag( (*l_.jet_algoPF1_full_mva_ext)[ijet][ivtx], (float)p4->Pt(), (float)p4->Eta());

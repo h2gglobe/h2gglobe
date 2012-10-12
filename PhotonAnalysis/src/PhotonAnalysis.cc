@@ -1629,7 +1629,7 @@ void PhotonAnalysis::postProcessJets(LoopAll & l, int vtx)
     }
     for(int ivtx=minv;ivtx<maxv; ++ivtx) {
 	for(int ijet=0; ijet<l.jet_algoPF1_n; ++ijet) {
-	    if( recomputeBetas || (l.version > 14 && ivtx >= l.jet_algoPF1_nvtx) ) {
+	    if( recomputeBetas || (l.typerun != l.kFill && l.version > 14 && ivtx >= l.jet_algoPF1_nvtx) ) {
 		/// std::cout << "recomputeBetas " << ivtx << " " << l.jet_algoPF1_nvtx << std::endl;
 		jetHandler_->computeBetas(ijet, ivtx);
 	    }
@@ -1639,7 +1639,7 @@ void PhotonAnalysis::postProcessJets(LoopAll & l, int vtx)
 		jetHandler_->computeWp(ijet, ivtx);
 	    }
 	}
-	if( ivtx >= l.jet_algoPF1_nvtx ) {
+	if( ivtx >= l.jet_algoPF1_nvtx && l.typerun != l.kFill ) {
 	    l.jet_algoPF1_nvtx = ivtx+1;
 	}
     }
@@ -1648,10 +1648,10 @@ void PhotonAnalysis::postProcessJets(LoopAll & l, int vtx)
 // ----------------------------------------------------------------------------------------------------
 void PhotonAnalysis::switchJetIdVertex(LoopAll &l, int ivtx) 
 {
-    if( l.version > 14 ) { l.jet_algoPF1_nvtx = 10; }
-/// if( l.jet_algoPF1_n > 0 && l.jet_algoPF1_nvtx < (*l.jet_algoPF1_betaStarClassic_ext)[0].size() ) {
-    /// 	l.jet_algoPF1_nvtx = (*l.jet_algoPF1_betaStarClassic_ext)[0].size();
-    /// }
+    /// if( l.version > 14 ) { l.jet_algoPF1_nvtx = 10; }
+    if( l.jet_algoPF1_n > 0 && l.jet_algoPF1_nvtx < (*l.jet_algoPF1_betaStarClassic_ext)[0].size() ) {
+	l.jet_algoPF1_nvtx = (*l.jet_algoPF1_betaStarClassic_ext)[0].size();
+    }
     if( l.typerun == l.kFill && l.version > 14 && ivtx >= l.jet_algoPF1_nvtx ) {
 	std::cout << "WARNING choosen vertex beyond " << l.jet_algoPF1_nvtx << " and jet ID was not computed. Falling back to vertex 0." << std::endl;
 	ivtx = 0;
