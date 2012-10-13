@@ -43,6 +43,12 @@ def system(cmd):
     
 def main(options, args):
 
+    combine_args = ""
+    txt2ws_args  = ""
+    if options.statOnly:
+        combine_args += "-S 0"
+        txt2ws_args  += "--stat"
+    
 
     model_args  = { "ggHqqH" : "-P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH",
                     "cVcF"   : "-P HiggsAnalysis.CombinedLimit.HiggsCouplingsLOSM:cVcF",
@@ -70,19 +76,19 @@ def main(options, args):
                     "RF"     : (0.,999999.,False),
                     }
 
+    parallel = "%s/parallel" % ( os.path.abspath(os.path.dirname(sys.argv[0])) )
     os.chdir( options.workdir )
-    parallel = "%s/parallel" % ( os.path.dirname(sys.argv[0]) )
     
-    combine = "combine %s " % model_combine_args[options.model]
+    combine = "combine --preFitValue=0. --saveNLL %s %s " % ( combine_args, model_combine_args[options.model] )
     if options.expected > 0.:
         combine += " -t -1 --expectSignal=%f" % options.expected
 
     ## generate the model
-    mass = "%1.4g" % options.mH
-    model_name = "%s%1.4g" % ( options.model, options.mH )
+    mass = "%1.5g" % options.mH
+    model_name = "%s%1.5g" % ( options.model, options.mH )
     model = "%s.root" % model_name
     if not os.path.isfile(model) or options.forceRedoWorkspace:
-        system("text2workspace.py %s -o %s -m %1.4g %s" % ( options.datacard, model, options.mH, model_args[options.model] ) )
+        system("text2workspace.py %s %s -o %s -m %1.5g %s" % ( txt2ws_args, options.datacard, model, options.mH, model_args[options.model] ) )
 
     ## best fit
     system("%s -M MultiDimFit %s --algo=singles -v2 -n %s_single -m %s | tee combine_%s_single.log"  % (
@@ -168,6 +174,11 @@ if __name__ == "__main__":
                     default=False,
                     help="default : [%default]", metavar=""
                     ),
+        make_option("-S", "--statOnly",
+                    action="store_true", dest="statOnly",
+                    default=False,
+                    help="default : [%default]", metavar=""
+                    ),
         make_option("-e", "--expected",
                     action="store", type="float", dest="expected",
                     default=0.,
@@ -177,7 +188,7 @@ if __name__ == "__main__":
     
     (options, args) = parser.parse_args()
     if options.workdir == "":
-        options.workdir = args.pop(0)
+        options.workdir = args.pop(1)
 
     sys.argv.append("-b")
     import ROOT
