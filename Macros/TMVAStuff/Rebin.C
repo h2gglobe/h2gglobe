@@ -9,6 +9,7 @@
 #include "TMath.h"
 #include "TTree.h"
 #include "TText.h"
+#include "TLegend.h"
 
 using namespace std;
 
@@ -238,27 +239,26 @@ void FillHist(TH1F* hist, string sorb, TTree* tree, string method){
     cout << "ERROR: must specify Signal or Background" << endl;
     exit(1);
   }
-  if (method!="Likelihood" && method!="LikelihoodD" && method!="BDTada" && method!="BDTgrad"){
-    cout << "ERROR: " << method << " is not a valid method" << endl;
-    exit(1);
-  }
   if (SorB!=0 && SorB!=1){
     cout << "ERROR: " << endl;
     exit(1);
   }
 
   int classID;
+  float BDTG;
   float BDTadaMIT, BDTgradMIT, LikelihoodMIT, LikelihoodDMIT,weight;
   tree->SetBranchAddress("weight",&weight);
   tree->SetBranchAddress("classID",&classID);
-  tree->SetBranchAddress("BDTadaMIT",&BDTadaMIT);
-  tree->SetBranchAddress("BDTgradMIT",&BDTgradMIT);
-  tree->SetBranchAddress("LikelihoodMIT",&LikelihoodMIT);
-  tree->SetBranchAddress("LikelihoodDMIT",&LikelihoodDMIT);
+  tree->SetBranchAddress("BDTG",&BDTG);
+  //tree->SetBranchAddress("BDTadaMIT",&BDTadaMIT);
+  //tree->SetBranchAddress("BDTgradMIT",&BDTgradMIT);
+  //tree->SetBranchAddress("LikelihoodMIT",&LikelihoodMIT);
+  //tree->SetBranchAddress("LikelihoodDMIT",&LikelihoodDMIT);
 
   for (int i=0; i<tree->GetEntries(); i++){
     tree->GetEntry(i);
     if (classID==SorB){
+      if (method=="BDTG") hist->Fill(BDTG,weight);
       if (method=="BDTada") hist->Fill(BDTadaMIT,weight);
       if (method=="BDTgrad") hist->Fill(BDTgradMIT,weight);
       if (method=="Likelihood") hist->Fill(LikelihoodMIT,weight);
@@ -278,15 +278,15 @@ TH1F* neatBin(TH1F* hist){
   return newHist;
 }
 
-void Rebin(){
+void Rebin(string infile){
   
-  TFile *inFile = TFile::Open("SidebandMvaTrain_v3.root");
+  TFile *inFile = TFile::Open(infile.c_str());
 
   TTree *testTree = (TTree*)inFile->FindObjectAny("TestTree");
   TTree *trainTree = (TTree*)inFile->FindObjectAny("TrainTree");
 
   const int nMeths=1;
-  string methods[nMeths] = {"BDTgrad"};
+  string methods[nMeths] = {"BDTG"};
   //string methods[nMeths] = {"Likelihood","LikelihoodD","BDTada","BDTgrad"};
   //string methods[nMeths] = {"Likelihood","LikelihoodD"};
 
@@ -370,7 +370,7 @@ void Rebin(){
     sigNice->SetTitle(Form("%s",methods[m].c_str()));
 
     TMVAGlob::SetSignalAndBackgroundStyle( sigNice, bgdNice );
-    Int_t col = sig->GetLineColor();
+    col = sig->GetLineColor();
     sigOvNice->SetMarkerColor( col );
     sigOvNice->SetMarkerSize( 0.7 );
     sigOvNice->SetMarkerStyle( 20 );
