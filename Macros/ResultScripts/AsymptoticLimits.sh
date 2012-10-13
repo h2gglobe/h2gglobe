@@ -28,9 +28,9 @@ for MASS in $MASSES; do
 	done
 	echo "Subitting Mass ${MASS}GeV"
 	if [ -d ../$1 ]; then
-		combine  ../$1/${MASS}GeVmodel.root -m $MASS -M Asymptotic --minimizerStrategy=1 --minosAlgo=stepping -s -1 --picky >& higgsCombineTest.Asymptotic.mH${MASS}.log &
+		combine  ../$1/${MASS}GeVmodel.root -m $MASS -M Asymptotic --minimizerStrategy=1 --minosAlgo=stepping -s -1 --picky --run=expected >& higgsCombineTest.Asymptotic.mH${MASS}.log &
 	elif [ -f ../$1 ]; then
-		combine ../$1 -m $MASS -M Asymptotic --minimizerStrategy=1 --minosAlgo=stepping -s -1 --picky >& higgsCombineTest.Asymptotic.mH${MASS}.log &
+		combine ../$1 -m $MASS -M Asymptotic --minimizerStrategy=1 --minosAlgo=stepping -s -1 --picky --run=expected >& higgsCombineTest.Asymptotic.mH${MASS}.log &
 	fi
 	sleep 1
 done
