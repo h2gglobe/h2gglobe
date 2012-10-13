@@ -10,6 +10,7 @@
 #include "TTree.h"
 #include "TText.h"
 #include "TLegend.h"
+#include "TROOT.h"
 
 using namespace std;
 
@@ -246,23 +247,15 @@ void FillHist(TH1F* hist, string sorb, TTree* tree, string method){
 
   int classID;
   float BDTG;
-  float BDTadaMIT, BDTgradMIT, LikelihoodMIT, LikelihoodDMIT,weight;
+  float weight;
   tree->SetBranchAddress("weight",&weight);
   tree->SetBranchAddress("classID",&classID);
-  tree->SetBranchAddress("BDTG",&BDTG);
-  //tree->SetBranchAddress("BDTadaMIT",&BDTadaMIT);
-  //tree->SetBranchAddress("BDTgradMIT",&BDTgradMIT);
-  //tree->SetBranchAddress("LikelihoodMIT",&LikelihoodMIT);
-  //tree->SetBranchAddress("LikelihoodDMIT",&LikelihoodDMIT);
+  tree->SetBranchAddress(method.c_str(),&BDTG);
 
   for (int i=0; i<tree->GetEntries(); i++){
     tree->GetEntry(i);
     if (classID==SorB){
-      if (method=="BDTG") hist->Fill(BDTG,weight);
-      if (method=="BDTada") hist->Fill(BDTadaMIT,weight);
-      if (method=="BDTgrad") hist->Fill(BDTgradMIT,weight);
-      if (method=="Likelihood") hist->Fill(LikelihoodMIT,weight);
-      if (method=="LikelihoodD") hist->Fill(LikelihoodDMIT,weight);
+      hist->Fill(BDTG,weight);
     }
   }
 
@@ -278,15 +271,17 @@ TH1F* neatBin(TH1F* hist){
   return newHist;
 }
 
-void Rebin(string infile){
-  
+void Rebin(string infile, string methodName="BDTG"){
+ 
+  gROOT->SetBatch();
+  system("mkdir plots");
   TFile *inFile = TFile::Open(infile.c_str());
 
   TTree *testTree = (TTree*)inFile->FindObjectAny("TestTree");
   TTree *trainTree = (TTree*)inFile->FindObjectAny("TrainTree");
 
   const int nMeths=1;
-  string methods[nMeths] = {"BDTG"};
+  string methods[nMeths] = {methodName};
   //string methods[nMeths] = {"Likelihood","LikelihoodD","BDTada","BDTgrad"};
   //string methods[nMeths] = {"Likelihood","LikelihoodD"};
 
