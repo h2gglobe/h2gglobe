@@ -271,6 +271,50 @@ TH1F* neatBin(TH1F* hist){
   return newHist;
 }
 
+void Plot(TH1F* sig, TH1F* bgd, TH1F* sigOv, TH1F* bgdOv,double ksSig, double ksBgd, string name){
+ 
+  gStyle->SetOptStat(0);
+  TMVAGlob::SetSignalAndBackgroundStyle( sig, bgd );
+  TCanvas *c = new TCanvas();
+  Int_t col = sig->GetLineColor();
+  sigOv->SetMarkerColor( col );
+  sigOv->SetMarkerSize( 0.7 );
+  sigOv->SetMarkerStyle( 20 );
+  sigOv->SetLineWidth( 1 );
+  sigOv->SetLineColor( col );
+
+  col = bgd->GetLineColor();
+  bgdOv->SetMarkerColor( col );
+  bgdOv->SetMarkerSize( 0.7 );
+  bgdOv->SetMarkerStyle( 20 );
+  bgdOv->SetLineWidth( 1 );
+  bgdOv->SetLineColor( col );
+
+  sig->GetYaxis()->SetRangeUser(0.,TMath::Max(sig->GetMaximum(),bgd->GetMaximum())*1.5);
+  sig->Draw("hist");
+  bgd->Draw("samehist");
+  sigOv->Draw("e1same");
+  bgdOv->Draw("e1same");
+  
+  TString probatext_ = Form( "Kolmogorov-Smirnov test: signal (background) probability = %5.3g (%5.3g)", ksSig, ksBgd );
+  TText* tt_ = new TText( 0.12, 0.84, probatext_ );
+  tt_->SetNDC(); tt_->SetTextSize( 0.032 ); 
+  tt_->Draw("same");
+
+  TLegend *legend= new TLegend( 0.6,0.5,0.9,0.8 ); 
+  legend->SetFillStyle( 0 );
+  legend->AddEntry(sig,TString("Signal") + "(test sample)", "F");
+  legend->AddEntry(bgd,TString("Background") + "(test sample)", "F");
+  legend->SetBorderSize(1);
+  legend->AddEntry(sigOv,"Signal (training sample)","lep");
+  legend->AddEntry(bgdOv,"Background (training sample)","lep");
+  legend->Draw("same");
+
+  c->Print(Form("plots/%s.pdf",name.c_str()),"pdf");
+
+  delete c;
+}
+
 void Rebin(string infile, string methodName="BDTG"){
  
   gROOT->SetBatch();
@@ -280,125 +324,57 @@ void Rebin(string infile, string methodName="BDTG"){
   TTree *testTree = (TTree*)inFile->FindObjectAny("TestTree");
   TTree *trainTree = (TTree*)inFile->FindObjectAny("TrainTree");
 
-  const int nMeths=1;
-  string methods[nMeths] = {methodName};
-  //string methods[nMeths] = {"Likelihood","LikelihoodD","BDTada","BDTgrad"};
-  //string methods[nMeths] = {"Likelihood","LikelihoodD"};
+  TH1F *sig = new TH1F(Form("sig%s",methodName.c_str()),Form("sig%s",methodName.c_str()),5000,-1.,1.);
+  TH1F *bgd = new TH1F(Form("bgd%s",methodName.c_str()),Form("bgd%s",methodName.c_str()),5000,-1.,1.);
+  TH1F *sigOv = new TH1F(Form("sigOv%s",methodName.c_str()),Form("sigOv%s",methodName.c_str()),5000,-1.,1.);
+  TH1F *bgdOv = new TH1F(Form("bgdOv%s",methodName.c_str()),Form("bgdOv%s",methodName.c_str()),5000,-1.,1.);
 
-  for (int m=0; m<nMeths; m++){
-    
-    TH1F *sig = new TH1F(Form("sig%s",methods[m].c_str()),Form("sig%s",methods[m].c_str()),5000,-1.,1.);
-    TH1F *bgd = new TH1F(Form("bgd%s",methods[m].c_str()),Form("bgd%s",methods[m].c_str()),5000,-1.,1.);
-    TH1F *sigOv = new TH1F(Form("sigOv%s",methods[m].c_str()),Form("sigOv%s",methods[m].c_str()),5000,-1.,1.);
-    TH1F *bgdOv = new TH1F(Form("bgdOv%s",methods[m].c_str()),Form("bgdOv%s",methods[m].c_str()),5000,-1.,1.);
+  FillHist(sig,"Signal",testTree,methodName);
+  FillHist(bgd,"Background",testTree,methodName);
+  FillHist(sigOv,"Signal",trainTree,methodName);
+  FillHist(bgdOv,"Background",trainTree,methodName);
 
-    FillHist(sig,"Signal",testTree,methods[m]);
-    FillHist(bgd,"Background",testTree,methods[m]);
-    FillHist(sigOv,"Signal",trainTree,methods[m]);
-    FillHist(bgdOv,"Background",trainTree,methods[m]);
+  //std::vector<double> binEdges = soverBOptimizedBinning(sigOv,bgdOv,20,50);
+  std::vector<double> binEdges;
+  binEdges.push_back(-1.);
+  binEdges.push_back(0.2016);
+  binEdges.push_back(0.4352);
+  binEdges.push_back(0.6068);
+  binEdges.push_back(0.7056);
+  binEdges.push_back(0.762);
+  binEdges.push_back(0.8152);
+  binEdges.push_back(1);
+  TH1F *sigReb = neatBin(rebinBinnedDataset(Form("sig_reb_%s",methodName.c_str())," ",sig,binEdges));
+  TH1F *bgdReb = neatBin(rebinBinnedDataset(Form("bgd_reb_%s",methodName.c_str())," ",bgd,binEdges));
+  TH1F *sigOvReb = neatBin(rebinBinnedDataset(Form("sig_train_reb_%s",methodName.c_str())," ",sigOv,binEdges));
+  TH1F *bgdOvReb = neatBin(rebinBinnedDataset(Form("bgd_train_reb_%s",methodName.c_str())," ",bgdOv,binEdges));
 
-    TMVAGlob::SetSignalAndBackgroundStyle( sig, bgd );
-    sig->Scale(72.39/sig->Integral());
-    bgd->Scale(3938.7/bgd->Integral());
-    sigOv->Scale(72.39/sigOv->Integral());
-    bgdOv->Scale(3938.7/bgdOv->Integral());
+  //Normalise to 1
+  sig->Sumw2();
+  bgd->Sumw2();
+  sigOv->Sumw2();
+  bgdOv->Sumw2();
+  sig->Scale(1./sig->Integral());
+  bgd->Scale(1./bgd->Integral());
+  sigOv->Scale(1./sigOv->Integral());
+  bgdOv->Scale(1./bgdOv->Integral());
 
-    Int_t col = sig->GetLineColor();
-    sigOv->SetMarkerColor( col );
-    sigOv->SetMarkerSize( 0.7 );
-    sigOv->SetMarkerStyle( 20 );
-    sigOv->SetLineWidth( 1 );
-    sigOv->SetLineColor( col );
+  double theKSSig = sig->KolmogorovTest( sigOv );
+  double theKSBkg = bgd->KolmogorovTest( bgdOv );
 
-    col = bgd->GetLineColor();
-    bgdOv->SetMarkerColor( col );
-    bgdOv->SetMarkerSize( 0.7 );
-    bgdOv->SetMarkerStyle( 20 );
-    bgdOv->SetLineWidth( 1 );
-    bgdOv->SetLineColor( col );
+  Plot(sig,bgd,sigOv,bgdOv,theKSSig,theKSBkg,"FineBin");
+  
+  sig->Rebin(100);
+  bgd->Rebin(100);
+  sigOv->Rebin(100);
+  bgdOv->Rebin(100);
+  
+  double redoKSSig = sig->KolmogorovTest( sigOv );
+  double redoKSBkg = bgd->KolmogorovTest( bgdOv );
+  
+  Plot(sig,bgd,sigOv,bgdOv,redoKSSig,redoKSBkg,"NeatBin");
+  Plot(sigReb,bgdReb,sigOvReb,bgdOvReb,redoKSSig,redoKSBkg,"ReBin"); 
+  
 
-    std::vector<double> binEdges = soverBOptimizedBinning(sigOv,bgdOv,20,50);
-    TH1F *sigReb = rebinBinnedDataset(Form("sig_reb_%s",methods[m].c_str())," ",sig,binEdges);
-    TH1F *bgdReb = rebinBinnedDataset(Form("bgd_reb_%s",methods[m].c_str())," ",bgd,binEdges);
-    TH1F *sigOvReb = rebinBinnedDataset(Form("sig_train_reb_%s",methods[m].c_str())," ",sigOv,binEdges);
-    TH1F *bgdOvReb = rebinBinnedDataset(Form("bgd_train_reb_%s",methods[m].c_str())," ",bgdOv,binEdges);
-
-    sigReb->GetYaxis()->SetRangeUser(1,ceil(TMath::Max(sigReb->GetMaximum(),bgdReb->GetMaximum())*1.1));
-    TCanvas *c = new TCanvas();
-    c->cd();
-    TMVAGlob::NormalizeHists( sig, bgd );
-    TMVAGlob::NormalizeHists( sigOv, bgdOv );
-    sig->Rebin(50);
-    bgd->Rebin(50);
-    sigOv->Rebin(50);
-    bgdOv->Rebin(50);
-    sig->GetYaxis()->SetRangeUser(0.,ceil(TMath::Max(sig->GetMaximum(),bgd->GetMaximum())*1.1));
-    sig->Draw("hist");
-    bgd->Draw("samehist");
-    sigOv->Draw("e1same");
-    bgdOv->Draw("e1same");
-    Double_t kolS_ = sig->KolmogorovTest( sigOv );
-    Double_t kolB_ = bgd->KolmogorovTest( bgdOv );
-    TString probatext_ = Form( "Kolmogorov-Smirnov test: signal (background) probability = %5.3g (%5.3g)", kolS_, kolB_ );
-    TText* tt_ = new TText( 0.12, 0.84, probatext_ );
-    tt_->SetNDC(); tt_->SetTextSize( 0.032 ); 
-    tt_->Draw("same");
-    c->Print(Form("plots/NormBin_%s.pdf",methods[m].c_str()),"pdf");
-   
-    TH1F *sigNice = neatBin(sigReb);
-    TH1F *bgdNice = neatBin(bgdReb);
-    TH1F *sigOvNice = neatBin(sigOvReb);
-    TH1F *bgdOvNice = neatBin(bgdOvReb);
-
-    Double_t kolS = sigNice->KolmogorovTest( sigOvNice );
-    Double_t kolB = bgdNice->KolmogorovTest( bgdOvNice );
-    TString probatext = Form( "Kolmogorov-Smirnov test: signal (background) probability = %5.3g (%5.3g)", kolS, kolB );
-    TText* tt = new TText( 0.12, 0.84, probatext );
-    tt->SetNDC(); tt->SetTextSize( 0.032 ); 
-    
-    sigNice->Scale(5.);
-    sigOvNice->Scale(5.);
-
-    //sigNice->GetYaxis()->SetRangeUser(1,ceil(TMath::Max(sigNice->GetMaximum(),bgdNice->GetMaximum())+8000));
-    sigNice->GetYaxis()->SetRangeUser(1,10000);
-    sigNice->GetXaxis()->SetTitle(Form("%s Output Bin Number",methods[m].c_str()));
-    sigNice->SetTitle(Form("%s",methods[m].c_str()));
-
-    TMVAGlob::SetSignalAndBackgroundStyle( sigNice, bgdNice );
-    col = sig->GetLineColor();
-    sigOvNice->SetMarkerColor( col );
-    sigOvNice->SetMarkerSize( 0.7 );
-    sigOvNice->SetMarkerStyle( 20 );
-    sigOvNice->SetLineWidth( 1 );
-    sigOvNice->SetLineColor( col );
-    col = bgd->GetLineColor();
-    bgdOvNice->SetMarkerColor( col );
-    bgdOvNice->SetMarkerSize( 0.7 );
-    bgdOvNice->SetMarkerStyle( 20 );
-    bgdOvNice->SetLineWidth( 1 );
-    bgdOvNice->SetLineColor( col );
-    
-    TLegend *legend= new TLegend( 0.6,0.5,0.9,0.8 ); 
-    legend->SetFillStyle( 0 );
-    legend->AddEntry(sig,TString("Signal") + "(test sample)", "F");
-    legend->AddEntry(bgd,TString("Background") + "(test sample)", "F");
-    legend->SetBorderSize(1);
-    legend->AddEntry(sigOv,"Signal (training sample)","lep");
-    legend->AddEntry(bgdOv,"Background (training sample)","lep");
-    legend->Draw("same");
-
-
-    TCanvas *c2 = new TCanvas();
-    c2->cd();
-    gStyle->SetOptStat(0);
-    c2->SetLogy();
-    sigNice->Draw("hist");
-    bgdNice->Draw("samehist");
-    sigOvNice->Draw("e1same");
-    bgdOvNice->Draw("e1same");
-    tt->Draw("same");
-    legend->Draw("same");
-    c2->Print(Form("plots/ICbinning_%s.pdf",methods[m].c_str()),"pdf");
-  }
-
+  inFile->Close();
 }
