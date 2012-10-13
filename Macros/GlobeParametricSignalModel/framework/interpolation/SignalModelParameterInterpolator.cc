@@ -50,7 +50,7 @@ SignalModelParameterInterpolator::hasValueEntry(const std::string &paramName, in
 void 
 SignalModelParameterInterpolator::makePlot(const std::string &paramName, ReportMaker *reportMaker)
 {
-  string plotname = "plots/func_" + paramName + "_" + suffix;
+  string plotname = "func_" + paramName + "_" + suffix;
 
   TCanvas *cfunctest = new TCanvas;
 
@@ -62,8 +62,8 @@ SignalModelParameterInterpolator::makePlot(const std::string &paramName, ReportM
   hploteffacc->SetTitle("");
   hploteffacc->GetYaxis()->SetTitle((paramName + "_" + suffix).c_str());
   hploteffacc->Draw();
-  cfunctest->SaveAs(Form("%s.svg",plotname.c_str()));
-  cfunctest->SaveAs(Form("%s.png",plotname.c_str()));
+  cfunctest->SaveAs(Form("plots/%s.svg",plotname.c_str()));
+  cfunctest->SaveAs(Form("plots/%s.png",plotname.c_str()));
   delete cfunctest;
 
   // add the plot to the ReportMaker

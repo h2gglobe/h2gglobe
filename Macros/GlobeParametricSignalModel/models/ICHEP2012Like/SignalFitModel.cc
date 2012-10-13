@@ -1,3 +1,12 @@
+#include <iostream>
+
+extern "C"
+{
+  // needed of Py_None
+#include <Python.h>
+}
+
+
 #include "SignalFitModel.h"
 
 #include <utils.h>
@@ -11,6 +20,12 @@
 
 #include <stdexcept>
 #include <numeric>
+
+#include <PythonConfigUtils.h>
+
+#include <boost/assign/list_of.hpp>
+using namespace boost::assign;
+
 
 using namespace std;
 using namespace ICHEP2012LikeModel;
@@ -217,63 +232,130 @@ SignalFitModel::prepareParametersForFitting(int mhyp, const std::string &catname
     if (boost::starts_with(paramName,"w"))
       paramName = paramName.substr(1);
 
-    cout << "ADJUSTING PARAMETER " << paramName << endl;
+    // cout << "ADJUSTING PARAMETER " << paramName << endl;
 
-    if (boost::starts_with(paramName, "sigma"))
+    if (boost::starts_with(paramName, "sigma") ||
+        boost::starts_with(paramName, "dm")
+        )
     {
-      unsigned number = boost::lexical_cast<unsigned>(paramName.substr(5));
-      
-      // original initialization parameters:
-      // sigma1: sigma1init, 0.5, 5.0  where sigma1init = 1.0
-      // sigma2: sigma2init, 0.8, 7.0  where sigma1init = 1.2
-      // sigma3: sigma3init, 1.0, 10.0  where sigma1init = 2.0
-      
-      // NOTE: need to break the symmetry between the parameters
-      //       of the different Gaussian components
-      // param->setVal(1 + 0.5 * gRandom->Uniform() );
+      if (modelConfig.fitParameterSettings == NULL)
+        // was not specified by the user
+        continue;
 
-      param->setVal(4 + number);
-      
-      if (rightVertex) param->setRange(0.7, 20.);
-      else param->setRange(1.,20.);
+      // note that it looks like we should set the values in the right
+      // order... otherwise some of them will be 'rounded'
+      // (e.g. setting the minimum value above the current value
+      // will move the current value to the minimum etc. or setting
+      // the maximum below the minimum will be ignored)
 
-      // param->removeRange();
-      // param->setConstant(false);
-    }
-    else if (boost::starts_with(paramName, "dm"))
-    {
-      // make this signed because otherwise, when we multiply 
-      // by -1, we'll get 0xffffffff....
-      int number = boost::lexical_cast<unsigned>(paramName.substr(2));
-      
-      // original initialization:
-      //    dm1: dm1init, -12.0, 5.0 where dm1init =  0.5
-      //    dm2: dm2init, -12.0, 5.0 where dm2init = -1.0
-      //    dm3: dm3init,  -9.0, 5.0 where dm3init = -2.0
-      
-      // NOTE: need to break the symmetry between the parameters
-      //       of the different Gaussian components
-      // param->setVal(0 + gRandom->Uniform());
+      // take the initial values as default values
+      double initialValue = param->getVal();
+      double minValue = param->getMin();
+      double maxValue = param->getMax();
 
-      ASSERTBREAK(number >= 1);
+      PyObject *value;
 
-      --number;
-      int sign;
-      if (number % 2 == 0)
-	sign = -1;
-      else
-	sign = 1;
+      value = PythonConfigUtils::getNestedDictValue(modelConfig.fitParameterSettings, 
+                                 list_of(catname)
+                                 (rightVertex ? "right" : "wrong")
+                                 (mergedSigProcName)
+                                 (paramName)
+                                 ("initial"));
+      // see http://docs.python.org/c-api/none.html for testing for None
 
-      param->setVal(((number + 1)/ 2) * sign);
+      if (value != NULL && value != Py_None) 
+        initialValue = PythonConfigUtils::castNumberToFloat(value);
+
+      //-----
+
+      value = PythonConfigUtils::getNestedDictValue(modelConfig.fitParameterSettings, 
+                                 list_of(catname)
+                                 (rightVertex ? "right" : "wrong")
+                                 (mergedSigProcName)
+                                 (paramName)
+                                 ("min"));
+      // see http://docs.python.org/c-api/none.html for testing for None
+
+      if (value != NULL && value != Py_None) 
+        minValue = PythonConfigUtils::castNumberToFloat(value);
+
+      //-----
+
+      value = PythonConfigUtils::getNestedDictValue(modelConfig.fitParameterSettings, 
+                                 list_of(catname)
+                                 (rightVertex ? "right" : "wrong")
+                                 (mergedSigProcName)
+                                 (paramName)
+                                 ("max"));
+      // see http://docs.python.org/c-api/none.html for testing for None
+      if (value != NULL && value != Py_None) 
+        maxValue = PythonConfigUtils::castNumberToFloat(value);
+
+      // now update the settings
+      // first set the range
+      param->setRange(minValue, maxValue);
       
-      // param->setRange(-20,20);
-      param->setRange(-10,10);
-      
-      // param->setConstant(false);
-      
-      // dm1, dm2 had this, dm3 not
-      // dm[i+1]->removeRange();
-    }
+      // then the initial value
+      param->setVal(initialValue);
+
+  }
+  
+
+
+//    if (boost::starts_with(paramName, "sigma"))
+//    {
+//      unsigned number = boost::lexical_cast<unsigned>(paramName.substr(5));
+//      
+//      // original initialization parameters:
+//      // sigma1: sigma1init, 0.5, 5.0  where sigma1init = 1.0
+//      // sigma2: sigma2init, 0.8, 7.0  where sigma1init = 1.2
+//      // sigma3: sigma3init, 1.0, 10.0  where sigma1init = 2.0
+//      
+//      // NOTE: need to break the symmetry between the parameters
+//      //       of the different Gaussian components
+//      // param->setVal(1 + 0.5 * gRandom->Uniform() );
+//
+//      param->setVal(4 + number);
+//      
+//      param->setRange(0.01, 20);
+//
+//      // param->removeRange();
+//      // param->setConstant(false);
+//    }
+//    else if (boost::starts_with(paramName, "dm"))
+//    {
+//      // make this signed because otherwise, when we multiply 
+//      // by -1, we'll get 0xffffffff....
+//      int number = boost::lexical_cast<unsigned>(paramName.substr(2));
+//      
+//      // original initialization:
+//      //    dm1: dm1init, -12.0, 5.0 where dm1init =  0.5
+//      //    dm2: dm2init, -12.0, 5.0 where dm2init = -1.0
+//      //    dm3: dm3init,  -9.0, 5.0 where dm3init = -2.0
+//      
+//      // NOTE: need to break the symmetry between the parameters
+//      //       of the different Gaussian components
+//      // param->setVal(0 + gRandom->Uniform());
+//
+//      ASSERTBREAK(number >= 1);
+//
+//      --number;
+//      int sign;
+//      if (number % 2 == 0)
+//	sign = -1;
+//      else
+//	sign = 1;
+//
+//      param->setVal(((number + 1)/ 2) * sign);
+//      
+//      // param->setRange(-20,20);
+//      param->setRange(-10,10);
+//      
+//      // param->setConstant(false);
+//      
+//      // dm1, dm2 had this, dm3 not
+//      // dm[i+1]->removeRange();
+//    }
     else if (boost::starts_with(paramName, "f"))
     {
       // TODO: how do we deal with the initial values of the different parameters ?
@@ -283,7 +365,7 @@ SignalFitModel::prepareParametersForFitting(int mhyp, const std::string &catname
       param->setVal(0.5);
       param->setRange(0,1);
 
-      // param->setConstant(false);
+
 
     }
     else
@@ -327,7 +409,7 @@ SignalFitModel::drawFittedMass(const string &plotNamePart,
 
   //plot fit results for this mass point
   TCanvas *chfit = new TCanvas;
-  string plotname = "plots/mass_";
+  string plotname = "mass_";
   plotname += plotNamePart;
   plotname += "_";
 
@@ -380,8 +462,8 @@ SignalFitModel::drawFittedMass(const string &plotNamePart,
 
   leg->Draw();
 
-  chfit->SaveAs(Form("%s.svg",plotname.c_str()));
-  chfit->SaveAs(Form("%s.png",plotname.c_str()));
+  chfit->SaveAs(Form("plots/%s.svg",plotname.c_str()));
+  chfit->SaveAs(Form("plots/%s.png",plotname.c_str()));
 
   if (reportMaker != NULL)
     reportMaker->addPlotSVG("mass/" + plotNamePart + "/" + "m" + toStr(mh) + "/" + catname + "/" + mergedSigProcName,
@@ -422,7 +504,7 @@ SignalFitModel::postProcessFittedParameters(const string &catname, bool rightVer
 
   double overallFactor = 1;
 
-  for (int i = 1; i <= numGaussians; ++i)
+  for (int i = 1; i <= (int)numGaussians; ++i)
   {
     indices.push_back(means.size());
 
@@ -465,9 +547,7 @@ SignalFitModel::postProcessFittedParameters(const string &catname, bool rightVer
   }
 
   // sort the indices in increasing order of sigmas
-  //sort(indices.begin(), indices.end(), ValueComparator(sigmas));
-  // sort the indices in increasing order of means
-  sort(indices.begin(), indices.end(), ValueComparator(means));
+  sort(indices.begin(), indices.end(), ValueComparator(sigmas));
 
   // re-assign sigmas and mus to the parameters
   overallFactor = 1;

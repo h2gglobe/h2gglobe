@@ -33,6 +33,8 @@ for root, dirs, files in os.walk('plots'):
   for f in fnmatch.filter(files,'*.png'):
     fils.append(f)
 
+fils.sort()
+
 # do contents first
 out.write('<html>\n')
 out.write('<body>\n')

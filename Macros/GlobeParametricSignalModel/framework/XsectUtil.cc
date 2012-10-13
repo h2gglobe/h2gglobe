@@ -297,9 +297,9 @@ XsectUtil::makeCrossSectionFunctionUsingHistogram(const string &sigProcName, Rep
     funcXsecNorm->plotOn(plotsmxsecs);
 
     plotsmxsecs->Draw();
-    TString fname = Form("plots/xsecs_%s", sigProcName.c_str());
-    csmxsecs->SaveAs(Form("%s.svg",fname.Data()));
-    csmxsecs->SaveAs(Form("%s.pdf",fname.Data()));
+    TString fname = Form("xsecs_%s", sigProcName.c_str());
+    csmxsecs->SaveAs(Form("plots/%s.svg",fname.Data()));
+    csmxsecs->SaveAs(Form("plots/%s.png",fname.Data()));
 
     reportMaker->addPlotSVG("xsects/" + sigProcName, (const char *)fname,"cross sections for process " + sigProcName);
 
@@ -355,9 +355,9 @@ XsectUtil::makeBranchingRatioFunctionUsingHistogram(ReportMaker *reportMaker, Ro
     funcBR->plotOn(plot);
 
     plot->Draw();
-    TString fname = "plots/branchingRatios";
-    canvas->SaveAs(Form("%s.svg",fname.Data()));
-    canvas->SaveAs(Form("%s.png",fname.Data()));
+    TString fname = "branchingRatios";
+    canvas->SaveAs(Form("plots/%s.svg",fname.Data()));
+    canvas->SaveAs(Form("plots/%s.png",fname.Data()));
 
     reportMaker->addPlotSVG("branchinRatios", (const char *)fname,"branching ratios");
 

@@ -41,6 +41,9 @@ Config::readFromPython(PyObject *configDict)
   // read number of Gaussians per category / process from python
   readNumGaussiansFromPython(retval, configDict);
 
+  // fit parameter settings
+  retval.fitParameterSettings = PythonConfigUtils::getOptionalDict(configDict, "fitParameterSettings");
+
 
   return retval;
 }

@@ -7,6 +7,9 @@ extern "C"
 
 #include "PythonConfigUtils.h"
 
+#include <boost/foreach.hpp>
+#include "utils.h"
+
 using namespace std;
 
 //----------------------------------------------------------------------
@@ -313,3 +316,24 @@ PythonConfigUtils::getDictStringListValue(PyObject *dict, const std::string &key
 }
 
 //----------------------------------------------------------------------
+
+PyObject *
+PythonConfigUtils::getNestedDictValue(PyObject *dict, const std::list<std::string> &keys)
+{
+   PyObject *retval = dict;
+ 
+   BOOST_FOREACH(const string &key, keys)
+   {
+     // use call __getitem__ instead of using PyDict_GetItemString(..)
+     // (which seems NOT to work for defaultdicts)
+
+     retval = PyObject_CallMethodObjArgs(retval,
+                                         PyString_FromString("__getitem__"),
+                                         PyString_FromString(key.c_str()), 
+                                         NULL);
+     
+     ASSERTBREAK(retval != NULL);
+   }
+
+   return retval;
+}

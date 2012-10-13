@@ -6,7 +6,7 @@
 
 #include <string>
 #include <vector>
-
+#include <list>
 
 class PythonConfigUtils
 {
@@ -18,6 +18,17 @@ public:
   static PyObject *getOptionalDict(PyObject *parentDict, const std::string &keyName);
 
   static PyObject* getDictValue(PyObject *dict, const std::string &keyName);
+
+  /** function for getting a value from a 'nested dict' (which a fixed
+    nesting depth). 
+
+    @param dict is a dict like object but defaultdicts should also
+    work. 
+
+    This function is calling __getitem__ rather than using
+    PyDict_GetItemString (which seems not to work for defaultdict objects)
+  */
+  static PyObject *getNestedDictValue(PyObject *dict, const std::list<std::string> &keys);
 
   /** tries to find the given key in the given dict and ensures that this is a string. */
   static std::string getDictStringValue(PyObject *dict, const std::string &keyName);

@@ -41,9 +41,12 @@ namespace ICHEP2012LikeModel
     */
     std::map<std::string, std::map<std::string, std::map<std::string, unsigned> > > numGaussians;
 
+    /** pointer to the object specifying the ranges and initial values
+        of parameters for fitting (can be NULL if unspecified) */
+    PyObject *fitParameterSettings;
+
     /** pointer back to the global configuration */
     const ParametricSignalModelConfig *globalConfig;
-
 
   public:
     /** reads the model-specific part from the given python dict */

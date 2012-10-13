@@ -87,8 +87,8 @@ globalConfig = {
     # mass interpolation
     #--------------------
 
-    "minMassHypothesis": 120,
-    "maxMassHypothesis": 130,
+    "minMassHypothesis": 110,
+    "maxMassHypothesis": 150,
     "massInterpolationWidth": 5,
 
 } # config
@@ -151,8 +151,8 @@ elif year == 2012:
     tmp = {
         'cat0': { 'ggh': 2, 'vbf': 2, 'wzh': 3, 'tth': 3 },
         'cat1': { 'ggh': 3, 'vbf': 2, 'wzh': 3, 'tth': 3 },
-        'cat2': { 'ggh': 3, 'vbf': 2, 'wzh': 2, 'tth': 3 },
-        'cat3': { 'ggh': 2, 'vbf': 3, 'wzh': 2, 'tth': 2 },
+        'cat2': { 'ggh': 3, 'vbf': 3, 'wzh': 3, 'tth': 3 },
+        'cat3': { 'ggh': 3, 'vbf': 3, 'wzh': 3, 'tth': 3 },
 
         'cat4': { 'ggh': 2, 'vbf': 3, 'wzh': 2, 'tth': 2 },
         'cat5': { 'ggh': 2, 'vbf': 3, 'wzh': 2, 'tth': 2 },
@@ -168,8 +168,8 @@ elif year == 2012:
         'cat2': { 'ggh': 2, 'vbf': 2, 'wzh': 2, 'tth': 2 },
         'cat3': { 'ggh': 2, 'vbf': 2, 'wzh': 2, 'tth': 2 },
 
-        'cat4': { 'ggh': 2, 'vbf': 2, 'wzh': 1, 'tth': 1 },
-        'cat5': { 'ggh': 2, 'vbf': 2, 'wzh': 1, 'tth': 1 },
+        'cat4': { 'ggh': 1, 'vbf': 2, 'wzh': 1, 'tth': 1 },
+        'cat5': { 'ggh': 1, 'vbf': 2, 'wzh': 1, 'tth': 1 },
 
         'cat6': { 'ggh': 1, 'vbf': 1, 'wzh': 1, 'tth': 1 },
         'cat7': { 'ggh': 1, 'vbf': 1, 'wzh': 1, 'tth': 1 },
@@ -234,5 +234,71 @@ elif year == 2012:
 else:
     raise Exception("unsupported year " + str(year))
 
+#----------------------------------------
+# ranges and initial values for fit parameters
+#----------------------------------------
+# first  index: category name
+# second index: 'right' or 'wrong' corresponding to the vertex assignment
+# third index:  MERGED signal process name (ggh, ...)
+# fourth index: parameter name: sigma1, dm1 etc.
+# fifth index:  'min' or 'max' for the range, 'initial' for the initial value before fitting
+# value:        the lower or upper bound to be set on the fitting parameter or None if no such bound should be set
+
+# we use a defaultdict in order not to have to specify all possible values
+fitParameterSettings = collections.defaultdict(lambda: collections.defaultdict( lambda: collections.defaultdict(lambda :collections.defaultdict(lambda: collections.defaultdict(lambda: None)))))
+
+# example:
+# fitParameterSettings = ['cat0']['right']['ggh']['sigma1']['min'] = 1
+
+# this should reproduce what was hardwired in the code before
+# (note that the 'f' parameters, the relative fractions, are not
+# read from this dict
+
+for catname in numGaussians.keys():
+    for vertex in ('right', 'wrong'):
+        for proc in allProcs:
+            for index in range(numGaussians[catname][vertex][proc]):
+                index += 1
+                if index==1: fitParameterSettings[catname][vertex][proc]['sigma%d' % index]['initial'] = 1.
+                else: fitParameterSettings[catname][vertex][proc]['sigma%d' % index]['initial'] = 4 + index
+                if vertex=='right': fitParameterSettings[catname][vertex][proc]['sigma%d' % index]['min'] = 0.7
+                else: fitParameterSettings[catname][vertex][proc]['sigma%d' % index]['min'] = 0.7
+                fitParameterSettings[catname][vertex][proc]['sigma%d' % index]['max'] = 15
+
+                number = index - 1
+                if (number % 2 == 0):
+                    sign = -1
+                else:
+                    sign = 1
+                
+                fitParameterSettings[catname][vertex][proc]['dm%d' % index]['initial'] = 0.01
+                if numGaussians[catname][vertex][proc]==1: 
+                  fitParameterSettings[catname][vertex][proc]['dm%d' % index]['min'] = -10
+                  fitParameterSettings[catname][vertex][proc]['dm%d' % index]['max'] = +10
+                elif numGaussians[catname][vertex][proc]==2:
+                  if index==1:
+                    fitParameterSettings[catname][vertex][proc]['dm%d' % index]['min'] = -10
+                    fitParameterSettings[catname][vertex][proc]['dm%d' % index]['max'] = 0
+                  if index==2:
+                    fitParameterSettings[catname][vertex][proc]['dm%d' % index]['min'] = 0
+                    fitParameterSettings[catname][vertex][proc]['dm%d' % index]['max'] = +10
+                else: 
+                  if index==1: 
+                    fitParameterSettings[catname][vertex][proc]['dm%d' % index]['min'] = -10
+                    fitParameterSettings[catname][vertex][proc]['dm%d' % index]['max'] = +10
+                  if index==2:
+                    fitParameterSettings[catname][vertex][proc]['dm%d' % index]['min'] = -10
+                    fitParameterSettings[catname][vertex][proc]['dm%d' % index]['max'] = 0
+                  if index==3:
+                    fitParameterSettings[catname][vertex][proc]['dm%d' % index]['min'] = 0
+                    fitParameterSettings[catname][vertex][proc]['dm%d' % index]['max'] = +10
+
+
+# for testing
+# fitParameterSettings = collections.defaultdict(lambda: collections.defaultdict( lambda: collections.defaultdict(lambda :collections.defaultdict(lambda: collections.defaultdict(lambda: 7777)))))
+
+print "ZZZ",fitParameterSettings['cat0']['right']['ggh']['dm1']['initial']
+
+modelConfig['fitParameterSettings'] = fitParameterSettings
 
 
