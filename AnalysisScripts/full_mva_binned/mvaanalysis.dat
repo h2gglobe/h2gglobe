@@ -1,6 +1,3 @@
-leadEtCut=40.0
-subleadEtCut=30.0
-
 # Options for the mass spectrum range
 massMin=100.
 massMax=180.
@@ -9,50 +6,15 @@ nDataBins=160
 systRange=3.
 nSystSteps=1    
 
-scaleR9Only=0
-
-subleadEtVBFCut=30
-
 # Testing Hypothesis
 mHMinimum=110.0
 mHMaximum=150.0
 mHStep=0.1
 
-# choose between UCSD and MIT trainings
-bdtTrainingPhilosophy=MIT
-photonLevelMvaUCSD=aux/ID_UCSD.weights.xml
-eventLevelMvaUCSD=aux/diphoton_UCSD.weights.xml
-photonLevelNewIDMVA_EB=aux/2012ICHEP_PhotonID_Barrel_BDT.weights.xml
-photonLevelNewIDMVA_EE=aux/2012ICHEP_PhotonID_Endcap_BDT.weights_PSCorr.xml
-photonLevelMvaMIT_EB=aux/TMVAClassificationPhotonID_Barrel_PassPreSel_Variable_10_BDTnCuts2000_BDT.weights.xml
-photonLevelMvaMIT_EE=aux/TMVAClassificationPhotonID_Endcap_PassPreSel_Variable_10_BDTnCuts2000_BDT.weights.xml
-eventLevelMvaMIT=aux/HggBambu_SMDipho_Jun19_BDTG.weights.xml
-
-# photon ID preselection
-phoidMvaCut=-0.2
-
 # diphoton MVA cut
 diphotonMVAcut=-0.05
 
-# Options for the sidebands mH ranges
-# These define how the sidebands are calculated
-
-# Define sidebands:
-# sidebandWidth        defines the "phase-space" for each sideband (obs/bkg)
-# signalRegionWidth    defines how far (as %) to put the first sideband (ie region in which signal should sit)
-# sidebandShift 	     add an extra gap between the signalRegion and 1st sideband
-# numberOfSidebands    number of sidebands created on each side (all created)
-
-# Shich sidebands to use in sums (ie for binning algo and simple bkg model):
-
-# numberOfSidebandsForAlgos    number of sidebands used on each side for binning algos +sums
-# 			     (warning numberofSidebandGaps+numberOfSidebandsForAlgos <= numberOfSidebands or Init will crash)
-# numberOfSidebandGaps skip this many sidebands on each sidefor summing datasets
-# 		     (all will be in workspace, but not used for sideband sums)
-# massSidebandMax(Min) if upper(lower) edge of sideband is larger(smaller)
-# 		     than this, sideband is ignored in sideband sums
-# 		     (will still be saved in workspace)
-
+# Sideband widowing options
 signalRegionWidth=0.02
 sidebandWidth=0.02
 sidebandShift=0.
@@ -98,36 +60,21 @@ AdaBinEdges_150=-1,0.0024,0.0964,0.164,0.2336,0.282,0.3616,1
 nInclusiveCategories=1
 
 # Stuff for FullMvaToolkit
-includeVBF=1
-nVBFCategories=2
-includeLEP=0
-nLEPCategories=0
+#includeVBF=1
+#nVBFCategories=2
+#includeVHlep=0
+#includeVHmet=0
 
 nEtaCategories=2
 nR9Categories=2
 nPtCategories=1
 
-doTriggerSelection=0
-reRunCiCForData=1
-
 doTraining=0
 splitSignalSample=0
 splitBackgroundSample=0
 
-# choose between UCSD and MIT trainings
-#bdtTrainingPhilosophy=MIT
-#photonLevelMvaUCSD=aux/ID_UCSD.weights.xml
-#eventLevelMvaUCSD=aux/diphoton_UCSD.weights.xml
-#photonLevelNewIDMVA_EB=aux/2012ICHEP_PhotonID_Barrel_BDT.weights.xml
-#photonLevelNewIDMVA_EE=aux/2012ICHEP_PhotonID_Endcap_BDT.weights_PSCorr.xml
-#photonLevelMvaMIT_EB=aux/TMVAClassificationPhotonID_Barrel_PassPreSel_Variable_10_BDTnCuts2000_BDT.weights.xml
-#photonLevelMvaMIT_EE=aux/TMVAClassificationPhotonID_Endcap_PassPreSel_Variable_10_BDTnCuts2000_BDT.weights.xml
-#eventLevelMvaMIT=aux/HggBambu_SMDipho_Jan16_BDTG.weights.xml
-
 MVAtype=BDT
 
-# photon ID preselection
-#phoidMvaCut=-0.2
 
 # Turn on-off all smearings 
 doMCSmearing=1 
@@ -172,10 +119,6 @@ doInterferenceSmear=1
 
 mvaWeightsFolder=aux/sidebandMVA_weights_2012_test/
 
-# Inputs for reweighing
-# - phoId and trigger: same as EPS,  https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/374.html
-# - vertexing from: https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/374/1.html
 
-efficiencyFile=aux/sig_reweighing_ichep2012topup_mva_v2.root
 
 

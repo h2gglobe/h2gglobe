@@ -47,7 +47,7 @@ class MvaAnalysis : public MassFactorizedMvaAnalysis
    
     double mHMaximum, mHMinimum, mHStep; 
     int nInclusiveCategories, nVBFCategories, nLEPCategories;
-    float massMin, massMax;
+    //float massMin, massMax;
     int nDataBins;  
     float signalRegionWidth;
     float sidebandWidth;
@@ -58,15 +58,6 @@ class MvaAnalysis : public MassFactorizedMvaAnalysis
     int numberOfSidebands;
     int numberOfSidebandsForAlgos;
     
-    std::string bdtTrainingPhilosophy;
-    std::string photonLevelMvaUCSD  ;
-    std::string eventLevelMvaUCSD   ;                    
-    std::string photonLevelMvaMIT_EB;
-    std::string photonLevelMvaMIT_EE;
-    std::string eventLevelMvaMIT    ;
-    std::string photonLevelNewIDMVA_EB;
-    std::string photonLevelNewIDMVA_EE;
-    std::string kfacHist;
     std::string MVAtype;
 
     int nMasses;

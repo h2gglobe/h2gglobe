@@ -5,7 +5,7 @@
 #include <iostream>
 #include <algorithm>
 
-#define PADEBUG 0 
+#define PADEBUG 0
 
 using namespace std;
 
@@ -967,6 +967,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
                 
             eventListText << endl;
         }
+
     return (category >= 0 && mass>=massMin && mass<=massMax);
     }
     return false;

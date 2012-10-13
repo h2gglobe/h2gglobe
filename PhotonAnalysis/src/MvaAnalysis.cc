@@ -17,7 +17,7 @@ MvaAnalysis::MvaAnalysis()  :
 
     nMasses  = 9;
     doTraining = false;
-    trainingMassHypothesis = 123.0;
+    trainingMassHypothesis = 124.0;
     
 }
 

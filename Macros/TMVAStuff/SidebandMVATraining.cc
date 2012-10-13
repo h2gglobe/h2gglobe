@@ -211,18 +211,16 @@ int main (int argc, char *argv[]){
   // Apply cuts on samples
   TCut cuts("TMath::Abs(deltaMoverM)<=0.02 && bdtoutput >= -0.05");
 
-  factory->PrepareTrainingAndTestTree( cuts, cuts, "SplitMode=Random:NormMode=NumEvents:!V" );
-  if (Methods_["BDTG"]) // gradient boosted decision trees
-    //factory->BookMethod( TMVA::Types::kBDT, "BDTG", "!H:!V:NTrees=200:MaxDepth=3:BoostType=Grad:Shrinkage=0.10:UseBaggedGrad:GradBaggingFraction=0.50:nCuts=20:NNodesMax=8"); 
-    factory->BookMethod( TMVA::Types::kBDT, "BDTG", "!H:!V:NTrees=1000:BoostType=Grad:Shrinkage=0.10:UseBaggedGrad:GradBaggingFraction=0.5:nCuts=20:NNodesMax=5"); 
-  if (Methods_["MLP"]) // neural network
-    factory->BookMethod( TMVA::Types::kMLP, "MLP", "!H:!V:NeuronType=tanh:NCycles=300:HiddenLayers=N+5,5:TestRate=5:EstimatorType=MSE");   
-  if (Methods_["FDA_GA"]) // functional discriminant with GA minimizer
-    factory->BookMethod( TMVA::Types::kFDA, "FDA_GA", "H:!V:Formula=(0)+(1)*x0+(2)*x1+(3)*x2+(4)*x3:ParRanges=(-1,1);(-10,10);(-10,10);(-10,10);(-10,10):FitMethod=GA:PopSize=300:Cycles=3:Steps=20:Trim=True:SaveBestGen=1" );
-  if (Methods_["PDEFoam"]) // PDE-Foam approach
-    factory->BookMethod( TMVA::Types::kPDEFoam, "PDEFoam", "!H:!V:TailCut=0.001:VolFrac=0.0666:nActiveCells=500:nSampl=2000:nBin=5:Nmin=100:Kernel=None:Compress=T" );
+  factory->PrepareTrainingAndTestTree( cuts, cuts, "SplitMode=Alternate:NormMode=NumEvents:!V" );
 
-/*
+  if (Methods_["BDTG"]) // gradient boosted decision trees
+    factory->BookMethod( TMVA::Types::kBDT, "BDTG", "!H:!V:NTrees=200:MaxDepth=3:BoostType=Grad:Shrinkage=0.10:UseBaggedGrad:GradBaggingFraction=0.50:nCuts=20:NNodesMax=8:IgnoreNegWeights"); 
+//  if (Methods_["MLP"]) // neural network
+//    factory->BookMethod( TMVA::Types::kMLP, "MLP", "!H:!V:NeuronType=tanh:NCycles=300:HiddenLayers=N+5,5:TestRate=5:EstimatorType=MSE");   
+//  if (Methods_["FDA_GA"]) // functional discriminant with GA minimizer
+//    factory->BookMethod( TMVA::Types::kFDA, "FDA_GA", "H:!V:Formula=(0)+(1)*x0+(2)*x1+(3)*x2+(4)*x3:ParRanges=(-1,1);(-10,10);(-10,10);(-10,10);(-10,10):FitMethod=GA:PopSize=300:Cycles=3:Steps=20:Trim=True:SaveBestGen=1" );
+//  if (Methods_["PDEFoam"]) // PDE-Foam approach
+//    factory->BookMethod( TMVA::Types::kPDEFoam, "PDEFoam", "!H:!V:TailCut=0.001:VolFrac=0.0666:nActiveCells=500:nSampl=2000:nBin=5:Nmin=100:Kernel=None:Compress=T" );
   // To do multiple tests of one BDT use e.g
   int nTrees[3] = {100,200,500};
   int maxDepth[4] = {3,5,10,50};
@@ -239,7 +237,8 @@ int main (int argc, char *argv[]){
       }
     }
   }
-*/
+  
+
   if (optimize_) factory->OptimizeAllMethodsForClassification();
   // Train MVAs using the set of training events
   if (!skipTraining_) factory->TrainAllMethods();

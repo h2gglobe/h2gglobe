@@ -2,8 +2,8 @@
 Branches needed for 2-variable BDT training from MvaAnalysis
 ->
 
-name=mass 	 type=1
-name=diphotonMVA type=1
-name=weight 	 type=1
-name=category 	 type=0
-name=deltaMoverM type=1
+name=mass	type=2
+name=bdtoutput	type=2
+name=weight	type=2
+name=category	type=0
+name=deltaMoverM	type=2
