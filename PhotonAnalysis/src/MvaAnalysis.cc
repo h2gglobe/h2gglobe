@@ -272,8 +272,9 @@ void MvaAnalysis::Init(LoopAll& l)
     // Define the number of categories for the statistical analysis and
     // the systematic sets to be formed
 
-    if (includeVBF) l.rooContainer->SetNCategories(nInclusiveCategories_+nVBFDijetJetCategories);
-    else l.rooContainer->SetNCategories(nInclusiveCategories_);
+   // if (includeVBF) 
+    l.rooContainer->SetNCategories(nInclusiveCategories_+nExclusiveCategories);
+   // else l.rooContainer->SetNCategories(nInclusiveCategories_);
 
     l.rooContainer->nsigmas = nSystSteps;
     l.rooContainer->sigmaRange = systRange;
@@ -402,7 +403,7 @@ void MvaAnalysis::Init(LoopAll& l)
         tmvaReader_= new TMVA::Reader();
 
         tmvaReader_->AddVariable("bdtoutput",&_bdtoutput);
-        tmvaReader_->AddVariable("deltaMOverM", &_deltaMOverM);
+        tmvaReader_->AddVariable("deltaMoverM", &_deltaMOverM);
 
         //Invariant Mass Spectra
         l.rooContainer->CreateDataSet("CMS_hgg_mass","data_mass",nDataBins);
@@ -460,8 +461,8 @@ void MvaAnalysis::Init(LoopAll& l)
 
 
         }
-        //TMVA Reader
-        tmvaReader_->BookMVA("BDT_grad_123", mvaWeightsFolder+"/TMVAClassification_BDTgradMIT.weights.xml");
+        //TMVA Reader // for HCP its actually trained at 124
+        tmvaReader_->BookMVA("BDTgradMIT"/*"BDT_grad_123"*/, mvaWeightsFolder+"/TMVAClassification_BDTgradMIT.weights.xml");
     }
 
     FillSignalLabelMap();
@@ -687,7 +688,7 @@ float MvaAnalysis::tmvaGetVal(double mass, double mass_hypothesis, float kinemat
     if (doTraining) return -2.;
     _deltaMOverM = (mass-mass_hypothesis)/mass_hypothesis;
     _bdtoutput = kinematic_bdt;
-    return tmvaReader_->EvaluateMVA( "BDT_grad_123" );
+    return tmvaReader_->EvaluateMVA( "BDTgradMIT"/*"BDT_grad_123"*/ );
 
 }
 
@@ -731,6 +732,11 @@ void MvaAnalysis::fillLEETrees(LoopAll & l,float mass,float diphotonMVA, int cat
             l.FillTree("CMS_hgg_mass",mass);
             l.FillTree("category",category);
             l.FillTree("weight",evweight);
+            l.FillTree("cur_type",cur_type);
+            if (cur_type < 0){
+                l.FillTree("genPt",generatorPt_);
+                l.FillTree("genY",generatorY_);
+            }
 }
 
 // ----------------------------------------------------------------------------------------------------

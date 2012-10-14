@@ -73,7 +73,7 @@ AdaBinEdges_150=-1,0.0024,0.0964,0.164,0.2336,0.282,0.3616,1
 # General Options
 
 nInclusiveCategories=1
-
+nExclusiveCategories=5
 # Stuff for FullMvaToolkit
 #includeVBF=1
 #nVBFCategories=2
@@ -125,14 +125,14 @@ doR9Smear=0
 doR9Syst=0
 
 doKFactorSmear=0
-doKFactorSyst=0
+doKFactorSyst=1
 
 doPdfWeightSmear=1
 doPdfWeightSyst=1
 
 doInterferenceSmear=1
 
-mvaWeightsFolder=aux/sidebandMVA_weights_2012_test/
+mvaWeightsFolder=aux/sidebandMVA_weights_hcp/
 
 
 

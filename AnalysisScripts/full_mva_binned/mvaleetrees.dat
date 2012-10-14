@@ -10,3 +10,5 @@ type=0 name=cur_type
 type=2 name=bdtoutput
 type=2 name=CMS_hgg_mass
 type=2 name=weight
+type=2 name=genPt
+type=2 name=genY

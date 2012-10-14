@@ -214,7 +214,7 @@ int main (int argc, char *argv[]){
   factory->PrepareTrainingAndTestTree( cuts, cuts, "SplitMode=Alternate:NormMode=NumEvents:!V" );
 
   if (Methods_["BDTG"]) // gradient boosted decision trees
-    factory->BookMethod( TMVA::Types::kBDT, "BDTG", "!H:!V:NTrees=200:MaxDepth=3:BoostType=Grad:Shrinkage=0.10:UseBaggedGrad:GradBaggingFraction=0.50:nCuts=20:NNodesMax=8:IgnoreNegWeights"); 
+    factory->BookMethod( TMVA::Types::kBDT, "BDTgradMIT", "!H:!V:NTrees=500:MaxDepth=3:BoostType=Grad:Shrinkage=1.0:UseBaggedGrad:GradBaggingFraction=0.50:nCuts=20:NNodesMax=8:IgnoreNegWeights"); 
 //  if (Methods_["MLP"]) // neural network
 //    factory->BookMethod( TMVA::Types::kMLP, "MLP", "!H:!V:NeuronType=tanh:NCycles=300:HiddenLayers=N+5,5:TestRate=5:EstimatorType=MSE");   
 //  if (Methods_["FDA_GA"]) // functional discriminant with GA minimizer
@@ -222,6 +222,7 @@ int main (int argc, char *argv[]){
 //  if (Methods_["PDEFoam"]) // PDE-Foam approach
 //    factory->BookMethod( TMVA::Types::kPDEFoam, "PDEFoam", "!H:!V:TailCut=0.001:VolFrac=0.0666:nActiveCells=500:nSampl=2000:nBin=5:Nmin=100:Kernel=None:Compress=T" );
   // To do multiple tests of one BDT use e.g
+/*
   int nTrees[3] = {100,200,500};
   int maxDepth[4] = {3,5,10,50};
   float shrinkage[3] = {0.1,0.5,1.};
@@ -237,7 +238,7 @@ int main (int argc, char *argv[]){
       }
     }
   }
-  
+*/
 
   if (optimize_) factory->OptimizeAllMethodsForClassification();
   // Train MVAs using the set of training events

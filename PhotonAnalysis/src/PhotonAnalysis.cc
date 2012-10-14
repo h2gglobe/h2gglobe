@@ -270,6 +270,9 @@ void PhotonAnalysis::applyGenLevelSmearings(double & genLevWeight, const TLorent
     }
     genLevWeight*=genWeight;
     }
+    // Set some provate members with info
+    generatorPt_ = gP4.Pt();
+    generatorY_  = gP4.Rapidity();
 }
 
 // ----------------------------------------------------------------------------------------------------

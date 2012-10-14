@@ -309,7 +309,11 @@ class PhotonAnalysis : public BaseAnalysis
     int lastRun;
     int lastEvent;
     int lastLumi;
-    
+
+    // genLevels for calculating pdf errors post ws production (until PdfWeightSmearer works)
+    float generatorPt_;    
+    float generatorY_;    
+
  protected:
     void PreselectPhotons(LoopAll& l, int jentry);
     float GetSmearSigma(float eta, float r9, int epoch=0);
