@@ -36,18 +36,19 @@ void makeParametricModelDatacard(string infilename, string outfilename="cms_hgg_
   xsecs[2] = (0.7154+0.4044)*2.25e-03;
   xsecs[3] = 0.1334*2.25e-03;
 
-  const double lumi = 5345.;  
+  const double lumi = 12207.;  
 
   const double lumiuncert = 1.044;
   const double triguncert = 1.01;
   const double vtxuncert = 0.005;
 
-  const int ncats=6;
+  const int ncats=9;
   const int nInclusiveCats=4;
-  const int nExclusiveCats=2;
+  const int nVBFCats=2;
+  const int nExclusiveCats=5;
 
-  string pathToDatBkgWS="CMS-HGG.root";
-  string pathToSigWS="ubersignalmodel.root";
+  string pathToDatBkgWS="/afs/cern.ch/work/m/mkenzie/private/h2g/latest_workspaces/CMS-HGG_massfacmva_hcpPreapproval.root";
+  string pathToSigWS="/afs/cern.ch/work/m/mkenzie/private/h2g/latest_workspaces/SigMod_massfacmva_hcpPreapproval.root";
 
   // define various cuts
 
@@ -59,19 +60,25 @@ void makeParametricModelDatacard(string infilename, string outfilename="cms_hgg_
     catnames.push_back(Form("cat%d",cat));
   }
  
-  TCut vbfloose("(category==5)");
-  TCut vbftight("(category==4)");
-  TCut allvbfcut("category==4 || category==5");
-  //TCut vbfloose("(bdtmod>=(-0.05) && vbfmva>=0.93 && vbfmva<0.98)");
-  //TCut vbftight("(bdtmod>=(-0.05) && vbfmva>=0.98)");
-  //TCut allvbfcut = vbfloose*vbftight;
+  //TCut vbfloose("(category==5)");
+  //TCut vbftight("(category==4)");
+  //TCut allvbfcut("category==4 || category==5");
+  TCut vbfloose("(bdtmod>=(-0.05) && vbfmva>=0.93 && vbfmva<0.985)");
+  TCut vbftight("(bdtmod>=(-0.05) && vbfmva>=0.985)");
+  TCut allvbfcut("(bdtmod>=(-0.05) && vbfmva>=0.93)");
+  TCut muon("(category==6)");
+  TCut ele("(category==7)");
+  TCut met("(category==8)");
   
   catcuts.push_back(TCut("(bdtmod>=0.88)"*!vbfloose));
   catcuts.push_back(TCut("(bdtmod>=0.71 && bdtmod<0.88)"*!vbfloose));
   catcuts.push_back(TCut("(bdtmod>=0.50 && bdtmod<0.71)"*!vbfloose));
   catcuts.push_back(TCut("(bdtmod>=(-0.05) && bdtmod<0.50)"*!vbfloose));
   catcuts.push_back(vbftight);
-  catcuts.push_back(vbfloose && !vbftight);
+  catcuts.push_back(vbfloose);
+  catcuts.push_back(muon);
+  catcuts.push_back(ele);
+  catcuts.push_back(met);
 
   // mva boundary cuts
   vector<TCut> mvacuts;
@@ -90,11 +97,6 @@ void makeParametricModelDatacard(string infilename, string outfilename="cms_hgg_
   proccuts.push_back(TCut("(process_id==1)"));
   proccuts.push_back(TCut("(process_id==2)"));
   proccuts.push_back(TCut("(process_id==3)"));
-
-  // exclusive cuts
-  TCut mucut("category==6"); 
-  TCut elecut("category==7"); 
-  TCut metcut("category==8"); 
 
   // process names
   vector<string> procnames;
@@ -121,16 +123,16 @@ void makeParametricModelDatacard(string infilename, string outfilename="cms_hgg_
   printf("done intro\n");
   
   //data
-  fprintf(file, "shapes data_obs * %s/databkg/bkgdatawithfit.root wbkg:data_$CHANNEL\n", pathToDatBkgWS.c_str());
+  fprintf(file, "shapes data_obs * %s cms_hgg_workspace:roohist_data_mass_$CHANNEL\n", pathToDatBkgWS.c_str());
   
   //bkg pdfs
-  fprintf(file, "shapes bkg_mass * %s/databkg/bkgdatawithfit.root wbkg:CMS_hgg_$CHANNEL_bkgshape\n", pathToDatBkgWS.c_str());
+  fprintf(file, "shapes bkg_mass * %s cms_hgg_workspace:pdf_data_pol_model_8TeV_$CHANNEL\n", pathToDatBkgWS.c_str());
   
   //signal pdfs
-  fprintf(file, "shapes ggH * %s/ggh/ubersignalmodel.root wsig:hggpdfsmrel_$CHANNEL_ggh\n", pathToSigWS.c_str());
-  fprintf(file, "shapes qqH * %s/vbf/ubersignalmodel.root wsig:hggpdfsmrel_$CHANNEL_vbf\n", pathToSigWS.c_str());
-  fprintf(file, "shapes VH  * %s/wzh/ubersignalmodel.root wsig:hggpdfsmrel_$CHANNEL_wzh\n", pathToSigWS.c_str());
-  fprintf(file, "shapes ttH * %s/tth/ubersignalmodel.root wsig:hggpdfsmrel_$CHANNEL_tth", pathToSigWS.c_str());
+  fprintf(file, "shapes ggH * %s wsig_8TeV:hggpdfrel_$CHANNEL_ggh\n", pathToSigWS.c_str());
+  fprintf(file, "shapes qqH * %s wsig_8TeV:hggpdfrel_$CHANNEL_vbf\n", pathToSigWS.c_str());
+  fprintf(file, "shapes VH  * %s wsig_8TeV:hggpdfrel_$CHANNEL_wzh\n", pathToSigWS.c_str());
+  fprintf(file, "shapes ttH * %s wsig_8TeV:hggpdfrel_$CHANNEL_tth", pathToSigWS.c_str());
 
   fprintf(file,"\n\n\n\n");
 
@@ -244,7 +246,7 @@ void makeParametricModelDatacard(string infilename, string outfilename="cms_hgg_
   fprintf(file,"CMS_hgg_eff_trig lnN  ");
   for (int icat=0; icat<ncats; ++icat) {
     for (unsigned int iproc=0; iproc<procnames.size(); ++iproc) {
-      float rate;
+      //float rate;
       if (iproc!=(procnames.size()-1)) fprintf(file, "%3f ", triguncert);
       else fprintf(file, "- ");      
     }
@@ -335,12 +337,12 @@ void makeParametricModelDatacard(string infilename, string outfilename="cms_hgg_
   
       
   printf("vbf uncerts\n");
-  for (int j=0; j<vbfuncerts.size(); ++j) {
+  for (unsigned int j=0; j<vbfuncerts.size(); ++j) {
     double vbfuncert = vbfuncerts.at(j);
     double gguncert = vbfgguncerts.at(j);      
     fprintf(file, "%s      lnN  ",vbfuncertnames.at(j).c_str());
     // inclusive cats
-    for (int icat=0; icat<(ncats-2); ++icat) {
+    for (int icat=0; icat<(ncats-nExclusiveCats); ++icat) {
       for (unsigned int k=0; k<(procnames.size()-1); ++k) {
         double uncert;
         if (k==1) uncert = vbfuncert;
@@ -368,9 +370,15 @@ void makeParametricModelDatacard(string infilename, string outfilename="cms_hgg_
       //printf("%3f %3f %3f %3f - ",catuncert,catuncert,catuncert,catuncert);
       fprintf(file, "- ");
     }
+    // vbf categories
     fprintf(file, "%3f %3f %3f %3f - ",gguncert,vbfuncert,gguncert,gguncert);
     fprintf(file, "%3f %3f %3f %3f - ",gguncert,vbfuncert,gguncert,gguncert);
     //printf("%3f %3f - ",vbfuncert,gguncert);
+    // lepton and met categories
+    fprintf(file, "- - - - - ");
+    fprintf(file, "- - - - - ");
+    fprintf(file, "- - - - - ");
+
     fprintf(file, "\n");
     
   }
@@ -384,23 +392,25 @@ void makeParametricModelDatacard(string infilename, string outfilename="cms_hgg_
   vbfmiggguncerts.push_back(1.15);
   
   printf("vbf migration uncerts\n");
-  for (int j=0; j<vbfmiguncerts.size(); ++j) {
+  for (unsigned int j=0; j<vbfmiguncerts.size(); ++j) {
     fprintf(file, "%s      lnN  ",vbfmiguncertnames.at(j).c_str());          
     
-    for (int icat=0; icat<(ncats-2); ++icat) {
+    // inclusive cats
+    for (int icat=0; icat<(ncats-nExclusiveCats); ++icat) {
       fprintf(file, "- - - - - ");
     }
 
     double vbfuncert = vbfmiguncerts.at(j);
     double gguncert = vbfmiggguncerts.at(j);      
 
-    for (unsigned int k=0; k<int(proccuts.size()); ++k) {
+    // vbf cats
+    for (unsigned int k=0; k<proccuts.size(); ++k) {
       double uncert;
       if (k==1) uncert = vbfuncert;
       else uncert = gguncert;
   
-      TCut looseproccut = catcuts.at(ncats-1)*proccuts.at(k);
-      TCut tightproccut = catcuts.at(ncats-2)*proccuts.at(k);
+      TCut looseproccut = catcuts.at(ncats-nExclusiveCats+1)*proccuts.at(k);
+      TCut tightproccut = catcuts.at(ncats-nExclusiveCats)*proccuts.at(k);
 
       tree->Draw("1>>hcount",looseproccut,"goff");
       double nloose = hcount->GetSumOfWeights();
@@ -421,14 +431,20 @@ void makeParametricModelDatacard(string infilename, string outfilename="cms_hgg_
       fprintf(file,"%3f ",antiuncert);
     }
     fprintf(file, "- ");
-    for (int k=0; k<(procnames.size()-1); ++k) {
+    for (unsigned int k=0; k<(procnames.size()-1); ++k) {
       double uncert;
       if (k==1) uncert = vbfuncert;
       else uncert = gguncert;
       
       fprintf(file,"%3f ",uncert);
     }
-    fprintf(file, "- \n");
+    fprintf(file, "- ");
+    
+    // lepton and met categories
+    for (int cat=nInclusiveCats+nVBFCats; cat<ncats; cat++){
+      fprintf(file, "- - - - - ");
+    }
+    //fprintf(file, "- \n");
   }
   fprintf(file,"\n\n\n");
   
@@ -469,6 +485,10 @@ void makeParametricModelDatacard(string infilename, string outfilename="cms_hgg_
     dscales[icat]/=dweights[icat];
     dsmears[icat]/=dweights[icat];
     fprintf(file, "CMS_hgg_nuissancedeltasmear%s param 0.0 %5f\n" , catnames.at(icat).c_str(), dsmears.at(icat));
+  }
+  fprintf(file,"\n\n\n");
+
+  for (int icat=0; icat<ncats; ++icat){
     fprintf(file, "CMS_hgg_nuissancedeltam%s param 0.0 %5f\n" , catnames.at(icat).c_str(), dscales.at(icat));
   }
   fprintf(file,"\n\n\n");
@@ -480,17 +500,17 @@ void makeParametricModelDatacard(string infilename, string outfilename="cms_hgg_
   hcount->Reset();
   
   fprintf(file,"CMS_hgg_n_sigmae lnN ");
-  for (int icat=0; icat<catcuts.size(); ++icat) {
-    for (int iproc=0; iproc<(procnames.size()-1); ++iproc) {
-      //tree->SetAlias("bdtmod","bdtout");
+  for (unsigned int icat=0; icat<catcuts.size(); ++icat) {
+    for (unsigned int iproc=0; iproc<(procnames.size()-1); ++iproc) {
+      tree->SetAlias("bdtmod","bdtout");
       hcount->Reset();
       tree->Draw("1>>hcount",catcuts.at(icat)*proccuts.at(iproc),"goff");
       double nom = hcount->GetSumOfWeights();
-      //tree->SetAlias("bdtmod","bdtout_sigE_up");
+      tree->SetAlias("bdtmod","bdtout_sigE_up");
       hcount->Reset();
       tree->Draw("1>>hcount",catcuts.at(icat)*proccuts.at(iproc),"goff");
       double sigeplus = hcount->GetSumOfWeights();
-      //tree->SetAlias("bdtmod","bdtout_sigE_down");
+      tree->SetAlias("bdtmod","bdtout_sigE_down");
       hcount->Reset();
       tree->Draw("1>>hcount",catcuts.at(icat)*proccuts.at(iproc),"goff");
       double sigeminus = hcount->GetSumOfWeights();
@@ -501,10 +521,9 @@ void makeParametricModelDatacard(string infilename, string outfilename="cms_hgg_
   }
   fprintf(file,"\n");
 
-  TH1D *hbdt = new TH1D("hbdt","hbdt",1000,-1,1.);
   fprintf(file,"CMS_hgg_n_id lnN ");
-  for (int icat=0; icat<catcuts.size(); ++icat) {
-    for (int iproc=0; iproc<(procnames.size()-1); ++iproc) {
+  for (unsigned int icat=0; icat<catcuts.size(); ++icat) {
+    for (unsigned int iproc=0; iproc<(procnames.size()-1); ++iproc) {
       hcount->Reset();
       tree->SetAlias("bdtmod","bdtout");
       tree->Draw("1>>hcount",catcuts.at(icat)*proccuts.at(iproc),"goff");
@@ -512,17 +531,20 @@ void makeParametricModelDatacard(string infilename, string outfilename="cms_hgg_
       tree->SetAlias("bdtmod","bdtout_id_up");
       hcount->Reset();
       tree->Draw("1>>hcount",catcuts.at(icat)*proccuts.at(iproc),"goff");
-      double idplus = hcount->GetSumOfWeights();
+      double idminus = hcount->GetSumOfWeights();
       tree->SetAlias("bdtmod","bdtout_id_down");
       hcount->Reset();
       tree->Draw("1>>hcount",catcuts.at(icat)*proccuts.at(iproc),"goff");
-      double idminus = hcount->GetSumOfWeights();
+      double idplus = hcount->GetSumOfWeights();
       tree->SetAlias("bdtmod","bdtout");
       fprintf(file,"%.3f/%.3f ",idminus/nom, idplus/nom);
     }
     fprintf(file,"- ");
   }
-  fprintf(file,"\n");    
+  fprintf(file,"\n");   
+
+  inFile->Close();
+  outFile->Close();
 
 }
 
