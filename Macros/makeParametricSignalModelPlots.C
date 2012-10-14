@@ -268,7 +268,10 @@ void Plot(RooRealVar *mass, RooDataSet *data, RooAbsPdf *pdf, pair<double,double
   fwhmText->Draw("same");
   lat1.Draw("same");
   lat2.Draw("same");
-  canv->Print(savename.c_str());
+  canv->Print(Form("%s.pdf",savename.c_str()));
+  canv->Print(Form("%s.png",savename.c_str()));
+  string path = savename.substr(0,savename.find('/'));
+  canv->Print(Form("%s/animation.gif+100",path.c_str()));
   delete canv;
 
 }
@@ -532,6 +535,7 @@ void makeParametricSignalModelPlots(string hggFileName, string pathName, int nca
   map<string,double> fwhms;
   
   system(Form("mkdir -p %s",pathName.c_str()));
+  system(Form("rm %s/animation.gif",pathName.c_str()));
   for (map<string,RooDataSet*>::iterator dataIt=dataSets.begin(); dataIt!=dataSets.end(); dataIt++){
     pair<double,double> thisSigRange = getEffSigma(mass,pdfs[dataIt->first],m_hyp-10.,m_hyp+10.);
     //pair<double,double> thisSigRange = getEffSigBinned(mass,pdf[dataIt->first],m_hyp-10.,m_hyp+10);
@@ -539,7 +543,7 @@ void makeParametricSignalModelPlots(string hggFileName, string pathName, int nca
     sigEffs.insert(pair<string,double>(dataIt->first,(thisSigRange.second-thisSigRange.first)/2.));
     fwhms.insert(pair<string,double>(dataIt->first,thisFWHMRange[1]-thisFWHMRange[0]));
     if (doCrossCheck) performClosure(mass,pdfs[dataIt->first],dataIt->second,Form("%s/closure_%s.pdf",pathName.c_str(),dataIt->first.c_str()),m_hyp-10.,m_hyp+10.,thisSigRange.first,thisSigRange.second);
-    Plot(mass,dataIt->second,pdfs[dataIt->first],thisSigRange,thisFWHMRange,labels[dataIt->first],Form("%s/%s.pdf",pathName.c_str(),dataIt->first.c_str()));
+    Plot(mass,dataIt->second,pdfs[dataIt->first],thisSigRange,thisFWHMRange,labels[dataIt->first],Form("%s/%s",pathName.c_str(),dataIt->first.c_str()));
   }
   
   map<string,pair<double,double> > bkgVals;
