@@ -738,10 +738,11 @@ void FMTRebin::executeRebinning(int mass){
 	if (!getrederiveOptimizedBinEdges()){
 		BinEdges = getBinEdges(mass);
 		VBFBinEdges = getVBFBinEdges(mass);
-		// for now hard code lep tag which doesn't exist!
-		LEPBinEdges.push_back(2.);
-		LEPBinEdges.push_back(2.04);
-		setLEPBinEdges(mass,LEPBinEdges);
+		LEPBinEdges = getLEPBinEdges(mass);
+    // for now hard code lep tag which doesn't exist!
+		//LEPBinEdges.push_back(2.);
+		//LEPBinEdges.push_back(2.04);
+		//setLEPBinEdges(mass,LEPBinEdges);
 	}
 	else {
 		cout << "Running fit" << endl;
