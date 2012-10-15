@@ -1,7 +1,7 @@
 ## Declare Branches for flat tree which will be saved in output
 ## delare:
 ## 	type=0,1,2,3 (int,unsigned int,float,double)
-## 	name=name 
+## 	name=name
 
 type=0 name=run
 type=0 name=event
@@ -30,6 +30,8 @@ type=2 name=deltaPhiGamGam
 type=2 name=etaJJ
 type=2 name=thetaJ1
 type=2 name=thetaJ2
+type=2 name=absThetaL
+type=2 name=absThetaS
 
 type=2 name=leadJPt
 type=2 name=subleadJPt
@@ -41,3 +43,11 @@ type=2 name=MGamGam
 type=2 name=diphoPtOverM
 type=2 name=leadPtOverM
 type=2 name=subleadPtOverM
+type=2 name=leadPhoEta
+type=2 name=subleadPhoEta
+type=2 name=leadJEta
+type=2 name=subleadJEta
+type=2 name=VBF_Pz
+type=2 name=VBF_S
+type=2 name=VBF_K1
+type=2 name=VBF_K2

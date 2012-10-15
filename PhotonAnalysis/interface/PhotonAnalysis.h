@@ -20,23 +20,23 @@
 class JetHandler;
 
 // ------------------------------------------------------------------------------------
-class PhotonAnalysis : public BaseAnalysis 
+class PhotonAnalysis : public BaseAnalysis
 {
  public:
-    
+
     PhotonAnalysis();
     virtual ~PhotonAnalysis();
-    
+
     virtual const std::string & name() const { return name_; };
-    
+
     // LoopAll analysis interface implementation
     virtual void Init(LoopAll&);
     virtual void Term(LoopAll&);
-    
+
     virtual void ReducedOutputTree(LoopAll &l, TTree *);
     virtual void GetBranches(TTree *, std::set<TBranch *>& );
-    
-    virtual void FillReductionVariables(LoopAll& l, int jentry);   
+
+    virtual void FillReductionVariables(LoopAll& l, int jentry);
     virtual bool SelectEventsReduction(LoopAll&, int);
 
     virtual bool SkimEvents(LoopAll&, int);
@@ -44,29 +44,29 @@ class PhotonAnalysis : public BaseAnalysis
     virtual bool Analysis(LoopAll&, Int_t);
 
     virtual void ResetAnalysis();
-    
+
     float zero_;
-    //void GetRegressionCorrections(LoopAll&);  
-    //  void GetRegressionCorrections(LoopAll&);    
+    //void GetRegressionCorrections(LoopAll&);
+    //  void GetRegressionCorrections(LoopAll&);
     // Public parameters to be read from config file
-    VertexAlgoParameters vtxAlgoParams;  
+    VertexAlgoParameters vtxAlgoParams;
     std::vector<std::string> vtxVarNames;
     std::vector<string> tmvaPerVtxVariables;
 
     bool reRunVtx, rematchConversions;
-    
-    std::string tmvaPerVtxMethod;                           
-    std::string tmvaPerVtxWeights;                  
-    std::string tmvaPerEvtMethod;                   
-    std::string tmvaPerEvtWeights;                  
-                                                        
+
+    std::string tmvaPerVtxMethod;
+    std::string tmvaPerVtxWeights;
+    std::string tmvaPerEvtMethod;
+    std::string tmvaPerEvtWeights;
+
     bool useDefaultVertex;
     float forcedRho;
-    bool applyPtoverM;  
+    bool applyPtoverM;
     float massMin, massMax;
-    bool doTriggerSelection; 
+    bool doTriggerSelection;
     std::vector<TriggerSelection> triggerSelections;
-    
+
     // Options
     bool dataIs2011;
     bool includeVBF;
@@ -139,7 +139,7 @@ class PhotonAnalysis : public BaseAnalysis
     EnergySmearer::energySmearingParameters eResolCorrPars;
     void setupEresolSmearer();
     void setupEresolSyst(LoopAll &l);
-    
+
     EnergySmearer::energySmearingParameters eSmearPars;
     float smearing_sigma_EBHighR9       ;
     float smearing_sigma_EBLowR9        ;
@@ -168,12 +168,12 @@ class PhotonAnalysis : public BaseAnalysis
     std::string energyCorrectionMethod;
     //std::string massResolutionFileName;
 
-    bool mvaVertexSelection, addConversionToMva;     
+    bool mvaVertexSelection, addConversionToMva;
 
     // PhotonFix
     std::string photonFixDat;
     std::string regressionFile;
-    
+
     int   nEtaCategories, nR9Categories, nPtCategories;
     bool  usePUjetveto;
     //std::string photonFixDat;
@@ -188,8 +188,8 @@ class PhotonAnalysis : public BaseAnalysis
     float sublead_drtotk;
     float sublead_hovere;
     float sublead_mgg;
-  
-    // n-1 plots for VH electron tag 
+
+    // n-1 plots for VH electron tag
     float myEl_leptonSig ;
     float myEl_elpt      ;
     float myEl_oEsuboP   ;
@@ -235,7 +235,7 @@ class PhotonAnalysis : public BaseAnalysis
     float myEl_mgg       ;
     float myEl_MET       ;
     float myEl_METphi    ;
-    float myEl_diphomva  ; 
+    float myEl_diphomva  ;
     float myEl_presellead ;
     float myEl_matchellead;
     float myEl_preselsub  ;
@@ -244,10 +244,10 @@ class PhotonAnalysis : public BaseAnalysis
     float myEl_ElePho   ;
     float myEl_passelcuts ;
 
-    // Chris' extras 
+    // Chris' extras
     std::string bdtTrainingPhilosophy;
     std::string photonLevelMvaUCSD  ;
-    std::string eventLevelMvaUCSD   ;                    
+    std::string eventLevelMvaUCSD   ;
     std::string photonLevelMvaMIT_EB;
     std::string photonLevelMvaMIT_EE;
     std::string eventLevelMvaMIT    ;
@@ -266,8 +266,8 @@ class PhotonAnalysis : public BaseAnalysis
     float  myVHhaddPhi;
     float  myVHhad_Mjj;
     float  myVHhad_Mgg;
-    
-    // n-1 plots for VBF tag 2011 
+
+    // n-1 plots for VBF tag 2011
     float  myVBFLeadJPt;
     float  myVBFSubJPt;
     float  myVBFdEta;
@@ -284,14 +284,22 @@ class PhotonAnalysis : public BaseAnalysis
     float  myVBF_MVA;
     float  myVBF_thetaJ1;
     float  myVBF_thetaJ2;
+    float  myVBF_thetaS;
+    float  myVBF_thetaL;
     float  myVBF_MVA0;
     float  myVBF_MVA1;
     float  myVBF_MVA2;
-    
+    float  myVBF_leadEta;
+    float  myVBF_subleadEta;
+    float  myVBF_Pz;
+    float  myVBF_S;
+    float  myVBF_K1;
+    float  myVBF_K2;
+
     bool bookDiPhoCutsInVbf;
     bool mvaVbfSelection, mvaVbfUseDiPhoPt, mvaVbfUsePhoPt;
     bool multiclassVbfSelection, vbfVsDiphoVbfSelection;
-    TString mvaVbfWeights, mvaVbfMethod; 
+    TString mvaVbfWeights, mvaVbfMethod;
     std::vector<float> mvaVbfCatBoundaries;
     std::vector<float> multiclassVbfCatBoundaries0;
     std::vector<float> multiclassVbfCatBoundaries1;
@@ -311,23 +319,23 @@ class PhotonAnalysis : public BaseAnalysis
     int lastLumi;
 
     // genLevels for calculating pdf errors post ws production (until PdfWeightSmearer works)
-    float generatorPt_;    
-    float generatorY_;    
+    float generatorPt_;
+    float generatorY_;
 
  protected:
     void PreselectPhotons(LoopAll& l, int jentry);
     float GetSmearSigma(float eta, float r9, int epoch=0);
-    
+
     void SetNullHiggs(LoopAll& l);
     bool FindHiggsObjects(LoopAll& l);
     Bool_t GenMatchedPhoton(LoopAll& l, int ipho);
-    
+
     bool ClassicCatsNm1Plots(LoopAll& l, int diphoton_nm1_id, float* smeared_pho_energy, float eventweight, float myweight);
-    
+
     // Exclusive tags
-    
+
     // ICHEP2012
-    bool VBFTag2012(int & ijet1, int & ijet2, LoopAll& l, int diphoton_id, 
+    bool VBFTag2012(int & ijet1, int & ijet2, LoopAll& l, int diphoton_id,
 		    float* smeared_pho_energy=0, bool nm1=false, float eventweight=1, float myweight=1,bool * jetid_flags=0);
     TMVA::Reader *tmvaVbfReader_;
     // Moriond 2012
@@ -355,33 +363,33 @@ class PhotonAnalysis : public BaseAnalysis
     // HCP2012
     bool MuonTag2012B(LoopAll& l, int& diphotonVHlep_id, int& mu_ind, int& muVtx, int& mu_cat, float* smeared_pho_energy, ofstream& lep_sync, bool mvaselection=true, float phoidMvaCut=-0.2, float eventweight=1.0, std::vector<float>  smeared_pho_weight=std::vector<float>());
     void ControlPlotsMuonTag2012B(LoopAll& l, TLorentzVector lead_p4, TLorentzVector sublead_p4, int mu_ind, float bdtoutput, float evweight, std::string label);
-    
-    
+
+
     // ~ ICHEP2012
     bool METTag2012(LoopAll& l, int& diphotonVHmet_id , float* smeared_pho_energy);  //met at analysis step
     void MetCorrections2012(LoopAll& l);
     void MetCorrections2012_Simple(LoopAll& l, TLorentzVector lead_p4, TLorentzVector sublead_p4);
-    
+
     // HCP2012
     bool METTag2012B(LoopAll& l, int& diphotonVHmet_id, int& met_cat, float* smeared_pho_energy, ofstream& met_sync, bool mvaselection=true, float phoidMvaCut=-0.2, bool useUncor=true);
-    
-    
+
+
     int GenMatch(LoopAll& l, TLorentzVector* recop4);
     bool PhotonMatchElectron(LoopAll& l, TLorentzVector* pho_p4);
     bool PhotonMatchElectron(LoopAll& l, TLorentzVector* pho_p4, int& el_match_ind);
     bool HLTPhotonPreselection(LoopAll& l, TLorentzVector* pho_p4, int phoind);
-    
+
     ofstream met_sync;
     ofstream lep_sync;
-    
+
     // Pile-up reweighing
     void loadPuMap(const char * fname, TDirectory * dir, TH1 * target=0);
     void loadPuWeights(int typid, TDirectory * dir, TH1 * target=0);
-    float getPuWeight(int npu, int sample_type, SampleContainer* container, bool warnMe); 
+    float getPuWeight(int npu, int sample_type, SampleContainer* container, bool warnMe);
     TH1 * puTargetHist;
 
     std::string name_;
-   
+
     // Beamsport reweighting
     float BeamspotReweight(double vtxZ, double genZ);
     void saveBSTrees(LoopAll &l, float evweight, int category, TLorentzVector Higgs, TVector3 *chosenVtx, TVector3 *genVtx, float diphobdt_output=-100.);
@@ -389,7 +397,7 @@ class PhotonAnalysis : public BaseAnalysis
     // Track systematics
     float ComputeEventScaleError(LoopAll& l, int ipho1, int ipho2);
     float ComputeEventSmearError(LoopAll& l, int ipho1, int ipho2);
-    pair<double,double> ComputeNewSigmaMs(LoopAll &l, int ipho1, int ipho2, int ivtx, float syst_shift); 
+    pair<double,double> ComputeNewSigmaMs(LoopAll &l, int ipho1, int ipho2, int ivtx, float syst_shift);
     void saveMassFacDatCardTree(LoopAll& l, int cur_type, int category, float evweight, int ipho1, int ipho2, int ivtx, float vtxProb, TLorentzVector lead_p4, TLorentzVector sublead_p4, double sigmaMrv, double sigmaMwv, double sigmaMeonly, string trainPhi, float lead_id_mva, float sublead_id_mva);
 
     // Vertex analysis
@@ -399,37 +407,39 @@ class PhotonAnalysis : public BaseAnalysis
 
     // Jets
     JetHandler * jetHandler_;
-    void postProcessJets(LoopAll & l, int vtx=-1); 
+    void postProcessJets(LoopAll & l, int vtx=-1);
     void switchJetIdVertex(LoopAll &l, int ivtx);
 
     std::map<int, vector<double> > weights;
     int trigCounter_;
-    
+
     // MC smearing and correction machinery
     void applyGenLevelSmearings(double & genLevWeight, const TLorentzVector & gP4, int npu, int sample_type, BaseGenLevelSmearer * sys=0, float systshift=0.);
-    
+
     void applySinglePhotonSmearings(std::vector<float> & smeared_pho_energy, std::vector<float> & smeared_pho_r9, std::vector<float> & smeared_pho_weight,
 				    int cur_type, const LoopAll & l, const float * energyCorrected, const float * energyCorrectedError,
 				    BaseSmearer * sys=0, float syst_shift=0.);
-    
+
     void fillDiphoton(TLorentzVector & lead_p4, TLorentzVector & sublead_p4, TLorentzVector & Higgs,
                   float & lead_r9, float & sublead_r9, TVector3 *& vtx, const float * energy,
                   const LoopAll & l, int diphoton_id);
     void fillDiphoton(TLorentzVector & lead_p4, TLorentzVector & sublead_p4, TLorentzVector & Higgs,
                   float & lead_r9, float & sublead_r9, TVector3 *& vtx, const float * energy,
                   const LoopAll & l, int leadind, int subleadind, int myvtx);
-    
-    void applyDiPhotonSmearings(TLorentzVector & Higgs, TVector3 & vtx, int category, int cur_type, const TVector3 & truevtx, 
+
+    void applyDiPhotonSmearings(TLorentzVector & Higgs, TVector3 & vtx, int category, int cur_type, const TVector3 & truevtx,
 				float & evweight, float & idmva1, float & idmva2,
 				BaseDiPhotonSmearer * sys=0, float syst_shift=0.);
-    
+
+		std::pair<TLorentzVector, TLorentzVector> GetVBF_IntermediateBoson(TLorentzVector& Pho1, TLorentzVector& Pho2, TLorentzVector& Jet1, TLorentzVector& Jet2);
+
     std::vector<BaseSmearer *> photonSmearers_;
     std::vector<BaseSmearer *> systPhotonSmearers_;
     std::vector<BaseDiPhotonSmearer *> diPhotonSmearers_;
     std::vector<BaseDiPhotonSmearer *> systDiPhotonSmearers_;
     std::vector<BaseGenLevelSmearer *> genLevelSmearers_;
     std::vector<BaseGenLevelSmearer *> systGenLevelSmearers_;
-     
+
     // common smearers
     EnergySmearer *eScaleDataSmearer ; // corrections for energy scale data
     EnergySmearer *eScaleSmearer, *eScaleCorrSmearer;      // corrections for energy scale  MC
@@ -440,8 +450,8 @@ class PhotonAnalysis : public BaseAnalysis
     std::vector<float> corrected_pho_energy;
     std::vector<PhotonReducedInfo> photonInfoCollection;
 
-    
-    
+
+
     Float_t *energyCorrected;
     Float_t *energyCorrectedError;
 
@@ -450,17 +460,17 @@ class PhotonAnalysis : public BaseAnalysis
 
     MassResolution *massResolutionCalculator;
 
-    int DiphotonMVASelection(LoopAll &l, HggVertexAnalyzer & vtxAna, Float_t & diphoMVA,  
-                             Float_t minLeadingMVA=-0.3, Float_t minSubleadingMVA=-0.3, Float_t leadPtMin=30, 
+    int DiphotonMVASelection(LoopAll &l, HggVertexAnalyzer & vtxAna, Float_t & diphoMVA,
+                             Float_t minLeadingMVA=-0.3, Float_t minSubleadingMVA=-0.3, Float_t leadPtMin=30,
                              Float_t subleadPtMin=20, std::string type="UCSD", int ncategories=7,
                              bool applyPtoverM=true, float *pho_energy_array=0, bool split=false);
     int DiphotonMVAEventClass(LoopAll &l, float diphoMVA, int nCat, std::string type, int EBEB=1);
-    
+
     //TFile *fgbr;
     //GBRForest *fReadereb;
     //GBRForest *fReaderebvariance;
     //GBRForest *fReaderee;
-    //GBRForest *fReadereevariance;      
+    //GBRForest *fReadereevariance;
 
 };
 
