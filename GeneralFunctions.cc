@@ -4525,6 +4525,14 @@ bool LoopAll::FindMCVH(int higgsind, int& vh, int& vh1, int& vh2 )
     return matchfound;
 }
 
+void LoopAll::FillMuonGsfTracks() {
+  for( int indmu=0; indmu<mu_glo_n; indmu++){
+    bool hasgsftrack = false;
+    for (int indel=0; indel<el_std_n; indel++) if (mu_glo_tkind[indmu]==el_std_tkind[indel]) hasgsftrack=true;
+    mu_glo_hasgsftrack[indmu]=int(hasgsftrack);
+  }
+}
+
 
 #ifdef NewFeatures
 #include "Marco/plotInteractive_cc.h"

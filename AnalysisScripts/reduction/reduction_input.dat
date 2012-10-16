@@ -63,6 +63,11 @@ el_std_hp_expin
 el_std_scind
 el_std_detain
 el_std_dphiin
+el_std_tkind
+
+## Muon Variables
+mu_glo_n
+mu_glo_tkind
 
 ## MC truth
 gp_n:1

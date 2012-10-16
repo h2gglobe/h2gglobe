@@ -1718,6 +1718,7 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
     l.FillCICInputs();
     if(reComputeCiCPF) { l.FillCICPFInputs(); }
     l.FillCIC();
+    l.FillMuonGsfTracks();
 
     if(l.itype[l.current]<0) {
         bool foundHiggs=FindHiggsObjects(l);
@@ -2127,6 +2128,7 @@ void PhotonAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree)
     l.Branch_gh_vh1_p4( outputTree );
     l.Branch_gh_vh2_p4( outputTree );
     }
+    l.Branch_mu_glo_hasgsftrack(outputTree);
 }
 
 

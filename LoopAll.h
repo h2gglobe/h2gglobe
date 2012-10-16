@@ -827,6 +827,9 @@ bool runCiC;
     The contents are the return values of the function
     PhotonCiCSelectionLevel(..)
 */
+
+Int_t mu_glo_hasgsftrack[MAX_MUONS];
+  
 std::vector<std::vector<Short_t> >* pho_cic6cutlevel_lead;
 std::vector<std::vector<std::vector<UInt_t> > >* pho_cic6passcuts_lead;
 std::vector<std::vector<Short_t> >* pho_cic6cutlevel_sublead;
@@ -876,6 +879,8 @@ TBranch * b_pho_ZeeVal_tkiso_badvtx_040_002_0000_10_01;
 TBranch * b_pho_ZeeVal_tkiso_badvtx_id;
 TBranch * b_pho_drtotk_25_99;
 
+TBranch * b_mu_glo_hasgsftrack;
+  
 TBranch * b_pho_cic6cutlevel_lead;
 TBranch * b_pho_cic6passcuts_lead;
 TBranch * b_pho_cic6cutlevel_sublead;
@@ -1034,6 +1039,9 @@ void Branch_pho_tkiso_badvtx_id(TTree * tree) { tree->Branch("pho_tkiso_badvtx_i
 void Branch_pho_ZeeVal_tkiso_badvtx_id(TTree * tree) { tree->Branch("pho_ZeeVal_tkiso_badvtx_id", &pho_ZeeVal_tkiso_badvtx_id, "pho_ZeeVal_tkiso_badvtx_id[pho_n]/I" ); };
 void Branch_pho_drtotk_25_99(TTree * tree) { tree->Branch("pho_drtotk_25_99", &pho_drtotk_25_99, "pho_drtotk_25_99[pho_n]/F" ); };
 
+void Branch_mu_glo_hasgsftrack(TTree * tree) { tree->Branch("mu_glo_hasgsftrack", &mu_glo_hasgsftrack, "mu_glo_hasgsftrack[mu_glo_n]/I" ); };
+void SetBranchAddress_mu_glo_hasgsftrack(TTree * tree) { tree->SetBranchAddress("mu_glo_hasgsftrack", &mu_glo_hasgsftrack, &b_mu_glo_hasgsftrack); };
+
 void SetBranchAddress_pho_mitmva(TTree * tree) { tree->SetBranchAddress("pho_mitmva", &pho_mitmva, &b_pho_mitmva); }; 
 
 void SetBranchAddress_pho_tkiso_recvtx_030_002_0000_10_01(TTree * tree) { tree->SetBranchAddress("pho_tkiso_recvtx_030_002_0000_10_01", &pho_tkiso_recvtx_030_002_0000_10_01, &b_pho_tkiso_recvtx_030_002_0000_10_01); }; 
@@ -1156,6 +1164,7 @@ TLorentzVector correctMet_Simple(TLorentzVector& pho_lead, TLorentzVector& pho_s
 
 
 void SetAllMVA();
+void FillMuonGsfTracks();
 Float_t photonIDMVA(Int_t, Int_t, TLorentzVector &, const char*);
 Float_t diphotonMVA(Int_t, Int_t, Int_t, float, TLorentzVector &, TLorentzVector &, float,float,float,const char*,float photonID_1=-50.,float photonID_2=-50.);
 float getDmOverDz(Int_t, Int_t, Float_t*);
