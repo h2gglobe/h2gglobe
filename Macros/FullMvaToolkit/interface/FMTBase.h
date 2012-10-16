@@ -73,6 +73,8 @@ class FMTBase {
 		int getNumMCMasses();
     int getNumMHMasses();
 
+    vector<string> getProcesses();
+
     bool getis2011();
     double getintLumi();
 
@@ -149,6 +151,7 @@ class FMTBase {
     int nLEPCategories_;
 
 		vector<string> systematics_;
+    vector<string> processes_;
 
 		bool rederiveOptimizedBinEdges_;
 		map<int, vector<double> > BinEdges_;

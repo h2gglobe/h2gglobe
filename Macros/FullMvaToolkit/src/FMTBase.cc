@@ -41,6 +41,10 @@ FMTBase::FMTBase(double intLumi, bool is2011, int mHMinimum, int mHMaximum, doub
 	BinEdges_ = AllBinEdges[0] ;
 	if (includeVBF) VBFBinEdges_ = AllBinEdges[1];
 	if (includeLEP) LEPBinEdges_ = AllBinEdges[2];
+  processes_.push_back("ggh");
+  processes_.push_back("vbf");
+  processes_.push_back("wzh");
+  processes_.push_back("tth");
 
 }
 
@@ -379,6 +383,10 @@ int FMTBase::getNumMCMasses(){
 int FMTBase::getNumMHMasses(){
   vector<double> theMasses = getAllMH();
   return theMasses.size();
+}
+
+vector<string> FMTBase::getProcesses(){
+  return processes_;
 }
 
 bool FMTBase::getis2011(){

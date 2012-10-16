@@ -37,14 +37,14 @@ FMTSetup::FMTSetup(string filename):
 	runSB_(false),
 	cleaned(false)
 {
-  if (filename!="0") system(Form("cp %s %s_beforeFMT.root",filename.c_str(),filename.c_str()));
+  //if (filename!="0") system(Form("cp %s %s_beforeFMT.root",filename.c_str(),filename.c_str()));
   	
 }
 
 FMTSetup::~FMTSetup(){
 	if (!cleaned) delete rebinner;
 	cout << "Exiting..." << endl;
-  system(Form("cp %s %s_afterFMT.root",filename_.c_str(),filename_.c_str()));
+  //system(Form("cp %s %s_afterFMT.root",filename_.c_str(),filename_.c_str()));
   cout << "Original file " << filename_ << " backed up to " << Form("%s_beforeFMT.root",filename_.c_str()) << endl;
   cout << "Original file " << filename_ << " updated." << endl;
   cout << "Complete file copied to " << Form("%s_afterFMT.root",filename_.c_str()) << endl; 
@@ -173,6 +173,7 @@ void FMTSetup::OptionParser(int argc, char *argv[]){
 	cout << "MC: [";
 	printVec(getMCMasses());
 	cout << "] " << endl;
+  cout << "Bussy" << endl;
 	cout << "MH: [";
 	printVec(getAllMH());
 	cout << "] " << endl;
@@ -241,9 +242,13 @@ void FMTSetup::ReadRunConfig(){
 		if (sline.find("massSidebandMax=")!=string::npos)							setmassSidebandMax(getOptFromConfig<double>(sline));
     if (sline.find("nInclusiveCategories=")!=string::npos)        setnIncCateogies(getOptFromConfig<int>(sline));
 		if (sline.find("includeVBF=")!=string::npos)									setincludeVBF(getOptFromConfig<bool>(sline));
+    else                                                          setincludeVBF(false);
     if (sline.find("nVBFCategories=")!=string::npos)              setnVBFCategories(getOptFromConfig<int>(sline));
+    else                                                          setnVBFCategories(0);
 		if (sline.find("includeLEP=")!=string::npos)									setincludeLEP(getOptFromConfig<bool>(sline));
+    else                                                          setincludeLEP(false);
     if (sline.find("nLEPCategories_")!=string::npos)              setnLEPCategories(getOptFromConfig<int>(sline));
+    else                                                          setnLEPCategories(0);
 
     if (sline.find("doEscaleSyst=")!=string::npos)                if (getOptFromConfig<bool>(sline)) setsystematic("E_scale"); 
     if (sline.find("doEresolSyst=")!=string::npos)                if (getOptFromConfig<bool>(sline)) setsystematic("E_res"); 
