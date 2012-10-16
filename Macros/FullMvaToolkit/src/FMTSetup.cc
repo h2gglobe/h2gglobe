@@ -169,14 +169,17 @@ void FMTSetup::OptionParser(int argc, char *argv[]){
   }
 	printPassedOptions();
   if (dumpDatFile_) dumpDatFile(dumpDatFil_);
-
-	cout << "MC: [";
-	printVec(getMCMasses());
-	cout << "] " << endl;
-  cout << "Bussy" << endl;
-	cout << "MH: [";
-	printVec(getAllMH());
-	cout << "] " << endl;
+	
+	if (verbose_) {
+		cout << "Sig MC Masses:" << endl;
+		cout << "MC: [";
+		printVec(getMCMasses());
+		cout << "] " << endl;
+		cout << "MH Masses:" << endl;
+		cout << "MH: [";
+		printVec(getAllMH());
+		cout << "] " << endl;
+	}
 
 	// clean plots
 	if (diagnose_ && !safeMode_) {

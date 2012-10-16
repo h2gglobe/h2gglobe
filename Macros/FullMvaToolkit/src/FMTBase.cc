@@ -303,7 +303,6 @@ vector<double> FMTBase::getMHMasses(int mass){
 	if (mass==140) m_high=mass+(ceil(5.0/mHStep_)*mHStep_);
 	if (mass==150) m_low=mass-(floor(5.0/mHStep_)*mHStep_);
 	
-	cout << m_low << " " << m_high << endl;
 	for (double m=m_low; m<m_high-(mHStep_/2.); m+=mHStep_){
 		if (m>(mHMinimum_-(mHStep_/2.)) && m<(mHMaximum_+(mHStep_/2.))) theMasses.push_back(m);
 	}
