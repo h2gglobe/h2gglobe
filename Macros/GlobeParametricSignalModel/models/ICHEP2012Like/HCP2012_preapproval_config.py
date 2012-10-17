@@ -1,6 +1,9 @@
 #----------------------------------------
 # global parameters (independent of model)
 #----------------------------------------
+import os
+if not os.path.isdir('plots'):
+  os.makedirs('plots')
 
 # will influence certain parameters
 year = 2012
