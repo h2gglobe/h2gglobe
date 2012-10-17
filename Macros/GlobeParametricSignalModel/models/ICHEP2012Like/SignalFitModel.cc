@@ -547,7 +547,10 @@ SignalFitModel::postProcessFittedParameters(const string &catname, bool rightVer
   }
 
   // sort the indices in increasing order of sigmas
-  sort(indices.begin(), indices.end(), ValueComparator(sigmas));
+  // sort(indices.begin(), indices.end(), ValueComparator(sigmas));
+
+  // sort the indices in increasing order of means
+  sort(indices.begin(), indices.end(), ValueComparator(means));
 
   // re-assign sigmas and mus to the parameters
   overallFactor = 1;
