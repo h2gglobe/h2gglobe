@@ -245,14 +245,9 @@ void FMTSetup::ReadRunConfig(){
 		if (sline.find("massSidebandMax=")!=string::npos)							setmassSidebandMax(getOptFromConfig<double>(sline));
     if (sline.find("nInclusiveCategories=")!=string::npos)        setnIncCateogies(getOptFromConfig<int>(sline));
 		if (sline.find("includeVBF=")!=string::npos)									setincludeVBF(getOptFromConfig<bool>(sline));
-    else                                                          setincludeVBF(false);
     if (sline.find("nVBFCategories=")!=string::npos)              setnVBFCategories(getOptFromConfig<int>(sline));
-    else                                                          setnVBFCategories(0);
 		if (sline.find("includeLEP=")!=string::npos)									setincludeLEP(getOptFromConfig<bool>(sline));
-    else                                                          setincludeLEP(false);
-    if (sline.find("nLEPCategories_")!=string::npos)              setnLEPCategories(getOptFromConfig<int>(sline));
-    else                                                          setnLEPCategories(0);
-
+    if (sline.find("nLEPCategories=")!=string::npos)              setnLEPCategories(getOptFromConfig<int>(sline));
     if (sline.find("doEscaleSyst=")!=string::npos)                if (getOptFromConfig<bool>(sline)) setsystematic("E_scale"); 
     if (sline.find("doEresolSyst=")!=string::npos)                if (getOptFromConfig<bool>(sline)) setsystematic("E_res"); 
     if (sline.find("doEcorrectionSyst=")!=string::npos)           if (getOptFromConfig<bool>(sline)) setsystematic("E_corr"); 

@@ -166,6 +166,7 @@ class FMTBase {
 template <class T>
 string FMTBase::returnVecAsString(vector<T> vec){
   string result="";
+	if (vec.empty()) return result;
   for (typename vector<T>::iterator it=vec.begin(); it!=vec.end()-1; it++) result+=Form("%1.4f,",*it);
   result+=Form("%1.4f",*(vec.end()-1));
   return result;

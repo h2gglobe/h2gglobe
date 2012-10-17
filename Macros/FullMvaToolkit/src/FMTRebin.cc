@@ -149,8 +149,8 @@ std::vector<double> FMTRebin::significanceOptimizedBinning(TH1F *hs,TH1F *hb,int
     else Retry =0;
 
 
-    //if ((maximumSignificance-highestMaxSignificance)/highestMaxSignificance > 0.001){
-		if ((N+1)<8) {
+    if ((maximumSignificance-highestMaxSignificance)/highestMaxSignificance > 0.001){
+		//if ((N+1)<8) {
       highestMaxSignificance = maximumSignificance ;
       finalCounters= new int[N];
       chosenN = N;
