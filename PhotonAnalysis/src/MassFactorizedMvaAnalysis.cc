@@ -627,11 +627,11 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
             //float eventweight = weight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second] * genLevWeight;
             float myweight=1.;
             if(eventweight*sampleweight!=0) myweight=eventweight/sampleweight;
-            VHmuevent=MuonTag2012B(l, diphotonVHlep_id, mu_ind, muVtx, VHmuevent_cat, &smeared_pho_energy[0], lep_sync, true, phoidMvaCut, eventweight,  smeared_pho_weight);
-            ZWithFakeGammaCS(l, &smeared_pho_energy[0]);
-            ElectronStudies2012B(l, &smeared_pho_energy[0], true,  -0.3, eventweight, myweight, jentry);
+            VHmuevent=MuonTag2012B(l, diphotonVHlep_id, mu_ind, muVtx, VHmuevent_cat, &smeared_pho_energy[0], lep_sync, true, phoidMvaCut, eventweight,  smeared_pho_weight, !isSyst);
+            //ZWithFakeGammaCS(l, &smeared_pho_energy[0]);
+            //ElectronStudies2012B(l, &smeared_pho_energy[0], true,  -0.3, eventweight, myweight, jentry);
             int diphotonVH_ele_id=-1;
-            VHelevent=ElectronTag2012B(l, diphotonVH_ele_id, el_ind, elVtx, VHelevent_cat, &smeared_pho_energy[0], lep_sync, true, phoidMvaCut, eventweight,  smeared_pho_weight);
+            VHelevent=ElectronTag2012B(l, diphotonVH_ele_id, el_ind, elVtx, VHelevent_cat, &smeared_pho_energy[0], lep_sync, true, phoidMvaCut, eventweight,  smeared_pho_weight, !isSyst);
             // FIXME  need to un-flag events failing the diphoton mva cut.
             
             if(!VHmuevent && VHelevent){

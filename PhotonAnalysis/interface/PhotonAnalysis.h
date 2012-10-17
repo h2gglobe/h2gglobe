@@ -349,7 +349,7 @@ class PhotonAnalysis : public BaseAnalysis
     // ICHEP2012
     bool ElectronTag2012(LoopAll& l, int diphotonVHlep_id, float* smeared_pho_energy, ofstream& lep_sync, bool nm1=false, float eventweight=1, float myweight=1);
     // HCP 2012
-    bool ElectronTag2012B(LoopAll& l, int& diphotonVHlep_id, int& el_ind, int& elVtx, int& el_cat, float* smeared_pho_energy, ofstream& lep_sync, bool mvaselection=true, float phoidMvaCut=-0.2, float eventweight=1.0, std::vector<float>  smeared_pho_weight=std::vector<float>());
+    bool ElectronTag2012B(LoopAll& l, int& diphotonVHlep_id, int& el_ind, int& elVtx, int& el_cat, float* smeared_pho_energy, ofstream& lep_sync, bool mvaselection=true, float phoidMvaCut=-0.2, float eventweight=1.0, std::vector<float>  smeared_pho_weight=std::vector<float>(), bool fillHist=false);
     bool ElectronStudies2012B(LoopAll& l, float* smeared_pho_energy, bool mvaselection, float phoidMvaCut, float eventweight=1, float myweight=1, int jentry=-1);
     bool ElectronTagStudies2012(LoopAll& l, int diphotonVHlep_id, float* smeared_pho_energy, bool nm1=true, float eventweight=1, float myweight=1, int jentry=-1);
     void ZWithFakeGammaCS(LoopAll& l, float* smeared_pho_energy);
@@ -361,7 +361,7 @@ class PhotonAnalysis : public BaseAnalysis
     // ~ ICHEP2012
     bool MuonTag2012(LoopAll& l, int diphotonVHlep_id, float* smeared_pho_energy, ofstream& lep_sync, bool nm1=false, float eventweight=1, float myweight=1);
     // HCP2012
-    bool MuonTag2012B(LoopAll& l, int& diphotonVHlep_id, int& mu_ind, int& muVtx, int& mu_cat, float* smeared_pho_energy, ofstream& lep_sync, bool mvaselection=true, float phoidMvaCut=-0.2, float eventweight=1.0, std::vector<float>  smeared_pho_weight=std::vector<float>());
+    bool MuonTag2012B(LoopAll& l, int& diphotonVHlep_id, int& mu_ind, int& muVtx, int& mu_cat, float* smeared_pho_energy, ofstream& lep_sync, bool mvaselection=true, float phoidMvaCut=-0.2, float eventweight=1.0, std::vector<float>  smeared_pho_weight=std::vector<float>(), bool fillHist=false);
     void ControlPlotsMuonTag2012B(LoopAll& l, TLorentzVector lead_p4, TLorentzVector sublead_p4, int mu_ind, float bdtoutput, float evweight, std::string label);
 
 
