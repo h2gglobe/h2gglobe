@@ -1208,7 +1208,7 @@ void StatAnalysis::fillControlPlots(const TLorentzVector & lead_p4, const  TLore
 {
     int cur_type = l.itype[l.current];
     float mass = Higgs.M();
-    if(category!=-10){  // really this is nomva cut but -1 means altogether here
+    if(category!=-10){  // really this is nomva cut but -1 means all together here
         if( category>=0 ) {
             fillControlPlots( lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, diphoton_id, -1, isCorrectVertex, evweight, vtx, l, muVtx, mu_ind, elVtx, el_ind, diphobdt_output );
         }
@@ -1329,17 +1329,17 @@ void StatAnalysis::fillControlPlots(const TLorentzVector & lead_p4, const  TLore
                 }
 
             }
-        } else { // is -10 = no mva cut
-            std::string label("nomvacut");
-            if (VHmuevent){
-                ControlPlotsMuonTag2012B(l, lead_p4, sublead_p4, mu_ind, diphobdt_output, evweight, label);
-            }
-            if (VHelevent){
-                ControlPlotsElectronTag2012B(l, lead_p4, sublead_p4, el_ind, diphobdt_output, evweight, label);
-            }
-            if (VHmetevent){
-                ControlPlotsMetTag2012B(l, lead_p4, sublead_p4, diphobdt_output, evweight, label);
-            }
+        }
+    } else if( mass>=massMin && mass<=massMax  )  { // is -10 = no mva cut
+        std::string label("nomvacut");
+        if (VHmuevent){
+            ControlPlotsMuonTag2012B(l, lead_p4, sublead_p4, mu_ind, diphobdt_output, evweight, label);
+        }
+        if (VHelevent){
+            ControlPlotsElectronTag2012B(l, lead_p4, sublead_p4, el_ind, diphobdt_output, evweight, label);
+        }
+        if (VHmetevent){
+            ControlPlotsMetTag2012B(l, lead_p4, sublead_p4, diphobdt_output, evweight, label);
         }
     }
 }
