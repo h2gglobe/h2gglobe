@@ -29,22 +29,44 @@ class Conf:
 if __name__  == "__main__":
 	from optparse import OptionParser
 	parser = OptionParser()
-	parser.add_option("-i","--inputDat",dest="inputDat")
-	parser.add_option("-n","--nJobs",type="int", dest="nJobs",default=-1)
-	parser.add_option("-o","--outputScript",dest="outputScript",default="")
-	parser.add_option("-l","--label",dest="label",default="")
-	parser.add_option("","--runIC",dest="runIC",default=False, action="store_true")
-	parser.add_option("-u","--user",dest="user",default="")
-	parser.add_option("-a","--addfile",dest="addfiles",action="append",default=[])
-	parser.add_option("-N","--notgz",dest="notgz",action="store_true",default=False)
-	parser.add_option("","--combine",dest="combine",action="store_true",default=False, help="make combiner.py jobs")
-	
+	parser.add_option("-i","--inputDat",dest="inputDat",help="default: %default")
+	parser.add_option("-n","--nJobs",type="int", dest="nJobs",default=-1,help="default: %default")
+	parser.add_option("-o","--outputScript",dest="outputScript",default="",help="default: %default")
+	parser.add_option("-l","--label",dest="label",default="",help="default: %default")
+	parser.add_option("","--runIC",dest="runIC",default=False, action="store_true",help="default: %default")
+	parser.add_option("-u","--user",dest="user",default="",help="default: %default")
+	parser.add_option("-a","--addfile",dest="addfiles",action="append",default=[],help="default: %default")
+	parser.add_option("-N","--notgz",dest="notgz",action="store_true",default=False,help="default: %default")
+	parser.add_option("","--combine",dest="combine",action="store_true",default=False, help="make combiner.py jobs default: %default")
+	parser.add_option("--skipData",dest="skipData",action="store_true",default=False,help="default: %default")
+	parser.add_option("--skipSig",dest="skipSig",action="store_true",default=False,help="default: %default")
+	parser.add_option("--skipBkg",dest="skipBkg",action="store_true",default=False,help="default: %default")
+	parser.add_option("--onlyData",dest="onlyData",action="store_true",default=False,help="default: %default")
+	parser.add_option("--onlySig",dest="onlySig",action="store_true",default=False,help="default: %default")
+	parser.add_option("--onlyBkg",dest="onlyBkg",action="store_true",default=False,help="default: %default")
+
 	(options,args)=parser.parse_args()
+
+	if options.onlyData:
+		options.skipData = False
+		options.skipSig = True
+		options.skipBkg = True
+		options.label += "_data"
+	elif options.onlySig:
+		options.skipData = True
+		options.skipSig = False
+		options.skipBkg = True
+		options.label += "_sig"
+	elif options.onlyBkg:
+		options.skipData = True
+		options.skipSig = True
+		options.skipBkg = False
+		options.label += "_bkg"
 
         if options.combine and not options.runIC : sys.exit("Sorry, no support for submitting combiner jobs at CERN available yet!")
 	if options.outputScript == "":
 		options.outputScript = "%s/sub" % options.label
-	
+
 	# Check IC user configs:
 	if options.runIC:
 		print "Running at IC-HEP"
@@ -75,16 +97,24 @@ if __name__  == "__main__":
 			cfg.read_histfile(line)
 			if( cfg.histdir != "" ):
 				line = line.replace(cfg.histdir,"$histdir").replace("$histdir/","$histdir")
-			
 
+		keep = False
+		if "typ" in line:
+			for sp in line.split(" "):
+				if "typ=" in sp:
+					typ = int(sp.split("=")[-1])
+					if typ == 0 and not options.skipData or typ < 0 and not options.skipSig or typ > 0 and not options.skipBkg:
+						keep = True
 		if line.startswith("split"):
-			files.append("%s\n" % line.replace("split ",""))
+			if keep:
+				files.append("%s\n" % line.replace("split ",""))
 			if not has_polder:
 				datfile += "%s"
 				has_polder = True
 		elif "typ" in line:
-			for i in xrange(options.nJobs):
-				files[i] += "%s\n" % line
+			if keep:
+				for i in xrange(options.nJobs):
+					files[i] += "%s\n" % line
 			if not has_polder:
 				datfile += "%s"
 				has_polder = True
