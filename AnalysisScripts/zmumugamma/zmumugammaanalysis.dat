@@ -54,3 +54,7 @@ recomputeJetWp=0
 jetHandlerCfg=jetHandler_cfg.py
 
 reComputeCiCPF=0
+
+#Photon ID MVA weights
+photonLevelNewIDMVA_EB=aux/2012ICHEP_PhotonID_Barrel_BDT.weights.xml
+photonLevelNewIDMVA_EE=aux/2012ICHEP_PhotonID_Endcap_BDT.weights_PSCorr.xml

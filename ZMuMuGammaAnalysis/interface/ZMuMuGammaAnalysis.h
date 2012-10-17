@@ -8,6 +8,7 @@ class ZMuMuGammaAnalysis : public PhotonAnalysis
 {
  public:
 
+  void Init(LoopAll& l);
   bool SkimEvents(LoopAll&, int);
   bool SelectEventsReduction(LoopAll&, int);
   void ReducedOutputTree(LoopAll &l, TTree *);
