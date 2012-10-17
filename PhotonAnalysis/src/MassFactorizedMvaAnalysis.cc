@@ -1208,81 +1208,78 @@ void MassFactorizedMvaAnalysis::fillZeeControlPlots(const TLorentzVector & lead_
 	    l.FillHist("pho2_phoidMva_EE_down",0,(phoid_mvaout_sublead-0.01), evweight);
 	}
 
-	if (diphobdt_output > -0.05) {
-
-	    if( mass>=83. && mass<=96. ) {
-		l.FillHist("nvtx_83to96",0, l.vtx_std_n, evweight);
-		l.FillHist("nvtx_83to96",category+1, l.vtx_std_n, evweight);
-	    }
-
-	    l.FillHist("pho1_phoidMva",0,phoid_mvaout_lead, evweight);
-	    l.FillHist("pho1_phoidMva",category+1,phoid_mvaout_lead, evweight);
-	    l.FillHist("pho2_phoidMva",0,phoid_mvaout_sublead, evweight);
-	    l.FillHist("pho2_phoidMva",category+1,phoid_mvaout_sublead, evweight);
-	    l.FillHist("sigmaMOverM",0,sigmaMrv/mass, evweight);
-	    l.FillHist("sigmaMOverM",category+1,sigmaMrv/mass, evweight);
-	    l.FillHist("sigmaMOverM_wrongVtx",0,sigmaMwv/mass, evweight);
-	    l.FillHist("sigmaMOverM_wrongVtx",category+1,sigmaMwv/mass, evweight);
-	    l.FillHist("vtxProb",0,vtxProb, evweight);
-	    l.FillHist("vtxProb",category+1,vtxProb, evweight);
-	    l.FillHist("pho1_ptOverM",0,lead_p4.Pt()/mass, evweight);
-	    l.FillHist("pho1_ptOverM",category+1,lead_p4.Pt()/mass, evweight);
-	    l.FillHist("pho2_ptOverM",0,sublead_p4.Pt()/mass, evweight);
-	    l.FillHist("pho2_ptOverM",category+1,sublead_p4.Pt()/mass, evweight);
-	    l.FillHist("pho1_eta",0,lead_p4.Eta(), evweight);
-	    l.FillHist("pho1_eta",category+1,lead_p4.Eta(), evweight);
-	    l.FillHist("pho2_eta",0,sublead_p4.Eta(), evweight);
-	    l.FillHist("pho2_eta",category+1,sublead_p4.Eta(), evweight);
-	    l.FillHist("cosDeltaPhi",0,cos_dphi, evweight);
-	    l.FillHist("cosDeltaPhi",category+1,cos_dphi, evweight);
-
-	    l.FillHist("r9",0,lead_r9, evweight);
-	    l.FillHist("r9",0,sublead_r9, evweight);
-	    l.FillHist("r9",category+1,lead_r9, evweight);
-	    l.FillHist("r9",category+1,sublead_r9, evweight);
-
-	    if (fabs(lead_p4.Eta()) < 1.4442 && fabs(sublead_p4.Eta())<1.4442) {
-		l.FillHist("sigmaMOverM_EB",0,sigmaMrv/mass, evweight);
-		l.FillHist("sigmaMOverM_wrongVtx_EB",0,sigmaMwv/mass, evweight);
-		if (lead_r9>0.93 && sublead_r9>0.93) {
-		    l.FillHist("sigmaMOverM_EB",1,sigmaMrv/mass, evweight);
-		    l.FillHist("sigmaMOverM_wrongVtx_EB",1,sigmaMwv/mass, evweight);
-		} else if (lead_r9<0.93 && sublead_r9<0.93) {
-		    l.FillHist("sigmaMOverM_EB",3,sigmaMrv/mass, evweight);
-		    l.FillHist("sigmaMOverM_wrongVtx_EB",3,sigmaMwv/mass, evweight);
-		} else {
-		    l.FillHist("sigmaMOverM_EB",2,sigmaMrv/mass, evweight);
-		    l.FillHist("sigmaMOverM_wrongVtx_EB",2,sigmaMwv/mass, evweight);
-		}
-	    } else if (fabs(lead_p4.Eta()) > 1.566 && fabs(sublead_p4.Eta())>1.566) {
-		l.FillHist("sigmaMOverM_EE",0,sigmaMrv/mass, evweight);
-		l.FillHist("sigmaMOverM_wrongVtx_EE",0,sigmaMwv/mass, evweight);
-		if (lead_r9>0.93 && sublead_r9>0.93) {
-		    l.FillHist("sigmaMOverM_EE",1,sigmaMrv/mass, evweight);
-		    l.FillHist("sigmaMOverM_wrongVtx_EE",1,sigmaMwv/mass, evweight);
-		} else if (lead_r9<0.93 && sublead_r9<0.93) {
-		    l.FillHist("sigmaMOverM_EE",3,sigmaMrv/mass, evweight);
-		    l.FillHist("sigmaMOverM_wrongVtx_EE",3,sigmaMwv/mass, evweight);
-		} else {
-		    l.FillHist("sigmaMOverM_EE",2,sigmaMrv/mass, evweight);
-		    l.FillHist("sigmaMOverM_wrongVtx_EE",2,sigmaMwv/mass, evweight);
-		}
-	    } else {
-		l.FillHist("sigmaMOverM_EBEE",0,sigmaMrv/mass, evweight);
-		l.FillHist("sigmaMOverM_wrongVtx_EBEE",0,sigmaMwv/mass, evweight);
-		if (lead_r9>0.93 && sublead_r9>0.93) {
-		    l.FillHist("sigmaMOverM_EBEE",1,sigmaMrv/mass, evweight);
-		    l.FillHist("sigmaMOverM_wrongVtx_EBEE",1,sigmaMwv/mass, evweight);
-		} else if (lead_r9<0.93 && sublead_r9<0.93) {
-		    l.FillHist("sigmaMOverM_EBEE",3,sigmaMrv/mass, evweight);
-		    l.FillHist("sigmaMOverM_wrongVtx_EBEE",3,sigmaMwv/mass, evweight);
-		} else {
-		    l.FillHist("sigmaMOverM_EBEE",2,sigmaMrv/mass, evweight);
-		    l.FillHist("sigmaMOverM_wrongVtx_EBEE",2,sigmaMwv/mass, evweight);
-		}
-	    }
-
+	if( mass>=83. && mass<=96. ) {
+	    l.FillHist("nvtx_83to96",0, l.vtx_std_n, evweight);
+	    l.FillHist("nvtx_83to96",category+1, l.vtx_std_n, evweight);
 	}
+
+	l.FillHist("pho1_phoidMva",0,phoid_mvaout_lead, evweight);
+	l.FillHist("pho1_phoidMva",category+1,phoid_mvaout_lead, evweight);
+	l.FillHist("pho2_phoidMva",0,phoid_mvaout_sublead, evweight);
+	l.FillHist("pho2_phoidMva",category+1,phoid_mvaout_sublead, evweight);
+	l.FillHist("sigmaMOverM",0,sigmaMrv/mass, evweight);
+	l.FillHist("sigmaMOverM",category+1,sigmaMrv/mass, evweight);
+	l.FillHist("sigmaMOverM_wrongVtx",0,sigmaMwv/mass, evweight);
+	l.FillHist("sigmaMOverM_wrongVtx",category+1,sigmaMwv/mass, evweight);
+	l.FillHist("vtxProb",0,vtxProb, evweight);
+	l.FillHist("vtxProb",category+1,vtxProb, evweight);
+	l.FillHist("pho1_ptOverM",0,lead_p4.Pt()/mass, evweight);
+	l.FillHist("pho1_ptOverM",category+1,lead_p4.Pt()/mass, evweight);
+	l.FillHist("pho2_ptOverM",0,sublead_p4.Pt()/mass, evweight);
+	l.FillHist("pho2_ptOverM",category+1,sublead_p4.Pt()/mass, evweight);
+	l.FillHist("pho1_eta",0,lead_p4.Eta(), evweight);
+	l.FillHist("pho1_eta",category+1,lead_p4.Eta(), evweight);
+	l.FillHist("pho2_eta",0,sublead_p4.Eta(), evweight);
+	l.FillHist("pho2_eta",category+1,sublead_p4.Eta(), evweight);
+	l.FillHist("cosDeltaPhi",0,cos_dphi, evweight);
+	l.FillHist("cosDeltaPhi",category+1,cos_dphi, evweight);
+
+	l.FillHist("r9",0,lead_r9, evweight);
+	l.FillHist("r9",0,sublead_r9, evweight);
+	l.FillHist("r9",category+1,lead_r9, evweight);
+	l.FillHist("r9",category+1,sublead_r9, evweight);
+
+	if (fabs(lead_p4.Eta()) < 1.4442 && fabs(sublead_p4.Eta())<1.4442) {
+	    l.FillHist("sigmaMOverM_EB",0,sigmaMrv/mass, evweight);
+	    l.FillHist("sigmaMOverM_wrongVtx_EB",0,sigmaMwv/mass, evweight);
+	    if (lead_r9>0.93 && sublead_r9>0.93) {
+		l.FillHist("sigmaMOverM_EB",1,sigmaMrv/mass, evweight);
+		l.FillHist("sigmaMOverM_wrongVtx_EB",1,sigmaMwv/mass, evweight);
+	    } else if (lead_r9<0.93 && sublead_r9<0.93) {
+		l.FillHist("sigmaMOverM_EB",3,sigmaMrv/mass, evweight);
+		l.FillHist("sigmaMOverM_wrongVtx_EB",3,sigmaMwv/mass, evweight);
+	    } else {
+		l.FillHist("sigmaMOverM_EB",2,sigmaMrv/mass, evweight);
+		l.FillHist("sigmaMOverM_wrongVtx_EB",2,sigmaMwv/mass, evweight);
+	    }
+	} else if (fabs(lead_p4.Eta()) > 1.566 && fabs(sublead_p4.Eta())>1.566) {
+	    l.FillHist("sigmaMOverM_EE",0,sigmaMrv/mass, evweight);
+	    l.FillHist("sigmaMOverM_wrongVtx_EE",0,sigmaMwv/mass, evweight);
+	    if (lead_r9>0.93 && sublead_r9>0.93) {
+		l.FillHist("sigmaMOverM_EE",1,sigmaMrv/mass, evweight);
+		l.FillHist("sigmaMOverM_wrongVtx_EE",1,sigmaMwv/mass, evweight);
+	    } else if (lead_r9<0.93 && sublead_r9<0.93) {
+		l.FillHist("sigmaMOverM_EE",3,sigmaMrv/mass, evweight);
+		l.FillHist("sigmaMOverM_wrongVtx_EE",3,sigmaMwv/mass, evweight);
+	    } else {
+		l.FillHist("sigmaMOverM_EE",2,sigmaMrv/mass, evweight);
+		l.FillHist("sigmaMOverM_wrongVtx_EE",2,sigmaMwv/mass, evweight);
+	    }
+	} else {
+	    l.FillHist("sigmaMOverM_EBEE",0,sigmaMrv/mass, evweight);
+	    l.FillHist("sigmaMOverM_wrongVtx_EBEE",0,sigmaMwv/mass, evweight);
+	    if (lead_r9>0.93 && sublead_r9>0.93) {
+		l.FillHist("sigmaMOverM_EBEE",1,sigmaMrv/mass, evweight);
+		l.FillHist("sigmaMOverM_wrongVtx_EBEE",1,sigmaMwv/mass, evweight);
+	    } else if (lead_r9<0.93 && sublead_r9<0.93) {
+		l.FillHist("sigmaMOverM_EBEE",3,sigmaMrv/mass, evweight);
+		l.FillHist("sigmaMOverM_wrongVtx_EBEE",3,sigmaMwv/mass, evweight);
+	    } else {
+		l.FillHist("sigmaMOverM_EBEE",2,sigmaMrv/mass, evweight);
+		l.FillHist("sigmaMOverM_wrongVtx_EBEE",2,sigmaMwv/mass, evweight);
+	    }
+	}
+
 
 	for (int i=0; i<2; i++) {
 
