@@ -733,6 +733,7 @@ bool ZMuMuGammaAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
     l.vtx_std_ranked_list->clear();
     l.vtx_std_evt_mva->clear();
     l.vtx_std_sel=0;
+    l.pho_mitmva->clear();
     float maxSumPt = 0.;
     l.dipho_n = 0;
     bool oneKinSelected = true;
