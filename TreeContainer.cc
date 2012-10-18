@@ -137,7 +137,9 @@ void TreeContainer::FillTree(){
 
 void TreeContainer::Save(TFile* f) {
   if (dirName != "") {
-    TDirectory* dir = f->mkdir(dirName.c_str(), dirName.c_str());
+    
+    TDirectory* dir = (TDirectory*)f->Get(dirName.c_str());
+    if (!dir) dir = f->mkdir(dirName.c_str(), dirName.c_str());
     dir->cd();
     tr_->Write(0,TObject::kWriteDelete);
     delete tr_;
