@@ -22,7 +22,7 @@ JetIdAnalysis::JetIdAnalysis()
     expoMatching   = false;
     dumpFlatTree   = false;
     runZmumuValidation=false;
-
+    saveAllJets=false;
     flatTree_ = 0;
     outputFile_ = 0;
 
@@ -450,7 +450,12 @@ bool JetIdAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorent
 		tree_dimuonMass = (*lead_p4 + *sublead_p4).M() ;
 		tree_dphiZJet   = (*lead_p4 + *sublead_p4).DeltaPhi(*p4);
 
-		flatTree_->Fill();
+		// save infos for leading jet
+		if (itjet==0)
+		    flatTree_->Fill();
+		//if flag set to true, save also other jets
+		if (itjet>0 && saveAllJets) 
+		    flatTree_->Fill();
 	    }
 	}
 	

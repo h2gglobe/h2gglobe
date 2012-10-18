@@ -51,6 +51,7 @@ class JetIdAnalysis : public StatAnalysis
 
     bool recomputeJetId, expoMatching, dumpFlatTree;
     bool runZmumuValidation;
+    bool saveAllJets;
     
 private:
     std::vector<std::string> vtxVarNames_;
