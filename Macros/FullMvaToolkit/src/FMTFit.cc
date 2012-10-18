@@ -16,27 +16,31 @@
 using namespace std;
 using namespace RooFit;
 
-FMTFit::FMTFit(TFile *tFile, double intLumi, bool is2011, int mHMinimum, int mHMaximum, double mHStep, double massMin, double massMax, int nDataBins, double signalRegionWidth, double sidebandWidth, int numberOfSidebands, int numberOfSidebandsForAlgos, int numberOfSidebandGaps, double massSidebandMin, double massSidebandMax, int nIncCategories, bool includeVBF, int nVBFCategories, bool includeLEP, int nLEPCategories, vector<string> systematics, bool rederiveOptimizedBinEdges, vector<map<int,vector<double> > > AllBinEdges, bool verbose):
+FMTFit::FMTFit(TFile *tFile, TFile *outFile, double intLumi, bool is2011, int mHMinimum, int mHMaximum, double mHStep, double massMin, double massMax, int nDataBins, double signalRegionWidth, double sidebandWidth, int numberOfSidebands, int numberOfSidebandsForAlgos, int numberOfSidebandGaps, double massSidebandMin, double massSidebandMax, int nIncCategories, bool includeVBF, int nVBFCategories, bool includeLEP, int nLEPCategories, vector<string> systematics, bool rederiveOptimizedBinEdges, vector<map<int,vector<double> > > AllBinEdges, bool verbose):
 	
 	FMTBase(intLumi,is2011,mHMinimum, mHMaximum, mHStep, massMin, massMax, nDataBins, signalRegionWidth, sidebandWidth, numberOfSidebands, numberOfSidebandsForAlgos, numberOfSidebandGaps, massSidebandMin, massSidebandMax, nIncCategories, includeVBF, nVBFCategories, includeLEP, nLEPCategories, systematics, rederiveOptimizedBinEdges, AllBinEdges, verbose),
 	blind_(false),
-	plot_(true)
+	plot_(true),
+	infilename_(tFile->GetName()),
+	outfilename_(outFile->GetName())
 {
   gROOT->SetStyle("Plain");
   r1 = new RooRealVar("r1","r1",-8.,-20.,0.001); 
   r2 = new RooRealVar("r2","r2",-1.,-20.,0.001); 
   f1 = new RooRealVar("f1","f1",0.2,0.001,0.49); 
   nBkgInSigReg = new RooRealVar("nbis","nbis",10,0,100000);
-	outWS = (RooWorkspace*)tFile->Get("cms_hgg_workspace");
-  mass_var = (RooRealVar*)outWS->var("CMS_hgg_mass");
+	inWS = (RooWorkspace*)tFile->Get("cms_hgg_workspace");
+	outWS = new RooWorkspace("cms_hgg_workspace");
+  mass_var = (RooRealVar*)inWS->var("CMS_hgg_mass");
+  fit  = new RooGenericPdf("data_pow_model","data_pow_model","(1-@3)*TMath::Power(@0,@1) + @3*TMath::Power(@0,@2)",RooArgList(*mass_var,*r1,*r2,*f1));
 	
 	// get data and combine all cats
 	cout << "Looking for datasets....." << endl;
-	data = (RooDataSet*)((RooDataSet*)outWS->data("data_mass_cat0"))->Clone("data_mass");
-	if (getincludeVBF()) data->append(*((RooDataSet*)outWS->data("data_mass_cat1")));
-	if (getincludeLEP()) data->append(*((RooDataSet*)outWS->data("data_mass_cat2")));
+	data = (RooDataSet*)((RooDataSet*)inWS->data("data_mass_cat0"))->Clone("data_mass");
+	for (int cat=1; cat<getNcats(); cat++){
+		data->append(*((RooDataSet*)inWS->data(Form("data_mass_cat%d",cat))));
+	}
 	if (!outWS->data("data_mass")) outWS->import(*data);
-
 }
 
 FMTFit::~FMTFit(){
@@ -44,6 +48,7 @@ FMTFit::~FMTFit(){
 	delete r2;
 	delete f1;
 	delete nBkgInSigReg;
+	delete outWS;
 }
 
 pair<double,double> FMTFit::FitPow(double mass){
@@ -58,7 +63,7 @@ pair<double,double> FMTFit::FitPow(double mass){
 	r1->SetName(Form("r1_%3.1f",mass));
   r2->SetName(Form("r2_%3.1f",mass));
   f1->SetName(Form("f1_%3.1f",mass));
-  fit  = new RooGenericPdf(Form("data_pow_model_%3.1f",mass),"data_pow_model","(1-@3)*TMath::Power(@0,@1) + @3*TMath::Power(@0,@2)",RooArgList(*mass_var,*r1,*r2,*f1));
+	fit->SetName(Form("data_pow_model_%3.1f",mass));
 
 	// set up fit region
 	double mLow = getmassMin();
@@ -72,7 +77,7 @@ pair<double,double> FMTFit::FitPow(double mass){
 	data->Print();
 	cout << data->GetName() << " " << data->numEntries() << endl;
 	
-  RooFitResult *fitRes = fit->fitTo(*data,Range(Form("rangeLow_m%3.1f,rangeHig_m%3.1f",mass,mass)),Save(true),Strategy(1));
+  fitRes = fit->fitTo(*data,Range(Form("rangeLow_m%3.1f,rangeHig_m%3.1f",mass,mass)),Save(true),Strategy(1));
 
 	// make plot
 	if (plot_) Plot(mass);
@@ -88,9 +93,26 @@ pair<double,double> FMTFit::FitPow(double mass){
   double result     = normIntVar.getVal();
   double fullError  = normIntVar.getPropagatedError(*fitRes);
   
-	// if fit isn't in workspace then import else it will have been automatically updated (just make sure the workspace is written somewhere)
-  // bit messy but gets the job done
+	RooRealVar *temp = new RooRealVar(Form("NBkgInSignal_mH%3.1f",mass),"t",10,0,1e6);
+	temp->setVal(result);
+	temp->setError(fullError);
+	outWS->import(*temp);
+	
+	if (verbose_) cout << "Transfer to workspace" << endl;
+	for (vector<double>::iterator mH=MHMasses_.begin(); mH!=MHMasses_.end(); mH++){
+		if (TMath::Abs(*mH-mass)<mHStep_/2.) continue;
+		else {
+			temp = (RooRealVar*)inWS->var(Form("NBkgInSignal_mH%3.1f",mass));
+			if (temp) outWS->import(*temp);
+		}
+	}
+	gDirectory->Cd(Form("%s:/",outfilename_.c_str()));
+	outWS->Write();
+	if (verbose_) outWS->allVars().Print();
+	//delete fit;
 
+  return pair<double,double>(result,fullError);
+/*
   nBkgInSigReg = outWS->var(Form("NBkgInSignal_mH%3.1f",mass));
   if (nBkgInSigReg!=NULL){
     nBkgInSigReg = (RooRealVar*)outWS->var(Form("NBkgInSignal_mH%3.1f",mass));
@@ -108,10 +130,7 @@ pair<double,double> FMTFit::FitPow(double mass){
     outWS->Write(outWS->GetName(),TObject::kWriteDelete);
     delete temp;
   }
-	if (verbose_) outWS->allVars().Print();
-	delete fit;
-
-  return pair<double,double>(result,fullError);
+	*/
 }
 
 void FMTFit::Plot(double mass){

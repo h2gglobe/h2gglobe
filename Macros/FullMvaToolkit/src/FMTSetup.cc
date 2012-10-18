@@ -9,6 +9,7 @@
 
 #include "../python/createCorrectedBackgroundModel.C"
 
+#include "../interface/FMTTree.h"
 #include "../interface/FMTPlots.h"
 #include "../interface/FMTSigInterp.h"
 #include "../interface/FMTSetup.h"
@@ -20,6 +21,7 @@ FMTSetup::FMTSetup(string filename):
 	all_(false),
 	fit_(false),
   catByHand_(false),
+	histosFromTrees_(false),
 	rebin_(false),
 	skipRebin_(false),
 	justRebin_(false),
@@ -44,18 +46,21 @@ FMTSetup::FMTSetup(string filename):
 FMTSetup::~FMTSetup(){
 	if (!cleaned) delete rebinner;
 	cout << "Exiting..." << endl;
-  //system(Form("cp %s %s_afterFMT.root",filename_.c_str(),filename_.c_str()));
-  cout << "Original file " << filename_ << " backed up to " << Form("%s_beforeFMT.root",filename_.c_str()) << endl;
-  cout << "Original file " << filename_ << " updated." << endl;
-  cout << "Complete file copied to " << Form("%s_afterFMT.root",filename_.c_str()) << endl; 
-
+	cout << "Original file " << inFile_->GetName() << endl;
+	cout << "Complete file " << outFile_->GetName() << endl;
+	inFile_->Close();
+	outFile_->Close();
+	delete inFile_;
+	delete outFile_;
+	system(Form("cp %s %s_backup.root",outfilename_.c_str(),outfilename_.c_str()));
+	cout << "Complete file " << outfilename_ << " backed up to " << outfilename_ << "_backup.root" << endl;
 }
 
 void FMTSetup::OptionParser(int argc, char *argv[]){
 
-  cout << "\033[1mFullMvaToolkit -- Developed by Matthew Kenzie and Nick Wardle \033[0m \n";
-  cout <<        "                  Imperial College London\n" << endl;
-  cout << "\033[1mRecommend running is with following arguments:\033\[0m \n\t\t./runIt.exe -i <filename> -b -I -d -D -w <web_dir> -c \n" << endl;
+  //cout << "\033[1mFullMvaToolkit -- Developed by Matthew Kenzie and Nick Wardle \033[0m \n";
+  //cout <<        "                  Imperial College London\n" << endl;
+  //cout << "\033[1mRecommend running is with following arguments:\033\[0m \n\t\t./runIt.exe -i <filename> -b -I -d -D -w <web_dir> -c \n" << endl;
 
   po::options_description desc("Allowed options");
 
@@ -74,6 +79,7 @@ void FMTSetup::OptionParser(int argc, char *argv[]){
                                                                         "  - \tWill accept only integers in 5GeV steps \n" 
                                                                         "  - \tNOTE: this will re-run all fits and rebinnings around this mass. This is the recommended way of executing any refit or re-rebinning. You should opt to run on the nearest MC mass. E.g. to refit and rebin 112.5 use --rebin 115")
     ("catByHand,H",                                                     "Categorize events by hand")
+		("histosFromTrees,T",																								"Get histos from trees")
     ("skipRebin,N",  																										"Skip the rebinning stage")
 		("justRebin,J",																											"Just extract bin edges don't do anything else")
     ("getBinEdges,B",																										"Use bin edges from mvaanalysis")
@@ -88,7 +94,7 @@ void FMTSetup::OptionParser(int argc, char *argv[]){
     ("mHMax,u",			po::value<int>(&tempmHMax_),													"Set upper bound (GeV) for Higgs mH")
     ("mHStep,s",		po::value<double>(&tempmHStep_),											"Set bin size (GeV) for Higgs mH")
 		("unblind,E",	  																											"Unblind analysis - data will be plotted (default is off)")
-		("checkHistos,c",              																	  	"Run check on histograms in file")
+		("checkHistos,c",  po::value<string>(&grepString_),            			"Run check on histograms in file")
     ("verbose,v",                                                       "Increase output level")
 		("useDat,U", po::value<string>(&datFil_)->default_value("0"),				"Get options from .dat file not TFile")
     ("doPlot,P",                                                        "Remake plots")
@@ -113,17 +119,90 @@ void FMTSetup::OptionParser(int argc, char *argv[]){
   if (!vm.count("filename")){ cerr << "WARNING -- A FILENAME MUST BE PROVIDED" << endl; exit(1);}
   if (!vm.count("outfilename")) { outfilename_=filename_+"_processed.root"; }
 
- 	ReadRunConfig();
-  // FIXME HARD CODE
-  //setnLEPCategories(0);
-  //setincludeLEP(false);
+	// sort out options
 	fitMasses_ = getVecFromString<double>(fitString_);
   rebinMasses_ = getVecFromString<int>(rebinString_);
   organiseVectors(rebinMasses_,fitMasses_);
+	configureOptions(vm);
+
+	// open files
+	inFile_ = TFile::Open(filename_.c_str());
+	if (skipRebin_) outFile_ = new TFile(outfilename_.c_str(),"UPDATE");
+	else outFile_ = new TFile(outfilename_.c_str(),"RECREATE");
+
+  // read configuration
+ 	ReadRunConfig();
+	if (checkHistos_) checkAllHistos();
+	
+  if (!skipRebin_) {
+		rebinner = new FMTRebin(inFile_, outFile_, intLumi_, is2011_, mHMinimum_, mHMaximum_, mHStep_, massMin_, massMax_, nDataBins_, signalRegionWidth_, sidebandWidth_, numberOfSidebands_, numberOfSidebandsForAlgos_, numberOfSidebandGaps_, massSidebandMin_, massSidebandMax_, nIncCategories_,includeVBF_, nVBFCategories_, includeLEP_, nLEPCategories_, systematics_, rederiveOptimizedBinEdges_, AllBinEdges_,verbose_);
+		rebinner->fitter->setblind(blinding_);
+		rebinner->fitter->setplot(diagnose_);
+		rebinner->setcatByHand(catByHand_);
+		rebinner->setjustRebin(justRebin_);
+	}
+	else {
+		cleaned=true;
+	}
+
+  if (diagnose_) {
+    system("mkdir -p plots/png");
+    system("mkdir -p plots/pdf");
+    system("mkdir -p plots/macro");
+  }
+	printPassedOptions();
+  if (dumpDatFile_) dumpDatFile(dumpDatFil_);
+	
+	if (verbose_) {
+		cout << "Sig MC Masses:" << endl;
+		cout << "MC: [";
+		printVec(MCMasses_);
+		cout << "] " << endl;
+		cout << "MH Masses:" << endl;
+		cout << "MH: [";
+		printVec(MHMasses_);
+		cout << "] " << endl;
+	}
+
+	// clean plots
+	if (diagnose_ && !safeMode_) {
+		cout << "WARNING! -- Removing...." << endl;
+		system("rm -rf plots/pdf/*");
+		system("cp plots/png/PhoPhoDraw.png plots/");
+		system("cp plots/png/PhotPhotEvent.png plots/");
+		system("rm -rf plots/png/*");
+		system("mv plots/PhoPhoDraw.png plots/png");
+		system("mv plots/PhotPhotEvent.png plots/png");
+	}
+
+}
+
+void FMTSetup::checkAllHistos(){
+	
+	//cout << "Skipping BDT entries" << endl;
+	TFile *tFile;
+	for (int i=0; i<2; i++){
+		if (i==0) tFile = inFile_;
+		if (i==1) tFile = outFile_;
+		TList *histList = tFile->GetListOfKeys();
+		for (int j=0; j<histList->GetSize(); j++){
+			string name = histList->At(j)->GetName(); 
+			//if (name.find("BDT")!=string::npos) continue;
+			if (name.find("th1f")!=string::npos && name.find(grepString_)!=string::npos){
+				TH1F *temp = (TH1F*)tFile->Get(histList->At(j)->GetName());
+				checkHisto(temp);
+			}
+		}
+  }
+  tFile->Close();
+}
+
+void FMTSetup::configureOptions(po::variables_map vm){
 
   if (fitMasses_.size()>0)        fit_=true;
   if (rebinMasses_.size()>0)      rebin_=true;
   if (vm.count("catByHand"))      catByHand_=true;
+	if (vm.count("histosFromTrees")) histosFromTrees_=true;
 	if (vm.count("skipRebin")) 			skipRebin_=true;
 	if (vm.count("justRebin")) 			justRebin_=true;
 	if (vm.count("getBinEdges")) 		binEdges_=true;
@@ -149,62 +228,7 @@ void FMTSetup::OptionParser(int argc, char *argv[]){
   if (vm.count("is2011"))         setis2011(true);
   else                            setis2011(false);
   if (vm.count("setLumi"))        setintLumi(userLumi_);
-
 	if (fitMasses_.size()==0 && rebinMasses_.size()==0 && !skipRebin_) all_=true;
-
-  //FIXME TEST
-	if (checkHistos_) checkAllHistos();
-
-  rebinner = new FMTRebin(filename_, getintLumi(), getis2011(), getmHMinimum(), getmHMaximum(), getmHStep(), getmassMin(), getmassMax(), getnDataBins(), getsignalRegionWidth(), getsidebandWidth(), getnumberOfSidebands(), getnumberOfSidebandsForAlgos(), getnumberOfSidebandGaps(), getmassSidebandMin(), getmassSidebandMax(), getnIncCategories(),getincludeVBF(), getnVBFCategories(), getincludeLEP(), getnLEPCategories(), getsystematics(), getrederiveOptimizedBinEdges(), getAllBinEdges(),verbose_);
-  rebinner->setAllBinEdges(getAllBinEdges());
-	rebinner->fitter->setblind(blinding_);
-	rebinner->fitter->setplot(diagnose_);
-  rebinner->setcatByHand(catByHand_);
-	rebinner->setjustRebin(justRebin_);
-
-  if (diagnose_) {
-    system("mkdir -p plots/png");
-    system("mkdir -p plots/pdf");
-    system("mkdir -p plots/macro");
-  }
-	printPassedOptions();
-  if (dumpDatFile_) dumpDatFile(dumpDatFil_);
-	
-	if (verbose_) {
-		cout << "Sig MC Masses:" << endl;
-		cout << "MC: [";
-		printVec(getMCMasses());
-		cout << "] " << endl;
-		cout << "MH Masses:" << endl;
-		cout << "MH: [";
-		printVec(getAllMH());
-		cout << "] " << endl;
-	}
-
-	// clean plots
-	if (diagnose_ && !safeMode_) {
-		cout << "WARNING! -- Removing...." << endl;
-		system("rm -rf plots/pdf/*");
-		system("cp plots/png/PhoPhoDraw.png plots/");
-		system("cp plots/png/PhotPhotEvent.png plots/");
-		system("rm -rf plots/png/*");
-		system("mv plots/PhoPhoDraw.png plots/png");
-		system("mv plots/PhotPhotEvent.png plots/png");
-	}
-
-}
-
-void FMTSetup::checkAllHistos(){
-  TFile *tFile = TFile::Open(filename_.c_str());
-  TList *histList = tFile->GetListOfKeys();
-  for (int j=0; j<histList->GetSize(); j++){
-    string name = histList->At(j)->GetName(); 
-    if (name.find("th1f")!=string::npos){
-      TH1F *temp = (TH1F*)tFile->Get(histList->At(j)->GetName());
-      checkHisto(temp);
-    }
-  }
-  tFile->Close();
 }
 
 void FMTSetup::ReadRunConfig(){
@@ -262,15 +286,21 @@ void FMTSetup::ReadRunConfig(){
 
     if (sline.find("rederiveOptimizedBinEdges=")!=string::npos)   setrederiveOptimizedBinEdges(getOptFromConfig<bool>(sline));
     for (int m=110; m<=150; m+=5){
-      if (m==145) continue;
+      if (is2011_ && m==145) continue;
       if (sline.find(Form("GradBinEdges_%3d=",m))!=string::npos)  setBinEdges(m,getBinEdgesFromString(getOptFromConfig<string>(sline)));
       if (sline.find(Form("VbfBinEdges_%3d=",m))!=string::npos)   setVBFBinEdges(m,getBinEdgesFromString(getOptFromConfig<string>(sline)));
       if (sline.find(Form("LepBinEdges_%3d=",m))!=string::npos)   setLEPBinEdges(m,getBinEdgesFromString(getOptFromConfig<string>(sline)));
     }
   }
+	updateBinEdges();
+	MHMasses_ = getAllMH();
+	MCMasses_ = getMCMasses();
+	systematics_ = getsystematics();
   userLumi_ = getLumiFromWorkspace();
   setintLumi(userLumi_);
 	printRunOptions();
+	outFile_->cd();
+	mva->Write();
 }
 
 double FMTSetup::getLumiFromWorkspace(){
@@ -357,6 +387,17 @@ void FMTSetup::CheckRunOptions(){
 	}
 }
 
+void FMTSetup::runHistosFromTrees(){
+	if (!cleaned) cleanUp();
+	if (histosFromTrees_){
+		string bdtname = "BDT_grad_123";
+		string weightsFile = "../../AnalysisScripts/aux/sidebandMVA_weights_hcp/TMVAClassification_BDTgradMIT.weights.xml";
+		FMTTree *fmtTree = new FMTTree(filename_, outfilename_, bdtname, weightsFile, intLumi_, is2011_, mHMinimum_, mHMaximum_, mHStep_, massMin_, massMax_, nDataBins_, signalRegionWidth_, sidebandWidth_, numberOfSidebands_, numberOfSidebandsForAlgos_, numberOfSidebandGaps_, massSidebandMin_, massSidebandMax_, nIncCategories_, includeVBF_, nVBFCategories_, includeLEP_, nLEPCategories_, systematics_, rederiveOptimizedBinEdges_, AllBinEdges_, verbose_);
+		fmtTree->run();
+		delete fmtTree;
+	}
+}
+
 void FMTSetup::runRebinning(){
 
 	vector<int> theMasses;
@@ -388,6 +429,10 @@ void FMTSetup::runFitting(){
 void FMTSetup::cleanUp(){
 	// need to call FMTRebin destructor to free up file
 	delete rebinner;
+	inFile_->Close();
+	outFile_->Close();
+	delete inFile_;
+	delete outFile_;
 	cleaned=true;
 }
 
@@ -395,7 +440,8 @@ void FMTSetup::createCorrBkgModel(){
 	if (!cleaned) cleanUp();
 	if (bkgModel_){
 		cout << "Running createCorrectedBackgroundModel...." << endl;
-		createCorrectedBackgroundModel(filename_,getnumberOfSidebands(),getsidebandWidth(),getsignalRegionWidth(),getnumberOfSidebandGaps(),getmassSidebandMin(),getmassSidebandMax(),boost::lexical_cast<double>(getmHMinimum()),boost::lexical_cast<double>(getmHMaximum()),getmHStep(),diagnose_, blinding_);
+		cout << "Attempt on " << outfilename_ << endl;
+		createCorrectedBackgroundModel(outfilename_,numberOfSidebands_,sidebandWidth_,signalRegionWidth_,numberOfSidebandGaps_,massSidebandMin_,massSidebandMax_,boost::lexical_cast<double>(mHMinimum_),boost::lexical_cast<double>(mHMaximum_),mHStep_,diagnose_, blinding_);
 		cout << "Finished correcting background model" << endl;
 	}
 }
@@ -404,7 +450,7 @@ void FMTSetup::interpolateBDT(){
 	if (!cleaned) cleanUp();
 	if (interp_){
     cout << "Running signal interpolation...." << endl;
-    FMTSigInterp *interpolater = new FMTSigInterp(filename_, getintLumi(), getis2011(), diagnose_,false,getmHMinimum(), getmHMaximum(), getmHStep(), getmassMin(), getmassMax(), getnDataBins(), getsignalRegionWidth(), getsidebandWidth(), getnumberOfSidebands(), getnumberOfSidebandsForAlgos(), getnumberOfSidebandGaps(), getmassSidebandMin(), getmassSidebandMax(), getnIncCategories(), getincludeVBF(), getnVBFCategories(), getincludeLEP(), getnLEPCategories(), getsystematics(), getrederiveOptimizedBinEdges(), getAllBinEdges(),blinding_,verbose_);
+    FMTSigInterp *interpolater = new FMTSigInterp(outfilename_, intLumi_, is2011_, diagnose_,false,mHMinimum_, mHMaximum_, mHStep_, massMin_, massMax_, nDataBins_, signalRegionWidth_, sidebandWidth_, numberOfSidebands_, numberOfSidebandsForAlgos_, numberOfSidebandGaps_, massSidebandMin_, massSidebandMax_, nIncCategories_, includeVBF_, nVBFCategories_, includeLEP_, nLEPCategories_, systematics_, rederiveOptimizedBinEdges_, AllBinEdges_,blinding_,verbose_);
     interpolater->runInterpolation();
 		delete interpolater;
 	}
@@ -414,15 +460,15 @@ void FMTSetup::writeDataCards(){
 	if (!cleaned) cleanUp();
 	if (datacards_){
 		cout << "Preparing to write datacards...." << endl;
-		if (getis2011()){
+		if (is2011_){
      // cerr << "This option isn't supported yet. You will have to do this by hand. Sorry :( " << endl;
      // exit(0);
-      if (blinding_) system(Form("python python/writeBinnedMvaCard_7TeV.py -i %s -p plots --makePlot --mhLow %3d.0 --mhHigh %3d.0 --mhStep %1.1f --intLumi %1.1f --blind",filename_.c_str(),getmHMinimum(),getmHMaximum(),getmHStep(),getintLumi()));
-      else system(Form("python python/writeBinnedMvaCard_7TeV.py -i %s -p plots --makePlot --mhLow %3d.0 --mhHigh %3d.0 --mhStep %1.1f --intLumi %1.1f ",filename_.c_str(),getmHMinimum(),getmHMaximum(),getmHStep(),getintLumi()));
+      if (blinding_) system(Form("python python/writeBinnedMvaCard_7TeV.py -i %s -p plots --makePlot --mhLow %3d.0 --mhHigh %3d.0 --mhStep %1.1f --intLumi %1.1f --blind",outfilename_.c_str(),mHMinimum_,mHMaximum_,mHStep_,intLumi_));
+      else system(Form("python python/writeBinnedMvaCard_7TeV.py -i %s -p plots --makePlot --mhLow %3d.0 --mhHigh %3d.0 --mhStep %1.1f --intLumi %1.1f ",outfilename_.c_str(),mHMinimum_,mHMaximum_,mHStep_,intLumi_));
     }
     else {
-      if (blinding_) system(Form("python python/writeBinnedMvaCard.py -i %s -p plots --makePlot --mhLow %3d.0 --mhHigh %3d.0 --mhStep %1.1f --intLumi %1.1f --blind",filename_.c_str(),getmHMinimum(),getmHMaximum(),getmHStep(),getintLumi()));
-      else system(Form("python python/writeBinnedMvaCard.py -i %s -p plots --makePlot --mhLow %3d.0 --mhHigh %3d.0 --mhStep %1.1f --intLumi %1.1f",filename_.c_str(),getmHMinimum(),getmHMaximum(),getmHStep(),getintLumi()));
+      if (blinding_) system(Form("python python/writeBinnedMvaCard.py -i %s -p plots --makePlot --mhLow %3d.0 --mhHigh %3d.0 --mhStep %1.1f --intLumi %1.1f --blind",outfilename_.c_str(),mHMinimum_,mHMaximum_,mHStep_,intLumi_));
+      else system(Form("python python/writeBinnedMvaCard.py -i %s -p plots --makePlot --mhLow %3d.0 --mhHigh %3d.0 --mhStep %1.1f --intLumi %1.1f",outfilename_.c_str(),mHMinimum_,mHMaximum_,mHStep_,intLumi_));
     }
 	}
 }
@@ -435,7 +481,7 @@ void FMTSetup::makePlots(){
 			system(Form("python python/GetFakeShapeDatacards.py -i mva-datacards-grad -o fake-shape-cards -D -C -N --mhLow %3d.0 --mhHigh %3d.0 --mhStep %1.1f",getmHMinimum(),getmHMaximum(),getmHStep()));
     }
 		cout << "Making plots..." << endl;
-    FMTPlots *plotter = new FMTPlots(filename_, runSB_, getintLumi(), getis2011(), getmHMinimum(), getmHMaximum(), getmHStep(), getmassMin(), getmassMax(), getnDataBins(), getsignalRegionWidth(), getsidebandWidth(), getnumberOfSidebands(), getnumberOfSidebandsForAlgos(), getnumberOfSidebandGaps(), getmassSidebandMin(), getmassSidebandMax(), getnIncCategories(), getincludeVBF(), getnVBFCategories(), getincludeLEP(), getnLEPCategories(), getsystematics(), getrederiveOptimizedBinEdges(), getAllBinEdges(),blinding_,verbose_);
+    FMTPlots *plotter = new FMTPlots(outfilename_, runSB_, intLumi_, is2011_, mHMinimum_, mHMaximum_, mHStep_, massMin_, massMax_, nDataBins_, signalRegionWidth_, sidebandWidth_, numberOfSidebands_, numberOfSidebandsForAlgos_, numberOfSidebandGaps_, massSidebandMin_, massSidebandMax_, nIncCategories_, includeVBF_, nVBFCategories_, includeLEP_, nLEPCategories_, systematics_, rederiveOptimizedBinEdges_, AllBinEdges_,blinding_,verbose_);
     vector<double> theMasses = getAllMH();
     for (vector<double>::iterator mh = theMasses.begin(); mh != theMasses.end(); mh++){
       plotter->plotAll(*mh);
@@ -450,8 +496,8 @@ void FMTSetup::publishToWeb(){
 	if (!cleaned) cleanUp();
 	if (web_){
 		cout << "Publishing to web: " << webDir_ << "/plots/png/home.html" << endl;
-		if (blinding_) system(Form("python python/publish_plots.py %s --blind",filename_.c_str()));
-		else system(Form("python python/publish_plots.py %s --not",filename_.c_str()));
+		if (blinding_) system(Form("python python/publish_plots.py %s --blind",outfilename_.c_str()));
+		else system(Form("python python/publish_plots.py %s --not",outfilename_.c_str()));
 		system(Form("rm -r %s",webDir_.c_str()));
 		system(Form("mkdir %s",webDir_.c_str()));
 		system(Form("cp -r plots %s",webDir_.c_str()));

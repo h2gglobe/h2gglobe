@@ -16,7 +16,7 @@ using namespace RooFit;
 class FMTFit : public FMTBase{
 
 	public:
-		FMTFit(TFile *tFile, double intLumi, bool is2011, int mHMinimum, int mHMaximum, double mHStep, double massMin, double massMax, int nDataBins, double signalRegionWidth, double sidebandWidth, int numberOfSidebands, int numberOfSidebandsForAlgos, int numberOfSidebandGaps, double massSidebandMin, double massSidebandMax, int nIncCategories, bool includeVBF, int nVBFCategories, bool includeLEP, int nLEPCategories, vector<string> systematics, bool rederiveOptimizedBinEdges, vector<map<int,vector<double> > > AllBinEdges, bool verbose=false);
+		FMTFit(TFile *tFile, TFile *outFile, double intLumi, bool is2011, int mHMinimum, int mHMaximum, double mHStep, double massMin, double massMax, int nDataBins, double signalRegionWidth, double sidebandWidth, int numberOfSidebands, int numberOfSidebandsForAlgos, int numberOfSidebandGaps, double massSidebandMin, double massSidebandMax, int nIncCategories, bool includeVBF, int nVBFCategories, bool includeLEP, int nLEPCategories, vector<string> systematics, bool rederiveOptimizedBinEdges, vector<map<int,vector<double> > > AllBinEdges, bool verbose=false);
 		~FMTFit();
 
 		pair<double,double> FitPow(double);
@@ -33,9 +33,14 @@ class FMTFit : public FMTBase{
 		RooRealVar *r1, *r2, *f1;
 		RooAbsPdf *fit;
 		RooRealVar *nBkgInSigReg;
+		RooWorkspace *inWS;
 		RooWorkspace *outWS;
 		RooRealVar *mass_var;
 		RooDataSet *data;
+		RooFitResult *fitRes;
+
+		string infilename_;
+		string outfilename_;
 
 		bool blind_;
 		bool plot_;

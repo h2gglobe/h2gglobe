@@ -111,6 +111,7 @@ class FMTBase {
 		void setBinEdges(map<int,vector<double> >);
 		void setVBFBinEdges(map<int,vector<double> >);
 		void setLEPBinEdges(map<int,vector<double> >);
+		void updateBinEdges();
 
     void setis2011(bool);
     void setintLumi(double);
@@ -128,7 +129,9 @@ class FMTBase {
   protected:
     bool verbose_;
 
-	private:
+    double intLumi_;
+    bool is2011_;
+
 		int mHMinimum_;
 		int mHMaximum_;
 		double mHStep_;
@@ -158,8 +161,9 @@ class FMTBase {
 		map<int, vector<double> > VBFBinEdges_;
 		map<int, vector<double> > LEPBinEdges_;
 
-    bool is2011_;
-    double intLumi_;
+		vector<map<int,vector<double> > > AllBinEdges_;
+		vector<double> MHMasses_;
+		vector<int> MCMasses_;
 
 };
 

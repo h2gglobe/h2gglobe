@@ -4,6 +4,10 @@ LIBNAME = FullMvaToolkit
 #Necessary to use shell built-in commands
 SHELL=bash
 
+$(shell mkdir bin)
+$(shell mkdir lib)
+$(shell mkdir obj)
+
 # figure out os
 UNAME := $(shell uname)
 BASEDIR = $(shell pwd)
@@ -23,7 +27,8 @@ USERLIBS += $(shell root-config --glibs) -lTMVA -lMinuit -lFoam -lRooFit -lRooFi
 
 
 #-lCondFormatsPhysicsToolsObjects -lRecoBTagPerformanceDB
-CXXFLAGS = -Wall -W -Wno-unused-function -Wno-parentheses -Wno-char-subscripts -Wno-unused-parameter -O2 -Wl,-rpath=$(BASEDIR)/lib 
+#CXXFLAGS = -g -Wall -W -Wno-unused-function -Wno-parentheses -Wno-char-subscripts -Wno-unused-parameter -O2 -Wl,-rpath=$(BASEDIR)/lib 
+CXXFLAGS = -g -W -Wno-unused-function -Wno-parentheses -Wno-char-subscripts -O2 -Wl,-rpath=$(BASEDIR)/lib 
 LDFLAGS = -shared -Wall -W 
 
 CXX=clang++

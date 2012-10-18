@@ -371,7 +371,7 @@ void FMTPlots::plotAll(double mh){
   TH1F *bkg = (TH1F*)tFile->Get(Form("th1f_bkg_grad_%3.1f_fitsb_biascorr",mh));
   TH1F *bkgmc = (TH1F*)tFile->Get(Form("th1f_bkg_mc_grad_%3.1f",mh));
   TH1F *data = (TH1F*)tFile->Get(Form("th1f_data_grad_%3.1f",mh));
- // TH1F *bkgmc = (TH1F*) data->Clone();
+  //TH1F *bkgmc = (TH1F*) data->Clone();
 
   TH1F *sig = (TH1F*)((TH1F*)tFile->Get(Form("th1f_sig_grad_ggh_%3.1f",mh)))->Clone();
   sig->Add((TH1F*)tFile->Get(Form("th1f_sig_grad_vbf_%3.1f",mh)));

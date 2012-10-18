@@ -1,6 +1,8 @@
 #ifndef FMTSetup_h
 #define FMTSetup_h
 
+#include "boost/program_options.hpp"
+
 #include "FMTBase.h"
 #include "FMTFit.h"
 #include "FMTRebin.h"
@@ -12,6 +14,7 @@ class FMTSetup : public FMTBase {
 		~FMTSetup();
 
 		void OptionParser(int argc, char *argv[]);
+		void configureOptions(boost::program_options::variables_map);
 		void ReadRunConfig();
 
 		void CheckRunOptions();
@@ -32,7 +35,8 @@ class FMTSetup : public FMTBase {
 		void organiseVectors(vector<int>&, vector<double>&);
 
 		void printPassedOptions();
-
+		
+		void runHistosFromTrees();
 		void runRebinning();
 		void runFitting();
 		void createCorrBkgModel();
@@ -57,6 +61,7 @@ class FMTSetup : public FMTBase {
 		bool fit_;
 		bool rebin_;
     bool catByHand_;
+		bool histosFromTrees_;
 		bool skipRebin_;
 		bool justRebin_;
 		bool binEdges_;
@@ -80,11 +85,15 @@ class FMTSetup : public FMTBase {
 		string webDir_;
 		string datFil_;
     string dumpDatFil_;
+		string grepString_;
 
     double userLumi_;
 
 		FMTRebin *rebinner;
 		bool cleaned;
+
+		TFile *inFile_;
+		TFile *outFile_;
 
 };
 

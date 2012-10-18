@@ -35,16 +35,19 @@ FMTBase::FMTBase(double intLumi, bool is2011, int mHMinimum, int mHMaximum, doub
 	systematics_(systematics),
 
 	rederiveOptimizedBinEdges_(rederiveOptimizedBinEdges),
+	AllBinEdges_(AllBinEdges),
 
   verbose_(verbose)
 {
-	BinEdges_ = AllBinEdges[0] ;
-	if (includeVBF) VBFBinEdges_ = AllBinEdges[1];
-	if (includeLEP) LEPBinEdges_ = AllBinEdges[2];
+	BinEdges_ = AllBinEdges_[0] ;
+	if (includeVBF) VBFBinEdges_ = AllBinEdges_[1];
+	if (includeLEP) LEPBinEdges_ = AllBinEdges_[2];
   processes_.push_back("ggh");
   processes_.push_back("vbf");
   processes_.push_back("wzh");
   processes_.push_back("tth");
+	MHMasses_ = getAllMH();
+	MCMasses_ = getMCMasses();
 
 }
 
@@ -116,7 +119,6 @@ pair<int,int> FMTBase::getNsidebandsUandD(double mass){
     for (int sidebandNumb=numberOfSidebandGaps_+1; sidebandNumb<=numberOfSidebandsForAlgos_+numberOfSidebandGaps_; sidebandNumb++){
       double hypothesisModifier = (1.-sidebandWidth_)/(1.+sidebandWidth_);
       double sidebandCenter = mass*(1.-signalRegionWidth_)/(1.+sidebandWidth_)*TMath::Power(hypothesisModifier,sidebandNumb-1);
-      double sidebandHigh = sidebandCenter*(1.+sidebandWidth_);
       double sidebandLow = sidebandCenter*(1.-sidebandWidth_);
       if (sidebandLow<massSidebandMin_){
         nLower--;
@@ -130,7 +132,6 @@ pair<int,int> FMTBase::getNsidebandsUandD(double mass){
       double hypothesisModifier = (1.+sidebandWidth_)/(1.-sidebandWidth_);
       double sidebandCenter = mass*(1.+signalRegionWidth_)/(1.-sidebandWidth_)*TMath::Power(hypothesisModifier,sidebandNumb-1);
       double sidebandHigh = sidebandCenter*(1.+sidebandWidth_);
-      double sidebandLow = sidebandCenter*(1.-sidebandWidth_);
       if (sidebandHigh>massSidebandMax_){
         nHigher--;
         nLower++;
@@ -200,6 +201,7 @@ bool FMTBase::getincludeLEP(){
 int FMTBase::getnLEPCategories(){
   return nLEPCategories_;
 }
+
 const int FMTBase::getNcats(){
 	int ncats=nIncCategories_;
 	if (includeVBF_) ncats+=nVBFCategories_;
@@ -234,21 +236,21 @@ vector<map<int, vector<double> > > FMTBase::getAllBinEdges(){
 }
 
 map<int, vector<double> > FMTBase::getBinEdges(){
-	if (BinEdges_.size() != getNumMCMasses()){
+	if (BinEdges_.size() != unsigned(getNumMCMasses())){
 		cerr << "WARNING - the number of bin edges (" << BinEdges_.size() << ") does not match the number of MC masses (" << getNumMCMasses() << ")" << endl;
 	}
 	return BinEdges_;
 }
 
 map<int, vector<double> > FMTBase::getVBFBinEdges(){
-	if (VBFBinEdges_.size() != getNumMCMasses()){
+	if (VBFBinEdges_.size() != unsigned(getNumMCMasses())){
 		cerr << "WARNING - the number of bin edges (" << VBFBinEdges_.size() << ") does not match the number of MC masses (" << getNumMCMasses() << ")" << endl;
 	}
 	return VBFBinEdges_;
 }
 
 map<int, vector<double> > FMTBase::getLEPBinEdges(){
-	if (LEPBinEdges_.size() != getNumMCMasses()){
+	if (LEPBinEdges_.size() != unsigned(getNumMCMasses())){
 		cerr << "WARNING - the number of bin edges (" << LEPBinEdges_.size() << ") does not match the number of MC masses (" << getNumMCMasses() << ")" << endl;
 	}
 	return LEPBinEdges_;
@@ -300,8 +302,10 @@ vector<double> FMTBase::getMHMasses(int mass){
 	checkMCMass(mass);
 	double m_low=mass-(floor(2.5/mHStep_)*mHStep_);
 	double m_high=mass+(ceil(2.5/mHStep_)*mHStep_);
-	if (mass==140) m_high=mass+(ceil(5.0/mHStep_)*mHStep_);
-	if (mass==150) m_low=mass-(floor(5.0/mHStep_)*mHStep_);
+	if (is2011_){
+		if (mass==140) m_high=mass+(ceil(5.0/mHStep_)*mHStep_);
+		if (mass==150) m_low=mass-(floor(5.0/mHStep_)*mHStep_);
+	}
 	
 	for (double m=m_low; m<m_high-(mHStep_/2.); m+=mHStep_){
 		if (m>(mHMinimum_-(mHStep_/2.)) && m<(mHMaximum_+(mHStep_/2.))) theMasses.push_back(m);
@@ -312,12 +316,12 @@ vector<double> FMTBase::getMHMasses(int mass){
 
 vector<int> FMTBase::getUandDMCMasses(int mass){
   vector<int> theMasses;
-  if (mass==140){
+  if (is2011_ && mass==140){
     if (135>=mHMinimum_) theMasses.push_back(135);
     theMasses.push_back(140);
     if (150<=mHMaximum_) theMasses.push_back(150);
   }
-	else if (mass==150){
+	else if (is2011_ && mass==150){
 		if (140>=mHMinimum_) theMasses.push_back(140);
 		theMasses.push_back(150);
 	}
@@ -357,7 +361,7 @@ pair<int,int> FMTBase::getInterpMasses(double mass){
 vector<int> FMTBase::getMCMasses(){
 	vector<int> theMasses;
 	for (int mH=mHMinimum_; mH<=mHMaximum_; mH+=5){
-		if (mH==145) continue;
+		if (is2011_ && mH==145) continue;
 		theMasses.push_back(mH);
 	}
 	return theMasses;
@@ -508,6 +512,13 @@ void FMTBase::setVBFBinEdges(map<int,vector<double> > VBFBinEdges){
 }
 void FMTBase::setLEPBinEdges(map<int,vector<double> > LEPBinEdges){
 	LEPBinEdges_=LEPBinEdges;
+}
+
+void FMTBase::updateBinEdges(){
+	AllBinEdges_.clear();
+	AllBinEdges_.push_back(BinEdges_);
+	AllBinEdges_.push_back(VBFBinEdges_);
+	AllBinEdges_.push_back(LEPBinEdges_);
 }
 
 void FMTBase::setis2011(bool is2011){
