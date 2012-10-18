@@ -4147,25 +4147,25 @@ void PhotonAnalysis::saveMassFacDatCardTree(LoopAll &l, int cur_type, int catego
    if (l.signalNormalizer->GetProcess(cur_type)=="wzh") proc_id=2;
    if (l.signalNormalizer->GetProcess(cur_type)=="tth") proc_id=3;
 
-   l.FillTree("category",category);
-   l.FillTree("process_id",proc_id);
-   l.FillTree("weight",evweight);
-   l.FillTree("scale_err",scale_err);
-   l.FillTree("w_scale_err_2",evweight*scale_err*scale_err);
-   l.FillTree("smear_err",smear_err);
-   l.FillTree("w_smear_err_2",evweight*smear_err*smear_err);
-   l.FillTree("bdtout",bdtout);
-   l.FillTree("bdtout_id_up",bdtout_id_up);
-   l.FillTree("bdtout_id_down",bdtout_id_down);
-   l.FillTree("bdtout_sigE_up",bdtout_sigE_up);
-   l.FillTree("bdtout_sigE_down",bdtout_sigE_down);
-   l.FillTree("lead_eta",lead_p4.Eta());
-   l.FillTree("sublead_eta",sublead_p4.Eta());
-   l.FillTree("lead_r9",l.pho_r9[ipho1]);
-   l.FillTree("sublead_r9",l.pho_r9[ipho2]);
-   l.FillTree("lead_isEB",TMath::Abs(lead_p4.Eta())<1.444);
-   l.FillTree("sublead_isEB",TMath::Abs(sublead_p4.Eta())<1.444);
-   l.FillTree("vbfmva",myVBF_MVA);
+   l.FillTree("category",category,"datacard_trees");
+   l.FillTree("process_id",proc_id,"datacard_trees");
+   l.FillTree("weight",evweight,"datacard_trees");
+   l.FillTree("scale_err",scale_err,"datacard_trees");
+   l.FillTree("w_scale_err_2",evweight*scale_err*scale_err,"datacard_trees");
+   l.FillTree("smear_err",smear_err,"datacard_trees");
+   l.FillTree("w_smear_err_2",evweight*smear_err*smear_err,"datacard_trees");
+   l.FillTree("bdtout",bdtout,"datacard_trees");
+   l.FillTree("bdtout_id_up",bdtout_id_up,"datacard_trees");
+   l.FillTree("bdtout_id_down",bdtout_id_down,"datacard_trees");
+   l.FillTree("bdtout_sigE_up",bdtout_sigE_up,"datacard_trees");
+   l.FillTree("bdtout_sigE_down",bdtout_sigE_down,"datacard_trees");
+   l.FillTree("lead_eta",lead_p4.Eta(),"datacard_trees");
+   l.FillTree("sublead_eta",sublead_p4.Eta(),"datacard_trees");
+   l.FillTree("lead_r9",l.pho_r9[ipho1],"datacard_trees");
+   l.FillTree("sublead_r9",l.pho_r9[ipho2],"datacard_trees");
+   l.FillTree("lead_isEB",TMath::Abs(lead_p4.Eta())<1.444,"datacard_trees");
+   l.FillTree("sublead_isEB",TMath::Abs(sublead_p4.Eta())<1.444,"datacard_trees");
+   l.FillTree("vbfmva",myVBF_MVA,"datacard_trees");
 
 }
 

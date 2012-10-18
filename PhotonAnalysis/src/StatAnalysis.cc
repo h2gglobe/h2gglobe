@@ -35,6 +35,7 @@ StatAnalysis::StatAnalysis()  :
     nVHmetCategories = 0;
 
     fillOptTree = false;
+    doFullMvaFinalTree = false;
 
     sigmaMrv=0.;
     sigmaMwv=0.;
@@ -1035,6 +1036,16 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 void StatAnalysis::FillRooContainer(LoopAll& l, int cur_type, float mass, float diphotonMVA,
 				    int category, float weight, bool isCorrectVertex, int diphoton_id)
 {
+    // Fill full mva trees
+    if (doFullMvaFinalTree){
+        if (PADEBUG) cout << "---------------" << endl;
+        if (PADEBUG) cout << "Filling nominal vals" << endl;
+        l.FillTree("mass",mass,"full_mva_trees");
+        l.FillTree("bdtoutput",diphotonMVA,"full_mva_trees");
+        l.FillTree("category",category,"full_mva_trees");
+        l.FillTree("weight",weight,"full_mva_trees");
+    }
+
     if (cur_type == 0 ) {
 	l.rooContainer->InputDataPoint("data_mass",category,mass);
     } else if (cur_type > 0 ) {
@@ -1129,6 +1140,7 @@ void StatAnalysis::AccumulateSyst(int cur_type, float mass, float diphotonMVA,
 {
     categories.push_back(category);
     mass_errors.push_back(mass);
+    mva_errors.push_back(diphotonMVA);
     weights.push_back(weight);
 }
 
@@ -1139,6 +1151,19 @@ void StatAnalysis::FillRooContainerSyst(LoopAll& l, const std::string &name, int
 					std::vector<int>    & categories, std::vector<double> & weights)
 {
     if (cur_type < 0){
+    // fill full mva trees
+    if (doFullMvaFinalTree){
+        assert(mass_errors.size()==2 && mva_errors.size()==2 && weights.size()==2 && categories.size()==2);
+        if (PADEBUG) cout << "Filling template models " << name << endl;
+        l.FillTree(Form("mass_%s_Down",name.c_str()),mass_errors[0],"full_mva_trees");
+        l.FillTree(Form("mass_%s_Up",name.c_str()),mass_errors[1],"full_mva_trees");
+        l.FillTree(Form("bdtoutput_%s_Down",name.c_str()),mva_errors[0],"full_mva_trees");
+        l.FillTree(Form("bdtoutput_%s_Up",name.c_str()),mva_errors[1],"full_mva_trees");
+        l.FillTree(Form("weight_%s_Down",name.c_str()),weights[0],"full_mva_trees");
+        l.FillTree(Form("weight_%s_Up",name.c_str()),weights[1],"full_mva_trees");
+        l.FillTree(Form("category_%s_Down",name.c_str()),categories[0],"full_mva_trees");
+        l.FillTree(Form("category_%s_Up",name.c_str()),categories[1],"full_mva_trees");
+    }
 	// feed the modified signal model to the RooContainer
 	l.rooContainer->InputSystematicSet("sig_"+GetSignalLabel(cur_type),name,categories,mass_errors,weights);
     }

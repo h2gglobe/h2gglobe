@@ -19,7 +19,8 @@ datacard = options.datacard
 if not os.path.isdir('%s/%s'%(path,dir)):
   os.makedirs('%s/%s'%(path,dir))
 
-nDirs = ['Asymptotic','ExpProfileLikelihood','ExpProfileLikelihood_m125','ExpProfileLikelihood_sm1.6','ExpProfileLikelihood_m125_sm1.6']
+#nDirs = ['Asymptotic','ExpProfileLikelihood','ExpProfileLikelihood_m125','ExpProfileLikelihood_sm1.6','ExpProfileLikelihood_m125_sm1.6']
+nDirs = ['Asymptotic','ExpProfileLikelihood','ExpProfileLikelihood_sm1.6']
 for n in nDirs:
   if not os.path.isdir('%s/%s/%s'%(path,dir,n)):
     os.makedirs('%s/%s/%s'%(path,dir,n))

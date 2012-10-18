@@ -59,6 +59,7 @@ class StatAnalysis : public PhotonAnalysis
     std::vector<int> bkgPolOrderByCat;
     bool doMcOptimization;
     bool fillOptTree;
+    bool doFullMvaFinalTree;
 
     int nDataBins;  
     bool scaleClusterShapes, scaleR9Only;

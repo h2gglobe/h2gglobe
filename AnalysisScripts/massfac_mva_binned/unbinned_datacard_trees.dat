@@ -1,3 +1,5 @@
+dir=datacard_trees
+
 type=0 name=category
 type=0 name=process_id
 type=2 name=weight

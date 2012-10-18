@@ -43,7 +43,7 @@ def getPValue(mass,tree):
   print "Mass "+str(mass)+" not found exiting"
   exit(1)
 
-Masses=array.array("f",[x * 0.1 for x in range(1100,1501,5)])
+Masses=array.array("f",[x * 0.1 for x in range(1100,1501,10)])
 files = sys.argv[1:-1]
 
 if len(files)==2 and len(legands)==0: legands=["Observed","Expected"]

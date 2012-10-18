@@ -1,0 +1,75 @@
+dir=full_mva_trees
+
+name=mass      type=2
+name=bdtoutput type=2
+name=category  type=0
+name=weight    type=2
+
+name=mass_E_scale_Up        type=3
+name=mass_E_scale_Down      type=3
+name=mass_E_res_Up          type=3
+name=mass_E_res_Down        type=3
+name=mass_regSig_Up         type=3
+name=mass_regSig_Down       type=3
+name=mass_idEff_Up          type=3
+name=mass_idEff_Down        type=3
+name=mass_vtxEff_Up         type=3
+name=mass_vtxEff_Down       type=3
+name=mass_triggerEff_Up     type=3
+name=mass_triggerEff_Down   type=3
+name=mass_phoIdMva_Up       type=3
+name=mass_phoIdMva_Down     type=3
+name=mass_pdfWeight_Up      type=3
+name=mass_pdfWeight_Down    type=3
+
+name=bdtoutput_E_scale_Up        type=3
+name=bdtoutput_E_scale_Down      type=3
+name=bdtoutput_E_res_Up          type=3
+name=bdtoutput_E_res_Down        type=3
+name=bdtoutput_regSig_Up         type=3
+name=bdtoutput_regSig_Down       type=3
+name=bdtoutput_idEff_Up          type=3
+name=bdtoutput_idEff_Down        type=3
+name=bdtoutput_vtxEff_Up         type=3
+name=bdtoutput_vtxEff_Down       type=3
+name=bdtoutput_triggerEff_Up     type=3
+name=bdtoutput_triggerEff_Down   type=3
+name=bdtoutput_phoIdMva_Up       type=3
+name=bdtoutput_phoIdMva_Down     type=3
+name=bdtoutput_pdfWeight_Up      type=3
+name=bdtoutput_pdfWeight_Down    type=3
+
+name=weight_E_scale_Up        type=3
+name=weight_E_scale_Down      type=3
+name=weight_E_res_Up          type=3
+name=weight_E_res_Down        type=3
+name=weight_regSig_Up         type=3
+name=weight_regSig_Down       type=3
+name=weight_idEff_Up          type=3
+name=weight_idEff_Down        type=3
+name=weight_vtxEff_Up         type=3
+name=weight_vtxEff_Down       type=3
+name=weight_triggerEff_Up     type=3
+name=weight_triggerEff_Down   type=3
+name=weight_phoIdMva_Up       type=3
+name=weight_phoIdMva_Down     type=3
+name=weight_pdfWeight_Up      type=3
+name=weight_pdfWeight_Down    type=3
+
+name=category_E_scale_Up        type=0
+name=category_E_scale_Down      type=0
+name=category_E_res_Up          type=0
+name=category_E_res_Down        type=0
+name=category_regSig_Up         type=0
+name=category_regSig_Down        type=0
+name=category_idEff_Up          type=0
+name=category_idEff_Down        type=0
+name=category_vtxEff_Up         type=0
+name=category_vtxEff_Down       type=0
+name=category_triggerEff_Up     type=0
+name=category_triggerEff_Down   type=0
+name=category_phoIdMva_Up       type=0
+name=category_phoIdMva_Down     type=0
+name=category_pdfWeight_Up      type=0
+name=category_pdfWeight_Down    type=0
+

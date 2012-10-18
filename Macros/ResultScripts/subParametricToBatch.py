@@ -14,6 +14,8 @@ parser.add_option("-q","--queue",dest="queue")
 parser.add_option("-e","--expectedOnly",dest="expectedOnly",default=False,action="store_true")
 parser.add_option("-L","--mHlow",dest="mHlow",type="int",default=110)
 parser.add_option("-H","--mHhigh",dest="mHhigh",type="int",default=150)
+parser.add_option("-S","--mHstep",dest="mHstep",type="float",default=1)
+parser.add_option("-A","--all",dest="all",default=False,action="store_true")
 parser.add_option("","--dryRun",dest="dryRun",default=False,action="store_true")
 parser.add_option("","--expectSignal",dest="expectSignal",type="float",default=1.)
 parser.add_option("","--expectSignalMass",dest="expectSignalMass",type="float")
@@ -29,6 +31,7 @@ queue = options.queue
 expectedOnly = options.expectedOnly
 ml = options.mHlow
 mh = options.mHhigh
+step = options.mHstep
 
 print path
 
@@ -50,7 +53,7 @@ if not os.path.isdir('%s/%s/%s'%(path,dir,folder)):
 
 files=[]
 
-for m in numpy.arange(ml,mh+1,1):
+def makeScript(m):
   f = open("%s/%s/%s/%s%d.sh"%(path,dir,folder,folder,m),"w")
   f.write('#!/bin/bash\n')
   f.write('cd %s/%s/%s\n'%(path,dir,folder))
@@ -77,16 +80,20 @@ for m in numpy.arange(ml,mh+1,1):
   f.close()
   os.system('chmod +x %s'%f.name)
   files.append(f)
+  
+if not options.all:
+  for m in numpy.arange(ml,mh+step,step):
+    makeScript(m)
 
-for f in files:
-  if os.path.exists('%s.log'%f.name):
-    os.system('rm %s.log'%(f.name))
-  if os.path.exists('%s.fail'%f.name):
-    os.system('rm %s.fail'%(f.name))
-  if os.path.exists('%s.done'%f.name):
-    os.system('rm %s.done'%(f.name))
-  if os.path.exists('%s.run'%f.name):
-    os.system('rm %s.run'%(f.name))
-  if not options.dryRun: os.system('bsub -q %s -o %s.log %s'%(queue,f.name,f.name))  
-  #print 'bsub -q %s -o %s.log %s'%(queue,f.name,f.name)  
+  for f in files:
+    if os.path.exists('%s.log'%f.name):
+      os.system('rm %s.log'%(f.name))
+    if os.path.exists('%s.fail'%f.name):
+      os.system('rm %s.fail'%(f.name))
+    if os.path.exists('%s.done'%f.name):
+      os.system('rm %s.done'%(f.name))
+    if os.path.exists('%s.run'%f.name):
+      os.system('rm %s.run'%(f.name))
+    if not options.dryRun: os.system('bsub -q %s -o %s.log %s'%(queue,f.name,f.name))  
+    #print 'bsub -q %s -o %s.log %s'%(queue,f.name,f.name)  
 

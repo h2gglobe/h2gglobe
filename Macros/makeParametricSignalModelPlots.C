@@ -501,8 +501,8 @@ void makeParametricSignalModelPlots(string hggFileName, string pathName, int nca
     labels.insert(pair<string,string>("cat3","-0.05 <= BDT_{#gamma#gamma} <= 0.50"));
     labels.insert(pair<string,string>("cat4","BDT_{jj} >= 0.985 Dijet Tag"));
     labels.insert(pair<string,string>("cat5","BDT_{jj} >= 0.93 Dijet Tag")); 
-    labels.insert(pair<string,string>("cat6","BDT_{#gamma#gamma} >= -0.05 Electron Tag")); 
-    labels.insert(pair<string,string>("cat7","BDT_{#gamma#gamma} >= -0.05 Muon Tag")); 
+    labels.insert(pair<string,string>("cat6","BDT_{#gamma#gamma} >= -0.05 Muon Tag")); 
+    labels.insert(pair<string,string>("cat7","BDT_{#gamma#gamma} >= -0.05 Electron Tag")); 
     labels.insert(pair<string,string>("cat8","BDT_{#gamma#gamma} >= -0.05 MET Tag")); 
     
     labels.insert(pair<string,string>("all","All Categories Combined"));
