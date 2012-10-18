@@ -164,6 +164,8 @@ class PhotonAnalysis : public BaseAnalysis
 
     enum BkgCategory{promptprompt,promptfake,fakefake};
     bool keepPP, keepPF, keepFF;
+    bool selectprocess;
+    int processtoselect;
 
     std::string energyCorrectionMethod;
     //std::string massResolutionFileName;

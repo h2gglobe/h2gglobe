@@ -53,7 +53,10 @@ PhotonAnalysis::PhotonAnalysis()  :
 
     keepPP = true;
     keepPF = true;
-    keepFF = true;
+    keepFF = true; 
+    
+    selectprocess = false;
+    processtoselect = -1;
 
     doSystematics = true;
 
@@ -1948,6 +1951,12 @@ bool PhotonAnalysis::SkimEvents(LoopAll& l, int jentry)
         ////    }
         //// }
 
+        if(selectprocess){
+            if(processtoselect!=l.process_id){
+                return false;
+            }
+        }
+        
         if( filetype != 0 && ! (keepPP && keepPF && keepFF) ) {
             l.b_gp_n->GetEntry(jentry);
             l.b_gp_mother->GetEntry(jentry);
@@ -2683,6 +2692,7 @@ void PhotonAnalysis::ControlPlotsMetTag2012B(LoopAll& l, TLorentzVector lead_p4,
     //    std::cout << "***corrMet " << corrMet << " corrPhi " << corrMetPhi << std::endl;
 
     int met_cat=(int)(abs(lead_p4.Eta())>1.5 || abs(sublead_p4.Eta())>1.5);
+    TLorentzVector dipho_p4 = lead_p4 + sublead_p4;
 
     l.FillHist(Form("MetTag_leadGammaPt_%s",label.c_str()),    met_cat, lead_p4.Pt(), evweight);
     l.FillHist(Form("MetTag_subleadGammaPt_%s",label.c_str()), met_cat, sublead_p4.Pt(), evweight);
@@ -2691,6 +2701,30 @@ void PhotonAnalysis::ControlPlotsMetTag2012B(LoopAll& l, TLorentzVector lead_p4,
     l.FillHist(Form("MetTag_uncorrmetPhi_%s",label.c_str()),   met_cat, l.met_phi_pfmet, evweight);
     l.FillHist(Form("MetTag_corrmet_%s",label.c_str()),        met_cat, corrMet,    evweight);
     l.FillHist(Form("MetTag_corrmetPhi_%s",label.c_str()),     met_cat, corrMetPhi, evweight);
+    l.FillHist(Form("MetTag_dPhiLead_%s",label.c_str()),       met_cat, myMet.DeltaPhi(lead_p4), evweight);
+    l.FillHist(Form("MetTag_dPhiSub_%s",label.c_str()),        met_cat, myMet.DeltaPhi(sublead_p4), evweight);
+    l.FillHist(Form("MetTag_dPhiMin_%s",label.c_str()),        met_cat, min(myMet.DeltaPhi(lead_p4),myMet.DeltaPhi(sublead_p4)), evweight);
+    l.FillHist(Form("MetTag_dPhiDipho_%s",label.c_str()),      met_cat, myMet.DeltaPhi(dipho_p4), evweight);
+
+    TLorentzVector* leadjt;
+    float maxpt=0;
+    for(int ijet=0; ijet<l.jet_algoPF1_n; ijet++){
+        TLorentzVector* thisjt = (TLorentzVector*) l.jet_algoPF1_p4->At(ijet);
+        if(thisjt->Pt() > maxpt){
+            if(thisjt->DeltaR(lead_p4) > 0.5){
+                if(thisjt->DeltaR(sublead_p4) > 0.5){
+                    maxpt=thisjt->Pt();
+                    leadjt=thisjt;
+                }
+            }
+        }
+    }
+
+    if(maxpt > 0){
+        l.FillHist(Form("MetTag_leadJetPt_%s",label.c_str()),      met_cat, leadjt->Pt(), evweight);
+        l.FillHist(Form("MetTag_dPhiJet_%s",label.c_str()),        met_cat, myMet.DeltaPhi(*leadjt), evweight);
+    }
+
 }
 
 void PhotonAnalysis::ZWithFakeGammaCS(LoopAll& l, float* smeared_pho_energy){
