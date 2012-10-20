@@ -65,6 +65,8 @@ BINS=$(subst $(TESTDIR), $(EXEDIR),$(subst .$(TEST_EXT),,$(EXES)))
 
 all:  $(BINS)
 	$(shell LD_LIBRARY_PATH+=:$(BASEDIR)/lib)
+	$(shell LD_LIBRARY_PATH+=:$(BASEDIR)/../../)
+	$(shell cp ../../libLoopAll.so lib/)
 
 $(EXEDIR)/%: $(TESTDIR)/%.cpp $(LIBDIR)/lib$(LIBNAME).so $(BASEDIR)/interface/*.h
 	$(CXX) -o $@ $(CXXFLAGS) $< $(LIBS) -L$(LIBDIR) -l$(LIBNAME) $(USERLIBSX)
