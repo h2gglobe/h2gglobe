@@ -832,9 +832,9 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
               << "    sceta_2:"   << (photonInfoCollection[diphoton_index.second]).caloPosition().Eta() 
               << "    hoe_2:" <<  l.pho_hoe[diphoton_index.second]
               << "    sigieie_2:" <<  l.pho_sieie[diphoton_index.second]
-              << "    ecaliso_2:" <<  l.pho_ecalsumetconedr03[diphoton_index.second] - 0.012*lead_p4.Et()
-              << "    hcaliso_2:" <<  l.pho_hcalsumetconedr03[diphoton_index.second] - 0.005*lead_p4.Et()
-              << "    trckiso_2:" <<  l.pho_trksumpthollowconedr03[diphoton_index.second] - 0.002*lead_p4.Et()
+              << "    ecaliso_2:" <<  l.pho_ecalsumetconedr03[diphoton_index.second] - 0.012*sublead_p4.Et()
+              << "    hcaliso_2:" <<  l.pho_hcalsumetconedr03[diphoton_index.second] - 0.005*sublead_p4.Et()
+              << "    trckiso_2:" <<  l.pho_trksumpthollowconedr03[diphoton_index.second] - 0.002*sublead_p4.Et()
               << "    chpfiso_2:" <<  (*l.pho_pfiso_mycharged02)[diphoton_index.second][l.dipho_vtxind[diphoton_id]] 
         // Diphoton MVA inputs
               << "    ptH:"  <<  ptHiggs 
