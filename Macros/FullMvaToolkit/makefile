@@ -60,22 +60,23 @@ TEST_EXT=cpp
 
 SRCS=$(wildcard $(BASEDIR)/src/*.cc)
 EXES=$(wildcard $(BASEDIR)/test/*.cpp)
+HEADERS=$(wildcard $(BASEDIR)/interface/*.h)
 OBJS=$(subst $(SRCDIR), $(OBJDIR),$(subst cc,$(OBJ_EXT),$(SRCS)))
 BINS=$(subst $(TESTDIR), $(EXEDIR),$(subst .$(TEST_EXT),,$(EXES)))
 
 all:  $(BINS)
 	$(shell LD_LIBRARY_PATH+=:$(BASEDIR)/lib)
 	$(shell LD_LIBRARY_PATH+=:$(BASEDIR)/../../)
-	$(shell cp ../../libLoopAll.so lib/)
+	#$(shell cp ../../libLoopAll.so lib/)
 
 $(EXEDIR)/%: $(TESTDIR)/%.cpp $(LIBDIR)/lib$(LIBNAME).so $(BASEDIR)/interface/*.h
 	$(CXX) -o $@ $(CXXFLAGS) $< $(LIBS) -L$(LIBDIR) -l$(LIBNAME) $(USERLIBSX)
 
 
 $(OBJDIR)/%.$(OBJ_EXT): $(SRCDIR)/%.cc
-	$(CXX) $(CXXFLAGS) -fPIC -c $<  -o $@
+	$(CXX) $(CXXFLAGS) -fPIC -c $<  -o $@ 
 
-$(LIBDIR)/lib$(LIBNAME).so:$(OBJS)
+$(LIBDIR)/lib$(LIBNAME).so: $(OBJS)
 	$(LD) $(LDFLAGS) -o $(LIBDIR)/lib$(LIBNAME).so  $^ $(LIBS)
 	
 
