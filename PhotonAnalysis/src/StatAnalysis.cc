@@ -1239,6 +1239,7 @@ void StatAnalysis::fillControlPlots(const TLorentzVector & lead_p4, const  TLore
         }
         l.FillHist("all_mass",category+1, Higgs.M(), evweight);
         if( mass>=massMin && mass<=massMax  ) {
+            l.FillHist("process_id",category+1, l.process_id, evweight);
             l.FillHist("mass",category+1, Higgs.M(), evweight);
             l.FillHist("eta",category+1, Higgs.Eta(), evweight);
             l.FillHist("pt",category+1, Higgs.Pt(), evweight);

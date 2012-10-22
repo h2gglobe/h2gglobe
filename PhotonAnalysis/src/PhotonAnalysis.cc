@@ -2585,11 +2585,11 @@ bool PhotonAnalysis::ElectronTag2012B(LoopAll& l, int& diphotonVHlep_id, int& el
 
         if(mvaselection) {
             diphotonVHlep_id = l.DiphotonMITPreSelection(leadEtVHlepCut,subleadEtVHlepCut,phoidMvaCut,
-                applyPtoverM, &smeared_pho_energy[0], elVtx, false, false, veto_indices);
+                applyPtoverM, &smeared_pho_energy[0], -1, false, false, veto_indices);
             if(localdebug) cout<<"diphotonVHlep_id "<<diphotonVHlep_id<<endl;
         } else {
             diphotonVHlep_id = l.DiphotonCiCSelection( l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVHlepCut,subleadEtVHlepCut, 4,
-                applyPtoverM, &smeared_pho_energy[0], true, elVtx, veto_indices);
+                applyPtoverM, &smeared_pho_energy[0], true, -1, veto_indices);
         }
 
         if(diphotonVHlep_id!=-1){
@@ -2701,10 +2701,11 @@ void PhotonAnalysis::ControlPlotsMetTag2012B(LoopAll& l, TLorentzVector lead_p4,
     l.FillHist(Form("MetTag_uncorrmetPhi_%s",label.c_str()),   met_cat, l.met_phi_pfmet, evweight);
     l.FillHist(Form("MetTag_corrmet_%s",label.c_str()),        met_cat, corrMet,    evweight);
     l.FillHist(Form("MetTag_corrmetPhi_%s",label.c_str()),     met_cat, corrMetPhi, evweight);
-    l.FillHist(Form("MetTag_dPhiLead_%s",label.c_str()),       met_cat, myMet.DeltaPhi(lead_p4), evweight);
-    l.FillHist(Form("MetTag_dPhiSub_%s",label.c_str()),        met_cat, myMet.DeltaPhi(sublead_p4), evweight);
-    l.FillHist(Form("MetTag_dPhiMin_%s",label.c_str()),        met_cat, min(myMet.DeltaPhi(lead_p4),myMet.DeltaPhi(sublead_p4)), evweight);
-    l.FillHist(Form("MetTag_dPhiDipho_%s",label.c_str()),      met_cat, myMet.DeltaPhi(dipho_p4), evweight);
+    l.FillHist(Form("MetTag_dPhiLead_%s",label.c_str()),       met_cat, fabs(myMet.DeltaPhi(lead_p4)), evweight);
+    l.FillHist(Form("MetTag_dPhiSub_%s",label.c_str()),        met_cat, fabs(myMet.DeltaPhi(sublead_p4)), evweight);
+    float maxdphi = (fabs(myMet.DeltaPhi(lead_p4))>fabs(myMet.DeltaPhi(sublead_p4))) ? myMet.DeltaPhi(lead_p4) : myMet.DeltaPhi(sublead_p4);
+    l.FillHist(Form("MetTag_dPhiMax_%s",label.c_str()),        met_cat, fabs(maxdphi), evweight);
+    l.FillHist(Form("MetTag_dPhiDipho_%s",label.c_str()),      met_cat, fabs(myMet.DeltaPhi(dipho_p4)), evweight);
 
     TLorentzVector* leadjt;
     float maxpt=0;
@@ -2722,7 +2723,8 @@ void PhotonAnalysis::ControlPlotsMetTag2012B(LoopAll& l, TLorentzVector lead_p4,
 
     if(maxpt > 0){
         l.FillHist(Form("MetTag_leadJetPt_%s",label.c_str()),      met_cat, leadjt->Pt(), evweight);
-        l.FillHist(Form("MetTag_dPhiJet_%s",label.c_str()),        met_cat, myMet.DeltaPhi(*leadjt), evweight);
+        l.FillHist(Form("MetTag_dPhiJet_%s",label.c_str()),        met_cat, fabs(myMet.DeltaPhi(*leadjt)), evweight);
+        l.FillHist2D(Form("MetTag_JetPt_dPhi_%s",label.c_str()),   met_cat, leadjt->Pt(), fabs(myMet.DeltaPhi(*leadjt)), evweight);
     }
 
 }
@@ -2802,7 +2804,7 @@ bool PhotonAnalysis::ElectronStudies2012B(LoopAll& l, float* smeared_pho_energy,
     if(debuglocal)  std::cout<<"ElectronStudies2012B got sc p4"<<std::endl;
     elVtx=l.FindElectronVertex(elInd);
 
-    float drtoveto = 0.2;
+    float drtoveto = 0.5;
     std::vector<bool> veto_indices;
     veto_indices.clear();
     l.PhotonsToVeto(el_sc, drtoveto, veto_indices, true);
@@ -2819,8 +2821,8 @@ bool PhotonAnalysis::ElectronStudies2012B(LoopAll& l, float* smeared_pho_energy,
 
     if(debuglocal)  std::cout<<"ElectronStudies2012B diphoton "<<diphotonVHlep_id<<std::endl;
 
-    TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphotonVHlep_id], elVtx, &smeared_pho_energy[0]);
-    TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphotonVHlep_id], elVtx, &smeared_pho_energy[0]);
+    TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphotonVHlep_id], l.dipho_vtxind[diphotonVHlep_id], &smeared_pho_energy[0]);
+    TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphotonVHlep_id], l.dipho_vtxind[diphotonVHlep_id], &smeared_pho_energy[0]);
 
     if(debuglocal){
         std::cout<<"lead pt "<<lead_p4.Pt()<<std::endl;

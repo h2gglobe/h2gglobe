@@ -97,12 +97,13 @@ htyp=0 plot=-1  ncat=2  xbins=80   ybins=0   xmin=0.0   xmax=200    ymin=0      
 htyp=0 plot=-1  ncat=2  xbins=50   ybins=0   xmin=-3.15 xmax=3.15   ymin=0      ymax=0    name=MetTag_uncorrmetPhi_nometcut     xaxis=#phi_{MET}                   yaxis=Events
 htyp=0 plot=-1  ncat=2  xbins=80   ybins=0   xmin=0.0   xmax=200    ymin=0      ymax=0    name=MetTag_corrmet_nometcut          xaxis=Corrected@MET                yaxis=Events
 htyp=0 plot=-1  ncat=2  xbins=50   ybins=0   xmin=-3.15 xmax=3.15   ymin=0      ymax=0    name=MetTag_corrmetPhi_nometcut       xaxis=Corrected@#phi_{MET}         yaxis=Events
-htyp=0 plot=-1  ncat=2  xbins=50   ybins=0   xmin=-3.15 xmax=3.15   ymin=0      ymax=0    name=MetTag_dPhiLead_nometcut         xaxis=#Delta#phi(#gamma_{L},MET)   yaxis=Events
-htyp=0 plot=-1  ncat=2  xbins=50   ybins=0   xmin=-3.15 xmax=3.15   ymin=0      ymax=0    name=MetTag_dPhiSub_nometcut          xaxis=#Delta#phi(#gamma_{S},MET)   yaxis=Events
-htyp=0 plot=-1  ncat=2  xbins=50   ybins=0   xmin=-3.15 xmax=3.15   ymin=0      ymax=0    name=MetTag_dPhiMin_nometcut          xaxis=min@#Delta#phi(#gamma,MET)   yaxis=Events
-htyp=0 plot=-1  ncat=2  xbins=50   ybins=0   xmin=-3.15 xmax=3.15   ymin=0      ymax=0    name=MetTag_dPhiDipho_nometcut        xaxis=#Delta#phi(#gamma#gamma,MET)   yaxis=Events
-htyp=0 plot=-1  ncat=2  xbins=50   ybins=0   xmin=-3.15 xmax=3.15   ymin=0      ymax=0    name=MetTag_dPhiJet_nometcut          xaxis=#Delta#phi(Jet_{Lead},MET)   yaxis=Events
+htyp=0 plot=-1  ncat=2  xbins=50   ybins=0   xmin=0.0   xmax=3.15   ymin=0      ymax=0    name=MetTag_dPhiLead_nometcut         xaxis=#Delta#phi(#gamma_{L},MET)   yaxis=Events
+htyp=0 plot=-1  ncat=2  xbins=50   ybins=0   xmin=0.0   xmax=3.15   ymin=0      ymax=0    name=MetTag_dPhiSub_nometcut          xaxis=#Delta#phi(#gamma_{S},MET)   yaxis=Events
+htyp=0 plot=-1  ncat=2  xbins=50   ybins=0   xmin=0.0   xmax=3.15   ymin=0      ymax=0    name=MetTag_dPhiMax_nometcut          xaxis=max@#Delta#phi(#gamma,MET)   yaxis=Events
+htyp=0 plot=-1  ncat=2  xbins=50   ybins=0   xmin=0.0   xmax=3.15   ymin=0      ymax=0    name=MetTag_dPhiDipho_nometcut        xaxis=#Delta#phi(#gamma#gamma,MET)   yaxis=Events
+htyp=0 plot=-1  ncat=2  xbins=50   ybins=0   xmin=0.0   xmax=3.15   ymin=0      ymax=0    name=MetTag_dPhiJet_nometcut          xaxis=#Delta#phi(Jet_{Lead},MET)   yaxis=Events
 htyp=0 plot=-1  ncat=2  xbins=40   ybins=0   xmin=10.0  xmax=130.   ymin=0      ymax=0    name=MetTag_leadJetPt_nometcut        xaxis=P_{T,Jet_{Lead}}@MET         yaxis=Events
+htyp=1 plot=-1  ncat=2  xbins=108  ybins=30  xmin=30.   xmax=300.   ymin=0.0    ymax=3.142  name=MetTag_JetPt_dPhi_nometcut     xaxis=P_{T,Jet_{Lead}}             yaxis=#Delta#phi(Jet_{Lead},MET)
 
 htyp=0 plot=-1  ncat=2  xbins=60   ybins=0   xmin=30.0  xmax=150.   ymin=0      ymax=0    name=MetTag_leadGammaPt_nomvacut      xaxis=P_{T.#gamma_{Lead}}@MET      yaxis=Events
 htyp=0 plot=-1  ncat=2  xbins=50   ybins=0   xmin=20.0  xmax=120.   ymin=0      ymax=0    name=MetTag_subleadGammaPt_nomvacut   xaxis=P_{T.#gamma_{Sub}}@MET       yaxis=Events
@@ -111,12 +112,13 @@ htyp=0 plot=-1  ncat=2  xbins=80   ybins=0   xmin=0.0   xmax=200    ymin=0      
 htyp=0 plot=-1  ncat=2  xbins=50   ybins=0   xmin=-3.15 xmax=3.15   ymin=0      ymax=0    name=MetTag_uncorrmetPhi_nomvacut     xaxis=#phi_{MET}                   yaxis=Events
 htyp=0 plot=-1  ncat=2  xbins=80   ybins=0   xmin=0.0   xmax=200    ymin=0      ymax=0    name=MetTag_corrmet_nomvacut          xaxis=Corrected@MET                yaxis=Events
 htyp=0 plot=-1  ncat=2  xbins=50   ybins=0   xmin=-3.15 xmax=3.15   ymin=0      ymax=0    name=MetTag_corrmetPhi_nomvacut       xaxis=Corrected@#phi_{MET}         yaxis=Events
-htyp=0 plot=-1  ncat=2  xbins=50   ybins=0   xmin=-3.15 xmax=3.15   ymin=0      ymax=0    name=MetTag_dPhiLead_nomvacut         xaxis=#Delta#phi(#gamma_{L},MET)   yaxis=Events
-htyp=0 plot=-1  ncat=2  xbins=50   ybins=0   xmin=-3.15 xmax=3.15   ymin=0      ymax=0    name=MetTag_dPhiSub_nomvacut          xaxis=#Delta#phi(#gamma_{S},MET)   yaxis=Events
-htyp=0 plot=-1  ncat=2  xbins=50   ybins=0   xmin=-3.15 xmax=3.15   ymin=0      ymax=0    name=MetTag_dPhiMin_nomvacut          xaxis=min@#Delta#phi(#gamma,MET)   yaxis=Events
-htyp=0 plot=-1  ncat=2  xbins=50   ybins=0   xmin=-3.15 xmax=3.15   ymin=0      ymax=0    name=MetTag_dPhiDipho_nomvacut        xaxis=#Delta#phi(#gamma#gamma,MET)   yaxis=Events
-htyp=0 plot=-1  ncat=2  xbins=50   ybins=0   xmin=-3.15 xmax=3.15   ymin=0      ymax=0    name=MetTag_dPhiJet_nomvacut          xaxis=#Delta#phi(Jet_{Lead},MET)   yaxis=Events
+htyp=0 plot=-1  ncat=2  xbins=50   ybins=0   xmin=0.0   xmax=3.15   ymin=0      ymax=0    name=MetTag_dPhiLead_nomvacut         xaxis=#Delta#phi(#gamma_{L},MET)   yaxis=Events
+htyp=0 plot=-1  ncat=2  xbins=50   ybins=0   xmin=0.0   xmax=3.15   ymin=0      ymax=0    name=MetTag_dPhiSub_nomvacut          xaxis=#Delta#phi(#gamma_{S},MET)   yaxis=Events
+htyp=0 plot=-1  ncat=2  xbins=50   ybins=0   xmin=0.0   xmax=3.15   ymin=0      ymax=0    name=MetTag_dPhiMax_nomvacut          xaxis=max@#Delta#phi(#gamma,MET)   yaxis=Events
+htyp=0 plot=-1  ncat=2  xbins=50   ybins=0   xmin=0.0   xmax=3.15   ymin=0      ymax=0    name=MetTag_dPhiDipho_nomvacut        xaxis=#Delta#phi(#gamma#gamma,MET)   yaxis=Events
+htyp=0 plot=-1  ncat=2  xbins=50   ybins=0   xmin=0.0   xmax=3.15   ymin=0      ymax=0    name=MetTag_dPhiJet_nomvacut          xaxis=#Delta#phi(Jet_{Lead},MET)   yaxis=Events
 htyp=0 plot=-1  ncat=2  xbins=40   ybins=0   xmin=10.0  xmax=130.   ymin=0      ymax=0    name=MetTag_leadJetPt_nomvacut        xaxis=P_{T,Jet_{Lead}}@MET         yaxis=Events
+htyp=1 plot=-1  ncat=2  xbins=108  ybins=30  xmin=30.   xmax=300.   ymin=0.0    ymax=3.142  name=MetTag_JetPt_dPhi_nomvacut     xaxis=P_{T,Jet_{Lead}}             yaxis=#Delta#phi(Jet_{Lead},MET)
 
 htyp=0 plot=-1  ncat=2  xbins=60   ybins=0   xmin=30.0  xmax=150.   ymin=0      ymax=0    name=MetTag_leadGammaPt_final         xaxis=P_{T.#gamma_{Lead}}@MET      yaxis=Events
 htyp=0 plot=-1  ncat=2  xbins=50   ybins=0   xmin=20.0  xmax=120.   ymin=0      ymax=0    name=MetTag_subleadGammaPt_final      xaxis=P_{T.#gamma_{Sub}}@MET       yaxis=Events
@@ -125,18 +127,20 @@ htyp=0 plot=-1  ncat=2  xbins=80   ybins=0   xmin=0.0   xmax=200    ymin=0      
 htyp=0 plot=-1  ncat=2  xbins=50   ybins=0   xmin=-3.15 xmax=3.15   ymin=0      ymax=0    name=MetTag_uncorrmetPhi_final        xaxis=#phi_{MET}                   yaxis=Events
 htyp=0 plot=-1  ncat=2  xbins=80   ybins=0   xmin=0.0   xmax=200    ymin=0      ymax=0    name=MetTag_corrmet_final             xaxis=Corrected@MET                yaxis=Events
 htyp=0 plot=-1  ncat=2  xbins=50   ybins=0   xmin=-3.15 xmax=3.15   ymin=0      ymax=0    name=MetTag_corrmetPhi_final          xaxis=Corrected@#phi_{MET}         yaxis=Events
-htyp=0 plot=-1  ncat=2  xbins=50   ybins=0   xmin=-3.15 xmax=3.15   ymin=0      ymax=0    name=MetTag_dPhiLead_final            xaxis=#Delta#phi(#gamma_{L},MET)   yaxis=Events
-htyp=0 plot=-1  ncat=2  xbins=50   ybins=0   xmin=-3.15 xmax=3.15   ymin=0      ymax=0    name=MetTag_dPhiSub_final             xaxis=#Delta#phi(#gamma_{S},MET)   yaxis=Events
-htyp=0 plot=-1  ncat=2  xbins=50   ybins=0   xmin=-3.15 xmax=3.15   ymin=0      ymax=0    name=MetTag_dPhiMin_final             xaxis=min@#Delta#phi(#gamma,MET)   yaxis=Events
-htyp=0 plot=-1  ncat=2  xbins=50   ybins=0   xmin=-3.15 xmax=3.15   ymin=0      ymax=0    name=MetTag_dPhiDipho_final           xaxis=#Delta#phi(#gamma#gamma,MET) yaxis=Events
-htyp=0 plot=-1  ncat=2  xbins=50   ybins=0   xmin=-3.15 xmax=3.15   ymin=0      ymax=0    name=MetTag_dPhiJet_final             xaxis=#Delta#phi(Jet_{Lead},MET)   yaxis=Events
+htyp=0 plot=-1  ncat=2  xbins=50   ybins=0   xmin=0.0   xmax=3.15   ymin=0      ymax=0    name=MetTag_dPhiLead_final            xaxis=#Delta#phi(#gamma_{L},MET)   yaxis=Events
+htyp=0 plot=-1  ncat=2  xbins=50   ybins=0   xmin=0.0   xmax=3.15   ymin=0      ymax=0    name=MetTag_dPhiSub_final             xaxis=#Delta#phi(#gamma_{S},MET)   yaxis=Events
+htyp=0 plot=-1  ncat=2  xbins=50   ybins=0   xmin=0.0   xmax=3.15   ymin=0      ymax=0    name=MetTag_dPhiMax_final             xaxis=max@#Delta#phi(#gamma,MET)   yaxis=Events
+htyp=0 plot=-1  ncat=2  xbins=50   ybins=0   xmin=0.0   xmax=3.15   ymin=0      ymax=0    name=MetTag_dPhiDipho_final           xaxis=#Delta#phi(#gamma#gamma,MET) yaxis=Events
+htyp=0 plot=-1  ncat=2  xbins=50   ybins=0   xmin=0.0   xmax=3.15   ymin=0      ymax=0    name=MetTag_dPhiJet_final             xaxis=#Delta#phi(Jet_{Lead},MET)   yaxis=Events
 htyp=0 plot=-1  ncat=2  xbins=40   ybins=0   xmin=10.0  xmax=130.   ymin=0      ymax=0    name=MetTag_leadJetPt_final           xaxis=P_{T,Jet_{Lead}}@MET         yaxis=Events
+htyp=1 plot=-1  ncat=2  xbins=108  ybins=30  xmin=30.   xmax=300.   ymin=0.0    ymax=3.142  name=MetTag_JetPt_dPhi_final        xaxis=P_{T,Jet_{Lead}}             yaxis=#Delta#phi(Jet_{Lead},MET)
 
 htyp=0 plot=-1  ncat=2  xbins=2    ybins=0   xmin=0.    xmax=2.     ymin=0      ymax=0    name=METTag_sameVtx  xaxis=Same@Vertex@MET             yaxis=Events
 htyp=0 plot=-1  ncat=2  xbins=2    ybins=0   xmin=0.    xmax=2.     ymin=0      ymax=0    name=METTag_gentochosen   xaxis=Gen@To@Chosen@#DeltaZ       yaxis=Events
 htyp=0 plot=-1  ncat=2  xbins=2    ybins=0   xmin=0.    xmax=2.     ymin=0      ymax=0    name=MuonTag_sameVtx  xaxis=Same@Vertex@#mu              yaxis=Events
 htyp=0 plot=-1  ncat=2  xbins=2    ybins=0   xmin=0.    xmax=2.     ymin=0      ymax=0    name=ElectronTag_sameVtx        xaxis=Same@Vertex@Electron         yaxis=Events
 
+htyp=0 plot=-1  ncat=18  xbins=100   ybins=0       xmin=0.0   xmax=100.0  ymin=0      ymax=0       name=process_id  xaxis=Process@Id yaxis=Events
 htyp=0 plot=-1  ncat=18  xbins=160   ybins=0       xmin=80.0  xmax=240.0  ymin=0      ymax=0       name=all_mass xaxis=x yaxis=y
 
 htyp=0 plot=-1  ncat=18  xbins=250    ybins=0       xmin=0.0   xmax=250.0  ymin=0      ymax=0       name=pt
