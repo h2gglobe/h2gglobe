@@ -20,10 +20,12 @@ FMTRebin::FMTRebin(TFile *tF, TFile *oF, double intLumi, bool is2011, int mHMini
 	justRebin_(false),
 	catByHand_(false)
 {
-	signalVector1 = new double[25];
+  signalVector1 = new double[25];
 	backgroundVector1 = new double[25];
 	//tFile = TFile::Open(filename.c_str());
 	//outFile = new TFile(outfilename.c_str(),"RECREATE");
+  cout << "Creating fitter" << endl;
+  cout << "Passing outfile" << outFile->GetName() << endl;
 	fitter = new FMTFit(tFile,outFile,intLumi,is2011,mHMinimum, mHMaximum, mHStep, massMin, massMax, nDataBins, signalRegionWidth, sidebandWidth, numberOfSidebands, numberOfSidebandsForAlgos, numberOfSidebandGaps, massSidebandMin, massSidebandMax, nIncCategories, includeVBF, nVBFCategories, includeLEP, nLEPCategories, systematics, rederiveOptimizedBinEdges, AllBinEdges, verbose);
 
 }
@@ -43,12 +45,18 @@ std::vector<double> FMTRebin::significanceOptimizedBinning(TH1F *hs,TH1F *hb,int
   // revise_target=false,direction=-1 and use_n_entries=true
   // nTargetBins is used for the flat binning, decision to merge is based on improvement to expected significance
   // Full scan is done for largest significance (wardning, could be very slow for tight constraints)
-
+  
+  if (verbose_) cout << "Significane Optimized Binning......" << endl;
   int ninitBins = hb->GetNbinsX();
   if (hs->Integral()==0 ||  hb->Integral()==0 || ninitBins < 2) {
     std::vector<double> binEdges;
     binEdges.push_back(hb->GetBinLowEdge(1));
     binEdges.push_back(hb->GetBinLowEdge(ninitBins+1));
+    if (verbose_){
+      cout << "HS: " << hs->Integral() << endl;
+      cout << "HB: " << hb->Integral() << endl;
+      cout << "HBins: " << hb->GetNbinsX() << endl;
+    }
     return binEdges;
   }
 
@@ -109,10 +117,11 @@ std::vector<double> FMTRebin::significanceOptimizedBinning(TH1F *hs,TH1F *hb,int
 
   int Retry=0;
 
-  for (int N=1;N<7;N++){				// Refuse to go beyond 7 Bins, will take forever
+  for (int N=1;N<7;N++){				// Refuse to go beyond 8 Bins, will take forever
     sweepmode=0;	// First perform Broad Scan with optimized step size (g_step)
     bool skipBroad = false;
     if ( nNewBins < (N-1+2+Retry) ) {std::cout << "Forced to perform Fine scan since all the Retries failed to find a nice minimum :("<<std::endl; skipBroad=true;}
+    if (Retry>20) {std::cout << "Forced to perform Fine scan since all the Retries failed to find a nice minimum :("<<std::endl; skipBroad=true;}
 
     double maximumSignificance=0;
     counters = new int[N];
@@ -331,16 +340,22 @@ TH1F* FMTRebin::rebinBinnedDataset(std::string new_name, TH1F *hb,std::vector<do
   if (isVBFCat(cat)){
     // do VBF
     int vbfIt = cat-getnIncCategories();
-    hbnew = new TH1F("hV","hV",1,arrBins[vbfIt],arrBins[vbfIt+1]);
-    for (int i=0; i<hb->GetEntries(); i++) hbnew->Fill(1.+((vbfIt+1)*0.02));
+    double lowEdge=arrBins[vbfIt];
+    double highEdge=arrBins[vbfIt+1];
+    double center=lowEdge+((highEdge-lowEdge)/2.);
+    hbnew = new TH1F("hV","hV",1,lowEdge,highEdge);
+    for (int i=0; i<hb->GetEntries(); i++) hbnew->Fill(center);
     hbnew->Sumw2();
     if (hb->GetEntries()!=0) hbnew->Scale(hb->Integral()/hbnew->Integral());
   }
   else if (isLEPCat(cat)){
     // do LEP
     int lepIt = cat-getnVBFCategories()-getnIncCategories();
-    hbnew = new TH1F("hL","hL",1,arrBins[lepIt],arrBins[lepIt+1]);
-    for (int i=0; i<hb->GetEntries(); i++) hbnew->Fill(2.+((lepIt+1)*0.02));
+    double lowEdge=arrBins[lepIt];
+    double highEdge=arrBins[lepIt+1];
+    double center=lowEdge+((highEdge-lowEdge)/2.);
+    hbnew = new TH1F("hL","hL",1,lowEdge,highEdge);
+    for (int i=0; i<hb->GetEntries(); i++) hbnew->Fill(center);
     hbnew->Sumw2();
     if (hb->GetEntries()!=0) hbnew->Scale(hb->Integral()/hbnew->Integral());
   }
@@ -518,6 +533,7 @@ TH1F* FMTRebin::sumMultiBinnedDatasets(string new_name, vector<TH1F*> hists, dou
   //tFile->cd();
   //write(tFile,histOne);
 	outFile->cd();
+  gDirectory->cd(Form("%s:/",outFile->GetName()));
   histOne->Write();
 	return histOne;
 }
@@ -542,13 +558,16 @@ void FMTRebin::makeOutputHistogram(string new_name, string old_name, int binning
     if (verbose_) checkHisto(rebinned[cat]);
 		//write(tFile,rebinned[cat]);
 		outFile->cd();
+    gDirectory->cd(Form("%s:/",outFile->GetName()));
 		rebinned[cat]->Write();
 	}
   if (getincludeVBF()) for (int vCat=0; vCat<getnVBFCategories(); vCat++) mergeHistograms(new_name,rebinned[0],rebinned[vCat+1]);
   if (getincludeLEP()) for (int lCat=0; lCat<getnLEPCategories(); lCat++) mergeHistograms(new_name,rebinned[0],rebinned[lCat+getnVBFCategories()+1]);
   //tFile->cd();
-  if (verbose_) checkHisto(rebinned[0]); 
+  if (verbose_) checkHisto(rebinned[0]);
+  if (verbose_) cout << "----------------------------------------------------------------------------------------------" << endl;
 	outFile->cd();
+  gDirectory->cd(Form("%s:/",outFile->GetName()));
   rebinned[0]->Write();
 	//write(tFile,rebinned[0]);
 }
@@ -585,7 +604,7 @@ void FMTRebin::mergeHistograms(std::string nameHist, TH1F* hist1, TH1F* hist2){
 	newHist->SetBinError(i+nbins1,hist2->GetBinError(i));
    } 
 
-   std::cout << "FullMvaRebin::MergeHistograms -- Replacing histogram - " 
+   std::cout << "FMTRebin::MergeHistograms -- Replacing th1f - " 
 	     << newHist->GetName()
 	     << std::endl;
    // Now the dangerous part!
@@ -612,6 +631,7 @@ void FMTRebin::makeSignalOutputHistogram(string new_name, string old_name, int b
     if (verbose_) checkHisto(old[cat]);
     if (verbose_) checkHisto(rebinned[cat]);
 		outFile->cd();
+    gDirectory->cd(Form("%s:/",outFile->GetName()));
 		rebinned[cat]->Write();
 		//write(tFile,rebinned[cat]);
 	}
@@ -619,6 +639,7 @@ void FMTRebin::makeSignalOutputHistogram(string new_name, string old_name, int b
   if (getincludeLEP()) for (int lCat=0; lCat<getnLEPCategories(); lCat++) mergeHistograms(new_name,rebinned[0],rebinned[lCat+getnVBFCategories()+1]);
   if (verbose_) checkHisto(rebinned[0]); 
 	outFile->cd();
+  gDirectory->cd(Form("%s:/",outFile->GetName()));
 	rebinned[0]->Write();
 	//write(tFile,rebinned[0]);
 
@@ -646,6 +667,7 @@ void FMTRebin::makeSignalOutputHistogram(string new_name, string old_name, int b
       if (verbose_) checkHisto(down[cat]);
       if (verbose_) checkHisto(down_rebinned[cat]);
 			outFile->cd();
+      gDirectory->cd(Form("%s:/",outFile->GetName()));
 			up_rebinned[cat]->Write();
 			down_rebinned[cat]->Write();
 			//write(tFile,up_rebinned[cat]);
@@ -666,6 +688,7 @@ void FMTRebin::makeSignalOutputHistogram(string new_name, string old_name, int b
     if (verbose_) checkHisto(up_rebinned[0]);
     if (verbose_) checkHisto(down_rebinned[0]);
 		outFile->cd();
+    gDirectory->cd(Form("%s:/",outFile->GetName()));
 		up_rebinned[0]->Write();
 		down_rebinned[0]->Write();
 		//write(tFile,up_rebinned[0]);
@@ -726,6 +749,7 @@ TH1F* FMTRebin::getCombBackground(int mass_hyp, int cat, double bkgInSigThisMass
 
   //tFile->cd();
 	outFile->cd();
+  gDirectory->cd(Form("%s:/",outFile->GetName()));
   bkgForBinning->Write();
 	//write(tFile,bkgForBinning);
   return bkgForBinning;
@@ -744,20 +768,22 @@ TH1F* FMTRebin::getCombSignal(int mass_hyp,int cat){
 
   //tFile->cd();
 	outFile->cd();
+  gDirectory->cd(Form("%s:/",outFile->GetName()));
   sigForBinning->Write();
 	//write(tFile,sigForBinning);
   return sigForBinning;
 }
 
 void FMTRebin::executeRebinning(int mass){
-	checkMCMass(mass);
-
+	
+  checkMCMass(mass);
   if (verbose_) printRunOptions();
-
-	cout << "File attempt" << endl;
+	
+  cout << "File attempt" << endl;
 	cout << tFile->GetName() << endl;
+  cout << "Write to " << endl;
+  cout << outFile->GetName() << endl;
 	//RooWorkspace *tempWS = (RooWorkspace*)tFile->Get("cms_hgg_workspace");
-
 	vector<double> BinEdges, VBFBinEdges,LEPBinEdges;
 	if (!getrederiveOptimizedBinEdges()){
 		BinEdges = getBinEdges(mass);
@@ -778,7 +804,7 @@ void FMTRebin::executeRebinning(int mass){
 			sigForBinning[cat] = getCombSignal(mass,cat);
 		}
 		// get inclusive bin edges
-    BinEdges = significanceOptimizedBinning(sigForBinning[0],bkgForBinning[0],20);
+    BinEdges = significanceOptimizedBinning(sigForBinning[0],bkgForBinning[0],10);
     // set vbf edges from 1. in 0.04 steps
     VBFBinEdges.push_back(1.);
     for (int vCat=0; vCat<getnVBFCategories(); vCat++) VBFBinEdges.push_back(1.+(vCat+1)*0.04);

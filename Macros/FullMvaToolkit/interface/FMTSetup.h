@@ -7,6 +7,7 @@
 #include "FMTFit.h"
 #include "FMTRebin.h"
 
+
 class FMTSetup : public FMTBase {
 	
 	public:
@@ -18,13 +19,14 @@ class FMTSetup : public FMTBase {
 		void ReadRunConfig();
 
 		void CheckRunOptions();
-		void checkAllHistos();
+		void checkAllHistos(string opt="analysis");
 
 		template <class T> 
 		vector<T> getVecFromString(string);
 
 		vector<double> getBinEdgesFromString(string);
-
+    
+    void saveLumiToWorkspace();
     double getLumiFromWorkspace();
 
 		template <class T>
@@ -86,6 +88,7 @@ class FMTSetup : public FMTBase {
 		string datFil_;
     string dumpDatFil_;
 		string grepString_;
+    string histFromTreeMode_;
 
     double userLumi_;
 
@@ -116,8 +119,9 @@ vector<T> FMTSetup::getVecFromString(string name){
     exit(1);
   }
   T diff = getStepSize<T>();
-
+  cout << "Getting vec from string..." << endl;
   while (name.size()>0){
+    cout << name << " " << name.size() << endl;
     if (name.find(",")==string::npos && name.find("-")==string::npos) {
       result.push_back(boost::lexical_cast<T>(name)); //niether
       name = "";
@@ -143,6 +147,7 @@ vector<T> FMTSetup::getVecFromString(string name){
       }
     }
   }
+  cout << "Got vec from string..." << endl;
 
   return result;
 }

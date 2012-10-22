@@ -37,8 +37,10 @@ FMTFit::FMTFit(TFile *tFile, TFile *outFile, double intLumi, bool is2011, int mH
 	// get data and combine all cats
 	cout << "Looking for datasets....." << endl;
 	data = (RooDataSet*)((RooDataSet*)inWS->data("data_mass_cat0"))->Clone("data_mass");
-	for (int cat=1; cat<getNcats(); cat++){
-		data->append(*((RooDataSet*)inWS->data(Form("data_mass_cat%d",cat))));
+	for (int cat=0; cat<getNcats(); cat++){
+    RooDataSet *temp = (RooDataSet*)inWS->data(Form("data_mass_cat%d",cat));
+    outWS->import(*temp);
+		if (cat>0) data->append(*((RooDataSet*)inWS->data(Form("data_mass_cat%d",cat))));
 	}
 	if (!outWS->data("data_mass")) outWS->import(*data);
 }
@@ -99,6 +101,11 @@ pair<double,double> FMTFit::FitPow(double mass){
 	outWS->import(*temp);
 	
 	if (verbose_) cout << "Transfer to workspace" << endl;
+  RooRealVar *intL = (RooRealVar*)inWS->var("IntLumi");
+  if (!intL) {
+    intL = new RooRealVar("IntLumi","IntLumi",intLumi_);
+    outWS->import(*intL);
+  }
 	for (vector<double>::iterator mH=MHMasses_.begin(); mH!=MHMasses_.end(); mH++){
 		if (TMath::Abs(*mH-mass)<mHStep_/2.) continue;
 		else {

@@ -31,6 +31,7 @@ FMTBase::FMTBase(double intLumi, bool is2011, int mHMinimum, int mHMaximum, doub
   nVBFCategories_(nVBFCategories),
 	includeLEP_(includeLEP),
   nLEPCategories_(nLEPCategories),
+  nCats_(nIncCategories+nVBFCategories+nLEPCategories),
 
 	systematics_(systematics),
 
@@ -48,21 +49,20 @@ FMTBase::FMTBase(double intLumi, bool is2011, int mHMinimum, int mHMaximum, doub
   processes_.push_back("tth");
 	MHMasses_ = getAllMH();
 	MCMasses_ = getMCMasses();
-
+  
+  printRunOptions();
 }
 
 void FMTBase::checkMCMass(int mass){
 	vector<int> theMasses = getMCMasses();
-	bool valid=false;
+  bool valid=false;
 	for (vector<int>::iterator m=theMasses.begin(); m!=theMasses.end(); m++){
 		if (mass==*m) valid=true;
 	}
 	if (!valid){
 		cerr << "Mass " << mass << " is not a valid rebinning mass. You must pick a MC mass which can only be [";
-		for (int i=0; i<getNumMCMasses()-1; i++){
-			cerr << (getMCMasses())[i] << ",";
-		}
-		cerr << (getMCMasses())[getNumMCMasses()-1] << "]. Bailing out." << endl;
+    printVec(theMasses);
+		cerr << "]. Bailing out." << endl;
 		exit(1);
 	}
 }
@@ -141,7 +141,7 @@ pair<int,int> FMTBase::getNsidebandsUandD(double mass){
     if (dropLow && dropHigh) cerr << "There must be a problem as both low and high sidebands are being dropped" << endl;
     if (nLower+nHigher!=2*numberOfSidebandsForAlgos_) cerr << "There must be a problem as the total number of sidebands should equal " << 2*numberOfSidebandsForAlgos_ << " not " << nLower+nHigher << endl;
 
-    cout << "Mass " << mass << " has " << nLower << " lower sidebands and " << nHigher << " higher sidebands" << endl;
+    //cout << "Mass " << mass << " has " << nLower << " lower sidebands and " << nHigher << " higher sidebands" << endl;
    
     pair<int,int> result(nLower,nHigher);
     return result;
@@ -400,6 +400,10 @@ double FMTBase::getintLumi(){
 }
 
 // FMTBase::setters
+void FMTBase::setVerbosity(bool verb){
+  verbose_=verb;
+}
+
 void FMTBase::setmHMinimum(int mHMinimum){
 	mHMinimum_=mHMinimum;
 }
@@ -619,7 +623,7 @@ void FMTBase::printBinEdges(string filename){
   
   out << "\tBinEdges                  " << endl;
   for (int m=110; m<=150; m+=5){
-    if (m==145) continue;
+    if (is2011_ && m==145) continue;
     out << "\t     BinEdges_" << m << "           [";
     if (BinEdges_[m].size()>0) {
       for (int i=0; i<BinEdges_[m].size()-1; i++) out << BinEdges_[m][i] << ",";
@@ -629,7 +633,7 @@ void FMTBase::printBinEdges(string filename){
   }
   out << "\tVBFBinEdges                  " << endl;
   for (int m=110; m<=150; m+=5){
-    if (m==145) continue;
+    if (is2011_ && m==145) continue;
     out << "\t     VBFBinEdges_" << m << "        [";
     if (VBFBinEdges_[m].size()>0) {
       for (int i=0; i<VBFBinEdges_[m].size()-1; i++) out << VBFBinEdges_[m][i] << ",";
@@ -639,7 +643,7 @@ void FMTBase::printBinEdges(string filename){
   }
   out << "\tLEPBinEdges                  " << endl;
   for (int m=110; m<=150; m+=5){
-    if (m==145) continue;
+    if (is2011_ && m==145) continue;
     out << "\t     LEPBinEdges_" << m << "        [";
     if (LEPBinEdges_[m].size()>0) {
       for (int i=0; i<LEPBinEdges_[m].size()-1; i++) out << LEPBinEdges_[m][i] << ",";
@@ -663,7 +667,7 @@ void FMTBase::printRunOptions(string filename){
 	ostream &out = (outFileReq ? outFile : cout);
 	
 	out << "Running with following options:" << endl;
-  out << "\tintLumi                   " << intLumi_ << endl;
+  out << "\tintLumi (pb)              " << intLumi_ << endl;
  	out << "\tmHMinimum                 " << mHMinimum_  << endl;               
  	out << "\tmHMaximum                 " << mHMaximum_  << endl;               
  	out << "\tmHStep                    " << mHStep_  << endl;               

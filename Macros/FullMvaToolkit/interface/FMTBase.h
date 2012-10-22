@@ -79,7 +79,8 @@ class FMTBase {
     double getintLumi();
 
 		// setters
-		void setmHMinimum(int);
+		void setVerbosity(bool);
+    void setmHMinimum(int);
 		void setmHMaximum(int);
 		void setmHStep(double);
 		void setmassMin(double);
@@ -152,6 +153,7 @@ class FMTBase {
     int nVBFCategories_;
 		bool includeLEP_;
     int nLEPCategories_;
+    int nCats_;
 
 		vector<string> systematics_;
     vector<string> processes_;

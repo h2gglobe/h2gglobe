@@ -37,23 +37,18 @@ FMTSetup::FMTSetup(string filename):
 	safeMode_(true),
   noPlot_(true),
 	runSB_(false),
-	cleaned(false)
+	cleaned(false),
+  userLumi_(0.),
+  histFromTreeMode_("all")
 {
   //if (filename!="0") system(Form("cp %s %s_beforeFMT.root",filename.c_str(),filename.c_str()));
+  intLumi_=0.;
   	
 }
 
 FMTSetup::~FMTSetup(){
 	if (!cleaned) delete rebinner;
 	cout << "Exiting..." << endl;
-	cout << "Original file " << inFile_->GetName() << endl;
-	cout << "Complete file " << outFile_->GetName() << endl;
-	inFile_->Close();
-	outFile_->Close();
-	delete inFile_;
-	delete outFile_;
-	system(Form("cp %s %s_backup.root",outfilename_.c_str(),outfilename_.c_str()));
-	cout << "Complete file " << outfilename_ << " backed up to " << outfilename_ << "_backup.root" << endl;
 }
 
 void FMTSetup::OptionParser(int argc, char *argv[]){
@@ -80,6 +75,7 @@ void FMTSetup::OptionParser(int argc, char *argv[]){
                                                                         "  - \tNOTE: this will re-run all fits and rebinnings around this mass. This is the recommended way of executing any refit or re-rebinning. You should opt to run on the nearest MC mass. E.g. to refit and rebin 112.5 use --rebin 115")
     ("catByHand,H",                                                     "Categorize events by hand")
 		("histosFromTrees,T",																								"Get histos from trees")
+		("histFromTreeMode,M", po::value<string>(&histFromTreeMode_),				"Mode for hists from trees")
     ("skipRebin,N",  																										"Skip the rebinning stage")
 		("justRebin,J",																											"Just extract bin edges don't do anything else")
     ("getBinEdges,B",																										"Use bin edges from mvaanalysis")
@@ -118,25 +114,33 @@ void FMTSetup::OptionParser(int argc, char *argv[]){
   }
   if (!vm.count("filename")){ cerr << "WARNING -- A FILENAME MUST BE PROVIDED" << endl; exit(1);}
   if (!vm.count("outfilename")) { outfilename_=filename_+"_processed.root"; }
-
-	// sort out options
-	fitMasses_ = getVecFromString<double>(fitString_);
-  rebinMasses_ = getVecFromString<int>(rebinString_);
-  organiseVectors(rebinMasses_,fitMasses_);
+  
+  // configure options
 	configureOptions(vm);
 
 	// open files
 	inFile_ = TFile::Open(filename_.c_str());
-	if (skipRebin_) outFile_ = new TFile(outfilename_.c_str(),"UPDATE");
+	if (skipRebin_ && !histosFromTrees_) outFile_ = new TFile(outfilename_.c_str(),"UPDATE");
 	else outFile_ = new TFile(outfilename_.c_str(),"RECREATE");
 
   // read configuration
  	ReadRunConfig();
 	if (checkHistos_) checkAllHistos();
 	
+  // sort out fit and rebin vectors
+	fitMasses_ = getVecFromString<double>(fitString_);
+  rebinMasses_ = getVecFromString<int>(rebinString_);
+  organiseVectors(rebinMasses_,fitMasses_);
+  if (fitMasses_.size()>0)        fit_=true;
+  if (rebinMasses_.size()>0)      rebin_=true;
+
   if (!skipRebin_) {
+    cout << "Creating rebinner" << endl;
+    cout << "Passing outfile " << outFile_->GetName() << endl;
 		rebinner = new FMTRebin(inFile_, outFile_, intLumi_, is2011_, mHMinimum_, mHMaximum_, mHStep_, massMin_, massMax_, nDataBins_, signalRegionWidth_, sidebandWidth_, numberOfSidebands_, numberOfSidebandsForAlgos_, numberOfSidebandGaps_, massSidebandMin_, massSidebandMax_, nIncCategories_,includeVBF_, nVBFCategories_, includeLEP_, nLEPCategories_, systematics_, rederiveOptimizedBinEdges_, AllBinEdges_,verbose_);
-		rebinner->fitter->setblind(blinding_);
+		rebinner->setintLumi(intLumi_);
+    rebinner->setVerbosity(verbose_);
+    rebinner->fitter->setblind(blinding_);
 		rebinner->fitter->setplot(diagnose_);
 		rebinner->setcatByHand(catByHand_);
 		rebinner->setjustRebin(justRebin_);
@@ -177,9 +181,37 @@ void FMTSetup::OptionParser(int argc, char *argv[]){
 
 }
 
-void FMTSetup::checkAllHistos(){
-	
+void FMTSetup::checkAllHistos(string opt){
+
+  if (opt=="analysis"){
+    for (vector<double>::iterator mIt=MHMasses_.begin(); mIt!=MHMasses_.end(); mIt++){
+      TH1F *data = (TH1F*)outFile_->Get(Form("th1f_data_grad_%3.1f",*mIt));
+      cout << Form("%50s   %5d    %5.2f",data->GetName(),data->GetEntries(),data->Integral()) << endl;
+      pair<int,int> uandd = getNsidebandsUandD(*mIt);
+      // low
+      for (int sideband=numberOfSidebandGaps_+1; sideband<=numberOfSidebandGaps_+uandd.first; sideband++){
+        TH1F *sb = (TH1F*)outFile_->Get(Form("th1f_data_%dlow_grad_%3.1f",*mIt));
+        cout << Form("%50s   %5d    %5.2f",sb->GetName(),sb->GetEntries(),sb->Integral()) << endl;
+      }
+      // high
+      for (int sideband=numberOfSidebandGaps_+1; sideband<=numberOfSidebandGaps_+uandd.second; sideband++){
+        TH1F *sb = (TH1F*)outFile_->Get(Form("th1f_data_%dhigh_grad_%3.1f",*mIt));
+        cout << Form("%50s   %5d    %5.2f",sb->GetName(),sb->GetEntries(),sb->Integral()) << endl;
+      }
+      for (vector<string>::iterator proc=processes_.begin(); proc!=processes_.end(); proc++){
+        TH1F *sig = (TH1F*)outFile_->Get(Form("th1f_sig_grad_%s_%3.1f",proc->c_str(),*mIt));
+        cout << Form("%50s   %5d    %5.2f",sig->GetName(),sig->GetEntries(),sig->Integral()) << endl;
+        for (vector<string>::iterator syst=systematics_.begin(); syst!=systematics_.end(); syst++){
+          TH1F *up = (TH1F*)outFile_->Get(Form("th1f_sig_grad_%s_%3.1f_%sUp01_sigma",proc->c_str(),*mIt,syst->c_str()));
+          TH1F *down = (TH1F*)outFile_->Get(Form("th1f_sig_grad_%s_%3.1f_%sDown01_sigma",proc->c_str(),*mIt,syst->c_str()));
+          cout << Form("%50s   %5d    %5.2f",up->GetName(),up->GetEntries(),up->Integral()) << endl;
+          cout << Form("%50s   %5d    %5.2f",down->GetName(),down->GetEntries(),down->Integral()) << endl;
+        }
+      }
+    }
+  }
 	//cout << "Skipping BDT entries" << endl;
+  /*
 	TFile *tFile;
 	for (int i=0; i<2; i++){
 		if (i==0) tFile = inFile_;
@@ -195,12 +227,11 @@ void FMTSetup::checkAllHistos(){
 		}
   }
   tFile->Close();
+  */
 }
 
 void FMTSetup::configureOptions(po::variables_map vm){
 
-  if (fitMasses_.size()>0)        fit_=true;
-  if (rebinMasses_.size()>0)      rebin_=true;
   if (vm.count("catByHand"))      catByHand_=true;
 	if (vm.count("histosFromTrees")) histosFromTrees_=true;
 	if (vm.count("skipRebin")) 			skipRebin_=true;
@@ -254,7 +285,8 @@ void FMTSetup::ReadRunConfig(){
       continue;
     }
 		if (sline.find("#")!=string::npos) continue;
-		if (sline.find("mHMinimum=")!=string::npos)										setmHMinimum(boost::lexical_cast<int>(getOptFromConfig<double>(sline)));
+		if (sline.find("IntLumi=")!=string::npos)                     setintLumi(boost::lexical_cast<double>(getOptFromConfig<double>(sline)));
+    if (sline.find("mHMinimum=")!=string::npos)										setmHMinimum(boost::lexical_cast<int>(getOptFromConfig<double>(sline)));
 		if (sline.find("mHMaximum=")!=string::npos)										setmHMaximum(boost::lexical_cast<int>(getOptFromConfig<double>(sline)));
 		if (sline.find("mHStep=")!=string::npos)										 	setmHStep(getOptFromConfig<double>(sline));
 		if (sline.find("massMin=")!=string::npos)										 	setmassMin(getOptFromConfig<double>(sline));
@@ -296,18 +328,35 @@ void FMTSetup::ReadRunConfig(){
 	MHMasses_ = getAllMH();
 	MCMasses_ = getMCMasses();
 	systematics_ = getsystematics();
-  userLumi_ = getLumiFromWorkspace();
-  setintLumi(userLumi_);
+  if (intLumi_<0.001 ) {
+    userLumi_ = getLumiFromWorkspace();
+    setintLumi(userLumi_);
+  }
+  if (!histosFromTrees_) {
+    saveLumiToWorkspace();
+    outFile_->cd();
+    mva->Write();
+  }
 	printRunOptions();
-	outFile_->cd();
-	mva->Write();
+}
+
+void FMTSetup::saveLumiToWorkspace(){
+  RooWorkspace *work = (RooWorkspace*)outFile_->Get("cms_hgg_worksapce");
+  if (!work) work = new RooWorkspace("cms_hgg_workspace");
+  RooRealVar *tempLumi = (RooRealVar*)work->var("IntLumi");
+  if (!tempLumi) tempLumi = new RooRealVar("IntLumi","IntLumi",userLumi_);
+  tempLumi->setVal(userLumi_);
+  work->import(*tempLumi);
+  outFile_->cd();
+  work->Write();
 }
 
 double FMTSetup::getLumiFromWorkspace(){
-  TFile *inFile = TFile::Open(filename_.c_str());
-  RooWorkspace *inWS = (RooWorkspace*)inFile->Get("cms_hgg_workspace");
+  //TFile *inFile = TFile::Open(filename_.c_str());
+  RooWorkspace *inWS = (RooWorkspace*)inFile_->Get("cms_hgg_workspace");
+  if (!inWS) return 0.;
   RooRealVar *tempLumi = (RooRealVar*)inWS->var("IntLumi");
-  inFile->Close();
+  if (!tempLumi) return 0.;
   return (tempLumi->getVal())/1000.;
 }
 
@@ -328,9 +377,11 @@ void FMTSetup::organiseVectors(vector<int> &rebinVec, vector<double> &fitVec){
 	else{
 		for (vector<int>::iterator rebM = rebinVec.begin(); rebM != rebinVec.end(); rebM++){
 			vector<double> mhMasses = getMHMasses(*rebM);
-			for (vector<double>::iterator mhIt = mhMasses.begin(); mhIt != mhMasses.end(); mhIt++){
-				if (find(fitVec.begin(), fitVec.end(), *mhIt) != fitVec.end()) fitVec.erase(find(fitVec.begin(),fitVec.end(),*mhIt)); 
-			}
+      if (fitVec.size()>0){
+        for (vector<double>::iterator mhIt = mhMasses.begin(); mhIt != mhMasses.end(); mhIt++){
+          if (find(fitVec.begin(), fitVec.end(), *mhIt) != fitVec.end()) fitVec.erase(find(fitVec.begin(),fitVec.end(),*mhIt)); 
+        }
+      }
 		}
 		sort(fitVec.begin(),fitVec.end());
 		sort(rebinVec.begin(),rebinVec.end());
@@ -388,13 +439,15 @@ void FMTSetup::CheckRunOptions(){
 }
 
 void FMTSetup::runHistosFromTrees(){
-	if (!cleaned) cleanUp();
 	if (histosFromTrees_){
+    if (!cleaned) cleanUp();
+    cout << "Running histos from trees...." << endl;
 		string bdtname = "BDT_grad_123";
 		string weightsFile = "../../AnalysisScripts/aux/sidebandMVA_weights_hcp/TMVAClassification_BDTgradMIT.weights.xml";
 		FMTTree *fmtTree = new FMTTree(filename_, outfilename_, bdtname, weightsFile, intLumi_, is2011_, mHMinimum_, mHMaximum_, mHStep_, massMin_, massMax_, nDataBins_, signalRegionWidth_, sidebandWidth_, numberOfSidebands_, numberOfSidebandsForAlgos_, numberOfSidebandGaps_, massSidebandMin_, massSidebandMax_, nIncCategories_, includeVBF_, nVBFCategories_, includeLEP_, nLEPCategories_, systematics_, rederiveOptimizedBinEdges_, AllBinEdges_, verbose_);
-		fmtTree->run();
+		fmtTree->run(histFromTreeMode_);
 		delete fmtTree;
+    cout << "Histos from trees complete" << endl;
 	}
 }
 
@@ -404,11 +457,12 @@ void FMTSetup::runRebinning(){
 	if (!skipRebin_ && rebin_) theMasses = rebinMasses_;
 	else if (!skipRebin_ && all_)	 theMasses = getMCMasses();
 	else return;
+  printVec(theMasses); cout << endl;
 	for (vector<int>::iterator rebM = theMasses.begin(); rebM != theMasses.end(); rebM++){
 		cout << "Running rebinning for mass " << *rebM << endl;
 		cout << "UandD: ["; printVec(getUandDMCMasses(*rebM)); cout << "]" << endl;
 		cout << "mH:    ["; printVec(getMHMasses(*rebM)); cout << "]" << endl;
-		rebinner->executeRebinning(*rebM);
+    rebinner->executeRebinning(*rebM);
 		setAllBinEdges(rebinner->getAllBinEdges());
     if (dumpDatFile_) dumpDatFile(dumpDatFil_); 
 		cout << "Done rebinning" << endl;
@@ -428,6 +482,7 @@ void FMTSetup::runFitting(){
 
 void FMTSetup::cleanUp(){
 	// need to call FMTRebin destructor to free up file
+  cout << "Cleaning...." << endl;
 	delete rebinner;
 	inFile_->Close();
 	outFile_->Close();

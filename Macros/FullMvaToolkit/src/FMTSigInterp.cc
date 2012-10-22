@@ -22,7 +22,7 @@ FMTSigInterp::FMTSigInterp(string filename, double intLumi, bool is2011, bool di
   diagnose_(diagnose),
   blind_(blind)
 {
-  tFile = TFile::Open(filename.c_str(),"UPDATE");
+  tFile = new TFile(filename.c_str(),"UPDATE");
   normalizer = new Normalization_8TeV(is2011);
 
 }
@@ -30,6 +30,7 @@ FMTSigInterp::FMTSigInterp(string filename, double intLumi, bool is2011, bool di
 FMTSigInterp::~FMTSigInterp(){
   delete normalizer;
   tFile->Close();
+  delete tFile;
 }
 
 TH1F* FMTSigInterp::Interpolate(double massLow, TH1F* low, double massHigh, TH1F* high, double massInt){
@@ -89,7 +90,9 @@ void FMTSigInterp::runInterpolation(){
           TH1F *sig = (TH1F*)tFile->Get(Form("th1f_sig_grad_%s_%3.1f_%3.1f",prod->c_str(),*mh,*mh));
           sig->SetName(Form("th1f_sig_grad_%s_%3.1f",prod->c_str(),*mh));
           if (verbose_) checkHisto(sig);
-          write(tFile,sig);
+          //write(tFile,sig);
+          gDirectory->Cd(Form("%s:/",tFile->GetName()));
+          sig->Write();
           if (*prod=="ggh") allSig = (TH1F*)sig->Clone();
           else allSig->Add(sig);
           vector<string> theSystematics = getsystematics();
@@ -101,8 +104,11 @@ void FMTSigInterp::runInterpolation(){
             TH1F* down = (TH1F*)tFile->Get(Form("th1f_sig_grad_%s_%3.1f_%3.1f_%sDown01_sigma",prod->c_str(),*mh,*mh,syst->c_str()));
             up->SetName(Form("th1f_sig_grad_%s_%3.1f_%sUp01_sigma",prod->c_str(),*mh,syst->c_str()));
             down->SetName(Form("th1f_sig_grad_%s_%3.1f_%sDown01_sigma",prod->c_str(),*mh,syst->c_str()));
-            write(tFile,up);
-            write(tFile,down);
+            //write(tFile,up);
+            //write(tFile,down);
+            gDirectory->Cd(Form("%s:/",tFile->GetName()));
+            up->Write();
+            down->Write();
           }
         }
       }
@@ -131,7 +137,9 @@ void FMTSigInterp::runInterpolation(){
           if (verbose_) checkHisto(highInterp);
           TH1F *interpolated = Interpolate(double(lowInterpMass), lowInterp, double(highInterpMass), highInterp, *mh);
           if (verbose_) checkHisto(interpolated);
-          write(tFile,interpolated);
+          //write(tFile,interpolated);
+          gDirectory->Cd(Form("%s:/",tFile->GetName()));
+          interpolated->Write();
           if (*prod=="ggh") allSig = (TH1F*)interpolated->Clone();
           else allSig->Add(interpolated);
         }
@@ -150,7 +158,9 @@ void FMTSigInterp::runInterpolation(){
               if (verbose_) checkHisto(highInterp);
               TH1F *interpolated = Interpolate(double(lowInterpMass), lowInterp, double(highInterpMass), highInterp, *mh);
               if (verbose_) checkHisto(interpolated);
-              write(tFile,interpolated);
+              //write(tFile,interpolated);
+              gDirectory->Cd(Form("%s:/",tFile->GetName()));
+              interpolated->Write();
             }
           }
         }
