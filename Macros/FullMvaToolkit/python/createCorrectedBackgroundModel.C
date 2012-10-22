@@ -190,6 +190,8 @@ void fillData(double mH,TFile *in, std::string type){
 		double mhsb  = (mH*(1.-global_SIGNALREGION)/(1.+global_SIDEBANDWIDTH))*(TMath::Power(hypothesisModifier,i-1));
 
 		TH1F *SB = (TH1F*) in->Get(Form("th1f_bkg_%dlow_%s_%3.1f",i,type.c_str(),mH));
+    //cout << Form("%50s  %5d  %5d  %5.2f",SB->GetName(),SB->GetEntries(),SB->GetNbinsX(),SB->Integral()) << endl;
+		cout << "Name: " << SB->GetName() << " Entries: " << SB->GetEntries() << " Nbins: " << SB->GetNbinsX() << " Integral: " << SB->Integral() << endl;
 		int mass_index = global_NUMBEROFSIDEBANDGAPS+nLowerSidebands-i;
 
 		for (int bin_i=1;bin_i<=global_nBdtBins;bin_i++){
@@ -206,6 +208,8 @@ void fillData(double mH,TFile *in, std::string type){
 		double mhsb  = (mH*(1.+global_SIGNALREGION)/(1.-global_SIDEBANDWIDTH))*(TMath::Power(hypothesisModifier,i-1));
 
 		TH1F *SB = (TH1F*) in->Get(Form("th1f_bkg_%dhigh_%s_%3.1f",i,type.c_str(),mH));
+    //cout << Form("%50s  %5d  %5d  %5.2f",SB->GetName(),SB->GetEntries(),SB->GetNbinsX(),SB->Integral()) << endl;
+		cout << "Name: " << SB->GetName() << " Entries: " << SB->GetEntries() << " Nbins: " << SB->GetNbinsX() << " Integral: " << SB->Integral() << endl;
 		int mass_index = nLowerSidebands-1+i-global_NUMBEROFSIDEBANDGAPS ;
 
 		for (int bin_i=1;bin_i<=global_nBdtBins;bin_i++){
@@ -526,8 +530,8 @@ void paulFit(TDirectory *mDir,TH1F* fMFitS,TH1F* hMFitS,TH2F* hFCovar, bool make
 		//fBRaw[j]->GetYaxis()->SetRangeUser(floor(FVal*0.75*100)/100,floor(FVal*1.25*100)/100);
 
 		//TLine l(global_mH,floor(FVal*0.75*100)/100,global_mH,floor(FVal*1.25*100)/100);
-		fBRaw[j]->GetYaxis()->SetRangeUser(FVal*0.1,FVal*1.9);
-		fBFit[j]->GetYaxis()->SetRangeUser(FVal*0.1,FVal*1.9);
+		//fBRaw[j]->GetYaxis()->SetRangeUser(FVal*0.1,FVal*1.9);
+		//fBFit[j]->GetYaxis()->SetRangeUser(FVal*0.1,FVal*1.9);
 		TLine l(global_mH,FVal*0.1,global_mH,FVal*1.9);
 		l.SetLineColor(46);
 		l.SetLineStyle(7);
@@ -640,7 +644,7 @@ void createCorrectedBackgroundModel(std::string fileName, int nsidebands=6, doub
 		std::cout<< "Got NBKG" <<std::endl;
 		TH1F *dataHist  = (TH1F*) in->Get(Form("th1f_data_%s_%3.1f",type.c_str(),mH)); // Data Histogram, includes VBF category
 		std::cout<< "Got data" <<std::endl;
-		int nBins = dataHist->GetNbinsX();
+		int nBins = dataHist->GetNbinsX()-3;
 		std::cout<< "Get Norm and datahist" <<std::endl;
 
 		// Want to make a "corrected" histogram 
@@ -661,6 +665,8 @@ void createCorrectedBackgroundModel(std::string fileName, int nsidebands=6, doub
 		global_nSignalRegion=nSignalVar->getVal();
 
 		std::cout<< "Getting Sidebands" <<std::endl;
+    //cout << Form("%50s  %5d  %5d  %5.2f",dataHist->GetName(),dataHist->GetEntries(),dataHist->GetNbinsX(),dataHist->Integral()) << endl;
+		cout << "Name: " << dataHist->GetName() << " Entries: " << dataHist->GetEntries() << " Nbins: " << dataHist->GetNbinsX() << " Integral: " << dataHist->Integral() << endl;
 		fillData(mH,in,type);
 		std::cout<< "Run Paul Fit" <<std::endl;
 		paulFit(mass_dir,correctedHistFR,correctedHist,hFCovar,makePlots,type);

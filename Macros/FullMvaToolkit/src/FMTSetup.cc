@@ -120,8 +120,13 @@ void FMTSetup::OptionParser(int argc, char *argv[]){
 
 	// open files
 	inFile_ = TFile::Open(filename_.c_str());
-	if (skipRebin_ && !histosFromTrees_) outFile_ = new TFile(outfilename_.c_str(),"UPDATE");
-	else outFile_ = new TFile(outfilename_.c_str(),"RECREATE");
+  if (checkHistos_) {
+    outFile_ = TFile::Open(outfilename_.c_str());
+  }
+  else {
+    if (skipRebin_ && !histosFromTrees_) outFile_ = new TFile(outfilename_.c_str(),"UPDATE");
+    else outFile_ = new TFile(outfilename_.c_str(),"RECREATE");
+  }
 
   // read configuration
  	ReadRunConfig();
@@ -184,28 +189,34 @@ void FMTSetup::OptionParser(int argc, char *argv[]){
 void FMTSetup::checkAllHistos(string opt){
 
   if (opt=="analysis"){
+    cout << "------------------------------------ CHECK --------------------------------- " << endl;
+    cout << outFile_->GetName() << endl;
+    TH1F *temp;
     for (vector<double>::iterator mIt=MHMasses_.begin(); mIt!=MHMasses_.end(); mIt++){
-      TH1F *data = (TH1F*)outFile_->Get(Form("th1f_data_grad_%3.1f",*mIt));
-      cout << Form("%50s   %5d    %5.2f",data->GetName(),data->GetEntries(),data->Integral()) << endl;
+      temp = (TH1F*)outFile_->Get(Form("th1f_data_grad_%3.1f",*mIt));
+      cout << Form("%50s   %5d   %5d   %5.2f",temp->GetName(),temp->GetEntries(),temp->GetNbinsX(),temp->Integral()) << endl;
+      temp = (TH1F*)outFile_->Get(Form("th1f_bkg_mc_grad_%3.1f",*mIt));
+      cout << Form("%50s   %5d   %5d   %5.2f",temp->GetName(),temp->GetEntries(),temp->GetNbinsX(),temp->Integral()) << endl;
+      continue;
       pair<int,int> uandd = getNsidebandsUandD(*mIt);
       // low
       for (int sideband=numberOfSidebandGaps_+1; sideband<=numberOfSidebandGaps_+uandd.first; sideband++){
-        TH1F *sb = (TH1F*)outFile_->Get(Form("th1f_data_%dlow_grad_%3.1f",*mIt));
-        cout << Form("%50s   %5d    %5.2f",sb->GetName(),sb->GetEntries(),sb->Integral()) << endl;
+        temp = (TH1F*)outFile_->Get(Form("th1f_bkg_%dlow_grad_%3.1f",sideband,*mIt));
+        cout << Form("%50s   %5d   %5d   %5.2f",temp->GetName(),temp->GetEntries(),temp->GetNbinsX(),temp->Integral()) << endl;
       }
       // high
       for (int sideband=numberOfSidebandGaps_+1; sideband<=numberOfSidebandGaps_+uandd.second; sideband++){
-        TH1F *sb = (TH1F*)outFile_->Get(Form("th1f_data_%dhigh_grad_%3.1f",*mIt));
-        cout << Form("%50s   %5d    %5.2f",sb->GetName(),sb->GetEntries(),sb->Integral()) << endl;
+        temp = (TH1F*)outFile_->Get(Form("th1f_bkg_%dhigh_grad_%3.1f",sideband,*mIt));
+        cout << Form("%50s   %5d   %5d   %5.2f",temp->GetName(),temp->GetEntries(),temp->GetNbinsX(),temp->Integral()) << endl;
       }
-      for (vector<string>::iterator proc=processes_.begin(); proc!=processes_.end(); proc++){
-        TH1F *sig = (TH1F*)outFile_->Get(Form("th1f_sig_grad_%s_%3.1f",proc->c_str(),*mIt));
-        cout << Form("%50s   %5d    %5.2f",sig->GetName(),sig->GetEntries(),sig->Integral()) << endl;
+      for (vector<string>::iterator proc=getProcesses().begin(); proc!=getProcesses().end(); proc++){
+        temp = (TH1F*)outFile_->Get(Form("th1f_sig_grad_%s_%3.1f",proc->c_str(),*mIt));
+        cout << Form("%50s   %5d   %5d   %5.2f",temp->GetName(),temp->GetEntries(),temp->GetNbinsX(),temp->Integral()) << endl;
         for (vector<string>::iterator syst=systematics_.begin(); syst!=systematics_.end(); syst++){
-          TH1F *up = (TH1F*)outFile_->Get(Form("th1f_sig_grad_%s_%3.1f_%sUp01_sigma",proc->c_str(),*mIt,syst->c_str()));
-          TH1F *down = (TH1F*)outFile_->Get(Form("th1f_sig_grad_%s_%3.1f_%sDown01_sigma",proc->c_str(),*mIt,syst->c_str()));
-          cout << Form("%50s   %5d    %5.2f",up->GetName(),up->GetEntries(),up->Integral()) << endl;
-          cout << Form("%50s   %5d    %5.2f",down->GetName(),down->GetEntries(),down->Integral()) << endl;
+          temp = (TH1F*)outFile_->Get(Form("th1f_sig_grad_%s_%3.1f_%sUp01_sigma",proc->c_str(),*mIt,syst->c_str()));
+          temp = (TH1F*)outFile_->Get(Form("th1f_sig_grad_%s_%3.1f_%sDown01_sigma",proc->c_str(),*mIt,syst->c_str()));
+          cout << Form("%50s   %5d   %5d   %5.2f",temp->GetName(),temp->GetEntries(),temp->GetNbinsX(),temp->Integral()) << endl;
+          cout << Form("%50s   %5d   %5d   %5.2f",temp->GetName(),temp->GetEntries(),temp->GetNbinsX(),temp->Integral()) << endl;
         }
       }
     }
@@ -332,8 +343,8 @@ void FMTSetup::ReadRunConfig(){
     userLumi_ = getLumiFromWorkspace();
     setintLumi(userLumi_);
   }
-  if (!histosFromTrees_) {
-    saveLumiToWorkspace();
+  if (!histosFromTrees_ && !checkHistos_) {
+    //saveLumiToWorkspace();
     outFile_->cd();
     mva->Write();
   }

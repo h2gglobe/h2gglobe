@@ -282,7 +282,8 @@ def writeCard(tfile,mass,scaleErr):
   # bkg model ->
   bkgHist  	= tfile.Get("th1f_bkg_"+runtype+"_%3.1f"%mass)
   
-  if options.Bias: bkgHistCorr   = tfile.Get("th1f_bkg_"+runtype+"_%3.1f_fitsb_biascorr"%mass)
+  #if options.Bias: bkgHistCorr   = tfile.Get("th1f_bkg_"+runtype+"_%3.1f_fitsb_biascorr"%mass)
+  if options.Bias: bkgHistCorr   = tfile.Get("th1f_bkg_"+runtype+"_%3.1f"%mass)
   # 4 signal channels ->
   gghHist  = tfile.Get("th1f_sig_"+runtype+"_ggh_%3.1f"%mass)
   vbfHist  = tfile.Get("th1f_sig_"+runtype+"_vbf_%3.1f"%mass)
