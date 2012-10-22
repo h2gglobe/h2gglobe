@@ -121,15 +121,15 @@ std::vector<double> FMTRebin::significanceOptimizedBinning(TH1F *hs,TH1F *hb,int
     sweepmode=0;	// First perform Broad Scan with optimized step size (g_step)
     bool skipBroad = false;
     if ( nNewBins < (N-1+2+Retry) ) {std::cout << "Forced to perform Fine scan since all the Retries failed to find a nice minimum :("<<std::endl; skipBroad=true;}
-    if (Retry>20) {std::cout << "Forced to perform Fine scan since all the Retries failed to find a nice minimum :("<<std::endl; skipBroad=true;}
+    //if (Retry>20) {std::cout << "Forced to perform Fine scan since all the Retries failed to find a nice minimum :("<<std::endl; skipBroad=true;}
 
     double maximumSignificance=0;
     counters = new int[N];
     chosen_counters = new int[N];
     frozen_counters = new int[N];
-    for (int c=0;c<N;c++) counters[c]=c+2;	// init to starting values
-    for (int c=0;c<N;c++) frozen_counters[c]=c+2; // init to starting values
-    for (int c=0;c<N;c++) chosen_counters[c]=c+2; // init to starting values
+    for (int c=0;c<N;c++) counters[c]=c+2+Retry;	// init to starting values
+    for (int c=0;c<N;c++) frozen_counters[c]=c+2+Retry; // init to starting values
+    for (int c=0;c<N;c++) chosen_counters[c]=c+2+Retry; // init to starting values
 
     double diff;
     clock_t start;
@@ -153,8 +153,11 @@ std::vector<double> FMTRebin::significanceOptimizedBinning(TH1F *hs,TH1F *hb,int
     std::cout << "N Bins, Max Significance -> " << N+1 << " "<<maximumSignificance << std::endl;
 
     if (maximumSignificance < highestMaxSignificance){
- 
+         
          std::cout << "Looks like the Broad Scan found a local maxmimum and got stuck there (can happen if the initial number of bins is small), Try again " <<std::endl;
+         cout << "Chosen bins:   "; 
+         for (int c=0;c<N;c++) cout << chosen_counters[c] << "    ";
+         cout << endl;
          N--; Retry++;
          continue;
  
@@ -804,7 +807,7 @@ void FMTRebin::executeRebinning(int mass){
 			sigForBinning[cat] = getCombSignal(mass,cat);
 		}
 		// get inclusive bin edges
-    BinEdges = significanceOptimizedBinning(sigForBinning[0],bkgForBinning[0],10);
+    BinEdges = significanceOptimizedBinning(sigForBinning[0],bkgForBinning[0],20);
     // set vbf edges from 1. in 0.04 steps
     VBFBinEdges.push_back(1.);
     for (int vCat=0; vCat<getnVBFCategories(); vCat++) VBFBinEdges.push_back(1.+(vCat+1)*0.04);
