@@ -75,8 +75,14 @@ std::vector<double> FMTRebin::significanceOptimizedBinning(TH1F *hs,TH1F *hb,int
     j++;	
   }
   // Create new rebinned histograms (only temporary)
+  TCanvas *canv = new TCanvas();
   TH1F *hbnew =(TH1F*) hb->Rebin(binEdges.size()-1,"hbnew",arrBins);
   TH1F *hsnew =(TH1F*) hs->Rebin(binEdges.size()-1,"hsnew",arrBins);
+  hbnew->SetLineColor(kBlue);
+  hsnew->SetLineColor(kBlue);
+  hsnew->SetLineStyle(kDashed);
+  hbnew->Draw();
+  hsnew->Draw("same");
 
   // Better smoothing which doesn't use the first and last binsi, performs a fit to the histogram	
   if (hsnew->Integral()!=0 && hbnew->Integral()!=0 && binEdges.size()-1 > 10){
@@ -85,6 +91,10 @@ std::vector<double> FMTRebin::significanceOptimizedBinning(TH1F *hs,TH1F *hb,int
     //hsnew->Smooth(1000);
     //hbnew->Smooth(1000);
   }
+  hbnew->SetLineColor(kBlack);
+  hsnew->SetLineColor(kBlack);
+  hbnew->Draw("same");
+  hsnew->Draw("same");
 
   // --------------------------- TEST --------------------------- //
   //hsnew->Rebin(2);
@@ -172,7 +182,7 @@ std::vector<double> FMTRebin::significanceOptimizedBinning(TH1F *hs,TH1F *hb,int
       chosenN = N;
       for (int cc=0;cc<N;cc++) finalCounters[cc]=chosen_counters[cc];
     } else {
-
+      
       break;
     }
 
@@ -812,8 +822,8 @@ void FMTRebin::executeRebinning(int mass){
     VBFBinEdges.push_back(1.);
     for (int vCat=0; vCat<getnVBFCategories(); vCat++) VBFBinEdges.push_back(1.+(vCat+1)*0.04);
     // set lep edges from 2. in 0.04 steps
-    LEPBinEdges.push_back(2.);
-    for (int lCat=0; lCat<getnLEPCategories(); lCat++) LEPBinEdges.push_back(2.+(lCat+1)*0.04);
+    LEPBinEdges.push_back(1.+(getnVBFCategories())*0.04);
+    for (int lCat=0; lCat<getnLEPCategories(); lCat++) LEPBinEdges.push_back(1.+(getnVBFCategories()+lCat+1)*0.04);
     
     // set the bin edges here
 		setBinEdges(mass,BinEdges);
