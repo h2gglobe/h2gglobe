@@ -103,7 +103,7 @@ htyp=0 plot=-1  ncat=2  xbins=50   ybins=0   xmin=0.0   xmax=3.15   ymin=0      
 htyp=0 plot=-1  ncat=2  xbins=50   ybins=0   xmin=0.0   xmax=3.15   ymin=0      ymax=0    name=MetTag_dPhiDipho_nometcut        xaxis=#Delta#phi(#gamma#gamma,MET)   yaxis=Events
 htyp=0 plot=-1  ncat=2  xbins=50   ybins=0   xmin=0.0   xmax=3.15   ymin=0      ymax=0    name=MetTag_dPhiJet_nometcut          xaxis=#Delta#phi(Jet_{Lead},MET)   yaxis=Events
 htyp=0 plot=-1  ncat=2  xbins=40   ybins=0   xmin=10.0  xmax=130.   ymin=0      ymax=0    name=MetTag_leadJetPt_nometcut        xaxis=P_{T,Jet_{Lead}}@MET         yaxis=Events
-htyp=1 plot=-1  ncat=2  xbins=108  ybins=30  xmin=30.   xmax=300.   ymin=0.0    ymax=3.142  name=MetTag_JetPt_dPhi_nometcut     xaxis=P_{T,Jet_{Lead}}             yaxis=#Delta#phi(Jet_{Lead},MET)
+#htyp=1 plot=-1  ncat=2  xbins=108  ybins=30  xmin=30.   xmax=300.   ymin=0.0    ymax=3.142  name=MetTag_JetPt_dPhi_nometcut     xaxis=P_{T,Jet_{Lead}}             yaxis=#Delta#phi(Jet_{Lead},MET)
 
 htyp=0 plot=-1  ncat=2  xbins=60   ybins=0   xmin=30.0  xmax=150.   ymin=0      ymax=0    name=MetTag_leadGammaPt_nomvacut      xaxis=P_{T.#gamma_{Lead}}@MET      yaxis=Events
 htyp=0 plot=-1  ncat=2  xbins=50   ybins=0   xmin=20.0  xmax=120.   ymin=0      ymax=0    name=MetTag_subleadGammaPt_nomvacut   xaxis=P_{T.#gamma_{Sub}}@MET       yaxis=Events
@@ -118,7 +118,7 @@ htyp=0 plot=-1  ncat=2  xbins=50   ybins=0   xmin=0.0   xmax=3.15   ymin=0      
 htyp=0 plot=-1  ncat=2  xbins=50   ybins=0   xmin=0.0   xmax=3.15   ymin=0      ymax=0    name=MetTag_dPhiDipho_nomvacut        xaxis=#Delta#phi(#gamma#gamma,MET)   yaxis=Events
 htyp=0 plot=-1  ncat=2  xbins=50   ybins=0   xmin=0.0   xmax=3.15   ymin=0      ymax=0    name=MetTag_dPhiJet_nomvacut          xaxis=#Delta#phi(Jet_{Lead},MET)   yaxis=Events
 htyp=0 plot=-1  ncat=2  xbins=40   ybins=0   xmin=10.0  xmax=130.   ymin=0      ymax=0    name=MetTag_leadJetPt_nomvacut        xaxis=P_{T,Jet_{Lead}}@MET         yaxis=Events
-htyp=1 plot=-1  ncat=2  xbins=108  ybins=30  xmin=30.   xmax=300.   ymin=0.0    ymax=3.142  name=MetTag_JetPt_dPhi_nomvacut     xaxis=P_{T,Jet_{Lead}}             yaxis=#Delta#phi(Jet_{Lead},MET)
+#htyp=1 plot=-1  ncat=2  xbins=108  ybins=30  xmin=30.   xmax=300.   ymin=0.0    ymax=3.142  name=MetTag_JetPt_dPhi_nomvacut     xaxis=P_{T,Jet_{Lead}}             yaxis=#Delta#phi(Jet_{Lead},MET)
 
 htyp=0 plot=-1  ncat=2  xbins=60   ybins=0   xmin=30.0  xmax=150.   ymin=0      ymax=0    name=MetTag_leadGammaPt_final         xaxis=P_{T.#gamma_{Lead}}@MET      yaxis=Events
 htyp=0 plot=-1  ncat=2  xbins=50   ybins=0   xmin=20.0  xmax=120.   ymin=0      ymax=0    name=MetTag_subleadGammaPt_final      xaxis=P_{T.#gamma_{Sub}}@MET       yaxis=Events
@@ -133,7 +133,7 @@ htyp=0 plot=-1  ncat=2  xbins=50   ybins=0   xmin=0.0   xmax=3.15   ymin=0      
 htyp=0 plot=-1  ncat=2  xbins=50   ybins=0   xmin=0.0   xmax=3.15   ymin=0      ymax=0    name=MetTag_dPhiDipho_final           xaxis=#Delta#phi(#gamma#gamma,MET) yaxis=Events
 htyp=0 plot=-1  ncat=2  xbins=50   ybins=0   xmin=0.0   xmax=3.15   ymin=0      ymax=0    name=MetTag_dPhiJet_final             xaxis=#Delta#phi(Jet_{Lead},MET)   yaxis=Events
 htyp=0 plot=-1  ncat=2  xbins=40   ybins=0   xmin=10.0  xmax=130.   ymin=0      ymax=0    name=MetTag_leadJetPt_final           xaxis=P_{T,Jet_{Lead}}@MET         yaxis=Events
-htyp=1 plot=-1  ncat=2  xbins=108  ybins=30  xmin=30.   xmax=300.   ymin=0.0    ymax=3.142  name=MetTag_JetPt_dPhi_final        xaxis=P_{T,Jet_{Lead}}             yaxis=#Delta#phi(Jet_{Lead},MET)
+#htyp=1 plot=-1  ncat=2  xbins=108  ybins=30  xmin=30.   xmax=300.   ymin=0.0    ymax=3.142  name=MetTag_JetPt_dPhi_final        xaxis=P_{T,Jet_{Lead}}             yaxis=#Delta#phi(Jet_{Lead},MET)
 
 htyp=0 plot=-1  ncat=2  xbins=2    ybins=0   xmin=0.    xmax=2.     ymin=0      ymax=0    name=METTag_sameVtx  xaxis=Same@Vertex@MET             yaxis=Events
 htyp=0 plot=-1  ncat=2  xbins=2    ybins=0   xmin=0.    xmax=2.     ymin=0      ymax=0    name=METTag_gentochosen   xaxis=Gen@To@Chosen@#DeltaZ       yaxis=Events
