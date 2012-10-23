@@ -1252,7 +1252,7 @@ bool LoopAll::METAnalysis2012B(TLorentzVector lead_p4, TLorentzVector sublead_p4
   }
 
   if(jethighpt>jetptmin){
-    if(fabs(hiptjet->DeltaPhi(diphoton_p4))>=2.7){
+    if(fabs(hiptjet->DeltaPhi(myMet))>=2.7){
       return tag;
     }
   }
