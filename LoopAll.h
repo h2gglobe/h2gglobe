@@ -117,6 +117,7 @@ class LoopAll {
   // Zee Validaton Flag
   bool runZeeValidation;
   bool makeDummyTrees;
+  bool applyMETCleaning;
   std::string cicVersion;
   bool usePFCiC;
   
