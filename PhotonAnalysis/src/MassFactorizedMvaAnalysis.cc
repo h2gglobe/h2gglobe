@@ -856,10 +856,10 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
               << "    mgg:"       <<  mass 
               << "    e_1:"       <<  lead_p4.E()
               << "    e_2:"       <<  sublead_p4.E()
-              << "    eerr_1:"    << massResolutionCalculator->leadPhotonResolution()
-              << "    eerr_2:"    << massResolutionCalculator->subleadPhotonResolution()
-              << "    eerrsmeared_1:" << massResolutionCalculator->leadPhotonResolutionNoSmear()
-              << "    eerrsmeared_2:" << massResolutionCalculator->subleadPhotonResolutionNoSmear()
+              << "    eerr_1:"    <<  massResolutionCalculator->leadPhotonResolutionNoSmear()
+              << "    eerr_2:"    <<  massResolutionCalculator->subleadPhotonResolutionNoSmear()
+              << "    eerrsmeared_1:" << massResolutionCalculator->leadPhotonResolution()   
+              << "    eerrsmeared_2:" << massResolutionCalculator->subleadPhotonResolution()
               << "    vbfevent:"  <<  VBFevent
               << "    muontag:"   <<  VHmuevent
               << "    electrontag:"<< VHelevent
