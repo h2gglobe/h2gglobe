@@ -866,6 +866,22 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
               << "    mettag:"    <<  VHmetevent
               << "    evcat:"     <<  category
               << "    FileName:"  <<  l.files[l.current];
+        // Vertex MVA
+            vtxAna_.setPairID(diphoton_id);
+            std::vector<int> & vtxlist = l.vtx_std_ranked_list->at(diphoton_id);
+            for(size_t ii=0; ii<3; ++ii ) {
+                eventListText << "\tvertexId"<< ii+1 <<":" << (ii < vtxlist.size() ? vtxlist[ii] : -1);
+            }
+            for(size_t ii=0; ii<3; ++ii ) {
+                eventListText << "\tvertexMva"<< ii+1 <<":" << (ii < vtxlist.size() ? vtxAna_.mva(vtxlist[ii]) : -2.);
+            }
+            for(size_t ii=1; ii<3; ++ii ) {
+                eventListText << "\tvertexdeltaz"<< ii+1 <<":" << (ii < vtxlist.size() ? vtxAna_.vertexz(vtxlist[ii])-vtxAna_.vertexz(vtxlist[0]) : -999.);
+            }
+            eventListText << "\tptbal:"   << vtxAna_.ptbal(0)
+                          << "\tptasym:"  << vtxAna_.ptasym(0)
+                          << "\tlogspt2:" << vtxAna_.logsumpt2(0)
+                          << "\tp2conv:"  << vtxAna_.pulltoconv(0);
             
             if(VHmuevent){
                 TLorentzVector* mymu = (TLorentzVector*) l.mu_glo_p4->At(mu_ind);
@@ -966,7 +982,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
                     << "    metcor:"<<          -1
                     << "    metphicor:"<<       -1;
             }
-                
+
             eventListText << endl;
         }
 
