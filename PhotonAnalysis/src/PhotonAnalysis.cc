@@ -3926,20 +3926,20 @@ float PhotonAnalysis::BeamspotReweight(double vtxZ, double genZ) {
     if (TMath::Abs(diffVar)<0.1) return 1.0;
     
     // gets to 4.8
-    //float newBSmean1  = 9.9391e-02;
-    //float newBSmean2  = 1.8902e-01;
-    //float newBSnorm1  = 5.3210e+00;
-    //float newBSnorm2  = 4.1813e+01;
-    //float newBSsigma1 = 9.7530e-01;
-    //float newBSsigma2 = 7.0811e+00;
+    float newBSmean1  = 9.9391e-02;
+    float newBSmean2  = 1.8902e-01;
+    float newBSnorm1  = 5.3210e+00;
+    float newBSnorm2  = 4.1813e+01;
+    float newBSsigma1 = 9.7530e-01;
+    float newBSsigma2 = 7.0811e+00;
 
     // gets to 5
-    float newBSmean1  = 9.549e-02;
-    float newBSmean2  = 2.334e-01;
-    float newBSnorm1  = 5.067e+00;
-    float newBSnorm2  = 4.159e+01;
-    float newBSsigma1 = 9.498e-01;
-    float newBSsigma2 = 7.289e+00;
+    //float newBSmean1  = 9.549e-02;
+    //float newBSmean2  = 2.334e-01;
+    //float newBSnorm1  = 5.067e+00;
+    //float newBSnorm2  = 4.159e+01;
+    //float newBSsigma1 = 9.498e-01;
+    //float newBSsigma2 = 7.289e+00;
 
     float oldBSmean1  = 7.2055e-02;
     float oldBSmean2  = 4.9986e-01;
@@ -3953,8 +3953,8 @@ float PhotonAnalysis::BeamspotReweight(double vtxZ, double genZ) {
     float oldBSgaus1 = oldBSnorm1*exp(-0.5*pow((diffVar-oldBSmean1)/oldBSsigma1,2));
     float oldBSgaus2 = oldBSnorm2*exp(-0.5*pow((diffVar-oldBSmean2)/oldBSsigma2,2));
     
-    //float reweight =  1.1235 * (newBSgaus1+newBSgaus2)/(oldBSgaus1+oldBSgaus2);
-    float reweight =  1.10332 * (newBSgaus1+newBSgaus2)/(oldBSgaus1+oldBSgaus2);
+    float reweight =  1.1235 * (newBSgaus1+newBSgaus2)/(oldBSgaus1+oldBSgaus2);
+    //float reweight =  1.10332 * (newBSgaus1+newBSgaus2)/(oldBSgaus1+oldBSgaus2);
 
     //float sourceweight = exp(-pow(hardInterZ-beamspotZ,2)/2.0/sourcesigma/sourcesigma)/sourcesigma;
     //float targetweight = exp(-pow(hardInterZ-beamspotZ,2)/2.0/targetsigma/targetsigma)/targetsigma;
