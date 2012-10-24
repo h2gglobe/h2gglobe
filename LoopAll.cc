@@ -231,6 +231,10 @@ void LoopAll::MergeContainers(){
 	   ;it_data++) {
 
       RooDataSet *dataExtra = (RooDataSet*) work->data(Form("%s",it_data->c_str()));
+      if( dataExtra == 0 ) {
+	      std::cout << "skipping "<< it_data->c_str() << " " << dataExtra << std::endl;
+	      continue;
+      }
       rooContainer->AppendDataSet(*it_data,dataExtra);	
       //delete dataExtra;
     }
@@ -346,8 +350,10 @@ void LoopAll::LoopAndFillHistos(TString treename) {
       Init(typerun, *it_tree);
     }
 
-    Loop(i);
-
+    if( *it_tree != 0 && (*it_tree)->GetEntries() != 0 ) {
+	Loop(i);
+    }
+    
     if(tot_events != 0 && (*it_tree) != 0  ) {
       (*it_tree)->Delete("");
     }
@@ -1155,10 +1161,10 @@ void LoopAll::Branches(std::list<std::string> & names) {
 // ------------------------------------------------------------------------------------
 void LoopAll::GetEntry(std::set<TBranch *> & branches, int jentry)
 {
-  for(std::set<TBranch *>::iterator it=branches.begin(); it!=branches.end(); ++it ) {
-    if(LDEBUG){
-        std::cout<<"getting entry:  "<<(*it)->GetName()<<std::endl;
-    }
+    for(std::set<TBranch *>::iterator it=branches.begin(); it!=branches.end(); ++it ) {
+	if(LDEBUG){
+	    std::cout<<"getting entry:  "<<(*it)->GetName()<<std::endl;
+	}
     if( (*it)->GetReadEntry() != jentry ) {  (*it)->GetEntry(jentry); }
   }
 }

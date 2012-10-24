@@ -78,7 +78,8 @@ void TreeContainer::FillFloat(std::string name, float x){
   if (it!=float_branches.end()){
     (*it).second = x;
   } else {
-    std::cerr << "TreeContainer -- No Float Tree " << name << std::endl;
+    std::cerr << "TreeContainer -- No Float Tree trying Double" << name << std::endl;
+    FillDouble(name,x);
   }
 }
 
@@ -108,7 +109,8 @@ void TreeContainer::FillDouble(std::string name, double x){
   if (it!=double_branches.end()){
     (*it).second = x;
   } else {	
-    std::cerr << "TreeContainer -- No Double Tree " << name << std::endl;
+    std::cerr << "TreeContainer -- No Double Tree trying Float " << name << std::endl;
+    FillFloat(name,x);
   }
 }
 

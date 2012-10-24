@@ -534,8 +534,8 @@ int DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL = phoLOOSE,
                           bool split=false, int fixedvtx=-1, std::vector<bool> veto_indices=std::vector<bool>(false),
                           std::vector<int> cutsbycat=std::vector<int>(0));
 
- int DiphotonMITPreSelection(Float_t leadPtMin, Float_t subleadPtMin, Float_t phoidMvaCut, bool applyPtoverM, float *pho_energy_array=0, int fixedvtx=-1, bool split=false, bool kinonly=false, std::vector<bool> veto_indices=std::vector<bool>(false));
- int DiphotonMITPreSelection2011(Float_t leadPtMin, Float_t subleadPtMin, Float_t phoidMvaCut, bool applyPtoverM, float *pho_energy_array=0, bool kinonly=false);
+int DiphotonMITPreSelection(Float_t leadPtMin, Float_t subleadPtMin, Float_t phoidMvaCut, bool applyPtoverM, float *pho_energy_array=0, int fixedvtx=-1, bool split=false, bool kinonly=false, std::vector<bool> veto_indices=std::vector<bool>(false));
+int DiphotonMITPreSelection2011(Float_t leadPtMin, Float_t subleadPtMin, Float_t phoidMvaCut, bool applyPtoverM, float *pho_energy_array=0, bool kinonly=false);
 
 /** for a photon index, applies all levels of cuts and returns the
     index to the highest cut level passed (can do lead and sublead -
