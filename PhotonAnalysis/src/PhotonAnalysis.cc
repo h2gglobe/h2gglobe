@@ -3891,8 +3891,8 @@ void PhotonAnalysis::reVertex(LoopAll & l)
 
 	if( rematchConversions ) {
 	    vtxAna_.setNConv(0);
-	    PhotonInfo p1 = l.fillPhotonInfos(l.dipho_leadind[id], true, 0); // WARNING using default photon energy: it's ok because we only re-do the conversion part
-	    PhotonInfo p2 = l.fillPhotonInfos(l.dipho_subleadind[id], true, 0); // WARNING using default photon energy: it's ok because we only re-do the conversion part
+	    PhotonInfo p1 = l.fillPhotonInfos(l.dipho_leadind[id], vtxAlgoParams.useAllConversions, 0); // WARNING using default photon energy: it's ok because we only re-do the conversion part
+	    PhotonInfo p2 = l.fillPhotonInfos(l.dipho_subleadind[id], vtxAlgoParams.useAllConversions, 0); // WARNING using default photon energy: it's ok because we only re-do the conversion part
 
 	    float zconv=0., szconv=0.;
 	    vtxAna_.getZFromConvPair(zconv,  szconv, p1, p2);

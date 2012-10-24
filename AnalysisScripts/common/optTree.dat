@@ -9,7 +9,7 @@ type=0 name=lumis
 type=0 name=category
 type=2 name=weight
 type=0 name=sampleType
-type=2 name=mass
+type=2 name=CMS_hgg_mass
 type=2 name=diphotonMVA
 type=2 name=vbfMVA
 type=2 name=vbfMVA0
@@ -19,6 +19,10 @@ type=2 name=vtxProb
 type=2 name=altMass
 type=2 name=leadPt
 type=2 name=subleadPt
+type=2 name=leadEta
+type=2 name=subleadEta
+type=2 name=leadPhi
+type=2 name=subleadPhi
 type=2 name=leadR9
 type=2 name=subleadR9
 type=2 name=sigmaMrv
@@ -35,6 +39,10 @@ type=2 name=absThetaS
 
 type=2 name=leadJPt
 type=2 name=subleadJPt
+type=2 name=leadJEta
+type=2 name=subleadJEta
+type=2 name=leadJPhi
+type=2 name=subleadJPhi
 type=2 name=MJJ
 type=2 name=deltaEtaJJ
 type=2 name=Zep

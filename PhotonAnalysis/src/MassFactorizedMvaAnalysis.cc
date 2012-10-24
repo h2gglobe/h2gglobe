@@ -605,7 +605,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 
         // Exclusive Modes
         int diphotonVBF_id = -1;
-        int ijet1, ijet2;
+	vbfIjet1=-1, vbfIjet2=-1;
         VBFevent = false;
         
         int diphotonVHlep_id = -1;
@@ -659,7 +659,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
             
             VBFevent= ( dataIs2011 ? 
                 VBFTag2011(l, diphotonVBF_id, &smeared_pho_energy[0], true, eventweight, myweight) :
-                VBFTag2012(ijet1, ijet2, l, diphotonVBF_id, &smeared_pho_energy[0], true, eventweight, myweight) );
+                VBFTag2012(vbfIjet1, vbfIjet2, l, diphotonVBF_id, &smeared_pho_energy[0], true, eventweight, myweight) );
 
         }
     
@@ -811,7 +811,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
             if (fillEscaleTrees) fillEscaleTree(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, phoid_mvaout_lead, phoid_mvaout_sublead, diphobdt_output, sigmaMrv, sigmaMwv, vtxProb, diphoton_id, category, selectioncategory, evweight, l );
         }
     
-        if (dumpAscii && mass >= 100. && mass < 180. && !isSyst){
+        if (dumpAscii && category > -1 && mass >= 100. && mass < 180. && !isSyst){
             // New ascii event list for syncrhonizing MVA Preselection + Diphoton MVA
             eventListText <<"type:"<< cur_type 
               << "    run:"   <<  l.run
@@ -985,8 +985,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 
             eventListText << endl;
         }
-
-    return (category >= 0 && mass>=massMin && mass<=massMax);
+	return (category >= 0 && mass>=massMin && mass<=massMax);
     }
     return false;
 }

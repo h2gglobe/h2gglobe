@@ -769,8 +769,8 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
     /// diphoton_id = -1;
 
     std::pair<int,int> diphoton_index;
-    int ijet1=0, ijet2=0;
-
+    vbfIjet1=-1, vbfIjet2=-1;
+   
     // do gen-level dependent first (e.g. k-factor); only for signal
     genLevWeight=1.;
     if(cur_type!=0 ) {
@@ -869,7 +869,7 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 
 	            VBFevent= ( dataIs2011 ?
 	        	    VBFTag2011(l, diphotonVBF_id, &smeared_pho_energy[0], true, eventweight, myweight) :
-	        	    VBFTag2012(ijet1, ijet2, l, diphotonVBF_id, &smeared_pho_energy[0], true, eventweight, myweight) )
+	        	    VBFTag2012(vbfIjet1, vbfIjet2, l, diphotonVBF_id, &smeared_pho_energy[0], true, eventweight, myweight) )
 	            ;
 	        }
         }
@@ -1014,14 +1014,14 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 	    dumpPhoton(eventListText,1,l,l.dipho_leadind[diphoton_id],l.dipho_vtxind[diphoton_id],lead_p4,&smeared_pho_energy[0]);
 	    dumpPhoton(eventListText,2,l,l.dipho_subleadind[diphoton_id],l.dipho_vtxind[diphoton_id],sublead_p4,&smeared_pho_energy[0]);
 	    if( VBFevent ) {
-		eventListText << "\tnvtx:" << l.vtx_std_n
-			      << "\tjetPt1:"  << ( (TLorentzVector*)l.jet_algoPF1_p4->At(ijet1) )->Pt()
-			      << "\tjetPt2:"  << ( (TLorentzVector*)l.jet_algoPF1_p4->At(ijet2) )->Pt()
-			      << "\tjetEta1:" << ( (TLorentzVector*)l.jet_algoPF1_p4->At(ijet1) )->Eta()
-			      << "\tjetEta2:" << ( (TLorentzVector*)l.jet_algoPF1_p4->At(ijet2) )->Eta()
+		eventListText << "\tnvtx:" << l.vtx_std_n 
+			      << "\tjetPt1:"  << ( (TLorentzVector*)l.jet_algoPF1_p4->At(vbfIjet1) )->Pt()
+			      << "\tjetPt2:"  << ( (TLorentzVector*)l.jet_algoPF1_p4->At(vbfIjet2) )->Pt()
+			      << "\tjetEta1:" << ( (TLorentzVector*)l.jet_algoPF1_p4->At(vbfIjet1) )->Eta()
+			      << "\tjetEta2:" << ( (TLorentzVector*)l.jet_algoPF1_p4->At(vbfIjet2) )->Eta()
 		    ;
-		dumpJet(eventListText,1,l,ijet1);
-		dumpJet(eventListText,2,l,ijet2);
+		dumpJet(eventListText,1,l,vbfIjet1);
+		dumpJet(eventListText,2,l,vbfIjet2);
 	    }
 	    eventListText << std::endl;
 	}
@@ -1063,7 +1063,7 @@ void StatAnalysis::FillRooContainer(LoopAll& l, int cur_type, float mass, float 
 	l.FillTree("run",l.run);
 	l.FillTree("lumis",l.lumis);
 	l.FillTree("event",l.event);
-	l.FillTree("mass",mass);
+	l.FillTree("CMS_hgg_mass",mass);
 	l.FillTree("weight",weight);
 	l.FillTree("category",category);
 	l.FillTree("diphotonMVA",diphotonMVA);
@@ -1072,7 +1072,10 @@ void StatAnalysis::FillRooContainer(LoopAll& l, int cur_type, float mass, float 
 	l.FillTree("vbfMVA1",myVBF_MVA1);
 	l.FillTree("vbfMVA2",myVBF_MVA2);
 	/// l.FillTree("VBFevent", VBFevent);
-	if( myVBF_MVA > -2. ||  myVBF_MVA0 > -2 || myVBF_MVA1 > -2 || myVBF_MVA2 > -2 || VBFevent ) {
+	if( vbfIjet1 > -1 && vbfIjet2 > -1 && ( myVBF_MVA > -2. ||  myVBF_MVA0 > -2 || myVBF_MVA1 > -2 || myVBF_MVA2 > -2 || VBFevent ) ) {
+	    TLorentzVector* jet1 = (TLorentzVector*)l.jet_algoPF1_p4->At(vbfIjet1);
+	    TLorentzVector* jet2 = (TLorentzVector*)l.jet_algoPF1_p4->At(vbfIjet2);
+
 	    l.FillTree("deltaPhiJJ",myVBF_deltaPhiJJ);
 	    l.FillTree("deltaPhiGamGam", myVBF_deltaPhiGamGam);
 	    l.FillTree("etaJJ", myVBF_etaJJ);
@@ -1083,6 +1086,10 @@ void StatAnalysis::FillRooContainer(LoopAll& l, int cur_type, float mass, float 
 
 	    l.FillTree("leadJPt", myVBFLeadJPt);
 	    l.FillTree("subleadJPt", myVBFSubJPt);
+	    l.FillTree("leadJEta", (float)jet1->Eta());
+	    l.FillTree("subleadJEta", (float)jet2->Eta());
+	    l.FillTree("leadJPhi", (float)jet1->Phi());
+	    l.FillTree("subleadJPhi", (float)jet2->Phi());
 	    l.FillTree("MJJ", myVBF_Mjj);
 	    l.FillTree("deltaEtaJJ", myVBFdEta);
 	    l.FillTree("Zep", myVBFZep);
@@ -1110,12 +1117,17 @@ void StatAnalysis::FillRooContainer(LoopAll& l, int cur_type, float mass, float 
 	fillDiphoton(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, vtx, &smeared_pho_energy[0], l, diphoton_id);
 	l.FillTree("leadPt",(float)lead_p4.Pt());
 	l.FillTree("subleadPt",(float)sublead_p4.Pt());
+	l.FillTree("leadEta",(float)lead_p4.Eta());
+	l.FillTree("subleadEta",(float)sublead_p4.Eta());
+	l.FillTree("leadPhi",(float)lead_p4.Phi());
+	l.FillTree("subleadPhi",(float)sublead_p4.Phi());
 	l.FillTree("leadR9",lead_r9);
 	l.FillTree("subleadR9",sublead_r9);
 	l.FillTree("sigmaMrv",sigmaMrv);
 	l.FillTree("sigmaMwv",sigmaMwv);
 	l.FillTree("leadPhoEta",(float)lead_p4.Eta());
 	l.FillTree("subleadPhoEta",(float)sublead_p4.Eta());
+
 
 	vtxAna_.setPairID(diphoton_id);
 	float vtxProb = vtxAna_.vertexProbability(l.vtx_std_evt_mva->at(diphoton_id), l.vtx_std_n);
@@ -1310,6 +1322,7 @@ void StatAnalysis::fillControlPlots(const TLorentzVector & lead_p4, const  TLore
                     float sampleweight = l.sampleContainer[l.current_sample_index].weight;
                     if(evweight*sampleweight!=0) myweight=evweight/sampleweight;
                     l.FillCutPlots(category+1,1,"_sequential",evweight,myweight);
+		    if( sublead_r9 > 0.9 ) { l.FillCutPlots(category+1+nCategories_,1,"_sequential",evweight,myweight); }
                 }
             }
 

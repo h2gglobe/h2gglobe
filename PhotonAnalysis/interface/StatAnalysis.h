@@ -99,6 +99,7 @@ class StatAnalysis : public PhotonAnalysis
     int VHmetevent_cat;
     double genLevWeight; 
     float sigmaMrv, sigmaMwv;
+    int vbfIjet1, vbfIjet2;
 
     void buildBkgModel(LoopAll& l, const std::string & postfix);
 
