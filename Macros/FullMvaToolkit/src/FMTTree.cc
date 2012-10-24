@@ -1,5 +1,6 @@
 #include "boost/lexical_cast.hpp"
 
+#include "TMath.h"
 #include "TStopwatch.h"
 #include "TTree.h"
 #include "TCanvas.h"
@@ -216,10 +217,22 @@ int FMTTree::icCat(int cat){
 void FMTTree::FillHist(string type, int sideband, double mh){
   int cat = icCat(category_);
   if (cat<0) return;
-  float val = tmvaGetVal((mass_-mh)/mh,bdtoutput_);
-  if (sideband==0) th1fs_[Form("th1f_%s_BDT_grad_%5.1f_cat%d",type.c_str(),mh,cat)]->Fill(val,weight_);
-  else if (sideband<0) th1fs_[Form("th1f_%s_%dlow_BDT_grad_%5.1f_cat%d",type.c_str(),sideband*-1,mh,cat)]->Fill(val,weight_);
-  else if (sideband>0) th1fs_[Form("th1f_%s_%dhigh_BDT_grad_%5.1f_cat%d",type.c_str(),sideband,mh,cat)]->Fill(val,weight_);
+  if (sideband==0) {
+    float val = tmvaGetVal((mass_-mh)/mh,bdtoutput_);
+    th1fs_[Form("th1f_%s_BDT_grad_%5.1f_cat%d",type.c_str(),mh,cat)]->Fill(val,weight_);
+  }
+  else if (sideband<0) {
+    double hypothesisModifier = (1.-sidebandWidth_)/(1.+sidebandWidth_);
+    double evalMH = (mh*(1.-signalRegionWidth_)/(1+sidebandWidth_))*(TMath::Power(hypothesisModifier,(-1*sideband)-1));
+    float val = tmvaGetVal((mass_-evalMH)/evalMH,bdtoutput_);
+    th1fs_[Form("th1f_%s_%dlow_BDT_grad_%5.1f_cat%d",type.c_str(),sideband*-1,mh,cat)]->Fill(val,weight_);
+  }
+  else if (sideband>0) {
+    double hypothesisModifier = (1.+sidebandWidth_)/(1.-sidebandWidth_);
+    double evalMH = (mh*(1.+signalRegionWidth_)/(1-sidebandWidth_))*(TMath::Power(hypothesisModifier,sideband-1));
+    float val = tmvaGetVal((mass_-evalMH)/evalMH,bdtoutput_);
+    th1fs_[Form("th1f_%s_%dhigh_BDT_grad_%5.1f_cat%d",type.c_str(),sideband,mh,cat)]->Fill(val,weight_);
+  }
 }
 
 void FMTTree::FillSigHist(string proc, double mh){
@@ -393,8 +406,6 @@ void FMTTree::run(string option){
       sw.Start();
       for (int entry=0; entry<(mapIt->second)->GetEntries(); entry++){
         (mapIt->second)->GetEntry(entry);
-        if (entry>10) continue;
-        cout << mass_ << " " << bdtoutput_ << endl;
         if (entry%1000==0) cout << "\r" << entry << "/" << mapIt->second->GetEntries() << flush;
         // Data and Bkg
 				if (type==0){
@@ -402,13 +413,13 @@ void FMTTree::run(string option){
 				}
         if (type>=0){
           for (vector<double>::iterator mIt=masses.begin(); mIt!=masses.end(); mIt++){
-            cout << "MH: " << *mIt << endl;
+            //cout << "MH: " << *mIt << endl;
             // in signal region
-            cout << "si: " << (1.-sidebandWidth_)*(*mIt) << "  " << (1.+sidebandWidth_)*(*mIt) << endl;
+            //cout << "si: " << (1.-sidebandWidth_)*(*mIt) << "  " << (1.+sidebandWidth_)*(*mIt) << endl;
             if (mass_>=(1.-sidebandWidth_)*(*mIt) && mass_<=(1.+sidebandWidth_)*(*mIt)){
               if (type==0) FillHist("data",0,*mIt);
               if (type>0) FillHist("bkg",0,*mIt);
-              cout << " \t in signal region " << *mIt << endl;
+              //cout << " \t in signal region " << *mIt << endl;
             }
             // in sidebands
             int nL = (getNsidebandsUandD(*mIt)).first;
@@ -417,19 +428,19 @@ void FMTTree::run(string option){
             vector<double> hEdge = getUpperSidebandEdges(*mIt);
             
             for (int l=0; l<nL; l++){
-              cout << "l"  << l << ": " << lEdge[l+1] << "  " << lEdge[l] << endl;
+              //cout << "l"  << l << ": " << lEdge[l+1] << "  " << lEdge[l] << endl;
               if (mass_>=lEdge[l+1] && mass_<=lEdge[l]){
                 if (type==0) FillHist("data",-1*(l+1+getnumberOfSidebandGaps()),*mIt);
                 if (type>0) FillHist("bkg",-1*(l+1+getnumberOfSidebandGaps()),*mIt);
-                cout << " \t in sideband " << -1*(l+1+getnumberOfSidebandGaps()) << " " << *mIt << endl;
+                //cout << " \t in sideband " << -1*(l+1+getnumberOfSidebandGaps()) << " " << *mIt << endl;
               }
             }
             for (int h=0; h<nH; h++){
-              cout << "h" << h << ": " << hEdge[h] << "  " << hEdge[h+1] << endl;
+              //cout << "h" << h << ": " << hEdge[h] << "  " << hEdge[h+1] << endl;
               if (mass_>=hEdge[h] && mass_<=hEdge[h+1]){
                 if (type==0) FillHist("data",(h+1+getnumberOfSidebandGaps()),*mIt);
                 if (type>0) FillHist("bkg",(h+1+getnumberOfSidebandGaps()),*mIt);
-                cout << " \t in sideband " << h+1+getnumberOfSidebandGaps() << " " << *mIt << endl;
+                //cout << " \t in sideband " << h+1+getnumberOfSidebandGaps() << " " << *mIt << endl;
               }
             }
           }
