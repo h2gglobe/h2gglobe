@@ -1,10 +1,10 @@
 {
-TFile *oldFILE = new TFile("./vertex_reweighing_mva_HCP2012_freeze.root");
+TFile *oldFILE = new TFile("./vertex_reweighing_mva_HCP2012_unblind.root");
 
 oldFILE->Print();
 oldFILE->ls();
 
-TFile *newFILE = TFile::Open("../AnalysisScripts/aux/sig_reweighing_hcp2012_cutbased_v1.root","recreate");
+TFile *newFILE = TFile::Open("../AnalysisScripts/aux/sig_reweighing_hcp2012_mva_v2.root","recreate");
 newFILE->cd();
 
 TGraphAsymmErrors * toCopy;
@@ -18,10 +18,10 @@ int ncats = 8;
 // Numbers from Xiaohang: https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/995.html
 
 // baseline:
-Double_t effL1HLT_[ncats] 	       = {0.9979,0.9979,0.9979,0.9979,0.9979,0.9979,0.9979,0.9979};
+// Double_t effL1HLT_[ncats] 	       = {0.9979,0.9979,0.9979,0.9979,0.9979,0.9979,0.9979,0.9979};
 
 // mva:
-//Double_t effL1HLT_[ncats] 	       = {0.9946,0.9946,0.9946,0.9946,0.9946,0.9946,0.9946,0.9946};
+Double_t effL1HLT_[ncats] 	       = {0.9946,0.9946,0.9946,0.9946,0.9946,0.9946,0.9946,0.9946};
 
 Double_t effL1HLT_low_err_[ncats]  = {0.0005,0.0005,0.0005,0.0005,0.0005,0.0005,0.0005,0.0005};
 Double_t effL1HLT_high_err_[ncats] = {0.0005,0.0005,0.0005,0.0005,0.0005,0.0005,0.0005,0.0005};
@@ -52,13 +52,13 @@ for (int cat=0;cat<ncats;cat++){
 int nphocats=4;
 
 // baseline
-Double_t ratioTP_[nphocats]            = {1.005,0.979,1.021,1.019};
-Double_t ratioTP_low_err_[nphocats]    = {0.004,0.014,0.014,0.033};
-Double_t ratioTP_high_err_[nphocats]   = {0.004,0.014,0.014,0.033};
+// Double_t ratioTP_[nphocats]            = {1.005,0.979,1.021,1.019};
+// Double_t ratioTP_low_err_[nphocats]    = {0.004,0.014,0.014,0.033};
+// Double_t ratioTP_high_err_[nphocats]   = {0.004,0.014,0.014,0.033};
 // mva
-// Double_t ratioTP_[nphocats]            = {0.998,0.984,1.006,0.988};
-// Double_t ratioTP_low_err_[nphocats]    = {0.003,0.008,0.011,0.021};
-// Double_t ratioTP_high_err_[nphocats]   = {0.003,0.008,0.011,0.021};
+Double_t ratioTP_[nphocats]            = {0.998,0.984,1.006,0.988};
+Double_t ratioTP_low_err_[nphocats]    = {0.003,0.008,0.011,0.021};
+Double_t ratioTP_high_err_[nphocats]   = {0.003,0.008,0.011,0.021};
 
 std::string iDLabels_[nphocats] 	    = {"EBHighR9","EBLowR9","EEHighR9","EELowR9"};
 
