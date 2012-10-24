@@ -7,6 +7,7 @@
 #include "TTree.h"
 #include "TText.h"
 #include "TCanvas.h"
+#include "TLine.h"
 
 #include "../interface/FMTRebin.h"
 
@@ -38,7 +39,7 @@ FMTRebin::~FMTRebin(){
 	delete fitter;
 }
 
-std::vector<double> FMTRebin::significanceOptimizedBinning(TH1F *hs,TH1F *hb,int nTargetBins){
+std::vector<double> FMTRebin::significanceOptimizedBinning(TH1F *hs,TH1F *hb,int nTargetBins, int mass){
 
   // Performs Optimized Binning based on a Signal and Background  distributions
   // First runs the optimizedBinning on background and rebins S and B clones, note, always performs 
@@ -80,9 +81,12 @@ std::vector<double> FMTRebin::significanceOptimizedBinning(TH1F *hs,TH1F *hb,int
   TH1F *hsnew =(TH1F*) hs->Rebin(binEdges.size()-1,"hsnew",arrBins);
   hbnew->SetLineColor(kBlue);
   hsnew->SetLineColor(kBlue);
-  hsnew->SetLineStyle(kDashed);
+  TCanvas *cB = new TCanvas();
+  TCanvas *cS = new TCanvas();
+  cB->cd();
   hbnew->Draw();
-  hsnew->Draw("same");
+  cS->cd();
+  hsnew->Draw();
 
   // Better smoothing which doesn't use the first and last binsi, performs a fit to the histogram	
   if (hsnew->Integral()!=0 && hbnew->Integral()!=0 && binEdges.size()-1 > 10){
@@ -93,8 +97,10 @@ std::vector<double> FMTRebin::significanceOptimizedBinning(TH1F *hs,TH1F *hb,int
   }
   hbnew->SetLineColor(kBlack);
   hsnew->SetLineColor(kBlack);
-  hbnew->Draw("same");
-  hsnew->Draw("same");
+  //cB->cd();
+  //hbnew->Draw("same");
+  //cS->cd();
+  //hsnew->Draw("same");
 
   // --------------------------- TEST --------------------------- //
   //hsnew->Rebin(2);
@@ -176,7 +182,6 @@ std::vector<double> FMTRebin::significanceOptimizedBinning(TH1F *hs,TH1F *hb,int
 
 
     if ((maximumSignificance-highestMaxSignificance)/highestMaxSignificance > 0.001){
-		//if ((N+1)<8) {
       highestMaxSignificance = maximumSignificance ;
       finalCounters= new int[N];
       chosenN = N;
@@ -188,10 +193,24 @@ std::vector<double> FMTRebin::significanceOptimizedBinning(TH1F *hs,TH1F *hb,int
 
   }
 
+  for (int c=0; c<chosenN; c++){
+    TLine l(finalCounters[c],canv->GetUymin(),finalCounters[c],canv->GetUymax());
+    l.SetLineColor(kRed);
+    l.SetLineWidth(3);
+    cB->cd();
+    l.Draw("same");
+    cS->cd();
+    l.Draw("same");
+  }
+  cB->Print(Form("plots/pdf/rebin_B_%d.pdf",mass));
+  cB->Print(Form("plots/png/rebin_B_%d.png",mass));
+  cS->Print(Form("plots/pdf/rebin_S_%d.pdf",mass));
+  cS->Print(Form("plots/png/rebin_S_%d.png",mass));
+
   std::vector<double> newbinEdges;
   newbinEdges.push_back(hsnew->GetBinLowEdge(1));
   for (int newguy=0;newguy<chosenN;newguy++){
-    //std::cout << "newEdge = " << hsnew->GetBinLowEdge(finalCounters[newguy])<<std::endl;
+    std::cout << "newEdge = " << hsnew->GetBinLowEdge(finalCounters[newguy]) << " at bin " << finalCounters[newguy] <<std::endl;
     newbinEdges.push_back(hsnew->GetBinLowEdge(finalCounters[newguy]));
   }
   newbinEdges.push_back(hsnew->GetBinLowEdge(nNewBins+1));
@@ -199,6 +218,8 @@ std::vector<double> FMTRebin::significanceOptimizedBinning(TH1F *hs,TH1F *hb,int
   delete [] finalCounters;
   delete [] counters;
   delete [] chosen_counters;
+  delete cB;
+  delete cS;
 
   return newbinEdges;
 
@@ -331,10 +352,15 @@ TH1F* FMTRebin::rebinBinnedDataset(std::string new_name, TH1F *hb,std::vector<do
 
   double *arrBins = new double[binEdges.size()];
   int j=0;
+  cout << "Bin Edges: " << endl;
   for (std::vector<double>::iterator it=binEdges.begin();it!=binEdges.end();it++){
     arrBins[j]=*it;
+    cout << arrBins[j] << endl;
+    //arrBins[j] = hb->GetBinLowEdge(hb->FindBin(*it));
+    //cout << arrBins[j] << endl;
     j++;
   }
+  cout << "Hist has " << hb->GetNbinsX() << " bins" << endl;
   //const char *h_name = (const char *) hb->GetName;
   //const char *title  = (const char *) hb->GetTitle;
   // this hard code should be removed
@@ -373,6 +399,8 @@ TH1F* FMTRebin::rebinBinnedDataset(std::string new_name, TH1F *hb,std::vector<do
     if (hb->GetEntries()!=0) hbnew->Scale(hb->Integral()/hbnew->Integral());
   }
   else if (isIncCat(cat)){
+    cout << "Rebin by hand? " << getcatByHand() << endl;
+    /*
     if (getcatByHand()){
       double incBinWidth=2./float(getnIncCategories());
       hbnew = new TH1F("hI","hI",1,-1.+(cat*incBinWidth),-1.+((cat+1)*incBinWidth));
@@ -380,7 +408,9 @@ TH1F* FMTRebin::rebinBinnedDataset(std::string new_name, TH1F *hb,std::vector<do
       hbnew->Sumw2();
       if (hb->GetEntries()!=0) hbnew->Scale(hb->Integral()/hbnew->Integral());
     }
-    else hbnew =(TH1F*) hb->Rebin(binEdges.size()-1,hb->GetName(),arrBins);
+    else {*/
+      hbnew =(TH1F*) hb->Rebin(binEdges.size()-1,hb->GetName(),arrBins);
+    //}
   }
   else {
     cerr << "ERROR -- FMTRebin::rebinBinnedDataset - cat " << cat << " is not recognised. Bailing out" << endl;
@@ -389,7 +419,16 @@ TH1F* FMTRebin::rebinBinnedDataset(std::string new_name, TH1F *hb,std::vector<do
   hbnew->SetName(Form("%s",new_name.c_str()));
   //cout << "title for new re-binned histogream - " << hb->GetTitle()<<endl; 
   hbnew->SetTitle(hb->GetTitle());
-
+  
+  for (int b=1; b<=hbnew->GetNbinsX(); b++){
+    cout << "b" << b << ":   " << hbnew->GetBinContent(b) << "  " << hbnew->GetBinLowEdge(b) << endl;
+    cout << "b" << b << ":   " << hb->Integral(hb->FindBin(hbnew->GetBinLowEdge(b)),hb->FindBin(hbnew->GetBinLowEdge(b+1))) << endl;
+  }
+  cout << hb->Integral(1,157) << endl;
+  cout << hb->Integral(157,165) << endl;
+  cout << hb->Integral(165,169) << endl;
+  cout << hb->Integral(169,176) << endl;
+  cout << hb->Integral(176,183) << endl;
   // Just a quick test, mask the last "channel"
   //hbnew->SetBinContent(hbnew->GetNbinsX(),0);
   //cout << "DONT DO THIS IN MAIN PROGRAM ----- LINE 1563 rebin setting last bin to 0" <<endl;
@@ -817,7 +856,7 @@ void FMTRebin::executeRebinning(int mass){
 			sigForBinning[cat] = getCombSignal(mass,cat);
 		}
 		// get inclusive bin edges
-    BinEdges = significanceOptimizedBinning(sigForBinning[0],bkgForBinning[0],20);
+    BinEdges = significanceOptimizedBinning(sigForBinning[0],bkgForBinning[0],20,mass);
     // set vbf edges from 1. in 0.04 steps
     VBFBinEdges.push_back(1.);
     for (int vCat=0; vCat<getnVBFCategories(); vCat++) VBFBinEdges.push_back(1.+(vCat+1)*0.04);

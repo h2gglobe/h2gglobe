@@ -144,12 +144,12 @@ map<string,TTree*> FMTTree::getDataTrees(){
 map<string,TTree*> FMTTree::getBackgroundTrees(){
 
   map<string,TTree*> result;
-	addTreeToMap(result,Form("%s/qcd_30_8TeV_ff",dirname_.c_str()));//,"bkg");
-	addTreeToMap(result,Form("%s/qcd_30_8TeV_pf",dirname_.c_str()));//,"bkg");
-	addTreeToMap(result,Form("%s/qcd_30_8TeV_pp",dirname_.c_str()));//,"bkg");
-	addTreeToMap(result,Form("%s/qcd_40_8TeV_ff",dirname_.c_str()));//,"bkg");
-	addTreeToMap(result,Form("%s/qcd_40_8TeV_pf",dirname_.c_str()));//,"bkg");
-	addTreeToMap(result,Form("%s/qcd_40_8TeV_pp",dirname_.c_str()));//,"bkg");
+	//addTreeToMap(result,Form("%s/qcd_30_8TeV_ff",dirname_.c_str()));//,"bkg");
+	//addTreeToMap(result,Form("%s/qcd_30_8TeV_pf",dirname_.c_str()));//,"bkg");
+	//addTreeToMap(result,Form("%s/qcd_30_8TeV_pp",dirname_.c_str()));//,"bkg");
+	//addTreeToMap(result,Form("%s/qcd_40_8TeV_ff",dirname_.c_str()));//,"bkg");
+	//addTreeToMap(result,Form("%s/qcd_40_8TeV_pf",dirname_.c_str()));//,"bkg");
+	//addTreeToMap(result,Form("%s/qcd_40_8TeV_pp",dirname_.c_str()));//,"bkg");
 	addTreeToMap(result,Form("%s/gjet_20_8TeV_ff",dirname_.c_str()));//,"bkg");
 	addTreeToMap(result,Form("%s/gjet_20_8TeV_pf",dirname_.c_str()));//,"bkg");
 	addTreeToMap(result,Form("%s/gjet_20_8TeV_pp",dirname_.c_str()));//,"bkg");
@@ -160,10 +160,10 @@ map<string,TTree*> FMTTree::getBackgroundTrees(){
 	addTreeToMap(result,Form("%s/dipho_Box_10_8TeV",dirname_.c_str()));//,"bkg");
 	addTreeToMap(result,Form("%s/dipho_Box_25_8TeV",dirname_.c_str()));//,"bkg");
 	addTreeToMap(result,Form("%s/dipho_Box_250_8TeV",dirname_.c_str()));//,"bkg");
-	addTreeToMap(result,Form("%s/dipho_Born_10_8TeV",dirname_.c_str()));//,"bkg");
-	addTreeToMap(result,Form("%s/dipho_Born_25_8TeV",dirname_.c_str()));//,"bkg");
-	addTreeToMap(result,Form("%s/dipho_Born_250_8TeV",dirname_.c_str()));//,"bkg");
-	addTreeToMap(result,Form("%s/dyjetsll_50_8TeV",dirname_.c_str()));//,"bkg");
+	//addTreeToMap(result,Form("%s/dipho_Born_10_8TeV",dirname_.c_str()));//,"bkg");
+	//addTreeToMap(result,Form("%s/dipho_Born_25_8TeV",dirname_.c_str()));//,"bkg");
+	//addTreeToMap(result,Form("%s/dipho_Born_250_8TeV",dirname_.c_str()));//,"bkg");
+	//addTreeToMap(result,Form("%s/dyjetsll_50_8TeV",dirname_.c_str()));//,"bkg");
   return result;
 }
 
@@ -393,6 +393,8 @@ void FMTTree::run(string option){
       sw.Start();
       for (int entry=0; entry<(mapIt->second)->GetEntries(); entry++){
         (mapIt->second)->GetEntry(entry);
+        if (entry>10) continue;
+        cout << mass_ << " " << bdtoutput_ << endl;
         if (entry%1000==0) cout << "\r" << entry << "/" << mapIt->second->GetEntries() << flush;
         // Data and Bkg
 				if (type==0){
@@ -400,27 +402,34 @@ void FMTTree::run(string option){
 				}
         if (type>=0){
           for (vector<double>::iterator mIt=masses.begin(); mIt!=masses.end(); mIt++){
+            cout << "MH: " << *mIt << endl;
             // in signal region
+            cout << "si: " << (1.-sidebandWidth_)*(*mIt) << "  " << (1.+sidebandWidth_)*(*mIt) << endl;
             if (mass_>=(1.-sidebandWidth_)*(*mIt) && mass_<=(1.+sidebandWidth_)*(*mIt)){
               if (type==0) FillHist("data",0,*mIt);
               if (type>0) FillHist("bkg",0,*mIt);
+              cout << " \t in signal region " << *mIt << endl;
             }
             // in sidebands
             int nL = (getNsidebandsUandD(*mIt)).first;
             int nH = (getNsidebandsUandD(*mIt)).second;
             vector<double> lEdge = getLowerSidebandEdges(*mIt);
             vector<double> hEdge = getUpperSidebandEdges(*mIt);
-
+            
             for (int l=0; l<nL; l++){
+              cout << "l"  << l << ": " << lEdge[l+1] << "  " << lEdge[l] << endl;
               if (mass_>=lEdge[l+1] && mass_<=lEdge[l]){
                 if (type==0) FillHist("data",-1*(l+1+getnumberOfSidebandGaps()),*mIt);
                 if (type>0) FillHist("bkg",-1*(l+1+getnumberOfSidebandGaps()),*mIt);
+                cout << " \t in sideband " << -1*(l+1+getnumberOfSidebandGaps()) << " " << *mIt << endl;
               }
             }
             for (int h=0; h<nH; h++){
+              cout << "h" << h << ": " << hEdge[h] << "  " << hEdge[h+1] << endl;
               if (mass_>=hEdge[h] && mass_<=hEdge[h+1]){
                 if (type==0) FillHist("data",(h+1+getnumberOfSidebandGaps()),*mIt);
                 if (type>0) FillHist("bkg",(h+1+getnumberOfSidebandGaps()),*mIt);
+                cout << " \t in sideband " << h+1+getnumberOfSidebandGaps() << " " << *mIt << endl;
               }
             }
           }

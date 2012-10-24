@@ -19,7 +19,7 @@ class FMTRebin : public FMTBase {
     void histogramSmoothingFit(TH1F*);
     TH1F* rebinBinnedDataset(string,TH1F*,vector<double>,int);
     void maxSigScan(double*,int*,int*,TH1F*,TH1F*,int,int*,int);
-    vector<double> significanceOptimizedBinning(TH1F*,TH1F*,int);
+    vector<double> significanceOptimizedBinning(TH1F*,TH1F*,int,int);
     vector<double> soverBOptimizedBinning(TH1F*,TH1F*,int,double);
     
 		// histogram methods
