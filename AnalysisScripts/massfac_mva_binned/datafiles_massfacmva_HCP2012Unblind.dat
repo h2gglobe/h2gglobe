@@ -102,11 +102,11 @@ typ=+5    ind=98 draw=1  Nam=DYJetsToLL   CaDir=/store/group/phys_higgs/cmshgg/r
 #
 inputBranches minimal_analysis_input.dat
 inputBranches massfactorizedmvaanalysis_input.dat
-#inputBranches lepton_input.dat #miss some files for both lepton and MET tag
 inputBranches minimal_leptmetanalysis_input.dat
 
-treevariables massfac_mva_binned/unbinned_datacard_trees.dat
+## treevariables massfac_mva_binned/unbinned_datacard_trees.dat
 ## treevariables common/optTree.dat
+treevariables massfac_mva_binned/fullmvatrees.dat
 
 ## define analyses to run
 ##   a library containing the class dictionary has loaded before parsing the
@@ -115,4 +115,4 @@ treevariables massfac_mva_binned/unbinned_datacard_trees.dat
 ##   analyzer <class_name> <config_file>
 ##
 ## analyzer PhotonAnalysis photonanalysis.dat
-analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat saveDatacardTrees_=0 dumpAscii=1 dumpMcAscii=0 fillOptTree=0
+analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat saveDatacardTrees_=0 dumpAscii=1 dumpMcAscii=0 fillOptTree=0 doFullMvaFinalTree=1
