@@ -50,7 +50,7 @@ pdfWeightHist=aux/GF_mvasys.root
 ## kfacHist=aux/KFactors_AllScales_interpolated.root
 puMap=
 puHist=auto
-puTarget=aux/aux/HCP2012_preapproval_red_v1.json.69400.observed.pileup.root
+puTarget=aux/HCP2012_preapproval_red_v1.json.69400.observed.pileup.root
 
 ## energy regression
 energyCorrectionMethod=Bendavid
