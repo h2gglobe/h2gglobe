@@ -30,6 +30,7 @@ class Normalization_8TeV {
 	double GetXsection(int);
 	double GetNorm(double,TH1F*,double, TH1F*,double);
 	double GetMass(int);
+    double GetVBFCorrection(double);
 	TString GetProcess(int);
 	void CheckNorm(double,double,double,TString);
 	void FillSignalTypes();
@@ -43,11 +44,12 @@ class Normalization_8TeV {
 	std::map<double,double> BranchingRatioMap;
 	std::map<double,double> XSectionMap_ggh;
 	std::map<double,double> XSectionMap_vbf;
+	std::map<double,double> XSectionMap_vbfold;
 	std::map<double,double> XSectionMap_wh;
 	std::map<double,double> XSectionMap_zh;
 	std::map<double,double> XSectionMap_wzh;
 	std::map<double,double> XSectionMap_tth;
-  std::map<double,double> XSectionMap_graviton;
+    std::map<double,double> XSectionMap_graviton;
 	std::map<int,std::pair<TString,double > > SignalTypeMap;
 
 };
