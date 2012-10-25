@@ -52,4 +52,4 @@ doInterferenceSmear=1
 efficiencyFile=aux/sig_reweighing_hcp2012_cutbased_v2.root
 
 
-bkgPolOrderByCat=4,5,5,5,3,4,-1,-1,3
+bkgPolOrderByCat=4,5,5,5,3,4,3,3,3
