@@ -882,6 +882,47 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
                           << "\tptasym:"  << vtxAna_.ptasym(0)
                           << "\tlogspt2:" << vtxAna_.logsumpt2(0)
                           << "\tp2conv:"  << vtxAna_.pulltoconv(0);
+
+        // Conversions
+        PhotonInfo p1 = l.fillPhotonInfos(diphoton_index.first, 3, 0);
+        PhotonInfo p2 = l.fillPhotonInfos(diphoton_index.second, 3, 0);
+        int convindex1 = l.matchPhotonToConversion(diphoton_index.first,3);
+        int convindex2 = l.matchPhotonToConversion(diphoton_index.second,3);
+
+            if (convindex1!=-1) {
+                eventListText 
+                << "    convVtxZ1:"  <<  vtxAna_.vtxZFromConv(p1)
+                << "    convVtxdZ1:"  <<  vtxAna_.vtxZFromConv(p1)-vtxAna_.vertexz(vtxlist[0])
+                << "    convRes1:"   << vtxAna_.vtxdZFromConv(p1) 
+                << "    convChiProb1:"  <<  l.conv_chi2_probability[convindex1]
+                << "    convNtrk1:"  <<  l.conv_ntracks[convindex1]
+                << "    convindex1:"  <<  convindex1;
+            } else {
+                eventListText 
+                << "    convVtxZ1:"  <<  -999
+                << "    convVtxdZ1:"  <<  -999
+                << "    convRes1:"    <<  -999
+                << "    convChiProb1:"  <<  -999
+                << "    convNtrk1:"  <<  -999
+                << "    convindex1:"  <<  -999;
+            }
+            if (convindex2!=-1) {
+                eventListText 
+                << "    convVtxZ2:"  <<  vtxAna_.vtxZFromConv(p2)
+                << "    convVtxdZ2:"  <<  vtxAna_.vtxZFromConv(p2)-vtxAna_.vertexz(vtxlist[0])
+                << "    convRes2:"   << vtxAna_.vtxdZFromConv(p2)
+                << "    convChiProb2:"  <<  l.conv_chi2_probability[convindex2]
+                << "    convNtrk2:"  <<  l.conv_ntracks[convindex2]
+                << "    convindex2:"  <<  convindex2;
+            } else {
+                eventListText 
+                << "    convVtxZ2:"  <<  -999
+                << "    convVtxdZ2:"  <<  -999
+                << "    convRes2:"    <<  -999
+                << "    convChiProb2:"  <<  -999
+                << "    convNtrk2:"  <<  -999
+                << "    convindex2:"  <<  -999;
+            }
             
             if(VHmuevent){
                 TLorentzVector* mymu = (TLorentzVector*) l.mu_glo_p4->At(mu_ind);
