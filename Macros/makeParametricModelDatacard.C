@@ -11,6 +11,7 @@
 
 using namespace std;
 
+
 void makeParametricModelDatacard(string infilename, string outfilename="cms_hgg_datacard.txt", int mass=125){
 
   TFile *inFile = TFile::Open(infilename.c_str());
@@ -455,21 +456,21 @@ void makeParametricModelDatacard(string infilename, string outfilename="cms_hgg_
   
   fprintf(file, "CMS_hgg_eff_e         lnN  ");
   for (int icat=0; icat<ncats; ++icat) {
-    if (icat==eleTag) fprintf(file, "- - 1.005 1.005 -");
+    if (icat==eleTag) fprintf(file, "- - 1.015 1.015 -");
     else fprintf(file, "- - - - - ");
   }
   fprintf(file,"\n");      
 
   fprintf(file, "CMS_hgg_eff_m         lnN  ");
   for (int icat=0; icat<ncats; ++icat) {
-    if (icat==muTag) fprintf(file, "- - 1.015 1.015 -");
+    if (icat==muTag) fprintf(file, "- - 1.005 1.005 -");
     else fprintf(file, "- - - - - ");
   }
   fprintf(file,"\n");      
   
   fprintf(file, "CMS_hgg_eff_MET        lnN  ");
   for (int icat=0; icat<ncats; ++icat) {
-    if (icat==metTag) fprintf(file, "- - 1.015 1.015 -");
+    if (icat==metTag) fprintf(file, "1.15 1.15 1.15 1.04 -");
     else fprintf(file, "- - - - - ");
   }
   fprintf(file,"\n");      
