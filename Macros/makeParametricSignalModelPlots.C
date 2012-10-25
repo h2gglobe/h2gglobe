@@ -459,7 +459,7 @@ pair<double,double> datEvents(RooWorkspace *work, int m_hyp, int cat){
 }
 
 
-void makeParametricSignalModelPlots(string hggFileName, string pathName, int ncats=9, bool is2011=false, int m_hyp=120, string bkgdatFileName="0", bool blind=true, bool doCrossCheck=false, bool doMIT=false, bool rejig=false){
+void makeParametricSignalModelPlots(string hggFileName, string pathName, int ncats=9, bool is2011=false, int m_hyp=120, string bkgdatFileName="0", bool isMassFac = true, bool blind=true, bool doCrossCheck=false, bool doMIT=false, bool rejig=false){
 
   gROOT->SetBatch();
   gStyle->SetTextFont(42);
@@ -487,24 +487,39 @@ void makeParametricSignalModelPlots(string hggFileName, string pathName, int nca
 
   map<string,string> labels;
   if (is2011) {
-    labels.insert(pair<string,string>("cat0","BDT >= 0.89"));
-    labels.insert(pair<string,string>("cat1","0.72 <= BDT <= 0.89"));
-    labels.insert(pair<string,string>("cat2","0.55 <= BDT <= 0.72"));
-    labels.insert(pair<string,string>("cat3","0.05 <= BDT <= 0.55"));
+	if (isMassFac){
+	  labels.insert(pair<string,string>("cat0","BDT >= 0.89"));
+	  labels.insert(pair<string,string>("cat1","0.72 <= BDT <= 0.89"));
+	  labels.insert(pair<string,string>("cat2","0.55 <= BDT <= 0.72"));
+	  labels.insert(pair<string,string>("cat3","0.05 <= BDT <= 0.55"));
+	}
+	else {
+	  labels.insert(pair<string,string>("cat0","EBEB, min(R9) > 0.94"));
+	  labels.insert(pair<string,string>("cat1","EBEB, min(R9) < 0.94"));
+	  labels.insert(pair<string,string>("cat2","!EBEB, min(R9) > 0.94"));
+	  labels.insert(pair<string,string>("cat3","!EBEB, min(R9) < 0.94"));
+	}
     labels.insert(pair<string,string>("cat4","BDT >= 0.05 VBF Tag"));
     labels.insert(pair<string,string>("all","All Categories Combined"));
   }
   else {
-    labels.insert(pair<string,string>("cat0","BDT_{#gamma#gamma} >= 0.88"));
-    labels.insert(pair<string,string>("cat1","0.71 <= BDT_{#gamma#gamma} <= 0.88"));
-    labels.insert(pair<string,string>("cat2","0.50 <= BDT_{#gamma#gamma} <= 0.71"));
-    labels.insert(pair<string,string>("cat3","-0.05 <= BDT_{#gamma#gamma} <= 0.50"));
-    labels.insert(pair<string,string>("cat4","BDT_{jj} >= 0.985 Dijet Tag"));
+	if (isMassFac){
+	  labels.insert(pair<string,string>("cat0","BDT_{#gamma#gamma} >= 0.91"));
+	  labels.insert(pair<string,string>("cat1","0.79 <= BDT_{#gamma#gamma} <= 0.91"));
+	  labels.insert(pair<string,string>("cat2","0.49 <= BDT_{#gamma#gamma} <= 0.79"));
+	  labels.insert(pair<string,string>("cat3","-0.05 <= BDT_{#gamma#gamma} <= 0.49"));
+	}
+	else {
+	  labels.insert(pair<string,string>("cat0","EBEB, min(R9) > 0.94"));
+	  labels.insert(pair<string,string>("cat1","EBEB, min(R9) < 0.94"));
+	  labels.insert(pair<string,string>("cat2","!EBEB, min(R9) > 0.94"));
+	  labels.insert(pair<string,string>("cat3","!EBEB, min(R9) < 0.94"));
+	}
+	labels.insert(pair<string,string>("cat4","BDT_{jj} >= 0.985 Dijet Tag"));
     labels.insert(pair<string,string>("cat5","BDT_{jj} >= 0.93 Dijet Tag")); 
     labels.insert(pair<string,string>("cat6","BDT_{#gamma#gamma} >= -0.05 Muon Tag")); 
     labels.insert(pair<string,string>("cat7","BDT_{#gamma#gamma} >= -0.05 Electron Tag")); 
     labels.insert(pair<string,string>("cat8","BDT_{#gamma#gamma} >= -0.05 MET Tag")); 
-    
     labels.insert(pair<string,string>("all","All Categories Combined"));
   }
   /*
