@@ -1247,6 +1247,8 @@ bool LoopAll::METAnalysis2012B(TLorentzVector lead_p4, TLorentzVector sublead_p4
     TLorentzVector* hiptjet;
     for(int ijet=0; ijet<jet_algoPF1_n; ijet++){
       TLorentzVector* thisjet=(TLorentzVector*) jet_algoPF1_p4->At(ijet);
+      if( thisjet->DeltaR(lead_p4)<0.5) continue;
+      if( thisjet->DeltaR(sublead_p4)<0.5) continue;
       if(thisjet->Pt() > jethighpt){
         jethighpt= thisjet->Pt();
         hiptjet=thisjet;
