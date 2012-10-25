@@ -4151,8 +4151,8 @@ void PhotonAnalysis::saveMassFacDatCardTree(LoopAll &l, int cur_type, int catego
    // calculate diphobdt given shift in sigmaE from regression
    pair<double,double> newSigmaMsUp = ComputeNewSigmaMs(l,ipho1,ipho2,ivtx,3.);
    pair<double,double> newSigmaMsDown = ComputeNewSigmaMs(l,ipho1,ipho2,ivtx,-3.);
-   float bdtout_sigE_up =   l.diphotonMVA(ipho1,ipho2,ivtx,vtxP,lead_p4,sublead_p4,newSigmaMsUp.first, newSigmaMsUp.second, newSigmaMsUp.first, trainPhil.c_str(), lead_id_mva+0.01, sublead_id_mva+0.01);
-   float bdtout_sigE_down = l.diphotonMVA(ipho1,ipho2,ivtx,vtxP,lead_p4,sublead_p4,newSigmaMsDown.first, newSigmaMsDown.second, newSigmaMsDown.first, trainPhil.c_str(), lead_id_mva-0.01, sublead_id_mva-0.01);
+   float bdtout_sigE_up =   l.diphotonMVA(ipho1,ipho2,ivtx,vtxP,lead_p4,sublead_p4,newSigmaMsUp.first, newSigmaMsUp.second, newSigmaMsUp.first, trainPhil.c_str(), lead_id_mva, sublead_id_mva);
+   float bdtout_sigE_down = l.diphotonMVA(ipho1,ipho2,ivtx,vtxP,lead_p4,sublead_p4,newSigmaMsDown.first, newSigmaMsDown.second, newSigmaMsDown.first, trainPhil.c_str(), lead_id_mva, sublead_id_mva);
    int proc_id=-1;
    if (l.signalNormalizer->GetProcess(cur_type)=="ggh") proc_id=0;
    if (l.signalNormalizer->GetProcess(cur_type)=="vbf") proc_id=1;
