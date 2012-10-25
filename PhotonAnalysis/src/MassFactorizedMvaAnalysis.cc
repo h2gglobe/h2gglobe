@@ -878,11 +878,12 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
             for(size_t ii=1; ii<3; ++ii ) {
                 eventListText << "\tvertexdeltaz"<< ii+1 <<":" << (ii < vtxlist.size() ? vtxAna_.vertexz(vtxlist[ii])-vtxAna_.vertexz(vtxlist[0]) : -999.);
             }
-            eventListText << "\tptbal:"   << vtxAna_.ptbal(0)
-                          << "\tptasym:"  << vtxAna_.ptasym(0)
-                          << "\tlogspt2:" << vtxAna_.logsumpt2(0)
-                          << "\tp2conv:"  << vtxAna_.pulltoconv(0);
-
+            eventListText << "\tptbal:"   << vtxAna_.ptbal(vtxlist[0])
+                          << "\tptasym:"  << vtxAna_.ptasym(vtxlist[0])
+                          << "\tlogspt2:" << vtxAna_.logsumpt2(vtxlist[0])
+                          << "\tp2conv:"  << vtxAna_.pulltoconv(vtxlist[0])
+                          << "\tnconv:"   << vtxAna_.nconv(vtxlist[0]);
+            
         // Conversions
         PhotonInfo p1 = l.fillPhotonInfos(diphoton_index.first, 3, 0);
         PhotonInfo p2 = l.fillPhotonInfos(diphoton_index.second, 3, 0);
