@@ -450,27 +450,26 @@ void makeParametricModelDatacard(string infilename, string outfilename="cms_hgg_
     for (int cat=nInclusiveCats+nVBFCats; cat<ncats; cat++){
       fprintf(file, "- - - - - ");
     }
-    fprintf(file, "- \n");
   }
   fprintf(file,"\n\n");
   
   fprintf(file, "CMS_hgg_eff_e         lnN  ");
   for (int icat=0; icat<ncats; ++icat) {
-    if (icat==eleTag) fprintf(file, "- - 1.015 1.015 -");
+    if (icat==eleTag) fprintf(file, "- - 1.015 1.015 - ");
     else fprintf(file, "- - - - - ");
   }
   fprintf(file,"\n");      
 
   fprintf(file, "CMS_hgg_eff_m         lnN  ");
   for (int icat=0; icat<ncats; ++icat) {
-    if (icat==muTag) fprintf(file, "- - 1.005 1.005 -");
+    if (icat==muTag) fprintf(file, "- - 1.005 1.005 - ");
     else fprintf(file, "- - - - - ");
   }
   fprintf(file,"\n");      
   
   fprintf(file, "CMS_hgg_eff_MET        lnN  ");
   for (int icat=0; icat<ncats; ++icat) {
-    if (icat==metTag) fprintf(file, "1.15 1.15 1.15 1.04 -");
+    if (icat==metTag) fprintf(file, "1.15 1.15 1.04 1.04 - ");
     else fprintf(file, "- - - - - ");
   }
   fprintf(file,"\n");      
@@ -478,7 +477,7 @@ void makeParametricModelDatacard(string infilename, string outfilename="cms_hgg_
   //return;
   //vertex selection fraction uncertainty
   fprintf(file, "CMS_hgg_nuissancedeltafracright param 1.0 %3f\n", vtxuncert);
-  
+  fprintf(file,"\n"); 
   //energy scale/smearing single photon categories
   //tracked event by event in globe
 
@@ -518,8 +517,12 @@ void makeParametricModelDatacard(string infilename, string outfilename="cms_hgg_
   for (int icat=0; icat<ncats; ++icat){
     fprintf(file, "CMS_hgg_nuissancedeltam%s param 0.0 %5f\n" , catnames.at(icat).c_str(), dscales.at(icat));
   }
+  fprintf(file,"\n");
+  
+  // global scale
+  fprintf(file,"CMS_hgg_globalscale param 0.0 0.004717\n");
   fprintf(file,"\n\n\n");
-
+  
   // shape uncertainties
   printf("shape uncertainties\n");
   
