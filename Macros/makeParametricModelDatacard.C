@@ -17,10 +17,10 @@ void makeParametricModelDatacard(string infilename, string outfilename="cms_hgg_
   TFile *outFile = TFile::Open("DatacardTree.root","RECREATE");
   
   vector<TTree*> trees;
-  trees.push_back((TTree*)inFile->Get(Form("ggh_m%d_8TeV",mass)));
-  trees.push_back((TTree*)inFile->Get(Form("vbf_m%d_8TeV",mass)));
-  trees.push_back((TTree*)inFile->Get(Form("wzh_m%d_8TeV",mass)));
-  trees.push_back((TTree*)inFile->Get(Form("tth_m%d_8TeV",mass)));
+  trees.push_back((TTree*)inFile->Get(Form("datacard_trees/ggh_m%d_8TeV",mass)));
+  trees.push_back((TTree*)inFile->Get(Form("datacard_trees/vbf_m%d_8TeV",mass)));
+  trees.push_back((TTree*)inFile->Get(Form("datacard_trees/wzh_m%d_8TeV",mass)));
+  trees.push_back((TTree*)inFile->Get(Form("datacard_trees/tth_m%d_8TeV",mass)));
 
   TList *listOfTrees = new TList();
   for (vector<TTree*>::iterator it=trees.begin(); it!=trees.end(); it++) listOfTrees->Add(*it);
@@ -36,7 +36,7 @@ void makeParametricModelDatacard(string infilename, string outfilename="cms_hgg_
   xsecs[2] = (0.7154+0.4044)*2.25e-03;
   xsecs[3] = 0.1334*2.25e-03;
 
-  const double lumi = 12207.;  
+  const double lumi = 12176.;  
 
   const double lumiuncert = 1.044;
   const double triguncert = 1.01;
@@ -46,6 +46,9 @@ void makeParametricModelDatacard(string infilename, string outfilename="cms_hgg_
   const int nInclusiveCats=4;
   const int nVBFCats=2;
   const int nExclusiveCats=5;
+  const int muTag=nInclusiveCats+nVBFCats;
+  const int eleTag=nInclusiveCats+nVBFCats+1;
+  const int metTag=nInclusiveCats+nVBFCats+2;
 
   string pathToDatBkgWS="/afs/cern.ch/work/m/mkenzie/private/h2g/latest_workspaces/CMS-HGG_massfacmva_hcpPreapproval.root";
   string pathToSigWS="/afs/cern.ch/work/m/mkenzie/private/h2g/latest_workspaces/SigMod_massfacmva_hcpPreapproval.root";
@@ -69,11 +72,11 @@ void makeParametricModelDatacard(string infilename, string outfilename="cms_hgg_
   TCut muon("(category==6)");
   TCut ele("(category==7)");
   TCut met("(category==8)");
-  
-  catcuts.push_back(TCut("(bdtmod>=0.88)"*!vbfloose));
-  catcuts.push_back(TCut("(bdtmod>=0.71 && bdtmod<0.88)"*!vbfloose));
-  catcuts.push_back(TCut("(bdtmod>=0.50 && bdtmod<0.71)"*!vbfloose));
-  catcuts.push_back(TCut("(bdtmod>=(-0.05) && bdtmod<0.50)"*!vbfloose));
+
+  catcuts.push_back(TCut("(bdtmod>=0.91)"*!allvbfcut));
+  catcuts.push_back(TCut("(bdtmod>=0.79 && bdtmod<0.91)"*!allvbfcut));
+  catcuts.push_back(TCut("(bdtmod>=0.49 && bdtmod<0.79)"*!allvbfcut));
+  catcuts.push_back(TCut("(bdtmod>=(-0.05) && bdtmod<0.49)"*!allvbfcut));
   catcuts.push_back(vbftight);
   catcuts.push_back(vbfloose);
   catcuts.push_back(muon);
@@ -82,10 +85,10 @@ void makeParametricModelDatacard(string infilename, string outfilename="cms_hgg_
 
   // mva boundary cuts
   vector<TCut> mvacuts;
-  mvacuts.push_back(TCut("(bdtmod>=0.88)"));
-  mvacuts.push_back(TCut("(bdtmod>=0.71 && bdtmod<0.88)"));
-  mvacuts.push_back(TCut("(bdtmod>=0.50 && bdtmod<0.71)"));
-  mvacuts.push_back(TCut("(bdtmod>=(-0.05) && bdtmod<0.50)"));
+  mvacuts.push_back(TCut("(bdtmod>=0.91)"));
+  mvacuts.push_back(TCut("(bdtmod>=0.79 && bdtmod<0.91)"));
+  mvacuts.push_back(TCut("(bdtmod>=0.49 && bdtmod<0.79)"));
+  mvacuts.push_back(TCut("(bdtmod>=(-0.05) && bdtmod<0.49)"));
 
   // start by setting bdtmod as alias for bdtout
   // this can change later when bdtmod becomes bdtout_id_shift etc.
@@ -306,7 +309,7 @@ void makeParametricModelDatacard(string infilename, string outfilename="cms_hgg_
         double doublefrac = hcount->GetSumOfWeights()/ntot;
         hcount->Reset();          
         printf("doublefrac = %5f\n",doublefrac);
-      
+	
         double catuncert = 1.0 + singlefrac*(uncert-1.0) + doublefrac*(uncert*uncert-1.0);
         fprintf(file, "%3f ",catuncert);
       }
@@ -323,19 +326,17 @@ void makeParametricModelDatacard(string infilename, string outfilename="cms_hgg_
   std::vector<double> vbfuncerts;
   
   vbfuncertnames.push_back("JEC");
-  vbfuncerts.push_back(1.04);
-  vbfgguncerts.push_back(1.07);
+  vbfuncerts.push_back(1.035);
+  vbfgguncerts.push_back(1.11);
   
   vbfuncertnames.push_back("UEPS");
-  vbfuncerts.push_back(1.07);
-  vbfgguncerts.push_back(1.50);
+  vbfuncerts.push_back(1.08);
+  vbfgguncerts.push_back(1.26);
   
   vbfuncertnames.push_back("CMS_eff_j");
-  vbfuncerts.push_back(1.042);
-  vbfgguncerts.push_back(1.042);
+  vbfuncerts.push_back(1.02);
+  vbfgguncerts.push_back(1.02);
   
-  
-      
   printf("vbf uncerts\n");
   for (unsigned int j=0; j<vbfuncerts.size(); ++j) {
     double vbfuncert = vbfuncerts.at(j);
@@ -382,14 +383,18 @@ void makeParametricModelDatacard(string infilename, string outfilename="cms_hgg_
     fprintf(file, "\n");
     
   }
-  
+
   std::vector<std::string> vbfmiguncertnames;
   std::vector<double> vbfmiguncerts;
   std::vector<double> vbfmiggguncerts;
   
   vbfmiguncertnames.push_back("CMS_hgg_JECmigration");
-  vbfmiguncerts.push_back(1.08);
-  vbfmiggguncerts.push_back(1.15);
+  vbfmiguncerts.push_back(1.005);
+  vbfmiggguncerts.push_back(1.075);
+
+  vbfmiguncertnames.push_back("CMS_hgg_UEPSmigration");
+  vbfmiguncerts.push_back(1.01);
+  vbfmiggguncerts.push_back(1.11);
   
   printf("vbf migration uncerts\n");
   for (unsigned int j=0; j<vbfmiguncerts.size(); ++j) {
@@ -444,10 +449,31 @@ void makeParametricModelDatacard(string infilename, string outfilename="cms_hgg_
     for (int cat=nInclusiveCats+nVBFCats; cat<ncats; cat++){
       fprintf(file, "- - - - - ");
     }
-    //fprintf(file, "- \n");
+    fprintf(file, "- \n");
   }
-  fprintf(file,"\n\n\n");
+  fprintf(file,"\n\n");
   
+  fprintf(file, "CMS_hgg_eff_e         lnN  ");
+  for (int icat=0; icat<ncats; ++icat) {
+    if (icat==eleTag) fprintf(file, "- - 1.005 1.005 -");
+    else fprintf(file, "- - - - - ");
+  }
+  fprintf(file,"\n");      
+
+  fprintf(file, "CMS_hgg_eff_m         lnN  ");
+  for (int icat=0; icat<ncats; ++icat) {
+    if (icat==muTag) fprintf(file, "- - 1.015 1.015 -");
+    else fprintf(file, "- - - - - ");
+  }
+  fprintf(file,"\n");      
+  
+  fprintf(file, "CMS_hgg_eff_MET        lnN  ");
+  for (int icat=0; icat<ncats; ++icat) {
+    if (icat==metTag) fprintf(file, "- - 1.015 1.015 -");
+    else fprintf(file, "- - - - - ");
+  }
+  fprintf(file,"\n");      
+
   //return;
   //vertex selection fraction uncertainty
   fprintf(file, "CMS_hgg_nuissancedeltafracright param 1.0 %3f\n", vtxuncert);
@@ -500,7 +526,7 @@ void makeParametricModelDatacard(string infilename, string outfilename="cms_hgg_
   hcount->Reset();
   
   fprintf(file,"CMS_hgg_n_sigmae lnN ");
-  for (unsigned int icat=0; icat<catcuts.size(); ++icat) {
+  for (int icat=0; icat<catcuts.size(); ++icat) {
     for (unsigned int iproc=0; iproc<(procnames.size()-1); ++iproc) {
       tree->SetAlias("bdtmod","bdtout");
       hcount->Reset();
@@ -522,7 +548,7 @@ void makeParametricModelDatacard(string infilename, string outfilename="cms_hgg_
   fprintf(file,"\n");
 
   fprintf(file,"CMS_hgg_n_id lnN ");
-  for (unsigned int icat=0; icat<catcuts.size(); ++icat) {
+  for (int icat=0; icat<catcuts.size(); ++icat) {
     for (unsigned int iproc=0; iproc<(procnames.size()-1); ++iproc) {
       hcount->Reset();
       tree->SetAlias("bdtmod","bdtout");
