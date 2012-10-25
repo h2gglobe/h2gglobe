@@ -1,7 +1,7 @@
 Combination of datacard_fine_7TeV.txt, datacard_fine_8TeV_hcp.txt
 imax 14 number of bins
 jmax 4 number of processes minus 1
-kmax 17 number of nuisance parameters
+kmax 20 number of nuisance parameters
 ----------------------------------------------------------------------------------------------------------------------------------
 shapes VH        ch1_cat0  Jan16_110_150_0_5.root cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_cat0 cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_cat0_$SYSTEMATIC01_sigma
 shapes bkg       ch1_cat0  Jan16_110_150_0_5.root cms_hgg_workspace:pdf_data_pol_model_cat0
@@ -33,60 +33,60 @@ shapes data_obs  ch1_cat4  Jan16_110_150_0_5.root cms_hgg_workspace:roohist_data
 shapes ggH       ch1_cat4  Jan16_110_150_0_5.root cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_cat4 cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_cat4_$SYSTEMATIC01_sigma
 shapes qqH       ch1_cat4  Jan16_110_150_0_5.root cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_cat4 cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_cat4_$SYSTEMATIC01_sigma
 shapes ttH       ch1_cat4  Jan16_110_150_0_5.root cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_cat4 cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_cat4_$SYSTEMATIC01_sigma
-shapes VH        ch2_cat0  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_cat0 cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_cat0_$SYSTEMATIC01_sigma
-shapes bkg       ch2_cat0  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:pdf_data_pol_model_8TeV_cat0
-shapes data_obs  ch2_cat0  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:roohist_data_mass_cat0
-shapes ggH       ch2_cat0  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_cat0 cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_cat0_$SYSTEMATIC01_sigma
-shapes qqH       ch2_cat0  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_cat0 cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_cat0_$SYSTEMATIC01_sigma
-shapes ttH       ch2_cat0  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_cat0 cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_cat0_$SYSTEMATIC01_sigma
-shapes VH        ch2_cat1  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_cat1 cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_cat1_$SYSTEMATIC01_sigma
-shapes bkg       ch2_cat1  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:pdf_data_pol_model_8TeV_cat1
-shapes data_obs  ch2_cat1  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:roohist_data_mass_cat1
-shapes ggH       ch2_cat1  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_cat1 cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_cat1_$SYSTEMATIC01_sigma
-shapes qqH       ch2_cat1  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_cat1 cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_cat1_$SYSTEMATIC01_sigma
-shapes ttH       ch2_cat1  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_cat1 cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_cat1_$SYSTEMATIC01_sigma
-shapes VH        ch2_cat2  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_cat2 cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_cat2_$SYSTEMATIC01_sigma
-shapes bkg       ch2_cat2  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:pdf_data_pol_model_8TeV_cat2
-shapes data_obs  ch2_cat2  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:roohist_data_mass_cat2
-shapes ggH       ch2_cat2  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_cat2 cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_cat2_$SYSTEMATIC01_sigma
-shapes qqH       ch2_cat2  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_cat2 cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_cat2_$SYSTEMATIC01_sigma
-shapes ttH       ch2_cat2  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_cat2 cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_cat2_$SYSTEMATIC01_sigma
-shapes VH        ch2_cat3  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_cat3 cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_cat3_$SYSTEMATIC01_sigma
-shapes bkg       ch2_cat3  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:pdf_data_pol_model_8TeV_cat3
-shapes data_obs  ch2_cat3  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:roohist_data_mass_cat3
-shapes ggH       ch2_cat3  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_cat3 cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_cat3_$SYSTEMATIC01_sigma
-shapes qqH       ch2_cat3  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_cat3 cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_cat3_$SYSTEMATIC01_sigma
-shapes ttH       ch2_cat3  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_cat3 cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_cat3_$SYSTEMATIC01_sigma
-shapes VH        ch2_cat4  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_cat4 cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_cat4_$SYSTEMATIC01_sigma
-shapes bkg       ch2_cat4  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:pdf_data_pol_model_8TeV_cat4
-shapes data_obs  ch2_cat4  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:roohist_data_mass_cat4
-shapes ggH       ch2_cat4  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_cat4 cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_cat4_$SYSTEMATIC01_sigma
-shapes qqH       ch2_cat4  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_cat4 cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_cat4_$SYSTEMATIC01_sigma
-shapes ttH       ch2_cat4  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_cat4 cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_cat4_$SYSTEMATIC01_sigma
-shapes VH        ch2_cat5  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_cat5 cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_cat5_$SYSTEMATIC01_sigma
-shapes bkg       ch2_cat5  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:pdf_data_pol_model_8TeV_cat5
-shapes data_obs  ch2_cat5  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:roohist_data_mass_cat5
-shapes ggH       ch2_cat5  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_cat5 cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_cat5_$SYSTEMATIC01_sigma
-shapes qqH       ch2_cat5  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_cat5 cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_cat5_$SYSTEMATIC01_sigma
-shapes ttH       ch2_cat5  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_cat5 cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_cat5_$SYSTEMATIC01_sigma
-shapes VH        ch2_cat6  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_cat6 cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_cat6_$SYSTEMATIC01_sigma
-shapes bkg       ch2_cat6  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:pdf_data_pol_model_8TeV_cat6
-shapes data_obs  ch2_cat6  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:roohist_data_mass_cat6
-shapes ggH       ch2_cat6  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_cat6 cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_cat6_$SYSTEMATIC01_sigma
-shapes qqH       ch2_cat6  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_cat6 cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_cat6_$SYSTEMATIC01_sigma
-shapes ttH       ch2_cat6  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_cat6 cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_cat6_$SYSTEMATIC01_sigma
-shapes VH        ch2_cat7  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_cat7 cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_cat7_$SYSTEMATIC01_sigma
-shapes bkg       ch2_cat7  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:pdf_data_pol_model_8TeV_cat7
-shapes data_obs  ch2_cat7  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:roohist_data_mass_cat7
-shapes ggH       ch2_cat7  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_cat7 cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_cat7_$SYSTEMATIC01_sigma
-shapes qqH       ch2_cat7  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_cat7 cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_cat7_$SYSTEMATIC01_sigma
-shapes ttH       ch2_cat7  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_cat7 cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_cat7_$SYSTEMATIC01_sigma
-shapes VH        ch2_cat8  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_cat8 cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_cat8_$SYSTEMATIC01_sigma
-shapes bkg       ch2_cat8  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:pdf_data_pol_model_8TeV_cat8
-shapes data_obs  ch2_cat8  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:roohist_data_mass_cat8
-shapes ggH       ch2_cat8  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_cat8 cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_cat8_$SYSTEMATIC01_sigma
-shapes qqH       ch2_cat8  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_cat8 cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_cat8_$SYSTEMATIC01_sigma
-shapes ttH       ch2_cat8  CMS-HGG_fine_8TeV_12_2TeV.root cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_cat8 cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_cat8_$SYSTEMATIC01_sigma
+shapes VH        ch2_cat0  CMS-HGG_interpolated.root cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_cat0 cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_cat0_$SYSTEMATIC01_sigma
+shapes bkg       ch2_cat0  CMS-HGG_interpolated.root cms_hgg_workspace:pdf_data_pol_model_8TeV_cat0
+shapes data_obs  ch2_cat0  CMS-HGG_interpolated.root cms_hgg_workspace:roohist_data_mass_cat0
+shapes ggH       ch2_cat0  CMS-HGG_interpolated.root cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_cat0 cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_cat0_$SYSTEMATIC01_sigma
+shapes qqH       ch2_cat0  CMS-HGG_interpolated.root cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_cat0 cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_cat0_$SYSTEMATIC01_sigma
+shapes ttH       ch2_cat0  CMS-HGG_interpolated.root cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_cat0 cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_cat0_$SYSTEMATIC01_sigma
+shapes VH        ch2_cat1  CMS-HGG_interpolated.root cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_cat1 cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_cat1_$SYSTEMATIC01_sigma
+shapes bkg       ch2_cat1  CMS-HGG_interpolated.root cms_hgg_workspace:pdf_data_pol_model_8TeV_cat1
+shapes data_obs  ch2_cat1  CMS-HGG_interpolated.root cms_hgg_workspace:roohist_data_mass_cat1
+shapes ggH       ch2_cat1  CMS-HGG_interpolated.root cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_cat1 cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_cat1_$SYSTEMATIC01_sigma
+shapes qqH       ch2_cat1  CMS-HGG_interpolated.root cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_cat1 cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_cat1_$SYSTEMATIC01_sigma
+shapes ttH       ch2_cat1  CMS-HGG_interpolated.root cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_cat1 cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_cat1_$SYSTEMATIC01_sigma
+shapes VH        ch2_cat2  CMS-HGG_interpolated.root cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_cat2 cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_cat2_$SYSTEMATIC01_sigma
+shapes bkg       ch2_cat2  CMS-HGG_interpolated.root cms_hgg_workspace:pdf_data_pol_model_8TeV_cat2
+shapes data_obs  ch2_cat2  CMS-HGG_interpolated.root cms_hgg_workspace:roohist_data_mass_cat2
+shapes ggH       ch2_cat2  CMS-HGG_interpolated.root cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_cat2 cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_cat2_$SYSTEMATIC01_sigma
+shapes qqH       ch2_cat2  CMS-HGG_interpolated.root cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_cat2 cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_cat2_$SYSTEMATIC01_sigma
+shapes ttH       ch2_cat2  CMS-HGG_interpolated.root cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_cat2 cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_cat2_$SYSTEMATIC01_sigma
+shapes VH        ch2_cat3  CMS-HGG_interpolated.root cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_cat3 cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_cat3_$SYSTEMATIC01_sigma
+shapes bkg       ch2_cat3  CMS-HGG_interpolated.root cms_hgg_workspace:pdf_data_pol_model_8TeV_cat3
+shapes data_obs  ch2_cat3  CMS-HGG_interpolated.root cms_hgg_workspace:roohist_data_mass_cat3
+shapes ggH       ch2_cat3  CMS-HGG_interpolated.root cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_cat3 cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_cat3_$SYSTEMATIC01_sigma
+shapes qqH       ch2_cat3  CMS-HGG_interpolated.root cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_cat3 cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_cat3_$SYSTEMATIC01_sigma
+shapes ttH       ch2_cat3  CMS-HGG_interpolated.root cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_cat3 cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_cat3_$SYSTEMATIC01_sigma
+shapes VH        ch2_cat4  CMS-HGG_interpolated.root cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_cat4 cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_cat4_$SYSTEMATIC01_sigma
+shapes bkg       ch2_cat4  CMS-HGG_interpolated.root cms_hgg_workspace:pdf_data_pol_model_8TeV_cat4
+shapes data_obs  ch2_cat4  CMS-HGG_interpolated.root cms_hgg_workspace:roohist_data_mass_cat4
+shapes ggH       ch2_cat4  CMS-HGG_interpolated.root cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_cat4 cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_cat4_$SYSTEMATIC01_sigma
+shapes qqH       ch2_cat4  CMS-HGG_interpolated.root cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_cat4 cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_cat4_$SYSTEMATIC01_sigma
+shapes ttH       ch2_cat4  CMS-HGG_interpolated.root cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_cat4 cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_cat4_$SYSTEMATIC01_sigma
+shapes VH        ch2_cat5  CMS-HGG_interpolated.root cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_cat5 cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_cat5_$SYSTEMATIC01_sigma
+shapes bkg       ch2_cat5  CMS-HGG_interpolated.root cms_hgg_workspace:pdf_data_pol_model_8TeV_cat5
+shapes data_obs  ch2_cat5  CMS-HGG_interpolated.root cms_hgg_workspace:roohist_data_mass_cat5
+shapes ggH       ch2_cat5  CMS-HGG_interpolated.root cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_cat5 cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_cat5_$SYSTEMATIC01_sigma
+shapes qqH       ch2_cat5  CMS-HGG_interpolated.root cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_cat5 cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_cat5_$SYSTEMATIC01_sigma
+shapes ttH       ch2_cat5  CMS-HGG_interpolated.root cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_cat5 cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_cat5_$SYSTEMATIC01_sigma
+shapes VH        ch2_cat6  CMS-HGG_interpolated.root cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_cat6 cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_cat6_$SYSTEMATIC01_sigma
+shapes bkg       ch2_cat6  CMS-HGG_interpolated.root cms_hgg_workspace:pdf_data_pol_model_8TeV_cat6
+shapes data_obs  ch2_cat6  CMS-HGG_interpolated.root cms_hgg_workspace:roohist_data_mass_cat6
+shapes ggH       ch2_cat6  CMS-HGG_interpolated.root cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_cat6 cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_cat6_$SYSTEMATIC01_sigma
+shapes qqH       ch2_cat6  CMS-HGG_interpolated.root cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_cat6 cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_cat6_$SYSTEMATIC01_sigma
+shapes ttH       ch2_cat6  CMS-HGG_interpolated.root cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_cat6 cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_cat6_$SYSTEMATIC01_sigma
+shapes VH        ch2_cat7  CMS-HGG_interpolated.root cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_cat7 cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_cat7_$SYSTEMATIC01_sigma
+shapes bkg       ch2_cat7  CMS-HGG_interpolated.root cms_hgg_workspace:pdf_data_pol_model_8TeV_cat7
+shapes data_obs  ch2_cat7  CMS-HGG_interpolated.root cms_hgg_workspace:roohist_data_mass_cat7
+shapes ggH       ch2_cat7  CMS-HGG_interpolated.root cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_cat7 cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_cat7_$SYSTEMATIC01_sigma
+shapes qqH       ch2_cat7  CMS-HGG_interpolated.root cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_cat7 cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_cat7_$SYSTEMATIC01_sigma
+shapes ttH       ch2_cat7  CMS-HGG_interpolated.root cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_cat7 cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_cat7_$SYSTEMATIC01_sigma
+shapes VH        ch2_cat8  CMS-HGG_interpolated.root cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_cat8 cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_cat8_$SYSTEMATIC01_sigma
+shapes bkg       ch2_cat8  CMS-HGG_interpolated.root cms_hgg_workspace:pdf_data_pol_model_8TeV_cat8
+shapes data_obs  ch2_cat8  CMS-HGG_interpolated.root cms_hgg_workspace:roohist_data_mass_cat8
+shapes ggH       ch2_cat8  CMS-HGG_interpolated.root cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_cat8 cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_cat8_$SYSTEMATIC01_sigma
+shapes qqH       ch2_cat8  CMS-HGG_interpolated.root cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_cat8 cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_cat8_$SYSTEMATIC01_sigma
+shapes ttH       ch2_cat8  CMS-HGG_interpolated.root cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_cat8 cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_cat8_$SYSTEMATIC01_sigma
 ----------------------------------------------------------------------------------------------------------------------------------
 bin          ch1_cat0     ch1_cat1     ch1_cat2     ch1_cat3     ch1_cat4     ch2_cat0     ch2_cat1     ch2_cat2     ch2_cat3     ch2_cat4     ch2_cat5     ch2_cat6     ch2_cat7     ch2_cat8   
 observation  -1.0         -1.0         -1.0         -1.0         -1.0         -1.0         -1.0         -1.0         -1.0         -1.0         -1.0         -1.0         -1.0         -1.0       
@@ -96,6 +96,9 @@ process                                    VH           ttH          ggH        
 process                                    -3           -2           -1           0            1            -3           -2           -1           0            1            -3           -2           -1           0            1            -3           -2           -1           0            1            -3           -2           -1           0            1            -3           -2           -1           0            1            -3           -2           -1           0            1            -3           -2           -1           0            1            -3           -2           -1           0            1            -3           -2           -1           0            1            -3           -2           -1           0            1            -3           -2           1            -3           -2           1            -3           -2           -1           0            1          
 rate                                       -1.0000      -1.0000      -1.0000      -1.0000      1.0000       -1.0000      -1.0000      -1.0000      -1.0000      1.0000       -1.0000      -1.0000      -1.0000      -1.0000      1.0000       -1.0000      -1.0000      -1.0000      -1.0000      1.0000       -1.0000      -1.0000      -1.0000      -1.0000      1.0000       -1.0000      -1.0000      -1.0000      -1.0000      1.0000       -1.0000      -1.0000      -1.0000      -1.0000      1.0000       -1.0000      -1.0000      -1.0000      -1.0000      1.0000       -1.0000      -1.0000      -1.0000      -1.0000      1.0000       -1.0000      -1.0000      -1.0000      -1.0000      1.0000       -1.0000      -1.0000      -1.0000      -1.0000      1.0000       -1.0000      -1.0000      1.0000       -1.0000      -1.0000      1.0000       -1.0000      -1.0000      -1.0000      -1.0000      1.0000     
 ----------------------------------------------------------------------------------------------------------------------------------
+CMS_hgg_eff_MET         lnN                -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            1.04         1.04         1.15         1.15         -          
+CMS_hgg_eff_e           lnN                -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            1.015        1.015        -            -            -            -            -            -          
+CMS_hgg_eff_m           lnN                -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            -            1.01         1.01         -            -            -            -            -            -            -            -            -          
 E_res                   shape              0.333333     0.333333     0.333333     0.333333     -            0.333333     0.333333     0.333333     0.333333     -            0.333333     0.333333     0.333333     0.333333     -            0.333333     0.333333     0.333333     0.333333     -            0.333333     0.333333     0.333333     0.333333     -            0.333333     0.333333     0.333333     0.333333     -            0.333333     0.333333     0.333333     0.333333     -            0.333333     0.333333     0.333333     0.333333     -            0.333333     0.333333     0.333333     0.333333     -            0.333333     0.333333     0.333333     0.333333     -            0.333333     0.333333     0.333333     0.333333     -            0.333333     0.333333     -            0.333333     0.333333     -            0.333333     0.333333     0.333333     0.333333     -          
 E_scale                 shape              0.333333     0.333333     0.333333     0.333333     -            0.333333     0.333333     0.333333     0.333333     -            0.333333     0.333333     0.333333     0.333333     -            0.333333     0.333333     0.333333     0.333333     -            0.333333     0.333333     0.333333     0.333333     -            0.333333     0.333333     0.333333     0.333333     -            0.333333     0.333333     0.333333     0.333333     -            0.333333     0.333333     0.333333     0.333333     -            0.333333     0.333333     0.333333     0.333333     -            0.333333     0.333333     0.333333     0.333333     -            0.333333     0.333333     0.333333     0.333333     -            0.333333     0.333333     -            0.333333     0.333333     -            0.333333     0.333333     0.333333     0.333333     -          
 PDF_gg                  lnN                -            0.915/1.085  0.923/1.079  -            -            -            0.915/1.085  0.923/1.079  -            -            -            0.915/1.085  0.923/1.079  -            -            -            0.915/1.085  0.923/1.079  -            -            -            0.915/1.085  0.923/1.079  -            -            -            0.915/1.085  0.923/1.079  -            -            -            0.915/1.085  0.923/1.079  -            -            -            0.915/1.085  0.923/1.079  -            -            -            0.915/1.085  0.923/1.079  -            -            -            0.915/1.085  0.923/1.079  -            -            -            0.915/1.085  0.923/1.079  -            -            -            0.915/1.085  -            -            0.915/1.085  -            -            0.915/1.085  0.923/1.079  -            -          
