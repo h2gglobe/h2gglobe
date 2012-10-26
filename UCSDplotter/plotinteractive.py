@@ -39,7 +39,7 @@ stackmin=0
 maxscaleup=1.1
 linewidth=2
 NReBin=1
-plotscale=xsize/1000
+plotscale=ysize/700
 
 cutline=ROOT.TLine()
 
@@ -72,6 +72,7 @@ dointegrals=False
 linex=-1
 dodata=True
 
+readinputfiles=False
 
 DoBigLegend=False
 DoPopSig=True
@@ -145,7 +146,6 @@ class PlotInfo:
 
 class SampleInfo:
     def __init__(self):
-        self.histfilename=""
         self.itype=-99999
         self.inshortnames=""
         self.plotsample=1
@@ -157,7 +157,6 @@ class SampleInfo:
         self.configline=""
 
     def Print(self):
-        print "histfilename",  self.histfilename
         print "itype",         self.itype
         print "inshortnames",  self.inshortnames
         print "plotsample",    self.plotsample
@@ -242,6 +241,8 @@ def FindFunction(option):
         NextPlot()
     elif option == "p":
         PrevPlot()
+    elif option=="allintegrals":
+        GetSampleIntegrals()
     elif option.split()[0]=="rebin":
         SetReBin(option.split()[1])
     elif option.split()[0]=="maxval":
@@ -436,7 +437,8 @@ def Startup(configfilename):
     print "rootline",rootline
     if rootfile is not "":
         ReadPlotVariables(rootfile)
-        ReadInputFiles(rootfile)
+        if readinputfiles:
+            ReadInputFiles(rootfile)
         
     else:
         print "need root file in config.dat"
@@ -458,12 +460,29 @@ def AssociateConfigToSample(configlines):
             for item in items:
                 if item.find("itype=") is not -1:
                     itype_config=int(item.split("=")[1])
-                    if samples.has_key(itype_config):
-                        if samples[itype_config].configline=="":
-                            samples[itype_config].configline=line
-                        elif DebugNew:
-                            print "Found another input line for",itype_config
-                            print "line",line
+                    if samples.has_key(itype_config) == False:
+                        if DebugNew:
+                            print "add new sample with name and itype from line"
+                        newsample=SampleInfo()
+                        newsample.itype         = itype_config
+                        if DebugNew:
+                            print "find the new name"
+                        name=""
+                        for item2 in items:
+                            print item2
+                            if item2.find("name=") is not -1:
+                                name=str(item2.split("=")[1])
+                                if DebugNew:
+                                    print "found name",name
+                                break
+                        newsample.inshortnames  = str(name)
+                        samples[itype_config]=newsample
+                    if samples[itype_config].configline=="":
+                        samples[itype_config].configline=line
+                    elif DebugNew:
+                        print "Found another input line for",itype_config
+                        print "line",line
+
 
     
 def SetupGlobalVariables(configlines):
@@ -626,6 +645,12 @@ def Plot(num,printsuffix="",printcat=-1):
                     can.cd(ican).SetLogy(dolog)
                     can.cd(ican).SetGridx(dogridx)
                     can.cd(ican).SetGridy(dogridy)
+    else:
+        can.cd().SetLogy(dolog)
+        can.cd().SetGridx(dogridx)
+        can.cd().SetGridy(dogridy)
+    
+            
                 
     stacks={}
     if dodata:
@@ -917,6 +942,10 @@ def Plot(num,printsuffix="",printcat=-1):
                         mcTot[icat] = stacks["siglines"+str(icat)][index].Clone("mcTot")
                     else:
                         mcTot[icat].Add(stacks["siglines"+str(icat)][index])
+            
+            if dointegrals:
+                oflowbin = int(stacks["siglines"+str(icat)][lineorder[0]].GetNbinsX()+1)
+                stackintegrals["sig"+str(icat)]=stacks["siglines"+str(icat)][lineorder[0]].Integral(0,oflowbin)
  
             if dodata:
                 lineorder = stacks["datalines"+str(icat)].keys()
@@ -979,7 +1008,9 @@ def Plot(num,printsuffix="",printcat=-1):
                 can.cd().Update()
             
     if dointegrals:
-        for stackkey in stackintegrals:
+        stackkeys = stackintegrals.keys()
+        stackkeys.sort()
+        for stackkey in stackkeys:
             print stackkey,'%.3e' %stackintegrals[stackkey]
 
     can.cd()    
@@ -994,6 +1025,8 @@ def Plot(num,printsuffix="",printcat=-1):
 def SampleMap(sampletype):
     itypes={}  # key is order, maps to itype
     for sample in samples:
+        if Debug:
+            print "SampleMap, itype:",samples[sample].itype
         if samples[sample].plotsample==0:
             continue
         if sampletype == "sig" and sample < 0:
@@ -1001,6 +1034,8 @@ def SampleMap(sampletype):
         elif sampletype == "data" and sample == 0:
             itypes[samples[sample].order]=samples[sample].itype
         elif sampletype == "bkg" and sample >0:
+            itypes[samples[sample].order]=samples[sample].itype
+        elif sampletype == "all":
             itypes[samples[sample].order]=samples[sample].itype
 
     return itypes
@@ -1064,6 +1099,48 @@ def MakeStack(sampletype, icat):
         
     return theStack
 
+
+def GetSampleIntegrals():
+   
+    itypes=SampleMap("all")
+    order = itypes.keys()
+    order.sort()
+    
+    integrals={}    
+
+    if Debug:
+        print "order",order
+    for index in order:
+        itype = itypes[index]
+        integrals[itype]={}
+        if Debug:
+            print "samples[itype].plotsample",samples[itype].plotsample
+            print "samples[itype].addtoleg",samples[itype].addtoleg
+        if samples[itype].plotsample == 1:
+            for icat in xrange(cur_plot.ncat):
+                if Debug:
+                    print "icat",icat
+                histname=str(cur_plot.plotvarname)+"_cat"+str(icat)+"_"+str(samples[itype].inshortnames)
+                if Debug:
+                    print "histname",histname
+                thishist=ROOT.gROOT.FindObject(histname)
+                oflowbin = int(thishist.GetNbinsX()+1)
+                if Debug:
+                    print "oflowbin",oflowbin
+                integrals[itype][icat]=thishist.Integral(0,oflowbin)
+
+    for index in order:
+        itype = itypes[index]
+        summed=0
+        for icat in xrange(cur_plot.ncat):
+            if domergecats:
+                summed=summed+integrals[itype][icat]
+            else:
+                print samples[itype].inshortnames,icat,integrals[itype][icat]
+        if domergecats:
+            print samples[itype].inshortnames,summed
+                
+        
 
 def MakeMergeOverlayLines(sampletype):
 
@@ -1337,7 +1414,7 @@ def NextPlot():
 
 def ReDraw():
     global plotscale
-    plotscale=max(1, xsize/1000)
+    plotscale=max(1, ysize/700)
     if doreplot==True:
         num=cur_plot.index
         Plot(num)
