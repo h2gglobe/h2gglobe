@@ -866,9 +866,16 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
               << "    mettag:"    <<  VHmetevent
               << "    evcat:"     <<  category
               << "    FileName:"  <<  l.files[l.current];
+
         // Vertex MVA
             vtxAna_.setPairID(diphoton_id);
             std::vector<int> & vtxlist = l.vtx_std_ranked_list->at(diphoton_id);
+            // Conversions
+            PhotonInfo p1 = l.fillPhotonInfos(l.dipho_leadind[diphoton_id], vtxAlgoParams.useAllConversions, 0); // WARNING using default photon energy: it's ok because we only re-do th$
+            PhotonInfo p2 = l.fillPhotonInfos(l.dipho_subleadind[diphoton_id], vtxAlgoParams.useAllConversions, 0); // WARNING using default photon energy: it's ok because we only re-do$
+            int convindex1 = l.matchPhotonToConversion(diphoton_index.first,3);
+            int convindex2 = l.matchPhotonToConversion(diphoton_index.second,3);
+
             for(size_t ii=0; ii<3; ++ii ) {
                 eventListText << "\tvertexId"<< ii+1 <<":" << (ii < vtxlist.size() ? vtxlist[ii] : -1);
             }
@@ -883,12 +890,39 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
                           << "\tlogspt2:" << vtxAna_.logsumpt2(vtxlist[0])
                           << "\tp2conv:"  << vtxAna_.pulltoconv(vtxlist[0])
                           << "\tnconv:"   << vtxAna_.nconv(vtxlist[0]);
-            
-        // Conversions
-        PhotonInfo p1 = l.fillPhotonInfos(diphoton_index.first, 3, 0);
-        PhotonInfo p2 = l.fillPhotonInfos(diphoton_index.second, 3, 0);
-        int convindex1 = l.matchPhotonToConversion(diphoton_index.first,3);
-        int convindex2 = l.matchPhotonToConversion(diphoton_index.second,3);
+
+        //Photon IDMVA inputs
+            double pfchargedisobad03=0.;
+            for(int ivtx=0; ivtx<l.vtx_std_n; ivtx++) {
+                pfchargedisobad03 = l.pho_pfiso_mycharged03->at(diphoton_index.first).at(ivtx) > pfchargedisobad03 ? l.pho_pfiso_mycharged03->at(diphoton_index.first).at(ivtx) : pfchargedisobad03;
+            }
+
+            eventListText << "\tscetawidth_1: " << l.pho_etawidth[diphoton_index.first]
+                          << "\tscphiwidth_1: " << l.sc_sphi[diphoton_index.first]
+                          << "\tsieip_1: " << l.pho_sieip[diphoton_index.first]
+                          << "\tbc_e2x2_1: " << l.pho_e2x2[diphoton_index.first]
+                          << "\tpho_e5x5_1: " << l.pho_e5x5[diphoton_index.first]
+                          << "\ts4ratio_1: " << l.pho_s4ratio[diphoton_index.first]
+                          << "\tpfphotoniso03_1: " << l.pho_pfiso_myphoton03[diphoton_index.first]
+                          << "\tpfchargedisogood03_1: " << l.pho_pfiso_mycharged03->at(diphoton_index.first).at(vtxlist[0])
+                          << "\tpfchargedisobad03_1: " << pfchargedisobad03
+                          << "\teseffsigmarr_1: " << l.pho_ESEffSigmaRR[diphoton_index.first];
+            pfchargedisobad03=0.;
+            for(int ivtx=0; ivtx<l.vtx_std_n; ivtx++) {
+                pfchargedisobad03 = l.pho_pfiso_mycharged03->at(diphoton_index.second).at(ivtx) > pfchargedisobad03 ? l.pho_pfiso_mycharged03->at(diphoton_index.second).at(ivtx) : pfchargedisobad03;
+            }
+
+            eventListText << "\tscetawidth_2: " << l.pho_etawidth[diphoton_index.second]
+                          << "\tscphiwidth_2: " << l.sc_sphi[diphoton_index.second]
+                          << "\tsieip_2: " << l.pho_sieip[diphoton_index.second]
+                          << "\tbc_e2x2_2: " << l.pho_e2x2[diphoton_index.second]
+                          << "\tpho_e5x5_2: " << l.pho_e5x5[diphoton_index.second]
+                          << "\ts4ratio_2: " << l.pho_s4ratio[diphoton_index.second]
+                          << "\tpfphotoniso03_2: " << l.pho_pfiso_myphoton03[diphoton_index.second]
+                          << "\tpfchargedisogood03_2: " << l.pho_pfiso_mycharged03->at(diphoton_index.second).at(vtxlist[0])
+                          << "\tpfchargedisobad03_2: " << pfchargedisobad03
+                          << "\teseffsigmarr_2: " << l.pho_ESEffSigmaRR[diphoton_index.second];
+
 
             if (convindex1!=-1) {
                 eventListText 
@@ -925,33 +959,6 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
                 << "    convindex2:"  <<  -999;
             }
             
-            if(VHmuevent){
-                TLorentzVector* mymu = (TLorentzVector*) l.mu_glo_p4->At(mu_ind);
-                float thisiso=((l.mu_glo_nehadiso04[mu_ind]+l.mu_glo_photiso04[mu_ind])>l.mu_dbCorr[mu_ind]) ?
-                        l.mu_glo_chhadiso04[mu_ind]+l.mu_glo_nehadiso04[mu_ind]+l.mu_glo_photiso04[mu_ind]-l.mu_dbCorr[mu_ind] : l.mu_glo_chhadiso04[mu_ind];    
-                eventListText 
-                    << "    muind:"<<       mu_ind
-                    << "    mupt:"<<        mymu->Pt()
-                    << "    mueta:"<<       mymu->Eta()
-                    << "    muiso:"<<       thisiso
-                    << "    muisoopt:"<<    thisiso/mymu->Pt()
-                    << "    mud0:"<<        fabs(l.mu_glo_D0Vtx[mu_ind][muVtx]) 
-                    << "    mudq:"<<        fabs(l.mu_glo_DZVtx[mu_ind][muVtx])
-                    << "    mudr1:"<<       mymu->DeltaR(lead_p4) 
-                    << "    mudr2:"<<       mymu->DeltaR(sublead_p4); 
-            } else {
-                eventListText 
-                    << "    muind:"<<       -1
-                    << "    mupt:"<<        -1
-                    << "    mueta:"<<       -1
-                    << "    muiso:"<<       -1
-                    << "    muisoopt:"<<    -1
-                    << "    mud0:"<<        -1
-                    << "    mudq:"<<        -1
-                    << "    mudr1:"<<       -1
-                    << "    mudr2:"<<       -1;
-            }
-
             if(VHelevent){
                 TLorentzVector* myel = (TLorentzVector*) l.el_std_p4->At(el_ind);
                 TLorentzVector* myelsc = (TLorentzVector*) l.el_std_sc->At(el_ind);
