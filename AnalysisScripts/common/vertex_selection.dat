@@ -11,7 +11,7 @@ removeTracksInCone=1
 coneSize=0.05
 
 #Conversion Flag: 0 is no conversions. 1 is single leg conversions. 2 is double leg conversions. 3 is both single and double leg conversions.
-useAllConversions=3
+useAllConversions=2
 
 sigma1Pix=0.011
 sigma1Tib=0.491
