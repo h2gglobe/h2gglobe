@@ -126,15 +126,24 @@ void fcnFit(Int_t &npar, Double_t *gin, Double_t &f, Double_t *p, Int_t iflag) {
 		//    if(fMInc[i]) {
 		for(int j(0);j<global_nBdtBins;j++) {
 			double nm(nd[i]*(par[j][0]+par[j][1]*(global_parameters.fMass[i]-global_mH)));
-			//std::cout << "nm[" << i << "][" << j << "] = " << nm << std::endl;
-			f+=global_parameters.fData[i][j]*logn(global_parameters.fData[i][j]/nm)+nm-global_parameters.fData[i][j];
+		//	if (global_parameters.fData[i][j] > 0){
+				//double deltaf = global_parameters.fData[i][j]*logn(global_parameters.fData[i][j]/nm)+nm-global_parameters.fData[i][j];
+				double deltaf = poissonChiSquared(nm,global_parameters.fData[i][j])/2.;
+				if (iflag==5) std::cout << "nm[" << i << "][" << j << "] = " << nm << " data: " << global_parameters.fData[i][j] << ", delf: " << deltaf <<", logn: "<< logn(global_parameters.fData[i][j]/nm) <<  std::endl;
+	
+				f+=deltaf;
+		//	} else {
+		//		f+=nm;
+		//	}
 		}
 		//    }
 	}
 
-	/*
 	// Make it a chi-squared
 	f*=2.0;
+
+
+	/*
 	//std::cout << "f = " << f << std::endl;
 
 	if(iflag==1) {
@@ -196,6 +205,7 @@ void fillData(double mH,TFile *in, std::string type){
 
 		for (int bin_i=1;bin_i<=global_nBdtBins;bin_i++){
 			global_parameters.fData[mass_index][bin_i-1]=(int)SB->GetBinContent(bin_i);
+			std::cout << "Bin "<<bin_i <<", " << SB->GetBinContent(bin_i)<<std::endl;
 		}
 
 		global_parameters.fMass[mass_index]=mhsb;
@@ -214,6 +224,7 @@ void fillData(double mH,TFile *in, std::string type){
 
 		for (int bin_i=1;bin_i<=global_nBdtBins;bin_i++){
 			global_parameters.fData[mass_index][bin_i-1]=(int)SB->GetBinContent(bin_i);
+			std::cout << "Bin "<<bin_i <<", " << SB->GetBinContent(bin_i)<<std::endl;
 		}
 		global_parameters.fMass[mass_index]=mhsb;
 
@@ -308,6 +319,9 @@ void paulFit(TDirectory *mDir,TH1F* fMFitS,TH1F* hMFitS,TH2F* hFCovar, bool make
 	TMinuit tMinuit(maxPar);
 	tMinuit.mninit(5,6,7);
 	tMinuit.SetFCN(fcnFit);
+	tMinuit.SetPrintLevel(9);
+	tMinuit.SetMaxIterations(10000);
+
 
 	int ell[5]={0,0,0,0,0};
 
@@ -318,8 +332,9 @@ void paulFit(TDirectory *mDir,TH1F* fMFitS,TH1F* hMFitS,TH2F* hFCovar, bool make
 
 
 	for(int i(1);i<global_nMaxBdtBins;i++) {
+		double initVal = global_parameters.npb[i] >  0 ? global_parameters.npb[i]:1.;
 		tMinuit.DefineParameter(2*i-2,(std::string("Par")+label[i]+"0").c_str(),
-				global_parameters.npb[i]/global_parameters.ntot,global_parameters.npb[i]==0?1.0/global_parameters.ntot:sqrt(global_parameters.npb[i])/global_parameters.ntot,0.0,0.0);
+				initVal/global_parameters.ntot,sqrt(initVal)/global_parameters.ntot,0.0,0.0);
 		tMinuit.DefineParameter(2*i-1,(std::string("Par")+label[i]+"1").c_str(),
 				0.0,0.00001,0.0,0.0);
 
@@ -531,7 +546,7 @@ void paulFit(TDirectory *mDir,TH1F* fMFitS,TH1F* hMFitS,TH2F* hFCovar, bool make
 
 		//TLine l(global_mH,floor(FVal*0.75*100)/100,global_mH,floor(FVal*1.25*100)/100);
 		//fBRaw[j]->GetYaxis()->SetRangeUser(FVal*0.1,FVal*1.9);
-		//fBFit[j]->GetYaxis()->SetRangeUser(FVal*0.1,FVal*1.9);
+		fBFit[j]->GetYaxis()->SetRangeUser(FVal*0.05,FVal*1.95);
 		TLine l(global_mH,FVal*0.1,global_mH,FVal*1.9);
 		l.SetLineColor(46);
 		l.SetLineStyle(7);
@@ -644,7 +659,7 @@ void createCorrectedBackgroundModel(std::string fileName, int nsidebands=6, doub
 		std::cout<< "Got NBKG" <<std::endl;
 		TH1F *dataHist  = (TH1F*) in->Get(Form("th1f_data_%s_%3.1f",type.c_str(),mH)); // Data Histogram, includes VBF category
 		std::cout<< "Got data" <<std::endl;
-		int nBins = dataHist->GetNbinsX()-3;
+		int nBins = dataHist->GetNbinsX();
 		std::cout<< "Get Norm and datahist" <<std::endl;
 
 		// Want to make a "corrected" histogram 
