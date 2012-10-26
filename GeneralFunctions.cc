@@ -816,9 +816,9 @@ PhotonInfo LoopAll::fillPhotonInfos(int p1, int useAllConvs, float * energy)
                       *((TVector3*) pho_conv_refitted_momentum->At(p1)),
                       energy == 0 ? ((TLorentzVector*)pho_p4->At(p1))->Energy() : energy[p1],
                       pho_isEB[p1],
-                      pho_conv_ntracks[p1],
-                      pho_conv_validvtx[p1],
-                      pho_conv_chi2_probability[p1],
+                      0,
+                      0,
+                      0,
                       pho_conv_eoverp[p1]                                                                                                                               
         );
 }
