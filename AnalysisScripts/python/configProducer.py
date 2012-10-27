@@ -59,7 +59,10 @@ class configProducer:
                        "root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/processed/V13_03_06/mc/Summer12_S7_8TeV/GluGluToHToGG_M-120_8TeV/Signal_MC_11_1_YC2.root",
                        ## "root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/reduced/HCP2012_freezing_v2/mc/Summer12_S10_8TeV/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1_4.root",
                        ## "root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/reduced/HCP2012_freezing_v2/mc/Summer12_S10_8TeV/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1_7.root",
-                       "root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/reduced/HCP2012_preapproval_red_v1/data/Photon_Run2012A-recover-06Aug2012-v1__sub1/Photon_Run2012A-recover-06Aug2012-v1__sub1_0.root"
+                       "root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/reduced/HCP2012_preapproval_red_v1/data/Photon_Run2012A-recover-06Aug2012-v1__sub1/Photon_Run2012A-recover-06Aug2012-v1__sub1_0.root",
+                       "root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/reduced/hcp2012_unblind_reduction_v2/mc/Summer12_S10_8TeV/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1_13.root",
+                       "root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/reduced/hcp2012_unblind_reduction_v2/mc/Summer12_S10_8TeV/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1_31.root",
+                       "root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/reduced/hcp2012_unblind_reduction_v2/mc/Summer12_S10_8TeV/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1_7.root",
                        ]
 
     # configurable from .dat file
