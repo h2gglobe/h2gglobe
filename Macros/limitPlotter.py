@@ -38,6 +38,7 @@ ROOT.gStyle.SetOptFit(0)
 OBSmasses = []
 EXPmasses = []
 
+#OBSmassesT = [110,115,120,125,130,135,140,145,150] 
 OBSmassesT = numpy.arange(110,150.1,1)
 EXPmassesT = numpy.arange(110,150.1,1)
 epsilon = 0.001  # make this smaller than your smallest step size

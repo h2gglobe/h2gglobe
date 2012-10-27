@@ -1,5 +1,4 @@
 default=18
-->
 htyp=0 plot=-1  ncat=2  xbins=30   ybins=0   xmin=15.0  xmax=100.0  ymin=0      ymax=0    name=MuonTag_mupt_nomvacut     xaxis=P_{T.#mu}                    yaxis=Events
 htyp=0 plot=-1  ncat=2  xbins=30   ybins=0   xmin=-2.6  xmax=2.6    ymin=0      ymax=0    name=MuonTag_mueta_nomvacut    xaxis=#eta_{#mu}                   yaxis=Events
 htyp=0 plot=-1  ncat=2  xbins=30   ybins=0   xmin=-3.2  xmax=3.2    ymin=0      ymax=0    name=MuonTag_muphi_nomvacut    xaxis=#phi_{#mu}                   yaxis=Events
@@ -204,4 +203,3 @@ htyp=0 plot=-1  ncat=18  xbins=200   ybins=0       xmin=0.0  xmax=200.0  ymin=0 
 htyp=0 plot=-1  ncat=18  xbins=200   ybins=0       xmin=0.0  xmax=200.0  ymin=0      ymax=0   name=corrmet xaxis=MET_{corr} yaxis=y
 htyp=0 plot=-1  ncat=18  xbins=100   ybins=0       xmin=-3.15  xmax=3.15  ymin=0      ymax=0   name=uncorrmetPhi xaxis=MET#phi_{uncorr} yaxis=y
 htyp=0 plot=-1  ncat=18  xbins=100   ybins=0       xmin=-3.15  xmax=3.15  ymin=0      ymax=0   name=corrmetPhi xaxis=MET#phi_{corr} yaxis=y
-->

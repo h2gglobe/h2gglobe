@@ -33,15 +33,15 @@ mytext.SetNDC()
 #legands=[]
 #legands=["Observed","Expected 1xSM","Expected 1.6xSM","Expected 1xSM m=125","Expected 1.6xSM m=125"]
 #legands=["Expected 1xSM","Expected 1.6xSM","Expected 1xSM m=125","Expected 1.6xSM m=125"]
-Minimum=0.0001
+Minimum=0.001
 Maximum=10
-Sigmas=3
+Sigmas=2
 #intlumi=[5.1,3.8]
 #Energy=[7,8]
-intlumi=[12.2]
+intlumi=[5.4]
 Energy=[8]
 legands=[]
-legands=["8TeV Expected"]
+legands=["8TeV Observed","8TeV Expected"]
 #legands=["Combined Observed", "Combined Category 1", "Combined Category 2", "Combined Category 3", "Combined Category 4", "Combined dijet Categories"]
 FrequantistPValues=[]
 #FrequantistPValues=["higgsCombinePValue.HybridNew.mH125.0.root"]

@@ -20,7 +20,10 @@ subleadEtVBFCut=30
 
 # overwrite this stuff to redo ichep
 mvaVbfSelection=0
+includeVBF=1
 leadEtVBFCut=60
+nVBFEtaCategories=1
+nVBFDijetJetCategories=2
 
 sigPointsToBook=110,115,120,125,130,135,140,145,150
 includeVHlep=0

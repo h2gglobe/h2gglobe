@@ -759,7 +759,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
         if (diphobdt_output>=bdtCategoryBoundaries.back()) { 
             computeExclusiveCategory(l,category,diphoton_index,Higgs.Pt()); 
         }
-        
+
         if (fillOptree) {
             std::string name;
             if (genSys != 0)
