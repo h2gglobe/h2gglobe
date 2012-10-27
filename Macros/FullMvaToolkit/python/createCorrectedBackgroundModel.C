@@ -336,7 +336,7 @@ void paulFit(TDirectory *mDir,TH1F* fMFitS,TH1F* hMFitS,TH2F* hFCovar, bool make
 		tMinuit.DefineParameter(2*i-2,(std::string("Par")+label[i]+"0").c_str(),
 				initVal/global_parameters.ntot,sqrt(initVal)/global_parameters.ntot,0.0,0.0);
 		tMinuit.DefineParameter(2*i-1,(std::string("Par")+label[i]+"1").c_str(),
-				0.00,0.00,0.0,0.0);
+			   0.0,0.00001,0.0,0.0);
 
 		if(i>=global_nBdtBins) {
 			tMinuit.FixParameter(2*i-2);
