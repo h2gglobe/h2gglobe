@@ -21,7 +21,18 @@ leg.SetFillColor(0)
 leg.SetBorderSize(1)
 mytext = TLatex()
 mytext.SetTextSize(0.04)
+#mytext.SetFillColor(0)
 mytext.SetNDC()
+#Minimum=0.00000001
+#Maximum=100
+#Sigmas=5
+#intlumi=[12.2]
+#Energy=[8]
+#intlumi=[5.1,12.2]
+#Energy=[7,8]
+#legands=[]
+#legands=["Observed","Expected 1xSM","Expected 1.6xSM","Expected 1xSM m=125","Expected 1.6xSM m=125"]
+#legands=["Expected 1xSM","Expected 1.6xSM","Expected 1xSM m=125","Expected 1.6xSM m=125"]
 Minimum=0.0001
 Maximum=10
 Sigmas=3
@@ -30,7 +41,7 @@ Sigmas=3
 intlumi=[12.2]
 Energy=[8]
 legands=[]
-legands=["8TeV Observed","8TeV Expected"]
+legands=["8TeV Expected"]
 #legands=["Combined Observed", "Combined Category 1", "Combined Category 2", "Combined Category 3", "Combined Category 4", "Combined dijet Categories"]
 FrequantistPValues=[]
 #FrequantistPValues=["higgsCombinePValue.HybridNew.mH125.0.root"]
@@ -53,14 +64,18 @@ elif len(legands)==0:
     else: legands.append("Category "+str(i))
 
 #colors = [ kBlack, kRed, kOrange, kGreen, kCyan, kBlue, kMagenta]
-colors = [ kBlack, kRed, kBlue, kBlack]
+#colors = [ kBlack, kRed, kBlue, kRed, kBlue]
+#styles = [1, 1, 1, 7, 7]
+colors = [ kRed, kBlue, kRed, kBlue]
+styles = [ 1, 1, 7, 7]
+
 
 multigraph = TMultiGraph()
 multigraph.SetTitle(";M_{H} (GeV/c^{2});Local P-Value")
 multigraph.SetMinimum(Minimum)
 multigraph.SetMaximum(Maximum)
 
-for file,legand,color in zip(files,legands,colors):
+for file,legand,color,style in zip(files,legands,colors,styles):
   print file
   PValues=[]
   PValuesError=[]
@@ -73,6 +88,7 @@ for file,legand,color in zip(files,legands,colors):
 
   graph=TGraphErrors(len(PValues),Masses,array.array("f",PValues),array.array("f",[0]*len(Masses)),array.array("f",PValuesError))
   graph.SetLineColor(color)
+  graph.SetLineStyle(style)
   graph.SetLineWidth(2)
   #if legand.find("Expected")!=-1: graph.SetLineStyle(7)
   graph.SetFillColor(kWhite)
@@ -115,5 +131,6 @@ for i in range(Sigmas):
 if len(intlumi)==2: mytext.DrawLatex(0.18,0.82,"#splitline{CMS preliminary}{#splitline{#sqrt{s} = %i TeV L = %.1f fb^{-1}}{#sqrt{s} = %i TeV L = %.1f fb^{-1}}}" %(int(Energy[0]),float(intlumi[0]),int(Energy[1]),float(intlumi[1])))
 else: mytext.DrawLatex(0.18,0.8,"#splitline{CMS preliminary}{#sqrt{s} = %i TeV L = %.1f fb^{-1}}" %(int(Energy[0]),float(intlumi[0])))
 
-can.SaveAs(sys.argv[-1])
+can.SaveAs('%s.pdf'%sys.argv[-1])
+can.SaveAs('%s.png'%sys.argv[-1])
 print "Done!"
