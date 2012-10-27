@@ -11,6 +11,7 @@ parser.add_option("-i","--infile",dest="inputFile")
 parser.add_option("-o","--outfile",dest="outputFile")
 parser.add_option("-d","--datfile",dest="datFile")
 parser.add_option("-w","--webfolder",dest="web")
+parser.add_option("-m","--mode",dest="mode",default="all")
 parser.add_option("","--dryRun",dest="dryRun",default=False,action="store_true")
 (options,args)=parser.parse_args()
 
@@ -19,7 +20,15 @@ infile = options.inputFile
 outfile = options.outputFile
 datfile = options.datFile
 
-for mode in ['data','bkg','ggh','vbf','wzh','tth']:
+modes=[]
+if options.mode=='all':
+  modes = ['data','bkg','ggh','vbf','wzh','tth']
+else:
+  modes = options.mode.split(',')
+
+print modes
+
+for mode in modes:
   file = open('%s/scripts/%s.sh'%(dir,mode),'w')
   file.write('#!/bin/bash\n')
   file.write('cd %s\n'%dir)
