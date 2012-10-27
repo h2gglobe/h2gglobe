@@ -27,6 +27,7 @@ FMTSetup::FMTSetup(string filename):
 	justRebin_(false),
 	binEdges_(false),
   dumpDatFile_(false),
+  bkgModel_(false),
 	interp_(false),
 	datacards_(false),
 	diagnose_(false),

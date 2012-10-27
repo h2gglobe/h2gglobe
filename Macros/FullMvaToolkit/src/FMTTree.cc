@@ -188,14 +188,14 @@ void FMTTree::setBranchVariables(TTree *tree){
   tree->SetBranchAddress("category",&category_);
   vector<string> systs = getsystematics();
   for (unsigned int s=0; s<systs.size(); s++){
-    tree->SetBranchAddress(Form("mass_%s_Down",systs[s].c_str()),&massSyst_[s].first);
-    tree->SetBranchAddress(Form("mass_%s_Up",systs[s].c_str()),&massSyst_[s].second);
-    tree->SetBranchAddress(Form("bdtoutput_%s_Down",systs[s].c_str()),&bdtoutputSyst_[s].first);
-    tree->SetBranchAddress(Form("bdtoutput_%s_Up",systs[s].c_str()),&bdtoutputSyst_[s].second);
-    tree->SetBranchAddress(Form("weight_%s_Down",systs[s].c_str()),&weightSyst_[s].first);
-    tree->SetBranchAddress(Form("weight_%s_Up",systs[s].c_str()),&weightSyst_[s].second);
-    tree->SetBranchAddress(Form("category_%s_Down",systs[s].c_str()),&categorySyst_[s].first);
-    tree->SetBranchAddress(Form("category_%s_Up",systs[s].c_str()),&categorySyst_[s].second);
+    tree->SetBranchAddress(Form("mass_%s_Down",systs[s].c_str()),&(massSyst_[s].first));
+    tree->SetBranchAddress(Form("mass_%s_Up",systs[s].c_str()),&(massSyst_[s].second));
+    tree->SetBranchAddress(Form("bdtoutput_%s_Down",systs[s].c_str()),&(bdtoutputSyst_[s].first));
+    tree->SetBranchAddress(Form("bdtoutput_%s_Up",systs[s].c_str()),&(bdtoutputSyst_[s].second));
+    tree->SetBranchAddress(Form("weight_%s_Down",systs[s].c_str()),&(weightSyst_[s].first));
+    tree->SetBranchAddress(Form("weight_%s_Up",systs[s].c_str()),&(weightSyst_[s].second));
+    tree->SetBranchAddress(Form("category_%s_Down",systs[s].c_str()),&(categorySyst_[s].first));
+    tree->SetBranchAddress(Form("category_%s_Up",systs[s].c_str()),&(categorySyst_[s].second));
   }
 
 }

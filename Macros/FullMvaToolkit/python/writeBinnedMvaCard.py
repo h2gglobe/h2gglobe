@@ -45,7 +45,7 @@ systematics = [
 	      ,"regSig"
 	      #,"kFactor"
 	      ,"triggerEff"
-	      ,"pdfWeight"
+	      #,"pdfWeight"
 	      ,"vtxEff"
 	      ]
 # ADDITIONAL SYSTEMATICS --
@@ -282,8 +282,8 @@ def writeCard(tfile,mass,scaleErr):
   # bkg model ->
   bkgHist  	= tfile.Get("th1f_bkg_"+runtype+"_%3.1f"%mass)
   
-  #if options.Bias: bkgHistCorr   = tfile.Get("th1f_bkg_"+runtype+"_%3.1f_fitsb_biascorr"%mass)
-  if options.Bias: bkgHistCorr   = tfile.Get("th1f_bkg_"+runtype+"_%3.1f"%mass)
+  if options.Bias: bkgHistCorr   = tfile.Get("th1f_bkg_"+runtype+"_%3.1f_fitsb_biascorr"%mass)
+  #if options.Bias: bkgHistCorr   = tfile.Get("th1f_bkg_mc_"+runtype+"_%3.1f"%mass)
   # 4 signal channels ->
   gghHist  = tfile.Get("th1f_sig_"+runtype+"_ggh_%3.1f"%mass)
   vbfHist  = tfile.Get("th1f_sig_"+runtype+"_vbf_%3.1f"%mass)
@@ -472,7 +472,8 @@ def writeCard(tfile,mass,scaleErr):
 
     outPut.write("\nJetMigration  lnN")
     for b in range(binL,nBins_inclusive+binL): outPut.write(" -   -   -   -   -")
-    outPut.write(" 0.595424  0.945082  0.3592   0.927071  -  1.15  1.08  1.15 1.15  - \n")
+    outPut.write(" 0.595424  0.945082  0.3592   0.927071  -  1.15  1.08  1.15 1.15  -")
+    outPut.write(" -   -   -   -   - -   -   -   -   - -   -   -   -   - \n")
   # Now is the very tedious part of the signal shape systematics, for each shape, simply do -/+ sigma
   
   if options.signalSys:
@@ -487,6 +488,9 @@ def writeCard(tfile,mass,scaleErr):
     vbfHistD  = tfile.Get("th1f_sig_"+runtype+"_vbf_%3.1f_%sDown01_sigma"%(mass,sys))
     wzhHistD  = tfile.Get("th1f_sig_"+runtype+"_wzh_%3.1f_%sDown01_sigma"%(mass,sys))
     tthHistD  = tfile.Get("th1f_sig_"+runtype+"_tth_%3.1f_%sDown01_sigma"%(mass,sys))
+    
+    #print gghHistU.GetName(), vbfHistU.GetName(), wzhHistU.GetName(), tthHistU.GetName() 
+    #print gghHistD.GetName(), vbfHistD.GetName(), wzhHistD.GetName(), tthHistD.GetName() 
 
     if options.signalyieldsweight > 0:
       gghHistU.Scale(signalyieldsweight)

@@ -364,9 +364,9 @@ void FMTPlots::plotOutput(TH1F* data, TH1F* bkg, TH1F* sig, TH1F* sig3, TH1F* si
 
 void FMTPlots::plotAll(double mh){
  
-  if (!(mh==110||mh==120||mh==130||mh==140||mh==150) ) {
-	return;
-  }
+  //if (!(mh==110||mh==120||mh==130||mh==140||mh==150) ) {
+	//return;
+  //}
   std::cout << "Plotting MC/Data for mass "<<mh<<std::endl;
   TH1F *bkg = (TH1F*)tFile->Get(Form("th1f_bkg_grad_%3.1f_fitsb_biascorr",mh));
   TH1F *bkgmc = (TH1F*)tFile->Get(Form("th1f_bkg_mc_grad_%3.1f",mh));

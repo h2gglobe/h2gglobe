@@ -336,7 +336,7 @@ void paulFit(TDirectory *mDir,TH1F* fMFitS,TH1F* hMFitS,TH2F* hFCovar, bool make
 		tMinuit.DefineParameter(2*i-2,(std::string("Par")+label[i]+"0").c_str(),
 				initVal/global_parameters.ntot,sqrt(initVal)/global_parameters.ntot,0.0,0.0);
 		tMinuit.DefineParameter(2*i-1,(std::string("Par")+label[i]+"1").c_str(),
-				0.0,0.00001,0.0,0.0);
+				0.00,0.00,0.0,0.0);
 
 		if(i>=global_nBdtBins) {
 			tMinuit.FixParameter(2*i-2);
@@ -545,6 +545,8 @@ void paulFit(TDirectory *mDir,TH1F* fMFitS,TH1F* hMFitS,TH2F* hFCovar, bool make
 		//fBRaw[j]->GetYaxis()->SetRangeUser(floor(FVal*0.75*100)/100,floor(FVal*1.25*100)/100);
 
 		//TLine l(global_mH,floor(FVal*0.75*100)/100,global_mH,floor(FVal*1.25*100)/100);
+		//fBRaw[j]->GetYaxis()->SetRangeUser(FVal*0.1,FVal*1.9);
+		//fBFit[j]->GetYaxis()->SetRangeUser(FVal*0.1,FVal*1.9);
 		//fBRaw[j]->GetYaxis()->SetRangeUser(FVal*0.1,FVal*1.9);
 		fBFit[j]->GetYaxis()->SetRangeUser(FVal*0.05,FVal*1.95);
 		TLine l(global_mH,FVal*0.1,global_mH,FVal*1.9);

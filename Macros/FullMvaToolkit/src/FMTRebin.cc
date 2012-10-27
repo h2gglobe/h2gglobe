@@ -133,7 +133,7 @@ std::vector<double> FMTRebin::significanceOptimizedBinning(TH1F *hs,TH1F *hb,int
 
   int Retry=0;
 
-  for (int N=1;N<7;N++){				// Refuse to go beyond 8 Bins, will take forever
+  for (int N=1;N<6;N++){				// Refuse to go beyond 8 Bins, will take forever
     sweepmode=0;	// First perform Broad Scan with optimized step size (g_step)
     bool skipBroad = false;
     if ( nNewBins < (N-1+2+Retry) ) {std::cout << "Forced to perform Fine scan since all the Retries failed to find a nice minimum :("<<std::endl; skipBroad=true;}
