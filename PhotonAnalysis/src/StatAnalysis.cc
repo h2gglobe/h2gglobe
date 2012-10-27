@@ -640,7 +640,8 @@ bool StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
     //Calculate cluster shape variables prior to shape rescaling
     for (int ipho=0;ipho<l.pho_n;ipho++){
-	l.pho_s4ratio[ipho]  = l.pho_e2x2[ipho]/l.pho_e5x5[ipho];
+	//// l.pho_s4ratio[ipho]  = l.pho_e2x2[ipho]/l.pho_e5x5[ipho];
+	l.pho_s4ratio[ipho] = l.pho_e2x2[ipho]/l.bc_s25[l.sc_bcseedind[l.pho_scind[ipho]]];
 	float rr2=l.pho_eseffsixix[ipho]*l.pho_eseffsixix[ipho]+l.pho_eseffsiyiy[ipho]*l.pho_eseffsiyiy[ipho];
 	l.pho_ESEffSigmaRR[ipho] = 0.0;
 	if(rr2>0. && rr2<999999.) {
