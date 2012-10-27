@@ -14,6 +14,7 @@ parser.add_option("-o","--outputLimits",dest="outputLimits")
 parser.add_option("-e","--expectedOnly",action="store_true")
 parser.add_option("-p","--path",dest="path",default="",type="str")
 parser.add_option("-v","--verbose",dest="verbose",action="store_true")
+parser.add_option("","--sideband",dest="sideband",default=False,action="store_true")
 parser.add_option("","--addline",action="append",type="str",help="add lines to the plot file.root:color:linestyle:legend entry", default = [])
 parser.add_option("","--show",action="store_true")
 parser.add_option("","--pval",action="store_true")
@@ -139,7 +140,7 @@ elif Method=="Asymptotic" or Method=="AsymptoticNew" or Method=="MaxLikelihoodFi
   EXPfiles=[]
   EXPmasses = OBSmasses[:]
   for m in EXPmasses:
-    if "%.1f"%m=="%d.0"%(m+epsilon):	# sigh!
+    if "%.1f"%m=="%d.0"%(m+epsilon) and not options.sideband:	# sigh!
       EXPfiles.append(ROOT.TFile(EXPName+".mH%d.root"%(m+epsilon)))
     else:
       EXPfiles.append(ROOT.TFile(EXPName+".mH%.1f.root"%m))
@@ -148,7 +149,7 @@ elif Method=="Asymptotic" or Method=="AsymptoticNew" or Method=="MaxLikelihoodFi
 else:
   EXPfiles=[]
   for m in EXPmasses:
-    if "%.1f"%m=="%d.0"%(m+epsilon):	# sigh!
+    if "%.1f"%m=="%d.0"%(m+epsilon) and not options.sideband:	# sigh!
       EXPfiles.append(ROOT.TFile(EXPName+".mH%d.root"%(m+epsilon)))
     else:
       EXPfiles.append(ROOT.TFile(EXPName+".mH%.1f.root"%m))
@@ -158,7 +159,7 @@ else:
 OBSfiles = []
 if not options.expectedOnly:
   for m in OBSmasses:
-    if "%.1f"%m=="%d.0"%(m+epsilon):	# sigh!
+    if "%.1f"%m=="%d.0"%(m+epsilon) and not options.sideband:	# sigh!
       OBSfiles.append(ROOT.TFile(OBSName+".mH%d.root"%(m+epsilon)))
     else:
       OBSfiles.append(ROOT.TFile(OBSName+".mH%.1f.root"%m))
