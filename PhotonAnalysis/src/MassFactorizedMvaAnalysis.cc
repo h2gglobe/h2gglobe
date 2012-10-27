@@ -865,8 +865,9 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
               << "    electrontag:"<< VHelevent
               << "    mettag:"    <<  VHmetevent
               << "    evcat:"     <<  category
-              << "    FileName:"  <<  l.files[l.current];
-
+              << "    FileName:"  <<  l.files[l.current]
+        // VBF MVA
+              << "    vbfmva: "   <<  myVBF_MVA;
         // Vertex MVA
             vtxAna_.setPairID(diphoton_id);
             std::vector<int> & vtxlist = l.vtx_std_ranked_list->at(diphoton_id);
