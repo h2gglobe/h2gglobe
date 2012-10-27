@@ -27,14 +27,14 @@ Maximum=10
 Sigmas=3
 #intlumi=[5.1,3.8]
 #Energy=[7,8]
-intlumi=[3.8]
+intlumi=[12.2]
 Energy=[8]
 legands=[]
 legands=["8TeV Observed","8TeV Expected"]
 #legands=["Combined Observed", "Combined Category 1", "Combined Category 2", "Combined Category 3", "Combined Category 4", "Combined dijet Categories"]
 FrequantistPValues=[]
-FrequantistPValues=["higgsCombinePValue.HybridNew.mH125.0.root"]
-FrequantistPValues=["higgsCombinePValue.HybridNew.mH123.5.root","higgsCombinePValue.HybridNew.mH124.0.root","higgsCombinePValue.HybridNew.mH124.5.root","higgsCombinePValue.HybridNew.mH125.0.root","higgsCombinePValue.HybridNew.mH125.5.root","higgsCombinePValue.HybridNew.mH126.0.root"]
+#FrequantistPValues=["higgsCombinePValue.HybridNew.mH125.0.root"]
+#FrequantistPValues=["higgsCombinePValue.HybridNew.mH123.5.root","higgsCombinePValue.HybridNew.mH124.0.root","higgsCombinePValue.HybridNew.mH124.5.root","higgsCombinePValue.HybridNew.mH125.0.root","higgsCombinePValue.HybridNew.mH125.5.root","higgsCombinePValue.HybridNew.mH126.0.root"]
 def getPValue(mass,tree):
   for i in range(tree.GetEntries()):
     tree.GetEntry(i)
@@ -96,7 +96,7 @@ if len(FrequantistPValues)>0:
 
 multigraph.Draw("AC")
 multigraph.GetXaxis().SetRangeUser(110,150)
-FrequentistGraph.Draw("EP SAME")
+if len(FrequantistPValues)>0: FrequentistGraph.Draw("EP SAME")
 leg.Draw("")
 
 line=[]
