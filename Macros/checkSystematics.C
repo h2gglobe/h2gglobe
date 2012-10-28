@@ -10,14 +10,12 @@
 
 using namespace std;
 
-void checkSystematics(string filename){
+void checkSystematics(string filename, int ncats=9, string folder="systematicPlots", bool interpolated=true){
 
   gROOT->SetBatch();
 
   TFile *tFile = TFile::Open(filename.c_str());
    
-  const int ncats=6;
-
   vector<string> processes;
   processes.push_back("ggh");
   processes.push_back("vbf");
@@ -28,15 +26,29 @@ void checkSystematics(string filename){
   systematics.push_back("E_res");
   systematics.push_back("E_scale");
   systematics.push_back("idEff");
-  systematics.push_back("pdfWeight");
+  //systematics.push_back("pdfWeight");
   systematics.push_back("phoIdMva");
   systematics.push_back("regSig");
   systematics.push_back("triggerEff");
   systematics.push_back("vtxEff");
   
-  system("mkdir systematicPlots");
+  system(Form("mkdir %s",folder.c_str()));
 
-  for (int m=110; m<=150; m++){
+  // can only do integer masses
+  vector<int> masses;
+  if (interpolated){
+    for (int m=110; m<=150; m++){
+      masses.push_back(m);
+    }
+  }
+  else {
+    for (int m=110; m<=150; m+=5){
+      masses.push_back(m);
+    }
+  }
+
+  for (unsigned int i=0; i<masses.size(); i++){
+    int m=masses[i];
     for (vector<string>::iterator proc=processes.begin(); proc!=processes.end(); proc++) {
       for (int cat=0; cat<ncats; cat++){
 
@@ -61,8 +73,8 @@ void checkSystematics(string filename){
         sigRV->Draw("same");
         sigWV->Draw("same");
         leg->Draw("same");
-        canv->Print(Form("systematicPlots/rvwv_%s_m%d_cat%d.pdf",proc->c_str(),m,cat));
-        canv->Print(Form("systematicPlots/rvwv_%s_m%d_cat%d.png",proc->c_str(),m,cat));
+        canv->Print(Form("%s/rvwv_%s_m%d_cat%d.pdf",folder.c_str(),proc->c_str(),m,cat));
+        canv->Print(Form("%s/rvwv_%s_m%d_cat%d.png",folder.c_str(),proc->c_str(),m,cat));
         delete leg;
 
         for (vector<string>::iterator syst=systematics.begin(); syst!=systematics.end(); syst++){
@@ -80,8 +92,8 @@ void checkSystematics(string filename){
           up->Draw("same");
           down->Draw("same");
           systLeg->Draw("same");
-          canv->Print(Form("systematicPlots/%s_%s_m%d_cat%d.pdf",syst->c_str(),proc->c_str(),m,cat));
-          canv->Print(Form("systematicPlots/%s_%s_m%d_cat%d.png",syst->c_str(),proc->c_str(),m,cat));
+          canv->Print(Form("%s/%s_%s_m%d_cat%d.pdf",folder.c_str(),syst->c_str(),proc->c_str(),m,cat));
+          canv->Print(Form("%s/%s_%s_m%d_cat%d.png",folder.c_str(),syst->c_str(),proc->c_str(),m,cat));
           delete systLeg;
         
         }
@@ -90,8 +102,8 @@ void checkSystematics(string filename){
     }
   }
 
-  system("python make_syst_html.py systematicPlots/");
+  system(Form("python make_syst_html.py %s/",folder.c_str()));
 
-  cout << "Done. Please cp -r systematicPlots to some public web space to view files" << endl;
+  cout << Form("Done. Please cp -r %s to some public web space to view files",folder.c_str()) << endl;
 
 }
