@@ -432,13 +432,21 @@ pair<double,double> bkgEvPerGeV(RooWorkspace *work, int m_hyp, int cat){
   return pair<double,double>(nombkg,error); 
 }
 
-vector<double> sigEvents(RooWorkspace *work, int m_hyp, int cat){
+vector<double> sigEvents(RooWorkspace *work, int m_hyp, int cat, string altSigFileName){
 
+  RooWorkspace *tempWork;
+  if (altSigFileName!=""){
+    TFile *temp = TFile::Open("root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/analyzed/HCP2012Unblind/hcp2012_unblind_massfac_v3_sig/CMS-HGG.root");
+    tempWork = (RooWorkspace*)temp->Get("cms_hgg_workspace");
+  }
+  else {
+    tempWork = work;
+  }
   vector<double> result;
-  RooDataSet *ggh = (RooDataSet*)work->data(Form("sig_ggh_mass_m%d_cat%d",m_hyp,cat));
-  RooDataSet *vbf = (RooDataSet*)work->data(Form("sig_vbf_mass_m%d_cat%d",m_hyp,cat));
-  RooDataSet *wzh = (RooDataSet*)work->data(Form("sig_wzh_mass_m%d_cat%d",m_hyp,cat));
-  RooDataSet *tth = (RooDataSet*)work->data(Form("sig_tth_mass_m%d_cat%d",m_hyp,cat));
+  RooDataSet *ggh = (RooDataSet*)tempWork->data(Form("sig_ggh_mass_m%d_cat%d",m_hyp,cat));
+  RooDataSet *vbf = (RooDataSet*)tempWork->data(Form("sig_vbf_mass_m%d_cat%d",m_hyp,cat));
+  RooDataSet *wzh = (RooDataSet*)tempWork->data(Form("sig_wzh_mass_m%d_cat%d",m_hyp,cat));
+  RooDataSet *tth = (RooDataSet*)tempWork->data(Form("sig_tth_mass_m%d_cat%d",m_hyp,cat));
   
   double total = ggh->sumEntries()+vbf->sumEntries()+wzh->sumEntries()+tth->sumEntries();
   result.push_back(total);
@@ -446,6 +454,10 @@ vector<double> sigEvents(RooWorkspace *work, int m_hyp, int cat){
   result.push_back(100*vbf->sumEntries()/total);
   result.push_back(100*wzh->sumEntries()/total);
   result.push_back(100*tth->sumEntries()/total);
+
+  delete tempWork;
+  delete temp;
+
   return result;
 }
 
@@ -459,7 +471,7 @@ pair<double,double> datEvents(RooWorkspace *work, int m_hyp, int cat){
 }
 
 
-void makeParametricSignalModelPlots(string hggFileName, string pathName, int ncats=9, bool is2011=false, int m_hyp=120, string bkgdatFileName="0", bool isMassFac = true, bool blind=true, bool doCrossCheck=false, bool doMIT=false, bool rejig=false){
+void makeParametricSignalModelPlots(string hggFileName, string pathName, int ncats=9, bool is2011=false, int m_hyp=120, string bkgdatFileName="0", bool isMassFac = true, bool blind=true, string altSigFileName="", bool doCrossCheck=false, bool doMIT=false, bool rejig=false){
 
   gROOT->SetBatch();
   gStyle->SetTextFont(42);
@@ -571,7 +583,7 @@ void makeParametricSignalModelPlots(string hggFileName, string pathName, int nca
     RooWorkspace *bkgWS = (RooWorkspace*)bkgFile->Get("cms_hgg_workspace");
     for (int cat=0; cat<ncats; cat++){
       bkgVals.insert(pair<string,pair<double,double> >(Form("cat%d",cat),bkgEvPerGeV(bkgWS,m_hyp,cat)));
-      sigVals.insert(pair<string,vector<double> >(Form("cat%d",cat),sigEvents(bkgWS,m_hyp,cat)));
+      sigVals.insert(pair<string,vector<double> >(Form("cat%d",cat),sigEvents(bkgWS,m_hyp,cat,altSigFileName)));
       datVals.insert(pair<string,pair<double,double> >(Form("cat%d",cat),datEvents(bkgWS,m_hyp,cat)));
       //pair<double,double> bkg = bkgEvPerGeV(bkgWS,m_hyp,cat);
       //vector<double> sigs = sigEvents(bkgWS,m_hyp,cat);
