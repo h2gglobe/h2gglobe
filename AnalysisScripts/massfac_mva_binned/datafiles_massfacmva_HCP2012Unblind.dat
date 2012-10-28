@@ -1,4 +1,4 @@
-intL=12180. histfile=/store/group/phys_higgs/cmshgg/analyzed/HCP2012Unblind/%(label)s/CMS-HGG.root output=eventsList.txt
+intL=12172. histfile=/store/group/phys_higgs/cmshgg/analyzed/HCP2012Unblind/%(label)s/CMS-HGG.root output=eventsList.txt
 
 #
 # Data
