@@ -874,8 +874,8 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
             // Conversions
             PhotonInfo p1 = l.fillPhotonInfos(l.dipho_leadind[diphoton_id], vtxAlgoParams.useAllConversions, 0); // WARNING using default photon energy: it's ok because we only re-do th$
             PhotonInfo p2 = l.fillPhotonInfos(l.dipho_subleadind[diphoton_id], vtxAlgoParams.useAllConversions, 0); // WARNING using default photon energy: it's ok because we only re-do$
-            int convindex1 = l.matchPhotonToConversion(diphoton_index.first,3);
-            int convindex2 = l.matchPhotonToConversion(diphoton_index.second,3);
+            int convindex1 = l.matchPhotonToConversion(diphoton_index.first,vtxAlgoParams.useAllConversions);
+            int convindex2 = l.matchPhotonToConversion(diphoton_index.second,vtxAlgoParams.useAllConversions);
 
             for(size_t ii=0; ii<3; ++ii ) {
                 eventListText << "\tvertexId"<< ii+1 <<":" << (ii < vtxlist.size() ? vtxlist[ii] : -1);
@@ -902,7 +902,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
                           << "\tscphiwidth_1: " << l.sc_sphi[diphoton_index.first]
                           << "\tsieip_1: " << l.pho_sieip[diphoton_index.first]
                           << "\tbc_e2x2_1: " << l.pho_e2x2[diphoton_index.first]
-                          << "\tpho_e5x5_1: " << l.pho_e5x5[diphoton_index.first]
+                          << "\tpho_e5x5_1: " << l.bc_s25[l.sc_bcseedind[l.pho_scind[diphoton_index.first]]]
                           << "\ts4ratio_1: " << l.pho_s4ratio[diphoton_index.first]
                           << "\tpfphotoniso03_1: " << l.pho_pfiso_myphoton03[diphoton_index.first]
                           << "\tpfchargedisogood03_1: " << l.pho_pfiso_mycharged03->at(diphoton_index.first).at(vtxlist[0])
@@ -917,7 +917,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
                           << "\tscphiwidth_2: " << l.sc_sphi[diphoton_index.second]
                           << "\tsieip_2: " << l.pho_sieip[diphoton_index.second]
                           << "\tbc_e2x2_2: " << l.pho_e2x2[diphoton_index.second]
-                          << "\tpho_e5x5_2: " << l.pho_e5x5[diphoton_index.second]
+                          << "\tpho_e5x5_2: " << l.bc_s25[l.sc_bcseedind[l.pho_scind[diphoton_index.second]]]
                           << "\ts4ratio_2: " << l.pho_s4ratio[diphoton_index.second]
                           << "\tpfphotoniso03_2: " << l.pho_pfiso_myphoton03[diphoton_index.second]
                           << "\tpfchargedisogood03_2: " << l.pho_pfiso_mycharged03->at(diphoton_index.second).at(vtxlist[0])
@@ -932,7 +932,10 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
                 << "    convRes1:"   << vtxAna_.vtxdZFromConv(p1) 
                 << "    convChiProb1:"  <<  l.conv_chi2_probability[convindex1]
                 << "    convNtrk1:"  <<  l.conv_ntracks[convindex1]
-                << "    convindex1:"  <<  convindex1;
+                << "    convindex1:"  <<  convindex1
+                << "    convvtxZ1:" << ((TVector3*) l.conv_vtx->At(convindex1))->Z()
+                << "    convvtxR1:" << ((TVector3*) l.conv_vtx->At(convindex1))->Perp()
+                << "    convrefittedPt1:" << ((TVector3*) l.conv_refitted_momentum->At(convindex1))->Pt();
             } else {
                 eventListText 
                 << "    convVtxZ1:"  <<  -999
@@ -940,7 +943,10 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
                 << "    convRes1:"    <<  -999
                 << "    convChiProb1:"  <<  -999
                 << "    convNtrk1:"  <<  -999
-                << "    convindex1:"  <<  -999;
+                << "    convindex1:"  <<  -999
+                << "    convvtxZ1:" << -999
+                << "    convvtxR1:" << -999
+                << "    convrefittedPt1:" << -999;
             }
             if (convindex2!=-1) {
                 eventListText 
@@ -949,7 +955,10 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
                 << "    convRes2:"   << vtxAna_.vtxdZFromConv(p2)
                 << "    convChiProb2:"  <<  l.conv_chi2_probability[convindex2]
                 << "    convNtrk2:"  <<  l.conv_ntracks[convindex2]
-                << "    convindex2:"  <<  convindex2;
+                << "    convindex2:"  <<  convindex2
+                << "    convvtxZ2:" << ((TVector3*) l.conv_vtx->At(convindex2))->Z()
+                << "    convvtxR2:" << ((TVector3*) l.conv_vtx->At(convindex2))->Perp()
+                << "    convrefittedPt2:" << ((TVector3*) l.conv_refitted_momentum->At(convindex2))->Pt();
             } else {
                 eventListText 
                 << "    convVtxZ2:"  <<  -999
@@ -957,7 +966,10 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
                 << "    convRes2:"    <<  -999
                 << "    convChiProb2:"  <<  -999
                 << "    convNtrk2:"  <<  -999
-                << "    convindex2:"  <<  -999;
+                << "    convindex2:"  <<  -999
+                << "    convvtxZ2:" << -999
+                << "    convvtxR2:" << -999
+                << "    convrefittedPt2:" << -999;
             }
             
             if(VHelevent){
