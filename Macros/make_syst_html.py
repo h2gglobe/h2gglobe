@@ -20,7 +20,7 @@ for m in numpy.arange(110,151,1):
   sortedFiles=[]
   for root,dirs,files in os.walk(directory):
     for fType in types:
-      for filename in fnmatch.filter(files,"*.%s"%fType):
+      for filename in fnmatch.filter(files,"*%d*.%s"%(m,fType)):
         if filename=='default.html': continue
         pathToFile = directory+'/'+filename
         modTime = "%s" % time.ctime(os.path.getmtime(pathToFile))

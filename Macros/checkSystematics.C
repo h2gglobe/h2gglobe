@@ -56,6 +56,7 @@ void checkSystematics(string filename){
         leg->AddEntry(nomSig,"Nominal Signal","f");
         leg->AddEntry(sigRV,"Right vertex","f");
         leg->AddEntry(sigWV,"Wrong vertex","f");
+        nomSig->GetYaxis()->SetRangeUser(0.,1.3*TMath::Max(nomSig->GetMaximum(),TMath::Max(sigRV->GetMaximum(),sigWV->GetMaximum())));
         nomSig->Draw();
         sigRV->Draw("same");
         sigWV->Draw("same");
@@ -74,8 +75,9 @@ void checkSystematics(string filename){
           systLeg->AddEntry(nomSig,"Nominal Signal","f");
           systLeg->AddEntry(up,Form("%s Up",syst->c_str()),"f");
           systLeg->AddEntry(down,Form("%s Down",syst->c_str()),"f");
-          up->Draw();
-          nomSig->Draw("same");
+          nomSig->GetYaxis()->SetRangeUser(0.,1.3*TMath::Max(nomSig->GetMaximum(),TMath::Max(up->GetMaximum(),down->GetMaximum())));
+          nomSig->Draw();
+          up->Draw("same");
           down->Draw("same");
           systLeg->Draw("same");
           canv->Print(Form("systematicPlots/%s_%s_m%d_cat%d.pdf",syst->c_str(),proc->c_str(),m,cat));
