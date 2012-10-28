@@ -311,6 +311,8 @@ void PhotonAnalysis::applySinglePhotonSmearings(std::vector<float> & smeared_pho
 	cache_lumis = l.lumis;
 	cache_event = l.event;
     }
+    
+    /// if( sys ) std::cout << "applySinglePhotonSmearings " << fillInfo << " " << syst_shift << " " << ( sys != 0 ? sys->name() : " " ) <<std::endl;
 
     if( fillInfo ) {
 	photonInfoCollection.clear();
@@ -335,6 +337,7 @@ void PhotonAnalysis::applySinglePhotonSmearings(std::vector<float> & smeared_pho
 	    photonInfoCollection[ipho].reset();
 	}
 	PhotonReducedInfo & phoInfo = photonInfoCollection[ipho];
+	//// if( sys ) phoInfo.dump();
 
 	int ieta, iphi;
 	l.getIetaIPhi(ipho,ieta,iphi);
@@ -351,9 +354,15 @@ void PhotonAnalysis::applySinglePhotonSmearings(std::vector<float> & smeared_pho
 		if( sys != 0 && *si == *sys ) {
 		    // move the smearer under study by syst_shift
 		    (*si)->smearPhoton(phoInfo,sweight,l.run,syst_shift);
+		    /// if( sys ) { 
+		    /// 	std::cout << "Syst " << (*si)->name() <<  std::endl;
+		    /// }
 		} else {
 		    // for the other use the nominal points
 		    (*si)->smearPhoton(phoInfo,sweight,l.run,0.);
+		    /// if( sys ) { 
+		    /// 	std::cout << "Nominal " << (*si)->name() <<  std::endl;
+		    /// }
 		}
 		if( sweight < 0. ) {
 		    if( syst_shift == 0. ) {
@@ -376,6 +385,7 @@ void PhotonAnalysis::applySinglePhotonSmearings(std::vector<float> & smeared_pho
             eScaleDataSmearer->smearPhoton(phoInfo,sweight,l.run,0.);
             pweight *= sweight;
         }
+	//// phoInfo.dump();
         smeared_pho_energy[ipho] = phoInfo.energy();
         smeared_pho_r9[ipho]     = phoInfo.r9();
         smeared_pho_weight[ipho] = pweight;
@@ -4149,8 +4159,8 @@ void PhotonAnalysis::saveMassFacDatCardTree(LoopAll &l, int cur_type, int catego
    float bdtout_id_down = l.diphotonMVA(ipho1,ipho2,ivtx,vtxP,lead_p4,sublead_p4,sigmaMrv, sigmaMwv, sigmaMeonly, trainPhil.c_str(), lead_id_mva-0.01, sublead_id_mva-0.01);
 
    // calculate diphobdt given shift in sigmaE from regression
-   pair<double,double> newSigmaMsUp = ComputeNewSigmaMs(l,ipho1,ipho2,ivtx,3.);
-   pair<double,double> newSigmaMsDown = ComputeNewSigmaMs(l,ipho1,ipho2,ivtx,-3.);
+   pair<double,double> newSigmaMsUp = ComputeNewSigmaMs(l,ipho1,ipho2,ivtx,1.);
+   pair<double,double> newSigmaMsDown = ComputeNewSigmaMs(l,ipho1,ipho2,ivtx,-1.);
    float bdtout_sigE_up =   l.diphotonMVA(ipho1,ipho2,ivtx,vtxP,lead_p4,sublead_p4,newSigmaMsUp.first, newSigmaMsUp.second, newSigmaMsUp.first, trainPhil.c_str(), lead_id_mva, sublead_id_mva);
    float bdtout_sigE_down = l.diphotonMVA(ipho1,ipho2,ivtx,vtxP,lead_p4,sublead_p4,newSigmaMsDown.first, newSigmaMsDown.second, newSigmaMsDown.first, trainPhil.c_str(), lead_id_mva, sublead_id_mva);
    int proc_id=-1;
