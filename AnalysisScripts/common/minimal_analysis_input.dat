@@ -59,6 +59,7 @@ sc_xyz
 sc_raw
 ## bc_seed
 bc_p4
+bc_s25
 sc_bcseedind
 ecalhit_n
 ecalhit_detid

@@ -49,6 +49,13 @@ public:
   };
   bool hasCachedVal(int id) { return cache_.size() > id && cache_[id].first != 0; };
   const std::pair<const BaseSmearer *, float> & cachedVal(int id) { return cache_[id]; };
+  void dumpCache() {
+	  std::cout << "Photon " << this;
+	  for(std::vector<std::pair<const BaseSmearer *, float> >::iterator it=cache_.begin(); it!=cache_.end(); ++it) {
+		  std::cout << "\n " << (it->first == 0 ? " - " : it->first->name() ) << " " << it->second;
+	  }
+	  std::cout << std::endl;
+  };
 
 protected:
 
