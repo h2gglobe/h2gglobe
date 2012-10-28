@@ -141,6 +141,7 @@ bool EnergySmearer::smearPhoton(PhotonReducedInfo & aPho, float & weight, int ru
 		    const std::pair<const BaseSmearer *, float> & cachedVal = aPho.cachedVal(myId);
 		    assert( cachedVal.first == this );
 		    aPho.setEnergy(aPho.energy() * cachedVal.second );
+		    return true;
 	    }
     }
     if( ! preselCategories_.empty() ) {
