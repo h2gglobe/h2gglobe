@@ -1047,7 +1047,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 
             eventListText << endl;
         }
-	return (category >= 0 && mass>=massMin && mass<=massMax);
+	return (l.runZeeValidation || (category >= 0 && mass>=massMin && mass<=massMax));
     }
     return false;
 }
