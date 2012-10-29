@@ -32,7 +32,7 @@ void doBandsFit(TGraphAsymmErrors *onesigma, TGraphAsymmErrors *twosigma,
 		RooPlot *plot, 
 		TString & catname);
 
-void makeBkgPlotsGeneric(std::string filebkg, bool blind=true, bool doBands=true, bool baseline=false, bool useBinnedData=false){
+void makeBkgPlotsGeneric(std::string filebkg, std::string filesig="", bool blind=true, bool doBands=true, bool baseline=false, bool useBinnedData=false){
 
 	// Globals
 	gROOT->SetStyle("Plain");
@@ -48,32 +48,33 @@ void makeBkgPlotsGeneric(std::string filebkg, bool blind=true, bool doBands=true
 					  ,"Both photons in barrel, R_{9}^{min} < 0.94"
 					  ,"One or more photons in endcap, R_{9}^{min} > 0.94"
 					  ,"One or more photons in endcap, R_{9}^{min} < 0.94"
-					  ,"Dijet-tagged class m_{jj} > 500 GeV"
-					  ,"Dijet-tagged class 250 < m_{jj} < 500 GeV"
+					  ,"Dijet-tagged BDT_{VBF} >= 0.985"
+					  ,"Dijet-tagged 0.93 <= BDT_{VBF} < 0.985"
 	};
 	std::string massfactlabels[ncats] = { 
-					"BDT_{#gamma#gamma} >= 0.88"
-					,"0.71  <= BDT_{#gamma#gamma} < 0.88"
-					,"0.5 <= BDT_{#gamma#gamma} < 0.71"
-					,"-0.05  <= BDT_{#gamma#gamma} < 0.5"
-					,"Dijet-tagged class BDT_{#gamma#gamma}_{jj} > 0.985"
-					,"Dijet-tagged class BDT_{jj} > 0.93"
-          ,"Muon-tagged class"
-          ,"Electron-tagged class"
-          ,"MET-tagged class"
+		"BDT_{#gamma#gamma} >= 0.91"
+		,"0.79  <= BDT_{#gamma#gamma} < 0.91"
+		,"0.49 <= BDT_{#gamma#gamma} < 0.79"
+		,"-0.05  <= BDT_{#gamma#gamma} < 0.49"
+		,"Dijet-tagged class BDT_{VBF} >= 0.985"
+		,"Dijet-tagged class 0.93 <= BDT_{VBF} < 0.985"
+		,"Muon-tagged class"
+		,"Electron-tagged class"
+		,"MET-tagged class"
 	};
 	
 	if( baseline ) { labels = baselinelabels; }
 	else { labels = massfactlabels; }
-
+	
 	TFile *fb = TFile::Open(filebkg.c_str());
+	TFile *fs = ( filesig.empty() ? fb : TFile::Open(filesig.c_str()) );
 	
 	RooWorkspace *w_bkg  = (RooWorkspace*) fb->Get("cms_hgg_workspace");
 //	w_bkg->Print();
 
 	RooRealVar *x = (RooRealVar*) w_bkg->var("CMS_hgg_mass");
-  RooRealVar *intL = (RooRealVar*) w_bkg->var("IntLumi");
-  double lumi = intL->getVal()/1000.;
+	RooRealVar *intL = (RooRealVar*) w_bkg->var("IntLumi");
+	double lumi = intL->getVal()/1000.;
 
 	TLatex *latex = new TLatex();	
 	latex->SetTextSize(0.025);
@@ -115,10 +116,10 @@ void makeBkgPlotsGeneric(std::string filebkg, bool blind=true, bool doBands=true
 		
 		// Get Signal pdf norms
 		std::cout << "Getting Signal Components" << std::endl;
-		TH1F *gghnorm = (TH1F*)fb->Get(Form("th1f_sig_ggh_mass_m125_cat%d",cat));
-		TH1F *vbfnorm = (TH1F*)fb->Get(Form("th1f_sig_vbf_mass_m125_cat%d",cat));
-		TH1F *wzhnorm = (TH1F*)fb->Get(Form("th1f_sig_wzh_mass_m125_cat%d",cat));
-		TH1F *tthnorm = (TH1F*)fb->Get(Form("th1f_sig_tth_mass_m125_cat%d",cat));
+		TH1F *gghnorm = (TH1F*)fs->Get(Form("th1f_sig_ggh_mass_m125_cat%d",cat));
+		TH1F *vbfnorm = (TH1F*)fs->Get(Form("th1f_sig_vbf_mass_m125_cat%d",cat));
+		TH1F *wzhnorm = (TH1F*)fs->Get(Form("th1f_sig_wzh_mass_m125_cat%d",cat));
+		TH1F *tthnorm = (TH1F*)fs->Get(Form("th1f_sig_tth_mass_m125_cat%d",cat));
 		
 		if (cat<=3){
 			totalGGHinINCL+=gghnorm->Integral();
