@@ -24,11 +24,12 @@ rMin=-15
 rMax=15
 #intlumi=[5.1,3.8]
 #Energy=[7,8]
-intlumi=[3.8]
+intlumi=[12.2]
 Energy=[8]
 
 #Masses=[x * 0.1 for x in range(1100,1501,5)]
-Masses=[123.0,123.5,124.0,124.5,125.0,125.5,126.0,126.5]
+#Masses=[123.0,123.5,124.0,124.5,125.0,125.5,126.0,126.5]
+Masses=[125.0]
 directory = sys.argv[1]
 
 for Mass in Masses:
@@ -45,7 +46,7 @@ for Mass in Masses:
   BestFitErrorUp=[]
   BestFitErrorDown=[]
   for i in range(altername.floatParsFinal().getSize()):
-    #print i,altername.floatParsFinal().at(i).GetName(),altername.floatParsFinal().at(i).getVal(),altername.floatParsFinal().at(i).getAsymErrorHi(),altername.floatParsFinal().at(i).getAsymErrorLo()
+    print i,altername.floatParsFinal().at(i).GetName(),altername.floatParsFinal().at(i).getVal(),altername.floatParsFinal().at(i).getAsymErrorHi(),altername.floatParsFinal().at(i).getAsymErrorLo()
     chrFit=altername.floatParsFinal().at(i)
     if chrFit.GetName().find("ChannelCompatibilityCheck")!=-1:
       Channels.append(chrFit.GetName())
@@ -72,7 +73,7 @@ for Mass in Masses:
   dummyHist.SetFillColor(kGreen)
   leg.AddEntry(dummyHist,"68% Combined")
   dummyHist.Draw()
-  BestFitBand=TBox(CombinedBestFitObserved-CombinedBestFitErrorDown,0,CombinedBestFitObserved+CombinedBestFitErrorUp,len(Channels))
+  BestFitBand=TBox(CombinedBestFitObserved+CombinedBestFitErrorDown,0,CombinedBestFitObserved+CombinedBestFitErrorUp,len(Channels))
   #BestFitBand.SetFillStyle(3013)
   BestFitBand.SetFillColor(kGreen)
   BestFitBand.SetLineStyle(0)
