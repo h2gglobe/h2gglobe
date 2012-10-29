@@ -5,27 +5,29 @@ intL=12176. histfile=categories/CMS-HGG_categoryanalysis.root output=categories/
 #
 
 # Run2012B
-typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1. json=aux/2012-onOct06.json  CaDir=/store/group/phys_higgs/cmshgg/reduced/hcp2012_unblind_reduction_v1/data/Run2012B-13Jul2012-v1
+typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1. json=aux/2012-onOct06.json  CaDir=/store/group/phys_higgs/cmshgg/reduced/hcp2012_unblind_reduction_v2/data/Run2012B-13Jul2012-v1
+typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1. json=aux/2012-onOct06.json  CaDir=/store/group/phys_higgs/cmshgg/reduced/hcp2012_unblind_reduction_v2/data/Run2012B-13Jul2012-v1_sub2
+
 
 # Run2012A
-typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1. json=aux/2012-onOct06.json  CaDir=/store/group/phys_higgs/cmshgg/reduced/hcp2012_unblind_reduction_v1/data/Run2012A-13Jul2012-v1
-typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1. json=aux/2012-onOct06.json  CaDir=/store/group/phys_higgs/cmshgg/reduced/hcp2012_unblind_reduction_v1/data/Run2012A-recover-06Aug2012-v1
+typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1. json=aux/2012-onOct06.json  CaDir=/store/group/phys_higgs/cmshgg/reduced/hcp2012_unblind_reduction_v2/data/Run2012A-13Jul2012-v1
+typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1. json=aux/2012-onOct06.json  CaDir=/store/group/phys_higgs/cmshgg/reduced/hcp2012_unblind_reduction_v2/data/Run2012A-recover-06Aug2012-v1
 
 # Run2012C
-typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1. json=aux/2012-onOct06.json  CaDir=/store/group/phys_higgs/cmshgg/reduced/hcp2012_unblind_reduction_v1/data/DoublePhoton_Run2012C-PromptReco-v2
-typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1. json=aux/2012-onOct06.json  CaDir=/store/group/phys_higgs/cmshgg/reduced/hcp2012_unblind_reduction_v1/data/DoublePhoton_Run2012C-PromptReco-v2_sub2
-typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1. json=aux/2012-onOct06.json  CaDir=/store/group/phys_higgs/cmshgg/reduced/hcp2012_unblind_reduction_v1/data/DoublePhoton_Run2012C-PromptReco-v2_sub4
-typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1. json=aux/2012-onOct06.json  CaDir=/store/group/phys_higgs/cmshgg/reduced/hcp2012_unblind_reduction_v1/data/DoublePhoton_Run2012C-PromptReco-v2_sub5
-typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1. json=aux/2012-onOct06.json  CaDir=/store/group/phys_higgs/cmshgg/reduced/hcp2012_unblind_reduction_v1/data/DoublePhoton_Run2012C-PromptReco-v2_sub6
-typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1. json=aux/2012-onOct06.json  CaDir=/store/group/phys_higgs/cmshgg/reduced/hcp2012_unblind_reduction_v1/data/Run2012C-24Aug2012-v2
+typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1. json=aux/2012-onOct06.json  CaDir=/store/group/phys_higgs/cmshgg/reduced/hcp2012_unblind_reduction_v2/data/DoublePhoton_Run2012C-PromptReco-v2
+typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1. json=aux/2012-onOct06.json  CaDir=/store/group/phys_higgs/cmshgg/reduced/hcp2012_unblind_reduction_v2/data/DoublePhoton_Run2012C-PromptReco-v2_sub2
+typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1. json=aux/2012-onOct06.json  CaDir=/store/group/phys_higgs/cmshgg/reduced/hcp2012_unblind_reduction_v2/data/DoublePhoton_Run2012C-PromptReco-v2_sub4
+typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1. json=aux/2012-onOct06.json  CaDir=/store/group/phys_higgs/cmshgg/reduced/hcp2012_unblind_reduction_v2/data/DoublePhoton_Run2012C-PromptReco-v2_sub5
+typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1. json=aux/2012-onOct06.json  CaDir=/store/group/phys_higgs/cmshgg/reduced/hcp2012_unblind_reduction_v2/data/DoublePhoton_Run2012C-PromptReco-v2_sub6
+typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1. json=aux/2012-onOct06.json  CaDir=/store/group/phys_higgs/cmshgg/reduced/hcp2012_unblind_reduction_v2/data/Run2012C-24Aug2012-v2
 
 #
 # Signal
 #
-split typ=-37 ind=1 draw=1   Nam=ggh_m125_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/HCP2012_preapproval_red_v1/mc/Summer12_S10_8TeV/GluGluToHToGG_M-125_8TeV-powheg-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
-split typ=-38 ind=2 draw=1   Nam=vbf_m125_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/HCP2012_preapproval_red_v1/mc/Summer12_S10_8TeV/VBF_HToGG_M-125_8TeV-powheg-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
-split typ=-40 ind=4 draw=1   Nam=wzh_m125_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/HCP2012_preapproval_red_v1/mc/Summer12_S10_8TeV/WH_ZH_HToGG_M-125_8TeV-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
-split typ=-39 ind=3 draw=1   Nam=tth_m125_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/HCP2012_preapproval_red_v1/mc/Summer12_S10_8TeV/TTH_HToGG_M-125_8TeV-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+split typ=-37 ind=1 draw=1   Nam=ggh_m125_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/hcp2012_unblind_reduction_v2/mc/Summer12_S10_8TeV/GluGluToHToGG_M-125_8TeV-powheg-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+split typ=-38 ind=2 draw=1   Nam=vbf_m125_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/hcp2012_unblind_reduction_v2/mc/Summer12_S10_8TeV/VBF_HToGG_M-125_8TeV-powheg-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+split typ=-40 ind=4 draw=1   Nam=wzh_m125_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/hcp2012_unblind_reduction_v2/mc/Summer12_S10_8TeV/WH_ZH_HToGG_M-125_8TeV-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+split typ=-39 ind=3 draw=1   Nam=tth_m125_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/hcp2012_unblind_reduction_v2/mc/Summer12_S10_8TeV/TTH_HToGG_M-125_8TeV-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
 
 ##
 ## Branches to use
