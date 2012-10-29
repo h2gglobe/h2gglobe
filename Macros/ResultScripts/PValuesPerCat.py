@@ -61,7 +61,8 @@ if not options.SkipDatacard:
 basedir=os.getcwd()
 
 if options.Categories:
-    categories=os.popen("grep bin "+options.datacard+" | grep cat | grep -v combine | head -n 1 | sed 's|bin[ \\t][ \\t]*||'").readlines()[0].strip("\n")
+    categories=os.popen("grep bin "+options.datacard+" | grep cat | grep -v combine | head -n 1 | sed 's|bin[ \\t][ \\t]*||' | sed 's|[ \\t][ \\t]*| |g' | sed 's|[ \\t][ \\t]*$||'").readlines()[0].strip("\n")
+    if options.debug: print "Categories:",categories
     categorylist=categories.split(" ")
     if options.debug: print "Category List:",categorylist
     for cat in categorylist:
@@ -78,7 +79,8 @@ if options.Categories:
 
 
 if options.CustumCat!="":
-    categorylist=os.popen("grep bin "+options.datacard+" | grep cat | grep -v combine | head -n 1 | sed 's|bin[ \\t][ \\t]*||'").readlines()[0].strip("\n").split(" ")
+    categorylist=os.popen("grep bin "+options.datacard+" | grep cat | grep -v combine | head -n 1 | sed 's|bin[ \\t][ \\t]*||' | sed 's|[ \\t][ \\t]*| |g' | sed 's|[ \\t][ \\t]*$||'").readlines()[0].strip("\n").split(" ")
+    if options.debug: print "Category List:",categorylist
     keeplist=options.CustumCat.split(" ")
     veto=""
     for cat in categorylist:
@@ -130,7 +132,7 @@ for datacard in DatacardList:
         if options.Observed and options.PValues:
             os.chdir(datacardoutputdir)
             if options.debug: print "combine "+datacard+" -m "+str(mass)+" -M ProfileLikelihood -s -1 -n PValue --signif --pvalue >& higgsCombinePValue.ProfileLikelihood.mH"+str(mass)+".log &"
-            if not options.dryrun: os.system("combine "+datacard+" -m "+str(mass)+" -M ProfileLikelihood 0 -s -1 -n PValue --signif --pvalue >& higgsCombinePValue.ProfileLikelihood.mH"+str(mass)+".log &")
+            if not options.dryrun: os.system("combine "+datacard+" -m "+str(mass)+" -M ProfileLikelihood -s -1 -n PValue --signif --pvalue >& higgsCombinePValue.ProfileLikelihood.mH"+str(mass)+".log &")
         waitthreads("combine",options.threads)
         if options.Expected and options.PValues and options.toysFile=="":
             os.chdir(datacardoutputdirexpected)
