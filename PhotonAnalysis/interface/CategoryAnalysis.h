@@ -34,11 +34,11 @@ class CategoryAnalysis : public StatAnalysis
     //// virtual void Analysis(LoopAll&, Int_t); 
 
     virtual int GetBDTBoundaryCategory(float,bool,bool);
-    int category(std::vector<float>&,float);
 
     bool doPhotonMvaIdSyst;
     bool doPhotonMvaIdSmear;
     bool doRegressionSmear, doRegressionSyst;
+    bool doPdfWeightSmear, doPdfWeightSyst;
 
     std::string bdtTrainingPhilosophy;
     std::string photonLevelMvaUCSD  ;
@@ -50,7 +50,6 @@ class CategoryAnalysis : public StatAnalysis
     std::string photonLevelNewIDMVA_EE;
 
     std::vector<float> bdtCategoryBoundaries;
-    float photonIDMVAShift_EB, photonIDMVAShift_EE;
 
  protected:
 

@@ -5,7 +5,7 @@
 #include <iostream>
 #include <algorithm>
 
-#define PADEBUG 0 
+#define PADEBUG 0
 
 using namespace std;
 
@@ -57,7 +57,7 @@ void CategoryAnalysis::Init(LoopAll& l)
         << "doTriggerSelection "<< doTriggerSelection << "\n"
         << "nEtaCategories "<< nEtaCategories << "\n"
         << "nR9Categories "<< nR9Categories << "\n"    
-        << "nPtCategories "<< nPtCategories << "\n"  
+        << "nPtCategories "<< nPtCategories << "\n"    
         << "efficiencyFile " << efficiencyFile << "\n"
         << "-------------------------------------------------------------------------------------- \n"
         << std::endl;
@@ -73,12 +73,6 @@ void CategoryAnalysis::Init(LoopAll& l)
     diPhoCounter_ = l.countersred.size();
     l.countersred.resize(diPhoCounter_+1);
 
-    // initialize the analysis variables
-    nPhotonCategories_ = nEtaCategories;
-    if( nR9Categories != 0 ) nPhotonCategories_ *= nR9Categories;
-    nInclusiveCategories_ = 4;
-
-  
     effSmearPars.categoryType = "2CatR9_EBEE";
     effSmearPars.n_categories = 4;
     effSmearPars.efficiency_file = efficiencyFile;
@@ -91,16 +85,11 @@ void CategoryAnalysis::Init(LoopAll& l)
         photonSmearers_.push_back(eCorrSmearer);
     }
     if( doEscaleSmear ) {
-        photonSmearers_.push_back(eScaleSmearer);
+    setupEscaleSmearer();
     }
     if( doEresolSmear ) {
         // energy resolution smearing
-        std::cerr << __LINE__ << std::endl; 
-        eResolSmearer = new EnergySmearer( eSmearPars );
-        eResolSmearer->name("E_res");
-        eResolSmearer->doEnergy(false); // allows for future reweighting also
-        eResolSmearer->scaleOrSmear(false);
-        photonSmearers_.push_back(eResolSmearer);
+    setupEresolSmearer();
     }
     if( doRegressionSmear ) {
         // energy regression. smearing
@@ -169,6 +158,14 @@ void CategoryAnalysis::Init(LoopAll& l)
         kFactorSmearer->init();
         genLevelSmearers_.push_back(kFactorSmearer);
     }
+    if(doPdfWeightSmear) {
+        // PdfWeights efficiency (For now only consider QCD Scale Uncertainty 
+        std::cerr << __LINE__ << std::endl; 
+        pdfWeightSmearer = new PdfWeightSmearer( pdfWeightHist,"up","down");
+        pdfWeightSmearer->name("pdfWeight");
+        pdfWeightSmearer->init();
+        genLevelSmearers_.push_back(pdfWeightSmearer);
+    }
     if(doInterferenceSmear) {
         // interference efficiency
         std::cerr << __LINE__ << std::endl; 
@@ -178,8 +175,45 @@ void CategoryAnalysis::Init(LoopAll& l)
 
     // Define the number of categories for the statistical analysis and
     // the systematic sets to be formed
-    int nVBFCategories   = ((int)includeVBF)*nVBFEtaCategories*nVBFDijetJetCategories;
+    // initialize the analysis variables
+    nPhotonCategories_ = nEtaCategories;
+    if( nR9Categories != 0 ) nPhotonCategories_ *= nR9Categories;
+
     std::sort(bdtCategoryBoundaries.begin(),bdtCategoryBoundaries.end(), std::greater<float>() );
+    nInclusiveCategories_ = bdtCategoryBoundaries.size()-1;
+
+    nVBFCategories   = ((int)includeVBF)*( (mvaVbfSelection && !multiclassVbfSelection) ? mvaVbfCatBoundaries.size()-1 : nVBFEtaCategories*nVBFDijetJetCategories );
+    if(includeVHlep){
+        nVHlepCategories = nElectronCategories + nMuonCategories;
+    }
+    if(includeVHmet){
+    nVHmetCategories = nMetCategories;
+    }
+    
+    std::sort(mvaVbfCatBoundaries.begin(),mvaVbfCatBoundaries.end(), std::greater<float>() );
+    if (multiclassVbfSelection) {
+        std::vector<int> vsize;
+        vsize.push_back((int)multiclassVbfCatBoundaries0.size());
+        vsize.push_back((int)multiclassVbfCatBoundaries1.size());
+        vsize.push_back((int)multiclassVbfCatBoundaries2.size());
+        std::sort(vsize.begin(),vsize.end(), std::greater<int>());
+        // sanity check: there sould be at least 2 vectors with size==2
+        if (vsize[0]<2 || vsize[1]<2 ){
+            std::cout << "Not enough category boundaries:" << std::endl;
+            std::cout << "multiclassVbfCatBoundaries0 size = " << multiclassVbfCatBoundaries0.size() << endl;
+            std::cout << "multiclassVbfCatBoundaries1 size = " << multiclassVbfCatBoundaries1.size() << endl;
+            std::cout << "multiclassVbfCatBoundaries2 size = " << multiclassVbfCatBoundaries2.size() << endl;
+            assert( 0 );
+        }
+        nVBFCategories   = vsize[0]-1;
+        cout << "@@@@@@@@@@@@@@@@@ 	nVBFCategories = " << 	nVBFCategories << endl;
+        std::sort(multiclassVbfCatBoundaries0.begin(),multiclassVbfCatBoundaries0.end(), std::greater<float>() );
+        std::sort(multiclassVbfCatBoundaries1.begin(),multiclassVbfCatBoundaries1.end(), std::greater<float>() );
+        std::sort(multiclassVbfCatBoundaries2.begin(),multiclassVbfCatBoundaries2.end(), std::greater<float>() );
+    }
+
+    nCategories_=(nInclusiveCategories_+nVBFCategories+nVHlepCategories+nVHmetCategories);
+
 
     // Make sure the Map is filled
     FillSignalLabelMap(l);
@@ -190,17 +224,29 @@ void CategoryAnalysis::Init(LoopAll& l)
     l.tmvaReaderID_UCSD->BookMVA("Gradient"      ,photonLevelMvaUCSD.c_str()  );
     l.tmvaReader_dipho_UCSD->BookMVA("Gradient"  ,eventLevelMvaUCSD.c_str()   );
     // New ID MVA
+    if( photonLevelNewIDMVA_EB != "" && photonLevelNewIDMVA_EE != "" ) {
     l.tmvaReaderID_Single_Barrel->BookMVA("AdaBoost",photonLevelNewIDMVA_EB.c_str());
     l.tmvaReaderID_Single_Endcap->BookMVA("AdaBoost",photonLevelNewIDMVA_EE.c_str());
+    } else { 
+    assert( dataIs2011 );
+    }
     // MIT 
+    if( photonLevelMvaMIT_EB != "" && photonLevelMvaMIT_EE != "" ) {
     l.tmvaReaderID_MIT_Barrel->BookMVA("AdaBoost",photonLevelMvaMIT_EB.c_str());
     l.tmvaReaderID_MIT_Endcap->BookMVA("AdaBoost",photonLevelMvaMIT_EE.c_str());
+    } else {
+    assert( ! dataIs2011 );
+    }
     l.tmvaReader_dipho_MIT->BookMVA("Gradient"   ,eventLevelMvaMIT.c_str()    );
     // ----------------------------------------------------------------------//
 
     if(PADEBUG) 
         cout << "InitRealCategoryAnalysis END"<<endl;
 
+    cout << "------- BUTTERY BUS ---- " << endl;
+    cout << "reweighBS - " << reweighBeamspot << endl;
+    cout << "saveDatTr - " << saveDatacardTrees_ << endl;
+    cout << "-------------------------" << endl;
     // FIXME book of additional variables
 }
 
@@ -234,28 +280,76 @@ bool CategoryAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLor
     applySinglePhotonSmearings(smeared_pho_energy, smeared_pho_r9, smeared_pho_weight, cur_type, l, energyCorrected, energyCorrectedError,
 			       phoSys, syst_shift);
 
+    int mu_ind=-1;
+    int el_ind=-1;
+
+    int muVtx=-1;
+    int elVtx=-1;
+    
     // Exclusive Modes
     int diphotonVBF_id = -1;
-    int ijet1, ijet2;
+    vbfIjet1=-1, vbfIjet2=-1;
     VBFevent = false;
+        
     int diphotonVBF_id_CIC=-1;
     bool VBFevent_CIC = false;
-    double subleadEtVBFCut_CIC=25.;
+
+    int diphotonVHlep_id = -1;
+    VHmuevent = false;
+    VHmuevent_cat=0;
+    VHelevent = false;
+    VHelevent_cat=0;
+        
+    int diphotonVHmet_id = -1; 
+    VHmetevent = false; 
+    VHmetevent_cat=0; 
+
+    int diphotonVHhad_id = -1;
+    VHhadevent = false;
+
+    if(includeVHlep){
+	VHmuevent=MuonTag2012B(l, diphotonVHlep_id, mu_ind, muVtx, VHmuevent_cat, &smeared_pho_energy[0], lep_sync, true, phoidMvaCut, 0., smeared_pho_weight, false);
+	ElectronStudies2012B(l, &smeared_pho_energy[0], true,  phoidMvaCut, 0., 0., jentry);
+	int diphotonVH_ele_id=-1;
+	VHelevent=ElectronTag2012B(l, diphotonVH_ele_id, el_ind, elVtx, VHelevent_cat, &smeared_pho_energy[0], lep_sync, true, phoidMvaCut, 0., smeared_pho_weight, false);
+	if(!VHmuevent && VHelevent){
+	    diphotonVHlep_id=diphotonVH_ele_id;
+	}
+    }
+
+    if(includeVHmet && !dataIs2011) {
+	//	    std::cout << "+++PFMET UNCORR " << l.met_pfmet << std::endl;
+	if(!isSyst) VHmetevent=METTag2012B(l, diphotonVHmet_id, VHmetevent_cat, &smeared_pho_energy[0], met_sync, true, phoidMvaCut, false); 
+	if(isSyst)  VHmetevent=METTag2012B(l, diphotonVHmet_id, VHmetevent_cat, &smeared_pho_energy[0], met_sync, true, phoidMvaCut, true); 
+	// FIXME  need to un-flag events failing the diphoton mva cut.
+    }
 
     // VBF
     if((includeVBF || includeVHhad)&&l.jet_algoPF1_n>1 && !isSyst /*avoid rescale > once*/) {
-      l.RescaleJetEnergy();
+	l.RescaleJetEnergy();
     }
 
     // Flag whether this is a VBF event (separately for MVA and CIC because sublead Et cut is different)
-    if(includeVBF) {
-      diphotonVBF_id = l.DiphotonMITPreSelection(leadEtVBFCut,subleadEtVBFCut,phoidMvaCut,applyPtoverM, &smeared_pho_energy[0] );
-      VBFevent=VBFTag2012(ijet1, ijet2, l, diphotonVBF_id, &smeared_pho_energy[0], false, 0., 0.);
+    if(includeVBF) {   
+	diphotonVBF_id = l.DiphotonMITPreSelection(leadEtVBFCut,subleadEtVBFCut,phoidMvaCut,applyPtoverM, &smeared_pho_energy[0] );
+	VBFevent= VBFTag2012(vbfIjet1, vbfIjet2, l, diphotonVBF_id, &smeared_pho_energy[0], false, 0., 0.);
 
-      diphotonVBF_id_CIC = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVBFCut, subleadEtVBFCut_CIC, 4,false, &smeared_pho_energy[0], true); 
-      VBFevent_CIC=VBFTag2012(ijet1, ijet2, l, diphotonVBF_id_CIC, &smeared_pho_energy[0], false, 0., 0.);
+	diphotonVBF_id_CIC = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVBFCut, subleadEtVBFCut, 4,false, &smeared_pho_energy[0], true); 
+	VBFevent_CIC=VBFTag2012(vbfIjet1, vbfIjet2, l, diphotonVBF_id_CIC, &smeared_pho_energy[0], false, 0., 0.);
     }
 
+    //Exclude events that are classified as lepton tag or MET tag
+    bool isOtherExclusive=false;
+    if(includeVHlep&&VHmuevent){
+	isOtherExclusive=true;
+    } else if (includeVHlep&&VHelevent){
+	isOtherExclusive=true;
+    } else if(includeVBF&&VBFevent) {
+	isOtherExclusive=false;
+    } else if(includeVHmet&&VHmetevent) {
+	isOtherExclusive=true;
+    }
+    if (isOtherExclusive) return false;
 
     // Determine whether or not event passes CIC selection in each category
 
@@ -263,7 +357,9 @@ bool CategoryAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLor
     int catCiC = -1;
 
     int diphoton_id_cic = -1;
-    diphoton_id_cic = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtCut, subleadEtCut, nPhotonCategories_,applyPtoverM, &smeared_pho_energy[0] ); 
+    std::vector<bool> veto_indices;
+    veto_indices.clear();
+    diphoton_id_cic = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtCut, subleadEtCut, 4,applyPtoverM, &smeared_pho_energy[0], false, -1, veto_indices, cicCutLevels );
 
     if (diphoton_id_cic > -1 && !VBFevent_CIC) {
 
@@ -271,12 +367,22 @@ bool CategoryAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLor
       // bring all the weights together: lumi & Xsection, single gammas, pt kfactor
       float evweight_cic = weight * smeared_pho_weight[diphoton_index_cic.first] * smeared_pho_weight[diphoton_index_cic.second] * genLevWeight;
 
-      TLorentzVector lead_p4_cic = l.get_pho_p4( l.dipho_leadind[diphoton_id_cic], l.dipho_vtxind[diphoton_id_cic], &smeared_pho_energy[0]);
-      TLorentzVector sublead_p4_cic = l.get_pho_p4( l.dipho_subleadind[diphoton_id_cic], l.dipho_vtxind[diphoton_id_cic], &smeared_pho_energy[0]);
-      TLorentzVector Higgs_cic = lead_p4_cic + sublead_p4_cic;   
-
+      TLorentzVector lead_p4_cic, sublead_p4_cic, Higgs_cic;
+      float lead_r9_cic, sublead_r9_cic;
+      TVector3 * vtx_cic;
+      fillDiphoton(lead_p4_cic, sublead_p4_cic, Higgs_cic, lead_r9_cic, sublead_r9_cic, vtx_cic, &smeared_pho_energy[0], l, diphoton_id_cic);
       int selectioncategory_cic = l.DiphotonCategory(diphoton_index_cic.first,diphoton_index_cic.second,Higgs_cic.Pt(),nEtaCategories,nR9Categories,0);
+
+      if( cur_type != 0 && doMCSmearing ) {
+	  applyDiPhotonSmearings(Higgs_cic, *vtx_cic, selectioncategory_cic, cur_type, *((TVector3*)l.gv_pos->At(0)), evweight_cic, zero_, zero_,diPhoSys, syst_shift);
+      }
+
       float mass_cic    = Higgs_cic.M();
+
+      // apply beamspot reweighting if necessary
+      if(reweighBeamspot && cur_type!=0) {
+	  evweight_cic*=BeamspotReweight(vtx_cic->Z(),((TVector3*)l.gv_pos->At(0))->Z());
+      }
 
       assert( evweight_cic >= 0. ); 
 
@@ -301,9 +407,10 @@ bool CategoryAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLor
     int selectioncategory = -1;
     int catMVA = -2;
     float diphobdt_output = -2.;
+    mass = 0.;
 
     // Kinematic preselection (pt and eta cuts only)
-    int diphoton_id_kinonly = l.DiphotonMITPreSelection(leadEtCut,subleadEtCut,phoidMvaCut,applyPtoverM, &smeared_pho_energy[0], true );
+    int diphoton_id_kinonly = l.DiphotonMITPreSelection(leadEtCut,subleadEtCut,phoidMvaCut,applyPtoverM, &smeared_pho_energy[0], -1, false, true);
     if (diphoton_id_kinonly > -1 ) {
       passKin = true;
       diphoton_index_kinonly = std::make_pair( l.dipho_leadind[diphoton_id_kinonly],  l.dipho_subleadind[diphoton_id_kinonly] );
@@ -337,20 +444,13 @@ bool CategoryAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLor
       float lead_r9, sublead_r9;
       TVector3 * vtx;
       fillDiphoton(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, vtx, &smeared_pho_energy[0], l, diphoton_id);  
+        
+      // apply beamspot reweighting if necessary
+      if(reweighBeamspot && cur_type!=0) {
+	  evweight*=BeamspotReweight(vtx->Z(),((TVector3*)l.gv_pos->At(0))->Z());
+      }
 
-      float mass    = Higgs.M();
-      float ptHiggs = Higgs.Pt();
-
-      // Mass Resolution of the Event
-      // Mass Resolution of the Event
-      ///// double beamspotSigma=-100;
-      ///// if(l.version<13) {
-      ///// 	  beamspotSigma=5.8;
-      ///// } else {
-      ///// 	  beamspotSigma=4.8;
-      ///// }
-      ///// massResolutionCalculator->Setup(l,&photonInfoCollection[diphoton_index.first],&photonInfoCollection[diphoton_index.second],diphoton_id,eSmearPars,nR9Categories,nEtaCategories,beamspotSigma);
-      massResolutionCalculator->Setup(l,&photonInfoCollection[diphoton_index.first],&photonInfoCollection[diphoton_index.second],diphoton_id,eSmearPars,nR9Categories,nEtaCategories,beamspotWidth);
+      massResolutionCalculator->Setup(l,&photonInfoCollection[diphoton_index.first],&photonInfoCollection[diphoton_index.second],diphoton_id,eSmearPars,nR9Categories,nEtaCategories,beamspotSigma);
       float vtx_mva  = l.vtx_std_evt_mva->at(diphoton_id);
       float sigmaMrv = massResolutionCalculator->massResolutionEonly();
       float sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
@@ -358,22 +458,24 @@ bool CategoryAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLor
       // easy to calculate vertex probability from vtx mva output
       float vtxProb   = 1.-0.49*(vtx_mva+1.0); /// should better use this: vtxAna_.setPairID(diphoton_id); vtxAna_.vertexProbability(vtx_mva); PM
 
-      float phoid_mvaout_lead = l.photonIDMVANew(diphoton_index.first,l.dipho_vtxind[diphoton_id],lead_p4,bdtTrainingPhilosophy.c_str()) + photonIDMVAShift_EB;
-      float phoid_mvaout_sublead = l.photonIDMVANew(diphoton_index.second,l.dipho_vtxind[diphoton_id],sublead_p4,bdtTrainingPhilosophy.c_str()) + photonIDMVAShift_EE;
+      float phoid_mvaout_lead = l.photonIDMVANew(diphoton_index.first,l.dipho_vtxind[diphoton_id],lead_p4,bdtTrainingPhilosophy.c_str());
+      float phoid_mvaout_sublead = l.photonIDMVANew(diphoton_index.second,l.dipho_vtxind[diphoton_id],sublead_p4,bdtTrainingPhilosophy.c_str());
 
       // apply di-photon level smearings and corrections
       selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,0);
+
       if( cur_type != 0 && doMCSmearing ) {
-	applyDiPhotonSmearings(Higgs, *vtx, selectioncategory, cur_type, *((TVector3*)l.gv_pos->At(0)), evweight, phoid_mvaout_lead,phoid_mvaout_sublead,
-			       diPhoSys, syst_shift);
-	isCorrectVertex=(*vtx- *((TVector3*)l.gv_pos->At(0))).Mag() < 1.;
+	applyDiPhotonSmearings(Higgs, *vtx, selectioncategory, cur_type, *((TVector3*)l.gv_pos->At(0)), evweight, phoid_mvaout_lead,phoid_mvaout_sublead,diPhoSys, syst_shift);
       }
                            
       // Must be calculated after photon id has potentially been smeared
       diphobdt_output = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id] ,vtxProb,lead_p4,sublead_p4 ,sigmaMrv,sigmaMwv,sigmaMeonly ,bdtTrainingPhilosophy.c_str() ,phoid_mvaout_lead,phoid_mvaout_sublead);
       kinematic_bdtout = diphobdt_output;
 
-      bool isEBEB  = (lead_p4.Eta() < 1.4442 ) && fabs(sublead_p4.Eta()<1.4442);
+      mass = Higgs.M();
+      float ptHiggs = Higgs.Pt();
+
+      bool isEBEB  = fabs(lead_p4.Eta() < 1.4442 ) && fabs(sublead_p4.Eta()<1.4442);
       int category = -2;
       if (passMVApresel) category = GetBDTBoundaryCategory(diphobdt_output, isEBEB,VBFevent);
 
@@ -464,22 +566,10 @@ bool CategoryAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLor
 
     bool VBFevent_MVA = false;
     if (VBFevent && diphobdt_output>-0.05) VBFevent_MVA = true;
-    l.FillHist2D("passVBFCiC_vs_passVBFMVA",0, float(VBFevent_MVA), float(VBFevent_CIC), weight*genLevWeight);
+    if( mass>=massMin && mass<=massMax) l.FillHist2D("passVBFCiC_vs_passVBFMVA",0, float(VBFevent_MVA), float(VBFevent_CIC), weight*genLevWeight);
 
     return false;
 }
-
-
-int CategoryAnalysis::category(std::vector<float> & v, float val)
-{
-	if( val == v[0] ) { return 0; }
-	std::vector<float>::iterator bound =  lower_bound( v.begin(), v.end(), val, std::greater<float>  ());
-	int cat = ( val >= *bound ? bound - v.begin() - 1 : bound - v.begin() );
-    //for (int i=0; i<v.size(); i++) cout << v[i] << endl;
-	if( cat >= v.size() - 1 ) { cat = -1; }
-	return cat;
-}
-
 
 // ----------------------------------------------------------------------------------------------------
 int CategoryAnalysis::GetBDTBoundaryCategory(float bdtout, bool isEB, bool VBFevent){
@@ -499,16 +589,15 @@ int CategoryAnalysis::GetBDTBoundaryCategory(float bdtout, bool isEB, bool VBFev
         }
 
     } else if (bdtTrainingPhilosophy=="MIT"){
-	int cat = category( bdtCategoryBoundaries, bdtout );
-	if( VBFevent && cat > -1 ) cat = bdtCategoryBoundaries.size();
-	return cat;
+	    int cat = categoryFromBoundaries( bdtCategoryBoundaries, bdtout );
+	    if( VBFevent && cat > -1 ) cat = bdtCategoryBoundaries.size();
+	    return cat;
     } else std::cerr << "No BDT Philosophy known - " << bdtTrainingPhilosophy << std::endl;
 }
 
-
 void CategoryAnalysis::ResetAnalysis(){
     // Reset Random Variable on the EnergyResolution Smearer
-    eResolSmearer->resetRandom();
+    if ( doEresolSmear ) eResolSmearer->resetRandom();
 }
 
 
