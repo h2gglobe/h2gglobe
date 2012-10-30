@@ -436,8 +436,9 @@ vector<double> sigEvents(RooWorkspace *work, int m_hyp, int cat, string altSigFi
 
   RooWorkspace *tempWork;
   if (altSigFileName!=""){
-    TFile *temp = TFile::Open("root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/analyzed/HCP2012Unblind/hcp2012_unblind_massfac_v3_sig/CMS-HGG.root");
+    TFile *temp = TFile::Open(altSigFileName.c_str());
     tempWork = (RooWorkspace*)temp->Get("cms_hgg_workspace");
+    delete temp;
   }
   else {
     tempWork = work;
@@ -456,7 +457,6 @@ vector<double> sigEvents(RooWorkspace *work, int m_hyp, int cat, string altSigFi
   result.push_back(100*tth->sumEntries()/total);
 
   delete tempWork;
-  delete temp;
 
   return result;
 }
@@ -604,7 +604,7 @@ void makeParametricSignalModelPlots(string hggFileName, string pathName, int nca
       pair<double,double> dat = datVals[Form("cat%d",cat)];
       // cout 
       printf("cat%d  ",cat);
-      printf("%5.1f  ",sigs[0]);
+      printf("%5.2f  ",sigs[0]);
       printf("%4.1f%%  ",sigs[1]);
       printf("%4.1f%%  ",sigs[2]);
       printf("%4.1f%%  ",sigs[3]);
