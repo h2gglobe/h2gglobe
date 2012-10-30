@@ -44,12 +44,15 @@ void makeBkgPlotsGeneric(std::string filebkg, std::string filesig="", bool blind
 
 	std::string * labels;
 	
-	std::string baselinelabels[6] = { "Both photons in barrel, R_{9}^{min} > 0.94"
+	std::string baselinelabels[9] = { "Both photons in barrel, R_{9}^{min} > 0.94"
 					  ,"Both photons in barrel, R_{9}^{min} < 0.94"
 					  ,"One or more photons in endcap, R_{9}^{min} > 0.94"
 					  ,"One or more photons in endcap, R_{9}^{min} < 0.94"
-					  ,"Dijet-tagged BDT_{VBF} >= 0.985"
-					  ,"Dijet-tagged 0.93 <= BDT_{VBF} < 0.985"
+		        ,"Dijet-tagged class BDT_{VBF} >= 0.985"
+		        ,"Dijet-tagged class 0.93 <= BDT_{VBF} < 0.985"
+            ,"Muon-tagged class"
+            ,"Electron-tagged class"
+            ,"MET-tagged class"
 	};
 	std::string massfactlabels[ncats] = { 
 		"BDT_{#gamma#gamma} >= 0.91"
