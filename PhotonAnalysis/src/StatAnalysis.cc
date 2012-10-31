@@ -956,6 +956,9 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 	// sanity check
         assert( evweight >= 0. );
 
+	// see if the event falls into an exclusive category
+	computeExclusiveCategory(l, category, diphoton_index, Higgs.Pt() );
+
 	// fill control plots and counters
 	if( ! isSyst ) {
 	    l.FillCounter( "Accepted", weight );
@@ -965,9 +968,6 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 	    fillControlPlots(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, diphoton_id,
 			     category, isCorrectVertex, evweight, vtx, l, muVtx, mu_ind, elVtx, el_ind );
 	}
-
-	// see if the event falls into an exclusive category
-	computeExclusiveCategory(l, category, diphoton_index, Higgs.Pt() );
 
         // dump BS trees if requested
         if (!isSyst && cur_type!=0 && saveBSTrees_) saveBSTrees(l, evweight,category,Higgs, vtx, (TVector3*)l.gv_pos->At(0));
@@ -1164,19 +1164,19 @@ void StatAnalysis::FillRooContainerSyst(LoopAll& l, const std::string &name, int
 					std::vector<int>    & categories, std::vector<double> & weights)
 {
     if (cur_type < 0){
-    // fill full mva trees
-    if (doFullMvaFinalTree){
-        assert(mass_errors.size()==2 && mva_errors.size()==2 && weights.size()==2 && categories.size()==2);
-        if (PADEBUG) cout << "Filling template models " << name << endl;
-        l.FillTree(Form("mass_%s_Down",name.c_str()),mass_errors[0],"full_mva_trees");
-        l.FillTree(Form("mass_%s_Up",name.c_str()),mass_errors[1],"full_mva_trees");
-        l.FillTree(Form("bdtoutput_%s_Down",name.c_str()),mva_errors[0],"full_mva_trees");
-        l.FillTree(Form("bdtoutput_%s_Up",name.c_str()),mva_errors[1],"full_mva_trees");
-        l.FillTree(Form("weight_%s_Down",name.c_str()),weights[0],"full_mva_trees");
-        l.FillTree(Form("weight_%s_Up",name.c_str()),weights[1],"full_mva_trees");
-        l.FillTree(Form("category_%s_Down",name.c_str()),categories[0],"full_mva_trees");
-        l.FillTree(Form("category_%s_Up",name.c_str()),categories[1],"full_mva_trees");
-    }
+	// fill full mva trees
+	if (doFullMvaFinalTree){
+	    assert(mass_errors.size()==2 && mva_errors.size()==2 && weights.size()==2 && categories.size()==2);
+	    if (PADEBUG) cout << "Filling template models " << name << endl;
+	    l.FillTree(Form("mass_%s_Down",name.c_str()),mass_errors[0],"full_mva_trees");
+	    l.FillTree(Form("mass_%s_Up",name.c_str()),mass_errors[1],"full_mva_trees");
+	    l.FillTree(Form("bdtoutput_%s_Down",name.c_str()),mva_errors[0],"full_mva_trees");
+	    l.FillTree(Form("bdtoutput_%s_Up",name.c_str()),mva_errors[1],"full_mva_trees");
+	    l.FillTree(Form("weight_%s_Down",name.c_str()),weights[0],"full_mva_trees");
+	    l.FillTree(Form("weight_%s_Up",name.c_str()),weights[1],"full_mva_trees");
+	    l.FillTree(Form("category_%s_Down",name.c_str()),categories[0],"full_mva_trees");
+	    l.FillTree(Form("category_%s_Up",name.c_str()),categories[1],"full_mva_trees");
+	}
 	// feed the modified signal model to the RooContainer
 	l.rooContainer->InputSystematicSet("sig_"+GetSignalLabel(cur_type),name,categories,mass_errors,weights);
     }
@@ -1248,7 +1248,8 @@ void StatAnalysis::fillControlPlots(const TLorentzVector & lead_p4, const  TLore
     float mass = Higgs.M();
     if(category!=-10){  // really this is nomva cut but -1 means all together here
         if( category>=0 ) {
-            fillControlPlots( lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, diphoton_id, -1, isCorrectVertex, evweight, vtx, l, muVtx, mu_ind, elVtx, el_ind, diphobdt_output );
+            fillControlPlots( lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, diphoton_id, -1, isCorrectVertex, evweight, 
+			      vtx, l, muVtx, mu_ind, elVtx, el_ind, diphobdt_output );
         }
         l.FillHist("all_mass",category+1, Higgs.M(), evweight);
         if( mass>=massMin && mass<=massMax  ) {
@@ -1326,6 +1327,8 @@ void StatAnalysis::fillControlPlots(const TLorentzVector & lead_p4, const  TLore
 		    if( sublead_r9 > 0.9 ) { l.FillCutPlots(category+1+nCategories_,1,"_sequential",evweight,myweight); }
                 }
             }
+	    l.FillHist("rho",category+1,l.rho_algo1,evweight);
+
 
             if(category!=-1){
                 bool isEBEB  = fabs(lead_p4.Eta() < 1.4442 ) && fabs(sublead_p4.Eta()<1.4442);

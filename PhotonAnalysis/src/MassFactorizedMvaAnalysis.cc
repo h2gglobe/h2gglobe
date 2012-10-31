@@ -109,7 +109,7 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
         photonSmearers_.push_back(eCorrSmearer);
     }
     if( doEscaleSmear ) {
-    setupEscaleSmearer();
+	setupEscaleSmearer();
     }
     if( doEresolSmear ) {
         // energy resolution smearing
@@ -257,14 +257,14 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
         l.rooContainer->MakeSystematicStudy(sys,sys_t);
     }
     if( doEscaleSmear && doEscaleSyst ) {
-    setupEscaleSyst(l);
+	setupEscaleSyst(l);
         //// systPhotonSmearers_.push_back( eScaleSmearer );
         //// std::vector<std::string> sys(1,eScaleSmearer->name());
         //// std::vector<int> sys_t(1,-1);  // -1 for signal, 1 for background 0 for both
         //// l.rooContainer->MakeSystematicStudy(sys,sys_t);
     }
     if( doEresolSmear && doEresolSyst ) {
-    setupEresolSyst(l);
+	setupEresolSyst(l);
         //// systPhotonSmearers_.push_back( eResolSmearer );
         //// std::vector<std::string> sys(1,eResolSmearer->name());
         //// std::vector<int> sys_t(1,-1);  // -1 for signal, 1 for background 0 for both
@@ -532,7 +532,7 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
 ///// float MassFactorizedMvaAnalysis::getDiphoMva(LoopAll & l, int diphotonId, bool smear, float syst_shift) 
 ///// {
 /////     massResolutionCalculator->Setup(l,&photonInfoCollection[l.dipho_leadind[diphotonId]],&photonInfoCollection[l.dipho_subleadind[diphotonId]],diphotonId,
-///// 				    eSmearPars,nR9Categories,nEtaCategories,beamspotSigma);
+///// 				    massResoPars,nR9Categories,nEtaCategories,beamspotSigma);
 /////     float vtx_mva  = l.vtx_std_evt_mva->at(diphotonId);
 /////     sigmaMrv = massResolutionCalculator->massResolutionEonly();
 /////     sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
@@ -582,7 +582,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
     // do gen-level dependent first (e.g. k-factor); only for signal
     genLevWeight=1.;
     if(cur_type!=0 ) {
-    applyGenLevelSmearings(genLevWeight,gP4,l.pu_n,cur_type,genSys,syst_shift);
+	applyGenLevelSmearings(genLevWeight,gP4,l.pu_n,cur_type,genSys,syst_shift);
     }
         
     int mu_ind=-1;
@@ -718,7 +718,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 
         // Mass Resolution of the Event
         massResolutionCalculator->Setup(l,&photonInfoCollection[diphoton_index.first],&photonInfoCollection[diphoton_index.second],diphoton_id,
-					eSmearPars,nR9Categories,nEtaCategories,beamspotSigma);
+					massResoPars,nR9Categories,nEtaCategories,beamspotSigma);
         float vtx_mva  = l.vtx_std_evt_mva->at(diphoton_id);
         sigmaMrv = massResolutionCalculator->massResolutionEonly();
         sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
