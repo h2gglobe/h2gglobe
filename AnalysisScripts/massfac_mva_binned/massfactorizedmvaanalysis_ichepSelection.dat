@@ -1,0 +1,35 @@
+## Cut-based VBF
+## 2-categories cut-based
+mvaVbfSelection=0
+nVBFEtaCategories=1
+nVBFDijetJetCategories=2
+leadEtVBFCut=60
+subleadEtVBFCut=30
+
+## No V-tags
+includeVHlep=0
+includeVHmet=0
+
+# choose between UCSD and MIT trainings
+bdtTrainingPhilosophy=MIT
+photonLevelMvaUCSD=aux/ID_UCSD.weights.xml
+eventLevelMvaUCSD=aux/diphoton_UCSD.weights.xml
+photonLevelNewIDMVA_EB=aux/2012ICHEP_PhotonID_Barrel_BDT.weights.xml
+photonLevelNewIDMVA_EE=aux/2012ICHEP_PhotonID_Endcap_BDT.weights_PSCorr.xml
+photonLevelMvaMIT_EB=aux/TMVAClassificationPhotonID_Barrel_PassPreSel_Variable_10_BDTnCuts2000_BDT.weights.xml
+photonLevelMvaMIT_EE=aux/TMVAClassificationPhotonID_Endcap_PassPreSel_Variable_10_BDTnCuts2000_BDT.weights.xml
+eventLevelMvaMIT=aux/HggBambu_SMDipho_Jun19_BDTG.weights.xml
+
+bkgPolOrderByCat=4,5,5,5,3,4
+
+# photon ID preselection
+phoidMvaCut=-0.2
+
+# BDT categories
+bdtCategoryBoundaries=1,0.88,0.71,0.50,-0.05
+
+mass_resol_file=smearing_sigma_and_errors_ichep2012.dat
+
+beamspotSigma=5.8
+
+

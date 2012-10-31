@@ -1,4 +1,4 @@
-intL=12172. histfile=/store/group/phys_higgs/cmshgg/analyzed/HCP2012Unblind/%(label)s/CMS-HGG.root output=eventsList.txt
+intL=12205. histfile=/store/group/phys_higgs/cmshgg/analyzed/HCP2012Unblind/%(label)s/CMS-HGG.root output=eventsList.txt
 
 #
 # Data
@@ -107,8 +107,8 @@ inputBranches massfactorizedmvaanalysis_input.dat
 inputBranches minimal_leptmetanalysis_input.dat
 
 ## treevariables massfac_mva_binned/unbinned_datacard_trees.dat
-## treevariables common/optTree.dat
-treevariables massfac_mva_binned/fullmvatrees.dat
+treevariables common/optTree.dat
+cuts jetanalysis/cuts_vbfcutb.dat
 
 ## define analyses to run
 ##   a library containing the class dictionary has loaded before parsing the
@@ -117,4 +117,4 @@ treevariables massfac_mva_binned/fullmvatrees.dat
 ##   analyzer <class_name> <config_file>
 ##
 ## analyzer PhotonAnalysis photonanalysis.dat
-analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat saveDatacardTrees_=0 dumpAscii=1 dumpMcAscii=0 fillOptTree=0 doFullMvaFinalTree=1
+analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat saveDatacardTrees_=0 dumpAscii=1 dumpMcAscii=0 fillOptTree=1 doFullMvaFinalTree=0 massfactorizedmvaanalysis_ichepSelection.dat

@@ -79,7 +79,8 @@ PhotonAnalysis::PhotonAnalysis()  :
     scale_offset_corr_error_file = "";
     splitEresolSyst = false;
     corr_smearing_file = "";
-
+    mass_resol_file = "";
+    
     dataIs2011 = false;
 
     emulateBeamspot = false;
@@ -311,6 +312,8 @@ void PhotonAnalysis::applySinglePhotonSmearings(std::vector<float> & smeared_pho
 	cache_lumis = l.lumis;
 	cache_event = l.event;
     }
+    
+    /// if( sys ) std::cout << "applySinglePhotonSmearings " << fillInfo << " " << syst_shift << " " << ( sys != 0 ? sys->name() : " " ) <<std::endl;
 
     if( fillInfo ) {
 	photonInfoCollection.clear();
@@ -335,6 +338,7 @@ void PhotonAnalysis::applySinglePhotonSmearings(std::vector<float> & smeared_pho
 	    photonInfoCollection[ipho].reset();
 	}
 	PhotonReducedInfo & phoInfo = photonInfoCollection[ipho];
+	//// if( sys ) phoInfo.dump();
 
 	int ieta, iphi;
 	l.getIetaIPhi(ipho,ieta,iphi);
@@ -351,9 +355,15 @@ void PhotonAnalysis::applySinglePhotonSmearings(std::vector<float> & smeared_pho
 		if( sys != 0 && *si == *sys ) {
 		    // move the smearer under study by syst_shift
 		    (*si)->smearPhoton(phoInfo,sweight,l.run,syst_shift);
+		    /// if( sys ) { 
+		    /// 	std::cout << "Syst " << (*si)->name() <<  std::endl;
+		    /// }
 		} else {
 		    // for the other use the nominal points
 		    (*si)->smearPhoton(phoInfo,sweight,l.run,0.);
+		    /// if( sys ) { 
+		    /// 	std::cout << "Nominal " << (*si)->name() <<  std::endl;
+		    /// }
 		}
 		if( sweight < 0. ) {
 		    if( syst_shift == 0. ) {
@@ -376,6 +386,7 @@ void PhotonAnalysis::applySinglePhotonSmearings(std::vector<float> & smeared_pho
             eScaleDataSmearer->smearPhoton(phoInfo,sweight,l.run,0.);
             pweight *= sweight;
         }
+	//// phoInfo.dump();
         smeared_pho_energy[ipho] = phoInfo.energy();
         smeared_pho_r9[ipho]     = phoInfo.r9();
         smeared_pho_weight[ipho] = pweight;
@@ -1008,6 +1019,27 @@ void PhotonAnalysis::Init(LoopAll& l)
         eSmearPars.smearing_sigma_error = tmp_smearing[0].scale_offset_error;
     }
 
+    // Energy resolution parameters used for diphotonBDT input
+    massResoPars = eSmearPars;
+    if( ! mass_resol_file.empty() ) {
+        EnergySmearer::energySmearingParameters::eScaleVector tmp_smearing;
+        EnergySmearer::energySmearingParameters::phoCatVector tmp_smearing_cat;
+        readEnergyScaleOffsets(mass_resol_file, tmp_smearing, tmp_smearing_cat,false);
+
+        // make sure that the scale correction and smearing info is as expected
+        assert( tmp_smearing.size() == 1 );
+        assert( ! tmp_smearing_cat.empty() );
+
+        // copy the read info to the smarer parameters
+        massResoPars.categoryType = "Automagic";
+        massResoPars.byRun = false;
+        massResoPars.n_categories = tmp_smearing_cat.size();
+        massResoPars.photon_categories = tmp_smearing_cat;
+
+        massResoPars.smearing_sigma = tmp_smearing[0].scale_offset;
+        massResoPars.smearing_sigma_error = tmp_smearing[0].scale_offset_error;
+    }
+    
     // energy scale systematics to MC
     eScaleSmearer = new EnergySmearer( eSmearPars );
     eScaleSmearer->name("E_scale");
@@ -2218,8 +2250,8 @@ int PhotonAnalysis::DiphotonMVASelection(LoopAll &l, HggVertexAnalyzer & vtxAna,
 
         if(PADEBUG)  std::cout << "getting di-photon MVA" << std::endl;
 
-        massResolutionCalculator->Setup(l,&photonInfoCollection[lead],&photonInfoCollection[sublead],idipho,eSmearPars,nR9Categories,nEtaCategories,beamspotSigma);
-        //massResolutionCalculator->Setup(l,&lead_p4,&sublead_p4,lead,sublead,idipho,pt_gamgam, m_gamgam,eSmearPars,nR9Categories,nEtaCategories);
+        massResolutionCalculator->Setup(l,&photonInfoCollection[lead],&photonInfoCollection[sublead],idipho,massResoPars,nR9Categories,nEtaCategories,beamspotSigma);
+        //massResolutionCalculator->Setup(l,&lead_p4,&sublead_p4,lead,sublead,idipho,pt_gamgam, m_gamgam,massResoPars,nR9Categories,nEtaCategories);
 
         float sigmaMrv = massResolutionCalculator->massResolutionCorrVtx();
         float sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
@@ -2982,7 +3014,7 @@ bool PhotonAnalysis::ElectronStudies2012B(LoopAll& l, float* smeared_pho_energy,
     if( debuglocal ) std::cout<<"test01"<<std::endl;
 
     // Mass Resolution of the Event
-    massResolutionCalculator->Setup(l,&photonInfoCollection[l.dipho_leadind[diphotonVHlep_id]],&photonInfoCollection[l.dipho_subleadind[diphotonVHlep_id]],elVtx,eSmearPars,nR9Categories,nEtaCategories,beamspotSigma,true);
+    massResolutionCalculator->Setup(l,&photonInfoCollection[l.dipho_leadind[diphotonVHlep_id]],&photonInfoCollection[l.dipho_subleadind[diphotonVHlep_id]],elVtx,massResoPars,nR9Categories,nEtaCategories,beamspotSigma,true);
 //    float vtx_mva  = l.vtx_std_evt_mva->at(diphotonVHlep_id);
     //for(int rankind=0; rankind<l.vtx_std_ranked_list->size(); rankind++){
     //    if(l.vtx_std_ranked_list[rankind]==elVtx){
@@ -3226,7 +3258,7 @@ bool PhotonAnalysis::ElectronTagStudies2012(LoopAll& l, int diphotonVHlep_id, fl
     if( debuglocal ) std::cout<<"test01"<<std::endl;
 
     // Mass Resolution of the Event
-    massResolutionCalculator->Setup(l,&photonInfoCollection[leadpho_ind],&photonInfoCollection[subleadpho_ind],elVtx,eSmearPars,nR9Categories,nEtaCategories,beamspotSigma,true);
+    massResolutionCalculator->Setup(l,&photonInfoCollection[leadpho_ind],&photonInfoCollection[subleadpho_ind],elVtx,massResoPars,nR9Categories,nEtaCategories,beamspotSigma,true);
 //    float vtx_mva  = l.vtx_std_evt_mva->at(diphotonVHlep_id);
     //for(int rankind=0; rankind<l.vtx_std_ranked_list->size(); rankind++){
     //    if(l.vtx_std_ranked_list[rankind]==elVtx){
@@ -4129,7 +4161,7 @@ pair<double,double> PhotonAnalysis::ComputeNewSigmaMs(LoopAll &l, int ipho1, int
     //cout << pho1.p4().X() << endl;
     //cout << pho2.p4().X() << endl;
     //cout << ((TVector3*)l.vtx_std_xyz->At(ivtx))->Z() << endl;
-    tempMassRes->Setup(l,&pho1,&pho2,ivtx,eSmearPars, nR9Categories, nEtaCategories,beamspotSigma,true);
+    tempMassRes->Setup(l,&pho1,&pho2,ivtx,massResoPars, nR9Categories, nEtaCategories,beamspotSigma,true);
     double sigMright = tempMassRes->massResolutionEonlyNoSmear();
     double sigMwrong = tempMassRes->massResolutionWrongVtxNoSmear();
     pair<double,double> result(sigMright,sigMwrong);
@@ -4149,10 +4181,10 @@ void PhotonAnalysis::saveMassFacDatCardTree(LoopAll &l, int cur_type, int catego
    float bdtout_id_down = l.diphotonMVA(ipho1,ipho2,ivtx,vtxP,lead_p4,sublead_p4,sigmaMrv, sigmaMwv, sigmaMeonly, trainPhil.c_str(), lead_id_mva-0.01, sublead_id_mva-0.01);
 
    // calculate diphobdt given shift in sigmaE from regression
-   pair<double,double> newSigmaMsUp = ComputeNewSigmaMs(l,ipho1,ipho2,ivtx,3.);
-   pair<double,double> newSigmaMsDown = ComputeNewSigmaMs(l,ipho1,ipho2,ivtx,-3.);
-   float bdtout_sigE_up =   l.diphotonMVA(ipho1,ipho2,ivtx,vtxP,lead_p4,sublead_p4,newSigmaMsUp.first, newSigmaMsUp.second, newSigmaMsUp.first, trainPhil.c_str(), lead_id_mva+0.01, sublead_id_mva+0.01);
-   float bdtout_sigE_down = l.diphotonMVA(ipho1,ipho2,ivtx,vtxP,lead_p4,sublead_p4,newSigmaMsDown.first, newSigmaMsDown.second, newSigmaMsDown.first, trainPhil.c_str(), lead_id_mva-0.01, sublead_id_mva-0.01);
+   pair<double,double> newSigmaMsUp = ComputeNewSigmaMs(l,ipho1,ipho2,ivtx,1.);
+   pair<double,double> newSigmaMsDown = ComputeNewSigmaMs(l,ipho1,ipho2,ivtx,-1.);
+   float bdtout_sigE_up =   l.diphotonMVA(ipho1,ipho2,ivtx,vtxP,lead_p4,sublead_p4,newSigmaMsUp.first, newSigmaMsUp.second, newSigmaMsUp.first, trainPhil.c_str(), lead_id_mva, sublead_id_mva);
+   float bdtout_sigE_down = l.diphotonMVA(ipho1,ipho2,ivtx,vtxP,lead_p4,sublead_p4,newSigmaMsDown.first, newSigmaMsDown.second, newSigmaMsDown.first, trainPhil.c_str(), lead_id_mva, sublead_id_mva);
    int proc_id=-1;
    if (l.signalNormalizer->GetProcess(cur_type)=="ggh") proc_id=0;
    if (l.signalNormalizer->GetProcess(cur_type)=="vbf") proc_id=1;

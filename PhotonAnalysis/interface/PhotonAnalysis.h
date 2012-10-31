@@ -153,6 +153,8 @@ class PhotonAnalysis : public BaseAnalysis
     float smearing_sigma_error_EBm4LowR9  ;
     float smearing_sigma_error_EEHighR9 ;
     float smearing_sigma_error_EELowR9  ;
+    std::string mass_resol_file;
+    EnergySmearer::energySmearingParameters massResoPars;
 
     std::vector<int> pho_acc;
     std::vector<int> pho_presel;

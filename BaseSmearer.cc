@@ -13,6 +13,7 @@ bool operator == (BaseSmearer * a, const std::string & b) { return a->name() == 
 
 void BaseSmearer::registerMe()
 {
+	std::cout << "BaseSmearer::registerMe " << this->name() << " " << nRegisteredSmerers_ << std::endl;
 	smearerId_ = nRegisteredSmerers_;
 	++nRegisteredSmerers_;
 }

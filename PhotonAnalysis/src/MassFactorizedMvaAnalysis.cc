@@ -109,7 +109,7 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
         photonSmearers_.push_back(eCorrSmearer);
     }
     if( doEscaleSmear ) {
-    setupEscaleSmearer();
+	setupEscaleSmearer();
     }
     if( doEresolSmear ) {
         // energy resolution smearing
@@ -257,14 +257,14 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
         l.rooContainer->MakeSystematicStudy(sys,sys_t);
     }
     if( doEscaleSmear && doEscaleSyst ) {
-    setupEscaleSyst(l);
+	setupEscaleSyst(l);
         //// systPhotonSmearers_.push_back( eScaleSmearer );
         //// std::vector<std::string> sys(1,eScaleSmearer->name());
         //// std::vector<int> sys_t(1,-1);  // -1 for signal, 1 for background 0 for both
         //// l.rooContainer->MakeSystematicStudy(sys,sys_t);
     }
     if( doEresolSmear && doEresolSyst ) {
-    setupEresolSyst(l);
+	setupEresolSyst(l);
         //// systPhotonSmearers_.push_back( eResolSmearer );
         //// std::vector<std::string> sys(1,eResolSmearer->name());
         //// std::vector<int> sys_t(1,-1);  // -1 for signal, 1 for background 0 for both
@@ -532,7 +532,7 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
 ///// float MassFactorizedMvaAnalysis::getDiphoMva(LoopAll & l, int diphotonId, bool smear, float syst_shift) 
 ///// {
 /////     massResolutionCalculator->Setup(l,&photonInfoCollection[l.dipho_leadind[diphotonId]],&photonInfoCollection[l.dipho_subleadind[diphotonId]],diphotonId,
-///// 				    eSmearPars,nR9Categories,nEtaCategories,beamspotSigma);
+///// 				    massResoPars,nR9Categories,nEtaCategories,beamspotSigma);
 /////     float vtx_mva  = l.vtx_std_evt_mva->at(diphotonId);
 /////     sigmaMrv = massResolutionCalculator->massResolutionEonly();
 /////     sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
@@ -582,7 +582,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
     // do gen-level dependent first (e.g. k-factor); only for signal
     genLevWeight=1.;
     if(cur_type!=0 ) {
-    applyGenLevelSmearings(genLevWeight,gP4,l.pu_n,cur_type,genSys,syst_shift);
+	applyGenLevelSmearings(genLevWeight,gP4,l.pu_n,cur_type,genSys,syst_shift);
     }
         
     int mu_ind=-1;
@@ -718,7 +718,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 
         // Mass Resolution of the Event
         massResolutionCalculator->Setup(l,&photonInfoCollection[diphoton_index.first],&photonInfoCollection[diphoton_index.second],diphoton_id,
-					eSmearPars,nR9Categories,nEtaCategories,beamspotSigma);
+					massResoPars,nR9Categories,nEtaCategories,beamspotSigma);
         float vtx_mva  = l.vtx_std_evt_mva->at(diphoton_id);
         sigmaMrv = massResolutionCalculator->massResolutionEonly();
         sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
@@ -759,7 +759,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
         if (diphobdt_output>=bdtCategoryBoundaries.back()) { 
             computeExclusiveCategory(l,category,diphoton_index,Higgs.Pt()); 
         }
-        
+
         if (fillOptree) {
             std::string name;
             if (genSys != 0)
@@ -865,10 +865,18 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
               << "    electrontag:"<< VHelevent
               << "    mettag:"    <<  VHmetevent
               << "    evcat:"     <<  category
-              << "    FileName:"  <<  l.files[l.current];
+              << "    FileName:"  <<  l.files[l.current]
+        // VBF MVA
+              << "    vbfmva: "   <<  myVBF_MVA;
         // Vertex MVA
             vtxAna_.setPairID(diphoton_id);
             std::vector<int> & vtxlist = l.vtx_std_ranked_list->at(diphoton_id);
+            // Conversions
+            PhotonInfo p1 = l.fillPhotonInfos(l.dipho_leadind[diphoton_id], vtxAlgoParams.useAllConversions, 0); // WARNING using default photon energy: it's ok because we only re-do th$
+            PhotonInfo p2 = l.fillPhotonInfos(l.dipho_subleadind[diphoton_id], vtxAlgoParams.useAllConversions, 0); // WARNING using default photon energy: it's ok because we only re-do$
+            int convindex1 = l.matchPhotonToConversion(diphoton_index.first,vtxAlgoParams.useAllConversions);
+            int convindex2 = l.matchPhotonToConversion(diphoton_index.second,vtxAlgoParams.useAllConversions);
+
             for(size_t ii=0; ii<3; ++ii ) {
                 eventListText << "\tvertexId"<< ii+1 <<":" << (ii < vtxlist.size() ? vtxlist[ii] : -1);
             }
@@ -878,16 +886,44 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
             for(size_t ii=1; ii<3; ++ii ) {
                 eventListText << "\tvertexdeltaz"<< ii+1 <<":" << (ii < vtxlist.size() ? vtxAna_.vertexz(vtxlist[ii])-vtxAna_.vertexz(vtxlist[0]) : -999.);
             }
-            eventListText << "\tptbal:"   << vtxAna_.ptbal(0)
-                          << "\tptasym:"  << vtxAna_.ptasym(0)
-                          << "\tlogspt2:" << vtxAna_.logsumpt2(0)
-                          << "\tp2conv:"  << vtxAna_.pulltoconv(0);
+            eventListText << "\tptbal:"   << vtxAna_.ptbal(vtxlist[0])
+                          << "\tptasym:"  << vtxAna_.ptasym(vtxlist[0])
+                          << "\tlogspt2:" << vtxAna_.logsumpt2(vtxlist[0])
+                          << "\tp2conv:"  << vtxAna_.pulltoconv(vtxlist[0])
+                          << "\tnconv:"   << vtxAna_.nconv(vtxlist[0]);
 
-        // Conversions
-        PhotonInfo p1 = l.fillPhotonInfos(diphoton_index.first, 3, 0);
-        PhotonInfo p2 = l.fillPhotonInfos(diphoton_index.second, 3, 0);
-        int convindex1 = l.matchPhotonToConversion(diphoton_index.first,3);
-        int convindex2 = l.matchPhotonToConversion(diphoton_index.second,3);
+        //Photon IDMVA inputs
+            double pfchargedisobad03=0.;
+            for(int ivtx=0; ivtx<l.vtx_std_n; ivtx++) {
+                pfchargedisobad03 = l.pho_pfiso_mycharged03->at(diphoton_index.first).at(ivtx) > pfchargedisobad03 ? l.pho_pfiso_mycharged03->at(diphoton_index.first).at(ivtx) : pfchargedisobad03;
+            }
+
+            eventListText << "\tscetawidth_1: " << l.pho_etawidth[diphoton_index.first]
+                          << "\tscphiwidth_1: " << l.sc_sphi[diphoton_index.first]
+                          << "\tsieip_1: " << l.pho_sieip[diphoton_index.first]
+                          << "\tbc_e2x2_1: " << l.pho_e2x2[diphoton_index.first]
+                          << "\tpho_e5x5_1: " << l.bc_s25[l.sc_bcseedind[l.pho_scind[diphoton_index.first]]]
+                          << "\ts4ratio_1: " << l.pho_s4ratio[diphoton_index.first]
+                          << "\tpfphotoniso03_1: " << l.pho_pfiso_myphoton03[diphoton_index.first]
+                          << "\tpfchargedisogood03_1: " << l.pho_pfiso_mycharged03->at(diphoton_index.first).at(vtxlist[0])
+                          << "\tpfchargedisobad03_1: " << pfchargedisobad03
+                          << "\teseffsigmarr_1: " << l.pho_ESEffSigmaRR[diphoton_index.first];
+            pfchargedisobad03=0.;
+            for(int ivtx=0; ivtx<l.vtx_std_n; ivtx++) {
+                pfchargedisobad03 = l.pho_pfiso_mycharged03->at(diphoton_index.second).at(ivtx) > pfchargedisobad03 ? l.pho_pfiso_mycharged03->at(diphoton_index.second).at(ivtx) : pfchargedisobad03;
+            }
+
+            eventListText << "\tscetawidth_2: " << l.pho_etawidth[diphoton_index.second]
+                          << "\tscphiwidth_2: " << l.sc_sphi[diphoton_index.second]
+                          << "\tsieip_2: " << l.pho_sieip[diphoton_index.second]
+                          << "\tbc_e2x2_2: " << l.pho_e2x2[diphoton_index.second]
+                          << "\tpho_e5x5_2: " << l.bc_s25[l.sc_bcseedind[l.pho_scind[diphoton_index.second]]]
+                          << "\ts4ratio_2: " << l.pho_s4ratio[diphoton_index.second]
+                          << "\tpfphotoniso03_2: " << l.pho_pfiso_myphoton03[diphoton_index.second]
+                          << "\tpfchargedisogood03_2: " << l.pho_pfiso_mycharged03->at(diphoton_index.second).at(vtxlist[0])
+                          << "\tpfchargedisobad03_2: " << pfchargedisobad03
+                          << "\teseffsigmarr_2: " << l.pho_ESEffSigmaRR[diphoton_index.second];
+
 
             if (convindex1!=-1) {
                 eventListText 
@@ -896,7 +932,10 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
                 << "    convRes1:"   << vtxAna_.vtxdZFromConv(p1) 
                 << "    convChiProb1:"  <<  l.conv_chi2_probability[convindex1]
                 << "    convNtrk1:"  <<  l.conv_ntracks[convindex1]
-                << "    convindex1:"  <<  convindex1;
+                << "    convindex1:"  <<  convindex1
+                << "    convvtxZ1:" << ((TVector3*) l.conv_vtx->At(convindex1))->Z()
+                << "    convvtxR1:" << ((TVector3*) l.conv_vtx->At(convindex1))->Perp()
+                << "    convrefittedPt1:" << ((TVector3*) l.conv_refitted_momentum->At(convindex1))->Pt();
             } else {
                 eventListText 
                 << "    convVtxZ1:"  <<  -999
@@ -904,7 +943,10 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
                 << "    convRes1:"    <<  -999
                 << "    convChiProb1:"  <<  -999
                 << "    convNtrk1:"  <<  -999
-                << "    convindex1:"  <<  -999;
+                << "    convindex1:"  <<  -999
+                << "    convvtxZ1:" << -999
+                << "    convvtxR1:" << -999
+                << "    convrefittedPt1:" << -999;
             }
             if (convindex2!=-1) {
                 eventListText 
@@ -913,7 +955,10 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
                 << "    convRes2:"   << vtxAna_.vtxdZFromConv(p2)
                 << "    convChiProb2:"  <<  l.conv_chi2_probability[convindex2]
                 << "    convNtrk2:"  <<  l.conv_ntracks[convindex2]
-                << "    convindex2:"  <<  convindex2;
+                << "    convindex2:"  <<  convindex2
+                << "    convvtxZ2:" << ((TVector3*) l.conv_vtx->At(convindex2))->Z()
+                << "    convvtxR2:" << ((TVector3*) l.conv_vtx->At(convindex2))->Perp()
+                << "    convrefittedPt2:" << ((TVector3*) l.conv_refitted_momentum->At(convindex2))->Pt();
             } else {
                 eventListText 
                 << "    convVtxZ2:"  <<  -999
@@ -921,36 +966,12 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
                 << "    convRes2:"    <<  -999
                 << "    convChiProb2:"  <<  -999
                 << "    convNtrk2:"  <<  -999
-                << "    convindex2:"  <<  -999;
+                << "    convindex2:"  <<  -999
+                << "    convvtxZ2:" << -999
+                << "    convvtxR2:" << -999
+                << "    convrefittedPt2:" << -999;
             }
             
-            if(VHmuevent){
-                TLorentzVector* mymu = (TLorentzVector*) l.mu_glo_p4->At(mu_ind);
-                float thisiso=((l.mu_glo_nehadiso04[mu_ind]+l.mu_glo_photiso04[mu_ind])>l.mu_dbCorr[mu_ind]) ?
-                        l.mu_glo_chhadiso04[mu_ind]+l.mu_glo_nehadiso04[mu_ind]+l.mu_glo_photiso04[mu_ind]-l.mu_dbCorr[mu_ind] : l.mu_glo_chhadiso04[mu_ind];    
-                eventListText 
-                    << "    muind:"<<       mu_ind
-                    << "    mupt:"<<        mymu->Pt()
-                    << "    mueta:"<<       mymu->Eta()
-                    << "    muiso:"<<       thisiso
-                    << "    muisoopt:"<<    thisiso/mymu->Pt()
-                    << "    mud0:"<<        fabs(l.mu_glo_D0Vtx[mu_ind][muVtx]) 
-                    << "    mudq:"<<        fabs(l.mu_glo_DZVtx[mu_ind][muVtx])
-                    << "    mudr1:"<<       mymu->DeltaR(lead_p4) 
-                    << "    mudr2:"<<       mymu->DeltaR(sublead_p4); 
-            } else {
-                eventListText 
-                    << "    muind:"<<       -1
-                    << "    mupt:"<<        -1
-                    << "    mueta:"<<       -1
-                    << "    muiso:"<<       -1
-                    << "    muisoopt:"<<    -1
-                    << "    mud0:"<<        -1
-                    << "    mudq:"<<        -1
-                    << "    mudr1:"<<       -1
-                    << "    mudr2:"<<       -1;
-            }
-
             if(VHelevent){
                 TLorentzVector* myel = (TLorentzVector*) l.el_std_p4->At(el_ind);
                 TLorentzVector* myelsc = (TLorentzVector*) l.el_std_sc->At(el_ind);
@@ -1026,7 +1047,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 
             eventListText << endl;
         }
-	return (category >= 0 && mass>=massMin && mass<=massMax);
+	return (l.runZeeValidation || (category >= 0 && mass>=massMin && mass<=massMax));
     }
     return false;
 }
