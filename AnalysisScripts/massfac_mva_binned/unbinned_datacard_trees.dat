@@ -7,6 +7,14 @@ type=2 name=scale_err
 type=2 name=w_scale_err_2
 type=2 name=smear_err
 type=2 name=w_smear_err_2
+type=2 name=scale1
+type=2 name=scale1_err
+type=2 name=scale2
+type=2 name=scale2_err
+type=2 name=smear1
+type=2 name=smear1_err
+type=2 name=smear2
+type=2 name=smear2_err
 type=2 name=bdtout
 type=2 name=bdtout_id_up
 type=2 name=bdtout_id_down
