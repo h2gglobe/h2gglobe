@@ -391,11 +391,11 @@ void makeParametricModelDatacard(string infilename, string outfilename="cms_hgg_
   
   vbfmiguncertnames.push_back("CMS_hgg_JECmigration");
   vbfmiguncerts.push_back(1.005);
-  vbfmiggguncerts.push_back(1.075);
+  vbfmiggguncerts.push_back(1.025);
 
   vbfmiguncertnames.push_back("CMS_hgg_UEPSmigration");
   vbfmiguncerts.push_back(1.01);
-  vbfmiggguncerts.push_back(1.11);
+  vbfmiggguncerts.push_back(1.045);
   
   printf("vbf migration uncerts\n");
   for (unsigned int j=0; j<vbfmiguncerts.size(); ++j) {
@@ -501,20 +501,24 @@ void makeParametricModelDatacard(string infilename, string outfilename="cms_hgg_
   }
   for (int e=0; e<tree->GetEntries(); e++){
     tree->GetEntry(e);
-    dscales[category_] += weight_*scale_err_*scale_err_;
-    dsmears[category_] += weight_*smear_err_*smear_err_;
+    //// dscales[category_] += weight_*scale_err_*scale_err_;
+    //// dsmears[category_] += weight_*smear_err_*smear_err_;
+    dscales[category_] += weight_*scale_err_;
+    dsmears[category_] += weight_*smear_err_;
     dweights[category_] += weight_;
   }
   
   // divide by sum of weights and write to card
   for (int icat=0; icat<ncats; ++icat){
-    dscales[icat]/=dweights[icat];
+    // dsmears[icat]=sqrt(dsmears[icat]/dweights[icat]);
     dsmears[icat]/=dweights[icat];
     fprintf(file, "CMS_hgg_nuissancedeltasmear%s param 0.0 %5f\n" , catnames.at(icat).c_str(), dsmears.at(icat));
   }
   fprintf(file,"\n\n\n");
 
   for (int icat=0; icat<ncats; ++icat){
+    /// dscales[icat]=sqrt(dscales[icat]/dweights[icat]);
+    dscales[icat]/=dweights[icat];
     fprintf(file, "CMS_hgg_nuissancedeltam%s param 0.0 %5f\n" , catnames.at(icat).c_str(), dscales.at(icat));
   }
   fprintf(file,"\n");
