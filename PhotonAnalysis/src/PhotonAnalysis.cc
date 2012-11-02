@@ -4019,7 +4019,7 @@ void PhotonAnalysis::saveBSTrees(LoopAll &l, float evweight, int category, TLore
 
 }
 
-float PhotonAnalysis::ComputeEventScaleError(LoopAll& l, int ipho1, int ipho2) {
+float PhotonAnalysis::ComputeEventScaleError(LoopAll& l, int ipho1, int ipho2, float & scale1, float & scale1_err, float & scale2, float & scale2_err) {
     PhotonReducedInfo pho1 (
         *((TVector3*)     l.sc_xyz->At(l.pho_scind[ipho1])),
         ((TLorentzVector*)l.pho_p4->At(ipho1))->Energy(),
@@ -4052,31 +4052,31 @@ float PhotonAnalysis::ComputeEventScaleError(LoopAll& l, int ipho1, int ipho2) {
     if( PADEBUG ) std::cout<<"cat1 "<<cat1<<std::endl;
     if( PADEBUG ) std::cout<<"cat2 "<<cat2<<std::endl;
 
-    float scale1 = 1.0;
-    float scale2 = 1.0;
+    scale1 = 1.0;
+    scale2 = 1.0;
 
-    float scale_syst_err1 = eScaleSmearer->myParameters_.scale_offset_error[cat1];
-    float scale_syst_err2 = eScaleSmearer->myParameters_.scale_offset_error[cat2];
-    if( PADEBUG ) std::cout<<"scale_syst_err1 "<<scale_syst_err1<<std::endl;
-    if( PADEBUG ) std::cout<<"scale_syst_err2 "<<scale_syst_err2<<std::endl;
+    scale1_err = eScaleSmearer->myParameters_.scale_offset_error[cat1];
+    scale2_err = eScaleSmearer->myParameters_.scale_offset_error[cat2];
+    if( PADEBUG ) std::cout<<"scale_syst_err1 "<<scale1_err<<std::endl;
+    if( PADEBUG ) std::cout<<"scale_syst_err2 "<<scale2_err<<std::endl;
 
     float scale_event = -1;
     float scale_event_err = -1;
 
     if(cat1==cat2){
         scale_event=scale1;
-        scale_event_err=scale_syst_err1;
+        scale_event_err=scale1_err;
     } else {
         scale_event=sqrt(scale1*scale2);
         scale_event_err=0.5*scale_event*sqrt(
-                (scale_syst_err1*scale_syst_err1)/(scale1*scale2) +
-                (scale_syst_err2*scale_syst_err2)/(scale2*scale2) );
+                (scale1_err*scale1_err)/(scale1*scale2) +
+                (scale2_err*scale2_err)/(scale2*scale2) );
     }
 
-    return scale_event_err/scale_event;
+    return scale_event_err;
 }
 
-float PhotonAnalysis::ComputeEventSmearError(LoopAll& l, int ipho1, int ipho2) {
+float PhotonAnalysis::ComputeEventSmearError(LoopAll& l, int ipho1, int ipho2, float & smear1, float & smear1_err, float & smear2, float & smear2_err) {
     PhotonReducedInfo pho1 (
         *((TVector3*)     l.sc_xyz->At(l.pho_scind[ipho1])),
         ((TLorentzVector*)l.pho_p4->At(ipho1))->Energy(),
@@ -4109,30 +4109,30 @@ float PhotonAnalysis::ComputeEventSmearError(LoopAll& l, int ipho1, int ipho2) {
     if( PADEBUG ) std::cout<<"cat1 "<<cat1<<std::endl;
     if( PADEBUG ) std::cout<<"cat2 "<<cat2<<std::endl;
 
-    float smear1 = eScaleSmearer->myParameters_.smearing_sigma[cat1];
-    float smear2 = eScaleSmearer->myParameters_.smearing_sigma[cat2];
+    smear1 = eScaleSmearer->myParameters_.smearing_sigma[cat1];
+    smear2 = eScaleSmearer->myParameters_.smearing_sigma[cat2];
     if( PADEBUG ) std::cout<<"smear1 "<<smear1<<std::endl;
     if( PADEBUG ) std::cout<<"smear2 "<<smear2<<std::endl;
 
-    float smear_stat_err1 = eScaleSmearer->myParameters_.smearing_sigma_error[cat1];
-    float smear_stat_err2 = eScaleSmearer->myParameters_.smearing_sigma_error[cat2];
-    if( PADEBUG ) std::cout<<"smear_stat_err1 "<<smear_stat_err1<<std::endl;
-    if( PADEBUG ) std::cout<<"smear_stat_err2 "<<smear_stat_err2<<std::endl;
+    smear1_err = eScaleSmearer->myParameters_.smearing_sigma_error[cat1];
+    smear2_err = eScaleSmearer->myParameters_.smearing_sigma_error[cat2];
+    if( PADEBUG ) std::cout<<"smear_stat_err1 "<<smear1_err<<std::endl;
+    if( PADEBUG ) std::cout<<"smear_stat_err2 "<<smear2_err<<std::endl;
 
     float smear_event = -1;
     float smear_event_err = -1;
 
     if(cat1==cat2) {
         smear_event=sqrt(0.5)*smear1;
-        smear_event_err=sqrt(0.5)*smear_stat_err1;
+        smear_event_err=sqrt(0.5)*smear1_err;
     } else {
         smear_event=0.5*sqrt(smear1*smear1 + smear2*smear2);
         smear_event_err=0.25/smear_event*sqrt(
-                (smear1*smear1*smear_stat_err1*smear_stat_err1) +
-                (smear2*smear2*smear_stat_err2*smear_stat_err2) );
+                (smear1*smear1*smear1_err*smear1_err) +
+                (smear2*smear2*smear2_err*smear2_err) );
     }
 
-    return smear_event_err/smear_event;
+    return smear_event_err;
 }
 
 pair<double,double> PhotonAnalysis::ComputeNewSigmaMs(LoopAll &l, int ipho1, int ipho2, int ivtx, float sys_shift){
@@ -4171,8 +4171,10 @@ pair<double,double> PhotonAnalysis::ComputeNewSigmaMs(LoopAll &l, int ipho1, int
 void PhotonAnalysis::saveMassFacDatCardTree(LoopAll &l, int cur_type, int category, float evweight, int ipho1, int ipho2, int ivtx, float vtxP, TLorentzVector lead_p4, TLorentzVector sublead_p4, double sigmaMrv, double sigmaMwv, double sigmaMeonly, string trainPhil, float lead_id_mva, float sublead_id_mva){
 
    // track the scale and smear uncertainties per event
-   float scale_err = ComputeEventScaleError(l,ipho1,ipho2);
-   float smear_err = ComputeEventSmearError(l,ipho1,ipho2);
+    float scale1, scale1_err, scale2, scale2_err;
+    float smear1, smear1_err, smear2, smear2_err;
+    float scale_err = ComputeEventScaleError(l,ipho1,ipho2,scale1,scale1_err,scale1,scale1_err);
+    float smear_err = ComputeEventSmearError(l,ipho1,ipho2,smear1,smear1_err,smear1,smear1_err);
 
    float bdtout = l.diphotonMVA(ipho1,ipho2,ivtx,vtxP,lead_p4,sublead_p4,sigmaMrv, sigmaMwv, sigmaMeonly, trainPhil.c_str(), lead_id_mva, sublead_id_mva);
 
@@ -4194,10 +4196,19 @@ void PhotonAnalysis::saveMassFacDatCardTree(LoopAll &l, int cur_type, int catego
    l.FillTree("category",category,"datacard_trees");
    l.FillTree("process_id",proc_id,"datacard_trees");
    l.FillTree("weight",evweight,"datacard_trees");
+   l.FillTree("scale1",scale1,"datacard_trees");
+   l.FillTree("scale1_err",scale1_err,"datacard_trees");
+   l.FillTree("scale2",scale2,"datacard_trees");
+   l.FillTree("scale2_err",scale2_err,"datacard_trees");
+   l.FillTree("scale_err",scale_err,"datacard_trees");
    l.FillTree("scale_err",scale_err,"datacard_trees");
    l.FillTree("w_scale_err_2",evweight*scale_err*scale_err,"datacard_trees");
    l.FillTree("smear_err",smear_err,"datacard_trees");
    l.FillTree("w_smear_err_2",evweight*smear_err*smear_err,"datacard_trees");
+   l.FillTree("smear1",smear1,"datacard_trees");
+   l.FillTree("smear1_err",smear1_err,"datacard_trees");
+   l.FillTree("smear2",smear2,"datacard_trees");
+   l.FillTree("smear2_err",smear2_err,"datacard_trees");
    l.FillTree("bdtout",bdtout,"datacard_trees");
    l.FillTree("bdtout_id_up",bdtout_id_up,"datacard_trees");
    l.FillTree("bdtout_id_down",bdtout_id_down,"datacard_trees");

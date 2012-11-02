@@ -399,8 +399,8 @@ class PhotonAnalysis : public BaseAnalysis
     void saveBSTrees(LoopAll &l, float evweight, int category, TLorentzVector Higgs, TVector3 *chosenVtx, TVector3 *genVtx, float diphobdt_output=-100.);
 
     // Track systematics
-    float ComputeEventScaleError(LoopAll& l, int ipho1, int ipho2);
-    float ComputeEventSmearError(LoopAll& l, int ipho1, int ipho2);
+    float ComputeEventScaleError(LoopAll& l, int ipho1, int ipho2, float & scale1, float & scale1_err, float & scale2, float & scale2_err);
+    float ComputeEventSmearError(LoopAll& l, int ipho1, int ipho2, float & smear1, float & smear1_err, float & smear2, float & smear2_err);
     pair<double,double> ComputeNewSigmaMs(LoopAll &l, int ipho1, int ipho2, int ivtx, float syst_shift);
     void saveMassFacDatCardTree(LoopAll& l, int cur_type, int category, float evweight, int ipho1, int ipho2, int ivtx, float vtxProb, TLorentzVector lead_p4, TLorentzVector sublead_p4, double sigmaMrv, double sigmaMwv, double sigmaMeonly, string trainPhi, float lead_id_mva, float sublead_id_mva);
 
