@@ -11,25 +11,46 @@ gStyle.SetOptStat(000000)
 gStyle.SetCanvasBorderMode(0);
 gStyle.SetCanvasColor(kWhite);
 gROOT.SetBatch(1)
+gStyle.SetPadLeftMargin(0.18);
+gStyle.SetPadRightMargin(0.05);
 
 print "Setting Initial Parameters."
-can = TCanvas("Plots","Plots",850,600)
-leg = TLegend(0.65, 0.75, 0.89, 0.89)
+can = TCanvas("Plots","Plots",800,800)
+leg = TLegend(0.70, 0.65, 0.945, 0.78)
 leg.SetFillColor(0)
 leg.SetBorderSize(1)
 mytext = TLatex()
-mytext.SetTextSize(0.04)
+mytext.SetTextSize(0.025)
 mytext.SetNDC()
-rMin=-15
-rMax=15
-#intlumi=[5.1,3.8]
-#Energy=[7,8]
-intlumi=[12.2]
-Energy=[8]
-
-#Masses=[x * 0.1 for x in range(1100,1501,5)]
-#Masses=[123.0,123.5,124.0,124.5,125.0,125.5,126.0,126.5]
-Masses=[125.0]
+rMin=-12
+rMax=10.5
+Label1=TText()
+Label1.SetNDC()
+Label1.SetText(0.3,0.60,"8TeV")
+Label1.SetTextFont(62)
+Label1.SetTextSize(.09)
+Label1.SetTextAngle(90)
+Label2=TText()
+Label2.SetNDC()
+Label2.SetText(0.3,0.18,"7TeV")
+Label2.SetTextFont(62)
+Label2.SetTextSize(.09)
+Label2.SetTextAngle(90)
+splitline=5
+#splitline=8
+myline = TLine(rMin,splitline,rMax,splitline)
+myline.SetLineColor(kBlack)
+myline.SetLineWidth(3)
+myline.SetLineStyle(7)
+dumbline = TLine()
+dumbline.SetLineColor(kBlack)
+dumbline.SetLineWidth(1)
+BinLabel = ["Untagged 0","Untagged 1","Untagged 2","Untagged 3","Di-jet","Untagged 0","Untagged 1","Untagged 2","Untagged 3","Di-jet tight","Di-jet loose","Muon","Electron","MET"]
+intlumi=[5.1,12.2]
+Energy=[7,8]
+#intlumi=[12.2]
+#Energy=[8]
+Masses=[124.0]
 directory = sys.argv[1]
 
 for Mass in Masses:
@@ -63,15 +84,22 @@ for Mass in Masses:
   graph.SetMarkerSize(2)
   graph.SetMarkerColor(kBlack)
   graph.SetFillColor(kWhite)
-  leg.AddEntry(graph,"BestFit Category")
+  #leg.AddEntry(graph,"BestFit Category")
   for i in range(len(Channels)):
-    dummyHist.GetYaxis().SetBinLabel(i+1, Channels[i][-4:]);
-  dummyHist.SetTitleSize(0.06,"X")
-  dummyHist.SetTitleOffset(0.7,"X")
-  dummyHist.SetLabelSize(0.07,"Y")
+    dummyHist.GetYaxis().SetBinLabel(i+1, BinLabel[i]);
+  dummyHist.SetTitleSize(0.045,"X")
+  dummyHist.SetTitleOffset(0.95,"X")
+  dummyHist.SetLabelSize(0.045,"X")
+  dummyHist.SetLabelFont(62,"Y")
+  dummyHist.SetLabelSize(0.045,"Y")
+  dummyHist.SetTitleOffset(1.1,"Y")
   dummyHist.SetLineColor(kBlack)
   dummyHist.SetFillColor(kGreen)
-  leg.AddEntry(dummyHist,"68% Combined")
+  #leg.AddEntry(dummyHist,"68% Combined")
+  leg.AddEntry(graph,"Event Class")
+  leg.AddEntry(dummyHist,"Combined","f")
+  leg.AddEntry(NULL,"m_{H} = %.1f GeV" %Mass,"")
+  leg.AddEntry(NULL,"#sigma/#sigma_{SM} = %.2f#pm%.2f" %(CombinedBestFitObserved,CombinedBestFitErrorUp),"")
   dummyHist.Draw()
   BestFitBand=TBox(CombinedBestFitObserved+CombinedBestFitErrorDown,0,CombinedBestFitObserved+CombinedBestFitErrorUp,len(Channels))
   #BestFitBand.SetFillStyle(3013)
@@ -84,10 +112,14 @@ for Mass in Masses:
   BestFitLine.Draw()
   graph.Draw("P SAME")
   leg.Draw()
-  if len(intlumi)==2: mytext.DrawLatex(0.13,0.8,"#splitline{CMS preliminary}{#splitline{#splitline{M_{H} = %.1f (GeV/c^{2})}{#sqrt{s} = %i TeV L = %.1f fb^{-1}}{#sqrt{s} = %i TeV L = %.1f fb^{-1}}}}" %(Mass,int(Energy[0]),float(intlumi[0]),int(Energy[1]),float(intlumi[1])))
-  else: mytext.DrawLatex(0.13,0.8,"#splitline{CMS preliminary}{#splitline{M_{H} = %.1f (GeV/c^{2})}{#sqrt{s} = %i TeV L = %.1f fb^{-1}}}" %(Mass,int(Energy[0]),float(intlumi[0])))
+  if len(intlumi)==2: mytext.DrawLatex(0.70,0.85,"#splitline{CMS preliminary}{#splitline{#sqrt{s} = %i TeV, L = %.1f fb^{-1}}{#sqrt{s} = %i TeV, L = %.1f fb^{-1}}}" %(int(Energy[0]),float(intlumi[0]),int(Energy[1]),float(intlumi[1])))
+  else: mytext.DrawLatex(0.70,0.85,"#splitline{CMS preliminary}{#sqrt{s} = %i TeV, L = %.1f fb^{-1}}" %(int(Energy[0]),float(intlumi[0])))
   can.RedrawAxis()
-  can.SaveAs("BestFit"+str(Mass)+"GeV.pdf")
+  Label1.Draw()
+  Label2.Draw()
+  myline.Draw()
+  dumbline.DrawLineNDC(0.7+0.0305,0.78-0.06,0.7+0.0305,0.78-0.037)
+  can.SaveAs("BestFit"+str(Mass)+"GeV_7and8TeV_CutBased.pdf")
   graph.Clear()
   dummyHist.Clear()
   BestFitBand.Clear()
