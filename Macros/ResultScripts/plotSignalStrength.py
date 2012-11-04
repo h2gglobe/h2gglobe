@@ -21,12 +21,12 @@ leg.SetBorderSize(1)
 mytext = TLatex()
 mytext.SetTextSize(0.04)
 mytext.SetNDC()
-Minimum=-3
-Maximum=3
-#intlumi=[5.1,3.8]
-#Energy=[7,8]
-intlumi=[3.8]
-Energy=[8]
+Minimum=-2
+Maximum=2.5
+intlumi=[5.1,12.2]
+Energy=[7,8]
+#intlumi=[12.2]
+#Energy=[8]
 
 Masses=array.array("f",[x * 0.1 for x in range(1100,1501,5)])
 directory = sys.argv[1]
@@ -44,7 +44,7 @@ dummyHist.SetTitle(";M_{H} (GeV/c^{2});Best Fit #sigma/#sigma_{SM}")
 dummyHist.SetTitleSize(.06,"X")
 dummyHist.SetTitleOffset(0.65,"X")
 dummyHist.SetTitleSize(.06,"Y")
-dummyHist.SetTitleOffset(0.5,"Y")
+dummyHist.SetTitleOffset(0.6,"Y")
 dummyHist.SetMinimum(Minimum)
 dummyHist.SetMaximum(Maximum)
 
@@ -83,8 +83,8 @@ line.Draw()
 can.RedrawAxis();
 can.SetGrid(True)
 
-if len(intlumi)==2: mytext.DrawLatex(0.13,0.8,"#splitline{CMS preliminary}{#splitline{#sqrt{s} = %i TeV L = %.1f fb^{-1}}{#sqrt{s} = %i TeV L = %.1f fb^{-1}}}" %(int(Energy[0]),float(intlumi[0]),int(Energy[1]),float(intlumi[1])))
-else: mytext.DrawLatex(0.13,0.8,"#splitline{CMS preliminary}{#sqrt{s} = %i TeV L = %.1f fb^{-1}}" %(int(Energy[0]),float(intlumi[0])))
+if len(intlumi)==2: mytext.DrawLatex(0.13,0.805,"#splitline{CMS preliminary}{#splitline{#sqrt{s} = %i TeV L = %.1f fb^{-1}}{#sqrt{s} = %i TeV L = %.1f fb^{-1}}}" %(int(Energy[0]),float(intlumi[0]),int(Energy[1]),float(intlumi[1])))
+else: mytext.DrawLatex(0.13,0.83,"#splitline{CMS preliminary}{#sqrt{s} = %i TeV L = %.1f fb^{-1}}" %(int(Energy[0]),float(intlumi[0])))
 
 can.SaveAs(sys.argv[2])
 print "Done!"
