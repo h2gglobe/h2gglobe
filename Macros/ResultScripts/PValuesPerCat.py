@@ -7,10 +7,11 @@ from optparse import OptionParser
 
 parser = OptionParser()
 parser.add_option("-d", "--datacard", dest="datacard", help="Input Datacard")
-parser.add_option("-e", "--Expected", action="store_true", dest="Expected", default=False, help="Do Expected PValues")
-parser.add_option("-o", "--Observed", action="store_true", dest="Observed", default=False, help="Do Observed PValues")
+parser.add_option("-e", "--Expected", action="store_true", dest="Expected", default=False, help="Do Expected PValues or Limits")
+parser.add_option("-o", "--Observed", action="store_true", dest="Observed", default=False, help="Do Observed PValues or Limits")
 parser.add_option("-l", "--Limits", action="store_true", dest="Limits", default=False, help="Do Asymptotic CLs Limits")
-parser.add_option("-p", "--PValues", action="store_true", dest="PValues", default=False, help="Do PValues Limits")
+parser.add_option("-p", "--PValues", action="store_true", dest="PValues", default=False, help="Do PValues")
+parser.add_option("-b", "--BestFit", action="store_true", dest="BestFit", default=False, help="Do BestFit Signal Strength")
 parser.add_option("-m", "--Masses", dest="Masses", default="", help="Only calculate limits or pvalues at listed masses. --Masses=120,124,125")
 parser.add_option("-c", "--Categories", action="store_true", dest="Categories", default=False, help="Do PValues for all categories")
 parser.add_option("-u", "--CustumCat", dest="CustumCat", default="", help="Make datacards and do PValues for custum category. --CustumCat=\"cat0 cat1 cat2 cat3\" ")
@@ -20,10 +21,11 @@ parser.add_option("-t", "--toysFile", dest="toysFile", default="", help="Asimov 
 parser.add_option("--debug", action="store_true", dest="debug", default=False, help="Enable Debug Mode")
 parser.add_option("--dryrun", action="store_true", dest="dryrun", default=False, help="Don't calculate pvalues, but it will still make datacards.")
 parser.add_option("--expectSignal", dest="expectSignal", default=1, help="Expected Signal Strength")
-parser.add_option("--threads", type="int", dest="threads", default=0, help="Maximum Number of Threads")
+parser.add_option("--nosubdirectory", action="store_true", dest="nosubdirectory", default=False, help="Don't place output in sub-directory. Handy with -s if only running one type of task.")
 parser.add_option("--overwrite", action="store_true", dest="overwrite", default=False, help="Overwrite output directory")
 parser.add_option("--RegularMasses", action="store_true", dest="RegularMasses", default=False, help="Only run pvalues at 110-150 in 5 GeV steps.")
 parser.add_option("--SkipDatacard", action="store_true", dest="SkipDatacard", default=False, help="Don't Calculate limits or pvalues for the given datacard. Use this if you only want limits or pvalues for a custum category, but don't have a datacard yet.")
+parser.add_option("--threads", type="int", dest="threads", default=0, help="Maximum Number of Threads")
 (options, args) = parser.parse_args()
 
 def waitthreads(program,maxthreads):
@@ -104,23 +106,34 @@ for datacard in DatacardList:
     if options.toysFile=="": datacardoutputdirexpected=datacardoutputdir+"_Expected_"+str(options.expectSignal)+"SM"
     if options.toysFile!="": datacardoutputdirexpected=datacardoutputdir+"_Expected_"+str(options.expectSignal)+"SM_Asimov"
     if options.Limits: limitoutputdir=datacardoutputdir+"_Limits"
+    if options.BestFit: bestfitdir=datacardoutputdir+"_BestFit"
+    if options.nosubdirectory:
+        datacardoutputdir=os.path.abspath(options.OutputDirectory)
+        datacardoutputdirexpected=os.path.abspath(options.OutputDirectory)
+        limitoutputdir=os.path.abspath(options.OutputDirectory)
+        bestfitdir=os.path.abspath(options.OutputDirectory)
 
-    if options.dryrun: continue
-    if options.OutputDirectory!="":
-        if os.path.exists(options.OutputDirectory) and options.overwrite: shutil.rmtree(options.OutputDirectory)
-        os.makedirs(options.OutputDirectory)
-    if options.Observed and options.PValues:
-        if os.path.exists(datacardoutputdir) and options.overwrite: shutil.rmtree(datacardoutputdir)
-        os.makedirs(datacardoutputdir)
-        datacardoutputdir=os.path.abspath(datacardoutputdir)
-    if options.Expected and options.PValues:
-        if os.path.exists(datacardoutputdirexpected) and options.overwrite: shutil.rmtree(datacardoutputdirexpected)
-        os.makedirs(datacardoutputdirexpected)
-        datacardoutputdirexpected=os.path.abspath(datacardoutputdirexpected)
-    if options.Limits:
-        if os.path.exists(limitoutputdir) and options.overwrite: shutil.rmtree(limitoutputdir)
-        os.makedirs(limitoutputdir)
-        limitoutputdir=os.path.abspath(limitoutputdir)
+    if not options.dryrun:
+        if options.OutputDirectory!="":
+            if os.path.exists(options.OutputDirectory) and options.overwrite: shutil.rmtree(options.OutputDirectory)
+            os.makedirs(options.OutputDirectory)
+        if not options.nosubdirectory:
+            if options.Observed and options.PValues:
+                if os.path.exists(datacardoutputdir) and options.overwrite: shutil.rmtree(datacardoutputdir)
+                os.makedirs(datacardoutputdir)
+                datacardoutputdir=os.path.abspath(datacardoutputdir)
+            if options.Expected and options.PValues:
+                if os.path.exists(datacardoutputdirexpected) and options.overwrite: shutil.rmtree(datacardoutputdirexpected)
+                os.makedirs(datacardoutputdirexpected)
+                datacardoutputdirexpected=os.path.abspath(datacardoutputdirexpected)
+            if options.Limits:
+                if os.path.exists(limitoutputdir) and options.overwrite: shutil.rmtree(limitoutputdir)
+                os.makedirs(limitoutputdir)
+                limitoutputdir=os.path.abspath(limitoutputdir)
+            if options.BestFit:
+                if os.path.exists(bestfitdir) and options.overwrite: shutil.rmtree(bestfitdir)
+                os.makedirs(bestfitdir)
+                bestfitdir=os.path.abspath(bestfitdir)
 
     threadlist=[]
     threads=0
@@ -133,29 +146,35 @@ for datacard in DatacardList:
             os.chdir(datacardoutputdir)
             if options.debug: print "combine "+datacard+" -m "+str(mass)+" -M ProfileLikelihood -s -1 -n PValue --signif --pvalue >& higgsCombinePValue.ProfileLikelihood.mH"+str(mass)+".log &"
             if not options.dryrun: os.system("combine "+datacard+" -m "+str(mass)+" -M ProfileLikelihood -s -1 -n PValue --signif --pvalue >& higgsCombinePValue.ProfileLikelihood.mH"+str(mass)+".log &")
-        waitthreads("combine",options.threads)
+            waitthreads("combine",options.threads)
         if options.Expected and options.PValues and options.toysFile=="":
             os.chdir(datacardoutputdirexpected)
             if options.debug: print "combine "+datacard+" -m "+str(mass)+" -M ProfileLikelihood -t -1 -s -1 -n PValueExpected --signif --pvalue --expectSignal="+str(options.expectSignal)+" >& higgsCombinePValueExpected.ProfileLikelihood.mH"+str(mass)+".log &"
             if not options.dryrun: os.system("combine "+datacard+" -m "+str(mass)+" -M ProfileLikelihood -t -1 -s -1 -n PValueExpected --signif --pvalue --expectSignal="+str(options.expectSignal)+" >& higgsCombinePValueExpected.ProfileLikelihood.mH"+str(mass)+".log &")
-        waitthreads("combine",options.threads)
+            waitthreads("combine",options.threads)
         if options.Expected and options.PValues and options.toysFile!="":
             os.chdir(datacardoutputdirexpected)
             if options.debug: print "combine "+datacard+" -m "+str(mass)+" -M ProfileLikelihood -t -1 -s -1 -n PValueExpected --signif --pvalue --expectSignal="+str(options.expectSignal)+" --toysFile="+options.toysFile+" >& higgsCombinePValueExpected.ProfileLikelihood.mH"+str(mass)+".log &"
             if not options.dryrun: os.system("combine "+datacard+" -m "+str(mass)+" -M ProfileLikelihood -t -1 -s -1 -n PValueExpected --signif --pvalue --expectSignal="+str(options.expectSignal)+" --toysFile="+options.toysFile+" >& higgsCombinePValueExpected.ProfileLikelihood.mH"+str(mass)+".log &")
-        waitthreads("combine",options.threads)
+            waitthreads("combine",options.threads)
         if options.Limits:
             os.chdir(limitoutputdir)
             if options.debug: print "combine "+datacard+" -m "+str(mass)+" -M Asymptotic --minimizerStrategy=1 --minosAlgo=stepping -s -1 --picky --run=expected >& higgsCombineLimit.Asymptotic.mH"+str(mass)+".log &"
             if options.Expected and not options.Observed and not options.dryrun: os.system("combine "+datacard+" -m "+str(mass)+" -M Asymptotic --minimizerStrategy=1 --minosAlgo=stepping -s -1 --picky --run=expected >& higgsCombineLimit.Asymptotic.mH"+str(mass)+".log &")
-            if options.Observed and not options.dryrun: os.system("combine "+datacard+" -m "+str(mass)+" -M Asymptotic --minimizerStrategy=1 --minosAlgo=stepping -s -1 --picky >& higgsCombineLimit.Asymptotic.mH"+str(mass)+".log &")
+            if not options.Expected and options.Observed and not options.dryrun: os.system("combine "+datacard+" -m "+str(mass)+" -M Asymptotic --minimizerStrategy=1 --minosAlgo=stepping -s -1 --picky --run=observed >& higgsCombineLimit.Asymptotic.mH"+str(mass)+".log &")
+            if options.Observed and options.Expected and not options.dryrun: os.system("combine "+datacard+" -m "+str(mass)+" -M Asymptotic --minimizerStrategy=1 --minosAlgo=stepping -s -1 --picky >& higgsCombineLimit.Asymptotic.mH"+str(mass)+".log &")
+            waitthreads("combine",options.threads)
+        if options.BestFit:
+            os.chdir(bestfitdir)
+            if options.debug: print "combine "+datacard+" -m "+str(mass)+" -M ChannelCompatibilityCheck --rMin=-20 --verbose=1 --saveFitResult -s -1 -n SignalStrength >& higgsCombineTest.ChannelCompatibilityCheck.mH"+str(mass)+".log &"
+            if not options.dryrun: os.system("combine "+datacard+" -m "+str(mass)+" -M ChannelCompatibilityCheck --rMin=-20 --verbose=1 --saveFitResult -s -1 -n SignalStrength >& higgsCombineTest.ChannelCompatibilityCheck.mH"+str(mass)+".log &")
 
     os.chdir(basedir)
     threads=int(os.popen("ps | grep combine | wc -l").readline())
     waitthreads("combine",0)
     if options.debug: print threads,"threads running",options.threads
-    if options.Observed and not options.dryrun: os.system("hadd -f higgsCombinePValue."+os.path.basename(datacardoutputdir)+".ProfileLikelihood.root "+datacardoutputdir+"/higgsCombinePValue.ProfileLikelihood.mH[0-9][0-9]*.[0-9-][0-9]*.root >& "+datacardoutputdir+"/higgsCombinePValue.ProfileLikelihood.log &")
-    if options.Expected and not options.dryrun: os.system("hadd -f higgsCombinePValue."+os.path.basename(datacardoutputdirexpected)+".ProfileLikelihood.root "+datacardoutputdirexpected+"/higgsCombinePValueExpected.ProfileLikelihood.mH[0-9][0-9]*.[0-9-][0-9]*.root >& "+datacardoutputdirexpected+"/higgsCombinePValueExpected.ProfileLikelihood.log &")
+    if options.Observed and options.PValues and not options.dryrun: os.system("hadd -f higgsCombinePValue."+os.path.basename(datacardoutputdir)+".ProfileLikelihood.root "+datacardoutputdir+"/higgsCombinePValue.ProfileLikelihood.mH[0-9][0-9]*.[0-9-][0-9]*.root >& "+datacardoutputdir+"/higgsCombinePValue.ProfileLikelihood.log &")
+    if options.Expected and options.PValues and not options.dryrun: os.system("hadd -f higgsCombinePValue."+os.path.basename(datacardoutputdirexpected)+".ProfileLikelihood.root "+datacardoutputdirexpected+"/higgsCombinePValueExpected.ProfileLikelihood.mH[0-9][0-9]*.[0-9-][0-9]*.root >& "+datacardoutputdirexpected+"/higgsCombinePValueExpected.ProfileLikelihood.log &")
     if options.Limits and not options.dryrun:
         os.chdir(limitoutputdir)
         filelist = os.popen("/bin/ls higgsCombineTest.Asymptotic.*.root").readlines()
