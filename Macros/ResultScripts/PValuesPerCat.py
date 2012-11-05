@@ -183,5 +183,13 @@ for datacard in DatacardList:
             newfile = file.rsplit(".",2)[0]+"."+file.rsplit(".",2)[2]
             os.rename(file,newfile)
         os.chdir(basedir)
-            
+    if options.BestFit and not options.dryrun:
+        os.chdir(bestfitdir)
+        filelist = os.popen("/bin/ls higgsCombineSignalStrength.ChannelCompatibilityCheck.*.root").readlines()
+        for file in filelist:
+            file = file.strip("\n")
+            newfile = file.rsplit(".",2)[0]+"."+file.rsplit(".",2)[2]
+            os.rename(file,newfile)
+        os.chdir(basedir)
+
 print "Done!"
