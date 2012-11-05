@@ -23,10 +23,10 @@ mytext.SetTextSize(0.04)
 mytext.SetNDC()
 Minimum=-2
 Maximum=2.5
-intlumi=[5.1,12.2]
-Energy=[7,8]
-#intlumi=[12.2]
-#Energy=[8]
+#intlumi=[5.1,12.2]
+#Energy=[7,8]
+intlumi=[5.2]
+Energy=[8]
 
 Masses=array.array("f",[x * 0.1 for x in range(1100,1501,5)])
 directory = sys.argv[1]
@@ -49,7 +49,8 @@ dummyHist.SetMinimum(Minimum)
 dummyHist.SetMaximum(Maximum)
 
 for Mass in Masses:
-  file = TFile.Open(directory+"/higgsCombineSignalStrength.ChannelCompatibilityCheck.mH"+str(Mass)+".root")
+  file = TFile.Open(directory+"/higgsCombineSignalStrength.ChannelCompatibilityCheck.mH"+str(Mass).replace(".0","")+".root")
+  print file.GetName()
   normal=file.Get("fit_nominal")
   rFit=normal.floatParsFinal().find("r")
   #print "Value: %f ErrorDown: %f ErrorUp: %f" %(rFit.getVal(),rFit.getAsymErrorLo(),rFit.getAsymErrorHi())
