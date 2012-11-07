@@ -55,3 +55,5 @@ smearing_file=smearing_sigma_and_errors_ichep2012.dat
 scale_offset_file=energy_scale_offsets_prompt52.dat
 
 bkgPolOrderByCat=4,5,5,5,3,4,3,3,3
+
+puTarget=aux/CompleteICHEP.json.71000.pileup.root

@@ -69,3 +69,5 @@ scale_offset_file=energy_scale_offsets_prompt52.dat
 beamspotSigma=5.8
 
 bkgPolOrderByCat=4,5,5,5,3,4
+
+puTarget=aux/CompleteICHEP.json.71000.pileup.root
