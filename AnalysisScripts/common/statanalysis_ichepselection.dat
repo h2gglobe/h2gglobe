@@ -63,7 +63,8 @@ doInterferenceSmear=1
 
 ## 
 efficiencyFile=aux/sig_reweighing_hcp2012_cutbased_v2.root
-mass_resol_file=smearing_sigma_and_errors_ichep2012.dat
+smearing_file=smearing_sigma_and_errors_ichep2012.dat
+scale_offset_file=energy_scale_offsets_prompt52.dat
 
 beamspotSigma=5.8
 
