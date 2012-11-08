@@ -22,7 +22,7 @@ mvaVbfSelection=0
 nVBFEtaCategories=1
 nVBFDijetJetCategories=2
 leadEtVBFCut=60
-subleadEtVBFCut=30
+subleadEtVBFCut=25
 
 ## No V-tags
 includeVHlep=0
