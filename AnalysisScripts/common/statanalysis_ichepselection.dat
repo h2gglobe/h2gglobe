@@ -70,4 +70,4 @@ beamspotSigma=5.8
 
 bkgPolOrderByCat=4,5,5,5,3,4
 
-puTarget=aux/CompleteICHEP.json.71000.pileup.root
+puTarget=aux/Cert_ICHEP_TopUp_535fb.json.71000.observed.pileup.root
