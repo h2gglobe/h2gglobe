@@ -3,26 +3,13 @@ Run with: combine cms-hgg-datacard.txt -M Routine -D data_mass -m MASS --generat
 ---------------------------------------------
 imax *
 jmax *
-kmax *
----------------------------------------------
-shapes data_obs * cut-based_sync/CMS-HGG.root cms_hgg_workspace:roohist_data_mass_$CHANNEL
-shapes ggH *      cut-based_sync/CMS-HGG.root cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_$CHANNEL cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_$CHANNEL_$SYSTEMATIC01_sigma
-shapes qqH *      cut-based_sync/CMS-HGG.root cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_$CHANNEL cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_$CHANNEL_$SYSTEMATIC01_sigma
-shapes VH *       cut-based_sync/CMS-HGG.root cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_$CHANNEL cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_$CHANNEL_$SYSTEMATIC01_sigma
-shapes ttH *      cut-based_sync/CMS-HGG.root cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_$CHANNEL cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_$CHANNEL_$SYSTEMATIC01_sigma
-shapes bkg *      cut-based_sync/CMS-HGG.root cms_hgg_workspace:pdf_data_pol_model_8TeV_$CHANNEL 
----------------------------------------------
-bin           cat0 cat1 cat2 cat3 cat4 cat5 cat6 cat7 cat8
-observation   -1   -1   -1   -1   -1   -1   -1   -1   -1
----------------------------------------------
-bin      cat0 cat0 cat0 cat0 cat0 cat1 cat1 cat1 cat1 cat1 cat2 cat2 cat2 cat2 cat2 cat3 cat3 cat3 cat3 cat3 cat4 cat4 cat4 cat4 cat4 cat5 cat5 cat5 cat5 cat5 cat6 cat6 cat6 cat7 cat7 cat7 cat8 cat8 cat8 cat8 cat8
-process  ggH  qqH  VH  ttH  bkg   ggH  qqH  VH  ttH  bkg   ggH  qqH  VH  ttH  bkg   ggH  qqH  VH  ttH  bkg   ggH  qqH  VH  ttH  bkg   ggH  qqH  VH  ttH  bkg   VH  ttH  bkg   VH  ttH  bkg   ggH  qqH  VH  ttH  bkg 
-process  0    0    0   0    1     0    0    0   0    1     0    0    0   0    1     0    0    0   0    1     0    0    0   0    1     0    0    0   0    1     0   0    1     0   0    1     0    0    0   0    1   
-rate     -1   -1   -1  -1   1     -1   -1   -1  -1   1     -1   -1   -1  -1   1     -1   -1   -1  -1   1     -1   -1   -1  -1   1     -1   -1   -1  -1   1     -1  -1   1     -1  -1   1     -1   -1   -1  -1   1   
----------------------------------------------
 
-jet_inclusive_migration    lnN  0.986 0.927 0.986 0.986 -     0.990 0.935 0.990 0.990 -     0.990 0.959 0.990 0.990 -    0.992 0.958 0.992 0.992 -      1.531 1.094 1.531 1.531 -  1.532 1.099 1.532 1.532 -   - - - - -  - - - - -  - - - - - 
-intra_jet_migration        lnN  - - - - -     - - - - -     - - - - -    - - - - -      0.630 0.945 0.630 0.630 -  1.150 1.080 1.150 1.150 -    - - - - -  - - - - -  - - - - -
+JEC                       lnN  0.9971  0.9728  0.9971  0.9971  -  0.9971  0.9728   0.9971  0.9971  -  0.9979  0.9847   0.9979  0.9979  -  0.9983  0.9844   0.9983  0.9983  -  1.1100  1.0350   1.1100  1.1100  -  1.1100  1.0350   1.1100  1.1100  -
+UEPS                      lnN  0.9931  0.9379  0.9931  0.9931  -  0.9931  0.9379   0.9931  0.9931  -  0.9951  0.9651   0.9951  0.9951  -  0.9961  0.9643   0.9961  0.9961  -  1.2600  1.0800   1.2600  1.2600  -  1.2600  1.0800   1.2600  1.2600  -
+CMS_eff_j                 lnN  0.9995  0.9845  0.9995  0.9995  -  0.9995  0.9845   0.9995  0.9995  -  0.9996  0.9913   0.9996  0.9996  -  0.9997  0.9911   0.9997  0.9997  -  1.0200  1.0200   1.0200  1.0200  -  1.0200  1.0200   1.0200  1.0200  - 
+CMS_hgg_JECmigration      lnN  - - - - -     - - - - -     - - - - -     - - - - -     0.928 0.9960 0.856 0.851 - 1.025000 1.005000 1.025000   1.025000 -     - - -     - - -     - - - - - - 
+CMS_hgg_UEPSmigration     lnN  - - - - -     - - - - -     - - - - -     - - - - -     0.871 0.9919 0.742 0.731 - 1.045000 1.010000 1.045000   1.045000 -     - - -     - - -     - - - - - - 
+
 
 CMS_hgg_eff_m         lnN  - - - - -     - - - - -     - - - - -     - - - - -     - - - - -     - - - - -     1.01 1.01 -     - - -     - - - - - 
 CMS_hgg_eff_e         lnN  - - - - -     - - - - -     - - - - -     - - - - -     - - - - -     - - - - -     - - -     1.015 1.015 -     - - - - - 
