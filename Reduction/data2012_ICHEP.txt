@@ -1,0 +1,7 @@
+Photon_Run2012A-PromptReco-v1                 0
+Photon_Run2012A-recover-08Jun2012-v1          0   json=/afs/cern.ch/user/d/drberry/public/ForDavid/Cert_190782-190949_8TeV_08Jun2012ReReco-recover_Collisions12_JSON_NoLowPileUp.txt
+DoublePhoton_Run2012B-PromptReco-v1           0
+
+Photon_Run2012A-29Jun2012-v1_Glidein          0
+Photon_Run2012A-recover_29Jun2012-v1          0
+DoublePhoton_Run2012B-29Jun2012-v1_Glidein    0
