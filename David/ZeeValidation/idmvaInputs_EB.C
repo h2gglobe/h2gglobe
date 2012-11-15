@@ -18,7 +18,7 @@ void idmvaInputs_EB() {
   txt->SetNDC();
   txt->SetTextSize(0.08);
 
-  TString det = isEE ? "EB" : "EB";
+  TString det = isEE ? "EE" : "EB";
 
   pfchargedisogood03_EB_cat0_Data->GetXaxis()->SetTitle("pfchargedisogood03 (GeV) ("+det+")");
   pfchargedisobad03_EB_cat0_Data->GetXaxis()->SetTitle("pfchargedisobad03 (GeV) ("+det+")");
