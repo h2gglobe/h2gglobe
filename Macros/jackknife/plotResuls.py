@@ -3,7 +3,7 @@
 import math, ROOT
 
 ## fin=open("results.csv")
-fin=open("results2.csv")
+fin=open("results3.csv")
 ## fin=open("results_binned.csv")
 
 fnev=open("nevents.txt")
@@ -54,13 +54,14 @@ for line in fin.read().split("\n"):
 
     ## if len(vals) != 7:
     if len(vals) != 11:
+        print "Pronblem with line", line
         continue
     ## ipart, mass1, mu1, sig1, mass2, mu2, sig2 = vals
     ipart, mass1, mu1, mu1ep, mu1em, sig1, mass2, mu2, mu2ep, mu2em, sig2 = vals
     ## deltaMu = (mu1 - mu2)/mu1
     diffe = math.sqrt( -(mu1ep*mu1em  + mu2ep*mu2em) )
-    ###mu1 *= 1-0.016
-    ###mu2 *= 1-0.016
+    mu1 *= 1-0.016
+    mu2 *= 1-0.016
     mu1 -= mun1
     mu2 -= mun2
     ### mu1 /= diffe
