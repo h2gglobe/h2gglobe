@@ -2,7 +2,11 @@
 
 import math, ROOT
 
-fin=open("scan.csv")
+import sys
+
+dir=sys.argv[1]
+
+fin=open("%s/scan.csv" % dir)
 
 ##masses=[110,115,120,125,130,135,140,145,150]
 masses=[110,115,120,125,130,135,140,145,150]
@@ -11,13 +15,17 @@ h = ROOT.TH2F("deltaMuVsMass","deltaMu;m_{H};#delta #mu_{(i)} / err_{#delta #mu_
 
 sumDeltaMu   = {}
 sumDeltaMuSq = {}
+np = {}
+
 
 for m in masses:
     sumDeltaMu[m] = 0.
     sumDeltaMuSq[m] = 0.
-n = 0
+    np[m] = 0.
+## n = 0
 sumDeltaMu[-1] = 0.
 sumDeltaMuSq[-1] = 0.
+np[-1] = 0.
 
 for line in fin.read().split("\n"):
     line =line.lstrip().rstrip().replace("/",",")
@@ -49,11 +57,13 @@ for line in fin.read().split("\n"):
             sumDeltaMu[-1] += deltaMu
             sumDeltaMuSq[-1] += deltaMu*deltaMu
 
-    if count:
-        n += 1.
+            np[mass1] += 1
+            np[-1] += 1
+            
 
 avg = 0
 for m in masses:
+    n = np[m]
     avgDelta = sumDeltaMu[m] / n
     varJkn = (n-1)/n * ( sumDeltaMuSq[m] - n*avgDelta*avgDelta )
     avg += math.sqrt(varJkn)

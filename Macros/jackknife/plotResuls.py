@@ -2,8 +2,13 @@
 
 import math, ROOT
 
+import sys
+
+dir=sys.argv[1]
+
 ## fin=open("results.csv")
-fin=open("results3.csv")
+fin=open("%s/results.csv" % dir)
+## fin=open("results3.csv")
 ## fin=open("results_binned.csv")
 
 fnev=open("nevents.txt")
@@ -60,8 +65,8 @@ for line in fin.read().split("\n"):
     ipart, mass1, mu1, mu1ep, mu1em, sig1, mass2, mu2, mu2ep, mu2em, sig2 = vals
     ## deltaMu = (mu1 - mu2)/mu1
     diffe = math.sqrt( -(mu1ep*mu1em  + mu2ep*mu2em) )
-    mu1 *= 1-0.016
-    mu2 *= 1-0.016
+    ## mu1 *= 1-0.016
+    ## mu2 *= 1-0.016
     mu1 -= mun1
     mu2 -= mun2
     ### mu1 /= diffe
@@ -106,6 +111,6 @@ hnev1.Draw("")
 hnev2.Draw("same")
 
 for fmt in "C","png","pdf":
-    c.SaveAs("jackknife.%s" % fmt )
-    d.SaveAs("nevents.%s" % fmt )
+    c.SaveAs("%s/jackknife.%s" % (dir,fmt) )
+    d.SaveAs("%s/nevents.%s"   % (dir,fmt) )
 

@@ -24,15 +24,19 @@ def main(options,args):
         pdfName = "CMS_hgg_mvacat%d_8TeV_bkgshape"
         wsName  = "wbkg"
         dsName  = "databinned_mvacat%d_8TeV" 
-        
-    splitMiniTree = ROOT.SplitMiniTree(options.input,options.wspace,wsName,pdfName,dsName)
+
+    output = options.input
+    if options.outdir != "":
+        output = "%s/%s" % ( options.outdir, os.path.basename(output) )
+    splitMiniTree = ROOT.SplitMiniTree(options.input,options.wspace,wsName,pdfName,dsName,output)
     
     for ipart,partition in enumerate(partitions):
         for run,lumi,event in partition:
             splitMiniTree.addToPartition(ipart,run,lumi,event)
 
     splitMiniTree.splitCopy()
-    
+
+    print "npart: %d" % len(partitions)
 
 if __name__ == "__main__":
     parser = OptionParser(option_list=[
@@ -43,6 +47,11 @@ if __name__ == "__main__":
                     ),
         make_option("-w", "--wspace",
                     action="store", type="string", dest="wspace",
+                    default="",
+                    help="default: %default", metavar=""
+                    ),
+        make_option("-d", "--outdir",
+                    action="store", type="string", dest="outdir",
                     default="",
                     help="default: %default", metavar=""
                     ),

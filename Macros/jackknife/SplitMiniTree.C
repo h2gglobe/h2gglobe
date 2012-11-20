@@ -7,11 +7,12 @@
 
 #include <algorithm>
 
-SplitMiniTree::SplitMiniTree(TString fileName, TString wsFile, TString wsName, TString pdfName, TString dsName) :
+SplitMiniTree::SplitMiniTree(TString fileName, TString wsFile, TString wsName, TString pdfName, TString dsName, TString outName) :
 	HggMiniTree((TTree *)TFile::Open(fileName)->Get("hgg_mini_tree")),
-	fileName_(fileName), wsName_(wsName), pdfName_(pdfName), dsName_(dsName)
+	fileName_(fileName), wsName_(wsName), pdfName_(pdfName), dsName_(dsName), outName_(outName)
 {
-	fileName_.ReplaceAll(".root","");
+	if( outName_ == "" ) { outName_ = fileName_; }
+	outName_.ReplaceAll(".root","");
 	TFile * wsFin = TFile::Open(wsFile);
 	
 	ws_ = (RooWorkspace*)wsFin->Get(wsName);
@@ -119,7 +120,7 @@ void SplitMiniTree::fitAndSavePartition(size_t ipart)
 	}
 	std::cout << "Tot    nevents: " << tot << std::endl;
 	
-	partws.writeToFile( Form("%s_part%d.root", fileName_.Data(), (int)ipart) );
+	partws.writeToFile( Form("%s_part%d.root", outName_.Data(), (int)ipart) );
 	
 	for(int ii=0; ii<ncat_; ++ii) {
 		delete roohist[ii];

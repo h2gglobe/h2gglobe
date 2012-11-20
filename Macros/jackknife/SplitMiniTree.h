@@ -19,7 +19,7 @@ struct EvIndex
 class SplitMiniTree : public HggMiniTree
 {
 public:
-	SplitMiniTree(TString fileName, TString wsFile, TString wsName, TString pdfName, TString dsName);
+	SplitMiniTree(TString fileName, TString wsFile, TString wsName, TString pdfName, TString dsName, TString outName="");
 	
 	void addToPartition(int ipart, int run, int lumis, int event);
 	
@@ -49,7 +49,7 @@ private:
 
 	int   nbins_, ncat_;
 	float minrange_, maxrange_;
-	TString fileName_, pdfName_, dsName_, wsName_;
+	TString fileName_, pdfName_, dsName_, wsName_, outName_;
 	std::vector<std::vector<EvIndex> > partitions_;
 	std::vector<std::vector<TH1 *> > partData_;
 	
