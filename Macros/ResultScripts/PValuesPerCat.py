@@ -138,7 +138,7 @@ for datacard in DatacardList:
     threadlist=[]
     threads=0
     for mass in Masses:
-        massstring = str(mass).replace(".0","")
+        massstring = str(mass)
         time.sleep(0.1)
         threads=int(os.popen("ps | grep combine | wc -l").readline())
         if options.debug: print threads,"threads running. Maximum Threads:",options.threads
