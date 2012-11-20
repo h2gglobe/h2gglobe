@@ -173,8 +173,9 @@ for datacard in DatacardList:
     threads=int(os.popen("ps | grep combine | wc -l").readline())
     waitthreads("combine",0)
     if options.debug: print threads,"threads running",options.threads
-    if options.Observed and options.PValues and not options.dryrun: os.system("hadd -f higgsCombinePValue."+os.path.basename(datacardoutputdir)+".ProfileLikelihood.root "+datacardoutputdir+"/higgsCombinePValue.ProfileLikelihood.mH[0-9][0-9]*.[0-9-][0-9]*.root >& "+datacardoutputdir+"/higgsCombinePValue.ProfileLikelihood.log &")
-    if options.Expected and options.PValues and not options.dryrun: os.system("hadd -f higgsCombinePValue."+os.path.basename(datacardoutputdirexpected)+".ProfileLikelihood.root "+datacardoutputdirexpected+"/higgsCombinePValueExpected.ProfileLikelihood.mH[0-9][0-9]*.[0-9-][0-9]*.root >& "+datacardoutputdirexpected+"/higgsCombinePValueExpected.ProfileLikelihood.log &")
+    if options.PValues and options.OutputDirectory=="": options.OutputDirectory="."
+    if options.Observed and options.PValues and not options.dryrun: os.system("hadd -f "+options.OutputDirectory+"/higgsCombinePValue."+os.path.basename(datacardoutputdir)+".ProfileLikelihood.root "+datacardoutputdir+"/higgsCombinePValue.ProfileLikelihood.mH[0-9][0-9]*.[0-9-][0-9]*.root >& "+datacardoutputdir+"/higgsCombinePValue.ProfileLikelihood.log &")
+    if options.Expected and options.PValues and not options.dryrun: os.system("hadd -f "+options.OutputDirectory+"/higgsCombinePValue."+os.path.basename(datacardoutputdirexpected)+".ProfileLikelihood.root "+datacardoutputdirexpected+"/higgsCombinePValueExpected.ProfileLikelihood.mH[0-9][0-9]*.[0-9-][0-9]*.root >& "+datacardoutputdirexpected+"/higgsCombinePValueExpected.ProfileLikelihood.log &")
     if options.Limits and not options.dryrun:
         os.chdir(limitoutputdir)
         filelist = os.popen("/bin/ls higgsCombineTest.Asymptotic.*.root").readlines()
