@@ -48,7 +48,7 @@ Masses=[x * 0.1 for x in range(1100,1501,5)]
 if options.RegularMasses: Masses=range(110,151,5)
 if options.Masses!="":
     Masses=[]
-    for Mass in options.Masses.split(","): Masses.append(int(Mass))
+    for Mass in options.Masses.split(","): Masses.append(float(Mass))
 
 if options.debug and options.RegularMasses: print "Running with restricted masses:",Masses
 else: print "Running with full mass range:",Masses
@@ -138,36 +138,37 @@ for datacard in DatacardList:
     threadlist=[]
     threads=0
     for mass in Masses:
+        massstring = str(mass).replace(".0","")
         time.sleep(0.1)
         threads=int(os.popen("ps | grep combine | wc -l").readline())
         if options.debug: print threads,"threads running. Maximum Threads:",options.threads
         waitthreads("combine",options.threads)
         if options.Observed and options.PValues:
             os.chdir(datacardoutputdir)
-            if options.debug: print "combine "+datacard+" -m "+str(mass)+" -M ProfileLikelihood -s -1 -n PValue --signif --pvalue >& higgsCombinePValue.ProfileLikelihood.mH"+str(mass)+".log &"
-            if not options.dryrun: os.system("combine "+datacard+" -m "+str(mass)+" -M ProfileLikelihood -s -1 -n PValue --signif --pvalue >& higgsCombinePValue.ProfileLikelihood.mH"+str(mass)+".log &")
+            if options.debug: print "combine "+datacard+" -m "+massstring+" -M ProfileLikelihood -s -1 -n PValue --signif --pvalue >& higgsCombinePValue.ProfileLikelihood.mH"+massstring+".log &"
+            if not options.dryrun: os.system("combine "+datacard+" -m "+massstring+" -M ProfileLikelihood -s -1 -n PValue --signif --pvalue >& higgsCombinePValue.ProfileLikelihood.mH"+massstring+".log &")
             waitthreads("combine",options.threads)
         if options.Expected and options.PValues and options.toysFile=="":
             os.chdir(datacardoutputdirexpected)
-            if options.debug: print "combine "+datacard+" -m "+str(mass)+" -M ProfileLikelihood -t -1 -s -1 -n PValueExpected --signif --pvalue --expectSignal="+str(options.expectSignal)+" >& higgsCombinePValueExpected.ProfileLikelihood.mH"+str(mass)+".log &"
-            if not options.dryrun: os.system("combine "+datacard+" -m "+str(mass)+" -M ProfileLikelihood -t -1 -s -1 -n PValueExpected --signif --pvalue --expectSignal="+str(options.expectSignal)+" >& higgsCombinePValueExpected.ProfileLikelihood.mH"+str(mass)+".log &")
+            if options.debug: print "combine "+datacard+" -m "+massstring+" -M ProfileLikelihood -t -1 -s -1 -n PValueExpected --signif --pvalue --expectSignal="+str(options.expectSignal)+" >& higgsCombinePValueExpected.ProfileLikelihood.mH"+massstring+".log &"
+            if not options.dryrun: os.system("combine "+datacard+" -m "+massstring+" -M ProfileLikelihood -t -1 -s -1 -n PValueExpected --signif --pvalue --expectSignal="+str(options.expectSignal)+" >& higgsCombinePValueExpected.ProfileLikelihood.mH"+massstring+".log &")
             waitthreads("combine",options.threads)
         if options.Expected and options.PValues and options.toysFile!="":
             os.chdir(datacardoutputdirexpected)
-            if options.debug: print "combine "+datacard+" -m "+str(mass)+" -M ProfileLikelihood -t -1 -s -1 -n PValueExpected --signif --pvalue --expectSignal="+str(options.expectSignal)+" --toysFile="+options.toysFile+" >& higgsCombinePValueExpected.ProfileLikelihood.mH"+str(mass)+".log &"
-            if not options.dryrun: os.system("combine "+datacard+" -m "+str(mass)+" -M ProfileLikelihood -t -1 -s -1 -n PValueExpected --signif --pvalue --expectSignal="+str(options.expectSignal)+" --toysFile="+options.toysFile+" >& higgsCombinePValueExpected.ProfileLikelihood.mH"+str(mass)+".log &")
+            if options.debug: print "combine "+datacard+" -m "+massstring+" -M ProfileLikelihood -t -1 -s -1 -n PValueExpected --signif --pvalue --expectSignal="+str(options.expectSignal)+" --toysFile="+options.toysFile+" >& higgsCombinePValueExpected.ProfileLikelihood.mH"+massstring+".log &"
+            if not options.dryrun: os.system("combine "+datacard+" -m "+massstring+" -M ProfileLikelihood -t -1 -s -1 -n PValueExpected --signif --pvalue --expectSignal="+str(options.expectSignal)+" --toysFile="+options.toysFile+" >& higgsCombinePValueExpected.ProfileLikelihood.mH"+massstring+".log &")
             waitthreads("combine",options.threads)
         if options.Limits:
             os.chdir(limitoutputdir)
-            if options.debug: print "combine "+datacard+" -m "+str(mass)+" -M Asymptotic --minimizerStrategy=1 --minosAlgo=stepping -s -1 --picky --run=expected >& higgsCombineLimit.Asymptotic.mH"+str(mass)+".log &"
-            if options.Expected and not options.Observed and not options.dryrun: os.system("combine "+datacard+" -m "+str(mass)+" -M Asymptotic --minimizerStrategy=1 --minosAlgo=stepping -s -1 --picky --run=expected >& higgsCombineLimit.Asymptotic.mH"+str(mass)+".log &")
-            if not options.Expected and options.Observed and not options.dryrun: os.system("combine "+datacard+" -m "+str(mass)+" -M Asymptotic --minimizerStrategy=1 --minosAlgo=stepping -s -1 --picky --run=observed >& higgsCombineLimit.Asymptotic.mH"+str(mass)+".log &")
-            if options.Observed and options.Expected and not options.dryrun: os.system("combine "+datacard+" -m "+str(mass)+" -M Asymptotic --minimizerStrategy=1 --minosAlgo=stepping -s -1 --picky >& higgsCombineLimit.Asymptotic.mH"+str(mass)+".log &")
+            if options.debug: print "combine "+datacard+" -m "+massstring+" -M Asymptotic --minimizerStrategy=1 --minosAlgo=stepping -s -1 --picky --run=expected >& higgsCombineLimit.Asymptotic.mH"+massstring+".log &"
+            if options.Expected and not options.Observed and not options.dryrun: os.system("combine "+datacard+" -m "+massstring+" -M Asymptotic --minimizerStrategy=1 --minosAlgo=stepping -s -1 --picky --run=expected >& higgsCombineLimit.Asymptotic.mH"+massstring+".log &")
+            if not options.Expected and options.Observed and not options.dryrun: os.system("combine "+datacard+" -m "+massstring+" -M Asymptotic --minimizerStrategy=1 --minosAlgo=stepping -s -1 --picky --run=observed >& higgsCombineLimit.Asymptotic.mH"+massstring+".log &")
+            if options.Observed and options.Expected and not options.dryrun: os.system("combine "+datacard+" -m "+massstring+" -M Asymptotic --minimizerStrategy=1 --minosAlgo=stepping -s -1 --picky >& higgsCombineLimit.Asymptotic.mH"+massstring+".log &")
             waitthreads("combine",options.threads)
         if options.BestFit:
             os.chdir(bestfitdir)
-            if options.debug: print "combine "+datacard+" -m "+str(mass)+" -M ChannelCompatibilityCheck --rMin=-20 --verbose=1 --saveFitResult -s -1 -n SignalStrength >& higgsCombineTest.ChannelCompatibilityCheck.mH"+str(mass)+".log &"
-            if not options.dryrun: os.system("combine "+datacard+" -m "+str(mass)+" -M ChannelCompatibilityCheck --rMin=-20 --verbose=1 --saveFitResult -s -1 -n SignalStrength >& higgsCombineTest.ChannelCompatibilityCheck.mH"+str(mass)+".log &")
+            if options.debug: print "combine "+datacard+" -m "+massstring+" -M ChannelCompatibilityCheck --rMin=-20 --verbose=1 --saveFitResult -s -1 -n SignalStrength >& higgsCombineTest.ChannelCompatibilityCheck.mH"+massstring+".log &"
+            if not options.dryrun: os.system("combine "+datacard+" -m "+massstring+" -M ChannelCompatibilityCheck --rMin=-20 --verbose=1 --saveFitResult -s -1 -n SignalStrength >& higgsCombineTest.ChannelCompatibilityCheck.mH"+massstring+".log &")
 
     os.chdir(basedir)
     threads=int(os.popen("ps | grep combine | wc -l").readline())
