@@ -116,23 +116,23 @@ for datacard in DatacardList:
     if not options.dryrun:
         if options.OutputDirectory!="":
             if os.path.exists(options.OutputDirectory) and options.overwrite: shutil.rmtree(options.OutputDirectory)
-            os.makedirs(options.OutputDirectory)
+            if not os.path.exists(options.OutputDirectory): os.makedirs(options.OutputDirectory)
         if not options.nosubdirectory:
             if options.Observed and options.PValues:
                 if os.path.exists(datacardoutputdir) and options.overwrite: shutil.rmtree(datacardoutputdir)
-                os.makedirs(datacardoutputdir)
+                if not os.path.exists(datacardoutputdir): os.makedirs(datacardoutputdir)
                 datacardoutputdir=os.path.abspath(datacardoutputdir)
             if options.Expected and options.PValues:
                 if os.path.exists(datacardoutputdirexpected) and options.overwrite: shutil.rmtree(datacardoutputdirexpected)
-                os.makedirs(datacardoutputdirexpected)
+                if not os.path.exists(datacardoutputdirexpected): os.makedirs(datacardoutputdirexpected)
                 datacardoutputdirexpected=os.path.abspath(datacardoutputdirexpected)
             if options.Limits:
                 if os.path.exists(limitoutputdir) and options.overwrite: shutil.rmtree(limitoutputdir)
-                os.makedirs(limitoutputdir)
+                if not os.path.exists(limitoutputdir): os.makedirs(limitoutputdir)
                 limitoutputdir=os.path.abspath(limitoutputdir)
             if options.BestFit:
                 if os.path.exists(bestfitdir) and options.overwrite: shutil.rmtree(bestfitdir)
-                os.makedirs(bestfitdir)
+                if not os.path.exists(bestfitdir): os.makedirs(bestfitdir)
                 bestfitdir=os.path.abspath(bestfitdir)
 
     threadlist=[]
