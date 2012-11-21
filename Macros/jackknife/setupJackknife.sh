@@ -11,9 +11,9 @@ name1=$(basename $inputd1)
 name2=$(basename $inputd2)
 
 ws1=$inputd1/hgg.inputbkgdata_8TeV.root
-ws2=$inputd2/CMS-HGG.root
-
 sig1=$PWD/$inputd1/hgg.inputsig.root
+
+ws2=$inputd2/CMS-HGG.root
 sig2=$PWD/$inputd2/CMS-HGG_interpolated.root
 
 input1=$inputd1/MITdump_ICHEP_v2.root
