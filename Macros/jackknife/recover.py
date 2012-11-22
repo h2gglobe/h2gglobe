@@ -74,12 +74,12 @@ for i in xrange(int(sys.argv[3])):
                         maxMassPValue = (j, pvalue)
         
         bestPValues[i]=maxMassPValue
-        print bestPValues[i]
+        #print bestPValues[i]
         
         thismu={}
         filename = workingDir+"/part"+str(i)+"/"+datacardName+"_BestFit/higgsCombineTest.ChannelCompatibilityCheck.mH"+str(maxMassPValue[0])+".log"
 
-        print filename
+        #print filename
         if (not os.path.isfile(filename)):
             print "Job: ", i
             reRunMu(workingDir, i, maxMassPValue[0], datacardName)
@@ -97,6 +97,10 @@ for i in xrange(int(sys.argv[3])):
         if (not fileIsOK):
             print "Job :", i
             reRunMu(workingDir, i, maxMassPValue[0], datacardName)
+        
+        file = open(filename)
+        lines = file.readlines()
+        file.close()
         
         for line in lines:
             if "Nominal fit" in line:
