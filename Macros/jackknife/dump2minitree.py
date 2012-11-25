@@ -17,6 +17,7 @@ isMVA=False
 
 
 def mkBranch(tree, nt, name, type):
+    import ROOT
     tree.Branch(name,ROOT.AddressOf(nt,name),"%s/%s" % (name,type) )
 
 def dumpTree(file,lst):
@@ -106,10 +107,13 @@ def main(options,args):
        )
     
     fn1 = args.pop(0)
-    fn2 = args.pop(0)
-    
     file1 = open(fn1)
-    file2 = open(fn2)
+
+    fn2 = ""
+    file2 = None
+    if len(args)>0:
+        fn2 = args.pop(0)
+        file2 = open(fn2)
     
     print "reading list1"
     list1 = getlist( file1.read() )
@@ -118,15 +122,19 @@ def main(options,args):
         fout1 = ROOT.TFile.Open(fn1.replace("txt","root"),"recreate")
         dumpTree(fout1,list1)
         fout1.Close()
-    
-    print "reading list2"
-    list2 = getlist( file2.read() )
-    if options.makeTrees:
-        print "making mini tree"
-        fout2 = ROOT.TFile.Open(fn2.replace("txt","root"),"recreate")
-        dumpTree(fout2,list2)
-        fout2.Close()
-    
+
+
+    if file2:
+        print "reading list2"
+        list2 = getlist( file2.read() )
+        if options.makeTrees:
+            print "making mini tree"
+            fout2 = ROOT.TFile.Open(fn2.replace("txt","root"),"recreate")
+            dumpTree(fout2,list2)
+            fout2.Close()
+    else:
+        list2 = {}
+        
     print "getting event lists"
     events1 = list1.keys()
     events2 = list2.keys()
@@ -155,7 +163,8 @@ def main(options,args):
         for j in range(n):
             parts[ j % g ].append( all[j] )
 
-        open("partitions_%d.json" % d,"w+").write(json.dumps(parts))
+        open("%s/partitions_%d.json" % (options.jsondir,d),"w+").write(json.dumps(parts))
+
 
 
 if __name__ == "__main__":
@@ -170,12 +179,11 @@ if __name__ == "__main__":
                     default=False,
                     help="default: %default", metavar=""
                     ),
-        make_option("-o", "--output_json",
-                    action="store", type="string", dest="partitions.json",
-                    default="",
+        make_option("-o", "--jsondir",
+                    action="store", type="string", dest="jsondir",
+                    default="./",
                     help="default : %default", metavar=""
                     ),
-        
         ])
     
     (options, args) = parser.parse_args()
