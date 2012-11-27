@@ -355,9 +355,6 @@ TH1F* FMTRebin::rebinBinnedDataset(std::string new_name, TH1F *hb,std::vector<do
   cout << "Bin Edges: " << endl;
   for (std::vector<double>::iterator it=binEdges.begin();it!=binEdges.end();it++){
     arrBins[j]=*it;
-    cout << arrBins[j] << endl;
-    //arrBins[j] = hb->GetBinLowEdge(hb->FindBin(*it));
-    //cout << arrBins[j] << endl;
     j++;
   }
   cout << "Hist has " << hb->GetNbinsX() << " bins" << endl;
@@ -420,6 +417,7 @@ TH1F* FMTRebin::rebinBinnedDataset(std::string new_name, TH1F *hb,std::vector<do
   //cout << "title for new re-binned histogream - " << hb->GetTitle()<<endl; 
   hbnew->SetTitle(hb->GetTitle());
   
+  /*
   for (int b=1; b<=hbnew->GetNbinsX(); b++){
     cout << "b" << b << ":   " << hbnew->GetBinContent(b) << "  " << hbnew->GetBinLowEdge(b) << endl;
     cout << "b" << b << ":   " << hb->Integral(hb->FindBin(hbnew->GetBinLowEdge(b)),hb->FindBin(hbnew->GetBinLowEdge(b+1))) << endl;
@@ -429,6 +427,7 @@ TH1F* FMTRebin::rebinBinnedDataset(std::string new_name, TH1F *hb,std::vector<do
   cout << hb->Integral(165,169) << endl;
   cout << hb->Integral(169,176) << endl;
   cout << hb->Integral(176,183) << endl;
+  */
   // Just a quick test, mask the last "channel"
   //hbnew->SetBinContent(hbnew->GetNbinsX(),0);
   //cout << "DONT DO THIS IN MAIN PROGRAM ----- LINE 1563 rebin setting last bin to 0" <<endl;

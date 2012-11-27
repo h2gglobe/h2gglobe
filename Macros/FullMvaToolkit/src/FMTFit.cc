@@ -192,7 +192,7 @@ void FMTFit::Plot(double mass){
 		text->DrawLatex(0.68,0.85,"CMS preliminary");
     if (getis2011()) text->DrawLatex(0.75,0.78,"#sqrt{s} = 7 TeV");
     else text->DrawLatex(0.75,0.78,"#sqrt{s} = 8 TeV");
-		text->DrawLatex(0.75,0.71,Form("L = %3.1f fb^{-1}",(getintLumi())));
+		text->DrawLatex(0.75,0.71,Form("L = %3.1f fb^{-1}",0.1*double(intLumi_)));
     if (blind_) text->DrawLatex(0.67,0.64,"Blinded: [110,150]");
     c1->SaveAs(Form("plots/pdf/fit_m%3.1f.pdf",mass));
     c1->SaveAs(Form("plots/macro/fit_m%3.1f.C",mass));

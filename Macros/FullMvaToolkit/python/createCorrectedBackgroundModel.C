@@ -562,6 +562,10 @@ void paulFit(TDirectory *mDir,TH1F* fMFitS,TH1F* hMFitS,TH2F* hFCovar, bool make
 		text->SetNDC();
 		text->Draw();
 		text->SetTextSize(0.05); 
+    TText *btext = new TText(0.6,0.7,Form("Bin %d",j));
+    btext->SetNDC();
+    btext->Draw();
+    btext->SetTextSize(0.05);
 
 		can->Write();
 		if (makePlots){

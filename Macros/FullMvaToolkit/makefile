@@ -23,11 +23,6 @@ USERLIBS += -L$(ROOFITSYS)/lib/ -lRooFit -lRooFitCore
 USERLIBS += -L$(BASEDIR)/../../ -lLoopAll
 
 USERLIBS += $(shell root-config --glibs) -lTMVA -lMinuit -lFoam -lRooFit -lRooFitCore 
-#USERLIBS +=  -L$(ROOTSYS)/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -lz -lGui -pthread -lm -ldl -rdynamic
-
-
-#-lCondFormatsPhysicsToolsObjects -lRecoBTagPerformanceDB
-#CXXFLAGS = -g -Wall -W -Wno-unused-function -Wno-parentheses -Wno-char-subscripts -Wno-unused-parameter -O2 -Wl,-rpath=$(BASEDIR)/lib 
 CXXFLAGS = -g -W -Wno-unused-function -Wno-parentheses -Wno-char-subscripts -O2 -Wl,-rpath=$(BASEDIR)/lib 
 LDFLAGS = -shared -Wall -W 
 
@@ -67,7 +62,6 @@ BINS=$(subst $(TESTDIR), $(EXEDIR),$(subst .$(TEST_EXT),,$(EXES)))
 all:  $(BINS)
 	$(shell LD_LIBRARY_PATH+=:$(BASEDIR)/lib)
 	$(shell LD_LIBRARY_PATH+=:$(BASEDIR)/../../)
-	#$(shell cp ../../libLoopAll.so lib/)
 
 $(EXEDIR)/%: $(TESTDIR)/%.cpp $(LIBDIR)/lib$(LIBNAME).so $(BASEDIR)/interface/*.h
 	$(CXX) -o $@ $(CXXFLAGS) $< $(LIBS) -L$(LIBDIR) -l$(LIBNAME) $(USERLIBSX)

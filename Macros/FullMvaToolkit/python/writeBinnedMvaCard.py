@@ -120,14 +120,20 @@ def plainBin(hist):
 			  h2.GetXaxis().SetBinLabel(i,"BDT Bin %d "%(i))
 			elif hist.GetBinLowEdge(i+1) <= 1.04:
 			  h2.GetXaxis().SetBinLabel(i," Loose di-jet ")
-			else: 
+			elif hist.GetBinLowEdge(i+1) <=1.08:
 			  h2.GetXaxis().SetBinLabel(i," Tight di-jet ")
+			elif hist.GetBinLowEdge(i+1) <=1.12:
+			  h2.GetXaxis().SetBinLabel(i," Muon tag ")
+			elif hist.GetBinLowEdge(i+1) <=1.16:
+			  h2.GetXaxis().SetBinLabel(i," Electron tag ")
+			else:
+			  h2.GetXaxis().SetBinLabel(i," MET tag ")
 	h2.GetXaxis().SetNdivisions(nb)
 	return h2
 
 def plotDistributions(mass,data,signals,bkg,errors):
 
-	lumistring = "%1.1f fb^{-1}"%(options.intLumi)
+	lumistring = "%1.1f fb^{-1}"%((options.intLumi)/1000.)
 	if options.splitSignal: # last signal is separated off
 	  for i in range(1,len(signals)-1):
 		signals[0].Add(signals[i])
