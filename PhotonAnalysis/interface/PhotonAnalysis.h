@@ -272,6 +272,8 @@ class PhotonAnalysis : public BaseAnalysis
     float  myVHhad_Mgg;
 
     // n-1 plots for VBF tag 2011
+    float  myVBF_leadEta;
+    float  myVBF_subleadEta;
     float  myVBFLeadJPt;
     float  myVBFSubJPt;
     float  myVBFdEta;
@@ -279,31 +281,45 @@ class PhotonAnalysis : public BaseAnalysis
     float  myVBFdPhi;
     float  myVBF_Mjj;
     float  myVBF_Mgg;
-    float  myVBF_deltaPhiJJ;
-    float  myVBF_deltaPhiGamGam;
-    float  myVBF_etaJJ;
     float  myVBFLeadPhoPtOverM;
     float  myVBFSubPhoPtOverM;
     float  myVBFDiPhoPtOverM;
+    float  myVBF_deltaPhiGamGam;
+    float  myVBF_etaJJ;
     float  myVBF_MVA;
-    float  myVBF_thetaJ1;
-    float  myVBF_thetaJ2;
-    float  myVBF_thetaS;
-    float  myVBF_thetaL;
     float  myVBF_MVA0;
     float  myVBF_MVA1;
     float  myVBF_MVA2;
-    float  myVBF_leadEta;
-    float  myVBF_subleadEta;
     float  myVBF_Pz;
     float  myVBF_S;
     float  myVBF_K1;
     float  myVBF_K2;
 
+    // VBF Spin studies
+    float myVBFSpin_Discriminant;
+    float myVBFSpin_DeltaPhiJJ;
+    float myVBFSpin_absDeltaPhiJJ;
+    float myVBFSpin_CosThetaJ1;
+    float myVBFSpin_absCosThetaJ1;
+    float myVBFSpin_CosThetaJ2;
+    float myVBFSpin_absCosThetaJ2;
+    // Small deflection
+    float myVBFSpin_CosThetaS;
+    float myVBFSpin_absCosThetaS;
+    float myVBFSpin_DeltaPhiJJS;
+    float myVBFSpin_absDeltaPhiJJS;
+    // Large deflection
+    float myVBFSpin_CosThetaL;
+    float myVBFSpin_absCosThetaL;
+    float myVBFSpin_DeltaPhiJJL;
+    float myVBFSpin_absDeltaPhiJJL;
+
     bool bookDiPhoCutsInVbf;
     bool mvaVbfSelection, mvaVbfUseDiPhoPt, mvaVbfUsePhoPt;
+    bool mvaVbfSpin;
     bool multiclassVbfSelection, vbfVsDiphoVbfSelection;
     TString mvaVbfWeights, mvaVbfMethod;
+    TString mvaVbfSpinWeights, mvaVbfSpinMethod;
     std::vector<float> mvaVbfCatBoundaries;
     std::vector<float> multiclassVbfCatBoundaries0;
     std::vector<float> multiclassVbfCatBoundaries1;
@@ -346,7 +362,8 @@ class PhotonAnalysis : public BaseAnalysis
     bool VBFTag2011(LoopAll& l, int diphoton_id, float* smeared_pho_energy=0, bool nm1=false, float eventweight=1, float myweight=1);
     // For 2011 data - never used
     bool VHhadronicTag2011(LoopAll& l, int diphoton_id, float* smeared_pho_energy=0, bool nm1=false, float eventweight=1, float myweight=1);
-
+    // VBF Spin studies
+    TMVA::Reader *tmvaVbfSpinReader_;
 
     // Moriond 2012
     bool ElectronTag2011(LoopAll& l, int diphotonVHlep_id, float* smeared_pho_energy=0, bool nm1=false, float eventweight=1, float myweight=1);
@@ -436,6 +453,8 @@ class PhotonAnalysis : public BaseAnalysis
 				BaseDiPhotonSmearer * sys=0, float syst_shift=0.);
 
 		std::pair<TLorentzVector, TLorentzVector> GetVBF_IntermediateBoson(TLorentzVector& Pho1, TLorentzVector& Pho2, TLorentzVector& Jet1, TLorentzVector& Jet2);
+		Double_t GetPerpendicularAngle(TLorentzVector& ref, TLorentzVector& v1, TLorentzVector& v2);
+		void VBFAngles(TLorentzVector& gamma1, TLorentzVector& gamma2, TLorentzVector& J1, TLorentzVector& J2);
 
     std::vector<BaseSmearer *> photonSmearers_;
     std::vector<BaseSmearer *> systPhotonSmearers_;

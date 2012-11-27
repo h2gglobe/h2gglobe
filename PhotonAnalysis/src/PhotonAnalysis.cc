@@ -53,8 +53,8 @@ PhotonAnalysis::PhotonAnalysis()  :
 
     keepPP = true;
     keepPF = true;
-    keepFF = true; 
-    
+    keepFF = true;
+
     selectprocess = false;
     processtoselect = -1;
 
@@ -80,7 +80,7 @@ PhotonAnalysis::PhotonAnalysis()  :
     splitEresolSyst = false;
     corr_smearing_file = "";
     mass_resol_file = "";
-    
+
     dataIs2011 = false;
 
     emulateBeamspot = false;
@@ -97,6 +97,7 @@ PhotonAnalysis::PhotonAnalysis()  :
     mvaVbfSelection=false;
     mvaVbfUseDiPhoPt=true;
     mvaVbfUsePhoPt=true;
+    mvaVbfSpin=false;
     bookDiPhoCutsInVbf=false;
     multiclassVbfSelection=false;
     vbfVsDiphoVbfSelection=false;
@@ -312,7 +313,7 @@ void PhotonAnalysis::applySinglePhotonSmearings(std::vector<float> & smeared_pho
 	cache_lumis = l.lumis;
 	cache_event = l.event;
     }
-    
+
     /// if( sys ) std::cout << "applySinglePhotonSmearings " << fillInfo << " " << syst_shift << " " << ( sys != 0 ? sys->name() : " " ) <<std::endl;
 
     if( fillInfo ) {
@@ -355,13 +356,13 @@ void PhotonAnalysis::applySinglePhotonSmearings(std::vector<float> & smeared_pho
 		if( sys != 0 && *si == *sys ) {
 		    // move the smearer under study by syst_shift
 		    (*si)->smearPhoton(phoInfo,sweight,l.run,syst_shift);
-		    /// if( sys ) { 
+		    /// if( sys ) {
 		    /// 	std::cout << "Syst " << (*si)->name() <<  std::endl;
 		    /// }
 		} else {
 		    // for the other use the nominal points
 		    (*si)->smearPhoton(phoInfo,sweight,l.run,0.);
-		    /// if( sys ) { 
+		    /// if( sys ) {
 		    /// 	std::cout << "Nominal " << (*si)->name() <<  std::endl;
 		    /// }
 		}
@@ -681,6 +682,22 @@ void PhotonAnalysis::Init(LoopAll& l)
 
 	tmvaVbfReader_->BookMVA( mvaVbfMethod, mvaVbfWeights );
 
+    }
+
+    if( mvaVbfSpin && (mvaVbfSelection || multiclassVbfSelection) )
+    {
+      tmvaVbfSpinReader_ = new TMVA::Reader( "!Color:!Silent" );
+
+      tmvaVbfSpinReader_->AddVariable("absDeltaPhiJJ", &myVBFSpin_absDeltaPhiJJ);
+      tmvaVbfSpinReader_->AddVariable("absCosThetaS", &myVBFSpin_absCosThetaS);
+      tmvaVbfSpinReader_->AddVariable("absCosThetaL", &myVBFSpin_absCosThetaL);
+
+      tmvaVbfSpinReader_->AddVariable("absCosThetaJ1", &myVBFSpin_absCosThetaJ1);
+      tmvaVbfSpinReader_->AddVariable("absCosThetaJ2", &myVBFSpin_absCosThetaJ2);
+      tmvaVbfSpinReader_->AddVariable("absDeltaPhiJJS", &myVBFSpin_absDeltaPhiJJS);
+      tmvaVbfSpinReader_->AddVariable("absDeltaPhiJJL", &myVBFSpin_absDeltaPhiJJL);
+
+      tmvaVbfSpinReader_->BookMVA( mvaVbfSpinMethod, mvaVbfSpinWeights );
     }
 
 
@@ -1039,7 +1056,7 @@ void PhotonAnalysis::Init(LoopAll& l)
         massResoPars.smearing_sigma = tmp_smearing[0].scale_offset;
         massResoPars.smearing_sigma_error = tmp_smearing[0].scale_offset_error;
     }
-    
+
     // energy scale systematics to MC
     eScaleSmearer = new EnergySmearer( eSmearPars );
     eScaleSmearer->name("E_scale");
@@ -1988,7 +2005,7 @@ bool PhotonAnalysis::SkimEvents(LoopAll& l, int jentry)
                 return false;
             }
         }
-        
+
         if( filetype != 0 && ! (keepPP && keepPF && keepFF) ) {
             l.b_gp_n->GetEntry(jentry);
             l.b_gp_mother->GetEntry(jentry);
@@ -3712,6 +3729,8 @@ bool PhotonAnalysis::VBFTag2012(int & ijet1, int & ijet2,
     TLorentzVector* jet1 = (TLorentzVector*)l.jet_algoPF1_p4->At(jets.first);
     TLorentzVector* jet2 = (TLorentzVector*)l.jet_algoPF1_p4->At(jets.second);
     TLorentzVector dijet = (*jet1) + (*jet2);
+    if(jet1->Pt() < jet2->Pt())
+      std::swap(jet1, jet2);
 
     myVBFLeadJPt= jet1->Pt();
     myVBFSubJPt = jet2->Pt();
@@ -3727,30 +3746,13 @@ bool PhotonAnalysis::VBFTag2012(int & ijet1, int & ijet2,
     myVBF_MVA0 = -2.;
     myVBF_MVA1 = -2.;
     myVBF_MVA2 = -2.;
-    myVBF_deltaPhiJJ = jet1->DeltaPhi(*jet2);
+    myVBFSpin_Discriminant = -2.;
     myVBF_deltaPhiGamGam = lead_p4.DeltaPhi(sublead_p4);
     myVBF_etaJJ = (jet1->Eta() + jet2->Eta())/2;
     myVBF_leadEta = jet1->Eta();
     myVBF_subleadEta = jet2->Eta();
 
-
-    std::pair<TLorentzVector, TLorentzVector> IntermediateBoson = GetVBF_IntermediateBoson(lead_p4, sublead_p4, *jet1, *jet2);
-    TLorentzVector S = IntermediateBoson.first;
-    TLorentzVector L = IntermediateBoson.second;
-
-    TVector3 boost = diphoton.BoostVector();
-    TLorentzVector jet1Boosted = *jet1, jet2Boosted = *jet2, leadingBoosted = lead_p4, subleadingBoosted = sublead_p4, SBoosted = S, LBoosted = L;
-    jet1Boosted.Boost(-boost);
-    jet2Boosted.Boost(-boost);
-    leadingBoosted.Boost(-boost);
-    subleadingBoosted.Boost(-boost);
-    SBoosted.Boost(-boost);
-    LBoosted.Boost(-boost);
-
-    myVBF_thetaJ1 = leadingBoosted.Angle(jet1Boosted.Vect());
-    myVBF_thetaJ2 = leadingBoosted.Angle(jet2Boosted.Vect());
-    myVBF_thetaS = TMath::Abs(CosAngle(leadingBoosted, SBoosted));
-    myVBF_thetaL = TMath::Abs(CosAngle(leadingBoosted, LBoosted));
+    VBFAngles(lead_p4, sublead_p4, *jet1, *jet2);
 
     if( mvaVbfSelection ) {
 	if( myVBFLeadJPt>30. && myVBFSubJPt>20. && myVBF_Mjj > 250. ) { // FIXME hardcoded pre-selection thresholds
@@ -3782,6 +3784,11 @@ bool PhotonAnalysis::VBFTag2012(int & ijet1, int & ijet2,
 	} else {
 	    tag = l.ApplyCuts(0,1);
 	}
+    }
+
+    if( mvaVbfSpin && (mvaVbfSelection || multiclassVbfSelection) )
+    {
+      myVBFSpin_Discriminant = tmvaVbfSpinReader_->EvaluateMVA(mvaVbfSpinMethod);
     }
 
     return tag;
@@ -3956,7 +3963,7 @@ float PhotonAnalysis::BeamspotReweight(double vtxZ, double genZ) {
 
     float diffVar = vtxZ-genZ;
     if (TMath::Abs(diffVar)<0.1) return 1.0;
-    
+
     // gets to 4.8
     float newBSmean1  = 9.9391e-02;
     float newBSmean2  = 1.8902e-01;
@@ -3984,7 +3991,7 @@ float PhotonAnalysis::BeamspotReweight(double vtxZ, double genZ) {
     float newBSgaus2 = newBSnorm2*exp(-0.5*pow((diffVar-newBSmean2)/newBSsigma2,2));
     float oldBSgaus1 = oldBSnorm1*exp(-0.5*pow((diffVar-oldBSmean1)/oldBSsigma1,2));
     float oldBSgaus2 = oldBSnorm2*exp(-0.5*pow((diffVar-oldBSmean2)/oldBSsigma2,2));
-    
+
     float reweight =  1.1235 * (newBSgaus1+newBSgaus2)/(oldBSgaus1+oldBSgaus2);
     //float reweight =  1.10332 * (newBSgaus1+newBSgaus2)/(oldBSgaus1+oldBSgaus2);
 
@@ -4224,6 +4231,44 @@ void PhotonAnalysis::saveMassFacDatCardTree(LoopAll &l, int cur_type, int catego
 
 }
 
+void PhotonAnalysis::VBFAngles(TLorentzVector& gamma1, TLorentzVector& gamma2, TLorentzVector& J1, TLorentzVector& J2)
+{
+  myVBFSpin_DeltaPhiJJ = J1.DeltaPhi(J2);
+  myVBFSpin_absDeltaPhiJJ = TMath::Abs(myVBFSpin_DeltaPhiJJ);
+
+  std::pair<TLorentzVector, TLorentzVector> IntermediateBoson = GetVBF_IntermediateBoson(gamma1, gamma2, J1, J2);
+  TLorentzVector S = IntermediateBoson.first;  //Small deflection
+  TLorentzVector L = IntermediateBoson.second; //Large deflection
+  TLorentzVector diphoton = gamma1 + gamma2;
+
+  TVector3 boost = -diphoton.BoostVector(); //Get boost vector
+
+  TLorentzVector J1Boosted = J1, J2Boosted = J2, leadingBoosted = gamma1, subleadingBoosted = gamma2, SBoosted = S, LBoosted = L;
+
+  J1Boosted.Boost(boost);
+  J2Boosted.Boost(boost);
+  leadingBoosted.Boost(boost);
+  subleadingBoosted.Boost(boost);
+  SBoosted.Boost(boost);
+  LBoosted.Boost(boost);
+
+  myVBFSpin_CosThetaJ1 = CosAngle(leadingBoosted, J1Boosted);//leadingBoosted.Vect().Dot(J1Boosted.Vect())/(leadingBoosted.Vect().Mag()*J1Boosted.Vect().Mag());
+  myVBFSpin_absCosThetaJ1 = TMath::Abs(myVBFSpin_CosThetaJ1);
+  myVBFSpin_CosThetaJ2 = CosAngle(leadingBoosted, J2Boosted);//leadingBoosted.Vect().Dot(J2Boosted.Vect())/(leadingBoosted.Vect().Mag()*J2Boosted.Vect().Mag());
+  myVBFSpin_absCosThetaJ2 = TMath::Abs(myVBFSpin_CosThetaJ2);
+
+  // Small deflection
+  myVBFSpin_DeltaPhiJJS = GetPerpendicularAngle(SBoosted, J1Boosted, J2Boosted);
+  myVBFSpin_absDeltaPhiJJS = TMath::Abs(myVBFSpin_DeltaPhiJJS);
+  myVBFSpin_CosThetaS = TMath::Abs(CosAngle(leadingBoosted, SBoosted));
+  myVBFSpin_absCosThetaS = TMath::Abs(myVBFSpin_CosThetaS);
+  // Large deflection
+  myVBFSpin_DeltaPhiJJL = GetPerpendicularAngle(LBoosted, J1Boosted, J2Boosted);
+  myVBFSpin_absDeltaPhiJJL = TMath::Abs(myVBFSpin_DeltaPhiJJL);
+  myVBFSpin_CosThetaL = TMath::Abs(CosAngle(leadingBoosted, LBoosted));
+  myVBFSpin_absCosThetaL = TMath::Abs(myVBFSpin_CosThetaL);
+}
+
 //Return intermediate boson TLorentzVector for VBF (2 different possible pairings are given
 std::pair<TLorentzVector, TLorentzVector> PhotonAnalysis::GetVBF_IntermediateBoson(TLorentzVector& Pho1, TLorentzVector& Pho2, TLorentzVector& Jet1, TLorentzVector& Jet2)
 {
@@ -4271,6 +4316,20 @@ std::pair<TLorentzVector, TLorentzVector> PhotonAnalysis::GetVBF_IntermediateBos
   retVal.second = *(pairing[(index+1)%2].second) - *(pairing[index].first);
 
   return retVal;
+}
+
+//Return angle between to TLorentzVectors in the plane perpendicular to a third TLorentzVector
+Double_t PhotonAnalysis::GetPerpendicularAngle(TLorentzVector& ref, TLorentzVector& v1, TLorentzVector& v2)
+{
+  TVector3 ref_norm = (ref.Vect()).Unit();
+
+  TVector3 v1_perp = v1.Vect();
+  v1_perp = v1_perp - ref_norm * (ref_norm * v1_perp);
+
+  TVector3 v2_perp = v2.Vect();
+  v2_perp = v2_perp - ref_norm * (ref_norm * v2_perp);
+
+  return v1_perp.Angle(v2_perp);
 }
 
 

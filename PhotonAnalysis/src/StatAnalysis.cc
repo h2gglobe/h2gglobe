@@ -635,7 +635,7 @@ bool StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     if (!l.runZeeValidation && cur_type<0){
 	gP4 = l.GetHiggs();
 	gPT = gP4.Pt();
-	assert( gP4.M() > 0. );
+	//assert( gP4.M() > 0. );
     }
 
     //Calculate cluster shape variables prior to shape rescaling
@@ -771,7 +771,7 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 
     std::pair<int,int> diphoton_index;
     vbfIjet1=-1, vbfIjet2=-1;
-   
+
     // do gen-level dependent first (e.g. k-factor); only for signal
     genLevWeight=1.;
     if(cur_type!=0 ) {
@@ -1015,7 +1015,7 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 	    dumpPhoton(eventListText,1,l,l.dipho_leadind[diphoton_id],l.dipho_vtxind[diphoton_id],lead_p4,&smeared_pho_energy[0]);
 	    dumpPhoton(eventListText,2,l,l.dipho_subleadind[diphoton_id],l.dipho_vtxind[diphoton_id],sublead_p4,&smeared_pho_energy[0]);
 	    if( VBFevent ) {
-		eventListText << "\tnvtx:" << l.vtx_std_n 
+		eventListText << "\tnvtx:" << l.vtx_std_n
 			      << "\tjetPt1:"  << ( (TLorentzVector*)l.jet_algoPF1_p4->At(vbfIjet1) )->Pt()
 			      << "\tjetPt2:"  << ( (TLorentzVector*)l.jet_algoPF1_p4->At(vbfIjet2) )->Pt()
 			      << "\tjetEta1:" << ( (TLorentzVector*)l.jet_algoPF1_p4->At(vbfIjet1) )->Eta()
@@ -1077,14 +1077,6 @@ void StatAnalysis::FillRooContainer(LoopAll& l, int cur_type, float mass, float 
 	    TLorentzVector* jet1 = (TLorentzVector*)l.jet_algoPF1_p4->At(vbfIjet1);
 	    TLorentzVector* jet2 = (TLorentzVector*)l.jet_algoPF1_p4->At(vbfIjet2);
 
-	    l.FillTree("deltaPhiJJ",myVBF_deltaPhiJJ);
-	    l.FillTree("deltaPhiGamGam", myVBF_deltaPhiGamGam);
-	    l.FillTree("etaJJ", myVBF_etaJJ);
-	    l.FillTree("thetaJ1", myVBF_thetaJ1);
-	    l.FillTree("thetaJ2", myVBF_thetaJ2);
-	    l.FillTree("absThetaS", myVBF_thetaS);
-	    l.FillTree("absThetaL", myVBF_thetaL);
-
 	    l.FillTree("leadJPt", myVBFLeadJPt);
 	    l.FillTree("subleadJPt", myVBFSubJPt);
 	    l.FillTree("leadJEta", (float)jet1->Eta());
@@ -1105,6 +1097,18 @@ void StatAnalysis::FillRooContainer(LoopAll& l, int cur_type, float mass, float 
 	    l.FillTree("VBF_S", myVBF_S);
 	    l.FillTree("VBF_K1", myVBF_K1);
 	    l.FillTree("VBF_K2", myVBF_K2);
+
+	    l.FillTree("deltaPhiGamGam", myVBF_deltaPhiGamGam);
+	    l.FillTree("etaJJ", myVBF_etaJJ);
+	    l.FillTree("deltaPhiJJ",myVBFSpin_DeltaPhiJJ);
+	    l.FillTree("cosThetaJ1", myVBFSpin_CosThetaJ1);
+	    l.FillTree("cosThetaJ2", myVBFSpin_CosThetaJ2);
+	    // Small deflection
+	    l.FillTree("deltaPhiJJS",myVBFSpin_DeltaPhiJJS);
+	    l.FillTree("cosThetaS", myVBFSpin_CosThetaS);
+	    // Large deflection
+	    l.FillTree("deltaPhiJJL",myVBFSpin_DeltaPhiJJL);
+	    l.FillTree("cosThetaL", myVBFSpin_CosThetaL);
 	}
 	l.FillTree("sampleType",cur_type);
 	//// l.FillTree("isCorrectVertex",isCorrectVertex);
@@ -1248,7 +1252,7 @@ void StatAnalysis::fillControlPlots(const TLorentzVector & lead_p4, const  TLore
     float mass = Higgs.M();
     if(category!=-10){  // really this is nomva cut but -1 means all together here
         if( category>=0 ) {
-            fillControlPlots( lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, diphoton_id, -1, isCorrectVertex, evweight, 
+            fillControlPlots( lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, diphoton_id, -1, isCorrectVertex, evweight,
 			      vtx, l, muVtx, mu_ind, elVtx, el_ind, diphobdt_output );
         }
         l.FillHist("all_mass",category+1, Higgs.M(), evweight);
