@@ -4,16 +4,15 @@ LIBNAME = FullMvaToolkit
 #Necessary to use shell built-in commands
 SHELL=bash
 
-$(shell mkdir bin)
-$(shell mkdir lib)
-$(shell mkdir obj)
+$(shell mkdir -p bin)
+$(shell mkdir -p lib)
+$(shell mkdir -p obj)
 
 # figure out os
 UNAME := $(shell uname)
 BASEDIR = $(shell pwd)
 
 USERINCLUDES += -I$(ROOTSYS)/include
-$(info Found OS Linux - using linux build)
 BOOST_PATH=$(CMSSW_DATA_PATH)/../external/boost/1.47.0
 USERINCLUDES += -I$(BOOST_PATH)/include/
 USERINCLUDES += -I$(CMS_PATH)/$(SCRAM_ARCH)/lcg/roofit/5.32.00-cms5/include/
@@ -23,15 +22,15 @@ USERLIBS += -L$(ROOFITSYS)/lib/ -lRooFit -lRooFitCore
 USERLIBS += -L$(BASEDIR)/../../ -lLoopAll
 
 USERLIBS += $(shell root-config --glibs) -lTMVA -lMinuit -lFoam -lRooFit -lRooFitCore 
-CXXFLAGS = -g -W -Wno-unused-function -Wno-parentheses -Wno-char-subscripts -O2 -Wl,-rpath=$(BASEDIR)/lib 
-LDFLAGS = -shared -Wall -W 
+CXXFLAGS = -g -O2 -Wl,-rpath=$(BASEDIR)/lib 
+LDFLAGS = -shared -W 
 
 CXX=clang++
 LD=clang++
 CLANGPATH := $(shell type -p clang++)
 
 ifeq ($(CLANGPATH),)
-$(warning clang++ not found, reverting to g++!)
+#$(warning clang++ not found, reverting to g++!)
 CXX=g++
 LD=g++
 endif
@@ -64,14 +63,17 @@ all:  $(BINS)
 	$(shell LD_LIBRARY_PATH+=:$(BASEDIR)/../../)
 
 $(EXEDIR)/%: $(TESTDIR)/%.cpp $(LIBDIR)/lib$(LIBNAME).so $(BASEDIR)/interface/*.h
-	$(CXX) -o $@ $(CXXFLAGS) $< $(LIBS) -L$(LIBDIR) -l$(LIBNAME) $(USERLIBSX)
+	@echo Compiling executable $@
+	@$(CXX) -o $@ $(CXXFLAGS) $< $(LIBS) -L$(LIBDIR) -l$(LIBNAME) $(USERLIBSX)
 
 
 $(OBJDIR)/%.$(OBJ_EXT): $(SRCDIR)/%.cc
-	$(CXX) $(CXXFLAGS) -fPIC -c $<  -o $@ 
+	@echo Making object $@
+	@$(CXX) $(CXXFLAGS) -fPIC -c $<  -o $@ 
 
 $(LIBDIR)/lib$(LIBNAME).so: $(OBJS)
-	$(LD) $(LDFLAGS) -o $(LIBDIR)/lib$(LIBNAME).so  $^ $(LIBS)
+	@echo Building shared library $@
+	@$(LD) $(LDFLAGS) -o $(LIBDIR)/lib$(LIBNAME).so  $^ $(LIBS)
 	
 
 lib: $(LIBDIR)/lib$(LIBNAME).so
@@ -84,6 +86,7 @@ vars:
 	@echo "Executables:  " $(TARGETS)
 
 clean:
-	rm -rf $(OBJS) $(LIBDIR)/lib$(LIBNAME).so $(BINS)
+	@rm -rf $(OBJS) $(LIBDIR)/lib$(LIBNAME).so $(BINS)
+	@echo Cleaned
 
 
