@@ -30,12 +30,14 @@ type=2 name=sigmaMwv
 
 type=0 name=VBFevent
 type=2 name=deltaPhiJJ
+type=2 name=deltaPhiJJL
+type=2 name=deltaPhiJJS
 type=2 name=deltaPhiGamGam
 type=2 name=etaJJ
-type=2 name=thetaJ1
-type=2 name=thetaJ2
-type=2 name=absThetaL
-type=2 name=absThetaS
+type=2 name=cosThetaJ1
+type=2 name=cosThetaJ2
+type=2 name=cosThetaL
+type=2 name=cosThetaS
 
 type=2 name=leadJPt
 type=2 name=subleadJPt
@@ -59,3 +61,4 @@ type=2 name=VBF_Pz
 type=2 name=VBF_S
 type=2 name=VBF_K1
 type=2 name=VBF_K2
+type=2 name=VBFSpin_MVA
