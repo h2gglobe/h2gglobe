@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<MethodSetup Method="LD::LD">
+  <GeneralInfo>
+    <Info name="TMVA Release" value="4.1.3 [262403]"/>
+    <Info name="ROOT Release" value="5.34/00 [336384]"/>
+    <Info name="Creator" value="cbeiraod"/>
+    <Info name="Date" value="Wed Nov 28 12:54:41 2012"/>
+    <Info name="Host" value="Linux lxbuild148.cern.ch 2.6.18-238.5.1.el5 #1 SMP Wed Mar 2 15:08:52 CET 2011 x86_64 x86_64 x86_64 GNU/Linux"/>
+    <Info name="Dir" value="/afs/cern.ch/work/c/cbeiraod/Properties/CMSSW_5_2_4_patch4/src/h2gglobe/JetAnalysis/macro"/>
+    <Info name="Training events" value="11583"/>
+    <Info name="TrainingTime" value="1.52230263e-02"/>
+    <Info name="AnalysisType" value="Classification"/>
+  </GeneralInfo>
+  <Options>
+    <Option name="V" modified="Yes">False</Option>
+    <Option name="VerbosityLevel" modified="No">Default</Option>
+    <Option name="VarTransform" modified="No">None</Option>
+    <Option name="H" modified="Yes">True</Option>
+    <Option name="CreateMVAPdfs" modified="Yes">True</Option>
+    <Option name="IgnoreNegWeightsInTraining" modified="No">False</Option>
+  </Options>
+  <Variables NVar="6">
+    <Variable VarIndex="0" Expression="abs(deltaPhiJJ)" Label="absDeltaPhiJJ" Title="|\Delta\Phi_{JJ}|" Unit="" Internal="absDeltaPhiJJ" Type="F" Min="8.66413116e-04" Max="3.14121509e+00"/>
+    <Variable VarIndex="1" Expression="abs(cosThetaJ1)" Label="absCosThetaJ1" Title="|cos\thetaJ1|" Unit="" Internal="absCosThetaJ1" Type="F" Min="2.78518492e-05" Max="9.73169625e-01"/>
+    <Variable VarIndex="2" Expression="abs(cosThetaJ2)" Label="absCosThetaJ2" Title="|cos\thetaJ2|" Unit="" Internal="absCosThetaJ2" Type="F" Min="4.64303448e-05" Max="9.48179603e-01"/>
+    <Variable VarIndex="3" Expression="abs(cosThetaS)" Label="absCosThetaS" Title="|cos\thetaS|" Unit="" Internal="absCosThetaS" Type="F" Min="3.76968783e-05" Max="9.99851644e-01"/>
+    <Variable VarIndex="4" Expression="abs(deltaPhiJJL)" Label="absDeltaPhiJJL" Title="|\Delta\Phi_{JJ_L}|" Unit="" Internal="absDeltaPhiJJL" Type="F" Min="1.34292452e-06" Max="2.77605033e+00"/>
+    <Variable VarIndex="5" Expression="abs(cosThetaL)" Label="absCosThetaL" Title="|cos\thetaL|" Unit="" Internal="absCosThetaL" Type="F" Min="2.25489784e-04" Max="9.99124587e-01"/>
+  </Variables>
+  <Spectators NSpec="0"/>
+  <Classes NClass="2">
+    <Class Name="Signal" Index="0"/>
+    <Class Name="Background" Index="1"/>
+  </Classes>
+  <Transformations NTransformations="0"/>
+  <MVAPdfs>
+    <PDF Name="LD_PDFSig" MinNSmooth="10" MaxNSmooth="10" InterpolMethod="2" KDE_type="1" KDE_iter="1" KDE_border="1" KDE_finefactor="1.0000000000000000e+00">
+      <Histogram Name="LD_tr_S_original" NBins="50" XMin="-1.8996432423591614e-01" XMax="1.7807583808898926e+00" HasEquidistantBins="1">
+        1.66432219e-02 1.02236935e-01 2.18739488e-01 4.18458151e-01 7.63210605e-01 1.00097092e+00 1.38614263e+00 1.80697838e+00 2.00907465e+00 2.31103024e+00 2.16599645e+00 2.33480628e+00 2.09942357e+00 1.98529862e+00 1.79984557e+00 1.52404361e+00 1.10083025e+00 9.12999603e-01 5.58736736e-01 3.09088407e-01 1.92585854e-01 1.09369744e-01 5.94400783e-02 4.75520626e-02 1.42656188e-02 3.09088407e-02 2.13984282e-02 4.75520626e-03 1.18880157e-02 1.42656188e-02 4.75520626e-03 2.37760313e-03 4.75520626e-03 7.13280940e-03 0.00000000e+00 0.00000000e+00 2.37760313e-03 2.37760313e-03 0.00000000e+00 0.00000000e+00 4.75520626e-03 0.00000000e+00 2.37760313e-03 2.37760313e-03 0.00000000e+00 2.37760313e-03 2.37760313e-03 0.00000000e+00 0.00000000e+00 2.37760313e-03 
+      </Histogram>
+    </PDF>
+    <PDF Name="LD_PDFBkg" MinNSmooth="10" MaxNSmooth="10" InterpolMethod="2" KDE_type="1" KDE_iter="1" KDE_border="1" KDE_finefactor="1.0000000000000000e+00">
+      <Histogram Name="LD_tr_B_original" NBins="50" XMin="-1.8996432423591614e-01" XMax="1.7807583808898926e+00" HasEquidistantBins="1">
+        5.57001164e-02 3.89900815e-01 6.12701280e-01 1.03045215e+00 1.81025378e+00 2.06090431e+00 2.97995623e+00 3.11920652e+00 2.42295506e+00 2.39510501e+00 2.22800466e+00 1.89380396e+00 1.39250291e+00 1.16970244e+00 5.84851222e-01 5.29151106e-01 1.67100349e-01 3.06350640e-01 1.11400233e-01 1.11400233e-01 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 
+      </Histogram>
+    </PDF>
+  </MVAPdfs>
+  <Weights NOut="1" NCoeff="7">
+    <Coefficient IndexOut="0" IndexCoeff="0" Value="-2.0399688555648665e-01"/>
+    <Coefficient IndexOut="0" IndexCoeff="1" Value="1.9443587144053323e-02"/>
+    <Coefficient IndexOut="0" IndexCoeff="2" Value="2.0099155874707986e-01"/>
+    <Coefficient IndexOut="0" IndexCoeff="3" Value="1.0314336796245538e-01"/>
+    <Coefficient IndexOut="0" IndexCoeff="4" Value="2.8719174783935730e-01"/>
+    <Coefficient IndexOut="0" IndexCoeff="5" Value="5.9747922139338261e-01"/>
+    <Coefficient IndexOut="0" IndexCoeff="6" Value="2.4221926244063319e-01"/>
+  </Weights>
+</MethodSetup>

@@ -1,0 +1,3 @@
+mvaVbfSpin=1
+mvaVbfSpinWeights=aux/TMVA_VBFSpin_discriminant.weights.xml
+mvaVbfSpinMethod=LD

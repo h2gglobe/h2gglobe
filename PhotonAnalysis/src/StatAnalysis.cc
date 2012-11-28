@@ -1100,6 +1100,7 @@ void StatAnalysis::FillRooContainer(LoopAll& l, int cur_type, float mass, float 
 
 	    l.FillTree("deltaPhiGamGam", myVBF_deltaPhiGamGam);
 	    l.FillTree("etaJJ", myVBF_etaJJ);
+	    l.FillTree("VBFSpin_Discriminant", myVBFSpin_Discriminant);
 	    l.FillTree("deltaPhiJJ",myVBFSpin_DeltaPhiJJ);
 	    l.FillTree("cosThetaJ1", myVBFSpin_CosThetaJ1);
 	    l.FillTree("cosThetaJ2", myVBFSpin_CosThetaJ2);

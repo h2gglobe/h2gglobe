@@ -688,14 +688,14 @@ void PhotonAnalysis::Init(LoopAll& l)
     {
       tmvaVbfSpinReader_ = new TMVA::Reader( "!Color:!Silent" );
 
-      tmvaVbfSpinReader_->AddVariable("absDeltaPhiJJ", &myVBFSpin_absDeltaPhiJJ);
-      tmvaVbfSpinReader_->AddVariable("absCosThetaS", &myVBFSpin_absCosThetaS);
-      tmvaVbfSpinReader_->AddVariable("absCosThetaL", &myVBFSpin_absCosThetaL);
+      tmvaVbfSpinReader_->AddVariable("absDeltaPhiJJ := abs(deltaPhiJJ)", &myVBFSpin_absDeltaPhiJJ);
+      tmvaVbfSpinReader_->AddVariable("absCosThetaJ1 := abs(cosThetaJ1)", &myVBFSpin_absCosThetaJ1);
+      tmvaVbfSpinReader_->AddVariable("absCosThetaJ2 := abs(cosThetaJ2)", &myVBFSpin_absCosThetaJ2);
 
-      tmvaVbfSpinReader_->AddVariable("absCosThetaJ1", &myVBFSpin_absCosThetaJ1);
-      tmvaVbfSpinReader_->AddVariable("absCosThetaJ2", &myVBFSpin_absCosThetaJ2);
-      tmvaVbfSpinReader_->AddVariable("absDeltaPhiJJS", &myVBFSpin_absDeltaPhiJJS);
-      tmvaVbfSpinReader_->AddVariable("absDeltaPhiJJL", &myVBFSpin_absDeltaPhiJJL);
+      //tmvaVbfSpinReader_->AddVariable("absDeltaPhiJJS := abs(deltaPhiJJS)", &myVBFSpin_absDeltaPhiJJS);
+      tmvaVbfSpinReader_->AddVariable("absCosThetaS := abs(cosThetaS)", &myVBFSpin_absCosThetaS);
+      tmvaVbfSpinReader_->AddVariable("absDeltaPhiJJL := abs(deltaPhiJJL)", &myVBFSpin_absDeltaPhiJJL);
+      tmvaVbfSpinReader_->AddVariable("absCosThetaL := abs(cosThetaL)", &myVBFSpin_absCosThetaL);
 
       tmvaVbfSpinReader_->BookMVA( mvaVbfSpinMethod, mvaVbfSpinWeights );
     }
@@ -4260,12 +4260,12 @@ void PhotonAnalysis::VBFAngles(TLorentzVector& gamma1, TLorentzVector& gamma2, T
   // Small deflection
   myVBFSpin_DeltaPhiJJS = GetPerpendicularAngle(SBoosted, J1Boosted, J2Boosted);
   myVBFSpin_absDeltaPhiJJS = TMath::Abs(myVBFSpin_DeltaPhiJJS);
-  myVBFSpin_CosThetaS = TMath::Abs(CosAngle(leadingBoosted, SBoosted));
+  myVBFSpin_CosThetaS = CosAngle(leadingBoosted, SBoosted);
   myVBFSpin_absCosThetaS = TMath::Abs(myVBFSpin_CosThetaS);
   // Large deflection
   myVBFSpin_DeltaPhiJJL = GetPerpendicularAngle(LBoosted, J1Boosted, J2Boosted);
   myVBFSpin_absDeltaPhiJJL = TMath::Abs(myVBFSpin_DeltaPhiJJL);
-  myVBFSpin_CosThetaL = TMath::Abs(CosAngle(leadingBoosted, LBoosted));
+  myVBFSpin_CosThetaL = CosAngle(leadingBoosted, LBoosted);
   myVBFSpin_absCosThetaL = TMath::Abs(myVBFSpin_CosThetaL);
 }
 

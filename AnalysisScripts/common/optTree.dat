@@ -61,4 +61,4 @@ type=2 name=VBF_Pz
 type=2 name=VBF_S
 type=2 name=VBF_K1
 type=2 name=VBF_K2
-type=2 name=VBFSpin_MVA
+type=2 name=VBFSpin_Discriminant
