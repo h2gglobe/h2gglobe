@@ -7,6 +7,7 @@ from pprint import pprint
 from math import fabs
 import operator
 import random
+import ROOT
 
 minrun=999999
 maxrun=0
@@ -17,11 +18,9 @@ isMVA=False
 
 
 def mkBranch(tree, nt, name, type):
-    import ROOT
     tree.Branch(name,ROOT.AddressOf(nt,name),"%s/%s" % (name,type) )
 
 def dumpTree(file,lst):
-    import ROOT
 
     file.cd()
     nt = ROOT.Entry()
@@ -30,7 +29,7 @@ def dumpTree(file,lst):
     mkBranch(tree,nt,"lumis","I")
     mkBranch(tree,nt,"event","I")
     mkBranch(tree,nt,"category","I")
-    mkBranch(tree,nt,"diphotonMVA","F")
+    if isMVA: mkBranch(tree,nt,"diphotonMVA","F")
     mkBranch(tree,nt,"CMS_hgg_mass","F")
 
     for idx,vars in lst.iteritems():
@@ -38,7 +37,7 @@ def dumpTree(file,lst):
             continue
         nt.run, nt.lumis, nt.event = idx
         nt.category = vars["evcat"]
-        nt.diphotonMVA = vars["diphoBDT"]
+        if isMVA: nt.diphotonMVA = vars["diphoBDT"]
         nt.CMS_hgg_mass = vars["mgg"]
         tree.Fill()
     tree.Write()
@@ -88,7 +87,6 @@ def getlist(input):
     return lst
 
 def main(options,args):
-    import ROOT
 
     ROOT.gROOT.SetStyle("Plain")
     ROOT.gStyle.SetPalette(1)
@@ -101,8 +99,8 @@ def main(options,args):
            int lumis;          \
            int event;          \
            int category;       \
-           float diphotonMVA;  \
            float CMS_hgg_mass; \
+           float diphotonMVA;  \
           };"
        )
     
