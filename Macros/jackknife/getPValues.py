@@ -12,9 +12,9 @@ offset=int(sys.argv[4])
 
 
 for i in xrange(offset, offset+nJobs):
-    r = [120+0.5*k for k in range(20)]
+    r = [123+0.5*k for k in range(9)]
     maxMassPValue = (0, 9999.)
-    cmd="python ../ResultScripts/PValuesPerCat.py -s "+workingDir+"/part"+str(i)+" -o -p -m 120,120.5,121,121.5,122,122.5,123,123.5,124,124.5,125,125.5,126,126.5,127,127.5,128,128.5,129,129.5,130 -d "+workingDir+"/part"+str(i)+"/"+datacardName+".txt"
+    cmd="python ../ResultScripts/PValuesPerCat.py --threads=1 -s "+workingDir+"/part"+str(i)+" -o -p -m 123,123.5,124,124.5,125,125.5,126,126.5,127 -d "+workingDir+"/part"+str(i)+"/"+datacardName+".txt"
     print cmd
     output=os.system(cmd)
 
@@ -31,7 +31,7 @@ for i in xrange(offset, offset+nJobs):
     bestPValues[i]=maxMassPValue
 
     # Compute mu
-    bestcmd="python ../ResultScripts/PValuesPerCat.py -s "+workingDir+"/part"+str(i)+" -b -m "+str(maxMassPValue[0])+" -d "+workingDir+"/part"+str(i)+"/"+datacardName+".txt"
+    bestcmd="python ../ResultScripts/PValuesPerCat.py --threads=1 -s "+workingDir+"/part"+str(i)+" -b -m "+str(maxMassPValue[0])+" -d "+workingDir+"/part"+str(i)+"/"+datacardName+".txt"
     print bestcmd
     output=os.system(bestcmd)
     

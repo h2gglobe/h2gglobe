@@ -17,7 +17,7 @@ def reRunMu(dir, i, mass, datacard):
 
 def readMus(filename):
     par = {}
-    file = open(filename)
+    file = open(filename,"a+")
     lines = file.readlines()
     file.close()
 
@@ -35,7 +35,7 @@ parA = readMus(workingDir+"/"+datacardName+"_bestfits.txt")
 for i in xrange(int(sys.argv[3])):
     if (i not in parA.keys()):
         skipJob = False
-        r = [120+0.5*k for k in range(20)]
+        r = [123+0.5*k for k in range(9)]
         maxMassPValue = (0, 9999.)
 
         badFiles = ""
@@ -62,7 +62,6 @@ for i in xrange(int(sys.argv[3])):
 
         for j in r:
             filename = workingDir+"/part"+str(i)+"/"+datacardName+"/higgsCombinePValue.ProfileLikelihood.mH"+str(j)+".log"
-                        
             file = open(filename)
             lines = file.readlines()
             file.close()
@@ -111,16 +110,17 @@ for i in xrange(int(sys.argv[3])):
                 thismu[linelist[-1]]=[linelist[4],linelist[5].split("/")]
         
         mus[i]=thismu 
-        mukeys=mus.keys()
-        mukeys.sort()
 
-        file = open(workingDir+"/"+datacardName+"_bestfits.txt","a")
-        for mukey in mukeys:
-            muinfo=mus[mukey]
-            
-            file.write(str(mukey)+"\t"+str(muinfo["best"][0])+"\t"+str(bestPValues[mukey][0])+"\t"+str(bestPValues[mukey][1])+"\n")
-            bestPValues[i]=maxMassPValue
-        file.close()
+mukeys=mus.keys()
+mukeys.sort()
+    
+file = open(workingDir+"/"+datacardName+"_bestfits.txt","w")
+for mukey in mukeys:
+    muinfo=mus[mukey]
+        
+    file.write(str(mukey)+"\t"+str(muinfo["best"][0])+"\t"+str(bestPValues[mukey][0])+"\t"+str(bestPValues[mukey][1])+"\n")
+    bestPValues[i]=maxMassPValue
+file.close()
             
 
         
