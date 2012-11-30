@@ -17,7 +17,9 @@ def readMus(filename):
 parA = readMus(sys.argv[1])
 parB = readMus(sys.argv[2])
 
-nExp = min(len(parA), len(parB))
+matches= set(parA.keys()).intersection(  set(parB.keys()) )
+nExp=len(matches)
+
 
 mass1 = ROOT.TH1F("mass1", "mass 1", 20, 120., 130.)
 mass2 = ROOT.TH1F("mass2", "mass 2", 20, 120., 130.)
@@ -29,7 +31,7 @@ sumMu1 = 0
 rms1 = 0
 sumMu2 = 0
 rms2 = 0
-for i in xrange(nExp):
+for i in matches:
     sumMu = sumMu + (parA[i][0] - parB[i][0])
     sumMu1 = sumMu1 + (parA[i][0])
     sumMu2 = sumMu2 + (parB[i][0])
@@ -38,7 +40,7 @@ for i in xrange(nExp):
 avgMu = sumMu/float(nExp)
 avgMu1 = sumMu1/float(nExp)
 avgMu2 = sumMu2/float(nExp)
-for i in xrange(nExp):
+for i in matches:
     rms = rms + math.pow(avgMu-(parA[i][0] - parB[i][0]), 2)
     rms1 = rms1 + math.pow((avgMu1-parA[i][0]), 2)
     rms2 = rms2 + math.pow((avgMu2-parB[i][0]), 2)
@@ -54,7 +56,7 @@ mu1 = ROOT.TH1F("mu", "#mu1", 50, float(avgMu1-rfac*rms1), float(avgMu1+rfac*rms
 mu2 = ROOT.TH1F("mu", "#mu2", 50, float(avgMu2-rfac*rms2), float(avgMu2+rfac*rms2))
 muaveMmu1 = ROOT.TH1F("muaveMmu1", "#mu_{average}-#mu_{1}", 50, float(-rfac*rms1), float(rfac*rms1))
     
-for i in xrange(nExp):
+for i in matches:
     mu.Fill(avgMu - (parA[i][0] - parB[i][0]))
     dmu.Fill((parA[i][0] - parB[i][0]))
     mu1.Fill(parA[i][0])
@@ -105,6 +107,7 @@ print "By hand  rms   : %1.4f" % (rms)
 print "FromHist rms   : %1.4f" % (mu.GetRMS())
 print "By hand  s(dMu): %1.4f" % (float(nExp-1)/math.sqrt(float(nExp))*rms)
 print "FromHist s(dMu): %1.4f" % (float(nExp-1)/math.sqrt(float(nExp))*mu.GetRMS())
+print "Matchd experiments: %d" % nExp
 
 raw_input()
 
