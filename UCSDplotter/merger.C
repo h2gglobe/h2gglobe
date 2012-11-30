@@ -8,7 +8,7 @@
 #include<vector>
 #include<string>
 
-int merger(char* filename = "all.root", char* outfilename = "opttree.root", char* treename = "opttree") {
+int merger(char* filename = "all.root", char* dirname = "",  char* outfilename = "opttree.root", char* treename = "opttree") {
 
   int nTrees = 0;
   TTree *tree[100];
@@ -16,13 +16,24 @@ int merger(char* filename = "all.root", char* outfilename = "opttree.root", char
   TString firstName;
 
   TFile* f = new TFile(filename);
-  
+  TDirectory* mydir;
+  if(dirname!=""){
+    f->cd(dirname);
+    mydir = (TDirectory*)f->Get(dirname);
+  }
+
   // Create an iterator on the list of keys
-  TIter nextTopLevelKey(f->GetListOfKeys());
+  TIter nextTopLevelKey= NULL;
+  if(dirname==""){
+    nextTopLevelKey=(f->GetListOfKeys());
+  } else {
+    nextTopLevelKey=(mydir->GetListOfKeys());
+  }
   TKey *keyTopLevel;
   while (keyTopLevel = (TKey*)nextTopLevelKey()) {
     
     TString name(keyTopLevel->GetName());
+    std::cout << name << std::endl;
     TString className(keyTopLevel->GetClassName());
     
     if (className.CompareTo("TTree") == 0) {
@@ -35,8 +46,12 @@ int merger(char* filename = "all.root", char* outfilename = "opttree.root", char
 	  firstName = name;
 	  //std::cout << firstName << std::endl;
 	}
-	tree[nTrees] = (TTree*) f->Get(name);
-	list->Add(tree[nTrees]);
+  if(dirname==""){
+	  tree[nTrees] = (TTree*) f->Get(name);
+  } else {
+	  tree[nTrees] = (TTree*) mydir->Get(name);
+	}
+  list->Add(tree[nTrees]);
 	nTrees++;
       }
     }
