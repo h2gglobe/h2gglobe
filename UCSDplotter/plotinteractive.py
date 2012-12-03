@@ -71,8 +71,9 @@ dointegrals=False
 
 linex=-1
 dodata=True
+dobkg=True
 
-readinputfiles=False
+readinputfiles=True
 
 DoBigLegend=False
 DoPopSig=True
@@ -139,6 +140,8 @@ class PlotInfo:
             return 3,2
         elif self.ncat==7 or self.ncat==8:
             return 4,2
+        elif self.ncat==9:
+            return 3,3
         else:
             return 4,5
 
@@ -197,7 +200,7 @@ class SampleInfo:
    
 
 
-PLOTPROPS=["dolog","dogridx","dogridy","doline","domergecats","doreplot","dointegrals","dotitles","doxtitle","doytitle","dooflow","douflow","dorebin","StaticMin","StaticMax","dolegend","dotext","dodata","dodivide", "Normalize" ,"Debug","DebugNew"]
+PLOTPROPS=["dolog","dogridx","dogridy","doline","domergecats","doreplot","dointegrals","dotitles","doxtitle","doytitle","dooflow","douflow","dorebin","StaticMin","StaticMax","dolegend","dotext","dodata","dobkg","dodivide", "Normalize" ,"Debug","DebugNew"]
 def FindFunction(option):
     print option
     if option == "START":
@@ -654,9 +657,17 @@ def Plot(num,printsuffix="",printcat=-1):
                 
     stacks={}
     if dodata:
-        stacktypes=["bkg","sig","data"]
+        if dobkg:
+            stacktypes=["bkg","sig","data"]
+        else:
+            stacktypes=["sig","data"]
     else:
-        stacktypes=["bkg","sig"]
+        if dobkg:
+            stacktypes=["bkg","sig"]
+        else:
+            stacktypes=["sig"]
+
+
     first=1
     stackmaxima={}
     if domergecats:
@@ -824,6 +835,8 @@ def Plot(num,printsuffix="",printcat=-1):
                 global stackmax
             else:
                 stackmax=stackmaxima[icat][-1]*maxscaleup
+                if stackmax==0:
+                    stackmax = 1
             if DebugNew:
                 print "docats stackmaxima",stackmaxima
                 print "docats stackmax",stackmax
@@ -841,32 +854,46 @@ def Plot(num,printsuffix="",printcat=-1):
        
             # Matteo no stack is plotted to allow normalization (and stats are not plot as well)
             ROOT.gStyle.SetOptStat(0)
-            stacks["bkg"+str(icat)].Draw("hist")
-            stacks["bkg"+str(icat)].SetMaximum(stackmax)
+            initalstack=""
+            if dobkg:
+                initalstack="bkg"
+            elif dodata:
+                initalstack="data"
+            else:
+                initalstack="sig"
+
+            stacks[initalstack+str(icat)].Draw("hist")
+            stacks[initalstack+str(icat)].SetMaximum(stackmax)
+            if DebugNew:
+                print "initial stack drawn/setmax"
 
             if StaticMin:
-                stacks["bkg"+str(icat)].SetMinimum(stackmin)
+                stacks[initalstack+str(icat)].SetMinimum(stackmin)
 
             if doxtitle==True:
-                stacks["bkg"+str(icat)].GetXaxis().SetTitle(str(cur_plot.xaxislabel))
+                stacks[initalstack+str(icat)].GetXaxis().SetTitle(str(cur_plot.xaxislabel))
             else:
-                stacks["bkg"+str(icat)].GetXaxis().SetTitle("")
+                stacks[initalstack+str(icat)].GetXaxis().SetTitle("")
             
             if doytitle==True:
-                stacks["bkg"+str(icat)].GetYaxis().SetTitle(str(cur_plot.yaxislabel))
+                stacks[initalstack+str(icat)].GetYaxis().SetTitle(str(cur_plot.yaxislabel))
             else:
-                stacks["bkg"+str(icat)].GetYaxis().SetTitle("")
+                stacks[initalstack+str(icat)].GetYaxis().SetTitle("")
                           
-            stacks["bkg"+str(icat)].GetXaxis().SetTitleSize(0.045)
-            stacks["bkg"+str(icat)].GetYaxis().SetTitleSize(0.06)
-            stacks["bkg"+str(icat)].GetYaxis().SetTitleOffset(0.8)
+            stacks[initalstack+str(icat)].GetXaxis().SetTitleSize(0.045)
+            stacks[initalstack+str(icat)].GetYaxis().SetTitleSize(0.06)
+            stacks[initalstack+str(icat)].GetYaxis().SetTitleOffset(0.8)
+            
             if dotitles:
                 if len(cattitles)==int(cur_plot.ncat):
-                    stacks["bkg"+str(icat)].SetTitle(str(cattitles[icat]))
+                    stacks[initalstack+str(icat)].SetTitle(str(cattitles[icat]))
                 else:
-                    stacks["bkg"+str(icat)].SetTitle(str(cur_plot.plotvarname))
+                    stacks[initalstack+str(icat)].SetTitle(str(cur_plot.plotvarname))
             else:
-                stacks["bkg"+str(icat)].SetTitle("")
+                stacks[initalstack+str(icat)].SetTitle("")
+            
+            if DebugNew:
+                print "initial stack done"
 
             dataIntegral = -1
             if dodata: 
@@ -896,40 +923,41 @@ def Plot(num,printsuffix="",printcat=-1):
                 if dolegend and icat==0:
                     legend.AddEntry(stacks["siglines"+str(icat)][index],str(samples[itype].displayname),"l"); 
  
-            lineorder = stacks["bkglines"+str(icat)].keys()
-            lineorder.sort()
-            lineorder.reverse()
-            if DebugNew:
-                print "lineorder",lineorder
-            first=1
-            for index in lineorder:
-                itype=index[1]
+            if dobkg:
+                lineorder = stacks["bkglines"+str(icat)].keys()
+                lineorder.sort()
+                lineorder.reverse()
                 if DebugNew:
-                    print "index",index
-                    print "itype",itype
-                    print "samples[itype].color",samples[itype].color
-                stacks["bkglines"+str(icat)][index].SetLineColor(ROOT.kBlack)
-                stacks["bkglines"+str(icat)][index].SetLineWidth(linewidth*plotscale)
-                stacks["bkglines"+str(icat)][index].SetFillStyle(1001)
-                stacks["bkglines"+str(icat)][index].SetFillColor(int(samples[itype].color))
-                if (Normalize and (index == lineorder[-1])):
-                    stacks["bkglines"+str(icat)][index].Scale(dataIntegral/stacks["bkglines"+str(icat)][index].Integral())
-                stacks["bkglines"+str(icat)][index].Draw("histsame")
-                if dolegend and icat==0:
-                    legend.AddEntry(stacks["bkglines"+str(icat)][index],str(samples[itype].displayname),"f"); 
-                if dodivide:
-                    if (index == lineorder[0]):
-                        mcTot[icat] = stacks["bkglines"+str(icat)][index].Clone("mcTot")
-                    else:
-                        mcTot[icat].Add(stacks["bkglines"+str(icat)][index])
+                    print "lineorder",lineorder
+                first=1
+                for index in lineorder:
+                    itype=index[1]
+                    if DebugNew:
+                        print "index",index
+                        print "itype",itype
+                        print "samples[itype].color",samples[itype].color
+                    stacks["bkglines"+str(icat)][index].SetLineColor(ROOT.kBlack)
+                    stacks["bkglines"+str(icat)][index].SetLineWidth(linewidth*plotscale)
+                    stacks["bkglines"+str(icat)][index].SetFillStyle(1001)
+                    stacks["bkglines"+str(icat)][index].SetFillColor(int(samples[itype].color))
+                    if (Normalize and (index == lineorder[-1])):
+                        stacks["bkglines"+str(icat)][index].Scale(dataIntegral/stacks["bkglines"+str(icat)][index].Integral())
+                    stacks["bkglines"+str(icat)][index].Draw("histsame")
+                    if dolegend and icat==0:
+                        legend.AddEntry(stacks["bkglines"+str(icat)][index],str(samples[itype].displayname),"f"); 
+                    if dodivide:
+                        if (index == lineorder[0]):
+                            mcTot[icat] = stacks["bkglines"+str(icat)][index].Clone("mcTot")
+                        else:
+                            mcTot[icat].Add(stacks["bkglines"+str(icat)][index])
  
-            if dointegrals:
-                oflowbin = int(stacks["bkglines"+str(icat)][lineorder[0]].GetNbinsX()+1)
-                stackintegrals["bkg"+str(icat)]=stacks["bkglines"+str(icat)][lineorder[0]].Integral(0,oflowbin)
-                if DebugNew:
-                    print "stack integrals"
-                    print "last lineorder",lineorder[0]
-                    print "bkg"+str(icat),stackintegrals["bkg"+str(icat)]
+                if dointegrals:
+                    oflowbin = int(stacks["bkglines"+str(icat)][lineorder[0]].GetNbinsX()+1)
+                    stackintegrals["bkg"+str(icat)]=stacks["bkglines"+str(icat)][lineorder[0]].Integral(0,oflowbin)
+                    if DebugNew:
+                        print "stack integrals"
+                        print "last lineorder",lineorder[0]
+                        print "bkg"+str(icat),stackintegrals["bkg"+str(icat)]
             
             lineorder = stacks["siglines"+str(icat)].keys()
             lineorder.sort()
