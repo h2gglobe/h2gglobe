@@ -64,6 +64,8 @@ def getlist(input):
                             pass
                     if "diphoBDT" in vars:
                         isMVA = True
+                    else:
+                        isMVA = False
                         
             except Exception, e:
                 print e
@@ -116,6 +118,7 @@ def main(options,args):
     print "reading list1"
     list1 = getlist( file1.read() )
     if options.makeTrees:
+        print "isMVA ",isMVA
         print "making mini tree"
         fout1 = ROOT.TFile.Open(fn1.replace("txt","root"),"recreate")
         dumpTree(fout1,list1)
@@ -126,6 +129,7 @@ def main(options,args):
         print "reading list2"
         list2 = getlist( file2.read() )
         if options.makeTrees:
+            print "isMVA ",isMVA
             print "making mini tree"
             fout2 = ROOT.TFile.Open(fn2.replace("txt","root"),"recreate")
             dumpTree(fout2,list2)
