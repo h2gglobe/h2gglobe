@@ -15,10 +15,12 @@ ROOT.gStyle.SetOptStat(0)
 
 # make defaults
 # PLOT OPS ----------------
-lumistring = "5.09 fb^{-1}"
-sigscale   = 5.
+lumistring = "5.3 fb^{-1}"
+sigscale   = 1.
 plotOutDir="./"
 mass=float(options.mass)
+fNew =0
+fNew2=0
 def plainBin(hist):
 	nb = hist.GetNbinsX()
 	h2 = ROOT.TH1F(hist.GetName()+"new","",nb,0,nb)
@@ -28,9 +30,20 @@ def plainBin(hist):
 		if (options.includeVBF):
 			if hist.GetBinLowEdge(i+1) <= 1.:
 			  h2.GetXaxis().SetBinLabel(i,"BDT Bin %d "%(i))
+			elif hist.GetBinLowEdge(i+1)<1.05: 
+			  h2.GetXaxis().SetBinLabel(i,"Loose Dijet")
 			else: 
-			  h2.GetXaxis().SetBinLabel(i," Di-jet ")
+			  h2.GetXaxis().SetBinLabel(i,"Tight Dijet")
 	h2.GetXaxis().SetNdivisions(nb)
+	h2.GetYaxis().SetTitle("Events / BDT Bin")
+	h2.GetXaxis().SetLabelSize(0.055)
+	h2.GetYaxis().SetLabelSize(0.05)
+	h2.GetYaxis().SetTitleSize(0.05)
+	h2.GetYaxis().SetTitleOffset(1.)
+	h2.GetXaxis().SetLabelFont(42)
+	h2.GetYaxis().SetLabelFont(42)
+	h2.GetYaxis().SetTitleFont(42)
+	h2.GetXaxis().SetTitleFont(42)
 	return h2
 
 def plotDistributions(mass,data,signals,bkg,errors):
@@ -50,8 +63,8 @@ def plotDistributions(mass,data,signals,bkg,errors):
 
 	flatbkg  = plainBin(bkg);flatbkg.SetLineColor(4);flatbkg.SetLineWidth(2)
 
-	fNew  = flatbkg.Clone()
-	fNew2 = flatbkg.Clone()
+	fNew  = flatbkg.Clone("sig1bkg")
+	fNew2 = flatbkg.Clone("sig2bkg")
 
 	flatdata.SetMarkerStyle(20);flatdata.SetMarkerSize(1.0)
 		
@@ -63,7 +76,8 @@ def plotDistributions(mass,data,signals,bkg,errors):
 	flatsignal.SetLineWidth(2);flatsignal.SetLineColor(ROOT.kRed);flatsignal.Scale(sigscale)
 	flatsignal1.SetLineWidth(2);flatsignal1.SetLineColor(ROOT.kGreen+4);flatsignal1.Scale(sigscale)
 		
-	leg = ROOT.TLegend(0.6,0.59,0.88,0.88);leg.SetFillColor(0);leg.SetBorderSize(0)
+	leg = ROOT.TLegend(0.5,0.55,0.88,0.88);leg.SetFillColor(0);leg.SetBorderSize(0)
+	leg.SetTextFont(42)
 
 	for b in range(1,nbins+1):
 		additional = errors[b-1]
@@ -82,13 +96,14 @@ def plotDistributions(mass,data,signals,bkg,errors):
 	  leg.AddEntry(flatsignal,"Higgs (GG,WZ,TT), m_{H}=%3.1f GeV (x%d)"%(mass,int(sigscale)) ,"L")
 	  leg.AddEntry(flatsignal1,"Higgs, m_{H}=%3.1f GeV (x%d)"%(mass,int(sigscale)) ,"L")
 
-	else: leg.AddEntry(flatsignal,"Higgs, m_{H}=%3.1f GeV (x%d)"%(mass,int(sigscale)) ,"L")
+	else: leg.AddEntry(flatsignal,"Higgs, m_{H}=%3.1f GeV"%(mass) ,"L")
 	leg.AddEntry(flatbkg,"Background","L");leg.AddEntry(fNewT,"\pm 1\sigma","F");leg.AddEntry(fNew2T,"\pm 2\sigma","F")
 	leg.Draw()
-	mytext = ROOT.TLatex();mytext.SetTextSize(0.03);mytext.SetNDC();mytext.DrawLatex(0.1,0.92,"CMS preliminary,  #sqrt{s} = 7 TeV ");mytext.SetTextSize(0.04)
-	mytext.DrawLatex(0.2,0.8,"#int L = %s"%(lumistring))
+	mytext = ROOT.TLatex();mytext.SetTextSize(0.05);mytext.SetNDC();mytext.SetTextFont(42);mytext.DrawLatex(0.15,0.82,"CMS preliminary");
+	mytext.SetTextSize(0.05)
+	mytext.DrawLatex(0.15,0.75,"#sqrt{s} = 8 TeV L = %s"%(lumistring))
 	leg.Draw()
-	c.SaveAs(plotOutDir+"/model_m%3.1f.pdf"%mass);c.SaveAs(plotOutDir+"/model_m%3.1f.png"%mass)
+	c.SaveAs(plotOutDir+"/model_m%3.1f.pdf"%mass);c.SaveAs(plotOutDir+"/model_m%3.1f.png"%mass);c.SaveAs(plotOutDir+"/model_m%d.C"%mass)
 	
 	d = ROOT.TCanvas()
 	leg2 = ROOT.TLegend(0.56,0.56,0.88,0.88)
@@ -128,7 +143,7 @@ def plotDistributions(mass,data,signals,bkg,errors):
 tfile = open(options.tfileName,"r")
 dcardlines = tfile.readlines()
 # we need observation, rate, bkg_norm and massBias lines 
-infoDict = {"data":[],"rate":[],"bkg_norm":[],"massBias":[],"ncat":int(1),"bkg":[],"ggh":[],"vbf":[],"wzh":[],"tth":[]}
+infoDict = {"data":[],"rate":[],"bkg_norm_8TeV":[],"massBias_8TeV":[],"ncat":int(1),"bkg":[],"ggh":[],"vbf":[],"wzh":[],"tth":[]}
 for dl in dcardlines:
 	info = dl.split()
 	if len(info)<1: continue
@@ -137,15 +152,16 @@ for dl in dcardlines:
 		infoDict["ncat"]=len(info[1:])
 	elif info[0]=="rate":
 		infoDict["rate"]=info[1:]
-	elif info[0]=="bkg_norm":
-		infoDict["bkg_norm"]=info[2:]
+	elif info[0]=="bkg_norm_8TeV":
+		infoDict["bkg_norm_8TeV"]=info[2:]
 	elif "massBias" in info[0]:
-		infoDict["massBias"].append(info[2:])
+		infoDict["massBias_8TeV"].append(info[2:])
 
 # make some bins
-binEdges = [-1.+2*float(n)/infoDict["ncat"] for n in range(infoDict["ncat"]-1)]
+binEdges = [-1.+2*float(n)/infoDict["ncat"] for n in range(infoDict["ncat"]-2)]
 binEdges.append(1.)
 binEdges.append(1.04)
+binEdges.append(1.08)
 arrbinEdges = array.array("d",binEdges)
 # Now we have everyting to constuct histograms:
 ncat = infoDict["ncat"]
@@ -174,7 +190,7 @@ for b in range(infoDict["ncat"]):
 
 # final thing is to make the errors
 binErrors=[0 for b in range(infoDict["ncat"])]
-for mb in infoDict["massBias"]:
+for mb in infoDict["massBias_8TeV"]:
   
   for b in range(infoDict["ncat"]):
 	errVal = mb[b*5+4]
@@ -189,6 +205,6 @@ for b in range(infoDict["ncat"]):
 #finall norm errors
 normErrors = []
 for b in range(infoDict["ncat"]): 
-	normErrors.append(float(infoDict["bkg_norm"][b*5+4])-1)
+	normErrors.append(float(infoDict["bkg_norm_8TeV"][b*5+4])-1)
 # Can finally make plots
-plotDistributions(options.mass,dataHist.Clone(),[gghHist.Clone(),wzhHist.Clone(),tthHist.Clone(),vbfHist.Clone()],bkgHist.Clone(),normErrors)
+plotDistributions(options.mass,dataHist.Clone("dataClone"),[gghHist.Clone("gghClone"),wzhHist.Clone("wzhClone"),tthHist.Clone("tthClone"),vbfHist.Clone("vbfClone")],bkgHist.Clone("bkgClone"),normErrors)
