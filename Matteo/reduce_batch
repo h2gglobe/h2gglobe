@@ -8,7 +8,13 @@ def source(script, update=1):
     p = _subprocess.Popen(". %s; env" % script, stdout=_subprocess.PIPE, shell=True)
     data = p.communicate()[0]
 
-    env = dict((line.split("=", 1) for line in data.splitlines()))
+    env=dict()
+    #env = dict((line.split("=", 1) for line in data.splitlines()))
+    for line in data.splitlines():
+        param = line.split("=", 1)
+        if (len(param) > 2):
+            env[param[0]]= param[1]
+        
     if update:
         os.environ.update(env)
 
@@ -54,9 +60,9 @@ if __name__ == "__main__":
         print "arg3: type \t\t\t\t(for reducing differently for different data)"
         print "arg4: root_seed \t\t\t(the beginning of your filenames to run on)"
         print "arg5: hadoop_data_directory \t\t( /hadoop/cms/store/user/ . . . )"
-        print "arg6: dat file\t\t\t"
-        print "arg7: inputBranches file\t\t\t"
-        print "arg8: outputBranches file\t\t\t"
+        print "arg6: dat file (relative to AnalysisScripts)\t\t\t"
+        print "arg7: inputBranches file (relative to AnalysisScripts)\t\t\t"
+        print "arg8: outputBranches file (relative to AnalysisScripts)\t\t\t"
         sys.exit(-4)
     print "\nPreparing batch reduction...\n"
     
@@ -71,11 +77,16 @@ if __name__ == "__main__":
     numberofjobs = 0
     if (len(sys.argv) == 10):
         numberofjobs = sys.argv[9]
+
+    basedir = os.path.abspath(sys.argv[0].split("Matteo/reduce_batch")[0])
+    basename = os.path.basename(basedir)
+    os.system("cd "+basedir)
     
     timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
     outputdir = timestamp + "_" + tag
-    theglobedirectory = os.path.dirname(os.getcwd())
-    
+    #theglobedirectory = os.path.dirname(os.getcwd())
+    #print theglobedirectory
+    #sys.exit()
     os.system("rm -rf reduce")
     os.system("mkdir reduce")
     
@@ -208,7 +219,7 @@ if __name__ == "__main__":
     os.system("cp -r AnalysisScripts/* reduce/.")
     
     thetarball = "reduce" + timestamp + ".tgz"
-    os.system("cd ../..;tar zcf " + thetarball + " src/h2gglobe/reduce src/h2gglobe/libLoopAll.so  src/EGamma src/CMGTools")
+    os.system("cd ../..;tar zcf " + thetarball + " src/"+basename+"/reduce src/"+basename+"/libLoopAll.so  src/EGamma src/CMGTools")
     
     if (not os.path.exists(hadoop_home + "/reduced")):
         os.mkdir(hadoop_home + "/reduced")
@@ -265,28 +276,33 @@ if __name__ == "__main__":
         file.write("export CMSSW_SEARCH_PATH=$CMSSW_SEARCH_PATH:$CMSSW_BASE/CMGTools/External/data\n")
         file.write("export PATH=${PATH#\\\"}\n")
         file.write("export PATH=${PATH%\\\";}\n")
-        file.write("export SRM_PATH=$OSG_APP/ucsdt2/gLite/d-cache/srm\n")
-        file.write("export PATH=$PATH:$OSG_APP/ucsdt2/gLite/d-cache/srm/bin\n")
+        file.write("export SRM_PATH=$OSG_APP/ucsdt2/gLite/d-cache/srm:$OSG_APP/ucsdt2/gLite32/d-cache/srm\n")
+        file.write("export PATH=$PATH:$OSG_APP/ucsdt2/gLite/d-cache/srm/bin:$OSG_APP/ucsdt2/gLite32/d-cache/srm/bin\n")
         file.write("export JAVA_HOME=/usr/java/latest\n")
         file.write("landdir=\"$PWD\"\n")
         file.write("sourcedir=\"$PWD/%s\"\n" %(thesourcedir))
         file.write("\n")
         file.write("cd ..\n")
         file.write("cp %s/condorfiles/%s .\n" % (hadoop_home, thetarball))
+
+        file.write("hostname\n")
+        file.write("whereis srmcp\n")
+        file.write("which srmcp\n")
+        file.write("ls $OSG_APP/ucsdt2/gLite/d-cache/srm\n")
         
         file.write("tar -zxvf %s\n" % (thetarball))
         file.write("rm %s\n" % (thetarball) )
         file.write("cd src\n")
         file.write("scram b -j 6\n")
-        file.write("cd h2gglobe/reduce\n")
+        file.write("cd "+basename+"/reduce\n")
         file.write("mkdir ${sourcedir}\n")
         file.write("\n")
     
         file.write("./reduce.py -i %s\n" % (datafilename))
-        file.write("echo \"landir\"\n")
-        file.write("echo ${landdir}\n")
+        #file.write("echo \"landir\"\n")
+        #file.write("echo ${landdir}\n")
         file.write("\n")
-        file.write("ls -1 ${landdir}/h2gglobe/reduce/*.root > theoutputfiles.txt\n")
+        file.write("ls -1 ${landdir}/"+basename+"/reduce/*.root > theoutputfiles.txt\n")
     
         file.write("\n")
         file.write("echo \"****************** catting theoutputfiles.txt ****************\"\n")
@@ -324,7 +340,7 @@ if __name__ == "__main__":
         file = open(jobname + ".sub", "w")
         text = """
     universe=grid
-    Grid_Resource=gt2 osg-gw-2.t2.ucsd.edu:/jobmanager-condor
+    Grid_Resource=gt2 osg-gw-4.t2.ucsd.edu:/jobmanager-condor
     executable=%s.bash
     stream_output = False
     stream_error  = False
