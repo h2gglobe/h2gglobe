@@ -1052,8 +1052,8 @@ void StatAnalysis::FillRooContainer(LoopAll& l, int cur_type, float mass, float 
     } else if (cur_type > 0 ) {
 	if( doMcOptimization ) {
 	    l.rooContainer->InputDataPoint("data_mass",category,mass,weight);
-	} else if ( cur_type != 3 && cur_type != 4 ) {
-            l.rooContainer->InputDataPoint("bkg_mass",category,mass,weight);
+	} else {
+        l.rooContainer->InputDataPoint("bkg_mass",category,mass,weight);
 	}
     } else if (cur_type < 0) {
 	l.rooContainer->InputDataPoint("sig_"+GetSignalLabel(cur_type),category,mass,weight);

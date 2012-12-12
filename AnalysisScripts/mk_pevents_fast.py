@@ -25,6 +25,7 @@ else: outfile=open(argv[1],'w')
 
 tfilelist = []
 for i in range(len(filelist)):
+    print filelist[i]
     filelist[i]=filelist[i].strip("\n")
     tfilelist.append(ROOT.TFile.Open("root://eoscms/"+filelist[i]))
     if tfilelist[i].Get("global_variables")!=None:

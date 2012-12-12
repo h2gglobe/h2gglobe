@@ -13,6 +13,14 @@
 
 using namespace std;
 
+FMTRebin::FMTRebin(){
+  cout << "WARNING -- You are using the default constructor of FMTRebin() -- this isn't recommended if you're running the FullMva analysis. It should only be called if you're making use of some of FMTRebins functions" << endl;
+  cout << "Passing some dummy defaults for now..." << endl;
+  vector<string> systs;
+  vector<map<int,vector<double> > > binedges;
+  FMTRebin(NULL,NULL,-999.,false,110,150,0.5,100.,180.,160,0.02,0.02,6,3,1,99.8,180.,4,1,2,1,3,systs,false,binedges,false);
+}
+
 FMTRebin::FMTRebin(TFile *tF, TFile *oF, double intLumi, bool is2011, int mHMinimum, int mHMaximum, double mHStep, double massMin, double massMax, int nDataBins, double signalRegionWidth, double sidebandWidth, int numberOfSidebands, int numberOfSidebandsForAlgos, int numberOfSidebandGaps, double massSidebandMin, double massSidebandMax, int nIncCategories, bool includeVBF, int nVBFCategories, bool includeLEP, int nLEPCategories, vector<string> systematics, bool rederiveOptimizedBinEdges, vector<map<int,vector<double> > > AllBinEdges, bool verbose):
 	
 	FMTBase(intLumi, is2011, mHMinimum, mHMaximum, mHStep, massMin, massMax, nDataBins, signalRegionWidth, sidebandWidth, numberOfSidebands, numberOfSidebandsForAlgos, numberOfSidebandGaps, massSidebandMin, massSidebandMax, nIncCategories, includeVBF, nVBFCategories, includeLEP, nLEPCategories, systematics, rederiveOptimizedBinEdges, AllBinEdges, verbose),

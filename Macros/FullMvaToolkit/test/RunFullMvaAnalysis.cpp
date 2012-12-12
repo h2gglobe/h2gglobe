@@ -4,8 +4,10 @@
 #include <algorithm>
 #include <vector>
 #include <typeinfo>
+#ifndef __CINT__
 #include "boost/program_options.hpp"
 #include "boost/lexical_cast.hpp"
+#endif
 
 #include "TFile.h"
 #include "TMacro.h"

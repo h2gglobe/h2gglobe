@@ -340,6 +340,27 @@ string runQuickRejig(string oldfilename, int ncats){
 
 }
 
+void printInfo(map<string,RooDataSet*> data, map<string,RooAddPdf*> pdfs){
+  
+  for (map<string,RooDataSet*>::iterator dat=data.begin(); dat!=data.end(); dat++){
+    if (!dat->second) {
+      cout << "Dataset for " << dat->first << " not found" << endl;
+      exit(1);
+    }
+    cout << dat->first << " : ";
+    dat->second->Print();
+  }
+  for (map<string,RooAddPdf*>::iterator pdf=pdfs.begin(); pdf!=pdfs.end(); pdf++){
+    if (!pdf->second) {
+      cout << "Pdf for " << pdf->first << " not found" << endl;
+      exit(1);
+    }
+    cout << pdf->first << " : ";
+    pdf->second->Print();
+  }
+
+}
+
 map<string,RooDataSet*> getGlobeData(RooWorkspace *work, int ncats, int m_hyp){
   
   map<string,RooDataSet*> result;
@@ -398,9 +419,10 @@ map<string,RooAddPdf*> getMITPdfs(RooWorkspace *work, int ncats, bool is2011){
 
 }
 
-pair<double,double> bkgEvPerGeV(RooWorkspace *work, int m_hyp, int cat){
+pair<double,double> bkgEvPerGeV(RooWorkspace *work, int m_hyp, int cat, int spin=false){
   
   RooRealVar *mass = (RooRealVar*)work->var("CMS_hgg_mass");
+  if (spin) mass = (RooRealVar*)work->var("mass");
   mass->setRange(100,180);
   RooAbsPdf *pdf = (RooAbsPdf*)work->pdf(Form("pdf_data_pol_model_8TeV_cat%d",cat));
   RooAbsData *data = (RooDataSet*)work->data(Form("data_mass_cat%d",cat));
@@ -428,11 +450,11 @@ pair<double,double> bkgEvPerGeV(RooWorkspace *work, int m_hyp, int cat){
   minim.minos(*nlim);
   
   double error = (nlim->getErrorLo(),nlim->getErrorHi())/2.;
-  
+  data->Print(); 
   return pair<double,double>(nombkg,error); 
 }
 
-vector<double> sigEvents(RooWorkspace *work, int m_hyp, int cat, string altSigFileName){
+vector<double> sigEvents(RooWorkspace *work, int m_hyp, int cat, string altSigFileName, int spin=false){
 
   RooWorkspace *tempWork;
   if (altSigFileName!=""){
@@ -449,32 +471,47 @@ vector<double> sigEvents(RooWorkspace *work, int m_hyp, int cat, string altSigFi
   RooDataSet *wzh = (RooDataSet*)tempWork->data(Form("sig_wzh_mass_m%d_cat%d",m_hyp,cat));
   RooDataSet *tth = (RooDataSet*)tempWork->data(Form("sig_tth_mass_m%d_cat%d",m_hyp,cat));
   
-  double total = ggh->sumEntries()+vbf->sumEntries()+wzh->sumEntries()+tth->sumEntries();
-  result.push_back(total);
-  result.push_back(100*ggh->sumEntries()/total);
-  result.push_back(100*vbf->sumEntries()/total);
-  result.push_back(100*wzh->sumEntries()/total);
-  result.push_back(100*tth->sumEntries()/total);
-
-  delete tempWork;
+  double total;
+  if (!spin) {
+    total = ggh->sumEntries()+vbf->sumEntries()+wzh->sumEntries()+tth->sumEntries();
+    result.push_back(total);
+    result.push_back(100*ggh->sumEntries()/total);
+    result.push_back(100*vbf->sumEntries()/total);
+    result.push_back(100*wzh->sumEntries()/total);
+    result.push_back(100*tth->sumEntries()/total);
+  }
+  else {
+    ggh = (RooDataSet*)tempWork->data(Form("sig_mass_m%d_cat%d",m_hyp,cat));
+    total = ggh->sumEntries();
+    result.push_back(total);
+    result.push_back(100.);
+    result.push_back(0.);
+    result.push_back(0.);
+    result.push_back(0.);
+  }
 
   return result;
 }
 
-pair<double,double> datEvents(RooWorkspace *work, int m_hyp, int cat){
+pair<double,double> datEvents(RooWorkspace *work, int m_hyp, int cat, bool spin=false){
   
   vector<double> result;
   RooDataSet *data = (RooDataSet*)work->data(Form("data_mass_cat%d",cat));
   double evs = data->numEntries();
-  double evsPerGev = data->sumEntries(Form("CMS_hgg_mass>=%4.1f && CMS_hgg_mass<%4.1f",double(m_hyp)-0.5,double(m_hyp)+0.5));
+  double evsPerGev;
+  if (!spin) evsPerGev = data->sumEntries(Form("CMS_hgg_mass>=%4.1f && CMS_hgg_mass<%4.1f",double(m_hyp)-0.5,double(m_hyp)+0.5));
+  else evsPerGev = data->sumEntries(Form("mass>=%4.1f && mass<%4.1f",double(m_hyp)-0.5,double(m_hyp)+0.5));
   return pair<double,double>(evs,evsPerGev);
 }
 
 
-void makeParametricSignalModelPlots(string hggFileName, string pathName, int ncats=9, bool is2011=false, int m_hyp=120, string bkgdatFileName="0", bool isMassFac = true, bool blind=true, string altSigFileName="", bool doCrossCheck=false, bool doMIT=false, bool rejig=false){
+void makeParametricSignalModelPlots(string hggFileName, string pathName, int ncats=9, bool is2011=false, int m_hyp=120, string bkgdatFileName="0", bool isMassFac = true, bool blind=true, bool doTable=true, string altSigFileName="", string spinStr="", bool doCrossCheck=false, bool doMIT=false, bool rejig=false){
 
   gROOT->SetBatch();
   gStyle->SetTextFont(42);
+
+  bool spin=false;
+  if (spinStr!="") spin=true;
 
   string newFileName;
   if (rejig) newFileName = runQuickRejig(hggFileName,ncats);
@@ -487,51 +524,74 @@ void makeParametricSignalModelPlots(string hggFileName, string pathName, int nca
   else sqrts="8TeV";
 
   RooWorkspace *hggWS;
-  if (is2011) hggWS = (RooWorkspace*)hggFile->Get(Form("wsig_%s",sqrts.c_str()));
-  else        hggWS = (RooWorkspace*)hggFile->Get(Form("wsig_%s",sqrts.c_str()));
+  if (!spin) {
+    if (is2011) hggWS = (RooWorkspace*)hggFile->Get(Form("wsig_%s",sqrts.c_str()));
+    else        hggWS = (RooWorkspace*)hggFile->Get(Form("wsig_%s",sqrts.c_str()));
+  }
+  else {
+    hggWS = (RooWorkspace*)hggFile->Get(Form("wsig_%s",spinStr.c_str()));
+  }
  
-  if (!hggWS) cerr << "Workspace is null" << endl;
+  if (!hggWS) {
+    cerr << "Workspace is null" << endl;
+    exit(1);
+  }
 
-  RooRealVar *mass = (RooRealVar*)hggWS->var("CMS_hgg_mass");
+  RooRealVar *mass;
+  if (spin) mass = (RooRealVar*)hggWS->var("mass");
+  else mass = (RooRealVar*)hggWS->var("CMS_hgg_mass");
+  
   RooRealVar *mh = (RooRealVar*)hggWS->var("MH");
   mh->setVal(m_hyp);
   mass->setRange("higgsRange",m_hyp-20.,m_hyp+15.);
 
   map<string,string> labels;
   if (is2011) {
-	if (isMassFac){
-	  labels.insert(pair<string,string>("cat0","BDT >= 0.89"));
-	  labels.insert(pair<string,string>("cat1","0.72 <= BDT <= 0.89"));
-	  labels.insert(pair<string,string>("cat2","0.55 <= BDT <= 0.72"));
-	  labels.insert(pair<string,string>("cat3","0.05 <= BDT <= 0.55"));
-	}
-	else {
-	  labels.insert(pair<string,string>("cat0","EBEB, min(R9) > 0.94"));
-	  labels.insert(pair<string,string>("cat1","EBEB, min(R9) < 0.94"));
-	  labels.insert(pair<string,string>("cat2","!EBEB, min(R9) > 0.94"));
-	  labels.insert(pair<string,string>("cat3","!EBEB, min(R9) < 0.94"));
-	}
+    if (isMassFac){
+      labels.insert(pair<string,string>("cat0","BDT >= 0.89"));
+      labels.insert(pair<string,string>("cat1","0.72 <= BDT <= 0.89"));
+      labels.insert(pair<string,string>("cat2","0.55 <= BDT <= 0.72"));
+      labels.insert(pair<string,string>("cat3","0.05 <= BDT <= 0.55"));
+    }
+    else {
+      labels.insert(pair<string,string>("cat0","EBEB, min(R9) > 0.94"));
+      labels.insert(pair<string,string>("cat1","EBEB, min(R9) < 0.94"));
+      labels.insert(pair<string,string>("cat2","!EBEB, min(R9) > 0.94"));
+      labels.insert(pair<string,string>("cat3","!EBEB, min(R9) < 0.94"));
+    }
     labels.insert(pair<string,string>("cat4","BDT >= 0.05 VBF Tag"));
     labels.insert(pair<string,string>("all","All Categories Combined"));
   }
   else {
-	if (isMassFac){
-	  labels.insert(pair<string,string>("cat0","BDT_{#gamma#gamma} >= 0.91"));
-	  labels.insert(pair<string,string>("cat1","0.79 <= BDT_{#gamma#gamma} <= 0.91"));
-	  labels.insert(pair<string,string>("cat2","0.49 <= BDT_{#gamma#gamma} <= 0.79"));
-	  labels.insert(pair<string,string>("cat3","-0.05 <= BDT_{#gamma#gamma} <= 0.49"));
-	}
-	else {
-	  labels.insert(pair<string,string>("cat0","EBEB, min(R9) > 0.94"));
-	  labels.insert(pair<string,string>("cat1","EBEB, min(R9) < 0.94"));
-	  labels.insert(pair<string,string>("cat2","!EBEB, min(R9) > 0.94"));
-	  labels.insert(pair<string,string>("cat3","!EBEB, min(R9) < 0.94"));
-	}
-	labels.insert(pair<string,string>("cat4","BDT_{jj} >= 0.985 Dijet Tag"));
+    if (isMassFac){
+      labels.insert(pair<string,string>("cat0","BDT_{#gamma#gamma} >= 0.91"));
+      labels.insert(pair<string,string>("cat1","0.79 <= BDT_{#gamma#gamma} <= 0.91"));
+      labels.insert(pair<string,string>("cat2","0.49 <= BDT_{#gamma#gamma} <= 0.79"));
+      labels.insert(pair<string,string>("cat3","-0.05 <= BDT_{#gamma#gamma} <= 0.49"));
+    }
+    else {
+      labels.insert(pair<string,string>("cat0","EBEB, min(R9) > 0.94"));
+      labels.insert(pair<string,string>("cat1","EBEB, min(R9) < 0.94"));
+      labels.insert(pair<string,string>("cat2","!EBEB, min(R9) > 0.94"));
+      labels.insert(pair<string,string>("cat3","!EBEB, min(R9) < 0.94"));
+    }
+    labels.insert(pair<string,string>("cat4","BDT_{jj} >= 0.985 Dijet Tag"));
     labels.insert(pair<string,string>("cat5","BDT_{jj} >= 0.93 Dijet Tag")); 
     labels.insert(pair<string,string>("cat6","BDT_{#gamma#gamma} >= -0.05 Muon Tag")); 
     labels.insert(pair<string,string>("cat7","BDT_{#gamma#gamma} >= -0.05 Electron Tag")); 
     labels.insert(pair<string,string>("cat8","BDT_{#gamma#gamma} >= -0.05 MET Tag")); 
+    labels.insert(pair<string,string>("all","All Categories Combined"));
+  }
+  if (spin){
+    labels.clear();
+    labels.insert(pair<string,string>("cat0","BDT cat 0, Low cos(#theta)"));
+    labels.insert(pair<string,string>("cat1","BDT cat 0, Low cos(#theta)"));
+    labels.insert(pair<string,string>("cat2","BDT cat 0, Low cos(#theta)"));
+    labels.insert(pair<string,string>("cat3","BDT cat 0, Low cos(#theta)"));
+    labels.insert(pair<string,string>("cat4","BDT cat 0, High cos(#theta)"));
+    labels.insert(pair<string,string>("cat5","BDT cat 0, High cos(#theta)"));
+    labels.insert(pair<string,string>("cat6","BDT cat 0, High cos(#theta)"));
+    labels.insert(pair<string,string>("cat7","BDT cat 0, High cos(#theta)"));
     labels.insert(pair<string,string>("all","All Categories Combined"));
   }
   /*
@@ -558,6 +618,8 @@ void makeParametricSignalModelPlots(string hggFileName, string pathName, int nca
     pdfs = getGlobePdfs(hggWS,ncats); 
   }
   
+  printInfo(dataSets,pdfs);
+
   map<string,double> sigEffs;
   map<string,double> fwhms;
   
@@ -578,13 +640,21 @@ void makeParametricSignalModelPlots(string hggFileName, string pathName, int nca
   map<string,pair<double,double> > datVals;
 
   // make PAS table
-  if (bkgdatFileName!="0"){
-    TFile *bkgFile = TFile::Open(bkgdatFileName.c_str());
+  if (doTable) {
+    TFile *bkgFile;
+    if (bkgdatFileName!="0"){
+      bkgFile = TFile::Open(bkgdatFileName.c_str());
+    }
+    else {
+      bkgFile = hggFile; 
+    }
     RooWorkspace *bkgWS = (RooWorkspace*)bkgFile->Get("cms_hgg_workspace");
+    if (spin) bkgWS = hggWS;
+    bkgWS->Print();
     for (int cat=0; cat<ncats; cat++){
-      bkgVals.insert(pair<string,pair<double,double> >(Form("cat%d",cat),bkgEvPerGeV(bkgWS,m_hyp,cat)));
-      sigVals.insert(pair<string,vector<double> >(Form("cat%d",cat),sigEvents(bkgWS,m_hyp,cat,altSigFileName)));
-      datVals.insert(pair<string,pair<double,double> >(Form("cat%d",cat),datEvents(bkgWS,m_hyp,cat)));
+      bkgVals.insert(pair<string,pair<double,double> >(Form("cat%d",cat),bkgEvPerGeV(bkgWS,m_hyp,cat,spin)));
+      sigVals.insert(pair<string,vector<double> >(Form("cat%d",cat),sigEvents(bkgWS,m_hyp,cat,altSigFileName,spin)));
+      datVals.insert(pair<string,pair<double,double> >(Form("cat%d",cat),datEvents(bkgWS,m_hyp,cat,spin)));
       //pair<double,double> bkg = bkgEvPerGeV(bkgWS,m_hyp,cat);
       //vector<double> sigs = sigEvents(bkgWS,m_hyp,cat);
     }

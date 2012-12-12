@@ -9,6 +9,7 @@ using namespace std;
 class FMTRebin : public FMTBase {
 	
 	public:
+    FMTRebin();
 		FMTRebin(TFile *tF, TFile *oF, double intLumi, bool is2011, int mHMinimum, int mHMaximum, double mHStep, double massMin, double massMax, int nDataBins, double signalRegionWidth, double sidebandWidth, int numberOfSidebands, int numberOfSidebandsForAlgos, int numberOfSidebandGaps, double massSidebandMin, double massSidebandMax, int nIncCategories, bool includeVBF, int nVBFCategories, bool includeLEP, int nLEPCategories, vector<string> systematics, bool rederiveOptimizedBinEdges, vector<map<int,vector<double> > > AllBinEdges, bool verbose=false);
 		~FMTRebin();
 
@@ -19,7 +20,7 @@ class FMTRebin : public FMTBase {
     void histogramSmoothingFit(TH1F*);
     TH1F* rebinBinnedDataset(string,TH1F*,vector<double>,int);
     void maxSigScan(double*,int*,int*,TH1F*,TH1F*,int,int*,int);
-    vector<double> significanceOptimizedBinning(TH1F*,TH1F*,int,int);
+    vector<double> significanceOptimizedBinning(TH1F*,TH1F*,int,int mass=125);
     vector<double> soverBOptimizedBinning(TH1F*,TH1F*,int,double);
     
 		// histogram methods

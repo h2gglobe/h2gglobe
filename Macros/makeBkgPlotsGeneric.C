@@ -7,10 +7,13 @@
 #include "RooDataSet.h"
 #include "RooDataHist.h"
 #include "RooMsgService.h"
+#include "RooMinimizer.h"
 #include "RooAbsPdf.h"
 #include "RooExtendPdf.h"
 #include "RooWorkspace.h"
 #include "RooRealVar.h"
+#include "TMath.h"
+#include "TString.h"
 #include "TCanvas.h"
 #include "TLegend.h"
 #include "TLatex.h"
@@ -22,6 +25,9 @@
 #include "TROOT.h"
 #include "TStyle.h"
 #include "RooFitResult.h"
+#include "RooStats/NumberCountingUtils.h"
+#include "RooStats/RooStatsUtils.h"
+
 #include <iostream>
 #endif 
 
@@ -40,7 +46,7 @@ void makeBkgPlotsGeneric(std::string filebkg, std::string filesig="", bool blind
 	gStyle->SetOptStat(0);
 	const int ncats = 9;
 
-	RooMsgService::instance().setGlobalKillBelow(RooFit::MsgLevel(RooFit::WARNING));
+	RooMsgService::instance().setGlobalKillBelow(RooFit::MsgLevel(RooFit::FATAL));
 
 	std::string * labels;
 	
@@ -116,6 +122,7 @@ void makeBkgPlotsGeneric(std::string filebkg, std::string filesig="", bool blind
 		bkg->Print();
 		bkg->fitTo(*data);
 		RooFitResult *r = bkg->fitTo(*data,RooFit::Save(1));
+    r->Print();
 		
 		// Get Signal pdf norms
 		std::cout << "Getting Signal Components" << std::endl;
@@ -168,8 +175,9 @@ void makeBkgPlotsGeneric(std::string filebkg, std::string filesig="", bool blind
 		if( doBands ) {
 			onesigma = new TGraphAsymmErrors();
 			twosigma = new TGraphAsymmErrors();
-			doBandsFit(onesigma, twosigma, x, bkg, dynamic_cast<RooCurve*>(frame->getObject(frame->numItems()-1)), 
-				   data, frame, Form("cat%d",cat) );
+			TString name=Form("cat%d",cat);
+      doBandsFit(onesigma, twosigma, x, bkg, dynamic_cast<RooCurve*>(frame->getObject(frame->numItems()-1)), 
+				   data, frame, name );
 		}
 		if( blind ) {
 			x->setRange("unblind_up",150,180);
@@ -238,7 +246,7 @@ void doBandsFit(TGraphAsymmErrors *onesigma, TGraphAsymmErrors *twosigma,
 		RooPlot *plot, 
 		TString & catname)
 {
-	RooRealVar *nlim = new RooRealVar(TString::Format("nlim%s",catname.Data()),"",0.0,0.0,1e+5.0);
+	RooRealVar *nlim = new RooRealVar(TString::Format("nlim%s",catname.Data()),"",0.0,0.0,1e+5);
 
 	for (int i=1; i<(plot->GetXaxis()->GetNbins()+1); ++i) {
 
@@ -257,7 +265,7 @@ void doBandsFit(TGraphAsymmErrors *onesigma, TGraphAsymmErrors *twosigma,
 		RooMinimizer minim(*nll);
 		minim.setStrategy(0);
 		minim.setPrintLevel(-1);
-		double clone = 1.0 - 2.0*RooStats::SignificanceToPValue(1.0);
+		//double clone = 1.0 - 2.0*RooStats::SignificanceToPValue(1.0);
 		double cltwo = 1.0 - 2.0*RooStats::SignificanceToPValue(2.0);
         
 		minim.migrad();

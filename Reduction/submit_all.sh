@@ -1,27 +1,5 @@
 #!/bin/bash
 
-./submit_reduction.sh     data2012_HCP          DoublePhoton_Run2012B-13Jul2012-v1          200
-./submit_reduction.sh     data2012_HCP          DoublePhoton_Run2012B-13Jul2012-v1_sub2     10
-./submit_reduction.sh     data2012_HCP          DoublePhoton_Run2012B-13Jul2012-v1_sub3     10
-./submit_reduction.sh     data2012_HCP          DoublePhoton_Run2012B-13Jul2012-v1_sub4     5
-./submit_reduction.sh     data2012_HCP          DoublePhoton_Run2012B-13Jul2012-v1_sub5     3
-./submit_reduction.sh     data2012_HCP          DoublePhoton_Run2012C-PromptReco-v2         250
-./submit_reduction.sh     data2012_HCP          DoublePhoton_Run2012C-PromptReco-v2_sub2    20
-./submit_reduction.sh     data2012_HCP          DoublePhoton_Run2012C-PromptReco-v2_sub4    100
-./submit_reduction.sh     data2012_HCP          DoublePhoton_Run2012C-PromptReco-v2_sub5    1
-./submit_reduction.sh     data2012_HCP          DoublePhoton_Run2012C-PromptReco-v2_sub6    10
-./submit_reduction.sh     data2012_HCP          Photon_Run2012A-13Jul2012-v1                50
-./submit_reduction.sh     data2012_HCP          Photon_Run2012A-13Jul2012-v1_sub2           10
-./submit_reduction.sh     data2012_HCP          Photon_Run2012A-13Jul2012-v1_sub3           1
-./submit_reduction.sh     data2012_HCP          Photon_Run2012A-13Jul2012-v1_sub4           1
-./submit_reduction.sh     data2012_HCP          Photon_Run2012A-recover-06Aug2012-v1        5
-./submit_reduction.sh     data2012_HCP          Photon_Run2012A-recover-06Aug2012-v1__sub1  1
-./submit_reduction.sh     data2012_HCP          Run2012C-24Aug2012-v2                       30
-
-./submit_reduction.sh     mc_sig_summer12_s10     \* 4
-
-./submit_reduction.sh     mc_dy_summer12_s10    DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1               50
-
 ./submit_reduction.sh     mc_bkg_summer12_s10   DiPhotonBox_Pt-10To25_8TeV-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1     5
 ./submit_reduction.sh     mc_bkg_summer12_s10   DiPhotonBox_Pt-250ToInf_8TeV-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1   10
 ./submit_reduction.sh     mc_bkg_summer12_s10   DiPhotonBox_Pt-25To250_8TeV-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1    10
@@ -55,8 +33,8 @@
 
 ./submit_reduction.sh     mc_bkg_summer12_s10   TTJets_TuneZ2star_8TeV-madgraph-tauola_Summer12-PU_S8_START52_V9-v1    20
 
-./submit_reduction.sh     mc_bkg_summer12_s7   TTJets_TuneZ2star_8TeV-madgraph-tauola_Summer12-PU_S7_START52_V9-v1    20
-./submit_reduction.sh     mc_bkg_summer12_s8   TTJets_TuneZ2star_8TeV-madgraph-tauola_Summer12-PU_S8_START52_V9-v1    20
+./submit_reduction.sh     mc_bkg_summer12_s10   TTJets_TuneZ2star_8TeV-madgraph-tauola_Summer12-PU_S7_START52_V9-v1    20
+./submit_reduction.sh     mc_bkg_summer12_s10   TTJets_TuneZ2star_8TeV-madgraph-tauola_Summer12-PU_S8_START52_V9-v1    20
 
 
 wait

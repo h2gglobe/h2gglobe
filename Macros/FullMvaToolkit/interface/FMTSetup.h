@@ -1,6 +1,8 @@
 #ifndef FMTSetup_h
 #define FMTSetup_h
 
+#include "TROOT.h"
+
 #include "boost/program_options.hpp"
 
 #include "FMTBase.h"
@@ -161,6 +163,5 @@ T FMTSetup::getOptFromConfig(string name){
   }
   return boost::lexical_cast<T>(res);
 }
-
 #endif
 

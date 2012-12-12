@@ -106,6 +106,7 @@ class PhotonAnalysis : public BaseAnalysis
     bool rescaleDZforVtxMVA;
 
     bool saveDatacardTrees_;
+    bool saveSpinTrees_;
 
     // Preselection indexes
     float presel_scet1, presel_scet2, presel_maxeta;
@@ -420,7 +421,10 @@ class PhotonAnalysis : public BaseAnalysis
     float ComputeEventSmearError(LoopAll& l, int ipho1, int ipho2, float & smear1, float & smear1_err, float & smear2, float & smear2_err);
     pair<double,double> ComputeNewSigmaMs(LoopAll &l, int ipho1, int ipho2, int ivtx, float syst_shift);
     void saveMassFacDatCardTree(LoopAll& l, int cur_type, int category, float evweight, int ipho1, int ipho2, int ivtx, float vtxProb, TLorentzVector lead_p4, TLorentzVector sublead_p4, double sigmaMrv, double sigmaMwv, double sigmaMeonly, string trainPhi, float lead_id_mva, float sublead_id_mva);
-
+    
+    // Save spin trees
+    void saveSpinTree(LoopAll& l, int category, float evweight, TLorentzVector Higgs, TLorentzVector lead_p4, TLorentzVector sublead_p4, int ipho1, int ipho2, float diphobdt, double sigmaMrv, double sigmaMwv, double lead_sigmaE, double lead_sigmaE_nosmear, double sublead_sigmaE, double sublead_sigmaE_nosmear, float vtxProb, float lead_id_mva, float sublead_id_mva);
+    
     // Vertex analysis
     HggVertexAnalyzer vtxAna_;
     HggVertexFromConversions vtxConv_;
@@ -455,6 +459,9 @@ class PhotonAnalysis : public BaseAnalysis
 		std::pair<TLorentzVector, TLorentzVector> GetVBF_IntermediateBoson(TLorentzVector& Pho1, TLorentzVector& Pho2, TLorentzVector& Jet1, TLorentzVector& Jet2);
 		Double_t GetPerpendicularAngle(TLorentzVector& ref, TLorentzVector& v1, TLorentzVector& v2);
 		void VBFAngles(TLorentzVector& gamma1, TLorentzVector& gamma2, TLorentzVector& J1, TLorentzVector& J2);
+
+        double getCosThetaCS(TLorentzVector, TLorentzVector);
+        double getCosThetaHX(TLorentzVector, TLorentzVector);
 
     std::vector<BaseSmearer *> photonSmearers_;
     std::vector<BaseSmearer *> systPhotonSmearers_;

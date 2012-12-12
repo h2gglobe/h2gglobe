@@ -2410,6 +2410,10 @@ void Normalization_8TeV::FillSignalTypes(){
   SignalTypeMap[-84]=std::make_pair<TString,double>("wzh",90);
   SignalTypeMap[-83]=std::make_pair<TString,double>("tth",90);
 
+  SignalTypeMap[-101]=std::make_pair<TString,double>("ggh",125);
+  SignalTypeMap[-102]=std::make_pair<TString,double>("ggh",125);
+  SignalTypeMap[-103]=std::make_pair<TString,double>("ggh",125);
+
   SignalTypeMap[-1000]=std::make_pair<TString,double>("graviton",125);
 
 }

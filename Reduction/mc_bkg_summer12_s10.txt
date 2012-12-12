@@ -6,6 +6,7 @@ DiPhotonBox_Pt-250ToInf_8TeV-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1   3
 DiPhotonBox_Pt-25To250_8TeV-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1    3
 
 DiPhotonJets_8TeV-madgraph_Summer12_DR53X-PU_S10_START53_V7A-v1     3
+DiPhotonJets_8TeV-madgraph-tarball-v2_Summer12_DR53X-PU_S10_START53_V7A-v1 3
 
 GJet_Pt-20to40_doubleEMEnriched_TuneZ2star_8TeV-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1   2 append=_pp analyzer PhotonAnalysis photonanalysis.dat keep_pp.dat 
 GJet_Pt-20to40_doubleEMEnriched_TuneZ2star_8TeV-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1   2 append=_pf analyzer PhotonAnalysis photonanalysis.dat keep_pf.dat 
