@@ -4151,7 +4151,7 @@ pair<double,double> PhotonAnalysis::ComputeNewSigmaMs(LoopAll &l, int ipho1, int
         energyCorrected[ipho1],
         l.pho_isEB[ipho1], l.pho_r9[ipho1],
         true, // WARNING  setting pass photon ID flag for all photons. This is safe as long as only selected photons are used
-        0 // gets set just below
+        energyCorrectedError[ipho1] // will be altered below, needs to be initialized
     );
     PhotonReducedInfo pho2 (
         *((TVector3*)     l.sc_xyz->At(l.pho_scind[ipho2])),
@@ -4159,7 +4159,7 @@ pair<double,double> PhotonAnalysis::ComputeNewSigmaMs(LoopAll &l, int ipho1, int
         energyCorrected[ipho2],
         l.pho_isEB[ipho2], l.pho_r9[ipho2],
         true, // WARNING  setting pass photon ID flag for all photons. This is safe as long as only selected photons are used
-        0 // gets set just below
+        energyCorrectedError[ipho2] // will be altered below, needs to be initialized
     );
     pho1.setCorrEnergyErr(pho1.corrEnergyErr()*(1.+sys_shift*0.1));
     pho2.setCorrEnergyErr(pho1.corrEnergyErr()*(1.+sys_shift*0.1));
