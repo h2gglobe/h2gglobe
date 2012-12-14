@@ -276,8 +276,9 @@ if __name__ == "__main__":
         file.write("export CMSSW_SEARCH_PATH=$CMSSW_SEARCH_PATH:$CMSSW_BASE/CMGTools/External/data\n")
         file.write("export PATH=${PATH#\\\"}\n")
         file.write("export PATH=${PATH%\\\";}\n")
-        file.write("export SRM_PATH=$OSG_APP/ucsdt2/gLite/d-cache/srm:$OSG_APP/ucsdt2/gLite32/d-cache/srm\n")
-        file.write("export PATH=$PATH:$OSG_APP/ucsdt2/gLite/d-cache/srm/bin:$OSG_APP/ucsdt2/gLite32/d-cache/srm/bin\n")
+        file.write("export SRM_PATH=$OSG_APP/ucsdt2/gLite/d-cache/srm\n")
+        file.write("export SRM_PATH=$OSG_APP/ucsdt2/gLite32/d-cache/srm\n")
+        file.write("export PATH=$PATH:$OSG_APP/ucsdt2/gLite32/d-cache/srm/bin\n")
         file.write("export JAVA_HOME=/usr/java/latest\n")
         file.write("landdir=\"$PWD\"\n")
         file.write("sourcedir=\"$PWD/%s\"\n" %(thesourcedir))
@@ -288,9 +289,9 @@ if __name__ == "__main__":
         file.write("hostname\n")
         file.write("whereis srmcp\n")
         file.write("which srmcp\n")
-        file.write("ls $OSG_APP/ucsdt2/gLite/d-cache/srm\n")
+        file.write("ls $OSG_APP/ucsdt2/gLite32/d-cache/srm\n")
         
-        file.write("tar -zxvf %s\n" % (thetarball))
+        file.write("tar -zxf %s\n" % (thetarball))
         file.write("rm %s\n" % (thetarball) )
         file.write("cd src\n")
         file.write("scram b -j 6\n")
@@ -340,7 +341,7 @@ if __name__ == "__main__":
         file = open(jobname + ".sub", "w")
         text = """
     universe=grid
-    Grid_Resource=gt2 osg-gw-4.t2.ucsd.edu:/jobmanager-condor
+    Grid_Resource=gt2 osg-gw-2.t2.ucsd.edu:/jobmanager-condor
     executable=%s.bash
     stream_output = False
     stream_error  = False

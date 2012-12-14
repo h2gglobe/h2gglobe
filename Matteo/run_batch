@@ -7,8 +7,13 @@ import subprocess as _subprocess
 def source(script, update=1):
     p = _subprocess.Popen(". %s; env" % script, stdout=_subprocess.PIPE, shell=True)
     data = p.communicate()[0]
+    env=dict()
+    #env = dict((line.split("=", 1) for line in data.splitlines()))
+    for line in data.splitlines():
+        param = line.split("=", 1)
+        if (len(param) > 2):
+            env[param[0]]= param[1]
 
-    env = dict((line.split("=", 1) for line in data.splitlines()))
     if update:
         os.environ.update(env)
 
@@ -32,46 +37,46 @@ if __name__ == "__main__":
     if ("uaf" not in os.getenv("HOSTNAME")):
         print "Sorry but the script is done to be run on UAF machines at UCSD."
         sys.exit(-1)
-    
-    top = os.getcwd()
+
     temp = ""
     temp1 = pipe("scram tool info root", temp)
     temp2 = pipe("grep Version", temp1)
     rootVersion = pipe("awk '{print $3}'", temp2).split("\n")[0]
-    CMSSWVersion  = re.search("(CMSSW.+)/s", top).group(1)
+    CMSSWVersion  = re.search("(CMSSW.+)/s", os.getcwd()).group(1)
     username      = os.getlogin()
     hadoop_prefix = "srm://bsrm-1.t2.ucsd.edu:8443/srm/v2/server?SFN="
     hadoop_home   = "/hadoop/cms/store/user/" + username
 
     # reduce_batch input ---
-    REQUIRED_ARGS = 5
+    REQUIRED_ARGS = 4
     
     if (len(sys.argv) != REQUIRED_ARGS):
         print "input ${INPUT_ARGS} arguments, ${REQUIRED_ARGS} required -- aborting\n"
-        print "Usage: is ./reduce_batch arg1 arg2 arg3 arg4\n"
-        print "arg1: dat file"
-        print "arg2: dir file"
-        print "arg3: num jobs"
-        print "arg4: label"
+        print "Usage: is ./run_batch arg1 arg2 arg3\n"
+        print "arg1: dat file (path relative to AnalysisScripts)"
+        print "arg2: num jobs"
+        print "arg3: label"
         sys.exit(-4)
     print "\nPreparing batch reduction...\n"
     
-    datfile = "AnalysisScripts/"+sys.argv[1]
-    dirfile = sys.argv[2]
-    numberofjobs = int(sys.argv[3])
-    
+    datfilename = "AnalysisScripts/"+sys.argv[1]
+    numberofjobs = int(sys.argv[2])    
     timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-    outputdir = timestamp + "_" + sys.argv[4]
-    theglobedirectory = os.path.dirname(os.getcwd())
+    outputdir = timestamp + "_" + sys.argv[3]
+
+    basedir = os.path.abspath(sys.argv[0].split("Matteo/run_batch")[0])
+    basename = os.path.basename(basedir)
+    os.system("cd "+basedir)
     
     os.system("rm -rf process")
     os.system("mkdir process")
     
     #**********************************************************************
-    dir_file = open(dirfile, "r")
-    lines = dir_file.readlines()
-    dir_file.close()
+    datfile = open(datfilename, "r")
+    lines = datfile.readlines()
+    datfile.close()
 
+    template_file = open("process/template.dat", "w")
     out_file = open("process/allfilenames.txt", "w")
     
     for l in lines:
@@ -82,7 +87,10 @@ if __name__ == "__main__":
                 for i in pippo:
                     params[4] = "Fil="+i.split("\n")[0]
                     out_file.write(" ".join(params)+"\n")
+        else:
+            template_file.write(l+"\n")
 
+    template_file.close()
     out_file.close()
     
     #**********************************************************************
@@ -124,10 +132,10 @@ if __name__ == "__main__":
         if (limits[1] > len(file_names)):
             limits = (f, len(file_names))
     
-        datafilename = "datafiles"+ str(numberofjobs) + ".dat"
-        out = open("process/" + datafilename, "w")
+        newdatafilename = "datafiles"+ str(numberofjobs) + ".dat"
+        out = open("process/" + newdatafilename, "w")
 
-        inputdat = open(datfile, "r")
+        inputdat = open("process/template.dat", "r")
         lines = inputdat.readlines()
         inputdat.close()
         
@@ -145,7 +153,7 @@ if __name__ == "__main__":
     
     os.system("cp -r AnalysisScripts/* process/.")
     thetarball = "process" + timestamp + ".tgz"
-    os.system("cd ../..;tar zcf " + thetarball + " src/h2gglobe/process src/h2gglobe/libLoopAll.so  src/EGamma src/CMGTools")
+    os.system("cd ../..;tar zcf " + thetarball + " src/"+basename+"/process src/"+basename+"/libLoopAll.so  src/EGamma src/CMGTools")
     
     if (not os.path.exists(hadoop_home + "/processed")):
         os.mkdir(hadoop_home + "/processed")
@@ -157,11 +165,11 @@ if __name__ == "__main__":
     os.system("rm ../../" + thetarball)
     
     for ijob in xrange(1, numberofjobs):
-        datafilename = "datafiles" + str(ijob) + ".dat"
-        os.system("rm -f " + datafilename)
+        newdatafilename = "datafiles" + str(ijob) + ".dat"
+        os.system("rm -f " + newdatafilename)
     
     os.system("rm -f process/allfilenames.txt")
-    condordir = "/home/users/" + username + "/condorfiles/" + timestamp + "_pro"
+    condordir = "/home/users/" + username + "/condorfiles/" + outputdir + "_pro"
     
     os.mkdir(hadoop_home + "/processed/" + outputdir)
     
@@ -177,7 +185,7 @@ if __name__ == "__main__":
     for ijob in xrange(1, numberofjobs+1):
         jobname = "process_job" + str(ijob)
         thesourcedir = username + timestamp + "job" + str(ijob)
-        datafilename = "datafiles" + str(ijob) + ".dat"
+        newdatafilename = "datafiles" + str(ijob) + ".dat"
            
         file = open(jobname + ".bash", "w")
         file.write("#!/bin/bash\n")
@@ -214,15 +222,15 @@ if __name__ == "__main__":
         file.write("rm %s\n" % (thetarball) )
         file.write("cd src/\n")
         file.write("scram b -j 6\n")
-        file.write("cd h2gglobe/process\n")
+        file.write("cd "+basename+"/process\n")
         file.write("mkdir ${sourcedir}\n")
         file.write("\n")
         
-        file.write("./fitter.py -i %s\n" % (datafilename))
+        file.write("./fitter.py -i %s\n" % (newdatafilename))
         file.write("echo \"landir\"\n")
         file.write("echo ${landdir}\n")
         file.write("\n")
-        file.write("ls -1 ${landdir}/h2gglobe/process/*.root > theoutputfiles.txt\n")
+        file.write("ls -1 ${landdir}/"+basename+"/process/*.root > theoutputfiles.txt\n")
     
         file.write("\n")
         file.write("echo \"****************** catting theoutputfiles.txt ****************\"\n")
@@ -279,6 +287,6 @@ if __name__ == "__main__":
         file.close()
         
         print "\nsubmitting " + jobname + ".sub\n"
-        os.system("condor_submit " + jobname + ".sub")
-        time.sleep(1)
+        #os.system("condor_submit " + jobname + ".sub")
+        #time.sleep(1)
     
