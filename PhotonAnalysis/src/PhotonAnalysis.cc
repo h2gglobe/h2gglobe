@@ -4162,7 +4162,7 @@ pair<double,double> PhotonAnalysis::ComputeNewSigmaMs(LoopAll &l, int ipho1, int
         energyCorrectedError[ipho2] // will be altered below, needs to be initialized
     );
     pho1.setCorrEnergyErr(pho1.corrEnergyErr()*(1.+sys_shift*0.1));
-    pho2.setCorrEnergyErr(pho1.corrEnergyErr()*(1.+sys_shift*0.1));
+    pho2.setCorrEnergyErr(pho2.corrEnergyErr()*(1.+sys_shift*0.1));
 
     MassResolution *tempMassRes = new MassResolution();
 
