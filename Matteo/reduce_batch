@@ -276,7 +276,6 @@ if __name__ == "__main__":
         file.write("export CMSSW_SEARCH_PATH=$CMSSW_SEARCH_PATH:$CMSSW_BASE/CMGTools/External/data\n")
         file.write("export PATH=${PATH#\\\"}\n")
         file.write("export PATH=${PATH%\\\";}\n")
-        file.write("export SRM_PATH=$OSG_APP/ucsdt2/gLite/d-cache/srm\n")
         file.write("export SRM_PATH=$OSG_APP/ucsdt2/gLite32/d-cache/srm\n")
         file.write("export PATH=$PATH:$OSG_APP/ucsdt2/gLite32/d-cache/srm/bin\n")
         file.write("export JAVA_HOME=/usr/java/latest\n")
@@ -286,11 +285,6 @@ if __name__ == "__main__":
         file.write("cd ..\n")
         file.write("cp %s/condorfiles/%s .\n" % (hadoop_home, thetarball))
 
-        file.write("hostname\n")
-        file.write("whereis srmcp\n")
-        file.write("which srmcp\n")
-        file.write("ls $OSG_APP/ucsdt2/gLite32/d-cache/srm\n")
-        
         file.write("tar -zxf %s\n" % (thetarball))
         file.write("rm %s\n" % (thetarball) )
         file.write("cd src\n")
