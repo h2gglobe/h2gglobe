@@ -737,7 +737,13 @@ class configProducer:
     ## print map_c["typ"], map_c["xsec"]
       
     if fi_name != '':
-
+      temp_dir = "/".join(fi_name.split("/")[:-1])
+      if map_c["pileup"] == "":
+          map_c["pileup"] = "%s.pileup.root" % temp_dir
+          if(temp_dir.startswith("/store") ):
+              if not dcs_directory :map_c["pileup"] = 'root://eoscms//eos/cms'+map_c["pileup"]
+              else: map_c["pileup"] = 'root://xrootd.grid.hep.ph.ic.ac.uk/'+map_c["pileup"]
+                
       if not fi_name.startswith("rfio") and not fi_name.startswith("root:/") and not fi_name.startswith("/castor") and not os.path.isfile(fi_name): 
         sys.exit("No Input File Named: %s"%fi_name)
       tuple_n = fi_name, fi_type

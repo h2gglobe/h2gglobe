@@ -396,7 +396,7 @@ std::vector<int> vertexSelection(HggVertexAnalyzer & vtxAna, HggVertexFromConver
 				 bool useMva=false, TMVA::Reader * reader=0, std::string tmvaMethod="");
 
 //----------------------------------------
-
+bool FindMCLeptons(int index, int& mc1, int& mc2, int& pho, int leptonType=11);
 bool FindMCHiggsPhotons(int& higgsind, int& mc1, int& mc2, int& i1, int& i2  );
 bool FindMCVBF(int higgsind, int& vbfq1, int& vbfq2 );
 bool FindMCVH(int higgsind, int& vh, int& vh1, int& vh2 );

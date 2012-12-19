@@ -1,5 +1,7 @@
 output=my_reduced_tuple_foo.root
-typ=0 Fil=root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/processed/V14_00_02/data/DoubleElectron_Run2012C-PromptReco-v1/DoubleElectron_Run2012C-PromptReco-v1_9_2_WG8.root
+#typ=0 Fil=/hadoop/cms/store/user/matteo/data/2012/run2012D_DE/run2012D_DE_399_1_b96.root
+
+typ=1 Fil=/hadoop/cms/store/user/capalmer/V14_00_05/mc/Summer12_8TeV_S10/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1_2MuonSkim/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1_2MuonSkim_991_0_zfr.root
 
 inputBranches tapanalysis/reduction_input.dat
 outputBranches tapanalysis/reduction_output.dat

@@ -1,4 +1,4 @@
-intL=10400. histfile=out.root output=eventList.txt
+intL=18400. histfile=out.root output=eventList.txt
 
 runZeeValidation=1
 cicVersion=7TeV
@@ -8,19 +8,15 @@ pfisoOffset=2.5
 #typ=41 ind=0 draw=1  Nam=DYJetsToll Fil=root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/reduced_matteo/17_09_2012/mc/Summer12_S10_8TeV/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1_SKIMQORZ/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1_SKIMQORZ_136.root  red=0 lum=1. xsec=3532.8 kfac=1.000 scal=1.
 #typ=41 ind=0 draw=1  Nam=DYJetsToll Fil=root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/reduced_matteo/17_09_2012/mc/Summer12_S10_8TeV/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1_SKIMQORZ/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1_SKIMQORZ_92.root red=0 lum=1. xsec=3532.8 kfac=1.000 scal=1.
 
-
+##### DATA
+typ=0    ind=0 draw=1  Nam=Data    Dir=/hadoop/cms/store/user/matteo/reduced/20121219042651_runA  tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=aux/Cert_190456-208686_8TeV_PromptReco_Collisions12_JSON.txt
+typ=0    ind=0 draw=1  Nam=Data    Dir=/hadoop/cms/store/user/matteo/reduced/20121219042725_runB  tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=aux/Cert_190456-208686_8TeV_PromptReco_Collisions12_JSON.txt
+typ=0    ind=0 draw=1  Nam=Data    Dir=/hadoop/cms/store/user/matteo/reduced/20121219042842_runC  tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=aux/Cert_190456-208686_8TeV_PromptReco_Collisions12_JSON.txt
+typ=0    ind=0 draw=1  Nam=Data    Dir=/hadoop/cms/store/user/matteo/reduced/20121219043042_runD  tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=aux/Cert_190456-208686_8TeV_PromptReco_Collisions12_JSON.txt
 
 #####  MC
-#typ=41 ind=0 draw=1  Nam=DYJetsToll CaDir=/store/group/phys_higgs/cmshgg/reduced_matteo/25_09_2012/mc/Summer12_S10_8TeV/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1_SKIMQORZ red=0 lum=1. xsec=3532.8 kfac=1.000 scal=1.
+typ=41 ind=1 draw=1  Nam=DYJetsToll Dir=/hadoop/cms/store/user/matteo/reduced/20121219043216_DYJetsToEE red=0 lum=1. xsec=3532.8 kfac=1.000 scal=1.
 
-##### DATA
-typ=0    ind=0 draw=1  Nam=Data    CaDir=/store/group/phys_higgs/cmshgg/reduced_matteo/25_09_2012/data/DoubleElectron_Run2012A-13Jul2012-v1  tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=aux/Cert_190456-202305_8TeV_PromptReco_Collisions12_JSON.txt
-typ=0    ind=0 draw=1  Nam=Data    CaDir=/store/group/phys_higgs/cmshgg/reduced_matteo/25_09_2012/data/DoubleElectron_Run2012A-recover-06Aug2012-v1 tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=aux/Cert_190456-202305_8TeV_PromptReco_Collisions12_JSON.txt
-typ=0    ind=0 draw=1  Nam=Data    CaDir=/store/group/phys_higgs/cmshgg/reduced_matteo/25_09_2012/data/DoubleElectron_Run2012B-13Jul2012-v1 tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=aux/Cert_190456-202305_8TeV_PromptReco_Collisions12_JSON.txt
-typ=0    ind=0 draw=1  Nam=Data    CaDir=/store/group/phys_higgs/cmshgg/reduced_matteo/25_09_2012/data/DoubleElectron_Run2012B-13Jul2012-v1_sub2 tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=aux/Cert_190456-202305_8TeV_PromptReco_Collisions12_JSON.txt
-typ=0    ind=0 draw=1  Nam=Data    CaDir=/store/group/phys_higgs/cmshgg/reduced_matteo/25_09_2012/data/DoubleElectron_Run2012C-PromptReco-v1 tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=aux/Cert_190456-202305_8TeV_PromptReco_Collisions12_JSON.txt
-typ=0    ind=0 draw=1  Nam=Data    CaDir=/store/group/phys_higgs/cmshgg/reduced_matteo/25_09_2012/data/DoubleElectron_Run2012C-PromptReco-v2 tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=aux/Cert_190456-202305_8TeV_PromptReco_Collisions12_JSON.txt
-typ=0    ind=0 draw=1  Nam=Data    CaDir=/store/group/phys_higgs/cmshgg/reduced_matteo/25_09_2012/data/DoubleElectron_Run2012C-PromptReco-v2_sub2  tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=aux/Cert_190456-202305_8TeV_PromptReco_Collisions12_JSON.txt
 
 cuts tapanalysis/cuts.dat
 plotvariables tapanalysis/plotvariables_tapanalysis.dat 

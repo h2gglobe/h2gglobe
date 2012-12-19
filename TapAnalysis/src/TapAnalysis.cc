@@ -625,6 +625,10 @@ void TapAnalysis::FillReductionVariables(LoopAll& l, int jentry) {
 // ----------------------------------------------------------------------------------------------------
 bool TapAnalysis::SelectEventsReduction(LoopAll& l, int jentry) {
   
+  if (l.itype[l.current] == 0)
+    if (!checkEventHLT(l, hltPathsDE))
+      return false;
+
   std::vector<int> eleIndex; 
   
   int goodEl = 0;
@@ -695,13 +699,14 @@ bool TapAnalysis::ElectronId(LoopAll& l, Int_t eleIndex, Int_t vertexIndex, std:
     float thispt = thisel->Pt();
 
     double Aeff=0.;
-    if(thiseta<1.0)                   Aeff=0.135;
-    if(thiseta>=1.0 && thiseta<1.479) Aeff=0.168;
-    if(thiseta>=1.479 && thiseta<2.0) Aeff=0.068;
-    if(thiseta>=2.0 && thiseta<2.2)   Aeff=0.116;
-    if(thiseta>=2.2 && thiseta<2.3)   Aeff=0.162;
-    if(thiseta>=2.3 && thiseta<2.4)   Aeff=0.241;
-    if(thiseta>=2.4)                  Aeff=0.23;
+    if(thiseta<1.0)                   Aeff=0.10;
+    if(thiseta>=1.0 && thiseta<1.479) Aeff=0.12;
+    if(thiseta>=1.479 && thiseta<2.0) Aeff=0.085;
+    if(thiseta>=2.0 && thiseta<2.2)   Aeff=0.11;
+    if(thiseta>=2.2 && thiseta<2.3)   Aeff=0.12;
+    if(thiseta>=2.3 && thiseta<2.4)   Aeff=0.12;
+    if(thiseta>=2.4)                  Aeff=0.13;
+    
     float thisiso=l.el_std_pfiso_charged[eleIndex]+std::max(l.el_std_pfiso_neutral[eleIndex]+l.el_std_pfiso_photon[eleIndex]-l.rho_algo1*Aeff, 0.);
     
     if(vertexIndex!=-1){
@@ -758,8 +763,8 @@ Float_t TapAnalysis::PhotonId(LoopAll& l, Int_t eleIndex, Int_t phoIndex, std::s
 
   if (type == "CiC4PF") {
     std::vector<std::vector<bool> > ph_passcut;
-    //int level = (*l.pho_cic4pfcutlevel_sublead)[phoIndex][thevertexind];//l.PhotonCiCPFSelectionLevel(phoIndex, thevertexind, ph_passcut, 4, 0);
-    int level = l.PhotonCiCPFSelectionLevel(phoIndex, thevertexind, ph_passcut, 4, 0);
+    int level = (*l.pho_cic4pfcutlevel_sublead)[phoIndex][thevertexind];//l.PhotonCiCPFSelectionLevel(phoIndex, thevertexind, ph_passcut, 4, 0);
+    //int level = l.PhotonCiCPFSelectionLevel(phoIndex, thevertexind, ph_passcut, 4, 0);
     //std::cout << "LEVEL: " << level << " " << selection << " " << (level>=selection) <<  std::endl;
     if (level >= selection)
       result = 1;
@@ -769,7 +774,7 @@ Float_t TapAnalysis::PhotonId(LoopAll& l, Int_t eleIndex, Int_t phoIndex, std::s
     //result = ((*l.pho_mitmva)[phoIndex][thevertexind] > selection);
   } else if (type == "Presel") {
     if (l.PhotonMITPreSelection(phoIndex, thevertexind, 0))
-      result = 1.0;
+      result = 1.;
     //result = l.PhotonMITPreSelection(phoIndex, thevertexind, 0);
   }
 

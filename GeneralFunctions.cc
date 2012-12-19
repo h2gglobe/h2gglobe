@@ -4414,6 +4414,50 @@ void LoopAll::doJetMatching(TClonesArray & reco, TClonesArray & gen,
 
 
 //--- RECO-MC PHOTONS MATCHING --------------------------------------------------------------------------------------------------------
+bool LoopAll::FindMCLeptons(int index, int& mc1, int& mc2, int& pho, int type) {
+
+  TLorentzVector* lep = 0;
+  if (abs(type) == 11) 
+    lep = (TLorentzVector*) el_std_p4->At(index);
+  else
+    lep = (TLorentzVector*) mu_glo_p4->At(index);
+
+  float drmin = 0.2;
+  for (int i=0; i<gp_n; i++) {
+    if (abs(gp_pdgid[i]) == type && gp_status[i] == 2) {
+      TLorentzVector* p4 = (TLorentzVector*) gp_p4->At(i);
+      float dr = ele->DeltaR(*p4);
+      if (dr < drmin) {
+	drmin = dr;
+	mc1 = i;
+      }
+    }
+  }
+  
+  if (mc1 != -1) {
+    for (int i=0; i<gp_n;  i++) {
+      if (gp_mother[i] == mc1 && gp_status[i] == 1) {
+	if (gp_pdgid[i] == gp_pdgid[mc1]) {
+	  mc2 = i;
+	}
+	
+	if (gp_pdgid[i] == 22) {
+	  pho = i;
+	}
+      }
+    }
+  }
+  
+  return true;
+  
+  // 23 2 
+  // 11 3
+  // -11 3  
+  // 11 2
+  // -11 2
+  // 22 1
+}
+
 bool LoopAll::FindMCHiggsPhotons(int& higgsind, int& mc1, int& mc2, int& i1, int& i2 )
 {
     bool is_mcmatched = false;
