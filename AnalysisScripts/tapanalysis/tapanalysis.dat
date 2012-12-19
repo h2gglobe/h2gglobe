@@ -4,14 +4,14 @@ cutETTag=20.
 cutETProbe=15.
 
 ## LeptonTag
-forElectrons=1.
-applyPreselection=0.
-selectionTypeTag=MVATag
-cutSelectionTag=0.95
-selectionTypeProbe=MVANoIso
-cutSelectionProbe=-999. 
-selectionTypeToMeasure=LeptonTag
-cutSelectionToMeasure=0.90
+#forElectrons=1.
+#applyPreselection=0.
+#selectionTypeTag=MVATag
+#cutSelectionTag=0.95
+#selectionTypeProbe=MVANoIso
+#cutSelectionProbe=-999. 
+#selectionTypeToMeasure=LeptonTag
+#cutSelectionToMeasure=0.90
 
 # presel vs CiC
 #forElectrons=0.
@@ -24,14 +24,14 @@ cutSelectionToMeasure=0.90
 #cutSelectionToMeasure=0.
 
 #CiC 
-#forElectrons=0.
-#applyPreselection=10.
-#selectionTypeTag=CiC4PF
-#cutSelectionTag=5.
-#selectionTypeProbe=CiC4PF
-#cutSelectionProbe=-10. 
-#selectionTypeToMeasure=CiC4PF
-#cutSelectionToMeasure=4.
+forElectrons=0.
+applyPreselection=10.
+selectionTypeTag=CiC4PF
+cutSelectionTag=5.
+selectionTypeProbe=CiC4PF
+cutSelectionProbe=-10. 
+selectionTypeToMeasure=CiC4PF
+cutSelectionToMeasure=4.
 
 #MVA
 #forElectrons=0.

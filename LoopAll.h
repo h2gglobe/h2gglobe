@@ -901,7 +901,32 @@ TBranch * b_pho_passcuts_lead;
 TBranch * b_pho_cutlevel_sublead;
 TBranch * b_pho_passcuts_sublead;
 
+Float_t mc_et[MAX_ELECTRONS];
+Float_t mc_eta[MAX_ELECTRONS];
+Float_t mc_phi[MAX_ELECTRONS];
+Float_t fsr_et[MAX_ELECTRONS];
+Float_t fsr_eta[MAX_ELECTRONS];
+Float_t fsr_phi[MAX_ELECTRONS];
+TLorentzVector* higgs;
+TBranch* b_mc_et,*b_mc_eta, *b_mc_phi, *b_higgs, *b_fsr_et, *b_fsr_eta, *b_fsr_phi;
+
 void DefineUserBranches();
+
+void Branch_mc_et(TTree* tree) { tree->Branch("mc_et", &mc_et, "mc_et[100]/F"); };
+void Branch_mc_eta(TTree* tree) { tree->Branch("mc_eta", &mc_eta, "mc_eta[100]/F"); };
+void Branch_mc_phi(TTree* tree) { tree->Branch("mc_phi", &mc_phi, "mc_phi[100]/F"); };
+void Branch_fsr_et(TTree* tree) { tree->Branch("fsr_et", &fsr_et, "fsr_et[100]/F"); };
+void Branch_fsr_eta(TTree* tree) { tree->Branch("fsr_eta", &fsr_eta, "fsr_eta[100]/F"); };
+void Branch_fsr_phi(TTree* tree) { tree->Branch("fsr_phi", &fsr_phi, "fsr_phi[100]/F"); };
+void Branch_higgs(TTree* tree) { tree->Branch("higgs", "TLorentzVector", &higgs, 32000, 0); };
+
+void SetBranchAddress_mc_et(TTree * tree) { tree->SetBranchAddress("mc_et", &mc_et, &b_mc_et); }; 
+void SetBranchAddress_mc_eta(TTree * tree) { tree->SetBranchAddress("mc_eta", &mc_eta, &b_mc_eta); }; 
+void SetBranchAddress_mc_phi(TTree * tree) { tree->SetBranchAddress("mc_phi", &mc_phi, &b_mc_phi); }; 
+void SetBranchAddress_fsr_et(TTree * tree) { tree->SetBranchAddress("fsr_et", &fsr_et, &b_fsr_et); }; 
+void SetBranchAddress_fsr_eta(TTree * tree) { tree->SetBranchAddress("fsr_eta", &fsr_eta, &b_fsr_eta); }; 
+void SetBranchAddress_fsr_phi(TTree * tree) { tree->SetBranchAddress("fsr_phi", &fsr_phi, &b_fsr_phi); }; 
+void SetBranchAddress_higgs(TTree * tree) { tree->SetBranchAddress("higgs", &higgs, &b_higgs); }; 
 
 // I/O
 //

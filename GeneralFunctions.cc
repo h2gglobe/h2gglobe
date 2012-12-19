@@ -3794,6 +3794,14 @@ void LoopAll::DefineUserBranches()
   BRANCH_DICT(shiftMET_eta);
   BRANCH_DICT(shiftscaleMET_e);
   BRANCH_DICT(shiftscaleMET_eta);
+  
+  BRANCH_DICT(mc_et);
+  BRANCH_DICT(mc_eta);
+  BRANCH_DICT(mc_phi);
+  BRANCH_DICT(fsr_et);
+  BRANCH_DICT(fsr_eta);
+  BRANCH_DICT(fsr_phi);
+  BRANCH_DICT(higgs);
 
 #endif
 }
@@ -4426,7 +4434,7 @@ bool LoopAll::FindMCLeptons(int index, int& mc1, int& mc2, int& pho, int type) {
   for (int i=0; i<gp_n; i++) {
     if (abs(gp_pdgid[i]) == type && gp_status[i] == 2) {
       TLorentzVector* p4 = (TLorentzVector*) gp_p4->At(i);
-      float dr = ele->DeltaR(*p4);
+      float dr = lep->DeltaR(*p4);
       if (dr < drmin) {
 	drmin = dr;
 	mc1 = i;

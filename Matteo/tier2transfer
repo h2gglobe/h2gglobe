@@ -12,11 +12,12 @@ tier2transfer [options]
 
 --input-dir, -i                    origin directory
 --output-dir, -o                   destination directory
---wildcard, -wc                    selects only directories with wc to transfer
+--wildcard, -w                     selects only directories with wc to transfer
 --toCastorFromHadoop               move file from hadoop to CASTOR
 --toEOSFromHadoop                  move file from EOS to CASTOR
 --toHadoopFromEOS                  move files from EOS to hadoop (default)
---toHadoopFromCASTOR               move files from CASTOR to hadoop 
+--toHadoopFromCASTOR               move files from CASTOR to hadoop
+--cycles, -c                       number of times to repeat the transfer
 """
 
 counter   = 1
@@ -25,9 +26,10 @@ flag      = 0
 diskType  = "HADOOPfromEOS"
 inputDir  = ""
 outputDir = ""
-wildcard=""
+wildcard  = ""
+cycles    = 0
 
-(opts, args) = getopt.getopt(sys.argv[1:], 'i:o:h:wc', ['toHadoopFromEOS', 'toHadoopFromCASTOR', 'toCastorFromHadoop', 'toEOSFromHadoop', 'input-dir=', 'output-dir=', 'help', 'wildcard='])
+(opts, args) = getopt.getopt(sys.argv[1:], 'i:o:hw:c:', ['toHadoopFromEOS', 'toHadoopFromCASTOR', 'toCastorFromHadoop', 'toEOSFromHadoop', 'input-dir=', 'output-dir=', 'help', 'wildcard=', 'cycles='])
 
 for opt,argm in opts:
     if (opt == "--help" or opt == "-h"):
@@ -45,8 +47,10 @@ for opt,argm in opts:
         inputDir = argm
     elif (opt == "-o" or opt == "--output-dir"):
         outputDir = argm        
-    elif (opt == "-wc" or opt == "--wildcard"):
-        wildcard = argm        
+    elif (opt == "-w" or opt == "--wildcard"):
+        wildcard = argm
+    elif (opt == "-c" or opt == "--cycles"):
+        cycles = int(argm)
     else:
         print 'Wrong options: %s' % (opt)
         sys.exit(3)
@@ -247,69 +251,92 @@ lcg-cp -v -V cms -U srmv2 -T srmv2 -n 6 \"srm://bsrm-1.t2.ucsd.edu:8443/srm/v2/s
 
 
 if (diskType == "EOSFromHadoop"):
-    dirs = os.popen("ls "+ inputDir).readlines()
-    myCastor = outputDir
+    for c in xrange(cycles):
+        print "Cycle: ", c
+        dirs = os.popen("ls "+ inputDir).readlines()
+        myCastor = outputDir
+        
+        isSingleDir = True
+        for dir in dirs:
+            if (".root" not in dir):
+                isSingleDir = False
+        if (isSingleDir):
+            dirs = [inputDir]
 
-    for dir in dirs:
-        dir=dir.split("\n")[0]
-        if wildcard != "" and dir.find(wildcard) is -1:
-            print dir+"not matching "+wildcard+" -- skipping"
-            continue
+        print "Looking for files."
+        for dir in dirs:
+            if (".root" in dir):
+                continue
 
-        files = os.popen("ls " + inputDir).readlines()
-        filesinfo = os.popen("ls -l " + inputDir).readlines()
-        for fileinfo in filesinfo:
-            fileinfo = fileinfo.split()
+            dir=dir.split("\n")[0]
+            if wildcard != "" and dir.find(wildcard) is -1:
+                print dir+"not matching "+wildcard+" -- skipping"
+                continue
 
-        MaxThreads=4*int(os.popen("cat /proc/cpuinfo | grep processor | awk '{print $3}' | tail -1 | xargs -i echo '{}+1' | bc").readlines()[0])
-        sleepcount=0
-        print MaxThreads, len(files)
-        while len(filesinfo) > 0:
-            threads = int(os.popen("ps | grep lcg-cp | wc | awk '{print $1}'").readlines()[0])
-            if threads < MaxThreads:
-                sleepcount=0
-                fileinfo = filesinfo.pop().split()
-                if (len(fileinfo) != 9):
-                    continue
-                file = fileinfo[8]
-                filesize = fileinfo[4]
-
-                line = """
+            newInputDir = inputDir
+            if (dir != inputDir):
+                newInputDir = newInputDir + "/" + dir
+    
+            files = os.popen("ls " + newInputDir).readlines()
+            filesinfo = os.popen("ls -l " + newInputDir).readlines()
+            filesinfo = filesinfo[1:]
+            for fileinfo in filesinfo:
+                fileinfo = fileinfo.split()
+                #print "Fileinfo: ", fileinfo
+            
+            MaxThreads=4*int(os.popen("cat /proc/cpuinfo | grep processor | awk '{print $3}' | tail -1 | xargs -i echo '{}+1' | bc").readlines()[0])
+            sleepcount=0
+            #print MaxThreads, len(files)
+        
+            while len(filesinfo) > 0:
+                threads = int(os.popen("ps | grep lcg-cp | wc | awk '{print $1}'").readlines()[0])
+                if threads < MaxThreads:
+                    sleepcount=0
+                    fileinfo = filesinfo.pop().split()
+                    #print filesinfo
+                    #raw_input()
+                    if (len(fileinfo) != 9):
+                        continue
+                    file = fileinfo[8]
+                    filesize = fileinfo[4]
+    
+                    line = """
 lcg-ls -l -V cms -D srmv2 \"srm://srm-eoscms.cern.ch/srm/v2/server?SFN=%s\"
-""" % (myCastor+ "/" + os.path.basename(inputDir)+"/"+dir)
-                #print dir, os.path.basename(inputDir)
-                #print "ls", line
-                #os.system(line)
-                #
-                #input,checkOutput = os.popen2(line)
-                #hadoop_file_info = checkOutput.readlines()
-                #toCopy = False
-                #hadoop_file_size = 0
-                #print "HADOOP: ", hadoop_file_size
-                #if (len(hadoop_file_info) == 0):
-                #    toCopy = True
-                #    print "Didn't find the file"
-                #else:
-                #    hadoop_file_size = hadoop_file_info[0].split()[4]
-                #    if hadoop_file_size != filesize:
-                #        print "hadoop_file_size, filesize  "+str(hadoop_file_size)+"  "+str(filesize)
-                #        toCopy = True
-                #        print "File is not the right size"
-                #
-                #if toCopy == False:
-                #    continue
-                #if ("duplicate" in file):
-                #    continue
-                #if ("empty" in file):
-                #    continue
-
-                line="""
+""" % (myCastor+ "/" + os.path.basename(newInputDir) + "/" + file)
+                    #print "ls - ", file, os.path.basename(newInputDir), os.path.basename(outputDir)
+                    #print "ls", line
+                    os.system(line)
+                    
+                    input,checkOutput = os.popen2(line)
+                    hadoop_file_info = checkOutput.readlines()
+                    #print hadoop_file_info
+                    toCopy = False
+                    hadoop_file_size = 0
+                    #print "HADOOP: ", hadoop_file_info
+                    if (len(hadoop_file_info) == 0):
+                        toCopy = True
+                        print "Didn't find the file"
+                    else:
+                        hadoop_file_size = hadoop_file_info[0].split()[4]
+                        if hadoop_file_size != filesize:
+                            #print "hadoop_file_size, filesize  "+str(hadoop_file_size)+"  "+str(filesize)
+                            toCopy = True
+                            print "File is not the right size"
+                    
+                    if toCopy == False:
+                        continue
+                    if ("duplicate" in file):
+                        continue
+                    if ("empty" in file):
+                        continue
+    
+                    line="""
 lcg-cp -v -V cms -U srmv2 -T srmv2 -n 6 \"srm://bsrm-1.t2.ucsd.edu:8443/srm/v2/server?SFN=%s/%s\" \"srm://srm-eoscms.cern.ch/srm/v2/server?SFN=%s/%s/%s\" &
-""" % (inputDir+"/", file, myCastor, os.path.basename(inputDir)+"/", file)
-                #print line
-                os.system(line)
-            else:
-                sleepcount=sleepcount+1
-                print "MAX THREADS - Sleeping for 30 sec - "+str(sleepcount)
-                time.sleep(30)
+""" % (newInputDir+"/", file, myCastor, os.path.basename(newInputDir)+"/", file)
+                    #print line
+                    os.system(line)
+                else:
+                    sleepcount=sleepcount+1
+                    print "MAX THREADS - Sleeping for 30 sec - "+str(sleepcount)
+                    time.sleep(30)
 
