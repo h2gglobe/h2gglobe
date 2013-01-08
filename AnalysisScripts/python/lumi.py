@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os, sys
+from optparse import OptionParser, make_option
 
 ROOTimported = False
 
@@ -125,8 +126,35 @@ def dumpLumi(ARGV):
 #----------------------------------------------------------------------    
 
 if __name__ == "__main__" :
+    parser = OptionParser(option_list=[
+        ## doesn't work
+        make_option("-d", "--sourcedir",
+                    action="store", type="string", dest="sourcedir",
+                    default="",
+                    help="", metavar=""
+                    ),
+        make_option("-f", "--filelist",
+                    action="store", type="string", dest="filelist",
+                    default="",
+                    help="", metavar=""
+                    ),
+        ])
     
-    ARGV = sys.argv[1:]
-    runLines = dumpLumi(ARGV)
+    (options, args) = parser.parse_args()
+
+    ## should work but doesn't unmount 
+    if options.filelist is not "":
+        file=open(options.filelist)
+        filelist=file.readlines()
+        for ifile in xrange(len(filelist)):
+            filelist[ifile]=filelist[ifile].split("\n")[0]
+    #elif options.sourcedir is not "":
+    #    from makeFilelist import *
+    #    print "import on the fly"
+    #    filelist=makeEosFiles(options.sourcedir)
+    else:
+        filelist = sys.argv[1:]
+    
+    runLines = dumpLumi(filelist)
 
     print "{" + ", ".join(runLines) + "}"
