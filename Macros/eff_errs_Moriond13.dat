@@ -1,0 +1,16 @@
+# cat eff err eff err eff err
+# NUMBERS for Moriond 2013
+# https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/1109/1/1.html
+# electron veto not yet updated
+
+# baseline: presel  id (cic4pf) eleV 
+cat0  0.996 0.003   1.006 0.003   1.000   0.000
+cat1  1.003 0.006   0.993 0.012   0.983   0.006
+cat2  1.009 0.009   1.016 0.009   0.998   0.006
+cat3  0.997 0.018   1.028 0.028   0.995   0.012
+
+# id for phoID  > -0.2
+## cat0  0.996 0.003   1.0002 0.0001   1.000   0.000
+## cat1  1.003 0.006   1.0003 0.0002   0.983   0.006
+## cat2  1.009 0.009   0.9999 0.0001   0.998   0.006
+## cat3  0.997 0.018   0.9980 0.0003   0.995   0.012
