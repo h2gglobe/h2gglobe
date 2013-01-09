@@ -39,28 +39,20 @@ Wmgg_dR02_v1_cmkuo-Wmgg_532_RECO_v1-3664d28163503ca8171ba37083c39fc9_smalljob:Wm
 Zgg_dR02_v3_cmkuo-Zgg_532_RECO_v1-3664d28163503ca8171ba37083c39fc9_smalljob:Zgg_dR02       1
 ttgg_dR02_v1_cmkuo-ttgg_532_RECO_v1-3664d28163503ca8171ba37083c39fc9:ttgg_dR02    1
 
-Wmgg_dR02_v1_cmkuo-Wmgg_532_RECO_v1-3664d28163503ca8171ba37083c39fc9
-Wmgg_dR02_v1_cmkuo-Wmgg_532_RECO_v1-3664d28163503ca8171ba37083c39fc9_smalljob
-Wpgg_dR02_v3_cmkuo-Wpgg_532_RECO_v1-3664d28163503ca8171ba37083c39fc9
-Wpgg_dR02_v3_cmkuo-Wpgg_532_RECO_v1-3664d28163503ca8171ba37083c39fc9_smalljob
-Zgg_dR02_v3_cmkuo-Zgg_532_RECO_v1-3664d28163503ca8171ba37083c39fc9
-Zgg_dR02_v3_cmkuo-Zgg_532_RECO_v1-3664d28163503ca8171ba37083c39fc9_smalljob
-ttgg_dR02_v1_cmkuo-ttgg_532_RECO_v1-3664d28163503ca8171ba37083c39fc9
-
 TTJets_TuneZ2star_8TeV-madgraph-tauola_Summer12-PU_S8_START52_V9-v1    1
 TTGJets_8TeV-madgraph_Summer12_DR53X-PU_S10_START53_V7A-v1             1
 
-DYJetsToLL_M-50_v2
-DYJetsToLL_M-50_v3
-WGToLNuG_TuneZ2star_8TeV-madgraph-tauola_Summer12_DR53X-PU_S10_START53_V7A-v1
-WJetsToLNu_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1
-
-WWGJets_8TeV-madgraph_Summer12_DR53X-PU_S10_START53_V7A-v1
-WWJetsTo2L2Nu_TuneZ2star_8TeV-madgraph-tauola_Summer12_DR53X-PU_S10_START53_V7A-v1
-WZJetsTo3LNu_TuneZ2_8TeV-madgraph-tauola_Summer12_DR53X-PU_S10_START53_V7A-v1
-ZGToLLG_8TeV-madgraph_Summer12_DR53X-PU_S10_START53_V7A-v1
-ZG_Inclusive_8TeV-madgraph_Summer12_DR53X-PU_S10_START53_V7A-v1
-
-ZZJetsTo2L2Nu_TuneZ2star_8TeV-madgraph-tauola_Summer12_DR53X-PU_S10_START53_V7A-v3
-ZZJetsTo2L2Q_TuneZ2star_8TeV-madgraph-tauola_Summer12_DR53X-PU_S10_START53_V7A-v1
-ZZJetsTo4L_TuneZ2star_8TeV-madgraph-tauola_Summer12_DR53X-PU_S10_START53_V7A-v1
+##DYJetsToLL_M-50_v2
+##DYJetsToLL_M-50_v3
+##WGToLNuG_TuneZ2star_8TeV-madgraph-tauola_Summer12_DR53X-PU_S10_START53_V7A-v1
+##WJetsToLNu_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1
+##
+##WWGJets_8TeV-madgraph_Summer12_DR53X-PU_S10_START53_V7A-v1
+##WWJetsTo2L2Nu_TuneZ2star_8TeV-madgraph-tauola_Summer12_DR53X-PU_S10_START53_V7A-v1
+##WZJetsTo3LNu_TuneZ2_8TeV-madgraph-tauola_Summer12_DR53X-PU_S10_START53_V7A-v1
+##ZGToLLG_8TeV-madgraph_Summer12_DR53X-PU_S10_START53_V7A-v1
+##ZG_Inclusive_8TeV-madgraph_Summer12_DR53X-PU_S10_START53_V7A-v1
+##
+##ZZJetsTo2L2Nu_TuneZ2star_8TeV-madgraph-tauola_Summer12_DR53X-PU_S10_START53_V7A-v3
+##ZZJetsTo2L2Q_TuneZ2star_8TeV-madgraph-tauola_Summer12_DR53X-PU_S10_START53_V7A-v1
+##ZZJetsTo4L_TuneZ2star_8TeV-madgraph-tauola_Summer12_DR53X-PU_S10_START53_V7A-v1
