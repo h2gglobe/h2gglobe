@@ -58,7 +58,12 @@ if __name__ == "__main__":
         print "arg3: label"
         sys.exit(-4)
     print "\nPreparing batch reduction...\n"
+   
+    os.system("cd AnalysisScripts")
+    os.system("python fitter.py -i "+sys.argv[1]+" --dryRun &> ../process/dryRun.log")
+    os.system("cd ..")
     
+
     datfilename = "AnalysisScripts/"+sys.argv[1]
     numberofjobs = int(sys.argv[2])    
     timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
@@ -133,8 +138,10 @@ if __name__ == "__main__":
             limits = (f, len(file_names))
     
         newdatafilename = "datafiles"+ str(numberofjobs) + ".dat"
+        os.system("cp "+datfilename+".pevents process/"+newdatafilename+".pevents")
+        
         out = open("process/" + newdatafilename, "w")
-
+        
         inputdat = open("process/template.dat", "r")
         lines = inputdat.readlines()
         inputdat.close()
