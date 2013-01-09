@@ -77,3 +77,5 @@ WH_ZH_HToGG_M-145_8TeV-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1             
 WH_ZH_HToGG_M-150_8TeV-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1               -1
 WH_ZH_HToGG_M-90_8TeV-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1                -1
 WH_ZH_HToGG_M-95_8TeV-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1                -1
+
+RSGravGG_kMpl001_M125_TuneZ2star_8TeV_pythia6_cff_py_GEN_SIM_v2_apresyan-RSGravGG_kMpl001_M125_TuneZ2star_8TeV_pythia6_step3_RAW2DIGI_L1Reco_RECO_PU_v1-90a3c643a4855c1621ba3bfcbef2e742:RSGravGG   -1
