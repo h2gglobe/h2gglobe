@@ -51,14 +51,15 @@ for (int cat=0;cat<ncats;cat++){
 // can combine efficiencies and errors with effError.py 
 int nphocats=4;
 
-// baseline
-// Double_t ratioTP_[nphocats]            = {1.005,0.979,1.021,1.019};
-// Double_t ratioTP_low_err_[nphocats]    = {0.004,0.014,0.014,0.033};
-// Double_t ratioTP_high_err_[nphocats]   = {0.004,0.014,0.014,0.033};
-// mva
-Double_t ratioTP_[nphocats]            = {0.998,0.984,1.006,0.988};
-Double_t ratioTP_low_err_[nphocats]    = {0.003,0.008,0.011,0.021};
-Double_t ratioTP_high_err_[nphocats]   = {0.003,0.008,0.011,0.021};
+//baseline
+ Double_t ratioTP_[nphocats]            = {1.002,0.979,1.023,1.020};
+ Double_t ratioTP_low_err_[nphocats]    = {0.004,0.014,0.014,0.036};
+ Double_t ratioTP_high_err_[nphocats]   = {0.004,0.014,0.014,0.036};
+
+//mva
+//Double_t ratioTP_[nphocats]            = {0.996,0.986,1.007,0.990};
+//Double_t ratioTP_low_err_[nphocats]    = {0.003,0.008,0.011,0.021};
+//Double_t ratioTP_high_err_[nphocats]   = {0.003,0.008,0.011,0.021};
 
 std::string iDLabels_[nphocats] 	    = {"EBHighR9","EBLowR9","EEHighR9","EELowR9"};
 
