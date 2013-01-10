@@ -11,7 +11,7 @@ nR9Categories=2
 
 scaleR9Only=0
 
-doTriggerSelection=0 
+doTriggerSelection=1 
 reRunCiCForData=1
 
 ## Moved to analysis_settings.dat
