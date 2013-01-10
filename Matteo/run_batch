@@ -46,7 +46,8 @@ if __name__ == "__main__":
     username      = os.getlogin()
     hadoop_prefix = "srm://bsrm-1.t2.ucsd.edu:8443/srm/v2/server?SFN="
     hadoop_home   = "/hadoop/cms/store/user/" + username
-
+    label = ""
+    
     # reduce_batch input ---
     REQUIRED_ARGS = 4
     
@@ -59,53 +60,54 @@ if __name__ == "__main__":
         sys.exit(-4)
     print "\nPreparing batch reduction...\n"
    
-    os.system("cd AnalysisScripts")
-    os.system("python fitter.py -i "+sys.argv[1]+" --dryRun &> ../process/dryRun.log")
-    os.system("cd ..")
-    
-
     datfilename = "AnalysisScripts/"+sys.argv[1]
     numberofjobs = int(sys.argv[2])    
     timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
     outputdir = timestamp + "_" + sys.argv[3]
+    label = sys.argv[3]
 
     basedir = os.path.abspath(sys.argv[0].split("Matteo/run_batch")[0])
     basename = os.path.basename(basedir)
     os.system("cd "+basedir)
     
-    os.system("rm -rf process")
-    os.system("mkdir process")
+    os.system("rm -rf " + label)
+    os.system("mkdir " + label)
     
+    os.system("cd AnalysisScripts")
+    os.system("python fitter.py -i "+sys.argv[1]+" --dryRun &> ../"+label+"/dryRun.log")
+    os.system("cd ..")
+        
+
     #**********************************************************************
     datfile = open(datfilename, "r")
     lines = datfile.readlines()
     datfile.close()
 
-    template_file = open("process/template.dat", "w")
-    out_file = open("process/allfilenames.txt", "w")
+    #template_file = open("process/template.dat", "w")
+    #out_file = open("process/allfilenames.txt", "w")
     
-    for l in lines:
-        if (l.startswith("typ")):
-            if ("Dir" in l):
-                params = l.split()
-                pippo = os.popen("ls -1 "+ params[4][4:] + "/*.root").readlines()
-                for i in pippo:
-                    params[4] = "Fil="+i.split("\n")[0]
-                    out_file.write(" ".join(params)+"\n")
-        else:
-            template_file.write(l+"\n")
-
-    template_file.close()
-    out_file.close()
+    #for l in lines:
+    #    if (l.startswith("typ")):
+    #        if ("Dir" in l):
+    #            params = l.split()
+    #            pippo = os.popen("ls -1 "+ params[4][4:] + "/*.root").readlines()
+    #            for i in pippo:
+    #                params[4] = "Fil="+i.split("\n")[0]
+    #                out_file.write(" ".join(params)+"\n")
+    #    else:
+    #        template_file.write(l+"\n")
+    #
+    #template_file.close()
+    #out_file.close()
     
     #**********************************************************************
-    totalfiles = pipe("wc -l process/allfilenames.txt")
-    totalfiles = int(totalfiles.split(" ")[0])
-    if (totalfiles == 0):
-        print "no files ??"
-        sys.exit(-5)
+    #totalfiles = pipe("wc -l process/allfilenames.txt")
+    #totalfiles = int(totalfiles.split(" ")[0])
+    #if (totalfiles == 0):
+    #    print "no files ??"
+    #    sys.exit(-5)
 
-    filesperjob = totalfiles/numberofjobs + 1
+    #filesperjob = totalfiles/numberofjobs + 1
     
     #*************************************************************************************
     
@@ -125,42 +127,48 @@ if __name__ == "__main__":
         os.system("voms-proxy-destroy")
         os.system("voms-proxy-init -valid 36:00")
     
-    file = open("process/allfilenames.txt")
-    file_names = file.readlines()
-    file.close()
+    #file = open(label+"/allfilenames.txt")
+    #file_names = file.readlines()
+    #file.close()
 
-    numberofjobs = 0
+    #numberofjobs = 0
+    #resto = len(file_names)%filesperjob
+    #numberofjobs = len(file_names)/filesperjob
+    #if (resto != 0):
+    #    numberofjobs = numberofjobs + 1
+        
+    os.system("cp "+datfilename+".pevents "+label+"/.")
+            
+    #for f in xrange(0, len(file_names), filesperjob):
+    #    numberofjobs += 1
+    #    limits = (f, filesperjob+f)
+    #    if (limits[1] > len(file_names)):
+    #        limits = (f, len(file_names))
+    #
+    #    newdatafilename = "datafiles"+ str(numberofjobs) + ".dat"
+    #    os.system("cp "+datfilename+".pevents process/"+newdatafilename+".pevents")
+    #    
+    #    out = open("process/" + newdatafilename, "w")
+    #    
+    #    inputdat = open("process/template.dat", "r")
+    #    lines = inputdat.readlines()
+    #    inputdat.close()
+    #    
+    #    for l in lines:
+    #        if ("histfile" in l):
+    #            l = l.replace(".root", "_"+str(numberofjobs)+".root")
+    #            l = l.replace(".txt", "_"+str(numberofjobs)+".txt")
+    #        out.write(l)
+    #    out.write("\n") 
+    #    
+    #    for i in file_names[limits[0]:limits[1]]:
+    #        out.write(i + "\n")
+    #    out.write("\n")    
+    #    out.close()
     
-    for f in xrange(0, len(file_names), filesperjob):
-        numberofjobs += 1
-        limits = (f, filesperjob+f)
-        if (limits[1] > len(file_names)):
-            limits = (f, len(file_names))
-    
-        newdatafilename = "datafiles"+ str(numberofjobs) + ".dat"
-        os.system("cp "+datfilename+".pevents process/"+newdatafilename+".pevents")
-        
-        out = open("process/" + newdatafilename, "w")
-        
-        inputdat = open("process/template.dat", "r")
-        lines = inputdat.readlines()
-        inputdat.close()
-        
-        for l in lines:
-            if ("histfile" in l):
-                l = l.replace(".root", "_"+str(numberofjobs)+".root")
-                l = l.replace(".txt", "_"+str(numberofjobs)+".txt")
-            out.write(l)
-        out.write("\n") 
-        
-        for i in file_names[limits[0]:limits[1]]:
-            out.write(i + "\n")
-        out.write("\n")    
-        out.close()
-    
-    os.system("cp -r AnalysisScripts/* process/.")
-    thetarball = "process" + timestamp + ".tgz"
-    os.system("cd ../..;tar zcf " + thetarball + " src/"+basename+"/process src/"+basename+"/libLoopAll.so  src/EGamma src/CMGTools")
+    os.system("cp -r AnalysisScripts/* "+label+"/.")
+    thetarball = label+ timestamp + ".tgz"
+    os.system("cd ../..;tar zcf " + thetarball + " src/"+basename+"/"+label+" src/"+basename+"/libLoopAll.so  src/EGamma src/CMGTools")
     
     if (not os.path.exists(hadoop_home + "/processed")):
         os.mkdir(hadoop_home + "/processed")
@@ -170,12 +178,12 @@ if __name__ == "__main__":
     
     os.system("cp ../../" + thetarball + " " + hadoop_home + "/condorfiles/")
     os.system("rm ../../" + thetarball)
+
+    #for ijob in xrange(1, numberofjobs):
+    #    newdatafilename = "datafiles" + str(ijob) + ".dat"
+    #    os.system("rm -f " + newdatafilename)
     
-    for ijob in xrange(1, numberofjobs):
-        newdatafilename = "datafiles" + str(ijob) + ".dat"
-        os.system("rm -f " + newdatafilename)
-    
-    os.system("rm -f process/allfilenames.txt")
+    #os.system("rm -f process/allfilenames.txt")
     condordir = "/home/users/" + username + "/condorfiles/" + outputdir + "_pro"
     
     os.mkdir(hadoop_home + "/processed/" + outputdir)
@@ -189,10 +197,10 @@ if __name__ == "__main__":
     os.chdir(condordir)
     os.mkdir("output")
     
-    for ijob in xrange(1, numberofjobs+1):
-        jobname = "process_job" + str(ijob)
+    for ijob in xrange(numberofjobs):
+        jobname = label+"_job" + str(ijob)
         thesourcedir = username + timestamp + "job" + str(ijob)
-        newdatafilename = "datafiles" + str(ijob) + ".dat"
+        #newdatafilename = "datafiles" + str(ijob) + ".dat"
            
         file = open(jobname + ".bash", "w")
         file.write("#!/bin/bash\n")
@@ -224,15 +232,15 @@ if __name__ == "__main__":
         file.write("rm %s\n" % (thetarball) )
         file.write("cd src/\n")
         file.write("scram b -j 6\n")
-        file.write("cd "+basename+"/process\n")
+        file.write("cd "+basename+"/"+label+"\n")
         file.write("mkdir ${sourcedir}\n")
         file.write("\n")
         
-        file.write("./fitter.py -i %s\n" % (newdatafilename))
+        file.write("./fitter.py -i %s -n %d -j %d \n" % (datafilename, numberofjobs, ijob))
         file.write("echo \"landir\"\n")
         file.write("echo ${landdir}\n")
         file.write("\n")
-        file.write("ls -1 ${landdir}/"+basename+"/process/*.root > theoutputfiles.txt\n")
+        file.write("ls -1 ${landdir}/"+basename+"/"+label+"/*.root > theoutputfiles.txt\n")
     
         file.write("\n")
         file.write("echo \"****************** catting theoutputfiles.txt ****************\"\n")
