@@ -236,7 +236,7 @@ if __name__ == "__main__":
         file.write("mkdir ${sourcedir}\n")
         file.write("\n")
         
-        file.write("./fitter.py -i %s -n %d -j %d \n" % (datafilename, numberofjobs, ijob))
+        file.write("./fitter.py -i %s -n %d -j %d \n" % (datfilename, numberofjobs, ijob))
         file.write("echo \"landir\"\n")
         file.write("echo ${landdir}\n")
         file.write("\n")
