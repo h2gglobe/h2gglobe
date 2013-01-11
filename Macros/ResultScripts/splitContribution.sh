@@ -355,8 +355,9 @@ EOF
      profile_${channel}_1d -> GetYaxis()->SetTitle("2*Delta LL");
      profile_${channel}_1d -> GetYaxis()->SetRangeUser(0,2);
      profile_${channel}_1d -> GetXaxis()->SetTitle("RV");
+     profile_${channel}_1d -> GetXaxis()->SetRangeUser(0,2);
      profile_${channel}_1d -> Fit("pol2");
-     profile_${channel}_1d -> Fit("pol2","","",0.1,2);
+     profile_${channel}_1d -> Fit("pol2","","",0.5,1.5);
      TF1 *f_${channel}_1d = profile_${channel}_1d->GetFunction("pol2");
      pv->AddText(TString("#sigma = ")+TString::Format("%.2f",f_${channel}_1d->GetParameter(2)));
 
