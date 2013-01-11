@@ -487,7 +487,6 @@ void LoopAll::InitTrees(std::string dirName){
   for(int ind=0; ind<sampleContainer.size(); ind++) {
     SampleContainer thisSample = (SampleContainer) sampleContainer.at(ind);
     TreeContainer temp(ind,thisSample.filesshortnam, dirName);
-    temp.setScale(thisSample.weight);
     vTemp.push_back(temp);
   }
 
