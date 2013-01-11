@@ -201,40 +201,43 @@ void PhotonAnalysis::loadPuWeights(int typid, TDirectory * puFile, TH1 * target)
 {
     cout<<"Loading pileup weights for typid " << typid <<endl;
 
+    std::cout << puFile->GetName() << std::endl;
     TH1 * hweigh = (TH1*) puFile->Get("pileup_weights");
     if( hweigh == 0 ) {
-    if( PADEBUG ) std::cout << "pileup_weights not found: trying weights " << endl;
-    hweigh = (TH1*) puFile->Get("weights");
+	  if( PADEBUG ) std::cout << "pileup_weights not found: trying weights " << endl;
+	  hweigh = (TH1*) puFile->Get("weights");
     }
+
     TH1 * gen_pu = (TH1*)puFile->Get("pileup");
     if( gen_pu == 0 ) {
-    if( PADEBUG ) std::cout << "pileup not found: trying generated_pu " << endl;
-    gen_pu = (TH1*)puFile->Get("generated_pu");
+	if( PADEBUG ) std::cout << "pileup not found: trying generated_pu " << endl;
+	gen_pu = (TH1*)puFile->Get("generated_pu");
     }
 
     assert( gen_pu != 0 );
     bool delHwei = false;
     if( target != 0 ) {
-    // compute weights on the fly based on the target pileup scenario
-    if( hweigh == 0 ) {
-        hweigh = (TH1*)gen_pu->Clone();
-        delHwei = true;
-    }
-    hweigh->Reset("ICE");
-    for( int ii=1; ii<hweigh->GetNbinsX(); ++ii ) {
-        hweigh->SetBinContent( ii, target->GetBinContent( target->FindBin( hweigh->GetBinCenter(ii) ) ) );
-    }
-    hweigh->Divide(hweigh, gen_pu, 1., 1./gen_pu->Integral() );
+	// compute weights on the fly based on the target pileup scenario
+	if( hweigh == 0 ) {
+	    hweigh = (TH1*)gen_pu->Clone();
+	    delHwei = true;
+	}
+	hweigh->Reset("ICE");
+	for( int ii=1; ii<hweigh->GetNbinsX(); ++ii ) {
+	    hweigh->SetBinContent( ii, target->GetBinContent( target->FindBin( hweigh->GetBinCenter(ii) ) ) );
+	}
+	hweigh->Divide(hweigh, gen_pu, 1., 1./gen_pu->Integral() );
     } else {
-    // Normalize weights such that the total cross section is unchanged
-    TH1 * eff = (TH1*)hweigh->Clone("eff");
-    eff->Multiply(gen_pu);
-    hweigh->Scale( gen_pu->Integral() / eff->Integral()  );
-    delete eff;
+	// Normalize weights such that the total cross section is unchanged
+	TH1 * eff = (TH1*)hweigh->Clone("eff");
+	eff->Multiply(gen_pu);
+	hweigh->Scale( gen_pu->Integral() / eff->Integral()  );
+	delete eff;
     }
+    
     weights[typid].clear();
     for( int ii=1; ii<hweigh->GetNbinsX(); ++ii ) {
-    weights[typid].push_back(hweigh->GetBinContent(ii));
+	weights[typid].push_back(hweigh->GetBinContent(ii));
     }
 
     std::cout << "pile-up weights: ["<<typid<<"]";
@@ -620,7 +623,7 @@ void PhotonAnalysis::Init(LoopAll& l)
     triggerSelections.back().addpath("HLT_Photon36_R9Id85_Photon22_CaloId10_Iso50_v");
     triggerSelections.back().addpath("HLT_Photon36_R9Id85_Photon22_R9Id85_v");
 
-    triggerSelections.push_back(TriggerSelection(194270,-1));
+    triggerSelections.push_back(TriggerSelection(194270,198913));
     triggerSelections.back().addpath("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass60_v");
     triggerSelections.back().addpath("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass70_v");
     triggerSelections.back().addpath("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_R9Id85_OR_CaloId10_Iso50_v");
@@ -637,6 +640,18 @@ void PhotonAnalysis::Init(LoopAll& l)
     triggerSelections.back().addpath("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_v");
     triggerSelections.back().addpath("HLT_Photon36_R9Id85_Photon22_CaloId10_Iso50_v");
     triggerSelections.back().addpath("HLT_Photon36_R9Id85_Photon22_R9Id85_v");
+
+    triggerSelections.push_back(TriggerSelection(203773,-1));
+    triggerSelectrions.back().addpath("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass70_v");
+    triggerSelectrions.back().addpath("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_v");
+    triggerSelectrions.back().addpath("HLT_Photon36_CaloId10_Iso50_Photon22_CaloId10_Iso50_v");
+    triggerSelectrions.back().addpath("HLT_Photon36_CaloId10_Iso50_Photon22_R9Id85_v");
+    triggerSelectrions.back().addpath("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_R9Id85_OR_CaloId10_Iso50_v");
+    triggerSelectrions.back().addpath("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_v");
+    triggerSelectrions.back().addpath("HLT_Photon36_R9Id85_Photon22_CaloId10_Iso50_v");
+    triggerSelectrions.back().addpath("HLT_Photon36_R9Id85_Photon22_R9Id85_v");
+
+
 
     // n-1 plots for VBF tag 2011
     l.SetCutVariables("cut_VBFLeadJPt",         &myVBFLeadJPt);
@@ -917,7 +932,7 @@ void PhotonAnalysis::Init(LoopAll& l)
     } // end of loop over all photon cut levels
 
     //--------------------
-
+    
     if( tmvaPerVtxWeights != ""  ) {
 	if( tmvaPerVtxVariables.empty() ) {
 	    tmvaPerVtxVariables.push_back("ptbal"), tmvaPerVtxVariables.push_back("ptasym"), tmvaPerVtxVariables.push_back("logsumpt2");
@@ -929,6 +944,8 @@ void PhotonAnalysis::Init(LoopAll& l)
         tmvaPerVtxReader_ = new TMVA::Reader( "!Color:!Silent" );
         HggVertexAnalyzer::bookVariables( *tmvaPerVtxReader_, tmvaPerVtxVariables );
         tmvaPerVtxReader_->BookMVA( tmvaPerVtxMethod, tmvaPerVtxWeights );
+    
+
     } else {
         tmvaPerVtxReader_ = 0;
     }
@@ -1096,7 +1113,7 @@ void PhotonAnalysis::Init(LoopAll& l)
         TFile * puTargetFile = TFile::Open( puTarget );
         assert( puTargetFile != 0 );
         target = (TH1*)puTargetFile->Get("pileup");
-        if( target == 0 ) { target = (TH1*)puTargetFile->Get("target_pileup"); }
+        if( target == 0 ) { target = (TH1*)puTargetFile->Get("target_pu"); }
         target->Scale( 1. / target->Integral() );
         }
 
@@ -1118,7 +1135,7 @@ void PhotonAnalysis::Init(LoopAll& l)
 	TFile * puTargetFile = TFile::Open( puTarget );
 	assert( puTargetFile != 0 );
 	puTargetHist = (TH1*)puTargetFile->Get("pileup");
-	if( puTargetHist == 0 ) { puTargetHist = (TH1*)puTargetFile->Get("target_pileup"); }
+	if( puTargetHist == 0 ) { puTargetHist = (TH1*)puTargetFile->Get("target_pu"); }
 	puTargetHist = (TH1*)puTargetHist->Clone();
 	puTargetHist->SetDirectory(0);
 	puTargetHist->Scale( 1. / puTargetHist->Integral() );
@@ -1656,23 +1673,52 @@ void PhotonAnalysis::PreselectPhotons(LoopAll& l, int jentry)
 // ----------------------------------------------------------------------------------------------------
 void PhotonAnalysis::FillReductionVariables(LoopAll& l, int jentry)
 {
-    if(PADEBUG)
-        cout<<"myFillReduceVar START"<<endl;
+    cout<<"myFillReduceVar START"<<endl;
 
     PreselectPhotons(l,jentry);
 
     /*
-    for (int i=0; i<l.pho_n; i++) {
-	l.pho_ncrys[i] = 0;
-	for (int j=0; j<l.sc_nbc[l.pho_scind[i]]; j++) {
-	    l.pho_ncrys[i] += l.bc_nhits[l.sc_bcind[l.pho_scind[i]][j]];
+      for (int i=0; i<l.pho_n; i++) {
+      l.pho_ncrys[i] = 0;
+      for (int j=0; j<l.sc_nbc[l.pho_scind[i]]; j++) {
+      l.pho_ncrys[i] += l.bc_nhits[l.sc_bcind[l.pho_scind[i]][j]];
+      }
+      }
+    */
+    
+    for (int i=0; i<l.el_std_n; i++) {
+	Int_t mc1=-1;
+	Int_t mc2=-1;
+	Int_t pho=-1;
+	
+	l.FindMCElectrons(i, mc1, mc2, pho, 0);
+	// et, eta, phi
+	
+	if (mc1 != -1) {
+	    TLorentzVector* p4 = (TLorentzVector*)l.gp_p4->At(mc1);
+	    l.el_std_mc_et[i] = p4->Et();
+	    l.el_std_mc_phi[i] = p4->Phi();
+	    l.el_std_mc_eta[i] = p4->Eta();
+	} else {
+	    l.el_std_mc_et[i] = -999.;
+	    l.el_std_mc_phi[i] = -999.;
+	    l.el_std_mc_eta[i] = -999.;
+	}
+	
+	if (pho != -1) {
+	    TLorentzVector* p4 = (TLorentzVector*)l.gp_p4->At(pho);
+	    l.el_std_fsr_et[i] = p4->Et();
+	    l.el_std_fsr_phi[i] = p4->Phi();
+	    l.el_std_fsr_eta[i] = p4->Eta();
+	} else {
+	    l.el_std_fsr_et[i] = -999.;
+	    l.el_std_fsr_phi[i] = -999.;
+	    l.el_std_fsr_eta[i] = -999.;
 	}
     }
-    */
 
     if(PADEBUG)
         cout<<"myFillReduceVar END"<<endl;
-
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -2069,6 +2115,13 @@ void PhotonAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree)
 
     if( outputTree ) {
 	//l.Branch_pho_ncrys(outputTree);
+
+	l.Branch_el_std_mc_et(outputTree);
+	l.Branch_el_std_mc_eta(outputTree);
+	l.Branch_el_std_mc_phi(outputTree);
+	l.Branch_el_std_fsr_et(outputTree);
+	l.Branch_el_std_fsr_eta(outputTree);
+	l.Branch_el_std_fsr_phi(outputTree);
 
 	l.Branch_vtx_std_evt_mva(outputTree);
 	l.Branch_vtx_std_ranked_list(outputTree);
