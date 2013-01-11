@@ -11,7 +11,7 @@
 ./submit_reduction.sh    data_2012             DoublePhoton_Run2012D-PromptReco-v1_sub2        10
 ./submit_reduction.sh    data_2012             run2012D_DE                                     80
 
-./submit_reduction.sh     mc_bkg_summer12_s10_2 DiPhotonJets_8TeV-madgraph_Summer12_DR53X-PU_S10_START53_V7A-v1             15
+./submit_reduction.sh     mc_bkg_summer12_s10_2 DiPhotonJets_8TeV-madgraph-tarball-v2_Summer12_DR53X-PU_S10_START53_V7A-v1              40
 ./submit_reduction.sh     mc_dy_summer12_s10    DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1   50
 
 ./submit_reduction.sh     mc_bkg_summer12_s10   DiPhotonBox_Pt-10To25_8TeV-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1     5
