@@ -1,3 +1,6 @@
+## Trigger selection
+doTriggerSelection=1
+
 ## Di-jet tag
 includeVBF=1
 usePUjetveto=1
@@ -50,7 +53,8 @@ pdfWeightHist=aux/GF_mvasys.root
 ## kfacHist=aux/KFactors_AllScales_interpolated.root
 puMap=
 puHist=auto
-puTarget=aux/HCP2012_preapproval_red_v1.json.69400.observed.pileup.root
+## puTarget=aux/HCP2012_preapproval_red_v1.json.69400.observed.pileup.root
+puTarget=aux/Moriond_pileup_190456-208686_minBiasXsec69400_corr_observed.root
 
 ## energy regression
 energyCorrectionMethod=Bendavid
@@ -67,6 +71,8 @@ scale_offset_corr_error_file=energy_scale_corr_errors.dat
 
 ## additional MC smearing
 smearing_file=smearing_sigma_and_errors.dat
+## smearing correction for BDT input
+mass_resol_file=smearing_sigma_and_errors_hcp2012.dat
 
 ## uncorrelated part of the uncertainties
 splitEresolSyst=0
@@ -74,7 +80,7 @@ corr_smearing_file=smearing_sigma_corr_errors.dat
 
 ## jets
 recomputeBetas=0
-recorrectJets=0
+recorrectJets=1
 rerunJetMva=0
 recomputeJetWp=1
 
