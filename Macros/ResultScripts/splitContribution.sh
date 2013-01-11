@@ -359,7 +359,7 @@ EOF
      profile_${channel}_1d -> Fit("pol2");
      profile_${channel}_1d -> Fit("pol2","","",0.5,1.5);
      TF1 *f_${channel}_1d = profile_${channel}_1d->GetFunction("pol2");
-     pv->AddText(TString("#sigma = ")+TString::Format("%.2f",f_${channel}_1d->GetParameter(2)));
+     pv->AddText(TString("#sigma = ")+TString::Format("%.2f",1./sqrt(2*f_${channel}_1d->GetParameter(2))));
 
 
 EOF
