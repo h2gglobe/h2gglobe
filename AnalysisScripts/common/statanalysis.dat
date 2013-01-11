@@ -49,7 +49,7 @@ doR9Syst=1
 doInterferenceSmear=1
 
 ## 
-efficiencyFile=aux/sig_reweighing_hcp2012_cutbased_v2.root
+efficiencyFile=aux/sig_reweighing_moriond2013_baseline_v1.root
 
 
 bkgPolOrderByCat=4,5,5,5,3,4,3,3,3
