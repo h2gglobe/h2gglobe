@@ -201,7 +201,6 @@ void PhotonAnalysis::loadPuWeights(int typid, TDirectory * puFile, TH1 * target)
 {
     cout<<"Loading pileup weights for typid " << typid <<endl;
 
-    std::cout << puFile->GetName() << std::endl;
     TH1 * hweigh = (TH1*) puFile->Get("pileup_weights");
     if( hweigh == 0 ) {
 	  if( PADEBUG ) std::cout << "pileup_weights not found: trying weights " << endl;
@@ -1113,7 +1112,7 @@ void PhotonAnalysis::Init(LoopAll& l)
         TFile * puTargetFile = TFile::Open( puTarget );
         assert( puTargetFile != 0 );
         target = (TH1*)puTargetFile->Get("pileup");
-        if( target == 0 ) { target = (TH1*)puTargetFile->Get("target_pu"); }
+        if( target == 0 ) { target = (TH1*)puTargetFile->Get("target_pileup"); }
         target->Scale( 1. / target->Integral() );
         }
 
@@ -1135,7 +1134,7 @@ void PhotonAnalysis::Init(LoopAll& l)
 	TFile * puTargetFile = TFile::Open( puTarget );
 	assert( puTargetFile != 0 );
 	puTargetHist = (TH1*)puTargetFile->Get("pileup");
-	if( puTargetHist == 0 ) { puTargetHist = (TH1*)puTargetFile->Get("target_pu"); }
+	if( puTargetHist == 0 ) { puTargetHist = (TH1*)puTargetFile->Get("target_pileup"); }
 	puTargetHist = (TH1*)puTargetHist->Clone();
 	puTargetHist->SetDirectory(0);
 	puTargetHist->Scale( 1. / puTargetHist->Integral() );
@@ -1677,46 +1676,6 @@ void PhotonAnalysis::FillReductionVariables(LoopAll& l, int jentry)
 
     PreselectPhotons(l,jentry);
 
-    /*
-      for (int i=0; i<l.pho_n; i++) {
-      l.pho_ncrys[i] = 0;
-      for (int j=0; j<l.sc_nbc[l.pho_scind[i]]; j++) {
-      l.pho_ncrys[i] += l.bc_nhits[l.sc_bcind[l.pho_scind[i]][j]];
-      }
-      }
-    */
-    
-    for (int i=0; i<l.el_std_n; i++) {
-	Int_t mc1=-1;
-	Int_t mc2=-1;
-	Int_t pho=-1;
-	
-	l.FindMCElectrons(i, mc1, mc2, pho, 0);
-	// et, eta, phi
-	
-	if (mc1 != -1) {
-	    TLorentzVector* p4 = (TLorentzVector*)l.gp_p4->At(mc1);
-	    l.el_std_mc_et[i] = p4->Et();
-	    l.el_std_mc_phi[i] = p4->Phi();
-	    l.el_std_mc_eta[i] = p4->Eta();
-	} else {
-	    l.el_std_mc_et[i] = -999.;
-	    l.el_std_mc_phi[i] = -999.;
-	    l.el_std_mc_eta[i] = -999.;
-	}
-	
-	if (pho != -1) {
-	    TLorentzVector* p4 = (TLorentzVector*)l.gp_p4->At(pho);
-	    l.el_std_fsr_et[i] = p4->Et();
-	    l.el_std_fsr_phi[i] = p4->Phi();
-	    l.el_std_fsr_eta[i] = p4->Eta();
-	} else {
-	    l.el_std_fsr_et[i] = -999.;
-	    l.el_std_fsr_phi[i] = -999.;
-	    l.el_std_fsr_eta[i] = -999.;
-	}
-    }
-
     if(PADEBUG)
         cout<<"myFillReduceVar END"<<endl;
 }
@@ -2114,14 +2073,6 @@ void PhotonAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree)
     l.dipho_vtx_std_sel =  new std::vector<int>();
 
     if( outputTree ) {
-	//l.Branch_pho_ncrys(outputTree);
-
-	l.Branch_el_std_mc_et(outputTree);
-	l.Branch_el_std_mc_eta(outputTree);
-	l.Branch_el_std_mc_phi(outputTree);
-	l.Branch_el_std_fsr_et(outputTree);
-	l.Branch_el_std_fsr_eta(outputTree);
-	l.Branch_el_std_fsr_phi(outputTree);
 
 	l.Branch_vtx_std_evt_mva(outputTree);
 	l.Branch_vtx_std_ranked_list(outputTree);
