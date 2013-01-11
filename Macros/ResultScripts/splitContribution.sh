@@ -126,6 +126,7 @@ fi
 #fi
 
 wantChannels="`echo $wantChannels |sed 's| |\n|' | sort|uniq`"
+echo "Datacard name= ${DATACARDNAME:=${DATACARD}}"
 
 if [ -n "$CREATE" ];then
 #------------------------------ create the working directory
@@ -140,7 +141,6 @@ if [ -n "$CREATE" ];then
 
 #------------------------------ copy the full datacard in the working directory
 # from now use the datacard in the working directory
-    echo "${DATACARDNAME:=${DATACARD}}"
     DATACARDNAME=`basename $DATACARDNAME`
     cp $DATACARD $WORKDIR/$DATACARDNAME
     DATACARD=$WORKDIR/${DATACARDNAME}  # from now the datacard is the copied one
@@ -215,7 +215,7 @@ fi
 
 if [ -n "$RUN" ];then
     echo "#####"
-    echo "## Starting the cVcF MultiDimFit"
+    echo "## Starting the $MODEL MultiDimFit"
     for channel in $wantChannels
       do
 # this is not good, it's stressing the local machine, should be launched in batch
@@ -229,6 +229,9 @@ fi
 
 
 if [ -n "$PLOT" ];then
+    if [ ! -e "tmp/" ];then
+	mkdir tmp/
+    fi
     cat > tmp/macroPlot.C <<EOF
 {
   gROOT->ProcessLine(".L scripts/makeBands.cxx");
@@ -287,13 +290,14 @@ EOF
 	10|11|12) divideX=3; divideY=4;;
     esac
     cat >> $WORKDIR/plot.C <<EOF
+  gStyle->SetOptFit(0);
   c->Divide($divideX,$divideY);
   float zmax=3;
   float ytitleoffset=0.1;
   float ztitleoffset=0.7;
   float ytitlesize=0.5;
   float ztitlesize=0.5;
-
+  TPaveText *pv = new TPaveText(0.45,0.5,0.7,0.9,"NDC");
 EOF
 
     channelCount=0
@@ -302,6 +306,8 @@ EOF
       let channelCount=$channelCount+1
       cat >> $WORKDIR/plot.C <<EOF
 c->cd($channelCount);
+
+
 EOF
 case $MODEL in 
     cVcF)
@@ -344,11 +350,15 @@ EOF
       ;;
     rV)
 	cat >> $WORKDIR/plot.C <<EOF
-	TGraph *profile_${channel}_1d = _file0->Get("rV_${channel}_obs");
-profile_${channel}_1d -> Draw("AL");
-profile_${channel}_1d -> GetYaxis()->SetTitle("2*Delta LL");
-profile_${channel}_1d -> GetYaxis()->SetRangeUser(0,2);
-profile_${channel}_1d -> GetXaxis()->SetTitle("RV");
+     TGraph *profile_${channel}_1d = _file0->Get("rV_${channel}_obs");
+     profile_${channel}_1d -> Draw("AL");
+     profile_${channel}_1d -> GetYaxis()->SetTitle("2*Delta LL");
+     profile_${channel}_1d -> GetYaxis()->SetRangeUser(0,2);
+     profile_${channel}_1d -> GetXaxis()->SetTitle("RV");
+     profile_${channel}_1d -> Fit("pol2");
+     profile_${channel}_1d -> Fit("pol2","","",0.1,2);
+     TF1 *f_${channel}_1d = profile_${channel}_1d->GetFunction("pol2");
+     pv->AddText(TString("#sigma = ")+TString::Format("%.2f",f_${channel}_1d->GetParameter(2)));
 
 
 EOF
@@ -357,6 +367,8 @@ esac
     done
 
     cat >> $WORKDIR/plot.C <<EOF
+     pv->Draw();
+
 c->SaveAs("$WORKDIR/canvas.C");
 c->SaveAs("$WORKDIR/canvas.png");
 c->SaveAs("$WORKDIR/canvas.eps");
