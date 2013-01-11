@@ -642,14 +642,14 @@ void PhotonAnalysis::Init(LoopAll& l)
     triggerSelections.back().addpath("HLT_Photon36_R9Id85_Photon22_R9Id85_v");
 
     triggerSelections.push_back(TriggerSelection(203773,-1));
-    triggerSelectrions.back().addpath("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass70_v");
-    triggerSelectrions.back().addpath("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_v");
-    triggerSelectrions.back().addpath("HLT_Photon36_CaloId10_Iso50_Photon22_CaloId10_Iso50_v");
-    triggerSelectrions.back().addpath("HLT_Photon36_CaloId10_Iso50_Photon22_R9Id85_v");
-    triggerSelectrions.back().addpath("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_R9Id85_OR_CaloId10_Iso50_v");
-    triggerSelectrions.back().addpath("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_v");
-    triggerSelectrions.back().addpath("HLT_Photon36_R9Id85_Photon22_CaloId10_Iso50_v");
-    triggerSelectrions.back().addpath("HLT_Photon36_R9Id85_Photon22_R9Id85_v");
+    triggerSelections.back().addpath("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass70_v");
+    triggerSelections.back().addpath("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_v");
+    triggerSelections.back().addpath("HLT_Photon36_CaloId10_Iso50_Photon22_CaloId10_Iso50_v");
+    triggerSelections.back().addpath("HLT_Photon36_CaloId10_Iso50_Photon22_R9Id85_v");
+    triggerSelections.back().addpath("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_R9Id85_OR_CaloId10_Iso50_v");
+    triggerSelections.back().addpath("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_v");
+    triggerSelections.back().addpath("HLT_Photon36_R9Id85_Photon22_CaloId10_Iso50_v");
+    triggerSelections.back().addpath("HLT_Photon36_R9Id85_Photon22_R9Id85_v");
 
 
 
