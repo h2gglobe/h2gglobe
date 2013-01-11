@@ -4034,6 +4034,12 @@ int LoopAll::MuonSelection2012(TLorentzVector& pho1, TLorentzVector& pho2, int v
     return mymu;
 }
 
+bool LoopAll::MuonLooseID2012(int indmu){
+    if(mu_glo_type[indmu]%10000==0) return false;  // PF Muon
+    if(mu_glo_type[indmu]%1000==0 && mu_glo_type[indmu]%100==0) return false;  // not global, not tracker
+    return true;
+}
+
 bool LoopAll::MuonTightID2012(int indmu, int vtxind){
     
     if(mu_glo_type[indmu]<11000) return false;  // global and PF Muon
