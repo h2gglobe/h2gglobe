@@ -50,7 +50,7 @@
 ./submit_reduction.sh     mc_bkg_summer12_s10   TTJets_TuneZ2star_8TeV-madgraph-tauola_Summer12-PU_S8_START52_V9-v1    20
 
 
-./submit_reduction.sh     mc_sig_summer12_s10   *     5
+./submit_reduction.sh     mc_sig_summer12_s10   \*     5
 
 
 
