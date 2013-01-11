@@ -60,7 +60,7 @@ if __name__ == "__main__":
         sys.exit(-4)
     print "\nPreparing batch reduction...\n"
    
-    datfilename = "AnalysisScripts/"+sys.argv[1]
+    datfilename = sys.argv[1]
     numberofjobs = int(sys.argv[2])    
     timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
     outputdir = timestamp + "_" + sys.argv[3]
@@ -73,15 +73,11 @@ if __name__ == "__main__":
     os.system("rm -rf " + label)
     os.system("mkdir " + label)
     
-    os.system("cd AnalysisScripts")
-    os.system("python fitter.py -i "+sys.argv[1]+" --dryRun &> ../"+label+"/dryRun.log")
-    os.system("cd ..")
-        
 
     #**********************************************************************
-    datfile = open(datfilename, "r")
-    lines = datfile.readlines()
-    datfile.close()
+    #datfile = open(datfilename, "r")
+    #lines = datfile.readlines()
+    #datfile.close()
 
     #template_file = open("process/template.dat", "w")
     #out_file = open("process/allfilenames.txt", "w")
@@ -137,7 +133,6 @@ if __name__ == "__main__":
     #if (resto != 0):
     #    numberofjobs = numberofjobs + 1
         
-    os.system("cp "+datfilename+".pevents "+label+"/.")
             
     #for f in xrange(0, len(file_names), filesperjob):
     #    numberofjobs += 1
@@ -165,8 +160,13 @@ if __name__ == "__main__":
     #        out.write(i + "\n")
     #    out.write("\n")    
     #    out.close()
+        
     
     os.system("cp -r AnalysisScripts/* "+label+"/.")
+    os.system("cd "+label)
+    os.system("python fitter.py -i "+sys.argv[1]+" --dryRun &> dryRun.log")
+    os.system("cd ..")
+    
     thetarball = label+ timestamp + ".tgz"
     os.system("cd ../..;tar zcf " + thetarball + " src/"+basename+"/"+label+" src/"+basename+"/libLoopAll.so  src/EGamma src/CMGTools")
     
