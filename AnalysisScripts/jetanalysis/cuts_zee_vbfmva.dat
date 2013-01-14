@@ -1,16 +1,16 @@
-cutname=cut_VBF_Mgg0     ncat=7  dir=2  fin=1  minval=60 maxval=190  iread=1 plot=2 bins=60 xmin=60 xmax=180   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(2@GeV/c^{2})
-cutname=cut_VBFLeadJPt   ncat=7  dir=0  fin=1  val=20                iread=1 plot=2 bins=48 xmin=10 xmax=200   xaxis=Leading@Jet@P_{T}@(GeV/c)    yaxis=Events/(5@GeV/c)
-cutname=cut_VBFSubJPt    ncat=7  dir=0  fin=1  val=20                iread=1 plot=2 bins=48 xmin=10 xmax=200   xaxis=Trailing@Jet@P_{T}@(GeV/c)    yaxis=Events/(5@GeV/c)
-cutname=cut_VBF_dEta     ncat=7  dir=0  fin=1  val=-1                iread=1 plot=2 bins=14 xmin=0 xmax=7      xaxis=#Delta#eta(Jet1,Jet2)        yaxis=Events/0.5
-cutname=cut_VBF_Zep      ncat=7  dir=1  fin=1  val=9999              iread=1 plot=2 bins=16 xmin=0 xmax=8      xaxis=Zeppenfeld                   yaxis=Events/0.5
-cutname=cut_VBF_Mjj      ncat=7  dir=0  fin=1  val=-1                iread=1 plot=2 bins=40 xmin=0 xmax=1000   xaxis=M_{JetJet}@(GeV/c^{2})        yaxis=Events/(50@GeV/c)
-cutname=cut_VBF_dPhi     ncat=7  dir=0  fin=1  val=-1                iread=1 plot=2 bins=16 xmin=0 xmax=3.142  xaxis=#Delta#phi(#gamma#gamma,jj)  yaxis=Events/(#pi/16)
-cutname=cut_VBF_Mgg2     ncat=7  dir=2  fin=1  minval=60 maxval=190  iread=1 plot=2 bins=60 xmin=60 xmax=180   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(2@GeV/c^{2})
-cutname=cut_VBF_Mgg4     ncat=7  dir=2  fin=1  minval=60 maxval=190  iread=1 plot=2 bins=30 xmin=60 xmax=180   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(4@GeV/c^{2})
-cutname=cut_VBF_Mgg10    ncat=7  dir=2  fin=1  minval=60 maxval=190  iread=1 plot=2 bins=12 xmin=60 xmax=180   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(10@GeV/c^{2})
-cutname=cut_VBF_Mgg2_100_180     ncat=7  dir=2  fin=1  minval=60 maxval=180  iread=1 plot=2 bins=60 xmin=60 xmax=180   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(2@GeV/c^{2})
-cutname=cut_VBF_Mgg4_100_180     ncat=7  dir=2  fin=1  minval=60 maxval=180  iread=1 plot=2 bins=30 xmin=60 xmax=180   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(4@GeV/c^{2})
-cutname=cut_VBF_DiPhoPtOverM     ncat=7  dir=0  fin=1  val=0.        iread=1 plot=2 bins=40 xmin=0    xmax=2   xaxis=p_{T}(#gamma@#gamma)@(GeV/c)    yaxis=Events/(0.05)
-cutname=cut_VBF_LeadPhoPtOverM   ncat=7  dir=0  fin=1  val=0.        iread=1 plot=2 bins=40 xmin=0    xmax=2   xaxis=p^{1}_{T}@(GeV/c)    yaxis=Events/(0.05)
-cutname=cut_VBF_SubPhoPtOverM    ncat=7  dir=0  fin=1  val=0.        iread=1 plot=2 bins=40 xmin=0    xmax=2   xaxis=p^{2}_{T}@(GeV/c)    yaxis=Events/(0.05)
+cutname=cut_VBF_Mgg0     ncat=18  dir=2  fin=1  minval=60 maxval=190  iread=1 plot=2 bins=60 xmin=60 xmax=180   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(2@GeV/c^{2})
+cutname=cut_VBFLeadJPt   ncat=18  dir=0  fin=1  val=20                iread=1 plot=2 bins=48 xmin=10 xmax=200   xaxis=Leading@Jet@P_{T}@(GeV/c)    yaxis=Events/(5@GeV/c)
+cutname=cut_VBFSubJPt    ncat=18  dir=0  fin=1  val=20                iread=1 plot=2 bins=48 xmin=10 xmax=200   xaxis=Trailing@Jet@P_{T}@(GeV/c)    yaxis=Events/(5@GeV/c)
+cutname=cut_VBF_dEta     ncat=18  dir=0  fin=1  val=-1                iread=1 plot=2 bins=14 xmin=0 xmax=7      xaxis=#Delta#eta(Jet1,Jet2)        yaxis=Events/0.5
+cutname=cut_VBF_Zep      ncat=18  dir=1  fin=1  val=9999              iread=1 plot=2 bins=16 xmin=0 xmax=8      xaxis=Zeppenfeld                   yaxis=Events/0.5
+cutname=cut_VBF_Mjj      ncat=18  dir=0  fin=1  val=-1                iread=1 plot=2 bins=40 xmin=0 xmax=1000   xaxis=M_{JetJet}@(GeV/c^{2})        yaxis=Events/(50@GeV/c)
+cutname=cut_VBF_dPhi     ncat=18  dir=0  fin=1  val=-1                iread=1 plot=2 bins=16 xmin=0 xmax=3.142  xaxis=#Delta#phi(#gamma#gamma,jj)  yaxis=Events/(#pi/16)
+cutname=cut_VBF_Mgg2     ncat=18  dir=2  fin=1  minval=60 maxval=190  iread=1 plot=2 bins=60 xmin=60 xmax=180   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(2@GeV/c^{2})
+cutname=cut_VBF_Mgg4     ncat=18  dir=2  fin=1  minval=60 maxval=190  iread=1 plot=2 bins=30 xmin=60 xmax=180   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(4@GeV/c^{2})
+cutname=cut_VBF_Mgg10    ncat=18  dir=2  fin=1  minval=60 maxval=190  iread=1 plot=2 bins=12 xmin=60 xmax=180   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(10@GeV/c^{2})
+cutname=cut_VBF_Mgg2_100_180     ncat=18  dir=2  fin=1  minval=60 maxval=180  iread=1 plot=2 bins=60 xmin=60 xmax=180   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(2@GeV/c^{2})
+cutname=cut_VBF_Mgg4_100_180     ncat=18  dir=2  fin=1  minval=60 maxval=180  iread=1 plot=2 bins=30 xmin=60 xmax=180   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(4@GeV/c^{2})
+cutname=cut_VBF_DiPhoPtOverM     ncat=18  dir=0  fin=1  val=0.        iread=1 plot=2 bins=40 xmin=0    xmax=2   xaxis=p_{T}(#gamma@#gamma)@(GeV/c)    yaxis=Events/(0.05)
+cutname=cut_VBF_LeadPhoPtOverM   ncat=18  dir=0  fin=1  val=0.        iread=1 plot=2 bins=40 xmin=0    xmax=2   xaxis=p^{1}_{T}@(GeV/c)    yaxis=Events/(0.05)
+cutname=cut_VBF_SubPhoPtOverM    ncat=18  dir=0  fin=1  val=0.        iread=1 plot=2 bins=40 xmin=0    xmax=2   xaxis=p^{2}_{T}@(GeV/c)    yaxis=Events/(0.05)
 
