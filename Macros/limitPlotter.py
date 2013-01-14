@@ -52,7 +52,7 @@ for m in OBSmassesT:
 # Plotting Styles --------------------------------------------------------
 OFFSETLOW=0
 OFFSETHIGH=0
-FONTSIZE=0.035
+FONTSIZE=0.03
 FILLSTYLE=1001
 SMFILLSTYLE=3244
 FILLCOLOR_95=ROOT.kYellow
@@ -60,9 +60,9 @@ FILLCOLOR_68=ROOT.kGreen
 RANGEYABS=[0.0,0.6]
 RANGEYRAT=[0.0,4]
 RANGEMU = [-4,3.0]
-MINPV = 0.5*10E-5
+MINPV = 1.0*10E-8
 MAXPV = 1.0
-Lines = [1.,2.,3.]
+Lines = [1.,2.,3.,4.,5.]
 MINMH=int(min(EXPmasses))
 MAXMH=int(max(EXPmasses))
 
@@ -274,7 +274,7 @@ def MakePvalPlot(MG):
     legend.SetFillColor(10)
     legend.SetTextFont(42)
     legend.SetTextSize(FONTSIZE)
-    legend.AddEntry(graphObs,"Observed","L")
+    if not options.expectedOnly: legend.AddEntry(graphObs,"Observed","L")
 
     if options.square : c = ROOT.TCanvas("c","c",600,600)
     else :c = ROOT.TCanvas("c","c",800,600)
