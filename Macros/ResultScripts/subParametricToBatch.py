@@ -35,7 +35,7 @@ step = options.mHstep
 
 print path
 
-if method!='Asymptotic' and method!='AsymptoticNew' and method!='ProfileLikelihood' and method!='ExpProfileLikelihood':
+if method!='Asymptotic' and method!='AsymptoticNew' and method!='ProfileLikelihood' and method!='ExpProfileLikelihood' and method!='MaxLikelihoodFit':
   print method, 'is invalid'
   sys.exit()
 
@@ -48,27 +48,32 @@ if method=='ExpProfileLikelihood':
   method='ProfileLikelihood'
   expectedOnly=False
 
+if options.expectSignalMass:
+  folder+='_m%d'%(options.expectSignalMass)
+
 if not os.path.isdir('%s/%s/%s'%(path,dir,folder)):
   os.makedirs('%s/%s/%s'%(path,dir,folder))
 
 files=[]
 
 def makeScript(m):
-  f = open("%s/%s/%s/%s%d.sh"%(path,dir,folder,folder,m),"w")
+  f = open("%s/%s/%s/%s%5.1f.sh"%(path,dir,folder,folder,m),"w")
   f.write('#!/bin/bash\n')
   f.write('cd %s/%s/%s\n'%(path,dir,folder))
   f.write('touch %s.run\n'%f.name)
   f.write('echo --------------------------------------------\n')
-  f.write('echo   Running %s on %s at mass %d \n'%(folder,datacard,m)) 
+  f.write('echo   Running %s on %s at mass %5.1f \n'%(folder,datacard,m)) 
   f.write('echo --------------------------------------------\n')
   f.write('eval `scramv1 runtime -sh`\n')
-  line = 'if ( combine %s/%s -M %s -m %d'%(path,datacard,method,m)
+  line = 'if ( combine %s/%s -M %s -m %5.1f'%(path,datacard,method,m)
+  if folder=='MaxLikelihoodFit':
+    line += ' --rMin=-3. --rMax=3.'
   if folder=='ProfileLikelihood':
     line += ' --signif --pvalue'
   if folder=='ExpProfileLikelihood':
     line += ' --signif --pvalue -t -1 --expectSignal=%3.1f'%options.expectSignal
   if options.expectSignalMass:
-    line += ' --expectSignalMass=%5.1'%options.expectSignalMass
+    line += ' --expectSignalMass=%5.1f'%options.expectSignalMass
   if expectedOnly:
     line += ' --run=expected'
   f.write(line+' ) then\n')
