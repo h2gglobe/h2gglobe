@@ -1,6 +1,7 @@
 includeVBF=1
 includeVHhad=0
-includeVHlep=0
+includeVHlep=1
+includeVHmet=1
 
 nVBFEtaCategories=1
 
