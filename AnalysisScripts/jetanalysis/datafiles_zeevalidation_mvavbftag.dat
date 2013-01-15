@@ -1,38 +1,34 @@
-#intL=5346. histfile=/store/cmst3/user/musella/hgg/vbf_optimization/%(label)s/CMS-HGG_test.root output=eventsList.txt
-intL=5346. histfile=/store/cmst3/user/malberti/HIGGS/VBF/zee_validation/%(label)s/CMS-HGG_test.root output=eventsList.txt
-#intL=5346. histfile=/tmp/malberti/CMS-HGG_testzee.root output=eventsList.txt
+intL=19600. histfile=/store/cmst3/user/malberti/HIGGS/VBF/zee_validation/Moriond2013/%(label)s/CMS-HGG_zee.root output=eventsList.txt
+#intL=19600. histfile=/tmp/malberti/CMS-HGG_testzee.root output=eventsList.txt
 
 #
 # Data
 #
 
 # Run2012A
-typ=0    ind=0 draw=1  Nam=Data    CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/data/PhotonPromptReco2012A tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=aux/Cert_ICHEP_TopUp_535fb.json
-typ=0    ind=0 draw=1  Nam=Data    CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/data/PhotonPromptReco2012A_sub2 tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=aux/Cert_ICHEP_TopUp_535fb.json
-
-# May23ReReco
-typ=0    ind=0 draw=1  Nam=Data    CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/data/PhotonReRecoMay23_2012 tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=aux/Cert_ICHEP_TopUp_535fb.json
-typ=0    ind=0 draw=1  Nam=Data    CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/data/PhotonReRecoMay23_2012_missing2 tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=aux/Cert_ICHEP_TopUp_535fb.json
-
-# June8ReReco
-typ=0    ind=0 draw=1  Nam=Data    CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/data/PhotonJune8ReReco2012A_120625Recovery tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=aux/Cert_ICHEP_TopUp_535fb.json
-typ=0    ind=0 draw=1  Nam=Data    CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/data/PhotonJune8ReReco2012A_TopUp_sub1 tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=aux/Cert_ICHEP_TopUp_535fb.json
+typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v1/data/Photon_Run2012A-13Jul2012-v1
+typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v1/data/Photon_Run2012A-recover-06Aug2012-v1
 
 # Run2012B
-typ=0    ind=0 draw=1  Nam=Data    CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/data/DoublePhotonPromptReco2012B  tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=aux/Cert_ICHEP_TopUp_535fb.json
-typ=0    ind=0 draw=1  Nam=Data    CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/data/DoublePhotonPromptReco2012B_120624jsonTopUp tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=aux/Cert_ICHEP_TopUp_535fb.json
-typ=0    ind=0 draw=1  Nam=Data    CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/data/DoublePhotonPromptReco2012B_TopUp_sub1 tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=aux/Cert_ICHEP_TopUp_535fb.json
-typ=0    ind=0 draw=1  Nam=Data    CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/data/DoublePhotonPromptReco2012B_TopUp_sub3 tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=aux/Cert_ICHEP_TopUp_535fb.json
-typ=0    ind=0 draw=1  Nam=Data    CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/data/DoublePhotonPromptReco2012B_sub2  tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=aux/Cert_ICHEP_TopUp_535fb.json
-typ=0    ind=0 draw=1  Nam=Data    CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/data/DoublePhotonPromptReco2012B_sub3  tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=aux/Cert_ICHEP_TopUp_535fb.json
+typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v1/data/DoublePhoton_Run2012B-13Jul2012-v1
+
+# Run2012C
+typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v1/data/DoublePhoton_Run2012C-24Aug2012-v2
+typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v1/data/DoublePhoton_Run2012C-EcalRecover_11Dec2012-v1
+typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v1/data/DoublePhoton_Run2012C-PromptReco-v2
+typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v1/data/DoublePhoton_Run2012C-PromptReco-v2_sub2
+
+# Run2012D
+typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v1/data/DoublePhoton_Run2012D-PromptReco-v1_red2
+
 
 #
 # DY MC
 #
-typ=-38    ind=98 draw=1  Nam=DYJetsToLL   CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/DYJetsToLL_M-50_TuneZ2Star_8TeV    red=0   lum=1.e10  xsec=2950.0   kfac=1.15  scal=1.
+typ=+6   ind=98 draw=1  Nam=DYJetsToLL   CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v1/mc/Summer12_S10_8TeV/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1 red=0   lum=1.e10  xsec=3532.8 kfac=2.089  scal=1.
 
 
-#typ=-38    ind=98 draw=1  Nam=DYJetsToLL   Fil=root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/DYJetsToLL_M-50_TuneZ2Star_8TeV/DYJetsToLL_M-50_TuneZ2Star_8TeV_127.root    red=0   lum=1.e10  xsec=2950.0   kfac=1.15  scal=1.
+#typ=+6    ind=98 draw=1  Nam=DYJetsToLL   Fil=root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v1/mc/Summer12_S10_8TeV/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1_9.root red=0   lum=1.e10  xsec=3532.8 kfac=2.089   scal=1.
 
 # 
 # Branches to use
@@ -42,7 +38,7 @@ inputBranches massfactorizedmvaanalysis_input.dat
 
 runZeeValidation=1
 cuts jetanalysis/cuts_zee_vbfmva.dat
-
+treevariables optTree.dat
 
 ## define analyses to run
 ## 	a library containing the class dictionary has loaded before parsing the 
@@ -51,6 +47,6 @@ cuts jetanalysis/cuts_zee_vbfmva.dat
 ## 	analyzer <class_name> <config_file>
 ## 
 ## analyzer PhotonAnalysis photonanalysis.dat	
-analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat zeevalidation.dat jetanalysis/mvavbftag.dat doSystematics=0 massMin=60 massMax=180 forceStdPlotsOnZee=1
+analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat zeevalidation.dat  doSystematics=0 massMin=60 massMax=180 forceStdPlotsOnZee=1 fillOptTree=1
 
 
