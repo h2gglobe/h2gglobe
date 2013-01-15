@@ -12,7 +12,7 @@
 using namespace std;
 
 
-void makeParametricModelDatacard(string infilename, string outfilename="cms_hgg_datacard.txt", int mass=125){
+void makeParametricModelDatacard(string infilename, string wsfilename="0", string outfilename="cms_hgg_datacard.txt", int mass=125){
 
   TFile *inFile = TFile::Open(infilename.c_str());
   TFile *outFile = TFile::Open("DatacardTree.root","RECREATE");
@@ -31,13 +31,13 @@ void makeParametricModelDatacard(string infilename, string outfilename="cms_hgg_
   cout << "Merged trees.... " << endl;
   tree->Print();
   
-  float xsecs[50];
-  xsecs[0] = 19.83  *2.25e-03;
-  xsecs[1] = 1.573*2.25e-03;
-  xsecs[2] = (0.7154+0.4044)*2.25e-03;
-  xsecs[3] = 0.1334*2.25e-03;
+  //float xsecs[50];
+  //xsecs[0] = 19.83  *2.25e-03;
+  //xsecs[1] = 1.573*2.25e-03;
+  //xsecs[2] = (0.7154+0.4044)*2.25e-03;
+  //xsecs[3] = 0.1334*2.25e-03;
 
-  const double lumi = 12176.;  
+  const double lumi = 19600.;  
 
   const double lumiuncert = 1.044;
   const double triguncert = 1.01;
@@ -51,8 +51,10 @@ void makeParametricModelDatacard(string infilename, string outfilename="cms_hgg_
   const int eleTag=nInclusiveCats+nVBFCats+1;
   const int metTag=nInclusiveCats+nVBFCats+2;
 
-  string pathToDatBkgWS="/afs/cern.ch/work/m/mkenzie/private/h2g/latest_workspaces/CMS-HGG_massfacmva_hcpPreapproval.root";
-  string pathToSigWS="/afs/cern.ch/work/m/mkenzie/private/h2g/latest_workspaces/SigMod_massfacmva_hcpPreapproval.root";
+  //string pathToDatBkgWS="/afs/cern.ch/work/m/mkenzie/private/h2g/latest_workspaces/CMS-HGG_massfacmva_hcpPreapproval.root";
+  //string pathToSigWS="/afs/cern.ch/work/m/mkenzie/private/h2g/latest_workspaces/SigMod_massfacmva_hcpPreapproval.root";
+  string pathToDatBkgWS="CMS-HGG.root";
+  string pathToSigWS="CMS-HGG_sigfit.root";
 
   // define various cuts
 
@@ -110,6 +112,14 @@ void makeParametricModelDatacard(string infilename, string outfilename="cms_hgg_
   procnames.push_back("ttH");
   procnames.push_back("bkg_mass");
   FILE *file = fopen(outfilename.c_str(),"w");
+
+  // process names in file
+  vector<string> procfilenames;
+  procfilenames.push_back("ggh");
+  procfilenames.push_back("vbf");
+  procfilenames.push_back("wzh");
+  procfilenames.push_back("tth");
+  procfilenames.push_back("bkg_mass");
   
   printf("intro\n");
   
@@ -512,14 +522,14 @@ void makeParametricModelDatacard(string infilename, string outfilename="cms_hgg_
   for (int icat=0; icat<ncats; ++icat){
     // dsmears[icat]=sqrt(dsmears[icat]/dweights[icat]);
     dsmears[icat]/=dweights[icat];
-    fprintf(file, "CMS_hgg_nuissancedeltasmear%s param 0.0 %5f\n" , catnames.at(icat).c_str(), dsmears.at(icat));
+    if (icat<5) fprintf(file, "CMS_hgg_nuissancedeltasmear%s param 0.0 %5f\n" , catnames.at(icat).c_str(), dsmears.at(icat));
   }
   fprintf(file,"\n\n\n");
 
   for (int icat=0; icat<ncats; ++icat){
     /// dscales[icat]=sqrt(dscales[icat]/dweights[icat]);
     dscales[icat]/=dweights[icat];
-    fprintf(file, "CMS_hgg_nuissancedeltam%s param 0.0 %5f\n" , catnames.at(icat).c_str(), dscales.at(icat));
+    if (icat<5) fprintf(file, "CMS_hgg_nuissancedeltam%s param 0.0 %5f\n" , catnames.at(icat).c_str(), dscales.at(icat));
   }
   fprintf(file,"\n");
   
@@ -532,50 +542,89 @@ void makeParametricModelDatacard(string infilename, string outfilename="cms_hgg_
   
   //TH1D *hcount = new TH1D("hcount","",1,0.5,1.5);
   hcount->Reset();
-  
-  fprintf(file,"CMS_hgg_n_sigmae lnN ");
-  for (int icat=0; icat<catcuts.size(); ++icat) {
-    for (unsigned int iproc=0; iproc<(procnames.size()-1); ++iproc) {
-      tree->SetAlias("bdtmod","bdtout");
-      hcount->Reset();
-      tree->Draw("1>>hcount",catcuts.at(icat)*proccuts.at(iproc),"goff");
-      double nom = hcount->GetSumOfWeights();
-      tree->SetAlias("bdtmod","bdtout_sigE_up");
-      hcount->Reset();
-      tree->Draw("1>>hcount",catcuts.at(icat)*proccuts.at(iproc),"goff");
-      double sigeplus = hcount->GetSumOfWeights();
-      tree->SetAlias("bdtmod","bdtout_sigE_down");
-      hcount->Reset();
-      tree->Draw("1>>hcount",catcuts.at(icat)*proccuts.at(iproc),"goff");
-      double sigeminus = hcount->GetSumOfWeights();
-      tree->SetAlias("bdtmod","bdtout");
-      fprintf(file,"%.3f/%.3f ",sigeplus/nom, sigeminus/nom);
+ 
+  if (wsfilename=="0") {
+    fprintf(file,"CMS_hgg_n_sigmae lnN ");
+    for (unsigned int icat=0; icat<catcuts.size(); ++icat) {
+      for (unsigned int iproc=0; iproc<(procnames.size()-1); ++iproc) {
+        tree->SetAlias("bdtmod","bdtout");
+        hcount->Reset();
+        tree->Draw("1>>hcount",catcuts.at(icat)*proccuts.at(iproc),"goff");
+        double nom = hcount->GetSumOfWeights();
+        tree->SetAlias("bdtmod","bdtout_sigE_up");
+        hcount->Reset();
+        tree->Draw("1>>hcount",catcuts.at(icat)*proccuts.at(iproc),"goff");
+        double sigeplus = hcount->GetSumOfWeights();
+        tree->SetAlias("bdtmod","bdtout_sigE_down");
+        hcount->Reset();
+        tree->Draw("1>>hcount",catcuts.at(icat)*proccuts.at(iproc),"goff");
+        double sigeminus = hcount->GetSumOfWeights();
+        tree->SetAlias("bdtmod","bdtout");
+        fprintf(file,"%.3f/%.3f ",sigeplus/nom, sigeminus/nom);
+      }
+      fprintf(file,"- ");
     }
-    fprintf(file,"- ");
-  }
-  fprintf(file,"\n");
+    fprintf(file,"\n");
 
-  fprintf(file,"CMS_hgg_n_id lnN ");
-  for (int icat=0; icat<catcuts.size(); ++icat) {
-    for (unsigned int iproc=0; iproc<(procnames.size()-1); ++iproc) {
-      hcount->Reset();
-      tree->SetAlias("bdtmod","bdtout");
-      tree->Draw("1>>hcount",catcuts.at(icat)*proccuts.at(iproc),"goff");
-      double nom = hcount->GetSumOfWeights();
-      tree->SetAlias("bdtmod","bdtout_id_up");
-      hcount->Reset();
-      tree->Draw("1>>hcount",catcuts.at(icat)*proccuts.at(iproc),"goff");
-      double idminus = hcount->GetSumOfWeights();
-      tree->SetAlias("bdtmod","bdtout_id_down");
-      hcount->Reset();
-      tree->Draw("1>>hcount",catcuts.at(icat)*proccuts.at(iproc),"goff");
-      double idplus = hcount->GetSumOfWeights();
-      tree->SetAlias("bdtmod","bdtout");
-      fprintf(file,"%.3f/%.3f ",idminus/nom, idplus/nom);
+    fprintf(file,"CMS_hgg_n_id lnN ");
+    for (unsigned int icat=0; icat<catcuts.size(); ++icat) {
+      for (unsigned int iproc=0; iproc<(procnames.size()-1); ++iproc) {
+        hcount->Reset();
+        tree->SetAlias("bdtmod","bdtout");
+        tree->Draw("1>>hcount",catcuts.at(icat)*proccuts.at(iproc),"goff");
+        double nom = hcount->GetSumOfWeights();
+        tree->SetAlias("bdtmod","bdtout_id_up");
+        hcount->Reset();
+        tree->Draw("1>>hcount",catcuts.at(icat)*proccuts.at(iproc),"goff");
+        double idminus = hcount->GetSumOfWeights();
+        tree->SetAlias("bdtmod","bdtout_id_down");
+        hcount->Reset();
+        tree->Draw("1>>hcount",catcuts.at(icat)*proccuts.at(iproc),"goff");
+        double idplus = hcount->GetSumOfWeights();
+        tree->SetAlias("bdtmod","bdtout");
+        fprintf(file,"%.3f/%.3f ",idminus/nom, idplus/nom);
+      }
+      fprintf(file,"- ");
     }
-    fprintf(file,"- ");
+    fprintf(file,"\n"); 
   }
-  fprintf(file,"\n");   
+  else {
+    TFile *wsFile = TFile::Open(wsfilename.c_str());
+    fprintf(file,"CMS_hgg_n_id lnN ");
+    for (unsigned int icat=0; icat<catcuts.size(); ++icat) {
+      for (unsigned int iproc=0; iproc<(procfilenames.size()-1); ++iproc) {
+        TH1F *nominal = (TH1F*)wsFile->Get(Form("th1f_sig_%s_mass_m125_cat%d",procfilenames[iproc].c_str(),icat));
+        TH1F *up = (TH1F*)wsFile->Get(Form("th1f_sig_%s_mass_m125_cat%d_phoIdMvaUp01_sigma",procfilenames[iproc].c_str(),icat));
+        TH1F *down = (TH1F*)wsFile->Get(Form("th1f_sig_%s_mass_m125_cat%d_phoIdMvaDown01_sigma",procfilenames[iproc].c_str(),icat));
+        if (nominal->Integral() !=0 ) {
+          fprintf(file,"%.3f/%.3f ",down->Integral()/nominal->Integral(), up->Integral()/nominal->Integral());
+        }
+        else {
+          fprintf(file,"1.0/1.0 ");
+        }
+      }
+      fprintf(file,"- ");
+    }
+    fprintf(file,"\n"); 
+
+    fprintf(file,"CMS_hgg_n_sigmae lnN ");
+    for (unsigned int icat=0; icat<catcuts.size(); ++icat) {
+      for (unsigned int iproc=0; iproc<(procfilenames.size()-1); ++iproc) {
+        TH1F *nominal = (TH1F*)wsFile->Get(Form("th1f_sig_%s_mass_m125_cat%d",procfilenames[iproc].c_str(),icat));
+        TH1F *up = (TH1F*)wsFile->Get(Form("th1f_sig_%s_mass_m125_cat%d_regSigUp01_sigma",procfilenames[iproc].c_str(),icat));
+        TH1F *down = (TH1F*)wsFile->Get(Form("th1f_sig_%s_mass_m125_cat%d_regSigDown01_sigma",procfilenames[iproc].c_str(),icat));
+        if (nominal->Integral() !=0 ) {
+          fprintf(file,"%.3f/%.3f ",down->Integral()/nominal->Integral(), up->Integral()/nominal->Integral());
+        }
+        else {
+          fprintf(file,"1.0/1.0 ");
+        }
+      }
+      fprintf(file,"- ");
+    }
+    fprintf(file,"\n"); 
+    wsFile->Close();
+  }
 
   inFile->Close();
   outFile->Close();
