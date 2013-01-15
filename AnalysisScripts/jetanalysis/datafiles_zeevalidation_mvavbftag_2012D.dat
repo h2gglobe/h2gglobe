@@ -1,0 +1,40 @@
+intL=7300. histfile=/store/cmst3/user/malberti/HIGGS/VBF/zee_validation/Moriond2013/%(label)s/CMS-HGG_zee.root output=eventsList.txt
+#intL=7300. histfile=/tmp/malberti/CMS-HGG_testzee.root output=eventsList.txt
+
+#
+# Data
+#
+
+# Run2012D
+typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v1/data/DoublePhoton_Run2012D-PromptReco-v1_red2
+
+
+#
+# DY MC
+#
+typ=+6   ind=98 draw=1  Nam=DYJetsToLL   CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v1/mc/Summer12_S10_8TeV/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1 red=0   lum=1.e10  xsec=3532.8 kfac=2.089  scal=1.
+ 
+
+#typ=+6    ind=98 draw=1  Nam=DYJetsToLL   Fil=root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v1/mc/Summer12_S10_8TeV/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1_9.root red=0   lum=1.e10  xsec=3532.8 kfac=2.089   scal=1.
+
+# 
+# Branches to use
+#
+inputBranches minimal_analysis_input.dat
+inputBranches massfactorizedmvaanalysis_input.dat
+
+runZeeValidation=1
+cuts jetanalysis/cuts_zee_vbfmva.dat
+treevariables optTree.dat
+
+## define analyses to run
+## 	a library containing the class dictionary has loaded before parsing the 
+## 	configuration file
+## syntax:
+## 	analyzer <class_name> <config_file>
+## 
+## analyzer PhotonAnalysis photonanalysis.dat	
+analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat zeevalidation.dat  doSystematics=0 massMin=60 massMax=180 forceStdPlotsOnZee=1 fillOptTree=1 puTarget=aux/Moriond_pileup_2012D_minBiasXsec69400_corr_observed.root
+
+
+
