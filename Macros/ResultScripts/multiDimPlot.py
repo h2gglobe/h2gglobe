@@ -30,11 +30,13 @@ def main(options, args):
     setTDRStyle()
     
     titles = {
-        "RV" : "R_{V}^{#gamma #gamma}"## "( #sigma_{VH} + #sigma_{qqH} ) * BR_{#gamma #gamma} / SM",
+        "RV" : "R_{V}^{#gamma #gamma}", ## "( #sigma_{VH} + #sigma_{qqH} ) * BR_{#gamma #gamma} / SM",
+        "MH" : "m_{H} (GeV)"## "( #sigma_{VH} + #sigma_{qqH} ) * BR_{#gamma #gamma} / SM",
         }
-    styles = [ (ROOT.kBlue,ROOT.kFullCircle),
-               (ROOT.kRed+1,ROOT.kOpenTriangleDown),
-               (ROOT.kGreen+2,ROOT.kOpenCircle)
+    styles = [ (ROOT.kBlack,ROOT.kFullCircle),
+               (ROOT.kBlue,ROOT.kOpenTriangleDown),
+               (ROOT.kRed+1,ROOT.kFullDiamond),
+               (ROOT.kGreen+2,ROOT.kOpenTriangleDown)
                ]
     objs = []
     graphs = []
@@ -61,7 +63,8 @@ def main(options, args):
             gr.SetMarkerStyle(marker)
 
             sp = ROOT.GraphToTF1( "mygraph%d" % ifile, gr )
-            func = ROOT.TF1("myfunc%d" % ifile,sp,0.,10.,1,"GraphToTF1")
+            ## func = ROOT.TF1("myfunc%d" % ifile,sp,0.,10.,1,"GraphToTF1")
+            func = ROOT.TF1("myfunc%d" % ifile,sp,gr.GetX()[0],gr.GetX()[gr.GetN()-1],1,"GraphToTF1")
             func.SetParameter(0,0.)
             func.SetLineColor(color)
             gr.GetListOfFunctions().AddLast(func)
@@ -76,43 +79,67 @@ def main(options, args):
         elif len(options.variables) == 2:
             pass
 
-    
+    rng = 6
     if len(options.variables) == 1:
         axmin = 999.
         axmax = -999.
         for gr in graphs:
             func = gr.GetListOfFunctions().At(0)
             xmin = func.GetMinimumX()
-
+            
             eminus = xmin - func.GetX(1.,func.GetXmin(),xmin)
             eplus  = func.GetX(1.,xmin,func.GetXmax()) - xmin
 
-            eminus2 = xmin - func.GetX(2.,func.GetXmin(),xmin)
-            eplus2  = func.GetX(2.,xmin,func.GetXmax()) - xmin
+            eminus2 = xmin - func.GetX(4.,func.GetXmin(),xmin)
+            eplus2  = func.GetX(4.,xmin,func.GetXmax()) - xmin
 
-            axmin = min(axmin,xmin - eminus2)
-            axmax = max(axmax,xmin + eplus2)
+            eminusR = xmin - func.GetX(rng,func.GetXmin(),xmin)
+            eplusR  = func.GetX(rng,xmin,func.GetXmax()) - xmin
 
-            print "%s : %1.3g +%1.2g -%1.2g" % ( gr.GetName(), xmin, eplus , eminus )
+            axmin = min(axmin,xmin - eminusR)
+            axmax = max(axmax,xmin + eplusR)
 
+            print "%s : %1.4f +%1.3g -%1.3g" % ( gr.GetName(), xmin, eplus , eminus )
+
+        lines = [ ROOT.TLine(axmin, 0, axmax, 0),
+                  ROOT.TLine(axmin, 1, axmax, 1), ROOT.TLine(xmin-eminus,  0, xmin-eminus,  1), ROOT.TLine(xmin+eplus,  0, xmin+eplus,  1), 
+                  ROOT.TLine(axmin, 4, axmax, 4), ROOT.TLine(xmin-eminus2, 0, xmin-eminus2, 4), ROOT.TLine(xmin+eplus2, 0, xmin+eplus2, 4) ] 
         x = options.variables[0]
         canv = ROOT.TCanvas(x,x)
-        canv.SetGridx()
-        canv.SetGridy()
+        ### canv.SetGridx()
+        ### canv.SetGridy()
         leg  = ROOT.TLegend(0.35,0.5,0.7,0.9)
         leg.SetLineColor(ROOT.kWhite)
         leg.SetFillStyle(0)
         objs.append(canv)
         objs.append(leg)
-        
-        graphs[0].Draw("APL")
+
+        for g in graphs:
+            g.SetLineWidth(3)
+        graphs[0].Draw("AL")
         graphs[0].GetXaxis().SetRangeUser(axmin,axmax)
-        graphs[0].GetYaxis().SetRangeUser(0.,2.)
-        leg.AddEntry(graphs[0],"","pl")
+        ### graphs[0].GetXaxis().SetRangeUser(122,128)
+        graphs[0].GetYaxis().SetRangeUser(0.,rng)
+        leg.AddEntry(graphs[0],"","L")
         for gr in graphs[1:]:
-            gr.Draw("PL")
-            leg.AddEntry(gr,"","pl")
-        leg.Draw("same")
+            gr.Draw("L")
+            leg.AddEntry(gr,"","L")
+
+        if options.legend:
+            leg.Draw("same")
+
+        for l in lines:
+            l.SetLineWidth(2)
+            l.SetLineColor(ROOT.kRed)
+            l.Draw("SAME")
+
+        mytext = ROOT.TLatex()
+        mytext.SetTextSize(0.04)
+        mytext.SetNDC()
+
+        mytext.DrawLatex(0.3, 0.9, "H #rightarrow #gamma #gamma")
+        if len(options.lumi)==2:
+            mytext.DrawLatex(0.3,0.82,"#splitline{CMS preliminary}{#splitline{#sqrt{s} = %i TeV L = %.1f fb^{-1}}{#sqrt{s} = %i TeV L = %.1f fb^{-1}}}" %(int(options.energy[0]),float(options.lumi[0]),int(options.energy[1]),float(options.lumi[1])))
         
         for fmt in "C","png","pdf":
             canv.SaveAs( "%s.%s" % ( canv.GetName(), fmt ) ) 
@@ -133,14 +160,36 @@ if __name__ == "__main__":
                     action="append", dest="variables",
                     default=[],
                     ),
+        make_option("-L", "--lumi",
+                    action="append", dest="lumi",
+                    default=[],
+                    ),
+        make_option("-E", "--energy",
+                    action="append", dest="energy",
+                    default=[],
+                    ),
+        make_option("-g", "--legend",
+                    action="store_true", dest="legend",
+                    default=False,
+                    ),
+        make_option("-G", "--no-legend",
+                    action="store_true", dest="noLegend",
+                    default=True,
+                    ),
         ])
     
     (options, args) = parser.parse_args()
-
+    if len(options.files) > 1:
+        if options.noLegend:
+            options.legend=False
+        else:
+            options.legend=True
+    
+    
     ## sys.argv.append("-b")
     import ROOT
 
     ROOT.gROOT.LoadMacro("%s/GraphToTF1.C+" % os.path.dirname(sys.argv[0]) )
-
+    
     objs = main( options, args )
 

@@ -53,27 +53,35 @@ def main(options, args):
     model_args  = { "ggHqqH" : "-P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH",
                     "cVcF"   : "-P HiggsAnalysis.CombinedLimit.HiggsCouplingsLOSM:cVcF",
                     "rVrF"   : "-P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs",
-                    "rV"     : "-P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs --PO RV",
+                    "rV"     : "-P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs",
+                    "mumH"   : "-P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingHiggsMass",
+                    "mH"     : "-P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs --PO higgsMassRange=120,130",
                     }
 
     model_combine_args  = { "ggHqqH" : "",
                             "cVcF"   : "",
                             "rVrF"   : "",
                             "rV"     : "--floatOtherPOIs=0 -P RV",
-        }
+                            "mH"     : "--floatOtherPOIs=1 -P MH",
+                            "mumH"   : "-P r -P MH",
+                            }
    
     model_pars  = { "ggHqqH" : ["r_ggH","r_qqH"],
                     "cVcF"   : ["CV","CF"],
                     "rVrF"   : ["RV","RF"],
                     "rV"     : ["RV"],
-                    
+                    "mH"     : ["MH"],
+                    "mumH"     : ["r","MH"],
                     }
+
     pars_ranges = { "r_ggH"  : (0.,999999.,False),
                     "r_qqH"  : (0.,999999.,False),
                     "CV"     : (0.,2.,False),
                     "CF"     : (0.,3.,True),
                     "RV"     : (0.,999999.,False),
                     "RF"     : (0.,999999.,False),
+                    "MH"     : (120.,130.,False),
+                    "r"      : (-20,20.,False),
                     }
 
     parallel = "%s/parallel" % ( os.path.abspath(os.path.dirname(sys.argv[0])) )
