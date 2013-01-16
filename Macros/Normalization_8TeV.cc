@@ -2476,7 +2476,7 @@ double Normalization_8TeV::GetBR(double mass) {
   
   std::cout << "Warning branching ratio outside range of 90-250GeV!!!!" << std::endl;
   //std::exit(1);
-  return -1
+  return -1;
   
 }
 
