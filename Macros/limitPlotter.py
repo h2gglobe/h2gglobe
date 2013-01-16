@@ -22,7 +22,7 @@ parser.add_option("","--pval",action="store_true")
 parser.add_option("","--addtxt",action="append",type="str", help="Add lines of text under CMS Preliminary",default=[])
 parser.add_option("","--square",dest="square",help="Make square plots",action="store_true")
 parser.add_option("","--nogrid",dest="nogrid",help="Remove grid from plots",action="store_true")
-
+parser.add_option("","--nobox",dest="nobox",action="store_true",default=False,help="Don't draw box around text")
 (options,args)=parser.parse_args()
 
 # Standard Imports and calculators
@@ -52,7 +52,7 @@ for m in OBSmassesT:
 # Plotting Styles --------------------------------------------------------
 OFFSETLOW=0
 OFFSETHIGH=0
-FONTSIZE=0.03
+FONTSIZE=0.035
 FILLSTYLE=1001
 SMFILLSTYLE=3244
 FILLCOLOR_95=ROOT.kYellow
@@ -201,10 +201,10 @@ graph95.SetLineWidth(2)
 MG = ROOT.TMultiGraph()
 
 def MakeMlfPlot(MG):
-    legend=ROOT.TLegend(0.55,0.15,0.89,0.3)
+    legend=ROOT.TLegend(0.55,0.19,0.89,0.3)
     legend.SetFillColor(10)
     legend.SetTextFont(42)
-    legend.SetTextSize(FONTSIZE)
+    #legend.SetTextSize(FONTSIZE)
     graph68.SetLineStyle(1)
     legend.AddEntry(graph68,"#pm 1#sigma Uncertainty","F")
 
@@ -256,10 +256,16 @@ def MakeMlfPlot(MG):
     mytext.SetTextSize(FONTSIZE)
     mytext.SetTextFont(42)
     mytext.SetNDC()
-
-    mytext.DrawLatex(0.18,0.24,"CMS Preliminary")
+    
+    
+    box = ROOT.TPave(0.19,0.17,0.4,0.3,2,"NDC")
+    box.SetLineColor(1)
+    box.SetFillColor(0)
+    box.SetShadowColor(0)
+    if not options.nobox: box.Draw()
+    mytext.DrawLatex(0.2,0.26,"CMS Preliminary")
     for t,lineT in enumerate(options.addtxt):
-        mytext.DrawLatex(0.18,0.23-(t+1)*0.04,"%s"%(lineT))
+        mytext.DrawLatex(0.2,0.25-(t+1)*0.04,"%s"%(lineT))
     legend.Draw()
     ROOT.gPad.RedrawAxis();
     
@@ -270,10 +276,10 @@ def MakeMlfPlot(MG):
 #-------------------------------------------------------------------------
 def MakePvalPlot(MG):
 
-    legend=ROOT.TLegend(0.55,0.15,0.89,0.3)
+    legend=ROOT.TLegend(0.55,0.17,0.89,0.35)
     legend.SetFillColor(10)
     legend.SetTextFont(42)
-    legend.SetTextSize(FONTSIZE)
+    #legend.SetTextSize(FONTSIZE)
     if not options.expectedOnly: legend.AddEntry(graphObs,"Observed","L")
 
     if options.square : c = ROOT.TCanvas("c","c",600,600)
@@ -336,9 +342,14 @@ def MakePvalPlot(MG):
     mytext.SetTextFont(42)
     mytext.SetNDC()
 
-    mytext.DrawLatex(0.18,0.24,"CMS Preliminary")
+    box = ROOT.TPave(0.19,0.17,0.4,0.3,2,"NDC")
+    box.SetLineColor(1)
+    box.SetFillColor(0)
+    box.SetShadowColor(0)
+    if not options.nobox: box.Draw()
+    mytext.DrawLatex(0.2,0.26,"CMS Preliminary")
     for t,lineT in enumerate(options.addtxt):
-        mytext.DrawLatex(0.18,0.23-(t+1)*0.04,"%s"%(lineT))
+        mytext.DrawLatex(0.2,0.25-(t+1)*0.04,"%s"%(lineT))
     legend.Draw()
     ROOT.gPad.RedrawAxis();
     
@@ -366,7 +377,7 @@ def MakeLimitPlot(MG):
     leg.AddEntry(graph95,"Expected #pm 2#sigma","FL")
 
     leg.SetTextFont(42)
-    leg.SetTextSize(FONTSIZE)
+    #leg.SetTextSize(FONTSIZE)
 
     if options.square : C = ROOT.TCanvas("c","c",600,600)
     else: C = ROOT.TCanvas("c","c",700,600)
@@ -383,6 +394,7 @@ def MakeLimitPlot(MG):
     if options.doRatio:
      dummyHist.GetYaxis().SetRangeUser(RANGEYRAT[0],RANGEYRAT[1])
      dummyHist.GetYaxis().SetNdivisions(5,int("%d"%(RANGEYRAT[1]-RANGEYRAT[0])),0)
+     dummyHist.GetYaxis().SetNdivisions(510)
      dummyHist.GetYaxis().SetTitle("\sigma(H#rightarrow #gamma #gamma)_{95%%CL} / \sigma(H#rightarrow #gamma #gamma)_{%s}"%extraString)
     else: 
      dummyHist.GetYaxis().SetRangeUser(RANGEYABS[0],RANGEYABS[1])
@@ -399,9 +411,15 @@ def MakeLimitPlot(MG):
     mytext.SetNDC()
     mytext.SetTextFont(42)
     mytext.SetTextSize(FONTSIZE)
-    mytext.DrawLatex(0.16,0.85,"CMS Preliminary")
+    
+    box = ROOT.TPave(0.19,0.76,0.42,0.89,2,"NDC")
+    box.SetLineColor(1)
+    box.SetFillColor(0)
+    box.SetShadowColor(0)
+    if not options.nobox: box.Draw()
+    mytext.DrawLatex(0.2,0.85,"CMS Preliminary")
     for t,lineT in enumerate(options.addtxt):
-        mytext.DrawLatex(0.16,0.84-(t+1)*(0.04),"%s"%lineT)
+        mytext.DrawLatex(0.2,0.84-(t+1)*(0.04),"%s"%lineT)
   
     leg.Draw()
     ROOT.gPad.RedrawAxis();
