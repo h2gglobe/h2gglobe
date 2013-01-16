@@ -1,0 +1,4 @@
+
+Spin0PlusGluGluToHToGG_M-125_8TeV-jhu-pythia6_Summer12_DR53X-PU_S10_START53_V7C-v1:Spin0PlusGluGluToHToGG_M-125        1  
+Spin2LpGluGluToHToGG_M-125_8TeV-jhu-pythia6_Summer12_DR53X-PU_S10_START53_V7C-v1:Spin2LpGluGluToHToGG_M-125            1
+Graviton2PMGluGluToHToGG_M-125_8TeV-jhu-pythia6_Summer12_DR53X-PU_S10_START53_V7C-v1:Graviton2PMGluGluToHToGG_M-125    1

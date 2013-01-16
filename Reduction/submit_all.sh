@@ -51,6 +51,7 @@
 
 
 ./submit_reduction.sh     mc_sig_summer12_s10   \*     5
+./submit_reduction.sh     mc_spin2_summer12_s10 \*     5
 
 
 
