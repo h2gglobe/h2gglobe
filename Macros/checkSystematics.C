@@ -7,12 +7,14 @@
 #include "TCanvas.h"
 #include "TLegend.h"
 #include "TROOT.h"
+#include "TStyle.h"
 
 using namespace std;
 
-void checkSystematics(string filename, int ncats=9, string folder="systematicPlots", bool interpolated=true){
+void checkSystematics(string filename, int ncats=9, bool isCutBased=false, string folder="systematicPlots", bool interpolated=true){
 
   gROOT->SetBatch();
+  gStyle->SetOptStat(0);
 
   TFile *tFile = TFile::Open(filename.c_str());
    
@@ -26,11 +28,16 @@ void checkSystematics(string filename, int ncats=9, string folder="systematicPlo
   systematics.push_back("E_res");
   systematics.push_back("E_scale");
   systematics.push_back("idEff");
-  //systematics.push_back("pdfWeight");
-  systematics.push_back("phoIdMva");
-  systematics.push_back("regSig");
   systematics.push_back("triggerEff");
   systematics.push_back("vtxEff");
+  if (!isCutBased) {
+    systematics.push_back("phoIdMva");
+    systematics.push_back("regSig");
+    //systematics.push_back("pdfWeight");
+  } 
+  else {
+    systematics.push_back("r9Eff");
+  }
   
   system(Form("mkdir %s",folder.c_str()));
 
@@ -55,6 +62,9 @@ void checkSystematics(string filename, int ncats=9, string folder="systematicPlo
         TH1F *nomSig = (TH1F*)tFile->Get(Form("th1f_sig_%s_mass_m%3d_cat%d",proc->c_str(),m,cat)); 
         TH1F *sigRV = (TH1F*)tFile->Get(Form("th1f_sig_%s_mass_m%3d_rv_cat%d",proc->c_str(),m,cat)); 
         TH1F *sigWV = (TH1F*)tFile->Get(Form("th1f_sig_%s_mass_m%3d_wv_cat%d",proc->c_str(),m,cat)); 
+        nomSig->SetStats(0);
+        sigRV->SetStats(0);
+        sigWV->SetStats(0);
         TCanvas *canv = new TCanvas();
         TLegend *leg = new TLegend(0.7,0.7,0.89,0.89);
         nomSig->SetLineWidth(2);
@@ -69,9 +79,11 @@ void checkSystematics(string filename, int ncats=9, string folder="systematicPlo
         leg->AddEntry(sigRV,"Right vertex","f");
         leg->AddEntry(sigWV,"Wrong vertex","f");
         nomSig->GetYaxis()->SetRangeUser(0.,1.3*TMath::Max(nomSig->GetMaximum(),TMath::Max(sigRV->GetMaximum(),sigWV->GetMaximum())));
-        nomSig->Draw();
-        sigRV->Draw("same");
-        sigWV->Draw("same");
+        nomSig->SetTitle("");
+        nomSig->GetXaxis()->SetTitle("m_{#gamma#gamma}");
+        nomSig->Draw("hist");
+        sigRV->Draw("histsame");
+        sigWV->Draw("histsame");
         leg->Draw("same");
         canv->Print(Form("%s/rvwv_%s_m%d_cat%d.pdf",folder.c_str(),proc->c_str(),m,cat));
         canv->Print(Form("%s/rvwv_%s_m%d_cat%d.png",folder.c_str(),proc->c_str(),m,cat));
@@ -82,15 +94,17 @@ void checkSystematics(string filename, int ncats=9, string folder="systematicPlo
           TLegend *systLeg = new TLegend(0.7,0.7,0.89,0.89);
           TH1F *up = (TH1F*)tFile->Get(Form("th1f_sig_%s_mass_m%3d_cat%d_%sUp01_sigma",proc->c_str(),m,cat,syst->c_str()));
           TH1F *down = (TH1F*)tFile->Get(Form("th1f_sig_%s_mass_m%3d_cat%d_%sDown01_sigma",proc->c_str(),m,cat,syst->c_str()));
+          up->SetStats(0);
+          down->SetStats(0);
           up->SetLineColor(kRed);
           down->SetLineColor(kBlue);
           systLeg->AddEntry(nomSig,"Nominal Signal","f");
           systLeg->AddEntry(up,Form("%s Up",syst->c_str()),"f");
           systLeg->AddEntry(down,Form("%s Down",syst->c_str()),"f");
           nomSig->GetYaxis()->SetRangeUser(0.,1.3*TMath::Max(nomSig->GetMaximum(),TMath::Max(up->GetMaximum(),down->GetMaximum())));
-          nomSig->Draw();
-          up->Draw("same");
-          down->Draw("same");
+          nomSig->Draw("hist");
+          up->Draw("histsame");
+          down->Draw("histsame");
           systLeg->Draw("same");
           canv->Print(Form("%s/%s_%s_m%d_cat%d.pdf",folder.c_str(),syst->c_str(),proc->c_str(),m,cat));
           canv->Print(Form("%s/%s_%s_m%d_cat%d.png",folder.c_str(),syst->c_str(),proc->c_str(),m,cat));

@@ -197,7 +197,7 @@ void makeParametricModelDatacard(string infilename, string wsfilename="0", strin
       float rate;
       if (iproc==(procnames.size()-1)) rate = 1.0;
       else rate = lumi;
-      fprintf(file, "%3f ", rate);
+      fprintf(file, "%3.1f ", rate);
     }
   }
   fprintf(file,"\n");      

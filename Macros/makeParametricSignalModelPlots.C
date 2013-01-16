@@ -460,7 +460,6 @@ vector<double> sigEvents(RooWorkspace *work, int m_hyp, int cat, string altSigFi
   if (altSigFileName!=""){
     TFile *temp = TFile::Open(altSigFileName.c_str());
     tempWork = (RooWorkspace*)temp->Get("cms_hgg_workspace");
-    delete temp;
   }
   else {
     tempWork = work;
@@ -646,6 +645,7 @@ void makeParametricSignalModelPlots(string hggFileName, string pathName, int nca
       bkgFile = TFile::Open(bkgdatFileName.c_str());
     }
     else {
+      hggFile->Print();
       bkgFile = hggFile; 
     }
     RooWorkspace *bkgWS = (RooWorkspace*)bkgFile->Get("cms_hgg_workspace");

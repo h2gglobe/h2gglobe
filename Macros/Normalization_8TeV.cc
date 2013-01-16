@@ -2476,6 +2476,7 @@ double Normalization_8TeV::GetBR(double mass) {
   
   std::cout << "Warning branching ratio outside range of 90-250GeV!!!!" << std::endl;
   //std::exit(1);
+  return -1
   
 }
 
@@ -2523,6 +2524,7 @@ double Normalization_8TeV::GetXsection(double mass, TString HistName) {
 
   std::cout << "Warning cross section outside range of 80-300GeV!!!!" << std::endl;
   //exit(1);
+  return -1;
 
 }
 
