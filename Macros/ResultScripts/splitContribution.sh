@@ -174,25 +174,55 @@ if [ -n "$CREATE" ];then
       excludeString="$excludeString --xc=${chPREFIX}$channel"
     done
 #echo $excludeString
+    excludeChannel=`echo $excludeString`
 
-    for channel in  $wantChannels 
-      do
-      case $channel in
-	  all)
-	      excludeChannel=""
-	      ;;
-	  *)
-	      echo " - Excluding channel $channel"
-	      excludeChannel=`echo $excludeString | sed "s|--xc=${chPREFIX}$channel||"`
-	      ;;
-      esac
+    if [ -n "$SPLIT" ];then
+	for channel in  $wantChannels 
+	  do
+	  case $channel in
+	      all)
+		  excludeChannel=""
+		  ;;
+	      *)
+		  echo " - Using only channel $channel"
+		  excludeChannel=`echo $excludeString | sed "s|--xc=${chPREFIX}$channel||"`
+		  ;;
+	  esac
 
-      mkdir $WORKDIR/$channel
-      cd $WORKDIR/$channel
-      combineCards.py $STATONLY $excludeChannel ../`basename $DATACARD` > `basename $DATACARD`
-      cd -
-      cp $FILES $WORKDIR/$channel
-    done
+	  mkdir $WORKDIR/$channel
+	  cd $WORKDIR/$channel
+	  echo $excludeChannel
+	  combineCards.py $STATONLY $excludeChannel ../`basename $DATACARD` > `basename $DATACARD`
+	  cd -
+	  cp $FILES $WORKDIR/$channel
+	done
+    else
+	for channel in  $wantChannels 
+	  do
+	  case $channel in
+	      all)
+		  mkdir $WORKDIR/$channel
+		  cd $WORKDIR/$channel
+		  combineCards.py $STATONLY ../`basename $DATACARD` > `basename $DATACARD`
+		  cd -
+		  cp $FILES $WORKDIR/$channel
+		  ;;
+	      *)
+		  echo " - Adding channel $channel"
+		  excludeChannel=`echo $excludeChannel | sed "s|--xc=${chPREFIX}$channel||"`
+		  ;;
+	  esac
+	done
+	if [ "`echo $wantChannels | wc -w`" != "1" ];then
+	    channel=`echo $wantChannels | sed 's|[ ]all||;s| |_|g;'`
+	    mkdir $WORKDIR/$channel
+	    cd $WORKDIR/$channel
+	    combineCards.py $STATONLY $excludeChannel ../`basename $DATACARD` > `basename $DATACARD`
+	    cd -
+	    cp $FILES $WORKDIR/$channel
+	fi
+	wantChannels=`echo $wantChannels | sed 's| |_|g;s|_all| all|;s|all_|all |'`
+    fi
 
 #### TODO
     if [ "$LUMIFACTOR" != "1" ]; then
@@ -216,19 +246,26 @@ fi
 if [ -n "$RUN" ];then
     echo "#####"
     echo "## Starting the $MODEL MultiDimFit"
+    if [ -z "$SPLIT" ];then
+	wantChannels=`echo $wantChannels | sed 's| |_|g;s|_all| all|;s|all_|all |'`
+    fi
     for channel in $wantChannels
       do
 # this is not good, it's stressing the local machine, should be launched in batch
 # -r 10: scanrange 10sigma -> variable limit from the model
       ./multiDimFit.py -r 10 -w $WORKDIR/$channel/ -d $DATACARDNAME -m $MASS -M $MODEL -e $EXPECTED &> $WORKDIR/$channel/multiDimFit-$MODEL.log
 #      rm $WORKDIR/$channel/higgsCombinecVcF125_grid[0-9].*.root
-      rm $WORKDIR/$channel/combine_${MODEL}$MASS*.log
+	  rm $WORKDIR/$channel/combine_${MODEL}$MASS*.log
     done
     wait
 fi
 
 
 if [ -n "$PLOT" ];then
+    if [ -z "$SPLIT" ];then
+	wantChannels=`echo $wantChannels | sed 's| |_|g;s|_all| all|;s|all_|all |'`
+    fi
+
     if [ ! -e "tmp/" ];then
 	mkdir tmp/
     fi
@@ -241,23 +278,23 @@ if [ -n "$PLOT" ];then
 EOF
     for channel in  $wantChannels 
       do
-case $MODEL in 
-    cVcF)
-      cat >> tmp/macroPlot.C <<EOF
+      case $MODEL in 
+	  cVcF)
+	      cat >> tmp/macroPlot.C <<EOF
     readParamScan2D(bands, "${MODEL}_$channel", "$WORKDIR/$channel/higgsCombine${MODEL}${MASS}_grid.MultiDimFit.mH$MASS.root", "CV", "CF");
 EOF
-;;
-    rVrF)
-      cat >> tmp/macroPlot.C <<EOF
+	      ;;
+	      rVrF)
+	      cat >> tmp/macroPlot.C <<EOF
     readParamScan2D(bands, "${MODEL}_$channel", "$WORKDIR/$channel/higgsCombine${MODEL}${MASS}_grid.MultiDimFit.mH$MASS.root", "RV", "RF");
 EOF
-;;
-    rV)
-      cat >> tmp/macroPlot.C <<EOF
+	      ;;
+	      rV)
+	      cat >> tmp/macroPlot.C <<EOF
     readParamScan1D(bands, "${MODEL}_$channel", "$WORKDIR/$channel/higgsCombine${MODEL}${MASS}_grid.MultiDimFit.mH$MASS.root", "RV");
 EOF
-	;;      
-esac
+	      ;;      
+      esac
     done
 
 
@@ -265,7 +302,7 @@ esac
 bands->Close();
 }
 EOF
-
+    
     root -l -b -q tmp/macroPlot.C
 
     channelNUM=0
@@ -273,7 +310,7 @@ EOF
       do
       let channelNUM=$channelNUM+1
     done
-
+    
     cat > $WORKDIR/plot.C <<EOF
 {
   gROOT->ProcessLine(".L scripts/makeBands.cxx");
@@ -307,25 +344,26 @@ EOF
       cat >> $WORKDIR/plot.C <<EOF
 c->cd($channelCount);
 
-
 EOF
-case $MODEL in 
-    cVcF)
-	cat >> $WORKDIR/plot.C <<EOF
+    done
+    
+    case $MODEL in 
+	cVcF)
+	    cat >> $WORKDIR/plot.C <<EOF
 TString XaxisLabel="CV";
 TString YaxisLabel="CF";
 EOF
-;;
-    rVrF)
-	cat >> $WORKDIR/plot.C <<EOF
+	    ;;
+	rVrF)
+	    cat >> $WORKDIR/plot.C <<EOF
 TString XaxisLabel="RV";
 TString YaxisLabel="RF";
 EOF
-;;
-esac
-case $MODEL in 
-    cVcF|rVrF)
-      cat >> $WORKDIR/plot.C <<EOF
+	    ;;
+    esac
+    case $MODEL in 
+	cVcF|rVrF)
+	    cat >> $WORKDIR/plot.C <<EOF
 TH2D *profile_${channel} = _file0->Get("${MODEL}_${channel}_th2");
 TGraph *best_${channel} =  _file0->Get("${MODEL}_${channel}_best");
 TList *contourList_${channel}_c68 = _file0->Get("${MODEL}_${channel}_c68");
@@ -347,9 +385,9 @@ profile_${channel}->GetZaxis()->SetTitleOffset(ztitlesize);
 
 
 EOF
-      ;;
-    rV)
-	cat >> $WORKDIR/plot.C <<EOF
+	    ;;
+	rV)
+	    cat >> $WORKDIR/plot.C <<EOF
      TGraph *profile_${channel}_1d = _file0->Get("rV_${channel}_obs");
      profile_${channel}_1d -> Draw("AL");
      profile_${channel}_1d -> GetYaxis()->SetTitle("2*Delta LL");
@@ -363,10 +401,8 @@ EOF
 
 
 EOF
-;;
-esac
-    done
-
+	    ;;
+    esac
     cat >> $WORKDIR/plot.C <<EOF
      pv->Draw();
 
