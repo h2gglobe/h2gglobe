@@ -54,6 +54,7 @@ def main(options, args):
                     "cVcF"   : "-P HiggsAnalysis.CombinedLimit.HiggsCouplingsLOSM:cVcF",
                     "rVrF"   : "-P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs",
                     "rV"     : "-P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs",
+                    "rVprf"  : "-P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs",
                     "mumH"   : "-P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingHiggsMass",
                     "mH"     : "-P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs --PO higgsMassRange=120,130",
                     }
@@ -62,6 +63,7 @@ def main(options, args):
                             "cVcF"   : "",
                             "rVrF"   : "",
                             "rV"     : "--floatOtherPOIs=0 -P RV",
+                            "rVprf"  : "--floatOtherPOIs=1 -P RV",
                             "mH"     : "--floatOtherPOIs=1 -P MH",
                             "mumH"   : "-P r -P MH",
                             }
