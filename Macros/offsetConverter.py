@@ -24,7 +24,3 @@ for iline in xrange(len(lines)):
     if len(parts)>6:
         conversion=1-float(parts[5])
         print parts[0],"\t0\t",etalow,"\t",etahigh,"\t",parts[1],"\t",parts[2],"\t",parts[3],"\t",parts[4],"\t",conversion,"\t",parts[6]
-    if iline > 4:
-        break
-
-
