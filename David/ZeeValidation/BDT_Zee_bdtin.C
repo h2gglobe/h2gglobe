@@ -246,7 +246,7 @@ void BDT_Zee_bdtin() {
   leg->SetBorderSize(0);
   leg->SetFillColor(10);
   leg->SetTextSize(.035);
-  leg->AddEntry(vtxProb_cat0_Data,"Data (12.2fb^{-1})");
+  leg->AddEntry(vtxProb_cat0_Data,"Data (19.6fb^{-1})");
   leg->AddEntry(vtxProb_cat0_DYJetsToLL,"DYJetsToLL MC","F");
 
   TLegend *leg2;
@@ -254,7 +254,7 @@ void BDT_Zee_bdtin() {
   leg2->SetBorderSize(0);
   leg2->SetFillColor(10);
   leg2->SetTextSize(.035);
-  leg2->AddEntry(vtxProb_cat0_Data,"Data (12.2fb^{-1})");
+  leg2->AddEntry(vtxProb_cat0_Data,"Data (19.6fb^{-1})");
   leg2->AddEntry(vtxProb_cat0_DYJetsToLL,"DYJetsToLL MC","F");
   //leg2->AddEntry(bdtout_Hgg90,"H#rightarrow#gamma#gamma, m_{H}=90 GeV");
 
@@ -263,7 +263,7 @@ void BDT_Zee_bdtin() {
   leg3->SetBorderSize(0);
   leg3->SetFillColor(10);
   leg3->SetTextSize(.03);
-  leg3->AddEntry(vtxProb_cat0_Data,"Data (12.2fb^{-1})");
+  leg3->AddEntry(vtxProb_cat0_Data,"Data (19.6fb^{-1})");
   leg3->AddEntry(vtxProb_cat0_DYJetsToLL,"DYJetsToLL MC","F");
 
   TLegend *leg4;
@@ -271,7 +271,7 @@ void BDT_Zee_bdtin() {
   leg4->SetBorderSize(0);
   leg4->SetFillColor(10);
   leg4->SetTextSize(.025);
-  leg4->AddEntry(vtxProb_cat0_Data,"Data (12.2fb^{-1})");
+  leg4->AddEntry(vtxProb_cat0_Data,"Data (19.6fb^{-1})");
   leg4->AddEntry(vtxProb_cat0_DYJetsToLL,"DYJetsToLL MC","F");
 
   TCanvas *c_bdtout = new TCanvas("c_bdtout","BDT output",2200,800);

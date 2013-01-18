@@ -108,7 +108,7 @@ void idmva() {
   leg2->SetBorderSize(0);
   leg2->SetFillColor(10);
   leg2->SetTextSize(.035);
-  leg2->AddEntry(phoidMva_EB_Data,"Data (12.2fb^{-1})");
+  leg2->AddEntry(phoidMva_EB_Data,"Data (19.6fb^{-1})");
   leg2->AddEntry(phoidMva_EB_DYJetsToLL,"DYJetsToLL MC","F");
   leg2->AddEntry(phoidMva_EB_syst,"MC ±0.01","F");
   //leg2->AddEntry(phoidMva_EB_Hgg90,"H#rightarrow#gamma#gamma, m_{H}=90 GeV");

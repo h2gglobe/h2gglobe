@@ -32,7 +32,7 @@ void ptRescale() {
   leg->SetBorderSize(0);
   leg->SetFillColor(10);
   leg->SetTextSize(.035);
-  leg->AddEntry(pt_cat0_Data_rebin,"Data (12.2fb^{-1})");
+  leg->AddEntry(pt_cat0_Data_rebin,"Data (19.6fb^{-1})");
   leg->AddEntry(pt_cat0_DYJetsToLL_rebin,"DYJetsToLL MC","F");
 
   TLine *line = new TLine(0.,1.,200.,1.);
@@ -83,7 +83,7 @@ void ptRescale() {
   nvtx_cat0_Data->SetMarkerSize(0.4);
   nvtx_cat0_Data->SetLineColor(1);
 
-  TLine *line1 = new TLine(0.,1.,30.,1.);
+  TLine *line1 = new TLine(0.,1.,40.,1.);
   line1->SetLineColor(4);
   line1->SetLineWidth(2);
 
@@ -93,7 +93,7 @@ void ptRescale() {
   c_nvtx->cd(1);
   sf = nvtx_cat0_Data->Integral()/nvtx_cat0_DYJetsToLL->Integral();
   nvtx_cat0_DYJetsToLL->Scale(sf);
-  nvtx_cat0_Data->GetXaxis()->SetRangeUser(0.,29.5);
+  nvtx_cat0_Data->GetXaxis()->SetRangeUser(0.,39.5);
   nvtx_cat0_Data->Draw("e");
   nvtx_cat0_DYJetsToLL->Draw("hist,same");
   nvtx_cat0_Data->Draw("e,same");

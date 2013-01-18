@@ -27,7 +27,7 @@ void BDT_Zee_bdtin_cat() {
   leg->SetBorderSize(0);
   leg->SetFillColor(10);
   leg->SetTextSize(.035);
-  leg->AddEntry(mass_cat0_Data,"Data (12.2fb^{-1})");
+  leg->AddEntry(mass_cat0_Data,"Data (19.6fb^{-1})");
   leg->AddEntry(mass_cat0_DYJetsToLL,"DYJetsToLL MC","F");
 
   TLegend *leg2;
@@ -35,7 +35,7 @@ void BDT_Zee_bdtin_cat() {
   leg2->SetBorderSize(0);
   leg2->SetFillColor(10);
   leg2->SetTextSize(.035);
-  leg2->AddEntry(mass_cat0_Data,"Data (12.2fb^{-1})");
+  leg2->AddEntry(mass_cat0_Data,"Data (19.6fb^{-1})");
   leg2->AddEntry(mass_cat0_DYJetsToLL,"DYJetsToLL MC","F");
 
   TLine *line[13];
@@ -383,22 +383,22 @@ void BDT_Zee_bdtin_cat() {
 
     c_invar[i]->cd(9);
     gPad->SetGrid();
+    ratio_cat3 = (TH1*)hist_cat3_Data[i]->Clone();
+    ratio_cat3->Sumw2();
+    ratio_cat3->Divide(hist_cat3_DYJetsToLL[i]);
+    ratio_cat3->SetMaximum(1.8);
+    ratio_cat3->SetMinimum(0.2);
+    ratio_cat3->Draw("e");
+    line[i]->Draw();
+
+    c_invar[i]->cd(10);
+    gPad->SetGrid();
     ratio_cat4 = (TH1*)hist_cat4_Data[i]->Clone();
     ratio_cat4->Sumw2();
     ratio_cat4->Divide(hist_cat4_DYJetsToLL[i]);
     ratio_cat4->SetMaximum(1.8);
     ratio_cat4->SetMinimum(0.2);
     ratio_cat4->Draw("e");
-    line[i]->Draw();
-
-    c_invar[i]->cd(10);
-    gPad->SetGrid();
-    ratio_cat2 = (TH1*)hist_cat2_Data[i]->Clone();
-    ratio_cat2->Sumw2();
-    ratio_cat2->Divide(hist_cat2_DYJetsToLL[i]);
-    ratio_cat2->SetMaximum(1.8);
-    ratio_cat2->SetMinimum(0.2);
-    ratio_cat2->Draw("e");
     line[i]->Draw();
 
     c_invar[i]->cd(11);

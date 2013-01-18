@@ -52,7 +52,7 @@ void rhoVsNvtx() {
   leg->SetBorderSize(0);
   leg->SetFillColor(10);
   leg->SetTextSize(.035);
-  leg->AddEntry(nvtx_cat0_Data,"Data (12.2fb^{-1})");
+  leg->AddEntry(nvtx_cat0_Data,"Data (19.6fb^{-1})");
   leg->AddEntry(nvtx_cat0_DYJetsToLL,"DYJetsToLL MC","F");
 
   TLegend *leg2;
@@ -60,7 +60,7 @@ void rhoVsNvtx() {
   leg2->SetBorderSize(0);
   leg2->SetFillColor(10);
   leg2->SetTextSize(.035);
-  leg2->AddEntry(rhoVsNvtx_cat0_Data,"Data (12.2fb^{-1})");
+  leg2->AddEntry(rhoVsNvtx_cat0_Data,"Data (19.6fb^{-1})");
   leg2->AddEntry(rhoVsNvtx_cat0_DYJetsToLL,"DYJetsToLL MC");
 
   TLine *line = new TLine(-1.,1.,1.,1.);

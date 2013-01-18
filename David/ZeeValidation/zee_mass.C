@@ -10,6 +10,7 @@ void zee_mass() {
   gStyle->SetLineColor(1);
 
   TFile *file = TFile::Open("histograms_CMS-HGG_zeevalidation.root");
+  //TFile *file = TFile::Open("root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/zee_trees/tree_zee_moriond_preapproval.root");
   file->cd();
 
   txt = new TLatex();
@@ -21,7 +22,7 @@ void zee_mass() {
   leg->SetBorderSize(0);
   leg->SetFillColor(10);
   leg->SetTextSize(.035);
-  leg->AddEntry(mass_cat0_Data,"Data (12.2fb^{-1})");
+  leg->AddEntry(mass_cat0_Data,"Data (19.6fb^{-1})");
   leg->AddEntry(mass_cat0_DYJetsToLL,"DYJetsToLL MC","F");
 
 

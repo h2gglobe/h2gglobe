@@ -85,7 +85,7 @@ void sigmaE() {
   leg2->SetBorderSize(0);
   leg2->SetFillColor(10);
   leg2->SetTextSize(.035);
-  leg2->AddEntry(sigmaEOverE_EB_Data,"Data (12.2fb^{-1})");
+  leg2->AddEntry(sigmaEOverE_EB_Data,"Data (19.6fb^{-1})");
   leg2->AddEntry(sigmaEOverE_EB_DYJetsToLL,"DYJetsToLL MC","F");
   leg2->AddEntry(sigmaEOverE_EB_syst,"MC, #sigma_{E} scale factor ±0.1","F");
   //leg2->AddEntry(sigmaEOverE_EB_down_DYJetsToLL,"MC, #sigma_{E} scale factor -0.1");
