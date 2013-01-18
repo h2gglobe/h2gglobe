@@ -450,7 +450,7 @@ bool CategoryAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLor
 	  evweight*=BeamspotReweight(vtx->Z(),((TVector3*)l.gv_pos->At(0))->Z());
       }
 
-      massResolutionCalculator->Setup(l,&photonInfoCollection[diphoton_index.first],&photonInfoCollection[diphoton_index.second],diphoton_id,eSmearPars,nR9Categories,nEtaCategories,beamspotSigma);
+      massResolutionCalculator->Setup(l,&photonInfoCollection[diphoton_index.first],&photonInfoCollection[diphoton_index.second],diphoton_id,massResoPars,nR9Categories,nEtaCategories,beamspotSigma);
       float vtx_mva  = l.vtx_std_evt_mva->at(diphoton_id);
       float sigmaMrv = massResolutionCalculator->massResolutionEonly();
       float sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
