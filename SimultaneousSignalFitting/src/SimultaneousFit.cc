@@ -80,7 +80,6 @@ void SimultaneousFit::clean(){
     delete simFitCombPdf;
     for (map<string,RooAbsPdf*>::iterator f=simFitPdfMap.begin(); f!=simFitPdfMap.end(); f++) delete f->second;
   }
-  delete extendPdf;
   delete extendPdfRel;
   delete funcEffAcc;
   delete funcEffAccRel;
@@ -127,6 +126,13 @@ void SimultaneousFit::dumpFormVars(){
   for (map<string,RooFormulaVar*>::iterator form=formVars.begin(); form!=formVars.end(); form++) {
     cout << "\t"; 
     form->second->Print();
+  }
+}
+
+void SimultaneousFit::dumpConstVars(){
+  for (map<string,RooConstVar*>::iterator cons=constParams.begin(); cons!=constParams.end(); cons++) {
+    cout << "\t"; 
+    cons->second->Print();
   }
 }
 
@@ -318,8 +324,8 @@ void SimultaneousFit::setupSystematics(int cat){
   if (isExclusiveCat(cat)) mycat=nInclusiveCats_;
 
   loadSmearVals(); 
-  globalScale = new RooRealVar("CMS_hgg_globalscale","CMS_hgg_globalscale",1.0,0.0,10.0);
-  categoryScale = new RooRealVar(Form("CMS_hgg_nuissancedeltamcat%d",mycat),Form("CMS_hgg_nuissancedeltamcat%d",mycat),1.0,0.0,10.0);
+  globalScale = new RooRealVar("CMS_hgg_globalscale","CMS_hgg_globalscale",0.0,-10.0,10.0);
+  categoryScale = new RooRealVar(Form("CMS_hgg_nuissancedeltamcat%d",mycat),Form("CMS_hgg_nuissancedeltamcat%d",mycat),0.0,0.0,10.0);
   categorySmear = new RooConstVar(Form("CMS_hgg_constsmearcat%d",cat),Form("CMS_hgg_constsmearcat%d",cat),categorySmears[Form("CMS_hgg_constsmearcat%d",cat)]);
   categoryResolution = new RooRealVar(Form("CMS_hgg_nuissancedeltasmearcat%d",mycat),Form("CMS_hgg_nuissancedeltasmearcat%d",mycat),0.0,0.,10.);
   systematicsSet_=true;
@@ -335,13 +341,15 @@ RooAddPdf *SimultaneousFit::buildFinalPdf(string name, int nGaussians, bool recu
   for (int g=0; g<nGaussians; g++){
   
     RooFormulaVar *dm = findFormVar(Form("const_func_dm_g%d_%s_cat%d",g,proc.c_str(),cat));
-    RooFormulaVar *mean = new RooFormulaVar(Form("hgg_mean_g%d_%s_cat%d",g,proc.c_str(),cat),Form("mean_g%d_%s_cat%d",g,proc.c_str(),cat),"(@0*@1*@2)+@3",RooArgList(*MH,*globalScale,*categoryScale,*dm));
+    //RooFormulaVar *mean = new RooFormulaVar(Form("hgg_mean_g%d_%s_cat%d",g,proc.c_str(),cat),Form("mean_g%d_%s_cat%d",g,proc.c_str(),cat),"@0+@1",RooArgList(*MH,*dm));
+    RooFormulaVar *mean = new RooFormulaVar(Form("hgg_mean_g%d_%s_cat%d",g,proc.c_str(),cat),Form("mean_g%d_%s_cat%d",g,proc.c_str(),cat),"@0+@1+@0*(@2+@3)",RooArgList(*MH,*dm,*globalScale,*categoryScale));
+    //RooFormulaVar *sigma = findFormVar(Form("const_func_sigma_g%d_%s_cat%d",g,proc.c_str(),cat));
     RooFormulaVar *sig_fit = findFormVar(Form("const_func_sigma_g%d_%s_cat%d",g,proc.c_str(),cat));
     RooFormulaVar *sigma = new RooFormulaVar(Form("hgg_sigma_g%d_%s_cat%d",g,proc.c_str(),cat),Form("hgg_sigma_g%d_%s_cat%d",g,proc.c_str(),cat),"TMath::Sqrt(TMath::Power(@0,2)-TMath::Power(@1*@2,2)+TMath::Power(@1*(@2+@3),2))",RooArgList(*sig_fit,*MH,*categorySmear,*categoryResolution));
-    RooGaussian *gaus = new RooGaussian(Form("gaus_g%d_%s_cat%d",g,proc.c_str(),cat),Form("gaus_g%d_%s_cat%d",g,proc.c_str(),cat),*mass,*mean,*sigma);
+    RooGaussian *gaus = new RooGaussian(Form("hgg_gaus_g%d_%s_cat%d",g,proc.c_str(),cat),Form("hgg_gaus_g%d_%s_cat%d",g,proc.c_str(),cat),*mass,*mean,*sigma);
 
     meanParams.insert(pair<string,RooFormulaVar*>(string(mean->GetName()),mean));
-    initialGaussians.insert(pair<string,RooGaussian*>(string(gaus->GetName()),gaus));
+    finalGaussians.insert(pair<string,RooGaussian*>(string(gaus->GetName()),gaus));
     gaussians->add(*gaus);
 
     if (g<nGaussians-1) {
@@ -873,8 +881,14 @@ void SimultaneousFit::runFit(string proc, int cat, int nGaussians, int dmOrder, 
   
   //finalPdf = getSumOfGaussiansMHDependent(Form("finalPdf_sig_%s_mass_cat%d",proc.c_str(),cat),nGaussians,recursive,proc,cat);
   constructConstFormulaVars(nGaussians,dmOrder,sigmaOrder,fracOrder,proc,cat);
-  finalPdf = buildFinalPdf(Form("hggpdfrel_%s_cat%d",proc.c_str(),cat),nGaussians,recursive,proc,cat);
   
+  finalPdf = buildFinalPdf(Form("hggpdfrel_%s_cat%d",proc.c_str(),cat),nGaussians,recursive,proc,cat);
+  cout << "Dump of pol params....." << endl;
+  dumpPolParams();
+  cout << "Dump of const vars....." << endl;
+  dumpConstVars();
+  cout << "Dump of form vars......" << endl;
+  dumpFormVars();
   cout << "Polynomial fit results...." << endl;
   for (map<string,RooFormulaVar*>::iterator form=formVars.begin(); form!=formVars.end(); form++) {
     cout << "\t"; 
@@ -914,6 +928,8 @@ void SimultaneousFit::runFit(string proc, int cat, int nGaussians, int dmOrder, 
   freezePolParams();
   makeEffAccFunc(work,proc,cat);
   makeExtendPdf(proc,cat);
+  outWS->import(*extendPdfRel);
+  outWS->import(*funcEffAcc);
   putDataInWS(work,proc,cat);
   plotPDF(proc,cat);
 
@@ -924,18 +940,14 @@ void SimultaneousFit::putDataInWS(RooWorkspace *work, string proc, int cat){
   
   for (unsigned int i=0; i<allMH_.size(); i++) {
     int mh = allMH_[i];
-    RooDataSet *data = (RooDataSet*)work->data(getDataSetName(proc,mh,cat).c_str());
+    //RooDataSet *data = (RooDataSet*)work->data(getDataSetName(proc,mh,cat).c_str());
+    RooDataSet *data = allData[getDataSetName(proc,mh,cat)];
     outWS->import(*data);
   }
 }
 
 void SimultaneousFit::makeExtendPdf(string proc, int cat){
-  extendPdf = new RooExtendPdf(Form("sigpdf_%s_cat%d",proc.c_str(),cat),Form("sigpdf_%s_cat%d",proc.c_str(),cat),*finalPdf,*funcEffAcc);
   extendPdfRel = new RooExtendPdf(Form("sigpdfrel_%s_cat%d",proc.c_str(),cat),Form("sigpdfrel_%s_cat%d",proc.c_str(),cat),*finalPdf,*funcEffAccRel);
-  outWS->import(*extendPdfRel);
-  outWS->import(*funcEffAccEnt);
-  outWS->import(*funcEffAcc);
-  //outWS->import(*extendPdf);
 }
 
 void SimultaneousFit::makeEffAccFunc(RooWorkspace *inWS, string proc, int cat){
@@ -945,41 +957,28 @@ void SimultaneousFit::makeEffAccFunc(RooWorkspace *inWS, string proc, int cat){
   assert(xsecsGraph.find(proc)!=xsecsGraph.end());
   TGraph *eA = makeEffAccGraph(inWS,proc,cat);
 
-  TH1F *th1f_nE = new TH1F("nEntries","nEntries",400,110,150);
   TH1F *th1f_eA = new TH1F("eAcc","eAcc",400,110,150);
-  TH1F *th1f_rel = new TH1F("nE_rel","nE_rel",400,110,150);
-  for (int i=1; i<=th1f_nE->GetNbinsX(); i++) {
-    double mh = th1f_nE->GetBinCenter(i);
-    double nEntries = eA->Eval(mh); 
-    double effAcc = eA->Eval(mh)/(xsecsGraph[proc]->Eval(mh)*brGraph->Eval(mh)*intLumi->getVal());
-    double nEntries_rel = eA->Eval(mh)/intLumi->getVal();
+  TH1F *th1f_norm = new TH1F("norm","norm",400,110,150);
+  for (int i=1; i<=th1f_eA->GetNbinsX(); i++) {
+    double mh = th1f_eA->GetBinCenter(i);
+    double effAcc = eA->Eval(mh);
+    double norm = effAcc*xsecsGraph[proc]->Eval(mh)*brGraph->Eval(mh);
 
-    th1f_nE->SetBinContent(i,nEntries);
     th1f_eA->SetBinContent(i,effAcc);
-    th1f_rel->SetBinContent(i,nEntries_rel);
+    th1f_norm->SetBinContent(i,norm);
   }
-  RooDataHist *dHist_nE = new RooDataHist("dHist_nE","dHist_nE",RooArgList(*MH),th1f_nE);
   RooDataHist *dHist_eA = new RooDataHist("dHist_eA","dHist_eA",RooArgList(*MH),th1f_eA);
-  RooDataHist *dHist_rel = new RooDataHist("dHist_rel","dHist_rel",RooArgList(*MH),th1f_rel);
+  RooDataHist *dHist_norm = new RooDataHist("dHist_norm","dHist_norm",RooArgList(*MH),th1f_norm);
   
-  funcEffAccEnt = new RooHistFunc(Form("hggpdf_%s_cat%d_norm",proc.c_str(),cat),Form("hggpdf_%s_cat%d_norm",proc.c_str(),cat),RooArgSet(*MH),*dHist_nE,2);
   funcEffAcc = new RooHistFunc(Form("hggpdfea_%s_cat%d_norm",proc.c_str(),cat),Form("hggpdfea_%s_cat%d_norm",proc.c_str(),cat),RooArgSet(*MH),*dHist_eA,2);
-  funcEffAccRel = new RooHistFunc(Form("hggpdfrel_%s_cat%d_norm",proc.c_str(),cat),Form("hggpdfrel_%s_cat%d_norm",proc.c_str(),cat),RooArgSet(*MH),*dHist_rel,2);
-  //funcEffAcc = new RooHistFunc(Form("hggpdf_%s_cat%d_norm",proc.c_str(),cat),Form("hggpdf_%s_cat%d_norm",proc.c_str(),cat),RooArgSet(*MH),*dHist,2);
-  // relative to 1pb:
-  //funcEffAccRel = new RooFormulaVar(Form("hggpdfrel_%s_cat%d_norm",proc.c_str(),cat),Form("hggpdfrel_%s_cat%d_norm",proc.c_str(),cat),"@0/@1",RooArgList(*funcEffAcc,*intLumi));
+  funcEffAccRel = new RooHistFunc(Form("hggpdfrel_%s_cat%d_norm",proc.c_str(),cat),Form("hggpdfrel_%s_cat%d_norm",proc.c_str(),cat),RooArgSet(*MH),*dHist_norm,2);
   
   TCanvas *canv = new TCanvas();
-  RooPlot *plot = MH->frame(Range(110,150),Title("Expected Events"));
-  funcEffAccEnt->plotOn(plot);
-  plot->Draw();
-  canv->Print(Form("plots/finalFit/%s_cat%d/nEntries_%s_cat%d.pdf",proc.c_str(),cat,proc.c_str(),cat));
-  canv->Print(Form("plots/finalFit/%s_cat%d/nEntries_%s_cat%d.png",proc.c_str(),cat,proc.c_str(),cat));
-  plot = MH->frame(Range(110,150),Title("#epsilon#times#alpha"));
+  RooPlot *plot = MH->frame(Range(110,150),Title("#epsilon#times#alpha"));
   funcEffAcc->plotOn(plot);
   plot->Draw();
-  canv->Print(Form("plots/finalFit/%s_cat%d/effAcc_%s_cat%d.pdf",proc.c_str(),cat,proc.c_str(),cat));
-  canv->Print(Form("plots/finalFit/%s_cat%d/effAcc_%s_cat%d.png",proc.c_str(),cat,proc.c_str(),cat));
+  canv->Print(Form("plots/finalFit/%s_cat%d/effAccFunc_%s_cat%d.pdf",proc.c_str(),cat,proc.c_str(),cat));
+  canv->Print(Form("plots/finalFit/%s_cat%d/effAccFunc_%s_cat%d.png",proc.c_str(),cat,proc.c_str(),cat));
   plot = MH->frame(Range(110,150),Title("Expected Events per 1pb^{-1}"));
   funcEffAccRel->plotOn(plot);
   plot->Draw();
@@ -992,14 +991,14 @@ void SimultaneousFit::makeEffAccFunc(RooWorkspace *inWS, string proc, int cat){
 
 TGraph* SimultaneousFit::makeEffAccGraph(RooWorkspace *work, string proc, int cat){
 
-  TH1F *temp = new TH1F("temp","temp",9,107.5,152.5);
+  TGraph *temp = new TGraph();
   TF1 *pol2 = new TF1("pol","pol2",110,150);
   for (unsigned int i=0; i<allMH_.size(); i++){
     double mh = double(allMH_[i]);
-    RooDataSet *data = (RooDataSet*)work->data(getDataSetName(proc,mh,cat).c_str());
-    double effAcc = data->sumEntries();
-    //double effAcc = (data->sumEntries()/(intLumi->getVal()*normalization->GetXsection(mh,proc)*normalization->GetBR(mh)));
-    temp->SetBinContent(temp->FindBin(mh),effAcc);
+    RooDataSet *data = allData[getDataSetName(proc,mh,cat)];
+    // calcu eA as sumEntries / totalxs * totalbr * intL
+    double effAcc = (data->sumEntries()/(intLumi->getVal()*normalization->GetXsection(mh,proc)*normalization->GetBR(mh)));
+    temp->SetPoint(i,mh,effAcc);
   }
   verbose_ >=2 ?
     temp->Fit(pol2,"EMFEX0") :
@@ -1007,7 +1006,16 @@ TGraph* SimultaneousFit::makeEffAccGraph(RooWorkspace *work, string proc, int ca
   ;
   TGraph *graph = new TGraph(pol2);
   graph->SetName(Form("tg_effAcc_%s_cat%d",proc.c_str(),cat));
-  
+
+  TCanvas *canv = new TCanvas();
+  temp->SetMarkerStyle(kFullCircle);
+  temp->SetMarkerSize(2);
+  temp->Draw("AP");
+  graph->Draw("L");
+  canv->Print(Form("plots/finalFit/%s_cat%d/effAcc_%s_cat%d.png",proc.c_str(),cat,proc.c_str(),cat));
+  canv->Print(Form("plots/finalFit/%s_cat%d/effAcc_%s_cat%d.pdf",proc.c_str(),cat,proc.c_str(),cat));
+  delete canv;
+  delete temp;
   return graph;
 }
 
@@ -1070,11 +1078,11 @@ void SimultaneousFit::plotPDF(string proc, int cat){
   RooPlot *plot = mass->frame(Range(105,155));
   for (int m=110; m<=150; m++){
     MH->setVal(m);
-    extendPdf->plotOn(plot);
+    extendPdfRel->plotOn(plot);
   }
   plot->Draw();
-  canv->Print(Form("plots/finalFit/%s_cat%d/%s_cat%d.pdf",proc.c_str(),cat,proc.c_str(),cat));
-  canv->Print(Form("plots/finalFit/%s_cat%d/%s_cat%d.png",proc.c_str(),cat,proc.c_str(),cat));
+  canv->Print(Form("plots/%s_cat%d.pdf",proc.c_str(),cat));
+  canv->Print(Form("plots/%s_cat%d.png",proc.c_str(),cat));
   delete plot;
   delete canv;
 }

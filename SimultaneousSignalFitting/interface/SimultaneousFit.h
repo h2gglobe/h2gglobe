@@ -94,6 +94,7 @@ class SimultaneousFit {
     void dumpPolParams();
     void dumpPolParams(string,string);
     void dumpFormVars();
+    void dumpConstVars();
     void freezePolParams();
     void setupSystematics(int cat);
     void setFork(int);
@@ -128,6 +129,7 @@ class SimultaneousFit {
     map<string,RooFormulaVar*> meanParams;
     map<string,RooFormulaVar*> recfracParams;
     map<string,RooGaussian*> initialGaussians;
+    map<string,RooGaussian*> finalGaussians;
 
     // th1fs from initial fit
     map<string,TH1F*> th1fs;
@@ -159,7 +161,6 @@ class SimultaneousFit {
     RooSimultaneous *simFitCombPdf;
     RooAddPdf *mhFitCombPdf;
     RooAddPdf *finalPdf;
-    RooExtendPdf *extendPdf;
     RooExtendPdf *extendPdfRel;
 
     // systematics
@@ -174,9 +175,7 @@ class SimultaneousFit {
     map<string,TGraph*> xsecsGraph;
     TGraph* brGraph;
     RooHistFunc *funcEffAcc;
-    RooHistFunc *funcEffAccEnt;
     RooHistFunc *funcEffAccRel;
-    //RooFormulaVar *funcEffAccRel;
     bool systematicsSet_;
     int fork_;
     bool saveExtraFile_;

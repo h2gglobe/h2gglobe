@@ -93,7 +93,7 @@ int main (int argc, char *argv[]){
     }
     else {
       RooWorkspace *tempWS = (RooWorkspace*)thisFile->Get("wsig");
-      RooExtendPdf *resultPdf = (RooExtendPdf*)tempWS->pdf(Form("sigpdfrel_%s_cat%d",proc.c_str(),cat));
+      RooAddPdf *resultPdf = (RooAddPdf*)tempWS->pdf(Form("sigpdfrel_%s_cat%d",proc.c_str(),cat));
       work->import(*resultPdf);
       for (int m=110; m<=150; m+=5){
         RooDataSet *resultData = (RooDataSet*)tempWS->data(Form("sig_%s_mass_m%d_cat%d",proc.c_str(),m,cat));
