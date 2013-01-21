@@ -24,24 +24,24 @@ cutETProbe=15.
 #cutSelectionToMeasure=0.
 
 #CiC 
-forElectrons=0.
-applyPreselection=10.
-selectionTypeTag=CiC4PF
-cutSelectionTag=5.
-selectionTypeProbe=CiC4PF
-cutSelectionProbe=-10. 
-selectionTypeToMeasure=CiC4PF
-cutSelectionToMeasure=4.
-
-#MVA
 #forElectrons=0.
 #applyPreselection=10.
-#selectionTypeTag=MVA
-#cutSelectionTag=0.0
-#selectionTypeProbe=MVA
+#selectionTypeTag=CiC4PF
+#cutSelectionTag=5.
+#selectionTypeProbe=CiC4PF
 #cutSelectionProbe=-10. 
-#selectionTypeToMeasure=MVA
-#cutSelectionToMeasure=-0.1
+#selectionTypeToMeasure=CiC4PF
+#cutSelectionToMeasure=4.
+
+#MVA
+forElectrons=0.
+applyPreselection=10.
+selectionTypeTag=MVA
+cutSelectionTag=0.0
+selectionTypeProbe=MVA
+cutSelectionProbe=-10. 
+selectionTypeToMeasure=MVA
+cutSelectionToMeasure=-0.2
 
 # presel
 #forElectrons=0.

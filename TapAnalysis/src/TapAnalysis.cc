@@ -369,7 +369,7 @@ bool TapAnalysis::Analysis(LoopAll& l, Int_t jentry) {
       if (phoindex != -1) {
 	if (((applyPreselection > 0) && (PhotonId(l, iElectron, phoindex, std::string("Presel"), 1) > 0)) ||
 	    applyPreselection == 0) {
-	  std::cout << " " << iElectron << " " << phoindex << " " << selectionTypeTag << " "<< cutSelectionTag << std::endl;
+	  //std::cout << " " << iElectron << " " << phoindex << " " << selectionTypeTag << " "<< cutSelectionTag << std::endl;
 	  if (PhotonId(l, iElectron, phoindex, selectionTypeTag, cutSelectionTag) > 0.) {
 	    selectedTags.push_back(iElectron);
 	  }
@@ -764,8 +764,9 @@ Float_t TapAnalysis::PhotonId(LoopAll& l, Int_t eleIndex, Int_t phoIndex, std::s
 
   if (type == "CiC4PF") {
     std::vector<std::vector<bool> > ph_passcut;
-    std::cout << (*l.pho_cic4pfcutlevel_sublead)[phoIndex][thevertexind] << std::endl;
-    int level = (*l.pho_cic4pfcutlevel_sublead)[phoIndex][thevertexind];//l.PhotonCiCPFSelectionLevel(phoIndex, thevertexind, ph_passcut, 4, 0);
+    //std::cout << (*l.pho_cic4pfcutlevel_sublead)[phoIndex][thevertexind] << std::endl;
+    //int level = (*l.pho_cic4pfcutlevel_sublead)[phoIndex][thevertexind];//
+    int level = l.PhotonCiCPFSelectionLevel(phoIndex, thevertexind, ph_passcut, 4, 0);
     //int level = l.PhotonCiCPFSelectionLevel(phoIndex, thevertexind, ph_passcut, 4, 0);
     //std::cout << "LEVEL: " << level << " " << selection << " " << (level>=selection) <<  std::endl;
     if (level >= selection)
