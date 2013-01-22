@@ -158,8 +158,8 @@ int main(int argc, char* argv[]){
   vector<RooDataSet*> combDatavect;
 
   // mu's
-  RooRealVar *muSM = new RooRealVar("muSM","muSM",0.,-5.,5.);
-  RooRealVar *muGRAV = new RooRealVar("muGRAV","muGRAV",0.,-5.,5.);
+  RooRealVar *muSM = new RooRealVar("muSM","muSM",0.,-10.,10.);
+  RooRealVar *muGRAV = new RooRealVar("muGRAV","muGRAV",0.,-10.,10.);
 
   RooRandom::randomGenerator()->SetSeed(0);
 
