@@ -10,184 +10,180 @@
 #include "TCanvas.h"
 #include "TLegend.h"
 #include "TH1F.h"
+#include "TH2F.h"
 #include "TF1.h"
 #include "TPaveText.h"
 #include "TGraphErrors.h"
 #include "TStyle.h"
+#include "TMath.h"
 #include "Math/DistFunc.h"
 
 using namespace std;
 
-void extractSignif(TH1F* hSM, vector<float> &v_SM, TH1F* hPS, vector<float> &v_PS, TH1F *hObs, vector<float> &v_Obs){
-  
-  hSM->SetName("hSM;S = -2 #times ln(L_{1}/L_{2});Number of Toys");
-  hPS->SetName("hPS;S = -2 #times ln(L_{1}/L_{2});Number of Toys");
-  hObs->SetName("hObserved");
-  hSM->SetTitle("");
-  hPS->SetTitle("");
-  hObs->SetTitle("");
-
-  sort(v_SM.begin(),v_SM.end());//sort in ascending order
-  sort(v_PS.begin(),v_PS.end()); 
-  sort(v_Obs.begin(),v_Obs.end());
-  int ntoysSM= hSM->GetEntries();
-  int ntoysPS= hPS->GetEntries();
-
-  //we assume that SM is on the right and PS on the left of zero
-  if(v_PS.at(0)>v_SM.at(ntoysSM-1)){
-    cout<<"Swapped distributions !!! The alternative model shouldstay on the negative side of the significance."<<endl;
-    cout<<"Please edit the code and change the sign of q when filling histos and vectors in the loop on tree entries"<<endl;
-    return;
-  }
-  float medianSM=v_SM.at(int(ntoysSM/2));
-  float medianPS=v_PS.at(int(ntoysPS/2));
-  cout<<"Toys generated "<<ntoysSM<<"\t"<<ntoysPS<<endl;
-  cout<<"Mean of SM/PS hypothesis: "<<hSM->GetMean()<<"   /   "<<hPS->GetMean()<<endl;
-  cout<<"RMS  of SM/PS hypothesis: "<<hSM->GetRMS()<<"   /   "<<hPS->GetRMS()<<endl;
-  cout<<"Median of SM/PS hypothesis: "<<medianSM<<"   /   "<<medianPS<<endl;
-
-  float coverage=0.0;
-  float diff=10.0;
-
-  float integralSM=hSM->Integral();
-  float integralPS=hPS->Integral();
-  cout << "Integral SM/PS: " << integralSM << " / " << integralPS << endl;
-
-  float tailSM=hSM->Integral(1,hSM->FindBin(medianPS))/integralSM;
-  float tailPS=hPS->Integral(hPS->FindBin(medianSM),hPS->GetNbinsX())/integralPS;
-
-  cout << "Tails SM/PS: " << tailSM << " / " << tailPS << endl;
-  cout<<"Prob( q < median(P) | S ) = "<<tailSM<<"  ("<<ROOT::Math::normal_quantile_c(tailSM,1.0) <<" sigma)"<<endl;
-  cout<<"Prob( q > median(S) | P ) = "<<tailPS<<"  ("<<ROOT::Math::normal_quantile_c(tailPS,1.0) <<" sigma)"<<endl;
-
-  diff=10.0;
-  coverage=0.0;
-  for(int i=1;i<hSM->GetNbinsX();i++){
-    
-    float fracSM=hSM->Integral(1,i) / integralSM;
-    float fracPS=hPS->Integral(i,hPS->GetNbinsX()) / integralPS;
-    if(fabs(fracSM-fracPS)<diff){
-      diff=fabs(fracSM-fracPS);
-      coverage=(fracSM+fracPS)/2.0;
-    }
-
-  }
-
-  float sepH= 2*ROOT::Math::normal_quantile_c(1.0 - coverage, 1.0);
-  cout<<"Separation from histograms = "<<sepH<<" with coverage "<<coverage<<endl;
-
-  //Fancy plot
-  gStyle->SetOptStat(0);
-  TCanvas *c1=new TCanvas("c1","c1",800,800);
-  c1->cd();
-  hSM->SetXTitle("S = -2 #times ln(L_{1}/L_{2})");
-  hSM->SetYTitle("Generated experiments");
-  hSM->GetYaxis()->SetTitleOffset(1.15);
-  hPS->SetXTitle("S = -2 #times ln(L_{1}/L_{2})");
-  hPS->SetYTitle("Generated experiments");
-  hSM->SetLineColor(kMagenta-3);
-  hSM->SetFillColor(kMagenta-3);
-  hSM->SetLineWidth(2);
-  hSM->SetFillStyle(3605);
-  hPS->SetLineColor(kBlue+1);
-  hPS->SetFillColor(kBlue+1);
-  hPS->SetLineWidth(2);
-  hPS->SetFillStyle(3695);
-  hObs->SetLineColor(kGreen+3);
-  hObs->SetLineWidth(2);
-  hSM->Draw();
-  hPS->Draw("sames");
-  //  hObs->Draw("sames");
-
-  TLegend *leg = new TLegend(0.15,0.65,0.4,0.89);
-  leg->SetFillColor(0);
-  leg->SetBorderSize(0);
-  leg->AddEntry(hSM,"  SM, Spin-0","f");
-  leg->AddEntry(hPS,"  Graviton, Spin-2","f");
-  leg->Draw();
-
-
-  TPaveText pt(0.16,0.95,0.45,0.99,"NDC");
-  pt.SetFillColor(0);
-  pt.AddText("CMS Expected");
-  pt.SetBorderSize(0);
-  TPaveText pt2(0.55,0.95,0.99,0.99,"NDC");
-  pt2.SetFillColor(0);
-  // pt2.AddText(" #sqrt{s} = 7 TeV, L = 5.051 fb^{-1}; #sqrt{s} = 8 TeV, L = 30.0 fb^{-1}");
-  pt2.AddText(" #sqrt{s} = 8 TeV, L = 12.2 fb^{-1}");
-  pt2.SetBorderSize(0);
-  pt.Draw();
-  pt2.Draw();
-  c1->SaveAs("sigsep_combine.pdf");
-}
-
 int main(int argc, char* argv[]){
  
   string filename;
-  if (argc!=2) {
-    cout << "usage ./bin/diyPlot <infilename>" << endl;
+  bool isMassFac=false;
+  if (argc!=2 && argc!=3) {
+    cout << "usage ./bin/diyPlot <infilename> --isMassFac" << endl;
     return 1;
   }
   else {
     filename=string(argv[1]);
+    for (int i=0; i<argc; i++) if (string(argv[i])=="--isMassFac") isMassFac=true;
   }
+  string dir="cutBased";
+  if (isMassFac) dir="massFac";
+  system(Form("mkdir -p plots/%s",dir.c_str()));
+
   TFile *inFile = TFile::Open(filename.c_str());
   TTree *tree = (TTree*)inFile->Get("limit");
 
-  TFile *outFile = new TFile("SepStats.root","RECREATE");
+  TFile *outFile = new TFile(Form("SepStats_%s.root",dir.c_str()),"RECREATE");
 
-  double q_smtoy;
-  double q_gravtoy;
+  //double q_smtoy;
+  //double q_gravtoy;
+  int nSpinCats;
+  double muSM_perCTbin[100];
+  double muGRAV_perCTbin[100];
 
-  tree->SetBranchAddress("q_smtoy",&q_smtoy);
-  tree->SetBranchAddress("q_gravtoy",&q_gravtoy);
+  //tree->SetBranchAddress("q_smtoy",&q_smtoy);
+  //tree->SetBranchAddress("q_gravtoy",&q_gravtoy);
+  tree->SetBranchAddress("nSpinCats",&nSpinCats);
+  tree->SetBranchAddress("muSM_perCTbin",muSM_perCTbin);
+  tree->SetBranchAddress("muGRAV_perCTbin",muGRAV_perCTbin);
 
-  TH1F *muSMSMhist = new TH1F("muSMSMH","muSMSMH",100,-10,10);
-  TH1F *muSMGRAVhist = new TH1F("muSMGRAVH","muSMGRAVH",100,-10,10);
-  TH1F *muGRAVSMhist = new TH1F("muGRAVSMH","muGRAVSMH",100,-10,10);
-  TH1F *muGRAVGRAVhist = new TH1F("muGRAVGRAVH","muGRAVGRAVH",100,-10,10);
-
-  TH1F *testStatSMH = new TH1F("testStatSMH","testStatSMH",50,-10,10);
-  TH1F *testStatGRAVH = new TH1F("testStatGRAVH","testStatGRAVH",50,-10,10);
-  TH1F *testStatOBSH = new TH1F("testStatOBSH","testStatOBSH",50,-10,10);
+  // NOTE nSpinCats should not change throughout the tree
+  tree->GetEntry(0);
   
-  vector<float> v_SM;
-  vector<float> v_GRAV;
-  vector<float> v_OBS;
+  vector<TH1F*> muSM_percat_hists;
+  vector<TH1F*> muGRAV_percat_hists;
+  for (int s=0; s<nSpinCats; s++) {
+    muSM_percat_hists.push_back(new TH1F(Form("muSM_spin%d",s),Form("muSM_spin%d",s),100,-10,10));  
+    muGRAV_percat_hists.push_back(new TH1F(Form("muGRAV_spin%d",s),Form("muGRAV_spin%d",s),100,-10,10));  
+  }
 
   int ntoys = tree->GetEntries();
+
+  for (int entry=0; entry<tree->GetEntries(); entry++){
+    tree->GetEntry(entry);
+    for (int s=0; s<nSpinCats; s++){
+      muSM_percat_hists[s]->Fill(muSM_perCTbin[s]);
+      muGRAV_percat_hists[s]->Fill(muGRAV_perCTbin[s]);
+    }
+  }
+
+  // -----------------------
+  // make model independent plot
+  // -----------------------
+  TPaveText pt(0.1,0.9,0.45,0.99,"NDC");
+  pt.SetTextAlign(12);
+  pt.SetTextSize(0.04);
+  pt.SetFillColor(0);
+  pt.AddText("CMS Expected");
+  pt.SetBorderSize(0);
+  TPaveText pt2(0.55,0.9,0.9,0.99,"NDC");
+  pt2.SetTextAlign(32);
+  pt2.SetTextSize(0.04);
+  pt2.SetFillColor(0);
+  // pt2.AddText(" #sqrt{s} = 7 TeV, L = 5.051 fb^{-1}; #sqrt{s} = 8 TeV, L = 30.0 fb^{-1}");
+  pt2.AddText(" #sqrt{s} = 8 TeV, L = 19.6 fb^{-1}");
+  pt2.SetBorderSize(0);
+
+  // model indep
+  TCanvas *canv = new TCanvas();
+  TF1 *f = new TF1("f","0.",0.,1.);
+  f->SetLineColor(kBlack);
+  f->SetLineWidth(2);
+  TGraphErrors *graphSM = new TGraphErrors();
+  TGraphErrors *graphSME = new TGraphErrors();
+  TGraphErrors *graphGRAV = new TGraphErrors();
+  cout << "Model Indep " << endl;
+  for (int s=0; s<nSpinCats; s++){
+    muSM_percat_hists[s]->Draw();
+    canv->Print(Form("plots/%s/muSM_CT%d.pdf",dir.c_str(),s));
+    canv->Print(Form("plots/%s/muSM_CT%d.png",dir.c_str(),s));
+    muGRAV_percat_hists[s]->Draw();
+    canv->Print(Form("plots/%s/muGRAV_CT%d.pdf",dir.c_str(),s));
+    canv->Print(Form("plots/%s/muGRAV_CT%d.png",dir.c_str(),s));
+    cout << s << " " << muSM_percat_hists[s]->GetMean() << " " << muGRAV_percat_hists[s]->GetMean() << endl;
+    graphSM->SetPoint(s,0.1+(s*0.2),muSM_percat_hists[s]->GetMean());
+    graphSM->SetPointError(s,0.,muSM_percat_hists[s]->GetMeanError());
+    graphSME->SetPoint(s,0.1+(s*0.2),muSM_percat_hists[s]->GetMean());
+    graphSME->SetPointError(s,0.,muSM_percat_hists[s]->GetRMS());
+    graphGRAV->SetPoint(s,0.1+(s*0.2),1./muGRAV_percat_hists[s]->GetMean());
+    graphGRAV->SetPointError(s,0.,muGRAV_percat_hists[s]->GetMeanError());
+  }
+  TH2F *h = new TH2F("h","",1,0,1.,1,-0.5,3.0);
+  h->SetStats(0);
+  h->SetLineColor(0);
+  h->Draw();
+  graphSM->SetMarkerStyle(kOpenSquare);
+  graphSM->SetMarkerColor(kRed);
+  graphSM->SetLineColor(kRed);
+  graphSM->SetLineWidth(2);
+  graphSM->SetFillColor(kRed);
+  graphSM->SetFillStyle(3004);
+  graphSME->SetLineColor(kRed);
+  graphSME->SetLineWidth(2);
+  graphSME->SetFillColor(kRed);
+  graphSME->SetFillStyle(3004);
+  graphGRAV->SetMarkerStyle(kOpenCircle);
+  graphGRAV->SetMarkerColor(kBlue);
+  graphGRAV->SetLineColor(kBlue);
+  graphGRAV->SetLineWidth(2);
+  //graphSME->GetYaxis()->SetRangeUser(-0.5,3.0);
+  //graphSME->GetXaxis()->SetRangeUser(0.,1.);
+  graphSME->GetXaxis()->SetTitle("|cos(#theta*_{CS}|");
+  graphSME->GetYaxis()->SetTitle("#sigma_{X} / #sigma_{SM}");
+  TLegend *leg3 = new TLegend(0.11,0.75,0.4,0.89);
+  leg3->SetFillColor(0);
+  leg3->SetLineColor(0);
+  leg3->AddEntry(graphSM,"X#rightarrow#gamma#gamma 0^{+}","LPF");
+  leg3->AddEntry(graphGRAV,"X#rightarrow#gamma#gamma 2^{+}_{m}","LEP");
+  graphSME->Draw("E3same");
+  graphSM->Draw("LPsame");
+  graphGRAV->Draw("LPsame");
+  f->Draw("same");
+  leg3->Draw("same");
+  pt.Draw("same");
+  pt2.Draw("same");
+  canv->Print(Form("plots/%s/modIndep.pdf",dir.c_str()));
+  canv->Print(Form("plots/%s/modIndep.png",dir.c_str()));
+  canv->Write();
+
+  // -----------------------
+  // make plots of simultaneous mu
+  // -----------------------
+  TH1F *muSMSMhist = new TH1F("muSMSMH","muSMSMH",120,-2,4);
+  TH1F *muSMGRAVhist = new TH1F("muSMGRAVH","muSMGRAVH",120,-2,4);
+  TH1F *muGRAVSMhist = new TH1F("muGRAVSMH","muGRAVSMH",120,-2,4);
+  TH1F *muGRAVGRAVhist = new TH1F("muGRAVGRAVH","muGRAVGRAVH",120,-2,4);
 
   tree->Draw("muSMSM>>muSMSMH","muSMSM>=-10. && muSMSM<=10.","goff");
   tree->Draw("muSMGRAV>>muSMGRAVH","muSMGRAV>=-10. && muSMGRAV<=10.","goff");
   tree->Draw("muGRAVSM>>muGRAVSMH","muGRAVSM>=-10. && muGRAVSM<=10.","goff");
   tree->Draw("muGRAVGRAV>>muGRAVGRAVH","muGRAVGRAV>=-10. && muGRAVGRAV<=10.","goff");
 
-  tree->Draw("q_smtoy>>testStatSMH","q_smtoy>=-1000. && q_smtoy<=1000.","goff");
-  tree->Draw("q_gravtoy>>testStatGRAVH","q_gravtoy>=-1000. && q_gravtoy<=1000.","goff");
-
   gStyle->SetOptStat(0);
 
   muSMSMhist->SetLineColor(kBlue);
   muSMSMhist->SetFillColor(kBlue-9);
   muSMSMhist->SetTitle("SM PDF");
-  muSMSMhist->GetXaxis()->SetRangeUser(-2.,4.);
   muSMGRAVhist->SetLineColor(kRed);
   muSMGRAVhist->SetLineWidth(2);
   muSMGRAVhist->SetFillColor(kRed);
   muSMGRAVhist->SetFillStyle(3495);
   muSMGRAVhist->SetTitle("SM PDF");
-  muSMGRAVhist->GetXaxis()->SetRangeUser(-2.,4.);
 
   muGRAVSMhist->SetLineColor(kBlue);
   muGRAVSMhist->SetFillColor(kBlue-9);
   muGRAVSMhist->SetTitle("GRAV PDF");
-  muGRAVSMhist->GetXaxis()->SetRangeUser(-2.,4.);
   muGRAVGRAVhist->SetLineColor(kRed);
   muGRAVGRAVhist->SetLineWidth(2);
   muGRAVGRAVhist->SetFillColor(kRed);
   muGRAVGRAVhist->SetFillStyle(3495);
   muGRAVGRAVhist->SetTitle("GRAV PDF");
-  muGRAVGRAVhist->GetXaxis()->SetRangeUser(-2.,4.);
 
   TLegend *leg = new TLegend(0.2,0.6,0.4,0.89);
   leg->SetLineColor(0);
@@ -195,37 +191,71 @@ int main(int argc, char* argv[]){
   leg->AddEntry(muSMSMhist,"SM toy","F");
   leg->AddEntry(muSMGRAVhist,"GRAV toy","F");
 
-  TCanvas *canv = new TCanvas();
   muSMSMhist->Draw("HIST");
   muSMGRAVhist->Draw("HISTFSAME");
   leg->Draw("SAME");
-  canv->Print("mu_SM.pdf");
+  canv->Print(Form("plots/%s/mu_SM.pdf",dir.c_str()));
+  canv->Print(Form("plots/%s/mu_SM.png",dir.c_str()));
   muGRAVSMhist->Draw("HISTF");
   muGRAVGRAVhist->Draw("HISTSAME");
   leg->Draw("SAME");
-  canv->Print("mu_GRAV.pdf");
+  canv->Print(Form("plots/%s/mu_GRAV.pdf",dir.c_str()));
+  canv->Print(Form("plots/%s/mu_GRAV.png",dir.c_str()));
 
-  for (int entry=0; entry<tree->GetEntries(); entry++){
-    tree->GetEntry(entry);
-    v_SM.push_back(float(q_smtoy));
-    v_GRAV.push_back(float(q_gravtoy));
-  }
-
-  TCanvas *canv2 = new TCanvas("c2","c2",600,600);
+  // -----------------------
+  // make likelihood plot
+  // -----------------------
+  double lmin=-15.;
+  double lmax=15.;
+  TH1F *testStatSMH = new TH1F("testStatSMH","testStatSMH",600,lmin,lmax);
+  TH1F *testStatGRAVH = new TH1F("testStatGRAVH","testStatGRAVH",600,lmin,lmax);
+  //TH1F *testStatOBSH = new TH1F("testStatOBSH","testStatOBSH",600,lmin,lmax);
   
-  TF1 *gausSM = new TF1("gausSM","gaus",-10,10);
-  TF1 *gausGRAV = new TF1("gausGRAV","gaus",-10,10);
-  testStatSMH->Fit(gausSM,"N");
-  testStatGRAVH->Fit(gausGRAV,"N");
+  tree->Draw("q_smtoy>>testStatSMH","q_smtoy>=-900. && q_smtoy<=900.","goff");
+  tree->Draw("q_gravtoy>>testStatGRAVH","q_gravtoy>=-900. && q_gravtoy<=900.","goff");
+ 
+  // calc prob from hist
+  double SMprobHist = testStatSMH->Integral(testStatSMH->FindBin(testStatGRAVH->GetMean()),testStatSMH->GetNbinsX())/testStatSMH->Integral();
+  double GRAVprobHist = testStatGRAVH->Integral(0,testStatGRAVH->FindBin(testStatSMH->GetMean()))/testStatGRAVH->Integral();
+  double SMsigmaHist = TMath::ErfcInverse(SMprobHist)*TMath::Sqrt(2.0);
+  double GRAVsigmaHist = TMath::ErfcInverse(GRAVprobHist)*TMath::Sqrt(2.0);
 
+  // now rebin histograms so they look better on a plot
+  testStatSMH->Rebin(10);
+  testStatGRAVH->Rebin(10);
+
+  // fit TH1Fs with a gaussian
+  TF1 *gausSM = new TF1("gausSM","gaus",lmin,lmax);
+  TF1 *gausGRAV = new TF1("gausGRAV","gaus",lmin,lmax);
+  
+  testStatSMH->Fit(gausSM,"QN");
+  testStatGRAVH->Fit(gausGRAV,"QN");
+
+  // calc prob from fit
+  double SMmean = gausSM->GetParameter(1);
+  double GRAVmean = gausGRAV->GetParameter(1);
+
+  double SMprob = gausSM->Integral(GRAVmean,15.)/gausSM->Integral(-15.,15.);
+  double GRAVprob = gausGRAV->Integral(-15.,SMmean)/gausGRAV->Integral(-15.,15.);
+
+  //double SMsigma = ROOT::Math::normal_quantile_c(SMprob,1.0);
+  //double GRAVsigma = ROOT::Math::normal_quantile_c(GRAVprob,1.0);
+  double SMsigma = TMath::ErfcInverse(SMprob)*TMath::Sqrt(2.0);
+  double GRAVsigma = TMath::ErfcInverse(GRAVprob)*TMath::Sqrt(2.0);
+
+  cout << "SM: " << SMmean << " GRAV: " << GRAVmean << endl;
+  cout << "UNBINNED:" << endl; 
+  cout << "Prob( q > median(2) | 0 ) = "<< SMprob << " = " << SMsigma << " sigma " << endl; 
+  cout << "Prob( q < median(0) | 2 ) = "<< GRAVprob << " = " << GRAVsigma << " sigma " << endl; 
+  cout << "BINNED:" << endl; 
+  cout << "Prob( q > median(2) | 0 ) = "<< SMprobHist << " = " << SMsigmaHist << " sigma " << endl; 
+  cout << "Prob( q < median(0) | 2 ) = "<< GRAVprobHist << " = " << GRAVsigmaHist << " sigma " << endl; 
+
+  // set style
   testStatSMH->SetLineColor(kMagenta-3);
   testStatGRAVH->SetLineColor(kBlue+1);
-  //testStatSMH->SetFillColor(kMagenta-3);
-  //testStatGRAVH->SetFillColor(kBlue+1);
-  //testStatSMH->SetFillStyle(3605);
-  //testStatGRAVH->SetFillStyle(3695);
-  testStatGRAVH->SetTitle("");
   testStatSMH->SetTitle("");
+  testStatGRAVH->SetTitle("");
   testStatGRAVH->GetXaxis()->SetTitle("S = -2 #times ln(L_{SM}/L_{GRAV})");
   testStatSMH->GetXaxis()->SetTitle("S = -2 #times ln(L_{SM}/L_{GRAV})");
   testStatGRAVH->GetYaxis()->SetTitle("Number of toys");
@@ -234,66 +264,26 @@ int main(int argc, char* argv[]){
   testStatGRAVH->GetYaxis()->SetTitleOffset(1.2);
   testStatSMH->GetXaxis()->SetTitleOffset(1.1);
   testStatGRAVH->GetXaxis()->SetTitleOffset(1.1);
-  testStatGRAVH->Draw("HISTF");
-  testStatSMH->Draw("HISTFSAME");
+  testStatGRAVH->Draw("HIST");
+  testStatSMH->Draw("HISTSAME");
   gausSM->SetLineWidth(3);
   gausSM->SetLineColor(kMagenta-3);
   gausGRAV->SetLineWidth(3);
   gausGRAV->SetLineColor(kBlue+1);
-  //gausSM->Draw("SAME");
-  //gausGRAV->Draw("SAME");
+  gausSM->Draw("CSAME");
+  gausGRAV->Draw("CSAME");
+  // now clone to draw fill areas
+  TF1 *gausSMclone = (TF1*)gausSM->Clone();
+  TF1 *gausGRAVclone = (TF1*)gausGRAV->Clone();
+  gausSMclone->SetFillColor(kMagenta-7);
+  gausSMclone->SetFillStyle(3001);
+  gausGRAVclone->SetFillColor(kBlue-7);
+  gausGRAVclone->SetFillStyle(3004);
+  gausSMclone->SetRange(GRAVmean,lmax);
+  gausGRAVclone->SetRange(lmin,SMmean);
+  gausSMclone->Draw("FCSAME");
+  gausGRAVclone->Draw("FCSAME");
 
-  TH1F *testStatSMHFit   = new TH1F("testStatSMHFit","testStatSMHFit",1000,-10.,10.); 
-  TH1F *testStatGRAVHFit   = new TH1F("testStatGRAVHFit","testStatGRAVHFit",1000,-10.,10.); 
-  
-  for (int b=1; b<=testStatSMHFit->GetNbinsX(); b++){
-    
-    testStatSMHFit->SetBinContent(b,gausSM->Eval(testStatSMHFit->GetBinCenter(b)));
-    testStatGRAVHFit->SetBinContent(b,gausGRAV->Eval(testStatGRAVHFit->GetBinCenter(b)));
-  }
- 
-  testStatSMHFit->SetLineColor(kMagenta-3);
-  testStatGRAVHFit->SetLineColor(kBlue+1);
-  testStatSMHFit->SetLineWidth(3);
-  testStatGRAVHFit->SetLineWidth(3);
-  testStatSMHFit->Draw("HISTFSAME");
-  testStatGRAVHFit->Draw("HISTFSAME");
-
-  double SMmean = gausSM->GetParameter(1);
-  double GRAVmean = gausGRAV->GetParameter(1);
-
-  double SMprob = gausSM->Integral(GRAVmean,10.)/gausSM->Integral(-10.,10.);
-  double GRAVprob = gausGRAV->Integral(-10.,SMmean)/gausGRAV->Integral(-10.,10.);
-
-  double SMsigma = ROOT::Math::normal_quantile_c(SMprob,1.0);
-  double GRAVsigma = ROOT::Math::normal_quantile_c(GRAVprob,1.0);
-
-  TH1F *testStatSMHFitClone = (TH1F*)testStatSMHFit->Clone(Form("%s_clone",testStatSMHFit->GetName()));
-  TH1F *testStatGRAVHFitClone = (TH1F*)testStatGRAVHFit->Clone(Form("%s_clone",testStatGRAVHFit->GetName()));
-
-  cout << "SM: " << SMmean << " GRAV: " << GRAVmean << endl;
-  cout << "SM: " << testStatSMHFitClone->FindBin(SMmean) << " GRAV: " << testStatGRAVHFitClone->FindBin(GRAVmean) << endl;
-  // get frac of GRAV < SM median
-  for (int b=testStatSMHFitClone->FindBin(SMmean); b<=testStatSMHFitClone->GetNbinsX(); b++) testStatGRAVHFitClone->SetBinContent(b,0.);
-  // get frac of SM > GRAV median
-  for (int b=1; b<=testStatGRAVHFitClone->FindBin(GRAVmean); b++) testStatSMHFitClone->SetBinContent(b,0.);
-  testStatSMHFitClone->SetFillColor(kMagenta-7);
-  testStatSMHFitClone->SetFillStyle(4050);
-  testStatGRAVHFitClone->SetFillColor(kBlue-7);
-  testStatGRAVHFitClone->SetFillStyle(4050);
-  testStatSMHFitClone->Draw("HISTFSAME");
-  testStatGRAVHFitClone->Draw("HISTFSAME");
-
-  
-  TPaveText pt(0.16,0.95,0.45,0.99,"NDC");
-  pt.SetFillColor(0);
-  pt.AddText("CMS Expected");
-  pt.SetBorderSize(0);
-  TPaveText pt2(0.55,0.95,0.99,0.99,"NDC");
-  pt2.SetFillColor(0);
-  // pt2.AddText(" #sqrt{s} = 7 TeV, L = 5.051 fb^{-1}; #sqrt{s} = 8 TeV, L = 30.0 fb^{-1}");
-  pt2.AddText(" #sqrt{s} = 8 TeV, L = 12.2 fb^{-1}");
-  pt2.SetBorderSize(0);
   pt.Draw();
   pt2.Draw();
   TPaveText pt3(0.7,0.85,0.89,0.89,"NDC");
@@ -301,25 +291,40 @@ int main(int argc, char* argv[]){
   pt3.SetBorderSize(0);
   pt3.SetFillColor(0);
   pt3.Draw();
-  TPaveText pt4(0.65,0.75,0.89,0.85,"NDC");
-  pt4.AddText(Form("Separation ~%1.1f#sigma",GRAVsigma));
+  TPaveText pt4(0.6,0.7,0.89,0.85,"NDC");
+  pt4.AddText(Form("p (q<med(2^{+}_{m}) | 0^{+}) = %4.2f#sigma",GRAVsigma));
+  pt4.AddText(Form("p (q>med(0^{+}) | 2^{+}_{m}) = %4.2f#sigma",SMsigma));
   pt4.SetBorderSize(0);
   pt4.SetFillColor(0);
   pt4.Draw();
 
-  TLegend *leg2 = new TLegend(0.15,0.65,0.4,0.89);
+  TLegend *leg2 = new TLegend(0.11,0.75,0.4,0.89);
   leg2->SetFillColor(0);
   leg2->SetBorderSize(0);
-  leg2->AddEntry(testStatSMHFitClone,"  SM, Spin-0","f");
-  leg2->AddEntry(testStatGRAVHFitClone,"  Graviton, Spin-2","f");
+  leg2->AddEntry(gausSMclone,"X#rightarrow#gamma#gamma 0^{+}","f");
+  leg2->AddEntry(gausGRAVclone,"X#rightarrow#gamma#gamma 2^{+}_{m}","f");
   leg2->Draw();
-  canv2->Print("fitted_sep.pdf");
+  canv->Print(Form("plots/%s/fitted_sep.pdf",dir.c_str()));
+  canv->Print(Form("plots/%s/fitted_sep.png",dir.c_str()));
   
-  cout << "UNBINNED:" << endl; 
-  cout << "Prob( q < median(P) | S ) = "<< SMprob << " = " << SMsigma << " sigma " << endl; 
-  cout << "Prob( q > median(S) | P ) = "<< GRAVprob << " = " << GRAVsigma << " sigma " << endl; 
-
-  extractSignif(testStatSMH,v_SM,testStatGRAVH,v_GRAV,testStatOBSH,v_OBS);
+  testStatSMH->SetFillColor(kMagenta-7);
+  testStatSMH->SetFillStyle(3001);
+  testStatGRAVH->SetFillColor(kBlue-7);
+  testStatGRAVH->SetFillStyle(3004);
+  testStatSMH->Draw("HISTF");
+  testStatGRAVH->Draw("HISTFSAME");
+  leg2->Draw();
+  pt.Draw();
+  pt2.Draw();
+  pt3.Draw();
+  TPaveText pt5(0.6,0.7,0.89,0.85,"NDC");
+  pt5.AddText(Form("p (q<med(2^{+}_{m}) | 0^{+}) = %4.2f#sigma",GRAVsigmaHist));
+  pt5.AddText(Form("p (q>med(0^{+}) | 2^{+}_{m}) = %4.2f#sigma",SMsigmaHist));
+  pt5.SetBorderSize(0);
+  pt5.SetFillColor(0);
+  pt5.Draw();
+  canv->Print(Form("plots/%s/binned_sep.pdf",dir.c_str()));
+  canv->Print(Form("plots/%s/binned_sep.png",dir.c_str()));
   
   outFile->cd();
   muSMSMhist->Write();
@@ -328,7 +333,7 @@ int main(int argc, char* argv[]){
   muGRAVGRAVhist->Write();
   testStatSMH->Write();
   testStatGRAVH->Write();
-  testStatOBSH->Write();
+  //testStatOBSH->Write();
 
   outFile->Close();
   inFile->Close();
