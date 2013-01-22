@@ -47,6 +47,8 @@ JetHandler::JetHandler(const std::string & cfg, LoopAll & l):
     jerResSf_    = jer.getParameter<std::vector<double> >("resSf");
     jerResSfErr_ = jer.getParameter<std::vector<double> >("resSfErr");
 
+
+    jetResponseChange = new JetResponseChange("aux/JetResponseVsEta.root");
 }
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -272,6 +274,34 @@ void JetHandler::recomputeJec(int ijet, bool correct)
     ////  		  << " " << p4->Pt() << std::endl;
     //// }
 }
+
+// ---------------------------------------------------------------------------------------------------------------
+void JetHandler::recomputeJecEmulatingResponse(int ijet, bool correct, int entry)
+{
+    bool data = l_.itype[l_.current] == 0;
+    FactorizedJetCorrector * jecCor = ( data ? jecCorData_ : jecCorMc_ );
+    TLorentzVector * p4 = (TLorentzVector*)l_.jet_algoPF1_p4->At(ijet);
+    float oldPt = p4->Pt();
+    float uncorrPt = p4->Pt() / l_.jet_algoPF1_erescale[ijet];
+    float eta = p4->Eta();
+    
+    jecCor->setJetPt(uncorrPt);
+    jecCor->setJetEta(eta);
+    jecCor->setJetA(l_.jet_algoPF1_area[ijet]);
+    jecCor->setRho(l_.rho_algo1);
+    float thejec = jecCor->getCorrection();
+    if( thejec < 0. ) { thejec = 0.; }
+ 
+    float response = jetResponseChange->getResponse(eta,float(entry%20)); // response change is given per fb^-1 --> do 20 bins of 1 fb-1
+    thejec*=response;
+
+    float rescale = uncorrPt * thejec / p4->Pt();
+    l_.jet_algoPF1_erescale[ijet] = thejec;
+    *p4 *= rescale;  
+
+    
+}
+
 
 // ---------------------------------------------------------------------------------------------------------------
 void JetHandler::applyJecUncertainty(int ijet, float shift)
