@@ -94,7 +94,7 @@ else:
   for card, suffix, line in config:
     if options.parametric:
       for dir in job_dirs:
-        for mh in numpy.arange(options.mHlow,options.mHhigh,options.mHstep):
+        for mh in numpy.arange(options.mHlow,options.mHhigh+options.mHstep,options.mHstep):
           if not os.path.isfile('%s/%s/%s%5.1f.sh.done'%(suffix,dir,dir,mh)):
             failed_jobs.append('%s/%s/%s%5.1f.sh'%(suffix,dir,dir,mh))
     else:
@@ -108,7 +108,11 @@ else:
     a = raw_input('Do you want to resubmit them? [y]/[n]\n')
     if a=='y' or a=='Y' or a=='yes':
       for job in failed_jobs:
-        if options.parametric: os.system('bsub -q 8nh -o %s/%s.log %s/%s'%(os.getcwd(),job,os.getcwd(),job))
+        os.system("rm -f %s.done"%job)
+        os.system("rm -f %s.fail"%job)
+        os.system("rm -f %s.run"%job)
+        os.system("rm -f %s.log"%job)
+        if options.parametric: os.system('bsub -q 1nh -o %s/%s.log %s/%s'%(os.getcwd(),job,os.getcwd(),job))
         else: os.system('bsub -q 8nh -o %s/%s.log %s/%s'%(os.getwcd(),job,os.getcwd(),job))
       sys.exit()
     else:
