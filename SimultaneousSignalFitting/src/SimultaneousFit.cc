@@ -25,6 +25,7 @@ SimultaneousFit::SimultaneousFit(string infilename, string outfilename, int mhLo
   nInclusiveCats_(nInclusiveCats),
   nExclusiveCats_(nExclusiveCats),
   initialFit_(true),
+  linearInterp_(true),
   simultaneousFit_(true),
   mhDependentFit_(true),
   forceFracUnity_(true),
@@ -70,6 +71,7 @@ void SimultaneousFit::clean(){
   for (map<string,TFormula*>::iterator f=tforms.begin(); f!=tforms.end(); f++) delete f->second;
   for (map<string,TGraph*>::iterator f=tgraphs.begin(); f!=tgraphs.end(); f++) delete f->second;
   for (map<string,RooDataSet*>::iterator d=allData.begin(); d!=allData.end(); d++) delete d->second;
+  for (map<string,RooHistFunc*>::iterator h=histFuncs.begin(); h!=histFuncs.end(); h++) delete h->second;
   delete weight;
   delete mhCategory;
   delete normalization;
@@ -96,6 +98,15 @@ void SimultaneousFit::dumpStartVals(){
   //for (map<string,RooRealVar*>::iterator val=polParams.begin(); val!=polParams.end(); val++){
     //cout << Form("%12s",val->first.c_str()) << " : " << Form("%10.4f",val->second->getVal()) << endl;//<< "  " << Form("%10.4f",polParams[val->first]->getVal()) << endl;
   //}
+}
+
+void SimultaneousFit::dumpStartVals(string fname){
+  ofstream datfile;
+  datfile.open(Form("dat/%s",fname.c_str()));
+  for (map<string,double>::iterator val=startVals.begin(); val!=startVals.end(); val++) {
+    datfile << Form("%s %1.5f",val->first.c_str(),val->second) << endl;
+  }
+  datfile.close();
 }
 
 void SimultaneousFit::freezePolParams(){
@@ -168,6 +179,10 @@ void SimultaneousFit::dumpVariablesMap(){
 
 void SimultaneousFit::setInitialFit(bool fit){
   initialFit_=fit;
+}
+
+void SimultaneousFit::setLinearInterp(bool fit){
+  linearInterp_=fit;
 }
 
 void SimultaneousFit::setSimultaneousFit(bool fit){
@@ -339,12 +354,16 @@ RooAddPdf *SimultaneousFit::buildFinalPdf(string name, int nGaussians, bool recu
   RooArgList *coeffs = new RooArgList();
   
   for (int g=0; g<nGaussians; g++){
-  
-    RooFormulaVar *dm = findFormVar(Form("const_func_dm_g%d_%s_cat%d",g,proc.c_str(),cat));
+    
+    RooAbsReal *dm = findFormVar(Form("const_func_dm_g%d_%s_cat%d",g,proc.c_str(),cat));
+    if (linearInterp_) dm = findHistFunc(Form("hist_func_dm_g%d_%s_cat%d",g,proc.c_str(),cat));
+    //RooFormulaVar *dm = findFormVar(Form("const_func_dm_g%d_%s_cat%d",g,proc.c_str(),cat));
     //RooFormulaVar *mean = new RooFormulaVar(Form("hgg_mean_g%d_%s_cat%d",g,proc.c_str(),cat),Form("mean_g%d_%s_cat%d",g,proc.c_str(),cat),"@0+@1",RooArgList(*MH,*dm));
     RooFormulaVar *mean = new RooFormulaVar(Form("hgg_mean_g%d_%s_cat%d",g,proc.c_str(),cat),Form("mean_g%d_%s_cat%d",g,proc.c_str(),cat),"@0+@1+@0*(@2+@3)",RooArgList(*MH,*dm,*globalScale,*categoryScale));
+    RooAbsReal *sig_fit = findFormVar(Form("const_func_sigma_g%d_%s_cat%d",g,proc.c_str(),cat));
+    if (linearInterp_) sig_fit = findHistFunc(Form("hist_func_sigma_g%d_%s_cat%d",g,proc.c_str(),cat)); 
     //RooFormulaVar *sigma = findFormVar(Form("const_func_sigma_g%d_%s_cat%d",g,proc.c_str(),cat));
-    RooFormulaVar *sig_fit = findFormVar(Form("const_func_sigma_g%d_%s_cat%d",g,proc.c_str(),cat));
+    //RooFormulaVar *sig_fit = findFormVar(Form("const_func_sigma_g%d_%s_cat%d",g,proc.c_str(),cat));
     RooFormulaVar *sigma = new RooFormulaVar(Form("hgg_sigma_g%d_%s_cat%d",g,proc.c_str(),cat),Form("hgg_sigma_g%d_%s_cat%d",g,proc.c_str(),cat),"TMath::Sqrt(TMath::Power(@0,2)-TMath::Power(@1*@2,2)+TMath::Power(@1*(@2+@3),2))",RooArgList(*sig_fit,*MH,*categorySmear,*categoryResolution));
     RooGaussian *gaus = new RooGaussian(Form("hgg_gaus_g%d_%s_cat%d",g,proc.c_str(),cat),Form("hgg_gaus_g%d_%s_cat%d",g,proc.c_str(),cat),*mass,*mean,*sigma);
 
@@ -353,7 +372,9 @@ RooAddPdf *SimultaneousFit::buildFinalPdf(string name, int nGaussians, bool recu
     gaussians->add(*gaus);
 
     if (g<nGaussians-1) {
-      RooFormulaVar *frac = findFormVar(Form("const_func_frac_g%d_%s_cat%d",g,proc.c_str(),cat));
+      RooAbsReal *frac = findFormVar(Form("const_func_frac_g%d_%s_cat%d",g,proc.c_str(),cat));
+      if (linearInterp_) frac = findHistFunc(Form("hist_func_frac_g%d_%s_cat%d",g,proc.c_str(),cat));
+      //RooFormulaVar *frac = findFormVar(Form("const_func_frac_g%d_%s_cat%d",g,proc.c_str(),cat));
       coeffs->add(*frac);
     }
     if (g==nGaussians-1 && forceFracUnity_) {
@@ -466,6 +487,11 @@ RooFormulaVar* SimultaneousFit::findFormVar(string name){
  
   assert(formVars.find(name)!=formVars.end());
   return formVars[name];
+}
+
+RooHistFunc* SimultaneousFit::findHistFunc(string name){
+  assert(histFuncs.find(name)!=histFuncs.end());
+  return histFuncs[name];
 }
 
 // with const params
@@ -655,6 +681,39 @@ void SimultaneousFit::fitTH1Fs(int nGaussians, int dmOrder, int sigmaOrder, int 
   }
 }
 
+void SimultaneousFit::makeHistFunc(string name, int order, string proc, int cat){
+  
+  string thname = "th_"+name;
+  map<string,TH1F*>::iterator th1f = th1fs.find(thname);
+  if (th1f!=th1fs.end()){
+    RooDataHist *dHist = new RooDataHist(Form("dHist_%s_%s_cat%d",name.c_str(),proc.c_str(),cat),Form("dHist_%s_%s_cat%d",name.c_str(),proc.c_str(),cat),RooArgList(*MH),th1f->second);
+    dHists.insert(pair<string,RooDataHist*>(dHist->GetName(),dHist));
+    RooHistFunc *hFunc = new RooHistFunc(Form("hist_func_%s_%s_cat%d",name.c_str(),proc.c_str(),cat),Form("hist_func_%s_%s_cat%d",name.c_str(),proc.c_str(),cat),RooArgSet(*MH),*dHist,1);
+    histFuncs.insert(pair<string,RooHistFunc*>(hFunc->GetName(),hFunc));
+    
+    TCanvas *canv = new TCanvas();
+    RooPlot *plot = MH->frame(Range(110,150));
+    hFunc->plotOn(plot);
+    plot->Draw();
+    canv->Print(Form("plots/initialFit/%s_cat%d/%s.pdf",proc.c_str(),cat,dHist->GetName()));
+    canv->Print(Form("plots/initialFit/%s_cat%d/%s.png",proc.c_str(),cat,dHist->GetName()));
+  }
+  else {
+    cout << "TH1F - " << thname << " not found" << endl;
+    exit(1);
+  }
+}
+
+void SimultaneousFit::makeHistFuncs(int nGaussians, int dmOrder, int sigmaOrder, int fracOrder, string proc, int cat){
+  
+  for (int g=0; g<nGaussians; g++){
+    makeHistFunc(Form("dm_g%d",g),dmOrder,proc,cat);
+    makeHistFunc(Form("sigma_g%d",g),sigmaOrder,proc,cat);
+    if (g<nGaussians-1) makeHistFunc(Form("frac_g%d",g),fracOrder,proc,cat);
+  }
+
+}
+
 void SimultaneousFit::runFit(string proc, int cat, int nGaussians, int dmOrder, int sigmaOrder, int fracOrder, bool recursive){
   
   gROOT->SetBatch();
@@ -745,6 +804,8 @@ void SimultaneousFit::runFit(string proc, int cat, int nGaussians, int dmOrder, 
   
   // Fit TH1F to find starting values
   fitTH1Fs(nGaussians,dmOrder,sigmaOrder,fracOrder,proc,cat);
+  makeHistFuncs(nGaussians,dmOrder,sigmaOrder,fracOrder,proc,cat);
+  dumpStartVals(Form("initFit_%s_cat%d",proc.c_str(),cat));
 
   // Set up the simultaneous fit
   constructFormulaVars(nGaussians,dmOrder,sigmaOrder,fracOrder,proc,cat);
@@ -883,16 +944,19 @@ void SimultaneousFit::runFit(string proc, int cat, int nGaussians, int dmOrder, 
   constructConstFormulaVars(nGaussians,dmOrder,sigmaOrder,fracOrder,proc,cat);
   
   finalPdf = buildFinalPdf(Form("hggpdfrel_%s_cat%d",proc.c_str(),cat),nGaussians,recursive,proc,cat);
-  cout << "Dump of pol params....." << endl;
-  dumpPolParams();
-  cout << "Dump of const vars....." << endl;
-  dumpConstVars();
-  cout << "Dump of form vars......" << endl;
-  dumpFormVars();
-  cout << "Polynomial fit results...." << endl;
-  for (map<string,RooFormulaVar*>::iterator form=formVars.begin(); form!=formVars.end(); form++) {
-    cout << "\t"; 
-    form->second->Print();
+  
+  if (simultaneousFit_ || mhDependentFit_) {
+    cout << "Dump of pol params....." << endl;
+    dumpPolParams();
+    cout << "Dump of const vars....." << endl;
+    dumpConstVars();
+    cout << "Dump of form vars......" << endl;
+    dumpFormVars();
+    cout << "Polynomial fit results...." << endl;
+    for (map<string,RooFormulaVar*>::iterator form=formVars.begin(); form!=formVars.end(); form++) {
+      cout << "\t"; 
+      form->second->Print();
+    }
   }
  
   cout << "----------------------------------------" << endl;

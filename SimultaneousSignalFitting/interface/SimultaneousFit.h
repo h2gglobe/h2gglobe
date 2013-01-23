@@ -36,6 +36,7 @@ class SimultaneousFit {
 
     void runFit(string proc="ggh", int cat=0, int nGaussians=3, int dmOrder=1, int sigmaOrder=1, int fracOrder=0, bool recursive=false);
     void setInitialFit(bool);
+    void setLinearInterp(bool);
     void setSimultaneousFit(bool);
     void setMHDependentFit(bool);
     void setForceFracUnity(bool);
@@ -57,10 +58,13 @@ class SimultaneousFit {
 
     void fitTH1F(string name, int order, string proc, int cat);
     void fitTH1Fs(int nGaussians, int dmOrder, int sigmaOrder, int fracOrder, string proc, int cat);
+    void makeHistFunc(string name, int order, string proc, int cat);
+    void makeHistFuncs(int nGaussians, int dmOrder, int sigmaOrder, int fracOrder, string proc, int cat);
   
     RooRealVar* getPolParam(string);
     RooRealVar* findPolParam(string);
     RooFormulaVar* findFormVar(string);
+    RooHistFunc* findHistFunc(string);
     RooConstVar* getConstPolParam(string);
     void setParamAttributes(RooRealVar*);
     void constructFormulaVar(string prefix, int order);
@@ -91,6 +95,7 @@ class SimultaneousFit {
     void dumpVariablesMap();
     void loadSmearVals();
     void dumpStartVals();
+    void dumpStartVals(string);
     void dumpPolParams();
     void dumpPolParams(string,string);
     void dumpFormVars();
@@ -110,6 +115,7 @@ class SimultaneousFit {
     int nInclusiveCats_;
     int nExclusiveCats_;
     bool initialFit_;
+    bool linearInterp_;
     bool simultaneousFit_;
     bool mhDependentFit_;
     bool forceFracUnity_;
@@ -134,6 +140,8 @@ class SimultaneousFit {
     // th1fs from initial fit
     map<string,TH1F*> th1fs;
     map<string,double> polStartVals;
+    map<string,RooDataHist*> dHists;
+    map<string,RooHistFunc*> histFuncs;
 
     // tgraphs from final fit
     map<string,TFormula*> tforms;

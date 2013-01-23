@@ -7,8 +7,12 @@ SHELL=bash
 $(shell mkdir -p bin)
 $(shell mkdir -p obj)
 $(shell mkdir -p lib)
+ifeq ($(shell ls interface | grep Normalization_8TeV.h),)
 $(shell cp ../Macros/Normalization_8TeV.h interface/)
+endif
+ifeq ($(shell ls src | grep Normalization_8TeV.cc),)
 $(shell cp ../Macros/Normalization_8TeV.cc src/)
+endif
 
 # figure out os
 UNAME := $(shell uname)
