@@ -450,6 +450,7 @@ def Startup(configfilename):
             global rootfile
             rootfile=ROOT.TFile(rootline)
             break
+    SetupGlobalVariables(configlines)
     print "rootline",rootline
     if rootfile is not "":
         ReadPlotVariables(rootfile)
@@ -461,7 +462,6 @@ def Startup(configfilename):
         sys.exit(0)
     
     AssociateConfigToSample(configlines)
-    SetupGlobalVariables(configlines)
 
     for itype in samples:
         samples[itype].ParseConfigLines()
@@ -775,6 +775,8 @@ def Plot(num,printsuffix="",printcat=-1):
             itype=index[1]
             if dolegend:
                 legend.AddEntry(stacks["siglines"][index],str(samples[itype].displayname),"l"); 
+            sigIntegral = stacks["siglines"+str(icat)][index].Integral()
+            print sigIntegral
         
         lineorder = stacks["bkglines"].keys()
         lineorder.sort()
@@ -939,6 +941,8 @@ def Plot(num,printsuffix="",printcat=-1):
                 itype=index[1]
                 if dolegend and icat==0:
                     legend.AddEntry(stacks["siglines"+str(icat)][index],str(samples[itype].displayname),"l"); 
+                sigIntegral = stacks["siglines"+str(icat)][index].Integral()
+                print "sig int ", sigIntegral
  
             if dobkg:
                 lineorder = stacks["bkglines"+str(icat)].keys()
