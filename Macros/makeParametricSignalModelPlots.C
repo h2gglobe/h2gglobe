@@ -645,12 +645,10 @@ void makeParametricSignalModelPlots(string hggFileName, string pathName, int nca
       bkgFile = TFile::Open(bkgdatFileName.c_str());
     }
     else {
-      hggFile->Print();
       bkgFile = hggFile; 
     }
     RooWorkspace *bkgWS = (RooWorkspace*)bkgFile->Get("cms_hgg_workspace");
     if (spin) bkgWS = hggWS;
-    bkgWS->Print();
     for (int cat=0; cat<ncats; cat++){
       bkgVals.insert(pair<string,pair<double,double> >(Form("cat%d",cat),bkgEvPerGeV(bkgWS,m_hyp,cat,spin)));
       sigVals.insert(pair<string,vector<double> >(Form("cat%d",cat),sigEvents(bkgWS,m_hyp,cat,altSigFileName,spin)));
@@ -682,7 +680,7 @@ void makeParametricSignalModelPlots(string hggFileName, string pathName, int nca
       printf("%4.2f  ",sigEffs[Form("cat%d",cat)]);
       printf("%4.2f  ",fwhms[Form("cat%d",cat)]);
       printf("%4.2f   ",fwhms[Form("cat%d",cat)]/2.35);
-      printf("%5.1f +/- %3.1f  ",bkg.first,bkg.second);
+      printf("%6.1f +/- %3.1f  ",bkg.first,bkg.second);
       printf("%6.0f    ",dat.first);
       if (blind) printf("%7s","----");
       else printf("%7.1f  ",dat.second);
@@ -697,7 +695,7 @@ void makeParametricSignalModelPlots(string hggFileName, string pathName, int nca
       fprintf(nfile,"%4.2f  ",sigEffs[Form("cat%d",cat)]);
       fprintf(nfile,"%4.2f  ",fwhms[Form("cat%d",cat)]);
       fprintf(nfile,"%4.2f   ",fwhms[Form("cat%d",cat)]/2.35);
-      fprintf(nfile,"%5.1f +/- %3.1f  ",bkg.first,bkg.second);
+      fprintf(nfile,"%6.1f +/- %3.1f  ",bkg.first,bkg.second);
       fprintf(nfile,"%6.0f    ",dat.first);
       if (blind) fprintf(nfile,"%7s","----");
       else fprintf(nfile,"%7.1f  ",dat.second);
@@ -712,7 +710,7 @@ void makeParametricSignalModelPlots(string hggFileName, string pathName, int nca
       fprintf(file,"&  %4.2f  ",sigEffs[Form("cat%d",cat)]);
       fprintf(file,"&  %4.2f  ",fwhms[Form("cat%d",cat)]);
       fprintf(file,"&  %4.2f  ",fwhms[Form("cat%d",cat)]/2.35);
-      fprintf(file,"&  %5.1f & $\\pm$ %3.1f \\tabularnewline ",bkg.first,bkg.second);
+      fprintf(file,"&  %6.1f & $\\pm$ %3.1f \\tabularnewline ",bkg.first,bkg.second);
       fprintf(file,"&  %7.1f  ",dat.first);
       if (blind) fprintf(file,"& %7s","----");
       else fprintf(file,"&  %7.1f  ",dat.second);
