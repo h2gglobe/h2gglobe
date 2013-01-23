@@ -158,7 +158,7 @@ def readProc(fin,name,title,style,subproc,plot,plotmodifs,category):
 
     names = subproc.keys()
     print fin, plot, names, name
-    histos = readPlot(fin,plot,which=[""],samples=names)[0]
+    histos = readPlot(fin,plot,which=[""],samples=names,cat=category)[0]
     print histos
     for iplot in range(len(histos)):
         h = histos[iplot]
@@ -226,6 +226,7 @@ def drawStack(stk, method, option):
     else:
         getattr(stk,method.split(",")[0])("%s" % option)
         ymax = stk.GetMaximum(option)
+        print stk.GetName(), stk.GetHists()[0].Integral()
         
     return ymax
 
@@ -238,6 +239,7 @@ def dataMcComparison(data, bkg, sig, plots, categories=[0], savefmts=["C","png",
     canvs = []
     # loop over categories
     for cat in categories:
+        print cat
         # loop over plots
         for plot in plots:
 
@@ -338,13 +340,13 @@ def dataMcComparison(data, bkg, sig, plots, categories=[0], savefmts=["C","png",
                 objs.append(padframe)
                 
                 if len(bkghists) > 0:
-                    drawStack(bkgstk,"Draw",bkgopt)
+                    drawStack(bkgstk,"Draw",bkgopt+" same")
                 
                 if len(datahists) > 0:
-                    drawStack(datastk,"Draw",dataopt)
+                    drawStack(datastk,"Draw",dataopt+" same")
                     
                 if len(sighists) > 0:
-                    drawStack(sigstk,"Draw",sigopt)
+                    drawStack(sigstk,"Draw",sigopt+" same")
 
                 pad.RedrawAxis()
                 
@@ -389,7 +391,7 @@ if __name__ == "__main__":
     #
     # datasets to be plot
     #
-    mcFudge = 2.
+    mcFudge = 1.7
 
     # data
     data = [ fdata, [ ("data", "data",
@@ -439,7 +441,11 @@ if __name__ == "__main__":
     objs=dataMcComparison( data = data,
                            sig = sig,
                            bkg = bkg,
-                           plots = [ ("vbf_mva",[("SetBinContent",(1,0.)),("Rebin",2),(xrange,(-1.,1)),
+                           categories = [0],
+                           ## categories = [0,5,6],
+                           ## categories = [5,14],
+                           ## categories = [0,5,9,14],
+                           plots = [ ("vbf_mva",[("SetBinContent",(1,0.)),("Rebin",4),(xrange,(-1.,1)),
                                                  ("SetBinError",(1,0.)),(xtitle,"MVA"),## (ytitle,"A.U.")
                                                  (ytitle,"Events/%(binw)1.2g")
                                                  ],
@@ -454,6 +460,13 @@ if __name__ == "__main__":
                                      ("cut_VBF_DiPhoPtOverM_sequential",[],defdrawopt,deflegPos),
                                      ("cut_VBF_LeadPhoPtOverM_sequential",[],defdrawopt,deflegPos),
                                      ("cut_VBF_SubPhoPtOverM_sequential",[],defdrawopt,deflegPos),
+
+                                     ("pho_eta",[("Rebin",4)],defdrawopt,deflegPos),
+                                     ("pho_r9",[],defdrawopt,deflegPos),
+                                     ("pho1_eta",[("Rebin",4)],defdrawopt,deflegPos),
+                                     ("pho2_eta",[("Rebin",4)],defdrawopt,deflegPos),
+                                     ("pho1_pt",[],defdrawopt,deflegPos),
+                                     ("pho2_pt",[],defdrawopt,deflegPos),
                                      
                                      ("cut_VBFLeadJPt_nminus1",[],defdrawopt,deflegPos),
                                      ("cut_VBFSubJPt_nminus1",[],defdrawopt,deflegPos),
