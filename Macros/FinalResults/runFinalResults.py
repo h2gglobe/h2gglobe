@@ -166,8 +166,8 @@ else:
     if options.unblind:
       print "Running maxlh plot..."
       os.system("python limitPlotter.py -M MaxLikelihoodFit -p %s/%s/MaxLikelihoodFit --addtxt=\"%s\""%(result_dir,suffix,line))
-      os.system("mv maxlhplot.pdf %s/%s_maxlh.pdf"%(result_dir,suffix)) 
-      os.system("mv maxlhplot.png %s/%s_maxlh.png"%(result_dir,suffix)) 
+      os.system("mv maxlhplot.pdf %s/plots/%s_maxlh.pdf"%(result_dir,suffix)) 
+      os.system("mv maxlhplot.png %s/plots/%s_maxlh.png"%(result_dir,suffix)) 
   
   if options.runBoth and options.run2011 and options.run2012:
     # make a special pvalue plot
