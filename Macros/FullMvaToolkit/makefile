@@ -7,6 +7,7 @@ SHELL=bash
 $(shell mkdir -p bin)
 $(shell mkdir -p lib)
 $(shell mkdir -p obj)
+$(shell cp ../../libLoopAll.so lib/)
 
 # figure out os
 UNAME := $(shell uname)
