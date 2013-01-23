@@ -767,6 +767,7 @@ void SimultaneousFit::runFit(string proc, int cat, int nGaussians, int dmOrder, 
    
     if (initialFit_){
       cout << "------ fitting ------- " << endl;
+      // if (loadPriorConstraints) loadPriorConstraints(file) ---> use fitParams
       RooFitResult *fitRes;
       verbose_ >=2 ?
         fitRes = sigModel->fitTo(*data,NumCPU(fork_),SumW2Error(true),Save(true)) :
