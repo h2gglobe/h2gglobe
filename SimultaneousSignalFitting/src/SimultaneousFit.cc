@@ -25,7 +25,7 @@ SimultaneousFit::SimultaneousFit(string infilename, string outfilename, int mhLo
   nInclusiveCats_(nInclusiveCats),
   nExclusiveCats_(nExclusiveCats),
   initialFit_(true),
-  linearInterp_(true),
+  linearInterp_(false),
   simultaneousFit_(true),
   mhDependentFit_(true),
   forceFracUnity_(true),

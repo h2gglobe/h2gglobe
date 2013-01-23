@@ -1,5 +1,6 @@
 # configuration for each process and cat
-infile=/afs/cern.ch/user/m/mkenzie/workPoint/MORIONDreview/h2gglobe/SimultaneousSignalFitting/CMS-HGG_hcp.root
+# infile=/afs/cern.ch/user/m/mkenzie/workPoint/MORIONDreview/h2gglobe/SimultaneousSignalFitting/CMS-HGG_hcp.root
+infile=root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/analyzed/Moriond2013/MassFacMVA/preapproval_v1/CMS-HGG.root
 
 # outfilename proc cat nGaussians dmOrder sigOrder fracOrder
 CMS-HGG_ggh_cat0.root ggh 0 3 1 1 0
