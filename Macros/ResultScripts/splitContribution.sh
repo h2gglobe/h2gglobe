@@ -129,51 +129,55 @@ wantChannels="`echo $wantChannels |sed 's| |\n|' | sort|uniq`"
 echo "Datacard name= ${DATACARDNAME:=${DATACARD}}"
 
 if [ -n "$CREATE" ];then
-#------------------------------ create the working directory
+    DATACARDNAME=`basename $DATACARDNAME`
+    #------------------------------ create the working directory
     if [ ! -d "$WORKDIR" ];then
 	mkdir $WORKDIR
+        #------------------------------ copy the full datacard in the working directory
+        # from now use the datacard in the working directory
+	cp $DATACARD $WORKDIR/$DATACARDNAME
+	DATACARD=$WORKDIR/${DATACARDNAME}  # from now the datacard is the copied one
+        #------------------------------ workspaces
+        # check the existance of the workspaces
+	for file in $shapeFiles
+	  do
+	  if [ ! -r "$file" ];then
+	      echo "[ERROR] workspace $file specified in the datacard not present in the current directory"
+	      exit 1
+	  fi
+	done
+	
+	if [ "$LUMIFACTOR" != "1" ]; then
+	    cd ../
+	    for shapeFile in $shapeFiles
+	      do
+	      ./massInterpolator.py -i ResultScripts/`basename $shapeFile` -o ResultScripts/$WORKDIR/`basename $shapeFile .root`_x$LUMIFACTOR.root -I $MASS -O $MASS --doSmoothing -k $LUMIFACTOR &> ResultScripts/$WORKDIR/interpolator.log || exit 1
+	      
+	#./RescaleDatacardShapes.sh -l $LUMIFACTOR -d $DATACARD -m $MASS -w $WORKDIR || exit 1
+	      mv ResultScripts/$WORKDIR/`basename $file .root`_x${LUMIFACTOR}_interpolated.root ResultScripts/$WORKDIR/`basename $file`
+	    done
+	    cd -
+	    sed -i '/rate/ { s|[ ]1|6|g}' $WORKDIR/*/$DATACARDNAME
+	else
+	    cp $shapeFiles $WORKDIR/
+	fi
+	
     else
-	echo "[ERROR] Working dir $WORKDIR already exists" >> /dev/stderr
-	exit 1
+	#echo "[ERROR] Working dir $WORKDIR already exists" >> /dev/stderr
+	#exit 1
+	DATACARD=$WORKDIR/${DATACARDNAME}  # from now the datacard is the copied one
     fi
-    echo $commandLine > $WORKDIR/command.sh # keep trace of the command used to generate the workspace
+    echo $commandLine >> $WORKDIR/command.sh # keep trace of the command used to generate the workspace
+    
 
-
-#------------------------------ copy the full datacard in the working directory
-# from now use the datacard in the working directory
-    DATACARDNAME=`basename $DATACARDNAME`
-    cp $DATACARD $WORKDIR/$DATACARDNAME
-    DATACARD=$WORKDIR/${DATACARDNAME}  # from now the datacard is the copied one
-
-
-#------------------------------ workspaces
-
-# check the existance of the workspaces
-    for file in $shapeFiles
-      do
-      if [ ! -r "$file" ];then
-	  echo "[ERROR] workspace $file specified in the datacard not present in the current directory"
-	  exit 1
-      fi
-    done
-
-#------------------------------ split the datacard and create subdirs
-# #--------------- statOnly
-# mkdir $WORKDIR/statOnly/
-# cd $WORKDIR/statOnly
-# #for file in $shapeFiles; do ln -s ../$file .; done
-# combineCards.py  -s ../`basename $DATACARD` > `basename $DATACARD`
-# cd -
-# cp $FILES $WORKDIR/statOnly
-#--------------- split by channel
-# number of channels
+    #--------------- split by channel
+    # number of channels
     echo "Channels in datacard: $channels"
-
     for channel in $channels
       do
       excludeString="$excludeString --xc=${chPREFIX}$channel"
     done
-#echo $excludeString
+    #echo $excludeString
     excludeChannel=`echo $excludeString`
 
     if [ -n "$SPLIT" ];then
@@ -188,7 +192,7 @@ if [ -n "$CREATE" ];then
 		  excludeChannel=`echo $excludeString | sed "s|--xc=${chPREFIX}$channel||"`
 		  ;;
 	  esac
-
+	  if [ -e "$WORKDIR/$channel" ];then continue; fi # skip if exists
 	  mkdir $WORKDIR/$channel
 	  cd $WORKDIR/$channel
 	  echo $excludeChannel
@@ -201,6 +205,7 @@ if [ -n "$CREATE" ];then
 	  do
 	  case $channel in
 	      all)
+		  if [ -e "$WORKDIR/$channel" ];then continue; fi # skip if exists
 		  mkdir $WORKDIR/$channel
 		  cd $WORKDIR/$channel
 		  combineCards.py $STATONLY ../`basename $DATACARD` > `basename $DATACARD`
@@ -215,31 +220,17 @@ if [ -n "$CREATE" ];then
 	done
 	if [ "`echo $wantChannels | wc -w`" != "1" ];then
 	    channel=`echo $wantChannels | sed 's|[ ]all||;s| |_|g;'`
-	    mkdir $WORKDIR/$channel
-	    cd $WORKDIR/$channel
-	    combineCards.py $STATONLY $excludeChannel ../`basename $DATACARD` > `basename $DATACARD`
-	    cd -
-	    cp $FILES $WORKDIR/$channel
+	    if [ ! -e "$WORKDIR/$channel" ];then 
+		mkdir $WORKDIR/$channel
+		cd $WORKDIR/$channel
+		combineCards.py $STATONLY $excludeChannel ../`basename $DATACARD` > `basename $DATACARD`
+		cd -
+		cp $FILES $WORKDIR/$channel
+	    fi
 	fi
 	wantChannels=`echo $wantChannels | sed 's| |_|g;s|_all| all|;s|all_|all |'`
     fi
-
-#### TODO
-    if [ "$LUMIFACTOR" != "1" ]; then
-	cd ../
-	for shapeFile in $shapeFiles
-	  do
-	  ./massInterpolator.py -i ResultScripts/`basename $shapeFile` -o ResultScripts/$WORKDIR/`basename $shapeFile .root`_x$LUMIFACTOR.root -I $MASS -O $MASS --doSmoothing -k $LUMIFACTOR &> ResultScripts/$WORKDIR/interpolator.log || exit 1
-	
-	#./RescaleDatacardShapes.sh -l $LUMIFACTOR -d $DATACARD -m $MASS -w $WORKDIR || exit 1
-	  mv ResultScripts/$WORKDIR/`basename $file .root`_x${LUMIFACTOR}_interpolated.root ResultScripts/$WORKDIR/`basename $file`
-	done
-	cd -
-	sed -i '/rate/ { s|[ ]1|6|g}' $WORKDIR/*/$DATACARDNAME
-    else
-	cp $shapeFiles $WORKDIR/
-    fi
-
+    
 fi
 
 
@@ -255,7 +246,7 @@ if [ -n "$RUN" ];then
 # -r 10: scanrange 10sigma -> variable limit from the model
       ./multiDimFit.py -r 10 -w $WORKDIR/$channel/ -d $DATACARDNAME -m $MASS -M $MODEL -e $EXPECTED &> $WORKDIR/$channel/multiDimFit-$MODEL.log
 #      rm $WORKDIR/$channel/higgsCombinecVcF125_grid[0-9].*.root
-	  rm $WORKDIR/$channel/combine_${MODEL}$MASS*.log
+      rm $WORKDIR/$channel/combine_${MODEL}$MASS*.log
     done
     wait
 fi
@@ -272,8 +263,8 @@ if [ -n "$PLOT" ];then
     cat > tmp/macroPlot.C <<EOF
 {
   gROOT->ProcessLine(".L scripts/makeBands.cxx");
-//    gROOT->LoadMacro("$CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/plotting/bandUtils.cxx+");
-    TFile *bands = new TFile("$WORKDIR/bands.root","RECREATE");
+  //gROOT->LoadMacro("$CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/plotting/bandUtils.cxx+");
+  TFile *bands = new TFile("$WORKDIR/bands.root","RECREATE");
 
 EOF
     for channel in  $wantChannels 
@@ -281,30 +272,30 @@ EOF
       case $MODEL in 
 	  cVcF)
 	      cat >> tmp/macroPlot.C <<EOF
-    readParamScan2D(bands, "${MODEL}_$channel", "$WORKDIR/$channel/higgsCombine${MODEL}${MASS}_grid.MultiDimFit.mH$MASS.root", "CV", "CF");
+  readParamScan2D(bands, "${MODEL}_$channel", "$WORKDIR/$channel/higgsCombine${MODEL}${MASS}_grid.MultiDimFit.mH$MASS.root", "CV", "CF");
 EOF
 	      ;;
-	      rVrF)
+	  rVrF)
 	      cat >> tmp/macroPlot.C <<EOF
-    readParamScan2D(bands, "${MODEL}_$channel", "$WORKDIR/$channel/higgsCombine${MODEL}${MASS}_grid.MultiDimFit.mH$MASS.root", "RV", "RF");
+  readParamScan2D(bands, "${MODEL}_$channel", "$WORKDIR/$channel/higgsCombine${MODEL}${MASS}_grid.MultiDimFit.mH$MASS.root", "RV", "RF");
 EOF
 	      ;;
-	      rV)
+	  rV)
 	      cat >> tmp/macroPlot.C <<EOF
-    readParamScan1D(bands, "${MODEL}_$channel", "$WORKDIR/$channel/higgsCombine${MODEL}${MASS}_grid.MultiDimFit.mH$MASS.root", "RV");
+  readParamScan1D(bands, "${MODEL}_$channel", "$WORKDIR/$channel/higgsCombine${MODEL}${MASS}_grid.MultiDimFit.mH$MASS.root", "RV");
 EOF
 	      ;;      
       esac
     done
-
-
+    
+    
     cat >> tmp/macroPlot.C <<EOF
-bands->Close();
-}
+  bands->Close();
+  }
 EOF
     
     root -l -b -q tmp/macroPlot.C
-
+    
     channelNUM=0
     for channel in $wantChannels 
       do
@@ -336,79 +327,75 @@ EOF
   float ztitlesize=0.5;
   TPaveText *pv = new TPaveText(0.45,0.5,0.7,0.9,"NDC");
 EOF
-
+    
     channelCount=0
     for channel in $wantChannels 
       do
       let channelCount=$channelCount+1
       cat >> $WORKDIR/plot.C <<EOF
-c->cd($channelCount);
-
+  c->cd($channelCount);
 EOF
     done
     
     case $MODEL in 
 	cVcF)
 	    cat >> $WORKDIR/plot.C <<EOF
-TString XaxisLabel="CV";
-TString YaxisLabel="CF";
+  TString XaxisLabel="CV";
+  TString YaxisLabel="CF";
 EOF
 	    ;;
 	rVrF)
 	    cat >> $WORKDIR/plot.C <<EOF
-TString XaxisLabel="RV";
-TString YaxisLabel="RF";
+  TString XaxisLabel="RV";
+  TString YaxisLabel="RF";
 EOF
 	    ;;
     esac
     case $MODEL in 
 	cVcF|rVrF)
 	    cat >> $WORKDIR/plot.C <<EOF
-TH2D *profile_${channel} = _file0->Get("${MODEL}_${channel}_th2");
-TGraph *best_${channel} =  _file0->Get("${MODEL}_${channel}_best");
-TList *contourList_${channel}_c68 = _file0->Get("${MODEL}_${channel}_c68");
-TList *contourList_${channel}_c95 = _file0->Get("${MODEL}_${channel}_c95");
-
-float area_${channel}= contourArea(profile_${channel},contourList_${channel}_c68);
-profile_${channel}->GetZaxis()->SetRangeUser(-0.001,zmax);
-profile_${channel}->Draw("colz");
-profile_${channel}->SetTitle("$channel");
-profile_${channel}->GetXaxis()->SetTitle(XaxisLabel);
-profile_${channel}->GetYaxis()->SetTitle(YaxisLabel);
-profile_${channel}->GetZaxis()->SetTitle("2*#Delta LL");
-profile_${channel}->GetYaxis()->SetTitleSize(ytitleoffset);
-profile_${channel}->GetYaxis()->SetTitleOffset(ytitlesize);
-profile_${channel}->GetZaxis()->SetTitleSize(ztitleoffset);
-profile_${channel}->GetZaxis()->SetTitleOffset(ztitlesize);
-
-//best_${channel}->Draw("P same");
-
-
+  TH2D *profile_${channel} = _file0->Get("${MODEL}_${channel}_th2");
+  TGraph *best_${channel} =  _file0->Get("${MODEL}_${channel}_best");
+  TList *contourList_${channel}_c68 = _file0->Get("${MODEL}_${channel}_c68");
+  TList *contourList_${channel}_c95 = _file0->Get("${MODEL}_${channel}_c95");
+  
+  float area_${channel}= contourArea(profile_${channel},contourList_${channel}_c68);
+  profile_${channel}->GetZaxis()->SetRangeUser(-0.001,zmax);
+  profile_${channel}->Draw("colz");
+  profile_${channel}->SetTitle("$channel");
+  profile_${channel}->GetXaxis()->SetTitle(XaxisLabel);
+  profile_${channel}->GetYaxis()->SetTitle(YaxisLabel);
+  profile_${channel}->GetZaxis()->SetTitle("2*#Delta LL");
+  profile_${channel}->GetYaxis()->SetTitleSize(ytitleoffset);
+  profile_${channel}->GetYaxis()->SetTitleOffset(ytitlesize);
+  profile_${channel}->GetZaxis()->SetTitleSize(ztitleoffset);
+  profile_${channel}->GetZaxis()->SetTitleOffset(ztitlesize);
+  
+  //best_${channel}->Draw("P same");
 EOF
 	    ;;
 	rV)
 	    cat >> $WORKDIR/plot.C <<EOF
-     TGraph *profile_${channel}_1d = _file0->Get("rV_${channel}_obs");
-     profile_${channel}_1d -> Draw("AL");
-     profile_${channel}_1d -> GetYaxis()->SetTitle("2*Delta LL");
-     profile_${channel}_1d -> GetYaxis()->SetRangeUser(0,2);
-     profile_${channel}_1d -> GetXaxis()->SetTitle("RV");
-     profile_${channel}_1d -> GetXaxis()->SetRangeUser(0,2);
-     profile_${channel}_1d -> Fit("pol2");
-     profile_${channel}_1d -> Fit("pol2","","",0.5,1.5);
-     TF1 *f_${channel}_1d = profile_${channel}_1d->GetFunction("pol2");
-     pv->AddText(TString("#sigma = ")+TString::Format("%.2f",1./sqrt(2*f_${channel}_1d->GetParameter(2))));
-
+  TGraph *profile_${channel}_1d = _file0->Get("rV_${channel}_obs");
+  profile_${channel}_1d -> Draw("AL");
+  profile_${channel}_1d -> GetYaxis()->SetTitle("2*Delta LL");
+  profile_${channel}_1d -> GetYaxis()->SetRangeUser(0,2);
+  profile_${channel}_1d -> GetXaxis()->SetTitle("RV");
+  profile_${channel}_1d -> GetXaxis()->SetRangeUser(0,2);
+  profile_${channel}_1d -> Fit("pol2");
+  profile_${channel}_1d -> Fit("pol2","","",0.5,1.5);
+  TF1 *f_${channel}_1d = profile_${channel}_1d->GetFunction("pol2");
+  pv->AddText(TString("#sigma = ")+TString::Format("%.2f",1./sqrt(2*f_${channel}_1d->GetParameter(2))));
 
 EOF
 	    ;;
     esac
     cat >> $WORKDIR/plot.C <<EOF
-     pv->Draw();
-
-c->SaveAs("$WORKDIR/canvas.C");
-c->SaveAs("$WORKDIR/canvas.png");
-c->SaveAs("$WORKDIR/canvas.eps");
-}
+  pv->Draw();
+  
+  c->SaveAs("$WORKDIR/canvas.C");
+  c->SaveAs("$WORKDIR/canvas.png");
+  c->SaveAs("$WORKDIR/canvas.eps");
+  }
 EOF
 fi
