@@ -441,6 +441,7 @@ def Startup(configfilename):
     print "  and reading plot features from "+configfilename
     file=open(configfilename, "r")
     configlines=file.readlines()
+    file.close()
     #print configlines
     for line in configlines:
         if Debug:
@@ -765,8 +766,8 @@ def Plot(num,printsuffix="",printcat=-1):
                 itype=index[1]
                 if dolegend:
                     legend.AddEntry(stacks["datalines"][index],str(samples[itype].displayname),"ep"); 
-                dataIntegral = stacks["datalines"+str(icat)][index].Integral()
-                print dataIntegral
+            dataIntegral = stacks["datalines"+str(icat)][lineorder[0]].Integral()
+            print dataIntegral
         
         lineorder = stacks["siglines"].keys()
         lineorder.sort()
@@ -794,12 +795,12 @@ def Plot(num,printsuffix="",printcat=-1):
             stacks["bkglines"][index].SetLineWidth(linewidth*plotscale)
             stacks["bkglines"][index].SetFillStyle(1001)
             stacks["bkglines"][index].SetFillColor(int(samples[itype].color))
-            print "bkg integral",stacks["bkglines"+str(icat)][index].Integral()
-            if (Normalize and (index == lineorder[-1])):
+            if (Normalize and (index == lineorder[0])):
                 stacks["bkglines"+str(icat)][index].Scale(dataIntegral/stacks["bkglines"+str(icat)][index].Integral())
             stacks["bkglines"][index].Draw("histsame")
             if dolegend:
                 legend.AddEntry(stacks["bkglines"][index],str(samples[itype].displayname),"f"); 
+        print "bkg integral",stacks["bkglines"+str(icat)][lineorder[0]].Integral()
         
         if dointegrals:
             oflowbin = int(stacks["bkglines"][lineorder[0]].GetNbinsX()+1)
@@ -922,17 +923,13 @@ def Plot(num,printsuffix="",printcat=-1):
                     itype=index[1]
                     if dolegend and icat==0:
                         legend.AddEntry(stacks["datalines"+str(icat)][index],str(samples[itype].displayname),"ep"); 
-                    if DebugNew:
-                        print "about to dataIntegral"
-                    dataIntegral = stacks["datalines"+str(icat)][index].Integral()
-                    print "data int ", dataIntegral
-                    if DebugNew:
-                        print "have data Integral"
-                    if dodivide:
-                        if (index == lineorder[0]):
-                            dataTot[icat] =  stacks["datalines"+str(icat)][index].Clone("dataTot")
-                        else:
-                            dataTot[icat].Add(stacks["datalines"+str(icat)][index])
+                dataIntegral = stacks["datalines"+str(icat)][lineorder[0]].Integral()
+                print "data int ", dataIntegral
+                if dodivide:
+                    #if (index == lineorder[0]):
+                    dataTot[icat] =  stacks["datalines"+str(icat)][lineorder[0]].Clone("dataTot")
+                    #else:
+                    #    dataTot[icat].Add(stacks["datalines"+str(icat)][index])
  
             lineorder = stacks["siglines"+str(icat)].keys()
             lineorder.sort()
@@ -962,7 +959,7 @@ def Plot(num,printsuffix="",printcat=-1):
                     stacks["bkglines"+str(icat)][index].SetFillStyle(1001)
                     stacks["bkglines"+str(icat)][index].SetFillColor(int(samples[itype].color))
                     print "bkg int",stacks["bkglines"+str(icat)][index].Integral() 
-                    if (Normalize and (index == lineorder[-1])):
+                    if (Normalize and (index == lineorder[0])):
                         stacks["bkglines"+str(icat)][index].Scale(dataIntegral/stacks["bkglines"+str(icat)][index].Integral())
                     stacks["bkglines"+str(icat)][index].Draw("histsame")
                     if dolegend and icat==0:
@@ -970,8 +967,8 @@ def Plot(num,printsuffix="",printcat=-1):
                     if dodivide:
                         if (index == lineorder[0]):
                             mcTot[icat] = stacks["bkglines"+str(icat)][index].Clone("mcTot")
-                        else:
-                            mcTot[icat].Add(stacks["bkglines"+str(icat)][index])
+                        #else:
+                        #    mcTot[icat].Add(stacks["bkglines"+str(icat)][index])
  
                 if dointegrals:
                     oflowbin = int(stacks["bkglines"+str(icat)][lineorder[0]].GetNbinsX()+1)
@@ -990,8 +987,8 @@ def Plot(num,printsuffix="",printcat=-1):
                 if dodivide:
                     if (index == lineorder[0] and mcTot[icat] == ""):
                         mcTot[icat] = stacks["siglines"+str(icat)][index].Clone("mcTot")
-                    else:
-                        mcTot[icat].Add(stacks["siglines"+str(icat)][index])
+                    #else:
+                    #    mcTot[icat].Add(stacks["siglines"+str(icat)][index])
             
             if dointegrals:
                 oflowbin = int(stacks["siglines"+str(icat)][lineorder[0]].GetNbinsX()+1)
