@@ -7,6 +7,7 @@ intL=7300. histfile=/store/cmst3/user/malberti/HIGGS/VBF/zee_validation/Moriond2
 
 # Run2012D
 typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v1/data/DoublePhoton_Run2012D-PromptReco-v1_red2
+typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v1/data/DoublePhoton_Run2012D-PromptReco-v1_sub2
 
 
 #
