@@ -27,11 +27,11 @@ doKFactorSmear=0
 doInterferenceSmear=0
 doSystematics=0
 
-kfacHist=
-efficiencyFile=
-puMap=
-puHist=
-puTarget=
+#kfacHist=
+#efficiencyFile=
+#puMap=
+#puHist=auto
+#puTarget=
 
 dumpFlatTree=1
 ## recorrectJets=0

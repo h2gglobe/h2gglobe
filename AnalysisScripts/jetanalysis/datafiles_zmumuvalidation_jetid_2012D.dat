@@ -1,20 +1,9 @@
-intL=19600. histfile=/store/cmst3/user/malberti/HIGGS/VBF/zmumu_validation_jetid/Moriond2013/%(label)s/jetidanalysis.root output=eventsList.txt
+intL=7300. histfile=/store/cmst3/user/malberti/HIGGS/VBF/zmumu_validation_jetid/Moriond2013/%(label)s/jetidanalysis.root output=eventsList.txt
 #intL=19600. histfile=jetanalysis.root output=shifo.root
 
 ##
 ##Data
 ##
-
-#2012A
-typ=0 ind=1 draw=1  Nam=Data   CaDir=/store/group/phys_higgs/cmshgg/processed/V14_00_03/data/DoubleMu_Run2012A-13Jul2012-v1_AOD/  red=0 lum=1.0  xsec=-1.0     kfac=1.000000  scal=1.000000  json=aux/2012-onDec21.json
-
-#2012B
-typ=0 ind=1 draw=1  Nam=Data   CaDir=/store/group/phys_higgs/cmshgg/processed/V14_00_03/data/DoubleMu_Run2012B-13Jul2012-v4_AOD/  red=0 lum=1.0  xsec=-1.0     kfac=1.000000  scal=1.000000  json=aux/2012-onDec21.json
-
-#2012C
-typ=0 ind=1 draw=1  Nam=Data   CaDir=/store/group/phys_higgs/cmshgg/processed/V14_00_03/data/DoubleMu_Run2012C-24Aug2012-v1_AOD/    red=0 lum=1.0  xsec=-1.0     kfac=1.000000  scal=1.000000  json=aux/2012-onDec21.json
-
-typ=0 ind=1 draw=1  Nam=Data   CaDir=/store/group/phys_higgs/cmshgg/processed/V14_00_03/data/DoubleMu_Run2012C-PromptReco-v2_AOD/ red=0 lum=1.0  xsec=-1.0     kfac=1.000000  scal=1.000000  json=aux/2012-onDec21.json
 
 #2012D
 typ=0 ind=1 draw=1  Nam=Data   CaDir=/store/group/phys_higgs/cmshgg/processed/V14_00_06/data/DoubleMu_Run2012D-PromptReco-v1/ red=0 lum=1.0  xsec=-1.0     kfac=1.000000  scal=1.000000  json=aux/2012-onDec21.json
@@ -50,5 +39,5 @@ runZeeValidation=0
 ## 	analyzer <class_name> <config_file>
 ## 
 ## analyzer PhotonAnalysis photonanalysis.dat	
-analyzer JetIdAnalysis photonanalysis.dat analysis_settings.dat statanalysis.dat jetanalysis/jetanalysis.dat recomputeBetas=0 recorrectJets=0 rerunJetMva=0 recomputeJetWp=1 runZmumuValidation=1 saveAllJets=0 
+analyzer JetIdAnalysis photonanalysis.dat analysis_settings.dat statanalysis.dat jetanalysis/jetanalysis.dat recomputeBetas=0 recorrectJets=0 rerunJetMva=0 recomputeJetWp=1 runZmumuValidation=1 saveAllJets=0 puTarget=aux/Moriond_pileup_2012D_minBiasXsec69400_corr_observed.root
 
