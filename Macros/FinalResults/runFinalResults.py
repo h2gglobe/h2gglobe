@@ -46,11 +46,11 @@ else:
 
 config=[]
 if options.run2011:
-  config.append([options.card2011,'7TeV','#sqrt{s}=7TeV L=%3.1f'%(options.lumi2011)])
+  config.append([options.card2011,'7TeV','#sqrt{s}=7TeV L=%3.1ffb^{-1}'%(options.lumi2011)])
 if options.run2012:
-  config.append([options.card2012,'8TeV','#sqrt{s}=8TeV L=%3.1f'%(options.lumi2012)])
+  config.append([options.card2012,'8TeV','#sqrt{s}=8TeV L=%3.1ffb^{-1}'%(options.lumi2012)])
 if options.runBoth:
-  config.append([combinedCard,'7and8TeV','#splitline{#sqrt{s}=7TeV L=%3.1f}{#sqrt{s}=8TeV L=%3.1f}'%(options.lumi2011,options.lumi2012)])
+  config.append([combinedCard,'7and8TeV','#splitline{#sqrt{s}=7TeV L=%3.1ffb^{-1}}{#sqrt{s}=8TeV L=%3.1ffb^{-1}}'%(options.lumi2011,options.lumi2012)])
     
 if not options.makePlots:
 
@@ -171,7 +171,7 @@ else:
   
   if options.runBoth and options.run2011 and options.run2012:
     # make a special pvalue plot
-    special_command = "python limitPlotter.py -M ProfileLikelihood --nogrid --pval -p %s/7and8TeV/ExpProfileLikelihood -e --addline=\"%s/7TeV/exppval.root:2:2:Expected 1xSM (7TeV)\" --addline=\"%s/8TeV/exppval.root:4:2:Expected 1xSM (8TeV)\" --addline=\"%s/7and8TeV/exppval.root:1:2:Expected 1xSM (7+8TeV)\" --addtxt=\"#splitline{#sqrt{s}=7TeV L=%3.1f}{#sqrt{s}=8TeV L=%3.1f}\""%(result_dir,result_dir,result_dir,result_dir,options.lumi2011,options.lumi2012)
+    special_command = "python limitPlotter.py -M ProfileLikelihood --nogrid --pval -p %s/7and8TeV/ExpProfileLikelihood -e --addline=\"%s/7TeV/exppval.root:2:2:Expected 1xSM (7TeV)\" --addline=\"%s/8TeV/exppval.root:4:2:Expected 1xSM (8TeV)\" --addline=\"%s/7and8TeV/exppval.root:1:2:Expected 1xSM (7+8TeV)\" --addtxt=\"#splitline{#sqrt{s}=7TeV L=%3.1ffb^{-1}}{#sqrt{s}=8TeV L=%3.1ffb^{-1}}\""%(result_dir,result_dir,result_dir,result_dir,options.lumi2011,options.lumi2012)
     if options.unblind:
       special_command += " --addline=\"%s/7TeV/obspval.root:2:1:Observed (7TeV)\" --addline=\"%s/8TeV/obspval.root:4:1:Observed (8TeV)\" --addline=\"%s/7and8TeV/obspval.root:2:1:Observed (7+8TeV)\""%(result_dir,result_dir,result_dir,relvant)
     os.system(special_command)
