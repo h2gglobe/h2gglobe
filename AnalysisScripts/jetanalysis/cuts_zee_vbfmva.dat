@@ -1,4 +1,4 @@
-cutname=cut_VBF_Mgg0     ncat=18  dir=2  fin=1  minval=60 maxval=190  iread=1 plot=2 bins=60 xmin=60 xmax=180   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(2@GeV/c^{2})
+cutname=cut_VBF_Mgg0     ncat=18  dir=2  fin=1  minval=60 maxval=190  iread=1 plot=2 bins=120 xmin=60 xmax=180   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(2@GeV/c^{2})
 cutname=cut_VBFLeadJPt   ncat=18  dir=0  fin=1  val=20                iread=1 plot=2 bins=48 xmin=10 xmax=200   xaxis=Leading@Jet@P_{T}@(GeV/c)    yaxis=Events/(5@GeV/c)
 cutname=cut_VBFSubJPt    ncat=18  dir=0  fin=1  val=20                iread=1 plot=2 bins=48 xmin=10 xmax=200   xaxis=Trailing@Jet@P_{T}@(GeV/c)    yaxis=Events/(5@GeV/c)
 cutname=cut_VBF_dEta     ncat=18  dir=0  fin=1  val=-1                iread=1 plot=2 bins=14 xmin=0 xmax=7      xaxis=#Delta#eta(Jet1,Jet2)        yaxis=Events/0.5
