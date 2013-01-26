@@ -34,12 +34,13 @@ class SimultaneousFit {
     SimultaneousFit(string infilename, string outfilename, int mhLow=110, int mhHigh=150, int verbose=0, int nInclusiveCats=4, int nExclusiveCats=5);
     ~SimultaneousFit();
 
-    void runFit(string proc="ggh", int cat=0, int nGaussians=3, int dmOrder=1, int sigmaOrder=1, int fracOrder=0, bool recursive=false);
+    void runFit(string proc="ggh", int cat=0, int nGaussians=3, int dmOrder=1, int sigmaOrder=1, int fracOrder=0, bool recursive=false, bool setToFitValues=true);
     void setInitialFit(bool);
     void setLinearInterp(bool);
     void setSimultaneousFit(bool);
     void setMHDependentFit(bool);
     void setForceFracUnity(bool);
+    void setLoadPriorConstraints(bool);
     void saveExtra(string name);
     
     vector<int> getAllMH();
@@ -56,8 +57,10 @@ class SimultaneousFit {
     RooAddPdf *getSumOfGaussiansEachMH(int mh, int nGaussians, bool recursive, string proc, int cat);
     RooAddPdf *buildFinalPdf(string name, int nGaussians, bool recursive, string proc, int cat);
 
-    void fitTH1F(string name, int order, string proc, int cat);
-    void fitTH1Fs(int nGaussians, int dmOrder, int sigmaOrder, int fracOrder, string proc, int cat);
+    void orderGaussians(int nGaussians, bool recursive, int orderingType=0);
+    //void orderer(pair<double,pair<double,double> >);
+    void fitTH1F(string name, int order, string proc, int cat, bool setToFitValues);
+    void fitTH1Fs(int nGaussians, int dmOrder, int sigmaOrder, int fracOrder, string proc, int cat, bool setToFitValues);
     void makeHistFunc(string name, int order, string proc, int cat);
     void makeHistFuncs(int nGaussians, int dmOrder, int sigmaOrder, int fracOrder, string proc, int cat);
   
@@ -91,11 +94,13 @@ class SimultaneousFit {
     bool isExclusiveCat(int cat);
     bool isInclusiveCat(int cat);
 
+    void loadPriorConstraints(string);
     void loadVariablesMap();
     void dumpVariablesMap();
     void loadSmearVals();
     void dumpStartVals();
     void dumpStartVals(string);
+    void dumpFitParams();
     void dumpPolParams();
     void dumpPolParams(string,string);
     void dumpFormVars();
@@ -185,6 +190,7 @@ class SimultaneousFit {
     RooHistFunc *funcEffAcc;
     RooHistFunc *funcEffAccRel;
     bool systematicsSet_;
+    bool loadPriorConstraints_;
     int fork_;
     bool saveExtraFile_;
     TFile *extraFile_;

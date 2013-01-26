@@ -1,4 +1,5 @@
 #include <limits>
+#include <algorithm>
 
 #include "TCanvas.h"
 #include "TROOT.h"
@@ -30,6 +31,7 @@ SimultaneousFit::SimultaneousFit(string infilename, string outfilename, int mhLo
   mhDependentFit_(true),
   forceFracUnity_(true),
   systematicsSet_(false),
+  loadPriorConstraints_(false),
   fork_(1),
   saveExtraFile_(false)
 {
@@ -91,6 +93,10 @@ void SimultaneousFit::setFork(int f){
   fork_=f;
 }
 
+void SimultaneousFit::setLoadPriorConstraints(bool p){
+  loadPriorConstraints_=p;
+}
+
 void SimultaneousFit::dumpStartVals(){
   for (map<string,double>::iterator val=polStartVals.begin(); val!=polStartVals.end(); val++){
     cout << Form("%25s",val->first.c_str()) << " : " << Form("%10.4f",val->second) << "  " << Form("%10.4f",polParams[val->first]->getVal()) << endl;
@@ -112,6 +118,13 @@ void SimultaneousFit::dumpStartVals(string fname){
 void SimultaneousFit::freezePolParams(){
   for (map<string,RooRealVar*>::iterator pol=polParams.begin(); pol!=polParams.end(); pol++) {
     pol->second->setConstant(true);
+  }
+}
+
+void SimultaneousFit::dumpFitParams(){
+  for (map<string,RooRealVar*>::iterator fit=fitParams.begin(); fit!=fitParams.end(); fit++) {
+    cout << "\t"; 
+    fit->second->Print();
   }
 }
 
@@ -644,7 +657,91 @@ void SimultaneousFit::revertStartingVals(int mh){
   }
 }
 
-void SimultaneousFit::fitTH1F(string name, int order, string proc, int cat){
+bool orderer(pair<double,pair<double,double> > i, pair<double,pair<double,double> > j){
+  return i.first<j.first;
+}
+
+
+// ordering type = 0 by mass 1 by sigma 2 by frac
+void SimultaneousFit::orderGaussians(int nGaussians, bool recursive, int orderingType){
+  
+  if (nGaussians<2) return;
+  for (unsigned int i=0; i<allMH_.size(); i++){
+    int mh = allMH_[i];
+    vector<pair<double,pair<double,double> > > params;
+    double sumFrac=0.;
+    for (int g=0; g<nGaussians; g++){
+      double mean=th1fs[Form("th_dm_g%d",g)]->GetBinContent(th1fs[Form("th_dm_g%d",g)]->FindBin(mh));
+      double sigma=th1fs[Form("th_sigma_g%d",g)]->GetBinContent(th1fs[Form("th_sigma_g%d",g)]->FindBin(mh));
+      double frac;
+      if (g<nGaussians-1) {
+        frac =th1fs[Form("th_frac_g%d",g)]->GetBinContent(th1fs[Form("th_frac_g%d",g)]->FindBin(mh));
+        sumFrac += frac;
+      }
+      else {
+        if (recursive) {
+          cout << "Recursive ordering not supported" << endl;
+          exit(1);
+        }
+        else {
+          frac = 1.-sumFrac;
+        }
+      }
+      double orderVal;
+      pair<double,double> otherVals;
+      // order by mean
+      if (orderingType==0){
+        orderVal=mean,
+        otherVals = pair<double,double>(sigma,frac);
+      }
+      // order by sigma
+      else if (orderingType==1){
+        orderVal=sigma,
+        otherVals = pair<double,double>(mean,frac);
+      }
+      // order by frac
+      else if (orderingType==2){
+        orderVal=frac,
+        otherVals = pair<double,double>(mean,sigma);
+      }
+      else {
+        cout << "ordering type " << orderingType << " not recognised" << endl;
+        exit(1);
+      }
+      params.push_back(pair<double,pair<double,double> >(orderVal,otherVals));
+    }
+    sort(params.begin(), params.end(), orderer);
+    for (int g=0; g<nGaussians; g++){
+      double mean=0.;
+      double sigma=0.;
+      double frac=0.;
+      // order by mean
+      if (orderingType==0){
+        mean = params[g].first;
+        sigma = params[g].second.first;
+        frac = params[g].second.second;
+      }
+      // order by sigma
+      else if (orderingType==1){
+        mean = params[g].second.first;
+        sigma = params[g].first;
+        frac = params[g].second.second;
+      }
+      // order by frac
+      else if (orderingType==2){
+        mean = params[g].second.first;
+        sigma = params[g].second.second;
+        frac = params[g].first;
+      }
+      th1fs[Form("th_dm_g%d",g)]->SetBinContent(th1fs[Form("th_dm_g%d",g)]->FindBin(mh),mean);
+      th1fs[Form("th_sigma_g%d",g)]->SetBinContent(th1fs[Form("th_sigma_g%d",g)]->FindBin(mh),sigma);
+      if (g<nGaussians-1) th1fs[Form("th_frac_g%d",g)]->SetBinContent(th1fs[Form("th_frac_g%d",g)]->FindBin(mh),frac);
+    }
+  }
+
+}
+
+void SimultaneousFit::fitTH1F(string name, int order, string proc, int cat, bool setToFitValues){
 
   string thname = "th_"+name;
   TF1 *pol = new TF1(Form("pol%d_%s",order,name.c_str()),Form("pol%d",order),mhLow_,mhHigh_);
@@ -663,6 +760,12 @@ void SimultaneousFit::fitTH1F(string name, int order, string proc, int cat){
     canv->Print(Form("plots/initialFit/%s_cat%d/%s.pdf",proc.c_str(),cat,thname.c_str()));
     canv->Print(Form("plots/initialFit/%s_cat%d/%s.png",proc.c_str(),cat,thname.c_str()));
     delete canv;
+    if (setToFitValues){
+      for (unsigned int i=0; i<allMH_.size(); i++){
+        int mh=allMH_[i];
+        th1f->second->SetBinContent(th1f->second->FindBin(mh),pol->Eval(mh));
+      }
+    }
     delete pol;
     if (saveExtraFile_){
       extraFile_->cd();
@@ -672,12 +775,12 @@ void SimultaneousFit::fitTH1F(string name, int order, string proc, int cat){
   else cerr << "WARNING -- TH1F - " << name << " not found" << endl;
 }
 
-void SimultaneousFit::fitTH1Fs(int nGaussians, int dmOrder, int sigmaOrder, int fracOrder, string proc, int cat){
+void SimultaneousFit::fitTH1Fs(int nGaussians, int dmOrder, int sigmaOrder, int fracOrder, string proc, int cat, bool setToFitValues){
   
   for (int g=0; g<nGaussians; g++){
-    fitTH1F(Form("dm_g%d",g),dmOrder,proc,cat);
-    fitTH1F(Form("sigma_g%d",g),sigmaOrder,proc,cat);
-    if (g<nGaussians-1) fitTH1F(Form("frac_g%d",g),fracOrder,proc,cat);
+    fitTH1F(Form("dm_g%d",g),dmOrder,proc,cat,setToFitValues);
+    fitTH1F(Form("sigma_g%d",g),sigmaOrder,proc,cat,setToFitValues);
+    if (g<nGaussians-1) fitTH1F(Form("frac_g%d",g),fracOrder,proc,cat,setToFitValues);
   }
 }
 
@@ -704,6 +807,16 @@ void SimultaneousFit::makeHistFunc(string name, int order, string proc, int cat)
   }
 }
 
+void SimultaneousFit::loadPriorConstraints(string filename){
+  
+  dumpFitParams();
+  ifstream datfile;
+  datfile.open(filename.c_str());
+  while (datfile.good());
+  datfile.close();
+
+}
+
 void SimultaneousFit::makeHistFuncs(int nGaussians, int dmOrder, int sigmaOrder, int fracOrder, string proc, int cat){
   
   for (int g=0; g<nGaussians; g++){
@@ -714,7 +827,7 @@ void SimultaneousFit::makeHistFuncs(int nGaussians, int dmOrder, int sigmaOrder,
 
 }
 
-void SimultaneousFit::runFit(string proc, int cat, int nGaussians, int dmOrder, int sigmaOrder, int fracOrder, bool recursive){
+void SimultaneousFit::runFit(string proc, int cat, int nGaussians, int dmOrder, int sigmaOrder, int fracOrder, bool recursive, bool setToFitValues){
   
   gROOT->SetBatch();
 
@@ -767,13 +880,13 @@ void SimultaneousFit::runFit(string proc, int cat, int nGaussians, int dmOrder, 
    
     if (initialFit_){
       cout << "------ fitting ------- " << endl;
-      // if (loadPriorConstraints) loadPriorConstraints(file) ---> use fitParams
+      if (loadPriorConstraints_) loadPriorConstraints(Form("dat/initFit_%s_cat%d.dat",proc.c_str(),cat));
       RooFitResult *fitRes;
       verbose_ >=2 ?
         fitRes = sigModel->fitTo(*data,NumCPU(fork_),SumW2Error(true),Save(true)) :
         verbose_ >=1 ?
-          fitRes = sigModel->fitTo(*data,NumCPU(fork_),SumW2Error(true),Save(true),PrintLevel(-1),Warnings(false)) :
-          fitRes = sigModel->fitTo(*data,NumCPU(fork_),SumW2Error(true),Save(true),PrintLevel(-1),Warnings(false),PrintEvalErrors(-1))
+          fitRes = sigModel->fitTo(*data,NumCPU(fork_),SumW2Error(true),Save(true),PrintLevel(-1)) :
+          fitRes = sigModel->fitTo(*data,NumCPU(fork_),SumW2Error(true),Save(true),PrintLevel(-1),PrintEvalErrors(-1))
       ;
       
       fitRes->floatParsFinal().Print("v");
@@ -803,10 +916,16 @@ void SimultaneousFit::runFit(string proc, int cat, int nGaussians, int dmOrder, 
     }
   }
   
+  // Gaussian ordering
+  // ordering type = 0 by mass 1 by sigma 2 by frac
+  orderGaussians(nGaussians,recursive,0);
+
   // Fit TH1F to find starting values
-  fitTH1Fs(nGaussians,dmOrder,sigmaOrder,fracOrder,proc,cat);
+  fitTH1Fs(nGaussians,dmOrder,sigmaOrder,fracOrder,proc,cat,setToFitValues);
+  
+  // make the RooHistFuncs for the parameters
   makeHistFuncs(nGaussians,dmOrder,sigmaOrder,fracOrder,proc,cat);
-  dumpStartVals(Form("initFit_%s_cat%d",proc.c_str(),cat));
+  dumpStartVals(Form("initFit_%s_cat%d.dat",proc.c_str(),cat));
 
   // Set up the simultaneous fit
   constructFormulaVars(nGaussians,dmOrder,sigmaOrder,fracOrder,proc,cat);
@@ -874,8 +993,8 @@ void SimultaneousFit::runFit(string proc, int cat, int nGaussians, int dmOrder, 
     verbose_ >=2 ?
       simFitRes = simFitCombPdf->fitTo(*simFitCombData,NumCPU(fork_),SumW2Error(true),Save(true)) :
       verbose_ >=1 ?
-        simFitRes = simFitCombPdf->fitTo(*simFitCombData,NumCPU(fork_),SumW2Error(true),Save(true),PrintLevel(-1),Warnings(false)) :
-        simFitRes = simFitCombPdf->fitTo(*simFitCombData,NumCPU(fork_),SumW2Error(true),Save(true),PrintLevel(-1),Warnings(false),PrintEvalErrors(-1)) 
+        simFitRes = simFitCombPdf->fitTo(*simFitCombData,NumCPU(fork_),SumW2Error(true),Save(true),PrintLevel(-1)) :
+        simFitRes = simFitCombPdf->fitTo(*simFitCombData,NumCPU(fork_),SumW2Error(true),Save(true),PrintLevel(-1),PrintEvalErrors(-1)) 
     ;
       
     simFitRes->floatParsFinal().Print("v");
@@ -917,8 +1036,8 @@ void SimultaneousFit::runFit(string proc, int cat, int nGaussians, int dmOrder, 
     verbose_ >=2 ?
     mhFitRes = mhFitCombPdf->fitTo(*mhFitCombData,NumCPU(fork_),SumW2Error(true),Save(true)) :
     verbose_ >=1 ?
-      mhFitRes = mhFitCombPdf->fitTo(*mhFitCombData,NumCPU(fork_),SumW2Error(true),Save(true),PrintLevel(-1),Warnings(false)) :
-      mhFitRes = mhFitCombPdf->fitTo(*mhFitCombData,NumCPU(fork_),SumW2Error(true),Save(true),PrintLevel(-1),Warnings(false),PrintEvalErrors(-1)) 
+      mhFitRes = mhFitCombPdf->fitTo(*mhFitCombData,NumCPU(fork_),SumW2Error(true),Save(true),PrintLevel(-1)) :
+      mhFitRes = mhFitCombPdf->fitTo(*mhFitCombData,NumCPU(fork_),SumW2Error(true),Save(true),PrintLevel(-1),PrintEvalErrors(-1)) 
     ;
       
     mhFitRes->floatParsFinal().Print("v");
@@ -1143,7 +1262,7 @@ void SimultaneousFit::plotPDF(string proc, int cat){
   RooPlot *plot = mass->frame(Range(105,155));
   for (int m=110; m<=150; m++){
     MH->setVal(m);
-    extendPdfRel->plotOn(plot);
+    extendPdfRel->plotOn(plot,Normalization(1.0,RooAbsReal::RelativeExpected));
   }
   plot->Draw();
   canv->Print(Form("plots/%s_cat%d.pdf",proc.c_str(),cat));

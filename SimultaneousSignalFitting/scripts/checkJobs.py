@@ -29,6 +29,7 @@ for root, dirs, files in os.walk(jobdir):
   running_jobs = fnmatch.filter(files,'*.sh.run')
   finished_jobs = fnmatch.filter(files,'*.sh.done')
   failed_jobs = fnmatch.filter(files,'*.sh.fail')
+  all_jobs = fnmatch.filter(files,'*.sh')
 
 print 'Jobs complete:'
 print '\t', finished_jobs
@@ -36,6 +37,20 @@ print 'Jobs running:'
 print '\t', running_jobs
 print 'Jobs failed:'
 print '\t', failed_jobs
+
+queued_jobs=[]
+for job in all_jobs:
+  if os.path.isfile('%s%s.done'%(jobdir,job)): continue
+  elif os.path.isfile('%s%s.run'%(jobdir,job)): continue
+  elif os.path.isfile('%s%s.fail'%(jobdir,job)): continue
+  else: queued_jobs.append(job)
+
+print 'Jobs queued:'
+print '\t', queued_jobs
+
+if len(all_jobs)!=len(finished_jobs):
+  sys.exit('Some jobs are still queued or have not been submitted. Please check')
+  
 
 if len(running_jobs)==0 and len(failed_jobs)==0 and len(finished_jobs)>0:
   print 'All jobs complete'

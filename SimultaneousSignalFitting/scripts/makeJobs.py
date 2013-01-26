@@ -8,14 +8,14 @@ parser.add_option("-f","--fork",dest="fork",type="int",default=8,help="Fork NLL 
 parser.add_option("-r","--recursive",dest="recursive",action="store_true",default=False)
 parser.add_option("-q","--queue",dest="queue",type="str",default="1nh")
 parser.add_option("--submit",action="store_true",dest="submit",default=False)
+parser.add_option("--linearInterp",action="store_true",dest="linearInterp",default=False)
 (options,args)=parser.parse_args()
 
 import os
 
 os.system('mkdir -p %s'%options.outputdir)
-os.system('mkdir -p scripts/jobs')
 
-combinefile = open('scripts/jobs/filestocombine.dat','w')
+combinefile = open('%s/filestocombine.dat'%options.outputdir,'w')
 
 datfile = open(options.inputfile)
 for line in datfile.readlines():
@@ -39,7 +39,7 @@ for line in datfile.readlines():
   sigOrder  = int(line_els[5])
   fracOrder = int(line_els[6])
   combinefile.write('%s %s_cat%d\n'%(outfile,proc,cat))
-  script = open('%s/scripts/jobs/sub_%s_cat%d.sh'%(os.getcwd(),proc,cat),'w')
+  script = open('%s/%s/sub_%s_cat%d.sh'%(os.getcwd(),options.outputdir,proc,cat),'w')
   os.system('rm -f %s.done'%(script.name))
   os.system('rm -f %s.fail'%(script.name))
   os.system('rm -f %s.run'%(script.name))
@@ -48,7 +48,8 @@ for line in datfile.readlines():
   script.write('cd %s\n'%os.getcwd())
   script.write('eval `scramv1 runtime -sh`\n')
   script.write('touch %s.run\n'%(script.name))
-  script.write('if ( ./bin/SimultaneousSignalFit -i %s -o %s -p %s -c %d -g %d --dmOrder %d --sigmaOrder %d --fracOrder %d '%(inWSfile,outfile,proc,cat,nGaus,dmOrder,sigOrder,fracOrder))
+  if options.linearInterp: script.write('if ( ./bin/SimultaneousSignalFit -i %s -o %s -p %s -c %d -g %d --onlyInitialFit --linearInterp '%(inWSfile,outfile,proc,cat,nGaus))
+  else: script.write('if ( ./bin/SimultaneousSignalFit -i %s -o %s -p %s -c %d -g %d --dmOrder %d --sigmaOrder %d --fracOrder %d '%(inWSfile,outfile,proc,cat,nGaus,dmOrder,sigOrder,fracOrder))
   if options.fork: script.write('--fork %d '%options.fork)
   if options.recursive: script.write('--recursive ')
   script.write(') then \n')
