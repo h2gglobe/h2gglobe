@@ -807,13 +807,31 @@ void SimultaneousFit::makeHistFunc(string name, int order, string proc, int cat)
   }
 }
 
-void SimultaneousFit::loadPriorConstraints(string filename){
+void SimultaneousFit::loadPriorConstraints(string filename, int mh){
   
   dumpFitParams();
   ifstream datfile;
   datfile.open(filename.c_str());
-  while (datfile.good());
+  if (datfile.fail()) return;
+  while (datfile.good()) {
+    string line;
+    getline(datfile,line);
+    if (line=="\n" || line.substr(0,1)=="#" || line==" " || line.empty()) continue;
+    string name = line.substr(0,line.find_first_of(" "));
+    double val = boost::lexical_cast<double>(line.substr(line.find_first_of(" ")+1,string::npos));
+    string var = name.substr(0,name.find("_mh"));
+    string gausN = name.substr(name.find("_g"),string::npos);
+    string paramName = var+gausN;
+    int mhS = boost::lexical_cast<int>(name.substr(name.find("_mh")+3,name.find("_g")-name.find("_mh")-3));
+    cout << paramName << " " << mhS << " " << val << endl;
+    if (mhS==mh) {
+      fitParams[paramName]->setVal(val);
+      if (val>0.) fitParams[paramName]->setRange(0.9*val,1.1*val);
+      else fitParams[paramName]->setRange(1.1*val,0.9*val);
+    }
+  }
   datfile.close();
+  dumpFitParams();
 
 }
 
@@ -880,7 +898,7 @@ void SimultaneousFit::runFit(string proc, int cat, int nGaussians, int dmOrder, 
    
     if (initialFit_){
       cout << "------ fitting ------- " << endl;
-      if (loadPriorConstraints_) loadPriorConstraints(Form("dat/initFit_%s_cat%d.dat",proc.c_str(),cat));
+      if (loadPriorConstraints_) loadPriorConstraints(Form("dat/initFit_%s_cat%d.dat",proc.c_str(),cat),mh);
       RooFitResult *fitRes;
       verbose_ >=2 ?
         fitRes = sigModel->fitTo(*data,NumCPU(fork_),SumW2Error(true),Save(true)) :

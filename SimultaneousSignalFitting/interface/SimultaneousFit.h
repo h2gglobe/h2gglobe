@@ -94,7 +94,7 @@ class SimultaneousFit {
     bool isExclusiveCat(int cat);
     bool isInclusiveCat(int cat);
 
-    void loadPriorConstraints(string);
+    void loadPriorConstraints(string, int);
     void loadVariablesMap();
     void dumpVariablesMap();
     void loadSmearVals();
