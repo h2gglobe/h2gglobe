@@ -3826,6 +3826,10 @@ void LoopAll::PhotonsToVeto(TLorentzVector* veto_p4, float drtoveto, std::vector
 
     for(int ipho=0; ipho<pho_n; ipho++){
         TLorentzVector* photon = (TLorentzVector*) pho_p4->At(ipho);
+        if(GFDEBUG) std::cout<<"ipho "<<ipho<<std::endl;
+        if(GFDEBUG) std::cout<<"eta "<<photon->Eta()<<std::endl;
+        if(GFDEBUG) std::cout<<"dr "<<photon->DeltaR(*veto_p4)<<std::endl;
+        if(GFDEBUG) std::cout<<"drtotk "<<pho_drtotk_25_99[ipho]<<std::endl;
         if(photon->DeltaR(*veto_p4)<drtoveto) {
             vetos.push_back(true);
         } else if (drtotkveto  &&  pho_drtotk_25_99[ipho]<1.0) {
@@ -4301,8 +4305,11 @@ int LoopAll::ElectronSelectionMVA2012(float elptcut){
 
     for(int iel=0; iel<el_std_n; iel++){
         if(ElectronMVACuts(iel)){
+            if(GFDEBUG) std::cout<<"passing mva "<<std::endl;
             TLorentzVector* thiselp4 = (TLorentzVector*) el_std_p4->At(iel);
+            if(GFDEBUG) std::cout<<"passing eta "<<thiselp4->Eta()<<std::endl;
             if(elptcut<thiselp4->Pt()){
+                if(GFDEBUG) std::cout<<"passing pt "<<std::endl;
                 if(bestmvaval<el_std_mva_nontrig[iel]) {
                     bestmvaval=el_std_mva_nontrig[iel];
                     el_ind=iel;
@@ -4370,10 +4377,12 @@ bool LoopAll::ElectronMVACuts(int el_ind, int vtx_ind){
 
 bool LoopAll::ElectronPhotonCuts2012B(TLorentzVector& pho1, TLorentzVector& pho2, TLorentzVector& ele){
     bool pass=false;
+    if(GFDEBUG) std::cout<<"dreg1 dreg2 "<<pho1.DeltaR(ele)<<" "<<pho2.DeltaR(ele)<<std::endl;
     if( pho1.DeltaR(ele) <= 1.0) return pass;
     if( pho2.DeltaR(ele) <= 1.0) return pass;
     TLorentzVector elpho1=ele + pho1;
     TLorentzVector elpho2=ele + pho2;
+    if(GFDEBUG) std::cout<<"dMeg1 dMeg2 "<<fabs(elpho1.M() - 91.19)<<" "<<fabs(elpho2.M() - 91.19)<<std::endl;
     if( fabs(elpho1.M() - 91.19) <= 10) return pass;
     if( fabs(elpho2.M() - 91.19) <= 10) return pass;
     
