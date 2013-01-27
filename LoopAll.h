@@ -117,7 +117,6 @@ class LoopAll {
   // Zee Validaton Flag
   bool runZeeValidation;
   bool makeDummyTrees;
-  bool applyMETCleaning;
   std::string cicVersion;
   bool usePFCiC;
   
@@ -1181,7 +1180,8 @@ void PhotonsToVeto(TLorentzVector* veto_p4, float drtoveto, std::vector<bool>& v
 //HCP2012
 TLorentzVector METCorrection2012B(TLorentzVector lead_p4, TLorentzVector sublead_p4);
 //bool METAnalysis2012B(float MET);
-bool METAnalysis2012B(TLorentzVector lead_p4, TLorentzVector sublead_p4, bool useUncor );
+bool METAnalysis2012B(TLorentzVector lead_p4, TLorentzVector sublead_p4, bool useUncor, bool doMETCleaning=true );
+bool METCleaning2012B(TLorentzVector& lead_p4, TLorentzVector& sublead_p4, TLorentzVector& myMet);
 
 //~ICHEP2012
 //correct met

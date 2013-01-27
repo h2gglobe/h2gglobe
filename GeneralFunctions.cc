@@ -1206,7 +1206,7 @@ TLorentzVector LoopAll::METCorrection2012B(TLorentzVector lead_p4, TLorentzVecto
   return finalCorrMET;
 }
 
-bool LoopAll::METAnalysis2012B(TLorentzVector lead_p4, TLorentzVector sublead_p4, bool useUncorr){
+bool LoopAll::METAnalysis2012B(TLorentzVector lead_p4, TLorentzVector sublead_p4, bool useUncorr, bool doMETCleaning){
 
   bool tag=false;
 
@@ -1236,35 +1236,45 @@ bool LoopAll::METAnalysis2012B(TLorentzVector lead_p4, TLorentzVector sublead_p4
   if (fabs(leadEta)>1.5)    return tag;
   if (fabs(subleadEta)>1.5) return tag;
  
-  if(applyMETCleaning){
-    if(GFDEBUG) std::cout<<"cleaning met"<<std::endl;
-    TLorentzVector diphoton_p4 = lead_p4 + sublead_p4;
-    float dPhiMetGG   = fabs(diphoton_p4.DeltaPhi(myMet));
-    if( dPhiMetGG <= 2.1 ) return tag;
-
-    float jetptmin=50;
-    float jethighpt=0;
-    TLorentzVector* hiptjet;
-    for(int ijet=0; ijet<jet_algoPF1_n; ijet++){
-      TLorentzVector* thisjet=(TLorentzVector*) jet_algoPF1_p4->At(ijet);
-      if( thisjet->DeltaR(lead_p4)<0.5) continue;
-      if( thisjet->DeltaR(sublead_p4)<0.5) continue;
-      if(thisjet->Pt() > jethighpt){
-        jethighpt= thisjet->Pt();
-        hiptjet=thisjet;
-      }
-    }
-
-    if(jethighpt>jetptmin){
-      if(fabs(hiptjet->DeltaPhi(myMet))>=2.7){
-        return tag;
-      }
-    }
+  if(doMETCleaning){
+    bool passcleaning = METCleaning2012B(lead_p4, sublead_p4, myMet);
+    if(!passcleaning) return tag;
   }
 
   if ( myMet.Pt() > 70 ) tag = true;
 
   return tag;
+}
+
+bool LoopAll::METCleaning2012B(TLorentzVector& lead_p4, TLorentzVector& sublead_p4, TLorentzVector& myMet){
+
+    bool pass=false;
+    if(GFDEBUG) std::cout<<"cleaning met"<<std::endl;
+    TLorentzVector diphoton_p4 = lead_p4 + sublead_p4;
+    float dPhiMetGG   = fabs(diphoton_p4.DeltaPhi(myMet));
+    if( dPhiMetGG <= 2.1 ) return pass;
+
+    float jetptmin=50;
+    float jethighpt=0;
+    TLorentzVector* hiptjet;
+    for(int ijet=0; ijet<jet_algoPF1_n; ijet++){
+        TLorentzVector* thisjet=(TLorentzVector*) jet_algoPF1_p4->At(ijet);
+        if( thisjet->DeltaR(lead_p4)<0.5) continue;
+        if( thisjet->DeltaR(sublead_p4)<0.5) continue;
+        if(thisjet->Pt() > jethighpt){
+            jethighpt= thisjet->Pt();
+            hiptjet=thisjet;
+        }
+    }
+
+    if(jethighpt>jetptmin){
+        if(fabs(hiptjet->DeltaPhi(myMet))>=2.7){
+          return pass;
+        }
+    }
+
+    pass=true;
+    return pass;
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------

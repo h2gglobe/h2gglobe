@@ -416,7 +416,6 @@ LoopAll::LoopAll(TTree *tree) :
 
   runZeeValidation = false;
   makeDummyTrees = false;
-  applyMETCleaning = true;
   usePFCiC = true;
   pfisoOffset=2.5;
   cicVersion="7TeV";

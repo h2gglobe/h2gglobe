@@ -2755,11 +2755,20 @@ void PhotonAnalysis::ControlPlotsMetTag2012B(LoopAll& l, TLorentzVector lead_p4,
     l.FillHist(Form("MetTag_uncorrmetPhi_%s",label.c_str()),   met_cat, l.met_phi_pfmet, evweight);
     l.FillHist(Form("MetTag_corrmet_%s",label.c_str()),        met_cat, corrMet,    evweight);
     l.FillHist(Form("MetTag_corrmetPhi_%s",label.c_str()),     met_cat, corrMetPhi, evweight);
-    l.FillHist(Form("MetTag_dPhiLead_%s",label.c_str()),       met_cat, fabs(myMet.DeltaPhi(lead_p4)), evweight);
-    l.FillHist(Form("MetTag_dPhiSub_%s",label.c_str()),        met_cat, fabs(myMet.DeltaPhi(sublead_p4)), evweight);
-    float maxdphi = (fabs(myMet.DeltaPhi(lead_p4))>fabs(myMet.DeltaPhi(sublead_p4))) ? myMet.DeltaPhi(lead_p4) : myMet.DeltaPhi(sublead_p4);
-    l.FillHist(Form("MetTag_dPhiMax_%s",label.c_str()),        met_cat, fabs(maxdphi), evweight);
-    l.FillHist(Form("MetTag_dPhiDipho_%s",label.c_str()),      met_cat, fabs(myMet.DeltaPhi(dipho_p4)), evweight);
+    bool cleanmet = l.METCleaning2012B(lead_p4, sublead_p4, myMet);
+    if( cleanmet ) {
+        l.FillHist(Form("MetTag_corrcleanedmet_%s",label.c_str()),        met_cat, corrMet,    evweight);
+        l.FillHist(Form("MetTag_corrcleanedmetPhi_%s",label.c_str()),     met_cat, corrMetPhi, evweight);
+    }
+
+
+    if(corrMet>70){
+        l.FillHist(Form("MetTag_dPhiLead_%s",label.c_str()),       met_cat, fabs(myMet.DeltaPhi(lead_p4)), evweight);
+        l.FillHist(Form("MetTag_dPhiSub_%s",label.c_str()),        met_cat, fabs(myMet.DeltaPhi(sublead_p4)), evweight);
+        float maxdphi = (fabs(myMet.DeltaPhi(lead_p4))>fabs(myMet.DeltaPhi(sublead_p4))) ? myMet.DeltaPhi(lead_p4) : myMet.DeltaPhi(sublead_p4);
+        l.FillHist(Form("MetTag_dPhiMax_%s",label.c_str()),        met_cat, fabs(maxdphi), evweight);
+        l.FillHist(Form("MetTag_dPhiDipho_%s",label.c_str()),      met_cat, fabs(myMet.DeltaPhi(dipho_p4)), evweight);
+    }
 
     TLorentzVector* leadjt;
     float maxpt=0;
@@ -2775,7 +2784,7 @@ void PhotonAnalysis::ControlPlotsMetTag2012B(LoopAll& l, TLorentzVector lead_p4,
         }
     }
 
-    if(maxpt > 0){
+    if(maxpt > 50){
         l.FillHist(Form("MetTag_leadJetPt_%s",label.c_str()),      met_cat, leadjt->Pt(), evweight);
         l.FillHist(Form("MetTag_dPhiJet_%s",label.c_str()),        met_cat, fabs(myMet.DeltaPhi(*leadjt)), evweight);
         l.FillHist2D(Form("MetTag_JetPt_dPhi_%s",label.c_str()),   met_cat, leadjt->Pt(), fabs(myMet.DeltaPhi(*leadjt)), evweight);
