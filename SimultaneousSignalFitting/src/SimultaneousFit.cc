@@ -108,7 +108,7 @@ void SimultaneousFit::dumpStartVals(){
 
 void SimultaneousFit::dumpStartVals(string fname){
   ofstream datfile;
-  datfile.open(Form("dat/%s",fname.c_str()));
+  datfile.open(Form("%s",fname.c_str()));
   for (map<string,double>::iterator val=startVals.begin(); val!=startVals.end(); val++) {
     datfile << Form("%s %1.5f",val->first.c_str(),val->second) << endl;
   }
@@ -826,8 +826,8 @@ void SimultaneousFit::loadPriorConstraints(string filename, int mh){
     cout << paramName << " " << mhS << " " << val << endl;
     if (mhS==mh) {
       fitParams[paramName]->setVal(val);
-      if (val>0.) fitParams[paramName]->setRange(0.9*val,1.1*val);
-      else fitParams[paramName]->setRange(1.1*val,0.9*val);
+      if (val>0.) fitParams[paramName]->setRange(0.8*val,1.2*val);
+      else fitParams[paramName]->setRange(1.2*val,0.8*val);
     }
   }
   datfile.close();
@@ -943,7 +943,7 @@ void SimultaneousFit::runFit(string proc, int cat, int nGaussians, int dmOrder, 
   
   // make the RooHistFuncs for the parameters
   makeHistFuncs(nGaussians,dmOrder,sigmaOrder,fracOrder,proc,cat);
-  dumpStartVals(Form("initFit_%s_cat%d.dat",proc.c_str(),cat));
+  if (!loadPriorConstraints_) dumpStartVals(Form("dat/initFit_%s_cat%d.dat",proc.c_str(),cat));
 
   // Set up the simultaneous fit
   constructFormulaVars(nGaussians,dmOrder,sigmaOrder,fracOrder,proc,cat);
@@ -1122,8 +1122,8 @@ void SimultaneousFit::runFit(string proc, int cat, int nGaussians, int dmOrder, 
     delete plot;
   }
   allPlot->Draw();
-  canv->Print(Form("plots/finalFit/%s_cat%d/%s_cat%d_allmh.pdf",proc.c_str(),cat,proc.c_str(),cat));
-  canv->Print(Form("plots/finalFit/%s_cat%d/%s_cat%d_allmh.png",proc.c_str(),cat,proc.c_str(),cat));
+  canv->Print(Form("plots/%s_cat%d_allmh.pdf",proc.c_str(),cat));
+  canv->Print(Form("plots/%s_cat%d_allmh.png",proc.c_str(),cat));
   delete allPlot;
   delete canv;
  

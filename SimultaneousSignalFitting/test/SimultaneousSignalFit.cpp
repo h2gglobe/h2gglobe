@@ -31,6 +31,7 @@ int verbose_=0;
 bool initialFit_=true;
 bool onlyInitialFit_=false;
 bool linearInterp_=false;
+bool loadPriorConstraints_=false;
 bool setToFitValues_=false;
 bool simultaneousFit_=true;
 bool mhDependentFit_=false;
@@ -66,7 +67,8 @@ void OptionParser(int argc, char *argv[]){
     ("noInitialFit",                                                                          "Do not run initial fit")
     ("onlyInitialFit",                                                                        "Only run initial fit")
     ("linearInterp",                                                                          "Run the traditional method of directly interpolating parameters linearly")
-    ("setToFitValues",                                                                          "If running the traditional method this massively helps the interpolation (although it cheats slightly)")
+    ("loadPriorConstraints",                                                                  "Load prior constraints from dat file")
+    ("setToFitValues",                                                                        "If running the traditional method this massively helps the interpolation (although it cheats slightly)")
     ("mhFit",                                                                                 "Run mh dependent fit instead of simultaneous fit (NOTE: still in development)")
     ("dumpVars,d",                                                                            "Dump variables into .dat file")
     ("fork", po::value<int>(&forkN_)->default_value(8),                                       "Fork NLL calculations over multiple CPU (runs quicker)")
@@ -87,6 +89,7 @@ void OptionParser(int argc, char *argv[]){
   if (vm.count("noInitialFit"))     initialFit_=false;
   if (vm.count("onlyInitialFit"))   onlyInitialFit_=true;
   if (vm.count("linearInterp"))     linearInterp_=true;
+  if (vm.count("loadPriorConstraints"))     loadPriorConstraints_=true;
   if (vm.count("setToFitValues"))   setToFitValues_=true;
   if (vm.count("mhFit")){           
                                     mhDependentFit_=true;
@@ -115,7 +118,7 @@ int main (int argc, char *argv[]){
   simultaneousFit->setInitialFit(initialFit_);
   simultaneousFit->setSimultaneousFit(simultaneousFit_);
   simultaneousFit->setMHDependentFit(mhDependentFit_);
-  simultaneousFit->setLoadPriorConstraints(true);
+  simultaneousFit->setLoadPriorConstraints(loadPriorConstraints_);
   if (linearInterp_) {
     simultaneousFit->setLinearInterp(true);
     onlyInitialFit_=true;
