@@ -24,7 +24,6 @@ void fixOverlay() {
 void setTDRStyle(bool force) {
 //   TStyle *tdrStyle = new TStyle("tdrStyle","Style for P-TDR");
 
-	std::cout<< "Being Called!" <<std::endl;
 // For the canvas:
   gStyle->SetCanvasBorderMode(0);
   gStyle->SetCanvasColor(kWhite);

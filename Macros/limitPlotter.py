@@ -258,7 +258,7 @@ def MakeMlfPlot(MG):
     mytext.SetNDC()
     
     
-    box = ROOT.TPave(0.19,0.17,0.4,0.3,2,"NDC")
+    box = ROOT.TPave(0.19,0.17,0.42,0.3,2,"NDC")
     box.SetLineColor(1)
     box.SetFillColor(0)
     box.SetShadowColor(0)
@@ -342,7 +342,7 @@ def MakePvalPlot(MG):
     mytext.SetTextFont(42)
     mytext.SetNDC()
 
-    box = ROOT.TPave(0.19,0.17,0.4,0.3,2,"NDC")
+    box = ROOT.TPave(0.19,0.17,0.42,0.3,2,"NDC")
     box.SetLineColor(1)
     box.SetFillColor(0)
     box.SetShadowColor(0)
@@ -412,7 +412,7 @@ def MakeLimitPlot(MG):
     mytext.SetTextFont(42)
     mytext.SetTextSize(FONTSIZE)
     
-    box = ROOT.TPave(0.19,0.76,0.42,0.89,2,"NDC")
+    box = ROOT.TPave(0.19,0.76,0.44,0.89,2,"NDC")
     box.SetLineColor(1)
     box.SetFillColor(0)
     box.SetShadowColor(0)
