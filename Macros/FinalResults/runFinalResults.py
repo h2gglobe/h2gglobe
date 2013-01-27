@@ -5,7 +5,7 @@
 #   ln -s ../testDoAllScript.py
 #   ln -s ../subParametricToBatch.py
 #   ln -s ../subBinnedToBatch.py
-# the only other files should be the relvant workspaces pointed to by these datacards
+# the only other files should be the relevant workspaces pointed to by these datacards
 # should be in a cmssw environment with HiggsAnalysis/CombinedLimit compiled
 
 import os
@@ -64,7 +64,7 @@ if not options.makePlots:
       command = './subParametricToBatch.py -p %s -d %s -D %s -q 1nh -L %d -H %d -S %3.1f'%(path,card,suffix,options.mHlow,options.mHhigh,options.mHstep)
       if options.dryRun: command += " --dryRun"
       os.system(command+' -M ExpProfileLikelihood --expectSignal=1')
-      os.system(command+' -M ExpProfileLikelihood --expectSignal=1 --expectSignalMass=125')
+      #os.system(command+' -M ExpProfileLikelihood --expectSignal=1 --expectSignalMass=125')
       if options.unblind:
         os.system(command+' -M Asymptotic')
         os.system(command+' -M ProfileLikelihood')
@@ -85,7 +85,7 @@ if not options.makePlots:
 else:
   # check jobs are complete
   job_dirs = ['Asymptotic','ExpProfileLikelihood']
-  if options.parametric: job_dirs.append('ExpProfileLikelihood_m125')
+  #if options.parametric: job_dirs.append('ExpProfileLikelihood_m125')
   if options.unblind: 
     job_dirs.append('ProfileLikelihood')
     job_dirs.append('MaxLikelihoodFit')
@@ -133,11 +133,11 @@ else:
     # pvalues
     print "Running exppval..."
     os.system("python limitPlotter.py -M ProfileLikelihood --pval -p %s/%s/ExpProfileLikelihood -o %s/%s/exppval.root"%(result_dir,suffix,result_dir,suffix))
-    if options.parametric: 
-      print "Running exppval_m125..."
-      os.system("python limitPlotter.py -M ProfileLikelihood --pval -p %s/%s/ExpProfileLikelihood_m125 -o %s/%s/exppval_m125.root"%(result_dir,suffix,result_dir,suffix))
+    #if options.parametric: 
+      #print "Running exppval_m125..."
+      #os.system("python limitPlotter.py -M ProfileLikelihood --pval -p %s/%s/ExpProfileLikelihood_m125 -o %s/%s/exppval_m125.root"%(result_dir,suffix,result_dir,suffix))
     pval_command = "python limitPlotter.py -M ProfileLikelihood --nogrid --pval --addline=\"%s/%s/exppval.root:1:2:Expected 1xSM\" --addtxt=\"%s\""%(result_dir,suffix,line)
-    if options.parametric: pval_command += " --addline=\"%s/%s/exppval_m125.root:4:2:Expected 1xSM m_{H}=125\""%(result_dir,suffix)
+    #if options.parametric: pval_command += " --addline=\"%s/%s/exppval_m125.root:4:2:Expected 1xSM m_{H}=125\""%(result_dir,suffix)
     if options.unblind: pval_command += " -p %s/%s/ProfileLikelihood -o %s/%s/obspval.root"%(result_dir,suffix,result_dir,suffix)
     else: pval_command += " -p %s/%s/ExpProfileLikelihood -e"%(result_dir,suffix)
     print "Running pval plot..."
@@ -173,7 +173,7 @@ else:
     # make a special pvalue plot
     special_command = "python limitPlotter.py -M ProfileLikelihood --nogrid --pval -p %s/7and8TeV/ExpProfileLikelihood -e --addline=\"%s/7TeV/exppval.root:2:2:Expected 1xSM (7TeV)\" --addline=\"%s/8TeV/exppval.root:4:2:Expected 1xSM (8TeV)\" --addline=\"%s/7and8TeV/exppval.root:1:2:Expected 1xSM (7+8TeV)\" --addtxt=\"#splitline{#sqrt{s}=7TeV L=%3.1ffb^{-1}}{#sqrt{s}=8TeV L=%3.1ffb^{-1}}\""%(result_dir,result_dir,result_dir,result_dir,options.lumi2011,options.lumi2012)
     if options.unblind:
-      special_command += " --addline=\"%s/7TeV/obspval.root:2:1:Observed (7TeV)\" --addline=\"%s/8TeV/obspval.root:4:1:Observed (8TeV)\" --addline=\"%s/7and8TeV/obspval.root:2:1:Observed (7+8TeV)\""%(result_dir,result_dir,result_dir,relvant)
+      special_command += " --addline=\"%s/7TeV/obspval.root:2:1:Observed (7TeV)\" --addline=\"%s/8TeV/obspval.root:4:1:Observed (8TeV)\" --addline=\"%s/7and8TeV/obspval.root:1:1:Observed (7+8TeV)\""%(result_dir,result_dir,result_dir)
     os.system(special_command)
     #print '\t', special_command
     if options.unblind:

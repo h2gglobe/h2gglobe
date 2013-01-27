@@ -1,39 +1,42 @@
-Some instructions for running combine from globe workspaces
-and producing final plots etc.
+# Instructions for running the final results in globe for either the binned or parametric model
+# You should check out the head of globe in a CMSSW area and also get V02-06-00 of 
+# HiggsAnalysis/CombinedLimit and compile it
 
-Example (binned mass factorized)
+# e.g for binned limits
+cd h2gglobe/Macros/FinalResults
+mkdir binned_model
+cd binned_model
+ln -s ../runFinalResults.py
+ln -s ../subParametricToBatch.py
+ln -s ../subBinnedToBatch.py
 
-First make a working directory and then even another one inside that if you
-are running multiple types (i.e. both the massfac and the cutbased at the same
-time)
+# copy 2011 and 2012 workspaces into this directory
+# copy 2011 and 2012 datacards into this directory
 
-    mkdir MORIONDreview
-    mkdir MORIONDreview/binned_massfac
+# first we want to submit the combine jobs to the batch:
+./runFinalResults.py --card2011="name_of_card_2011.txt" --card2012="name_of_card_2012.txt" --unblind
 
-Copy the relevant workspaces and txt files into that directory
+# once all the jobs have finished we can plot them
+./runFinalResults.py --unblind --makePlots --lumi2011=5.3 --lumi2012=19.6
 
-    cp <location_of_massfac_binned_workspace_2011> binned_massfac/CMS-HGG_2011.root
-    cp <location_of_massfac_binned_workspace_2012> binned_massfac/CMS-HGG_2012.root
-    cp <location_of_massfac_binned_datacard_2011> binned_massfac/datacard_massfac_2011.txt
-    cp <location_of_massfac_binned_datacard_2012> binned_massfac/datacard_massfac_2012.txt
+# all the relevant plots should appear in a directory called plots
 
-Change into the directory and create soft links to the scripts required
+# e.g for the parametric limits
+cd h2gglobe/Macros/FinalResults
+mkdir parametric_model
+cd parametric_model
+ln -s ../runFinalResults.py
+ln -s ../subParametricToBatch.py
+ln -s ../subBinnedToBatch.py
 
-    cd MORIONDreview/binned_massfac
-    ln -s ../../subBinnedToBatch.py
-    ln -s ../../subParametricToBatch.py
-    ln -s ../../runFinalResults.py
+# copy 2011 and 2012 signal and data (with background pols) workspaces into this directory
+# copy 2011 and 2012 datacards into this directory
 
-Run the script "runFinalResults.py" with the relevant options. First with the
---makePlots option off.
+# first we want to submit the combine jobs to the batch:
+./runFinalResults.py --card2011="name_of_card_2011.txt" --card2012="name_of_card_2012.txt" --unblind -p
 
-    ./runFinalResults.py --card2011="datacard_massfacmva_2011.txt" --card2012="datacard_massfacmva_2012.txt" --unblind
+# once all the jobs have finished we can plot them
+./runFinalResults.py --unblind -p --makePlots --lumi2011=5.3 --lumi2012=19.6
 
-When this has completed run the script again with the --makePlots options on.
-You can also pass the lumi of the two years
-
-    ./runFinalResults.py --card2011="datacard_massfacmva_2011.txt" --card2012="datacard_massfacmva_2012.txt" --unblind --makePlots --lumi2011=5.3 --lumi2012=19.6
-
-The plots should appear in the directory you are in under a sub directory
-called plots
+# all the relevant plots should appear in a directory called plots
 
