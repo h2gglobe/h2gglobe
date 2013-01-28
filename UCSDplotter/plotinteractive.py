@@ -68,6 +68,8 @@ dotitles=False
 cattitles=["EB-EB","!(EB-EB)"]
 dointegrals=False
 
+allintegrals=False
+
 dataitype=0
 
 linex=-1
@@ -757,17 +759,23 @@ def Plot(num,printsuffix="",printcat=-1):
         stacks["bkg"].SetTitle("All Categories")
 
         dataIntegral = -1
+        if Debug:
+            print "finished start"
        
         if dodata: 
             lineorder = stacks["datalines"].keys()
             lineorder.sort()
             lineorder.reverse()
+            if Debug:
+                print "lineorder",lineorder
             for index in lineorder:
                 itype=index[1]
                 if dolegend:
                     legend.AddEntry(stacks["datalines"][index],str(samples[itype].displayname),"ep"); 
-            dataIntegral = stacks["datalines"+str(icat)][lineorder[0]].Integral()
+            #dataIntegral = stacks["datalines"+str(icat)][lineorder[0]].Integral()
             print dataIntegral
+        if DebugNew:
+            print "finished data"
         
         lineorder = stacks["siglines"].keys()
         lineorder.sort()
@@ -776,8 +784,8 @@ def Plot(num,printsuffix="",printcat=-1):
             itype=index[1]
             if dolegend:
                 legend.AddEntry(stacks["siglines"][index],str(samples[itype].displayname),"l"); 
-            sigIntegral = stacks["siglines"+str(icat)][index].Integral()
-            print sigIntegral
+            #sigIntegral = stacks["siglines"+str(icat)][index].Integral()
+            #print sigIntegral
         
         lineorder = stacks["bkglines"].keys()
         lineorder.sort()
@@ -800,7 +808,7 @@ def Plot(num,printsuffix="",printcat=-1):
             stacks["bkglines"][index].Draw("histsame")
             if dolegend:
                 legend.AddEntry(stacks["bkglines"][index],str(samples[itype].displayname),"f"); 
-        print "bkg integral",stacks["bkglines"+str(icat)][lineorder[0]].Integral()
+        #print "bkg integral",stacks["bkglines"+str(icat)][lineorder[0]].Integral()
         
         if dointegrals:
             oflowbin = int(stacks["bkglines"][lineorder[0]].GetNbinsX()+1)
@@ -1220,11 +1228,15 @@ def MakeMergeOverlayLines(sampletype):
                 if first == 1:
                     first=0
                     thishist=ROOT.gROOT.FindObject(histname).Clone("stacklines_index"+str(index))
+                    if allintegrals:
+                        print histname,thishist.Integral()
                     thishist=FormatHist(thishist,itype,sampletype)
                     fullhist=thishist.Clone("fullhist")
                 else:
                     thishist=ROOT.gROOT.FindObject(histname).Clone("stacklines_index"+str(index))
                     thishist=FormatHist(thishist,itype,sampletype)
+                    if allintegrals:
+                        print histname,thishist.Integral()
                     thishist.Add(fullhist)
                     fullhist.Add(FormatHist(ROOT.gROOT.FindObject(histname).Clone(),itype,sampletype))
                         
