@@ -3130,7 +3130,6 @@ bool LoopAll::PhotonMITPreSelection( int photon_index, int vertex_index, float *
     if( itype[current] == 0 || typerun != kReduce ) {
         if (val_hoe             >= mitCuts_hoe[photon_category]         ) return false;                                           
         if (val_sieie           >= mitCuts_sieie[photon_category]       ) return false;
-        if (val_ecaliso         >= mitCuts_ecaliso[photon_category]     ) return false;
         if (val_hcaliso         >= mitCuts_hcaliso[photon_category]     ) return false;                                           
         if (val_trkiso          >= mitCuts_trkiso[photon_category]      ) return false;
         //if (val_hcalecal        >= mitCuts_hcalecal[photon_category]    ) return false;
@@ -3145,6 +3144,8 @@ bool LoopAll::PhotonMITPreSelection( int photon_index, int vertex_index, float *
     // this does not depend on R9
     if( typerun != kReduce ) {
         if (val_pfiso02 >= mitCuts_pfiso[photon_category]) return false;            
+	if (applyEcalIsoPresel && (val_ecaliso         >= mitCuts_ecaliso[photon_category])     ) return false;
+
     }
    
     return true;

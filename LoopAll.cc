@@ -417,6 +417,7 @@ LoopAll::LoopAll(TTree *tree) :
   runZeeValidation = false;
   makeDummyTrees = false;
   usePFCiC = true;
+  applyEcalIsoPresel = false;
   pfisoOffset=2.5;
   cicVersion="7TeV";
 }
