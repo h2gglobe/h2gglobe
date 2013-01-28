@@ -1,5 +1,5 @@
-catName=barrelendcap catDef:abs(eta1)<1.479&&abs(eta2)<1.479,abs(eta1)>1.479||abs(eta2)>1.479
-catName=barrelbarrel catDef:abs(eta1)<1.479&&abs(eta2)<1.479
+catName=barrelendcap catDef:(abs(eta1)<1.479&&abs(eta2)<1.479),(abs(eta1)>1.479||abs(eta2)>1.479)
+catName=barrelbarrel catDef:(abs(eta1)<1.479&&abs(eta2)<1.479)
 catName=notbarrelbarrel catDef:abs(eta1)>1.479||abs(eta2)>1.479
 catName=barrelendcap1 catDef:abs(eta1)<1.479,abs(eta1)>1.479
 catName=barrelendcap2 catDef:abs(eta2)<1.479,abs(eta2)>1.479
@@ -8,3 +8,7 @@ catName=barrelendcapB catDef:((itype==0&&run>193752&&run<197459)||itype==41)&&ab
 catName=barrelendcapC catDef:((itype==0&&run>197556)||itype==41)&&abs(eta1)<1.479&&abs(eta2)<1.479,((itype==0&&run>197556)||itype==41)&&(abs(eta1)>1.479||abs(eta2)>1.479)
 catName=dipho1 catDef:dipho_mva>-1,dipho_mva>-0.5
 catName=dipho2 catDef:dipho_mva>-0.05,dipho_mva>0.2
+catName=none   catDef:run>0
+catName=cicevent catDef:(abs(eta1)<1.479&&abs(eta2)<1.479&&r91>0.94&&r92>0.94),(abs(eta1)<1.479&&abs(eta2)<1.479&&(r91<0.94||r92<0.94)),((abs(eta1)>1.479||abs(eta2)>1.479)&&r91>0.94&&r92>0.94),((abs(eta1)>1.479||abs(eta2)>1.479)&&(r91<0.94||r92<0.94))
+catName=cic1 catDef:(abs(eta1)<1.479&&r91>0.94),(abs(eta1)<1.479r91<0.94),(abs(eta1)<1.479&&r91>0.94),(abs(eta1)<1.479&&r91<0.94)
+catName=cic2 catDef:(abs(eta2)<1.479&&r92>0.94),(abs(eta2)<1.479r92<0.94),(abs(eta2)<1.479&&r92>0.94),(abs(eta2)<1.479&&r92<0.94)
