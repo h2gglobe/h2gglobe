@@ -34,7 +34,8 @@ public:
     void computeWp(int ijet, int ivtx=-1);
     
     void recomputeJec(int ijet, bool correct=false);
-    void recomputeJecEmulatingResponse(int ijet, bool correct=false, int entry=0);
+    void emulateJetResponse(int ijet);
+    void setJetResponseStep(float x) { lumiStep_ = x; };
     void applyJecUncertainty(int ijet, float shift);
     void applyJerUncertainty(int ijet, float shift);
 
@@ -56,6 +57,8 @@ private:
     TTree * flatTree;
     boost::shared_ptr<edm::ParameterSet> myPset;
 
+    int nLumiBins_;
+    float lumiStep_;
     JetResponseChange *jetResponseChange;
  
 };

@@ -49,6 +49,8 @@ JetHandler::JetHandler(const std::string & cfg, LoopAll & l):
 
 
     jetResponseChange = new JetResponseChange("aux/JetResponseVsEta.root");
+    nLumiBins_ = 0;
+
 }
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -276,30 +278,33 @@ void JetHandler::recomputeJec(int ijet, bool correct)
 }
 
 // ---------------------------------------------------------------------------------------------------------------
-void JetHandler::recomputeJecEmulatingResponse(int ijet, bool correct, int entry)
+/// void JetHandler::recomputeJecEmulatingResponse(int ijet, bool correct, int entry)
+void JetHandler::emulateJetResponse(int ijet)
 {
-    bool data = l_.itype[l_.current] == 0;
-    FactorizedJetCorrector * jecCor = ( data ? jecCorData_ : jecCorMc_ );
+    //// bool data = l_.itype[l_.current] == 0;
+    //// FactorizedJetCorrector * jecCor = ( data ? jecCorData_ : jecCorMc_ );
+    //// TLorentzVector * p4 = (TLorentzVector*)l_.jet_algoPF1_p4->At(ijet);
+    //// float oldPt = p4->Pt();
+    //// float uncorrPt = p4->Pt() / l_.jet_algoPF1_erescale[ijet];
+    //// float eta = p4->Eta();
+    //// 
+    //// jecCor->setJetPt(uncorrPt);
+    //// jecCor->setJetEta(eta);
+    //// jecCor->setJetA(l_.jet_algoPF1_area[ijet]);
+    //// jecCor->setRho(l_.rho_algo1);
+    //// float thejec = jecCor->getCorrection();
+    //// if( thejec < 0. ) { thejec = 0.; }
+    //// 
+    //// float response = jetResponseChange->getResponse(eta,float(entry%20)); // response change is given per fb^-1 --> do 20 bins of 1 fb-1
+    //// thejec*=response;
+
+    if( nLumiBins_ == 0 ) { nLumiBins_ = int(ceil(1.e-3*l_.intlumi_ / lumiStep_)); }
+
     TLorentzVector * p4 = (TLorentzVector*)l_.jet_algoPF1_p4->At(ijet);
-    float oldPt = p4->Pt();
-    float uncorrPt = p4->Pt() / l_.jet_algoPF1_erescale[ijet];
-    float eta = p4->Eta();
-    
-    jecCor->setJetPt(uncorrPt);
-    jecCor->setJetEta(eta);
-    jecCor->setJetA(l_.jet_algoPF1_area[ijet]);
-    jecCor->setRho(l_.rho_algo1);
-    float thejec = jecCor->getCorrection();
-    if( thejec < 0. ) { thejec = 0.; }
- 
-    float response = jetResponseChange->getResponse(eta,float(entry%20)); // response change is given per fb^-1 --> do 20 bins of 1 fb-1
-    thejec*=response;
-
-    float rescale = uncorrPt * thejec / p4->Pt();
-    l_.jet_algoPF1_erescale[ijet] = thejec;
-    *p4 *= rescale;  
-
-    
+    float emuLumi = float(abs(l_.event)%nLumiBins_)*lumiStep_;
+    //// std::cout << "emulateJetResponse " << l_.event << " " << abs(l_.event)%nLumiBins_ << " " << emuLumi << std::endl;
+    float response = jetResponseChange->getResponse(p4->Eta(),emuLumi); // response change is given per fb^-1 
+    *p4 *= response;  
 }
 
 

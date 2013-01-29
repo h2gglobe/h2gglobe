@@ -330,8 +330,9 @@ class PhotonAnalysis : public BaseAnalysis
     bool  doMCSmearing, doSystematics;
 
     bool recomputeBetas, recorrectJets, rerunJetMva, recomputeJetWp;
-    bool applyJer, applyJecUnc;
+    bool applyJer, applyJecUnc, emulateJetResponse;
     float jerShift, jecShift;
+    float jetResponseLumiStep;
     std::string jetHandlerCfg;
 
     // progress

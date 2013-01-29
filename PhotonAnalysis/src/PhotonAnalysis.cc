@@ -70,6 +70,8 @@ PhotonAnalysis::PhotonAnalysis()  :
     jerShift = 0.;
     applyJecUnc = false;
     jecShift = 0.;
+    emulateJetResponse = false;
+    jetResponseLumiStep = 0.1;
     jetHandler_ = 0;
 
     reComputeCiCPF = false;
@@ -1141,14 +1143,17 @@ void PhotonAnalysis::Init(LoopAll& l)
 	puTargetFile->Close();
     }
 
-    if( recomputeBetas || recorrectJets || rerunJetMva || recomputeJetWp || applyJer || applyJecUnc || l.typerun != l.kFill ) {
+    if( recomputeBetas || recorrectJets || rerunJetMva || recomputeJetWp || applyJer || applyJecUnc || emulateJetResponse 
+	|| l.typerun != l.kFill ) {
 	std::cout << "JetHandler: \n"
 		  << "recomputeBetas " << recomputeBetas << "\n"
 		  << "recorrectJets " << recorrectJets << "\n"
 		  << "rerunJetMva " << rerunJetMva << "\n"
-		  << "recomputeJetWp " << recomputeJetWp
+		  << "recomputeJetWp " << recomputeJetWp << "\n"
+		  << "emulateJetResponse " << emulateJetResponse
 		  << std::endl;
 	jetHandler_ = new JetHandler(jetHandlerCfg, l);
+	jetHandler_->setJetResponseStep(jetResponseLumiStep);
     }
 
     if( emulateBeamspot || reweighBeamspot ) {
@@ -1696,12 +1701,14 @@ void PhotonAnalysis::postProcessJets(LoopAll & l, int vtx)
 	    if( recorrectJets ) {
 		jetHandler_->recomputeJec(ijet, true);
 	    }
+	    if( emulateJetResponse && l.itype[l.current] != 0 ) {
+		jetHandler_->emulateJetResponse(ijet);
+	    }
 	    if( applyJer ) {
 		jetHandler_->applyJerUncertainty(ijet, jerShift);
 	    }
 	    if( applyJecUnc ) {
 		jetHandler_->applyJecUncertainty(ijet, jecShift);
-
 	    }
 	}
     }
