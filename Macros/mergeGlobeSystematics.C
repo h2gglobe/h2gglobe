@@ -4,7 +4,7 @@ TFile *oldFILE = new TFile("./vertex_reweighing_mva_Moriond.root");
 oldFILE->Print();
 oldFILE->ls();
 
-TFile *newFILE = TFile::Open("../AnalysisScripts/aux/sig_reweighing_moriond2013_mva_v2.root","recreate");
+TFile *newFILE = TFile::Open("../AnalysisScripts/aux/sig_reweighing_moriond2013_mva_v3.root","recreate");
 newFILE->cd();
 
 TGraphAsymmErrors * toCopy;
@@ -52,14 +52,14 @@ for (int cat=0;cat<ncats;cat++){
 int nphocats=4;
 
 //baseline
-Double_t ratioTP_[nphocats]            = {0.987,0.960,0.988,0.959};
-Double_t ratioTP_low_err_[nphocats]    = {0.011,0.014,0.008,0.023};
-Double_t ratioTP_high_err_[nphocats]   = {0.011,0.014,0.008,0.023};
+// Double_t ratioTP_[nphocats]            = {0.987,0.960,0.988,0.959};
+// Double_t ratioTP_low_err_[nphocats]    = {0.004,0.011,0.012,0.022};
+// Double_t ratioTP_high_err_[nphocats]   = {0.004,0.011,0.012,0.022};
  
 //mva
-// Double_t ratioTP_[nphocats]            = {0.998,0.969,0.994,0.957};
-// Double_t ratioTP_low_err_[nphocats]    = {0.007,0.008,0.008,0.014};
-// Double_t ratioTP_high_err_[nphocats]   = {0.007,0.008,0.008,0.014};
+Double_t ratioTP_[nphocats]            = {0.998,0.969,0.994,0.957};
+Double_t ratioTP_low_err_[nphocats]    = {0.003,0.007,0.010,0.019};
+Double_t ratioTP_high_err_[nphocats]   = {0.003,0.007,0.010,0.019};
  
 std::string iDLabels_[nphocats] 	    = {"EBHighR9","EBLowR9","EEHighR9","EELowR9"};
 
