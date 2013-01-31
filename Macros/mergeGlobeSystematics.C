@@ -4,7 +4,7 @@ TFile *oldFILE = new TFile("./vertex_reweighing_mva_Moriond.root");
 oldFILE->Print();
 oldFILE->ls();
 
-TFile *newFILE = TFile::Open("../AnalysisScripts/aux/sig_reweighing_moriond2013_mva_v3.root","recreate");
+TFile *newFILE = TFile::Open("../AnalysisScripts/aux/sig_reweighing_moriond2013_run2012D_mva_v1.root","recreate");
 newFILE->cd();
 
 TGraphAsymmErrors * toCopy;
@@ -18,13 +18,13 @@ int ncats = 8;
 // Numbers from Xiaohang: https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/995.html
 
 // baseline:
-Double_t effL1HLT_[ncats] 	       = {0.9979,0.9979,0.9979,0.9979,0.9979,0.9979,0.9979,0.9979};
+Double_t effL1HLT_[ncats] 	       = {0.9968,0.9968,0.9968,0.9968,0.9968,0.9968,0.9968,0.9968};
 
 // mva:
 // Double_t effL1HLT_[ncats] 	       = {0.9946,0.9946,0.9946,0.9946,0.9946,0.9946,0.9946,0.9946};
 
-Double_t effL1HLT_low_err_[ncats]  = {0.0005,0.0005,0.0005,0.0005,0.0005,0.0005,0.0005,0.0005};
-Double_t effL1HLT_high_err_[ncats] = {0.0005,0.0005,0.0005,0.0005,0.0005,0.0005,0.0005,0.0005};
+Double_t effL1HLT_low_err_[ncats]  = {0.0003,0.0003,0.0003,0.0003,0.0003,0.0003,0.0003,0.0003};
+Double_t effL1HLT_high_err_[ncats] = {0.0003,0.0003,0.0003,0.0003,0.0003,0.0003,0.0003,0.0003};
 
 for (int cat=0;cat<ncats;cat++){
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -51,15 +51,35 @@ for (int cat=0;cat<ncats;cat++){
 // can combine efficiencies and errors with effError.py 
 int nphocats=4;
 
-//baseline
-// Double_t ratioTP_[nphocats]            = {0.987,0.960,0.988,0.959};
-// Double_t ratioTP_low_err_[nphocats]    = {0.004,0.011,0.012,0.022};
-// Double_t ratioTP_high_err_[nphocats]   = {0.004,0.011,0.012,0.022};
+//baseline Run2012ABCD
+Double_t ratioTP_[nphocats]            = {0.987,0.960,0.988,0.959};
+Double_t ratioTP_low_err_[nphocats]    = {0.004,0.011,0.012,0.022};
+Double_t ratioTP_high_err_[nphocats]   = {0.004,0.011,0.012,0.022};
  
-//mva
-Double_t ratioTP_[nphocats]            = {0.998,0.969,0.994,0.957};
-Double_t ratioTP_low_err_[nphocats]    = {0.003,0.007,0.010,0.019};
-Double_t ratioTP_high_err_[nphocats]   = {0.003,0.007,0.010,0.019};
+//mva Run2012ABCD
+// Double_t ratioTP_[nphocats]            = {0.998,0.969,0.994,0.957};
+// Double_t ratioTP_low_err_[nphocats]    = {0.003,0.007,0.010,0.019};
+// Double_t ratioTP_high_err_[nphocats]   = {0.003,0.007,0.010,0.019};
+
+//baseline Run2012ABC
+// Double_t ratioTP_[nphocats]            = {0.990,0.966,0.994,0.969};
+// Double_t ratioTP_low_err_[nphocats]    = {0.004,0.010,0.011,0.023};
+// Double_t ratioTP_high_err_[nphocats]   = {0.004,0.010,0.011,0.023};
+ 
+//mva Run2012ABC
+// Double_t ratioTP_[nphocats]            = {0.997,0.969,0.994,0.957};
+// Double_t ratioTP_low_err_[nphocats]    = {0.003,0.006,0.009,0.019};
+// Double_t ratioTP_high_err_[nphocats]   = {0.003,0.006,0.009,0.019};
+
+//baseline Run2012D
+// Double_t ratioTP_[nphocats]            = {0.983,0.945,0.976,0.946};
+// Double_t ratioTP_low_err_[nphocats]    = {0.004,0.011,0.013,0.023};
+// Double_t ratioTP_high_err_[nphocats]   = {0.004,0.011,0.013,0.023};
+ 
+//mva Run2012D
+// Double_t ratioTP_[nphocats]            = {1.002,0.967,0.993,0.960};
+// Double_t ratioTP_low_err_[nphocats]    = {0.003,0.008,0.011,0.020};
+// Double_t ratioTP_high_err_[nphocats]   = {0.003,0.008,0.011,0.020};
  
 std::string iDLabels_[nphocats] 	    = {"EBHighR9","EBLowR9","EEHighR9","EELowR9"};
 
