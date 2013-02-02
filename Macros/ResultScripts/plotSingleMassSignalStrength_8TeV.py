@@ -24,32 +24,33 @@ mytext.SetTextSize(0.025)
 mytext.SetNDC()
 rMin=-12
 rMax=10.5
-Label1=TText()
-Label1.SetNDC()
-Label1.SetText(0.3,0.60,"8TeV")
-Label1.SetTextFont(62)
-Label1.SetTextSize(.09)
-Label1.SetTextAngle(90)
-Label2=TText()
-Label2.SetNDC()
-Label2.SetText(0.3,0.18,"7TeV")
-Label2.SetTextFont(62)
-Label2.SetTextSize(.09)
-Label2.SetTextAngle(90)
-splitline=5
+# Label1=TText()
+# Label1.SetNDC()
+# Label1.SetText(0.3,0.60,"8TeV")
+# Label1.SetTextFont(62)
+# Label1.SetTextSize(.09)
+# Label1.SetTextAngle(90)
+# Label2=TText()
+# Label2.SetNDC()
+# Label2.SetText(0.3,0.18,"7TeV")
+# Label2.SetTextFont(62)
+# Label2.SetTextSize(.09)
+# Label2.SetTextAngle(90)
+# splitline=5
 #splitline=8
-myline = TLine(rMin,splitline,rMax,splitline)
-myline.SetLineColor(kBlack)
-myline.SetLineWidth(3)
-myline.SetLineStyle(7)
-dumbline = TLine()
-dumbline.SetLineColor(kBlack)
-dumbline.SetLineWidth(1)
-BinLabel = ["Untagged 0","Untagged 1","Untagged 2","Untagged 3","Di-jet","Untagged 0","Untagged 1","Untagged 2","Untagged 3","Di-jet tight","Di-jet loose","Muon","Electron","MET"]
-intlumi=[5.1,12.3]
-Energy=[7,8]
-#intlumi=[12.3]
-#Energy=[8]
+# myline = TLine(rMin,splitline,rMax,splitline)
+# myline.SetLineColor(kBlack)
+# myline.SetLineWidth(3)
+# myline.SetLineStyle(7)
+# dumbline = TLine()
+# dumbline.SetLineColor(kBlack)
+# dumbline.SetLineWidth(1)
+#BinLabel = ["Untagged 0","Untagged 1","Untagged 2","Untagged 3","Di-jet","Untagged 0","Untagged 1","Untagged 2","Untagged 3","Di-jet tight","Di-jet loose","Muon","Electron","MET"]
+BinLabel = ["Untagged 0","Untagged 1","Untagged 2","Untagged 3","Di-jet tight","Di-jet loose","Muon","Electron","MET"]
+#intlumi=[5.1,12.3]
+#Energy=[7,8]
+intlumi=[12.3]
+Energy=[8]
 Masses=[125.0]
 directory = sys.argv[1]
 
@@ -67,7 +68,7 @@ for Mass in Masses:
   BestFitErrorUp=[]
   BestFitErrorDown=[]
   for i in range(altername.floatParsFinal().getSize()):
-    print i,altername.floatParsFinal().at(i).GetName(),altername.floatParsFinal().at(i).getVal(),altername.floatParsFinal().at(i).getAsymErrorHi(),altername.floatParsFinal().at(i).getAsymErrorLo()
+    #print i,altername.floatParsFinal().at(i).GetName(),altername.floatParsFinal().at(i).getVal(),altername.floatParsFinal().at(i).getAsymErrorHi(),altername.floatParsFinal().at(i).getAsymErrorLo()
     chrFit=altername.floatParsFinal().at(i)
     if chrFit.GetName().find("ChannelCompatibilityCheck")!=-1:
       Channels.append(chrFit.GetName())
@@ -101,6 +102,7 @@ for Mass in Masses:
   leg.AddEntry(NULL,"m_{H} = %.1f GeV" %Mass,"")
   leg.AddEntry(NULL,"#sigma/#sigma_{SM} = %.2f#pm%.2f" %(CombinedBestFitObserved,CombinedBestFitErrorUp),"")
   dummyHist.Draw()
+  print CombinedBestFitObserved+CombinedBestFitErrorDown,CombinedBestFitObserved+CombinedBestFitErrorUp
   BestFitBand=TBox(CombinedBestFitObserved+CombinedBestFitErrorDown,0,CombinedBestFitObserved+CombinedBestFitErrorUp,len(Channels))
   #BestFitBand.SetFillStyle(3013)
   BestFitBand.SetFillColor(kGreen)
@@ -115,11 +117,11 @@ for Mass in Masses:
   if len(intlumi)==2: mytext.DrawLatex(0.70,0.85,"#splitline{CMS preliminary}{#splitline{#sqrt{s} = %i TeV, L = %.1f fb^{-1}}{#sqrt{s} = %i TeV, L = %.1f fb^{-1}}}" %(int(Energy[0]),float(intlumi[0]),int(Energy[1]),float(intlumi[1])))
   else: mytext.DrawLatex(0.70,0.85,"#splitline{CMS preliminary}{#sqrt{s} = %i TeV, L = %.1f fb^{-1}}" %(int(Energy[0]),float(intlumi[0])))
   can.RedrawAxis()
-  Label1.Draw()
-  Label2.Draw()
-  myline.Draw()
-  dumbline.DrawLineNDC(0.7+0.0305,0.78-0.06,0.7+0.0305,0.78-0.037)
-  can.SaveAs("BestFit"+str(Mass)+"GeV_7and8TeV_CutBased.pdf")
+  #Label1.Draw()
+  #Label2.Draw()
+  #myline.Draw()
+  #dumbline.DrawLineNDC(0.7+0.0305,0.78-0.06,0.7+0.0305,0.78-0.037)
+  can.SaveAs("BestFit"+str(Mass)+"GeV_8TeV_MassFac.pdf")
   graph.Clear()
   dummyHist.Clear()
   BestFitBand.Clear()
