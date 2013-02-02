@@ -81,6 +81,6 @@ doInterferenceSmear=1
 
 fillEscaleTrees=0
 
-efficiencyFile=aux/sig_reweighing_moriond2013_mva_v3.root
+efficiencyFile=aux/sig_reweighing_moriond2013_mva_v4.root
 
 
