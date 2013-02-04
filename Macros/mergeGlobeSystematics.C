@@ -4,7 +4,7 @@ TFile *oldFILE = new TFile("./vertex_reweighing_mva_Moriond.root");
 oldFILE->Print();
 oldFILE->ls();
 
-TFile *newFILE = TFile::Open("../AnalysisScripts/aux/sig_reweighing_moriond2013_baseline_v5.root","recreate");
+TFile *newFILE = TFile::Open("../AnalysisScripts/aux/sig_reweighing_moriond2013_run2012C_baseline_v1.root","recreate");
 newFILE->cd();
 
 TGraphAsymmErrors * toCopy;
@@ -51,36 +51,58 @@ for (int cat=0;cat<ncats;cat++){
 // can combine efficiencies and errors with effError.py 
 int nphocats=4;
 
-//baseline Run2012ABCD
-Double_t ratioTP_[nphocats]            = {0.987,0.960,0.988,0.959};
-Double_t ratioTP_low_err_[nphocats]    = {0.004,0.011,0.012,0.022};
-Double_t ratioTP_high_err_[nphocats]   = {0.004,0.011,0.012,0.022};
+//baseline Run2012ABCD - Moriond2013
+ Double_t ratioTP_[nphocats]            = {0.987,0.960,0.988,0.959};
+ Double_t ratioTP_low_err_[nphocats]    = {0.004,0.011,0.012,0.022};
+ Double_t ratioTP_high_err_[nphocats]   = {0.004,0.011,0.012,0.022};
  
-//mva Run2012ABCD
+//mva Run2012ABCD - Moriond2013
 // Double_t ratioTP_[nphocats]            = {0.998,0.969,0.994,0.957};
 // Double_t ratioTP_low_err_[nphocats]    = {0.003,0.007,0.010,0.019};
 // Double_t ratioTP_high_err_[nphocats]   = {0.003,0.007,0.010,0.019};
 
-//baseline Run2012ABC
+//baseline Run2012ABC - Moriond2013
 // Double_t ratioTP_[nphocats]            = {0.990,0.966,0.994,0.969};
 // Double_t ratioTP_low_err_[nphocats]    = {0.004,0.010,0.011,0.023};
 // Double_t ratioTP_high_err_[nphocats]   = {0.004,0.010,0.011,0.023};
  
-//mva Run2012ABC
+//mva Run2012ABC - Moriond2013
 // Double_t ratioTP_[nphocats]            = {0.997,0.969,0.994,0.957};
 // Double_t ratioTP_low_err_[nphocats]    = {0.003,0.006,0.009,0.019};
 // Double_t ratioTP_high_err_[nphocats]   = {0.003,0.006,0.009,0.019};
 
-//baseline Run2012D
+//baseline Run2012D - Moriond2013
 // Double_t ratioTP_[nphocats]            = {0.983,0.945,0.976,0.946};
 // Double_t ratioTP_low_err_[nphocats]    = {0.004,0.011,0.013,0.023};
 // Double_t ratioTP_high_err_[nphocats]   = {0.004,0.011,0.013,0.023};
  
-//mva Run2012D
+//mva Run2012D - Moriond2013
 // Double_t ratioTP_[nphocats]            = {1.002,0.967,0.993,0.960};
 // Double_t ratioTP_low_err_[nphocats]    = {0.003,0.008,0.011,0.020};
 // Double_t ratioTP_high_err_[nphocats]   = {0.003,0.008,0.011,0.020};
- 
+
+//baseline Run2012AB - Moriond2013
+//Double_t ratioTP_[nphocats]            = {0.993,0.980,0.990,0.974};
+//Double_t ratioTP_low_err_[nphocats]    = {0.004,0.010,0.011,0.022};
+//Double_t ratioTP_high_err_[nphocats]   = {0.004,0.010,0.011,0.022};
+
+//mva Run2012AB - Moriond2013
+//Double_t ratioTP_[nphocats]            = {0.995,0.974,0.995,0.966};
+//Double_t ratioTP_low_err_[nphocats]    = {0.003,0.006,0.009,0.018};
+//Double_t ratioTP_high_err_[nphocats]   = {0.003,0.006,0.009,0.018};
+
+//baseline Run2012C - Moriond2013
+//Double_t ratioTP_[nphocats]            = {0.988,0.958,0.997,0.964};
+//Double_t ratioTP_low_err_[nphocats]    = {0.004,0.010,0.011,0.023};
+//Double_t ratioTP_high_err_[nphocats]   = {0.004,0.010,0.011,0.023};
+
+//mva Run2012C - Moriond2013
+//Double_t ratioTP_[nphocats]            = {0.998,0.966,0.994,0.949};
+//Double_t ratioTP_low_err_[nphocats]    = {0.003,0.006,0.009,0.019};
+//Double_t ratioTP_high_err_[nphocats]   = {0.003,0.006,0.009,0.019};
+
+
+
 std::string iDLabels_[nphocats] 	    = {"EBHighR9","EBLowR9","EEHighR9","EELowR9"};
 
 for (int cat=0;cat<nphocats;cat++){
