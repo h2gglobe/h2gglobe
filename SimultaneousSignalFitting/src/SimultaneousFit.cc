@@ -160,6 +160,24 @@ void SimultaneousFit::dumpConstVars(){
   }
 }
 
+void SimultaneousFit::dumpSimFitValues(string outfilename){
+  
+  ofstream datfile;
+  datfile.open(outfilename.c_str());
+  for (map<string,RooFormulaVar*>::iterator form=formVars.begin(); form!=formVars.end(); form++){
+    if (form->first.find("mh")==string::npos){
+      for (unsigned int i=0; i<allMH_.size(); i++){
+        int mh = allMH_[i];
+        MH->setVal(mh);
+        string type = form->first.substr(form->first.find("func_")+5,form->first.find("_g")-(form->first.find("func")+5));
+        string nG = form->first.substr(form->first.find("_g"),3);
+        datfile << type << "_mh" << mh << nG << " " << form->second->getVal() << endl;
+      }
+    }
+  }
+  datfile.close();
+}
+
 void SimultaneousFit::loadSmearVals(){
   ifstream datfile;
   datfile.open("dat/smear_vals.dat");
@@ -823,11 +841,11 @@ void SimultaneousFit::loadPriorConstraints(string filename, int mh){
     string gausN = name.substr(name.find("_g"),string::npos);
     string paramName = var+gausN;
     int mhS = boost::lexical_cast<int>(name.substr(name.find("_mh")+3,name.find("_g")-name.find("_mh")-3));
-    cout << paramName << " " << mhS << " " << val << endl;
+    if (verbose_>=2) cout << paramName << " " << mhS << " " << val << endl;
     if (mhS==mh) {
       fitParams[paramName]->setVal(val);
-      if (val>0.) fitParams[paramName]->setRange(0.8*val,1.2*val);
-      else fitParams[paramName]->setRange(1.2*val,0.8*val);
+      if (val>0.) fitParams[paramName]->setRange(0.9*val,1.1*val);
+      else fitParams[paramName]->setRange(1.1*val,0.9*val);
     }
   }
   datfile.close();
@@ -867,6 +885,8 @@ void SimultaneousFit::runFit(string proc, int cat, int nGaussians, int dmOrder, 
   system(Form("mkdir -p plots/simFit/%s_cat%d",proc.c_str(),cat));
   system(Form("mkdir -p plots/mhFit/%s_cat%d",proc.c_str(),cat));
   system(Form("mkdir -p plots/finalFit/%s_cat%d",proc.c_str(),cat));
+  system("mkdir -p dat/in");
+  system("mkdir -p dat/out");
   TCanvas *canv = new TCanvas();
   
   // mh for FormulaVars
@@ -898,7 +918,7 @@ void SimultaneousFit::runFit(string proc, int cat, int nGaussians, int dmOrder, 
    
     if (initialFit_){
       cout << "------ fitting ------- " << endl;
-      if (loadPriorConstraints_) loadPriorConstraints(Form("dat/initFit_%s_cat%d.dat",proc.c_str(),cat),mh);
+      if (loadPriorConstraints_) loadPriorConstraints(Form("dat/in/initFit_%s_cat%d.dat",proc.c_str(),cat),mh);
       RooFitResult *fitRes;
       verbose_ >=2 ?
         fitRes = sigModel->fitTo(*data,NumCPU(fork_),SumW2Error(true),Save(true)) :
@@ -943,7 +963,7 @@ void SimultaneousFit::runFit(string proc, int cat, int nGaussians, int dmOrder, 
   
   // make the RooHistFuncs for the parameters
   makeHistFuncs(nGaussians,dmOrder,sigmaOrder,fracOrder,proc,cat);
-  if (!loadPriorConstraints_) dumpStartVals(Form("dat/initFit_%s_cat%d.dat",proc.c_str(),cat));
+  if (!loadPriorConstraints_) dumpStartVals(Form("dat/out/initFit_%s_cat%d.dat",proc.c_str(),cat));
 
   // Set up the simultaneous fit
   constructFormulaVars(nGaussians,dmOrder,sigmaOrder,fracOrder,proc,cat);
@@ -1017,7 +1037,8 @@ void SimultaneousFit::runFit(string proc, int cat, int nGaussians, int dmOrder, 
       
     simFitRes->floatParsFinal().Print("v");
     delete simFitRes;
-    
+    dumpSimFitValues(Form("dat/out/simFit_%s_cat%d.dat",proc.c_str(),cat));
+
     assert(simFitDataMap.size()==simFitPdfMap.size());
     for (unsigned int i=0; i<allMH_.size(); i++) {
       int mh = allMH_[i];  

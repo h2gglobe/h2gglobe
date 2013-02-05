@@ -4,29 +4,34 @@ import sys
 import numpy
 import os
 
-datfile = open(sys.argv[1])
-mh = int(sys.argv[2])
-
-for line in datfile.readlines():
-  if line.startswith('#') or line=='\n': continue
-  if line.startswith('infile'): continue
-  line_els  = line.split()
-  if len(line_els)!=7: continue
-  proc      = line_els[1]
-  cat       = int(line_els[2])
-  os.system('mv dat/initFit_%s_cat%d.dat dat/initFit_%s_cat%d_dump.dat'%(proc,cat,proc,cat))
-
-  paramfile = open('dat/initFit_%s_cat%d_dump.dat'%(proc,cat))
-  newoutfile = open('dat/initFit_%s_cat%d.dat'%(proc,cat),'w')
+def orgParams(proc,cat,mh):
+  paramfile = open('dat/out/initFit_%s_cat%d.dat'%(proc,cat))
+  newoutfile = open('dat/in/initFit_%s_cat%d.dat'%(proc,cat),'w')
   mylines=[]
   for line in paramfile.readlines():
     if 'mh%d'%mh in line: mylines.append(line)
 
   for m in numpy.arange(110,151,5):
     for line in mylines:
-      newoutfile.write(line.replace('mh125','mh%d'%m))
+      newoutfile.write(line.replace('mh%d'%mh,'mh%d'%m))
 
   newoutfile.close()
   paramfile.close()
+
+from optparse import OptionParser
+parser=OptionParser()
+parser.add_option("--runAll",dest="runAll",action="store_true",default=False,help="Do all procs all cats")
+parser.add_option("-p","--proc",dest="proc",type="str",help="Process")
+parser.add_option("-c","--cat",dest="cat",type="int",help="Category")
+parser.add_option("-m","--mh",dest="mh",type="int",default=125,help="Change all params to match this mass")
+(options,args)=parser.parse_args()
+
+if options.runAll:
+  for proc in ['ggh','vbf','wzh','tth']:
+    for cat in range(0,9):
+      orgParams(proc,cat,options.mh)
+else:
+  orgParams(options.proc,options.cat,options.mh)
+
 
 

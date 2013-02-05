@@ -136,7 +136,7 @@ int main (int argc, char *argv[]){
     ;
   }
   simultaneousFit->runFit(proc_,cat_,nGaussians_,dmOrder_,sigmaOrder_,fracOrder_,recursive_,setToFitValues_);
-  if (dumpVars_) simultaneousFit->dumpPolParams(Form("%s_cat%d.dat",proc_.c_str(),cat_),proc_);
+  if (dumpVars_) simultaneousFit->dumpPolParams(Form("dat/out/pols_%s_cat%d.dat",proc_.c_str(),cat_),proc_);
   delete simultaneousFit; 
   
   cout << "Done." << endl;

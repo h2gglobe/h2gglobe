@@ -19,8 +19,8 @@ def plot(proc,cat):
 
   c = ROOT.TCanvas()
   plot.Draw()
-  c.Print("plots/%s_cat%s.pdf"%(proc,cat))
-  c.Print("plots/%s_cat%s.png"%(proc,cat))
+  c.Print("custom_plots/%s_cat%s.pdf"%(proc,cat))
+  c.Print("custom_plots/%s_cat%s.png"%(proc,cat))
    
 
 inF = ROOT.TFile(sys.argv[1])
@@ -28,6 +28,9 @@ ws = inF.Get("wsig_8TeV")
 
 mass = ws.var("CMS_hgg_mass")
 mh = ws.var("MH")
+
+ROOT.gROOT.SetBatch()
+os.system("mkdir -p custom_plots")
 
 proc = raw_input("Which process?\n")
 cat = raw_input("Which cat?\n")

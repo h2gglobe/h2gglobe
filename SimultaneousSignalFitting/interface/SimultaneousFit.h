@@ -105,6 +105,7 @@ class SimultaneousFit {
     void dumpPolParams(string,string);
     void dumpFormVars();
     void dumpConstVars();
+    void dumpSimFitValues(string);
     void freezePolParams();
     void setupSystematics(int cat);
     void setFork(int);
