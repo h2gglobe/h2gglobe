@@ -1,6 +1,8 @@
 # category      type(0=any,1=CM,2=GAP) minEta  MaxEta   mr9    Mr9      mrun    Mrun   smear   smearErr    
 # These numbers correspond to Moriond preapproval smearings - https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/1112.html
 
+## PROMPT ##
+
 EBlowEtaGold	    0.0	1.0	0.94	999.00	-999999	999999	0.0120 0.11e-2
 EBlowEtaBad  	    0.0	1.0	-999.00	0.94	-999999	999999	0.0113 0.10e-2
 EBhighEtaGold	  0 1.0	1.5	0.94	999.00	-999999	999999	0.0133 0.85e-2
