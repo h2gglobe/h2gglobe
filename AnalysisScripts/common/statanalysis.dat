@@ -52,4 +52,4 @@ doInterferenceSmear=1
 efficiencyFile=aux/sig_reweighing_moriond2013_baseline_v5.root
 
 
-bkgPolOrderByCat=4,5,5,5,3,4,3,3,3
+bkgPolOrderByCat=5,5,5,5,3,3,3,3,2
