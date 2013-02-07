@@ -29,7 +29,7 @@ proc, catNumber, fromMass, toMass = ARGV
 
 # e.g. initFit_vbf_cat1.dat
 
-fname = "dat/in/initFit_%s_cat%s.dat" % (proc, catNumber) 
+fname = "dat/initFit_%s_cat%s.dat" % (proc, catNumber) 
 
 if not os.path.exists(fname):
     print >> sys.stderr,"file %s does not exist" % fname

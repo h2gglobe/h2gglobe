@@ -26,24 +26,23 @@ mytext.SetNDC()
 #Minimum=0.00000001
 #Maximum=100
 #Sigmas=5
-#intlumi=[12.3]
+#intlumi=[12.2]
 #Energy=[8]
-#intlumi=[5.1,12.3]
+#intlumi=[5.1,12.2]
 #Energy=[7,8]
 #legands=[]
 #legands=["Observed","Expected 1xSM","Expected 1.6xSM","Expected 1xSM m=125","Expected 1.6xSM m=125"]
 #legands=["Expected 1xSM","Expected 1.6xSM","Expected 1xSM m=125","Expected 1.6xSM m=125"]
-Minimum=0.00001
+Minimum=0.001
 Maximum=10
-Sigmas=4
-#intlumi=[5.1,19.6]
+Sigmas=2
+#intlumi=[5.1,3.8]
 #Energy=[7,8]
-intlumi=[12.3]
+intlumi=[5.4]
 Energy=[8]
 legands=[]
-#legands=["7 and 8TeV Observed","7 and 8TeV Expected","8TeV Observed","8TeV Expected","7TeV Observed","7TeV Expected"]
-#legands=["Combined Observed", "8TeV Inclusive Categories", "8TeV DiJet Tag", "8TeV Muon Tag", "8TeV Electron Tag", "8TeV MET Tag", "7TeV Inclusive Categories", "7TeV DiJet Tag"]
-legands=["Combined Observed", "Inclusive Categories", "DiJet Categories", "Lepton Categories", "MET Category","","","","",""]
+legands=["8TeV Observed","8TeV Expected"]
+#legands=["Combined Observed", "Combined Category 1", "Combined Category 2", "Combined Category 3", "Combined Category 4", "Combined dijet Categories"]
 FrequantistPValues=[]
 #FrequantistPValues=["higgsCombinePValue.HybridNew.mH125.0.root"]
 #FrequantistPValues=["higgsCombinePValue.HybridNew.mH123.5.root","higgsCombinePValue.HybridNew.mH124.0.root","higgsCombinePValue.HybridNew.mH124.5.root","higgsCombinePValue.HybridNew.mH125.0.root","higgsCombinePValue.HybridNew.mH125.5.root","higgsCombinePValue.HybridNew.mH126.0.root"]
@@ -64,13 +63,11 @@ elif len(legands)==0:
     if i==0:legands.append("Observed")
     else: legands.append("Category "+str(i))
 
-#colors = [ kBlack, kRed, kOrange, kGreen, kCyan, kBlue, kMagenta, 28]
-colors = [ kBlack, kRed, kGreen, kCyan, kBlue, kBlack, kRed, kGreen, kCyan, kBlue]
-styles = [1, 1, 1, 1, 1, 7, 7, 7, 7, 7]
-#styles = [1, 1, 1, 1, 1, 1, 1, 1]
-#colors = [ kRed, kBlue, kRed, kBlue]
-#colors = [ kBlack, kBlack, kRed, kRed, kBlue, kBlue]
-#styles = [ 1, 7, 1, 7, 1, 7]
+#colors = [ kBlack, kRed, kOrange, kGreen, kCyan, kBlue, kMagenta]
+#colors = [ kBlack, kRed, kBlue, kRed, kBlue]
+#styles = [1, 1, 1, 7, 7]
+colors = [ kRed, kBlue, kRed, kBlue]
+styles = [ 1, 1, 7, 7]
 
 
 multigraph = TMultiGraph()
@@ -95,7 +92,7 @@ for file,legand,color,style in zip(files,legands,colors,styles):
   graph.SetLineWidth(2)
   #if legand.find("Expected")!=-1: graph.SetLineStyle(7)
   graph.SetFillColor(kWhite)
-  if (legand!=""): leg.AddEntry(graph,legand,'L')
+  leg.AddEntry(graph,legand,'L')
   multigraph.Add(graph)
 
 if len(FrequantistPValues)>0:

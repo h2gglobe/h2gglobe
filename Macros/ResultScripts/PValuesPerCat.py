@@ -155,8 +155,8 @@ for datacard in DatacardList:
             waitthreads("combine",options.threads)
         if options.Expected and options.PValues and options.toysFile!="":
             os.chdir(datacardoutputdirexpected)
-            if options.debug: print "combine "+datacard+" -m "+massstring+" -M ProfileLikelihood -s -1 -n PValueExpected --signif --pvalue --expectSignal="+str(options.expectSignal)+" --toysFile="+options.toysFile+" >& higgsCombinePValueExpected.ProfileLikelihood.mH"+massstring+".log &"
-            if not options.dryrun: os.system("combine "+datacard+" -m "+massstring+" -M ProfileLikelihood -s -1 -n PValueExpected --signif --pvalue --expectSignal="+str(options.expectSignal)+" --toysFile="+options.toysFile+" >& higgsCombinePValueExpected.ProfileLikelihood.mH"+massstring+".log &")
+            if options.debug: print "combine "+datacard+" -m "+massstring+" -M ProfileLikelihood -t -1 -s -1 -n PValueExpected --signif --pvalue --expectSignal="+str(options.expectSignal)+" --toysFile="+options.toysFile+" >& higgsCombinePValueExpected.ProfileLikelihood.mH"+massstring+".log &"
+            if not options.dryrun: os.system("combine "+datacard+" -m "+massstring+" -M ProfileLikelihood -t -1 -s -1 -n PValueExpected --signif --pvalue --expectSignal="+str(options.expectSignal)+" --toysFile="+options.toysFile+" >& higgsCombinePValueExpected.ProfileLikelihood.mH"+massstring+".log &")
             waitthreads("combine",options.threads)
         if options.Limits:
             os.chdir(limitoutputdir)
