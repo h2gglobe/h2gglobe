@@ -2,7 +2,7 @@
 nVBFEtaCategories=1
 nVBFDijetJetCategories=2
 leadEtVBFCut=60
-## subleadEtVBFCut=25
+subleadEtVBFCut=25
 
 mvaVbfSelection=0
 
