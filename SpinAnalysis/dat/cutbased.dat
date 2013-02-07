@@ -1,4 +1,4 @@
-treefile=/afs/cern.ch/user/m/mkenzie/eos/cms/store/group/phys_higgs/cmshgg/analyzed/spinstudies/moriond2013_cutbased_spin_v3/histograms_CMS-HGG.root
+treefile=root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/analyzed/spinstudies/moriond2013_cutbased_spin_v3/histograms_CMS-HGG.root
 wsfile=/afs/cern.ch/user/m/mkenzie/workPoint/MORIONDspin/h2gglobe/SpinAnalysis/HggSpin_CutBased.root
 isMassFac=0
 globePDFs=0
