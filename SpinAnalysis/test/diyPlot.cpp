@@ -118,7 +118,7 @@ int main(int argc, char* argv[]){
   h->SetStats(0);
   h->SetLineColor(0);
   h->Draw();
-  graphSM->SetMarkerStyle(kOpenSquare);
+  //graphSM->SetMarkerStyle(kOpenSquare);
   graphSM->SetMarkerColor(kRed);
   graphSM->SetLineColor(kRed);
   graphSM->SetLineWidth(2);
@@ -128,7 +128,7 @@ int main(int argc, char* argv[]){
   graphSME->SetLineWidth(2);
   graphSME->SetFillColor(kRed);
   graphSME->SetFillStyle(3004);
-  graphGRAV->SetMarkerStyle(kOpenCircle);
+  //graphGRAV->SetMarkerStyle(kOpenCircle);
   graphGRAV->SetMarkerColor(kBlue);
   graphGRAV->SetLineColor(kBlue);
   graphGRAV->SetLineWidth(2);
@@ -142,8 +142,8 @@ int main(int argc, char* argv[]){
   leg3->AddEntry(graphSM,"X#rightarrow#gamma#gamma 0^{+}","LPF");
   leg3->AddEntry(graphGRAV,"X#rightarrow#gamma#gamma 2^{+}_{m}","LEP");
   graphSME->Draw("E3same");
-  graphSM->Draw("LPsame");
-  graphGRAV->Draw("LPsame");
+  graphSM->Draw("LEPsame");
+  graphGRAV->Draw("LEPsame");
   f->Draw("same");
   leg3->Draw("same");
   pt.Draw("same");
@@ -247,9 +247,12 @@ int main(int argc, char* argv[]){
   cout << "UNBINNED:" << endl; 
   cout << "Prob( q > median(2) | 0 ) = "<< SMprob << " = " << SMsigma << " sigma " << endl; 
   cout << "Prob( q < median(0) | 2 ) = "<< GRAVprob << " = " << GRAVsigma << " sigma " << endl; 
-  cout << "BINNED:" << endl; 
+  cout << "BINNED:  -- ErfcInverse" << endl; 
   cout << "Prob( q > median(2) | 0 ) = "<< SMprobHist << " = " << SMsigmaHist << " sigma " << endl; 
   cout << "Prob( q < median(0) | 2 ) = "<< GRAVprobHist << " = " << GRAVsigmaHist << " sigma " << endl; 
+  cout << "BINNED:  -- normal_quantile_c" << endl; 
+  cout << "Prob( q > median(2) | 0 ) = "<< SMprobHist << " = " << ROOT::Math::normal_quantile_c(SMprobHist,1.0) << " sigma " << endl; 
+  cout << "Prob( q < median(0) | 2 ) = "<< GRAVprobHist << " = " << ROOT::Math::normal_quantile_c(GRAVprobHist,1.0) << " sigma " << endl; 
 
   // set style
   testStatSMH->SetLineColor(kMagenta-3);

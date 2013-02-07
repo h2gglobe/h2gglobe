@@ -3,6 +3,8 @@
 #include <string>
 #include <map>
 
+#include "boost/lexical_cast.hpp"
+
 #include "TFile.h"
 #include "TMath.h"
 #include "TROOT.h"
@@ -63,24 +65,34 @@ void Plot(RooRealVar *mass, RooCategory *category, RooDataSet *data, RooSimultan
 }
 
 int main(int argc, char* argv[]){
- 
-  int nToys;
+
+  int nToys=0;
   string filename;
-  int nBDTCats;
-  int nSpinCats;
+  int nBDTCats=0;
+  int nSpinCats=0;
   bool globePDFs=false;
-  if (argc!=5 && argc!=6) {
-    cout << "usage ./bin/diySeparation <ntoys> <filename> <nBDTcats> <nSpinCats> --globePDFs" << endl;
+  if (argc!=3) {
+    cout << "usage ./bin/diySeparation <datfilename> <ntoys>" << endl;
     exit(1);
   }
-  else {
-    nToys=atoi(argv[1]);
-    filename=string(argv[2]);
-    nBDTCats=atoi(argv[3]);
-    nSpinCats=atoi(argv[4]);
-    for (int i=0; i<argc; i++) {
-      if (string(argv[i])=="--globePDFs") globePDFs=true;
+  else{
+    nToys=atoi(argv[2]);
+    ifstream datfile;
+    datfile.open(argv[1]);
+    if (datfile.fail()){
+      cout << "datfile " << argv[1] << " doesn't exist" << endl;
+      exit(1);
     }
+    while (datfile.good()){
+      string line;
+      getline(datfile,line);
+      if (line.find("wsfile=")!=string::npos) filename = line.substr(line.find("=")+1,string::npos);
+      if (line.find("globePDFs=")!=string::npos) globePDFs = boost::lexical_cast<bool>(line.substr(line.find("=")+1,string::npos));
+      if (line.find("nBDTCats=")!=string::npos) nBDTCats = boost::lexical_cast<int>(line.substr(line.find("=")+1,string::npos));
+      if (line.find("nSpinCats=")!=string::npos) nSpinCats = boost::lexical_cast<int>(line.substr(line.find("=")+1,string::npos));
+    }
+    datfile.close();
+ 
   }
 
   // set plotting style
