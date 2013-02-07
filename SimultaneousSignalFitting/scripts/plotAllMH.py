@@ -18,7 +18,22 @@ parser.add_option("-S","--mHstep",dest="mHstep",type="float",default=1,help="Ste
 import ROOT
 
 def plot(proc,cat):
-  pdf = ws.pdf("hggpdfrel_%s_cat%s"%(proc,cat))
+  if proc=='all':
+    if cat==-1:
+      pdf = ws.pdf('sigpdfrelAllCats_allProcs')
+      if not pdf:
+        print 'sigpdfrelAllCats_allProcs not found'
+        return
+    else:
+      pdf = ws.pdf("sigpdfrelcat%d_allProcs"%cat)
+      if not pdf:
+        print 'sigpdfrelcat%d_allProcs not found'%cat
+        return
+  else:
+    pdf = ws.pdf("hggpdfrel_%s_cat%d"%(proc,cat))
+    if not pdf:
+      print 'hggpdfrel_%s_cat%d not found'%(proc,cat)
+      return
 
   if not pdf: sys.exit("Not found")
 
@@ -32,8 +47,12 @@ def plot(proc,cat):
 
   c = ROOT.TCanvas()
   plot.Draw()
-  c.Print("custom_plots/%s_cat%s.pdf"%(proc,cat))
-  c.Print("custom_plots/%s_cat%s.png"%(proc,cat))
+  if cat==-1:
+    c.Print("custom_plots/%s_catall.pdf"%(proc))
+    c.Print("custom_plots/%s_catall.png"%(proc))
+  else:
+    c.Print("custom_plots/%s_cat%d.pdf"%(proc,cat))
+    c.Print("custom_plots/%s_cat%d.png"%(proc,cat))
    
 
 inF = ROOT.TFile(options.inputfile)
@@ -48,6 +67,9 @@ os.system("mkdir -p custom_plots")
 
 if options.runAll:
   ROOT.gROOT.SetBatch()
+  plot('all',-1)
+  for cats in range(9):
+    plot('all',cats)
   for procs in ['ggh','vbf','wzh','tth']:
     for cats in range(9):
       plot(procs,cats)
