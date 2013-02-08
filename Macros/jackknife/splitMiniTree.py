@@ -16,7 +16,11 @@ def main(options,args):
 
     partitions = json.load(open(options.partitions))
 
-    if options.globe:
+    if options.globeParametric:
+        pdfName = "pdf_data_pol_model_8TeV_cat%d"
+        wsName  = "wbkg_8TeV"
+        dsName  = "roohist_data_mass_cat%d" 
+    elif options.globeBinned:
         pdfName = "pdf_data_pol_model_8TeV_cat%d"
         wsName  = "cms_hgg_workspace"
         dsName  = "roohist_data_mass_cat%d" 
@@ -29,6 +33,11 @@ def main(options,args):
     if options.outdir != "":
         output = "%s/%s" % ( options.outdir, os.path.basename(output) )
     splitMiniTree = ROOT.SplitMiniTree(options.input,options.wspace,wsName,pdfName,dsName,output)
+
+    if options.ncat > 0:
+        splitMiniTree.setNcat(options.ncat)
+    if options.nbins > 0:
+        splitMiniTree.setBinning(options.nbins,options.massMin,options.massMax)
     
     for ipart,partition in enumerate(partitions):
         for run,lumi,event in partition:
@@ -55,19 +64,44 @@ if __name__ == "__main__":
                     default="",
                     help="default: %default", metavar=""
                     ),
-        make_option("-g", "--globe",
-                    action="store_true", dest="globe",
-                    default="",
+        make_option("-g", "--globeBinned",
+                    action="store_true", dest="globeBinned",
+                    default=False,
+                    help="default: %default", metavar=""
+                    ),
+        make_option("-G", "--globeParametric",
+                    action="store_true", dest="globeParametric",
+                    default=False,
                     help="default: %default", metavar=""
                     ),
         make_option("-m", "--MIT",
                     action="store_false", dest="globe",
-                    default="",
+                    default=False,
                     help="", metavar=""
                     ),
         make_option("-p", "--partitions",
                     action="store", type="string", dest="partitions",
                     default="",
+                    help="default : %default", metavar=""
+                    ),
+        make_option("-c", "--ncat",
+                    action="store", type="int", dest="ncat",
+                    default=-1,
+                    help="default : %default", metavar=""
+                    ),
+        make_option("-b", "--nbins",
+                    action="store", type="int", dest="nbins",
+                    default=-1,
+                    help="default : %default", metavar=""
+                    ),
+        make_option("-L", "--massMin",
+                    action="store", type="float", dest="massMin",
+                    default=100,
+                    help="default : %default", metavar=""
+                    ),
+        make_option("-H", "--massMax",
+                    action="store", type="float", dest="massMax",
+                    default=180,
                     help="default : %default", metavar=""
                     ),
         
