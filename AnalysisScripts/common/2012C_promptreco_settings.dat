@@ -1,0 +1,4 @@
+puTarget=aux/Moriond_pileup_2012C_198111-203755-Prompt.69400.observed.root  
+#efficiencyFile=aux/sig_reweighing_moriond2013_run2012C_mva_v1.root 
+efficiencyFile=aux/sig_reweighing_moriond2013_run2012C_baseline_v1.root 
+smearing_file=smearing_sigma_and_errors_2012C.dat
