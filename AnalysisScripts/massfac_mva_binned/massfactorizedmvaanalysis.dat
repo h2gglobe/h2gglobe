@@ -81,6 +81,7 @@ doInterferenceSmear=1
 
 fillEscaleTrees=0
 
-efficiencyFile=aux/sig_reweighing_moriond2013_mva_v5.root
-
+effPhotonCategoryType=3CatR9_EBEE
+effPhotonNCat=6
+efficiencyFileMVA=aux/sig_reweighing_moriond2013_run2012ABCD_mva_v2.root
 

@@ -51,6 +51,6 @@ doInterferenceSmear=1
 ## 
 effPhotonCategoryType=3CatR9_EBEE
 effPhotonNCat=6
-efficiencyFile=aux/sig_reweighing_moriond2013_baseline_v5.root
+efficiencyFileMVA=aux/sig_reweighing_moriond2013_run2012ABCD_cutbased_v1.root
 
 bkgPolOrderByCat=5,5,5,5,3,3,3,3,2
