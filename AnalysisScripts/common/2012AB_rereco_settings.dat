@@ -1,4 +1,4 @@
 puTarget=aux/latest_prompt_NoLowPU_ICHEP_535.json.71000.observed.pileup.root  
-#efficiencyFile=aux/sig_reweighing_moriond2013_run2012AB_mva_v1.root 
-efficiencyFile=aux/sig_reweighing_moriond2013_run2012AB_baseline_v1.root 
+efficiencyFile=aux/sig_reweighing_moriond2013_run2012AB_cutbased_v1.root
+efficiencyFileMVA=aux/sig_reweighing_moriond2013_run2012AB_mva_v2.root
 smearing_file=smearing_sigma_and_errors_2012AB.dat

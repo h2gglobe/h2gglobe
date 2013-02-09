@@ -1,4 +1,4 @@
 puTarget=aux/Moriond_pileup_2012D_minBiasXsec69400_corr_observed.root  
-#efficiencyFile=aux/sig_reweighing_moriond2013_run2012D_mva_v2.root 
-efficiencyFile=aux/sig_reweighing_moriond2013_run2012D_baseline_v2.root 
+efficiencyFile=aux/sig_reweighing_moriond2013_run2012D_cutbased_v1.root
+efficiencyFileMVA=aux/sig_reweighing_moriond2013_run2012D_mva_v3.root
 smearing_file=smearing_sigma_and_errors_2012D.dat
