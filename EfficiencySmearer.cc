@@ -9,6 +9,7 @@ EfficiencySmearer::EfficiencySmearer(const efficiencySmearingParameters& par) : 
   name_="EfficiencySmearer_"+ par.categoryType + "_" + par.parameterSetName;
   
   assert( ( myParameters_.categoryType == "2CatR9_EBEE"     && myParameters_.n_categories == 4)  ||
+	  ( myParameters_.categoryType == "3CatR9_EBEE" && myParameters_.n_categories == 6)  ||
 	  ( myParameters_.categoryType == "2CatR9_EBEBm4EE" && myParameters_.n_categories == 6)
 	  ); // m4 is not treated separately as far as efficiencies are concerned
 }
@@ -31,6 +32,20 @@ std::string EfficiencySmearer::photonCategory(PhotonReducedInfo & aPho) const
       if (aPho.r9()>=0.94)
 	myCategory+="HighR9";
       else
+	myCategory+="LowR9";
+    }
+  else if (myParameters_.categoryType=="3CatR9_EBEE")
+    {
+      if (aPho.iDet()==1)
+	myCategory+="EB";
+      else
+	myCategory+="EE";
+      
+      if (aPho.r9()>=0.94) 
+	myCategory+="HighR9";
+      else if (aPho.r9()>=0.90) 
+	myCategory+="MidR9";
+      else 
 	myCategory+="LowR9";
     }
   else if (myParameters_.categoryType=="EBEE")
@@ -109,6 +124,16 @@ bool EfficiencySmearer::init()
   //std::cout << "graphTmp: " << graphTmp << " " << effTmpName.c_str()  <<std::endl; 
   assert(graphTmp!=0);
   graphClone=(TGraphAsymmErrors*)graphTmp->Clone();    smearing_eff_graph_[photonCat]=graphClone;
+  
+  photonCat =  std::string("EBMidR9");
+  effTmpName = effName_+std::string("_")+photonCat; graphTmp = (TGraphAsymmErrors*) theEfficiencyFile_->Get(effTmpName.c_str());    
+  //std::cout << "graphTmp: " << graphTmp << " " << effTmpName.c_str()  <<std::endl; 
+  if(graphTmp==0){
+    std::cout<<"when MidR9 is empty use LowR9"<<std::endl;
+    std::string fakePhotonCat =  std::string("EBLowR9");
+    effTmpName = effName_+std::string("_")+fakePhotonCat; graphTmp = (TGraphAsymmErrors*) theEfficiencyFile_->Get(effTmpName.c_str());    
+  }
+  graphClone=(TGraphAsymmErrors*)graphTmp->Clone();    smearing_eff_graph_[photonCat]=graphClone;
 
   photonCat =  std::string("EEHighR9");
   effTmpName = effName_+std::string("_")+photonCat; graphTmp = (TGraphAsymmErrors*) theEfficiencyFile_->Get(effTmpName.c_str());    
@@ -121,6 +146,17 @@ bool EfficiencySmearer::init()
   //std::cout << "graphTmp: " << graphTmp << " " << effTmpName.c_str()  <<std::endl; 
   assert(graphTmp!=0);
   graphClone=(TGraphAsymmErrors*)graphTmp->Clone();    smearing_eff_graph_[photonCat]=graphClone;
+  
+  photonCat =  std::string("EEMidR9");
+  effTmpName = effName_+std::string("_")+photonCat; graphTmp = (TGraphAsymmErrors*) theEfficiencyFile_->Get(effTmpName.c_str());    
+  //std::cout << "graphTmp: " << graphTmp << " " << effTmpName.c_str()  <<std::endl; 
+  if(graphTmp==0){
+    std::cout<<"when MidR9 is empty use LowR9"<<std::endl;
+    std::string fakePhotonCat =  std::string("EELowR9");
+    effTmpName = effName_+std::string("_")+fakePhotonCat; graphTmp = (TGraphAsymmErrors*) theEfficiencyFile_->Get(effTmpName.c_str());    
+  }
+  graphClone=(TGraphAsymmErrors*)graphTmp->Clone();    smearing_eff_graph_[photonCat]=graphClone;
+
 
   theEfficiencyFile_->Close();
   return true;

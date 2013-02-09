@@ -172,8 +172,8 @@ void StatAnalysis::Init(LoopAll& l)
 //    nCategories_=(nInclusiveCategories_+nVBFCategories+nVHhadCategories+nVHlepCategories);
 
 
-    effSmearPars.categoryType = "2CatR9_EBEE";
-    effSmearPars.n_categories = 4;
+    effSmearPars.categoryType = effPhotonCategoryType;
+    effSmearPars.n_categories = effPhotonNCat;
     effSmearPars.efficiency_file = efficiencyFile;
 
     diPhoEffSmearPars.n_categories = 8;
@@ -940,10 +940,10 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
         }
 
         // FIXME pass smeared R9
-	category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,nPtCategories);
-	mass     = Higgs.M();
+        category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,nPtCategories);
+        mass     = Higgs.M();
 
-	// apply di-photon level smearings and corrections
+        // apply di-photon level smearings and corrections
         int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,0);
         if( cur_type != 0 && doMCSmearing ) {
 	    applyDiPhotonSmearings(Higgs, *vtx, selectioncategory, cur_type, *((TVector3*)l.gv_pos->At(0)), evweight, zero_, zero_,

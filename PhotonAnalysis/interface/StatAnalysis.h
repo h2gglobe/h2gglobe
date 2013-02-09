@@ -38,6 +38,8 @@ class StatAnalysis : public PhotonAnalysis
     virtual bool Analysis(LoopAll&, Int_t);
     
     std::string efficiencyFile;
+    std::string effPhotonCategoryType;
+    int effPhotonNCat;
 
     EfficiencySmearer::efficiencySmearingParameters effSmearPars;
     DiPhoEfficiencySmearer::diPhoEfficiencySmearingParameters diPhoEffSmearPars;
