@@ -77,7 +77,7 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
         << "doEscaleSyst "<< doEscaleSyst << "\n"
         << "doEresolSyst "<< doEresolSyst << "\n"
         << "doEcorrectionSyst "<< doEcorrectionSyst << "\n"
-        << "efficiencyFile " << efficiencyFile << "\n"
+        << "efficiencyFileMVA " << efficiencyFileMVA << "\n"
         << "doPhotonIdEffSyst "<< doPhotonIdEffSyst << "\n"
         << "doR9Syst "<< doR9Syst << "\n"
         << "doVtxEffSyst "<< doVtxEffSyst << "\n"
@@ -97,12 +97,12 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
     diPhoCounter_ = l.countersred.size();
     l.countersred.resize(diPhoCounter_+1);
 
-    effSmearPars.categoryType = "2CatR9_EBEE";
-    effSmearPars.n_categories = 4;
-    effSmearPars.efficiency_file = efficiencyFile;
+    effSmearPars.categoryType = effPhotonCategoryType;
+    effSmearPars.n_categories = effPhotonNCat;
+    effSmearPars.efficiency_file = efficiencyFileMVA;
 
     diPhoEffSmearPars.n_categories = 8;
-    diPhoEffSmearPars.efficiency_file = efficiencyFile;
+    diPhoEffSmearPars.efficiency_file = efficiencyFileMVA;
 
     if( doEcorrectionSmear ) {
         // instance of this smearer done in PhotonAnalysis
