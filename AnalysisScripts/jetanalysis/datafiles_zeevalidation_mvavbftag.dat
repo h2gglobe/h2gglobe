@@ -5,22 +5,15 @@ intL=19600. histfile=/store/cmst3/user/malberti/HIGGS/VBF/zee_validation/Moriond
 # Data
 #
 
-# Run2012A
-typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v1/data/Photon_Run2012A-13Jul2012-v1
-typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v1/data/Photon_Run2012A-recover-06Aug2012-v1
-
-# Run2012B
-typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v1/data/DoublePhoton_Run2012B-13Jul2012-v1
-
-# Run2012C
-typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v1/data/DoublePhoton_Run2012C-24Aug2012-v2
-typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v1/data/DoublePhoton_Run2012C-EcalRecover_11Dec2012-v1
-typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v1/data/DoublePhoton_Run2012C-PromptReco-v2
-typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v1/data/DoublePhoton_Run2012C-PromptReco-v2_sub2
-
-# Run2012D
-typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v1/data/DoublePhoton_Run2012D-PromptReco-v1_red2
-typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v1/data/DoublePhoton_Run2012D-PromptReco-v1_sub2
+typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v2/data/Photon_Run2012A-13Jul2012-v1
+typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v2/data/Photon_Run2012A-recover-06Aug2012-v1
+typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v2/data/DoublePhoton_Run2012B-13Jul2012-v1
+typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v2/data/DoublePhoton_Run2012C-24Aug2012-v2
+typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v2/data/DoublePhoton_Run2012C-EcalRecover_11Dec2012-v1
+typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v2/data/DoublePhoton_Run2012C-PromptReco-v2
+typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v2/data/DoublePhoton_Run2012C-PromptReco-v2_sub2
+typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v2/data/DoublePhoton_Run2012D-PromptReco-v1
+typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v2/data/DoublePhoton_Run2012D-PromptReco-v1_sub2
 
 
 #
@@ -48,6 +41,6 @@ treevariables optTree.dat
 ## 	analyzer <class_name> <config_file>
 ## 
 ## analyzer PhotonAnalysis photonanalysis.dat	
-analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat zeevalidation.dat  doSystematics=0 massMin=60 massMax=180 forceStdPlotsOnZee=1 fillOptTree=1
+analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat zeevalidation.dat  doSystematics=0 massMin=60 massMax=180 forceStdPlotsOnZee=1 fillOptTree=0
 
 
