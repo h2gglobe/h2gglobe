@@ -3720,29 +3720,35 @@ bool PhotonAnalysis::VBFTag2012(int & ijet1, int & ijet2,
 {
     static std::vector<unsigned char> id_flags;
     bool tag = false;
+    bool localdebug = false;
 
     if(diphoton_id==-1) return tag;
 
     if( jetid_flags == 0 ) {
-	switchJetIdVertex( l, l.dipho_vtxind[diphoton_id] );
-	id_flags.resize(l.jet_algoPF1_n);
-	for(int ijet=0; ijet<l.jet_algoPF1_n; ++ijet ) {
-	    id_flags[ijet] = PileupJetIdentifier::passJetId(l.jet_algoPF1_cutbased_wp_level[ijet], PileupJetIdentifier::kLoose);
-	}
-	jetid_flags = (bool*)&id_flags[0];
+        if(localdebug) std::cout<<"VBFTag2012 -- no id flags, re-making"<<std::endl;
+        switchJetIdVertex( l, l.dipho_vtxind[diphoton_id] );
+        id_flags.resize(l.jet_algoPF1_n);
+        for(int ijet=0; ijet<l.jet_algoPF1_n; ++ijet ) {
+            id_flags[ijet] = PileupJetIdentifier::passJetId(l.jet_algoPF1_cutbased_wp_level[ijet], PileupJetIdentifier::kLoose);
+        }
+        jetid_flags = (bool*)&id_flags[0];
     }
 
     TLorentzVector lead_p4    = l.get_pho_p4( l.dipho_leadind[diphoton_id], l.dipho_vtxind[diphoton_id], &smeared_pho_energy[0]);
     TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphoton_id], l.dipho_vtxind[diphoton_id], &smeared_pho_energy[0]);
 
     std::pair<int, int> jets;
+    if(localdebug) std::cout<<"VBFTag2012 -- getting highest pt jets -- with PU jetveto?"<<usePUjetveto<<std::endl;
     if(usePUjetveto){
         jets = l.Select2HighestPtJets(lead_p4, sublead_p4, jetid_flags );
     } else {
         jets = l.Select2HighestPtJets(lead_p4, sublead_p4);
     }
 
-    if(jets.first==-1 || jets.second==-1) return tag;
+    if(jets.first==-1 || jets.second==-1) {
+        if(localdebug) std::cout<<"VBFTag2012 -- no jets"<<std::endl;
+        return tag;
+    }
 
     TLorentzVector diphoton = lead_p4+sublead_p4;
 

@@ -3858,7 +3858,7 @@ std::pair<int, int> LoopAll::Select2HighestPtJets(TLorentzVector& leadpho, TLore
     std::pair<int, int> fail(-1,-1);
 
     std::pair<float, float> myJetspt(-1.,-1.);
-
+    if(GFDEBUG) std::cout<<"Select2HighestPtJets--start"<<std::endl;
     float dr2pho = 0.5;
     float dr2jet = 0.5;
 
@@ -3871,11 +3871,17 @@ std::pair<int, int> LoopAll::Select2HighestPtJets(TLorentzVector& leadpho, TLore
 
     for(int j1_i=0; j1_i<jet_algoPF1_n; j1_i++){
         j1p4 = (TLorentzVector*) jet_algoPF1_p4->At(j1_i);
+        if(GFDEBUG) std::cout<<"jet "<<j1_i<<std::endl;
+        if(GFDEBUG) std::cout<<"passing pu id?"<<std::endl;
         if(jetid_flags != 0 && !jetid_flags[j1_i]) continue; 
+        if(GFDEBUG) std::cout<<"within eta 4.7?"<<std::endl;
         if(fabs(j1p4->Eta()) > 4.7) continue;
+        if(GFDEBUG) std::cout<<"close to leadpho?"<<std::endl;
         if(j1p4->DeltaR(leadpho) < dr2pho) continue;
+        if(GFDEBUG) std::cout<<"close to subleadpho?"<<std::endl;
         if(j1p4->DeltaR(subleadpho) < dr2pho) continue;
         j1pt=j1p4->Pt();
+        if(GFDEBUG) std::cout<<"passing all single jet requirements with pt"<<j1pt<<std::endl;
 
 
         if(j1pt>myJetspt.first) {
