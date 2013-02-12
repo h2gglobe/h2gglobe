@@ -918,7 +918,8 @@ def Plot(num,printsuffix="",printcat=-1):
                         print "don't divide"
                     can.cd(icat+1)
                 else:
-                    pad_id = icat + 1 + (icat/Ncol)*Nrow  # (icat%Ncol)+1 + ((icat/Ncol)+1)*Ncol
+                    pad_id = icat%Ncol + 1 + ((icat)/Ncol) * 2 * Ncol # (icat%Ncol)+1 + ((icat/Ncol)+1)*Ncol
+                    print "icat, pad_id,",icat, pad_id
                     if DebugNew:
                         print "divide"
                     can.cd(pad_id)
@@ -1069,7 +1070,7 @@ def Plot(num,printsuffix="",printcat=-1):
                         print "data"+str(icat),stackintegrals["data"+str(icat)]
  
             if dodivide:
-                pad_id = icat + 1 + Ncol + (icat/Ncol)*Nrow  # (icat%Ncol)+1 + ((icat/Ncol)+1)*Ncol
+                pad_id = icat%Ncol + 1 + (((icat)/Ncol) * 2 + 1) * Ncol # (icat%Ncol)+1 + ((icat/Ncol)+1)*Ncol
                 can.cd(pad_id)
                 can.GetPad(pad_id).SetGrid(True)
                 dataTot[icat].Sumw2()
