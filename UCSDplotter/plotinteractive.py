@@ -1,5 +1,5 @@
 import ROOT
-import sys,time
+import sys,time,math
 
 NFILES=-1
 NIND=-1
@@ -65,8 +65,9 @@ domergecats=False
 StaticMin=False
 StaticMax=False
 dotitles=False
-cattitles=["EB-EB","!(EB-EB)"]
+cattitles=["EB-EB-hiR9-hiR9","EB-EB-!(hiR9-hiR9)","!(EB-EB)-hiR9-hiR9","!(EB-EB)-!(hiR9-hiR9)"]
 dointegrals=False
+domean=False
 
 allintegrals=False
 
@@ -77,6 +78,11 @@ dodata=True
 dobkg=True
 
 readinputfiles=True
+DoFileSave=True
+filesetup=True
+outfilename="PI_output.root"
+outfile=ROOT.TFile(outfilename,"recreate")
+
 
 DoBigLegend=False
 DoPopSig=True
@@ -225,6 +231,8 @@ def FindFunction(option):
         PrintSamples(samples)
     elif option == "vars":
         PrintAllVariables()
+    elif option == "save":
+        SaveHist()
     elif option.split()[0] == "linex":
         SetLine(float(option.split()[1]))
     elif option.split()[0] == "mvlegx":
@@ -469,6 +477,9 @@ def Startup(configfilename):
     for itype in samples:
         samples[itype].ParseConfigLines()
 
+    #if DoFileSave:
+    #    SetupSaveFile(outfilename)
+
 
 def AssociateConfigToSample(configlines):
     for line in configlines:
@@ -599,6 +610,35 @@ def ReadInputFiles(rootfile):
         newsample.inshortnames    =inputfiles.inshortnames[ifile].GetString()
         samples[inputfiles.itype[ifile]]=newsample
 
+
+#def SetupSaveFile(outfilename):
+#    global filesetup
+#    outfilename=outfilename.split(".")
+#    if not filesetup:
+#        if globals().has_key(outfilename):
+#            print "Output file already created but filesetup is",filesetup
+#            filesetup=True
+#        else:
+#            try:
+#                globals()[outfilename]=ROOT.TFile(outfilename,"recreate")
+#                filesetup=True
+#            except:
+#                print "Tried to setup file... fail"
+#    else:
+#        print "File is already setup",filesetup,outfilename
+
+
+def SaveHist():
+    #global filesetup
+    #if not filesetup:
+    #    global outfilename
+    #    SetupSaveFile(outfilename)
+   
+    print outfile
+    outfile.cd()
+    print "cd'ed"
+    cur_plot.Write()
+
 ### Ploting Functions 
 
 def Plot(num,printsuffix="",printcat=-1):
@@ -618,10 +658,10 @@ def Plot(num,printsuffix="",printcat=-1):
         can.cd().SetGridy(dogridy)
         
     elif docats:
-        nCavases = Ncol+Nrow
+        nCanvases = Ncol*Nrow
         if (not dodivide):
             can.Divide(Ncol, Nrow)
-            for ican in range(1, nCavases+1):
+            for ican in range(1, nCanvases+1):
                 can.cd(ican)
                 can.cd(ican).SetLogy(dolog)
                 can.cd(ican).SetGridx(dogridx)
@@ -629,25 +669,23 @@ def Plot(num,printsuffix="",printcat=-1):
         else:
             global pads
             pads = []
-            nCavases = Ncol+Nrow*2
+            nCanvases = Ncol*Nrow*2
             nx = Ncol
             ny = Nrow*2
             xmargin=0.01
             ymargin=0.01
-            dy = 1./float(ny)
+            dy = 1./float(Nrow)
             dx = 1./float(nx)
+            print "nx, ny, dx, dy,",nx, ny, dx, dy
+            dy_odd  = dy*.2
+            dy_even = dy*.8
             for iy in range(ny):
-                dy1 = dy*.2/.5
-                dy2 = dy*.8/.5
-                if ((iy%2)==0):
-                    dy1 = dy*.8/.5
-                    dy2 = dy*.2/.5
-                y2 = 1 - iy*dy2 - ymargin
-                y1 = y2 - dy1 + 2*ymargin
-                if (y1 < 0):
-                    y1 = 0
-                if (y1 > y2): 
-                    continue
+                if iy%2==0:
+                    y1 = 1 - (iy/2)*dy - ymargin
+                    y2 = 1 - (iy/2)*dy - dy_even + ymargin 
+                else:
+                    y1 = 1 - (iy/2)*dy - dy_even - ymargin
+                    y2 = 1 - (iy/2+1)*dy + ymargin
                 for ix in range(nx):
                     x1 = ix*dx + xmargin
                     x2 = x1 +dx -2*xmargin
@@ -659,7 +697,7 @@ def Plot(num,printsuffix="",printcat=-1):
                     print "NUMBERS", (ix+iy*nx+1)
                     pads[-1].Draw()
 
-            for ican in range(1, nCavases+1):
+            for ican in range(1, nCanvases+1):
                 if ((ican/(Ncol+1))%2 == 0):
                     can.cd(ican)
                     can.cd(ican).SetLogy(dolog)
@@ -793,6 +831,13 @@ def Plot(num,printsuffix="",printcat=-1):
         if DebugNew:
             print "lineorder",lineorder
         first=1
+        if (Normalize):
+            if stacks["bkglines"+str(icat)][lineorder[0]].Integral() > 0:
+                toscale=dataIntegral/stacks["bkglines"+str(icat)][lineorder[0]].Integral()
+            else:
+                toscale=1.0
+        else:
+            toscale=1.0
         for index in lineorder:
             itype=index[1]
             if DebugNew:
@@ -803,8 +848,7 @@ def Plot(num,printsuffix="",printcat=-1):
             stacks["bkglines"][index].SetLineWidth(linewidth*plotscale)
             stacks["bkglines"][index].SetFillStyle(1001)
             stacks["bkglines"][index].SetFillColor(int(samples[itype].color))
-            if (Normalize and (index == lineorder[0])):
-                stacks["bkglines"+str(icat)][index].Scale(dataIntegral/stacks["bkglines"+str(icat)][index].Integral())
+            stacks["bkglines"+str(icat)][index].Scale(toscale)
             stacks["bkglines"][index].Draw("histsame")
             if dolegend:
                 legend.AddEntry(stacks["bkglines"][index],str(samples[itype].displayname),"f"); 
@@ -874,10 +918,10 @@ def Plot(num,printsuffix="",printcat=-1):
                         print "don't divide"
                     can.cd(icat+1)
                 else:
-                    cat = (icat%Ncol)+1 +(icat/Ncol)*Ncol
+                    pad_id = icat + 1 + (icat/Ncol)*Nrow  # (icat%Ncol)+1 + ((icat/Ncol)+1)*Ncol
                     if DebugNew:
                         print "divide"
-                    can.cd(cat)
+                    can.cd(pad_id)
        
             # Matteo no stack is plotted to allow normalization (and stats are not plot as well)
             ROOT.gStyle.SetOptStat(0)
@@ -933,11 +977,10 @@ def Plot(num,printsuffix="",printcat=-1):
                         legend.AddEntry(stacks["datalines"+str(icat)][index],str(samples[itype].displayname),"ep"); 
                 dataIntegral = stacks["datalines"+str(icat)][lineorder[0]].Integral()
                 print "data int ", dataIntegral
+                if domean:
+                    print "data mean","%.3f"%stacks["datalines"+str(icat)][lineorder[0]].GetMean()
                 if dodivide:
-                    #if (index == lineorder[0]):
                     dataTot[icat] =  stacks["datalines"+str(icat)][lineorder[0]].Clone("dataTot")
-                    #else:
-                    #    dataTot[icat].Add(stacks["datalines"+str(icat)][index])
  
             lineorder = stacks["siglines"+str(icat)].keys()
             lineorder.sort()
@@ -956,6 +999,13 @@ def Plot(num,printsuffix="",printcat=-1):
                 if DebugNew:
                     print "lineorder",lineorder
                 first=1
+                if (Normalize):
+                    if stacks["bkglines"+str(icat)][lineorder[0]].Integral() > 0:
+                        toscale=dataIntegral/stacks["bkglines"+str(icat)][lineorder[0]].Integral()
+                    else:
+                        toscale=1.0
+                else:
+                    toscale=1.0
                 for index in lineorder:
                     itype=index[1]
                     if DebugNew:
@@ -966,17 +1016,19 @@ def Plot(num,printsuffix="",printcat=-1):
                     stacks["bkglines"+str(icat)][index].SetLineWidth(linewidth*plotscale)
                     stacks["bkglines"+str(icat)][index].SetFillStyle(1001)
                     stacks["bkglines"+str(icat)][index].SetFillColor(int(samples[itype].color))
-                    print "bkg int",stacks["bkglines"+str(icat)][index].Integral() 
-                    if (Normalize and (index == lineorder[0])):
-                        stacks["bkglines"+str(icat)][index].Scale(dataIntegral/stacks["bkglines"+str(icat)][index].Integral())
+                    stacks["bkglines"+str(icat)][index].Scale(toscale)
                     stacks["bkglines"+str(icat)][index].Draw("histsame")
                     if dolegend and icat==0:
                         legend.AddEntry(stacks["bkglines"+str(icat)][index],str(samples[itype].displayname),"f"); 
                     if dodivide:
                         if (index == lineorder[0]):
                             mcTot[icat] = stacks["bkglines"+str(icat)][index].Clone("mcTot")
-                        #else:
-                        #    mcTot[icat].Add(stacks["bkglines"+str(icat)][index])
+                    print "finished plot",index
+                if stacks["bkglines"+str(icat)][lineorder[0]].GetEffectiveEntries() > 0:
+                    error=math.sqrt(1/float(stacks["bkglines"+str(icat)][lineorder[0]].GetEffectiveEntries()))*stacks["bkglines"+str(icat)][lineorder[0]].Integral() 
+                    print "bkg int","%.2f"%stacks["bkglines"+str(icat)][lineorder[0]].Integral(),"+/-","%.2f"%error
+                if domean:
+                    print "bkg mean","%.3f"%stacks["bkglines"+str(icat)][lineorder[0]].GetMean()
  
                 if dointegrals:
                     oflowbin = int(stacks["bkglines"+str(icat)][lineorder[0]].GetNbinsX()+1)
@@ -995,8 +1047,6 @@ def Plot(num,printsuffix="",printcat=-1):
                 if dodivide:
                     if (index == lineorder[0] and mcTot[icat] == ""):
                         mcTot[icat] = stacks["siglines"+str(icat)][index].Clone("mcTot")
-                    #else:
-                    #    mcTot[icat].Add(stacks["siglines"+str(icat)][index])
             
             if dointegrals:
                 oflowbin = int(stacks["siglines"+str(icat)][lineorder[0]].GetNbinsX()+1)
@@ -1019,9 +1069,9 @@ def Plot(num,printsuffix="",printcat=-1):
                         print "data"+str(icat),stackintegrals["data"+str(icat)]
  
             if dodivide:
-                cat = (icat%Ncol)+1 + ((icat/Ncol)+1)*Ncol
-                can.cd(cat)
-                can.GetPad(cat).SetGrid(True)
+                pad_id = icat + 1 + Ncol + (icat/Ncol)*Nrow  # (icat%Ncol)+1 + ((icat/Ncol)+1)*Ncol
+                can.cd(pad_id)
+                can.GetPad(pad_id).SetGrid(True)
                 dataTot[icat].Sumw2()
                 mcTot[icat].Sumw2()
                 dataTot[icat].Divide(mcTot[icat])
@@ -1056,8 +1106,12 @@ def Plot(num,printsuffix="",printcat=-1):
                 cutline.DrawLine(linex,0.0,linex,stackmax/1.1);
  
             if docats: 
-                can.cd(icat+1).Modified()
-                can.cd(icat+1).Update()
+                if dodivide:
+                    pad_id = icat + 1 + (icat/Ncol)*Nrow  # (icat%Ncol)+1 + ((icat/Ncol)+1)*Ncol
+                else:
+                    pad_id = icat + 1
+                can.cd(pad_id).Modified()
+                can.cd(pad_id).Update()
             else:
                 can.cd().Modified()
                 can.cd().Update()
