@@ -80,8 +80,8 @@ def main(options, args):
                     "r_qqH"  : (0.,999999.,False),
                     "CV"     : (0.,2.,False),
                     "CF"     : (0.,3.,True),
-                    "RV"     : (0.,999999.,False),
-                    "RF"     : (0.,999999.,False),
+                    "RV"     : (-4.,4.,False),
+                    "RF"     : (-4.,4.,False),
                     "MH"     : (120.,130.,False),
                     "r"      : (-20,20.,False),
                     }
@@ -105,7 +105,7 @@ def main(options, args):
         combine, model, model_name, mass, model_name ) )
 
     par_limits = extract_par_limits(model_pars[options.model],model_name, mass)
-
+        
 
     ## clone model limiting the parameters range
     ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
@@ -114,8 +114,11 @@ def main(options, args):
     
     for name, vals in par_limits.iteritems():
         best, down, up = vals
-        pmin = max( best - options.scanrange*( best - down ), pars_ranges[name][0] )
-        pmax = min( best + options.scanrange*( up   - best ), pars_ranges[name][1] )
+        if options.scanrange <= 0.:
+            pmin, pmax = pars_ranges[name][0:2]
+        else:
+            pmin = max( best - options.scanrange*( best - down ), pars_ranges[name][0] )
+            pmax = min( best + options.scanrange*( up   - best ), pars_ranges[name][1] )
         if pars_ranges[name][2]:
             pmax = max( abs(pmin), abs(pmax) )
             pmin = -pmax
@@ -135,7 +138,7 @@ def main(options, args):
     for ip in range(options.npoints/step+1):
         jobs="%s %d %d " % ( jobs, ip*step, (ip+1)*step-1 )
     print jobs
-    system( "%s -N2 --eta '%s -M MultiDimFit %s_grid_test.root -m %s -v2 -n %s_grid{1} --algo=grid --points=%d --firstPoint={1} --lastPoint={2} | tee combine_%s_grid{1}.log' ::: %s " % ( parallel, combine, model_name, mass, model_name, options.npoints, model_name, jobs ) )
+    system( "%s -N2 --eta '%s -M MultiDimFit %s_grid_test.root -m %s -v0 -n %s_grid{1} --algo=grid --points=%d --firstPoint={1} --lastPoint={2} | tee combine_%s_grid{1}.log' ::: %s " % ( parallel, combine, model_name, mass, model_name, options.npoints, model_name, jobs ) )
 
     hadd = "hadd higgsCombine%s_grid.MultiDimFit.mH%s.root" % (model_name,mass)
     for f in glob.glob("higgsCombine%s_grid[0-9]*.MultiDimFit.mH%s.root" % (model_name,mass) ):
@@ -196,6 +199,9 @@ if __name__ == "__main__":
                     ),
         ])
     
+
+
+
     (options, args) = parser.parse_args()
     if options.workdir == "":
         options.workdir = args.pop(1)
