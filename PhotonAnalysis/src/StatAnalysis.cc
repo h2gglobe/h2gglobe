@@ -851,8 +851,8 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 	    //Met tag //met at analysis step
         if(includeVHmet){
             int met_cat=-1;
-            if( isSyst) VHmetevent=METTag2012B(l, diphotonVHmet_id, met_cat, &smeared_pho_energy[0], met_sync, false, -0.2, false);
-            else        VHmetevent=METTag2012B(l, diphotonVHmet_id, met_cat, &smeared_pho_energy[0], met_sync, false, -0.2, true);
+            if( isSyst) VHmetevent=METTag2012B(l, diphotonVHmet_id, met_cat, &smeared_pho_energy[0], met_sync, false, -0.2, true);
+            else        VHmetevent=METTag2012B(l, diphotonVHmet_id, met_cat, &smeared_pho_energy[0], met_sync, false, -0.2, false);
 	    }
 
 	    // VBF+hadronic VH
@@ -981,59 +981,249 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
         // save trees for unbinned datacards
         //if (!isSyst && cur_type>0 && saveDatacardTrees_) saveMassFacDatCardTree(l,diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMeonly,bdtTrainingPhilosophy.c_str(),phoid_mvaout_lead,phoid_mvaout_sublead);
 
-        if (dumpAscii && !isSyst && (cur_type==0||dumpMcAscii) && mass>=massMin && mass<=massMax ) {
 
-	    if( unblind ) {
-		eventListText << "run:" << l.run
-			      << "\tlumi:" << l.lumis
-			      << "\tevent:" << l.event
-			      << "\tcat:" << category
-			      << "\tscEta1:" << ((TVector3*)l.sc_xyz->At(l.pho_scind[l.dipho_leadind[diphoton_id]]))->Eta()
-			      << "\tscEta2:" << ((TVector3*)l.sc_xyz->At(l.pho_scind[l.dipho_subleadind[diphoton_id]]))->Eta()
-			      << "\tmass:" << Higgs.M()
-			      << std::endl;
-	    } else {
-		eventListText << "run:" << l.run
-			      << "\tlumi:" << l.lumis
-			      << "\tevent:" << l.event
-			      << "\trho:" << l.rho_algo1
-			      << "\tenergy1:" << lead_p4.Energy()
-			      << "\tenergy2:" << sublead_p4.Energy()
-			      << "\tscEta1:" << ((TVector3*)l.sc_xyz->At(l.pho_scind[l.dipho_leadind[diphoton_id]]))->Eta()
-			      << "\tscEta2:" << ((TVector3*)l.sc_xyz->At(l.pho_scind[l.dipho_subleadind[diphoton_id]]))->Eta()
-			      << "\tr91:" << l.pho_r9[l.dipho_leadind[diphoton_id]]
-			      << "\tr92:" << l.pho_r9[l.dipho_subleadind[diphoton_id]]
-		    ;
-	    }
-	    vtxAna_.setPairID(diphoton_id);
-	    std::vector<int> & vtxlist = l.vtx_std_ranked_list->at(diphoton_id);
-	    for(size_t ii=0; ii<3; ++ii ) {
-		eventListText << "\tvertexId"<< ii+1 <<":" << (ii < vtxlist.size() ? vtxlist[ii] : -1);
-	    }
-	    for(size_t ii=0; ii<3; ++ii ) {
-		eventListText << "\tvertexMva"<< ii+1 <<":" << (ii < vtxlist.size() ? vtxAna_.mva(vtxlist[ii]) : -2.);
-	    }
-	    eventListText << "\tptbal:"   << vtxAna_.ptbal(0)
-			  << "\tptasym:"  << vtxAna_.ptasym(0)
-			  << "\tlogspt2:" << vtxAna_.logsumpt2(0)
-			  << "\tp2conv:"  << vtxAna_.pulltoconv(0)
-		;
-	    dumpPhoton(eventListText,1,l,l.dipho_leadind[diphoton_id],l.dipho_vtxind[diphoton_id],lead_p4,&smeared_pho_energy[0]);
-	    dumpPhoton(eventListText,2,l,l.dipho_subleadind[diphoton_id],l.dipho_vtxind[diphoton_id],sublead_p4,&smeared_pho_energy[0]);
-	    if( VBFevent ) {
-		eventListText << "\tnvtx:" << l.vtx_std_n
+        if (dumpAscii && !isSyst && (cur_type==0||dumpMcAscii) && mass>=massMin && mass<=massMax ) {
+            // New ascii event list for syncrhonizing MVA Preselection + Diphoton MVA
+            eventListText <<"type:"<< cur_type 
+              << "    run:"   <<  l.run
+              << "    lumi:"  <<  l.lumis
+              << "    event:" <<  l.event
+              << "    rho:" <<    l.rho
+		      << "    nvtx:" << l.vtx_std_n
+            // Preselection Lead
+              << "    r9_1:"  <<  lead_r9
+              << "    sceta_1:"   << (photonInfoCollection[diphoton_index.first]).caloPosition().Eta() 
+              << "    hoe_1:" <<  l.pho_hoe[diphoton_index.first]
+              << "    sigieie_1:" <<  l.pho_sieie[diphoton_index.first]
+              << "    ecaliso_1:" <<  l.pho_ecalsumetconedr03[diphoton_index.first] - 0.012*lead_p4.Et()
+              << "    hcaliso_1:" <<  l.pho_hcalsumetconedr03[diphoton_index.first] - 0.005*lead_p4.Et()
+              << "    trckiso_1:" <<  l.pho_trksumpthollowconedr03[diphoton_index.first] - 0.002*lead_p4.Et()
+              << "    chpfiso2_1:" <<  (*l.pho_pfiso_mycharged02)[diphoton_index.first][l.dipho_vtxind[diphoton_id]] 
+              << "    chpfiso3_1:" <<  (*l.pho_pfiso_mycharged03)[diphoton_index.first][l.dipho_vtxind[diphoton_id]] 
+            // Preselection SubLead
+              << "    r9_2:"  <<  sublead_r9
+              << "    sceta_2:"   << (photonInfoCollection[diphoton_index.second]).caloPosition().Eta() 
+              << "    hoe_2:" <<  l.pho_hoe[diphoton_index.second]
+              << "    sigieie_2:" <<  l.pho_sieie[diphoton_index.second]
+              << "    ecaliso_2:" <<  l.pho_ecalsumetconedr03[diphoton_index.second] - 0.012*sublead_p4.Et()
+              << "    hcaliso_2:" <<  l.pho_hcalsumetconedr03[diphoton_index.second] - 0.005*sublead_p4.Et()
+              << "    trckiso_2:" <<  l.pho_trksumpthollowconedr03[diphoton_index.second] - 0.002*sublead_p4.Et()
+              << "    chpfiso2_2:" <<  (*l.pho_pfiso_mycharged02)[diphoton_index.second][l.dipho_vtxind[diphoton_id]] 
+              << "    chpfiso3_2:" <<  (*l.pho_pfiso_mycharged03)[diphoton_index.second][l.dipho_vtxind[diphoton_id]] 
+        // Diphoton MVA inputs
+              << "    ptH:"  <<  ptHiggs 
+              << "    phoeta_1:"  <<  lead_p4.Eta() 
+              << "    phoeta_2:"  <<  sublead_p4.Eta() 
+              << "    bsw:"       <<  beamspotWidth 
+              << "    pt_1:"      <<  lead_p4.Pt()
+              << "    pt_2:"      <<  sublead_p4.Pt()
+              << "    pt_1/m:"      <<  lead_p4.Pt()/mass
+              << "    pt_2/m:"      <<  sublead_p4.Pt()/mass
+              << "    cosdphi:"   <<  TMath::Cos(lead_p4.Phi() - sublead_p4.Phi()) 
+        // Extra
+              << "    mgg:"       <<  mass 
+              << "    e_1:"       <<  lead_p4.E()
+              << "    e_2:"       <<  sublead_p4.E()
+              << "    vbfevent:"  <<  VBFevent
+              << "    muontag:"   <<  VHmuevent
+              << "    electrontag:"<< VHelevent
+              << "    mettag:"    <<  VHmetevent
+              << "    evcat:"     <<  category
+              << "    FileName:"  <<  l.files[l.current]
+            // VBF MVA
+              << "    vbfmva: "   <<  myVBF_MVA;
+            // Vertex MVA
+            vtxAna_.setPairID(diphoton_id);
+            std::vector<int> & vtxlist = l.vtx_std_ranked_list->at(diphoton_id);
+            // Conversions
+            PhotonInfo p1 = l.fillPhotonInfos(l.dipho_leadind[diphoton_id], vtxAlgoParams.useAllConversions, 0); // WARNING using default photon energy: it's ok because we only re-do th$
+            PhotonInfo p2 = l.fillPhotonInfos(l.dipho_subleadind[diphoton_id], vtxAlgoParams.useAllConversions, 0); // WARNING using default photon energy: it's ok because we only re-do$
+            int convindex1 = l.matchPhotonToConversion(diphoton_index.first,vtxAlgoParams.useAllConversions);
+            int convindex2 = l.matchPhotonToConversion(diphoton_index.second,vtxAlgoParams.useAllConversions);
+
+            for(size_t ii=0; ii<3; ++ii ) {
+                eventListText << "\tvertexId"<< ii+1 <<":" << (ii < vtxlist.size() ? vtxlist[ii] : -1);
+            }
+            for(size_t ii=0; ii<3; ++ii ) {
+                eventListText << "\tvertexMva"<< ii+1 <<":" << (ii < vtxlist.size() ? vtxAna_.mva(vtxlist[ii]) : -2.);
+            }
+            for(size_t ii=1; ii<3; ++ii ) {
+                eventListText << "\tvertexdeltaz"<< ii+1 <<":" << (ii < vtxlist.size() ? vtxAna_.vertexz(vtxlist[ii])-vtxAna_.vertexz(vtxlist[0]) : -999.);
+            }
+            eventListText << "\tptbal:"   << vtxAna_.ptbal(vtxlist[0])
+                          << "\tptasym:"  << vtxAna_.ptasym(vtxlist[0])
+                          << "\tlogspt2:" << vtxAna_.logsumpt2(vtxlist[0])
+                          << "\tp2conv:"  << vtxAna_.pulltoconv(vtxlist[0])
+                          << "\tnconv:"   << vtxAna_.nconv(vtxlist[0]);
+
+        //Photon IDMVA inputs
+            double pfchargedisobad03=0.;
+            for(int ivtx=0; ivtx<l.vtx_std_n; ivtx++) {
+                pfchargedisobad03 = l.pho_pfiso_mycharged03->at(diphoton_index.first).at(ivtx) > pfchargedisobad03 ? l.pho_pfiso_mycharged03->at(diphoton_index.first).at(ivtx) : pfchargedisobad03;
+            }
+
+            eventListText << "\tscetawidth_1: " << l.pho_etawidth[diphoton_index.first]
+                          << "\tscphiwidth_1: " << l.sc_sphi[diphoton_index.first]
+                          << "\tsieip_1: " << l.pho_sieip[diphoton_index.first]
+                          << "\tbc_e2x2_1: " << l.pho_e2x2[diphoton_index.first]
+                          << "\tpho_e5x5_1: " << l.bc_s25[l.sc_bcseedind[l.pho_scind[diphoton_index.first]]]
+                          << "\ts4ratio_1: " << l.pho_s4ratio[diphoton_index.first]
+                          << "\tpfphotoniso03_1: " << l.pho_pfiso_myphoton03[diphoton_index.first]
+                          << "\tpfchargedisogood03_1: " << l.pho_pfiso_mycharged03->at(diphoton_index.first).at(vtxlist[0])
+                          << "\tpfchargedisobad03_1: " << pfchargedisobad03
+                          << "\teseffsigmarr_1: " << l.pho_ESEffSigmaRR[diphoton_index.first];
+            pfchargedisobad03=0.;
+            for(int ivtx=0; ivtx<l.vtx_std_n; ivtx++) {
+                pfchargedisobad03 = l.pho_pfiso_mycharged03->at(diphoton_index.second).at(ivtx) > pfchargedisobad03 ? l.pho_pfiso_mycharged03->at(diphoton_index.second).at(ivtx) : pfchargedisobad03;
+            }
+
+            eventListText << "\tscetawidth_2: " << l.pho_etawidth[diphoton_index.second]
+                          << "\tscphiwidth_2: " << l.sc_sphi[diphoton_index.second]
+                          << "\tsieip_2: " << l.pho_sieip[diphoton_index.second]
+                          << "\tbc_e2x2_2: " << l.pho_e2x2[diphoton_index.second]
+                          << "\tpho_e5x5_2: " << l.bc_s25[l.sc_bcseedind[l.pho_scind[diphoton_index.second]]]
+                          << "\ts4ratio_2: " << l.pho_s4ratio[diphoton_index.second]
+                          << "\tpfphotoniso03_2: " << l.pho_pfiso_myphoton03[diphoton_index.second]
+                          << "\tpfchargedisogood03_2: " << l.pho_pfiso_mycharged03->at(diphoton_index.second).at(vtxlist[0])
+                          << "\tpfchargedisobad03_2: " << pfchargedisobad03
+                          << "\teseffsigmarr_2: " << l.pho_ESEffSigmaRR[diphoton_index.second];
+
+
+            if (convindex1!=-1) {
+                eventListText 
+                << "    convVtxZ1:"  <<  vtxAna_.vtxZFromConv(p1)
+                << "    convVtxdZ1:"  <<  vtxAna_.vtxZFromConv(p1)-vtxAna_.vertexz(vtxlist[0])
+                << "    convRes1:"   << vtxAna_.vtxdZFromConv(p1) 
+                << "    convChiProb1:"  <<  l.conv_chi2_probability[convindex1]
+                << "    convNtrk1:"  <<  l.conv_ntracks[convindex1]
+                << "    convindex1:"  <<  convindex1
+                << "    convvtxZ1:" << ((TVector3*) l.conv_vtx->At(convindex1))->Z()
+                << "    convvtxR1:" << ((TVector3*) l.conv_vtx->At(convindex1))->Perp()
+                << "    convrefittedPt1:" << ((TVector3*) l.conv_refitted_momentum->At(convindex1))->Pt();
+            } else {
+                eventListText 
+                << "    convVtxZ1:"  <<  -999
+                << "    convVtxdZ1:"  <<  -999
+                << "    convRes1:"    <<  -999
+                << "    convChiProb1:"  <<  -999
+                << "    convNtrk1:"  <<  -999
+                << "    convindex1:"  <<  -999
+                << "    convvtxZ1:" << -999
+                << "    convvtxR1:" << -999
+                << "    convrefittedPt1:" << -999;
+            }
+            if (convindex2!=-1) {
+                eventListText 
+                << "    convVtxZ2:"  <<  vtxAna_.vtxZFromConv(p2)
+                << "    convVtxdZ2:"  <<  vtxAna_.vtxZFromConv(p2)-vtxAna_.vertexz(vtxlist[0])
+                << "    convRes2:"   << vtxAna_.vtxdZFromConv(p2)
+                << "    convChiProb2:"  <<  l.conv_chi2_probability[convindex2]
+                << "    convNtrk2:"  <<  l.conv_ntracks[convindex2]
+                << "    convindex2:"  <<  convindex2
+                << "    convvtxZ2:" << ((TVector3*) l.conv_vtx->At(convindex2))->Z()
+                << "    convvtxR2:" << ((TVector3*) l.conv_vtx->At(convindex2))->Perp()
+                << "    convrefittedPt2:" << ((TVector3*) l.conv_refitted_momentum->At(convindex2))->Pt();
+            } else {
+                eventListText 
+                << "    convVtxZ2:"  <<  -999
+                << "    convVtxdZ2:"  <<  -999
+                << "    convRes2:"    <<  -999
+                << "    convChiProb2:"  <<  -999
+                << "    convNtrk2:"  <<  -999
+                << "    convindex2:"  <<  -999
+                << "    convvtxZ2:" << -999
+                << "    convvtxR2:" << -999
+                << "    convrefittedPt2:" << -999;
+            }
+            
+            if(VHelevent){
+                TLorentzVector* myel = (TLorentzVector*) l.el_std_p4->At(el_ind);
+                TLorentzVector* myelsc = (TLorentzVector*) l.el_std_sc->At(el_ind);
+                float thiseta = fabs(myelsc->Eta());
+                double Aeff=0.;
+                if(thiseta<1.0)                   Aeff=0.135;
+                if(thiseta>=1.0 && thiseta<1.479) Aeff=0.168;
+                if(thiseta>=1.479 && thiseta<2.0) Aeff=0.068;
+                if(thiseta>=2.0 && thiseta<2.2)   Aeff=0.116;
+                if(thiseta>=2.2 && thiseta<2.3)   Aeff=0.162;
+                if(thiseta>=2.3 && thiseta<2.4)   Aeff=0.241;
+                if(thiseta>=2.4)                  Aeff=0.23;
+                float thisiso=l.el_std_pfiso_charged[el_ind]+std::max(l.el_std_pfiso_neutral[el_ind]+l.el_std_pfiso_photon[el_ind]-l.rho*Aeff,0.);
+    
+                TLorentzVector elpho1=*myel + lead_p4;
+                TLorentzVector elpho2=*myel + sublead_p4;
+
+                eventListText 
+                    << "    elind:"<<       el_ind
+                    << "    elpt:"<<        myel->Pt()
+                    << "    eleta:"<<       myel->Eta()
+                    << "    elsceta:"<<     myelsc->Eta()
+                    << "    elmva:"<<       l.el_std_mva_nontrig[el_ind]
+                    << "    eliso:"<<       thisiso
+                    << "    elisoopt:"<<    thisiso/myel->Pt()
+                    << "    elAeff:"<<      Aeff
+                    << "    eldO:"<<        fabs(l.el_std_D0Vtx[el_ind][elVtx])
+                    << "    eldZ:"<<        fabs(l.el_std_DZVtx[el_ind][elVtx])
+                    << "    elmishits:"<<   l.el_std_hp_expin[el_ind]
+                    << "    elconv:"<<      l.el_std_conv[el_ind]
+                    << "    eldr1:"<<       myel->DeltaR(lead_p4)
+                    << "    eldr2:"<<       myel->DeltaR(sublead_p4)
+                    << "    elmeg1:"<<      elpho1.M()
+                    << "    elmeg2:"<<      elpho2.M();
+
+            } else {
+                eventListText 
+                    << "    elind:"<<       -1
+                    << "    elpt:"<<        -1
+                    << "    eleta:"<<       -1
+                    << "    elsceta:"<<     -1
+                    << "    elmva:"<<       -1
+                    << "    eliso:"<<       -1
+                    << "    elisoopt:"<<    -1
+                    << "    elAeff:"<<      -1
+                    << "    eldO:"<<        -1
+                    << "    eldZ:"<<        -1
+                    << "    elmishits:"<<   -1
+                    << "    elconv:"<<      -1
+                    << "    eldr1:"<<       -1
+                    << "    eldr2:"<<       -1
+                    << "    elmeg1:"<<      -1
+                    << "    elmeg2:"<<      -1;
+            }
+
+            if(VHmetevent){
+                TLorentzVector myMet = l.METCorrection2012B(lead_p4, sublead_p4); 
+                float corrMet    = myMet.Pt();
+                float corrMetPhi = myMet.Phi();
+
+                eventListText 
+                    << "    metuncor:"<<        l.met_pfmet
+                    << "    metphiuncor:"<<     l.met_phi_pfmet
+                    << "    metcor:"<<          corrMet
+                    << "    metphicor:"<<       corrMetPhi;
+            } else {
+                eventListText 
+                    << "    metuncor:"<<        -1
+                    << "    metphiuncor:"<<     -1
+                    << "    metcor:"<<          -1
+                    << "    metphicor:"<<       -1;
+            }
+        
+	        if( VBFevent ) {
+		        eventListText 
 			      << "\tjetPt1:"  << ( (TLorentzVector*)l.jet_algoPF1_p4->At(vbfIjet1) )->Pt()
 			      << "\tjetPt2:"  << ( (TLorentzVector*)l.jet_algoPF1_p4->At(vbfIjet2) )->Pt()
 			      << "\tjetEta1:" << ( (TLorentzVector*)l.jet_algoPF1_p4->At(vbfIjet1) )->Eta()
 			      << "\tjetEta2:" << ( (TLorentzVector*)l.jet_algoPF1_p4->At(vbfIjet2) )->Eta()
-		    ;
-		dumpJet(eventListText,1,l,vbfIjet1);
-		dumpJet(eventListText,2,l,vbfIjet2);
-	    }
-	    eventListText << std::endl;
-	}
+		        ;
+		        dumpJet(eventListText,1,l,vbfIjet1);
+		        dumpJet(eventListText,2,l,vbfIjet2);
+	        }
 
-	return (category >= 0 && mass>=massMin && mass<=massMax);
+            eventListText << endl;
+        }
+	    
+        return (category >= 0 && mass>=massMin && mass<=massMax);
     }
 
     return false;
