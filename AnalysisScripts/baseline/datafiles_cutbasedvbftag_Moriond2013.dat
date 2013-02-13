@@ -1,4 +1,4 @@
-intL=19620. histfile=/store/group/phys_higgs/cmshgg/analyzed/Moriond2013/cutbased/cutbasedvbftag_v2/%(label)s/CMS-HGG.root output=eventsList.txt
+intL=19620. histfile=/store/group/phys_higgs/cmshgg/analyzed/Moriond2013/cutbased/unblinding_v1/%(label)s/CMS-HGG.root output=eventsList.txt
 
 #
 # Data
