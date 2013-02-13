@@ -6,6 +6,11 @@ reRunCiCForData=1
 leadEtCut=40.0
 subleadEtCut=30.0
 
+##  lower straight cut on subleading pt
+subleadEtVHlepCut=25
+subleadEtVHmetCut=25
+
+
 ##
 massMin=100.
 massMax=180.

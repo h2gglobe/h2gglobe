@@ -18,6 +18,11 @@ reRunCiCForData=1
 ### leadEtVBFCut=55
 subleadEtVBFCut=30
 
+##  sliding pt/m > 1/4 in mass fac to match event bdt training
+subleadEtVHlepCut=30
+subleadEtVHmetCut=30
+
+
 # choose between UCSD and MIT trainings
 bdtTrainingPhilosophy=MIT
 photonLevelMvaUCSD=aux/ID_UCSD.weights.xml

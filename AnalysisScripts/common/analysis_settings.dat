@@ -32,14 +32,14 @@ subleadEtVHhadCut=25
 ## Lepton tag
 includeVHlep=1
 leadEtVHlepCut=45
-subleadEtVHlepCut=30
+#subleadEtVHlepCut=30
 nElectronCategories=1 
 nMuonCategories=1 
 
 ## MET tag
 includeVHmet=1
 leadEtVHmetCut=45
-subleadEtVHmetCut=30
+#subleadEtVHmetCut=30
 nMetCategories=1 
 
 doKFactorSmear=0
