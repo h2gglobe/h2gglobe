@@ -1077,11 +1077,15 @@ def Plot(num,printsuffix="",printcat=-1):
                 mcTot[icat].Sumw2()
                 dataTot[icat].Divide(mcTot[icat])
                 dataTot[icat].SetMarkerColor(4)
+                dataTot[icat].SetMarkerSize(0.8)
+                dataTot[icat].SetMarkerStyle(20)
                 dataTot[icat].SetLineColor(4)
-                dataTot[icat].SetLineWidth(3)
-                dataTot[icat].SetMaximum(1.3)
-                dataTot[icat].SetMinimum(0.7)
+                dataTot[icat].SetLineWidth(2)
+                dataTot[icat].SetMaximum(1.4)
+                dataTot[icat].SetMinimum(0.6)
+                dataTot[icat].GetYaxis().SetNdivisions(505)
                 dataTot[icat].SetTitle('')
+                dataTot[icat].GetYaxis().SetLabelSize(0.15)
                 dataTot[icat].GetXaxis().SetTitle('')
                 dataTot[icat].GetYaxis().SetTitle('')
                 dataTot[icat].Draw('PE')
@@ -1094,7 +1098,7 @@ def Plot(num,printsuffix="",printcat=-1):
  
             if dotext:
                 if dodivide:
-                    cat = (icat%Ncol)+1+(icat/Ncol)*Ncol
+                    cat = icat%Ncol + 1 + ((icat)/Ncol) * 2 * Ncol 
                     can.cd(cat)
                 plottext.Draw()
         
