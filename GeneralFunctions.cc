@@ -3,6 +3,45 @@
 #include "TRandom3.h"
 #define GFDEBUG 0
 
+float LoopAll::superClusterShapeAlgo(Int_t iSuperCluster, Float_t ebthresE, Float_t eethresEt, Double_t& etaWidth_, Double_t& phiWidth) {
+ 
+  Double_t numeratorEtaWidth = 0;
+  Double_t numeratorPhiWidth = 0;
+
+  Double_t scEnergy    = sc_raw[iSuperCluster];
+  Double_t denominator = scEnergy;
+
+  TVector3* xyz = (TVector3*)sc_xyz->At(iSuperCluster);
+  bool isbarrel = (fabs(xyz->Eta()) < 1.479); 
+  Double_t scEta = xyz->Eta();
+  Double_t scPhi = xyz->Phi();
+
+  for (Int_t i=0; i<ecalhit_n; i++) {
+    if () {
+      TLorentzVector* p4 = (TLorentzVector*)ecalhit_p4->At(i);
+      Double_t energyHit = p4->Energy();
+      Double_t etHit = energyHit/cosh(p4->Eta()); 
+      
+      if (isbarrel && energyHit <= ebthresE) 
+	continue;
+      else if (!isbarrel && etHit<=eethresEt) 
+	continue;
+      
+      //form differences
+      Double_t dPhi = p4->Phi() - scPhi;
+      if (dPhi > + TMath::Pi()) { dPhi = TMath::TwoPi() - dPhi; }
+      if (dPhi < - TMath::Pi()) { dPhi = TMath::TwoPi() + dPhi; }
+      
+      Double_t dEta = p4->Eta() - scEta;
+      
+      numeratorEtaWidth += energyHit * dEta * dEta;
+      numeratorPhiWidth += energyHit * dPhi * dPhi;
+      
+      etaWidth_ = sqrt(numeratorEtaWidth / denominator);
+      phiWidth_ = sqrt(numeratorPhiWidth / denominator);
+    }
+  }
+}
 
 float LoopAll::pfTkIsoWithVertex(int phoindex, int vtxInd, float dRmax, float dRvetoBarrel, float dRvetoEndcap, 
                                  float ptMin, float dzMax, float dxyMax, int pfToUse) {
