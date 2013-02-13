@@ -46,21 +46,21 @@ dumbline = TLine()
 dumbline.SetLineColor(kBlack)
 dumbline.SetLineWidth(1)
 BinLabel = ["Untagged 0","Untagged 1","Untagged 2","Untagged 3","Di-jet","Untagged 0","Untagged 1","Untagged 2","Untagged 3","Di-jet tight","Di-jet loose","Muon","Electron","MET"]
-intlumi=[5.1,12.3]
+intlumi=[5.1,12.2]
 Energy=[7,8]
-#intlumi=[12.3]
+#intlumi=[12.2]
 #Energy=[8]
-Masses=[125.0]
+Masses=[124.0]
 directory = sys.argv[1]
 
 for Mass in Masses:
-  file = TFile.Open(directory+"/higgsCombineSignalStrength.ChannelCompatibilityCheck.mH"+str(Mass).replace(".0","")+".root")
+  file = TFile.Open(directory+"/higgsCombineSignalStrength.ChannelCompatibilityCheck.mH"+str(Mass)+".root")
   normal=file.Get("fit_nominal")
   rFit=normal.floatParsFinal().find("r")
   CombinedBestFitObserved=rFit.getVal()
   CombinedBestFitErrorUp=rFit.getAsymErrorHi()
   CombinedBestFitErrorDown=rFit.getAsymErrorLo()
-  if math.fabs(CombinedBestFitErrorDown)<0.000001: CombinedBestFitErrorDown=-rFit.getAsymErrorHi()
+  if math.fabs(CombinedBestFitErrorDown)<0.000001: CombinedBestFitErrorDown=rFit.getAsymErrorHi()
   altername=file.Get("fit_alternate")
   Channels=[]
   BestFitObserved=[]

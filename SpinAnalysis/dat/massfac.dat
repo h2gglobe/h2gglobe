@@ -1,9 +1,0 @@
-treefile=root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/analyzed/spinstudies/moriond2013_massfac_spin_v2/histograms_CMS-HGG.root
-wsfile=HggSpin_MassFac.root
-isMassFac=1
-globePDFs=0
-fullSMproc=1
-useSMpowheg=1
-useSpin2LP=0
-nBDTCats=2
-nSpinCats=5
