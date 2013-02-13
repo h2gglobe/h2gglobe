@@ -698,7 +698,7 @@ def Plot(num,printsuffix="",printcat=-1):
                     pads[-1].Draw()
 
             for ican in range(1, nCanvases+1):
-                if ((ican/Ncol)%2 == 0):
+                if (((ican-1)/Ncol)%2 == 0):
                     can.cd(ican)
                     can.cd(ican).SetLogy(dolog)
                     can.cd(ican).SetGridx(dogridx)
