@@ -297,7 +297,10 @@ void makeParametricModelDatacard(string infilename, string wsfilename="0", strin
     double uncert = deffsinglesr.at(ieff);
     TCut singlecut = singlecutsr.at(ieff);
     TCut doublecut = doublecutsr.at(ieff);      
-    fprintf(file, "CMS_eff_g_%i      lnN  ",ieff);
+    if (ieff==0) fprintf(file, "CMS_id_eff_eb      lnN  ",ieff);
+    else if (ieff==1) fprintf(file, "CMS_id_eff_ee      lnN  ",ieff);
+    else cout << "wtf?" << endl;
+
     for (int icat=0; icat<ncats; ++icat) {
       for (unsigned int iproc=0; iproc<(procnames.size()-1); ++iproc) {
         
