@@ -12,7 +12,7 @@
 using namespace std;
 
 
-void makeParametricModelDatacard(string infilename, string wsfilename="0", string outfilename="cms_hgg_datacard.txt", int mass=125){
+void makeParametricModelDatacard(string infilename, string wsfilename="0", string outfilename="cms_hgg_datacard.txt", bool massfact=false, int mass=125){
 
   TFile *inFile = TFile::Open(infilename.c_str());
   TFile *outFile = TFile::Open("DatacardTree.root","RECREATE");
@@ -66,32 +66,36 @@ void makeParametricModelDatacard(string infilename, string wsfilename="0", strin
     catnames.push_back(Form("cat%d",cat));
   }
  
-  //TCut vbfloose("(category==5)");
-  //TCut vbftight("(category==4)");
-  //TCut allvbfcut("category==4 || category==5");
-  TCut vbfloose("(bdtmod>=(-0.05) && vbfmva>=0.93 && vbfmva<0.985)");
-  TCut vbftight("(bdtmod>=(-0.05) && vbfmva>=0.985)");
-  TCut allvbfcut("(bdtmod>=(-0.05) && vbfmva>=0.93)");
+  TCut vbfloose("(category==5)");
+  TCut vbftight("(category==4)");
+  TCut allvbfcut("category==4 || category==5");
+  //TCut vbfloose("(bdtmod>=(-0.05) && vbfmva>=0.93 && vbfmva<0.985)");
+  //TCut vbftight("(bdtmod>=(-0.05) && vbfmva>=0.985)");
+  //TCut allvbfcut("(bdtmod>=(-0.05) && vbfmva>=0.93)");
   TCut muon("(category==6)");
   TCut ele("(category==7)");
   TCut met("(category==8)");
 
-  catcuts.push_back(TCut("(bdtmod>=0.91)"*!allvbfcut));
-  catcuts.push_back(TCut("(bdtmod>=0.79 && bdtmod<0.91)"*!allvbfcut));
-  catcuts.push_back(TCut("(bdtmod>=0.49 && bdtmod<0.79)"*!allvbfcut));
-  catcuts.push_back(TCut("(bdtmod>=(-0.05) && bdtmod<0.49)"*!allvbfcut));
+//   catcuts.push_back(TCut("(bdtmod>=0.91)"*!allvbfcut));
+//   catcuts.push_back(TCut("(bdtmod>=0.79 && bdtmod<0.91)"*!allvbfcut));
+//   catcuts.push_back(TCut("(bdtmod>=0.49 && bdtmod<0.79)"*!allvbfcut));
+//   catcuts.push_back(TCut("(bdtmod>=(-0.05) && bdtmod<0.49)"*!allvbfcut));
+  catcuts.push_back(TCut("(category==0)"));
+  catcuts.push_back(TCut("(category==1)"));
+  catcuts.push_back(TCut("(category==2)"));
+  catcuts.push_back(TCut("(category==3)"));
   catcuts.push_back(vbftight);
   catcuts.push_back(vbfloose);
   catcuts.push_back(muon);
   catcuts.push_back(ele);
   catcuts.push_back(met);
 
-  // mva boundary cuts
-  vector<TCut> mvacuts;
-  mvacuts.push_back(TCut("(bdtmod>=0.91)"));
-  mvacuts.push_back(TCut("(bdtmod>=0.79 && bdtmod<0.91)"));
-  mvacuts.push_back(TCut("(bdtmod>=0.49 && bdtmod<0.79)"));
-  mvacuts.push_back(TCut("(bdtmod>=(-0.05) && bdtmod<0.49)"));
+  // inclusive category boundary cuts
+  vector<TCut> inccats;
+  inccats.push_back(TCut("(inc_cat==0)"));
+  inccats.push_back(TCut("(inc_cat==1)"));
+  inccats.push_back(TCut("(inc_cat==2)"));
+  inccats.push_back(TCut("(inc_cat==3)"));
 
   // start by setting bdtmod as alias for bdtout
   // this can change later when bdtmod becomes bdtout_id_shift etc.
@@ -337,12 +341,12 @@ void makeParametricModelDatacard(string infilename, string wsfilename="0", strin
   std::vector<double> vbfuncerts;
   
   vbfuncertnames.push_back("JEC");
-  vbfuncerts.push_back(1.035);
-  vbfgguncerts.push_back(1.11);
+  vbfuncerts.push_back(1.025);
+  vbfgguncerts.push_back(1.10);
   
   vbfuncertnames.push_back("UEPS");
-  vbfuncerts.push_back(1.08);
-  vbfgguncerts.push_back(1.26);
+  vbfuncerts.push_back(1.07);
+  vbfgguncerts.push_back(1.28);
   
   vbfuncertnames.push_back("CMS_eff_j");
   vbfuncerts.push_back(1.02);
@@ -361,20 +365,20 @@ void makeParametricModelDatacard(string infilename, string wsfilename="0", strin
         else uncert = gguncert;
         printf("first count\n");
         TCut catproccut = catcuts.at(icat)*proccuts.at(k);
-        TCut mvaproccut = mvacuts.at(icat)*proccuts.at(k);
+        TCut incproccut = inccats.at(icat)*proccuts.at(k);
         
         tree->Draw("1>>hcount",catproccut,"goff");
         double ntot = hcount->GetSumOfWeights();
         hcount->Reset();
         
         printf("second count icat = %i, k = %i\n",icat,k);
-        //double ntagged = counttree(tree,allvbfcut*mvacuts.at(icat)*proccuts[k]);
+        //double ntagged = counttree(tree,allvbfcut*inccats.at(icat)*proccuts[k]);
         
-        tree->Draw("1>>hcount",allvbfcut*mvaproccut,"goff");
+        tree->Draw("1>>hcount",allvbfcut*incproccut,"goff");
         double ntagged = hcount->GetSumOfWeights();
         hcount->Reset();
         
-        //double ntagged = counttree(tree,allvbfcut*mvaproccut);
+        //double ntagged = counttree(tree,allvbfcut*incproccut);
         double catuncert = (ntot - (uncert-1.0)*ntagged)/ntot;
         fprintf(file, "%3f ",catuncert);
       }
@@ -400,12 +404,12 @@ void makeParametricModelDatacard(string infilename, string wsfilename="0", strin
   std::vector<double> vbfmiggguncerts;
   
   vbfmiguncertnames.push_back("CMS_hgg_JECmigration");
-  vbfmiguncerts.push_back(1.005);
+  vbfmiguncerts.push_back(1.025);
   vbfmiggguncerts.push_back(1.025);
 
   vbfmiguncertnames.push_back("CMS_hgg_UEPSmigration");
-  vbfmiguncerts.push_back(1.01);
-  vbfmiggguncerts.push_back(1.045);
+  vbfmiguncerts.push_back(1.035);
+  vbfmiggguncerts.push_back(1.063);
   
   printf("vbf migration uncerts\n");
   for (unsigned int j=0; j<vbfmiguncerts.size(); ++j) {
@@ -543,6 +547,7 @@ void makeParametricModelDatacard(string infilename, string wsfilename="0", strin
   //TH1D *hcount = new TH1D("hcount","",1,0.5,1.5);
   hcount->Reset();
  
+  if (massfact){
   if (wsfilename=="0") {
     fprintf(file,"CMS_hgg_n_sigmae lnN ");
     for (unsigned int icat=0; icat<catcuts.size(); ++icat) {
@@ -560,7 +565,7 @@ void makeParametricModelDatacard(string infilename, string wsfilename="0", strin
         tree->Draw("1>>hcount",catcuts.at(icat)*proccuts.at(iproc),"goff");
         double sigeminus = hcount->GetSumOfWeights();
         tree->SetAlias("bdtmod","bdtout");
-        fprintf(file,"%.3f/%.3f ",sigeplus/nom, sigeminus/nom);
+	fprintf(file,"%.3f/%.3f ",sigeplus/nom, sigeminus/nom);
       }
       fprintf(file,"- ");
     }
@@ -625,7 +630,7 @@ void makeParametricModelDatacard(string infilename, string wsfilename="0", strin
     fprintf(file,"\n"); 
     wsFile->Close();
   }
-
+  }
   inFile->Close();
   outFile->Close();
 
