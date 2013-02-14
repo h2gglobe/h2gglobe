@@ -22,8 +22,8 @@ leg.SetBorderSize(1)
 mytext = TLatex()
 mytext.SetTextSize(0.025)
 mytext.SetNDC()
-rMin=-12
-rMax=10.5
+rMin=-5
+rMax=7
 # Label1=TText()
 # Label1.SetNDC()
 # Label1.SetText(0.3,0.60,"8TeV")
@@ -49,9 +49,9 @@ rMax=10.5
 BinLabel = ["Untagged 0","Untagged 1","Untagged 2","Untagged 3","Di-jet tight","Di-jet loose","Muon","Electron","MET"]
 #intlumi=[5.1,12.3]
 #Energy=[7,8]
-intlumi=[12.3]
+intlumi=[19.6]
 Energy=[8]
-Masses=[125.0]
+Masses=[125.5]
 directory = sys.argv[1]
 
 for Mass in Masses:
@@ -121,7 +121,8 @@ for Mass in Masses:
   #Label2.Draw()
   #myline.Draw()
   #dumbline.DrawLineNDC(0.7+0.0305,0.78-0.06,0.7+0.0305,0.78-0.037)
-  can.SaveAs("BestFit"+str(Mass)+"GeV_8TeV_MassFac.pdf")
+  #can.SaveAs("BestFit"+str(Mass)+"GeV_8TeV_MassFac.pdf")
+  can.SaveAs("BestFit"+str(Mass)+"GeV_8TeV_CutBased.pdf")
   graph.Clear()
   dummyHist.Clear()
   BestFitBand.Clear()
