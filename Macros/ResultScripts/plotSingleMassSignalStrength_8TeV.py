@@ -51,7 +51,7 @@ BinLabel = ["Untagged 0","Untagged 1","Untagged 2","Untagged 3","Di-jet tight","
 #Energy=[7,8]
 intlumi=[19.6]
 Energy=[8]
-Masses=[125.5]
+Masses=[125.0,125.5,126.0]
 directory = sys.argv[1]
 
 for Mass in Masses:
@@ -121,8 +121,7 @@ for Mass in Masses:
   #Label2.Draw()
   #myline.Draw()
   #dumbline.DrawLineNDC(0.7+0.0305,0.78-0.06,0.7+0.0305,0.78-0.037)
-  #can.SaveAs("BestFit"+str(Mass)+"GeV_8TeV_MassFac.pdf")
-  can.SaveAs("BestFit"+str(Mass)+"GeV_8TeV_CutBased.pdf")
+  can.SaveAs("BestFit"+str(Mass)+"GeV_8TeV.pdf")
   graph.Clear()
   dummyHist.Clear()
   BestFitBand.Clear()

@@ -23,9 +23,9 @@ mytext.SetTextSize(0.04)
 mytext.SetNDC()
 Minimum=-2
 Maximum=2.5
-intlumi=[5.1,12.3]
+intlumi=[5.1,19.6]
 Energy=[7,8]
-#intlumi=[12.3]
+#intlumi=[19.6]
 #Energy=[8]
 
 Masses=array.array("f",[x * 0.1 for x in range(1100,1501,5)])
@@ -87,5 +87,6 @@ can.SetGrid(True)
 if len(intlumi)==2: mytext.DrawLatex(0.13,0.805,"#splitline{CMS preliminary}{#splitline{#sqrt{s} = %i TeV L = %.1f fb^{-1}}{#sqrt{s} = %i TeV L = %.1f fb^{-1}}}" %(int(Energy[0]),float(intlumi[0]),int(Energy[1]),float(intlumi[1])))
 else: mytext.DrawLatex(0.13,0.83,"#splitline{CMS preliminary}{#sqrt{s} = %i TeV L = %.1f fb^{-1}}" %(int(Energy[0]),float(intlumi[0])))
 
-can.SaveAs(sys.argv[2])
+can.SaveAs(sys.argv[2]+".png")
+can.SaveAs(sys.argv[2]+".pdf")
 print "Done!"
