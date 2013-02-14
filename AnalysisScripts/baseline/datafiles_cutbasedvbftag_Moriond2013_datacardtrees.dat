@@ -15,7 +15,7 @@ inputBranches minimal_analysis_input.dat
 inputBranches minimal_statanalysis_input.dat
 inputBranches minimal_leptmetanalysis_input.dat
 
-treevariables massfac_mva_binned/unbinned_datacard_trees.dat
+treevariables common/unbinned_datacard_trees.dat
 cuts jetanalysis/cuts_vbfcutb.dat
 
 ## define analyses to run
