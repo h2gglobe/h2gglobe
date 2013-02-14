@@ -9,6 +9,8 @@
 #include "RooWorkspace.h"
 #include "RooConstVar.h"
 #include "RooFormulaVar.h"
+#include "RooExponential.h"
+#include "RooAddPdf.h"
 #include "RooPlot.h"
 
 #include "../interface/FMTFit.h"
@@ -25,15 +27,20 @@ FMTFit::FMTFit(TFile *tFile, TFile *outFile, double intLumi, bool is2011, int mH
 	outfilename_(outFile->GetName())
 {
   gROOT->SetStyle("Plain");
-  r1 = new RooRealVar("r1","r1",-8.,-20.,0.001); 
-  r2 = new RooRealVar("r2","r2",-1.,-20.,0.001); 
-  f1 = new RooRealVar("f1","f1",0.2,0.001,0.49); 
+  r1 = new RooRealVar("r1","r1",-0.02,-2.,0.); 
+  r2 = new RooRealVar("r2","r2",-0.02,-2.,0.); 
+  r3 = new RooRealVar("r3","r3",-1.,-20.,0.); 
+  f1 = new RooRealVar("f1","f1",0.5,0.01,1.); 
+  f2 = new RooRealVar("f2","f2",0.001,0.001,0.49); 
   nBkgInSigReg = new RooRealVar("nbis","nbis",10,0,100000);
 	inWS = (RooWorkspace*)tFile->Get("cms_hgg_workspace");
 	outWS = new RooWorkspace("cms_hgg_workspace");
   mass_var = (RooRealVar*)inWS->var("CMS_hgg_mass");
-  fit  = new RooGenericPdf("data_pow_model","data_pow_model","(1-@3)*TMath::Power(@0,@1) + @3*TMath::Power(@0,@2)",RooArgList(*mass_var,*r1,*r2,*f1));
-	
+  
+  RooExponential *e1 = new RooExponential("e1","e1",*mass_var,*r1);
+  RooExponential *e2 = new RooExponential("e2","e2",*mass_var,*r2);
+  fit = new RooAddPdf("data_exp_model","data_exp_model",*e1,*e2,*f1);
+
 	// get data and combine all cats
 	cout << "Looking for datasets....." << endl;
 	data = (RooDataSet*)((RooDataSet*)inWS->data("data_mass_cat0"))->Clone("data_mass");
@@ -64,8 +71,10 @@ pair<double,double> FMTFit::FitPow(double mass){
 	// set up fit function
 	r1->SetName(Form("r1_%3.1f",mass));
   r2->SetName(Form("r2_%3.1f",mass));
+  r3->SetName(Form("r3_%3.1f",mass));
   f1->SetName(Form("f1_%3.1f",mass));
-	fit->SetName(Form("data_pow_model_%3.1f",mass));
+  f2->SetName(Form("f2_%3.1f",mass));
+	fit->SetName(Form("data_exp_model_%3.1f",mass));
 
 	// set up fit region
 	double mLow = getmassMin();
@@ -75,11 +84,13 @@ pair<double,double> FMTFit::FitPow(double mass){
   mass_var->setRange(Form("rangeLow_m%3.1f",mass),mLow,sidebL);
   mass_var->setRange(Form("rangeHig_m%3.1f",mass),sidebH,mHigh);
   mass_var->setRange(Form("sigReg_m%3.1f",mass),sidebL,sidebH);
+  mass_var->setRange("rangeAll",mLow,mHigh);
 
 	data->Print();
 	cout << data->GetName() << " " << data->numEntries() << endl;
 	
-  fitRes = fit->fitTo(*data,Range(Form("rangeLow_m%3.1f,rangeHig_m%3.1f",mass,mass)),Save(true),Strategy(1));
+  //fitRes = fit->fitTo(*data,Save(true));
+  fitRes = fit->fitTo(*data,Range(Form("rangeLow_m%3.1f,rangeHig_m%3.1f",mass,mass)),Save(true),PrintEvalErrors(-1));
 
 	// make plot
 	if (plot_) Plot(mass);
@@ -141,7 +152,8 @@ pair<double,double> FMTFit::FitPow(double mass){
 }
 
 void FMTFit::Plot(double mass){
-    
+   
+    cout << "Plotting fit...." << endl;
     RooPlot *frame = mass_var->frame(Title(Form("Mass fit for %3.1f",mass)));
     frame->GetXaxis()->SetTitle("m_{#gamma#gamma} (GeV)");
     mass_var->setRange("unblindReg_1",getmassMin(),110);
@@ -152,6 +164,7 @@ void FMTFit::Plot(double mass){
       data->plotOn(frame,Binning(getnDataBins()),Invisible());
 		}
     else data->plotOn(frame,Binning(getnDataBins()));
+    //fit->plotOn(frame,LineColor(kRed),Range("rangeAll"),NormRange("rangeAll"));
     fit->plotOn(frame,Range(Form("rangeLow_m%3.1f,rangeHig_m%3.1f",mass,mass)),NormRange(Form("rangeLow_m%3.1f,rangeHig_m%3.1f",mass,mass)));
     frame->SetMinimum(0.0001);
     TCanvas *c1 = new TCanvas();
@@ -192,11 +205,14 @@ void FMTFit::Plot(double mass){
 		text->DrawLatex(0.68,0.85,"CMS preliminary");
     if (getis2011()) text->DrawLatex(0.75,0.78,"#sqrt{s} = 7 TeV");
     else text->DrawLatex(0.75,0.78,"#sqrt{s} = 8 TeV");
-		text->DrawLatex(0.75,0.71,Form("L = %3.1f fb^{-1}",0.1*double(intLumi_)));
+		text->DrawLatex(0.75,0.71,Form("L = %3.1f fb^{-1}",0.001*double(intLumi_)));
     if (blind_) text->DrawLatex(0.67,0.64,"Blinded: [110,150]");
     c1->SaveAs(Form("plots/pdf/fit_m%3.1f.pdf",mass));
     c1->SaveAs(Form("plots/macro/fit_m%3.1f.C",mass));
     c1->SaveAs(Form("plots/png/fit_m%3.1f.png",mass));
+
+    delete frame;
+    delete c1;
 }
 
 void FMTFit::redoFit(double mass){

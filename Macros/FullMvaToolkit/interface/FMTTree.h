@@ -20,7 +20,7 @@ using namespace std;
 class FMTTree : public FMTBase {
 	
 	public:
-    FMTTree(string,string,string,string,double,bool,int, int, double, double, double, int, double, double, int, int, int, double, double, int, bool, int, bool, int, vector<string>, bool, vector<map<int,vector<double> > >, bool verbose=false);
+    FMTTree(string,string,string,string,double,bool,int, int, double, double, double, int, double, double, int, int, int, double, double, int, bool, int, bool, int, vector<string>, bool, vector<map<int,vector<double> > >, bool isCutBased=false, bool verbose=false);
 
     ~FMTTree();
 		
@@ -45,15 +45,23 @@ class FMTTree : public FMTBase {
 		void FillMassDatasets();
 
 		float tmvaGetVal(float,float);
+    float tmvaGetValCutBased(float);
 		void run(string option="all");
 
 		void setdirname(string);
+    void setIsCutBased(bool);
 
    private:
     float mass_;
     float bdtoutput_;
     float weight_;
     int category_;
+    double lead_eta_;
+    double sublead_eta_;
+    float lead_eta_float_;
+    float sublead_eta_float_;
+    float lead_r9_;
+    float sublead_r9_;
     vector<pair<double,double> > massSyst_;
     vector<pair<double,double> > bdtoutputSyst_;
     vector<pair<double,double> > weightSyst_;
@@ -75,6 +83,7 @@ class FMTTree : public FMTBase {
 		float diphotonBDT_;
 
 		bool crossCheck_;
+    bool isCutBased_;
 };
 
 #endif

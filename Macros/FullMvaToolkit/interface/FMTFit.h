@@ -3,6 +3,9 @@
 
 #include "RooRealVar.h"
 #include "RooGenericPdf.h"
+//#include "RooExponentialSum.h"
+//#include "RooPowerLawSum.h"
+#include "RooAddPdf.h"
 #include "RooDataSet.h"
 #include "RooWorkspace.h"
 
@@ -30,8 +33,8 @@ class FMTFit : public FMTBase{
 		void setplot(bool);
 
 	private:
-		RooRealVar *r1, *r2, *f1;
-		RooAbsPdf *fit;
+		RooRealVar *r1, *r2, *r3, *f1, *f2;
+		RooAddPdf *fit;
 		RooRealVar *nBkgInSigReg;
 		RooWorkspace *inWS;
 		RooWorkspace *outWS;
@@ -44,7 +47,8 @@ class FMTFit : public FMTBase{
 
 		bool blind_;
 		bool plot_;
-
+    
+    vector<RooAbsPdf*> storage;
 };
 
 #endif

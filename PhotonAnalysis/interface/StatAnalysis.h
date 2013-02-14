@@ -100,7 +100,7 @@ class StatAnalysis : public PhotonAnalysis
 				std::vector<double> & weights);
     virtual void FillRooContainerSyst(LoopAll& l, const std::string & name,int cur_type,
 				      std::vector<double> & mass_errors, std::vector<double> & mva_errors,
-				      std::vector<int>    & categories, std::vector<double> & weights);
+				      std::vector<int>    & categories, std::vector<double> & weights, int diphoton_id=-1);
     
     bool VHmuevent, VHelevent, VBFevent, VHhadevent, VHmetevent;  //met at analysis step
     int VHelevent_cat;

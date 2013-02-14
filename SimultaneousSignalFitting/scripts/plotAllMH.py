@@ -37,22 +37,44 @@ def plot(proc,cat):
 
   if not pdf: sys.exit("Not found")
 
-  plot = mass.frame(ROOT.RooFit.Range(options.mHlow,options.mHhigh))
+  plotPDF = mass.frame(ROOT.RooFit.Range(options.mHlow,options.mHhigh))
+  plotFit = mass.frame(ROOT.RooFit.Range(options.mHlow-5,options.mHhigh+5))
 
   for m in numpy.arange(options.mHlow,options.mHhigh+options.mHstep,options.mHstep):
     mh.setVal(m)
-    pdf.plotOn(plot)
+    pdf.plotOn(plotPDF)
     #if m==110: pdf.plotOn(plot)
     #else: pdf.plotOn(plot,ROOT.RooFit.DrawOption("same"))
+  
+  for m in numpy.arange(110,151,5):
+    if m>=options.mHlow and m<=options.mHhigh:
+      mh.setVal(m)
+      if proc=='all':
+        return
+      else:
+        data = ws.data("sig_%s_mass_m%d_cat%d"%(proc,m,cat))
+        if not data:
+          print 'sig_%s_mass_m%d_cat%d'%(proc,m,cat)
+          return
+      data.plotOn(plotFit,ROOT.RooFit.DataError(ROOT.RooAbsData.SumW2))
+      pdf.plotOn(plotFit)
+
 
   c = ROOT.TCanvas()
-  plot.Draw()
+  plotPDF.Draw()
   if cat==-1:
     c.Print("custom_plots/%s_catall.pdf"%(proc))
     c.Print("custom_plots/%s_catall.png"%(proc))
   else:
     c.Print("custom_plots/%s_cat%d.pdf"%(proc,cat))
     c.Print("custom_plots/%s_cat%d.png"%(proc,cat))
+  plotFit.Draw()
+  if cat==-1:
+    c.Print("custom_plots/%s_catall_allmh.pdf"%(proc))
+    c.Print("custom_plots/%s_catall_allmh.png"%(proc))
+  else:
+    c.Print("custom_plots/%s_cat%d_allmh.pdf"%(proc,cat))
+    c.Print("custom_plots/%s_cat%d_allmh.png"%(proc,cat))
    
 
 inF = ROOT.TFile(options.inputfile)

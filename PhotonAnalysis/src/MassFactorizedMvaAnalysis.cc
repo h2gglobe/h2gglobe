@@ -784,7 +784,8 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
         if (!isSyst && cur_type!=0 && saveBSTrees_) saveBSTrees(l,evweight,category,Higgs, vtx, (TVector3*)l.gv_pos->At(0),diphobdt_output);
 
         // save trees for unbinned datacards
-        if (!isSyst && cur_type<0 && saveDatacardTrees_) saveMassFacDatCardTree(l,cur_type,category, evweight, diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMeonly,bdtTrainingPhilosophy.c_str(),phoid_mvaout_lead,phoid_mvaout_sublead);
+        int inc_cat = GetBDTBoundaryCategory(diphobdt_output,isEBEB,VBFevent);
+        if (!isSyst && cur_type<0 && saveDatacardTrees_) saveDatCardTree(l,cur_type,category, inc_cat, evweight, diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],lead_p4,sublead_p4,false,sigmaMrv,sigmaMwv,sigmaMeonly,vtxProb,bdtTrainingPhilosophy.c_str(),phoid_mvaout_lead,phoid_mvaout_sublead);
 
         // save trees for IC spin analysis
         if (!isSyst && saveSpinTrees_) saveSpinTree(l,category,evweight,Higgs,lead_p4,sublead_p4,diphoton_index.first,diphoton_index.second,diphobdt_output,sigmaMrv,sigmaMwv,massResolutionCalculator->leadPhotonResolution(),massResolutionCalculator->leadPhotonResolutionNoSmear(),massResolutionCalculator->subleadPhotonResolution(),massResolutionCalculator->subleadPhotonResolutionNoSmear(),vtxProb,phoid_mvaout_lead,phoid_mvaout_sublead);

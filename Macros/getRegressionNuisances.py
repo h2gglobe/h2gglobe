@@ -18,8 +18,8 @@ for cat in range(ncat):
     nuis[cat]={}
     for proc in procs:
         nominal = file.Get("th1f_sig_%s_mass_m125_cat%d" % (proc,cat) )
-        up      = file.Get("th1f_sig_%s_mass_m125_cat%d_regSigUp01_sigma" % (proc,cat) )
-        down    = file.Get("th1f_sig_%s_mass_m125_cat%d_regSigDown01_sigma" % (proc,cat) )
+        up      = file.Get("th1f_sig_%s_mass_m125_cat%d_r9EffUp01_sigma" % (proc,cat) )
+        down    = file.Get("th1f_sig_%s_mass_m125_cat%d_r9EffDown01_sigma" % (proc,cat) )
         if nominal.Integral() != 0:
             nuis[cat][proc] = (down.Integral()/nominal.Integral(), up.Integral()/nominal.Integral())
         else:

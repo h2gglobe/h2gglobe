@@ -6,6 +6,7 @@
 #include "TMath.h"
 #include "TTree.h"
 #include "TText.h"
+#include "TStyle.h"
 #include "TCanvas.h"
 #include "TLine.h"
 
@@ -54,7 +55,7 @@ std::vector<double> FMTRebin::significanceOptimizedBinning(TH1F *hs,TH1F *hb,int
   // revise_target=false,direction=-1 and use_n_entries=true
   // nTargetBins is used for the flat binning, decision to merge is based on improvement to expected significance
   // Full scan is done for largest significance (wardning, could be very slow for tight constraints)
-  
+  gStyle->SetOptStat(0); 
   if (verbose_) cout << "Significane Optimized Binning......" << endl;
   int ninitBins = hb->GetNbinsX();
   if (hs->Integral()==0 ||  hb->Integral()==0 || ninitBins < 2) {
@@ -84,17 +85,17 @@ std::vector<double> FMTRebin::significanceOptimizedBinning(TH1F *hs,TH1F *hb,int
     j++;	
   }
   // Create new rebinned histograms (only temporary)
-  TCanvas *canv = new TCanvas();
+  //TCanvas *canv = new TCanvas();
   TH1F *hbnew =(TH1F*) hb->Rebin(binEdges.size()-1,"hbnew",arrBins);
   TH1F *hsnew =(TH1F*) hs->Rebin(binEdges.size()-1,"hsnew",arrBins);
-  hbnew->SetLineColor(kBlue);
-  hsnew->SetLineColor(kBlue);
-  TCanvas *cB = new TCanvas();
-  TCanvas *cS = new TCanvas();
-  cB->cd();
-  hbnew->Draw();
-  cS->cd();
-  hsnew->Draw();
+  //hbnew->SetLineColor(kBlue);
+  //hsnew->SetLineColor(kBlue);
+  //TCanvas *cB = new TCanvas();
+  //TCanvas *cS = new TCanvas();
+  //cB->cd();
+  //hbnew->Draw();
+  //cS->cd();
+  //hsnew->Draw();
 
   // Better smoothing which doesn't use the first and last binsi, performs a fit to the histogram	
   if (hsnew->Integral()!=0 && hbnew->Integral()!=0 && binEdges.size()-1 > 10){
@@ -103,8 +104,14 @@ std::vector<double> FMTRebin::significanceOptimizedBinning(TH1F *hs,TH1F *hb,int
     //hsnew->Smooth(1000);
     //hbnew->Smooth(1000);
   }
-  hbnew->SetLineColor(kBlack);
-  hsnew->SetLineColor(kBlack);
+  hbnew->SetLineColor(kBlue);
+  hsnew->SetLineColor(kRed);
+  
+  TCanvas *canv = new TCanvas();
+  hbnew->Draw("HIST");
+  TH1F *temp = (TH1F*)hsnew->Clone(Form("%s_dummy",hsnew->GetName()));
+  temp->Scale(10.);
+  temp->Draw("HISTsame");
   //cB->cd();
   //hbnew->Draw("same");
   //cS->cd();
@@ -141,7 +148,7 @@ std::vector<double> FMTRebin::significanceOptimizedBinning(TH1F *hs,TH1F *hb,int
 
   int Retry=0;
 
-  for (int N=1;N<6;N++){				// Refuse to go beyond 8 Bins, will take forever
+  for (int N=1;N<16;N++){				// Refuse to go beyond 8 Bins, will take forever
     sweepmode=0;	// First perform Broad Scan with optimized step size (g_step)
     bool skipBroad = false;
     if ( nNewBins < (N-1+2+Retry) ) {std::cout << "Forced to perform Fine scan since all the Retries failed to find a nice minimum :("<<std::endl; skipBroad=true;}
@@ -201,19 +208,10 @@ std::vector<double> FMTRebin::significanceOptimizedBinning(TH1F *hs,TH1F *hb,int
 
   }
 
-  for (int c=0; c<chosenN; c++){
-    TLine l(finalCounters[c],canv->GetUymin(),finalCounters[c],canv->GetUymax());
-    l.SetLineColor(kRed);
-    l.SetLineWidth(3);
-    cB->cd();
-    l.Draw("same");
-    cS->cd();
-    l.Draw("same");
-  }
-  cB->Print(Form("plots/pdf/rebin_B_%d.pdf",mass));
-  cB->Print(Form("plots/png/rebin_B_%d.png",mass));
-  cS->Print(Form("plots/pdf/rebin_S_%d.pdf",mass));
-  cS->Print(Form("plots/png/rebin_S_%d.png",mass));
+  //cB->Print(Form("plots/pdf/rebin_B_%d.pdf",mass));
+  //cB->Print(Form("plots/png/rebin_B_%d.png",mass));
+  //cS->Print(Form("plots/pdf/rebin_S_%d.pdf",mass));
+  //cS->Print(Form("plots/png/rebin_S_%d.png",mass));
 
   std::vector<double> newbinEdges;
   newbinEdges.push_back(hsnew->GetBinLowEdge(1));
@@ -223,11 +221,22 @@ std::vector<double> FMTRebin::significanceOptimizedBinning(TH1F *hs,TH1F *hb,int
   }
   newbinEdges.push_back(hsnew->GetBinLowEdge(nNewBins+1));
 
+  for (unsigned int c=0; c<newbinEdges.size(); c++){
+    TLine l;
+    l.SetLineColor(kGreen+3);
+    l.SetLineWidth(2);
+    l.SetLineStyle(kDashed);
+    l.DrawLine(newbinEdges[c],0.1,newbinEdges[c],hbnew->GetMaximum());
+  }
+
+  canv->Print(Form("plots/pdf/rebin_%d.pdf",mass));
+  canv->Print(Form("plots/png/rebin_%d.png",mass));
+  delete canv;
   delete [] finalCounters;
   delete [] counters;
   delete [] chosen_counters;
-  delete cB;
-  delete cS;
+  //delete cB;
+  //delete cS;
 
   return newbinEdges;
 
@@ -360,12 +369,10 @@ TH1F* FMTRebin::rebinBinnedDataset(std::string new_name, TH1F *hb,std::vector<do
 
   double *arrBins = new double[binEdges.size()];
   int j=0;
-  cout << "Bin Edges: " << endl;
   for (std::vector<double>::iterator it=binEdges.begin();it!=binEdges.end();it++){
     arrBins[j]=*it;
     j++;
   }
-  cout << "Hist has " << hb->GetNbinsX() << " bins" << endl;
   //const char *h_name = (const char *) hb->GetName;
   //const char *title  = (const char *) hb->GetTitle;
   // this hard code should be removed
@@ -404,7 +411,6 @@ TH1F* FMTRebin::rebinBinnedDataset(std::string new_name, TH1F *hb,std::vector<do
     if (hb->GetEntries()!=0) hbnew->Scale(hb->Integral()/hbnew->Integral());
   }
   else if (isIncCat(cat)){
-    cout << "Rebin by hand? " << getcatByHand() << endl;
     /*
     if (getcatByHand()){
       double incBinWidth=2./float(getnIncCategories());
@@ -663,7 +669,7 @@ void FMTRebin::mergeHistograms(std::string nameHist, TH1F* hist1, TH1F* hist2){
 	newHist->SetBinError(i+nbins1,hist2->GetBinError(i));
    } 
 
-   std::cout << "FMTRebin::MergeHistograms -- Replacing th1f - " 
+   if (verbose_) std::cout << "FMTRebin::MergeHistograms -- Replacing th1f - " 
 	     << newHist->GetName()
 	     << std::endl;
    // Now the dangerous part!

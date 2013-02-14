@@ -7,6 +7,8 @@ parser.add_option("-o","--outputdir",dest="outputdir",type="str",help="Output di
 parser.add_option("-f","--fork",dest="fork",type="int",default=8,help="Fork NLL calcs over multiple CPUs")
 parser.add_option("-r","--recursive",dest="recursive",action="store_true",default=False)
 parser.add_option("-q","--queue",dest="queue",type="str",default="1nh")
+parser.add_option("-L","--mhLow",dest="mhLow",type="int",default=110)
+parser.add_option("-H","--mhHigh",dest="mhHigh",type="int",default=150)
 parser.add_option("--submit",action="store_true",dest="submit",default=False)
 parser.add_option("--runLocal",action="store_true",dest="runLocal",default=False)
 parser.add_option("--linearInterp",action="store_true",dest="linearInterp",default=False)
@@ -42,7 +44,7 @@ for line in datfile.readlines():
   dmOrder   = int(line_els[4])
   sigOrder  = int(line_els[5])
   fracOrder = int(line_els[6])
-  subLine = './bin/SimultaneousSignalFit -i %s -o %s -p %s -c %d -g %d '%(inWSfile,outfile,proc,cat,nGaus)
+  subLine = './bin/SimultaneousSignalFit -i %s -o %s -p %s -c %d -g %d -L %d -H %d '%(inWSfile,outfile,proc,cat,nGaus,options.mhLow,options.mhHigh)
   if options.linearInterp: subLine += '--onlyInitialFit --linearInterp '
   else: subLine += '--dmOrder %d --sigmaOrder %d --fracOrder %d '%(dmOrder,sigOrder,fracOrder)
   if options.loadPriorConstraints: subLine += '--loadPriorConstraints '

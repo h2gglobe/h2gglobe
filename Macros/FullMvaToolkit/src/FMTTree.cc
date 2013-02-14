@@ -10,9 +10,10 @@
 
 using namespace std;
 
-FMTTree::FMTTree(string infilename, string outfilename, string bdtname, string weightsFile, double intLumi, bool is2011, int mHMinimum, int mHMaximum, double mHStep, double massMin, double massMax, int nDataBins, double signalRegionWidth, double sidebandWidth, int numberOfSidebands, int numberOfSidebandsForAlgos, int numberOfSidebandGaps, double massSidebandMin, double massSidebandMax, int nIncCategories, bool includeVBF, int nVBFCategories, bool includeLEP, int nLEPCategories, vector<string> systematics, bool rederiveOptimizedBinEdges, vector<map<int, vector<double> > > AllBinEdges, bool verbose):
+FMTTree::FMTTree(string infilename, string outfilename, string bdtname, string weightsFile, double intLumi, bool is2011, int mHMinimum, int mHMaximum, double mHStep, double massMin, double massMax, int nDataBins, double signalRegionWidth, double sidebandWidth, int numberOfSidebands, int numberOfSidebandsForAlgos, int numberOfSidebandGaps, double massSidebandMin, double massSidebandMax, int nIncCategories, bool includeVBF, int nVBFCategories, bool includeLEP, int nLEPCategories, vector<string> systematics, bool rederiveOptimizedBinEdges, vector<map<int, vector<double> > > AllBinEdges, bool isCutBased, bool verbose):
 	bdtname_(bdtname),
 	crossCheck_(true),
+  isCutBased_(isCutBased),
  FMTBase(intLumi, is2011, mHMinimum, mHMaximum, mHStep, massMin, massMax, nDataBins, signalRegionWidth, sidebandWidth, numberOfSidebands, numberOfSidebandsForAlgos, numberOfSidebandGaps, massSidebandMin, massSidebandMax, nIncCategories, includeVBF, nVBFCategories, includeLEP, nLEPCategories, systematics, rederiveOptimizedBinEdges, AllBinEdges, verbose)
   {
     // open files and workspaces etc.
@@ -31,8 +32,17 @@ FMTTree::FMTTree(string infilename, string outfilename, string bdtname, string w
     if (verbose_) cout << "Init tmva..." << endl;
     // tmva
 		tmvaReader_ = new TMVA::Reader();
-		tmvaReader_->AddVariable("bdtoutput",&diphotonBDT_);
-		tmvaReader_->AddVariable("deltaMoverM",&deltaMOverM_);
+    if (isCutBased_) {
+      tmvaReader_->AddVariable("(mass-124.)/124.", &deltaMOverM_);
+      tmvaReader_->AddVariable("lead_eta", &lead_eta_float_);
+      tmvaReader_->AddVariable("sublead_eta", &sublead_eta_float_);
+      tmvaReader_->AddVariable("lead_r9", &lead_r9_);
+      tmvaReader_->AddVariable("sublead_r9", &sublead_r9_);
+    }
+    else {
+      tmvaReader_->AddVariable("bdtoutput",&diphotonBDT_);
+      tmvaReader_->AddVariable("deltaMoverM",&deltaMOverM_);
+    }
 		tmvaReader_->BookMVA(bdtname_.c_str(),weightsFile.c_str());
 
     if (verbose_) cout << "Init tree..." << endl;
@@ -112,6 +122,10 @@ void FMTTree::setdirname(string dir){
 	dirname_=dir;
 }
 
+void FMTTree::setIsCutBased(bool cutb){
+  isCutBased_=cutb;
+}
+
 void FMTTree::addTreeToMap(map<string,TTree*>& theMap, string name, string label) {
 
 	if (label=="0") label=name;
@@ -145,26 +159,18 @@ map<string,TTree*> FMTTree::getDataTrees(){
 map<string,TTree*> FMTTree::getBackgroundTrees(){
 
   map<string,TTree*> result;
+  // fake-fake
 	//addTreeToMap(result,Form("%s/qcd_30_8TeV_ff",dirname_.c_str()));//,"bkg");
-	//addTreeToMap(result,Form("%s/qcd_30_8TeV_pf",dirname_.c_str()));//,"bkg");
-	//addTreeToMap(result,Form("%s/qcd_30_8TeV_pp",dirname_.c_str()));//,"bkg");
 	//addTreeToMap(result,Form("%s/qcd_40_8TeV_ff",dirname_.c_str()));//,"bkg");
+	// prompt-fake
+  //addTreeToMap(result,Form("%s/qcd_30_8TeV_pf",dirname_.c_str()));//,"bkg");
 	//addTreeToMap(result,Form("%s/qcd_40_8TeV_pf",dirname_.c_str()));//,"bkg");
-	//addTreeToMap(result,Form("%s/qcd_40_8TeV_pp",dirname_.c_str()));//,"bkg");
-	addTreeToMap(result,Form("%s/gjet_20_8TeV_ff",dirname_.c_str()));//,"bkg");
 	addTreeToMap(result,Form("%s/gjet_20_8TeV_pf",dirname_.c_str()));//,"bkg");
-	addTreeToMap(result,Form("%s/gjet_20_8TeV_pp",dirname_.c_str()));//,"bkg");
-	addTreeToMap(result,Form("%s/gjet_40_8TeV_ff",dirname_.c_str()));//,"bkg");
 	addTreeToMap(result,Form("%s/gjet_40_8TeV_pf",dirname_.c_str()));//,"bkg");
-	addTreeToMap(result,Form("%s/gjet_40_8TeV_pp",dirname_.c_str()));//,"bkg");
-	addTreeToMap(result,Form("%s/diphojet_8TeV",dirname_.c_str()));//,"bkg");
-	addTreeToMap(result,Form("%s/dipho_Box_10_8TeV",dirname_.c_str()));//,"bkg");
+	// prompt-prompt
+  addTreeToMap(result,Form("%s/diphojet_8TeV",dirname_.c_str()));//,"bkg");
 	addTreeToMap(result,Form("%s/dipho_Box_25_8TeV",dirname_.c_str()));//,"bkg");
 	addTreeToMap(result,Form("%s/dipho_Box_250_8TeV",dirname_.c_str()));//,"bkg");
-	//addTreeToMap(result,Form("%s/dipho_Born_10_8TeV",dirname_.c_str()));//,"bkg");
-	//addTreeToMap(result,Form("%s/dipho_Born_25_8TeV",dirname_.c_str()));//,"bkg");
-	//addTreeToMap(result,Form("%s/dipho_Born_250_8TeV",dirname_.c_str()));//,"bkg");
-	//addTreeToMap(result,Form("%s/dyjetsll_50_8TeV",dirname_.c_str()));//,"bkg");
   return result;
 }
 
@@ -182,16 +188,26 @@ void FMTTree::initVariables(){
 
 void FMTTree::setBranchVariables(TTree *tree){
   
+  if (isCutBased_) {
+    tree->SetBranchAddress("lead_eta",&lead_eta_);
+    tree->SetBranchAddress("sublead_eta",&sublead_eta_);
+    tree->SetBranchAddress("lead_r9",&lead_r9_);
+    tree->SetBranchAddress("sublead_r9",&sublead_r9_);
+  }
+  else {
+    tree->SetBranchAddress("bdtoutput",&bdtoutput_);
+  }
   tree->SetBranchAddress("mass",&mass_);
-  tree->SetBranchAddress("bdtoutput",&bdtoutput_);
   tree->SetBranchAddress("weight",&weight_);
   tree->SetBranchAddress("category",&category_);
   vector<string> systs = getsystematics();
   for (unsigned int s=0; s<systs.size(); s++){
     tree->SetBranchAddress(Form("mass_%s_Down",systs[s].c_str()),&(massSyst_[s].first));
     tree->SetBranchAddress(Form("mass_%s_Up",systs[s].c_str()),&(massSyst_[s].second));
-    tree->SetBranchAddress(Form("bdtoutput_%s_Down",systs[s].c_str()),&(bdtoutputSyst_[s].first));
-    tree->SetBranchAddress(Form("bdtoutput_%s_Up",systs[s].c_str()),&(bdtoutputSyst_[s].second));
+    if (!isCutBased_){
+      tree->SetBranchAddress(Form("bdtoutput_%s_Down",systs[s].c_str()),&(bdtoutputSyst_[s].first));
+      tree->SetBranchAddress(Form("bdtoutput_%s_Up",systs[s].c_str()),&(bdtoutputSyst_[s].second));
+    }
     tree->SetBranchAddress(Form("weight_%s_Down",systs[s].c_str()),&(weightSyst_[s].first));
     tree->SetBranchAddress(Form("weight_%s_Up",systs[s].c_str()),&(weightSyst_[s].second));
     tree->SetBranchAddress(Form("category_%s_Down",systs[s].c_str()),&(categorySyst_[s].first));
@@ -206,6 +222,13 @@ float FMTTree::tmvaGetVal(float dMoM, float bdt){
 	return tmvaReader_->EvaluateMVA(bdtname_.c_str());
 }
 
+float FMTTree::tmvaGetValCutBased(float dMoM){
+  deltaMOverM_ = dMoM;
+  lead_eta_float_ = float(lead_eta_);
+  sublead_eta_float_ = float(sublead_eta_);
+  return tmvaReader_->EvaluateMVA(bdtname_.c_str());
+}
+
 int FMTTree::icCat(int cat){
   if (cat<0) return -1;
   else if (cat>=0 && cat<4) return 0;
@@ -216,30 +239,36 @@ int FMTTree::icCat(int cat){
 
 void FMTTree::FillHist(string type, int sideband, double mh){
   int cat = icCat(category_);
+  float val;
   if (cat<0) return;
   if (sideband==0) {
-    float val = tmvaGetVal((mass_-mh)/mh,bdtoutput_);
+    if (isCutBased_) val = tmvaGetValCutBased((mass_-mh)/mh);
+    else val = tmvaGetVal((mass_-mh)/mh,bdtoutput_);
     th1fs_[Form("th1f_%s_BDT_grad_%5.1f_cat%d",type.c_str(),mh,cat)]->Fill(val,weight_);
   }
   else if (sideband<0) {
     double hypothesisModifier = (1.-sidebandWidth_)/(1.+sidebandWidth_);
     double evalMH = (mh*(1.-signalRegionWidth_)/(1+sidebandWidth_))*(TMath::Power(hypothesisModifier,(-1*sideband)-1));
-    float val = tmvaGetVal((mass_-evalMH)/evalMH,bdtoutput_);
+    if (isCutBased_) val = tmvaGetValCutBased((mass_-evalMH)/evalMH);
+    else val = tmvaGetVal((mass_-evalMH)/evalMH,bdtoutput_);
     th1fs_[Form("th1f_%s_%dlow_BDT_grad_%5.1f_cat%d",type.c_str(),sideband*-1,mh,cat)]->Fill(val,weight_);
   }
   else if (sideband>0) {
     double hypothesisModifier = (1.+sidebandWidth_)/(1.-sidebandWidth_);
     double evalMH = (mh*(1.+signalRegionWidth_)/(1-sidebandWidth_))*(TMath::Power(hypothesisModifier,sideband-1));
-    float val = tmvaGetVal((mass_-evalMH)/evalMH,bdtoutput_);
+    if (isCutBased_) val = tmvaGetValCutBased((mass_-evalMH)/evalMH);
+    else val = tmvaGetVal((mass_-evalMH)/evalMH,bdtoutput_);
     th1fs_[Form("th1f_%s_%dhigh_BDT_grad_%5.1f_cat%d",type.c_str(),sideband,mh,cat)]->Fill(val,weight_);
   }
 }
 
 void FMTTree::FillSigHist(string proc, double mh){
   int cat = icCat(category_);
+  float val;
   if (cat<0) return;
 	if (mass_>=(1.-sidebandWidth_)*mh && mass_<=(1.+sidebandWidth_)*mh){
-		float val = tmvaGetVal((mass_-mh)/mh,bdtoutput_);
+		if (isCutBased_) val = tmvaGetValCutBased((mass_-mh)/mh);
+    else val = tmvaGetVal((mass_-mh)/mh,bdtoutput_);
 		th1fs_[Form("th1f_sig_BDT_grad_%s_%5.1f_cat%d",proc.c_str(),mh,cat)]->Fill(val,weight_);
 	}
 }
@@ -256,13 +285,15 @@ void FMTTree::FillSystHist(string proc, double mh){
 			if (t==0){
 				cat = icCat(categorySyst_[s].first);
 				mass = massSyst_[s].first;
-				val = tmvaGetVal((mass-mh)/mh,bdtoutputSyst_[s].first);
+				if (isCutBased_) val = tmvaGetValCutBased((mass-mh)/mh);
+        else val = tmvaGetVal((mass-mh)/mh,bdtoutputSyst_[s].first);
 				weight = weightSyst_[s].first;
 			}
 			else {
 				cat = icCat(categorySyst_[s].second);
 				mass = massSyst_[s].second;
-				val = tmvaGetVal((mass-mh)/mh,bdtoutputSyst_[s].second);
+				if (isCutBased_) val = tmvaGetValCutBased((mass-mh)/mh);
+        else val = tmvaGetVal((mass-mh)/mh,bdtoutputSyst_[s].second);
 				weight = weightSyst_[s].second;
 			}
       if (cat<0) return;
@@ -310,17 +341,26 @@ void FMTTree::doCrossCheck(vector<pair<int,map<string,TTree*> > > allTrees, int 
     map<string,TTree*> treeMap = allTrees[it].second;
 		for (map<string,TTree*>::iterator treeIt=treeMap.begin(); treeIt!=treeMap.end(); treeIt++){
 			if (type==0){
-				treeIt->second->Draw("bdtoutput>>+data","weight");
+				if (isCutBased_) treeIt->second->Draw("mass>>+data","weight");
+				else treeIt->second->Draw("bdtoutput>>+data","weight");
 			}
 			else if (type>0){
-				treeIt->second->Draw("bdtoutput>>+bkg","weight");
+				if (isCutBased_) treeIt->second->Draw("mass>>+bkg","weight");
+				else treeIt->second->Draw("bdtoutput>>+bkg","weight");
 			}
 			else if (type<0){
 				if (treeIt->first.find("m125")!=string::npos) {
-					treeIt->second->Draw("bdtoutput>>+sig125","weight");
+					if (isCutBased_) treeIt->second->Draw("mass>>+sig125","weight");
+					else treeIt->second->Draw("bdtoutput>>+sig125","weight");
 					for (vector<string>::iterator sIt=systematics_.begin(); sIt!=systematics_.end(); sIt++){
-						treeIt->second->Draw(Form("bdtoutput_%s_Down>>+%sDown",sIt->c_str(),sIt->c_str()),"weight");
-						treeIt->second->Draw(Form("bdtoutput_%s_Up>>+%sUp",sIt->c_str(),sIt->c_str()),"weight");
+						if (isCutBased_){
+              treeIt->second->Draw(Form("mass_%s_Down>>+%sDown",sIt->c_str(),sIt->c_str()),"weight");
+						  treeIt->second->Draw(Form("mass_%s_Up>>+%sUp",sIt->c_str(),sIt->c_str()),"weight");
+						}
+            else {
+              treeIt->second->Draw(Form("bdtoutput_%s_Down>>+%sDown",sIt->c_str(),sIt->c_str()),"weight");
+              treeIt->second->Draw(Form("bdtoutput_%s_Up>>+%sUp",sIt->c_str(),sIt->c_str()),"weight");
+            }
 					}
 				}
 			}
@@ -406,7 +446,10 @@ void FMTTree::run(string option){
       sw.Start();
       for (int entry=0; entry<(mapIt->second)->GetEntries(); entry++){
         (mapIt->second)->GetEntry(entry);
-        if (entry%1000==0) cout << "\r" << entry << "/" << mapIt->second->GetEntries() << flush;
+        if (entry%1000==0) {
+          //cout << "\r" << entry << "/" << mapIt->second->GetEntries() << flush;
+          cout << "\r" << entry << "/" << mapIt->second->GetEntries() << " -- " << tmvaGetValCutBased((mass_-125.)/125.) << " " << mass_ << " " << lead_eta_ << " " << sublead_eta_ << " " << lead_r9_ << " " << sublead_r9_ << flush;
+        }
         // Data and Bkg
 				if (type==0){
 					FillMassDatasets();

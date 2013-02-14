@@ -454,9 +454,11 @@ void FMTSetup::runHistosFromTrees(){
 	if (histosFromTrees_){
     if (!cleaned) cleanUp();
     cout << "Running histos from trees...." << endl;
-		string bdtname = "BDT_grad_123";
-		string weightsFile = "../../AnalysisScripts/aux/sidebandMVA_weights_hcp/TMVAClassification_BDTgradMIT.weights.xml";
-		FMTTree *fmtTree = new FMTTree(filename_, outfilename_, bdtname, weightsFile, intLumi_, is2011_, mHMinimum_, mHMaximum_, mHStep_, massMin_, massMax_, nDataBins_, signalRegionWidth_, sidebandWidth_, numberOfSidebands_, numberOfSidebandsForAlgos_, numberOfSidebandGaps_, massSidebandMin_, massSidebandMax_, nIncCategories_, includeVBF_, nVBFCategories_, includeLEP_, nLEPCategories_, systematics_, rederiveOptimizedBinEdges_, AllBinEdges_, verbose_);
+    bool isCutBased_=true;
+		string bdtname = "BDTgradMIT";
+		//string weightsFile = "../../AnalysisScripts/aux/sidebandMVA_weights_hcp/TMVAClassification_BDTgradMIT.weights.xml";
+		string weightsFile = "weights/TMVA_SidebandMVA_BDTgradMIT.weights.xml";
+		FMTTree *fmtTree = new FMTTree(filename_, outfilename_, bdtname, weightsFile, intLumi_, is2011_, mHMinimum_, mHMaximum_, mHStep_, massMin_, massMax_, nDataBins_, signalRegionWidth_, sidebandWidth_, numberOfSidebands_, numberOfSidebandsForAlgos_, numberOfSidebandGaps_, massSidebandMin_, massSidebandMax_, nIncCategories_, includeVBF_, nVBFCategories_, includeLEP_, nLEPCategories_, systematics_, rederiveOptimizedBinEdges_, AllBinEdges_, isCutBased_, verbose_);
 		fmtTree->run(histFromTreeMode_);
 		delete fmtTree;
     cout << "Histos from trees complete" << endl;

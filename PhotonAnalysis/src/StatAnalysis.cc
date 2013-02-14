@@ -667,7 +667,7 @@ bool StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     bool storeEvent = false;
     if( AnalyseEvent(l,jentry, weight, gP4, mass,  evweight, category, diphoton_id, isCorrectVertex,diphotonMVA) ) {
 	// feed the event to the RooContainer
-	FillRooContainer(l, cur_type, mass, diphotonMVA, category, evweight, isCorrectVertex, diphoton_id);
+    FillRooContainer(l, cur_type, mass, diphotonMVA, category, evweight, isCorrectVertex, diphoton_id);
     	storeEvent = true;
     }
 
@@ -704,7 +704,7 @@ bool StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 				    mass_errors, mva_errors, categories, weights);
 		}
 
-		FillRooContainerSyst(l, (*si)->name(), cur_type, mass_errors, mva_errors, categories, weights);
+		FillRooContainerSyst(l, (*si)->name(), cur_type, mass_errors, mva_errors, categories, weights,diphoton_id);
 	    }
 
 	    // di-photon systematics: vertex efficiency and trigger
@@ -724,7 +724,7 @@ bool StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
                                     mass_errors, mva_errors, categories, weights);
 		}
 
-		FillRooContainerSyst(l, (*si)->name(), cur_type, mass_errors, mva_errors, categories, weights);
+		FillRooContainerSyst(l, (*si)->name(), cur_type, mass_errors, mva_errors, categories, weights, diphoton_id);
 	    }
 	}
 
@@ -745,7 +745,7 @@ bool StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 				mass_errors, mva_errors, categories, weights);
 	    }
 
-	    FillRooContainerSyst(l, (*si)->name(), cur_type, mass_errors, mva_errors, categories, weights);
+	    FillRooContainerSyst(l, (*si)->name(), cur_type, mass_errors, mva_errors, categories, weights, diphoton_id);
 	}
     }
 
@@ -796,7 +796,7 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 	    			   phoSys, syst_shift);
 
 	    // Fill CiC efficiency plots for ggH, mH=124
-	    if (cur_type==-73) fillSignalEfficiencyPlots(weight, l);
+	    //if (cur_type==-73) fillSignalEfficiencyPlots(weight, l);
 
 	    // inclusive category di-photon selection
 	    // FIXME pass smeared R9
@@ -974,12 +974,12 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
                 myVBFSubJPt, nVBFDijetJetCategories, isSyst, "no-syst");
 	    }
 	}
-
         // dump BS trees if requested
         if (!isSyst && cur_type!=0 && saveBSTrees_) saveBSTrees(l, evweight,category,Higgs, vtx, (TVector3*)l.gv_pos->At(0));
 
         // save trees for unbinned datacards
-        //if (!isSyst && cur_type>0 && saveDatacardTrees_) saveMassFacDatCardTree(l,diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMeonly,bdtTrainingPhilosophy.c_str(),phoid_mvaout_lead,phoid_mvaout_sublead);
+        int inc_cat = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,nPtCategories);
+        if (!isSyst && cur_type>0 && saveDatacardTrees_) saveDatCardTree(l,cur_type,category, inc_cat, evweight, diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],lead_p4,sublead_p4,true);
 
 
         if (dumpAscii && !isSyst && (cur_type==0||dumpMcAscii) && mass>=massMin && mass<=massMax ) {
@@ -1235,12 +1235,20 @@ void StatAnalysis::FillRooContainer(LoopAll& l, int cur_type, float mass, float 
 {
     // Fill full mva trees
     if (doFullMvaFinalTree){
+        int lead_ind = l.dipho_leadind[diphoton_id];
+        int sublead_ind = l.dipho_subleadind[diphoton_id];
         if (PADEBUG) cout << "---------------" << endl;
         if (PADEBUG) cout << "Filling nominal vals" << endl;
         l.FillTree("mass",mass,"full_mva_trees");
         l.FillTree("bdtoutput",diphotonMVA,"full_mva_trees");
         l.FillTree("category",category,"full_mva_trees");
         l.FillTree("weight",weight,"full_mva_trees");
+        l.FillTree("lead_r9",l.pho_r9[lead_ind],"full_mva_trees");
+        l.FillTree("sublead_r9",l.pho_r9[sublead_ind],"full_mva_trees");
+        l.FillTree("lead_eta",((TVector3*)l.sc_xyz->At(l.pho_scind[lead_ind]))->Eta(),"full_mva_trees");
+        l.FillTree("sublead_eta",((TVector3*)l.sc_xyz->At(l.pho_scind[sublead_ind]))->Eta(),"full_mva_trees");
+        l.FillTree("lead_phi",((TVector3*)l.sc_xyz->At(l.pho_scind[lead_ind]))->Phi(),"full_mva_trees");
+        l.FillTree("sublead_phi",((TVector3*)l.sc_xyz->At(l.pho_scind[sublead_ind]))->Phi(),"full_mva_trees");
     }
 
     if (cur_type == 0 ) {
@@ -1359,12 +1367,14 @@ void StatAnalysis::AccumulateSyst(int cur_type, float mass, float diphotonMVA,
 // ----------------------------------------------------------------------------------------------------
 void StatAnalysis::FillRooContainerSyst(LoopAll& l, const std::string &name, int cur_type,
 					std::vector<double> & mass_errors, std::vector<double> & mva_errors,
-					std::vector<int>    & categories, std::vector<double> & weights)
+					std::vector<int>    & categories, std::vector<double> & weights, int diphoton_id)
 {
     if (cur_type < 0){
 	// fill full mva trees
 	if (doFullMvaFinalTree){
 	    assert(mass_errors.size()==2 && mva_errors.size()==2 && weights.size()==2 && categories.size()==2);
+        int lead_ind = l.dipho_leadind[diphoton_id];
+        int sublead_ind = l.dipho_subleadind[diphoton_id];
 	    if (PADEBUG) cout << "Filling template models " << name << endl;
 	    l.FillTree(Form("mass_%s_Down",name.c_str()),mass_errors[0],"full_mva_trees");
 	    l.FillTree(Form("mass_%s_Up",name.c_str()),mass_errors[1],"full_mva_trees");
@@ -1374,6 +1384,20 @@ void StatAnalysis::FillRooContainerSyst(LoopAll& l, const std::string &name, int
 	    l.FillTree(Form("weight_%s_Up",name.c_str()),weights[1],"full_mva_trees");
 	    l.FillTree(Form("category_%s_Down",name.c_str()),categories[0],"full_mva_trees");
 	    l.FillTree(Form("category_%s_Up",name.c_str()),categories[1],"full_mva_trees");
+        /*
+        l.FillTree(Form("lead_r9_%s_Down",name.c_str()),l.pho_r9[lead_ind],"full_mva_trees");
+        l.FillTree(Form("lead_r9_%s_Up",name.c_str()),l.pho_r9[lead_ind],"full_mva_trees");
+        l.FillTree(Form("sublead_r9_%s_Down",name.c_str()),l.pho_r9[sublead_ind],"full_mva_trees");
+        l.FillTree(Form("sublead_r9_%s_Up",name.c_str()),l.pho_r9[sublead_ind],"full_mva_trees");
+        l.FillTree(Form("lead_eta_%s_Down",name.c_str()),((TVector3*)l.sc_xyz->At(l.pho_scind[lead_ind]))->Eta(),"full_mva_trees");
+        l.FillTree(Form("lead_eta_%s_Up",name.c_str()),((TVector3*)l.sc_xyz->At(l.pho_scind[lead_ind]))->Eta(),"full_mva_trees");
+        l.FillTree(Form("sublead_eta_%s_Down",name.c_str()),((TVector3*)l.sc_xyz->At(l.pho_scind[sublead_ind]))->Eta(),"full_mva_trees");
+        l.FillTree(Form("sublead_eta_%s_Up",name.c_str()),((TVector3*)l.sc_xyz->At(l.pho_scind[sublead_ind]))->Eta(),"full_mva_trees");
+        l.FillTree(Form("lead_phi_%s_Down",name.c_str()),((TVector3*)l.sc_xyz->At(l.pho_scind[lead_ind]))->Phi(),"full_mva_trees");
+        l.FillTree(Form("lead_phi_%s_Up",name.c_str()),((TVector3*)l.sc_xyz->At(l.pho_scind[lead_ind]))->Phi(),"full_mva_trees");
+        l.FillTree(Form("sublead_phi_%s_Down",name.c_str()),((TVector3*)l.sc_xyz->At(l.pho_scind[sublead_ind]))->Phi(),"full_mva_trees");
+        l.FillTree(Form("sublead_phi_%s_Up",name.c_str()),((TVector3*)l.sc_xyz->At(l.pho_scind[sublead_ind]))->Phi(),"full_mva_trees");
+        */
 	}
 	// feed the modified signal model to the RooContainer
 	l.rooContainer->InputSystematicSet("sig_"+GetSignalLabel(cur_type),name,categories,mass_errors,weights);

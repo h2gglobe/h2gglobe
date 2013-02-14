@@ -7,7 +7,12 @@ SHELL=bash
 $(shell mkdir -p bin)
 $(shell mkdir -p lib)
 $(shell mkdir -p obj)
-$(shell cp ../../libLoopAll.so lib/)
+ifeq ($(shell ls interface | grep Normalization_8TeV.h),)
+$(shell cp ../Normalization_8TeV.h interface/)
+endif
+ifeq ($(shell ls src | grep Normalization_8TeV.cc),)
+$(shell cp ../Normalization_8TeV.cc src/)
+endif
 
 # figure out os
 UNAME := $(shell uname)
@@ -16,14 +21,13 @@ BASEDIR = $(shell pwd)
 USERINCLUDES += -I$(ROOTSYS)/include
 BOOST_PATH=$(CMSSW_DATA_PATH)/../external/boost/1.47.0
 USERINCLUDES += -I$(BOOST_PATH)/include/
-USERINCLUDES += -I$(CMS_PATH)/$(SCRAM_ARCH)/lcg/roofit/5.32.00-cms5/include/
 USERINCLUDES += -I $(CMSSW_BASE)/src/ -I $(CMSSW_RELEASE_BASE)/src/
 USERLIBS += -L$(BOOST_PATH)/lib/ -lboost_regex -lboost_program_options
-USERLIBS += -L$(ROOFITSYS)/lib/ -lRooFit -lRooFitCore
-USERLIBS += -L$(BASEDIR)/../../ -lLoopAll
+USERINCLUDES += -I$(ROOFITSYS)/include
+USERLIBS += -L$(ROOFITSYS)/lib -lRooFit -lRooFitCore
 
 USERLIBS += $(shell root-config --glibs) -lTMVA -lMinuit -lFoam -lRooFit -lRooFitCore 
-CXXFLAGS = -g -O2 -Wl,-rpath=$(BASEDIR)/lib 
+CXXFLAGS = -Wall -g -O2 -Wl,-rpath=$(BASEDIR)/lib 
 LDFLAGS = -shared -W 
 
 CXX=clang++
@@ -60,8 +64,6 @@ OBJS=$(subst $(SRCDIR), $(OBJDIR),$(subst cc,$(OBJ_EXT),$(SRCS)))
 BINS=$(subst $(TESTDIR), $(EXEDIR),$(subst .$(TEST_EXT),,$(EXES)))
 
 all:  $(BINS)
-	$(shell LD_LIBRARY_PATH+=:$(BASEDIR)/lib)
-	$(shell LD_LIBRARY_PATH+=:$(BASEDIR)/../../)
 
 $(EXEDIR)/%: $(TESTDIR)/%.cpp $(LIBDIR)/lib$(LIBNAME).so $(BASEDIR)/interface/*.h
 	@echo Compiling executable $@

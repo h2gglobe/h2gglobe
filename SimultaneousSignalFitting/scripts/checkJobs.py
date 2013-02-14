@@ -60,10 +60,10 @@ if len(running_jobs)==0 and len(failed_jobs)==0 and len(finished_jobs)>0:
   #  organise()
   webRes = raw_input('Do you want to publish plots to web? (y/n)\n')
   if webRes=='n' or webRes=='N':
-    os.system('./bin/PackageOutput -i %s'%combinefile)
+    os.system('./bin/PackageOutput -i %s -o %s/CMS-HGG_sigfit.root'%(combinefile,jobdir))
   elif webRes=='y' or webRes=='Y':
     webdir = raw_input('Enter web directory\n')
-    os.system('./bin/PackageOutput -i %s -w %s'%(combinefile,webdir))
+    os.system('./bin/PackageOutput -i %s -o %s/CMS-HGG_sigfit.root -w %s'%(combinefile,webdir,jobdir))
   else:
     sys.exit('Result not recognised')
 

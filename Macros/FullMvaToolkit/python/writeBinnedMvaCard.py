@@ -38,15 +38,16 @@ QCDscale_VH   = "0.982/1.018"
 QCDscale_ttH  = "0.905/1.036"
 # SHAPE SYSTEMATICS -------
 systematics = [
-	       "E_res"
-	      ,"E_scale"
-	      ,"idEff"
-	      ,"phoIdMva"
-	      ,"regSig"
+	      # "E_res"
+	      #,"E_scale"
+	      #,"idEff"
+	      #,"r9Eff"
+	      #,"phoIdMva"
+	      #,"regSig"
 	      #,"kFactor"
-	      ,"triggerEff"
+	      #,"triggerEff"
 	      #,"pdfWeight"
-	      ,"vtxEff"
+	      #,"vtxEff"
 	      ]
 # ADDITIONAL SYSTEMATICS --
 #JetID_vbf = 0.1

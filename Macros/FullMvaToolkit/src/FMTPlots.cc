@@ -130,15 +130,15 @@ double FMTPlots::quadInterp(double C, double X1,double X2,double X3,double Y1,do
 
 void FMTPlots::plotSystFracs(TH1F *sig, vector<pair<TH1F*,TH1F*> > sigSyst, double mh){
  	
-	sig->SetLineColor(kBlue);
+	sig->SetLineColor(kBlack);
 	sig->SetLineWidth(2);
   
 	TCanvas *canv = new TCanvas();
 	
 	for (vector<pair<TH1F*,TH1F*> >::iterator it = sigSyst.begin(); it != sigSyst.end(); it++){
-		(it->first)->SetLineColor(kBlack);
+		(it->first)->SetLineColor(kBlue);
 		(it->first)->SetLineWidth(2);
-		(it->second)->SetLineColor(kBlack);
+		(it->second)->SetLineColor(kRed);
 		(it->second)->SetLineWidth(2);
 		TH1F *tempUp = (TH1F*)(it->first)->Clone();
 		TH1F *tempDown = (TH1F*)(it->second)->Clone();
@@ -147,7 +147,9 @@ void FMTPlots::plotSystFracs(TH1F *sig, vector<pair<TH1F*,TH1F*> > sigSyst, doub
 			tempDown->SetBinContent(bin,quadInterp(-1.,-3.,0.,3.,(it->second)->GetBinContent(bin),sig->GetBinContent(bin),(it->first)->GetBinContent(bin)));
 		}
 		tempUp->SetLineStyle(kDashed);
+    tempUp->SetLineColor(kBlue);
 		tempDown->SetLineStyle(kDashed);
+    tempDown->SetLineColor(kRed);
 		(it->first)->Draw();
 		sig->Draw("same");
 		(it->second)->Draw("same");

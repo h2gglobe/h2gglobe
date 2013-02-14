@@ -6,6 +6,7 @@
 #include "boost/program_options.hpp"
 
 #include "TFile.h"
+#include "TROOT.h"
 
 #include "RooWorkspace.h"
 #include "RooExtendPdf.h"
@@ -20,9 +21,22 @@ namespace po = boost::program_options;
 string infilename_;
 string outfilename_;
 string wsname_;
+int mhLow_=110;
+int mhHigh_=150;
 int ncats_;
 string webdir_;
 bool web_;
+bool makePlots_=false;
+vector<int> allMH_;
+
+vector<int> getAllMH(){
+  vector<int> result;
+  for (int m=mhLow_; m<=mhHigh_; m+=5){
+    cout << "Adding mass: " << m << endl;
+    result.push_back(m);
+  }
+  return result;
+}
 
 void OptionParser(int argc, char *argv[]){
 
@@ -33,8 +47,11 @@ void OptionParser(int argc, char *argv[]){
     ("infilename,i", po::value<string>(&infilename_)->default_value("dat/filestocombine.dat"),"Input file name")
     ("outfilename,o", po::value<string>(&outfilename_)->default_value("CMS-HGG_sigfit.root"), "Output file name")
     ("wsname,W", po::value<string>(&wsname_)->default_value("wsig_8TeV"),                     "Output workspace name")
+    ("mhLow,L", po::value<int>(&mhLow_)->default_value(110),                                  "Low mass point")
+    ("mhHigh,H", po::value<int>(&mhHigh_)->default_value(150),                                "High mass point")
     ("ncats,n", po::value<int>(&ncats_)->default_value(9),                                    "Number of categories")
     ("html,w", po::value<string>(&webdir_),                                                   "Make html in this directory")
+    ("makePlots,P",                                                                           "Make AN style signal model plots")
   ;
 
   po::variables_map vm;
@@ -42,6 +59,8 @@ void OptionParser(int argc, char *argv[]){
   po::notify(vm);
   if (vm.count("help")){ cout << desc << endl; exit(1);}
   if (vm.count("html"))             web_=true;
+  if (vm.count("makePlots"))        makePlots_=true;
+  allMH_ = getAllMH();
 }
  
 int main (int argc, char *argv[]){
@@ -95,7 +114,8 @@ int main (int argc, char *argv[]){
       RooWorkspace *tempWS = (RooWorkspace*)thisFile->Get("wsig");
       RooAddPdf *resultPdf = (RooAddPdf*)tempWS->pdf(Form("sigpdfrel_%s_cat%d",proc.c_str(),cat));
       work->import(*resultPdf);
-      for (int m=110; m<=150; m+=5){
+      for (unsigned int i=0; i<allMH_.size(); i++){
+        int m = allMH_[i];
         RooDataSet *resultData = (RooDataSet*)tempWS->data(Form("sig_%s_mass_m%d_cat%d",proc.c_str(),m,cat));
         work->import(*resultData);
       }
@@ -105,7 +125,8 @@ int main (int argc, char *argv[]){
   vector<string> expectedObjectsNotFound;
 
   // now we want to sum up some datasets and their respective pdfs for sig_eff calculations later
-  for (int m=110; m<=150; m+=5){
+  for (unsigned int i=0; i<allMH_.size(); i++){
+    int m = allMH_[i];
     RooDataSet *allDataThisMass = NULL;
     for (int cat=0; cat<ncats_; cat++){
       RooDataSet *allDataThisCat = NULL;
@@ -181,6 +202,15 @@ int main (int argc, char *argv[]){
     system(Form("cp -r plots %s",webdir_.c_str()));
     system(Form("make_html.py %s -c -l -n --title \"Simultaneous Signal Fitting\"",webdir_.c_str()));
     cout << "\t" << sitename << endl;
+  }
+
+  if (makePlots_){
+    ifstream tempfile("../Macros/makeParametricSignalModelPlots.C");
+    if (!tempfile) {
+      cout << "I'm looking for a file: ../Macros/makeParametricSignalModelPlots.C to make the AN plots but I can't find it. Bailing!" << endl;
+      exit(1);
+    }
+    gROOT->ProcessLine(".L ../Macros/makeParametricSignalModelPlots.C+g");
   }
 
   return 0;

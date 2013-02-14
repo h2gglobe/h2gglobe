@@ -8,7 +8,7 @@
 
 #include "FMTBase.h"
 
-#include "../../Normalization_8TeV.h"
+#include "Normalization_8TeV.h"
 
 using namespace std;
 
