@@ -492,8 +492,8 @@ void makeParametricModelDatacard(string infilename, string wsfilename="0", strin
     for (int cat=nInclusiveCats+nVBFCats; cat<ncats; cat++){
       fprintf(file, "- - - - - ");
     }
+    fprintf(file,"\n\n");
   }
-  fprintf(file,"\n\n");
   
   fprintf(file, "CMS_hgg_eff_e         lnN  ");
   for (int icat=0; icat<ncats; ++icat) {
