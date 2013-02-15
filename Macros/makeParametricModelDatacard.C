@@ -344,17 +344,30 @@ void makeParametricModelDatacard(string infilename, string wsfilename="0", strin
   std::vector<double> vbfuncerts;
   
   vbfuncertnames.push_back("JEC");
-  vbfuncerts.push_back(1.025);
-  vbfgguncerts.push_back(1.10);
-  
+  if ( massfact ){
+    vbfuncerts.push_back(1.035);
+    vbfgguncerts.push_back(1.11);
+  }
+  else{
+    vbfuncerts.push_back(1.025);
+    vbfgguncerts.push_back(1.10);
+  }
+
   vbfuncertnames.push_back("UEPS");
-  vbfuncerts.push_back(1.07);
-  vbfgguncerts.push_back(1.28);
-  
+  if ( massfact ){
+    vbfuncerts.push_back(1.08);
+    vbfgguncerts.push_back(1.26);
+  }
+  else{
+    vbfuncerts.push_back(1.072);
+    vbfgguncerts.push_back(1.28);
+  }
+
   vbfuncertnames.push_back("CMS_eff_j");
   vbfuncerts.push_back(1.02);
   vbfgguncerts.push_back(1.02);
-  
+
+
   printf("vbf uncerts\n");
   for (unsigned int j=0; j<vbfuncerts.size(); ++j) {
     double vbfuncert = vbfuncerts.at(j);
@@ -407,13 +420,25 @@ void makeParametricModelDatacard(string infilename, string wsfilename="0", strin
   std::vector<double> vbfmiggguncerts;
   
   vbfmiguncertnames.push_back("CMS_hgg_JECmigration");
-  vbfmiguncerts.push_back(1.025);
-  vbfmiggguncerts.push_back(1.025);
+  if ( massfact ){
+    vbfmiguncerts.push_back(1.005);
+    vbfmiggguncerts.push_back(1.075);
+  }
+  else{
+     vbfmiguncerts.push_back(1.017);
+     vbfmiggguncerts.push_back(1.014);
+   }
 
   vbfmiguncertnames.push_back("CMS_hgg_UEPSmigration");
-  vbfmiguncerts.push_back(1.035);
-  vbfmiggguncerts.push_back(1.063);
-  
+  if ( massfact ){
+    vbfmiguncerts.push_back(1.01);
+    vbfmiggguncerts.push_back(1.11);
+  }
+  else{
+    vbfmiguncerts.push_back(1.024);
+    vbfmiggguncerts.push_back(1.16);
+  }
+
   printf("vbf migration uncerts\n");
   for (unsigned int j=0; j<vbfmiguncerts.size(); ++j) {
     fprintf(file, "%s      lnN  ",vbfmiguncertnames.at(j).c_str());          
