@@ -147,10 +147,10 @@ void makeParametricModelDatacard(string infilename, string wsfilename="0", strin
   fprintf(file, "shapes bkg_mass * %s cms_hgg_workspace:pdf_data_pol_model_8TeV_$CHANNEL\n", pathToDatBkgWS.c_str());
   
   //signal pdfs
-  fprintf(file, "shapes ggH * %s wsig_8TeV:hggpdfrel_$CHANNEL_ggh\n", pathToSigWS.c_str());
-  fprintf(file, "shapes qqH * %s wsig_8TeV:hggpdfrel_$CHANNEL_vbf\n", pathToSigWS.c_str());
-  fprintf(file, "shapes VH  * %s wsig_8TeV:hggpdfrel_$CHANNEL_wzh\n", pathToSigWS.c_str());
-  fprintf(file, "shapes ttH * %s wsig_8TeV:hggpdfrel_$CHANNEL_tth", pathToSigWS.c_str());
+  fprintf(file, "shapes ggH * %s wsig_8TeV:hggpdfrel_ggh_$CHANNEL\n", pathToSigWS.c_str());
+  fprintf(file, "shapes qqH * %s wsig_8TeV:hggpdfrel_vbf_$CHANNEL\n", pathToSigWS.c_str());
+  fprintf(file, "shapes VH  * %s wsig_8TeV:hggpdfrel_wzh_$CHANNEL\n", pathToSigWS.c_str());
+  fprintf(file, "shapes ttH * %s wsig_8TeV:hggpdfrel_tth_$CHANNEL", pathToSigWS.c_str());
 
   fprintf(file,"\n\n\n\n");
 
