@@ -37,7 +37,7 @@ void makeParametricModelDatacard(string infilename, string wsfilename="0", strin
   //xsecs[2] = (0.7154+0.4044)*2.25e-03;
   //xsecs[3] = 0.1334*2.25e-03;
 
-  const double lumi = 19600.;  
+  const double lumi = 19620.;  
 
   const double lumiuncert = 1.044;
   const double triguncert = 1.01;
