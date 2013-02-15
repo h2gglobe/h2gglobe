@@ -23,7 +23,7 @@ observation -1 -1 -1 -1 -1 -1 -1 -1 -1
 bin     cat0 cat0 cat0 cat0 cat0 cat1 cat1 cat1 cat1 cat1 cat2 cat2 cat2 cat2 cat2 cat3 cat3 cat3 cat3 cat3 cat4 cat4 cat4 cat4 cat4 cat5 cat5 cat5 cat5 cat5 cat6 cat6 cat6 cat6 cat6 cat7 cat7 cat7 cat7 cat7 cat8 cat8 cat8 cat8 cat8 
 process ggH qqH VH ttH bkg_mass ggH qqH VH ttH bkg_mass ggH qqH VH ttH bkg_mass ggH qqH VH ttH bkg_mass ggH qqH VH ttH bkg_mass ggH qqH VH ttH bkg_mass ggH qqH VH ttH bkg_mass ggH qqH VH ttH bkg_mass ggH qqH VH ttH bkg_mass 
 process 0 -1 -2 -3 1 0 -1 -2 -3 1 0 -1 -2 -3 1 0 -1 -2 -3 1 0 -1 -2 -3 1 0 -1 -2 -3 1 0 -1 -2 -3 1 0 -1 -2 -3 1 0 -1 -2 -3 1 
-rate 19600.0 19600.0 19600.0 19600.0 1.0 19600.0 19600.0 19600.0 19600.0 1.0 19600.0 19600.0 19600.0 19600.0 1.0 19600.0 19600.0 19600.0 19600.0 1.0 19600.0 19600.0 19600.0 19600.0 1.0 19600.0 19600.0 19600.0 19600.0 1.0 19600.0 19600.0 19600.0 19600.0 1.0 19600.0 19600.0 19600.0 19600.0 1.0 19600.0 19600.0 19600.0 19600.0 1.0 
+rate 19620.0 19620.0 19620.0 19620.0 1.0 19620.0 19620.0 19620.0 19620.0 1.0 19620.0 19620.0 19620.0 19620.0 1.0 19620.0 19620.0 19620.0 19620.0 1.0 19620.0 19620.0 19620.0 19620.0 1.0 19620.0 19620.0 19620.0 19620.0 1.0 19620.0 19620.0 19620.0 19620.0 1.0 19620.0 19620.0 19620.0 19620.0 1.0 19620.0 19620.0 19620.0 19620.0 1.0 
 
 
 
