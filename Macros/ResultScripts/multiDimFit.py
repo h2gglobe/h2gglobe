@@ -46,8 +46,8 @@ def main(options, args):
     combine_args = ""
     txt2ws_args  = ""
     if options.statOnly:
-        combine_args += "-S 0"
-        txt2ws_args  += "--stat"
+        combine_args += "--fastScan"
+        ## txt2ws_args  += "--stat"
     
 
     model_args  = { "ggHqqH" : "-P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingXSHiggs --PO modes=ggH,qqH",
