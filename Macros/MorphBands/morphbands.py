@@ -1135,6 +1135,8 @@ if __name__ == '__main__':
     fmt = string.Formatter()
 
     for template in templates:
+        if '{syst}' not in template:
+                raise Exception('"%s" does not reference {syst} so there is nothing to morph.' % template)
         loci = filter(lambda item: item not in (None, 'syst'), [token[1] for token in fmt.parse(template)])
         variants = it.product(*[ variations[locus] for locus in loci ])
         for variant in variants:
