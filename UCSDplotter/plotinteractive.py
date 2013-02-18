@@ -220,6 +220,11 @@ def FindFunction(option):
             sys.exit(0)
         print "Running startup"
         Startup(sys.argv[1])
+    elif option.split()[0] == "settext":
+        ReSetText(float(option.split()[1]),
+        float(option.split()[2]),
+        float(option.split()[3]),
+        float(option.split()[4]))
     elif option.split()[0] == "setleg":
         SetLeg(float(option.split()[1]),
         float(option.split()[2]),
@@ -304,6 +309,7 @@ def ListCMDs():
     print "maxval #:            Set the maximum of the plot (0 turns off)"
     print "minval #:            Set the minimum of the plot (0 turns off)"
     print "setleg x1 x2 y1 y2   Moves position of the legend"
+    print "settext x1 x2 y1 y2  Moves position of the text"
     print "variable num:        Change variable to num"
     print "vars:                Prints all global variables"
     print "singlecat #:         Display only # cat (-1 turns off)"
@@ -419,6 +425,16 @@ def SetLeg(x1,x2,y1,y2):
     legy1=y1
     legy2=y2
     dolegend=True
+    ReDraw()
+
+
+def ReSetText(x1,x2,y1,y2):
+    global dotext,textx1,textx2,texty1,texty2
+    textx1=x1
+    textx2=x2
+    texty1=y1
+    texty2=y2
+    dotext=True
     ReDraw()
 
 
@@ -676,7 +692,6 @@ def Plot(num,printsuffix="",printcat=-1):
             ymargin=0.01
             dy = 1./float(Nrow)
             dx = 1./float(nx)
-            print "nx, ny, dx, dy,",nx, ny, dx, dy
             dy_odd  = dy*.2
             dy_even = dy*.8
             for iy in range(ny):
@@ -694,7 +709,6 @@ def Plot(num,printsuffix="",printcat=-1):
                     name = can.GetName()+"_"+str(ix+iy*nx)
                     pads.append(ROOT.TPad(name, name, x1, y1, x2, y2, ROOT.kWhite))
                     pads[-1].SetNumber(ix+iy*nx+1)
-                    print "NUMBERS", (ix+iy*nx+1)
                     pads[-1].Draw()
 
             for ican in range(1, nCanvases+1):
@@ -848,7 +862,7 @@ def Plot(num,printsuffix="",printcat=-1):
             stacks["bkglines"][index].SetLineWidth(linewidth*plotscale)
             stacks["bkglines"][index].SetFillStyle(1001)
             stacks["bkglines"][index].SetFillColor(int(samples[itype].color))
-            stacks["bkglines"+str(icat)][index].Scale(toscale)
+            stacks["bkglines"][index].Scale(toscale)
             stacks["bkglines"][index].Draw("histsame")
             if dolegend:
                 legend.AddEntry(stacks["bkglines"][index],str(samples[itype].displayname),"f"); 
@@ -974,7 +988,7 @@ def Plot(num,printsuffix="",printcat=-1):
                 lineorder.reverse()
                 for index in lineorder:
                     itype=index[1]
-                    if dolegend and icat==0:
+                    if dolegend and icat==cats[0]:
                         legend.AddEntry(stacks["datalines"+str(icat)][index],str(samples[itype].displayname),"ep"); 
                 dataIntegral = stacks["datalines"+str(icat)][lineorder[0]].Integral()
                 print "data int ", dataIntegral
@@ -988,7 +1002,7 @@ def Plot(num,printsuffix="",printcat=-1):
             lineorder.reverse()
             for index in lineorder:
                 itype=index[1]
-                if dolegend and icat==0:
+                if dolegend and icat==cats[0]:
                     legend.AddEntry(stacks["siglines"+str(icat)][index],str(samples[itype].displayname),"l"); 
                 sigIntegral = stacks["siglines"+str(icat)][index].Integral()
                 print "sig int ", sigIntegral
@@ -1019,12 +1033,11 @@ def Plot(num,printsuffix="",printcat=-1):
                     stacks["bkglines"+str(icat)][index].SetFillColor(int(samples[itype].color))
                     stacks["bkglines"+str(icat)][index].Scale(toscale)
                     stacks["bkglines"+str(icat)][index].Draw("histsame")
-                    if dolegend and icat==0:
+                    if dolegend and icat==cats[0]:
                         legend.AddEntry(stacks["bkglines"+str(icat)][index],str(samples[itype].displayname),"f"); 
                     if dodivide:
                         if (index == lineorder[0]):
                             mcTot[icat] = stacks["bkglines"+str(icat)][index].Clone("mcTot")
-                    print "finished plot",index
                 if stacks["bkglines"+str(icat)][lineorder[0]].GetEffectiveEntries() > 0:
                     error=math.sqrt(1/float(stacks["bkglines"+str(icat)][lineorder[0]].GetEffectiveEntries()))*stacks["bkglines"+str(icat)][lineorder[0]].Integral() 
                     print "bkg int","%.2f"%stacks["bkglines"+str(icat)][lineorder[0]].Integral(),"+/-","%.2f"%error
