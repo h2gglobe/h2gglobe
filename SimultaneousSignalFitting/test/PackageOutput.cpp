@@ -12,6 +12,9 @@
 #include "RooExtendPdf.h"
 #include "RooDataSet.h"
 #include "RooAddPdf.h"
+#include "RooHistFunc.h"
+#include "RooRealVar.h"
+#include "RooFormulaVar.h"
 
 using namespace std;
 using namespace RooFit;
@@ -96,7 +99,8 @@ int main (int argc, char *argv[]){
   datfile.close();
 
   TFile *outFile = new TFile(outfilename_.c_str(),"RECREATE");
- 
+
+  RooRealVar *intLumi = new RooRealVar("IntLumi","IntLumi",19620.,0.,10.e5);
   // first loop files and import all pdfs and dataset into one workspace
   RooWorkspace *work = NULL;
   for (map<string,pair<string,int> >::iterator file=filestocombine.begin(); file!=filestocombine.end(); file++){
@@ -158,7 +162,12 @@ int main (int argc, char *argv[]){
   for (int cat=0; cat<ncats_; cat++){
     RooArgList *sumPdfsThisCat = new RooArgList();
     for (vector<string>::iterator proc=processes.begin(); proc!=processes.end(); proc++){
-      RooExtendPdf *tempPdf = (RooExtendPdf*)work->pdf(Form("sigpdfrel_%s_cat%d",proc->c_str(),cat));
+      //RooExtendPdf *tempPdf = (RooExtendPdf*)work->pdf(Form("sigpdfrel_%s_cat%d",proc->c_str(),cat));
+      RooHistFunc *norm = (RooHistFunc*)work->function(Form("hggpdfrel_%s_cat%d_norm",proc->c_str(),cat));
+      RooAddPdf *pdf = (RooAddPdf*)work->pdf(Form("hggpdfrel_%s_cat%d",proc->c_str(),cat));
+      RooFormulaVar *thisLumNorm = new RooFormulaVar(Form("hggpdfabs_%s_cat%d_norm",proc->c_str(),cat),Form("hggpdfabs_%s_cat%d_norm",proc->c_str(),cat),"@*@1",RooArgList(*norm,*intLumi));
+      if (!norm && !pdf) cout << "AHHHH" << endl;
+      RooExtendPdf *tempPdf = new RooExtendPdf(Form("sigpdfabs_%s_cat%d",proc->c_str(),cat),Form("sigpdfabs_%s_cat%d",proc->c_str(),cat),*pdf,*thisLumNorm);
       if (!tempPdf) {
         cerr << "WARNING -- pdf: " << Form("sigpdfrel_%s_cat%d",proc->c_str(),cat) << " not found. It will be skipped" << endl;
         expectedObjectsNotFound.push_back(Form("sigpdfrel_%s_cat%d",proc->c_str(),cat));
