@@ -37,6 +37,7 @@ StatAnalysis::StatAnalysis()  :
     fillOptTree = false;
     doFullMvaFinalTree = false;
 
+    splitwzh=false;
     sigmaMrv=0.;
     sigmaMwv=0.;
 }
@@ -424,17 +425,29 @@ void StatAnalysis::Init(LoopAll& l)
 	int sig = sigPointsToBook[isig];
         l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_ggh_mass_m%d",sig),nDataBins);
         l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_vbf_mass_m%d",sig),nDataBins);
-        l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wzh_mass_m%d",sig),nDataBins);
+        if(!splitwzh) l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wzh_mass_m%d",sig),nDataBins);
+        else{
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wh_mass_m%d",sig),nDataBins);
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_zh_mass_m%d",sig),nDataBins);
+        }
         l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_tth_mass_m%d",sig),nDataBins);
 
         l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_ggh_mass_m%d_rv",sig),nDataBins);
         l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_vbf_mass_m%d_rv",sig),nDataBins);
-        l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wzh_mass_m%d_rv",sig),nDataBins);
+        if(!splitwzh) l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wzh_mass_m%d_rv",sig),nDataBins);
+        else{
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wh_mass_m%d_rv",sig),nDataBins);
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_zh_mass_m%d_rv",sig),nDataBins);
+        }
         l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_tth_mass_m%d_rv",sig),nDataBins);
 
         l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_ggh_mass_m%d_wv",sig),nDataBins);
         l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_vbf_mass_m%d_wv",sig),nDataBins);
-        l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wzh_mass_m%d_wv",sig),nDataBins);
+        if(!splitwzh) l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wzh_mass_m%d_wv",sig),nDataBins);
+        else{
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wh_mass_m%d_wv",sig),nDataBins);
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_zh_mass_m%d_wv",sig),nDataBins);
+        }
         l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_tth_mass_m%d_wv",sig),nDataBins);
     }
 
@@ -443,7 +456,11 @@ void StatAnalysis::Init(LoopAll& l)
 	int sig = sigPointsToBook[isig];
         l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_ggh_mass_m%d",sig),-1);
         l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_vbf_mass_m%d",sig),-1);
-        l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_wzh_mass_m%d",sig),-1);
+        if(!splitwzh) l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_wzh_mass_m%d",sig),-1);
+        else{
+            l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_wh_mass_m%d",sig),-1);
+            l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_zh_mass_m%d",sig),-1);
+        }
         l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_tth_mass_m%d",sig),-1);
     }
 
@@ -1252,17 +1269,17 @@ void StatAnalysis::FillRooContainer(LoopAll& l, int cur_type, float mass, float 
     }
 
     if (cur_type == 0 ) {
-	l.rooContainer->InputDataPoint("data_mass",category,mass);
+        l.rooContainer->InputDataPoint("data_mass",category,mass);
     } else if (cur_type > 0 ) {
-	if( doMcOptimization ) {
-	    l.rooContainer->InputDataPoint("data_mass",category,mass,weight);
-	} else {
-        l.rooContainer->InputDataPoint("bkg_mass",category,mass,weight);
-	}
+        if( doMcOptimization ) {
+            l.rooContainer->InputDataPoint("data_mass",category,mass,weight);
+        } else {
+            l.rooContainer->InputDataPoint("bkg_mass",category,mass,weight);
+        }
     } else if (cur_type < 0) {
-	l.rooContainer->InputDataPoint("sig_"+GetSignalLabel(cur_type),category,mass,weight);
-	if (isCorrectVertex) l.rooContainer->InputDataPoint("sig_"+GetSignalLabel(cur_type)+"_rv",category,mass,weight);
-	else l.rooContainer->InputDataPoint("sig_"+GetSignalLabel(cur_type)+"_wv",category,mass,weight);
+        l.rooContainer->InputDataPoint("sig_"+GetSignalLabel(cur_type, l),category,mass,weight);
+        if (isCorrectVertex) l.rooContainer->InputDataPoint("sig_"+GetSignalLabel(cur_type, l)+"_rv",category,mass,weight);
+        else l.rooContainer->InputDataPoint("sig_"+GetSignalLabel(cur_type, l)+"_wv",category,mass,weight);
     }
     //if( category>=0 && fillOptTree ) {
 	//l.FillTree("run",l.run);
@@ -1400,7 +1417,7 @@ void StatAnalysis::FillRooContainerSyst(LoopAll& l, const std::string &name, int
         */
 	}
 	// feed the modified signal model to the RooContainer
-	l.rooContainer->InputSystematicSet("sig_"+GetSignalLabel(cur_type),name,categories,mass_errors,weights);
+	l.rooContainer->InputSystematicSet("sig_"+GetSignalLabel(cur_type, l),name,categories,mass_errors,weights);
     }
 }
 
@@ -1750,13 +1767,23 @@ void StatAnalysis::FillSignalLabelMap(LoopAll & l)
     /////////// signalLabels[-71]="tth_mass_m100";
 }
 
-std::string StatAnalysis::GetSignalLabel(int id){
+std::string StatAnalysis::GetSignalLabel(int id, LoopAll &l){
 
     // For the lazy man, can return a memeber of the map rather than doing it yourself
     std::map<int,std::string>::iterator it = signalLabels.find(id);
 
     if (it!=signalLabels.end()){
-        return it->second;
+        if(!splitwzh){
+            return it->second;
+        } else {
+            std::string returnstr = it->second;
+            if (l.process_id==26){   // wh event
+                returnstr.replace(0, 3, "wh");
+            } else if (l.process_id==24){   // zh event
+                returnstr.replace(0, 3, "zh");
+            }
+            return returnstr;
+        }
 
     } else {
 
@@ -1926,8 +1953,8 @@ void StatAnalysis::fillOpTree(LoopAll& l, const TLorentzVector & lead_p4, const 
     l.FillTree("ptoM2", (float)sublead_p4.Pt()/mass);
     l.FillTree("isEB1", (int)l.pho_isEB[diphoton_index.first]);
     l.FillTree("isEB2", (int)l.pho_isEB[diphoton_index.second]);
-    l.FillTree("chiso1", (float)((*l.pho_pfiso_mycharged03)[diphoton_index.first][l.dipho_vtxind[diphoton_id]]*50./lead_p4.Pt()));
-    l.FillTree("chiso2", (float)((*l.pho_pfiso_mycharged03)[diphoton_index.second][l.dipho_vtxind[diphoton_id]]*50./sublead_p4.Pt()));
+    l.FillTree("chiso1", (float)((*l.pho_pfiso_mycharged03)[diphoton_index.first][l.dipho_vtxind[diphoton_id]]));
+    l.FillTree("chiso2", (float)((*l.pho_pfiso_mycharged03)[diphoton_index.second][l.dipho_vtxind[diphoton_id]]));
     l.FillTree("chisow1", l.pho_pfiso_charged_badvtx_04[diphoton_index.first]);
     l.FillTree("chisow2", l.pho_pfiso_charged_badvtx_04[diphoton_index.second]);
     l.FillTree("phoiso1", l.pho_pfiso_myphoton03[diphoton_index.first]);
@@ -1972,6 +1999,11 @@ void StatAnalysis::fillOpTree(LoopAll& l, const TLorentzVector & lead_p4, const 
     float val_isosumoetbad = (l.pho_pfiso_myphoton03[diphoton_index.first] + l.pho_pfiso_charged_badvtx_04[diphoton_index.first] + 2.5 - l.rho_algo1*0.23)*50./lead_p4.Et();
     l.FillTree("isorv1", val_isosumoet);
     l.FillTree("isowv1", val_isosumoetbad);
+    
+    float val_isosumoet2   = ((*l.pho_pfiso_mycharged03)[diphoton_index.second][l.dipho_vtxind[diphoton_id]] + l.pho_pfiso_myphoton03[diphoton_index.second] + 2.5 - l.rho_algo1*0.09)*50./lead_p4.Et();
+    float val_isosumoetbad2= (l.pho_pfiso_myphoton03[diphoton_index.second] + l.pho_pfiso_charged_badvtx_04[diphoton_index.second] + 2.5 - l.rho_algo1*0.23)*50./lead_p4.Et();
+    l.FillTree("isorv2", val_isosumoet2);
+    l.FillTree("isowv2", val_isosumoetbad2);
     float s4ratio1 = l.pho_e2x2[diphoton_index.first]/l.pho_e5x5[diphoton_index.first];
     float rr2 = l.pho_eseffsixix[diphoton_index.first]*l.pho_eseffsixix[diphoton_index.first]+l.pho_eseffsiyiy[diphoton_index.first]*l.pho_eseffsiyiy[diphoton_index.first];
     float ESEffSigmaRR1 = 0.0; 

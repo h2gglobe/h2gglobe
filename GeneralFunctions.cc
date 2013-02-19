@@ -4120,6 +4120,7 @@ int LoopAll::MuonSelection2012B(float muptcut){
         if(!MuonIsolation2012(indmu, thispt)) continue;
     
         mymu = indmu;
+        muptcut = thispt;
         if(GFDEBUG) std::cout<<"new mymu "<<mymu<<std::endl;
     }
     if(GFDEBUG) std::cout<<"final mymu "<<mymu<<std::endl;
