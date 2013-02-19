@@ -32,7 +32,7 @@ Masses = range(110,151,1)
 # -------------------------------------------------------------
 
 f = ROOT.TFile(sys.argv[1])
-NCAT = 6
+NCAT = 9
 # Get The lumi from the workspace!
 ws = f.Get("cms_hgg_workspace")
 lRRV = ws.var("IntLumi")
