@@ -33,6 +33,9 @@ StatAnalysis::StatAnalysis()  :
     nVHhadCategories = 0;
     nVHlepCategories = 0;
     nVHmetCategories = 0;
+    
+    nVtxCategories = 0;
+    R9CatBoundary = 0.94;
 
     fillOptTree = false;
     doFullMvaFinalTree = false;
@@ -957,11 +960,11 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
         }
 
         // FIXME pass smeared R9
-        category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,nPtCategories);
+        category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,R9CatBoundary,nPtCategories,nVtxCategories,l.vtx_std_n);
         mass     = Higgs.M();
 
         // apply di-photon level smearings and corrections
-        int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,0);
+        int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,R9CatBoundary,0,nVtxCategories,l.vtx_std_n);
         if( cur_type != 0 && doMCSmearing ) {
 	    applyDiPhotonSmearings(Higgs, *vtx, selectioncategory, cur_type, *((TVector3*)l.gv_pos->At(0)), evweight, zero_, zero_,
 				   diPhoSys, syst_shift);
@@ -995,7 +998,7 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
         if (!isSyst && cur_type!=0 && saveBSTrees_) saveBSTrees(l, evweight,category,Higgs, vtx, (TVector3*)l.gv_pos->At(0));
 
         // save trees for unbinned datacards
-        int inc_cat = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,nPtCategories);
+        int inc_cat = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,R9CatBoundary,nPtCategories,nVtxCategories,l.vtx_std_n);
         if (!isSyst && cur_type<0 && saveDatacardTrees_) saveDatCardTree(l,cur_type,category, inc_cat, evweight, diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],lead_p4,sublead_p4,true);
 
 

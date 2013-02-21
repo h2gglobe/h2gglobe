@@ -179,7 +179,8 @@ class PhotonAnalysis : public BaseAnalysis
     std::string photonFixDat;
     std::string regressionFile;
 
-    int   nEtaCategories, nR9Categories, nPtCategories;
+    int   nEtaCategories, nR9Categories, nPtCategories, nVtxCategories;
+    float R9CatBoundary;
     bool  usePUjetveto;
     //std::string photonFixDat;
     //std::string regressionFile;
