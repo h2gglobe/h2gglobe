@@ -13,6 +13,7 @@ gStyle.SetCanvasColor(kWhite);
 gROOT.SetBatch(1)
 
 print "Setting Initial Parameters."
+#can = TCanvas("Plots","Plots",1000,1000)
 can = TCanvas("Plots","Plots",850,600)
 can.SetGrid(True)
 leg = TLegend(0.65, 0.80, 0.89, 0.89)
@@ -23,12 +24,14 @@ mytext.SetTextSize(0.04)
 mytext.SetNDC()
 Minimum=-2
 Maximum=2.5
-intlumi=[5.1,19.6]
-Energy=[7,8]
-#intlumi=[19.6]
-#Energy=[8]
+#intlumi=[5.1,19.6]
+#Energy=[7,8]
+intlumi=[19.6]
+Energy=[8]
+LowM=120
+HighM=130
 
-Masses=array.array("f",[x * 0.1 for x in range(1100,1501,5)])
+Masses=array.array("f",[x * 0.1 for x in range(LowM*10,HighM*10+1,5)])
 directory = sys.argv[1]
 
 BestFitObserved=[]
@@ -39,7 +42,7 @@ multigraph = TMultiGraph()
 #multigraph.SetTitle(";M_{H} (GeV/c^{2});Best Fit #sigma/#sigma_{SM}")
 #multigraph.SetMinimum(Minimum)
 #multigraph.SetMaximum(Maximum)
-dummyHist = TH1D("dummy","",1,110,150)
+dummyHist = TH1D("dummy","",1,LowM,HighM)
 dummyHist.SetTitle(";M_{H} (GeV/c^{2});Best Fit #sigma/#sigma_{SM}")
 dummyHist.SetTitleSize(.06,"X")
 dummyHist.SetTitleOffset(0.65,"X")
@@ -77,7 +80,7 @@ multigraph.Draw("3LP")
 dummyHist.Draw("AXIGSAME")
 leg.Draw("")
 
-line = TLine(110, 1, 150, 1)
+line = TLine(LowM, 1, HighM, 1)
 line.SetLineWidth(2)
 line.SetLineColor(kRed)
 line.Draw()
