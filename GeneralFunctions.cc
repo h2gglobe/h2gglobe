@@ -4321,8 +4321,9 @@ int LoopAll::ElectronSelectionMVA2012(float elptcut){
     float bestmvaval=-2;
 
     for(int iel=0; iel<el_std_n; iel++){
-        if(ElectronMVACuts(iel)){
-            if(GFDEBUG) std::cout<<"passing mva "<<std::endl;
+        int vtx_ind = FindElectronVertex(iel);
+	if(ElectronMVACuts(iel,vtx_ind)){
+	  if(GFDEBUG) std::cout<<"passing mva "<<std::endl;
             TLorentzVector* thiselp4 = (TLorentzVector*) el_std_p4->At(iel);
             if(GFDEBUG) std::cout<<"passing eta "<<thiselp4->Eta()<<std::endl;
             if(elptcut<thiselp4->Pt()){
