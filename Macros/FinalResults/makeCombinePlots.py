@@ -11,7 +11,7 @@ parser.add_option("-s","--style",dest="styles",default=[],action="append",help="
 parser.add_option("-w","--width",dest="widths",default=[],action="append",help="Set width")
 parser.add_option("-n","--name",dest="names",default=[],action="append",help="Set name")
 parser.add_option("-t","--text",dest="text",type="string",default="",help="Add Text")
-parser.add_option("-e","--expected",dest="expected",type="string",default="",help="Expected only")
+parser.add_option("-e","--expected",dest="expected",default=False,action="store_true",help="Expected only")
 parser.add_option("","--limit",dest="limit",default=False,action="store_true",help="Do limit plot")
 parser.add_option("","--pval",dest="pval",default=False,action="store_true",help="Do p-value plot")
 parser.add_option("","--maxlh",dest="maxlh",default=False,action="store_true",help="Do best fit mu plot")

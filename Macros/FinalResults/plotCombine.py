@@ -57,9 +57,9 @@ for folder, lumistring, splitChannels in config:
         for job in splitChannels:
           os.system('hadd -f %s/ProfileLikelihood/%s/ProfileLikelihood.root %s/ProfileLikelihood/%s/higgsCombine*.root'%(folder,job.split(':')[0].replace(' ',''),folder,job.split(':')[0].replace(' ','')))
     
+  add_string = ""
   if options.unblind:
     # plot pval
-    add_string = ""
     for job in splitChannels:
       add_string += ' -f %s/ExpProfileLikelihood/%s/ExpProfileLikelihood.root -c %d -s 2 -w 2 -n -1'%(folder,job.split(':')[0].replace(' ',''),int(job.split(':')[2]))
       if options.unblind:
@@ -79,7 +79,7 @@ for folder, lumistring, splitChannels in config:
   else:
     for job in splitChannels:
       add_string += ' -f %s/ExpProfileLikelihood/%s/ExpProfileLikelihood.root -c %d -s 2 -w 2 -n -1'%(folder,job.split(':')[0].replace(' ',''),int(job.split(':')[2]))
-    os.system('./makeCombinePlots.py -f %s/ExpProfileLikelihood/ExpProfileLikelihood.root -c 1 -s 2 -w 2 -n "Expected 1xSM" --text="%s" --pval %s'%(folder,folder,lumistring,add_string))
+    os.system('./makeCombinePlots.py -f %s/ExpProfileLikelihood/ExpProfileLikelihood.root -c 1 -s 2 -w 2 -n "Expected 1xSM" --text="%s" --pval %s'%(folder,lumistring,add_string))
     os.system('cp pval.pdf plots/%s_exppval.pdf'%folder)
     os.system('cp pval.png plots/%s_exppval.png'%folder)
     os.system('./makeCombinePlots.py -f %s/Asymptotic/Asymptotic.root --text="%s" --limit -e'%(folder,lumistring))
