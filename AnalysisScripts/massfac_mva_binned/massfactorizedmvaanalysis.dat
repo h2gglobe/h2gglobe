@@ -18,6 +18,11 @@ reRunCiCForData=1
 ### leadEtVBFCut=55
 subleadEtVBFCut=30
 
+##  sliding pt/m > 1/4 in mass fac to match event bdt training
+subleadEtVHlepCut=30
+subleadEtVHmetCut=30
+
+
 # choose between UCSD and MIT trainings
 bdtTrainingPhilosophy=MIT
 photonLevelMvaUCSD=aux/ID_UCSD.weights.xml
@@ -79,11 +84,9 @@ doPdfWeightSyst=1
 
 doInterferenceSmear=1
 
-efficiencyFile=aux/sig_reweighing_moriond2013_mva_v5.root
+fillEscaleTrees=0
 
-requireCiC=0
-useRunDTriggers=0
-reweightEtaR9=0
-ZmmgShapes=0
-applyIdmvaCorrection=0
-applySigmaECorrection=0
+effPhotonCategoryType=3CatR9_EBEE
+effPhotonNCat=6
+efficiencyFileMVA=aux/sig_reweighing_moriond2013_run2012ABCD_mva_v2.root
+
