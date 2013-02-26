@@ -14,6 +14,7 @@ type=2 name=weight
 
 type=3 name=pho1_energy
 type=2 name=pho1_energy_regr
+type=2 name=pho1_regrerr
 type=2 name=pho1_energy_noregr
 type=3 name=pho1_pt
 type=3 name=pho1_eta
@@ -32,6 +33,7 @@ type=0 name=pho1_isconv
 
 type=3 name=pho2_energy
 type=2 name=pho2_energy_regr
+type=2 name=pho2_regrerr
 type=2 name=pho2_energy_noregr
 type=3 name=pho2_pt
 type=3 name=pho2_eta
@@ -50,8 +52,12 @@ type=0 name=pho2_isconv
 
 type=2 name=el1_eta
 type=2 name=el1_phi
+type=2 name=el1_energy_regr
+type=2 name=el1_regrerr
 type=2 name=el2_eta
 type=2 name=el2_phi
+type=2 name=el2_energy_regr
+type=2 name=el2_regrerr
 
 type=2 name=sigmaMOverM
 type=2 name=sigmaMOverM_wrongVtx
