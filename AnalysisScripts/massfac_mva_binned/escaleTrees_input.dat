@@ -10,6 +10,8 @@
 el_std_n
 el_std_scind
 el_std_p4
+el_std_regr_energy
+el_std_regr_energyerr
 
 ##
 ## SuperClusters
