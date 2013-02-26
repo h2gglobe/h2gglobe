@@ -13,8 +13,8 @@ gStyle.SetCanvasColor(kWhite);
 gROOT.SetBatch(1)
 
 print "Setting Initial Parameters."
-#can = TCanvas("Plots","Plots",1000,1000)
-can = TCanvas("Plots","Plots",850,600)
+can = TCanvas("Plots","Plots",1000,1000)
+#can = TCanvas("Plots","Plots",850,600)
 can.SetGrid(True)
 leg = TLegend(0.65, 0.80, 0.89, 0.89)
 leg.SetFillColor(0)
@@ -28,8 +28,8 @@ Maximum=2.5
 #Energy=[7,8]
 intlumi=[19.6]
 Energy=[8]
-LowM=120
-HighM=130
+LowM=110
+HighM=150
 
 Masses=array.array("f",[x * 0.1 for x in range(LowM*10,HighM*10+1,5)])
 directory = sys.argv[1]

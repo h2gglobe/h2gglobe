@@ -22,8 +22,8 @@ leg.SetBorderSize(1)
 mytext = TLatex()
 mytext.SetTextSize(0.025)
 mytext.SetNDC()
-rMin=-5
-rMax=7
+rMin=-3
+rMax=6
 # Label1=TText()
 # Label1.SetNDC()
 # Label1.SetText(0.3,0.60,"8TeV")
@@ -100,7 +100,7 @@ for Mass in Masses:
   leg.AddEntry(graph,"Event Class")
   leg.AddEntry(dummyHist,"Combined","f")
   leg.AddEntry(NULL,"m_{H} = %.1f GeV" %Mass,"")
-  leg.AddEntry(NULL,"#sigma/#sigma_{SM} = %.2f#pm%.2f" %(CombinedBestFitObserved,CombinedBestFitErrorUp),"")
+  leg.AddEntry(NULL,"#sigma/#sigma_{SM} = %.2f+%.2f%.2f" %(CombinedBestFitObserved,CombinedBestFitErrorUp,CombinedBestFitErrorDown),"")
   dummyHist.Draw()
   print CombinedBestFitObserved+CombinedBestFitErrorDown,CombinedBestFitObserved+CombinedBestFitErrorUp
   BestFitBand=TBox(CombinedBestFitObserved+CombinedBestFitErrorDown,0,CombinedBestFitObserved+CombinedBestFitErrorUp,len(Channels))
