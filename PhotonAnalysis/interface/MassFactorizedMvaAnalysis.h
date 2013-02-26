@@ -38,6 +38,7 @@ class MassFactorizedMvaAnalysis : public StatAnalysis
     void fillZeeControlPlots(const TLorentzVector & lead_p4, const  TLorentzVector & sublead_p4, 
 	                     const TLorentzVector & Higgs, float lead_r9, float sublead_r9,
 			     float phoid_mvaout_lead, float phoid_mvaout_sublead, 
+			     float diphobdt_output_up, float diphobdt_output_down,
 			     float diphobdt_output, float sigmaMrv, float sigmaMwv, float vtxProb,
 			     int diphoton_id, int category, int selectioncategory, float evweight, LoopAll & l );
 
