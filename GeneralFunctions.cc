@@ -3021,6 +3021,7 @@ int LoopAll::DiphotonMITPreSelection(Float_t leadPtMin, Float_t subleadPtMin, Fl
             if ( leadpt < leadPtMin || subleadpt < subleadPtMin ) { continue; }
         }
     
+	if ( runZeeValidation && m_gamgam<70. ) { continue; }
 
         std::vector<std::vector<bool> > ph_passcut;
         if (!kinonly) {
