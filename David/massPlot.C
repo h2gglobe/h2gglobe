@@ -1,4 +1,4 @@
-void massPlot(TString category="0", TString var="all_mass", bool blind=true, bool breakdown=false) {
+void massPlot(TString category="0", TString var="all_mass", TString analysis="massfit", bool blind=false, bool breakdown=false) {
 
   gStyle->SetOptTitle(0);
   gStyle->SetOptStat(0);
@@ -24,7 +24,7 @@ void massPlot(TString category="0", TString var="all_mass", bool blind=true, boo
   gStyle->SetTitleXOffset(0.9);
   gStyle->SetTitleYOffset(1.24);
 
-  TFile *f = TFile::Open("histograms_CMS-HGG_cic.root");
+  TFile *f = TFile::Open("histograms_CMS-HGG_"+analysis+".root");
 
   TH1 *hist_mass_sig;
   TH1 *hist_mass_data;
@@ -193,7 +193,7 @@ void massPlot(TString category="0", TString var="all_mass", bool blind=true, boo
     hist_mass_bkg_stack->SetMaximum(max*1.85);
   } else if (var=="pho1_pt" || var=="pho2_pt") {
     hist_mass_bkg_stack->SetMaximum(max*1.3);
-  } else if (var=="pho1_r9" || var=="pho2_r9") {
+  } else if (var=="pho1_r9" || var=="pho2_r9" || var=="pho_r9") {
     hist_mass_bkg_stack->SetMaximum(max*1.15);
   }
 
@@ -227,6 +227,8 @@ void massPlot(TString category="0", TString var="all_mass", bool blind=true, boo
     hist_mass_bkg_stack->GetXaxis()->SetTitle("lead photon R_{9} (GeV)");
   } else if (var=="pho2_r9") {
     hist_mass_bkg_stack->GetXaxis()->SetTitle("sublead photon R_{9} (GeV)");
+  } else if (var=="pho_r9") {
+    hist_mass_bkg_stack->GetXaxis()->SetTitle("photon R_{9} (GeV)");
   } else if (var=="pho1_eta") {
     hist_mass_bkg_stack->GetXaxis()->SetTitle("lead photon #eta (GeV)");
   } else if (var=="pho2_eta") {
@@ -252,7 +254,7 @@ void massPlot(TString category="0", TString var="all_mass", bool blind=true, boo
   hist_mass_data->Draw("same,e");
 
   TLegend *leg_mass;
-  if (var=="pho1_r9" || var=="pho2_r9") {
+  if (var=="pho1_r9" || var=="pho2_r9" || var=="pho_r9") {
     leg_mass = new TLegend(.3,.48,.72,.78);
   }else {
     leg_mass = new TLegend(.6,.6,.92,.9);
@@ -283,7 +285,7 @@ void massPlot(TString category="0", TString var="all_mass", bool blind=true, boo
   txt->SetNDC();
   txt->SetTextSize(0.05);
   txt->SetTextAlign(12);
-  txt->DrawLatex(0.31,0.85,"#scale[0.8]{#splitline{CMS preliminary}{#sqrt{s} = 8 TeV L = 12.2 fb^{-1}}}");
+  txt->DrawLatex(0.31,0.85,"#scale[0.8]{#splitline{CMS preliminary}{#sqrt{s} = 8 TeV L = 19.6 fb^{-1}}}");
   //txt->DrawLatex(0.26,0.82,"CMS preliminary");
   //txt->DrawLatex(0.26,0.75,"#sqrt{s} = 7 TeV L = 1.66 fb^{-1}");
 
@@ -302,7 +304,7 @@ void massPlot(TString category="0", TString var="all_mass", bool blind=true, boo
   if (category=="8") outcat = "_cat7";
   if (category=="9") outcat = "_cat8";
   if (var=="all_mass") outvar = "mass";
-  //c_mgg->SaveAs("/afs/cern.ch/user/f/futyand/www/hgg/topup/dataMC/massfacmva/"+outvar+"/"+outvar+outcat+".png");
-  c_mgg->SaveAs(outvar+outcat+".png");
+  c_mgg->SaveAs("/afs/cern.ch/user/f/futyand/www/hgg/moriond_preapproval/dataMC/"+analysis+"/"+outvar+"/"+outvar+outcat+".png");
+  //c_mgg->SaveAs(outvar+outcat+".png");
 
 }

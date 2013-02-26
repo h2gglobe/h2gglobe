@@ -71,7 +71,7 @@ void rhoVsNvtx() {
   c_rhoVsNvtx->Divide(3,2);
 
   c_rhoVsNvtx->cd(1);
-  sf = nvtx_cat0_Data->Integral()/nvtx_cat0_DYJetsToLL->Integral();
+  float sf = nvtx_cat0_Data->Integral()/nvtx_cat0_DYJetsToLL->Integral();
   nvtx_cat0_DYJetsToLL->Scale(sf);
   nvtx_cat0_Data->Draw("e");
   nvtx_cat0_DYJetsToLL->Draw("hist,same");

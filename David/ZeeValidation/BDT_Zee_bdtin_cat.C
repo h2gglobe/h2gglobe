@@ -1,4 +1,4 @@
-void BDT_Zee_bdtin_cat() {
+void BDT_Zee_bdtin_cat(bool equalArea=true) {
 
   gStyle->SetOptTitle(0);
   gStyle->SetOptStat(0);
@@ -8,8 +8,14 @@ void BDT_Zee_bdtin_cat() {
   
   gStyle->SetPalette(1);
 
+  TString preselNorm_str = "";
+  if (!equalArea) preselNorm_str = "_preselNorm";
+
   TFile *file = TFile::Open("histograms_CMS-HGG_zeevalidation.root");
   file->cd();
+
+  float sf_presel = bdtout_cat0_Data->Integral()/bdtout_cat0_DYJetsToLL->Integral();
+  cout << "sf_presel " << sf_presel << endl;
 
   txt = new TLatex();
   txt->SetNDC();
@@ -38,8 +44,8 @@ void BDT_Zee_bdtin_cat() {
   leg2->AddEntry(mass_cat0_Data,"Data (19.6fb^{-1})");
   leg2->AddEntry(mass_cat0_DYJetsToLL,"DYJetsToLL MC","F");
 
-  TLine *line[13];
-  for (int i=0; i<13; i++) {
+  TLine *line[14];
+  for (int i=0; i<14; i++) {
     line[i] = new TLine(-1.,1.,1.,1.);
     line[i]->SetLineColor(4);
     line[i]->SetLineWidth(2);
@@ -64,30 +70,38 @@ void BDT_Zee_bdtin_cat() {
       line[i]->SetX1(-2.5);
       line[i]->SetX2(2.5);
     }
+    if (i==10) {
+      line[i]->SetX1(70.);
+      line[i]->SetX2(120.);
+    }
     if (i==11) {
       line[i]->SetX1(0.);
       line[i]->SetX2(200.);
     }
+    if (i==13) {
+      line[i]->SetX1(0.3);
+      line[i]->SetX2(1.);
+    }
   }
 
-  TString var[13] = {"pho1_phoidMva","pho2_phoidMva","sigmaMOverM","sigmaMOverM_wrongVtx","vtxProb","pho1_ptOverM","pho2_ptOverM","pho1_eta","pho2_eta","cosDeltaPhi","mass","pt","nvtx"};
-  TString var_name[13] = {"lead photon ID MVA output","sublead photon ID MVA output","#sigma_{M}/M_{#gamma#gamma} (right vertex)","#sigma_{M}/M_{#gamma#gamma} (wrong vertex)","Vertex probabilty","lead p_{T}/M_{#gamma#gamma}","sublead p_{T}/M_{#gamma#gamma}","lead #eta","sublead #eta","cos(#Delta#phi)","m_{e^{+}e^{-}}","di-photon p_{T}","no. of primary vertices"};
+  TString var[14] = {"pho1_phoidMva","pho2_phoidMva","sigmaMOverM","sigmaMOverM_wrongVtx","vtxProb","pho1_ptOverM","pho2_ptOverM","pho1_eta","pho2_eta","cosDeltaPhi","mass","pt","nvtx","r9"};
+  TString var_name[14] = {"lead photon ID MVA output","sublead photon ID MVA output","#sigma_{M}/M_{#gamma#gamma} (right vertex)","#sigma_{M}/M_{#gamma#gamma} (wrong vertex)","Vertex probabilty","lead p_{T}/M_{#gamma#gamma}","sublead p_{T}/M_{#gamma#gamma}","lead #eta","sublead #eta","cos(#Delta#phi)","m_{e^{+}e^{-}}","di-photon p_{T}","no. of primary vertices","R9"};
 
-  TCanvas *c_invar[13];
-  TH1* hist_cat1_Data[13];
-  TH1* hist_cat2_Data[13];
-  TH1* hist_cat3_Data[13];
-  TH1* hist_cat4_Data[13];
-  TH1* hist_cat5_Data[13];
-  TH1* hist_cat6_Data[13];
-  TH1* hist_cat1_DYJetsToLL[13];
-  TH1* hist_cat2_DYJetsToLL[13];
-  TH1* hist_cat3_DYJetsToLL[13];
-  TH1* hist_cat4_DYJetsToLL[13];
-  TH1* hist_cat5_DYJetsToLL[13];
-  TH1* hist_cat6_DYJetsToLL[13];
+  TCanvas *c_invar[14];
+  TH1* hist_cat1_Data[14];
+  TH1* hist_cat2_Data[14];
+  TH1* hist_cat3_Data[14];
+  TH1* hist_cat4_Data[14];
+  TH1* hist_cat5_Data[14];
+  TH1* hist_cat6_Data[14];
+  TH1* hist_cat1_DYJetsToLL[14];
+  TH1* hist_cat2_DYJetsToLL[14];
+  TH1* hist_cat3_DYJetsToLL[14];
+  TH1* hist_cat4_DYJetsToLL[14];
+  TH1* hist_cat5_DYJetsToLL[14];
+  TH1* hist_cat6_DYJetsToLL[14];
 
-  for (int i=0; i<13; i++) {
+  for (int i=0; i<14; i++) {
 
     bool logy = false;
     if (i==4 || i==9) logy=true;
@@ -106,6 +120,12 @@ void BDT_Zee_bdtin_cat() {
     } else if (i==6) {
       xmin=0.2;
       xmax=0.9;
+    } else if (i==10) {
+      xmin=70.;
+      xmax=120.;
+    } else if (i==13) {
+      xmin=0.3;
+      xmax=1.;
     } else {
       setRange=false;
     }
@@ -185,17 +205,18 @@ void BDT_Zee_bdtin_cat() {
     c_invar[i]->cd(1);
     if (logy) gPad->SetLogy();
     float sf = hist_cat1_Data[i]->Integral()/hist_cat1_DYJetsToLL[i]->Integral();
+    if (!equalArea) sf = sf_presel;
     hist_cat1_DYJetsToLL[i]->Scale(sf);
     //if (i==11 || i==9) {
-      hist_cat1_Data[i]->Rebin(2);
-      hist_cat1_DYJetsToLL[i]->Rebin(2);
+      if (i!=10) hist_cat1_Data[i]->Rebin(2);
+      if (i!=10) hist_cat1_DYJetsToLL[i]->Rebin(2);
       if (setRange) hist_cat1_Data[i]->GetXaxis()->SetRangeUser(xmin,xmax);
     //}
     hist_cat1_Data[i]->Draw("e");
     hist_cat1_DYJetsToLL[i]->Draw("hist,same");
     hist_cat1_Data[i]->Draw("e,same");
     gPad->RedrawAxis();
-    if (i==0 || i==1 || i==4) {
+    if (i==0 || i==1 || i==4 || i==13) {
       leg2->Draw();
     } else if (i!=7 && i!=8 && i!=9 && i!=5) {
       leg->Draw();
@@ -204,13 +225,14 @@ void BDT_Zee_bdtin_cat() {
     c_invar[i]->cd(2);
     if (logy) gPad->SetLogy();
     float sf = hist_cat2_Data[i]->Integral()/hist_cat2_DYJetsToLL[i]->Integral();
+    if (!equalArea) sf = sf_presel;
     hist_cat2_DYJetsToLL[i]->Scale(sf);
     hist_cat2_Data[i]->Draw("e");
     hist_cat2_DYJetsToLL[i]->Draw("hist,same");
     hist_cat2_Data[i]->Draw("e,same");
     gPad->RedrawAxis();
     
-    if (i==0 || i==1 || i==4) {
+    if (i==0 || i==1 || i==4 || i==13) {
       leg2->Draw();
     } else if (i!=7 && i!=8) {
       leg->Draw();
@@ -219,13 +241,14 @@ void BDT_Zee_bdtin_cat() {
     c_invar[i]->cd(3);
     if (logy) gPad->SetLogy();
     float sf = hist_cat3_Data[i]->Integral()/hist_cat3_DYJetsToLL[i]->Integral();
+    if (!equalArea) sf = sf_presel;
     hist_cat3_DYJetsToLL[i]->Scale(sf);
     hist_cat3_Data[i]->Draw("e");
     hist_cat3_DYJetsToLL[i]->Draw("hist,same");
     hist_cat3_Data[i]->Draw("e,same");
     gPad->RedrawAxis();
     
-    if (i==0 || i==1 || i==4) {
+    if (i==0 || i==1 || i==4 || i==13) {
       leg2->Draw();
     } else if (i!=7 && i!=8) {
       leg->Draw();
@@ -234,13 +257,14 @@ void BDT_Zee_bdtin_cat() {
     c_invar[i]->cd(4);
     if (logy) gPad->SetLogy();
     float sf = hist_cat4_Data[i]->Integral()/hist_cat4_DYJetsToLL[i]->Integral();
+    if (!equalArea) sf = sf_presel;
     hist_cat4_DYJetsToLL[i]->Scale(sf);
     hist_cat4_Data[i]->Draw("e");
     hist_cat4_DYJetsToLL[i]->Draw("hist,same");
     hist_cat4_Data[i]->Draw("e,same");
     gPad->RedrawAxis();
     
-    if (i==0 || i==1 || i==3 || i==4) {
+    if (i==0 || i==1 || i==3 || i==4 || i==13) {
       leg2->Draw();
     } else if (i!=7 && i!=8 && i!=1) {
       leg->Draw();
@@ -249,6 +273,7 @@ void BDT_Zee_bdtin_cat() {
     c_invar[i]->cd(5);
     if (logy) gPad->SetLogy();
     float sf = hist_cat5_Data[i]->Integral()/hist_cat5_DYJetsToLL[i]->Integral();
+    if (!equalArea) sf = sf_presel;
     hist_cat5_DYJetsToLL[i]->Scale(sf);
     //if (i==11 || i==9) {
     if (i==7 || i==8) {
@@ -264,7 +289,7 @@ void BDT_Zee_bdtin_cat() {
     hist_cat5_Data[i]->Draw("e,same");
     gPad->RedrawAxis();
     
-    if (i==0 || i==1 || i==3 || i==4) {
+    if (i==0 || i==1 || i==3 || i==4 || i==13) {
       leg2->Draw();
     } else if (i!=7 && i!=8 && i!=1) {
       leg->Draw();
@@ -273,6 +298,7 @@ void BDT_Zee_bdtin_cat() {
     c_invar[i]->cd(6);
     if (logy) gPad->SetLogy();
     float sf = hist_cat6_Data[i]->Integral()/hist_cat6_DYJetsToLL[i]->Integral();
+    if (!equalArea) sf = sf_presel;
     hist_cat6_DYJetsToLL[i]->Scale(sf);
     //if (i==11 || i==9) {
     if (i==7 || i==8) {
@@ -288,7 +314,7 @@ void BDT_Zee_bdtin_cat() {
     hist_cat6_Data[i]->Draw("e,same");
     gPad->RedrawAxis();
     
-    if (i==0 || i==1 || i==3 || i==4) {
+    if (i==0 || i==1 || i==3 || i==4 || i==13) {
       leg2->Draw();
     } else if (i!=7 && i!=8 && i!=1) {
       leg->Draw();
@@ -364,7 +390,6 @@ void BDT_Zee_bdtin_cat() {
     c_invar[i]->cd(7);
     gPad->SetGrid();
     ratio_cat1 = (TH1*)hist_cat1_Data[i]->Clone();
-    ratio_cat1->Sumw2();
     ratio_cat1->Divide(hist_cat1_DYJetsToLL[i]);
     ratio_cat1->SetMaximum(1.8);
     ratio_cat1->SetMinimum(0.2);
@@ -374,7 +399,6 @@ void BDT_Zee_bdtin_cat() {
     c_invar[i]->cd(8);
     gPad->SetGrid();
     ratio_cat2 = (TH1*)hist_cat2_Data[i]->Clone();
-    ratio_cat2->Sumw2();
     ratio_cat2->Divide(hist_cat2_DYJetsToLL[i]);
     ratio_cat2->SetMaximum(1.8);
     ratio_cat2->SetMinimum(0.2);
@@ -384,7 +408,6 @@ void BDT_Zee_bdtin_cat() {
     c_invar[i]->cd(9);
     gPad->SetGrid();
     ratio_cat3 = (TH1*)hist_cat3_Data[i]->Clone();
-    ratio_cat3->Sumw2();
     ratio_cat3->Divide(hist_cat3_DYJetsToLL[i]);
     ratio_cat3->SetMaximum(1.8);
     ratio_cat3->SetMinimum(0.2);
@@ -394,7 +417,6 @@ void BDT_Zee_bdtin_cat() {
     c_invar[i]->cd(10);
     gPad->SetGrid();
     ratio_cat4 = (TH1*)hist_cat4_Data[i]->Clone();
-    ratio_cat4->Sumw2();
     ratio_cat4->Divide(hist_cat4_DYJetsToLL[i]);
     ratio_cat4->SetMaximum(1.8);
     ratio_cat4->SetMinimum(0.2);
@@ -404,7 +426,6 @@ void BDT_Zee_bdtin_cat() {
     c_invar[i]->cd(11);
     gPad->SetGrid();
     ratio_cat5 = (TH1*)hist_cat5_Data[i]->Clone();
-    ratio_cat5->Sumw2();
     ratio_cat5->Divide(hist_cat5_DYJetsToLL[i]);
     ratio_cat5->SetMaximum(1.8);
     ratio_cat5->SetMinimum(0.2);
@@ -414,14 +435,13 @@ void BDT_Zee_bdtin_cat() {
     c_invar[i]->cd(12);
     gPad->SetGrid();
     ratio_cat6 = (TH1*)hist_cat6_Data[i]->Clone();
-    ratio_cat6->Sumw2();
     ratio_cat6->Divide(hist_cat6_DYJetsToLL[i]);
     ratio_cat6->SetMaximum(1.8);
     ratio_cat6->SetMinimum(0.2);
     ratio_cat6->Draw("e");
     line[i]->Draw();
 
-    c_invar[i]->SaveAs(var[i]+"_cat.png");
+    c_invar[i]->SaveAs(var[i]+"_cat"+preselNorm_str+".png");
 
   }
 

@@ -1,4 +1,4 @@
-void ptRescale() {
+void ptRescale(bool setWeights=false) {
 
   gStyle->SetOptTitle(0);
   gStyle->SetOptStat(0);
@@ -8,15 +8,17 @@ void ptRescale() {
 
   TFile *file = TFile::Open("histograms_CMS-HGG_zeevalidation.root");
 
-  //pt_cat0_Data->Rebin(4);
-  //pt_cat0_DYJetsToLL->Rebin(4);
-
-  Double_t xbins[21] = {0.,2.,4.,8.,12.,16.,20.,24.,28.,32.,36.,40.,50.,60.,70.,80.,95.,110.,130.,160.,200.};
-
-  //pt_cat0_Data->Rebin(20,"pt_cat0_Data_rebin",xbins);
-  //pt_cat0_DYJetsToLL->Rebin(20,"pt_cat0_DYJetsToLL_rebin",xbins);
   pt_cat0_Data_rebin = (TH1*)pt_cat0_Data->Clone();
   pt_cat0_DYJetsToLL_rebin = (TH1*)pt_cat0_DYJetsToLL->Clone();
+
+  if (setWeights) {
+    Double_t xbins[21] = {0.,2.,4.,8.,12.,16.,20.,24.,28.,32.,36.,40.,50.,60.,70.,80.,95.,110.,130.,160.,200.};
+    pt_cat0_Data_rebin->Rebin(20,"pt_cat0_Data_rebin",xbins);
+    pt_cat0_DYJetsToLL_rebin->Rebin(20,"pt_cat0_DYJetsToLL_rebin",xbins);
+  }
+
+  //pt_cat0_Data_rebin->Rebin(4);
+  //pt_cat0_DYJetsToLL_rebin->Rebin(4);
 
   pt_cat0_Data_rebin->GetXaxis()->SetTitleSize(0.05);
   pt_cat0_Data_rebin->GetYaxis()->SetTitle("");
@@ -55,20 +57,21 @@ void ptRescale() {
   c_pt->cd(2);
   gPad->SetGrid();
   ratio_pt = (TH1*)pt_cat0_Data_rebin->Clone();
-  ratio_pt->Sumw2();
   ratio_pt->Divide(pt_cat0_DYJetsToLL_rebin);
   //ratio_pt->SetMaximum(1.8);
   //ratio_pt->SetMinimum(0.2);
   ratio_pt->Draw("e");
   line->Draw();
 
-  for (int i=1;i<21;i++) cout << "pt_reweight[" << i-1 << "] = " << ratio_pt->GetBinContent(i) << ";" << endl;
-  cout << endl;
-  for (int i=1;i<21;i++) cout << "pt_reweight_bin[" << i-1 << "] = " << ratio_pt->GetBinLowEdge(i) << ".;" << endl;
-  cout << endl;
-  cout << "zeePtWeight=";
-  for (int i=1;i<21;i++) cout << ratio_pt->GetBinContent(i) << ",";
-  cout << endl;
+  if (setWeights) {
+    for (int i=1;i<21;i++) cout << "pt_reweight[" << i-1 << "] = " << ratio_pt->GetBinContent(i) << ";" << endl;
+    cout << endl;
+    for (int i=1;i<21;i++) cout << "pt_reweight_bin[" << i-1 << "] = " << ratio_pt->GetBinLowEdge(i) << ".;" << endl;
+    cout << endl;
+    cout << "zeePtWeight=";
+    for (int i=1;i<21;i++) cout << ratio_pt->GetBinContent(i) << ",";
+    cout << endl;
+  }
 
   c_pt->SaveAs("pt.png");
 
@@ -103,7 +106,6 @@ void ptRescale() {
   c_nvtx->cd(2);
   gPad->SetGrid();
   ratio_nvtx = (TH1*)nvtx_cat0_Data->Clone();
-  ratio_nvtx->Sumw2();
   ratio_nvtx->Divide(nvtx_cat0_DYJetsToLL);
   ratio_nvtx->SetMaximum(1.8);
   ratio_nvtx->SetMinimum(0.2);

@@ -228,7 +228,6 @@ void idmvaInputs_EB() {
   c_idmvain_1->cd(9);
   gPad->SetGrid();
   ratio_pfchargedisogood03_EB = (TH1*)pfchargedisogood03_EB_cat0_Data->Clone();
-  ratio_pfchargedisogood03_EB->Sumw2();
   ratio_pfchargedisogood03_EB->Divide(pfchargedisogood03_EB_cat0_DYJetsToLL);
   ratio_pfchargedisogood03_EB->SetMaximum(1.8);
   ratio_pfchargedisogood03_EB->SetMinimum(0.2);
@@ -241,7 +240,6 @@ void idmvaInputs_EB() {
   c_idmvain_1->cd(10);
   gPad->SetGrid();
   ratio_pfchargedisobad03_EB = (TH1*)pfchargedisobad03_EB_cat0_Data->Clone();
-  ratio_pfchargedisobad03_EB->Sumw2();
   ratio_pfchargedisobad03_EB->Divide(pfchargedisobad03_EB_cat0_DYJetsToLL);
   ratio_pfchargedisobad03_EB->SetMaximum(1.8);
   ratio_pfchargedisobad03_EB->SetMinimum(0.2);
@@ -254,7 +252,6 @@ void idmvaInputs_EB() {
   c_idmvain_1->cd(11);
   gPad->SetGrid();
   ratio_pfphotoniso03_EB = (TH1*)pfphotoniso03_EB_cat0_Data->Clone();
-  ratio_pfphotoniso03_EB->Sumw2();
   ratio_pfphotoniso03_EB->Divide(pfphotoniso03_EB_cat0_DYJetsToLL);
   ratio_pfphotoniso03_EB->SetMaximum(1.8);
   ratio_pfphotoniso03_EB->SetMinimum(0.2);
@@ -272,7 +269,6 @@ void idmvaInputs_EB() {
   c_idmvain_1->cd(12);
   gPad->SetGrid();
   ratio_rho_EB = (TH1*)rho_EB_cat0_Data->Clone();
-  ratio_rho_EB->Sumw2();
   ratio_rho_EB->Divide(rho_EB_cat0_DYJetsToLL);
   ratio_rho_EB->SetMaximum(1.8);
   ratio_rho_EB->SetMinimum(0.2);
@@ -364,7 +360,6 @@ void idmvaInputs_EB() {
   c_idmvain_2->cd(9);
   gPad->SetGrid();
   ratio_sieie_EB = (TH1*)sieie_EB_cat0_Data->Clone();
-  ratio_sieie_EB->Sumw2();
   ratio_sieie_EB->Divide(sieie_EB_cat0_DYJetsToLL);
   ratio_sieie_EB->SetMaximum(1.8);
   ratio_sieie_EB->SetMinimum(0.2);
@@ -382,7 +377,6 @@ void idmvaInputs_EB() {
   c_idmvain_2->cd(10);
   gPad->SetGrid();
   ratio_sieip_EB = (TH1*)sieip_EB_cat0_Data->Clone();
-  ratio_sieip_EB->Sumw2();
   ratio_sieip_EB->Divide(sieip_EB_cat0_DYJetsToLL);
   ratio_sieip_EB->SetMaximum(1.8);
   ratio_sieip_EB->SetMinimum(0.2);
@@ -400,7 +394,6 @@ void idmvaInputs_EB() {
   c_idmvain_2->cd(11);
   gPad->SetGrid();
   ratio_etawidth_EB = (TH1*)etawidth_EB_cat0_Data->Clone();
-  ratio_etawidth_EB->Sumw2();
   ratio_etawidth_EB->Divide(etawidth_EB_cat0_DYJetsToLL);
   ratio_etawidth_EB->SetMaximum(1.8);
   ratio_etawidth_EB->SetMinimum(0.2);
@@ -418,7 +411,6 @@ void idmvaInputs_EB() {
   c_idmvain_2->cd(12);
   gPad->SetGrid();
   ratio_phiwidth_EB = (TH1*)phiwidth_EB_cat0_Data->Clone();
-  ratio_phiwidth_EB->Sumw2();
   ratio_phiwidth_EB->Divide(phiwidth_EB_cat0_DYJetsToLL);
   ratio_phiwidth_EB->SetMaximum(1.8);
   ratio_phiwidth_EB->SetMinimum(0.2);
@@ -498,7 +490,6 @@ void idmvaInputs_EB() {
   c_idmvain_3->cd(7);
   gPad->SetGrid();
   ratio_s4ratio_EB = (TH1*)s4ratio_EB_cat0_Data->Clone();
-  ratio_s4ratio_EB->Sumw2();
   ratio_s4ratio_EB->Divide(s4ratio_EB_cat0_DYJetsToLL);
   ratio_s4ratio_EB->SetMaximum(1.8);
   ratio_s4ratio_EB->SetMinimum(0.2);
@@ -516,7 +507,6 @@ void idmvaInputs_EB() {
   c_idmvain_3->cd(8);
   gPad->SetGrid();
   ratio_r9_EB = (TH1*)r9_EB_cat0_Data->Clone();
-  ratio_r9_EB->Sumw2();
   ratio_r9_EB->Divide(r9_EB_cat0_DYJetsToLL);
   ratio_r9_EB->SetMaximum(1.8);
   ratio_r9_EB->SetMinimum(0.2);
@@ -535,7 +525,6 @@ void idmvaInputs_EB() {
     c_idmvain_3->cd(9);
     gPad->SetGrid();
     ratio_ESEffSigmaRR_EB = (TH1*)ESEffSigmaRR_EB_cat0_Data->Clone();
-    ratio_ESEffSigmaRR_EB->Sumw2();
     ratio_ESEffSigmaRR_EB->Divide(ESEffSigmaRR_EB_cat0_DYJetsToLL);
     ratio_ESEffSigmaRR_EB->SetMaximum(1.8);
     ratio_ESEffSigmaRR_EB->SetMinimum(0.2);

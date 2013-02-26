@@ -32,7 +32,7 @@ void overlap_sig() {
   passCiC_vs_passMVA->GetYaxis()->SetTitle("Selected in cut based analysis");
   passCiC_vs_passMVA->Draw("colz,text");
 
-  c_overlap->SaveAs("passCiC_vs_passMVA.png");
+  c_overlap->SaveAs("passCiC_vs_passMVA_sig.png");
 
   TCanvas *c_overlap_vbf = new TCanvas("c_overlap_vbf","passCiC vs passMVA: Dijet tagged",80,500,750,500);
 
@@ -50,7 +50,7 @@ void overlap_sig() {
   passVBFCiC_vs_passVBFMVA->GetYaxis()->SetTitle("Dijet tagged in cut based analysis");
   passVBFCiC_vs_passVBFMVA->Draw("colz,text");
 
-  c_overlap_vbf->SaveAs("passVBFCiC_vs_passVBFMVA.png");
+  c_overlap_vbf->SaveAs("passVBFCiC_vs_passVBFMVA_sig.png");
 
   TCanvas *c_overlap_cat = new TCanvas("c_overlap_cat","passCiC vs passMVA in categories",900,20,750,500);
 
@@ -70,7 +70,7 @@ void overlap_sig() {
   passCiC_vs_passMVA_cat->GetYaxis()->SetTitle("Selected in cut based analysis");
   passCiC_vs_passMVA_cat->Draw("colz,text");
 
-  c_overlap_cat->SaveAs("passCiC_vs_passMVA_cat.png");
+  c_overlap_cat->SaveAs("passCiC_vs_passMVA_cat_sig.png");
 
   TCanvas *c_passlevel = new TCanvas("c_passlevel","pass acceptance, presel and dipho mva, in diphoton categories",900,500,750,500);
 
@@ -88,6 +88,6 @@ void overlap_sig() {
   diphocat_vs_passMVA->GetYaxis()->SetTitle("Di-photon category");
   diphocat_vs_passMVA->Draw("colz,text");
 
-  c_passlevel->SaveAs("diphocat_vs_passMVA.png");
+  c_passlevel->SaveAs("diphocat_vs_passMVA_sig.png");
 
 }

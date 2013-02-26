@@ -174,7 +174,6 @@ void idmva() {
   ratio_EB = (TH1*)phoidMva_EB_Data->Clone();
   ratio_EB_up = (TH1*)phoidMva_EB_up_DYJetsToLL->Clone();
   ratio_EB_down = (TH1*)phoidMva_EB_down_DYJetsToLL->Clone();
-  ratio_EB->Sumw2();
   ratio_EB->Divide(phoidMva_EB_DYJetsToLL);
   ratio_EB_up->Divide(phoidMva_EB_DYJetsToLL);
   ratio_EB_down->Divide(phoidMva_EB_DYJetsToLL);
@@ -221,7 +220,6 @@ void idmva() {
   ratio_EE = (TH1*)phoidMva_EE_Data->Clone();
   ratio_EE_up = (TH1*)phoidMva_EE_up_DYJetsToLL->Clone();
   ratio_EE_down = (TH1*)phoidMva_EE_down_DYJetsToLL->Clone();
-  ratio_EE->Sumw2();
   ratio_EE->Divide(phoidMva_EE_DYJetsToLL);
   ratio_EE_up->Divide(phoidMva_EE_DYJetsToLL);
   ratio_EE_down->Divide(phoidMva_EE_DYJetsToLL);

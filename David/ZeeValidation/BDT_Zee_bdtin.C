@@ -1,4 +1,4 @@
-void BDT_Zee_bdtin() {
+void BDT_Zee_bdtin(bool passMVAcut=false, bool equalArea=true) {
 
   gStyle->SetOptTitle(0);
   gStyle->SetOptStat(0);
@@ -8,6 +8,9 @@ void BDT_Zee_bdtin() {
   
   gStyle->SetPalette(1);
   gStyle->SetLineColor(1);
+
+  TString preselNorm_str = "";
+  if (!equalArea) preselNorm_str = "_preselNorm";
 
   /*
   TFile *file_hgg = TFile::Open("histograms_CMS-HGG_nominal_hgg.root");
@@ -37,6 +40,7 @@ void BDT_Zee_bdtin() {
   */
 
   TFile *file = TFile::Open("histograms_CMS-HGG_zeevalidation.root");
+  //TFile *file = TFile::Open("root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/zee_trees/tree_zee_moriond_preapproval_phoPD_MCtriggers_ptreweight_noEcalIso.root");
   file->cd();
 
   txt = new TLatex();
@@ -50,7 +54,7 @@ void BDT_Zee_bdtin() {
   bdtout_cat4_DYJetsToLL->Rebin(2);
   bdtoutEB_cat0_DYJetsToLL->Rebin(2);
   bdtoutEBEE_cat0_DYJetsToLL->Rebin(2);
-  bdtoutEE_cat0_DYJetsToLL->Rebin(4);
+  bdtoutEE_cat0_DYJetsToLL->Rebin(2);
   bdtout_cat0_Data->Rebin(2);
   bdtout_cat1_Data->Rebin(2);
   bdtout_cat2_Data->Rebin(2);
@@ -58,13 +62,13 @@ void BDT_Zee_bdtin() {
   bdtout_cat4_Data->Rebin(2);
   bdtoutEB_cat0_Data->Rebin(2);
   bdtoutEBEE_cat0_Data->Rebin(2);
-  bdtoutEE_cat0_Data->Rebin(4);
+  bdtoutEE_cat0_Data->Rebin(2);
 
   bdtout_cat0_Data->GetXaxis()->SetTitle("di-photon BDT output");
-  bdtout_cat1_Data->GetXaxis()->SetTitle("di-photon BDT output, baseline cat0");
-  bdtout_cat2_Data->GetXaxis()->SetTitle("di-photon BDT output, baseline cat1");
-  bdtout_cat3_Data->GetXaxis()->SetTitle("di-photon BDT output, baseline cat2");
-  bdtout_cat4_Data->GetXaxis()->SetTitle("di-photon BDT output, baseline cat3");
+  bdtout_cat1_Data->GetXaxis()->SetTitle("di-photon BDT output, CiC cat0");
+  bdtout_cat2_Data->GetXaxis()->SetTitle("di-photon BDT output, CiC cat1");
+  bdtout_cat3_Data->GetXaxis()->SetTitle("di-photon BDT output, CiC cat2");
+  bdtout_cat4_Data->GetXaxis()->SetTitle("di-photon BDT output, CiC cat3");
   bdtoutEB_cat0_Data->GetXaxis()->SetTitle("di-photon BDT output (both EB)");
   bdtoutEBEE_cat0_Data->GetXaxis()->SetTitle("di-photon BDT output (one EB, one EE)");
   bdtoutEE_cat0_Data->GetXaxis()->SetTitle("di-photon BDT output (both EE)");
@@ -72,10 +76,10 @@ void BDT_Zee_bdtin() {
   pho2_phoidMva_cat0_Data->GetXaxis()->SetTitle("sublead photon ID MVA output");
   sigmaMOverM_cat0_Data->GetXaxis()->SetTitle("#sigma_{M}/M_{#gamma#gamma} (right vertex)");
   sigmaMOverM_wrongVtx_cat0_Data->GetXaxis()->SetTitle("#sigma_{M}/M_{#gamma#gamma} (wrong vertex)");
-  sigmaMOverM_EB_cat0_Data->GetXaxis()->SetTitle("#sigma_{M}/M_{#gamma#gamma} (right vertex)");
-  sigmaMOverM_wrongVtx_EB_cat0_Data->GetXaxis()->SetTitle("#sigma_{M}/M_{#gamma#gamma} (wrong vertex)");
-  sigmaMOverM_EE_cat0_Data->GetXaxis()->SetTitle("#sigma_{M}/M_{#gamma#gamma} (right vertex)");
-  sigmaMOverM_wrongVtx_EE_cat0_Data->GetXaxis()->SetTitle("#sigma_{M}/M_{#gamma#gamma} (wrong vertex)");
+  sigmaMOverM_EB_cat0_Data->GetXaxis()->SetTitle("#sigma_{M}/M_{#gamma#gamma} (right vertex, both EB)");
+  sigmaMOverM_wrongVtx_EB_cat0_Data->GetXaxis()->SetTitle("#sigma_{M}/M_{#gamma#gamma} (wrong vertex, both EB)");
+  sigmaMOverM_EE_cat0_Data->GetXaxis()->SetTitle("#sigma_{M}/M_{#gamma#gamma} (right vertex, both EE)");
+  sigmaMOverM_wrongVtx_EE_cat0_Data->GetXaxis()->SetTitle("#sigma_{M}/M_{#gamma#gamma} (wrong vertex, both EE)");
   vtxProb_cat0_Data->GetXaxis()->SetTitle("Vertex probabilty");
   pho1_ptOverM_cat0_Data->GetXaxis()->SetTitle("lead p_{T}/M_{#gamma#gamma}");
   pho2_ptOverM_cat0_Data->GetXaxis()->SetTitle("sublead p_{T}/M_{#gamma#gamma}");
@@ -240,6 +244,16 @@ void BDT_Zee_bdtin() {
   pho2_eta_cat0_Data->SetLineColor(1);
   cosDeltaPhi_cat0_Data->SetLineColor(1);
 
+  if (passMVAcut) {
+    bdtout_cat0_Data->GetXaxis()->SetRangeUser(-0.05,1.);
+    bdtout_cat1_Data->GetXaxis()->SetRangeUser(-0.05,1.);
+    bdtout_cat2_Data->GetXaxis()->SetRangeUser(-0.05,1.);
+    bdtout_cat3_Data->GetXaxis()->SetRangeUser(-0.05,1.);
+    bdtout_cat4_Data->GetXaxis()->SetRangeUser(-0.05,1.);
+    bdtoutEB_cat0_Data->GetXaxis()->SetRangeUser(-0.05,1.);
+    bdtoutEBEE_cat0_Data->GetXaxis()->SetRangeUser(-0.05,1.);
+    bdtoutEE_cat0_Data->GetXaxis()->SetRangeUser(-0.05,1.);
+  }
 
   TLegend *leg;
   leg = new TLegend(.6,.65,.87,.87);
@@ -274,81 +288,112 @@ void BDT_Zee_bdtin() {
   leg4->AddEntry(vtxProb_cat0_Data,"Data (19.6fb^{-1})");
   leg4->AddEntry(vtxProb_cat0_DYJetsToLL,"DYJetsToLL MC","F");
 
+  float sf_presel = bdtout_cat0_Data->Integral()/bdtout_cat0_DYJetsToLL->Integral();
+  cout << "sf_presel " << sf_presel << endl;
+
   TCanvas *c_bdtout = new TCanvas("c_bdtout","BDT output",2200,800);
   c_bdtout->Divide(4,2);
 
   c_bdtout->cd(1);
-  float sf = bdtout_cat0_Data->Integral()/bdtout_cat0_DYJetsToLL->Integral();
+  float sf;
+  if (passMVAcut) {
+    sf = bdtout_cat0_Data->Integral(48,100)/bdtout_cat0_DYJetsToLL->Integral(48,100);
+  } else {
+    sf = bdtout_cat0_Data->Integral()/bdtout_cat0_DYJetsToLL->Integral();
+  }
   bdtout_cat0_DYJetsToLL->Scale(sf);
   bdtout_cat0_Data->Draw("e");
+  leg2->Draw();
   bdtout_cat0_DYJetsToLL->Draw("hist,same");
   bdtout_cat0_Data->Draw("e,same");
   //bdtout_Hgg90->Scale(bdtout_cat0_Data->Integral()/bdtout_Hgg90->Integral());
   //bdtout_Hgg90->Draw("hist,same");
   gPad->RedrawAxis();
-  leg2->Draw();
 
   c_bdtout->cd(2);
-  sf = bdtoutEB_cat0_Data->Integral()/bdtoutEB_cat0_DYJetsToLL->Integral();
+  if (passMVAcut) {
+    sf = bdtoutEB_cat0_Data->Integral(48,100)/bdtoutEB_cat0_DYJetsToLL->Integral(48,100);
+  } else {
+    sf = bdtoutEB_cat0_Data->Integral()/bdtoutEB_cat0_DYJetsToLL->Integral();
+    if (!equalArea) sf = sf_presel;
+  }
   bdtoutEB_cat0_DYJetsToLL->Scale(sf);
   bdtoutEB_cat0_Data->Draw("e");
+  leg2->Draw();
   bdtoutEB_cat0_DYJetsToLL->Draw("hist,same");
   bdtoutEB_cat0_Data->Draw("e,same");
   //bdtoutEB_Hgg90->Scale(bdtoutEB_cat0_Data->Integral()/bdtoutEB_Hgg90->Integral());
   //bdtoutEB_Hgg90->Draw("hist,same");
   gPad->RedrawAxis();
-  leg2->Draw();
 
   c_bdtout->cd(3);
-  sf = bdtoutEBEE_cat0_Data->Integral()/bdtoutEBEE_cat0_DYJetsToLL->Integral();
+  if (passMVAcut) {
+    sf = bdtoutEBEE_cat0_Data->Integral(48,100)/bdtoutEBEE_cat0_DYJetsToLL->Integral(48,100);
+  } else {
+    sf = bdtoutEBEE_cat0_Data->Integral()/bdtoutEBEE_cat0_DYJetsToLL->Integral();
+    if (!equalArea) sf = sf_presel;
+  }
   bdtoutEBEE_cat0_DYJetsToLL->Scale(sf);
   bdtoutEBEE_cat0_Data->Draw("e");
+  leg->Draw();
   bdtoutEBEE_cat0_DYJetsToLL->Draw("hist,same");
   bdtoutEBEE_cat0_Data->Draw("e,same");
   //bdtoutEBEE_Hgg90->Scale(bdtoutEBEE_cat0_Data->Integral()/bdtoutEBEE_Hgg90->Integral());
   //bdtoutEBEE_Hgg90->Draw("hist,same");
   gPad->RedrawAxis();
-  leg->Draw();
 
   c_bdtout->cd(4);
-  sf = bdtoutEE_cat0_Data->Integral()/bdtoutEE_cat0_DYJetsToLL->Integral();
+  if (passMVAcut) {
+    sf = bdtoutEE_cat0_Data->Integral(48,100)/bdtoutEE_cat0_DYJetsToLL->Integral(48,100);
+  } else {
+    sf = bdtoutEE_cat0_Data->Integral()/bdtoutEE_cat0_DYJetsToLL->Integral();
+    if (!equalArea) sf = sf_presel;
+  }
   bdtoutEE_cat0_DYJetsToLL->Scale(sf);
   bdtoutEE_cat0_Data->Draw("e");
+  leg->Draw();
   bdtoutEE_cat0_DYJetsToLL->Draw("hist,same");
   bdtoutEE_cat0_Data->Draw("e,same");
   //bdtoutEE_Hgg90->Scale(bdtoutEE_cat0_Data->Integral()/bdtoutEE_Hgg90->Integral());
   //bdtoutEE_Hgg90->Draw("hist,same");
   gPad->RedrawAxis();
-  leg->Draw();
 
-  TLine *line = new TLine(-1.,1.,1.,1.);
+  TLine *line;
+  if (passMVAcut) {
+    line = new TLine(-0.06,1.,1.,1.);
+  } else {
+    line = new TLine(-1.,1.,1.,1.);
+  }
   line->SetLineColor(4);
   line->SetLineWidth(2);
 
   c_bdtout->cd(5);
   gPad->SetGrid();
   ratio_bdtout = (TH1*)bdtout_cat0_Data->Clone();
-  ratio_bdtout->Sumw2();
   ratio_bdtout->Divide(bdtout_cat0_DYJetsToLL);
-  ratio_bdtout->SetMaximum(1.4);
-  ratio_bdtout->SetMinimum(0.6);
+  ratio_bdtout->SetMaximum(1.8);
+  ratio_bdtout->SetMinimum(0.2);
   ratio_bdtout->Draw("e");
   line->Draw();
+
+  TFile *fout = new TFile("zee_bdtout_ratio.root","RECREATE");
+  fout->cd();
+  ratio_bdtout->Write("zee_bdtout_ratio");
+  fout->Close();
+  file->cd();
 
   c_bdtout->cd(6);
   gPad->SetGrid();
   ratio_bdtoutEB = (TH1*)bdtoutEB_cat0_Data->Clone();
-  ratio_bdtoutEB->Sumw2();
   ratio_bdtoutEB->Divide(bdtoutEB_cat0_DYJetsToLL);
-  ratio_bdtoutEB->SetMaximum(1.4);
-  ratio_bdtoutEB->SetMinimum(0.6);
+  ratio_bdtoutEB->SetMaximum(1.8);
+  ratio_bdtoutEB->SetMinimum(0.2);
   ratio_bdtoutEB->Draw("e");
   line->Draw();
 
   c_bdtout->cd(7);
   gPad->SetGrid();
   ratio_bdtoutEBEE = (TH1*)bdtoutEBEE_cat0_Data->Clone();
-  ratio_bdtoutEBEE->Sumw2();
   ratio_bdtoutEBEE->Divide(bdtoutEBEE_cat0_DYJetsToLL);
   ratio_bdtoutEBEE->SetMaximum(1.8);
   ratio_bdtoutEBEE->SetMinimum(0.2);
@@ -358,87 +403,103 @@ void BDT_Zee_bdtin() {
   c_bdtout->cd(8);
   gPad->SetGrid();
   ratio_bdtoutEE = (TH1*)bdtoutEE_cat0_Data->Clone();
-  ratio_bdtoutEE->Sumw2();
   ratio_bdtoutEE->Divide(bdtoutEE_cat0_DYJetsToLL);
   ratio_bdtoutEE->SetMaximum(1.8);
   ratio_bdtoutEE->SetMinimum(0.2);
   ratio_bdtoutEE->Draw("e");
   line->Draw();
 
-  c_bdtout->SaveAs("bdtout.png");
+  c_bdtout->SaveAs("bdtout"+preselNorm_str+".png");
 
 
-  TCanvas *c_bdtout_basecat = new TCanvas("c_bdtout_basecat","BDT output in baseline categories",2200,800);
+  TCanvas *c_bdtout_basecat = new TCanvas("c_bdtout_basecat","BDT output in CiC categories",2200,800);
   c_bdtout_basecat->Divide(4,2);
 
   c_bdtout_basecat->cd(1);
-  float sf = bdtout_cat1_Data->Integral()/bdtout_cat1_DYJetsToLL->Integral();
+  if (passMVAcut) {
+    sf = bdtout_cat1_Data->Integral(48,100)/bdtout_cat1_DYJetsToLL->Integral(48,100);
+  } else {
+    sf = bdtout_cat1_Data->Integral()/bdtout_cat1_DYJetsToLL->Integral();
+    if (!equalArea) sf = sf_presel;
+  }
   bdtout_cat1_DYJetsToLL->Scale(sf);
   bdtout_cat1_Data->Draw("e");
+  leg2->Draw();
   bdtout_cat1_DYJetsToLL->Draw("hist,same");
   bdtout_cat1_Data->Draw("e,same");
   //bdtout_cat1_Hgg90->Scale(bdtout_cat1_Data->Integral()/bdtout_cat1_Hgg90->Integral());
   //bdtout_cat1_Hgg90->Draw("hist,same");
   gPad->RedrawAxis();
-  leg2->Draw();
 
   c_bdtout_basecat->cd(2);
-  sf = bdtout_cat2_Data->Integral()/bdtout_cat2_DYJetsToLL->Integral();
+  if (passMVAcut) {
+    sf = bdtout_cat2_Data->Integral(48,100)/bdtout_cat2_DYJetsToLL->Integral(48,100);
+  } else {
+    sf = bdtout_cat2_Data->Integral()/bdtout_cat2_DYJetsToLL->Integral();
+    if (!equalArea) sf = sf_presel;
+  }
   bdtout_cat2_DYJetsToLL->Scale(sf);
   bdtout_cat2_Data->Draw("e");
+  leg2->Draw();
   bdtout_cat2_DYJetsToLL->Draw("hist,same");
   bdtout_cat2_Data->Draw("e,same");
   //bdtout_cat2_Hgg90->Scale(bdtout_cat2_Data->Integral()/bdtout_cat2_Hgg90->Integral());
   //bdtout_cat2_Hgg90->Draw("hist,same");
   gPad->RedrawAxis();
-  leg2->Draw();
 
   c_bdtout_basecat->cd(3);
-  sf = bdtout_cat3_Data->Integral()/bdtout_cat3_DYJetsToLL->Integral();
+  if (passMVAcut) {
+    sf = bdtout_cat3_Data->Integral(48,100)/bdtout_cat3_DYJetsToLL->Integral(48,100);
+  } else {
+    sf = bdtout_cat3_Data->Integral()/bdtout_cat3_DYJetsToLL->Integral();
+    if (!equalArea) sf = sf_presel;
+  }
   bdtout_cat3_DYJetsToLL->Scale(sf);
   bdtout_cat3_Data->Draw("e");
+  leg->Draw();
   bdtout_cat3_DYJetsToLL->Draw("hist,same");
   bdtout_cat3_Data->Draw("e,same");
   //bdtout_cat3_Hgg90->Scale(bdtout_cat3_Data->Integral()/bdtout_cat3_Hgg90->Integral());
   //bdtout_cat3_Hgg90->Draw("hist,same");
   gPad->RedrawAxis();
-  leg->Draw();
 
   c_bdtout_basecat->cd(4);
-  sf = bdtout_cat4_Data->Integral()/bdtout_cat4_DYJetsToLL->Integral();
+  if (passMVAcut) {
+    sf = bdtout_cat4_Data->Integral(48,100)/bdtout_cat4_DYJetsToLL->Integral(48,100);
+  } else {
+    sf = bdtout_cat4_Data->Integral()/bdtout_cat4_DYJetsToLL->Integral();
+    if (!equalArea) sf = sf_presel;
+  }
   bdtout_cat4_DYJetsToLL->Scale(sf);
   bdtout_cat4_Data->Draw("e");
+  leg->Draw();
   bdtout_cat4_DYJetsToLL->Draw("hist,same");
   bdtout_cat4_Data->Draw("e,same");
   //bdtout_cat4_Hgg90->Scale(bdtout_cat4_Data->Integral()/bdtout_cat4_Hgg90->Integral());
   //bdtout_cat4_Hgg90->Draw("hist,same");
   gPad->RedrawAxis();
-  leg->Draw();
 
   c_bdtout_basecat->cd(5);
   gPad->SetGrid();
   ratio_bdtout = (TH1*)bdtout_cat1_Data->Clone();
-  ratio_bdtout->Sumw2();
   ratio_bdtout->Divide(bdtout_cat1_DYJetsToLL);
-  ratio_bdtout->SetMaximum(1.4);
-  ratio_bdtout->SetMinimum(0.6);
+  ratio_bdtout->SetMaximum(1.8);
+  ratio_bdtout->SetMinimum(0.2);
   ratio_bdtout->Draw("e");
   line->Draw();
 
   c_bdtout_basecat->cd(6);
   gPad->SetGrid();
   ratio_bdtoutEB = (TH1*)bdtout_cat2_Data->Clone();
-  ratio_bdtoutEB->Sumw2();
   ratio_bdtoutEB->Divide(bdtout_cat2_DYJetsToLL);
-  ratio_bdtoutEB->SetMaximum(1.4);
-  ratio_bdtoutEB->SetMinimum(0.6);
+  ratio_bdtoutEB->SetMaximum(1.8);
+  ratio_bdtoutEB->SetMinimum(0.2);
   ratio_bdtoutEB->Draw("e");
   line->Draw();
 
   c_bdtout_basecat->cd(7);
   gPad->SetGrid();
   ratio_bdtoutEBEE = (TH1*)bdtout_cat3_Data->Clone();
-  ratio_bdtoutEBEE->Sumw2();
   ratio_bdtoutEBEE->Divide(bdtout_cat3_DYJetsToLL);
   ratio_bdtoutEBEE->SetMaximum(1.8);
   ratio_bdtoutEBEE->SetMinimum(0.2);
@@ -448,14 +509,13 @@ void BDT_Zee_bdtin() {
   c_bdtout_basecat->cd(8);
   gPad->SetGrid();
   ratio_bdtoutEE = (TH1*)bdtout_cat4_Data->Clone();
-  ratio_bdtoutEE->Sumw2();
   ratio_bdtoutEE->Divide(bdtout_cat4_DYJetsToLL);
   ratio_bdtoutEE->SetMaximum(1.8);
   ratio_bdtoutEE->SetMinimum(0.2);
   ratio_bdtoutEE->Draw("e");
   line->Draw();
 
-  c_bdtout_basecat->SaveAs("bdtout_basecat.png");
+  c_bdtout_basecat->SaveAs("bdtout_basecat"+preselNorm_str+".png");
 
 
 
@@ -496,7 +556,6 @@ void BDT_Zee_bdtin() {
   c_bdtin_1->cd(4);
   gPad->SetLogy();
   sf = cosDeltaPhi_cat0_Data->Integral()/cosDeltaPhi_cat0_DYJetsToLL->Integral();
-  cout << "sf_cosdphi " << sf << endl;
   cosDeltaPhi_cat0_DYJetsToLL->Scale(sf);
   cosDeltaPhi_cat0_Data->Draw("e");
   cosDeltaPhi_cat0_DYJetsToLL->Draw("hist,same");
@@ -507,7 +566,6 @@ void BDT_Zee_bdtin() {
   c_bdtin_1->cd(5);
   gPad->SetGrid();
   ratio_pho1_phoidMva = (TH1*)pho1_phoidMva_cat0_Data->Clone();
-  ratio_pho1_phoidMva->Sumw2();
   ratio_pho1_phoidMva->Divide(pho1_phoidMva_cat0_DYJetsToLL);
   ratio_pho1_phoidMva->SetMaximum(1.8);
   ratio_pho1_phoidMva->SetMinimum(0.2);
@@ -520,7 +578,6 @@ void BDT_Zee_bdtin() {
   c_bdtin_1->cd(6);
   gPad->SetGrid();
   ratio_pho2_phoidMva = (TH1*)pho2_phoidMva_cat0_Data->Clone();
-  ratio_pho2_phoidMva->Sumw2();
   ratio_pho2_phoidMva->Divide(pho2_phoidMva_cat0_DYJetsToLL);
   ratio_pho2_phoidMva->SetMaximum(1.8);
   ratio_pho2_phoidMva->SetMinimum(0.2);
@@ -530,7 +587,6 @@ void BDT_Zee_bdtin() {
   c_bdtin_1->cd(7);
   gPad->SetGrid();
   ratio_vtxProb = (TH1*)vtxProb_cat0_Data->Clone();
-  ratio_vtxProb->Sumw2();
   ratio_vtxProb->Divide(vtxProb_cat0_DYJetsToLL);
   ratio_vtxProb->SetMaximum(1.8);
   ratio_vtxProb->SetMinimum(0.2);
@@ -542,7 +598,6 @@ void BDT_Zee_bdtin() {
   c_bdtin_1->cd(8);
   gPad->SetGrid();
   ratio_cosDeltaPhi = (TH1*)cosDeltaPhi_cat0_Data->Clone();
-  ratio_cosDeltaPhi->Sumw2();
   ratio_cosDeltaPhi->Divide(cosDeltaPhi_cat0_DYJetsToLL);
   ratio_cosDeltaPhi->SetMaximum(1.8);
   ratio_cosDeltaPhi->SetMinimum(0.2);
@@ -627,7 +682,6 @@ void BDT_Zee_bdtin() {
   c_bdtin_2->cd(9);
   gPad->SetGrid();
   ratio_sigmaMOverM = (TH1*)sigmaMOverM_cat0_Data->Clone();
-  ratio_sigmaMOverM->Sumw2();
   ratio_sigmaMOverM->Divide(sigmaMOverM_cat0_DYJetsToLL);
   ratio_sigmaMOverM->SetMaximum(1.8);
   ratio_sigmaMOverM->SetMinimum(0.2);
@@ -640,7 +694,6 @@ void BDT_Zee_bdtin() {
   c_bdtin_2->cd(10);
   gPad->SetGrid();
   ratio_sigmaMOverM_wrongVtx = (TH1*)sigmaMOverM_wrongVtx_cat0_Data->Clone();
-  ratio_sigmaMOverM_wrongVtx->Sumw2();
   ratio_sigmaMOverM_wrongVtx->Divide(sigmaMOverM_wrongVtx_cat0_DYJetsToLL);
   ratio_sigmaMOverM_wrongVtx->SetMaximum(1.8);
   ratio_sigmaMOverM_wrongVtx->SetMinimum(0.2);
@@ -650,7 +703,6 @@ void BDT_Zee_bdtin() {
   c_bdtin_2->cd(11);
   gPad->SetGrid();
   ratio_pho1_ptOverM = (TH1*)pho1_ptOverM_cat0_Data->Clone();
-  ratio_pho1_ptOverM->Sumw2();
   ratio_pho1_ptOverM->Divide(pho1_ptOverM_cat0_DYJetsToLL);
   ratio_pho1_ptOverM->SetMaximum(1.8);
   ratio_pho1_ptOverM->SetMinimum(0.2);
@@ -663,7 +715,6 @@ void BDT_Zee_bdtin() {
   c_bdtin_2->cd(12);
   gPad->SetGrid();
   ratio_pho2_ptOverM = (TH1*)pho2_ptOverM_cat0_Data->Clone();
-  ratio_pho2_ptOverM->Sumw2();
   ratio_pho2_ptOverM->Divide(pho2_ptOverM_cat0_DYJetsToLL);
   ratio_pho2_ptOverM->SetMaximum(1.8);
   ratio_pho2_ptOverM->SetMinimum(0.2);
@@ -699,7 +750,6 @@ void BDT_Zee_bdtin() {
   c_bdtin_3->cd(3);
   gPad->SetGrid();
   ratio_pho1_eta = (TH1*)pho1_eta_cat0_Data->Clone();
-  ratio_pho1_eta->Sumw2();
   ratio_pho1_eta->Divide(pho1_eta_cat0_DYJetsToLL);
   ratio_pho1_eta->SetMaximum(1.8);
   ratio_pho1_eta->SetMinimum(0.2);
@@ -712,7 +762,6 @@ void BDT_Zee_bdtin() {
   c_bdtin_3->cd(4);
   gPad->SetGrid();
   ratio_pho2_eta = (TH1*)pho2_eta_cat0_Data->Clone();
-  ratio_pho2_eta->Sumw2();
   ratio_pho2_eta->Divide(pho2_eta_cat0_DYJetsToLL);
   ratio_pho2_eta->SetMaximum(1.8);
   ratio_pho2_eta->SetMinimum(0.2);
@@ -794,7 +843,6 @@ void BDT_Zee_bdtin() {
   c_sigmam_ebee->cd(9);
   gPad->SetGrid();
   ratio_sigmaMOverM_EB_cat0 = (TH1*)sigmaMOverM_EB_cat0_Data->Clone();
-  ratio_sigmaMOverM_EB_cat0->Sumw2();
   ratio_sigmaMOverM_EB_cat0->Divide(sigmaMOverM_EB_cat0_DYJetsToLL);
   ratio_sigmaMOverM_EB_cat0->SetMaximum(1.8);
   ratio_sigmaMOverM_EB_cat0->SetMinimum(0.2);
@@ -804,7 +852,6 @@ void BDT_Zee_bdtin() {
   c_sigmam_ebee->cd(10);
   gPad->SetGrid();
   ratio_sigmaMOverM_wrongVtx_EB_cat0 = (TH1*)sigmaMOverM_wrongVtx_EB_cat0_Data->Clone();
-  ratio_sigmaMOverM_wrongVtx_EB_cat0->Sumw2();
   ratio_sigmaMOverM_wrongVtx_EB_cat0->Divide(sigmaMOverM_wrongVtx_EB_cat0_DYJetsToLL);
   ratio_sigmaMOverM_wrongVtx_EB_cat0->SetMaximum(1.8);
   ratio_sigmaMOverM_wrongVtx_EB_cat0->SetMinimum(0.2);
@@ -814,7 +861,6 @@ void BDT_Zee_bdtin() {
   c_sigmam_ebee->cd(11);
   gPad->SetGrid();
   ratio_sigmaMOverM_EE_cat0 = (TH1*)sigmaMOverM_EE_cat0_Data->Clone();
-  ratio_sigmaMOverM_EE_cat0->Sumw2();
   ratio_sigmaMOverM_EE_cat0->Divide(sigmaMOverM_EE_cat0_DYJetsToLL);
   ratio_sigmaMOverM_EE_cat0->SetMaximum(1.8);
   ratio_sigmaMOverM_EE_cat0->SetMinimum(0.2);
@@ -824,7 +870,6 @@ void BDT_Zee_bdtin() {
   c_sigmam_ebee->cd(12);
   gPad->SetGrid();
   ratio_sigmaMOverM_wrongVtx_EE_cat0 = (TH1*)sigmaMOverM_wrongVtx_EE_cat0_Data->Clone();
-  ratio_sigmaMOverM_wrongVtx_EE_cat0->Sumw2();
   ratio_sigmaMOverM_wrongVtx_EE_cat0->Divide(sigmaMOverM_wrongVtx_EE_cat0_DYJetsToLL);
   ratio_sigmaMOverM_wrongVtx_EE_cat0->SetMaximum(1.8);
   ratio_sigmaMOverM_wrongVtx_EE_cat0->SetMinimum(0.2);

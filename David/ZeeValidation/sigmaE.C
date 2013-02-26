@@ -87,7 +87,7 @@ void sigmaE() {
   leg2->SetTextSize(.035);
   leg2->AddEntry(sigmaEOverE_EB_Data,"Data (19.6fb^{-1})");
   leg2->AddEntry(sigmaEOverE_EB_DYJetsToLL,"DYJetsToLL MC","F");
-  leg2->AddEntry(sigmaEOverE_EB_syst,"MC, #sigma_{E} scale factor ±0.1","F");
+  leg2->AddEntry(sigmaEOverE_EB_syst,"MC, #sigma_{E} scale factor 10%","F");
   //leg2->AddEntry(sigmaEOverE_EB_down_DYJetsToLL,"MC, #sigma_{E} scale factor -0.1");
   //leg2->AddEntry(sigmaEOverE_EB_up_DYJetsToLL,"MC #sigma_{E} scale factor +0.1");
 
@@ -147,7 +147,6 @@ void sigmaE() {
   ratio_EB = (TH1*)sigmaEOverE_EB_Data->Clone();
   ratio_EB_up = (TH1*)sigmaEOverE_EB_up_DYJetsToLL->Clone();
   ratio_EB_down = (TH1*)sigmaEOverE_EB_down_DYJetsToLL->Clone();
-  ratio_EB->Sumw2();
   ratio_EB->Divide(sigmaEOverE_EB_DYJetsToLL);
   ratio_EB_up->Divide(sigmaEOverE_EB_DYJetsToLL);
   ratio_EB_down->Divide(sigmaEOverE_EB_DYJetsToLL);
@@ -184,7 +183,6 @@ void sigmaE() {
   ratio_EE = (TH1*)sigmaEOverE_EE_Data->Clone();
   ratio_EE_up = (TH1*)sigmaEOverE_EE_up_DYJetsToLL->Clone();
   ratio_EE_down = (TH1*)sigmaEOverE_EE_down_DYJetsToLL->Clone();
-  ratio_EE->Sumw2();
   ratio_EE->Divide(sigmaEOverE_EE_DYJetsToLL);
   ratio_EE_up->Divide(sigmaEOverE_EE_DYJetsToLL);
   ratio_EE_down->Divide(sigmaEOverE_EE_DYJetsToLL);
