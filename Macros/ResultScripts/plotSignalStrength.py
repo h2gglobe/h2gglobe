@@ -22,14 +22,16 @@ leg.SetBorderSize(1)
 mytext = TLatex()
 mytext.SetTextSize(0.04)
 mytext.SetNDC()
-Minimum=-2
-Maximum=2.5
+Minimum=-8
+Maximum=8
 #intlumi=[5.1,19.6]
 #Energy=[7,8]
 intlumi=[19.6]
 Energy=[8]
 LowM=110
 HighM=150
+
+UseMLlogs=False
 
 Masses=array.array("f",[x * 0.1 for x in range(LowM*10,HighM*10+1,5)])
 directory = sys.argv[1]
@@ -52,15 +54,30 @@ dummyHist.SetMinimum(Minimum)
 dummyHist.SetMaximum(Maximum)
 
 for Mass in Masses:
-  file = TFile.Open(directory+"/higgsCombineSignalStrength.ChannelCompatibilityCheck.mH"+str(Mass).replace(".0","")+".root")
-  print file.GetName()
-  normal=file.Get("fit_nominal")
-  rFit=normal.floatParsFinal().find("r")
-  #print "Value: %f ErrorDown: %f ErrorUp: %f" %(rFit.getVal(),rFit.getAsymErrorLo(),rFit.getAsymErrorHi())
-  BestFitObserved.append(rFit.getVal())
-  BestFitErrorUp.append(rFit.getAsymErrorHi())
-  if math.fabs(rFit.getAsymErrorLo())<0.000001: BestFitErrorDown.append(math.fabs(rFit.getAsymErrorHi()))
-  else: BestFitErrorDown.append(math.fabs(rFit.getAsymErrorLo()))
+  if not UseMLlogs:
+    file = TFile.Open(directory+"/higgsCombineSignalStrength.ChannelCompatibilityCheck.mH"+str(Mass).replace(".0","")+".root")
+    print file.GetName()
+    normal=file.Get("fit_nominal")
+    rFit=normal.floatParsFinal().find("r")
+    #print "Value: %f ErrorDown: %f ErrorUp: %f" %(rFit.getVal(),rFit.getAsymErrorLo(),rFit.getAsymErrorHi())
+    BestFitObserved.append(rFit.getVal())
+    BestFitErrorUp.append(rFit.getAsymErrorHi())
+    if math.fabs(rFit.getAsymErrorLo())<0.000001: BestFitErrorDown.append(math.fabs(rFit.getAsymErrorHi()))
+    else: BestFitErrorDown.append(math.fabs(rFit.getAsymErrorLo()))
+  else:
+    file = open(directory+"/higgsCombineTest.MaxLikelihoodFit"+str(Mass)+".log")
+    lines=file.readlines()
+    for line in lines:
+      if line.find("Best fit r:") is not -1:
+        parts=line.split()
+        print "parts",parts
+        if len(parts)>5:
+          print parts[3],parts[4]
+          BestFitObserved.append(float(parts[3]))
+          BestFitErrorUp.append(float(parts[4].split("/")[1]))
+          BestFitErrorDown.append(math.fabs(float(parts[4].split("/")[0])))
+          continue
+
 
 graph=TGraph(len(BestFitObserved),Masses,array.array("f",BestFitObserved))
 graph.SetMarkerStyle(21)
