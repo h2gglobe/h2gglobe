@@ -366,7 +366,7 @@ void makeParametricModelDatacard(string infilename, string wsfilename="0", strin
   vbfuncertnames.push_back("CMS_eff_j");
   vbfuncerts.push_back(1.02);
   vbfgguncerts.push_back(1.02);
-
+  
 
   printf("vbf uncerts\n");
   for (unsigned int j=0; j<vbfuncerts.size(); ++j) {
@@ -419,24 +419,26 @@ void makeParametricModelDatacard(string infilename, string wsfilename="0", strin
   std::vector<double> vbfmiguncerts;
   std::vector<double> vbfmiggguncerts;
   
+  // N.B. need to pass the uncertainties on the LOOSE dijet category here!
+
   vbfmiguncertnames.push_back("CMS_hgg_JECmigration");
   if ( massfact ){
     vbfmiguncerts.push_back(1.005);
-    vbfmiggguncerts.push_back(1.075);
+    vbfmiggguncerts.push_back(1.025);
   }
   else{
-     vbfmiguncerts.push_back(1.017);
-     vbfmiggguncerts.push_back(1.014);
-   }
+     vbfmiguncerts.push_back(1.024);
+     vbfmiggguncerts.push_back(1.005);
+  }
 
   vbfmiguncertnames.push_back("CMS_hgg_UEPSmigration");
   if ( massfact ){
     vbfmiguncerts.push_back(1.01);
-    vbfmiggguncerts.push_back(1.11);
+    vbfmiggguncerts.push_back(1.045);
   }
   else{
-    vbfmiguncerts.push_back(1.024);
-    vbfmiggguncerts.push_back(1.16);
+    vbfmiguncerts.push_back(1.034);
+    vbfmiggguncerts.push_back(1.063);
   }
 
   printf("vbf migration uncerts\n");
@@ -450,7 +452,7 @@ void makeParametricModelDatacard(string infilename, string wsfilename="0", strin
 
     double vbfuncert = vbfmiguncerts.at(j);
     double gguncert = vbfmiggguncerts.at(j);      
-
+ 
     // vbf cats
     for (unsigned int k=0; k<proccuts.size(); ++k) {
       double uncert;
@@ -475,7 +477,7 @@ void makeParametricModelDatacard(string infilename, string wsfilename="0", strin
       
       double nmigr = (uncert-1.0)*nloose;
       double antiuncert = (ntight-nmigr)/ntight;
-      
+
       fprintf(file,"%3f ",antiuncert);
     }
     fprintf(file, "- ");
@@ -492,7 +494,9 @@ void makeParametricModelDatacard(string infilename, string wsfilename="0", strin
     for (int cat=nInclusiveCats+nVBFCats; cat<ncats; cat++){
       fprintf(file, "- - - - - ");
     }
+
     fprintf(file,"\n\n");
+
   }
   
   fprintf(file, "CMS_hgg_eff_e         lnN  ");
