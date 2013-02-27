@@ -12,6 +12,7 @@ parser.add_option("-o", "--Observed", action="store_true", dest="Observed", defa
 parser.add_option("-l", "--Limits", action="store_true", dest="Limits", default=False, help="Do Asymptotic CLs Limits")
 parser.add_option("-p", "--PValues", action="store_true", dest="PValues", default=False, help="Do PValues")
 parser.add_option("-b", "--BestFit", action="store_true", dest="BestFit", default=False, help="Do BestFit Signal Strength")
+parser.add_option("-L", "--MaxLikelihood", action="store_true", dest="MaxLikelihood", default=False, help="Do MaxlikelihoodFit per mass")
 parser.add_option("-m", "--Masses", dest="Masses", default="", help="Only calculate limits or pvalues at listed masses. --Masses=120,124,125")
 parser.add_option("-c", "--Categories", action="store_true", dest="Categories", default=False, help="Do PValues for all categories")
 parser.add_option("-u", "--CustumCat", dest="CustumCat", default="", help="Make datacards and do PValues for custum category. --CustumCat=\"cat0 cat1 cat2 cat3\" ")
@@ -107,6 +108,7 @@ for datacard in DatacardList:
     if options.toysFile!="": datacardoutputdirexpected=datacardoutputdir+"_Expected_"+str(options.expectSignal)+"SM_Asimov"
     if options.Limits: limitoutputdir=datacardoutputdir+"_Limits"
     if options.BestFit: bestfitdir=datacardoutputdir+"_BestFit"
+    if options.MaxLikelihood: maxlikelihoodfitdir=datacardoutputdir+"_MaxLikelihood"
     if options.nosubdirectory:
         datacardoutputdir=os.path.abspath(options.OutputDirectory)
         datacardoutputdirexpected=os.path.abspath(options.OutputDirectory)
@@ -134,6 +136,10 @@ for datacard in DatacardList:
                 if os.path.exists(bestfitdir) and options.overwrite: shutil.rmtree(bestfitdir)
                 if not os.path.exists(bestfitdir): os.makedirs(bestfitdir)
                 bestfitdir=os.path.abspath(bestfitdir)
+            if options.MaxLikelihood:
+                if os.path.exists(maxlikelihoodfitdir) and options.overwrite: shutil.rmtree(maxlikelihoodfitdir)
+                if not os.path.exists(maxlikelihoodfitdir): os.makedirs(maxlikelihoodfitdir)
+                maxlikelihoodfitdir=os.path.abspath(maxlikelihoodfitdir)
 
     threadlist=[]
     threads=0
@@ -169,6 +175,10 @@ for datacard in DatacardList:
             os.chdir(bestfitdir)
             if options.debug: print "combine "+datacard+" -m "+massstring+" -M ChannelCompatibilityCheck --rMin=-20 --verbose=1 --saveFitResult -s -1 -n SignalStrength >& higgsCombineTest.ChannelCompatibilityCheck.mH"+massstring+".log &"
             if not options.dryrun: os.system("combine "+datacard+" -m "+massstring+" -M ChannelCompatibilityCheck --rMin=-20 --verbose=1 --saveFitResult -s -1 -n SignalStrength >& higgsCombineTest.ChannelCompatibilityCheck.mH"+massstring+".log &")
+        if options.MaxLikelihood:
+            os.chdir(maxlikelihoodfitdir)
+            if options.debug: print "combine "+datacard+" -m "+massstring+"  -M MaxLikelihoodFit  --rMin=-20 > higgsCombineTest.MaxLikelihoodFit"+massstring+".log"
+            if not options.dryrun: os.system("combine "+datacard+" -m "+massstring+"  -M MaxLikelihoodFit  --rMin=-20 > higgsCombineTest.MaxLikelihoodFit"+massstring+".log &")
 
     os.chdir(basedir)
     threads=int(os.popen("ps | grep combine | wc -l").readline())
