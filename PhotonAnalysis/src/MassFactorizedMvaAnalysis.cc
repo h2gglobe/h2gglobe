@@ -563,7 +563,7 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
 ///// 				   l.photonIDMVANew(l.dipho_subleadind[diphotonId],l.dipho_vtxind[diphotonId],
 ///// 						    sublead_p4,bdtTrainingPhilosophy.c_str()));
 /////     // apply di-photon level smearings and corrections
-/////     int selectioncategory = l.DiphotonCategory(l.dipho_leadind[diphotonId],l.dipho_subleadind[diphotonId],Higgs.Pt(),nEtaCategories,nR9Categories,0);
+/////     int selectioncategory = l.DiphotonCategory(l.dipho_leadind[diphotonId],l.dipho_subleadind[diphotonId],Higgs.Pt(),nEtaCategories,nR9Categories);
 /////     if( smear && ur_type != 0 ) {
 ///// 	applyDiPhotonSmearings(Higgs, *vtx, selectioncategory, cur_type, *((TVector3*)l.gv_pos->At(0)), evweight, 
 ///// 			       phoid_mvaout_lead,phoid_mvaout_sublead,
@@ -750,7 +750,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 					sublead_p4,bdtTrainingPhilosophy.c_str()));
 
 	// apply di-photon level smearings and corrections
-        int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,0);
+        int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories);
         if( cur_type != 0 && doMCSmearing ) {
 	    applyDiPhotonSmearings(Higgs, *vtx, selectioncategory, cur_type, *((TVector3*)l.gv_pos->At(0)), evweight, 
 				   phoid_mvaout_lead,phoid_mvaout_sublead,
