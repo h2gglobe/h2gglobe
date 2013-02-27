@@ -107,6 +107,7 @@ class PhotonAnalysis : public BaseAnalysis
 
     bool saveDatacardTrees_;
     bool saveSpinTrees_;
+    bool cutbasedcats;
 
     // Preselection indexes
     float presel_scet1, presel_scet2, presel_maxeta;

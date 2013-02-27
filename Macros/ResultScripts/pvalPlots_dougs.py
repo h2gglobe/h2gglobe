@@ -40,11 +40,9 @@ Sigmas=4
 #Energy=[7,8]
 intlumi=[19.6]
 Energy=[8]
-legands=[]
-legands=
 #legands=["7 and 8TeV Observed","7 and 8TeV Expected","8TeV Observed","8TeV Expected","7TeV Observed","7TeV Expected"]
 #legands=["Combined Observed", "8TeV Inclusive Categories", "8TeV DiJet Tag", "8TeV Muon Tag", "8TeV Electron Tag", "8TeV MET Tag", "7TeV Inclusive Categories", "7TeV DiJet Tag"]
-legands=["Combined Observed", "Inclusive Categories", "DiJet Categories", "Lepton Categories", "MET Category","","","","",""]
+legands=["Common Events - MVA Cats - Obs", "Common Events - MVA Cats - Exp", "Common Events - CiC Cats - Obs", "Common Events - CiC Cats - Exp", "Nominal MVA - Exp", "Nominal CiC - Exp"]
 FrequantistPValues=[]
 #FrequantistPValues=["higgsCombinePValue.HybridNew.mH125.0.root"]
 #FrequantistPValues=["higgsCombinePValue.HybridNew.mH123.5.root","higgsCombinePValue.HybridNew.mH124.0.root","higgsCombinePValue.HybridNew.mH124.5.root","higgsCombinePValue.HybridNew.mH125.0.root","higgsCombinePValue.HybridNew.mH125.5.root","higgsCombinePValue.HybridNew.mH126.0.root"]
@@ -66,12 +64,12 @@ elif len(legands)==0:
     else: legands.append("Category "+str(i))
 
 #colors = [ kBlack, kRed, kOrange, kGreen, kCyan, kBlue, kMagenta, 28]
-colors = [ kBlack, kRed, kGreen, kCyan, kBlue, kBlack, kRed, kGreen, kCyan, kBlue]
-styles = [1, 1, 1, 1, 1, 7, 7, 7, 7, 7]
+#colors = [ kBlack, kRed, kGreen, kCyan, kBlue, kBlack, kRed, kGreen, kCyan, kBlue]
+#styles = [1, 1, 1, 1, 1, 7, 7, 7, 7, 7]
 #styles = [1, 1, 1, 1, 1, 1, 1, 1]
 #colors = [ kRed, kBlue, kRed, kBlue]
-#colors = [ kBlack, kBlack, kRed, kRed, kBlue, kBlue]
-#styles = [ 1, 7, 1, 7, 1, 7]
+colors = [ kBlue, kBlue, kRed, kRed, kBlue+2, kRed+2]
+styles = [ 1, 7, 1, 7, 7, 7]
 
 
 multigraph = TMultiGraph()

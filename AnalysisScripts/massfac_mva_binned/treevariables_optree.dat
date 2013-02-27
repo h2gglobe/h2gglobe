@@ -1,9 +1,9 @@
-->
-Declare Branches for flat tree which will be saved in output
-delare:
-	type=0,1,2,3 (int, unsigned int, float, double)
-	name=name 
-->
+
+#Declare Branches for flat tree which will be saved in output
+#delare:
+#type=0,1,2,3 (int, unsigned int, float, double)
+#name=name 
+
 
 
 type=2 name=run

@@ -17,6 +17,7 @@ MassFactorizedMvaAnalysis::MassFactorizedMvaAnalysis()  :
 
     systRange  = 3.; // in units of sigma
     nSystSteps = 1;
+    cutbasedcats = false;
 
     forceStdPlotsOnZee = false;
 
@@ -772,6 +773,38 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
             computeExclusiveCategory(l,category,diphoton_index,Higgs.Pt()); 
         }
 
+
+        // Adding CiC requirement on photons
+        std::vector<std::vector<bool> > ph_passcut;
+        int ncategories=4;
+        // Common Events
+        // CiC photon cuts
+        if( l.PhotonCiCSelectionLevel(diphoton_index.first,  l.dipho_vtxind[diphoton_id], ph_passcut, ncategories, 0, &smeared_pho_energy[0] ) < l.phoSUPERTIGHT || l.PhotonCiCSelectionLevel(diphoton_index.second, l.dipho_vtxind[diphoton_id], ph_passcut, ncategories, 1, &smeared_pho_energy[0] ) < l.phoSUPERTIGHT ) { category=-1; }
+
+
+        if( category==4 || category==5 ) {
+
+            // cut-based di-jet selection
+            if(lead_p4.Et()/mass < 0.5) category==-1;
+            else if(myVBFLeadJPt < 30) category==-1;
+            else if(myVBFSubJPt< 20) category==-1;
+            else if(myVBFdEta<3.0) category==-1;
+            else if(myVBFZep>2.5) category==-1;
+            else if(myVBFdPhi<2.6) category==-1;
+            else if(myVBF_Mjj<250) category==-1;
+
+            // cut-based di-jet cats
+            if(category!=-1&&cutbasedcats){
+                if(myVBF_Mjj>500 && myVBFSubJPt>30) category=4;
+                else category=5;
+            }
+
+        }
+        // CiC cats
+        if(cutbasedcats){
+	        if(category>-1 && category<nInclusiveCategories_) category=l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),2,2);
+        }
+
         if (fillOptTree) {
             std::string name;
             if (genSys != 0)
@@ -791,6 +824,8 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
                     myVBFSubJPt, nVBFDijetJetCategories, isSyst, name);
 
         }
+
+        if(category==-1) return false;
 
         if (PADEBUG) std::cout << " Diphoton Category " <<category <<std::endl;
         // sanity check
