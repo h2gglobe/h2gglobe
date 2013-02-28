@@ -19,7 +19,7 @@
 using namespace std;
 using namespace RooFit;
 
-SimultaneousFit::SimultaneousFit(string infilename, string outfilename, int mhLow, int mhHigh, int verbose, int nInclusiveCats, int nExclusiveCats):
+SimultaneousFit::SimultaneousFit(string infilename, string outfilename, int mhLow, int mhHigh, int verbose, int nInclusiveCats, int nExclusiveCats, bool SMasBkg, bool SecHiggs, bool NatWidth):
   mhLow_(mhLow),
   mhHigh_(mhHigh),
   verbose_(verbose),
@@ -32,6 +32,9 @@ SimultaneousFit::SimultaneousFit(string infilename, string outfilename, int mhLo
   forceFracUnity_(true),
   systematicsSet_(false),
   loadPriorConstraints_(false),
+  doSMHiggsAsBackground_(SMasBkg),
+  doSecondHiggs_(SecHiggs),
+  doNaturalWidth_(NatWidth),
   fork_(1),
   saveExtraFile_(false)
 {
@@ -41,7 +44,7 @@ SimultaneousFit::SimultaneousFit(string infilename, string outfilename, int mhLo
   inFile = TFile::Open(infilename.c_str());
   outFile = new TFile(outfilename.c_str(),"RECREATE");
   outWS = new RooWorkspace("wsig");
-  
+
   normalization = new Normalization_8TeV();
   xsecsGraph.insert(pair<string,TGraph*>("ggh",normalization->GetSigmaGraph("ggh")));
   xsecsGraph.insert(pair<string,TGraph*>("vbf",normalization->GetSigmaGraph("vbf")));
@@ -383,40 +386,130 @@ RooAddPdf *SimultaneousFit::buildFinalPdf(string name, int nGaussians, bool recu
 
   RooArgList *gaussians = new RooArgList();
   RooArgList *coeffs = new RooArgList();
+ 
+  // for SM Higgs as Background
+  RooArgList *gaussians_SM = new RooArgList();
+  RooArgList *coeffs_SM = new RooArgList();
+  
+  // for Second Higgs
+  RooArgList *gaussians_2 = new RooArgList();
+  RooArgList *coeffs_2 = new RooArgList();
+
+  // for Natural Width
+  RooArgList *voigtians_NW = new RooArgList();
+  RooArgList *coeffs_NW = new RooArgList();
   
   for (int g=0; g<nGaussians; g++){
-    
+   
+    // Gaussian mean
     RooAbsReal *dm = findFormVar(Form("const_func_dm_g%d_%s_cat%d",g,proc.c_str(),cat));
-    if (linearInterp_) dm = findHistFunc(Form("hist_func_dm_g%d_%s_cat%d",g,proc.c_str(),cat));
-    //RooFormulaVar *dm = findFormVar(Form("const_func_dm_g%d_%s_cat%d",g,proc.c_str(),cat));
-    //RooFormulaVar *mean = new RooFormulaVar(Form("hgg_mean_g%d_%s_cat%d",g,proc.c_str(),cat),Form("mean_g%d_%s_cat%d",g,proc.c_str(),cat),"@0+@1",RooArgList(*MH,*dm));
+    RooAbsReal *dm_SM=NULL; 
+    RooAbsReal *dm_2=NULL; 
+    if (linearInterp_) {
+      dm = findHistFunc(Form("hist_func_dm_g%d_%s_cat%d",g,proc.c_str(),cat));
+      if (doSMHiggsAsBackground_) dm_SM = findHistFunc(Form("hist_func_dm_g%d_%s_cat%d_SM",g,proc.c_str(),cat));
+      if (doSecondHiggs_) dm_2 = findSpline1D(Form("hist_func_dm_g%d_%s_cat%d_2",g,proc.c_str(),cat));
+    }
     RooFormulaVar *mean = new RooFormulaVar(Form("hgg_mean_g%d_%s_cat%d",g,proc.c_str(),cat),Form("mean_g%d_%s_cat%d",g,proc.c_str(),cat),"@0+@1+@0*(@2+@3)",RooArgList(*MH,*dm,*globalScale,*categoryScale));
-    RooAbsReal *sig_fit = findFormVar(Form("const_func_sigma_g%d_%s_cat%d",g,proc.c_str(),cat));
-    if (linearInterp_) sig_fit = findHistFunc(Form("hist_func_sigma_g%d_%s_cat%d",g,proc.c_str(),cat)); 
-    //RooFormulaVar *sigma = findFormVar(Form("const_func_sigma_g%d_%s_cat%d",g,proc.c_str(),cat));
-    //RooFormulaVar *sig_fit = findFormVar(Form("const_func_sigma_g%d_%s_cat%d",g,proc.c_str(),cat));
-    RooFormulaVar *sigma = new RooFormulaVar(Form("hgg_sigma_g%d_%s_cat%d",g,proc.c_str(),cat),Form("hgg_sigma_g%d_%s_cat%d",g,proc.c_str(),cat),"TMath::Sqrt(TMath::Power(@0,2)-TMath::Power(@1*@2,2)+TMath::Power(@1*(@2+@3),2))",RooArgList(*sig_fit,*MH,*categorySmear,*categoryResolution));
-    RooGaussian *gaus = new RooGaussian(Form("hgg_gaus_g%d_%s_cat%d",g,proc.c_str(),cat),Form("hgg_gaus_g%d_%s_cat%d",g,proc.c_str(),cat),*mass,*mean,*sigma);
+    RooFormulaVar *mean_SM=NULL;
+    RooFormulaVar *mean_2=NULL;
+    if (doSMHiggsAsBackground_) mean_SM = new RooFormulaVar(Form("hgg_mean_g%d_%s_cat%d_SM",g,proc.c_str(),cat),Form("mean_g%d_%s_cat%d_SM",g,proc.c_str(),cat),"@0+@1+@0*(@2+@3)",RooArgList(*MH_SM,*dm_SM,*globalScale,*categoryScale));
+    if (doSecondHiggs_) mean_2 = new RooFormulaVar(Form("hgg_mean_g%d_%s_cat%d_2",g,proc.c_str(),cat),Form("mean_g%d_%s_cat%d_2",g,proc.c_str(),cat),"@0+@1+@0*(@2+@3)",RooArgList(*MH_2,*dm_2,*globalScale,*categoryScale));
 
+    // Gaussian sigma
+    RooAbsReal *sig_fit = findFormVar(Form("const_func_sigma_g%d_%s_cat%d",g,proc.c_str(),cat));
+    RooAbsReal *sig_fit_SM=NULL;
+    RooAbsReal *sig_fit_2=NULL;
+    if (linearInterp_) {
+      sig_fit = findHistFunc(Form("hist_func_sigma_g%d_%s_cat%d",g,proc.c_str(),cat)); 
+      if (doSMHiggsAsBackground_) sig_fit_SM = findHistFunc(Form("hist_func_sigma_g%d_%s_cat%d_SM",g,proc.c_str(),cat)); 
+      if (doSecondHiggs_) sig_fit_2 = findSpline1D(Form("hist_func_sigma_g%d_%s_cat%d_2",g,proc.c_str(),cat)); 
+    }
+    RooFormulaVar *sigma = new RooFormulaVar(Form("hgg_sigma_g%d_%s_cat%d",g,proc.c_str(),cat),Form("hgg_sigma_g%d_%s_cat%d",g,proc.c_str(),cat),"TMath::Sqrt(TMath::Power(@0,2)-TMath::Power(@1*@2,2)+TMath::Power(@1*(@2+@3),2))",RooArgList(*sig_fit,*MH,*categorySmear,*categoryResolution));
+    RooFormulaVar *sigma_SM=NULL;
+    RooFormulaVar *sigma_2=NULL;
+    if (doSMHiggsAsBackground_) sigma_SM = new RooFormulaVar(Form("hgg_sigma_g%d_%s_cat%d_SM",g,proc.c_str(),cat),Form("hgg_sigma_g%d_%s_cat%d_SM",g,proc.c_str(),cat),"TMath::Sqrt(TMath::Power(@0,2)-TMath::Power(@1*@2,2)+TMath::Power(@1*(@2+@3),2))",RooArgList(*sig_fit_SM,*MH_SM,*categorySmear,*categoryResolution));
+    if (doSecondHiggs_) sigma_2 = new RooFormulaVar(Form("hgg_sigma_g%d_%s_cat%d_2",g,proc.c_str(),cat),Form("hgg_sigma_g%d_%s_cat%d_2",g,proc.c_str(),cat),"TMath::Sqrt(TMath::Power(@0,2)-TMath::Power(@1*@2,2)+TMath::Power(@1*(@2+@3),2))",RooArgList(*sig_fit_2,*MH_2,*categorySmear,*categoryResolution));
+    
+    // make Gaussians
+    RooGaussian *gaus = new RooGaussian(Form("hgg_gaus_g%d_%s_cat%d",g,proc.c_str(),cat),Form("hgg_gaus_g%d_%s_cat%d",g,proc.c_str(),cat),*mass,*mean,*sigma);
+    RooGaussian *gaus_SM=NULL;
+    RooGaussian *gaus_2=NULL;
+    RooVoigtian *voig_NW=NULL;
+    if (doSMHiggsAsBackground_) gaus_SM = new RooGaussian(Form("hgg_gaus_g%d_%s_cat%d_SM",g,proc.c_str(),cat),Form("hgg_gaus_g%d_%s_cat%d_SM",g,proc.c_str(),cat),*mass,*mean_SM,*sigma_SM);
+    if (doSecondHiggs_) gaus_2 = new RooGaussian(Form("hgg_gaus_g%d_%s_cat%d_2",g,proc.c_str(),cat),Form("hgg_gaus_g%d_%s_cat%d_2",g,proc.c_str(),cat),*mass,*mean_2,*sigma_2);
+    if (doNaturalWidth_) voig_NW = new RooVoigtian(Form("hgg_voig_g%d_%s_cat%d_NW",g,proc.c_str(),cat),Form("hgg_voig_g%d_%s_cat%d_NW",g,proc.c_str(),cat),*mass,*mean,*higgsDecayWidth,*sigma);
+    
     meanParams.insert(pair<string,RooFormulaVar*>(string(mean->GetName()),mean));
     finalGaussians.insert(pair<string,RooGaussian*>(string(gaus->GetName()),gaus));
-    gaussians->add(*gaus);
+    if (doSMHiggsAsBackground_){
+      meanParams.insert(pair<string,RooFormulaVar*>(string(mean_SM->GetName()),mean_SM));
+      finalGaussians.insert(pair<string,RooGaussian*>(string(gaus_SM->GetName()),gaus_SM));
+    }
+    if (doSMHiggsAsBackground_){
+      meanParams.insert(pair<string,RooFormulaVar*>(string(mean_SM->GetName()),mean_SM));
+      finalGaussians.insert(pair<string,RooGaussian*>(string(gaus_SM->GetName()),gaus_SM));
+    }
+    if (doNaturalWidth_){
+      finalVoigtians.insert(pair<string,RooVoigtian*>(string(voig_NW->GetName()),voig_NW));
+    }
 
+    gaussians->add(*gaus);
+    if (doSMHiggsAsBackground_) gaussians_SM->add(*gaus_SM);
+    if (doSecondHiggs_) gaussians_2->add(*gaus_2);
+    if (doNaturalWidth_) voigtians_NW->add(*voig_NW); 
+
+    // do fracs
     if (g<nGaussians-1) {
       RooAbsReal *frac = findFormVar(Form("const_func_frac_g%d_%s_cat%d",g,proc.c_str(),cat));
-      if (linearInterp_) frac = findHistFunc(Form("hist_func_frac_g%d_%s_cat%d",g,proc.c_str(),cat));
-      //RooFormulaVar *frac = findFormVar(Form("const_func_frac_g%d_%s_cat%d",g,proc.c_str(),cat));
+      RooAbsReal *frac_SM=NULL;
+      RooAbsReal *frac_2=NULL;
+      if (linearInterp_) {
+        frac = findHistFunc(Form("hist_func_frac_g%d_%s_cat%d",g,proc.c_str(),cat));
+        if (doSMHiggsAsBackground_) frac_SM = findHistFunc(Form("hist_func_frac_g%d_%s_cat%d_SM",g,proc.c_str(),cat));
+        if (doSecondHiggs_) frac_2 = findSpline1D(Form("hist_func_frac_g%d_%s_cat%d_2",g,proc.c_str(),cat));
+      }
       coeffs->add(*frac);
+      if (doSMHiggsAsBackground_) coeffs_SM->add(*frac_SM);
+      if (doSecondHiggs_) coeffs_2->add(*frac_2);
+      if (doNaturalWidth_) coeffs_NW->add(*frac);
     }
     if (g==nGaussians-1 && forceFracUnity_) {
       string formula="1.";
       for (int i=0; i<nGaussians-1; i++) formula += Form("-@%d",i);
+      if (verbose_) cout << "Forcing frac unity with formula " << formula << endl;
+
       RooFormulaVar *recFrac = new RooFormulaVar(Form("const_func_frac_g%d_%s_cat%d",g,proc.c_str(),cat),Form("const_func_frac_g%d_%s_cat%d",g,proc.c_str(),cat),formula.c_str(),*coeffs);
       recfracParams.insert(pair<string,RooFormulaVar*>(string(recFrac->GetName()),recFrac));
       coeffs->add(*recFrac);
+      
+      RooFormulaVar *recFrac_SM, *recFrac_2;
+      if (doSMHiggsAsBackground_) {
+        recFrac_SM = new RooFormulaVar(Form("const_func_frac_g%d_%s_cat%d_SM",g,proc.c_str(),cat),Form("const_func_frac_g%d_%s_cat%d_SM",g,proc.c_str(),cat),formula.c_str(),*coeffs_SM);
+        recfracParams.insert(pair<string,RooFormulaVar*>(string(recFrac_SM->GetName()),recFrac_SM));
+        coeffs_SM->add(*recFrac_SM);
+      }
+      if (doSecondHiggs_) { 
+        recFrac_2 = new RooFormulaVar(Form("const_func_frac_g%d_%s_cat%d_2",g,proc.c_str(),cat),Form("const_func_frac_g%d_%s_cat%d_2",g,proc.c_str(),cat),formula.c_str(),*coeffs_2);
+        recfracParams.insert(pair<string,RooFormulaVar*>(string(recFrac_2->GetName()),recFrac_2));
+        coeffs_2->add(*recFrac_2);
+      }
+      if (doNaturalWidth_) coeffs_NW->add(*recFrac);
     }
   }
   assert(gaussians->getSize()==nGaussians && coeffs->getSize()==nGaussians-(1*!forceFracUnity_));
+  if (doSMHiggsAsBackground_) {
+    assert(gaussians_SM->getSize()==nGaussians && coeffs_SM->getSize()==nGaussians-(1*!forceFracUnity_));
+    smHiggsBkgPdf = new RooAddPdf(Form("%s_SM",name.c_str()),Form("%s_SM",name.c_str()),*gaussians_SM,*coeffs_SM,recursive);
+  }
+  if (doSecondHiggs_) {
+    assert(gaussians_2->getSize()==nGaussians && coeffs_2->getSize()==nGaussians-(1*!forceFracUnity_));
+    secondHiggsPdf = new RooAddPdf(Form("%s_2",name.c_str()),Form("%s_2",name.c_str()),*gaussians_2,*coeffs_2,recursive);
+  }
+  if (doNaturalWidth_) {
+    assert(voigtians_NW->getSize()==nGaussians && coeffs_NW->getSize()==nGaussians-(1*!forceFracUnity_));
+    naturalWidthPdf = new RooAddPdf(Form("%s_NW",name.c_str()),Form("%s_NW",name.c_str()),*voigtians_NW,*coeffs_NW,recursive);
+  }
   return new RooAddPdf(name.c_str(),name.c_str(),*gaussians,*coeffs,recursive);
 
 }
@@ -523,6 +616,11 @@ RooFormulaVar* SimultaneousFit::findFormVar(string name){
 RooHistFunc* SimultaneousFit::findHistFunc(string name){
   assert(histFuncs.find(name)!=histFuncs.end());
   return histFuncs[name];
+}
+
+RooSpline1D* SimultaneousFit::findSpline1D(string name){
+  assert(spline1Ds.find(name)!=spline1Ds.end());
+  return spline1Ds[name];
 }
 
 // with const params
@@ -802,29 +900,6 @@ void SimultaneousFit::fitTH1Fs(int nGaussians, int dmOrder, int sigmaOrder, int 
   }
 }
 
-void SimultaneousFit::makeHistFunc(string name, int order, string proc, int cat){
-  
-  string thname = "th_"+name;
-  map<string,TH1F*>::iterator th1f = th1fs.find(thname);
-  if (th1f!=th1fs.end()){
-    RooDataHist *dHist = new RooDataHist(Form("dHist_%s_%s_cat%d",name.c_str(),proc.c_str(),cat),Form("dHist_%s_%s_cat%d",name.c_str(),proc.c_str(),cat),RooArgList(*MH),th1f->second);
-    dHists.insert(pair<string,RooDataHist*>(dHist->GetName(),dHist));
-    RooHistFunc *hFunc = new RooHistFunc(Form("hist_func_%s_%s_cat%d",name.c_str(),proc.c_str(),cat),Form("hist_func_%s_%s_cat%d",name.c_str(),proc.c_str(),cat),RooArgSet(*MH),*dHist,1);
-    histFuncs.insert(pair<string,RooHistFunc*>(hFunc->GetName(),hFunc));
-    
-    TCanvas *canv = new TCanvas();
-    RooPlot *plot = MH->frame(Range(110,150));
-    hFunc->plotOn(plot);
-    plot->Draw();
-    canv->Print(Form("plots/initialFit/%s_cat%d/%s.pdf",proc.c_str(),cat,dHist->GetName()));
-    canv->Print(Form("plots/initialFit/%s_cat%d/%s.png",proc.c_str(),cat,dHist->GetName()));
-  }
-  else {
-    cout << "TH1F - " << thname << " not found" << endl;
-    exit(1);
-  }
-}
-
 void SimultaneousFit::loadPriorConstraints(string filename, int mh){
   
   dumpFitParams();
@@ -841,7 +916,7 @@ void SimultaneousFit::loadPriorConstraints(string filename, int mh){
     string gausN = name.substr(name.find("_g"),string::npos);
     string paramName = var+gausN;
     int mhS = boost::lexical_cast<int>(name.substr(name.find("_mh")+3,name.find("_g")-name.find("_mh")-3));
-    double val_constraint = 0.1;
+    double val_constraint = 0.01;
     if (verbose_>=2) cout << paramName << " " << mhS << " " << val << endl;
     if (mhS==mh) {
       fitParams[paramName]->setVal(val);
@@ -852,6 +927,47 @@ void SimultaneousFit::loadPriorConstraints(string filename, int mh){
   datfile.close();
   dumpFitParams();
 
+}
+
+void SimultaneousFit::makeHistFunc(string name, int order, string proc, int cat){
+  
+  string thname = "th_"+name;
+  map<string,TH1F*>::iterator th1f = th1fs.find(thname);
+  if (th1f!=th1fs.end()){
+    // store the values in vectors for the RooSpline1D
+    vector<double> xvalues, yvalues;
+    for (int bin=1; bin<=th1f->second->GetNbinsX(); bin++){
+      xvalues.push_back(th1f->second->GetBinCenter(bin));
+      yvalues.push_back(th1f->second->GetBinContent(bin));
+    }
+
+    RooDataHist *dHist = new RooDataHist(Form("dHist_%s_%s_cat%d",name.c_str(),proc.c_str(),cat),Form("dHist_%s_%s_cat%d",name.c_str(),proc.c_str(),cat),RooArgList(*MH),th1f->second);
+    dHists.insert(pair<string,RooDataHist*>(dHist->GetName(),dHist));
+    RooHistFunc *hFunc = new RooHistFunc(Form("hist_func_%s_%s_cat%d",name.c_str(),proc.c_str(),cat),Form("hist_func_%s_%s_cat%d",name.c_str(),proc.c_str(),cat),RooArgSet(*MH),*dHist,1);
+    histFuncs.insert(pair<string,RooHistFunc*>(hFunc->GetName(),hFunc));
+    if (doSMHiggsAsBackground_){
+      RooDataHist *dHistSM = new RooDataHist(Form("dHist_%s_%s_cat%d_SM",name.c_str(),proc.c_str(),cat),Form("dHist_%s_%s_cat%d_SM",name.c_str(),proc.c_str(),cat),RooArgList(*MH_SM),th1f->second);
+      RooHistFunc *hFuncSM = new RooHistFunc(Form("hist_func_%s_%s_cat%d_SM",name.c_str(),proc.c_str(),cat),Form("hist_func_%s_%s_cat%d_SM",name.c_str(),proc.c_str(),cat),RooArgSet(*MH_SM),*dHistSM,1);
+      histFuncs.insert(pair<string,RooHistFunc*>(hFuncSM->GetName(),hFuncSM));
+    }
+    // as this depends on a RooFormulaVar MH_2 = (MH+DeltaM) we cannot use a RooHistFunc
+    // instead use RooSpline1D implementation from HiggsAnalysis/CombinedLimit
+    if (doSecondHiggs_){
+      RooSpline1D *spline2 = new RooSpline1D(Form("hist_func_%s_%s_cat%d_2",name.c_str(),proc.c_str(),cat),Form("hist_func_%s_%s_cat%d_2",name.c_str(),proc.c_str(),cat),*MH_2,xvalues.size(),&(xvalues[0]),&(yvalues[0]));
+      spline1Ds.insert(pair<string,RooSpline1D*>(spline2->GetName(),spline2)); 
+    }
+    
+    TCanvas *canv = new TCanvas();
+    RooPlot *plot = MH->frame(Range(110,150));
+    hFunc->plotOn(plot);
+    plot->Draw();
+    canv->Print(Form("plots/initialFit/%s_cat%d/%s.pdf",proc.c_str(),cat,dHist->GetName()));
+    canv->Print(Form("plots/initialFit/%s_cat%d/%s.png",proc.c_str(),cat,dHist->GetName()));
+  }
+  else {
+    cout << "TH1F - " << thname << " not found" << endl;
+    exit(1);
+  }
 }
 
 void SimultaneousFit::makeHistFuncs(int nGaussians, int dmOrder, int sigmaOrder, int fracOrder, string proc, int cat){
@@ -893,6 +1009,25 @@ void SimultaneousFit::runFit(string proc, int cat, int nGaussians, int dmOrder, 
   // mh for FormulaVars
   MH = new RooRealVar("MH","m_{H}",mhLow_-2.5,mhHigh_+2.5);
   MH->setUnit("GeV");
+
+  // model extensions
+  if ((simultaneousFit_ || mhDependentFit_) && (doSMHiggsAsBackground_ || doSecondHiggs_ || doNaturalWidth_)) {
+    cout << "The model extensions are not yet implemented for the simultaneousFit and mhDependentFit methods" << endl;
+    exit(1);
+  }
+  if (doSMHiggsAsBackground_) {
+    MH_SM = new RooRealVar("MH_SM","m_{H} (SM)",mhLow_=-2.5,mhHigh_+2.5);
+    MH_SM->setUnit("GeV");
+  }
+  if (doSecondHiggs_) {
+    DeltaM = new RooRealVar("DeltaMH","#Delta m_{H}",0.,-10.,10.);
+    //MH_2 = new RooFormulaVar("MH_2","m_{H} (2)","@0+@1",RooArgList(*MH,*DeltaM));
+    MH_2 = new RooAddition("MH_2","m_{H} (2)",RooArgList(*MH,*DeltaM));
+  }
+  if (doNaturalWidth_){
+    higgsDecayWidth = new RooRealVar("HiggsDecayWidth","#Gamma_{H}",0.,0.,10.);
+  }
+
 
   RooAddPdf *sigModel = getSumOfGaussians(nGaussians,recursive);
 
@@ -957,14 +1092,14 @@ void SimultaneousFit::runFit(string proc, int cat, int nGaussians, int dmOrder, 
   
   // Gaussian ordering
   // ordering type = 0 by mass 1 by sigma 2 by frac
-  orderGaussians(nGaussians,recursive,0);
+  if (!loadPriorConstraints_) orderGaussians(nGaussians,recursive,0);
 
   // Fit TH1F to find starting values
   fitTH1Fs(nGaussians,dmOrder,sigmaOrder,fracOrder,proc,cat,setToFitValues);
   
   // make the RooHistFuncs for the parameters
   makeHistFuncs(nGaussians,dmOrder,sigmaOrder,fracOrder,proc,cat);
-  if (!loadPriorConstraints_) dumpStartVals(Form("dat/out/initFit_%s_cat%d.dat",proc.c_str(),cat));
+  dumpStartVals(Form("dat/out/initFit_%s_cat%d.dat",proc.c_str(),cat));
 
   // Set up the simultaneous fit
   constructFormulaVars(nGaussians,dmOrder,sigmaOrder,fracOrder,proc,cat);
@@ -1152,8 +1287,22 @@ void SimultaneousFit::runFit(string proc, int cat, int nGaussians, int dmOrder, 
   freezePolParams();
   makeEffAccFunc(work,proc,cat);
   makeExtendPdf(proc,cat);
-  outWS->import(*extendPdfRel);
+  //outWS->import(*extendPdfRel);
+  outWS->import(*finalPdf);
+  outWS->import(*funcEffAccRel);
   outWS->import(*funcEffAcc);
+  if (doSMHiggsAsBackground_){
+    outWS->import(*smHiggsBkgPdf);
+    outWS->import(*funcEffAccRel_SM);
+  }
+  if (doSecondHiggs_){
+    outWS->import(*secondHiggsPdf);
+    outWS->import(*funcEffAccRel_2);
+  }
+  if (doNaturalWidth_){
+    outWS->import(*naturalWidthPdf,RecycleConflictNodes());
+    outWS->import(*funcEffAccRel_NW);
+  }
   putDataInWS(work,proc,cat);
   plotPDF(proc,cat);
 
@@ -1183,6 +1332,8 @@ void SimultaneousFit::makeEffAccFunc(RooWorkspace *inWS, string proc, int cat){
 
   TH1F *th1f_eA = new TH1F("eAcc","eAcc",400,110,150);
   TH1F *th1f_norm = new TH1F("norm","norm",400,110,150);
+  vector<double> xvalues, yvalues;
+  
   for (int i=1; i<=th1f_eA->GetNbinsX(); i++) {
     double mh = th1f_eA->GetBinCenter(i);
     double effAcc = eA->Eval(mh);
@@ -1190,12 +1341,24 @@ void SimultaneousFit::makeEffAccFunc(RooWorkspace *inWS, string proc, int cat){
 
     th1f_eA->SetBinContent(i,effAcc);
     th1f_norm->SetBinContent(i,norm);
+    xvalues.push_back(th1f_norm->GetBinCenter(i));
+    yvalues.push_back(th1f_norm->GetBinContent(i));
   }
   RooDataHist *dHist_eA = new RooDataHist("dHist_eA","dHist_eA",RooArgList(*MH),th1f_eA);
   RooDataHist *dHist_norm = new RooDataHist("dHist_norm","dHist_norm",RooArgList(*MH),th1f_norm);
   
   funcEffAcc = new RooHistFunc(Form("hggpdfea_%s_cat%d_norm",proc.c_str(),cat),Form("hggpdfea_%s_cat%d_norm",proc.c_str(),cat),RooArgSet(*MH),*dHist_eA,2);
   funcEffAccRel = new RooHistFunc(Form("hggpdfrel_%s_cat%d_norm",proc.c_str(),cat),Form("hggpdfrel_%s_cat%d_norm",proc.c_str(),cat),RooArgSet(*MH),*dHist_norm,2);
+
+  // model extensions
+  if (doSMHiggsAsBackground_) {
+    RooDataHist *dHist_SM_norm = new RooDataHist("dHist_SM_norm","dHist_SM_norm",RooArgList(*MH_SM),th1f_norm);
+    funcEffAccRel_SM = new RooHistFunc(Form("hggpdfrel_%s_cat%d_SM_norm",proc.c_str(),cat),Form("hggpdfrel_%s_cat%d_SM_norm",proc.c_str(),cat),RooArgSet(*MH_SM),*dHist_SM_norm,2);
+  }
+  if (doSecondHiggs_) {
+    funcEffAccRel_2 = new RooSpline1D(Form("hggpdfrel_%s_cat%d_2_norm",proc.c_str(),cat),Form("hggpdfrel_%s_cat%d_2_norm",proc.c_str(),cat),*MH_2,xvalues.size(),&(xvalues[0]),&(yvalues[0]));
+  }
+  if (doNaturalWidth_) funcEffAccRel_NW = new RooHistFunc(Form("hggpdfrel_%s_cat%d_NW_norm",proc.c_str(),cat),Form("hggpdfrel_%s_cat%d_NW_norm",proc.c_str(),cat),RooArgSet(*MH),*dHist_norm,2);
   
   TCanvas *canv = new TCanvas();
   RooPlot *plot = MH->frame(Range(110,150),Title("#epsilon#times#alpha"));

@@ -25,6 +25,9 @@ int nGaussians_;
 int dmOrder_;
 int sigmaOrder_;
 int fracOrder_;
+bool doSMHiggsAsBackground_=true;
+bool doSecondHiggs_=true;
+bool doNaturalWidth_=true;
 bool recursive_=false;
 bool forceFracUnity_=true;
 int verbose_=0;
@@ -62,6 +65,9 @@ void OptionParser(int argc, char *argv[]){
     ("dmOrder", po::value<int>(&dmOrder_)->default_value(1),                                  "Order of dm polynomial")
     ("sigmaOrder", po::value<int>(&sigmaOrder_)->default_value(2),                            "Order of sigma polynomial")
     ("fracOrder", po::value<int>(&fracOrder_)->default_value(1),                              "Order of frac polynomial")
+    ("noSMHiggsAsBackground",                                                                 "Turn off creation of additional model for SM Higgs as background")
+    ("noSecondHiggs",                                                                         "Turn off creation of additional model for a second Higgs")
+    ("noNaturalWidth",                                                                        "Turn off creation of additional model for natural width of the Higgs")
     ("recursive",                                                                             "Recursively calculate gaussian fractions")
     ("fracUnity",                                                                             "Relax fraction unity")
     ("noInitialFit",                                                                          "Do not run initial fit")
@@ -84,22 +90,25 @@ void OptionParser(int argc, char *argv[]){
   po::store(po::parse_command_line(argc,argv,desc),vm);
   po::notify(vm);
   if (vm.count("help")){ cout << desc << endl; exit(1);}
-  if (vm.count("recursive"))        recursive_=true;
-  if (vm.count("fracUnity"))        forceFracUnity_=false;
-  if (vm.count("noInitialFit"))     initialFit_=false;
-  if (vm.count("onlyInitialFit"))   onlyInitialFit_=true;
-  if (vm.count("linearInterp"))     linearInterp_=true;
+  if (vm.count("noSMHiggsAsBackground"))    doSMHiggsAsBackground_=false;
+  if (vm.count("noSecondHiggs"))            doSecondHiggs_=false;
+  if (vm.count("noNaturalWidth"))           doNaturalWidth_=false;
+  if (vm.count("recursive"))                recursive_=true;
+  if (vm.count("fracUnity"))                forceFracUnity_=false;
+  if (vm.count("noInitialFit"))             initialFit_=false;
+  if (vm.count("onlyInitialFit"))           onlyInitialFit_=true;
+  if (vm.count("linearInterp"))             linearInterp_=true;
   if (vm.count("loadPriorConstraints"))     loadPriorConstraints_=true;
-  if (vm.count("setToFitValues"))   setToFitValues_=true;
+  if (vm.count("setToFitValues"))           setToFitValues_=true;
   if (vm.count("mhFit")){           
-                                    mhDependentFit_=true;
-                                    simultaneousFit_=false;
+                                            mhDependentFit_=true;
+                                            simultaneousFit_=false;
   }
-  if (vm.count("dumpVars"))         dumpVars_=true;
-  if (vm.count("clean"))            clean_=true;
-  if (vm.count("save"))             saveExtra_=true;
-  if (vm.count("html"))             web_=true;
-  if (forkN_<2)                     fork_=false;
+  if (vm.count("dumpVars"))                 dumpVars_=true;
+  if (vm.count("clean"))                    clean_=true;
+  if (vm.count("save"))                     saveExtra_=true;
+  if (vm.count("html"))                     web_=true;
+  if (forkN_<2)                             fork_=false;
 }
 
 int main (int argc, char *argv[]){
@@ -114,7 +123,7 @@ int main (int argc, char *argv[]){
     system("rm -rf plots/*");
   }
 
-  SimultaneousFit *simultaneousFit = new SimultaneousFit(filename_,outfilename_,mhLow_,mhHigh_,verbose_,nInclusiveCats_,nExclusiveCats_);
+  SimultaneousFit *simultaneousFit = new SimultaneousFit(filename_,outfilename_,mhLow_,mhHigh_,verbose_,nInclusiveCats_,nExclusiveCats_,doSMHiggsAsBackground_,doSecondHiggs_,doNaturalWidth_);
   simultaneousFit->setInitialFit(initialFit_);
   simultaneousFit->setSimultaneousFit(simultaneousFit_);
   simultaneousFit->setMHDependentFit(mhDependentFit_);

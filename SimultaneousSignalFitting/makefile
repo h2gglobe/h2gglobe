@@ -18,6 +18,13 @@ endif
 UNAME := $(shell uname)
 BASEDIR = $(shell pwd)
 
+# make sure inside CMSSW release (this is essential for getting RooSpline1D from combine package)
+ifndef CMSSW_BASE
+$(error Must be inside a CMSSSW release)
+endif
+
+COMBINELIB = $(CMSSW_BASE)/lib/$(SCRAM_ARCH)/libHiggsAnalysisCombinedLimit.so
+
 USERINCLUDES += -I$(ROOTSYS)/include
 ifeq ($(UNAME),Darwin)
 $(info Found OS Darwin - using mac osx build)
@@ -84,13 +91,13 @@ $(EXEDIR)/%: $(TESTDIR)/%.cpp $(LIBDIR)/lib$(LIBNAME).so $(BASEDIR)/interface/*.
 	@$(CXX) -o $@ $(CXXFLAGS) $< $(LIBS) -L$(LIBDIR) -l$(LIBNAME) $(USERLIBSX)
 
 
-$(OBJDIR)/%.$(OBJ_EXT): $(SRCDIR)/%.cc 
+$(OBJDIR)/%.$(OBJ_EXT): $(SRCDIR)/%.cc $(COMBINELIB) 
 	@echo Making object $@
-	@$(CXX) $(CXXFLAGS) -fPIC -c $<  -o $@
+	@$(CXX) $(CXXFLAGS) -fPIC -c -l $(COMBINELIB) $<  -o $@
 
-$(LIBDIR)/lib$(LIBNAME).so:$(OBJS)
+$(LIBDIR)/lib$(LIBNAME).so:$(OBJS) $(COMBINELIB)
 	@echo Building shared library $@
-	@$(LD) $(LDFLAGS) -o $(LIBDIR)/lib$(LIBNAME).so  $^ $(LIBS)
+	@$(LD) $(LDFLAGS) -o $(LIBDIR)/lib$(LIBNAME).so  $^ $(LIBS) -l $(COMBINELIB)
 	
 
 lib: $(LIBDIR)/lib$(LIBNAME).so
