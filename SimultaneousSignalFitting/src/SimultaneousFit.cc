@@ -916,7 +916,7 @@ void SimultaneousFit::loadPriorConstraints(string filename, int mh){
     string gausN = name.substr(name.find("_g"),string::npos);
     string paramName = var+gausN;
     int mhS = boost::lexical_cast<int>(name.substr(name.find("_mh")+3,name.find("_g")-name.find("_mh")-3));
-    double val_constraint = 0.01;
+    double val_constraint = 0.1;
     if (verbose_>=2) cout << paramName << " " << mhS << " " << val << endl;
     if (mhS==mh) {
       fitParams[paramName]->setVal(val);
