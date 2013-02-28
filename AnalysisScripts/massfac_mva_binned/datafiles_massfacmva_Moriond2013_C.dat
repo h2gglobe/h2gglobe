@@ -1,4 +1,4 @@
-intL=7030. histfile=/store/group/phys_higgs/cmshgg/analyzed/Moriond2013/MassFacMVA/Unblind_tests/%(label)s/CMS-HGG.root output=eventsList.txt
+intL=7030. histfile=/store/group/phys_higgs/cmshgg/analyzed/Moriond2013/MassFacMVA/Approval_v1/%(label)s/CMS-HGG.root output=eventsList.txt
 
 
 #
