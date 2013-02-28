@@ -1,4 +1,4 @@
-intL=19620. histfile=/store/group/phys_higgs/cmshgg/analyzed/Moriond2013/cutbased/unblinding_v1/%(label)s/CMS-HGG.root output=eventsList.txt
+intL=19620. histfile=/store/group/phys_higgs/cmshgg/analyzed/Moriond2013/cutbased/approval_v1/%(label)s/CMS-HGG.root output=eventsList.txt
 
 #
 # Data
@@ -117,7 +117,7 @@ inputBranches minimal_analysis_input.dat
 inputBranches minimal_statanalysis_input.dat
 inputBranches minimal_leptmetanalysis_input.dat
 
-treevariables massfac_mva_binned/unbinned_datacard_trees.dat
+treevariables common/unbinned_datacard_trees.dat
 cuts jetanalysis/cuts_vbfcutb.dat
 
 ## define analyses to run
@@ -127,4 +127,4 @@ cuts jetanalysis/cuts_vbfcutb.dat
 ##   analyzer <class_name> <config_file>
 ##
 ## analyzer PhotonAnalysis photonanalysis.dat
-analyzer StatAnalysis photonanalysis.dat analysis_settings.dat statanalysis.dat bkgPolOrderByCat=5,5,5,5,4,4,3,3,2 jetanalysis/cutbvbftag.dat saveDatacardTrees_=0 dumpAscii=1 dumpMcAscii=0 scaleR9Only=0
+analyzer StatAnalysis photonanalysis.dat analysis_settings.dat statanalysis.dat jetanalysis/cutbvbftag.dat saveDatacardTrees_=0 dumpAscii=1 dumpMcAscii=0 scaleR9Only=0
