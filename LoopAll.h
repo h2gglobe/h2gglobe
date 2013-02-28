@@ -582,7 +582,7 @@ int PhotonCategory(int photonindex, int n_r9cat=3, int n_etacat=2) {
 //----------------------------------------------------------------------
 
 /** @return the photon R9 category number */
-Int_t PhotonR9Category(int photonindex, int n_r9cat=3) { 
+Int_t PhotonR9Category(int photonindex, int n_r9cat=3, float r9boundary=0.94) { 
   if(photonindex < 0) return -1;
   if(n_r9cat<2)return 0;
   int r9cat=0;
@@ -590,7 +590,7 @@ Int_t PhotonR9Category(int photonindex, int n_r9cat=3) {
   if(n_r9cat==3) {
     r9cat = (Int_t)(r9<0.94) + (r9<0.9);// 0, 1, or 2 (high r9 --> low r9)
   } else if(n_r9cat==2) {
-    r9cat = (Int_t)(r9<0.94);// 0, 1(high r9 --> low r9)
+    r9cat = (Int_t)(r9<r9boundary);// 0, 1(high r9 --> low r9)
   }
   return r9cat;
 }
@@ -614,11 +614,11 @@ int PhotonEtaCategory(int photonindex, int n_etacat=4) {
 
 //----------------------------------------------------------------------
 //diphoton category functions ( r9, eta, and diphoton pt)
-int DiphotonCategory(Int_t leadind, Int_t subleadind, float pTh,  int n_etacat=4,int n_r9cat=3, int n_pThcat=0, int nVtxCategories=0, float vtxMva=-1.) {
-  Int_t r9cat  =  TMath::Max(PhotonR9Category(leadind,n_r9cat),PhotonR9Category(subleadind,n_r9cat));
+int DiphotonCategory(Int_t leadind, Int_t subleadind, float pTh,  int n_etacat=4,int n_r9cat=3, float r9boundary=0.94, int n_pThcat=0, int nVtxCategories=0, int nvtx=0, float vtxMva=-1.) {
+  Int_t r9cat  =  TMath::Max(PhotonR9Category(leadind,n_r9cat,r9boundary),PhotonR9Category(subleadind,n_r9cat,r9boundary));
   Int_t etacat =  TMath::Max(PhotonEtaCategory(leadind,n_etacat),PhotonEtaCategory(subleadind,n_etacat));
   Int_t pThcat =  DiphotonPtCategory(pTh,n_pThcat);
-  Int_t vtxCat =  DiphotonVtxCategory(vtxMva,nVtxCategories);
+  Int_t vtxCat =  DiphotonVtxCategory(nVtxCategories,nvtx);
   return  (r9cat + n_r9cat*etacat + (n_r9cat*n_etacat)*pThcat) + (n_r9cat*n_etacat*(n_pThcat>0?n_pThcat:1))*vtxCat;  // (n_r9cat*c_etacat*n_pThcat) categories
 }
 
@@ -631,6 +631,18 @@ int DijetSubCategory(float mjj, float leadPt, float subledPt, float ncat)
 
 
 //----------------------------------------------------------------------
+
+int DiphotonVtxCategory(int nVtxCategories, int nvtx)
+{
+	int cat=0;
+	if(nVtxCategories==3) {
+		cat = (Int_t)(nvtx > 18) + (Int_t)(nvtx > 13);
+	} else if (nVtxCategories==2) {
+		cat = (Int_t)(nvtx > 15);
+	}
+	/// cout << "DiphotonVtxCategory " << cat << " " << vtxMva << " " << nVtxCategories << endl;
+	return  cat;
+}
 
 int DiphotonVtxCategory(float vtxMva, int nVtxCategories)
 {

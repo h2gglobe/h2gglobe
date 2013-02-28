@@ -11,7 +11,6 @@ parser.add_option("--submit",action="store_true",dest="submit",default=False)
 parser.add_option("--runLocal",action="store_true",dest="runLocal",default=False)
 parser.add_option("--linearInterp",action="store_true",dest="linearInterp",default=False)
 parser.add_option("--loadPriorConstraints",action="store_true",dest="loadPriorConstraints",default=False)
-parser.add_option("--dryRun",action="store_true",dest="dryRun",default=False)
 (options,args)=parser.parse_args()
 
 import os
@@ -32,7 +31,6 @@ for line in datfile.readlines():
     print 'Output files:'
   
   line_els  = line.split()
-  print line_els
   if len(line_els)!=7: continue
   print '\t', line,
   outfile   = os.path.join(options.outputdir,line_els[0])
@@ -50,29 +48,28 @@ for line in datfile.readlines():
   if options.recursive: subLine += '--recursive '
   
   combinefile.write('%s %s_cat%d\n'%(outfile,proc,cat))
-  if not options.dryRun:
-    if options.runLocal:
-      os.system(subLine)
-    else:
-    
-      script = open('%s/%s/sub_%s_cat%d.sh'%(os.getcwd(),options.outputdir,proc,cat),'w')
-      os.system('rm -f %s.done'%(script.name))
-      os.system('rm -f %s.fail'%(script.name))
-      os.system('rm -f %s.run'%(script.name))
-      os.system('rm -f %s.log'%(script.name))
-      script.write('#!/bin/bash\n')
-      script.write('cd %s\n'%os.getcwd())
-      script.write('eval `scramv1 runtime -sh`\n')
-      script.write('touch %s.run\n'%(script.name))
-      script.write('if ( %s ) then \n'%subLine)
-      script.write('\ttouch %s.done\n'%(script.name))
-      script.write('\trm -f %s.run\n'%(script.name))
-      script.write('else\n')
-      script.write('\ttouch %s.fail\n'%(script.name))
-      script.write('fi\n')
-      script.close()
-      os.system('chmod +x %s'%(script.name))
-      #print 'bsub -q %s -o %s.log %s'%(options.queue,script.name,script.name)
-      if options.submit: os.system('bsub -q %s -o %s.log %s'%(options.queue,script.name,script.name))
+  if options.runLocal:
+    os.system(subLine)
+  else:
+  
+    script = open('%s/%s/sub_%s_cat%d.sh'%(os.getcwd(),options.outputdir,proc,cat),'w')
+    os.system('rm -f %s.done'%(script.name))
+    os.system('rm -f %s.fail'%(script.name))
+    os.system('rm -f %s.run'%(script.name))
+    os.system('rm -f %s.log'%(script.name))
+    script.write('#!/bin/bash\n')
+    script.write('cd %s\n'%os.getcwd())
+    script.write('eval `scramv1 runtime -sh`\n')
+    script.write('touch %s.run\n'%(script.name))
+    script.write('if ( %s ) then \n'%subLine)
+    script.write('\ttouch %s.done\n'%(script.name))
+    script.write('\trm -f %s.run\n'%(script.name))
+    script.write('else\n')
+    script.write('\ttouch %s.fail\n'%(script.name))
+    script.write('fi\n')
+    script.close()
+    os.system('chmod +x %s'%(script.name))
+    #print 'bsub -q %s -o %s.log %s'%(options.queue,script.name,script.name)
+    if options.submit: os.system('bsub -q %s -o %s.log %s'%(options.queue,script.name,script.name))
 
-if   not options.submit and not options.runLocal: print 'To submit run with --submit'
+if not options.submit and not options.runLocal: print 'To submit run with --submit'

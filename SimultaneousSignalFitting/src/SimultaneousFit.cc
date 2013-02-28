@@ -841,12 +841,11 @@ void SimultaneousFit::loadPriorConstraints(string filename, int mh){
     string gausN = name.substr(name.find("_g"),string::npos);
     string paramName = var+gausN;
     int mhS = boost::lexical_cast<int>(name.substr(name.find("_mh")+3,name.find("_g")-name.find("_mh")-3));
-    double val_constraint = 0.1;
     if (verbose_>=2) cout << paramName << " " << mhS << " " << val << endl;
     if (mhS==mh) {
       fitParams[paramName]->setVal(val);
-      if (val>0.) fitParams[paramName]->setRange((1-val_constraint)*val,(1+val_constraint)*val);
-      else fitParams[paramName]->setRange((1+val_constraint)*val,(1-val_constraint)*val);
+      if (val>0.) fitParams[paramName]->setRange(0.9*val,1.1*val);
+      else fitParams[paramName]->setRange(1.1*val,0.9*val);
     }
   }
   datfile.close();

@@ -596,9 +596,6 @@ class configProducer:
       elif val[0] == 'intL':
         self.intL = float(val[1])
       else: sys.exit("Unrecognised Argument:\n ' %s ' in line:\n ' %s '" %(val[0],line))
-
-      if self.conf_.histfile.startswith("/store"):
-          self.conf_.histfile = "root://eoscms//eos/cms%s" % self.conf_.histfile
       
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def read_analyzer(self,line):

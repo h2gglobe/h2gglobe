@@ -469,17 +469,29 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
     int sig = sigPointsToBook[isig];
         l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_ggh_mass_m%d",sig),nDataBins);    
         l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_vbf_mass_m%d",sig),nDataBins);    
-        l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wzh_mass_m%d",sig),nDataBins);    
+        if(!splitwzh) l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wzh_mass_m%d",sig),nDataBins);    
+        else{
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wh_mass_m%d",sig),nDataBins);    
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_zh_mass_m%d",sig),nDataBins);    
+        }
         l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_tth_mass_m%d",sig),nDataBins);   
  
         l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_ggh_mass_m%d_rv",sig),nDataBins);    
         l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_vbf_mass_m%d_rv",sig),nDataBins);    
-        l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wzh_mass_m%d_rv",sig),nDataBins);    
+        if(!splitwzh) l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wzh_mass_m%d_rv",sig),nDataBins);    
+        else{
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wh_mass_m%d_rv",sig),nDataBins);    
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_zh_mass_m%d_rv",sig),nDataBins);    
+        }
         l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_tth_mass_m%d_rv",sig),nDataBins);    
                                                                               
         l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_ggh_mass_m%d_wv",sig),nDataBins);    
         l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_vbf_mass_m%d_wv",sig),nDataBins);    
-        l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wzh_mass_m%d_wv",sig),nDataBins);    
+        if(!splitwzh) l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wzh_mass_m%d_wv",sig),nDataBins);    
+        else{
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wh_mass_m%d_wv",sig),nDataBins);    
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_zh_mass_m%d_wv",sig),nDataBins);    
+        }
         l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_tth_mass_m%d_wv",sig),nDataBins);    
     }
 
@@ -488,7 +500,11 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
     int sig = sigPointsToBook[isig];
         l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_ggh_mass_m%d",sig),-1);    
         l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_vbf_mass_m%d",sig),-1);    
-        l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_wzh_mass_m%d",sig),-1);    
+        if(!splitwzh) l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_wzh_mass_m%d",sig),-1);    
+        else{
+            l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_wh_mass_m%d",sig),-1);    
+            l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_zh_mass_m%d",sig),-1);    
+        }
         l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_tth_mass_m%d",sig),-1);    
     }
 
@@ -547,7 +563,7 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
 ///// 				   l.photonIDMVANew(l.dipho_subleadind[diphotonId],l.dipho_vtxind[diphotonId],
 ///// 						    sublead_p4,bdtTrainingPhilosophy.c_str()));
 /////     // apply di-photon level smearings and corrections
-/////     int selectioncategory = l.DiphotonCategory(l.dipho_leadind[diphotonId],l.dipho_subleadind[diphotonId],Higgs.Pt(),nEtaCategories,nR9Categories,0);
+/////     int selectioncategory = l.DiphotonCategory(l.dipho_leadind[diphotonId],l.dipho_subleadind[diphotonId],Higgs.Pt(),nEtaCategories,nR9Categories);
 /////     if( smear && ur_type != 0 ) {
 ///// 	applyDiPhotonSmearings(Higgs, *vtx, selectioncategory, cur_type, *((TVector3*)l.gv_pos->At(0)), evweight, 
 ///// 			       phoid_mvaout_lead,phoid_mvaout_sublead,
@@ -732,8 +748,9 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
                              sublead_p4,bdtTrainingPhilosophy.c_str()) : 
                        l.photonIDMVANew(diphoton_index.second,l.dipho_vtxind[diphoton_id],
 					sublead_p4,bdtTrainingPhilosophy.c_str()));
+
 	// apply di-photon level smearings and corrections
-        int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,0);
+        int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories);
         if( cur_type != 0 && doMCSmearing ) {
 	    applyDiPhotonSmearings(Higgs, *vtx, selectioncategory, cur_type, *((TVector3*)l.gv_pos->At(0)), evweight, 
 				   phoid_mvaout_lead,phoid_mvaout_sublead,
@@ -749,6 +766,19 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
                           bdtTrainingPhilosophy.c_str(),
                           phoid_mvaout_lead,phoid_mvaout_sublead);
         kinematic_bdtout = diphobdt_output;
+
+	float diphobdt_output_up=-1.;
+	float diphobdt_output_down=-1.;
+	if (l.runZeeValidation) {
+	    diphobdt_output_up = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id] ,
+						     vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMeonly,
+						     bdtTrainingPhilosophy.c_str(),
+						     phoid_mvaout_lead+0.01,phoid_mvaout_sublead+0.01);
+	    diphobdt_output_down = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id] ,
+						       vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMeonly,
+						       bdtTrainingPhilosophy.c_str(),
+						       phoid_mvaout_lead-0.01,phoid_mvaout_sublead-0.01);
+	}
 
         bool isEBEB  = fabs(lead_p4.Eta() < 1.4442 ) && fabs(sublead_p4.Eta()<1.4442);
         category = GetBDTBoundaryCategory(diphobdt_output,isEBEB,VBFevent);
@@ -784,7 +814,8 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
         if (!isSyst && cur_type!=0 && saveBSTrees_) saveBSTrees(l,evweight,category,Higgs, vtx, (TVector3*)l.gv_pos->At(0),diphobdt_output);
 
         // save trees for unbinned datacards
-        if (!isSyst && cur_type<0 && saveDatacardTrees_) saveMassFacDatCardTree(l,cur_type,category, evweight, diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMeonly,bdtTrainingPhilosophy.c_str(),phoid_mvaout_lead,phoid_mvaout_sublead);
+        int inc_cat = GetBDTBoundaryCategory(diphobdt_output,isEBEB,VBFevent);
+        if (!isSyst && cur_type<0 && saveDatacardTrees_) saveDatCardTree(l,cur_type,category, inc_cat, evweight, diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],lead_p4,sublead_p4,false,sigmaMrv,sigmaMwv,sigmaMeonly,vtxProb,bdtTrainingPhilosophy.c_str(),phoid_mvaout_lead,phoid_mvaout_sublead);
 
         // save trees for IC spin analysis
         if (!isSyst && saveSpinTrees_) saveSpinTree(l,category,evweight,Higgs,lead_p4,sublead_p4,diphoton_index.first,diphoton_index.second,diphobdt_output,sigmaMrv,sigmaMwv,massResolutionCalculator->leadPhotonResolution(),massResolutionCalculator->leadPhotonResolutionNoSmear(),massResolutionCalculator->subleadPhotonResolution(),massResolutionCalculator->subleadPhotonResolutionNoSmear(),vtxProb,phoid_mvaout_lead,phoid_mvaout_sublead);
@@ -801,8 +832,8 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
             l.FillCounter( "Smeared", evweight );
             sumaccept += weight;
             sumsmear += evweight;
-            if (l.runZeeValidation && !forceStdPlotsOnZee) {
-                fillZeeControlPlots(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, phoid_mvaout_lead, phoid_mvaout_sublead, diphobdt_output, sigmaMrv, sigmaMwv, vtxProb, diphoton_id, category, selectioncategory, evweight, l );
+            if (l.runZeeValidation && !forceStdPlotsOnZee && category<6) {
+                fillZeeControlPlots(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, phoid_mvaout_lead, phoid_mvaout_sublead, diphobdt_output_up, diphobdt_output_down, diphobdt_output, sigmaMrv, sigmaMwv, vtxProb, diphoton_id, category, selectioncategory, evweight, l );
             } else {
 	            if (category>-1) {
 	    	        fillControlPlots(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9,  diphoton_id, 
@@ -1072,8 +1103,10 @@ void MassFactorizedMvaAnalysis::fillEscaleTree(const TLorentzVector & lead_p4, c
     float ptHiggs = Higgs.Pt();
 
     float cos_dphi = TMath::Cos(lead_p4.Phi()-sublead_p4.Phi());
-    float pho1_sigmaE = energyCorrectedError[lead];
-    float pho2_sigmaE = energyCorrectedError[sublead];
+    //float pho1_sigmaE = energyCorrectedError[lead];
+    //float pho2_sigmaE = energyCorrectedError[sublead];
+    float pho1_sigmaE = photonInfoCollection[lead].corrEnergyErr();
+    float pho2_sigmaE = photonInfoCollection[sublead].corrEnergyErr();
 
     float pho1_e5x5  = l.pho_e5x5[l.pho_scind[lead]];
     float pho2_e5x5  = l.pho_e5x5[l.pho_scind[sublead]];
@@ -1097,14 +1130,22 @@ void MassFactorizedMvaAnalysis::fillEscaleTree(const TLorentzVector & lead_p4, c
     float el1_phi=-99.;
     float el2_eta=-99.;
     float el2_phi=-99.;
+    float el1_regr = -99.;
+    float el1_regr_err = -99.;
+    float el2_regr = -99.;
+    float el2_regr_err = -99.;
     for (int iel=0;iel<l.el_std_n;iel++){
 	if (l.el_std_scind[iel] == l.pho_scind[lead]) {
 	    el1_eta  = ((TLorentzVector *)l.el_std_p4->At(iel))->Eta();
 	    el1_phi  = ((TLorentzVector *)l.el_std_p4->At(iel))->Phi();
+	    el1_regr  = l.el_std_regr_energy[iel];
+	    el1_regr_err = l.el_std_regr_energyerr[iel];
 	}
 	if (l.el_std_scind[iel] == l.pho_scind[sublead]) {
 	    el2_eta  = ((TLorentzVector *)l.el_std_p4->At(iel))->Eta();
 	    el2_phi  = ((TLorentzVector *)l.el_std_p4->At(iel))->Phi();
+	    el2_regr  = l.el_std_regr_energy[iel];
+	    el2_regr_err = l.el_std_regr_energyerr[iel];
 	}
     }
 
@@ -1119,6 +1160,7 @@ void MassFactorizedMvaAnalysis::fillEscaleTree(const TLorentzVector & lead_p4, c
 
     l.FillTree("pho1_energy",lead_p4.E());
     l.FillTree("pho1_energy_regr",l.pho_regr_energy[lead]);
+    l.FillTree("pho1_regrerr", l.pho_regr_energyerr[lead]);
     l.FillTree("pho1_energy_noregr",pho1_energy_noregr);
     l.FillTree("pho1_pt",lead_p4.Pt());
     l.FillTree("pho1_eta",lead_p4.Eta());
@@ -1137,6 +1179,7 @@ void MassFactorizedMvaAnalysis::fillEscaleTree(const TLorentzVector & lead_p4, c
 
     l.FillTree("pho2_energy",sublead_p4.E());
     l.FillTree("pho2_energy_regr",l.pho_regr_energy[sublead]);
+    l.FillTree("pho2_regrerr", l.pho_regr_energyerr[sublead]);
     l.FillTree("pho2_energy_noregr",pho2_energy_noregr);
     l.FillTree("pho2_pt",sublead_p4.Pt());
     l.FillTree("pho2_eta",sublead_p4.Eta());
@@ -1172,15 +1215,28 @@ void MassFactorizedMvaAnalysis::fillEscaleTree(const TLorentzVector & lead_p4, c
     l.FillTree("el2_eta",el2_eta);
     l.FillTree("el2_phi",el2_phi);
 
+    l.FillTree("el1_energy_regr", el1_regr);
+    l.FillTree("el1_regrerr", el1_regr_err);
+    l.FillTree("el2_energy_regr", el2_regr);
+    l.FillTree("el2_regrerr", el2_regr_err);
+
 }
 
 // ----------------------------------------------------------------------------------------------------
 void MassFactorizedMvaAnalysis::fillZeeControlPlots(const TLorentzVector & lead_p4, const  TLorentzVector & sublead_p4, 
 						    const TLorentzVector & Higgs, float lead_r9, float sublead_r9,
 						    float phoid_mvaout_lead, float phoid_mvaout_sublead, 
+						    float diphobdt_output_up, float diphobdt_output_down,
 						    float diphobdt_output, float sigmaMrv, float sigmaMwv, float vtxProb,
 						    int diphoton_id, int category, int selectioncategory, float evweight, LoopAll & l )
 {
+
+    bool passCiC=false;
+    int diphoton_id_cic=-1;
+    std::vector<bool> veto_indices;
+    veto_indices.clear();
+    diphoton_id_cic = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtCut, subleadEtCut, 4,applyPtoverM, &smeared_pho_energy[0], false, -1, veto_indices, cicCutLevels );
+    if (diphoton_id_cic > -1) passCiC=true;
 
     int lead = l.dipho_leadind[diphoton_id];
     int sublead = l.dipho_subleadind[diphoton_id];
@@ -1189,47 +1245,176 @@ void MassFactorizedMvaAnalysis::fillZeeControlPlots(const TLorentzVector & lead_
     float ptHiggs = Higgs.Pt();
 
     float cos_dphi = TMath::Cos(lead_p4.Phi()-sublead_p4.Phi());
-    float pho1_sigmaE = energyCorrectedError[lead];
-    float pho2_sigmaE = energyCorrectedError[sublead];
+    //float pho1_sigmaE = energyCorrectedError[lead];
+    //float pho2_sigmaE = energyCorrectedError[sublead];
+    float pho1_sigmaE = photonInfoCollection[lead].corrEnergyErr();
+    float pho2_sigmaE = photonInfoCollection[sublead].corrEnergyErr();
 
     l.FillHist("mass",0, mass, evweight);
-    l.FillHist("mass",category+1, mass, evweight);
+    if (category>-1) l.FillHist("mass",category+1, mass, evweight);
     l.FillHist("mass_basecat",selectioncategory, mass, evweight);
+    if (diphobdt_output>-0.05) {
+	l.FillHist("mass_passDiphobdt",0, mass, evweight);
+	l.FillHist("mass_basecat_passDiphobdt",selectioncategory, mass, evweight);
+    } else {
+	l.FillHist("mass_failDiphobdt",0, mass, evweight);
+    }
+    if (passCiC) {
+	l.FillHist("mass_passCiC",0, mass, evweight);
+	l.FillHist("mass_basecat_passCiC",selectioncategory, mass, evweight);
+    }
+
     if (ptHiggs<20.) {
 	l.FillHist("mass_pt0to20",0, mass, evweight);
+	if (passCiC) l.FillHist("mass_passCiC_pt0to20",0, mass, evweight);
     } else if (ptHiggs<40.) {
 	l.FillHist("mass_pt20to40",0, mass, evweight);
+	if (passCiC) l.FillHist("mass_passCiC_pt20to40",0, mass, evweight);
     } else if (ptHiggs<60.) {
 	l.FillHist("mass_pt40to60",0, mass, evweight);
+	if (passCiC) l.FillHist("mass_passCiC_pt40to60",0, mass, evweight);
     } else if (ptHiggs<100.) {
 	l.FillHist("mass_pt60to100",0, mass, evweight);
+	if (passCiC) l.FillHist("mass_passCiC_pt60to100",0, mass, evweight);
     } else {
 	l.FillHist("mass_pt100up",0, mass, evweight);
+	if (passCiC) l.FillHist("mass_passCiC_pt100up",0, mass, evweight);
+    }
+
+    if (l.vtx_std_n<=10) {
+	l.FillHist("mass_nvtx0to10",0, mass, evweight);
+	l.FillHist("mass_nvtx0to10",selectioncategory+1, mass, evweight);
+	if (passCiC) l.FillHist("mass_passCiC_nvtx0to10",0, mass, evweight);
+	if (passCiC) l.FillHist("mass_passCiC_nvtx0to10",selectioncategory+1, mass, evweight);
+    } else if (l.vtx_std_n<=20) {
+	l.FillHist("mass_nvtx11to20",0, mass, evweight);
+	l.FillHist("mass_nvtx11to20",selectioncategory+1, mass, evweight);
+	if (passCiC) l.FillHist("mass_passCiC_nvtx11to20",0, mass, evweight);
+	if (passCiC) l.FillHist("mass_passCiC_nvtx11to20",selectioncategory+1, mass, evweight);
+    } else {
+	l.FillHist("mass_nvtx21up",0, mass, evweight);
+	l.FillHist("mass_nvtx21up",selectioncategory+1, mass, evweight);
+	if (passCiC) l.FillHist("mass_passCiC_nvtx21up",0, mass, evweight);
+	if (passCiC) l.FillHist("mass_passCiC_nvtx21up",selectioncategory+1, mass, evweight);
+    }
+    if (l.vtx_std_n<=13) {
+	l.FillHist("mass_nvtx0to13",0, mass, evweight);
+	l.FillHist("mass_nvtx0to13",selectioncategory+1, mass, evweight);
+	if (passCiC) l.FillHist("mass_passCiC_nvtx0to13",0, mass, evweight);
+	if (passCiC) l.FillHist("mass_passCiC_nvtx0to13",selectioncategory+1, mass, evweight);
+    } else if (l.vtx_std_n<=18) {
+	l.FillHist("mass_nvtx14to18",0, mass, evweight);
+	l.FillHist("mass_nvtx14to18",selectioncategory+1, mass, evweight);
+	if (passCiC) l.FillHist("mass_passCiC_nvtx14to18",0, mass, evweight);
+	if (passCiC) l.FillHist("mass_passCiC_nvtx14to18",selectioncategory+1, mass, evweight);
+    } else {
+	l.FillHist("mass_nvtx19up",0, mass, evweight);
+	l.FillHist("mass_nvtx19up",selectioncategory+1, mass, evweight);
+	if (passCiC) l.FillHist("mass_passCiC_nvtx19up",0, mass, evweight);
+	if (passCiC) l.FillHist("mass_passCiC_nvtx19up",selectioncategory+1, mass, evweight);
     }
 
     if (mass>=100. && mass<=180.) l.FillHist("bdtout_m100to180",0,diphobdt_output,evweight);
 
-    if( mass>=60. && mass<=120.  ) {
+    if( (mass>=60. && mass<=120.) || (!l.runZeeValidation && (mass>=100. && mass<=180.)) ) {
 
 	l.FillHist("bdtout",0,diphobdt_output,evweight);
+	l.FillHist("bdtout_up",0,diphobdt_output_up,evweight);
+	l.FillHist("bdtout_down",0,diphobdt_output_down,evweight);
 	l.FillHist("bdtout",selectioncategory+1,diphobdt_output,evweight);
+	l.FillHist("bdtout_up",selectioncategory+1,diphobdt_output_up,evweight);
+	l.FillHist("bdtout_down",selectioncategory+1,diphobdt_output_down,evweight);
 	if (fabs(lead_p4.Eta() < 1.4442 ) && fabs(sublead_p4.Eta()<1.4442)){
 	    l.FillHist("bdtoutEB",0,diphobdt_output,evweight);
+	    l.FillHist("bdtoutEB_up",0,diphobdt_output_up,evweight);
+	    l.FillHist("bdtoutEB_down",0,diphobdt_output_down,evweight);
 	} else if (fabs(lead_p4.Eta() > 1.566 ) && fabs(sublead_p4.Eta()>1.566)){
 	    l.FillHist("bdtoutEE",0,diphobdt_output,evweight);
+	    l.FillHist("bdtoutEE_up",0,diphobdt_output_up,evweight);
+	    l.FillHist("bdtoutEE_down",0,diphobdt_output_down,evweight);
 	} else {
 	    l.FillHist("bdtoutEBEE",0,diphobdt_output,evweight);
+	    l.FillHist("bdtoutEBEE_up",0,diphobdt_output_up,evweight);
+	    l.FillHist("bdtoutEBEE_down",0,diphobdt_output_down,evweight);
+	}
+
+	int etacat;
+	if (fabs(lead_p4.Eta()) < 1.5 && fabs(sublead_p4.Eta()) < 1.5) {etacat=1;}
+	else if (fabs(lead_p4.Eta()) > 1.5 && fabs(sublead_p4.Eta()) > 1.5) {etacat=2;}
+	else {etacat=3;}
+	if (lead_r9>0.9 && sublead_r9>0.9) {
+	    l.FillHist("bdtout_highR9",0,diphobdt_output,evweight);
+	    l.FillHist("bdtout_highR9_up",0,diphobdt_output_up,evweight);
+	    l.FillHist("bdtout_highR9_down",0,diphobdt_output_down,evweight);
+	    l.FillHist("bdtout_highR9",etacat,diphobdt_output,evweight);
+	    l.FillHist("bdtout_highR9_up",etacat,diphobdt_output_up,evweight);
+	    l.FillHist("bdtout_highR9_down",etacat,diphobdt_output_down,evweight);
+
+	    l.FillHist("sigmaMOverM_highR9",0,sigmaMrv/mass, evweight);
+	    l.FillHist("sigmaMOverM_wrongVtx_highR9",0,sigmaMwv/mass, evweight);
+	    l.FillHist("sigmaMOverM_highR9",etacat,sigmaMrv/mass, evweight);
+	    l.FillHist("sigmaMOverM_wrongVtx_highR9",etacat,sigmaMwv/mass, evweight);
+	} else if (lead_r9<0.9 && sublead_r9<0.9) {
+	    l.FillHist("bdtout_lowR9",0,diphobdt_output,evweight);
+	    l.FillHist("bdtout_lowR9_up",0,diphobdt_output_up,evweight);
+	    l.FillHist("bdtout_lowR9_down",0,diphobdt_output_down,evweight);
+	    l.FillHist("bdtout_lowR9",etacat,diphobdt_output,evweight);
+	    l.FillHist("bdtout_lowR9_up",etacat,diphobdt_output_up,evweight);
+	    l.FillHist("bdtout_lowR9_down",etacat,diphobdt_output_down,evweight);
+
+	    l.FillHist("sigmaMOverM_lowR9",0,sigmaMrv/mass, evweight);
+	    l.FillHist("sigmaMOverM_wrongVtx_lowR9",0,sigmaMwv/mass, evweight);
+	    l.FillHist("sigmaMOverM_lowR9",etacat,sigmaMrv/mass, evweight);
+	    l.FillHist("sigmaMOverM_wrongVtx_lowR9",etacat,sigmaMwv/mass, evweight);
+	} else {
+	    l.FillHist("bdtout_mixedR9",0,diphobdt_output,evweight);
+	    l.FillHist("bdtout_mixedR9_up",0,diphobdt_output_up,evweight);
+	    l.FillHist("bdtout_mixedR9_down",0,diphobdt_output_down,evweight);
+	    l.FillHist("bdtout_mixedR9",etacat,diphobdt_output,evweight);
+	    l.FillHist("bdtout_mixedR9_up",etacat,diphobdt_output_up,evweight);
+	    l.FillHist("bdtout_mixedR9_down",etacat,diphobdt_output_down,evweight);
+
+	    l.FillHist("sigmaMOverM_mixedR9",0,sigmaMrv/mass, evweight);
+	    l.FillHist("sigmaMOverM_wrongVtx_mixedR9",0,sigmaMwv/mass, evweight);
+	    l.FillHist("sigmaMOverM_mixedR9",etacat,sigmaMrv/mass, evweight);
+	    l.FillHist("sigmaMOverM_wrongVtx_mixedR9",etacat,sigmaMwv/mass, evweight);
 	}
 
 	l.FillHist("nvtx",0, l.vtx_std_n, evweight);
-	l.FillHist("nvtx",category+1, l.vtx_std_n, evweight);
+	if (category>-1) l.FillHist("nvtx",category+1, l.vtx_std_n, evweight);
 	l.FillHist("pt",0, ptHiggs, evweight);
-	l.FillHist("pt",category+1, ptHiggs, evweight);
+	if (category>-1) l.FillHist("pt",category+1, ptHiggs, evweight);
 	l.FillHist("eta",0, Higgs.Eta(), evweight);
-	l.FillHist("eta",category+1, Higgs.Eta(), evweight);
+	if (category>-1) l.FillHist("eta",category+1, Higgs.Eta(), evweight);
 	l.FillHist("rho",0, l.rho, evweight);
 
 	l.FillHist2D("rhoVsNvtx",0, l.vtx_std_n, l.rho, evweight);
+	l.FillHist2D("pho2R9_vs_pho1R9",0, lead_r9, sublead_r9, evweight);
+	if (passCiC) l.FillHist2D("pho2R9_vs_pho1R9_passCiC",0, lead_r9, sublead_r9, evweight);
+
+	if (fabs(lead_p4.Eta()) < 1.5) {
+	    l.FillHist2D("pho1_sigmaEOverEVsIdmva_EB",0, phoid_mvaout_lead, pho1_sigmaE/lead_p4.E(), evweight);
+	    l.FillHist2D("pho1_sigmaEOverEVsPtOverM_EB",0, lead_p4.Pt()/mass, pho1_sigmaE/lead_p4.E(), evweight);
+	    l.FillHist2D("pho1_idmvaVsPtOverM_EB",0, lead_p4.Pt()/mass, phoid_mvaout_lead, evweight);
+	} else {
+	    l.FillHist2D("pho1_sigmaEOverEVsIdmva_EE",0, phoid_mvaout_lead, pho1_sigmaE/lead_p4.E(), evweight);
+	    l.FillHist2D("pho1_sigmaEOverEVsPtOverM_EE",0, lead_p4.Pt()/mass, pho1_sigmaE/lead_p4.E(), evweight);
+	    l.FillHist2D("pho1_idmvaVsPtOverM_EE",0, lead_p4.Pt()/mass, phoid_mvaout_lead, evweight);
+	}
+	l.FillHist2D("pho1_sigmaEOverEVsEta",0, lead_p4.Eta(), pho1_sigmaE/lead_p4.E(), evweight);
+	l.FillHist2D("pho1_idmvaVsEta",0, lead_p4.Eta(), phoid_mvaout_lead, evweight);
+
+	if (fabs(sublead_p4.Eta()) < 1.5) {
+	    l.FillHist2D("pho2_sigmaEOverEVsIdmva_EB",0, phoid_mvaout_sublead, pho2_sigmaE/sublead_p4.E(), evweight);
+	    l.FillHist2D("pho2_sigmaEOverEVsPtOverM_EB",0, sublead_p4.Pt()/mass, pho2_sigmaE/sublead_p4.E(), evweight);
+	    l.FillHist2D("pho2_idmvaVsPtOverM_EB",0, sublead_p4.Pt()/mass, phoid_mvaout_sublead, evweight);
+	} else {
+	    l.FillHist2D("pho2_sigmaEOverEVsIdmva_EE",0, phoid_mvaout_sublead, pho2_sigmaE/sublead_p4.E(), evweight);
+	    l.FillHist2D("pho2_sigmaEOverEVsPtOverM_EE",0, sublead_p4.Pt()/mass, pho2_sigmaE/sublead_p4.E(), evweight);
+	    l.FillHist2D("pho2_idmvaVsPtOverM_EE",0, sublead_p4.Pt()/mass, phoid_mvaout_sublead, evweight);
+	}
+	l.FillHist2D("pho2_sigmaEOverEVsEta",0, sublead_p4.Eta(), pho2_sigmaE/sublead_p4.E(), evweight);
+	l.FillHist2D("pho2_idmvaVsEta",0, sublead_p4.Eta(), phoid_mvaout_sublead, evweight);
 
 	if (fabs(lead_p4.Eta()) < 1.4442) {
 	    l.FillHist("pho1_sigmaEOverE_EB",0,pho1_sigmaE/lead_p4.E(), evweight);
@@ -1249,6 +1434,74 @@ void MassFactorizedMvaAnalysis::fillZeeControlPlots(const TLorentzVector & lead_
 	    l.FillHist("pho2_sigmaEOverE_EE",0,pho2_sigmaE/sublead_p4.E(), evweight);
 	    l.FillHist("pho2_sigmaEOverE_EE_up",0,(pho2_sigmaE*1.1)/sublead_p4.E(), evweight);
 	    l.FillHist("pho2_sigmaEOverE_EE_down",0,(pho2_sigmaE*0.9)/sublead_p4.E(), evweight);
+	}
+
+	if (lead_p4.Eta() < -2.0) {etacat=0;}
+	else if (lead_p4.Eta() < -1.5) {etacat=1;}
+	else if (lead_p4.Eta() < -0.9) {etacat=2;}
+	else if (lead_p4.Eta() < 0.) {etacat=3;}
+	else if (lead_p4.Eta() < 0.9) {etacat=4;}
+	else if (lead_p4.Eta() < 1.5) {etacat=5;}
+	else if (lead_p4.Eta() < 2.0) {etacat=6;}
+	else {etacat=7;}
+	if (lead_r9<0.88) {
+	    l.FillHist("pho1_sigmaEOverE_lowR9",etacat,pho1_sigmaE/lead_p4.E(), evweight);
+	    l.FillHist("pho1_sigmaEOverE_lowR9_up",etacat,(pho1_sigmaE*1.1)/lead_p4.E(), evweight);
+	    l.FillHist("pho1_sigmaEOverE_lowR9_down",etacat,(pho1_sigmaE*0.9)/lead_p4.E(), evweight);
+	    l.FillHist("pho1_phoidMva_lowR9",etacat,phoid_mvaout_lead, evweight);
+	    l.FillHist("pho1_phoidMva_lowR9_up",etacat,(phoid_mvaout_lead+0.01), evweight);
+	    l.FillHist("pho1_phoidMva_lowR9_down",etacat,(phoid_mvaout_lead-0.01), evweight);
+	    l.FillHist("pho1_eta_lowR9",0,lead_p4.Eta(), evweight);
+	} else if (lead_r9<0.94){
+	    l.FillHist("pho1_sigmaEOverE_midR9",etacat,pho1_sigmaE/lead_p4.E(), evweight);
+	    l.FillHist("pho1_sigmaEOverE_midR9_up",etacat,(pho1_sigmaE*1.1)/lead_p4.E(), evweight);
+	    l.FillHist("pho1_sigmaEOverE_midR9_down",etacat,(pho1_sigmaE*0.9)/lead_p4.E(), evweight);
+	    l.FillHist("pho1_phoidMva_midR9",etacat,phoid_mvaout_lead, evweight);
+	    l.FillHist("pho1_phoidMva_midR9_up",etacat,(phoid_mvaout_lead+0.01), evweight);
+	    l.FillHist("pho1_phoidMva_midR9_down",etacat,(phoid_mvaout_lead-0.01), evweight);
+	    l.FillHist("pho1_eta_midR9",0,lead_p4.Eta(), evweight);
+	} else {
+	    l.FillHist("pho1_sigmaEOverE_highR9",etacat,pho1_sigmaE/lead_p4.E(), evweight);
+	    l.FillHist("pho1_sigmaEOverE_highR9_up",etacat,(pho1_sigmaE*1.1)/lead_p4.E(), evweight);
+	    l.FillHist("pho1_sigmaEOverE_highR9_down",etacat,(pho1_sigmaE*0.9)/lead_p4.E(), evweight);
+	    l.FillHist("pho1_phoidMva_highR9",etacat,phoid_mvaout_lead, evweight);
+	    l.FillHist("pho1_phoidMva_highR9_up",etacat,(phoid_mvaout_lead+0.01), evweight);
+	    l.FillHist("pho1_phoidMva_highR9_down",etacat,(phoid_mvaout_lead-0.01), evweight);
+	    l.FillHist("pho1_eta_highR9",0,lead_p4.Eta(), evweight);
+	}
+
+	if (sublead_p4.Eta() < -2.0) {etacat=0;}
+	else if (sublead_p4.Eta() < -1.5) {etacat=1;}
+	else if (sublead_p4.Eta() < -0.9) {etacat=2;}
+	else if (sublead_p4.Eta() < 0.) {etacat=3;}
+	else if (sublead_p4.Eta() < 0.9) {etacat=4;}
+	else if (sublead_p4.Eta() < 1.5) {etacat=5;}
+	else if (sublead_p4.Eta() < 2.0) {etacat=6;}
+	else {etacat=7;}
+	if (sublead_r9<0.88) {
+	    l.FillHist("pho2_sigmaEOverE_lowR9",etacat,pho2_sigmaE/sublead_p4.E(), evweight);
+	    l.FillHist("pho2_sigmaEOverE_lowR9_up",etacat,(pho2_sigmaE*1.1)/sublead_p4.E(), evweight);
+	    l.FillHist("pho2_sigmaEOverE_lowR9_down",etacat,(pho2_sigmaE*0.9)/sublead_p4.E(), evweight);
+	    l.FillHist("pho2_phoidMva_lowR9",etacat,phoid_mvaout_sublead, evweight);
+	    l.FillHist("pho2_phoidMva_lowR9_up",etacat,(phoid_mvaout_sublead+0.01), evweight);
+	    l.FillHist("pho2_phoidMva_lowR9_down",etacat,(phoid_mvaout_sublead-0.01), evweight);
+	    l.FillHist("pho2_eta_lowR9",0,sublead_p4.Eta(), evweight);
+	} else if (sublead_r9<0.94){
+	    l.FillHist("pho2_sigmaEOverE_midR9",etacat,pho2_sigmaE/sublead_p4.E(), evweight);
+	    l.FillHist("pho2_sigmaEOverE_midR9_up",etacat,(pho2_sigmaE*1.1)/sublead_p4.E(), evweight);
+	    l.FillHist("pho2_sigmaEOverE_midR9_down",etacat,(pho2_sigmaE*0.9)/sublead_p4.E(), evweight);
+	    l.FillHist("pho2_phoidMva_midR9",etacat,phoid_mvaout_sublead, evweight);
+	    l.FillHist("pho2_phoidMva_midR9_up",etacat,(phoid_mvaout_sublead+0.01), evweight);
+	    l.FillHist("pho2_phoidMva_midR9_down",etacat,(phoid_mvaout_sublead-0.01), evweight);
+	    l.FillHist("pho2_eta_midR9",0,sublead_p4.Eta(), evweight);
+	} else {
+	    l.FillHist("pho2_sigmaEOverE_highR9",etacat,pho2_sigmaE/sublead_p4.E(), evweight);
+	    l.FillHist("pho2_sigmaEOverE_highR9_up",etacat,(pho2_sigmaE*1.1)/sublead_p4.E(), evweight);
+	    l.FillHist("pho2_sigmaEOverE_highR9_down",etacat,(pho2_sigmaE*0.9)/sublead_p4.E(), evweight);
+	    l.FillHist("pho2_phoidMva_highR9",etacat,phoid_mvaout_sublead, evweight);
+	    l.FillHist("pho2_phoidMva_highR9_up",etacat,(phoid_mvaout_sublead+0.01), evweight);
+	    l.FillHist("pho2_phoidMva_highR9_down",etacat,(phoid_mvaout_sublead-0.01), evweight);
+	    l.FillHist("pho2_eta_highR9",0,sublead_p4.Eta(), evweight);
 	}
 
 	if (fabs(lead_p4.Eta()) < 1.4442) {
@@ -1291,36 +1544,67 @@ void MassFactorizedMvaAnalysis::fillZeeControlPlots(const TLorentzVector & lead_
 	    l.FillHist("pho2_phoidMva_EE_down",0,(phoid_mvaout_sublead-0.01), evweight);
 	}
 
-	if( mass>=83. && mass<=96. ) {
-	    l.FillHist("nvtx_83to96",0, l.vtx_std_n, evweight);
-	    l.FillHist("nvtx_83to96",category+1, l.vtx_std_n, evweight);
-	}
-
 	l.FillHist("pho1_phoidMva",0,phoid_mvaout_lead, evweight);
-	l.FillHist("pho1_phoidMva",category+1,phoid_mvaout_lead, evweight);
 	l.FillHist("pho2_phoidMva",0,phoid_mvaout_sublead, evweight);
-	l.FillHist("pho2_phoidMva",category+1,phoid_mvaout_sublead, evweight);
 	l.FillHist("sigmaMOverM",0,sigmaMrv/mass, evweight);
-	l.FillHist("sigmaMOverM",category+1,sigmaMrv/mass, evweight);
 	l.FillHist("sigmaMOverM_wrongVtx",0,sigmaMwv/mass, evweight);
-	l.FillHist("sigmaMOverM_wrongVtx",category+1,sigmaMwv/mass, evweight);
 	l.FillHist("vtxProb",0,vtxProb, evweight);
-	l.FillHist("vtxProb",category+1,vtxProb, evweight);
 	l.FillHist("pho1_ptOverM",0,lead_p4.Pt()/mass, evweight);
-	l.FillHist("pho1_ptOverM",category+1,lead_p4.Pt()/mass, evweight);
 	l.FillHist("pho2_ptOverM",0,sublead_p4.Pt()/mass, evweight);
-	l.FillHist("pho2_ptOverM",category+1,sublead_p4.Pt()/mass, evweight);
 	l.FillHist("pho1_eta",0,lead_p4.Eta(), evweight);
-	l.FillHist("pho1_eta",category+1,lead_p4.Eta(), evweight);
 	l.FillHist("pho2_eta",0,sublead_p4.Eta(), evweight);
-	l.FillHist("pho2_eta",category+1,sublead_p4.Eta(), evweight);
 	l.FillHist("cosDeltaPhi",0,cos_dphi, evweight);
-	l.FillHist("cosDeltaPhi",category+1,cos_dphi, evweight);
 
 	l.FillHist("r9",0,lead_r9, evweight);
 	l.FillHist("r9",0,sublead_r9, evweight);
-	l.FillHist("r9",category+1,lead_r9, evweight);
-	l.FillHist("r9",category+1,sublead_r9, evweight);
+	l.FillHist("pho1_sigmaEOverE",0,pho1_sigmaE/lead_p4.E(), evweight);
+	l.FillHist("pho1_sigmaEOverE_up",0,(pho1_sigmaE*1.1)/lead_p4.E(), evweight);
+	l.FillHist("pho1_sigmaEOverE_down",0,(pho1_sigmaE*0.9)/lead_p4.E(), evweight);
+	l.FillHist("pho2_sigmaEOverE",0,pho2_sigmaE/sublead_p4.E(), evweight);
+	l.FillHist("pho2_sigmaEOverE_up",0,(pho2_sigmaE*1.1)/sublead_p4.E(), evweight);
+	l.FillHist("pho2_sigmaEOverE_down",0,(pho2_sigmaE*0.9)/sublead_p4.E(), evweight);
+
+	l.FillHist2D("pho1_r9VsEta",0, lead_p4.Eta(), lead_r9, evweight);
+	l.FillHist2D("pho2_r9VsEta",0, sublead_p4.Eta(), sublead_r9, evweight);
+
+	if (passCiC) {
+	    l.FillHist("pho1_eta_passCiC",0,lead_p4.Eta(), evweight);
+	    l.FillHist("pho2_eta_passCiC",0,sublead_p4.Eta(), evweight);
+	    if (fabs(lead_p4.Eta())<1.5) {
+		l.FillHist("r9_EB_passCiC",0,lead_r9, evweight);
+	    } else {
+		l.FillHist("r9_EE_passCiC",0,lead_r9, evweight);
+	    }
+	    if (fabs(sublead_p4.Eta())<1.5) {
+		l.FillHist("r9_EB_passCiC",0,sublead_r9, evweight);
+	    } else {
+		l.FillHist("r9_EE_passCiC",0,sublead_r9, evweight);
+	    }
+	    l.FillHist2D("pho1_r9VsEta_passCiC",0, lead_p4.Eta(), lead_r9, evweight);
+	    l.FillHist2D("pho2_r9VsEta_passCiC",0, sublead_p4.Eta(), sublead_r9, evweight);
+	}
+
+	if (category>-1) {
+	    l.FillHist("pho1_phoidMva",category+1,phoid_mvaout_lead, evweight);
+	    l.FillHist("pho2_phoidMva",category+1,phoid_mvaout_sublead, evweight);
+	    l.FillHist("sigmaMOverM",category+1,sigmaMrv/mass, evweight);
+	    l.FillHist("sigmaMOverM_wrongVtx",category+1,sigmaMwv/mass, evweight);
+	    l.FillHist("vtxProb",category+1,vtxProb, evweight);
+	    l.FillHist("pho1_ptOverM",category+1,lead_p4.Pt()/mass, evweight);
+	    l.FillHist("pho2_ptOverM",category+1,sublead_p4.Pt()/mass, evweight);
+	    l.FillHist("pho1_eta",category+1,lead_p4.Eta(), evweight);
+	    l.FillHist("pho2_eta",category+1,sublead_p4.Eta(), evweight);
+	    l.FillHist("cosDeltaPhi",category+1,cos_dphi, evweight);
+
+	    l.FillHist("r9",category+1,lead_r9, evweight);
+	    l.FillHist("r9",category+1,sublead_r9, evweight);
+	    l.FillHist("pho1_sigmaEOverE",category+1,pho1_sigmaE/lead_p4.E(), evweight);
+	    l.FillHist("pho1_sigmaEOverE_up",category+1,(pho1_sigmaE*1.1)/lead_p4.E(), evweight);
+	    l.FillHist("pho1_sigmaEOverE_down",category+1,(pho1_sigmaE*0.9)/lead_p4.E(), evweight);
+	    l.FillHist("pho2_sigmaEOverE",category+1,pho2_sigmaE/sublead_p4.E(), evweight);
+	    l.FillHist("pho2_sigmaEOverE_up",category+1,(pho2_sigmaE*1.1)/sublead_p4.E(), evweight);
+	    l.FillHist("pho2_sigmaEOverE_down",category+1,(pho2_sigmaE*0.9)/sublead_p4.E(), evweight);
+	}
 
 	if (fabs(lead_p4.Eta()) < 1.4442 && fabs(sublead_p4.Eta())<1.4442) {
 	    l.FillHist("sigmaMOverM_EB",0,sigmaMrv/mass, evweight);
@@ -1369,6 +1653,7 @@ void MassFactorizedMvaAnalysis::fillZeeControlPlots(const TLorentzVector & lead_
 	    int iPhoton = (i==0) ? lead : sublead;
 	    float ptpho = (i==0) ? lead_p4.Pt() : sublead_p4.Pt();
 	    float r9 = (i==0) ? lead_r9 : sublead_r9;
+	    float idmva = (i==0) ? phoid_mvaout_lead : phoid_mvaout_sublead;
 
 	    float pfchargedisobad03=0.;
 	    for(int ivtx=0; ivtx<l.vtx_std_n; ivtx++) {
@@ -1384,10 +1669,37 @@ void MassFactorizedMvaAnalysis::fillZeeControlPlots(const TLorentzVector & lead_
 	    float s4ratio  = l.pho_s4ratio[iPhoton];
 	    float ESEffSigmaRR = l.pho_ESEffSigmaRR[iPhoton];
 
+	    //CiC inputs
+	    TLorentzVector phop4 = l.get_pho_p4( iPhoton, l.dipho_vtxind[diphoton_id], &smeared_pho_energy[0]  );
+	    TLorentzVector phop4_badvtx = l.get_pho_p4( iPhoton, l.pho_tkiso_badvtx_id[iPhoton], &smeared_pho_energy[0]  );
+
+	    float val_tkisobad = -99;
+	    for(int iv=0; iv < l.vtx_std_n; iv++) {
+		if((*l.pho_pfiso_mycharged04)[iPhoton][iv] > val_tkisobad) {
+		    val_tkisobad = (*l.pho_pfiso_mycharged04)[iPhoton][iv];
+		}
+	    }
+
+	    float val_tkiso        = (*l.pho_pfiso_mycharged03)[iPhoton][l.dipho_vtxind[diphoton_id]];
+	    float val_ecaliso      = l.pho_pfiso_myphoton03[iPhoton];
+	    float val_ecalisobad   = l.pho_pfiso_myphoton04[iPhoton];
+	    float val_hoe          = l.pho_hoe[iPhoton];
+
+	    float rhofacbad=0.23, rhofac=0.09;
+	    float val_isosumoet    = (val_tkiso    + val_ecaliso    + l.pfisoOffset - l.rho_algo1 * rhofac )   * 50. / phop4.Et();
+	    float val_isosumoetbad = (val_tkisobad + val_ecalisobad + l.pfisoOffset - l.rho_algo1 * rhofacbad) * 50. / phop4_badvtx.Et();
+
+	    // tracker isolation cone energy divided by Et
+	    float val_trkisooet    = (val_tkiso) * 50. / phop4.Et();
+
+
 	    if (l.pho_isEB[iPhoton]) {
 		l.FillHist("pfchargedisogood03_EB",0,pfchargedisogood03, evweight);
 		l.FillHist("pfchargedisobad03_EB",0,pfchargedisogood03, evweight);
 		l.FillHist("pfphotoniso03_EB",0,pfphotoniso03, evweight);
+		if (idmva<-0.1) l.FillHist("pfchargedisogood03_EB_lowDiphoMva",0,pfchargedisogood03, evweight);
+		if (idmva<-0.1) l.FillHist("pfchargedisobad03_EB_lowDiphoMva",0,pfchargedisogood03, evweight);
+		if (idmva<-0.1) l.FillHist("pfphotoniso03_EB_lowDiphoMva",0,pfphotoniso03, evweight);
 		l.FillHist("pfchargedisogood03_tail_EB",0,pfchargedisogood03, evweight);
 		l.FillHist("pfchargedisobad03_tail_EB",0,pfchargedisogood03, evweight);
 		l.FillHist("pfphotoniso03_tail_EB",0,pfphotoniso03, evweight);
@@ -1399,12 +1711,32 @@ void MassFactorizedMvaAnalysis::fillZeeControlPlots(const TLorentzVector & lead_
 		l.FillHist("etawidth_EB",0,etawidth, evweight);
 		l.FillHist("phiwidth_EB",0,phiwidth, evweight);
 		l.FillHist("s4ratio_EB",0,s4ratio, evweight);
-		l.FillHist("r9_EB",0,lead_r9, evweight);
+		l.FillHist("r9_EB",0,r9, evweight);
 		l.FillHist("rho_EB",0,l.rho, evweight);
+		l.FillHist2D("idmvaVsRho_EB",0, l.rho, idmva, evweight);
+		l.FillHist2D("pfphotoniso03VsRho_EB",0, l.rho, pfphotoniso03, evweight);
+		l.FillHist("cic_isosumoet_EB",0,val_isosumoet, evweight);
+		l.FillHist("cic_isosumoetbad_EB",0,val_isosumoetbad, evweight);
+		l.FillHist("cic_trkisooet_EB",0,val_trkisooet, evweight);
+		l.FillHist("cic_hoe_EB",0,val_hoe, evweight);
+		if (r9>0.94) {
+		    l.FillHist("cic_isosumoet_EB",1,val_isosumoet, evweight);
+		    l.FillHist("cic_isosumoetbad_EB",1,val_isosumoetbad, evweight);
+		    l.FillHist("cic_trkisooet_EB",1,val_trkisooet, evweight);
+		    l.FillHist("cic_hoe_EB",1,val_hoe, evweight);
+		} else {
+		    l.FillHist("cic_isosumoet_EB",2,val_isosumoet, evweight);
+		    l.FillHist("cic_isosumoetbad_EB",2,val_isosumoetbad, evweight);
+		    l.FillHist("cic_trkisooet_EB",2,val_trkisooet, evweight);
+		    l.FillHist("cic_hoe_EB",2,val_hoe, evweight);
+		}
 	    } else {
 		l.FillHist("pfchargedisogood03_EE",0,pfchargedisogood03, evweight);
 		l.FillHist("pfchargedisobad03_EE",0,pfchargedisogood03, evweight);
 		l.FillHist("pfphotoniso03_EE",0,pfphotoniso03, evweight);
+		if (idmva<-0.1) l.FillHist("pfchargedisogood03_EE_lowDiphoMva",0,pfchargedisogood03, evweight);
+		if (idmva<-0.1) l.FillHist("pfchargedisobad03_EE_lowDiphoMva",0,pfchargedisogood03, evweight);
+		if (idmva<-0.1) l.FillHist("pfphotoniso03_EE_lowDiphoMva",0,pfphotoniso03, evweight);
 		l.FillHist("pfchargedisogood03_tail_EE",0,pfchargedisogood03, evweight);
 		l.FillHist("pfchargedisobad03_tail_EE",0,pfchargedisogood03, evweight);
 		l.FillHist("pfphotoniso03_tail_EE",0,pfphotoniso03, evweight);
@@ -1419,6 +1751,23 @@ void MassFactorizedMvaAnalysis::fillZeeControlPlots(const TLorentzVector & lead_
 		l.FillHist("ESEffSigmaRR_EE",0,ESEffSigmaRR, evweight);
 		l.FillHist("r9_EE",0,r9, evweight);
 		l.FillHist("rho_EE",0,l.rho, evweight);
+		l.FillHist2D("idmvaVsRho_EE",0, l.rho, idmva, evweight);
+		l.FillHist2D("pfphotoniso03VsRho_EE",0, l.rho, pfphotoniso03, evweight);
+		l.FillHist("cic_isosumoet_EE",0,val_isosumoet, evweight);
+		l.FillHist("cic_isosumoetbad_EE",0,val_isosumoetbad, evweight);
+		l.FillHist("cic_trkisooet_EE",0,val_trkisooet, evweight);
+		l.FillHist("cic_hoe_EE",0,val_hoe, evweight);
+		if (r9>0.94) {
+		    l.FillHist("cic_isosumoet_EE",1,val_isosumoet, evweight);
+		    l.FillHist("cic_isosumoetbad_EE",1,val_isosumoetbad, evweight);
+		    l.FillHist("cic_trkisooet_EE",1,val_trkisooet, evweight);
+		    l.FillHist("cic_hoe_EE",1,val_hoe, evweight);
+		} else {
+		    l.FillHist("cic_isosumoet_EE",2,val_isosumoet, evweight);
+		    l.FillHist("cic_isosumoetbad_EE",2,val_isosumoetbad, evweight);
+		    l.FillHist("cic_trkisooet_EE",2,val_trkisooet, evweight);
+		    l.FillHist("cic_hoe_EE",2,val_hoe, evweight);
+		}
 	    }
 
 	}

@@ -3021,6 +3021,7 @@ int LoopAll::DiphotonMITPreSelection(Float_t leadPtMin, Float_t subleadPtMin, Fl
             if ( leadpt < leadPtMin || subleadpt < subleadPtMin ) { continue; }
         }
     
+	if ( runZeeValidation && m_gamgam<70. ) { continue; }
 
         std::vector<std::vector<bool> > ph_passcut;
         if (!kinonly) {
@@ -4120,6 +4121,7 @@ int LoopAll::MuonSelection2012B(float muptcut){
         if(!MuonIsolation2012(indmu, thispt)) continue;
     
         mymu = indmu;
+        muptcut = thispt;
         if(GFDEBUG) std::cout<<"new mymu "<<mymu<<std::endl;
     }
     if(GFDEBUG) std::cout<<"final mymu "<<mymu<<std::endl;
@@ -4320,8 +4322,9 @@ int LoopAll::ElectronSelectionMVA2012(float elptcut){
     float bestmvaval=-2;
 
     for(int iel=0; iel<el_std_n; iel++){
-        if(ElectronMVACuts(iel)){
-            if(GFDEBUG) std::cout<<"passing mva "<<std::endl;
+        int vtx_ind = FindElectronVertex(iel);
+	if(ElectronMVACuts(iel,vtx_ind)){
+	  if(GFDEBUG) std::cout<<"passing mva "<<std::endl;
             TLorentzVector* thiselp4 = (TLorentzVector*) el_std_p4->At(iel);
             if(GFDEBUG) std::cout<<"passing eta "<<thiselp4->Eta()<<std::endl;
             if(elptcut<thiselp4->Pt()){

@@ -58,7 +58,7 @@ void CategoryAnalysis::Init(LoopAll& l)
         << "nEtaCategories "<< nEtaCategories << "\n"
         << "nR9Categories "<< nR9Categories << "\n"    
         << "nPtCategories "<< nPtCategories << "\n"    
-        << "efficiencyFile " << efficiencyFile << "\n"
+	<< "efficiencyFileMVA " << efficiencyFileMVA << "\n"
         << "-------------------------------------------------------------------------------------- \n"
         << std::endl;
 
@@ -73,12 +73,12 @@ void CategoryAnalysis::Init(LoopAll& l)
     diPhoCounter_ = l.countersred.size();
     l.countersred.resize(diPhoCounter_+1);
 
-    effSmearPars.categoryType = "2CatR9_EBEE";
-    effSmearPars.n_categories = 4;
-    effSmearPars.efficiency_file = efficiencyFile;
+    effSmearPars.categoryType = effPhotonCategoryType;
+    effSmearPars.n_categories = effPhotonNCat;
+    effSmearPars.efficiency_file = efficiencyFileMVA;
 
     diPhoEffSmearPars.n_categories = 8;
-    diPhoEffSmearPars.efficiency_file = efficiencyFile;
+    diPhoEffSmearPars.efficiency_file = efficiencyFileMVA;
 
     if( doEcorrectionSmear ) {
         // instance of this smearer done in PhotonAnalysis
