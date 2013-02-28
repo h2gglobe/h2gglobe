@@ -1016,7 +1016,7 @@ void SimultaneousFit::runFit(string proc, int cat, int nGaussians, int dmOrder, 
     exit(1);
   }
   if (doSMHiggsAsBackground_) {
-    MH_SM = new RooRealVar("MH_SM","m_{H} (SM)",mhLow_=-2.5,mhHigh_+2.5);
+    MH_SM = new RooRealVar("MH_SM","m_{H} (SM)",125.,mhLow_=-2.5,mhHigh_+2.5);
     MH_SM->setUnit("GeV");
   }
   if (doSecondHiggs_) {
