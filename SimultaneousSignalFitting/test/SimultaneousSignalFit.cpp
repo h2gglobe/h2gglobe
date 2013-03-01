@@ -35,6 +35,7 @@ bool initialFit_=true;
 bool onlyInitialFit_=false;
 bool linearInterp_=false;
 bool loadPriorConstraints_=false;
+float constraintValue_;
 bool setToFitValues_=false;
 bool simultaneousFit_=true;
 bool mhDependentFit_=false;
@@ -74,6 +75,7 @@ void OptionParser(int argc, char *argv[]){
     ("onlyInitialFit",                                                                        "Only run initial fit")
     ("linearInterp",                                                                          "Run the traditional method of directly interpolating parameters linearly")
     ("loadPriorConstraints",                                                                  "Load prior constraints from dat file")
+    ("constraintValue", po::value<float>(&constraintValue_)->default_value(0.1),              "Constraining factor (default is 0.1 = 10%)")
     ("setToFitValues",                                                                        "If running the traditional method this massively helps the interpolation (although it cheats slightly)")
     ("mhFit",                                                                                 "Run mh dependent fit instead of simultaneous fit (NOTE: still in development)")
     ("dumpVars,d",                                                                            "Dump variables into .dat file")
@@ -127,7 +129,7 @@ int main (int argc, char *argv[]){
   simultaneousFit->setInitialFit(initialFit_);
   simultaneousFit->setSimultaneousFit(simultaneousFit_);
   simultaneousFit->setMHDependentFit(mhDependentFit_);
-  simultaneousFit->setLoadPriorConstraints(loadPriorConstraints_);
+  simultaneousFit->setLoadPriorConstraints(loadPriorConstraints_,constraintValue_);
   if (linearInterp_) {
     simultaneousFit->setLinearInterp(true);
     onlyInitialFit_=true;

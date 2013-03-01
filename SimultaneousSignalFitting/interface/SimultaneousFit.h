@@ -43,7 +43,7 @@ class SimultaneousFit {
     void setSimultaneousFit(bool);
     void setMHDependentFit(bool);
     void setForceFracUnity(bool);
-    void setLoadPriorConstraints(bool);
+    void setLoadPriorConstraints(bool,float);
     void saveExtra(string name);
     
     vector<int> getAllMH();
@@ -211,6 +211,7 @@ class SimultaneousFit {
     RooHistFunc *funcEffAccRel;
     bool systematicsSet_;
     bool loadPriorConstraints_;
+    float constraintValue_;
     bool doSMHiggsAsBackground_;
     bool doSecondHiggs_;
     bool doNaturalWidth_;

@@ -96,8 +96,9 @@ void SimultaneousFit::setFork(int f){
   fork_=f;
 }
 
-void SimultaneousFit::setLoadPriorConstraints(bool p){
+void SimultaneousFit::setLoadPriorConstraints(bool p, float v){
   loadPriorConstraints_=p;
+  constraintValue_=v;
 }
 
 void SimultaneousFit::dumpStartVals(){
@@ -916,12 +917,11 @@ void SimultaneousFit::loadPriorConstraints(string filename, int mh){
     string gausN = name.substr(name.find("_g"),string::npos);
     string paramName = var+gausN;
     int mhS = boost::lexical_cast<int>(name.substr(name.find("_mh")+3,name.find("_g")-name.find("_mh")-3));
-    double val_constraint = 0.1;
     if (verbose_>=2) cout << paramName << " " << mhS << " " << val << endl;
     if (mhS==mh) {
       fitParams[paramName]->setVal(val);
-      if (val>0.) fitParams[paramName]->setRange((1-val_constraint)*val,(1+val_constraint)*val);
-      else fitParams[paramName]->setRange((1+val_constraint)*val,(1-val_constraint)*val);
+      if (val>0.) fitParams[paramName]->setRange((1.-constraintValue_)*val,(1.+constraintValue_)*val);
+      else fitParams[paramName]->setRange((1.+constraintValue_)*val,(1.-constraintValue_)*val);
     }
   }
   datfile.close();
@@ -1290,14 +1290,14 @@ void SimultaneousFit::runFit(string proc, int cat, int nGaussians, int dmOrder, 
   //outWS->import(*extendPdfRel);
   outWS->import(*finalPdf);
   outWS->import(*funcEffAccRel);
-  outWS->import(*funcEffAcc);
+  //outWS->import(*funcEffAcc);
   if (doSMHiggsAsBackground_){
     outWS->import(*smHiggsBkgPdf);
     outWS->import(*funcEffAccRel_SM);
   }
   if (doSecondHiggs_){
     outWS->import(*secondHiggsPdf);
-    outWS->import(*funcEffAccRel_2);
+    outWS->import(*funcEffAccRel_2,RecycleConflictNodes());
   }
   if (doNaturalWidth_){
     outWS->import(*naturalWidthPdf,RecycleConflictNodes());

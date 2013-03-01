@@ -13,6 +13,7 @@
 #include "RooDataSet.h"
 #include "RooAddPdf.h"
 #include "RooHistFunc.h"
+#include "HiggsAnalysis/CombinedLimit/interface/RooSpline1D.h"
 #include "RooRealVar.h"
 #include "RooFormulaVar.h"
 
@@ -23,6 +24,7 @@ namespace po = boost::program_options;
 
 string infilename_;
 string outfilename_;
+float lumi_;
 string wsname_;
 int mhLow_=110;
 int mhHigh_=150;
@@ -30,6 +32,9 @@ int ncats_;
 string webdir_;
 bool web_;
 bool makePlots_=false;
+bool doSMHiggsAsBackground_=true;
+bool doSecondHiggs_=true;
+bool doNaturalWidth_=true;
 vector<int> allMH_;
 
 vector<int> getAllMH(){
@@ -49,20 +54,27 @@ void OptionParser(int argc, char *argv[]){
     ("help,h",                                                                                "Show help")
     ("infilename,i", po::value<string>(&infilename_)->default_value("dat/filestocombine.dat"),"Input file name")
     ("outfilename,o", po::value<string>(&outfilename_)->default_value("CMS-HGG_sigfit.root"), "Output file name")
+    ("lumi,l", po::value<float>(&lumi_)->default_value(19620.0),                              "Luminosity")
     ("wsname,W", po::value<string>(&wsname_)->default_value("wsig_8TeV"),                     "Output workspace name")
     ("mhLow,L", po::value<int>(&mhLow_)->default_value(110),                                  "Low mass point")
     ("mhHigh,H", po::value<int>(&mhHigh_)->default_value(150),                                "High mass point")
     ("ncats,n", po::value<int>(&ncats_)->default_value(9),                                    "Number of categories")
     ("html,w", po::value<string>(&webdir_),                                                   "Make html in this directory")
     ("makePlots,P",                                                                           "Make AN style signal model plots")
+    ("noSMHiggsAsBackground",                                                                 "Turn off creation of additional model for SM Higgs as background")
+    ("noSecondHiggs",                                                                         "Turn off creation of additional model for a second Higgs")
+    ("noNaturalWidth",                                                                        "Turn off creation of additional model for natural width of the Higgs")
   ;
 
   po::variables_map vm;
   po::store(po::parse_command_line(argc,argv,desc),vm);
   po::notify(vm);
   if (vm.count("help")){ cout << desc << endl; exit(1);}
-  if (vm.count("html"))             web_=true;
-  if (vm.count("makePlots"))        makePlots_=true;
+  if (vm.count("html"))                     web_=true;
+  if (vm.count("makePlots"))                makePlots_=true;
+  if (vm.count("noSMHiggsAsBackground"))    doSMHiggsAsBackground_=false;
+  if (vm.count("noSecondHiggs"))            doSecondHiggs_=false;
+  if (vm.count("noNaturalWidth"))           doNaturalWidth_=false;
   allMH_ = getAllMH();
 }
  
@@ -100,7 +112,7 @@ int main (int argc, char *argv[]){
 
   TFile *outFile = new TFile(outfilename_.c_str(),"RECREATE");
 
-  RooRealVar *intLumi = new RooRealVar("IntLumi","IntLumi",19620.,0.,10.e5);
+  RooRealVar *intLumi = new RooRealVar("IntLumi","IntLumi",lumi_,0.,10.e5);
   // first loop files and import all pdfs and dataset into one workspace
   RooWorkspace *work = NULL;
   for (map<string,pair<string,int> >::iterator file=filestocombine.begin(); file!=filestocombine.end(); file++){
@@ -110,14 +122,36 @@ int main (int argc, char *argv[]){
 
     TFile *thisFile = TFile::Open(file->first.c_str());
     
+    // if it's the first file get that workspace
     if (file==filestocombine.begin()) {
       work = (RooWorkspace*)thisFile->Get("wsig");
       work->SetName(wsname_.c_str());
     }
+    // else add pdfs and and datasets to that workspace
     else {
       RooWorkspace *tempWS = (RooWorkspace*)thisFile->Get("wsig");
-      RooAddPdf *resultPdf = (RooAddPdf*)tempWS->pdf(Form("sigpdfrel_%s_cat%d",proc.c_str(),cat));
-      work->import(*resultPdf);
+      RooAddPdf *resultPdf = (RooAddPdf*)tempWS->pdf(Form("hggpdfrel_%s_cat%d",proc.c_str(),cat));
+      RooHistFunc *resultNorm = (RooHistFunc*)tempWS->function(Form("hggpdfrel_%s_cat%d_norm",proc.c_str(),cat));
+      work->import(*resultPdf,RecycleConflictNodes());
+      work->import(*resultNorm,RecycleConflictNodes());
+      if (doSMHiggsAsBackground_){
+        RooAddPdf *resultPdf_SM = (RooAddPdf*)tempWS->pdf(Form("hggpdfrel_%s_cat%d_SM",proc.c_str(),cat));
+        RooHistFunc *resultNorm_SM = (RooHistFunc*)tempWS->function(Form("hggpdfrel_%s_cat%d_SM_norm",proc.c_str(),cat));
+        work->import(*resultPdf_SM,RecycleConflictNodes());
+        work->import(*resultNorm_SM,RecycleConflictNodes());
+      }
+      if (doSecondHiggs_){
+        RooAddPdf *resultPdf_2 = (RooAddPdf*)tempWS->pdf(Form("hggpdfrel_%s_cat%d_2",proc.c_str(),cat));
+        RooSpline1D *resultNorm_2 = (RooSpline1D*)tempWS->function(Form("hggpdfrel_%s_cat%d_2_norm",proc.c_str(),cat));
+        work->import(*resultPdf_2,RecycleConflictNodes());
+        work->import(*resultNorm_2,RecycleConflictNodes());
+      }
+      if (doNaturalWidth_){
+        RooAddPdf *resultPdf_NW = (RooAddPdf*)tempWS->pdf(Form("hggpdfrel_%s_cat%d_NW",proc.c_str(),cat));
+        RooHistFunc *resultNorm_NW = (RooHistFunc*)tempWS->function(Form("hggpdfrel_%s_cat%d_NW_norm",proc.c_str(),cat));
+        work->import(*resultPdf_NW,RecycleConflictNodes());
+        work->import(*resultNorm_NW,RecycleConflictNodes());
+      }
       for (unsigned int i=0; i<allMH_.size(); i++){
         int m = allMH_[i];
         RooDataSet *resultData = (RooDataSet*)tempWS->data(Form("sig_%s_mass_m%d_cat%d",proc.c_str(),m,cat));
@@ -126,11 +160,11 @@ int main (int argc, char *argv[]){
     }
   }
  
-  vector<string> expectedObjectsNotFound;
-
   // now we want to sum up some datasets and their respective pdfs for sig_eff calculations later
+  vector<string> expectedObjectsNotFound;
   for (unsigned int i=0; i<allMH_.size(); i++){
     int m = allMH_[i];
+    // make sums of SM datasets first
     RooDataSet *allDataThisMass = NULL;
     for (int cat=0; cat<ncats_; cat++){
       RooDataSet *allDataThisCat = NULL;
@@ -158,6 +192,7 @@ int main (int argc, char *argv[]){
     }
     work->import(*allDataThisMass);
   }
+  // make sums of SM pdfs
   RooArgList *sumPdfs = new RooArgList();
   for (int cat=0; cat<ncats_; cat++){
     RooArgList *sumPdfsThisCat = new RooArgList();
@@ -167,7 +202,7 @@ int main (int argc, char *argv[]){
       RooAddPdf *pdf = (RooAddPdf*)work->pdf(Form("hggpdfrel_%s_cat%d",proc->c_str(),cat));
       RooFormulaVar *thisLumNorm = new RooFormulaVar(Form("hggpdfabs_%s_cat%d_norm",proc->c_str(),cat),Form("hggpdfabs_%s_cat%d_norm",proc->c_str(),cat),"@*@1",RooArgList(*norm,*intLumi));
       if (!norm && !pdf) cout << "AHHHH" << endl;
-      RooExtendPdf *tempPdf = new RooExtendPdf(Form("sigpdfabs_%s_cat%d",proc->c_str(),cat),Form("sigpdfabs_%s_cat%d",proc->c_str(),cat),*pdf,*thisLumNorm);
+      RooExtendPdf *tempPdf = new RooExtendPdf(Form("sigpdfrel_%s_cat%d",proc->c_str(),cat),Form("sigpdfrel_%s_cat%d",proc->c_str(),cat),*pdf,*thisLumNorm);
       if (!tempPdf) {
         cerr << "WARNING -- pdf: " << Form("sigpdfrel_%s_cat%d",proc->c_str(),cat) << " not found. It will be skipped" << endl;
         expectedObjectsNotFound.push_back(Form("sigpdfrel_%s_cat%d",proc->c_str(),cat));
@@ -187,7 +222,7 @@ int main (int argc, char *argv[]){
   }
   else {
     RooAddPdf *sumPdfsAllCats = new RooAddPdf("sigpdfrelAllCats_allProcs","sigpdfrelAllCats_allProcs",*sumPdfs);
-    work->import(*sumPdfsAllCats);
+    work->import(*sumPdfsAllCats,RecycleConflictNodes());
   }
 
   outFile->cd();
@@ -214,12 +249,15 @@ int main (int argc, char *argv[]){
   }
 
   if (makePlots_){
+    cout << "Sorry making AN style plots is not yet implemented" << endl;
+    /*
     ifstream tempfile("../Macros/makeParametricSignalModelPlots.C");
     if (!tempfile) {
       cout << "I'm looking for a file: ../Macros/makeParametricSignalModelPlots.C to make the AN plots but I can't find it. Bailing!" << endl;
       exit(1);
     }
     gROOT->ProcessLine(".L ../Macros/makeParametricSignalModelPlots.C+g");
+    */
   }
 
   return 0;

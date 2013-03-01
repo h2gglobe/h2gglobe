@@ -18,8 +18,8 @@ CMS-HGG_vbf_cat0.root vbf 0 3 1 1 1
 CMS-HGG_vbf_cat1.root vbf 1 4 1 1 1
 CMS-HGG_vbf_cat2.root vbf 2 3 1 1 1
 CMS-HGG_vbf_cat3.root vbf 3 3 1 1 1
-CMS-HGG_vbf_cat4.root vbf 4 4 1 1 1
-CMS-HGG_vbf_cat5.root vbf 5 3 1 1 1
+CMS-HGG_vbf_cat4.root vbf 4 2 1 1 1
+CMS-HGG_vbf_cat5.root vbf 5 2 1 1 1
 CMS-HGG_vbf_cat6.root vbf 6 1 1 1 1
 CMS-HGG_vbf_cat7.root vbf 7 1 1 1 1
 CMS-HGG_vbf_cat8.root vbf 8 2 1 1 1
@@ -29,7 +29,7 @@ CMS-HGG_wzh_cat1.root wzh 1 5 1 1 1
 CMS-HGG_wzh_cat2.root wzh 2 4 1 1 1
 CMS-HGG_wzh_cat3.root wzh 3 3 1 1 1
 CMS-HGG_wzh_cat4.root wzh 4 1 1 1 1
-CMS-HGG_wzh_cat5.root wzh 5 3 1 1 1
+CMS-HGG_wzh_cat5.root wzh 5 1 1 1 1
 CMS-HGG_wzh_cat6.root wzh 6 3 1 1 1
 CMS-HGG_wzh_cat7.root wzh 7 3 1 1 1
 CMS-HGG_wzh_cat8.root wzh 8 3 1 1 1
@@ -38,8 +38,8 @@ CMS-HGG_tth_cat0.root tth 0 4 1 1 1
 CMS-HGG_tth_cat1.root tth 1 5 1 1 1
 CMS-HGG_tth_cat2.root tth 2 3 1 1 1
 CMS-HGG_tth_cat3.root tth 3 3 1 1 1
-CMS-HGG_tth_cat4.root tth 4 3 1 1 1
-CMS-HGG_tth_cat5.root tth 5 3 1 1 1
+CMS-HGG_tth_cat4.root tth 4 2 1 1 1
+CMS-HGG_tth_cat5.root tth 5 2 1 1 1
 CMS-HGG_tth_cat6.root tth 6 5 1 1 1
 CMS-HGG_tth_cat7.root tth 7 4 1 1 1
 CMS-HGG_tth_cat8.root tth 8 3 1 1 1
