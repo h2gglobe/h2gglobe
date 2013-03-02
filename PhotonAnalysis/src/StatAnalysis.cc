@@ -816,7 +816,7 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 	    			   phoSys, syst_shift);
 
 	    // Fill CiC efficiency plots for ggH, mH=124
-	    //if (cur_type==-73) fillSignalEfficiencyPlots(weight, l);
+	    //fillSignalEfficiencyPlots(weight, l);
 
 	    // inclusive category di-photon selection
 	    // FIXME pass smeared R9
@@ -1634,7 +1634,7 @@ void StatAnalysis::fillSignalEfficiencyPlots(float weight, LoopAll & l)
 {
     //Fill histograms to use as denominator (kinematic pre-selection only) and numerator (selection applied)
     //for single photon ID efficiency calculation.
-    int diphoton_id_kinpresel = l.DiphotonMITPreSelection(leadEtCut,subleadEtCut,-1.,applyPtoverM, &smeared_pho_energy[0], true );
+    int diphoton_id_kinpresel = l.DiphotonMITPreSelection(leadEtCut,subleadEtCut,-1.,applyPtoverM, &smeared_pho_energy[0], -1, false, true );
     if (diphoton_id_kinpresel>-1) {
 
 	TLorentzVector lead_p4, sublead_p4, Higgs;
