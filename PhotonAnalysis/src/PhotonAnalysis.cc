@@ -533,9 +533,13 @@ void PhotonAnalysis::Init(LoopAll& l)
     if (l.runZeeValidation) {
 
 	triggerSelections.push_back(TriggerSelection(1,-1));
-	triggerSelections.back().addpath("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass70_v");
-	//***uncomment if the validation does not include runD***:
-	//triggerSelections.back().addpath("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass60_v");
+	if (useRunDTriggersForZee) {
+	    //use this if the validation includes runD
+	    triggerSelections.back().addpath("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass70_v");
+	} else {
+	    //use this if the validation does not include runD
+	    triggerSelections.back().addpath("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass60_v");
+	}
 	triggerSelections.back().addpath("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_R9Id85_OR_CaloId10_Iso50_v");
 
     } else {
