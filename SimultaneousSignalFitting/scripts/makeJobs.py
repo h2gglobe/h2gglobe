@@ -13,6 +13,7 @@ parser.add_option("--submit",action="store_true",dest="submit",default=False)
 parser.add_option("--runLocal",action="store_true",dest="runLocal",default=False)
 parser.add_option("--linearInterp",action="store_true",dest="linearInterp",default=False)
 parser.add_option("--loadPriorConstraints",action="store_true",dest="loadPriorConstraints",default=False)
+parser.add_option("--constraintValue",dest="constraintValue",type="float",default=0.1)
 parser.add_option("--dryRun",action="store_true",dest="dryRun",default=False)
 (options,args)=parser.parse_args()
 
@@ -47,7 +48,7 @@ for line in datfile.readlines():
   subLine = './bin/SimultaneousSignalFit -i %s -o %s -p %s -c %d -g %d -L %d -H %d '%(inWSfile,outfile,proc,cat,nGaus,options.mhLow,options.mhHigh)
   if options.linearInterp: subLine += '--onlyInitialFit --linearInterp '
   else: subLine += '--dmOrder %d --sigmaOrder %d --fracOrder %d '%(dmOrder,sigOrder,fracOrder)
-  if options.loadPriorConstraints: subLine += '--loadPriorConstraints '
+  if options.loadPriorConstraints: subLine += '--loadPriorConstraints --constraintValue %1.4f '%options.constraintValue
   if options.fork: subLine += '--fork %d '%options.fork
   if options.recursive: subLine += '--recursive '
   

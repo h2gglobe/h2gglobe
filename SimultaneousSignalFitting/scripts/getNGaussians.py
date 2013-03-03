@@ -5,7 +5,7 @@ import numpy
 import os
 
 def getNGaus(proc,cat):
-  f = open('dat/out/initFit_%s_cat%d.dat'%(proc,cat))
+  f = open('dat/in/initFit_%s_cat%d.dat'%(proc,cat))
   lines=[]
   for line in f.readlines():
     gLine = line.split()[0].split('_g')[-1]

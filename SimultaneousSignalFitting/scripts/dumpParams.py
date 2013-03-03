@@ -21,11 +21,13 @@ def dumpValues(ws,proc,cat):
   it = comps.createIterator()
   comp = it.Next()
   vals=[]
+  gmax=0
   for i in range(comps.getSize()):
     name = comp.GetName()
     if 'func' in name:
       g = int(name.split('_g')[1].split('_%s'%proc)[0])
       type = name.split('_g')[0].split('func_')[1]
+      gmax = max(gmax,g)
       for m in numpy.arange(110,151,5):
         mh.setVal(m)
         vals.append('%s_mh%d_g%d %1.5f'%(type,m,g,comp.getVal()))
@@ -34,12 +36,17 @@ def dumpValues(ws,proc,cat):
   vals.sort()
   if options.dir:
     f = open('%s/initFit_%s_cat%d.dat'%(options.dir,proc,cat),'w')
-  
+ 
+  print 'CMS-HGG_%s_cat%d.root'%(proc,cat), proc, cat, gmax+1, '1 1 1'
+
+  # print the value (want frac values for g-1 only)
   for s in vals:
     if options.dir:
-      f.write('%s\n'%s)
+      if 'frac' in s and '_g%d'%gmax in s: continue
+      else: f.write('%s\n'%s)
     else:
-      print s
+      if 'frac' in s and '_g%d'%gmax in s: continue
+      else: print s
 
   if options.dir: f.close()
 
