@@ -12,7 +12,7 @@ def main(options,args):
     
     mydir = os.path.dirname(sys.argv[0])
     ROOT.gSystem.SetIncludePath("-I$ROOTSYS/include -I$ROOFITSYS/include -I%s" % (mydir))
-    ROOT.gROOT.LoadMacro("%s/SplitMiniTree.C+" % mydir )
+    ROOT.gROOT.LoadMacro("%s/SplitMiniTree.C+g" % mydir )
 
     partitions = json.load(open(options.partitions))
 
@@ -42,7 +42,7 @@ def main(options,args):
     for ipart,partition in enumerate(partitions):
         for run,lumi,event in partition:
             splitMiniTree.addToPartition(ipart,run,lumi,event)
-
+    
     splitMiniTree.splitCopy()
 
     print "npart: %d" % len(partitions)

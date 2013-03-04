@@ -111,7 +111,7 @@ void HggMiniTree::Init(TTree *tree)
    fChain->SetBranchAddress("lumis", &lumis, &b_lumis);
    fChain->SetBranchAddress("event", &event, &b_event);
    fChain->SetBranchAddress("category", &category, &b_category);
-   fChain->SetBranchAddress("diphotonMVA", &diphotonMVA, &b_diphotonMVA);
+   /// fChain->SetBranchAddress("diphotonMVA", &diphotonMVA, &b_diphotonMVA);
    fChain->SetBranchAddress("CMS_hgg_mass", &CMS_hgg_mass, &b_CMS_hgg_mass);
    Notify();
 }

@@ -23,4 +23,5 @@ for part in $(seq 0 $npart); do
     mv ${pattern}${part}.root part${part}/${fname}
     cp -p $datacard part${part}
     [[ -f $sig ]] && ln -s $sig part${part}
+    cp -p ../../seed.txt part${part}
 done
