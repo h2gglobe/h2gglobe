@@ -41,7 +41,7 @@ void makeParametricModelDatacard(string infilename, string wsfilename="0", strin
 
   const double lumiuncert = 1.044;
   const double triguncert = 1.01;
-  const double vtxuncert = 0.005;
+  const double vtxuncert = 0.002;
 
   const int ncats=9;
   const int nInclusiveCats=4;
@@ -501,14 +501,14 @@ void makeParametricModelDatacard(string infilename, string wsfilename="0", strin
   
   fprintf(file, "CMS_hgg_eff_e         lnN  ");
   for (int icat=0; icat<ncats; ++icat) {
-    if (icat==eleTag) fprintf(file, "- - 1.015 1.015 - ");
+    if (icat==eleTag) fprintf(file, "- - 1.010 1.010 - ");
     else fprintf(file, "- - - - - ");
   }
   fprintf(file,"\n");      
 
   fprintf(file, "CMS_hgg_eff_m         lnN  ");
   for (int icat=0; icat<ncats; ++icat) {
-    if (icat==muTag) fprintf(file, "- - 1.005 1.005 - ");
+    if (icat==muTag) fprintf(file, "- - 1.010 1.010 - ");
     else fprintf(file, "- - - - - ");
   }
   fprintf(file,"\n");      
