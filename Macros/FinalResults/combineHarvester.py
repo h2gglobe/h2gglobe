@@ -382,7 +382,7 @@ for card, folder, splitChannels in config:
     f.close()
     os.system('chmod +x %s'%f.name)
 
-    if not options.dryRun and not options.skipDatacard and not len(splitCards)==0: os.system('bsub -q %s -o %s.log %s'%(options.queue,f.name,f.name))
+    if not options.dryRun and (not options.skipDatacard or len(splitCards)!=0): os.system('bsub -q %s -o %s.log %s'%(options.queue,f.name,f.name))
   
   # these scripts should really be run locally
   if options.doSpecials:
