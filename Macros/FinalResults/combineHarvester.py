@@ -90,9 +90,9 @@ def writeProfileLikelhood(file,path,card,folder,mh):
     file.write('\t combine %s/%s -M ProfileLikelihood -m %s -n %sExp --signif --pval -t -1 --expectSignal=1\n'%(path,card,m,folder))  
     file.write(') then\n')
     file.write('\t mv higgsCombine%sExp.ProfileLikelihood.mH%s.root %s/%s/ExpProfileLikelihood\n'%(folder,m,path,folder))
-    file.write('\t touch %s.done'%file.name)
+    file.write('\t touch %s.done\n'%file.name)
     file.write('else\n')
-    file.write('\t touch %s.fail'%file.name)
+    file.write('\t touch %s.fail\n'%file.name)
     file.write('fi\n')
   if 'ExpProfileLikelihoodm125' in options.methods and options.parametric:
     file.write('if ( \n')
