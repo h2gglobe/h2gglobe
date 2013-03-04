@@ -14,6 +14,10 @@ scaleR9Only=0
 doTriggerSelection=1 
 reRunCiCForData=1
 
+# options for applying Fabians corrections
+applyIdmvaCorrection=1
+applySigmaECorrection=1
+
 ## Moved to analysis_settings.dat
 ### leadEtVBFCut=55
 subleadEtVBFCut=30

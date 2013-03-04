@@ -31,6 +31,9 @@ MassFactorizedMvaAnalysis::~MassFactorizedMvaAnalysis()
 void MassFactorizedMvaAnalysis::Term(LoopAll& l) 
 {
 
+    idmvascaleFile->Close();
+    sigmaescaleFile->Close();
+
     if (! l.is_subjob){ // no need to waste time when running a subjob
         std::string outputfilename = (std::string) l.histFileName;
         // if (dataIs2011) l.rooContainer->FitToData("data_pol_model_7TeV","data_mass");
@@ -54,6 +57,9 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
 {
     if(PADEBUG) 
         cout << "InitRealMassFactorizedMvaAnalysis START"<<endl;
+
+    idmvascaleFile = TFile::Open("aux/Moriond13_phIDMVA.root");
+    sigmaescaleFile = TFile::Open("aux/Moriond13_phSigEoE.root");
 
     nevents=0., sumwei=0.; 
     sumaccept=0., sumsmear=0., sumev=0.;
@@ -727,6 +733,48 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
             }
             }
         }
+        
+        TString runPeriod="ABCD";
+        // Apply sigmaE rescaling a la F. Stockli
+        if(cur_type!=0 && applySigmaECorrection) {
+            //Apply corrections to sigmaE/E
+            TGraph* sigmaescale;
+            TString histname;
+
+            if (fabs(lead_p4.Eta())<1.) {
+            histname = "sigeoescale_"+runPeriod+"_0_10";
+            } else if (fabs(lead_p4.Eta())<1.5) {
+            histname = "sigeoescale_"+runPeriod+"_10_15";
+            } else if (fabs(lead_p4.Eta())<2.0) {
+            histname = "sigeoescale_"+runPeriod+"_15_20";
+            } else {
+            histname = "sigeoescale_"+runPeriod+"_20_25";
+            }
+            sigmaescale = (TGraph*)sigmaescaleFile->Get(histname);
+
+            //cout << energyCorrectedError[diphoton_index.first] << " " << photonInfoCollection[diphoton_index.first].corrEnergyErr() << " ";
+
+            float oldSigmaEOverE = photonInfoCollection[diphoton_index.first].corrEnergyErr()/lead_p4.E();
+            float newSigmaEOverE = TMath::Exp(sigmaescale->Eval(TMath::Log(oldSigmaEOverE)));
+            photonInfoCollection[diphoton_index.first].setCorrEnergyErr(newSigmaEOverE*lead_p4.E());
+
+            //cout << photonInfoCollection[diphoton_index.first].corrEnergyErr() << endl;
+
+            if (fabs(sublead_p4.Eta())<1.) {
+            histname = "sigeoescale_"+runPeriod+"_0_10";
+            } else if (fabs(sublead_p4.Eta())<1.5) {
+            histname = "sigeoescale_"+runPeriod+"_10_15";
+            } else if (fabs(sublead_p4.Eta())<2.0) {
+            histname = "sigeoescale_"+runPeriod+"_15_20";
+            } else {
+            histname = "sigeoescale_"+runPeriod+"_20_25";
+            }
+            sigmaescale = (TGraph*)sigmaescaleFile->Get(histname);
+
+            oldSigmaEOverE = photonInfoCollection[diphoton_index.second].corrEnergyErr()/sublead_p4.E();
+            newSigmaEOverE = TMath::Exp(sigmaescale->Eval( TMath::Log(oldSigmaEOverE)));
+            photonInfoCollection[diphoton_index.second].setCorrEnergyErr(newSigmaEOverE*sublead_p4.E());
+        }
 
         // Mass Resolution of the Event
         massResolutionCalculator->Setup(l,&photonInfoCollection[diphoton_index.first],&photonInfoCollection[diphoton_index.second],diphoton_id,
@@ -748,6 +796,46 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
                              sublead_p4,bdtTrainingPhilosophy.c_str()) : 
                        l.photonIDMVANew(diphoton_index.second,l.dipho_vtxind[diphoton_id],
 					sublead_p4,bdtTrainingPhilosophy.c_str()));
+	
+        // Apply photonID rescaling a la F. Stocklie
+        if(cur_type!=0 && applyIdmvaCorrection) {
+            //Apply corrections to ID MVA output
+            TGraph* idmvascale;
+            TString histname;
+
+            if (fabs(lead_p4.Eta())<1.479) {
+                if (lead_r9>0.94) {
+                    histname = "idmvascale_"+runPeriod+"_hR9_EB";
+                } else {
+                    histname = "idmvascale_"+runPeriod+"_lR9_EB";
+                }
+            } else {
+                if (lead_r9>0.94) {
+                    histname = "idmvascale_"+runPeriod+"_hR9_EE";
+                } else {
+                    histname = "idmvascale_"+runPeriod+"_lR9_EE";
+                }
+            }
+            idmvascale = (TGraph*)idmvascaleFile->Get(histname);
+            phoid_mvaout_lead = idmvascale->Eval(phoid_mvaout_lead);
+
+            if (fabs(sublead_p4.Eta())<1.479) {
+                if (sublead_r9>0.94) {
+                    histname = "idmvascale_"+runPeriod+"_hR9_EB";
+                } else {
+                    histname = "idmvascale_"+runPeriod+"_lR9_EB";
+                }
+            } else {
+                if (sublead_r9>0.94) {
+                    histname = "idmvascale_"+runPeriod+"_hR9_EE";
+                } else {
+                    histname = "idmvascale_"+runPeriod+"_lR9_EE";
+                }
+            }
+            idmvascale = (TGraph*)idmvascaleFile->Get(histname);
+            phoid_mvaout_sublead = idmvascale->Eval(phoid_mvaout_sublead);
+        }
+    
 
 	// apply di-photon level smearings and corrections
         int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories);
@@ -819,10 +907,6 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 
         // save trees for IC spin analysis
         if (!isSyst && saveSpinTrees_) saveSpinTree(l,category,evweight,Higgs,lead_p4,sublead_p4,diphoton_index.first,diphoton_index.second,diphobdt_output,sigmaMrv,sigmaMwv,massResolutionCalculator->leadPhotonResolution(),massResolutionCalculator->leadPhotonResolutionNoSmear(),massResolutionCalculator->subleadPhotonResolution(),massResolutionCalculator->subleadPhotonResolutionNoSmear(),vtxProb,phoid_mvaout_lead,phoid_mvaout_sublead);
-
-
-
-
 
 
         // fill control plots and counters

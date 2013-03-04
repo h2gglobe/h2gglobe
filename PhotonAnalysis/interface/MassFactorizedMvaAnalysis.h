@@ -58,6 +58,12 @@ class MassFactorizedMvaAnalysis : public StatAnalysis
     bool fillOptree;
     bool forceStdPlotsOnZee;
 
+    bool applyIdmvaCorrection;
+    bool applySigmaECorrection;
+
+    TFile* idmvascaleFile;
+    TFile* sigmaescaleFile;
+
     std::string bdtTrainingPhilosophy;
     std::string photonLevelMvaUCSD  ;
     std::string eventLevelMvaUCSD   ;                    
