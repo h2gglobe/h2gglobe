@@ -92,10 +92,18 @@ void makeParametricModelDatacard(string infilename, string wsfilename="0", strin
 
   // inclusive category boundary cuts
   vector<TCut> inccats;
-  inccats.push_back(TCut("(inc_cat==0)"));
-  inccats.push_back(TCut("(inc_cat==1)"));
-  inccats.push_back(TCut("(inc_cat==2)"));
-  inccats.push_back(TCut("(inc_cat==3)"));
+  if (massfact){
+    inccats.push_back(TCut("(bdtmod>=0.91)"));
+    inccats.push_back(TCut("(bdtmod>=0.79 && bdtmod<0.91)"));
+    inccats.push_back(TCut("(bdtmod>=0.49 && bdtmod<0.79)"));
+    inccats.push_back(TCut("(bdtmod>=(-0.05) && bdtmod<0.49)"));
+  }
+  else {
+    inccats.push_back(TCut("(inc_cat==0)"));
+    inccats.push_back(TCut("(inc_cat==1)"));
+    inccats.push_back(TCut("(inc_cat==2)"));
+    inccats.push_back(TCut("(inc_cat==3)"));
+  }
 
   // start by setting bdtmod as alias for bdtout
   // this can change later when bdtmod becomes bdtout_id_shift etc.

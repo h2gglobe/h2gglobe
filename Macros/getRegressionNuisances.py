@@ -10,7 +10,7 @@ ROOT.gROOT.ProcessLine(".L quadInterpolate.C+")
 from ROOT import quadInterpolate
 
 procs = [ "ggh", "vbf", "wzh", "tth" ]
-ncat  = 4
+ncat  = 9
 ntot  = 9
 
 nuis = {}
@@ -30,7 +30,7 @@ for cat in range(ncat):
         else:
             nuis[cat][proc] = (1.,1.)
 
-print syst,  
+print syst, '  lnN  ',  
 for cat in range(ncat):
     for proc in procs:
         print "%1.3f/%1.3f " % nuis[cat][proc],
