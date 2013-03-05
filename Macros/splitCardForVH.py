@@ -20,7 +20,23 @@ oldProcesses=['ggH','qqH','VH','ttH','bkg_mass']
 newProcesses=['ggH','qqH','WH','ZH','ttH','bkg_mass']
 details=[]
 
-for line in f.readlines():
+fileLines = f.readlines()
+elsToDuplicate=[]
+
+# figure out which lines need duplicating
+for line in fileLines:
+  if not line.startswith('process'): continue
+  elif '0' in line: continue
+  else: 
+    els = line.split()
+    els = els[1:]
+    for i, el in enumerate(els):
+      if el=='VH': elsToDuplicate.append(i)
+    
+for line in fileLines:
+  if 'param' in line:
+    print line,
+    continue
   if line.startswith('shapes VH'):
     print line.replace('VH','WH').replace('wzh','wh'),
     print line.replace('VH','ZH').replace('wzh','zh'),
@@ -40,10 +56,8 @@ for line in f.readlines():
       print els[0], '   ',
       els = els[1:]
     for i,el in enumerate(els):
-      if (i-2)%len(oldProcesses)==0:
-        print el, el,
-      else:
-        print el,
+      if i in elsToDuplicate: print el, el,
+      else: print el,
     print 
     continue
   if atrel and line.startswith('process'):
@@ -57,7 +71,7 @@ for line in f.readlines():
     print els[0], '   ',
     els = els[1:]
     for i, el in enumerate(els):
-      if (i-2)%len(oldProcesses)==0:
+      if i in elsToDuplicate:
         print float(el)*whFrac[i//len(oldProcesses)], float(el)*(1.0-whFrac[i//len(oldProcesses)]),
       else:
         print float(el),
