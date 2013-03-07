@@ -75,7 +75,7 @@ void massPlot(TString category="0", TString var="all_mass", TString analysis="ma
 
   float lumiSF=1.;
   hist_mass_born->Scale(lumiSF);
-  hist_mass_box->Scale(lumiSF);
+  hist_mass_box->Scale(lumiSF*18/17);
   hist_mass_gjet_pf->Scale(lumiSF);
   hist_mass_qcd_pf->Scale(lumiSF);
   hist_mass_qcd_ff->Scale(lumiSF);
@@ -85,6 +85,7 @@ void massPlot(TString category="0", TString var="all_mass", TString analysis="ma
   //fix DY normalization
   //hist_mass_dy->Scale(2.089*3532.8/(2950.*1.15));
   //hist_mass_dy->Scale((2950.*1.15)/(3532.8));
+  //hist_mass_dy->Scale(1./2.089);
 
 //   cout << hist_mass_born->Integral() << ", ";
 //   cout << hist_mass_box->Integral() << ", ";
@@ -100,17 +101,17 @@ void massPlot(TString category="0", TString var="all_mass", TString analysis="ma
   hist_mass_ff = (TH1*)hist_mass_qcd_ff->Clone();
 
   if (var=="all_mass") {
-    float n_pp = hist_mass_pp->Integral(16,35);
-    float n_pf = hist_mass_pf->Integral(16,35);
-    float n_ff = hist_mass_ff->Integral(16,35);
+    float n_pp = hist_mass_pp->Integral(31,70);
+    float n_pf = hist_mass_pf->Integral(31,70);
+    float n_ff = hist_mass_ff->Integral(31,70);
     float frac_pp = n_pp/(n_pp+n_pf+n_ff);
-    cout << "frac_pp = " << frac_pp << " " << hist_mass_pp->GetXaxis()->GetBinLowEdge(16) << " " << hist_mass_pp->GetXaxis()->GetBinLowEdge(36) << endl;
+    cout << "frac_pp = " << frac_pp << " " << hist_mass_pp->GetXaxis()->GetBinLowEdge(31) << " " << hist_mass_pp->GetXaxis()->GetBinLowEdge(71) << endl;
 
     float n_bkg=0.;
-    n_bkg += hist_mass_pp->Integral(16,25);
-    n_bkg += hist_mass_pf->Integral(16,25);
-    n_bkg += hist_mass_ff->Integral(16,25);
-    n_bkg += hist_mass_dy->Integral(16,25);
+    n_bkg += hist_mass_pp->Integral(31,50);
+    n_bkg += hist_mass_pf->Integral(31,50);
+    n_bkg += hist_mass_ff->Integral(31,50);
+    n_bkg += hist_mass_dy->Integral(31,50);
     cout << "Total background (110-130): " << n_bkg << endl;
   }
 

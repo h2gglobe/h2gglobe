@@ -3,15 +3,21 @@ intL=19600. histfile=cic/CMS-HGG_cic.root output=cic/eventsList.txt
 #
 # Data
 #
-typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v2/data/Photon_Run2012A-13Jul2012-v1
-typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v2/data/Photon_Run2012A-recover-06Aug2012-v1
-typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v2/data/DoublePhoton_Run2012B-13Jul2012-v1
-typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v2/data/DoublePhoton_Run2012C-24Aug2012-v2
-typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v2/data/DoublePhoton_Run2012C-EcalRecover_11Dec2012-v1
-typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v2/data/DoublePhoton_Run2012C-PromptReco-v2
-typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v2/data/DoublePhoton_Run2012C-PromptReco-v2_sub2
-typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v2/data/DoublePhoton_Run2012D-PromptReco-v1
-typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v2/data/DoublePhoton_Run2012D-PromptReco-v1_sub2
+
+##  I didn't put a json... seemed unnecessary
+typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v1/data/Photon_Run2012A-13Jul2012-v1
+typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v1/data/Photon_Run2012A-recover-06Aug2012-v1
+
+typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v1/data/DoublePhoton_Run2012B-13Jul2012-v1
+
+typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v1/data/DoublePhoton_Run2012C-24Aug2012-v2
+typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v1/data/DoublePhoton_Run2012C-EcalRecover_11Dec2012-v1
+typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v1/data/DoublePhoton_Run2012C-PromptReco-v2
+typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v1/data/DoublePhoton_Run2012C-PromptReco-v2_sub2
+
+typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v1/data/DoublePhoton_Run2012D-PromptReco-v1
+typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v1/data/DoublePhoton_Run2012D-PromptReco-v1_sub2
+
 
 #
 # Signal
@@ -36,7 +42,7 @@ typ=+42    ind=104 draw=1  Nam=GJet40PF    CaDir=/store/group/phys_higgs/cmshgg/
 
 typ=+4    ind=96 draw=1  Nam=DiPhotonJets CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v1/mc/Summer12_S10_8TeV/DiPhotonJets_8TeV-madgraph-tarball-v2_Summer12_DR53X-PU_S10_START53_V7A-v1    red=0   lum=1.e10  xsec=75.39   kfac=1.15  scal=1.
 typ=+14    ind=107 draw=1  Nam=DiPhotonBox25        CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v1/mc/Summer12_S10_8TeV/DiPhotonBox_Pt-25To250_8TeV-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1    red=0   lum=1.e10   xsec=15.54   kfac=1.15  scal=1.
-#negligible contribution: typ=+24    ind=108 draw=1  Nam=DiPhotonBox250        CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v1/mc/Summer12_S10_8TeV/DiPhotonBox_Pt-250ToInf_8TeV-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1    red=0   lum=1.e10   xsec=0.0011805   kfac=1.15  scal=1.
+
 
 #
 # DY MC
@@ -52,7 +58,6 @@ inputBranches minimal_statanalysis_input.dat
 inputBranches minimal_leptmetanalysis_input.dat
 
 treevariables massfac_mva_binned/fullmvatrees.dat
-cuts jetanalysis/cuts_vbfcutb.dat
 
 ## define analyses to run
 ##   a library containing the class dictionary has loaded before parsing the
@@ -61,4 +66,4 @@ cuts jetanalysis/cuts_vbfcutb.dat
 ##   analyzer <class_name> <config_file>
 ##
 ## analyzer PhotonAnalysis photonanalysis.dat
-analyzer StatAnalysis photonanalysis.dat analysis_settings.dat statanalysis.dat jetanalysis/cutbvbftag.dat saveDatacardTrees_=0 doFullMvaFinalTree=0 dumpAscii=0 dumpMcAscii=0 doSystematics=0 scaleR9Only=0
+analyzer StatAnalysis photonanalysis.dat analysis_settings.dat statanalysis.dat saveDatacardTrees_=0 doFullMvaFinalTree=0 dumpMcAscii=0 doSystematics=0 scaleR9Only=0

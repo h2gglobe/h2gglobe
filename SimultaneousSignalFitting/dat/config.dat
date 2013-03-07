@@ -1,7 +1,7 @@
 # configuration for each process and cat
 # infile=/afs/cern.ch/user/m/mkenzie/workPoint/MORIONDreview/h2gglobe/SimultaneousSignalFitting/CMS-HGG_hcp.root
 # infile=root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/analyzed/Moriond2013/cutbased/Moriond2013_CutBased_preapprovalv3_sig/CMS-HGG_interpolated_2012ABCD.root
-infile=root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/analyzed/Moriond2013/cutbased/unblinding_v1/ABCD_sig/CMS-HGG_ABCD_interpolated.root
+infile=/afs/cern.ch/work/c/capalmer/private/h2g/2013analysis/533_globe/src/h2gglobe_moriond2013_approval/AnalysisScripts/nominal_v1/CMS-HGG_2.root
 
 # outfilename proc cat nGaussians dmOrder sigOrder fracOrder
 CMS-HGG_ggh_cat0.root ggh 0 3 1 1 1
@@ -9,25 +9,25 @@ CMS-HGG_ggh_cat1.root ggh 1 4 1 1 1
 CMS-HGG_ggh_cat2.root ggh 2 3 1 1 1
 CMS-HGG_ggh_cat3.root ggh 3 4 1 1 1
 CMS-HGG_ggh_cat4.root ggh 4 4 1 1 1
-CMS-HGG_ggh_cat5.root ggh 5 2 1 1 1
+CMS-HGG_ggh_cat5.root ggh 5 3 1 1 1
 CMS-HGG_ggh_cat6.root ggh 6 1 1 1 1
 CMS-HGG_ggh_cat7.root ggh 7 1 1 1 1
-CMS-HGG_ggh_cat8.root ggh 8 1 1 1 1
+CMS-HGG_ggh_cat8.root ggh 8 2 1 1 1
 
 CMS-HGG_vbf_cat0.root vbf 0 3 1 1 1
-CMS-HGG_vbf_cat1.root vbf 1 4 1 1 1
-CMS-HGG_vbf_cat2.root vbf 2 3 1 1 1
-CMS-HGG_vbf_cat3.root vbf 3 3 1 1 1
-CMS-HGG_vbf_cat4.root vbf 4 2 1 1 1
-CMS-HGG_vbf_cat5.root vbf 5 2 1 1 1
+CMS-HGG_vbf_cat1.root vbf 1 3 1 1 1
+CMS-HGG_vbf_cat2.root vbf 2 4 1 1 1
+CMS-HGG_vbf_cat3.root vbf 3 4 1 1 1
+CMS-HGG_vbf_cat4.root vbf 4 4 1 1 1
+CMS-HGG_vbf_cat5.root vbf 5 3 1 1 1
 CMS-HGG_vbf_cat6.root vbf 6 1 1 1 1
 CMS-HGG_vbf_cat7.root vbf 7 1 1 1 1
 CMS-HGG_vbf_cat8.root vbf 8 2 1 1 1
 
 CMS-HGG_wzh_cat0.root wzh 0 3 1 1 1
 CMS-HGG_wzh_cat1.root wzh 1 5 1 1 1
-CMS-HGG_wzh_cat2.root wzh 2 4 1 1 1
-CMS-HGG_wzh_cat3.root wzh 3 3 1 1 1
+CMS-HGG_wzh_cat2.root wzh 2 5 1 1 1
+CMS-HGG_wzh_cat3.root wzh 3 4 1 1 1
 CMS-HGG_wzh_cat4.root wzh 4 1 1 1 1
 CMS-HGG_wzh_cat5.root wzh 5 1 1 1 1
 CMS-HGG_wzh_cat6.root wzh 6 3 1 1 1

@@ -109,4 +109,5 @@ else: mytext.DrawLatex(0.13,0.83,"#splitline{CMS preliminary}{#sqrt{s} = %i TeV 
 
 can.SaveAs(sys.argv[2]+".png")
 can.SaveAs(sys.argv[2]+".pdf")
+can.SaveAs(sys.argv[2]+".C")
 print "Done!"
