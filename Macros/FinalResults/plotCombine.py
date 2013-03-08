@@ -19,7 +19,7 @@ parser.add_option("","--parametric",dest="parametric",default=False,action="stor
 parser.add_option("","--run2011",dest="run2011",default=False,action="store_true",help="Run only 2011")
 parser.add_option("","--run2012",dest="run2012",default=False,action="store_true",help="Run only 2012")
 parser.add_option("","--runBoth",dest="runBoth",default=False,action="store_true",help="Run only 2011+2012")
-parser.add_option("","--lumi2011",dest="lumi2011",type="float",default=5.3,help="2011 luminosity")
+parser.add_option("","--lumi2011",dest="lumi2011",type="float",default=5.1,help="2011 luminosity")
 parser.add_option("","--lumi2012",dest="lumi2012",type="float",default=19.6,help="2012 luminosity")
 parser.add_option("","--skipDatacard",dest="skipDatacard",default=False,action="store_true",help="Skip the original datacard (if running sub channels)")
 parser.add_option("","--splitChannels2011",dest="splitChannels2011",default=[],action="append",help="Run these channels for 2011 (can pass multiple times) Split with a colon - dir:leg:col")
@@ -172,7 +172,7 @@ for folder, lumistring, splitChannels in config:
     model=opts[0]
     mh=opts[1]
     if model=='Mass':
-      os.system('./makeCombinePlots.py -f %s/Specials/higgsCombine7and8TeVMassSyst.MultiDimFit.mH%s.root -c 1 -s 1 -w 3 -n "Stat + Syst" -f %s/Specials/higgsCombine7and8TeVMassStat.MultiDimFit.mH%s.root -c 4 -s 2 -w 3 -n "Stat Only" --text="%s" --mh'%(folder,mh,folder,mh,lumistring))
+      os.system('./makeCombinePlots.py -f %s/Specials/higgsCombine%sMassSyst.MultiDimFit.mH%s.root -c 1 -s 1 -w 3 -n "Stat + Syst" -f %s/Specials/higgsCombine%sMassStat.MultiDimFit.mH%s.root -c 4 -s 2 -w 3 -n "Stat Only" --text="%s" --mh'%(folder,folder,mh,folder,folder,mh,lumistring))
       os.system('mv MH.pdf plots/%s_mhNLL.pdf'%(folder))
       os.system('mv MH.png plots/%s_mhNLL.png'%(folder))
     if model=='Mu':
@@ -187,5 +187,8 @@ for folder, lumistring, splitChannels in config:
       if not options.skipHadd:
         os.system('hadd -f %s/Specials/higgsCombine%sRvRfScan.MultiDimFit.mH%s.root %s/Specials/higgsCombine%sRvRfScan_*.MultiDimFit.mH%s.root'%(folder,folder,mh,folder,folder,mh))
         os.system('./makeCombinePlots.py -f %s/Specials/higgsCombine%sRvRfScan.MultiDimFit.mH%s.root --rvrf --text="%s"'%(folder,folder,mh,lumistring))
-    
+        os.system('mv RvRf_col.pdf plots/%s_RvRf_col.pdf'%(folder))
+        os.system('mv RvRf_col.png plots/%s_RvRf_col.png'%(folder))
+        os.system('mv RvRf.pdf plots/%s_RvRf.pdf'%(folder))
+        os.system('mv RvRf.png plots/%s_RvRf.png'%(folder))
 
