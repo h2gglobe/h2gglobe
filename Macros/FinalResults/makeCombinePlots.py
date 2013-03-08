@@ -143,8 +143,10 @@ def maxlhPlot(allVals):
   # draw dummy hist and multigraph
   dummyHist.GetYaxis().SetTitle('Best fit #sigma/#sigma_{SM}')
   mg.Draw("A")
-  dummyHist.SetMinimum(mg.GetYaxis().GetXmin())
-  dummyHist.SetMaximum(mg.GetYaxis().GetXmax())
+  #dummyHist.SetMinimum(mg.GetYaxis().GetXmin())
+  #dummyHist.SetMaximum(mg.GetYaxis().GetXmax())
+  dummyHist.SetMinimum(-2)
+  dummyHist.SetMaximum(2)
   dummyHist.SetLineColor(0)
   dummyHist.SetStats(0)
   dummyHist.Draw("AXIS")
@@ -162,7 +164,7 @@ def maxlhPlot(allVals):
   l2 = r.TLine(110,0.,150,0.)
   l2.SetLineColor(r.kBlack)
   l2.SetLineWidth(2)
-  l2.Draw()
+  #l2.Draw()
   
   # draw text
   lat.DrawLatex(0.12,0.92,"CMS Preliminary")
@@ -230,8 +232,10 @@ def limitPlot(allVals):
   # draw dummy hist and multigraph
   dummyHist.GetYaxis().SetTitle("\sigma(H#rightarrow #gamma #gamma)_{95%%CL} / \sigma(H#rightarrow #gamma #gamma)_{SM}")
   mg.Draw("A")
-  dummyHist.SetMinimum(mg.GetYaxis().GetXmin())
-  dummyHist.SetMaximum(mg.GetYaxis().GetXmax())
+#  dummyHist.SetMinimum(mg.GetYaxis().GetXmin())
+#  dummyHist.SetMaximum(mg.GetYaxis().GetXmax())
+  dummyHist.SetMinimum(0)
+  dummyHist.SetMaximum(4)
   dummyHist.SetLineColor(0)
   dummyHist.SetStats(0)
   dummyHist.Draw("AXIS")
@@ -297,6 +301,9 @@ def run1DNLL():
   elif options.mu:
     x = 'r'
     xtitle = '#sigma / #sigma_{SM}'
+
+
+
   
   canv = r.TCanvas(x,x,500,500)
   leg  = r.TLegend(0.35,0.65,0.6,0.79)
@@ -411,24 +418,28 @@ def plot2DNLL(col,type,xtitle,ytitle):
   th2.GetYaxis().SetTitleOffset(1.2)
   th2.GetXaxis().SetTitleSize(0.04)
   th2.GetYaxis().SetTitleSize(0.04)
-  th2.GetXaxis().SetRangeUser(-1,5)
-  th2.GetYaxis().SetRangeUser(-1,5)
+  if options.mumh:
+    th2.GetXaxis().SetRangeUser(122,128)
+    th2.GetYaxis().SetRangeUser(0,2.4)
+  if options.rvrf:
+    th2.GetXaxis().SetRangeUser(-1.5,4.5)
+    th2.GetYaxis().SetRangeUser(-1.5,4.5)
   th2.GetZaxis().SetRangeUser(0,10)
   if col: th2.Draw("colz")
   else: th2.Draw("axis")
 
   gbest.Draw("Psame")
   for i in range(cont68.GetSize()):
-    g68 = cont68.At(i).Clone()
+    g68 = cont68.At(i).Clone("")
     g68.SetLineWidth(2)
     g68.SetLineColor(1)
-    g68.Draw("Lsame")
+    g68.Draw("csame")
   for i in range(cont95.GetSize()):
-    g95 = cont95.At(i).Clone()
+    g95 = cont95.At(i).Clone("")
     g95.SetLineWidth(2)
     g95.SetLineColor(1)
     g95.SetLineStyle(2)
-    g95.Draw("Lsame")
+    g95.Draw("csame")
  
   leg.AddEntry(gbest,"Best Fit","PL");
   leg.AddEntry(g68,"1#sigma","L");
@@ -439,6 +450,31 @@ def plot2DNLL(col,type,xtitle,ytitle):
   lat.DrawLatex(0.12,0.92,"CMS Preliminary")
   lat.DrawLatex(0.7,0.94,options.text)
 
+  #write results
+  if options.mumh:
+    mh=gbest.GetX()[0]
+    mu=gbest.GetY()[0]
+    latexmu = r.TLatex()
+    latexmu.SetNDC()
+    latexmu.SetTextSize(0.035)
+    latexmu.DrawLatex(0.12,0.84,"#mu = %5.2f"%(mu))
+    latexmh = r.TLatex()
+    latexmh.SetNDC()
+    latexmh.SetTextSize(0.035)
+    latexmh.DrawLatex(0.12,0.80,"m_{H} = %5.1f GeV"%(mh))  
+  if options.rvrf:
+    rf=gbest.GetX()[0]
+    rv=gbest.GetY()[0]
+    latexrv = r.TLatex()
+    latexrv.SetNDC()
+    latexrv.SetTextSize(0.035)
+    latexrv.DrawLatex(0.67,0.22,"#mu_{qqH+VH} = %5.2f "%(rv))
+    latexrf = r.TLatex()
+    latexrf.SetNDC()
+    latexrf.SetTextSize(0.035)
+    latexrf.DrawLatex(0.67,0.18,"#mu_{ggH+ttH} = %5.2f "%(rf)) 
+    
+  
   if col:
     canv.Print('%s_col.pdf'%type)
     canv.Print('%s_col.png'%type)
@@ -452,19 +488,19 @@ def run2DNLL():
   r.gROOT.LoadMacro('makeBands.cxx')
   if options.mumh: 
     tf = r.TFile('MuMH_bands.root','RECREATE')
-    r.readParamScan2D(tf,"MuMH",options.files[0],"MH","r")
+    r.readMassScan2D(tf,"MuMH",options.files[0])
     tf.Close()
   if options.rvrf: 
     tf = r.TFile('RvRf_bands.root','RECREATE')
-    r.readParamScan2D(tf,"RvRf",options.files[0],"RV","RF")
+    r.readParamScan2D(tf,"RvRf",options.files[0],"RF","RV")
     tf.Close()
 
   if options.mumh: 
     plot2DNLL(True,'MuMH','m_{H} (GeV)','#sigma / #sigma_{SM}')
     plot2DNLL(False,'MuMH','m_{H} (GeV)','#sigma / #sigma_{SM}')
   if options.rvrf: 
-    plot2DNLL(True,'RvRf','#mu_{qqH+VH}','#mu_{ggH+ttH}')
-    plot2DNLL(False,'RvRf','#mu_{qqH+VH}','#mu_{ggH+ttH}')
+    plot2DNLL(True,'RvRf','#mu_{ggH+ttH}','#mu_{qqH+VH}')
+    plot2DNLL(False,'RvRf','#mu_{ggH+ttH}','#mu_{qqH+VH}')
 
 if options.pval or options.limit or options.maxlh:
   runStandard()
