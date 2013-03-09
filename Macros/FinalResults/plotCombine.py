@@ -45,10 +45,12 @@ def plotAsymptotic(folder,lumistring):
       os.system('./makeCombinePlots.py -f %s/Asymptotic/Asymptotic.root --text="%s" --limit'%(folder,lumistring))
       os.system('cp limit.pdf plots/%s_obslimit.pdf'%folder)
       os.system('cp limit.png plots/%s_obslimit.png'%folder)
+      os.system('cp limit.C plots/%s_obslimit.C'%folder)
     else:
       os.system('./makeCombinePlots.py -f %s/Asymptotic/Asymptotic.root --text="%s" --limit -e'%(folder,lumistring))
       os.system('cp limit.pdf plots/%s_explimit.pdf'%folder)
       os.system('cp limit.png plots/%s_explimit.png'%folder)
+      os.system('cp limit.C plots/%s_explimit.C'%folder)
 
 def plotProfileLikelihood(folder,lumistring,splitChannels):
   line=""
@@ -79,15 +81,18 @@ def plotProfileLikelihood(folder,lumistring,splitChannels):
     if options.unblind:
       os.system('cp pval.pdf plots/%s_obspval.pdf'%folder)
       os.system('cp pval.png plots/%s_obspval.png'%folder)
+      os.system('cp pval.C plots/%s_obspval.C'%folder)
     else:
       os.system('cp pval.pdf plots/%s_exppval.pdf'%folder)
       os.system('cp pval.png plots/%s_exppval.png'%folder)
+      os.system('cp pval.C plots/%s_exppval.C'%folder)
 
 def plotMaxLikelihoodFit(folder,lumistring):
   if 'MaxLikelihoodFit' in options.methods:
     os.system('./makeCombinePlots.py -f %s/MaxLikelihoodFit/MaxLikelihoodFit.root --text="%s" --maxlh'%(folder,lumistring))
     os.system('cp maxlh.pdf plots/%s_maxlh.pdf'%folder)
     os.system('cp maxlh.png plots/%s_maxlh.png'%folder)
+    os.system('cp maxlh.C plots/%s_maxlh.C'%folder)
 
 def plotPvalAcrossYears(lumistring):
   line = ''
@@ -107,9 +112,11 @@ def plotPvalAcrossYears(lumistring):
   if options.unblind:
     os.system('cp pval.pdf plots/obspval.pdf')
     os.system('cp pval.png plots/obspval.png')
+    os.system('cp pval.C plots/obspval.C')
   else:
     os.system('cp pval.pdf plots/exppval.pdf')
     os.system('cp pval.png plots/exppval.png')
+    os.system('cp pval.C plots/exppval.C')
 
 # MAIN STARTS HERE
 # if a specific year has not been set run everything
@@ -139,9 +146,9 @@ for spec in options.specials:
 
 config=[]
 if options.run2011:
-  config.append(['7TeV','#sqrt{s}=7TeV L=%3.1ffb^{-1}'%(options.lumi2011),options.splitChannels2011])
+  config.append(['7TeV','#splitline{}{#sqrt{s}=7TeV L=%3.1ffb^{-1}}'%(options.lumi2011),options.splitChannels2011])
 if options.run2012:
-  config.append(['8TeV','#sqrt{s}=8TeV L=%3.1ffb^{-1}'%(options.lumi2012),options.splitChannels2012])
+  config.append(['8TeV','#splitline{}{#sqrt{s}=8TeV L=%3.1ffb^{-1}}'%(options.lumi2012),options.splitChannels2012])
 if options.runBoth:
   config.append(['7and8TeV','#splitline{#sqrt{s}=7TeV L=%3.1ffb^{-1}}{#sqrt{s}=8TeV L=%3.1ffb^{-1}}'%(options.lumi2011,options.lumi2012),options.splitChannelsBoth])
 
@@ -175,20 +182,30 @@ for folder, lumistring, splitChannels in config:
       os.system('./makeCombinePlots.py -f %s/Specials/higgsCombine%sMassSyst.MultiDimFit.mH%s.root -c 1 -s 1 -w 3 -n "Stat + Syst" -f %s/Specials/higgsCombine%sMassStat.MultiDimFit.mH%s.root -c 4 -s 2 -w 3 -n "Stat Only" --text="%s" --mh'%(folder,folder,mh,folder,folder,mh,lumistring))
       os.system('mv MH.pdf plots/%s_mhNLL.pdf'%(folder))
       os.system('mv MH.png plots/%s_mhNLL.png'%(folder))
+      os.system('mv MH.C plots/%s_mhNLL.C'%(folder))
     if model=='Mu':
       os.system('./makeCombinePlots.py -f %s/Specials/higgsCombine7and8TeVMuSyst.MultiDimFit.mH%s.root -c 1 -s 1 -w 3 -n "Stat + Syst" -f %s/Specials/higgsCombine7and8TeVMuStat.MultiDimFit.mH%s.root -c 4 -s 2 -w 3 -n "Stat Only" --text="%s" --mu'%(folder,mh,folder,mh,lumistring))   
       os.system('mv r.pdf plots/%s_muNLL.pdf'%(folder))
       os.system('mv r.png plots/%s_muNLL.png'%(folder))
+      os.system('mv r.C plots/%s_muNLL.C'%(folder))
     if model=="MuMH":
       if not options.skipHadd:
         os.system('hadd -f %s/Specials/higgsCombine%sMuMHScan.MultiDimFit.mH%s.root %s/Specials/higgsCombine%sMuMHScan_*.MultiDimFit.mH%s.root'%(folder,folder,mh,folder,folder,mh))
         os.system('./makeCombinePlots.py -f %s/Specials/higgsCombine%sMuMHScan.MultiDimFit.mH%s.root --mumh --text="%s"'%(folder,folder,mh,lumistring))
+        os.system('mv MuMH_col.pdf plots/%s_MuMH_col.pdf'%(folder))
+        os.system('mv MuMH_col.png plots/%s_MuMH_col.png'%(folder))
+        os.system('mv MuMH_col.C plots/%s_MuMH_col.C'%(folder))
+        os.system('mv MuMH.pdf plots/%s_MuMH.pdf'%(folder))
+        os.system('mv MuMH.png plots/%s_MuMH.png'%(folder))
+        os.system('mv MuMH.C plots/%s_MuMH.C'%(folder))
     if model=="RvRf":
       if not options.skipHadd:
         os.system('hadd -f %s/Specials/higgsCombine%sRvRfScan.MultiDimFit.mH%s.root %s/Specials/higgsCombine%sRvRfScan_*.MultiDimFit.mH%s.root'%(folder,folder,mh,folder,folder,mh))
         os.system('./makeCombinePlots.py -f %s/Specials/higgsCombine%sRvRfScan.MultiDimFit.mH%s.root --rvrf --text="%s"'%(folder,folder,mh,lumistring))
         os.system('mv RvRf_col.pdf plots/%s_RvRf_col.pdf'%(folder))
         os.system('mv RvRf_col.png plots/%s_RvRf_col.png'%(folder))
+        os.system('mv RvRf_col.C plots/%s_RvRf_col.C'%(folder))
         os.system('mv RvRf.pdf plots/%s_RvRf.pdf'%(folder))
         os.system('mv RvRf.png plots/%s_RvRf.png'%(folder))
+        os.system('mv RvRf.C plots/%s_RvRf.C'%(folder))
 

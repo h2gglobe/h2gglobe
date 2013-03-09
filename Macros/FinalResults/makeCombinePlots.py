@@ -50,7 +50,7 @@ dummyHist.SetTitleOffset(0.75,"Y")
 lat = r.TLatex()
 lat.SetNDC()
 lat.SetTextSize(0.03)
-
+lat.SetTextFont(42);
 
 def pvalPlot(allVals):
  
@@ -110,6 +110,7 @@ def pvalPlot(allVals):
   # print canvas
   canv.Print('pval.pdf')
   canv.Print('pval.png')
+  canv.Print('pval.C')
 
 def maxlhPlot(allVals):
   
@@ -177,6 +178,7 @@ def maxlhPlot(allVals):
   # print canvas
   canv.Print('maxlh.pdf')
   canv.Print('maxlh.png')
+  canv.Print('maxlh.C')
 
 def limitPlot(allVals):
 
@@ -217,8 +219,8 @@ def limitPlot(allVals):
     exp.SetLineStyle(2)
     oneSigma.SetLineStyle(2)
     twoSigma.SetLineStyle(2)
-    oneSigma.SetFillColor(r.kYellow)
-    twoSigma.SetFillColor(r.kGreen)
+    oneSigma.SetFillColor(r.kGreen)
+    twoSigma.SetFillColor(r.kYellow)
     if not options.expected: leg.AddEntry(graph,'Observed','L')
     #leg.AddEntry(exp,'Expected','L')
     leg.AddEntry(oneSigma,'Expected #pm 1#sigma','FL') 
@@ -260,6 +262,7 @@ def limitPlot(allVals):
   # print canvas
   canv.Print('limit.pdf')
   canv.Print('limit.png')
+  canv.Print('limit.C')
 
 def runStandard():
   config = []
@@ -400,6 +403,7 @@ def run1DNLL():
 
   canv.Print('%s.pdf'%x)
   canv.Print('%s.png'%x)
+  canv.Print('%s.C'%x)
 
 def plot2DNLL(col,type,xtitle,ytitle):
   canv = r.TCanvas("%s"%type,"%s"%type,500,500)
@@ -420,13 +424,14 @@ def plot2DNLL(col,type,xtitle,ytitle):
   th2.GetYaxis().SetTitleSize(0.04)
   if options.mumh:
     th2.GetXaxis().SetRangeUser(122,128)
-    th2.GetYaxis().SetRangeUser(0,2.4)
+    th2.GetYaxis().SetRangeUser(0,2.5)
   if options.rvrf:
     th2.GetXaxis().SetRangeUser(-1.5,4.5)
     th2.GetYaxis().SetRangeUser(-1.5,4.5)
   th2.GetZaxis().SetRangeUser(0,10)
   if col: th2.Draw("colz")
   else: th2.Draw("axis")
+
 
   gbest.Draw("Psame")
   for i in range(cont68.GetSize()):
@@ -478,9 +483,11 @@ def plot2DNLL(col,type,xtitle,ytitle):
   if col:
     canv.Print('%s_col.pdf'%type)
     canv.Print('%s_col.png'%type)
+    canv.Print('%s_col.C'%type)
   else:
     canv.Print('%s.pdf'%type)
     canv.Print('%s.png'%type)
+    canv.Print('%s.C'%type)
 
 def run2DNLL():
   if len(options.files)!=1: 
@@ -505,7 +512,9 @@ def run2DNLL():
 if options.pval or options.limit or options.maxlh:
   runStandard()
 elif options.mh or options.mu:
+  r.gROOT.ProcessLine(".x rootPalette.C")
   r.gROOT.LoadMacro('GraphToTF1.C+')
   run1DNLL()
 elif options.mumh or options.rvrf:
+  r.gROOT.ProcessLine(".x rootPalette.C")
   run2DNLL()
