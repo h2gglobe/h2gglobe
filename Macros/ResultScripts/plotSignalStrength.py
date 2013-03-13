@@ -22,8 +22,8 @@ leg.SetBorderSize(1)
 mytext = TLatex()
 mytext.SetTextSize(0.04)
 mytext.SetNDC()
-Minimum=-8
-Maximum=8
+Minimum=-2
+Maximum=2.5
 #intlumi=[5.1,19.6]
 #Energy=[7,8]
 intlumi=[19.6]
@@ -45,38 +45,42 @@ multigraph = TMultiGraph()
 #multigraph.SetMinimum(Minimum)
 #multigraph.SetMaximum(Maximum)
 dummyHist = TH1D("dummy","",1,LowM,HighM)
-dummyHist.SetTitle(";M_{H} (GeV/c^{2});Best Fit #sigma/#sigma_{SM}")
+dummyHist.SetTitle(";m_{H} (GeV);Best Fit #sigma/#sigma_{SM}  ")
 dummyHist.SetTitleSize(.06,"X")
 dummyHist.SetTitleOffset(0.65,"X")
 dummyHist.SetTitleSize(.06,"Y")
-dummyHist.SetTitleOffset(0.6,"Y")
+dummyHist.SetTitleOffset(0.7,"Y")
 dummyHist.SetMinimum(Minimum)
 dummyHist.SetMaximum(Maximum)
 
 for Mass in Masses:
   if not UseMLlogs:
-    file = TFile.Open(directory+"/higgsCombineSignalStrength.ChannelCompatibilityCheck.mH"+str(Mass).replace(".0","")+".root")
-    print file.GetName()
-    normal=file.Get("fit_nominal")
-    rFit=normal.floatParsFinal().find("r")
-    #print "Value: %f ErrorDown: %f ErrorUp: %f" %(rFit.getVal(),rFit.getAsymErrorLo(),rFit.getAsymErrorHi())
-    BestFitObserved.append(rFit.getVal())
-    BestFitErrorUp.append(rFit.getAsymErrorHi())
-    if math.fabs(rFit.getAsymErrorLo())<0.000001: BestFitErrorDown.append(math.fabs(rFit.getAsymErrorHi()))
-    else: BestFitErrorDown.append(math.fabs(rFit.getAsymErrorLo()))
+    filename=directory+"/higgsCombineSignalStrength.ChannelCompatibilityCheck.mH"+str(Mass).replace(".0","")+".root"
+    if os.path.isfile(filename):
+      file = TFile.Open(filename)
+      print file.GetName()
+      normal=file.Get("fit_nominal")
+      rFit=normal.floatParsFinal().find("r")
+      #print "Value: %f ErrorDown: %f ErrorUp: %f" %(rFit.getVal(),rFit.getAsymErrorLo(),rFit.getAsymErrorHi())
+      BestFitObserved.append(rFit.getVal())
+      BestFitErrorUp.append(rFit.getAsymErrorHi())
+      if math.fabs(rFit.getAsymErrorLo())<0.000001: BestFitErrorDown.append(math.fabs(rFit.getAsymErrorHi()))
+      else: BestFitErrorDown.append(math.fabs(rFit.getAsymErrorLo()))
   else:
-    file = open(directory+"/higgsCombineTest.MaxLikelihoodFit"+str(Mass)+".log")
-    lines=file.readlines()
-    for line in lines:
-      if line.find("Best fit r:") is not -1:
-        parts=line.split()
-        print "parts",parts
-        if len(parts)>5:
-          print parts[3],parts[4]
-          BestFitObserved.append(float(parts[3]))
-          BestFitErrorUp.append(float(parts[4].split("/")[1]))
-          BestFitErrorDown.append(math.fabs(float(parts[4].split("/")[0])))
-          continue
+    filename=directory+"/higgsCombineTest.MaxLikelihoodFit"+str(Mass)+".log"
+    if os.path.isfile(filename):
+      file = open(filename)
+      lines=file.readlines()
+      for line in lines:
+        if line.find("Best fit r:") is not -1:
+          parts=line.split()
+          print "parts",Mass,parts
+          if len(parts)>5:
+            #print parts[3],parts[4]
+            BestFitObserved.append(float(parts[3]))
+            BestFitErrorUp.append(float(parts[4].split("/")[1]))
+            BestFitErrorDown.append(math.fabs(float(parts[4].split("/")[0])))
+            continue
 
 
 graph=TGraph(len(BestFitObserved),Masses,array.array("f",BestFitObserved))
