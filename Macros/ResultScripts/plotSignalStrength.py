@@ -31,6 +31,8 @@ Energy=[8]
 LowM=110
 HighM=150
 
+label=" (MVA)"
+
 UseMLlogs=False
 
 Masses=array.array("f",[x * 0.1 for x in range(LowM*10,HighM*10+1,5)])
@@ -108,8 +110,8 @@ line.Draw()
 can.RedrawAxis();
 can.SetGrid(True)
 
-if len(intlumi)==2: mytext.DrawLatex(0.13,0.805,"#splitline{CMS preliminary}{#splitline{#sqrt{s} = %i TeV L = %.1f fb^{-1}}{#sqrt{s} = %i TeV L = %.1f fb^{-1}}}" %(int(Energy[0]),float(intlumi[0]),int(Energy[1]),float(intlumi[1])))
-else: mytext.DrawLatex(0.13,0.83,"#splitline{CMS preliminary}{#sqrt{s} = %i TeV L = %.1f fb^{-1}}" %(int(Energy[0]),float(intlumi[0])))
+if len(intlumi)==2: mytext.DrawLatex(0.13,0.805,"#splitline{CMS preliminary}{#splitline{#sqrt{s} = %i TeV L = %.1f fb^{-1}" %(int(Energy[0]),float(intlumi[0]))+label+"}{#sqrt{s} = %i TeV L = %.1f fb^{-1}" %(int(Energy[1]),float(intlumi[1]))+label+"}}")
+else: mytext.DrawLatex(0.13,0.83,"#splitline{CMS preliminary}{#sqrt{s} = %i TeV L = %.1f fb^{-1}" %(int(Energy[0]),float(intlumi[0]))+label+"}")
 
 can.SaveAs(sys.argv[2]+".png")
 can.SaveAs(sys.argv[2]+".pdf")
