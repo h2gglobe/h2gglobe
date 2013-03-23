@@ -10,6 +10,7 @@ type=0 name=event
 type=0 name=lumis
 type=0 name=itype
 type=2 name=weight
+type=2 name=r9weight
 type=0 name=charge
 type=0 name=chargeTag
 type=2 name=eta
@@ -41,3 +42,16 @@ type=0 name=pass_hlt
 type=0 name=pass_hlt_de
 type=0 name=conv
 type=0 name=convTag
+type=2 name=tk03
+type=2 name=hcal03
+type=2 name=ecal03
+
+type=2 name=sieieRaw
+type=2 name=r9Raw
+type=2 name=etawidthRaw
+type=2 name=eseffRaw
+type=2 name=phiwidthRaw
+type=2 name=sieipRaw
+type=2 name=s4ratioRaw
+
+

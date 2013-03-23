@@ -21,7 +21,9 @@ hlt_bit
 hlt_path_names_HLT
 hlt_candpath
 
+#sc_n
 sc_xyz
+#sc_sphi
 
 el_std_n
 el_std_p4
@@ -87,8 +89,8 @@ pho_pfiso_mycharged04
 pho_pfiso_mycharged02
 #pho_hcalbcsumetconedr03
 #pho_hcalbcsumetconedr04
-pho_e2x2
-pho_e5x5
+#pho_e2x2
+#pho_e5x5
 pho_lambdaratio
 pho_eseffsixix
 pho_eseffsiyiy
@@ -96,6 +98,8 @@ pho_sieip
 pho_etawidth
 pho_regr_energy
 pho_regr_energyerr
+pho_isEB
+pho_s4ratio
 
 #tk_n
 #tk_p4

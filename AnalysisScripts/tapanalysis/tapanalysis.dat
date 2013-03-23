@@ -1,7 +1,9 @@
 
-cutPFMET=30.
-cutETTag=20.
-cutETProbe=15.
+cutPFMET=100000.
+cutETTag=30.
+cutETProbe=20.
+hltPrescaleWeight=0
+scaleR9Only=0
 
 ## LeptonTag
 #forElectrons=1.
@@ -26,22 +28,52 @@ cutETProbe=15.
 #CiC 
 #forElectrons=0.
 #applyPreselection=10.
-#selectionTypeTag=CiC4PF
-#cutSelectionTag=5.
-#selectionTypeProbe=CiC4PF
+#selectionTypeTag=MVA
+#cutSelectionTag=0.25
+#selectionTypeProbe=MVA
 #cutSelectionProbe=-10. 
 #selectionTypeToMeasure=CiC4PF
 #cutSelectionToMeasure=4.
 
 #MVA
+#forElectrons=0.
+#applyPreselection=10.
+#selectionTypeTag=MVA
+#cutSelectionTag=0.2
+#selectionTypeProbe=MVA
+#cutSelectionProbe=-10. 
+#selectionTypeToMeasure=MVA
+#cutSelectionToMeasure=0.1
+
+#MVA
 forElectrons=0.
 applyPreselection=10.
 selectionTypeTag=MVA
-cutSelectionTag=0.0
+cutSelectionTag=0.2
 selectionTypeProbe=MVA
 cutSelectionProbe=-10. 
-selectionTypeToMeasure=MVA
-cutSelectionToMeasure=-0.2
+selectionTypeToMeasure=MVAVladimirLeading
+cutSelectionToMeasure=0.1
+
+#MVA
+#forElectrons=0.
+#applyPreselection=10.
+#selectionTypeTag=MVA
+#cutSelectionTag=0.2
+#selectionTypeProbe=MVA
+#cutSelectionProbe=-10. 
+#selectionTypeToMeasure=MVAVladimirSubleading
+#cutSelectionToMeasure=0.1
+
+#electronVeto
+#forElectrons=0.
+#applyPreselection=10.
+#selectionTypeTag=MVA
+#cutSelectionTag=0.05
+#selectionTypeProbe=CiC4PF
+#cutSelectionProbe=4. 
+#selectionTypeToMeasure=MVA
+#cutSelectionToMeasure=-9999.
 
 # presel
 #forElectrons=0.
@@ -59,6 +91,11 @@ maxZMass=120
 ### Example of .dat 
 puMap=
 puHist=auto
-puTarget=aux/Cert_190456-208686_8TeV_PromptReco_Collisions12_JSON.txt.69400.observed.pileup.root
+#puTarget=aux/Cert_ICHEP_TopUp_535fb.json.71000.observed.pileup.root
+#puTarget=aux/HCP2012_preapproval_red_v1.json.69400.observed.pileup.root
 
 
+#puTarget=aux/Cert_ICHEP_TopUp_535fb.json.71000.observed.pileup.root
+#puTarget=aux/lumi_runC.txt.69400.observed.pileup.root
+#puTarget=aux/Moriond_pileup_2012D_minBiasXsec69400_corr_observed.root
+puTarget=aux/Moriond_pileup_190456-208686_minBiasXsec69400_corr_observed.root

@@ -89,6 +89,8 @@ pho_pfiso_mycharged04
 #pho_hcalbcsumetconedr03
 #pho_hcalbcsumetconedr04
 pho_mitmva
+pho_s4ratio
+pho_phiwidth
 pho_pfiso_charged_badvtx_04
 #pho_tkiso_recvtx_030_002_0000_10_01
 pho_etawidth
