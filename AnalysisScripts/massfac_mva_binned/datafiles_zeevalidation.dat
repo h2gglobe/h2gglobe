@@ -27,6 +27,7 @@ typ=-38    ind=98 draw=1  Nam=DYJetsToLL   CaDir=/store/group/phys_higgs/cmshgg/
 ##
 inputBranches minimal_analysis_input.dat 
 inputBranches massfactorizedmvaanalysis_input.dat
+inputBranches minimal_leptmetanalysis_input.dat
 inputBranches escaleTrees_input.dat
 
 runZeeValidation=1
