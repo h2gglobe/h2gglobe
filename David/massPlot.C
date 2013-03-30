@@ -1,4 +1,4 @@
-void massPlot(TString category="0", TString var="all_mass", TString analysis="massfit", bool blind=false, bool breakdown=false) {
+void massPlot(TString category="0", TString var="all_mass", TString analysis="massfit", bool blind=false, bool breakdown=false, bool cleanHighWeightEvents=false) {
 
   gStyle->SetOptTitle(0);
   gStyle->SetOptStat(0);
@@ -50,15 +50,26 @@ void massPlot(TString category="0", TString var="all_mass", TString analysis="ma
 
   hist_mass_gjet_pf = (TH1*)(f->Get(var+"_cat"+category+"_GJet40PF"))->Clone();
   hist_mass_gjet20_pf = (TH1*)(f->Get(var+"_cat"+category+"_GJet20PF"))->Clone();
+  if (cleanHighWeightEvents) {
+    hist_mass_qcd40_pf = (TH1*)(f->Get(var+"_cat"+category+"_QCD40PF"))->Clone();
+    float n_qcd40_pf = hist_mass_qcd40_pf->Integral();
+    float n_gjet40_pf = hist_mass_gjet_pf->Integral();
+    cout << n_qcd40_pf << " " << n_gjet40_pf << endl;
+    hist_mass_gjet_pf->Scale((n_gjet40_pf+n_qcd40_pf)/n_gjet40_pf);
+  }
   hist_mass_gjet_pf->Add(hist_mass_gjet20_pf);
+
+  if (cleanHighWeightEvents) {
+    hist_mass_qcd_pf = (TH1*)(f->Get(var+"_cat"+category+"_QCD30PF"))->Clone();
+  } else {
+    hist_mass_qcd_pf = (TH1*)(f->Get(var+"_cat"+category+"_QCD40PF"))->Clone();
+    hist_mass_qcd30_pf = (TH1*)(f->Get(var+"_cat"+category+"_QCD30PF"))->Clone();
+    hist_mass_qcd_pf->Add(hist_mass_qcd30_pf);
+  }
 
   hist_mass_qcd_ff = (TH1*)(f->Get(var+"_cat"+category+"_QCD40FF"))->Clone();
   hist_mass_qcd30_ff = (TH1*)(f->Get(var+"_cat"+category+"_QCD30FF"))->Clone();
   hist_mass_qcd_ff->Add(hist_mass_qcd30_ff);
-
-  hist_mass_qcd_pf = (TH1*)(f->Get(var+"_cat"+category+"_QCD40PF"))->Clone();
-  hist_mass_qcd30_pf = (TH1*)(f->Get(var+"_cat"+category+"_QCD30PF"))->Clone();
-  hist_mass_qcd_pf->Add(hist_mass_qcd30_pf);
 
   hist_mass_dy = (TH1*)(f->Get(var+"_cat"+category+"_DYJetsToLL"))->Clone();
 
@@ -100,18 +111,56 @@ void massPlot(TString category="0", TString var="all_mass", TString analysis="ma
   hist_mass_ff = (TH1*)hist_mass_qcd_ff->Clone();
 
   if (var=="all_mass") {
-    float n_pp = hist_mass_pp->Integral(16,35);
-    float n_pf = hist_mass_pf->Integral(16,35);
-    float n_ff = hist_mass_ff->Integral(16,35);
+    float n_pp = hist_mass_pp->Integral(21,25);
+    float n_pf = hist_mass_pf->Integral(21,25);
+    float n_ff = hist_mass_ff->Integral(21,25);
     float frac_pp = n_pp/(n_pp+n_pf+n_ff);
-    cout << "frac_pp = " << frac_pp << " " << hist_mass_pp->GetXaxis()->GetBinLowEdge(16) << " " << hist_mass_pp->GetXaxis()->GetBinLowEdge(36) << endl;
+    float frac_pf = n_pf/(n_pp+n_pf+n_ff);
+    float frac_ff = n_ff/(n_pp+n_pf+n_ff);
+    cout << "frac_pp = " << frac_pp << " " << hist_mass_pp->GetXaxis()->GetBinLowEdge(21) << " " << hist_mass_pp->GetXaxis()->GetBinLowEdge(26) << endl;
+    cout << "frac_pf = " << frac_pf << " " << hist_mass_pf->GetXaxis()->GetBinLowEdge(21) << " " << hist_mass_pf->GetXaxis()->GetBinLowEdge(26) << endl;
+    cout << "frac_ff = " << frac_ff << " " << hist_mass_ff->GetXaxis()->GetBinLowEdge(21) << " " << hist_mass_ff->GetXaxis()->GetBinLowEdge(26) << endl;
 
     float n_bkg=0.;
-    n_bkg += hist_mass_pp->Integral(16,25);
-    n_bkg += hist_mass_pf->Integral(16,25);
-    n_bkg += hist_mass_ff->Integral(16,25);
-    n_bkg += hist_mass_dy->Integral(16,25);
-    cout << "Total background (110-130): " << n_bkg << endl;
+    n_bkg += hist_mass_pp->Integral(25,25);
+    n_bkg += hist_mass_pf->Integral(25,25);
+    n_bkg += hist_mass_ff->Integral(25,25);
+    n_bkg += hist_mass_dy->Integral(25,25);
+    cout << "Total background (120-130): " << n_bkg << endl;
+
+    n_pp = hist_mass_pp->Integral(11,50);
+    n_pf = hist_mass_pf->Integral(11,50);
+    n_ff = hist_mass_ff->Integral(11,50);
+    frac_pp = n_pp/(n_pp+n_pf+n_ff);
+    frac_pf = n_pf/(n_pp+n_pf+n_ff);
+    frac_ff = n_ff/(n_pp+n_pf+n_ff);
+    cout << "frac_pp = " << frac_pp << " " << hist_mass_pp->GetXaxis()->GetBinLowEdge(11) << " " << hist_mass_pp->GetXaxis()->GetBinLowEdge(51) << endl;
+    cout << "frac_pf = " << frac_pf << " " << hist_mass_pf->GetXaxis()->GetBinLowEdge(11) << " " << hist_mass_pf->GetXaxis()->GetBinLowEdge(51) << endl;
+    cout << "frac_ff = " << frac_ff << " " << hist_mass_ff->GetXaxis()->GetBinLowEdge(11) << " " << hist_mass_ff->GetXaxis()->GetBinLowEdge(51) << endl;
+
+    n_bkg=0.;
+    n_bkg += hist_mass_pp->Integral(11,50);
+    n_bkg += hist_mass_pf->Integral(11,50);
+    n_bkg += hist_mass_ff->Integral(11,50);
+    n_bkg += hist_mass_dy->Integral(11,50);
+    cout << "Total background (100-180): " << n_bkg << endl;
+
+    n_pp = hist_mass_pp->Integral(41,81);
+    n_pf = hist_mass_pf->Integral(41,81);
+    n_ff = hist_mass_ff->Integral(41,81);
+    frac_pp = n_pp/(n_pp+n_pf+n_ff);
+    frac_pf = n_pf/(n_pp+n_pf+n_ff);
+    frac_ff = n_ff/(n_pp+n_pf+n_ff);
+    cout << "frac_pp = " << frac_pp << " " << hist_mass_pp->GetXaxis()->GetBinLowEdge(41) << " " << hist_mass_pp->GetXaxis()->GetBinLowEdge(82) << endl;
+    cout << "frac_pf = " << frac_pf << " " << hist_mass_pf->GetXaxis()->GetBinLowEdge(41) << " " << hist_mass_pf->GetXaxis()->GetBinLowEdge(82) << endl;
+    cout << "frac_ff = " << frac_ff << " " << hist_mass_ff->GetXaxis()->GetBinLowEdge(41) << " " << hist_mass_ff->GetXaxis()->GetBinLowEdge(82) << endl;
+
+    n_bkg=0.;
+    n_bkg += hist_mass_pp->Integral(41,81);
+    n_bkg += hist_mass_pf->Integral(41,81);
+    n_bkg += hist_mass_ff->Integral(41,81);
+    n_bkg += hist_mass_dy->Integral(41,81);
+    cout << "Total background (>160): " << n_bkg << endl;
   }
 
   hist_mass_sig->SetLineColor(2);
@@ -184,7 +233,7 @@ void massPlot(TString category="0", TString var="all_mass", TString analysis="ma
   if (hist_mass_sig->GetMaximum()>max) max=hist_mass_sig->GetMaximum();
   if (hist_mass_data->GetMaximum()>max) max=hist_mass_data->GetMaximum();
   if (var=="all_mass") {
-    //hist_mass_bkg_stack->SetMaximum(1600.);
+    hist_mass_bkg_stack->SetMaximum(10000.);
     //hist_mass_bkg_stack->SetMaximum(max*0.85);
     //hist_mass_bkg_stack->SetMaximum(max*0.65);
     //hist_mass_bkg_stack->SetMaximum(max*1.2);
@@ -197,8 +246,8 @@ void massPlot(TString category="0", TString var="all_mass", TString analysis="ma
   }
 
   hist_mass_bkg_stack->Draw("hist");
-  //if (var=="all_mass") hist_mass_bkg_stack->GetXaxis()->SetRangeUser(100.,179.);
-  if (var=="all_mass") hist_mass_bkg_stack->GetXaxis()->SetRangeUser(90.,190.);
+  if (var=="all_mass") hist_mass_bkg_stack->GetXaxis()->SetRangeUser(100.,179.);
+  //if (var=="all_mass") hist_mass_bkg_stack->GetXaxis()->SetRangeUser(90.,190.);
   //hist_mass_bkg_stack->GetXaxis()->SetRangeUser(80.,120.);
   hist_mass_bkg_stack_err = (TH1*)(hist_mass_bkg_stack->GetStack()->Last())->Clone();
   for (int ibin=0; ibin<hist_mass_dy->GetNbinsX(); ibin++) {
@@ -303,7 +352,8 @@ void massPlot(TString category="0", TString var="all_mass", TString analysis="ma
   if (category=="8") outcat = "_cat7";
   if (category=="9") outcat = "_cat8";
   if (var=="all_mass") outvar = "mass";
-  c_mgg->SaveAs("/afs/cern.ch/user/f/futyand/www/hgg/moriond_preapproval/dataMC/"+analysis+"/"+outvar+"/"+outvar+outcat+".png");
-  //c_mgg->SaveAs(outvar+outcat+".png");
+  //c_mgg->SaveAs("/afs/cern.ch/user/f/futyand/www/hgg/moriond_preapproval/dataMC/"+analysis+"/"+outvar+"/"+outvar+outcat+".png");
+  c_mgg->SaveAs(outvar+outcat+".png");
+  c_mgg->SaveAs(outvar+outcat+".pdf");
 
 }
