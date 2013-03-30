@@ -1,0 +1,14 @@
+default=18
+
+htyp=0 plot=-1  ncat=18  xbins=160   ybins=0       xmin=80.0  xmax=240.0  ymin=0      ymax=0       name=all_mass xaxis=x yaxis=y
+
+htyp=0 plot=-1  ncat=18  xbins=250    ybins=0       xmin=0.0   xmax=250.0  ymin=0      ymax=0       name=pt xaxis=x yaxis=y
+htyp=0 plot=-1  ncat=18  xbins=51    ybins=0       xmin=-2.55 xmax=2.55  ymin=0     ymax=0      name=eta xaxis=x yaxis=y
+
+htyp=0 plot=-1  ncat=18  xbins=60    ybins=0       xmin=0.0   xmax=120.0  ymin=0      ymax=0       name=pho1_pt xaxis=x yaxis=y
+htyp=0 plot=-1  ncat=18  xbins=60    ybins=0       xmin=0.0   xmax=120.0  ymin=0      ymax=0       name=pho2_pt xaxis=x yaxis=y
+
+htyp=0 plot=-1  ncat=18  xbins=51    ybins=0       xmin=-2.55   xmax=2.55  ymin=0      ymax=0       name=pho1_eta xaxis=x yaxis=y
+htyp=0 plot=-1  ncat=18  xbins=51    ybins=0       xmin=-2.55   xmax=2.55  ymin=0      ymax=0       name=pho2_eta xaxis=x yaxis=y
+
+htyp=0 plot=-1  ncat=18  xbins=100   ybins=0       xmin=0.    xmax=1.     ymin=0      ymax=0       name=pho_r9 xaxis=x yaxis=y
