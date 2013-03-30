@@ -1,0 +1,13 @@
+default=18
+htyp=0 plot=-1  ncat=5  xbins=45   ybins=0    xmin=25.0    xmax=115.0  ymin=0       ymax=0       name=pho1_pt_presel    xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=45   ybins=0    xmin=25.0    xmax=115.0  ymin=0       ymax=0       name=pho2_pt_presel    xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=45   ybins=0    xmin=25.0    xmax=115.0  ymin=0       ymax=0       name=pho1_pt_sel    xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=45   ybins=0    xmin=25.0    xmax=115.0  ymin=0       ymax=0       name=pho2_pt_sel    xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=45   ybins=0    xmin=25.0    xmax=115.0  ymin=0       ymax=0       name=pho1_pt_sel_mva    xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=45   ybins=0    xmin=25.0    xmax=115.0  ymin=0       ymax=0       name=pho2_pt_sel_mva    xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=51   ybins=0    xmin=-2.55  xmax=2.55   ymin=0       ymax=0       name=pho1_eta_presel    xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=51   ybins=0    xmin=-2.55  xmax=2.55   ymin=0       ymax=0       name=pho2_eta_presel    xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=51   ybins=0    xmin=-2.55  xmax=2.55   ymin=0       ymax=0       name=pho1_eta_sel    xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=51   ybins=0    xmin=-2.55  xmax=2.55   ymin=0       ymax=0       name=pho2_eta_sel    xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=51   ybins=0    xmin=-2.55  xmax=2.55   ymin=0       ymax=0       name=pho1_eta_sel_mva    xaxis= yaxis=
+htyp=0 plot=-1  ncat=5  xbins=51   ybins=0    xmin=-2.55  xmax=2.55   ymin=0       ymax=0       name=pho2_eta_sel_mva    xaxis= yaxis=
