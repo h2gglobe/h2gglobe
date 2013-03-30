@@ -43,4 +43,3 @@ treevariables treevariables_escale.dat
 ## 
 ## analyzer PhotonAnalysis photonanalysis.dat	
 analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat zeevalidation.dat fillOptTree=0 fillEscaleTrees=1
-#useRunDTriggers=1 runPeriod=ABCD scaleByRunPeriod=0 applyIdmvaCorrection=0 applySigmaECorrection=0
