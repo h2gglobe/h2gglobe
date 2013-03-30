@@ -51,6 +51,7 @@ inputBranches minimal_analysis_input.dat
 inputBranches minimal_statanalysis_input.dat
 inputBranches minimal_leptmetanalysis_input.dat
 
+plotvariables common/plotvariables_dataMC.dat
 treevariables massfac_mva_binned/fullmvatrees.dat
 cuts jetanalysis/cuts_vbfcutb.dat
 
