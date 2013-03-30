@@ -1166,7 +1166,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 
             eventListText << endl;
         }
-	return (l.runZeeValidation || (saveSpinTrees_ && mass>=massMin && mass<=massMax) || (category >= 0 && mass>=massMin && mass<=massMax));
+	return (l.runZeeValidation || fillEscaleTrees || (saveSpinTrees_ && mass>=massMin && mass<=massMax) || (category >= 0 && mass>=massMin && mass<=massMax));
     }
     return false;
 }
@@ -1321,6 +1321,7 @@ void MassFactorizedMvaAnalysis::fillZeeControlPlots(const TLorentzVector & lead_
     veto_indices.clear();
     diphoton_id_cic = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtCut, subleadEtCut, 4,applyPtoverM, &smeared_pho_energy[0], false, -1, veto_indices, cicCutLevels );
     if (diphoton_id_cic > -1) passCiC=true;
+    bool passMVA = diphobdt_output>-0.05;
 
     int lead = l.dipho_leadind[diphoton_id];
     int sublead = l.dipho_subleadind[diphoton_id];
@@ -1732,6 +1733,8 @@ void MassFactorizedMvaAnalysis::fillZeeControlPlots(const TLorentzVector & lead_
 	}
 
 
+	//ID mva inputs
+
 	for (int i=0; i<2; i++) {
 
 	    int iPhoton = (i==0) ? lead : sublead;
@@ -1856,6 +1859,133 @@ void MassFactorizedMvaAnalysis::fillZeeControlPlots(const TLorentzVector & lead_
 
 	}
 
+    }
+
+
+    //mass, diphomva and idmva in nvtx bins
+    if (l.vtx_std_n<=13) {
+	l.FillHist("mass_nvtx0to13",0, mass, evweight);
+	l.FillHist("mass_nvtx0to13",selectioncategory+1, mass, evweight);
+	if (passCiC) l.FillHist("mass_passCiC_nvtx0to13",0, mass, evweight);
+	if (passCiC) l.FillHist("mass_passCiC_nvtx0to13",selectioncategory+1, mass, evweight);
+	if (passMVA) l.FillHist("mass_passMVA_nvtx0to13",0, mass, evweight);
+	if (passMVA) l.FillHist("mass_passMVA_nvtx0to13",category+1, mass, evweight);
+	if (mass>=60. && mass<=120.) {
+	    l.FillHist("bdtout_nvtx0to13",0, diphobdt_output, evweight);
+	    l.FillHist("bdtout_nvtx0to13",selectioncategory+1, diphobdt_output, evweight);
+	    l.FillHist("bdtout_up_nvtx0to13",0, diphobdt_output_up, evweight);
+	    l.FillHist("bdtout_up_nvtx0to13",selectioncategory+1, diphobdt_output_up, evweight);
+	    l.FillHist("bdtout_down_nvtx0to13",0, diphobdt_output_down, evweight);
+	    l.FillHist("bdtout_down_nvtx0to13",selectioncategory+1, diphobdt_output_down, evweight);
+	    if (passCiC) {
+		l.FillHist("bdtout_passCiC_nvtx0to13",0, diphobdt_output, evweight);
+		l.FillHist("bdtout_passCiC_nvtx0to13",selectioncategory+1, diphobdt_output, evweight);
+		l.FillHist("bdtout_up_passCiC_nvtx0to13",0, diphobdt_output_up, evweight);
+		l.FillHist("bdtout_up_passCiC_nvtx0to13",selectioncategory+1, diphobdt_output_up, evweight);
+		l.FillHist("bdtout_down_passCiC_nvtx0to13",0, diphobdt_output_down, evweight);
+		l.FillHist("bdtout_down_passCiC_nvtx0to13",selectioncategory+1, diphobdt_output_down, evweight);
+	    }
+	    if (l.pho_isEB[lead]) {
+		l.FillHist("idmva_EB_nvtx0to13",0, phoid_mvaout_lead, evweight);
+		l.FillHist("idmva_EB_up_nvtx0to13",0, (phoid_mvaout_lead+0.01), evweight);
+		l.FillHist("idmva_EB_down_nvtx0to13",0, (phoid_mvaout_lead-0.01), evweight);
+	    } else {
+		l.FillHist("idmva_EE_nvtx0to13",0, phoid_mvaout_lead, evweight);
+		l.FillHist("idmva_EE_up_nvtx0to13",0, (phoid_mvaout_lead+0.01), evweight);
+		l.FillHist("idmva_EE_down_nvtx0to13",0, (phoid_mvaout_lead-0.01), evweight);
+	    }
+	    if (l.pho_isEB[sublead]) {
+		l.FillHist("idmva_EB_nvtx0to13",0, phoid_mvaout_sublead, evweight);
+		l.FillHist("idmva_EB_up_nvtx0to13",0, (phoid_mvaout_sublead+0.01), evweight);
+		l.FillHist("idmva_EB_down_nvtx0to13",0, (phoid_mvaout_sublead-0.01), evweight);
+	    } else {
+		l.FillHist("idmva_EE_nvtx0to13",0, phoid_mvaout_sublead, evweight);
+		l.FillHist("idmva_EE_up_nvtx0to13",0, (phoid_mvaout_sublead+0.01), evweight);
+		l.FillHist("idmva_EE_down_nvtx0to13",0, (phoid_mvaout_sublead-0.01), evweight);
+	    }
+	}
+    } else if (l.vtx_std_n<=18) {
+	l.FillHist("mass_nvtx14to18",0, mass, evweight);
+	l.FillHist("mass_nvtx14to18",selectioncategory+1, mass, evweight);
+	if (passCiC) l.FillHist("mass_passCiC_nvtx14to18",0, mass, evweight);
+	if (passCiC) l.FillHist("mass_passCiC_nvtx14to18",selectioncategory+1, mass, evweight);
+	if (passMVA) l.FillHist("mass_passMVA_nvtx14to18",0, mass, evweight);
+	if (passMVA) l.FillHist("mass_passMVA_nvtx14to18",category+1, mass, evweight);
+	if (mass>=60. && mass<=120.) {
+	    l.FillHist("bdtout_nvtx14to18",0, diphobdt_output, evweight);
+	    l.FillHist("bdtout_nvtx14to18",selectioncategory+1, diphobdt_output, evweight);
+	    l.FillHist("bdtout_up_nvtx14to18",0, diphobdt_output_up, evweight);
+	    l.FillHist("bdtout_up_nvtx14to18",selectioncategory+1, diphobdt_output_up, evweight);
+	    l.FillHist("bdtout_down_nvtx14to18",0, diphobdt_output_down, evweight);
+	    l.FillHist("bdtout_down_nvtx14to18",selectioncategory+1, diphobdt_output_down, evweight);
+	    if (passCiC) {
+		l.FillHist("bdtout_passCiC_nvtx14to18",0, diphobdt_output, evweight);
+		l.FillHist("bdtout_passCiC_nvtx14to18",selectioncategory+1, diphobdt_output, evweight);
+		l.FillHist("bdtout_up_passCiC_nvtx14to18",0, diphobdt_output_up, evweight);
+		l.FillHist("bdtout_up_passCiC_nvtx14to18",selectioncategory+1, diphobdt_output_up, evweight);
+		l.FillHist("bdtout_down_passCiC_nvtx14to18",0, diphobdt_output_down, evweight);
+		l.FillHist("bdtout_down_passCiC_nvtx14to18",selectioncategory+1, diphobdt_output_down, evweight);
+	    }
+	    if (l.pho_isEB[lead]) {
+		l.FillHist("idmva_EB_nvtx14to18",0, phoid_mvaout_lead, evweight);
+		l.FillHist("idmva_EB_up_nvtx14to18",0, (phoid_mvaout_lead+0.01), evweight);
+		l.FillHist("idmva_EB_down_nvtx14to18",0, (phoid_mvaout_lead-0.01), evweight);
+	    } else {
+		l.FillHist("idmva_EE_nvtx14to18",0, phoid_mvaout_lead, evweight);
+		l.FillHist("idmva_EE_up_nvtx14to18",0, (phoid_mvaout_lead+0.01), evweight);
+		l.FillHist("idmva_EE_down_nvtx14to18",0, (phoid_mvaout_lead-0.01), evweight);
+	    }
+	    if (l.pho_isEB[sublead]) {
+		l.FillHist("idmva_EB_nvtx14to18",0, phoid_mvaout_sublead, evweight);
+		l.FillHist("idmva_EB_up_nvtx14to18",0, (phoid_mvaout_sublead+0.01), evweight);
+		l.FillHist("idmva_EB_down_nvtx14to18",0, (phoid_mvaout_sublead-0.01), evweight);
+	    } else {
+		l.FillHist("idmva_EE_nvtx14to18",0, phoid_mvaout_sublead, evweight);
+		l.FillHist("idmva_EE_up_nvtx14to18",0, (phoid_mvaout_sublead+0.01), evweight);
+		l.FillHist("idmva_EE_down_nvtx14to18",0, (phoid_mvaout_sublead-0.01), evweight);
+	    }
+	}
+    } else {
+	l.FillHist("mass_nvtx19up",0, mass, evweight);
+	l.FillHist("mass_nvtx19up",selectioncategory+1, mass, evweight);
+	if (passCiC) l.FillHist("mass_passCiC_nvtx19up",0, mass, evweight);
+	if (passCiC) l.FillHist("mass_passCiC_nvtx19up",selectioncategory+1, mass, evweight);
+	if (passMVA) l.FillHist("mass_passMVA_nvtx19up",0, mass, evweight);
+	if (passMVA) l.FillHist("mass_passMVA_nvtx19up",category+1, mass, evweight);
+	if (mass>=60. && mass<=120.) {
+	    l.FillHist("bdtout_nvtx19up",0, diphobdt_output, evweight);
+	    l.FillHist("bdtout_nvtx19up",selectioncategory+1, diphobdt_output, evweight);
+	    l.FillHist("bdtout_up_nvtx19up",0, diphobdt_output_up, evweight);
+	    l.FillHist("bdtout_up_nvtx19up",selectioncategory+1, diphobdt_output_up, evweight);
+	    l.FillHist("bdtout_down_nvtx19up",0, diphobdt_output_down, evweight);
+	    l.FillHist("bdtout_down_nvtx19up",selectioncategory+1, diphobdt_output_down, evweight);
+	    if (passCiC) {
+		l.FillHist("bdtout_passCiC_nvtx19up",0, diphobdt_output, evweight);
+		l.FillHist("bdtout_passCiC_nvtx19up",selectioncategory+1, diphobdt_output, evweight);
+		l.FillHist("bdtout_up_passCiC_nvtx19up",0, diphobdt_output_up, evweight);
+		l.FillHist("bdtout_up_passCiC_nvtx19up",selectioncategory+1, diphobdt_output_up, evweight);
+		l.FillHist("bdtout_down_passCiC_nvtx19up",0, diphobdt_output_down, evweight);
+		l.FillHist("bdtout_down_passCiC_nvtx19up",selectioncategory+1, diphobdt_output_down, evweight);
+	    }
+	    if (l.pho_isEB[lead]) {
+		l.FillHist("idmva_EB_nvtx19up",0, phoid_mvaout_lead, evweight);
+		l.FillHist("idmva_EB_up_nvtx19up",0, (phoid_mvaout_lead+0.01), evweight);
+		l.FillHist("idmva_EB_down_nvtx19up",0, (phoid_mvaout_lead-0.01), evweight);
+	    } else {
+		l.FillHist("idmva_EE_nvtx19up",0, phoid_mvaout_lead, evweight);
+		l.FillHist("idmva_EE_up_nvtx19up",0, (phoid_mvaout_lead+0.01), evweight);
+		l.FillHist("idmva_EE_down_nvtx19up",0, (phoid_mvaout_lead-0.01), evweight);
+	    }
+	    if (l.pho_isEB[sublead]) {
+		l.FillHist("idmva_EB_nvtx19up",0, phoid_mvaout_sublead, evweight);
+		l.FillHist("idmva_EB_up_nvtx19up",0, (phoid_mvaout_sublead+0.01), evweight);
+		l.FillHist("idmva_EB_down_nvtx19up",0, (phoid_mvaout_sublead-0.01), evweight);
+	    } else {
+		l.FillHist("idmva_EE_nvtx19up",0, phoid_mvaout_sublead, evweight);
+		l.FillHist("idmva_EE_up_nvtx19up",0, (phoid_mvaout_sublead+0.01), evweight);
+		l.FillHist("idmva_EE_down_nvtx19up",0, (phoid_mvaout_sublead-0.01), evweight);
+	    }
+	}
     }
 
 }
