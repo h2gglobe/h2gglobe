@@ -42,4 +42,4 @@ treevariables treevariables_escale.dat
 ## 	analyzer <class_name> <config_file>
 ## 
 ## analyzer PhotonAnalysis photonanalysis.dat	
-analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat zeevalidation.dat fillOptTree=0 fillEscaleTrees=1
+analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat zeevalidation.dat fillOptTree=0 fillEscaleTrees=0
