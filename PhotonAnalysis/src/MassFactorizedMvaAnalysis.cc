@@ -916,8 +916,8 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
             l.FillCounter( "Smeared", evweight );
             sumaccept += weight;
             sumsmear += evweight;
-            if (l.runZeeValidation && !forceStdPlotsOnZee && category<6) {
-                fillZeeControlPlots(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, phoid_mvaout_lead, phoid_mvaout_sublead, diphobdt_output_up, diphobdt_output_down, diphobdt_output, sigmaMrv, sigmaMwv, vtxProb, diphoton_id, category, selectioncategory, evweight, l );
+            if (l.runZeeValidation && !forceStdPlotsOnZee) {
+                if (category<6) fillZeeControlPlots(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, phoid_mvaout_lead, phoid_mvaout_sublead, diphobdt_output_up, diphobdt_output_down, diphobdt_output, sigmaMrv, sigmaMwv, vtxProb, diphoton_id, category, selectioncategory, evweight, l );
             } else {
 	            if (category>-1) {
 	    	        fillControlPlots(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9,  diphoton_id, 
