@@ -1,4 +1,4 @@
-void zee_mass(bool equalArea=true) {
+void zee_mass(bool equalArea=true, bool includeDijetCats=false) {
 
   gStyle->SetOptTitle(0);
   gStyle->SetOptStat(0);
@@ -12,8 +12,10 @@ void zee_mass(bool equalArea=true) {
   TString preselNorm_str = "";
   if (!equalArea) preselNorm_str = "_preselNorm";
 
+  int nMvaCats=4;
+  if (includeDijetCats) mMvaCats=6;
+
   TFile *file = TFile::Open("histograms_CMS-HGG_zeevalidation.root");
-  //TFile *file = TFile::Open("root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/zee_trees/tree_zee_moriond_preapproval.root");
   file->cd();
 
   float sf_presel = bdtout_cat0_Data->Integral()/bdtout_cat0_DYJetsToLL->Integral();
@@ -53,6 +55,48 @@ void zee_mass(bool equalArea=true) {
   mass_pt40to60_cat0_Data->GetXaxis()->SetTitleSize(0.06);
   mass_pt60to100_cat0_Data->GetXaxis()->SetTitleSize(0.06);
   mass_pt100up_cat0_Data->GetXaxis()->SetTitleSize(0.06);
+
+  mass_nvtx0to13_cat0_Data->GetXaxis()->SetTitleSize(0.06);
+  mass_nvtx14to18_cat0_Data->GetXaxis()->SetTitleSize(0.06);
+  mass_nvtx19up_cat0_Data->GetXaxis()->SetTitleSize(0.06);
+
+  mass_nvtx0to13_cat1_Data->GetXaxis()->SetTitleSize(0.06);
+  mass_nvtx14to18_cat1_Data->GetXaxis()->SetTitleSize(0.06);
+  mass_nvtx19up_cat1_Data->GetXaxis()->SetTitleSize(0.06);
+
+  mass_nvtx0to13_cat2_Data->GetXaxis()->SetTitleSize(0.06);
+  mass_nvtx14to18_cat2_Data->GetXaxis()->SetTitleSize(0.06);
+  mass_nvtx19up_cat2_Data->GetXaxis()->SetTitleSize(0.06);
+
+  mass_nvtx0to13_cat3_Data->GetXaxis()->SetTitleSize(0.06);
+  mass_nvtx14to18_cat3_Data->GetXaxis()->SetTitleSize(0.06);
+  mass_nvtx19up_cat3_Data->GetXaxis()->SetTitleSize(0.06);
+
+  mass_nvtx0to13_cat4_Data->GetXaxis()->SetTitleSize(0.06);
+  mass_nvtx14to18_cat4_Data->GetXaxis()->SetTitleSize(0.06);
+  mass_nvtx19up_cat4_Data->GetXaxis()->SetTitleSize(0.06);
+
+  mass_passMVA_nvtx0to13_cat0_Data->GetXaxis()->SetTitleSize(0.06);
+  mass_passMVA_nvtx14to18_cat0_Data->GetXaxis()->SetTitleSize(0.06);
+  mass_passMVA_nvtx19up_cat0_Data->GetXaxis()->SetTitleSize(0.06);
+
+  mass_passMVA_nvtx0to13_cat1_Data->GetXaxis()->SetTitleSize(0.06);
+  mass_passMVA_nvtx14to18_cat1_Data->GetXaxis()->SetTitleSize(0.06);
+  mass_passMVA_nvtx19up_cat1_Data->GetXaxis()->SetTitleSize(0.06);
+
+  mass_passMVA_nvtx0to13_cat2_Data->GetXaxis()->SetTitleSize(0.06);
+  mass_passMVA_nvtx14to18_cat2_Data->GetXaxis()->SetTitleSize(0.06);
+  mass_passMVA_nvtx19up_cat2_Data->GetXaxis()->SetTitleSize(0.06);
+
+  mass_passMVA_nvtx0to13_cat3_Data->GetXaxis()->SetTitleSize(0.06);
+  mass_passMVA_nvtx14to18_cat3_Data->GetXaxis()->SetTitleSize(0.06);
+  mass_passMVA_nvtx19up_cat3_Data->GetXaxis()->SetTitleSize(0.06);
+
+  mass_passMVA_nvtx0to13_cat4_Data->GetXaxis()->SetTitleSize(0.06);
+  mass_passMVA_nvtx14to18_cat4_Data->GetXaxis()->SetTitleSize(0.06);
+  mass_passMVA_nvtx19up_cat4_Data->GetXaxis()->SetTitleSize(0.06);
+
+  //------------------------------------------------------------------------------
 
   TCanvas *c_mass = new TCanvas("c_mass","di-photon mass",1200,800);
   c_mass->Divide(2,2);
@@ -110,9 +154,24 @@ void zee_mass(bool equalArea=true) {
 
   c_mass->SaveAs("mass.png");
 
+  //------------------------------------------------------------------------------
 
   TCanvas *c_mass_cat = new TCanvas("c_mass_cat","di-photon mass",1600,600);
-  c_mass_cat->Divide(4,2);
+  c_mass_cat->Divide(nMvaCats,2);
+
+  if (includeDijetCats) {
+    c_mass_cat_7->SetGrid();
+    c_mass_cat_8->SetGrid();
+    c_mass_cat_9->SetGrid();
+    c_mass_cat_10->SetGrid();
+    c_mass_cat_11->SetGrid();
+    c_mass_cat_12->SetGrid();
+  } else {
+    c_mass_cat_5->SetGrid();
+    c_mass_cat_6->SetGrid();
+    c_mass_cat_7->SetGrid();
+    c_mass_cat_8->SetGrid();
+  }
 
   mass_cat1_Data->Rebin(1);
   mass_cat2_Data->Rebin(1);
@@ -147,8 +206,7 @@ void zee_mass(bool equalArea=true) {
   leg->Draw();
   txt1->DrawLatex(0.55,0.8,"#scale[0.8]{#splitline{CMS Preliminary}{#sqrt{s} = 8 TeV L = 19.6 fb^{-1}}}");
 
-  c_mass_cat->cd(5);
-  c_mass_cat_5->SetGrid();
+  c_mass_cat->cd(nMvaCats+1);
   mass_ratio_cat1 = (TH1F*)mass_cat1_Data->Clone();
   mass_ratio_cat1->Divide(mass_cat1_DYJetsToLL);
   mass_ratio_cat1->SetMaximum(1.8);
@@ -179,8 +237,7 @@ void zee_mass(bool equalArea=true) {
   leg->Draw();
   txt1->DrawLatex(0.55,0.8,"#scale[0.8]{#splitline{CMS Preliminary}{#sqrt{s} = 8 TeV L = 19.6 fb^{-1}}}");
 
-  c_mass_cat->cd(6);
-  c_mass_cat_6->SetGrid();
+  c_mass_cat->cd(nMvaCats+2);
   mass_ratio_cat2 = (TH1F*)mass_cat2_Data->Clone();
   mass_ratio_cat2->Divide(mass_cat2_DYJetsToLL);
   mass_ratio_cat2->SetMaximum(1.8);
@@ -211,8 +268,7 @@ void zee_mass(bool equalArea=true) {
   leg->Draw();
   txt1->DrawLatex(0.55,0.8,"#scale[0.8]{#splitline{CMS Preliminary}{#sqrt{s} = 8 TeV L = 19.6 fb^{-1}}}");
 
-  c_mass_cat->cd(7);
-  c_mass_cat_7->SetGrid();
+  c_mass_cat->cd(nMvaCats+3);
   mass_ratio_cat3 = (TH1F*)mass_cat3_Data->Clone();
   mass_ratio_cat3->Divide(mass_cat3_DYJetsToLL);
   mass_ratio_cat3->SetMaximum(1.8);
@@ -243,8 +299,7 @@ void zee_mass(bool equalArea=true) {
   leg->Draw();
   txt1->DrawLatex(0.55,0.8,"#scale[0.8]{#splitline{CMS Preliminary}{#sqrt{s} = 8 TeV L = 19.6 fb^{-1}}}");
 
-  c_mass_cat->cd(8);
-  c_mass_cat_8->SetGrid();
+  c_mass_cat->cd(nMvaCats+4);
   mass_ratio_cat4 = (TH1F*)mass_cat4_Data->Clone();
   mass_ratio_cat4->Divide(mass_cat4_DYJetsToLL);
   mass_ratio_cat4->SetMaximum(1.8);
@@ -255,75 +310,76 @@ void zee_mass(bool equalArea=true) {
   txt3->DrawLatex(0.35,0.25, "Data/MC ratio");
   line_mass->Draw();
 
-  mass_cat5_Data->GetXaxis()->SetTitle("m_{e^{+}e^{-}}, dijet cat1");
-  mass_cat5_Data->GetYaxis()->SetTitle("");
-  mass_cat5_Data->SetMarkerStyle(20);
-  mass_cat5_Data->SetMarkerSize(.4);
-  mass_cat5_Data->SetLineColor(1);
-  mass_cat5_DYJetsToLL->SetFillColor(38);
-  mass_cat5_DYJetsToLL->SetLineColor(1);
-  sf = mass_cat5_Data->Integral()/mass_cat5_DYJetsToLL->Integral();
-  if (!equalArea) sf = sf_presel;
-  mass_cat5_DYJetsToLL->Scale(sf);
+  if (includeDijetCats) {
 
-  /*
-  c_mass_cat->cd(5);
-  mass_cat5_Data->GetXaxis()->SetRangeUser(70.,119.5);
-  mass_cat5_Data->Draw("e");
-  mass_cat5_DYJetsToLL->Draw("hist,same");
-  mass_cat5_Data->Draw("e,same");
-  gPad->RedrawAxis();
-  leg->Draw();
-  txt1->DrawLatex(0.55,0.8,"#scale[0.8]{#splitline{CMS Preliminary}{#sqrt{s} = 8 TeV L = 19.6 fb^{-1}}}");
+    mass_cat5_Data->GetXaxis()->SetTitle("m_{e^{+}e^{-}}, dijet cat1");
+    mass_cat5_Data->GetYaxis()->SetTitle("");
+    mass_cat5_Data->SetMarkerStyle(20);
+    mass_cat5_Data->SetMarkerSize(.4);
+    mass_cat5_Data->SetLineColor(1);
+    mass_cat5_DYJetsToLL->SetFillColor(38);
+    mass_cat5_DYJetsToLL->SetLineColor(1);
+    sf = mass_cat5_Data->Integral()/mass_cat5_DYJetsToLL->Integral();
+    if (!equalArea) sf = sf_presel;
+    mass_cat5_DYJetsToLL->Scale(sf);
 
-  c_mass_cat->cd(11);
-  c_mass_cat_11->SetGrid();
-  mass_ratio_cat5 = (TH1F*)mass_cat5_Data->Clone();
-  mass_ratio_cat5->Divide(mass_cat5_DYJetsToLL);
-  mass_ratio_cat5->SetMaximum(1.8);
-  mass_ratio_cat5->SetMinimum(0.2);
-  mass_ratio_cat5->GetXaxis()->SetRangeUser(70.,119.5);
-  mass_ratio_cat5->GetXaxis()->SetTitle("m_{e^{+}e^{-}}, dijet cat1");
-  mass_ratio_cat5->Draw("e");
-  txt3->DrawLatex(0.35,0.25, "Data/MC ratio");
-  line_mass->Draw();
+    c_mass_cat->cd(5);
+    mass_cat5_Data->GetXaxis()->SetRangeUser(70.,119.5);
+    mass_cat5_Data->Draw("e");
+    mass_cat5_DYJetsToLL->Draw("hist,same");
+    mass_cat5_Data->Draw("e,same");
+    gPad->RedrawAxis();
+    leg->Draw();
+    txt1->DrawLatex(0.55,0.8,"#scale[0.8]{#splitline{CMS Preliminary}{#sqrt{s} = 8 TeV L = 19.6 fb^{-1}}}");
 
-  mass_cat6_Data->GetXaxis()->SetTitle("m_{e^{+}e^{-}}, dijet cat2");
-  mass_cat6_Data->GetYaxis()->SetTitle("");
-  mass_cat6_Data->SetMarkerStyle(20);
-  mass_cat6_Data->SetMarkerSize(.4);
-  mass_cat6_Data->SetLineColor(1);
-  mass_cat6_DYJetsToLL->SetFillColor(38);
-  mass_cat6_DYJetsToLL->SetLineColor(1);
-  sf = mass_cat6_Data->Integral()/mass_cat6_DYJetsToLL->Integral();
-  if (!equalArea) sf = sf_presel;
-  mass_cat6_DYJetsToLL->Scale(sf);
+    c_mass_cat->cd(nMvaCats+5);
+    mass_ratio_cat5 = (TH1F*)mass_cat5_Data->Clone();
+    mass_ratio_cat5->Divide(mass_cat5_DYJetsToLL);
+    mass_ratio_cat5->SetMaximum(1.8);
+    mass_ratio_cat5->SetMinimum(0.2);
+    mass_ratio_cat5->GetXaxis()->SetRangeUser(70.,119.5);
+    mass_ratio_cat5->GetXaxis()->SetTitle("m_{e^{+}e^{-}}, dijet cat1");
+    mass_ratio_cat5->Draw("e");
+    txt3->DrawLatex(0.35,0.25, "Data/MC ratio");
+    line_mass->Draw();
 
-  c_mass_cat->cd(6);
-  mass_cat6_Data->GetXaxis()->SetRangeUser(70.,119.5);
-  mass_cat6_Data->Draw("e");
-  mass_cat6_DYJetsToLL->Draw("hist,same");
-  mass_cat6_Data->Draw("e,same");
-  gPad->RedrawAxis();
-  leg->Draw();
-  txt1->DrawLatex(0.55,0.8,"#scale[0.8]{#splitline{CMS Preliminary}{#sqrt{s} = 8 TeV L = 19.6 fb^{-1}}}");
+    mass_cat6_Data->GetXaxis()->SetTitle("m_{e^{+}e^{-}}, dijet cat2");
+    mass_cat6_Data->GetYaxis()->SetTitle("");
+    mass_cat6_Data->SetMarkerStyle(20);
+    mass_cat6_Data->SetMarkerSize(.4);
+    mass_cat6_Data->SetLineColor(1);
+    mass_cat6_DYJetsToLL->SetFillColor(38);
+    mass_cat6_DYJetsToLL->SetLineColor(1);
+    sf = mass_cat6_Data->Integral()/mass_cat6_DYJetsToLL->Integral();
+    if (!equalArea) sf = sf_presel;
+    mass_cat6_DYJetsToLL->Scale(sf);
 
-  c_mass_cat->cd(12);
-  c_mass_cat_12->SetGrid();
-  mass_ratio_cat6 = (TH1F*)mass_cat6_Data->Clone();
-  mass_ratio_cat6->Divide(mass_cat6_DYJetsToLL);
-  mass_ratio_cat6->SetMaximum(1.8);
-  mass_ratio_cat6->SetMinimum(0.2);
-  mass_ratio_cat6->GetXaxis()->SetRangeUser(70.,119.5);
-  mass_ratio_cat6->GetXaxis()->SetTitle("m_{e^{+}e^{-}}, dijet cat2");
-  mass_ratio_cat6->Draw("e");
-  txt3->DrawLatex(0.35,0.25, "Data/MC ratio");
-  line_mass->Draw();
-  */
+    c_mass_cat->cd(6);
+    mass_cat6_Data->GetXaxis()->SetRangeUser(70.,119.5);
+    mass_cat6_Data->Draw("e");
+    mass_cat6_DYJetsToLL->Draw("hist,same");
+    mass_cat6_Data->Draw("e,same");
+    gPad->RedrawAxis();
+    leg->Draw();
+    txt1->DrawLatex(0.55,0.8,"#scale[0.8]{#splitline{CMS Preliminary}{#sqrt{s} = 8 TeV L = 19.6 fb^{-1}}}");
+
+    c_mass_cat->cd(nMvaCats+6);
+    mass_ratio_cat6 = (TH1F*)mass_cat6_Data->Clone();
+    mass_ratio_cat6->Divide(mass_cat6_DYJetsToLL);
+    mass_ratio_cat6->SetMaximum(1.8);
+    mass_ratio_cat6->SetMinimum(0.2);
+    mass_ratio_cat6->GetXaxis()->SetRangeUser(70.,119.5);
+    mass_ratio_cat6->GetXaxis()->SetTitle("m_{e^{+}e^{-}}, dijet cat2");
+    mass_ratio_cat6->Draw("e");
+    txt3->DrawLatex(0.35,0.25, "Data/MC ratio");
+    line_mass->Draw();
+
+  }
 
   c_mass_cat->SaveAs("mass_cat"+preselNorm_str+".png");
   c_mass_cat->SaveAs("mass_cat"+preselNorm_str+".pdf");
 
+  //------------------------------------------------------------------------------
 
   TCanvas *c_mass_cat_2x2 = new TCanvas("c_mass_cat_2x2","di-photon mass",1000,1400);
   c_mass_cat_2x2->Divide(2,4);
@@ -387,20 +443,10 @@ void zee_mass(bool equalArea=true) {
   c_mass_cat_2x2->SaveAs("mass_cat"+preselNorm_str+"_2x2.png");
   c_mass_cat_2x2->SaveAs("mass_cat"+preselNorm_str+"_2x2.pdf");
 
+  //------------------------------------------------------------------------------
 
   TCanvas *c_mass_basecat = new TCanvas("c_mass_basecat","di-photon mass",1600,600);
   c_mass_basecat->Divide(4,2);
-
-  /*
-  mass_basecat_cat0_Data->Rebin(2);
-  mass_basecat_cat1_Data->Rebin(2);
-  mass_basecat_cat2_Data->Rebin(2);
-  mass_basecat_cat3_Data->Rebin(2);
-  mass_basecat_cat0_DYJetsToLL->Rebin(2);
-  mass_basecat_cat1_DYJetsToLL->Rebin(2);
-  mass_basecat_cat2_DYJetsToLL->Rebin(2);
-  mass_basecat_cat3_DYJetsToLL->Rebin(2);
-  */
 
   mass_basecat_cat0_Data->GetXaxis()->SetTitle("m_{e^{+}e^{-}}, CiC cat0");
   mass_basecat_cat0_Data->GetYaxis()->SetTitle("");
@@ -532,22 +578,10 @@ void zee_mass(bool equalArea=true) {
 
   c_mass_basecat->SaveAs("mass_basecat"+preselNorm_str+".png");
 
+  //------------------------------------------------------------------------------
 
   TCanvas *c_mass_pt = new TCanvas("c_mass_pt","di-photon mass",1600,600);
   c_mass_pt->Divide(5,2);
-
-  /*
-  mass_pt0to20_cat0_Data->Rebin(2);
-  mass_pt20to40_cat0_Data->Rebin(2);
-  mass_pt40to60_cat0_Data->Rebin(2);
-  mass_pt60to100_cat0_Data->Rebin(2);
-  mass_pt100up_cat0_Data->Rebin(2);
-  mass_pt0to20_cat0_DYJetsToLL->Rebin(2);
-  mass_pt20to40_cat0_DYJetsToLL->Rebin(2);
-  mass_pt40to60_cat0_DYJetsToLL->Rebin(2);
-  mass_pt60to100_cat0_DYJetsToLL->Rebin(2);
-  mass_pt100up_cat0_DYJetsToLL->Rebin(2);
-  */
 
   mass_pt0to20_cat0_Data->GetXaxis()->SetTitle("m_{e^{+}e^{-}}, 0<p_{T}(#gamma#gamma)<20 GeV");
   mass_pt0to20_cat0_Data->GetYaxis()->SetTitle("");
@@ -710,5 +744,212 @@ void zee_mass(bool equalArea=true) {
   line_mass->Draw();
 
   c_mass_pt->SaveAs("mass_pt"+preselNorm_str+".png");
+
+  //------------------------------------------------------------------------------
+
+  TCanvas *c_mass_nvtx = new TCanvas("c_mass_nvtx","di-photon mass",1600,600);
+  c_mass_nvtx->Divide(3,2);
+
+  mass_nvtx0to13_cat0_Data->GetXaxis()->SetTitle("m_{e^{+}e^{-}}, nvtx<=13");
+  mass_nvtx0to13_cat0_Data->GetYaxis()->SetTitle("");
+  mass_nvtx0to13_cat0_Data->SetMarkerStyle(20);
+  mass_nvtx0to13_cat0_Data->SetMarkerSize(.4);
+  mass_nvtx0to13_cat0_Data->SetLineColor(1);
+  mass_nvtx0to13_cat0_DYJetsToLL->SetFillColor(38);
+  mass_nvtx0to13_cat0_DYJetsToLL->SetLineColor(1);
+  sf = mass_nvtx0to13_cat0_Data->Integral()/mass_nvtx0to13_cat0_DYJetsToLL->Integral();
+  if (!equalArea) sf = sf_presel;
+  mass_nvtx0to13_cat0_DYJetsToLL->Scale(sf);
+
+  c_mass_nvtx->cd(1);
+  mass_nvtx0to13_cat0_Data->GetXaxis()->SetRangeUser(70.,119.5);
+  mass_nvtx0to13_cat0_Data->Draw("e");
+  mass_nvtx0to13_cat0_DYJetsToLL->Draw("hist,same");
+  mass_nvtx0to13_cat0_Data->Draw("e,same");
+  gPad->RedrawAxis();
+  leg->Draw();
+  txt1->DrawLatex(0.55,0.8,"#scale[0.8]{#splitline{CMS Preliminary}{#sqrt{s} = 8 TeV L = 19.6 fb^{-1}}}");
+
+  c_mass_nvtx->cd(4);
+  c_mass_nvtx_4->SetGrid();
+  mass_ratio_nvtx0to13_cat0 = (TH1F*)mass_nvtx0to13_cat0_Data->Clone();
+  mass_ratio_nvtx0to13_cat0->Divide(mass_nvtx0to13_cat0_DYJetsToLL);
+  mass_ratio_nvtx0to13_cat0->SetMaximum(1.8);
+  mass_ratio_nvtx0to13_cat0->SetMinimum(0.2);
+  mass_ratio_nvtx0to13_cat0->GetXaxis()->SetRangeUser(70.,119.5);
+  mass_ratio_nvtx0to13_cat0->GetXaxis()->SetTitle("m_{e^{+}e^{-}}, nvtx<=13");
+  mass_ratio_nvtx0to13_cat0->Draw("e");
+  txt3->DrawLatex(0.35,0.25, "Data/MC ratio");
+  line_mass->Draw();
+
+  mass_nvtx14to18_cat0_Data->GetXaxis()->SetTitle("m_{e^{+}e^{-}}, 14<=nvtx<=18");
+  mass_nvtx14to18_cat0_Data->GetYaxis()->SetTitle("");
+  mass_nvtx14to18_cat0_Data->SetMarkerStyle(20);
+  mass_nvtx14to18_cat0_Data->SetMarkerSize(.4);
+  mass_nvtx14to18_cat0_Data->SetLineColor(1);
+  mass_nvtx14to18_cat0_DYJetsToLL->SetFillColor(38);
+  mass_nvtx14to18_cat0_DYJetsToLL->SetLineColor(1);
+  sf = mass_nvtx14to18_cat0_Data->Integral()/mass_nvtx14to18_cat0_DYJetsToLL->Integral();
+  if (!equalArea) sf = sf_presel;
+  mass_nvtx14to18_cat0_DYJetsToLL->Scale(sf);
+
+  c_mass_nvtx->cd(2);
+  mass_nvtx14to18_cat0_Data->GetXaxis()->SetRangeUser(70.,119.5);
+  mass_nvtx14to18_cat0_Data->Draw("e");
+  mass_nvtx14to18_cat0_DYJetsToLL->Draw("hist,same");
+  mass_nvtx14to18_cat0_Data->Draw("e,same");
+  gPad->RedrawAxis();
+  leg->Draw();
+  txt1->DrawLatex(0.55,0.8,"#scale[0.8]{#splitline{CMS Preliminary}{#sqrt{s} = 8 TeV L = 19.6 fb^{-1}}}");
+
+  c_mass_nvtx->cd(5);
+  c_mass_nvtx_5->SetGrid();
+  mass_ratio_nvtx14to18_cat0 = (TH1F*)mass_nvtx14to18_cat0_Data->Clone();
+  mass_ratio_nvtx14to18_cat0->Divide(mass_nvtx14to18_cat0_DYJetsToLL);
+  mass_ratio_nvtx14to18_cat0->SetMaximum(1.8);
+  mass_ratio_nvtx14to18_cat0->SetMinimum(0.2);
+  mass_ratio_nvtx14to18_cat0->GetXaxis()->SetRangeUser(70.,119.5);
+  mass_ratio_nvtx14to18_cat0->GetXaxis()->SetTitle("m_{e^{+}e^{-}}, 14<=nvtx<=18");
+  mass_ratio_nvtx14to18_cat0->Draw("e");
+  txt3->DrawLatex(0.35,0.25, "Data/MC ratio");
+  line_mass->Draw();
+
+  mass_nvtx19up_cat0_Data->GetXaxis()->SetTitle("m_{e^{+}e^{-}}, nvtx>=19");
+  mass_nvtx19up_cat0_Data->GetYaxis()->SetTitle("");
+  mass_nvtx19up_cat0_Data->SetMarkerStyle(20);
+  mass_nvtx19up_cat0_Data->SetMarkerSize(.4);
+  mass_nvtx19up_cat0_Data->SetLineColor(1);
+  mass_nvtx19up_cat0_DYJetsToLL->SetFillColor(38);
+  mass_nvtx19up_cat0_DYJetsToLL->SetLineColor(1);
+  sf = mass_nvtx19up_cat0_Data->Integral()/mass_nvtx19up_cat0_DYJetsToLL->Integral();
+  if (!equalArea) sf = sf_presel;
+  mass_nvtx19up_cat0_DYJetsToLL->Scale(sf);
+
+  c_mass_nvtx->cd(3);
+  mass_nvtx19up_cat0_Data->GetXaxis()->SetRangeUser(70.,119.5);
+  mass_nvtx19up_cat0_Data->Draw("e");
+  mass_nvtx19up_cat0_DYJetsToLL->Draw("hist,same");
+  mass_nvtx19up_cat0_Data->Draw("e,same");
+  gPad->RedrawAxis();
+  leg->Draw();
+  txt1->DrawLatex(0.55,0.8,"#scale[0.8]{#splitline{CMS Preliminary}{#sqrt{s} = 8 TeV L = 19.6 fb^{-1}}}");
+
+  c_mass_nvtx->cd(6);
+  c_mass_nvtx_6->SetGrid();
+  mass_ratio_nvtx19up_cat0 = (TH1F*)mass_nvtx19up_cat0_Data->Clone();
+  mass_ratio_nvtx19up_cat0->Divide(mass_nvtx19up_cat0_DYJetsToLL);
+  mass_ratio_nvtx19up_cat0->SetMaximum(1.8);
+  mass_ratio_nvtx19up_cat0->SetMinimum(0.2);
+  mass_ratio_nvtx19up_cat0->GetXaxis()->SetRangeUser(70.,119.5);
+  mass_ratio_nvtx19up_cat0->GetXaxis()->SetTitle("m_{e^{+}e^{-}}, nvtx>=19");
+  mass_ratio_nvtx19up_cat0->Draw("e");
+  txt3->DrawLatex(0.35,0.25, "Data/MC ratio");
+  line_mass->Draw();
+
+  c_mass_nvtx->SaveAs("mass_nvtx"+preselNorm_str+".png");
+
+  //------------------------------------------------------------------------------
+
+  TCanvas *c_mass_passMVA_nvtx = new TCanvas("c_mass_passMVA_nvtx","di-photon mass",1600,600);
+  c_mass_passMVA_nvtx->Divide(3,2);
+
+  mass_passMVA_nvtx0to13_cat0_Data->GetXaxis()->SetTitle("m_{e^{+}e^{-}}, nvtx<=13");
+  mass_passMVA_nvtx0to13_cat0_Data->GetYaxis()->SetTitle("");
+  mass_passMVA_nvtx0to13_cat0_Data->SetMarkerStyle(20);
+  mass_passMVA_nvtx0to13_cat0_Data->SetMarkerSize(.4);
+  mass_passMVA_nvtx0to13_cat0_Data->SetLineColor(1);
+  mass_passMVA_nvtx0to13_cat0_DYJetsToLL->SetFillColor(38);
+  mass_passMVA_nvtx0to13_cat0_DYJetsToLL->SetLineColor(1);
+  sf = mass_passMVA_nvtx0to13_cat0_Data->Integral()/mass_passMVA_nvtx0to13_cat0_DYJetsToLL->Integral();
+  if (!equalArea) sf = sf_presel;
+  mass_passMVA_nvtx0to13_cat0_DYJetsToLL->Scale(sf);
+
+  c_mass_passMVA_nvtx->cd(1);
+  mass_passMVA_nvtx0to13_cat0_Data->GetXaxis()->SetRangeUser(70.,119.5);
+  mass_passMVA_nvtx0to13_cat0_Data->Draw("e");
+  mass_passMVA_nvtx0to13_cat0_DYJetsToLL->Draw("hist,same");
+  mass_passMVA_nvtx0to13_cat0_Data->Draw("e,same");
+  gPad->RedrawAxis();
+  leg->Draw();
+  txt1->DrawLatex(0.55,0.8,"#scale[0.8]{#splitline{CMS Preliminary}{#sqrt{s} = 8 TeV L = 19.6 fb^{-1}}}");
+
+  c_mass_passMVA_nvtx->cd(4);
+  c_mass_passMVA_nvtx_4->SetGrid();
+  mass_ratio_nvtx0to13_cat0 = (TH1F*)mass_passMVA_nvtx0to13_cat0_Data->Clone();
+  mass_ratio_nvtx0to13_cat0->Divide(mass_passMVA_nvtx0to13_cat0_DYJetsToLL);
+  mass_ratio_nvtx0to13_cat0->SetMaximum(1.8);
+  mass_ratio_nvtx0to13_cat0->SetMinimum(0.2);
+  mass_ratio_nvtx0to13_cat0->GetXaxis()->SetRangeUser(70.,119.5);
+  mass_ratio_nvtx0to13_cat0->GetXaxis()->SetTitle("m_{e^{+}e^{-}}, nvtx<=13");
+  mass_ratio_nvtx0to13_cat0->Draw("e");
+  txt3->DrawLatex(0.35,0.25, "Data/MC ratio");
+  line_mass->Draw();
+
+  mass_passMVA_nvtx14to18_cat0_Data->GetXaxis()->SetTitle("m_{e^{+}e^{-}}, 14<=nvtx<=18");
+  mass_passMVA_nvtx14to18_cat0_Data->GetYaxis()->SetTitle("");
+  mass_passMVA_nvtx14to18_cat0_Data->SetMarkerStyle(20);
+  mass_passMVA_nvtx14to18_cat0_Data->SetMarkerSize(.4);
+  mass_passMVA_nvtx14to18_cat0_Data->SetLineColor(1);
+  mass_passMVA_nvtx14to18_cat0_DYJetsToLL->SetFillColor(38);
+  mass_passMVA_nvtx14to18_cat0_DYJetsToLL->SetLineColor(1);
+  sf = mass_passMVA_nvtx14to18_cat0_Data->Integral()/mass_passMVA_nvtx14to18_cat0_DYJetsToLL->Integral();
+  if (!equalArea) sf = sf_presel;
+  mass_passMVA_nvtx14to18_cat0_DYJetsToLL->Scale(sf);
+
+  c_mass_passMVA_nvtx->cd(2);
+  mass_passMVA_nvtx14to18_cat0_Data->GetXaxis()->SetRangeUser(70.,119.5);
+  mass_passMVA_nvtx14to18_cat0_Data->Draw("e");
+  mass_passMVA_nvtx14to18_cat0_DYJetsToLL->Draw("hist,same");
+  mass_passMVA_nvtx14to18_cat0_Data->Draw("e,same");
+  gPad->RedrawAxis();
+  leg->Draw();
+  txt1->DrawLatex(0.55,0.8,"#scale[0.8]{#splitline{CMS Preliminary}{#sqrt{s} = 8 TeV L = 19.6 fb^{-1}}}");
+
+  c_mass_passMVA_nvtx->cd(5);
+  c_mass_passMVA_nvtx_5->SetGrid();
+  mass_ratio_nvtx14to18_cat0 = (TH1F*)mass_passMVA_nvtx14to18_cat0_Data->Clone();
+  mass_ratio_nvtx14to18_cat0->Divide(mass_passMVA_nvtx14to18_cat0_DYJetsToLL);
+  mass_ratio_nvtx14to18_cat0->SetMaximum(1.8);
+  mass_ratio_nvtx14to18_cat0->SetMinimum(0.2);
+  mass_ratio_nvtx14to18_cat0->GetXaxis()->SetRangeUser(70.,119.5);
+  mass_ratio_nvtx14to18_cat0->GetXaxis()->SetTitle("m_{e^{+}e^{-}}, 14<=nvtx<=18");
+  mass_ratio_nvtx14to18_cat0->Draw("e");
+  txt3->DrawLatex(0.35,0.25, "Data/MC ratio");
+  line_mass->Draw();
+
+  mass_passMVA_nvtx19up_cat0_Data->GetXaxis()->SetTitle("m_{e^{+}e^{-}}, nvtx>=19");
+  mass_passMVA_nvtx19up_cat0_Data->GetYaxis()->SetTitle("");
+  mass_passMVA_nvtx19up_cat0_Data->SetMarkerStyle(20);
+  mass_passMVA_nvtx19up_cat0_Data->SetMarkerSize(.4);
+  mass_passMVA_nvtx19up_cat0_Data->SetLineColor(1);
+  mass_passMVA_nvtx19up_cat0_DYJetsToLL->SetFillColor(38);
+  mass_passMVA_nvtx19up_cat0_DYJetsToLL->SetLineColor(1);
+  sf = mass_passMVA_nvtx19up_cat0_Data->Integral()/mass_passMVA_nvtx19up_cat0_DYJetsToLL->Integral();
+  if (!equalArea) sf = sf_presel;
+  mass_passMVA_nvtx19up_cat0_DYJetsToLL->Scale(sf);
+
+  c_mass_passMVA_nvtx->cd(3);
+  mass_passMVA_nvtx19up_cat0_Data->GetXaxis()->SetRangeUser(70.,119.5);
+  mass_passMVA_nvtx19up_cat0_Data->Draw("e");
+  mass_passMVA_nvtx19up_cat0_DYJetsToLL->Draw("hist,same");
+  mass_passMVA_nvtx19up_cat0_Data->Draw("e,same");
+  gPad->RedrawAxis();
+  leg->Draw();
+  txt1->DrawLatex(0.55,0.8,"#scale[0.8]{#splitline{CMS Preliminary}{#sqrt{s} = 8 TeV L = 19.6 fb^{-1}}}");
+
+  c_mass_passMVA_nvtx->cd(6);
+  c_mass_passMVA_nvtx_6->SetGrid();
+  mass_ratio_nvtx19up_cat0 = (TH1F*)mass_passMVA_nvtx19up_cat0_Data->Clone();
+  mass_ratio_nvtx19up_cat0->Divide(mass_passMVA_nvtx19up_cat0_DYJetsToLL);
+  mass_ratio_nvtx19up_cat0->SetMaximum(1.8);
+  mass_ratio_nvtx19up_cat0->SetMinimum(0.2);
+  mass_ratio_nvtx19up_cat0->GetXaxis()->SetRangeUser(70.,119.5);
+  mass_ratio_nvtx19up_cat0->GetXaxis()->SetTitle("m_{e^{+}e^{-}}, nvtx>=19");
+  mass_ratio_nvtx19up_cat0->Draw("e");
+  txt3->DrawLatex(0.35,0.25, "Data/MC ratio");
+  line_mass->Draw();
+
+  c_mass_passMVA_nvtx->SaveAs("mass_passMVA_nvtx"+preselNorm_str+".png");
+  c_mass_passMVA_nvtx->SaveAs("mass_passMVA_nvtx"+preselNorm_str+".pdf");
 
 }
