@@ -81,6 +81,10 @@ void BDT_Zee_bdtin_cat(bool equalArea=true) {
       line[i]->SetX1(0.);
       line[i]->SetX2(200.);
     }
+    if (i==12) {
+      line[i]->SetX1(0.);
+      line[i]->SetX2(40.);
+    }
     if (i==13) {
       line[i]->SetX1(0.3);
       line[i]->SetX2(1.);

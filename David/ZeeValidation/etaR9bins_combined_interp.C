@@ -307,6 +307,7 @@ void plotRatio(TH1* hist_Data, TH1* hist_MC, TH1* hist_MC_up, TH1* hist_MC_down,
   ratio_syst->Draw("e2");
   ratio_up->Draw("hist,same");
   ratio_down->Draw("hist,same");
+  ratio->SetLineColor(1);
   ratio->Draw("e,same");
 
 }
