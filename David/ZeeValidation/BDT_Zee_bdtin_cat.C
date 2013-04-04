@@ -49,7 +49,6 @@ void BDT_Zee_bdtin_cat(bool equalArea=true) {
     line[i] = new TLine(-1.,1.,1.,1.);
     line[i]->SetLineColor(4);
     line[i]->SetLineWidth(2);
-    //if (i==4) line[i]->SetX1(0.3);
     if (i==0 || i==1) {
       line[i]->SetX1(-0.4);
       line[i]->SetX2(0.4);
@@ -57,6 +56,10 @@ void BDT_Zee_bdtin_cat(bool equalArea=true) {
     if (i==2 || i==3) {
       line[i]->SetX1(0.);
       line[i]->SetX2(0.06);
+    }
+    if (i==4) {
+      line[i]->SetX1(0.);
+      line[i]->SetX2(1.);
     }
     if (i==5) {
       line[i]->SetX1(0.2);
@@ -123,6 +126,9 @@ void BDT_Zee_bdtin_cat(bool equalArea=true) {
     } else if (i==10) {
       xmin=70.;
       xmax=120.;
+    } else if (i==12) {
+      xmin=0.;
+      xmax=40.;
     } else if (i==13) {
       xmin=0.3;
       xmax=1.;
@@ -207,15 +213,14 @@ void BDT_Zee_bdtin_cat(bool equalArea=true) {
     float sf = hist_cat1_Data[i]->Integral()/hist_cat1_DYJetsToLL[i]->Integral();
     if (!equalArea) sf = sf_presel;
     hist_cat1_DYJetsToLL[i]->Scale(sf);
-    //if (i==11 || i==9) {
-      if (i!=10) hist_cat1_Data[i]->Rebin(2);
-      if (i!=10) hist_cat1_DYJetsToLL[i]->Rebin(2);
-      if (setRange) hist_cat1_Data[i]->GetXaxis()->SetRangeUser(xmin,xmax);
-    //}
+    if (i!=10) hist_cat1_Data[i]->Rebin(2);
+    if (i!=10) hist_cat1_DYJetsToLL[i]->Rebin(2);
+    if (setRange) hist_cat1_Data[i]->GetXaxis()->SetRangeUser(xmin,xmax);
     hist_cat1_Data[i]->Draw("e");
     hist_cat1_DYJetsToLL[i]->Draw("hist,same");
     hist_cat1_Data[i]->Draw("e,same");
     gPad->RedrawAxis();
+
     if (i==0 || i==1 || i==4 || i==13) {
       leg2->Draw();
     } else if (i!=7 && i!=8 && i!=9 && i!=5) {
@@ -319,73 +324,6 @@ void BDT_Zee_bdtin_cat(bool equalArea=true) {
     } else if (i!=7 && i!=8 && i!=1) {
       leg->Draw();
     }
-
-    /*
-    c_invar[i]->cd(6);
-    gPad->SetLogy();
-    hist_cat1_Data[i]->Draw("e");
-    hist_cat1_DYJetsToLL[i]->Draw("hist,same");
-    hist_cat1_Data[i]->Draw("e,same");
-    gPad->RedrawAxis();
-    
-    if (i==0 || i==1 || i==3 ) {
-      leg2->Draw();
-    } else {
-      leg->Draw();
-    }
-
-    c_invar[i]->cd(7);
-    gPad->SetLogy();
-    hist_cat2_Data[i]->Draw("e");
-    hist_cat2_DYJetsToLL[i]->Draw("hist,same");
-    hist_cat2_Data[i]->Draw("e,same");
-    gPad->RedrawAxis();
-    
-    if (i==0 || i==1 || i==3 ) {
-      leg2->Draw();
-    } else {
-      leg->Draw();
-    }
-
-    c_invar[i]->cd(8);
-    gPad->SetLogy();
-    hist_cat3_Data[i]->Draw("e");
-    hist_cat3_DYJetsToLL[i]->Draw("hist,same");
-    hist_cat3_Data[i]->Draw("e,same");
-    gPad->RedrawAxis();
-    
-    if (i==0 || i==1 || i==3 ) {
-      leg2->Draw();
-    } else {
-      leg->Draw();
-    }
-
-    c_invar[i]->cd(9);
-    gPad->SetLogy();
-    hist_cat4_Data[i]->Draw("e");
-    hist_cat4_DYJetsToLL[i]->Draw("hist,same");
-    hist_cat4_Data[i]->Draw("e,same");
-    gPad->RedrawAxis();
-    
-    if (i==0 || i==1 || i==3 ) {
-      leg2->Draw();
-    } else {
-      leg->Draw();
-    }
-
-    c_invar[i]->cd(10);
-    gPad->SetLogy();
-    hist_cat5_Data[i]->Draw("e");
-    hist_cat5_DYJetsToLL[i]->Draw("hist,same");
-    hist_cat5_Data[i]->Draw("e,same");
-    gPad->RedrawAxis();
-    
-    if (i==0 || i==1 || i==3 ) {
-      leg2->Draw();
-    } else {
-      leg->Draw();
-    }
-    */
 
     c_invar[i]->cd(7);
     gPad->SetGrid();

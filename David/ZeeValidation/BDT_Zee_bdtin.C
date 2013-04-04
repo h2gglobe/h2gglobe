@@ -12,35 +12,7 @@ void BDT_Zee_bdtin(bool passMVAcut=false, bool equalArea=true) {
   TString preselNorm_str = "";
   if (!equalArea) preselNorm_str = "_preselNorm";
 
-  /*
-  TFile *file_hgg = TFile::Open("histograms_CMS-HGG_nominal_hgg.root");
-  file_hgg->cd();
-
-  bdtout_Hgg90 = (TH1*)bdtout_cat0_tot->Clone();
-  bdtout_Hgg90->Add(bdtout_cat0_tot);
-  bdtoutEB_Hgg90 = (TH1*)bdtoutEB_cat0_tot->Clone();
-  bdtoutEB_Hgg90->Add(bdtoutEB_cat0_tot);
-  bdtoutEBEE_Hgg90 = (TH1*)bdtoutEBEE_cat0_tot->Clone();
-  bdtoutEBEE_Hgg90->Add(bdtoutEBEE_cat0_tot);
-  bdtoutEE_Hgg90 = (TH1*)bdtoutEE_cat0_tot->Clone();
-  bdtoutEE_Hgg90->Add(bdtoutEE_cat0_tot);
-
-  bdtout_Hgg90->SetLineColor(3);
-  bdtoutEB_Hgg90->SetLineColor(3);
-  bdtoutEBEE_Hgg90->SetLineColor(3);
-  bdtoutEE_Hgg90->SetLineColor(3);
-  bdtout_Hgg90->SetLineWidth(2);
-  bdtoutEB_Hgg90->SetLineWidth(2);
-  bdtoutEBEE_Hgg90->SetLineWidth(2);
-  bdtoutEE_Hgg90->SetLineWidth(2);
-  bdtout_Hgg90->Rebin(2);
-  bdtoutEB_Hgg90->Rebin(2);
-  bdtoutEBEE_Hgg90->Rebin(2);
-  bdtoutEE_Hgg90->Rebin(4);
-  */
-
   TFile *file = TFile::Open("histograms_CMS-HGG_zeevalidation.root");
-  //TFile *file = TFile::Open("root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/zee_trees/tree_zee_moriond_preapproval_phoPD_MCtriggers_ptreweight_noEcalIso.root");
   file->cd();
 
   txt = new TLatex();
@@ -270,26 +242,11 @@ void BDT_Zee_bdtin(bool passMVAcut=false, bool equalArea=true) {
   leg2->SetTextSize(.035);
   leg2->AddEntry(vtxProb_cat0_Data,"Data (19.6fb^{-1})");
   leg2->AddEntry(vtxProb_cat0_DYJetsToLL,"DYJetsToLL MC","F");
-  //leg2->AddEntry(bdtout_Hgg90,"H#rightarrow#gamma#gamma, m_{H}=90 GeV");
-
-  TLegend *leg3;
-  leg3 = new TLegend(.45,.65,.87,.87);
-  leg3->SetBorderSize(0);
-  leg3->SetFillColor(10);
-  leg3->SetTextSize(.03);
-  leg3->AddEntry(vtxProb_cat0_Data,"Data (19.6fb^{-1})");
-  leg3->AddEntry(vtxProb_cat0_DYJetsToLL,"DYJetsToLL MC","F");
-
-  TLegend *leg4;
-  leg4 = new TLegend(.2,.65,.52,.87);
-  leg4->SetBorderSize(0);
-  leg4->SetFillColor(10);
-  leg4->SetTextSize(.025);
-  leg4->AddEntry(vtxProb_cat0_Data,"Data (19.6fb^{-1})");
-  leg4->AddEntry(vtxProb_cat0_DYJetsToLL,"DYJetsToLL MC","F");
 
   float sf_presel = bdtout_cat0_Data->Integral()/bdtout_cat0_DYJetsToLL->Integral();
   cout << "sf_presel " << sf_presel << endl;
+
+  //------------------------------------------------------------------------------
 
   TCanvas *c_bdtout = new TCanvas("c_bdtout","BDT output",2200,800);
   c_bdtout->Divide(4,2);
@@ -306,8 +263,6 @@ void BDT_Zee_bdtin(bool passMVAcut=false, bool equalArea=true) {
   leg2->Draw();
   bdtout_cat0_DYJetsToLL->Draw("hist,same");
   bdtout_cat0_Data->Draw("e,same");
-  //bdtout_Hgg90->Scale(bdtout_cat0_Data->Integral()/bdtout_Hgg90->Integral());
-  //bdtout_Hgg90->Draw("hist,same");
   gPad->RedrawAxis();
 
   c_bdtout->cd(2);
@@ -322,8 +277,6 @@ void BDT_Zee_bdtin(bool passMVAcut=false, bool equalArea=true) {
   leg2->Draw();
   bdtoutEB_cat0_DYJetsToLL->Draw("hist,same");
   bdtoutEB_cat0_Data->Draw("e,same");
-  //bdtoutEB_Hgg90->Scale(bdtoutEB_cat0_Data->Integral()/bdtoutEB_Hgg90->Integral());
-  //bdtoutEB_Hgg90->Draw("hist,same");
   gPad->RedrawAxis();
 
   c_bdtout->cd(3);
@@ -338,8 +291,6 @@ void BDT_Zee_bdtin(bool passMVAcut=false, bool equalArea=true) {
   leg->Draw();
   bdtoutEBEE_cat0_DYJetsToLL->Draw("hist,same");
   bdtoutEBEE_cat0_Data->Draw("e,same");
-  //bdtoutEBEE_Hgg90->Scale(bdtoutEBEE_cat0_Data->Integral()/bdtoutEBEE_Hgg90->Integral());
-  //bdtoutEBEE_Hgg90->Draw("hist,same");
   gPad->RedrawAxis();
 
   c_bdtout->cd(4);
@@ -354,8 +305,6 @@ void BDT_Zee_bdtin(bool passMVAcut=false, bool equalArea=true) {
   leg->Draw();
   bdtoutEE_cat0_DYJetsToLL->Draw("hist,same");
   bdtoutEE_cat0_Data->Draw("e,same");
-  //bdtoutEE_Hgg90->Scale(bdtoutEE_cat0_Data->Integral()/bdtoutEE_Hgg90->Integral());
-  //bdtoutEE_Hgg90->Draw("hist,same");
   gPad->RedrawAxis();
 
   TLine *line;
@@ -368,49 +317,24 @@ void BDT_Zee_bdtin(bool passMVAcut=false, bool equalArea=true) {
   line->SetLineWidth(2);
 
   c_bdtout->cd(5);
-  gPad->SetGrid();
-  ratio_bdtout = (TH1*)bdtout_cat0_Data->Clone();
-  ratio_bdtout->Divide(bdtout_cat0_DYJetsToLL);
-  ratio_bdtout->SetMaximum(1.8);
-  ratio_bdtout->SetMinimum(0.2);
-  ratio_bdtout->Draw("e");
+  plotRatio(bdtout_cat0_Data,bdtout_cat0_DYJetsToLL);
   line->Draw();
 
-  TFile *fout = new TFile("zee_bdtout_ratio.root","RECREATE");
-  fout->cd();
-  ratio_bdtout->Write("zee_bdtout_ratio");
-  fout->Close();
-  file->cd();
-
   c_bdtout->cd(6);
-  gPad->SetGrid();
-  ratio_bdtoutEB = (TH1*)bdtoutEB_cat0_Data->Clone();
-  ratio_bdtoutEB->Divide(bdtoutEB_cat0_DYJetsToLL);
-  ratio_bdtoutEB->SetMaximum(1.8);
-  ratio_bdtoutEB->SetMinimum(0.2);
-  ratio_bdtoutEB->Draw("e");
+  plotRatio(bdtoutEB_cat0_Data,bdtoutEB_cat0_DYJetsToLL);
   line->Draw();
 
   c_bdtout->cd(7);
-  gPad->SetGrid();
-  ratio_bdtoutEBEE = (TH1*)bdtoutEBEE_cat0_Data->Clone();
-  ratio_bdtoutEBEE->Divide(bdtoutEBEE_cat0_DYJetsToLL);
-  ratio_bdtoutEBEE->SetMaximum(1.8);
-  ratio_bdtoutEBEE->SetMinimum(0.2);
-  ratio_bdtoutEBEE->Draw("e");
+  plotRatio(bdtoutEBEE_cat0_Data,bdtoutEBEE_cat0_DYJetsToLL);
   line->Draw();
 
   c_bdtout->cd(8);
-  gPad->SetGrid();
-  ratio_bdtoutEE = (TH1*)bdtoutEE_cat0_Data->Clone();
-  ratio_bdtoutEE->Divide(bdtoutEE_cat0_DYJetsToLL);
-  ratio_bdtoutEE->SetMaximum(1.8);
-  ratio_bdtoutEE->SetMinimum(0.2);
-  ratio_bdtoutEE->Draw("e");
+  plotRatio(bdtoutEE_cat0_Data,bdtoutEE_cat0_DYJetsToLL);
   line->Draw();
 
   c_bdtout->SaveAs("bdtout"+preselNorm_str+".png");
 
+  //------------------------------------------------------------------------------
 
   TCanvas *c_bdtout_basecat = new TCanvas("c_bdtout_basecat","BDT output in CiC categories",2200,800);
   c_bdtout_basecat->Divide(4,2);
@@ -427,8 +351,6 @@ void BDT_Zee_bdtin(bool passMVAcut=false, bool equalArea=true) {
   leg2->Draw();
   bdtout_cat1_DYJetsToLL->Draw("hist,same");
   bdtout_cat1_Data->Draw("e,same");
-  //bdtout_cat1_Hgg90->Scale(bdtout_cat1_Data->Integral()/bdtout_cat1_Hgg90->Integral());
-  //bdtout_cat1_Hgg90->Draw("hist,same");
   gPad->RedrawAxis();
 
   c_bdtout_basecat->cd(2);
@@ -443,8 +365,6 @@ void BDT_Zee_bdtin(bool passMVAcut=false, bool equalArea=true) {
   leg2->Draw();
   bdtout_cat2_DYJetsToLL->Draw("hist,same");
   bdtout_cat2_Data->Draw("e,same");
-  //bdtout_cat2_Hgg90->Scale(bdtout_cat2_Data->Integral()/bdtout_cat2_Hgg90->Integral());
-  //bdtout_cat2_Hgg90->Draw("hist,same");
   gPad->RedrawAxis();
 
   c_bdtout_basecat->cd(3);
@@ -459,8 +379,6 @@ void BDT_Zee_bdtin(bool passMVAcut=false, bool equalArea=true) {
   leg->Draw();
   bdtout_cat3_DYJetsToLL->Draw("hist,same");
   bdtout_cat3_Data->Draw("e,same");
-  //bdtout_cat3_Hgg90->Scale(bdtout_cat3_Data->Integral()/bdtout_cat3_Hgg90->Integral());
-  //bdtout_cat3_Hgg90->Draw("hist,same");
   gPad->RedrawAxis();
 
   c_bdtout_basecat->cd(4);
@@ -475,49 +393,27 @@ void BDT_Zee_bdtin(bool passMVAcut=false, bool equalArea=true) {
   leg->Draw();
   bdtout_cat4_DYJetsToLL->Draw("hist,same");
   bdtout_cat4_Data->Draw("e,same");
-  //bdtout_cat4_Hgg90->Scale(bdtout_cat4_Data->Integral()/bdtout_cat4_Hgg90->Integral());
-  //bdtout_cat4_Hgg90->Draw("hist,same");
   gPad->RedrawAxis();
 
   c_bdtout_basecat->cd(5);
-  gPad->SetGrid();
-  ratio_bdtout = (TH1*)bdtout_cat1_Data->Clone();
-  ratio_bdtout->Divide(bdtout_cat1_DYJetsToLL);
-  ratio_bdtout->SetMaximum(1.8);
-  ratio_bdtout->SetMinimum(0.2);
-  ratio_bdtout->Draw("e");
+  plotRatio(bdtout_cat1_Data,bdtout_cat1_DYJetsToLL);
   line->Draw();
 
   c_bdtout_basecat->cd(6);
-  gPad->SetGrid();
-  ratio_bdtoutEB = (TH1*)bdtout_cat2_Data->Clone();
-  ratio_bdtoutEB->Divide(bdtout_cat2_DYJetsToLL);
-  ratio_bdtoutEB->SetMaximum(1.8);
-  ratio_bdtoutEB->SetMinimum(0.2);
-  ratio_bdtoutEB->Draw("e");
+  plotRatio(bdtout_cat2_Data,bdtout_cat2_DYJetsToLL);
   line->Draw();
 
   c_bdtout_basecat->cd(7);
-  gPad->SetGrid();
-  ratio_bdtoutEBEE = (TH1*)bdtout_cat3_Data->Clone();
-  ratio_bdtoutEBEE->Divide(bdtout_cat3_DYJetsToLL);
-  ratio_bdtoutEBEE->SetMaximum(1.8);
-  ratio_bdtoutEBEE->SetMinimum(0.2);
-  ratio_bdtoutEBEE->Draw("e");
+  plotRatio(bdtout_cat3_Data,bdtout_cat3_DYJetsToLL);
   line->Draw();
 
   c_bdtout_basecat->cd(8);
-  gPad->SetGrid();
-  ratio_bdtoutEE = (TH1*)bdtout_cat4_Data->Clone();
-  ratio_bdtoutEE->Divide(bdtout_cat4_DYJetsToLL);
-  ratio_bdtoutEE->SetMaximum(1.8);
-  ratio_bdtoutEE->SetMinimum(0.2);
-  ratio_bdtoutEE->Draw("e");
+  plotRatio(bdtout_cat4_Data,bdtout_cat4_DYJetsToLL);
   line->Draw();
 
   c_bdtout_basecat->SaveAs("bdtout_basecat"+preselNorm_str+".png");
 
-
+  //------------------------------------------------------------------------------
 
   TCanvas *c_bdtin_1 = new TCanvas("c_bdtin_1","BDT input variables",1600,800);
   c_bdtin_1->Divide(4,2);
@@ -564,48 +460,27 @@ void BDT_Zee_bdtin(bool passMVAcut=false, bool equalArea=true) {
   leg->Draw();
 
   c_bdtin_1->cd(5);
-  gPad->SetGrid();
-  ratio_pho1_phoidMva = (TH1*)pho1_phoidMva_cat0_Data->Clone();
-  ratio_pho1_phoidMva->Divide(pho1_phoidMva_cat0_DYJetsToLL);
-  ratio_pho1_phoidMva->SetMaximum(1.8);
-  ratio_pho1_phoidMva->SetMinimum(0.2);
-  ratio_pho1_phoidMva->Draw("e");
+  plotRatio(pho1_phoidMva_cat0_Data,pho1_phoidMva_cat0_DYJetsToLL);
   line1 = (TLine*)line->Clone();
   line1->SetX1(-0.3);
   line1->SetX2(0.6);
   line1->Draw();
 
   c_bdtin_1->cd(6);
-  gPad->SetGrid();
-  ratio_pho2_phoidMva = (TH1*)pho2_phoidMva_cat0_Data->Clone();
-  ratio_pho2_phoidMva->Divide(pho2_phoidMva_cat0_DYJetsToLL);
-  ratio_pho2_phoidMva->SetMaximum(1.8);
-  ratio_pho2_phoidMva->SetMinimum(0.2);
-  ratio_pho2_phoidMva->Draw("e");
+  plotRatio(pho2_phoidMva_cat0_Data,pho2_phoidMva_cat0_DYJetsToLL);
   line1->Draw();
 
   c_bdtin_1->cd(7);
-  gPad->SetGrid();
-  ratio_vtxProb = (TH1*)vtxProb_cat0_Data->Clone();
-  ratio_vtxProb->Divide(vtxProb_cat0_DYJetsToLL);
-  ratio_vtxProb->SetMaximum(1.8);
-  ratio_vtxProb->SetMinimum(0.2);
-  ratio_vtxProb->Draw("e");
-  line2 = (TLine*)line->Clone();
-  //line2->SetX1(0.2);
-  line2->Draw();
+  plotRatio(vtxProb_cat0_Data,vtxProb_cat0_DYJetsToLL);
+  line->Draw();
 
   c_bdtin_1->cd(8);
-  gPad->SetGrid();
-  ratio_cosDeltaPhi = (TH1*)cosDeltaPhi_cat0_Data->Clone();
-  ratio_cosDeltaPhi->Divide(cosDeltaPhi_cat0_DYJetsToLL);
-  ratio_cosDeltaPhi->SetMaximum(1.8);
-  ratio_cosDeltaPhi->SetMinimum(0.2);
-  ratio_cosDeltaPhi->Draw("e");
+  plotRatio(cosDeltaPhi_cat0_Data,cosDeltaPhi_cat0_DYJetsToLL);
   line->Draw();
 
   c_bdtin_1->SaveAs("bdtin_1.png");
 
+  //------------------------------------------------------------------------------
 
   TCanvas *c_bdtin_2 = new TCanvas("c_bdtin_2","BDT input variables",1500,900);
   c_bdtin_2->Divide(4,3);
@@ -680,45 +555,25 @@ void BDT_Zee_bdtin(bool passMVAcut=false, bool equalArea=true) {
   leg->Draw();
 
   c_bdtin_2->cd(9);
-  gPad->SetGrid();
-  ratio_sigmaMOverM = (TH1*)sigmaMOverM_cat0_Data->Clone();
-  ratio_sigmaMOverM->Divide(sigmaMOverM_cat0_DYJetsToLL);
-  ratio_sigmaMOverM->SetMaximum(1.8);
-  ratio_sigmaMOverM->SetMinimum(0.2);
-  ratio_sigmaMOverM->Draw("e");
+  plotRatio(sigmaMOverM_cat0_Data,sigmaMOverM_cat0_DYJetsToLL);
   line3 = (TLine*)line->Clone();
   line3->SetX1(0.);
   line3->SetX2(0.06);
   line3->Draw();
 
   c_bdtin_2->cd(10);
-  gPad->SetGrid();
-  ratio_sigmaMOverM_wrongVtx = (TH1*)sigmaMOverM_wrongVtx_cat0_Data->Clone();
-  ratio_sigmaMOverM_wrongVtx->Divide(sigmaMOverM_wrongVtx_cat0_DYJetsToLL);
-  ratio_sigmaMOverM_wrongVtx->SetMaximum(1.8);
-  ratio_sigmaMOverM_wrongVtx->SetMinimum(0.2);
-  ratio_sigmaMOverM_wrongVtx->Draw("e");
+  plotRatio(sigmaMOverM_wrongVtx_cat0_Data,sigmaMOverM_wrongVtx_cat0_DYJetsToLL);
   line3->Draw();
 
   c_bdtin_2->cd(11);
-  gPad->SetGrid();
-  ratio_pho1_ptOverM = (TH1*)pho1_ptOverM_cat0_Data->Clone();
-  ratio_pho1_ptOverM->Divide(pho1_ptOverM_cat0_DYJetsToLL);
-  ratio_pho1_ptOverM->SetMaximum(1.8);
-  ratio_pho1_ptOverM->SetMinimum(0.2);
-  ratio_pho1_ptOverM->Draw("e");
+  plotRatio(pho1_ptOverM_cat0_Data,pho1_ptOverM_cat0_DYJetsToLL);
   line4 = (TLine*)line->Clone();
   line4->SetX1(0.2);
   line4->SetX2(1.2);
   line4->Draw();
 
   c_bdtin_2->cd(12);
-  gPad->SetGrid();
-  ratio_pho2_ptOverM = (TH1*)pho2_ptOverM_cat0_Data->Clone();
-  ratio_pho2_ptOverM->Divide(pho2_ptOverM_cat0_DYJetsToLL);
-  ratio_pho2_ptOverM->SetMaximum(1.8);
-  ratio_pho2_ptOverM->SetMinimum(0.2);
-  ratio_pho2_ptOverM->Draw("e");
+  plotRatio(pho2_ptOverM_cat0_Data,pho2_ptOverM_cat0_DYJetsToLL);
   line5 = (TLine*)line->Clone();
   line5->SetX1(0.2);
   line5->SetX2(0.9);
@@ -726,6 +581,7 @@ void BDT_Zee_bdtin(bool passMVAcut=false, bool equalArea=true) {
 
   c_bdtin_2->SaveAs("bdtin_2.png");
 
+  //------------------------------------------------------------------------------
 
   TCanvas *c_bdtin_3 = new TCanvas("c_bdtin_3","BDT input variables",1200,800);
   c_bdtin_3->Divide(2,2);
@@ -748,28 +604,19 @@ void BDT_Zee_bdtin(bool passMVAcut=false, bool equalArea=true) {
   gPad->RedrawAxis();
 
   c_bdtin_3->cd(3);
-  gPad->SetGrid();
-  ratio_pho1_eta = (TH1*)pho1_eta_cat0_Data->Clone();
-  ratio_pho1_eta->Divide(pho1_eta_cat0_DYJetsToLL);
-  ratio_pho1_eta->SetMaximum(1.8);
-  ratio_pho1_eta->SetMinimum(0.2);
-  ratio_pho1_eta->Draw("e");
+  plotRatio(pho1_eta_cat0_Data,pho1_eta_cat0_DYJetsToLL);
   line6 = (TLine*)line->Clone();
   line6->SetX1(-2.5);
   line6->SetX2(2.5);
   line6->Draw();
 
   c_bdtin_3->cd(4);
-  gPad->SetGrid();
-  ratio_pho2_eta = (TH1*)pho2_eta_cat0_Data->Clone();
-  ratio_pho2_eta->Divide(pho2_eta_cat0_DYJetsToLL);
-  ratio_pho2_eta->SetMaximum(1.8);
-  ratio_pho2_eta->SetMinimum(0.2);
-  ratio_pho2_eta->Draw("e");
+  plotRatio(pho2_eta_cat0_Data,pho2_eta_cat0_DYJetsToLL);
   line6->Draw();
 
   c_bdtin_3->SaveAs("bdtin_3.png");
 
+  //------------------------------------------------------------------------------
 
   TCanvas *c_sigmam_ebee = new TCanvas("c_sigmam_ebee","BDT input variables",1500,900);
   c_sigmam_ebee->Divide(4,3);
@@ -790,7 +637,7 @@ void BDT_Zee_bdtin(bool passMVAcut=false, bool equalArea=true) {
   sigmaMOverM_wrongVtx_EB_cat0_DYJetsToLL->Draw("hist,same");
   sigmaMOverM_wrongVtx_EB_cat0_Data->Draw("e,same");
   gPad->RedrawAxis();
-  leg2->Draw();
+  leg->Draw();
 
   c_sigmam_ebee->cd(3);
   sf = sigmaMOverM_EE_cat0_Data->Integral()/sigmaMOverM_EE_cat0_DYJetsToLL->Integral();
@@ -841,42 +688,36 @@ void BDT_Zee_bdtin(bool passMVAcut=false, bool equalArea=true) {
   gPad->RedrawAxis();
 
   c_sigmam_ebee->cd(9);
-  gPad->SetGrid();
-  ratio_sigmaMOverM_EB_cat0 = (TH1*)sigmaMOverM_EB_cat0_Data->Clone();
-  ratio_sigmaMOverM_EB_cat0->Divide(sigmaMOverM_EB_cat0_DYJetsToLL);
-  ratio_sigmaMOverM_EB_cat0->SetMaximum(1.8);
-  ratio_sigmaMOverM_EB_cat0->SetMinimum(0.2);
-  ratio_sigmaMOverM_EB_cat0->Draw("e");
+  plotRatio(sigmaMOverM_EB_cat0_Data,
+	    sigmaMOverM_EB_cat0_DYJetsToLL);
   line3->Draw();
 
   c_sigmam_ebee->cd(10);
-  gPad->SetGrid();
-  ratio_sigmaMOverM_wrongVtx_EB_cat0 = (TH1*)sigmaMOverM_wrongVtx_EB_cat0_Data->Clone();
-  ratio_sigmaMOverM_wrongVtx_EB_cat0->Divide(sigmaMOverM_wrongVtx_EB_cat0_DYJetsToLL);
-  ratio_sigmaMOverM_wrongVtx_EB_cat0->SetMaximum(1.8);
-  ratio_sigmaMOverM_wrongVtx_EB_cat0->SetMinimum(0.2);
-  ratio_sigmaMOverM_wrongVtx_EB_cat0->Draw("e");
+  plotRatio(sigmaMOverM_wrongVtx_EB_cat0_Data,
+	    sigmaMOverM_wrongVtx_EB_cat0_DYJetsToLL);
   line3->Draw();
 
   c_sigmam_ebee->cd(11);
-  gPad->SetGrid();
-  ratio_sigmaMOverM_EE_cat0 = (TH1*)sigmaMOverM_EE_cat0_Data->Clone();
-  ratio_sigmaMOverM_EE_cat0->Divide(sigmaMOverM_EE_cat0_DYJetsToLL);
-  ratio_sigmaMOverM_EE_cat0->SetMaximum(1.8);
-  ratio_sigmaMOverM_EE_cat0->SetMinimum(0.2);
-  ratio_sigmaMOverM_EE_cat0->Draw("e");
+  plotRatio(sigmaMOverM_EE_cat0_Data,
+	    sigmaMOverM_EE_cat0_DYJetsToLL);
   line3->Draw();
 
   c_sigmam_ebee->cd(12);
-  gPad->SetGrid();
-  ratio_sigmaMOverM_wrongVtx_EE_cat0 = (TH1*)sigmaMOverM_wrongVtx_EE_cat0_Data->Clone();
-  ratio_sigmaMOverM_wrongVtx_EE_cat0->Divide(sigmaMOverM_wrongVtx_EE_cat0_DYJetsToLL);
-  ratio_sigmaMOverM_wrongVtx_EE_cat0->SetMaximum(1.8);
-  ratio_sigmaMOverM_wrongVtx_EE_cat0->SetMinimum(0.2);
-  ratio_sigmaMOverM_wrongVtx_EE_cat0->Draw("e");
+  plotRatio(sigmaMOverM_wrongVtx_EE_cat0_Data,
+	    sigmaMOverM_wrongVtx_EE_cat0_DYJetsToLL);
   line3->Draw();
 
   c_sigmam_ebee->SaveAs("sigmam_ebee.png");
 
 
+}
+
+void plotRatio(TH1* hist_Data, TH1* hist_MC)
+{
+  gPad->SetGrid();
+  ratio = (TH1*)hist_Data->Clone();
+  ratio->Divide(hist_MC);
+  ratio->SetMaximum(1.8);
+  ratio->SetMinimum(0.2);
+  ratio->Draw("e");
 }
