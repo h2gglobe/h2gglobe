@@ -24,13 +24,18 @@ void zee_mass(bool equalArea=true) {
   txt->SetTextSize(0.08);
 
   TLegend *leg;
-  leg = new TLegend(.6,.65,.87,.87);
+  leg = new TLegend(.55,.45,.82,.67);
   leg->SetBorderSize(0);
   leg->SetFillColor(10);
-  leg->SetTextSize(.035);
-  leg->AddEntry(mass_cat0_Data,"Data (19.6fb^{-1})");
-  leg->AddEntry(mass_cat0_DYJetsToLL,"DYJetsToLL MC","F");
+  leg->SetTextSize(.045);
+  //leg->AddEntry(mass_cat0_Data,"Data (19.6fb^{-1})");
+  leg->AddEntry(mass_cat0_Data,"Data");
+  leg->AddEntry(mass_cat0_DYJetsToLL,"Z#rightarrow e^{+}e^{-} MC","F");
 
+  txt1 = new TLatex();
+  txt1->SetNDC();
+  txt1->SetTextSize(0.06);
+  txt1->SetTextAlign(12);
 
   mass_cat0_Data->GetXaxis()->SetTitleSize(0.06);
   mass_cat1_Data->GetXaxis()->SetTitleSize(0.06);
@@ -71,6 +76,7 @@ void zee_mass(bool equalArea=true) {
   mass_Data->Draw("e,same");
   gPad->RedrawAxis();
   leg->Draw();
+  txt1->DrawLatex(0.55,0.8,"#scale[0.8]{#splitline{CMS Preliminary}{#sqrt{s} = 8 TeV L = 19.6 fb^{-1}}}");
 
   c_mass->cd(2);
   c_mass_2->SetLogy();
@@ -80,6 +86,7 @@ void zee_mass(bool equalArea=true) {
   mass_cat0_Data->Draw("e,same");
   gPad->RedrawAxis();
   leg->Draw();
+  txt1->DrawLatex(0.55,0.8,"#scale[0.8]{#splitline{CMS Preliminary}{#sqrt{s} = 8 TeV L = 19.6 fb^{-1}}}");
 
   c_mass->cd(3);
   c_mass_3->SetGrid();
@@ -93,7 +100,7 @@ void zee_mass(bool equalArea=true) {
 
   txt3 = new TLatex();
   txt3->SetNDC();
-  txt3->SetTextSize(0.04);
+  txt3->SetTextSize(0.06);
   txt3->DrawLatex(0.35,0.25, "Data/MC ratio");
 
   TLine *line_mass = new TLine(70.,1.,120.,1.);
@@ -105,7 +112,7 @@ void zee_mass(bool equalArea=true) {
 
 
   TCanvas *c_mass_cat = new TCanvas("c_mass_cat","di-photon mass",1600,600);
-  c_mass_cat->Divide(6,2);
+  c_mass_cat->Divide(4,2);
 
   mass_cat1_Data->Rebin(1);
   mass_cat2_Data->Rebin(1);
@@ -138,9 +145,10 @@ void zee_mass(bool equalArea=true) {
   mass_cat1_Data->Draw("e,same");
   gPad->RedrawAxis();
   leg->Draw();
+  txt1->DrawLatex(0.55,0.8,"#scale[0.8]{#splitline{CMS Preliminary}{#sqrt{s} = 8 TeV L = 19.6 fb^{-1}}}");
 
-  c_mass_cat->cd(7);
-  c_mass_cat_7->SetGrid();
+  c_mass_cat->cd(5);
+  c_mass_cat_5->SetGrid();
   mass_ratio_cat1 = (TH1F*)mass_cat1_Data->Clone();
   mass_ratio_cat1->Divide(mass_cat1_DYJetsToLL);
   mass_ratio_cat1->SetMaximum(1.8);
@@ -169,9 +177,10 @@ void zee_mass(bool equalArea=true) {
   mass_cat2_Data->Draw("e,same");
   gPad->RedrawAxis();
   leg->Draw();
+  txt1->DrawLatex(0.55,0.8,"#scale[0.8]{#splitline{CMS Preliminary}{#sqrt{s} = 8 TeV L = 19.6 fb^{-1}}}");
 
-  c_mass_cat->cd(8);
-  c_mass_cat_8->SetGrid();
+  c_mass_cat->cd(6);
+  c_mass_cat_6->SetGrid();
   mass_ratio_cat2 = (TH1F*)mass_cat2_Data->Clone();
   mass_ratio_cat2->Divide(mass_cat2_DYJetsToLL);
   mass_ratio_cat2->SetMaximum(1.8);
@@ -200,9 +209,10 @@ void zee_mass(bool equalArea=true) {
   mass_cat3_Data->Draw("e,same");
   gPad->RedrawAxis();
   leg->Draw();
+  txt1->DrawLatex(0.55,0.8,"#scale[0.8]{#splitline{CMS Preliminary}{#sqrt{s} = 8 TeV L = 19.6 fb^{-1}}}");
 
-  c_mass_cat->cd(9);
-  c_mass_cat_9->SetGrid();
+  c_mass_cat->cd(7);
+  c_mass_cat_7->SetGrid();
   mass_ratio_cat3 = (TH1F*)mass_cat3_Data->Clone();
   mass_ratio_cat3->Divide(mass_cat3_DYJetsToLL);
   mass_ratio_cat3->SetMaximum(1.8);
@@ -231,9 +241,10 @@ void zee_mass(bool equalArea=true) {
   mass_cat4_Data->Draw("e,same");
   gPad->RedrawAxis();
   leg->Draw();
+  txt1->DrawLatex(0.55,0.8,"#scale[0.8]{#splitline{CMS Preliminary}{#sqrt{s} = 8 TeV L = 19.6 fb^{-1}}}");
 
-  c_mass_cat->cd(10);
-  c_mass_cat_10->SetGrid();
+  c_mass_cat->cd(8);
+  c_mass_cat_8->SetGrid();
   mass_ratio_cat4 = (TH1F*)mass_cat4_Data->Clone();
   mass_ratio_cat4->Divide(mass_cat4_DYJetsToLL);
   mass_ratio_cat4->SetMaximum(1.8);
@@ -255,6 +266,7 @@ void zee_mass(bool equalArea=true) {
   if (!equalArea) sf = sf_presel;
   mass_cat5_DYJetsToLL->Scale(sf);
 
+  /*
   c_mass_cat->cd(5);
   mass_cat5_Data->GetXaxis()->SetRangeUser(70.,119.5);
   mass_cat5_Data->Draw("e");
@@ -262,6 +274,7 @@ void zee_mass(bool equalArea=true) {
   mass_cat5_Data->Draw("e,same");
   gPad->RedrawAxis();
   leg->Draw();
+  txt1->DrawLatex(0.55,0.8,"#scale[0.8]{#splitline{CMS Preliminary}{#sqrt{s} = 8 TeV L = 19.6 fb^{-1}}}");
 
   c_mass_cat->cd(11);
   c_mass_cat_11->SetGrid();
@@ -293,6 +306,7 @@ void zee_mass(bool equalArea=true) {
   mass_cat6_Data->Draw("e,same");
   gPad->RedrawAxis();
   leg->Draw();
+  txt1->DrawLatex(0.55,0.8,"#scale[0.8]{#splitline{CMS Preliminary}{#sqrt{s} = 8 TeV L = 19.6 fb^{-1}}}");
 
   c_mass_cat->cd(12);
   c_mass_cat_12->SetGrid();
@@ -305,8 +319,73 @@ void zee_mass(bool equalArea=true) {
   mass_ratio_cat6->Draw("e");
   txt3->DrawLatex(0.35,0.25, "Data/MC ratio");
   line_mass->Draw();
+  */
 
   c_mass_cat->SaveAs("mass_cat"+preselNorm_str+".png");
+  c_mass_cat->SaveAs("mass_cat"+preselNorm_str+".pdf");
+
+
+  TCanvas *c_mass_cat_2x2 = new TCanvas("c_mass_cat_2x2","di-photon mass",1000,1400);
+  c_mass_cat_2x2->Divide(2,4);
+
+  c_mass_cat_2x2->cd(1);
+  mass_cat1_Data->Draw("e");
+  mass_cat1_DYJetsToLL->Draw("hist,same");
+  mass_cat1_Data->Draw("e,same");
+  gPad->RedrawAxis();
+  leg->Draw();
+  txt1->DrawLatex(0.55,0.8,"#scale[0.8]{#splitline{CMS Preliminary}{#sqrt{s} = 8 TeV L = 19.6 fb^{-1}}}");
+
+  c_mass_cat_2x2->cd(3);
+  c_mass_cat_2x2_3->SetGrid();
+  mass_ratio_cat1->Draw("e");
+  txt3->DrawLatex(0.35,0.25, "Data/MC ratio");
+  line_mass->Draw();
+
+  c_mass_cat_2x2->cd(2);
+  mass_cat2_Data->Draw("e");
+  mass_cat2_DYJetsToLL->Draw("hist,same");
+  mass_cat2_Data->Draw("e,same");
+  gPad->RedrawAxis();
+  leg->Draw();
+  txt1->DrawLatex(0.55,0.8,"#scale[0.8]{#splitline{CMS Preliminary}{#sqrt{s} = 8 TeV L = 19.6 fb^{-1}}}");
+
+  c_mass_cat_2x2->cd(4);
+  c_mass_cat_2x2_4->SetGrid();
+  mass_ratio_cat2->Draw("e");
+  txt3->DrawLatex(0.35,0.25, "Data/MC ratio");
+  line_mass->Draw();
+
+  c_mass_cat_2x2->cd(5);
+  mass_cat3_Data->Draw("e");
+  mass_cat3_DYJetsToLL->Draw("hist,same");
+  mass_cat3_Data->Draw("e,same");
+  gPad->RedrawAxis();
+  leg->Draw();
+  txt1->DrawLatex(0.55,0.8,"#scale[0.8]{#splitline{CMS Preliminary}{#sqrt{s} = 8 TeV L = 19.6 fb^{-1}}}");
+
+  c_mass_cat_2x2->cd(7);
+  c_mass_cat_2x2_7->SetGrid();
+  mass_ratio_cat3->Draw("e");
+  txt3->DrawLatex(0.35,0.25, "Data/MC ratio");
+  line_mass->Draw();
+
+  c_mass_cat_2x2->cd(6);
+  mass_cat4_Data->Draw("e");
+  mass_cat4_DYJetsToLL->Draw("hist,same");
+  mass_cat4_Data->Draw("e,same");
+  gPad->RedrawAxis();
+  leg->Draw();
+  txt1->DrawLatex(0.55,0.8,"#scale[0.8]{#splitline{CMS Preliminary}{#sqrt{s} = 8 TeV L = 19.6 fb^{-1}}}");
+
+  c_mass_cat_2x2->cd(8);
+  c_mass_cat_2x2_8->SetGrid();
+  mass_ratio_cat4->Draw("e");
+  txt3->DrawLatex(0.35,0.25, "Data/MC ratio");
+  line_mass->Draw();
+
+  c_mass_cat_2x2->SaveAs("mass_cat"+preselNorm_str+"_2x2.png");
+  c_mass_cat_2x2->SaveAs("mass_cat"+preselNorm_str+"_2x2.pdf");
 
 
   TCanvas *c_mass_basecat = new TCanvas("c_mass_basecat","di-photon mass",1600,600);
@@ -341,6 +420,7 @@ void zee_mass(bool equalArea=true) {
   mass_basecat_cat0_Data->Draw("e,same");
   gPad->RedrawAxis();
   leg->Draw();
+  txt1->DrawLatex(0.55,0.8,"#scale[0.8]{#splitline{CMS Preliminary}{#sqrt{s} = 8 TeV L = 19.6 fb^{-1}}}");
 
   c_mass_basecat->cd(5);
   c_mass_basecat_5->SetGrid();
@@ -372,6 +452,7 @@ void zee_mass(bool equalArea=true) {
   mass_basecat_cat1_Data->Draw("e,same");
   gPad->RedrawAxis();
   leg->Draw();
+  txt1->DrawLatex(0.55,0.8,"#scale[0.8]{#splitline{CMS Preliminary}{#sqrt{s} = 8 TeV L = 19.6 fb^{-1}}}");
 
   c_mass_basecat->cd(6);
   c_mass_basecat_6->SetGrid();
@@ -403,6 +484,7 @@ void zee_mass(bool equalArea=true) {
   mass_basecat_cat2_Data->Draw("e,same");
   gPad->RedrawAxis();
   leg->Draw();
+  txt1->DrawLatex(0.55,0.8,"#scale[0.8]{#splitline{CMS Preliminary}{#sqrt{s} = 8 TeV L = 19.6 fb^{-1}}}");
 
   c_mass_basecat->cd(7);
   c_mass_basecat_7->SetGrid();
@@ -434,6 +516,7 @@ void zee_mass(bool equalArea=true) {
   mass_basecat_cat3_Data->Draw("e,same");
   gPad->RedrawAxis();
   leg->Draw();
+  txt1->DrawLatex(0.55,0.8,"#scale[0.8]{#splitline{CMS Preliminary}{#sqrt{s} = 8 TeV L = 19.6 fb^{-1}}}");
 
   c_mass_basecat->cd(8);
   c_mass_basecat_8->SetGrid();
@@ -484,6 +567,7 @@ void zee_mass(bool equalArea=true) {
   mass_pt0to20_cat0_Data->Draw("e,same");
   gPad->RedrawAxis();
   leg->Draw();
+  txt1->DrawLatex(0.55,0.8,"#scale[0.8]{#splitline{CMS Preliminary}{#sqrt{s} = 8 TeV L = 19.6 fb^{-1}}}");
 
   c_mass_pt->cd(6);
   c_mass_pt_6->SetGrid();
@@ -515,6 +599,7 @@ void zee_mass(bool equalArea=true) {
   mass_pt20to40_cat0_Data->Draw("e,same");
   gPad->RedrawAxis();
   leg->Draw();
+  txt1->DrawLatex(0.55,0.8,"#scale[0.8]{#splitline{CMS Preliminary}{#sqrt{s} = 8 TeV L = 19.6 fb^{-1}}}");
 
   c_mass_pt->cd(7);
   c_mass_pt_7->SetGrid();
@@ -546,6 +631,7 @@ void zee_mass(bool equalArea=true) {
   mass_pt40to60_cat0_Data->Draw("e,same");
   gPad->RedrawAxis();
   leg->Draw();
+  txt1->DrawLatex(0.55,0.8,"#scale[0.8]{#splitline{CMS Preliminary}{#sqrt{s} = 8 TeV L = 19.6 fb^{-1}}}");
 
   c_mass_pt->cd(8);
   c_mass_pt_8->SetGrid();
@@ -577,6 +663,7 @@ void zee_mass(bool equalArea=true) {
   mass_pt60to100_cat0_Data->Draw("e,same");
   gPad->RedrawAxis();
   leg->Draw();
+  txt1->DrawLatex(0.55,0.8,"#scale[0.8]{#splitline{CMS Preliminary}{#sqrt{s} = 8 TeV L = 19.6 fb^{-1}}}");
 
   c_mass_pt->cd(9);
   c_mass_pt_9->SetGrid();
@@ -608,6 +695,7 @@ void zee_mass(bool equalArea=true) {
   mass_pt100up_cat0_Data->Draw("e,same");
   gPad->RedrawAxis();
   leg->Draw();
+  txt1->DrawLatex(0.55,0.8,"#scale[0.8]{#splitline{CMS Preliminary}{#sqrt{s} = 8 TeV L = 19.6 fb^{-1}}}");
 
   c_mass_pt->cd(10);
   c_mass_pt_10->SetGrid();
