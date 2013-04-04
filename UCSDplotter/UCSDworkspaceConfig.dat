@@ -1,0 +1,14 @@
+dataIs2011=0
+
+bkgPolOrderByCat=5,5,3,4
+
+doBlinding=1
+
+nCategories=4 
+massMax=180 
+massMin=110 
+intlumi=19200
+nDataBins=140 
+signalPoints=120,125,130
+
+
