@@ -263,7 +263,6 @@ void bdtout_syst_interp(bool passMVAcut=false, bool equalArea=true) {
   leg2->AddEntry(bdtout_cat0_DataClone,"Data (19.6fb^{-1})");
   leg2->AddEntry(bdtout_cat0_DYJetsToLL,"DYJetsToLL MC","F");
   leg2->AddEntry(bdtout_cat0_syst,"MC with idmva±0.01","F");
-  //leg2->AddEntry(bdtout_Hgg90,"H#rightarrow#gamma#gamma, m_{H}=90 GeV");
 
   TLegend *leg3;
   leg3 = new TLegend(.45,.65,.87,.87);
@@ -308,8 +307,6 @@ void bdtout_syst_interp(bool passMVAcut=false, bool equalArea=true) {
   bdtout_cat0_DYJetsToLL_top->Draw("hist,same");
   bdtout_cat0_DYJetsToLL_bottom->Draw("hist,same");
   bdtout_cat0_DataClone->Draw("e,same");
-  //bdtout_Hgg90->Scale(bdtout_cat0_DataClone->Integral()/bdtout_Hgg90->Integral());
-  //bdtout_Hgg90->Draw("hist,same");
   gPad->RedrawAxis();
 
   c_bdtout->cd(2);
@@ -332,8 +329,6 @@ void bdtout_syst_interp(bool passMVAcut=false, bool equalArea=true) {
   bdtoutEB_cat0_DYJetsToLL_top->Draw("hist,same");
   bdtoutEB_cat0_DYJetsToLL_bottom->Draw("hist,same");
   bdtoutEB_cat0_DataClone->Draw("e,same");
-  //bdtoutEB_Hgg90->Scale(bdtoutEB_cat0_DataClone->Integral()/bdtoutEB_Hgg90->Integral());
-  //bdtoutEB_Hgg90->Draw("hist,same");
   gPad->RedrawAxis();
 
   c_bdtout->cd(3);
@@ -356,8 +351,6 @@ void bdtout_syst_interp(bool passMVAcut=false, bool equalArea=true) {
   bdtoutEBEE_cat0_DYJetsToLL_top->Draw("hist,same");
   bdtoutEBEE_cat0_DYJetsToLL_bottom->Draw("hist,same");
   bdtoutEBEE_cat0_DataClone->Draw("e,same");
-  //bdtoutEBEE_Hgg90->Scale(bdtoutEBEE_cat0_DataClone->Integral()/bdtoutEBEE_Hgg90->Integral());
-  //bdtoutEBEE_Hgg90->Draw("hist,same");
   gPad->RedrawAxis();
 
   c_bdtout->cd(4);
@@ -380,8 +373,6 @@ void bdtout_syst_interp(bool passMVAcut=false, bool equalArea=true) {
   bdtoutEE_cat0_DYJetsToLL_top->Draw("hist,same");
   bdtoutEE_cat0_DYJetsToLL_bottom->Draw("hist,same");
   bdtoutEE_cat0_DataClone->Draw("e,same");
-  //bdtoutEE_Hgg90->Scale(bdtoutEE_cat0_DataClone->Integral()/bdtoutEE_Hgg90->Integral());
-  //bdtoutEE_Hgg90->Draw("hist,same");
   gPad->RedrawAxis();
 
   TLine *line;
@@ -397,14 +388,6 @@ void bdtout_syst_interp(bool passMVAcut=false, bool equalArea=true) {
   gPad->SetGrid();
   plotRatio(bdtout_cat0_DataClone,bdtout_cat0_DYJetsToLL,bdtout_cat0_DYJetsToLL_top,bdtout_cat0_DYJetsToLL_bottom, passMVAcut);
   line->Draw();
-
-  /*
-  TFile *fout = new TFile("zee_bdtout_ratio.root","RECREATE");
-  fout->cd();
-  ratio_bdtout->Write("zee_bdtout_ratio");
-  fout->Close();
-  file->cd();
-  */
 
   c_bdtout->cd(6);
   gPad->SetGrid();
@@ -448,8 +431,6 @@ void bdtout_syst_interp(bool passMVAcut=false, bool equalArea=true) {
   bdtout_cat1_DYJetsToLL_top->Draw("hist,same");
   bdtout_cat1_DYJetsToLL_bottom->Draw("hist,same");
   bdtout_cat1_DataClone->Draw("e,same");
-  //bdtout_cat1_Hgg90->Scale(bdtout_cat1_DataClone->Integral()/bdtout_cat1_Hgg90->Integral());
-  //bdtout_cat1_Hgg90->Draw("hist,same");
   gPad->RedrawAxis();
 
   c_bdtout_basecat->cd(2);
@@ -496,8 +477,6 @@ void bdtout_syst_interp(bool passMVAcut=false, bool equalArea=true) {
   bdtout_cat3_DYJetsToLL_top->Draw("hist,same");
   bdtout_cat3_DYJetsToLL_bottom->Draw("hist,same");
   bdtout_cat3_DataClone->Draw("e,same");
-  //bdtout_cat3_Hgg90->Scale(bdtout_cat3_DataClone->Integral()/bdtout_cat3_Hgg90->Integral());
-  //bdtout_cat3_Hgg90->Draw("hist,same");
   gPad->RedrawAxis();
 
   c_bdtout_basecat->cd(4);
@@ -520,8 +499,6 @@ void bdtout_syst_interp(bool passMVAcut=false, bool equalArea=true) {
   bdtout_cat4_DYJetsToLL_top->Draw("hist,same");
   bdtout_cat4_DYJetsToLL_bottom->Draw("hist,same");
   bdtout_cat4_DataClone->Draw("e,same");
-  //bdtout_cat4_Hgg90->Scale(bdtout_cat4_DataClone->Integral()/bdtout_cat4_Hgg90->Integral());
-  //bdtout_cat4_Hgg90->Draw("hist,same");
   gPad->RedrawAxis();
 
   c_bdtout_basecat->cd(5);
