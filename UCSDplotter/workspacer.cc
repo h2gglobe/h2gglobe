@@ -21,7 +21,7 @@ const string inputTreeName = "opttree";
 void buildBkgModel(RooContainer* rooContainer,  map<string, string> values) {
   
   std::string postfix = (getUint(values,"dataIs2011")?"":"_8TeV");
-  int nCategories_ = getUint(values, "nCategories");
+  unsigned int nCategories_ = getUint(values, "nCategories");
   std::vector<int> bkgPolOrderByCat = getVint(values, "bkgPolOrderByCat");
 
   // sanity check
@@ -87,7 +87,7 @@ void buildBkgModel(RooContainer* rooContainer,  map<string, string> values) {
   // map order to categories flags + parameters names
   std::map<int, std::pair<std::vector<int>, std::vector<std::string> > > catmodels;
   // fill the map
-  for(int icat=0; icat<nCategories_; ++icat) {
+  for(unsigned int icat=0; icat<nCategories_; ++icat) {
     // get the poly order for this category
     int catmodel = bkgPolOrderByCat[icat];
     std::vector<int> & catflags = catmodels[catmodel].first;
@@ -209,7 +209,7 @@ void initRooContainer(RooContainer* rooContainer, map<string, string> values) {
   // Configurable background model
   // if no configuration was given, set some defaults
 
-  int nCategories_ = getUint(values, "nCategories");
+  //int nCategories_ = getUint(values, "nCategories");
   unsigned int nDataBins = getUint(values, "nDataBins");
   std::vector<int>   bkgPolOrderByCat = getVint(values, "bkgPolOrderByCat");
   std::vector<float> sigPointsToBook  = getVfloat(values, "signalPoints");
@@ -289,7 +289,7 @@ GenericAnalysis *openAnalysisCode(const string &fname) {
 
 void usage() {
   cerr << endl
-       << "usage:   plotter plotvariables.dat myanalysis.so input.root output.root" << endl
+       << "usage:   workspacer config.dat MyAnalysis.so input.root output.root" << endl
        << endl
     ;
   exit(1);
@@ -306,25 +306,11 @@ int main(int argc, char **argv) {
   string inputFname = argv[3];
   string outputFname = argv[4];
 
-  //HistoContainer *histoContainer = new HistoContainer();
   RooContainer *rooContainer = new RooContainer();
   
   // read the configuration file and book histograms 
-  map<std::string, std::string> values = parseConfigFile("UCSDPlotterConfig.dat");
+  map<std::string, std::string> values = parseConfigFile(configFname);
   initConfig(values, rooContainer);
-  //parseConfigFile(configFname);
-  
-  //--------------------
-
-  //TRint *myapp = NULL;
-  //if (interactive) {
-  //  int dummyArgc = 1;
-  //  char* dummyArgv[2];
-  //  dummyArgv[0] = argv[0];
-  //  dummyArgv[1] = NULL;
-  //  
-  //  myapp = new TRint("rint", &dummyArgc, &dummyArgv[0]);
-  //}
   
   //--------------------
   // open the input file
@@ -344,9 +330,6 @@ int main(int argc, char **argv) {
   //--------------------
   GenericAnalysis *analysis = openAnalysisCode(analysisCodeFname);
   
-  // FIXME HOW TO PASS PARAMETER TO THE ANALYSIS ???
-  //analysis.setParameters();
-
   // must also activate branches
   analysis->setBranchAddresses(tree, values);
   
@@ -372,7 +355,6 @@ int main(int argc, char **argv) {
   rooContainer->Save();
   
   // close output file
-  //delete rooContainer;
   fout->Close();
 
 

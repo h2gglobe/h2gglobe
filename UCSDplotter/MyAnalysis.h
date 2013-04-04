@@ -45,7 +45,6 @@ class MyAnalysis : public GenericAnalysis {
   std::string* name1;
 
   std::map<int,std::string> signalLabels;
-  bool doBlinding;
 };
 
 /*

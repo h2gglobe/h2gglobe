@@ -99,7 +99,7 @@ map<string, string> parseConfigFile(const std::string &configFname) {
     try {
       getline (infile,line);
       ++lineNum;
-      // cout << line << endl;
+      //cout << line << endl;
       
       // remove everything after the first #
       size_t pos = line.find('#');
