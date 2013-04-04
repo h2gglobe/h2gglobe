@@ -1,19 +1,5 @@
 #!/bin/csh
 
-# root -b -l -q 'etaR9bins.C("lowR9",1,0)'
-# root -b -l -q 'etaR9bins.C("midR9",1,0)'
-# root -b -l -q 'etaR9bins.C("highR9",1,0)'
-# root -b -l -q 'etaR9bins.C("lowR9",0,0)'
-# root -b -l -q 'etaR9bins.C("midR9",0,0)'
-# root -b -l -q 'etaR9bins.C("highR9",0,0)'
-
-# root -b -l -q 'etaR9bins.C("lowR9",1,1)'
-# root -b -l -q 'etaR9bins.C("midR9",1,1)'
-# root -b -l -q 'etaR9bins.C("highR9",1,1)'
-# root -b -l -q 'etaR9bins.C("lowR9",0,1)'
-# root -b -l -q 'etaR9bins.C("midR9",0,1)'
-# root -b -l -q 'etaR9bins.C("highR9",0,1)'
-
 root -b -l -q 'etaR9bins_combined.C("lowR9",1,0,1)'
 root -b -l -q 'etaR9bins_combined.C("midR9",1,0,1)'
 root -b -l -q 'etaR9bins_combined.C("highR9",1,0,1)'
