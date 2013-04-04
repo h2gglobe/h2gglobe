@@ -108,6 +108,7 @@ class PhotonAnalysis : public BaseAnalysis
 
     bool saveDatacardTrees_;
     bool saveSpinTrees_;
+    bool saveVBFTrees_;
 
     // Preselection indexes
     float presel_scet1, presel_scet2, presel_maxeta;
@@ -427,6 +428,10 @@ class PhotonAnalysis : public BaseAnalysis
     
     // Save spin trees
     void saveSpinTree(LoopAll& l, int category, float evweight, TLorentzVector Higgs, TLorentzVector lead_p4, TLorentzVector sublead_p4, int ipho1, int ipho2, float diphobdt, double sigmaMrv, double sigmaMwv, double lead_sigmaE, double lead_sigmaE_nosmear, double sublead_sigmaE, double sublead_sigmaE_nosmear, float vtxProb, float lead_id_mva, float sublead_id_mva);
+
+    // Save VBF trees
+    void saveVBFTree(LoopAll& l, int category, float evweight,float diphobdt);
+
     
     // Vertex analysis
     HggVertexAnalyzer vtxAna_;

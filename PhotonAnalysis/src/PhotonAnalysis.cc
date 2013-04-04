@@ -96,6 +96,7 @@ PhotonAnalysis::PhotonAnalysis()  :
 
     saveDatacardTrees_=false;
     saveSpinTrees_=false;
+    saveVBFTrees_=false;
 
     mvaVbfSelection=false;
     mvaVbfUseDiPhoPt=true;
@@ -4331,6 +4332,25 @@ void PhotonAnalysis::saveSpinTree(LoopAll& l, int category, float evweight, TLor
    l.FillTree("lead_id_mva",lead_id_mva,"spin_trees");
    l.FillTree("sublead_id_mva",sublead_id_mva,"spin_trees");
 
+}
+
+
+
+void PhotonAnalysis::saveVBFTree(LoopAll &l, int category, float evweight, float diphobdt_output){
+
+  l.FillTree("weight",evweight,"vbf_trees");
+  l.FillTree("category",category,"vbf_trees");
+  l.FillTree("diphomva",diphobdt_output,"vbf_trees");
+  l.FillTree("vbfmva",myVBF_MVA,"vbf_trees");
+  l.FillTree("leadJPt",myVBFLeadJPt,"vbf_trees");
+  l.FillTree("subleadJPt",myVBFSubJPt,"vbf_trees");
+  l.FillTree("leadJEta",myVBF_leadEta,"vbf_trees");
+  l.FillTree("subleadJEta",myVBF_subleadEta,"vbf_trees");
+  l.FillTree("MJJ",myVBF_Mjj,"vbf_trees");
+  l.FillTree("dEtaJJ",myVBFdEta,"vbf_trees");
+  l.FillTree("zepp",myVBFZep,"vbf_trees");
+  l.FillTree("dPhiJJGammaGamma",myVBFdPhi,"vbf_trees");
+  l.FillTree("mass",myVBF_Mgg,"vbf_trees");
 }
 
 void PhotonAnalysis::VBFAngles(TLorentzVector& gamma1, TLorentzVector& gamma2, TLorentzVector& J1, TLorentzVector& J2)
