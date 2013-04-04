@@ -10,23 +10,6 @@ void idmva() {
   
   gStyle->SetPalette(1);
 
-  /*
-  TFile *file_hgg = TFile::Open("histograms_CMS-HGG_noidmvacut_hgg90.root");
-  file_hgg->cd();
-
-  phoidMva_EB_Hgg90 = (TH1*)pho1_phoidMva_EB_cat0_tot->Clone();
-  phoidMva_EB_Hgg90->Add(pho2_phoidMva_EB_cat0_tot);
-  phoidMva_EE_Hgg90 = (TH1*)pho1_phoidMva_EE_cat0_tot->Clone();
-  phoidMva_EE_Hgg90->Add(pho2_phoidMva_EE_cat0_tot);
-
-  phoidMva_EB_Hgg90->SetLineColor(3);
-  phoidMva_EE_Hgg90->SetLineColor(3);
-  phoidMva_EB_Hgg90->SetLineWidth(2);
-  phoidMva_EE_Hgg90->SetLineWidth(2);
-  phoidMva_EB_Hgg90->Rebin(2);
-  phoidMva_EE_Hgg90->Rebin(2);
-  */
-
   TFile *file = TFile::Open("histograms_CMS-HGG_zeevalidation.root");
   file->cd();
 
@@ -53,17 +36,6 @@ void idmva() {
   phoidMva_EB_down_DYJetsToLL->Add(pho2_phoidMva_EB_down_cat0_DYJetsToLL);
   phoidMva_EE_down_DYJetsToLL = (TH1*)pho1_phoidMva_EE_down_cat0_DYJetsToLL->Clone();
   phoidMva_EE_down_DYJetsToLL->Add(pho2_phoidMva_EE_down_cat0_DYJetsToLL);
-
-  /*
-  phoidMva_EB_Data->Rebin(2);
-  phoidMva_EB_DYJetsToLL->Rebin(2);
-  phoidMva_EB_up_DYJetsToLL->Rebin(2);
-  phoidMva_EB_down_DYJetsToLL->Rebin(2);
-  phoidMva_EE_Data->Rebin(2);
-  phoidMva_EE_DYJetsToLL->Rebin(2);
-  phoidMva_EE_up_DYJetsToLL->Rebin(2);
-  phoidMva_EE_down_DYJetsToLL->Rebin(2);
-  */
 
   phoidMva_EB_up_DYJetsToLL->SetLineColor(2);
   phoidMva_EB_down_DYJetsToLL->SetLineColor(2);
@@ -111,10 +83,6 @@ void idmva() {
   leg2->AddEntry(phoidMva_EB_Data,"Data (19.6fb^{-1})");
   leg2->AddEntry(phoidMva_EB_DYJetsToLL,"DYJetsToLL MC","F");
   leg2->AddEntry(phoidMva_EB_syst,"MC ±0.01","F");
-  //leg2->AddEntry(phoidMva_EB_Hgg90,"H#rightarrow#gamma#gamma, m_{H}=90 GeV");
-  //leg2->AddEntry(phoidMva_EB_down_DYJetsToLL,"MC - 0.01");
-  //leg2->AddEntry(phoidMva_EB_up_DYJetsToLL,"MC + 0.01");
-
 
   TCanvas *c_idmva = new TCanvas("c_idmva","Photon ID MVA output",1600,900);
   c_idmva->Divide(2,2);
@@ -139,8 +107,6 @@ void idmva() {
   phoidMva_EB_down_DYJetsToLL->Draw("hist,same");
   phoidMva_EB_DYJetsToLL_line->Draw("hist,same");
   phoidMva_EB_Data->Draw("e,same");
-  //phoidMva_EB_Hgg90->Scale(phoidMva_EB_Data->Integral()/phoidMva_EB_Hgg90->Integral());
-  //phoidMva_EB_Hgg90->Draw("hist,same");
   gPad->RedrawAxis();
   leg2->Draw();
 
@@ -164,8 +130,6 @@ void idmva() {
   phoidMva_EE_down_DYJetsToLL->Draw("hist,same");
   phoidMva_EE_DYJetsToLL_line->Draw("hist,same");
   phoidMva_EE_Data->Draw("e,same");
-  //phoidMva_EE_Hgg90->Scale(phoidMva_EE_Data->Integral()/phoidMva_EE_Hgg90->Integral());
-  //phoidMva_EE_Hgg90->Draw("hist,same");
   gPad->RedrawAxis();
   leg2->Draw();
 
