@@ -1,0 +1,30 @@
+#intL=19620. histfile=/store/group/phys_higgs/cmshgg/analyzed/Moriond2013/MassFacMVA/Preapproval_v2/%(label)s/CMS-HGG.root output=eventsList.txt
+intL=19620. histfile=/store/cmst3/user/malberti/HIGGS/VBF/%(label)s/CMS-HGG.root output=eventsList.txt
+
+typ=-37 ind=1 draw=1   Nam=ggh_m125_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v1/mc/Summer12_S10_8TeV/GluGluToHToGG_M-125_8TeV-powheg-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+typ=-38 ind=2 draw=1   Nam=vbf_m125_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v1/mc/Summer12_S10_8TeV/VBF_HToGG_M-125_8TeV-powheg-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+
+
+#
+# Branches to use
+#
+inputBranches minimal_analysis_input.dat
+inputBranches massfactorizedmvaanalysis_input.dat
+inputBranches minimal_leptmetanalysis_input.dat
+
+#treevariables massfac_mva_binned/fullmvatrees.dat
+#treevariables massfac_mva_binned/unbinned_datacard_trees.dat
+#treevariables common/unbinned_datacard_trees.dat
+treevariables jetanalysis/treevariables_vbftrees.dat
+
+
+## define analyses to run
+##   a library containing the class dictionary has loaded before parsing the
+##   configuration file
+## syntax:
+##   analyzer <class_name> <config_file>
+##
+## analyzer PhotonAnalysis photonanalysis.dat
+analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat saveDatacardTrees_=0 saveVBFTrees_=1 doSystematics=0 
+# doFullMvaFinalTree=1 dumpAscii=1 dumpMcAscii=0 
+
