@@ -22,14 +22,14 @@ void diphomva_nvtx(TString var="bdtout") {
   TH1* hist_MC_down[3];
   TH1* hist_syst[3];
 
-  TFile *file_data = TFile::Open("../../AnalysisScripts/zee_phoPD_nvtxBins/combined/histograms_CMS-HGG.root");
+  TFile *file_data = TFile::Open("histograms_CMS-HGG_zeevalidation.root");
   file_data->cd();
 
   for (int nvtxbin=0; nvtxbin<3; nvtxbin++) {
     hist_Data[nvtxbin] = (TH1*)(file_data->Get(var+"_nvtx"+nvtxbin_str[nvtxbin]+"_cat0_Data"))->Clone();
   }
 
-  TFile *file_MC = TFile::Open("../../AnalysisScripts/zee_phoPD_nvtxBins/combined/histograms_CMS-HGG_envelopes.root");
+  TFile *file_MC = TFile::Open("histograms_CMS-HGG_zeevalidation_envelopes.root");
   file_MC->cd();
 
   for (int nvtxbin=0; nvtxbin<3; nvtxbin++) {
@@ -39,10 +39,10 @@ void diphomva_nvtx(TString var="bdtout") {
     hist_MC_down[nvtxbin] = (TH1*)(file_MC->Get(var+"_nvtx"+nvtxbin_str[nvtxbin]+"_cat0_DYJetsToLL_bottom"))->Clone();
 
     if (var=="bdtout") {
-      //hist_MC[nvtxbin]->Rebin(2);
-      //hist_Data[nvtxbin]->Rebin(2);
-      //hist_MC_up[nvtxbin]->Rebin(2);
-      //hist_MC_down[nvtxbin]->Rebin(2);
+      hist_MC[nvtxbin]->Rebin(2);
+      hist_Data[nvtxbin]->Rebin(2);
+      hist_MC_up[nvtxbin]->Rebin(2);
+      hist_MC_down[nvtxbin]->Rebin(2);
       hist_Data[nvtxbin]->GetXaxis()->SetTitle("diphoton BDT output ("+nvtxbin_label[nvtxbin]+")");
     } else if (var=="idmva_EB"){
       hist_Data[nvtxbin]->GetXaxis()->SetTitle("photon ID MVA output (barrel, "+nvtxbin_label[nvtxbin]+")");

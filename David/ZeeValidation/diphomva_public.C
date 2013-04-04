@@ -14,12 +14,12 @@ void diphomva_public(bool passMVAcut=false, bool equalArea=true) {
   TString txt_passcut = "";
   if (passMVAcut) txt_passcut = "_passcut";
 
-  TFile *file_data = TFile::Open("root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/zee_trees/tree_zee_moriond_preapproval_v2_runABCD_idmvaSigmaECorr.root");
+  TFile *file_data = TFile::Open("histograms_CMS-HGG_zeevalidation.root");
   file_data->cd();
 
   bdtout_cat0_DataClone = (TH1*)bdtout_cat0_Data->Clone();
 
-  TFile *file_MC = TFile::Open("zee_envelopes_runABCD_idmvaSigmaECorr.root");
+  TFile *file_MC = TFile::Open("histograms_CMS-HGG_zeevalidation_envelopes.root");
   file_MC->cd();
 
   bdtout_cat0_DYJetsToLL->Rebin(2);
