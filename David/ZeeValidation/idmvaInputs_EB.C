@@ -386,8 +386,8 @@ void idmvaInputs_EB() {
     line6->SetX1(-0.00015);
     line6->SetX2(0.00015);
   } else {
-    line6->SetX1(-0.00015);
-    line6->SetX2(0.00015);
+    line6->SetX1(-0.001);
+    line6->SetX2(0.001);
   }
   line6->Draw();
 
@@ -496,11 +496,11 @@ void idmvaInputs_EB() {
   ratio_s4ratio_EB->Draw("e");
   line8 = (TLine*)line->Clone();
   if (!isEE) {
-    line8->SetX1(0.);
-    line8->SetX2(0.12);
+    line8->SetX1(0.3);
+    line8->SetX2(1.);
   } else {
-    line8->SetX1(0.);
-    line8->SetX2(0.14);
+    line8->SetX1(0.3);
+    line8->SetX2(1.);
   }
   line8->Draw();
 
@@ -513,11 +513,11 @@ void idmvaInputs_EB() {
   ratio_r9_EB->Draw("e");
   line5 = (TLine*)line->Clone();
   if (!isEE) {
-    line5->SetX1(0.004);
-    line5->SetX2(0.014);
+    line5->SetX1(0.);
+    line5->SetX2(1.);
   } else {
-    line5->SetX1(0.01);
-    line5->SetX2(0.04);
+    line5->SetX1(0.);
+    line5->SetX2(1.);
   }
   line5->Draw();
 
@@ -532,10 +532,10 @@ void idmvaInputs_EB() {
     line8 = (TLine*)line->Clone();
     if (!isEE) {
       line8->SetX1(0.);
-      line8->SetX2(0.12);
+      line8->SetX2(14.);
     } else {
       line8->SetX1(0.);
-      line8->SetX2(0.14);
+      line8->SetX2(14.);
     }
     line8->Draw();
   }
