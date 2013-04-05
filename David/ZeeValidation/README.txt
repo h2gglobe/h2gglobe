@@ -34,7 +34,7 @@ Plotting scripts are located here:
 
 http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/UserCode/HiggsAnalysis/HiggsTo2photons/h2gglobe/David/ZeeValidation/
 
-Running the configuration described above using the following CVS tag for h2gglobe: 
+Running the configuration described above using the following CVS tag for h2gglobe: zeeValidation_moriond2013
 produces the following histogram file:
 
 /eos/cms/store/group/phys_higgs/cmshgg/histograms_moriond_david/histograms_CMS-HGG_zeevalidation.root
