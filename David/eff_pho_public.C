@@ -15,7 +15,7 @@ void eff_pho_public(bool isSignal=true, bool saveToWeb=false) {
     legend_str = "Background MC";
   }
 
-  TFile *f = TFile::Open("../AnalysisScripts/cic_sig/combined/histograms_CMS-HGG.root");
+  TFile *f = TFile::Open("root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/histograms_moriond_david/histograms_CMS-HGG_effPho.root");
 
   TH1* hist_eta_presel[4][2];
   TH1* hist_eta_sel[4][2];
@@ -343,10 +343,8 @@ void eff_pho_public(bool isSignal=true, bool saveToWeb=false) {
 
   for (int icat = 0; icat<4; icat++) {
     hist_eta_sel[icat][0]->Divide(hist_eta_presel[icat][0]);
-    cout << endl;
     for (int ibin=0; ibin<51; ibin++) {
       float err = eff_err(N_eta_sel_bin[ibin][icat][0],N_eta_presel_bin[ibin][icat][0]);
-      cout << ibin << " " << N_eta_sel_bin[ibin][icat][0] << " " << N_eta_presel_bin[ibin][icat][0] << " " << err << endl;
       //hist_eta_sel[icat][0]->SetBinError(ibin+1,err);
     }
     hist_eta_sel[icat][0]->SetMarkerSize(1.2);
