@@ -1,4 +1,14 @@
-void massPlot(TString category="0", TString var="all_mass", TString analysis="massfit", bool blind=false, bool breakdown=false, bool cleanHighWeightEvents=false) {
+//options:
+// - category:  event category: "0" is all cats combined, "1" to "6" correspond to cats "0" to "5" (i.e. inclusive and dijet)
+// - var:  which variable to plot: for possible options see runMassPlot.sh
+// - blind:  omit data on mass plots for signal region
+// - breakdown:  set to true for full breakdown of background MC contributions
+// - omitZpeak:  set to true to restrict range on mass plots to 100-180 (as used for public plot)
+// - cleanHighWeightEvents:  remove the high weight QCD40_PF events and scale up the GJet40_PF events by ((N_GJet40_PF+N_QCD40_PF)/N_GJet40_PF) where N_X is the histogram integral for sample X (as used for public plot)
+
+//public plot https://twiki.cern.ch/twiki/pub/CMSPublic/Hig13001TWiki/mass.png uses default settings except omitZpeak=true, cleanHighWeightEvents=true
+
+void massPlot(TString category="0", TString var="all_mass", TString analysis="massfit", bool blind=false, bool breakdown=false, bool omitZpeak=false, bool cleanHighWeightEvents=false) {
 
   gStyle->SetOptTitle(0);
   gStyle->SetOptStat(0);
@@ -24,7 +34,7 @@ void massPlot(TString category="0", TString var="all_mass", TString analysis="ma
   gStyle->SetTitleXOffset(0.9);
   gStyle->SetTitleYOffset(1.24);
 
-  TFile *f = TFile::Open("histograms_CMS-HGG_"+analysis+".root");
+  TFile *f = TFile::Open("root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/histograms_moriond_david/histograms_CMS-HGG_"+analysis+".root");
 
   TH1 *hist_mass_sig;
   TH1 *hist_mass_data;
@@ -233,7 +243,7 @@ void massPlot(TString category="0", TString var="all_mass", TString analysis="ma
   if (hist_mass_sig->GetMaximum()>max) max=hist_mass_sig->GetMaximum();
   if (hist_mass_data->GetMaximum()>max) max=hist_mass_data->GetMaximum();
   if (var=="all_mass") {
-    hist_mass_bkg_stack->SetMaximum(10000.);
+    if (omitZpeak && category=="0") hist_mass_bkg_stack->SetMaximum(10000.);
     //hist_mass_bkg_stack->SetMaximum(max*0.85);
     //hist_mass_bkg_stack->SetMaximum(max*0.65);
     //hist_mass_bkg_stack->SetMaximum(max*1.2);
@@ -246,8 +256,13 @@ void massPlot(TString category="0", TString var="all_mass", TString analysis="ma
   }
 
   hist_mass_bkg_stack->Draw("hist");
-  if (var=="all_mass") hist_mass_bkg_stack->GetXaxis()->SetRangeUser(100.,179.);
-  //if (var=="all_mass") hist_mass_bkg_stack->GetXaxis()->SetRangeUser(90.,190.);
+  if (var=="all_mass") {
+    if (omitZpeak) {
+      hist_mass_bkg_stack->GetXaxis()->SetRangeUser(100.,179.);
+    } else {
+      hist_mass_bkg_stack->GetXaxis()->SetRangeUser(90.,190.);
+    }
+  }
   //hist_mass_bkg_stack->GetXaxis()->SetRangeUser(80.,120.);
   hist_mass_bkg_stack_err = (TH1*)(hist_mass_bkg_stack->GetStack()->Last())->Clone();
   for (int ibin=0; ibin<hist_mass_dy->GetNbinsX(); ibin++) {
