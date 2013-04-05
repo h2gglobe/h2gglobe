@@ -322,6 +322,8 @@ int main(int argc, char **argv) {
     exit(1);
   }
 
+  gROOT->cd();
+
   TTree *tree = (TTree*)(fin->Get(inputTreeName.c_str()));
   assert(tree != NULL);
   
