@@ -2,8 +2,8 @@
 
 # replace massfit with cic to make plots for cut based analysis
 
-setenv OUTDIR "/afs/cern.ch/user/f/futyand/www/hgg/moriond_preapproval/dataMC/massfit"
-mkdir $OUTDIR/mass $OUTDIR/pho1_pt $OUTDIR/pho2_pt $OUTDIR/pho_r9 $OUTDIR/pho1_eta $OUTDIR/pho2_eta $OUTDIR/pt $OUTDIR/eta
+#setenv OUTDIR "/afs/cern.ch/user/f/futyand/www/hgg/moriond_approval/dataMC/massfit"
+#mkdir $OUTDIR/mass $OUTDIR/pho1_pt $OUTDIR/pho2_pt $OUTDIR/pho_r9 $OUTDIR/pho1_eta $OUTDIR/pho2_eta $OUTDIR/pt $OUTDIR/eta
 
 root -b -l -q 'massPlot.C("0","all_mass","massfit")'
 root -b -l -q 'massPlot.C("1","all_mass","massfit")'
