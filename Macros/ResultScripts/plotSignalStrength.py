@@ -22,16 +22,14 @@ leg.SetBorderSize(1)
 mytext = TLatex()
 mytext.SetTextSize(0.04)
 mytext.SetNDC()
-Minimum=-2
-Maximum=2.5
+Minimum=-8
+Maximum=8
 #intlumi=[5.1,19.6]
 #Energy=[7,8]
 intlumi=[19.6]
 Energy=[8]
 LowM=110
 HighM=150
-
-label=" (MVA)"
 
 UseMLlogs=False
 
@@ -47,42 +45,38 @@ multigraph = TMultiGraph()
 #multigraph.SetMinimum(Minimum)
 #multigraph.SetMaximum(Maximum)
 dummyHist = TH1D("dummy","",1,LowM,HighM)
-dummyHist.SetTitle(";m_{H} (GeV);Best Fit #sigma/#sigma_{SM}  ")
+dummyHist.SetTitle(";M_{H} (GeV/c^{2});Best Fit #sigma/#sigma_{SM}")
 dummyHist.SetTitleSize(.06,"X")
 dummyHist.SetTitleOffset(0.65,"X")
 dummyHist.SetTitleSize(.06,"Y")
-dummyHist.SetTitleOffset(0.7,"Y")
+dummyHist.SetTitleOffset(0.6,"Y")
 dummyHist.SetMinimum(Minimum)
 dummyHist.SetMaximum(Maximum)
 
 for Mass in Masses:
   if not UseMLlogs:
-    filename=directory+"/higgsCombineSignalStrength.ChannelCompatibilityCheck.mH"+str(Mass).replace(".0","")+".root"
-    if os.path.isfile(filename):
-      file = TFile.Open(filename)
-      print file.GetName()
-      normal=file.Get("fit_nominal")
-      rFit=normal.floatParsFinal().find("r")
-      #print "Value: %f ErrorDown: %f ErrorUp: %f" %(rFit.getVal(),rFit.getAsymErrorLo(),rFit.getAsymErrorHi())
-      BestFitObserved.append(rFit.getVal())
-      BestFitErrorUp.append(rFit.getAsymErrorHi())
-      if math.fabs(rFit.getAsymErrorLo())<0.000001: BestFitErrorDown.append(math.fabs(rFit.getAsymErrorHi()))
-      else: BestFitErrorDown.append(math.fabs(rFit.getAsymErrorLo()))
+    file = TFile.Open(directory+"/higgsCombineSignalStrength.ChannelCompatibilityCheck.mH"+str(Mass).replace(".0","")+".root")
+    print file.GetName()
+    normal=file.Get("fit_nominal")
+    rFit=normal.floatParsFinal().find("r")
+    #print "Value: %f ErrorDown: %f ErrorUp: %f" %(rFit.getVal(),rFit.getAsymErrorLo(),rFit.getAsymErrorHi())
+    BestFitObserved.append(rFit.getVal())
+    BestFitErrorUp.append(rFit.getAsymErrorHi())
+    if math.fabs(rFit.getAsymErrorLo())<0.000001: BestFitErrorDown.append(math.fabs(rFit.getAsymErrorHi()))
+    else: BestFitErrorDown.append(math.fabs(rFit.getAsymErrorLo()))
   else:
-    filename=directory+"/higgsCombineTest.MaxLikelihoodFit"+str(Mass)+".log"
-    if os.path.isfile(filename):
-      file = open(filename)
-      lines=file.readlines()
-      for line in lines:
-        if line.find("Best fit r:") is not -1:
-          parts=line.split()
-          print "parts",Mass,parts
-          if len(parts)>5:
-            #print parts[3],parts[4]
-            BestFitObserved.append(float(parts[3]))
-            BestFitErrorUp.append(float(parts[4].split("/")[1]))
-            BestFitErrorDown.append(math.fabs(float(parts[4].split("/")[0])))
-            continue
+    file = open(directory+"/higgsCombineTest.MaxLikelihoodFit"+str(Mass)+".log")
+    lines=file.readlines()
+    for line in lines:
+      if line.find("Best fit r:") is not -1:
+        parts=line.split()
+        print "parts",parts
+        if len(parts)>5:
+          print parts[3],parts[4]
+          BestFitObserved.append(float(parts[3]))
+          BestFitErrorUp.append(float(parts[4].split("/")[1]))
+          BestFitErrorDown.append(math.fabs(float(parts[4].split("/")[0])))
+          continue
 
 
 graph=TGraph(len(BestFitObserved),Masses,array.array("f",BestFitObserved))
@@ -110,8 +104,8 @@ line.Draw()
 can.RedrawAxis();
 can.SetGrid(True)
 
-if len(intlumi)==2: mytext.DrawLatex(0.13,0.805,"#splitline{CMS preliminary}{#splitline{#sqrt{s} = %i TeV L = %.1f fb^{-1}" %(int(Energy[0]),float(intlumi[0]))+label+"}{#sqrt{s} = %i TeV L = %.1f fb^{-1}" %(int(Energy[1]),float(intlumi[1]))+label+"}}")
-else: mytext.DrawLatex(0.13,0.83,"#splitline{CMS preliminary}{#sqrt{s} = %i TeV L = %.1f fb^{-1}" %(int(Energy[0]),float(intlumi[0]))+label+"}")
+if len(intlumi)==2: mytext.DrawLatex(0.13,0.805,"#splitline{CMS preliminary}{#splitline{#sqrt{s} = %i TeV L = %.1f fb^{-1}}{#sqrt{s} = %i TeV L = %.1f fb^{-1}}}" %(int(Energy[0]),float(intlumi[0]),int(Energy[1]),float(intlumi[1])))
+else: mytext.DrawLatex(0.13,0.83,"#splitline{CMS preliminary}{#sqrt{s} = %i TeV L = %.1f fb^{-1}}" %(int(Energy[0]),float(intlumi[0])))
 
 can.SaveAs(sys.argv[2]+".png")
 can.SaveAs(sys.argv[2]+".pdf")

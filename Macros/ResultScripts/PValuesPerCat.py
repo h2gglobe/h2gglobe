@@ -19,10 +19,6 @@ parser.add_option("-u", "--CustumCat", dest="CustumCat", default="", help="Make 
 parser.add_option("-s", "--OutputDirectory", dest="OutputDirectory", default="", help="Output Directory")
 parser.add_option("-t", "--toysFile", dest="toysFile", default="", help="Asimov Toy Set File")
 
-
-parser.add_option("--min", type="float", dest="MinMass", default=110, help="Minimum Mass")
-parser.add_option("--max", type="float", dest="MaxMass", default=150, help="Maximum Mass")
-parser.add_option("--step", type="float", dest="MassStep", default=0.5, help="Mass step")
 parser.add_option("--debug", action="store_true", dest="debug", default=False, help="Enable Debug Mode")
 parser.add_option("--dryrun", action="store_true", dest="dryrun", default=False, help="Don't calculate pvalues, but it will still make datacards.")
 parser.add_option("--expectSignal", dest="expectSignal", default=1, help="Expected Signal Strength")
@@ -49,7 +45,7 @@ if options.threads==0:
     options.threads=int(os.popen("cat /proc/cpuinfo | grep processor | awk '{print $3}' | tail -1 | xargs -i echo '{}+1' | bc").readlines()[0].strip('\n'))
 if options.debug: print "Max Threads:",options.threads
 
-Masses=[x * 0.1 for x in range(options.MinMass*10,options.MaxMass*10+1,options.MassStep*10)]
+Masses=[x * 0.1 for x in range(1100,1501,5)]
 if options.RegularMasses: Masses=range(110,151,5)
 if options.Masses!="":
     Masses=[]
@@ -173,7 +169,7 @@ for datacard in DatacardList:
             if options.debug: print "combine "+datacard+" -m "+massstring+" -M Asymptotic --minimizerStrategy=1 --minosAlgo=stepping -s -1 --picky --run=expected >& higgsCombineLimit.Asymptotic.mH"+massstring+".log &"
             if options.Expected and not options.Observed and not options.dryrun: os.system("combine "+datacard+" -m "+massstring+" -M Asymptotic --minimizerStrategy=1 --minosAlgo=stepping -s -1 --picky --run=expected >& higgsCombineLimit.Asymptotic.mH"+massstring+".log &")
             if not options.Expected and options.Observed and not options.dryrun: os.system("combine "+datacard+" -m "+massstring+" -M Asymptotic --minimizerStrategy=1 --minosAlgo=stepping -s -1 --picky --run=observed >& higgsCombineLimit.Asymptotic.mH"+massstring+".log &")
-            if options.Observed and options.Expected and not options.dryrun: os.system("combine "+datacard+" -m "+massstring+" -M Asymptotic --minimizerStrategy=3 --minosAlgo=stepping  --minimizerAlgo=Minuit  -s -1  >& higgsCombineLimit.Asymptotic.mH"+massstring+".log &")
+            if options.Observed and options.Expected and not options.dryrun: os.system("combine "+datacard+" -m "+massstring+" -M Asymptotic --minimizerStrategy=1 --minosAlgo=stepping -s -1 --picky >& higgsCombineLimit.Asymptotic.mH"+massstring+".log &")
             waitthreads("combine",options.threads)
         if options.BestFit:
             os.chdir(bestfitdir)
@@ -182,7 +178,7 @@ for datacard in DatacardList:
         if options.MaxLikelihood:
             os.chdir(maxlikelihoodfitdir)
             if options.debug: print "combine "+datacard+" -m "+massstring+"  -M MaxLikelihoodFit  --rMin=-20 > higgsCombineTest.MaxLikelihoodFit"+massstring+".log"
-            if not options.dryrun: os.system("combine "+datacard+" -m "+massstring+"  -M MaxLikelihoodFit --minimizerAlgo=Minuit  --rMin=-20 > higgsCombineTest.MaxLikelihoodFit"+massstring+".log &")
+            if not options.dryrun: os.system("combine "+datacard+" -m "+massstring+"  -M MaxLikelihoodFit  --rMin=-20 > higgsCombineTest.MaxLikelihoodFit"+massstring+".log &")
 
     os.chdir(basedir)
     threads=int(os.popen("ps | grep combine | wc -l").readline())
@@ -197,7 +193,6 @@ for datacard in DatacardList:
         for file in filelist:
             file = file.strip("\n")
             newfile = file.rsplit(".",2)[0]+"."+file.rsplit(".",2)[2]
-            print "old, new,",file,newfile
             os.rename(file,newfile)
         os.chdir(basedir)
     if options.BestFit and not options.dryrun:

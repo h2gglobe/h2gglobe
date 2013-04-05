@@ -24,7 +24,7 @@ parser.add_option("-q","--queue",dest="queue",type="string",default="1nh",help="
 parser.add_option("-M","--methods",dest="methods",default=[],action="append",help="Combine methods - default does several (can pass multiple times)")
 parser.add_option("-L","--mHlow",dest="mHlow",type="float",default=110,help="Lowest MH")
 parser.add_option("-H","--mHhigh",dest="mHhigh",type="float",default=150,help="Highest MH")
-parser.add_option("-S","--mHstep",dest="mHstep",type="float",default=0.5,help="MH step")
+parser.add_option("-S","--mHstep",dest="mHstep",type="float",default=1,help="MH step")
 parser.add_option("","--run2011",dest="run2011",default=False,action="store_true",help="Run only 2011")
 parser.add_option("","--run2012",dest="run2012",default=False,action="store_true",help="Run only 2012")
 parser.add_option("","--runBoth",dest="runBoth",default=False,action="store_true",help="Run only 2011+2012")
@@ -57,7 +57,7 @@ def cardSplitting(card,subCatJobs):
     splitCards.append([job.replace(' ',''),newcardname])
   return splitCards
 
-def writePreamble(file,path,card,mh,type=''):
+def writePreamble(file,card,mh,type=''):
   file.write('#!/bin/bash\n')
   file.write('cd %s\n'%path)
   file.write('touch %s.run\n'%file.name)
@@ -69,257 +69,190 @@ def writePreamble(file,path,card,mh,type=''):
   file.write('eval `scramv1 runtime -sh`\n')
 
 def writeAsymptotic(file,path,card,folder,mh):
-  if 'Asymptotic' in options.methods:
+  if 'Asymptotic' in options.method:
     m = '%5.1f'%mh
-    m = m.replace('.0','')
+    m.replace('.0','')
     file.write('if ( \n')
     if options.unblind: file.write('\t combine %s/%s -M Asymptotic -m %s -n %s\n'%(path,card,m,folder))  
     else: file.write('\t combine %s/%s -M Asymptotic -m %s -n %s --run=expected\n'%(path,card,m,folder))  
     file.write(') then\n')
     file.write('\t mv higgsCombine%s.Asymptotic.mH%s.root %s/%s/Asymptotic\n'%(folder,m,path,folder))
-    file.write('\t touch %s.done\n'%file.name)
     file.write('else\n')
-    file.write('\t touch %s.fail\n'%file.name)
+    file.write('\t touch %s.fail'%file.name)
     file.write('fi\n')
 
 def writeProfileLikelhood(file,path,card,folder,mh):
   m = '%5.1f'%mh
-  m = m.replace('.0','')
+  m.replace('.0','')
   if 'ExpProfileLikelihood' in options.methods:
     file.write('if ( \n')
     file.write('\t combine %s/%s -M ProfileLikelihood -m %s -n %sExp --signif --pval -t -1 --expectSignal=1\n'%(path,card,m,folder))  
     file.write(') then\n')
     file.write('\t mv higgsCombine%sExp.ProfileLikelihood.mH%s.root %s/%s/ExpProfileLikelihood\n'%(folder,m,path,folder))
-    file.write('\t touch %s.done\n'%file.name)
     file.write('else\n')
-    file.write('\t touch %s.fail\n'%file.name)
+    file.write('\t touch %s.fail'%file.name)
     file.write('fi\n')
   if 'ExpProfileLikelihoodm125' in options.methods and options.parametric:
     file.write('if ( \n')
     file.write('\t combine %s/%s -M ProfileLikelihood -m %s -n %sExpm125 --signif --pval -t -1 --expectSignal=1 --expectSignalMass=125\n'%(path,card,m,folder))  
     file.write(') then\n')
     file.write('\t mv higgsCombine%sExpm125.ProfileLikelihood.mH%s.root %s/%s/ExpProfileLikelihoodm125\n'%(folder,m,path,folder))
-    file.write('\t touch %s.done\n'%file.name)
     file.write('else\n')
-    file.write('\t touch %s.fail\n'%file.name)
+    file.write('\t touch %s.fail'%file.name)
     file.write('fi\n')
   if 'ProfileLikelihood' in options.methods and options.unblind:
     file.write('if ( \n')
     file.write('\t combine %s/%s -M ProfileLikelihood -m %s -n %s --signif --pval\n'%(path,card,m,folder))  
     file.write(') then\n')
     file.write('\t mv higgsCombine%s.ProfileLikelihood.mH%s.root %s/%s/ProfileLikelihood\n'%(folder,m,path,folder))
-    file.write('\t touch %s.done\n'%file.name)
     file.write('else\n')
-    file.write('\t touch %s.fail\n'%file.name)
+    file.write('\t touch %s.fail'%file.name)
     file.write('fi\n')
 
 def writeProfileLikelhoodSplitCard(file,path,splitcard,folder,mh):
   m = '%5.1f'%mh
-  m = m.replace('.0','')
+  m.replace('.0','')
   if 'ExpProfileLikelihood' in options.methods:
     file.write('if ( \n')
     file.write('\t combine %s/%s -M ProfileLikelihood -m %s -n %sExp%s --signif --pval -t -1 --expectSignal=1\n'%(path,splitcard[1],m,folder,splitcard[0]))  
     file.write(') then\n')
     file.write('\t mv higgsCombine%sExp%s.ProfileLikelihood.mH%s.root %s/%s/ExpProfileLikelihood/%s\n'%(folder,splitcard[0],m,path,folder,splitcard[0]))
-    file.write('\t touch %s.done\n'%file.name)
     file.write('else\n')
-    file.write('\t touch %s.fail\n'%file.name)
+    file.write('\t touch %s.fail'%file.name)
     file.write('fi\n')
   if 'ProfileLikelihood' in options.methods and options.unblind:
     file.write('if ( \n')
     file.write('\t combine %s/%s -M ProfileLikelihood -m %s -n %s%s --signif --pval\n'%(path,splitcard[1],m,folder,splitcard[0]))  
     file.write(') then\n')
     file.write('\t mv higgsCombine%s%s.ProfileLikelihood.mH%s.root %s/%s/ProfileLikelihood/%s\n'%(folder,splitcard[0],m,path,folder,splitcard[0]))
-    file.write('\t touch %s.done\n'%file.name)
     file.write('else\n')
-    file.write('\t touch %s.fail\n'%file.name)
+    file.write('\t touch %s.fail'%file.name)
     file.write('fi\n')
 
 def writeMaxLikelihoodFit(file,path,card,folder,mh):
   m = '%5.1f'%mh
-  m = m.replace('.0','')
+  m.replace('.0','')
   if 'MaxLikelihoodFit' in options.methods and options.unblind:
     file.write('if ( \n')
-    #file.write('\t combine %s/%s -M MaxLikelihoodFit --minimizerAlgo=Minuit -m %s -n %s --rMin=-3. --rMax=3.\n'%(path,card,m,folder))
     file.write('\t combine %s/%s -M MaxLikelihoodFit -m %s -n %s --rMin=-3. --rMax=3.\n'%(path,card,m,folder))
     file.write(') then\n')
     file.write('\t mv higgsCombine%s.MaxLikelihoodFit.mH%s.root %s/%s/MaxLikelihoodFit\n'%(folder,m,path,folder))
-    file.write('\t touch %s.done\n'%file.name)
     file.write('else\n')
-    file.write('\t touch %s.fail\n'%file.name)
+    file.write('\t touch %s.fail'%file.name)
     file.write('fi\n')
 
-def writeChannelCompatibility(path,card,folder,mh):
+def writeChannelCompatibility(file,path,card,folder,mh):
   m = '%5.1f'%mh
-  m = m.replace('.0','')
-  file = open('%s/subChanComp.sh'%(folder),'w')
-  if not options.dryRun:
-    os.system('rm -f %s.done\n'%file.name)
-    os.system('rm -f %s.log\n'%file.name)
-    os.system('rm -f %s.fail\n'%file.name)
-    os.system('rm -f %s.run\n'%file.name)
-  writePreamble(file,path,card,mh,'mu Scan')
-  file.write('if ( \n')
-  file.write('\t combine %s/%s -M ChannelCompatibilityCheck -m %s -n %s --rMin=-25 --verbose=1 --saveFitResult\n'%(path,card,m,folder))
-  file.write(') then\n')
-  file.write('\t mv higgsCombine%s.ChannelCompatibilityCheck.mH%s.root %s/%s/Specials\n'%(folder,m,path,folder))
-  file.write('\t touch %s.done\n'%file.name)
-  file.write('else\n')
-  file.write('\t touch %s.fail\n'%file.name)
-  file.write('fi\n')
-  file.write('rm %s.run\n'%file.name)
-  file.close()
-  os.system('chmod +x %s'%file.name)
-  if not options.dryRun: os.system('bsub -q 1nh -o %s/%s.log %s/%s'%(path,file.name,path,file.name))
-
-def rejigVal(ws,name,cent,down,up):
-  ws.var(name).setVal(cent)
-  ws.var(name).setMin(down)
-  ws.var(name).setMax(up)
-  if options.verbose: ws.var(name).Print()
+  m.replace('.0','')
+  if 'ChannelCompatibilityCheck' in options.methods and options.unblind:
+    file.write('if ( \n')
+    file.write('\t combine %s/%s -M ChannelCompatibilityCheck -m %s -n %s --rMin=-25 --verbose=1 --saveFitResult\n'%(path,card,m,folder))
+    file.write(') then\n')
+    file.write('\t mv higgsCombine%s.ChannelCompatibilityCheck.mH%s.root %s/%s/ChannelCompatibilityCheck\n'%(folder,m,path,folder))
+    file.write('else\n')
+    file.write('\t touch %s.fail'%file.name)
+    file.write('fi\n')
 
 def writeNLLmuScan(path,card,folder,mh):
   m = '%5.1f'%mh
-  m = m.replace('.0','')
+  m.replace('.0','')
   file = open('%s/subMuScan.sh'%(folder),'w')
-  if not options.dryRun:
-    os.system('rm -f %s.done\n'%file.name)
-    os.system('rm -f %s.log\n'%file.name)
-    os.system('rm -f %s.fail\n'%file.name)
-    os.system('rm -f %s.run\n'%file.name)
-  writePreamble(file,path,card,mh,'mu Scan')
-  print 'Creating workspace for NLL mu scan...'
-  os.system('text2workspace.py %s/%s -o %s/floatingMu.root'%(path,card,path))
+  writePreamble(file,path,card,m,'MH Scan')
+  file.write('text2workspace.py %s/%s -o %s/floatingMu.root \n'%(path,card,path))
   file.write('if ( \n')
-  file.write('\t combine %s/floatingMu.root -M MultiDimFit -m %s --rMin=-2 --rMax=4 --points=100 -n %sMuSyst\n'%(path,m,folder))
+  file.write('\t combine %s/floatingMu.root -M MultiDimFit -m %s --rMin=-3 --rMax=9 --algo=grid --points=100 -n %sMuSyst\n'%(path,m,folder))
   file.write(') then\n')
   file.write('\t mv higgsCombine%sMuSyst.MultiDimFit.mH%s.root %s/%s/Specials\n'%(folder,m,path,folder))
-  file.write('\t touch %s.done\n'%file.name)
   file.write('else\n')
-  file.write('\t touch %s.fail\n'%file.name)
+  file.write('\t touch %s.fail'%file.name)
   file.write('fi\n')
   file.write('if ( \n')
-  file.write('\t combine %s/floatingMu.root -M MultiDimFit -m %s --rMin=-2 --rMax=4 --points=100 -n %sMuStat --fastScan\n'%(path,m,folder))
+  file.write('\t combine %s/floatingMu.root -M MultiDimFit -m %s --rMin=-3 --rMax=9 --algo=grid --points=100 -n %sMuStat --fastScan\n'%(path,m,folder))
   file.write(') then\n')
   file.write('\t mv higgsCombine%sMuStat.MultiDimFit.mH%s.root %s/%s/Specials\n'%(folder,m,path,folder))
-  file.write('\t touch %s.done\n'%file.name)
   file.write('else\n')
-  file.write('\t touch %s.fail\n'%file.name)
+  file.write('\t touch %s.fail'%file.name)
   file.write('fi\n')
   file.write('rm %s.run\n'%file.name)
   file.close()
   os.system('chmod +x %s'%file.name)
-  if not options.dryRun: os.system('bsub -q 1nh -o %s/%s.log %s/%s'%(path,file.name,path,file.name))
+  if not options.dryRun: os.system('bsub -q 1nh -o %s/%s/%s.log %s/%s/%s'%(path,folder,file.name,path,folder,file.name))
 
 def writeNLLmassScan(path,card,folder,mh):
   ml = int(mh-5)
-  mu = int(mh+5)
+  mh = int(mh+5)
   m = '%5.1f'%mh
-  m = m.replace('.0','')
+  m.replace('.0','')
   file = open('%s/subMHScan.sh'%(folder),'w')
-  if not options.dryRun:
-    os.system('rm -f %s.done\n'%file.name)
-    os.system('rm -f %s.log\n'%file.name)
-    os.system('rm -f %s.fail\n'%file.name)
-    os.system('rm -f %s.run\n'%file.name)
-  writePreamble(file,path,card,mh,'MH Scan')
-  print 'Creating workspace for NLL mass scan...'
-  os.system('text2workspace.py %s/%s -o %s/floatingMass.root -m %s -P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs --PO higgsMassRange=%d,%d\n'%(path,card,path,m,ml,mu))
+  writePreamble(file,path,card,m,'MH Scan')
+  file.write('text2workspace.py %s/%s -o %s/floatingMass.root -P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs -P MH --PO higgsMassRange=%d,%d\n'%(path,card,path,ml,mh))
   file.write('if ( \n')
-  file.write('\t combine %s/floatingMass.root --preFitValue=0. --saveNLL --floatOtherPOIs=1 -M MultiDimFit -m %s --algo=grid --points=100 -n %sMassSyst -P MH\n'%(path,m,folder))
+  file.write('\t combine %s/floatingMass.root -M MultiDimFit -m %s --algo=grid --points=100 -n %sMassSyst\n'%(path,m,folder))
   file.write(') then\n')
   file.write('\t mv higgsCombine%sMassSyst.MultiDimFit.mH%s.root %s/%s/Specials\n'%(folder,m,path,folder))
-  file.write('\t touch %s.done\n'%file.name)
   file.write('else\n')
-  file.write('\t touch %s.fail\n'%file.name)
+  file.write('\t touch %s.fail'%file.name)
   file.write('fi\n')
   file.write('if ( \n')
-  file.write('\t combine %s/floatingMass.root --preFitValue=0. --saveNLL --floatOtherPOIs=1 -M MultiDimFit -m %s --algo=grid --points=100 -n %sMassStat -P MH --fastScan\n'%(path,m,folder))
+  file.write('\t combine %s/floatingMass.root -M MultiDimFit -m %s --rMin=-3 --rMax=9 --algo=grid --points=100 -n %sMassStat --fastScan\n'%(path,m,folder))
   file.write(') then\n')
   file.write('\t mv higgsCombine%sMassStat.MultiDimFit.mH%s.root %s/%s/Specials\n'%(folder,m,path,folder))
-  file.write('\t touch %s.done\n'%file.name)
   file.write('else\n')
-  file.write('\t touch %s.fail\n'%file.name)
+  file.write('\t touch %s.fail'%file.name)
   file.write('fi\n')
   file.write('rm %s.run\n'%file.name)
   file.close()
   os.system('chmod +x %s'%file.name)
-  if not options.dryRun: os.system('bsub -q %s -o %s/%s.log %s/%s'%(options.queue,path,file.name,path,file.name))
+  if not options.dryRun: os.system('bsub -q 1nh -o %s/%s/%s.log %s/%s/%s'%(path,folder,file.name,path,folder,file.name))
 
 def writeNLLmumhScan(path,card,folder,mh,npoints,njobs):
   ml = int(mh-5)
-  mu = int(mh+5)
+  mh = int(mh+5)
   m = '%5.1f'%mh
-  m = m.replace('.0','')
+  m.replace('.0','')
   pointsperjob = int(npoints/njobs)
-  print 'Creating workspace for NLL mu vs mass scan...'
-  os.system('text2workspace.py %s/%s -o %s/floatingMuMH.root -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingHiggsMass'%(path,card,path))
-  tf = r.TFile('%(path)s/floatingMuMH.root'%locals(),'UPDATE')
-  ws = tf.Get('w')
-  rejigVal(ws,'MH',mh,ml,mu)
-  rejigVal(ws,'r',1.,0.,2.5)
-  ws.Write(ws.GetName(),r.TObject.kWriteDelete)
-  tf.Close()
+  os.system('text2workspace.py %s/%s -o %s/floatingMuMH.root -P HiggsAnalysis.CombinedLimit.PhysicsModel:floatingHiggsMass -P MH --PO higgsMassRange=%d,%d'%(path,card,path,ml,mh))
   for j in range(njobs):
     file = open('%s/subMuMHScan_%d.sh'%(folder,j),'w')
-    if not options.dryRun:
-      os.system('rm -f %s.done\n'%file.name)
-      os.system('rm -f %s.log\n'%file.name)
-      os.system('rm -f %s.fail\n'%file.name)
-      os.system('rm -f %s.run\n'%file.name)
-    writePreamble(file,path,card,mh,'MuMH Scan job %d'%j)
+    writePreamble(file,path,card,m,'MuMH Scan job %d'%j)
     firstPoint = j*pointsperjob
-    lastPoint = (j*pointsperjob)+pointsperjob-1
+    lastPoint = (j*pointsperjob)+pointsperjob
     file.write('if ( \n')
-    file.write('\tcombine %s/floatingMuMH.root --preFitValue=0. --saveNLL -P r -P MH -M MultiDimFit -m %s --algo=grid --points=%d --firstPoint=%d --lastPoint=%d -n %sMuMHScan_%d\n'%(path,m,npoints,firstPoint,lastPoint,folder,j))
+    file.write('combine %s/floatingMuMH.root -M MultiDimFit -m %s --rMin=0. --rMax=2.5 --algo=grid --points=%d --firstPoint=%d --lastPoint=%d -n %sMuMHScan_%d\n'%(path,m,npoints,firstPoint,lastPoint,folder,j))
     file.write(') then\n')
     file.write('\t mv higgsCombine%sMuMHScan_%d.MultiDimFit.mH%s.root %s/%s/Specials\n'%(folder,j,m,path,folder))
-    file.write('\t touch %s.done\n'%file.name)
     file.write('else\n')
-    file.write('\t touch %s.fail\n'%file.name)
+    file.write('\t touch %s.fail'%file.name)
     file.write('fi\n')
     file.write('rm %s.run\n'%file.name)
     file.close()
     os.system('chmod +x %s'%file.name)
-    if not options.dryRun: os.system('bsub -q %s -o %s/%s.log %s/%s'%(options.queue,path,file.name,path,file.name))
+    if not options.dryRun: os.system('bsub -q 1nh -o %s/%s/%s.log %s/%s/%s'%(path,folder,file.name,path,folder,file.name))
 
 def writeNLLrvrfScan(path,card,folder,mh,npoints,njobs):
+  ml = int(mh-5)
+  mh = int(mh+5)
   m = '%5.1f'%mh
-  m = m.replace('.0','')
-  pointsperjob = int(npoints/njobs)
-  print 'Creating workspace for NLL Rv vs Rf scan...'
-  os.system('text2workspace.py %(path)s/%(card)s -o %(path)s/floatingRvRf.root -m %(m)s -P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs\n'%locals())
-  tf = r.TFile('%(path)s/floatingRvRf.root'%locals(),'UPDATE')
-  ws = tf.Get('w')
-  rejigVal(ws,'RV',1.,-5,5.)
-  rejigVal(ws,'RF',1.,-5,5.)
-  ws.Write(ws.GetName(),r.TObject.kWriteDelete)
-  tf.Close()
+  m.replace('.0','')
+  file.write('text2workspace.py %s/%s -o %s/floatingRvRf.root -P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs --PO higgsMassRange=%d,%d --PO \'map=([WZV]|qq)H:rv_hgg[1,-5,5]\' --PO \'map=(gg|tt)H:rf_hgg[1,-5,5]\' \\n'%(path,card,path,ml,mh))
   for j in range(njobs):
     file = open('%s/subRvRfScan_%d.sh'%(folder,j),'w')
-    if not options.dryRun:
-      os.system('rm -f %s.done\n'%file.name)
-      os.system('rm -f %s.log\n'%file.name)
-      os.system('rm -f %s.fail\n'%file.name)
-      os.system('rm -f %s.run\n'%file.name)
-    writePreamble(file,path,card,mh,'RvRf Scan job %d'%j)
+    writePreamble(file,path,card,m,'RvRf Scan job %d'%j)
     firstPoint = j*pointsperjob
-    lastPoint = (j*pointsperjob)+pointsperjob-1
+    lastPoint = (j*pointsperjob)+pointsperjob
     file.write('if ( \n')
-    file.write('\tcombine %s/floatingRvRf.root --preFitValue=0. --saveNLL -M MultiDimFit -m %s --algo=grid --points=%d --firstPoint=%d --lastPoint=%d -n %sRvRfScan_%d | tee combine_%s_grid%d.log \n'%(path,m,npoints,firstPoint,lastPoint,folder,j,m,firstPoint))
+    file.write('combine %s/floatingRvRf.root -M MultiDimFit -m %s --algo=grid --points=%d --firstPoint=%d --lastPoint=%d -n %sRvRfScan_%d\n'%(path,m,npoints,firstPoint,lastPoint,folder,j))
     file.write(') then\n')
     file.write('\t mv higgsCombine%sRvRfScan_%d.MultiDimFit.mH%s.root %s/%s/Specials\n'%(folder,j,m,path,folder))
-    file.write('\t mv  combine_%s_grid%d.log %s/%s/Specials\n'%(m,firstPoint,path,folder))
-    file.write('\t touch %s.done\n'%file.name)
     file.write('else\n')
-    file.write('\t touch %s.fail\n'%file.name)
+    file.write('\t touch %s.fail'%file.name)
     file.write('fi\n')
     file.write('rm %s.run\n'%file.name)
     file.close()
     os.system('chmod +x %s'%file.name)
-    if not options.dryRun: os.system('bsub -q %s -o %s/%s.log %s/%s'%(options.queue,path,file.name,path,file.name))
+    if not options.dryRun: os.system('bsub -q 1nh -o %s/%s/%s.log %s/%s/%s'%(path,folder,file.name,path,folder,file.name))
   
-# MAIN STARTS HERE
+
 # if a specific year has not been set run everything
 if not options.run2011 and not options.run2012 and not options.runBoth:
   options.run2011=True
@@ -327,7 +260,7 @@ if not options.run2011 and not options.run2012 and not options.runBoth:
   options.runBoth=True
 
 # figure out which methods to run
-allowed_methods = ['Asymptotic','ProfileLikelihood','ExpProfileLikelihood','MaxLikelihoodFit']
+allowed_methods = ['Asymptotic','ProfileLikelihood','ExpProfileLikelihood','MaxLikelihoodFit','ChannelCompatibilityCheck']
 if options.parametric:
   allowed_methods.append('ExpProfileLikelihoodm125')
 # if no specific combine methods then do all
@@ -377,22 +310,18 @@ for card, folder, splitChannels in config:
       writeAsymptotic(f,path,card,folder,m)
       writeProfileLikelhood(f,path,card,folder,m)
       writeMaxLikelihoodFit(f,path,card,folder,m)
+      writeChannelCompatibility(f,path,card,folder,m)
     for splitcard in splitCards:
       writeProfileLikelhoodSplitCard(f,path,splitcard,folder,m)
 
     f.write('rm %s.run\n'%f.name)
     f.close()
     os.system('chmod +x %s'%f.name)
-
-    if not options.dryRun and (not options.skipDatacard or len(splitCards)!=0): os.system('bsub -q %s -o %s.log %s'%(options.queue,f.name,f.name))
+    if not options.dryRun: os.system('bsub -q %s -o %s.log %s'%(options.queue,f.name,f.name))
   
   # these scripts should really be run locally
   if options.doSpecials:
-    os.system('mkdir -p %s/%s/Specials'%(path,folder))
     m=options.doSpecials
-    import ROOT as r
-    r.gSystem.Load('libHiggsAnalysisCombinedLimit')
-    writeChannelCompatibility(path,card,folder,m)
     writeNLLmuScan(path,card,folder,m)
     writeNLLmassScan(path,card,folder,m)
     writeNLLmumhScan(path,card,folder,m,2000,20)

@@ -42,26 +42,18 @@ class TapAnalysis : public StatAnalysis {
   bool CiCPhotonIDPF(LoopAll& l, int nCategories, int photonindex, int chosenVtx, int IDlevel);
   TLorentzVector get_pho_p4(LoopAll& l, Int_t ipho, int ivtx);
 
-  float GetR9Weight(LoopAll& l, Int_t ipho);
-  int GetPrescaleWeight(int run, int lumi);
-  void antiRescaleClusterVariables(LoopAll& l);
-
   Float_t forElectrons;
   Float_t cutPFMET, cutETTag, cutETProbe;
   std::string selectionTypeTag, selectionTypeProbe, selectionTypeToMeasure;
   Float_t cutSelectionTag, cutSelectionProbe, cutSelectionToMeasure;
   Float_t minZMass, maxZMass;
   Float_t applyPreselection;
-  bool hltPrescaleWeight;
 
  protected:
   std::string name_;
   TMVA::Reader *tmvaReaderID_Single_Barrel, *tmvaReaderID_Single_Endcap;
   std::vector<std::string> hltPaths;
   std::vector<std::string> hltPathsDE;
-
-  std::vector<float> r9Weight;
-  std::vector<int> runList, lumiList, scaleList;
 };
 
 #endif

@@ -47,7 +47,6 @@ void SplitMiniTree::splitCopy()
 		  << "Numberof partitions: " << partitions_.size() << std::endl;
 	
 	Long64_t nbytes = 0, nb = 0;
-	std::cout << "Looping over events " << std::endl; 
 	for (Long64_t jentry=0; jentry<nentries;jentry++) {
 		Long64_t ientry = LoadTree(jentry);
 		if (ientry < 0) break;
@@ -65,7 +64,6 @@ void SplitMiniTree::splitCopy()
 		}
 	}
 	
-	std::cout << "Fitting and saving " << std::endl; 
 	for(size_t ipart=0; ipart<partitions_.size(); ++ipart){
 		fitAndSavePartition(ipart);
 	}
@@ -80,7 +78,7 @@ void SplitMiniTree::readFromWs()
 	mass_->Print();
 	for(int icat=0; icat<ncat_; ++icat) {
 		pdfs_.push_back( ws_->pdf( Form(pdfName_,icat) ) );
-		RooRealVar * norm = new RooRealVar(Form(pdfName_+"_norm",icat),Form(pdfName_+"_norm",icat),1.,0.,100000.);
+		RooRealVar * norm = new RooRealVar(Form(pdfName_+"_norm",icat),Form(pdfName_+"_norm",icat),1.,0.,30000.);
 		RooExtendPdf * extpdf = new RooExtendPdf(Form("extended_"+pdfName_,icat),Form("extended_"+pdfName_,icat),*pdfs_.back(),*norm);
 		norms_.push_back(norm);
 		extpdfs_.push_back(extpdf);

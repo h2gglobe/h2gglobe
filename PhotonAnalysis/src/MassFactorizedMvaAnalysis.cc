@@ -908,9 +908,6 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
         // save trees for IC spin analysis
         if (!isSyst && saveSpinTrees_) saveSpinTree(l,category,evweight,Higgs,lead_p4,sublead_p4,diphoton_index.first,diphoton_index.second,diphobdt_output,sigmaMrv,sigmaMwv,massResolutionCalculator->leadPhotonResolution(),massResolutionCalculator->leadPhotonResolutionNoSmear(),massResolutionCalculator->subleadPhotonResolution(),massResolutionCalculator->subleadPhotonResolutionNoSmear(),vtxProb,phoid_mvaout_lead,phoid_mvaout_sublead);
 
-	// save trees for VBF
-	if (!isSyst && cur_type<0 && saveVBFTrees_) saveVBFTree(l, category, evweight, diphobdt_output);
-
 
         // fill control plots and counters
         if( ! isSyst ) {

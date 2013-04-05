@@ -673,11 +673,7 @@ bool StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     if (cur_type !=0 && scaleClusterShapes ){
         rescaleClusterVariables(l);
     }
-    if( useDefaultVertex ) {
-	for(int id=0; id<l.dipho_n; ++id ) {
-	    l.dipho_vtxind[id] = 0;
-	}
-    } else if( reRunVtx ) {
+    if( reRunVtx ) {
 	reVertex(l);
     }
 
@@ -917,16 +913,16 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
             diphoton_id = diphotonVHlep_id;
         } else if (includeVHlep&&VHelevent){
             diphoton_id = diphotonVHlep_id;
-	} else if(includeVBF&&VBFevent) {
-	    diphoton_id = diphotonVBF_id;
-	} else if(includeVHmet&&VHmetevent) {
-	    diphoton_id = diphotonVHmet_id;
-	} else if(includeVHhad&&VHhadevent) {
-	    diphoton_id = diphotonVHhad_id;
-	}
-	// End exclusive mode selection
+	    } else if(includeVBF&&VBFevent) {
+	        diphoton_id = diphotonVBF_id;
+	    } else if(includeVHmet&&VHmetevent) {
+	        diphoton_id = diphotonVHmet_id;
+	    } else if(includeVHhad&&VHhadevent) {
+	        diphoton_id = diphotonVHhad_id;
+	    }
+	    // End exclusive mode selection
     }
-    
+
     //// std::cout << isSyst << " " << diphoton_id << " " << sumaccept << std::endl;
 
     // if we selected any di-photon, compute the Higgs candidate kinematics
@@ -1005,9 +1001,6 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
         int inc_cat = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,R9CatBoundary,nPtCategories,nVtxCategories,l.vtx_std_n);
         if (!isSyst && cur_type<0 && saveDatacardTrees_) saveDatCardTree(l,cur_type,category, inc_cat, evweight, diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],lead_p4,sublead_p4,true);
 
-	//save vbf trees
-	if (!isSyst && cur_type<0 && saveVBFTrees_) saveVBFTree(l,category, evweight, -99.);
-
 
         if (dumpAscii && !isSyst && (cur_type==0||dumpMcAscii) && mass>=massMin && mass<=massMax ) {
             // New ascii event list for syncrhonizing MVA Preselection + Diphoton MVA
@@ -1016,8 +1009,7 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
               << "    lumi:"  <<  l.lumis
               << "    event:" <<  l.event
               << "    rho:" <<    l.rho
-	      << "    nvtx:" << l.vtx_std_n
-	      << "    weight:" << evweight
+		      << "    nvtx:" << l.vtx_std_n
             // Preselection Lead
               << "    r9_1:"  <<  lead_r9
               << "    sceta_1:"   << (photonInfoCollection[diphoton_index.first]).caloPosition().Eta() 

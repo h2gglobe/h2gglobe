@@ -1,32 +1,11 @@
+
 #include "TapAnalysis/interface/TapAnalysis.h"
 #include "TapAnalysis/interface/PhotonIDCuts.h"
 
 #include "TRegexp.h"
 #include <iostream>
-#include <fstream>
 
 #define TapAnalysisDEBUG 0
-
-void TapAnalysis::antiRescaleClusterVariables(LoopAll& l) {
-
-  for (int ipho=0;ipho<l.pho_n;ipho++){
-    TVector3* xyz = (TVector3*)l.sc_xyz->At(l.pho_scind[ipho]);
-
-    if (fabs(xyz->Eta()) < 1.479) {
-      l.pho_s4ratio[ipho] = (l.pho_s4ratio[ipho] + 0.01034)/1.01894;
-      l.pho_r9[ipho] = (l.pho_r9[ipho] - 0.0010)/1.0045;
-      l.pho_sieie[ipho] = (l.pho_sieie[ipho] - 0.0009133)/0.891832;
-      l.pho_etawidth[ipho] = (l.pho_etawidth[ipho] + 0.000618)/1.04302;
-      l.pho_phiwidth[ipho] = (l.pho_phiwidth[ipho] + 0.000371)/1.00002;
-    } else {
-      l.pho_sieie[ipho] = (l.pho_sieie[ipho] - 0.00003)/0.99470;
-      l.pho_etawidth[ipho] = (l.pho_etawidth[ipho] - 0.001346)/0.903254;
-      l.pho_r9[ipho] = (l.pho_r9[ipho] + 0.0007)/1.0086;
-      l.pho_s4ratio[ipho] = (l.pho_s4ratio[ipho] + 0.03642)/1.04969;
-      l.pho_phiwidth[ipho] = (l.pho_phiwidth[ipho] - 0.00000048)/0.99992;
-    }
-  }
-}
 
 void TapAnalysis::FillFlatTree(LoopAll& l, Int_t type, Int_t ipho1, Int_t ipho2, Int_t iele1, Int_t iele2,
 			       Float_t mass, Float_t weight, Float_t id, Float_t idtag) {
@@ -76,9 +55,7 @@ void TapAnalysis::FillFlatTree(LoopAll& l, Int_t type, Int_t ipho1, Int_t ipho2,
     float val_isosumoet    = ((*l.pho_pfiso_mycharged03)[ipho2][thevertexind] + l.pho_pfiso_myphoton03[ipho2] + isosumconst - l.rho_algo1*rhofac)*50./((float)p4_pho_probe->E()*(float)sin(p4_probe->Theta()));
     float val_isoqsumoetbad = (l.pho_pfiso_myphoton04[ipho2] + l.pho_pfiso_charged_badvtx_04[ipho2] + isosumconstbad - l.rho_algo1*rhofacbad)*50./((float)p4_pho_probe->E()*(float)sin(p4_probe->Theta()));
     float val_trkisooet    = ((*l.pho_pfiso_mycharged03)[ipho2][thevertexind])*50./((float)p4_pho_probe->E()*(float)sin(p4_probe->Theta()));
-    l.FillTree("hcal03", l.pho_hcalsumetconedr03[ipho2] ,"tap");
-    l.FillTree("ecal03", l.pho_ecalsumetconedr03[ipho2] ,"tap");
-    l.FillTree("tk03", l.pho_trksumpthollowconedr03[ipho2] ,"tap");
+    
     l.FillTree("sieie", l.pho_sieie[ipho2], "tap");
     l.FillTree("isoRvtx", val_isosumoet, "tap");
     l.FillTree("isoWvtx", val_isoqsumoetbad, "tap");
@@ -107,27 +84,11 @@ void TapAnalysis::FillFlatTree(LoopAll& l, Int_t type, Int_t ipho1, Int_t ipho2,
     l.FillTree("phoIso04", (float)0, "tap");
   }
 
-  if (l.itype[l.current] != 0) 
-     antiRescaleClusterVariables(l);
-
-  float rr2=l.pho_eseffsixix[ipho2]*l.pho_eseffsixix[ipho2]+l.pho_eseffsiyiy[ipho2]*l.pho_eseffsiyiy[ipho2];
-  if(rr2>0. && rr2<999999.) {
-    rr2 = sqrt(rr2);
-  }
-  l.FillTree("eseffRaw", rr2, "tap");
-  l.FillTree("sieieRaw", l.pho_sieie[ipho2], "tap");
-  l.FillTree("r9Raw", l.pho_r9[ipho2], "tap");
-  l.FillTree("etawidthRaw", l.pho_etawidth[ipho2], "tap");
-  l.FillTree("phiwidthRaw", l.pho_phiwidth[ipho2], "tap");
-  l.FillTree("s4ratioRaw", l.pho_s4ratio[ipho2], "tap");
-  l.FillTree("sieipRaw", l.pho_sieip[ipho2], "tap");
-
   l.FillTree("charge", 0, "tap");//l.el_std_charge[iele1]);
   l.FillTree("chargeTag", 0, "tap");//l.el_std_charge[iele2]);
 
   l.FillTree("mass", mass, "tap");
   l.FillTree("weight", weight, "tap");
-  l.FillTree("r9weight", GetR9Weight(l, ipho2), "tap");
 
   l.FillTree("fbrem", l.el_std_fbrem[iele2], "tap");  
 
@@ -145,13 +106,6 @@ void TapAnalysis::FillFlatTree(LoopAll& l, Int_t type, Int_t ipho1, Int_t ipho2,
 
   int pass_hlt_de = checkEventHLT(l, hltPathsDE);  
   l.FillTree("pass_hlt_de", pass_hlt_de, "tap");
-}
-
-float TapAnalysis::GetR9Weight(LoopAll& l, Int_t ipho) {
-
-  Int_t index = int(l.pho_r9[ipho]*100.);
-
-  return r9Weight[index];
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -359,153 +313,9 @@ void TapAnalysis::Init(LoopAll& l) {
   hltPaths.push_back("HLT_Photon*_R9Id*_OR_CaloId*_Iso*_Photon*_R9Id*_OR_CaloId*_Iso*_*");
   hltPaths.push_back("HLT_Photon*_R9Id*_OR_CaloId*_Iso*_Photon*_*");
 
-  //hltPathsDE.push_back("HLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_Ele8_Mass50_*");
-  //hltPathsDE.push_back("HLT_Ele20_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_SC4_Mass50_*");
+  hltPathsDE.push_back("HLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_Ele8_Mass50_*");
+  hltPathsDE.push_back("HLT_Ele20_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_SC4_Mass50_*");
   hltPathsDE.push_back("HLT_Ele32_CaloIdT_CaloIsoT_TrkIdT_TrkIsoT_SC17_Mass50_*");
-  
-  r9Weight.push_back(0.0893805976013);
-  r9Weight.push_back(3.53208998789);
-  r9Weight.push_back(0.826879700301);
-  r9Weight.push_back(0.721755905218);
-  r9Weight.push_back(0.996346206565);
-  r9Weight.push_back(1.12371481559);
-  r9Weight.push_back(0.984643048744);
-  r9Weight.push_back(0.922462333076);
-  r9Weight.push_back(0.847027314834);
-  r9Weight.push_back(0.667922324593);
-  r9Weight.push_back(1.18170865135);
-  r9Weight.push_back(0.942532315256);
-  r9Weight.push_back(1.29243391107);
-  r9Weight.push_back(0.757493992403);
-  r9Weight.push_back(0.861865116636);
-  r9Weight.push_back(0.875670817293);
-  r9Weight.push_back(1.18910271245);
-  r9Weight.push_back(0.674808182201);
-  r9Weight.push_back(0.850680150758);
-  r9Weight.push_back(1.05063247098);
-  r9Weight.push_back(1.18998089116);
-  r9Weight.push_back(0.987748239834);
-  r9Weight.push_back(0.984460841484);
-  r9Weight.push_back(0.878122691455);
-  r9Weight.push_back(0.820384013333);
-  r9Weight.push_back(0.903506949629);
-  r9Weight.push_back(0.951937364488);
-  r9Weight.push_back(0.83076969812);
-  r9Weight.push_back(0.763695107702);
-  r9Weight.push_back(0.829187182601);
-  r9Weight.push_back(0.788865875777);
-  r9Weight.push_back(0.768872457788);
-  r9Weight.push_back(0.806289052315);
-  r9Weight.push_back(0.783742912163);
-  r9Weight.push_back(0.76651769643);
-  r9Weight.push_back(0.78670089002);
-  r9Weight.push_back(0.76503685525);
-  r9Weight.push_back(0.706681616645);
-  r9Weight.push_back(0.744929871635);
-  r9Weight.push_back(0.696136822232);
-  r9Weight.push_back(0.700171854349);
-  r9Weight.push_back(0.664343647718);
-  r9Weight.push_back(0.679713340081);
-  r9Weight.push_back(0.736705094344);
-  r9Weight.push_back(0.677619310139);
-  r9Weight.push_back(0.647370878575);
-  r9Weight.push_back(0.65353885941);
-  r9Weight.push_back(0.638296615914);
-  r9Weight.push_back(0.616377539317);
-  r9Weight.push_back(0.663314243142);
-  r9Weight.push_back(0.606547363324);
-  r9Weight.push_back(0.679314881061);
-  r9Weight.push_back(0.628157639163);
-  r9Weight.push_back(0.656774103004);
-  r9Weight.push_back(0.6161454498);
-  r9Weight.push_back(0.604476786954);
-  r9Weight.push_back(0.596874642545);
-  r9Weight.push_back(0.62663249738);
-  r9Weight.push_back(0.611535138579);
-  r9Weight.push_back(0.603900300614);
-  r9Weight.push_back(0.565443862299);
-  r9Weight.push_back(0.607979298683);
-  r9Weight.push_back(0.597742660191);
-  r9Weight.push_back(0.604467349368);
-  r9Weight.push_back(0.603199456905);
-  r9Weight.push_back(0.587098095675);
-  r9Weight.push_back(0.580646152304);
-  r9Weight.push_back(0.581814822725);
-  r9Weight.push_back(0.606908812883);
-  r9Weight.push_back(0.626748842326);
-  r9Weight.push_back(0.58787633793);
-  r9Weight.push_back(0.611281678526);
-  r9Weight.push_back(0.60916976587);
-  r9Weight.push_back(0.602842697706);
-  r9Weight.push_back(0.600266604267);
-  r9Weight.push_back(0.574048351569);
-  r9Weight.push_back(0.585051957812);
-  r9Weight.push_back(0.593929023601);
-  r9Weight.push_back(0.613777997629);
-  r9Weight.push_back(0.602578273993);
-  r9Weight.push_back(0.60065401454);
-  r9Weight.push_back(0.578122188579);
-  r9Weight.push_back(0.581261045088);
-  r9Weight.push_back(0.581511085209);
-  r9Weight.push_back(0.603044103019);
-  r9Weight.push_back(0.585908139943);
-  r9Weight.push_back(0.591217758177);
-  r9Weight.push_back(0.582073458962);
-  r9Weight.push_back(0.589241323263);
-  r9Weight.push_back(0.574803268317);
-  r9Weight.push_back(0.608421467035);
-  r9Weight.push_back(0.63554980921);
-  r9Weight.push_back(0.713085138922);
-  r9Weight.push_back(0.919434287027);
-  r9Weight.push_back(1.38417235564);
-  r9Weight.push_back(2.18559060729);
-  r9Weight.push_back(2.33434692069);
-  r9Weight.push_back(1.54709780887);
-  r9Weight.push_back(1.44845132021);
-  r9Weight.push_back(0.623283424447);  
-
-  if (hltPrescaleWeight) {
-    std::ifstream myReadFile;
-    myReadFile.open("aux/ele32_sc17.csv");
-
-    int run, lumi, scale;
-    std::vector<int> runList, lumiList, scaleList;
-    if (myReadFile.is_open()) {
-      while (!myReadFile.eof()) {
-	
-	myReadFile >> run >> lumi >> scale;
-	//cout<<run<<" " << lumi << " " << scale<<endl;
-	runList.push_back(run);
-	lumiList.push_back(lumi);
-	scaleList.push_back(scale);
-      }
-    }
-    myReadFile.close();
-  }
-}
-
-int TapAnalysis::GetPrescaleWeight(int run, int lumi) {
-
-  unsigned int lowIndex = -1;
-  unsigned int highIndex = runList.size();
-  for (unsigned int i=0; i<runList.size(); i++) {
-    if (lowIndex == -1 && runList[i] == run)
-      lowIndex = i;
-    if (lowIndex != -1 && runList[i] > run) {
-      highIndex = i;
-      break;
-    }
-  }
-  
-  //std::cout << lowIndex << " " << highIndex << std::endl;
-  for (unsigned int j=lowIndex; j<highIndex; j++) {
-    if (lumiList[j] == lumi) {
-      //std::cout << scaleList[j] << std::endl;
-      return scaleList[j];
-    }
-  }
-  
-  return 1;
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -518,20 +328,9 @@ bool TapAnalysis::Analysis(LoopAll& l, Int_t jentry) {
   float weight = 1.;
   if (l.itype[l.current] != 0) {
     unsigned int n_pu = l.pu_n;
-    //std::cout <<  l.sampleContainer[l.current_sample_index].weight << std::endl;
     weight = getPuWeight(l.pu_n, l.itype[l.current], &(l.sampleContainer[l.current_sample_index]), jentry == 1) * l.sampleContainer[l.current_sample_index].weight;
     //std::cout << l.sampleContainer[l.current_sample_index].weight << " " << weight/l.sampleContainer[l.current_sample_index].weight << " " << n_pu << std::endl;
-
-    if (hltPrescaleWeight) {
-      float scale = (float)GetPrescaleWeight(l.run, l.lumis);
-      if (scale != 1)
-	weight = weight*scale/5.;
-    }
   }
-
-  if (l.itype[l.current] == 0)
-    if (!checkEventHLT(l, hltPathsDE))
-      return 0;
 
   // MET CUT
   if (l.met_pfmet > cutPFMET) 
@@ -569,7 +368,7 @@ bool TapAnalysis::Analysis(LoopAll& l, Int_t jentry) {
       
       if (phoindex != -1) {
 	if (((applyPreselection > 0) && (PhotonId(l, iElectron, phoindex, std::string("Presel"), 1) > 0)) ||
-	    applyPreselection <= 0) {
+	    applyPreselection == 0) {
 	  //std::cout << " " << iElectron << " " << phoindex << " " << selectionTypeTag << " "<< cutSelectionTag << std::endl;
 	  if (PhotonId(l, iElectron, phoindex, selectionTypeTag, cutSelectionTag) > 0.) {
 	    selectedTags.push_back(iElectron);
@@ -614,7 +413,7 @@ bool TapAnalysis::Analysis(LoopAll& l, Int_t jentry) {
       
       if (phoindex != -1) {
 	if (((applyPreselection > 0) && (PhotonId(l, iEl, phoindex, std::string("Presel"), 1) > 0)) ||
-	    applyPreselection <= 0) {
+	    applyPreselection == 0) {
 	  if (PhotonId(l, iEl, phoindex, selectionTypeProbe, cutSelectionProbe) > 0)
 	    selectedProbes.push_back(iEl);
 	}
@@ -689,7 +488,6 @@ bool TapAnalysis::Analysis(LoopAll& l, Int_t jentry) {
 	  Float_t id = PhotonId(l, iEl, phoindex, selectionTypeToMeasure, cutSelectionToMeasure);	
 	  Float_t idtag = PhotonId(l, iElTag, phoindex_tag, selectionTypeToMeasure, cutSelectionToMeasure);	
 	  FillFlatTree(l, type, phoindex_tag, phoindex, iElTag, iEl, zMass, weight, id, idtag);
-	  //std::cout <<  id << " " << idtag << std::endl;
 	  return true;
 	}
       }
@@ -759,21 +557,18 @@ void TapAnalysis::FillReductionVariables(LoopAll& l, int jentry) {
   l.pho_pfiso_mycharged03->resize(l.pho_n, std::vector<float>(l.vtx_std_n, 0));
   l.pho_pfiso_mycharged04->resize(l.pho_n, std::vector<float>(l.vtx_std_n, 0));
 
-  for (int ipho=0;ipho<l.pho_n;ipho++) {
-    l.pho_s4ratio[ipho] = l.pho_e2x2[ipho]/l.bc_s25[l.sc_bcseedind[l.pho_scind[ipho]]];
+  for (int ipho=0;ipho<l.pho_n;ipho++){
+    l.pho_s4ratio[ipho]  = l.pho_e2x2[ipho]/l.pho_e5x5[ipho];
     float rr2=l.pho_eseffsixix[ipho]*l.pho_eseffsixix[ipho]+l.pho_eseffsiyiy[ipho]*l.pho_eseffsiyiy[ipho];
     l.pho_ESEffSigmaRR[ipho] = 0.0; 
     if(rr2>0. && rr2<999999.) {
       l.pho_ESEffSigmaRR[ipho] = sqrt(rr2);
     }
   }
-  
+
   // Data driven MC corrections to cluster shape variables and energy resolution estimate
   if (l.itype[l.current] !=0)
     rescaleClusterVariables(l);
-  
-  for(int ipho=0; ipho<l.pho_n; ++ipho)
-    l.pho_phiwidth[ipho] = l.sc_sphi[l.pho_scind[ipho]];
 
   for(int ipho=0; ipho<l.pho_n; ++ipho) {
     std::vector<float> temp;
@@ -796,7 +591,7 @@ void TapAnalysis::FillReductionVariables(LoopAll& l, int jentry) {
       l.pho_pfiso_mycharged02->at(ipho).at(ivtx) = ch02;
       l.pho_pfiso_mycharged03->at(ipho).at(ivtx) = ch03;
       l.pho_pfiso_mycharged04->at(ipho).at(ivtx) = ch04;
-      //std::cout << ch04 << std::endl;
+      
       TLorentzVector p4 = l.get_pho_p4(ipho, ivtx);//(TLorentzVector*)l.pho_p4->At(ipho);
       //std::cout << ipho << " "<< ivtx << " " << l.photonIDMVANew(ipho, ivtx, p4, "") << std::endl;
       temp.push_back(l.photonIDMVANew(ipho, ivtx, p4, ""));
@@ -810,7 +605,20 @@ void TapAnalysis::FillReductionVariables(LoopAll& l, int jentry) {
     //pho_tkiso_badvtx_id[ipho] = badvtx;
     l.pho_pfiso_charged_badvtx_04[ipho] = badiso;
     l.pho_mitmva->push_back(temp);
-    //std::cout << "WORST " << badiso << std::endl;
+    //std::cout << ipho << " " << l.pho_pfiso_charged_badvtx_04[ipho] << std::endl;
+  }
+
+  float largestIso = -1;
+  for(int ipho=0;ipho<l.pho_n;++ipho){
+    for(int ivtx=0;ivtx<l.vtx_std_n;++ivtx) {
+      TLorentzVector p4 = l.get_pho_p4( ipho, ivtx );
+            
+      // Need to fill the CiCpf here
+      float largestIso= -1;
+      if((*l.pho_pfiso_mycharged04)[ipho][ivtx] > largestIso){
+	l.pho_pfiso_charged_badvtx_04[ipho]=(*l.pho_pfiso_mycharged04)[ipho][ivtx];
+      }    
+    }
     //std::cout << ipho << " " << l.pho_pfiso_charged_badvtx_04[ipho] << std::endl;
   }
 }
@@ -871,9 +679,7 @@ void TapAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree) {
 
   if (outputTree) {
     l.Branch_pho_mitmva(outputTree);
-    l.Branch_pho_phiwidth(outputTree);
     l.Branch_pho_pfiso_charged_badvtx_04(outputTree);
-    l.Branch_pho_s4ratio(outputTree);
   }
 }
 
@@ -969,21 +775,6 @@ Float_t TapAnalysis::PhotonId(LoopAll& l, Int_t eleIndex, Int_t phoIndex, std::s
     if ((*l.pho_mitmva)[phoIndex][thevertexind] > selection)
       result = 1.;
     //result = ((*l.pho_mitmva)[phoIndex][thevertexind] > selection);
-  } else if (type == "MVASpecial") {
-    float mvaCuts[4] = {0.06, 0.04, 0.1, 0.07};
-    int thisCat = PhotonIDCategory(l, phoIndex, 4);  
-    if ((*l.pho_mitmva)[phoIndex][thevertexind] >= mvaCuts[thisCat])
-      result = 1.;
-  } else if (type == "MVAVladimirLeading") {
-    float mvaCuts[4] = {0.03, 0.03, 0.06, 0.05};
-    int thisCat = PhotonIDCategory(l, phoIndex, 4);  
-    if ((*l.pho_mitmva)[phoIndex][thevertexind] >= mvaCuts[thisCat])
-      result = 1.;
-  } else if (type == "MVAVladimirSubleading") {
-    float mvaCuts[4] = {0.05, 0.06, 0.07, 0.10};
-    int thisCat = PhotonIDCategory(l, phoIndex, 4);  
-    if ((*l.pho_mitmva)[phoIndex][thevertexind] >= mvaCuts[thisCat])
-      result = 1.; 
   } else if (type == "Presel") {
     if (l.PhotonMITPreSelection(phoIndex, thevertexind, 0))
       result = 1.;
