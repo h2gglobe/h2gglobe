@@ -424,10 +424,10 @@ jet_algoPF1_cutbased_wp_level_ext
 jet_algoPF1_full_mva_ext
 jet_algoPF1_simple_mva_ext
 
-#jet_algoPF1_csvBtag
-#jet_algoPF1_csvMvaBtag
-#jet_algoPF1_jetProbBtag
-#jet_algoPF1_tcheBtag
+jet_algoPF1_csvBtag
+jet_algoPF1_csvMvaBtag
+jet_algoPF1_jetProbBtag
+jet_algoPF1_tcheBtag
 
 #jet_algoPF2_n
 #jet_algoPF2_erescale

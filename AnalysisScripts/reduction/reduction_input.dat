@@ -98,6 +98,12 @@ jet_algoPF3_ntk
 tk_p4
 tk_vtx_pos
 
+# B-tagging variables
+jet_algoPF1_csvBtag
+jet_algoPF1_csvMvaBtag
+jet_algoPF1_jetProbBtag
+jet_algoPF1_tcheBtag
+
 pfcand_n
 pfcand_pdgid
 pfcand_p4
