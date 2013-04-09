@@ -114,7 +114,7 @@ void buildBkgModel(RooContainer* rooContainer,  map<string, string> values) {
     std::vector<int> & catflags = modit->second.first;
     std::vector<std::string> & catpars = modit->second.second;
     
-    rooContainer->AddSpecificCategoryPdf(&catflags[0],"data_pol_model" + postfix, "0", "CMS_hll_mass", catpars, 70+catpars.size()); 
+    rooContainer->AddSpecificCategoryPdf(&catflags[0],"data_pol_model" + postfix, "0", getString(values, "observable", "CMS_hll_mass"), catpars, 70+catpars.size()); 
     // >= 71 means RooBernstein of order >= 1
   }
 }
@@ -125,7 +125,7 @@ void initRooContainer(RooContainer* rooContainer, map<string, string> values) {
   rooContainer->AddGlobalSystematic("lumi", 1.045, 1.00);
   
   // Create observables for shape-analysis with ranges
-  rooContainer->AddObservable("CMS_hll_mass", getFloat(values, "massMin"), getFloat(values, "massMax"));
+  rooContainer->AddObservable(getString(values, "observable", "CMS_hll_mass"), getFloat(values, "massMin"), getFloat(values, "massMax"));
   rooContainer->AddConstant("IntLumi", getFloat(values, "intlumi"));
 
   // SM Model
@@ -217,24 +217,35 @@ void initRooContainer(RooContainer* rooContainer, map<string, string> values) {
   // build the model
   buildBkgModel(rooContainer, values);
   
-  rooContainer->CreateDataSet("CMS_hll_mass", "data_mass", nDataBins);
-  rooContainer->CreateDataSet("CMS_hll_mass", "bkg_mass" , nDataBins);            
+  rooContainer->CreateDataSet(getString(values, "observable", "CMS_hll_mass"), "data_mass", nDataBins);
+  rooContainer->CreateDataSet(getString(values, "observable", "CMS_hll_mass"), "bkg_mass" , nDataBins);            
   
   // Create Signal DataSets:
   for(size_t isig=0; isig<sigPointsToBook.size(); ++isig) {
     int sig = sigPointsToBook[isig];
-    rooContainer->CreateDataSet("CMS_hll_mass", Form("sig_ggh_mass_m%d", sig), nDataBins);    
-    rooContainer->CreateDataSet("CMS_hll_mass", Form("sig_vbf_mass_m%d", sig), nDataBins);    
-    rooContainer->CreateDataSet("CMS_hll_mass", Form("sig_rsg_mass_m%d", sig), nDataBins);    
+    rooContainer->CreateDataSet(getString(values, "observable", "CMS_hll_mass"), Form("sig_ggh_mass_m%d", sig), nDataBins);    
+    rooContainer->CreateDataSet(getString(values, "observable", "CMS_hll_mass"), Form("sig_vbf_mass_m%d", sig), nDataBins);    
+    unsigned found = getString(values, "observable", "CMS_hll_mass").find("hgg");
+    if (found!=std::string::npos){
+      if(getUint(values,"splitwzh")!=1) rooContainer->CreateDataSet(getString(values, "observable", "CMS_hll_mass"),Form("sig_wzh_mass_m%d",sig),nDataBins);
+      else{
+          rooContainer->CreateDataSet(getString(values, "observable", "CMS_hll_mass"),Form("sig_wh_mass_m%d",sig),nDataBins);
+          rooContainer->CreateDataSet(getString(values, "observable", "CMS_hll_mass"),Form("sig_zh_mass_m%d",sig),nDataBins);
+      }
+      rooContainer->CreateDataSet(getString(values, "observable", "CMS_hll_mass"),Form("sig_tth_mass_m%d",sig),nDataBins);
+    } else {
+      rooContainer->CreateDataSet(getString(values, "observable", "CMS_hll_mass"), Form("sig_rsg_mass_m%d", sig), nDataBins);    
+    }
+
   }
   
   // Make more datasets representing Systematic Shifts of various quantities
   //for(size_t isig=0; isig<sigPointsToBook.size(); ++isig) {
   //  int sig = sigPointsToBook[isig];
-  //  rooContainer->MakeSystematics("CMS_hll_mass", Form("sig_ggh_mass_m%d", sig), -1);    
-  //  rooContainer->MakeSystematics("CMS_hll_mass", Form("sig_vbf_mass_m%d", sig), -1);    
-  //  rooContainer->MakeSystematics("CMS_hll_mass", Form("sig_wzh_mass_m%d", sig), -1);    
-  //  rooContainer->MakeSystematics("CMS_hll_mass", Form("sig_tth_mass_m%d", sig), -1);    
+  //  rooContainer->MakeSystematics(getString(values, "observable", "CMS_hll_mass"), Form("sig_ggh_mass_m%d", sig), -1);    
+  //  rooContainer->MakeSystematics(getString(values, "observable", "CMS_hll_mass"), Form("sig_vbf_mass_m%d", sig), -1);    
+  //  rooContainer->MakeSystematics(getString(values, "observable", "CMS_hll_mass"), Form("sig_wzh_mass_m%d", sig), -1);    
+  //  rooContainer->MakeSystematics(getString(values, "observable", "CMS_hll_mass"), Form("sig_tth_mass_m%d", sig), -1);    
   //}
 }
 
