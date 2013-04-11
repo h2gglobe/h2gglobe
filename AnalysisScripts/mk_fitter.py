@@ -66,7 +66,9 @@ if __name__  == "__main__":
         if options.combine and not options.runIC : sys.exit("Sorry, no support for submitting combiner jobs at CERN available yet!")
 	if options.outputScript == "":
 		options.outputScript = "%s/sub" % options.label
-
+	if not options.outputScript.endswith("sub"):
+		options.outputScript = ("%s/sub" % options.outputScript).replace("//","/")
+	
 	# Check IC user configs:
 	if options.runIC:
 		print "Running at IC-HEP"
@@ -175,7 +177,10 @@ if __name__  == "__main__":
 
 	os.system("%s %s" % ( mkdir, cfg.histdir) )
 	if not options.notgz:
-		os.system("tar zcf %s.tgz $(find -name \*.dat -or -name \*.py) aux common" % options.outputScript)
+		filedir = os.path.dirname(options.inputDat)
+		searchpath = "common reduction baseline massfac_mva_binned full_mva_binned jetanalysis photonjet"
+		os.system("tar zcf %s.tgz *.py $(find %s -name \*.dat -or -name \*.py) aux common python %s" %
+			  (options.outputScript, searchpath, filedir ) )
 		os.system("%s %s.tgz %s" % ( cp,  options.outputScript, cfg.histdir) )
 	
         if not options.combine:
@@ -247,7 +252,6 @@ if __name__  == "__main__":
 			f.write("if ( python %s -i %s.dat -n %d -j %d ) "%(whatRun,jobbasename,int(options.nJobs),i))
 			for fn in ["","histograms_"]+options.addfiles:
 				f.write("&& ( %s %s%s_%d.%s %s ) "        % ( cp, fn, cfg.histfile[0], i, cfg.histfile[1], cfg.histdir ) )
-			### f.write("&& ( %s %s_%d.%s_ascii_events.txt %s ) " % ( cp, cfg.histfile[0], i, cfg.histfile[1], cfg.histdir ) )
 			f.write("&& ( %s %s_%d.%s %s ) " % ( cp, cfg.outfile[0], i, cfg.outfile[1], cfg.histdir ) )
                         if not options.combine:
 			  f.write("&& ( %s %s_%d.json %s ) "                % ( cp, cfg.histfile[0], i, cfg.histdir ) )
@@ -256,7 +260,6 @@ if __name__  == "__main__":
 			f.write("if ( python %s -i %s.dat ) "%(whatRun,jobbasename))
 			for fn in ["","histograms_"]+options.addfiles:
 				f.write("&& ( %s %s%s.%s %s/%s%s_%d.%s ) " % ( cp, fn, cfg.histfile[0], cfg.histfile[1], cfg.histdir, fn, cfg.histfile[0], i, cfg.histfile[1] ) )
-			### f.write("&& ( %s %s.%s_ascii_events.txt %s/%s_%d.%s_ascii_events.txt ) " % ( cp, cfg.histfile[0], cfg.histfile[1], cfg.histdir, cfg.histfile[0], i, cfg.histfile[1] ) )
 			f.write("&& ( %s %s.%s %s/%s_%d.%s ) " % ( cp, cfg.outfile[0], cfg.outfile[1], cfg.histdir, cfg.outfile[0], i, cfg.outfile[1]) )
                         if not options.combine:
 			  f.write("&& ( %s %s.json %s/%s_%d.json ) " % ( cp, cfg.histfile[0], cfg.histdir, cfg.histfile[0], i ) )

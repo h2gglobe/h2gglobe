@@ -39,7 +39,7 @@ def defineEvList(fname,dataset):
 
 class configProducer:
 
-  def __init__(self,Ut,conf_filename,Type,njobs=-1,jobId=0,makehistos=True,search_path="common:reduction:baseline:massfac_mva_binned:full_mva_binned"):
+  def __init__(self,Ut,conf_filename,Type,njobs=-1,jobId=0,makehistos=True,search_path="common:reduction:baseline:massfac_mva_binned:full_mva_binned:jetanalysis:photonjet"):
 
     print "h2gglobe: step %d, with Config %s. Number of jobs %d. Running job %d" %(Type,conf_filename,njobs,jobId)
 
@@ -823,14 +823,13 @@ class configProducer:
     else:
       branches = list.split(",")
     for b in branches:
-      print b
       bname = b
       btype = 0
       if ":" in b:
         bname, sbtype = b.split(":")
         btype = int(sbtype)
       #if btype == 0 or not self.is_data_:
-      print "Reading input branch %s " % bname   
+      print "Input branch %s " % bname   
       self.ut_.InputBranch(bname,btype)
 
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -847,10 +846,9 @@ class configProducer:
       bname = b
       btype = 0
       if ":" in b:
-        print b
         bname, sbtype = b.split(":")
         btype = int(sbtype)
-     # if btype == 0 or not self.is_data_:
+      print "Output branch %s " % bname   
       self.ut_.InputBranch(bname,btype)
       self.ut_.OutputBranch(bname)
 
