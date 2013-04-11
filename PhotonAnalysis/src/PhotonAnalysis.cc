@@ -4351,6 +4351,36 @@ void PhotonAnalysis::saveVBFTree(LoopAll &l, int category, float evweight, float
   l.FillTree("zepp",myVBFZep,"vbf_trees");
   l.FillTree("dPhiJJGammaGamma",myVBFdPhi,"vbf_trees");
   l.FillTree("mass",myVBF_Mgg,"vbf_trees");
+  
+  // gen variables:
+  //gen photons,  higgs
+  TLorentzVector *genpho1 = (TLorentzVector*)l.gh_pho1_p4->At(0);
+  TLorentzVector *genpho2 = (TLorentzVector*)l.gh_pho2_p4->At(0);
+  TLorentzVector higgs = *((TLorentzVector*)l.gh_higgs_p4->At(0));
+  
+  // gen jets
+  std::vector<int> sorted_jets;
+  for(int ijet=0; ijet<l.genjet_algo1_n; ++ijet) {
+      TLorentzVector * p4 = (TLorentzVector*)l.genjet_algo1_p4->At(ijet);
+      if( p4->DeltaR( *genpho1 ) > 0.5 && p4->DeltaR( *genpho2 ) > 0.5  ) {
+	  sorted_jets.push_back(ijet);
+      }
+  }
+  std::sort(sorted_jets.begin(),sorted_jets.end(),
+	    ClonesSorter<TLorentzVector,double,std::greater<double> >(l.genjet_algo1_p4,&TLorentzVector::Pt));
+  
+  TLorentzVector* j1 ;
+  TLorentzVector* j2 ;
+  float myVBFdPhi_gen = -99;
+  if ( sorted_jets.size() > 1){
+      j1 = (TLorentzVector*)l.genjet_algo1_p4->At(sorted_jets[0]);
+      j2 = (TLorentzVector*)l.genjet_algo1_p4->At(sorted_jets[1]);
+      TLorentzVector dijet = (*j1) + (*j2);
+      myVBFdPhi_gen =  fabs(higgs.DeltaPhi(dijet));
+  }
+  
+  
+  l.FillTree("dPhiJJGammaGammaGen",myVBFdPhi_gen,"vbf_trees");
 }
 
 void PhotonAnalysis::VBFAngles(TLorentzVector& gamma1, TLorentzVector& gamma2, TLorentzVector& J1, TLorentzVector& J2)
