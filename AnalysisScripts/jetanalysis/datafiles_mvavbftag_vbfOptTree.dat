@@ -11,6 +11,7 @@ typ=-38 ind=2 draw=1   Nam=vbf_m125_8TeV   CaDir=/store/group/phys_higgs/cmshgg/
 inputBranches minimal_analysis_input.dat
 inputBranches massfactorizedmvaanalysis_input.dat
 inputBranches minimal_leptmetanalysis_input.dat
+inputBranches common/gh_only_input.dat
 
 #treevariables massfac_mva_binned/fullmvatrees.dat
 #treevariables massfac_mva_binned/unbinned_datacard_trees.dat
