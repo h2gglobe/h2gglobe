@@ -195,29 +195,29 @@ void FMTSetup::checkAllHistos(string opt){
     TH1F *temp;
     for (vector<double>::iterator mIt=MHMasses_.begin(); mIt!=MHMasses_.end(); mIt++){
       temp = (TH1F*)outFile_->Get(Form("th1f_data_grad_%3.1f",*mIt));
-      cout << Form("%50s   %5d   %5d   %5.2f",temp->GetName(),temp->GetEntries(),temp->GetNbinsX(),temp->Integral()) << endl;
+      cout << Form("%50s   %5.0f   %5d   %5.2f",temp->GetName(),temp->GetEntries(),temp->GetNbinsX(),temp->Integral()) << endl;
       temp = (TH1F*)outFile_->Get(Form("th1f_bkg_mc_grad_%3.1f",*mIt));
-      cout << Form("%50s   %5d   %5d   %5.2f",temp->GetName(),temp->GetEntries(),temp->GetNbinsX(),temp->Integral()) << endl;
+      cout << Form("%50s   %5.0f   %5d   %5.2f",temp->GetName(),temp->GetEntries(),temp->GetNbinsX(),temp->Integral()) << endl;
       continue;
       pair<int,int> uandd = getNsidebandsUandD(*mIt);
       // low
       for (int sideband=numberOfSidebandGaps_+1; sideband<=numberOfSidebandGaps_+uandd.first; sideband++){
         temp = (TH1F*)outFile_->Get(Form("th1f_bkg_%dlow_grad_%3.1f",sideband,*mIt));
-        cout << Form("%50s   %5d   %5d   %5.2f",temp->GetName(),temp->GetEntries(),temp->GetNbinsX(),temp->Integral()) << endl;
+        cout << Form("%50s   %5.0f   %5d   %5.2f",temp->GetName(),temp->GetEntries(),temp->GetNbinsX(),temp->Integral()) << endl;
       }
       // high
       for (int sideband=numberOfSidebandGaps_+1; sideband<=numberOfSidebandGaps_+uandd.second; sideband++){
         temp = (TH1F*)outFile_->Get(Form("th1f_bkg_%dhigh_grad_%3.1f",sideband,*mIt));
-        cout << Form("%50s   %5d   %5d   %5.2f",temp->GetName(),temp->GetEntries(),temp->GetNbinsX(),temp->Integral()) << endl;
+        cout << Form("%50s   %5.0f   %5d   %5.2f",temp->GetName(),temp->GetEntries(),temp->GetNbinsX(),temp->Integral()) << endl;
       }
       for (vector<string>::iterator proc=getProcesses().begin(); proc!=getProcesses().end(); proc++){
         temp = (TH1F*)outFile_->Get(Form("th1f_sig_grad_%s_%3.1f",proc->c_str(),*mIt));
-        cout << Form("%50s   %5d   %5d   %5.2f",temp->GetName(),temp->GetEntries(),temp->GetNbinsX(),temp->Integral()) << endl;
+        cout << Form("%50s   %5.0f   %5d   %5.2f",temp->GetName(),temp->GetEntries(),temp->GetNbinsX(),temp->Integral()) << endl;
         for (vector<string>::iterator syst=systematics_.begin(); syst!=systematics_.end(); syst++){
           temp = (TH1F*)outFile_->Get(Form("th1f_sig_grad_%s_%3.1f_%sUp01_sigma",proc->c_str(),*mIt,syst->c_str()));
           temp = (TH1F*)outFile_->Get(Form("th1f_sig_grad_%s_%3.1f_%sDown01_sigma",proc->c_str(),*mIt,syst->c_str()));
-          cout << Form("%50s   %5d   %5d   %5.2f",temp->GetName(),temp->GetEntries(),temp->GetNbinsX(),temp->Integral()) << endl;
-          cout << Form("%50s   %5d   %5d   %5.2f",temp->GetName(),temp->GetEntries(),temp->GetNbinsX(),temp->Integral()) << endl;
+          cout << Form("%50s   %5.0f   %5d   %5.2f",temp->GetName(),temp->GetEntries(),temp->GetNbinsX(),temp->Integral()) << endl;
+          cout << Form("%50s   %5.0f   %5d   %5.2f",temp->GetName(),temp->GetEntries(),temp->GetNbinsX(),temp->Integral()) << endl;
         }
       }
     }
@@ -405,13 +405,13 @@ void FMTSetup::printPassedOptions(){
   cout << "\tFile:         " << filename_ << endl;
   cout << "\tFit masses:            [";
   if (fitMasses_.size()>0) {
-    for (int i=0; i<fitMasses_.size()-1; i++) cout << fitMasses_[i] << ",";
+    for (unsigned int i=0; i<fitMasses_.size()-1; i++) cout << fitMasses_[i] << ",";
     cout << fitMasses_[fitMasses_.size()-1];
   }
   cout << "]" << endl;
   cout << "\tRebin masses:          [";
   if (rebinMasses_.size()>0) {
-    for (int i=0; i<rebinMasses_.size()-1; i++) cout << rebinMasses_[i] << ",";
+    for (unsigned int i=0; i<rebinMasses_.size()-1; i++) cout << rebinMasses_[i] << ",";
     cout << rebinMasses_[rebinMasses_.size()-1];
   }
   cout << "]" << endl;
@@ -437,7 +437,7 @@ void FMTSetup::CheckRunOptions(){
 		if (fitMasses_.size()==1) cerr << "You have requested an indivdual fit mass: " << fitMasses_[0] << endl;
 		else if (fitMasses_.size()>1) {
 			cerr << "You have requested individual fit masses: [";
-			for (int i=0; i<fitMasses_.size()-1; i++) cerr << fitMasses_[i] << ",";
+			for (unsigned int i=0; i<fitMasses_.size()-1; i++) cerr << fitMasses_[i] << ",";
 			cerr << fitMasses_[fitMasses_.size()-1] << "]" << endl;
 		}
 		cerr << "The fit at the MC masses has an effect on the binning algorithm so be careful!" << endl;
@@ -454,10 +454,10 @@ void FMTSetup::runHistosFromTrees(){
 	if (histosFromTrees_){
     if (!cleaned) cleanUp();
     cout << "Running histos from trees...." << endl;
-    bool isCutBased_=true;
+    bool isCutBased_=false;
 		string bdtname = "BDTgradMIT";
-		//string weightsFile = "../../AnalysisScripts/aux/sidebandMVA_weights_hcp/TMVAClassification_BDTgradMIT.weights.xml";
-		string weightsFile = "weights/TMVA_SidebandMVA_BDTgradMIT.weights.xml";
+		string weightsFile = "../../AnalysisScripts/aux/sidebandMVA_weights_hcp/TMVAClassification_BDTgradMIT.weights.xml";
+		//string weightsFile = "weights/TMVA_SidebandMVA_BDTgradMIT.weights.xml";
 		FMTTree *fmtTree = new FMTTree(filename_, outfilename_, bdtname, weightsFile, intLumi_, is2011_, mHMinimum_, mHMaximum_, mHStep_, massMin_, massMax_, nDataBins_, signalRegionWidth_, sidebandWidth_, numberOfSidebands_, numberOfSidebandsForAlgos_, numberOfSidebandGaps_, massSidebandMin_, massSidebandMax_, nIncCategories_, includeVBF_, nVBFCategories_, includeLEP_, nLEPCategories_, systematics_, rederiveOptimizedBinEdges_, AllBinEdges_, isCutBased_, verbose_);
 		fmtTree->run(histFromTreeMode_);
 		delete fmtTree;
@@ -486,7 +486,7 @@ void FMTSetup::runRebinning(){
 
 void FMTSetup::runFitting(){
 
-	if (!skipRebin_ && fit_){
+	if (!rebin_ && fit_){
 		for (vector<double>::iterator fitM = fitMasses_.begin(); fitM != fitMasses_.end(); fitM++){
 			cout << "Running fitting for mass " << *fitM << endl;
 			rebinner->fitter->redoFit(*fitM);

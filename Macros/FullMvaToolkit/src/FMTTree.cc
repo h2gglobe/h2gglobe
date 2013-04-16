@@ -11,10 +11,10 @@
 using namespace std;
 
 FMTTree::FMTTree(string infilename, string outfilename, string bdtname, string weightsFile, double intLumi, bool is2011, int mHMinimum, int mHMaximum, double mHStep, double massMin, double massMax, int nDataBins, double signalRegionWidth, double sidebandWidth, int numberOfSidebands, int numberOfSidebandsForAlgos, int numberOfSidebandGaps, double massSidebandMin, double massSidebandMax, int nIncCategories, bool includeVBF, int nVBFCategories, bool includeLEP, int nLEPCategories, vector<string> systematics, bool rederiveOptimizedBinEdges, vector<map<int, vector<double> > > AllBinEdges, bool isCutBased, bool verbose):
+ FMTBase(intLumi, is2011, mHMinimum, mHMaximum, mHStep, massMin, massMax, nDataBins, signalRegionWidth, sidebandWidth, numberOfSidebands, numberOfSidebandsForAlgos, numberOfSidebandGaps, massSidebandMin, massSidebandMax, nIncCategories, includeVBF, nVBFCategories, includeLEP, nLEPCategories, systematics, rederiveOptimizedBinEdges, AllBinEdges, verbose),
 	bdtname_(bdtname),
-	crossCheck_(true),
   isCutBased_(isCutBased),
- FMTBase(intLumi, is2011, mHMinimum, mHMaximum, mHStep, massMin, massMax, nDataBins, signalRegionWidth, sidebandWidth, numberOfSidebands, numberOfSidebandsForAlgos, numberOfSidebandGaps, massSidebandMin, massSidebandMax, nIncCategories, includeVBF, nVBFCategories, includeLEP, nLEPCategories, systematics, rederiveOptimizedBinEdges, AllBinEdges, verbose)
+	crossCheck_(true)
   {
     // open files and workspaces etc.
 		inFile_ = TFile::Open(infilename.c_str());
@@ -266,7 +266,7 @@ void FMTTree::FillSigHist(string proc, double mh){
   int cat = icCat(category_);
   float val;
   if (cat<0) return;
-	if (mass_>=(1.-sidebandWidth_)*mh && mass_<=(1.+sidebandWidth_)*mh){
+	if (mass_>=(1.-sidebandWidth_)*mh && mass_<=(1.+sidebandWidth_)*mh && bdtoutput_>-0.05){
 		if (isCutBased_) val = tmvaGetValCutBased((mass_-mh)/mh);
     else val = tmvaGetVal((mass_-mh)/mh,bdtoutput_);
 		th1fs_[Form("th1f_sig_BDT_grad_%s_%5.1f_cat%d",proc.c_str(),mh,cat)]->Fill(val,weight_);
@@ -297,7 +297,7 @@ void FMTTree::FillSystHist(string proc, double mh){
 				weight = weightSyst_[s].second;
 			}
       if (cat<0) return;
-			if (mass>=cutLow && mass<=cutHigh) {
+			if (mass>=cutLow && mass<=cutHigh && bdtoutput_>-0.05) {
 				th1fs_[Form("th1f_sig_BDT_grad_%s_%5.1f_cat%d_%s%s01_sigma",proc.c_str(),mh,cat,systematics_[s].c_str(),shift[t].c_str())]->Fill(val,weight);
 			}
 		}
@@ -310,6 +310,7 @@ string FMTTree::getProc(string name){
     if (name.find(*proc)!=string::npos) return *proc;
     else continue;
   }
+  return "";
 }
 
 int FMTTree::getMH(string name){
@@ -398,7 +399,6 @@ void FMTTree::doCrossCheck(vector<pair<int,map<string,TTree*> > > allTrees, int 
 void FMTTree::printTrees(vector<pair<int,map<string,TTree*> > > allTrees){
 	cout << "Available trees: " << endl;
 	for (unsigned int it=0; it<allTrees.size(); it++) {
-    int type = allTrees[it].first;
     map<string,TTree*> treeMap = allTrees[it].second;
 		for (map<string,TTree*>::iterator mapIt = treeMap.begin(); mapIt!=treeMap.end(); mapIt++){
 			cout << Form("%20s --  %20s",mapIt->first.c_str(),mapIt->second->GetName()) << endl;
@@ -436,7 +436,7 @@ void FMTTree::run(string option){
     for (map<string,TTree*>::iterator mapIt=treeMap.begin(); mapIt!=treeMap.end(); mapIt++){
       setBranchVariables(mapIt->second);
       string thisProc;
-      int thisMH;
+      int thisMH=0;
       if (type<0) {
         thisProc = getProc(mapIt->first);
         thisMH = boost::lexical_cast<double>(getMH(mapIt->first));
@@ -447,9 +447,10 @@ void FMTTree::run(string option){
       for (int entry=0; entry<(mapIt->second)->GetEntries(); entry++){
         (mapIt->second)->GetEntry(entry);
         if (entry%1000==0) {
-          //cout << "\r" << entry << "/" << mapIt->second->GetEntries() << flush;
-          cout << "\r" << entry << "/" << mapIt->second->GetEntries() << " -- " << tmvaGetValCutBased((mass_-125.)/125.) << " " << mass_ << " " << lead_eta_ << " " << sublead_eta_ << " " << lead_r9_ << " " << sublead_r9_ << flush;
-        }
+          cout << "\r" << entry << "/" << mapIt->second->GetEntries() << flush;
+          if (isCutBased_) cout << "\r" << entry << "/" << mapIt->second->GetEntries() << " -- " << tmvaGetValCutBased((mass_-125.)/125.) << " " << mass_ << " " << lead_eta_ << " " << sublead_eta_ << " " << lead_r9_ << " " << sublead_r9_ << flush;
+          else cout << "\r" << entry << "/" << mapIt->second->GetEntries() << " -- " << tmvaGetVal((mass_-125.)/125.,bdtoutput_) << " " << mass_ << " " << bdtoutput_ << flush;
+     }
         // Data and Bkg
 				if (type==0){
 					FillMassDatasets();
@@ -459,7 +460,7 @@ void FMTTree::run(string option){
             //cout << "MH: " << *mIt << endl;
             // in signal region
             //cout << "si: " << (1.-sidebandWidth_)*(*mIt) << "  " << (1.+sidebandWidth_)*(*mIt) << endl;
-            if (mass_>=(1.-sidebandWidth_)*(*mIt) && mass_<=(1.+sidebandWidth_)*(*mIt)){
+            if (mass_>=(1.-sidebandWidth_)*(*mIt) && mass_<=(1.+sidebandWidth_)*(*mIt) && bdtoutput_>-0.05){
               if (type==0) FillHist("data",0,*mIt);
               if (type>0) FillHist("bkg",0,*mIt);
               //cout << " \t in signal region " << *mIt << endl;
@@ -472,7 +473,7 @@ void FMTTree::run(string option){
             
             for (int l=0; l<nL; l++){
               //cout << "l"  << l << ": " << lEdge[l+1] << "  " << lEdge[l] << endl;
-              if (mass_>=lEdge[l+1] && mass_<=lEdge[l]){
+              if (mass_>=lEdge[l+1] && mass_<=lEdge[l] && bdtoutput_>-0.05){
                 if (type==0) FillHist("data",-1*(l+1+getnumberOfSidebandGaps()),*mIt);
                 if (type>0) FillHist("bkg",-1*(l+1+getnumberOfSidebandGaps()),*mIt);
                 //cout << " \t in sideband " << -1*(l+1+getnumberOfSidebandGaps()) << " " << *mIt << endl;
@@ -480,7 +481,7 @@ void FMTTree::run(string option){
             }
             for (int h=0; h<nH; h++){
               //cout << "h" << h << ": " << hEdge[h] << "  " << hEdge[h+1] << endl;
-              if (mass_>=hEdge[h] && mass_<=hEdge[h+1]){
+              if (mass_>=hEdge[h] && mass_<=hEdge[h+1] && bdtoutput_>-0.05){
                 if (type==0) FillHist("data",(h+1+getnumberOfSidebandGaps()),*mIt);
                 if (type>0) FillHist("bkg",(h+1+getnumberOfSidebandGaps()),*mIt);
                 //cout << " \t in sideband " << h+1+getnumberOfSidebandGaps() << " " << *mIt << endl;

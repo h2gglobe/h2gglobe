@@ -42,12 +42,12 @@ class FMTFit : public FMTBase{
 		RooDataSet *data;
 		RooFitResult *fitRes;
 
-		string infilename_;
-		string outfilename_;
-
 		bool blind_;
 		bool plot_;
     
+		string infilename_;
+		string outfilename_;
+
     vector<RooAbsPdf*> storage;
 };
 

@@ -141,14 +141,14 @@ std::vector<double> FMTRebin::significanceOptimizedBinning(TH1F *hs,TH1F *hb,int
   int 	*counters, *chosen_counters,*frozen_counters;
   double 	highestMaxSignificance=0;
   int 	chosenN=1;
-  int 	*finalCounters ;
+  int 	*finalCounters=NULL ;
 
   g_step = (int)TMath::Exp(TMath::Log(nNewBins/2)/2);
   if (g_step < 1) g_step=1;
 
   int Retry=0;
 
-  for (int N=1;N<16;N++){				// Refuse to go beyond 8 Bins, will take forever
+  for (int N=1;N<8;N++){				// Refuse to go beyond 8 Bins, will take forever
     sweepmode=0;	// First perform Broad Scan with optimized step size (g_step)
     bool skipBroad = false;
     if ( nNewBins < (N-1+2+Retry) ) {std::cout << "Forced to perform Fine scan since all the Retries failed to find a nice minimum :("<<std::endl; skipBroad=true;}
@@ -182,6 +182,9 @@ std::vector<double> FMTRebin::significanceOptimizedBinning(TH1F *hs,TH1F *hb,int
     diff = ( std::clock() - start ) / (double)CLOCKS_PER_SEC;
     std::cout << Form("Finished, time taken = %3.5f",diff)<<std::endl;
     std::cout << "N Bins, Max Significance -> " << N+1 << " "<<maximumSignificance << std::endl;
+    std::cout << "Boundaries at: [ ";
+    for (int cc=0;cc<N; cc++) std::cout << hsnew->GetBinLowEdge(chosen_counters[cc]) << " , ";
+    std::cout << " ]" << std::endl;
 
     if (maximumSignificance < highestMaxSignificance){
          
@@ -376,7 +379,7 @@ TH1F* FMTRebin::rebinBinnedDataset(std::string new_name, TH1F *hb,std::vector<do
   //const char *h_name = (const char *) hb->GetName;
   //const char *title  = (const char *) hb->GetTitle;
   // this hard code should be removed
-  if ((isVBFCat(cat) && binEdges.size()!=getnVBFCategories()+1) || (isLEPCat(cat) && binEdges.size()!=getnLEPCategories()+1)){
+  if ((isVBFCat(cat) && int(binEdges.size())!=getnVBFCategories()+1) || (isLEPCat(cat) && int(binEdges.size())!=getnLEPCategories()+1)){
     cout << "INC? " << isIncCat(cat) << endl;
     cout << "VBF? " << isVBFCat(cat) << endl;
     cout << "LEP? " << isLEPCat(cat) << endl;

@@ -247,7 +247,7 @@ void FMTPlots::plotSidebands(TH1F *bkg, vector<TH1F*> dataSideLow, vector<TH1F*>
   leg2->AddEntry(bkgmc,"Bkg mc in signal","lep");
   bkgmc->Draw("lep");
  
-  for (int h=0; h<dataSideHigh.size(); h++){
+  for (unsigned int h=0; h<dataSideHigh.size(); h++){
     c1->cd();
     dataSideHigh[h]->SetLineColor(color[h]);
     //dataSideHigh[h]->SetMarkerStyle(20);
@@ -263,7 +263,7 @@ void FMTPlots::plotSidebands(TH1F *bkg, vector<TH1F*> dataSideLow, vector<TH1F*>
     leg2->AddEntry(bkgSideHigh[h],Form("High sideband %d",h+1),"lep");
     bkgSideHigh[h]->Draw("same lep");
   }
-  for (int l=0; l<dataSideLow.size(); l++){
+  for (unsigned int l=0; l<dataSideLow.size(); l++){
     c1->cd();
     dataSideLow[l]->SetLineColor(color[l+dataSideHigh.size()]);
     //dataSideLow[l]->SetMarkerStyle(20);

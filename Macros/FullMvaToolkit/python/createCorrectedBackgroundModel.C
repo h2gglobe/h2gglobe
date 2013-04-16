@@ -188,8 +188,8 @@ void fillData(double mH,TFile *in, std::string type){
 
 	for (int i=global_NUMBEROFSIDEBANDGAPS+1;i<=global_NUMBEROFSIDEBANDGAPS+nHigherSidebands;i++){
 
-		double hypothesisModifier = (1.+global_SIDEBANDWIDTH)/(1-global_SIDEBANDWIDTH);
-		double mhsb  = (mH*(1.+global_SIGNALREGION)/(1.-global_SIDEBANDWIDTH))*(TMath::Power(hypothesisModifier,i-1));
+		//double hypothesisModifier = (1.+global_SIDEBANDWIDTH)/(1-global_SIDEBANDWIDTH);
+		//double mhsb  = (mH*(1.+global_SIGNALREGION)/(1.-global_SIDEBANDWIDTH))*(TMath::Power(hypothesisModifier,i-1));
 
 	}	
 
@@ -325,9 +325,9 @@ void paulFit(TDirectory *mDir,TH1F* fMFitS,TH1F* hMFitS,TH2F* hFCovar, bool make
 
 	int ell[5]={0,0,0,0,0};
 
-	static Double_t p0=0;
+	//static Double_t p0=0;
 	static Double_t p1=1;
-	static Double_t p3=3;
+	//static Double_t p3=3;
 	static Double_t p5=5;
 
 

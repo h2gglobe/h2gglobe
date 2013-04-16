@@ -337,8 +337,8 @@ pair<int,int> FMTBase::getInterpMasses(double mass){
   
   double bestdiff=1000.;
   double nbestdiff=1000.;
-  int nearest;
-  int nnearest;
+  int nearest=0;
+  int nnearest=0;
   vector<int> mcMasses = getMCMasses();
   for (vector<int>::iterator mcM=mcMasses.begin(); mcM!=mcMasses.end(); mcM++){
     double diff = TMath::Abs((mass+0.001)-boost::lexical_cast<double>(*mcM));
@@ -626,7 +626,7 @@ void FMTBase::printBinEdges(string filename){
     if (is2011_ && m==145) continue;
     out << "\t     BinEdges_" << m << "           [";
     if (BinEdges_[m].size()>0) {
-      for (int i=0; i<BinEdges_[m].size()-1; i++) out << BinEdges_[m][i] << ",";
+      for (unsigned int i=0; i<BinEdges_[m].size()-1; i++) out << BinEdges_[m][i] << ",";
       out << BinEdges_[m][BinEdges_[m].size()-1];
     }
 		out << "]" << endl;
@@ -636,7 +636,7 @@ void FMTBase::printBinEdges(string filename){
     if (is2011_ && m==145) continue;
     out << "\t     VBFBinEdges_" << m << "        [";
     if (VBFBinEdges_[m].size()>0) {
-      for (int i=0; i<VBFBinEdges_[m].size()-1; i++) out << VBFBinEdges_[m][i] << ",";
+      for (unsigned int i=0; i<VBFBinEdges_[m].size()-1; i++) out << VBFBinEdges_[m][i] << ",";
       out << VBFBinEdges_[m][VBFBinEdges_[m].size()-1];
     }
 		out << "]" << endl;
@@ -646,7 +646,7 @@ void FMTBase::printBinEdges(string filename){
     if (is2011_ && m==145) continue;
     out << "\t     LEPBinEdges_" << m << "        [";
     if (LEPBinEdges_[m].size()>0) {
-      for (int i=0; i<LEPBinEdges_[m].size()-1; i++) out << LEPBinEdges_[m][i] << ",";
+      for (unsigned int i=0; i<LEPBinEdges_[m].size()-1; i++) out << LEPBinEdges_[m][i] << ",";
       out << LEPBinEdges_[m][LEPBinEdges_[m].size()-1];
     }
 		out << "]" << endl;
@@ -688,7 +688,7 @@ void FMTBase::printRunOptions(string filename){
   out << "\tnLEPCategories            " << nLEPCategories_ << endl;
   out << "\tsystematics               [";
   if (systematics_.size()>0) {
-    for (int i=0; i<systematics_.size()-1; i++) out << systematics_[i] << ",";
+    for (unsigned int i=0; i<systematics_.size()-1; i++) out << systematics_[i] << ",";
     out << systematics_[systematics_.size()-1] << "]" << endl;
   }
 	else out << "]" << endl;

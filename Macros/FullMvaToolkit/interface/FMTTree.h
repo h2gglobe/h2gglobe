@@ -79,11 +79,12 @@ class FMTTree : public FMTBase {
 		
 		string dirname_;
 		string bdtname_;
-		float deltaMOverM_;
+    bool isCutBased_;
+		bool crossCheck_;
+		
+    float deltaMOverM_;
 		float diphotonBDT_;
 
-		bool crossCheck_;
-    bool isCutBased_;
 };
 
 #endif

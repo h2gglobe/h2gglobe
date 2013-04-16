@@ -24,10 +24,12 @@ g_expdijet		= 0.00495
 #--------------------------
 
 # Some "Global" Variables
+nBins_vbf=2
+nBins_vh=3
 # PLOT OPS ----------------
 sigscale   = 1.
 # THEORY SYSTEMATICS ------
-lumi          = "1.045"
+lumi          = "1.044"
 QCDscale_ggH  = "0.918/1.125"
 PDF_gg_1      = "0.923/1.079"
 PDF_gg_2      = "0.915/1.085"
@@ -38,16 +40,16 @@ QCDscale_VH   = "0.982/1.018"
 QCDscale_ttH  = "0.905/1.036"
 # SHAPE SYSTEMATICS -------
 systematics = [
-	      # "E_res"
-	      #,"E_scale"
-	      #,"idEff"
+	       "E_res"
+	      ,"E_scale"
+	      ,"idEff"
 	      #,"r9Eff"
-	      #,"phoIdMva"
-	      #,"regSig"
+	      ,"phoIdMva"
+	      ,"regSig"
 	      #,"kFactor"
-	      #,"triggerEff"
+	      ,"triggerEff"
 	      #,"pdfWeight"
-	      #,"vtxEff"
+	      ,"vtxEff"
 	      ]
 # ADDITIONAL SYSTEMATICS --
 #JetID_vbf = 0.1
@@ -424,18 +426,23 @@ def writeCard(tfile,mass,scaleErr):
     print "Including VBF (last Bin) Systematics"
     # how many non VBF bins are there?
     nBins_inclusive=0
-    nBins_exclusive=0
+    nBins_vbf=0
+    nBins_vh=0
     for b in range(binL,nBins+1):  
 	if dataHist.GetBinLowEdge(b)<1: nBins_inclusive+=1
-	if dataHist.GetBinLowEdge(b)>=1: nBins_exclusive+=1
+	if dataHist.GetBinLowEdge(b)>=1: nBins_vbf+=1
+	if dataHist.GetBinLowEdge(b)>=1 and dataHist.GetBinLowEdge(b)<1.08: nBins_vh+=1
 
+    nBins_exclusive=nBins_vbf+nBins_vh
     print "Number of Non VBF channels -> ", nBins_inclusive
-    print "Number of VBF channels -> ", nBins_exclusive
+    print "Number of VBF channels -> ", nBins_vbf
+    print "Number of VH channels -> ", nBins_vh
+    print "Number of Exclu channels -> ", nBins_exclusive
     # calculate the effect on each bin, eg 70%, always assume last bins are VBF tagged
-    numberOfGGH_dijet = sum([gghHist.GetBinContent(b)*JetID_gg for b in range(binH-nBins_exclusive,binH)])
-    numberOfTTH_dijet = sum([tthHist.GetBinContent(b)*JetID_gg for b in range(binH-nBins_exclusive,binH)])
-    numberOfVBF_dijet = sum([vbfHist.GetBinContent(b)*JetID_qq for b in range(binH-nBins_exclusive,binH)])
-    numberOfWZH_dijet = sum([wzhHist.GetBinContent(b)*JetID_gg for b in range(binH-nBins_exclusive,binH)])
+    numberOfGGH_dijet = sum([gghHist.GetBinContent(b)*JetID_gg for b in range(binH-nBins_exclusive,binH-nBins_vh)])
+    numberOfTTH_dijet = sum([tthHist.GetBinContent(b)*JetID_gg for b in range(binH-nBins_exclusive,binH-nBins_vh)])
+    numberOfVBF_dijet = sum([vbfHist.GetBinContent(b)*JetID_qq for b in range(binH-nBins_exclusive,binH-nBins_vh)])
+    numberOfWZH_dijet = sum([wzhHist.GetBinContent(b)*JetID_gg for b in range(binH-nBins_exclusive,binH-nBins_vh)])
     
     numberOfGGH_incl  = sum([gghHist.GetBinContent(b) for b in range(binL,nBins_inclusive+binL)])
     numberOfTTH_incl  = sum([tthHist.GetBinContent(b) for b in range(binL,nBins_inclusive+binL)])
@@ -450,17 +457,17 @@ def writeCard(tfile,mass,scaleErr):
 		     1.-(numberOfVBF_dijet/numberOfVBF_incl),1.+(numberOfVBF_dijet/numberOfVBF_incl),\
 		     1.-(numberOfWZH_dijet/numberOfWZH_incl),1.+(numberOfWZH_dijet/numberOfWZH_incl),\
 		     1.-(numberOfTTH_dijet/numberOfTTH_incl),1.+(numberOfTTH_dijet/numberOfTTH_incl)))
-    # exclusive bins
-    for b in range(binH-nBins_exclusive,binH): outPut.write(" %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   -  "%\
+    # exclusive bins - vbf
+    for b in range(binH-nBins_exclusive,binH-nBins_vh): outPut.write(" %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   -  "%\
       (1+JetID_gg,1-JetID_gg,1+JetID_qq,1-JetID_qq,1+JetID_gg,1-JetID_gg,1+JetID_gg,1-JetID_gg))
+    # exclusive bins - vh
+    for b in range(binH-nBins_vh,binH): outPut.write(" -   -   -   -   -  ")
     outPut.write("\n")
 
-    # inclusive bins
-
-    numberOfGGH_dijet = sum([gghHist.GetBinContent(b)*JEC_gg for b in range(binH-nBins_exclusive,binH)])
-    numberOfTTH_dijet = sum([tthHist.GetBinContent(b)*JEC_gg for b in range(binH-nBins_exclusive,binH)])
-    numberOfVBF_dijet = sum([vbfHist.GetBinContent(b)*JEC_qq for b in range(binH-nBins_exclusive,binH)])
-    numberOfWZH_dijet = sum([wzhHist.GetBinContent(b)*JEC_gg for b in range(binH-nBins_exclusive,binH)])
+    numberOfGGH_dijet = sum([gghHist.GetBinContent(b)*JEC_gg for b in range(binH-nBins_exclusive,binH-nBins_vh)])
+    numberOfTTH_dijet = sum([tthHist.GetBinContent(b)*JEC_gg for b in range(binH-nBins_exclusive,binH-nBins_vh)])
+    numberOfVBF_dijet = sum([vbfHist.GetBinContent(b)*JEC_qq for b in range(binH-nBins_exclusive,binH-nBins_vh)])
+    numberOfWZH_dijet = sum([wzhHist.GetBinContent(b)*JEC_gg for b in range(binH-nBins_exclusive,binH-nBins_vh)])
     
     numberOfGGH_incl  = sum([gghHist.GetBinContent(b) for b in range(binL,nBins_inclusive+binL)])
     numberOfTTH_incl  = sum([tthHist.GetBinContent(b) for b in range(binL,nBins_inclusive+binL)])
@@ -468,14 +475,17 @@ def writeCard(tfile,mass,scaleErr):
     numberOfWZH_incl  = sum([wzhHist.GetBinContent(b) for b in range(binL,nBins_inclusive+binL)])
 
     outPut.write("\nJEC   lnN")
+    # inclusive bins
     for b in range(binL,nBins_inclusive+binL): outPut.write(" %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   -  "%\
 		    (1.-(numberOfGGH_dijet/numberOfGGH_incl),1.+(numberOfGGH_dijet/numberOfGGH_incl),\
 		     1.-(numberOfVBF_dijet/numberOfVBF_incl),1.+(numberOfVBF_dijet/numberOfVBF_incl),\
 		     1.-(numberOfWZH_dijet/numberOfWZH_incl),1.+(numberOfWZH_dijet/numberOfWZH_incl),\
 		     1.-(numberOfTTH_dijet/numberOfTTH_incl),1.+(numberOfTTH_dijet/numberOfTTH_incl)))
-    # exclusive bins
-    for b in range(binH-nBins_exclusive,binH): outPut.write(" %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   -  "%\
+    # exclusive bins - vbf
+    for b in range(binH-nBins_exclusive,binH-nBins_vh): outPut.write(" %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   -  "%\
       (1+JEC_gg,1-JEC_gg,1+JEC_qq,1-JEC_qq,1+JEC_gg,1-JEC_gg,1+JEC_gg,1-JEC_gg))
+    # exclusive bins - vh
+    for b in range(binH-nBins_vh,binH): outPut.write(" -   -   -   -   -  ")
 
     outPut.write("\nJetMigration  lnN")
     for b in range(binL,nBins_inclusive+binL): outPut.write(" -   -   -   -   -")
@@ -662,8 +672,12 @@ genMasses     = [110,115,120,125,130,135,140,145,150]
 #scalingErrors=[1+((s-1)*0.95) for s in scalingErrors]
 #scalingErrors = [1.01153,1.01197,1.01102,1.00966,1.01205,1.01457,1.01814,1.01903,1.01768] # P.Dauncey 100-180, 2% window, MIT presel + BDT > 0.05 , after synch, 19Feb (Pow2 Fit)
 #scalingErrors = [1.01072,1.01097,1.01061,1.01019,1.01234,1.01306,1.01519,1.01554,1.01412] # P.Dauncey 100-180, 2% window, MIT presel + BDT > 0.05 , Jan16 ReReco 15Apr (Pow2 Fit)
-# 2012 3fb
-scalingErrors = [1.00957,1.00916,1.00903,1.01011,1.01236,1.01224,1.01257,1.01251,1.01334]
+# PAUL NUMBERS - MASS FAC - HCP2012 - 73575 events with 12.2fb-1 - [1.00578,1.00586,1.0056,1.00544,1.00554,1.00542,1.00589,1.00728,1.00884]
+# PAUL NUMBERS - MASS FAC - MOR2013 - [1.00444,1.00405,1.00341,1.00342,1.0041,1.00444,1.00447,1.00455,1.00501]
+
+# CUT-BASED at 19.6fb has 141981 events - [1.00957,1.00916,1.00903,1.01011,1.01236,1.01224,1.01257,1.01251,1.01334]
+
+scalingErrors = [1.00444,1.00405,1.00341,1.00342,1.0041,1.00444,1.00447,1.00455,1.00501]
 
 
 #evalMasses    = numpy.arange(110,150.5,0.5)
@@ -673,8 +687,9 @@ normG = ROOT.TGraph(len(genMasses))
 # Fill the errors graph
 can = ROOT.TCanvas()
 for i,ne in enumerate(scalingErrors):
-  scalingErrors[i]=((scalingErrors[i]-1)*((21227/22122)**0.5))+1 # scale up norm Errors HACK for may31freeze
-  normG.SetPoint(i,genMasses[i],ne)
+  #err=((scalingErrors[i]-1)*((73575/141981)**0.5))+1 # scale down norm Errors HACK for may31freeze
+  err=scalingErrors[i] 
+  normG.SetPoint(i,genMasses[i],err)
 normG.SetMarkerStyle(20)
 normG.GetXaxis().SetTitle("mH")
 normG.GetYaxis().SetTitle("(N+dN)/N")

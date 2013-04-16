@@ -59,8 +59,8 @@ class FMTRebin : public FMTBase {
 		TFile *tFile;
 		TFile *outFile;
 
-    bool catByHand_;
 		bool justRebin_;
+    bool catByHand_;
 
 };
 

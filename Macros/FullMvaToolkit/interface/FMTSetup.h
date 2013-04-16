@@ -63,9 +63,9 @@ class FMTSetup : public FMTBase {
 		vector<int> rebinMasses_;
 		bool all_;
 		bool fit_;
-		bool rebin_;
     bool catByHand_;
 		bool histosFromTrees_;
+		bool rebin_;
 		bool skipRebin_;
 		bool justRebin_;
 		bool binEdges_;
@@ -74,13 +74,16 @@ class FMTSetup : public FMTBase {
 		bool interp_;
 		bool datacards_;
 		bool diagnose_;
-		bool blinding_;
 		bool web_;
+		bool blinding_;
 		bool runCombine_;
 		bool checkHistos_;
+		bool safeMode_;
     bool noPlot_;
 		bool runSB_;
-		bool safeMode_;
+		bool cleaned;
+    double userLumi_;
+    string histFromTreeMode_;
 
 		int tempmHMin_;
 		int tempmHMax_;
@@ -90,12 +93,9 @@ class FMTSetup : public FMTBase {
 		string datFil_;
     string dumpDatFil_;
 		string grepString_;
-    string histFromTreeMode_;
 
-    double userLumi_;
 
 		FMTRebin *rebinner;
-		bool cleaned;
 
 		TFile *inFile_;
 		TFile *outFile_;

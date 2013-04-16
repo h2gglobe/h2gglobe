@@ -27,8 +27,8 @@ FMTFit::FMTFit(TFile *tFile, TFile *outFile, double intLumi, bool is2011, int mH
 	outfilename_(outFile->GetName())
 {
   gROOT->SetStyle("Plain");
-  r1 = new RooRealVar("r1","r1",-0.02,-2.,0.); 
-  r2 = new RooRealVar("r2","r2",-0.02,-2.,0.); 
+  r1 = new RooRealVar("r1","r1",-0.02,-10.,0.); 
+  r2 = new RooRealVar("r2","r2",-0.02,-10.,0.); 
   r3 = new RooRealVar("r3","r3",-1.,-20.,0.); 
   f1 = new RooRealVar("f1","f1",0.5,0.01,1.); 
   f2 = new RooRealVar("f2","f2",0.001,0.001,0.49); 
@@ -43,13 +43,17 @@ FMTFit::FMTFit(TFile *tFile, TFile *outFile, double intLumi, bool is2011, int mH
 
 	// get data and combine all cats
 	cout << "Looking for datasets....." << endl;
-	data = (RooDataSet*)((RooDataSet*)inWS->data("data_mass_cat0"))->Clone("data_mass");
+	/*
+  data = (RooDataSet*)((RooDataSet*)inWS->data("data_mass_cat0"))->Clone("data_mass");
 	for (int cat=0; cat<getNcats(); cat++){
     RooDataSet *temp = (RooDataSet*)inWS->data(Form("data_mass_cat%d",cat));
     outWS->import(*temp);
 		if (cat>0) data->append(*((RooDataSet*)inWS->data(Form("data_mass_cat%d",cat))));
 	}
+  */
+  data = (RooDataSet*)inWS->data("data_mass");
 	if (!outWS->data("data_mass")) outWS->import(*data);
+  
 }
 
 FMTFit::~FMTFit(){
@@ -190,11 +194,11 @@ void FMTFit::Plot(double mass){
     b1.DrawBox(sidebL,frame->GetMinimum(),sidebH,frame->GetMaximum());
     vector<double> lowEdges = getLowerSidebandEdges(mass);
     vector<double> highEdges = getUpperSidebandEdges(mass);
-    for (int i=0; i<lowEdges.size(); i++) {
+    for (unsigned int i=0; i<lowEdges.size(); i++) {
       l2.DrawLine(lowEdges[i],frame->GetMinimum(),lowEdges[i],frame->GetMaximum());
       if (i>0) b2.DrawBox(lowEdges[i-1],frame->GetMinimum(),lowEdges[i],frame->GetMaximum());
     }
-    for (int i=0; i<highEdges.size(); i++) {
+    for (unsigned int i=0; i<highEdges.size(); i++) {
       l2.DrawLine(highEdges[i],frame->GetMinimum(),highEdges[i],frame->GetMaximum()); 
       if (i>0) b2.DrawBox(highEdges[i-1],frame->GetMinimum(),highEdges[i],frame->GetMaximum());
     }
@@ -218,6 +222,7 @@ void FMTFit::Plot(double mass){
 void FMTFit::redoFit(double mass){
   
   pair<double,double> dummyVar = FitPow(mass);
+  if (verbose_) cout << dummyVar.first << " +/- " << dummyVar.second << endl;
 }
 
 bool FMTFit::getblind(){

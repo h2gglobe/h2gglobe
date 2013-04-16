@@ -128,8 +128,6 @@ class FMTBase {
 		void write(TFile*,TObject*);
 
   protected:
-    bool verbose_;
-
     double intLumi_;
     bool is2011_;
 
@@ -164,6 +162,9 @@ class FMTBase {
 		map<int, vector<double> > LEPBinEdges_;
 
 		vector<map<int,vector<double> > > AllBinEdges_;
+    
+    bool verbose_;
+
 		vector<double> MHMasses_;
 		vector<int> MCMasses_;
 
