@@ -21,7 +21,7 @@
 using namespace std;
 
 int main(int argc, char* argv[]){
- 
+
   string filename;
   bool isMassFac=false;
   if (argc!=2 && argc!=3) {
@@ -55,12 +55,12 @@ int main(int argc, char* argv[]){
 
   // NOTE nSpinCats should not change throughout the tree
   tree->GetEntry(0);
-  
+
   vector<TH1F*> muSM_percat_hists;
   vector<TH1F*> muGRAV_percat_hists;
   for (int s=0; s<nSpinCats; s++) {
-    muSM_percat_hists.push_back(new TH1F(Form("muSM_spin%d",s),Form("muSM_spin%d",s),100,-10,10));  
-    muGRAV_percat_hists.push_back(new TH1F(Form("muGRAV_spin%d",s),Form("muGRAV_spin%d",s),100,-10,10));  
+    muSM_percat_hists.push_back(new TH1F(Form("muSM_spin%d",s),Form("muSM_spin%d",s),100,-10,10));
+    muGRAV_percat_hists.push_back(new TH1F(Form("muGRAV_spin%d",s),Form("muGRAV_spin%d",s),100,-10,10));
   }
 
   int ntoys = tree->GetEntries();
@@ -107,11 +107,11 @@ int main(int argc, char* argv[]){
     canv->Print(Form("plots/%s/muGRAV_CT%d.pdf",dir.c_str(),s));
     canv->Print(Form("plots/%s/muGRAV_CT%d.png",dir.c_str(),s));
     cout << s << " " << muSM_percat_hists[s]->GetMean() << " " << muGRAV_percat_hists[s]->GetMean() << endl;
-    graphSM->SetPoint(s,0.1+(s*0.2),muSM_percat_hists[s]->GetMean());
+    graphSM->SetPoint(s,0.5/nSpinCats+(s*1./nSpinCats),muSM_percat_hists[s]->GetMean());
     graphSM->SetPointError(s,0.,muSM_percat_hists[s]->GetMeanError());
-    graphSME->SetPoint(s,0.1+(s*0.2),muSM_percat_hists[s]->GetMean());
+    graphSME->SetPoint(s,0.5/nSpinCats+(s*1./nSpinCats),muSM_percat_hists[s]->GetMean());
     graphSME->SetPointError(s,0.,muSM_percat_hists[s]->GetRMS());
-    graphGRAV->SetPoint(s,0.1+(s*0.2),1./muGRAV_percat_hists[s]->GetMean());
+    graphGRAV->SetPoint(s,0.5/nSpinCats+(s*1./nSpinCats),1./muGRAV_percat_hists[s]->GetMean());
     graphGRAV->SetPointError(s,0.,muGRAV_percat_hists[s]->GetMeanError());
   }
   TH2F *h = new TH2F("h","",1,0,1.,1,-0.5,3.0);
@@ -210,10 +210,10 @@ int main(int argc, char* argv[]){
   TH1F *testStatSMH = new TH1F("testStatSMH","testStatSMH",600,lmin,lmax);
   TH1F *testStatGRAVH = new TH1F("testStatGRAVH","testStatGRAVH",600,lmin,lmax);
   //TH1F *testStatOBSH = new TH1F("testStatOBSH","testStatOBSH",600,lmin,lmax);
-  
+
   tree->Draw("q_smtoy>>testStatSMH","q_smtoy>=-900. && q_smtoy<=900.","goff");
   tree->Draw("q_gravtoy>>testStatGRAVH","q_gravtoy>=-900. && q_gravtoy<=900.","goff");
- 
+
   // calc prob from hist
   double SMprobHist = testStatSMH->Integral(testStatSMH->FindBin(testStatGRAVH->GetMean()),testStatSMH->GetNbinsX())/testStatSMH->Integral();
   double GRAVprobHist = testStatGRAVH->Integral(0,testStatGRAVH->FindBin(testStatSMH->GetMean()))/testStatGRAVH->Integral();
@@ -227,7 +227,7 @@ int main(int argc, char* argv[]){
   // fit TH1Fs with a gaussian
   TF1 *gausSM = new TF1("gausSM","gaus",lmin,lmax);
   TF1 *gausGRAV = new TF1("gausGRAV","gaus",lmin,lmax);
-  
+
   testStatSMH->Fit(gausSM,"QN");
   testStatGRAVH->Fit(gausGRAV,"QN");
 
@@ -244,15 +244,15 @@ int main(int argc, char* argv[]){
   double GRAVsigma = TMath::ErfcInverse(GRAVprob)*TMath::Sqrt(2.0);
 
   cout << "SM: " << SMmean << " GRAV: " << GRAVmean << endl;
-  cout << "UNBINNED:" << endl; 
-  cout << "Prob( q > median(2) | 0 ) = "<< SMprob << " = " << SMsigma << " sigma " << endl; 
-  cout << "Prob( q < median(0) | 2 ) = "<< GRAVprob << " = " << GRAVsigma << " sigma " << endl; 
-  cout << "BINNED:  -- ErfcInverse" << endl; 
-  cout << "Prob( q > median(2) | 0 ) = "<< SMprobHist << " = " << SMsigmaHist << " sigma " << endl; 
-  cout << "Prob( q < median(0) | 2 ) = "<< GRAVprobHist << " = " << GRAVsigmaHist << " sigma " << endl; 
-  cout << "BINNED:  -- normal_quantile_c" << endl; 
-  cout << "Prob( q > median(2) | 0 ) = "<< SMprobHist << " = " << ROOT::Math::normal_quantile_c(SMprobHist,1.0) << " sigma " << endl; 
-  cout << "Prob( q < median(0) | 2 ) = "<< GRAVprobHist << " = " << ROOT::Math::normal_quantile_c(GRAVprobHist,1.0) << " sigma " << endl; 
+  cout << "UNBINNED:" << endl;
+  cout << "Prob( q > median(2) | 0 ) = "<< SMprob << " = " << SMsigma << " sigma " << endl;
+  cout << "Prob( q < median(0) | 2 ) = "<< GRAVprob << " = " << GRAVsigma << " sigma " << endl;
+  cout << "BINNED:  -- ErfcInverse" << endl;
+  cout << "Prob( q > median(2) | 0 ) = "<< SMprobHist << " = " << SMsigmaHist << " sigma " << endl;
+  cout << "Prob( q < median(0) | 2 ) = "<< GRAVprobHist << " = " << GRAVsigmaHist << " sigma " << endl;
+  cout << "BINNED:  -- normal_quantile_c" << endl;
+  cout << "Prob( q > median(2) | 0 ) = "<< SMprobHist << " = " << ROOT::Math::normal_quantile_c(SMprobHist,1.0) << " sigma " << endl;
+  cout << "Prob( q < median(0) | 2 ) = "<< GRAVprobHist << " = " << ROOT::Math::normal_quantile_c(GRAVprobHist,1.0) << " sigma " << endl;
 
   // set style
   testStatSMH->SetLineColor(kMagenta-3);
@@ -309,7 +309,7 @@ int main(int argc, char* argv[]){
   leg2->Draw();
   canv->Print(Form("plots/%s/fitted_sep.pdf",dir.c_str()));
   canv->Print(Form("plots/%s/fitted_sep.png",dir.c_str()));
-  
+
   testStatSMH->SetFillColor(kMagenta-7);
   testStatSMH->SetFillStyle(3001);
   testStatGRAVH->SetFillColor(kBlue-7);
@@ -328,7 +328,7 @@ int main(int argc, char* argv[]){
   pt5.Draw();
   canv->Print(Form("plots/%s/binned_sep.pdf",dir.c_str()));
   canv->Print(Form("plots/%s/binned_sep.png",dir.c_str()));
-  
+
   outFile->cd();
   muSMSMhist->Write();
   muSMGRAVhist->Write();

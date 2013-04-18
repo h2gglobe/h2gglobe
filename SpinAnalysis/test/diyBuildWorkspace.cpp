@@ -34,11 +34,20 @@
 using namespace std;
 using namespace RooFit;
 
+int GetCategory(std::vector<double> & v, float val)
+{
+    if( val == v[0] ) { return 0; }
+    std::vector<double>::iterator bound =  lower_bound( v.begin(), v.end(), val, std::greater<double>  ());
+    int cat = ( val >= *bound ? bound - v.begin() - 1 : bound - v.begin() );
+    if( cat >= v.size() - 1 ) { cat = -1; }
+    return cat;
+}
+
 pair<int,int> getMassFacCategory(float diphoton_bdt, double costheta_cs){
-  
+
   // fabrice style
   int mycat=-1;
-  int costheta_csBin=-1; 
+  int costheta_csBin=-1;
   if (TMath::Abs(costheta_cs)>=0. && TMath::Abs(costheta_cs)<0.2) {
     costheta_csBin=0;
     if (diphoton_bdt >= 0.1 && diphoton_bdt < 0.7) mycat=0;
@@ -77,17 +86,18 @@ pair<int,int> getMassFacCategory(float diphoton_bdt, double costheta_cs){
   return pair<int,int>(mycat,costheta_csBin);
 }
 
-pair<int,int> getCutBasedCategory(double lead_eta, double sublead_eta, float lead_r9, float sublead_r9, double costheta_cs){
-  
+pair<int,int> getCutBasedCategory(double lead_eta, double sublead_eta, float lead_r9, float sublead_r9, double costheta_cs, std::vector<double> cosThetaBoundaries){
+
   // marco style
   int mycat=-1;
-  int costheta_csBin=-1; 
-  if (TMath::Abs(costheta_cs)>=0. && TMath::Abs(costheta_cs)<0.2) costheta_csBin=0;
+  int costheta_csBin=-1;
+  /*if (TMath::Abs(costheta_cs)>=0. && TMath::Abs(costheta_cs)<0.2) costheta_csBin=0;
   else if (TMath::Abs(costheta_cs)>=0.2 && TMath::Abs(costheta_cs)<0.4) costheta_csBin=1;
   else if (TMath::Abs(costheta_cs)>=0.4 && TMath::Abs(costheta_cs)<0.6) costheta_csBin=2;
   else if (TMath::Abs(costheta_cs)>=0.6 && TMath::Abs(costheta_cs)<0.8) costheta_csBin=3;
   else if (TMath::Abs(costheta_cs)>=0.8 && TMath::Abs(costheta_cs)<=1.0) costheta_csBin=4;
-  else costheta_csBin=-1;
+  else costheta_csBin=-1;*/
+  costheta_csBin=GetCategory(cosThetaBoundaries, 1-costheta_cs);
 
   if (TMath::Abs(lead_eta)<=1.4442 && TMath::Abs(sublead_eta)<=1.4442){
     if (lead_r9>=0.94 && sublead_r9>=0.94) mycat=0;
@@ -102,15 +112,15 @@ pair<int,int> getCutBasedCategory(double lead_eta, double sublead_eta, float lea
 }
 
 string getCatName(int cat, int scat){
-  return Form("cat%d_spin%d",cat,scat); 
+  return Form("cat%d_spin%d",cat,scat);
 }
 
 string getCatName(pair<int,int> cat){
-  return Form("cat%d_spin%d",cat.first,cat.second); 
+  return Form("cat%d_spin%d",cat.first,cat.second);
 }
 
-void fillDataSet(RooRealVar *mass, map<string,RooDataSet*> &dataMap, vector<TTree*> trees, bool isMassFac, double mlow, double mhigh){
-  
+void fillDataSet(RooRealVar *mass, map<string,RooDataSet*> &dataMap, vector<TTree*> trees, bool isMassFac, double mlow, double mhigh, std::vector<double> cosThetaBoundaries){
+
   int category;
   float evweight;
   double costheta_cs;
@@ -139,7 +149,7 @@ void fillDataSet(RooRealVar *mass, map<string,RooDataSet*> &dataMap, vector<TTre
       if (e%10000==0) cout << "Entry " << e << " of " << tree->GetEntries() << endl;
       pair<int,int> mycat;
       if (isMassFac) mycat = getMassFacCategory(diphoton_bdt,costheta_cs);
-      else mycat = getCutBasedCategory(lead_calo_eta,sublead_calo_eta,lead_r9,sublead_r9,costheta_cs);
+      else mycat = getCutBasedCategory(lead_calo_eta,sublead_calo_eta,lead_r9,sublead_r9,costheta_cs,cosThetaBoundaries);
       if (mycat.first==-1 || mycat.second==-1) continue;
       if (higgs_mass<mlow || higgs_mass>mhigh) continue;
       mass->setVal(higgs_mass);
@@ -150,7 +160,7 @@ void fillDataSet(RooRealVar *mass, map<string,RooDataSet*> &dataMap, vector<TTre
 }
 
 void Plot(string name, RooRealVar *mass, RooDataSet* data, RooAbsPdf* pdf){
-  
+
   TCanvas *canv = new TCanvas();
   RooPlot *plot = mass->frame();
   data->plotOn(plot);
@@ -165,21 +175,21 @@ void Plot(string name, RooRealVar *mass, RooDataSet* data, RooAbsPdf* pdf){
 
 void makeBackgroundModel(string name, RooRealVar *mass, map<string,RooDataSet*> data, RooWorkspace *work, int nBDTCategories, int nCosThetaCategories, bool globePDFs, bool verbose=false){
 
-  string path="plots/"+name; 
+  string path="plots/"+name;
   system(Form("mkdir -p %s",path.c_str()));
 
   for(int a=0; a<nBDTCategories; a++){
     for(int b=0; b<nCosThetaCategories; b++){
-      
+
       string catname = getCatName(a,b);
-      
+
       RooAbsPdf *bkg;
       if (globePDFs) {
         RooRealVar *p0 = new RooRealVar(Form("CMS_hgg_quartic0_cat%d_spin%d",a,b),Form("CMS_hgg_quartic0_cat%d_spin%d",a,b),0.02,-5.0,5.0);
         RooRealVar *p1 = new RooRealVar(Form("CMS_hgg_quartic1_cat%d_spin%d",a,b),Form("CMS_hgg_quartic0_cat%d_spin%d",a,b),0.02,-5.0,5.0);
         RooRealVar *p2 = new RooRealVar(Form("CMS_hgg_quartic2_cat%d_spin%d",a,b),Form("CMS_hgg_quartic0_cat%d_spin%d",a,b),0.02,-5.0,5.0);
         RooRealVar *p3 = new RooRealVar(Form("CMS_hgg_quartic3_cat%d_spin%d",a,b),Form("CMS_hgg_quartic0_cat%d_spin%d",a,b),0.02,-5.0,5.0);
-        
+
         RooFormulaVar *f0 = new RooFormulaVar(Form("CMS_hgg_modquartic0_cat%d_spin%d",a,b),Form("CMS_hgg_modquartic0_cat%d_spin%d",a,b),"@0*@0",RooArgList(*p0));
         RooFormulaVar *f1 = new RooFormulaVar(Form("CMS_hgg_modquartic1_cat%d_spin%d",a,b),Form("CMS_hgg_modquartic0_cat%d_spin%d",a,b),"@0*@0",RooArgList(*p1));
         RooFormulaVar *f2 = new RooFormulaVar(Form("CMS_hgg_modquartic2_cat%d_spin%d",a,b),Form("CMS_hgg_modquartic0_cat%d_spin%d",a,b),"@0*@0",RooArgList(*p2));
@@ -194,26 +204,26 @@ void makeBackgroundModel(string name, RooRealVar *mass, map<string,RooDataSet*> 
         //bkg = new RooGenericPdf(Form("data_pow_model_cat%d_spin%d",a,b),Form("data_pow_model_cat%d_spin%d",a,b),"@3*pow(@0,-@1)+(1.-@3)*pow(@01,-@2)",RooArgList(*mass,*pow0,*pow1,*f1));
         bkg = new RooGenericPdf(Form("data_pow_model_cat%d_spin%d",a,b),Form("data_pow_model_cat%d_spin%d",a,b),"pow(@0,-@1)",RooArgList(*mass,*pow0));
       }
-      
+
       RooRealVar *norm = new RooRealVar(Form("%s_norm",bkg->GetName()),Form("%s_norm",bkg->GetName()),10.,1.e6);
       RooExtendPdf *ext;
       if (globePDFs) ext = new RooExtendPdf(Form("pdf_data_pol_model_cat%d_spin%d",a,b),Form("pdf_data_pol_model_cat%d_spin%d",a,b),*bkg,*norm);
       else ext = new RooExtendPdf(Form("pdf_data_pow_model_cat%d_spin%d",a,b),Form("pdf_data_pow_model_cat%d_spin%d",a,b),*bkg,*norm);
 
       cout << data[catname]->GetName() << " : " << data[catname]->sumEntries() << endl;
-      
+
       bkg->fitTo(*data[catname]);//,PrintLevel(-1),Warnings(false),PrintEvalErrors(-1));
-      
+
       /*
       RooFitResult *fitRes;
-      verbose ? 
+      verbose ?
         fitRes = ext->fitTo(*data[catname],Save(true)) :
-        fitRes = ext->fitTo(*data[catname],Save(true),PrintLevel(-1),Warnings(false),PrintEvalErrors(-1)) 
+        fitRes = ext->fitTo(*data[catname],Save(true),PrintLevel(-1),Warnings(false),PrintEvalErrors(-1))
       ;
       fitRes->floatParsFinal().Print("v");
       delete fitRes;
       */
-      
+
       if (globePDFs) mass->setBins(320);
       else mass->setBins(200);
       RooDataHist *temp = data[catname]->binnedClone(Form("roohist_%s",data[catname]->GetName()));
@@ -227,12 +237,12 @@ void makeBackgroundModel(string name, RooRealVar *mass, map<string,RooDataSet*> 
 }
 
 void makeSignalModel(string name, RooRealVar *mass, map<string,RooDataSet*> sigMC, RooWorkspace *work, int nBDTCategories, int nCosThetaCategories, bool globePDFs, bool isSM, bool verbose=false){
- 
-  string path="plots/"+name; 
+
+  string path="plots/"+name;
   system(Form("mkdir -p %s",path.c_str()));
   for(int a=0; a<nBDTCategories; a++){
     for(int b=0; b<nCosThetaCategories; b++){
-     
+
       string catname = getCatName(a,b);
 
       string postfix="";
@@ -262,17 +272,17 @@ void makeSignalModel(string name, RooRealVar *mass, map<string,RooDataSet*> sigM
       if (globePDFs) sigPdf = new RooAddPdf(Form("sigModel_%s_cat%d_spin%d",postfix.c_str(),a,b),Form("sigModel_%s_cat%d_spin%d",postfix.c_str(),a,b), RooArgList(*pdfGaussians[0],*pdfGaussians[1],*pdfGaussians[2],*pdfGaussians[3]),RooArgList(*fracs[0],*fracs[1],*fracs[2]));
       else sigPdf = new RooAddPdf(Form("sigModel_%s_cat%d_spin%d",postfix.c_str(),a,b),Form("sigModel_%s_cat%d_spin%d",postfix.c_str(),a,b), RooArgList(*pdfGaussians[0],*pdfGaussians[1],*pdfGaussians[2],*pdfGaussians[3]),RooArgList(*fracs[0],*fracs[1],*fracs[2]));
       //else sigPdf = new RooAddPdf(Form("sigModel_%s_cat%d_spin%d",postfix.c_str(),a,b),Form("sigModel_%s_cat%d_spin%d",postfix.c_str(),a,b), RooArgList(*pdfGaussians[0],*pdfGaussians[1]),RooArgList(*fracs[0]));
-     
+
       cout << sigMC[catname]->GetName() << " : " << sigMC[catname]->sumEntries() << endl;
 
       RooFitResult *fitRes;
-      verbose ? 
+      verbose ?
         fitRes = sigPdf->fitTo(*sigMC[catname],SumW2Error(true),Save(true)) :
         fitRes = sigPdf->fitTo(*sigMC[catname],SumW2Error(true),Save(true),PrintLevel(-1),Warnings(false),PrintEvalErrors(-1))
       ;
       fitRes->floatParsFinal().Print("v");
       delete fitRes;
-      
+
       for (vector<RooRealVar*>::iterator it=means.begin(); it!=means.end(); it++) (*it)->setConstant(true);
       for (vector<RooRealVar*>::iterator it=sigmas.begin(); it!=sigmas.end(); it++) (*it)->setConstant(true);
       for (vector<RooRealVar*>::iterator it=fracs.begin(); it!=fracs.end(); it++) (*it)->setConstant(true);
@@ -283,7 +293,7 @@ void makeSignalModel(string name, RooRealVar *mass, map<string,RooDataSet*> sigM
       RooExtendPdf *ext = new RooExtendPdf(Form("pdf_%s",sigPdf->GetName()),Form("pdf_%s",sigPdf->GetName()),*sigPdf,*norm);
       work->import(*sigMC[catname]);
       work->import(*ext);
-      
+
       if (isSM) Plot(Form("%s/sig_spin0_cat%d_spin%d",path.c_str(),a,b),mass,sigMC[catname],sigPdf);
       else Plot(Form("%s/sig_spin2_cat%d_spin%d",path.c_str(),a,b),mass,sigMC[catname],sigPdf);
     }
@@ -301,6 +311,7 @@ int main(int argc, char* argv[]){
   bool useSpin2LP=false;
   int nBDTCats=0;
   int nSpinCats=0;
+  std::vector<double> cosThetaBoundaries;
   if (argc!=2){
     cout << "usage ./bin/diyBuildWorkspace <datfilename>" << endl;
     exit(1);
@@ -328,8 +339,18 @@ int main(int argc, char* argv[]){
     }
     datfile.close();
 
+    if(nSpinCats == 0)
+      nSpinCats = 5;
+
+    cout << "Using " << nSpinCats << " cos(Theta*) categories." << endl;
+
+    //Boundaries are defined in (1-cosTheta) space
+    for(int i = 0; i <= nSpinCats; i++)
+    {
+      cosThetaBoundaries.push_back((nSpinCats-i)*1./nSpinCats);
+    }
   }
-  
+
   cout << "Reading from file - " << filename << endl;
   if (isMassFac) cout << "Running MassFac selection" << endl;
   else cout << "Running CutBased selection" << endl;
@@ -338,14 +359,14 @@ int main(int argc, char* argv[]){
 
   TFile *outFile = new TFile(outfilename.c_str(),"RECREATE");
   RooWorkspace *work = new RooWorkspace("HggSpinStudies");
-  
+
   double mlow=100.;
   double mhigh=150.;
   if (globePDFs) mhigh=180.;
 
   RooRealVar *mass = new RooRealVar("mass","mass",mlow,mhigh);
   RooRealVar *weight = new RooRealVar("weight","weight",0,100);
-  
+
   vector<TTree*> dataTrees;
   vector<TTree*> spin0Trees;
   vector<TTree*> spin2Trees;
@@ -378,10 +399,10 @@ int main(int argc, char* argv[]){
     }
   }
 
-  fillDataSet(mass,dataDSet,dataTrees,isMassFac,mlow,mhigh);
-  fillDataSet(mass,spin0DSet,spin0Trees,isMassFac,mlow,mhigh);
-  fillDataSet(mass,spin2DSet,spin2Trees,isMassFac,mlow,mhigh);
-  
+  fillDataSet(mass,dataDSet,dataTrees,isMassFac,mlow,mhigh,cosThetaBoundaries);
+  fillDataSet(mass,spin0DSet,spin0Trees,isMassFac,mlow,mhigh,cosThetaBoundaries);
+  fillDataSet(mass,spin2DSet,spin2Trees,isMassFac,mlow,mhigh,cosThetaBoundaries);
+
   double totalSM=0.;
   double totalGRAV=0.;
   for (int c=0; c<nBDTCats; c++){
@@ -408,7 +429,7 @@ int main(int argc, char* argv[]){
   for (map<string,RooDataSet*>::iterator it=dataDSet.begin(); it!=dataDSet.end(); it++) delete it->second;
   for (map<string,RooDataSet*>::iterator it=spin0DSet.begin(); it!=spin0DSet.end(); it++) delete it->second;
   for (map<string,RooDataSet*>::iterator it=spin2DSet.begin(); it!=spin2DSet.end(); it++) delete it->second;
-  
+
   inFile->Close();
   outFile->cd();
   work->Write();
@@ -417,7 +438,7 @@ int main(int argc, char* argv[]){
   delete inFile;
   delete work;
   delete outFile;
-  
+
   return 0;
 }
- 
+
