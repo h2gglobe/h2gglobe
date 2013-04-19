@@ -24,13 +24,22 @@ int main(int argc, char* argv[]){
 
   string filename;
   bool isMassFac=false;
-  if (argc!=2 && argc!=3) {
-    cout << "usage ./bin/diyPlot <infilename> --isMassFac" << endl;
+  int nCats = 0;
+  if (argc!=2 && argc!=3 && argc!=4 && argc!=5) {
+    cout << "usage ./bin/diyPlot <infilename> --isMassFac --nCats" << endl;
     return 1;
   }
   else {
     filename=string(argv[1]);
-    for (int i=0; i<argc; i++) if (string(argv[i])=="--isMassFac") isMassFac=true;
+    for (int i=0; i<argc; i++)
+    {
+      if (string(argv[i])=="--isMassFac") isMassFac=true;
+      if (string(argv[i])=="--nCats" && i < argc-1)
+      {
+        nCats = atoi(argv[i+1]);
+        i++;
+      }
+    }
   }
   string dir="cutBased";
   if (isMassFac) dir="massFac";
@@ -253,6 +262,33 @@ int main(int argc, char* argv[]){
   cout << "BINNED:  -- normal_quantile_c" << endl;
   cout << "Prob( q > median(2) | 0 ) = "<< SMprobHist << " = " << ROOT::Math::normal_quantile_c(SMprobHist,1.0) << " sigma " << endl;
   cout << "Prob( q < median(0) | 2 ) = "<< GRAVprobHist << " = " << ROOT::Math::normal_quantile_c(GRAVprobHist,1.0) << " sigma " << endl;
+
+  if(nCats > 0)
+  {
+    TFile *haddable = new TFile(Form("%dCats_separation.root",nCats),"RECREATE");
+    TTree *tree = new TTree("Separation","Separation");
+    double SMsigmaHistQuant = ROOT::Math::normal_quantile_c(SMprobHist,1.0);
+    double GRAVsigmaHistQuant = ROOT::Math::normal_quantile_c(GRAVprobHist,1.0);
+
+    tree->Branch("nCats", &nCats);
+    tree->Branch("UnbinnedSMProb", &SMprob);
+    tree->Branch("UnbinnedGravProb", &GRAVprob);
+    tree->Branch("BinnedSMProb", &SMprobHist);
+    tree->Branch("BinnedGravProb", &GRAVprobHist);
+    tree->Branch("UnbinnedSMSigma", &SMsigma);
+    tree->Branch("UnbinnedGravSigma", &GRAVsigma);
+    tree->Branch("BinnedSMSigma_ErfcInv", &SMsigmaHist);
+    tree->Branch("BinnedGravSigma_ErfcInv", &GRAVsigmaHist);
+    tree->Branch("BinnedSMSigma_quantile", &SMsigmaHistQuant);
+    tree->Branch("BinnedGravSigma_quantile", &GRAVsigmaHistQuant);
+
+    tree->Fill();
+    //tree->Print();
+    haddable->Write();
+
+    outFile->cd();
+    haddable->Close();
+  }
 
   // set style
   testStatSMH->SetLineColor(kMagenta-3);

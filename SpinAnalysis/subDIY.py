@@ -22,7 +22,7 @@ for j in range(options.njobs):
   os.system("rm -f %s/*.sh.log"%dir)
   os.system("rm -f %s/*.sh.run"%dir)
   #os.system('cp %s/%s %s/job%d\n'%(os.getcwd(),options.file,os.getcwd(),j))
-  os.system('cp %s/bin/diySeparation %s/%s'%(os.getcwd(),os.getcwd(),dir))
+  os.system('cp %s/bin/diySeparation %s'%(os.getcwd(),dir))
   f = open('%s/sub%d.sh'%(dir,j),'w')
   f.write('#!/bin/bash\n')
   f.write('cd %s/%s\n'%(os.getcwd(),dir))
