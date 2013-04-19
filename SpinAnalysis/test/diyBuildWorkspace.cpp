@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <sstream>
 #include <map>
 
 #include "boost/lexical_cast.hpp"
@@ -312,6 +313,8 @@ int main(int argc, char* argv[]){
   int nBDTCats=0;
   int nSpinCats=0;
   std::vector<double> cosThetaBoundaries;
+  string boundaries="";
+
   if (argc!=2){
     cout << "usage ./bin/diyBuildWorkspace <datfilename>" << endl;
     exit(1);
@@ -336,18 +339,54 @@ int main(int argc, char* argv[]){
       if (line.find("useSpin2LP=")!=string::npos) useSpin2LP = boost::lexical_cast<bool>(line.substr(line.find("=")+1,string::npos));
       if (line.find("nBDTCats=")!=string::npos) nBDTCats = boost::lexical_cast<int>(line.substr(line.find("=")+1,string::npos));
       if (line.find("nSpinCats=")!=string::npos) nSpinCats = boost::lexical_cast<int>(line.substr(line.find("=")+1,string::npos));
+      if (line.find("catBoundaries=")!=string::npos) boundaries = line.substr(line.find("=")+1,string::npos);
     }
     datfile.close();
 
-    if(nSpinCats == 0)
-      nSpinCats = 5;
-
-    cout << "Using " << nSpinCats << " cos(Theta*) categories." << endl;
-
-    //Boundaries are defined in (1-cosTheta) space
-    for(int i = 0; i <= nSpinCats; i++)
+    if(boundaries != "")
     {
-      cosThetaBoundaries.push_back((nSpinCats-i)*1./nSpinCats);
+      //cout << "Testing boundaries: " << boundaries << endl;
+
+      int position = boundaries.find(" ");
+      do
+      {
+        position = boundaries.find(" ");
+        string testnum = boundaries.substr(0,position);
+        boundaries = boundaries.substr(position+1);
+
+        //cout << testnum << endl;
+        std::stringstream os(testnum);
+
+        double temp;
+        os >> temp;
+        if(!os.fail())
+        {
+          cout << "Interpreted boundary '" << testnum << "' as: " << temp << endl;
+          cosThetaBoundaries.push_back(temp);
+          for(UInt_t i = cosThetaBoundaries.size()-1; i > 0; i--)
+          {
+            if(cosThetaBoundaries[i] > cosThetaBoundaries[i-1])
+              std::swap(cosThetaBoundaries[i], cosThetaBoundaries[i-1]);
+            else
+              break;
+          }
+        }
+        else
+          cout << "Was not able understand boundary '" << testnum << "', ignoring it." << endl;
+      }while(position!=string::npos);
+    }
+    else
+    {
+      if(nSpinCats == 0)
+        nSpinCats = 5;
+
+      cout << "Using " << nSpinCats << " cos(Theta*) categories." << endl;
+
+      //Boundaries are defined in (1-cosTheta) space
+      for(int i = 0; i <= nSpinCats; i++)
+      {
+        cosThetaBoundaries.push_back((nSpinCats-i)*1./nSpinCats);
+      }
     }
   }
 
