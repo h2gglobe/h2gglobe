@@ -22,18 +22,29 @@ for j in range(options.njobs):
   os.system("rm -f %s/*.sh.log"%dir)
   os.system("rm -f %s/*.sh.run"%dir)
   #os.system('cp %s/%s %s/job%d\n'%(os.getcwd(),options.file,os.getcwd(),j))
-  os.system('cp %s/bin/diySeparation %s'%(os.getcwd(),dir))
+  os.system('cp %s/bin/diySeparation %s/'%(os.getcwd(),dir))
   f = open('%s/sub%d.sh'%(dir,j),'w')
   f.write('#!/bin/bash\n')
-  f.write('cd %s/%s\n'%(os.getcwd(),dir))
+  if dir[0] == '/':
+    f.write('cd %s\n'%(dir))
+  else:
+    f.write('cd %s/%s\n'%(os.getcwd(),dir))
   f.write('eval `scramv1 runtime -sh`\n')
   f.write('touch sub%d.sh.run\n'%j)
-  subline = './diySeparation %s/%s %d'%(os.getcwd(),options.datfile,options.toyspj)
+  subline = ''
+  if options.datfile[0] == '/':
+    subline = './diySeparation %s %d'%(options.datfile,options.toyspj)
+  else:
+    subline = './diySeparation %s/%s %d'%(os.getcwd(),options.datfile,options.toyspj)
   f.write('if ( %s )\n'%subline)
   f.write('\tthen touch sub%d.sh.done\n'%j)
   f.write('\telse touch sub%d.sh.fail\n'%j)
   f.write('fi\n')
   f.write('rm -f sub%d.sh.run\n'%j)
   os.system('chmod +x %s'%f.name)
-  if not options.dryRun: os.system('bsub -q %s -o %s/%s.log %s/%s'%(options.queue,os.getcwd(),f.name,os.getcwd(),f.name))
+
+  filename=f.name
+  if filename[0] != '/':
+    filename = os.getcwd()+'/'+filename
+  if not options.dryRun: os.system('bsub -q %s -o %s.log %s'%(options.queue,filename,filename))
   #else: print 'bsub -q %s -o %s/%s.log %s/%s'%(options.queue,os.getcwd(),f.name,os.getcwd(),f.name)
