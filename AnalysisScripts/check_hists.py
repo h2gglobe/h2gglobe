@@ -14,4 +14,4 @@ for key in tf.GetListOfKeys():
     for grep in options.grep:
       if grep in key.GetName():
         th1f = tf.Get(key.GetName())
-        print '%30s -- %10d -- %10.24f'%(th1f.GetName(),th1f.GetEntries(),th1f.Integral())
+        print '%50s -- %10d -- %10.24f'%(th1f.GetName(),th1f.GetEntries(),th1f.Integral())
