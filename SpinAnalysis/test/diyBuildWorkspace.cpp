@@ -174,36 +174,67 @@ void Plot(string name, RooRealVar *mass, RooDataSet* data, RooAbsPdf* pdf){
 }
 
 
-void makeBackgroundModel(string name, RooRealVar *mass, map<string,RooDataSet*> data, RooWorkspace *work, int nBDTCategories, int nCosThetaCategories, bool globePDFs, bool verbose=false){
+void makeBackgroundModel(string name, RooRealVar *mass, map<string,RooDataSet*> data, RooWorkspace *work, int nBDTCategories, int nCosThetaCategories, bool globePDFs, bool verbose=false, bool correlateCosThetaCategories=false){
 
   string path="plots/"+name;
   system(Form("mkdir -p %s",path.c_str()));
 
+
   for(int a=0; a<nBDTCategories; a++){
+
+    RooRealVar *p0, *p1, *p2, *p3, *pow0;
+    RooFormulaVar *f0, *f1, *f2, *f3;
+    RooAbsPdf *bkg;
+
+    if(correlateCosThetaCategories)
+    {
+      if(globePDFs)
+      {
+        p0 = new RooRealVar(Form("CMS_hgg_quartic0_cat%d",a),Form("CMS_hgg_quartic0_cat%d",a),0.02,-5.0,5.0);
+        p1 = new RooRealVar(Form("CMS_hgg_quartic1_cat%d",a),Form("CMS_hgg_quartic0_cat%d",a),0.02,-5.0,5.0);
+        p2 = new RooRealVar(Form("CMS_hgg_quartic2_cat%d",a),Form("CMS_hgg_quartic0_cat%d",a),0.02,-5.0,5.0);
+        p3 = new RooRealVar(Form("CMS_hgg_quartic3_cat%d",a),Form("CMS_hgg_quartic0_cat%d",a),0.02,-5.0,5.0);
+
+        f0 = new RooFormulaVar(Form("CMS_hgg_modquartic0_cat%d",a),Form("CMS_hgg_modquartic0_cat%d",a),"@0*@0",RooArgList(*p0));
+        f1 = new RooFormulaVar(Form("CMS_hgg_modquartic1_cat%d",a),Form("CMS_hgg_modquartic0_cat%d",a),"@0*@0",RooArgList(*p1));
+        f2 = new RooFormulaVar(Form("CMS_hgg_modquartic2_cat%d",a),Form("CMS_hgg_modquartic0_cat%d",a),"@0*@0",RooArgList(*p2));
+        f3 = new RooFormulaVar(Form("CMS_hgg_modquartic3_cat%d",a),Form("CMS_hgg_modquartic0_cat%d",a),"@0*@0",RooArgList(*p3));
+
+        bkg = new RooBernstein(Form("data_pol_model_cat%d",a),Form("data_pol_model_cat%d",a),*mass,RooArgList(*f0,*f1,*f2,*f3));
+      }
+      else
+      {
+        pow0 = new RooRealVar(Form("CMS_hgg_pow0_cat%d",a),Form("CMS_hgg_pow0_cat%d",a),10.,2.,20.);
+        bkg = new RooGenericPdf(Form("data_pow_model_cat%d",a),Form("data_pow_model_cat%d",a),"pow(@0,-@1)",RooArgList(*mass,*pow0));
+      }
+    }
+
     for(int b=0; b<nCosThetaCategories; b++){
 
       string catname = getCatName(a,b);
 
-      RooAbsPdf *bkg;
-      if (globePDFs) {
-        RooRealVar *p0 = new RooRealVar(Form("CMS_hgg_quartic0_cat%d_spin%d",a,b),Form("CMS_hgg_quartic0_cat%d_spin%d",a,b),0.02,-5.0,5.0);
-        RooRealVar *p1 = new RooRealVar(Form("CMS_hgg_quartic1_cat%d_spin%d",a,b),Form("CMS_hgg_quartic0_cat%d_spin%d",a,b),0.02,-5.0,5.0);
-        RooRealVar *p2 = new RooRealVar(Form("CMS_hgg_quartic2_cat%d_spin%d",a,b),Form("CMS_hgg_quartic0_cat%d_spin%d",a,b),0.02,-5.0,5.0);
-        RooRealVar *p3 = new RooRealVar(Form("CMS_hgg_quartic3_cat%d_spin%d",a,b),Form("CMS_hgg_quartic0_cat%d_spin%d",a,b),0.02,-5.0,5.0);
+      if(!correlateCosThetaCategories)
+      {
+        if (globePDFs) {
+          p0 = new RooRealVar(Form("CMS_hgg_quartic0_cat%d_spin%d",a,b),Form("CMS_hgg_quartic0_cat%d_spin%d",a,b),0.02,-5.0,5.0);
+          p1 = new RooRealVar(Form("CMS_hgg_quartic1_cat%d_spin%d",a,b),Form("CMS_hgg_quartic0_cat%d_spin%d",a,b),0.02,-5.0,5.0);
+          p2 = new RooRealVar(Form("CMS_hgg_quartic2_cat%d_spin%d",a,b),Form("CMS_hgg_quartic0_cat%d_spin%d",a,b),0.02,-5.0,5.0);
+          p3 = new RooRealVar(Form("CMS_hgg_quartic3_cat%d_spin%d",a,b),Form("CMS_hgg_quartic0_cat%d_spin%d",a,b),0.02,-5.0,5.0);
 
-        RooFormulaVar *f0 = new RooFormulaVar(Form("CMS_hgg_modquartic0_cat%d_spin%d",a,b),Form("CMS_hgg_modquartic0_cat%d_spin%d",a,b),"@0*@0",RooArgList(*p0));
-        RooFormulaVar *f1 = new RooFormulaVar(Form("CMS_hgg_modquartic1_cat%d_spin%d",a,b),Form("CMS_hgg_modquartic0_cat%d_spin%d",a,b),"@0*@0",RooArgList(*p1));
-        RooFormulaVar *f2 = new RooFormulaVar(Form("CMS_hgg_modquartic2_cat%d_spin%d",a,b),Form("CMS_hgg_modquartic0_cat%d_spin%d",a,b),"@0*@0",RooArgList(*p2));
-        RooFormulaVar *f3 = new RooFormulaVar(Form("CMS_hgg_modquartic3_cat%d_spin%d",a,b),Form("CMS_hgg_modquartic0_cat%d_spin%d",a,b),"@0*@0",RooArgList(*p3));
+          f0 = new RooFormulaVar(Form("CMS_hgg_modquartic0_cat%d_spin%d",a,b),Form("CMS_hgg_modquartic0_cat%d_spin%d",a,b),"@0*@0",RooArgList(*p0));
+          f1 = new RooFormulaVar(Form("CMS_hgg_modquartic1_cat%d_spin%d",a,b),Form("CMS_hgg_modquartic0_cat%d_spin%d",a,b),"@0*@0",RooArgList(*p1));
+          f2 = new RooFormulaVar(Form("CMS_hgg_modquartic2_cat%d_spin%d",a,b),Form("CMS_hgg_modquartic0_cat%d_spin%d",a,b),"@0*@0",RooArgList(*p2));
+          f3 = new RooFormulaVar(Form("CMS_hgg_modquartic3_cat%d_spin%d",a,b),Form("CMS_hgg_modquartic0_cat%d_spin%d",a,b),"@0*@0",RooArgList(*p3));
 
-        bkg = new RooBernstein(Form("data_pol_model_cat%d_spin%d",a,b),Form("data_pol_model_cat%d_spin%d",a,b),*mass,RooArgList(*f0,*f1,*f2,*f3));
-      }
-      else {
-        RooRealVar *pow0 = new RooRealVar(Form("CMS_hgg_pow0_cat%d_spin%d",a,b),Form("CMS_hgg_pow0_cat%d_spin%d",a,b),10.,2.,20.);
-        //RooRealVar *pow1 = new RooRealVar(Form("CMS_hgg_pow1_cat%d_spin%d",a,b),Form("CMS_hgg_pow1_cat%d_spin%d",a,b),10.,2.,20.);
-        //RooRealVar *f1 = new RooRealVar(Form("CMS_hgg_f1_cat%d_spin%d",a,b),Form("CMS_hgg_f1_cat%d_spin%d",a,b),0.6,0.5,1.);
-        //bkg = new RooGenericPdf(Form("data_pow_model_cat%d_spin%d",a,b),Form("data_pow_model_cat%d_spin%d",a,b),"@3*pow(@0,-@1)+(1.-@3)*pow(@01,-@2)",RooArgList(*mass,*pow0,*pow1,*f1));
-        bkg = new RooGenericPdf(Form("data_pow_model_cat%d_spin%d",a,b),Form("data_pow_model_cat%d_spin%d",a,b),"pow(@0,-@1)",RooArgList(*mass,*pow0));
+          bkg = new RooBernstein(Form("data_pol_model_cat%d_spin%d",a,b),Form("data_pol_model_cat%d_spin%d",a,b),*mass,RooArgList(*f0,*f1,*f2,*f3));
+        }
+        else {
+          pow0 = new RooRealVar(Form("CMS_hgg_pow0_cat%d_spin%d",a,b),Form("CMS_hgg_pow0_cat%d_spin%d",a,b),10.,2.,20.);
+          //RooRealVar *pow1 = new RooRealVar(Form("CMS_hgg_pow1_cat%d_spin%d",a,b),Form("CMS_hgg_pow1_cat%d_spin%d",a,b),10.,2.,20.);
+          //RooRealVar *f1 = new RooRealVar(Form("CMS_hgg_f1_cat%d_spin%d",a,b),Form("CMS_hgg_f1_cat%d_spin%d",a,b),0.6,0.5,1.);
+          //bkg = new RooGenericPdf(Form("data_pow_model_cat%d_spin%d",a,b),Form("data_pow_model_cat%d_spin%d",a,b),"@3*pow(@0,-@1)+(1.-@3)*pow(@01,-@2)",RooArgList(*mass,*pow0,*pow1,*f1));
+          bkg = new RooGenericPdf(Form("data_pow_model_cat%d_spin%d",a,b),Form("data_pow_model_cat%d_spin%d",a,b),"pow(@0,-@1)",RooArgList(*mass,*pow0));
+        }
       }
 
       RooRealVar *norm = new RooRealVar(Form("%s_norm",bkg->GetName()),Form("%s_norm",bkg->GetName()),10.,1.e6);
@@ -230,7 +261,7 @@ void makeBackgroundModel(string name, RooRealVar *mass, map<string,RooDataSet*> 
       RooDataHist *temp = data[catname]->binnedClone(Form("roohist_%s",data[catname]->GetName()));
       work->import(*temp);
       work->import(*data[catname]);
-      work->import(*ext);
+      work->import(*ext, RooFit::RecycleConflictNodes());
 
       Plot(Form("%s/bkg_cat%d_spin%d",path.c_str(),a,b),mass,data[catname],bkg);
     }
@@ -310,6 +341,7 @@ int main(int argc, char* argv[]){
   bool fullSMproc=false;
   bool useSMpowheg=false;
   bool useSpin2LP=false;
+  bool correlateCosThetaCategories = false;
   int nBDTCats=0;
   int nSpinCats=0;
   std::vector<double> cosThetaBoundaries;
@@ -340,6 +372,7 @@ int main(int argc, char* argv[]){
       if (line.find("nBDTCats=")!=string::npos) nBDTCats = boost::lexical_cast<int>(line.substr(line.find("=")+1,string::npos));
       if (line.find("nSpinCats=")!=string::npos) nSpinCats = boost::lexical_cast<int>(line.substr(line.find("=")+1,string::npos));
       if (line.find("catBoundaries=")!=string::npos) boundaries = line.substr(line.find("=")+1,string::npos);
+      if (line.find("correlateCosThetaCategories=")!=string::npos) correlateCosThetaCategories = boost::lexical_cast<bool>(line.substr(line.find("=")+1,string::npos));
     }
     datfile.close();
 
@@ -347,7 +380,7 @@ int main(int argc, char* argv[]){
     {
       //cout << "Testing boundaries: " << boundaries << endl;
 
-      int position = boundaries.find(" ");
+      size_t position = boundaries.find(" ");
       do
       {
         position = boundaries.find(" ");
@@ -461,7 +494,7 @@ int main(int argc, char* argv[]){
   string dirname;
   if (isMassFac) dirname="massFac";
   else dirname="cutBased";
-  makeBackgroundModel(dirname,mass,dataDSet,work,nBDTCats,nSpinCats,globePDFs);
+  makeBackgroundModel(dirname,mass,dataDSet,work,nBDTCats,nSpinCats,globePDFs,false,correlateCosThetaCategories);
   makeSignalModel(dirname,mass,spin0DSet,work,nBDTCats,nSpinCats,globePDFs,true);
   makeSignalModel(dirname,mass,spin2DSet,work,nBDTCats,nSpinCats,globePDFs,false);
 

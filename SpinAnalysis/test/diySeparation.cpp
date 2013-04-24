@@ -34,7 +34,7 @@ using namespace std;
 using namespace RooFit;
 
 double getTotalEvents(map<string,double> events){
-  
+
   double total=0.;
   for (map<string,double>::iterator it=events.begin(); it!=events.end(); it++){
     total += it->second;
@@ -43,7 +43,7 @@ double getTotalEvents(map<string,double> events){
 }
 
 void Plot(RooRealVar *mass, RooCategory *category, RooDataSet *data, RooSimultaneous *pdf, int nBDTCats, int nSpinCats, bool sm, string name){
-  
+
   TCanvas *canv = new TCanvas();
   for (int c=0; c<nBDTCats; c++){
     for (int s=0; s<nSpinCats; s++){
@@ -61,7 +61,7 @@ void Plot(RooRealVar *mass, RooCategory *category, RooDataSet *data, RooSimultan
     }
   }
   delete canv;
-  
+
 }
 
 int main(int argc, char* argv[]){
@@ -71,6 +71,7 @@ int main(int argc, char* argv[]){
   int nBDTCats=0;
   int nSpinCats=0;
   bool globePDFs=false;
+  bool correlateCosThetaCategories=false;
   if (argc!=3) {
     cout << "usage ./bin/diySeparation <datfilename> <ntoys>" << endl;
     exit(1);
@@ -90,14 +91,20 @@ int main(int argc, char* argv[]){
       if (line.find("globePDFs=")!=string::npos) globePDFs = boost::lexical_cast<bool>(line.substr(line.find("=")+1,string::npos));
       if (line.find("nBDTCats=")!=string::npos) nBDTCats = boost::lexical_cast<int>(line.substr(line.find("=")+1,string::npos));
       if (line.find("nSpinCats=")!=string::npos) nSpinCats = boost::lexical_cast<int>(line.substr(line.find("=")+1,string::npos));
+      if (line.find("correlateCosThetaCategories=")!=string::npos) correlateCosThetaCategories = boost::lexical_cast<bool>(line.substr(line.find("=")+1,string::npos));
     }
     datfile.close();
- 
+
   }
 
   // set plotting style
   gROOT->SetStyle("Plain");
   gROOT->ForceStyle();
+
+  RooMsgService::instance().setGlobalKillBelow(RooFit::MsgLevel(RooFit::ERROR));
+  RooMsgService::instance().getStream(1).removeTopic(Minimization);
+  RooFit::PrintLevel(-200000);
+  RooMsgService::instance().setStreamStatus(1,false);
 
   TFile *inFile = TFile::Open(filename.c_str());
   RooWorkspace *work = (RooWorkspace*)inFile->Get("HggSpinStudies");
@@ -135,7 +142,7 @@ int main(int argc, char* argv[]){
   RooRealVar *mass = (RooRealVar*)work->var("mass");
   if (globePDFs) mass->setBins(160);
   else mass->setBins(100);
- 
+
   // map for storing all data
   map<string,RooDataSet*> data;
 
@@ -158,10 +165,10 @@ int main(int argc, char* argv[]){
 
   // define global category
   RooCategory *category = new RooCategory("category","category");
-  
+
   // define per cosTheta cat categories
   vector<RooCategory*> miniCategories;
-  
+
   // vectors for storing maps of pdfs and data in each cos theta cat
   vector<map<string,RooAbsPdf*> > sbModSMvect;
   vector<map<string,RooAbsPdf*> > sbModGRAVvect;
@@ -179,7 +186,7 @@ int main(int argc, char* argv[]){
   for (int s=0; s<nSpinCats; s++){
     for (int c=0; c<nBDTCats; c++){
       string catname = Form("cat%d_spin%d",c,s);
-      
+
       expEventsSM.insert(pair<string,double>(catname,((RooDataSet*)work->data(Form("mcSigSMHiggs_bdt%d_cTh%d",c,s)))->sumEntries()));
       expEventsGRAV.insert(pair<string,double>(catname,((RooDataSet*)work->data(Form("mcSigGraviton_bdt%d_cTh%d",c,s)))->sumEntries()));
       expEventsALL.insert(pair<string,double>(catname,((RooDataSet*)work->data(Form("data_mass_cat%d_spin%d",c,s)))->sumEntries()));
@@ -195,13 +202,13 @@ int main(int argc, char* argv[]){
   cout << "TOTAL: " << "Data: " << allData << " Spin0: " << allSM << " Spin2: " << allGRAV << " ScaleFac: " << scaleFactor << endl;
 
   for (int s=0; s<nSpinCats; s++){
-    
+
     // define categories and maps for indepedent cos theta bin fits
     miniCategories.push_back(new RooCategory(Form("mincat_spin%d",s),Form("mincat_spin%d",s)));
     map<string,RooAbsPdf*> sbModSMthisCTheta;
     map<string,RooAbsPdf*> sbModGRAVthisCTheta;
     map<string,RooDataSet*> datathisCTheta;
-    
+
     for (int c=0; c<nBDTCats; c++){
       string catname = Form("cat%d_spin%d",c,s);
       category->defineType(catname.c_str());
@@ -210,8 +217,16 @@ int main(int argc, char* argv[]){
       // add to pdf maps
       sigSM.insert(pair<string,RooAddPdf*>(catname,(RooAddPdf*)work->pdf(Form("sigModel_SM_cat%d_spin%d",c,s))));
       sigGRAV.insert(pair<string,RooAddPdf*>(catname,(RooAddPdf*)work->pdf(Form("sigModel_GRAV_cat%d_spin%d",c,s))));
-      if (globePDFs) bkgMod.insert(pair<string,RooAbsPdf*>(catname,(RooBernstein*)work->pdf(Form("data_pol_model_cat%d_spin%d",c,s))));
-      else bkgMod.insert(pair<string,RooAbsPdf*>(catname,(RooGenericPdf*)work->pdf(Form("data_pow_model_cat%d_spin%d",c,s))));
+      if(correlateCosThetaCategories)
+      {
+        if (globePDFs) bkgMod.insert(pair<string,RooAbsPdf*>(catname,(RooBernstein*)work->pdf(Form("data_pol_model_cat%d",c))));
+        else bkgMod.insert(pair<string,RooAbsPdf*>(catname,(RooGenericPdf*)work->pdf(Form("data_pow_model_cat%d",c))));
+      }
+      else
+      {
+        if (globePDFs) bkgMod.insert(pair<string,RooAbsPdf*>(catname,(RooBernstein*)work->pdf(Form("data_pol_model_cat%d_spin%d",c,s))));
+        else bkgMod.insert(pair<string,RooAbsPdf*>(catname,(RooGenericPdf*)work->pdf(Form("data_pow_model_cat%d_spin%d",c,s))));
+      }
 
       // add to yield maps
       sigYieldSM.insert(pair<string,RooFormulaVar*>(catname,new RooFormulaVar(Form("sigYield_SM_cat%d_spin%d",c,s),Form("sigYield_SM_cat%d_spin%d",c,s),Form("@0*%8.4f",expEventsSM[catname]),RooArgList(*muSM))));
@@ -220,8 +235,8 @@ int main(int argc, char* argv[]){
 
       // create signal+background model for SM and GRAV
       RooAddPdf *sbTempSM = new RooAddPdf(Form("sbModSM_cat%d_spin%d",c,s),Form("sbModSM_cat%d_spin%d",c,s),RooArgList(*sigSM[catname],*bkgMod[catname]),RooArgList(*sigYieldSM[catname],*bkgYield[catname]));
-      RooAddPdf *sbTempGRAV = new RooAddPdf(Form("sbModGRAV_cat%d_spin%d",c,s),Form("sbModGRAV_cat%d_spin%d",c,s),RooArgList(*sigGRAV[catname],*bkgMod[catname]),RooArgList(*sigYieldGRAV[catname],*bkgYield[catname])); 
-     
+      RooAddPdf *sbTempGRAV = new RooAddPdf(Form("sbModGRAV_cat%d_spin%d",c,s),Form("sbModGRAV_cat%d_spin%d",c,s),RooArgList(*sigGRAV[catname],*bkgMod[catname]),RooArgList(*sigYieldGRAV[catname],*bkgYield[catname]));
+
       // fill global pdf map
       sbModSM.insert(pair<string,RooAbsPdf*>(catname,sbTempSM));
       sbModGRAV.insert(pair<string,RooAbsPdf*>(catname,sbTempGRAV));
@@ -242,7 +257,7 @@ int main(int argc, char* argv[]){
     // put the per cos theta cats pdfs in vectors
     sbModSMvect.push_back(sbModSMthisCTheta);
     sbModGRAVvect.push_back(sbModGRAVthisCTheta);
-    
+
     // make per cos theta cat simulataneousPdfs and combDataSets and put them in vectors
     simPdfSMvect.push_back(new RooSimultaneous(Form("simPdfSM_spin%d",s),Form("simPdfSM_spin%d",s),sbModSMvect[s],*miniCategories[s]));
     simPdfGRAVvect.push_back(new RooSimultaneous(Form("simPdfGRAV_spin%d",s),Form("simPdfGRAV_spin%d",s),sbModGRAVvect[s],*miniCategories[s]));
@@ -266,9 +281,9 @@ int main(int argc, char* argv[]){
 
     fitResDataSM->floatParsFinal().Print("v");
     fitResDataGRAV->floatParsFinal().Print("v");
-    
+
     q_data_ = 2.*(fitResDataSM->minNll()-fitResDataGRAV->minNll());
-    
+
     delete fitResDataSM;
     delete fitResDataGRAV;
 
@@ -285,7 +300,7 @@ int main(int argc, char* argv[]){
         cout << "\tDATA: " << expEventsALL[catname] << endl;
       }
     }
-    
+
     cout << "Global fit to data...." << endl;
     cout << "\tmuSM =   " << muSM->getVal() << endl;
     cout << "\tmuGRAV = " << muGRAV->getVal() << endl;
@@ -305,25 +320,30 @@ int main(int argc, char* argv[]){
     tree_->Fill();
   }
 
+  RooMsgService::instance().setGlobalKillBelow(RooFit::MsgLevel(RooFit::ERROR));
+  RooMsgService::instance().getStream(1).removeTopic(Minimization);
+  RooFit::PrintLevel(-200000);
+  RooMsgService::instance().setStreamStatus(1,false);
+
   for (int t=0; t<nToys; t++){
     cout << "---------------------------" << endl;
     cout << "------Running toy " << t << " -------" << endl;
     cout << "---------------------------" << endl;
     TStopwatch sw;
     sw.Start();
-   
+
     // global maps for toys
     map<string,RooDataHist*> toySM;
     map<string,RooDataHist*> toyGRAV;
 
     for (int s=0; s<nSpinCats; s++){
-     
+
       // per cos theta bin cats for toys
       map<string,RooDataHist*> toySMthisCTheta;
       map<string,RooDataHist*> toyGRAVthisCTheta;
 
       for (int c=0; c<nBDTCats; c++){
-        
+
         string catname = Form("cat%d_spin%d",c,s);
 
         // throw toys
@@ -337,7 +357,7 @@ int main(int argc, char* argv[]){
         RooDataSet *bkgToy = (RooDataSet*)bkgMod[catname]->generate(*mass,bkgToyEvents);
         RooDataSet *smToy = (RooDataSet*)sigSM[catname]->generate(*mass,sigSMToyEvents);
         RooDataSet *gravToy = (RooDataSet*)sigGRAV[catname]->generate(*mass,sigGRAVToyEvents);
-        
+
         smToy->append(*bkgToy);
         gravToy->append(*bkgToy);
 
@@ -352,7 +372,7 @@ int main(int argc, char* argv[]){
         toySMthisCTheta.insert(pair<string,RooDataHist*>(catname,tempToySM));
         toyGRAVthisCTheta.insert(pair<string,RooDataHist*>(catname,tempToyGRAV));
       }
-      
+
       // make per cos theta cat data
       RooDataHist *combDataSMthisCTheta = new RooDataHist(Form("combDataSM_spin%d_toy%d",s,t),Form("combDataSM_spin%d_toy%d",s,t),RooArgList(*mass),Index(*miniCategories[s]),Import(toySMthisCTheta));
       //RooDataHist *combDataGRAVthisCTheta = new RooDataHist(Form("combDataGRAV_spin%d_toy%d",s,t),Form("combDataGRAV_spin%d_toy%d",s,t),RooArgList(*mass),Index(*miniCategories[s]),Import(toyGRAVthisCTheta));
@@ -360,12 +380,12 @@ int main(int argc, char* argv[]){
       // for per cos theta cat only want to fit to the same SM toy
       simPdfSMvect[s]->fitTo(*combDataSMthisCTheta);
       muSM_perCTbin[s] = muSM->getVal();
-      
+
       simPdfGRAVvect[s]->fitTo(*combDataSMthisCTheta);
       muGRAV_perCTbin[s] = muGRAV->getVal();
 
     }
-    
+
     //make global data
     RooDataHist *combDataSM = new RooDataHist(Form("combDataSM_toy%d",t),Form("combDataSM_toy%d",t),RooArgList(*mass),Index(*category),Import(toySM));
     RooDataHist *combDataGRAV = new RooDataHist(Form("combDataGRAV_toy%d",t),Form("combDataGRAV_toy%d",t),RooArgList(*mass),Index(*category),Import(toyGRAV));
@@ -373,7 +393,7 @@ int main(int argc, char* argv[]){
     cout << "---------------------------" << endl;
     cout << "------Fitting toy " << t << " -------" << endl;
     cout << "---------------------------" << endl;
-   
+
     muSM->setVal(1.);
     RooFitResult *fitResSMSM = simPdfSM->fitTo(*combDataSM,Save(true));
     muSMSM_ = muSM->getVal();
@@ -381,17 +401,17 @@ int main(int argc, char* argv[]){
     muSM->setVal(1.);
     RooFitResult *fitResSMGRAV = simPdfSM->fitTo(*combDataGRAV,Save(true));
     muSMGRAV_ = muSM->getVal();
-    
+
     muGRAV->setVal(1.);
     RooFitResult *fitResGRAVSM = simPdfGRAV->fitTo(*combDataSM,Save(true));
     muGRAVSM_ = muGRAV->getVal();
-    
+
     muGRAV->setVal(1.);
     RooFitResult *fitResGRAVGRAV = simPdfGRAV->fitTo(*combDataGRAV,Save(true));
     muGRAVGRAV_ = muGRAV->getVal();
-   
+
     cout << "Fits done. Getting NLL...." << endl;
-    
+
     q_smtoy_ = 2.*(fitResSMSM->minNll()-fitResGRAVSM->minNll());
     q_gravtoy_ = 2.*(fitResSMGRAV->minNll()-fitResGRAVGRAV->minNll());
 
@@ -402,32 +422,33 @@ int main(int argc, char* argv[]){
     }
 
     tree_->Fill();
-    
+
     delete fitResSMSM;
     delete fitResSMGRAV;
     delete fitResGRAVSM;
     delete fitResGRAVGRAV;
-    
+
     for (map<string,RooDataHist*>::iterator it=toySM.begin(); it!=toySM.end(); it++) delete it->second;
     for (map<string,RooDataHist*>::iterator it=toyGRAV.begin(); it!=toyGRAV.end(); it++) delete it->second;
-    delete combDataSM;  
-    delete combDataGRAV; 
+    delete combDataSM;
+    delete combDataGRAV;
 
     sw.Stop();
     cout << "Throwing and fitting toy took:" << endl;
     cout << "\t"; sw.Print();
     cout << q_smtoy_ << " -- " << q_gravtoy_ << endl;
   }
-  
+
   outFile->cd();
   tree_->Write();
   outFile->Close();
   inFile->Close();
 
-  for (map<string,RooAddPdf*>::iterator it=sigSM.begin(); it!=sigSM.end(); it++) delete it->second; 
+  for (map<string,RooAddPdf*>::iterator it=sigSM.begin(); it!=sigSM.end(); it++) delete it->second;
   for (map<string,RooAddPdf*>::iterator it=sigGRAV.begin(); it!=sigGRAV.end(); it++) delete it->second;
-  for (map<string,RooAbsPdf*>::iterator it=bkgMod.begin(); it!=bkgMod.end(); it++) delete it->second;
-  
+  if(!correlateCosThetaCategories) //If we are correlating the backgrounds in the cosTheta categories, it seems RooAbsPdf doesn't handle very well the multiple dependence, generating seg-faults
+    for (map<string,RooAbsPdf*>::iterator it=bkgMod.begin(); it!=bkgMod.end(); it++) delete it->second;
+
   for (map<string,RooFormulaVar*>::iterator it=sigYieldSM.begin(); it!=sigYieldSM.end(); it++) delete it->second;
   for (map<string,RooFormulaVar*>::iterator it=sigYieldGRAV.begin(); it!=sigYieldGRAV.end(); it++) delete it->second;
   for (map<string,RooRealVar*>::iterator it=bkgYield.begin(); it!=bkgYield.end(); it++) delete it->second;
