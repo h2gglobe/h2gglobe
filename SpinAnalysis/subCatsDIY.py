@@ -43,6 +43,8 @@ for j in range(options.minCats,options.maxCats+1):
   f.write("useSpin2LP=%d\n"%config.getint('root', 'useSpin2LP'))
   f.write("nBDTCats=%d\n"%config.getint('root', 'nBDTCats'))
   f.write("nSpinCats=%d\n"%j)
+  if(config.has_option('root', 'correlateCosThetaCategories'))
+    f.write("correlateCosThetaCategories=%d"%config.getint('root', 'correlateCosThetaCategories'))
   f.close()
 
   os.chdir(dir)
