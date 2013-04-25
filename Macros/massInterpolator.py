@@ -2,6 +2,7 @@
 
 from optparse import OptionParser, make_option
 import sys
+import array
 
 def main(options,args):
 
@@ -57,6 +58,11 @@ def main(options,args):
     ws   = fin.Get(options.workspace)
     inputLumi = ws.var("IntLumi")
 
+    # figure out specific scaling options for spin
+    scalingOptions = {} 
+    for opt in options.scaleOptions:
+      scalingOptions[opt.split(':')[0]] = opt.split(':')[1].split(',')
+        
     ## scale histograms by lumi
     if options.lumi > 0.:
         options.scaleSignal = options.lumi / inputLumi.getVal()
@@ -69,20 +75,42 @@ def main(options,args):
     tocopy = []
     for k in fkeys:
         if options.th1Prefix in k.GetName():
-            decomp = str(k.GetName()).replace(options.th1Prefix,"").split("_",3)
-            proc, mass, channel = decomp[0], float(decomp[2].replace("m","")), decomp[3]
+            if '_grav' in k.GetName() or '_spin2' in k.GetName():
+              decomp = str(k.GetName()).replace(options.th1Prefix,"").split("_",4)
+              proc, mass, channel = decomp[0]+'_'+decomp[1], float(decomp[3].replace("m","")), decomp[4]
+            else:
+              decomp = str(k.GetName()).replace(options.th1Prefix,"").split("_",3)
+              proc, mass, channel = decomp[0], float(decomp[2].replace("m","")), decomp[3]
             h = k.ReadObj()
             if mass in inputMasses:
                 inputs[ (mass, proc, channel) ] = h
                 procs.add(proc)
                 channels.add(channel)
                 if options.scaleSignal>0.:
-                    h.Scale(options.scaleSignal)                
+                    h.Scale(options.scaleSignal)
             else:
                 tocopy.append(h)
         elif "TH1" in k.GetClassName() or "TCanvas" in k.GetClassName():
             tocopy.append(k.ReadObj())
-            
+  
+    # special scaling options
+    # have to work out norm factors first
+    normFactors = {}
+    cats = [x for x in channels if 'sigma' not in x and 'rv' not in x and 'wv' not in x]
+    for proc, scalingProcs in scalingOptions.items():
+      for m in inputMasses:
+        norm_num=0.
+        norm_dem=0.
+        for cat in cats:
+          for scaleProc in scalingProcs:
+            norm_num += inputs[m,scaleProc,cat].Integral()
+          norm_dem += inputs[m,proc,cat].Integral()
+        normFactors[(m,proc)] = norm_num/norm_dem
+    # can now scale histogram appropriately
+    for (mass,proc,channel), hist in inputs.items():
+      if proc in scalingOptions.keys():
+        hist.Scale(normFactors[(mass,proc)])
+
     ## Loop over interpolations
     doSmoothing = options.doSmoothing
     files = []
@@ -90,14 +118,24 @@ def main(options,args):
 
         print "-------------------------------------------------------------------- "
         print "Will generate the following mass points: ", masses
-        print "Output file   : ", file
-        print "Input masses  : ", inputMasses
-        print "Sig k-factor  : ", options.scaleSignal
-        print "Processes     : ", procs
-        print "# of channels : ", len(channels)
-        
+        print "Output file            : ", file
+        print "Input masses           : ", inputMasses
+        print "Sig k-factor           : ", options.scaleSignal
+        print "Processes              : ", procs
+        print "# of channels          : ", len(channels)
+        if scalingOptions:
+          print "Special scaling options: "
+          for key, items in scalingOptions.items():
+            print "\t", key, items
+
         ## instantiate the mass interpolator
         interpolator = ROOT.MassInterpolator(len(masses), masses, doSmoothing, "th1f_sig_", "roohist_sig_" )
+        
+        # parse special options for sample normalisation (e.g. spin)
+        for key,item in scalingOptions.items():
+          myvec = ROOT.vector('string')()
+          for el in item: myvec.push_back(el)
+          interpolator.addToMap(key,myvec)
 
         ## loop over processes, channels and input masses and fill the interpolator
         print "\nFilling interpolator"
@@ -217,6 +255,11 @@ if __name__ == "__main__":
                     action="store_true", dest="rescaleOnly",
                     default=False,
                     help="Just rescale an already interpolated ws (implies noSmoothing)", metavar=""
+                    ),
+        make_option("-H","--scaleOptions",
+                    action="append", dest="scaleOptions",
+                    default=[], 
+                    help="Set different scaling options for different samples. Used for spin analysis rescaling. Set grav/spin2/sm.", metavar=""
                     ),
         ]
                           )

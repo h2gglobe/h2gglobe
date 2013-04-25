@@ -33,12 +33,14 @@ StatAnalysis::StatAnalysis()  :
     nVHhadCategories = 0;
     nVHlepCategories = 0;
     nVHmetCategories = 0;
+    nCosThetaCategories = 0;
     
     nVtxCategories = 0;
     R9CatBoundary = 0.94;
 
     fillOptTree = false;
     doFullMvaFinalTree = false;
+    doSpinAnalysis = false;
 
     splitwzh=false;
     sigmaMrv=0.;
@@ -135,7 +137,7 @@ void StatAnalysis::Init(LoopAll& l)
     nInclusiveCategories_ = nEtaCategories;
     if( nR9Categories != 0 ) nInclusiveCategories_ *= nR9Categories;
     if( nPtCategories != 0 ) nInclusiveCategories_ *= nPtCategories;
-
+    
     // mva removed cp march 8
     //if( useMVA ) nInclusiveCategories_ = nDiphoEventClasses;
 
@@ -174,7 +176,7 @@ void StatAnalysis::Init(LoopAll& l)
 
     nCategories_=(nInclusiveCategories_+nVBFCategories+nVHhadCategories+nVHlepCategories+nVHmetCategories);  //met at analysis step
 //    nCategories_=(nInclusiveCategories_+nVBFCategories+nVHhadCategories+nVHlepCategories);
-
+    if (doSpinAnalysis) nCategories_*=nCosThetaCategories;
 
     effSmearPars.categoryType = effPhotonCategoryType;
     effSmearPars.n_categories = effPhotonNCat;
@@ -426,45 +428,84 @@ void StatAnalysis::Init(LoopAll& l)
     // Create Signal DataSets:
     for(size_t isig=0; isig<sigPointsToBook.size(); ++isig) {
 	int sig = sigPointsToBook[isig];
-        l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_ggh_mass_m%d",sig),nDataBins);
-        l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_vbf_mass_m%d",sig),nDataBins);
-        if(!splitwzh) l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wzh_mass_m%d",sig),nDataBins);
-        else{
-            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wh_mass_m%d",sig),nDataBins);
-            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_zh_mass_m%d",sig),nDataBins);
-        }
-        l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_tth_mass_m%d",sig),nDataBins);
+    // SM datasets
+    if (!doSpinAnalysis){
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_ggh_mass_m%d",sig),nDataBins);
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_vbf_mass_m%d",sig),nDataBins);
+            if(!splitwzh) l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wzh_mass_m%d",sig),nDataBins);
+            else{
+                l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wh_mass_m%d",sig),nDataBins);
+                l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_zh_mass_m%d",sig),nDataBins);
+            }
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_tth_mass_m%d",sig),nDataBins);
 
-        l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_ggh_mass_m%d_rv",sig),nDataBins);
-        l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_vbf_mass_m%d_rv",sig),nDataBins);
-        if(!splitwzh) l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wzh_mass_m%d_rv",sig),nDataBins);
-        else{
-            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wh_mass_m%d_rv",sig),nDataBins);
-            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_zh_mass_m%d_rv",sig),nDataBins);
-        }
-        l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_tth_mass_m%d_rv",sig),nDataBins);
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_ggh_mass_m%d_rv",sig),nDataBins);
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_vbf_mass_m%d_rv",sig),nDataBins);
+            if(!splitwzh) l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wzh_mass_m%d_rv",sig),nDataBins);
+            else{
+                l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wh_mass_m%d_rv",sig),nDataBins);
+                l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_zh_mass_m%d_rv",sig),nDataBins);
+            }
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_tth_mass_m%d_rv",sig),nDataBins);
 
-        l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_ggh_mass_m%d_wv",sig),nDataBins);
-        l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_vbf_mass_m%d_wv",sig),nDataBins);
-        if(!splitwzh) l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wzh_mass_m%d_wv",sig),nDataBins);
-        else{
-            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wh_mass_m%d_wv",sig),nDataBins);
-            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_zh_mass_m%d_wv",sig),nDataBins);
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_ggh_mass_m%d_wv",sig),nDataBins);
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_vbf_mass_m%d_wv",sig),nDataBins);
+            if(!splitwzh) l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wzh_mass_m%d_wv",sig),nDataBins);
+            else{
+                l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wh_mass_m%d_wv",sig),nDataBins);
+                l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_zh_mass_m%d_wv",sig),nDataBins);
+            }
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_tth_mass_m%d_wv",sig),nDataBins);
         }
-        l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_tth_mass_m%d_wv",sig),nDataBins);
+        // Spin Analysis Datasets
+        else {
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_ggh_mass_m%d",sig),nDataBins);
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_vbf_mass_m%d",sig),nDataBins);
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wzh_mass_m%d",sig),nDataBins);
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_tth_mass_m%d",sig),nDataBins);
+
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_ggh_mass_m%d_rv",sig),nDataBins);
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_vbf_mass_m%d_rv",sig),nDataBins);
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wzh_mass_m%d_rv",sig),nDataBins);
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_tth_mass_m%d_rv",sig),nDataBins);
+
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_ggh_mass_m%d_wv",sig),nDataBins);
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_vbf_mass_m%d_wv",sig),nDataBins);
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wzh_mass_m%d_wv",sig),nDataBins);
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_tth_mass_m%d_wv",sig),nDataBins);
+            
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_ggh_grav_mass_m%d",sig),nDataBins);
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_vbf_grav_mass_m%d",sig),nDataBins);
+                                                                            
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_ggh_grav_mass_m%d_rv",sig),nDataBins);
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_vbf_grav_mass_m%d_rv",sig),nDataBins);
+                                                                            
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_ggh_grav_mass_m%d_wv",sig),nDataBins);
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_vbf_grav_mass_m%d_wv",sig),nDataBins);
+        }
     }
 
     // Make more datasets representing Systematic Shifts of various quantities
     for(size_t isig=0; isig<sigPointsToBook.size(); ++isig) {
-	int sig = sigPointsToBook[isig];
-        l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_ggh_mass_m%d",sig),-1);
-        l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_vbf_mass_m%d",sig),-1);
-        if(!splitwzh) l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_wzh_mass_m%d",sig),-1);
-        else{
-            l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_wh_mass_m%d",sig),-1);
-            l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_zh_mass_m%d",sig),-1);
+        int sig = sigPointsToBook[isig];
+        if (!doSpinAnalysis){
+            l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_ggh_mass_m%d",sig),-1);
+            l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_vbf_mass_m%d",sig),-1);
+            if(!splitwzh) l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_wzh_mass_m%d",sig),-1);
+            else{
+                l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_wh_mass_m%d",sig),-1);
+                l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_zh_mass_m%d",sig),-1);
+            }
+            l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_tth_mass_m%d",sig),-1);
         }
-        l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_tth_mass_m%d",sig),-1);
+        else {
+            l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_ggh_mass_m%d",sig),-1);
+            l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_vbf_mass_m%d",sig),-1);
+            l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_wzh_mass_m%d",sig),-1);
+            l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_tth_mass_m%d",sig),-1);
+            l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_ggh_grav_mass_m%d",sig),-1);
+            l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_vbf_grav_mass_m%d",sig),-1);
+        }
     }
 
     // Make sure the Map is filled
@@ -983,6 +1024,9 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 	// see if the event falls into an exclusive category
 	computeExclusiveCategory(l, category, diphoton_index, Higgs.Pt() );
 
+    // if doing the spin analysis calculate new category
+    if (doSpinAnalysis) computeSpinCategory(l, category, lead_p4, sublead_p4);
+
 	// fill control plots and counters
 	if( ! isSyst ) {
 	    l.FillCounter( "Accepted", weight );
@@ -1004,6 +1048,11 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
         // save trees for unbinned datacards
         int inc_cat = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,R9CatBoundary,nPtCategories,nVtxCategories,l.vtx_std_n);
         if (!isSyst && cur_type<0 && saveDatacardTrees_) saveDatCardTree(l,cur_type,category, inc_cat, evweight, diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],lead_p4,sublead_p4,true);
+        
+        float vtx_mva  = l.vtx_std_evt_mva->at(diphoton_id);
+        float vtxProb   = 1.-0.49*(vtx_mva+1.0); /// should better use this: vtxAna_.setPairID(diphoton_id); vtxAna_.vertexProbability(vtx_mva); PM
+        // save trees for IC spin analysis
+        if (!isSyst && saveSpinTrees_) saveSpinTree(l,category,evweight,Higgs,lead_p4,sublead_p4,diphoton_index.first,diphoton_index.second,diphoton_id,vtxProb);
 
 	//save vbf trees
 	if (!isSyst && cur_type<0 && saveVBFTrees_) saveVBFTree(l,category, evweight, -99.);
@@ -1463,6 +1512,34 @@ void StatAnalysis::computeExclusiveCategory(LoopAll & l, int & category, std::pa
 	    category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories + ( (int)includeVHhad )*nVHhadEtaCategories + nVHlepCategories;
         if(nVHmetCategories>1) category+=VHmetevent_cat;
     }
+}
+
+void StatAnalysis::computeSpinCategory(LoopAll &l, int &category, TLorentzVector lead_p4, TLorentzVector sublead_p4){
+    
+    double cosTheta;
+    int cosThetaCategory=-1;
+    if (cosThetaDef=="CS"){
+        cosTheta = getCosThetaCS(lead_p4,sublead_p4);
+    }
+    else if (cosThetaDef=="HX"){
+        cosTheta = getCosThetaHX(lead_p4,sublead_p4);
+    }
+    else {
+        cout << "ERROR -- cosThetaDef - " << cosThetaDef << " not recognised" << endl;
+        exit(1);
+    }
+
+    if (cosThetaCatBoundaries.size()!=nCosThetaCategories+1){
+        cout << "ERROR - cosThetaCatBoundaries size does not correspond to nCosThetaCategories" << endl;
+        exit(1);
+    }
+
+    for (int scat=0; scat<nCosThetaCategories; scat++){
+       if (TMath::Abs(cosTheta)>=cosThetaCatBoundaries[scat] && TMath::Abs(cosTheta)<cosThetaCatBoundaries[scat+1]) cosThetaCategory=scat; 
+    }
+    
+    if (cosThetaCategory==-1) category=-1;
+    else category = (category*nCosThetaCategories)+cosThetaCategory;
 }
 
 int StatAnalysis::categoryFromBoundaries(std::vector<float> & v, float val)

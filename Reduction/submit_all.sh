@@ -1,7 +1,14 @@
 #!/bin/bash
 
-./submit_reduction.sh    data_2012             Photon_Run2012A-13Jul2012-v1                    10
-./submit_reduction.sh    data_2012             Photon_Run2012A-recover-06Aug2012-v1            1
+
+./submit_reduction.sh     mc_spin2_summer12_s10 Graviton2PMGluGluToHToGG_M-125  5
+./submit_reduction.sh     mc_spin2_summer12_s10 Graviton2PMGluGluToHToGG_M-126  5 
+./submit_reduction.sh     mc_spin2_summer12_s10 Graviton2PMqqbarToHToGG_M-125   5
+./submit_reduction.sh     mc_spin2_summer12_s10 Graviton2PMqqbarToHToGG_M-126   5
+
+
+#./submit_reduction.sh    data_2012             Photon_Run2012A-13Jul2012-v1                    10
+#./submit_reduction.sh    data_2012             Photon_Run2012A-recover-06Aug2012-v1            1
 #./submit_reduction.sh    data_2012             DoublePhoton_Run2012B-13Jul2012-v1              50
 #./submit_reduction.sh    data_2012             DoublePhoton_Run2012C-24Aug2012-v2              10
 #./submit_reduction.sh    data_2012             DoublePhoton_Run2012C-EcalRecover_11Dec2012-v1  4

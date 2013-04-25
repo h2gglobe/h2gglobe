@@ -107,7 +107,7 @@ int main(int argc, char* argv[]){
   RooMsgService::instance().setStreamStatus(1,false);
 
   TFile *inFile = TFile::Open(filename.c_str());
-  RooWorkspace *work = (RooWorkspace*)inFile->Get("HggSpinStudies");
+  RooWorkspace *work = (RooWorkspace*)inFile->FindObjectAny("HggSpinStudies");
 
   TFile *outFile = new TFile("LLOut.root","RECREATE");
   TTree *tree_ = new TTree("limit","limit");
@@ -186,7 +186,6 @@ int main(int argc, char* argv[]){
   for (int s=0; s<nSpinCats; s++){
     for (int c=0; c<nBDTCats; c++){
       string catname = Form("cat%d_spin%d",c,s);
-
       expEventsSM.insert(pair<string,double>(catname,((RooDataSet*)work->data(Form("mcSigSMHiggs_bdt%d_cTh%d",c,s)))->sumEntries()));
       expEventsGRAV.insert(pair<string,double>(catname,((RooDataSet*)work->data(Form("mcSigGraviton_bdt%d_cTh%d",c,s)))->sumEntries()));
       expEventsALL.insert(pair<string,double>(catname,((RooDataSet*)work->data(Form("data_mass_cat%d_spin%d",c,s)))->sumEntries()));

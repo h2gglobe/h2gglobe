@@ -1,0 +1,52 @@
+dir=spin_trees
+
+type=0 name=category
+type=2 name=evweight
+
+type=3 name=higgs_px
+type=3 name=higgs_py
+type=3 name=higgs_pz
+type=3 name=higgs_E
+
+type=3 name=lead_px
+type=3 name=lead_py
+type=3 name=lead_pz
+type=3 name=lead_E
+
+type=3 name=sublead_px
+type=3 name=sublead_py
+type=3 name=sublead_pz
+type=3 name=sublead_E
+
+type=3 name=costheta_cs
+type=3 name=costheta_hx
+
+type=3 name=lead_calo_eta
+type=3 name=lead_calo_phi
+type=2 name=lead_r9
+
+type=3 name=sublead_calo_eta
+type=3 name=sublead_calo_phi
+type=2 name=sublead_r9
+
+#type=2 name=diphoton_bdt
+type=3 name=higgs_mass
+
+type=3 name=sigmaMrv
+type=3 name=sigmaMwv
+type=3 name=lead_sigmaE
+type=3 name=lead_sigmaE_nosmear
+type=3 name=sublead_sigmaE
+type=3 name=sublead_sigmaE_nosmear
+
+type=2 name=sigmaMoMrv
+type=2 name=sigmaMoMwv
+type=2 name=vtx_prob
+type=2 name=leadPtoM
+type=2 name=subleadPtoM
+type=2 name=leadEta
+type=2 name=subleadEta
+type=2 name=cosDphi
+#type=2 name=lead_id_mva
+#type=2 name=sublead_id_mva
+

@@ -63,6 +63,11 @@ class StatAnalysis : public PhotonAnalysis
     bool doMcOptimization;
     bool fillOptTree;
     bool doFullMvaFinalTree;
+    
+    bool doSpinAnalysis;
+    int nCosThetaCategories;
+    std::string cosThetaDef;
+    std::vector<float> cosThetaCatBoundaries;
 
     bool splitwzh;
     void fillOpTree(LoopAll& l, const TLorentzVector & lead_p4, const TLorentzVector & sublead_p4, Float_t vtxProb,
@@ -117,7 +122,8 @@ class StatAnalysis : public PhotonAnalysis
     std::vector<float> smeared_pho_r9;
     std::vector<float> smeared_pho_weight;
 
-    void  computeExclusiveCategory(LoopAll & l, int & category, std::pair<int,int> diphoton_index, float pt, float diphoBDT=1. );	
+    void  computeExclusiveCategory(LoopAll & l, int & category, std::pair<int,int> diphoton_index, float pt, float diphoBDT=1. );
+    void computeSpinCategory(LoopAll &l, int &category, TLorentzVector lead_p4, TLorentzVector sublead_p4);
     int  categoryFromBoundaries(std::vector<float> & v, float val);
     int  categoryFromBoundaries2D(std::vector<float> & v1, std::vector<float> & v2, std::vector<float> & v3, float val1, float val2, float val3);
 
@@ -147,8 +153,8 @@ class StatAnalysis : public PhotonAnalysis
     int nVBFCategories  ; 
     int nVHhadCategories; 
     int nVHlepCategories; 
-    int nVHmetCategories; 
-    
+    int nVHmetCategories;
+
     // RooStuff
     RooContainer *rooContainer;
 

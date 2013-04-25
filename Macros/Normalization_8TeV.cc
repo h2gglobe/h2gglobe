@@ -2414,13 +2414,21 @@ void Normalization_8TeV::FillSignalTypes(){
   SignalTypeMap[-102]=std::make_pair<TString,double>("ggh",125);
   SignalTypeMap[-103]=std::make_pair<TString,double>("ggh",125);
 
-  SignalTypeMap[-1000]=std::make_pair<TString,double>("graviton",125);
+  SignalTypeMap[-137]=std::make_pair<TString,double>("ggh_grav",125);
+  SignalTypeMap[-138]=std::make_pair<TString,double>("vbf_grav",125);
+  SignalTypeMap[-140]=std::make_pair<TString,double>("wzh_grav",125);
+  SignalTypeMap[-139]=std::make_pair<TString,double>("tth_grav",125);
+  SignalTypeMap[-177]=std::make_pair<TString,double>("ggh_grav",126);
+  SignalTypeMap[-178]=std::make_pair<TString,double>("vbf_grav",126);
+  SignalTypeMap[-180]=std::make_pair<TString,double>("wzh_grav",126);
+  SignalTypeMap[-179]=std::make_pair<TString,double>("tth_grav",126);
 
 }
 
 TGraph * Normalization_8TeV::GetSigmaGraph(TString process)
 {
-	TGraph * gr = new TGraph();
+	if (process.Contains("_grav") || process.Contains("_spin2")) process = process.ReplaceAll("_grav","");
+  TGraph * gr = new TGraph();
 	std::map<double, double> * XSectionMap = 0 ;
 	if ( process == "ggh") {
 		XSectionMap = &XSectionMap_ggh;

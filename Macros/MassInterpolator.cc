@@ -51,6 +51,21 @@ MassInterpolator::MassInterpolator(size_t nmasses, double * outputMasses, bool d
 	}
 }
 
+void MassInterpolator::printMap(){
+  for (map<string,vector<string> >::iterator it=specProcNormMap_.begin(); it!=specProcNormMap_.end(); it++) {
+    cout << it->first << " : ";
+    for (vector<string>::iterator vit=it->second.begin(); vit!=it->second.end(); vit++){
+      cout << *vit << " ";
+    }
+  cout << endl;
+  }
+}
+
+void MassInterpolator::addToMap(string key, vector<string> vec){
+ 
+  specProcNormMap_.insert(pair<string,vector<string> >(key,vec));
+}
+
 // ------------------------------------------------------------------------------------------------
 void smoothMe(TH1F *hist);
 
@@ -160,14 +175,33 @@ void MassInterpolator::runInterpolation(bool is7TeV)
 				float mhigh = inputMasses_[high];
 
 				const TH1F * hinterp;
+        float normalization = 0.;
 				if(low!=high) {
-					float normalization = container->normalization(mass);
+          // if process is in special norm map adjust the normalization
+          map<string,vector<string> >::iterator mapEntry = specProcNormMap_.find(iprocess->first);
+          if (mapEntry!=specProcNormMap_.end()){
+            // loop map item
+            for (vector<string>::iterator it=mapEntry->second.begin(); it!=mapEntry->second.end(); it++){
+              // loop channels
+              for(channelsList_t::iterator ichannel = iprocess->second.begin(); ichannel!=iprocess->second.end(); ++ichannel ) {
+                // only sum the categories not the systematics
+                if (iprocess->first.find("sigma")==string::npos){
+                  normalization += findContainer(iprocess->first.c_str(),ichannel->first.c_str())->normalization(mass);
+                }
+              }
+            }
+          }
+          // else use the default norm
+          else {
+            normalization = container->normalization(mass);
+          }
 					std::string hname = Form((th1pfx_+fmt).c_str(), mass);
 					TH1F * hmorph = (TH1F*) th1fmorph(hname.c_str(),hname.c_str(),hlow,hhigh,mlow,mhigh,mass,normalization,0);
 					hinterp = hmorph;
 					container->addInterpolated(hmorph,mass);
 				} else { 
-					hinterp = hlow;
+          // if this is a special process also normalise the boundary histogram
+          hinterp = hlow;
 				}
 
 				// 

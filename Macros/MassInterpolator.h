@@ -104,6 +104,10 @@ public:
 	
 	void outputFile(TFile * x) { outfile_ = x; }
 	void outputWs(RooWorkspace * w, RooRealVar * x) { outws_ = w; x_ = x; }
+  void addToMap(std::string key, std::vector<string> vec);
+  std::map<std::string,std::vector<string> > specProcNormMap_;
+
+  void printMap();
 	
 private:
 	ChannelModel * findContainer(const char * process, const char * channel);

@@ -39,7 +39,7 @@ def defineEvList(fname,dataset):
 
 class configProducer:
 
-  def __init__(self,Ut,conf_filename,Type,njobs=-1,jobId=0,makehistos=True,search_path="common:reduction:baseline:massfac_mva_binned:full_mva_binned:jetanalysis:photonjet"):
+  def __init__(self,Ut,conf_filename,Type,njobs=-1,jobId=0,makehistos=True,search_path="common:reduction:baseline:massfac_mva_binned:full_mva_binned:jetanalysis:photonjet:spinanalysis"):
 
     print "h2gglobe: step %d, with Config %s. Number of jobs %d. Running job %d" %(Type,conf_filename,njobs,jobId)
 

@@ -4280,6 +4280,86 @@ void PhotonAnalysis::saveDatCardTree(LoopAll &l, int cur_type, int category, int
 
 }
 
+// for Cut-Based
+void PhotonAnalysis::saveSpinTree(LoopAll &l, int category, float evweight, TLorentzVector Higgs, TLorentzVector lead_p4, TLorentzVector sublead_p4, int ipho1, int ipho2, int diphoton_id, float vtxProb){
+
+   l.FillTree("category",category,"spin_trees");
+   l.FillTree("evweight",evweight,"spin_trees");
+   
+   l.FillTree("higgs_px",Higgs.Px(),"spin_trees");
+   l.FillTree("higgs_py",Higgs.Py(),"spin_trees");
+   l.FillTree("higgs_pz",Higgs.Pz(),"spin_trees");
+   l.FillTree("higgs_E",Higgs.E(),"spin_trees");
+
+   l.FillTree("lead_px",lead_p4.Px(),"spin_trees");
+   l.FillTree("lead_py",lead_p4.Py(),"spin_trees");
+   l.FillTree("lead_pz",lead_p4.Pz(),"spin_trees");
+   l.FillTree("lead_E",lead_p4.E(),"spin_trees");
+
+   l.FillTree("sublead_px",sublead_p4.Px(),"spin_trees");
+   l.FillTree("sublead_py",sublead_p4.Py(),"spin_trees");
+   l.FillTree("sublead_pz",sublead_p4.Pz(),"spin_trees");
+   l.FillTree("sublead_E",sublead_p4.E(),"spin_trees");
+
+   l.FillTree("costheta_cs",getCosThetaCS(lead_p4,sublead_p4),"spin_trees");
+   l.FillTree("costheta_hx",getCosThetaHX(lead_p4,sublead_p4),"spin_trees");
+
+   l.FillTree("lead_calo_eta",photonInfoCollection[ipho1].caloPosition().Eta(),"spin_trees");
+   l.FillTree("lead_calo_phi",photonInfoCollection[ipho1].caloPosition().Phi(),"spin_trees");
+   l.FillTree("lead_r9",l.pho_r9[ipho1],"spin_trees");
+   
+   l.FillTree("sublead_calo_eta",photonInfoCollection[ipho2].caloPosition().Eta(),"spin_trees");
+   l.FillTree("sublead_calo_phi",photonInfoCollection[ipho2].caloPosition().Phi(),"spin_trees");
+   l.FillTree("sublead_r9",l.pho_r9[ipho2],"spin_trees");
+
+   l.FillTree("higgs_mass",Higgs.M(),"spin_trees");
+   
+    PhotonReducedInfo pho1 (
+        *((TVector3*)     l.sc_xyz->At(l.pho_scind[ipho1])),
+        ((TLorentzVector*)l.pho_p4->At(ipho1))->Energy(),
+        energyCorrected[ipho1],
+        l.pho_isEB[ipho1], l.pho_r9[ipho1],
+        true, // WARNING  setting pass photon ID flag for all photons. This is safe as long as only selected photons are used
+        energyCorrectedError[ipho1] // will be altered below, needs to be initialized
+    );
+    PhotonReducedInfo pho2 (
+        *((TVector3*)     l.sc_xyz->At(l.pho_scind[ipho2])),
+        ((TLorentzVector*)l.pho_p4->At(ipho2))->Energy(),
+        energyCorrected[ipho2],
+        l.pho_isEB[ipho2], l.pho_r9[ipho2],
+        true, // WARNING  setting pass photon ID flag for all photons. This is safe as long as only selected photons are used
+        energyCorrectedError[ipho2] // will be altered below, needs to be initialized
+    );
+    MassResolution *tempMassRes = new MassResolution;
+    tempMassRes->Setup(l,&pho1,&pho2,l.dipho_vtxind[diphoton_id],massResoPars, nR9Categories,nEtaCategories,beamspotSigma,true);
+
+    double sigmaMrv = tempMassRes->massResolutionEonly();
+    double sigmaMwv = tempMassRes->massResolutionWrongVtx();
+    double lead_sigmaE = tempMassRes->leadPhotonResolution();
+    double lead_sigmaE_nosmear = tempMassRes->leadPhotonResolutionNoSmear();
+    double sublead_sigmaE = tempMassRes->subleadPhotonResolution();
+    double sublead_sigmaE_nosmear = tempMassRes->subleadPhotonResolutionNoSmear();
+    
+    delete tempMassRes;
+
+   l.FillTree("sigmaMrv",sigmaMrv,"spin_trees");
+   l.FillTree("sigmaMwv",sigmaMwv,"spin_trees");
+   l.FillTree("lead_sigmaE",lead_sigmaE,"spin_trees");
+   l.FillTree("lead_sigmaE_nosmear",lead_sigmaE_nosmear,"spin_trees");
+   l.FillTree("sublead_sigmaE",sublead_sigmaE,"spin_trees");
+   l.FillTree("sublead_sigmaE_nosmear",sublead_sigmaE_nosmear,"spin_trees");
+
+   l.FillTree("sigmaMoMrv",float(sigmaMrv/Higgs.M()),"spin_trees");
+   l.FillTree("sigmaMoMwv",float(sigmaMwv/Higgs.M()),"spin_trees");
+   l.FillTree("vtx_prob",vtxProb,"spin_trees");
+   l.FillTree("leadPtoM",float(lead_p4.Pt()/Higgs.M()),"spin_trees");
+   l.FillTree("subleadPtoM",float(sublead_p4.Pt()/Higgs.M()),"spin_trees");
+   l.FillTree("leadEta",float(lead_p4.Eta()),"spin_trees");
+   l.FillTree("subleadEta",float(sublead_p4.Eta()),"spin_trees");
+   l.FillTree("cosDphi",float(TMath::Cos(lead_p4.Phi()-sublead_p4.Phi())),"spin_trees");
+}
+
+// for Mass-factorized
 void PhotonAnalysis::saveSpinTree(LoopAll& l, int category, float evweight, TLorentzVector Higgs, TLorentzVector lead_p4, TLorentzVector sublead_p4, int ipho1, int ipho2, float diphobdt, double sigmaMrv, double sigmaMwv, double lead_sigmaE, double lead_sigmaE_nosmear, double sublead_sigmaE, double sublead_sigmaE_nosmear, float vtxProb, float lead_id_mva, float sublead_id_mva){
    
    l.FillTree("category",category,"spin_trees");
@@ -4487,8 +4567,16 @@ Double_t PhotonAnalysis::GetPerpendicularAngle(TLorentzVector& ref, TLorentzVect
 double PhotonAnalysis::getCosThetaCS(TLorentzVector g1, TLorentzVector g2){
     
     TLorentzVector b1,b2,diphoton;
-    b1.SetPx(0); b1.SetPy(0); b1.SetPz( 4000); b1.SetE(4000);
-    b2.SetPx(0); b2.SetPy(0); b2.SetPz(-4000); b2.SetE(4000);
+    b1.SetPx(0); b1.SetPy(0);
+    b2.SetPx(0); b2.SetPy(0);
+    if (dataIs2011){
+        b1.SetPz( 3000); b1.SetE(3000);
+        b2.SetPz(-3000); b2.SetE(3000);
+    }
+    else {
+        b1.SetPz( 4000); b1.SetE(4000);
+        b2.SetPz(-4000); b2.SetE(4000);
+    }
 
     diphoton=g1+g2;
     TVector3 boostToDiphotonFrame = -diphoton.BoostVector();
@@ -4510,9 +4598,17 @@ double PhotonAnalysis::getCosThetaCS(TLorentzVector g1, TLorentzVector g2){
 
 double PhotonAnalysis::getCosThetaHX(TLorentzVector g1, TLorentzVector g2){
 
-  TLorentzVector b1,b2,diphoton;
-  b1.SetPx(0); b1.SetPy(0); b1.SetPz( 4000); b1.SetE(4000);
-  b2.SetPx(0); b2.SetPy(0); b2.SetPz(-4000); b2.SetE(4000);
+    TLorentzVector b1,b2,diphoton;
+    b1.SetPx(0); b1.SetPy(0);
+    b2.SetPx(0); b2.SetPy(0);
+    if (dataIs2011){
+        b1.SetPz( 3000); b1.SetE(3000);
+        b2.SetPz(-3000); b2.SetE(3000);
+    }
+    else {
+        b1.SetPz( 4000); b1.SetE(4000);
+        b2.SetPz(-4000); b2.SetE(4000);
+    }
 
   diphoton=g1+g2;
   TVector3 boostToDiphotonFrame = -diphoton.BoostVector();
