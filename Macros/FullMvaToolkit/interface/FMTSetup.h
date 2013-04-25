@@ -83,6 +83,9 @@ class FMTSetup : public FMTBase {
 		bool runSB_;
 		bool cleaned;
     double userLumi_;
+    bool isCutBased_;
+    string bdtname;
+    string weightsFile;
     string histFromTreeMode_;
 
 		int tempmHMin_;

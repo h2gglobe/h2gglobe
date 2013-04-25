@@ -26,18 +26,20 @@ g_expdijet		= 0.00495
 # Some "Global" Variables
 nBins_vbf=2
 nBins_vh=3
+
 # PLOT OPS ----------------
 sigscale   = 1.
 # THEORY SYSTEMATICS ------
 lumi          = "1.044"
-QCDscale_ggH  = "0.918/1.125"
-PDF_gg_1      = "0.923/1.079"
-PDF_gg_2      = "0.915/1.085"
-QCDscale_qqH  = "0.997/1.005"
-PDF_qqbar_1   = "0.979/1.027"
-PDF_qqbar_2   = "0.958/1.042" 
-QCDscale_VH   = "0.982/1.018"
-QCDscale_ttH  = "0.905/1.036"
+PDF_ggH       = "0.930/1.076"
+PDF_qqH       = "0.972/1.026"
+PDF_VH        = "0.958/1.042"
+PDF_ttH       = "0.920/1.080" 
+QCDscale_ggH  = "0.918/1.076"
+QCDscale_qqH  = "0.992/1.003"
+QCDscale_VH   = "0.982/1.021"
+QCDscale_ttH  = "0.906/1.041"
+
 # SHAPE SYSTEMATICS -------
 systematics = [
 	       "E_res"
@@ -51,14 +53,48 @@ systematics = [
 	      #,"pdfWeight"
 	      ,"vtxEff"
 	      ]
-# ADDITIONAL SYSTEMATICS --
-#JetID_vbf = 0.1
-#JetID_ggh = 0.7
 
-JetID_gg = 0.5
-JetID_qq = 0.07
-JEC_gg = 0.07
-JEC_qq = 0.04
+# ADDITIONAL EXLUSIVE TAG SYSTEMATICS --
+UEPS_ggH = 0.260
+UEPS_qqH = 0.076
+UEPS_VH  = 0.260
+UEPS_ttH = 0.260
+
+JEC_ggH = 0.110
+JEC_qqH = 0.034
+JEC_VH  = 0.110
+JEC_ttH = 0.110
+
+UEPS_Migration_ggH = 0.045
+UEPS_Migration_qqH = 0.100
+UEPS_Migration_VH = 0.045
+UEPS_Migration_ttH = 0.045
+
+JEC_Migration_ggH  = 0.025
+JEC_Migration_qqH  = 0.005
+JEC_Migration_VH  = 0.025
+JEC_Migration_ttH  = 0.025
+
+PUJetIDEff = 0.02
+
+elec_tag_eff_ggH = 0.0
+elec_tag_eff_qqH = 0.0
+elec_tag_eff_VH  = 0.01
+elec_tag_eff_ttH = 0.01
+muon_tag_eff_ggH = 0.0
+muon_tag_eff_qqH = 0.0
+muon_tag_eff_VH  = 0.01
+muon_tag_eff_ttH = 0.01
+met_tag_eff_ggH  = 0.15
+met_tag_eff_qqH  = 0.15
+met_tag_eff_VH   = 0.04
+met_tag_eff_ttH  = 0.04
+
+#JetID_gg = 0.5
+#JetID_qq = 0.07
+#JEC_gg = 0.07
+#JEC_qq = 0.04
+
 # -------------------------
 def generateFixedNData(backgroundEntries,nToyData):
 
@@ -400,57 +436,57 @@ def writeCard(tfile,mass,scaleErr):
 
 
   # This next bit is for the signal systematics, first lets do the easy ones, lumi and theory
-  if options.is2011: outPut.write("\nlumi          lnN ")
-  else: outPut.write("\nlumi       lnN ")
+  outPut.write("\nlumi       lnN ")
+  for b in range(binL,binH): outPut.write(" %s  %s  %s  %s  -  "%(lumi,lumi,lumi,lumi))
 
   if options.theorySys:
-    for b in range(binL,binH): outPut.write(" %s  %s  %s  %s  -  "%(lumi,lumi,lumi,lumi))
     outPut.write("\nQCDscale_ggH  lnN ")
     for b in range(binL,binH): outPut.write(" %s  -   -   -   -  "%(QCDscale_ggH))
-    outPut.write("\nPDF_gg        lnN ")
-    for b in range(binL,binH): outPut.write(" %s  -   -   %s  -  "%(PDF_gg_1,PDF_gg_2))
     outPut.write("\nQCDscale_qqH  lnN ")
     for b in range(binL,binH): outPut.write(" -   %s  -   -   -  "%(QCDscale_qqH))
-    outPut.write("\nPDF_qqbar     lnN ")
-    for b in range(binL,binH): outPut.write(" -   %s  %s  -   -  "%(PDF_qqbar_1,PDF_qqbar_2))
     outPut.write("\nQCDscale_VH   lnN ")
     for b in range(binL,binH): outPut.write(" -   -   %s  -   -  "%(QCDscale_VH))
     outPut.write("\nQCDscale_ttH  lnN ")
     for b in range(binL,binH): outPut.write(" -   -   -   %s  -  "%(QCDscale_ttH))
+    outPut.write("\nPDF_ggH  lnN ")
+    for b in range(binL,binH): outPut.write(" %s  -   -   -   -  "%(PDF_ggH))
+    outPut.write("\nPDF_qqH  lnN ")
+    for b in range(binL,binH): outPut.write(" -   %s  -   -   -  "%(PDF_qqH))
+    outPut.write("\nPDF_VH   lnN ")
+    for b in range(binL,binH): outPut.write(" -   -   %s  -   -  "%(PDF_VH))
+    outPut.write("\nPDF_ttH  lnN ")
+    for b in range(binL,binH): outPut.write(" -   -   -   %s  -  "%(PDF_ttH))
 
   outPut.write("\n")
 
   # includeVBF means the last bin is the VBF tagged bin and we apply and additional 
   # 70% GGH(TTH) and 10% on the VBF(WZH) part of that category (configurable above)
+  nBins_inclusive=0
   if options.includeVBF:
-    print "Including VBF (last Bin) Systematics"
-    # how many non VBF bins are there?
-    nBins_inclusive=0
-    nBins_vbf=0
-    nBins_vh=0
+    print "Including VBF Systematics"
     for b in range(binL,nBins+1):  
 	if dataHist.GetBinLowEdge(b)<1: nBins_inclusive+=1
-	if dataHist.GetBinLowEdge(b)>=1: nBins_vbf+=1
-	if dataHist.GetBinLowEdge(b)>=1 and dataHist.GetBinLowEdge(b)<1.08: nBins_vh+=1
 
     nBins_exclusive=nBins_vbf+nBins_vh
     print "Number of Non VBF channels -> ", nBins_inclusive
     print "Number of VBF channels -> ", nBins_vbf
     print "Number of VH channels -> ", nBins_vh
     print "Number of Exclu channels -> ", nBins_exclusive
-    # calculate the effect on each bin, eg 70%, always assume last bins are VBF tagged
-    numberOfGGH_dijet = sum([gghHist.GetBinContent(b)*JetID_gg for b in range(binH-nBins_exclusive,binH-nBins_vh)])
-    numberOfTTH_dijet = sum([tthHist.GetBinContent(b)*JetID_gg for b in range(binH-nBins_exclusive,binH-nBins_vh)])
-    numberOfVBF_dijet = sum([vbfHist.GetBinContent(b)*JetID_qq for b in range(binH-nBins_exclusive,binH-nBins_vh)])
-    numberOfWZH_dijet = sum([wzhHist.GetBinContent(b)*JetID_gg for b in range(binH-nBins_exclusive,binH-nBins_vh)])
+
+    # First is UEPS
+    # calculate the effect on each bin
+    numberOfGGH_dijet = sum([gghHist.GetBinContent(b)*UEPS_ggH for b in range(binH-nBins_exclusive,binH-nBins_vh)])
+    numberOfTTH_dijet = sum([tthHist.GetBinContent(b)*UEPS_ttH for b in range(binH-nBins_exclusive,binH-nBins_vh)])
+    numberOfVBF_dijet = sum([vbfHist.GetBinContent(b)*UEPS_qqH for b in range(binH-nBins_exclusive,binH-nBins_vh)])
+    numberOfWZH_dijet = sum([wzhHist.GetBinContent(b)*UEPS_VH  for b in range(binH-nBins_exclusive,binH-nBins_vh)])
     
     numberOfGGH_incl  = sum([gghHist.GetBinContent(b) for b in range(binL,nBins_inclusive+binL)])
     numberOfTTH_incl  = sum([tthHist.GetBinContent(b) for b in range(binL,nBins_inclusive+binL)])
     numberOfVBF_incl  = sum([vbfHist.GetBinContent(b) for b in range(binL,nBins_inclusive+binL)])
     numberOfWZH_incl  = sum([wzhHist.GetBinContent(b) for b in range(binL,nBins_inclusive+binL)])
 
-    if options.is2011: outPut.write("\nUEPS  lnN ")
-    else: outPut.write("\nUEPS  lnN ")
+    outPut.write("\nUEPS  lnN ")
+    
     # inclusive bins
     for b in range(binL,nBins_inclusive+binL): outPut.write(" %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   -  "%\
 		    (1.-(numberOfGGH_dijet/numberOfGGH_incl),1.+(numberOfGGH_dijet/numberOfGGH_incl),\
@@ -459,15 +495,16 @@ def writeCard(tfile,mass,scaleErr):
 		     1.-(numberOfTTH_dijet/numberOfTTH_incl),1.+(numberOfTTH_dijet/numberOfTTH_incl)))
     # exclusive bins - vbf
     for b in range(binH-nBins_exclusive,binH-nBins_vh): outPut.write(" %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   -  "%\
-      (1+JetID_gg,1-JetID_gg,1+JetID_qq,1-JetID_qq,1+JetID_gg,1-JetID_gg,1+JetID_gg,1-JetID_gg))
+      (1+UEPS_ggH,1-UEPS_ggH,1+UEPS_qqH,1-UEPS_qqH,1+UEPS_VH,1-UEPS_VH,1+UEPS_ttH,1-UEPS_ttH))
     # exclusive bins - vh
     for b in range(binH-nBins_vh,binH): outPut.write(" -   -   -   -   -  ")
     outPut.write("\n")
 
-    numberOfGGH_dijet = sum([gghHist.GetBinContent(b)*JEC_gg for b in range(binH-nBins_exclusive,binH-nBins_vh)])
-    numberOfTTH_dijet = sum([tthHist.GetBinContent(b)*JEC_gg for b in range(binH-nBins_exclusive,binH-nBins_vh)])
-    numberOfVBF_dijet = sum([vbfHist.GetBinContent(b)*JEC_qq for b in range(binH-nBins_exclusive,binH-nBins_vh)])
-    numberOfWZH_dijet = sum([wzhHist.GetBinContent(b)*JEC_gg for b in range(binH-nBins_exclusive,binH-nBins_vh)])
+    # Next is JEC
+    numberOfGGH_dijet = sum([gghHist.GetBinContent(b)*JEC_ggH for b in range(binH-nBins_exclusive,binH-nBins_vh)])
+    numberOfTTH_dijet = sum([tthHist.GetBinContent(b)*JEC_ttH for b in range(binH-nBins_exclusive,binH-nBins_vh)])
+    numberOfVBF_dijet = sum([vbfHist.GetBinContent(b)*JEC_qqH for b in range(binH-nBins_exclusive,binH-nBins_vh)])
+    numberOfWZH_dijet = sum([wzhHist.GetBinContent(b)*JEC_VH  for b in range(binH-nBins_exclusive,binH-nBins_vh)])
     
     numberOfGGH_incl  = sum([gghHist.GetBinContent(b) for b in range(binL,nBins_inclusive+binL)])
     numberOfTTH_incl  = sum([tthHist.GetBinContent(b) for b in range(binL,nBins_inclusive+binL)])
@@ -483,14 +520,102 @@ def writeCard(tfile,mass,scaleErr):
 		     1.-(numberOfTTH_dijet/numberOfTTH_incl),1.+(numberOfTTH_dijet/numberOfTTH_incl)))
     # exclusive bins - vbf
     for b in range(binH-nBins_exclusive,binH-nBins_vh): outPut.write(" %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   -  "%\
-      (1+JEC_gg,1-JEC_gg,1+JEC_qq,1-JEC_qq,1+JEC_gg,1-JEC_gg,1+JEC_gg,1-JEC_gg))
+      (1+JEC_ggH,1-JEC_ggH,1+JEC_qqH,1-JEC_qqH,1+JEC_VH,1-JEC_VH,1+JEC_ttH,1-JEC_ttH))
     # exclusive bins - vh
     for b in range(binH-nBins_vh,binH): outPut.write(" -   -   -   -   -  ")
 
-    outPut.write("\nJetMigration  lnN")
+    # Now do PUJetID
+    numberOfGGH_dijet = sum([gghHist.GetBinContent(b)*PUJetIDEff for b in range(binH-nBins_exclusive,binH-nBins_vh)])
+    numberOfTTH_dijet = sum([tthHist.GetBinContent(b)*PUJetIDEff for b in range(binH-nBins_exclusive,binH-nBins_vh)])
+    numberOfVBF_dijet = sum([vbfHist.GetBinContent(b)*PUJetIDEff for b in range(binH-nBins_exclusive,binH-nBins_vh)])
+    numberOfWZH_dijet = sum([wzhHist.GetBinContent(b)*PUJetIDEff for b in range(binH-nBins_exclusive,binH-nBins_vh)])
+    
+    numberOfGGH_incl  = sum([gghHist.GetBinContent(b) for b in range(binL,nBins_inclusive+binL)])
+    numberOfTTH_incl  = sum([tthHist.GetBinContent(b) for b in range(binL,nBins_inclusive+binL)])
+    numberOfVBF_incl  = sum([vbfHist.GetBinContent(b) for b in range(binL,nBins_inclusive+binL)])
+    numberOfWZH_incl  = sum([wzhHist.GetBinContent(b) for b in range(binL,nBins_inclusive+binL)])
+
+    outPut.write("\nCMS_eff_j   lnN")
+    # inclusive bins
+    for b in range(binL,nBins_inclusive+binL): outPut.write(" %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   -  "%\
+		    (1.-(numberOfGGH_dijet/numberOfGGH_incl),1.+(numberOfGGH_dijet/numberOfGGH_incl),\
+		     1.-(numberOfVBF_dijet/numberOfVBF_incl),1.+(numberOfVBF_dijet/numberOfVBF_incl),\
+		     1.-(numberOfWZH_dijet/numberOfWZH_incl),1.+(numberOfWZH_dijet/numberOfWZH_incl),\
+		     1.-(numberOfTTH_dijet/numberOfTTH_incl),1.+(numberOfTTH_dijet/numberOfTTH_incl)))
+    # exclusive bins - vbf
+    for b in range(binH-nBins_exclusive,binH-nBins_vh): outPut.write(" %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   -  "%\
+      (1+PUJetIDEff,1-PUJetIDEff,1+PUJetIDEff,1-PUJetIDEff,1+PUJetIDEff,1-PUJetIDEff,1+PUJetIDEff,1-PUJetIDEff))
+    # exclusive bins - vh
+    for b in range(binH-nBins_vh,binH): outPut.write(" -   -   -   -   -  ")
+
+    # Now do UEPSMigration    
+    outPut.write("\nUEPSMigration  lnN")
+    numberOfGGH_loose = gghHist.GetBinContent(binL+nBins_inclusive)*UEPS_Migration_ggH
+    numberOfVBF_loose = vbfHist.GetBinContent(binL+nBins_inclusive)*UEPS_Migration_qqH
+    numberOfWZH_loose = wzhHist.GetBinContent(binL+nBins_inclusive)*UEPS_Migration_VH
+    numberOfTTH_loose = tthHist.GetBinContent(binL+nBins_inclusive)*UEPS_Migration_ttH
+    numberOfGGH_tight = gghHist.GetBinContent(binH-nBins_vh) if gghHist.GetBinContent(binH-nBins_vh)>0 else 1.e10
+    numberOfVBF_tight = vbfHist.GetBinContent(binH-nBins_vh) if vbfHist.GetBinContent(binH-nBins_vh)>0 else 1.e10
+    numberOfWZH_tight = wzhHist.GetBinContent(binH-nBins_vh) if wzhHist.GetBinContent(binH-nBins_vh)>0 else 1.e10
+    numberOfTTH_tight = tthHist.GetBinContent(binH-nBins_vh) if tthHist.GetBinContent(binH-nBins_vh)>0 else 1.e10
+
+    if abs(numberOfGGH_loose/numberOfGGH_tight)>1.: numberOfGGH_loose=0.
+    if abs(numberOfVBF_loose/numberOfVBF_tight)>1.: numberOfVBF_loose=0.
+    if abs(numberOfWZH_loose/numberOfWZH_tight)>1.: numberOfWZH_loose=0.
+    if abs(numberOfTTH_loose/numberOfTTH_tight)>1.: numberOfTTH_loose=0.
+
     for b in range(binL,nBins_inclusive+binL): outPut.write(" -   -   -   -   -")
-    outPut.write(" 0.595424  0.945082  0.3592   0.927071  -  1.15  1.08  1.15 1.15  -")
+    outPut.write(" %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   -   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   -  "%\
+        (1+UEPS_Migration_ggH,1-UEPS_Migration_ggH,1+UEPS_Migration_qqH,1-UEPS_Migration_qqH,1+UEPS_Migration_VH,1-UEPS_Migration_VH,1+UEPS_Migration_ttH,1-UEPS_Migration_ttH,\
+		     1.-(numberOfGGH_loose/numberOfGGH_tight),1.+(numberOfGGH_loose/numberOfGGH_tight),\
+		     1.-(numberOfVBF_loose/numberOfVBF_tight),1.+(numberOfVBF_loose/numberOfVBF_tight),\
+		     1.-(numberOfWZH_loose/numberOfWZH_tight),1.+(numberOfWZH_loose/numberOfWZH_tight),\
+		     1.-(numberOfTTH_loose/numberOfTTH_tight),1.+(numberOfTTH_loose/numberOfTTH_tight)))
     outPut.write(" -   -   -   -   - -   -   -   -   - -   -   -   -   - \n")
+  
+    # Now do JECMigration    
+    outPut.write("\nJECMigration  lnN")
+    numberOfGGH_loose = gghHist.GetBinContent(binL+nBins_inclusive)*JEC_Migration_ggH
+    numberOfVBF_loose = vbfHist.GetBinContent(binL+nBins_inclusive)*JEC_Migration_qqH
+    numberOfWZH_loose = wzhHist.GetBinContent(binL+nBins_inclusive)*JEC_Migration_VH
+    numberOfTTH_loose = tthHist.GetBinContent(binL+nBins_inclusive)*JEC_Migration_ttH
+    numberOfGGH_tight = gghHist.GetBinContent(binH-nBins_vh) if gghHist.GetBinContent(binH-nBins_vh)>0 else 1.e10
+    numberOfVBF_tight = vbfHist.GetBinContent(binH-nBins_vh) if vbfHist.GetBinContent(binH-nBins_vh)>0 else 1.e10
+    numberOfWZH_tight = wzhHist.GetBinContent(binH-nBins_vh) if wzhHist.GetBinContent(binH-nBins_vh)>0 else 1.e10
+    numberOfTTH_tight = tthHist.GetBinContent(binH-nBins_vh) if tthHist.GetBinContent(binH-nBins_vh)>0 else 1.e10
+
+    if abs(numberOfGGH_loose/numberOfGGH_tight)>1.: numberOfGGH_loose=0.
+    if abs(numberOfVBF_loose/numberOfVBF_tight)>1.: numberOfVBF_loose=0.
+    if abs(numberOfWZH_loose/numberOfWZH_tight)>1.: numberOfWZH_loose=0.
+    if abs(numberOfTTH_loose/numberOfTTH_tight)>1.: numberOfTTH_loose=0.
+
+    for b in range(binL,nBins_inclusive+binL): outPut.write(" -   -   -   -   -")
+    outPut.write(" %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   -   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   -  "%\
+        (1+JEC_Migration_ggH,1-JEC_Migration_ggH,1+JEC_Migration_qqH,1-JEC_Migration_qqH,1+JEC_Migration_VH,1-JEC_Migration_VH,1+JEC_Migration_ttH,1-JEC_Migration_ttH,\
+		     1.-(numberOfGGH_loose/numberOfGGH_tight),1.+(numberOfGGH_loose/numberOfGGH_tight),\
+		     1.-(numberOfVBF_loose/numberOfVBF_tight),1.+(numberOfVBF_loose/numberOfVBF_tight),\
+		     1.-(numberOfWZH_loose/numberOfWZH_tight),1.+(numberOfWZH_loose/numberOfWZH_tight),\
+		     1.-(numberOfTTH_loose/numberOfTTH_tight),1.+(numberOfTTH_loose/numberOfTTH_tight)))
+    outPut.write(" -   -   -   -   - -   -   -   -   - -   -   -   -   - \n")
+  
+  # Now do other exclusive tag systematics
+  # muon tag
+  outPut.write("\nCMS_eff_m   lnN    ")
+  for b in range(binL,nBins_inclusive+nBins_vbf+binL): outPut.write(" -   -   -   -   -")
+  outPut.write(" %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   -  "%(1.-muon_tag_eff_ggH,1.+muon_tag_eff_ggH,1.-muon_tag_eff_qqH,1.+muon_tag_eff_qqH,1.-muon_tag_eff_VH,1.+muon_tag_eff_VH,1.-muon_tag_eff_ttH,1.+muon_tag_eff_ttH))
+  for b in range(nBins_vbf+binL+2,binH): outPut.write(" -   -   -   -   -")
+  # electron tag
+  outPut.write("\nCMS_eff_e   lnN    ")
+  for b in range(binL,nBins_inclusive+nBins_vbf+binL+1): outPut.write(" -   -   -   -   -")
+  outPut.write(" %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   -  "%(1.-elec_tag_eff_ggH,1.+elec_tag_eff_ggH,1.-elec_tag_eff_qqH,1.+elec_tag_eff_qqH,1.-elec_tag_eff_VH,1.+elec_tag_eff_VH,1.-elec_tag_eff_ttH,1.+elec_tag_eff_ttH))
+  for b in range(nBins_vbf+binL+3,binH): outPut.write(" -   -   -   -   -")
+  # MET tag
+  outPut.write("\nCMS_eff_met   lnN    ")
+  for b in range(binL,nBins_inclusive+nBins_vbf+binL+2): outPut.write(" -   -   -   -   -")
+  outPut.write(" %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   -  "%(1.-met_tag_eff_ggH,1.+met_tag_eff_ggH,1.-met_tag_eff_qqH,1.+met_tag_eff_qqH,1.-met_tag_eff_VH,1.+met_tag_eff_VH,1.-met_tag_eff_ttH,1.+met_tag_eff_ttH))
+  
+  outPut.write("\n")
+
   # Now is the very tedious part of the signal shape systematics, for each shape, simply do -/+ sigma
   
   if options.signalSys:
@@ -694,8 +819,8 @@ normG.SetMarkerStyle(20)
 normG.GetXaxis().SetTitle("mH")
 normG.GetYaxis().SetTitle("(N+dN)/N")
 normG.Draw("ALP")
-print "Check the Errors Look Sensible -> plot saved to normErrors_%s"%(options.tfileName)
-can.SaveAs("normErrors_%s.pdf"%options.tfileName)
+print "Check the Errors Look Sensible -> plot saved to %s/normErrors_%s"%(os.path.dirname(options.tfileName),os.path.basename(options.tfileName))
+can.SaveAs(("%s/normErrors_%s.pdf"%(os.path.dirname(options.tfileName),os.path.basename(options.tfileName))).replace('.root',''))
 
 
 # can make a special "global toy" set of datacards

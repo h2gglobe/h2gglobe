@@ -113,7 +113,6 @@ pair<double,double> FMTFit::FitPow(double mass){
 	RooRealVar *temp = new RooRealVar(Form("NBkgInSignal_mH%3.1f",mass),"t",10,0,1e6);
 	temp->setVal(result);
 	temp->setError(fullError);
-	outWS->import(*temp);
 	
 	if (verbose_) cout << "Transfer to workspace" << endl;
   RooRealVar *intL = (RooRealVar*)inWS->var("IntLumi");
@@ -128,6 +127,7 @@ pair<double,double> FMTFit::FitPow(double mass){
 			if (temp) outWS->import(*temp);
 		}
 	}
+	outWS->import(*temp,RecycleConflictNodes());
 	gDirectory->Cd(Form("%s:/",outfilename_.c_str()));
 	outWS->Write();
 	if (verbose_) outWS->allVars().Print();

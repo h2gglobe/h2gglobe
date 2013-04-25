@@ -35,6 +35,7 @@ bool skipTraining_=false;
 bool skipTesting_=false;
 bool skipEvaluation_=false;
 bool isCutBased_=false;
+int trainingMass_=124;
 
 template <class T>
 vector<T> getVecFromString(string name){
@@ -91,6 +92,7 @@ void OptionParser(int argc, char *argv[]){
     ("skipTesting,t",                                                                           "Skip testing")
     ("skipEvaluation,e",                                                                        "Skip evaluation")
     ("isCutBased",                                                                              "Train cut based style")
+    ("trainingMass", po::value<int>(&trainingMass_)->default_value(124),                        "Training Mass")
     ;
 
   po::positional_options_description p;
@@ -117,15 +119,16 @@ void OptionParser(int argc, char *argv[]){
 vector<pair<string,string> > getSignalTreeNames(){
 
   vector<pair<string,string> > treeNames;
-  treeNames.push_back(pair<string,string>("full_mva_trees/ggh_m124_8TeV","signal"));
-  treeNames.push_back(pair<string,string>("full_mva_trees/vbf_m124_8TeV","signal"));
-  treeNames.push_back(pair<string,string>("full_mva_trees/wzh_m124_8TeV","signal"));
-  treeNames.push_back(pair<string,string>("full_mva_trees/tth_m124_8TeV","signal"));
+  treeNames.push_back(pair<string,string>(Form("full_mva_trees/ggh_m%d_8TeV",trainingMass_),"signal"));
+  treeNames.push_back(pair<string,string>(Form("full_mva_trees/vbf_m%d_8TeV",trainingMass_),"signal"));
+  treeNames.push_back(pair<string,string>(Form("full_mva_trees/wzh_m%d_8TeV",trainingMass_),"signal"));
+  treeNames.push_back(pair<string,string>(Form("full_mva_trees/tth_m%d_8TeV",trainingMass_),"signal"));
   return treeNames;
 }
 
 vector<pair<string,string> > getBackgroundTreeNames(){
 
+  // KEEP ONLY HIGH STATS SAMPLES SO SOME ARE DROPPED
   vector<pair<string,string> > treeNames;
   // fake-fake
   //treeNames.push_back(pair<string,string>("full_mva_trees/qcd_30_8TeV_ff","background"));
@@ -138,7 +141,7 @@ vector<pair<string,string> > getBackgroundTreeNames(){
   // prompt-prompt
   treeNames.push_back(pair<string,string>("full_mva_trees/diphojet_8TeV","background"));
   treeNames.push_back(pair<string,string>("full_mva_trees/dipho_Box_25_8TeV","background"));
-  treeNames.push_back(pair<string,string>("full_mva_trees/dipho_Box_250_8TeV","background"));
+  //treeNames.push_back(pair<string,string>("full_mva_trees/dipho_Box_250_8TeV","background"));
 
   return treeNames;
 }
@@ -168,8 +171,8 @@ int main (int argc, char *argv[]){
 
   TMVA::Factory *factory = new TMVA::Factory("TMVA_SidebandMVA", outFile, "!V:!Silent:Color:DrawProgressBar:Transformations=I;D;P;G,D:AnalysisType=Classification");
   
+  factory->AddVariable(Form("(mass-%d)/%d",trainingMass_,trainingMass_),"DeltaM / M_{H}", 'F');
   if (isCutBased_){
-    factory->AddVariable("(mass-124.)/124.","DeltaM / M_{H}", 'F');
     factory->AddVariable("lead_eta","#eta_{1}", 'D');
     factory->AddVariable("sublead_eta","#eta_{2}", 'D');
     factory->AddVariable("lead_r9","#r9_{1}", 'D');
@@ -179,21 +182,26 @@ int main (int argc, char *argv[]){
   }
   else {
     factory->AddVariable("bdtoutput", "Diphoton BDT", 'F');
-    factory->AddVariable("deltaMoverM",  "#DeltaM / M_{H}", 'F');
+    //factory->AddVariable("deltaMoverM",  "#DeltaM / M_{H}", 'F');
   }
 
   // Get all the Trees and assign them to the factory by their type (signal,background)
   vector<pair<string,string> > signalTrees = getSignalTreeNames();
   vector<pair<string,string> > backgroundTrees = getBackgroundTreeNames();
+
   map<string,TTree*> trees;
   // set global weight for signal and background
   float signalWeight=1.0;
   float backgroundWeight=1.0;
+  TH1F *check = new TH1F("check","check",100,0,100);
 
   for (vector<pair<string,string> >::iterator sig=signalTrees.begin(); sig!=signalTrees.end(); sig++){
     TTree *temp = (TTree*)input->Get((sig->first).c_str());
     if (temp!=NULL) {
       if (temp->GetEntries()==0) continue;
+      temp->Draw("1>>check","weight*(weight>0)","goff");
+      cout << Form("Using tree %15s with entries %8d and sum of weights %4.4f",temp->GetName(),int(temp->GetEntries()),check->GetSumOfWeights()) << endl;
+      check->Reset();
       trees[sig->first] = temp;
       factory->AddSignalTree(trees[sig->first],signalWeight);
     }
@@ -204,6 +212,9 @@ int main (int argc, char *argv[]){
     TTree *temp = (TTree*)input->Get((bkg->first).c_str());
     if (temp!=NULL) {
       if (temp->GetEntries()==0) continue;
+      temp->Draw("1>>check","weight*(weight>0)","goff");
+      cout << Form("Using tree %15s with entries %8d and sum of weights %4.4f",temp->GetName(),int(temp->GetEntries()),check->GetSumOfWeights()) << endl;
+      check->Reset();
       trees[bkg->first] = temp;
       factory->AddBackgroundTree(trees[bkg->first],backgroundWeight);
     }
@@ -215,11 +226,11 @@ int main (int argc, char *argv[]){
   factory->SetSignalWeightExpression("weight");
 
   // Apply cuts on samples
-  TString cutString = "TMath::Abs((mass-124.)/124.)<=0.02";
+  TString cutString = Form("TMath::Abs((mass-%d)/%d)<=0.02",trainingMass_,trainingMass_);
   if (!isCutBased_) cutString += " && bdtoutput>=-0.05";
   TCut cuts(cutString);
 
-  factory->PrepareTrainingAndTestTree( cuts, cuts, "SplitMode=Alternate:NormMode=NumEvents:!V" );
+  factory->PrepareTrainingAndTestTree( cuts, cuts, "SplitMode=Random:NormMode=None:!V" );
 
   if (Methods_["BDTG"]) // gradient boosted decision trees
     factory->BookMethod( TMVA::Types::kBDT, "BDTgradMIT", "!H:!V:NTrees=500:MaxDepth=3:BoostType=Grad:Shrinkage=1.0:UseBaggedGrad:GradBaggingFraction=0.50:nCuts=20:NNodesMax=8:IgnoreNegWeights"); 

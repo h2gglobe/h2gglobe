@@ -297,6 +297,9 @@ void FMTSetup::ReadRunConfig(){
       continue;
     }
 		if (sline.find("#")!=string::npos) continue;
+    if (sline.find("isCutBased")!=string::npos)                   isCutBased_=boost::lexical_cast<bool>(getOptFromConfig<bool>(sline));
+    if (sline.find("bdtname")!=string::npos)                      bdtname=boost::lexical_cast<string>(getOptFromConfig<string>(sline));
+    if (sline.find("weightsFile")!=string::npos)                  weightsFile=boost::lexical_cast<string>(getOptFromConfig<string>(sline));
 		if (sline.find("IntLumi=")!=string::npos)                     setintLumi(boost::lexical_cast<double>(getOptFromConfig<double>(sline)));
     if (sline.find("mHMinimum=")!=string::npos)										setmHMinimum(boost::lexical_cast<int>(getOptFromConfig<double>(sline)));
 		if (sline.find("mHMaximum=")!=string::npos)										setmHMaximum(boost::lexical_cast<int>(getOptFromConfig<double>(sline)));
@@ -454,9 +457,9 @@ void FMTSetup::runHistosFromTrees(){
 	if (histosFromTrees_){
     if (!cleaned) cleanUp();
     cout << "Running histos from trees...." << endl;
-    bool isCutBased_=false;
-		string bdtname = "BDTgradMIT";
-		string weightsFile = "../../AnalysisScripts/aux/sidebandMVA_weights_hcp/TMVAClassification_BDTgradMIT.weights.xml";
+    //bool isCutBased_=false;
+		//string bdtname = "BDTgradMIT";
+		//string weightsFile = "../../AnalysisScripts/aux/sidebandMVA_weights_hcp/TMVAClassification_BDTgradMIT.weights.xml";
 		//string weightsFile = "weights/TMVA_SidebandMVA_BDTgradMIT.weights.xml";
 		FMTTree *fmtTree = new FMTTree(filename_, outfilename_, bdtname, weightsFile, intLumi_, is2011_, mHMinimum_, mHMaximum_, mHStep_, massMin_, massMax_, nDataBins_, signalRegionWidth_, sidebandWidth_, numberOfSidebands_, numberOfSidebandsForAlgos_, numberOfSidebandGaps_, massSidebandMin_, massSidebandMax_, nIncCategories_, includeVBF_, nVBFCategories_, includeLEP_, nLEPCategories_, systematics_, rederiveOptimizedBinEdges_, AllBinEdges_, isCutBased_, verbose_);
 		fmtTree->run(histFromTreeMode_);
