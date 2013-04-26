@@ -58,7 +58,7 @@ void RooContainer::AddNormalisationSystematics(std::string name,std::vector<std:
 			sys.push_back(std::pair<double,double> (value,value));
 		}
     	} else std::cerr << "WARNING! -- RooContainer::AddNormalisationsSystematics -- type not understood " 
-			<< type << endl;
+			<< type << std::endl;
  	normalisation_systematics_.insert(std::pair <std::string,std::vector <std::pair< double, double > > > (name,sys));
   }
 }
@@ -341,7 +341,7 @@ void RooContainer::MakeSystematics(std::string observable,std::string s_name, in
   std::map<std::string,RooRealVar>::iterator obs = m_real_var_.find(observable);
   if (obs == m_real_var_.end()){
     std::cerr << "RooContainer::MakeSystematics -- WARNING!!! -- No Observable named "
-	      << observable << endl;
+	      << observable << std::endl;
     return;
   }
 
@@ -492,7 +492,7 @@ std::vector< std::pair<double,double> > RooContainer::GetFitNormalisationsAndErr
      }
       else {
         std::cerr << "WARNING!!! -- RooContainer::GetFitNormalisations --  No Pdf named "
-	         << pdf_name << endl;  
+	         << pdf_name << std::endl;  
       } 
      }
      std::cout << getcatName(pdf_name,cat)<< std::endl;
@@ -531,7 +531,7 @@ std::vector<double> RooContainer::GetFitNormalisations(std::string pdf_name, std
      }
       else {
         std::cerr << "WARNING!!! -- RooContainer::GetFitNormalisations --  No Pdf named "
-	         << pdf_name << endl;  
+	         << pdf_name << std::endl;  
       } 
      }
      std::cout << getcatName(pdf_name,cat)<< std::endl;
@@ -899,7 +899,7 @@ void RooContainer::SumMultiBinnedDatasets(std::string new_name, std::vector<std:
 
 	for (int cat=0;cat<ncat;cat++){
 	   std::vector<std::string> catNames;
-	   for (std::vector<string>::iterator it = data.begin() ; it!=data.end();it++){
+	   for (std::vector<std::string>::iterator it = data.begin() ; it!=data.end();it++){
 		catNames.push_back(getcatName(*it,cat));
 	   }
 	   sumMultiBinnedDatasets(getcatName(new_name,cat),catNames,normalisation[cat],scale);
@@ -916,7 +916,7 @@ void RooContainer::SumMultiBinnedDatasets(std::string new_name, std::vector<std:
 
 	for (int cat=0;cat<ncat;cat++){
 	   std::vector<std::string> catNames;
-	   for (std::vector<string>::iterator it = data.begin() ; it!=data.end();it++){
+	   for (std::vector<std::string>::iterator it = data.begin() ; it!=data.end();it++){
 		catNames.push_back(getcatName(*it,cat));
 	   }
 	   sumMultiBinnedDatasets(getcatName(new_name,cat),catNames,normalisation,scale);
@@ -1142,7 +1142,7 @@ void RooContainer::writeSpecificCategoryDataCard(int cat,std::string filename,st
    for (std::map<std::string,std::pair<double,double> >::iterator it_g_sys = global_systematics_.begin();it_g_sys!=global_systematics_.end(); it_g_sys++){ 
      file << it_g_sys->first << " lnN  ";
       file << (it_g_sys->second).first << " " << (it_g_sys->second).second << " ";	
-     file <<endl;
+     file <<std::endl;
    }
 
   
@@ -1150,7 +1150,7 @@ void RooContainer::writeSpecificCategoryDataCard(int cat,std::string filename,st
    for (std::map<std::string,std::vector < std::pair< double,double> > >::iterator it_n_sys = normalisation_systematics_.begin();it_n_sys!=normalisation_systematics_.end(); it_n_sys++){
      file << it_n_sys->first << " lnN ";
      file << (((*it_n_sys).second)[cat].first) << " " << (((*it_n_sys).second)[cat].second) << " ";	
-     file <<endl;
+     file <<std::endl;
 
    }
     
@@ -1164,7 +1164,7 @@ void RooContainer::writeSpecificCategoryDataCard(int cat,std::string filename,st
        file << sigmaUnitInv <<" 0 ";
      else if (it_sys->second == 1) // background effected
        file << " 0 "<<sigmaUnitInv;
-     file << endl;
+     file << std::endl;
    }
 
 
@@ -1273,14 +1273,14 @@ void RooContainer::WriteDataCard(std::string filename,std::string data_name
    for (std::map<std::string,std::pair<double,double> >::iterator it_g_sys = global_systematics_.begin();it_g_sys!=global_systematics_.end(); it_g_sys++){ 
      file << it_g_sys->first << " lnN  ";
      for (int cat=0;cat<ncat;cat++) file << (it_g_sys->second).first << " " << (it_g_sys->second).second << " ";	
-     file <<endl;
+     file <<std::endl;
    }
 
    // Write Category Normalisations 
    for (std::map<std::string,std::vector < std::pair< double,double> > >::iterator it_n_sys = normalisation_systematics_.begin();it_n_sys!=normalisation_systematics_.end(); it_n_sys++){
      file << it_n_sys->first << " lnN ";
      for (int cat=0;cat<ncat;cat++) file << ((*it_n_sys).second[cat].first) << " " << ((*it_n_sys).second[cat].second) << " ";	
-     file <<endl;
+     file <<std::endl;
 
    }
 
@@ -1297,7 +1297,7 @@ void RooContainer::WriteDataCard(std::string filename,std::string data_name
       for (int cat=0;cat<ncat;cat++) file << sigmaUnitInv <<" 0 ";
      else if (it_sys->second == 1) // background effected
       for (int cat=0;cat<ncat;cat++) file << " 0 "<<sigmaUnitInv;
-     file << endl;
+     file << std::endl;
    }
 
 
@@ -1345,7 +1345,7 @@ std::string RooContainer::getsysName(std::string name,std::string sys_name){
 void RooContainer::addRealVar(std::string name ,double xmin,double xmax){
 
   RooRealVar temp(name.c_str(),name.c_str(),xmin,xmax);
-  m_real_var_.insert(pair<std::string,RooRealVar >(name,temp));
+  m_real_var_.insert(std::pair<std::string,RooRealVar >(name,temp));
 
   if (verbosity_){
   	std::cout << "RooContainer::AddRealVar -- Appended the variable " 
@@ -1356,7 +1356,7 @@ void RooContainer::addRealVar(std::string name ,double xmin,double xmax){
 // ----------------------------------------------------------------------------------------------------
 void RooContainer::addRealVar(std::string name ,double init,double xmin,double xmax){
   RooRealVar temp(name.c_str(),name.c_str(),init,xmin,xmax);
-  m_real_var_.insert(pair<std::string,RooRealVar>(name,temp));
+  m_real_var_.insert(std::pair<std::string,RooRealVar>(name,temp));
   if (verbosity_){
             std::cout << "RooContainer::AddRealVar -- Appended the variable " 
 	              << name <<std::endl;
@@ -1367,7 +1367,7 @@ void RooContainer::addRealVar(std::string name ,double init,double xmin,double x
 void RooContainer::addFormulaVar(std::string name ,std::string formula, std::string var){
 
   RooFormulaVar temp(name.c_str(),name.c_str(),formula.c_str(),RooArgList(m_real_var_[var]));
-  m_form_var_.insert(pair<std::string,RooFormulaVar >(name,temp));
+  m_form_var_.insert(std::pair<std::string,RooFormulaVar >(name,temp));
 
   if (verbosity_){
         std::cout << "RooContainer::AddFormulaVar -- Appended the variable " 
@@ -1658,10 +1658,10 @@ void RooContainer::convolutePdf(std::string name, std::string f_pdf, std::string
 
     RooRealVar temp_var(Form("norm_%s",name.c_str()),name.c_str(),norm_guess,0.,1.e6);
 
-    m_real_var_.insert(pair<std::string,RooRealVar>(name,temp_var));
+    m_real_var_.insert(std::pair<std::string,RooRealVar>(name,temp_var));
 
     RooExtendPdf temp(name.c_str(),name.c_str(),*convoluted,m_real_var_[name]);
-    m_exp_.insert(pair<std::string,RooExtendPdf>(name,temp));
+    m_exp_.insert(std::pair<std::string,RooExtendPdf>(name,temp));
    
     std::cout << "RooContainer::ConvolvePdf -- Made convoluted PDF " 
 	      << name << std::endl;	
@@ -1918,7 +1918,7 @@ std::vector<double> RooContainer::significanceOptimizedBinning(TH1F *hs,TH1F *hb
 	int j =0;
 	double *arrBins = new double[binEdges.size()];
 	for (std::vector<double>::iterator it=binEdges.begin();it!=binEdges.end();it++){
-		//cout << *it << endl;
+		//cout << *it << std::endl;
 		arrBins[j]=*it;
 		j++;	
 	}
@@ -2044,7 +2044,7 @@ std::vector<double> RooContainer::significanceOptimizedBinning(TH1F *hs,TH1F *hb
 			   
                               if (compareLHWide(Stot,S1,SSumRight,Btot,B1,BSumRight,1.0, signalsofar,backgroundsofar)){
  
-                              //cout << "Merging dude!" << endl; 
+                              //cout << "Merging dude!" << std::endl; 
                               highEdge = hbnew->GetBinLowEdge(k);
  
                               Stot+=S1;
@@ -2115,7 +2115,7 @@ std::vector<double> RooContainer::soverBOptimizedBinning(TH1F *hs,TH1F *hb,int n
 	int j =0;
 	double *arrBins = new double[binEdges.size()];
 	for (std::vector<double>::iterator it=binEdges.begin();it!=binEdges.end();it++){
-		//cout << *it << endl;
+		//cout << *it << std::endl;
 		arrBins[j]=*it;
 		j++;	
 	}
@@ -2541,17 +2541,17 @@ void RooContainer::composePdf(std::string name, std::string  composition
           m_gen_.insert(std::pair<std::string,RooAbsPdf*>(name,temp));
 
      	  RooExtendPdf temp_extend(name.c_str(),name.c_str(),*temp,m_real_var_[name]);
-          m_exp_.insert(pair<std::string,RooExtendPdf>(name,temp_extend));
+          m_exp_.insert(std::pair<std::string,RooExtendPdf>(name,temp_extend));
         }
     }
 
     else{
       RooAddPdf temp(name.c_str(),composition.c_str(),roo_funs,roo_args);
       m_gen_.insert(std::pair<std::string,RooAbsPdf*>(name,&temp));
-      m_pdf_.insert(pair<std::string,RooAddPdf>(name,temp));
-      cerr << "EXPRESSSION - " << expression.Data()<<endl;;
+      m_pdf_.insert(std::pair<std::string,RooAddPdf>(name,temp));
+      std::cerr << "EXPRESSSION - " << expression.Data()<<std::endl;;
       RooFormulaVar tmpSum(Form("pdf_%s_norm",name.c_str()),name.c_str(),expression.Data(),normalisationTerms);
-      m_form_var_.insert(pair<std::string,RooFormulaVar >(name,tmpSum));
+      m_form_var_.insert(std::pair<std::string,RooFormulaVar >(name,tmpSum));
       m_comp_pdf_norm_[name] = norms;
     }
 
@@ -2586,8 +2586,8 @@ void RooContainer::createDataSet(std::string name,std::string data_name,int nbin
         //data_.insert(std::pair<std::string,RooDataSet>(data_name,data_tmp));
       }
 
-      m_var_min_.insert(pair<std::string, double >(data_name,r1));
-      m_var_max_.insert(pair<std::string, double >(data_name,r2));
+      m_var_min_.insert(std::pair<std::string, double >(data_name,r1));
+      m_var_max_.insert(std::pair<std::string, double >(data_name,r2));
            
       RooDataSet data_tmp(data_name.c_str(),data_name.c_str(),RooArgSet((*test).second,*m_weight_var_ptr_[data_name]),getweightName(name).c_str());
       data_.insert(std::pair<std::string,RooDataSet>(data_name,data_tmp));
@@ -2603,9 +2603,9 @@ void RooContainer::createDataSet(std::string name,std::string data_name,int nbin
       m_th1f_[data_name] = tmp_hist;
 
       if (verbosity_){
-          cout << "RooContainer::CreateDataSet -- Created RooDataSet from " << name 
-	       << " with name " << data_name <<endl;
-          cout << "RooContainer::CreateDataSet -- Created TH1F from " << data_name << endl;
+          std::cout << "RooContainer::CreateDataSet -- Created RooDataSet from " << name 
+	       << " with name " << data_name <<std::endl;
+          std::cout << "RooContainer::CreateDataSet -- Created TH1F from " << data_name << std::endl;
       }
 
     } else {
@@ -2772,7 +2772,7 @@ void RooContainer::fitToData(std::string name_func, std::string name_data, std::
 	RooFormulaVar *integral = new RooFormulaVar("sum","sum","@0+@1",RooArgSet(*integral1,*integral2));
 	
         real_var->setRange("rngeiSignal",x2,x3);
-	cout << "Number of Events in signal region = " << (it_data->second).sumEntries(0,"rngeSignal") <<endl;
+	std::cout << "Number of Events in signal region = " << (it_data->second).sumEntries(0,"rngeSignal") <<std::endl;
 	DUMP_[Form("partial_1_%s",name_func.c_str())]=integral1;
 	DUMP_[Form("partial_2_%s",name_func.c_str())]=integral2;
 
@@ -2856,13 +2856,13 @@ void RooContainer::fitToSystematicSet(std::string name_func,std::string name_var
 	     ,double x1,double x2,double x3,double x4){
   if (! fit_systematics){
     std::cerr << "WARNING!!! -- RooContainer::FitToSystematicSet -- Systematic Pdfs not created ! (Need do MakeSystematicPdfs() ) "<<
-		 " No fit will be performed" << endl;
+		 " No fit will be performed" << std::endl;
     return;
   }
 
   if (! save_systematics_data){
     std::cerr << "WARNING!!! -- RooContainer::FitToSystematicSet -- Systematic dataset was not saved ! (Need do SaveSystematicsData() ) "<<
-		 " No fit will be performed" << endl;
+		 " No fit will be performed" << std::endl;
     return;
   }
 
@@ -2883,7 +2883,7 @@ void RooContainer::generateBinnedPdf(int catNo,std::string hist_nocat_name,std::
   if (effect_type > 1 || effect_type < -1){
 
     std::cerr << "WARNING!!! -- RooContainer::GenerateBinnedPdf --  You have put in effect type  " << effect_type
-              << " must choose from -1 : systematics from fit effect signal, 0: systematics from fit effects signal + background or 1 systematic effects background" << endl;  
+              << " must choose from -1 : systematics from fit effect signal, 0: systematics from fit effects signal + background or 1 systematic effects background" << std::endl;  
     return;
   }
 
@@ -2901,7 +2901,7 @@ void RooContainer::generateBinnedPdf(int catNo,std::string hist_nocat_name,std::
   std::map<std::string,RooFitResult*>::iterator res_itr = fit_results_.find(pdf_name);
   if (res_itr == fit_results_.end()){
        std::cerr << "WARNING!!! -- RooContainer::GenerateBinnedPdf --  No Fit Result Found!!! Did you fit? "
-	         << pdf_name << endl;  
+	         << pdf_name << std::endl;  
        return;
   }
 
@@ -2921,7 +2921,7 @@ void RooContainer::generateBinnedPdf(int catNo,std::string hist_nocat_name,std::
     }
     else {
        std::cerr << "WARNING!!! -- RooContainer::GenerateBinnedPdf --  No Pdf named "
-	         << pdf_name << endl;  
+	         << pdf_name << std::endl;  
        return;
     } 
   }
@@ -2969,7 +2969,7 @@ void RooContainer::generateBinnedPdf(int catNo,std::string hist_nocat_name,std::
   for (int par=0;par<n_par;par++){
     
     // this row in evec is the scales for the parameters
-    cout << "Systematic from parameter "<< par << endl;
+    std::cout << "Systematic from parameter "<< par << std::endl;
 
     double sigmaUnit = sigmaRange/nsigmas;
     double err = sigmaUnit*TMath::Sqrt(eval[par]);
