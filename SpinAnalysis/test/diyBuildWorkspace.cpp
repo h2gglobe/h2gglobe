@@ -40,7 +40,7 @@ int GetCategory(std::vector<double> & v, float val)
     if( val == v[0] ) { return 0; }
     std::vector<double>::iterator bound =  lower_bound( v.begin(), v.end(), val, std::greater<double>  ());
     int cat = ( val >= *bound ? bound - v.begin() - 1 : bound - v.begin() );
-    if( cat >= v.size() - 1 ) { cat = -1; }
+    if( cat >= int(v.size()) - 1 ) { cat = -1; }
     return cat;
 }
 
@@ -98,7 +98,7 @@ pair<int,int> getCutBasedCategory(double lead_eta, double sublead_eta, float lea
   else if (TMath::Abs(costheta_cs)>=0.6 && TMath::Abs(costheta_cs)<0.8) costheta_csBin=3;
   else if (TMath::Abs(costheta_cs)>=0.8 && TMath::Abs(costheta_cs)<=1.0) costheta_csBin=4;
   else costheta_csBin=-1;*/
-  costheta_csBin=GetCategory(cosThetaBoundaries, 1-costheta_cs);
+  costheta_csBin=GetCategory(cosThetaBoundaries, 1-TMath::Abs(costheta_cs));
 
   if (TMath::Abs(lead_eta)<=1.4442 && TMath::Abs(sublead_eta)<=1.4442){
     if (lead_r9>=0.94 && sublead_r9>=0.94) mycat=0;
@@ -226,7 +226,12 @@ void makeBackgroundModel(string name, RooRealVar *mass, map<string,RooDataSet*> 
           f2 = new RooFormulaVar(Form("CMS_hgg_modquartic2_cat%d_spin%d",a,b),Form("CMS_hgg_modquartic0_cat%d_spin%d",a,b),"@0*@0",RooArgList(*p2));
           f3 = new RooFormulaVar(Form("CMS_hgg_modquartic3_cat%d_spin%d",a,b),Form("CMS_hgg_modquartic0_cat%d_spin%d",a,b),"@0*@0",RooArgList(*p3));
 
-          bkg = new RooBernstein(Form("data_pol_model_cat%d_spin%d",a,b),Form("data_pol_model_cat%d_spin%d",a,b),*mass,RooArgList(*f0,*f1,*f2,*f3));
+          if (b==nCosThetaCategories-1){
+            bkg = new RooBernstein(Form("data_pol_model_cat%d_spin%d",a,b),Form("data_pol_model_cat%d_spin%d",a,b),*mass,RooArgList(*f0,*f1,*f2));
+          }
+          else {
+            bkg = new RooBernstein(Form("data_pol_model_cat%d_spin%d",a,b),Form("data_pol_model_cat%d_spin%d",a,b),*mass,RooArgList(*f0,*f1,*f2,*f3));
+          }
         }
         else {
           pow0 = new RooRealVar(Form("CMS_hgg_pow0_cat%d_spin%d",a,b),Form("CMS_hgg_pow0_cat%d_spin%d",a,b),10.,2.,20.);
@@ -445,7 +450,7 @@ int main(int argc, char* argv[]){
 
   dataTrees.push_back((TTree*)inFile->Get("spin_trees/Data"));
   if (useSpin2LP) spin2Trees.push_back((TTree*)inFile->Get("spin_trees/spin2lp_m125_8TeV"));
-  else spin2Trees.push_back((TTree*)inFile->Get("spin_trees/grav2pm_m125_8TeV"));
+  else spin2Trees.push_back((TTree*)inFile->Get("spin_trees/ggh_grav_m125_8TeV"));
   if (useSMpowheg){
     spin0Trees.push_back((TTree*)inFile->Get("spin_trees/ggh_m125_8TeV"));
     if (fullSMproc){
