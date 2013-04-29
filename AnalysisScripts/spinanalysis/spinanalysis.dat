@@ -8,7 +8,7 @@ cosThetaDef=CS
 nCosThetaCategories=5
 cosThetaCatBoundaries=0.,0.2,0.375,0.55,0.75,1.
 
-bkgPolOrderByCat=4,4,4,4,3,4,4,4,4,3,4,4,4,4,3,4,4,4,4,3,
+bkgPolOrderByCat=4,4,4,4,3,4,4,4,4,3,4,4,4,4,3,4,4,4,4,3
 sigPointsToBook=125,126
 
 includeVBF=0

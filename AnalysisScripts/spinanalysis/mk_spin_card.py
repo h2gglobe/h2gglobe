@@ -6,11 +6,13 @@ parser = OptionParser()
 parser.add_option("-q","--qqbarCard",dest="qqbarCard",action="store_true",default=False)
 parser.add_option("-s","--justSM",dest="justSM",action="store_true",default=False)
 parser.add_option("-g","--justGrav",dest="justGrav",action="store_true",default=False)
+parser.add_option("-c","--nCosThetaCats",dest="cTcats",type="int",default=5)
+parser.add_option("-C","--nKinCats",dest="kCats",type="int",default=4)
 parser.add_option("-n","--nameOfCard",dest="cardname")
 (options,args)=parser.parse_args()
 
-ncats=20
-card = open('%s'%options.cardname,'w')
+ncats=options.cTcats*options.kCats
+card = open(options.cardname,'w')
 
 card.write('CMS-HGG spin card for for use with combine. RooDataHist+Parametrised Background\n')
 if options.qqbarCard: card.write('For qqbar scan\n')
@@ -158,4 +160,24 @@ for syst in binned_systs:
       if proc=='bkg': card.write(' 0')
       else: card.write(' 0.333333')
      
+card.close()
 
+catMap = {}
+for c in range(options.kCats):
+  for s in range(options.cTcats):
+    catMap[(c*options.cTcats)+s] = (c,s)
+
+if options.justSM or options.justGrav:
+  os.system('combineCards.py %s > %s'%(card.name,(options.cardname).replace('.txt','_temp.txt')))
+  old_card = open('%s'%(options.cardname).replace('.txt','_temp.txt'))
+  new_card = open('%s'%options.cardname,'w')
+  for line in old_card.readlines():
+    for cat in range(ncats-1,-1,-1):
+        line = line.replace('ch1_cat%d'%cat,'ch1_kinCat%d_spinCat%d'%(catMap[cat][0],catMap[cat][1]))
+    new_card.write(line)
+  new_card.close()
+  os.system('rm -f %s'%old_card.name)
+
+
+
+  
