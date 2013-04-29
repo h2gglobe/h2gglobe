@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <fstream>
 #include <map>
 #include <fstream>
 
@@ -201,6 +202,8 @@ int main(int argc, char* argv[]){
   double muGRAVData_=-999.;
   double muSM_perCTbin[nSpinCats];
   double muGRAV_perCTbin[nSpinCats];
+  int fitStatus[4];
+  int fitCovStatus[4];
 
   tree_->Branch("q_data",&q_data_);
   tree_->Branch("q_smtoy",&q_smtoy_);
@@ -214,6 +217,8 @@ int main(int argc, char* argv[]){
   tree_->Branch("nSpinCats",&nSpinCats);
   tree_->Branch("muSM_perCTbin",muSM_perCTbin,"muSM_perCTbin[nSpinCats]/D");
   tree_->Branch("muGRAV_perCTbin",muGRAV_perCTbin,"muGRAV_perCTbin[nSpinCats]/D");
+  tree_->Branch("fitStatus",fitStatus,"fitStatus[4]/I");
+  tree_->Branch("fitCovStatus",fitCovStatus,"fitCovStatus[4]/I");
 
   // get poi from workspace
   RooRealVar *mass = (RooRealVar*)work->var("mass");
@@ -474,7 +479,10 @@ int main(int argc, char* argv[]){
       do{
         RooFitResult *fitRes = simPdfSMvect[s]->fitTo(*combDataSMthisCTheta, RooFit::Save(true), RooFit::Minimizer("Minuit2","Migrad"), RooFit::PrintLevel(-1));
         if(fitRes->status() == -1)
+        {
+          muSM->setVal(0.);
           repeat = true;
+        }
         count++;
       }while(repeat && count<MAX_REPEAT);
       muSM_perCTbin[s] = muSM->getVal();
@@ -484,7 +492,10 @@ int main(int argc, char* argv[]){
       do{
         RooFitResult *fitRes = simPdfGRAVvect[s]->fitTo(*combDataSMthisCTheta, RooFit::Save(true), RooFit::Minimizer("Minuit2","Migrad"), RooFit::PrintLevel(-1));
         if(fitRes->status() == -1)
+        {
+          muGRAV->setVal(0.);
           repeat = true;
+        }
         count++;
       }while(repeat && count<MAX_REPEAT);
       muGRAV_perCTbin[s] = muGRAV->getVal();
@@ -505,12 +516,17 @@ int main(int argc, char* argv[]){
     RooFitResult *fitResSMSM;
     //------------------------------------------
     do{
-      fitResSMSM = simPdfSM->fitTo(*combDataSM,Save(true), RooFit::Minimizer("Minuit2","Migrad"), RooFit::PrintLevel(-1));
-      //    	fitResSMSM = breakDownFit(simPdfSM,combDataSM,mass);
+      //fitResSMSM = simPdfSM->fitTo(*combDataSM,Save(true), RooFit::Minimizer("Minuit2","Migrad"), RooFit::PrintLevel(-1));
+      fitResSMSM = breakDownFit(simPdfSM,combDataSM,mass);
       if(fitResSMSM->status() == -1)
+      {
+        muSM->setVal(0.);
         repeat = true;
+      }
       count++;
     }while(repeat && count<MAX_REPEAT);
+    fitStatus[0] = fitResSMSM->status();
+    fitCovStatus[0] = fitResSMSM->covQual();
     muSMSM_ = muSM->getVal();
 
     muSM->setVal(1.);
@@ -518,11 +534,17 @@ int main(int argc, char* argv[]){
     count = 0;
     RooFitResult *fitResSMGRAV;
     do{
-      fitResSMGRAV = simPdfSM->fitTo(*combDataGRAV,Save(true), RooFit::Minimizer("Minuit2","Migrad"), RooFit::PrintLevel(-1));
+      //fitResSMGRAV = simPdfSM->fitTo(*combDataGRAV,Save(true), RooFit::Minimizer("Minuit2","Migrad"), RooFit::PrintLevel(-1));
+      fitResSMGRAV = breakDownFit(simPdfSM,combDataGRAV,mass);
       if(fitResSMGRAV->status() == -1)
+      {
+        muSM->setVal(0.);
         repeat = true;
+      }
       count++;
     }while(repeat && count<MAX_REPEAT);
+    fitStatus[1] = fitResSMGRAV->status();
+    fitCovStatus[1] = fitResSMGRAV->covQual();
     muSMGRAV_ = muSM->getVal();
 
     muGRAV->setVal(1.);
@@ -530,11 +552,17 @@ int main(int argc, char* argv[]){
     count = 0;
     RooFitResult *fitResGRAVSM;
     do{
-      fitResGRAVSM = simPdfGRAV->fitTo(*combDataSM,Save(true), RooFit::Minimizer("Minuit2","Migrad"), RooFit::PrintLevel(-1));
+      //fitResGRAVSM = simPdfGRAV->fitTo(*combDataSM,Save(true), RooFit::Minimizer("Minuit2","Migrad"), RooFit::PrintLevel(-1));
+      fitResGRAVSM = breakDownFit(simPdfGRAV,combDataSM,mass);
       if(fitResGRAVSM->status() == -1)
+      {
+        muGRAV->setVal(0.);
         repeat = true;
+      }
       count++;
     }while(repeat && count<MAX_REPEAT);
+    fitStatus[2] = fitResGRAVSM->status();
+    fitCovStatus[2] = fitResGRAVSM->covQual();
     muGRAVSM_ = muGRAV->getVal();
 
     muGRAV->setVal(1.);
@@ -542,11 +570,17 @@ int main(int argc, char* argv[]){
     count = 0;
     RooFitResult *fitResGRAVGRAV;
     do{
-      fitResGRAVGRAV = simPdfGRAV->fitTo(*combDataGRAV,Save(true), RooFit::Minimizer("Minuit2","Migrad"), RooFit::PrintLevel(-1));
+      //fitResGRAVGRAV = simPdfGRAV->fitTo(*combDataGRAV,Save(true), RooFit::Minimizer("Minuit2","Migrad"), RooFit::PrintLevel(-1));
+      fitResGRAVGRAV = breakDownFit(simPdfGRAV,combDataGRAV,mass);
       if(fitResGRAVGRAV->status() == -1)
+      {
+        muGRAV->setVal(0.);
         repeat = true;
+      }
       count++;
     }while(repeat && count<MAX_REPEAT);
+    fitStatus[3] = fitResGRAVGRAV->status();
+    fitCovStatus[3] = fitResGRAVGRAV->covQual();
     muGRAVGRAV_ = muGRAV->getVal();
 
     cout << "Fits done. Getting NLL...." << endl;
@@ -560,6 +594,11 @@ int main(int argc, char* argv[]){
       cout << "SpinCat " << s << ": muSM - " << muSM_perCTbin[s] << " - muGRAV - " << muGRAV_perCTbin[s] << endl;
     }
 
+    if(fitResGRAVGRAV->status() == -1 ||
+       fitResGRAVSM->status() == -1 ||
+       fitResSMGRAV->status() == -1 ||
+       fitResSMSM->status() == -1)
+      t--;
     tree_->Fill();
 
     delete fitResSMSM;
