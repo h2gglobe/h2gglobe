@@ -20,6 +20,16 @@ public:
 };
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
+class  GraphToTF1 {
+public:
+	GraphToTF1( TString name, TGraph * g ) { sp_ = new TSpline3(name,g); };
+	double operator() (double *x, double *p) {
+		return sp_->Eval( x[0] );
+	};
+	TSpline * sp_;
+};
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
 class  SimpleHistoToTF2 {
 public:
 	SimpleHistoToTF2( TString name, TH2 * g ) { sp_ = g; };
@@ -27,6 +37,23 @@ public:
 		return sp_->GetBinContent( sp_->FindBin(x[0],x[1]) );
 	};
 	TH2 * sp_;
+};
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
+class  SignalWidthFactor {
+public:
+	SignalWidthFactor( TString name, TGraph * sigW, TH1 * sigCdf) : 
+		sigWFunc_(new GraphToTF1(name,sigW)), sigCdf_(new HistoToTF1(name,sigCdf) ) {
+		sigWTF1_ = new TF1("sigTF1",sigWFunc_,-1.,1,0,"HistoToTF1");
+	};
+	double operator() (double a, double b) {
+		double x[] = {a,b};
+		return sigWTF1_->Integral(a,b) / ((*sigCdf_)(&a,0) - (*sigCdf_)(&b,0));
+	};
+	
+	GraphToTF1 * sigWFunc_;
+	TF1 * sigWTF1_;
+	HistoToTF1 * sigCdf_;
 };
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -49,21 +76,25 @@ public:
 };
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
+TH1 * integrate1D(TH1 * h) {
+	TH1 * ret= (TH1*)h->Clone( Form("%s_cdf", h->GetName() ) );
+	for(int xx=ret->GetNbinsX()-1; xx>=0; --xx) {
+		ret->SetBinContent( xx, ret->GetBinContent(xx) + ret->GetBinContent(xx+1) );
+	}
+	ret->Scale( 1./h->Integral() );
+	return ret;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------
 TH2 * integrate2D(TH2 * h) {
 	TH2 * ret= (TH2*)h->Clone( Form("%s_cdf", h->GetName() ) );
-	///// for(int xx=0; xx<ret->GetNbinsX()+1; ++xx) {
-	///// 	for(int yy=1; yy<ret->GetNbinsY()+1; ++yy) {
 	for(int xx=ret->GetNbinsX(); xx>=0; --xx) {
 		for(int yy=ret->GetNbinsY()-1; yy>=0; --yy) {
-			/// ret->SetBinContent( xx, yy, ret->GetBinContent(xx,yy) + ret->GetBinContent(xx,yy-1) );
 			ret->SetBinContent( xx, yy, ret->GetBinContent(xx,yy) + ret->GetBinContent(xx,yy+1) );
 		}
 	}
-	///// for(int yy=0; yy<ret->GetNbinsY()+1; ++yy) {
-	///// 	for(int xx=1; xx<ret->GetNbinsX()+1; ++xx) {
 	for(int yy=ret->GetNbinsY(); yy>=0; --yy) {
 		for(int xx=ret->GetNbinsX()-1; xx>=0; --xx) {
-			//// ret->SetBinContent( xx, yy, ret->GetBinContent(xx,yy) + ret->GetBinContent(xx-1,yy) );
 			ret->SetBinContent( xx, yy, ret->GetBinContent(xx,yy) + ret->GetBinContent(xx+1,yy) );
 		}
 	}
@@ -75,21 +106,18 @@ TH2 * integrate2D(TH2 * h) {
 class PieceWiseSignif : public ROOT::Math::IBaseFunctionMultiDim
 {
 public:
-	PieceWiseSignif(int nbound, TF1 * sigInt, TF1 * bkgInt, double cutoff=2.5e-2) : 
-		nbound_(nbound), sigInt_(sigInt), bkgInt_(bkgInt), cutoff_(cutoff) {};
+	PieceWiseSignif(int nbound, TF1 * sigInt, TF1 * bkgInt, double cutoff=2.5e-2, SignalWidthFactor * sigwidth=0) : 
+		nbound_(nbound), sigInt_(sigInt), bkgInt_(bkgInt), cutoff_(cutoff), sigwidth_(sigwidth) {};
 	
 	double operator() (double *x, double *p) const {
-		/// std::sort(x,x+nbound_);
 		
 		double nsig2 = 0.;
 		double lastb= x[0];		
-		/// std::cout << "x[0] " << x[0] << std::endl;
 		for(int ii=1; ii<nbound_; ++ii) {
 			int jj=ii;
 			double newb = lastb;
 			
 			for(; jj<nbound_; ++jj) {
-				/// std::cout << "x[" << jj << "]" << x[jj] << std::endl;
 				newb -= x[jj];
 				if( lastb > newb + p[0] ) {
 					break;
@@ -98,10 +126,12 @@ public:
 			if( newb < sigInt_->GetXmin() ) { newb = sigInt_->GetXmin(); }
 			
 			if( lastb > newb + p[0] ) {
-				/// std::cout << "lastb " << lastb << " newb " << newb << " " << ii << " " << jj << std::endl;
 				float csig = sigInt_->Integral(newb,lastb);
 				csig *= csig;
 				csig /= bkgInt_->Integral(newb,lastb);
+				if( sigwidth_ != 0 ) {
+					csig /= (*sigwidth_)(newb,lastb);
+				}
 				nsig2 -= csig;
 			}
 			ii = jj;
@@ -122,6 +152,7 @@ public:
 	int nbound_;
 	TF1 * sigInt_; 
 	TF1 * bkgInt_;
+	SignalWidthFactor * sigwidth_;
 	double cutoff_;
 			      
 };
@@ -137,25 +168,13 @@ public:
 			cutoffs_[0] = xcutoff;
 			cutoffs_[1] = ycutoff;
 			double xmin =  sigInt_->GetXmin(), xmax =  sigInt_->GetXmax(), ymin =  sigInt_->GetYmin(), ymax =  sigInt_->GetYmax();
-			///// std::cout << "PieceWise2DSignif "
-			///// 	  << "xmin " << xmin << "\n"
-			///// 	  << "xmax " << xmax << "\n"
-			///// 	  << "ymin " << ymin << "\n" 
-			///// 	  << "ymax " << ymax << "\n" 
-			///// 	  << "xcutoff " << xcutoff << "\n" 
-			///// 	  << "ycutoff " << ycutoff
-			///// 	  << std::endl;
 			if( ! isCdf ) {
 				sigNorm_  =( sigNorm == 0. ? sigInt_->Integral(xmin,xmax,ymin,ymax) : sigNorm );
 				bkg1Norm_ =( bkg1Norm == 0. ? bkg1Int_->Integral(xmin,xmax,ymin,ymax) : bkg1Norm ); 
 				bkg2Norm_ =( bkg2Norm == 0. ? bkg2Int_->Integral(xmin,xmax,ymin,ymax) : bkg2Norm );
 			}
-			//// std::cout << "sigNorm " << sigNorm_  << "\n"
-			//// 	  << "bkg1Norm " << bkg1Norm_ << "\n"
-			//// 	  << "bkg2Norm " << bkg2Norm_
-			//// 	  << std::endl;
 
-		};
+	};
 	
 	double operator() (double *x, double *p) const {
 		
@@ -169,21 +188,15 @@ public:
 		double lastSigInt,lastBkg1Int,lastBkg2Int;
 
 		if( isCdf_ ) {
-			lastSigInt=0.;/// sigInt_->Eval(firstxb,firstyb) ;
-			lastBkg1Int=0.;/// bkg1Int_->Eval(firstxb,firstyb);
-			lastBkg2Int=0.;/// bkg2Int_->Eval(firstxb,firstyb);
+			lastSigInt=0.;
+			lastBkg1Int=0.;
+			lastBkg2Int=0.;
 		} else {
 			lastSigInt=sigInt_->Integral(xmin,firstxb,ymin,firstyb) / sigNorm_; 
 			lastBkg1Int=bkg1Int_->Integral(xmin,firstxb,ymin,firstyb) / bkg1Norm_; 
 			lastBkg2Int=bkg2Int_->Integral(xmin,firstxb,ymin,firstyb) / bkg2Norm_;
 		}
-		//// std::ostream_iterator< double > output( cout, "," );
-		//// std::copy(&x[0],&x[2*nbound_],output); 
-		//// std::cout << std::endl;
-		
-		/// std::cout << xmin<< " " << firstxb<< " " << ymin<< " " << firstyb << " " << lastSigInt << " " << lastBkg1Int << " " <<  lastBkg2Int << std::endl;
-		/// nsig2 = -lastSigInt*lastSigInt / fomden_->Eval(lastSigInt,lastBkg1Int,lastBkg2Int);
-		
+
 		for(int ii=1; ii<nbound_-1; ++ii) { // ignore the last boundary since Minuit does not float it
 			int jj=ii;
 			double newxb = lastxb;
@@ -199,8 +212,6 @@ public:
 			if( newxb < xmin ) { newxb = xmin; }
 			if( newyb < ymin ) { newyb = ymin; }
 			
-			/// std::cout << "ibound " << jj << " (" << firstxb << "," << firstyb << ") "<< " (" << newxb << "," << newyb << ") " << nsig2;
-
 			if( lastxb > newxb + p[0] && lastyb > newyb + p[1] ) {
 				float sigInt ;
 				float bkg1Int;
@@ -219,15 +230,8 @@ public:
 				float bkg1 = bkg1Int - lastBkg1Int;
 				float bkg2 = bkg2Int - lastBkg2Int;
 
-				//// std::cout << "sig " << lastSigInt << " " << sigInt  << " " << sig
-				//// 	  << " bkg1 " << lastBkg1Int << " "<< bkg1Int << " " << bkg1 
-				//// 	  << " bkg2 " << lastBkg2Int << " "<< bkg2Int << " " << bkg2
-				//// 	;
-				
 				float num = sig*sig;
 				float den = fomden_->Eval(sig,bkg1,bkg2);
-				
-				//// std::cout << " " << num << " " << den;
 
 				lastSigInt = sigInt;
 				lastBkg1Int = bkg1Int;
@@ -236,9 +240,6 @@ public:
 				nsig2 -= num/den;
 			}
 			ii = jj;
-			//// std::cout << " " << nsig2 << std::endl;
-			int a;
-			//// std::cin >> a;
 			lastxb = newxb;
 			lastyb = newyb;
 		}
@@ -251,7 +252,8 @@ public:
 		return this->operator()(&xv[0],&pv[0]); 
 	}; 
 	
-	virtual ROOT::Math::IBaseFunctionMultiDim * Clone() const { return new PieceWise2DSignif(nbound_,isCdf_,sigInt_,bkg1Int_,bkg2Int_,fomden_,cutoffs_[0],cutoffs_[1]); }
+	virtual ROOT::Math::IBaseFunctionMultiDim * Clone() const { 
+		return new PieceWise2DSignif(nbound_,isCdf_,sigInt_,bkg1Int_,bkg2Int_,fomden_,cutoffs_[0],cutoffs_[1]); }
 
 	virtual unsigned int NDim() const { return 2*nbound_; }; 
 

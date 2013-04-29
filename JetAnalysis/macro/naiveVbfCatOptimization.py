@@ -7,6 +7,78 @@ from math import sqrt
 import json
 json.encoder.FLOAT_REPR = lambda o: format(o, '.3f')
 
+
+# -----------------------------------------------------------------------------------------------------------
+def getQuantilesGraphs(histo,probs,twosided=False):
+    ## histo.Print("all")
+    graphs = [ ROOT.TGraphErrors(histo.GetNbinsX()) for p in probs ]
+    if twosided:
+        qtiles = []
+        for p in probs:
+            t = 0.5 - p*0.5
+            qtiles.append( t )
+            qtiles.append( 1-t )
+    else:
+        qtiles=probs
+        
+    nq = len(qtiles)
+    graph = ROOT.TGraph(nq+2)
+    for iq in range(nq):
+        graph.SetPoint(iq,qtiles[iq],0.)
+    for g in graphs:        
+        g.GetXaxis().SetTitle(histo.GetXaxis().GetTitle())
+        g.SetMarkerStyle(histo.GetMarkerStyle())
+    graph.SetPoint(nq,0.25,0.)
+    graph.SetPoint(nq+1,0.75,0.)
+        
+    for ix in range(1,histo.GetNbinsX()+1):
+        proj = histo.ProjectionY("qtiles",ix,ix)
+        
+        ## proj.Print("all")
+        ## graph.Print("all")
+        proj.GetQuantiles(nq+2,graph.GetY(),graph.GetX())
+        ntot = proj.Integral()
+        if ntot == 0: continue
+        h = 1.2*( graph.GetY()[nq+1] - graph.GetY()[nq] ) * pow(ntot,-0.2)
+        
+        if twosided:
+            for ig in range(nq/2):                
+                quant1 = graph.GetY()[ig]
+                quant2 = graph.GetY()[ig+1]
+                quant = (quant2 - quant1)*0.5                
+                quant1mh = proj.FindBin( quant1 - h*0.5 )
+                quant1ph = proj.FindBin( quant1 + h*0.5 )
+                quant2mh = proj.FindBin( quant2 - h*0.5 )
+                quant2ph = proj.FindBin( quant2 + h*0.5 )
+                
+                nint = proj.Integral( quant1mh, quant1ph ) + proj.Integral( quant2mh, quant2ph )
+                if nint > 0 and ntot > 0:
+                    fq = nint / (2.*h*ntot)
+                    err = 1./(2.*sqrt(ntot)*fq)
+                else:
+                    err = 0.
+
+                graphs[ig/2].SetPoint(ix-1,histo.GetXaxis().GetBinCenter(ix),quant)
+                graphs[ig/2].SetPointError(ix-1,histo.GetXaxis().GetBinWidth(ix)*0.5,err)
+                
+        else:
+            for ig in range(nq):
+                quant = graph.GetY()[ig]
+                quantmh = proj.FindBin( quant - h )
+                quantph = proj.FindBin( quant + h )
+                nint = proj.Integral( quantmh, quantph )
+                
+                if nint > 0 and ntot > 0:
+                    fq = nint / (2.*h*ntot)
+                    err = 1./(2.*sqrt(ntot)*fq)
+                else:
+                    err = 0.
+                
+                graphs[ig].SetPoint(ix-1,histo.GetXaxis().GetBinCenter(ix),quant)
+                graphs[ig].SetPointError(ix-1,histo.GetXaxis().GetBinWidth(ix)*0.5,err)
+                
+    return graphs
+
 # -----------------------------------------------------------------------------------------------------------
 def readPlot(fin, name, cat=0, which=[""], samples=["diphojet_8TeV","ggh_m125_8TeV","vbf_m125_8TeV",]):
 
@@ -29,10 +101,9 @@ def optmizeCats(func, ws, args):
     grS.SetName("zVsNcat")
     grS.SetTitle(";n_{cat};f.o.m [A.U.]")
     summary = {}
-    for iter in range(1,9):
-    ### for iter in [1]:
+    for iter in range(1,6):
         boundaries,z = func(iter,ws,*args)
-        ncat = iter ## len(boundaries)-1
+        ncat = iter
         if not ncat in summary or summary[ncat]["z"] < z: 
             summary[ncat] =  { "z" : z, "boundaries" : boundaries, "ncat": ncat }
     for ncat,val in summary.iteritems():
@@ -69,8 +140,8 @@ def optimizeNcat2D(ncat, ws, isCdf, sigPx, sigPy, sigIntegral, bkgIntegral1, bkg
     sigPy.GetQuantiles(ncat,quantilesY,prbs)
     quantilesX[ncat] = 1.
     quantilesY[ncat] = 1.
-
-    fomDen = ROOT.TF3("fomden","x[1]+[1]*x[2]+[2]*x[0] + 2*[0]*[1]*sqrt(x[1]+[1]*x[2]+[2]*x[0])*x[2] + [0]*[0]*[1]*[1]*x[2]*x[2]",0.,1.e+3,0.,1.e+3,0.,1.e+3)
+    
+    fomDen = ROOT.TF3("fomden","x[1]+[1]*x[2]+[2]*x[0] + 2*[0]*[1]*sqrt(x[1]+[1]*x[2]+[2]*x[0])*x[2] + [0]*[0]*[1]*[1]*x[2]*x[2]",0.,1.e+3,0.,1.e+3,0.,1.e+3) ## denominator of z^2 (s,b1,b2 = x[0:3])
     fomDen.SetParameter(0,syst)
     fomDen.SetParameter(1,relNorm)
     fomDen.SetParameter(2,cnst)
@@ -82,8 +153,8 @@ def optimizeNcat2D(ncat, ws, isCdf, sigPx, sigPy, sigIntegral, bkgIntegral1, bkg
     minimizer.SetFixedVariable(0,"fixedBoundX",1.)
     minimizer.SetFixedVariable(nbound,"fixedBoundY",1.)
     for ivar in range(1,nbound):
-        minimizer.SetLimitedVariable(ivar,       "deltaBoundX%d" % ivar, quantilesX[nbound-ivar]-quantilesX[nbound-ivar-1],1.e-3,cutoffX,1.)
-        minimizer.SetLimitedVariable(ivar+nbound,"deltaBoundY%d" % ivar, quantilesY[nbound-ivar]-quantilesY[nbound-ivar-1],1.e-3,cutoffY,1.)
+        minimizer.SetLimitedVariable(ivar,       "deltaBoundX%d" % ivar, quantilesX[nbound-ivar]-quantilesX[nbound-ivar-1],1.e-3,cutoffX,2.)
+        minimizer.SetLimitedVariable(ivar+nbound,"deltaBoundY%d" % ivar, quantilesY[nbound-ivar]-quantilesY[nbound-ivar-1],1.e-3,cutoffY,2.)
 
     minimizer.Minimize()
     minimizer.PrintResults()
@@ -153,7 +224,7 @@ def optimize2D(fin):
     bkg1 = fin.Get("bkg0")
     bkg2 = fin.Get("bkg1")
     
-    sigDs = ROOT.RooDataSet("sigDs","sigDs",sig,varSet)
+    sigDs  = ROOT.RooDataSet("sigDs","sigDs",sig,varSet)
     bkg1Ds = ROOT.RooDataSet("bkg1Ds","bkg1Ds",bkg1,varSet)
     bkg2Ds = ROOT.RooDataSet("bkg2Ds","bkg2Ds",bkg2,varSet)
 
@@ -219,7 +290,6 @@ def optimize2D(fin):
     bkg2Histo.DrawNormalized("colz")
 
     canv3.SaveAs("vbfmva_opt_input.png")
-    ###canv3.SaveAs("vbfmva_opt_input.C")
 
     raw_input("Go?")
     optmizeCats( optimizeNcat2D, ws, (isCdf,sigHistoX,sigHistoY,sigTF2,bkg1TF2,bkg2TF2,cutoffX,cutoffY,
@@ -227,8 +297,127 @@ def optimize2D(fin):
 
     return ws
 
+
 # -----------------------------------------------------------------------------------------------------------
-def optimizeNcat(ncat, ws, sig, sigIntegral, bkgIntegral, xmin, cutoff):
+def optimize1DMassWidth(fin):
+    minX = -0.5
+    cutoffX = 0.05
+    ## cut = "vbfMVA>-2."
+    cut = ""
+    
+    ws = ROOT.RooWorkspace("ws","ws")
+    ws.rooImport = getattr(ws,'import')
+    diphotonMVA = ws.factory("diphotonMVA[1.,%f.,1.001]" % minX )
+    vbfMVA = ws.factory("vbfMVA[1.,-2.,1.001]" )
+    mass = ws.factory("CMS_hgg_mass[125.,110.,150.]")
+    weight = ws.factory("weight[1.,0.,10.]")
+    varSet = ROOT.RooArgSet(diphotonMVA,vbfMVA,mass,weight)
+    varList = ROOT.RooArgList(diphotonMVA,vbfMVA,mass,weight)
+
+    diphotonMVA.setBins(100)
+    mass.setBins(320)
+
+    sig = [ "ggh_m124_8TeV" , "vbf_m124_8TeV", "wzh_m124_8TeV", "tth_m124_8TeV" ]
+    bkg = [ "gjet_40_8TeV_pf", "diphojet_8TeV" ]
+    
+    sig0 = fin.Get(sig.pop(0))
+    bkg0 = fin.Get(bkg.pop(0))
+
+    sigHisto = ROOT.TH2D("sigHisto","sigHisto",100,minX,1.,320,110,150)
+    bkgHisto = ROOT.TH2D("bkgHisto","bkgHisto",100,minX,1.,320,110,150)
+    tmpHisto = ROOT.TH2D("tmpHisto","tmpHisto",100,minX,1.,320,110,150)
+
+    tweight = "weight"
+    if cut != "":
+        tweight += " * ( %s )" % cut
+    sig0.Draw("CMS_hgg_mass:diphotonMVA>>sigHisto",tweight)
+    bkg0.Draw("CMS_hgg_mass:diphotonMVA>>bkgHisto",tweight)
+    
+    sigDs = ROOT.RooDataSet("sigDs","sigDs",sig0,varSet,cut,"weight")
+    bkgDs = ROOT.RooDataSet("bkgDs","bkgDs",bkg0,varSet,cut,"weight")
+
+    for sample in sig:
+        sampleTree = fin.Get(sample)
+        sampleDs = ROOT.RooDataSet(sample,sample,sampleTree,varSet,cut,"weight")
+        sigDs.append(sampleDs)
+        sampleTree.Draw("CMS_hgg_mass:diphotonMVA>>tmpHisto",tweight)
+        sigHisto.Add(tmpHisto)
+        
+    for sample in bkg:
+        sampleTree = fin.Get(sample)
+        sampleDs = ROOT.RooDataSet(sample,sample,sampleTree,varSet,cut,"weight")
+        bkgDs.append(sampleDs)
+        sampleTree.Draw("CMS_hgg_mass:diphotonMVA>>tmpHisto",tweight)
+        bkgHisto.Add(tmpHisto)
+        
+    sigHistoX = sigHisto.ProjectionX()
+    bkgHistoX = bkgHisto.ProjectionX()
+    bkgHistoX.SetLineColor(ROOT.kRed)
+    sigHistoX.Scale(1./sigHistoX.Integral())
+    bkgHistoX.Scale(1./bkgHistoX.Integral())
+
+    print sigDs.sumEntries(), sigHisto.Integral()
+    print bkgDs.sumEntries(), bkgHisto.Integral()
+
+
+    c = ROOT.TCanvas()
+    c.cd()
+    sigHistoX.DrawNormalized("")
+    bkgHistoX.DrawNormalized("same")
+    raw_input("Go?")
+        
+    sigCdfX = ROOT.integrate1D(sigHistoX)
+    sigW = getQuantilesGraphs(sigHisto, [0.683], True)[0]
+
+    sigHisto.RebinX(sigHisto.GetNbinsX())
+    sigW0 = getQuantilesGraphs(sigHisto, [0.683], True)[0]
+    sigW0.Print("all")
+    sigW0 = sigW0.GetY()[0]
+    
+    f = ROOT.TCanvas()
+    f.cd()
+    sigW.DrawClone("AP")
+
+    for ibin in range(sigW.GetN()):
+        x,y = sigW.GetX()[ibin], sigW.GetY()[ibin]
+        if y == 0.:
+            continue
+        xerr, yerr = sigW.GetEX()[ibin], sigW.GetEY()[ibin]
+        yerr /= y
+        y *= y * sigHistoX.GetBinContent(ibin) / ( sigHistoX.Integral() * sigW0 * sigW0 )
+        yerr *= 2.*y
+        sigW.SetPoint(ibin, x, y)
+        sigW.SetPointError(ibin, xerr, yerr)
+
+    d = ROOT.TCanvas()
+    d.cd()
+    sigW.Draw("AP")
+    e = ROOT.TCanvas()
+    e.cd()
+    sigCdfX.Draw("")
+    raw_input("Go?")
+
+    sigHistoToTF1 = ROOT.HistoToTF1("sigHToTF1",sigHistoX)
+    sigTF1        = ROOT.TF1("sigTF1",sigHistoToTF1,-1.,1,0,"HistoToTF1")
+
+    bkgHistoToTF1 = ROOT.HistoToTF1("bkgHToTF1",bkgHistoX)
+    bkgTF1        = ROOT.TF1("bkgTF1",bkgHistoToTF1,-1.,1,0,"HistoToTF1")
+
+    sigWFactor = ROOT.SignalWidthFactor("sigWFactor",sigW,sigCdfX)
+    
+    optmizeCats( optimizeNcat, ws, (sigHistoX,sigTF1,bkgTF1,minX,cutoffX,sigWFactor) ) 
+
+    canv2 = ROOT.TCanvas("canv2","canv2")
+    canv2.cd()
+    sigTF1.SetLineColor(ROOT.kRed)
+    sigTF1.Draw("")
+    bkgTF1.Draw("SAME")
+    ws.rooImport(canv2)
+
+    return ws
+
+# -----------------------------------------------------------------------------------------------------------
+def optimizeNcat(ncat, ws, sig, sigIntegral, bkgIntegral, xmin, cutoff, sigW=None):
 
     nbound = ncat+1
     quantiles = numpy.zeros(nbound)
@@ -237,7 +426,10 @@ def optimizeNcat(ncat, ws, sig, sigIntegral, bkgIntegral, xmin, cutoff):
     sig.GetQuantiles(ncat,quantiles,prbs)
     quantiles[ncat] = 1.
 
-    pws = ROOT.PieceWiseSignif(nbound,sigIntegral,bkgIntegral,cutoff)
+    if sigW:
+        pws = ROOT.PieceWiseSignif(nbound,sigIntegral,bkgIntegral,cutoff,sigW)
+    else:
+        pws = ROOT.PieceWiseSignif(nbound,sigIntegral,bkgIntegral,cutoff)
     
     minimizer = ROOT.TMinuitMinimizer()
     minimizer.SetFunction(pws)
@@ -266,6 +458,8 @@ def optimizeNcat(ncat, ws, sig, sigIntegral, bkgIntegral, xmin, cutoff):
     print 
     
     return boundaries,maxval
+
+
 
 # -----------------------------------------------------------------------------------------------------------
 def optimize1D(fin):
@@ -335,7 +529,8 @@ def main(fname):
     ### ROOT.RooMsgService.instance().setGlobalKillBelow(ROOT.RooFit.ERROR)
     
     ## ws = optimize1D(fin)
-    ws = optimize2D(fin)
+    ## ws = optimize2D(fin)
+    ws = optimize1DMassWidth(fin)
 
     
     return ws

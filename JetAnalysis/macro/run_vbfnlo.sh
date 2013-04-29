@@ -26,8 +26,8 @@ if [[ $output != /* ]]; then
 fi
 
 if [[ $output == /store* ]]; then
-    if ( ! mount | grep ~/eos ); then
-	$eosmount ~/eos
+    if ( ! mount | grep $HOME/eos ); then
+	$eosmount $HOME/eos
     fi
     output=~/eos/cms/$output
 fi

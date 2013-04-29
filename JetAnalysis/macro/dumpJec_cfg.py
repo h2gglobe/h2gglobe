@@ -18,6 +18,16 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 # define your favorite global tag
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 
+
+### process.GlobalTag = cms.ESSource("PoolDBESSource",
+###     CondDBSetup,
+###     connect = cms.string('frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'),
+###     globaltag = cms.string('UNSPECIFIED::All'),
+###     toGet = cms.VPSet( "AK5PF" ),   # hook to override or add single payloads
+###     BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService')
+### )
+
+
 if(options.runOnMc) :
     gt="GR_P_V42_AN2::All"
 else        :
