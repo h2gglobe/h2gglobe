@@ -44,7 +44,9 @@ for j in range(options.minCats,options.maxCats+1):
   f.write("nBDTCats=%d\n"%config.getint('root', 'nBDTCats'))
   f.write("nSpinCats=%d\n"%j)
   if(config.has_option('root', 'correlateCosThetaCategories')):
-    f.write("correlateCosThetaCategories=%d"%config.getint('root', 'correlateCosThetaCategories'))
+    f.write("correlateCosThetaCategories=%d\n"%config.getint('root', 'correlateCosThetaCategories'))
+  if(config.has_option('root', 'useBackgroundMC')):
+    f.write("useBackgroundMC=%d\n"%config.getint('root', 'useBackgroundMC'))
   f.close()
 
   os.chdir(dir)
@@ -53,11 +55,34 @@ for j in range(options.minCats,options.maxCats+1):
   os.system(processCommand)
   os.chdir(startDir)
 
-  processCommand = '%s/subDIY.py -n %d -t %d -f %s -q %s -d %s'%(home, options.njobs, options.toyspj, datfile, options.queue, dir)
-  if options.dryRun:
-    processCommand += " --dryRun"
-  if options.clean:
-    processCommand += " --clean"
-  #print processCommand
-  os.system(processCommand)
+  os.system('cp %s/bin/diySeparation %s/'%(os.getcwd(),dir))
+
+  for i in range(1,options.njobs+1):
+    jobdir = "%s/job%d"%(dir,i)
+    os.system("mkdir -p %s"%jobdir)
+    os.system("rm -f %s/*.sh.fail"%jobdir)
+    os.system("rm -f %s/*.sh.done"%jobdir)
+    os.system("rm -f %s/*.sh.log"%jobdir)
+    os.system("rm -f %s/*.sh.run"%jobdir)
+
+  f = open('%s/%d_Cats.sh'%(dir,j),'w')
+  f.write('#!/bin/bash\n')
+  f.write('cd %s/job$LSB_JOBINDEX\n'%(dir))
+  f.write('touch sub$LSB_JOBINDEX.sh.run\n')
+  f.write('eval `scramv1 runtime -sh`\n')
+  subline = '../diySeparation %s %d'%(datfile,options.toyspj)
+  f.write('if ( %s )\n'%subline)
+  f.write('\tthen touch sub$LSB_JOBINDEX.sh.done\n')
+  f.write('\telse touch sub$LSB_JOBINDEX.sh.fail\n')
+  f.write('fi\n')
+  f.write('rm -f sub$LSB_JOBINDEX.sh.run\n')
+  os.system('chmod +x %s'%f.name)
+
+  os.chdir(dir)
+  jobListName = "%dCategories[1-%d]"%(j,options.njobs)
+  logFile = "%s/job%%I/sub%%I.sh.log"%(os.getcwd())
+  processCommand = 'bsub -J "%s" -q %s -o "%s" %d_Cats.sh'%(jobListName,options.queue,logFile,j)
+  if not options.dryRun: os.system(processCommand)
+  else: print processCommand
+  os.chdir(startDir)
 

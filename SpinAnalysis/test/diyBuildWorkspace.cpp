@@ -346,11 +346,12 @@ int main(int argc, char* argv[]){
   bool fullSMproc=false;
   bool useSMpowheg=false;
   bool useSpin2LP=false;
-  bool correlateCosThetaCategories = false;
   int nBDTCats=0;
   int nSpinCats=0;
   std::vector<double> cosThetaBoundaries;
   string boundaries="";
+  bool correlateCosThetaCategories = false;
+  bool useBackgroundMC = false;
 
   if (argc!=2){
     cout << "usage ./bin/diyBuildWorkspace <datfilename>" << endl;
@@ -378,6 +379,7 @@ int main(int argc, char* argv[]){
       if (line.find("nSpinCats=")!=string::npos) nSpinCats = boost::lexical_cast<int>(line.substr(line.find("=")+1,string::npos));
       if (line.find("catBoundaries=")!=string::npos) boundaries = line.substr(line.find("=")+1,string::npos);
       if (line.find("correlateCosThetaCategories=")!=string::npos) correlateCosThetaCategories = boost::lexical_cast<bool>(line.substr(line.find("=")+1,string::npos));
+      if (line.find("useBackgroundMC=")!=string::npos) useBackgroundMC = boost::lexical_cast<bool>(line.substr(line.find("=")+1,string::npos));
     }
     datfile.close();
 
@@ -412,6 +414,7 @@ int main(int argc, char* argv[]){
         else
           cout << "Was not able understand boundary '" << testnum << "', ignoring it." << endl;
       }while(position!=string::npos);
+      nSpinCats = cosThetaBoundaries.size()-1;
     }
     else
     {
@@ -448,7 +451,18 @@ int main(int argc, char* argv[]){
   vector<TTree*> spin0Trees;
   vector<TTree*> spin2Trees;
 
-  dataTrees.push_back((TTree*)inFile->Get("spin_trees/Data"));
+  if(!useBackgroundMC)
+    dataTrees.push_back((TTree*)inFile->Get("spin_trees/Data"));
+  else
+  {
+    dataTrees.push_back((TTree*)inFile->Get("spin_trees/gjet_20_8TeV_pf"));
+    dataTrees.push_back((TTree*)inFile->Get("spin_trees/gjet_40_8TeV_pf"));
+    dataTrees.push_back((TTree*)inFile->Get("spin_trees/gjet_20_8TeV_pp"));
+    dataTrees.push_back((TTree*)inFile->Get("spin_trees/gjet_40_8TeV_pp"));
+    dataTrees.push_back((TTree*)inFile->Get("spin_trees/diphojet_8TeV"));
+    dataTrees.push_back((TTree*)inFile->Get("spin_trees/dipho_Box_25_8TeV"));
+  }
+
   if (useSpin2LP) spin2Trees.push_back((TTree*)inFile->Get("spin_trees/spin2lp_m125_8TeV"));
   else spin2Trees.push_back((TTree*)inFile->Get("spin_trees/ggh_grav_m125_8TeV"));
   if (useSMpowheg){
@@ -475,7 +489,7 @@ int main(int argc, char* argv[]){
       spin2DSet.insert(pair<string,RooDataSet*>(catname,new RooDataSet(Form("mcSigGraviton_bdt%d_cTh%d",c,s),Form("mcSigGraviton_bdt%d_cTh%d",c,s),RooArgSet(*mass,*weight),weight->GetName())));
     }
   }
-
+  cout << "BDTCats: " << nBDTCats << endl << "SpinCats: " << nSpinCats << endl;
   fillDataSet(mass,dataDSet,dataTrees,isMassFac,mlow,mhigh,cosThetaBoundaries);
   fillDataSet(mass,spin0DSet,spin0Trees,isMassFac,mlow,mhigh,cosThetaBoundaries);
   fillDataSet(mass,spin2DSet,spin2Trees,isMassFac,mlow,mhigh,cosThetaBoundaries);

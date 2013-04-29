@@ -24,7 +24,7 @@ int main(int argc, char* argv[]){
 
   string filename;
   bool isMassFac=false;
-  int nCats = 0;
+  int nCats = -1;
   if (argc!=2 && argc!=3 && argc!=4 && argc!=5) {
     cout << "usage ./bin/diyPlot <infilename> --isMassFac --nCats" << endl;
     return 1;
@@ -263,20 +263,80 @@ int main(int argc, char* argv[]){
   cout << "Prob( q > median(2) | 0 ) = "<< SMprobHist << " = " << ROOT::Math::normal_quantile_c(SMprobHist,1.0) << " sigma " << endl;
   cout << "Prob( q < median(0) | 2 ) = "<< GRAVprobHist << " = " << ROOT::Math::normal_quantile_c(GRAVprobHist,1.0) << " sigma " << endl;
 
-  if(nCats > 0)
+  //tree
+  double q_smtoy;
+  double q_gravtoy;
+  tree->SetBranchAddress("q_smtoy",&q_smtoy);
+  tree->SetBranchAddress("q_gravtoy",&q_gravtoy);
+  std::vector<double> SMToys;
+  std::vector<double> GravToys;
+
+  for(size_t i=0;i<tree->GetEntries();i++)
+  {
+    tree->GetEntry(i);
+    SMToys.push_back(q_smtoy);
+    GravToys.push_back(q_gravtoy);
+
+    for(size_t j = i; j>0; j--)
+    {
+      if(SMToys[j] < SMToys[j-1])
+        std::swap(SMToys[j], SMToys[j-1]);
+      else
+        break;
+    }
+
+    for(size_t j = i; j>0; j--)
+    {
+      if(GravToys[j] < GravToys[j-1])
+        std::swap(GravToys[j], GravToys[j-1]);
+      else
+        break;
+    }
+  }
+
+  double SMMedian = ((SMToys.size()%2)?(SMToys[SMToys.size()/2]):((SMToys[SMToys.size()/2]+SMToys[SMToys.size()/2-1])/2));
+  double GravMedian = ((GravToys.size()%2)?(GravToys[GravToys.size()/2]):((GravToys[GravToys.size()/2]+GravToys[GravToys.size()/2-1])/2));
+  //cout << "SMMedian: " << SMMedian << "; SMMax: " << SMToys[SMToys.size()-1] << "; SMMin: " << SMToys[0] << endl;
+  //cout << "\tSMToys[999]: " << SMToys[999] << "; SMToys[1000]: " << SMToys[1000] << endl;
+  double SMProbUnbinned = 0, GravProbUnbinned = 0;
+  for(size_t i = 0; i < SMToys.size(); i++)
+  {
+    if(SMToys[i] < GravMedian)
+      SMProbUnbinned = i+1;
+  }
+  for(size_t i = 0; i < GravToys.size(); i++)
+  {
+    if(GravToys[i] < SMMedian)
+      GravProbUnbinned = i+1;
+  }
+  SMProbUnbinned = SMToys.size() - SMProbUnbinned;
+  SMProbUnbinned /= SMToys.size();
+  GravProbUnbinned /= GravToys.size();
+
+  cout << "True UNBINNED:  -- normal_quantile_c" << endl;
+  cout << "Prob( q > median(2) | 0 ) = "<< SMProbUnbinned << " = " << ROOT::Math::normal_quantile_c(SMProbUnbinned,1.0) << " sigma " << endl;
+  cout << "Prob( q < median(0) | 2 ) = "<< GravProbUnbinned << " = " << ROOT::Math::normal_quantile_c(GravProbUnbinned,1.0) << " sigma " << endl;
+
+  if(nCats >= 0)
   {
     TFile *haddable = new TFile(Form("%dCats_separation.root",nCats),"RECREATE");
     TTree *tree = new TTree("Separation","Separation");
     double SMsigmaHistQuant = ROOT::Math::normal_quantile_c(SMprobHist,1.0);
     double GRAVsigmaHistQuant = ROOT::Math::normal_quantile_c(GRAVprobHist,1.0);
+    double SMsigmaUnbinnedQuant = ROOT::Math::normal_quantile_c(SMProbUnbinned,1.0);
+    double GRAVsigmaUnbinnedQuant = ROOT::Math::normal_quantile_c(GravProbUnbinned,1.0);
 
     tree->Branch("nCats", &nCats);
     tree->Branch("UnbinnedSMProb", &SMprob);
     tree->Branch("UnbinnedGravProb", &GRAVprob);
+    tree->Branch("TrueUnbinnedSMProb", &SMProbUnbinned);
+    tree->Branch("TrueUnbinnedGravProb", &GravProbUnbinned);
     tree->Branch("BinnedSMProb", &SMprobHist);
     tree->Branch("BinnedGravProb", &GRAVprobHist);
     tree->Branch("UnbinnedSMSigma", &SMsigma);
     tree->Branch("UnbinnedGravSigma", &GRAVsigma);
+    tree->Branch("TrueUnbinnedSMSigma", &SMsigmaUnbinnedQuant);
+    tree->Branch("TrueUnbinnedGravSigma", &GRAVsigmaUnbinnedQuant);
     tree->Branch("BinnedSMSigma_ErfcInv", &SMsigmaHist);
     tree->Branch("BinnedGravSigma_ErfcInv", &GRAVsigmaHist);
     tree->Branch("BinnedSMSigma_quantile", &SMsigmaHistQuant);
@@ -357,8 +417,8 @@ int main(int argc, char* argv[]){
   pt2.Draw();
   pt3.Draw();
   TPaveText pt5(0.6,0.7,0.89,0.85,"NDC");
-  pt5.AddText(Form("p (q<med(2^{+}_{m}) | 0^{+}) = %4.2f#sigma",GRAVsigmaHist));
-  pt5.AddText(Form("p (q>med(0^{+}) | 2^{+}_{m}) = %4.2f#sigma",SMsigmaHist));
+  pt5.AddText(Form("p (q<med(2^{+}_{m}) | 0^{+}) = %4.2f#sigma",ROOT::Math::normal_quantile_c(GRAVprobHist,1.0)));
+  pt5.AddText(Form("p (q>med(0^{+}) | 2^{+}_{m}) = %4.2f#sigma",ROOT::Math::normal_quantile_c(SMprobHist,1.0)));
   pt5.SetBorderSize(0);
   pt5.SetFillColor(0);
   pt5.Draw();
