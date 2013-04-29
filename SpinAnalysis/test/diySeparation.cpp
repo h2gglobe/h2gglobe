@@ -30,6 +30,8 @@
 #include "RooGenericPdf.h"
 #include "RooRandom.h"
 
+#define MAX_REPEAT 2
+
 using namespace std;
 using namespace RooFit;
 
@@ -42,14 +44,17 @@ double getTotalEvents(map<string,double> events){
   return total;
 }
 
-void Plot(RooRealVar *mass, RooCategory *category, RooDataSet *data, RooSimultaneous *pdf, int nBDTCats, int nSpinCats, bool sm, string name){
+void Plot(RooRealVar *mass, RooCategory *category, RooDataSet *data, RooSimultaneous *pdf, int nBDTCats, int nSpinCats, bool sm, string name, bool correlateCosThetaCategories=false){
 
   TCanvas *canv = new TCanvas();
   for (int c=0; c<nBDTCats; c++){
     for (int s=0; s<nSpinCats; s++){
       RooPlot *plot = mass->frame();
       data->plotOn(plot,Cut(Form("category==category::cat%d_spin%d",c,s)));
-      pdf->plotOn(plot,Slice(*category,Form("cat%d_spin%d",c,s)),Components(Form("data_pol_model_cat%d_spin%d",c,s)),ProjWData(*category,*data),LineStyle(kDashed),LineColor(kRed));
+      if(!correlateCosThetaCategories)
+        pdf->plotOn(plot,Slice(*category,Form("cat%d_spin%d",c,s)),Components(Form("data_pol_model_cat%d_spin%d",c,s)),ProjWData(*category,*data),LineStyle(kDashed),LineColor(kRed));
+      else
+        pdf->plotOn(plot,Slice(*category,Form("cat%d_spin%d",c,s)),Components(Form("data_pol_model_cat%d",c)),ProjWData(*category,*data),LineStyle(kDashed),LineColor(kRed));
       if (sm) pdf->plotOn(plot,Slice(*category,Form("cat%d_spin%d",c,s)),Components(Form("sigModel_SM_cat%d_spin%d",c,s)),ProjWData(*category,*data),LineColor(kRed));
       else pdf->plotOn(plot,Slice(*category,Form("cat%d_spin%d",c,s)),Components(Form("sigModel_GRAV_cat%d_spin%d",c,s)),ProjWData(*category,*data),LineColor(kBlue));
       pdf->plotOn(plot,Slice(*category,Form("cat%d_spin%d",c,s)),ProjWData(*category,*data),LineColor(kRed));
@@ -71,6 +76,8 @@ int main(int argc, char* argv[]){
   int nBDTCats=0;
   int nSpinCats=0;
   bool globePDFs=false;
+  std::vector<double> cosThetaBoundaries;
+  string boundaries="";
   bool correlateCosThetaCategories=false;
   if (argc!=3) {
     cout << "usage ./bin/diySeparation <datfilename> <ntoys>" << endl;
@@ -91,10 +98,54 @@ int main(int argc, char* argv[]){
       if (line.find("globePDFs=")!=string::npos) globePDFs = boost::lexical_cast<bool>(line.substr(line.find("=")+1,string::npos));
       if (line.find("nBDTCats=")!=string::npos) nBDTCats = boost::lexical_cast<int>(line.substr(line.find("=")+1,string::npos));
       if (line.find("nSpinCats=")!=string::npos) nSpinCats = boost::lexical_cast<int>(line.substr(line.find("=")+1,string::npos));
+      if (line.find("catBoundaries=")!=string::npos) boundaries = line.substr(line.find("=")+1,string::npos);
       if (line.find("correlateCosThetaCategories=")!=string::npos) correlateCosThetaCategories = boost::lexical_cast<bool>(line.substr(line.find("=")+1,string::npos));
     }
     datfile.close();
 
+    if(boundaries != "")
+    {
+      size_t position = boundaries.find(" ");
+      do
+      {
+        position = boundaries.find(" ");
+        string testnum = boundaries.substr(0,position);
+        boundaries = boundaries.substr(position+1);
+
+        std::stringstream os(testnum);
+
+        double temp;
+        os >> temp;
+        if(!os.fail())
+        {
+          cout << "Interpreted boundary '" << testnum << "' as: " << temp << endl;
+          cosThetaBoundaries.push_back(temp);
+          for(UInt_t i = cosThetaBoundaries.size()-1; i > 0; i--)
+          {
+            if(cosThetaBoundaries[i] > cosThetaBoundaries[i-1])
+              std::swap(cosThetaBoundaries[i], cosThetaBoundaries[i-1]);
+            else
+              break;
+          }
+        }
+        else
+          cout << "Was not able understand boundary '" << testnum << "', ignoring it." << endl;
+      }while(position!=string::npos);
+      nSpinCats = cosThetaBoundaries.size()-1;
+    }
+    else
+    {
+      if(nSpinCats == 0)
+        nSpinCats = 5;
+
+      cout << "Using " << nSpinCats << " cos(Theta*) categories." << endl;
+
+      //Boundaries are defined in (1-cosTheta) space
+      for(int i = 0; i <= nSpinCats; i++)
+      {
+        cosThetaBoundaries.push_back((nSpinCats-i)*1./nSpinCats);
+      }
+    }
   }
 
   // set plotting style
@@ -286,8 +337,8 @@ int main(int argc, char* argv[]){
     delete fitResDataSM;
     delete fitResDataGRAV;
 
-    Plot(mass,category,combData,simPdfSM,nBDTCats,nSpinCats,true,"smpdf_data");
-    Plot(mass,category,combData,simPdfGRAV,nBDTCats,nSpinCats,false,"gravpdf_data");
+    Plot(mass,category,combData,simPdfSM,nBDTCats,nSpinCats,true,"smpdf_data", correlateCosThetaCategories);
+    Plot(mass,category,combData,simPdfGRAV,nBDTCats,nSpinCats,false,"gravpdf_data", correlateCosThetaCategories);
 
     cout << "Expected events..." << endl;
     for (int c=0; c<nBDTCats; c++){
@@ -319,10 +370,25 @@ int main(int argc, char* argv[]){
     tree_->Fill();
   }
 
-  RooMsgService::instance().setGlobalKillBelow(RooFit::MsgLevel(RooFit::ERROR));
-  RooMsgService::instance().getStream(1).removeTopic(Minimization);
-  RooFit::PrintLevel(-200000);
-  RooMsgService::instance().setStreamStatus(1,false);
+  map<string,RooAbsPdf*> sigSM_gen;
+  map<string,RooAbsPdf*> sigGRAV_gen;
+  map<string,RooAbsPdf*> bkgMod_gen;
+  for(int c = 0; c < nBDTCats; c++)
+  {
+    for(int s = 0; s < nSpinCats; s++)
+    {
+      string catname = Form("cat%d_spin%d",c,s);
+
+      sigSM_gen.insert(pair<string,RooAbsPdf*>(catname,(RooAbsPdf*)sigSM[catname]->cloneTree()));
+      sigGRAV_gen.insert(pair<string,RooAbsPdf*>(catname,(RooAbsPdf*)sigGRAV[catname]->cloneTree()));
+      bkgMod_gen.insert(pair<string,RooAbsPdf*>(catname,(RooAbsPdf*)bkgMod[catname]->cloneTree()));
+    }
+  }
+
+  TStopwatch total;
+  total.Start();
+  bool repeat = false;
+  UInt_t count = 0;
 
   for (int t=0; t<nToys; t++){
     cout << "---------------------------" << endl;
@@ -353,9 +419,9 @@ int main(int argc, char* argv[]){
         double sigGRAVToyEvents = RooRandom::randomGenerator()->PoissonD(scaleFactor*expEventsGRAV[catname]);
         int bkgToyEvents = RooRandom::randomGenerator()->Poisson(expEventsALL[catname]);
 
-        RooDataSet *bkgToy = (RooDataSet*)bkgMod[catname]->generate(*mass,bkgToyEvents);
-        RooDataSet *smToy = (RooDataSet*)sigSM[catname]->generate(*mass,sigSMToyEvents);
-        RooDataSet *gravToy = (RooDataSet*)sigGRAV[catname]->generate(*mass,sigGRAVToyEvents);
+        RooDataSet *bkgToy = (RooDataSet*)bkgMod_gen[catname]->generate(*mass,bkgToyEvents);
+        RooDataSet *smToy = (RooDataSet*)sigSM_gen[catname]->generate(*mass,sigSMToyEvents);
+        RooDataSet *gravToy = (RooDataSet*)sigGRAV_gen[catname]->generate(*mass,sigGRAVToyEvents);
 
         smToy->append(*bkgToy);
         gravToy->append(*bkgToy);
@@ -377,10 +443,24 @@ int main(int argc, char* argv[]){
       //RooDataHist *combDataGRAVthisCTheta = new RooDataHist(Form("combDataGRAV_spin%d_toy%d",s,t),Form("combDataGRAV_spin%d_toy%d",s,t),RooArgList(*mass),Index(*miniCategories[s]),Import(toyGRAVthisCTheta));
 
       // for per cos theta cat only want to fit to the same SM toy
-      simPdfSMvect[s]->fitTo(*combDataSMthisCTheta);
+      repeat = false;
+      count = 0;
+      do{
+        RooFitResult *fitRes = simPdfSMvect[s]->fitTo(*combDataSMthisCTheta, RooFit::Save(true), RooFit::Minimizer("Minuit2","Migrad"), RooFit::PrintLevel(-1));
+        if(fitRes->status() == -1)
+          repeat = true;
+        count++;
+      }while(repeat && count<MAX_REPEAT);
       muSM_perCTbin[s] = muSM->getVal();
 
-      simPdfGRAVvect[s]->fitTo(*combDataSMthisCTheta);
+      repeat = false;
+      count = 0;
+      do{
+        RooFitResult *fitRes = simPdfGRAVvect[s]->fitTo(*combDataSMthisCTheta, RooFit::Save(true), RooFit::Minimizer("Minuit2","Migrad"), RooFit::PrintLevel(-1));
+        if(fitRes->status() == -1)
+          repeat = true;
+        count++;
+      }while(repeat && count<MAX_REPEAT);
       muGRAV_perCTbin[s] = muGRAV->getVal();
 
     }
@@ -394,19 +474,51 @@ int main(int argc, char* argv[]){
     cout << "---------------------------" << endl;
 
     muSM->setVal(1.);
-    RooFitResult *fitResSMSM = simPdfSM->fitTo(*combDataSM,Save(true));
+    repeat = false;
+    count = 0;
+    RooFitResult *fitResSMSM;
+    do{
+      fitResSMSM = simPdfSM->fitTo(*combDataSM,Save(true), RooFit::Minimizer("Minuit2","Migrad"), RooFit::PrintLevel(-1));
+      if(fitResSMSM->status() == -1)
+        repeat = true;
+      count++;
+    }while(repeat && count<MAX_REPEAT);
     muSMSM_ = muSM->getVal();
 
     muSM->setVal(1.);
-    RooFitResult *fitResSMGRAV = simPdfSM->fitTo(*combDataGRAV,Save(true));
+    repeat = false;
+    count = 0;
+    RooFitResult *fitResSMGRAV;
+    do{
+      fitResSMGRAV = simPdfSM->fitTo(*combDataGRAV,Save(true), RooFit::Minimizer("Minuit2","Migrad"), RooFit::PrintLevel(-1));
+      if(fitResSMGRAV->status() == -1)
+        repeat = true;
+      count++;
+    }while(repeat && count<MAX_REPEAT);
     muSMGRAV_ = muSM->getVal();
 
     muGRAV->setVal(1.);
-    RooFitResult *fitResGRAVSM = simPdfGRAV->fitTo(*combDataSM,Save(true));
+    repeat = false;
+    count = 0;
+    RooFitResult *fitResGRAVSM;
+    do{
+      fitResGRAVSM = simPdfGRAV->fitTo(*combDataSM,Save(true), RooFit::Minimizer("Minuit2","Migrad"), RooFit::PrintLevel(-1));
+      if(fitResGRAVSM->status() == -1)
+        repeat = true;
+      count++;
+    }while(repeat && count<MAX_REPEAT);
     muGRAVSM_ = muGRAV->getVal();
 
     muGRAV->setVal(1.);
-    RooFitResult *fitResGRAVGRAV = simPdfGRAV->fitTo(*combDataGRAV,Save(true));
+    repeat = false;
+    count = 0;
+    RooFitResult *fitResGRAVGRAV;
+    do{
+      fitResGRAVGRAV = simPdfGRAV->fitTo(*combDataGRAV,Save(true), RooFit::Minimizer("Minuit2","Migrad"), RooFit::PrintLevel(-1));
+      if(fitResGRAVGRAV->status() == -1)
+        repeat = true;
+      count++;
+    }while(repeat && count<MAX_REPEAT);
     muGRAVGRAV_ = muGRAV->getVal();
 
     cout << "Fits done. Getting NLL...." << endl;
@@ -437,6 +549,9 @@ int main(int argc, char* argv[]){
     cout << "\t"; sw.Print();
     cout << q_smtoy_ << " -- " << q_gravtoy_ << endl;
   }
+  total.Stop();
+  cout << endl << endl << "Total time:" << endl;
+  cout << "\t"; total.Print();
 
   outFile->cd();
   tree_->Write();
