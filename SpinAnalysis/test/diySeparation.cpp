@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <fstream>
 
 #include "boost/lexical_cast.hpp"
 
@@ -34,6 +35,24 @@
 
 using namespace std;
 using namespace RooFit;
+
+RooFitResult *breakDownFit(RooSimultaneous *m, RooAbsData *d, RooRealVar *mass){
+	 const char *catsName = m->indexCat().GetName();
+     TIterator *it = m->indexCat().typeIterator();
+     while(RooCatType* ci = dynamic_cast<RooCatType*>(it->Next())) {
+    	 const Text_t *catLabel = ci->GetName();
+//    	 cout << catsName << " " << catLabel << endl;
+    	 RooAbsPdf *pdf = m->getPdf(Form("%s",catLabel));
+    	 RooAbsData *reduced = d->reduce(SelectVars(*mass),Cut(Form("%s==%s::%s",catsName, catsName, catLabel)));
+    	 pdf->fitTo(*reduced,
+    			 Minimizer("Minuit2","migrad"),PrintLevel(-1)
+    			 );
+     }
+
+//     cout << "Global fit" << endl;
+	 RooFitResult *res = m->fitTo(*d,Minimizer("Minuit2","migrad"),RooFit::PrintLevel(-1),Save());
+	 return res;
+}
 
 double getTotalEvents(map<string,double> events){
 
@@ -76,6 +95,7 @@ int main(int argc, char* argv[]){
   int nBDTCats=0;
   int nSpinCats=0;
   bool globePDFs=false;
+  bool reallyQuiet=true;
   std::vector<double> cosThetaBoundaries;
   string boundaries="";
   bool correlateCosThetaCategories=false;
@@ -96,12 +116,18 @@ int main(int argc, char* argv[]){
       getline(datfile,line);
       if (line.find("wsfile=")!=string::npos) filename = line.substr(line.find("=")+1,string::npos);
       if (line.find("globePDFs=")!=string::npos) globePDFs = boost::lexical_cast<bool>(line.substr(line.find("=")+1,string::npos));
+      if (line.find("reallyQuiet=")!=string::npos) reallyQuiet = boost::lexical_cast<bool>(line.substr(line.find("=")+1,string::npos));
       if (line.find("nBDTCats=")!=string::npos) nBDTCats = boost::lexical_cast<int>(line.substr(line.find("=")+1,string::npos));
       if (line.find("nSpinCats=")!=string::npos) nSpinCats = boost::lexical_cast<int>(line.substr(line.find("=")+1,string::npos));
       if (line.find("catBoundaries=")!=string::npos) boundaries = line.substr(line.find("=")+1,string::npos);
       if (line.find("correlateCosThetaCategories=")!=string::npos) correlateCosThetaCategories = boost::lexical_cast<bool>(line.substr(line.find("=")+1,string::npos));
     }
     datfile.close();
+
+    if(reallyQuiet){
+		fclose(stdout);
+		fclose(stderr);
+    }
 
     if(boundaries != "")
     {
@@ -477,8 +503,10 @@ int main(int argc, char* argv[]){
     repeat = false;
     count = 0;
     RooFitResult *fitResSMSM;
+    //------------------------------------------
     do{
       fitResSMSM = simPdfSM->fitTo(*combDataSM,Save(true), RooFit::Minimizer("Minuit2","Migrad"), RooFit::PrintLevel(-1));
+      //    	fitResSMSM = breakDownFit(simPdfSM,combDataSM,mass);
       if(fitResSMSM->status() == -1)
         repeat = true;
       count++;

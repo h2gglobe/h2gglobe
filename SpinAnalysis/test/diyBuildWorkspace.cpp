@@ -3,6 +3,7 @@
 #include <string>
 #include <sstream>
 #include <map>
+#include <fstream>
 
 #include "boost/lexical_cast.hpp"
 
