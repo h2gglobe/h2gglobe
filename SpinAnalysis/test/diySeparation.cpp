@@ -37,22 +37,36 @@
 using namespace std;
 using namespace RooFit;
 
-RooFitResult *breakDownFit(RooSimultaneous *m, RooAbsData *d, RooRealVar *mass){
-	 const char *catsName = m->indexCat().GetName();
-     TIterator *it = m->indexCat().typeIterator();
-     while(RooCatType* ci = dynamic_cast<RooCatType*>(it->Next())) {
-    	 const Text_t *catLabel = ci->GetName();
-//    	 cout << catsName << " " << catLabel << endl;
-    	 RooAbsPdf *pdf = m->getPdf(Form("%s",catLabel));
-    	 RooAbsData *reduced = d->reduce(SelectVars(*mass),Cut(Form("%s==%s::%s",catsName, catsName, catLabel)));
-    	 pdf->fitTo(*reduced,
-    			 Minimizer("Minuit2","migrad"),PrintLevel(-1)
-    			 );
-     }
+RooFitResult *breakDownFit(RooSimultaneous *m, RooAbsData *d, RooRealVar *mass, bool precondition = false){
+	if(precondition){
+		 const char *catsName = m->indexCat().GetName();
+		 TIterator *it = m->indexCat().typeIterator();
+		 while(RooCatType* ci = dynamic_cast<RooCatType*>(it->Next())) {
+			 const Text_t *catLabel = ci->GetName();
+			 RooAbsPdf *pdf = m->getPdf(Form("%s",catLabel));
+			 RooAbsData *reduced = d->reduce(SelectVars(*mass),Cut(Form("%s==%s::%s",catsName, catsName, catLabel)));
+			 RooFitResult *r = pdf->fitTo(*reduced,PrintLevel(-1),Save(),
+					 Minimizer("Minuit2","migrad"),Strategy(0),Hesse(false),Minos(false),Optimize(false)
+					 );
+			 cout << catsName << " " << catLabel << " M2migrad0 " << r->status() << endl;
+			 if(r->status()!=0){
+				 RooFitResult *r = pdf->fitTo(*reduced, PrintLevel(-1), Save());
+				 cout << catsName << " " << catLabel << " Mmigrad1 " << r->status() << endl;
+			 }
+		 }
+	}
 
-//     cout << "Global fit" << endl;
-	 RooFitResult *res = m->fitTo(*d,Minimizer("Minuit2","migrad"),RooFit::PrintLevel(-1),Save());
-	 return res;
+	RooFitResult *r = m->fitTo(*d, Save(), PrintLevel(-1),
+			Strategy(0));
+	cout << "Global fit Mmigrad0 " << r->status() << endl;
+	if(r->status()!=0){
+	 RooFitResult *r = m->fitTo(*d, PrintLevel(-1), Save(),
+			 Minimizer("Minuit","minimize"),Strategy(2));
+	 cout << "Global fit Mminimize2 " << r->status() << endl;
+	 return r;
+	}
+
+	return r;
 }
 
 double getTotalEvents(map<string,double> events){
@@ -93,6 +107,7 @@ int main(int argc, char* argv[]){
 
   int nToys=0;
   string filename;
+  int rngSeed=0;
   int nBDTCats=0;
   int nSpinCats=0;
   bool globePDFs=false;
@@ -119,13 +134,18 @@ int main(int argc, char* argv[]){
       if (line.find("globePDFs=")!=string::npos) globePDFs = boost::lexical_cast<bool>(line.substr(line.find("=")+1,string::npos));
       if (line.find("reallyQuiet=")!=string::npos) reallyQuiet = boost::lexical_cast<bool>(line.substr(line.find("=")+1,string::npos));
       if (line.find("nBDTCats=")!=string::npos) nBDTCats = boost::lexical_cast<int>(line.substr(line.find("=")+1,string::npos));
+      if (line.find("rngSeed=")!=string::npos) rngSeed = boost::lexical_cast<int>(line.substr(line.find("=")+1,string::npos));
       if (line.find("nSpinCats=")!=string::npos) nSpinCats = boost::lexical_cast<int>(line.substr(line.find("=")+1,string::npos));
       if (line.find("catBoundaries=")!=string::npos) boundaries = line.substr(line.find("=")+1,string::npos);
       if (line.find("correlateCosThetaCategories=")!=string::npos) correlateCosThetaCategories = boost::lexical_cast<bool>(line.substr(line.find("=")+1,string::npos));
     }
     datfile.close();
 
+    cout << "Using seed " << rngSeed << " for RNG." << endl;
+    RooRandom::randomGenerator()->SetSeed(rngSeed);
+
     if(reallyQuiet){
+    	cout << "Closing stdout and stderr. Use reallyQuiet=0 if you want to see more output." << endl;
 		fclose(stdout);
 		fclose(stderr);
     }
@@ -179,9 +199,9 @@ int main(int argc, char* argv[]){
   gROOT->SetStyle("Plain");
   gROOT->ForceStyle();
 
-  RooMsgService::instance().setGlobalKillBelow(RooFit::MsgLevel(RooFit::ERROR));
+  RooMsgService::instance().setGlobalKillBelow(MsgLevel(ERROR));
   RooMsgService::instance().getStream(1).removeTopic(Minimization);
-  RooFit::PrintLevel(-200000);
+  PrintLevel(-200000);
   RooMsgService::instance().setStreamStatus(1,false);
 
   TFile *inFile = TFile::Open(filename.c_str());
@@ -477,7 +497,7 @@ int main(int argc, char* argv[]){
       repeat = false;
       count = 0;
       do{
-        RooFitResult *fitRes = simPdfSMvect[s]->fitTo(*combDataSMthisCTheta, RooFit::Save(true), RooFit::Minimizer("Minuit2","Migrad"), RooFit::PrintLevel(-1));
+        RooFitResult *fitRes = breakDownFit(simPdfSMvect[s], combDataSMthisCTheta, mass); //simPdfSMvect[s]->fitTo(*combDataSMthisCTheta, Save(true), Minimizer("Minuit2","minimize"), PrintLevel(-1));
         if(fitRes->status() == -1)
         {
           muSM->setVal(0.);
@@ -490,7 +510,7 @@ int main(int argc, char* argv[]){
       repeat = false;
       count = 0;
       do{
-        RooFitResult *fitRes = simPdfGRAVvect[s]->fitTo(*combDataSMthisCTheta, RooFit::Save(true), RooFit::Minimizer("Minuit2","Migrad"), RooFit::PrintLevel(-1));
+        RooFitResult *fitRes = breakDownFit(simPdfGRAVvect[s], combDataSMthisCTheta, mass); //simPdfGRAVvect[s]->fitTo(*combDataSMthisCTheta, Save(true), Minimizer("Minuit2","minimize"), PrintLevel(-1));
         if(fitRes->status() == -1)
         {
           muGRAV->setVal(0.);
@@ -516,7 +536,7 @@ int main(int argc, char* argv[]){
     RooFitResult *fitResSMSM;
     //------------------------------------------
     do{
-      //fitResSMSM = simPdfSM->fitTo(*combDataSM,Save(true), RooFit::Minimizer("Minuit2","Migrad"), RooFit::PrintLevel(-1));
+      //fitResSMSM = simPdfSM->fitTo(*combDataSM,Save(true), Minimizer("Minuit2","Migrad"), PrintLevel(-1));
       fitResSMSM = breakDownFit(simPdfSM,combDataSM,mass);
       if(fitResSMSM->status() == -1)
       {
@@ -534,7 +554,7 @@ int main(int argc, char* argv[]){
     count = 0;
     RooFitResult *fitResSMGRAV;
     do{
-      //fitResSMGRAV = simPdfSM->fitTo(*combDataGRAV,Save(true), RooFit::Minimizer("Minuit2","Migrad"), RooFit::PrintLevel(-1));
+      //fitResSMGRAV = simPdfSM->fitTo(*combDataGRAV,Save(true), Minimizer("Minuit2","Migrad"), PrintLevel(-1));
       fitResSMGRAV = breakDownFit(simPdfSM,combDataGRAV,mass);
       if(fitResSMGRAV->status() == -1)
       {
@@ -552,7 +572,7 @@ int main(int argc, char* argv[]){
     count = 0;
     RooFitResult *fitResGRAVSM;
     do{
-      //fitResGRAVSM = simPdfGRAV->fitTo(*combDataSM,Save(true), RooFit::Minimizer("Minuit2","Migrad"), RooFit::PrintLevel(-1));
+      //fitResGRAVSM = simPdfGRAV->fitTo(*combDataSM,Save(true), Minimizer("Minuit2","Migrad"), PrintLevel(-1));
       fitResGRAVSM = breakDownFit(simPdfGRAV,combDataSM,mass);
       if(fitResGRAVSM->status() == -1)
       {
@@ -570,7 +590,7 @@ int main(int argc, char* argv[]){
     count = 0;
     RooFitResult *fitResGRAVGRAV;
     do{
-      //fitResGRAVGRAV = simPdfGRAV->fitTo(*combDataGRAV,Save(true), RooFit::Minimizer("Minuit2","Migrad"), RooFit::PrintLevel(-1));
+      //fitResGRAVGRAV = simPdfGRAV->fitTo(*combDataGRAV,Save(true), Minimizer("Minuit2","Migrad"), PrintLevel(-1));
       fitResGRAVGRAV = breakDownFit(simPdfGRAV,combDataGRAV,mass);
       if(fitResGRAVGRAV->status() == -1)
       {
