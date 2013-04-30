@@ -112,6 +112,7 @@ int main(int argc, char* argv[]){
   int nSpinCats=0;
   bool globePDFs=false;
   bool reallyQuiet=true;
+  bool correlateToys=true;
   std::vector<double> cosThetaBoundaries;
   string boundaries="";
   bool correlateCosThetaCategories=false;
@@ -133,6 +134,7 @@ int main(int argc, char* argv[]){
       if (line.find("wsfile=")!=string::npos) filename = line.substr(line.find("=")+1,string::npos);
       if (line.find("globePDFs=")!=string::npos) globePDFs = boost::lexical_cast<bool>(line.substr(line.find("=")+1,string::npos));
       if (line.find("reallyQuiet=")!=string::npos) reallyQuiet = boost::lexical_cast<bool>(line.substr(line.find("=")+1,string::npos));
+      if (line.find("correlateToys=")!=string::npos) correlateToys = boost::lexical_cast<bool>(line.substr(line.find("=")+1,string::npos));
       if (line.find("nBDTCats=")!=string::npos) nBDTCats = boost::lexical_cast<int>(line.substr(line.find("=")+1,string::npos));
       if (line.find("rngSeed=")!=string::npos) rngSeed = boost::lexical_cast<int>(line.substr(line.find("=")+1,string::npos));
       if (line.find("nSpinCats=")!=string::npos) nSpinCats = boost::lexical_cast<int>(line.substr(line.find("=")+1,string::npos));
@@ -424,6 +426,10 @@ int main(int argc, char* argv[]){
   map<string,RooAbsPdf*> sigSM_gen;
   map<string,RooAbsPdf*> sigGRAV_gen;
   map<string,RooAbsPdf*> bkgMod_gen;
+  map<string,RooAbsPdf*> sbModSM_gen;
+  map<string,RooAbsPdf*> sbModGRAV_gen;
+  muSM->setVal(1.);
+  muGRAV->setVal(1.);
   for(int c = 0; c < nBDTCats; c++)
   {
     for(int s = 0; s < nSpinCats; s++)
@@ -433,6 +439,9 @@ int main(int argc, char* argv[]){
       sigSM_gen.insert(pair<string,RooAbsPdf*>(catname,(RooAbsPdf*)sigSM[catname]->cloneTree()));
       sigGRAV_gen.insert(pair<string,RooAbsPdf*>(catname,(RooAbsPdf*)sigGRAV[catname]->cloneTree()));
       bkgMod_gen.insert(pair<string,RooAbsPdf*>(catname,(RooAbsPdf*)bkgMod[catname]->cloneTree()));
+
+      sbModSM_gen.insert(pair<string,RooAbsPdf*>(catname,(RooAbsPdf*)sbModSM[catname]->cloneTree()));
+      sbModGRAV_gen.insert(pair<string,RooAbsPdf*>(catname,(RooAbsPdf*)sbModGRAV[catname]->cloneTree()));
     }
   }
 
@@ -470,12 +479,22 @@ int main(int argc, char* argv[]){
         double sigGRAVToyEvents = RooRandom::randomGenerator()->PoissonD(scaleFactor*expEventsGRAV[catname]);
         int bkgToyEvents = RooRandom::randomGenerator()->Poisson(expEventsALL[catname]);
 
-        RooDataSet *bkgToy = (RooDataSet*)bkgMod_gen[catname]->generate(*mass,bkgToyEvents);
-        RooDataSet *smToy = (RooDataSet*)sigSM_gen[catname]->generate(*mass,sigSMToyEvents);
-        RooDataSet *gravToy = (RooDataSet*)sigGRAV_gen[catname]->generate(*mass,sigGRAVToyEvents);
+        RooDataSet *smToy;
+        RooDataSet *gravToy;
+        if(correlateToys)
+        {
+          RooDataSet *bkgToy = (RooDataSet*)bkgMod_gen[catname]->generate(*mass,bkgToyEvents);
+          smToy = (RooDataSet*)sigSM_gen[catname]->generate(*mass,sigSMToyEvents);
+          gravToy = (RooDataSet*)sigGRAV_gen[catname]->generate(*mass,sigGRAVToyEvents);
 
-        smToy->append(*bkgToy);
-        gravToy->append(*bkgToy);
+          smToy->append(*bkgToy);
+          gravToy->append(*bkgToy);
+        }
+        else
+        {
+          smToy = (RooDataSet*)sbModSM_gen[catname]->generate(*mass,sigSMToyEvents+bkgToyEvents);
+          gravToy = (RooDataSet*)sbModGRAV_gen[catname]->generate(*mass,sigGRAVToyEvents+bkgToyEvents);
+        }
 
         RooDataHist *tempToySM = new RooDataHist(Form("sm_toy%d_cat%d_spin%d",t,c,s),Form("sm_toy%d_cat%d_spin%d",t,c,s),RooArgSet(*mass),*smToy);
         RooDataHist *tempToyGRAV = new RooDataHist(Form("sm_toy%d_cat%d_spin%d",t,c,s),Form("sm_toy%d_cat%d_spin%d",t,c,s),RooArgSet(*mass),*gravToy);
@@ -498,12 +517,13 @@ int main(int argc, char* argv[]){
       count = 0;
       do{
         RooFitResult *fitRes = breakDownFit(simPdfSMvect[s], combDataSMthisCTheta, mass); //simPdfSMvect[s]->fitTo(*combDataSMthisCTheta, Save(true), Minimizer("Minuit2","minimize"), PrintLevel(-1));
-        if(fitRes->status() == -1)
+        if(fitRes->status() != 0)
         {
           muSM->setVal(0.);
           repeat = true;
         }
         count++;
+        delete fitRes;
       }while(repeat && count<MAX_REPEAT);
       muSM_perCTbin[s] = muSM->getVal();
 
@@ -511,12 +531,13 @@ int main(int argc, char* argv[]){
       count = 0;
       do{
         RooFitResult *fitRes = breakDownFit(simPdfGRAVvect[s], combDataSMthisCTheta, mass); //simPdfGRAVvect[s]->fitTo(*combDataSMthisCTheta, Save(true), Minimizer("Minuit2","minimize"), PrintLevel(-1));
-        if(fitRes->status() == -1)
+        if(fitRes->status() != 0)
         {
           muGRAV->setVal(0.);
           repeat = true;
         }
         count++;
+        delete fitRes;
       }while(repeat && count<MAX_REPEAT);
       muGRAV_perCTbin[s] = muGRAV->getVal();
 
@@ -536,9 +557,9 @@ int main(int argc, char* argv[]){
     RooFitResult *fitResSMSM;
     //------------------------------------------
     do{
-      //fitResSMSM = simPdfSM->fitTo(*combDataSM,Save(true), Minimizer("Minuit2","Migrad"), PrintLevel(-1));
+      //fitResSMSM = simPdfSM->fitTo(*combDataSM,Save(true), RooFit::PrintLevel(-1));
       fitResSMSM = breakDownFit(simPdfSM,combDataSM,mass);
-      if(fitResSMSM->status() == -1)
+      if(fitResSMSM->status() != 0)
       {
         muSM->setVal(0.);
         repeat = true;
@@ -554,9 +575,9 @@ int main(int argc, char* argv[]){
     count = 0;
     RooFitResult *fitResSMGRAV;
     do{
-      //fitResSMGRAV = simPdfSM->fitTo(*combDataGRAV,Save(true), Minimizer("Minuit2","Migrad"), PrintLevel(-1));
+      //fitResSMGRAV = simPdfSM->fitTo(*combDataGRAV,Save(true), RooFit::PrintLevel(-1));
       fitResSMGRAV = breakDownFit(simPdfSM,combDataGRAV,mass);
-      if(fitResSMGRAV->status() == -1)
+      if(fitResSMGRAV->status() != 0)
       {
         muSM->setVal(0.);
         repeat = true;
@@ -572,9 +593,9 @@ int main(int argc, char* argv[]){
     count = 0;
     RooFitResult *fitResGRAVSM;
     do{
-      //fitResGRAVSM = simPdfGRAV->fitTo(*combDataSM,Save(true), Minimizer("Minuit2","Migrad"), PrintLevel(-1));
+      //fitResGRAVSM = simPdfGRAV->fitTo(*combDataSM,Save(true), RooFit::PrintLevel(-1));
       fitResGRAVSM = breakDownFit(simPdfGRAV,combDataSM,mass);
-      if(fitResGRAVSM->status() == -1)
+      if(fitResGRAVSM->status() != 0)
       {
         muGRAV->setVal(0.);
         repeat = true;
@@ -590,9 +611,9 @@ int main(int argc, char* argv[]){
     count = 0;
     RooFitResult *fitResGRAVGRAV;
     do{
-      //fitResGRAVGRAV = simPdfGRAV->fitTo(*combDataGRAV,Save(true), Minimizer("Minuit2","Migrad"), PrintLevel(-1));
+      //fitResGRAVGRAV = simPdfGRAV->fitTo(*combDataGRAV,Save(true), RooFit::PrintLevel(-1));
       fitResGRAVGRAV = breakDownFit(simPdfGRAV,combDataGRAV,mass);
-      if(fitResGRAVGRAV->status() == -1)
+      if(fitResGRAVGRAV->status() != 0)
       {
         muGRAV->setVal(0.);
         repeat = true;

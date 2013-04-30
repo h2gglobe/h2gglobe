@@ -50,6 +50,15 @@ int main(int argc, char* argv[]){
 
   TFile *outFile = new TFile(Form("SepStats_%s.root",dir.c_str()),"RECREATE");
 
+  TTree * oldTree;
+  bool usingFitStatus = false;
+  if(tree->GetBranch("fitStatus"))
+  {
+    usingFitStatus = true;
+    oldTree = tree;
+    tree = oldTree->CopyTree("fitStatus[0] == 0 && fitStatus[1] == 0 && fitStatus[2] == 0 && fitStatus[3] == 0");
+  }
+
   //double q_smtoy;
   //double q_gravtoy;
   int nSpinCats;
@@ -277,7 +286,7 @@ int main(int argc, char* argv[]){
     SMToys.push_back(q_smtoy);
     GravToys.push_back(q_gravtoy);
 
-    for(size_t j = i; j>0; j--)
+    for(size_t j = SMToys.size(); j>0; j--)
     {
       if(SMToys[j] < SMToys[j-1])
         std::swap(SMToys[j], SMToys[j-1]);
@@ -285,7 +294,7 @@ int main(int argc, char* argv[]){
         break;
     }
 
-    for(size_t j = i; j>0; j--)
+    for(size_t j = GravToys.size(); j>0; j--)
     {
       if(GravToys[j] < GravToys[j-1])
         std::swap(GravToys[j], GravToys[j-1]);
@@ -391,8 +400,8 @@ int main(int argc, char* argv[]){
   pt3.SetFillColor(0);
   pt3.Draw();
   TPaveText pt4(0.6,0.7,0.89,0.85,"NDC");
-  pt4.AddText(Form("p (q<med(2^{+}_{m}) | 0^{+}) = %4.2f#sigma",GRAVsigma));
-  pt4.AddText(Form("p (q>med(0^{+}) | 2^{+}_{m}) = %4.2f#sigma",SMsigma));
+  pt4.AddText(Form("p (q<med(2^{+}_{m}) | 0^{+}) = %4.2f#sigma",ROOT::Math::normal_quantile_c(GRAVprob,1.0)));
+  pt4.AddText(Form("p (q>med(0^{+}) | 2^{+}_{m}) = %4.2f#sigma",ROOT::Math::normal_quantile_c(SMprob,1.0)));
   pt4.SetBorderSize(0);
   pt4.SetFillColor(0);
   pt4.Draw();
