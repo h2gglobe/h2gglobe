@@ -33,15 +33,16 @@ FMTTree::FMTTree(string infilename, string outfilename, string bdtname, string w
     // tmva
 		tmvaReader_ = new TMVA::Reader();
     if (isCutBased_) {
-      tmvaReader_->AddVariable("(mass-124.)/124.", &deltaMOverM_);
+      //tmvaReader_->AddVariable("(mass-124.)/124.", &deltaMOverM_);
+      tmvaReader_->AddVariable("deltaMoverM", &deltaMOverM_);
       tmvaReader_->AddVariable("lead_eta", &lead_eta_float_);
       tmvaReader_->AddVariable("sublead_eta", &sublead_eta_float_);
       tmvaReader_->AddVariable("lead_r9", &lead_r9_);
       tmvaReader_->AddVariable("sublead_r9", &sublead_r9_);
     }
     else {
-      tmvaReader_->AddVariable("bdtoutput",&diphotonBDT_);
       tmvaReader_->AddVariable("deltaMoverM",&deltaMOverM_);
+      tmvaReader_->AddVariable("bdtoutput",&diphotonBDT_);
     }
 		tmvaReader_->BookMVA(bdtname_.c_str(),weightsFile.c_str());
 

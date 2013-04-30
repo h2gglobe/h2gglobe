@@ -297,9 +297,9 @@ void FMTSetup::ReadRunConfig(){
       continue;
     }
 		if (sline.find("#")!=string::npos) continue;
-    if (sline.find("isCutBased")!=string::npos)                   isCutBased_=boost::lexical_cast<bool>(getOptFromConfig<bool>(sline));
-    if (sline.find("bdtname")!=string::npos)                      bdtname=boost::lexical_cast<string>(getOptFromConfig<string>(sline));
-    if (sline.find("weightsFile")!=string::npos)                  weightsFile=boost::lexical_cast<string>(getOptFromConfig<string>(sline));
+    if (sline.find("isCutBased")!=string::npos)                   isCutBased_=boost::lexical_cast<bool>(getOptFromConfig<int>(sline));
+    if (sline.find("bdtname")!=string::npos)                      bdtname=getOptFromConfig<string>(sline);
+    if (sline.find("weightsFile")!=string::npos)                  weightsFile=getOptFromConfig<string>(sline);
 		if (sline.find("IntLumi=")!=string::npos)                     setintLumi(boost::lexical_cast<double>(getOptFromConfig<double>(sline)));
     if (sline.find("mHMinimum=")!=string::npos)										setmHMinimum(boost::lexical_cast<int>(getOptFromConfig<double>(sline)));
 		if (sline.find("mHMaximum=")!=string::npos)										setmHMaximum(boost::lexical_cast<int>(getOptFromConfig<double>(sline)));

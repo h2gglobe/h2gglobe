@@ -120,13 +120,19 @@ pair<double,double> FMTFit::FitPow(double mass){
     intL = new RooRealVar("IntLumi","IntLumi",intLumi_);
     outWS->import(*intL);
   }
-	for (vector<double>::iterator mH=MHMasses_.begin(); mH!=MHMasses_.end(); mH++){
+	/*
+  for (vector<double>::iterator mH=MHMasses_.begin(); mH!=MHMasses_.end(); mH++){
 		if (TMath::Abs(*mH-mass)<mHStep_/2.) continue;
 		else {
 			temp = (RooRealVar*)inWS->var(Form("NBkgInSignal_mH%3.1f",mass));
 			if (temp) outWS->import(*temp);
 		}
 	}
+  */
+  if (verbose_) { 
+    outWS->allVars().Print();
+    temp->Print();
+  }
 	outWS->import(*temp,RecycleConflictNodes());
 	gDirectory->Cd(Form("%s:/",outfilename_.c_str()));
 	outWS->Write();
