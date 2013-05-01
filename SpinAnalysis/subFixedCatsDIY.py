@@ -19,6 +19,12 @@ for j in range(options.minCats,options.maxCats+1):
   jobdir = "%s/%s/%s"%(startDir,options.directory,jobname)
   print "\tJob: %s"%jobname
 
+  boundaries=""
+  for i in range(j-1):
+    boundaries += "%f "%(1-0.75*i/(j-1))
+  boundaries += "0.25 0"
+  print "\t  Boundaries: "+boundaries
+
   os.system('mkdir -p %s'%jobdir)
 
   datfile='%s/%dCats_%s'%(jobdir,j,options.datfile)
@@ -26,6 +32,7 @@ for j in range(options.minCats,options.maxCats+1):
   copyDatfile(config, f, ["wsfile", "nSpinCats", "catBoundaries"])
   f.write("wsfile=%s/Workspace.root\n"%(jobdir))
   f.write("nSpinCats=%d\n"%j)
+  f.write("catBoundaries=%s\n"%boundaries)
   f.close()
 
   prepareJobArray(jobname, jobdir, datfile, options.njobs, options.toyspj)
@@ -51,4 +58,3 @@ for j in range(options.minCats,options.maxCats+1):
   print "\tJob: %s"%jobname
 
   submitJobArray(jobname, jobdir, options.njobs, options.queue)
-
