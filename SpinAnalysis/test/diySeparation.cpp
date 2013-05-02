@@ -515,8 +515,10 @@ int main(int argc, char* argv[]){
       // for per cos theta cat only want to fit to the same SM toy
       repeat = false;
       count = 0;
+      muSM->setVal(1.);
       do{
-        RooFitResult *fitRes = breakDownFit(simPdfSMvect[s], combDataSMthisCTheta, mass); //simPdfSMvect[s]->fitTo(*combDataSMthisCTheta, Save(true), Minimizer("Minuit2","minimize"), PrintLevel(-1));
+        RooSimultaneous* fitModel = (RooSimultaneous*)simPdfSMvect[s]->cloneTree();
+        RooFitResult *fitRes = breakDownFit(fitModel, combDataSMthisCTheta, mass); //simPdfSMvect[s]->fitTo(*combDataSMthisCTheta, Save(true), Minimizer("Minuit2","minimize"), PrintLevel(-1));
         if(fitRes->status() != 0)
         {
           muSM->setVal(0.);
@@ -524,13 +526,16 @@ int main(int argc, char* argv[]){
         }
         count++;
         delete fitRes;
+        delete fitModel;
       }while(repeat && count<MAX_REPEAT);
       muSM_perCTbin[s] = muSM->getVal();
 
       repeat = false;
       count = 0;
+      muGRAV->setVal(1.);
       do{
-        RooFitResult *fitRes = breakDownFit(simPdfGRAVvect[s], combDataSMthisCTheta, mass); //simPdfGRAVvect[s]->fitTo(*combDataSMthisCTheta, Save(true), Minimizer("Minuit2","minimize"), PrintLevel(-1));
+        RooSimultaneous* fitModel = (RooSimultaneous*)simPdfGRAVvect[s]->cloneTree();
+        RooFitResult *fitRes = breakDownFit(fitModel, combDataSMthisCTheta, mass); //simPdfGRAVvect[s]->fitTo(*combDataSMthisCTheta, Save(true), Minimizer("Minuit2","minimize"), PrintLevel(-1));
         if(fitRes->status() != 0)
         {
           muGRAV->setVal(0.);
@@ -538,6 +543,7 @@ int main(int argc, char* argv[]){
         }
         count++;
         delete fitRes;
+        delete fitModel;
       }while(repeat && count<MAX_REPEAT);
       muGRAV_perCTbin[s] = muGRAV->getVal();
 
@@ -558,13 +564,15 @@ int main(int argc, char* argv[]){
     //------------------------------------------
     do{
       //fitResSMSM = simPdfSM->fitTo(*combDataSM,Save(true), RooFit::PrintLevel(-1));
-      fitResSMSM = breakDownFit(simPdfSM,combDataSM,mass);
+      RooSimultaneous* fitModel = (RooSimultaneous*)simPdfSM->cloneTree();
+      fitResSMSM = breakDownFit(fitModel,combDataSM,mass);
       if(fitResSMSM->status() != 0)
       {
         muSM->setVal(0.);
         repeat = true;
       }
       count++;
+      delete fitModel;
     }while(repeat && count<MAX_REPEAT);
     fitStatus[0] = fitResSMSM->status();
     fitCovStatus[0] = fitResSMSM->covQual();
@@ -576,13 +584,15 @@ int main(int argc, char* argv[]){
     RooFitResult *fitResSMGRAV;
     do{
       //fitResSMGRAV = simPdfSM->fitTo(*combDataGRAV,Save(true), RooFit::PrintLevel(-1));
-      fitResSMGRAV = breakDownFit(simPdfSM,combDataGRAV,mass);
+      RooSimultaneous* fitModel = (RooSimultaneous*)simPdfSM->cloneTree();
+      fitResSMGRAV = breakDownFit(fitModel,combDataGRAV,mass);
       if(fitResSMGRAV->status() != 0)
       {
         muSM->setVal(0.);
         repeat = true;
       }
       count++;
+      delete fitModel;
     }while(repeat && count<MAX_REPEAT);
     fitStatus[1] = fitResSMGRAV->status();
     fitCovStatus[1] = fitResSMGRAV->covQual();
@@ -594,13 +604,15 @@ int main(int argc, char* argv[]){
     RooFitResult *fitResGRAVSM;
     do{
       //fitResGRAVSM = simPdfGRAV->fitTo(*combDataSM,Save(true), RooFit::PrintLevel(-1));
-      fitResGRAVSM = breakDownFit(simPdfGRAV,combDataSM,mass);
+      RooSimultaneous* fitModel = (RooSimultaneous*)simPdfGRAV->cloneTree();
+      fitResGRAVSM = breakDownFit(fitModel,combDataSM,mass);
       if(fitResGRAVSM->status() != 0)
       {
         muGRAV->setVal(0.);
         repeat = true;
       }
       count++;
+      delete fitModel;
     }while(repeat && count<MAX_REPEAT);
     fitStatus[2] = fitResGRAVSM->status();
     fitCovStatus[2] = fitResGRAVSM->covQual();
@@ -612,13 +624,15 @@ int main(int argc, char* argv[]){
     RooFitResult *fitResGRAVGRAV;
     do{
       //fitResGRAVGRAV = simPdfGRAV->fitTo(*combDataGRAV,Save(true), RooFit::PrintLevel(-1));
-      fitResGRAVGRAV = breakDownFit(simPdfGRAV,combDataGRAV,mass);
+      RooSimultaneous* fitModel = (RooSimultaneous*)simPdfGRAV->cloneTree();
+      fitResGRAVGRAV = breakDownFit(fitModel,combDataGRAV,mass);
       if(fitResGRAVGRAV->status() != 0)
       {
         muGRAV->setVal(0.);
         repeat = true;
       }
       count++;
+      delete fitModel;
     }while(repeat && count<MAX_REPEAT);
     fitStatus[3] = fitResGRAVGRAV->status();
     fitCovStatus[3] = fitResGRAVGRAV->covQual();
