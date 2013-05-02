@@ -20,6 +20,14 @@
 
 using namespace std;
 
+class  NormalQuantile {
+public:
+	NormalQuantile() {};
+	double operator() (double *x, double *p) {
+		return ROOT::Math::normal_quantile_c(x[0], p[0]);
+	};
+};
+
 int main(int argc, char* argv[]){
 
   string filename;
@@ -232,11 +240,15 @@ int main(int argc, char* argv[]){
   tree->Draw("q_smtoy>>testStatSMH","q_smtoy>=-900. && q_smtoy<=900.","goff");
   tree->Draw("q_gravtoy>>testStatGRAVH","q_gravtoy>=-900. && q_gravtoy<=900.","goff");
 
+  NormalQuantile quant;
+  TF1 *func = new TF1("quant", &quant, 0, 1, 1);
+  double width = 1.0;
+
   // calc prob from hist
   double SMprobHist = testStatSMH->Integral(testStatSMH->FindBin(testStatGRAVH->GetMean()),testStatSMH->GetNbinsX())/testStatSMH->Integral();
+  double SMprobHistErr = sqrt(SMprobHist*(1-SMprobHist)/testStatSMH->Integral());
   double GRAVprobHist = testStatGRAVH->Integral(0,testStatGRAVH->FindBin(testStatSMH->GetMean()))/testStatGRAVH->Integral();
-  double SMsigmaHist = TMath::ErfcInverse(SMprobHist)*TMath::Sqrt(2.0);
-  double GRAVsigmaHist = TMath::ErfcInverse(GRAVprobHist)*TMath::Sqrt(2.0);
+  double GRAVprobHistErr = sqrt(GRAVprobHist*(1-GRAVprobHist)/testStatGRAVH->Integral());
 
   // now rebin histograms so they look better on a plot
   testStatSMH->Rebin(10);
@@ -254,23 +266,30 @@ int main(int argc, char* argv[]){
   double GRAVmean = gausGRAV->GetParameter(1);
 
   double SMprob = gausSM->Integral(GRAVmean,15.)/gausSM->Integral(-15.,15.);
+  double SMprobErr = sqrt(SMprob*(1-SMprob)/testStatSMH->Integral());
   double GRAVprob = gausGRAV->Integral(-15.,SMmean)/gausGRAV->Integral(-15.,15.);
+  double GRAVprobErr = sqrt(GRAVprob*(1-GRAVprob)/testStatGRAVH->Integral());
 
-  //double SMsigma = ROOT::Math::normal_quantile_c(SMprob,1.0);
-  //double GRAVsigma = ROOT::Math::normal_quantile_c(GRAVprob,1.0);
-  double SMsigma = TMath::ErfcInverse(SMprob)*TMath::Sqrt(2.0);
-  double GRAVsigma = TMath::ErfcInverse(GRAVprob)*TMath::Sqrt(2.0);
+  double SMsigma = ROOT::Math::normal_quantile_c(SMprob,width);
+  double SMsigmaErr = abs(func->Derivative(SMprob, &width)*SMprobErr);
+  double GRAVsigma = ROOT::Math::normal_quantile_c(GRAVprob,width);
+  double GRAVsigmaErr = abs(func->Derivative(GRAVprob, &width)*GRAVprobErr);
+
+  double SMsigmaHist = ROOT::Math::normal_quantile_c(SMprobHist,width);
+  double SMsigmaHistErr = abs(func->Derivative(SMprobHist, &width)*SMprobHistErr);
+  double GRAVsigmaHist = ROOT::Math::normal_quantile_c(GRAVprobHist,width);
+  double GRAVsigmaHistErr = abs(func->Derivative(GRAVprobHist, &width)*GRAVprobHistErr);
 
   cout << "SM: " << SMmean << " GRAV: " << GRAVmean << endl;
   cout << "UNBINNED:" << endl;
   cout << "Prob( q > median(2) | 0 ) = "<< SMprob << " = " << SMsigma << " sigma " << endl;
   cout << "Prob( q < median(0) | 2 ) = "<< GRAVprob << " = " << GRAVsigma << " sigma " << endl;
-  cout << "BINNED:  -- ErfcInverse" << endl;
+  //cout << "BINNED:  -- ErfcInverse" << endl;
+  //cout << "Prob( q > median(2) | 0 ) = "<< SMprobHist << " = " << SMsigmaHist << " sigma " << endl;
+  //cout << "Prob( q < median(0) | 2 ) = "<< GRAVprobHist << " = " << GRAVsigmaHist << " sigma " << endl;
+  cout << "BINNED:  -- normal_quantile_c" << endl;
   cout << "Prob( q > median(2) | 0 ) = "<< SMprobHist << " = " << SMsigmaHist << " sigma " << endl;
   cout << "Prob( q < median(0) | 2 ) = "<< GRAVprobHist << " = " << GRAVsigmaHist << " sigma " << endl;
-  cout << "BINNED:  -- normal_quantile_c" << endl;
-  cout << "Prob( q > median(2) | 0 ) = "<< SMprobHist << " = " << ROOT::Math::normal_quantile_c(SMprobHist,1.0) << " sigma " << endl;
-  cout << "Prob( q < median(0) | 2 ) = "<< GRAVprobHist << " = " << ROOT::Math::normal_quantile_c(GRAVprobHist,1.0) << " sigma " << endl;
 
   //tree
   double q_smtoy;
@@ -323,34 +342,60 @@ int main(int argc, char* argv[]){
   SMProbUnbinned /= SMToys.size();
   GravProbUnbinned /= GravToys.size();
 
-  cout << "True UNBINNED:  -- normal_quantile_c" << endl;
-  cout << "Prob( q > median(2) | 0 ) = "<< SMProbUnbinned << " = " << ROOT::Math::normal_quantile_c(SMProbUnbinned,1.0) << " sigma " << endl;
-  cout << "Prob( q < median(0) | 2 ) = "<< GravProbUnbinned << " = " << ROOT::Math::normal_quantile_c(GravProbUnbinned,1.0) << " sigma " << endl;
+  double SMProbUnbinnedErr = sqrt(SMProbUnbinned*(1-SMProbUnbinned)/SMToys.size());
+  double GravProbUnbinnedErr = sqrt(GravProbUnbinned*(1-GravProbUnbinned)/GravToys.size());
+
+  double SMSigmaUnbinned = ROOT::Math::normal_quantile_c(SMProbUnbinned,width);
+  double SMSigmaUnbinnedErr = abs(func->Derivative(SMProbUnbinned, &width)*SMProbUnbinnedErr);
+  double GravSigmaUnbinned = ROOT::Math::normal_quantile_c(GravProbUnbinned,width);
+  double GravSigmaUnbinnedErr = abs(func->Derivative(GravProbUnbinned, &width)*GravProbUnbinnedErr);
+
+  cout << "UNBINNED:  -- normal_quantile_c" << endl;
+  cout << "Prob( q > median(2) | 0 ) = "<< SMProbUnbinned << "+-" << SMProbUnbinnedErr << " = " << SMSigmaUnbinned << "+-" << SMSigmaUnbinnedErr << " sigma " << endl;
+  cout << "Prob( q < median(0) | 2 ) = "<< GravProbUnbinned << "+-" << GravProbUnbinnedErr << " = " << GravSigmaUnbinned << "+-" << GravSigmaUnbinnedErr << " sigma " << endl;
 
   if(nCats >= 0)
   {
     TFile *haddable = new TFile(Form("%dCats_separation.root",nCats),"RECREATE");
     TTree *tree = new TTree("Separation","Separation");
-    double SMsigmaHistQuant = ROOT::Math::normal_quantile_c(SMprobHist,1.0);
-    double GRAVsigmaHistQuant = ROOT::Math::normal_quantile_c(GRAVprobHist,1.0);
-    double SMsigmaUnbinnedQuant = ROOT::Math::normal_quantile_c(SMProbUnbinned,1.0);
-    double GRAVsigmaUnbinnedQuant = ROOT::Math::normal_quantile_c(GravProbUnbinned,1.0);
+
+
 
     tree->Branch("nCats", &nCats);
-    tree->Branch("UnbinnedSMProb", &SMprob);
-    tree->Branch("UnbinnedGravProb", &GRAVprob);
-    tree->Branch("TrueUnbinnedSMProb", &SMProbUnbinned);
-    tree->Branch("TrueUnbinnedGravProb", &GravProbUnbinned);
+
+
+    tree->Branch("FittedSMProb", &SMprob);
+    tree->Branch("FittedGravProb", &GRAVprob);
+    tree->Branch("FittedSMProbErr", &SMprobErr);
+    tree->Branch("FittedGravProbErr", &GRAVprobErr);
+
+    tree->Branch("UnbinnedSMProb", &SMProbUnbinned);
+    tree->Branch("UnbinnedGravProb", &GravProbUnbinned);
+    tree->Branch("UnbinnedSMProbErr", &SMProbUnbinnedErr);
+    tree->Branch("UnbinnedGravProbErr", &GravProbUnbinnedErr);
+
     tree->Branch("BinnedSMProb", &SMprobHist);
     tree->Branch("BinnedGravProb", &GRAVprobHist);
-    tree->Branch("UnbinnedSMSigma", &SMsigma);
-    tree->Branch("UnbinnedGravSigma", &GRAVsigma);
-    tree->Branch("TrueUnbinnedSMSigma", &SMsigmaUnbinnedQuant);
-    tree->Branch("TrueUnbinnedGravSigma", &GRAVsigmaUnbinnedQuant);
-    tree->Branch("BinnedSMSigma_ErfcInv", &SMsigmaHist);
-    tree->Branch("BinnedGravSigma_ErfcInv", &GRAVsigmaHist);
-    tree->Branch("BinnedSMSigma_quantile", &SMsigmaHistQuant);
-    tree->Branch("BinnedGravSigma_quantile", &GRAVsigmaHistQuant);
+    tree->Branch("BinnedSMProbErr", &SMprobHistErr);
+    tree->Branch("BinnedGravProbErr", &GRAVprobHistErr);
+
+
+    tree->Branch("FittedSMSigma", &SMsigma);
+    tree->Branch("FittedGravSigma", &GRAVsigma);
+    tree->Branch("FittedSMSigmaErr", &SMsigmaErr);
+    tree->Branch("FittedGravSigmaErr", &GRAVsigmaErr);
+
+    tree->Branch("UnbinnedSMSigma", &SMSigmaUnbinned);
+    tree->Branch("UnbinnedGravSigma", &GravSigmaUnbinned);
+    tree->Branch("UnbinnedSMSigmaErr", &SMSigmaUnbinnedErr);
+    tree->Branch("UnbinnedGravSigmaErr", &GravSigmaUnbinnedErr);
+
+    tree->Branch("BinnedSMSigma", &SMsigmaHist);
+    tree->Branch("BinnedGravSigma", &GRAVsigmaHist);
+    tree->Branch("BinnedSMSigmaErr", &SMsigmaHistErr);
+    tree->Branch("BinnedGravSigmaErr", &GRAVsigmaHistErr);
+
+
 
     tree->Fill();
     //tree->Print();
