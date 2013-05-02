@@ -602,17 +602,17 @@ def writeCard(tfile,mass,scaleErr):
   # muon tag
   outPut.write("\nCMS_eff_m   lnN    ")
   for b in range(binL,nBins_inclusive+nBins_vbf+binL): outPut.write(" -   -   -   -   -")
-  outPut.write(" %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   -  "%(1.-muon_tag_eff_ggH,1.+muon_tag_eff_ggH,1.-muon_tag_eff_qqH,1.+muon_tag_eff_qqH,1.-muon_tag_eff_VH,1.+muon_tag_eff_VH,1.-muon_tag_eff_ttH,1.+muon_tag_eff_ttH))
+  if nBins_vh>0: outPut.write(" %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   -  "%(1.-muon_tag_eff_ggH,1.+muon_tag_eff_ggH,1.-muon_tag_eff_qqH,1.+muon_tag_eff_qqH,1.-muon_tag_eff_VH,1.+muon_tag_eff_VH,1.-muon_tag_eff_ttH,1.+muon_tag_eff_ttH))
   for b in range(nBins_vbf+binL+2,binH): outPut.write(" -   -   -   -   -")
   # electron tag
   outPut.write("\nCMS_eff_e   lnN    ")
   for b in range(binL,nBins_inclusive+nBins_vbf+binL+1): outPut.write(" -   -   -   -   -")
-  outPut.write(" %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   -  "%(1.-elec_tag_eff_ggH,1.+elec_tag_eff_ggH,1.-elec_tag_eff_qqH,1.+elec_tag_eff_qqH,1.-elec_tag_eff_VH,1.+elec_tag_eff_VH,1.-elec_tag_eff_ttH,1.+elec_tag_eff_ttH))
+  if nBins_vh>0: outPut.write(" %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   -  "%(1.-elec_tag_eff_ggH,1.+elec_tag_eff_ggH,1.-elec_tag_eff_qqH,1.+elec_tag_eff_qqH,1.-elec_tag_eff_VH,1.+elec_tag_eff_VH,1.-elec_tag_eff_ttH,1.+elec_tag_eff_ttH))
   for b in range(nBins_vbf+binL+3,binH): outPut.write(" -   -   -   -   -")
   # MET tag
   outPut.write("\nCMS_eff_met   lnN    ")
   for b in range(binL,nBins_inclusive+nBins_vbf+binL+2): outPut.write(" -   -   -   -   -")
-  outPut.write(" %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   -  "%(1.-met_tag_eff_ggH,1.+met_tag_eff_ggH,1.-met_tag_eff_qqH,1.+met_tag_eff_qqH,1.-met_tag_eff_VH,1.+met_tag_eff_VH,1.-met_tag_eff_ttH,1.+met_tag_eff_ttH))
+  if nBins_vh>0: outPut.write(" %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   -  "%(1.-met_tag_eff_ggH,1.+met_tag_eff_ggH,1.-met_tag_eff_qqH,1.+met_tag_eff_qqH,1.-met_tag_eff_VH,1.+met_tag_eff_VH,1.-met_tag_eff_ttH,1.+met_tag_eff_ttH))
   
   outPut.write("\n")
 
