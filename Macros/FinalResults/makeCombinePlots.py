@@ -2,7 +2,6 @@
 
 import os
 import sys
-import numpy
 import shlex
 
 from optparse import OptionParser
@@ -90,8 +89,13 @@ def pvalPlot(allVals):
   # draw dummy hist and multigraph
   dummyHist.GetYaxis().SetTitle('Local p-value')
   mg.Draw("A")
-  dummyHist.SetMinimum(mg.GetYaxis().GetXmin())
-  dummyHist.SetMaximum(mg.GetYaxis().GetXmax())
+  if not options.yaxis:
+    dummyHist.SetMinimum(mg.GetYaxis().GetXmin())
+    dummyHist.SetMaximum(mg.GetYaxis().GetXmax())
+  else:
+    dummyHist.SetMinimum(float(options.yaxis.split(';')[0]))
+    dummyHist.SetMaximum(float(options.yaxis.split(';')[1]))
+    
   dummyHist.SetLineColor(0)
   dummyHist.SetStats(0)
   dummyHist.Draw("AXIS")
@@ -169,10 +173,12 @@ def maxlhPlot(allVals):
   # draw dummy hist and multigraph
   dummyHist.GetYaxis().SetTitle('Best fit #sigma/#sigma_{SM}')
   mg.Draw("A")
-  #dummyHist.SetMinimum(mg.GetYaxis().GetXmin())
-  #dummyHist.SetMaximum(mg.GetYaxis().GetXmax())
-  dummyHist.SetMinimum(-2)
-  dummyHist.SetMaximum(2)
+  if not options.yaxis:
+    dummyHist.SetMinimum(mg.GetYaxis().GetXmin())
+    dummyHist.SetMaximum(mg.GetYaxis().GetXmax())
+  else:
+    dummyHist.SetMinimum(float(options.yaxis.split(';')[0]))
+    dummyHist.SetMaximum(float(options.yaxis.split(';')[1]))
   dummyHist.SetLineColor(0)
   dummyHist.SetStats(0)
   dummyHist.Draw("AXIS")
@@ -182,15 +188,17 @@ def maxlhPlot(allVals):
   
   # draw line at y=1 
   l = r.TLine(110,1.,150,1.)
-  l.SetLineColor(r.kRed)
+  l.SetLineColor(r.kBlue)
+  l.SetLineStyle(r.kDashed)
   l.SetLineWidth(2)
   l.Draw()
   
   # draw line at y=0 
   l2 = r.TLine(110,0.,150,0.)
-  l2.SetLineColor(r.kBlack)
+  l2.SetLineColor(r.kRed)
+  l2.SetLineStyle(r.kDashed)
   l2.SetLineWidth(2)
-  #l2.Draw()
+  l2.Draw()
   
   # draw text
   lat.DrawLatex(0.12,0.92,"CMS Preliminary")
@@ -280,10 +288,12 @@ def limitPlot(allVals):
   # draw dummy hist and multigraph
   dummyHist.GetYaxis().SetTitle("\sigma(H#rightarrow #gamma #gamma)_{95%%CL} / \sigma(H#rightarrow #gamma #gamma)_{SM}")
   mg.Draw("A")
-#  dummyHist.SetMinimum(mg.GetYaxis().GetXmin())
-#  dummyHist.SetMaximum(mg.GetYaxis().GetXmax())
-  dummyHist.SetMinimum(0)
-  dummyHist.SetMaximum(4)
+  if not options.yaxis:
+    dummyHist.SetMinimum(mg.GetYaxis().GetXmin())
+    dummyHist.SetMaximum(mg.GetYaxis().GetXmax())
+  else:
+    dummyHist.SetMinimum(float(options.yaxis.split(';')[0]))
+    dummyHist.SetMaximum(float(options.yaxis.split(';')[1]))
   dummyHist.SetLineColor(0)
   dummyHist.SetStats(0)
   dummyHist.Draw("AXIS")
@@ -419,7 +429,8 @@ def plot1DNLL():
   dH.SetTitleOffset(0.85,"Y")
   if options.method=='mh': dH.GetXaxis().SetNdivisions(505)
   dH.GetYaxis().SetTitle('-2 #Delta LL')
-  dH.GetYaxis().SetRangeUser(0.,rng)
+  if not options.yaxis: dH.GetYaxis().SetRangeUser(0.,rng)
+  else: dH.GetYaxis().SetRangeUser(float(options.yaxis.split(';')[0]),float(options.yaxis.split(';')[1]))
   dH.SetLineColor(0)
   dH.SetStats(0)
   dH.Draw("AXIS")
@@ -427,7 +438,8 @@ def plot1DNLL():
   for gr in clean_graphs:
     gr.GetXaxis().SetRangeUser(axmin,axmax)
     gr.GetXaxis().SetNdivisions(505)
-    gr.GetYaxis().SetRangeUser(0.,rng)
+    if not options.yaxis: gr.GetYaxis().SetRangeUser(0.,rng)
+    else: gr.GetYaxis().SetRangeUser(float(options.yaxis.split(';')[0]),float(options.yaxis.split(';')[1]))
     gr.Draw("L")
 
   # draw legend
@@ -483,10 +495,12 @@ def plot2DNLL(col,type,xtitle,ytitle):
   th2.GetYaxis().SetTitleSize(0.04)
   if options.method=='mumh':
     th2.GetXaxis().SetRangeUser(122,128)
-    th2.GetYaxis().SetRangeUser(0,2.5)
+    if not options.yaxis: th2.GetYaxis().SetRangeUser(0,2.5)
+    else: th2.GetYaxis().SetRangeUser(float(options.yaxis.split(';')[0]),float(options.yaxis.split(';')[1]))
   if options.method=='rvrf':
     th2.GetXaxis().SetRangeUser(-1.5,4.5)
-    th2.GetYaxis().SetRangeUser(-1.5,4.5)
+    if not options.yaxis: th2.GetYaxis().SetRangeUser(-1.5,4.5)
+    else: th2.GetYaxis().SetRangeUser(float(options.yaxis.split(';')[0]),float(options.yaxis.split(';')[1]))
   th2.GetZaxis().SetRangeUser(0,10)
   if col: th2.Draw("colz")
   else: th2.Draw("axis")
@@ -613,7 +627,7 @@ if options.datfile:
         config[opt] = [int(x) for x in config[opt]]
     
     for key, item in config.items():
-      if len(item)==1 and key in ['method','text','outname']:
+      if len(item)==1 and key in ['method','text','outname','legend','yaxis']:
         item=item[0].strip('\n')
       setattr(options,key,item)
 
