@@ -3,16 +3,22 @@
 import os
 import sys
 import numpy
+import shlex
 
 from optparse import OptionParser
 parser = OptionParser()
+parser.add_option("-d","--datfile",dest="datfile",help="Read from datfile")
 parser.add_option("-f","--file",dest="files",default=[],action="append",help="Add a file")
+parser.add_option("-o","--outname",dest="outname",help="Name of output pdf/png/C")
 parser.add_option("-c","--color",dest="colors",default=[],action="append",help="Set color")
 parser.add_option("-s","--style",dest="styles",default=[],action="append",help="Set style")
 parser.add_option("-w","--width",dest="widths",default=[],action="append",help="Set width")
 parser.add_option("-n","--name",dest="names",default=[],action="append",help="Set name")
 parser.add_option("-t","--text",dest="text",type="string",default="",help="Add Text")
 parser.add_option("-e","--expected",dest="expected",default=False,action="store_true",help="Expected only")
+parser.add_option("-m","--method",dest="method",type="string",help="Method to run")
+parser.add_option("-l","--legend",dest="legend",type="string",help="Legend position - x1;y1;x2;y2")
+parser.add_option("-y","--yaxis",dest="yaxis",type="string",help="y-axis range - y1;y2")
 parser.add_option("","--limit",dest="limit",default=False,action="store_true",help="Do limit plot")
 parser.add_option("","--pval",dest="pval",default=False,action="store_true",help="Do p-value plot")
 parser.add_option("","--maxlh",dest="maxlh",default=False,action="store_true",help="Do best fit mu plot")
@@ -21,21 +27,28 @@ parser.add_option("","--mu",dest="mu",default=False,action="store_true",help="Do
 parser.add_option("","--mumh",dest="mumh",default=False,action="store_true",help="Do NLL mu vs mh scan plot")
 parser.add_option("","--rvrf",dest="rvrf",default=False,action="store_true",help="Do NLL rv vs rf scan plot")
 parser.add_option("-v","--verbose",dest="verbose",default=False,action="store_true")
+parser.add_option("-b","--batch",dest="batch",default=False,action="store_true")
 (options,args)=parser.parse_args()
 
-if not options.pval and not options.maxlh and not options.limit and not options.mh and not options.mu and not options.mumh and not options.rvrf:
-  sys.exit('No option set. Must set either: \n\t--pval \n\t--maxlh \n\t--limit \n\t--mh \n\t--mu \n\t--mumh \n\t--rvrf')
+# Required for back compatbility:
+if options.limit: options.method='limit'
+if options.pval: options.method='pval'
+if options.maxlh: options.method='maxlh'
+if options.mh: options.method='mh'
+if options.mu: options.method='mu'
+if options.mumh: options.method='mumh'
+if options.rvrf: options.method='rvrf'
+if not options.outname: options.outname=options.method
 
-if options.verbose:
-  print options.files
-  print options.colors
-  print options.styles
-  print options.widths
-  print options.names
+allowed_methods=['pval','limit','maxlh','mh','mu','mumh','rvrf']
+if not options.datfile and options.method not in allowed_methods:
+  print 'Invalid method. Must set one of: ', allowed_methods
+  sys.exit()
 
 import ROOT as r
+outf = r.TFile('CombinePlotCanvases.root','RECREATE')
 
-r.gROOT.SetBatch()
+if options.batch: r.gROOT.SetBatch()
 
 # make canvas and dummy hist
 canv = r.TCanvas()
@@ -53,10 +66,13 @@ lat.SetTextSize(0.03)
 lat.SetTextFont(42);
 
 def pvalPlot(allVals):
- 
-  canv.SetLogy()
+  
+  canv.Clear()
+  if options.verbose: print 'Plotting pvalue...'
+  canv.SetLogy(True)
   mg = r.TMultiGraph()
-  leg = r.TLegend(0.6,0.12,0.89,0.4)
+  if not options.legend: leg = r.TLegend(0.6,0.12,0.89,0.4)
+  else: leg = r.TLegend(float(options.legend.split(';')[0]),float(options.legend.split(';')[1]),float(options.legend.split(';')[2]),float(options.legend.split(';')[3]))
   leg.SetFillColor(0)
 
   # make graphs from values
@@ -87,17 +103,17 @@ def pvalPlot(allVals):
   lines=[]
   labels=[]
   for i,sig in enumerate(sigmas):
-      y = r.RooStats.SignificanceToPValue(sig)
-      if options.verbose: print sig, y
-      lines.append(r.TLine(110,y,150,y))
-      lines[i].SetLineWidth(2)
-      lines[i].SetLineStyle(2)
-      lines[i].SetLineColor(r.kRed)
-      labels.append(r.TLatex(110 + 2, y * 1.1, "%d #sigma" % (i+1)))
-      labels[i].SetTextAlign(11);
-      if y<=mg.GetYaxis().GetXmax() and y>=mg.GetYaxis().GetXmin():
-        lines[i].Draw('SAME')
-        labels[i].Draw('SAME')
+    y = r.RooStats.SignificanceToPValue(sig)
+    if options.verbose: print sig, y
+    lines.append(r.TLine(110,y,150,y))
+    lines[i].SetLineWidth(2)
+    lines[i].SetLineStyle(2)
+    lines[i].SetLineColor(r.kRed)
+    labels.append(r.TLatex(110 + 2, y * 1.1, "%d #sigma" % (i+1)))
+    labels[i].SetTextAlign(11);
+    if y<=mg.GetYaxis().GetXmax() and y>=mg.GetYaxis().GetXmin():
+      lines[i].Draw('SAME')
+      labels[i].Draw('SAME')
 
   # draw text
   lat.DrawLatex(0.12,0.92,"CMS Preliminary")
@@ -108,14 +124,23 @@ def pvalPlot(allVals):
   canv.RedrawAxis()
 
   # print canvas
-  canv.Print('pval.pdf')
-  canv.Print('pval.png')
-  canv.Print('pval.C')
+  canv.Update()
+  if not options.batch: raw_input("Looks ok?")
+  canv.Print('%s.pdf'%options.outname)
+  canv.Print('%s.png'%options.outname)
+  canv.Print('%s.C'%options.outname)
+  canv.SetName(options.outname)
+  outf.cd()
+  canv.Write()
 
 def maxlhPlot(allVals):
-  
+
+  canv.Clear()
+  canv.SetLogy(False)
+  if options.verbose: print 'Plotting maxlh...'
   mg = r.TMultiGraph()
-  leg = r.TLegend(0.6,0.8,0.89,0.89)
+  if not options.legend: leg = r.TLegend(0.6,0.8,0.89,0.89)
+  else: leg = r.TLegend(float(options.legend.split(';')[0]),float(options.legend.split(';')[1]),float(options.legend.split(';')[2]),float(options.legend.split(';')[3]))
   leg.SetFillColor(0)
  
   # make graph from values
@@ -176,14 +201,23 @@ def maxlhPlot(allVals):
   canv.RedrawAxis()
 
   # print canvas
-  canv.Print('maxlh.pdf')
-  canv.Print('maxlh.png')
-  canv.Print('maxlh.C')
+  canv.Update()
+  if not options.batch: raw_input("Looks ok?")
+  canv.Print('%s.pdf'%options.outname)
+  canv.Print('%s.png'%options.outname)
+  canv.Print('%s.C'%options.outname)
+  canv.SetName(options.outname)
+  outf.cd()
+  canv.Write()
 
 def limitPlot(allVals):
 
+  canv.Clear()
+  canv.SetLogy(False)
+  if options.verbose: print 'Plotting limit...'
   mg = r.TMultiGraph()
-  leg = r.TLegend(0.6,0.7,0.89,0.89)
+  if not options.legend: leg = r.TLegend(0.6,0.7,0.89,0.89)
+  else: leg = r.TLegend(float(options.legend.split(';')[0]),float(options.legend.split(';')[1]),float(options.legend.split(';')[2]),float(options.legend.split(';')[3]))
   leg.SetFillColor(0)
 
   # make graph from values
@@ -221,7 +255,7 @@ def limitPlot(allVals):
     twoSigma.SetLineStyle(2)
     oneSigma.SetFillColor(r.kGreen)
     twoSigma.SetFillColor(r.kYellow)
-    if len(allVals)>0:
+    if len(allVals)>1:
       exp.SetLineColor(int(options.colors[k]))
       exp.SetLineStyle(2)
       exp.SetLineWidth(int(options.widths[k]))
@@ -237,7 +271,7 @@ def limitPlot(allVals):
       leg.AddEntry(oneSigma,'Expected #pm 1#sigma','FL') 
       leg.AddEntry(twoSigma,'Expected #pm 2#sigma','FL') 
     
-    if len(allVals)==0:
+    if len(allVals)==1:
       mg.Add(twoSigma)
       mg.Add(oneSigma)
     mg.Add(exp)
@@ -272,9 +306,14 @@ def limitPlot(allVals):
   canv.RedrawAxis()
 
   # print canvas
-  canv.Print('limit.pdf')
-  canv.Print('limit.png')
-  canv.Print('limit.C')
+  canv.Update()
+  if not options.batch: raw_input("Looks ok?")
+  canv.Print('%s.pdf'%options.outname)
+  canv.Print('%s.png'%options.outname)
+  canv.Print('%s.C'%options.outname)
+  canv.SetName(options.outname)
+  outf.cd()
+  canv.Write()
 
 def runStandard():
   config = []
@@ -288,9 +327,9 @@ def runStandard():
     values.sort(key=lambda x: x[0])
     config.append(values)
 
-  if options.pval: pvalPlot(config)
-  elif options.limit: limitPlot(config)
-  elif options.maxlh: maxlhPlot(config)
+  if options.method=='pval': pvalPlot(config)
+  elif options.method=='limit': limitPlot(config)
+  elif options.method=='maxlh': maxlhPlot(config)
 
 def read1D(file,x,i,xtitle):
   tree = file.Get('limit')
@@ -308,20 +347,20 @@ def read1D(file,x,i,xtitle):
     last = gr.GetX()[i-1]
   return gr
 
-def run1DNLL():
-  
-  if options.mh:
+def plot1DNLL():
+ 
+  canv.Clear()
+  canv.SetLogy(False)
+  if options.method=='mh':
     x = 'MH'
     xtitle = 'm_{H} (GeV)'
-  elif options.mu:
+  elif options.method=='mu':
     x = 'r'
     xtitle = '#sigma / #sigma_{SM}'
 
-
-
-  
   canv = r.TCanvas(x,x,500,500)
-  leg  = r.TLegend(0.35,0.65,0.6,0.79)
+  if not options.legend: leg  = r.TLegend(0.35,0.65,0.6,0.79)
+  else: leg = r.TLegend(float(options.legend.split(';')[0]),float(options.legend.split(';')[1]),float(options.legend.split(';')[2]),float(options.legend.split(';')[3]))
   leg.SetLineColor(0)
   leg.SetFillColor(0)
 
@@ -378,7 +417,7 @@ def run1DNLL():
   dH.SetTitleOffset(0.95,"X")
   dH.SetTitleSize(.04,"Y")
   dH.SetTitleOffset(0.85,"Y")
-  if options.mh: dH.GetXaxis().SetNdivisions(505)
+  if options.method=='mh': dH.GetXaxis().SetNdivisions(505)
   dH.GetYaxis().SetTitle('-2 #Delta LL')
   dH.GetYaxis().SetRangeUser(0.,rng)
   dH.SetLineColor(0)
@@ -410,17 +449,25 @@ def run1DNLL():
   lat2.SetNDC()
   lat2.SetTextSize(0.04)
   lat2.SetTextAlign(22)
-  if options.mh: lat2.DrawLatex(0.5,0.85,"m_{H} = %5.1f #pm %3.1f"%(fit,err))
-  elif options.mu: lat2.DrawLatex(0.5,0.85,"#sigma/#sigma_{SM} = %3.1f #pm %3.1f"%(fit,err))
+  if options.method=='mh': lat2.DrawLatex(0.5,0.85,"m_{H} = %5.1f #pm %3.1f"%(fit,err))
+  elif options.method=='mu': lat2.DrawLatex(0.5,0.85,"#sigma/#sigma_{SM} = %3.1f #pm %3.1f"%(fit,err))
 
-  canv.Print('%s.pdf'%x)
-  canv.Print('%s.png'%x)
-  canv.Print('%s.C'%x)
+  canv.Update()
+  if not options.batch: raw_input("Looks ok?")
+  canv.Print('%s.pdf'%options.outname)
+  canv.Print('%s.png'%options.outname)
+  canv.Print('%s.C'%options.outname)
+  canv.SetName(options.outname)
+  outf.cd()
+  canv.Write()
 
 def plot2DNLL(col,type,xtitle,ytitle):
+  canv.Clear()
+  canv.SetLogy(False)
   canv = r.TCanvas("%s"%type,"%s"%type,500,500)
   tf = r.TFile('%s_bands.root'%type)
-  leg = r.TLegend(0.7,0.7,0.88,0.88)
+  if not options.legend: leg = r.TLegend(0.7,0.7,0.88,0.88)
+  else: leg = r.TLegend(float(options.legend.split(';')[0]),float(options.legend.split(';')[1]),float(options.legend.split(';')[2]),float(options.legend.split(';')[3]))
   leg.SetFillColor(0)
   
   gbest = tf.Get('%s_best'%type)
@@ -434,10 +481,10 @@ def plot2DNLL(col,type,xtitle,ytitle):
   th2.GetYaxis().SetTitleOffset(1.2)
   th2.GetXaxis().SetTitleSize(0.04)
   th2.GetYaxis().SetTitleSize(0.04)
-  if options.mumh:
+  if options.method=='mumh':
     th2.GetXaxis().SetRangeUser(122,128)
     th2.GetYaxis().SetRangeUser(0,2.5)
-  if options.rvrf:
+  if options.method=='rvrf':
     th2.GetXaxis().SetRangeUser(-1.5,4.5)
     th2.GetYaxis().SetRangeUser(-1.5,4.5)
   th2.GetZaxis().SetRangeUser(0,10)
@@ -468,7 +515,7 @@ def plot2DNLL(col,type,xtitle,ytitle):
   lat.DrawLatex(0.7,0.94,options.text)
 
   #write results
-  if options.mumh:
+  if options.method=='mumh':
     mh=gbest.GetX()[0]
     mu=gbest.GetY()[0]
     latexmu = r.TLatex()
@@ -479,7 +526,7 @@ def plot2DNLL(col,type,xtitle,ytitle):
     latexmh.SetNDC()
     latexmh.SetTextSize(0.035)
     latexmh.DrawLatex(0.12,0.80,"m_{H} = %5.1f GeV"%(mh))  
-  if options.rvrf:
+  if options.method=='rvrf':
     rf=gbest.GetX()[0]
     rv=gbest.GetY()[0]
     latexrv = r.TLatex()
@@ -493,40 +540,88 @@ def plot2DNLL(col,type,xtitle,ytitle):
     
   
   if col:
-    canv.Print('%s_col.pdf'%type)
-    canv.Print('%s_col.png'%type)
-    canv.Print('%s_col.C'%type)
+    canv.Update()
+    if not options.batch: raw_input("Looks ok?")
+    canv.Print('%s_col.pdf'%options.outname)
+    canv.Print('%s_col.png'%options.outname)
+    canv.Print('%s_col.C'%options.outname)
+    canv.SetName('%s_col'%options.outname)
+    outf.cd()
+    canv.Write()
   else:
-    canv.Print('%s.pdf'%type)
-    canv.Print('%s.png'%type)
-    canv.Print('%s.C'%type)
+    canv.Update()
+    if not options.batch: raw_input("Looks ok?")
+    canv.Print('%s.pdf'%options.outname)
+    canv.Print('%s.png'%options.outname)
+    canv.Print('%s.C'%options.outname)
+    canv.SetName(options.outname)
+    outf.cd()
+    canv.Write()
 
 def run2DNLL():
   if len(options.files)!=1: 
     sys.exit('For the 2D Scan plots you should only pass one file!')
   r.gROOT.LoadMacro('makeBands.cxx')
-  if options.mumh: 
+  if options.method=='mumh': 
     tf = r.TFile('MuMH_bands.root','RECREATE')
     r.readMassScan2D(tf,"MuMH",options.files[0])
     tf.Close()
-  if options.rvrf: 
+  if options.method=='rvrf': 
     tf = r.TFile('RvRf_bands.root','RECREATE')
     r.readParamScan2D(tf,"RvRf",options.files[0],"RF","RV")
     tf.Close()
 
-  if options.mumh: 
+  if options.method=='mumh': 
     plot2DNLL(True,'MuMH','m_{H} (GeV)','#sigma / #sigma_{SM}')
     plot2DNLL(False,'MuMH','m_{H} (GeV)','#sigma / #sigma_{SM}')
-  if options.rvrf: 
+  if options.method=='rvrf': 
     plot2DNLL(True,'RvRf','#mu_{ggH+ttH}','#mu_{qqH+VH}')
     plot2DNLL(False,'RvRf','#mu_{ggH+ttH}','#mu_{qqH+VH}')
 
-if options.pval or options.limit or options.maxlh:
-  runStandard()
-elif options.mh or options.mu:
-  r.gROOT.ProcessLine(".x rootPalette.C")
-  r.gROOT.LoadMacro('GraphToTF1.C+')
-  run1DNLL()
-elif options.mumh or options.rvrf:
-  r.gROOT.ProcessLine(".x rootPalette.C")
-  run2DNLL()
+def run():
+  if options.verbose:
+    print options.method
+    print options.files
+    print options.colors
+    print options.styles
+    print options.widths
+    print options.names
+
+  if options.method=='pval' or options.method=='limit' or options.method=='maxlh':
+    runStandard()
+  elif options.method=='mh' or options.method=='mu':
+    r.gROOT.ProcessLine(".x rootPalette.C")
+    r.gROOT.LoadMacro('GraphToTF1.C+')
+    plot1DNLL()
+  elif options.method=='mumh' or options.method=='rvrf':
+    r.gROOT.ProcessLine(".x rootPalette.C")
+    run2DNLL()
+
+# __MAIN__
+
+if options.datfile:
+  d = open(options.datfile)
+  for line in d.readlines():
+    if line.startswith('#'): continue
+    if line=='\n': continue
+    config={}
+    line = line.replace('\=','EQUALS')
+    for opt in line.split(':'):
+      config[opt.split('=')[0]] = opt.split('=')[1].replace('EQUALS','=').split(',')
+    for opt in ['colors','styles','widths']:
+      if opt in config.keys():
+        config[opt] = [int(x) for x in config[opt]]
+    
+    for key, item in config.items():
+      if len(item)==1 and key in ['method','text','outname']:
+        item=item[0].strip('\n')
+      setattr(options,key,item)
+
+    if options.verbose: print options
+    run()
+
+else:
+  run()
+
+print 'All canvases written to:', outf.GetName()
+outf.Close()

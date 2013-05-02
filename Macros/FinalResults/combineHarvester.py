@@ -6,7 +6,7 @@
 # ./subCombine.py --cardBoth=hgg.combined.txt --unblind --runBoth --splitChannelsBoth="ch1_cat0_7TeV ch1_cat1_7TeV ch1_cat2_7TeV ch1_cat3_7TeV ch2_cat0_8TeV ch2_cat1_8TeV ch2_cat2_8TeV ch2_cat3_8TeV" --splitChannelsBoth="ch1_cat4_7TeV ch2_cat4_8TeV ch2_cat5_8TeV" --splitChannelsBoth="ch2_cat6_8TeV ch2_cat7_8TeV ch2_cat8_8TeV"
 
 # one command to rule them all
-# ./subCombine.py --card2011=datacard_parametric_7TeV_massfac.txt --unblind --run2011 --splitChannels2011="cat0 cat1 cat2 cat3" --splitChannels2011="cat4" --card2012=datacard_parametric_8TeV_cutbased_cbvbf.txt --unblind --run2012 --splitChannels2012="cat0 cat1 cat2 cat3" --splitChannels2012="cat4 cat5" --splitChannels2012="cat6 cat7" --splitChannels2012="cat8" --cardBoth=hgg.combined.txt --unblind --runBoth --splitChannelsBoth="ch1_cat0_7TeV ch1_cat1_7TeV ch1_cat2_7TeV ch1_cat3_7TeV ch2_cat0_8TeV ch2_cat1_8TeV ch2_cat2_8TeV ch2_cat3_8TeV" --splitChannelsBoth="ch1_cat4_7TeV ch2_cat4_8TeV ch2_cat5_8TeV" --splitChannelsBoth="ch2_cat6_8TeV ch2_cat7_8TeV ch2_cat8_8TeV" --doSpecials -q 1nh
+# ./subCombine.py --card2011=hgg_7TeV.txt --unblind --run2011 --splitChannels2011="cat0_7TeV cat1_7TeV cat2_7TeV cat3_7TeV" --splitChannels2011="cat4_7TeV" --card2012=hgg_8TeV.txt --unblind --parametric --run2012 --splitChannels2012="cat0 cat1 cat2 cat3" --splitChannels2012="cat4 cat5" --splitChannels2012="cat6 cat7" --splitChannels2012="cat8" --cardBoth=hgg.combined.txt --runBoth --splitChannelsBoth="ch1_cat0_7TeV ch1_cat1_7TeV ch1_cat2_7TeV ch1_cat3_7TeV ch3_cat0_8TeV ch3_cat1_8TeV ch3_cat2_8TeV ch3_cat3_8TeV" --splitChannelsBoth="ch2_cat4_7TeV ch4_cat4_8TeV ch4_cat5_8TeV" --splitChannelsBoth="ch5_cat6_8TeV ch5_cat7_8TeV ch5_cat8_8TeV" --doSpecials 125 -q 1nh
 
 import os
 import numpy
