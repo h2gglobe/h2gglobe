@@ -88,7 +88,6 @@ def pvalPlot(allVals):
   labels=[]
   for i,sig in enumerate(sigmas):
     y = r.RooStats.SignificanceToPValue(sig)
-    if y<=mg.GetYaxis().GetXmax() and y>=mg.GetYaxis().GetXmin():
       if options.verbose: print sig, y
       lines.append(r.TLine(110,y,150,y))
       lines[i].SetLineWidth(2)
@@ -96,8 +95,9 @@ def pvalPlot(allVals):
       lines[i].SetLineColor(r.kRed)
       labels.append(r.TLatex(110 + 2, y * 1.1, "%d #sigma" % (i+1)))
       labels[i].SetTextAlign(11);
-      lines[i].Draw('SAME')
-      labels[i].Draw('SAME')
+      if y<=mg.GetYaxis().GetXmax() and y>=mg.GetYaxis().GetXmin():
+        lines[i].Draw('SAME')
+        labels[i].Draw('SAME')
 
   # draw text
   lat.DrawLatex(0.12,0.92,"CMS Preliminary")
@@ -221,13 +221,25 @@ def limitPlot(allVals):
     twoSigma.SetLineStyle(2)
     oneSigma.SetFillColor(r.kGreen)
     twoSigma.SetFillColor(r.kYellow)
-    if not options.expected: leg.AddEntry(graph,'Observed','L')
-    #leg.AddEntry(exp,'Expected','L')
-    leg.AddEntry(oneSigma,'Expected #pm 1#sigma','FL') 
-    leg.AddEntry(twoSigma,'Expected #pm 2#sigma','FL') 
+    if len(allVals)>0:
+      exp.SetLineColor(int(options.colors[k]))
+      exp.SetLineStyle(2)
+      exp.SetLineWidth(int(options.widths[k]))
+      graph.SetMarkerColor(int(options.colors[k]))
+      graph.SetLineColor(int(options.colors[k]))
+      leg.AddEntry(graph,options.names[k],'L')
+    else:
+      exp.SetLineColor(1)
+      exp.SetLineStyle(2)
+      exp.SetLineWidth(2)
+      if not options.expected: leg.AddEntry(graph,'Observed','L')
+      #leg.AddEntry(exp,'Expected','L')
+      leg.AddEntry(oneSigma,'Expected #pm 1#sigma','FL') 
+      leg.AddEntry(twoSigma,'Expected #pm 2#sigma','FL') 
     
-    mg.Add(twoSigma)
-    mg.Add(oneSigma)
+    if len(allVals)==0:
+      mg.Add(twoSigma)
+      mg.Add(oneSigma)
     mg.Add(exp)
     if not options.expected: mg.Add(graph)
   
