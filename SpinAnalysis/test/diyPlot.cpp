@@ -280,21 +280,21 @@ int main(int argc, char* argv[]){
   std::vector<double> SMToys;
   std::vector<double> GravToys;
 
-  for(size_t i=0;i<tree->GetEntries();i++)
+  for(Int_t i=0;i<tree->GetEntries();i++)
   {
     tree->GetEntry(i);
     SMToys.push_back(q_smtoy);
     GravToys.push_back(q_gravtoy);
 
-    for(size_t j = SMToys.size(); j>0; j--)
+    for(size_t j = SMToys.size()-1; j>0; j--)
     {
-      if(SMToys[j] < SMToys[j-1])
+      if(SMToys[j-1] > SMToys[j])
         std::swap(SMToys[j], SMToys[j-1]);
       else
         break;
     }
 
-    for(size_t j = GravToys.size(); j>0; j--)
+    for(size_t j = GravToys.size()-1; j>0; j--)
     {
       if(GravToys[j] < GravToys[j-1])
         std::swap(GravToys[j], GravToys[j-1]);
@@ -318,6 +318,7 @@ int main(int argc, char* argv[]){
     if(GravToys[i] < SMMedian)
       GravProbUnbinned = i+1;
   }
+  //cout << "SMProb: " << SMProbUnbinned << "; GRAVProb: " << GravProbUnbinned << endl;
   SMProbUnbinned = SMToys.size() - SMProbUnbinned;
   SMProbUnbinned /= SMToys.size();
   GravProbUnbinned /= GravToys.size();
