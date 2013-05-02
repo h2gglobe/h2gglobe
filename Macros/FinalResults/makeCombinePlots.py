@@ -87,7 +87,7 @@ def pvalPlot(allVals):
   lines=[]
   labels=[]
   for i,sig in enumerate(sigmas):
-    y = r.RooStats.SignificanceToPValue(sig)
+      y = r.RooStats.SignificanceToPValue(sig)
       if options.verbose: print sig, y
       lines.append(r.TLine(110,y,150,y))
       lines[i].SetLineWidth(2)
