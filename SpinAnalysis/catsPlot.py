@@ -5,6 +5,7 @@ import re
 import sys
 import glob
 import fnmatch
+import ROOT
 
 baseDirectory = sys.argv[1]
 subDirs = [x[1] for x in os.walk(baseDirectory)]
@@ -41,3 +42,34 @@ for dir in subDirs:
 #print haddLine
 if haddLine != "hadd -f %s/%s/separation.root"%(startDir,baseDirectory):
   os.system(haddLine)
+
+  file = ROOT.TFile.Open("%s/%s/separation.root"%(startDir,baseDirectory))
+  tree = file.Get("Separation")
+  values = []
+  for ev in tree:
+    values.append((ev.UnbinnedSMSigma, ev.UnbinnedSMSigmaErr, ev.nCats))
+
+  minVal = min([x[2] for x in values])
+  maxVal = max([x[2] for x in values])
+
+  hist = ROOT.TH1F("Separation", "Separation", int(len(values)+2), minVal-1.5, maxVal+1.5)
+  for x in values:
+    hist.SetBinContent(hist.FindBin(x[2]), x[0])
+    hist.SetBinError(hist.FindBin(x[2]), x[1])
+  errors = ROOT.TH1F(hist)
+  errors2 = ROOT.TH1F(hist)
+
+  canvas = ROOT.TCanvas("Sep", "Sep", 800, 600)
+  #kBlue, kRed, kGreen, kCyan, kMagenta, kYellow
+  errors.SetFillColor(ROOT.kBlue-10)
+  hist.SetLineColor(ROOT.kBlue)
+  errors2.SetLineColor(ROOT.kBlue)
+  errors.Draw("E2")
+  errors2.Draw("SAME E1 X0")
+  hist.Draw("SAME hist")
+
+  canvas.Update()
+  canvas.SaveAs("%s/%s/Separation.pdf"%(startDir,baseDirectory))
+  canvas.SaveAs("%s/%s/Separation.png"%(startDir,baseDirectory))
+  canvas.SaveAs("%s/%s/Separation.C"%(startDir,baseDirectory))
+  canvas.SaveAs("%s/%s/Separation.root"%(startDir,baseDirectory))
