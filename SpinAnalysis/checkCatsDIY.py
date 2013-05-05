@@ -33,7 +33,7 @@ for dir in subDirs:
       if os.path.exists(dir+"/job%d/sub%d.sh.done"%(jobnum, jobnum)):
         finished.append(jobnum)
       else:
-        if os.path.exists(dir+"/job%d/sub%d.sh.fail"%(jobnum, jobnum)) or (os.path.exists(dir+"/job%d/sub%d.sh.og"%(jobnum, jobnum))):
+        if os.path.exists(dir+"/job%d/sub%d.sh.fail"%(jobnum, jobnum)) or (os.path.exists(dir+"/job%d/sub%d.sh.log"%(jobnum, jobnum))):
           failed.append(jobnum)
         else:
           if os.path.exists(dir+"/job%d/sub%d.sh.run"%(jobnum, jobnum)):
@@ -48,14 +48,12 @@ for dir in subDirs:
   if len(failed) != 0:
     var = raw_input('\tDo you want to resubmit the failed jobs? [y]/[n]\n\t  ')
     if var=='y' or var=='Y' or var =='yes':
-      joblist = ""
       for j in failed:
         joblist+="%d,"%j
 
   if len(not_running) != 0:
     var = raw_input('\tDo you want to submit the jobs with unknown status? [y]/[n]\n\t  ')
     if var=='y' or var=='Y' or var =='yes':
-      joblist = ""
       for j in not_running:
         joblist+="%d,"%j
 
