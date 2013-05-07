@@ -15,10 +15,24 @@ BASEDIR = $(shell pwd)
 USERINCLUDES += -I$(ROOTSYS)/include
 ifeq ($(UNAME),Darwin)
 $(info Found OS Darwin - using mac osx build)
-BOOST_PATH=/Applications/boost_1_49_0
+BOOST_PATH=$(CMSSW_DATA_PATH)/../external/boost/1.51.0-cms2
 USERINCLUDES += -I$(BOOST_PATH)/include/
-USERLIBS += -L$(BOOST_PATH)/libs/ -lboost_regex -lboost_program_options
+USERLIBS += -L$(BOOST_PATH)/lib/ -lboost_regex -lboost_program_options
+USERINCLUDES += -I$(ROOFITSYS)/include
+USERLIBS += -L$(ROOFITSYS)/lib -lRooFit -lRooFitCore
+
+CXX           = c++
+CXXFLAGS      = -O2 -pipe  -Woverloaded-virtual
+LDFLAGS       = -O2 -bind_at_load
+# The SOFLAGS will be used to create the .dylib,
+# the .so will be created separately
+DllSuf        = dylib
+SOFLAGS       = -m64 -dynamiclib -single_module -undefined dynamic_lookup
+
+
 endif
+
+
 ifeq ($(UNAME),Linux)
 $(info Found OS Linux - using linux build)
 BOOST_PATH=$(CMSSW_DATA_PATH)/../external/boost/1.47.0
@@ -27,11 +41,13 @@ USERINCLUDES += -I $(CMSSW_BASE)/src/ -I $(CMSSW_RELEASE_BASE)/src/
 USERLIBS += -L$(BOOST_PATH)/lib/ -lboost_regex -lboost_program_options
 USERINCLUDES += -I$(ROOFITSYS)/include
 USERLIBS += -L$(ROOFITSYS)/lib -lRooFit -lRooFitCore
+CXXFLAGS = -Wall -g -O2 -Wl,-rpath=$(BASEDIR)/lib 
+LDFLAGS = -shared -W 
 endif
 
 USERLIBS += $(shell root-config --glibs) -lTMVA -lMinuit -lFoam -lRooFit -lRooFitCore -lMathMore
-CXXFLAGS = -Wall -g -O2 -Wl,-rpath=$(BASEDIR)/lib 
-LDFLAGS = -shared -W 
+#CXXFLAGS = -Wall -g -O2 -Wl,-rpath=$(BASEDIR)/lib 
+#LDFLAGS = -shared -W 
 
 CXX=clang++
 LD=clang++
@@ -80,7 +96,7 @@ $(OBJDIR)/%.$(OBJ_EXT): $(SRCDIR)/%.cc
 $(LIBDIR)/lib$(LIBNAME).so:$(OBJS)
 	@echo Building shared library $@
 	@$(LD) $(LDFLAGS) -o $(LIBDIR)/lib$(LIBNAME).so  $^ $(LIBS)
-	
+
 
 lib: $(LIBDIR)/lib$(LIBNAME).so
 
