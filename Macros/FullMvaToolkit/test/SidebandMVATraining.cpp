@@ -6,6 +6,7 @@
 
 #include "boost/program_options.hpp"
 
+#include "Optimizations.h"
 #include "TDirectory.h"
 #include "TFile.h"
 #include "TTree.h"
@@ -71,6 +72,7 @@ vector<T> getVecFromString(string name){
 void MethodReader(){
 
   allowedMethods_.push_back("MLP"); allowedMethods_.push_back("BDTG"); allowedMethods_.push_back("FDA_GA"); allowedMethods_.push_back("PDEFoam");
+  allowedMethods_.push_back("2DOpt");
   for (vector<string>::iterator itM=chosenMethods_.begin(); itM!=chosenMethods_.end(); itM++){
     bool found=false;
     for (vector<string>::iterator it=allowedMethods_.begin(); it!=allowedMethods_.end(); it++){
@@ -130,6 +132,13 @@ vector<pair<string,string> > getSignalTreeNames(){
   treeNames.push_back(pair<string,string>(Form("full_mva_trees/vbf_m%d_8TeV",trainingMass_),"signal"));
   treeNames.push_back(pair<string,string>(Form("full_mva_trees/wzh_m%d_8TeV",trainingMass_),"signal"));
   treeNames.push_back(pair<string,string>(Form("full_mva_trees/tth_m%d_8TeV",trainingMass_),"signal"));
+
+/*
+  std::vector<int>::iterator it = extraMasses_.begin();
+  for (;it!=extraMasses.end();it++){
+	treeNames.push_back(
+  }
+*/
   return treeNames;
 }
 
@@ -203,7 +212,7 @@ void makeTrainingTree(TTree *tree, vector<pair<string,string> > treeNames, bool 
       else {
         // if in signal region add and move on
         deltaMoverM = (mass-trainingMass_)/trainingMass_;
-        if (TMath::Abs(deltaMoverM)>0.02){
+        if (TMath::Abs(deltaMoverM)>sidebandWidth_){
           // else loop sidebands
           for (int i=1; i<=nSidebands_; i++){
             double hypothesisModifierLow = (1.-sidebandWidth_)/(1.+sidebandWidth_);
@@ -211,9 +220,9 @@ void makeTrainingTree(TTree *tree, vector<pair<string,string> > treeNames, bool 
             double hypothesisModifierHigh = (1.+sidebandWidth_)/(1.-sidebandWidth_);
             double sidebandCenterHigh = trainingMass_*hypothesisModifierHigh*TMath::Power(hypothesisModifierHigh,i-1);
             deltaMoverM = (mass-sidebandCenterLow)/sidebandCenterLow;
-            if (TMath::Abs(deltaMoverM)<=0.02) break;
+            if (TMath::Abs(deltaMoverM)<=sidebandWidth_) break;
             deltaMoverM = (mass-sidebandCenterHigh)/sidebandCenterHigh;
-            if (TMath::Abs(deltaMoverM)<=0.02) break;
+            if (TMath::Abs(deltaMoverM)<=sidebandWidth_) break;
           }
         }
       }
@@ -226,27 +235,53 @@ void makeTrainingTree(TTree *tree, vector<pair<string,string> > treeNames, bool 
   delete check;
 }
 
-int main (int argc, char *argv[]){
+void run2DOptimization(TFile *outFile_,TTree *signalTree_, TTree *backgroundTree_){
 
-  OptionParser(argc,argv);
+ int nBins_dmom = 100;
+ int nBins_bdt  = 50;
+ // Step 1, make Signal and Background 2D histograms 
+ signalTree_->Draw(Form("deltaMoverM:bdtoutput>>hsig(%d,-0.05,1,%d,%.3f,%.3f)",nBins_bdt,nBins_dmom,-1*sidebandWidth_,sidebandWidth_),"weight");
+ backgroundTree_->Draw(Form("deltaMoverM:bdtoutput>>hbkg(%d,-0.05,1,%d,%.3f,%.3f)",nBins_bdt,nBins_dmom,-1*sidebandWidth_,sidebandWidth_),"weight");
+
+ TH2F *hsig =(TH2F*) gROOT->FindObject("hsig")	;
+ TH2F *hbkg =(TH2F*) gROOT->FindObject("hbkg")	;
+
+ // Have to do this :(
+ //hsig->Smooth(1,"k5b");
+ //hbkg->Smooth(1,"k5b");
+
+ // Step 2, create an optimization class
+ Optimizations *optimizer = new Optimizations(hsig,hbkg);
+ optimizer->setMaxBins(6);
+ optimizer->smoothHistograms(0.01,0.01,0);
+ optimizer->runOptimization();
+ TH2F *categoryMap = (TH2F*) optimizer->getCategoryMap();
+ TH2F *bkg = (TH2F*) optimizer->getBackgroundTarget();
+ TH2F *signal = (TH2F*) optimizer->getSignalTarget();
+ int nFinalBins = optimizer->getFinalNumberOfBins();
+
+ // Step 3, save output and print ranges 
+ 
+ std::cout << "Final Number Of Bins -- " << nFinalBins << std::endl;
+ std::cout << "-1";
+ for (int b = 1 ; b < nFinalBins ; b++){
+	
+	std::cout << "," << (double)b/nFinalBins;
+ }
+ std::cout << ",1" <<std::endl;
+	
+ outFile_->cd();
+ categoryMap->Write();	 
+ signal->Write();
+ bkg->Write();
+
+}
+
+  
+void runTMVATraining(TFile *outFile_,TTree *signalTree, TTree *backgroundTree){
+
 
   TMVA::Tools::Instance();
-
-  std::cout << std::endl;
-  std::cout << "Start Sideband Training ==>" << std::endl;
-  std::cout << "Running methods: " << endl;
-  for (map<string,int>::iterator it=Methods_.begin(); it!=Methods_.end(); it++){
-    if (it->second==1) cout << "\t" << it->first << endl;
-  }
-
-  input_ = TFile::Open(filename_.c_str());
-  if (!input_) {
-    cerr << "ERROR: could not open data file" << endl;
-    exit(1);
-  }
-
-  outFile_ = new TFile(outfilename_.c_str(),"RECREATE");
-
   TMVA::Factory *factory = new TMVA::Factory("TMVA_SidebandMVA", outFile_, "!V:!Silent:Color:DrawProgressBar:Transformations=I;D;P;G,D:AnalysisType=Classification");
   
   factory->AddVariable("deltaMoverM",  "#DeltaM / M_{H}", 'F');
@@ -262,15 +297,6 @@ int main (int argc, char *argv[]){
     factory->AddVariable("bdtoutput", "Diphoton BDT", 'F');
   }
 
-  // Get all the Trees and assign them to the factory by their type (signal,background)
-  vector<pair<string,string> > signalTrees = getSignalTreeNames();
-  vector<pair<string,string> > backgroundTrees = getBackgroundTreeNames();
-
-  TTree *signalTree = new TTree("signalTree","signalTree");
-  TTree *backgroundTree = new TTree("backgroundTree","backgroundTree");
-
-  makeTrainingTree(signalTree,signalTrees,true);
-  makeTrainingTree(backgroundTree,backgroundTrees,false);
 
   factory->AddSignalTree(signalTree);
   factory->AddBackgroundTree(backgroundTree);
@@ -376,6 +402,48 @@ int main (int argc, char *argv[]){
   cout << "==> TMVAClassification is done!" << endl;
   cout << "==> To view the results, launch the GUI: \"root -l ./TMVAGui.C\"" << endl;
 
+}
+
+int main (int argc, char *argv[]){
+
+  OptionParser(argc,argv);
+
+  bool doTMVA = true;
+
+  std::cout << std::endl;
+  std::cout << "Start Sideband Training ==>" << std::endl;
+  std::cout << "Running methods: " << endl;
+  for (map<string,int>::iterator it=Methods_.begin(); it!=Methods_.end(); it++){
+    if (it->second==1) {
+	cout << "\t" << it->first << endl;
+	if (it->first == "2DOpt") doTMVA = false; 
+    }
+  }
+
+  input_ = TFile::Open(filename_.c_str());
+  if (!input_) {
+    cerr << "ERROR: could not open data file" << endl;
+    exit(1);
+  }
+
+  outFile_ = new TFile(outfilename_.c_str(),"RECREATE");
+  // Get all the Trees and assign them to the factory by their type (signal,background)
+  vector<pair<string,string> > signalTrees = getSignalTreeNames();
+  vector<pair<string,string> > backgroundTrees = getBackgroundTreeNames();
+
+  TTree *signalTree = new TTree("signalTree","signalTree");
+  TTree *backgroundTree = new TTree("backgroundTree","backgroundTree");
+
+  makeTrainingTree(signalTree,signalTrees,true);
+  makeTrainingTree(backgroundTree,backgroundTrees,false);
+
+  // TMVA training or 2D optimization training
+  if (doTMVA){
+	runTMVATraining(outFile_,signalTree,backgroundTree);
+  } else {
+	run2DOptimization(outFile_,signalTree,backgroundTree);
+  }
+ 
   input_->Close();
   outFile_->Close();
   delete outFile_;
@@ -383,4 +451,3 @@ int main (int argc, char *argv[]){
 
   return 0;
 }
-
