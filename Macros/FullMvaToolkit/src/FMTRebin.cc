@@ -629,6 +629,7 @@ void FMTRebin::makeOutputHistogram(string new_name, string old_name, int binning
     gDirectory->cd(Form("%s:/",outFile->GetName()));
 		rebinned[cat]->Write();
 	}
+  if (!getincludeLEP() && !getincludeVBF()) mergeHistograms(new_name,rebinned[0]);
   if (getincludeVBF()) for (int vCat=0; vCat<getnVBFCategories(); vCat++) mergeHistograms(new_name,rebinned[0],rebinned[vCat+1]);
   if (getincludeLEP()) for (int lCat=0; lCat<getnLEPCategories(); lCat++) mergeHistograms(new_name,rebinned[0],rebinned[lCat+getnVBFCategories()+1]);
   //tFile->cd();
@@ -638,6 +639,41 @@ void FMTRebin::makeOutputHistogram(string new_name, string old_name, int binning
   gDirectory->cd(Form("%s:/",outFile->GetName()));
   rebinned[0]->Write();
 	//write(tFile,rebinned[0]);
+}
+
+void FMTRebin::mergeHistograms(std::string nameHist, TH1F *hist1){
+
+
+   // This one is simply just a renaming tool
+   //Get Bin Low edges of histogram 1
+   int nbins1 = hist1->GetNbinsX();
+   int nbins2 = 0;
+   int nbinsTot = nbins1+nbins2;
+
+   //double *arrBins1 = new double[nbins1];
+   //double *arrBins2 = new double[nbins2+1];
+   double *arrBinsTot = new double[nbinsTot+1];
+
+   for (int i=1;i<=nbins1+1;i++){
+     arrBinsTot[i-1]=hist1->GetBinLowEdge(i);
+   }
+
+   //const char *histoname = hist1->GetName();
+   const char *histotitle = hist1->GetTitle();
+
+   TH1F *newHist = new TH1F(Form("NUMPTYNAME%s",hist1->GetName()),histotitle,nbinsTot,arrBinsTot);
+   newHist->SetName(nameHist.c_str());
+   for (int i=1;i<=nbins1;i++){
+	newHist->SetBinContent(i,hist1->GetBinContent(i));
+	newHist->SetBinError(i,hist1->GetBinError(i));
+   } 
+
+   if (verbose_) std::cout << "FMTRebin::MergeHistograms -- Replacing th1f - " 
+	     << newHist->GetName()
+	     << std::endl;
+   // Now the dangerous part!
+   *hist1 = *newHist;
+
 }
 
 void FMTRebin::mergeHistograms(std::string nameHist, TH1F* hist1, TH1F* hist2){
@@ -703,6 +739,9 @@ void FMTRebin::makeSignalOutputHistogram(string new_name, string old_name, int b
 		rebinned[cat]->Write();
 		//write(tFile,rebinned[cat]);
 	}
+  if (!getincludeLEP() && !getincludeVBF()) {
+	mergeHistograms(new_name,rebinned[0]);
+  }
   if (getincludeVBF()) for (int vCat=0; vCat<getnVBFCategories(); vCat++) mergeHistograms(new_name,rebinned[0],rebinned[vCat+1]);
   if (getincludeLEP()) for (int lCat=0; lCat<getnLEPCategories(); lCat++) mergeHistograms(new_name,rebinned[0],rebinned[lCat+getnVBFCategories()+1]);
   if (verbose_) checkHisto(rebinned[0]); 
@@ -741,6 +780,10 @@ void FMTRebin::makeSignalOutputHistogram(string new_name, string old_name, int b
 			//write(tFile,up_rebinned[cat]);
 			//write(tFile,down_rebinned[cat]);
 		}
+    if (!getincludeLEP() && !getincludeVBF()){
+        mergeHistograms(Form("%s_%sUp01_sigma",new_name.c_str(),syst->c_str()),up_rebinned[0]);
+        mergeHistograms(Form("%s_%sDown01_sigma",new_name.c_str(),syst->c_str()),down_rebinned[0]);
+    }
     if (getincludeVBF()) {
       for (int vCat=0; vCat<getnVBFCategories(); vCat++) {
         mergeHistograms(Form("%s_%sUp01_sigma",new_name.c_str(),syst->c_str()),up_rebinned[0],up_rebinned[vCat+1]);

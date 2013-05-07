@@ -21,6 +21,7 @@ FMTSetup::FMTSetup(string filename):
 	all_(false),
 	fit_(false),
   catByHand_(false),
+  useSidebandBDT_(true),
 	histosFromTrees_(false),
 	rebin_(false),
 	skipRebin_(false),
@@ -44,6 +45,7 @@ FMTSetup::FMTSetup(string filename):
 {
   //if (filename!="0") system(Form("cp %s %s_beforeFMT.root",filename.c_str(),filename.c_str()));
   intLumi_=0.;
+  readInFits_=false;
   	
 }
 
@@ -64,6 +66,7 @@ void FMTSetup::OptionParser(int argc, char *argv[]){
     ("help,h",                                                          "Show this message")
     ("filename,i", po::value<string>(&filename_),                       "Input file name")
     ("outfilename,o", po::value<string>(&outfilename_),                 "Output file name")
+    ("normfitfile", po::value<string>(&normFitsFile_),                       "Input file for norm fits")
     ("fit,f",      po::value<string>(&fitString_),                      "Fit invariant mass distribution: \n" 
                                                                         "  - \tCan take mulitiple arguments which can be split by comma (110,120), or by range (110-120), or both (110,112,115-120)\n"
                                                                         "  - \tDefault is to run all \n" 
@@ -75,6 +78,7 @@ void FMTSetup::OptionParser(int argc, char *argv[]){
                                                                         "  - \tWill accept only integers in 5GeV steps \n" 
                                                                         "  - \tNOTE: this will re-run all fits and rebinnings around this mass. This is the recommended way of executing any refit or re-rebinning. You should opt to run on the nearest MC mass. E.g. to refit and rebin 112.5 use --rebin 115")
     ("catByHand,H",                                                     "Categorize events by hand")
+    ("use2DcatMap",                                                     "Use the 2D map of dm/m, bdt -> category")
 		("histosFromTrees,T",																								"Get histos from trees")
 		("histFromTreeMode,M", po::value<string>(&histFromTreeMode_),				"Mode for hists from trees")
     ("skipRebin,N",  																										"Skip the rebinning stage")
@@ -150,6 +154,14 @@ void FMTSetup::OptionParser(int argc, char *argv[]){
 		rebinner->fitter->setplot(diagnose_);
 		rebinner->setcatByHand(catByHand_);
 		rebinner->setjustRebin(justRebin_);
+        	if (readInFits_){
+		 std::cout << "READING IN NORM FITS FROM FILE " << normFitsFile_.c_str()<<std::endl;
+	  	 TFile *fits = TFile::Open(normFitsFile_.c_str());
+	
+		 std::cout << fits->GetName() <<std::endl;
+		 std::cout << fits->IsOpen() <<std::endl;
+		 rebinner->fitter->SetNormGraph(fits);
+		}
 	}
 	else {
 		cleaned=true;
@@ -245,6 +257,8 @@ void FMTSetup::checkAllHistos(string opt){
 void FMTSetup::configureOptions(po::variables_map vm){
 
   if (vm.count("catByHand"))      catByHand_=true;
+  if (vm.count("use2DcatMap"))      useSidebandBDT_=false;
+  if (vm.count("normfitfile")) readInFits_=true; 
 	if (vm.count("histosFromTrees")) histosFromTrees_=true;
 	if (vm.count("skipRebin")) 			skipRebin_=true;
 	if (vm.count("justRebin")) 			justRebin_=true;
@@ -461,7 +475,7 @@ void FMTSetup::runHistosFromTrees(){
 		//string bdtname = "BDTgradMIT";
 		//string weightsFile = "../../AnalysisScripts/aux/sidebandMVA_weights_hcp/TMVAClassification_BDTgradMIT.weights.xml";
 		//string weightsFile = "weights/TMVA_SidebandMVA_BDTgradMIT.weights.xml";
-		FMTTree *fmtTree = new FMTTree(filename_, outfilename_, bdtname, weightsFile, intLumi_, is2011_, mHMinimum_, mHMaximum_, mHStep_, massMin_, massMax_, nDataBins_, signalRegionWidth_, sidebandWidth_, numberOfSidebands_, numberOfSidebandsForAlgos_, numberOfSidebandGaps_, massSidebandMin_, massSidebandMax_, nIncCategories_, includeVBF_, nVBFCategories_, includeLEP_, nLEPCategories_, systematics_, rederiveOptimizedBinEdges_, AllBinEdges_, isCutBased_, verbose_);
+		FMTTree *fmtTree = new FMTTree(filename_, outfilename_, bdtname, weightsFile, intLumi_, is2011_, mHMinimum_, mHMaximum_, mHStep_, massMin_, massMax_, nDataBins_, signalRegionWidth_, sidebandWidth_, numberOfSidebands_, numberOfSidebandsForAlgos_, numberOfSidebandGaps_, massSidebandMin_, massSidebandMax_, nIncCategories_, includeVBF_, nVBFCategories_, includeLEP_, nLEPCategories_, systematics_, rederiveOptimizedBinEdges_, AllBinEdges_, isCutBased_, useSidebandBDT_,verbose_);
 		fmtTree->run(histFromTreeMode_);
 		delete fmtTree;
     cout << "Histos from trees complete" << endl;
@@ -490,6 +504,8 @@ void FMTSetup::runRebinning(){
 void FMTSetup::runFitting(){
 
 	if (!rebin_ && fit_){
+		// First, get the fits file 
+
 		for (vector<double>::iterator fitM = fitMasses_.begin(); fitM != fitMasses_.end(); fitM++){
 			cout << "Running fitting for mass " << *fitM << endl;
 			rebinner->fitter->redoFit(*fitM);
@@ -535,12 +551,17 @@ void FMTSetup::writeDataCards(){
 		if (is2011_){
      // cerr << "This option isn't supported yet. You will have to do this by hand. Sorry :( " << endl;
      // exit(0);
-      if (blinding_) system(Form("python python/writeBinnedMvaCard_7TeV.py -i %s -p plots --makePlot --mhLow %3d.0 --mhHigh %3d.0 --mhStep %1.1f --intLumi %1.1f --blind",outfilename_.c_str(),mHMinimum_,mHMaximum_,mHStep_,intLumi_));
+		
+      if (blinding_) system(Form("python python/writeBinnedMvaCard_7TeV.py -i %s -p plots --makePlot --mhLow %3d.0 --mhHigh %3d.0 --mhStep %1.1f --intLumi %1.1f --blind ",outfilename_.c_str(),mHMinimum_,mHMaximum_,mHStep_,intLumi_));
       else system(Form("python python/writeBinnedMvaCard_7TeV.py -i %s -p plots --makePlot --mhLow %3d.0 --mhHigh %3d.0 --mhStep %1.1f --intLumi %1.1f ",outfilename_.c_str(),mHMinimum_,mHMaximum_,mHStep_,intLumi_));
     }
     else {
-      if (blinding_) system(Form("python python/writeBinnedMvaCard.py -i %s -p plots --makePlot --mhLow %3d.0 --mhHigh %3d.0 --mhStep %1.1f --intLumi %1.1f --blind",outfilename_.c_str(),mHMinimum_,mHMaximum_,mHStep_,intLumi_));
-      else system(Form("python python/writeBinnedMvaCard.py -i %s -p plots --makePlot --mhLow %3d.0 --mhHigh %3d.0 --mhStep %1.1f --intLumi %1.1f",outfilename_.c_str(),mHMinimum_,mHMaximum_,mHStep_,intLumi_));
+		// can ignore the tags
+		std::string tagsString = "";
+		if (! includeVBF_) tagsString += " --noVbfTag ";
+		if (! includeLEP_) tagsString += " --noVHTag ";
+      if (blinding_) system(Form("python python/writeBinnedMvaCard.py -i %s -p plots --makePlot --mhLow %3d.0 --mhHigh %3d.0 --mhStep %1.1f --intLumi %1.1f --blind %s ",outfilename_.c_str(),mHMinimum_,mHMaximum_,mHStep_,intLumi_,tagsString.c_str()));
+      else system(Form("python python/writeBinnedMvaCard.py -i %s -p plots --makePlot --mhLow %3d.0 --mhHigh %3d.0 --mhStep %1.1f --intLumi %1.1f %s ",outfilename_.c_str(),mHMinimum_,mHMaximum_,mHStep_,intLumi_,tagsString.c_str()));
     }
 	}
 }
@@ -559,6 +580,7 @@ void FMTSetup::makePlots(){
       plotter->plotAll(*mh);
     }
     plotter->makeNormPlot();
+    plotter->makeSignalNormPlot();
     delete plotter;
   }
 }

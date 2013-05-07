@@ -53,7 +53,12 @@ FMTFit::FMTFit(TFile *tFile, TFile *outFile, double intLumi, bool is2011, int mH
   */
   data = (RooDataSet*)inWS->data("data_mass");
 	if (!outWS->data("data_mass")) outWS->import(*data);
-  
+ 
+  //g_counter=0;
+
+   readFitsFromFile = false;
+    //normGraph = new TGraph();
+    //normGraph->SetName("NormGraph");
 }
 
 FMTFit::~FMTFit(){
@@ -64,6 +69,17 @@ FMTFit::~FMTFit(){
 	delete outWS;
 }
 
+void FMTFit::SetNormGraph(TFile *nFile){
+
+	//delete normGraph;
+        
+	std::cout << "OK "<<std::endl;
+	normGraph = (TGraph*) (nFile->Get("NormGraph")->Clone());
+	
+  	readFitsFromFile = true;
+	std::cout << "OK "<< normGraph<<std::endl;
+}
+
 pair<double,double> FMTFit::FitPow(double mass){
   
   gROOT->SetBatch();
@@ -72,6 +88,18 @@ pair<double,double> FMTFit::FitPow(double mass){
     exit(1);
   }
 
+  if (readFitsFromFile){
+	
+	RooRealVar *temp = new RooRealVar(Form("NBkgInSignal_mH%3.1f",mass),"t",10,0,1e6);
+	double normVal = normGraph->Eval(mass);
+	temp->setVal(normVal);
+	outWS->import(*temp,RecycleConflictNodes());
+	gDirectory->Cd(Form("%s:/",outfilename_.c_str()));
+	outWS->Write();
+	//normGraph->Write();
+
+  	return pair<double,double>(normGraph->Eval(mass),0);
+  }
 	// set up fit function
 	r1->SetName(Form("r1_%3.1f",mass));
   r2->SetName(Form("r2_%3.1f",mass));
@@ -138,7 +166,10 @@ pair<double,double> FMTFit::FitPow(double mass){
 	outWS->Write();
 	if (verbose_) outWS->allVars().Print();
 	//delete fit;
+	//normGraph->SetPoint(g_counter,mass,result);
 
+  // internal Counter 
+ // g_counter++;
   return pair<double,double>(result,fullError);
 /*
   nBkgInSigReg = outWS->var(Form("NBkgInSignal_mH%3.1f",mass));
@@ -226,9 +257,10 @@ void FMTFit::Plot(double mass){
 }
 
 void FMTFit::redoFit(double mass){
-  
-  pair<double,double> dummyVar = FitPow(mass);
-  if (verbose_) cout << dummyVar.first << " +/- " << dummyVar.second << endl;
+ 
+
+    pair<double,double> dummyVar = FitPow(mass);
+    if (verbose_) cout << dummyVar.first << " +/- " << dummyVar.second << endl;
 }
 
 bool FMTFit::getblind(){

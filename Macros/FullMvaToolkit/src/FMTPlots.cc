@@ -35,6 +35,7 @@ FMTPlots::FMTPlots(string filename, bool runSB, double intLumi, bool is2011, int
 {
   tFile = TFile::Open(filename.c_str(),"UPDATE");
   gStyle->SetOptStat(0);
+  normalizer = new Normalization_8TeV(is2011);
 }
 
 FMTPlots::~FMTPlots(){
@@ -446,25 +447,73 @@ void FMTPlots::plotAll(double mh){
   makePlots(data,sig,bkg,bkgmc,dataSideLow,dataSideHigh,bkgSideLow,bkgSideHigh,sigSyst,lowInterp,highInterp,mh);
 }
 
+void FMTPlots::makeSignalNormPlot(){
+
+  // make Xsection*BR plots
+  vector<double> allMasses = getAllMH();
+  
+  normalizer->PlotExpected(allMasses[0],*(allMasses.end()-1));
+  delete normalizer;
+		
+  TGraph *normG = new TGraph(getNumMHMasses());  
+  int i=0;
+  for (vector<double>::iterator mh=allMasses.begin(); mh!=allMasses.end(); mh++){
+   TH1F *sig = (TH1F*)((TH1F*)tFile->Get(Form("th1f_sig_grad_ggh_%3.1f",*mh)))->Clone();
+   sig->Add((TH1F*)tFile->Get(Form("th1f_sig_grad_vbf_%3.1f",*mh)));
+   sig->Add((TH1F*)tFile->Get(Form("th1f_sig_grad_wzh_%3.1f",*mh)));
+   sig->Add((TH1F*)tFile->Get(Form("th1f_sig_grad_tth_%3.1f",*mh)));
+   
+    normG->SetPoint(i,*mh,sig->Integral());
+    i++;
+  }
+
+  normG->SetLineWidth(2);
+  normG->SetLineColor(4);
+  normG->SetTitle("Signal normalisations");
+  normG->GetYaxis()->SetTitle("MC Signal events in signal region");
+  normG->GetYaxis()->SetTitleOffset(1.2);
+  normG->GetXaxis()->SetTitle("m_{H} (GeV)");
+
+  TCanvas *canv = new TCanvas();
+  normG->Draw("AL");
+  canv->SaveAs("plots/pdf/signal_all_norm.pdf");
+  canv->SaveAs("plots/macro/signal_all_norm.C");
+  canv->SaveAs("plots/png/signal_all_norm.png");
+  
+}
+
 void FMTPlots::makeNormPlot(){
  
   RooWorkspace *outWS = (RooWorkspace*)tFile->Get("cms_hgg_workspace");
   TGraph *normG = new TGraph(getNumMHMasses());  
+  TGraph *dataN = new TGraph(getNumMHMasses());  
+  TGraph *datadiff = new TGraph(getNumMHMasses());  
   vector<double> allMasses = getAllMH();
   int i=0;
   for (vector<double>::iterator mh=allMasses.begin(); mh!=allMasses.end(); mh++){
     RooRealVar *val = (RooRealVar*)outWS->var(Form("NBkgInSignal_mH%3.1f",*mh));
+    TH1F *dataHist = (TH1F*)tFile->Get(Form("th1f_data_grad_%3.1f",*mh));
     normG->SetPoint(i,*mh,val->getVal());
+    dataN->SetPoint(i,*mh,dataHist->Integral());
+    datadiff->SetPoint(i,*mh,dataHist->Integral()-val->getVal());
     i++;
   }
   TCanvas *canv = new TCanvas();
   normG->SetMarkerSize(2);
   normG->SetLineWidth(2);
+  normG->SetLineColor(4);
   normG->SetTitle("Fit normalisations");
   normG->GetYaxis()->SetTitle("Background events in signal region");
   normG->GetYaxis()->SetTitleOffset(1.2);
   normG->GetXaxis()->SetTitle("m_{H} (GeV)");
+  dataN->SetMarkerStyle(21);
+  dataN->SetMarkerSize(0.8);
+  dataN->SetMarkerColor(1);
+  datadiff->SetMarkerStyle(21);
+  datadiff->SetMarkerSize(0.8);
+  datadiff->SetMarkerColor(1);
   normG->Draw("ALP");
+  dataN->Draw("P");
   TLatex *text = new TLatex();
 	text->SetTextSize(0.04);
 	text->SetNDC();
@@ -475,6 +524,12 @@ void FMTPlots::makeNormPlot(){
   canv->SaveAs("plots/pdf/fit_all_norm.pdf");
   canv->SaveAs("plots/macro/fit_all_norm.C");
   canv->SaveAs("plots/png/fit_all_norm.png");
+
+	datadiff->Draw("AP" );
+  canv->SaveAs("plots/pdf/diff_fit_all_norm.pdf");
+  canv->SaveAs("plots/macro/diff_fit_all_norm.C");
+  canv->SaveAs("plots/png/diff_fit_all_norm.png");
+
 	delete normG;
 	delete canv;
 }

@@ -10,10 +10,11 @@
 
 using namespace std;
 
-FMTTree::FMTTree(string infilename, string outfilename, string bdtname, string weightsFile, double intLumi, bool is2011, int mHMinimum, int mHMaximum, double mHStep, double massMin, double massMax, int nDataBins, double signalRegionWidth, double sidebandWidth, int numberOfSidebands, int numberOfSidebandsForAlgos, int numberOfSidebandGaps, double massSidebandMin, double massSidebandMax, int nIncCategories, bool includeVBF, int nVBFCategories, bool includeLEP, int nLEPCategories, vector<string> systematics, bool rederiveOptimizedBinEdges, vector<map<int, vector<double> > > AllBinEdges, bool isCutBased, bool verbose):
+FMTTree::FMTTree(string infilename, string outfilename, string bdtname, string weightsFile, double intLumi, bool is2011, int mHMinimum, int mHMaximum, double mHStep, double massMin, double massMax, int nDataBins, double signalRegionWidth, double sidebandWidth, int numberOfSidebands, int numberOfSidebandsForAlgos, int numberOfSidebandGaps, double massSidebandMin, double massSidebandMax, int nIncCategories, bool includeVBF, int nVBFCategories, bool includeLEP, int nLEPCategories, vector<string> systematics, bool rederiveOptimizedBinEdges, vector<map<int, vector<double> > > AllBinEdges, bool isCutBased, bool useSidebandBDT, bool verbose):
  FMTBase(intLumi, is2011, mHMinimum, mHMaximum, mHStep, massMin, massMax, nDataBins, signalRegionWidth, sidebandWidth, numberOfSidebands, numberOfSidebandsForAlgos, numberOfSidebandGaps, massSidebandMin, massSidebandMax, nIncCategories, includeVBF, nVBFCategories, includeLEP, nLEPCategories, systematics, rederiveOptimizedBinEdges, AllBinEdges, verbose),
 	bdtname_(bdtname),
   isCutBased_(isCutBased),
+  useSidebandBDT_(useSidebandBDT_),
 	crossCheck_(true)
   {
     // open files and workspaces etc.
@@ -44,7 +45,13 @@ FMTTree::FMTTree(string infilename, string outfilename, string bdtname, string w
       tmvaReader_->AddVariable("deltaMoverM",&deltaMOverM_);
       tmvaReader_->AddVariable("bdtoutput",&diphotonBDT_);
     }
+
+    if (useSidebandBDT_){
 		tmvaReader_->BookMVA(bdtname_.c_str(),weightsFile.c_str());
+    } else {
+		TFile *fic = TFile::Open(weightsFile.c_str());
+		categoryMap = (TH2F*)(fic->Get("Category_Map"))->Clone();
+    }
 
     if (verbose_) cout << "Init tree..." << endl;
 		// set up vars
@@ -56,15 +63,43 @@ FMTTree::FMTTree(string infilename, string outfilename, string bdtname, string w
 		
     if (verbose_) cout << "Init th1fs..." << endl;
 		// data + bkg
+
+	int numberOfBdtBins=0;
+	double *bdtBinBoundaries;
+
+	if (useSidebandBDT_){
+		// Still have the option to rederive the optimized bin edges
+		numberOfBdtBins = 5000;
+		bdtBinBoundaries = new double[numberOfBdtBins+1];
+		for (int be=0;be<numberOfBdtBins;be++){
+			double step = -1 + be*2./numberOfBdtBins;
+			bdtBinBoundaries[be]=step;
+		}
+		bdtBinBoundaries[numberOfBdtBins]=1.;
+	} else {
+		// using the 2D category map, no need to run bin optimizations
+		vector<double> categoryBinEdges = getBinEdges(125);
+		numberOfBdtBins = categoryBinEdges.size()-1;
+		bdtBinBoundaries = new double[numberOfBdtBins+1];
+		vector<double>::iterator bit = categoryBinEdges.begin();
+		
+		int be=0;
+		for (;bit!=categoryBinEdges.end();bit++){
+			bdtBinBoundaries[be]=*bit;
+			be++;
+		}
+		
+	}
+
 		for (vector<double>::iterator mIt=masses.begin(); mIt!=masses.end(); mIt++){
 			for (int cat=0; cat<getNcats(); cat++){
-				th1fs_.insert(pair<string,TH1F*>(Form("th1f_data_BDT_grad_%3.1f_cat%d",*mIt,cat),new TH1F(Form("th1f_data_BDT_grad_%3.1f_cat%d",*mIt,cat),"BDT",5000,-1.,1.)));
-				th1fs_.insert(pair<string,TH1F*>(Form("th1f_bkg_BDT_grad_%3.1f_cat%d",*mIt,cat),new TH1F(Form("th1f_bkg_BDT_grad_%3.1f_cat%d",*mIt,cat),"BDT",5000,-1.,1.)));
+				th1fs_.insert(pair<string,TH1F*>(Form("th1f_data_BDT_grad_%3.1f_cat%d",*mIt,cat),new TH1F(Form("th1f_data_BDT_grad_%3.1f_cat%d",*mIt,cat),"BDT",numberOfBdtBins,bdtBinBoundaries)));
+				th1fs_.insert(pair<string,TH1F*>(Form("th1f_bkg_BDT_grad_%3.1f_cat%d",*mIt,cat),new TH1F(Form("th1f_bkg_BDT_grad_%3.1f_cat%d",*mIt,cat),"BDT",numberOfBdtBins,bdtBinBoundaries)));
 				for (int i=1; i<=getnumberOfSidebands(); i++){
-					th1fs_.insert(pair<string,TH1F*>(Form("th1f_data_%dhigh_BDT_grad_%3.1f_cat%d",i,*mIt,cat),new TH1F(Form("th1f_data_%dhigh_BDT_grad_%3.1f_cat%d",i,*mIt,cat),"BDT",5000,-1.,1.)));
-					th1fs_.insert(pair<string,TH1F*>(Form("th1f_data_%dlow_BDT_grad_%3.1f_cat%d",i,*mIt,cat),new TH1F(Form("th1f_data_%dlow_BDT_grad_%3.1f_cat%d",i,*mIt,cat),"BDT",5000,-1.,1.)));
-					th1fs_.insert(pair<string,TH1F*>(Form("th1f_bkg_%dhigh_BDT_grad_%3.1f_cat%d",i,*mIt,cat),new TH1F(Form("th1f_bkg_%dhigh_BDT_grad_%3.1f_cat%d",i,*mIt,cat),"BDT",5000,-1.,1.)));
-					th1fs_.insert(pair<string,TH1F*>(Form("th1f_bkg_%dlow_BDT_grad_%3.1f_cat%d",i,*mIt,cat),new TH1F(Form("th1f_bkg_%dlow_BDT_grad_%3.1f_cat%d",i,*mIt,cat),"BDT",5000,-1.,1.)));
+					th1fs_.insert(pair<string,TH1F*>(Form("th1f_data_%dhigh_BDT_grad_%3.1f_cat%d",i,*mIt,cat),new TH1F(Form("th1f_data_%dhigh_BDT_grad_%3.1f_cat%d",i,*mIt,cat),"BDT",numberOfBdtBins,bdtBinBoundaries)));
+					th1fs_.insert(pair<string,TH1F*>(Form("th1f_data_%dlow_BDT_grad_%3.1f_cat%d",i,*mIt,cat),new TH1F(Form("th1f_data_%dlow_BDT_grad_%3.1f_cat%d",i,*mIt,cat),"BDT",numberOfBdtBins,bdtBinBoundaries)));
+					th1fs_.insert(pair<string,TH1F*>(Form("th1f_bkg_%dhigh_BDT_grad_%3.1f_cat%d",i,*mIt,cat),new TH1F(Form("th1f_bkg_%dhigh_BDT_grad_%3.1f_cat%d",i,*mIt,cat),"BDT",numberOfBdtBins,bdtBinBoundaries)));
+					th1fs_.insert(pair<string,TH1F*>(Form("th1f_bkg_%dlow_BDT_grad_%3.1f_cat%d",i,*mIt,cat),new TH1F(Form("th1f_bkg_%dlow_BDT_grad_%3.1f_cat%d",i,*mIt,cat),"BDT",numberOfBdtBins,bdtBinBoundaries)));
 				}
 			}
 		}
@@ -72,10 +107,10 @@ FMTTree::FMTTree(string infilename, string outfilename, string bdtname, string w
 		for (vector<int>::iterator mIt=mcMasses.begin(); mIt!=mcMasses.end(); mIt++){
 			for (int cat=0; cat<getNcats(); cat++){
 				for (vector<string>::iterator pIt=processes.begin(); pIt!=processes.end(); pIt++){
-					th1fs_.insert(pair<string,TH1F*>(Form("th1f_sig_BDT_grad_%s_%d.0_cat%d",pIt->c_str(),*mIt,cat), new TH1F(Form("th1f_sig_BDT_grad_%s_%d.0_cat%d",pIt->c_str(),*mIt,cat),"BDT",5000,-1.,1.)));
+					th1fs_.insert(pair<string,TH1F*>(Form("th1f_sig_BDT_grad_%s_%d.0_cat%d",pIt->c_str(),*mIt,cat), new TH1F(Form("th1f_sig_BDT_grad_%s_%d.0_cat%d",pIt->c_str(),*mIt,cat),"BDT",numberOfBdtBins,bdtBinBoundaries)));
 					for (vector<string>::iterator sysIt=systematics.begin(); sysIt!=systematics.end(); sysIt++){
-						th1fs_.insert(pair<string,TH1F*>(Form("th1f_sig_BDT_grad_%s_%d.0_cat%d_%sDown01_sigma",pIt->c_str(),*mIt,cat,sysIt->c_str()), new TH1F(Form("th1f_sig_BDT_grad_%s_%d.0_cat%d_%sDown01_sigma",pIt->c_str(),*mIt,cat,sysIt->c_str()),"BDT",5000,-1.,1.)));
-						th1fs_.insert(pair<string,TH1F*>(Form("th1f_sig_BDT_grad_%s_%d.0_cat%d_%sUp01_sigma",pIt->c_str(),*mIt,cat,sysIt->c_str()), new TH1F(Form("th1f_sig_BDT_grad_%s_%d.0_cat%d_%sUp01_sigma",pIt->c_str(),*mIt,cat,sysIt->c_str()),"BDT",5000,-1.,1.)));
+						th1fs_.insert(pair<string,TH1F*>(Form("th1f_sig_BDT_grad_%s_%d.0_cat%d_%sDown01_sigma",pIt->c_str(),*mIt,cat,sysIt->c_str()), new TH1F(Form("th1f_sig_BDT_grad_%s_%d.0_cat%d_%sDown01_sigma",pIt->c_str(),*mIt,cat,sysIt->c_str()),"BDT",numberOfBdtBins,bdtBinBoundaries)));
+						th1fs_.insert(pair<string,TH1F*>(Form("th1f_sig_BDT_grad_%s_%d.0_cat%d_%sUp01_sigma",pIt->c_str(),*mIt,cat,sysIt->c_str()), new TH1F(Form("th1f_sig_BDT_grad_%s_%d.0_cat%d_%sUp01_sigma",pIt->c_str(),*mIt,cat,sysIt->c_str()),"BDT",numberOfBdtBins,bdtBinBoundaries)));
 					}
 				}
 			}
@@ -217,11 +252,25 @@ void FMTTree::setBranchVariables(TTree *tree){
 
 }
 
-float FMTTree::tmvaGetVal(float dMoM, float bdt){
-	deltaMOverM_ = dMoM;
-	diphotonBDT_ = bdt;
-	return tmvaReader_->EvaluateMVA(bdtname_.c_str());
+float FMTTree::getCategoryMapVal(float dmom, float bdt){
+
+	int bin = categoryMap->FindBin(dmom,bdt);
+	return categoryMap->GetBinContent(bin);
 }
+
+float FMTTree::tmvaGetVal(float dMoM, float bdt){
+
+	float ret = 0;
+	if (useSidebandBDT_){
+	  deltaMOverM_ = dMoM;
+	  diphotonBDT_ = bdt;
+	  ret =  tmvaReader_->EvaluateMVA(bdtname_.c_str());
+	} else {
+	  ret = getCategoryMapVal(bdt,dMoM);
+	}
+	return ret;
+}
+
 
 float FMTTree::tmvaGetValCutBased(float dMoM){
   deltaMOverM_ = dMoM;
@@ -231,11 +280,13 @@ float FMTTree::tmvaGetValCutBased(float dMoM){
 }
 
 int FMTTree::icCat(int cat){
+
   if (cat<0) return -1;
   else if (cat>=0 && cat<4) return 0;
   else if (cat==4) return 2;
   else if (cat==5) return 1;
   else return cat-3;
+
 }
 
 void FMTTree::FillHist(string type, int sideband, double mh){
