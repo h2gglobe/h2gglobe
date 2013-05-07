@@ -423,13 +423,13 @@ def writeCard(tfile,mass,scaleErr):
         bias = quadInterpolate(1.,-1.,0.,1.,bkgCont-berr,bkgCont,bkgCont+berr)
         randBkg = randBkg*(bias**(1+g_r.Gaus()))
       
-      outPut.write(" %.5f   %.5f   %.5f   %.5f   %.5f "\
+      outPut.write(" %.3f   %.3f   %.3f   %.3f   %.3f "\
       %(getBinContent(gghHist,b),getBinContent(vbfHist,b),getBinContent(wzhHist,b),getBinContent(tthHist,b)\
        ,randBkg))
     outPut.write("\n--------------------------------------------------------------\n")
 
   else:
-    for b in range(binL,binH): outPut.write(" %.5f   %.5f   %.5f   %.5f   %.5f "\
+    for b in range(binL,binH): outPut.write(" %.3f   %.3f   %.3f   %.3f   %.3f "\
       %(getBinContent(gghHist,b),getBinContent(vbfHist,b),getBinContent(wzhHist,b),getBinContent(tthHist,b)\
        ,backgroundContents[b-1]))
     outPut.write("\n--------------------------------------------------------------\n")
@@ -565,13 +565,13 @@ def writeCard(tfile,mass,scaleErr):
     if abs(numberOfTTH_loose/numberOfTTH_tight)>1.: numberOfTTH_loose=0.
 
     for b in range(binL,nBins_inclusive+binL): outPut.write(" -   -   -   -   -")
-    outPut.write(" %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   -   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   -  "%\
+    if nBins_vbf>0 : outPut.write(" %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   -   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   -  "%\
         (1+UEPS_Migration_ggH,1-UEPS_Migration_ggH,1+UEPS_Migration_qqH,1-UEPS_Migration_qqH,1+UEPS_Migration_VH,1-UEPS_Migration_VH,1+UEPS_Migration_ttH,1-UEPS_Migration_ttH,\
 		     1.-(numberOfGGH_loose/numberOfGGH_tight),1.+(numberOfGGH_loose/numberOfGGH_tight),\
 		     1.-(numberOfVBF_loose/numberOfVBF_tight),1.+(numberOfVBF_loose/numberOfVBF_tight),\
 		     1.-(numberOfWZH_loose/numberOfWZH_tight),1.+(numberOfWZH_loose/numberOfWZH_tight),\
 		     1.-(numberOfTTH_loose/numberOfTTH_tight),1.+(numberOfTTH_loose/numberOfTTH_tight)))
-    outPut.write(" -   -   -   -   - -   -   -   -   - -   -   -   -   - \n")
+    if nBins_vh: outPut.write(" -   -   -   -   - -   -   -   -   - -   -   -   -   - \n")
   
     # Now do JECMigration    
     outPut.write("\nJECMigration  lnN")
@@ -590,13 +590,13 @@ def writeCard(tfile,mass,scaleErr):
     if abs(numberOfTTH_loose/numberOfTTH_tight)>1.: numberOfTTH_loose=0.
 
     for b in range(binL,nBins_inclusive+binL): outPut.write(" -   -   -   -   -")
-    outPut.write(" %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   -   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   -  "%\
+    if nBins_vbf>0 :outPut.write(" %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   -   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   -  "%\
         (1+JEC_Migration_ggH,1-JEC_Migration_ggH,1+JEC_Migration_qqH,1-JEC_Migration_qqH,1+JEC_Migration_VH,1-JEC_Migration_VH,1+JEC_Migration_ttH,1-JEC_Migration_ttH,\
 		     1.-(numberOfGGH_loose/numberOfGGH_tight),1.+(numberOfGGH_loose/numberOfGGH_tight),\
 		     1.-(numberOfVBF_loose/numberOfVBF_tight),1.+(numberOfVBF_loose/numberOfVBF_tight),\
 		     1.-(numberOfWZH_loose/numberOfWZH_tight),1.+(numberOfWZH_loose/numberOfWZH_tight),\
 		     1.-(numberOfTTH_loose/numberOfTTH_tight),1.+(numberOfTTH_loose/numberOfTTH_tight)))
-    outPut.write(" -   -   -   -   - -   -   -   -   - -   -   -   -   - \n")
+    if nBins_vh>0 :outPut.write(" -   -   -   -   - -   -   -   -   - -   -   -   -   - \n")
   
   # Now do other exclusive tag systematics
   # muon tag
@@ -727,6 +727,7 @@ parser.add_option("","--expSig",dest="expSig",default=-1.,type="float")
 parser.add_option("","--makePlot",dest="makePlot",default=False,action="store_true")
 parser.add_option("","--blind",dest="blind",default=False,action="store_true")
 parser.add_option("","--noVbfTag",dest="includeVBF",default=True,action="store_false")
+parser.add_option("","--noVHTag",dest="includeVH",default=True,action="store_false")
 parser.add_option("","--plotStackedVbf",dest="splitSignal",default=False,action="store_true")
 parser.add_option("","--inputMassFacWS",dest="inputmassfacws",default="/vols/cms02/h2g/latest_workspace/CMS-HGG_massfac_full_110_150_1.root")
 parser.add_option("","--outputMassFacToy",dest="outputmassfactoy",default="massfac_toy_ws.root")
@@ -823,6 +824,8 @@ normG.Draw("ALP")
 print "Check the Errors Look Sensible -> plot saved to %s/normErrors_%s"%(os.path.dirname(options.tfileName),os.path.basename(options.tfileName))
 can.SaveAs(("%s/normErrors_%s.pdf"%(os.path.dirname(options.tfileName),os.path.basename(options.tfileName))).replace('.root',''))
 
+if not options.includeVBF: nBind_vbf=0
+if not options.includeVH:  nBind_vh=0
 
 # can make a special "global toy" set of datacards
 toymaker=0

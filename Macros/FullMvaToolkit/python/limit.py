@@ -16,6 +16,7 @@ parser.add_option("","--noas",default=False, action="store_true")
 parser.add_option("","--nopl",default=False, action="store_true")
 parser.add_option("","--nomf",default=False, action="store_true")
 parser.add_option("","--noexppl",default=False, action="store_true")
+parser.add_option("","--nosys",default=False, action="store_true")
 parser.add_option("","--masses",dest="jobs",action="callback",callback=cback,type='string')
 
 (options,args)=parser.parse_args()
@@ -30,19 +31,22 @@ if not options.nomf: Methods.append("MaxLikelihoodFit")
 
 os.system("mkdir -p %s/Asymptotic %s/ProfileLikelihood %s/MaxLikelihoodFit %s/ExpProfileLikelihood"%(options.runDirectory,options.runDirectory,options.runDirectory,options.runDirectory))
 
+ext = " -S 1 "
+if options.nosys: ext = " -S 0 "
+
 for m in masses:
   print " -------------------------------"
   print " running mass", m
   print " -------------------------------"
   if not options.noas: 
-	os.system("combine %s/mva-datacard_grad_%3.1f.txt -M Asymptotic --newExpected -m %3.1f --rAbsAcc 0.00001 --rRelAcc 0.00001 --minosAlgo=stepping --noFitAsimov"%(options.runDirectory,m,m))
+	os.system("combine %s/mva-datacard_grad_%3.1f.txt -M Asymptotic  -m %3.1f --rAbsAcc 0.00001 --rRelAcc 0.00001 --minosAlgo=stepping --noFitAsimov %s "%(options.runDirectory,m,m,ext))
   if not options.nopl: 
-	os.system("combine %s/mva-datacard_grad_%3.1f.txt -M ProfileLikelihood --signif --pvalue -m %3.1f" %(options.runDirectory,m,m))
+	os.system("combine %s/mva-datacard_grad_%3.1f.txt -M ProfileLikelihood --signif --pvalue -m %3.1f %s" %(options.runDirectory,m,m,ext))
   if not options.nomf: 
-	os.system("combine %s/mva-datacard_grad_%3.1f.txt -M MaxLikelihoodFit --rMin -10 --rMax 10  -m %3.1f" %(options.runDirectory,m,m))
+	os.system("combine %s/mva-datacard_grad_%3.1f.txt -M MaxLikelihoodFit --rMin -10 --rMax 10  -m %3.1f %s" %(options.runDirectory,m,m,ext))
   for M in Methods: os.system("mv -v higgsCombineTest.%s.* %s/%s"%(M,options.runDirectory,M))
   if not options.noexppl: 
-	os.system("combine %s/mva-datacard_grad_%3.1f.txt -M ProfileLikelihood --signif --pvalue -m %3.1f -t -1 --expectSignal 1" %(options.runDirectory,m,m))
+	os.system("combine %s/mva-datacard_grad_%3.1f.txt -M ProfileLikelihood --signif --pvalue -m %3.1f -t -1 --expectSignal 1 %s --toysNoSystematics --minimizerTolerance 0.0001" %(options.runDirectory,m,m,ext))
   	os.system("mv -v higgsCombineTest.ProfileLikelihood.* %s/ExpProfileLikelihood"%options.runDirectory)
 
 print "Finished Limits"

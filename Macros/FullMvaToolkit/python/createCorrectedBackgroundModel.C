@@ -647,6 +647,7 @@ void createCorrectedBackgroundModel(std::string fileName, int nsidebands=6, doub
 
 	std::cout<< "STARTING HERE" <<std::endl;
 	// Open the original Workspace
+	std::cout << "Filename -- " << fileName.c_str() <<std::endl;
 	TFile *in = TFile::Open(fileName.c_str(),"UPDATE");
 	RooWorkspace *work = (RooWorkspace*)in->Get("cms_hgg_workspace");
 
@@ -702,7 +703,9 @@ void createCorrectedBackgroundModel(std::string fileName, int nsidebands=6, doub
 		in->cd();
     in->Cd(Form("%s:/",fileName.c_str()));
     cout << "----!---- Write corrected hists into original file......" << endl;
-    correctedHist->Write(correctedHist->GetName(),TObject::kOverwrite);
+		// Double check and make sure that the normalization is still taken from the fit
+		correctedHist->Scale(nSignalVar->getVal()/correctedHist->Integral());
+		correctedHist->Write(correctedHist->GetName(),TObject::kOverwrite);
 		correctedHistFR->Write(correctedHistFR->GetName(),TObject::kOverwrite);
 		//hFCovar->Write();
 		uCorrErr->Write(uCorrErr->GetName(),TObject::kOverwrite);
