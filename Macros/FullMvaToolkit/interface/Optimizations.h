@@ -1,0 +1,89 @@
+// A class for running 2D optimizations in S/B (x)
+
+#ifndef Optimizations_h
+#define Optimizations_h
+
+#include <ctime>
+#include <vector>
+
+#include "TFile.h"
+#include "TH2F.h"
+#include "TH1F.h"
+#include "TF1.h"
+#include "TMath.h"
+#include "TTree.h"
+#include "TText.h"
+#include "TStyle.h"
+#include "TCanvas.h"
+#include "TLine.h"
+#include "TStyle.h"
+#include "TROOT.h"
+ 
+#include "../interface/Optimizations.h"
+
+using namespace std;
+
+class Optimizations {
+
+    public: 
+
+	Optimizations(TH2F *, TH2F *);
+	~Optimizations(){
+		delete signalVector1;
+		delete backgroundVector1;
+	};
+
+	void setMaxBins(int val){maxNumberOfBins=val;};
+	void setNdivisions(int val){nNewBins=val;};
+	void setThreshold(int val){threshold=val;};
+	void setMinBackground(double val){predefMin=val;};
+	TH2F *getCategoryMap(){return FinalHist;};
+	TH2F *getSignalTarget(){return targetS2d;};
+	TH2F *getBackgroundTarget(){return targetB2d;};
+	int getFinalNumberOfBins(){return nFinalBins;};
+
+	void smoothHistograms(double bandwidths=0.01,double bandwidthb=0.01, int mode=0); // 1% of data, default linear regression
+	void runOptimization();
+
+    protected: 
+
+	void maxSigScan(double *maximumSignificance,int *frozen_counters,int *chosen_counters, int N,int *counters, int movingCounterIndex);
+	std::vector<double> significanceOptimizedBinning();
+
+	
+	double defx(double val){ return TMath::Log(1+100*val);};
+	//double defx(double val){ return val;};
+	double findMaximum(TH2F *);
+	bool checkMinBkg(double);
+	void getIntegralBetweenRanges(double *s,double *b,int l, int h);
+	double calculateSigMulti(double *s1, double *b1, int nchannel);
+	
+	int maxNumberOfBins;
+
+	double *signalVector1;
+	double *backgroundVector1;
+
+	double g_step ;
+	bool sweepmode ;
+	double SBscale ;
+
+	int n2dbinsX;
+	int n2dbinsY;
+
+	TH2F *targetS2d;
+	TH2F *targetB2d;
+	TH2F *FinalHist;
+
+	TH1F *targetS;
+	TH1F *targetB;
+
+	int nNewBins;
+	int nFinalBins;
+
+        double predefMin;
+	double threshold;
+	double delta;
+		
+};
+
+#endif		

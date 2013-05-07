@@ -10,6 +10,7 @@
 #include "RooWorkspace.h"
 
 #include "TFile.h"
+#include "TGraph.h"
 
 #include "FMTBase.h"
 
@@ -31,6 +32,7 @@ class FMTFit : public FMTBase{
 
 		void setblind(bool);
 		void setplot(bool);
+		void SetNormGraph(TFile *nFile);
 
 	private:
 		RooRealVar *r1, *r2, *r3, *f1, *f2;
@@ -47,6 +49,9 @@ class FMTFit : public FMTBase{
     
 		string infilename_;
 		string outfilename_;
+		int g_counter;
+		TGraph *normGraph;
+		bool readFitsFromFile;
 
     vector<RooAbsPdf*> storage;
 };

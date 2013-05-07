@@ -6,6 +6,7 @@
 #include <string>
 
 #include "TH1F.h"
+#include "TH2F.h"
 
 #include "TMVA/Reader.h"
 
@@ -20,7 +21,7 @@ using namespace std;
 class FMTTree : public FMTBase {
 	
 	public:
-    FMTTree(string,string,string,string,double,bool,int, int, double, double, double, int, double, double, int, int, int, double, double, int, bool, int, bool, int, vector<string>, bool, vector<map<int,vector<double> > >, bool isCutBased=false, bool verbose=false);
+    FMTTree(string,string,string,string,double,bool,int, int, double, double, double, int, double, double, int, int, int, double, double, int, bool, int, bool, int, vector<string>, bool, vector<map<int,vector<double> > >, bool isCutBased=false, bool useSidebandBDT=true, bool verbose=false);
 
     ~FMTTree();
 		
@@ -45,6 +46,7 @@ class FMTTree : public FMTBase {
 		void FillMassDatasets();
 
 		float tmvaGetVal(float,float);
+		float getCategoryMapVal(float,float);
     float tmvaGetValCutBased(float);
 		void run(string option="all");
 
@@ -76,10 +78,12 @@ class FMTTree : public FMTBase {
 		RooDataSet *dataSet_;
     vector<RooDataSet*> catDataSets_;
 		TMVA::Reader *tmvaReader_;
+		TH2F *categoryMap;		
 		
 		string dirname_;
 		string bdtname_;
     bool isCutBased_;
+    bool useSidebandBDT_;
 		bool crossCheck_;
 		
     float deltaMOverM_;

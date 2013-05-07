@@ -6,6 +6,7 @@
 #include "TH1F.h"
 
 #include "FMTBase.h"
+#include "Normalization_8TeV.h"
 
 using namespace std;
 
@@ -24,6 +25,7 @@ class FMTPlots : public FMTBase {
     void plotSystFracs(TH1F*, vector<pair<TH1F*,TH1F*> >,double);
     void plotInterpolation(TH1F*, TH1F*, TH1F*, double);
     void makeNormPlot();
+    void makeSignalNormPlot();
 
 		void plotByMH(string, double, TH1F*, TH1F*, TH1F*);
 		pair<pair<double,double>,pair<double,double> > getBandSB(string,int);
@@ -36,6 +38,7 @@ class FMTPlots : public FMTBase {
     bool blind_;
 		bool runSB_;
     bool verbose_;
+    Normalization_8TeV *normalizer;
 };
 
 #endif

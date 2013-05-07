@@ -25,6 +25,7 @@ class FMTRebin : public FMTBase {
     
 		// histogram methods
     void mergeHistograms(string,TH1F*,TH1F*);
+    void mergeHistograms(string,TH1F*);
     void makeSignalOutputHistogram(string,string,int);
     void makeOutputHistogram(string,string,int);
 		

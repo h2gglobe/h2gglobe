@@ -7,6 +7,8 @@
 #include <ctime>
 
 #include "FMTBase.h"
+#include "TGraph.h"
+#include "TF1.h"
 
 #include "Normalization_8TeV.h"
 
@@ -18,7 +20,7 @@ class FMTSigInterp : public FMTBase {
     FMTSigInterp(string, double, bool, bool, bool, int, int, double, double, double, int, double, double, int, int, int, double, double, int, bool, int, bool, int, vector<string>, bool, vector<map<int,vector<double> > >, bool blind=false,bool verbose=false);
     ~FMTSigInterp();
 
-    TH1F *Interpolate(double,TH1F*,double,TH1F*,double);
+    TH1F *Interpolate(double,TH1F*,double,TH1F*,double,  bool smoothEff=false, std::string prod="nothing");
 
     void runInterpolation();
 
@@ -27,6 +29,9 @@ class FMTSigInterp : public FMTBase {
     Normalization_8TeV *normalizer;
     bool diagnose_;
     bool blind_;
+	
+    void makeEfficiencyGraphs();
+    std::map<std::string,TGraph*> efficiencyGraphs;
 };
 
 #endif
