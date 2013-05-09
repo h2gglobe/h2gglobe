@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <string>
 
@@ -31,10 +32,12 @@ int mhHigh_=150;
 int ncats_;
 string webdir_;
 bool web_;
+bool spin_=false;
 bool makePlots_=false;
 bool doSMHiggsAsBackground_=true;
 bool doSecondHiggs_=true;
 bool doNaturalWidth_=true;
+bool skipSecondaryModels_=false;
 vector<int> allMH_;
 
 vector<int> getAllMH(){
@@ -60,7 +63,9 @@ void OptionParser(int argc, char *argv[]){
     ("mhHigh,H", po::value<int>(&mhHigh_)->default_value(150),                                "High mass point")
     ("ncats,n", po::value<int>(&ncats_)->default_value(9),                                    "Number of categories")
     ("html,w", po::value<string>(&webdir_),                                                   "Make html in this directory")
+    ("spin,s",                                                                                "Also include the spin processes")
     ("makePlots,P",                                                                           "Make AN style signal model plots")
+    ("skipSecondaryModels",                                                                   "Turn off creation of all additional models")
     ("noSMHiggsAsBackground",                                                                 "Turn off creation of additional model for SM Higgs as background")
     ("noSecondHiggs",                                                                         "Turn off creation of additional model for a second Higgs")
     ("noNaturalWidth",                                                                        "Turn off creation of additional model for natural width of the Higgs")
@@ -72,6 +77,8 @@ void OptionParser(int argc, char *argv[]){
   if (vm.count("help")){ cout << desc << endl; exit(1);}
   if (vm.count("html"))                     web_=true;
   if (vm.count("makePlots"))                makePlots_=true;
+  if (vm.count("spin"))                     spin_=true;
+  if (vm.count("skipSecondaryModels"))      skipSecondaryModels_=true;
   if (vm.count("noSMHiggsAsBackground"))    doSMHiggsAsBackground_=false;
   if (vm.count("noSecondHiggs"))            doSecondHiggs_=false;
   if (vm.count("noNaturalWidth"))           doNaturalWidth_=false;
@@ -82,11 +89,21 @@ int main (int argc, char *argv[]){
   
   OptionParser(argc,argv);
   
+  if (skipSecondaryModels_){
+    doSMHiggsAsBackground_=false;
+    doSecondHiggs_=false;
+    doNaturalWidth_=false;
+  }
+
   vector<string> processes;
   processes.push_back("ggh");
   processes.push_back("vbf");
   processes.push_back("wzh");
   processes.push_back("tth");
+  if (spin_){
+    processes.push_back("ggh_grav");
+    processes.push_back("vbf_grav");
+  }
   
   map<string,pair<string,int> > filestocombine;
 

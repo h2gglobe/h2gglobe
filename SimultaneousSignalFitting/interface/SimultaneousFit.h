@@ -168,10 +168,6 @@ class SimultaneousFit {
     map<string,RooHistFunc*> histFuncs;
     map<string,RooSpline1D*> spline1Ds;
 
-    // tgraphs from final fit
-    map<string,TFormula*> tforms;
-    map<string,TGraph*> tgraphs;
-
     // polynomial params
     map<string,RooRealVar*> polParams;
     map<string,RooFormulaVar*> formVars;
@@ -209,6 +205,8 @@ class SimultaneousFit {
     TGraph* brGraph;
     RooHistFunc *funcEffAcc;
     RooHistFunc *funcEffAccRel;
+    RooDataHist *dHist_eA;
+    RooDataHist *dHist_norm;
     bool systematicsSet_;
     bool loadPriorConstraints_;
     float constraintValue_;

@@ -28,6 +28,7 @@ int fracOrder_;
 bool doSMHiggsAsBackground_=true;
 bool doSecondHiggs_=true;
 bool doNaturalWidth_=true;
+bool skipSecondaryModels_=false;
 bool recursive_=false;
 bool forceFracUnity_=true;
 int verbose_=0;
@@ -66,6 +67,7 @@ void OptionParser(int argc, char *argv[]){
     ("dmOrder", po::value<int>(&dmOrder_)->default_value(1),                                  "Order of dm polynomial")
     ("sigmaOrder", po::value<int>(&sigmaOrder_)->default_value(2),                            "Order of sigma polynomial")
     ("fracOrder", po::value<int>(&fracOrder_)->default_value(1),                              "Order of frac polynomial")
+    ("skipSecondaryModels",                                                                   "Turn off creation of all additional models")
     ("noSMHiggsAsBackground",                                                                 "Turn off creation of additional model for SM Higgs as background")
     ("noSecondHiggs",                                                                         "Turn off creation of additional model for a second Higgs")
     ("noNaturalWidth",                                                                        "Turn off creation of additional model for natural width of the Higgs")
@@ -92,6 +94,7 @@ void OptionParser(int argc, char *argv[]){
   po::store(po::parse_command_line(argc,argv,desc),vm);
   po::notify(vm);
   if (vm.count("help")){ cout << desc << endl; exit(1);}
+  if (vm.count("skipSecondaryModels"))      skipSecondaryModels_=true;
   if (vm.count("noSMHiggsAsBackground"))    doSMHiggsAsBackground_=false;
   if (vm.count("noSecondHiggs"))            doSecondHiggs_=false;
   if (vm.count("noNaturalWidth"))           doNaturalWidth_=false;
@@ -124,7 +127,11 @@ int main (int argc, char *argv[]){
     cout << "Cleaning up first..." << endl;
     system("rm -rf plots/*");
   }
-
+  if (skipSecondaryModels_){
+    doSMHiggsAsBackground_=false;
+    doSecondHiggs_=false;
+    doNaturalWidth_=false;
+  }
   SimultaneousFit *simultaneousFit = new SimultaneousFit(filename_,outfilename_,mhLow_,mhHigh_,verbose_,nInclusiveCats_,nExclusiveCats_,doSMHiggsAsBackground_,doSecondHiggs_,doNaturalWidth_);
   simultaneousFit->setInitialFit(initialFit_);
   simultaneousFit->setSimultaneousFit(simultaneousFit_);
@@ -148,12 +155,12 @@ int main (int argc, char *argv[]){
   }
   simultaneousFit->runFit(proc_,cat_,nGaussians_,dmOrder_,sigmaOrder_,fracOrder_,recursive_,setToFitValues_);
   if (dumpVars_) simultaneousFit->dumpPolParams(Form("dat/out/pols_%s_cat%d.dat",proc_.c_str(),cat_),proc_);
-  delete simultaneousFit; 
+  //delete simultaneousFit;
   
   cout << "Done." << endl;
   cout << "Whole process took..." << endl;
   cout << "\t "; sw.Print();
-  
+ 
   if (web_){
     string sitename = webdir_.substr(webdir_.find("www")+4,string::npos);
     sitename = "www.cern.ch/mkenzie/"+sitename;
@@ -163,4 +170,6 @@ int main (int argc, char *argv[]){
     system(Form("make_html.py %s -c -l -n --title \"Simultaneous Signal Fitting\"",webdir_.c_str()));
     cout << "\t" << sitename << endl;
   }
+
+  return 0;
 }
