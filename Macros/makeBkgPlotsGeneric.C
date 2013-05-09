@@ -38,13 +38,14 @@ void doBandsFit(TGraphAsymmErrors *onesigma, TGraphAsymmErrors *twosigma,
 		RooPlot *plot, 
 		TString & catname);
 
-void makeBkgPlotsGeneric(std::string filebkg, std::string filesig="", bool blind=true, bool doBands=true, bool baseline=false, bool useBinnedData=false){
+void makeBkgPlotsGeneric(std::string filebkg, std::string filesig="", const int ncats=8, bool blind=true, bool doBands=true, bool baseline=false, bool spin=false, bool useBinnedData=false){
 
 	// Globals
 	gROOT->SetStyle("Plain");
 	gROOT->SetBatch(1);
 	gStyle->SetOptStat(0);
-	const int ncats = 9;
+  
+  TFile *outf = TFile::Open("BkgPlotCanvs.root","RECREATE");
 
 	RooMsgService::instance().setGlobalKillBelow(RooFit::MsgLevel(RooFit::FATAL));
 
@@ -71,8 +72,31 @@ void makeBkgPlotsGeneric(std::string filebkg, std::string filesig="", bool blind
 		,"Electron-tagged class"
 		,"MET-tagged class"
 	};
+  std::string spinlabels[20] = {
+    "#splitline{|#eta|_{max} < 1.44, R_{9min} > 0.94}{|cos(#theta*)| < 0.2}",
+    "#splitline{|#eta|_{max} < 1.44, R_{9min} > 0.94}{0.2 < |cos(#theta*)| < 0.375}",
+    "#splitline{|#eta|_{max} < 1.44, R_{9min} > 0.94}{0.375 < |cos(#theta*)| < 0.55}",
+    "#splitline{|#eta|_{max} < 1.44, R_{9min} > 0.94}{0.55 < |cos(#theta*)| < 0.75}",
+    "#splitline{|#eta|_{max} < 1.44, R_{9min} > 0.94}{0.75 < |cos(#theta*)| < 0.1}",
+    "#splitline{|#eta|_{max} < 1.44, R_{9min} < 0.94}{|cos(#theta*)| < 0.2}",
+    "#splitline{|#eta|_{max} < 1.44, R_{9min} < 0.94}{0.2 < |cos(#theta*)| < 0.375}",
+    "#splitline{|#eta|_{max} < 1.44, R_{9min} < 0.94}{0.375 < |cos(#theta*)| < 0.55}",
+    "#splitline{|#eta|_{max} < 1.44, R_{9min} < 0.94}{0.55 < |cos(#theta*)| < 0.75}",
+    "#splitline{|#eta|_{max} < 1.44, R_{9min} < 0.94}{0.75 < |cos(#theta*)| < 0.1}",
+    "#splitline{|#eta|_{max} > 1.44, R_{9min} > 0.94}{|cos(#theta*)| < 0.2}",
+    "#splitline{|#eta|_{max} > 1.44, R_{9min} > 0.94}{0.2 < |cos(#theta*)| < 0.375}",
+    "#splitline{|#eta|_{max} > 1.44, R_{9min} > 0.94}{0.375 < |cos(#theta*)| < 0.55}",
+    "#splitline{|#eta|_{max} > 1.44, R_{9min} > 0.94}{0.55 < |cos(#theta*)| < 0.75}",
+    "#splitline{|#eta|_{max} > 1.44, R_{9min} > 0.94}{0.75 < |cos(#theta*)| < 0.1}",
+    "#splitline{|#eta|_{max} > 1.44, R_{9min} < 0.94}{|cos(#theta*)| < 0.2}",
+    "#splitline{|#eta|_{max} > 1.44, R_{9min} < 0.94}{0.2 < |cos(#theta*)| < 0.375}",
+    "#splitline{|#eta|_{max} > 1.44, R_{9min} < 0.94}{0.375 < |cos(#theta*)| < 0.55}",
+    "#splitline{|#eta|_{max} > 1.44, R_{9min} < 0.94}{0.55 < |cos(#theta*)| < 0.75}",
+    "#splitline{|#eta|_{max} > 1.44, R_{9min} < 0.94}{0.75 < |cos(#theta*)| < 0.1}"
+  }
 	
 	if( baseline ) { labels = baselinelabels; }
+  else if ( spin ) { labels = spinlabels; }
 	else { labels = massfactlabels; }
 	
 	TFile *fb = TFile::Open(filebkg.c_str());
@@ -86,11 +110,11 @@ void makeBkgPlotsGeneric(std::string filebkg, std::string filesig="", bool blind
 	double lumi = intL->getVal()/1000.;
 
 	TLatex *latex = new TLatex();	
-	latex->SetTextSize(0.025);
+	latex->SetTextSize(0.03);
 	latex->SetNDC();
 	
 	TLatex *cmslatex = new TLatex();
-	cmslatex->SetTextSize(0.04);
+	cmslatex->SetTextSize(0.03);
 	cmslatex->SetNDC();
 
 	double totalGGHinDIJET = 0;
@@ -130,6 +154,11 @@ void makeBkgPlotsGeneric(std::string filebkg, std::string filesig="", bool blind
 		TH1F *vbfnorm = (TH1F*)fs->Get(Form("th1f_sig_vbf_mass_m125_cat%d",cat));
 		TH1F *wzhnorm = (TH1F*)fs->Get(Form("th1f_sig_wzh_mass_m125_cat%d",cat));
 		TH1F *tthnorm = (TH1F*)fs->Get(Form("th1f_sig_tth_mass_m125_cat%d",cat));
+    // Spin specials
+    TH1F *gghgravnorm = NULL;
+    if (spin){
+      gghgravnorm = (TH1F*)fs->Get(Form("th1f_sig_ggh_grav_mass_m125_cat%d",cat));
+    }
 		
 		if (cat<=3){
 			totalGGHinINCL+=gghnorm->Integral();
@@ -152,7 +181,14 @@ void makeBkgPlotsGeneric(std::string filebkg, std::string filesig="", bool blind
 		TH1F *allsig = (TH1F*)gghnorm->Clone();
 		allsig->Rebin(2);
 		allsig->SetLineColor(4);allsig->SetFillColor(38);allsig->SetFillStyle(3001) ;allsig->SetLineWidth(2);
-		/// allsig->SetLineColor(1);
+    if (spin) {
+      gghgravnorm->Rebin(2);
+      allsig->SetLineColor(38);
+      gghgravnorm->SetLineColor(kRed); gghgravnorm->SetLineWidth(2);
+		  allsig->Scale(5.);
+      gghgravnorm->Scale(5.);
+    }
+    /// allsig->SetLineColor(1);
 		/// allsig->SetFillColor(38);
 		TH1F dumData("d","",80,100,180); dumData.Sumw2();dumData.SetMarkerSize(1.0);dumData.SetMarkerStyle(20);dumData.SetLineWidth(3);
 		dumData.Fill(101);
@@ -203,8 +239,14 @@ void makeBkgPlotsGeneric(std::string filebkg, std::string filesig="", bool blind
 		leg->AddEntry(&dum1Sig,"#pm 1#sigma","F");
 		leg->AddEntry(&dum2Sig,"#pm 2#sigma","F");
 		/// leg->AddEntry(&dumSignal,"1xSM m_{H} = 125 GeV","F");
-		leg->AddEntry(allsig,"1xSM m_{H} = 125 GeV","F");
-		
+		if (spin){
+      leg->AddEntry(allsig,"0^{+} x 5 m_{H} = 125 GeV","F");
+      leg->AddEntry(gghgravnorm,"2^{+}_{m} x 5 m_{H} = 125 GeV","F");
+    }
+    else {
+      leg->AddEntry(allsig,"1xSM m_{H} = 125 GeV","F");
+	  }
+
 		frame->Draw();
 		frame->SetMinimum(0.0001);
  		if( doBands ) {
@@ -220,19 +262,34 @@ void makeBkgPlotsGeneric(std::string filebkg, std::string filesig="", bool blind
  			frame->Draw("same");
  		}
 		allsig->Draw("samehistF");
+    if (spin) gghgravnorm->Draw("samehistF");
 		leg->Draw();
-		cmslatex->DrawLatex(0.15,0.8,Form("#splitline{CMS Preliminary}{#sqrt{s} = 8TeV L = %2.1ffb^{-1}}",lumi));
-		latex->DrawLatex(0.1,0.92,labels[cat].c_str());
-		can->SaveAs(Form( (baseline ? "baselinecat%d.pdf" : "massfacmvacat%d.pdf"),cat));
-		can->SaveAs(Form( (baseline ? "baselinecat%d.png" : "massfacmvacat%d.png"),cat));
+		cmslatex->DrawLatex(0.2,0.85,Form("#splitline{CMS Preliminary}{#sqrt{s} = 8TeV L = %2.1ffb^{-1}}",lumi));
+		latex->DrawLatex(0.2,0.75,labels[cat].c_str());
+    if (spin) {
+      can->SetName(Form("spincat%d",cat));
+      outf->cd();
+      can->Write();
+      can->SaveAs(Form("spincat%d.pdf",cat));
+      can->SaveAs(Form("spincat%d.png",cat));
+      can->SaveAs(Form("spincat%d.C",cat));
+    }
+    else {
+      can->SaveAs(Form( (baseline ? "baselinecat%d.pdf" : "massfacmvacat%d.pdf"),cat));
+      can->SaveAs(Form( (baseline ? "baselinecat%d.png" : "massfacmvacat%d.png"),cat));
+    }
 	}
 
 	// JET ID Systematics
-	std::cout << "The following can be used (nick knows what they mean) as the JET Migration systematics" <<std::endl;
-	std::cout << "XXX " << 1-(0.7*totalGGHinDIJET/(totalGGHinINCL))<<std::endl;
-	std::cout << "YYY " << 1-(0.7*totalTTHinDIJET/(totalTTHinINCL))<<std::endl;
-	std::cout << "MMM " << 1-(0.1*totalVBFinDIJET/(totalVBFinINCL))<<std::endl;
-	std::cout << "NNN " << 1-(0.1*totalWZHinDIJET/(totalWZHinINCL))<<std::endl;
+  if (!spin) {
+    std::cout << "The following can be used (nick knows what they mean) as the JET Migration systematics" <<std::endl;
+    std::cout << "XXX " << 1-(0.7*totalGGHinDIJET/(totalGGHinINCL))<<std::endl;
+    std::cout << "YYY " << 1-(0.7*totalTTHinDIJET/(totalTTHinINCL))<<std::endl;
+    std::cout << "MMM " << 1-(0.1*totalVBFinDIJET/(totalVBFinINCL))<<std::endl;
+    std::cout << "NNN " << 1-(0.1*totalWZHinDIJET/(totalWZHinINCL))<<std::endl;
+  }
+  outf->Close();
+  fb->Close();
 }
 
 
