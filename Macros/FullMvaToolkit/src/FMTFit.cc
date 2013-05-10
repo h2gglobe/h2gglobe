@@ -39,7 +39,8 @@ FMTFit::FMTFit(TFile *tFile, TFile *outFile, double intLumi, bool is2011, int mH
   
   RooExponential *e1 = new RooExponential("e1","e1",*mass_var,*r1);
   RooExponential *e2 = new RooExponential("e2","e2",*mass_var,*r2);
-  fit = new RooAddPdf("data_exp_model","data_exp_model",*e1,*e2,*f1);
+  //fit = new RooAddPdf("data_exp_model","data_exp_model",*e1,*e2,*f1);
+  fit = new RooGenericPdf("data_pow_model","data_pow_model","@1*TMath::Pow(@0,@2)+(1.-@1)*TMath::Pow(@0,@3)",RooArgList(*mass_var,*f1,*r1,*r2));
 
 	// get data and combine all cats
 	cout << "Looking for datasets....." << endl;
