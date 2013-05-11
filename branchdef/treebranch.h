@@ -832,3 +832,15 @@ void Branch_jet_algoPF3_simple_mva_ext(TTree* tree) { tree->Branch("jet_algoPF3_
 void Branch_jet_algoPF3_area(TTree* tree) { tree->Branch("jet_algoPF3_area", &jet_algoPF3_area, "jet_algoPF3_area[jet_algoPF3_n]/F"); };
 void Branch_jet_algoPF1_area(TTree* tree) { tree->Branch("jet_algoPF1_area", &jet_algoPF1_area, "jet_algoPF1_area[jet_algoPF1_n]/F"); };
 void Branch_jet_algoPF2_area(TTree* tree) { tree->Branch("jet_algoPF2_area", &jet_algoPF2_area, "jet_algoPF2_area[jet_algoPF2_n]/F"); };
+void Branch_jet_algoPF1_nSecondaryVertices(TTree* tree) { tree->Branch("jet_algoPF1_nSecondaryVertices", &jet_algoPF1_nSecondaryVertices, "jet_algoPF1_nSecondaryVertices[jet_algo1_n]/F"); };
+void Branch_jet_algoPF1_secVtxPt(TTree* tree) { tree->Branch("jet_algoPF1_secVtxPt", &jet_algoPF1_secVtxPt, "jet_algoPF1_secVtxPt[jet_algo1_n]/F"); };
+void Branch_jet_algoPF1_secVtx3dL(TTree* tree) { tree->Branch("jet_algoPF1_secVtx3dL", &jet_algoPF1_secVtx3dL, "jet_algoPF1_secVtx3dL[jet_algo1_n]/F"); };
+void Branch_jet_algoPF1_secVtx3deL(TTree* tree) { tree->Branch("jet_algoPF1_secVtx3deL", &jet_algoPF1_secVtx3deL, "jet_algoPF1_secVtx3deL[jet_algo1_n]/F"); };
+void Branch_jet_algoPF2_nSecondaryVertices(TTree* tree) { tree->Branch("jet_algoPF2_nSecondaryVertices", &jet_algoPF2_nSecondaryVertices, "jet_algoPF2_nSecondaryVertices[jet_algo2_n]/F"); };
+void Branch_jet_algoPF2_secVtxPt(TTree* tree) { tree->Branch("jet_algoPF2_secVtxPt", &jet_algoPF2_secVtxPt, "jet_algoPF2_secVtxPt[jet_algo2_n]/F"); };
+void Branch_jet_algoPF2_secVtx3dL(TTree* tree) { tree->Branch("jet_algoPF2_secVtx3dL", &jet_algoPF2_secVtx3dL, "jet_algoPF2_secVtx3dL[jet_algo2_n]/F"); };
+void Branch_jet_algoPF2_secVtx3deL(TTree* tree) { tree->Branch("jet_algoPF2_secVtx3deL", &jet_algoPF2_secVtx3deL, "jet_algoPF2_secVtx3deL[jet_algo2_n]/F"); };
+void Branch_jet_algoPF3_nSecondaryVertices(TTree* tree) { tree->Branch("jet_algoPF3_nSecondaryVertices", &jet_algoPF3_nSecondaryVertices, "jet_algoPF3_nSecondaryVertices[jet_algo3_n]/F"); };
+void Branch_jet_algoPF3_secVtxPt(TTree* tree) { tree->Branch("jet_algoPF3_secVtxPt", &jet_algoPF3_secVtxPt, "jet_algoPF3_secVtxPt[jet_algo3_n]/F"); };
+void Branch_jet_algoPF3_secVtx3dL(TTree* tree) { tree->Branch("jet_algoPF3_secVtx3dL", &jet_algoPF3_secVtx3dL, "jet_algoPF3_secVtx3dL[jet_algo3_n]/F"); };
+void Branch_jet_algoPF3_secVtx3deL(TTree* tree) { tree->Branch("jet_algoPF3_secVtx3deL", &jet_algoPF3_secVtx3deL, "jet_algoPF3_secVtx3deL[jet_algo3_n]/F"); };
