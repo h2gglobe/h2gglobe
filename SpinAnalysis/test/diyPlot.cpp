@@ -15,6 +15,7 @@
 #include "TF1.h"
 #include "TPaveText.h"
 #include "TGraphErrors.h"
+#include "TEfficiency.h"
 #include "TStyle.h"
 #include "TMath.h"
 #include "Math/DistFunc.h"
@@ -80,6 +81,50 @@ namespace separation
   }
 
   template <class T>
+  std::pair<std::pair<double, double>, std::pair<double, double> > p_value_CP(std::vector<T> H0, std::vector<T> H1)
+  {
+    for(UInt_t i = 0; i < H0.size()-2; i++)
+      for(UInt_t j = 0; j < H0.size()-1-i; j++)
+        if(H0[j] > H0[j+1])
+          std::swap(H0[j], H0[j+1]);
+    for(UInt_t i = 0; i < H1.size()-2; i++)
+      for(UInt_t j = 0; j < H1.size()-1-i; j++)
+        if(H1[j] > H1[j+1])
+          std::swap(H1[j], H1[j+1]);
+
+    UInt_t size = H0.size();
+    T H0med = (size%2)?(H0[size/2]):((H0[size/2]+H0[size/2-1])/2);
+    size = H1.size();
+    T H1med = (size%2)?(H1[size/2]):((H1[size/2]+H1[size/2-1])/2);
+
+    Int_t H0pval = 0;
+    Int_t H1pval = 0;
+    for(UInt_t i = 0; i < H0.size(); i++)
+      if(H0[i] > H1med)
+      {
+        H0pval = H0.size()-(i-1);
+        break;
+      }
+    for(UInt_t i = 0; i < H1.size(); i++)
+      if(H1[i] > H0med)
+      {
+        H1pval = i;
+        break;
+      }
+
+    separation::NormalQuantile quant;
+    double width = 1.0;
+
+    std::pair<std::pair<double, double>, std::pair<double, double> > retVal;
+    retVal.first.first = TEfficiency::ClopperPearson(H0.size(), H0pval, 0.68, 1);
+    retVal.first.second = TEfficiency::ClopperPearson(H0.size(), H0pval, 0.68, 0);
+    retVal.second.first = TEfficiency::ClopperPearson(H1.size(), H1pval, 0.68, 1);
+    retVal.second.second = TEfficiency::ClopperPearson(H1.size(), H1pval, 0.68, 0);
+
+    return retVal;
+  }
+
+  template <class T>
   std::pair<
             std::pair<
                       std::pair<double, double>,
@@ -131,7 +176,6 @@ namespace separation
       }
 
       std::pair<std::pair<double, double>, std::pair<double, double> > temp = func(H0_small, H1_small);
-
       H0pvals.push_back(temp.first.first);
       H0pvalue += temp.first.first;
       H0sigmas.push_back(temp.first.second);
@@ -249,6 +293,12 @@ map<string,double> calcSeparation(TTree *tree)
   retVal.insert(std::pair<string, double>("GravProbErr_jk", p_values_jk.second.first.second));
   retVal.insert(std::pair<string, double>("SMSigmaErr_jk", p_values_jk.first.second.second));
   retVal.insert(std::pair<string, double>("GravSigmaErr_jk", p_values_jk.second.second.second));
+
+  p_values = separation::p_value_CP<double>(SMToys, GravToys);
+  retVal.insert(std::pair<string, double>("SMProb_Upper", p_values.first.first));
+  retVal.insert(std::pair<string, double>("SMProb_Lower", p_values.first.second));
+  retVal.insert(std::pair<string, double>("GravProb_Upper", p_values.second.first));
+  retVal.insert(std::pair<string, double>("GravProb_Lower", p_values.second.second));
 
 
   return retVal;
@@ -544,6 +594,10 @@ int main(int argc, char* argv[]){
 
     tree->Branch("UnbinnedSMProb", &temp["SMProb"]);
     tree->Branch("UnbinnedGravProb", &temp["GravProb"]);
+    tree->Branch("UnbinnedSMProbCPUpper", &temp["SMProb_Upper"]);
+    tree->Branch("UnbinnedSMProbCPLower", &temp["SMProb_Lower"]);
+    tree->Branch("UnbinnedGravProbCPUpper", &temp["GravProb_Upper"]);
+    tree->Branch("UnbinnedGravProbCPLower", &temp["GravProb_Lower"]);
     tree->Branch("UnbinnedSMProbErr", &temp["SMProbErr"]);
     tree->Branch("UnbinnedGravProbErr", &temp["GravProbErr"]);
 
