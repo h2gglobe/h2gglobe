@@ -121,7 +121,7 @@ string getCatName(pair<int,int> cat){
   return Form("cat%d_spin%d",cat.first,cat.second);
 }
 
-void fillDataSet(RooRealVar *mass, map<string,RooDataSet*> &dataMap, vector<TTree*> trees, bool isMassFac, double mlow, double mhigh, std::vector<double> cosThetaBoundaries){
+void fillDataSet(RooRealVar *mass, map<string,RooDataSet*> &dataMap, vector<TTree*> trees, bool isMassFac, double mlow, double mhigh, std::vector<double> cosThetaBoundaries, std::map<string, double> JetVeto){
 
   int category;
   float evweight;
@@ -132,6 +132,7 @@ void fillDataSet(RooRealVar *mass, map<string,RooDataSet*> &dataMap, vector<TTre
   float sublead_r9;
   float diphoton_bdt;
   double higgs_mass;
+  std::vector<std::pair<double, double> > Jets;
 
   for (vector<TTree*>::iterator treeIt=trees.begin(); treeIt!=trees.end(); treeIt++){
     TTree *tree = *treeIt;
@@ -144,6 +145,7 @@ void fillDataSet(RooRealVar *mass, map<string,RooDataSet*> &dataMap, vector<TTre
     tree->SetBranchAddress("sublead_r9",&sublead_r9);
     tree->SetBranchAddress("diphoton_bdt",&diphoton_bdt);
     tree->SetBranchAddress("higgs_mass",&higgs_mass);
+    tree->SetBranchAddress("jets", &Jets);
 
     cout << "Filling from " << tree->GetName() << endl;
     for (int e=0; e<tree->GetEntries(); e++){
@@ -154,6 +156,19 @@ void fillDataSet(RooRealVar *mass, map<string,RooDataSet*> &dataMap, vector<TTre
       else mycat = getCutBasedCategory(lead_calo_eta,sublead_calo_eta,lead_r9,sublead_r9,costheta_cs,cosThetaBoundaries);
       if (mycat.first==-1 || mycat.second==-1) continue;
       if (higgs_mass<mlow || higgs_mass>mhigh) continue;
+      if (JetVeto["doJetVeto"] != 0)
+      {
+        bool veto = false;
+        for(UInt_t jet = 0; jet < Jets.size(); jet++)
+        {
+          if(abs(Jets[jet].first) < JetVeto["maxEta"] && Jets[jet].second > JetVeto["minPT"])
+          {
+            veto = true;
+            break;
+          }
+        }
+        if(veto) continue;
+      }
       mass->setVal(higgs_mass);
       string catname = getCatName(mycat);
       dataMap[catname]->add(*mass,evweight);
@@ -353,6 +368,10 @@ int main(int argc, char* argv[]){
   string boundaries="";
   bool correlateCosThetaCategories = false;
   bool useBackgroundMC = false;
+  std::map<string, double> JetVeto;
+  JetVeto.insert(std::pair<string, double>("doJetVeto", 0.));
+  JetVeto.insert(std::pair<string, double>("maxEta", 0.));
+  JetVeto.insert(std::pair<string, double>("minPT", 30000.));
 
   if (argc!=2){
     cout << "usage ./bin/diyBuildWorkspace <datfilename>" << endl;
@@ -381,6 +400,18 @@ int main(int argc, char* argv[]){
       if (line.find("catBoundaries=")!=string::npos) boundaries = line.substr(line.find("=")+1,string::npos);
       if (line.find("correlateCosThetaCategories=")!=string::npos) correlateCosThetaCategories = boost::lexical_cast<bool>(line.substr(line.find("=")+1,string::npos));
       if (line.find("useBackgroundMC=")!=string::npos) useBackgroundMC = boost::lexical_cast<bool>(line.substr(line.find("=")+1,string::npos));
+      if (line.find("jetVeto=")!=string::npos)
+      {
+        string temp = line.substr(line.find("=")+1,string::npos);
+        size_t divider = temp.find(" ");
+
+        std::stringstream eta( temp.substr(0,divider) );
+        std::stringstream pt ( temp.substr(divider+1) );
+
+        eta >> JetVeto["maxEta"];
+        pt  >> JetVeto["minPT"];
+        JetVeto["doJetVeto"] = true;
+      }
     }
     datfile.close();
 
@@ -491,9 +522,9 @@ int main(int argc, char* argv[]){
     }
   }
   cout << "BDTCats: " << nBDTCats << endl << "SpinCats: " << nSpinCats << endl;
-  fillDataSet(mass,dataDSet,dataTrees,isMassFac,mlow,mhigh,cosThetaBoundaries);
-  fillDataSet(mass,spin0DSet,spin0Trees,isMassFac,mlow,mhigh,cosThetaBoundaries);
-  fillDataSet(mass,spin2DSet,spin2Trees,isMassFac,mlow,mhigh,cosThetaBoundaries);
+  fillDataSet(mass,dataDSet,dataTrees,isMassFac,mlow,mhigh,cosThetaBoundaries,JetVeto);
+  fillDataSet(mass,spin0DSet,spin0Trees,isMassFac,mlow,mhigh,cosThetaBoundaries,JetVeto);
+  fillDataSet(mass,spin2DSet,spin2Trees,isMassFac,mlow,mhigh,cosThetaBoundaries,JetVeto);
 
   double totalSM=0.;
   double totalGRAV=0.;
