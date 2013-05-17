@@ -132,10 +132,11 @@ void fillDataSet(RooRealVar *mass, map<string,RooDataSet*> &dataMap, vector<TTre
   float sublead_r9;
   float diphoton_bdt;
   double higgs_mass;
-  std::vector<std::pair<double, double> > Jets;
+  std::vector<std::pair<double, double> > * Jets = 0;
 
   for (vector<TTree*>::iterator treeIt=trees.begin(); treeIt!=trees.end(); treeIt++){
     TTree *tree = *treeIt;
+    cout << "Tree: " << tree << endl;
     tree->SetBranchAddress("category",&category);
     tree->SetBranchAddress("evweight",&evweight);
     tree->SetBranchAddress("costheta_cs",&costheta_cs);
@@ -145,9 +146,14 @@ void fillDataSet(RooRealVar *mass, map<string,RooDataSet*> &dataMap, vector<TTre
     tree->SetBranchAddress("sublead_r9",&sublead_r9);
     tree->SetBranchAddress("diphoton_bdt",&diphoton_bdt);
     tree->SetBranchAddress("higgs_mass",&higgs_mass);
-    tree->SetBranchAddress("jets", &Jets);
+    //TBranch * temp = 0;
+    if(JetVeto["doJetVeto"] != 0)
+    {
+      tree->SetBranchAddress("jets", &Jets);//, &temp);
+    }
 
     cout << "Filling from " << tree->GetName() << endl;
+    //cout << "Max Eta: " << JetVeto["maxEta"] << "; Min PT: " << JetVeto["minPT"] << endl;
     for (int e=0; e<tree->GetEntries(); e++){
       tree->GetEntry(e);
       if (e%10000==0) cout << "Entry " << e << " of " << tree->GetEntries() << endl;
@@ -159,9 +165,9 @@ void fillDataSet(RooRealVar *mass, map<string,RooDataSet*> &dataMap, vector<TTre
       if (JetVeto["doJetVeto"] != 0)
       {
         bool veto = false;
-        for(UInt_t jet = 0; jet < Jets.size(); jet++)
+        for(UInt_t jet = 0; jet < Jets->size(); jet++)
         {
-          if(abs(Jets[jet].first) < JetVeto["maxEta"] && Jets[jet].second > JetVeto["minPT"])
+          if(abs((*Jets)[jet].first) < JetVeto["maxEta"] && (*Jets)[jet].second > JetVeto["minPT"])
           {
             veto = true;
             break;
