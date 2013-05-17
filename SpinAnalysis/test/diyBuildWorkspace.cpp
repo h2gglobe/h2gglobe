@@ -133,6 +133,8 @@ void fillDataSet(RooRealVar *mass, map<string,RooDataSet*> &dataMap, vector<TTre
   float diphoton_bdt;
   double higgs_mass;
   std::vector<std::pair<double, double> > * Jets = 0;
+  Int_t totalEvents = 0;
+  Int_t initEvents = 0;
 
   for (vector<TTree*>::iterator treeIt=trees.begin(); treeIt!=trees.end(); treeIt++){
     TTree *tree = *treeIt;
@@ -154,6 +156,8 @@ void fillDataSet(RooRealVar *mass, map<string,RooDataSet*> &dataMap, vector<TTre
 
     cout << "Filling from " << tree->GetName() << endl;
     //cout << "Max Eta: " << JetVeto["maxEta"] << "; Min PT: " << JetVeto["minPT"] << endl;
+    Int_t ini_Ev = tree->GetEntries();
+    Int_t end_Ev = 0;
     for (int e=0; e<tree->GetEntries(); e++){
       tree->GetEntry(e);
       if (e%10000==0) cout << "Entry " << e << " of " << tree->GetEntries() << endl;
@@ -178,8 +182,14 @@ void fillDataSet(RooRealVar *mass, map<string,RooDataSet*> &dataMap, vector<TTre
       mass->setVal(higgs_mass);
       string catname = getCatName(mycat);
       dataMap[catname]->add(*mass,evweight);
+      end_Ev++;
     }
+
+    totalEvents += end_Ev;
+    initEvents += ini_Ev;
   }
+
+  cout << "Initial: " << initEvents << "; Final:" << totalEvents << endl;
 }
 
 void Plot(string name, RooRealVar *mass, RooDataSet* data, RooAbsPdf* pdf){

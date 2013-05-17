@@ -525,10 +525,10 @@ int main(int argc, char* argv[]){
           repeat = true;
         }
         count++;
+        muSM_perCTbin[s] = fitModel->getVariables()->getRealValue("muSM");
         delete fitRes;
         delete fitModel;
       }while(repeat && count<MAX_REPEAT);
-      muSM_perCTbin[s] = muSM->getVal();
 
       repeat = false;
       count = 0;
@@ -542,10 +542,10 @@ int main(int argc, char* argv[]){
           repeat = true;
         }
         count++;
+        muGRAV_perCTbin[s] = fitModel->getVariables()->getRealValue("muGRAV");
         delete fitRes;
         delete fitModel;
       }while(repeat && count<MAX_REPEAT);
-      muGRAV_perCTbin[s] = muGRAV->getVal();
 
     }
 
@@ -572,11 +572,11 @@ int main(int argc, char* argv[]){
         repeat = true;
       }
       count++;
+      muSMSM_ = fitModel->getVariables()->getRealValue("muSM");
       delete fitModel;
     }while(repeat && count<MAX_REPEAT);
     fitStatus[0] = fitResSMSM->status();
     fitCovStatus[0] = fitResSMSM->covQual();
-    muSMSM_ = muSM->getVal();
 
     muSM->setVal(1.);
     repeat = false;
@@ -592,11 +592,11 @@ int main(int argc, char* argv[]){
         repeat = true;
       }
       count++;
+      muSMGRAV_ = fitModel->getVariables()->getRealValue("muSM");
       delete fitModel;
     }while(repeat && count<MAX_REPEAT);
     fitStatus[1] = fitResSMGRAV->status();
     fitCovStatus[1] = fitResSMGRAV->covQual();
-    muSMGRAV_ = muSM->getVal();
 
     muGRAV->setVal(1.);
     repeat = false;
@@ -612,11 +612,11 @@ int main(int argc, char* argv[]){
         repeat = true;
       }
       count++;
+      muGRAVSM_ = fitModel->getVariables()->getRealValue("muGRAV");
       delete fitModel;
     }while(repeat && count<MAX_REPEAT);
     fitStatus[2] = fitResGRAVSM->status();
     fitCovStatus[2] = fitResGRAVSM->covQual();
-    muGRAVSM_ = muGRAV->getVal();
 
     muGRAV->setVal(1.);
     repeat = false;
@@ -632,11 +632,11 @@ int main(int argc, char* argv[]){
         repeat = true;
       }
       count++;
+      muGRAVGRAV_ = fitModel->getVariables()->getRealValue("muGRAV");
       delete fitModel;
     }while(repeat && count<MAX_REPEAT);
     fitStatus[3] = fitResGRAVGRAV->status();
     fitCovStatus[3] = fitResGRAVGRAV->covQual();
-    muGRAVGRAV_ = muGRAV->getVal();
 
     cout << "Fits done. Getting NLL...." << endl;
 
