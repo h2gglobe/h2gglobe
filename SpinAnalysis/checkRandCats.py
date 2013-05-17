@@ -33,6 +33,11 @@ for cat in catInfo:
     fp = open('%s/submittedJobs.json'%catInfo[cat][1])
     submittedJobs = json.load(fp)
 
+  haddedJobs = []
+  if os.path.exists('%s/haddedJobs.json'%catInfo[cat][1]):
+    fp = open('%s/haddedJobs.json'%catInfo[cat][1])
+    haddedJobs = json.load(fp)
+
   print "\tOut of %d job arrays, %d have been processed and %d have been submitted."%(len(jobs), len(processedJobs), len(submittedJobs))
 
   for job in jobs:
@@ -88,13 +93,13 @@ for cat in catInfo:
         os.system(processCommand)
         os.chdir(startDir)
 
-      if len(finished) != 0:
-        print "\tFinished jobs: ",finished
-        var = raw_input("\t  Do you want to hadd the finished jobs? [y]/[n]\n\t    ")
+      if len(finished) != 0 and job not in haddedJobs:
+        print "\t    Finished jobs: ",finished
+        var = raw_input("\t      Do you want to hadd the finished jobs? [y]/[n]\n\t        ")
         if var == "":
           var = "y"
         if var=='y' or var=='Y' or var =='yes':
-          haddline="hadd -f %s/qmu.root"%dir
+          haddline="hadd -f %s/qmu.root"%jobdir
           for jobnum in finished:
             if not os.path.exists("%s/job%d/LLOut.root"%(jobdir,jobnum)):
               print "\t  Unable to find LLOut.root for job %d"%jobnum
@@ -102,5 +107,10 @@ for cat in catInfo:
               haddline += " %s/job%d/LLOut.root"%(jobdir, jobnum)
           #print haddline
           os.system(haddline)
+          if len(finished) == numRuns:
+            haddedJobs.append(job)
+
+  with open('%s/haddedJobs.json'%catInfo[cat][1], 'wb') as fp:
+    json.dump(haddedJobs, fp)
 
   print ""
