@@ -7,6 +7,10 @@ import glob
 import fnmatch
 import ROOT
 
+ROOT.gROOT.SetStyle("Plain")
+ROOT.gStyle.SetOptStat(0)
+ROOT.gStyle.SetOptTitle(0)
+
 baseDirectory = sys.argv[1]
 subDirs = [x[1] for x in os.walk(baseDirectory)]
 subDirs = [baseDirectory+"/"+x for x in subDirs[0]]
@@ -47,17 +51,19 @@ if haddLine != "hadd -f %s/%s/separation.root"%(startDir,baseDirectory):
   tree = file.Get("Separation")
   values = []
   for ev in tree:
-    values.append((ev.UnbinnedSMSigma, ev.UnbinnedSMSigmaErr, ev.nCats))
+    values.append((ev.UnbinnedGravSigma, ev.UnbinnedGravSigmaErr, ev.nCats))
 
   minVal = min([x[2] for x in values])
   maxVal = max([x[2] for x in values])
 
-  hist = ROOT.TH1F("Separation", "Separation", int(len(values)+2), minVal-1.5, maxVal+1.5)
+  hist = ROOT.TH1F("Separation", "Separation;nCats;p( q < median(0) | 2 )", int(len(values)+2), minVal-1.5, maxVal+1.5)
   for x in values:
     hist.SetBinContent(hist.FindBin(x[2]), x[0])
     hist.SetBinError(hist.FindBin(x[2]), x[1])
   errors = ROOT.TH1F(hist)
   errors2 = ROOT.TH1F(hist)
+
+  errors.SetNameTitle("Separation", "Separation;nCats;p( q < median(0) | 2 )")
 
   canvas = ROOT.TCanvas("Sep", "Sep", 800, 600)
   #kBlue, kRed, kGreen, kCyan, kMagenta, kYellow
