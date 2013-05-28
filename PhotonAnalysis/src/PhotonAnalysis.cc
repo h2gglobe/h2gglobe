@@ -1691,7 +1691,8 @@ void PhotonAnalysis::PreselectPhotons(LoopAll& l, int jentry)
 // ----------------------------------------------------------------------------------------------------
 void PhotonAnalysis::FillReductionVariables(LoopAll& l, int jentry)
 {
-    cout<<"myFillReduceVar START"<<endl;
+    if(PADEBUG)
+	cout<<"myFillReduceVar START"<<endl;
 
     PreselectPhotons(l,jentry);
 

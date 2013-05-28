@@ -1073,34 +1073,38 @@ TLorentzVector LoopAll::shiftMet(TLorentzVector *uncormet, bool isMC) {
 //met at analysis step
 TLorentzVector LoopAll::correctMet_Simple( TLorentzVector & pho_lead, TLorentzVector & pho_sublead,TLorentzVector *uncormet, bool smearing, bool scale) {
 
-    TRandom3 *jSmearRan= new TRandom3(event);
+    TRandom3 jSmearRan(event);
     TLorentzVector jetSumSmeared;
     jetSumSmeared.SetXYZT(0.,0.,0.,0);
     TLorentzVector jetSumUnsmeared;
     jetSumUnsmeared.SetXYZT(0.,0.,0.,0);
     
+    TLorentzVector p4_jet;
+
     //associating reco - gen met
     for(int i=0; i<jet_algoPF1_n; i++){
-        TLorentzVector * p4_jet = (TLorentzVector *) jet_algoPF1_p4->At(i);
+      // TLorentzVector * p4_jet = (TLorentzVector *) jet_algoPF1_p4->At(i);
+	p4_jet = (TLorentzVector&) *( jet_algoPF1_p4->At(i) );
         if( version >= 13 ) {
-            p4_jet = (TLorentzVector *) p4_jet->Clone();
-            *p4_jet = (*p4_jet) * (1/jet_algoPF1_erescale[i]);
+	    //// p4_jet = (TLorentzVector *) p4_jet->Clone();
+            //// *p4_jet = (*p4_jet) * (1/jet_algoPF1_erescale[i]);
+	    p4_jet *= 1. / jet_algoPF1_erescale[i];
         }
         bool isJet_LeadPho = false;
         bool isJet_SubLeadPho = false;
         
-        double dR_jet_PhoLead = p4_jet->DeltaR(pho_lead);
+        double dR_jet_PhoLead = p4_jet.DeltaR(pho_lead);
         if( dR_jet_PhoLead<0.5 ) isJet_LeadPho = true;
         
-        double dR_jet_PhoSubLead = p4_jet->DeltaR(pho_sublead);
+        double dR_jet_PhoSubLead = p4_jet.DeltaR(pho_sublead);
         if( dR_jet_PhoSubLead<0.5 ) isJet_SubLeadPho = true;
         
         if( isJet_LeadPho || isJet_SubLeadPho ) continue;
         
-        double ptJet_pfakt5 = p4_jet->Pt();
-        double eJet_pfakt5 = p4_jet->Energy();
-        double etaJet_pfakt5 = p4_jet->Eta();
-        double phiJet_pfakt5 = p4_jet->Phi();
+        double ptJet_pfakt5 = p4_jet.Pt();
+        double eJet_pfakt5 = p4_jet.Energy();
+        double etaJet_pfakt5 = p4_jet.Eta();
+        double phiJet_pfakt5 = p4_jet.Phi();
         double ptCorrJet_pfakt5 = ptJet_pfakt5*jet_algoPF1_erescale[i];
         
         //smearing via association with genjets
@@ -1129,8 +1133,8 @@ TLorentzVector LoopAll::correctMet_Simple( TLorentzVector & pho_lead, TLorentzVe
         else {
             double expres = ErrEt(ptJet_pfakt5, etaJet_pfakt5);
             double relsmear = expres * sqrt(smear*smear-1);
-            jSmearRan->SetSeed(event+(Int_t)(etaJet_pfakt5*1000));
-            shift = jSmearRan->Gaus(0.,relsmear);
+            jSmearRan.SetSeed(event+(Int_t)(etaJet_pfakt5*1000));
+            shift = jSmearRan.Gaus(0.,relsmear);
         }
         
         float ptSmeared  = ptJet_pfakt5;

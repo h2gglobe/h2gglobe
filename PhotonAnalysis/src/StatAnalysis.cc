@@ -1268,23 +1268,23 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
                     << "    elmeg2:"<<      -1;
             }
 
-            if(VHmetevent){
-                TLorentzVector myMet = l.METCorrection2012B(lead_p4, sublead_p4); 
-                float corrMet    = myMet.Pt();
-                float corrMetPhi = myMet.Phi();
-
-                eventListText 
-                    << "    metuncor:"<<        l.met_pfmet
-                    << "    metphiuncor:"<<     l.met_phi_pfmet
-                    << "    metcor:"<<          corrMet
-                    << "    metphicor:"<<       corrMetPhi;
-            } else {
-                eventListText 
-                    << "    metuncor:"<<        -1
-                    << "    metphiuncor:"<<     -1
-                    << "    metcor:"<<          -1
-                    << "    metphicor:"<<       -1;
-            }
+            //// if(VHmetevent){
+	    //// TLorentzVector myMet = l.METCorrection2012B(lead_p4, sublead_p4); 
+	    //// float corrMet    = myMet.Pt();
+	    //// float corrMetPhi = myMet.Phi();
+	    //// 
+	    //// eventListText 
+	    ////     << "    metuncor:"<<        l.met_pfmet
+	    ////     << "    metphiuncor:"<<     l.met_phi_pfmet
+	    ////     << "    metcor:"<<          corrMet
+	    ////     << "    metphicor:"<<       corrMetPhi;
+            //// } else {
+	    eventListText 
+		<< "    metuncor:"<<        -1
+		<< "    metphiuncor:"<<     -1
+		<< "    metcor:"<<          -1
+		<< "    metphicor:"<<       -1;
+	    //// }
         
 	        if( VBFevent ) {
 		        eventListText 
@@ -1628,14 +1628,14 @@ void StatAnalysis::fillControlPlots(const TLorentzVector & lead_p4, const  TLore
             l.FillHist("pho_rawe",category+1,l.sc_raw[l.pho_scind[l.dipho_leadind[diphoton_id]]], evweight);
             l.FillHist("pho_rawe",category+1,l.sc_raw[l.pho_scind[l.dipho_subleadind[diphoton_id]]], evweight);
 
-            TLorentzVector myMet = l.METCorrection2012B(lead_p4, sublead_p4);
-            float corrMet    = myMet.Pt();
-            float corrMetPhi = myMet.Phi();
-
-            l.FillHist("uncorrmet",     category+1, l.met_pfmet, evweight);
-            l.FillHist("uncorrmetPhi",  category+1, l.met_phi_pfmet, evweight);
-            l.FillHist("corrmet",       category+1, corrMet,    evweight);
-            l.FillHist("corrmetPhi",    category+1, corrMetPhi, evweight);
+            ///// TLorentzVector myMet = l.METCorrection2012B(lead_p4, sublead_p4);
+            ///// float corrMet    = myMet.Pt();
+            ///// float corrMetPhi = myMet.Phi();
+	    ///// 
+            ///// l.FillHist("uncorrmet",     category+1, l.met_pfmet, evweight);
+            ///// l.FillHist("uncorrmetPhi",  category+1, l.met_phi_pfmet, evweight);
+            ///// l.FillHist("corrmet",       category+1, corrMet,    evweight);
+            ///// l.FillHist("corrmetPhi",    category+1, corrMetPhi, evweight);
 
             if( mvaVbfSelection ) {
                 if (!multiclassVbfSelection) {
@@ -1678,13 +1678,13 @@ void StatAnalysis::fillControlPlots(const TLorentzVector & lead_p4, const  TLore
                 }
 
                 if (VHmetevent){
-                    ControlPlotsMetTag2012B(l, lead_p4, sublead_p4, diphobdt_output, evweight, label);
+                    //// ControlPlotsMetTag2012B(l, lead_p4, sublead_p4, diphobdt_output, evweight, label);
                     l.FillHist("METTag_sameVtx",   (int)isEBEB, (float)(0==l.dipho_vtxind[diphoton_id]), evweight);
                 }
 
-                label.clear();
-                label+="nometcut";
-                ControlPlotsMetTag2012B(l, lead_p4, sublead_p4, diphobdt_output, evweight, label);
+                //// label.clear();
+                //// label+="nometcut";
+                //// ControlPlotsMetTag2012B(l, lead_p4, sublead_p4, diphobdt_output, evweight, label);
 
                 label.clear();
                 label+="nomvacut";
@@ -1695,7 +1695,7 @@ void StatAnalysis::fillControlPlots(const TLorentzVector & lead_p4, const  TLore
                     ControlPlotsElectronTag2012B(l, lead_p4, sublead_p4, el_ind, diphobdt_output, evweight, label);
                 }
                 if (VHmetevent){
-                    ControlPlotsMetTag2012B(l, lead_p4, sublead_p4, diphobdt_output, evweight, label);
+                    //// ControlPlotsMetTag2012B(l, lead_p4, sublead_p4, diphobdt_output, evweight, label);
                 }
 
             }
@@ -1709,7 +1709,7 @@ void StatAnalysis::fillControlPlots(const TLorentzVector & lead_p4, const  TLore
             ControlPlotsElectronTag2012B(l, lead_p4, sublead_p4, el_ind, diphobdt_output, evweight, label);
         }
         if (VHmetevent){
-            ControlPlotsMetTag2012B(l, lead_p4, sublead_p4, diphobdt_output, evweight, label);
+            //// ControlPlotsMetTag2012B(l, lead_p4, sublead_p4, diphobdt_output, evweight, label);
         }
     }
 }

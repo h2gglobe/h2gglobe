@@ -1149,24 +1149,24 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
                     << "    elmeg2:"<<      -1;
             }
 
-            if(VHmetevent){
-                TLorentzVector myMet = l.METCorrection2012B(lead_p4, sublead_p4); 
-                float corrMet    = myMet.Pt();
-                float corrMetPhi = myMet.Phi();
-
-                eventListText 
-                    << "    metuncor:"<<        l.met_pfmet
-                    << "    metphiuncor:"<<     l.met_phi_pfmet
-                    << "    metcor:"<<          corrMet
-                    << "    metphicor:"<<       corrMetPhi;
-            } else {
-                eventListText 
-                    << "    metuncor:"<<        -1
-                    << "    metphiuncor:"<<     -1
-                    << "    metcor:"<<          -1
-                    << "    metphicor:"<<       -1;
-            }
-
+            ///if(VHmetevent){
+	    //// TLorentzVector myMet = l.METCorrection2012B(lead_p4, sublead_p4); 
+	    //// float corrMet    = myMet.Pt();
+	    //// float corrMetPhi = myMet.Phi();
+	    //// 
+	    //// eventListText 
+	    ////     << "    metuncor:"<<        l.met_pfmet
+	    ////     << "    metphiuncor:"<<     l.met_phi_pfmet
+	    ////     << "    metcor:"<<          corrMet
+	    ////     << "    metphicor:"<<       corrMetPhi;
+	    //// } else {
+	    eventListText 
+		<< "    metuncor:"<<        -1
+		<< "    metphiuncor:"<<     -1
+		<< "    metcor:"<<          -1
+		<< "    metphicor:"<<       -1;
+	    //// }
+	
             eventListText << endl;
         }
 	return (l.runZeeValidation || fillEscaleTrees || (saveSpinTrees_ && mass>=massMin && mass<=massMax) || (category >= 0 && mass>=massMin && mass<=massMax));
