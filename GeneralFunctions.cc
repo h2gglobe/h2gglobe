@@ -1175,17 +1175,25 @@ TLorentzVector LoopAll::correctMet_Simple( TLorentzVector & pho_lead, TLorentzVe
 
 TLorentzVector LoopAll::METCorrection2012B(TLorentzVector lead_p4, TLorentzVector sublead_p4){
   
+  // corrected met
+  static TLorentzVector finalCorrMET;
+  static int lastEvent=-1, lastLumi=-1, lastRun=-1;
+  static bool lastIsMC;
+  static TLorentzVector last_lead, last_sublead;
+  
+  bool isMC = itype[current]!=0;
+
+  if( event == lastEvent && lumis == lastLumi && run == lastRun && lastIsMC == isMC &&
+      last_lead == lead_p4 && last_sublead == sublead_p4 ) {
+	  return finalCorrMET;
+  }
+
   // uncorrected PF met
   TLorentzVector unpfMET;
   unpfMET.SetPxPyPzE (met_pfmet*cos(met_phi_pfmet),met_pfmet*sin(met_phi_pfmet),0,
 		      sqrt(met_pfmet*cos(met_phi_pfmet) * met_pfmet*cos(met_phi_pfmet) 
 			   + met_pfmet*sin(met_phi_pfmet) * met_pfmet*sin(met_phi_pfmet))); 
   
-  bool isMC = itype[current]!=0;
-
-  // corrected met
-  TLorentzVector finalCorrMET;
-
   if (isMC) {
     // smear raw met
     TLorentzVector smearMET_corr = correctMet_Simple( lead_p4, sublead_p4 , &unpfMET, true, false);
@@ -1205,6 +1213,13 @@ TLorentzVector LoopAll::METCorrection2012B(TLorentzVector lead_p4, TLorentzVecto
     TLorentzVector shiftscaleMET_corr = correctMet_Simple( lead_p4, sublead_p4 , &shiftedMET, false , true);
     finalCorrMET = shiftscaleMET_corr;
   }
+
+  lastEvent = event;
+  lastLumi  = lumis;
+  lastRun   = run;
+  lastIsMC  = isMC;
+  last_lead = lead_p4;
+  last_sublead = sublead_p4;
   
   return finalCorrMET;
 }
