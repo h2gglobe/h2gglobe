@@ -15,6 +15,49 @@
 #include <fstream>
 #include "math.h"
 
+class TreeVariables {
+
+public:
+    
+    TreeVariables();
+
+    int entry;
+    int   nPU;
+    float weight;
+    float sampleweight;
+    
+    int   jet1, jet2, jet3;
+    float diphomva;
+    float pho1pt;
+    float pho2pt;
+    float diphopt;
+    float diphoM;
+    float diphoEta;
+    float dijetEta;
+    float jet1isMatched,jet2isMatched;
+    float jet1genPt,jet2genPt;
+    float jet1genDr,jet2genDr;
+    float jet1Pt, jet2Pt, jet1Eta, jet2Eta, zepp, mj1j2, dphi, dphiJJ, dphiJJ2, deltaEta3;
+    bool  jet1PileupID,jet2PileupID ;
+    bool  isSignal;
+    int   mctype;
+
+    float pho1Eta;
+    float pho2Eta;
+    float pho1r9;
+    float pho2r9;
+    float pho1idMva;
+    float pho2idMva;
+    float pho1sEoverE;
+    float pho2sEoverE;
+    float pho1sEoverEsmear;
+    float pho2sEoverEsmear;
+    float diphosMoverM;
+    float diphosMoverMwv;
+    float diphovtxProb;
+    
+};
+
 // ------------------------------------------------------------------------------------
 class VbfAnalysis : public MassFactorizedMvaAnalysis 
 {
@@ -42,30 +85,16 @@ class VbfAnalysis : public MassFactorizedMvaAnalysis
 		      BaseGenLevelSmearer *genSys=0, BaseSmearer *phoSys=0, BaseDiPhotonSmearer * diPhoSys=0); 
 
     
-    bool recomputeJetId, expoMatching, dumpFlatTree;
+    bool recomputeJetId, expoMatching, dumpFlatTree, requireTwoJets;
     
     
 private:
     TFile * outputFile_;
     TTree * flatTree_;
-    int tree_entry;
-    int   tree_nPU,_nVertices;
-    float tree_evWeight;
+    int _nVertices;
+    
+    TreeVariables tree_, default_;
 
-    float tree_diphomva;
-    float tree_pho1pt;
-    float tree_pho2pt;
-    float tree_diphopt;
-    float tree_diphoM;
-    float tree_diphoEta;
-    float tree_dijetEta;
-    float tree_jet1isMatched,tree_jet2isMatched;
-    float tree_jet1genPt,tree_jet2genPt;
-    float tree_jet1genDr,tree_jet2genDr;
-    float tree_jet1pt, tree_jet2pt, tree_jet1eta, tree_jet2eta, tree_zepp, tree_mj1j2, tree_dphi, tree_dphiJJ, tree_dphiJJ2, tree_deltaEta3;    
-    bool  tree_jet1PileupID,tree_jet2PileupID ;
-    bool  tree_isSignal;
-    int   tree_mctype;
 };
 
 #endif
