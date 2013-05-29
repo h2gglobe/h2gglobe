@@ -157,6 +157,13 @@ public:
 	float sumtwd(int i) const { return 	sumtwd_[ipair_][i]; };	
 	float awytwdasym(int i) const { return awytwdasym_[ipair_][i]; };
 	
+	float nchpho1(int i) const { return 	nchpho1_[ipair_][i]; };
+	float nchpho2(int i) const { return 	nchpho2_[ipair_][i]; };
+	float sumpt2in(int i) const { return 	sumpt2in_[ipair_][i]; };
+	float sumpt2out(int i) const { return 	sumpt2out_[ipair_][i]; };
+
+
+
 	// read and write info to plain ROOT TTree
 	void branches(TTree *, const std::string & );
 	void setBranchAdresses(TTree *, const std::string &);
@@ -241,6 +248,12 @@ private:
 
 	std::vector<std::vector<float> > awytwdasym_;
 
+
+	std::vector<std::vector<float> > nchpho1_;
+	std::vector<std::vector<float> > nchpho2_;
+	std::vector<std::vector<float> > sumpt2in_;
+	std::vector<std::vector<float> > sumpt2out_;
+
 	std::vector<int> pho1_, pho2_;
 	std::vector<int> * ppho1_, * ppho2_;
 	int ninvalid_idxs_;
@@ -254,6 +267,7 @@ private:
 	std::vector<std::vector<float> > * pdiphopx ;
 	std::vector<std::vector<float> > * pdiphopy ;
 	std::vector<std::vector<float> > * pnch ;
+
 	std::vector<std::vector<float> > * pptmax ;
 	std::vector<std::vector<float> > * psumpt ;
 	std::vector<std::vector<float> > * pptvtx ;
@@ -280,6 +294,11 @@ private:
 	std::vector<std::vector<float> > * psumtrv ;
 	std::vector<std::vector<float> > * psumtwd ;
 	std::vector<std::vector<float> > * pawytwdasym ;
+
+	std::vector<std::vector<float> > * pnchpho1 ;
+	std::vector<std::vector<float> > * pnchpho2 ;
+	std::vector<std::vector<float> > * psumpt2in ;
+	std::vector<std::vector<float> > * psumpt2out ;
 
 	// per-event MVA
 	static float evt_diphoPt, evt_nvert, evt_nconv;

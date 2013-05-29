@@ -150,6 +150,11 @@ void HggVertexAnalyzer::fillDictionary(HggVertexAnalyzer::dict_t& dictionary)
 	dictionary["sumtrv"] = make_pair(&HggVertexAnalyzer::sumtrv,false);
 	dictionary["sumtwd"] = make_pair(&HggVertexAnalyzer::sumtwd,false);
 	dictionary["awytwdasym"] = make_pair( &HggVertexAnalyzer::awytwdasym,false);
+
+	dictionary["nchpho1"]   = make_pair(&HggVertexAnalyzer::nchpho1,false);
+	dictionary["nchpho2"]   = make_pair(&HggVertexAnalyzer::nchpho2,false);
+	dictionary["sumpt2in"] = make_pair(&HggVertexAnalyzer::sumpt2in,false);
+	dictionary["sumpt2out"] = make_pair(&HggVertexAnalyzer::sumpt2out,false);
 }
 
 // -------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -200,6 +205,11 @@ HggVertexAnalyzer::HggVertexAnalyzer(AlgoParameters & ap, int nvtx) :
 	psumtwd = &sumtwd_;
 	pawytwdasym = &awytwdasym_;
 
+	pnchpho1 = &nchpho1_;
+	pnchpho2 = &nchpho2_;
+	psumpt2in = &sumpt2in_;
+	psumpt2out = &sumpt2out_;
+
 	ppho1_ = &pho1_;
 	ppho2_ = &pho2_;
 }
@@ -218,6 +228,8 @@ void HggVertexAnalyzer::branches(TTree * tree, const std::string & pfx)
 	tree->Branch((pfx+"diphopx").c_str(), &diphopx_ );
 	tree->Branch((pfx+"diphopy").c_str(), &diphopy_ );
 	tree->Branch((pfx+"nch").c_str(), &nch_ )  ;
+	tree->Branch((pfx+"nchpho1").c_str(), &nchpho1_ )  ;
+	tree->Branch((pfx+"nchpho2").c_str(), &nchpho2_ )  ;
 	tree->Branch((pfx+"ptmax").c_str(), &ptmax_ );
 	tree->Branch((pfx+"sumpt").c_str(), &sumpt_ );
 	tree->Branch((pfx+"ptvtx").c_str(), &ptvtx_ );
@@ -233,6 +245,9 @@ void HggVertexAnalyzer::branches(TTree * tree, const std::string & pfx)
 	
 	tree->Branch((pfx+"sumweight").c_str(), &sumweight_ );
 	tree->Branch((pfx+"sumpt2").c_str(), &sumpt2_ );
+	tree->Branch((pfx+"sumpt2in").c_str(), &sumpt2in_ );
+	tree->Branch((pfx+"sumpt2out").c_str(), &sumpt2out_ );
+
 	tree->Branch((pfx+"ptratio").c_str(), &ptratio_ );
 	tree->Branch((pfx+"pzasym").c_str(), &pzasym_ );
 	
@@ -275,6 +290,14 @@ void HggVertexAnalyzer::setBranchAdresses(TTree * tree, const std::string & pfx)
 	}
 	
 	tree->SetBranchAddress((pfx+"nch").c_str(), &pnch )  ;
+
+	if( tree->GetBranch((pfx+"nchpho1").c_str() ) ) {
+		tree->SetBranchAddress((pfx+"nchpho1").c_str(), &pnchpho1 )  ;
+	}
+	if( tree->GetBranch((pfx+"nchpho2").c_str() ) ) {
+		tree->SetBranchAddress((pfx+"nchpho2").c_str(), &pnchpho2 )  ;
+	}
+
 	tree->SetBranchAddress((pfx+"ptmax").c_str(), &pptmax );
 	tree->SetBranchAddress((pfx+"sumpt").c_str(), &psumpt );
 	tree->SetBranchAddress((pfx+"ptvtx").c_str(), &pptvtx );
@@ -288,6 +311,14 @@ void HggVertexAnalyzer::setBranchAdresses(TTree * tree, const std::string & pfx)
 
 	tree->SetBranchAddress((pfx+"sumweight").c_str(), &psumweight );
 	tree->SetBranchAddress((pfx+"sumpt2").c_str(), &psumpt2 );
+
+	if( tree->GetBranch((pfx+"sumpt2in").c_str() ) ) {
+		tree->SetBranchAddress((pfx+"sumpt2in").c_str(), &psumpt2in );
+	}
+	if( tree->GetBranch((pfx+"sumpt2out").c_str() ) ) {
+		tree->SetBranchAddress((pfx+"sumpt2out").c_str(), &psumpt2out );
+	}
+
 	tree->SetBranchAddress((pfx+"ptratio").c_str(), &pptratio );
 	tree->SetBranchAddress((pfx+"pzasym").c_str(), &ppzasym );
 
@@ -329,6 +360,8 @@ void HggVertexAnalyzer::getBranches(TTree * tree, const std::string & pfx, std::
 		ret.insert(tree->GetBranch((pfx+"pyvtx").c_str()));
 	}
 	ret.insert(tree->GetBranch((pfx+"nch").c_str()));
+	ret.insert(tree->GetBranch((pfx+"nchpho1").c_str()));
+	ret.insert(tree->GetBranch((pfx+"nchpho2").c_str()));
 	ret.insert(tree->GetBranch((pfx+"ptmax").c_str()));
 	ret.insert(tree->GetBranch((pfx+"sumpt").c_str()));
 	ret.insert(tree->GetBranch((pfx+"ptvtx").c_str()));
@@ -342,6 +375,8 @@ void HggVertexAnalyzer::getBranches(TTree * tree, const std::string & pfx, std::
 	
 	ret.insert(tree->GetBranch((pfx+"sumweight").c_str()));
 	ret.insert(tree->GetBranch((pfx+"sumpt2").c_str()));
+	ret.insert(tree->GetBranch((pfx+"sumpt2in").c_str()));
+	ret.insert(tree->GetBranch((pfx+"sumpt2out").c_str()));
 	ret.insert(tree->GetBranch((pfx+"ptratio").c_str()));
 	ret.insert(tree->GetBranch((pfx+"pzasym").c_str()));
 	
@@ -596,6 +631,8 @@ void HggVertexAnalyzer::clear()
 	thrust_.clear();
 	sumpt_.clear();
 	sumpt2_.clear();
+	sumpt2in_.clear();
+	sumpt2out_.clear();
 	sumawy_.clear();
 	sumtwd_.clear();
 	sumtrv_.clear();
@@ -603,6 +640,8 @@ void HggVertexAnalyzer::clear()
 	ptmax_.clear();
 	nchthr_.clear();
 	nch_.clear();
+	nchpho1_.clear();
+	nchpho2_.clear();
 	vtxP_.clear();
 	tksPt_.clear();
 	sphers_.clear();
@@ -675,6 +714,8 @@ void HggVertexAnalyzer::discardLastDipho()
 	thrust_.resize(ipair_);
 	sumpt_.resize(ipair_);
 	sumpt2_.resize(ipair_);
+	sumpt2in_.resize(ipair_);
+	sumpt2out_.resize(ipair_);
 	sumawy_.resize(ipair_);
 	sumtwd_.resize(ipair_);
 	sumtrv_.resize(ipair_);
@@ -682,6 +723,8 @@ void HggVertexAnalyzer::discardLastDipho()
 	ptmax_.resize(ipair_);
 	nchthr_.resize(ipair_);
 	nch_.resize(ipair_);
+	nchpho1_.resize(ipair_);
+	nchpho2_.resize(ipair_);
 	vtxP_.resize(ipair_);
 	tksPt_.resize(ipair_);
 	sphers_.resize(ipair_);
@@ -747,6 +790,8 @@ void HggVertexAnalyzer::analyze(const VertexInfoAdapter & e, const PhotonInfo & 
 		thrust_.resize(ipair_+1); thrust_[ipair_].resize(nvtx,0.);
 		sumpt_.resize(ipair_+1); sumpt_[ipair_].resize(nvtx,0.);
 		sumpt2_.resize(ipair_+1); sumpt2_[ipair_].resize(nvtx,0.);
+		sumpt2in_.resize(ipair_+1); sumpt2in_[ipair_].resize(nvtx,0.);
+		sumpt2out_.resize(ipair_+1); sumpt2out_[ipair_].resize(nvtx,0.);
 		sumawy_.resize(ipair_+1); sumawy_[ipair_].resize(nvtx,0.);
 		sumtwd_.resize(ipair_+1); sumtwd_[ipair_].resize(nvtx,0.);
 		sumtrv_.resize(ipair_+1); sumtrv_[ipair_].resize(nvtx,0.);
@@ -754,6 +799,8 @@ void HggVertexAnalyzer::analyze(const VertexInfoAdapter & e, const PhotonInfo & 
 		ptmax_.resize(ipair_+1); ptmax_[ipair_].resize(nvtx,0.);
 		nchthr_.resize(ipair_+1); nchthr_[ipair_].resize(nvtx,0.);
 		nch_.resize(ipair_+1); nch_[ipair_].resize(nvtx,0.);
+		nchpho1_.resize(ipair_+1); nchpho1_[ipair_].resize(nvtx,0.);
+		nchpho2_.resize(ipair_+1); nchpho2_[ipair_].resize(nvtx,0.);
 		vtxP_.resize(ipair_+1); vtxP_[ipair_].resize(nvtx,0.);
 		tksPt_.resize(ipair_+1); tksPt_[ipair_].resize(nvtx, vector<float>(1));
 		sphers_.resize(ipair_+1); sphers_[ipair_].resize(nvtx,TMatrixDSym(3));
@@ -910,11 +957,16 @@ void HggVertexAnalyzer::analyze(const VertexInfoAdapter & e, const PhotonInfo & 
 			if ( params_.removeTracksInCone ) {
 				float dr1 = tkPVec.DeltaR(p1.p4(e.vtxx(vid),e.vtxy(vid),e.vtxz(vid)).Vect()); 
 				float dr2 = tkPVec.DeltaR(p2.p4(e.vtxx(vid),e.vtxy(vid),e.vtxz(vid)).Vect()); 
+				if ( dr1 < params_.coneSize) nchpho1_[ipair_][vid] += 1;
+				if ( dr2 < params_.coneSize) nchpho2_[ipair_][vid] += 1;
 				if ( dr1 < params_.coneSize  || dr2 < params_.coneSize) {
+					sumpt2in_[ipair_][vid] += tkPtVec.Mod2();
 					continue;
 				}
 			}
-		
+			
+
+			sumpt2out_[ipair_][vid] += tkPtVec.Mod2();
 
 			ptbal_[ipair_][vid] -= tkPtVec * diPhoton_[ipair_][vid].Vect().XYvector().Unit();
 			float cosTk = tkPVec.Unit() * diPhoton_[ipair_][vid].Vect().Unit();
