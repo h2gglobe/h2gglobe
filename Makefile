@@ -35,18 +35,20 @@ MainObjs=$(patsubst %$(SrcSuf), %$(ObjSuf), $(MainSrc))
 
 ## ROOT dictionary
 LinkDef=LinkDef.h 
+TmpLinkDef=TmpLinkDef.h 
 MainDicts=LoopAll.h
 MainDicts+=$(wildcard Base*.$(HeadSuf))
 MainDicts+=$(wildcard *Smearer.$(HeadSuf))
 MainDicts+=$(wildcard *Container.$(HeadSuf))
 MainDicts+=PhotonFix.h MassResolution.h HtmlHelper.h Macros/Normalization_8TeV.h Macros/MassInterpolator.h
-
+MainFullDicts=
 
 ##
 ## Subdirectories
 ##
-SubPkgs=PhotonAnalysis VertexAnalysis JetAnalysis PhotonJetAnalysis ZMuMuGammaAnalysis
-SubPkgsDict=VertexAnalysis/interface/VertexAlgoParameters.h
+SubPkgs=PhotonAnalysis VertexAnalysis JetAnalysis PhotonJetAnalysis ZMuMuGammaAnalysis CategoryOptimizer
+SubPkgsDict=VertexAnalysis/interface/VertexAlgoParameters.h 
+SubPkgsFullDicts=CategoryOptimizer/interface/*.$(HeadSuf)
 
 ##
 ## Flags and external dependecies
@@ -85,6 +87,7 @@ endif
 ## 
 Objs = $(MainObjs) $(SubPkgsObjs)
 Dicts = $(MainDicts) $(_SubPkgsDict) 
+FullDicts = $(MainFullDicts) $(SubPkgsFullDicts) 
 Deps = $(patsubst %$(ObjSuf), %$(DepSuf), $(Objs))
 ExtPacks=.extraTags
 
@@ -136,9 +139,13 @@ LoopAllDict.$(SrcSuf): $(MainHead) $(SubPkgsHead)
 	@echo "Generating dictionary $@"
 	@rootcint -v4 -f $@ -c -I$(ROOFIT_BASE)/include -I$(CMSSW_BASE)/src  -I$(CMSSW_RELEASE_BASE)/src $(Dicts)
 
-dict.$(SrcSuf): $(LinkDef)
+$(TmpLinkDef): $(FullDicts)
+	@rm -f $(TmpLinkDef)
+	@./gen_dict $(TmpLinkDef) $(FullDicts)
+
+dict.$(SrcSuf):  $(TmpLinkDef) $(LinkDef) $(FullDicts)
 	@echo "Generating dictionary $@"
-	@rootcint -f dict.cc -c -p $(LinkDef)
+	@rootcint -f dict.cc -c -p -I$(ROOFIT_BASE)/include -I$(CMSSW_BASE)/src  -I$(CMSSW_RELEASE_BASE)/src $(FullDicts) $(LinkDef)
 
 %.$(ObjSuf): $(ExtPacks)
 

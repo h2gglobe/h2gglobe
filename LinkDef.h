@@ -15,6 +15,9 @@
 #pragma link C++ class std::vector<std::vector<std::vector<unsigned int> > >+;
 #pragma link C++ class std::pair<std::string, std::string>+;
 
+// #pragma link C++ defined_in "CategoryOptimizer/interface/CategoryOptimizer.h";
+#include "TmpLinkDef.h"
+
 #endif
 
 #endif // ROOT_TREE_VECTOR_LINKDEF_H

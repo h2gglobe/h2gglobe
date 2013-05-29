@@ -1,0 +1,7 @@
+#!/bin/bash
+
+target=$1 && shift
+
+for dict in $@; 
+	do echo "#pragma link C++ defined_in \"$dict\";" >> $target; 
+done
