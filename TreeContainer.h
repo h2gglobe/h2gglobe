@@ -21,6 +21,7 @@ class TreeContainer {
   void FillBool(std::string, bool);
 
   void AddTreeBranch(std::string, int);
+  template<class T> void AddExternalBranch(const char * name, T* addr) { tr_->Branch(name,addr); };
   void FillTree();
 
   int ncat(int n);
