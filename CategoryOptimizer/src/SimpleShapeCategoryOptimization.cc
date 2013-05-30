@@ -82,7 +82,7 @@ void SecondOrderModel::buildPdfs()
 
 // ------------------------------------------------------------------------------------------------
 void SecondOrderModel::bookShape(int icat) 
-{
+{	
 	assert( icat == categoryPdfs_.size() );
 	RooRealVar * norm = new RooRealVar(Form("%s_cat_model_norm0_%d",name_.c_str(),icat),
 					   Form("%s_cat_model_norm0_%d",name_.c_str(),icat),categoryYields_[icat],
@@ -104,9 +104,11 @@ void SecondOrderModel::bookShape(int icat)
 		
 		owned_.push_back( mean ), owned_.push_back( sigma ); 		
 	} else if( shape_ == expo ) {
+		expg.SetParameters(categoryMeans_[icat]-x_->getMin(),x_->getMax()-x_->getMin());
+		double lambdaval=-expg.GetX(0.,1./expg.GetParameter(0),0.1/expg.GetParameter(0));
 		RooRealVar * lambda = new RooRealVar(Form("%s_cat_model_expo_lambda_%d",name_.c_str(),icat),
 						     Form("%s_cat_model_expo_lambda_%d",name_.c_str(),icat),
-						     -1./categoryMeans_[icat],-1e+30,0.);
+						     lambdaval,-1e+30,0.); /// -1./categoryMeans_[icat]
 		if( type_ == AbsModel::bkg ){
 			lambda->setConstant(false);
 			/// lambda->setConstant(true);
@@ -148,7 +150,9 @@ void SecondOrderModel::setShapeParams(int icat)
 		params->setRealValue(Form("%s_cat_model_gaus_mean_%d",name_.c_str(),icat),categoryMeans_[icat]);
 		params->setRealValue(Form("%s_cat_model_gaus_sigma_%d",name_.c_str(),icat),categoryRMSs_[icat]);
 	} else if( shape_ == expo ) {
-		params->setRealValue(Form("%s_cat_model_expo_lambda_%d",name_.c_str(),icat),-1./categoryMeans_[icat]);
+		expg.SetParameters(categoryMeans_[icat]-x_->getMin(),x_->getMax()-x_->getMin());
+		double lambdaval=-expg.GetX(0.,1./expg.GetParameter(0),0.1/expg.GetParameter(0));
+		params->setRealValue(Form("%s_cat_model_expo_lambda_%d",name_.c_str(),icat),lambdaval);
 	}
 }
 
