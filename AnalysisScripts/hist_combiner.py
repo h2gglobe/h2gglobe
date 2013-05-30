@@ -2,10 +2,18 @@
 
 import os, sys, glob
 
-taskdir=sys.argv[1]
+taskdir=sys.argv.pop(1)
 filestocomb=glob.glob("%s/filestocombine_*.dat"%taskdir)
 print 'Getting files from ', filestocomb
 
+opts = ""
+yes = False
+for a in sys.argv[1:]:
+  if a == "-y":
+    yes = True
+  else:
+    opts += "%s " % a
+  
 listofhists=" "
 
 if len(filestocomb)==1:
@@ -24,12 +32,16 @@ if len(filestocomb)==1:
       else:
         listofhists += path+" "
 
+cmd = ("hadd %s -f "+taskdir+"/histograms_CMS-HGG.root"+listofhists) % opts
 print "Will execute: \n"
-print "\t\t hadd -f "+taskdir+"/histograms_CMS-HGG.root"+listofhists
-print "Happy to hadd?\n"
-raw_input()
-os.system("hadd -f "+taskdir+"/histograms_CMS-HGG.root"+listofhists)
-    
+print "\t\t %s" % cmd
+
+if not yes:
+  print "Happy to hadd?\n"
+  raw_input()
+  
+os.system( cmd )
+
 
 
 

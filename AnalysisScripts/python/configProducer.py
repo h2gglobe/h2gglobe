@@ -39,7 +39,7 @@ def defineEvList(fname,dataset):
 
 class configProducer:
 
-  def __init__(self,Ut,conf_filename,Type,njobs=-1,jobId=0,makehistos=True,search_path="common:reduction:baseline:massfac_mva_binned:full_mva_binned:jetanalysis:photonjet:spinanalysis"):
+  def __init__(self,Ut,conf_filename,Type,njobs=-1,jobId=0,makehistos=True,search_path="common:reduction:baseline:massfac_mva_binned:full_mva_binned:jetanalysis:photonjet:spinanalysis",label=""):
 
     print "h2gglobe: step %d, with Config %s. Number of jobs %d. Running job %d" %(Type,conf_filename,njobs,jobId)
 
@@ -50,7 +50,9 @@ class configProducer:
     self.njobs_ = njobs
     self.jobId_ = jobId
     self.nf_ 	= [0]
-	
+
+    self.expdict_ = {"label":label}
+    
     self.make_histograms=makehistos
 
     self.black_list = ["root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/processed/V13_03_05/data/DoublePhotonPromptReco2012B/PromptPhoton2012Data_628_1_MEr.root",
@@ -68,7 +70,7 @@ class configProducer:
     # configurable from .dat file
     self.plottingvariables_ = "plotvariables.dat"
     self.cutvariables_ = "cuts.dat"
-    self.treevariables_ = "treevariables.dat"
+    self.treevariables_ = ["treevariables.dat"]
 
     self.sample_weights_file_ = 0
     self.file_processed_events_ = {}
@@ -119,6 +121,9 @@ class configProducer:
 
     else: 
       sys.exit("No Such Type As: %d"%self.type_)
+
+  def set_macro(self,var,val):
+      self.expdict_[var]=val % self.expdict_
 
   def print_members(self):
     self.member_lines.reverse()
@@ -185,8 +190,16 @@ class configProducer:
             comment_status = False
           else:
             comment_status = True
+        elif line.startswith("#setmacro "):
+          print line
+          toks = [ t.lstrip().rstrip() for t in line.replace("#setmacro","").split(":") if t != "" ]
+          print toks
+          if( len(toks)==2 ):
+              self.set_macro(toks[0],toks[1])
+          print self.expdict_
+          self.conf_.comments+=line
         elif not comment_status and not line.startswith("#"):
-          lines.append(line)
+          lines.append(line % self.expdict_)
         else:
           self.conf_.comments+=line
       self.store_config_file(conf_filename)
@@ -264,7 +277,7 @@ class configProducer:
     map_dict = { "htyp" : int, "plot": int, "ncat": int, "xbins" : int,  "ybins": int, "xmin": float, "xmax": float, "ymin": float, "ymax": float, "name": str, "xaxis":str, "yaxis":str };
     map_c    = { }
     default = 0
-    for line in self.lines_:       
+    for line in self.lines_:
       if len(line) < 2:
         continue
       if (len(line.split()) < 1):
@@ -400,7 +413,7 @@ class configProducer:
        # Decide whether this is a define line or a file line:
        if "output=" in line:
          self.read_output_file(line)
-
+         
        elif "Fil=" in line or "Dir=" in line:
          self.read_input_files_reduce(line)
 

@@ -31,7 +31,7 @@ if options.typeRun != -1:
 
 options.preSearchPath.reverse()
 seach_path=options.preSearchPath+options.searchPath.split(":")+options.postSearchPath
-cfg = configProducer(ut,config_file,type_run,int(options.nJobs),int(options.jobId),seach_path)
+cfg = configProducer(ut,config_file,type_run,int(options.nJobs),int(options.jobId),seach_path,label=options.label)
 
 ROOT.gROOT.cd()
 if not options.dryRun:

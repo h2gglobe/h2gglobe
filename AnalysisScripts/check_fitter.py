@@ -25,9 +25,9 @@ if len(sys.argv) == 1:
 
 
 taskdir = sys.argv[1]
-docombine=None
+postProc=None
 if( len(sys.argv) > 2 ):
-    docombine=sys.argv[2]
+    postProc=sys.argv[2]
 
 jobs = glob.glob( "%s/sub*.sh" % taskdir )
 status = {}
@@ -67,11 +67,9 @@ if len(groups["done"]) == len(jobs):
         print combinedws
 
         if not os.path.isfile( combinedws  ):
-            ## sys.argv = [ "combiner.py", "-i", filestocmb[0] ]
-            ## import combiner
             os.system("python combiner.py -i %s" % filestocmb[0] )
-            if docombine:
-                os.system("%s %s | tee -a %s/do_combine.log" % ( docombine, taskdir, taskdir ) )
+            if postProc:
+                os.system("%s %s | tee -a %s/post_proc.log" % ( postProc, taskdir, taskdir ) )
 
     sys.exit(0)
             
