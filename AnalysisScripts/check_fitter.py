@@ -49,7 +49,7 @@ for g,jo in groups.iteritems():
     for j in jo: print "%s" % j,
     print
 
-autorestart = [20]
+autorestart = [20,21]
 restart = ""
 for j in groups["fail"]:
     try:
