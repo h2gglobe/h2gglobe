@@ -301,19 +301,19 @@ if [[ $retval == 0 ]]; then
          fi
     done
     if [[ -z \"$errors\" ]]; then
-        touch %(taskdir)s/%(job)s.sh.done
+        touch %(statfile)s.sh.done
     else
-        echo 100 > %(taskdir)s/%(job)s.sh.fail
+        echo 100 > %(statfile)s.sh.fail
     fi
 else
-    echo $retval > %(taskdir)s/%(job)s.sh.fail
+    echo $retval > %(statfile)s.sh.fail
 fi
 """                 % { "run":whatRun,
 			"runopt":runopt,
 			"files": jobfiles,
 			"cp":cp,
 			"job":jobbasename,
-			"taskdir":mydir,
+			"statfile": os.path.join(mydir,jobname),
 			"histdir":cfg.histdir
 			})
 		f.write("rm %s.sh.run\n" % os.path.join(mydir,jobname))
