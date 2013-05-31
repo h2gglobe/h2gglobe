@@ -48,6 +48,7 @@ if __name__  == "__main__":
 	parser.add_option("--onlyData",dest="onlyData",action="store_true",default=False,help="default: %default")
 	parser.add_option("--onlySig",dest="onlySig",action="store_true",default=False,help="default: %default")
 	parser.add_option("--onlyBkg",dest="onlyBkg",action="store_true",default=False,help="default: %default")
+	parser.add_option("-w","--watchDutyCycle",dest="watchDutyCycle",action="store_true",default=False,help="default: %default")
 
 	(options,args)=parser.parse_args()
 
@@ -262,31 +263,59 @@ if __name__  == "__main__":
 		
 		f.write("ls\n")
 		whatRun = options.combine and "combiner.py" or "fitter.py"
+		jobfiles = ""
+		runopt = ""
+		if options.watchDutyCycle:
+			runopt += " --watchDutyCycle"
 		if i < options.nJobs:
-			f.write("if ( python %s -i %s.dat -n %d -j %d ) "%(whatRun,jobbasename,int(options.nJobs),i))
+			runopt += " -n %d -j %d" % ( int(options.nJobs),i )
 			for fn in ["","histograms_"]+options.addfiles:
-				f.write("&& ( %s %s%s_%d.%s %s ) "        % ( cp, fn, cfg.histfile[0], i, cfg.histfile[1], cfg.histdir ) )
-			f.write("&& ( %s %s_%d.%s %s ) " % ( cp, cfg.outfile[0], i, cfg.outfile[1], cfg.histdir ) )
-                        if not options.combine:
-			  f.write("&& ( %s %s_%d.json %s ) "                % ( cp, cfg.histfile[0], i, cfg.histdir ) )
-			  f.write("&& ( %s histograms_%s_%d.csv %s ) " % ( cp, cfg.histfile[0], i, cfg.histdir ) )
+				jobfiles += "%s%s_%d.%s " % ( fn, cfg.histfile[0], i, cfg.histfile[1] )
+			jobfiles += "%s_%d.%s " % ( cfg.outfile[0], i, cfg.outfile[1] )
+			if not options.combine:
+				jobfiles += "%s_%d.json " % ( cfg.histfile[0], i )
+				jobfiles += "histograms_%s_%d.csv " % ( cfg.histfile[0], i )
 		else:
-			f.write("if ( python %s -i %s.dat ) "%(whatRun,jobbasename))
 			for fn in ["","histograms_"]+options.addfiles:
-				f.write("&& ( %s %s%s.%s %s/%s%s_%d.%s ) " % ( cp, fn, cfg.histfile[0], cfg.histfile[1], cfg.histdir, fn, cfg.histfile[0], i, cfg.histfile[1] ) )
-			f.write("&& ( %s %s.%s %s/%s_%d.%s ) " % ( cp, cfg.outfile[0], cfg.outfile[1], cfg.histdir, cfg.outfile[0], i, cfg.outfile[1]) )
-                        if not options.combine:
-			  f.write("&& ( %s %s.json %s/%s_%d.json ) " % ( cp, cfg.histfile[0], cfg.histdir, cfg.histfile[0], i ) )
-		  	  f.write("&& ( %s histograms_%s.csv %s/%s_%d.csv ) " % ( cp, cfg.histfile[0], cfg.histdir, cfg.histfile[0], i ) )
-			
-				
-		f.write("; then\n")
+				jobfiles += "%s%s.%s:%s%s_%d.%s " % ( fn, cfg.histfile[0], cfg.histfile[1], fn, cfg.histfile[0], i, cfg.histfile[1] )
+			jobfiles += "%s.%s:%s_%d.%s " % ( cfg.outfile[0], cfg.outfile[1], cfg.outfile[0], i, cfg.outfile[1] )
+			if not options.combine:
+				jobfiles += "%s.json:%s_%d.json " % ( cfg.histfile[0], cfg.histfile[0], i )
+				jobfiles += "histograms_%s.csv:histograms_%s_%d.csv " % ( cfg.histfile[0], cfg.histfile[0], i )
 		
-		f.write("   touch %s.sh.done\n" % os.path.join(mydir,jobname))
-		f.write("else\n")
-		f.write("   touch %s.sh.fail\n" % os.path.join(mydir,jobname))
-		f.write("fi\n")
-		
+		f.write("""
+filesToCopy=\"%(files)s\"
+dstFolder=\"%(histdir)s\"
+cp=\"%(cp)s\"
+
+python %(run)s -i %(job)s.dat %(runopt)s
+retval=$?
+
+if [[ $retval == 0 ]]; then
+    errors=\"\"
+    for f in $filesToCopy; do
+         set $(echo $f | tr ':' ' ')
+         $cp $1 $dstFolder/$2
+         if [[ $? != 0 ]]; then
+             errors=\"$errors $f($retval)\"
+         fi
+    done
+    if [[ -z \"$errors\" ]]; then
+        touch %(taskdir)s/%(job)s.sh.done
+    else
+        echo 100 > %(taskdir)s/%(job)s.sh.fail
+    fi
+else
+    echo $retval > %(taskdir)s/%(job)s.sh.fail
+fi
+"""                 % { "run":whatRun,
+			"runopt":runopt,
+			"files": jobfiles,
+			"cp":cp,
+			"job":jobbasename,
+			"taskdir":mydir,
+			"histdir":cfg.histdir
+			})
 		f.write("rm %s.sh.run\n" % os.path.join(mydir,jobname))
 		f.close()
 		os.system("chmod 755 %s.sh"%(jobname))
@@ -299,6 +328,8 @@ if __name__  == "__main__":
 
 	cmdline=os.path.join(scriptdir, "cmdline.sh")
 	g = open(cmdline,"w+")
+	g.write("#!/bin/bash\n")
 	for a in sys.argv:
 		g.write("%s "%a)
+	g.write("@$\n")
 	g.close()

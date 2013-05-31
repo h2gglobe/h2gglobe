@@ -21,6 +21,7 @@
 #include <TAxis.h>
 
 #include "TMVA/Reader.h"
+#include "TStopwatch.h"
 
 class BaseAnalysis;
 
@@ -104,6 +105,11 @@ class LoopAll {
 
   void Term(); 
 
+  void checkDuty(int n, float thr, float start) { checkBench=n; benchThr=thr; benchStart=start; }
+  
+  int checkBench;
+  TStopwatch stopWatch;
+  float benchThr, benchStart;
   bool is_subjob;
 
   std::vector<TMacro*> configFiles;

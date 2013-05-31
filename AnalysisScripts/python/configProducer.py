@@ -697,12 +697,6 @@ class configProducer:
 	if file_s[1]:self.conf_.files.append((file_s[0],fi_type))
 	else	    :self.conf_.files.append((None,fi_type))
 
-    if eos_directory != '':
-      eo_files = makeEosFiles(eos_directory,self.njobs_,self.jobId_)
-      for file_s in eo_files:
-	if file_s[1]:self.conf_.files.append((file_s[0],fi_type))
-	else	    :self.conf_.files.append((None,fi_type))
-
     if directory != '':
         files = makeFiles(directory,self.njobs_,self.jobId_)
         for file_s in files:

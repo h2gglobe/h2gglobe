@@ -1,6 +1,7 @@
 #define LDEBUG 0
 
 #include "LoopAll.h"
+#include "ErrorCodes.h"
 
 #include <iostream>
 #include <iterator>
@@ -397,7 +398,7 @@ void LoopAll::Term(){
 
 // ------------------------------------------------------------------------------------
 LoopAll::LoopAll(TTree *tree) :
-  counters(4,0.), countersred(4,0.)
+	counters(4,0.), countersred(4,0.), checkBench(0)
 {  
 #include "branchdef/newclonesarray.h"
 
@@ -652,6 +653,9 @@ void LoopAll::Loop(Int_t a) {
   TreesPar[a]->GetEntry(0);
 
   // Loop over events
+  if(checkBench > 0) {
+	  stopWatch.Start();
+  }
   for (Int_t jentry=0; jentry<nentries;jentry++) {
     
     if(jentry%10000==0) {
@@ -661,6 +665,20 @@ void LoopAll::Loop(Int_t a) {
     }
     if(makeDummyTrees) continue;
     
+    if(checkBench > 0 && jentry%checkBench == 0 ) {
+	    stopWatch.Stop();
+	    float cputime  = stopWatch.CpuTime();
+	    float realtime = stopWatch.RealTime();
+	    stopWatch.Start(false);
+	    if( realtime > benchStart*60. && cputime / realtime < benchThr ) {
+		    std::cout << 
+			    "\n\n\n\nAbourting exection.\n"
+			    "Sorry: too inefficient to continue (cputime " << cputime << " realtime " << realtime << ")" 
+			      << std::endl;
+		    exit(H2GG_ERR_DUTYC);
+	    }
+    }
+
     if(LDEBUG) 
       cout<<"call LoadTree"<<endl;
     
@@ -744,6 +762,10 @@ void LoopAll::Loop(Int_t a) {
     copy(countersred.begin(), countersred.end(), std::ostream_iterator<float>(cout, "_") );
     cout << endl;
   }
+  if(checkBench > 0) {
+	  stopWatch.Stop();
+  }
+
 }
 
 // ------------------------------------------------------------------------------------

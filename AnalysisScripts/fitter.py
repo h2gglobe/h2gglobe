@@ -6,15 +6,12 @@ from python.configProducer import *
 from python.lumi import *
 import sys
 from python.runOptions import *
+
 (options,args)=parser.parse_args()
 if (int(options.nJobs) > 0) and (int(options.jobId) >= int(options.nJobs)):
   sys.exit("Job id's must run from 0 -> %d when splitting into %d jobs"%(int(options.nJobs)-1,int(options.nJobs)))
-
-### ROOT.gSystem.Load("libRooFit.so")
-### ROOT.gSystem.Load("libPhysics.so");
-### ROOT.gSystem.Load("libCore.so");
+    
 ROOT.gSystem.Load("../libLoopAll.so");
-#ROOT.gSystem.Load("../../../../../lib/slc5_amd64_gcc434/libHiggsAnalysisHiggsToGammaGamma.so")
 
 ROOT.gROOT.SetBatch(1)
 
@@ -35,6 +32,8 @@ cfg = configProducer(ut,config_file,type_run,int(options.nJobs),int(options.jobI
 
 ROOT.gROOT.cd()
 if not options.dryRun:
+  if options.watchDutyCycle:
+    ut.checkDuty(1000,options.minDutyCycle,options.watchDutyCycleAfter)
   ut.LoopAndFillHistos();
   ROOT.gBenchmark.Show("Analysis");
 

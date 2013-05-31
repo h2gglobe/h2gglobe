@@ -5,8 +5,9 @@ from optparse import OptionParser
 myjobsN = []
 def cback(option,opt_str,value,parser):
 	value = value.split(",")
-	for v in value: myjobsN.append(int(v))
-
+	for v in value:
+		if v!="": myjobsN.append(int(v))
+			
 parser = OptionParser()
 parser.add_option("","--resubFailed",action="store_true",dest="resubFailed",default=False)
 parser.add_option("","--submitMissing",action="store_true",dest="submitMissing",default=False)

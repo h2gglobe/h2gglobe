@@ -49,7 +49,26 @@ for g,jo in groups.iteritems():
     for j in jo: print "%s" % j,
     print
 
+autorestart = [20]
+restart = ""
+for j in groups["fail"]:
+    try:
+        st=open("%s.fail" % j)
+        errcode=int(st.read().split("\n")[0])
+        st.close()
+        if errcode in autorestart:
+            jobid = os.path.basename(j).split("sub")[1].split(".")[0]
+            restart += "%s," % jobid
+    except:
+        pass
 
+if restart != "":
+    print
+    print
+    print "Resubmitting jobs: %s " % restart
+    os.system("./submit_fitter.py -j %s -d %s" % (restart, taskdir))
+    print
+    
 if len(groups["done"]) == len(jobs):
     print "All jobs completed"
     filestocmb=glob.glob("%s/filestocombine_*.dat" % taskdir)
