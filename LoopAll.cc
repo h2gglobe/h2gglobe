@@ -213,7 +213,7 @@ void LoopAll::MergeContainers(){
   for (;it!=files.end()
 	 ;it_file++,it++){
  
-    *it_file = TFile::Open((*it).c_str());
+	  *it_file = TFile::Open((*it).c_str());
     (*it_file)->cd();
     std::cout << "Combining Current File " << i << " / " << numberOfFiles << " - " << (*it) << std::endl;
 
@@ -298,7 +298,11 @@ void LoopAll::LoopAndFillHistos(TString treename) {
     cout<<"LoopAndFillHistos: opening file " << i+1 << " / " << numberOfFiles << " : " << files[i]<<endl;
     
 
-    *it_file = TFile::Open((*it).c_str());
+    *it_file = TFile::Open((*it).c_str(),"TIMEOUT=60");
+    if( *it_file == 0 ){
+	    std::cerr << "Error opening file " << (*it).c_str() << std::endl;
+	    exit(H2GG_ERR_FILEOP);
+    }
     //Files[i] = TFile::Open(files[i]);
     tot_events=1;
     sel_events=1;

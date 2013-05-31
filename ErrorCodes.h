@@ -3,5 +3,6 @@
 
 #define H2GG_ERR_ABORT 1 
 #define H2GG_ERR_DUTYC 20 
+#define H2GG_ERR_FILEOP 21 
 
 #endif
