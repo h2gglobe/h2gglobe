@@ -65,6 +65,8 @@ class configProducer:
                        "root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/reduced/hcp2012_unblind_reduction_v2/mc/Summer12_S10_8TeV/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1_13.root",
                        "root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/reduced/hcp2012_unblind_reduction_v2/mc/Summer12_S10_8TeV/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1_31.root",
                        "root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/reduced/hcp2012_unblind_reduction_v2/mc/Summer12_S10_8TeV/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1_7.root",
+                       "root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/reduced/reduction_vbf_optimization_v1/mc/Summer12_RD_DR53X-PU_S10_START53_V7C/DiPhotonJetsBox_M60_8TeV-sherpa_Summer12_DR53X-PU_S10_START53_V7C-v1_v3/DiPhotonJetsBox_M60_8TeV-sherpa_Summer12_DR53X-PU_S10_START53_V7C-v1_v3_86.root",
+                       "root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v1/mc/Summer12_S10_8TeV/QCD_Pt-30to40_doubleEMEnriched_TuneZ2star_8TeV-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1_ff/QCD_Pt-30to40_doubleEMEnriched_TuneZ2star_8TeV-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1_ff_23.root"
                        ]
 
     # configurable from .dat file
