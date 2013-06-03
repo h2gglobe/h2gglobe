@@ -1,20 +1,27 @@
 #!/usr/bin/env python
 
-import os, sys, glob
+import os, commands, sys, glob
 
-taskdir=sys.argv.pop(1)
+taskdir=sys.argv[-1]
 filestocomb=glob.glob("%s/filestocombine_*.dat"%taskdir)
 print 'Getting files from ', filestocomb
 
 opts = ""
 yes = False
-for a in sys.argv[1:]:
+for a in sys.argv[1:-1]:
   if a == "-y":
     yes = True
   else:
     opts += "%s " % a
   
 listofhists=" "
+
+domain = commands.getoutput("hostname -d")
+replaceInFileName=None
+if domain == "cern.ch":
+  eosmp = commands.getoutput('mount | awk "/eoscms.*user=$USER/ { print \$3 }"')
+  if eosmp != "":
+    replaceInFileName = ("root://eoscms//eos",eosmp)
 
 if len(filestocomb)==1:
   cfile = open( filestocomb[0],"r")
@@ -27,6 +34,8 @@ if len(filestocomb)==1:
     longl = line.split('Fil=')
     if len(longl)>1:
       path = os.path.dirname(longl[1])+"/histograms_"+os.path.basename(longl[1])
+      if replaceInFileName:
+        path=path.replace(*replaceInFileName)
       if 'castor' in path:
         listofhists += "rfio:"+path+" "
       else:
