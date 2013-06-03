@@ -4,7 +4,7 @@
 PYDEBUG = 1
 
 # System python imports
-import sys,os, json
+import commands,sys,os, json
 import array
 import ROOT
 
@@ -39,7 +39,10 @@ def defineEvList(fname,dataset):
 
 class configProducer:
 
-  def __init__(self,Ut,conf_filename,Type,njobs=-1,jobId=0,makehistos=True,search_path="common:reduction:baseline:massfac_mva_binned:full_mva_binned:jetanalysis:photonjet:spinanalysis",label=""):
+  def __init__(self,Ut,conf_filename,Type,njobs=-1,jobId=0,makehistos=True,
+               search_path="common:reduction:baseline:massfac_mva_binned:full_mva_binned:jetanalysis:photonjet:spinanalysis",
+               label="",mountEos=False,
+               files=[],histfile=""):
 
     print "h2gglobe: step %d, with Config %s. Number of jobs %d. Running job %d" %(Type,conf_filename,njobs,jobId)
 
@@ -54,7 +57,8 @@ class configProducer:
     self.expdict_ = {"label":label}
     
     self.make_histograms=makehistos
-
+    self.mounteos=mountEos
+    
     self.black_list = ["root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/processed/V13_03_05/data/DoublePhotonPromptReco2012B/PromptPhoton2012Data_628_1_MEr.root",
                        "root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/processed/V13_03_05/mc/Summer12_S7_8TeV/VBF_HToGG_M-145_8TeV_sub2/SignalMC_19_2_g4J.root",
                        "root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/processed/V13_03_06/mc/Summer12_S7_8TeV/GluGluToHToGG_M-110_8TeV/Signal_MC_3_1_QrU.root",
@@ -81,6 +85,8 @@ class configProducer:
     self.lines_ = []
 
     self.conf_    = confBlock()
+    self.conf_.files.extend(files)
+    self.conf_.histfile = histfile
     self.plotvar_ = datBlock()
 
     self.tmac = []
@@ -124,6 +130,12 @@ class configProducer:
     else: 
       sys.exit("No Such Type As: %d"%self.type_)
 
+  def __del__(self):
+      if self.mounteos:
+          mp = os.path.join(os.getcwd(),"eos")
+          ret,out=commands.getstatusoutput("fusermount -u %s" % mp)
+          
+          
   def set_macro(self,var,val):
       self.expdict_[var]=val % self.expdict_
 
@@ -259,16 +271,35 @@ class configProducer:
         defineJsonFilter(dum["json"], dataContainer)
       if("evlist" in dum and dum["evlist"] != ""):
         defineEvList(dum["evlist"], dataContainer)
-        
+
+  def eosmount(self):
+      from makeFilelist import eos
+      mp = os.path.join(os.getcwd(),"eos")
+      ret,out=commands.getstatusoutput("%s -b fuse mount %s" % (eos,mp))
+      print out
+      if ret != 0:
+          print out
+          return None
+      else:
+          return mp
+      
   def add_files(self):
+    print "Adding files"
+    eosmp = None
+    if self.mounteos:
+        print "Mounting eos"
+        eosmp=self.eosmount()
     for t_f in self.conf_.files:
       if not t_f[0]: ## only adding files which aren't Null
           continue
       ## print t_f
       if t_f[0] in self.black_list:
           print "Skipping %s " % t_f[0]
-          continue 
-      self.ut_.AddFile(t_f[0],t_f[1])
+          continue
+      if self.mounteos:
+          self.ut_.AddFile(t_f[0].replace("root://eoscms//eos",eosmp),t_f[1])
+      else:
+          self.ut_.AddFile(t_f[0],t_f[1])
       
   # File Parsers ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

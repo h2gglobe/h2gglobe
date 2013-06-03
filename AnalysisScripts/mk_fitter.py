@@ -49,6 +49,7 @@ if __name__  == "__main__":
 	parser.add_option("--onlySig",dest="onlySig",action="store_true",default=False,help="default: %default")
 	parser.add_option("--onlyBkg",dest="onlyBkg",action="store_true",default=False,help="default: %default")
 	parser.add_option("-w","--watchDutyCycle",dest="watchDutyCycle",action="store_true",default=False,help="default: %default")
+	parser.add_option("-m","--mountEos",dest="mountEos",action="store_true",default=False,help="default: %default")
 
 	(options,args)=parser.parse_args()
 
@@ -267,6 +268,8 @@ if __name__  == "__main__":
 		runopt = ""
 		if options.watchDutyCycle:
 			runopt += " --watchDutyCycle"
+		if options.mountEos:
+			runopt += " --mountEos"
 		if i < options.nJobs:
 			runopt += " -n %d -j %d" % ( int(options.nJobs),i )
 			for fn in ["","histograms_"]+options.addfiles:
