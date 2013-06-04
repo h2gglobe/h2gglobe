@@ -5,30 +5,34 @@
 SampleContainer::~SampleContainer() 
 {}
 
-SampleContainer::SampleContainer() {
-  weight = 1;
-  itype = 0;
-  ind = 0;
-  histoplotit = 1;
-  filesshortnam = "";
-  ntot = 0;
-  nred = 0;
-  lumi = 0;
-  xsec = 0;
-  kfactor= 1;
-  scale = 1;
-  lumireal = 1;
-  hasLumiSelection = false;
-  hasEventList = false;
-  pileup = "";
+float SampleContainer::defaultextw=1.;
+
+SampleContainer::SampleContainer(const float * extw) :
+	extweight(extw)
+{
+	intweight = 1;
+	itype = 0;
+	ind = 0;
+	histoplotit = 1;
+	filesshortnam = "";
+	ntot = 0;
+	nred = 0;
+	lumi = 0;
+	xsec = 0;
+	kfactor= 1;
+	scale = 1;
+	lumireal = 1;
+	hasLumiSelection = false;
+	hasEventList = false;
+	pileup = "";
 }
 
 void SampleContainer::computeWeight(float intL) {
   if(itype==0) { //this is data
-    weight = 1; 
+    intweight = 1; 
   } else {
     std::cout << "Computing Weight for type - " << itype << ", Using " << ntot << " Processed Events" << std::endl;
-    weight = kfactor*scale*xsec*intL/ntot;
+    intweight = kfactor*scale*xsec*intL/ntot;
   }
 }
  

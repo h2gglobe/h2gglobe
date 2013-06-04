@@ -6,9 +6,11 @@
 #include <vector>
 
 class SampleContainer {
-
- public:
-  SampleContainer();
+	
+  static float defaultextw;
+  
+ public:	
+  SampleContainer(const float * extw=0);
   ~SampleContainer();
   
   void computeWeight(float);
@@ -23,9 +25,10 @@ class SampleContainer {
   void addGoodLumi(int run, int lumi1, int lumi2 );
 
   void addEventToList(int run, int lumi, int event );
-
-     
-  float weight;
+  
+  bool isdata() const { return itype != 0; };
+  float weight() const { return ( (extweight!=0 && *extweight > 0 && ! isdata()) ? (*extweight)*intweight : intweight); };
+  
   int itype;
   int ind;
   int histoplotit;
@@ -44,6 +47,9 @@ class SampleContainer {
   std::string pileup;
   
  private:
+  const float * extweight;
+  float intweight;
+
 
 };
 

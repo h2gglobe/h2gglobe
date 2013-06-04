@@ -592,7 +592,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
     assert( isSyst || ! skipSelection );
 
     int cur_type = l.itype[l.current];
-    float sampleweight = l.sampleContainer[l.current_sample_index].weight;
+    float sampleweight = l.sampleContainer[l.current_sample_index].weight();
     /// diphoton_id = -1;
     
     std::pair<int,int> diphoton_index;

@@ -161,7 +161,7 @@ SampleContainer & LoopAll::DefineSamples(const char *filesshortnam,
     return sampleContainer[sample_is_defined];
   }
 
-  sampleContainer.push_back(SampleContainer());
+  sampleContainer.push_back(SampleContainer(&weight));
   sampleContainer.back().itype = type;
   sampleContainer.back().ntot = ntot;
   sampleContainer.back().nred = nred;
@@ -476,7 +476,8 @@ void LoopAll::InitHistos(){
   for(int ind=0; ind<sampleContainer.size(); ind++) {
     SampleContainer thisSample = (SampleContainer) sampleContainer.at(ind);
     HistoContainer temp(ind,thisSample.filesshortnam);
-    temp.setScale(thisSample.weight);
+    temp.setScale(1.);
+    /// temp.setScale(thisSample.weight);
     histoContainer.push_back(temp);
   }
 
@@ -1004,7 +1005,7 @@ void LoopAll::WriteCounters() {
       }
       fprintf(file, "%f, , ,", tot);
 
-      float weight = sampleContainer[c].weight;
+      float weight = sampleContainer[c].weight();
       for (Int_t cat=0; cat<cats; cat++) {
 	fprintf(file, "%f,", counterContainer[c][var][cat]*weight);
       }

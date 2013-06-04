@@ -646,8 +646,8 @@ bool StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
         cout << "Analysis START; cur_type is: " << l.itype[l.current] <<endl;
 
     int cur_type = l.itype[l.current];
-    float weight = l.sampleContainer[l.current_sample_index].weight;
-    float sampleweight = l.sampleContainer[l.current_sample_index].weight;
+    float weight = l.sampleContainer[l.current_sample_index].weight();
+    float sampleweight = l.sampleContainer[l.current_sample_index].weight();
 
     // Set reRunCiC Only if this is an MC event since scaling of R9 and Energy isn't done at reduction
     if (cur_type==0) {
@@ -831,7 +831,7 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
     assert( isSyst || ! skipSelection );
 
     int cur_type = l.itype[l.current];
-    float sampleweight = l.sampleContainer[l.current_sample_index].weight;
+    float sampleweight = l.sampleContainer[l.current_sample_index].weight();
     /// diphoton_id = -1;
 
     std::pair<int,int> diphoton_index;
@@ -1648,7 +1648,7 @@ void StatAnalysis::fillControlPlots(const TLorentzVector & lead_p4, const  TLore
 
                 if (VBFevent){
                     float myweight =  1;
-                    float sampleweight = l.sampleContainer[l.current_sample_index].weight;
+                    float sampleweight = l.sampleContainer[l.current_sample_index].weight();
                     if(evweight*sampleweight!=0) myweight=evweight/sampleweight;
                     l.FillCutPlots(category+1,1,"_sequential",evweight,myweight);
 		    if( sublead_r9 > 0.9 ) { l.FillCutPlots(category+1+nCategories_,1,"_sequential",evweight,myweight); }
@@ -2013,9 +2013,9 @@ void StatAnalysis::fillOpTree(LoopAll& l, const TLorentzVector & lead_p4, const 
     l.FillTree("itype", (float)l.itype[l.current]);
     l.FillTree("nvtx", (float)l.vtx_std_n);
     l.FillTree("rho", (float)l.rho_algo1);
-    l.FillTree("xsec_weight", (float)l.sampleContainer[l.current_sample_index].weight);
+    l.FillTree("xsec_weight", (float)l.sampleContainer[l.current_sample_index].weight());
     l.FillTree("full_weight", (float)weight);
-    float pu_weight = weight/l.sampleContainer[l.current_sample_index].weight;
+    float pu_weight = weight/l.sampleContainer[l.current_sample_index].weight();
     l.FillTree("pu_weight", (float)pu_weight);
     l.FillTree("pu_n", (float)l.pu_n);
     l.FillTree("mass", (float)mass);
