@@ -4,12 +4,171 @@ import sys
 import os
 import ROOT
 
+from math import fabs
+
+def tdrGrid(tdrStyle, gridOn):
+#def tdrGrid(TStyle tdrStyle, bool gridOn):
+    tdrStyle.SetPadGridX(gridOn)
+    tdrStyle.SetPadGridY(gridOn)
+    return
+
+# fixOverlay: Redraws the axis
+
+def fixOverlay():
+  gPad.RedrawAxis()
+  return
+
+def setTDRStyle():
+  tdrStyle=ROOT.TStyle("tdrStyle","Style for P-TDR")
+
+# For the canvas:
+  tdrStyle.SetCanvasBorderMode(0) 
+  tdrStyle.SetCanvasColor(ROOT.kWhite) 
+  tdrStyle.SetCanvasDefH(600)  #Height of canvas
+  tdrStyle.SetCanvasDefW(800)  #Width of canvas
+  tdrStyle.SetCanvasDefX(0)    #POsition on screen
+  tdrStyle.SetCanvasDefY(0) 
+
+# For the Pad:
+  tdrStyle.SetPadBorderMode(0) 
+  # tdrStyle.SetPadBorderSize(Width_t size = 1) 
+  tdrStyle.SetPadColor(ROOT.kWhite) 
+  tdrStyle.SetPadGridX(False) 
+  tdrStyle.SetPadGridY(False) 
+  tdrStyle.SetGridColor(0) 
+  tdrStyle.SetGridStyle(3) 
+  tdrStyle.SetGridWidth(1) 
+
+# For the frame:
+  tdrStyle.SetFrameBorderMode(0) 
+  tdrStyle.SetFrameBorderSize(1) 
+  tdrStyle.SetFrameFillColor(0) 
+  tdrStyle.SetFrameFillStyle(0) 
+  tdrStyle.SetFrameLineColor(1) 
+  tdrStyle.SetFrameLineStyle(1) 
+  tdrStyle.SetFrameLineWidth(1) 
+
+# For the histo:
+  # tdrStyle.SetHistFillColor(1) 
+  # tdrStyle.SetHistFillStyle(0) 
+  tdrStyle.SetHistLineColor(1) 
+  tdrStyle.SetHistLineStyle(0) 
+  tdrStyle.SetHistLineWidth(1) 
+  # tdrStyle.SetLegoInnerR(Float_t rad = 0.5) 
+  # tdrStyle.SetNumberContours(Int_t number = 20) 
+
+  tdrStyle.SetEndErrorSize(2) 
+  #tdrStyle.SetErrorMarker(20)   # Seems to give an error
+  tdrStyle.SetErrorX(0.) 
+  
+  tdrStyle.SetMarkerStyle(20) 
+
+#For the fit/function:
+  tdrStyle.SetOptFit(0) 
+  tdrStyle.SetFitFormat("5.4g") 
+  tdrStyle.SetFuncColor(2) 
+  tdrStyle.SetFuncStyle(1) 
+  tdrStyle.SetFuncWidth(1) 
+
+#For the date:
+  tdrStyle.SetOptDate(0) 
+  # tdrStyle.SetDateX(Float_t x = 0.01) 
+  # tdrStyle.SetDateY(Float_t y = 0.01) 
+
+# For the statistics box:
+  tdrStyle.SetOptFile(0) 
+  tdrStyle.SetOptStat(0)  # To display the mean and RMS:   SetOptStat("mr") 
+  tdrStyle.SetStatColor(ROOT.kWhite) 
+  tdrStyle.SetStatFont(42) 
+  tdrStyle.SetStatFontSize(0.025) 
+  tdrStyle.SetStatTextColor(1) 
+  tdrStyle.SetStatFormat("6.4g") 
+  tdrStyle.SetStatBorderSize(1) 
+  tdrStyle.SetStatH(0.1) 
+  tdrStyle.SetStatW(0.15) 
+  # tdrStyle.SetStatStyle(Style_t style = 1001) 
+  # tdrStyle.SetStatX(Float_t x = 0) 
+  # tdrStyle.SetStatY(Float_t y = 0) 
+
+# Margins:
+  tdrStyle.SetPadTopMargin(0.05) 
+  tdrStyle.SetPadBottomMargin(0.13) 
+  tdrStyle.SetPadLeftMargin(0.16) 
+  tdrStyle.SetPadRightMargin(0.10) 
+
+# For the Global title:
+  tdrStyle.SetOptTitle(0)     # 0=No Title
+  tdrStyle.SetTitleFont(42) 
+  tdrStyle.SetTitleColor(1) 
+  tdrStyle.SetTitleTextColor(1) 
+  tdrStyle.SetTitleFillColor(10) 
+  tdrStyle.SetTitleFontSize(0.07) 
+  # tdrStyle.SetTitleH(0)  # Set the height of the title box
+  # tdrStyle.SetTitleW(0)  # Set the width of the title box
+  # tdrStyle.SetTitleX(0)  # Set the position of the title box
+  # tdrStyle.SetTitleY(0.985)  # Set the position of the title box
+  # tdrStyle.SetTitleStyle(Style_t style = 1001) 
+  # tdrStyle.SetTitleBorderSize(2) 
+
+# For the axis titles:
+  tdrStyle.SetTitleColor(1, "XYZ") 
+  tdrStyle.SetTitleFont(42, "XYZ") 
+  tdrStyle.SetTitleSize(0.08, "XYZ") 
+  # tdrStyle.SetTitleXSize(Float_t size = 0.02)  # Another way to set the size?
+  # tdrStyle.SetTitleYSize(Float_t size = 0.02) 
+  tdrStyle.SetTitleXOffset(1.5) 
+  tdrStyle.SetTitleYOffset(1.5)
+  # tdrStyle.SetTitleOffset(1.1, "Y")  # Another way to set the Offset
+
+# For the axis labels:
+  tdrStyle.SetLabelColor(1, "XYZ") 
+  tdrStyle.SetLabelFont(42, "XYZ") 
+  tdrStyle.SetLabelOffset(0.007, "XYZ") 
+  tdrStyle.SetLabelSize(0.05, "XYZ") 
+
+# For the axis:
+  tdrStyle.SetAxisColor(1, "XYZ") 
+  tdrStyle.SetStripDecimals(ROOT.kTRUE) 
+  tdrStyle.SetTickLength(0.03, "XYZ") 
+  tdrStyle.SetNdivisions(510, "XYZ") 
+  tdrStyle.SetPadTickX(0)   # 0=Text labels (and tics) only on bottom, 1=Text labels on top and bottom
+  tdrStyle.SetPadTickY(1) 
+
+# Change for log plots:
+  tdrStyle.SetOptLogx(0) 
+  tdrStyle.SetOptLogy(0) 
+  tdrStyle.SetOptLogz(0) 
+
+# Postscript options:
+  tdrStyle.SetPaperSize(20.,20.) 
+  # tdrStyle.SetLineScalePS(Float_t scale = 3) 
+  # tdrStyle.SetLineStyleString(Int_t i, const char* text) 
+  # tdrStyle.SetHeaderPS(const char* header) 
+  # tdrStyle.SetTitlePS(const char* pstitle) 
+
+  # tdrStyle.SetBarOffset(Float_t baroff = 0.5) 
+  # tdrStyle.SetBarWidth(Float_t barwidth = 0.5) 
+  # tdrStyle.SetPaintTextFormat(const char* format = "g") 
+  # tdrStyle.SetPalette(Int_t ncolors = 0, Int_t* colors = 0) 
+  # tdrStyle.SetTimeOffset(Double_t toffset) 
+  # tdrStyle.SetHistMinimumZero(kTRUE) 
+
+  #gROOT.ForceStyle()   # Try this if stuff doesn't work right
+  
+  # Find RooFit include
+  #gSystem.SetIncludePath("-I$ROOTSYS/include -I$ROOFITSYS/include") 
+
+  tdrStyle.cd() 
+  return
+
+
 #
 # Handy histogram manipulation
 # 
 def applyModifs(h,modifs):
     for method in modifs:
         args = None
+        ret = None
         if type(method) == tuple:
             method, args = method
         if type(method) == str:
@@ -19,17 +178,21 @@ def applyModifs(h,modifs):
                 method = globals()[method]
         if args == None:            
             try:
-                method(h)
+                ret = method(h)
             except:
-                method()
+                ret = method()
         else:            
             if not ( type(args) == tuple or type(args) == list ):
                 args = tuple([args])
             try:
-                method(h,*args)
+                ret = method(h,*args)
             except:
-                method(*args)
-                
+                ret = method(*args)
+        if ret and ret != h:
+            print "Replacing ", h, ret, method
+            h = ret
+            ret = None
+    return h
 # 
 def setcolors(h,color):
     h.SetLineColor(color)
@@ -46,7 +209,7 @@ def xtitle(h,tit):
     h.GetXaxis().SetTitle(tit)
 # 
 def ytitle(h,tit):
-    h.GetYaxis().SetTitle(tit % { "binw" : h.GetBinWidth(0) } )
+    h.GetYaxis().SetTitle( (tit % { "binw" : h.GetBinWidth(0), "xtitle" : h.GetXaxis().GetTitle() }).replace("(GeV)","") )
             
 #
 # Read plots from globe histogram files
@@ -164,7 +327,7 @@ def readProc(fin,name,title,style,subproc,plot,plotmodifs,category):
         h = histos[iplot]
         hname = names[iplot]
         print h,hname
-        applyModifs(h,subproc[hname])
+        h = applyModifs(h,subproc[hname])
 
     print len(histos)
     sum = histos[0].Clone(name)
@@ -173,8 +336,8 @@ def readProc(fin,name,title,style,subproc,plot,plotmodifs,category):
     for h in histos[1:]:
         sum.Add(h)
         
-    applyModifs(sum,plotmodifs)
-    applyModifs(sum,style)
+    sum = applyModifs(sum,plotmodifs)
+    sum = applyModifs(sum,style)
     
     return sum
 
@@ -189,6 +352,12 @@ def makeCanvAndLeg(name,legPos):
 
     return canv, leg
 
+def makeLegend(legPos):
+    leg  = ROOT.TLegend(*legPos)
+    leg.SetFillStyle(0), leg.SetLineColor(ROOT.kWhite)## , leg.SetShadowColor(ROOT.kWhite)
+
+    return leg
+
 #
 # Make THStack out of python list
 #
@@ -197,6 +366,80 @@ def makeStack(name,histos):
     for h in histos:
         stk.Add(h)
     return stk
+
+def stackTitles(stk):
+    stk.GetHistogram().GetXaxis().SetTitle( stk.GetHists()[0].GetXaxis().GetTitle() )
+    stk.GetHistogram().GetYaxis().SetTitle( stk.GetHists()[0].GetYaxis().GetTitle() )
+
+#
+# Make THStack out of python list
+#
+def makeEnvelope(name,histos,stPlus=None,stMinus=None):
+    nominal = histos[0]
+    errPlus  = nominal.Clone( "%s_ErrPlus" % name )
+    errMinus = nominal.Clone( "%s_ErrMinus" % name )
+    if stPlus:
+        applyModifs( errPlus, stPlus )
+        applyModifs( errMinus, stMinus )
+    for ibin in range(nominal.GetNbinsX()):
+        hist = ROOT.TH1F("hist","hist",11,-5.,5.)
+        hist.Reset("ICE")
+        hist.Sumw2()
+        points = []
+        
+        plus  = nominal.GetBinContent(ibin+1)
+        minus = nominal.GetBinContent(ibin+1)
+        nom   = nominal.GetBinContent(ibin+1)
+        err   = nominal.GetBinError(ibin+1)
+        points.append( [nom,err] )
+        hist.Fill(nom)
+        for h in histos[1:]:
+            content =  h.GetBinContent(ibin+1)
+            err     =  h.GetBinError(ibin+1)
+            hist.Fill(content)
+            points.append( [content,err] )
+            if content < minus:
+                minus = content
+            if content > plus:
+                plus = content
+
+        if hist.GetRMS() == 0.:
+            errPlus.SetBinContent(ibin+1,plus)
+            errMinus.SetBinContent(ibin+1,minus)
+            continue
+            
+        hist2 = ROOT.TH1F("hist2","hist2",11,hist.GetMean()-5.*hist.GetRMS(),hist.GetMean()+5.*hist.GetRMS())
+        hist2.Sumw2()
+        for p,e in points:
+            hist2.Fill(p)
+            
+        func = ROOT.TF1("func","[0]*exp( -0.5*pow( (x-[1])/( (x>=0)*[2] + (x<=0)*[3] ) ,2.) )",hist2.GetMean()-5.*hist2.GetRMS(),hist2.GetMean()+5.*hist2.GetRMS())
+        func.SetParameters(len(histos),hist2.GetMean(),hist2.GetRMS(), hist2.GetRMS())
+        ## func.SetParLimits(2,-0.5*hist.GetMean(),0.5*hist.GetMean())
+        ## func.SetParLimits(3,-0.1*hist.GetMean(),0.1*hist.GetMean())
+        stat = int( hist2.Fit( func, "L" ) )
+        if stat == 0:
+            errPlus.SetBinContent(ibin+1, max(nom,func.GetParameter(1)+fabs(func.GetParameter(2))))
+            errMinus.SetBinContent(ibin+1,min(nom,func.GetParameter(1)-fabs(func.GetParameter(3))))
+        else:
+            errPlus.SetBinContent(ibin+1,plus)
+            errMinus.SetBinContent(ibin+1,minus)
+        
+    return makeStack(name,[errPlus,errMinus,nominal])
+
+
+def shiftHisto(offset,nominal,shifted):
+    for ibin in range(offset.GetNbinsX()):
+        shifted.SetBinContent(ibin+1, shifted.GetBinContent(ibin+1) + offset.GetBinContent(ibin+1) - nominal.GetBinContent(ibin+1) )
+        shifted.SetBinError(ibin+1, ROOT.TMath.Sqrt( shifted.GetBinError(ibin+1)*shifted.GetBinError(ibin+1) - 
+                                                     nominal.GetBinError(ibin+1)*nominal.GetBinError(ibin+1) ) )
+        ## shifted.SetBinContent(ibin+1, shifted.GetBinContent(ibin+1) - nominal.GetBinContent(ibin+1) )
+    return shifted
+
+def ratioHisto(num,den,ytit):
+    num.Divide(den)
+    ytitle(num,ytit)
+    return num
 
 #
 # Draw a THStack
