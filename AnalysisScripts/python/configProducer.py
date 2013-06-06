@@ -275,7 +275,7 @@ class configProducer:
   def eosmount(self):
       from makeFilelist import eos
       mp = os.path.join(os.getcwd(),"eos")
-      ret,out=commands.getstatusoutput("%s -b fuse mount %s" % (eos,mp))
+      ret,out=commands.getstatusoutput("(mount | grep %s) || (%s -b fuse mount %s)" % (mp,eos,mp))
       print out
       if ret != 0:
           print out

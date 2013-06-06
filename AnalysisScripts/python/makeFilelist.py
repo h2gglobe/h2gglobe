@@ -1,5 +1,7 @@
 import commands,sys,os
 
+eos = "/afs/cern.ch/project/eos/installation/pro/bin/eos.select"
+
 def makeCaFiles(dir,njobs=-1,jobid=0,nf=[0],maxfiles=-1):
 
    dir = str(dir)
@@ -19,8 +21,7 @@ def makeCaFiles(dir,njobs=-1,jobid=0,nf=[0],maxfiles=-1):
       prepend = 'rfio://'
    else:
       ### sc,flist = commands.getstatusoutput("cmsLs %s | awk '{ print $5 }' | xargs cmsPfn | sed 's/\?.*$//'" % (dir))
-      eos = "/afs/cern.ch/project/eos/installation/pro/bin/eos.select"
-      sc,flist = commands.getstatusoutput("%s ls /eos/cms%s" % (eos,dir))
+      sc,flist = commands.getstatusoutput("%s ls /eos/cms%s | sort" % (eos,dir))
       prepend = 'root://eoscms//eos/cms'
       
    if not sc:
