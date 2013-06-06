@@ -28,6 +28,29 @@
 #include "../interface/CategoryOptimizer.h"
 #include "../interface/SimpleShapeCategoryOptimization.h"
 
+
+// ------------------------------------------------------------------------------------------------
+SecondOrderModel::SecondOrderModel(std::string name,
+				   RooRealVar * x, AbsModel::type_t type, RooRealVar * mu, shape_t shape) : 
+	name_(name),
+	x_(x), mu_(mu),
+	shape_(shape),
+	likeg_(0) {
+	type_ = type; 
+	if( shape_ == automatic ) {
+		shape_ = ( type_ == AbsModel::sig ? gaus : expo );
+	}
+	if( shape_ == expo ) {
+		likeg_ = new TF1(Form("likeg_%s",name.c_str()),"[0]-1./x+[1]*exp(-[1]*x)/(1.-exp(-[1]*x))",0.,100.);
+	}
+};
+
+// ------------------------------------------------------------------------------------------------
+SecondOrderModel::~SecondOrderModel()
+{
+	if( likeg_ ) { delete likeg_; }
+}
+
 // ------------------------------------------------------------------------------------------------
 TH1 * SecondOrderModelBuilder::getPdf(int idim)
 {
@@ -87,7 +110,7 @@ void SecondOrderModel::bookShape(int icat)
 	RooRealVar * norm = new RooRealVar(Form("%s_cat_model_norm0_%d",name_.c_str(),icat),
 					   Form("%s_cat_model_norm0_%d",name_.c_str(),icat),categoryYields_[icat],
 					   0.,1e+6);
-	owned_.push_back(norm);
+	owned_.addOwned(*norm);
 	
 	RooAbsPdf * pdf;
 	if( shape_ == gaus ) {
@@ -102,10 +125,10 @@ void SecondOrderModel::bookShape(int icat)
 		pdf = new RooGaussian( Form("%s_cat_model_gaus_%d",name_.c_str(),icat), Form("%s_cat_model_gaus_%d",name_.c_str(),icat), 
 				       *x_, *mean, *sigma );
 		
-		owned_.push_back( mean ), owned_.push_back( sigma ); 		
+		owned_.addOwned(* mean ), owned_.addOwned(* sigma ); 		
 	} else if( shape_ == expo ) {
-		expg.SetParameters(categoryMeans_[icat]-x_->getMin(),x_->getMax()-x_->getMin());
-		double lambdaval=-expg.GetX(0.,1./expg.GetParameter(0),0.1/expg.GetParameter(0));
+		likeg_->SetParameters(categoryMeans_[icat]-x_->getMin(),x_->getMax()-x_->getMin());
+		double lambdaval=-likeg_->GetX(0.,1./likeg_->GetParameter(0),0.1/likeg_->GetParameter(0));
 		RooRealVar * lambda = new RooRealVar(Form("%s_cat_model_expo_lambda_%d",name_.c_str(),icat),
 						     Form("%s_cat_model_expo_lambda_%d",name_.c_str(),icat),
 						     lambdaval,-1e+30,0.); /// -1./categoryMeans_[icat]
@@ -118,7 +141,7 @@ void SecondOrderModel::bookShape(int icat)
 		pdf = new RooExponential( Form("%s_cat_model_expo_%d",name_.c_str(),icat), Form("%s_cat_model_expo_%d",name_.c_str(),icat), 
 					  *x_, *lambda );
 		
-		owned_.push_back( lambda );
+		owned_.addOwned(* lambda );
 	}
 	
 	RooExtendPdf * expdf = 0;
@@ -130,7 +153,7 @@ void SecondOrderModel::bookShape(int icat)
 					 Form("%s_cat_model_ext_pdf_%d",name_.c_str(),icat),
 					 *pdf, *renorm);
 		norm->setConstant(true);
-		owned_.push_back(renorm);
+		owned_.addOwned(*renorm);
 	} else {
 		norm->setConstant(false);
 		expdf = new RooExtendPdf(Form("%s_cat_model_ext_pdf_%d",name_.c_str(),icat),
@@ -138,7 +161,7 @@ void SecondOrderModel::bookShape(int icat)
 					 *pdf, *norm);
 	}
 	categoryNorms_.push_back(norm); 
-	categoryPdfs_.push_back(expdf); owned_.push_back(pdf); owned_.push_back(expdf);
+	categoryPdfs_.push_back(expdf); owned_.addOwned(*pdf); owned_.addOwned(*expdf);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -150,8 +173,8 @@ void SecondOrderModel::setShapeParams(int icat)
 		params->setRealValue(Form("%s_cat_model_gaus_mean_%d",name_.c_str(),icat),categoryMeans_[icat]);
 		params->setRealValue(Form("%s_cat_model_gaus_sigma_%d",name_.c_str(),icat),categoryRMSs_[icat]);
 	} else if( shape_ == expo ) {
-		expg.SetParameters(categoryMeans_[icat]-x_->getMin(),x_->getMax()-x_->getMin());
-		double lambdaval=-expg.GetX(0.,1./expg.GetParameter(0),0.1/expg.GetParameter(0));
+		likeg_->SetParameters(categoryMeans_[icat]-x_->getMin(),x_->getMax()-x_->getMin());
+		double lambdaval=-likeg_->GetX(0.,1./likeg_->GetParameter(0),0.1/likeg_->GetParameter(0));
 		params->setRealValue(Form("%s_cat_model_expo_lambda_%d",name_.c_str(),icat),lambdaval);
 	}
 }

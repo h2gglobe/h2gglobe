@@ -19,18 +19,11 @@ class SecondOrderModel : public AbsModel
 {
 public:
 	enum shape_t { automatic=0, gaus, expo };
-	SecondOrderModel(std::string name,
-			 RooRealVar * x, AbsModel::type_t type=AbsModel::sig, RooRealVar * mu=0, shape_t shape=automatic) : 
-		name_(name),
-		x_(x), mu_(mu),
-		shape_(shape),
-		expg("expg","[0]-1./x+[1]*exp(-[1]*x)/(1.-exp(-[1]*x))",0.,100.) {
-		type_ = type; 
-		if( shape_ == automatic ) {
-			shape_ = ( type_ == AbsModel::sig ? gaus : expo );
-		}
-	};
 	
+	SecondOrderModel(std::string name, RooRealVar * x, AbsModel::type_t type=AbsModel::sig,
+			 RooRealVar * mu=0, shape_t shape=automatic);
+	~SecondOrderModel();
+
 	RooRealVar * getX() { return x_; };
 	void setMu(RooRealVar *mu) { mu_ = mu; };
 
@@ -62,8 +55,8 @@ private:
 	std::vector<double> categoryMeans_, categoryRMSs_;
 	std::vector<RooAbsPdf *> categoryPdfs_;
 	std::vector<RooRealVar *> categoryNorms_;
-	std::vector<RooAbsReal *> owned_;
-	TF1 expg;
+	RooArgSet owned_;
+	TF1 * likeg_;
 };
 
 // ------------------------------------------------------------------------------------------------
@@ -80,6 +73,7 @@ public:
 		converterX_(new HistoToTF1(Form("%s_integrator",var->GetName()),integrate1D(var,false))),
 		converterX2_(new HistoToTF1(Form("%s_integrator",var2->GetName()),integrate1D(var2,false))),
 		model_(name,x,type) {
+		std::cout << pdf_ << " "  << converterN_ << " " << converterX_ << " " << converterX2_ << std::endl;
 		ranges_.push_back(std::make_pair(min,max));
 	};
 	

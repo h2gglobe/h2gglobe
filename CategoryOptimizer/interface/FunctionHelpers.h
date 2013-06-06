@@ -119,6 +119,7 @@ public:
 TH1 * integrate1D(TH1 * h, bool normalize=true);
 TH2 * integrate2D(TH2 * h, bool normalize=true);
 HistoConverter * cdfInv(TH1 * h, double min, double max);
+HistoConverter * cdf(TH1 * h, double min, double max);
 
 #endif 
 

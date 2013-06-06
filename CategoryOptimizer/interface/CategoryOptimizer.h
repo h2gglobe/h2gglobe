@@ -104,7 +104,7 @@ public:
 	CategoryOptimizer( ROOT::Math::Minimizer * minimizer, int ndim) : 
 		minimizer_(minimizer), ndim_(ndim), 
 		addConstraint_(false), telescopicBoundaries_(true), floatFirst_(false), 
-		refitLast_(false), transformations_(0) {};
+		refitLast_(false), transformations_(0), inv_transformations_(0) {};
 	
 	void addSignal(AbsModelBuilder * sig, bool defineTransform=false) { 
 		sigModels_.push_back(sig); 
@@ -130,9 +130,11 @@ public:
 	void addFloatingOrthoCut(const char * name, double val, double step, double mix=-1., double max=-1.);
 	void addFixedOrthoCut(const char * name, double val);
 
-	void setTransformation(int idim, HistoConverter * x) { 
+	void setTransformation(int idim, HistoConverter * x, HistoConverter *y) { 
 		transformations_.resize(ndim_,0);
 		transformations_[idim] = x; 
+		inv_transformations_.resize(ndim_,0);
+		inv_transformations_[idim] = y; 
 	};
 	static void doTransform(const std::vector<HistoConverter *> & transformations, double* boundaries) {
 		for(size_t ii=0; ii<transformations.size(); ++ii) {
@@ -156,7 +158,7 @@ private:
 	double minConstraint_;
 	std::vector<std::pair<std::string, std::vector<double> > > orthocuts_;
 	
-	std::vector<HistoConverter *> transformations_;
+	std::vector<HistoConverter *> transformations_, inv_transformations_;
 
 };
 

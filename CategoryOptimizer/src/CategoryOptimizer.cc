@@ -1,5 +1,6 @@
 #include "../interface/CategoryOptimizer.h"
 #include "TMath.h"
+#include "TMinuitMinimizer.h"
 
 // ---------------------------------------------------------------------------------------------
 GenericFigureOfMerit::GenericFigureOfMerit(std::vector<AbsModelBuilder *> & sig, std::vector<AbsModelBuilder *> & bkg, 
@@ -150,7 +151,10 @@ double CategoryOptimizer::optimizeNCat(int ncat, const double * cutoffs, bool dr
 			HistoConverter * conv = cdfInv(transformPdf,
 						       transformModels_[0]->getMin(idim),
 						       transformModels_[0]->getMax(idim));
-			setTransformation(idim,conv);
+			HistoConverter * convm1 = cdf(transformPdf,
+						       transformModels_[0]->getMin(idim),
+						       transformModels_[0]->getMax(idim));
+			setTransformation(idim,conv,convm1);
 			delete transformPdf;
 		}
 		/// FIXME need to transform the cutoffs
@@ -195,7 +199,7 @@ double CategoryOptimizer::optimizeNCat(int ncat, const double * cutoffs, bool dr
 			} else {
 				minimizer_->SetLimitedVariable(idim*nbound + icat +1,
 							       Form( "absBoundDim%dBin%d", idim, icat ), 
-							       max - (double)(icat+1)*range/(double)ncat,
+							       max - (double)(icat+1)*range/(double)ncat + tmpcutoffs[idim],
 							       tmpcutoffs[idim]*0.5, 
 							       min, max );
 			}
@@ -235,6 +239,8 @@ double CategoryOptimizer::optimizeNCat(int ncat, const double * cutoffs, bool dr
 	}
 
 	// Call to the minimization
+	minimizer_->SetStrategy(2);
+	std::cout << minimizer_->Strategy() << std::endl;
 	minimizer_->PrintResults();
 	if( ! dryrun ) {
 		minimizer_->Minimize();
@@ -243,49 +249,36 @@ double CategoryOptimizer::optimizeNCat(int ncat, const double * cutoffs, bool dr
 
 	///// // Refit last boundaries
 	///// if( refitLast_ ) {
+	///// 	assert( orthocuts_.size() == 0 );
+	///// 	TMinuitMinimizer * minuit = dynamic_cast<TMinuitMinimizer*>(minimizer_);
+	///// 	assert(minuit != 0);
+	///// 
 	///// 	std::vector<double> step0(minimizer_->X(),minimizer_->X()+minimizer_->NDim());
 	///// 	int nrefit = 1;
-	///// 	
 	///// 	for(int idim=0; idim<ndim_; ++idim) {
-	///// 		double range = sigModels_[0]->getMax(idim) - sigModels_[0]->getMin(idim);
-	///// 		minimizer_->SetFixedVariable(idim*nbound, Form("fixedBoundDim%d",idim), 
-	///// 					     step0[idim*nbound]);
-	///// 		for(int icat=0; icat<ncat-nrefit; ++icat) {
-	///// 			minimizer_->SetFixedVariable(idim*nbound + icat +1, 
-	///// 						     Form( (telescopicBoundaries_?"deltaBoundDim%dBin%d":"absBoundDim%dBin%d"),
-	///// 							   idim, icat ),
-	///// 						     step0[idim*nbound + icat +1]);
+	///// 		double min = sigModels_[0]->getMin(idim);
+	///// 		double max = sigModels_[0]->getMax(idim);
+	///// 		if( ! transformations_.empty() && transformations_[idim]!=0 ) {
+	///// 			min = 0.; max = 1.;
 	///// 		}
-	///// 		
+	///// 		double range = max - min;
+	///// 		minuit->FixVariable(idim*nbound);
+	///// 		minuit->FixVariable(idim*nbound + icat +1);
+	///// 	
 	///// 		for(int icat=ncat-nrefit; icat<ncat; ++icat) {
 	///// 			if( telescopicBoundaries_ ) {
-	///// 				minimizer_->SetLimitedVariable(idim*nbound + icat +1,
+	///// 				minuit->SetLimitedVariable(idim*nbound + icat +1,
 	///// 							       Form( "deltaBoundDim%dBin%d", idim, icat ), 
-	///// 							       cutoffs[idim]*(ncat-icat+1.)*10.,   // FIXME smarter initialization
-	///// 							       cutoffs[idim]*0.5, cutoffs[idim], range );
+	///// 							       range/(double)ncat,   // FIXME smarter initialization
+	///// 							       tmpcutoffs[idim]*0.5, tmpcutoffs[idim], range );
 	///// 			} else {
-	///// 				minimizer_->SetLimitedVariable(idim*nbound + icat +1,
+	///// 				minuit->SetLimitedVariable(idim*nbound + icat +1,
 	///// 							       Form( "absBoundDim%dBin%d", idim, icat ), 
-	///// 							       sigModels_[0]->getMax(idim) - range/(double)ncat, 
-	///// 							       cutoffs[idim]*0.5, 
-	///// 							       sigModels_[0]->getMin(idim)+ncat*cutoffs[idim], 
-	///// 							       sigModels_[0]->getMax(idim) );
+	///// 							       step0[idim*nbound + nrefit] - tmpcutoffs[idim]*2.,
+	///// 							       tmpcutoffs[idim]*0.5, 
+	///// 							       min, max );
 	///// 			}
 	///// 
-	///// 		}
-	///// 	}
-	///// 	// penalty to constrain the lower boundaires
-	///// 	if( addConstraint_ ) {
-	///// 		for(int idim=0; idim<ndim_; ++idim) {
-	///// 			if( floatingConstraint_ ) { 
-	///// 				minimizer_->SetLimitedVariable(ndim_*nbound + idim, Form( "lambdaDim%d", idim ), 
-	///// 							       minConstraint_, minConstraint_*0.1,
-	///// 							       minConstraint_, 1e+3*minConstraint_);
-	///// 				
-	///// 			} else { 
-	///// 				minimizer_->SetFixedVariable(ndim_*nbound + idim, Form( "lambdaDim%d", idim ), 
-	///// 							     minConstraint_);
-	///// 			}
 	///// 		}
 	///// 	}
 	///// 	
@@ -313,11 +306,21 @@ void CategoryOptimizer::reduce(int ninput, const double * boundaries, const doub
 {
 	assert( ndim_ == 1 && orthocuts_.size() == 0 ); // multi-dim case not yet implemented
 
+	std::vector<double> inv_boundaries(boundaries,boundaries+ninput);
+	for(int idim=0; idim<ndim_; ++idim) {
+		for(int ibound=0; ibound<ninput; ++ibound) {
+			if( !inv_transformations_.empty() && inv_transformations_[idim]!=0 ) {
+				inv_boundaries[idim*ninput+ibound] = 
+					inv_transformations_[idim]->eval(inv_boundaries[idim*ninput+ibound]);
+			}
+		}
+	}
+
 	GenericFigureOfMerit startingFom(sigModels_,bkgModels_,fom_,ndim_,ninput,cutoffs,0,false,false,
 					 std::vector<HistoConverter *>(0));
-	double f0 = startingFom.DoEval(boundaries);
+	double f0 = startingFom.DoEval(&inv_boundaries[0]);
 	double fn = f0;	
-	std::vector<double> bn(boundaries,boundaries+ninput);
+	std::vector<double> bn(inv_boundaries);
 	std::ostream_iterator< double > output( std::cout, "," );
 	while( (bn.size() > ntarget) && (fabs( (f0-fn)/fn ) < threshold) ) {
 		if( fn < minima_[bn.size()-1].first ) {
@@ -352,22 +355,22 @@ double CategoryOptimizer::getBoundaries(int ncat, double * boundaries)
 	int nbound = ncat+1;
 	std::cout << "get Boundaries " << ncat << std::endl;
 	std::pair<double,std::vector<double> > & res = minima_[ncat];
+	if( res.second.empty() ) { return 1.e+6; }
 	std::copy(res.second.begin(),res.second.begin()+ndim_*nbound,boundaries);
 	if( telescopicBoundaries_ ) {
 		for(int idim=0; idim<ndim_; ++idim) {
-			for(int icat=1; icat<=ncat; ++icat) {
-				boundaries[idim*ncat+icat] = boundaries[idim*ncat+icat-1] - boundaries[idim*ncat+icat];
+			for(int ibound=1; ibound<nbound; ++ibound) {
+				boundaries[idim*nbound+ibound] = boundaries[idim*nbound+ibound-1] - boundaries[idim*nbound+ibound];
 			}
 		}
 	}
 	for(int idim=0; idim<ndim_; ++idim) {
-		for(int icat=0; icat<=ncat; ++icat) {
+		for(int ibound=0; ibound<nbound; ++ibound) {
 			if( !transformations_.empty() && transformations_[idim]!=0 ) {
-				boundaries[idim*ncat+icat] = transformations_[idim]->eval(boundaries[idim*ncat+icat]);
+				boundaries[idim*nbound+ibound] = transformations_[idim]->eval(boundaries[idim*nbound+ibound]);
 			}
 		}
 	}
 	
 	return res.first;
-
 }
