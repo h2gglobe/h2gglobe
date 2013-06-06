@@ -42,19 +42,28 @@ public:
     bool  isSignal;
     int   mctype;
 
+    float pho1energy;
+    float pho2energy;
+    float pho1Phi;
+    float pho2Phi;
     float pho1Eta;
     float pho2Eta;
+    float pho1scEta;
+    float pho2scEta;
     float pho1r9;
     float pho2r9;
     float pho1idMva;
     float pho2idMva;
-    float pho1sEoverE;
-    float pho2sEoverE;
-    float pho1sEoverEsmear;
-    float pho2sEoverEsmear;
-    float diphosMoverM;
-    float diphosMoverMwv;
+    float pho1sE;
+    float pho2sE;
+    float pho1sEsmear;
+    float pho2sEsmear;
+    float diphosM;
+    float diphosMwv;
     float diphovtxProb;
+    bool pho1Matched, pho2Matched, corrVeretx;
+    int pho1CiC, pho2CiC;
+    float diphoMVA;
     
 };
 
@@ -92,7 +101,6 @@ private:
     TFile * outputFile_;
     TTree * flatTree_;
     int _nVertices;
-    
     TreeVariables tree_, default_;
 
 };
