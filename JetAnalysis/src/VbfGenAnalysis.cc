@@ -193,7 +193,7 @@ bool VbfGenAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLoren
 
 
     int cur_type = l.itype[l.current];
-    float sampleweight = l.sampleContainer[l.current_sample_index].weight;
+    float sampleweight = l.sampleContainer[l.current_sample_index].weight();
     /// diphoton_id = -1;
 
     std::pair<int,int> diphoton_index;
@@ -440,7 +440,7 @@ void VbfGenAnalysis::fillControlPlots(const TLorentzVector & lead_p4, const  TLo
 
         if (VBFevent){
 	   float myweight =  1;
-	   float sampleweight = l.sampleContainer[l.current_sample_index].weight;
+	   float sampleweight = l.sampleContainer[l.current_sample_index].weight();
 	   if(evweight*sampleweight!=0) myweight=evweight/sampleweight;
 
            l.FillCutPlots(category+1,1,"_sequential",evweight,myweight);

@@ -1,0 +1,47 @@
+{ 
+  "methods"    : [ "BDT","Cuts" ],
+
+  "variables"  : ["diphoptOverM:=diphopt/diphoM","pho1ptOverM:=pho1pt/diphoM","pho2ptOverM:=pho2pt/diphoM","diphovtxProb","pho1scEta","pho2scEta",
+	"diphosM/diphoM","diphosMwv/diphoM","pho1idMva","pho2idMva"],
+  "spectators" : ["diphoM","pho1idMva","pho2idMva","entry","mctype","pho1scEta","pho2scEta","pho1r9","pho2r9"],
+
+  "categories" : [ 
+                 ],
+
+  "subcategories" : [ 
+        ],
+
+  "selection" : "pho1pt/diphoM > (40./120.) && pho2pt/diphoM> (25./120.)",
+  "classes" : { 
+	"Signal" : { 
+		"samples" : [
+                   ["vbfAnalysis/ggh_m124_8TeV",1,"Entry$ % 2 == 0",0],
+	           ["vbfAnalysis/ggh_m124_8TeV",1,"Entry$ % 2 == 1",1],
+                   ["vbfAnalysis/vbf_m124_8TeV",1,"Entry$ % 2 == 0",0],
+	           ["vbfAnalysis/vbf_m124_8TeV",1,"Entry$ % 2 == 1",1],
+                   ["vbfAnalysis/wzh_m124_8TeV",1,"Entry$ % 2 == 0",0],
+	           ["vbfAnalysis/wzh_m124_8TeV",1,"Entry$ % 2 == 1",1]
+	        ],
+		"weight" : "weight"
+		},
+	"Background" : { 
+		"samples" : [
+                   ["vbfAnalysis/diphojet_Box_8TeV",1,"Entry$ % 2 == 0",0],
+	           ["vbfAnalysis/diphojet_Box_8TeV",1,"Entry$ % 2 == 1",1],
+                   ["vbfAnalysis/gjet_20_8TeV_pf",  1,"Entry$ % 2 == 0",0],
+	           ["vbfAnalysis/gjet_20_8TeV_pf",  1,"Entry$ % 2 == 1",1],
+                   ["vbfAnalysis/gjet_40_8TeV_pf",  1,"Entry$ % 2 == 0",0],
+	           ["vbfAnalysis/gjet_40_8TeV_pf",  1,"Entry$ % 2 == 1",1],
+	           [ "vbfAnalysis/qcd_30_8TeV_ff",  1,"Entry$ % 2 == 0",0],
+	           [ "vbfAnalysis/qcd_30_8TeV_ff",  1,"Entry$ % 2 == 1",1],
+	           [ "vbfAnalysis/qcd_40_8TeV_ff",  1,"Entry$ % 2 == 0",0],
+	           [ "vbfAnalysis/qcd_40_8TeV_ff",  1,"Entry$ % 2 == 1",1]
+		],
+		"weight" : "weight*sampleweight*( diphovtxProb*diphoM/diphosM + (1. - diphovtxProb)*diphoM/diphosMwv )"
+		}
+	},
+   "settings" : { 
+	"BDT" : 
+	"!H:!V:!CreateMVAPdfs:BoostType=Grad:!UseBaggedGrad:GradBaggingFraction=0.6:SeparationType=GiniIndex:nCuts=20:NNodesMax=1000:MaxDepth=3:Shrinkage=0.1:NTrees=2000:nEventsMin=10000"
+	}
+}

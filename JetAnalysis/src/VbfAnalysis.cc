@@ -47,20 +47,26 @@ TreeVariables::TreeVariables() :
     diphomva(-999),	
     pho1Eta(999),		
     pho2Eta(999),		
+    pho1Phi(999),		
+    pho2Phi(999),		
+    pho1scEta(999),		
+    pho2scEta(999),		
     pho1r9(999),		
     pho2r9(999),		
     pho1idMva(-999),	
     pho2idMva(-999),	
-    pho1sEoverE(999),	
-    pho2sEoverE(999),	
-    pho1sEoverEsmear(999),	
-    pho2sEoverEsmear(999),	
-    diphosMoverM(999),	
-    diphosMoverMwv(999),	
+    pho1sE(999),	
+    pho2sE(999),	
+    pho1sEsmear(999),	
+    pho2sEsmear(999),	
+    diphosM(999),	
+    diphosMwv(999),	
     diphovtxProb(-1),
     jet1(-1),
     jet2(-1),
-    jet3(-1) 
+    jet3(-1),
+    pho1Matched(false), pho2Matched(false),corrVeretx(false),
+    pho1CiC(-1),pho2CiC(-1), diphoMVA(-999.)
 {}
 
 // ----------------------------------------------------------------------------------------------------
@@ -125,8 +131,8 @@ void VbfAnalysis::Init(LoopAll& l)
 	}
 	
 	l.BookExternalTreeBranch( "entry",         &tree_.entry, "vbfAnalysis" );         
-	l.BookExternalTreeBranch( "weight",        &tree_.entry, "vbfAnalysis" );         
-	l.BookExternalTreeBranch( "sampleweight",  &tree_.entry, "vbfAnalysis" );         
+	l.BookExternalTreeBranch( "weight",        &tree_.weight, "vbfAnalysis" );         
+	l.BookExternalTreeBranch( "sampleweight",  &tree_.sampleweight, "vbfAnalysis" );         
 	l.BookExternalTreeBranch( "pho1pt",        &tree_.pho1pt, "vbfAnalysis" );        
 	l.BookExternalTreeBranch( "pho2pt",        &tree_.pho2pt, "vbfAnalysis" );        
 	l.BookExternalTreeBranch( "diphopt",       &tree_.diphopt, "vbfAnalysis" );       
@@ -157,19 +163,31 @@ void VbfAnalysis::Init(LoopAll& l)
 	l.BookExternalTreeBranch( "isSignal",      &tree_.isSignal, "vbfAnalysis" );      
 	l.BookExternalTreeBranch( "mctype",        &tree_.mctype, "vbfAnalysis" );        
 	l.BookExternalTreeBranch( "diphomva",      &tree_.diphomva, "vbfAnalysis" );      
+	l.BookExternalTreeBranch( "pho1energy",       &tree_.pho1energy, "vbfAnalysis" );       
+	l.BookExternalTreeBranch( "pho2energy",       &tree_.pho2energy, "vbfAnalysis" );       
 	l.BookExternalTreeBranch( "pho1Eta",       &tree_.pho1Eta, "vbfAnalysis" );       
 	l.BookExternalTreeBranch( "pho2Eta",       &tree_.pho2Eta, "vbfAnalysis" );       
+	l.BookExternalTreeBranch( "pho1Phi",       &tree_.pho1Phi, "vbfAnalysis" );       
+	l.BookExternalTreeBranch( "pho2Phi",       &tree_.pho2Phi, "vbfAnalysis" );       
+	l.BookExternalTreeBranch( "pho1scEta",       &tree_.pho1scEta, "vbfAnalysis" );       
+	l.BookExternalTreeBranch( "pho2scEta",       &tree_.pho2scEta, "vbfAnalysis" );       
 	l.BookExternalTreeBranch( "pho1r9",        &tree_.pho1r9, "vbfAnalysis" );        
 	l.BookExternalTreeBranch( "pho2r9",        &tree_.pho2r9, "vbfAnalysis" );        
 	l.BookExternalTreeBranch( "pho1idMva",     &tree_.pho1idMva, "vbfAnalysis" );    
 	l.BookExternalTreeBranch( "pho2idMva",     &tree_.pho2idMva, "vbfAnalysis" );    
-	l.BookExternalTreeBranch( "pho1sEoverE",   &tree_.pho1sEoverE, "vbfAnalysis" );   
-	l.BookExternalTreeBranch( "pho2sEoverE",   &tree_.pho2sEoverE, "vbfAnalysis" );   
-	l.BookExternalTreeBranch( "pho1sEoverEsmear",   &tree_.pho1sEoverEsmear, "vbfAnalysis" );   
-	l.BookExternalTreeBranch( "pho2sEoverEsmear",   &tree_.pho2sEoverEsmear, "vbfAnalysis" );   
-	l.BookExternalTreeBranch( "diphosMoverM",  &tree_.diphosMoverM, "vbfAnalysis" );  
-	l.BookExternalTreeBranch( "diphosMoverMwv",&tree_.diphosMoverMwv, "vbfAnalysis" );
+	l.BookExternalTreeBranch( "pho1sE",   &tree_.pho1sE, "vbfAnalysis" );   
+	l.BookExternalTreeBranch( "pho2sE",   &tree_.pho2sE, "vbfAnalysis" );   
+	l.BookExternalTreeBranch( "pho1sEsmear",   &tree_.pho1sEsmear, "vbfAnalysis" );   
+	l.BookExternalTreeBranch( "pho2sEsmear",   &tree_.pho2sEsmear, "vbfAnalysis" );   
+	l.BookExternalTreeBranch( "diphosM",  &tree_.diphosM, "vbfAnalysis" );  
+	l.BookExternalTreeBranch( "diphosMwv",&tree_.diphosMwv, "vbfAnalysis" );
 	l.BookExternalTreeBranch( "diphovtxProb",  &tree_.diphovtxProb, "vbfAnalysis" );  
+	l.BookExternalTreeBranch( "pho1Matched",  &tree_.pho1Matched, "vbfAnalysis" );  
+	l.BookExternalTreeBranch( "pho2Matched",  &tree_.pho2Matched, "vbfAnalysis" );  
+	l.BookExternalTreeBranch( "corrVeretx",  &tree_.corrVeretx, "vbfAnalysis" );  
+	l.BookExternalTreeBranch( "pho1CiC",  &tree_.pho1CiC, "vbfAnalysis" );  
+	l.BookExternalTreeBranch( "pho2CiC",  &tree_.pho2CiC, "vbfAnalysis" );  
+	l.BookExternalTreeBranch( "diphoMVA",  &tree_.diphoMVA, "vbfAnalysis" );  
    }
 }
 
@@ -205,7 +223,6 @@ bool VbfAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentzV
     assert( isSyst || ! skipSelection );
     
     int cur_type = l.itype[l.current];
-    float sampleweight = l.sampleContainer[l.current_sample_index].weight;
     /// diphoton_id = -1;
     
     std::pair<int,int> diphoton_index;
@@ -251,13 +268,15 @@ bool VbfAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentzV
 	TLorentzVector lead_p4, sublead_p4, Higgs;
 	float lead_r9, sublead_r9;
 	TVector3 * vtx;
+	category = 0;
 	fillDiphoton(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, vtx, &smeared_pho_energy[0], l, diphoton_id);  
 	if( Higgs.M() < massMin || Higgs.M() > massMax )  { return false; }
 	
 	
 	// ---- evaluate dipho MVA
 	diphoton_index = std::make_pair( l.dipho_leadind[diphoton_id],  l.dipho_subleadind[diphoton_id] );
-
+	evweight = weight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second] * genLevWeight;
+	
         // Mass Resolution of the Event
         massResolutionCalculator->Setup(l,&photonInfoCollection[diphoton_index.first],&photonInfoCollection[diphoton_index.second],diphoton_id,eSmearPars,nR9Categories,nEtaCategories,beamspotSigma);
         float vtx_mva  = l.vtx_std_evt_mva->at(diphoton_id);
@@ -349,6 +368,7 @@ bool VbfAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentzV
 	if( dumpFlatTree ) {
 	    tree_ = default_;
 	    
+	    tree_.entry         = l.event;
 	    tree_.weight        = evweight;
 	    tree_.sampleweight  = l.weight;
 	    tree_.pho1pt        = lead_p4.Pt();
@@ -362,7 +382,7 @@ bool VbfAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentzV
 	    tree_.jet2 = ijet2;
 	    tree_.jet3 = ijet3;
 	    
-	    if( ijet1 > 0 ) {
+	    if( ijet1 >= 0 ) {
 		tree_.jet1isMatched = l.jet_algoPF1_genMatched[ijet1];
 		tree_.jet1genPt     = l.jet_algoPF1_genPt[ijet1];
 		tree_.jet1genDr     = l.jet_algoPF1_genDr[ijet1];
@@ -370,7 +390,7 @@ bool VbfAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentzV
 		tree_.jet1Pt        = jet1->Pt();
 		tree_.jet1Eta       = jet1->Eta();
 	    }
-	    if( ijet2 > 0 ) {
+	    if( ijet2 >= 0 ) {
 		tree_.jet2isMatched = l.jet_algoPF1_genMatched[ijet2];
 		tree_.jet2genPt     = l.jet_algoPF1_genPt[ijet2];
 		tree_.jet2genDr     = l.jet_algoPF1_genDr[ijet2];
@@ -379,7 +399,7 @@ bool VbfAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentzV
 		tree_.jet2Eta       = jet2->Eta();
 	    }
 	    
-	    if( ijet1 > 0 && ijet2 > 0 ) {
+	    if( ijet1 >= 0 && ijet2 >= 0 ) {
 		tree_.zepp          = fabs(diphoton.Eta() - 0.5*(jet1->Eta() + jet2->Eta())); 
 		tree_.mj1j2         = dijet.M();
 		tree_.dphi          = fabs(diphoton.DeltaPhi(dijet));
@@ -388,24 +408,38 @@ bool VbfAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentzV
 		tree_.dphiJJ2       = fabs(sumj1.DeltaPhi(sumj2));
 	    }
 	    
-	    tree_.pho1r9         = lead_r9;
-	    tree_.pho2r9         = sublead_r9;
-	    tree_.pho1idMva     = phoid_mvaout_lead;
-	    tree_.pho2idMva     = phoid_mvaout_sublead;
-	    tree_.pho1sEoverE    = massResolutionCalculator->leadPhotonResolutionNoSmear();
-	    tree_.pho2sEoverE    = massResolutionCalculator->subleadPhotonResolutionNoSmear();
-	    tree_.pho1sEoverEsmear = massResolutionCalculator->leadPhotonResolution();   
-	    tree_.pho2sEoverEsmear = massResolutionCalculator->subleadPhotonResolution();
-	    tree_.diphosMoverM   = sigmaMrv;
-	    tree_.diphosMoverMwv = sigmaMwv;
-	    tree_.diphovtxProb   = vtxProb;
-	    
+	    tree_.pho1energy      = lead_p4.E();
+	    tree_.pho2energy      = sublead_p4.E();
+	    tree_.pho1Eta         = lead_p4.Eta();
+	    tree_.pho2Eta         = sublead_p4.Eta();
+	    tree_.pho1Phi         = lead_p4.Phi();
+	    tree_.pho2Phi         = sublead_p4.Phi();
+	    tree_.pho1scEta         = (float)((TVector3*)l.sc_xyz->At(l.pho_scind[diphoton_index.first]))->Eta();
+	    tree_.pho2scEta         = (float)((TVector3*)l.sc_xyz->At(l.pho_scind[diphoton_index.second]))->Eta();
+	    tree_.pho1r9          = lead_r9;
+	    tree_.pho2r9          = sublead_r9;
+	    tree_.pho1idMva       = phoid_mvaout_lead;
+	    tree_.pho2idMva       = phoid_mvaout_sublead;
+	    tree_.pho1sE     = massResolutionCalculator->leadPhotonResolutionNoSmear();
+	    tree_.pho2sE     = massResolutionCalculator->subleadPhotonResolutionNoSmear();
+	    tree_.pho1sEsmear= massResolutionCalculator->leadPhotonResolution();   
+	    tree_.pho2sEsmear= massResolutionCalculator->subleadPhotonResolution();
+	    tree_.diphosM         = sigmaMrv;
+	    tree_.diphosMwv       = sigmaMwv;
+	    tree_.diphovtxProb    = vtxProb;
+	    tree_.pho1Matched         = l.pho_genmatched[diphoton_index.first];
+	    tree_.pho2Matched         = l.pho_genmatched[diphoton_index.second];
+	    std::vector<std::vector<bool> > ph_passcut;
+	    tree_.pho1CiC             = l.PhotonCiCSelectionLevel(diphoton_index.first,  l.dipho_vtxind[diphoton_id], ph_passcut, 4, 0, &smeared_pho_energy[0] );
+	    tree_.pho2CiC             = l.PhotonCiCSelectionLevel(diphoton_index.second, l.dipho_vtxind[diphoton_id], ph_passcut, 4, 0, &smeared_pho_energy[0] );
+
 	    if (ijet3 > 0 ) {
 		tree_.deltaEta3 = fabs(jet3->Eta() - 0.5*(jet1->Eta() + jet2->Eta())); 
 	    }
 	    tree_.isSignal  = (cur_type < 0);
 	    tree_.mctype    = cur_type;
-	    tree_.entry++;
+	    tree_.diphoMVA  = diphobdt_output;
+	    tree_.corrVeretx = isCorrectVertex;
 
 	    l.FillTreeContainer();
 

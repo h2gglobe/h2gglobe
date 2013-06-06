@@ -534,8 +534,7 @@ def main(fname):
 
     
     return ws
+
     
 if __name__ == "__main__":
-    
-    
     ws=main(sys.argv[1])
