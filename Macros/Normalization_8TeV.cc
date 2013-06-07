@@ -827,7 +827,7 @@ void Normalization_8TeV::Init7TeV(){
 
     //Graviton X-Sections - assume the same as SM
     for (std::map<double, double>::const_iterator iter = XSectionMap_ggh.begin(); iter != XSectionMap_ggh.end(); ++iter)
-      XSectionMap_graviton[iter->first]=iter->second+XSectionMap_vbf[iter->first]+XSectionMap_wzh[iter->first]+XSectionMap_tth[iter->first];
+      XSectionMap_sm[iter->first]=iter->second+XSectionMap_vbf[iter->first]+XSectionMap_wzh[iter->first]+XSectionMap_tth[iter->first];
    
 }
 
@@ -2328,7 +2328,7 @@ void Normalization_8TeV::Init8TeV(){
   
   //Graviton X-Sections - assume the same as SM
   for (std::map<double, double>::const_iterator iter = XSectionMap_ggh.begin(); iter != XSectionMap_ggh.end(); ++iter)
-    XSectionMap_graviton[iter->first]=iter->second+XSectionMap_vbf[iter->first]+XSectionMap_wzh[iter->first]+XSectionMap_tth[iter->first];
+    XSectionMap_sm[iter->first]=iter->second+XSectionMap_vbf[iter->first]+XSectionMap_wzh[iter->first]+XSectionMap_tth[iter->first];
   
 }
 
@@ -2414,20 +2414,15 @@ void Normalization_8TeV::FillSignalTypes(){
   SignalTypeMap[-102]=std::make_pair<TString,double>("ggh",125);
   SignalTypeMap[-103]=std::make_pair<TString,double>("ggh",125);
 
-  SignalTypeMap[-137]=std::make_pair<TString,double>("ggh_grav",125);
-  SignalTypeMap[-138]=std::make_pair<TString,double>("vbf_grav",125);
-  SignalTypeMap[-140]=std::make_pair<TString,double>("wzh_grav",125);
-  SignalTypeMap[-139]=std::make_pair<TString,double>("tth_grav",125);
-  SignalTypeMap[-177]=std::make_pair<TString,double>("ggh_grav",126);
-  SignalTypeMap[-178]=std::make_pair<TString,double>("vbf_grav",126);
-  SignalTypeMap[-180]=std::make_pair<TString,double>("wzh_grav",126);
-  SignalTypeMap[-179]=std::make_pair<TString,double>("tth_grav",126);
+  SignalTypeMap[-137]=std::make_pair<TString,double>("gg_grav",125);
+  SignalTypeMap[-138]=std::make_pair<TString,double>("qq_grav",125);
+  SignalTypeMap[-177]=std::make_pair<TString,double>("gg_grav",126);
+  SignalTypeMap[-178]=std::make_pair<TString,double>("qq_grav",126);
 
 }
 
 TGraph * Normalization_8TeV::GetSigmaGraph(TString process)
 {
-	if (process.Contains("_grav") || process.Contains("_spin2")) process = process.ReplaceAll("_grav","");
   TGraph * gr = new TGraph();
 	std::map<double, double> * XSectionMap = 0 ;
 	if ( process == "ggh") {
@@ -2444,13 +2439,16 @@ TGraph * Normalization_8TeV::GetSigmaGraph(TString process)
 		XSectionMap = &XSectionMap_wh;
 	} else if ( process == "zh") {
 		XSectionMap = &XSectionMap_zh;
-	} else if (process == "graviton"){
-    XSectionMap = &XSectionMap_graviton;
+	} else if (process.Contains("grav")){
+    XSectionMap = &XSectionMap_sm;
+  } else {
+    std::cout << "Warning ggh, vbf, wh, zh, wzh, tth or grav not found in histname!!!!" << std::endl;
+    //exit(1);
   }
-	
-	for (std::map<double, double>::const_iterator iter = XSectionMap->begin();  iter != XSectionMap->end(); ++iter) {
-		gr->SetPoint(gr->GetN(),iter->first, iter->second );
-	}
+  
+  for (std::map<double, double>::const_iterator iter = XSectionMap->begin();  iter != XSectionMap->end(); ++iter) {
+    gr->SetPoint(gr->GetN(),iter->first, iter->second );
+  }
 	
 	return gr;
 }
@@ -2507,10 +2505,10 @@ double Normalization_8TeV::GetXsection(double mass, TString HistName) {
     XSectionMap = &XSectionMap_wzh;
   } else if (HistName.Contains("tth")) {
     XSectionMap = &XSectionMap_tth;
-  } else if (HistName.Contains("graviton")) {
-    XSectionMap = &XSectionMap_graviton;
+  } else if (HistName.Contains("grav")) {
+    XSectionMap = &XSectionMap_sm;
   } else {
-    std::cout << "Warning ggh, vbf, wh, zh, wzh, or tth not found in histname!!!!" << std::endl;
+    std::cout << "Warning ggh, vbf, wh, zh, wzh, tth or grav not found in histname!!!!" << std::endl;
     //exit(1);
   }
 
@@ -2550,7 +2548,13 @@ double Normalization_8TeV::GetMass(int ty){
 }
 double Normalization_8TeV::GetXsection(int ty){
   std::pair<TString,double> proc_mass = SignalTypeMap[ty];
-  return GetXsection(proc_mass.second,proc_mass.first);
+  // if "grav" in name then return all processes xs*br
+  if (proc_mass.first.Contains("grav")) {
+    return GetXsection(proc_mass.second);
+  }
+  else {
+    return GetXsection(proc_mass.second,proc_mass.first);
+  }
 }
 double Normalization_8TeV::GetBR(int ty){
   std::pair<TString,double> proc_mass = SignalTypeMap[ty];
