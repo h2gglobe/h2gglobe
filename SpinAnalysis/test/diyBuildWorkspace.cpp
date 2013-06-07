@@ -195,7 +195,7 @@ void fillDataSet(RooRealVar *mass, map<string,RooDataSet*> &dataMap, vector<TTre
 void Plot(string name, RooRealVar *mass, RooDataSet* data, RooAbsPdf* pdf){
 
   TCanvas *canv = new TCanvas();
-  RooPlot *plot = mass->frame();
+  RooPlot *plot = mass->frame(Title(Form("m_{#gamma#gamma} for %s",name.c_str())));
   data->plotOn(plot);
   pdf->plotOn(plot);
   plot->Draw();
