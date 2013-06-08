@@ -19,6 +19,8 @@
 #include "TStyle.h"
 #include "TMath.h"
 #include "Math/DistFunc.h"
+#include "RooStats/RooStatsUtils.h"
+#include "RooStats/NumberCountingUtils.h"
 #include "Math/QuantFuncMathMore.h"
 
 using namespace std;
@@ -401,6 +403,7 @@ int main(int argc, char* argv[]){
   TGraphErrors *graphSME = new TGraphErrors();
   TGraphErrors *graphGRAV = new TGraphErrors();
   cout << "Model Indep " << endl;
+  float cTvals[5]={0.1,0.2875,0.4625,0.65,0.875};
   for (int s=0; s<nSpinCats; s++){
     muSM_percat_hists[s]->Draw();
     canv->Print(Form("plots/%s/muSM_CT%d.pdf",dir.c_str(),s));
@@ -409,11 +412,17 @@ int main(int argc, char* argv[]){
     canv->Print(Form("plots/%s/muGRAV_CT%d.pdf",dir.c_str(),s));
     canv->Print(Form("plots/%s/muGRAV_CT%d.png",dir.c_str(),s));
     cout << s << " " << muSM_percat_hists[s]->GetMean() << " " << muGRAV_percat_hists[s]->GetMean() << endl;
-    graphSM->SetPoint(s,0.5/nSpinCats+(s*1./nSpinCats),muSM_percat_hists[s]->GetMean());
+    //graphSM->SetPoint(s,0.5/nSpinCats+(s*1./nSpinCats),muSM_percat_hists[s]->GetMean());
+    //graphSM->SetPointError(s,0.,muSM_percat_hists[s]->GetMeanError());
+    //graphSME->SetPoint(s,0.5/nSpinCats+(s*1./nSpinCats),muSM_percat_hists[s]->GetMean());
+    //graphSME->SetPointError(s,0.,muSM_percat_hists[s]->GetRMS());
+    //graphGRAV->SetPoint(s,0.5/nSpinCats+(s*1./nSpinCats),1./muGRAV_percat_hists[s]->GetMean());
+    //graphGRAV->SetPointError(s,0.,muGRAV_percat_hists[s]->GetMeanError());
+    graphSM->SetPoint(s,cTvals[s],muSM_percat_hists[s]->GetMean());
     graphSM->SetPointError(s,0.,muSM_percat_hists[s]->GetMeanError());
-    graphSME->SetPoint(s,0.5/nSpinCats+(s*1./nSpinCats),muSM_percat_hists[s]->GetMean());
+    graphSME->SetPoint(s,cTvals[s],muSM_percat_hists[s]->GetMean());
     graphSME->SetPointError(s,0.,muSM_percat_hists[s]->GetRMS());
-    graphGRAV->SetPoint(s,0.5/nSpinCats+(s*1./nSpinCats),1./muGRAV_percat_hists[s]->GetMean());
+    graphGRAV->SetPoint(s,cTvals[s],1./muGRAV_percat_hists[s]->GetMean());
     graphGRAV->SetPointError(s,0.,muGRAV_percat_hists[s]->GetMeanError());
   }
   TH2F *h = new TH2F("h","",1,0,1.,1,-0.5,3.0);
@@ -566,6 +575,12 @@ int main(int argc, char* argv[]){
   cout << "BINNED:  -- normal_quantile_c" << endl;
   cout << "Prob( q > median(2) | 0 ) = "<< SMprobHist << " = " << SMsigmaHist << " sigma " << endl;
   cout << "Prob( q < median(0) | 2 ) = "<< GRAVprobHist << " = " << GRAVsigmaHist << " sigma " << endl;
+  cout << "BINNED:  -- normal_quantile_c" << endl;
+  cout << "Prob( q > median(2) | 0 ) = "<< SMprobHist << " = " << ROOT::Math::normal_quantile_c(SMprobHist,1.0) << " sigma " << endl;
+  cout << "Prob( q < median(0) | 2 ) = "<< GRAVprobHist << " = " << ROOT::Math::normal_quantile_c(GRAVprobHist,1.0) << " sigma " << endl;
+  cout << "BINNED:  -- RooStats::PValueToSignificance" << endl;
+  cout << "Prob( q > median(2) | 0 ) = "<< SMprobHist << " = " << RooStats::PValueToSignificance(SMprobHist) << " sigma " << endl;
+  cout << "Prob( q < median(0) | 2 ) = "<< GRAVprobHist << " = " << RooStats::PValueToSignificance(GRAVprobHist) << " sigma " << endl;
 
   map<string,double> temp = calcSeparation(tree);
 
@@ -673,6 +688,8 @@ int main(int argc, char* argv[]){
   pt3.SetFillColor(0);
   pt3.Draw();
   TPaveText pt4(0.6,0.7,0.89,0.85,"NDC");
+  //pt4.AddText(Form("p (q<med(2^{+}_{m}) | 0^{+}) = %4.2f#sigma",RooStats::PValueToSignificance(GRAVprobHist)));
+  //pt4.AddText(Form("p (q>med(0^{+}) | 2^{+}_{m}) = %4.2f#sigma",RooStats::PValueToSignificance(SMprobHist)));
   pt4.AddText(Form("p (q<med(2^{+}_{m}) | 0^{+}) = %4.2f#sigma",ROOT::Math::normal_quantile_c(GRAVprob,1.0)));
   pt4.AddText(Form("p (q>med(0^{+}) | 2^{+}_{m}) = %4.2f#sigma",ROOT::Math::normal_quantile_c(SMprob,1.0)));
   pt4.SetBorderSize(0);
@@ -699,6 +716,8 @@ int main(int argc, char* argv[]){
   pt2.Draw();
   pt3.Draw();
   TPaveText pt5(0.6,0.7,0.89,0.85,"NDC");
+  //pt5.AddText(Form("p (q<med(2^{+}_{m}) | 0^{+}) = %4.2f#sigma",RooStats::PValueToSignificance(GRAVprobHist)));
+  //pt5.AddText(Form("p (q>med(0^{+}) | 2^{+}_{m}) = %4.2f#sigma",RooStats::PValueToSignificance(SMprobHist)));
   pt5.AddText(Form("p (q<med(2^{+}_{m}) | 0^{+}) = %4.2f#sigma",ROOT::Math::normal_quantile_c(GRAVprobHist,1.0)));
   pt5.AddText(Form("p (q>med(0^{+}) | 2^{+}_{m}) = %4.2f#sigma",ROOT::Math::normal_quantile_c(SMprobHist,1.0)));
   pt5.SetBorderSize(0);

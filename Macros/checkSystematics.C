@@ -23,6 +23,8 @@ void checkSystematics(string filename, int ncats=9, bool isCutBased=false, strin
   processes.push_back("vbf");
   processes.push_back("wzh");
   processes.push_back("tth");
+  processes.push_back("gg_grav");
+  processes.push_back("qq_grav");
 
   vector<string> systematics;
   systematics.push_back("E_res");
@@ -37,12 +39,15 @@ void checkSystematics(string filename, int ncats=9, bool isCutBased=false, strin
   } 
   else {
     systematics.push_back("r9Eff");
+    systematics.push_back("ptSpin");
   }
   
   system(Form("mkdir %s",folder.c_str()));
 
   // can only do integer masses
   vector<int> masses;
+  masses.push_back(125);
+  /*
   if (interpolated){
     for (int m=110; m<=150; m++){
       masses.push_back(m);
@@ -53,6 +58,7 @@ void checkSystematics(string filename, int ncats=9, bool isCutBased=false, strin
       masses.push_back(m);
     }
   }
+  */
 
   for (unsigned int i=0; i<masses.size(); i++){
     int m=masses[i];

@@ -227,6 +227,20 @@ int main(int argc, char* argv[]){
   int fitStatus[4];
   int fitCovStatus[4];
 
+  // new vars for testing
+  int type;
+  int covQualSMpdf=-1;
+  int covQualGRAVpdf=-1;
+  float q=-999.;
+  float muSMpdf=-999.;
+  float muSMpdfErr=-999.;
+  float muGRAVpdf=-999.;
+  float muGRAVpdfErr=-999.;
+  //vector<float> bkgParamFitValsSM;
+  //vector<float> bkgParamFitValsGRAV;
+  //vector<float> bkgParamFitErrsSM;
+  //vector<float> bkgParamFitErrsGRAV;
+
   tree_->Branch("q_data",&q_data_);
   tree_->Branch("q_smtoy",&q_smtoy_);
   tree_->Branch("q_gravtoy",&q_gravtoy_);
@@ -239,6 +253,18 @@ int main(int argc, char* argv[]){
   tree_->Branch("nSpinCats",&nSpinCats);
   tree_->Branch("muSM_perCTbin",muSM_perCTbin,"muSM_perCTbin[nSpinCats]/D");
   tree_->Branch("muGRAV_perCTbin",muGRAV_perCTbin,"muGRAV_perCTbin[nSpinCats]/D");
+  tree_->Branch("type",&type);
+  tree_->Branch("q",&q);
+  tree_->Branch("covQualSMpdf",&covQualSMpdf);
+  tree_->Branch("covQualGRAVpdf",&covQualGRAVpdf);
+  tree_->Branch("muSMpdf",&muSMpdf);
+  tree_->Branch("muSMpdfErr",&muSMpdfErr);
+  tree_->Branch("muGRAVpdf",&muGRAVpdf);
+  tree_->Branch("muGRAVpdfErr",&muGRAVpdfErr);
+  //tree_->Branch("bkgParamFitValsSM",&bkgParamFitValsSM);
+  //tree_->Branch("bkgParamFitValsGRAV",&bkgParamFitValsGRAV);
+  //tree_->Branch("bkgParamFitErrsSM",&bkgParamFitErrsSM);
+  //tree_->Branch("bkgParamFitErrsGRAV",&bkgParamFitErrsGRAV);
   tree_->Branch("fitStatus",fitStatus,"fitStatus[4]/I");
   tree_->Branch("fitCovStatus",fitCovStatus,"fitCovStatus[4]/I");
 
@@ -376,6 +402,14 @@ int main(int argc, char* argv[]){
 
   // if nToys==0 fit data
   if (nToys==0) {
+    
+    muSM->setVal(0.);
+    Plot(mass,category,combData,simPdfSM,nBDTCats,nSpinCats,true,"smpdf_bkg", correlateCosThetaCategories);
+    muGRAV->setVal(0.);
+    Plot(mass,category,combData,simPdfGRAV,nBDTCats,nSpinCats,false,"gravpdf_bkg", correlateCosThetaCategories);
+    muSM->setVal(1.);
+    muGRAV->setVal(1.);
+    
     RooFitResult *fitResDataSM = simPdfSM->fitTo(*combData,Save(true));
     muSMData_ = muSM->getVal();
 
@@ -479,6 +513,11 @@ int main(int argc, char* argv[]){
         double sigGRAVToyEvents = RooRandom::randomGenerator()->PoissonD(scaleFactor*expEventsGRAV[catname]);
         int bkgToyEvents = RooRandom::randomGenerator()->Poisson(expEventsALL[catname]);
 
+        bkgMod_gen[catname]->getComponents()->Print("v");
+        bkgMod[catname]->getComponents()->Print("v");
+        RooDataSet *bkgToy = (RooDataSet*)bkgMod_gen[catname]->generate(*mass,bkgToyEvents);
+        RooDataSet *smToy = (RooDataSet*)sigSM_gen[catname]->generate(*mass,sigSMToyEvents);
+        RooDataSet *gravToy = (RooDataSet*)sigGRAV_gen[catname]->generate(*mass,sigGRAVToyEvents);
         RooDataSet *smToy;
         RooDataSet *gravToy;
         if(correlateToys)
@@ -575,14 +614,19 @@ int main(int argc, char* argv[]){
       muSMSM_ = fitModel->getVariables()->getRealValue("muSM");
       delete fitModel;
     }while(repeat && count<MAX_REPEAT);
+    muSMSM_ = muSM->getVal();
+    //fitResSMSM->floatParsInit().Print("v");
+    //fitResSMSM->floatParsFinal().Print("v");
     fitStatus[0] = fitResSMSM->status();
     fitCovStatus[0] = fitResSMSM->covQual();
 
-    muSM->setVal(1.);
+    muGRAV->setVal(1.);
     repeat = false;
     count = 0;
-    RooFitResult *fitResSMGRAV;
+    RooFitResult *fitResGRAVSM;
     do{
+      fitResGRAVSM = simPdfGRAV->fitTo(*combDataSM,Save(true), RooFit::Minimizer("Minuit2","Migrad"), RooFit::PrintLevel(-1));
+      if(fitResGRAVSM->status() == -1)
       //fitResSMGRAV = simPdfSM->fitTo(*combDataGRAV,Save(true), RooFit::PrintLevel(-1));
       RooSimultaneous* fitModel = (RooSimultaneous*)simPdfSM->cloneTree();
       fitResSMGRAV = breakDownFit(fitModel,combDataGRAV,mass);
@@ -595,14 +639,19 @@ int main(int argc, char* argv[]){
       muSMGRAV_ = fitModel->getVariables()->getRealValue("muSM");
       delete fitModel;
     }while(repeat && count<MAX_REPEAT);
+    muGRAVSM_ = muGRAV->getVal();
+    //fitResGRAVSM->floatParsInit().Print("v");
+    //fitResGRAVSM->floatParsFinal().Print("v");
     fitStatus[1] = fitResSMGRAV->status();
     fitCovStatus[1] = fitResSMGRAV->covQual();
 
-    muGRAV->setVal(1.);
+    muSM->setVal(1.);
     repeat = false;
     count = 0;
-    RooFitResult *fitResGRAVSM;
+    RooFitResult *fitResSMGRAV;
     do{
+      fitResSMGRAV = simPdfSM->fitTo(*combDataGRAV,Save(true), RooFit::Minimizer("Minuit2","Migrad"), RooFit::PrintLevel(-1));
+      if(fitResSMGRAV->status() == -1)
       //fitResGRAVSM = simPdfGRAV->fitTo(*combDataSM,Save(true), RooFit::PrintLevel(-1));
       RooSimultaneous* fitModel = (RooSimultaneous*)simPdfGRAV->cloneTree();
       fitResGRAVSM = breakDownFit(fitModel,combDataSM,mass);
@@ -615,8 +664,12 @@ int main(int argc, char* argv[]){
       muGRAVSM_ = fitModel->getVariables()->getRealValue("muGRAV");
       delete fitModel;
     }while(repeat && count<MAX_REPEAT);
+    muSMGRAV_ = muSM->getVal();
+    //fitResSMGRAV->floatParsInit().Print("v");
+    //fitResSMGRAV->floatParsFinal().Print("v");
     fitStatus[2] = fitResGRAVSM->status();
     fitCovStatus[2] = fitResGRAVSM->covQual();
+>>>>>>> 1.13
 
     muGRAV->setVal(1.);
     repeat = false;
@@ -635,6 +688,9 @@ int main(int argc, char* argv[]){
       muGRAVGRAV_ = fitModel->getVariables()->getRealValue("muGRAV");
       delete fitModel;
     }while(repeat && count<MAX_REPEAT);
+    muGRAVGRAV_ = muGRAV->getVal();
+    //fitResGRAVGRAV->floatParsInit().Print("v");
+    //fitResGRAVGRAV->floatParsFinal().Print("v");
     fitStatus[3] = fitResGRAVGRAV->status();
     fitCovStatus[3] = fitResGRAVGRAV->covQual();
 
@@ -648,6 +704,16 @@ int main(int argc, char* argv[]){
     for (int s=0; s<nSpinCats; s++){
       cout << "SpinCat " << s << ": muSM - " << muSM_perCTbin[s] << " - muGRAV - " << muGRAV_perCTbin[s] << endl;
     }
+    
+    fitResSMSM->SetName(Form("fitResSMSM_toy%d",t));
+    fitResSMGRAV->SetName(Form("fitResSMGRAV_toy%d",t));
+    fitResGRAVSM->SetName(Form("fitResGRAVSM_toy%d",t));
+    fitResGRAVGRAV->SetName(Form("fitResGRAVGRAV_toy%d",t));
+    outFile->cd();
+    fitResSMSM->Write();
+    fitResSMGRAV->Write();
+    fitResGRAVSM->Write();
+    fitResGRAVGRAV->Write();
 
     if(fitResGRAVGRAV->status() == -1 ||
        fitResGRAVSM->status() == -1 ||

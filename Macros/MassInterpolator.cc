@@ -52,18 +52,19 @@ MassInterpolator::MassInterpolator(size_t nmasses, double * outputMasses, bool d
 }
 
 void MassInterpolator::printMap(){
-  for (map<string,vector<string> >::iterator it=specProcNormMap_.begin(); it!=specProcNormMap_.end(); it++) {
+  for (map<string,pair<double,vector<string> > >::iterator it=specProcNormMap_.begin(); it!=specProcNormMap_.end(); it++) {
     cout << it->first << " : ";
-    for (vector<string>::iterator vit=it->second.begin(); vit!=it->second.end(); vit++){
+    cout << it->second.first << " : ";
+    for (vector<string>::iterator vit=it->second.second.begin(); vit!=it->second.second.end(); vit++){
       cout << *vit << " ";
     }
   cout << endl;
   }
 }
 
-void MassInterpolator::addToMap(string key, vector<string> vec){
+void MassInterpolator::addToMap(string key, double scaleFactor, vector<string> vec){
  
-  specProcNormMap_.insert(pair<string,vector<string> >(key,vec));
+  specProcNormMap_.insert(pair<string,pair<double,vector<string> > >(key,make_pair(scaleFactor,vec)));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -175,25 +176,33 @@ void MassInterpolator::runInterpolation(bool is7TeV)
 				float mhigh = inputMasses_[high];
 
 				const TH1F * hinterp;
-        float normalization = 0.;
+        float normalization;
+        float norm_num;
+        float norm_dem;
 				if(low!=high) {
+          normalization = container->normalization(mass);
+
           // if process is in special norm map adjust the normalization
-          map<string,vector<string> >::iterator mapEntry = specProcNormMap_.find(iprocess->first);
+          map<string,pair<double,vector<string> > >::iterator mapEntry = specProcNormMap_.find(iprocess->first);
           if (mapEntry!=specProcNormMap_.end()){
-            // loop map item
-            for (vector<string>::iterator it=mapEntry->second.begin(); it!=mapEntry->second.end(); it++){
-              // loop channels
-              for(channelsList_t::iterator ichannel = iprocess->second.begin(); ichannel!=iprocess->second.end(); ++ichannel ) {
-                // only sum the categories not the systematics
-                if (iprocess->first.find("sigma")==string::npos){
-                  normalization += findContainer(iprocess->first.c_str(),ichannel->first.c_str())->normalization(mass);
+            double scaleFactor = mapEntry->second.first;
+            vector<string> normChannels = mapEntry->second.second;
+            // loop over channels to sum 
+            for(channelsList_t::iterator ichannel = iprocess->second.begin(); ichannel!=iprocess->second.end(); ++ichannel ) {
+              // only sum the categories not the systematics
+              if (ichannel->first.find("sigma")==string::npos && ichannel->first.find("rv")==string::npos && ichannel->first.find("wv")==string::npos){
+                // loop map item (i.e processes to scale to)
+                for (vector<string>::iterator normCh=normChannels.begin(); normCh!=normChannels.end(); normCh++){
+                  // DEBUG help
+                  //cout << "Proc: " << iprocess->first << " Adding scale for " << *normCh << " " << ichannel->first << endl;
+                  //cout << "    norm = " << normalization << endl;
+                  norm_num += findContainer(normCh->c_str(),ichannel->first.c_str())->normalization(mass);
                 }
+                norm_dem += findContainer(iprocess->first.c_str(),ichannel->first.c_str())->normalization(mass);
               }
             }
-          }
-          // else use the default norm
-          else {
-            normalization = container->normalization(mass);
+            // multiply by scale factor
+            normalization *= scaleFactor*(norm_num/norm_dem);
           }
 					std::string hname = Form((th1pfx_+fmt).c_str(), mass);
 					TH1F * hmorph = (TH1F*) th1fmorph(hname.c_str(),hname.c_str(),hlow,hhigh,mlow,mhigh,mass,normalization,0);

@@ -119,6 +119,7 @@ void StatAnalysis::Init(LoopAll& l)
         << "doVtxEffSyst "<< doVtxEffSyst << "\n"
         << "doTriggerEffSyst "<< doTriggerEffSyst << "\n"
         << "doKFactorSyst "<< doKFactorSyst << "\n"
+        << "doPtSpinSyst "<< doPtSpinSyst << "\n"
         << "-------------------------------------------------------------------------------------- \n"
         << std::endl;
 
@@ -242,6 +243,14 @@ void StatAnalysis::Init(LoopAll& l)
         kFactorSmearer->init();
         genLevelSmearers_.push_back(kFactorSmearer);
     }
+    if(doPtSpinSmear) {
+        // ptSpin efficiency
+        std::cerr << __LINE__ << std::endl;
+        ptSpinSmearer = new PtSpinSmearer( ptspinHist );
+        ptSpinSmearer->name("ptSpin");
+        ptSpinSmearer->init();
+        genLevelSmearers_.push_back(ptSpinSmearer);
+    }
     if(doInterferenceSmear) {
         // interference efficiency
         std::cerr << __LINE__ << std::endl;
@@ -305,6 +314,12 @@ void StatAnalysis::Init(LoopAll& l)
     if(doKFactorSmear && doKFactorSyst) {
         systGenLevelSmearers_.push_back(kFactorSmearer);
         std::vector<std::string> sys(1,kFactorSmearer->name());
+        std::vector<int> sys_t(1,-1);   // -1 for signal, 1 for background 0 for both
+        l.rooContainer->MakeSystematicStudy(sys,sys_t);
+    }
+    if(doPtSpinSmear && doPtSpinSyst) {
+        systGenLevelSmearers_.push_back(ptSpinSmearer);
+        std::vector<std::string> sys(1,ptSpinSmearer->name());
         std::vector<int> sys_t(1,-1);   // -1 for signal, 1 for background 0 for both
         l.rooContainer->MakeSystematicStudy(sys,sys_t);
     }
@@ -474,14 +489,14 @@ void StatAnalysis::Init(LoopAll& l)
             l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wzh_mass_m%d_wv",sig),nDataBins);
             l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_tth_mass_m%d_wv",sig),nDataBins);
             
-            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_ggh_grav_mass_m%d",sig),nDataBins);
-            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_vbf_grav_mass_m%d",sig),nDataBins);
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_gg_grav_mass_m%d",sig),nDataBins);
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_qq_grav_mass_m%d",sig),nDataBins);
                                                                             
-            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_ggh_grav_mass_m%d_rv",sig),nDataBins);
-            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_vbf_grav_mass_m%d_rv",sig),nDataBins);
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_gg_grav_mass_m%d_rv",sig),nDataBins);
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_qq_grav_mass_m%d_rv",sig),nDataBins);
                                                                             
-            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_ggh_grav_mass_m%d_wv",sig),nDataBins);
-            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_vbf_grav_mass_m%d_wv",sig),nDataBins);
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_gg_grav_mass_m%d_wv",sig),nDataBins);
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_qq_grav_mass_m%d_wv",sig),nDataBins);
         }
     }
 
@@ -503,8 +518,8 @@ void StatAnalysis::Init(LoopAll& l)
             l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_vbf_mass_m%d",sig),-1);
             l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_wzh_mass_m%d",sig),-1);
             l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_tth_mass_m%d",sig),-1);
-            l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_ggh_grav_mass_m%d",sig),-1);
-            l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_vbf_grav_mass_m%d",sig),-1);
+            l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_gg_grav_mass_m%d",sig),-1);
+            l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_qq_grav_mass_m%d",sig),-1);
         }
     }
 
@@ -1003,6 +1018,11 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
         if(reweighBeamspot && cur_type!=0) {
             evweight*=BeamspotReweight(vtx->Z(),((TVector3*)l.gv_pos->At(0))->Z());
         }
+        // for spin study
+        if (reweighPt && cur_type!=0){
+            evweight*=PtReweight(Higgs.Pt(),cur_type);
+        }
+
 
         // FIXME pass smeared R9
         category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,R9CatBoundary,nPtCategories,nVtxCategories,l.vtx_std_n);
@@ -1052,7 +1072,7 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
         float vtx_mva  = l.vtx_std_evt_mva->at(diphoton_id);
         float vtxProb   = 1.-0.49*(vtx_mva+1.0); /// should better use this: vtxAna_.setPairID(diphoton_id); vtxAna_.vertexProbability(vtx_mva); PM
         // save trees for IC spin analysis
-        if (!isSyst && saveSpinTrees_) saveSpinTree(l,category,evweight,Higgs,lead_p4,sublead_p4,diphoton_index.first,diphoton_index.second,diphoton_id,vtxProb);
+        if (!isSyst && saveSpinTrees_) saveSpinTree(l,category,evweight,Higgs,lead_p4,sublead_p4,diphoton_index.first,diphoton_index.second,diphoton_id,vtxProb,isCorrectVertex);
 
 	//save vbf trees
 	if (!isSyst && cur_type<0 && saveVBFTrees_) saveVBFTree(l,category, evweight, -99.);

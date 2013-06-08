@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import os
+import sys
 
 from optparse import OptionParser
 parser = OptionParser()
@@ -16,10 +17,19 @@ parser.add_option("-s","--skipWorkspace",dest="skipWorkspace",action="store_true
 parser.add_option("--dryRun",dest="dryRun",action="store_true",default=False)
 (options,args)=parser.parse_args()
 
+import ROOT as r
+def getFittedSignal(filename):
+  filename = filename.replace('.0','')
+  tf = r.TFile(filename)
+  tree = tf.Get('limit')
+  tree.GetEntry(0)
+  return tree.limit
+
 def doChannelCompability():
   print 'Running channel compatibility..'
   cardnameSM = options.datacard.replace('.txt','_justSM.txt')
-  cardnameGrav = options.datacard.replace('.txt','_justGrav.txt')
+  cardnameGravGG = options.datacard.replace('.txt','_justGravGG.txt')
+  cardnameGravQQ = options.datacard.replace('.txt','_justGravQQ.txt')
   f = open('%s/%s/chcomp.sh'%(os.getcwd(),options.directory),'w')
   f.write('#!/bin/bash\n')
   f.write('cd %s/%s\n'%(os.getcwd(),options.directory))
@@ -27,15 +37,48 @@ def doChannelCompability():
   f.write('rm -f %s.fail\n'%f.name)
   f.write('touch %s.run\n'%f.name)
   f.write('eval `scramv1 runtime -sh`\n')
-  
-  f.write('if ( combine %s/%s -M GenerateOnly -m %3.1f -t -1 --expectSignal=1 -n SMAsimov --saveToys -s 0 && combine %s/%s -M ChannelCompatibilityCheck -m %3.1f -t -1 --toysFile higgsCombineSMAsimov.GenerateOnly.mH%3.1f.root --rMin=-5. -g spinCat0 -g spinCat1 -g spinCat2 -g spinCat3 -g spinCat4 -n SM --saveFitResult && combine %s/%s -M ChannelCompatibilityCheck -m %3.1f -t -1 --toysFile higgsCombineSMAsimov.GenerateOnly.mH%3.1f.root --rMin=-5. -g spinCat0 -g spinCat1 -g spinCat2 -g spinCat3 -g spinCat4 -n Grav --saveFitResult )\n'%(os.getcwd(),cardnameSM,options.mass,os.getcwd(),cardnameSM,options.mass,options.mass,os.getcwd(),cardnameGrav,options.mass,options.mass))
+
+  # figure out signal to throw given pre-fit or post fit
+  if options.fitNuis==0:
+    expectSignalSM=1.
+    expectSignalGravGG=1.
+    expectSignalGravQQ=1.
+  elif options.fitNuis==1:
+    print 'Extracting post fit values for channel compatibility toys'
+    os.system('combine %s/%s -M MaxLikelihoodFit -m %3.1f --rMin=-5. -n SMRef'%(os.getcwd(),cardnameSM,options.mass))
+    os.system('combine %s/%s -M MaxLikelihoodFit -m %3.1f --rMin=-5. -n GravGGRef'%(os.getcwd(),cardnameGravGG,options.mass))
+    os.system('combine %s/%s -M MaxLikelihoodFit -m %3.1f --rMin=-5. -n GravQQRef'%(os.getcwd(),cardnameGravQQ,options.mass))
+    expectSignalSM = getFittedSignal('higgsCombineSMRef.MaxLikelihoodFit.mH%3.1f.root'%(options.mass))
+    expectSignalGravGG = getFittedSignal('higgsCombineGravGGRef.MaxLikelihoodFit.mH%3.1f.root'%(options.mass))
+    expectSignalGravQQ = getFittedSignal('higgsCombineGravQQRef.MaxLikelihoodFit.mH%3.1f.root'%(options.mass))
+  else:
+    sys.exit('Invalid option for fitNuis: %d'%options.fitNuis)
+
+  # throw SM asimov
+  f.write('if ( combine %s/%s -M GenerateOnly -m %3.1f -t -1 --expectSignal=%1.3f -n SMAsimov --saveToys -s 0 '%(os.getcwd(),cardnameSM,options.mass,expectSignalSM)) 
+  # throw grav_gg asimov
+  f.write(' && combine %s/%s -M GenerateOnly -m %3.1f -t -1 --expectSignal=%1.3f -n GravGGAsimov --saveToys -s 0 '%(os.getcwd(),cardnameGravGG,options.mass,expectSignalGravGG))
+  # throw grav_qq asimov
+  f.write(' && combine %s/%s -M GenerateOnly -m %3.1f -t -1 --expectSignal=%1.3f -n GravQQAsimov --saveToys -s 0 '%(os.getcwd(),cardnameGravQQ,options.mass,expectSignalGravQQ))
+
+  # fit SM asimov 
+  f.write(' && combine %s/%s -M ChannelCompatibilityCheck -m %3.1f -t -1 --toysFile higgsCombineSMAsimov.GenerateOnly.mH%3.1f.root --rMin=-5. -g spinCat0 -g spinCat1 -g spinCat2 -g spinCat3 -g spinCat4 -n SM --saveFitResult'%(os.getcwd(),cardnameSM,options.mass,options.mass))
+  # fit grav_gg asimov
+  f.write(' && combine %s/%s -M ChannelCompatibilityCheck -m %3.1f -t -1 --toysFile higgsCombineGravGGAsimov.GenerateOnly.mH%3.1f.root --rMin=-5. -g spinCat0 -g spinCat1 -g spinCat2 -g spinCat3 -g spinCat4 -n GravGG --saveFitResult'%(os.getcwd(),cardnameSM,options.mass,options.mass))
+  # fit grav_qq asimov
+  f.write(' && combine %s/%s -M ChannelCompatibilityCheck -m %3.1f -t -1 --toysFile higgsCombineGravQQAsimov.GenerateOnly.mH%3.1f.root --rMin=-5. -g spinCat0 -g spinCat1 -g spinCat2 -g spinCat3 -g spinCat4 -n GravQQ --saveFitResult'%(os.getcwd(),cardnameSM,options.mass,options.mass))
+  # fit data
+  f.write(' && combine %s/%s -M ChannelCompatibilityCheck -m %3.1f --rMin=-5. -g spinCat0 -g spinCat1 -g spinCat2 -g spinCat3 -g spinCat4 -n Data --saveFitResult '%(os.getcwd(),cardnameSM,options.mass)) 
+
+  f.write(' )\n')
   f.write('\tthen touch %s.done\n'%f.name)
   f.write('\telse touch %s.fail\n'%f.name)
   f.write('fi\n')
   f.write('rm -f %s.run\n'%f.name)
   os.system('chmod +x %s'%f.name)
   f.close()
-  if not options.dryRun: os.system('%s'%f.name)
+  if not options.dryRun: 
+      os.system('bsub -q 8nh -o %s.log %s'%(f.name,f.name))
 
 def doSeparation():
 
@@ -73,6 +116,24 @@ def doqqbar():
 
   print 'Making jobs...'
 
+  # do best fit nll scan
+  bf = open('%s/%s/subBFqqbar.sh'%(os.getcwd(),options.directory),'w')
+  bf.write('#!/bin/bash\n')
+  bf.write('cd %s/%s\n'%(os.getcwd(),options.directory))
+  bf.write('rm -f %s.done\n'%bf.name)
+  bf.write('rm -f %s.fail\n'%bf.name)
+  bf.write('touch %s.run\n'%bf.name)
+  bf.write('eval `scramv1 runtime -sh`\n')
+  bf.write('if ( combine %s -M MultiDimFit -m %3.1f --redefineSignalPOIs fqq --setPhysicsModelParameters x=1.,MH=%3.1f --setPhysicsModelParameterRanges fqq=0.,1. --algo grid --points 100 )\n'%(options.wsname,options.mass,options.mass)) 
+  bf.write('\tthen touch %s.done\n'%bf.name)
+  bf.write('\telse touch %s.fail\n'%bf.name)
+  bf.write('fi\n')
+  bf.write('rm -f %s.run\n'%bf.name)
+  os.system('chmod +x %s'%bf.name)
+  if not options.dryRun:
+    os.system('bsub -q 8nh -o %s.log %s'%(bf.name,bf.name))
+
+  # do likelihood ratio at fqq points
   for j in range(options.njobs):
     f = open('%s/%s/sub%dqqbar.sh'%(os.getcwd(),options.directory,j),'w')
     f.write('#!/bin/bash\n')
@@ -99,6 +160,9 @@ def doqqbar():
       os.system('bsub -q 8nh -o %s.log %s'%(f.name,f.name))
 
 if len(options.methods)==0: options.methods=['ChannelCompatibility','Separation','qqbar']
+if options.fitNuis==0 and 'qqbar' in options.methods:
+  print 'qqbar scan is ill-defined for pre-fit so i wont run it.'
+  options.methods.remove('qqbar')
 options.wsname = os.getcwd()+'/'+options.directory+'/'+options.wsname
 print options.wsname
 os.system('mkdir -p %s'%options.directory)

@@ -11,6 +11,7 @@
 #include "EfficiencySmearer.h"
 #include "DiPhoEfficiencySmearer.h"
 #include "KFactorSmearer.h"
+#include "PtSpinSmearer.h"
 #include "PdfWeightSmearer.h"
 #include "InterferenceSmearer.h"
 #include <iostream>
@@ -52,9 +53,9 @@ class StatAnalysis : public PhotonAnalysis
     
     bool unblind;
     
-    bool  doEscaleSyst, doEresolSyst, doPhotonIdEffSyst, doVtxEffSyst, doR9Syst, doTriggerEffSyst, doKFactorSyst;
+    bool  doEscaleSyst, doEresolSyst, doPhotonIdEffSyst, doVtxEffSyst, doR9Syst, doTriggerEffSyst, doKFactorSyst, doPtSpinSyst;
     bool  doEscaleSmear, doEresolSmear, doPhotonIdEffSmear, doVtxEffSmear, doR9Smear, doTriggerEffSmear, 
-	doKFactorSmear, doInterferenceSmear;
+	doKFactorSmear, doPtSpinSmear, doInterferenceSmear;
     float systRange;
     int   nSystSteps;   
     //int   nEtaCategories, nR9Categories, nPtCategories;
@@ -85,6 +86,7 @@ class StatAnalysis : public PhotonAnalysis
     
     std::string kfacHist;
     std::string pdfWeightHist;
+    std::string ptspinHist;
 
     TH1D *thm110,*thm120,*thm130,*thm140;
 
@@ -141,6 +143,7 @@ class StatAnalysis : public PhotonAnalysis
     KFactorSmearer * kFactorSmearer;
     PdfWeightSmearer * pdfWeightSmearer;
     InterferenceSmearer * interferenceSmearer;
+    PtSpinSmearer * ptSpinSmearer;
     
     std::string name_;
     std::map<int,std::string> signalLabels;

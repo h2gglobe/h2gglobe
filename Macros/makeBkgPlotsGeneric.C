@@ -31,12 +31,69 @@
 #include <iostream>
 #endif 
 
+/*
 void doBandsFit(TGraphAsymmErrors *onesigma, TGraphAsymmErrors *twosigma, 
 		RooRealVar * hmass,
 		RooAbsPdf *cpdf, 
 		RooCurve *nomcurve,  RooAbsData *datanorm,
 		RooPlot *plot, 
 		TString & catname);
+*/
+using namespace RooFit;
+
+
+void doBandsFit(TGraphAsymmErrors *onesigma, TGraphAsymmErrors *twosigma, 
+		RooRealVar * hmass,
+		RooAbsPdf *cpdf, 
+		RooCurve *nomcurve,  RooAbsData *datanorm,
+		RooPlot *plot, 
+		TString & catname)
+{
+	RooRealVar *nlim = new RooRealVar(TString::Format("nlim%s",catname.Data()),"",0.0,0.0,1e+5);
+
+	for (int i=1; i<(plot->GetXaxis()->GetNbins()+1); ++i) {
+
+		double lowedge = plot->GetXaxis()->GetBinLowEdge(i);
+		double upedge = plot->GetXaxis()->GetBinUpEdge(i);
+		double center = plot->GetXaxis()->GetBinCenter(i);
+        
+		double nombkg = nomcurve->interpolate(center);
+
+		nlim->setVal(nombkg);
+		hmass->setRange("errRange",lowedge,upedge);
+		RooAbsPdf *epdf = 0;
+		epdf = new RooExtendPdf("epdf","",*cpdf,*nlim,"errRange");
+        
+		RooAbsReal *nll = epdf->createNLL(*datanorm,Extended(),NumCPU(4));
+		RooMinimizer minim(*nll);
+		minim.setStrategy(0);
+		minim.setPrintLevel(-1);
+		//double clone = 1.0 - 2.0*RooStats::SignificanceToPValue(1.0);
+		double cltwo = 1.0 - 2.0*RooStats::SignificanceToPValue(2.0);
+        
+		minim.migrad();
+		minim.minos(*nlim);
+		
+		printf("errlo = %5f, errhi = %5f\n",nlim->getErrorLo(),nlim->getErrorHi());
+		
+		onesigma->SetPoint(i-1,center,nombkg);
+		onesigma->SetPointError(i-1,0.,0.,-nlim->getErrorLo(),nlim->getErrorHi());
+        
+		minim.setErrorLevel(0.5*pow(ROOT::Math::normal_quantile(1-0.5*(1-cltwo),1.0), 2)); // the 0.5 is because qmu is -2*NLL
+		// eventually if cl = 0.95 this is the usual 1.92!      
+        	minim.migrad();
+		minim.minos(*nlim);
+		
+		twosigma->SetPoint(i-1,center,nombkg);
+		twosigma->SetPointError(i-1,0.,0.,-nlim->getErrorLo(),nlim->getErrorHi());      
+        		
+		delete nll;
+		delete epdf;
+	}
+
+	onesigma->Print("V");
+
+}
 
 void makeBkgPlotsGeneric(std::string filebkg, std::string filesig="", const int ncats=8, bool blind=true, bool doBands=true, bool baseline=false, bool spin=false, bool useBinnedData=false){
 
@@ -61,7 +118,7 @@ void makeBkgPlotsGeneric(std::string filebkg, std::string filesig="", const int 
             ,"Electron-tagged class"
             ,"MET-tagged class"
 	};
-	std::string massfactlabels[ncats] = { 
+	std::string massfactlabels[9] = { 
 		"BDT_{#gamma#gamma} >= 0.91"
 		,"0.79  <= BDT_{#gamma#gamma} < 0.91"
 		,"0.49 <= BDT_{#gamma#gamma} < 0.79"
@@ -93,7 +150,7 @@ void makeBkgPlotsGeneric(std::string filebkg, std::string filesig="", const int 
     "#splitline{|#eta|_{max} > 1.44, R_{9min} < 0.94}{0.375 < |cos(#theta*)| < 0.55}",
     "#splitline{|#eta|_{max} > 1.44, R_{9min} < 0.94}{0.55 < |cos(#theta*)| < 0.75}",
     "#splitline{|#eta|_{max} > 1.44, R_{9min} < 0.94}{0.75 < |cos(#theta*)| < 0.1}"
-  }
+  };
 	
 	if( baseline ) { labels = baselinelabels; }
   else if ( spin ) { labels = spinlabels; }
@@ -157,7 +214,7 @@ void makeBkgPlotsGeneric(std::string filebkg, std::string filesig="", const int 
     // Spin specials
     TH1F *gghgravnorm = NULL;
     if (spin){
-      gghgravnorm = (TH1F*)fs->Get(Form("th1f_sig_ggh_grav_mass_m125_cat%d",cat));
+      gghgravnorm = (TH1F*)fs->Get(Form("th1f_sig_gg_grav_mass_m125_cat%d",cat));
     }
 		
 		if (cat<=3){
@@ -241,7 +298,7 @@ void makeBkgPlotsGeneric(std::string filebkg, std::string filesig="", const int 
 		/// leg->AddEntry(&dumSignal,"1xSM m_{H} = 125 GeV","F");
 		if (spin){
       leg->AddEntry(allsig,"0^{+} x 5 m_{H} = 125 GeV","F");
-      leg->AddEntry(gghgravnorm,"2^{+}_{m} x 5 m_{H} = 125 GeV","F");
+      leg->AddEntry(gghgravnorm,"2^{+}_{m}(gg) x 5 m_{H} = 125 GeV","F");
     }
     else {
       leg->AddEntry(allsig,"1xSM m_{H} = 125 GeV","F");
@@ -293,58 +350,3 @@ void makeBkgPlotsGeneric(std::string filebkg, std::string filesig="", const int 
 }
 
 
-using namespace RooFit;
-
-
-void doBandsFit(TGraphAsymmErrors *onesigma, TGraphAsymmErrors *twosigma, 
-		RooRealVar * hmass,
-		RooAbsPdf *cpdf, 
-		RooCurve *nomcurve,  RooAbsData *datanorm,
-		RooPlot *plot, 
-		TString & catname)
-{
-	RooRealVar *nlim = new RooRealVar(TString::Format("nlim%s",catname.Data()),"",0.0,0.0,1e+5);
-
-	for (int i=1; i<(plot->GetXaxis()->GetNbins()+1); ++i) {
-
-		double lowedge = plot->GetXaxis()->GetBinLowEdge(i);
-		double upedge = plot->GetXaxis()->GetBinUpEdge(i);
-		double center = plot->GetXaxis()->GetBinCenter(i);
-        
-		double nombkg = nomcurve->interpolate(center);
-
-		nlim->setVal(nombkg);
-		hmass->setRange("errRange",lowedge,upedge);
-		RooAbsPdf *epdf = 0;
-		epdf = new RooExtendPdf("epdf","",*cpdf,*nlim,"errRange");
-        
-		RooAbsReal *nll = epdf->createNLL(*datanorm,Extended(),NumCPU(4));
-		RooMinimizer minim(*nll);
-		minim.setStrategy(0);
-		minim.setPrintLevel(-1);
-		//double clone = 1.0 - 2.0*RooStats::SignificanceToPValue(1.0);
-		double cltwo = 1.0 - 2.0*RooStats::SignificanceToPValue(2.0);
-        
-		minim.migrad();
-		minim.minos(*nlim);
-		
-		printf("errlo = %5f, errhi = %5f\n",nlim->getErrorLo(),nlim->getErrorHi());
-		
-		onesigma->SetPoint(i-1,center,nombkg);
-		onesigma->SetPointError(i-1,0.,0.,-nlim->getErrorLo(),nlim->getErrorHi());
-        
-		minim.setErrorLevel(0.5*pow(ROOT::Math::normal_quantile(1-0.5*(1-cltwo),1.0), 2)); // the 0.5 is because qmu is -2*NLL
-		// eventually if cl = 0.95 this is the usual 1.92!      
-        	minim.migrad();
-		minim.minos(*nlim);
-		
-		twosigma->SetPoint(i-1,center,nombkg);
-		twosigma->SetPointError(i-1,0.,0.,-nlim->getErrorLo(),nlim->getErrorHi());      
-        		
-		delete nll;
-		delete epdf;
-	}
-
-	onesigma->Print("V");
-
-}

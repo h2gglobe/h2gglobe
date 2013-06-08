@@ -61,7 +61,7 @@ def main(options,args):
     # figure out specific scaling options for spin
     scalingOptions = {} 
     for opt in options.scaleOptions:
-      scalingOptions[opt.split(':')[0]] = opt.split(':')[1].split(',')
+      scalingOptions[opt.split(':')[0]] = [float(opt.split(':')[1]),opt.split(':')[2].split(',')]
         
     ## scale histograms by lumi
     if options.lumi > 0.:
@@ -97,7 +97,9 @@ def main(options,args):
     # have to work out norm factors first
     normFactors = {}
     cats = [x for x in channels if 'sigma' not in x and 'rv' not in x and 'wv' not in x]
-    for proc, scalingProcs in scalingOptions.items():
+    for proc, scOpts in scalingOptions.items():
+      scalingFactor = scOpts[0]
+      scalingProcs = scOpts[1]
       for m in inputMasses:
         norm_num=0.
         norm_dem=0.
@@ -105,7 +107,8 @@ def main(options,args):
           for scaleProc in scalingProcs:
             norm_num += inputs[m,scaleProc,cat].Integral()
           norm_dem += inputs[m,proc,cat].Integral()
-        normFactors[(m,proc)] = norm_num/norm_dem
+        normFactors[(m,proc)] = scalingFactor*norm_num/norm_dem
+    
     # can now scale histogram appropriately
     for (mass,proc,channel), hist in inputs.items():
       if proc in scalingOptions.keys():
@@ -126,7 +129,7 @@ def main(options,args):
         if scalingOptions:
           print "Special scaling options: "
           for key, items in scalingOptions.items():
-            print "\t", key, items
+            print "\t", key, items[0], items[1]
 
         ## instantiate the mass interpolator
         interpolator = ROOT.MassInterpolator(len(masses), masses, doSmoothing, "th1f_sig_", "roohist_sig_" )
@@ -134,8 +137,8 @@ def main(options,args):
         # parse special options for sample normalisation (e.g. spin)
         for key,item in scalingOptions.items():
           myvec = ROOT.vector('string')()
-          for el in item: myvec.push_back(el)
-          interpolator.addToMap(key,myvec)
+          for el in item[1]: myvec.push_back(el)
+          interpolator.addToMap(key,item[0],myvec)
 
         ## loop over processes, channels and input masses and fill the interpolator
         print "\nFilling interpolator"
@@ -159,6 +162,7 @@ def main(options,args):
         files.append(ows)
         mass = ows.var(options.massName)
 
+        interpolator.printMap()
         ## run interpolation
         print "Running interpolation"
         print "-----------------------"
@@ -259,7 +263,8 @@ if __name__ == "__main__":
         make_option("-H","--scaleOptions",
                     action="append", dest="scaleOptions",
                     default=[], 
-                    help="Set different scaling options for different samples. Used for spin analysis rescaling. Set grav/spin2/sm.", metavar=""
+                    help="""Set different scaling options for different samples. Used for spin analysis rescaling. Can pass multiple times needs to be colon separated (procToScale:Factor:normalisationProcs) 
+                    E.g to scale the gg_grav and qq_grav samples to the SM pass -H gg_grav:1.:ggh,vbf,wzh,tth -H qq_grav:1.:ggh,vbf,wzh,tth""", metavar=""
                     ),
         ]
                           )

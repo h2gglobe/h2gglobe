@@ -1,10 +1,10 @@
-treefile=/afs/cern.ch/user/m/mkenzie/eos/cms/store/group/phys_higgs/cmshgg/analyzed/spinstudies/moriond2013_cutbased_spin_v3/histograms_CMS-HGG.root
+treefile=/afs/cern.ch/user/m/mkenzie/workPoint/LEPTONPHOTONspin/h2gglobe/AnalysisScripts/spinanalysis/histograms_CMS-HGG.root
 wsfile=/afs/cern.ch/user/m/mkenzie/workPoint/MORIONDspin/h2gglobe/SpinAnalysis/HggSpin_CutBased_fullsmPowheg.root
 isMassFac=0
-globePDFs=0
+globePDFs=1
 fullSMproc=1
 useSMpowheg=1
 useSpin2LP=0
 nBDTCats=4
 nSpinCats=5
-
+catBoundaries=1.00 0.75 0.55 0.375 0.20 0.0 

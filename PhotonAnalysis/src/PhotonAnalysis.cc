@@ -93,6 +93,8 @@ PhotonAnalysis::PhotonAnalysis()  :
     targetsigma=1.0;
     sourcesigma=1.0;
     rescaleDZforVtxMVA=false;
+    pickRandomVtx = false;
+    randomizeHiggsPt = false;
 
     saveDatacardTrees_=false;
     saveSpinTrees_=false;
@@ -434,6 +436,13 @@ void PhotonAnalysis::fillDiphoton(TLorentzVector & lead_p4, TLorentzVector & sub
         ((TVector3*)l.vtx_std_xyz->At(vtx_ind))->SetZ(genVtxZ+(targetsigma/sourcesigma)*(myVtxZ-genVtxZ));
         changed=true;
     }
+    
+    if (pickRandomVtx && cur_type!=0 && (lastRun!=l.run || lastEvent!=l.event || lastLumi!=l.lumis)){
+        TRandom3 rand;
+        rand.SetSeed(0);
+        double randVtxZ = rand.Gaus(0.,4.8);
+        ((TVector3*)l.vtx_std_xyz->At(vtx_ind))->SetZ(randVtxZ);
+    }
 
         /*
     if (emulateBeamspot) isCorrectVertex=(*((TVector3*)l.vtx_std_xyz->At(vtx_ind)) - *((TVector3*)l.gv_pos->At(0))).Mag() < (sourcesigma/targetsigma);
@@ -461,6 +470,12 @@ void PhotonAnalysis::fillDiphoton(TLorentzVector & lead_p4, TLorentzVector & sub
     sublead_r9 = l.pho_r9[subleadind];
     Higgs = lead_p4 + sublead_p4;
     vtx = (TVector3*)l.vtx_std_xyz->At(vtx_ind);
+    
+    if (randomizeHiggsPt && cur_type!=0 && (lastRun!=l.run || lastEvent!=l.event || lastLumi!=l.lumis)){
+        TRandom3 rand;
+        rand.SetSeed(0);
+        Higgs.SetPerp(Higgs.Pt()*rand.Gaus(1.,0.1));
+    }
 
     if (changed && PADEBUG){
         cout << "emBS: " << emulateBeamspot << " rwBS: " << reweighBeamspot << " tS: " << targetsigma << " sS: " << sourcesigma << " bW: " << beamspotWidth << endl;
@@ -1176,6 +1191,16 @@ void PhotonAnalysis::Init(LoopAll& l)
     }
     if( beamspotWidth == 0. ) {
 	beamspotWidth = (dataIs2011 ? 5.8 : 4.8);
+    }
+    if (reweighPt) {
+        ptreweighfile = TFile::Open(ptreweighfilename.c_str());
+        ptreweighHistSM = (TH1F*)ptreweighfile->Get(Form("sm%sRat",ptreweightype.c_str()));
+        ptreweighHistGG = (TH1F*)ptreweighfile->Get(Form("gg%sRat",ptreweightype.c_str()));
+        ptreweighHistQQ = (TH1F*)ptreweighfile->Get(Form("qq%sRat",ptreweightype.c_str()));
+        ptreweighHistSM->SetDirectory(0);
+        ptreweighHistGG->SetDirectory(0);
+        ptreweighHistQQ->SetDirectory(0);
+        ptreweighfile->Close();
     }
 
     // Load up instances of PhotonFix for local coordinate calculations
@@ -3999,6 +4024,19 @@ void PhotonAnalysis::reVertex(LoopAll & l)
     }
 }
 
+float PhotonAnalysis::PtReweight(double pt, int cur_type){
+   
+   if (cur_type==-37 || cur_type==-38 || cur_type==-39 || cur_type==-40) {
+        return ptreweighHistSM->GetBinContent(ptreweighHistSM->FindBin(pt));      
+   }
+   else if (cur_type==-137) {
+        return ptreweighHistGG->GetBinContent(ptreweighHistGG->FindBin(pt));      
+   }
+   else if (cur_type==-138) {
+        return ptreweighHistQQ->GetBinContent(ptreweighHistQQ->FindBin(pt));      
+   }
+   else return 1.;
+}
 
 float PhotonAnalysis::BeamspotReweight(double vtxZ, double genZ) {
     if (genZ<(-100)) return 1.0;
@@ -4282,8 +4320,19 @@ void PhotonAnalysis::saveDatCardTree(LoopAll &l, int cur_type, int category, int
 }
 
 // for Cut-Based
-void PhotonAnalysis::saveSpinTree(LoopAll &l, int category, float evweight, TLorentzVector Higgs, TLorentzVector lead_p4, TLorentzVector sublead_p4, int ipho1, int ipho2, int diphoton_id, float vtxProb){
+void PhotonAnalysis::saveSpinTree(LoopAll &l, int category, float evweight, TLorentzVector Higgs, TLorentzVector lead_p4, TLorentzVector sublead_p4, int ipho1, int ipho2, int diphoton_id, float vtxProb, bool isCorrectVertex){
 
+   int cur_type = l.itype[l.current];
+   TLorentzVector genpho1(0.,0.,0.,0.);
+   TLorentzVector genpho2(0.,0.,0.,0.);
+   TLorentzVector higgs(0.,0.,0.,0.);
+
+   if (cur_type<0){
+        genpho1 = *((TLorentzVector*)l.gh_pho1_p4->At(0));
+        genpho2 = *((TLorentzVector*)l.gh_pho2_p4->At(0));
+        higgs = *((TLorentzVector*)l.gh_higgs_p4->At(0));
+   }
+   
    l.FillTree("category",category,"spin_trees");
    l.FillTree("evweight",evweight,"spin_trees");
    
@@ -4291,6 +4340,11 @@ void PhotonAnalysis::saveSpinTree(LoopAll &l, int category, float evweight, TLor
    l.FillTree("higgs_py",Higgs.Py(),"spin_trees");
    l.FillTree("higgs_pz",Higgs.Pz(),"spin_trees");
    l.FillTree("higgs_E",Higgs.E(),"spin_trees");
+
+   l.FillTree("gh_higgs_px",higgs.Px(),"spin_trees");
+   l.FillTree("gh_higgs_py",higgs.Py(),"spin_trees");
+   l.FillTree("gh_higgs_pz",higgs.Pz(),"spin_trees");
+   l.FillTree("gh_higgs_E",higgs.E(),"spin_trees");
 
    l.FillTree("lead_px",lead_p4.Px(),"spin_trees");
    l.FillTree("lead_py",lead_p4.Py(),"spin_trees");
@@ -4302,8 +4356,21 @@ void PhotonAnalysis::saveSpinTree(LoopAll &l, int category, float evweight, TLor
    l.FillTree("sublead_pz",sublead_p4.Pz(),"spin_trees");
    l.FillTree("sublead_E",sublead_p4.E(),"spin_trees");
 
+   l.FillTree("gp_lead_px",genpho1.Px(),"spin_trees");
+   l.FillTree("gp_lead_py",genpho1.Py(),"spin_trees");
+   l.FillTree("gp_lead_pz",genpho1.Pz(),"spin_trees");
+   l.FillTree("gp_lead_E",genpho1.E(),"spin_trees");
+
+   l.FillTree("gp_sublead_px",genpho2.Px(),"spin_trees");
+   l.FillTree("gp_sublead_py",genpho2.Py(),"spin_trees");
+   l.FillTree("gp_sublead_pz",genpho2.Pz(),"spin_trees");
+   l.FillTree("gp_sublead_E",genpho2.E(),"spin_trees");
+
    l.FillTree("costheta_cs",getCosThetaCS(lead_p4,sublead_p4),"spin_trees");
    l.FillTree("costheta_hx",getCosThetaHX(lead_p4,sublead_p4),"spin_trees");
+
+   l.FillTree("gh_costheta_cs",getCosThetaCS(genpho1,genpho2),"spin_trees");
+   l.FillTree("gh_costheta_hx",getCosThetaHX(genpho1,genpho2),"spin_trees");
 
    l.FillTree("lead_calo_eta",photonInfoCollection[ipho1].caloPosition().Eta(),"spin_trees");
    l.FillTree("lead_calo_phi",photonInfoCollection[ipho1].caloPosition().Phi(),"spin_trees");
@@ -4312,7 +4379,8 @@ void PhotonAnalysis::saveSpinTree(LoopAll &l, int category, float evweight, TLor
    l.FillTree("sublead_calo_eta",photonInfoCollection[ipho2].caloPosition().Eta(),"spin_trees");
    l.FillTree("sublead_calo_phi",photonInfoCollection[ipho2].caloPosition().Phi(),"spin_trees");
    l.FillTree("sublead_r9",l.pho_r9[ipho2],"spin_trees");
-
+    
+   l.FillTree("rv",isCorrectVertex,"spin_trees");
    l.FillTree("higgs_mass",Higgs.M(),"spin_trees");
    
     PhotonReducedInfo pho1 (

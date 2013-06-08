@@ -17,6 +17,7 @@ def doqqbar():
   njobs=0
   for root,dirs,files in os.walk(options.dir):
     for filename in fnmatch.filter(files,'sub*qqbar.sh'):
+      if 'BF' in filename: continue
       if root==options.dir:
         njobs+=1
 
@@ -35,7 +36,8 @@ def doqqbar():
     for i,p in enumerate(options.qqbarPoints):
     
       for job in range(njobs):
-        filename = "higgsCombinejob%dfqq%1.2f.HybridNew.mH%3.1f.root"%(job,p,options.mass)
+        if options.mass==125 or options.mass==126: filename = "higgsCombinejob%dfqq%1.2f.HybridNew.mH%3.1f.root"%(job,p,options.mass)
+        else: filename = "higgsCombinejob%dfqq%1.2f.HybridNew.mH%3.1f.0.root"%(job,p,options.mass)
         print filename
         r.gROOT.ProcessLine('TFile::Open(\"'+options.dir+'/'+filename+'\")')
 
@@ -65,11 +67,14 @@ def doSeparation():
     from ROOT import hypoTestResultTree
     
     for job in range(njobs):
-      filename = "higgsCombinejob%dsep.HybridNew.mH%3.1f.root"%(job,options.mass)
+      if options.mass==125 or options.mass==126: filename = "higgsCombinejob%dsep.HybridNew.mH%3.1f.root"%(job,options.mass)
+      else: filename = "higgsCombinejob%dsep.HybridNew.mH%3.1f.0.root"%(job,options.mass)
       print filename
       r.gROOT.ProcessLine('TFile::Open(\"'+options.dir+'/'+filename+'\")')
 
     r.gROOT.ProcessLine('hypoTestResultTree(\"%s/qmu_sep.root\",%3.1f,1.,\"x\")'%(options.dir,options.mass))
+    
+    r.gROOT.CloseFiles()
 
 if len(options.methods)==0: options.methods=['ChannelCompatibility','Separation','qqbar']
 if len(options.qqbarPoints)==0: options.qqbarPoints=[0.,0.25,0.5,0.75,1.0]

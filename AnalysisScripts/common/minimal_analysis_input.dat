@@ -111,6 +111,8 @@ pho_isconv
 ## 
 ## MC truth
 gh_higgs_p4:1
+gh_pho1_p4:1
+gh_pho2_p4:1
 ### gp_n:1
 ### gp_p4:1
 ### gp_status:1
