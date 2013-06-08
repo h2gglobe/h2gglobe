@@ -20,6 +20,7 @@
 #include "RooWorkspace.h"
 #include "RooRealVar.h"
 #include "RooDataSet.h"
+#include "RooDataHist.h"
 #include "RooAddPdf.h"
 #include "RooPlot.h"
 #include "RooArgList.h"
@@ -419,10 +420,9 @@ map<string,RooAddPdf*> getMITPdfs(RooWorkspace *work, int ncats, bool is2011){
 
 }
 
-pair<double,double> bkgEvPerGeV(RooWorkspace *work, int m_hyp, int cat, int spin=false){
+pair<double,double> bkgEvPerGeV(RooWorkspace *work, int m_hyp, int cat, pair<double,double> &bkgTotal){
   
   RooRealVar *mass = (RooRealVar*)work->var("CMS_hgg_mass");
-  if (spin) mass = (RooRealVar*)work->var("mass");
   mass->setRange(100,180);
   RooAbsPdf *pdf = (RooAbsPdf*)work->pdf(Form("pdf_data_pol_model_8TeV_cat%d",cat));
   RooAbsData *data = (RooDataSet*)work->data(Form("data_mass_cat%d",cat));
@@ -450,11 +450,13 @@ pair<double,double> bkgEvPerGeV(RooWorkspace *work, int m_hyp, int cat, int spin
   minim.minos(*nlim);
   
   double error = (nlim->getErrorLo(),nlim->getErrorHi())/2.;
-  data->Print(); 
+  data->Print();
+  bkgTotal.first += nombkg;
+  bkgTotal.second += error*error;
   return pair<double,double>(nombkg,error); 
 }
 
-vector<double> sigEvents(RooWorkspace *work, int m_hyp, int cat, string altSigFileName, int spin=false){
+vector<double> sigEvents(RooWorkspace *work, int m_hyp, int cat, string altSigFileName, vector<double> &sigTotal, string spinProc=""){
 
   RooWorkspace *tempWork;
   if (altSigFileName!=""){
@@ -465,56 +467,81 @@ vector<double> sigEvents(RooWorkspace *work, int m_hyp, int cat, string altSigFi
     tempWork = work;
   }
   vector<double> result;
-  RooDataSet *ggh = (RooDataSet*)tempWork->data(Form("sig_ggh_mass_m%d_cat%d",m_hyp,cat));
-  RooDataSet *vbf = (RooDataSet*)tempWork->data(Form("sig_vbf_mass_m%d_cat%d",m_hyp,cat));
-  RooDataSet *wzh = (RooDataSet*)tempWork->data(Form("sig_wzh_mass_m%d_cat%d",m_hyp,cat));
-  RooDataSet *tth = (RooDataSet*)tempWork->data(Form("sig_tth_mass_m%d_cat%d",m_hyp,cat));
   
-  double total;
-  if (!spin) {
-    total = ggh->sumEntries()+vbf->sumEntries()+wzh->sumEntries()+tth->sumEntries();
+  if (spinProc==""){
+    
+    RooDataSet *ggh = (RooDataSet*)tempWork->data(Form("sig_ggh_mass_m%d_cat%d",m_hyp,cat));
+    RooDataSet *vbf = (RooDataSet*)tempWork->data(Form("sig_vbf_mass_m%d_cat%d",m_hyp,cat));
+    RooDataSet *wzh = (RooDataSet*)tempWork->data(Form("sig_wzh_mass_m%d_cat%d",m_hyp,cat));
+    RooDataSet *tth = (RooDataSet*)tempWork->data(Form("sig_tth_mass_m%d_cat%d",m_hyp,cat));
+    
+    double total = ggh->sumEntries()+vbf->sumEntries()+wzh->sumEntries()+tth->sumEntries();
     result.push_back(total);
-    result.push_back(100*ggh->sumEntries()/total);
-    result.push_back(100*vbf->sumEntries()/total);
-    result.push_back(100*wzh->sumEntries()/total);
-    result.push_back(100*tth->sumEntries()/total);
+    result.push_back(ggh->sumEntries());
+    result.push_back(vbf->sumEntries());
+    result.push_back(wzh->sumEntries());
+    result.push_back(tth->sumEntries());
+
+    sigTotal[0] += total;
+    sigTotal[1] += ggh->sumEntries();
+    sigTotal[2] += vbf->sumEntries();
+    sigTotal[3] += wzh->sumEntries();
+    sigTotal[4] += tth->sumEntries();
+  }
+  else if (spinProc=="gg_grav"){
+    
+    RooDataHist *ggh = (RooDataHist*)tempWork->data(Form("roohist_sig_gg_grav_mass_m%d_cat%d",m_hyp,cat));
+
+    double total = ggh->sumEntries();
+    result.push_back(total);
+    result.push_back(ggh->sumEntries());
+    result.push_back(0.);
+    result.push_back(0.);
+    result.push_back(0.);
+
+    sigTotal[0] += total;
+    sigTotal[1] += ggh->sumEntries();
+  }
+  else if (spinProc=="qq_grav"){
+    RooDataHist *vbf = (RooDataHist*)tempWork->data(Form("roohist_sig_qq_grav_mass_m%d_cat%d",m_hyp,cat));
+    
+    double total = vbf->sumEntries();
+    result.push_back(total);
+    result.push_back(0.);
+    result.push_back(vbf->sumEntries());
+    result.push_back(0.);
+    result.push_back(0.);
+
+    sigTotal[0] += total;
+    sigTotal[1] += vbf->sumEntries();
   }
   else {
-    ggh = (RooDataSet*)tempWork->data(Form("sig_mass_m%d_cat%d",m_hyp,cat));
-    total = ggh->sumEntries();
-    result.push_back(total);
-    result.push_back(100.);
-    result.push_back(0.);
-    result.push_back(0.);
-    result.push_back(0.);
+    cout << "WARNING -- spinProc " << spinProc << " is no recognised." << endl;
   }
 
   return result;
 }
 
-pair<double,double> datEvents(RooWorkspace *work, int m_hyp, int cat, bool spin=false){
+pair<double,double> datEvents(RooWorkspace *work, int m_hyp, int cat, pair<double,double> &runningTotal){
   
   vector<double> result;
   RooDataSet *data = (RooDataSet*)work->data(Form("data_mass_cat%d",cat));
   double evs = data->numEntries();
   double evsPerGev;
-  if (!spin) evsPerGev = data->sumEntries(Form("CMS_hgg_mass>=%4.1f && CMS_hgg_mass<%4.1f",double(m_hyp)-0.5,double(m_hyp)+0.5));
-  else evsPerGev = data->sumEntries(Form("mass>=%4.1f && mass<%4.1f",double(m_hyp)-0.5,double(m_hyp)+0.5));
+  evsPerGev = data->sumEntries(Form("CMS_hgg_mass>=%4.1f && CMS_hgg_mass<%4.1f",double(m_hyp)-0.5,double(m_hyp)+0.5));
+  runningTotal.first += evs;
+  runningTotal.second += evsPerGev;
   return pair<double,double>(evs,evsPerGev);
 }
 
-
-void makeParametricSignalModelPlots(string hggFileName, string pathName, int ncats=9, bool is2011=false, int m_hyp=120, string bkgdatFileName="0", bool isMassFac = true, bool blind=true, bool doTable=true, string altSigFileName="", string spinStr="", bool doCrossCheck=false, bool doMIT=false, bool rejig=false){
+void makeParametricSignalModelPlots(string sigFitFileName, string pathName, int ncats=9, bool is2011=false, int m_hyp=120, string bkgdatFileName="0", bool isMassFac = true, bool blind=true, bool doTable=true, string altSigFileName="", bool spin=false, string spinProc="", bool doCrossCheck=false, bool doMIT=false, bool rejig=false){
 
   gROOT->SetBatch();
   gStyle->SetTextFont(42);
 
-  bool spin=false;
-  if (spinStr!="") spin=true;
-
   string newFileName;
-  if (rejig) newFileName = runQuickRejig(hggFileName,ncats);
-  else newFileName = hggFileName;
+  if (rejig) newFileName = runQuickRejig(sigFitFileName,ncats);
+  else newFileName = sigFitFileName;
 
   TFile *hggFile = TFile::Open(newFileName.c_str());
   
@@ -523,22 +550,15 @@ void makeParametricSignalModelPlots(string hggFileName, string pathName, int nca
   else sqrts="8TeV";
 
   RooWorkspace *hggWS;
-  if (!spin) {
-    if (is2011) hggWS = (RooWorkspace*)hggFile->Get(Form("wsig_%s",sqrts.c_str()));
-    else        hggWS = (RooWorkspace*)hggFile->Get(Form("wsig_%s",sqrts.c_str()));
-  }
-  else {
-    hggWS = (RooWorkspace*)hggFile->Get(Form("wsig_%s",spinStr.c_str()));
-  }
+  if (is2011) hggWS = (RooWorkspace*)hggFile->Get(Form("wsig_%s",sqrts.c_str()));
+  else        hggWS = (RooWorkspace*)hggFile->Get(Form("wsig_%s",sqrts.c_str()));
  
   if (!hggWS) {
     cerr << "Workspace is null" << endl;
     exit(1);
   }
 
-  RooRealVar *mass;
-  if (spin) mass = (RooRealVar*)hggWS->var("mass");
-  else mass = (RooRealVar*)hggWS->var("CMS_hgg_mass");
+  RooRealVar *mass= (RooRealVar*)hggWS->var("CMS_hgg_mass");
   
   RooRealVar *mh = (RooRealVar*)hggWS->var("MH");
   mh->setVal(m_hyp);
@@ -583,14 +603,26 @@ void makeParametricSignalModelPlots(string hggFileName, string pathName, int nca
   }
   if (spin){
     labels.clear();
-    labels.insert(pair<string,string>("cat0","BDT cat 0, Low cos(#theta)"));
-    labels.insert(pair<string,string>("cat1","BDT cat 0, Low cos(#theta)"));
-    labels.insert(pair<string,string>("cat2","BDT cat 0, Low cos(#theta)"));
-    labels.insert(pair<string,string>("cat3","BDT cat 0, Low cos(#theta)"));
-    labels.insert(pair<string,string>("cat4","BDT cat 0, High cos(#theta)"));
-    labels.insert(pair<string,string>("cat5","BDT cat 0, High cos(#theta)"));
-    labels.insert(pair<string,string>("cat6","BDT cat 0, High cos(#theta)"));
-    labels.insert(pair<string,string>("cat7","BDT cat 0, High cos(#theta)"));
+    labels.insert(pair<string,string>("cat0","#splitline{|#eta|_{max} < 1.44, R_{9min} > 0.94}{|cos(#theta*)| < 0.2}"));
+    labels.insert(pair<string,string>("cat1","#splitline{|#eta|_{max} < 1.44, R_{9min} > 0.94}{0.2 < |cos(#theta*)| < 0.375}"));
+    labels.insert(pair<string,string>("cat2","#splitline{|#eta|_{max} < 1.44, R_{9min} > 0.94}{0.375 < |cos(#theta*)| < 0.55}"));
+    labels.insert(pair<string,string>("cat3","#splitline{|#eta|_{max} < 1.44, R_{9min} > 0.94}{0.55 < |cos(#theta*)| < 0.75}"));
+    labels.insert(pair<string,string>("cat4","#splitline{|#eta|_{max} < 1.44, R_{9min} > 0.94}{0.75 < |cos(#theta*)| < 0.1}"));
+    labels.insert(pair<string,string>("cat5","#splitline{|#eta|_{max} < 1.44, R_{9min} < 0.94}{|cos(#theta*)| < 0.2}"));
+    labels.insert(pair<string,string>("cat6","#splitline{|#eta|_{max} < 1.44, R_{9min} < 0.94}{0.2 < |cos(#theta*)| < 0.375}"));
+    labels.insert(pair<string,string>("cat7","#splitline{|#eta|_{max} < 1.44, R_{9min} < 0.94}{0.375 < |cos(#theta*)| < 0.55}"));
+    labels.insert(pair<string,string>("cat8","#splitline{|#eta|_{max} < 1.44, R_{9min} < 0.94}{0.55 < |cos(#theta*)| < 0.75}"));
+    labels.insert(pair<string,string>("cat9","#splitline{|#eta|_{max} < 1.44, R_{9min} < 0.94}{0.75 < |cos(#theta*)| < 0.1}"));
+    labels.insert(pair<string,string>("cat10","#splitline{|#eta|_{max} > 1.44, R_{9min} > 0.94}{|cos(#theta*)| < 0.2}"));
+    labels.insert(pair<string,string>("cat11","#splitline{|#eta|_{max} > 1.44, R_{9min} > 0.94}{0.2 < |cos(#theta*)| < 0.375}"));
+    labels.insert(pair<string,string>("cat12","#splitline{|#eta|_{max} > 1.44, R_{9min} > 0.94}{0.375 < |cos(#theta*)| < 0.55}"));
+    labels.insert(pair<string,string>("cat13","#splitline{|#eta|_{max} > 1.44, R_{9min} > 0.94}{0.55 < |cos(#theta*)| < 0.75}"));
+    labels.insert(pair<string,string>("cat14","#splitline{|#eta|_{max} > 1.44, R_{9min} > 0.94}{0.75 < |cos(#theta*)| < 0.1}"));
+    labels.insert(pair<string,string>("cat15","#splitline{|#eta|_{max} > 1.44, R_{9min} < 0.94}{|cos(#theta*)| < 0.2}"));
+    labels.insert(pair<string,string>("cat16","#splitline{|#eta|_{max} > 1.44, R_{9min} < 0.94}{0.2 < |cos(#theta*)| < 0.375}"));
+    labels.insert(pair<string,string>("cat17","#splitline{|#eta|_{max} > 1.44, R_{9min} < 0.94}{0.375 < |cos(#theta*)| < 0.55}"));
+    labels.insert(pair<string,string>("cat18","#splitline{|#eta|_{max} > 1.44, R_{9min} < 0.94}{0.55 < |cos(#theta*)| < 0.75}"));
+    labels.insert(pair<string,string>("cat19","#splitline{|#eta|_{max} > 1.44, R_{9min} < 0.94}{0.75 < |cos(#theta*)| < 0.1}"));
     labels.insert(pair<string,string>("all","All Categories Combined"));
   }
   /*
@@ -648,53 +680,44 @@ void makeParametricSignalModelPlots(string hggFileName, string pathName, int nca
       bkgFile = hggFile; 
     }
     RooWorkspace *bkgWS = (RooWorkspace*)bkgFile->Get("cms_hgg_workspace");
-    if (spin) bkgWS = hggWS;
+    // keep track of sums
+    pair<double,double> bkgTotal(0.,0.);
+    pair<double,double> datTotal(0.,0.);
+    vector<double> sigTotal;
+    for (int i=0; i<5; i++) sigTotal.push_back(0.);
     for (int cat=0; cat<ncats; cat++){
-      bkgVals.insert(pair<string,pair<double,double> >(Form("cat%d",cat),bkgEvPerGeV(bkgWS,m_hyp,cat,spin)));
-      sigVals.insert(pair<string,vector<double> >(Form("cat%d",cat),sigEvents(bkgWS,m_hyp,cat,altSigFileName,spin)));
-      datVals.insert(pair<string,pair<double,double> >(Form("cat%d",cat),datEvents(bkgWS,m_hyp,cat,spin)));
-      //pair<double,double> bkg = bkgEvPerGeV(bkgWS,m_hyp,cat);
-      //vector<double> sigs = sigEvents(bkgWS,m_hyp,cat);
+      bkgVals.insert(pair<string,pair<double,double> >(Form("cat%d",cat),bkgEvPerGeV(bkgWS,m_hyp,cat,bkgTotal)));
+      sigVals.insert(pair<string,vector<double> >(Form("cat%d",cat),sigEvents(bkgWS,m_hyp,cat,altSigFileName,sigTotal,spinProc)));
+      datVals.insert(pair<string,pair<double,double> >(Form("cat%d",cat),datEvents(bkgWS,m_hyp,cat,datTotal)));
     }
+    bkgTotal.second = sqrt(bkgTotal.second);
+    bkgVals.insert(pair<string,pair<double,double> >("all",bkgTotal));
+    sigVals.insert(pair<string,vector<double> > ("all",sigTotal));
+    datVals.insert(pair<string,pair<double,double> >("all",datTotal));
     bkgFile->Close();
     
     FILE *file = fopen(Form("%s/table.tex",pathName.c_str()),"w");
     FILE *nfile = fopen(Form("%s/table.txt",pathName.c_str()),"w");
-    printf("--------------------------------------------------------------\n");
-    printf("Cat   SigY    ggh    vbf    wzh    tth   sEff  FWHM  FWHM/2.35  BkgEv/GeV    Data  DataEv/GeV\n");
-    printf("--------------------------------------------------------------\n");
-    fprintf(nfile,"--------------------------------------------------------------\n");
-    fprintf(nfile,"Cat   SigY    ggh    vbf    wzh    tth   sEff  FWHM  FWHM/2.35  BkgEv/GeV    Data  DataEv/GeV\n");
-    fprintf(nfile,"--------------------------------------------------------------\n");
-    for (int cat=0; cat<ncats; cat++){
-      pair<double,double> bkg = bkgVals[Form("cat%d",cat)];
-      vector<double> sigs = sigVals[Form("cat%d",cat)];
-      pair<double,double> dat = datVals[Form("cat%d",cat)];
-      // cout 
-      printf("cat%d  ",cat);
-      printf("%5.2f  ",sigs[0]);
-      printf("%4.1f%%  ",sigs[1]);
-      printf("%4.1f%%  ",sigs[2]);
-      printf("%4.1f%%  ",sigs[3]);
-      printf("%4.1f%%  ",sigs[4]);
-      printf("%4.2f  ",sigEffs[Form("cat%d",cat)]);
-      printf("%4.2f  ",fwhms[Form("cat%d",cat)]);
-      printf("%4.2f   ",fwhms[Form("cat%d",cat)]/2.35);
-      printf("%6.1f +/- %3.1f  ",bkg.first,bkg.second);
-      printf("%6.0f    ",dat.first);
-      if (blind) printf("%7s","----");
-      else printf("%7.1f  ",dat.second);
-      printf("\n");
+    fprintf(nfile,"----------------------------------------------------------------------------------------------\n");
+    fprintf(nfile,"Cat    SigY    ggh    vbf    wzh    tth   sEff  FWHM  FWHM/2.35  BkgEv/GeV    Data  DataEv/GeV\n");
+    fprintf(nfile,"----------------------------------------------------------------------------------------------\n");
+    for (int cat=0; cat<=ncats; cat++){
+      string thisCatName;
+      if (cat==ncats) thisCatName = "all";
+      else thisCatName = Form("cat%d",cat);
+      pair<double,double> bkg = bkgVals[thisCatName];
+      vector<double> sigs = sigVals[thisCatName];
+      pair<double,double> dat = datVals[thisCatName];
       // print to file
-      fprintf(nfile,"cat%d  ",cat);
+      fprintf(nfile,"%5s  ",thisCatName.c_str());
       fprintf(nfile,"%5.1f  ",sigs[0]);
-      fprintf(nfile,"%4.1f%%  ",sigs[1]);
-      fprintf(nfile,"%4.1f%%  ",sigs[2]);
-      fprintf(nfile,"%4.1f%%  ",sigs[3]);
-      fprintf(nfile,"%4.1f%%  ",sigs[4]);
-      fprintf(nfile,"%4.2f  ",sigEffs[Form("cat%d",cat)]);
-      fprintf(nfile,"%4.2f  ",fwhms[Form("cat%d",cat)]);
-      fprintf(nfile,"%4.2f   ",fwhms[Form("cat%d",cat)]/2.35);
+      fprintf(nfile,"%4.1f%%  ",100.*sigs[1]/sigs[0]);
+      fprintf(nfile,"%4.1f%%  ",100.*sigs[2]/sigs[0]);
+      fprintf(nfile,"%4.1f%%  ",100.*sigs[3]/sigs[0]);
+      fprintf(nfile,"%4.1f%%  ",100.*sigs[4]/sigs[0]);
+      fprintf(nfile,"%4.2f  ",sigEffs[thisCatName]);
+      fprintf(nfile,"%4.2f  ",fwhms[thisCatName]);
+      fprintf(nfile,"%4.2f   ",fwhms[thisCatName]/2.35);
       fprintf(nfile,"%6.1f +/- %3.1f  ",bkg.first,bkg.second);
       fprintf(nfile,"%6.0f    ",dat.first);
       if (blind) fprintf(nfile,"%7s","----");
@@ -703,13 +726,13 @@ void makeParametricSignalModelPlots(string hggFileName, string pathName, int nca
       // print to file
       fprintf(file,"&  cat%d  ",cat);
       fprintf(file,"&  %5.1f  ",sigs[0]);
-      fprintf(file,"&  %4.1f\\%%  ",sigs[1]);
-      fprintf(file,"&  %4.1f\\%%  ",sigs[2]);
-      fprintf(file,"&  %4.1f\\%%  ",sigs[3]);
-      fprintf(file,"&  %4.1f\\%%  ",sigs[4]);
-      fprintf(file,"&  %4.2f  ",sigEffs[Form("cat%d",cat)]);
-      fprintf(file,"&  %4.2f  ",fwhms[Form("cat%d",cat)]);
-      fprintf(file,"&  %4.2f  ",fwhms[Form("cat%d",cat)]/2.35);
+      fprintf(file,"&  %4.1f\\%%  ",100.*sigs[1]/sigs[0]);
+      fprintf(file,"&  %4.1f\\%%  ",100.*sigs[2]/sigs[0]);
+      fprintf(file,"&  %4.1f\\%%  ",100.*sigs[3]/sigs[0]);
+      fprintf(file,"&  %4.1f\\%%  ",100.*sigs[4]/sigs[0]);
+      fprintf(file,"&  %4.2f  ",sigEffs[thisCatName]);
+      fprintf(file,"&  %4.2f  ",fwhms[thisCatName]);
+      fprintf(file,"&  %4.2f  ",fwhms[thisCatName]/2.35);
       fprintf(file,"&  %6.1f & $\\pm$ %3.1f \\tabularnewline ",bkg.first,bkg.second);
       fprintf(file,"&  %7.1f  ",dat.first);
       if (blind) fprintf(file,"& %7s","----");
@@ -718,6 +741,7 @@ void makeParametricSignalModelPlots(string hggFileName, string pathName, int nca
     }
     fclose(nfile);
     fclose(file);
+    system(Form("cat %s/table.txt",pathName.c_str()));
     cout << "-->" << endl;
     cout << Form("--> LaTeX version of this table has been written to %s/table.tex",pathName.c_str()) << endl;
   }
