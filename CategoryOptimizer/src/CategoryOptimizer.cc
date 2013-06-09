@@ -43,7 +43,7 @@ double GenericFigureOfMerit::operator() (double *x, double *p) const
 	std::vector<double> orthocuts(x+ndim_*(nbound_+addConstraint_),x+ndim_*(nbound_+addConstraint_)+northocuts_);
 	
 	// initialize the model builders
-	std::ostream_iterator<double> output(cout, ",");
+	std::ostream_iterator<double> output(std::cout, ",");
 	CategoryOptimizer::doTransform(transformations_,&extfirstb[0]);
 	for(std::vector<AbsModelBuilder *>::const_iterator imod=allModels_.begin(); imod!=allModels_.end(); ++imod ) {
 		if( northocuts_ > 0 ) {

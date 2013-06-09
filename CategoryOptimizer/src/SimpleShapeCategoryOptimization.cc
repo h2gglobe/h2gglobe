@@ -239,7 +239,7 @@ double SimpleShapeFomProvider::operator() ( std::vector<AbsModel *> sig, std::ve
 	int ncat = sig[0]->getNcat();
 	
 	RooCategory roocat("SimpleShapeFomCat","");
-	map<string,RooAbsData*> catData;
+	std::map<std::string,RooAbsData*> catData;
 	std::vector<RooRealVar *> normsToFix;
 	
 	/// WARNING: assuming that signal and background pdfs objects don't change for a given category
