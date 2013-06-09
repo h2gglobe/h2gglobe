@@ -68,12 +68,11 @@ public:
 				TH1 * pdf, TH1 * var, TH1 * var2, 
 				double norm, double min,  double max) :
 		norm_(norm),
-		pdf_(pdf),
+		pdf_(pdf), hsparse_(0),
 		converterN_(new HistoToTF1(Form("%s_integrator",pdf->GetName()),integrate1D(pdf))),
 		converterX_(new HistoToTF1(Form("%s_integrator",var->GetName()),integrate1D(var,false))),
 		converterX2_(new HistoToTF1(Form("%s_integrator",var2->GetName()),integrate1D(var2,false))),
 		model_(name,x,type) {
-		std::cout << pdf_ << " "  << converterN_ << " " << converterX_ << " " << converterX2_ << std::endl;
 		ranges_.push_back(std::make_pair(min,max));
 	};
 	
@@ -83,7 +82,7 @@ public:
 				double norm, double xmin, double xmax, 
 				double ymin, double ymax)  : 
 		norm_(norm),
-		pdf_(pdf),
+		pdf_(pdf), hsparse_(0),
 		converterN_(new SimpleHistoToTF2(Form("%s_integrator",pdf->GetName()),integrate2D(pdf))),
 		converterX_(new SimpleHistoToTF2(Form("%s_integrator",var->GetName()),integrate2D(var,false))),
 		converterX2_(new SimpleHistoToTF2(Form("%s_integrator",var2->GetName()),integrate2D(var2,false))),
@@ -92,12 +91,19 @@ public:
 		ranges_.push_back(std::make_pair(ymin,ymax));
 	};
 
+	SecondOrderModelBuilder(AbsModel::type_t type, std::string name, RooRealVar * x, 
+				TTree * tree, const RooArgList * varlist,
+				const char * weightBr);
+
 	~SecondOrderModelBuilder() {
-		delete converterN_;
-		delete converterX_;
-		delete converterX2_;
+		if( converterN_ ) { delete converterN_; }
+		if( converterX_ ) { delete converterX_; }
+		if( converterX2_ ) { delete converterX2_; }
+		if( hsparse_ ) { delete hsparse_; }
 	};
 	
+	TTree * getTree();
+
 	AbsModel * getModel() { return &model_; };
 	void beginIntegration(double * boundaries) { 
 		lastIntegral_ = (*converterN_)(boundaries,0);
@@ -145,6 +151,7 @@ private:
 	std::vector<std::pair<double,double> > ranges_;
 	
 	TH1 * pdf_;
+	THnSparse * hsparse_;
 	HistoConverter *converterN_, *converterX_, *converterX2_;
 };
 

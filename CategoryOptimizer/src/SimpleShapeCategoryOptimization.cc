@@ -22,12 +22,199 @@
 #include "RooAddition.h"
 #include "Math/IFunction.h"
 #include "TCanvas.h"
+#include "Math/AdaptiveIntegratorMultiDim.h"
+#include "TTree.h"
+#include "TTreeFormula.h"
 
 #include <algorithm>
 
 #include "../interface/CategoryOptimizer.h"
 #include "../interface/SimpleShapeCategoryOptimization.h"
 
+
+// ------------------------------------------------------------------------------------------------
+void makeSecondOrder(THnSparse * in, THnSparse * norm, THnSparse * sumX, THnSparse * sumX2)
+{
+	std::vector<int> idx(norm->GetNdimensions());
+	std::vector<double> stats(4), qtiles(2), probs(2);
+	double effrms;
+	in->Print("all");
+	norm->Print("all");
+	sumX->Print("all");
+	sumX2->Print("all");
+	probs[0]=0.8415, probs[1]=0.1585;
+	std::cout << norm->GetNbins() << std::endl;
+	for(int ii=0; ii<norm->GetNbins(); ++ii) {
+		norm->GetBinContent(ii,&idx[0]);
+		for(int idim=0; idim<idx.size(); ++idim) {
+			TAxis * iaxis = in->GetAxis(idim);
+			iaxis->SetRange(idx[idim],idx[idim]);
+		}
+		TH1 * hx = in->Projection(in->GetNdimensions()-1);
+		hx->GetStats(&stats[0]);
+		norm->SetBinContent(ii, stats[0]);
+		sumX->SetBinContent(ii, stats[2]);
+		hx->GetQuantiles(2,&qtiles[0],&probs[0]);
+		effrms = 0.5*(qtiles[1] - qtiles[0]);
+		sumX2->SetBinContent(ii, stats[2]*stats[2]/stats[0]-stats[0]*effrms*effrms);
+		delete hx;
+	}
+}
+
+// ------------------------------------------------------------------------------------------------
+THnSparse * integrate(THnSparse *h, float norm)
+{
+	THnSparse * ret = (THnSparse*)h->Clone(Form("%s_cdf",h->GetName()));
+	std::vector<int> idx(h->GetNdimensions());
+	std::vector<int> alldims(h->GetNdimensions());
+	for(int ii=0; ii<alldims.size(); ++ii) {
+		alldims[ii]=ii;
+	}
+	//// std::cout << "integrate " << norm << std::endl;
+	for(int ii=0; ii<h->GetNbins(); ++ii) {
+		h->GetBinContent(ii,&idx[0]);
+		for(int idim=0; idim<idx.size(); ++idim) {
+			TAxis * iaxis = h->GetAxis(idim);
+			iaxis->SetRange(idx[idim],-1);
+		}
+		THnSparse * tmp = h->Projection(alldims.size(),&alldims[0]);
+		float integral = 0.;
+		for(int jj=0; jj<tmp->GetNbins(); ++ii) {
+			integral += tmp->GetBinContent(jj);
+		}
+		/// tmp->Print("V");
+		//// std::cout << tmp->GetWeightSum()<< std::endl;
+		ret->SetBinContent(ii,tmp->GetWeightSum()/norm);
+		delete tmp;
+	}
+	return ret;
+}
+
+// ------------------------------------------------------------------------------------------------
+TTree* toTree(const THnSparse* h, const THnSparse *hX, const THnSparse *hX2)
+{
+	// Creates a TTree and fills it with the coordinates of all
+	// filled bins. The tree will have one branch for each dimension,
+	// and one for the bin content.
+
+	Int_t dim = h->GetNdimensions();
+	TString name(h->GetName()); name += "_tree";
+	TString title(h->GetTitle()); title += " tree";
+
+	TTree* tree = new TTree(name, title);
+	Double_t* x = new Double_t[dim + 3];
+	memset(x, 0, sizeof(Double_t) * (dim + 3));
+
+	TString branchname;
+	for (Int_t d = 0; d < dim; ++d) {
+		TAxis* axis = h->GetAxis(d);
+		tree->Branch(axis->GetTitle(),&x[d]);
+	}
+	tree->Branch("sumw",   &x[dim] );
+	if( hX ) tree->Branch("sumwx",  &x[dim+1] );
+	if( hX2 )tree->Branch("sumwx2", &x[dim+2] );
+	
+	Int_t *bins = new Int_t[dim];
+	for (Long64_t i = 0; i < h->GetNbins(); ++i) {
+		x[dim] = h->GetBinContent(i, bins);
+		if( hX ) x[dim+1] = hX->GetBinContent(i, bins);
+		if( hX2 ) x[dim+2] = hX2->GetBinContent(i, bins);
+		for (Int_t d = 0; d < dim; ++d) {
+			x[d] = h->GetAxis(d)->GetBinCenter(bins[d]);
+		}
+
+		tree->Fill();
+	}
+
+	delete [] bins;
+	//delete [] x;
+	return tree;
+}
+
+
+// ------------------------------------------------------------------------------------------------
+SecondOrderModelBuilder::SecondOrderModelBuilder(AbsModel::type_t type, std::string name, RooRealVar * x, 
+						 TTree * tree, const RooArgList * varlist,
+						 const char * weightBr)
+	: model_(name,x,type)
+{
+	RooArgList exvarlist(*varlist);
+	exvarlist.add(*x);
+	int nvar = exvarlist.getSize();
+	std::vector<TString> names(nvar);
+	std::vector<int> nbins(nvar);
+	std::vector<double> xmin(nvar);
+	std::vector<double> xmax(nvar);
+	std::vector<TTreeFormula *> formulas(nvar);
+	std::vector<int> nm1(nvar-1);
+	TTreeFormula * weight = (weightBr != 0 ? new TTreeFormula(weightBr,weightBr,tree) : 0);
+	
+	for(int ivar=0; ivar<nvar; ++ivar) {
+		RooRealVar & var = dynamic_cast<RooRealVar &>(exvarlist[ivar]);
+		names[ivar] = var.GetName();
+		xmin[ivar] = var.getMin();
+		xmax[ivar] = var.getMax();
+		nbins[ivar] = var.getBins();
+		formulas[ivar] = new TTreeFormula(names[ivar],names[ivar],tree);
+		if(ivar<nm1.size()) { 
+			nm1[ivar] = ivar; 
+			ranges_.push_back(std::make_pair(xmin[ivar],xmax[ivar]));
+		}
+	}
+
+	hsparse_ = new THnSparseT<TArrayF>(Form("hsparse_%s",name.c_str()),
+					   Form("hsparse_%s",name.c_str()),
+					   nvar,&nbins[0],&xmin[0],&xmax[0]);
+	if( weight ) { hsparse_->Sumw2(); }
+	for(int ivar=0; ivar<nvar; ++ivar) {
+		hsparse_->GetAxis(ivar)->SetTitle(names[ivar]);
+	}
+		
+	std::vector<double> vals(nvar); 
+	double eweight=1.;
+	for(int ii=0; ii<tree->GetEntries(); ++ii) { 
+		tree->GetEntry(ii); 
+		for(int ivar=0; ivar<nvar; ++ivar) {
+			vals[ivar] = formulas[ivar]->EvalInstance();
+		}
+		if( weight ) { eweight = weight->EvalInstance(); }
+		hsparse_->Fill(&vals[0],eweight); 
+	}
+	
+	norm_=hsparse_->GetWeightSum();
+
+	THnSparse * hsparseN = hsparse_->Projection(nm1.size(),&nm1[0]);
+	THnSparse * hsparseX = hsparse_->Projection(nm1.size(),&nm1[0]);
+	THnSparse * hsparseX2= hsparse_->Projection(nm1.size(),&nm1[0]);
+	hsparseN->ComputeIntegral();
+	hsparseX->ComputeIntegral();
+	hsparseX2->ComputeIntegral();
+
+	std::cout << norm_ << " " << hsparseN->ComputeIntegral() << " " << hsparseX->ComputeIntegral() << " " << hsparseX2->ComputeIntegral() << " " << std::endl;
+
+	makeSecondOrder( hsparse_, hsparseN, hsparseX, hsparseX2 );
+	
+	///// converterN_  = new HistoMultiDimCdf<ROOT::Math::AdaptiveIntegratorMultiDim>(hsparseN, &xmax[0],0.1);
+	///// converterX_  = new HistoMultiDimCdf<ROOT::Math::AdaptiveIntegratorMultiDim>(hsparseX, &xmax[0],0.1);
+	///// converterX2_ = new HistoMultiDimCdf<ROOT::Math::AdaptiveIntegratorMultiDim>(hsparseX2, &xmax[0],0.1);
+
+	//// converterN_  = new SparseToTF1(hsparseN);
+	//// converterX_  = new SparseToTF1(hsparseX);
+	//// converterX2_ = new SparseToTF1(hsparseX2);
+
+	converterN_  = new SparseIntegrator(hsparseN);
+	converterX_  = new SparseIntegrator(hsparseX);
+	converterX2_ = new SparseIntegrator(hsparseX2);
+}
+
+// ------------------------------------------------------------------------------------------------
+TTree * SecondOrderModelBuilder::getTree()
+{
+	if( hsparse_ == 0 ) { return 0; }
+	return toTree( ((SparseIntegrator*)converterN_) ->getIntegrand(), 
+		       ((SparseIntegrator*)converterX_) ->getIntegrand(), 
+		       ((SparseIntegrator*)converterX2_)->getIntegrand() ); 
+}
 
 // ------------------------------------------------------------------------------------------------
 SecondOrderModel::SecondOrderModel(std::string name,
@@ -54,6 +241,9 @@ SecondOrderModel::~SecondOrderModel()
 // ------------------------------------------------------------------------------------------------
 TH1 * SecondOrderModelBuilder::getPdf(int idim)
 {
+	if( hsparse_ != 0 ) {
+		return hsparse_->Projection(idim);
+	}
 	if( ranges_.size() == 1 ) {
 		return (TH1*)pdf_->Clone();
 	} else if( ranges_.size() == 2 ) {
