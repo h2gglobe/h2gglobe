@@ -8,6 +8,7 @@
 #include "TF2.h"
 #include "TF3.h"
 #include "Math/IFunction.h"
+#include "RooRealVar.h"
 
 #include <algorithm>
 
@@ -44,6 +45,8 @@ public:
 	void dump();
 	
 	void buildPdfs();
+	
+	std::string name() { return name_; };
 	
 private:
 	void bookShape(int icat);
@@ -142,6 +145,10 @@ public:
 	HistoConverter * getInputModelN() { return converterN_; };
 	HistoConverter * getInputModelX() { return converterX_; };
 	HistoConverter * getInputModelX2() { return converterX2_; };
+
+	TF1 * getTF1N()  { return new TF1(Form("tf1N%s",model_.name().c_str()),converterN_ ,getMin(0),getMax(0),0); };
+	TF1 * getTF1X()  { return new TF1(Form("tf1X%s",model_.name().c_str()),converterX_ ,getMin(0),getMax(0),0); };
+	TF1 * getTF1X2() { return new TF1(Form("tf1X2%s",model_.name().c_str()),converterX2_,getMin(0),getMax(0),0); };
 	
 	TH1 * getPdf(int idim);
 	

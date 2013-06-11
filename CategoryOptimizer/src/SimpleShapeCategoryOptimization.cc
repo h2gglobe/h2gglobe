@@ -27,6 +27,7 @@
 #include "TTreeFormula.h"
 
 #include <algorithm>
+#include <cmath>
 
 #include "../interface/CategoryOptimizer.h"
 #include "../interface/SimpleShapeCategoryOptimization.h"
@@ -165,11 +166,13 @@ SecondOrderModelBuilder::SecondOrderModelBuilder(AbsModel::type_t type, std::str
 	hsparse_ = new THnSparseT<TArrayF>(Form("hsparse_%s",name.c_str()),
 					   Form("hsparse_%s",name.c_str()),
 					   nvar,&nbins[0],&xmin[0],&xmax[0]);
-	if( weight ) { hsparse_->Sumw2(); }
+	hsparse_->Sumw2();
 	for(int ivar=0; ivar<nvar; ++ivar) {
 		hsparse_->GetAxis(ivar)->SetTitle(names[ivar]);
+		/// FIXME: handle variable binning
 	}
 		
+	norm_ = 0.;
 	std::vector<double> vals(nvar); 
 	double eweight=1.;
 	for(int ii=0; ii<tree->GetEntries(); ++ii) { 
@@ -179,30 +182,17 @@ SecondOrderModelBuilder::SecondOrderModelBuilder(AbsModel::type_t type, std::str
 		}
 		if( weight ) { eweight = weight->EvalInstance(); }
 		hsparse_->Fill(&vals[0],eweight); 
+		norm_ += eweight;
 	}
 	
-	norm_=hsparse_->GetWeightSum();
-
-	THnSparse * hsparseN = hsparse_->Projection(nm1.size(),&nm1[0]);
-	THnSparse * hsparseX = hsparse_->Projection(nm1.size(),&nm1[0]);
-	THnSparse * hsparseX2= hsparse_->Projection(nm1.size(),&nm1[0]);
-	hsparseN->ComputeIntegral();
-	hsparseX->ComputeIntegral();
-	hsparseX2->ComputeIntegral();
-
-	std::cout << norm_ << " " << hsparseN->ComputeIntegral() << " " << hsparseX->ComputeIntegral() << " " << hsparseX2->ComputeIntegral() << " " << std::endl;
+	// norm_ = 1.;
+	THnSparse * hsparseN = hsparse_->Projection(nm1.size(),&nm1[0],"A");
+	THnSparse * hsparseX = hsparse_->Projection(nm1.size(),&nm1[0],"A");
+	THnSparse * hsparseX2= hsparse_->Projection(nm1.size(),&nm1[0],"A");
 
 	makeSecondOrder( hsparse_, hsparseN, hsparseX, hsparseX2 );
 	
-	///// converterN_  = new HistoMultiDimCdf<ROOT::Math::AdaptiveIntegratorMultiDim>(hsparseN, &xmax[0],0.1);
-	///// converterX_  = new HistoMultiDimCdf<ROOT::Math::AdaptiveIntegratorMultiDim>(hsparseX, &xmax[0],0.1);
-	///// converterX2_ = new HistoMultiDimCdf<ROOT::Math::AdaptiveIntegratorMultiDim>(hsparseX2, &xmax[0],0.1);
-
-	//// converterN_  = new SparseToTF1(hsparseN);
-	//// converterX_  = new SparseToTF1(hsparseX);
-	//// converterX2_ = new SparseToTF1(hsparseX2);
-
-	converterN_  = new SparseIntegrator(hsparseN);
+	converterN_  = new SparseIntegrator(hsparseN,1./norm_);
 	converterX_  = new SparseIntegrator(hsparseX);
 	converterX2_ = new SparseIntegrator(hsparseX2);
 }
@@ -242,7 +232,9 @@ SecondOrderModel::~SecondOrderModel()
 TH1 * SecondOrderModelBuilder::getPdf(int idim)
 {
 	if( hsparse_ != 0 ) {
-		return hsparse_->Projection(idim);
+		TH1 * h= hsparse_->Projection(idim,"A");
+		h->Scale(1./norm_);
+		return h;
 	}
 	if( ranges_.size() == 1 ) {
 		return (TH1*)pdf_->Clone();
@@ -276,7 +268,9 @@ void SecondOrderModel::buildPdfs()
 			RooAbsPdf * pdf = categoryPdfs_[icat];
 			setShapeParams( icat );
 		}
-		if( categoryYields_[icat] == 0 || categoryRMSs_[icat] == 0 ) {
+		if( categoryYields_[icat] == 0 || ! isfinite(categoryYields_[icat]) 
+		    || ( (shape_ == gaus) && (categoryRMSs_[icat] == 0 || ! isfinite(categoryRMSs_[icat]) ) )
+			) {
 			catToFix.push_back(icat);
 		} else {
 			smallestYield = std::min(smallestYield,categoryYields_[icat] );
@@ -284,13 +278,15 @@ void SecondOrderModel::buildPdfs()
 		}
 	}
 	
-	for(size_t ifix=0; ifix<catToFix.size(); ++ifix) {
-		int icat = catToFix[ifix];
-		categoryYields_[icat] = smallestYield/10.;
-		categoryRMSs_[icat] = largestSigma*2.;
-		setShapeParams( icat );
+	if( categoryYields_.size() > 1 ) { 
+		for(size_t ifix=0; ifix<catToFix.size(); ++ifix) {
+			int icat = catToFix[ifix];
+			categoryYields_[icat] = smallestYield/10.;
+			categoryRMSs_[icat] = largestSigma*2.;
+			setShapeParams( icat );
+		}
 	}
-	/// dump();
+	//// dump();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -445,16 +441,16 @@ double SimpleShapeFomProvider::operator() ( std::vector<AbsModel *> sig, std::ve
 		std::vector<double> yields;
 		for(std::vector<AbsModel *>::const_iterator isig = sig.begin(); isig!=sig.end(); ++isig) {
 			ntot += (*isig)->getCategoryYield(icat);
-			//// std::cout << (*isig)->getCategoryPdf(icat)->expectedEvents(0) 
-			//// 	  << " " << (*isig)->getCategoryYield(icat) << std::endl;
+			/// std::cout << (*isig)->getCategoryPdf(icat)->expectedEvents(0) 
+			///  	  << " " << (*isig)->getCategoryYield(icat) << std::endl;
 			if( buildPdf ) {
 				lpdfs.add( *((*isig)->getCategoryPdf(icat)) ); 
 			}
 		}
 		for(std::vector<AbsModel *>::const_iterator ibkg = bkg.begin(); ibkg!=bkg.end(); ++ibkg) {
 			ntot += (*ibkg)->getCategoryYield(icat);
-			//// std::cout << (*ibkg)->getCategoryPdf(icat)->expectedEvents(0) 
-			//// 	  << " " << (*ibkg)->getCategoryYield(icat) << std::endl;
+			/// std::cout << (*ibkg)->getCategoryPdf(icat)->expectedEvents(0) 
+			///  	  << " " << (*ibkg)->getCategoryYield(icat) << std::endl;
 			if( buildPdf ) {
 				lpdfs.add( *((*ibkg)->getCategoryPdf(icat)) ); 
 			}

@@ -62,6 +62,7 @@ protected:
 	
 };
 
+
 // ------------------------------------------------------------------------------------------------
 class GenericFigureOfMerit : public ROOT::Math::IBaseFunctionMultiDim
 {
@@ -102,9 +103,9 @@ class CategoryOptimizer
 {
 public:
 	CategoryOptimizer( ROOT::Math::Minimizer * minimizer, int ndim) : 
-		minimizer_(minimizer), ndim_(ndim), 
+		minimizer_(minimizer), ndim_(ndim), strategy_(1),
 		addConstraint_(false), telescopicBoundaries_(true), floatFirst_(false), 
-		refitLast_(false), transformations_(0), inv_transformations_(0) {};
+		refitLast_(false), transformations_(0), inv_transformations_(0), dimnames_(ndim_) {};
 	
 	void addSignal(AbsModelBuilder * sig, bool defineTransform=false) { 
 		sigModels_.push_back(sig); 
@@ -129,7 +130,7 @@ public:
 
 	void addFloatingOrthoCut(const char * name, double val, double step, double mix=-1., double max=-1.);
 	void addFixedOrthoCut(const char * name, double val);
-
+	
 	void setTransformation(int idim, HistoConverter * x, HistoConverter *y) { 
 		transformations_.resize(ndim_,0);
 		transformations_[idim] = x; 
@@ -141,12 +142,14 @@ public:
 			if( transformations[ii] ) { boundaries[ii] = (*transformations[ii])(&boundaries[ii],0); }
 		}
 	};
+
+	void setStrategy(int x) { strategy_=x; };
 		
 private:
 
 	ROOT::Math::Minimizer * minimizer_;
-	int ndim_;
-
+	int ndim_, strategy_;
+	
 	std::vector<AbsModelBuilder *> sigModels_;
 	std::vector<AbsModelBuilder *> bkgModels_;
 	std::vector<AbsModelBuilder *> transformModels_;
@@ -159,7 +162,8 @@ private:
 	std::vector<std::pair<std::string, std::vector<double> > > orthocuts_;
 	
 	std::vector<HistoConverter *> transformations_, inv_transformations_;
-
+	std::vector<TString> dimnames_;
+	
 };
 
 #endif

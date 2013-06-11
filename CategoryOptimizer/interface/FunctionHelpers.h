@@ -323,6 +323,8 @@ private:
 class IntegrationWeb : public std::set<IntegrationNode*,IntegrationNode::weakLess>
 {
 public:
+	IntegrationWeb() : scale_(1.) {};
+
 	~IntegrationWeb() {
 		for(iterator it=begin(); it!=end(); ++it) {
 			delete *it;
@@ -348,7 +350,7 @@ public:
 	};
 	
 	double getIntegral(const double* coord) {
-		return get(coord)->sumEntries();
+		return get(coord)->sumEntries()*scale_;
 	};
 	
 	double getIntegral(const double* a, const double* b) {
@@ -373,6 +375,7 @@ public:
 	};
 	
 protected:
+	double scale_;
 	std::vector<std::set<double> > grid_;
 	
 	void volume_coordinates(std::vector<double> & point) {
@@ -416,7 +419,8 @@ protected:
 class SparseIntegrator : public IntegrationWeb, public HistoConverter
 {
 public:
-	SparseIntegrator(THnSparse * integrand) : hsp_(integrand) {
+	SparseIntegrator(THnSparse * integrand,double scale=1.) : hsp_(integrand) {
+		scale_ = scale;
 		Int_t dim = integrand->GetNdimensions();
 		std::vector<int> bins(dim);
 		std::vector<double> coord(dim);
@@ -442,7 +446,7 @@ public:
 	};
 
 	~SparseIntegrator() {
-		delete hsp_;
+		/// delete hsp_;
 	};
 
 	THnSparse * getIntegrand() { return hsp_; };
