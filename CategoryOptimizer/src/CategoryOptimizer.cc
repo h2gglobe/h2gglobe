@@ -198,20 +198,20 @@ double CategoryOptimizer::optimizeNCat(int ncat, const double * cutoffs, bool dr
 						       min, max );
 			paramsToScan.push_back(std::make_pair(idim*nbound,std::make_pair(min,max) ));
 		}
-		for(int ibound=1; ibound<nbound; ++icat) {
+		for(int ibound=1; ibound<nbound; ++ibound) {
 			if( telescopicBoundaries_ ) {
 				minimizer_->SetLimitedVariable(idim*nbound+ibound,
 							       Form( "%sDeltaBound%d",dimname.Data(), ibound ), 
 							       range/(double)ncat,
 							       tmpcutoffs[idim]*0.5, tmpcutoffs[idim], range );
-				paramsToScan.push_back(std::make_pair(idim*nbound+ icat +1,std::make_pair(min,max)));
+				paramsToScan.push_back(std::make_pair(idim*nbound+ ibound,std::make_pair(min,max)));
 			} else {
 				minimizer_->SetLimitedVariable(idim*nbound+ibound,
 							       Form( "%sBound%d",dimname.Data(), ibound ), 
-							       first - (double)(icat+1)*range/(double)ncat + tmpcutoffs[idim],
+							       first - (double)(ibound)*range/(double)ncat + tmpcutoffs[idim],
 							       tmpcutoffs[idim]*0.5, 
 							       min, max );
-				paramsToScan.push_back(std::make_pair(idim*nbound+ icat +1,std::make_pair(min,max)));
+				paramsToScan.push_back(std::make_pair(idim*nbound+ibound,std::make_pair(min,max)));
 			}
 		}
 	}
