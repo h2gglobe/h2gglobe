@@ -1,0 +1,39 @@
+{ 
+  "methods"    : [ "BDT" ],
+
+  "variables"  : ["ptasym","ptbal","logsumpt2","limpulltoconv"],
+  "spectators" : ["dipho.Pt()", "pho1.Pt()", "pho2.Pt()", "passCiC", "nVert", "nPU", "mva" ],
+
+  "categories" : [ 
+		 [ "nconv==0",  "noconv",  "limpulltoconv:nlegs" ],  
+		 [ "nconv>=1",  "conv",    "nchthr:nch:ptmax3:ptmax:sumtwd" ]
+                 ],
+
+  "subcategories" : [ 
+        ],
+
+  "selection" : "ptbal < 500 && logsumpt2 > -10",
+
+  "classes" : { 
+	  "Signal" : { 
+		"samples" : [
+                   ["vtxOpt/ggh_m125_8TeV",1,"isClosestToGen && Entry$ % 2 == 0",0],
+	           ["vtxOpt/ggh_m125_8TeV",1,"isClosestToGen && Entry$ % 2 == 1",1],
+                   ["vtxOpt/vbf_m125_8TeV",1,"isClosestToGen && Entry$ % 2 == 0",0],
+	           ["vtxOpt/vbf_m125_8TeV",1,"isClosestToGen && Entry$ % 2 == 1",1]
+	        ],
+		"weight" : "evWeight"
+		},
+	  "Background" : { 
+		"samples" : [
+                   ["vtxOpt/ggh_m125_8TeV",1,"!isClosestToGen && Entry$ % 2 == 0",0],
+	           ["vtxOpt/ggh_m125_8TeV",1,"!isClosestToGen && Entry$ % 2 == 1",1],
+                   ["vtxOpt/vbf_m125_8TeV",1,"!isClosestToGen && Entry$ % 2 == 0",0],
+	           ["vtxOpt/vbf_m125_8TeV",1,"!isClosestToGen && Entry$ % 2 == 1",1]
+	        ],
+		"weight" : "evWeight"
+		}
+	},
+
+	"label" : "vtxid"
+}
