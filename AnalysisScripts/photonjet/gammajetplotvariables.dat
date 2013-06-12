@@ -1,0 +1,97 @@
+htyp=0 plot=-1  ncat=1   xbins=50      ybins=0       xmin=0.0     xmax=50  ymin=0   ymax=0     name=nvtx  xaxis=nvtx yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=50      ybins=0       xmin=0.0     xmax=50  ymin=0   ymax=0     name=nvtx_conv  xaxis=nvtx yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=50      ybins=0       xmin=0.0     xmax=50  ymin=0   ymax=0     name=nvtx_tkcone  xaxis=nvtx yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=50      ybins=0       xmin=0.0     xmax=50  ymin=0   ymax=0     name=nvtx_rv  xaxis=nvtx yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=50      ybins=0       xmin=0.0     xmax=50  ymin=0   ymax=0     name=nvtx_rv_conv  xaxis=nvtx yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=50      ybins=0       xmin=0.0     xmax=50  ymin=0   ymax=0     name=nvtx_rv_tkcone  xaxis=nvtx yaxis=events
+
+htyp=0 plot=-1  ncat=1   xbins=500     ybins=0       xmin=0.0     xmax=500.0  ymin=0   ymax=0     name=photon_pt   xaxis=p_T yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=500     ybins=0       xmin=0.0     xmax=500.0  ymin=0   ymax=0     name=photon_pt_conv   xaxis=p_T yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=500     ybins=0       xmin=0.0     xmax=500.0  ymin=0   ymax=0     name=photon_pt_tkcone   xaxis=p_T yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-2.5    xmax=2.5    ymin=0   ymax=0     name=photon_eta  xaxis=eta yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-2.5    xmax=2.5    ymin=0   ymax=0     name=photon_eta_conv  xaxis=eta yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-2.5    xmax=2.5    ymin=0   ymax=0     name=photon_eta_tkcone  xaxis=eta yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-3.2    xmax=3.2    ymin=0   ymax=0     name=photon_phi  xaxis=phi yaxis=events
+
+htyp=0 plot=-1  ncat=1   xbins=500     ybins=0       xmin=0.0     xmax=500.0  ymin=0   ymax=0     name=jet_pt  xaxis=p_T yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-2.5    xmax=2.5    ymin=0   ymax=0     name=jet_eta  xaxis=eta yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-3.2    xmax=3.2    ymin=0   ymax=0     name=jet_phi  xaxis=phi yaxis=events
+
+htyp=0 plot=-1  ncat=1   xbins=500     ybins=0       xmin=0.0     xmax=500.0  ymin=0   ymax=0     name=pt  xaxis=p_T yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=500     ybins=0       xmin=0.0     xmax=500.0  ymin=0   ymax=0     name=pt_conv  xaxis=p_T yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=500     ybins=0       xmin=0.0     xmax=500.0  ymin=0   ymax=0     name=pt_tkcone  xaxis=p_T yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=500     ybins=0       xmin=0.0     xmax=500.0  ymin=0   ymax=0     name=pt_rv  xaxis=p_T yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=500     ybins=0       xmin=0.0     xmax=500.0  ymin=0   ymax=0     name=pt_rv_conv  xaxis=p_T yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=500     ybins=0       xmin=0.0     xmax=500.0  ymin=0   ymax=0     name=pt_rv_tkcone  xaxis=p_T yaxis=events
+
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-5.0    xmax=15     ymin=0   ymax=0     name=sumpt2_rv  xaxis=logsumpt2 yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-50     xmax=150    ymin=0   ymax=0     name=ptbal_rv  xaxis=ptbal yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-1.0    xmax=1.0    ymin=0   ymax=0     name=ptasym_rv  xaxis=ptasym yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-10     xmax=10     ymin=0   ymax=0     name=pulltoconv_rv  xaxis=pulltoconv yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=5       ybins=0       xmin=0.0     xmax=5      ymin=0   ymax=0     name=nconv_rv  xaxis=nconv yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-5.0    xmax=15     ymin=0   ymax=0     name=sumpt2in_rv  xaxis=logsumpt2 yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-5.0    xmax=15     ymin=0   ymax=0     name=sumpt2out_rv  xaxis=logsumpt2 yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=0.0     xmax=100    ymin=0   ymax=0     name=nchin_rv  xaxis=ntracks yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-1.0    xmax=1.0    ymin=0   ymax=0     name=vtxmva_rv  xaxis=vtxmva yaxis=events
+
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-5.0    xmax=15     ymin=0   ymax=0     name=sumpt2_rv_conv  xaxis=logsumpt2 yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-50     xmax=150    ymin=0   ymax=0     name=ptbal_rv_conv  xaxis=ptbal yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-1.0    xmax=1.0    ymin=0   ymax=0     name=ptasym_rv_conv  xaxis=ptasym yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-10     xmax=10     ymin=0   ymax=0     name=pulltoconv_rv_conv  xaxis=pulltoconv yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=5       ybins=0       xmin=0.0     xmax=5      ymin=0   ymax=0     name=nconv_rv_conv  xaxis=nconv yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-5.0    xmax=15     ymin=0   ymax=0     name=sumpt2in_rv_conv  xaxis=logsumpt2 yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-5.0    xmax=15     ymin=0   ymax=0     name=sumpt2out_rv_conv  xaxis=logsumpt2 yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=0.0     xmax=100    ymin=0   ymax=0     name=nchin_rv_conv  xaxis=ntracks yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-1.0    xmax=1.0    ymin=0   ymax=0     name=vtxmva_rv_conv  xaxis=vtxmva yaxis=events
+
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-5.0    xmax=15     ymin=0   ymax=0     name=sumpt2_rv_tkcone  xaxis=logsumpt2 yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-50     xmax=150    ymin=0   ymax=0     name=ptbal_rv_tkcone  xaxis=ptbal yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-1.0    xmax=1.0    ymin=0   ymax=0     name=ptasym_rv_tkcone  xaxis=ptasym yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-10     xmax=10     ymin=0   ymax=0     name=pulltoconv_rv_tkcone  xaxis=pulltoconv yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=5       ybins=0       xmin=0.0     xmax=5      ymin=0   ymax=0     name=nconv_rv_tkcone  xaxis=nconv yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-5.0    xmax=15     ymin=0   ymax=0     name=sumpt2in_rv_tkcone  xaxis=logsumpt2 yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-5.0    xmax=15     ymin=0   ymax=0     name=sumpt2out_rv_tkcone  xaxis=logsumpt2 yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=0.0     xmax=100    ymin=0   ymax=0     name=nchin_rv_tkcone  xaxis=ntracks yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-1.0    xmax=1.0    ymin=0   ymax=0     name=vtxmva_rv_tkcone  xaxis=vtxmva yaxis=events
+
+
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-5.0    xmax=15     ymin=0   ymax=0     name=sumpt2_wv  xaxis=logsumpt2 yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-50     xmax=150    ymin=0   ymax=0     name=ptbal_wv  xaxis=ptbal yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-1.0    xmax=1.0    ymin=0   ymax=0     name=ptasym_wv  xaxis=ptasym yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-10     xmax=10     ymin=0   ymax=0     name=pulltoconv_wv  xaxis=pulltoconv yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=5       ybins=0       xmin=0.0     xmax=5      ymin=0   ymax=0     name=nconv_wv  xaxis=nconv yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-5.0    xmax=15     ymin=0   ymax=0     name=sumpt2in_wv  xaxis=logsumpt2 yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-5.0    xmax=15     ymin=0   ymax=0     name=sumpt2out_wv  xaxis=logsumpt2 yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=0.0     xmax=100    ymin=0   ymax=0     name=nchin_wv  xaxis=ntracks yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-1.0    xmax=1.0    ymin=0   ymax=0     name=vtxmva_wv  xaxis=vtxmva yaxis=events
+
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-5.0    xmax=15     ymin=0   ymax=0     name=sumpt2_wv_conv  xaxis=logsumpt2 yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-50     xmax=150    ymin=0   ymax=0     name=ptbal_wv_conv  xaxis=ptbal yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-1.0    xmax=1.0    ymin=0   ymax=0     name=ptasym_wv_conv  xaxis=ptasym yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-10     xmax=10     ymin=0   ymax=0     name=pulltoconv_wv_conv  xaxis=pulltoconv yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=5       ybins=0       xmin=0.0     xmax=5      ymin=0   ymax=0     name=nconv_wv_conv  xaxis=nconv yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-5.0    xmax=15     ymin=0   ymax=0     name=sumpt2in_wv_conv  xaxis=logsumpt2 yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-5.0    xmax=15     ymin=0   ymax=0     name=sumpt2out_wv_conv  xaxis=logsumpt2 yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=0.0     xmax=100    ymin=0   ymax=0     name=nchin_wv_conv  xaxis=ntracks yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-1.0    xmax=1.0    ymin=0   ymax=0     name=vtxmva_wv_conv  xaxis=vtxmva yaxis=events
+
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-5.0    xmax=15     ymin=0   ymax=0     name=sumpt2_wv_tkcone  xaxis=logsumpt2 yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-50     xmax=150    ymin=0   ymax=0     name=ptbal_wv_tkcone  xaxis=ptbal yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-1.0    xmax=1.0    ymin=0   ymax=0     name=ptasym_wv_tkcone  xaxis=ptasym yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-10     xmax=10     ymin=0   ymax=0     name=pulltoconv_wv_tkcone  xaxis=pulltoconv yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=5       ybins=0       xmin=0.0     xmax=5      ymin=0   ymax=0     name=nconv_wv_tkcone  xaxis=nconv yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-5.0    xmax=15     ymin=0   ymax=0     name=sumpt2in_wv_tkcone  xaxis=logsumpt2 yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-5.0    xmax=15     ymin=0   ymax=0     name=sumpt2out_wv_tkcone  xaxis=logsumpt2 yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=0.0     xmax=100    ymin=0   ymax=0     name=nchin_wv_tkcone  xaxis=ntracks yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-1.0    xmax=1.0    ymin=0   ymax=0     name=vtxmva_wv_tkcone  xaxis=vtxmva yaxis=events
+
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-1.0    xmax=1.0    ymin=0   ymax=0     name=evtmva_rv  xaxis=evtmva yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-1.0    xmax=1.0    ymin=0   ymax=0     name=evtmva_rv_conv  xaxis=evtmva yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-1.0    xmax=1.0    ymin=0   ymax=0     name=evtmva_rv_tkcone  xaxis=evtmva yaxis=events
+
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-1.0    xmax=1.0    ymin=0   ymax=0     name=evtmva_wv      xaxis=evtmva yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-1.0    xmax=1.0    ymin=0   ymax=0     name=evtmva_wv_conv  xaxis=evtmva yaxis=events
+htyp=0 plot=-1  ncat=1   xbins=100     ybins=0       xmin=-1.0    xmax=1.0    ymin=0   ymax=0     name=evtmva_wv_tkcone  xaxis=evtmva yaxis=events
+
+
+

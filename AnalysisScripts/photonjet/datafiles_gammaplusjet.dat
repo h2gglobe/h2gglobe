@@ -1,0 +1,73 @@
+intL=19600. histfile=/store/cmst3/user/malberti/HIGGS/PhotonPlusJet/%(label)s/phojetanalysis.root output=eventsList.txt
+#intL=19600. histfile=gammajetanalysis.root output=shifo.root
+
+##
+##Data
+##
+
+typ=0 ind=0 draw=1  Nam=Data  tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.  CaDir=/store/group/phys_higgs/cmshgg/reduced/PhotonPlusJet//test_reduction_v1/data/Photon_Run2012A-13Jul2012-v1       json=aux/2012-onDec21.json
+typ=0 ind=0 draw=1  Nam=Data  tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.  CaDir=/store/group/phys_higgs/cmshgg/reduced/PhotonPlusJet//test_reduction_v1/data/Photon_Run2012A-recover-06Aug2012-v1      json=aux/2012-onDec21.json
+typ=0 ind=0 draw=1  Nam=Data  tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.  CaDir=/store/group/phys_higgs/cmshgg/reduced/PhotonPlusJet//test_reduction_v1/data/SinglePhoton_Run2012B-13Jul2012-v1      json=aux/2012-onDec21.json
+typ=0 ind=0 draw=1  Nam=Data  tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.  CaDir=/store/group/phys_higgs/cmshgg/reduced/PhotonPlusJet//test_reduction_v1/data/SinglePhoton_Run2012C-PromptReco-v2      json=aux/2012-onDec21.json
+typ=0 ind=0 draw=1  Nam=Data  tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.  CaDir=/store/group/phys_higgs/cmshgg/reduced/PhotonPlusJet//test_reduction_v1/data/SinglePhoton_Run2012D-PromptReco-v1      json=aux/2012-onDec21.json
+
+
+##
+##MC
+##
+#typ=+5    ind=98 draw=1  Nam=DYJetsToLL_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/PhotonPlusJet//test_reduction_v1/mc/Summer12_S10_8TeV/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1   red=0   lum=1.e10  xsec=2950.0   kfac=1.15  scal=1.
+
+#typ=+4    ind=99 draw=1  Nam=diphojet_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/PhotonPlusJet//test_reduction_v1/mc/Summer12_S10_8TeV/DiPhotonJets_8TeV-madgraph-tarball-v2_Summer12_DR53X-PU_S10_START53_V7A-v1   red=0   lum=1.e10  xsec=75.39   kfac=1.15  scal=1.
+
+#typ=+31    ind=101 draw=1  Nam=G_Pt-0to15_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/PhotonPlusJet//test_reduction_v1/mc/Summer12_S10_8TeV/G_Pt-0to15_TuneZ2star_8TeV_pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1   red=0   lum=1.e10  xsec=90601456.0   kfac=1.3  scal=1.
+#typ=+32    ind=102 draw=1  Nam=G_Pt-15to30_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/PhotonPlusJet//test_reduction_v1/mc/Summer12_S10_8TeV/G_Pt-15to30_TuneZ2star_8TeV_pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1   red=0   lum=1.e10  xsec=200061.7   kfac=1.3  scal=1.
+#typ=+33    ind=103 draw=1  Nam=G_Pt-30to50_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/PhotonPlusJet//test_reduction_v1/mc/Summer12_S10_8TeV/G_Pt-30to50_TuneZ2star_8TeV_pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1   red=0   lum=1.e10  xsec=19931.62   kfac=1.3  scal=1.
+#typ=+34    ind=104 draw=1  Nam=G_Pt-50to80_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/PhotonPlusJet//test_reduction_v1/mc/Summer12_S10_8TeV/G_Pt-50to80_TuneZ2star_8TeV_pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1   red=0   lum=1.e10  xsec=3322.309   kfac=1.3  scal=1.
+#typ=+35    ind=105 draw=1  Nam=G_Pt-80to120_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/PhotonPlusJet//test_reduction_v1/mc/Summer12_S10_8TeV/G_Pt-80to120_TuneZ2star_8TeV_pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1   red=0   lum=1.e10  xsec=558.2865   kfac=1.3  scal=1.
+#typ=+36    ind=106 draw=1  Nam=G_Pt-120to170_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/PhotonPlusJet//test_reduction_v1/mc/Summer12_S10_8TeV/G_Pt-120to170_TuneZ2star_8TeV_pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1   red=0   lum=1.e10  xsec=108.0068   kfac=1.3  scal=1.
+#typ=+37    ind=107 draw=1  Nam=G_Pt-170to300_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/PhotonPlusJet//test_reduction_v1/mc/Summer12_S10_8TeV/G_Pt-170to300_TuneZ2star_8TeV_pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1   red=0   lum=1.e10  xsec=30.12207   kfac=1.3  scal=1.
+#typ=+38    ind=108 draw=1  Nam=G_Pt-300to470_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/PhotonPlusJet//test_reduction_v1/mc/Summer12_S10_8TeV/G_Pt-300to470_TuneZ2star_8TeV_pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1   red=0   lum=1.e10  xsec=2.138632   kfac=1.3  scal=1.
+#typ=+39    ind=109 draw=1  Nam=G_Pt-470to800_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/PhotonPlusJet//test_reduction_v1/mc/Summer12_S10_8TeV/G_Pt-470to800_TuneZ2star_8TeV_pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1   red=0   lum=1.e10  xsec=0.2119244   kfac=1.3  scal=1.
+##typ=+40    ind=110 draw=1  Nam=G_Pt-800to1400_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/PhotonPlusJet//test_reduction_v1/mc/Summer12_S10_8TeV/G_Pt-800to1400_TuneZ2star_8TeV_pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1   red=0   lum=1.e10  xsec=0.007077847   kfac=1.3  scal=1.
+
+#typ=+21    ind=81 draw=1  Nam=QCD_Pt-20to30_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/PhotonPlusJet//test_reduction_v1/mc/Summer12_S10_8TeV/QCD_Pt_20_30_EMEnriched_TuneZ2star_8TeV_pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1   red=0   lum=1.e10  xsec=2914860   kfac=1.  scal=1.
+#typ=+22    ind=82 draw=1  Nam=QCD_Pt-30to80_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/PhotonPlusJet//test_reduction_v1/mc/Summer12_S10_8TeV/QCD_Pt_30_80_EMEnriched_TuneZ2star_8TeV_pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1   red=0   lum=1.e10  xsec=4.615893e+06   kfac=1.  scal=1.
+#typ=+23    ind=83 draw=1  Nam=QCD_Pt-80to170_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/PhotonPlusJet//test_reduction_v1/mc/Summer12_S10_8TeV/QCD_Pt_80_170_EMEnriched_TuneZ2star_8TeV_pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1_remoteGlidein   red=0   lum=1.e10  xsec=1.832949e+05   kfac=1.  scal=1.
+#typ=+24    ind=84 draw=1  Nam=QCD_Pt-170to250_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/PhotonPlusJet//test_reduction_v1/mc/Summer12_S10_8TeV/QCD_Pt_170_250_EMEnriched_TuneZ2star_8TeV_pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1   red=0   lum=1.e10  xsec=4.58652e+03   kfac=1.  scal=1.
+#typ=+25    ind=85 draw=1  Nam=QCD_Pt-250to350_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/PhotonPlusJet//test_reduction_v1/mc/Summer12_S10_8TeV/QCD_Pt_250_350_EMEnriched_TuneZ2star_8TeV_pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1_remoteGlidein   red=0   lum=1.e10  xsec=55.675   kfac=1.  scal=1.
+#typ=+26    ind=86 draw=1  Nam=QCD_Pt-350_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/PhotonPlusJet//test_reduction_v1/mc/Summer12_S10_8TeV/QCD_Pt_350_EMEnriched_TuneZ2star_8TeV_pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1   red=0   lum=1.e10  xsec=89.0  kfac=1.  scal=1.
+
+#typ=+11 ind=71 draw=1  Nam=WJetsToLNu_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/PhotonPlusJet//test_reduction_v1/mc/Summer12_S10_8TeV/WJetsToLNu_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v2   red=0   lum=1.e10  xsec=304000   kfac=1.45  scal=1.
+
+
+# files for local tests
+#typ=0 ind=1 draw=1  Nam=Data   Fil=root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/processed/PhotonPlusJet/V14_00_06/data/Photon_Run2012A-13Jul2012-v1/Photon_Run2012A-13Jul2012-v1_9_3_jHM.root red=0
+#typ=0 ind=1 draw=1  Nam=Data Fil=root://eoscms//eos/cms//store/group/phys_higgs/cmshgg/reduced/PhotonPlusJet/Moriond_PJetReduction/data/SinglePhoton_Run2012B-13Jul2012-v1/SinglePhoton_Run2012B-13Jul2012-v1_9.root
+#typ=+42 ind=1 draw=1  Nam=GammaJet Fil=/tmp/malberti/PhotonPlusJetMC.root  red=0 lum=1.e10 xsec=478.58 kfac=1.3  scal=1. pileup=root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v1/mc/Summer12_S10_8TeV/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1.pileup.root
+#typ=+42    ind=104 draw=1  Nam=gjet_40_8TeV_pf    Fil=root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v1/mc/Summer12_S10_8TeV/GJet_Pt40_v2_pf/GJet_Pt40_v2_pf_9.root  red=0 lum=1.e10 xsec=478.58 kfac=1.3  scal=1.
+##typ=0 ind=1 draw=1  Nam=Data   Fil=root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/reduced/PhotonPlusJet/test_reduction_v1/data/Photon_Run2012A-13Jul2012-v1/Photon_Run2012A-13Jul2012-v1_0.root  red=0
+
+#typ=+6 ind=1 draw=1  Nam=DYJetsToLL   CaDir=/store/group/phys_higgs/cmshgg/reduced/PhotonPlusJet//test_reduction_v1/mc/Summer12_S10_8TeV/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1  red=0  lum=1.0   xsec=3532.8   kfac=1.15  scal=1. pileup=root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/reduced/PhotonPlusJet//test_reduction_v1/mc/Summer12_S10_8TeV/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1.pileup.root    maxfiles=1
+
+##
+## Branches to use
+##
+#inputBranches vtxanalysis/input.dat
+#inputBranches reduction_input.dat
+inputBranches photonjet/photonplusjetvertexanalysis_input.dat
+
+
+###plotvariables jetanalysis/plotvariables.dat
+plotvariables photonjet/gammajetplotvariables.dat
+
+treevariables
+
+## define analyses to run
+## 	a library containing the class dictionary has loaded before parsing the 
+## 	configuration file
+## syntax:
+## 	analyzer <class_name> <config_file>
+## 
+## analyzer PhotonAnalysis photonanalysis.dat	
+analyzer PhotonPlusJetVertexAnalysis photonanalysis.dat analysis_settings.dat statanalysis.dat doNvtxReweighting=0 photonjet/gammajetvalidation.dat minpt=20 maxpt=9999.
+
