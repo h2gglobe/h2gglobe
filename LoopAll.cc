@@ -1366,7 +1366,11 @@ int LoopAll::ApplyCut(std::string cutname, float var, int icat) {
   return 0;
 }
 // ------------------------------------------------------------------------------------
-void LoopAll::FillTreeContainer(){	// To Be Called after each jentry
+void LoopAll::FillTreeContainer(std::string dir){	// To Be Called after each jentry
+  if( ! dir.empty() ) {
+    treeContainer[dir][current_sample_index].FillTree();
+    return;
+  }
   for (std::map<std::string, std::vector<TreeContainer> >::iterator ii = treeContainer.begin(); ii!=treeContainer.end(); ++ii) {
     (((*ii).second)[current_sample_index]).FillTree();
   }

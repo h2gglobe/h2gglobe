@@ -211,7 +211,20 @@ class LoopAll {
 	  }
   }
 
-  void FillTreeContainer();
+  template <class T> void BookExternalTreeBranch(const char * name, T* addr, const char * type, std::string dirName) {
+	  for(unsigned int ind=0; ind<treeContainer[dirName].size(); ind++) {
+		  treeContainer[dirName][ind].AddExternalBranch<T>(name,addr,type);
+	  }
+  }
+
+  template <class T> void BookExternalTreeBranch(const char * name, T* addr, int bufsize, int splitlevel, std::string dirName) {
+	  for(unsigned int ind=0; ind<treeContainer[dirName].size(); ind++) {
+		  treeContainer[dirName][ind].AddExternalBranch<T>(name,addr,bufsize,splitlevel);
+	  }
+  }
+    
+
+  void FillTreeContainer(std::string dir="");
 
   void FillTree(std::string name, float x, std::string dirName="");
   void FillTree(std::string name, double x, std::string dirName="");

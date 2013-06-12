@@ -26,15 +26,10 @@ VertexOptimizationAnalysis::~VertexOptimizationAnalysis()
 // ----------------------------------------------------------------------------------------------------
 void VertexOptimizationAnalysis::Term(LoopAll& l) 
 {
-    l.outputFile->cd();
-    uTree_->Write();
-    evTree_->Write();
-    hMinBiasSpecturm_->Write();
-    hHiggsSpecturm_->Write();
-    uTree_->SetDirectory(0);
-    evTree_->SetDirectory(0);
-    hMinBiasSpecturm_->SetDirectory(0);
-    hHiggsSpecturm_->SetDirectory(0);
+    //// hMinBiasSpecturm_->Write();
+    //// hHiggsSpecturm_->Write();
+    //// hMinBiasSpecturm_->SetDirectory(0);
+    //// hHiggsSpecturm_->SetDirectory(0);
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -42,31 +37,28 @@ void VertexOptimizationAnalysis::Init(LoopAll& l)
 {
     doSystematics = false;
 
-    TFile * mbRef = TFile::Open(minBiasRefName);
-    hMinBiasRef_ = (TH1*)mbRef->Get("minBiasSpecturm")->Clone("hMinBiasRef");
-    hMinBiasRef_->SetDirectory(0);
-    mbRef->Close();
-    
-    StatAnalysis::Init(l);
-}
-
-void VertexOptimizationAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree) 
-{
+    if( minBiasRefName != "" ) {
+	TFile * mbRef = TFile::Open(minBiasRefName);
+	hMinBiasRef_ = (TH1*)mbRef->Get("minBiasSpecturm")->Clone("hMinBiasRef");
+	hMinBiasRef_->SetDirectory(0);
+	mbRef->Close();
+    } else {
+	hMinBiasRef_ = 0;
+    }
+        
     // per vertex tree
     pho1_=0, pho2_=0, dipho_=0;
-    TDirectory * pwd = gDirectory;
-    outputTree->GetDirectory()->cd();
-    uTree_ = new TTree("vtxOptTree","Vertex optimization tree");
-    uTree_->Branch("nVert",   &nVert_   );
-    uTree_->Branch("nPU",     &nPU_     );
-    uTree_->Branch("evWeight",&evWeight_);
-    uTree_->Branch("ksprob",&ksprob_);
-    uTree_->Branch("isClosestToGen",&isClosestToGen_);
-    uTree_->Branch("passCiC",&passCiC_);
-    uTree_->Branch("pho1",&pho1_,32000,0);
-    uTree_->Branch("pho2",&pho2_,32000,0);
-    uTree_->Branch("dipho",&dipho_,32000,0);
-    uTree_->Branch("itype",&itype_);
+    l.InitTrees("vtxOpt");
+    l.BookExternalTreeBranch("nVert",   &nVert_   , "vtxOpt");
+    l.BookExternalTreeBranch("nPU",     &nPU_     , "vtxOpt");
+    l.BookExternalTreeBranch("evWeight",&evWeight_, "vtxOpt");
+    l.BookExternalTreeBranch("ksprob",&ksprob_, "vtxOpt");
+    l.BookExternalTreeBranch("isClosestToGen",&isClosestToGen_, "vtxOpt");
+    l.BookExternalTreeBranch("passCiC",&passCiC_, "vtxOpt");
+    l.BookExternalTreeBranch("pho1",&pho1_,32000,0, "vtxOpt");
+    l.BookExternalTreeBranch("pho2",&pho2_,32000,0, "vtxOpt");
+    l.BookExternalTreeBranch("dipho",&dipho_,32000,0, "vtxOpt");
+    l.BookExternalTreeBranch("itype",&itype_, "vtxOpt");
     
     vtxVarNames_.push_back("ptvtx"), vtxVarNames_.push_back("ptasym"), vtxVarNames_.push_back("ptratio"), 
 	vtxVarNames_.push_back("ptbal"), vtxVarNames_.push_back("logsumpt2"), vtxVarNames_.push_back("ptmax3"), 
@@ -76,11 +68,13 @@ void VertexOptimizationAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTre
 	vtxVarNames_.push_back("mva"); 
     vtxVars_.resize( vtxVarNames_.size() );
     for( size_t iv=0; iv<vtxVarNames_.size(); ++iv ) {
-	uTree_->Branch(vtxVarNames_[iv].c_str(),&vtxVars_[iv]);
+	l.BookExternalTreeBranch(vtxVarNames_[iv].c_str(),&vtxVars_[iv],"vtxOpt");
     }
 
     hMinBiasSpecturm_ = new TH1F("minBiasSpecturm","minBiasSpecturm;;p_{T} (GeV/c)",200,0,20);
+    hMinBiasSpecturm_->SetDirectory(0);
     hHiggsSpecturm_   = new TH1F("higgsSpecturm","higgsSpecturm;;p_{T} (GeV/c)",200,0,20);
+    hHiggsSpecturm_->SetDirectory(0); 
     
     // per event tree
     MVA_.resize(storeNVert);
@@ -88,25 +82,85 @@ void VertexOptimizationAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTre
     diphoM_.resize(storeNVert);
     diphoPt_.resize(storeNVert);
     
-    evTree_ = new TTree("vtxEvTree","Vertex per Event Tree");
-    evTree_->Branch("itype",&itype_);
-    evTree_->Branch("dZTrue",&dZTrue_);
-    evTree_->Branch("zTrue",&zTrue_);
-    evTree_->Branch("zRMS",&zRMS_);
-    evTree_->Branch("category",&category_,"category/I");
-    evTree_->Branch("mTrue",&mTrue_);
-    evTree_->Branch("mTrueVtx",&mTrueVtx_);
-    evTree_->Branch("nVert",&nVert_);
-    evTree_->Branch("evWeight",&evWeight_);
-    evTree_->Branch("nConv",&nConv_);
+    l.InitTrees("vtxEvt");
+    l.BookExternalTreeBranch("itype",&itype_, "vtxEvt");
+    l.BookExternalTreeBranch("dZTrue",&dZTrue_, "vtxEvt");
+    l.BookExternalTreeBranch("zTrue",&zTrue_, "vtxEvt");
+    l.BookExternalTreeBranch("zRMS",&zRMS_, "vtxEvt");
+    l.BookExternalTreeBranch("category",&category_,"category/I", "vtxEvt");
+    l.BookExternalTreeBranch("mTrue",&mTrue_, "vtxEvt");
+    l.BookExternalTreeBranch("mTrueVtx",&mTrueVtx_, "vtxEvt");
+    l.BookExternalTreeBranch("nVert",&nVert_, "vtxEvt");
+    l.BookExternalTreeBranch("nPU",&nPU_, "vtxEvt");
+    l.BookExternalTreeBranch("evWeight",&evWeight_, "vtxEvt");
+    l.BookExternalTreeBranch("nConv",&nConv_, "vtxEvt");
     for(int i=0;i<storeNVert; i++){
-    	evTree_->Branch(Form("MVA%d",i),&MVA_[i]);
-    	evTree_->Branch(Form("dZ%d",i),&dZ_[i]);
-	evTree_->Branch(Form("diphoM%d",i),&diphoM_[i]);
-	evTree_->Branch(Form("diphoPt%d",i),&diphoPt_[i]);
+    	l.BookExternalTreeBranch(Form("MVA%d",i),&MVA_[i], "vtxEvt");
+    	l.BookExternalTreeBranch(Form("dZ%d",i),&dZ_[i], "vtxEvt");
+	l.BookExternalTreeBranch(Form("diphoM%d",i),&diphoM_[i], "vtxEvt");
+	l.BookExternalTreeBranch(Form("diphoPt%d",i),&diphoPt_[i], "vtxEvt");
     }
     
-    pwd->cd();
+    StatAnalysis::Init(l);
+}
+
+void VertexOptimizationAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree) 
+{
+    ////// // per vertex tree
+    ////// pho1_=0, pho2_=0, dipho_=0;
+    ////// TDirectory * pwd = gDirectory;
+    ////// outputTree->GetDirectory()->cd();
+    ////// uTree_ = new TTree("vtxOptTree","Vertex optimization tree");
+    ////// uTree_->Branch("nVert",   &nVert_   );
+    ////// uTree_->Branch("nPU",     &nPU_     );
+    ////// uTree_->Branch("evWeight",&evWeight_);
+    ////// uTree_->Branch("ksprob",&ksprob_);
+    ////// uTree_->Branch("isClosestToGen",&isClosestToGen_);
+    ////// uTree_->Branch("passCiC",&passCiC_);
+    ////// uTree_->Branch("pho1",&pho1_,32000,0);
+    ////// uTree_->Branch("pho2",&pho2_,32000,0);
+    ////// uTree_->Branch("dipho",&dipho_,32000,0);
+    ////// uTree_->Branch("itype",&itype_);
+    ////// 
+    ////// vtxVarNames_.push_back("ptvtx"), vtxVarNames_.push_back("ptasym"), vtxVarNames_.push_back("ptratio"), 
+    ////// 	vtxVarNames_.push_back("ptbal"), vtxVarNames_.push_back("logsumpt2"), vtxVarNames_.push_back("ptmax3"), 
+    ////// 	vtxVarNames_.push_back("ptmax"), vtxVarNames_.push_back("nchthr"), vtxVarNames_.push_back("sumtwd"),
+    ////// 	vtxVarNames_.push_back("pulltoconv"), vtxVarNames_.push_back("limpulltoconv"), 
+    ////// 	vtxVarNames_.push_back("nch"), vtxVarNames_.push_back("nconv"), vtxVarNames_.push_back("nlegs"), 
+    ////// 	vtxVarNames_.push_back("mva"); 
+    ////// vtxVars_.resize( vtxVarNames_.size() );
+    ////// for( size_t iv=0; iv<vtxVarNames_.size(); ++iv ) {
+    ////// 	uTree_->Branch(vtxVarNames_[iv].c_str(),&vtxVars_[iv]);
+    ////// }
+    ////// 
+    ////// hMinBiasSpecturm_ = new TH1F("minBiasSpecturm","minBiasSpecturm;;p_{T} (GeV/c)",200,0,20);
+    ////// hHiggsSpecturm_   = new TH1F("higgsSpecturm","higgsSpecturm;;p_{T} (GeV/c)",200,0,20);
+    ////// 
+    ////// // per event tree
+    ////// MVA_.resize(storeNVert);
+    ////// dZ_.resize(storeNVert);
+    ////// diphoM_.resize(storeNVert);
+    ////// diphoPt_.resize(storeNVert);
+    ////// 
+    ////// evTree_ = new TTree("vtxEvTree","Vertex per Event Tree");
+    ////// evTree_->Branch("itype",&itype_);
+    ////// evTree_->Branch("dZTrue",&dZTrue_);
+    ////// evTree_->Branch("zTrue",&zTrue_);
+    ////// evTree_->Branch("zRMS",&zRMS_);
+    ////// evTree_->Branch("category",&category_,"category/I");
+    ////// evTree_->Branch("mTrue",&mTrue_);
+    ////// evTree_->Branch("mTrueVtx",&mTrueVtx_);
+    ////// evTree_->Branch("nVert",&nVert_);
+    ////// evTree_->Branch("evWeight",&evWeight_);
+    ////// evTree_->Branch("nConv",&nConv_);
+    ////// for(int i=0;i<storeNVert; i++){
+    ////// 	evTree_->Branch(Form("MVA%d",i),&MVA_[i]);
+    ////// 	evTree_->Branch(Form("dZ%d",i),&dZ_[i]);
+    ////// 	evTree_->Branch(Form("diphoM%d",i),&diphoM_[i]);
+    ////// 	evTree_->Branch(Form("diphoPt%d",i),&diphoPt_[i]);
+    ////// }
+    ////// 
+    ////// pwd->cd();
     PhotonAnalysis::ReducedOutputTree(l,0);
 }
 
@@ -130,7 +184,7 @@ bool VertexOptimizationAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float we
 
     int cur_type = l.itype[l.current];
     itype_ = cur_type;
-    float sampleweight = l.sampleContainer[l.current_sample_index].weight;
+    float sampleweight = l.sampleContainer[l.current_sample_index].weight();
     /// diphoton_id = -1;
     
     std::pair<int,int> diphoton_index;
@@ -197,8 +251,8 @@ bool VertexOptimizationAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float we
 	dipho_ = &Higgs;
 	
 	for(int vi=0; vi<l.vtx_std_n; ++vi) {
-	    TH1 * h = (TH1*)hMinBiasRef_->Clone("h");
-	    h->Reset("ICE");
+	    TH1 * h = ( hMinBiasRef_!=0 ? (TH1*)hMinBiasRef_->Clone("h") : 0);
+	    if( h ) { h->Reset("ICE"); }
 	    isClosestToGen_ = (vi == closest_id);
 	    
 	    for( size_t ivar=0; ivar<vtxVarNames_.size(); ++ivar ) {
@@ -215,13 +269,17 @@ bool VertexOptimizationAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float we
 		} else {
 		    hHiggsSpecturm_->Fill(tkp4->Pt());
 		}
-		h->Fill(tkp4->Pt());
+		if( h ) { h->Fill(tkp4->Pt()); }
 	    }
 	    
-	    ksprob_ = hMinBiasRef_->KolmogorovTest(h);
-	    delete h;
+	    if( h )  {
+		ksprob_ = hMinBiasRef_->KolmogorovTest(h);
+		delete h;
+	    } else {
+		ksprob_ = 0.;
+	    }
 	    
-	    uTree_->Fill();
+	    l.FillTreeContainer("vtxOpt");
 	}
 
 	vector<int> & rankedVtxs = (*l.vtx_std_ranked_list)[diphoton_id];
@@ -254,8 +312,8 @@ bool VertexOptimizationAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float we
 	    diphoM_[vi]= dipho.M();
 	    diphoPt_[vi]= dipho.Pt();
 	}
-	evTree_->Fill();
-	
+	l.FillTreeContainer("vtxEvt");
+		
 	
     }
     

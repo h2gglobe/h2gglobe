@@ -46,7 +46,7 @@ MainFullDicts=
 ##
 ## Subdirectories
 ##
-SubPkgs=PhotonAnalysis VertexAnalysis JetAnalysis PhotonJetAnalysis ZMuMuGammaAnalysis CategoryOptimizer
+SubPkgs=PhotonAnalysis VertexAnalysis VertexOptimization JetAnalysis PhotonJetAnalysis ZMuMuGammaAnalysis CategoryOptimizer
 SubPkgsDict=VertexAnalysis/interface/VertexAlgoParameters.h 
 SubPkgsFullDicts=CategoryOptimizer/interface/*.$(HeadSuf)
 
@@ -124,7 +124,11 @@ print:
 	@echo
 
 clean:
-	@rm -fv $(Objs) $(Deps) $(LOOPALL) *[dD]ict.* .extraTags
+	@rm -fv $(Objs) $(Deps) $(LOOPALL) *[dD]ict.*
+
+deepclean:
+	@make clean
+	@rm .extraTags
 
 .extraTags: extraTags
 	@echo "Getting extra tags"
