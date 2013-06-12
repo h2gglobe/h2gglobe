@@ -103,7 +103,7 @@ class CategoryOptimizer
 {
 public:
 	CategoryOptimizer( ROOT::Math::Minimizer * minimizer, int ndim) : 
-		minimizer_(minimizer), ndim_(ndim), strategy_(1),
+		minimizer_(minimizer), ndim_(ndim), strategy_(2),
 		addConstraint_(false), telescopicBoundaries_(true), floatFirst_(false), 
 		refitLast_(false), transformations_(0), inv_transformations_(0), dimnames_(ndim_) {};
 	

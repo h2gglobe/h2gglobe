@@ -70,7 +70,7 @@ public:
 				RooRealVar * x, 
 				TH1 * pdf, TH1 * var, TH1 * var2, 
 				double norm, double min,  double max) :
-		norm_(norm),
+		ndim_(1),norm_(norm),
 		pdf_(pdf), hsparse_(0),
 		converterN_(new HistoToTF1(Form("%s_integrator",pdf->GetName()),integrate1D(pdf))),
 		converterX_(new HistoToTF1(Form("%s_integrator",var->GetName()),integrate1D(var,false))),
@@ -84,7 +84,7 @@ public:
 				TH2 * pdf, TH2 * var, TH2 *var2, 
 				double norm, double xmin, double xmax, 
 				double ymin, double ymax)  : 
-		norm_(norm),
+		ndim_(2),norm_(norm),
 		pdf_(pdf), hsparse_(0),
 		converterN_(new SimpleHistoToTF2(Form("%s_integrator",pdf->GetName()),integrate2D(pdf))),
 		converterX_(new SimpleHistoToTF2(Form("%s_integrator",var->GetName()),integrate2D(var,false))),
@@ -95,7 +95,7 @@ public:
 	};
 
 	SecondOrderModelBuilder(AbsModel::type_t type, std::string name, RooRealVar * x, 
-				TTree * tree, const RooArgList * varlist,
+				TTree * tree, const RooArgList * varlist, const RooArgList * sellist,
 				const char * weightBr);
 
 	~SecondOrderModelBuilder() {
@@ -120,13 +120,20 @@ public:
 		model_.buildPdfs();
 	};
 
+	void setOrthoCuts(double * cuts) { std::copy(cuts,cuts+selectionCuts_.size(),selectionCuts_.begin()); };
+	
 	void addBoundary(double * boundaries) {
-		double integral = (*converterN_)(boundaries,0);
-		double sumX     = (*converterX_)(boundaries,0);
-		double sumX2    = (*converterX2_)(boundaries,0);
+		std::vector<double> extboundaries(ndim_+selectionCuts_.size());
+		std::copy(boundaries,boundaries+ndim_,extboundaries.begin());
+		std::copy(selectionCuts_.begin(),selectionCuts_.end(),extboundaries.begin()+ndim_);
+		double integral = (*converterN_)(&extboundaries[0],0);
+		double sumX     = (*converterX_)(&extboundaries[0],0);
+		double sumX2    = (*converterX2_)(&extboundaries[0],0);
 		double norm     = norm_*(integral-lastIntegral_); 
 		double mean     = (sumX - lastSumX_)/norm;
 		double rms      = (sumX2 - lastSumX2_)/norm;
+		///// std::copy( extboundaries.begin(), extboundaries.end(), std::ostream_iterator<double>(std::cout, ",") );
+		///// std::cout << " " << integral << std::endl;
 		if( mean*mean - rms > 0. ) {
 			rms = sqrt( mean*mean - rms );
 		} else {
@@ -154,8 +161,10 @@ public:
 	
 private:
 	SecondOrderModel model_;
+	int ndim_;
 	double norm_, lastIntegral_, lastSumX_, lastSumX2_;
 	std::vector<std::pair<double,double> > ranges_;
+	std::vector<double> selectionCuts_;
 	
 	TH1 * pdf_;
 	THnSparse * hsparse_;
@@ -167,9 +176,9 @@ private:
 class SimpleShapeFomProvider : public AbsFomProvider 
 {
 public:
-	SimpleShapeFomProvider(RooRealVar *poi=0, int ncpu=4, const char * minimizer="Minuit2", 
+	SimpleShapeFomProvider(int nSubcats=1,RooRealVar *poi=0, int ncpu=4, const char * minimizer="Minuit2", 
 			       int minStrategy=2) : 
-		ncpu_(ncpu), minimizer_(minimizer),minStrategy_(minStrategy), useRooSimultaneous_(false)
+		ncpu_(ncpu), nSubcats_(nSubcats), minimizer_(minimizer),minStrategy_(minStrategy), useRooSimultaneous_(false)
 		{ 
 			if( poi ) { addPOI(poi); }
 			assert(minStrategy_<3); 
@@ -182,10 +191,11 @@ public:
 	void minStrategy(int x) { minStrategy_=x; };
 	void minimizer(const char * x) { minimizer_=x; };
 	void useRooSimultaneous(bool x=true) { useRooSimultaneous_=x; };
-	
+	void nSubcats(int x) { nSubcats_ = x; };
 	
 private:
 	int ncpu_;
+	int nSubcats_;
 	std::vector<RooRealVar *> pois_;
 	std::vector<RooRealVar *> resets_;
 	std::string minimizer_;

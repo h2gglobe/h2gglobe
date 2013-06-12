@@ -268,6 +268,7 @@ double CategoryOptimizer::optimizeNCat(int ncat, const double * cutoffs, bool dr
 	///// }
 	
 	// Call to the minimization
+	minimizer_->SetStrategy(strategy_);
 	minimizer_->PrintResults();
 	minimizer_->SetStrategy(strategy_);
 	if( ! dryrun ) {
@@ -327,6 +328,24 @@ double CategoryOptimizer::optimizeNCat(int ncat, const double * cutoffs, bool dr
 	}
 	
 	return best;
+}
+
+// ---------------------------------------------------------------------------------------------
+void CategoryOptimizer::addFloatingOrthoCut(const char * name, double val, double step, double min, double max)
+{
+	orthocuts_.push_back(std::make_pair(name,std::vector<double>(4)));
+	orthocuts_.back().second[0] = val;
+	orthocuts_.back().second[1] = step;
+	orthocuts_.back().second[2] = min;
+	orthocuts_.back().second[3] = max;
+	
+}
+
+// ---------------------------------------------------------------------------------------------
+void CategoryOptimizer::addFixedOrthoCut(const char * name, double val)
+{
+	orthocuts_.push_back(std::make_pair(name,std::vector<double>(1)));
+	orthocuts_.back().second[0] = val;
 }
 
 // ---------------------------------------------------------------------------------------------

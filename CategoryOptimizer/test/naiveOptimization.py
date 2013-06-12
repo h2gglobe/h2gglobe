@@ -415,7 +415,7 @@ def main(fin=None):
     if fin:
         fin = ROOT.TFile.Open(fname)
     ROOT.gSystem.SetIncludePath("-I$ROOTSYS/include -I$ROOFITSYS/include")
-    ROOT.gSystem.Load("../../libLoopAll.so")
+    ROOT.gSystem.Load("../../libLoopAll")
 
     ROOT.gStyle.SetOptStat(0)
 

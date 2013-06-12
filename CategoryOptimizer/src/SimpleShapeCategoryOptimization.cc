@@ -134,12 +134,16 @@ TTree* toTree(const THnSparse* h, const THnSparse *hX, const THnSparse *hX2)
 
 
 // ------------------------------------------------------------------------------------------------
-SecondOrderModelBuilder::SecondOrderModelBuilder(AbsModel::type_t type, std::string name, RooRealVar * x, 
-						 TTree * tree, const RooArgList * varlist,
+SecondOrderModelBuilder::SecondOrderModelBuilder(AbsModel::type_t type, 
+						 std::string name, RooRealVar * x, 
+						 TTree * tree, 
+						 const RooArgList * varlist, 
+						 const RooArgList * sellist,
 						 const char * weightBr)
-	: model_(name,x,type)
+	: ndim_(varlist->getSize()), model_(name,x,type)
 {
 	RooArgList exvarlist(*varlist);
+	exvarlist.add(*sellist);
 	exvarlist.add(*x);
 	int nvar = exvarlist.getSize();
 	std::vector<TString> names(nvar);
@@ -149,6 +153,7 @@ SecondOrderModelBuilder::SecondOrderModelBuilder(AbsModel::type_t type, std::str
 	std::vector<TTreeFormula *> formulas(nvar);
 	std::vector<int> nm1(nvar-1);
 	TTreeFormula * weight = (weightBr != 0 ? new TTreeFormula(weightBr,weightBr,tree) : 0);
+	selectionCuts_.resize(sellist->getSize(),-1.);
 	
 	for(int ivar=0; ivar<nvar; ++ivar) {
 		RooRealVar & var = dynamic_cast<RooRealVar &>(exvarlist[ivar]);
@@ -162,6 +167,7 @@ SecondOrderModelBuilder::SecondOrderModelBuilder(AbsModel::type_t type, std::str
 			ranges_.push_back(std::make_pair(xmin[ivar],xmax[ivar]));
 		}
 	}
+	
 
 	hsparse_ = new THnSparseT<TArrayF>(Form("hsparse_%s",name.c_str()),
 					   Form("hsparse_%s",name.c_str()),
@@ -192,7 +198,9 @@ SecondOrderModelBuilder::SecondOrderModelBuilder(AbsModel::type_t type, std::str
 
 	makeSecondOrder( hsparse_, hsparseN, hsparseX, hsparseX2 );
 	
-	converterN_  = new SparseIntegrator(hsparseN,1./norm_);
+	SparseIntegrator * integ = new SparseIntegrator(hsparseN,1./norm_);
+	//// integ->print(std::cout);
+	converterN_  = integ;
 	converterX_  = new SparseIntegrator(hsparseX);
 	converterX2_ = new SparseIntegrator(hsparseX2);
 }
@@ -411,6 +419,9 @@ void appendData(RooDataHist & dest, RooDataHist &src)
 // ------------------------------------------------------------------------------------------------
 double SimpleShapeFomProvider::operator() ( std::vector<AbsModel *> sig, std::vector<AbsModel *> bkg) const
 {
+	assert(sig.size() % nSubcats_ == 0);
+	assert(bkg.size() % nSubcats_ == 0);
+
 	static std::vector<RooDataHist> asimovs;
 	static std::vector<RooAddPdf> pdfs;
 
@@ -425,46 +436,54 @@ double SimpleShapeFomProvider::operator() ( std::vector<AbsModel *> sig, std::ve
 	int ncat = sig[0]->getNcat();
 	
 	RooCategory roocat("SimpleShapeFomCat","");
-	std::map<std::string,RooAbsData*> catData;
+	std::vector<std::pair<std::string,RooAbsData*> >catData;
 	std::vector<RooRealVar *> normsToFix;
 	
 	/// WARNING: assuming that signal and background pdfs objects don't change for a given category
-	for(int icat=0; icat<ncat; ++icat) {
-		if( icat >= asimovs.size() ) {
-			asimovs.push_back(RooDataHist(Form("asimovhist_%d",icat),"",*(sig[0]->getX())) );
+	for(int icat=0.; icat<ncat; ++icat) {
+		if( nSubcats_*icat >= asimovs.size() ) {
+			for(int iSubcat = 0; iSubcat < nSubcats_; iSubcat++){
+				asimovs.push_back(RooDataHist(Form("asimovhist_%d_%d",icat,iSubcat),"",*(sig[0]->getX())) );
+			}
 		}
 		
 		bool buildPdf = ( icat >= pdfs.size() );
-		RooArgList lpdfs, bpdfs;
+		std::vector<RooArgList> lpdfs(nSubcats_), bpdfs(nSubcats_);
 		
-		double ntot = 0.;
-		std::vector<double> yields;
-		for(std::vector<AbsModel *>::const_iterator isig = sig.begin(); isig!=sig.end(); ++isig) {
-			ntot += (*isig)->getCategoryYield(icat);
-			/// std::cout << (*isig)->getCategoryPdf(icat)->expectedEvents(0) 
-			///  	  << " " << (*isig)->getCategoryYield(icat) << std::endl;
+		std::vector<double> ntot(nSubcats_, 0.);
+
+		for(size_t iSig = 0; iSig < sig.size(); iSig++){
+			size_t iSubcat = iSig % nSubcats_;
+			ntot[iSubcat] += sig[iSig]->getCategoryYield(icat);
+			//// std::cout << isig[iSig]->getCategoryPdf(icat)->expectedEvents(0) 
+			//// 	  << " " << isig[iSig]->getCategoryYield(icat) << std::endl;
 			if( buildPdf ) {
-				lpdfs.add( *((*isig)->getCategoryPdf(icat)) ); 
+				lpdfs[iSubcat].add( *(sig[iSig]->getCategoryPdf(icat)) ); 
 			}
 		}
-		for(std::vector<AbsModel *>::const_iterator ibkg = bkg.begin(); ibkg!=bkg.end(); ++ibkg) {
-			ntot += (*ibkg)->getCategoryYield(icat);
-			/// std::cout << (*ibkg)->getCategoryPdf(icat)->expectedEvents(0) 
-			///  	  << " " << (*ibkg)->getCategoryYield(icat) << std::endl;
+		for(size_t iBkg = 0; iBkg < bkg.size(); iBkg++){
+			size_t iSubcat = iBkg % nSubcats_;
+			ntot[iSubcat] += bkg[iBkg]->getCategoryYield(icat);
+			//// std::cout << ibkg[iBkg]->getCategoryPdf(icat)->expectedEvents(0) 
+			//// 	  << " " << ibkg[iBkg]->getCategoryYield(icat) << std::endl;
 			if( buildPdf ) {
-				lpdfs.add( *((*ibkg)->getCategoryPdf(icat)) ); 
+				lpdfs[iSubcat].add( *(bkg[iBkg]->getCategoryPdf(icat)) ); 
 			}
 		}
 		
 		if( buildPdf ) {
-			pdfs.push_back(RooAddPdf(Form("sbpdf_%d",icat),"",lpdfs));
+			for(int iSubcat = 0; iSubcat < nSubcats_; iSubcat++){
+				pdfs.push_back(RooAddPdf(Form("sbpdf_%d_%d",icat,iSubcat),"",lpdfs[iSubcat]));
+			}
 		}
-		
-		//// std::cout << Form("cat_%d",icat) << std::endl;
-		assert( ! roocat.defineType(Form("cat_%d",icat)) );
-		throwAsimov( ntot, &asimovs[icat], &pdfs[icat], sig[0]->getX());
-		
-		/// catData[Form("cat_%d",icat)] = &asimovs[icat];
+
+		for(int iSubcat = 0; iSubcat < nSubcats_; iSubcat++){
+			throwAsimov( ntot[nSubcats_*icat+iSubcat], &asimovs[nSubcats_*icat+iSubcat], &pdfs[nSubcats_*icat+iSubcat], sig[0]->getX() );
+			roocat.defineType(Form("cat_%d_%d",icat,iSubcat));
+			//// roosim.addPdf( pdfs[nSubCats_*icat+iSubcat], Form("cat_%d_%d",icat,iSubcat) );
+			
+			catData.push_back(std::make_pair(Form("cat_%d_%d",icat,iSubcat),&asimovs[nSubcats_*icat+iSubcat]));
+		}
 	}
 	
 	RooAbsReal * nll;
@@ -478,20 +497,16 @@ double SimpleShapeFomProvider::operator() ( std::vector<AbsModel *> sig, std::ve
 		/// RooDataSet * combData = new RooDataSet("combData","combData",RooArgList(*(sig[0]->getX()),roocat,*weight),"weight");
 		RooDataHist * combData = new RooDataHist("combData","combData",RooArgList(*(sig[0]->getX()),roocat));
 		garbageData.push_back(combData);
-		for(int icat=0; icat<ncat; ++icat) {
-			roocat.setLabel(Form("cat_%d",icat));
-			//// roocat.Print();
-			appendData( *combData, asimovs[icat] );
-			//// std::cout << pdfs[icat].expectedEvents(0) << std::endl; 
-			roosim->addPdf( pdfs[icat], Form("cat_%d",icat) );
+		for(int icat=0; icat<catData.size(); ++icat) {
+			roocat.setLabel(catData[icat].first.c_str());
+			appendData( *combData, *((RooDataHist*)catData[icat].second));
+			roosim->addPdf( pdfs[icat], catData[icat].first.c_str() );
+			nll = roosim->createNLL( *combData, RooFit::Extended(), RooFit::NumCPU(ncpu_) );
+			garbageColl.push_back(nll);
 		}
-		
-	
-		nll = roosim->createNLL( *combData, RooFit::Extended(), RooFit::NumCPU(ncpu_) );
-		garbageColl.push_back(nll);
 	} else { 
 		RooArgSet nlls;
-		for(int icat=0; icat<ncat; ++icat) {
+		for(size_t icat=0; icat<pdfs.size(); ++icat) {
 			RooAbsReal *inll = pdfs[icat].createNLL( asimovs[icat], RooFit::Extended() );
 			nlls.add(*inll);
 			garbageColl.push_back(inll);
@@ -517,10 +532,14 @@ double SimpleShapeFomProvider::operator() ( std::vector<AbsModel *> sig, std::ve
 	std::vector<RooPlot *> frames;
 	if( debug_ ) {
 		for(int icat=0; icat<ncat; ++icat) {
-			RooPlot* frame = sig[0]->getX()->frame(RooFit::Title(Form("Category %d/%d",icat,ncat)));
-			asimovs[icat].plotOn(frame);
-			pdfs[icat].plotOn(frame);
-			frames.push_back(frame);
+			for(int iSubcat = 0; iSubcat < nSubcats_; iSubcat++){
+				RooPlot* frame = sig[0]->getX()->frame(RooFit::Title(Form("Category (%d,%d)/%d",iSubcat,icat,ncat)));
+				/// combData.plotOn(frame,RooFit::Cut(Form("SimpleShapeFomCat==SimpleShapeFomCat::cat_%d",icat)));
+				asimovs[nSubcats_*icat+iSubcat].plotOn(frame);
+				// roosim.plotOn(frame,RooFit::Slice(roocat,Form("cat_%d",icat)),RooFit::ProjWData(roocat,combData));
+				pdfs[nSubcats_*icat+iSubcat].plotOn(frame);
+				frames.push_back(frame);
+			}
 		}
 	}
 	
@@ -549,12 +568,14 @@ double SimpleShapeFomProvider::operator() ( std::vector<AbsModel *> sig, std::ve
 	
 	if( debug_ ) {
 		for(int icat=0; icat<ncat; ++icat) {
-			RooPlot* frame = frames[icat];
-			pdfs[icat].plotOn(frame,RooFit::LineColor(kRed));
-			TCanvas * canvas = new TCanvas(Form("cat_%d_%d",ncat,icat),Form("cat_%d_%d",ncat,icat));
-			canvas->cd();
-			frame->Draw();
-			canvas->SaveAs(Form("cat_%d_%d.png",ncat,icat));
+			for(int iSubcat = 0; iSubcat < nSubcats_; iSubcat++){
+				RooPlot* frame = frames[nSubcats_*icat+iSubcat];
+				pdfs[nSubcats_*icat+iSubcat].plotOn(frame,RooFit::LineColor(kRed));
+				TCanvas * canvas = new TCanvas(Form("cat_%d_%d_%d",ncat,icat,iSubcat),Form("cat_%d_%d_%d",ncat,icat,iSubcat));
+				canvas->cd();
+				frame->Draw();
+				canvas->SaveAs(Form("cat_%d_%d_%d.png",ncat,icat,iSubcat));
+			}
 		}
 	}
 

@@ -295,7 +295,7 @@ public:
 	};
 
 	void addChild(IntegrationNode * node) { 
-		children_.push_back(node);
+		//// children_.push_back(node);
 		sum_ += node->weight_;
 	};
 	
