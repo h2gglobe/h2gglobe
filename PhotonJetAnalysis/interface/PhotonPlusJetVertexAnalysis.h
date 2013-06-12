@@ -45,6 +45,11 @@ class PhotonPlusJetVertexAnalysis : public StatAnalysis
 		      BaseGenLevelSmearer *genSys=0, BaseSmearer *phoSys=0, BaseDiPhotonSmearer * diPhoSys=0); 
 
     void fillControlPlots( LoopAll & l, TLorentzVector photon, TLorentzVector jet, HggVertexAnalyzer vtxAna_, int phoind, float evweight);
+    
+    std::vector<double> nVtxWeight;
+    bool doNvtxReweighting;
+    double minpt;
+    double maxpt;
 
  private:   
 

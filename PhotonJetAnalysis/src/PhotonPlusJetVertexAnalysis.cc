@@ -8,6 +8,11 @@ using namespace std;
 PhotonPlusJetVertexAnalysis::PhotonPlusJetVertexAnalysis()  
 {
     name_ = "PhotonPlusJetVertexAnalysis";
+
+    doSystematics = false;
+    doNvtxReweighting = false;
+    minpt = 0.;
+    maxpt = 9999.;
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -24,7 +29,6 @@ void PhotonPlusJetVertexAnalysis::Term(LoopAll& l)
 // ----------------------------------------------------------------------------------------------------
 void PhotonPlusJetVertexAnalysis::Init(LoopAll& l) 
 {  
-  doSystematics = false;
   StatAnalysis::Init(l);
 }
 
@@ -116,12 +120,27 @@ bool PhotonPlusJetVertexAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float w
 
   vtxAna_.setPairID(maxphoind);
 
+  if (vtxAna_.diphopt(l.vtx_std_sel) < minpt || vtxAna_.diphopt(l.vtx_std_sel) > maxpt) 
+    return false;
+
+
   // now fill the histograms 
   genLevWeight=1.;
+
   if(cur_type!=0 ) {
     applyGenLevelSmearings(genLevWeight,gP4,l.pu_n,cur_type,genSys,syst_shift);
   }
+  
   evweight  = weight * smeared_pho_weight[maxphoind] * genLevWeight;  
+ 
+  // re-weight nreco vertex
+  if( cur_type != 0 && doNvtxReweighting ) {
+    if (l.vtx_std_n < nVtxWeight.size()){
+      //cout << nVtxWeight[l.vtx_std_n] <<endl;
+      evweight *= nVtxWeight[l.vtx_std_n];
+    }
+  }
+  
   fillControlPlots(l,photon,MaxJetP4,vtxAna_,maxphoind,evweight);
 
   return true;
@@ -233,26 +252,31 @@ void PhotonPlusJetVertexAnalysis::fillControlPlots( LoopAll & l, TLorentzVector 
     l.FillHist("photon_pt_conv" , 0 , photon.Pt(),  evweight);
     l.FillHist("photon_eta_conv", 0 , photon.Eta(), evweight);
     l.FillHist("pt_conv", 0 , (photon+jet).Pt(), evweight);
+    l.FillHist("nvtx_conv", 0 , l.vtx_std_n, evweight);
   }
   if (vtxAna_.nconv(chosenvtx) == 0 && vtxAna_.nchpho1(chosenvtx) > 0 ) {
     l.FillHist("photon_pt_tkcone" , 0 , photon.Pt(),  evweight);
     l.FillHist("photon_eta_tkcone", 0 , photon.Eta(), evweight);
     l.FillHist("pt_tkcone", 0 , (photon+jet).Pt(), evweight);
+    l.FillHist("nvtx_tkcone", 0 , l.vtx_std_n, evweight);
   }
 
   if (dz < 1.) {
     //all
     l.FillHist("evtmva_rv", 0 , l.vtx_std_evt_mva->at(phoindex), evweight);
     l.FillHist("pt_rv", 0 , (photon+jet).Pt(), evweight);
+    l.FillHist("nvtx_rv", 0 , l.vtx_std_n, evweight);
     // one good conversion
     if ( vtxAna_.nconv(chosenvtx) > 0 ){
       l.FillHist("evtmva_rv_conv", 0 , l.vtx_std_evt_mva->at(phoindex), evweight);
       l.FillHist("pt_rv_conv", 0 , (photon+jet).Pt(), evweight);
+      l.FillHist("nvtx_rv_conv", 0 , l.vtx_std_n, evweight);
     }
     // no good conversion but tk in a cone 0.05 around the photon direction
     else if (vtxAna_.nchpho1(chosenvtx) > 0){
       l.FillHist("evtmva_rv_tkcone", 0 , l.vtx_std_evt_mva->at(phoindex), evweight);
       l.FillHist("pt_rv_tkcone", 0 , (photon+jet).Pt(), evweight);
+      l.FillHist("nvtx_rv_tkcone", 0 , l.vtx_std_n, evweight);
     }      
   }
   else{
