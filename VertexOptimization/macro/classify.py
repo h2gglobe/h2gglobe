@@ -5,15 +5,6 @@
 from optparse import OptionParser, make_option
 import fnmatch, glob, os, sys, json, itertools
 
-def mkReader(chain,redo=False,name="ntuple_reader"):
-    from ROOT import gROOT
-    if not os.path.isfile("%s.C" % name) or redo:
-        chain.MakeClass(name)
-    gROOT.LoadMacro("%s.C+" % name)
-    
-    import ROOT
-    return getattr(ROOT,name)(chain)
-
 ## ------------------------------------------------------------------------------------------------------------------------------------------------------
 def mkChain(files, name="vtxOptTree"):
     from ROOT import TChain
@@ -50,9 +41,12 @@ def main(o,args):
 
     # Output file
     outputFile = TFile( o.outfile % { "label" : o.label }, 'RECREATE' )
-    
+
+    atype="Classification"
+    if hasattr(o,"type"):
+        atype=str(o.type)
     factory = TMVA.Factory( "TMVAClassification", outputFile, 
-                            "!V:!Silent:!Color:!DrawProgressBar:Transformations=I:AnalysisType=Classification" )
+                            "!V:!Silent:!Color:!DrawProgressBar:Transformations=I:AnalysisType=%s" % atype )
 
     # Set verbosity
     factory.SetVerbose( o.verbose )
@@ -64,15 +58,15 @@ def main(o,args):
         o.variables = [ v.lstrip().rstrip() for v in o.variables.split(":") if v != "" ]
     allvars = ""
     for v in o.variables:
-        factory.AddVariable( str(v),   str(v), "" )
+        factory.AddVariable( str(v) )
         if allvars != "": allvars += ":"
-        allvars += v
+        allvars += v.split(":=")[0].lstrip(" ").rstrip(" ")
     print "variables %s" % allvars
 
     print o.spectators
     for s in o.spectators:
         if not s in o.variables:
-            factory.AddSpectator( str(s),   str(s), "" )
+            factory.AddSpectator( str(s) )
 
     # categories and sub categories   
     categories = []
@@ -102,42 +96,32 @@ def main(o,args):
             categories.append( (TCut(cut),str(name),vars) )
 
     # load tree
-    background = mkChain(getListOfFiles(o.indir,o.filePattern), o.treename)
-    signal = background
-    
-    # Global event weights (see below for setting event-wise weights)
-    signalWeight     = 1.0
-    backgroundWeight = 1.0
-
-    factory.AddSignalTree( signal, signalWeight )
-    factory.AddBackgroundTree( background, backgroundWeight )
-
-    # sig and bkg definition
-    mycutSig = TCut( o.sigcut ) 
-    mycutBkg = TCut( o.bkgcut ) 
-
-    # weights
-    if hasattr(o,"sigwei"):
-        print "reweighing signal"
-        factory.AddSpectator( str("sigwei := %s" % o.sigwei) )
-        factory.SetSignalWeightExpression    (str(o.sigwei))
-    else:
-        factory.SetSignalWeightExpression    ("1.")
-    if hasattr(o,"bkgwei"):
-        print "reweighing background"
-        factory.AddSpectator( str("bkgwei := %s" % o.bkgwei) )
-        factory.SetBackgroundWeightExpression    (str(o.bkgwei))
-    else:
-        factory.SetBackgroundWeightExpression    ("1.")
+    selection = TCut(o.selection)
+    for evclass,info in o.classes.iteritems():
+        samples = info["samples"]
+        for name,weight,cut,ttype in samples:
+            tcut=TCut(cut)*selection
+            factory.AddTree( mkChain(getListOfFiles(o.indir,o.files), name), str(evclass), float(weight), tcut, int(ttype) )
+        # weights
+        if "weight" in info:
+            weight = info["weight"]
+            factory.AddSpectator( str("%s_wei := %s" % (evclass,weight)) )
+            factory.SetWeightExpression( str(weight), str(evclass) )
+        else:
+            factory.SetWeightExpression( "1.", str(evclass) )
 
     # "SplitMode=Random" means that the input events are randomly shuffled before
     # splitting them into training and test samples
-    factory.PrepareTrainingAndTestTree( mycutSig, mycutBkg,
-                                        "nTrain_Signal=0:nTrain_Background=0"
-                                        ":NormMode=NumEvents:!V" )
+    factory.PrepareTrainingAndTestTree( TCut(""),
+                                        "SplitMode=Random:NormMode=NumEvents:!V" )
     
     # --------------------------------------------------------------------------------------------------
     # Fisher discriminant (same as LD)
+    defaultSettings = { "BDT" :  "!H:!V:!CreateMVAPdfs:BoostType=Grad:UseBaggedGrad"
+                                 ":GradBaggingFraction=0.6:SeparationType=GiniIndex:nCuts=20:NNodesMax=5"
+                                 ":Shrinkage=0.3:NTrees=1000",
+                        "Cuts" : "!H:!V:FitMethod=MC:EffSel:SampleSize=200000:VarProp=FSmart"
+                        }
     if "FisherD" in o.methods:
         mname =  "FisherD%s" % o.label
         fcats = factory.BookMethod( TMVA.Types.kCategory, mname )
@@ -183,25 +167,35 @@ def main(o,args):
                             )
 
     if "BDT" in o.methods:
-        mname =  "BDT%s" % o.label 
+        mname =  "BDT%s" % o.label
+        settings = defaultSettings["BDT"]
+        if hasattr(o,"settings") and "BDT" in o.settings:
+            settings = str(o.settings["BDT"])
         if len(categories) == 0:
-            cats = factory.BookMethod(TMVA.Types.kBDT,mname,
-                                      "!H:!V:!CreateMVAPdfs:BoostType=Grad:UseBaggedGrad"
-                                      ":GradBaggingFraction=0.6:SeparationType=GiniIndex:nCuts=20:NNodesMax=5"
-                                      ":Shrinkage=0.3:NTrees=1000"
-                                      )
+            cats = factory.BookMethod(TMVA.Types.kBDT,mname,settings)
         else:
             cats = factory.BookMethod( TMVA.Types.kCategory, mname)
             
             for cut,name,vars in categories:
                 print "booking sub-category classifier : %s %s %s" % ( cut, name, vars )
                 cats.AddMethod(cut,
-                               vars,TMVA.Types.kBDT,"%s_%s" % (mname,name),
-                               "!H:!V:!CreateMVAPdfs:BoostType=Grad:UseBaggedGrad"
-                               ":GradBaggingFraction=0.6:SeparationType=GiniIndex:nCuts=20:NNodesMax=5"
-                               ":Shrinkage=0.3:NTrees=1000"
-                               )
-    
+                               vars,TMVA.Types.kBDT,"%s_%s" % (mname,name),settings)
+
+    if "Cuts" in o.methods:
+        mname =  "Cuts%s" % o.label
+        settings = defaultSettings["Cuts"]
+        if hasattr(o,"settings") and "Cuts" in o.settings:
+            settings = str(o.settings["Cuts"])
+        if len(categories) == 0:
+            cats = factory.BookMethod(TMVA.Types.kCuts,mname,settings)
+        else:
+            cats = factory.BookMethod( TMVA.Types.kCategory, mname)
+            
+            for cut,name,vars in categories:
+                print "booking sub-category classifier : %s %s %s" % ( cut, name, vars )
+                cats.AddMethod(cut,
+                               vars,TMVA.Types.kCuts,"%s_%s" % (mname,name),settings)
+            
     # ---- Now you can tell the factory to train, test, and evaluate the MVAs.
     if o.optimize:
         print "Optimizing?"
@@ -223,7 +217,7 @@ if __name__ == "__main__":
                         help="input directory", metavar="DIR"
                         ),
             make_option("-f", "--files",
-                        action="store", type="string", dest="filePattern",
+                        action="store", type="string", dest="files",
                         default="vtxOptReduction.root",
                         help="pattern of files to be read", metavar="PATTERN"
                         ), 
@@ -269,5 +263,6 @@ if __name__ == "__main__":
 
     (options, args) = parser.parse_args()
     getTMVASettings(options.tmvaSettings, options)
-        
+
+    sys.argv.append("-b")
     main(options, args)

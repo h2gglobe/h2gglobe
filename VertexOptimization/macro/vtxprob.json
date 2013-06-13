@@ -1,0 +1,39 @@
+{ 
+  "methods"    : [ "BDT" ],
+
+  "variables"  : [ "diphoPt0", "nVert", "MVA0", 
+	"MVA1", "dZ1", "MVA2", "dZ2", 
+	"nConv"  ],
+  "spectators" : [ "diphoM0", "diphoM1", "diphoM2", "diphoM3", "diphoM4", "diphoM5", "diphoM6", 
+	"mTrue", "mTrueVtx", "category", "dZTrue"],
+
+  "categories" : [ 
+                 ],
+
+  "subcategories" : [ 
+        ],
+
+  "selection" : "1",
+  "classes" : { 
+	  "Signal" : { 
+		"samples" : [
+                   ["vtxEvt/ggh_m125_8TeV",1,"abs(dZTrue)>1. && Entry$ % 2 == 0",0],
+	           ["vtxEvt/ggh_m125_8TeV",1,"abs(dZTrue)>1. && Entry$ % 2 == 1",1],
+                   ["vtxEvt/vbf_m125_8TeV",1,"abs(dZTrue)>1. && Entry$ % 2 == 0",0],
+	           ["vtxEvt/vbf_m125_8TeV",1,"abs(dZTrue)>1. && Entry$ % 2 == 1",1]
+	        ],
+		"weight" : "evWeight"
+		},
+	  "Background" : { 
+		"samples" : [
+                   ["vtxEvt/ggh_m125_8TeV",1,"abs(dZTrue)<=1. && Entry$ % 2 == 0",0],
+	           ["vtxEvt/ggh_m125_8TeV",1,"abs(dZTrue)<=1. && Entry$ % 2 == 1",1],
+                   ["vtxEvt/vbf_m125_8TeV",1,"abs(dZTrue)<=1. && Entry$ % 2 == 0",0],
+	           ["vtxEvt/vbf_m125_8TeV",1,"abs(dZTrue)<=1. && Entry$ % 2 == 1",1]
+	        ],
+		"weight" : "evWeight"
+		}
+	},
+
+	"label" : "VtxProb"
+}

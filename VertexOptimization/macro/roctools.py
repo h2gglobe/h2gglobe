@@ -63,4 +63,12 @@ class ROCIntegrator:
             self.rocs[order] = roc
             return roc
 
-
+    def getGraph(self,begin,end):
+        gr = TGraph()
+        gr.SetName( "eff_%s" %self.name )
+        for i in range(begin,end):
+            roc = self.getRoc(i)
+            gr.SetPoint( gr.GetN(), i, roc.Integral() )
+            
+        return gr
+        
