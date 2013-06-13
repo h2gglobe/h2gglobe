@@ -4,10 +4,9 @@
 from optparse import OptionParser, make_option
 import fnmatch, glob, os, sys, json, itertools
 
-
-
 objs = []
 
+# -----------------------------------------------------------------------------------------------------------
 def loadSettings(cfgs,dest):
     for cfg in cfgs.split(","):
         if cfg == "":
@@ -18,10 +17,10 @@ def loadSettings(cfgs,dest):
             setattr(dest,k,v)
         cf.close()
 
+# -----------------------------------------------------------------------------------------------------------
 def main(options,args):
 
-    import ROOT
-    from roctools import ROCIntegrator
+    from roctools import ROCIntegrator, ROCBuilder
     
     fin = ROOT.TFile.Open(options.infile)
 
@@ -32,21 +31,36 @@ def main(options,args):
     markers = [ROOT.kOpenCircle, ROOT.kFullTriangleUp, ROOT.kOpenDiamond, ROOT.kFullCircle]
     
     for classifier in options.classifiers:
-        type,name = classifier.split(":")
-        if type == "Category":
-            rocpath = "Method_%s/%s/MVA_%s_rejBvsS" % ( type, name, name )
+        ctype,name = classifier.split(":")
+        if ctype == "Category":
+            rocpath = "Method_%s/%s/MVA_%s_rejBvsS" % ( ctype, name, name )
         else:
-            rocpath = "Method_%s/MVA_%s/MVA_%s_rejBvsS" % ( type, name, name )
+            rocpath = "Method_%s/MVA_%s/MVA_%s_rejBvsS" % ( ctype, name, name )
+        print rocpath
         roc = fin.Get(rocpath)
         eff = ROCIntegrator(name,roc).getGraph(options.fro,options.to)
+        effs.append(eff)
+        
+    for histo in options.histopairs:
+        if type(histo) == str:
+            sig,bkg = histo.split(",")
+        else:
+            sig,bkg = histo
+
+        hsig = fin.Get(sig)
+        hbkg = fin.Get(bkg)
+
+        builder = ROCBuilder(hsig.GetName(),hsig.GetName(),hsig,hbkg)
+        eff = ROCIntegrator(hsig.GetName(),builder.getRoc()).getGraph(options.fro,options.to)
+        effs.append(eff)
+        
+    for eff in effs:
         eff.SetTitle(';n_{vtx}-1;#varepsilon')
         eff.SetLineColor(colors[0])
         eff.SetMarkerColor(colors[0])
         eff.SetMarkerStyle(markers[0])
         colors.pop(0), markers.pop(0)
         
-        effs.append(eff)
-
     canv = ROOT.TCanvas("rocs","rocs",500,500)
     canv.SetGridx()
     canv.SetGridy()
@@ -54,7 +68,7 @@ def main(options,args):
     effs[0].Draw("CAP")
     for eff in effs[1:]:
         effs[0].Draw("CP")
-    
+        
     objs.extend(effs)
     objs.append(canv)
     
@@ -74,7 +88,11 @@ if __name__ == "__main__":
                         ),
             make_option("-c", "--classifier", action="append",
                         default=[], dest="classifiers",
-                        help="plot specified classifier"
+                        help="plot ROC for given classifier"
+                        ),
+            make_option("-p", "--histopair", action="append",
+                        default=[], dest="histopairs",
+                        help="plot ROC from signal and backgroud pdf"
                         ),
             make_option("-f","--from", action="store", default=1,
                         dest="fro",
@@ -97,5 +115,7 @@ if __name__ == "__main__":
 
     (options, args) = parser.parse_args()
     loadSettings(options.load, options)
+
+    import ROOT
 
     main(options, args)

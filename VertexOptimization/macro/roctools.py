@@ -47,8 +47,6 @@ class ROCIntegrator:
     def __init__(self,name,histo):
         self.name = name
         self.histo = histo
-        if type(self.histo) == ROCBuilder:
-            self.histo = self.histo.getRoc()
         self.rocs = {}
         
     def getRoc(self,order):
