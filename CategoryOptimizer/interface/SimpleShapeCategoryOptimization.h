@@ -109,6 +109,9 @@ public:
 
 	AbsModel * getModel() { return &model_; };
 	void beginIntegration(double * boundaries) { 
+		std::vector<double> extboundaries(ndim_+selectionCuts_.size());
+		std::copy(boundaries,boundaries+ndim_,extboundaries.begin());
+		std::copy(selectionCutsBegin_.begin(),selectionCutsBegin_.end(),extboundaries.begin()+ndim_);
 		lastIntegral_ = (*converterN_)(boundaries,0);
 		lastSumX_     = (*converterX_)(boundaries,0);
 		lastSumX2_    = (*converterX2_)(boundaries,0);
@@ -164,7 +167,7 @@ private:
 	int ndim_;
 	double norm_, lastIntegral_, lastSumX_, lastSumX2_;
 	std::vector<std::pair<double,double> > ranges_;
-	std::vector<double> selectionCuts_;
+	std::vector<double> selectionCuts_, selectionCutsBegin_;
 	
 	TH1 * pdf_;
 	THnSparse * hsparse_;
@@ -178,7 +181,7 @@ class SimpleShapeFomProvider : public AbsFomProvider
 public:
 	SimpleShapeFomProvider(int nSubcats=1,RooRealVar *poi=0, int ncpu=4, const char * minimizer="Minuit2", 
 			       int minStrategy=2) : 
-		ncpu_(ncpu), nSubcats_(nSubcats), minimizer_(minimizer),minStrategy_(minStrategy), useRooSimultaneous_(false)
+		nSubcats_(nSubcats), ncpu_(ncpu), minimizer_(minimizer),minStrategy_(minStrategy), useRooSimultaneous_(false)
 		{ 
 			if( poi ) { addPOI(poi); }
 			assert(minStrategy_<3); 
@@ -194,8 +197,8 @@ public:
 	void nSubcats(int x) { nSubcats_ = x; };
 	
 private:
-	int ncpu_;
 	int nSubcats_;
+	int ncpu_;
 	std::vector<RooRealVar *> pois_;
 	std::vector<RooRealVar *> resets_;
 	std::string minimizer_;

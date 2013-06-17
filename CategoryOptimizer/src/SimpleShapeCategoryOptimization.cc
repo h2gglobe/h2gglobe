@@ -153,7 +153,8 @@ SecondOrderModelBuilder::SecondOrderModelBuilder(AbsModel::type_t type,
 	std::vector<TTreeFormula *> formulas(nvar);
 	std::vector<int> nm1(nvar-1);
 	TTreeFormula * weight = (weightBr != 0 ? new TTreeFormula(weightBr,weightBr,tree) : 0);
-	selectionCuts_.resize(sellist->getSize(),-1.);
+	selectionCuts_.resize(sellist->getSize(),-999.);
+	selectionCutsBegin_.resize(sellist->getSize(),999.);
 	
 	for(int ivar=0; ivar<nvar; ++ivar) {
 		RooRealVar & var = dynamic_cast<RooRealVar &>(exvarlist[ivar]);
@@ -165,6 +166,10 @@ SecondOrderModelBuilder::SecondOrderModelBuilder(AbsModel::type_t type,
 		if(ivar<nm1.size()) { 
 			nm1[ivar] = ivar; 
 			ranges_.push_back(std::make_pair(xmin[ivar],xmax[ivar]));
+			if( ivar >= varlist->getSize() ) {	
+				selectionCuts_[ivar-varlist->getSize()] = xmin[ivar];
+				selectionCutsBegin_[ivar-varlist->getSize()] = xmax[ivar];
+			}
 		}
 	}
 	
@@ -182,10 +187,16 @@ SecondOrderModelBuilder::SecondOrderModelBuilder(AbsModel::type_t type,
 	std::vector<double> vals(nvar); 
 	double eweight=1.;
 	for(int ii=0; ii<tree->GetEntries(); ++ii) { 
+		bool skip=false;
 		tree->GetEntry(ii); 
 		for(int ivar=0; ivar<nvar; ++ivar) {
 			vals[ivar] = formulas[ivar]->EvalInstance();
+			if( vals[ivar] < xmin[ivar] || vals[ivar] > xmax[ivar] ) { 
+				skip=true;
+				break;
+			}
 		}
+		if( skip ) { continue; }
 		if( weight ) { eweight = weight->EvalInstance(); }
 		hsparse_->Fill(&vals[0],eweight); 
 		norm_ += eweight;
@@ -478,7 +489,7 @@ double SimpleShapeFomProvider::operator() ( std::vector<AbsModel *> sig, std::ve
 		}
 
 		for(int iSubcat = 0; iSubcat < nSubcats_; iSubcat++){
-			throwAsimov( ntot[nSubcats_*icat+iSubcat], &asimovs[nSubcats_*icat+iSubcat], &pdfs[nSubcats_*icat+iSubcat], sig[0]->getX() );
+			throwAsimov( ntot[iSubcat], &asimovs[nSubcats_*icat+iSubcat], &pdfs[nSubcats_*icat+iSubcat], sig[0]->getX() );
 			roocat.defineType(Form("cat_%d_%d",icat,iSubcat));
 			//// roosim.addPdf( pdfs[nSubCats_*icat+iSubcat], Form("cat_%d_%d",icat,iSubcat) );
 			
@@ -504,6 +515,9 @@ double SimpleShapeFomProvider::operator() ( std::vector<AbsModel *> sig, std::ve
 			nll = roosim->createNLL( *combData, RooFit::Extended(), RooFit::NumCPU(ncpu_) );
 			garbageColl.push_back(nll);
 		}
+				
+		nll = roosim->createNLL( *combData, RooFit::Extended(), RooFit::NumCPU(ncpu_) );
+		garbageColl.push_back(nll);
 	} else { 
 		RooArgSet nlls;
 		for(size_t icat=0; icat<pdfs.size(); ++icat) {
