@@ -276,6 +276,8 @@ public:
 		};
 	};
 	
+	void fill(double w) { weight_+=w; sum_+=w; };
+	
 	void print(std::ostream & out) const {
 		out << "IntegrationNode " << id_ << " " << weight_;
 		for(int ic=0; ic<coord_.size(); ++ic) {
@@ -335,7 +337,7 @@ public:
 		for(reverse_iterator it=rbegin(); it!=rend(); ++it) {
 			reverse_iterator jt=it; ++jt;
 			while(jt!=rend()) {
-				if( IntegrationNode::strictLess()(**jt,**it) ) {
+				if( grid_.size() == 1 || IntegrationNode::strictLess()(**jt,**it) ) {
 					(*jt)->addChild(*it);
 				}
 				++jt;
@@ -343,6 +345,10 @@ public:
 		}
 	};
 	
+	void fill(const double* coord, double w) {
+		get(coord)->fill(w);
+	};
+
 	void integrate() {
 		for(reverse_iterator it=rbegin(); it!=rend(); ++it) {
 			(*it)->sumEntries();
@@ -420,6 +426,7 @@ class SparseIntegrator : public IntegrationWeb, public HistoConverter
 {
 public:
 	SparseIntegrator(THnSparse * integrand,double scale=1.) : hsp_(integrand) {
+		/// reserve(integrand->GetNbins());
 		scale_ = scale;
 		Int_t dim = integrand->GetNdimensions();
 		std::vector<int> bins(dim);

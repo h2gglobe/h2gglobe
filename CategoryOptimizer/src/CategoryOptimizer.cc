@@ -135,7 +135,8 @@ double GenericFigureOfMerit::operator() (double *x, double *p) const
 }
 
 // ---------------------------------------------------------------------------------------------
-double CategoryOptimizer::optimizeNCat(int ncat, const double * cutoffs, bool dryrun, bool debug)
+double CategoryOptimizer::optimizeNCat(int ncat, const double * cutoffs, bool dryrun, bool debug, 
+				       const double * initial_values)
 {
 	int nbound = ncat+1;
 	
@@ -177,7 +178,10 @@ double CategoryOptimizer::optimizeNCat(int ncat, const double * cutoffs, bool dr
 				    addConstraint_, telescopicBoundaries_, transformations_);
 	minimizer_->SetFunction(theFom);
 	std::vector<std::pair<int, std::pair<double,double> > > paramsToScan;
-
+	const double * ival = initial_values;
+	std::vector<double> bestFit;
+	double best = 1.e+6;
+	
 	// Define category boundaries. 
 	// Last boundary fixed to the maximum range in each dimension
 	for(int idim=0; idim<ndim_; ++idim) {
@@ -189,26 +193,42 @@ double CategoryOptimizer::optimizeNCat(int ncat, const double * cutoffs, bool dr
 		}
 		double range = (max - min);
 		double first = max;
+		if( ival ) {
+			bestFit.push_back(inv_transformations_[idim]->eval(*ival)); ++ival;
+		} else { 
+			bestFit.push_back(first);
+		}
 		if( ! floatFirst_ ) { 
 			minimizer_->SetFixedVariable(idim*nbound, Form("%sBound%d",dimname.Data(),0),
-						     max);
+						     bestFit.back());
 		} else {
 			minimizer_->SetLimitedVariable(idim*nbound, Form("%sBound%d",dimname.Data(),0), 
-						       first, tmpcutoffs[idim]*0.5,
+						       bestFit.back(), tmpcutoffs[idim]*0.5,
 						       min, max );
 			paramsToScan.push_back(std::make_pair(idim*nbound,std::make_pair(min,max) ));
 		}
 		for(int ibound=1; ibound<nbound; ++ibound) {
 			if( telescopicBoundaries_ ) {
+				if( ival ) {
+					bestFit.push_back(inv_transformations_[idim]->eval(*ival)); ++ival;
+				} else { 
+					bestFit.push_back(range/(double)ncat);
+				}
 				minimizer_->SetLimitedVariable(idim*nbound+ibound,
 							       Form( "%sDeltaBound%d",dimname.Data(), ibound ), 
-							       range/(double)ncat,
+							       bestFit.back(),
 							       tmpcutoffs[idim]*0.5, tmpcutoffs[idim], range );
 				paramsToScan.push_back(std::make_pair(idim*nbound+ ibound,std::make_pair(min,max)));
+				
 			} else {
+				if( ival ) {
+					bestFit.push_back(inv_transformations_[idim]->eval(*ival)); ++ival;
+				} else { 
+					bestFit.push_back(first - (double)(ibound)*range/(double)ncat + tmpcutoffs[idim]);
+				}
 				minimizer_->SetLimitedVariable(idim*nbound+ibound,
 							       Form( "%sBound%d",dimname.Data(), ibound ), 
-							       first - (double)(ibound)*range/(double)ncat + tmpcutoffs[idim],
+							       bestFit.back(),
 							       tmpcutoffs[idim]*0.5, 
 							       min, max );
 				paramsToScan.push_back(std::make_pair(idim*nbound+ibound,std::make_pair(min,max)));
@@ -224,11 +244,11 @@ double CategoryOptimizer::optimizeNCat(int ncat, const double * cutoffs, bool dr
 				minimizer_->SetLimitedVariable(ndim_*nbound + idim, Form( "%sLambda",dimname.Data() ), 
 							       minConstraint_, minConstraint_*0.1,
 							       minConstraint_, 1e+3*minConstraint_);
-
 			} else { 
 				minimizer_->SetFixedVariable(ndim_*nbound + idim, Form( "%sLambda",dimname.Data() ), 
 							     minConstraint_);
 			}
+			bestFit.push_back(minConstraint_);
 		}
 	}
 	
@@ -239,7 +259,7 @@ double CategoryOptimizer::optimizeNCat(int ncat, const double * cutoffs, bool dr
 						      orthocut.second[0] );
 		} else if( orthocut.second.size() == 2 ) { 
 			minimizer_->SetVariable( ndim_*(nbound+addConstraint_) + iortho, orthocut.first,
-						 orthocut.second[0], orthocut.second[1] );
+						 orthocut.second[0], orthocut.second[1] );						
 		} else { 
 			assert( orthocut.second.size() == 4 );
 			minimizer_->SetLimitedVariable( ndim_*(nbound+addConstraint_) + iortho, orthocut.first,
@@ -247,25 +267,26 @@ double CategoryOptimizer::optimizeNCat(int ncat, const double * cutoffs, bool dr
 							orthocut.second[3]
 				);
 		}
+		bestFit.push_back(orthocut.second[0]);
 	}
 	
-	///// if( scan_ ) { 
-	///// 	minimizer_->PrintResults();
-	///// 	unsigned int nstep = 25;
-	///// 	std::vector<double> x(nstep), y(nstep);
-	///// 	for(int ii=paramsToScan.size()-1; ii>=0; --ii) {
-	///// 		int ipar = paramsToScan[ii].first;
-	///// 		std::pair<double,double> rng = paramsToScan[ii].second;
-	///// 		std::cout << ipar << " " << rng.first << " " << rng.second << std::endl;
-	///// 		minimizer_->Scan(ipar,nstep,&x[0],&y[0],rng.first,rng.second);
-	///// 		minimizer_->SetVariableValue(ipar, x[ std::min_element(y.begin(),y.end()) - y.begin()]);
-	///// 		std::copy( x.begin(), x.end(), std::ostream_iterator<double>(std::cout, ",") );
-	///// 		std::cout << std::endl;
-	///// 		std::copy( y.begin(), y.end(), std::ostream_iterator<double>(std::cout, ",") );
-	///// 		std::cout << std::endl;
-	///// 		minimizer_->PrintResults();
-	///// 	}
-	///// }
+	if( scan_>0 ) { 
+		minimizer_->PrintResults();
+		unsigned int nstep = scan_;
+		std::vector<double> x(nstep), y(nstep);
+		for(int ii=paramsToScan.size()-1; ii>=0; --ii) {
+			int ipar = paramsToScan[ii].first;
+			std::pair<double,double> rng = paramsToScan[ii].second;
+			std::cout << ipar << " " << rng.first << " " << rng.second << std::endl;
+			minimizer_->Scan(ipar,nstep,&x[0],&y[0],rng.first,rng.second);
+			minimizer_->SetVariableValue(ipar, x[ std::min_element(y.begin(),y.end()) - y.begin()]);
+			std::copy( x.begin(), x.end(), std::ostream_iterator<double>(std::cout, ",") );
+			std::cout << std::endl;
+			std::copy( y.begin(), y.end(), std::ostream_iterator<double>(std::cout, ",") );
+			std::cout << std::endl;
+			minimizer_->PrintResults();
+		}
+	}
 	
 	// Call to the minimization
 	minimizer_->SetStrategy(strategy_);
@@ -274,6 +295,10 @@ double CategoryOptimizer::optimizeNCat(int ncat, const double * cutoffs, bool dr
 	if( ! dryrun ) {
 		minimizer_->Minimize();
 		minimizer_->PrintResults();
+		std::copy(minimizer_->X(),minimizer_->X()+minimizer_->NDim()+orthocuts_.size(),bestFit.begin());
+		best = minimizer_->MinValue();
+	} else {
+		best = theFom.DoEval(&bestFit[0]);
 	}
 
 	///// // Refit last boundaries
@@ -317,8 +342,8 @@ double CategoryOptimizer::optimizeNCat(int ncat, const double * cutoffs, bool dr
 	///// }
 	
 	// store results
-	std::vector<double> bestFit(minimizer_->X(),minimizer_->X()+minimizer_->NDim());
-	double best = minimizer_->MinValue();
+	//// std::vector<double> bestFit(minimizer_->X(),minimizer_->X()+minimizer_->NDim());
+	//// double best = minimizer_->MinValue();
 	minima_[ncat] = std::make_pair(best,bestFit);
 	
 	if( debug ) {
@@ -364,7 +389,7 @@ void CategoryOptimizer::reduce(int ninput, const double * boundaries, const doub
 	}
 
 	GenericFigureOfMerit startingFom(sigModels_,bkgModels_,fom_,ndim_,ninput,cutoffs,0,false,false,
-					 std::vector<HistoConverter *>(0));
+					 transformations_);
 	double f0 = startingFom.DoEval(&inv_boundaries[0]);
 	double fn = f0;	
 	std::vector<double> bn(inv_boundaries);
@@ -383,7 +408,7 @@ void CategoryOptimizer::reduce(int ninput, const double * boundaries, const doub
 			}
 			std::copy(bn.begin()+itest+1,bn.end(),btest.begin()+itest);
 			GenericFigureOfMerit nm1Fom(sigModels_,bkgModels_,fom_,ndim_,btest.size(),cutoffs,0,false,false,
-						    std::vector<HistoConverter *>(0));
+						    transformations_);
 			double ftest = nm1Fom(&btest[0],0);
 			if( itest == 0 || ftest < fnm1 ) {
 				fnm1 = ftest;
@@ -397,13 +422,16 @@ void CategoryOptimizer::reduce(int ninput, const double * boundaries, const doub
 
 
 // ---------------------------------------------------------------------------------------------
-double CategoryOptimizer::getBoundaries(int ncat, double * boundaries)
+double CategoryOptimizer::getBoundaries(int ncat, double * boundaries, double * orthocuts)
 {
 	int nbound = ncat+1;
 	std::cout << "get Boundaries " << ncat << std::endl;
 	std::pair<double,std::vector<double> > & res = minima_[ncat];
 	if( res.second.empty() ) { return 1.e+6; }
 	std::copy(res.second.begin(),res.second.begin()+ndim_*nbound,boundaries);
+	if( orthocuts_.size() > 0 ) {
+		std::copy(res.second.begin()+ndim_*nbound,res.second.begin()+ndim_*nbound+orthocuts_.size(),orthocuts);
+	}
 	if( telescopicBoundaries_ ) {
 		for(int idim=0; idim<ndim_; ++idim) {
 			for(int ibound=1; ibound<nbound; ++ibound) {

@@ -103,7 +103,7 @@ class CategoryOptimizer
 {
 public:
 	CategoryOptimizer( ROOT::Math::Minimizer * minimizer, int ndim) : 
-		minimizer_(minimizer), ndim_(ndim), strategy_(2),
+		minimizer_(minimizer), ndim_(ndim), strategy_(2), scan_(-1),
 		addConstraint_(false), telescopicBoundaries_(true), floatFirst_(false), 
 		refitLast_(false), transformations_(0), inv_transformations_(0), dimnames_(ndim_) {};
 	
@@ -123,14 +123,16 @@ public:
 	void absoluteBoundaries(bool x=true) { telescopicBoundaries_ = !x; };
 	void setFigureOfMerit(AbsFomProvider * fom) { fom_ = fom; };
 	
-	double optimizeNCat(int ncat, const double * cutoffs, bool dryrun=false, bool debug=false);
-	double getBoundaries(int ncat, double * boundaries);
+	double optimizeNCat(int ncat, const double * cutoffs, bool dryrun=false, bool debug=false, const double * initial_values=0);
+	double getBoundaries(int ncat, double * boundaries, double * orthocuts);
 
 	void reduce(int ninput, const double * boundaries, const double * cutoffs, int ntarget=1, double threshold=1.);
 
 	void addFloatingOrthoCut(const char * name, double val, double step, double mix=-1., double max=-1.);
 	void addFixedOrthoCut(const char * name, double val);
-	
+	void setOrthoCut(int icut, double x) { orthocuts_[icut].second[0] = x; };
+	int nOrthoCuts() { return orthocuts_.size(); };
+
 	void setTransformation(int idim, HistoConverter * x, HistoConverter *y) { 
 		transformations_.resize(ndim_,0);
 		transformations_[idim] = x; 
@@ -144,11 +146,12 @@ public:
 	};
 
 	void setStrategy(int x) { strategy_=x; };
+	void setScan(int x) { scan_=x; };
 		
 private:
 
 	ROOT::Math::Minimizer * minimizer_;
-	int ndim_, strategy_;
+	int ndim_, strategy_, scan_;
 	
 	std::vector<AbsModelBuilder *> sigModels_;
 	std::vector<AbsModelBuilder *> bkgModels_;

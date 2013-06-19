@@ -198,7 +198,7 @@ SecondOrderModelBuilder::SecondOrderModelBuilder(AbsModel::type_t type,
 		}
 		if( skip ) { continue; }
 		if( weight ) { eweight = weight->EvalInstance(); }
-		hsparse_->Fill(&vals[0],eweight); 
+		hsparse_->Fill(&vals[0],eweight);
 		norm_ += eweight;
 	}
 	
@@ -210,6 +210,7 @@ SecondOrderModelBuilder::SecondOrderModelBuilder(AbsModel::type_t type,
 	makeSecondOrder( hsparse_, hsparseN, hsparseX, hsparseX2 );
 	
 	SparseIntegrator * integ = new SparseIntegrator(hsparseN,1./norm_);
+	std::cout << "SecondOrderModelBuilder integration " << norm_ << " " <<  hsparse_->GetWeightSum() << " " << integ->getIntegral(&xmin[0]) << std::endl;
 	//// integ->print(std::cout);
 	converterN_  = integ;
 	converterX_  = new SparseIntegrator(hsparseX);
@@ -445,6 +446,7 @@ double SimpleShapeFomProvider::operator() ( std::vector<AbsModel *> sig, std::ve
 	
 	double fom = 0.;
 	int ncat = sig[0]->getNcat();
+	int totcat = ncat*nSubcats_;
 	
 	RooCategory roocat("SimpleShapeFomCat","");
 	std::vector<std::pair<std::string,RooAbsData*> >catData;
@@ -520,7 +522,7 @@ double SimpleShapeFomProvider::operator() ( std::vector<AbsModel *> sig, std::ve
 		garbageColl.push_back(nll);
 	} else { 
 		RooArgSet nlls;
-		for(size_t icat=0; icat<pdfs.size(); ++icat) {
+		for(size_t icat=0; icat<totcat; ++icat) {
 			RooAbsReal *inll = pdfs[icat].createNLL( asimovs[icat], RooFit::Extended() );
 			nlls.add(*inll);
 			garbageColl.push_back(inll);
@@ -547,7 +549,7 @@ double SimpleShapeFomProvider::operator() ( std::vector<AbsModel *> sig, std::ve
 	if( debug_ ) {
 		for(int icat=0; icat<ncat; ++icat) {
 			for(int iSubcat = 0; iSubcat < nSubcats_; iSubcat++){
-				RooPlot* frame = sig[0]->getX()->frame(RooFit::Title(Form("Category (%d,%d)/%d",iSubcat,icat,ncat)));
+				RooPlot* frame = sig[0]->getX()->frame(RooFit::Title(Form("Category %d/%d (subcat %d)",icat,ncat,iSubcat)));
 				/// combData.plotOn(frame,RooFit::Cut(Form("SimpleShapeFomCat==SimpleShapeFomCat::cat_%d",icat)));
 				asimovs[nSubcats_*icat+iSubcat].plotOn(frame);
 				// roosim.plotOn(frame,RooFit::Slice(roocat,Form("cat_%d",icat)),RooFit::ProjWData(roocat,combData));
@@ -588,7 +590,11 @@ double SimpleShapeFomProvider::operator() ( std::vector<AbsModel *> sig, std::ve
 				TCanvas * canvas = new TCanvas(Form("cat_%d_%d_%d",ncat,icat,iSubcat),Form("cat_%d_%d_%d",ncat,icat,iSubcat));
 				canvas->cd();
 				frame->Draw();
-				canvas->SaveAs(Form("cat_%d_%d_%d.png",ncat,icat,iSubcat));
+				if( nSubcats_ > 0 ) { 
+					canvas->SaveAs(Form("cat_%d_%d_%d.png",ncat,icat,iSubcat));
+				} else {
+					canvas->SaveAs(Form("cat_%d_%d.png",ncat,icat));
+				}
 			}
 		}
 	}
