@@ -73,14 +73,10 @@ public:
 	
 	double operator() (double *x, double *p) const;
 
-	virtual double DoEval(const double * x) const { 
-		std::vector<double> xv(x,x+ndim_*nbound_+(addConstraint_?ndim_:0));
-		std::vector<double> pv(cutoffs_);
-		return this->operator()(&xv[0],&pv[0]); 
-	}; 
+	virtual double DoEval(const double * x) const; 
 	
 	virtual ROOT::Math::IBaseFunctionMultiDim * Clone() const { return new GenericFigureOfMerit(*this); }
-
+	
 	virtual unsigned int NDim() const { return ndim_*nbound_+(addConstraint_?ndim_:0); };
 	
 	void debug(bool x=true) { fom_->debug(x); };
@@ -103,7 +99,7 @@ class CategoryOptimizer
 {
 public:
 	CategoryOptimizer( ROOT::Math::Minimizer * minimizer, int ndim) : 
-		minimizer_(minimizer), ndim_(ndim), strategy_(2), scan_(-1),
+		minimizer_(minimizer), ndim_(ndim), strategy_(2), scan_(-1), scanBoundaries_(true),
 		addConstraint_(false), telescopicBoundaries_(true), floatFirst_(false), 
 		refitLast_(false), transformations_(0), inv_transformations_(0), dimnames_(ndim_) {};
 	
@@ -146,12 +142,13 @@ public:
 	};
 
 	void setStrategy(int x) { strategy_=x; };
-	void setScan(int x) { scan_=x; };
-		
+	void setScan(int x, bool y) { scan_=x; scanBoundaries_=y; };
+	
 private:
 
 	ROOT::Math::Minimizer * minimizer_;
 	int ndim_, strategy_, scan_;
+	bool scanBoundaries_;
 	
 	std::vector<AbsModelBuilder *> sigModels_;
 	std::vector<AbsModelBuilder *> bkgModels_;

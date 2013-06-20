@@ -225,6 +225,14 @@ def optimizeMultiDim(options,args):
         sel = sellist[isel]
         optimizer.addFloatingOrthoCut(sel.GetName(),sel.getVal(),(sel.getMax()-sel.getMin())/sel.getBins(),sel.getMin(),sel.getMax())
         ### optimizer.addFixedOrthoCut(sel.GetName(),sel.getVal())
+    optimizer.absoluteBoundaries()  ## Float absolut boundaries instead of telescopic ones
+    for opt in options.settings:
+        if type(opt) == str:
+            getattr(optimizer,opt)()
+        else:
+            name, args = opt
+            getattr(optimizer,name)(*args)
+
     
     ### ##########################################################################################################
     ### Model builders
@@ -332,13 +340,6 @@ def optimizeMultiDim(options,args):
     for bkgModel in backgrounds:
         optimizer.addBackground( bkgModel )
     optimizer.setFigureOfMerit( fom )
-    optimizer.absoluteBoundaries()  ## Float absolut boundaries instead of telescopic ones
-    for opt in options.settings:
-        if type(opt) == str:
-            getattr(optimizer,opt)()
-        else:
-            name, args = opt
-            getattr(optimizer,opt)(*args)
     
     summary = optmizeCats( optimizer, ws, options.range, (cutoffs,options.dry,True,), options.cont, options.reduce, options.refit )
     
@@ -416,6 +417,59 @@ def optimizeMultiDim(options,args):
             cbound.SaveAs("%s.%s" % (cbound.GetName(),fmt) )
             cbound_pj.SaveAs("%s.%s" % (cbound_pj.GetName(),fmt) )
             
+    for isel in range(sellist.getSize()):
+        var = sellist[idim]
+        name = var.GetName()
+        minX = var.getMin()
+        maxX = var.getMax()
+        nbinsX = var.getBinning().numBoundaries()-1
+        hsel = ROOT.TH2F("hsel_%s" % name,"hsel_%s" % name,nbinsX+3,minX-1.5*(maxX-minX)/nbinsX,maxX+1.5*(maxX-minX)/nbinsX,ncat+3,mincat-1.5,maxcat+1.5)
+        for jcat,val in summary.iteritems():
+            bd = float(val["selections"][isel])
+            hsel.Fill(bd,float(jcat))
+        csel = ROOT.TCanvas( "cat_opt_%s" % hsel.GetName(), "cat_opt_%s" % hsel.GetName() )
+        csel.cd()
+        hsel.Draw("box")
+
+        csel_pj = ROOT.TCanvas( "cat_opt_%s_pj" % hsel.GetName(),  "cat_opt_%s_pj" %  hsel.GetName() )
+        csel_pj.cd()
+        hsel_pj = hsel.Clone()
+        ### hsel_pj = hsel.ProjectionY()
+        ### hsel_pj.Draw()
+        hsel_pj.Draw("box")
+        hsel_pj.SetFillColor(ROOT.kBlack)
+        hsel_pj.SetLineColor(ROOT.kBlack)
+        objs.append(hsel)
+        objs.append(hsel_pj)
+        objs.append(csel)
+        objs.append(csel_pj)
+        maxy = 0.
+        pdfs = []
+        for sig in signals:
+            pdf = sig.getPdf(ndim+isel)
+            pdf.SetLineColor(ROOT.kBlue)
+            pdfs.append(pdf)
+            maxy = max(maxy,pdf.GetMaximum())
+            objs.append(pdf)
+        for bkg in backgrounds:
+            pdf = bkg.getPdf(ndim+isel)
+            pdf.SetLineColor(ROOT.kRed)
+            pdfs.append(pdf)
+            maxy = max(maxy,pdf.GetMaximum())
+            objs.append(pdf)
+            
+        ### hsel_pj.Scale(maxy*hsel_pj.GetMaximum())
+        ### hsel_pj.GetYaxis().SetRangeUser(0.,1.1*maxy)
+        ### csel_pj.RedrawAxis()
+        ### csel_pj.Update()
+        for pdf in pdfs:
+            pdf.Scale( ncat/maxy )
+            pdf.Draw("l same")
+        hsel_pj.GetYaxis().SetNdivisions(500+ncat+3)
+        csel_pj.SetGridy()
+        hsel_pj.Draw("box same")
+
+
             
     canv9 = ROOT.TCanvas("canv9","canv9")
     canv9.SetGridx()
@@ -438,7 +492,7 @@ def main(options,args):
 
     ROOT.gStyle.SetOptStat(0)
 
-    ROOT.RooMsgService.instance().setGlobalKillBelow(ROOT.RooFit.ERROR)
+    ROOT.RooMsgService.instance().setGlobalKillBelow(ROOT.RooFit.FATAL)
     ROOT.RooMsgService.instance().setSilentMode(True)
     ws = optimizeMultiDim(options,args)
     

@@ -21,6 +21,18 @@ GenericFigureOfMerit::GenericFigureOfMerit(std::vector<AbsModelBuilder *> & sig,
 
 
 // ---------------------------------------------------------------------------------------------
+double GenericFigureOfMerit::DoEval(const double * x) const 
+{
+	std::vector<double> xv(x,x+ndim_*(nbound_+(addConstraint_?1:0))+northocuts_);
+	std::vector<double> pv(cutoffs_);
+	//// std::cout << ndim_<< " " << nbound_ << " " << northocuts_ << " " << ndim_*(nbound_+(addConstraint_?1:0))+northocuts_ << std::endl;
+	//// std::copy( xv.begin(), xv.end(), std::ostream_iterator<double>(std::cout, ",") );
+	//// std::cout << std::endl;
+	
+	return this->operator()(&xv[0],&pv[0]); 
+}
+
+// ---------------------------------------------------------------------------------------------
 double GenericFigureOfMerit::operator() (double *x, double *p) const
 {
 	// sort out the input parameters
@@ -40,11 +52,15 @@ double GenericFigureOfMerit::operator() (double *x, double *p) const
 		mindim[idim] = ( !transformations_.empty() && transformations_[idim]!=0 ? 0. : sigModels_[0]->getMin(idim) );
 	}
 	
-	std::vector<double> orthocuts(x+ndim_*(nbound_+addConstraint_),x+ndim_*(nbound_+addConstraint_)+northocuts_);
+	/// std::vector<double> orthocuts(&x[ndim_*(nbound_+(int)addConstraint_)],&[x+ndim_*(nbound_+(int)addConstraint_)+northocuts_]);
+	double * orthocuts = &x[ndim_*(nbound_+(addConstraint_?1:0))];
 	
 	// initialize the model builders
 	std::ostream_iterator<double> output(std::cout, ",");
 	CategoryOptimizer::doTransform(transformations_,&extfirstb[0]);
+	//// std::cout << ndim_ << " " << nbound_ << " " << ndim_*(nbound_+(addConstraint_?1:0)) << std::endl;
+ 	//// std::copy( &orthocuts[0], &orthocuts[northocuts_], std::ostream_iterator<double>(std::cout, ",") );
+	//// std::cout << std::endl;
  	/// std::copy( extfirstb.begin(), extfirstb.end(), std::ostream_iterator<double>(std::cout, ",") );
 	/// std::cout << std::endl;
 	for(std::vector<AbsModelBuilder *>::const_iterator imod=allModels_.begin(); imod!=allModels_.end(); ++imod ) {
@@ -205,7 +221,9 @@ double CategoryOptimizer::optimizeNCat(int ncat, const double * cutoffs, bool dr
 			minimizer_->SetLimitedVariable(idim*nbound, Form("%sBound%d",dimname.Data(),0), 
 						       bestFit.back(), tmpcutoffs[idim]*0.5,
 						       min, max );
-			paramsToScan.push_back(std::make_pair(idim*nbound,std::make_pair(min,max) ));
+			if( scan_ > 0 && scanBoundaries_ ) { 
+				paramsToScan.push_back(std::make_pair(idim*nbound,std::make_pair(min,max) ));
+			}
 		}
 		for(int ibound=1; ibound<nbound; ++ibound) {
 			if( telescopicBoundaries_ ) {
@@ -218,7 +236,9 @@ double CategoryOptimizer::optimizeNCat(int ncat, const double * cutoffs, bool dr
 							       Form( "%sDeltaBound%d",dimname.Data(), ibound ), 
 							       bestFit.back(),
 							       tmpcutoffs[idim]*0.5, tmpcutoffs[idim], range );
-				paramsToScan.push_back(std::make_pair(idim*nbound+ ibound,std::make_pair(min,max)));
+				if( scan_ > 0 && scanBoundaries_ ) { 
+					paramsToScan.push_back(std::make_pair(idim*nbound+ ibound,std::make_pair(min,max)));
+				}
 				
 			} else {
 				if( ival ) {
@@ -231,7 +251,9 @@ double CategoryOptimizer::optimizeNCat(int ncat, const double * cutoffs, bool dr
 							       bestFit.back(),
 							       tmpcutoffs[idim]*0.5, 
 							       min, max );
-				paramsToScan.push_back(std::make_pair(idim*nbound+ibound,std::make_pair(min,max)));
+				if( scan_ > 0 && scanBoundaries_ ) { 
+					paramsToScan.push_back(std::make_pair(idim*nbound+ibound,std::make_pair(min,max)));
+				}
 			}
 		}
 	}
@@ -266,11 +288,16 @@ double CategoryOptimizer::optimizeNCat(int ncat, const double * cutoffs, bool dr
 							orthocut.second[0], orthocut.second[1], orthocut.second[2], 
 							orthocut.second[3]
 				);
+			if( scan_ > 0 ) { 
+				paramsToScan.push_back(std::make_pair(ndim_*(nbound+addConstraint_) + iortho,
+								      std::make_pair(orthocut.second[2],orthocut.second[3])));
+			}
 		}
 		bestFit.push_back(orthocut.second[0]);
 	}
 	
 	if( scan_>0 ) { 
+		std::cout << "Scanning parameters " << std::endl;
 		minimizer_->PrintResults();
 		unsigned int nstep = scan_;
 		std::vector<double> x(nstep), y(nstep);
@@ -289,13 +316,14 @@ double CategoryOptimizer::optimizeNCat(int ncat, const double * cutoffs, bool dr
 	}
 	
 	// Call to the minimization
+	std::cout << "Calling minimization (strategy: " << strategy_ << ")" << std::endl;
 	minimizer_->SetStrategy(strategy_);
 	minimizer_->PrintResults();
 	minimizer_->SetStrategy(strategy_);
 	if( ! dryrun ) {
 		minimizer_->Minimize();
 		minimizer_->PrintResults();
-		std::copy(minimizer_->X(),minimizer_->X()+minimizer_->NDim()+orthocuts_.size(),bestFit.begin());
+		std::copy(minimizer_->X(),minimizer_->X()+minimizer_->NDim(),bestFit.begin());
 		best = minimizer_->MinValue();
 	} else {
 		best = theFom.DoEval(&bestFit[0]);
@@ -430,7 +458,7 @@ double CategoryOptimizer::getBoundaries(int ncat, double * boundaries, double * 
 	if( res.second.empty() ) { return 1.e+6; }
 	std::copy(res.second.begin(),res.second.begin()+ndim_*nbound,boundaries);
 	if( orthocuts_.size() > 0 ) {
-		std::copy(res.second.begin()+ndim_*nbound,res.second.begin()+ndim_*nbound+orthocuts_.size(),orthocuts);
+		std::copy(res.second.begin()+ndim_*(nbound+addConstraint_),res.second.begin()+ndim_*(nbound+addConstraint_)+orthocuts_.size(),orthocuts);
 	}
 	if( telescopicBoundaries_ ) {
 		for(int idim=0; idim<ndim_; ++idim) {

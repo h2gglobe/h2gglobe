@@ -207,7 +207,9 @@ SecondOrderModelBuilder::SecondOrderModelBuilder(AbsModel::type_t type,
 	THnSparse * hsparseX = hsparse_->Projection(nm1.size(),&nm1[0],"A");
 	THnSparse * hsparseX2= hsparse_->Projection(nm1.size(),&nm1[0],"A");
 
-	makeSecondOrder( hsparse_, hsparseN, hsparseX, hsparseX2 );
+	THnSparse * hsparse = (THnSparse*)hsparse_->Clone();
+	makeSecondOrder( hsparse, hsparseN, hsparseX, hsparseX2 );
+	delete hsparse;
 	
 	SparseIntegrator * integ = new SparseIntegrator(hsparseN,1./norm_);
 	std::cout << "SecondOrderModelBuilder integration " << norm_ << " " <<  hsparse_->GetWeightSum() << " " << integ->getIntegral(&xmin[0]) << std::endl;
@@ -289,7 +291,8 @@ void SecondOrderModel::buildPdfs()
 			setShapeParams( icat );
 		}
 		if( categoryYields_[icat] == 0 || ! isfinite(categoryYields_[icat]) 
-		    || ( (shape_ == gaus) && (categoryRMSs_[icat] == 0 || ! isfinite(categoryRMSs_[icat]) ) )
+		    || ( (shape_ == gaus) 
+			 && (categoryRMSs_[icat] == 0 || ! isfinite(categoryRMSs_[icat]) || ! isfinite(categoryMeans_[icat]) ) )
 			) {
 			catToFix.push_back(icat);
 		} else {
@@ -304,6 +307,13 @@ void SecondOrderModel::buildPdfs()
 			categoryYields_[icat] = smallestYield/10.;
 			categoryRMSs_[icat] = largestSigma*2.;
 			setShapeParams( icat );
+		}
+	} else { 
+		for(size_t ifix=0; ifix<catToFix.size(); ++ifix) {
+			int icat = catToFix[ifix];
+			categoryYields_[icat] = 1.e-6;
+			categoryRMSs_[icat] = 100.;
+			categoryMeans_[icat] = 0.;
 		}
 	}
 	//// dump();
