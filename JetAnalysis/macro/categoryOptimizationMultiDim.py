@@ -1,6 +1,6 @@
 #!/bin/env python
 
-import sys
+import sys, types
 import numpy
 from math import sqrt, log
 import json
@@ -27,6 +27,7 @@ def loadSettings(cfgs,dest):
 def getBoundaries(ncat,optimizer, summary):
     boundaries = numpy.array([0. for i in range(ncat+1) ])
     selections = numpy.array([0. for i in range(optimizer.nOrthoCuts()) ])
+    print optimizer.nOrthoCuts()
     if len(selections) > 0: 
         z = optimizer.getBoundaries(ncat,boundaries,selections)
     else:
@@ -119,7 +120,7 @@ def mergeTrees(tfile,sel,outname,trees,aliases):
         print "Reading tree %s" % name        
         tree=tfile.Get(name)
         if sel != "":
-            selection = str(TCut(selection)*TCut(sel))
+            selection = str(ROOT.TCut(selection)*ROOT.TCut(sel))
         if selection != "":
             clone = tree.CopyTree(selection)
             tree = clone
@@ -158,14 +159,26 @@ def defineVariables(variables):
     return arglist,aliases
         
 # -----------------------------------------------------------------------------------------------------------
-def modelBuilders(trees, type, obs, varlist, sellist, weight):
+def modelBuilders(trees, type, obs, varlist, sellist, weights, shapes, minevents, constrained):
     builders=[]
+    constraints=[]
     for tree in trees:
         modelName = "%sModel" % tree.GetName()
+        weight = "weight"
+        if tree.GetName() in weights:
+            weight = weights[tree.GetName()]
         modelBuilder = ROOT.SecondOrderModelBuilder(type, modelName, obs, tree, varlist, sellist, weight)
-        ### modelBuilder = ROOT.SecondOrderModelBuilder(type, modelName, obs, tree, varlist, weight)
+        if tree.GetName() in shapes:
+            modelBuilder.getModel().setShape( getattr(ROOT.SecondOrderModel,shapes[tree.GetName()]) )
+        if tree.GetName() in minevents:
+            modelBuilder.getModel().minEvents( minevents[tree.GetName()] )
+        if tree.GetName() in constrained:
+            constraint = ROOT.RooRealVar("normConstraint%s" % tree.GetName(),"normConstraint%s" % tree.GetName(),1.)
+            constraint.setConstant(True)
+            modelBuilder.getModel().setMu(constraint)
+            constraints.append(constraint)
         builders.append(modelBuilder)
-    return builders
+    return builders,constraints
 
 # -----------------------------------------------------------------------------------------------------------
 def optimizeMultiDim(options,args):
@@ -217,17 +230,18 @@ def optimizeMultiDim(options,args):
     ### Minimizer and optimizer
     ###
     minimizer = ROOT.TMinuitMinimizer("Minimize")
-    minimizer.SetStrategy(2)
     ## minimizer.SetPrintLevel(999)
     ## minimizer = ROOT.Minuit2.Minuit2Minimizer()
     optimizer = ROOT.CategoryOptimizer( minimizer, ndim )
     for isel in range(sellist.getSize()):
         sel = sellist[isel]
-        optimizer.addFloatingOrthoCut(sel.GetName(),sel.getVal(),(sel.getMax()-sel.getMin())/sel.getBins(),sel.getMin(),sel.getMax())
-        ### optimizer.addFixedOrthoCut(sel.GetName(),sel.getVal())
+        if sel.GetName() in options.fix:
+            optimizer.addFixedOrthoCut(sel.GetName(),sel.getVal())
+        else:
+            optimizer.addFloatingOrthoCut(sel.GetName(),sel.getVal(),(sel.getMax()-sel.getMin())/sel.getBins(),sel.getMin(),sel.getMax())
     optimizer.absoluteBoundaries()  ## Float absolut boundaries instead of telescopic ones
     for opt in options.settings:
-        if type(opt) == str:
+        if isinstance(opt, types.StringTypes):
             getattr(optimizer,opt)()
         else:
             name, args = opt
@@ -244,9 +258,13 @@ def optimizeMultiDim(options,args):
         tree.Write()
         
     fin.Close()
-    signals = modelBuilders( sigTrees, ROOT.AbsModel.sig, obs, varlist, sellist, "weight" )
-    backgrounds = modelBuilders( bkgTrees, ROOT.AbsModel.bkg, obs, varlist, sellist, "weight" )
-
+    signals,sigconstr = modelBuilders( sigTrees, ROOT.AbsModel.sig, obs, varlist, sellist,
+                                       getattr(options,"weights",{}), getattr(options,"shapes",{}), {}, [] )
+    backgrounds,bkgconstr = modelBuilders( bkgTrees, ROOT.AbsModel.bkg, obs, varlist, sellist,
+                                           getattr(options,"weights",{}), getattr(options,"shapes",{}),
+                                           getattr(options,"minevents",{},), getattr(options,"constrained",[]),
+                                           )
+    
     if options.saveCompactTree:
         for model in signals+backgrounds:
             model.getTree().Write()
@@ -407,8 +425,8 @@ def optimizeMultiDim(options,args):
         ### cbound_pj.RedrawAxis()
         ### cbound_pj.Update()
         for pdf in pdfs:
-            pdf.Scale( ncat/maxy )
-            pdf.Draw("l same")
+            pdf.Scale( (ncat+3.)/maxy )
+            pdf.Draw("hist same")
         hbound_pj.GetYaxis().SetNdivisions(500+ncat+3)
         cbound_pj.SetGridy()
         hbound_pj.Draw("box same")
@@ -418,11 +436,12 @@ def optimizeMultiDim(options,args):
             cbound_pj.SaveAs("%s.%s" % (cbound_pj.GetName(),fmt) )
             
     for isel in range(sellist.getSize()):
-        var = sellist[idim]
+        var = sellist[isel]
         name = var.GetName()
         minX = var.getMin()
         maxX = var.getMax()
         nbinsX = var.getBinning().numBoundaries()-1
+        print var, name, minX, maxX, nbinsX
         hsel = ROOT.TH2F("hsel_%s" % name,"hsel_%s" % name,nbinsX+3,minX-1.5*(maxX-minX)/nbinsX,maxX+1.5*(maxX-minX)/nbinsX,ncat+3,mincat-1.5,maxcat+1.5)
         for jcat,val in summary.iteritems():
             bd = float(val["selections"][isel])
@@ -458,17 +477,17 @@ def optimizeMultiDim(options,args):
             maxy = max(maxy,pdf.GetMaximum())
             objs.append(pdf)
             
-        ### hsel_pj.Scale(maxy*hsel_pj.GetMaximum())
-        ### hsel_pj.GetYaxis().SetRangeUser(0.,1.1*maxy)
-        ### csel_pj.RedrawAxis()
-        ### csel_pj.Update()
         for pdf in pdfs:
-            pdf.Scale( ncat/maxy )
+            pdf.Scale( (ncat+1.5)/maxy/pdf.Integral() )
             pdf.Draw("l same")
         hsel_pj.GetYaxis().SetNdivisions(500+ncat+3)
         csel_pj.SetGridy()
         hsel_pj.Draw("box same")
 
+
+        for fmt in "png", "C":
+            csel.SaveAs("%s.%s" % (csel.GetName(),fmt) )
+            csel_pj.SaveAs("%s.%s" % (csel.GetName(),fmt) )
 
             
     canv9 = ROOT.TCanvas("canv9","canv9")

@@ -60,6 +60,73 @@ void makeSecondOrder(THnSparse * in, THnSparse * norm, THnSparse * sumX, THnSpar
 		sumX2->SetBinContent(ii, stats[2]*stats[2]/stats[0]-stats[0]*effrms*effrms);
 		delete hx;
 	}
+	
+}
+
+// ------------------------------------------------------------------------------------------------
+void makeSecondOrder(THnSparse * in, THnSparse * red, SparseIntegrator * norm, SparseIntegrator * sumX, SparseIntegrator * sumX2)
+{
+	std::vector<int> idx(in->GetNdimensions()-1);
+	std::vector<double> coord(in->GetNdimensions()-1);
+	std::vector<double> stats(4), qtiles(2), probs(2);
+	double effrms;
+	in->Print("all");
+	/// norm->Print("all");
+	/// sumX->Print("all");
+	/// sumX2->Print("all");
+	probs[0]=0.8415, probs[1]=0.1585;
+	/// std::cout << norm->GetNbins() << std::endl;
+	for(int ii=0; ii<red->GetNbins(); ++ii) {
+		red->GetBinContent(ii,&idx[0]);
+		for(int idim=0; idim<idx.size(); ++idim) {
+			TAxis * iaxis = in->GetAxis(idim);
+			iaxis->SetRange(idx[idim],idx[idim]);
+			coord[idim] = iaxis->GetBinCenter(idx[idim]);
+		}
+		TH1 * hx = in->Projection(in->GetNdimensions()-1);
+		hx->GetStats(&stats[0]);
+		norm->fill(&coord[0], stats[0]);
+		sumX->fill(&coord[0], stats[2]);
+		hx->GetQuantiles(2,&qtiles[0],&probs[0]);
+		effrms = 0.5*(qtiles[1] - qtiles[0]);
+		sumX2->fill(&coord[0], stats[2]*stats[2]/stats[0]-stats[0]*effrms*effrms);
+		delete hx;
+	}
+	
+	norm->link();
+	sumX->link();
+	sumX2->link();
+}
+
+
+// ------------------------------------------------------------------------------------------------
+void makeSecondOrder(std::vector<TH1*> & histos, SparseIntegrator * norm, SparseIntegrator * sumX, SparseIntegrator * sumX2)
+{
+	std::vector<double> stats(4), qtiles(2), probs(2);
+	double effrms;
+	/// norm->Print("all");
+	/// sumX->Print("all");
+	/// sumX2->Print("all");
+	probs[0]=0.8415, probs[1]=0.1585;
+	/// std::cout << norm->GetNbins() << std::endl;
+	for(IntegrationWeb::iterator ibin=norm->begin(); ibin!=norm->end(); ++ibin) {
+		
+		TH1 * hx = histos[ (*ibin)->id() ];
+		hx->GetStats(&stats[0]);
+		IntegrationNode * nodeX = new IntegrationNode( (*ibin)->id(), (*ibin)->coord(), stats[2]);
+		sumX->insert(nodeX);
+		hx->GetQuantiles(2,&qtiles[0],&probs[0]);
+		effrms = 0.5*(qtiles[1] - qtiles[0]);
+		IntegrationNode * nodeX2 = new IntegrationNode( (*ibin)->id(), (*ibin)->coord(), 
+								stats[2]*stats[2]/stats[0]-stats[0]*effrms*effrms);
+		sumX2->insert(nodeX2);
+		delete hx;
+	}
+	histos.clear();
+	
+	norm->link();
+	sumX->link();
+	sumX2->link();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -185,7 +252,12 @@ SecondOrderModelBuilder::SecondOrderModelBuilder(AbsModel::type_t type,
 		
 	norm_ = 0.;
 	std::vector<double> vals(nvar); 
+	std::vector<TH1*> histos;
 	double eweight=1.;
+	THnSparse * hsparseRed = hsparse_->Projection(nm1.size(),&nm1[0],"A");
+	SparseIntegrator * integN  = new SparseIntegrator(hsparseRed);
+	SparseIntegrator * integX  = new SparseIntegrator(hsparseRed);
+	SparseIntegrator * integX2 = new SparseIntegrator(hsparseRed);
 	for(int ii=0; ii<tree->GetEntries(); ++ii) { 
 		bool skip=false;
 		tree->GetEntry(ii); 
@@ -199,24 +271,40 @@ SecondOrderModelBuilder::SecondOrderModelBuilder(AbsModel::type_t type,
 		if( skip ) { continue; }
 		if( weight ) { eweight = weight->EvalInstance(); }
 		hsparse_->Fill(&vals[0],eweight);
+		int ibin = integN->fill(&vals[0],eweight);
+		if( ibin >= histos.size() ) {
+			histos.resize(ibin+1);
+			histos[ibin] = new TH1F(Form("histo_%d",ibin),Form("histo_%d",ibin),x->getBins(),x->getMin(),x->getMax());
+			histos[ibin]->SetDirectory(0);
+		}
+		histos[ibin]->Fill( vals[nvar-1],eweight );
 		norm_ += eweight;
 	}
+	integN->scale(1./norm_);
 	
 	// norm_ = 1.;
-	THnSparse * hsparseN = hsparse_->Projection(nm1.size(),&nm1[0],"A");
-	THnSparse * hsparseX = hsparse_->Projection(nm1.size(),&nm1[0],"A");
-	THnSparse * hsparseX2= hsparse_->Projection(nm1.size(),&nm1[0],"A");
-
-	THnSparse * hsparse = (THnSparse*)hsparse_->Clone();
-	makeSecondOrder( hsparse, hsparseN, hsparseX, hsparseX2 );
-	delete hsparse;
+	/// THnSparse * hsparseRed = hsparse_->Projection(nm1.size(),&nm1[0],"A");
+	//// THnSparse * hsparseX = hsparse_->Projection(nm1.size(),&nm1[0],"A");
+	//// THnSparse * hsparseX2= hsparse_->Projection(nm1.size(),&nm1[0],"A");
 	
-	SparseIntegrator * integ = new SparseIntegrator(hsparseN,1./norm_);
-	std::cout << "SecondOrderModelBuilder integration " << norm_ << " " <<  hsparse_->GetWeightSum() << " " << integ->getIntegral(&xmin[0]) << std::endl;
-	//// integ->print(std::cout);
-	converterN_  = integ;
-	converterX_  = new SparseIntegrator(hsparseX);
-	converterX2_ = new SparseIntegrator(hsparseX2);
+	///// THnSparse * hsparse = (THnSparse*)hsparse_->Clone();
+	///// makeSecondOrder( hsparse, hsparseN, hsparseX, hsparseX2 );
+	///// delete hsparse;
+	///// makeSecondOrder( hsparse, hsparseRed, integN, integX, integX2 );
+	makeSecondOrder( histos, integN, integX, integX2 );
+	delete hsparseRed;
+
+	converterN_  = integN;
+	converterX_  = integX;
+	converterX2_ = integX2;
+	std::cout << "SecondOrderModelBuilder integration " << norm_ << " " <<  hsparse_->GetWeightSum() << " " << integN->getIntegral(&xmin[0]) << std::endl;
+	
+	//// SparseIntegrator * integ = new SparseIntegrator(hsparseN,1./norm_);
+	//// std::cout << "SecondOrderModelBuilder integration " << norm_ << " " <<  hsparse_->GetWeightSum() << " " << integ->getIntegral(&xmin[0]) << std::endl;
+	//// //// integ->print(std::cout);
+	//// converterN_  = integ;
+	//// converterX_  = new SparseIntegrator(hsparseX);
+	//// converterX2_ = new SparseIntegrator(hsparseX2);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -234,15 +322,23 @@ SecondOrderModel::SecondOrderModel(std::string name,
 	name_(name),
 	x_(x), mu_(mu),
 	shape_(shape),
-	likeg_(0) {
+	likeg_(0), minEvents_(0.) {
 	type_ = type; 
+	setShape(shape);
+};
+
+// ------------------------------------------------------------------------------------------------
+void SecondOrderModel::setShape(shape_t x)
+{
+	if( likeg_ != 0 ) { delete likeg_; }
+	shape_ = x;
 	if( shape_ == automatic ) {
 		shape_ = ( type_ == AbsModel::sig ? gaus : expo );
 	}
 	if( shape_ == expo ) {
-		likeg_ = new TF1(Form("likeg_%s",name.c_str()),"[0]-1./x+[1]*exp(-[1]*x)/(1.-exp(-[1]*x))",0.,100.);
+		likeg_ = new TF1(Form("likeg_%s",name_.c_str()),"[0]-1./x+[1]*exp(-[1]*x)/(1.-exp(-[1]*x))",0.,100.);
 	}
-};
+}
 
 // ------------------------------------------------------------------------------------------------
 SecondOrderModel::~SecondOrderModel()
@@ -284,13 +380,14 @@ void SecondOrderModel::buildPdfs()
 	double largestSigma=0.;
 	
 	for(size_t icat=0; icat<categoryYields_.size(); ++icat) {
+		/// if( minEvents_> 0 && categoryYields_[icat] < minEvents_ ) { categoryYields_[icat] = minEvents_; }
 		if( icat >= categoryPdfs_.size() ) {
 			bookShape(icat);
 		} else {
 			RooAbsPdf * pdf = categoryPdfs_[icat];
 			setShapeParams( icat );
 		}
-		if( categoryYields_[icat] == 0 || ! isfinite(categoryYields_[icat]) 
+		if( categoryYields_[icat] <= minEvents_ || ! isfinite(categoryYields_[icat]) 
 		    || ( (shape_ == gaus) 
 			 && (categoryRMSs_[icat] == 0 || ! isfinite(categoryRMSs_[icat]) || ! isfinite(categoryMeans_[icat]) ) )
 			) {
@@ -314,6 +411,7 @@ void SecondOrderModel::buildPdfs()
 			categoryYields_[icat] = 1.e-6;
 			categoryRMSs_[icat] = 100.;
 			categoryMeans_[icat] = 0.;
+			setShapeParams( icat );
 		}
 	}
 	//// dump();
@@ -474,12 +572,12 @@ double SimpleShapeFomProvider::operator() ( std::vector<AbsModel *> sig, std::ve
 		std::vector<RooArgList> lpdfs(nSubcats_), bpdfs(nSubcats_);
 		
 		std::vector<double> ntot(nSubcats_, 0.);
-
+		//// std::cout << "cat " << icat << std::endl;
 		for(size_t iSig = 0; iSig < sig.size(); iSig++){
 			size_t iSubcat = iSig % nSubcats_;
 			ntot[iSubcat] += sig[iSig]->getCategoryYield(icat);
-			//// std::cout << isig[iSig]->getCategoryPdf(icat)->expectedEvents(0) 
-			//// 	  << " " << isig[iSig]->getCategoryYield(icat) << std::endl;
+			/// std::cout << sig[iSig]->getCategoryPdf(icat)->expectedEvents(0) 
+			/// 	  << " " << sig[iSig]->getCategoryYield(icat) << std::endl;
 			if( buildPdf ) {
 				lpdfs[iSubcat].add( *(sig[iSig]->getCategoryPdf(icat)) ); 
 			}
@@ -487,8 +585,8 @@ double SimpleShapeFomProvider::operator() ( std::vector<AbsModel *> sig, std::ve
 		for(size_t iBkg = 0; iBkg < bkg.size(); iBkg++){
 			size_t iSubcat = iBkg % nSubcats_;
 			ntot[iSubcat] += bkg[iBkg]->getCategoryYield(icat);
-			//// std::cout << ibkg[iBkg]->getCategoryPdf(icat)->expectedEvents(0) 
-			//// 	  << " " << ibkg[iBkg]->getCategoryYield(icat) << std::endl;
+			/// std::cout << bkg[iBkg]->getCategoryPdf(icat)->expectedEvents(0) 
+			/// 	  << " " << bkg[iBkg]->getCategoryYield(icat) << std::endl;
 			if( buildPdf ) {
 				lpdfs[iSubcat].add( *(bkg[iBkg]->getCategoryPdf(icat)) ); 
 			}

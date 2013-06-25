@@ -47,6 +47,10 @@ public:
 	void buildPdfs();
 	
 	std::string name() { return name_; };
+
+	void setShape(shape_t x);
+
+	void minEvents(double x) { minEvents_ = x; };
 	
 private:
 	void bookShape(int icat);
@@ -60,6 +64,7 @@ private:
 	std::vector<RooRealVar *> categoryNorms_;
 	RooArgSet owned_;
 	TF1 * likeg_;
+	double minEvents_;
 };
 
 // ------------------------------------------------------------------------------------------------
@@ -112,9 +117,9 @@ public:
 		std::vector<double> extboundaries(ndim_+selectionCuts_.size());
 		std::copy(boundaries,boundaries+ndim_,extboundaries.begin());
 		std::copy(selectionCutsBegin_.begin(),selectionCutsBegin_.end(),extboundaries.begin()+ndim_);
-		lastIntegral_ = (*converterN_)(boundaries,0);
-		lastSumX_     = (*converterX_)(boundaries,0);
-		lastSumX2_    = (*converterX2_)(boundaries,0);
+		lastIntegral_ = (*converterN_)(&extboundaries[0],0);
+		lastSumX_     = (*converterX_)(&extboundaries[0],0);
+		lastSumX2_    = (*converterX2_)(&extboundaries[0],0);
 		
 		model_.clear(); 
 	};

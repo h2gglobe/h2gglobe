@@ -309,7 +309,9 @@ public:
 		//// hasSum_ = true;
 		return sum_;
 	};
-
+	
+	int id() { return id_; };
+	const std::vector<double> coord() { return coord_; };
 private:
 	int id_;
 	std::vector<double> coord_;
@@ -345,8 +347,10 @@ public:
 		}
 	};
 	
-	void fill(const double* coord, double w) {
-		get(coord)->fill(w);
+	int fill(const double* coord, double w) {
+		IntegrationNode * node = get(coord,false);
+		node->fill(w);
+		return node->id();
 	};
 
 	void integrate() {
@@ -380,6 +384,8 @@ public:
 		}
 	};
 	
+	void scale(double x) { scale_ = x; };
+
 protected:
 	double scale_;
 	std::vector<std::set<double> > grid_;
@@ -398,7 +404,7 @@ protected:
 		/// std::cout << std::endl;
 	};
 	
-	IntegrationNode * get(const double* coord) {
+	IntegrationNode * get(const double* coord, bool link=true) {
 		std::vector<double> volume(coord,coord+grid_.size());
 		volume_coordinates(volume);
 		IntegrationNode tmp(-1,volume,0.);
@@ -407,11 +413,13 @@ protected:
 			inode = insert( inode, new IntegrationNode(size(),volume,0.) );
 			iterator jnode = inode;
 			++jnode;
-			while( jnode != end() ) { 
-				if( IntegrationNode::strictLess()(**inode,**jnode) ) {
-					(*inode)->addChild(*jnode);
+			if( link ) { 
+				while( jnode != end() ) { 
+					if( IntegrationNode::strictLess()(**inode,**jnode) ) {
+						(*inode)->addChild(*jnode);
+					}
+					++jnode;
 				}
-				++jnode;
 			}
 		}
 		//// (*inode)->print(std::cout);

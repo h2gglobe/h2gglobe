@@ -77,7 +77,7 @@ public:
 	
 	virtual ROOT::Math::IBaseFunctionMultiDim * Clone() const { return new GenericFigureOfMerit(*this); }
 	
-	virtual unsigned int NDim() const { return ndim_*nbound_+(addConstraint_?ndim_:0); };
+	virtual unsigned int NDim() const { return ndim_*(nbound_+(addConstraint_?1:0))+northocuts_; };
 	
 	void debug(bool x=true) { fom_->debug(x); };
 	
@@ -99,9 +99,9 @@ class CategoryOptimizer
 {
 public:
 	CategoryOptimizer( ROOT::Math::Minimizer * minimizer, int ndim) : 
-		minimizer_(minimizer), ndim_(ndim), strategy_(2), scan_(-1), scanBoundaries_(true),
+		minimizer_(minimizer), ndim_(ndim), strategy_(2), scan_(-1), scanBoundaries_(true), tranformOrtho_(false),
 		addConstraint_(false), telescopicBoundaries_(true), floatFirst_(false), 
-		refitLast_(false), transformations_(0), inv_transformations_(0), dimnames_(ndim_) {};
+		refitLast_(false), speed_(0.5), transformations_(0), inv_transformations_(0), dimnames_(ndim_) {};
 	
 	void addSignal(AbsModelBuilder * sig, bool defineTransform=false) { 
 		sigModels_.push_back(sig); 
@@ -130,9 +130,9 @@ public:
 	int nOrthoCuts() { return orthocuts_.size(); };
 
 	void setTransformation(int idim, HistoConverter * x, HistoConverter *y) { 
-		transformations_.resize(ndim_,0);
+		transformations_.resize(ndim_+(tranformOrtho_?orthocuts_.size():0),0);
 		transformations_[idim] = x; 
-		inv_transformations_.resize(ndim_,0);
+		inv_transformations_.resize(transformations_.size(),0);
 		inv_transformations_[idim] = y; 
 	};
 	static void doTransform(const std::vector<HistoConverter *> & transformations, double* boundaries) {
@@ -143,12 +143,14 @@ public:
 
 	void setStrategy(int x) { strategy_=x; };
 	void setScan(int x, bool y) { scan_=x; scanBoundaries_=y; };
+	void setTransformOrtho(bool x=true) { tranformOrtho_=x; };
+	void setSpeed(double x) { speed_=x; };
 	
 private:
 
 	ROOT::Math::Minimizer * minimizer_;
 	int ndim_, strategy_, scan_;
-	bool scanBoundaries_;
+	bool scanBoundaries_, tranformOrtho_;	
 	
 	std::vector<AbsModelBuilder *> sigModels_;
 	std::vector<AbsModelBuilder *> bkgModels_;
@@ -158,7 +160,7 @@ private:
 	std::map<int, std::pair<double,std::vector<double> > > minima_;
 	
 	bool addConstraint_, telescopicBoundaries_, floatingConstraint_, floatFirst_, refitLast_;
-	double minConstraint_;
+	double minConstraint_, speed_;
 	std::vector<std::pair<std::string, std::vector<double> > > orthocuts_;
 	
 	std::vector<HistoConverter *> transformations_, inv_transformations_;
