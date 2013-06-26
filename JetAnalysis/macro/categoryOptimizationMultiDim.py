@@ -163,20 +163,39 @@ def modelBuilders(trees, type, obs, varlist, sellist, weights, shapes, minevents
     builders=[]
     constraints=[]
     for tree in trees:
-        modelName = "%sModel" % tree.GetName()
+        name = tree.GetName()
+        modelName = "%sModel" % name
         weight = "weight"
-        if tree.GetName() in weights:
-            weight = weights[tree.GetName()]
+        if name in weights:
+            weight = weights[name]
         modelBuilder = ROOT.SecondOrderModelBuilder(type, modelName, obs, tree, varlist, sellist, weight)
-        if tree.GetName() in shapes:
-            modelBuilder.getModel().setShape( getattr(ROOT.SecondOrderModel,shapes[tree.GetName()]) )
-        if tree.GetName() in minevents:
-            modelBuilder.getModel().minEvents( minevents[tree.GetName()] )
-        if tree.GetName() in constrained:
-            constraint = ROOT.RooRealVar("normConstraint%s" % tree.GetName(),"normConstraint%s" % tree.GetName(),1.)
-            constraint.setConstant(True)
+        if name in shapes:
+            modelBuilder.getModel().setShape( getattr(ROOT.SecondOrderModel,shapes[name]) )
+        if name in minevents:
+            modelBuilder.getModel().minEvents( minevents[name] )
+        if name in constrained:
+            cname = "normConstraint%s" % name
+            constraint = ROOT.RooRealVar(cname,cname,1.)
+            pdf = None
+            if constrained[name] > 0.:
+                ### k = ROOT.RooRealVar("kLn%s" % cname,"kLn%s" % cname,math.exp(constrained[name]))
+                ### k.setConstant(True)
+                ### pdf = ROOT.RooLogNormal("%sPdf" % cname,"%sPdf" % cname,constraint,k)
+                mean = ROOT.RooRealVar("mean%s" % cname,"mean%s" % cname,1.)
+                mean.setConstant(True)
+                mean.Print("V")
+                sigma = ROOT.RooRealVar("sigma%s" % cname,"sigma%s" % cname,constrained[name])
+                sigma.setConstant(True)
+                sigma.Print("V")
+                constraint.Print("V")
+                pdf = ROOT.RooGaussian("%sPdf" % cname,"%sPdf" % cname,constraint,mean,sigma)
+                pdf.Print("V")
+                constraints.append( (constraint,pdf,(mean,sigma)) )
+            else:
+                constraint.setConstant(True)
+                constraints.append(constraint)
             modelBuilder.getModel().setMu(constraint)
-            constraints.append(constraint)
+            
         builders.append(modelBuilder)
     return builders,constraints
 
@@ -259,10 +278,10 @@ def optimizeMultiDim(options,args):
         
     fin.Close()
     signals,sigconstr = modelBuilders( sigTrees, ROOT.AbsModel.sig, obs, varlist, sellist,
-                                       getattr(options,"weights",{}), getattr(options,"shapes",{}), {}, [] )
+                                       getattr(options,"weights",{}), getattr(options,"shapes",{}), {}, {} )
     backgrounds,bkgconstr = modelBuilders( bkgTrees, ROOT.AbsModel.bkg, obs, varlist, sellist,
                                            getattr(options,"weights",{}), getattr(options,"shapes",{}),
-                                           getattr(options,"minevents",{},), getattr(options,"constrained",[]),
+                                           getattr(options,"minevents",{},), getattr(options,"constrained",{}),
                                            )
     
     if options.saveCompactTree:
@@ -293,7 +312,6 @@ def optimizeMultiDim(options,args):
         normTF1s.append(norm)
         sumxTF1s.append(x)
         sumx2TF1s.append(x2)
-    
         
     canv2 = ROOT.TCanvas("canv2","canv2")
     canv2.cd()
@@ -345,6 +363,15 @@ def optimizeMultiDim(options,args):
         sigModel.getModel().setMu(mu)
     fom.addPOI(mu)
     fom.minStrategy(2)
+    for constraint in sigconstr+bkgconstr:
+        print constraint
+        if type(constraint) == tuple:
+            var, pdf, pars = constraint
+            print var,pdf,pars
+            fom.addNuisance(var,pdf)
+        else:
+            fom.addNuisance(constraint)
+    
     ## fom.minimizer("Minuit2")
     ## fom.useRooSimultaneous()
     

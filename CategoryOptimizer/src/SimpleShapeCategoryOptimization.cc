@@ -20,6 +20,7 @@
 #include "RooPlot.h"
 #include "RooMinimizer.h"
 #include "RooAddition.h"
+#include "RooConstraintSum.h"
 #include "Math/IFunction.h"
 #include "TCanvas.h"
 #include "Math/AdaptiveIntegratorMultiDim.h"
@@ -626,16 +627,33 @@ double SimpleShapeFomProvider::operator() ( std::vector<AbsModel *> sig, std::ve
 			garbageColl.push_back(nll);
 		}
 				
-		nll = roosim->createNLL( *combData, RooFit::Extended(), RooFit::NumCPU(ncpu_) );
+		nll = ( constraints_.getSize() > 0 ? 
+			roosim->createNLL( *combData, RooFit::Extended(), RooFit::NumCPU(ncpu_),
+					   RooFit::ExternalConstraints(constraints_) ) :
+			roosim->createNLL( *combData, RooFit::Extended(), RooFit::NumCPU(ncpu_) )  
+			);
 		garbageColl.push_back(nll);
 	} else { 
 		RooArgSet nlls;
 		for(size_t icat=0; icat<totcat; ++icat) {
-			RooAbsReal *inll = pdfs[icat].createNLL( asimovs[icat], RooFit::Extended() );
+			//// RooAbsReal *inll = pdfs[icat].createNLL( asimovs[icat], RooFit::Extended() );				
+			RooAbsReal *inll = ( constraints_.getSize() > 0 ? 
+					     pdfs[icat].createNLL( asimovs[icat], RooFit::Extended(),
+								   RooFit::ExternalConstraints(constraints_) ) : 
+					     pdfs[icat].createNLL( asimovs[icat], RooFit::Extended() ) 
+				);
 			nlls.add(*inll);
 			garbageColl.push_back(inll);
 		}
+		//// if( constraints_.getSize() > 0 ) {
+		//// 	RooAbsReal* nllCons = new RooConstraintSum("constr","constr",constraints_,constrained_);
+		//// 	nlls.add(*nllCons);
+		//// 	garbageColl.push_back(nllCons);
+		//// 	//// constraints_.Print("V");
+		//// 	//// constrained_.Print("V");
+		//// }
 		nll = new RooAddition("nll","nll",nlls);
+		//// nll->Print("V");
 		garbageColl.push_back(nll);
 	}
 	

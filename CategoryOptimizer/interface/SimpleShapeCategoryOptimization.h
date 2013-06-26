@@ -201,11 +201,20 @@ public:
 	void useRooSimultaneous(bool x=true) { useRooSimultaneous_=x; };
 	void nSubcats(int x) { nSubcats_ = x; };
 	
+	void addNuisance(RooRealVar * x, RooAbsReal *p=0) { 
+		resets_.push_back(x); 
+		if(p!=0) { 
+			constrained_.add(*x);
+			constraints_.add(*p,false); 
+		} 
+	};
+
 private:
 	int nSubcats_;
 	int ncpu_;
 	std::vector<RooRealVar *> pois_;
 	std::vector<RooRealVar *> resets_;
+	RooArgSet constraints_, constrained_;
 	std::string minimizer_;
 	int minStrategy_;
 	bool useRooSimultaneous_;
