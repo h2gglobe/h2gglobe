@@ -231,10 +231,10 @@ double CategoryOptimizer::optimizeNCat(int ncat, const double * cutoffs, bool dr
 						     bestFit.back());
 		} else {
 			minimizer_->SetLimitedVariable(bestFit.size()-1, Form("%sBound%d",dimname.Data(),0), 
-						       bestFit.back(), tmpcutoffs[idim]*speed_,
+						       bestFit.back(), range, // tmpcutoffs[idim]*speed_,
 						       min, max );
 			if( scan_ > 0 && scanBoundaries_ ) { 
-				paramsToScan.push_back(std::make_pair(idim*nbound,std::make_pair(min,max) ));
+				paramsToScan.push_back(std::make_pair(bestFit.size()-1,std::make_pair(min,max) ));
 			}
 		}
 		for(int ibound=1; ibound<nbound; ++ibound) {
@@ -247,9 +247,10 @@ double CategoryOptimizer::optimizeNCat(int ncat, const double * cutoffs, bool dr
 				minimizer_->SetLimitedVariable(bestFit.size()-1,
 							       Form( "%sDeltaBound%d",dimname.Data(), ibound ), 
 							       bestFit.back(),
-							       tmpcutoffs[idim]*speed_, tmpcutoffs[idim], range );
+							       range, // tmpcutoffs[idim]*speed_,
+							       tmpcutoffs[idim], range );
 				if( scan_ > 0 && scanBoundaries_ ) { 
-					paramsToScan.push_back(std::make_pair(idim*nbound+ ibound,std::make_pair(min,max)));
+					paramsToScan.push_back(std::make_pair(bestFit.size()-1,std::make_pair(min,max)));
 				}
 				
 			} else {
@@ -261,10 +262,10 @@ double CategoryOptimizer::optimizeNCat(int ncat, const double * cutoffs, bool dr
 				minimizer_->SetLimitedVariable(bestFit.size()-1,
 							       Form( "%sBound%d",dimname.Data(), ibound ), 
 							       bestFit.back(),
-							       tmpcutoffs[idim]*speed_, 
+							       range, // tmpcutoffs[idim]*speed_, 
 							       min, max );
 				if( scan_ > 0 && scanBoundaries_ ) { 
-					paramsToScan.push_back(std::make_pair(idim*nbound+ibound,std::make_pair(min,max)));
+					paramsToScan.push_back(std::make_pair(bestFit.size()-1,std::make_pair(min,max)));
 				}
 			}
 		}
@@ -291,12 +292,11 @@ double CategoryOptimizer::optimizeNCat(int ncat, const double * cutoffs, bool dr
 		double min = ( orthocut.second.size() > 2 ? orthocut.second[2] : 0 );
 		double max = ( orthocut.second.size() > 3 ? orthocut.second[3] : 0 );
 		double start = orthocut.second[0];
-		double step = ( orthocut.second.size() > 1 ? orthocut.second[1] : 0. ) * speed_;
 		if( transformations_.size() > ndim_ ) {
 			min = 0.; max = 1.;
 			start = inv_transformations_[ndim_+iortho]->eval(start);
-			step  = tmpcutoffs[0]*speed_;/// (inv_transformations_[ndim_+iortho]->eval(start+step) - inv_transformations_[ndim_+iortho]->eval(start));
 		}
+		double step = max-min;/// ( orthocut.second.size() > 1 ? orthocut.second[1] : 0. ) * speed_;
 		//// std::cout << orthocut.first << " " << start << " " << step << " " << min << " " << max << std::endl;
 		bestFit.push_back(start);
 
@@ -312,31 +312,34 @@ double CategoryOptimizer::optimizeNCat(int ncat, const double * cutoffs, bool dr
 							start, step, min, max
 				);
 			if( scan_ > 0 ) { 
-				paramsToScan.push_back(std::make_pair(ndim_*(nbound+addConstraint_) + iortho,
+				paramsToScan.push_back(std::make_pair(bestFit.size()-1,
 								      std::make_pair(min,max)));
 			}
 		}
 	}
 	
+	/// std::vector<double> x(scan_), y(+1);
+	double x[100], y[100];
 	if( scan_>0 ) { 
 		std::cout << "Scanning parameters " << std::endl;
 		minimizer_->PrintResults();
 		unsigned int nstep = scan_;
-		std::vector<double> x(nstep), y(nstep);
 		for(int ii=paramsToScan.size()-1; ii>=0; --ii) {
 			int ipar = paramsToScan[ii].first;
 			std::pair<double,double> rng = paramsToScan[ii].second;
 			std::cout << ipar << " " << rng.first << " " << rng.second << std::endl;
 			minimizer_->Scan(ipar,nstep,&x[0],&y[0],rng.first,rng.second);
-			minimizer_->SetVariableValue(ipar, x[ std::min_element(y.begin(),y.end()) - y.begin()]);
-			std::copy( x.begin(), x.end(), std::ostream_iterator<double>(std::cout, ",") );
+			/// minimizer_->SetVariableValue(ipar, x[ std::min_element(y.begin(),y.end()) - y.begin()]);
+			std::copy( &x[0], &x[nstep-1], std::ostream_iterator<double>(std::cout, ",") );
 			std::cout << std::endl;
-			std::copy( y.begin(), y.end(), std::ostream_iterator<double>(std::cout, ",") );
-			std::cout << std::endl;
+			std::copy( &y[0], &y[nstep-1], std::ostream_iterator<double>(std::cout, ",") );
+			std::cout << std::endl;		       
 			minimizer_->PrintResults();
 		}
+		std::cout << "here" << std::endl;
 	}
-	
+	std::cout << "here" << std::endl;
+
 	// Call to the minimization
 	std::cout << "Calling minimization (strategy: " << strategy_ << ")" << std::endl;
 	std::copy( bestFit.begin(), bestFit.end(), std::ostream_iterator<double>(std::cout, ",") );
