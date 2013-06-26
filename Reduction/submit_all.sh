@@ -1,13 +1,13 @@
 #!/bin/bash
 
-./submit_reduction.sh data2012_RERECO DoubleElectron_Run2012A-22Jan2013-v1_AOD.dat 10
-#./submit_reduction.sh data2012_RERECO DoubleElectron_Run2012C-22Jan2013-v1_AOD.dat 50
-#./submit_reduction.sh data2012_RERECO DoublePhoton_Run2012B-22Jan2013-v1_AOD.dat 50
-#./submit_reduction.sh data2012_RERECO DoublePhoton_Run2012D-22Jan2013-v1_v3.dat 50 
-#./submit_reduction.sh data2012_RERECO DoubleElectron_Run2012B-22Jan2013-v1_AOD.dat 50
-#./submit_reduction.sh data2012_RERECO DoubleElectron_Run2012D-22Jan2013-v1_v2.dat 50
-#./submit_reduction.sh data2012_RERECO DoublePhoton_Run2012C-22Jan2013-v2_AOD.dat 50
-#./submit_reduction.sh data2012_RERECO Photon_Run2012A_22Jan2013-v1_AOD.dat 10
+#./submit_reduction.sh data2012_RERECO DoubleElectron_Run2012A-22Jan2013-v1_AOD 10
+./submit_reduction.sh data2012_RERECO DoubleElectron_Run2012C-22Jan2013-v1_AOD 80
+./submit_reduction.sh data2012_RERECO DoublePhoton_Run2012B-22Jan2013-v1_AOD 80
+./submit_reduction.sh data2012_RERECO DoublePhoton_Run2012D-22Jan2013-v1_v3 80 
+./submit_reduction.sh data2012_RERECO DoubleElectron_Run2012B-22Jan2013-v1_AOD 80
+./submit_reduction.sh data2012_RERECO DoubleElectron_Run2012D-22Jan2013-v1_v2 80
+./submit_reduction.sh data2012_RERECO DoublePhoton_Run2012C-22Jan2013-v2_AOD 80
+./submit_reduction.sh data2012_RERECO Photon_Run2012A_22Jan2013-v1_AOD 20
 
 
 

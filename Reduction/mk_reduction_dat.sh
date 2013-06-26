@@ -36,6 +36,7 @@
 #Photon_Run2012A_22Jan2013-v1_AOD
 
 rm data2012_RERECO/*.dat
-./AnalysisScripts/mk_reduction_dat.py /store/group/phys_higgs/cmshgg/processed/V15_00_05/data /store/group/phys_higgs/cmshgg/reduced/rereco_june2013/data data2012_RERECO.txt
+#./AnalysisScripts/mk_reduction_dat.py /store/group/phys_higgs/cmshgg/processed/V15_00_05/data /store/group/phys_higgs/cmshgg/reduced/rereco_june2013/data data2012_RERECO.txt
+./AnalysisScripts/mk_reduction_dat.py /store/group/phys_higgs/cmshgg/processed/V15_00_05/data ${storedir}/rereco_june2013/data data2012_RERECO.txt
 
 tar zcf ${version}.tgz  AnalysisScripts/{common,reduction,aux,*.py}
