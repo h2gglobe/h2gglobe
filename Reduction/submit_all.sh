@@ -1,19 +1,16 @@
 #!/bin/bash
 
+./submit_reduction.sh data2012_RERECO DoubleElectron_Run2012A-22Jan2013-v1_AOD.dat 10
+#./submit_reduction.sh data2012_RERECO DoubleElectron_Run2012C-22Jan2013-v1_AOD.dat 50
+#./submit_reduction.sh data2012_RERECO DoublePhoton_Run2012B-22Jan2013-v1_AOD.dat 50
+#./submit_reduction.sh data2012_RERECO DoublePhoton_Run2012D-22Jan2013-v1_v3.dat 50 
+#./submit_reduction.sh data2012_RERECO DoubleElectron_Run2012B-22Jan2013-v1_AOD.dat 50
+#./submit_reduction.sh data2012_RERECO DoubleElectron_Run2012D-22Jan2013-v1_v2.dat 50
+#./submit_reduction.sh data2012_RERECO DoublePhoton_Run2012C-22Jan2013-v2_AOD.dat 50
+#./submit_reduction.sh data2012_RERECO Photon_Run2012A_22Jan2013-v1_AOD.dat 10
 
-./submit_reduction.sh     mc_spin2_summer12_s10_withgen Graviton2PMGluGluToHToGG_M-125  5
-./submit_reduction.sh     mc_spin2_summer12_s10_withgen Graviton2PMGluGluToHToGG_M-126  5 
-./submit_reduction.sh     mc_spin2_summer12_s10_withgen Graviton2PMqqbarToHToGG_M-125   5
-./submit_reduction.sh     mc_spin2_summer12_s10_withgen Graviton2PMqqbarToHToGG_M-126   5
 
-./submit_reduction.sh     mc_sig_summer12_s10_withgen GluGluToHToGG_M-125_8TeV-powheg-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1  5 
-./submit_reduction.sh     mc_sig_summer12_s10_withgen VBF_HToGG_M-125_8TeV-powheg-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1      5
-./submit_reduction.sh     mc_sig_summer12_s10_withgen GluGluToHToGG_M-126_8TeV-powheg-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1  5
-./submit_reduction.sh     mc_sig_summer12_s10_withgen VBF_HToGG_M-126_8TeV-powheg-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1      5
-./submit_reduction.sh     mc_sig_summer12_s10_withgen TTH_HToGG_M-125_8TeV-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1             5
-./submit_reduction.sh     mc_sig_summer12_s10_withgen WH_ZH_HToGG_M-125_8TeV-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1           5
-./submit_reduction.sh     mc_sig_summer12_s10_withgen TTH_HToGG_M-126_8TeV-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1             5
-./submit_reduction.sh     mc_sig_summer12_s10_withgen WH_ZH_HToGG_M-126_8TeV-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1           5
+
 
 #./submit_reduction.sh    data_2012             Photon_Run2012A-13Jul2012-v1                    10
 #./submit_reduction.sh    data_2012             Photon_Run2012A-recover-06Aug2012-v1            1

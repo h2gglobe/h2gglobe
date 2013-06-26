@@ -3,9 +3,9 @@
 
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
-//#ifndef noexcept
-//#define noexcept
-//#endif
+#ifndef noexcept
+#define noexcept
+#endif
 
 #include "CMGTools/External/interface/PileupJetIdAlgo.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
