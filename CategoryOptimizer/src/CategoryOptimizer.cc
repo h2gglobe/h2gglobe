@@ -234,7 +234,13 @@ double CategoryOptimizer::optimizeNCat(int ncat, const double * cutoffs, bool dr
 						       bestFit.back(), range, // tmpcutoffs[idim]*speed_,
 						       min, max );
 			if( scan_ > 0 && scanBoundaries_ ) { 
-				paramsToScan.push_back(std::make_pair(bestFit.size()-1,std::make_pair(min,max) ));
+				if( ival ) {
+					paramsToScan.push_back(
+						std::make_pair(bestFit.size()-1,
+							       std::make_pair(inv_transformations_[idim]->eval(*ival),max)));
+				} else {
+					paramsToScan.push_back(std::make_pair(bestFit.size()-1,std::make_pair(min,max) ));
+				}
 			}
 		}
 		for(int ibound=1; ibound<nbound; ++ibound) {
@@ -265,7 +271,14 @@ double CategoryOptimizer::optimizeNCat(int ncat, const double * cutoffs, bool dr
 							       range, // tmpcutoffs[idim]*speed_, 
 							       min, max );
 				if( scan_ > 0 && scanBoundaries_ ) { 
-					paramsToScan.push_back(std::make_pair(bestFit.size()-1,std::make_pair(min,max)));
+					if(ival) { 
+						paramsToScan.push_back(
+							std::make_pair(bestFit.size()-1,
+								       std::make_pair(inv_transformations_[idim]->eval(*ival),
+										      bestFit[bestFit.size()-2])));
+					} else {
+						paramsToScan.push_back(std::make_pair(bestFit.size()-1,std::make_pair(min,max)));
+					}
 				}
 			}
 		}
@@ -313,7 +326,7 @@ double CategoryOptimizer::optimizeNCat(int ncat, const double * cutoffs, bool dr
 				);
 			if( scan_ > 0 ) { 
 				paramsToScan.push_back(std::make_pair(bestFit.size()-1,
-								      std::make_pair(min,max)));
+								      std::make_pair(min+0.2*(max-min),max-0.2*(max-min))));
 			}
 		}
 	}

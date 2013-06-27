@@ -146,6 +146,7 @@ public:
 	void setTransformOrtho(bool x=true) { tranformOrtho_=x; };
 	void setSpeed(double x) { speed_=x; };
 	
+	void setDimName(int idim, const char * name) { dimnames_[idim] = name; };
 private:
 
 	ROOT::Math::Minimizer * minimizer_;

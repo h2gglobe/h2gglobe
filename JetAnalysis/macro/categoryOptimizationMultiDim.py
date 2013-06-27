@@ -1,6 +1,6 @@
 #!/bin/env python
 
-import sys, types
+import sys, types, os
 import numpy
 from math import sqrt, log
 import json
@@ -24,41 +24,49 @@ def loadSettings(cfgs,dest):
             setattr(dest,k,v)
         cf.close()
 
-def getBoundaries(ncat,optimizer, summary):
-    boundaries = numpy.array([0. for i in range(ncat+1) ])
-    selections = numpy.array([0. for i in range(optimizer.nOrthoCuts()) ])
-    print optimizer.nOrthoCuts()
+def getBoundaries(ndim,ncat,optimizer, summary):
+    print ndim, ncat
+    boundaries = numpy.array([0. for i in range(ndim*(ncat+1)) ],dtype='d')
+    selections = numpy.array([0. for i in range(optimizer.nOrthoCuts()) ],dtype='d')
+    print boundaries
     if len(selections) > 0: 
         z = optimizer.getBoundaries(ncat,boundaries,selections)
     else:
-        z = optimizer.getBoundaries(ncat,boundaries,numpy.array([0.]))
-    print z, boundaries, selections
+        tmp = numpy.array([0.],dtype='d')
+        z = optimizer.getBoundaries(ncat,boundaries,tmp)
     if not ncat in summary or summary[ncat]["fom"] < z: 
         summary[ncat] =  { "fom" : z, "boundaries" : list(boundaries), "ncat": ncat }
         if len(selections) > 0: 
             summary[ncat]["selections"]=list(selections)
-        
+    objs.append((boundaries,selections))
 
 # -----------------------------------------------------------------------------------------------------------
-def optmizeCats(optimizer,ws,rng,args,readBack=False,reduce=False,refit=False):
+def optmizeCats(optimizer,ws,ndim,rng,args,readBack=False,reduce=False,refit=False):
     
     summary = {}
+    print readBack
     if readBack:
         try:
-            sin = open("cat_opt.json","r")
+            sin = open("%s/cat_opt.json" % options.cont,"r")
             summary = json.loads(sin.read())
             sin.close()
         except:
             summary = {}
-        
+            
+    print "---------------------------------------------"
+    print "Fitting"
+    print 
     for iter in rng:
         optimizer.optimizeNCat(iter,*args)
-        getBoundaries(iter, optimizer, summary )
+        getBoundaries(ndim,iter, optimizer, summary )
 
     for ncat,val in summary.iteritems():
         printBoundaries(val["boundaries"],val["fom"],val.get("selections",None))
-
+        
     if reduce:
+        print "---------------------------------------------"
+        print "Reducing"
+        print 
         maxncat = 0
         for ncat,val in summary.iteritems():
             boundaries = numpy.array([float(b) for b in val["boundaries"]])
@@ -67,10 +75,16 @@ def optmizeCats(optimizer,ws,rng,args,readBack=False,reduce=False,refit=False):
             maxncat = max(int(ncat),maxncat)
         rng = range(1,maxncat+1)
         summary = {}
+        for iter in rng:
+            getBoundaries(ndim,iter, optimizer, summary )
 
     if refit:
+        print "---------------------------------------------"
+        print "Refitting"
+        print 
         for ncat,val in summary.iteritems():
             boundaries = numpy.array([float(b) for b in val["boundaries"]])
+            print ncat,val,boundaries
             ncat=int(ncat)
             ## setSelections(optimizer,summary)
             eargs = [a for a in args]
@@ -80,14 +94,12 @@ def optmizeCats(optimizer,ws,rng,args,readBack=False,reduce=False,refit=False):
         rng = sorted( set(rng) )
         summary = {}
         
-    for iter in rng:
-        getBoundaries(iter, optimizer, summary )
+        for iter in rng:
+            getBoundaries(ndim,iter, optimizer, summary )
         
     for ncat,val in summary.iteritems():
         printBoundaries(val["boundaries"],val["fom"],val.get("selections",None))
 
-    print summary
-        
     sout = open("cat_opt.json","w+")
     sout.write( json.dumps(summary,sort_keys=True, indent=4) )
 
@@ -117,8 +129,8 @@ alltrees = []
 def mergeTrees(tfile,sel,outname,trees,aliases):
     tlist = ROOT.TList()
     for name,selection in trees:
-        print "Reading tree %s" % name        
         tree=tfile.Get(name)
+        print "Reading tree %s" % name, selection, sel
         if sel != "":
             selection = str(ROOT.TCut(selection)*ROOT.TCut(sel))
         if selection != "":
@@ -134,16 +146,15 @@ def mergeTrees(tfile,sel,outname,trees,aliases):
 objs = []
 
 # -----------------------------------------------------------------------------------------------------------
-def defineVariables(variables):
+def defineVariables(variables,label):
 
     arglist = ROOT.RooArgList()
     aliases = []
     
     for var in variables:
-        name = str(var[0])
+        name = str(var[0] % {"label" : label})
         if ":=" in name:
             name, definition = [ tok.lstrip(" ").rstrip(" ") for tok in name.split(":=") if tok != "" ]
-            print name, definition
             aliases.append( (name,definition) )
         xmin,xmax,nbins = var[1]
         default = xmin
@@ -183,13 +194,10 @@ def modelBuilders(trees, type, obs, varlist, sellist, weights, shapes, minevents
                 ### pdf = ROOT.RooLogNormal("%sPdf" % cname,"%sPdf" % cname,constraint,k)
                 mean = ROOT.RooRealVar("mean%s" % cname,"mean%s" % cname,1.)
                 mean.setConstant(True)
-                mean.Print("V")
                 sigma = ROOT.RooRealVar("sigma%s" % cname,"sigma%s" % cname,constrained[name])
                 sigma.setConstant(True)
-                sigma.Print("V")
                 constraint.Print("V")
                 pdf = ROOT.RooGaussian("%sPdf" % cname,"%sPdf" % cname,constraint,mean,sigma)
-                pdf.Print("V")
                 constraints.append( (constraint,pdf,(mean,sigma)) )
             else:
                 constraint.setConstant(True)
@@ -218,31 +226,44 @@ def optimizeMultiDim(options,args):
 
     cutoffs = numpy.array([cutoff]*ndim)
     
-    obs,obsalias = defineVariables( [observable] )
+    obs,obsalias = defineVariables( [observable], options.label )
     obs = obs[0]
     mu = ROOT.RooRealVar("mu","mu",1.,0.,10.)
     
-    varlist,aliases = defineVariables( variables )
-    sellist,selaliases = defineVariables( selectioncuts )
-    
+    varlist,aliases = defineVariables( variables, options.label )
+    sellist,selaliases = defineVariables( selectioncuts, options.label )
+
+    print "---------------------------------------------"
     print "Observables "
     obs.Print("")
 
+    print 
     print "Variables"
     varlist.Print("V")
 
+    print
     print "Selection cuts"
     sellist.Print("V")
 
     aliases.extend(obsalias+selaliases)
+    print
     print "Aliases"
-    print aliases
-        
+    pprint(aliases)
+    print
+    
     if options.infile == "":
         options.infile = args[0]
     fin = ROOT.TFile.Open(options.infile)
 
-    tmp = ROOT.TFile.Open(options.outfile,"recreate")
+    if options.cont:
+        if os.path.exists(os.path.abspath(options.cont)):
+            options.cont = os.path.abspath(options.cont)
+        else:
+            options.cont = os.path.abspath(os.path.join(os.path.dirname(options.outdir),options.cont))
+    if not os.path.exists(options.outdir):
+        os.mkdir(options.outdir)
+    os.chdir(options.outdir)
+    tmp = ROOT.TFile.Open("categoryOptimizationMultiDim.root","recreate")
     tmp.cd()
 
     ### ##########################################################################################################
@@ -270,6 +291,9 @@ def optimizeMultiDim(options,args):
     ### ##########################################################################################################
     ### Model builders
     ###
+    print "---------------------------------------------"
+    print "Reading inputs"
+    print
     sigTrees = [ mergeTrees(fin,selection,name,trees,aliases) for name,trees in signals.iteritems() ]
     bkgTrees = [ mergeTrees(fin,selection,name,trees,aliases) for name,trees in backgrounds.iteritems() ]
 
@@ -277,6 +301,10 @@ def optimizeMultiDim(options,args):
         tree.Write()
         
     fin.Close()
+
+    print "---------------------------------------------"
+    print "Booking model buildes"
+    print
     signals,sigconstr = modelBuilders( sigTrees, ROOT.AbsModel.sig, obs, varlist, sellist,
                                        getattr(options,"weights",{}), getattr(options,"shapes",{}), {}, {} )
     backgrounds,bkgconstr = modelBuilders( bkgTrees, ROOT.AbsModel.bkg, obs, varlist, sellist,
@@ -386,7 +414,8 @@ def optimizeMultiDim(options,args):
         optimizer.addBackground( bkgModel )
     optimizer.setFigureOfMerit( fom )
     
-    summary = optmizeCats( optimizer, ws, options.range, (cutoffs,options.dry,True,), options.cont, options.reduce, options.refit )
+    summary = optmizeCats( optimizer, ws, varlist.getSize(),
+                           options.range, (cutoffs,options.dry,True,), options.cont, options.reduce, options.refit )
     
     ### #########################################################################################################
     ### Some plots
@@ -411,11 +440,11 @@ def optimizeMultiDim(options,args):
         nbinsX = var.getBinning().numBoundaries()-1
         hbound = ROOT.TH2F("hbound_%s" % name,"hbound_%s" % name,nbinsX+3,minX-1.5*(maxX-minX)/nbinsX,maxX+1.5*(maxX-minX)/nbinsX,ncat+3,mincat-1.5,maxcat+1.5)
         for jcat,val in summary.iteritems():
-            for ib in range(len(val["boundaries"])):
-                if (ib % ndim) == idim:
-                    bd = float(val["boundaries"][ib])
-                    ## hbound.Fill(float(jcat),bd)
-                    hbound.Fill(bd,float(jcat))
+            nbound = int(jcat)+1
+            for ib in range(nbound):
+                bd = float(val["boundaries"][ib+idim*nbound])
+                ## hbound.Fill(float(jcat),bd)
+                hbound.Fill(bd,float(jcat))
         cbound = ROOT.TCanvas( "cat_opt_%s" % hbound.GetName(), "cat_opt_%s" % hbound.GetName() )
         cbound.cd()
         hbound.Draw("box")
@@ -526,7 +555,7 @@ def optimizeMultiDim(options,args):
     
     canv9.SaveAs("cat_opt_fom.png")
     canv9.SaveAs("cat_opt_fom.C")
-
+    
     ## tmp.Close()
     return ws
 
@@ -553,9 +582,9 @@ if __name__ == "__main__":
                         default="",
                         help="input file",
                         ),
-            make_option("-o", "--outfile",
-                        action="store", type="string", dest="outfile",
-                        default=sys.argv[0].replace(".py",".root"),
+            make_option("-o", "--outdir",
+                        action="store", type="string", dest="outdir",
+                        default="./",
                         help="output file",
                         ),
             make_option("-l", "--load",
@@ -563,8 +592,13 @@ if __name__ == "__main__":
                         default="",
                         help="json file containing settings"
                         ),
+            make_option("--label",
+                        action="store", dest="label", type="string",
+                        default="",
+                        help=""
+                        ),
             make_option("-c", "--continue",
-                        action="store_true", dest="cont",
+                        action="store", dest="cont", type="string",
                         default=False,
                         help="read-back the previous optimization step",
                         ),
@@ -614,6 +648,9 @@ if __name__ == "__main__":
     (options, args) = parser.parse_args()
     loadSettings(options.settings, options)
 
+    if options.infile == "":
+        options.infile = "tmva%s.root" % options.label
+        
     if not options.showplots:
         sys.argv.append("-b")
 
@@ -622,7 +659,7 @@ if __name__ == "__main__":
         options.refit = True
         options.reduce = True
         
-    pprint(options)
+    pprint(options.__dict__)
 
     import ROOT
     print ROOT.gROOT.IsBatch()
