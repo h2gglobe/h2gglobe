@@ -360,8 +360,10 @@ void HggVertexAnalyzer::getBranches(TTree * tree, const std::string & pfx, std::
 		ret.insert(tree->GetBranch((pfx+"pyvtx").c_str()));
 	}
 	ret.insert(tree->GetBranch((pfx+"nch").c_str()));
-	ret.insert(tree->GetBranch((pfx+"nchpho1").c_str()));
-	ret.insert(tree->GetBranch((pfx+"nchpho2").c_str()));
+	if( tree->GetBranch((pfx+"nchpho1").c_str() ) ) {
+		ret.insert(tree->GetBranch((pfx+"nchpho1").c_str()));
+		ret.insert(tree->GetBranch((pfx+"nchpho2").c_str()));
+	}
 	ret.insert(tree->GetBranch((pfx+"ptmax").c_str()));
 	ret.insert(tree->GetBranch((pfx+"sumpt").c_str()));
 	ret.insert(tree->GetBranch((pfx+"ptvtx").c_str()));
@@ -375,8 +377,10 @@ void HggVertexAnalyzer::getBranches(TTree * tree, const std::string & pfx, std::
 	
 	ret.insert(tree->GetBranch((pfx+"sumweight").c_str()));
 	ret.insert(tree->GetBranch((pfx+"sumpt2").c_str()));
-	ret.insert(tree->GetBranch((pfx+"sumpt2in").c_str()));
-	ret.insert(tree->GetBranch((pfx+"sumpt2out").c_str()));
+	if( tree->GetBranch((pfx+"sumpt2in").c_str() ) ) {
+		ret.insert(tree->GetBranch((pfx+"sumpt2in").c_str()));
+		ret.insert(tree->GetBranch((pfx+"sumpt2out").c_str()));
+	}
 	ret.insert(tree->GetBranch((pfx+"ptratio").c_str()));
 	ret.insert(tree->GetBranch((pfx+"pzasym").c_str()));
 	
