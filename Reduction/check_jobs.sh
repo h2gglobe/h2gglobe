@@ -13,3 +13,5 @@ tail -n 100 $1/*.log | egrep -B 2 '=>|cmsStage|rfcp|Red|Break|Disk quota exceede
 		#COLOR GREEN
 		sed "s:[^/]\+\.root:\x1b\[01;32m&\x1b\[00m:g"
 
+echo -e "[   \033[01;35mSHA1\033[00m   ]"
+tail -n 100 $1/*.log |  sed 's//\r\n/g' | grep '^[0-9a-z]\{40,\}' 
