@@ -1,0 +1,10 @@
+##
+## energy scale adjustement and errors
+##
+scale_offset_file=jan22rereco_8TeV/energy_scale_offsets_std_mc.dat
+## scale_offset_error_file=common/energy_scale_errors.dat
+
+##
+## additional MC smearing
+##
+smearing_file=jan22rereco_8TeV/smearing_sigma_and_errors_std_mc.dat

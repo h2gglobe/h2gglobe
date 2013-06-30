@@ -1,0 +1,10 @@
+##
+## energy scale adjustement and errors
+##
+scale_offset_file=moriond2013/energy_scale_offsets_moriond2013.dat
+## scale_offset_error_file=common/energy_scale_errors.dat
+
+##
+## additional MC smearing
+##
+smearing_file=moriond2013/smearing_sigma_and_errors_moriond2013.dat

@@ -1,0 +1,9 @@
+recomputeBetas=0
+recorrectJets=1
+rerunJetMva=0
+recomputeJetWp=1
+jetHandlerCfg=jetHandler_Legacy8TeV.py
+
+
+scale_offset_file=jan22rereco_8TeV/energy_scale_offsets_std_mc.dat
+smearing_file=jan22rereco_8TeV/smearing_sigma_and_errors_std_mc.dat
