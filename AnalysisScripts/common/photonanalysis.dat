@@ -51,6 +51,7 @@ recomputeBetas=0
 recorrectJets=0
 rerunJetMva=0
 recomputeJetWp=0
-jetHandlerCfg=jetHandler_HCP_cfg.py
+## jetHandlerCfg=jetHandler_HCP_cfg.py
+jetHandlerCfg=jetHandler_Legacy8TeV.py
 
 reComputeCiCPF=0

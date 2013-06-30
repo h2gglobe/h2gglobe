@@ -1,8 +1,8 @@
-DoubleElectron_Run2012A-22Jan2013-v1_AOD 0
-DoubleElectron_Run2012C-22Jan2013-v1_AOD 0
-DoublePhoton_Run2012B-22Jan2013-v1_AOD 0
-DoublePhoton_Run2012D-22Jan2013-v1_v3 0
-DoubleElectron_Run2012B-22Jan2013-v1_AOD 0
-DoubleElectron_Run2012D-22Jan2013-v1_v2 0
-DoublePhoton_Run2012C-22Jan2013-v2_AOD 0
-Photon_Run2012A_22Jan2013-v1_AOD 0
+DoubleElectron_Run2012A-22Jan2013-v1_AOD 0  analyzer PhotonAnalysis photonanalysis.dat common/reduction_settings_jan22rereco_std_mc.dat
+DoubleElectron_Run2012C-22Jan2013-v1_AOD 0  analyzer PhotonAnalysis photonanalysis.dat common/reduction_settings_jan22rereco_std_mc.dat
+DoublePhoton_Run2012B-22Jan2013-v1_AOD 0    analyzer PhotonAnalysis photonanalysis.dat common/reduction_settings_jan22rereco_std_mc.dat
+DoublePhoton_Run2012D-22Jan2013-v1_v3 0	    analyzer PhotonAnalysis photonanalysis.dat common/reduction_settings_jan22rereco_std_mc.dat
+DoubleElectron_Run2012B-22Jan2013-v1_AOD 0  analyzer PhotonAnalysis photonanalysis.dat common/reduction_settings_jan22rereco_std_mc.dat
+DoubleElectron_Run2012D-22Jan2013-v1_v2 0   analyzer PhotonAnalysis photonanalysis.dat common/reduction_settings_jan22rereco_std_mc.dat
+DoublePhoton_Run2012C-22Jan2013-v2_AOD 0    analyzer PhotonAnalysis photonanalysis.dat common/reduction_settings_jan22rereco_std_mc.dat
+Photon_Run2012A_22Jan2013-v1_AOD 0          analyzer PhotonAnalysis photonanalysis.dat common/reduction_settings_jan22rereco_std_mc.dat
