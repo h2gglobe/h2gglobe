@@ -1,0 +1,58 @@
+{ 
+    "variables"  : [
+       ["vbfMva := BDT%(label)s", [-1,1,0.005]]
+		   ],
+
+    "_variables"  : [
+       ["vbfMva := BDTvbf_mva_jetonly*(BDTvbf_mva_jetonly<0.93)+0.93*(BDTvbf_mva_jetonly>=0.93)", [-1,1,0.02]],
+       ["vbfMva := BDTvbf_mva_jetonly", [-1,1,0.02]],
+       ["vbfMva := BDTvbf_mva*(BDTvbf_mva<0.93)+0.93*(BDTvbf_mva>=0.93)", [-1,1,0.02]],
+       ["vbfMva := BDTvbf_mva", [-1,1,0.02]],
+       ["diphoMVA",[-1,1,0.02]]
+		   ],
+  
+    "observable"  : ["mass := diphoM",[100,180,0.25],125],
+
+    "range" : [],
+	
+    "settings" : [["setSpeed",[1.5]],"setTransformOrtho"],
+
+    "selectioncuts" : [	
+	],
+
+    "_selectioncuts" : [	
+	["truncPho1ptOverM := pho1ptOverM*(pho1ptOverM<0.65)+(pho1ptOverM>=0.65)*0.65",[0.35,0.67,0.02],0.5]
+	],
+ 	
+    "fix" : ["phoidMvaEB","phoidMvaEE","truncPho1ptOverM"],
+    "selection" : "",
+    "cutoff" : 0.05,
+ 
+    "signals" : {
+	"vbf" : [ ["TestTree","classID == 0"]
+		   ]
+	    },
+    
+    "_backgrounds" : { 
+	"bkg" : [ ["TestTree","classID == 1 && mctype> 0"],
+		  ["TrainTree","classID == 1 && mctype> 0"]	
+		 ]
+	    },
+
+     "backgrounds" : { 
+	"bkg" : [ ["TestTree","classID == 1 && mctype >0"],
+		  ["TrainTree","classID == 1 && mctype >0"]	
+		 ],
+	"ggh" : [ ["TestTree","classID == 1 && mctype < 0"]
+		 ]
+	},
+
+     "shapes" : { "ggh" : "gaus" },
+     "constrained" : { "ggh" : 0.5 },
+     "weights" : { "vbf" : "Signal_wei", "bkg" : "Background_wei", "ggh" : "Background_wei"  },
+     "minevents" : { "bkg" : 40, "ggh" : 0.5 },
+
+     "_infile" : "tmvavbf_mva_jetonly.root",
+     "_infile" : "tmvavbf_mva_full.root"
+
+}

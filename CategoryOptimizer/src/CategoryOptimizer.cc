@@ -32,9 +32,15 @@ double GenericFigureOfMerit::DoEval(const double * x) const
 	return this->operator()(&xv[0],&pv[0]); 
 }
 
+double penalty(double distance)
+{
+	return 6.52896*(1.-TMath::Erf(100.*(distance-1.+0.01)))/(distance*distance*distance+0.3*0.3*0.3);
+}
+
 // ---------------------------------------------------------------------------------------------
 double GenericFigureOfMerit::operator() (double *x, double *p) const
 {
+	static double cached_ = 0.;
 	// sort out the input parameters
 	std::vector<double *> deltas(ndim_);
 	std::vector<double> firstb(ndim_);
@@ -81,6 +87,7 @@ double GenericFigureOfMerit::operator() (double *x, double *p) const
 	// loop over the categories
 	std::vector<double> currb = lastb;
 	std::vector<double> distances;
+	int nb = 0;
 	for(int ii=0; ii<nbound_; ++ii) {
 		int jj=ii+1;
 		std::vector<double> newb = currb;
@@ -100,6 +107,9 @@ double GenericFigureOfMerit::operator() (double *x, double *p) const
 				// make sure that at least in one dimension the boundaries are far enough
 				if( lastb[idim] > newb[idim] + cutoffs[idim] ) { found = true; }
 			}
+			for(int idim=0; idim<ndim_; ++idim) {
+				if( lastb[idim] < newb[idim] ) { found=false; }
+			}
 			if( found ) { break; }
 			else { 
 				double distance = 0.;
@@ -109,11 +119,11 @@ double GenericFigureOfMerit::operator() (double *x, double *p) const
 					distance += idist*idist;
 			 	}
 				distance = sqrt(distance);
-				ret += 6.52896*(1.-TMath::Erf(100.*(distance-1.+0.01)))/(distance*distance*distance+0.3*0.3*0.3);
+				ret += penalty(distance);
 				//// ret += 100./distance; /// FIXME should be configurable and continuos at the boundary
 			}
 		}
-		
+				
 		ii = jj - 1;
 		if( found ) {
 			lastb = newb;
@@ -126,10 +136,21 @@ double GenericFigureOfMerit::operator() (double *x, double *p) const
 			/// std::copy( newb.begin(), newb.end(), std::ostream_iterator<double>(std::cout, ",") );
 			/// std::cout << std::endl;
 			for(std::vector<AbsModelBuilder *>::const_iterator imod=allModels_.begin(); imod!=allModels_.end(); ++imod ) {
-				(*imod)->addBoundary(&newb[0]);
+				if( ! (*imod)->addBoundary(&newb[0]) ) { 
+					std::cout << "adding penalty from model " 
+						  << (*imod)->getModel()->getType() 
+						  << " " << (*imod)->getModel()->getNcat() 
+						  << " " << (*imod)->getModel()->getCategoryYield( 
+							  (*imod)->getModel()->getNcat() -1 ) << std::endl;
+					ret += penalty((*imod)->getPenalty());
+				}
 			}
-		} 
+			++nb;
+		}
 	}
+	
+	if( nb == 0 ) { ret+=penalty(0.); }
+	if( ret > 0 ) { return cached_ + ret; };
 	
 	for(std::vector<AbsModelBuilder *>::const_iterator imod=allModels_.begin(); imod!=allModels_.end(); ++imod ) {
 		(*imod)->endIntegration();
@@ -145,7 +166,9 @@ double GenericFigureOfMerit::operator() (double *x, double *p) const
 	}
 
 	// compute the FOM
-	ret += (*fom_)(sigModels,bkgModels);
+	double fom =  (*fom_)(sigModels,bkgModels);
+	if( fom < 0 ) { cached_ = fom; };
+	ret += fom;
 
 	// additional constraint
 	if( addConstraint_ ) {
@@ -178,6 +201,14 @@ double CategoryOptimizer::optimizeNCat(int ncat, const double * cutoffs, bool dr
 				TH1 * itransformPdf = transformModels_[imod]->getPdf(idim);
 				transformPdf->Add(itransformPdf);
 				delete itransformPdf;
+			}
+			transformPdf->Scale(1./transformPdf->Integral());
+			/// transformPdf->Print("all");
+			float max = transformPdf->GetMaximum();
+			if( max > tmpcutoffs[idim] ) { 
+				std::cout << "Moving cutofff for dimension " << idim << " " 
+					  << tmpcutoffs[idim] << " -> " << max << std::endl;
+				tmpcutoffs[idim] = max;
 			}
 			HistoConverter * conv = cdfInv(transformPdf,
 						       transformModels_[0]->getMin(idim),
@@ -219,8 +250,11 @@ double CategoryOptimizer::optimizeNCat(int ncat, const double * cutoffs, bool dr
 		if( ! transformations_.empty() && transformations_[idim]!=0 ) {
 			min = 0.; max = 1.;
 		}
-		double range = (max - min);
 		double first = max;
+		if( ! floatFirst_ ) {
+			max -= tmpcutoffs[idim];
+		}
+		double range = (max - min);
 		if( ival ) {
 			bestFit.push_back(inv_transformations_[idim]->eval(*ival)); ++ival;
 		} else { 
@@ -349,7 +383,6 @@ double CategoryOptimizer::optimizeNCat(int ncat, const double * cutoffs, bool dr
 			std::cout << std::endl;		       
 			minimizer_->PrintResults();
 		}
-		std::cout << "here" << std::endl;
 	}
 	std::cout << "here" << std::endl;
 
@@ -520,7 +553,16 @@ double CategoryOptimizer::getBoundaries(int ncat, double * boundaries, double * 
 	for(int idim=0; idim<ndim_; ++idim) {
 		for(int ibound=0; ibound<nbound; ++ibound) {
 			if( !transformations_.empty() && transformations_[idim]!=0 ) {
+				std::cout << boundaries[idim*nbound+ibound] << " -> ";
 				boundaries[idim*nbound+ibound] = transformations_[idim]->eval(boundaries[idim*nbound+ibound]);
+				double invb = inv_transformations_[idim]->eval(boundaries[idim*nbound+ibound]);
+				std::cout << "(" << invb << ")";
+				if( invb >= 1. ) {
+					boundaries[idim*nbound+ibound] = sigModels_[0]->getMax(idim);
+				} else if( invb <= 0. ) {
+					boundaries[idim*nbound+ibound] = sigModels_[0]->getMin(idim);
+				}
+				std::cout << boundaries[idim*nbound+ibound] << " " << std::endl;
 			}
 		}
 	}

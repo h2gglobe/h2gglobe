@@ -197,11 +197,12 @@ public:
 		capped_(true), xmin_(xmin), valmin_(valmin), xmax_(xmax), valmax_(valmax)
 		{ g_ = (TGraph*)g->Clone(name); };
 	double operator() (double *x, double *p) {
+		double val = g_->Eval( x[0] );
 		if( capped_ ) {
-			if( x[0] <= xmin_ ) { return valmin_; }
-			if( x[0] >= xmax_ ) { return valmax_; }
+			if( x[0] <= xmin_ || val < valmin_ ) { return valmin_; }
+			if( x[0] >= xmax_ || val > valmax_ ) { return valmax_; }
 		}
-		return g_->Eval( x[0] );
+		return val;
 	};
 
 	unsigned int NDim() const { return 1; }

@@ -12,7 +12,7 @@
   "subcategories" : [ 
         ],
 
-  "selection" : "pho1pt/diphoM > (40./120.) && pho2pt>25. && jet2>0",
+  "selection" : "pho1pt/diphoM > (40./120.) && pho2pt/diphoM>(25./120.) && jet2>0",
   "classes" : { 
 	"Signal" : { 
 		"samples" : [

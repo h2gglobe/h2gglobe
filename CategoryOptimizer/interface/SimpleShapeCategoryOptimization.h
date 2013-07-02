@@ -49,9 +49,11 @@ public:
 	std::string name() { return name_; };
 
 	void setShape(shape_t x);
+	shape_t getShape() { return shape_; };
 
 	void minEvents(double x) { minEvents_ = x; };
-	
+	double minEvents() { return minEvents_; };
+
 private:
 	void bookShape(int icat);
 	void setShapeParams(int icat);
@@ -130,7 +132,8 @@ public:
 
 	void setOrthoCuts(double * cuts) { std::copy(cuts,cuts+selectionCuts_.size(),selectionCuts_.begin()); };
 	
-	void addBoundary(double * boundaries) {
+	bool addBoundary(double * boundaries) {
+		bool ret = true;
 		std::vector<double> extboundaries(ndim_+selectionCuts_.size());
 		std::copy(boundaries,boundaries+ndim_,extboundaries.begin());
 		std::copy(selectionCuts_.begin(),selectionCuts_.end(),extboundaries.begin()+ndim_);
@@ -145,13 +148,23 @@ public:
 		if( mean*mean - rms > 0. ) {
 			rms = sqrt( mean*mean - rms );
 		} else {
-			rms = 0.;
-			norm = 0.;
+			rms = 1.e-2*mean;
+			/// norm = 0.;
+			///// if( model_.getShape() == SecondOrderModel::gaus ) { 
+			///// 	ret = false;
+			///// 	penalty_ = 0.;
+			///// }
+		}
+		if( norm <= model_.minEvents()*1.02 ) { 
+			std::cout << " too few events  " << norm << " " << model_.minEvents() <<std::endl;
+			penalty_ = norm/model_.minEvents(); 
+			ret = false; 
 		}
 		model_.addCategory(norm, mean, rms);
 		lastIntegral_ = integral;
 		lastSumX_  = sumX;
 		lastSumX2_ = sumX2;
+		return ret;
 	};
 	
 	double getMin(int idim) { return ranges_[idim].first;  };
@@ -167,10 +180,12 @@ public:
 	
 	TH1 * getPdf(int idim);
 	
+	double getPenalty() { return penalty_; };
+	
 private:
 	SecondOrderModel model_;
 	int ndim_;
-	double norm_, lastIntegral_, lastSumX_, lastSumX2_;
+	double norm_, lastIntegral_, lastSumX_, lastSumX2_, penalty_;
 	std::vector<std::pair<double,double> > ranges_;
 	std::vector<double> selectionCuts_, selectionCutsBegin_;
 	

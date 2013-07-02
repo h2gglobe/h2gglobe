@@ -1,0 +1,5 @@
+{ 
+  "variables"  : ["jet1Pt","jet2Pt","deta:=abs(jet1Eta-jet2Eta)","mj1j2","zepp","dphi","pho1ptOverM:=pho1pt/diphoM","pho2ptOverM:=pho2pt/diphoM"],
+  "_label" : "vbf_mva_tweak",
+  "_settings" : { "BDT" : "!H:!V:!CreateMVAPdfs:BoostType=Grad:UseBaggedGrad:Shrinkage=0.14:NTrees=620:NNodesMax=9:MaxDepth=4" }
+}

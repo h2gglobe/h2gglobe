@@ -57,10 +57,14 @@ public:
 
 	void endIntegration() {};
 	
-	void addBoundary(double * boundaries) {
+	bool addBoundary(double * boundaries) {
+		bool ret = true;
 		double integral = (*converter_)(boundaries,0);
-		model_.addCategory(norm_*(integral - lastIntegral_));
+		double norm = norm_*(integral - lastIntegral_);
+		if( norm == 0 ) { ret = false; }
+		model_.addCategory(norm);
 		lastIntegral_ = integral;
+		return ret;
 	};
 	
 	double getMin(int idim) { return ranges_[idim].first;  };

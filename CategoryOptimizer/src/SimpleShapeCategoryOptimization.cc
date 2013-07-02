@@ -352,7 +352,7 @@ TH1 * SecondOrderModelBuilder::getPdf(int idim)
 {
 	if( hsparse_ != 0 ) {
 		TH1 * h= hsparse_->Projection(idim,"A");
-		h->Scale(1./norm_);
+		h->Scale(norm_/h->Integral());
 		return h;
 	}
 	if( ranges_.size() == 1 ) {
@@ -665,9 +665,13 @@ double SimpleShapeFomProvider::operator() ( std::vector<AbsModel *> sig, std::ve
 	RooMinimizer minimsb(*nll);
 	minimsb.setMinimizerType(minimizer_.c_str());
 	minimsb.setPrintLevel(-1);
+	bool sconverged = false;
 	for(int ii=minStrategy_; ii<3; ++ii) {
 		minimsb.setStrategy(ii);
-		if( ! minimsb.migrad() ) { break; }
+		if( ! minimsb.migrad() ) { 
+			sconverged = true;
+			break; 
+		}
 	}
 	double minNllsb = nll->getVal();
 
@@ -693,11 +697,16 @@ double SimpleShapeFomProvider::operator() ( std::vector<AbsModel *> sig, std::ve
 	RooMinimizer minimb(*nll);
 	minimb.setMinimizerType(minimizer_.c_str());
 	minimb.setPrintLevel(-1);
+	bool bconverged = false;
 	for(int ii=minStrategy_; ii<3; ++ii) {
 		minimb.setStrategy(ii);
-		if( ! minimb.migrad() ) { break; }
+		if( ! minimb.migrad() ) { 
+			bconverged = true;
+			break; 
+		}
 	}
 	double minNllb = nll->getVal();     
+	
 	
 	double qA = -2.*(minNllb - minNllsb);
 	
@@ -724,8 +733,10 @@ double SimpleShapeFomProvider::operator() ( std::vector<AbsModel *> sig, std::ve
 			}
 		}
 	}
-
-	return -sqrt(-qA);
+	
+	float ret = -sqrt(-qA);
+	if( ! isfinite(ret) || ! sconverged || ! bconverged ) { ret=0.; }
+	return ret;
 }
 
 

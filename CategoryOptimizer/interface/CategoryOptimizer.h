@@ -39,12 +39,13 @@ public:
 	virtual void beginIntegration(double * theta) = 0;
 	virtual void endIntegration() = 0;
 	
-	virtual void addBoundary(double * theta) = 0;
+	virtual bool addBoundary(double * theta) = 0;
 	
 	virtual double getMin(int idim) = 0;
 	virtual double getMax(int idim) = 0;
 
 	virtual TH1 * getPdf(int idim) {};
+	virtual double getPenalty() { return 1e+10; };
 };
 
 // ------------------------------------------------------------------------------------------------

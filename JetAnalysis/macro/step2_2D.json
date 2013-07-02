@@ -1,0 +1,15 @@
+{
+    "settings" : [],
+    "refit" : 1,
+    "dry" : 1,
+    "cont" : "step1_2D",
+    "variables"  : [
+       ["diphoMva := diphoMVA",[-0.05,1,0.05]]
+		   ],
+    "backgrounds" : { 
+	"data" : [ ["TestTree","classID == 1 && mctype == 0"]
+		 ],
+	"ggh" : [ ["TestTree","classID == 1 && mctype < 0"]
+		 ]
+	    }
+}

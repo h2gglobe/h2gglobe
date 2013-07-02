@@ -1,0 +1,9 @@
+{
+    "settings" : [["setScan",[10,1]],["setStrategy",[0]]],
+    "refit" : 1,
+    "dry" : 0,
+    "cont" : "step0_2D",
+    "variables"  : [
+       ["diphoMva := diphoMVA",[-0.05,1,0.05]]
+		   ]
+}

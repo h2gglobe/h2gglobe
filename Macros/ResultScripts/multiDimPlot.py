@@ -30,13 +30,15 @@ def main(options, args):
     setTDRStyle()
     
     titles = {
-        "RV" : "R_{V}^{#gamma #gamma}", ## "( #sigma_{VH} + #sigma_{qqH} ) * BR_{#gamma #gamma} / SM",
+        "RV" : "#mu_{VBF+VH}^{#gamma #gamma}", ## "( #sigma_{VH} + #sigma_{qqH} ) * BR_{#gamma #gamma} / SM",
         "MH" : "m_{H} (GeV)"## "( #sigma_{VH} + #sigma_{qqH} ) * BR_{#gamma #gamma} / SM",
         }
     styles = [ (ROOT.kBlack,ROOT.kFullCircle),
                (ROOT.kBlue,ROOT.kOpenTriangleDown),
                (ROOT.kRed+1,ROOT.kFullDiamond),
-               (ROOT.kGreen+2,ROOT.kOpenTriangleDown)
+               (ROOT.kGreen+2,ROOT.kOpenTriangleDown),
+               (ROOT.kOrange+2,ROOT.kOpenCircle),
+               (ROOT.kMagenta,ROOT.kOpenCircle)
                ]
     objs = []
     graphs = []
@@ -102,13 +104,18 @@ def main(options, args):
             print "%s : %1.4f +%1.3g -%1.3g" % ( gr.GetName(), xmin, eplus , eminus )
 
         lines = [ ROOT.TLine(axmin, 0, axmax, 0),
-                  ROOT.TLine(axmin, 1, axmax, 1), ROOT.TLine(xmin-eminus,  0, xmin-eminus,  1), ROOT.TLine(xmin+eplus,  0, xmin+eplus,  1), 
-                  ROOT.TLine(axmin, 4, axmax, 4), ROOT.TLine(xmin-eminus2, 0, xmin-eminus2, 4), ROOT.TLine(xmin+eplus2, 0, xmin+eplus2, 4) ] 
+                  ROOT.TLine(axmin, 1, axmax, 1), ROOT.TLine(xmin-eminus,  0, xmin-eminus,  1), ROOT.TLine(xmin+eplus,  0, xmin+eplus,  1)
+                  ]
+        if rng > 4:
+            lines.extend( [ROOT.TLine(axmin, 4, axmax, 4), ROOT.TLine(xmin-eminus2, 0, xmin-eminus2, 4), ROOT.TLine(xmin+eplus2, 0, xmin+eplus2, 4)] )
         x = options.variables[0]
-        canv = ROOT.TCanvas(x,x)
+        fname = x 
+        if options.outname:
+            fname = options.outname
+        canv = ROOT.TCanvas(fname,fname)
         ### canv.SetGridx()
         ### canv.SetGridy()
-        leg  = ROOT.TLegend(0.35,0.5,0.7,0.9)
+        leg  = ROOT.TLegend(0.35,0.7,0.6,0.9)
         leg.SetLineColor(ROOT.kWhite)
         leg.SetFillStyle(0)
         objs.append(canv)
@@ -172,9 +179,13 @@ if __name__ == "__main__":
                     action="store_true", dest="legend",
                     default=False,
                     ),
+        make_option("-o", "--outname",
+                    action="store", dest="outname", type="string",
+                    default="",
+                    ),
         make_option("-G", "--no-legend",
                     action="store_true", dest="noLegend",
-                    default=True,
+                    default=False,
                     ),
         ])
     
@@ -184,7 +195,7 @@ if __name__ == "__main__":
             options.legend=False
         else:
             options.legend=True
-    
+    print options
     
     ## sys.argv.append("-b")
     import ROOT

@@ -41,7 +41,7 @@ def getBoundaries(ndim,ncat,optimizer, summary):
     objs.append((boundaries,selections))
 
 # -----------------------------------------------------------------------------------------------------------
-def optmizeCats(optimizer,ws,ndim,rng,args,readBack=False,reduce=False,refit=False):
+def optmizeCats(optimizer,ws,ndim,rng,args,readBack=False,reduce=False,refit=0):
     
     summary = {}
     print readBack
@@ -61,7 +61,7 @@ def optmizeCats(optimizer,ws,ndim,rng,args,readBack=False,reduce=False,refit=Fal
         getBoundaries(ndim,iter, optimizer, summary )
 
     for ncat,val in summary.iteritems():
-        printBoundaries(val["boundaries"],val["fom"],val.get("selections",None))
+        printBoundaries(ndim,val["boundaries"],val["fom"],val.get("selections",None))
         
     if reduce:
         print "---------------------------------------------"
@@ -70,6 +70,10 @@ def optmizeCats(optimizer,ws,ndim,rng,args,readBack=False,reduce=False,refit=Fal
         maxncat = 0
         for ncat,val in summary.iteritems():
             boundaries = numpy.array([float(b) for b in val["boundaries"]])
+            if optimizer.nOrthoCuts() > 0:
+                if "selections" in val:
+                    for isel in range(len(val["selections"])):
+                        optimizer.setOrthoCut(isel, float(val["selections"][isel]))
             ## setSelections(optimizer,summary)
             optimizer.reduce(int(ncat)+1, boundaries, numpy.array([0. for i in range(len(boundaries))]) )
             maxncat = max(int(ncat),maxncat)
@@ -78,27 +82,32 @@ def optmizeCats(optimizer,ws,ndim,rng,args,readBack=False,reduce=False,refit=Fal
         for iter in rng:
             getBoundaries(ndim,iter, optimizer, summary )
 
-    if refit:
+    if refit > 0:
         print "---------------------------------------------"
         print "Refitting"
-        print 
-        for ncat,val in summary.iteritems():
-            boundaries = numpy.array([float(b) for b in val["boundaries"]])
-            print ncat,val,boundaries
-            ncat=int(ncat)
-            ## setSelections(optimizer,summary)
-            eargs = [a for a in args]
-            eargs.append(boundaries)
-            rng.append(ncat)
-            optimizer.optimizeNCat(ncat,*eargs)
-        rng = sorted( set(rng) )
-        summary = {}
+        print
+        for irefit in range(refit):
+            for ncat,val in summary.iteritems():
+                boundaries = numpy.array([float(b) for b in val["boundaries"]])
+                if optimizer.nOrthoCuts() > 0:
+                    if "selections" in val:
+                        for isel in range(len(val["selections"])):
+                            optimizer.setOrthoCut(isel, float(val["selections"][isel]))
+                print ncat,val,boundaries
+                ncat=int(ncat)
+                ## setSelections(optimizer,summary)
+                eargs = [a for a in args]
+                eargs.append(boundaries)
+                rng.append(ncat)
+                optimizer.optimizeNCat(ncat,*eargs)
+            rng = sorted( set(rng) )
+            summary = {}
         
-        for iter in rng:
-            getBoundaries(ndim,iter, optimizer, summary )
+            for iter in rng:
+                getBoundaries(ndim,iter, optimizer, summary )
         
     for ncat,val in summary.iteritems():
-        printBoundaries(val["boundaries"],val["fom"],val.get("selections",None))
+        printBoundaries(ndim,val["boundaries"],val["fom"],val.get("selections",None))
 
     sout = open("cat_opt.json","w+")
     sout.write( json.dumps(summary,sort_keys=True, indent=4) )
@@ -106,10 +115,10 @@ def optmizeCats(optimizer,ws,ndim,rng,args,readBack=False,reduce=False,refit=Fal
     return summary
 
 # -----------------------------------------------------------------------------------------------------------
-def printBoundaries(boundaries, maxval,selections):
+def printBoundaries(ndim,boundaries, maxval,selections):
     
     print "---------------------------------------------"
-    print "ncat: ", len(boundaries)-1
+    print "ncat: ", len(boundaries)/ndim-1
     print "max: %1.5f" % ( maxval )
     print "boundaries: ",
     for b in boundaries:
@@ -263,7 +272,7 @@ def optimizeMultiDim(options,args):
     if not os.path.exists(options.outdir):
         os.mkdir(options.outdir)
     os.chdir(options.outdir)
-    tmp = ROOT.TFile.Open("categoryOptimizationMultiDim.root","recreate")
+    tmp = ROOT.TFile.Open("/tmp/musella/categoryOptimizationMultiDim.root","recreate")
     tmp.cd()
 
     ### ##########################################################################################################
@@ -465,12 +474,14 @@ def optimizeMultiDim(options,args):
         pdfs = []
         for sig in signals:
             pdf = sig.getPdf(idim)
+            pdf.Scale(1./pdf.Integral())
             pdf.SetLineColor(ROOT.kBlue)
             pdfs.append(pdf)
             maxy = max(maxy,pdf.GetMaximum())
             objs.append(pdf)
         for bkg in backgrounds:
             pdf = bkg.getPdf(idim)
+            pdf.Scale(1./pdf.Integral())
             pdf.SetLineColor(ROOT.kRed)
             pdfs.append(pdf)
             maxy = max(maxy,pdf.GetMaximum())
@@ -523,11 +534,13 @@ def optimizeMultiDim(options,args):
         for sig in signals:
             pdf = sig.getPdf(ndim+isel)
             pdf.SetLineColor(ROOT.kBlue)
+            pdf.Scale(1./pdf.Integral())
             pdfs.append(pdf)
             maxy = max(maxy,pdf.GetMaximum())
             objs.append(pdf)
         for bkg in backgrounds:
             pdf = bkg.getPdf(ndim+isel)
+            pdf.Scale(1./pdf.Integral())
             pdf.SetLineColor(ROOT.kRed)
             pdfs.append(pdf)
             maxy = max(maxy,pdf.GetMaximum())
@@ -624,8 +637,8 @@ if __name__ == "__main__":
                         "\n  useful in conjunction with reduce and refit",
                         ),
             make_option("-R", "--refit",
-                        action="store_true", dest="refit",
-                        default=False,
+                        action="store", dest="refit", type="int",
+                        default=0,
                         help="refit the best point after reduction"
                         ),
             make_option("-S", "--splitreduce",
@@ -656,7 +669,7 @@ if __name__ == "__main__":
 
     if options.splitreduce:
         options.dry = True
-        options.refit = True
+        options.refit = 1
         options.reduce = True
         
     pprint(options.__dict__)
