@@ -3,6 +3,88 @@
 from optparse import OptionParser, make_option
 import sys, os, glob
 
+#----------------------------------------------------------------------
+
+import threading
+class JobThread(threading.Thread):
+    """ a thread to run bsub and wait until it completes """
+
+    #----------------------------------------
+
+    def __init__(self, cmd, lsfQueue, jobName):
+        """ @param cmd is the command to be executed inside the bsub script. Some CMSSW specific wrapper
+            code will be added
+        """
+        threading.Thread.__init__(self)
+        self.cmd = cmd
+        self.lsfQueue = lsfQueue
+        self.jobName = jobName
+
+    #----------------------------------------
+
+    def run(self):
+        bsubCmdParts = [ "bsub",
+                         "-q " + self.lsfQueue,
+                         "-J " + self.jobName,
+                         "-K",  # bsub waits until job completes
+                         ]
+
+        bsubCmd = " ".join(bsubCmdParts)
+
+        import subprocess
+        lsf = subprocess.Popen(bsubCmd, shell=True, # bufsize=bufsize,
+                               stdin=subprocess.PIPE,
+                               close_fds=True)
+
+        print >> lsf.stdin, "#!/bin/sh"
+
+        print >> lsf.stdin, "cd " + os.environ['CMSSW_BASE']
+        print >> lsf.stdin, "eval `scram runtime -sh`"
+        print >> lsf.stdin, "cd " + os.getcwd()
+
+        # the 'user' command (combine in this script)
+        print >> lsf.stdin, self.cmd
+        lsf.stdin.close()
+
+        # wait for the job to complete
+        self.exitStatus = lsf.wait()
+
+        if self.exitStatus != 0:
+            print "error running job",self.jobName
+
+
+    #----------------------------------------
+
+#----------------------------------------------------------------------
+
+def runParallelLSF(cmdTemplate, jobParams, lsfQueue):
+    # run combine in LSF and wait for the jobs to complete
+
+    import string
+
+    threads = []
+
+    for thisJobParams in jobParams:
+        # expand the template argument
+        cmd = string.Template(cmdTemplate).safe_substitute(thisJobParams)
+
+        # print "CMD=",cmd
+
+        # create a runner thread and start it
+        threads.append(JobThread(cmd, lsfQueue, thisJobParams['jobName']))
+        threads[-1].start()
+
+    # wait for threads to complete
+    print >> sys.stderr,"waiting for %d jobs to complete..." % len(jobParams)
+    for index, (thisJobParams, thread) in enumerate(zip(jobParams,threads)):
+        # print >> sys.stderr,"waiting for job " + thisJobParams['jobName'] + " to complete (%d/%d)" % (index+1,len(jobParams))
+        thread.join()
+
+    # TODO: should we print a notification if some jobs failed ?
+    print >> sys.stderr,"all jobs completed"
+
+#----------------------------------------------------------------------
+
 def extract_par_limits(pars, model_name, mass, cl=0.05):
     
     par_limits = { }
@@ -134,11 +216,25 @@ def main(options, args):
 
     ## run the NLL scan
     jobs=""
+    jobParams = []
     step = options.npoints / 16 
     for ip in range(options.npoints/step+1):
-        jobs="%s %d %d " % ( jobs, ip*step, (ip+1)*step-1 )
+        firstPoint = ip*step
+        lastPoint = (ip+1)*step-1
+
+        jobs="%s %d %d " % ( jobs, firstPoint, lastPoint )
+        jobParams.append(dict(firstPoint = firstPoint,
+                            lastPoint  = lastPoint,
+                            jobName = "%d..%d" % (firstPoint, lastPoint), 
+                            ))
     print jobs
-    system( "%s -N2 --eta '%s -M MultiDimFit %s_grid_test.root -m %s -v0 -n %s_grid{1} --algo=grid --points=%d --firstPoint={1} --lastPoint={2} | tee combine_%s_grid{1}.log' ::: %s " % ( parallel, combine, model_name, mass, model_name, options.npoints, model_name, jobs ) )
+
+    if options.submit:
+        # submit to LSF
+        runParallelLSF("%s -M MultiDimFit %s_grid_test.root -m %s -v0 -n %s_grid${firstPoint} --algo=grid --points=%d --firstPoint=${firstPoint} --lastPoint=${lastPoint} | tee combine_%s_grid${firstPoint}.log" % (combine, model_name, mass, model_name, options.npoints, model_name), jobParams, options.lsfQueue)
+    else:
+        # run interactively
+        system( "%s -N2 --eta '%s -M MultiDimFit %s_grid_test.root -m %s -v0 -n %s_grid{1} --algo=grid --points=%d --firstPoint={1} --lastPoint={2} | tee combine_%s_grid{1}.log' ::: %s " % ( parallel, combine, model_name, mass, model_name, options.npoints, model_name, jobs ) )
 
     hadd = "hadd higgsCombine%s_grid.MultiDimFit.mH%s.root" % (model_name,mass)
     for f in glob.glob("higgsCombine%s_grid[0-9]*.MultiDimFit.mH%s.root" % (model_name,mass) ):
@@ -197,6 +293,19 @@ if __name__ == "__main__":
                     default=0.,
                     help="default : [%default]", metavar=""
                     ),
+
+        make_option("--submit",
+                    action="store_true",
+                    default = False,
+                    help="submit to LSF instead of running interactively", 
+                    ),
+
+        make_option("--lsf-queue",
+                    type="str", dest = "lsfQueue",
+                    default = "8nh",
+                    help="LSF queue to use when running with --submit (default : [%default])", 
+                    ),
+
         ])
     
 

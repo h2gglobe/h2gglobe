@@ -47,11 +47,19 @@ desc(){
 ########################################################################
 "
 }
+
+#--------------------
+# directory where this script is located (used to be able to run the
+# script from a different directory and call auxiliary programs
+# in the script's directory)
+SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+#--------------------
+
 ############################### OPTIONS
 #------------------------------ default
 WORKDIR=workdir
 # file to be copied in the directories
-FILES=parallel
+FILES=$SCRIPTDIR/parallel
 chPREFIX=ch1_
 extraChannels="all"
 LUMIFACTOR=1
@@ -99,6 +107,7 @@ while [ $# -gt 0 ]
 done
 
 echo "[OPTION] channels used: $wantChannels";
+
 #------------------------------ check mandatory options
 if [ -z "${DATACARD}" ];then
     echo "[ERROR] Datacard not defined: mandatory option" >> /dev/stderr
@@ -148,7 +157,7 @@ if [ -n "$CREATE" ];then
 	done
 	
 	if [ "$LUMIFACTOR" != "1" ]; then
-	    cd ../
+	    cd $SCRIPTDIR/../
 	    for shapeFile in $shapeFiles
 	      do
 	      ./massInterpolator.py -i ResultScripts/`basename $shapeFile` -o ResultScripts/$WORKDIR/`basename $shapeFile .root`_x$LUMIFACTOR.root -I $MASS -O $MASS --doSmoothing -k $LUMIFACTOR &> ResultScripts/$WORKDIR/interpolator.log || exit 1
@@ -244,7 +253,7 @@ if [ -n "$RUN" ];then
       do
 # this is not good, it's stressing the local machine, should be launched in batch
 # -r 10: scanrange 10sigma -> variable limit from the model
-      ./multiDimFit.py -r 10 -w $WORKDIR/$channel/ -d $DATACARDNAME -m $MASS -M $MODEL -e $EXPECTED &> $WORKDIR/$channel/multiDimFit-$MODEL.log
+      $SCRIPTDIR/multiDimFit.py -r 10 -w $WORKDIR/$channel/ -d $DATACARDNAME -m $MASS -M $MODEL -e $EXPECTED &> $WORKDIR/$channel/multiDimFit-$MODEL.log
 #      rm $WORKDIR/$channel/higgsCombinecVcF125_grid[0-9].*.root
       rm $WORKDIR/$channel/combine_${MODEL}$MASS*.log
     done
@@ -260,6 +269,12 @@ if [ -n "$PLOT" ];then
     if [ ! -e "tmp/" ];then
 	mkdir tmp/
     fi
+
+    # hack because gSystem->AddIncludePath("$SCRIPTDIR") seems not to work in the following
+    if [ ! -e "scripts/" ];then
+	ln -s $SCRIPTDIR/scripts .
+    fi
+
     cat > tmp/macroPlot.C <<EOF
 {
   gROOT->ProcessLine(".L scripts/makeBands.cxx");
