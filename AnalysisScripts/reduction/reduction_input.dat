@@ -104,6 +104,12 @@ jet_algoPF1_csvMvaBtag
 jet_algoPF1_jetProbBtag
 jet_algoPF1_tcheBtag
 
+# QG tagging variables
+jet_algoPF1_ptD_QC
+jet_algoPF1_nCharged_QC
+jet_algoPF1_axis2_QC
+jet_algoPF1_nNeutrals_ptCut
+
 pfcand_n
 pfcand_pdgid
 pfcand_p4
