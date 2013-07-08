@@ -46,10 +46,10 @@ for g,jo in groups.iteritems():
     print
     print "%d jobs in status %s" % (len(jo), g)
     print "     ",
-    for j in jo: print "%s" % j,
+    for j in jo: print "%s" % os.path.basename(j).replace("sub","").replace(".sh",""),
     print
 
-autorestart = [20,21]
+autorestart = [20,21,152]
 restart = ""
 for j in groups["fail"]:
     try:
@@ -66,7 +66,7 @@ if restart != "":
     print
     print
     print "Resubmitting jobs: %s " % restart
-    os.system("./submit_fitter.py -j %s -d %s" % (restart, taskdir))
+    os.system("./submit_fitter.py -q 8nh -j %s -d %s" % (restart, taskdir))
     print
     
 if len(groups["done"]) == len(jobs):
@@ -86,7 +86,7 @@ if len(groups["done"]) == len(jobs):
         print combinedws
 
         if not os.path.isfile( combinedws  ):
-            os.system("python combiner.py -i %s" % filestocmb[0] )
+            os.system("python combiner.py --mountEos -i %s" % filestocmb[0] )
             if postProc:
                 os.system("%s %s | tee -a %s/post_proc.log" % ( postProc, taskdir, taskdir ) )
 
