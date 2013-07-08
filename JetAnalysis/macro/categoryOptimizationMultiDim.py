@@ -272,7 +272,10 @@ def optimizeMultiDim(options,args):
     if not os.path.exists(options.outdir):
         os.mkdir(options.outdir)
     os.chdir(options.outdir)
-    tmp = ROOT.TFile.Open("/tmp/musella/categoryOptimizationMultiDim.root","recreate")
+
+    if not os.path.exists("/tmp/%s" % os.getusername()):
+        os.mkdir("/tmp/%s" % os.getusername())
+    tmp = ROOT.TFile.Open("/tmp/%s/categoryOptimizationMultiDim.root" % os.getusername() ,"recreate")
     tmp.cd()
 
     ### ##########################################################################################################
