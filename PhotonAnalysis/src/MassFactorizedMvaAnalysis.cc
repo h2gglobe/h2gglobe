@@ -871,27 +871,27 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
         bool isEBEB  = fabs(lead_p4.Eta() < 1.4442 ) && fabs(sublead_p4.Eta()<1.4442);
         category = GetBDTBoundaryCategory(diphobdt_output,isEBEB,VBFevent);
         if (diphobdt_output>=bdtCategoryBoundaries.back()) { 
-            computeExclusiveCategory(l,category,diphoton_index,Higgs.Pt()); 
+            computeExclusiveCategory(l,category,diphoton_index,Higgs.Pt(),diphobdt_output); 
         }
 
         if (fillOptTree) {
             std::string name;
             if (genSys != 0)
-            name = genSys->name();
+		name = genSys->name();
             if (phoSys != 0)
                 name = phoSys->name();
             if (diPhoSys != 0)
                 name = diPhoSys->name();
-
+	    
             if (!isSyst)
-            fillOpTree(l, lead_p4, sublead_p4, vtxProb, diphoton_index, diphoton_id, phoid_mvaout_lead, phoid_mvaout_sublead, weight, 
-                    mass, sigmaMrv, sigmaMwv, Higgs, diphobdt_output, category, VBFevent, myVBF_Mjj, myVBFLeadJPt, 
-                    myVBFSubJPt, nVBFDijetJetCategories, isSyst, "no-syst");
+		fillOpTree(l, lead_p4, sublead_p4, vtxProb, diphoton_index, diphoton_id, phoid_mvaout_lead, phoid_mvaout_sublead, weight, 
+			   mass, sigmaMrv, sigmaMwv, Higgs, diphobdt_output, category, VBFevent, myVBF_Mjj, myVBFLeadJPt, 
+			   myVBFSubJPt, nVBFDijetJetCategories, isSyst, "no-syst");
             else
-            fillOpTree(l, lead_p4, sublead_p4, vtxProb, diphoton_index, diphoton_id, phoid_mvaout_lead, phoid_mvaout_sublead, weight, 
-                    mass, sigmaMrv, sigmaMwv, Higgs, diphobdt_output, category, VBFevent, myVBF_Mjj, myVBFLeadJPt, 
-                    myVBFSubJPt, nVBFDijetJetCategories, isSyst, name);
-
+		fillOpTree(l, lead_p4, sublead_p4, vtxProb, diphoton_index, diphoton_id, phoid_mvaout_lead, phoid_mvaout_sublead, weight, 
+			   mass, sigmaMrv, sigmaMwv, Higgs, diphobdt_output, category, VBFevent, myVBF_Mjj, myVBFLeadJPt, 
+			   myVBFSubJPt, nVBFDijetJetCategories, isSyst, name);
+	    
         }
 
         if (PADEBUG) std::cout << " Diphoton Category " <<category <<std::endl;
@@ -899,18 +899,25 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
         assert( evweight >= 0. ); 
 
         // dump BS trees in requested
-        if (!isSyst && cur_type!=0 && saveBSTrees_) saveBSTrees(l,evweight,category,Higgs, vtx, (TVector3*)l.gv_pos->At(0),diphobdt_output);
+        if (!isSyst && cur_type!=0 && saveBSTrees_) {
+	    saveBSTrees(l,evweight,category,Higgs, vtx, (TVector3*)l.gv_pos->At(0),diphobdt_output);
+	}
 
         // save trees for unbinned datacards
         int inc_cat = GetBDTBoundaryCategory(diphobdt_output,isEBEB,VBFevent);
-        if (!isSyst && cur_type<0 && saveDatacardTrees_) saveDatCardTree(l,cur_type,category, inc_cat, evweight, diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],lead_p4,sublead_p4,false,sigmaMrv,sigmaMwv,sigmaMeonly,vtxProb,bdtTrainingPhilosophy.c_str(),phoid_mvaout_lead,phoid_mvaout_sublead);
+        if (!isSyst && cur_type<0 && saveDatacardTrees_) {
+	    saveDatCardTree(l,cur_type,category, inc_cat, evweight, diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],lead_p4,sublead_p4,false,sigmaMrv,sigmaMwv,sigmaMeonly,vtxProb,bdtTrainingPhilosophy.c_str(),phoid_mvaout_lead,phoid_mvaout_sublead);
+	}
 
         // save trees for IC spin analysis
-        if (!isSyst && saveSpinTrees_) saveSpinTree(l,category,evweight,Higgs,lead_p4,sublead_p4,diphoton_index.first,diphoton_index.second,diphobdt_output,sigmaMrv,sigmaMwv,massResolutionCalculator->leadPhotonResolution(),massResolutionCalculator->leadPhotonResolutionNoSmear(),massResolutionCalculator->subleadPhotonResolution(),massResolutionCalculator->subleadPhotonResolutionNoSmear(),vtxProb,phoid_mvaout_lead,phoid_mvaout_sublead);
-
+        if (!isSyst && saveSpinTrees_) {
+	    saveSpinTree(l,category,evweight,Higgs,lead_p4,sublead_p4,diphoton_index.first,diphoton_index.second,diphobdt_output,sigmaMrv,sigmaMwv,massResolutionCalculator->leadPhotonResolution(),massResolutionCalculator->leadPhotonResolutionNoSmear(),massResolutionCalculator->subleadPhotonResolution(),massResolutionCalculator->subleadPhotonResolutionNoSmear(),vtxProb,phoid_mvaout_lead,phoid_mvaout_sublead);
+	}
+	
 	// save trees for VBF
-	if (!isSyst && cur_type<0 && saveVBFTrees_) saveVBFTree(l, category, evweight, diphobdt_output);
-
+	if (!isSyst && cur_type<0 && saveVBFTrees_) {
+	    saveVBFTree(l, category, evweight, diphobdt_output);
+	}
 
         // fill control plots and counters
         if( ! isSyst ) {
