@@ -197,11 +197,12 @@ public:
 		capped_(true), xmin_(xmin), valmin_(valmin), xmax_(xmax), valmax_(valmax)
 		{ g_ = (TGraph*)g->Clone(name); };
 	double operator() (double *x, double *p) {
+		double val = g_->Eval( x[0] );
 		if( capped_ ) {
-			if( x[0] <= xmin_ ) { return valmin_; }
-			if( x[0] >= xmax_ ) { return valmax_; }
+			if( x[0] <= xmin_ || val < valmin_ ) { return valmin_; }
+			if( x[0] >= xmax_ || val > valmax_ ) { return valmax_; }
 		}
-		return g_->Eval( x[0] );
+		return val;
 	};
 
 	unsigned int NDim() const { return 1; }
@@ -276,6 +277,8 @@ public:
 		};
 	};
 	
+	void fill(double w) { weight_+=w; sum_+=w; };
+	
 	void print(std::ostream & out) const {
 		out << "IntegrationNode " << id_ << " " << weight_;
 		for(int ic=0; ic<coord_.size(); ++ic) {
@@ -307,7 +310,9 @@ public:
 		//// hasSum_ = true;
 		return sum_;
 	};
-
+	
+	int id() { return id_; };
+	const std::vector<double> coord() { return coord_; };
 private:
 	int id_;
 	std::vector<double> coord_;
@@ -335,7 +340,7 @@ public:
 		for(reverse_iterator it=rbegin(); it!=rend(); ++it) {
 			reverse_iterator jt=it; ++jt;
 			while(jt!=rend()) {
-				if( IntegrationNode::strictLess()(**jt,**it) ) {
+				if( grid_.size() == 1 || IntegrationNode::strictLess()(**jt,**it) ) {
 					(*jt)->addChild(*it);
 				}
 				++jt;
@@ -343,6 +348,12 @@ public:
 		}
 	};
 	
+	int fill(const double* coord, double w) {
+		IntegrationNode * node = get(coord,false);
+		node->fill(w);
+		return node->id();
+	};
+
 	void integrate() {
 		for(reverse_iterator it=rbegin(); it!=rend(); ++it) {
 			(*it)->sumEntries();
@@ -374,6 +385,8 @@ public:
 		}
 	};
 	
+	void scale(double x) { scale_ = x; };
+
 protected:
 	double scale_;
 	std::vector<std::set<double> > grid_;
@@ -392,7 +405,7 @@ protected:
 		/// std::cout << std::endl;
 	};
 	
-	IntegrationNode * get(const double* coord) {
+	IntegrationNode * get(const double* coord, bool link=true) {
 		std::vector<double> volume(coord,coord+grid_.size());
 		volume_coordinates(volume);
 		IntegrationNode tmp(-1,volume,0.);
@@ -401,11 +414,13 @@ protected:
 			inode = insert( inode, new IntegrationNode(size(),volume,0.) );
 			iterator jnode = inode;
 			++jnode;
-			while( jnode != end() ) { 
-				if( IntegrationNode::strictLess()(**inode,**jnode) ) {
-					(*inode)->addChild(*jnode);
+			if( link ) { 
+				while( jnode != end() ) { 
+					if( IntegrationNode::strictLess()(**inode,**jnode) ) {
+						(*inode)->addChild(*jnode);
+					}
+					++jnode;
 				}
-				++jnode;
 			}
 		}
 		//// (*inode)->print(std::cout);
@@ -420,6 +435,7 @@ class SparseIntegrator : public IntegrationWeb, public HistoConverter
 {
 public:
 	SparseIntegrator(THnSparse * integrand,double scale=1.) : hsp_(integrand) {
+		/// reserve(integrand->GetNbins());
 		scale_ = scale;
 		Int_t dim = integrand->GetNdimensions();
 		std::vector<int> bins(dim);

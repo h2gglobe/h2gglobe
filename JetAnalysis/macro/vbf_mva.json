@@ -1,48 +1,44 @@
 { 
-  "methods"    : [ "Cuts" ],
-  "_methods" : ["BDT"],
+  "methods" : ["BDT"],
 
-  "variables"  : ["jet1Pt","jet2Pt","deta:=abs(jet1Eta-jet2Eta)","mj1j2","zepp","dphi",
-	"diphoptOverM:=diphopt/diphoM","pho1ptOverM:=pho1pt/diphoM","pho2ptOverM:=pho2pt/diphoM"],
-  "spectators" : ["diphoM","pho1idMva","pho2idMva","entry","mctype","pho1scEta","pho2scEta","pho1r9","pho2r9"],
-
+  "variables"  : [],
+  "spectators" : ["diphoM","pho1idMva","pho2idMva","entry","mctype","pho1scEta","pho2scEta","pho1r9","pho2r9",
+		"diphoptOverM:=diphopt/diphoM","diphosM","diphoMVA","pho1ptOverM:=pho1pt/diphoM","pho2ptOverM:=pho2pt/diphoM",
+		"wei := weight","diphoMVA"],
+  
   "categories" : [ 
                  ],
 
   "subcategories" : [ 
         ],
 
-  "selection" : "pho1pt/diphoM > (40./120.) && pho2pt/diphoM> (25./120.) && jet2>0",
+  "selection" : "pho1pt/diphoM > (40./120.) && pho2pt/diphoM>(25./120.) && jet2>0",
   "classes" : { 
 	"Signal" : { 
 		"samples" : [
-                   ["vbfAnalysis/vbf_m125_8TeV",1,"Entry$ % 2 == 0",0],
-	           ["vbfAnalysis/vbf_m125_8TeV",1,"Entry$ % 2 == 1",1]
+                   ["vbfAnalysis/vbf_m124_8TeV",1,"",0],
+	           ["vbfAnalysis/vbf_m125_8TeV",1,"",1]
 	        ],
 		"weight" : "weight"
 		},
 	"Background" : { 
 		"samples" : [
                    ["vbfAnalysis/diphojet_Box_8TeV",1,"Entry$ % 2 == 0",0],
-	           ["vbfAnalysis/diphojet_Box_8TeV",1,"Entry$ % 2 == 1",1],
+	           ["vbfAnalysis/diphojet_Box_8TeV",2,"Entry$ % 2 == 1",1],
                    ["vbfAnalysis/gjet_20_8TeV_pf",  1,"Entry$ % 2 == 0",0],
-	           ["vbfAnalysis/gjet_20_8TeV_pf",  1,"Entry$ % 2 == 1",1],
+	           ["vbfAnalysis/gjet_20_8TeV_pf",  2,"Entry$ % 2 == 1",1],
                    ["vbfAnalysis/gjet_40_8TeV_pf",  1,"Entry$ % 2 == 0",0],
-	           ["vbfAnalysis/gjet_40_8TeV_pf",  1,"Entry$ % 2 == 1",1],
-	           [ "vbfAnalysis/qcd_30_8TeV_ff",  0.5,"1",1],
-	           [ "vbfAnalysis/qcd_40_8TeV_S7_ff",  0.5,"1",1]
+	           ["vbfAnalysis/gjet_40_8TeV_pf",  2,"Entry$ % 2 == 1",1],
+	           ["vbfAnalysis/qcd_30_8TeV_ff",  1,"1",1],
+	           ["vbfAnalysis/qcd_40_8TeV_S7_ff",  1,"1",1],
+	           ["vbfAnalysis/ggh_m125_8TeV",1,"",1],
+	           ["vbfAnalysis/Data",1,"",1]
 	         ],
-                 "_samples" : [
-	           [ "vbfAnalysis/qcd_30_8TeV_ff",  1,"Entry$ % 2 == 0",0],
-	           [ "vbfAnalysis/qcd_30_8TeV_ff",  1,"Entry$ % 2 == 1",1],
-	           [ "vbfAnalysis/qcd_40_8TeV_S7_ff",  1,"Entry$ % 2 == 0",0],
-	           [ "vbfAnalysis/qcd_40_8TeV_S7_ff",  1,"Entry$ % 2 == 1",1]
-		],
-		"weight" : "weight*sampleweight"
+		"weight" : "weight"
 		}
 	},
-  "indir" : "/afs/cern.ch/user/m/musella/eos_musella/hgg/vbf_optimization/legacy_v7/",
-  "files" : "histograms_legacy_v7.root",
+  "indir" : "/afs/cern.ch/user/m/musella/eos_musella/hgg/vbf_optimization/legacy_v8/",
+  "files" : "histograms_legacy_v8.root",
   "settings" : { 
 	"Cuts" : "H:!V:FitMethod=GA:VarProp=FSmart:EffSel:Steps=30:Cycles=3:PopSize=400:SC_steps=10:SC_rate=5:SC_factor=0.95"
   }

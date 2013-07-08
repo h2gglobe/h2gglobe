@@ -35,13 +35,25 @@ HistoConverter * cdfInv(TH1 * h,double min, double max)
 	TH1 * hi = integrate1D(h);
 	TGraph g(hi);
 	TGraph ginv(g.GetN());
+	double last = 1.;
+	int ilast = 0;
 	for(int ip=0; ip<g.GetN(); ++ip) {
 		double x = g.GetX()[ip];
 		double y = g.GetY()[ip];
+		/// std::cout << x << " " << y << std::endl;
 		ginv.SetPoint(ip,1.-y,x);
+		if( y < last ) { 
+			last = y;
+			ilast = ip;
+			if( ilast == 0 && ip > 1 ) {
+				min = x;
+			}
+		}
 	}
+	max = g.GetX()[ilast];
 	
 	HistoConverter * invg = new LinGraphToTF1(Form("%s_inv",hi->GetName()), &ginv, 0., min, 1., max );
+	std::cout << min << " " << max << " " << invg->eval(max) << " " << invg->eval(g.GetX()[g.GetN()-1]) << " " << invg->eval(1.) << std::endl;
 	delete hi;
 	return invg;
 }
@@ -52,13 +64,25 @@ HistoConverter * cdf(TH1 * h,double min, double max)
 	TH1 * hi = integrate1D(h);
 	TGraph g(hi);
 	TGraph ginv(g.GetN());
+	double last = 1.;
+	int ilast = 0;
 	for(int ip=0; ip<g.GetN(); ++ip) {
 		double x = g.GetX()[ip];
 		double y = g.GetY()[ip];
+		if( y < last ) { 
+			last = y;
+			ilast = ip;
+			if( ilast == 0 && ip > 1 ) {
+				min = x;
+			}
+		}
 		ginv.SetPoint(ip,x,1.-y);
 	}
+	max = g.GetX()[ilast];
 	
+
 	HistoConverter * invg = new LinGraphToTF1(Form("%s_dir",hi->GetName()), &ginv, min, 0., max, 1. );
+	std::cout << min << " " << max << " " << invg->eval(1.-last) << " " << g.GetY()[g.GetN()-1] << " " << invg->eval(g.GetY()[g.GetN()-1]) << " " << invg->eval(1.) << std::endl;
 	delete hi;
 	return invg;
 }

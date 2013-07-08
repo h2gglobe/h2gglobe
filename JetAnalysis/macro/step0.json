@@ -1,0 +1,7 @@
+{
+    "range" : [1,2,3,4],
+    "settings" : [["setSpeed",[1.5]]],
+    "refit" : 1,
+    "reduce" : 1,
+    "selectioncuts" : [["diphoMva := diphoMVA",[-0.1,1,0.05]]]
+}

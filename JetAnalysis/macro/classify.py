@@ -17,8 +17,9 @@ def mkChain(files, name="vtxOptTree"):
 ## ------------------------------------------------------------------------------------------------------------------------------------------------------
 def getListOfFiles( baseDir, filePattern, expr="{baseDir}/{filePattern}"):
     if baseDir.startswith("/store"):
-        return [ "root://eoscms/%s" % f for f in eostools.listFiles( expr.format( baseDir=baseDir, filePattern="" ) )
-                 if os.path.basename(f) == filePattern or fnmatch.fnmatch(f,filePattern) ]
+        ## return [ "root://eoscms/%s" % f for f in eostools.listFiles( expr.format( baseDir=baseDir, filePattern="" ) )
+        ##         if os.path.basename(f) == filePattern or fnmatch.fnmatch(f,filePattern) ]
+        return [ "root://eoscms//eos/cms%s/%s" % (baseDir,filePattern) ]
     else:
         return glob.glob(expr.format( baseDir=baseDir, filePattern=filePattern))
 
@@ -167,10 +168,11 @@ def main(o,args):
                             )
 
     if "BDT" in o.methods:
-        mname =  "BDT%s" % o.label
+        mname =  str("BDT%s" % o.label)
         settings = defaultSettings["BDT"]
         if hasattr(o,"settings") and "BDT" in o.settings:
             settings = str(o.settings["BDT"])
+        print mname,settings
         if len(categories) == 0:
             cats = factory.BookMethod(TMVA.Types.kBDT,mname,settings)
         else:

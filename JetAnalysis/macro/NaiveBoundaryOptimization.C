@@ -216,7 +216,7 @@ public:
 				float sigInt ;
 				float bkg1Int;
 				float bkg2Int;
-
+				
 				if( isCdf_ ) { 
 					sigInt  = sigInt_->Eval(newxb,newyb) ;
 					bkg1Int = bkg1Int_->Eval(newxb,newyb);
@@ -229,10 +229,10 @@ public:
 				float sig  = sigInt  - lastSigInt ;
 				float bkg1 = bkg1Int - lastBkg1Int;
 				float bkg2 = bkg2Int - lastBkg2Int;
-
+				
 				float num = sig*sig;
 				float den = fomden_->Eval(sig,bkg1,bkg2);
-
+				
 				lastSigInt = sigInt;
 				lastBkg1Int = bkg1Int;
 				lastBkg2Int = bkg2Int;

@@ -35,7 +35,7 @@ def prob(fin,name,var="pt",profile=True,rebin=5):
 
     return prb.Clone(name)
 
-gROOT.LoadMacro("../Macros/rootglobestyle.C")
+gROOT.LoadMacro("../../Macros/rootglobestyle.C")
 from ROOT import setTDRStyle, gStyle
 setTDRStyle()
 gStyle.SetOptTitle(0)

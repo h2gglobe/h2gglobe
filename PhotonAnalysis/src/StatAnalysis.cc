@@ -1044,9 +1044,9 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 	// see if the event falls into an exclusive category
 	computeExclusiveCategory(l, category, diphoton_index, Higgs.Pt() );
 
-    // if doing the spin analysis calculate new category
-    if (doSpinAnalysis) computeSpinCategory(l, category, lead_p4, sublead_p4);
-
+	// if doing the spin analysis calculate new category
+	if (doSpinAnalysis) computeSpinCategory(l, category, lead_p4, sublead_p4);
+	
 	// fill control plots and counters
 	if( ! isSyst ) {
 	    l.FillCounter( "Accepted", weight );
@@ -1600,6 +1600,7 @@ void StatAnalysis::fillControlPlots(const TLorentzVector & lead_p4, const  TLore
         }
         l.FillHist("all_mass",category+1, Higgs.M(), evweight);
         if( mass>=massMin && mass<=massMax  ) {
+            l.FillHist("diphobdt",category+1, diphobdt_output, evweight);
             l.FillHist("process_id",category+1, l.process_id, evweight);
             l.FillHist("mass",category+1, Higgs.M(), evweight);
             l.FillHist("eta",category+1, Higgs.Eta(), evweight);
@@ -1607,7 +1608,7 @@ void StatAnalysis::fillControlPlots(const TLorentzVector & lead_p4, const  TLore
             if( isCorrectVertex ) { l.FillHist("pt_rv",category+1, Higgs.Pt(), evweight); }
             l.FillHist("nvtx",category+1, l.vtx_std_n, evweight);
             if( isCorrectVertex ) { l.FillHist("nvtx_rv",category+1, l.vtx_std_n, evweight); }
-
+	    
             vtxAna_.setPairID(diphoton_id);
             float vtxProb = vtxAna_.vertexProbability(l.vtx_std_evt_mva->at(diphoton_id), l.vtx_std_n);
             l.FillHist2D("probmva_pt",category+1, Higgs.Pt(), l.vtx_std_evt_mva->at(diphoton_id), evweight);
@@ -1661,9 +1662,14 @@ void StatAnalysis::fillControlPlots(const TLorentzVector & lead_p4, const  TLore
                 if (!multiclassVbfSelection) {
                     l.FillHist("vbf_mva",category+1,myVBF_MVA,evweight);
                 } else {
-                    l.FillHist("vbf_mva0",category+1,myVBF_MVA0,evweight);
-                    l.FillHist("vbf_mva1",category+1,myVBF_MVA1,evweight);
-                    l.FillHist("vbf_mva2",category+1,myVBF_MVA2,evweight);
+		    if( vbfVsDiphoVbfSelection ) { 
+			l.FillHist("vbf_mva0",category+1,myVBF_MVA,evweight);
+			l.FillHist("vbf_mva1",category+1,diphobdt_output,evweight);
+		    } else { 
+			l.FillHist("vbf_mva0",category+1,myVBF_MVA0,evweight);
+			l.FillHist("vbf_mva1",category+1,myVBF_MVA1,evweight);
+			l.FillHist("vbf_mva2",category+1,myVBF_MVA2,evweight);
+		    }
                 }
 
                 if (VBFevent){

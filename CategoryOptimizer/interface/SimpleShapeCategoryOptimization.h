@@ -47,7 +47,13 @@ public:
 	void buildPdfs();
 	
 	std::string name() { return name_; };
-	
+
+	void setShape(shape_t x);
+	shape_t getShape() { return shape_; };
+
+	void minEvents(double x) { minEvents_ = x; };
+	double minEvents() { return minEvents_; };
+
 private:
 	void bookShape(int icat);
 	void setShapeParams(int icat);
@@ -60,6 +66,7 @@ private:
 	std::vector<RooRealVar *> categoryNorms_;
 	RooArgSet owned_;
 	TF1 * likeg_;
+	double minEvents_;
 };
 
 // ------------------------------------------------------------------------------------------------
@@ -109,9 +116,12 @@ public:
 
 	AbsModel * getModel() { return &model_; };
 	void beginIntegration(double * boundaries) { 
-		lastIntegral_ = (*converterN_)(boundaries,0);
-		lastSumX_     = (*converterX_)(boundaries,0);
-		lastSumX2_    = (*converterX2_)(boundaries,0);
+		std::vector<double> extboundaries(ndim_+selectionCuts_.size());
+		std::copy(boundaries,boundaries+ndim_,extboundaries.begin());
+		std::copy(selectionCutsBegin_.begin(),selectionCutsBegin_.end(),extboundaries.begin()+ndim_);
+		lastIntegral_ = (*converterN_)(&extboundaries[0],0);
+		lastSumX_     = (*converterX_)(&extboundaries[0],0);
+		lastSumX2_    = (*converterX2_)(&extboundaries[0],0);
 		
 		model_.clear(); 
 	};
@@ -122,7 +132,8 @@ public:
 
 	void setOrthoCuts(double * cuts) { std::copy(cuts,cuts+selectionCuts_.size(),selectionCuts_.begin()); };
 	
-	void addBoundary(double * boundaries) {
+	bool addBoundary(double * boundaries) {
+		bool ret = true;
 		std::vector<double> extboundaries(ndim_+selectionCuts_.size());
 		std::copy(boundaries,boundaries+ndim_,extboundaries.begin());
 		std::copy(selectionCuts_.begin(),selectionCuts_.end(),extboundaries.begin()+ndim_);
@@ -137,13 +148,23 @@ public:
 		if( mean*mean - rms > 0. ) {
 			rms = sqrt( mean*mean - rms );
 		} else {
-			rms = 0.;
-			norm = 0.;
+			rms = 1.e-2*mean;
+			/// norm = 0.;
+			///// if( model_.getShape() == SecondOrderModel::gaus ) { 
+			///// 	ret = false;
+			///// 	penalty_ = 0.;
+			///// }
+		}
+		if( norm <= model_.minEvents()*1.02 ) { 
+			std::cout << " too few events  " << norm << " " << model_.minEvents() <<std::endl;
+			penalty_ = norm/model_.minEvents(); 
+			ret = false; 
 		}
 		model_.addCategory(norm, mean, rms);
 		lastIntegral_ = integral;
 		lastSumX_  = sumX;
 		lastSumX2_ = sumX2;
+		return ret;
 	};
 	
 	double getMin(int idim) { return ranges_[idim].first;  };
@@ -159,12 +180,14 @@ public:
 	
 	TH1 * getPdf(int idim);
 	
+	double getPenalty() { return penalty_; };
+	
 private:
 	SecondOrderModel model_;
 	int ndim_;
-	double norm_, lastIntegral_, lastSumX_, lastSumX2_;
+	double norm_, lastIntegral_, lastSumX_, lastSumX2_, penalty_;
 	std::vector<std::pair<double,double> > ranges_;
-	std::vector<double> selectionCuts_;
+	std::vector<double> selectionCuts_, selectionCutsBegin_;
 	
 	TH1 * pdf_;
 	THnSparse * hsparse_;
@@ -178,7 +201,7 @@ class SimpleShapeFomProvider : public AbsFomProvider
 public:
 	SimpleShapeFomProvider(int nSubcats=1,RooRealVar *poi=0, int ncpu=4, const char * minimizer="Minuit2", 
 			       int minStrategy=2) : 
-		ncpu_(ncpu), nSubcats_(nSubcats), minimizer_(minimizer),minStrategy_(minStrategy), useRooSimultaneous_(false)
+		nSubcats_(nSubcats), ncpu_(ncpu), minimizer_(minimizer),minStrategy_(minStrategy), useRooSimultaneous_(false)
 		{ 
 			if( poi ) { addPOI(poi); }
 			assert(minStrategy_<3); 
@@ -193,11 +216,20 @@ public:
 	void useRooSimultaneous(bool x=true) { useRooSimultaneous_=x; };
 	void nSubcats(int x) { nSubcats_ = x; };
 	
+	void addNuisance(RooRealVar * x, RooAbsReal *p=0) { 
+		resets_.push_back(x); 
+		if(p!=0) { 
+			constrained_.add(*x);
+			constraints_.add(*p,false); 
+		} 
+	};
+
 private:
-	int ncpu_;
 	int nSubcats_;
+	int ncpu_;
 	std::vector<RooRealVar *> pois_;
 	std::vector<RooRealVar *> resets_;
+	RooArgSet constraints_, constrained_;
 	std::string minimizer_;
 	int minStrategy_;
 	bool useRooSimultaneous_;

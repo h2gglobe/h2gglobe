@@ -1,0 +1,7 @@
+{
+    "settings" : [["setScan",[10,1]],["setStrategy",[0]]],
+    "refit" : 2,
+    "dry" : 0,
+    "cont" : "step0",
+    "selectioncuts" : [["diphoMva := diphoMVA",[-0.1,1,0.05]]]
+}

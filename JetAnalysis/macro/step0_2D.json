@@ -1,0 +1,6 @@
+{
+    "variables"  : [
+       ["diphoMva := diphoMVA",[-0.05,1,0.05]]
+		   ],
+    "range" : [1,2,3,4]
+}
