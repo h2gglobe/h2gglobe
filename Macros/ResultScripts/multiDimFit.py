@@ -119,9 +119,13 @@ def extract_par_limits(pars, model_name, mass, cl=0.05):
     
     return par_limits
 
-def system(cmd):
+def system(cmd, stopOnFailure = True):
     print cmd
-    os.system(cmd)
+    res = os.system(cmd)
+
+    if res != 0 and stopOnFailure:
+        print >> sys.stderr,"failed to run command '%s', exiting" % cmd
+        sys.exit(res)
     
 def main(options, args):
 
@@ -185,6 +189,11 @@ def main(options, args):
         model_name += "_stat"
     model = "%s.root" % model_name
     if not os.path.isfile(model) or options.forceRedoWorkspace:
+
+        if not os.path.exists(options.datacard):
+            print >> sys.stderr,"datacard '%s' does not exist, exiting" % options.datacard
+            sys.exit(1)
+
         system("text2workspace.py %s %s -o %s -m %1.5g %s" % ( txt2ws_args, options.datacard, model, options.mH, model_args[options.model] ) )
 
     ## best fit
