@@ -58,15 +58,15 @@ SimultaneousFit::SimultaneousFit(string infilename, string outfilename, int mhLo
 
 SimultaneousFit::~SimultaneousFit(){
   cout << "Cleaning..." << endl;
-  clean();
   inFile->Close();
   outFile->cd();
   outWS->Write();
-  outFile->Write();
+  /// outFile->Write();
   outFile->Close();
   delete outWS;
   delete inFile;
   delete outFile;
+  /// clean();
   if (saveExtraFile_) {
     extraFile_->Close();
     delete extraFile_;
