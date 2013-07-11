@@ -34,11 +34,7 @@ USERLIBS += -L$(BOOST_PATH)/libs/ -lboost_regex -lboost_program_options
 endif
 ifeq ($(UNAME),Linux)
 $(info Found OS Linux - using linux build)
-ifeq ($(SCRAM_ARCH),slc5_amd64_gcc472)
-BOOST_PATH=$(CMSSW_DATA_PATH)/../external/boost/1.51.0
-else
-BOOST_PATH=$(CMSSW_DATA_PATH)/../external/boost/1.49.0
-endif
+BOOST_PATH=$(shell scram tool info boost | awk -F= '/BOOST_BASE/ {  print $$2  }')
 USERINCLUDES += -I$(BOOST_PATH)/include/
 USERINCLUDES += -I $(CMSSW_BASE)/src/ -I $(CMSSW_RELEASE_BASE)/src/
 USERLIBS += -L$(BOOST_PATH)/lib/ -lboost_regex -lboost_program_options
@@ -95,7 +91,6 @@ $(OBJDIR)/%.$(OBJ_EXT): $(SRCDIR)/%.cc $(COMBINELIB)
 $(LIBDIR)/lib$(LIBNAME).so:$(OBJS) $(COMBINELIB)
 	@echo Building shared library $@
 	@$(LD) $(LDFLAGS) -o $(LIBDIR)/lib$(LIBNAME).so  $^ $(LIBS) -l $(COMBINELIB)
-	
 
 lib: $(LIBDIR)/lib$(LIBNAME).so
 
