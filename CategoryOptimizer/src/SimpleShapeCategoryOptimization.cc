@@ -33,7 +33,7 @@
 #include "../interface/CategoryOptimizer.h"
 #include "../interface/SimpleShapeCategoryOptimization.h"
 
-
+using namespace std;
 // ------------------------------------------------------------------------------------------------
 void makeSecondOrder(THnSparse * in, THnSparse * norm, THnSparse * sumX, THnSparse * sumX2)
 {
