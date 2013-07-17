@@ -136,6 +136,7 @@ if __name__  == "__main__":
 	knownDomain = domain in knownDomains
 	if domain == "cern.ch":
 		atCern = True
+	mkdir="mkdir"
 	cp="cp -pv"
 	prependToStore=""
 	if not options.runIC:
