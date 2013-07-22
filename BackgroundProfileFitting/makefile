@@ -8,6 +8,10 @@ SHELL=bash
 UNAME := $(shell uname)
 BASEDIR = $(shell pwd)
 
+$(shell mkdir -p bin)
+$(shell mkdir -p lib)
+$(shell mkdir -p obj)
+
 USERINCLUDES += -I$(ROOTSYS)/include
 ifeq ($(UNAME),Darwin)
 $(info Found OS Darwin - using mac osx build)
