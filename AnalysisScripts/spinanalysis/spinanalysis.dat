@@ -10,23 +10,15 @@ cosThetaCatBoundaries=0.,0.2,0.375,0.55,0.75,1.
 
 
 bkgPolOrderByCat=4,4,4,4,3,4,4,4,4,3,4,4,4,4,3,4,4,4,4,3
-sigPointsToBook=120,125,126,130
+sigPointsToBook=125,126
 
 includeVBF=0
 includeVHhad=0
 includeVHlep=0
 includeVHmet=0
 
-pickRandomVtx=0
-randomizeHiggsPt=0
-reweighPt=0
-ptreweightype=Up
-ptreweighfilename=spinanalysis/pt.root
+doPtSpinSmear=1
+doPtSpinSyst=1
+ptspinHist=spinanalysis/ptweights.root
 
-#doPtSpinSmear=1
-#doPtSpinSyst=1
-#ptspinHist=spinanalysis/ptweights.root
-
-doPtSpinSmear=0
-doPtSpinSyst=0
 doInterferenceSmear=0
