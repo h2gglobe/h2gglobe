@@ -73,6 +73,7 @@ class PhotonAnalysis : public BaseAnalysis
     bool includeVBF;
     bool includeVHhad;
     bool includeVHlep;
+    bool includeVHlepB;
     int nElectronCategories;
     int nMuonCategories;
     bool includeVHmet;  //met at analysis step
@@ -517,6 +518,9 @@ class PhotonAnalysis : public BaseAnalysis
                              Float_t subleadPtMin=20, std::string type="UCSD", int ncategories=7,
                              bool applyPtoverM=true, float *pho_energy_array=0, bool split=false);
     int DiphotonMVAEventClass(LoopAll &l, float diphoMVA, int nCat, std::string type, int EBEB=1);
+
+
+    int VHNumberOfJets(LoopAll& l, int diphotonVHlep_id, int vertex, bool VHelevent_prov, bool VHmuevent_prov, int el_ind, int mu_ind, float* smeared_pho_energy);
 
     //TFile *fgbr;
     //GBRForest *fReadereb;
