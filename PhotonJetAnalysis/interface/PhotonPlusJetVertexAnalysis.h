@@ -50,6 +50,7 @@ class PhotonPlusJetVertexAnalysis : public StatAnalysis
     bool doNvtxReweighting;
     double minpt;
     double maxpt;
+    int phoidcutlevel;
 
  private:   
 
