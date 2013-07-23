@@ -78,9 +78,11 @@ if len(groups["done"]) == len(jobs):
         cfile = open( filestocmb[0], "r" )
 
         for line in cfile.read().split("\n"):
+            if line[0] == '#':
+                continue
             if "histfile" in line:
-		cfg.read_histfile(line)
-		line = line.replace(cfg.histdir,"./")
+                cfg.read_histfile(line)
+                line = line.replace(cfg.histdir,"./")
                 break
         combinedws="%s.%s" % ( os.path.join(cfg.histdir,cfg.histfile[0]), cfg.histfile[1] )
         print combinedws

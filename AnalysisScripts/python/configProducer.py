@@ -487,6 +487,9 @@ class configProducer:
 
      for line in self.lines_:
        # Decide whether this is a define line or a file line:
+       if line[0] == '#':
+         continue
+  
        if "histfile" in line:  
          self.read_histfile(line)
 
@@ -795,12 +798,12 @@ class configProducer:
         self.conf_.files.append(tuple_n)
       else: self.conf_.files.append((None,fi_type));
       if fi_type!=0 and fi_type!=99999 and map_c["tot"] == 0:
-	if self.sample_weights_file_==0 :
-	  if map_c["tot"] <= 0:
+        if self.sample_weights_file_==0 :
+          if map_c["tot"] <= 0:
               nEventsInFile = getTreeEntry(fi_name,"global_variables","processedEvents")
           else:
               nEventsInFile = map_c["tot"]
-	  self.file_processed_events_[fi_name] = nEventsInFile
+          self.file_processed_events_[fi_name] = nEventsInFile
           map_c["tot"] = nEventsInFile;
 	  
 	else:  
