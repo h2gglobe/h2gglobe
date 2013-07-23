@@ -111,6 +111,7 @@ class StatAnalysis : public PhotonAnalysis
 				      std::vector<int>    & categories, std::vector<double> & weights, int diphoton_id=-1);
     
     bool VHmuevent, VHelevent, VBFevent, VHhadevent, VHmetevent;  //met at analysis step
+    bool VHlep1event, VHlep2event;
     int VHelevent_cat;
 	int VHmuevent_cat;
     int VHmetevent_cat;
