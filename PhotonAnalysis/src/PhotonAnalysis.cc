@@ -2713,7 +2713,7 @@ bool PhotonAnalysis::ElectronTag2012B(LoopAll& l, int& diphotonVHlep_id, int& el
                     ControlPlotsElectronTag2012B(l, lead_p4, sublead_p4, el_ind, 0., eventweight, label);
                 }
 
-                if(l.ElectronPhotonCuts2012B(lead_p4, sublead_p4, *myel, includeVHlepB)){ 
+                if(l.ElectronPhotonCuts2012B(lead_p4, sublead_p4, *myel, includeVHlepPlusMet)){ 
                     tag=true;
                     el_cat=(int)(abs(lead_p4.Eta())>1.5 || abs(sublead_p4.Eta())>1.5);
                     if(localdebug) cout<<"pass ElectronPhotonCuts2012B, el_cat "<<el_cat<<endl;

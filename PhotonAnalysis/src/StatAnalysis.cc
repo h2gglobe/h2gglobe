@@ -173,7 +173,7 @@ void StatAnalysis::Init(LoopAll& l)
     if(includeVHlep){
         nVHlepCategories = nElectronCategories + nMuonCategories;
     }
-    if(includeVHlepB){
+    if(includeVHlepPlusMet){
         nVHlepCategories = 2;
     }
     nVHmetCategories = (int)includeVHmet;  //met at analysis step
@@ -938,7 +938,7 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 	        }
 	    }
 	    
-	    if(includeVHlepB){
+	    if(includeVHlepPlusMet){
 		float eventweight = weight * genLevWeight;
 		float myweight=1.;
 		if(eventweight*sampleweight!=0) myweight=eventweight/sampleweight;
@@ -1004,9 +1004,9 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
             diphoton_id = diphotonVHlep_id;
         } else if (includeVHlep&&VHelevent){
             diphoton_id = diphotonVHlep_id;
-	} else if (includeVHlepB&&VHlep1event){
+	} else if (includeVHlepPlusMet&&VHlep1event){
 	    diphoton_id = diphotonVHlep_id;
-	} else if (includeVHlepB&&VHlep2event){
+	} else if (includeVHlepPlusMet&&VHlep2event){
 	    diphoton_id = diphotonVHlep_id;
 	} else if(includeVBF&&VBFevent) {
 	    diphoton_id = diphotonVBF_id;
@@ -1051,8 +1051,8 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 	        fillDiphoton(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, vtx, &smeared_pho_energy[0], l, diphoton_id);
 	    }
 	}
-	if(includeVHlepB){
-	    if(( (includeVHlepB && (VHlep1event || VHlep2event))) && !(includeVBF&&VBFevent) ) {
+	if(includeVHlepPlusMet){
+	    if(( (includeVHlepPlusMet && (VHlep1event || VHlep2event))) && !(includeVBF&&VBFevent) ) {
 		if(VHlep1event){
 	            fillDiphoton(lead_p4,sublead_p4,Higgs,lead_r9,sublead_r9,vtx,&smeared_pho_energy[0],l,l.dipho_leadind[diphoton_id],l.dipho_subleadind[diphoton_id],0); 
 		} else if(VHlep2event){

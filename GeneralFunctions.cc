@@ -4416,7 +4416,7 @@ bool LoopAll::ElectronMVACuts(int el_ind, int vtx_ind){
 }
 
 
-bool LoopAll::ElectronPhotonCuts2012B(TLorentzVector& pho1, TLorentzVector& pho2, TLorentzVector& ele, bool includeVHlepB){
+bool LoopAll::ElectronPhotonCuts2012B(TLorentzVector& pho1, TLorentzVector& pho2, TLorentzVector& ele, bool includeVHlepPlusMet){
     bool pass=false;
     if(GFDEBUG) std::cout<<"dreg1 dreg2 "<<pho1.DeltaR(ele)<<" "<<pho2.DeltaR(ele)<<std::endl;
     if( pho1.DeltaR(ele) <= 1.0) return pass;
@@ -4424,7 +4424,7 @@ bool LoopAll::ElectronPhotonCuts2012B(TLorentzVector& pho1, TLorentzVector& pho2
     TLorentzVector elpho1=ele + pho1;
     TLorentzVector elpho2=ele + pho2;
     if(GFDEBUG) std::cout<<"dMeg1 dMeg2 "<<fabs(elpho1.M() - 91.19)<<" "<<fabs(elpho2.M() - 91.19)<<std::endl;
-    if(!includeVHlepB){
+    if(!includeVHlepPlusMet){
       if( fabs(elpho1.M() - 91.19) <= 10) return pass;
       if( fabs(elpho2.M() - 91.19) <= 10) return pass;
     }

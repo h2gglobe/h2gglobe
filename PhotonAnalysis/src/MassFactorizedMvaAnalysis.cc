@@ -216,7 +216,7 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
     if(includeVHlep){
         nVHlepCategories = nElectronCategories + nMuonCategories;
     }
-    if(includeVHlepB){
+    if(includeVHlepPlusMet){
         nVHlepCategories = 2;
     }
     if(includeVHmet){
@@ -667,7 +667,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
             }
         }
 	
-	if(includeVHlepB){
+	if(includeVHlepPlusMet){
 	    float eventweight = weight * genLevWeight;
 	    float myweight=1.;
 	    if(eventweight*sampleweight!=0) myweight=eventweight/sampleweight;
@@ -716,9 +716,9 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
             diphoton_id = diphotonVHlep_id;
         } else if (includeVHlep&&VHelevent){
             diphoton_id = diphotonVHlep_id;
-	} else if (includeVHlepB&&VHlep1event){
+	} else if (includeVHlepPlusMet&&VHlep1event){
 	    diphoton_id = diphotonVHlep_id;
-	} else if (includeVHlepB&&VHlep2event){
+	} else if (includeVHlepPlusMet&&VHlep2event){
 	    diphoton_id = diphotonVHlep_id;
         } else if(includeVBF&&VBFevent) {
             diphoton_id = diphotonVBF_id;

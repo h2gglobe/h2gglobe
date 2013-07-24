@@ -73,7 +73,7 @@ class PhotonAnalysis : public BaseAnalysis
     bool includeVBF;
     bool includeVHhad;
     bool includeVHlep;
-    bool includeVHlepB;
+    bool includeVHlepPlusMet;
     int nElectronCategories;
     int nMuonCategories;
     bool includeVHmet;  //met at analysis step
