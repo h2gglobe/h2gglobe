@@ -1211,7 +1211,7 @@ bool ElectronTightEGammaID(int electronindex, int vertexindex=-1);
 //HCP2012
 int ElectronSelectionMVA2012(float elptcut=20.);
 bool ElectronMVACuts(int el_ind, int vtx_ind=-1);
-bool ElectronPhotonCuts2012B(TLorentzVector& pho1, TLorentzVector& pho2, TLorentzVector& ele);
+bool ElectronPhotonCuts2012B(TLorentzVector& pho1, TLorentzVector& pho2, TLorentzVector& ele, bool includeVHlepPlusMet=false);
 int FindElectronVertex(int el_ind);
 void PhotonsToVeto(TLorentzVector* veto_p4, float drtoveto, std::vector<bool>& vetos, bool drtotkveto);
 
@@ -1249,7 +1249,12 @@ int IEta (double eta){
 void getIetaIPhi(int phoid, int & ieta, int & iphi ) const ;
 bool CheckSphericalPhoton(int ieta, int iphi) const;
 bool CheckSphericalPhoton(int phoind) const;
+
+void VHNewLeptonCategorization(bool & VHlep1event, bool & VHlep2event, int diphotonVHlep_id, int vertex, bool VHelevent_prov, bool VHmuevent_prov, int el_ind, int mu_ind, float* smeared_pho_energy, float METcut);
+void VHTwoMuonsEvents(bool & VHlep1event, bool & VHlep2event, int & diphotonVHlep_id, int & muVtx, float* smeared_pho_energy, float leadEtVHlepCut, float subleadEtVHlepCut, bool applyPtoverM);
+void VHTwoElectronsEvents(bool & VHlep1event, bool & VHlep2event, int & diphotonVHlep_id, int & elVtx, float* smeared_pho_energy, float leadEtVHlepCut, float subleadEtVHlepCut, bool applyPtoverM);
  
+
 #ifdef NewFeatures
 #include "Marco/plotInteractive_h.h"
 #endif
