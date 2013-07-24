@@ -4448,15 +4448,42 @@ int LoopAll::FindElectronVertex(int el_ind){
 
 //--- RECO-MC JET MATCHING --------------------------------------------------------------------------------------------------------
 void LoopAll::doJetMatching(TClonesArray & reco, TClonesArray & gen, 
-                            Bool_t  * match_flag, Bool_t * match_vbf_flag,  
+                            Bool_t  * match_flag, Bool_t * match_vbf_flag,  Bool_t * match_bjet_flag,
                             Float_t * match_pt,   Float_t * match_dr,      Float_t maxDr )
 {
     int ngen  = gen.GetEntries();
     int nreco = reco.GetEntries();
-  
+
+    std::vector<TLorentzVector*> bs;
+    for(int ipart=0; ipart<gp_n; ++ipart) {
+	    if( abs(gp_pdgid[ipart]) == 5 && gp_status[ipart] == 3  ) {
+		    TLorentzVector * gp4 = (TLorentzVector*)gp_p4->At(ipart);
+		    bs.push_back(gp4);
+	    }
+    }
+    for(int ipart=0; ipart<gp_n; ++ipart) {
+	    if( abs(gp_pdgid[ipart]) == 5 && (gp_status[ipart] == 2 || gp_status[ipart] == 1) ) {
+		    TLorentzVector * gp4 = (TLorentzVector*)gp_p4->At(ipart);
+		    if( gp4->Pt() < 15 ) { continue; }
+		    bool duplicate = false;
+		    for( size_t ib=0; ib<bs.size(); ++ib ) {
+			    if( gp4->DeltaR( *(bs[ib]) ) < 0.3 ) { 
+				    duplicate = true;
+				    break; 
+			    }
+		    }
+		    if( ! duplicate ) {
+			    bs.push_back(gp4);
+		    }
+	    }
+    }
+    
+
+
     for(int ir=0; ir<nreco; ++ir) {
         match_flag[ir] = false;
         match_vbf_flag[ir] = false;
+        match_bjet_flag[ir] = false;
         match_pt[ir] = 0.;
         match_dr[ir] = 999.;
         TLorentzVector & recop4 = *(TLorentzVector*)reco.At(ir);
@@ -4474,6 +4501,11 @@ void LoopAll::doJetMatching(TClonesArray & reco, TClonesArray & gen,
                 }
             }
         }
+	for( size_t ib=0; ib<bs.size(); ++ib ) {
+		if( recop4.DeltaR( *(bs[ib]) ) < 0.5 ) { 
+			match_bjet_flag[ir] = true;
+		}
+	}
     }
 }
 
