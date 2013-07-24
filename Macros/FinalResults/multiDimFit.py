@@ -3,6 +3,88 @@
 from optparse import OptionParser, make_option
 import sys, os, glob
 
+#----------------------------------------------------------------------
+
+import threading
+class JobThread(threading.Thread):
+    """ a thread to run bsub and wait until it completes """
+
+    #----------------------------------------
+
+    def __init__(self, cmd, lsfQueue, jobName):
+        """ @param cmd is the command to be executed inside the bsub script. Some CMSSW specific wrapper
+            code will be added
+        """
+        threading.Thread.__init__(self)
+        self.cmd = cmd
+        self.lsfQueue = lsfQueue
+        self.jobName = jobName
+
+    #----------------------------------------
+
+    def run(self):
+        bsubCmdParts = [ "bsub",
+                         "-q " + self.lsfQueue,
+                         "-J " + self.jobName,
+                         "-K",  # bsub waits until job completes
+                         ]
+
+        bsubCmd = " ".join(bsubCmdParts)
+
+        import subprocess
+        lsf = subprocess.Popen(bsubCmd, shell=True, # bufsize=bufsize,
+                               stdin=subprocess.PIPE,
+                               close_fds=True)
+
+        print >> lsf.stdin, "#!/bin/sh"
+
+        print >> lsf.stdin, "cd " + os.environ['CMSSW_BASE']
+        print >> lsf.stdin, "eval `scram runtime -sh`"
+        print >> lsf.stdin, "cd " + os.getcwd()
+
+        # the 'user' command (combine in this script)
+        print >> lsf.stdin, self.cmd
+        lsf.stdin.close()
+
+        # wait for the job to complete
+        self.exitStatus = lsf.wait()
+
+        if self.exitStatus != 0:
+            print "error running job",self.jobName
+
+
+    #----------------------------------------
+
+#----------------------------------------------------------------------
+
+def runParallelLSF(cmdTemplate, jobParams, lsfQueue):
+    # run combine in LSF and wait for the jobs to complete
+
+    import string
+
+    threads = []
+
+    for thisJobParams in jobParams:
+        # expand the template argument
+        cmd = string.Template(cmdTemplate).safe_substitute(thisJobParams)
+
+        # print "CMD=",cmd
+
+        # create a runner thread and start it
+        threads.append(JobThread(cmd, lsfQueue, thisJobParams['jobName']))
+        threads[-1].start()
+
+    # wait for threads to complete
+    print >> sys.stderr,"waiting for %d jobs to complete..." % len(jobParams)
+    for index, (thisJobParams, thread) in enumerate(zip(jobParams,threads)):
+        # print >> sys.stderr,"waiting for job " + thisJobParams['jobName'] + " to complete (%d/%d)" % (index+1,len(jobParams))
+        thread.join()
+
+    # TODO: should we print a notification if some jobs failed ?
+    print >> sys.stderr,"all jobs completed"
+
+#----------------------------------------------------------------------
+
 def extract_par_limits(pars, model_name, mass, cl=0.05):
     
     par_limits = { }
@@ -17,7 +99,7 @@ def extract_par_limits(pars, model_name, mass, cl=0.05):
     from ROOT import Entry
     entry = Entry()
     
-    tin = ROOT.TFile.Open("%s/higgsCombine%s_single.MultiDimFit.mH%s.root" % ( options.workdir, model_name, mass ) )
+    tin = ROOT.TFile.Open("higgsCombine%s_single.MultiDimFit.mH%s.root" % ( model_name, mass ) )
     limit = tin.Get("limit")
     limit.SetBranchAddress("quantileExpected", ROOT.AddressOf(entry,"quantileExpected" ) )
     for p in pars:
@@ -37,9 +119,13 @@ def extract_par_limits(pars, model_name, mass, cl=0.05):
     
     return par_limits
 
-def system(cmd):
+def system(cmd, stopOnFailure = True):
     print cmd
-    os.system(cmd)
+    res = os.system(cmd)
+
+    if res != 0 and stopOnFailure:
+        print >> sys.stderr,"failed to run command '%s', exiting" % cmd
+        sys.exit(res)
     
 def main(options, args):
 
@@ -72,6 +158,7 @@ def main(options, args):
                     "cVcF"   : ["CV","CF"],
                     "rVrF"   : ["RV","RF"],
                     "rV"     : ["RV"],
+                    "rVprf"  : ["RV"],
                     "mH"     : ["MH"],
                     "mumH"     : ["r","MH"],
                     }
@@ -83,7 +170,7 @@ def main(options, args):
                     "RV"     : (-4.,4.,False),
                     "RF"     : (-4.,4.,False),
                     "MH"     : (120.,130.,False),
-                    "r"      : (0,2.5,False),
+                    "r"      : (-20,20.,False),
                     }
 
     parallel = "%s/parallel" % ( os.path.abspath(os.path.dirname(sys.argv[0])) )
@@ -96,24 +183,29 @@ def main(options, args):
     ## generate the model
     mass = "%1.5g" % options.mH
     model_name = "%s%1.5g" % ( options.model, options.mH )
+    if options.label != "":
+        model_name += "_%s" % options.label
+    if options.statOnly:
+        model_name += "_stat"
     model = "%s.root" % model_name
     if not os.path.isfile(model) or options.forceRedoWorkspace:
-        print "text2workspace.py %s %s -o %s -m %1.5g %s" % ( txt2ws_args, options.datacard, model, options.mH, model_args[options.model] ) 
+
+        if not os.path.exists(options.datacard):
+            print >> sys.stderr,"datacard '%s' does not exist, exiting" % options.datacard
+            sys.exit(1)
+
         system("text2workspace.py %s %s -o %s -m %1.5g %s" % ( txt2ws_args, options.datacard, model, options.mH, model_args[options.model] ) )
 
     ## best fit
-    print "%s -M MultiDimFit %s --algo=singles -v2 -n %s_single -m %s | tee combine_%s_single.log"  % ( 
-        combine, model, model_name, mass, model_name ) 
     system("%s -M MultiDimFit %s --algo=singles -v2 -n %s_single -m %s | tee combine_%s_single.log"  % (
         combine, model, model_name, mass, model_name ) )
 
-    print 'before', os.getcwd()
     par_limits = extract_par_limits(model_pars[options.model],model_name, mass)
-    print 'after', os.getcwd() 
+        
 
     ## clone model limiting the parameters range
     ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
-    fmod = ROOT.TFile.Open(options.workdir+'/'+model)
+    fmod = ROOT.TFile.Open(model)
     ws = fmod.Get("w")
     
     for name, vals in par_limits.iteritems():
@@ -135,14 +227,28 @@ def main(options, args):
 
     if options.singleOnly:
         return
-    
+
     ## run the NLL scan
     jobs=""
+    jobParams = []
     step = options.npoints / 16 
     for ip in range(options.npoints/step+1):
-        jobs="%s %d %d " % ( jobs, ip*step, (ip+1)*step-1 )
+        firstPoint = ip*step
+        lastPoint = (ip+1)*step-1
+
+        jobs="%s %d %d " % ( jobs, firstPoint, lastPoint )
+        jobParams.append(dict(firstPoint = firstPoint,
+                            lastPoint  = lastPoint,
+                            jobName = "%d..%d" % (firstPoint, lastPoint), 
+                            ))
     print jobs
-    system( "%s -N2 --eta '%s -M MultiDimFit %s_grid_test.root -m %s -v0 -n %s_grid{1} --algo=grid --points=%d --firstPoint={1} --lastPoint={2} | tee combine_%s_grid{1}.log' ::: %s " % ( parallel, combine, model_name, mass, model_name, options.npoints, model_name, jobs ) )
+
+    if options.submit:
+        # submit to LSF
+        runParallelLSF("%s -M MultiDimFit %s_grid_test.root -m %s -v0 -n %s_grid${firstPoint} --algo=grid --points=%d --firstPoint=${firstPoint} --lastPoint=${lastPoint} | tee combine_%s_grid${firstPoint}.log" % (combine, model_name, mass, model_name, options.npoints, model_name), jobParams, options.lsfQueue)
+    else:
+        # run interactively
+        system( "%s -N2 --eta '%s -M MultiDimFit %s_grid_test.root -m %s -v0 -n %s_grid{1} --algo=grid --points=%d --firstPoint={1} --lastPoint={2} | tee combine_%s_grid{1}.log' ::: %s " % ( parallel, combine, model_name, mass, model_name, options.npoints, model_name, jobs ) )
 
     hadd = "hadd higgsCombine%s_grid.MultiDimFit.mH%s.root" % (model_name,mass)
     for f in glob.glob("higgsCombine%s_grid[0-9]*.MultiDimFit.mH%s.root" % (model_name,mass) ):
@@ -186,6 +292,11 @@ if __name__ == "__main__":
                     default="ggHqqH",
                     help="default : [%default]", metavar=""
                     ),
+        make_option("--label",
+                    action="store", type="string", dest="label",
+                    default="",
+                    help="default : [%default]", metavar=""
+                    ),
         make_option("-s", "--singleOnly",
                     action="store_true", dest="singleOnly",
                     default=False,
@@ -201,6 +312,19 @@ if __name__ == "__main__":
                     default=0.,
                     help="default : [%default]", metavar=""
                     ),
+
+        make_option("--submit",
+                    action="store_true",
+                    default = False,
+                    help="submit to LSF instead of running interactively", 
+                    ),
+
+        make_option("--lsf-queue",
+                    type="str", dest = "lsfQueue",
+                    default = "8nh",
+                    help="LSF queue to use when running with --submit (default : [%default])", 
+                    ),
+
         ])
     
 
