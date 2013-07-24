@@ -13,6 +13,7 @@ PhotonPlusJetVertexAnalysis::PhotonPlusJetVertexAnalysis()
     doNvtxReweighting = false;
     minpt = 0.;
     maxpt = 9999.;
+    phoidcutlevel=4;
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -70,11 +71,11 @@ bool PhotonPlusJetVertexAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float w
   // if more than one photon, take the one with highest pt (maybe we could use all the photons....)
   if (PADEBUG) cout << "[PADEBUG] : starting photon selection" << endl;  
   float maxphopt  = -1;
-  float maxphoind = 0 ;
+  int maxphoind = -1;
   for(size_t ipho=0; ipho<l.pho_n; ipho++ ) {
     TLorentzVector phoP4 = l.get_pho_p4( ipho, vtxind, &smeared_pho_energy[0] ); 
     if ( phoP4.Pt() < 30 ) continue;
-    if ( (l.pho_cic4pfcutlevel_lead)->at(ipho).at(vtxind)<4) continue;
+    if ( (l.pho_cic4pfcutlevel_lead)->at(ipho).at(vtxind)<phoidcutlevel) continue;
     if (PADEBUG) cout << "   photon  pt :" << phoP4.Pt() << endl;
     if (PADEBUG) cout << "   photon  id :" << (l.pho_cic4pfcutlevel_lead)->at(ipho).at(0) << endl;
     if ( phoP4.Pt() > maxphopt ) {
@@ -83,11 +84,11 @@ bool PhotonPlusJetVertexAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float w
     }
   }    
  
-  if ( maxphoind <0 ) return false;
+  if ( maxphoind < 0 ) return false;
 
   if (PADEBUG) cout << "[PADEBUG] : found one good photon" << endl;
   
-  TLorentzVector photon = l.get_pho_p4( maxphoind, vtxind, &smeared_pho_energy[0] ); 
+  TLorentzVector photon = l.get_pho_p4( maxphoind, l.vtx_std_sel, &smeared_pho_energy[0] ); 
   
 
   // jet selection
@@ -95,7 +96,7 @@ bool PhotonPlusJetVertexAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float w
   int maxjetind=-1;
   TLorentzVector MaxJetP4(0,0,0,0);
   TLorentzVector MaxJetTrackP4(0,0,0,0);
-  for (unsigned int ijet=0; ijet < (unsigned int)l.jet_algoPF1_n; ijet++) {
+  for (unsigned int ijet = 0; ijet < (unsigned int)l.jet_algoPF1_n; ijet++) {
     TLorentzVector JetP4 = *((TLorentzVector*)l.jet_algoPF1_p4->At(ijet));
     TLorentzVector TrackSumP4(0,0,0,0);
     double dR = JetP4.DeltaR(photon);
@@ -113,13 +114,12 @@ bool PhotonPlusJetVertexAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float w
     }
   }
   
-  if (maxjetind<0) return false;
+  if (maxjetind < 0) return false;
   
   if (PADEBUG) cout << "[PADEBUG] : found one good jet" << endl;
   
-
   vtxAna_.setPairID(maxphoind);
-
+  
   if (vtxAna_.diphopt(l.vtx_std_sel) < minpt || vtxAna_.diphopt(l.vtx_std_sel) > maxpt) 
     return false;
 
@@ -162,12 +162,14 @@ void PhotonPlusJetVertexAnalysis::fillControlPlots( LoopAll & l, TLorentzVector 
   l.FillHist("jet_eta", 0 , jet.Eta(), evweight);
   l.FillHist("jet_phi", 0 , jet.Phi(), evweight);
 
+
+
   // vertex mva and variables
   // NB vertex 0 is our "true" vertex
   for (int iv = 0 ; iv < l.vtx_std_n; iv++){
-    //float dz =  fabs( ( *((TVector3*)l.vtx_std_xyz->At(iv)) -  *((TVector3*)l.vtx_std_xyz->At(0)) ).Z() );  
-    //if (dz < 1.){
-    if (iv==0){
+    float dz =  fabs( ( *((TVector3*)l.vtx_std_xyz->At(iv)) -  *((TVector3*)l.vtx_std_xyz->At(0)) ).Z() );  
+    if (iv == l.vtx_std_sel && dz < 1.){
+      //if (iv==0){
       // all
       l.FillHist("sumpt2_rv", 0 , vtxAna_.logsumpt2(iv), evweight);
       l.FillHist("ptbal_rv", 0 , vtxAna_.ptbal(iv), evweight);
@@ -203,7 +205,8 @@ void PhotonPlusJetVertexAnalysis::fillControlPlots( LoopAll & l, TLorentzVector 
 	l.FillHist("vtxmva_rv_tkcone", 0 , vtxAna_.mva(iv), evweight);      
       }
     }
-    else {
+    //else{
+    else if (dz > 1.) {
       // all
       l.FillHist("sumpt2_wv", 0 , vtxAna_.logsumpt2(iv), evweight);
       l.FillHist("ptbal_wv", 0 , vtxAna_.ptbal(iv), evweight);
@@ -244,38 +247,39 @@ void PhotonPlusJetVertexAnalysis::fillControlPlots( LoopAll & l, TLorentzVector 
   
   // event mva 
   int chosenvtx = l.vtx_std_sel;
+  float phojetpt = vtxAna_.diphopt(chosenvtx) ;
   float dz =  fabs( ( *((TVector3*)l.vtx_std_xyz->At(chosenvtx)) -  *((TVector3*)l.vtx_std_xyz->At(0)) ).Z() );
   
-  l.FillHist("pt", 0 , (photon+jet).Pt(), evweight);
+  l.FillHist("pt", 0 , phojetpt , evweight);
 
   if (vtxAna_.nconv(chosenvtx) > 0 ) {
     l.FillHist("photon_pt_conv" , 0 , photon.Pt(),  evweight);
     l.FillHist("photon_eta_conv", 0 , photon.Eta(), evweight);
-    l.FillHist("pt_conv", 0 , (photon+jet).Pt(), evweight);
+    l.FillHist("pt_conv", 0 , phojetpt, evweight);
     l.FillHist("nvtx_conv", 0 , l.vtx_std_n, evweight);
   }
   if (vtxAna_.nconv(chosenvtx) == 0 && vtxAna_.nchpho1(chosenvtx) > 0 ) {
     l.FillHist("photon_pt_tkcone" , 0 , photon.Pt(),  evweight);
     l.FillHist("photon_eta_tkcone", 0 , photon.Eta(), evweight);
-    l.FillHist("pt_tkcone", 0 , (photon+jet).Pt(), evweight);
+    l.FillHist("pt_tkcone", 0 , phojetpt , evweight);
     l.FillHist("nvtx_tkcone", 0 , l.vtx_std_n, evweight);
   }
 
   if (dz < 1.) {
     //all
     l.FillHist("evtmva_rv", 0 , l.vtx_std_evt_mva->at(phoindex), evweight);
-    l.FillHist("pt_rv", 0 , (photon+jet).Pt(), evweight);
+    l.FillHist("pt_rv", 0 , phojetpt, evweight);
     l.FillHist("nvtx_rv", 0 , l.vtx_std_n, evweight);
     // one good conversion
     if ( vtxAna_.nconv(chosenvtx) > 0 ){
       l.FillHist("evtmva_rv_conv", 0 , l.vtx_std_evt_mva->at(phoindex), evweight);
-      l.FillHist("pt_rv_conv", 0 , (photon+jet).Pt(), evweight);
+      l.FillHist("pt_rv_conv", 0 , phojetpt, evweight);
       l.FillHist("nvtx_rv_conv", 0 , l.vtx_std_n, evweight);
     }
     // no good conversion but tk in a cone 0.05 around the photon direction
     else if (vtxAna_.nchpho1(chosenvtx) > 0){
       l.FillHist("evtmva_rv_tkcone", 0 , l.vtx_std_evt_mva->at(phoindex), evweight);
-      l.FillHist("pt_rv_tkcone", 0 , (photon+jet).Pt(), evweight);
+      l.FillHist("pt_rv_tkcone", 0 , phojetpt, evweight);
       l.FillHist("nvtx_rv_tkcone", 0 , l.vtx_std_n, evweight);
     }      
   }

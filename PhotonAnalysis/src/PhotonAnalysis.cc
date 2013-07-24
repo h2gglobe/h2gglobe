@@ -2713,7 +2713,7 @@ bool PhotonAnalysis::ElectronTag2012B(LoopAll& l, int& diphotonVHlep_id, int& el
                     ControlPlotsElectronTag2012B(l, lead_p4, sublead_p4, el_ind, 0., eventweight, label);
                 }
 
-                if(l.ElectronPhotonCuts2012B(lead_p4, sublead_p4, *myel)){
+                if(l.ElectronPhotonCuts2012B(lead_p4, sublead_p4, *myel, includeVHlepPlusMet)){ 
                     tag=true;
                     el_cat=(int)(abs(lead_p4.Eta())>1.5 || abs(sublead_p4.Eta())>1.5);
                     if(localdebug) cout<<"pass ElectronPhotonCuts2012B, el_cat "<<el_cat<<endl;
@@ -4690,6 +4690,50 @@ double PhotonAnalysis::getCosThetaHX(TLorentzVector g1, TLorentzVector g2){
 
   return TMath::Cos(direction_hx.Angle(refDIPHO_g1.Vect()));
 
+}
+
+
+int PhotonAnalysis::VHNumberOfJets(LoopAll& l, int diphotonVHlep_id, int vertex, bool VHelevent_prov, bool VHmuevent_prov, int el_ind, int mu_ind, float* smeared_pho_energy){
+
+  TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphotonVHlep_id], vertex, &smeared_pho_energy[0]);
+  TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphotonVHlep_id], vertex, &smeared_pho_energy[0]);  
+  int Njet_lepcat = 0;
+
+  bool * jetid_flags=0; //PU-JET VETO
+  static std::vector<unsigned char> id_flags;
+  switchJetIdVertex( l, l.dipho_vtxind[diphotonVHlep_id] );
+  id_flags.resize(l.jet_algoPF1_n);
+  for(int ijet=0; ijet<l.jet_algoPF1_n; ++ijet ) {
+    id_flags[ijet] = PileupJetIdentifier::passJetId(l.jet_algoPF1_cutbased_wp_level[ijet], PileupJetIdentifier::kLoose);
+  }
+  jetid_flags = (bool*)&id_flags[0];
+
+  for(int i=0; i<l.jet_algoPF1_n; i++){
+    TLorentzVector * p4_jet = (TLorentzVector *) l.jet_algoPF1_p4->At(i);
+    double dR_jet_PhoLead = p4_jet->DeltaR(lead_p4);
+    double dR_jet_PhoSubLead = p4_jet->DeltaR(sublead_p4);
+    double dR_jet_muon = 10.0;
+    double dR_jet_electron = 10.0;
+    
+    if(VHelevent_prov){ 
+      TLorentzVector* el_jet = (TLorentzVector*) l.el_std_p4->At(el_ind); 
+      dR_jet_electron = p4_jet->DeltaR(*el_jet);
+    }
+    if(VHmuevent_prov){ 
+      TLorentzVector* mu_jet = (TLorentzVector*) l.mu_glo_p4->At(mu_ind); 
+      dR_jet_muon = p4_jet->DeltaR(*mu_jet);
+    }
+    if(dR_jet_PhoLead<0.5) continue;
+    if(dR_jet_PhoSubLead<0.5) continue;
+    if(dR_jet_electron<0.5) continue;
+    if(dR_jet_muon<0.5) continue;
+    if(p4_jet->Eta()>2.4) continue;
+    if(p4_jet->Pt()<20) continue;
+    if(jetid_flags != 0 && !jetid_flags[i]) continue;  //PILEUP
+    Njet_lepcat = Njet_lepcat + 1;
+  }
+
+  return Njet_lepcat;
 }
 
 // Local Variables:
