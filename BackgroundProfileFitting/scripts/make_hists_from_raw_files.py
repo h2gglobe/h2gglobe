@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+# HYBRID:   aicEnvelope_job0_hybrid_exp3_pol3_truth_job0_toy99_cat3_toy99
+# STANDARD: aicEnvelope_job0_sb_truth_pow1_cat0_truth_job0_toy99_cat0_toy99 
+
 import os
 import sys
 import fnmatch
@@ -52,10 +55,13 @@ def makeHists(cat=0,meanB=50,meanL=-4.,meanH=4.,errB=50,errL=0.5,errH=1.5,pullB=
   test_file = r.TFile.Open(dir+'/'+list_of_files[0])
   for key in test_file.GetListOfKeys():
     if 'truth' not in key.GetName(): continue
-    truth= key.GetName().split('truth')[1].split('_cat')[0][1:]
+    if 'hybrid' in key.GetName():
+      truth = 'hybrid'+key.GetName().split('_truth')[0].split('hybrid')[1] 
+    else:
+      truth= key.GetName().split('truth')[1].split('_cat')[0][1:]
     truth_models.add(truth)
 
-  #print truth_models
+  print truth_models
 
   types = set()
   types.add('Fab')
@@ -102,7 +108,10 @@ def makeHists(cat=0,meanB=50,meanL=-4.,meanH=4.,errB=50,errL=0.5,errH=1.5,pullB=
     for key in file.GetListOfKeys():
       graph = key.ReadObj()
       if 'Envelope' not in graph.GetName(): continue
-      truth = graph.GetName().split('truth')[1].split('_cat')[0][1:]
+      if 'hybrid' in key.GetName():
+        truth = 'hybrid'+key.GetName().split('_truth')[0].split('hybrid')[1] 
+      else:
+        truth = graph.GetName().split('truth')[1].split('_cat')[0][1:]
       type = graph.GetName().split('Envelope')[0]
       mytype = util[type]
      
