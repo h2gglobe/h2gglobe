@@ -28,6 +28,7 @@ class PdfModelBuilder {
     void setSignalModifier(RooRealVar *var);
     void setSignalModifierVal(float val);
     void setSignalModifierConstant(bool val);
+    void setKeysPdfAttributes(RooDataSet *data, double rho=2);
 
     void addBkgPdf(string type, int nParams, string name, bool cache=true);
 
@@ -62,6 +63,7 @@ class PdfModelBuilder {
     RooAbsPdf* getExponential(string prefix, int order);
     RooAbsPdf* getExponentialSingle(string prefix, int order);
     RooAbsPdf* getLaurentSeries(string prefix, int order);
+    RooAbsPdf* getKeysPdf(string prefix);
     
 
   private:
@@ -74,6 +76,8 @@ class PdfModelBuilder {
     RooAbsReal* sigNorm;
     RooRealVar *bkgYield;
     RooAbsReal *sigYield;
+    RooDataSet *keysPdfData;
+    double keysPdfRho;
 
     map<string,RooAbsData*> toyData;
     map<string,RooAbsData*> toyHybridData;
@@ -91,6 +95,7 @@ class PdfModelBuilder {
     bool signal_set;
     bool bkgHasFit;
     bool sbHasFit;
+    bool keysPdfAttributesSet;
     vector<string> cut_strings;
 
     RooWorkspace *wsCache;

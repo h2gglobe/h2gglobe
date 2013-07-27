@@ -7,6 +7,7 @@
 #include "RooExponential.h"
 #include "RooPowerLaw.h"
 #include "RooPowerLawSum.h"
+#include "RooKeysPdf.h"
 #include "RooAddPdf.h"
 #include "RooDataHist.h"
 #include "RooHistPdf.h"
@@ -27,6 +28,7 @@ PdfModelBuilder::PdfModelBuilder():
   signal_set(false),
   bkgHasFit(false),
   sbHasFit(false),
+  keysPdfAttributesSet(false),
   verbosity(0)
 {
   
@@ -34,6 +36,7 @@ PdfModelBuilder::PdfModelBuilder():
   recognisedPdfTypes.push_back("Exponential");
   recognisedPdfTypes.push_back("PowerLaw");
   recognisedPdfTypes.push_back("Laurent");
+  recognisedPdfTypes.push_back("KeysPdf");
 
   wsCache = new RooWorkspace("PdfModelBuilderCache");
 
@@ -254,6 +257,14 @@ RooAbsPdf* PdfModelBuilder::getLaurentSeries(string prefix, int order){
   //bkgPdfs.insert(pair<string,RooAbsPdf*>(pdf->GetName(),pdf));
 }
 
+RooAbsPdf* PdfModelBuilder::getKeysPdf(string prefix){
+  if (!keysPdfAttributesSet){
+    cerr << "ERROR -- keysPdf attributes not set" << endl;
+    exit(1);
+  }
+  return new RooKeysPdf(prefix.c_str(),prefix.c_str(),*obs_var,*keysPdfData,RooKeysPdf::MirrorBoth,keysPdfRho);
+}
+
 RooAbsPdf* PdfModelBuilder::getExponentialSingle(string prefix, int order){
   
   if (order%2==0){
@@ -309,6 +320,7 @@ void PdfModelBuilder::addBkgPdf(string type, int nParams, string name, bool cach
   if (type=="Exponential") pdf = getExponentialSingle(name,nParams);
   if (type=="PowerLaw") pdf = getPowerLawSingle(name,nParams);
   if (type=="Laurent") pdf = getLaurentSeries(name,nParams);
+  if (type=="KeysPdf") pdf = getKeysPdf(name);
 
   if (cache) {
     wsCache->import(*pdf);
@@ -319,6 +331,12 @@ void PdfModelBuilder::addBkgPdf(string type, int nParams, string name, bool cach
     bkgPdfs.insert(pair<string,RooAbsPdf*>(pdf->GetName(),pdf));
   }
 
+}
+
+void PdfModelBuilder::setKeysPdfAttributes(RooDataSet *data, double rho){
+  keysPdfData = data;
+  keysPdfRho = rho;
+  keysPdfAttributesSet=true;
 }
 
 void PdfModelBuilder::setSignalPdf(RooAbsPdf *pdf, RooRealVar *norm){
