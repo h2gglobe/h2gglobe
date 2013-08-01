@@ -17,6 +17,8 @@ parser.add_option("-S","--mHstep",dest="mHstep",type="float",default=1,help="Ste
 
 import ROOT
 
+ROOT.gSystem.Load("$CMSSW_BASE/lib/$SCRAM_ARCH/libHiggsAnalysisCombinedLimit.so")
+
 def plot(proc,cat):
   if proc=='all':
     if cat==-1:
