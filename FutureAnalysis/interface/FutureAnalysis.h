@@ -47,8 +47,8 @@ protected:
   std::string name_;
   
   /// Counters for photon reconstruction efficiency ///
-  int deno = 0;
-  int num  = 0;
+  int deno;
+  int num ;
   
 };
 

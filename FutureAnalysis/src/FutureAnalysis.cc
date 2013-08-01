@@ -12,6 +12,9 @@ using namespace std;
 FutureAnalysis::FutureAnalysis()  
 {
     name_ = "FutureAnalysis";
+    deno = 0;
+    num = 0;
+
 }
 
 // ----------------------------------------------------------------------------------------------------
