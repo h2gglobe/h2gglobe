@@ -1,0 +1,51 @@
+## File format:
+## 	<branc_name>[:<branch_type>] 
+## where:
+## 	<branch_type> = 0 for branches to be always read
+## 	<branch_type> = 1 for branches to be read only for MC
+
+## 
+## Counters
+## 
+event
+lumis
+run
+
+##
+## Photons 
+##
+pho_n
+pho_isconv
+pho_p4
+pho_calopos
+sc_xyz
+pho_scind
+
+
+##
+## PF photon ID
+##
+pho_sieie
+pho_hoe
+pho_r9
+
+## 
+## MC truth
+gp_n
+gp_p4
+gp_status
+gp_pdgid
+#####gp_mother:1
+
+## 
+## Vertex
+## 
+vtx_std_n
+
+##
+## PU correction
+##
+## rho
+rho_algo1
+rho_algo2
+rho_algo3

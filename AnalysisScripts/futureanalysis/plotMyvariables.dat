@@ -1,0 +1,8 @@
+htyp=0  plot=0  ncat=4  xbins=300   ybins=0  xmin=0.0  xmax=300.0  ymin=0  ymax=0  name=all_pho_pt  xaxis=Pt      yaxis=Nevents
+htyp=0  plot=0  ncat=1  xbins=1000  ybins=0  xmin=0.0  xmax=0.5    ymin=0  ymax=0  name=deltaR_all  xaxis=DeltaR  yaxis=Nevents
+htyp=0  plot=0  ncat=1  xbins=200   ybins=0  xmin=0.0  xmax=100.0  ymin=0  ymax=0  name=AbsDeltaPt  xaxis=DeltaR  yaxis=Nevents
+htyp=0  plot=0  ncat=1  xbins=40    ybins=0  xmin=0.0  xmax=4.0    ymin=0  ymax=0  name=num_hist_absEta  xaxis=|Eta|  yaxis=Nevents
+htyp=0  plot=0  ncat=1  xbins=40    ybins=0  xmin=0.0  xmax=4.0    ymin=0  ymax=0  name=deno_hist_absEta  xaxis=|Eta|  yaxis=Nevents
+htyp=0  plot=0  ncat=1  xbins=100   ybins=0  xmin=0.0  xmax=200.0  ymin=0  ymax=0  name=num_hist_Pt  xaxis=Pt  yaxis=Nevents
+htyp=0  plot=0  ncat=1  xbins=100   ybins=0  xmin=0.0  xmax=200.0  ymin=0  ymax=0  name=deno_hist_Pt  xaxis=Pt  yaxis=Nevents
+
