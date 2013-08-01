@@ -30,7 +30,8 @@ leadEtVHhadCut=60
 subleadEtVHhadCut=25
 
 ## Lepton tag
-includeVHlep=1
+includeVHlep=0
+includeVHlepPlusMet=1
 leadEtVHlepCut=45
 #subleadEtVHlepCut=30
 nElectronCategories=1 
