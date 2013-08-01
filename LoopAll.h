@@ -321,8 +321,10 @@ class LoopAll {
   TMVA::Reader *tmvaReaderID_MIT_Barrel, *tmvaReaderID_MIT_Endcap;
   TMVA::Reader *tmvaReader_dipho_MIT;
   TMVA::Reader *tmvaReaderID_Single_Barrel, *tmvaReaderID_Single_Endcap;
+  TMVA::Reader *tmvaReaderID_2013_Barrel, *tmvaReaderID_2013_Endcap;
 
   Float_t photonIDMVANew(Int_t, Int_t, TLorentzVector &, const char*);
+  Float_t photonIDMVA2013(Int_t, Int_t, TLorentzVector &, const char*);
 
   Float_t tmva_photonid_pfchargedisogood03;
   Float_t tmva_photonid_pfchargedisobad03;
@@ -333,6 +335,7 @@ class LoopAll {
   Float_t tmva_photonid_etawidth;
   Float_t tmva_photonid_phiwidth;
   Float_t tmva_photonid_r9;
+  Float_t tmva_photonid_scrawe;
   Float_t tmva_photonid_s4ratio;
   Float_t tmva_photonid_lambdaratio;
   Float_t tmva_photonid_sceta;
