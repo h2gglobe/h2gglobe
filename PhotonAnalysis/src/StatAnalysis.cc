@@ -336,195 +336,36 @@ void StatAnalysis::Init(LoopAll& l)
     // Create observables for shape-analysis with ranges
     // l.rooContainer->AddObservable("mass" ,100.,150.);
     l.rooContainer->AddObservable("CMS_hgg_mass" ,massMin,massMax);
-
     l.rooContainer->AddConstant("IntLumi",l.intlumi_);
 
     // SM Model
-    l.rooContainer->AddConstant("XSBR_tth_155",0.00004370);
-    l.rooContainer->AddConstant("XSBR_ggh_150",0.01428);
-    l.rooContainer->AddConstant("XSBR_vbf_150",0.001308);
-    l.rooContainer->AddConstant("XSBR_wzh_150",0.000641);
-    l.rooContainer->AddConstant("XSBR_tth_150",0.000066);
-    l.rooContainer->AddConstant("XSBR_ggh_145",0.018820);
-    l.rooContainer->AddConstant("XSBR_vbf_145",0.001676);
-    l.rooContainer->AddConstant("XSBR_wzh_145",0.000891);
-    l.rooContainer->AddConstant("XSBR_tth_145",0.000090);
-    l.rooContainer->AddConstant("XSBR_ggh_140",0.0234109);
-    l.rooContainer->AddConstant("XSBR_vbf_140",0.00203036);
-    l.rooContainer->AddConstant("XSBR_wzh_140",0.001163597);
-    l.rooContainer->AddConstant("XSBR_tth_140",0.000117189);
-    l.rooContainer->AddConstant("XSBR_ggh_135",0.0278604);
-    l.rooContainer->AddConstant("XSBR_vbf_135",0.002343);
-    l.rooContainer->AddConstant("XSBR_wzh_135",0.001457559);
-    l.rooContainer->AddConstant("XSBR_tth_135",0.000145053);
-    l.rooContainer->AddConstant("XSBR_ggh_130",0.0319112);
-    l.rooContainer->AddConstant("XSBR_vbf_130",0.00260804);
-    l.rooContainer->AddConstant("XSBR_wzh_130",0.001759636);
-    l.rooContainer->AddConstant("XSBR_tth_130",0.000173070);
-    l.rooContainer->AddConstant("XSBR_ggh_125",0.0350599);
-    l.rooContainer->AddConstant("XSBR_vbf_125",0.00277319);
-    l.rooContainer->AddConstant("XSBR_wzh_125",0.002035123);
-    l.rooContainer->AddConstant("XSBR_tth_125",0.000197718);
-    l.rooContainer->AddConstant("XSBR_ggh_120",0.0374175);
-    l.rooContainer->AddConstant("XSBR_vbf_120",0.00285525);
-    l.rooContainer->AddConstant("XSBR_wzh_120",0.002285775);
-    l.rooContainer->AddConstant("XSBR_tth_120",0.00021951);
-    l.rooContainer->AddConstant("XSBR_ggh_123",0.0360696);
-    l.rooContainer->AddConstant("XSBR_vbf_123",0.00281352);
-    l.rooContainer->AddConstant("XSBR_wzh_123",0.00213681);
-    l.rooContainer->AddConstant("XSBR_tth_123",0.00020663);
-    l.rooContainer->AddConstant("XSBR_ggh_121",0.0369736);
-    l.rooContainer->AddConstant("XSBR_vbf_121",0.00284082);
-    l.rooContainer->AddConstant("XSBR_wzh_121",0.00223491);
-    l.rooContainer->AddConstant("XSBR_tth_121",0.00021510);
-    l.rooContainer->AddConstant("XSBR_ggh_115",0.0386169);
-    l.rooContainer->AddConstant("XSBR_vbf_115",0.00283716);
-    l.rooContainer->AddConstant("XSBR_wzh_115",0.002482089);
-    l.rooContainer->AddConstant("XSBR_tth_115",0.000235578);
-    l.rooContainer->AddConstant("XSBR_ggh_110",0.0390848);
-    l.rooContainer->AddConstant("XSBR_vbf_110",0.00275406);
-    l.rooContainer->AddConstant("XSBR_wzh_110",0.002654575);
-    l.rooContainer->AddConstant("XSBR_tth_110",0.000247629);
-    l.rooContainer->AddConstant("XSBR_ggh_105",0.0387684);
-    l.rooContainer->AddConstant("XSBR_vbf_105",0.00262016);
-    l.rooContainer->AddConstant("XSBR_wzh_105",0.002781962);
-    l.rooContainer->AddConstant("XSBR_tth_105",0.000255074);
-
-    // FF model
-    l.rooContainer->AddConstant("ff_XSBR_vbf_150",0.00259659);
-    l.rooContainer->AddConstant("ff_XSBR_wzh_150",0.00127278);
-    l.rooContainer->AddConstant("ff_XSBR_vbf_145",0.00387544);
-    l.rooContainer->AddConstant("ff_XSBR_wzh_145",0.00205969);
-    l.rooContainer->AddConstant("ff_XSBR_vbf_140",0.00565976);
-    l.rooContainer->AddConstant("ff_XSBR_wzh_140",0.003243602);
-    l.rooContainer->AddConstant("ff_XSBR_vbf_135",0.00825);
-    l.rooContainer->AddConstant("ff_XSBR_wzh_135",0.00513225);
-    l.rooContainer->AddConstant("ff_XSBR_vbf_130",0.0122324);
-    l.rooContainer->AddConstant("ff_XSBR_wzh_130",0.00825316);
-    l.rooContainer->AddConstant("ff_XSBR_vbf_125",0.0186494);
-    l.rooContainer->AddConstant("ff_XSBR_wzh_125",0.01368598);
-    l.rooContainer->AddConstant("ff_XSBR_vbf_123",0.022212);
-    l.rooContainer->AddConstant("ff_XSBR_wzh_123",0.0168696);
-    l.rooContainer->AddConstant("ff_XSBR_vbf_121",0.0266484);
-    l.rooContainer->AddConstant("ff_XSBR_wzh_121",0.0209646);
-    l.rooContainer->AddConstant("ff_XSBR_vbf_120",0.0293139);
-    l.rooContainer->AddConstant("ff_XSBR_wzh_120",0.02346729);
-    l.rooContainer->AddConstant("ff_XSBR_vbf_115",0.0482184);
-    l.rooContainer->AddConstant("ff_XSBR_wzh_115",0.04218386);
-    l.rooContainer->AddConstant("ff_XSBR_vbf_110",0.083181);
-    l.rooContainer->AddConstant("ff_XSBR_wzh_110",0.08017625);
-    l.rooContainer->AddConstant("ff_XSBR_vbf_105",0.151616);
-    l.rooContainer->AddConstant("ff_XSBR_wzh_105",0.1609787);
-
+    for(size_t isig=0; isig<sigPointsToBook.size(); ++isig) {
+        int sig = sigPointsToBook[isig];
+        l.rooContainer->AddConstant(Form("XSBR_ggh_%d",sig),l.signalNormalizer->GetXsection(double(sig),"ggh")*l.signalNormalizer->GetBR(double(sig)));
+    }
+    
     // -----------------------------------------------------
     // Configurable background model
     // if no configuration was given, set some defaults
     std::string postfix=(dataIs2011?"":"_8TeV");
-
+    
     if( bkgPolOrderByCat.empty() ) {
-	    for(int i=0; i<nCategories_; i++){
+	for(int i=0; i<nCategories_; i++){
 	        if(i<nInclusiveCategories_) {
-	    	bkgPolOrderByCat.push_back(5);
+		    bkgPolOrderByCat.push_back(5);
 	        } else if(i<nInclusiveCategories_+nVBFCategories){
-	    	bkgPolOrderByCat.push_back(3);
+		    bkgPolOrderByCat.push_back(3);
 	        } else if(i<nInclusiveCategories_+nVBFCategories+nVHhadCategories){
-	    	bkgPolOrderByCat.push_back(2);
+		    bkgPolOrderByCat.push_back(2);
 	        } else if(i<nInclusiveCategories_+nVBFCategories+nVHhadCategories+nVHlepCategories){
-	    	bkgPolOrderByCat.push_back(1);
+		    bkgPolOrderByCat.push_back(1);
 	        }
-	    }
+	}
     }
     // build the model
     buildBkgModel(l, postfix);
-
-    // -----------------------------------------------------
-    // Make some data sets from the observables to fill in the event loop
-    // Binning is for histograms (will also produce unbinned data sets)
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","data_mass"    ,nDataBins); // (100,110,150) -> for a window, else full obs range is taken
-    l.rooContainer->CreateDataSet("CMS_hgg_mass","bkg_mass"     ,nDataBins);
-
-    // Create Signal DataSets:
-    for(size_t isig=0; isig<sigPointsToBook.size(); ++isig) {
-	int sig = sigPointsToBook[isig];
-    // SM datasets
-    if (!doSpinAnalysis){
-            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_ggh_mass_m%d",sig),nDataBins);
-            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_vbf_mass_m%d",sig),nDataBins);
-            if(!splitwzh) l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wzh_mass_m%d",sig),nDataBins);
-            else{
-                l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wh_mass_m%d",sig),nDataBins);
-                l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_zh_mass_m%d",sig),nDataBins);
-            }
-            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_tth_mass_m%d",sig),nDataBins);
-
-            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_ggh_mass_m%d_rv",sig),nDataBins);
-            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_vbf_mass_m%d_rv",sig),nDataBins);
-            if(!splitwzh) l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wzh_mass_m%d_rv",sig),nDataBins);
-            else{
-                l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wh_mass_m%d_rv",sig),nDataBins);
-                l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_zh_mass_m%d_rv",sig),nDataBins);
-            }
-            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_tth_mass_m%d_rv",sig),nDataBins);
-
-            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_ggh_mass_m%d_wv",sig),nDataBins);
-            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_vbf_mass_m%d_wv",sig),nDataBins);
-            if(!splitwzh) l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wzh_mass_m%d_wv",sig),nDataBins);
-            else{
-                l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wh_mass_m%d_wv",sig),nDataBins);
-                l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_zh_mass_m%d_wv",sig),nDataBins);
-            }
-            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_tth_mass_m%d_wv",sig),nDataBins);
-        }
-        // Spin Analysis Datasets
-        else {
-            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_ggh_mass_m%d",sig),nDataBins);
-            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_vbf_mass_m%d",sig),nDataBins);
-            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wzh_mass_m%d",sig),nDataBins);
-            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_tth_mass_m%d",sig),nDataBins);
-
-            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_ggh_mass_m%d_rv",sig),nDataBins);
-            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_vbf_mass_m%d_rv",sig),nDataBins);
-            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wzh_mass_m%d_rv",sig),nDataBins);
-            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_tth_mass_m%d_rv",sig),nDataBins);
-
-            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_ggh_mass_m%d_wv",sig),nDataBins);
-            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_vbf_mass_m%d_wv",sig),nDataBins);
-            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wzh_mass_m%d_wv",sig),nDataBins);
-            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_tth_mass_m%d_wv",sig),nDataBins);
-            
-            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_gg_grav_mass_m%d",sig),nDataBins);
-            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_qq_grav_mass_m%d",sig),nDataBins);
-                                                                            
-            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_gg_grav_mass_m%d_rv",sig),nDataBins);
-            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_qq_grav_mass_m%d_rv",sig),nDataBins);
-                                                                            
-            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_gg_grav_mass_m%d_wv",sig),nDataBins);
-            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_qq_grav_mass_m%d_wv",sig),nDataBins);
-        }
-    }
-
-    // Make more datasets representing Systematic Shifts of various quantities
-    for(size_t isig=0; isig<sigPointsToBook.size(); ++isig) {
-        int sig = sigPointsToBook[isig];
-        if (!doSpinAnalysis){
-            l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_ggh_mass_m%d",sig),-1);
-            l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_vbf_mass_m%d",sig),-1);
-            if(!splitwzh) l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_wzh_mass_m%d",sig),-1);
-            else{
-                l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_wh_mass_m%d",sig),-1);
-                l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_zh_mass_m%d",sig),-1);
-            }
-            l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_tth_mass_m%d",sig),-1);
-        }
-        else {
-            l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_ggh_mass_m%d",sig),-1);
-            l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_vbf_mass_m%d",sig),-1);
-            l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_wzh_mass_m%d",sig),-1);
-            l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_tth_mass_m%d",sig),-1);
-            l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_gg_grav_mass_m%d",sig),-1);
-            l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_qq_grav_mass_m%d",sig),-1);
-        }
-    }
+    bookSignalModel(l,nDataBins);
+    
 
     // Make sure the Map is filled
     FillSignalLabelMap(l);
@@ -653,6 +494,100 @@ void StatAnalysis::buildBkgModel(LoopAll& l, const std::string & postfix)
             l.rooContainer->AddSpecificCategoryPdf(&catflags[0],"data_pol_model"+postfix,
                 "0","CMS_hgg_mass",catpars,6);
             // 6 is power law
+        }
+    }
+}
+
+
+// ----------------------------------------------------------------------------------------------------
+void StatAnalysis::bookSignalModel(LoopAll& l, Int_t nDataBins) 
+{
+    // -----------------------------------------------------
+    // Make some data sets from the observables to fill in the event loop
+    // Binning is for histograms (will also produce unbinned data sets)
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","data_mass"    ,nDataBins); // (100,110,150) -> for a window, else full obs range is taken
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","bkg_mass"     ,nDataBins);
+    
+    // Create Signal DataSets:
+    for(size_t isig=0; isig<sigPointsToBook.size(); ++isig) {
+	int sig = sigPointsToBook[isig];
+	// SM datasets
+	if (!doSpinAnalysis){
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_ggh_mass_m%d",sig),nDataBins);
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_vbf_mass_m%d",sig),nDataBins);
+            if(!splitwzh) l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wzh_mass_m%d",sig),nDataBins);
+            else{
+                l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wh_mass_m%d",sig),nDataBins);
+                l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_zh_mass_m%d",sig),nDataBins);
+            }
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_tth_mass_m%d",sig),nDataBins);
+
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_ggh_mass_m%d_rv",sig),nDataBins);
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_vbf_mass_m%d_rv",sig),nDataBins);
+            if(!splitwzh) l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wzh_mass_m%d_rv",sig),nDataBins);
+            else{
+                l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wh_mass_m%d_rv",sig),nDataBins);
+                l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_zh_mass_m%d_rv",sig),nDataBins);
+            }
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_tth_mass_m%d_rv",sig),nDataBins);
+
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_ggh_mass_m%d_wv",sig),nDataBins);
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_vbf_mass_m%d_wv",sig),nDataBins);
+            if(!splitwzh) l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wzh_mass_m%d_wv",sig),nDataBins);
+            else{
+                l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wh_mass_m%d_wv",sig),nDataBins);
+                l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_zh_mass_m%d_wv",sig),nDataBins);
+            }
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_tth_mass_m%d_wv",sig),nDataBins);
+        }
+        // Spin Analysis Datasets
+        else {
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_ggh_mass_m%d",sig),nDataBins);
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_vbf_mass_m%d",sig),nDataBins);
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wzh_mass_m%d",sig),nDataBins);
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_tth_mass_m%d",sig),nDataBins);
+
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_ggh_mass_m%d_rv",sig),nDataBins);
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_vbf_mass_m%d_rv",sig),nDataBins);
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wzh_mass_m%d_rv",sig),nDataBins);
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_tth_mass_m%d_rv",sig),nDataBins);
+
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_ggh_mass_m%d_wv",sig),nDataBins);
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_vbf_mass_m%d_wv",sig),nDataBins);
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wzh_mass_m%d_wv",sig),nDataBins);
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_tth_mass_m%d_wv",sig),nDataBins);
+            
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_gg_grav_mass_m%d",sig),nDataBins);
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_qq_grav_mass_m%d",sig),nDataBins);
+                                                                            
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_gg_grav_mass_m%d_rv",sig),nDataBins);
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_qq_grav_mass_m%d_rv",sig),nDataBins);
+                                                                            
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_gg_grav_mass_m%d_wv",sig),nDataBins);
+            l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_qq_grav_mass_m%d_wv",sig),nDataBins);
+        }
+    }
+
+    // Make more datasets representing Systematic Shifts of various quantities
+    for(size_t isig=0; isig<sigPointsToBook.size(); ++isig) {
+        int sig = sigPointsToBook[isig];
+        if (!doSpinAnalysis){
+            l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_ggh_mass_m%d",sig),-1);
+            l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_vbf_mass_m%d",sig),-1);
+            if(!splitwzh) l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_wzh_mass_m%d",sig),-1);
+            else{
+                l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_wh_mass_m%d",sig),-1);
+                l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_zh_mass_m%d",sig),-1);
+            }
+            l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_tth_mass_m%d",sig),-1);
+        }
+        else {
+            l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_ggh_mass_m%d",sig),-1);
+            l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_vbf_mass_m%d",sig),-1);
+            l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_wzh_mass_m%d",sig),-1);
+            l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_tth_mass_m%d",sig),-1);
+            l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_gg_grav_mass_m%d",sig),-1);
+            l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_qq_grav_mass_m%d",sig),-1);
         }
     }
 }
