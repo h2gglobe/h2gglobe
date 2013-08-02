@@ -28,6 +28,7 @@ class PdfModelBuilder {
     void setSignalModifier(RooRealVar *var);
     void setSignalModifierVal(float val);
     void setSignalModifierConstant(bool val);
+    void setKeysPdfAttributes(RooDataSet *data, double rho=2);
 
     void addBkgPdf(string type, int nParams, string name, bool cache=true);
 
@@ -42,10 +43,14 @@ class PdfModelBuilder {
     void fitToData(RooAbsData *data, bool bkgOnly=true, bool cache=true, bool print=false);
     void plotPdfsToData(RooAbsData *data, int binning, string name, bool bkgOnly=true, string specificPdfName="");
     void plotToysWithPdfs(string prefix, int binning, bool bkgOnly=true);
+    void plotHybridToy(string prefix, int binning, vector<float> switchOverMasses, vector<string> functions, bool bkgOnly=true);
     
     void setSeed(int seed);
     void throwToy(string name, int nEvents, bool bkgOnly=true, bool binned=true, bool poisson=true, bool cache=true);
+    RooDataSet *makeHybridDataset(vector<float> switchOverMasses, vector<RooDataSet*> dataForHybrid);
+    void throwHybridToy(string name, int nEvents, vector<float> switchOverMasses, vector<string> functions, bool bkgOnly=true, bool binned=true, bool poisson=true, bool cache=true);
     map<string,RooAbsData*> getToyData();
+    map<string,RooAbsData*> getHybridToyData();
 
     void saveWorkspace(TFile* file);
     void saveWorkspace(string filename);
@@ -58,6 +63,7 @@ class PdfModelBuilder {
     RooAbsPdf* getExponential(string prefix, int order);
     RooAbsPdf* getExponentialSingle(string prefix, int order);
     RooAbsPdf* getLaurentSeries(string prefix, int order);
+    RooAbsPdf* getKeysPdf(string prefix);
     
 
   private:
@@ -70,8 +76,13 @@ class PdfModelBuilder {
     RooAbsReal* sigNorm;
     RooRealVar *bkgYield;
     RooAbsReal *sigYield;
+    RooDataSet *keysPdfData;
+    double keysPdfRho;
 
     map<string,RooAbsData*> toyData;
+    map<string,RooAbsData*> toyHybridData;
+    map<string,RooDataSet*> toyDataSet;
+    map<string,RooDataHist*> toyDataHist;
 
     map<string,RooRealVar*> params;
     map<string,RooFormulaVar*> prods;
@@ -84,6 +95,8 @@ class PdfModelBuilder {
     bool signal_set;
     bool bkgHasFit;
     bool sbHasFit;
+    bool keysPdfAttributesSet;
+    vector<string> cut_strings;
 
     RooWorkspace *wsCache;
 

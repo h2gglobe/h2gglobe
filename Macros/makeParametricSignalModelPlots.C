@@ -7,12 +7,16 @@
 #include "TROOT.h"
 #include "TStyle.h"
 #include "TH1F.h"
+#include "TH2F.h"
 #include "TArrow.h"
 #include "TLegend.h"
 #include "TPaveText.h"
 #include "TLatex.h"
 #include "TStopwatch.h"
 #include "TMath.h"
+#include "TColor.h"
+#include "TLine.h"
+#include "TPad.h"
 
 #include "RooStats/NumberCountingUtils.h"
 #include "RooStats/RooStatsUtils.h"
@@ -456,11 +460,11 @@ pair<double,double> bkgEvPerGeV(RooWorkspace *work, int m_hyp, int cat, pair<dou
   return pair<double,double>(nombkg,error); 
 }
 
-vector<double> sigEvents(RooWorkspace *work, int m_hyp, int cat, string altSigFileName, vector<double> &sigTotal, string spinProc=""){
+vector<double> sigEvents(RooWorkspace *work, int m_hyp, int cat, string binnedSigFileName, vector<double> &sigTotal, string spinProc=""){
 
   RooWorkspace *tempWork;
-  if (altSigFileName!=""){
-    TFile *temp = TFile::Open(altSigFileName.c_str());
+  if (binnedSigFileName!=""){
+    TFile *temp = TFile::Open(binnedSigFileName.c_str());
     tempWork = (RooWorkspace*)temp->Get("cms_hgg_workspace");
   }
   else {
@@ -534,7 +538,318 @@ pair<double,double> datEvents(RooWorkspace *work, int m_hyp, int cat, pair<doubl
   return pair<double,double>(evs,evsPerGev);
 }
 
-void makeParametricSignalModelPlots(string sigFitFileName, string pathName, int ncats=9, bool is2011=false, int m_hyp=120, string bkgdatFileName="0", bool isMassFac = true, bool blind=true, bool doTable=true, string altSigFileName="", bool spin=false, string spinProc="", bool doCrossCheck=false, bool doMIT=false, bool rejig=false){
+// from p. meridiani
+void makeSignalCompositionPlot(int nCats, map<string,vector<double> > sigVals, map<string,double> sigEffs, map<string,double> fwhms, string outfname, int mh){
+  
+  TString catName[nCats+1];
+  catName[0] = "Untagged 0";
+  catName[1] = "Untagged 1";
+  catName[2] = "Untagged 2";
+  catName[3] = "Untagged 3";
+  catName[4] = "Tight Dijet Tag";
+  catName[5] = "Loose Dijet Tag";
+  catName[6] = "Muon Tag";
+  catName[7] = "Electron Tag";
+  catName[8] = "MET Tag";
+  catName[9] = "Combined";
+  
+  TH1F* signalHistoFrac[4];
+  TString processName[4]={"ggH","qqH","VH","ttH"};
+  float signal_composition[nCats][4];
+
+  // setup arrays
+  for (int c=0; c<nCats; c++){
+    signal_composition[c][0] = 100.*sigVals[Form("cat%d",c)][1]/sigVals[Form("cat%d",c)][0];
+    signal_composition[c][1] = 100.*sigVals[Form("cat%d",c)][2]/sigVals[Form("cat%d",c)][0];
+    signal_composition[c][2] = 100.*sigVals[Form("cat%d",c)][3]/sigVals[Form("cat%d",c)][0];
+    signal_composition[c][3] = 100.*sigVals[Form("cat%d",c)][4]/sigVals[Form("cat%d",c)][0];
+  }
+  signal_composition[nCats][0] = 100.*sigVals["all"][1]/sigVals["all"][0];
+  signal_composition[nCats][1] = 100.*sigVals["all"][2]/sigVals["all"][0];
+  signal_composition[nCats][2] = 100.*sigVals["all"][3]/sigVals["all"][0];
+  signal_composition[nCats][3] = 100.*sigVals["all"][4]/sigVals["all"][0];
+
+  for (int i=0;i<4;++i)
+  {
+    signalHistoFrac[i]=new TH1F(Form("frac_%s",processName[i].Data()),Form("frac_%s",processName[i].Data()),nCats+1,-0.5,nCats+0.5);
+    std::cout <<"+++++++++++++++++ " << processName[i] << " ++++++++++++++++++++" << std::endl;
+    for (int j=0;j<nCats+1;++j)
+    {
+      signalHistoFrac[i]->SetBinContent(j+1,signal_composition[j][i]);
+      std::cout << catName[j] << ": " <<  signalHistoFrac[i]->GetBinContent(j+1) << "%" << std::endl;
+    }
+  }
+
+  signalHistoFrac[0]->SetFillColor(kGreen+2);
+  signalHistoFrac[1]->SetFillColor(kRed+2);
+  signalHistoFrac[2]->SetFillColor(kCyan+2);
+  signalHistoFrac[3]->SetFillColor(kAzure-6);  
+
+
+  gStyle->SetPadTickX(1);  // To get tick marks on the opposite side of the frame
+  //  gStyle->SetPadTickY(1);  // To get tick marks on the opposite side of the frame
+
+  //TCanvas *Plots = new TCanvas("Plots", "Plots",1,1,800,776);
+  
+  TCanvas *canv = new TCanvas("canv","canv",1,1,1200,776);
+  canv->SetHighLightColor(2);
+  TPad *Plots = new TPad("Plots","Plots",0.,0.,0.667,1.);
+  Plots->cd();
+
+  gStyle->SetOptStat(0);
+  //Plots->SetHighLightColor(2);
+  Plots->Range(-14.67532,-1.75,11.2987,15.75);
+  Plots->SetFillColor(0);
+  Plots->SetBorderMode(0);
+  Plots->SetBorderSize(2);
+  Plots->SetTopMargin(0.16);
+  Plots->SetLeftMargin(0.18);
+  Plots->SetRightMargin(0.05);
+  Plots->SetFrameBorderMode(0);
+  Plots->SetFrameBorderMode(0);
+
+
+  TH2F *dummy = new TH2F("dummy","",10,0.,100.,nCats+1,-0.5,nCats+0.5);
+  dummy->SetStats(0);
+
+  gStyle->SetOptTitle(0);
+  gStyle->SetOptStat(0);
+
+  //gStyle_->SetPadTickY(1);
+
+  Int_t ci;   // for color index setting
+  ci = TColor::GetColor("#00ff00");
+  dummy->SetFillColor(ci);
+
+
+  for (int i=0;i<nCats+1;++i) dummy->GetYaxis()->SetBinLabel(nCats+1-i,catName[i]);
+  dummy->GetYaxis()->SetTickLength(0);
+  dummy->GetXaxis()->SetTitle("Signal Fraction (%)");
+  dummy->GetXaxis()->SetNdivisions(510);
+  dummy->GetXaxis()->SetLabelFont(42);
+  dummy->GetXaxis()->SetLabelSize(0.045);
+  dummy->GetXaxis()->SetTitleSize(0.045);
+  dummy->GetXaxis()->SetTitleOffset(0.95);
+  dummy->GetXaxis()->SetTitleFont(42);
+  dummy->GetYaxis()->SetNdivisions(510);
+  dummy->GetYaxis()->SetLabelSize(0.035);
+  dummy->GetYaxis()->SetTitleSize(0.045);
+  dummy->GetYaxis()->SetTitleOffset(1.1);
+  dummy->GetYaxis()->SetTitleFont(42);
+  dummy->GetZaxis()->SetLabelFont(42);
+  dummy->GetZaxis()->SetLabelSize(0.035);
+  dummy->GetZaxis()->SetTitleSize(0.035);
+  dummy->GetZaxis()->SetTitleFont(42);
+  dummy->Draw("");
+
+  //loop on bins and draw a TPave
+  Int_t nbins  = nCats+1;
+  Float_t ymin = 0.0;
+  Float_t width = 0.34;
+
+  TPave *pave;
+  for (Int_t i=0;i<nbins;i++) {
+    Float_t ybin = signalHistoFrac[0]->GetBinCenter(i+1);
+    Float_t ybinmin = ybin -width*signalHistoFrac[0]->GetBinWidth(i+1);
+    Float_t ybinmax = ybin +width*signalHistoFrac[0]->GetBinWidth(i+1);
+    Float_t xbinmin = ymin;
+    Float_t xbinmax = ymin;
+
+    //Stacked fractions
+    for (int j=0;j<4;++j)
+    {
+      xbinmax+=signalHistoFrac[j]->GetBinContent(nbins-i);
+      pave = new TPave(xbinmin,ybinmin,xbinmax,ybinmax);
+      pave->SetFillColor(signalHistoFrac[j]->GetFillColor());
+      pave->Draw();
+      pave->SetBorderSize(0);
+      xbinmin+=signalHistoFrac[j]->GetBinContent(nbins-i);
+    }
+  }
+
+  TLatex *   tex_m=new TLatex();
+  tex_m->SetNDC();
+  tex_m->SetTextAlign(12);
+  tex_m->SetTextSize(0.025);
+  tex_m->SetLineWidth(2);
+
+  pave=new TPave(0.20,0.85,0.23,0.85+0.03,0,"NDC");
+  pave->SetFillColor(signalHistoFrac[0]->GetFillColor());
+  pave->Draw();
+  tex_m->DrawLatex(0.24,0.84+0.025,"ggH");
+
+  pave=new TPave(0.38,0.85,0.41,0.85+0.03,0,"NDC");
+  pave->SetFillColor(signalHistoFrac[1]->GetFillColor());
+  pave->Draw();
+  tex_m->DrawLatex(0.42,0.84+0.025,"qqH");
+
+  pave=new TPave(0.56,0.85,0.59,0.85+0.03,0,"NDC");
+  pave->SetFillColor(signalHistoFrac[2]->GetFillColor());
+  pave->Draw();
+  tex_m->DrawLatex(0.60,0.84+0.025,"VH");
+
+  pave=new TPave(0.74,0.85,0.77,0.85+0.03,0,"NDC");
+  pave->SetFillColor(signalHistoFrac[3]->GetFillColor());
+  pave->Draw();
+  tex_m->DrawLatex(0.78,0.84+0.025,"ttH");
+
+  TLine *line = new TLine(0,nCats-3.5,100,nCats-3.5);
+  line->SetLineColor(kBlack);
+  line->SetLineWidth(2);
+  line->SetLineStyle(2);
+  line->Draw();
+
+  TLine *line2 = new TLine(0,nCats-5.5,100,nCats-5.5);
+  line2->SetLineColor(kBlack);
+  line2->SetLineWidth(2);
+  line2->SetLineStyle(2);
+  line2->Draw();
+
+  TLine *line3 = new TLine(0,nCats-8.5,100,nCats-8.5);
+  line3->SetLineColor(kBlack);
+  line3->SetLineWidth(2);
+  line3->SetLineStyle(2);
+  line3->Draw();
+
+  Plots->RedrawAxis();
+
+  //Plots->SaveAs(Form("%s.png",outfname.c_str()));
+  //Plots->SaveAs(Form("%s.pdf",outfname.c_str()));
+  canv->cd();
+  Plots->Draw();
+
+  //TCanvas *test = new TCanvas("test","test",1,1,400,776);
+  TPad *Width = new TPad("Width","Width",0.667,0.,1.,1.);
+  Width->cd();
+  //Width->SetHighLightColor(2);
+  Width->Range(-14.67532,-1.75,11.2987,15.75);
+  Width->SetFillColor(0);
+  Width->SetBorderMode(0);
+  Width->SetBorderSize(2);
+  Width->SetTopMargin(0.16);
+  Width->SetLeftMargin(0.08);
+  Width->SetRightMargin(0.05);
+  Width->SetFrameBorderMode(0);
+  Width->SetFrameBorderMode(0);
+  TH2F *dummy2 = new TH2F("dummy2","",4,-4.,4.,nCats+1,-0.5,nCats+0.5);
+  for (int i=1; i<=dummy2->GetNbinsX(); i++) dummy2->GetYaxis()->SetBinLabel(i,"");
+  dummy2->SetStats(0);
+  dummy2->GetYaxis()->SetTickLength(0);
+  dummy2->GetXaxis()->SetTitle("Width (GeV)");
+  dummy2->GetXaxis()->SetNdivisions(505);
+  dummy2->GetXaxis()->SetLabelFont(42);
+  dummy2->GetXaxis()->SetLabelSize(0.07);
+  dummy2->GetXaxis()->SetLabelOffset(-0.02);
+  dummy2->GetXaxis()->SetTitleSize(0.08);
+  dummy2->GetXaxis()->SetTitleOffset(0.5);
+  dummy2->GetXaxis()->SetTitleFont(42);
+  dummy2->GetYaxis()->SetNdivisions(505);
+  dummy2->GetYaxis()->SetLabelSize(0.035);
+  dummy2->GetYaxis()->SetTitleSize(0.045);
+  dummy2->GetYaxis()->SetTitleOffset(1.1);
+  dummy2->GetYaxis()->SetTitleFont(42);
+  dummy2->GetZaxis()->SetLabelFont(42);
+  dummy2->GetZaxis()->SetLabelSize(0.035);
+  dummy2->GetZaxis()->SetTitleSize(0.035);
+  dummy2->GetZaxis()->SetTitleFont(42);
+  dummy2->Draw("");
+  
+  TPave *spave;
+  TPave *fpave;
+  for (Int_t i=0;i<nbins;i++) {
+    Float_t ybin = signalHistoFrac[0]->GetBinCenter(i+1);
+    Float_t ybinmin = ybin -width*signalHistoFrac[0]->GetBinWidth(i+1);
+    Float_t ybinmax = ybin +width*signalHistoFrac[0]->GetBinWidth(i+1);
+    
+    double sEff;
+    double fwhm;
+    if (i==0){
+      sEff = sigEffs["all"];
+      fwhm = fwhms["all"];
+    }
+    else {
+      sEff = sigEffs[Form("cat%d",i-1)];
+      fwhm = fwhms[Form("cat%d",i-1)];
+    }
+    spave = new TPave(-1.*sEff,ybinmin,sEff,ybinmax);
+    spave->SetFillColor(kBlue-7);
+    spave->SetLineColor(kBlue);
+    spave->SetLineWidth(2);
+    spave->SetBorderSize(1);
+    spave->Draw();
+
+    fpave = new TPave(fwhm/-2.35,ybinmin,fwhm/2.35,ybinmax);
+    fpave->SetFillColor(kRed);
+    fpave->SetFillStyle(3004);
+    fpave->SetLineColor(kRed);
+    fpave->SetLineWidth(2);
+    fpave->SetBorderSize(1);
+    fpave->Draw();
+  }
+  
+  pave=new TPave(0.15,0.85,0.21,0.85+0.03,0,"NDC");
+  pave->SetFillColor(kBlue-7);
+  pave->SetLineColor(kBlue);
+  pave->SetLineWidth(2);
+  pave->SetBorderSize(1);
+  pave->Draw();
+  tex_m->SetTextSize(0.045);
+  tex_m->DrawLatex(0.22,0.855,"#sigma_{eff}");
+
+  pave=new TPave(0.60,0.85,0.66,0.85+0.03,0,"NDC");
+  pave->SetFillColor(kRed);
+  pave->SetFillStyle(3004);
+  pave->SetLineColor(kRed);
+  pave->SetLineWidth(2);
+  pave->SetBorderSize(1);
+  pave->Draw();
+  tex_m->SetTextSize(0.045);
+  tex_m->DrawLatex(0.67,0.865,"FWHM/2.35");
+  
+  TLine *sline = new TLine(-4.,nCats-3.5,4.,nCats-3.5);
+  sline->SetLineColor(kBlack);
+  sline->SetLineWidth(2);
+  sline->SetLineStyle(2);
+  sline->Draw();
+
+  TLine *sline2 = new TLine(-4.,nCats-5.5,4.,nCats-5.5);
+  sline2->SetLineColor(kBlack);
+  sline2->SetLineWidth(2);
+  sline2->SetLineStyle(2);
+  sline2->Draw();
+
+  TLine *sline3 = new TLine(-4.,nCats-8.5,4.,nCats-8.5);
+  sline3->SetLineColor(kBlack);
+  sline3->SetLineWidth(2);
+  sline3->SetLineStyle(2);
+  sline3->Draw();
+
+  TLine *sline4 = new TLine(0.,-0.5,0.,nCats+0.5);
+  sline4->SetLineColor(kBlack);
+  sline4->SetLineWidth(3);
+  sline4->Draw();
+
+  Width->RedrawAxis();
+
+  canv->cd();
+  Width->Draw();
+  tex_m->SetTextSize(0.045);
+  tex_m->DrawLatex(0.11,0.935,Form("CMS Simulation    H#rightarrow#gamma#gamma (m_{H}=%d GeV/c^{2})",mh));
+
+  canv->SaveAs(Form("%s.pdf",outfname.c_str()));
+  canv->SaveAs(Form("%s.png",outfname.c_str()));
+
+  TFile *tempFile = new TFile("myTempFile.root","RECREATE");
+  Plots->Write();
+  Width->Write();
+  canv->Modified();
+  canv->Write();
+  tempFile->Close();
+
+}
+
+// main function
+void makeParametricSignalModelPlots(string sigFitFileName, string outPathName, bool doTable=false, int ncats=9, bool is2011=false, int m_hyp=125, string bkgdatFileName="0", bool isMassFac=true, bool blind=true, bool spin=false, string spinProc="", string binnedSigFileName="", bool doCrossCheck=false, bool doMIT=false, bool rejig=false){
 
   gROOT->SetBatch();
   gStyle->SetTextFont(42);
@@ -654,16 +969,16 @@ void makeParametricSignalModelPlots(string sigFitFileName, string pathName, int 
   map<string,double> sigEffs;
   map<string,double> fwhms;
   
-  system(Form("mkdir -p %s",pathName.c_str()));
-  system(Form("rm %s/animation.gif",pathName.c_str()));
+  system(Form("mkdir -p %s",outPathName.c_str()));
+  system(Form("rm %s/animation.gif",outPathName.c_str()));
   for (map<string,RooDataSet*>::iterator dataIt=dataSets.begin(); dataIt!=dataSets.end(); dataIt++){
     pair<double,double> thisSigRange = getEffSigma(mass,pdfs[dataIt->first],m_hyp-10.,m_hyp+10.);
     //pair<double,double> thisSigRange = getEffSigBinned(mass,pdf[dataIt->first],m_hyp-10.,m_hyp+10);
     vector<double> thisFWHMRange = getFWHM(mass,pdfs[dataIt->first],dataIt->second,m_hyp-10.,m_hyp+10.);
     sigEffs.insert(pair<string,double>(dataIt->first,(thisSigRange.second-thisSigRange.first)/2.));
     fwhms.insert(pair<string,double>(dataIt->first,thisFWHMRange[1]-thisFWHMRange[0]));
-    if (doCrossCheck) performClosure(mass,pdfs[dataIt->first],dataIt->second,Form("%s/closure_%s.pdf",pathName.c_str(),dataIt->first.c_str()),m_hyp-10.,m_hyp+10.,thisSigRange.first,thisSigRange.second);
-    Plot(mass,dataIt->second,pdfs[dataIt->first],thisSigRange,thisFWHMRange,labels[dataIt->first],Form("%s/%s",pathName.c_str(),dataIt->first.c_str()));
+    if (doCrossCheck) performClosure(mass,pdfs[dataIt->first],dataIt->second,Form("%s/closure_%s.pdf",outPathName.c_str(),dataIt->first.c_str()),m_hyp-10.,m_hyp+10.,thisSigRange.first,thisSigRange.second);
+    Plot(mass,dataIt->second,pdfs[dataIt->first],thisSigRange,thisFWHMRange,labels[dataIt->first],Form("%s/%s",outPathName.c_str(),dataIt->first.c_str()));
   }
   
   map<string,pair<double,double> > bkgVals;
@@ -672,32 +987,34 @@ void makeParametricSignalModelPlots(string sigFitFileName, string pathName, int 
 
   // make PAS table
   if (doTable) {
+    bool doBkgAndData=false;
     TFile *bkgFile;
+    RooWorkspace *bkgWS;
     if (bkgdatFileName!="0"){
       bkgFile = TFile::Open(bkgdatFileName.c_str());
+      bkgWS = (RooWorkspace*)bkgFile->Get("cms_hgg_workspace");
+      doBkgAndData=true;
     }
-    else {
-      bkgFile = hggFile; 
-    }
-    RooWorkspace *bkgWS = (RooWorkspace*)bkgFile->Get("cms_hgg_workspace");
     // keep track of sums
     pair<double,double> bkgTotal(0.,0.);
     pair<double,double> datTotal(0.,0.);
     vector<double> sigTotal;
     for (int i=0; i<5; i++) sigTotal.push_back(0.);
     for (int cat=0; cat<ncats; cat++){
-      bkgVals.insert(pair<string,pair<double,double> >(Form("cat%d",cat),bkgEvPerGeV(bkgWS,m_hyp,cat,bkgTotal)));
-      sigVals.insert(pair<string,vector<double> >(Form("cat%d",cat),sigEvents(bkgWS,m_hyp,cat,altSigFileName,sigTotal,spinProc)));
-      datVals.insert(pair<string,pair<double,double> >(Form("cat%d",cat),datEvents(bkgWS,m_hyp,cat,datTotal)));
+      if (doBkgAndData) {
+        bkgVals.insert(pair<string,pair<double,double> >(Form("cat%d",cat),bkgEvPerGeV(bkgWS,m_hyp,cat,bkgTotal)));
+        datVals.insert(pair<string,pair<double,double> >(Form("cat%d",cat),datEvents(bkgWS,m_hyp,cat,datTotal)));
+      }
+      sigVals.insert(pair<string,vector<double> >(Form("cat%d",cat),sigEvents(hggWS,m_hyp,cat,binnedSigFileName,sigTotal,spinProc)));
     }
     bkgTotal.second = sqrt(bkgTotal.second);
     bkgVals.insert(pair<string,pair<double,double> >("all",bkgTotal));
     sigVals.insert(pair<string,vector<double> > ("all",sigTotal));
     datVals.insert(pair<string,pair<double,double> >("all",datTotal));
-    bkgFile->Close();
+    if (doBkgAndData) bkgFile->Close();
     
-    FILE *file = fopen(Form("%s/table.tex",pathName.c_str()),"w");
-    FILE *nfile = fopen(Form("%s/table.txt",pathName.c_str()),"w");
+    FILE *file = fopen(Form("%s/table.tex",outPathName.c_str()),"w");
+    FILE *nfile = fopen(Form("%s/table.txt",outPathName.c_str()),"w");
     fprintf(nfile,"----------------------------------------------------------------------------------------------\n");
     fprintf(nfile,"Cat    SigY    ggh    vbf    wzh    tth   sEff  FWHM  FWHM/2.35  BkgEv/GeV    Data  DataEv/GeV\n");
     fprintf(nfile,"----------------------------------------------------------------------------------------------\n");
@@ -705,10 +1022,9 @@ void makeParametricSignalModelPlots(string sigFitFileName, string pathName, int 
       string thisCatName;
       if (cat==ncats) thisCatName = "all";
       else thisCatName = Form("cat%d",cat);
-      pair<double,double> bkg = bkgVals[thisCatName];
+      // signal
       vector<double> sigs = sigVals[thisCatName];
-      pair<double,double> dat = datVals[thisCatName];
-      // print to file
+      // txt file
       fprintf(nfile,"%5s  ",thisCatName.c_str());
       fprintf(nfile,"%5.1f  ",sigs[0]);
       fprintf(nfile,"%4.1f%%  ",100.*sigs[1]/sigs[0]);
@@ -718,12 +1034,7 @@ void makeParametricSignalModelPlots(string sigFitFileName, string pathName, int 
       fprintf(nfile,"%4.2f  ",sigEffs[thisCatName]);
       fprintf(nfile,"%4.2f  ",fwhms[thisCatName]);
       fprintf(nfile,"%4.2f   ",fwhms[thisCatName]/2.35);
-      fprintf(nfile,"%6.1f +/- %3.1f  ",bkg.first,bkg.second);
-      fprintf(nfile,"%6.0f    ",dat.first);
-      if (blind) fprintf(nfile,"%7s","----");
-      else fprintf(nfile,"%7.1f  ",dat.second);
-      fprintf(nfile,"\n");
-      // print to file
+      // tex file
       fprintf(file,"&  cat%d  ",cat);
       fprintf(file,"&  %5.1f  ",sigs[0]);
       fprintf(file,"&  %4.1f\\%%  ",100.*sigs[1]/sigs[0]);
@@ -733,17 +1044,30 @@ void makeParametricSignalModelPlots(string sigFitFileName, string pathName, int 
       fprintf(file,"&  %4.2f  ",sigEffs[thisCatName]);
       fprintf(file,"&  %4.2f  ",fwhms[thisCatName]);
       fprintf(file,"&  %4.2f  ",fwhms[thisCatName]/2.35);
-      fprintf(file,"&  %6.1f & $\\pm$ %3.1f \\tabularnewline ",bkg.first,bkg.second);
-      fprintf(file,"&  %7.1f  ",dat.first);
-      if (blind) fprintf(file,"& %7s","----");
-      else fprintf(file,"&  %7.1f  ",dat.second);
+      // bkg + data
+      if (doBkgAndData) {
+        pair<double,double> bkg = bkgVals[thisCatName];
+        pair<double,double> dat = datVals[thisCatName];
+        // txt file
+        fprintf(nfile,"%6.1f +/- %3.1f  ",bkg.first,bkg.second);
+        fprintf(nfile,"%6.0f    ",dat.first);
+        if (blind) fprintf(nfile,"%7s","----");
+        else fprintf(nfile,"%7.1f  ",dat.second);
+        // tex file
+        fprintf(file,"&  %6.1f & $\\pm$ %3.1f \\tabularnewline ",bkg.first,bkg.second);
+        fprintf(file,"&  %7.1f  ",dat.first);
+        if (blind) fprintf(file,"& %7s","----");
+        else fprintf(file,"&  %7.1f  ",dat.second);
+      }
+      fprintf(nfile,"\n");
       fprintf(file,"\n");
     }
     fclose(nfile);
     fclose(file);
-    system(Form("cat %s/table.txt",pathName.c_str()));
+    makeSignalCompositionPlot(ncats,sigVals,sigEffs,fwhms,Form("%s/signalComposition",outPathName.c_str()),m_hyp);
+    system(Form("cat %s/table.txt",outPathName.c_str()));
     cout << "-->" << endl;
-    cout << Form("--> LaTeX version of this table has been written to %s/table.tex",pathName.c_str()) << endl;
+    cout << Form("--> LaTeX version of this table has been written to %s/table.tex",outPathName.c_str()) << endl;
   }
 
   hggFile->Close();

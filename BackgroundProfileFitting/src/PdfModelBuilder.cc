@@ -7,6 +7,7 @@
 #include "RooExponential.h"
 #include "RooPowerLaw.h"
 #include "RooPowerLawSum.h"
+#include "RooKeysPdf.h"
 #include "RooAddPdf.h"
 #include "RooDataHist.h"
 #include "RooHistPdf.h"
@@ -27,6 +28,7 @@ PdfModelBuilder::PdfModelBuilder():
   signal_set(false),
   bkgHasFit(false),
   sbHasFit(false),
+  keysPdfAttributesSet(false),
   verbosity(0)
 {
   
@@ -34,6 +36,7 @@ PdfModelBuilder::PdfModelBuilder():
   recognisedPdfTypes.push_back("Exponential");
   recognisedPdfTypes.push_back("PowerLaw");
   recognisedPdfTypes.push_back("Laurent");
+  recognisedPdfTypes.push_back("KeysPdf");
 
   wsCache = new RooWorkspace("PdfModelBuilderCache");
 
@@ -254,6 +257,14 @@ RooAbsPdf* PdfModelBuilder::getLaurentSeries(string prefix, int order){
   //bkgPdfs.insert(pair<string,RooAbsPdf*>(pdf->GetName(),pdf));
 }
 
+RooAbsPdf* PdfModelBuilder::getKeysPdf(string prefix){
+  if (!keysPdfAttributesSet){
+    cerr << "ERROR -- keysPdf attributes not set" << endl;
+    exit(1);
+  }
+  return new RooKeysPdf(prefix.c_str(),prefix.c_str(),*obs_var,*keysPdfData,RooKeysPdf::MirrorBoth,keysPdfRho);
+}
+
 RooAbsPdf* PdfModelBuilder::getExponentialSingle(string prefix, int order){
   
   if (order%2==0){
@@ -309,6 +320,7 @@ void PdfModelBuilder::addBkgPdf(string type, int nParams, string name, bool cach
   if (type=="Exponential") pdf = getExponentialSingle(name,nParams);
   if (type=="PowerLaw") pdf = getPowerLawSingle(name,nParams);
   if (type=="Laurent") pdf = getLaurentSeries(name,nParams);
+  if (type=="KeysPdf") pdf = getKeysPdf(name);
 
   if (cache) {
     wsCache->import(*pdf);
@@ -319,6 +331,12 @@ void PdfModelBuilder::addBkgPdf(string type, int nParams, string name, bool cach
     bkgPdfs.insert(pair<string,RooAbsPdf*>(pdf->GetName(),pdf));
   }
 
+}
+
+void PdfModelBuilder::setKeysPdfAttributes(RooDataSet *data, double rho){
+  keysPdfData = data;
+  keysPdfRho = rho;
+  keysPdfAttributesSet=true;
 }
 
 void PdfModelBuilder::setSignalPdf(RooAbsPdf *pdf, RooRealVar *norm){
@@ -434,9 +452,74 @@ void PdfModelBuilder::setSeed(int seed){
   RooRandom::randomGenerator()->SetSeed(seed);
 }
 
+RooDataSet* PdfModelBuilder::makeHybridDataset(vector<float> switchOverMasses, vector<RooDataSet*> dataForHybrid){
+  
+  assert(switchOverMasses.size()==dataForHybrid.size()-1);
+
+  vector<string> cut_strings;
+  cut_strings.push_back("cutstring0");
+  obs_var->setRange("cutstring0",obs_var->getMin(),switchOverMasses[0]);
+  for (unsigned int i=1; i<switchOverMasses.size(); i++){
+    cut_strings.push_back(Form("cutstring%d",i));
+    obs_var->setRange(Form("cutstring%d",i),switchOverMasses[i-1],switchOverMasses[i]);
+  }
+  cut_strings.push_back(Form("cutstring%d",int(switchOverMasses.size())));
+  obs_var->setRange(Form("cutstring%d",int(switchOverMasses.size())),switchOverMasses[switchOverMasses.size()-1],obs_var->getMax());
+  
+  obs_var->Print("v");
+  assert(cut_strings.size()==dataForHybrid.size());
+  
+  RooDataSet *data;
+  for (unsigned int i=0; i<dataForHybrid.size(); i++){
+    RooDataSet *cutData = (RooDataSet*)dataForHybrid[i]->reduce(Name("hybridToy"),Title("hybridToy"),CutRange(cut_strings[i].c_str()));
+    //RooDataSet *cutData = new RooDataSet("hybridToy","hybridToy",RooArgSet(*obs_var),Import(*dataForHybrid[i]),CutRange(cut_strings[i].c_str()));
+    if (i==0) data=cutData;
+    else data->append(*cutData);
+  }
+  return data;
+}
+
+void PdfModelBuilder::throwHybridToy(string postfix, int nEvents, vector<float> switchOverMasses, vector<string> functions, bool bkgOnly, bool binned, bool poisson, bool cache){
+  
+  assert(switchOverMasses.size()==functions.size()-1);
+  toyHybridData.clear();
+
+  // have to throw unbinned for the hybrid
+  throwToy(postfix,nEvents,bkgOnly,false,poisson,cache);
+
+  vector<RooDataSet*> dataForHybrid;
+  string hybridName = "hybrid";
+  for (vector<string>::iterator func=functions.begin(); func!=functions.end(); func++){
+    hybridName += "_"+*func;
+    for (map<string,RooDataSet*>::iterator it=toyDataSet.begin(); it!=toyDataSet.end(); it++){
+      if (it->first.find(*func)!=string::npos){
+        dataForHybrid.push_back(it->second);
+      }
+    }
+  }
+  if (dataForHybrid.size()!=functions.size()){
+    cerr << "One of the requested hybrid functions has not been found" << endl;
+    exit(1);
+  }
+
+  RooDataSet *hybridData = makeHybridDataset(switchOverMasses,dataForHybrid);
+  toyHybridData.clear();
+  if (binned) {
+    RooDataHist *hybridDataHist = hybridData->binnedClone();
+    hybridDataHist->SetName(Form("%s_%s",hybridName.c_str(),postfix.c_str()));
+    toyHybridData.insert(pair<string,RooAbsData*>(hybridDataHist->GetName(),hybridDataHist));
+  }
+  else {
+    hybridData->SetName(Form("%s_%s",hybridName.c_str(),postfix.c_str()));
+    toyHybridData.insert(pair<string,RooAbsData*>(hybridData->GetName(),hybridData));
+  }
+}
+
 void PdfModelBuilder::throwToy(string postfix, int nEvents, bool bkgOnly, bool binned, bool poisson, bool cache){
 
   toyData.clear();
+  toyDataSet.clear();
+  toyDataHist.clear();
   map<string,RooAbsPdf*> pdfSet;
   if (bkgOnly) {
     pdfSet = bkgPdfs;
@@ -455,12 +538,18 @@ void PdfModelBuilder::throwToy(string postfix, int nEvents, bool bkgOnly, bool b
     }
     RooAbsData *toy;
     if (binned){
-      if (poisson) toy = it->second->generateBinned(RooArgSet(*obs_var),nEvents,Extended(),Name(Form("%s_%s",it->first.c_str(),postfix.c_str())));
-      else toy = it->second->generateBinned(RooArgSet(*obs_var),nEvents,Name(Form("%s_%s",it->first.c_str(),postfix.c_str())));
+      RooDataHist *toyHist;
+      if (poisson) toyHist = it->second->generateBinned(RooArgSet(*obs_var),nEvents,Extended(),Name(Form("%s_%s",it->first.c_str(),postfix.c_str())));
+      else toyHist = it->second->generateBinned(RooArgSet(*obs_var),nEvents,Name(Form("%s_%s",it->first.c_str(),postfix.c_str())));
+      toyDataHist.insert(pair<string,RooDataHist*>(toyHist->GetName(),toyHist));
+      toy=toyHist;
     }
     else {
-      if (poisson) toy = it->second->generate(RooArgSet(*obs_var),nEvents,Extended(),Name(Form("%s_%s",it->first.c_str(),postfix.c_str())));
-      else toy = it->second->generate(RooArgSet(*obs_var),nEvents,Name(Form("%s_%s",it->first.c_str(),postfix.c_str())));
+      RooDataSet *toySet;
+      if (poisson) toySet = it->second->generate(RooArgSet(*obs_var),nEvents,Extended(),Name(Form("%s_%s",it->first.c_str(),postfix.c_str())));
+      else toySet = it->second->generate(RooArgSet(*obs_var),nEvents,Name(Form("%s_%s",it->first.c_str(),postfix.c_str())));
+      toyDataSet.insert(pair<string,RooDataSet*>(toySet->GetName(),toySet));
+      toy=toySet;
     }
     toyData.insert(pair<string,RooAbsData*>(toy->GetName(),toy));
   }
@@ -469,6 +558,60 @@ void PdfModelBuilder::throwToy(string postfix, int nEvents, bool bkgOnly, bool b
 
 map<string,RooAbsData*> PdfModelBuilder::getToyData(){
   return toyData;
+}
+
+map<string,RooAbsData*> PdfModelBuilder::getHybridToyData(){
+  return toyHybridData;
+}
+
+void PdfModelBuilder::plotHybridToy(string prefix, int binning, vector<float> switchOverMasses, vector<string> functions, bool bkgOnly){
+
+  map<string,RooAbsPdf*> pdfSet;
+  if (bkgOnly) {
+    pdfSet = bkgPdfs;
+  }
+  else {
+    pdfSet = sbPdfs;
+  }
+  
+  int tempColors[4] = {kBlue,kRed,kGreen+2,kMagenta};
+
+  vector<string> cut_strings;
+  cut_strings.push_back("cutstring0");
+  obs_var->setRange("cutstring0",obs_var->getMin(),switchOverMasses[0]);
+  for (unsigned int i=1; i<switchOverMasses.size(); i++){
+    cut_strings.push_back(Form("cutstring%d",i));
+    obs_var->setRange(Form("cutstring%d",i),switchOverMasses[i-1],switchOverMasses[i]);
+  }
+  cut_strings.push_back(Form("cutstring%d",int(switchOverMasses.size())));
+  obs_var->setRange(Form("cutstring%d",int(switchOverMasses.size())),switchOverMasses[switchOverMasses.size()-1],obs_var->getMax());
+  
+  RooPlot *plot = obs_var->frame();
+  TCanvas *canv = new TCanvas();
+  int i=0;
+  for (vector<string>::iterator func=functions.begin(); func!=functions.end(); func++){
+    for (map<string,RooAbsPdf*>::iterator pdfIt = pdfSet.begin(); pdfIt != pdfSet.end(); pdfIt++){
+      // check if in list of hybrid functions
+      if (pdfIt->first.find(*func)!=string::npos) {
+        for (map<string,RooAbsData*>::iterator toyIt = toyData.begin(); toyIt != toyData.end(); toyIt++){
+          //cout << "pdf: " << pdfIt->first << " - toy: " << toyIt->first << endl; 
+          if (toyIt->first.find(pdfIt->first)!=string::npos){
+            RooAbsData *data = toyIt->second->reduce(CutRange(cut_strings[i].c_str()));
+            data->plotOn(plot,Binning(binning),MarkerColor(tempColors[i]),LineColor(tempColors[i]),CutRange(cut_strings[i].c_str()));
+            pdfIt->second->plotOn(plot,LineColor(tempColors[i]),Range(cut_strings[i].c_str()));
+            i++;
+          }
+        }
+      }
+    }
+  }
+  for (map<string,RooAbsData*>::iterator hybrid=toyHybridData.begin(); hybrid!=toyHybridData.end(); hybrid++){
+    hybrid->second->plotOn(plot,Binning(binning),MarkerSize(0.8),MarkerStyle(kFullSquare));
+    plot->SetMinimum(0.0001);
+    plot->Draw();
+    canv->Print(Form("%s_%s.pdf",prefix.c_str(),hybrid->first.c_str()));
+  }
+  delete canv;
 }
 
 void PdfModelBuilder::plotToysWithPdfs(string prefix, int binning, bool bkgOnly){
@@ -483,7 +626,7 @@ void PdfModelBuilder::plotToysWithPdfs(string prefix, int binning, bool bkgOnly)
   TCanvas *canv = new TCanvas();
   for (map<string,RooAbsPdf*>::iterator pdfIt = pdfSet.begin(); pdfIt != pdfSet.end(); pdfIt++){
     for (map<string,RooAbsData*>::iterator toyIt = toyData.begin(); toyIt != toyData.end(); toyIt++){
-      cout << "pdf: " << pdfIt->first << " - toy: " << toyIt->first << endl; 
+      //cout << "pdf: " << pdfIt->first << " - toy: " << toyIt->first << endl; 
       if (toyIt->first.find(pdfIt->first)!=string::npos){
         RooPlot *plot = obs_var->frame();
         toyIt->second->plotOn(plot,Binning(binning));
