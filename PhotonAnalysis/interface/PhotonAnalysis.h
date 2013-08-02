@@ -286,11 +286,16 @@ class PhotonAnalysis : public BaseAnalysis
     float  myVHhad_Mjj;
     float  myVHhad_Mgg;
 
+    float myVBFDIPHObdt;
+    float myVBFDIPHOdijet;
+    
     // n-1 plots for VBF tag 2011
     float  myVBF_leadEta;
     float  myVBF_subleadEta;
     float  myVBFLeadJPt;
     float  myVBFSubJPt;
+    float  myVBFLeadJEta;
+    float  myVBFSubJEta;
     float  myVBFdEta;
     float  myVBFZep;
     float  myVBFdPhi;
@@ -331,8 +336,10 @@ class PhotonAnalysis : public BaseAnalysis
 
     bool bookDiPhoCutsInVbf;
     bool mvaVbfSelection, mvaVbfUseDiPhoPt, mvaVbfUsePhoPt;
+    bool mvaVbfSelection2013;
     bool mvaVbfSpin;
     bool multiclassVbfSelection, vbfVsDiphoVbfSelection;
+    TString mvaVbfDiphoWeights, mvaVbfDiphoMethod;
     TString mvaVbfWeights, mvaVbfMethod;
     TString mvaVbfSpinWeights, mvaVbfSpinMethod;
     std::vector<float> mvaVbfCatBoundaries;
@@ -369,6 +376,7 @@ class PhotonAnalysis : public BaseAnalysis
     bool ClassicCatsNm1Plots(LoopAll& l, int diphoton_nm1_id, float* smeared_pho_energy, float eventweight, float myweight);
 
     // Exclusive tags
+    TMVA::Reader *tmvaVbfDiphoReader_;
 
     // ICHEP2012
     bool VBFTag2012(int & ijet1, int & ijet2, LoopAll& l, int diphoton_id,
