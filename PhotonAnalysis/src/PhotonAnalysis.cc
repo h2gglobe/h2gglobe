@@ -1833,11 +1833,11 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
     }
     /// Jet matching
     // pfJets ak5
-    l.doJetMatching(*l.jet_algoPF1_p4,*l.genjet_algo1_p4,l.jet_algoPF1_genMatched,l.jet_algoPF1_vbfMatched,l.jet_algoPF1_genPt,l.jet_algoPF1_genDr);
+    l.doJetMatching(*l.jet_algoPF1_p4,*l.genjet_algo1_p4,l.jet_algoPF1_genMatched,l.jet_algoPF1_vbfMatched,l.jet_algoPF1_bgenMatched,l.jet_algoPF1_genPt,l.jet_algoPF1_genDr);
     // pfJets ak7
     //l.doJetMatching(*l.jet_algoPF2_p4,*l.genjet_algo2_p4,l.jet_algoPF2_genMatched,l.jet_algoPF2_vbfMatched,l.jet_algoPF2_genPt,l.jet_algoPF2_genDr);
     // CHS ak5
-    l.doJetMatching(*l.jet_algoPF3_p4,*l.genjet_algo1_p4,l.jet_algoPF3_genMatched,l.jet_algoPF3_vbfMatched,l.jet_algoPF3_genPt,l.jet_algoPF3_genDr);
+    l.doJetMatching(*l.jet_algoPF3_p4,*l.genjet_algo1_p4,l.jet_algoPF3_genMatched,l.jet_algoPF3_vbfMatched,l.jet_algoPF3_bgenMatched,l.jet_algoPF3_genPt,l.jet_algoPF3_genDr);
 
     if( pho_presel.size() < 2 ) {
         // zero or one photons, can't determine a vertex based on photon pairs
@@ -2159,6 +2159,7 @@ void PhotonAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree)
 	l.Branch_pho_regr_energyerr_otf(outputTree);
 
 	l.Branch_jet_algoPF1_genMatched(outputTree);
+	l.Branch_jet_algoPF1_bgenMatched(outputTree);
 	l.Branch_jet_algoPF1_vbfMatched(outputTree);
 	l.Branch_jet_algoPF1_genPt(outputTree);
 	l.Branch_jet_algoPF1_genDr(outputTree);
@@ -2169,6 +2170,7 @@ void PhotonAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree)
 	//l.Branch_jet_algoPF2_genDr(outputTree);
 
 	l.Branch_jet_algoPF3_genMatched(outputTree);
+	l.Branch_jet_algoPF3_bgenMatched(outputTree);
 	l.Branch_jet_algoPF3_vbfMatched(outputTree);
 	l.Branch_jet_algoPF3_genPt(outputTree);
 	l.Branch_jet_algoPF3_genDr(outputTree);
