@@ -4508,7 +4508,7 @@ void LoopAll::doJetMatching(TClonesArray & reco, TClonesArray & gen,
             }
         }
 	for( size_t ib=0; ib<bs.size(); ++ib ) {
-		if( recop4.DeltaR( *(bs[ib]) ) < 0.5 ) { 
+		if( recop4.DeltaR( *(bs[ib]) ) < 0.3 ) { 
 			match_bjet_flag[ir] = true;
 		}
 	}
