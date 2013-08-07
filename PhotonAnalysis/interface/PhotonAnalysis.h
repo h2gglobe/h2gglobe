@@ -46,7 +46,7 @@ class PhotonAnalysis : public BaseAnalysis
     virtual void ResetAnalysis();
 
     float zero_;
-    //void GetRegressionCorrections(LoopAll&);
+    void GetRegressionCorrections(LoopAll&);
     //  void GetRegressionCorrections(LoopAll&);
     // Public parameters to be read from config file
     VertexAlgoParameters vtxAlgoParams;

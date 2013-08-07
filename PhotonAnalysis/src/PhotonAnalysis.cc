@@ -1630,10 +1630,10 @@ void PhotonAnalysis::PreselectPhotons(LoopAll& l, int jentry)
     corrected_pho_energy.clear(); corrected_pho_energy.resize(l.pho_n,0.);
     int cur_type = l.itype[l.current];
 
+    // Re-EDIT 5 Aug 2013, replcing to recalcuate on the fly regression 
     // EDIT - 4 Dec 2011 NWardle Latest Ntuple Production uses New and Correct Regression so no need to calculate on the FLY corrections
     // TEMPORARY FIX TO CALCULATE CORRECTED ENERGIES SINCE REGRESSION WAS NOT STORED IN NTUPLES
     // The following Fills the arrays with the ON-THE-FLY calculations
-    //GetRegressionCorrections(l);  // need to pass LoopAll
     // -------------------------------------------------------------------------------------------//
 
 
@@ -1719,6 +1719,8 @@ void PhotonAnalysis::FillReductionVariables(LoopAll& l, int jentry)
     if(PADEBUG)
 	cout<<"myFillReduceVar START"<<endl;
 
+    // Run on-the-fly regression at Reduction Step
+    GetRegressionCorrections(l);  // need to pass LoopAll
     PreselectPhotons(l,jentry);
 
     if(PADEBUG)
@@ -4734,6 +4736,39 @@ int PhotonAnalysis::VHNumberOfJets(LoopAll& l, int diphotonVHlep_id, int vertex,
   }
 
   return Njet_lepcat;
+}
+
+void PhotonAnalysis::GetRegressionCorrections(LoopAll &l){
+
+    // On the fly energy regression values
+    for (int ipho=0;ipho<l.pho_n;ipho++){
+        std::cout << "Photon Energy otfbranch     " << ipho << " " << l.pho_regr_energy_otf[ipho]    << std::endl;
+        std::cout << "Photon Resolution otfbranch " << ipho << " " << l.pho_regr_energyerr_otf[ipho] << std::endl;
+        std::cout << "Photon Energy branch     "    << ipho << " " << l.pho_regr_energy[ipho]    << std::endl;
+        std::cout << "Photon Resolution branch "    << ipho << " " << l.pho_regr_energyerr[ipho] << std::endl;
+
+        double ecor = 60.;
+        double ecorerr = 1.;
+        
+        // Set vectors used in reduction;
+        energyCorrected[ipho] = ecor;
+        energyCorrectedError[ipho] = ecorerr;
+    
+        // Save new branches 
+        l.pho_regr_energy_otf[ipho] = ecor;
+        l.pho_regr_energyerr_otf[ipho] = ecorerr;
+        
+        if (PADEBUG) {
+            std::cout << "PhotonAnalysis::GetRegressionCorrections ----/" <<std::endl;
+            std::cout << " photon Energy in ntuple / new value     " << ipho << " = " << l.pho_regr_energy[ipho] << " / " << ecor  << std::endl;
+            std::cout << " photon Resolution in ntuple / new value " << ipho << " = " << l.pho_regr_energyerr[ipho] << " / " << ecorerr << std::endl; 
+            std::cout << "---------------------------------------------/" <<std::endl;
+        }
+
+        // Overwrite old branches
+        l.pho_regr_energy[ipho] = ecor;
+        l.pho_regr_energyerr[ipho] = ecorerr;
+    }
 }
 
 // Local Variables:
