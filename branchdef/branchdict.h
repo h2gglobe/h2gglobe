@@ -832,8 +832,14 @@ BRANCH_DICT(jet_algoPF3_nSecondaryVertices);
 BRANCH_DICT(jet_algoPF3_secVtxPt);
 BRANCH_DICT(jet_algoPF3_secVtx3dL);
 BRANCH_DICT(jet_algoPF3_secVtx3deL);
+
 BRANCH_DICT(jet_algoPF1_ptD_QC);
 BRANCH_DICT(jet_algoPF1_axis1_QC);
 BRANCH_DICT(jet_algoPF1_axis2_QC);
 BRANCH_DICT(jet_algoPF1_nCharged_QC);
 BRANCH_DICT(jet_algoPF1_nNeutrals_ptCut);
+
+BRANCH_DICT(jet_algoPF1_bgenMatched);
+BRANCH_DICT(jet_algoPF2_bgenMatched);
+BRANCH_DICT(jet_algoPF3_bgenMatched);
+
