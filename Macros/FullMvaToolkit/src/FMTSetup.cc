@@ -21,7 +21,6 @@ FMTSetup::FMTSetup(string filename):
 	all_(false),
 	fit_(false),
   catByHand_(false),
-  useSidebandBDT_(true),
 	histosFromTrees_(false),
 	rebin_(false),
 	skipRebin_(false),
@@ -108,7 +107,7 @@ void FMTSetup::OptionParser(int argc, char *argv[]){
 	po::positional_options_description p;
 	p.add("filename",-1);
 
-	po::variables_map vm;
+//	po::variables_map vm;
 	po::store(po::parse_command_line(argc,argv,desc),vm);
 	po::store(po::command_line_parser(argc,argv).options(desc).positional(p).run(),vm);
 	po::notify(vm);
@@ -121,7 +120,7 @@ void FMTSetup::OptionParser(int argc, char *argv[]){
   if (!vm.count("outfilename")) { outfilename_=filename_+"_processed.root"; }
   
   // configure options
-	configureOptions(vm);
+	configureOptions(this);
 
 	// open files
 	inFile_ = TFile::Open(filename_.c_str());
@@ -134,7 +133,7 @@ void FMTSetup::OptionParser(int argc, char *argv[]){
   }
 
   // read configuration
- 	ReadRunConfig();
+ 	ReadRunConfig(this);
 	if (checkHistos_) checkAllHistos();
 	
   // sort out fit and rebin vectors
@@ -147,13 +146,19 @@ void FMTSetup::OptionParser(int argc, char *argv[]){
   if (!skipRebin_) {
     cout << "Creating rebinner" << endl;
     cout << "Passing outfile " << outFile_->GetName() << endl;
-		rebinner = new FMTRebin(inFile_, outFile_, intLumi_, is2011_, mHMinimum_, mHMaximum_, mHStep_, massMin_, massMax_, nDataBins_, signalRegionWidth_, sidebandWidth_, numberOfSidebands_, numberOfSidebandsForAlgos_, numberOfSidebandGaps_, massSidebandMin_, massSidebandMax_, nIncCategories_,includeVBF_, nVBFCategories_, includeLEP_, nLEPCategories_, systematics_, rederiveOptimizedBinEdges_, AllBinEdges_,verbose_);
+		rebinner = new FMTRebin(inFile_, outFile_);
 		rebinner->setintLumi(intLumi_);
-    rebinner->setVerbosity(verbose_);
-    rebinner->fitter->setblind(blinding_);
+                rebinner->setVerbosity(verbose_);
+                rebinner->fitter->setblind(blinding_);
 		rebinner->fitter->setplot(diagnose_);
 		rebinner->setcatByHand(catByHand_);
 		rebinner->setjustRebin(justRebin_);
+		
+		configureOptions(rebinner);
+		ReadRunConfig(rebinner);
+		configureOptions(rebinner->fitter);
+		ReadRunConfig(rebinner->fitter);
+		
         	if (readInFits_){
 		 std::cout << "READING IN NORM FITS FROM FILE " << normFitsFile_.c_str()<<std::endl;
 	  	 TFile *fits = TFile::Open(normFitsFile_.c_str());
@@ -167,11 +172,10 @@ void FMTSetup::OptionParser(int argc, char *argv[]){
 		cleaned=true;
 	}
 
-  if (diagnose_) {
+  
     system("mkdir -p plots/png");
     system("mkdir -p plots/pdf");
     system("mkdir -p plots/macro");
-  }
 	printPassedOptions();
   if (dumpDatFile_) dumpDatFile(dumpDatFil_);
 	
@@ -254,16 +258,15 @@ void FMTSetup::checkAllHistos(string opt){
   */
 }
 
-void FMTSetup::configureOptions(po::variables_map vm){
-
-  if (vm.count("catByHand"))      catByHand_=true;
-  if (vm.count("use2DcatMap"))      useSidebandBDT_=false;
-  if (vm.count("normfitfile")) readInFits_=true; 
+void FMTSetup::configureOptions(FMTBase *base){
+ 
+	if (vm.count("catByHand"))      catByHand_=true;
+	if (vm.count("normfitfile")) readInFits_=true; 
 	if (vm.count("histosFromTrees")) histosFromTrees_=true;
 	if (vm.count("skipRebin")) 			skipRebin_=true;
 	if (vm.count("justRebin")) 			justRebin_=true;
 	if (vm.count("getBinEdges")) 		binEdges_=true;
-  if (vm.count("dumpDatFile"))    dumpDatFile_=true;
+	if (vm.count("dumpDatFile"))    dumpDatFile_=true;
 	if (vm.count("bkgModel")) 			bkgModel_=true;
 	if (vm.count("interp")) 				interp_=true;
 	if (vm.count("datacards")) 			datacards_=true;
@@ -271,24 +274,33 @@ void FMTSetup::configureOptions(po::variables_map vm){
 	if (vm.count("unblind")) 				blinding_=false;
 	if (vm.count("checkHistos")) 		checkHistos_=true;
 	if (vm.count("safeModeOff")) 		safeMode_=false;
-  if (vm.count("www"))            web_=true;
-  if (vm.count("doPlot"))         noPlot_=false;
+	if (vm.count("www"))            web_=true;
+	if (vm.count("doPlot"))         noPlot_=false;
 	if (vm.count("runSB"))					runSB_=true;
 	if (vm.count("runCombine"))			runCombine_=true;
-  if (vm.count("verbose"))        verbose_=true;
-  else                            verbose_=false;
-	if (vm.count("mHMin")) 					setmHMinimum(tempmHMin_);
-	if (vm.count("mHMax")) 					setmHMaximum(tempmHMax_);
-	if (vm.count("mHStep")) 				setmHStep(tempmHStep_);
-	if (vm.count("getBinEdges"))		setrederiveOptimizedBinEdges(false);
-	else 														setrederiveOptimizedBinEdges(true);
-  if (vm.count("is2011"))         setis2011(true);
-  else                            setis2011(false);
-  if (vm.count("setLumi"))        setintLumi(userLumi_);
+	if (vm.count("verbose"))        verbose_=true;
+	else                            verbose_=false;
+	if (vm.count("use2DcatMap"))    base->setuseSidebandBDT(false);
+	if (vm.count("mHMin")) 					base->setmHMinimum(tempmHMin_);
+	if (vm.count("mHMax")) 					base->setmHMaximum(tempmHMax_);
+	if (vm.count("mHStep")) 				base->setmHStep(tempmHStep_);
+	if (vm.count("getBinEdges"))		base->setrederiveOptimizedBinEdges(false);
+	else 														base->setrederiveOptimizedBinEdges(true);
+	if (vm.count("is2011"))        base->setis2011(true);
+	else                            base->setis2011(false);
+	if (vm.count("setLumi"))        base->setintLumi(userLumi_);
 	if (fitMasses_.size()==0 && rebinMasses_.size()==0 && !skipRebin_) all_=true;
+
+	if (!vm.count("useDat") && !useSidebandBDT_) {
+	   std::cout << "Cannot use 2D category map without passing .dat file" << std::endl;
+	   assert(0);
+	}
+        // Optimization is part of 2D category map so never rederive
+        if (!useSidebandBDT_) base->setrederiveOptimizedBinEdges(false); 
+	std::cout << " Configured Options" << std::endl;
 }
 
-void FMTSetup::ReadRunConfig(){
+void FMTSetup::ReadRunConfig(FMTBase *base){
 
 	TMacro *mva;
 	if (datFil_=="0"){ // read from tFile
@@ -311,55 +323,57 @@ void FMTSetup::ReadRunConfig(){
       continue;
     }
 		if (sline.find("#")!=string::npos) continue;
-    if (sline.find("isCutBased")!=string::npos)                   isCutBased_=boost::lexical_cast<bool>(getOptFromConfig<int>(sline));
+    if (sline.find("isCutBased")!=string::npos)                   base->setisCutBased(boost::lexical_cast<bool>(getOptFromConfig<int>(sline)));
     if (sline.find("bdtname")!=string::npos)                      bdtname=getOptFromConfig<string>(sline);
     if (sline.find("weightsFile")!=string::npos)                  weightsFile=getOptFromConfig<string>(sline);
-		if (sline.find("IntLumi=")!=string::npos)                     setintLumi(boost::lexical_cast<double>(getOptFromConfig<double>(sline)));
-    if (sline.find("mHMinimum=")!=string::npos)										setmHMinimum(boost::lexical_cast<int>(getOptFromConfig<double>(sline)));
-		if (sline.find("mHMaximum=")!=string::npos)										setmHMaximum(boost::lexical_cast<int>(getOptFromConfig<double>(sline)));
-		if (sline.find("mHStep=")!=string::npos)										 	setmHStep(getOptFromConfig<double>(sline));
-		if (sline.find("massMin=")!=string::npos)										 	setmassMin(getOptFromConfig<double>(sline));
-		if (sline.find("massMax=")!=string::npos)										 	setmassMax(getOptFromConfig<double>(sline));
-		if (sline.find("nDataBins=")!=string::npos)										setnDataBins(getOptFromConfig<int>(sline));
-		if (sline.find("signalRegionWidth=")!=string::npos)						setsignalRegionWidth(getOptFromConfig<double>(sline));
-		if (sline.find("sidebandWidth=")!=string::npos)								setsidebandWidth(getOptFromConfig<double>(sline));
-		if (sline.find("numberOfSidebands=")!=string::npos)						setnumberOfSidebands(getOptFromConfig<int>(sline));
-		if (sline.find("numberOfSidebandsForAlgos=")!=string::npos)		setnumberOfSidebandsForAlgos(getOptFromConfig<int>(sline));
-		if (sline.find("numberOfSidebandGaps=")!=string::npos)				setnumberOfSidebandGaps(getOptFromConfig<int>(sline));
-		if (sline.find("massSidebandMin=")!=string::npos)							setmassSidebandMin(getOptFromConfig<double>(sline));
-		if (sline.find("massSidebandMax=")!=string::npos)							setmassSidebandMax(getOptFromConfig<double>(sline));
-    if (sline.find("nInclusiveCategories=")!=string::npos)        setnIncCateogies(getOptFromConfig<int>(sline));
-		if (sline.find("includeVBF=")!=string::npos)									setincludeVBF(getOptFromConfig<bool>(sline));
-    if (sline.find("nVBFCategories=")!=string::npos)              setnVBFCategories(getOptFromConfig<int>(sline));
-		if (sline.find("includeLEP=")!=string::npos)									setincludeLEP(getOptFromConfig<bool>(sline));
-    if (sline.find("nLEPCategories=")!=string::npos)              setnLEPCategories(getOptFromConfig<int>(sline));
-    if (sline.find("doEscaleSyst=")!=string::npos)                if (getOptFromConfig<bool>(sline)) setsystematic("E_scale"); 
-    if (sline.find("doEresolSyst=")!=string::npos)                if (getOptFromConfig<bool>(sline)) setsystematic("E_res"); 
-    if (sline.find("doEcorrectionSyst=")!=string::npos)           if (getOptFromConfig<bool>(sline)) setsystematic("E_corr"); 
-    if (sline.find("doRegressionSyst=")!=string::npos)            if (getOptFromConfig<bool>(sline)) setsystematic("regSig"); 
-    if (sline.find("doPhotonIdEffSyst=")!=string::npos)           if (getOptFromConfig<bool>(sline)) setsystematic("idEff"); 
-    if (sline.find("doVtxEffSyst=")!=string::npos)                if (getOptFromConfig<bool>(sline)) setsystematic("vtxEff"); 
-    if (sline.find("doTriggerEffSyst=")!=string::npos)            if (getOptFromConfig<bool>(sline)) setsystematic("triggerEff"); 
-    if (sline.find("doPhotonMvaIdSyst=")!=string::npos)           if (getOptFromConfig<bool>(sline)) setsystematic("phoIdMva"); 
-    if (sline.find("doR9Syst=")!=string::npos)                    if (getOptFromConfig<bool>(sline)) setsystematic("r9Eff"); 
-    if (sline.find("doKFactorSyst=")!=string::npos)               if (getOptFromConfig<bool>(sline)) setsystematic("kFactor");
-    if (sline.find("doPdfWeightSyst=")!=string::npos)             if (getOptFromConfig<bool>(sline)) setsystematic("pdfWeight");
+		if (sline.find("IntLumi=")!=string::npos)                    base->setintLumi(boost::lexical_cast<double>(getOptFromConfig<double>(sline)));
+    if (sline.find("mHMinimum=")!=string::npos)										base->setmHMinimum(boost::lexical_cast<int>(getOptFromConfig<double>(sline)));
+		if (sline.find("mHMaximum=")!=string::npos)										base->setmHMaximum(boost::lexical_cast<int>(getOptFromConfig<double>(sline)));
+		if (sline.find("mHStep=")!=string::npos)										 	base->setmHStep(getOptFromConfig<double>(sline));
+		if (sline.find("massMin=")!=string::npos)										 	base->setmassMin(getOptFromConfig<double>(sline));
+		if (sline.find("massMax=")!=string::npos)										 	base->setmassMax(getOptFromConfig<double>(sline));
+		if (sline.find("nDataBins=")!=string::npos)										base->setnDataBins(getOptFromConfig<int>(sline));
+		if (sline.find("diphotonBdtCut=")!=string::npos)										base->setdiphotonBdtCut(getOptFromConfig<double>(sline));
+		if (sline.find("signalRegionWidth=")!=string::npos)						base->setsignalRegionWidth(getOptFromConfig<double>(sline));
+		if (sline.find("sidebandWidth=")!=string::npos)								base->setsidebandWidth(getOptFromConfig<double>(sline));
+		if (sline.find("numberOfSidebands=")!=string::npos)						base->setnumberOfSidebands(getOptFromConfig<int>(sline));
+		if (sline.find("numberOfSidebandsForAlgos=")!=string::npos)		base->setnumberOfSidebandsForAlgos(getOptFromConfig<int>(sline));
+		if (sline.find("numberOfSidebandGaps=")!=string::npos)				base->setnumberOfSidebandGaps(getOptFromConfig<int>(sline));
+		if (sline.find("massSidebandMin=")!=string::npos)							base->setmassSidebandMin(getOptFromConfig<double>(sline));
+		if (sline.find("massSidebandMax=")!=string::npos)							base->setmassSidebandMax(getOptFromConfig<double>(sline));
+    if (sline.find("nInclusiveCategories=")!=string::npos)        base->setnIncCateogies(getOptFromConfig<int>(sline));
+    if (sline.find("nMassFacInclusiveCategories=")!=string::npos)        base->setnMassFacInclusiveCateogies(getOptFromConfig<int>(sline));
+		if (sline.find("includeVBF=")!=string::npos)									base->setincludeVBF(getOptFromConfig<bool>(sline));
+    if (sline.find("nVBFCategories=")!=string::npos)              base->setnVBFCategories(getOptFromConfig<int>(sline));
+		if (sline.find("includeLEP=")!=string::npos)									base->setincludeLEP(getOptFromConfig<bool>(sline));
+    if (sline.find("nLEPCategories=")!=string::npos)              base->setnLEPCategories(getOptFromConfig<int>(sline));
+    if (sline.find("doEscaleSyst=")!=string::npos)                if (getOptFromConfig<bool>(sline)) base->setsystematic("E_scale"); 
+    if (sline.find("doEresolSyst=")!=string::npos)                if (getOptFromConfig<bool>(sline)) base->setsystematic("E_res"); 
+    if (sline.find("doEcorrectionSyst=")!=string::npos)           if (getOptFromConfig<bool>(sline)) base->setsystematic("E_corr"); 
+    if (sline.find("doRegressionSyst=")!=string::npos)            if (getOptFromConfig<bool>(sline)) base->setsystematic("regSig"); 
+    if (sline.find("doPhotonIdEffSyst=")!=string::npos)           if (getOptFromConfig<bool>(sline)) base->setsystematic("idEff"); 
+    if (sline.find("doVtxEffSyst=")!=string::npos)                if (getOptFromConfig<bool>(sline)) base->setsystematic("vtxEff"); 
+    if (sline.find("doTriggerEffSyst=")!=string::npos)            if (getOptFromConfig<bool>(sline)) base->setsystematic("triggerEff"); 
+    if (sline.find("doPhotonMvaIdSyst=")!=string::npos)           if (getOptFromConfig<bool>(sline)) base->setsystematic("phoIdMva"); 
+    if (sline.find("doR9Syst=")!=string::npos)                    if (getOptFromConfig<bool>(sline)) base->setsystematic("r9Eff"); 
+    if (sline.find("doKFactorSyst=")!=string::npos)               if (getOptFromConfig<bool>(sline)) base->setsystematic("kFactor");
+    if (sline.find("doPdfWeightSyst=")!=string::npos)             if (getOptFromConfig<bool>(sline)) base->setsystematic("pdfWeight");
 
-    if (sline.find("rederiveOptimizedBinEdges=")!=string::npos)   setrederiveOptimizedBinEdges(getOptFromConfig<bool>(sline));
+    if (sline.find("rederiveOptimizedBinEdges=")!=string::npos)   base->setrederiveOptimizedBinEdges(getOptFromConfig<bool>(sline));
     for (int m=110; m<=150; m+=5){
       if (is2011_ && m==145) continue;
-      if (sline.find(Form("GradBinEdges_%3d=",m))!=string::npos)  setBinEdges(m,getBinEdgesFromString(getOptFromConfig<string>(sline)));
-      if (sline.find(Form("VbfBinEdges_%3d=",m))!=string::npos)   setVBFBinEdges(m,getBinEdgesFromString(getOptFromConfig<string>(sline)));
-      if (sline.find(Form("LepBinEdges_%3d=",m))!=string::npos)   setLEPBinEdges(m,getBinEdgesFromString(getOptFromConfig<string>(sline)));
+      if (sline.find(Form("GradBinEdges_%3d=",m))!=string::npos)  base->setBinEdges(m,getBinEdgesFromString(getOptFromConfig<string>(sline)));
+      if (sline.find(Form("VbfBinEdges_%3d=",m))!=string::npos)   base->setVBFBinEdges(m,getBinEdgesFromString(getOptFromConfig<string>(sline)));
+      if (sline.find(Form("LepBinEdges_%3d=",m))!=string::npos)   base->setLEPBinEdges(m,getBinEdgesFromString(getOptFromConfig<string>(sline)));
     }
   }
-	updateBinEdges();
+	base->updateBinEdges();
 	MHMasses_ = getAllMH();
 	MCMasses_ = getMCMasses();
 	systematics_ = getsystematics();
   if (intLumi_<0.001 ) {
     userLumi_ = getLumiFromWorkspace();
-    setintLumi(userLumi_);
+    base->setintLumi(userLumi_);
   }
   if (!histosFromTrees_ && !checkHistos_) {
     //saveLumiToWorkspace();
@@ -367,6 +381,7 @@ void FMTSetup::ReadRunConfig(){
     mva->Write();
   }
 	printRunOptions();
+	std::cout << " Configured Options From .dat File " << std::endl;
 }
 
 void FMTSetup::saveLumiToWorkspace(){
@@ -475,7 +490,10 @@ void FMTSetup::runHistosFromTrees(){
 		//string bdtname = "BDTgradMIT";
 		//string weightsFile = "../../AnalysisScripts/aux/sidebandMVA_weights_hcp/TMVAClassification_BDTgradMIT.weights.xml";
 		//string weightsFile = "weights/TMVA_SidebandMVA_BDTgradMIT.weights.xml";
-		FMTTree *fmtTree = new FMTTree(filename_, outfilename_, bdtname, weightsFile, intLumi_, is2011_, mHMinimum_, mHMaximum_, mHStep_, massMin_, massMax_, nDataBins_, signalRegionWidth_, sidebandWidth_, numberOfSidebands_, numberOfSidebandsForAlgos_, numberOfSidebandGaps_, massSidebandMin_, massSidebandMax_, nIncCategories_, includeVBF_, nVBFCategories_, includeLEP_, nLEPCategories_, systematics_, rederiveOptimizedBinEdges_, AllBinEdges_, isCutBased_, useSidebandBDT_,verbose_);
+		FMTTree *fmtTree = new FMTTree(filename_, outfilename_);
+		configureOptions(fmtTree);
+		ReadRunConfig(fmtTree);
+		fmtTree->Setup(bdtname,weightsFile);
 		fmtTree->run(histFromTreeMode_);
 		delete fmtTree;
     cout << "Histos from trees complete" << endl;
@@ -537,9 +555,11 @@ void FMTSetup::createCorrBkgModel(){
 void FMTSetup::interpolateBDT(){
 	if (!cleaned) cleanUp();
 	if (interp_){
-    cout << "Running signal interpolation...." << endl;
-    FMTSigInterp *interpolater = new FMTSigInterp(outfilename_, intLumi_, is2011_, diagnose_,false,mHMinimum_, mHMaximum_, mHStep_, massMin_, massMax_, nDataBins_, signalRegionWidth_, sidebandWidth_, numberOfSidebands_, numberOfSidebandsForAlgos_, numberOfSidebandGaps_, massSidebandMin_, massSidebandMax_, nIncCategories_, includeVBF_, nVBFCategories_, includeLEP_, nLEPCategories_, systematics_, rederiveOptimizedBinEdges_, AllBinEdges_,blinding_,verbose_);
-    interpolater->runInterpolation();
+		cout << "Running signal interpolation...." << endl;
+		FMTSigInterp *interpolater = new FMTSigInterp(outfilename_);
+		configureOptions(interpolater);
+		ReadRunConfig(interpolater);
+		interpolater->runInterpolation();
 		delete interpolater;
 	}
 }
@@ -574,8 +594,11 @@ void FMTSetup::makePlots(){
 			system(Form("python python/GetFakeShapeDatacards.py -i mva-datacards-grad -o fake-shape-cards -D -C -N --mhLow %3d.0 --mhHigh %3d.0 --mhStep %1.1f",getmHMinimum(),getmHMaximum(),getmHStep()));
     }
 		cout << "Making plots..." << endl;
-    FMTPlots *plotter = new FMTPlots(outfilename_, runSB_, intLumi_, is2011_, mHMinimum_, mHMaximum_, mHStep_, massMin_, massMax_, nDataBins_, signalRegionWidth_, sidebandWidth_, numberOfSidebands_, numberOfSidebandsForAlgos_, numberOfSidebandGaps_, massSidebandMin_, massSidebandMax_, nIncCategories_, includeVBF_, nVBFCategories_, includeLEP_, nLEPCategories_, systematics_, rederiveOptimizedBinEdges_, AllBinEdges_,blinding_,verbose_);
+    FMTPlots *plotter = new FMTPlots(outfilename_);
+    configureOptions(plotter);  
+    ReadRunConfig(plotter);
     vector<double> theMasses = getAllMH();
+    plotter->Setup();
     for (vector<double>::iterator mh = theMasses.begin(); mh != theMasses.end(); mh++){
       plotter->plotAll(*mh);
     }

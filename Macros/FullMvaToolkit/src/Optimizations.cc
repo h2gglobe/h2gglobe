@@ -93,8 +93,10 @@ void Optimizations::runOptimization(){
 
  	}
 
-	// now find the optimial ranges 
-	std::vector<double> myBins = significanceOptimizedBinning();
+	// now find the optimial ranges
+ 
+  	optGr=new TGraph();
+	std::vector<double> myBins = significanceOptimizedBinning(optGr);
 	nFinalBins = myBins.size()-1;
 
 	int rangecounter = 1;
@@ -302,7 +304,7 @@ void Optimizations::maxSigScan(double *maximumSignificance,int *frozen_counters,
 }
 // RECURSIVE FUNCTION ------------------------------------------------- //
 
-std::vector<double> Optimizations::significanceOptimizedBinning(){
+std::vector<double> Optimizations::significanceOptimizedBinning(TGraph *optGr){
 
 
 //  TH2F *hsnew = (TH2F*) hs->Clone();
@@ -313,7 +315,10 @@ std::vector<double> Optimizations::significanceOptimizedBinning(){
   double 	highestMaxSignificance=0;
   int 	chosenN=1;
   int 	*finalCounters=NULL ;
-	
+
+  int optCounter=0;
+
+ 	
   // Optimizes the number of big steps to take 
   g_step = (int)TMath::Exp(TMath::Log(nNewBins/2)/2);
   if (g_step < 1) g_step=1;
@@ -375,6 +380,9 @@ std::vector<double> Optimizations::significanceOptimizedBinning(){
       highestMaxSignificance = maximumSignificance ;
       finalCounters= new int[N];
       chosenN = N;
+      optGr->SetPoint(optCounter,N+1,maximumSignificance);
+      optCounter++;
+
       for (int cc=0;cc<N;cc++) finalCounters[cc]=chosen_counters[cc];
     } else {
       

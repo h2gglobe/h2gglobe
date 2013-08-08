@@ -9,60 +9,76 @@
 #include "../interface/FMTTree.h"
 
 using namespace std;
+FMTTree::FMTTree(string infilename, string outfilename):FMTBase()
+{
+
+    // open files and workspaces etc.
+		inFile_ = TFile::Open(infilename.c_str());
+		outFile_ = new TFile(outfilename.c_str(),"RECREATE");
+
+	
+    std::cout << "New FMTTree Constructed " << std::endl;
+
+}
 
 FMTTree::FMTTree(string infilename, string outfilename, string bdtname, string weightsFile, double intLumi, bool is2011, int mHMinimum, int mHMaximum, double mHStep, double massMin, double massMax, int nDataBins, double signalRegionWidth, double sidebandWidth, int numberOfSidebands, int numberOfSidebandsForAlgos, int numberOfSidebandGaps, double massSidebandMin, double massSidebandMax, int nIncCategories, bool includeVBF, int nVBFCategories, bool includeLEP, int nLEPCategories, vector<string> systematics, bool rederiveOptimizedBinEdges, vector<map<int, vector<double> > > AllBinEdges, bool isCutBased, bool useSidebandBDT, bool verbose):
  FMTBase(intLumi, is2011, mHMinimum, mHMaximum, mHStep, massMin, massMax, nDataBins, signalRegionWidth, sidebandWidth, numberOfSidebands, numberOfSidebandsForAlgos, numberOfSidebandGaps, massSidebandMin, massSidebandMax, nIncCategories, includeVBF, nVBFCategories, includeLEP, nLEPCategories, systematics, rederiveOptimizedBinEdges, AllBinEdges, verbose),
 	bdtname_(bdtname),
-  isCutBased_(isCutBased),
-  useSidebandBDT_(useSidebandBDT_),
 	crossCheck_(true)
   {
-    // open files and workspaces etc.
-		inFile_ = TFile::Open(infilename.c_str());
-		outFile_ = new TFile(outfilename.c_str(),"RECREATE");
-    if (verbose_) cout << "Number of cats.. " << getNcats() << endl;
-    if (verbose_) cout << "Init datasets..." << endl;
-		ws_ = new RooWorkspace("cms_hgg_workspace");
-		massVar_ = new RooRealVar("CMS_hgg_mass","CMS_hgg_mass",100.,180.);
-		dataSet_ = new RooDataSet("data_mass","data_mass",RooArgList(*massVar_));
-    for (int cat=0; cat<getNcats(); cat++){
-      if (verbose_) cout << "\t\r" << cat << flush;
-		  catDataSets_.push_back(new RooDataSet(Form("data_mass_cat%d",cat),Form("data_mass_cat%d",cat),RooArgList(*massVar_)));
-    }
-    if (verbose_) cout << endl;
-    if (verbose_) cout << "Init tmva..." << endl;
-    // tmva
-		tmvaReader_ = new TMVA::Reader();
-    if (isCutBased_) {
-      //tmvaReader_->AddVariable("(mass-124.)/124.", &deltaMOverM_);
-      tmvaReader_->AddVariable("deltaMoverM", &deltaMOverM_);
-      tmvaReader_->AddVariable("lead_eta", &lead_eta_float_);
-      tmvaReader_->AddVariable("sublead_eta", &sublead_eta_float_);
-      tmvaReader_->AddVariable("lead_r9", &lead_r9_);
-      tmvaReader_->AddVariable("sublead_r9", &sublead_r9_);
-    }
-    else {
-      tmvaReader_->AddVariable("deltaMoverM",&deltaMOverM_);
-      tmvaReader_->AddVariable("bdtoutput",&diphotonBDT_);
-    }
+	FMTTree(infilename,outfilename);
+}
 
-    if (useSidebandBDT_){
-		tmvaReader_->BookMVA(bdtname_.c_str(),weightsFile.c_str());
-    } else {
+void FMTTree::Setup(std::string bdtname,std::string weightsFile){
+    
+	if (useSidebandBDT_){
+		tmvaReader_->BookMVA(bdtname.c_str(),weightsFile.c_str());
+	} else {
 		TFile *fic = TFile::Open(weightsFile.c_str());
 		categoryMap = (TH2F*)(fic->Get("Category_Map"))->Clone();
-    }
+		binedgeMap  = (TH1F*)(fic->Get("Bin_Edges"))->Clone();
+	}
+	cout << "Number of cats.. " << getNcats() << endl;
+	cout << "Init datasets..." << endl;
+	ws_ = new RooWorkspace("cms_hgg_workspace");
+	massVar_ = new RooRealVar("CMS_hgg_mass","CMS_hgg_mass",massMin_,massMax_);
+	dataSet_ = new RooDataSet("data_mass","data_mass",RooArgList(*massVar_));
+	for (int cat=0; cat<getNcats(); cat++){
+		cout << "\t\r" << cat << flush;
+		catDataSets_.push_back(new RooDataSet(Form("data_mass_cat%d",cat),Form("data_mass_cat%d",cat),RooArgList(*massVar_)));
+	}
+	cout << endl;
+	if (useSidebandBDT_) {
+		cout << "Init tmva..." << endl;
+		// tmva
+		tmvaReader_ = new TMVA::Reader();  
 
-    if (verbose_) cout << "Init tree..." << endl;
-		// set up vars
-		initVariables();
-		// initialize histograms
-		vector<double> masses = getAllMH();
-		vector<int> mcMasses = getMCMasses();
-		vector<string> processes = getProcesses();
-		
-    if (verbose_) cout << "Init th1fs..." << endl;
-		// data + bkg
+		if (isCutBased_) {
+			//tmvaReader_->AddVariable("(mass-124.)/124.", &deltaMOverM_);
+			tmvaReader_->AddVariable("deltaMoverM", &deltaMOverM_);
+			tmvaReader_->AddVariable("lead_eta", &lead_eta_float_);
+			tmvaReader_->AddVariable("sublead_eta", &sublead_eta_float_);
+			tmvaReader_->AddVariable("lead_r9", &lead_r9_);
+			tmvaReader_->AddVariable("sublead_r9", &sublead_r9_);
+		}
+		else {
+			tmvaReader_->AddVariable("deltaMoverM",&deltaMOverM_);
+			tmvaReader_->AddVariable("bdtoutput",&diphotonBDT_);
+		}
+
+	}
+
+	vector<string> systematics=getsystematics();
+	if (verbose_) cout << "Init tree..." << endl;
+	// set up vars
+	initVariables();
+	// initialize histograms
+	vector<double> masses = getAllMH();
+	vector<int> mcMasses = getMCMasses();
+	vector<string> processes = getProcesses();
+
+	if (verbose_) cout << "Init th1fs..." << endl;
+	// data + bkg
 
 	int numberOfBdtBins=0;
 	double *bdtBinBoundaries;
@@ -78,17 +94,22 @@ FMTTree::FMTTree(string infilename, string outfilename, string bdtname, string w
 		bdtBinBoundaries[numberOfBdtBins]=1.;
 	} else {
 		// using the 2D category map, no need to run bin optimizations
-		vector<double> categoryBinEdges = getBinEdges(125);
+		//vector<double> categoryBinEdges = getBinEdges(125);
+		vector<double> categoryBinEdges;
+		for (int b=1;b<=binedgeMap->GetNbinsX()+1;b++){
+			categoryBinEdges.push_back(binedgeMap->GetBinLowEdge(b));
+		}
+		
 		numberOfBdtBins = categoryBinEdges.size()-1;
 		bdtBinBoundaries = new double[numberOfBdtBins+1];
 		vector<double>::iterator bit = categoryBinEdges.begin();
-		
+
 		int be=0;
 		for (;bit!=categoryBinEdges.end();bit++){
 			bdtBinBoundaries[be]=*bit;
 			be++;
 		}
-		
+
 	}
 
 		for (vector<double>::iterator mIt=masses.begin(); mIt!=masses.end(); mIt++){
@@ -147,7 +168,7 @@ FMTTree::~FMTTree(){
 
 	delete inFile_;
 	delete outFile_;
-	delete tmvaReader_;
+	if (useSidebandBDT_)delete tmvaReader_;
 	delete massVar_;
 	delete dataSet_;
 	delete ws_;
@@ -158,9 +179,6 @@ void FMTTree::setdirname(string dir){
 	dirname_=dir;
 }
 
-void FMTTree::setIsCutBased(bool cutb){
-  isCutBased_=cutb;
-}
 
 void FMTTree::addTreeToMap(map<string,TTree*>& theMap, string name, string label) {
 
@@ -282,10 +300,11 @@ float FMTTree::tmvaGetValCutBased(float dMoM){
 int FMTTree::icCat(int cat){
 
   if (cat<0) return -1;
-  else if (cat>=0 && cat<4) return 0;
-  else if (cat==4) return 2;
-  else if (cat==5) return 1;
-  else return cat-3;
+  else if (cat>=0 && cat < nMassFacInclusiveCategories_) return 0;
+  else if (cat>=nMassFacInclusiveCategories_ && cat<nMassFacInclusiveCategories_+nVBFCategories_) {
+	return nMassFacInclusiveCategories_+nVBFCategories_-cat;
+  }
+  else return cat-nMassFacInclusiveCategories_+1;
 
 }
 
@@ -318,7 +337,7 @@ void FMTTree::FillSigHist(string proc, double mh){
   int cat = icCat(category_);
   float val;
   if (cat<0) return;
-	if (mass_>=(1.-sidebandWidth_)*mh && mass_<=(1.+sidebandWidth_)*mh && bdtoutput_>-0.05){
+	if (mass_>=(1.-sidebandWidth_)*mh && mass_<=(1.+sidebandWidth_)*mh && bdtoutput_>diphotonBdtCut_){
 		if (isCutBased_) val = tmvaGetValCutBased((mass_-mh)/mh);
     else val = tmvaGetVal((mass_-mh)/mh,bdtoutput_);
 		th1fs_[Form("th1f_sig_BDT_grad_%s_%5.1f_cat%d",proc.c_str(),mh,cat)]->Fill(val,weight_);
@@ -349,7 +368,7 @@ void FMTTree::FillSystHist(string proc, double mh){
 				weight = weightSyst_[s].second;
 			}
       if (cat<0) return;
-			if (mass>=cutLow && mass<=cutHigh && bdtoutput_>-0.05) {
+			if (mass>=cutLow && mass<=cutHigh && bdtoutput_>diphotonBdtCut_) {
 				th1fs_[Form("th1f_sig_BDT_grad_%s_%5.1f_cat%d_%s%s01_sigma",proc.c_str(),mh,cat,systematics_[s].c_str(),shift[t].c_str())]->Fill(val,weight);
 			}
 		}
@@ -371,9 +390,11 @@ int FMTTree::getMH(string name){
 }
 
 void FMTTree::FillMassDatasets(){
-  massVar_->setVal(mass_);
-	dataSet_->add(RooArgList(*massVar_));
-  catDataSets_[icCat(category_)]->add(RooArgList(*massVar_));
+  if (mass_>=massMin_ && mass_<=massMax_){
+    massVar_->setVal(mass_);
+    dataSet_->add(RooArgList(*massVar_));
+    catDataSets_[icCat(category_)]->add(RooArgList(*massVar_));
+  } 
 }
 
 void FMTTree::doCrossCheck(vector<pair<int,map<string,TTree*> > > allTrees, int mH){
@@ -460,7 +481,7 @@ void FMTTree::printTrees(vector<pair<int,map<string,TTree*> > > allTrees){
 
 void FMTTree::run(string option){
  	
-	setdirname("full_mva_trees");
+  setdirname("full_mva_trees");
   map<string,TTree*> sigTrees = getSignalTrees(option);
   map<string,TTree*> bkgTrees = getBackgroundTrees();
   map<string,TTree*> dataTrees = getDataTrees();
@@ -512,7 +533,7 @@ void FMTTree::run(string option){
             //cout << "MH: " << *mIt << endl;
             // in signal region
             //cout << "si: " << (1.-sidebandWidth_)*(*mIt) << "  " << (1.+sidebandWidth_)*(*mIt) << endl;
-            if (mass_>=(1.-sidebandWidth_)*(*mIt) && mass_<=(1.+sidebandWidth_)*(*mIt) && bdtoutput_>-0.05){
+            if (mass_>=(1.-sidebandWidth_)*(*mIt) && mass_<=(1.+sidebandWidth_)*(*mIt) && bdtoutput_>diphotonBdtCut_){
               if (type==0) FillHist("data",0,*mIt);
               if (type>0) FillHist("bkg",0,*mIt);
               //cout << " \t in signal region " << *mIt << endl;
@@ -525,7 +546,7 @@ void FMTTree::run(string option){
             
             for (int l=0; l<nL; l++){
               //cout << "l"  << l << ": " << lEdge[l+1] << "  " << lEdge[l] << endl;
-              if (mass_>=lEdge[l+1] && mass_<=lEdge[l] && bdtoutput_>-0.05){
+              if (mass_>=lEdge[l+1] && mass_<=lEdge[l] && bdtoutput_>diphotonBdtCut_){
                 if (type==0) FillHist("data",-1*(l+1+getnumberOfSidebandGaps()),*mIt);
                 if (type>0) FillHist("bkg",-1*(l+1+getnumberOfSidebandGaps()),*mIt);
                 //cout << " \t in sideband " << -1*(l+1+getnumberOfSidebandGaps()) << " " << *mIt << endl;
@@ -533,7 +554,7 @@ void FMTTree::run(string option){
             }
             for (int h=0; h<nH; h++){
               //cout << "h" << h << ": " << hEdge[h] << "  " << hEdge[h+1] << endl;
-              if (mass_>=hEdge[h] && mass_<=hEdge[h+1] && bdtoutput_>-0.05){
+              if (mass_>=hEdge[h] && mass_<=hEdge[h+1] && bdtoutput_>diphotonBdtCut_){
                 if (type==0) FillHist("data",(h+1+getnumberOfSidebandGaps()),*mIt);
                 if (type>0) FillHist("bkg",(h+1+getnumberOfSidebandGaps()),*mIt);
                 //cout << " \t in sideband " << h+1+getnumberOfSidebandGaps() << " " << *mIt << endl;

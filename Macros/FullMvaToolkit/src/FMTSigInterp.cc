@@ -15,15 +15,18 @@
 #include "../interface/FMTSigInterp.h"
 
 using namespace std;
+FMTSigInterp::FMTSigInterp(string filename):FMTBase()
+{
+  tFile = new TFile(filename.c_str(),"UPDATE");
+}
 
 FMTSigInterp::FMTSigInterp(string filename, double intLumi, bool is2011, bool diagnose, bool doSyst, int mHMinimum, int mHMaximum, double mHStep, double massMin, double massMax, int nDataBins, double signalRegionWidth, double sidebandWidth, int numberOfSidebands, int numberOfSidebandsForAlgos, int numberOfSidebandGaps, double massSidebandMin, double massSidebandMax, int nIncCategories, bool includeVBF, int nVBFCategories, bool includeLEP, int nLEPCategories, vector<string> systematics, bool rederiveOptimizedBinEdges, vector<map<int, vector<double> > > AllBinEdges, bool blind, bool verbose):
   
-	FMTBase(intLumi, is2011, mHMinimum, mHMaximum, mHStep, massMin, massMax, nDataBins, signalRegionWidth, sidebandWidth, numberOfSidebands, numberOfSidebandsForAlgos, numberOfSidebandGaps, massSidebandMin, massSidebandMax, nIncCategories, includeVBF, nVBFCategories, includeLEP, nLEPCategories, systematics, rederiveOptimizedBinEdges, AllBinEdges, verbose),
-  diagnose_(diagnose),
-  blind_(blind)
+	FMTBase(intLumi, is2011, mHMinimum, mHMaximum, mHStep, massMin, massMax, nDataBins, signalRegionWidth, sidebandWidth, numberOfSidebands, numberOfSidebandsForAlgos, numberOfSidebandGaps, massSidebandMin, massSidebandMax, nIncCategories, includeVBF, nVBFCategories, includeLEP, nLEPCategories, systematics, rederiveOptimizedBinEdges, AllBinEdges, verbose)
+ // diagnose_(diagnose),
+ // blind_(blind)
 {
   tFile = new TFile(filename.c_str(),"UPDATE");
-  normalizer = new Normalization_8TeV(is2011);
 
 }
 
@@ -99,6 +102,8 @@ void FMTSigInterp::makeEfficiencyGraphs(){
 
 void FMTSigInterp::runInterpolation(){
   
+  normalizer = new Normalization_8TeV(is2011_);
+
   gROOT->SetBatch();
   gStyle->SetOptStat(0);
   gErrorIgnoreLevel = kWarning;
@@ -118,7 +123,7 @@ void FMTSigInterp::runInterpolation(){
     for (vector<double>::iterator mh = mhMasses.begin(); mh!=mhMasses.end(); mh++){
       if (fabs(*mh-boost::lexical_cast<double>(*mcMass))<0.01) {
         if (verbose_) cout << "Already know this mass " << *mh << endl;
-        TH1F *allSig;
+        TH1F *allSig=0;
         for (vector<string>::iterator prod=productionTypes.begin(); prod!=productionTypes.end(); prod++){
           TH1F *sig = (TH1F*)tFile->Get(Form("th1f_sig_grad_%s_%3.1f_%3.1f",prod->c_str(),*mh,*mh));
           sig->SetName(Form("th1f_sig_grad_%s_%3.1f",prod->c_str(),*mh));
@@ -167,7 +172,7 @@ void FMTSigInterp::runInterpolation(){
           if (verbose_) cout << "Mass: " << *mh << " binMass: " << nearest << " (" << nearest << "," << nextNear << ")" << endl;
         }
         // first do central signal histograms
-        TH1F *allSig;
+        TH1F *allSig = 0;
         for (vector<string>::iterator prod=productionTypes.begin(); prod!=productionTypes.end(); prod++){
           TH1F *lowInterp = (TH1F*)tFile->Get(Form("th1f_sig_grad_%s_%d.0_%d.0",prod->c_str(),binningMass,lowInterpMass));
           TH1F *highInterp = (TH1F*)tFile->Get(Form("th1f_sig_grad_%s_%d.0_%d.0",prod->c_str(),binningMass,highInterpMass));

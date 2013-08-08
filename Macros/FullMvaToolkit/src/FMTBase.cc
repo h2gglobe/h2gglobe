@@ -40,17 +40,25 @@ FMTBase::FMTBase(double intLumi, bool is2011, int mHMinimum, int mHMaximum, doub
 
   verbose_(verbose)
 {
-	BinEdges_ = AllBinEdges_[0] ;
-	if (includeVBF) VBFBinEdges_ = AllBinEdges_[1];
-	if (includeLEP) LEPBinEdges_ = AllBinEdges_[2];
+  //BinEdges_ = AllBinEdges_[0] ;
+  //if (includeVBF) VBFBinEdges_ = AllBinEdges_[1];
+  //if (includeLEP) LEPBinEdges_ = AllBinEdges_[2];
   processes_.push_back("ggh");
   processes_.push_back("vbf");
   processes_.push_back("wzh");
   processes_.push_back("tth");
-	MHMasses_ = getAllMH();
-	MCMasses_ = getMCMasses();
-  
-  printRunOptions();
+  //MHMasses_ = getAllMH();
+  //MCMasses_ = getMCMasses();
+  //printRunOptions();
+}
+
+FMTBase::FMTBase(){
+
+  processes_.push_back("ggh");
+  processes_.push_back("vbf");
+  processes_.push_back("wzh");
+  processes_.push_back("tth");
+
 }
 
 void FMTBase::checkMCMass(int mass){

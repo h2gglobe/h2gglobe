@@ -22,6 +22,22 @@ FMTRebin::FMTRebin(){
   FMTRebin(NULL,NULL,-999.,false,110,150,0.5,100.,180.,160,0.02,0.02,6,3,1,99.8,180.,4,1,2,1,3,systs,false,binedges,false);
 }
 
+FMTRebin::FMTRebin(TFile *tF, TFile *oF):
+	FMTBase(),
+	tFile(tF),
+	outFile(oF),
+	justRebin_(false),
+	catByHand_(false)
+{
+
+  signalVector1 = new double[25];
+  backgroundVector1 = new double[25];
+  cout << "Creating fitter" << endl;
+  cout << "Passing outfile" << outFile->GetName() << endl;
+  fitter = new FMTFit(tFile,outFile);
+
+}
+
 FMTRebin::FMTRebin(TFile *tF, TFile *oF, double intLumi, bool is2011, int mHMinimum, int mHMaximum, double mHStep, double massMin, double massMax, int nDataBins, double signalRegionWidth, double sidebandWidth, int numberOfSidebands, int numberOfSidebandsForAlgos, int numberOfSidebandGaps, double massSidebandMin, double massSidebandMax, int nIncCategories, bool includeVBF, int nVBFCategories, bool includeLEP, int nLEPCategories, vector<string> systematics, bool rederiveOptimizedBinEdges, vector<map<int,vector<double> > > AllBinEdges, bool verbose):
 	
 	FMTBase(intLumi, is2011, mHMinimum, mHMaximum, mHStep, massMin, massMax, nDataBins, signalRegionWidth, sidebandWidth, numberOfSidebands, numberOfSidebandsForAlgos, numberOfSidebandGaps, massSidebandMin, massSidebandMax, nIncCategories, includeVBF, nVBFCategories, includeLEP, nLEPCategories, systematics, rederiveOptimizedBinEdges, AllBinEdges, verbose),
