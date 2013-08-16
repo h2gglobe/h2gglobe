@@ -4744,14 +4744,137 @@ void PhotonAnalysis::GetRegressionCorrections(LoopAll &l){
 
     // On the fly energy regression values
     for (int ipho=0;ipho<l.pho_n;ipho++){
-        std::cout << "Photon Energy otfbranch     " << ipho << " " << l.pho_regr_energy_otf[ipho]    << std::endl;
-        std::cout << "Photon Resolution otfbranch " << ipho << " " << l.pho_regr_energyerr_otf[ipho] << std::endl;
-        std::cout << "Photon Energy branch     "    << ipho << " " << l.pho_regr_energy[ipho]    << std::endl;
-        std::cout << "Photon Resolution branch "    << ipho << " " << l.pho_regr_energyerr[ipho] << std::endl;
 
-        double ecor = 60.;
-        double ecorerr = 1.;
+
+   double phoE = ((TLorentzVector*)l.pho_p4->At(ipho))->Energy();
+   double r9=l.pho_r9[ipho];
+
+   TVector3 *sc = ((TVector3*)l.pho_calopos->At(ipho)); 
+
+   int sc_index      = l.pho_scind[ipho];
+   int sc_seed_index = l.sc_bcseedind[sc_index];
+
+   TVector3 *bcpos =(TVector3*)l.bc_xyz->At(sc_seed_index);
+   double bcE = ((TLorentzVector*)l.bc_p4->At(sc_seed_index))->Energy();
+    
+
+   // New semi-parametric regression 
+   bool isbarrel = (fabs(sc->Eta())<1.48); 
+
+
+//   //basic supercluster variables
+  _vals[0]  = l.sc_raw[sc_index];
+  _vals[1]  = sc->Eta();
+  _vals[2]  = r9;
+  _vals[3] = l.sc_seta[sc_index];
+  _vals[4] = l.sc_sphi[sc_index];
+  _vals[5] = l.sc_nbc[sc_index];
+  _vals[6] = l.pho_hoe[ipho];//p.hadTowOverEm();
+  _vals[7] = l.rho;
+  _vals[8] = l.vtx_n;//double(vtxcol.size());
+
+  //seed basic cluster variables
+  double bemax = l.bc_s1[sc_seed_index];//clustertools.eMax(*b);
+  double be2nd = 1.;//clustertools.e2nd(*b);
+  double betop = 1.;//clustertools.eTop(*b);
+  double bebottom = 1.;//clustertools.eBottom(*b);
+  double beleft = 1.;//clustertools.eLeft(*b);
+  double beright = 1.;//clustertools.eRight(*b);
+
+  double be2x5max = 1.;//clustertools.e2x5Max(*b);
+  double be2x5top = 1.;//clustertools.e2x5Top(*b);
+  double be2x5bottom = 1.;//clustertools.e2x5Bottom(*b);
+  double be2x5left = 1.;//clustertools.e2x5Left(*b);
+  double be2x5right = 1.;//clustertools.e2x5Right(*b);
+  
+  double be5x5 = l.bc_s25[sc_seed_index];//clustertools.e5x5(*b);
+  double be3x3 = l.bc_s9[sc_seed_index];//clustertools.e5x5(*b);
+
+  _vals[9] = bcpos->Eta()-sc->Eta();
+  _vals[10] = l.DeltaPhi(bcpos->Phi(),sc->Phi());
+  _vals[11] = bcE/l.sc_raw[sc_index];
+  _vals[12] = be3x3/be5x5;
+  _vals[13] = TMath::Sqrt(bc_sieie[sc_seed_index]); //sigietaieta
+  _vals[14] = TMath::Sqrt(bc_sipip[sc_seed_index]); //sigiphiiphi
+  _vals[15] = bc_sieip[sc_seed_index];//clustertools.localCovariances(*b)[1];       //sigietaiphi
+
+  _vals[16] = bemax/be5x5;                       //crystal energy ratio gap variables   
+  _vals[17] = be2nd/be5x5;
+  _vals[18] = betop/be5x5;
+  _vals[19] = bebottom/be5x5;
+  _vals[20] = beleft/be5x5;
+  _vals[21] = beright/be5x5;
+  _vals[22] = be2x5max/be5x5;                       //crystal energy ratio gap variables   
+  _vals[23] = be2x5top/be5x5;
+  _vals[24] = be2x5bottom/be5x5;
+  _vals[25] = be2x5left/be5x5;
+  _vals[26] = be2x5right/be5x5;
+
+  if (isbarrel) {
+    //additional energy ratio (always ~1 for endcap, therefore only included for barrel)
+    _vals[27] = be5x5/b->energy();
+    
+    //local coordinates and crystal indices (barrel only)    
+    
+    //seed cluster
+    float betacry, bphicry, bthetatilt, bphitilt;
+    int bieta, biphi;
+    _ecalLocal.localCoordsEB(*b,es,betacry,bphicry,bieta,biphi,bthetatilt,bphitilt);
+    
+    _vals[28] = bieta; //crystal ieta
+    _vals[29] = biphi%18; //crystal iphi supermodule symmetry
+    _vals[30] = bieta%5; //submodule boundary eta symmetry
+    _vals[31] = biphi%2; //submodule boundary phi symmetry
+    _vals[32] = (TMath::Abs(bieta)<=25)*(bieta%25) + (TMath::Abs(bieta)>25)*((bieta-25*TMath::Abs(bieta)/bieta)%20);  //module boundary eta approximate symmetry
+    _vals[33] = biphi%20; //module boundary phi symmetry
+    _vals[34] = betacry; //local coordinates with respect to closest crystal center at nominal shower depth
+    _vals[35] = bphicry;
+
+  }
+  else {
+    //preshower energy ratio (endcap only)
+    _vals[27]  = s->preshowerEnergy()/s->rawEnergy();
+  }
+  
+  double den;
+  HybridGBRForest *forest;  
+  if (isbarrel) {
+    den = s->rawEnergy();
+    forest = _foresteb;
+  }
+  else {
+    den = s->rawEnergy() + s->preshowerEnergy();
+    forest = _forestee;
+  }
+  
+  _tgt->setVal(1.0); //evaluate pdf at peak position
+  
+  //set raw response variables from GBRForest
+  _sigma->setVal(forest->GetResponse(&_vals[0],0));
+  _mean->setVal(forest->GetResponse(&_vals[0],1));
+  _n1->setVal(forest->GetResponse(&_vals[0],2));
+  _n2->setVal(forest->GetResponse(&_vals[0],3));
+  
+  //retrieve final pdf parameter values from transformed forest outputs
+  ecor = den/_meanlim->getVal();
+  cbsigma = _sigmalim->getVal();
+  cbalpha1 = 2.0;  //alpha hardcoded in this version of the regression
+  cbn1 = _n1lim->getVal();
+  cbalpha2 = 1.0;  //alpha hardcoded in this version of the regression
+  cbn2 = _n2lim->getVal();
+  
+  pdfpeakval = _pdf->getVal(*_tgt);
+  
+  return;
         
+
+
+
+       
+
+
+
+ 
         // Set vectors used in reduction;
         energyCorrected[ipho] = ecor;
         energyCorrectedError[ipho] = ecorerr;
