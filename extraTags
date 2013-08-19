@@ -21,9 +21,15 @@ get_tag()
 cd $CMSSW_BASE/src
 get_tag V00-02-10 UserCode/CMG/CMGTools/External CMGTools/External 
 
+# Regression (need to adapt get_tag for github)
+if [[ ! -d HiggsAnalysis/GBRLikelihood  ]]; then 
+ git clone -b hggpaperV5 https://github.com/bendavid/GBRLikelihood.git HiggsAnalysis/GBRLikelihood
+fi 
+
 if [[ -n $packs ]]; then 
     scram b $packs
 fi
+
 
 cd -
 touch .extraTags
