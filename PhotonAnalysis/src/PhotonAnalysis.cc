@@ -4816,18 +4816,18 @@ void PhotonAnalysis::GetRegressionCorrections(LoopAll &l){
         _vals[8] = l.vtx_n;//double(vtxcol.size());
 
         //seed basic cluster variables
-        double bemax = l.sc_bcseed_sMax[sc_index];//clustertools.eMax(*b);
-        double be2nd = l.sc_bcseed_s2nd[sc_index];//clustertools.e2nd(*b);
-        double betop = l.sc_bcseed_top[sc_index];//clustertools.eTop(*b);
-        double bebottom = l.sc_bcseed_bottom[sc_index];//clustertools.eBottom(*b);
-        double beleft = l.sc_bcseed_left[sc_index];//clustertools.eLeft(*b);
-        double beright = l.sc_bcseed_right[sc_index];//clustertools.eRight(*b);
+        double bemax = l.bc_s1[sc_seed_index];//clustertools.eMax(*b);
+        double be2nd = l.pho_e2nd[ipho];//clustertools.e2nd(*b);
+        double betop = l.pho_etop[ipho];//clustertools.eTop(*b);
+        double bebottom = l.pho_ebottom[ipho];//clustertools.eBottom(*b);
+        double beleft = l.pho_eleft[ipho];//clustertools.eLeft(*b);
+        double beright = l.pho_eright[ipho];//clustertools.eRight(*b);
 
-        double be2x5max = l.sc_bcseed_2x5max[sc_index];//clustertools.e2x5Max(*b);
-        double be2x5top = l.sc_bcseed_2x5top[sc_index];//clustertools.e2x5Top(*b);
-        double be2x5bottom = l.sc_bcseed_2x5bottom[sc_index];//clustertools.e2x5Bottom(*b);
-        double be2x5left = l.sc_bcseed_2x5left[sc_index];//clustertools.e2x5Left(*b);
-        double be2x5right = l.sc_bcseed_2x5right[sc_index];//clustertools.e2x5Right(*b);
+        double be2x5max = l.pho_e2x5max[ipho];//clustertools.e2x5Max(*b);
+        double be2x5top = l.pho_e2x5top[ipho];//clustertools.e2x5Top(*b);
+        double be2x5bottom = l.pho_e2x5bottom[ipho];//clustertools.e2x5Bottom(*b);
+        double be2x5left = l.pho_e2x5left[ipho];//clustertools.e2x5Left(*b);
+        double be2x5right = l.pho_e2x5right[ipho];//clustertools.e2x5Right(*b);
 
         double be5x5 = l.bc_s25[sc_seed_index];//clustertools.e5x5(*b);
         double be3x3 = l.bc_s9[sc_seed_index];//clustertools.e5x5(*b);
@@ -4836,9 +4836,9 @@ void PhotonAnalysis::GetRegressionCorrections(LoopAll &l){
         _vals[10] = l.DeltaPhi(bcpos->Phi(),sc->Phi());
         _vals[11] = bcE/l.sc_raw[sc_index];
         _vals[12] = be3x3/be5x5;
-        _vals[13] = TMath::Sqrt(l.bc_sieie[sc_seed_index]); //sigietaieta
-        _vals[14] = TMath::Sqrt(l.bc_sipip[sc_seed_index]); //sigiphiiphi
-        _vals[15] = l.bc_sieip[sc_seed_index];//clustertools.localCovariances(*b)[1];       //sigietaiphi
+        _vals[13] = TMath::Sqrt(l.bc_sieie[sc_seed_index]); //sigietaieta (this is stored in bc collection)
+        _vals[14] = TMath::Sqrt(l.pho_sipip[ipho]); //sigiphiiphi
+        _vals[15] = l.pho_sieip[ipho];//clustertools.localCovariances(*b)[1];       //sigietaiphi
 
         _vals[16] = bemax/be5x5;                       //crystal energy ratio gap variables   
         _vals[17] = be2nd/be5x5;
@@ -4856,8 +4856,8 @@ void PhotonAnalysis::GetRegressionCorrections(LoopAll &l){
             //additional energy ratio (always ~1 for endcap, therefore only included for barrel)
             _vals[27] = be5x5/bcE;
 
-            int bieta = l.sc_bcseed_ieta[sc_index];
-            int biphi = l.sc_bcseed_iphi[sc_index];     
+            int bieta = l.pho_bieta[sc_index];
+            int biphi = l.pho_biphi[sc_index];     
 
             _vals[28] = bieta; //crystal ieta
             _vals[29] = biphi%18; //crystal iphi supermodule symmetry
@@ -4865,8 +4865,8 @@ void PhotonAnalysis::GetRegressionCorrections(LoopAll &l){
             _vals[31] = biphi%2; //submodule boundary phi symmetry
             _vals[32] = (TMath::Abs(bieta)<=25)*(bieta%25) + (TMath::Abs(bieta)>25)*((bieta-25*TMath::Abs(bieta)/bieta)%20);  //module boundary eta approximate symmetry
             _vals[33] = biphi%20; //module boundary phi symmetry
-            _vals[34] = l.sc_bcseed_etacry[sc_seed_index];//betacry; //local coordinates with respect to closest crystal center at nominal shower depth
-            _vals[35] = l.sc_bcseed_phicry[sc_seed_index];//bphicry;
+            _vals[34] = l.pho_betacry[ipho];//betacry; //local coordinates with respect to closest crystal center at nominal shower depth
+            _vals[35] = l.pho_phicry[ipho];//bphicry;
 
         }
         else {
