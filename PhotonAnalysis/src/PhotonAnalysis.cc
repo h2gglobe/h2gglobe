@@ -11,7 +11,7 @@
 #include "JetAnalysis/interface/JetHandler.h"
 #include "CMGTools/External/interface/PileupJetIdentifier.h"
 
-#define PADEBUG 0
+#define PADEBUG 1
 
 using namespace std;
 
@@ -1173,7 +1173,7 @@ void PhotonAnalysis::Init(LoopAll& l)
     }
 
     if( recomputeBetas || recorrectJets || rerunJetMva || recomputeJetWp || applyJer || applyJecUnc || emulateJetResponse 
-	|| l.typerun != l.kFill ) {
+	|| l.typerun != l.kFill && 0) {
 	std::cout << "JetHandler: \n"
 		  << "recomputeBetas " << recomputeBetas << "\n"
 		  << "recorrectJets " << recorrectJets << "\n"
@@ -1797,7 +1797,7 @@ void PhotonAnalysis::postProcessJets(LoopAll & l, int vtx)
     }
     for(int ivtx=minv;ivtx<maxv; ++ivtx) {
 	for(int ijet=0; ijet<l.jet_algoPF1_n; ++ijet) {
-	    if( recomputeBetas || (l.typerun != l.kFill && l.version > 14 && ivtx >= l.jet_algoPF1_nvtx) ) {
+	    if( recomputeBetas || (l.typerun != l.kFill && l.version > 14 && ivtx >= l.jet_algoPF1_nvtx) && 0 ) {
 		/// std::cout << "recomputeBetas " << ivtx << " " << l.jet_algoPF1_nvtx << std::endl;
 		jetHandler_->computeBetas(ijet, ivtx);
 	    }
@@ -4810,10 +4810,10 @@ void PhotonAnalysis::GetRegressionCorrections(LoopAll &l){
         _vals[2]  = r9;
         _vals[3] = l.sc_seta[sc_index];
         _vals[4] = l.sc_sphi[sc_index];
-        _vals[5] = l.sc_nbc[sc_index];
+        _vals[5] = (double)l.sc_nbc[sc_index];
         _vals[6] = l.pho_hoe[ipho];//p.hadTowOverEm();
         _vals[7] = l.rho;
-        _vals[8] = l.vtx_n;//double(vtxcol.size());
+        _vals[8] = (double)l.vtx_std_n;//double(vtxcol.size());
 
         //seed basic cluster variables
         double bemax = l.bc_s1[sc_seed_index];//clustertools.eMax(*b);
@@ -4856,8 +4856,8 @@ void PhotonAnalysis::GetRegressionCorrections(LoopAll &l){
             //additional energy ratio (always ~1 for endcap, therefore only included for barrel)
             _vals[27] = be5x5/bcE;
 
-            int bieta = l.pho_bieta[sc_index];
-            int biphi = l.pho_biphi[sc_index];     
+            int bieta = l.pho_bieta[ipho];
+            int biphi = l.pho_biphi[ipho];     
 
             _vals[28] = bieta; //crystal ieta
             _vals[29] = biphi%18; //crystal iphi supermodule symmetry
@@ -4917,6 +4917,11 @@ void PhotonAnalysis::GetRegressionCorrections(LoopAll &l){
 
         if (PADEBUG) {
             std::cout << "PhotonAnalysis::GetRegressionCorrections ----/" <<std::endl;
+            std::cout << " Is barrel? .... " << isbarrel <<std::endl;
+            std::cout << " Inputs ...." << std::endl;
+            for (int vi=0;vi<36;vi++){ //36 params for Photon correction
+                std::cout << "Val " << vi << " " << _vals[vi] << std::endl;
+            }
             std::cout << " photon Energy in ntuple / new value     " << ipho << " = " << l.pho_regr_energy[ipho] << " / " << ecor  << std::endl;
             std::cout << " photon Resolution in ntuple / new value " << ipho << " = " << l.pho_regr_energyerr[ipho] << " / " << ecorerr << std::endl; 
             std::cout << "---------------------------------------------/" <<std::endl;
