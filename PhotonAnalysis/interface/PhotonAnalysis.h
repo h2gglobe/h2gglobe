@@ -17,6 +17,14 @@
 //#include "../../../../HiggsToGammaGamma/interface/GBRForest.h"
 //#include "HiggsAnalysis/HiggsToGammaGamma/interface/GBRForest.h"
 
+#include "RooArgList.h"
+#include "RooRealVar.h"
+#include "RooAbsPdf.h"
+//#include "HiggsAnalysis/GBRLikelihoodEGTools/interface/EGEnergyCorrectorSemiParm.h"
+#include "HiggsAnalysis/GBRLikelihood/interface/RooHybridBDTAutoPdf.h"
+#include "HiggsAnalysis/GBRLikelihood/interface/RooDoubleCBFast.h"
+#include "HiggsAnalysis/GBRLikelihood/interface/HybridGBRForest.h"
+
 class JetHandler;
 
 // ------------------------------------------------------------------------------------
@@ -521,6 +529,29 @@ class PhotonAnalysis : public BaseAnalysis
 
 
     int VHNumberOfJets(LoopAll& l, int diphotonVHlep_id, int vertex, bool VHelevent_prov, bool VHmuevent_prov, int el_ind, int mu_ind, float* smeared_pho_energy);
+
+
+    // For semi-parametric Regression 
+    
+    std::vector<float> _vals;
+    
+    HybridGBRForest *_foresteb;
+    HybridGBRForest *_forestee;
+
+    RooRealVar *_mean;
+    RooRealVar *_tgt;
+    RooRealVar *_sigma;
+    RooRealVar *_n1;
+    RooRealVar *_n2;  
+    
+    RooAbsReal *_meanlim;
+    RooAbsReal *_sigmalim;
+    RooAbsReal *_n1lim;
+    RooAbsReal *_n2lim;        
+    
+    RooAbsPdf *_pdf;
+    
+    RooArgList _args;
 
     //TFile *fgbr;
     //GBRForest *fReadereb;

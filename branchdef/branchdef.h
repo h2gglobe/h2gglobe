@@ -45,6 +45,26 @@ TBranch* b_pfcand_posvtx;
     TBranch *b_sc_sieie;
     TBranch *b_sc_nbc;
     TBranch *b_sc_bcseedind;
+
+    TBranch *b_sc_bcseed_sMax; 
+    TBranch *b_sc_bcseed_s2nd;
+    TBranch *b_sc_bcseed_top;
+    TBranch *b_sc_bcseed_bottom;
+    TBranch *b_sc_bcseed_left;
+    TBranch *b_sc_bcseed_right;
+
+    TBranch *b_sc_bcseed_2x5max;
+    TBranch *b_sc_bcseed_2x5top;
+    TBranch *b_sc_bcseed_2x5bottom;
+    TBranch *b_sc_bcseed_2x5left;
+    TBranch *b_sc_bcseed_2x5right;
+
+    TBranch *b_sc_bcseed_ieta;   
+    TBranch *b_sc_bcseed_iphi;
+    TBranch *b_sc_bcseed_etacry;  
+    TBranch *b_sc_bcseed_phicry; 
+
+
     TBranch *b_sc_bcind;
     TBranch *b_sc_seta;
     TBranch *b_sc_sphi;
@@ -66,6 +86,8 @@ TBranch* b_pfcand_posvtx;
     TBranch *b_bc_sep;
     TBranch *b_bc_type;
     TBranch *b_bc_sieie;
+    TBranch *b_bc_sipip;
+    TBranch *b_bc_sieip;
     TBranch *b_bc_seed;
     TBranch *b_ecalhit_n;
     TBranch *b_ecalhit_type;

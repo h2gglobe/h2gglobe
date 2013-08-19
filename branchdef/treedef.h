@@ -37,6 +37,26 @@ Float_t sc_pre[MAX_SUPERCLUSTERS];
 Float_t sc_raw[MAX_SUPERCLUSTERS];
 Int_t sc_nbc[MAX_SUPERCLUSTERS];
 Int_t sc_bcseedind[MAX_SUPERCLUSTERS];
+
+Float_t sc_bcseed_sMax[MAX_SUPERCLUSTERS]; 
+Float_t sc_bcseed_s2nd[MAX_SUPERCLUSTERS];
+Float_t sc_bcseed_top[MAX_SUPERCLUSTERS];
+Float_t sc_bcseed_bottom[MAX_SUPERCLUSTERS];
+Float_t sc_bcseed_left[MAX_SUPERCLUSTERS];
+Float_t sc_bcseed_right[MAX_SUPERCLUSTERS];
+
+Float_t sc_bcseed_2x5max[MAX_SUPERCLUSTERS];
+Float_t sc_bcseed_2x5top[MAX_SUPERCLUSTERS];
+Float_t sc_bcseed_2x5bottom[MAX_SUPERCLUSTERS];
+Float_t sc_bcseed_2x5left[MAX_SUPERCLUSTERS];
+Float_t sc_bcseed_2x5right[MAX_SUPERCLUSTERS];
+
+Int_t sc_bcseed_ieta[MAX_SUPERCLUSTERS];   
+Int_t sc_bcseed_iphi[MAX_SUPERCLUSTERS];
+Float_t sc_bcseed_etacry[MAX_SUPERCLUSTERS];  
+Float_t sc_bcseed_phicry[MAX_SUPERCLUSTERS]; 
+
+
 Int_t sc_bcind[MAX_SUPERCLUSTERS][MAX_SUPERCLUSTER_BASICCLUSTERS];
 Int_t sc_barrel[MAX_SUPERCLUSTERS];
 Float_t sc_2xN[MAX_SUPERCLUSTERS];
@@ -73,6 +93,8 @@ Float_t bc_s3x1_0[MAX_BASICCLUSTERS];
 Float_t bc_s3x1_1[MAX_BASICCLUSTERS];
 Float_t bc_s3x1_2[MAX_BASICCLUSTERS];
 Float_t bc_sieie[MAX_BASICCLUSTERS];
+Float_t bc_sipip[MAX_BASICCLUSTERS];
+Float_t bc_sieip[MAX_BASICCLUSTERS];
 Float_t bc_2x5_max[MAX_BASICCLUSTERS];
 Float_t bc_5x1_sam[MAX_BASICCLUSTERS];
 Int_t bc_seed[MAX_BASICCLUSTERS];
