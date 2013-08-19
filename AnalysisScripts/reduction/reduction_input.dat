@@ -17,15 +17,36 @@ pho_r9
 pho_calopos
 
 ## on the fly regression corrections calculation
+pho_hoe
 sc_n
 sc_xyz
 sc_raw
 sc_pre
+sc_nbc
 sc_seta
 sc_sphi
-pho_hoe
-pho_sieie
-pho_e5x5
+sc_bcseed_sMax
+sc_bcseed_s2nd
+sc_bcseed_top
+sc_bcseed_bottom
+sc_bcseed_left
+sc_bcseed_right
+sc_bcseed_2x5max
+sc_bcseed_2x5top
+sc_bcseed_2x5bottom
+sc_bcseed_2x5left
+sc_bcseed_2x5righ
+sc_bcseed_ieta
+sc_bcseed_iphi
+sc_bcseed_etacry
+sc_bcseed_phicry
+bc_s25
+bc_s9
+bc_sieie
+bc_sipip
+bc_sieip
+#pho_sieie
+#pho_e5x5
 
 ## minimal allconversions info
 conv_n
