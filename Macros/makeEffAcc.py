@@ -2,7 +2,46 @@
 # run with python makeEffAcc.py CMS-HGG.root
 import ROOT
 import sys
-import numpy
+import re
+
+procOrder=('ggh', 'vbf', 'wzh', 'wh', 'zh', 'tth')
+
+def preFlight(f):
+	foundSplit = foundMerged = False
+	procs = set()
+	masses = set()
+	cats = set()
+	for i in f.GetListOfKeys():
+		match = re.search('sig_(?P<proc>\w+)_mass_m(?P<mass>[0-9]*\.?[0-9]+)_.*_cat(?P<cat>[0-9]+)$', i.GetName())
+		if match:
+			d = match.groupdict()
+			float(d['mass'])
+			procs.add(d['proc'])
+			masses.add(d['mass'])
+			cats.add(d['cat'])
+
+	if 'wzh' in procs and ('wh' in procs or 'zh' in procs) :
+		raise RuntimeError('Bailing out: found both wh/zh and wzh in '+f.GetName())
+
+	massesRet = sorted([ float(m) for m in masses ])
+	catsRet = sorted([ int(cat) for cat in cats ])
+	procsRet = sorted(procs, key=lambda x: procOrder.index(x))
+	return (procsRet, massesRet, catsRet)
+	
+	
+def getSigHistos(f, procs, suffix):
+	return { name : f.Get('th1f_sig_'+name+suffix) for name in procs}
+
+adHocFactors={
+	'ggh': 0.975,
+	'vbf': 1.0,
+	'wzh': 1.0,
+	'wh': 1.0,
+	'zh': 1.0,
+	'tth': 1.0,
+}
+
+
 
 #### ROOT.gROOT.ProcessLine(".L Normalization_7TeV.C++")
 ### ROOT.gROOT.ProcessLine(".L Normalization_8TeV.C++")
@@ -10,7 +49,7 @@ import numpy
 ### from ROOT import GetXsection
 ### GetProcXsection = GetXsection
 
-ROOT.gSystem.Load("../libLoopAll.so")
+ROOT.gSystem.Load("../libLoopAll")
 from ROOT import Normalization_8TeV
 norm = Normalization_8TeV()
 GetBR = lambda x : norm.GetBR(float(x))
@@ -19,7 +58,7 @@ GetProcXsection = lambda x,y : norm.GetXsection(x,y)
 
 # ROOT Setup
 ROOT.gROOT.SetStyle("Plain")
-ROOT.gROOT.SetBatch(0)
+ROOT.gROOT.SetBatch(1)
 
 # Global Setup, Modify with each Reload
 ##### NCAT = 5
@@ -32,7 +71,9 @@ Masses = range(110,151,1)
 # -------------------------------------------------------------
 
 f = ROOT.TFile(sys.argv[1])
-NCAT = 9
+
+(procs, masses, cats) = preFlight(f)
+
 # Get The lumi from the workspace!
 ws = f.Get("cms_hgg_workspace")
 lRRV = ws.var("IntLumi")
@@ -40,16 +81,20 @@ lumi = lRRV.getVal()
 
 # Some helpful output
 print "File - ", sys.argv[1]
+print 'Processes found:  ' + str(procs)
+print 'Masses found:     ' + str(masses)
+print 'Categories found: ' + str(cats)
+
 printLine = "Data:      "
 Sum = 0
-for i in range(NCAT):
+for i in cats:
   h = f.Get("th1f_data_mass_cat%d"%i)
   print "%d   %4.0f    %4.0f" % (i, h.Integral(1,160), h.Integral(21,100) )
   Sum+=h.Integral()
   printLine+="%3.0f"%(h.Integral())+" "
 printLine+="tot=%d"%Sum
-
 print printLine
+
 
 efficiency=ROOT.TGraphAsymmErrors()
 central=ROOT.TGraphAsymmErrors()
@@ -64,90 +109,85 @@ dnfunc = ROOT.TF1("dnfunc",fitstring,109.75,140.25)
 
 
 for point,M in enumerate(Masses):
-  printLine = "Sigl M%d: "%M
-  Sum = 0
-  for i in range(NCAT):
-    if int(M)==M:
-     h =   f.Get("th1f_sig_ggh_mass_m%d_cat%d"%(int(M),i))
-     hvb = f.Get("th1f_sig_vbf_mass_m%d_cat%d"%(int(M),i))
-     hvh = f.Get("th1f_sig_wzh_mass_m%d_cat%d"%(int(M),i))
-     htt = f.Get("th1f_sig_tth_mass_m%d_cat%d"%(int(M),i))
+	printLine = "Signal M%3.1f: "%M
+	Sum = 0
+	for i in cats:
+		if int(M)==M:
+			suffix = '_mass_m%d_cat%d'%(int(M),i)
+			histos = getSigHistos(f, procs, suffix)
 
-     ggh = h.Integral()
-     vbf = hvb.Integral()
-     tth = htt.Integral()
-     wzh = hvh.Integral()
-     
-     h.Add(hvb)
-     h.Add(hvh)
-     h.Add(htt)
+			integrals = { proc : h.Integral() for (proc, h) in histos.iteritems()}
 
-     print "%d %3.1f   %.5f    %.5f    %.5f     %.5f" % ( i, M, 100*ggh/(GetBR(M)*( GetProcXsection(M,"ggh")*(0.975))*lumi)
-							,100*vbf/(GetBR(M)*(GetProcXsection(M,"vbf"))*lumi)
-							,100*wzh/(GetBR(M)*(GetProcXsection(M,"wzh"))*lumi)
-							,100*tth/(GetBR(M)*(GetProcXsection(M,"tth"))*lumi)
-							)
-     
-    else:
-     h = f.Get("th1f_sig_mass_m%.1f_cat%d"%(M,i))
-    Sum+=h.Integral()
-    printLine+="%3.5f"%h.Integral()+" "
-  printLine+="tot=%3.5f"%Sum
+			procLine = 'cat %d, mH=%3.1f:'%(i, M)
+			for proc in procs:
+				integral = integrals[proc]
+				procLine += '   %s %.5f'% (proc, 100*integral/(GetBR(M)*( GetProcXsection(M,proc)*adHocFactors[proc] )*lumi) )
+			print procLine
+
+			hs = [ h for (proc, h) in histos.iteritems() ]
+			h=hs[0]
+			for j in hs[1:]:
+				h.Add(j)
+		else:
+			h = f.Get("th1f_sig_mass_m%.1f_cat%d"%(M,i))
+		
+		Sum += h.Integral()
+		printLine+="%3.5f "%h.Integral()
+	printLine+="tot=%3.5f"%Sum
   
-  sm =GetBR(M)*( GetProcXsection(M,"ggh")*0.975 + GetProcXsection(M,"vbf") + GetProcXsection(M,"wzh") + GetProcXsection(M,"tth") )
-  effAcc = 100*Sum/(sm*lumi) # calculate Efficiency at mH
-  centralsmooth.SetPoint(point,M,effAcc)
-  central.SetPoint(point,M,effAcc)
-  efficiency.SetPoint(point,M,effAcc)
-  delUp = 0
-  delDown = 0
-  for s in systematics:
-   syssumup=0
-   syssumdn=0
-   for i in range(NCAT):
-    if int(M)==M:
-     hup =   f.Get("th1f_sig_ggh_mass_m%d_cat%d_%sUp01_sigma"%(int(M),i,s))
-     hupvb = f.Get("th1f_sig_vbf_mass_m%d_cat%d_%sUp01_sigma"%(int(M),i,s))
-     hupvh = f.Get("th1f_sig_wzh_mass_m%d_cat%d_%sUp01_sigma"%(int(M),i,s))
-     huptt = f.Get("th1f_sig_tth_mass_m%d_cat%d_%sUp01_sigma"%(int(M),i,s))
-     hup.Add(hupvb)
-     hup.Add(hupvh)
-     hup.Add(huptt)
+	xsecs = [ GetProcXsection(M,proc)*adHocFactors[proc] for proc in procs ]
+	sm = GetBR(M) * sum(xsecs)
+	
+	effAcc = 100*Sum/(sm*lumi) # calculate Efficiency at mH
+	centralsmooth.SetPoint(point,M,effAcc)
+	central.SetPoint(point,M,effAcc)
+	efficiency.SetPoint(point,M,effAcc)
+	delUp = 0
+	delDown = 0
+	for s in systematics:
+		syssumup=0
+		syssumdn=0
+		for i in cats:
+			if int(M)==M:
+				suffix = '_mass_m%d_cat%d_%sUp01_sigma'%(int(M),i,s)
+				histosup = getSigHistos(f, procs, suffix)
+				hs = [ h for (proc, h) in histosup.iteritems() ]
+				hup=hs[0]
+				for j in hs[1:]:
+					hup.Add(j)
 
-     hdn =   f.Get("th1f_sig_ggh_mass_m%d_cat%d_%sDown01_sigma"%(int(M),i,s))
-     hdnvb = f.Get("th1f_sig_vbf_mass_m%d_cat%d_%sDown01_sigma"%(int(M),i,s))
-     hdnvh = f.Get("th1f_sig_wzh_mass_m%d_cat%d_%sDown01_sigma"%(int(M),i,s))
-     hdntt = f.Get("th1f_sig_tth_mass_m%d_cat%d_%sDown01_sigma"%(int(M),i,s))
-     hdn.Add(hdnvb)
-     hdn.Add(hdnvh)
-     hdn.Add(hdntt)
+				suffix = '_mass_m%d_cat%d_%sDown01_sigma'%(int(M),i,s)
+				histosdn = getSigHistos(f, procs, suffix)
+				hs = [ h for (proc, h) in histosdn.iteritems() ]
+				hdn=hs[0]
+				for j in hs[1:]:
+					hdn.Add(j)
+			else:
+				hup = f.Get("th1f_sig_mass_m%.1f_cat%d_%sUp01_sigma"%(M,i,s))
+				hdn = f.Get("th1f_sig_mass_m%.1f_cat%d_%sDown01_sigma"%(M,i,s))
+			syssumup+=hup.Integral()
+			syssumdn+=hdn.Integral()
 
-    else:
-     hup = f.Get("th1f_sig_mass_m%.1f_cat%d_%sUp01_sigma"%(M,i,s))
-     hdn = f.Get("th1f_sig_mass_m%.1f_cat%d_%sDown01_sigma"%(M,i,s))
-    syssumup+=hup.Integral()
-    syssumdn+=hdn.Integral()
-
-   # We make 3-sigma templates so need to scale back by 1/3
-   delUp+=abs(syssumup-Sum)/3
-   delDown+=abs(syssumdn-Sum)/3
+		# We make 3-sigma templates so need to scale back by 1/3
+		delUp+=abs(syssumup-Sum)/3
+		delDown+=abs(syssumdn-Sum)/3
    
-  delUp=100*(delUp**0.5)/(sm*lumi)
-  delDown=100*(delDown**0.5)/(sm*lumi)
-  efficiencyup.SetPoint(point,M,delUp)
-  efficiencydn.SetPoint(point,M,delDown)
-  centralsmooth.SetPointError(point,0,0,0,0)
-  efficiency.SetPointError(point,0,0,delDown,delUp)
+	delUp=100*(delUp**0.5)/(sm*lumi)
+	delDown=100*(delDown**0.5)/(sm*lumi)
+	efficiencyup.SetPoint(point,M,delUp)
+	efficiencydn.SetPoint(point,M,delDown)
+	centralsmooth.SetPointError(point,0,0,0,0)
+	efficiency.SetPointError(point,0,0,delDown,delUp)
 
-  print printLine
+	print printLine
 
 centralsmooth.Fit(cenfunc,"R,0,EX0","")
 efficiencyup.Fit(upfunc,"R,0,EX0","")
 efficiencydn.Fit(dnfunc,"R,0,EX0","")
 
 for point,M in enumerate(Masses):
- central.SetPoint(point,M,cenfunc.Eval(M))
- efficiency.SetPoint(point,M,cenfunc.Eval(M))
+	central.SetPoint(point,M,cenfunc.Eval(M))
+	efficiency.SetPoint(point,M,cenfunc.Eval(M))
 
 leg=ROOT.TLegend(0.46,0.16,0.79,0.39)
 leg.SetFillColor(0)
