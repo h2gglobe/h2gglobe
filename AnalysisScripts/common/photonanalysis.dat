@@ -45,7 +45,7 @@ doEcorrectionSyst=0
 scale_offset_file=energy_scale_offsets.dat
 
 ## photonFixDat=aux/PhotonFixSTART42V13.dat
-## regressionFile=aux/gbrph.root
+regressionFile=aux/regweights_v5_forest_ph.root
 
 recomputeBetas=0
 recorrectJets=0

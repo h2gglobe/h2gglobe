@@ -21,10 +21,12 @@ using namespace std;
 class FMTTree : public FMTBase {
 	
 	public:
+    FMTTree(string,string);
     FMTTree(string,string,string,string,double,bool,int, int, double, double, double, int, double, double, int, int, int, double, double, int, bool, int, bool, int, vector<string>, bool, vector<map<int,vector<double> > >, bool isCutBased=false, bool useSidebandBDT=true, bool verbose=false);
 
     ~FMTTree();
 		
+		void Setup(string,string);
 		void addTreeToMap(map<string,TTree*>&, string, string label="0");
 		map<string,TTree*> getSignalTrees(string option="all");
 		map<string,TTree*> getDataTrees();
@@ -51,7 +53,6 @@ class FMTTree : public FMTBase {
 		void run(string option="all");
 
 		void setdirname(string);
-    void setIsCutBased(bool);
 
    private:
     float mass_;
@@ -79,11 +80,10 @@ class FMTTree : public FMTBase {
     vector<RooDataSet*> catDataSets_;
 		TMVA::Reader *tmvaReader_;
 		TH2F *categoryMap;		
+		TH1F *binedgeMap;		
 		
 		string dirname_;
 		string bdtname_;
-    bool isCutBased_;
-    bool useSidebandBDT_;
 		bool crossCheck_;
 		
     float deltaMOverM_;

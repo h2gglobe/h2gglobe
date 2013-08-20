@@ -27,6 +27,13 @@
 
 using namespace std;
 
+FMTPlots::FMTPlots(string filename):
+	FMTBase(),runSB_(false)
+{
+  tFile = TFile::Open(filename.c_str(),"UPDATE");
+  gStyle->SetOptStat(0);
+}
+
 FMTPlots::FMTPlots(string filename, bool runSB, double intLumi, bool is2011, int mHMinimum, int mHMaximum, double mHStep, double massMin, double massMax, int nDataBins, double signalRegionWidth, double sidebandWidth, int numberOfSidebands, int numberOfSidebandsForAlgos, int numberOfSidebandGaps, double massSidebandMin, double massSidebandMax, int nIncCategories, bool includeVBF, int nVBFCategories, bool includeLEP, int nLEPCategories, vector<string> systematics, bool rederiveOptimizedBinEdges, vector<map<int, vector<double> > > AllBinEdges, bool blind, bool verbose):
 
 	FMTBase(intLumi, is2011, mHMinimum, mHMaximum, mHStep, massMin, massMax, nDataBins, signalRegionWidth, sidebandWidth, numberOfSidebands, numberOfSidebandsForAlgos, numberOfSidebandGaps, massSidebandMin, massSidebandMax, nIncCategories, includeVBF, nVBFCategories, includeLEP, nLEPCategories, systematics, rederiveOptimizedBinEdges, AllBinEdges, verbose),
@@ -35,11 +42,14 @@ FMTPlots::FMTPlots(string filename, bool runSB, double intLumi, bool is2011, int
 {
   tFile = TFile::Open(filename.c_str(),"UPDATE");
   gStyle->SetOptStat(0);
-  normalizer = new Normalization_8TeV(is2011);
 }
 
 FMTPlots::~FMTPlots(){
   tFile->Close();
+}
+
+void FMTPlots::Setup(){
+  normalizer = new Normalization_8TeV(is2011_);
 }
 
 TH1F* FMTPlots::linearBin(TH1F* hist){

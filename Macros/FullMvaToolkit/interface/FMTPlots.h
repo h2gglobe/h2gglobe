@@ -6,16 +6,18 @@
 #include "TH1F.h"
 
 #include "FMTBase.h"
-#include "Normalization_8TeV.h"
+#include "../../Normalization_8TeV.h"
 
 using namespace std;
 
 class FMTPlots : public FMTBase {
 
   public:
+    FMTPlots(string);
     FMTPlots(string, bool, double, bool, int, int, double, double, double, int, double, double, int, int, int, double, double, int, bool, int, bool, int, vector<string>, bool, vector<map<int,vector<double> > >, bool blind=false,bool verbose=false);
     ~FMTPlots();
   
+    void Setup();
     TH1F *linearBin(TH1F*);
     void plotAll(double);
     void makePlots(TH1F*,TH1F*,TH1F*,TH1F*,vector<TH1F*>,vector<TH1F*>,vector<TH1F*>,vector<TH1F*>,vector<pair<TH1F*,TH1F*> >,TH1F*,TH1F*,double);

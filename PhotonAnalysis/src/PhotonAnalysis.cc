@@ -11,7 +11,7 @@
 #include "JetAnalysis/interface/JetHandler.h"
 #include "CMGTools/External/interface/PileupJetIdentifier.h"
 
-#define PADEBUG 0
+#define PADEBUG 1
 
 using namespace std;
 
@@ -1173,7 +1173,7 @@ void PhotonAnalysis::Init(LoopAll& l)
     }
 
     if( recomputeBetas || recorrectJets || rerunJetMva || recomputeJetWp || applyJer || applyJecUnc || emulateJetResponse 
-	|| l.typerun != l.kFill ) {
+	|| l.typerun != l.kFill && 0) {
 	std::cout << "JetHandler: \n"
 		  << "recomputeBetas " << recomputeBetas << "\n"
 		  << "recorrectJets " << recorrectJets << "\n"
@@ -1215,6 +1215,47 @@ void PhotonAnalysis::Init(LoopAll& l)
         fgbr->Close();
     */
 
+    // --------------------------------------------------------------------
+
+    // ---------------------- LOAD Regression Classes ---------------------//
+
+    //initialize eval vector
+    _vals.resize(37);
+    
+    //load forests from file
+    TFile *fgbr = TFile::Open(regressionFile.c_str(),"READ");    
+    fgbr->GetObject("EGRegressionForest_EB", _foresteb);
+    fgbr->GetObject("EGRegressionForest_EE", _forestee);
+    fgbr->Close();
+
+    //recreate pdf with constraint transformations (can't load directly from file due to weird RooWorkspace IO features)
+    
+    _tgt = new RooRealVar("tgt","",1.);
+    _mean = new RooRealVar("mean","",1.);
+    _sigma = new RooRealVar("sigma","",1.);
+    _n1 = new RooRealVar("n1","",2.);
+    _n2 = new RooRealVar("n2","",2.);
+    
+    _sigmalim = new RooRealConstraint("sigmalim","",*_sigma,0.0002,0.5);
+    _meanlim = new RooRealConstraint("meanlim","",*_mean,0.2,2.0);
+    _n1lim = new RooRealConstraint("n1lim","",*_n1,1.01,110.);
+    _n2lim = new RooRealConstraint("n2lim","",*_n2,1.01,110.);     
+    
+    _pdf = new RooDoubleCBFast("sigpdf","",*_tgt,RooFit::RooConst(1.),*_sigmalim,RooFit::RooConst(2.0),*_n1lim,RooFit::RooConst(1.0),*_n2lim);
+    
+    //add to RooArgList for proper garbage collection
+    _args.addOwned(*_tgt);
+    _args.addOwned(*_mean);
+    _args.addOwned(*_sigma);
+    _args.addOwned(*_n1);
+    _args.addOwned(*_n2);
+    _args.addOwned(*_sigmalim);
+    _args.addOwned(*_meanlim);
+    _args.addOwned(*_n1lim);
+    _args.addOwned(*_n2lim);
+    _args.addOwned(*_pdf);    
+
+    
     // --------------------------------------------------------------------
     if(PADEBUG)
         cout << "InitRealPhotonAnalysis END"<<endl;
@@ -1630,10 +1671,10 @@ void PhotonAnalysis::PreselectPhotons(LoopAll& l, int jentry)
     corrected_pho_energy.clear(); corrected_pho_energy.resize(l.pho_n,0.);
     int cur_type = l.itype[l.current];
 
+    // Re-EDIT 5 Aug 2013, replcing to recalcuate on the fly regression 
     // EDIT - 4 Dec 2011 NWardle Latest Ntuple Production uses New and Correct Regression so no need to calculate on the FLY corrections
     // TEMPORARY FIX TO CALCULATE CORRECTED ENERGIES SINCE REGRESSION WAS NOT STORED IN NTUPLES
     // The following Fills the arrays with the ON-THE-FLY calculations
-    //GetRegressionCorrections(l);  // need to pass LoopAll
     // -------------------------------------------------------------------------------------------//
 
 
@@ -1719,6 +1760,8 @@ void PhotonAnalysis::FillReductionVariables(LoopAll& l, int jentry)
     if(PADEBUG)
 	cout<<"myFillReduceVar START"<<endl;
 
+    // Run on-the-fly regression at Reduction Step
+    GetRegressionCorrections(l);  // need to pass LoopAll
     PreselectPhotons(l,jentry);
 
     if(PADEBUG)
@@ -1754,7 +1797,7 @@ void PhotonAnalysis::postProcessJets(LoopAll & l, int vtx)
     }
     for(int ivtx=minv;ivtx<maxv; ++ivtx) {
 	for(int ijet=0; ijet<l.jet_algoPF1_n; ++ijet) {
-	    if( recomputeBetas || (l.typerun != l.kFill && l.version > 14 && ivtx >= l.jet_algoPF1_nvtx) ) {
+	    if( recomputeBetas || (l.typerun != l.kFill && l.version > 14 && ivtx >= l.jet_algoPF1_nvtx) && 0 ) {
 		/// std::cout << "recomputeBetas " << ivtx << " " << l.jet_algoPF1_nvtx << std::endl;
 		jetHandler_->computeBetas(ijet, ivtx);
 	    }
@@ -4736,6 +4779,158 @@ int PhotonAnalysis::VHNumberOfJets(LoopAll& l, int diphotonVHlep_id, int vertex,
   }
 
   return Njet_lepcat;
+}
+
+void PhotonAnalysis::GetRegressionCorrections(LoopAll &l){
+
+    // On the fly energy regression values
+    for (int ipho=0;ipho<l.pho_n;ipho++){
+
+        double ecor,ecorerr,cbalpha1,cbn1,cbalpha2,cbn2,pdfpeakval;
+
+        double phoE = ((TLorentzVector*)l.pho_p4->At(ipho))->Energy();
+        double r9=l.pho_r9[ipho];
+
+        TVector3 *sc = ((TVector3*)l.pho_calopos->At(ipho)); 
+
+        int sc_index      = l.pho_scind[ipho];
+        int sc_seed_index = l.sc_bcseedind[sc_index];
+
+        TVector3 *bcpos =(TVector3*)l.bc_xyz->At(sc_seed_index);
+        double bcE = ((TLorentzVector*)l.bc_p4->At(sc_seed_index))->Energy();
+
+
+        // New semi-parametric regression 
+        bool isbarrel = (fabs(sc->Eta())<1.48); 
+
+
+        //   //basic supercluster variables
+        _vals[0]  = l.sc_raw[sc_index];
+        _vals[1]  = sc->Eta();
+        _vals[2]  = r9;
+        _vals[3] = l.sc_seta[sc_index];
+        _vals[4] = l.sc_sphi[sc_index];
+        _vals[5] = (double)l.sc_nbc[sc_index];
+        _vals[6] = l.pho_hoe[ipho];//p.hadTowOverEm();
+        _vals[7] = l.rho;
+        _vals[8] = (double)l.vtx_std_n;//double(vtxcol.size());
+
+        //seed basic cluster variables
+        double bemax = l.bc_s1[sc_seed_index];//clustertools.eMax(*b);
+        double be2nd = l.pho_e2nd[ipho];//clustertools.e2nd(*b);
+        double betop = l.pho_etop[ipho];//clustertools.eTop(*b);
+        double bebottom = l.pho_ebottom[ipho];//clustertools.eBottom(*b);
+        double beleft = l.pho_eleft[ipho];//clustertools.eLeft(*b);
+        double beright = l.pho_eright[ipho];//clustertools.eRight(*b);
+
+        double be2x5max = l.pho_e2x5max[ipho];//clustertools.e2x5Max(*b);
+        double be2x5top = l.pho_e2x5top[ipho];//clustertools.e2x5Top(*b);
+        double be2x5bottom = l.pho_e2x5bottom[ipho];//clustertools.e2x5Bottom(*b);
+        double be2x5left = l.pho_e2x5left[ipho];//clustertools.e2x5Left(*b);
+        double be2x5right = l.pho_e2x5right[ipho];//clustertools.e2x5Right(*b);
+
+        double be5x5 = l.bc_s25[sc_seed_index];//clustertools.e5x5(*b);
+        double be3x3 = l.bc_s9[sc_seed_index];//clustertools.e5x5(*b);
+
+        _vals[9] = bcpos->Eta()-sc->Eta();
+        _vals[10] = l.DeltaPhi(bcpos->Phi(),sc->Phi());
+        _vals[11] = bcE/l.sc_raw[sc_index];
+        _vals[12] = be3x3/be5x5;
+        _vals[13] = TMath::Sqrt(l.bc_sieie[sc_seed_index]); //sigietaieta (this is stored in bc collection)
+        _vals[14] = TMath::Sqrt(l.pho_sipip[ipho]); //sigiphiiphi
+        _vals[15] = l.pho_sieip[ipho];//clustertools.localCovariances(*b)[1];       //sigietaiphi
+
+        _vals[16] = bemax/be5x5;                       //crystal energy ratio gap variables   
+        _vals[17] = be2nd/be5x5;
+        _vals[18] = betop/be5x5;
+        _vals[19] = bebottom/be5x5;
+        _vals[20] = beleft/be5x5;
+        _vals[21] = beright/be5x5;
+        _vals[22] = be2x5max/be5x5;                       //crystal energy ratio gap variables   
+        _vals[23] = be2x5top/be5x5;
+        _vals[24] = be2x5bottom/be5x5;
+        _vals[25] = be2x5left/be5x5;
+        _vals[26] = be2x5right/be5x5;
+
+        if (isbarrel) {
+            //additional energy ratio (always ~1 for endcap, therefore only included for barrel)
+            _vals[27] = be5x5/bcE;
+
+            int bieta = l.pho_bieta[ipho];
+            int biphi = l.pho_biphi[ipho];     
+
+            _vals[28] = bieta; //crystal ieta
+            _vals[29] = biphi%18; //crystal iphi supermodule symmetry
+            _vals[30] = bieta%5; //submodule boundary eta symmetry
+            _vals[31] = biphi%2; //submodule boundary phi symmetry
+            _vals[32] = (TMath::Abs(bieta)<=25)*(bieta%25) + (TMath::Abs(bieta)>25)*((bieta-25*TMath::Abs(bieta)/bieta)%20);  //module boundary eta approximate symmetry
+            _vals[33] = biphi%20; //module boundary phi symmetry
+            _vals[34] = l.pho_betacry[ipho];//betacry; //local coordinates with respect to closest crystal center at nominal shower depth
+            _vals[35] = l.pho_phicry[ipho];//bphicry;
+
+        }
+        else {
+            //preshower energy ratio (endcap only)
+            _vals[27]  = l.sc_pre[sc_index]/l.sc_raw[sc_index];
+        }
+
+        double den;
+        HybridGBRForest *forest;  
+        if (isbarrel) {
+            den = l.sc_raw[sc_index];
+            forest = _foresteb;
+        }
+        else {
+            den = l.sc_raw[sc_index]+l.sc_pre[sc_index];
+            forest = _forestee;
+        }
+
+        _tgt->setVal(1.0); //evaluate pdf at peak position
+
+        //set raw response variables from GBRForest
+        _sigma->setVal(forest->GetResponse(&_vals[0],0));
+        _mean->setVal(forest->GetResponse(&_vals[0],1));
+        _n1->setVal(forest->GetResponse(&_vals[0],2));
+        _n2->setVal(forest->GetResponse(&_vals[0],3));
+
+        //retrieve final pdf parameter values from transformed forest outputs
+        // cbsigma (sigmalim->getVal()) is the sigmaE/E so in the branch we save cbsigma*ecor (ie the absolute error in GeV) 
+        ecor = den/_meanlim->getVal();
+        ecorerr = _sigmalim->getVal()*ecor;
+
+        cbalpha1 = 2.0;  //alpha hardcoded in this version of the regression
+        cbn1 = _n1lim->getVal();
+        cbalpha2 = 1.0;  //alpha hardcoded in this version of the regression
+        cbn2 = _n2lim->getVal();
+
+        // note ecor is now the corrected energy (save this directly)
+        pdfpeakval = _pdf->getVal(*_tgt);
+
+
+        // Set vectors used in reduction;
+        energyCorrected[ipho] = ecor;
+        energyCorrectedError[ipho] = ecorerr;
+
+        // Save new branches 
+        l.pho_regr_energy_otf[ipho] = ecor;
+        l.pho_regr_energyerr_otf[ipho] = ecorerr;
+
+        if (PADEBUG) {
+            std::cout << "PhotonAnalysis::GetRegressionCorrections ----/" <<std::endl;
+            std::cout << " Is barrel? .... " << isbarrel <<std::endl;
+            std::cout << " Inputs ...." << std::endl;
+            for (int vi=0;vi<36;vi++){ //36 params for Photon correction
+                std::cout << "Val " << vi << " " << _vals[vi] << std::endl;
+            }
+            std::cout << " photon Energy in ntuple / new value     " << ipho << " = " << l.pho_regr_energy[ipho] << " / " << ecor  << std::endl;
+            std::cout << " photon Resolution in ntuple / new value " << ipho << " = " << l.pho_regr_energyerr[ipho] << " / " << ecorerr << std::endl; 
+            std::cout << "---------------------------------------------/" <<std::endl;
+        }
+
+        // Overwrite old branches
+        l.pho_regr_energy[ipho] = ecor;
+        l.pho_regr_energyerr[ipho] = ecorerr;
+    }
 }
 
 // Local Variables:

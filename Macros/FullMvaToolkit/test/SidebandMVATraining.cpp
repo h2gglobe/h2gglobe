@@ -40,6 +40,9 @@ bool skipTesting_=false;
 bool skipEvaluation_=false;
 bool isCutBased_=false;
 int trainingMass_=124;
+float bdtCut_=-0.05;
+float mggMin_=100.;
+float mggMax_=180.;
 
 TFile *input_;
 TFile *outFile_;
@@ -102,6 +105,9 @@ void OptionParser(int argc, char *argv[]){
     ("skipEvaluation,e",                                                                        "Skip evaluation")
     ("isCutBased",                                                                              "Train cut based style")
     ("trainingMass", po::value<int>(&trainingMass_)->default_value(124),                        "Training Mass")
+    ("bdtMin", po::value<float>(&bdtCut_)->default_value(-0.05),                        "diphton BDT Cut")
+    ("mggMin", po::value<float>(&mggMin_)->default_value(100),                        "Minimum for Mgg")
+    ("mggMax", po::value<float>(&mggMax_)->default_value(180),                        "Maximum for Mgg")
     ;
 
   po::positional_options_description p;
@@ -235,34 +241,69 @@ void makeTrainingTree(TTree *tree, vector<pair<string,string> > treeNames, bool 
   delete check;
 }
 
+void fillTwoDHists(TTree *tr, TH2F* h){
+  
+  float dmom,bdt,weight;
+  tr->SetBranchAddress("deltaMoverM",&dmom);
+  tr->SetBranchAddress("bdtoutput",&bdt);
+  tr->SetBranchAddress("weight",&weight);
+
+  for (int j=0;j<tr->GetEntries();j++){
+    tr->GetEntry(j);
+    h->Fill(bdt,dmom,weight);
+  }
+}
+
 void run2DOptimization(TFile *outFile_,TTree *signalTree_, TTree *backgroundTree_){
 
+ signalTree_->Print("v");
+ gROOT->SetBatch(0);
  int nBins_dmom = 100;
  int nBins_bdt  = 50;
- // Step 1, make Signal and Background 2D histograms 
- signalTree_->Draw(Form("deltaMoverM:bdtoutput>>hsig(%d,-0.05,1,%d,%.3f,%.3f)",nBins_bdt,nBins_dmom,-1*sidebandWidth_,sidebandWidth_),"weight");
- backgroundTree_->Draw(Form("deltaMoverM:bdtoutput>>hbkg(%d,-0.05,1,%d,%.3f,%.3f)",nBins_bdt,nBins_dmom,-1*sidebandWidth_,sidebandWidth_),"weight");
+ // Step 1, make Signal and Background 2D histograms
+ TH2F *hsig =new TH2F("hsig","hsig",nBins_bdt,bdtCut_,1,nBins_dmom,-1*sidebandWidth_,sidebandWidth_);
+ TH2F *hbkg =new TH2F("hbkg","hbkg",nBins_bdt,bdtCut_,1,nBins_dmom,-1*sidebandWidth_,sidebandWidth_);
+ fillTwoDHists(signalTree_,hsig) ;
+ fillTwoDHists(backgroundTree_,hbkg) ;
 
- TH2F *hsig =(TH2F*) gROOT->FindObject("hsig")	;
- TH2F *hbkg =(TH2F*) gROOT->FindObject("hbkg")	;
+// std::cout << "Producing 2D Histogram " << Form("deltaMoverM:bdtoutput>>hsig(%d,%f,1,%d,%.3f,%.3f)",nBins_bdt,bdtCut_,nBins_dmom,-1*sidebandWidth_,sidebandWidth_) << std::endl; 
+// signalTree_->Draw("deltaMoverM:bdtoutput>>hsig","weight","");
+// std::cout << "Producing 2D Histogram " << Form("deltaMoverM:bdtoutput>>hbkg(%d,%f,1,%d,%.3f,%.3f)",nBins_bdt,bdtCut_,nBins_dmom,-1*sidebandWidth_,sidebandWidth_) << std::endl; 
+// backgroundTree_->Draw("deltaMoverM:bdtoutput>>hbkg","weight","");
+
+// TH2F *hsig =(TH2F*) gROOT->FindObject("hsig")	;
+// TH2F *hbkg =(TH2F*) gROOT->FindObject("hbkg")	;
 
  // Have to do this :(
  //hsig->Smooth(1,"k5b");
  //hbkg->Smooth(1,"k5b");
 
+ // Clone the originl hists, saved to File
+ TH1F *hsig_o = (TH1F*)hsig->Clone("hsig_raw") ;
+ TH1F *hbkg_o = (TH1F*)hbkg->Clone("hbkg_raw") ;
+	
  // Step 2, create an optimization class
+
  Optimizations *optimizer = new Optimizations(hsig,hbkg);
  optimizer->setMaxBins(6);
  optimizer->smoothHistograms(0.01,0.01,0);
  optimizer->runOptimization();
+  
+ // Thats it so nw get the outputs
  TH2F *categoryMap = (TH2F*) optimizer->getCategoryMap();
  TH2F *bkg = (TH2F*) optimizer->getBackgroundTarget();
  TH2F *signal = (TH2F*) optimizer->getSignalTarget();
+ TGraph *optGraph = (TGraph*)optimizer->getOptimizationGraph();
  int nFinalBins = optimizer->getFinalNumberOfBins();
 
- // Step 3, save output and print ranges 
+ // Step 3, save output and print ranges also S/B
+ TH1F *binedgesMap = new TH1F("Bin_Edges","Bin Boundaries",nFinalBins,-1,1);
+ for (int b = 1 ; b <= nFinalBins ; b++){
+	binedgesMap->SetBinContent(b,b);
+ }
  
- std::cout << "Final Number Of Bins -- " << nFinalBins << std::endl;
+ 
+ std::cout << "Final Number Of Bins -- (Copy these into .dat file)" << nFinalBins << std::endl;
  std::cout << "-1";
  for (int b = 1 ; b < nFinalBins ; b++){
 	
@@ -274,6 +315,11 @@ void run2DOptimization(TFile *outFile_,TTree *signalTree_, TTree *backgroundTree
  categoryMap->Write();	 
  signal->Write();
  bkg->Write();
+ hsig_o->Write();
+ hbkg_o->Write();
+ binedgesMap->Write();
+ optGraph->Write();
+ 
 
 }
 
@@ -346,11 +392,11 @@ void runTMVATraining(TFile *outFile_,TTree *signalTree, TTree *backgroundTree){
   TString bkgCutString = Form("mass>=%3.1f && mass<=%3.1f",sidebandBoundaryLow,sidebandBoundaryHigh);
   */
   
-  TString sigCutString = "TMath::Abs(deltaMoverM)<=0.02";
-  TString bkgCutString = "TMath::Abs(deltaMoverM)<=0.02";
+  TString sigCutString = Form("TMath::Abs(deltaMoverM)<=%f",sidebandWidth_);
+  TString bkgCutString = Form("TMath::Abs(deltaMoverM)<=%f",sidebandWidth_);
   if (!isCutBased_) {
-    sigCutString += " && bdtoutput>=-0.05";
-    bkgCutString += " && bdtoutput>=-0.05";
+    sigCutString += Form(" && bdtoutput>=%f",bdtCut_);
+    bkgCutString += Form(" && bdtoutput>=%f",bdtCut_);
   }
   TCut sigCut(sigCutString);
   TCut bkgCut(bkgCutString);
@@ -436,7 +482,7 @@ int main (int argc, char *argv[]){
 
   makeTrainingTree(signalTree,signalTrees,true);
   makeTrainingTree(backgroundTree,backgroundTrees,false);
-
+ 
   // TMVA training or 2D optimization training
   if (doTMVA){
 	runTMVATraining(outFile_,signalTree,backgroundTree);

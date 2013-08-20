@@ -10,13 +10,14 @@
 #include "TGraph.h"
 #include "TF1.h"
 
-#include "Normalization_8TeV.h"
+#include "../../Normalization_8TeV.h"
 
 using namespace std;
 
 class FMTSigInterp : public FMTBase {
 
   public:
+    FMTSigInterp(string);
     FMTSigInterp(string, double, bool, bool, bool, int, int, double, double, double, int, double, double, int, int, int, double, double, int, bool, int, bool, int, vector<string>, bool, vector<map<int,vector<double> > >, bool blind=false,bool verbose=false);
     ~FMTSigInterp();
 
@@ -27,8 +28,8 @@ class FMTSigInterp : public FMTBase {
   private:
     TFile *tFile;
     Normalization_8TeV *normalizer;
-    bool diagnose_;
-    bool blind_;
+   // bool diagnose_;
+   // bool blind_;
 	
     void makeEfficiencyGraphs();
     std::map<std::string,TGraph*> efficiencyGraphs;
