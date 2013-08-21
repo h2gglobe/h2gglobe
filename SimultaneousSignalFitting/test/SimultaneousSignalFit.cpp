@@ -25,6 +25,8 @@ int nGaussians_;
 int dmOrder_;
 int sigmaOrder_;
 int fracOrder_;
+bool spin_=false;
+bool splitVH_=false;
 bool doSMHiggsAsBackground_=true;
 bool doSecondHiggs_=true;
 bool doNaturalWidth_=true;
@@ -67,6 +69,8 @@ void OptionParser(int argc, char *argv[]){
     ("dmOrder", po::value<int>(&dmOrder_)->default_value(1),                                  "Order of dm polynomial")
     ("sigmaOrder", po::value<int>(&sigmaOrder_)->default_value(2),                            "Order of sigma polynomial")
     ("fracOrder", po::value<int>(&fracOrder_)->default_value(1),                              "Order of frac polynomial")
+    ("spin",                                                                                  "For spin analysis")
+    ("splitVH",                                                                               "Split VH production modes in WH and ZH")
     ("skipSecondaryModels",                                                                   "Turn off creation of all additional models")
     ("noSMHiggsAsBackground",                                                                 "Turn off creation of additional model for SM Higgs as background")
     ("noSecondHiggs",                                                                         "Turn off creation of additional model for a second Higgs")
@@ -94,6 +98,8 @@ void OptionParser(int argc, char *argv[]){
   po::store(po::parse_command_line(argc,argv,desc),vm);
   po::notify(vm);
   if (vm.count("help")){ cout << desc << endl; exit(1);}
+  if (vm.count("spin"))                     spin_=true;
+  if (vm.count("splitVH"))                  splitVH_=true;
   if (vm.count("skipSecondaryModels"))      skipSecondaryModels_=true;
   if (vm.count("noSMHiggsAsBackground"))    doSMHiggsAsBackground_=false;
   if (vm.count("noSecondHiggs"))            doSecondHiggs_=false;
@@ -119,7 +125,13 @@ void OptionParser(int argc, char *argv[]){
 int main (int argc, char *argv[]){
   
   OptionParser(argc,argv);
-
+  
+  cout << "This code has been updated to a new package which can be run by executing:" << endl;
+  cout << "\t ./bin/SignalFit -i <infile> -o <outfile> -d dat/newConfig.dat [--splitVH]" << endl;
+  string message;
+  cout << "Are you sure you want to continue? [y/n]" << endl;
+  cin >> message;
+  if (message=="n") exit(1);
   TStopwatch sw;
   sw.Start();
   
@@ -132,7 +144,7 @@ int main (int argc, char *argv[]){
     doSecondHiggs_=false;
     doNaturalWidth_=false;
   }
-  SimultaneousFit *simultaneousFit = new SimultaneousFit(filename_,outfilename_,mhLow_,mhHigh_,verbose_,nInclusiveCats_,nExclusiveCats_,doSMHiggsAsBackground_,doSecondHiggs_,doNaturalWidth_);
+  SimultaneousFit *simultaneousFit = new SimultaneousFit(filename_,outfilename_,mhLow_,mhHigh_,verbose_,nInclusiveCats_,nExclusiveCats_,doSMHiggsAsBackground_,doSecondHiggs_,doNaturalWidth_,spin_,splitVH_);
   simultaneousFit->setInitialFit(initialFit_);
   simultaneousFit->setSimultaneousFit(simultaneousFit_);
   simultaneousFit->setMHDependentFit(mhDependentFit_);

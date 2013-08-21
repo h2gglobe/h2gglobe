@@ -8,6 +8,8 @@
 
 #include "TFile.h"
 #include "TROOT.h"
+#include "TCanvas.h"
+#include "TGraph.h"
 
 #include "RooWorkspace.h"
 #include "RooExtendPdf.h"
@@ -17,6 +19,10 @@
 #include "HiggsAnalysis/CombinedLimit/interface/RooSpline1D.h"
 #include "RooRealVar.h"
 #include "RooFormulaVar.h"
+#include "RooArgList.h"
+#include "RooAddition.h"
+
+#include "../interface/Normalization_8TeV.h"
 
 using namespace std;
 using namespace RooFit;
@@ -33,6 +39,7 @@ int ncats_;
 string webdir_;
 bool web_;
 bool spin_=false;
+bool splitVH_=false;
 bool makePlots_=false;
 bool doSMHiggsAsBackground_=true;
 bool doSecondHiggs_=true;
@@ -64,6 +71,7 @@ void OptionParser(int argc, char *argv[]){
     ("ncats,n", po::value<int>(&ncats_)->default_value(9),                                    "Number of categories")
     ("html,w", po::value<string>(&webdir_),                                                   "Make html in this directory")
     ("spin,s",                                                                                "Also include the spin processes")
+    ("splitVH",                                                                               "Split VH production mode into WH and ZH")
     ("makePlots,P",                                                                           "Make AN style signal model plots")
     ("skipSecondaryModels",                                                                   "Turn off creation of all additional models")
     ("noSMHiggsAsBackground",                                                                 "Turn off creation of additional model for SM Higgs as background")
@@ -78,6 +86,7 @@ void OptionParser(int argc, char *argv[]){
   if (vm.count("html"))                     web_=true;
   if (vm.count("makePlots"))                makePlots_=true;
   if (vm.count("spin"))                     spin_=true;
+  if (vm.count("splitVH"))                  splitVH_=true;
   if (vm.count("skipSecondaryModels"))      skipSecondaryModels_=true;
   if (vm.count("noSMHiggsAsBackground"))    doSMHiggsAsBackground_=false;
   if (vm.count("noSecondHiggs"))            doSecondHiggs_=false;
@@ -98,7 +107,13 @@ int main (int argc, char *argv[]){
   vector<string> processes;
   processes.push_back("ggh");
   processes.push_back("vbf");
-  processes.push_back("wzh");
+  if (splitVH_) {
+    processes.push_back("wh");
+    processes.push_back("zh");
+  }
+  else {
+    processes.push_back("wzh");
+  }
   processes.push_back("tth");
   if (spin_){
     processes.push_back("ggh_grav");
@@ -131,49 +146,43 @@ int main (int argc, char *argv[]){
 
   RooRealVar *intLumi = new RooRealVar("IntLumi","IntLumi",lumi_,0.,10.e5);
   // first loop files and import all pdfs and dataset into one workspace
-  RooWorkspace *work = NULL;
+  RooArgList *runningNormSum = new RooArgList();
+  RooWorkspace *work = new RooWorkspace(wsname_.c_str(),wsname_.c_str());
   for (map<string,pair<string,int> >::iterator file=filestocombine.begin(); file!=filestocombine.end(); file++){
     string filename = file->first;
     string proc = file->second.first;
     int cat = file->second.second;
 
     TFile *thisFile = TFile::Open(file->first.c_str());
-    
-    // if it's the first file get that workspace
-    if (file==filestocombine.begin()) {
-      work = (RooWorkspace*)thisFile->Get("wsig");
-      work->SetName(wsname_.c_str());
+
+    RooWorkspace *tempWS = (RooWorkspace*)thisFile->Get("wsig");
+    RooAddPdf *resultPdf = (RooAddPdf*)tempWS->pdf(Form("hggpdfrel_%s_cat%d",proc.c_str(),cat));
+    RooHistFunc *resultNorm = (RooHistFunc*)tempWS->function(Form("hggpdfrel_%s_cat%d_norm",proc.c_str(),cat));
+    work->import(*resultPdf,RecycleConflictNodes());
+    work->import(*resultNorm,RecycleConflictNodes());
+    runningNormSum->add(*resultNorm);
+    if (doSMHiggsAsBackground_){
+      RooAddPdf *resultPdf_SM = (RooAddPdf*)tempWS->pdf(Form("hggpdfrel_%s_cat%d_SM",proc.c_str(),cat));
+      RooHistFunc *resultNorm_SM = (RooHistFunc*)tempWS->function(Form("hggpdfrel_%s_cat%d_SM_norm",proc.c_str(),cat));
+      work->import(*resultPdf_SM,RecycleConflictNodes());
+      work->import(*resultNorm_SM,RecycleConflictNodes());
     }
-    // else add pdfs and and datasets to that workspace
-    else {
-      RooWorkspace *tempWS = (RooWorkspace*)thisFile->Get("wsig");
-      RooAddPdf *resultPdf = (RooAddPdf*)tempWS->pdf(Form("hggpdfrel_%s_cat%d",proc.c_str(),cat));
-      RooHistFunc *resultNorm = (RooHistFunc*)tempWS->function(Form("hggpdfrel_%s_cat%d_norm",proc.c_str(),cat));
-      work->import(*resultPdf,RecycleConflictNodes());
-      work->import(*resultNorm,RecycleConflictNodes());
-      if (doSMHiggsAsBackground_){
-        RooAddPdf *resultPdf_SM = (RooAddPdf*)tempWS->pdf(Form("hggpdfrel_%s_cat%d_SM",proc.c_str(),cat));
-        RooHistFunc *resultNorm_SM = (RooHistFunc*)tempWS->function(Form("hggpdfrel_%s_cat%d_SM_norm",proc.c_str(),cat));
-        work->import(*resultPdf_SM,RecycleConflictNodes());
-        work->import(*resultNorm_SM,RecycleConflictNodes());
-      }
-      if (doSecondHiggs_){
-        RooAddPdf *resultPdf_2 = (RooAddPdf*)tempWS->pdf(Form("hggpdfrel_%s_cat%d_2",proc.c_str(),cat));
-        RooSpline1D *resultNorm_2 = (RooSpline1D*)tempWS->function(Form("hggpdfrel_%s_cat%d_2_norm",proc.c_str(),cat));
-        work->import(*resultPdf_2,RecycleConflictNodes());
-        work->import(*resultNorm_2,RecycleConflictNodes());
-      }
-      if (doNaturalWidth_){
-        RooAddPdf *resultPdf_NW = (RooAddPdf*)tempWS->pdf(Form("hggpdfrel_%s_cat%d_NW",proc.c_str(),cat));
-        RooHistFunc *resultNorm_NW = (RooHistFunc*)tempWS->function(Form("hggpdfrel_%s_cat%d_NW_norm",proc.c_str(),cat));
-        work->import(*resultPdf_NW,RecycleConflictNodes());
-        work->import(*resultNorm_NW,RecycleConflictNodes());
-      }
-      for (unsigned int i=0; i<allMH_.size(); i++){
-        int m = allMH_[i];
-        RooDataSet *resultData = (RooDataSet*)tempWS->data(Form("sig_%s_mass_m%d_cat%d",proc.c_str(),m,cat));
-        work->import(*resultData);
-      }
+    if (doSecondHiggs_){
+      RooAddPdf *resultPdf_2 = (RooAddPdf*)tempWS->pdf(Form("hggpdfrel_%s_cat%d_2",proc.c_str(),cat));
+      RooSpline1D *resultNorm_2 = (RooSpline1D*)tempWS->function(Form("hggpdfrel_%s_cat%d_2_norm",proc.c_str(),cat));
+      work->import(*resultPdf_2,RecycleConflictNodes());
+      work->import(*resultNorm_2,RecycleConflictNodes());
+    }
+    if (doNaturalWidth_){
+      RooAddPdf *resultPdf_NW = (RooAddPdf*)tempWS->pdf(Form("hggpdfrel_%s_cat%d_NW",proc.c_str(),cat));
+      RooHistFunc *resultNorm_NW = (RooHistFunc*)tempWS->function(Form("hggpdfrel_%s_cat%d_NW_norm",proc.c_str(),cat));
+      work->import(*resultPdf_NW,RecycleConflictNodes());
+      work->import(*resultNorm_NW,RecycleConflictNodes());
+    }
+    for (unsigned int i=0; i<allMH_.size(); i++){
+      int m = allMH_[i];
+      RooDataSet *resultData = (RooDataSet*)tempWS->data(Form("sig_%s_mass_m%d_cat%d",proc.c_str(),m,cat));
+      work->import(*resultData);
     }
   }
  
@@ -242,10 +251,35 @@ int main (int argc, char *argv[]){
     work->import(*sumPdfsAllCats,RecycleConflictNodes());
   }
 
+  RooAddition *effAccSum = new RooAddition("effAccSum","effAccSum",*runningNormSum);
+  work->import(*effAccSum,RecycleConflictNodes());
+  work->import(*intLumi,RecycleConflictNodes());
   outFile->cd();
   work->Write();
   outFile->Close();
   delete outFile;
+
+  // figure out effAcc
+  RooAddition *eA = (RooAddition*)work->function("effAccSum");
+  Normalization_8TeV *normalization = new Normalization_8TeV();
+  TGraph *effAcc = new TGraph();
+  RooRealVar *MH = (RooRealVar*)work->var("MH");
+  int p=0;
+  for (double mh=mhLow_; mh<mhHigh_+0.5; mh+=1) {
+    MH->setVal(mh);
+    //cout << mh << " " << eA->getVal() << " " << normalization->GetXsection(mh)*normalization->GetBR(mh) << endl;
+    effAcc->SetPoint(p,mh,eA->getVal()/(normalization->GetXsection(mh)*normalization->GetBR(mh)));
+    p++;
+  }
+  TCanvas *canv = new TCanvas();
+  effAcc->SetLineWidth(3);
+  effAcc->Draw("AL");
+  canv->Print("effAccCheck.pdf");
+  canv->Print("effAccCheck.png");
+  delete effAccSum;
+  delete effAcc;
+  delete normalization;
+  delete canv;
 
   if (expectedObjectsNotFound.size()==0) cout << "All expected objects found and packaged successfully." << endl;
   else {

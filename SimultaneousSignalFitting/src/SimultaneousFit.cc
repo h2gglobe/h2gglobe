@@ -20,7 +20,7 @@
 using namespace std;
 using namespace RooFit;
 
-SimultaneousFit::SimultaneousFit(string infilename, string outfilename, int mhLow, int mhHigh, int verbose, int nInclusiveCats, int nExclusiveCats, bool SMasBkg, bool SecHiggs, bool NatWidth):
+SimultaneousFit::SimultaneousFit(string infilename, string outfilename, int mhLow, int mhHigh, int verbose, int nInclusiveCats, int nExclusiveCats, bool SMasBkg, bool SecHiggs, bool NatWidth, bool spin, bool splitVH):
   mhLow_(mhLow),
   mhHigh_(mhHigh),
   verbose_(verbose),
@@ -49,10 +49,18 @@ SimultaneousFit::SimultaneousFit(string infilename, string outfilename, int mhLo
   normalization = new Normalization_8TeV();
   xsecsGraph.insert(pair<string,TGraph*>("ggh",normalization->GetSigmaGraph("ggh")));
   xsecsGraph.insert(pair<string,TGraph*>("vbf",normalization->GetSigmaGraph("vbf")));
-  xsecsGraph.insert(pair<string,TGraph*>("wzh",normalization->GetSigmaGraph("wzh")));
+  if (splitVH) {
+    xsecsGraph.insert(pair<string,TGraph*>("wh",normalization->GetSigmaGraph("wh")));
+    xsecsGraph.insert(pair<string,TGraph*>("zh",normalization->GetSigmaGraph("zh")));
+  }
+  else {
+    xsecsGraph.insert(pair<string,TGraph*>("wzh",normalization->GetSigmaGraph("wzh")));
+  }
   xsecsGraph.insert(pair<string,TGraph*>("tth",normalization->GetSigmaGraph("tth")));
-  xsecsGraph.insert(pair<string,TGraph*>("ggh_grav",normalization->GetSigmaGraph("ggh_grav")));
-  xsecsGraph.insert(pair<string,TGraph*>("vbf_grav",normalization->GetSigmaGraph("vbf_grav")));
+  if (spin) {
+    xsecsGraph.insert(pair<string,TGraph*>("ggh_grav",normalization->GetSigmaGraph("ggh_grav")));
+    xsecsGraph.insert(pair<string,TGraph*>("vbf_grav",normalization->GetSigmaGraph("vbf_grav")));
+  }
   brGraph = normalization->GetBrGraph();
 }
 
@@ -383,10 +391,10 @@ void SimultaneousFit::setupSystematics(int cat){
   if (isExclusiveCat(cat)) mycat=nInclusiveCats_;
 
   loadSmearVals(); 
-  globalScale = new RooRealVar("CMS_hgg_globalscale","CMS_hgg_globalscale",0.0,-10.0,10.0);
-  categoryScale = new RooRealVar(Form("CMS_hgg_nuissancedeltamcat%d",mycat),Form("CMS_hgg_nuissancedeltamcat%d",mycat),0.0,0.0,10.0);
+  globalScale = new RooRealVar("CMS_hgg_globalscale","CMS_hgg_globalscale",0.,-0.2,0.2); // 20%
+  categoryScale = new RooRealVar(Form("CMS_hgg_nuissancedeltamcat%d",mycat),Form("CMS_hgg_nuissancedeltamcat%d",mycat),0.0,-0.2,0.2); // 20%
   categorySmear = new RooConstVar(Form("CMS_hgg_constsmearcat%d",cat),Form("CMS_hgg_constsmearcat%d",cat),categorySmears[Form("CMS_hgg_constsmearcat%d",cat)]);
-  categoryResolution = new RooRealVar(Form("CMS_hgg_nuissancedeltasmearcat%d",mycat),Form("CMS_hgg_nuissancedeltasmearcat%d",mycat),0.0,0.,10.);
+  categoryResolution = new RooRealVar(Form("CMS_hgg_nuissancedeltasmearcat%d",mycat),Form("CMS_hgg_nuissancedeltasmearcat%d",mycat),0.0,-0.2,0.2); // 20%
   systematicsSet_=true;
 }
 
@@ -435,11 +443,12 @@ RooAddPdf *SimultaneousFit::buildFinalPdf(string name, int nGaussians, bool recu
       if (doSMHiggsAsBackground_) sig_fit_SM = findHistFunc(Form("hist_func_sigma_g%d_%s_cat%d_SM",g,proc.c_str(),cat)); 
       if (doSecondHiggs_) sig_fit_2 = findSpline1D(Form("hist_func_sigma_g%d_%s_cat%d_2",g,proc.c_str(),cat)); 
     }
-    RooFormulaVar *sigma = new RooFormulaVar(Form("hgg_sigma_g%d_%s_cat%d",g,proc.c_str(),cat),Form("hgg_sigma_g%d_%s_cat%d",g,proc.c_str(),cat),"TMath::Sqrt(TMath::Power(@0,2)-TMath::Power(@1*@2,2)+TMath::Power(@1*(@2+@3),2))",RooArgList(*sig_fit,*MH,*categorySmear,*categoryResolution));
+    // Have to ensure what's in side the sqrt is not negative
+    RooFormulaVar *sigma = new RooFormulaVar(Form("hgg_sigma_g%d_%s_cat%d",g,proc.c_str(),cat),Form("hgg_sigma_g%d_%s_cat%d",g,proc.c_str(),cat),"(TMath::Power(@0,2)-TMath::Power(@1*@2,2)+TMath::Power(@1*(@2+@3),2))>0. ? TMath::Sqrt(TMath::Power(@0,2)-TMath::Power(@1*@2,2)+TMath::Power(@1*(@2+@3),2)) : 0.",RooArgList(*sig_fit,*MH,*categorySmear,*categoryResolution));
     RooFormulaVar *sigma_SM=NULL;
     RooFormulaVar *sigma_2=NULL;
-    if (doSMHiggsAsBackground_) sigma_SM = new RooFormulaVar(Form("hgg_sigma_g%d_%s_cat%d_SM",g,proc.c_str(),cat),Form("hgg_sigma_g%d_%s_cat%d_SM",g,proc.c_str(),cat),"TMath::Sqrt(TMath::Power(@0,2)-TMath::Power(@1*@2,2)+TMath::Power(@1*(@2+@3),2))",RooArgList(*sig_fit_SM,*MH_SM,*categorySmear,*categoryResolution));
-    if (doSecondHiggs_) sigma_2 = new RooFormulaVar(Form("hgg_sigma_g%d_%s_cat%d_2",g,proc.c_str(),cat),Form("hgg_sigma_g%d_%s_cat%d_2",g,proc.c_str(),cat),"TMath::Sqrt(TMath::Power(@0,2)-TMath::Power(@1*@2,2)+TMath::Power(@1*(@2+@3),2))",RooArgList(*sig_fit_2,*MH_2,*categorySmear,*categoryResolution));
+    if (doSMHiggsAsBackground_) sigma_SM = new RooFormulaVar(Form("hgg_sigma_g%d_%s_cat%d_SM",g,proc.c_str(),cat),Form("hgg_sigma_g%d_%s_cat%d_SM",g,proc.c_str(),cat),"(TMath::Power(@0,2)-TMath::Power(@1*@2,2)+TMath::Power(@1*(@2+@3),2))>0. ? TMath::Sqrt(TMath::Power(@0,2)-TMath::Power(@1*@2,2)+TMath::Power(@1*(@2+@3),2)) : 0.",RooArgList(*sig_fit_SM,*MH_SM,*categorySmear,*categoryResolution));
+    if (doSecondHiggs_) sigma_2 = new RooFormulaVar(Form("hgg_sigma_g%d_%s_cat%d_2",g,proc.c_str(),cat),Form("hgg_sigma_g%d_%s_cat%d_2",g,proc.c_str(),cat),"(TMath::Power(@0,2)-TMath::Power(@1*@2,2)+TMath::Power(@1*(@2+@3),2))>0. ? TMath::Sqrt(TMath::Power(@0,2)-TMath::Power(@1*@2,2)+TMath::Power(@1*(@2+@3),2)) : 0.",RooArgList(*sig_fit_2,*MH_2,*categorySmear,*categoryResolution));
     
     // make Gaussians
     RooGaussian *gaus = new RooGaussian(Form("hgg_gaus_g%d_%s_cat%d",g,proc.c_str(),cat),Form("hgg_gaus_g%d_%s_cat%d",g,proc.c_str(),cat),*mass,*mean,*sigma);

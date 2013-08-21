@@ -24,10 +24,14 @@ parser.add_option("--runAll",dest="runAll",action="store_true",default=False,hel
 parser.add_option("-p","--proc",dest="proc",type="str",help="Process")
 parser.add_option("-c","--cat",dest="cat",type="int",help="Category")
 parser.add_option("-m","--mh",dest="mh",type="int",default=125,help="Change all params to match this mass")
+parser.add_option("--splitVH",dest="splitVH",action="store_true",default=False,help="Split VH process into WH and ZH")
 (options,args)=parser.parse_args()
 
 if options.runAll:
-  for proc in ['ggh','vbf','wzh','tth']:
+  procs = ['ggh','vbf']
+  if options.splitVH: procs += ['wh','zh','tth']
+  else: procs += ['wzh','tth']
+  for proc in procs:
     for cat in range(0,9):
       orgParams(proc,cat,options.mh)
 else:
