@@ -17,10 +17,15 @@
 #include "RooFitResult.h"
 #include "RooRandom.h"
 
+#include "boost/algorithm/string/split.hpp"
+#include "boost/algorithm/string/classification.hpp"
+#include "boost/algorithm/string/predicate.hpp"
+
 #include "../interface/PdfModelBuilder.h"
 
 using namespace std;
 using namespace RooFit;
+using namespace boost;
 
 PdfModelBuilder::PdfModelBuilder():
   obs_var_set(false),
@@ -37,6 +42,7 @@ PdfModelBuilder::PdfModelBuilder():
   recognisedPdfTypes.push_back("PowerLaw");
   recognisedPdfTypes.push_back("Laurent");
   recognisedPdfTypes.push_back("KeysPdf");
+  recognisedPdfTypes.push_back("File");
 
   wsCache = new RooWorkspace("PdfModelBuilderCache");
 
@@ -265,6 +271,36 @@ RooAbsPdf* PdfModelBuilder::getKeysPdf(string prefix){
   return new RooKeysPdf(prefix.c_str(),prefix.c_str(),*obs_var,*keysPdfData,RooKeysPdf::MirrorBoth,keysPdfRho);
 }
 
+RooAbsPdf* PdfModelBuilder::getPdfFromFile(string &prefix){
+  vector<string> details;
+  split(details,prefix,boost::is_any_of(","));
+
+  string fname = details[2];
+  string wsname = details[1];
+  string pdfname = details[0];
+
+  TFile *tempFile = TFile::Open(fname.c_str());
+  if (!tempFile){
+    cerr << "PdfModelBuilder::getPdfFromFile -- file not found " << fname << endl;
+    assert(0);
+  }
+  RooWorkspace *tempWS = (RooWorkspace*)tempFile->Get(wsname.c_str());
+  if (!tempWS){
+    cerr << "PdfModelBuilder::getPdfFromFile -- workspace not found " << wsname << endl;
+    assert(0);
+  }
+  RooAbsPdf *tempPdf = (RooAbsPdf*)tempWS->pdf(pdfname.c_str());
+  if (!tempPdf){
+    cerr << "PdfModelBuilder::getPdfFromFile -- pdf not found " << pdfname << endl;
+    assert(0);
+  }
+  prefix = pdfname;
+  RooAbsPdf *pdf = (RooAbsPdf*)tempPdf->Clone(prefix.c_str());
+  tempFile->Close();
+  delete tempFile;
+  return pdf;
+}
+
 RooAbsPdf* PdfModelBuilder::getExponentialSingle(string prefix, int order){
   
   if (order%2==0){
@@ -321,6 +357,7 @@ void PdfModelBuilder::addBkgPdf(string type, int nParams, string name, bool cach
   if (type=="PowerLaw") pdf = getPowerLawSingle(name,nParams);
   if (type=="Laurent") pdf = getLaurentSeries(name,nParams);
   if (type=="KeysPdf") pdf = getKeysPdf(name);
+  if (type=="File") pdf = getPdfFromFile(name);
 
   if (cache) {
     wsCache->import(*pdf);

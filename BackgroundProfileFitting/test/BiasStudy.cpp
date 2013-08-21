@@ -66,6 +66,12 @@ void readDatFile(string datFileName, int cat, vector<pair<int,pair<string,string
       toysMap.push_back(pair<int,pair<string,string> > (-2,make_pair(rho,name)));
       continue;
     }
+    if (type=="truth" && starts_with(pdfs,"File")){
+      vector<string> els;
+      split(els,pdfs,boost::is_any_of(":"));
+      toysMap.push_back(pair<int,pair<string,string> > (-3,make_pair(els[2],els[0])));
+      continue;
+    }
 
     if (type=="truth" || type=="fabian" || type=="paul"){
       vector<string> els;
@@ -250,7 +256,7 @@ int main(int argc, char* argv[]){
   // add truth pdfs from config datfile these need to be cached
   // to throw a toy from the SB fit make sure that the cache happens at makeSBPdfs
   for (vector<pair<int,pair<string,string> > >::iterator it=toysMap.begin(); it!=toysMap.end(); it++){
-    if (it->first==-1) {
+    if (it->first==-1) { // this is a hyrbid toy
       throwHybridToys=true;
       vector<string> temp;
       split(temp,it->second.first,boost::is_any_of(","));
@@ -258,13 +264,17 @@ int main(int argc, char* argv[]){
       for (unsigned int i=0; i<temp.size(); i++){
         switchMass.push_back(atof(temp[i].c_str()));
       }
-      continue; // this is a hyrbid toy
+      continue; 
     }
-    if (it->first==-2) {
+    if (it->first==-2) { // this is a keys pdf toy
       double rho = lexical_cast<double>(it->second.first);
       toysModel.setKeysPdfAttributes(data,rho);
       toysModel.addBkgPdf("KeysPdf",0,Form("truth_%s_cat%d",it->second.second.c_str(),cat),false);
-      continue; // this is a keys pdf toy
+      continue;
+    }
+    if (it->first==-3) { // this is read pdf from file
+      toysModel.addBkgPdf(it->second.second,it->first,it->second.first,false);
+      continue;
     }
     toysModel.addBkgPdf(it->second.second,it->first,Form("truth_%s_cat%d",it->second.first.c_str(),cat),false); 
   }
