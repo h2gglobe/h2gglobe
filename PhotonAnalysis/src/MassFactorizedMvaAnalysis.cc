@@ -789,8 +789,8 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 
         // save trees for unbinned datacards
         int inc_cat = GetBDTBoundaryCategory(diphobdt_output,isEBEB,VBFevent);
-        if (!isSyst && cur_type<0 && saveDatacardTrees_) {
-	    saveDatCardTree(l,cur_type,category, inc_cat, evweight, diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],lead_p4,sublead_p4,false,sigmaMrv,sigmaMwv,sigmaMeonly,vtxProb,bdtTrainingPhilosophy.c_str(),phoid_mvaout_lead,phoid_mvaout_sublead);
+        if (!isSyst && cur_type<0 && saveDatacardTrees_ && TMath::Abs(datacardTreeMass-l.signalNormalizer->GetMass(cur_type))<0.001) {
+	    saveDatCardTree(l,cur_type,category, inc_cat, evweight, diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],lead_p4,sublead_p4,false,GetSignalLabel(cur_type,l),sigmaMrv,sigmaMwv,sigmaMeonly,vtxProb,bdtTrainingPhilosophy.c_str(),phoid_mvaout_lead,phoid_mvaout_sublead);
 	}
 
         // save trees for IC spin analysis

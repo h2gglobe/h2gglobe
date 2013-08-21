@@ -4301,7 +4301,7 @@ pair<double,double> PhotonAnalysis::ComputeNewSigmaMs(LoopAll &l, int ipho1, int
 }
 
 
-void PhotonAnalysis::saveDatCardTree(LoopAll &l, int cur_type, int category, int inc_cat, float evweight, int ipho1, int ipho2, int ivtx, TLorentzVector lead_p4, TLorentzVector sublead_p4, bool isCutBased, double sigmaMrv, double sigmaMwv, double sigmaMeonly, float vtxP, string trainPhil, float lead_id_mva, float sublead_id_mva){
+void PhotonAnalysis::saveDatCardTree(LoopAll &l, int cur_type, int category, int inc_cat, float evweight, int ipho1, int ipho2, int ivtx, TLorentzVector lead_p4, TLorentzVector sublead_p4, bool isCutBased, string proc, double sigmaMrv, double sigmaMwv, double sigmaMeonly, float vtxP, string trainPhil, float lead_id_mva, float sublead_id_mva){
 
    // track the scale and smear uncertainties per event
     float scale1, scale1_err, scale2, scale2_err;
@@ -4329,10 +4329,12 @@ void PhotonAnalysis::saveDatCardTree(LoopAll &l, int cur_type, int category, int
        l.FillTree("bdtout_sigE_down",bdtout_sigE_down,"datacard_trees");
     }
    int proc_id=-1;
-   if (l.signalNormalizer->GetProcess(cur_type)=="ggh") proc_id=0;
-   if (l.signalNormalizer->GetProcess(cur_type)=="vbf") proc_id=1;
-   if (l.signalNormalizer->GetProcess(cur_type)=="wzh") proc_id=2;
-   if (l.signalNormalizer->GetProcess(cur_type)=="tth") proc_id=3;
+   if (proc==Form("ggh_mass_m%3.0f",l.signalNormalizer->GetMass(cur_type))) proc_id=0;
+   if (proc==Form("vbf_mass_m%3.0f",l.signalNormalizer->GetMass(cur_type))) proc_id=1;
+   if (proc==Form("wh_mass_m%3.0f",l.signalNormalizer->GetMass(cur_type))) proc_id=2;
+   if (proc==Form("zh_mass_m%3.0f",l.signalNormalizer->GetMass(cur_type))) proc_id=3;
+   if (proc==Form("tth_mass_m%3.0f",l.signalNormalizer->GetMass(cur_type))) proc_id=4;
+   if (proc==Form("wzh_mass_m%3.0f",l.signalNormalizer->GetMass(cur_type))) proc_id=5;
 
    l.FillTree("category",category,"datacard_trees");
    l.FillTree("inc_cat",inc_cat,"datacard_trees");

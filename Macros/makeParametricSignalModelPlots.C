@@ -424,6 +424,39 @@ map<string,RooAddPdf*> getMITPdfs(RooWorkspace *work, int ncats, bool is2011){
 
 }
 
+double sobInFWHM(RooWorkspace *sigWS, RooWorkspace *bkgWS, int m_hyp, int cat, double fwhm, pair<double,double> &sobInFWHMTotal, bool splitVH){
+
+  RooRealVar *mass = (RooRealVar*)bkgWS->var("CMS_hgg_mass");
+  mass->setRange(100,180);
+  mass->setRange(Form("fwhm_cat%d",cat),m_hyp-fwhm,m_hyp+fwhm);
+  RooAbsPdf *pdf = (RooAbsPdf*)bkgWS->pdf(Form("data_pol_model_8TeV_cat%d",cat));
+  RooAbsData *data = (RooDataSet*)bkgWS->data(Form("data_mass_cat%d",cat));
+  RooAbsReal *integral = pdf->createIntegral(RooArgSet(*mass),NormSet(*mass),Range(Form("fwhm_cat%d",cat)));
+  double bkgInFWHM = integral->getVal()*data->sumEntries();
+  
+  RooDataSet *ggh = (RooDataSet*)sigWS->data(Form("sig_ggh_mass_m%d_cat%d",m_hyp,cat));
+  RooDataSet *vbf = (RooDataSet*)sigWS->data(Form("sig_vbf_mass_m%d_cat%d",m_hyp,cat));
+  RooDataSet *tth = (RooDataSet*)sigWS->data(Form("sig_tth_mass_m%d_cat%d",m_hyp,cat));
+    
+  string cutstring = Form("CMS_hgg_mass>=%7.3f && CMS_hgg_mass<=%7.3f",m_hyp-fwhm,m_hyp+fwhm);
+  double sigInFWHM = ggh->sumEntries(cutstring.c_str())+vbf->sumEntries(cutstring.c_str())+tth->sumEntries(cutstring.c_str());
+  if (splitVH) {
+    RooDataSet *wh = (RooDataSet*)sigWS->data(Form("sig_wh_mass_m%d_cat%d",m_hyp,cat));
+    RooDataSet *zh = (RooDataSet*)sigWS->data(Form("sig_zh_mass_m%d_cat%d",m_hyp,cat));
+    sigInFWHM += wh->sumEntries(cutstring.c_str())+zh->sumEntries(cutstring.c_str()); 
+  }
+  else {
+    RooDataSet *wzh = (RooDataSet*)sigWS->data(Form("sig_wzh_mass_m%d_cat%d",m_hyp,cat));
+    sigInFWHM += wzh->sumEntries(cutstring.c_str()); 
+  }
+
+  sobInFWHMTotal.first += sigInFWHM;
+  sobInFWHMTotal.second += bkgInFWHM;
+
+  return sigInFWHM/bkgInFWHM;
+
+}
+
 pair<double,double> bkgEvPerGeV(RooWorkspace *work, int m_hyp, int cat, pair<double,double> &bkgTotal){
   
   RooRealVar *mass = (RooRealVar*)work->var("CMS_hgg_mass");
@@ -460,7 +493,7 @@ pair<double,double> bkgEvPerGeV(RooWorkspace *work, int m_hyp, int cat, pair<dou
   return pair<double,double>(nombkg,error); 
 }
 
-vector<double> sigEvents(RooWorkspace *work, int m_hyp, int cat, string binnedSigFileName, vector<double> &sigTotal, string spinProc=""){
+vector<double> sigEvents(RooWorkspace *work, int m_hyp, int cat, string binnedSigFileName, vector<double> &sigTotal, bool splitVH, string spinProc=""){
 
   RooWorkspace *tempWork;
   if (binnedSigFileName!=""){
@@ -476,21 +509,45 @@ vector<double> sigEvents(RooWorkspace *work, int m_hyp, int cat, string binnedSi
     
     RooDataSet *ggh = (RooDataSet*)tempWork->data(Form("sig_ggh_mass_m%d_cat%d",m_hyp,cat));
     RooDataSet *vbf = (RooDataSet*)tempWork->data(Form("sig_vbf_mass_m%d_cat%d",m_hyp,cat));
-    RooDataSet *wzh = (RooDataSet*)tempWork->data(Form("sig_wzh_mass_m%d_cat%d",m_hyp,cat));
     RooDataSet *tth = (RooDataSet*)tempWork->data(Form("sig_tth_mass_m%d_cat%d",m_hyp,cat));
+    RooDataSet *wzh = NULL;
+    RooDataSet *wh = NULL;
+    RooDataSet *zh = NULL;
     
-    double total = ggh->sumEntries()+vbf->sumEntries()+wzh->sumEntries()+tth->sumEntries();
+    double total;
+    if (splitVH) {
+      wh = (RooDataSet*)tempWork->data(Form("sig_wh_mass_m%d_cat%d",m_hyp,cat));
+      zh = (RooDataSet*)tempWork->data(Form("sig_zh_mass_m%d_cat%d",m_hyp,cat));
+      total = ggh->sumEntries()+vbf->sumEntries()+wh->sumEntries()+zh->sumEntries()+tth->sumEntries();
+    }
+    else {
+      wzh = (RooDataSet*)tempWork->data(Form("sig_wzh_mass_m%d_cat%d",m_hyp,cat));
+      total = ggh->sumEntries()+vbf->sumEntries()+wzh->sumEntries()+tth->sumEntries();
+    }
     result.push_back(total);
     result.push_back(ggh->sumEntries());
     result.push_back(vbf->sumEntries());
-    result.push_back(wzh->sumEntries());
+    if (splitVH) {
+      result.push_back(wh->sumEntries());
+      result.push_back(zh->sumEntries());
+    }
+    else {
+      result.push_back(wzh->sumEntries());
+    }
     result.push_back(tth->sumEntries());
 
     sigTotal[0] += total;
     sigTotal[1] += ggh->sumEntries();
     sigTotal[2] += vbf->sumEntries();
-    sigTotal[3] += wzh->sumEntries();
-    sigTotal[4] += tth->sumEntries();
+    if (splitVH) {
+      sigTotal[3] += wh->sumEntries();
+      sigTotal[4] += zh->sumEntries();
+      sigTotal[5] += tth->sumEntries();
+    }
+    else {
+      sigTotal[3] += wzh->sumEntries();
+      sigTotal[4] += tth->sumEntries();
+    }
   }
   else if (spinProc=="gg_grav"){
     
@@ -538,9 +595,9 @@ pair<double,double> datEvents(RooWorkspace *work, int m_hyp, int cat, pair<doubl
   return pair<double,double>(evs,evsPerGev);
 }
 
-// from p. meridiani
-void makeSignalCompositionPlot(int nCats, map<string,vector<double> > sigVals, map<string,double> sigEffs, map<string,double> fwhms, string outfname, int mh){
-  
+// from p. meridiani with addition from m. kenzie
+void makeSignalCompositionPlot(int nCats, map<string,vector<double> > sigVals, map<string,double> sigEffs, map<string,double> fwhms, map<string,double> sobVals, string outfname, int mh, bool doBkgAndData, bool splitVH){
+
   TString catName[nCats+1];
   catName[0] = "Untagged 0";
   catName[1] = "Untagged 1";
@@ -552,52 +609,60 @@ void makeSignalCompositionPlot(int nCats, map<string,vector<double> > sigVals, m
   catName[7] = "Electron Tag";
   catName[8] = "MET Tag";
   catName[9] = "Combined";
-  
-  TH1F* signalHistoFrac[4];
-  TString processName[4]={"ggH","qqH","VH","ttH"};
-  float signal_composition[nCats][4];
 
-  // setup arrays
-  for (int c=0; c<nCats; c++){
-    signal_composition[c][0] = 100.*sigVals[Form("cat%d",c)][1]/sigVals[Form("cat%d",c)][0];
-    signal_composition[c][1] = 100.*sigVals[Form("cat%d",c)][2]/sigVals[Form("cat%d",c)][0];
-    signal_composition[c][2] = 100.*sigVals[Form("cat%d",c)][3]/sigVals[Form("cat%d",c)][0];
-    signal_composition[c][3] = 100.*sigVals[Form("cat%d",c)][4]/sigVals[Form("cat%d",c)][0];
+  const int nprocs = splitVH ? 5 : 4;
+
+  vector<TString> processName;
+  vector<int> colors;
+  processName.push_back("ggH");
+  processName.push_back("qqH");
+  colors.push_back(kGreen+3);
+  colors.push_back(kRed+2);
+  if (splitVH) {
+    processName.push_back("WH");
+    processName.push_back("ZH");
+    colors.push_back(kOrange+7);
+    colors.push_back(kCyan+2);
+    colors.push_back(kAzure-6);
   }
-  signal_composition[nCats][0] = 100.*sigVals["all"][1]/sigVals["all"][0];
-  signal_composition[nCats][1] = 100.*sigVals["all"][2]/sigVals["all"][0];
-  signal_composition[nCats][2] = 100.*sigVals["all"][3]/sigVals["all"][0];
-  signal_composition[nCats][3] = 100.*sigVals["all"][4]/sigVals["all"][0];
+  else {
+    processName.push_back("VH");
+    colors.push_back(kCyan+2);
+    colors.push_back(kAzure-6);
+  }
+  processName.push_back("ttH");
 
-  for (int i=0;i<4;++i)
+  for (int i=0;i<nprocs;++i)
   {
-    signalHistoFrac[i]=new TH1F(Form("frac_%s",processName[i].Data()),Form("frac_%s",processName[i].Data()),nCats+1,-0.5,nCats+0.5);
     std::cout <<"+++++++++++++++++ " << processName[i] << " ++++++++++++++++++++" << std::endl;
-    for (int j=0;j<nCats+1;++j)
+    for (int j=0;j<nCats;++j)
     {
-      signalHistoFrac[i]->SetBinContent(j+1,signal_composition[j][i]);
-      std::cout << catName[j] << ": " <<  signalHistoFrac[i]->GetBinContent(j+1) << "%" << std::endl;
+      cout << catName[j] << ": " <<  100.*sigVals[Form("cat%d",j)][i+1]/sigVals[Form("cat%d",j)][0] << "%" << std::endl;
     }
+    cout << catName[nCats] << ": " <<  100.*sigVals["all"][i+1]/sigVals["all"][0] << "%" << std::endl;
   }
-
-  signalHistoFrac[0]->SetFillColor(kGreen+2);
-  signalHistoFrac[1]->SetFillColor(kRed+2);
-  signalHistoFrac[2]->SetFillColor(kCyan+2);
-  signalHistoFrac[3]->SetFillColor(kAzure-6);  
-
 
   gStyle->SetPadTickX(1);  // To get tick marks on the opposite side of the frame
-  //  gStyle->SetPadTickY(1);  // To get tick marks on the opposite side of the frame
-
-  //TCanvas *Plots = new TCanvas("Plots", "Plots",1,1,800,776);
   
-  TCanvas *canv = new TCanvas("canv","canv",1,1,1200,776);
+  TCanvas *canv;
+  TPad *Plots;
+  TPad *Width;
+  TPad *SOB;
+  if (doBkgAndData) {
+    canv = new TCanvas("canv","canv",1,1,3200,1552);
+    Plots = new TPad("Plots","Plots",0.,0.,0.5,1.);
+    Width = new TPad("Width","Width",0.5,0.,0.75,1.);
+    SOB = new TPad("SOB","SOB",0.75,0.,1.,1.);
+  }
+  else {
+    canv = new TCanvas("canv","canv",1,1,2400,1552);
+    Plots = new TPad("Plots","Plots",0.,0.,0.667,1.);
+    Width = new TPad("Width","Width",0.667,0.,1.,1.);
+  }
   canv->SetHighLightColor(2);
-  TPad *Plots = new TPad("Plots","Plots",0.,0.,0.667,1.);
   Plots->cd();
 
   gStyle->SetOptStat(0);
-  //Plots->SetHighLightColor(2);
   Plots->Range(-14.67532,-1.75,11.2987,15.75);
   Plots->SetFillColor(0);
   Plots->SetBorderMode(0);
@@ -608,19 +673,13 @@ void makeSignalCompositionPlot(int nCats, map<string,vector<double> > sigVals, m
   Plots->SetFrameBorderMode(0);
   Plots->SetFrameBorderMode(0);
 
-
   TH2F *dummy = new TH2F("dummy","",10,0.,100.,nCats+1,-0.5,nCats+0.5);
   dummy->SetStats(0);
-
   gStyle->SetOptTitle(0);
   gStyle->SetOptStat(0);
-
-  //gStyle_->SetPadTickY(1);
-
   Int_t ci;   // for color index setting
   ci = TColor::GetColor("#00ff00");
   dummy->SetFillColor(ci);
-
 
   for (int i=0;i<nCats+1;++i) dummy->GetYaxis()->SetBinLabel(nCats+1-i,catName[i]);
   dummy->GetYaxis()->SetTickLength(0);
@@ -643,27 +702,26 @@ void makeSignalCompositionPlot(int nCats, map<string,vector<double> > sigVals, m
   dummy->Draw("");
 
   //loop on bins and draw a TPave
-  Int_t nbins  = nCats+1;
-  Float_t ymin = 0.0;
-  Float_t width = 0.34;
+  float ymin = 0.0;
+  float width = 0.34;
 
   TPave *pave;
-  for (Int_t i=0;i<nbins;i++) {
-    Float_t ybin = signalHistoFrac[0]->GetBinCenter(i+1);
-    Float_t ybinmin = ybin -width*signalHistoFrac[0]->GetBinWidth(i+1);
-    Float_t ybinmax = ybin +width*signalHistoFrac[0]->GetBinWidth(i+1);
-    Float_t xbinmin = ymin;
-    Float_t xbinmax = ymin;
-
+  for (int cat=0; cat<nCats+1; cat++) {
+    float ybin = nCats-cat;
+    float ybinmin = ybin-width;
+    float ybinmax = ybin+width;
+    float xbinmin = ymin;
+    float xbinmax = ymin;
     //Stacked fractions
-    for (int j=0;j<4;++j)
-    {
-      xbinmax+=signalHistoFrac[j]->GetBinContent(nbins-i);
+    for (int j=0; j<nprocs; j++){
+      if (cat==nCats) xbinmax += 100.*sigVals["all"][j+1]/sigVals["all"][0];
+      else xbinmax += 100.*sigVals[Form("cat%d",cat)][j+1]/sigVals[Form("cat%d",cat)][0];
       pave = new TPave(xbinmin,ybinmin,xbinmax,ybinmax);
-      pave->SetFillColor(signalHistoFrac[j]->GetFillColor());
+      pave->SetFillColor(colors[j]);
       pave->Draw();
       pave->SetBorderSize(0);
-      xbinmin+=signalHistoFrac[j]->GetBinContent(nbins-i);
+      if (cat==nCats) xbinmin += 100.*sigVals["all"][j+1]/sigVals["all"][0];
+      else xbinmin += 100.*sigVals[Form("cat%d",cat)][j+1]/sigVals[Form("cat%d",cat)][0];
     }
   }
 
@@ -673,25 +731,53 @@ void makeSignalCompositionPlot(int nCats, map<string,vector<double> > sigVals, m
   tex_m->SetTextSize(0.025);
   tex_m->SetLineWidth(2);
 
-  pave=new TPave(0.20,0.85,0.23,0.85+0.03,0,"NDC");
-  pave->SetFillColor(signalHistoFrac[0]->GetFillColor());
-  pave->Draw();
-  tex_m->DrawLatex(0.24,0.84+0.025,"ggH");
+  if (splitVH) {
+    pave=new TPave(0.20,0.85,0.23,0.85+0.03,0,"NDC");
+    pave->SetFillColor(colors[0]);
+    pave->Draw();
+    tex_m->DrawLatex(0.24,0.84+0.025,"ggH");
 
-  pave=new TPave(0.38,0.85,0.41,0.85+0.03,0,"NDC");
-  pave->SetFillColor(signalHistoFrac[1]->GetFillColor());
-  pave->Draw();
-  tex_m->DrawLatex(0.42,0.84+0.025,"qqH");
+    pave=new TPave(0.35,0.85,0.38,0.85+0.03,0,"NDC");
+    pave->SetFillColor(colors[1]);
+    pave->Draw();
+    tex_m->DrawLatex(0.39,0.84+0.025,"qqH");
 
-  pave=new TPave(0.56,0.85,0.59,0.85+0.03,0,"NDC");
-  pave->SetFillColor(signalHistoFrac[2]->GetFillColor());
-  pave->Draw();
-  tex_m->DrawLatex(0.60,0.84+0.025,"VH");
+    pave=new TPave(0.50,0.85,0.53,0.85+0.03,0,"NDC");
+    pave->SetFillColor(colors[2]);
+    pave->Draw();
+    tex_m->DrawLatex(0.54,0.84+0.025,"WH");
 
-  pave=new TPave(0.74,0.85,0.77,0.85+0.03,0,"NDC");
-  pave->SetFillColor(signalHistoFrac[3]->GetFillColor());
-  pave->Draw();
-  tex_m->DrawLatex(0.78,0.84+0.025,"ttH");
+    pave=new TPave(0.65,0.85,0.68,0.85+0.03,0,"NDC");
+    pave->SetFillColor(colors[3]);
+    pave->Draw();
+    tex_m->DrawLatex(0.69,0.84+0.025,"ZH");
+    
+    pave=new TPave(0.80,0.85,0.83,0.85+0.03,0,"NDC");
+    pave->SetFillColor(colors[4]);
+    pave->Draw();
+    tex_m->DrawLatex(0.84,0.84+0.025,"ttH");
+  }
+  else {
+    pave=new TPave(0.20,0.85,0.23,0.85+0.03,0,"NDC");
+    pave->SetFillColor(colors[0]);
+    pave->Draw();
+    tex_m->DrawLatex(0.24,0.84+0.025,"ggH");
+
+    pave=new TPave(0.38,0.85,0.41,0.85+0.03,0,"NDC");
+    pave->SetFillColor(colors[1]);
+    pave->Draw();
+    tex_m->DrawLatex(0.42,0.84+0.025,"qqH");
+
+    pave=new TPave(0.56,0.85,0.59,0.85+0.03,0,"NDC");
+    pave->SetFillColor(colors[2]);
+    pave->Draw();
+    tex_m->DrawLatex(0.60,0.84+0.025,"VH");
+
+    pave=new TPave(0.74,0.85,0.77,0.85+0.03,0,"NDC");
+    pave->SetFillColor(colors[3]);
+    pave->Draw();
+    tex_m->DrawLatex(0.78,0.84+0.025,"ttH");
+  }
 
   TLine *line = new TLine(0,nCats-3.5,100,nCats-3.5);
   line->SetLineColor(kBlack);
@@ -707,21 +793,13 @@ void makeSignalCompositionPlot(int nCats, map<string,vector<double> > sigVals, m
 
   TLine *line3 = new TLine(0,nCats-8.5,100,nCats-8.5);
   line3->SetLineColor(kBlack);
-  line3->SetLineWidth(2);
-  line3->SetLineStyle(2);
+  line3->SetLineWidth(4);
+  line3->SetLineStyle(9);
   line3->Draw();
 
   Plots->RedrawAxis();
 
-  //Plots->SaveAs(Form("%s.png",outfname.c_str()));
-  //Plots->SaveAs(Form("%s.pdf",outfname.c_str()));
-  canv->cd();
-  Plots->Draw();
-
-  //TCanvas *test = new TCanvas("test","test",1,1,400,776);
-  TPad *Width = new TPad("Width","Width",0.667,0.,1.,1.);
   Width->cd();
-  //Width->SetHighLightColor(2);
   Width->Range(-14.67532,-1.75,11.2987,15.75);
   Width->SetFillColor(0);
   Width->SetBorderMode(0);
@@ -731,7 +809,7 @@ void makeSignalCompositionPlot(int nCats, map<string,vector<double> > sigVals, m
   Width->SetRightMargin(0.05);
   Width->SetFrameBorderMode(0);
   Width->SetFrameBorderMode(0);
-  TH2F *dummy2 = new TH2F("dummy2","",4,-4.,4.,nCats+1,-0.5,nCats+0.5);
+  TH2F *dummy2 = new TH2F("dummy2","",1,-3.,3.,nCats+1,-0.5,nCats+0.5);
   for (int i=1; i<=dummy2->GetNbinsX(); i++) dummy2->GetYaxis()->SetBinLabel(i,"");
   dummy2->SetStats(0);
   dummy2->GetYaxis()->SetTickLength(0);
@@ -756,20 +834,20 @@ void makeSignalCompositionPlot(int nCats, map<string,vector<double> > sigVals, m
   
   TPave *spave;
   TPave *fpave;
-  for (Int_t i=0;i<nbins;i++) {
-    Float_t ybin = signalHistoFrac[0]->GetBinCenter(i+1);
-    Float_t ybinmin = ybin -width*signalHistoFrac[0]->GetBinWidth(i+1);
-    Float_t ybinmax = ybin +width*signalHistoFrac[0]->GetBinWidth(i+1);
+  for (int cat=0; cat<nCats+1; cat++) {
+    float ybin = nCats-cat;
+    float ybinmin = ybin-width;
+    float ybinmax = ybin+width;
     
     double sEff;
     double fwhm;
-    if (i==0){
+    if (cat==nCats){
       sEff = sigEffs["all"];
       fwhm = fwhms["all"];
     }
     else {
-      sEff = sigEffs[Form("cat%d",i-1)];
-      fwhm = fwhms[Form("cat%d",i-1)];
+      sEff = sigEffs[Form("cat%d",cat)];
+      fwhm = fwhms[Form("cat%d",cat)];
     }
     spave = new TPave(-1.*sEff,ybinmin,sEff,ybinmax);
     spave->SetFillColor(kBlue-7);
@@ -806,22 +884,22 @@ void makeSignalCompositionPlot(int nCats, map<string,vector<double> > sigVals, m
   tex_m->SetTextSize(0.045);
   tex_m->DrawLatex(0.67,0.865,"FWHM/2.35");
   
-  TLine *sline = new TLine(-4.,nCats-3.5,4.,nCats-3.5);
+  TLine *sline = new TLine(-3.,nCats-3.5,3.,nCats-3.5);
   sline->SetLineColor(kBlack);
   sline->SetLineWidth(2);
   sline->SetLineStyle(2);
   sline->Draw();
 
-  TLine *sline2 = new TLine(-4.,nCats-5.5,4.,nCats-5.5);
+  TLine *sline2 = new TLine(-3.,nCats-5.5,3.,nCats-5.5);
   sline2->SetLineColor(kBlack);
   sline2->SetLineWidth(2);
   sline2->SetLineStyle(2);
   sline2->Draw();
 
-  TLine *sline3 = new TLine(-4.,nCats-8.5,4.,nCats-8.5);
+  TLine *sline3 = new TLine(-3.,nCats-8.5,3.,nCats-8.5);
   sline3->SetLineColor(kBlack);
-  sline3->SetLineWidth(2);
-  sline3->SetLineStyle(2);
+  sline3->SetLineWidth(4);
+  sline3->SetLineStyle(9);
   sline3->Draw();
 
   TLine *sline4 = new TLine(0.,-0.5,0.,nCats+0.5);
@@ -831,25 +909,103 @@ void makeSignalCompositionPlot(int nCats, map<string,vector<double> > sigVals, m
 
   Width->RedrawAxis();
 
+  if (doBkgAndData) {
+    SOB->cd();
+    SOB->Range(-14.67532,-1.75,11.2987,15.75);
+    SOB->SetFillColor(0);
+    SOB->SetBorderMode(0);
+    SOB->SetBorderSize(2);
+    SOB->SetTopMargin(0.16);
+    SOB->SetLeftMargin(0.08);
+    SOB->SetRightMargin(0.05);
+    SOB->SetFrameBorderMode(0);
+    SOB->SetFrameBorderMode(0);
+    TH2F *dummy3 = new TH2F("dummy3","",1,0.,0.4,nCats+1,-0.5,nCats+0.5);
+    for (int i=1; i<=dummy3->GetNbinsX(); i++) dummy3->GetYaxis()->SetBinLabel(i,"");
+    dummy3->SetStats(0);
+    dummy3->GetYaxis()->SetTickLength(0);
+    dummy3->GetXaxis()->SetTitle("S/B in FWHM");
+    dummy3->GetXaxis()->SetNdivisions(505);
+    dummy3->GetXaxis()->SetLabelFont(42);
+    dummy3->GetXaxis()->SetLabelSize(0.07);
+    dummy3->GetXaxis()->SetLabelOffset(-0.02);
+    dummy3->GetXaxis()->SetTitleSize(0.08);
+    dummy3->GetXaxis()->SetTitleOffset(0.5);
+    dummy3->GetXaxis()->SetTitleFont(42);
+    dummy3->GetYaxis()->SetNdivisions(505);
+    dummy3->GetYaxis()->SetLabelSize(0.035);
+    dummy3->GetYaxis()->SetTitleSize(0.045);
+    dummy3->GetYaxis()->SetTitleOffset(1.1);
+    dummy3->GetYaxis()->SetTitleFont(42);
+    dummy3->GetZaxis()->SetLabelFont(42);
+    dummy3->GetZaxis()->SetLabelSize(0.035);
+    dummy3->GetZaxis()->SetTitleSize(0.035);
+    dummy3->GetZaxis()->SetTitleFont(42);
+    dummy3->Draw("");
+    
+    TPave *sobpave;
+    for (int cat=0; cat<nCats+1; cat++) {
+      float ybin = nCats-cat;
+      float ybinmin = ybin-width;
+      float ybinmax = ybin+width;
+      double sob;
+      if (cat==nCats){
+        sob = sobVals["all"];
+      }
+      else {
+        sob = sobVals[Form("cat%d",cat)];
+      }
+      sobpave = new TPave(0.,ybinmin,sob,ybinmax);
+      sobpave->SetFillColor(kRed-3);
+      sobpave->SetLineColor(kRed-3);
+      sobpave->SetLineWidth(2);
+      sobpave->SetBorderSize(0);
+      sobpave->Draw();
+    }
+    
+    pave=new TPave(0.15,0.85,0.21,0.85+0.03,0,"NDC");
+    pave->SetFillColor(kRed-3);
+    pave->SetLineColor(kRed-3);
+    pave->SetLineWidth(2);
+    pave->SetBorderSize(0);
+    pave->Draw();
+    tex_m->SetTextSize(0.045);
+    tex_m->DrawLatex(0.22,0.865,"S/B in FWHM");
+
+    TLine *sbline = new TLine(0.,nCats-3.5,0.4,nCats-3.5);
+    sbline->SetLineColor(kBlack);
+    sbline->SetLineWidth(2);
+    sbline->SetLineStyle(2);
+    sbline->Draw();
+
+    TLine *sbline2 = new TLine(0.,nCats-5.5,0.4,nCats-5.5);
+    sbline2->SetLineColor(kBlack);
+    sbline2->SetLineWidth(2);
+    sbline2->SetLineStyle(2);
+    sbline2->Draw();
+
+    TLine *sbline3 = new TLine(0.,nCats-8.5,0.4,nCats-8.5);
+    sbline3->SetLineColor(kBlack);
+    sbline3->SetLineWidth(4);
+    sbline3->SetLineStyle(9);
+    sbline3->Draw();
+
+    SOB->RedrawAxis();
+  }
+
   canv->cd();
+  Plots->Draw();
   Width->Draw();
+  if (doBkgAndData) SOB->Draw(); 
   tex_m->SetTextSize(0.045);
   tex_m->DrawLatex(0.11,0.935,Form("CMS Simulation    H#rightarrow#gamma#gamma (m_{H}=%d GeV/c^{2})",mh));
-
-  canv->SaveAs(Form("%s.pdf",outfname.c_str()));
-  canv->SaveAs(Form("%s.png",outfname.c_str()));
-
-  TFile *tempFile = new TFile("myTempFile.root","RECREATE");
-  Plots->Write();
-  Width->Write();
-  canv->Modified();
-  canv->Write();
-  tempFile->Close();
-
+  canv->Print(Form("%s.pdf",outfname.c_str()));
+  canv->Print(Form("%s.png",outfname.c_str()));
+  gDirectory->DeleteAll();
 }
 
 // main function
-void makeParametricSignalModelPlots(string sigFitFileName, string outPathName, bool doTable=false, int ncats=9, bool is2011=false, int m_hyp=125, string bkgdatFileName="0", bool isMassFac=true, bool blind=true, bool spin=false, string spinProc="", string binnedSigFileName="", bool doCrossCheck=false, bool doMIT=false, bool rejig=false){
+void makeParametricSignalModelPlots(string sigFitFileName, string outPathName, bool doTable=false, int ncats=9, bool is2011=false, int m_hyp=125, bool splitVH=false, string bkgdatFileName="0", bool isMassFac=true, bool blind=true, bool spin=false, string spinProc="", string binnedSigFileName="", bool doCrossCheck=false, bool doMIT=false, bool rejig=false){
 
   gROOT->SetBatch();
   gStyle->SetTextFont(42);
@@ -984,6 +1140,7 @@ void makeParametricSignalModelPlots(string sigFitFileName, string outPathName, b
   map<string,pair<double,double> > bkgVals;
   map<string,vector<double> > sigVals;
   map<string,pair<double,double> > datVals;
+  map<string,double> sobVals;
 
   // make PAS table
   if (doTable) {
@@ -998,26 +1155,38 @@ void makeParametricSignalModelPlots(string sigFitFileName, string outPathName, b
     // keep track of sums
     pair<double,double> bkgTotal(0.,0.);
     pair<double,double> datTotal(0.,0.);
+    pair<double,double> sobTotal(0.,0.);
     vector<double> sigTotal;
-    for (int i=0; i<5; i++) sigTotal.push_back(0.);
+    int nprocs=5;
+    if (splitVH) nprocs+=1;
+    for (int i=0; i<6; i++) sigTotal.push_back(0.);
     for (int cat=0; cat<ncats; cat++){
       if (doBkgAndData) {
         bkgVals.insert(pair<string,pair<double,double> >(Form("cat%d",cat),bkgEvPerGeV(bkgWS,m_hyp,cat,bkgTotal)));
         datVals.insert(pair<string,pair<double,double> >(Form("cat%d",cat),datEvents(bkgWS,m_hyp,cat,datTotal)));
+        sobVals.insert(pair<string,double>(Form("cat%d",cat),sobInFWHM(hggWS,bkgWS,m_hyp,cat,fwhms[Form("cat%d",cat)],sobTotal,splitVH)));
       }
-      sigVals.insert(pair<string,vector<double> >(Form("cat%d",cat),sigEvents(hggWS,m_hyp,cat,binnedSigFileName,sigTotal,spinProc)));
+      sigVals.insert(pair<string,vector<double> >(Form("cat%d",cat),sigEvents(hggWS,m_hyp,cat,binnedSigFileName,sigTotal,splitVH,spinProc)));
     }
     bkgTotal.second = sqrt(bkgTotal.second);
     bkgVals.insert(pair<string,pair<double,double> >("all",bkgTotal));
     sigVals.insert(pair<string,vector<double> > ("all",sigTotal));
     datVals.insert(pair<string,pair<double,double> >("all",datTotal));
+    sobVals.insert(pair<string,double>("all",sobTotal.first/sobTotal.second));
     if (doBkgAndData) bkgFile->Close();
     
     FILE *file = fopen(Form("%s/table.tex",outPathName.c_str()),"w");
     FILE *nfile = fopen(Form("%s/table.txt",outPathName.c_str()),"w");
-    fprintf(nfile,"----------------------------------------------------------------------------------------------\n");
-    fprintf(nfile,"Cat    SigY    ggh    vbf    wzh    tth   sEff  FWHM  FWHM/2.35  BkgEv/GeV    Data  DataEv/GeV\n");
-    fprintf(nfile,"----------------------------------------------------------------------------------------------\n");
+    if (splitVH) {
+      fprintf(nfile,"-----------------------------------------------------------------------------------------------------\n");
+      fprintf(nfile,"Cat    SigY    ggh    vbf    wh     zh     tth   sEff  FWHM  FWHM/2.35  BkgEv/GeV    Data  DataEv/GeV\n");
+      fprintf(nfile,"-----------------------------------------------------------------------------------------------------\n");
+    }
+    else {
+      fprintf(nfile,"----------------------------------------------------------------------------------------------\n");
+      fprintf(nfile,"Cat    SigY    ggh    vbf    wzh    tth   sEff  FWHM  FWHM/2.35  BkgEv/GeV    Data  DataEv/GeV\n");
+      fprintf(nfile,"----------------------------------------------------------------------------------------------\n");
+    }
     for (int cat=0; cat<=ncats; cat++){
       string thisCatName;
       if (cat==ncats) thisCatName = "all";
@@ -1031,6 +1200,7 @@ void makeParametricSignalModelPlots(string sigFitFileName, string outPathName, b
       fprintf(nfile,"%4.1f%%  ",100.*sigs[2]/sigs[0]);
       fprintf(nfile,"%4.1f%%  ",100.*sigs[3]/sigs[0]);
       fprintf(nfile,"%4.1f%%  ",100.*sigs[4]/sigs[0]);
+      if (splitVH) fprintf(nfile,"%4.1f%%  ",100.*sigs[5]/sigs[0]);
       fprintf(nfile,"%4.2f  ",sigEffs[thisCatName]);
       fprintf(nfile,"%4.2f  ",fwhms[thisCatName]);
       fprintf(nfile,"%4.2f   ",fwhms[thisCatName]/2.35);
@@ -1041,6 +1211,7 @@ void makeParametricSignalModelPlots(string sigFitFileName, string outPathName, b
       fprintf(file,"&  %4.1f\\%%  ",100.*sigs[2]/sigs[0]);
       fprintf(file,"&  %4.1f\\%%  ",100.*sigs[3]/sigs[0]);
       fprintf(file,"&  %4.1f\\%%  ",100.*sigs[4]/sigs[0]);
+      if (splitVH) fprintf(file,"&  %4.1f\\%%  ",100.*sigs[5]/sigs[0]);
       fprintf(file,"&  %4.2f  ",sigEffs[thisCatName]);
       fprintf(file,"&  %4.2f  ",fwhms[thisCatName]);
       fprintf(file,"&  %4.2f  ",fwhms[thisCatName]/2.35);
@@ -1064,11 +1235,13 @@ void makeParametricSignalModelPlots(string sigFitFileName, string outPathName, b
     }
     fclose(nfile);
     fclose(file);
-    makeSignalCompositionPlot(ncats,sigVals,sigEffs,fwhms,Form("%s/signalComposition",outPathName.c_str()),m_hyp);
+    makeSignalCompositionPlot(ncats,sigVals,sigEffs,fwhms,sobVals,Form("%s/signalComposition",outPathName.c_str()),m_hyp,doBkgAndData,splitVH);
     system(Form("cat %s/table.txt",outPathName.c_str()));
     cout << "-->" << endl;
     cout << Form("--> LaTeX version of this table has been written to %s/table.tex",outPathName.c_str()) << endl;
+    if (doBkgAndData) bkgFile->Close();
   }
 
   hggFile->Close();
+  cout << "At end" << endl;
 }

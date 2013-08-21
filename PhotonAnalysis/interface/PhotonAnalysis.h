@@ -126,6 +126,7 @@ class PhotonAnalysis : public BaseAnalysis
     TH1F *ptreweighHistQQ;
 
     bool saveDatacardTrees_;
+    double datacardTreeMass;
     bool saveSpinTrees_;
     bool saveVBFTrees_;
 
@@ -446,7 +447,7 @@ class PhotonAnalysis : public BaseAnalysis
     float ComputeEventScaleError(LoopAll& l, int ipho1, int ipho2, float & scale1, float & scale1_err, float & scale2, float & scale2_err);
     float ComputeEventSmearError(LoopAll& l, int ipho1, int ipho2, float & smear1, float & smear1_err, float & smear2, float & smear2_err);
     pair<double,double> ComputeNewSigmaMs(LoopAll &l, int ipho1, int ipho2, int ivtx, float syst_shift);
-    void saveDatCardTree(LoopAll& l, int cur_type, int category, int inc_cat, float evweight, int ipho1, int ipho2, int ivtx, TLorentzVector lead_p4, TLorentzVector sublead_p4, bool isCutBased=true, double sigmaMrv=0., double sigmaMwv=0., double sigmaMeonly=0., float vtxProb=0., string trainPhi="", float lead_id_mva=0., float sublead_id_mva=0.);
+    void saveDatCardTree(LoopAll& l, int cur_type, int category, int inc_cat, float evweight, int ipho1, int ipho2, int ivtx, TLorentzVector lead_p4, TLorentzVector sublead_p4, bool isCutBased, string proc, double sigmaMrv=0., double sigmaMwv=0., double sigmaMeonly=0., float vtxProb=0., string trainPhi="", float lead_id_mva=0., float sublead_id_mva=0.);
     
     // Save spin trees
     void saveSpinTree(LoopAll &l, int category, float evweight, TLorentzVector Higgs, TLorentzVector lead_p4, TLorentzVector sublead_p4, int ipho1, int ipho2, int diphoton_id, float vtxProb, bool isCorrectVertex);
