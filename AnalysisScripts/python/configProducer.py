@@ -1,7 +1,7 @@
 # Python Configuration Handler for Util
 # Original Author - Nicholas Wardle
 
-PYDEBUG = 1
+PYDEBUG = 0
 
 # System python imports
 import commands,sys,os, json
@@ -55,6 +55,8 @@ class configProducer:
     self.nf_ 	= [0]
 
     self.expdict_ = {"label":label}
+    self.toprint_ = { str(self.ut_) : set() }
+    self.analyzers_ = []
     
     self.make_histograms=makehistos
     self.mounteos=mountEos
@@ -465,7 +467,9 @@ class configProducer:
        # Read a generic member of the LoopAll class
        else:
          self.read_struct_line(line,self.ut_)
-           
+
+     self.printSummary()
+
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   def generate_weights_file(self,filename):
@@ -523,13 +527,15 @@ class configProducer:
        # Read a generic member of the LoopAll class
        else:
          self.read_struct_line(line,self.ut_)
-     
+
      for cc in  self.conf_.confs:
        cc["intL"] = self.intL 
 
      if  self.sample_weights_file_==0:
 	 if self.njobs_==-1 or self.jobId_==0:
 	    self.generate_weights_file(f+".pevents")
+
+     self.printSummary()
 
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def expand_file(self,val):
@@ -538,6 +544,42 @@ class configProducer:
           return self.find_file(val)
       return val
   
+  # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  def addToPrintList(self,struct,name):
+      if not str(struct) in self.toprint_:
+          self.toprint_[str(struct)] = set()
+      self.toprint_[str(struct)].add( name )
+      
+  def printStruct(self,struct,name,pfx="  "):
+      if name != "":
+          print "%s: " % name
+      for aname in sorted(self.toprint_[str(struct)]):
+          att = getattr(struct,aname)
+          if str(att) in self.toprint_:
+              self.printStruct(att,"","%s%s." % (pfx,aname) )
+          else:
+              cont = str(att)
+              if 'vector' in cont:
+                  cont = ""
+                  for i in range(att.size()):
+                      cont += "%s," % att[i]
+              if cont.startswith("/"):
+                  cont = cont.replace( "%s/" % os.getcwd(), "" )
+              print "%s%s = %s " % ( pfx, aname,  cont)
+
+  def printSummary(self):
+      print
+      print "------------------------------------------------------------"
+      print "Configured analyzers:"
+      print "------------------------------------------------------------"
+      print
+      for a in self.analyzers_:
+          self.printStruct(a,str(a))
+          print 
+      self.printStruct(self.ut_,"LoopAll")
+      print
+      print "------------------------------------------------------------"
+      
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def read_struct_line(self,line,struct):
     split_line = line.split()
@@ -549,15 +591,17 @@ class configProducer:
       val = self.expand_file(val)
       t = type( struct.__getattribute__(name) )
       struct.__setattr__(name, t(val) )
-
+      self.addToPrintList(struct,name)
+      
       nameofstructure=""
       try: nameofstructure=struct.__name__
       except AttributeError :nameofstructure="LoopAll"
 
-      print "%s.%s = %s" % ( nameofstructure, name, str(val) )
+      ## print "%s.%s = %s" % ( nameofstructure, name, str(val) )
       return
 
     # otherwise it is complex structure
+    self.addToPrintList(struct,struct_name)
     struct = struct.__getattribute__(struct_name)
     try:
       if os.path.isfile(self.find_file(split_line[0])):
@@ -588,13 +632,14 @@ class configProducer:
         for sp in split_line:
           name,val = [ s.lstrip(" ").rstrip(" ") for s in sp.split("=") ]
           val = self.expand_file(val)
+          self.addToPrintList(struct,name)
           ## print val, str(type(struct.__getattribute__(name)))
           try:
 	    if ".root" in val and not "/castor" in val and not os.path.isfile(val): sys.exit("No File found - %s, check the line %s"%(val,line))
       	    if "," in val or "vector<" in str(type(struct.__getattribute__(name))):
 	     ele = val.split(",")
              value_type = type( type(struct.__getattribute__(name))(1)[0] )
-             print value_type
+             ## print value_type
              (struct.__getattribute__(name)).clear()
              if val != "":
                  for v in ele:
@@ -602,7 +647,7 @@ class configProducer:
             else :
              t = type( struct.__getattribute__(name) )
              struct.__setattr__(name, t(val) )
-            print "%s = %s" % ( name, str(struct.__getattribute__(name)) )
+            ## print "%s = %s" % ( name, str(struct.__getattribute__(name)) )
           except AttributeError:
             sys.exit( "Error: unkown attribute: %s\nline: %s\n%s" % ( name, line, struct ) )
           except ValueError, e:
@@ -669,6 +714,7 @@ class configProducer:
         except Exception, e:
             sys.exit("Unable to read analyzer %s at line:\n\n%s\n%s"% (name, line, e) )
     print "Loaded analyzer %s " % name
+    self.analyzers_.append(a)
     
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def read_output_file(self,line):
