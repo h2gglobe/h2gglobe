@@ -11,7 +11,7 @@
 #include "JetAnalysis/interface/JetHandler.h"
 #include "CMGTools/External/interface/PileupJetIdentifier.h"
 
-#define PADEBUG 1
+#define PADEBUG 0
 
 using namespace std;
 
