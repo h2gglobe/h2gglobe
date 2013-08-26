@@ -124,9 +124,15 @@ void DrawJetIdEfficiency(string etaRange  = "TK",
   TLegend *leg = new TLegend(0.5, 0.2, 0.8, 0.35);
   leg ->SetBorderSize(0);
   leg ->SetFillStyle(0);
-  leg -> AddEntry(hEff_vs_JetPt_matched[0][0],"MC truth","FL");
+  leg -> AddEntry(hEff_vs_JetPt_matched[0][0],"MC gen matched","FL");
   leg -> AddEntry(hEff_vs_JetPt[0][0][0],"MC","FL");
   leg -> AddEntry(hEff_vs_JetPt[1][0][0],"DATA","PL");
+
+  std::string text = "CMS preliminary  #sqrt{s}=8TeV  L=19.6fb^{-1}";
+  TLatex *cmsprel = new TLatex(0.50,0.92,text.c_str());
+  cmsprel->SetNDC();
+  cmsprel->SetTextSize (0.06);
+  cmsprel->SetTextFont(42);
 
 
   TCanvas *cEffJetPt[3][3];
@@ -162,11 +168,13 @@ void DrawJetIdEfficiency(string etaRange  = "TK",
       hEff_vs_JetPt[0][iid][ilevel] ->GetYaxis()->SetLabelSize(labSize);
       hEff_vs_JetPt[0][iid][ilevel] ->GetYaxis()->SetTitleSize(labSize);
       hEff_vs_JetPt[0][iid][ilevel] ->GetYaxis()->SetTitleOffset(tYoffset);
-      hEff_vs_JetPt[0][iid][ilevel] ->GetXaxis()->SetRangeUser(10.,100.);
+      hEff_vs_JetPt[0][iid][ilevel] ->GetXaxis()->SetRangeUser(20.,100.);
+      hEff_vs_JetPt[0][iid][ilevel] ->GetYaxis()->SetRangeUser(0.,1.2);
       hEff_vs_JetPt[0][iid][ilevel] ->Draw("E4");
       hEff_vs_JetPt[1][iid][ilevel] ->Draw("esame");
       hEff_vs_JetPt_matched[iid][ilevel] -> Draw("lsame");
       leg->Draw("same");
+      cmsprel->Draw("same");
       
       cLowerPt-> cd();
       cLowerPt-> SetGridy();
@@ -179,7 +187,7 @@ void DrawJetIdEfficiency(string etaRange  = "TK",
       hRatio_vs_JetPt[iid][ilevel] ->GetYaxis()->SetLabelSize(labSize*FontSCF);
       hRatio_vs_JetPt[iid][ilevel] ->GetYaxis()->SetTitleSize(labSize*FontSCF);
       hRatio_vs_JetPt[iid][ilevel] ->GetYaxis()->SetTitleOffset(tYoffset/FontSCF);
-      hRatio_vs_JetPt[iid][ilevel] ->GetXaxis()->SetRangeUser(10.,100.);
+      hRatio_vs_JetPt[iid][ilevel] ->GetXaxis()->SetRangeUser(20.,100.);
       hRatio_vs_JetPt[iid][ilevel] ->GetYaxis()->SetRangeUser(0.7,1.3);
       hRatio_vs_JetPt[iid][ilevel] ->GetYaxis()->SetTitle("data/MC");
       hRatio_vs_JetPt[iid][ilevel] ->Draw("e");
@@ -207,11 +215,13 @@ void DrawJetIdEfficiency(string etaRange  = "TK",
       hEff_vs_JetEta[0][iid][ilevel] ->GetYaxis()->SetLabelSize(labSize);
       hEff_vs_JetEta[0][iid][ilevel] ->GetYaxis()->SetTitleSize(labSize);
       hEff_vs_JetEta[0][iid][ilevel] ->GetYaxis()->SetTitleOffset(tYoffset);
+      hEff_vs_JetEta[0][iid][ilevel] ->GetYaxis()->SetRangeUser(0.0,1.2);
       hEff_vs_JetEta[0][iid][ilevel] ->Draw("E4");
       hEff_vs_JetEta[1][iid][ilevel] ->Draw("esame");
       hEff_vs_JetEta_matched[iid][ilevel] -> Draw("lsame");
       leg->Draw("same");
-      
+      cmsprel->Draw("same");
+
       cLowerEta-> cd();
       cLowerEta-> SetGridy();
       hRatio_vs_JetEta[iid][ilevel] = (TH1F*)hEff_vs_JetEta[1][iid][ilevel] -> Clone();
@@ -258,6 +268,7 @@ void DrawJetIdEfficiency(string etaRange  = "TK",
       hEff_vs_NumberOfVertices[1][iid][ilevel] ->Draw("esame");
       hEff_vs_NumberOfVertices_matched[iid][ilevel]    -> Draw("lsame");   
       leg->Draw("same");
+      cmsprel->Draw("same");
       
       cLowerNvtx-> cd();
       cLowerNvtx-> SetGridy();
