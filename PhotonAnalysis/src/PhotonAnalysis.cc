@@ -4092,33 +4092,9 @@ void PhotonAnalysis::saveBSTrees(LoopAll &l, float evweight, int category, TLore
 }
 
 float PhotonAnalysis::ComputeEventScaleError(LoopAll& l, int ipho1, int ipho2, float & scale1, float & scale1_err, float & scale2, float & scale2_err) {
-    PhotonReducedInfo pho1 (
-        *((TVector3*)     l.sc_xyz->At(l.pho_scind[ipho1])),
-        ((TLorentzVector*)l.pho_p4->At(ipho1))->Energy(),
-        energyCorrected[ipho1],
-        l.pho_isEB[ipho1], l.pho_r9[ipho1],
-        true, // WARNING  setting pass photon ID flag for all photons. This is safe as long as only selected photons are used
-        0 //only for category --> correct energy NOT needed
-    );
-
-    int ieta, iphi;
-    l.getIetaIPhi(ipho1,ieta,iphi);
-    pho1.addSmearingSeed( (unsigned int)l.sc_raw[l.pho_scind[ipho1]] + abs(ieta) + abs(iphi) + l.run + l.event + l.lumis );
-    pho1.setSphericalPhoton(l.CheckSphericalPhoton(ieta,iphi));
-
-    PhotonReducedInfo pho2 (
-        *((TVector3*)     l.sc_xyz->At(l.pho_scind[ipho2])),
-        ((TLorentzVector*)l.pho_p4->At(ipho2))->Energy(),
-        energyCorrected[ipho2],
-        l.pho_isEB[ipho2], l.pho_r9[ipho2],
-        true, // WARNING  setting pass photon ID flag for all photons. This is safe as long as only selected photons are used
-        0 //only for category --> correct energy NOT needed
-    );
-
-    l.getIetaIPhi(ipho2,ieta,iphi);
-    pho2.addSmearingSeed( (unsigned int)l.sc_raw[l.pho_scind[ipho2]] + abs(ieta) + abs(iphi) + l.run + l.event + l.lumis );
-    pho2.setSphericalPhoton(l.CheckSphericalPhoton(ieta,iphi));
-
+    PhotonReducedInfo pho1 = photonInfoCollection[ipho1];
+    PhotonReducedInfo pho2 = photonInfoCollection[ipho2];
+    
     std::string cat1=eScaleSmearer->photonCategory(pho1);
     std::string cat2=eScaleSmearer->photonCategory(pho2);
     if( PADEBUG ) std::cout<<"cat1 "<<cat1<<std::endl;
@@ -4149,40 +4125,16 @@ float PhotonAnalysis::ComputeEventScaleError(LoopAll& l, int ipho1, int ipho2, f
 }
 
 float PhotonAnalysis::ComputeEventSmearError(LoopAll& l, int ipho1, int ipho2, float & smear1, float & smear1_err, float & smear2, float & smear2_err) {
-    PhotonReducedInfo pho1 (
-        *((TVector3*)     l.sc_xyz->At(l.pho_scind[ipho1])),
-        ((TLorentzVector*)l.pho_p4->At(ipho1))->Energy(),
-        energyCorrected[ipho1],
-        l.pho_isEB[ipho1], l.pho_r9[ipho1],
-        true, // WARNING  setting pass photon ID flag for all photons. This is safe as long as only selected photons are used
-        0 //only for category --> correct energy NOT needed
-    );
-
-    int ieta, iphi;
-    l.getIetaIPhi(ipho1,ieta,iphi);
-    pho1.addSmearingSeed( (unsigned int)l.sc_raw[l.pho_scind[ipho1]] + abs(ieta) + abs(iphi) + l.run + l.event + l.lumis );
-    pho1.setSphericalPhoton(l.CheckSphericalPhoton(ieta,iphi));
-
-    PhotonReducedInfo pho2 (
-        *((TVector3*)     l.sc_xyz->At(l.pho_scind[ipho2])),
-        ((TLorentzVector*)l.pho_p4->At(ipho2))->Energy(),
-        energyCorrected[ipho2],
-        l.pho_isEB[ipho2], l.pho_r9[ipho2],
-        true, // WARNING  setting pass photon ID flag for all photons. This is safe as long as only selected photons are used
-        0 //only for category --> correct energy NOT needed
-    );
-
-    l.getIetaIPhi(ipho2,ieta,iphi);
-    pho2.addSmearingSeed( (unsigned int)l.sc_raw[l.pho_scind[ipho2]] + abs(ieta) + abs(iphi) + l.run + l.event + l.lumis );
-    pho2.setSphericalPhoton(l.CheckSphericalPhoton(ieta,iphi));
-
+    PhotonReducedInfo pho1 = photonInfoCollection[ipho1];
+    PhotonReducedInfo pho2 = photonInfoCollection[ipho2];
+    
     std::string cat1=eResolSmearer->photonCategory(pho1);
     std::string cat2=eResolSmearer->photonCategory(pho2);
     if( PADEBUG ) std::cout<<"cat1 "<<cat1<<std::endl;
     if( PADEBUG ) std::cout<<"cat2 "<<cat2<<std::endl;
 
-    smear1 = EnergySmearer::getSmearingSigma(eResolSmearer->myParameters_,cat1,0.,0.); // FIXME need to pass corrected (and smeared) photon energies
-    smear2 = EnergySmearer::getSmearingSigma(eResolSmearer->myParameters_,cat2,0.,0.);
+    smear1 = EnergySmearer::getSmearingSigma(eResolSmearer->myParameters_,cat1,pho1.energy(),0.);
+    smear2 = EnergySmearer::getSmearingSigma(eResolSmearer->myParameters_,cat2,pho2.energy(),0.);
     if( PADEBUG ) std::cout<<"smear1 "<<smear1<<std::endl;
     if( PADEBUG ) std::cout<<"smear2 "<<smear2<<std::endl;
 
@@ -4209,33 +4161,17 @@ float PhotonAnalysis::ComputeEventSmearError(LoopAll& l, int ipho1, int ipho2, f
 
 pair<double,double> PhotonAnalysis::ComputeNewSigmaMs(LoopAll &l, int ipho1, int ipho2, int ivtx, float sys_shift){
 
-    PhotonReducedInfo pho1 (
-        *((TVector3*)     l.sc_xyz->At(l.pho_scind[ipho1])),
-        ((TLorentzVector*)l.pho_p4->At(ipho1))->Energy(),
-        energyCorrected[ipho1],
-        l.pho_isEB[ipho1], l.pho_r9[ipho1],
-        true, // WARNING  setting pass photon ID flag for all photons. This is safe as long as only selected photons are used
-        energyCorrectedError[ipho1] // will be altered below, needs to be initialized
-    );
-    PhotonReducedInfo pho2 (
-        *((TVector3*)     l.sc_xyz->At(l.pho_scind[ipho2])),
-        ((TLorentzVector*)l.pho_p4->At(ipho2))->Energy(),
-        energyCorrected[ipho2],
-        l.pho_isEB[ipho2], l.pho_r9[ipho2],
-        true, // WARNING  setting pass photon ID flag for all photons. This is safe as long as only selected photons are used
-        energyCorrectedError[ipho2] // will be altered below, needs to be initialized
-    );
+    PhotonReducedInfo pho1 = photonInfoCollection[ipho1];
+    PhotonReducedInfo pho2 = photonInfoCollection[ipho2];
+
     pho1.setCorrEnergyErr(pho1.corrEnergyErr()*(1.+sys_shift*0.1));
     pho2.setCorrEnergyErr(pho2.corrEnergyErr()*(1.+sys_shift*0.1));
 
-    MassResolution *tempMassRes = new MassResolution();
+    MassResolution tempMassRes;
 
-    //cout << pho1.p4().X() << endl;
-    //cout << pho2.p4().X() << endl;
-    //cout << ((TVector3*)l.vtx_std_xyz->At(ivtx))->Z() << endl;
-    tempMassRes->Setup(l,&pho1,&pho2,ivtx,massResoPars, nR9Categories, nEtaCategories,beamspotSigma,true);
-    double sigMright = tempMassRes->massResolutionEonlyNoSmear();
-    double sigMwrong = tempMassRes->massResolutionWrongVtxNoSmear();
+    tempMassRes.Setup(l,&pho1,&pho2,ivtx,massResoPars, nR9Categories, nEtaCategories,beamspotSigma,true);
+    double sigMright = tempMassRes.massResolutionEonlyNoSmear();
+    double sigMwrong = tempMassRes.massResolutionWrongVtxNoSmear();
     pair<double,double> result(sigMright,sigMwrong);
     return result;
 }
