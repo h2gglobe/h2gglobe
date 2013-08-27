@@ -172,75 +172,23 @@ double MassResolution::leadPhotonResolution() {
   TLorentzVector lead_p4=leadPhoton->p4(vertex->X(),vertex->Y(),vertex->Z());
   bool sphericalLeadPhoton_=leadPhoton->isSphericalPhoton();
 //  std::cout << " MassResolution -- Lead special ? " << sphericalLeadPhoton_ <<std::endl;
-  return getPhotonResolution(lead_p4.E(),lead_Eres,lead_r9, leadPhoton->caloPosition().Eta(),lead_iDet,sphericalLeadPhoton_);
+  return getPhotonResolution(lead_p4.E(),lead_Eres, *leadPhoton);
 }
 // return sublead photon resolution
 double MassResolution::subleadPhotonResolution() {
   TLorentzVector sublead_p4=subleadPhoton->p4(vertex->X(),vertex->Y(),vertex->Z());
   bool sphericalSubleadPhoton_=subleadPhoton->isSphericalPhoton();
 //  std::cout << " MassResolution -- SubLead special ? " << sphericalSubleadPhoton_ <<std::endl;
-  return getPhotonResolution(sublead_p4.E(),sublead_Eres,sublead_r9,subleadPhoton->caloPosition().Eta(),sublead_iDet,sphericalSubleadPhoton_);
+  return getPhotonResolution(sublead_p4.E(),sublead_Eres,*subleadPhoton);
 }
 
 // Actually compute resolution given a photon
-double MassResolution::getPhotonResolution(double photonEnergy, double photonResolution, double r9,  double scEta, bool iDet, bool ispherical) {
-
-
+double MassResolution::getPhotonResolution(double photonEnergy, double photonResolution, const PhotonReducedInfo &info) {
+  
   // Get the photon-category sigma
-  std::string myCategory="";
-  if (_eSmearPars.categoryType=="Automagic") 
-    {
-	    EnergySmearer::energySmearingParameters::phoCatVectorConstIt vit = find(_eSmearPars.photon_categories.begin(), _eSmearPars.photon_categories.end(), 
-										    std::make_pair(ispherical, std::make_pair( fabs((float)scEta), (float)r9 ) ) );
-	    if( vit ==  _eSmearPars.photon_categories.end() ) {
-		    //cout << "PhotonCheck " << r9 << " " << phoCat << " " << scEta << " " << iDet << " " << endl;
-		    std::cerr << "Could not find energy scale correction for this photon " << (float)scEta << " " <<  (float)r9 << std::endl;
-		    assert( 0 );
-	    }
-	    myCategory = vit->name;
-    } 
-  else if (_eSmearPars.categoryType=="2CatR9_EBEE")
-    {
-      if (iDet)
-	myCategory+="EB";
-      else
-	myCategory+="EE";
-      
-      if (r9>=0.94)
-	myCategory+="HighR9";
-      else
-	myCategory+="LowR9";
-    }
-  else if (_eSmearPars.categoryType=="2CatR9_EBEBm4EE")
-    {
-      if (iDet && fabs(scEta)      < 1.)
-	myCategory+="EB";
-      else if (iDet && fabs(scEta) > 1.)
-	myCategory+="EBm4";
-      else
-	myCategory+="EE";
-      
-      if (r9>=0.94)
-	myCategory+="HighR9";
-      else
-	myCategory+="LowR9";
-    }
-  else if (_eSmearPars.categoryType=="EBEE")
-    {
-      if (iDet)
-	myCategory+="EB";
-      else
-	myCategory+="EE";
-    }
-  else
-    {
-      std::cout << "Unknown categorization. No category name is returned" << std::endl;
-    }
+  std::string myCategory = EnergySmearer::photonCategory(_eSmearPars, info);
 
-
-  /// Moved to config file PM 4/4/12 
-  /// double categoryResolution = ispherical ? 0.0067*photonEnergy : _eSmearPars.smearing_sigma[myCategory]*photonEnergy;	
-  double categoryResolution = _eSmearPars.smearing_sigma[myCategory]*photonEnergy;	
+  double categoryResolution = EnergySmearer::getSmearingSigma(_eSmearPars, myCategory, photonEnergy, 0.);
   return TMath::Sqrt(categoryResolution*categoryResolution + photonResolution*photonResolution);
 
 }

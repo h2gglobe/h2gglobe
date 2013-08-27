@@ -119,6 +119,16 @@ PhotonAnalysis::~PhotonAnalysis()
 void PhotonAnalysis::Term(LoopAll& l)
 {}
 
+std::ostream & operator<< (std::ostream & out, const PhotonCategory & pcat) 
+{
+    out << pcat.name << ": "  
+	<< " (" << pcat.minet  << "," << pcat.maxet  << ") " 
+	<< " (" << pcat.mineta << "," << pcat.maxeta << ") "
+	<< " (" << pcat.minr9  << "," << pcat.maxr9  << ") "
+	<< " " << pcat.type
+	;
+}
+
 // ----------------------------------------------------------------------------------------------------
 void readEnergyScaleOffsets(const std::string &fname, EnergySmearer::energySmearingParameters::eScaleVector &escaleOffsets,
                             EnergySmearer::energySmearingParameters::phoCatVector &photonCategories, bool data=true
@@ -131,60 +141,48 @@ void readEnergyScaleOffsets(const std::string &fname, EnergySmearer::energySmear
     char line[200];
     float EBHighR9, EBLowR9, EBm4HighR9, EBm4LowR9, EEHighR9, EELowR9;
     char catname[200];
-    float mineta, maxeta, minr9, maxr9, offset, stocastic=0., err;
-    int type;
-    int  first, last;
     do {
+	float minet=0., maxet=1.e+9, mineta, maxeta, minr9, maxr9, offset, stocastic=0., err;
+	int type;
+	int  first, last;
+	
         in.getline( line, 200, '\n' );
-
-        if( sscanf(line,"%d %d %f %f %f %f %f %f",&first, &last, &EBHighR9, &EBLowR9, &EBm4HighR9, &EBm4LowR9, &EEHighR9, &EELowR9) == 8 ) {
-            std::cout << "Energy scale by run " <<  first<< " " <<  last<< " " <<  EBHighR9<< " " <<  EBLowR9 << " " <<  EBm4HighR9<< " " <<  EBm4LowR9<< " " <<  EEHighR9<< " " <<  EELowR9 << std::endl;
-
-            assert( ! data );
-            escaleOffsets.push_back(EnergyScaleOffset(first,last));
-            escaleOffsets.back().scale_offset["EBHighR9"] = -1.*EBHighR9;
-            escaleOffsets.back().scale_offset["EBLowR9"]  = -1.*EBLowR9;
-            escaleOffsets.back().scale_offset["EBm4HighR9"] = -1.*EBm4HighR9;
-            escaleOffsets.back().scale_offset["EBm4LowR9"]  = -1.*EBm4LowR9;
-            escaleOffsets.back().scale_offset["EEHighR9"] = -1.*EEHighR9;
-            escaleOffsets.back().scale_offset["EELowR9"]  = -1.*EELowR9;
-            escaleOffsets.back().scale_offset_error["EBHighR9"] = 0.;
-            escaleOffsets.back().scale_offset_error["EBLowR9"]  = 0.;
-            escaleOffsets.back().scale_offset_error["EBm4HighR9"] = 0.;
-            escaleOffsets.back().scale_offset_error["EBm4LowR9"]  = 0.;
-            escaleOffsets.back().scale_offset_error["EEHighR9"] = 0.;
-            escaleOffsets.back().scale_offset_error["EELowR9"]  = 0.;
-        } else { 
-	    if( sscanf(line,"%s %d %f %f %f %f %d %d %f &f %f", &catname, &type, &mineta, &maxeta, &minr9, &maxr9, &first, &last, &offset, &stocastic, &err  ) == 11 ) {
-		std::cout << "Energy scale (or smering) by run " <<  catname << " " << type << " " << mineta << " " << maxeta << " " << minr9 << " " << maxr9 
-			  << " " << first << " " << last << " " << offset << " " << stocastic <<  " " << err << std::endl;
-	    } else if( sscanf(line,"%s %d %f %f %f %f %d %d %f %f", &catname, &type, &mineta, &maxeta, &minr9, &maxr9, &first, &last, &offset, &err  ) == 10 ) {
-		std::cout << "Energy scale (or smering) by run " <<  catname << " " << type << " " << mineta << " " << maxeta << " " << minr9 << " " << maxr9 
-			  << " " << first << " " << last << " " << offset << " " << err << std::endl;
-		
-	    } else { 
-		continue; 
-	    }
-	    
-	    assert( type>=0 && type<=2 );
-	    
-	    EnergySmearer::energySmearingParameters::eScaleVector::reverse_iterator escaleOffset =
-		find(escaleOffsets.rbegin(),escaleOffsets.rend(),std::make_pair(first,last));
-	    if( escaleOffset == escaleOffsets.rend() ) {
-		std::cout << "  adding new range range " << first << " " << last << std::endl;
-		escaleOffsets.push_back(EnergyScaleOffset(first,last));
-		escaleOffset = escaleOffsets.rbegin();
-	    }
-	    // chck if the category is already defined
-	    if( find(photonCategories.begin(), photonCategories.end(), std::string(catname) ) == photonCategories.end() ) {
-		std::cout << "  defining new category" << std::endl;
-		photonCategories.push_back(PhotonCategory(mineta,maxeta,minr9,maxr9,(PhotonCategory::photon_type_t)type,catname));
-	    }
-	    // assign the scale offset and error for this category and this run range
-	    escaleOffset->scale_offset[catname] = data ? -offset : offset;
-	    escaleOffset->scale_stocastic_offset[catname] = data ? -stocastic : stocastic;
-	    escaleOffset->scale_offset_error[catname] = err;
+	
+	if( sscanf(line,"%s %d %f %f %f %f %d %d %f %f\n", &catname, &type, 
+		   &mineta, &maxeta, &minr9, &maxr9, &first, &last, &offset, &err  ) == 10 ) {
+	    std::cout << "Energy scale (or smering) by run " <<  catname << " " << type << " " << mineta << " " << maxeta << " " << minr9 << " " << maxr9 
+		      << " " << first << " " << last << " " << offset << " " << err << std::endl;
+	} else if( sscanf(line,"%s %d %f %f %f %f %d %d %f %f %f\n", &catname, &type, 
+			  &mineta, &maxeta, &minr9, &maxr9, &first, &last, &offset, &stocastic, &err  ) == 11 ) {
+	    std::cout << "Energy scale (or smering) by run " <<  catname << " " << type << " " << mineta << " " << maxeta << " " << minr9 << " " << maxr9 
+		      << " " << first << " " << last << " " << offset << " " << stocastic <<  " " << err << std::endl;
+	} else if( sscanf(line,"%s %d %f %f %f %f %f %f %d %d %f %f %f\n", &catname, &type, 
+			  &minet, &maxet, &mineta, &maxeta, &minr9, &maxr9, &first, &last, &offset, &stocastic, &err  ) == 13 ) {
+	    std::cout << "Energy scale (or smering) by run " <<  catname << " " << type 
+		      << " " << minet << " " << maxet << " " << mineta << " " << maxeta << " " << minr9 << " " << maxr9 
+		      << " " << first << " " << last << " " << offset << " " << stocastic <<  " " << err << std::endl;
+	} else { 
+	    continue; 
 	}
+	
+	assert( type>=0 && type<=2 );
+	
+	EnergySmearer::energySmearingParameters::eScaleVector::reverse_iterator escaleOffset =
+	    find(escaleOffsets.rbegin(),escaleOffsets.rend(),std::make_pair(first,last));
+	if( escaleOffset == escaleOffsets.rend() ) {
+	    std::cout << "  adding new range range " << first << " " << last << std::endl;
+	    escaleOffsets.push_back(EnergyScaleOffset(first,last));
+	    escaleOffset = escaleOffsets.rbegin();
+	}
+	// chck if the category is already defined
+	if( find(photonCategories.begin(), photonCategories.end(), std::string(catname) ) == photonCategories.end() ) {
+	    photonCategories.push_back(PhotonCategory(minet,maxet,mineta,maxeta,minr9,maxr9,(PhotonCategory::photon_type_t)type,catname));
+	    std::cout << "  defining new category " << photonCategories.back() << std::endl;
+	}
+	// assign the scale offset and error for this category and this run range
+	escaleOffset->scale_offset[catname] = data ? -offset : offset;
+	escaleOffset->scale_stocastic_offset[catname] = data ? -stocastic : stocastic;
+	escaleOffset->scale_offset_error[catname] = err;
 
     } while( in );
 
@@ -455,26 +453,6 @@ void PhotonAnalysis::fillDiphoton(TLorentzVector & lead_p4, TLorentzVector & sub
         ((TVector3*)l.vtx_std_xyz->At(vtx_ind))->SetZ(randVtxZ);
     }
 
-        /*
-    if (emulateBeamspot) isCorrectVertex=(*((TVector3*)l.vtx_std_xyz->At(vtx_ind)) - *((TVector3*)l.gv_pos->At(0))).Mag() < (sourcesigma/targetsigma);
-    else isCorrectVertex=(*((TVector3*)l.vtx_std_xyz->At(vtx_ind))- *((TVector3*)l.gv_pos->At(0))).Mag() < 1.;
-    if (emulateBeamspot && cur_type!=0 && !isCorrectVertex && (lastRun!=l.run || lastEvent!=l.event || lastLumi!=l.lumis)){
-	// FIXME use beam spot from event/pass parameter. Do not hardcode.
-        double beamspotZ = 0.4145;
-        double randVtxZ = -100;
-        bool tooClose=true;
-        while(tooClose){
-            randVtxZ = rand.Gaus(beamspotZ,emulatedBeamspotWidth);
-            ((TVector3*)l.vtx_std_xyz->At(vtx_ind))->SetZ(randVtxZ);
-            tooClose = (*((TVector3*)l.vtx_std_xyz->At(vtx_ind))-*((TVector3*)l.gv_pos->At(0))).Mag() < 1.;
-        }
-        double genVtxZ = ((TVector3*)l.gv_pos->At(0))->Z();
-        double myVtxZ = ((TVector3*)l.vtx_std_xyz->At(vtx_ind))->Z();
-        ((TVector3*)l.vtx_std_xyz->At(vtx_ind))->SetZ(genVtxZ+(targetsigma/sourcesigma)*(myVtxZ-genVtxZ));
-        changed=true;
-    }
-        */
-
     lead_p4 = l.get_pho_p4( leadind, vtx_ind, energy);
     sublead_p4 = l.get_pho_p4( subleadind, vtx_ind, energy);
     lead_r9    = l.pho_r9[leadind];
@@ -508,23 +486,23 @@ void PhotonAnalysis::applyDiPhotonSmearings(TLorentzVector & Higgs, TVector3 & v
     float pth = Higgs.Pt();
     for(std::vector<BaseDiPhotonSmearer *>::iterator si=diPhotonSmearers_.begin(); si!= diPhotonSmearers_.end(); ++si ) {
         float rewei=1.;
-    if( sys != 0 && *si == *sys ) {
-        (*si)->smearDiPhoton( Higgs, vtx, rewei, category, cur_type, truevtx, idmva1, idmva2, syst_shift );
-    } else {
-        (*si)->smearDiPhoton( Higgs, vtx, rewei, category, cur_type, truevtx, idmva1, idmva2, 0. );
-    }
-        if( rewei < 0. ) {
-        if( syst_shift == 0. ) {
-        std::cerr << "Negative weight from smearer " << (*si)->name() << std::endl;
-        assert(0);
-        } else {
-        if( nwarnings-- > 0 ) {
-            std::cout <<  "WARNING: negative during systematic scan in " << (*si)->name() << std::endl;
-        }
-        rewei = 0.;
-        }
-        }
-        evweight *= rewei;
+	if( sys != 0 && *si == *sys ) {
+	    (*si)->smearDiPhoton( Higgs, vtx, rewei, category, cur_type, truevtx, idmva1, idmva2, syst_shift );
+	} else {
+	    (*si)->smearDiPhoton( Higgs, vtx, rewei, category, cur_type, truevtx, idmva1, idmva2, 0. );
+	}
+	if( rewei < 0. ) {
+	    if( syst_shift == 0. ) {
+		std::cerr << "Negative weight from smearer " << (*si)->name() << std::endl;
+		assert(0);
+	    } else {
+		if( nwarnings-- > 0 ) {
+		    std::cout <<  "WARNING: negative during systematic scan in " << (*si)->name() << std::endl;
+		}
+		rewei = 0.;
+	    }
+	}
+	evweight *= rewei;
     }
 }
 
@@ -4198,18 +4176,18 @@ float PhotonAnalysis::ComputeEventSmearError(LoopAll& l, int ipho1, int ipho2, f
     pho2.addSmearingSeed( (unsigned int)l.sc_raw[l.pho_scind[ipho2]] + abs(ieta) + abs(iphi) + l.run + l.event + l.lumis );
     pho2.setSphericalPhoton(l.CheckSphericalPhoton(ieta,iphi));
 
-    std::string cat1=eScaleSmearer->photonCategory(pho1);
-    std::string cat2=eScaleSmearer->photonCategory(pho2);
+    std::string cat1=eResolSmearer->photonCategory(pho1);
+    std::string cat2=eResolSmearer->photonCategory(pho2);
     if( PADEBUG ) std::cout<<"cat1 "<<cat1<<std::endl;
     if( PADEBUG ) std::cout<<"cat2 "<<cat2<<std::endl;
 
-    smear1 = eScaleSmearer->myParameters_.smearing_sigma[cat1]; // FIXME: stocastic term
-    smear2 = eScaleSmearer->myParameters_.smearing_sigma[cat2];
+    smear1 = EnergySmearer::getSmearingSigma(eResolSmearer->myParameters_,cat1,0.,0.); // FIXME need to pass corrected (and smeared) photon energies
+    smear2 = EnergySmearer::getSmearingSigma(eResolSmearer->myParameters_,cat2,0.,0.);
     if( PADEBUG ) std::cout<<"smear1 "<<smear1<<std::endl;
     if( PADEBUG ) std::cout<<"smear2 "<<smear2<<std::endl;
 
-    smear1_err = eScaleSmearer->myParameters_.smearing_sigma_error[cat1];
-    smear2_err = eScaleSmearer->myParameters_.smearing_sigma_error[cat2];
+    smear1_err = eResolSmearer->myParameters_.smearing_sigma_error[cat1];
+    smear2_err = eResolSmearer->myParameters_.smearing_sigma_error[cat2];
     if( PADEBUG ) std::cout<<"smear_stat_err1 "<<smear1_err<<std::endl;
     if( PADEBUG ) std::cout<<"smear_stat_err2 "<<smear2_err<<std::endl;
 
