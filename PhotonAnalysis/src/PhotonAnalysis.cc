@@ -125,19 +125,20 @@ void readEnergyScaleOffsets(const std::string &fname, EnergySmearer::energySmear
                             )
 {
     // read in energy scale corrections to be applied in run ranges
+    std::cout << "readEnergyScaleOffsets " << fname << std::endl;
     std::fstream in(fname.c_str());
     assert( in );
     char line[200];
     float EBHighR9, EBLowR9, EBm4HighR9, EBm4LowR9, EEHighR9, EELowR9;
     char catname[200];
-    float mineta, maxeta, minr9, maxr9, offset, err;
+    float mineta, maxeta, minr9, maxr9, offset, stocastic=0., err;
     int type;
     int  first, last;
     do {
         in.getline( line, 200, '\n' );
 
         if( sscanf(line,"%d %d %f %f %f %f %f %f",&first, &last, &EBHighR9, &EBLowR9, &EBm4HighR9, &EBm4LowR9, &EEHighR9, &EELowR9) == 8 ) {
-            std::cerr << "Energy scale by run " <<  first<< " " <<  last<< " " <<  EBHighR9<< " " <<  EBLowR9 << " " <<  EBm4HighR9<< " " <<  EBm4LowR9<< " " <<  EEHighR9<< " " <<  EELowR9 << std::endl;
+            std::cout << "Energy scale by run " <<  first<< " " <<  last<< " " <<  EBHighR9<< " " <<  EBLowR9 << " " <<  EBm4HighR9<< " " <<  EBm4LowR9<< " " <<  EEHighR9<< " " <<  EELowR9 << std::endl;
 
             assert( ! data );
             escaleOffsets.push_back(EnergyScaleOffset(first,last));
@@ -153,27 +154,37 @@ void readEnergyScaleOffsets(const std::string &fname, EnergySmearer::energySmear
             escaleOffsets.back().scale_offset_error["EBm4LowR9"]  = 0.;
             escaleOffsets.back().scale_offset_error["EEHighR9"] = 0.;
             escaleOffsets.back().scale_offset_error["EELowR9"]  = 0.;
-        } else if( sscanf(line,"%s %d %f %f %f %f %d %d %f %f", &catname, &type, &mineta, &maxeta, &minr9, &maxr9, &first, &last, &offset, &err  ) == 10 ) {
-        std::cerr << "Energy scale (or smering) by run " <<  catname << " " << type << " " << mineta << " " << maxeta << " " << minr9 << " " << maxr9 << " " << first << " " << last << " " << offset << " " << err << std::endl;
-
-        assert( type>=0 && type<=2 );
-
-            EnergySmearer::energySmearingParameters::eScaleVector::reverse_iterator escaleOffset =
-                find(escaleOffsets.rbegin(),escaleOffsets.rend(),std::make_pair(first,last));
-            if( escaleOffset == escaleOffsets.rend() ) {
-                std::cerr << "  adding new range range " << first << " " << last << std::endl;
-                escaleOffsets.push_back(EnergyScaleOffset(first,last));
-                escaleOffset = escaleOffsets.rbegin();
-            }
-            // chck if the category is already defined
-            if( find(photonCategories.begin(), photonCategories.end(), std::string(catname) ) == photonCategories.end() ) {
-                std::cerr << "  defining new category" << std::endl;
-                photonCategories.push_back(PhotonCategory(mineta,maxeta,minr9,maxr9,(PhotonCategory::photon_type_t)type,catname));
-            }
-            // assign the scale offset and error for this category and this run range
-            escaleOffset->scale_offset[catname] = data ? -offset : offset;
-            escaleOffset->scale_offset_error[catname] = err;
-        }
+        } else { 
+	    if( sscanf(line,"%s %d %f %f %f %f %d %d %f &f %f", &catname, &type, &mineta, &maxeta, &minr9, &maxr9, &first, &last, &offset, &stocastic, &err  ) == 11 ) {
+		std::cout << "Energy scale (or smering) by run " <<  catname << " " << type << " " << mineta << " " << maxeta << " " << minr9 << " " << maxr9 
+			  << " " << first << " " << last << " " << offset << " " << stocastic <<  " " << err << std::endl;
+	    } else if( sscanf(line,"%s %d %f %f %f %f %d %d %f %f", &catname, &type, &mineta, &maxeta, &minr9, &maxr9, &first, &last, &offset, &err  ) == 10 ) {
+		std::cout << "Energy scale (or smering) by run " <<  catname << " " << type << " " << mineta << " " << maxeta << " " << minr9 << " " << maxr9 
+			  << " " << first << " " << last << " " << offset << " " << err << std::endl;
+		
+	    } else { 
+		continue; 
+	    }
+	    
+	    assert( type>=0 && type<=2 );
+	    
+	    EnergySmearer::energySmearingParameters::eScaleVector::reverse_iterator escaleOffset =
+		find(escaleOffsets.rbegin(),escaleOffsets.rend(),std::make_pair(first,last));
+	    if( escaleOffset == escaleOffsets.rend() ) {
+		std::cout << "  adding new range range " << first << " " << last << std::endl;
+		escaleOffsets.push_back(EnergyScaleOffset(first,last));
+		escaleOffset = escaleOffsets.rbegin();
+	    }
+	    // chck if the category is already defined
+	    if( find(photonCategories.begin(), photonCategories.end(), std::string(catname) ) == photonCategories.end() ) {
+		std::cout << "  defining new category" << std::endl;
+		photonCategories.push_back(PhotonCategory(mineta,maxeta,minr9,maxr9,(PhotonCategory::photon_type_t)type,catname));
+	    }
+	    // assign the scale offset and error for this category and this run range
+	    escaleOffset->scale_offset[catname] = data ? -offset : offset;
+	    escaleOffset->scale_stocastic_offset[catname] = data ? -stocastic : stocastic;
+	    escaleOffset->scale_offset_error[catname] = err;
+	}
 
     } while( in );
 
@@ -192,7 +203,7 @@ void PhotonAnalysis::loadPuMap(const char * fname, TDirectory * dir, TH1 * targe
         in.getline( line, 200, '\n' );
 
         if( sscanf(line,"%d %s",&typid,dname) != 2 ) { continue; }
-        std::cerr << "Reading PU weights for sample " << typid << " from " << dname << std::endl;
+        std::cout << "Reading PU weights for sample " << typid << " from " << dname << std::endl;
         TDirectory * subdir = (TDirectory *)dir->Get(dname);
         assert( subdir != 0 );
         cout << "loadPuMap " << typid << " from subdir " << endl;
@@ -263,7 +274,7 @@ float PhotonAnalysis::getPuWeight(int n_pu, int sample_type, SampleContainer* co
         samplePu->Close();
         hasSpecificWeight = true;
     } else if( sample_type < 0 && !hasSpecificWeight && warnMe ) {
-            std::cerr  << "WARNING no pu weights specific for sample " << sample_type << std::endl;
+            std::cout  << "WARNING no pu weights specific for sample " << sample_type << std::endl;
         }
         std::vector<double> & puweights = hasSpecificWeight ? weights[ sample_type ] : weights[0];
         if(n_pu<puweights.size()){
@@ -999,20 +1010,6 @@ void PhotonAnalysis::Init(LoopAll& l)
         eSmearDataPars.categoryType = "Automagic";
         eSmearDataPars.n_categories = -1;
     }
-    // E resolution smearing NOT applied to data
-    eSmearDataPars.smearing_sigma["EBHighR9"] = 0.;
-    eSmearDataPars.smearing_sigma["EBLowR9"]  = 0.;
-    eSmearDataPars.smearing_sigma["EBm4HighR9"] = 0.;
-    eSmearDataPars.smearing_sigma["EBm4LowR9"]  = 0.;
-    eSmearDataPars.smearing_sigma["EEHighR9"] = 0.;
-    eSmearDataPars.smearing_sigma["EELowR9"]  = 0.;
-    // E resolution systematics NOT applied to data
-    eSmearDataPars.smearing_sigma_error["EBHighR9"] = 0.;
-    eSmearDataPars.smearing_sigma_error["EBLowR9"]  = 0.;
-    eSmearDataPars.smearing_sigma_error["EBm4HighR9"] = 0.;
-    eSmearDataPars.smearing_sigma_error["EBm4LowR9"]  = 0.;
-    eSmearDataPars.smearing_sigma_error["EEHighR9"] = 0.;
-    eSmearDataPars.smearing_sigma_error["EELowR9"]  = 0.;
 
     // energy scale corrections to Data
     eScaleDataSmearer = new EnergySmearer( eSmearDataPars );
@@ -1020,70 +1017,33 @@ void PhotonAnalysis::Init(LoopAll& l)
     eScaleDataSmearer->doEnergy(true);
     eScaleDataSmearer->scaleOrSmear(true);
 
-    if( scale_offset_error_file.empty() ) {
-        //eSmearPars.categoryType = "2CatR9_EBEE"; //GF
-        eSmearPars.categoryType = "2CatR9_EBEBm4EE";
-        eSmearPars.byRun = false;
-        //eSmearPars.n_categories = 4; //GF
-        eSmearPars.n_categories = 6;
-        // E scale is shifted for data, NOT for MC
-        eSmearPars.scale_offset["EBHighR9"] = 0.;
-        eSmearPars.scale_offset["EBLowR9"]  = 0.;
-        eSmearPars.scale_offset["EBm4HighR9"] = 0.;
-        eSmearPars.scale_offset["EBm4LowR9"]  = 0.;
-        eSmearPars.scale_offset["EEHighR9"] = 0.;
-        eSmearPars.scale_offset["EELowR9"]  = 0.;
-        // E scale systematics are applied to MC, NOT to data
-        eSmearPars.scale_offset_error["EBHighR9"] = scale_offset_error_EBHighR9;
-        eSmearPars.scale_offset_error["EBLowR9"]  = scale_offset_error_EBLowR9;
-        eSmearPars.scale_offset_error["EBm4HighR9"] = scale_offset_error_EBHighR9;
-        eSmearPars.scale_offset_error["EBm4LowR9"]  = scale_offset_error_EBLowR9;
-        eSmearPars.scale_offset_error["EEHighR9"] = scale_offset_error_EEHighR9;
-        eSmearPars.scale_offset_error["EELowR9"]  = scale_offset_error_EELowR9;
-        // E resolution smearing applied to MC
-        eSmearPars.smearing_sigma["EBHighR9"] = smearing_sigma_EBHighR9;
-        eSmearPars.smearing_sigma["EBLowR9"]  = smearing_sigma_EBLowR9;
-        eSmearPars.smearing_sigma["EBm4HighR9"] = smearing_sigma_EBm4HighR9;
-        eSmearPars.smearing_sigma["EBm4LowR9"]  = smearing_sigma_EBm4LowR9;
-        eSmearPars.smearing_sigma["EEHighR9"] = smearing_sigma_EEHighR9;
-        eSmearPars.smearing_sigma["EELowR9"]  = smearing_sigma_EELowR9;
-        // E resolution systematics applied to MC
-        eSmearPars.smearing_sigma_error["EBHighR9"] = smearing_sigma_error_EBHighR9;
-        eSmearPars.smearing_sigma_error["EBLowR9"]  = smearing_sigma_error_EBLowR9;
-        eSmearPars.smearing_sigma_error["EBm4HighR9"] = smearing_sigma_error_EBm4HighR9;
-        eSmearPars.smearing_sigma_error["EBm4LowR9"]  = smearing_sigma_error_EBm4LowR9;
-        eSmearPars.smearing_sigma_error["EEHighR9"] = smearing_sigma_error_EEHighR9;
-        eSmearPars.smearing_sigma_error["EELowR9"]  = smearing_sigma_error_EELowR9;
-        // error on photon corrections set to a fraction of the correction itself; number below is tentative (GF: push it to .dat)
-        eSmearPars.corrRelErr  = 0.5;
-    } else {
-        // Read energy scale errors and energy smaerings from dat files
-        assert( ! scale_offset_error_file.empty() && ! smearing_file.empty() );
-
-        // Use the same format used for the run-dependent energy corrections
-        EnergySmearer::energySmearingParameters::eScaleVector tmp_scale_offset, tmp_smearing;
-        EnergySmearer::energySmearingParameters::phoCatVector tmp_scale_cat, tmp_smearing_cat;
-        readEnergyScaleOffsets(scale_offset_error_file, tmp_scale_offset, tmp_scale_cat,false);
-        readEnergyScaleOffsets(smearing_file, tmp_smearing, tmp_smearing_cat,false);
-
-        // make sure that the scale correction and smearing info is as expected
-        assert( tmp_scale_offset.size() == 1); assert( tmp_smearing.size() == 1 );
-        assert( ! tmp_smearing_cat.empty() );
-        /// assert( tmp_smearing_cat == tmp_scale_cat );
-
-        // copy the read info to the smarer parameters
-        eSmearPars.categoryType = "Automagic";
-        eSmearPars.byRun = false;
-        eSmearPars.n_categories = tmp_smearing_cat.size();
-        eSmearPars.photon_categories = tmp_smearing_cat;
-
-        eSmearPars.scale_offset = tmp_scale_offset[0].scale_offset;
-        eSmearPars.scale_offset_error = tmp_scale_offset[0].scale_offset_error;
-
-        eSmearPars.smearing_sigma = tmp_smearing[0].scale_offset;
-        eSmearPars.smearing_sigma_error = tmp_smearing[0].scale_offset_error;
-    }
-
+    // Read energy scale errors and energy smaerings from dat files
+    assert( ! scale_offset_error_file.empty() && ! smearing_file.empty() );
+    
+    // Use the same format used for the run-dependent energy corrections
+    EnergySmearer::energySmearingParameters::eScaleVector tmp_scale_offset, tmp_smearing;
+    EnergySmearer::energySmearingParameters::phoCatVector tmp_scale_cat, tmp_smearing_cat;
+    readEnergyScaleOffsets(scale_offset_error_file, tmp_scale_offset, tmp_scale_cat,false);
+    readEnergyScaleOffsets(smearing_file, tmp_smearing, tmp_smearing_cat,false);
+    
+    // make sure that the scale correction and smearing info is as expected
+    assert( tmp_scale_offset.size() == 1); assert( tmp_smearing.size() == 1 );
+    assert( ! tmp_smearing_cat.empty() );
+    /// assert( tmp_smearing_cat == tmp_scale_cat );
+    
+    // copy the read info to the smarer parameters
+    eSmearPars.categoryType = "Automagic";
+    eSmearPars.byRun = false;
+    eSmearPars.n_categories = tmp_smearing_cat.size();
+    eSmearPars.photon_categories = tmp_smearing_cat;
+    
+    eSmearPars.scale_offset = tmp_scale_offset[0].scale_offset;
+    eSmearPars.scale_offset_error = tmp_scale_offset[0].scale_offset_error;
+    
+    eSmearPars.smearing_sigma = tmp_smearing[0].scale_offset;
+    eSmearPars.smearing_stocastic_sigma = tmp_smearing[0].scale_stocastic_offset;
+    eSmearPars.smearing_sigma_error = tmp_smearing[0].scale_offset_error;
+        
     // Energy resolution parameters used for diphotonBDT input
     massResoPars = eSmearPars;
     if( ! mass_resol_file.empty() ) {
@@ -1102,6 +1062,7 @@ void PhotonAnalysis::Init(LoopAll& l)
         massResoPars.photon_categories = tmp_smearing_cat;
 
         massResoPars.smearing_sigma = tmp_smearing[0].scale_offset;
+        massResoPars.smearing_stocastic_sigma = tmp_smearing[0].scale_stocastic_offset;
         massResoPars.smearing_sigma_error = tmp_smearing[0].scale_offset_error;
     }
 
@@ -1124,10 +1085,9 @@ void PhotonAnalysis::Init(LoopAll& l)
         eCorrSmearer->doCorrections(true);
     }
 
-    if (l.typerun == 2 || l.typerun == 1) {
-    }
     // MassResolution
     massResolutionCalculator = new MassResolution();
+
     /* -------------------------------------------------------------------------------------------
        Pileup Reweighting
        https://twiki.cern.ch/twiki/bin/viewauth/CMS/PileupReweighting
@@ -1172,6 +1132,7 @@ void PhotonAnalysis::Init(LoopAll& l)
 	puTargetFile->Close();
     }
 
+    // Jet handling
     if( recomputeBetas || recorrectJets || rerunJetMva || recomputeJetWp || applyJer || applyJecUnc || emulateJetResponse 
 	|| l.typerun != l.kFill && 0) {
 	std::cout << "JetHandler: \n"
@@ -1185,6 +1146,7 @@ void PhotonAnalysis::Init(LoopAll& l)
 	jetHandler_->setJetResponseStep(jetResponseLumiStep);
     }
 
+    // Beam spot reweighting
     if( emulateBeamspot || reweighBeamspot ) {
 	assert( emulatedBeamspotWidth != 0. );
 	beamspotWidth = emulatedBeamspotWidth;
@@ -1215,10 +1177,7 @@ void PhotonAnalysis::Init(LoopAll& l)
         fgbr->Close();
     */
 
-    // --------------------------------------------------------------------
-
     // ---------------------- LOAD Regression Classes ---------------------//
-
     //initialize eval vector
     _vals.resize(37);
     
@@ -1241,7 +1200,8 @@ void PhotonAnalysis::Init(LoopAll& l)
     _n1lim = new RooRealConstraint("n1lim","",*_n1,1.01,110.);
     _n2lim = new RooRealConstraint("n2lim","",*_n2,1.01,110.);     
     
-    _pdf = new RooDoubleCBFast("sigpdf","",*_tgt,RooFit::RooConst(1.),*_sigmalim,RooFit::RooConst(2.0),*_n1lim,RooFit::RooConst(1.0),*_n2lim);
+    _pdf = new RooDoubleCBFast("sigpdf","",*_tgt,RooFit::RooConst(1.),
+			       *_sigmalim,RooFit::RooConst(2.0),*_n1lim,RooFit::RooConst(1.0),*_n2lim);
     
     //add to RooArgList for proper garbage collection
     _args.addOwned(*_tgt);
@@ -1254,7 +1214,7 @@ void PhotonAnalysis::Init(LoopAll& l)
     _args.addOwned(*_n1lim);
     _args.addOwned(*_n2lim);
     _args.addOwned(*_pdf);    
-
+    
     
     // --------------------------------------------------------------------
     if(PADEBUG)
@@ -1282,6 +1242,7 @@ void PhotonAnalysis::setupEscaleSmearer()
         eScaleCorrPars.scale_offset_error = tmp_scale_offset[0].scale_offset_error;
 
         eScaleCorrPars.smearing_sigma = tmp_scale_offset[0].scale_offset;
+        eScaleCorrPars.smearing_stocastic_sigma = tmp_scale_offset[0].scale_stocastic_offset;
         eScaleCorrPars.smearing_sigma_error = tmp_scale_offset[0].scale_offset_error;
 
 	EnergySmearer::energySmearingParameters::phoCatVectorIt icat = tmp_scale_cat.begin();
@@ -1344,6 +1305,7 @@ void PhotonAnalysis::setupEresolSmearer()
         eResolCorrPars.scale_offset_error = tmp_smearing[0].scale_offset_error;
 
         eResolCorrPars.smearing_sigma = tmp_smearing[0].scale_offset;
+        eResolCorrPars.smearing_stocastic_sigma = tmp_smearing[0].scale_stocastic_offset;
         eResolCorrPars.smearing_sigma_error = tmp_smearing[0].scale_offset_error;
 
 	EnergySmearer::energySmearingParameters::phoCatVectorIt icat = tmp_smearing_cat.begin();
@@ -4241,7 +4203,7 @@ float PhotonAnalysis::ComputeEventSmearError(LoopAll& l, int ipho1, int ipho2, f
     if( PADEBUG ) std::cout<<"cat1 "<<cat1<<std::endl;
     if( PADEBUG ) std::cout<<"cat2 "<<cat2<<std::endl;
 
-    smear1 = eScaleSmearer->myParameters_.smearing_sigma[cat1];
+    smear1 = eScaleSmearer->myParameters_.smearing_sigma[cat1]; // FIXME: stocastic term
     smear2 = eScaleSmearer->myParameters_.smearing_sigma[cat2];
     if( PADEBUG ) std::cout<<"smear1 "<<smear1<<std::endl;
     if( PADEBUG ) std::cout<<"smear2 "<<smear2<<std::endl;

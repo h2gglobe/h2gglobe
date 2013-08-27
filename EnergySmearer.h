@@ -22,6 +22,7 @@ public:
 	int firstrun,  lastrun;
 	
 	std::map<std::string,float> scale_offset;
+	std::map<std::string,float> scale_stocastic_offset; // used for stocastic term smearing. Can also be reused in case of energy-dependend corrections
 	std::map<std::string,float> scale_offset_error;
 	
 };
@@ -33,11 +34,6 @@ public:
 	
 	bool operator == (const PhotonCategory & rh) const { return rh.mineta == mineta && rh.maxeta == maxeta && rh.minr9 == minr9 && rh.maxr9 == maxr9 && rh.name == name; }
 	bool operator == (const std::string & catname) const { return catname == name; }
-	///////// bool operator == (const std::pair<std::pair<float,float>,std::pair<float,float> > & photonRange ) const { 
-	///////// 	return photonRange.first.first == mineta && photonRange.first.second == maxeta && 
-	///////// 		photonRange.second.first == minr9 && photonRange.second.second == maxr9; 
-	///////// 
-	///////// };
 	bool operator == (const std::pair<bool,std::pair<float,float> > & photonCoordinates) const { 
 		return ( type == any || ( type == shperical && photonCoordinates.first || type == gap && ! photonCoordinates.first ) ) &&
 			photonCoordinates.second.first >= mineta && photonCoordinates.second.first <= maxeta && 
@@ -80,6 +76,7 @@ public:
 	  std::map<std::string,float> scale_offset_error;
 	  
 	  std::map<std::string,float> smearing_sigma;
+	  std::map<std::string,float> smearing_stocastic_sigma;
 	  std::map<std::string,float> smearing_sigma_error;
 	  
 	  phoCatVector photon_categories;

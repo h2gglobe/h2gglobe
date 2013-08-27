@@ -188,8 +188,11 @@ bool EnergySmearer::smearPhoton(PhotonReducedInfo & aPho, float & weight, int ru
 	    }
 	} else {
 	    float smearing_sigma = myParameters_.smearing_sigma.find(category)->second;
+	    float smearing_stocastic_sigma = myParameters_.smearing_stocastic_sigma.find(category)->second;
 	    float err_sigma= myParameters_.smearing_sigma_error.find(category)->second;
 	    
+	    smearing_stocastic_sigma = (smearing_stocastic_sigma * smearing_stocastic_sigma) / aPho.energy();
+	    smearing_sigma           = sqrt( smearing_sigma*smearing_sigma + smearing_stocastic_sigma );
 	    smearing_sigma += syst_shift * err_sigma;
 	    // Careful here, if sigma < 0 now, it will be squared and so not correct, set to 0 in this case.
 	    if (smearing_sigma < 0.) smearing_sigma=0.;
