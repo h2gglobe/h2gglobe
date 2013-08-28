@@ -75,7 +75,14 @@ f = ROOT.TFile(sys.argv[1])
 (procs, masses, cats) = preFlight(f)
 
 # Get The lumi from the workspace!
-ws = f.Get("cms_hgg_workspace")
+wsname = "cms_hgg_workspace"
+
+if len(sys.argv)>2 and sys.argv[2]=="--parametric":
+  wsname = "wsig_8TeV"
+  ROOT.gSystem.Load("$CMSSW_BASE/lib/$SCRAM_ARCH/libHiggsAnalysisCombinedLimit.so")
+
+ws = f.Get(wsname)
+
 lRRV = ws.var("IntLumi")
 lumi = lRRV.getVal()
 
