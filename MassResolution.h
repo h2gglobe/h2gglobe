@@ -84,7 +84,7 @@ class MassResolution {
     double subleadPhotonResolutionNoSmear();
   
   private:
-    double getPhotonResolution(double,double,double,double,bool, bool ispherical=false);
+    double getPhotonResolution(double,double, const PhotonReducedInfo &);
     
     double angleResolution();
     double angleResolutionCorrVtx();

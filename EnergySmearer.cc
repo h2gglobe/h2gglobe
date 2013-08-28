@@ -53,26 +53,27 @@ EnergySmearer::~EnergySmearer()
   delete rgen_;
 }
 
-std::string EnergySmearer::photonCategory(PhotonReducedInfo & aPho) const
+std::string EnergySmearer::photonCategory(const energySmearingParameters & myParameters, const PhotonReducedInfo & aPho)
 {
   std::string myCategory="";
-  if (myParameters_.categoryType=="Automagic") 
+  if (myParameters.categoryType=="Automagic") 
     {
 	    EnergySmearer::energySmearingParameters::phoCatVectorConstIt vit = 
-		find(myParameters_.photon_categories.begin(), 
-		     myParameters_.photon_categories.end(),   
-		     std::make_pair( aPho.isSphericalPhoton(),
-				     std::make_pair( fabs((float)aPho.caloPosition().PseudoRapidity()),(float)aPho.r9() ) )
-		    );
-	    if( vit ==  myParameters_.photon_categories.end() ) {
-		    std::cerr << "Could not find energy scale correction for this photon " << aPho.isSphericalPhoton() << " " << (float)aPho.caloPosition().PseudoRapidity() << " " <<  (float)aPho.r9() << std::endl;
+		find(myParameters.photon_categories.begin(), 
+		     myParameters.photon_categories.end(),
+		     PhotonCategory::photon_coord_t(
+			     aPho.energy()/cosh(fabs((float)aPho.caloPosition().PseudoRapidity())),
+			     fabs((float)aPho.caloPosition().PseudoRapidity()),(float)aPho.r9(),
+			     aPho.isSphericalPhoton())
+			);
+	    if( vit ==  myParameters.photon_categories.end() ) {
+		    std::cerr << "Could not find energy categoty for this photon " << 
+		      aPho.isSphericalPhoton() << " " << (float)aPho.caloPosition().PseudoRapidity() << " " <<  (float)aPho.r9() << std::endl;
 		    assert( 0 );
 	    }
 	    myCategory = vit->name;
-	    /// /std::cout << myCategory << " "  << aPho.isSphericalPhoton() << " " << (float)aPho.caloPosition().PseudoRapidity() << " " <<  (float)aPho.r9() << std::endl;
-
     } 
-  else if (myParameters_.categoryType=="2CatR9_EBEE")
+  else if (myParameters.categoryType=="2CatR9_EBEE")
     {
       if (aPho.iDet()==1)
 	myCategory+="EB";
@@ -84,7 +85,7 @@ std::string EnergySmearer::photonCategory(PhotonReducedInfo & aPho) const
       else
 	myCategory+="LowR9";
     }
-  else if (myParameters_.categoryType=="2CatR9_EBEBm4EE")
+  else if (myParameters.categoryType=="2CatR9_EBEBm4EE")
     {
       if (aPho.iDet()==1 && fabs(aPho.caloPosition().PseudoRapidity())      < 1.)
 	myCategory+="EB";
@@ -98,7 +99,7 @@ std::string EnergySmearer::photonCategory(PhotonReducedInfo & aPho) const
       else
 	myCategory+="LowR9";
     }
-  else if (myParameters_.categoryType=="EBEE")
+  else if (myParameters.categoryType=="EBEE")
     {
       if (aPho.iDet()==1)
 	myCategory+="EB";
@@ -109,7 +110,28 @@ std::string EnergySmearer::photonCategory(PhotonReducedInfo & aPho) const
     {
       std::cout << "Unknown categorization. No category name is returned" << std::endl;
     }
+  
   return myCategory;
+}
+
+float EnergySmearer::getSmearingSigma(const energySmearingParameters & myParameters, const std::string & category, float energy, float syst_shift)
+{
+  float smearing_sigma = myParameters.smearing_sigma.find(category)->second;
+  float smearing_stocastic_sigma = myParameters.smearing_stocastic_sigma.find(category)->second;
+  float err_sigma= myParameters.smearing_sigma_error.find(category)->second;
+  
+  smearing_stocastic_sigma = (smearing_stocastic_sigma * smearing_stocastic_sigma) / energy;
+  smearing_sigma           = sqrt( smearing_sigma*smearing_sigma + smearing_stocastic_sigma );
+  smearing_sigma += syst_shift * err_sigma;
+  
+  // Careful here, if sigma < 0 now, it will be squared and so not correct, set to 0 in this case.
+  if (smearing_sigma < 0.) smearing_sigma=0.;
+}
+
+
+std::string EnergySmearer::photonCategory(PhotonReducedInfo & aPho) const
+{
+  return photonCategory(myParameters_,aPho);
 }
 
 
@@ -145,12 +167,14 @@ bool EnergySmearer::smearPhoton(PhotonReducedInfo & aPho, float & weight, int ru
 	    }
     }
     if( ! preselCategories_.empty() ) {
-	if( find(preselCategories_.begin(), preselCategories_.end(),
-		 std::make_pair( aPho.isSphericalPhoton(),
-				 std::make_pair( fabs((float)aPho.caloPosition().PseudoRapidity()),(float)aPho.r9() ) )
-		) ==  preselCategories_.end() ) { 
-	    return true; 
-	}
+	    if( find(preselCategories_.begin(), preselCategories_.end(),
+		     PhotonCategory::photon_coord_t(
+			     aPho.energy()/cosh(fabs((float)aPho.caloPosition().PseudoRapidity())),
+			     fabs((float)aPho.caloPosition().PseudoRapidity()),(float)aPho.r9(),
+			     aPho.isSphericalPhoton())
+		    ) ==  preselCategories_.end() ) { 
+		    return true; 
+	    }
     }
     
     std::string category=photonCategory(aPho);
@@ -187,27 +211,22 @@ bool EnergySmearer::smearPhoton(PhotonReducedInfo & aPho, float & weight, int ru
 		    aPho.cacheVal( smearerId(), this, scale_offset );
 	    }
 	} else {
-	    float smearing_sigma = myParameters_.smearing_sigma.find(category)->second;
-	    float err_sigma= myParameters_.smearing_sigma_error.find(category)->second;
-	    
-	    smearing_sigma += syst_shift * err_sigma;
-	    // Careful here, if sigma < 0 now, it will be squared and so not correct, set to 0 in this case.
-	    if (smearing_sigma < 0.) smearing_sigma=0.;
-	    
-	    float smear = 1.;
-	    if( smearing_sigma > 0. ) {
-		// deterministic smearing
-		int nsigmas = round(syst_shift);
-		if( nsigmas < 0 ) nsigmas = 1-nsigmas;
-		if( nsigmas < aPho.nSmearingSeeds() ) {
-		    rgen_->SetSeed( baseSeed_+aPho.smearingSeed(nsigmas) );
-		}
-		smear = rgen_->Gaus(1.,smearing_sigma) ;
+	  float smearing_sigma = getSmearingSigma( myParameters_, category, aPho.energy(), syst_shift );
+	  
+	  float smear = 1.;
+	  if( smearing_sigma > 0. ) {
+	    // deterministic smearing
+	    int nsigmas = round(syst_shift);
+	    if( nsigmas < 0 ) nsigmas = 1-nsigmas;
+	    if( nsigmas < aPho.nSmearingSeeds() ) {
+	      rgen_->SetSeed( baseSeed_+aPho.smearingSeed(nsigmas) );
 	    }
-	    if( syst_shift == 0. ) {
-		    aPho.cacheVal( smearerId(), this, smear );
-	    }
-	    newEnergy *=  smear;
+	    smear = rgen_->Gaus(1.,smearing_sigma) ;
+	  }
+	  if( syst_shift == 0. ) {
+	    aPho.cacheVal( smearerId(), this, smear );
+	  }
+	  newEnergy *=  smear;
 	}
     }
     if( newEnergy == 0. ) {
