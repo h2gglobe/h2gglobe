@@ -20,6 +20,7 @@ parser.add_option("-n","--njobs",dest="njobs",type="int",help="Number of jobs to
 parser.add_option("-j","--jstart",dest="jstart",type="int",default=0,help="Start job number here")
 parser.add_option("-q","--queue",dest="queue",type="str",default="8nh",help="Which queue to run job in")
 parser.add_option("-e","--eosPath",dest="eosPath",help="Write output files to eos")
+parser.add_option("--takeOtherFiles",type="str",help="Copy these files over to batch sandbox")
 parser.add_option("","--skipPlots",default=False,action="store_true",help="Don\'t plot all the envelopes")
 parser.add_option("","--dryRun",dest="dryRun",default=False,action="store_true",help="Don't submit")
 (options,args)=parser.parse_args()
@@ -50,6 +51,8 @@ def writeSubScript(cat,mlow,mhigh,mstep,outdir,muInject,massInject):
     f.write('cp %s .\n'%os.path.abspath(options.bkgfilename))
     f.write('cp %s .\n'%os.path.abspath(options.datfile))
     f.write('cp %s/bin/BiasStudy .\n'%(os.getcwd()))
+    for sandbox_file in options.takeOtherFiles.split(','):
+      f.write('cp %s . \n'%os.path.abspath(sandbox_file))
     f.write('touch %s.run\n'%(f.name))
     execline = subline + ' -j %d -o BiasStudyOut_cat%d_job%d.root'%(j,cat,j)
     f.write('if ( %s ) then \n'%execline)

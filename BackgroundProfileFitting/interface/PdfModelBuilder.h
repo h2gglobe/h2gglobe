@@ -64,7 +64,7 @@ class PdfModelBuilder {
     RooAbsPdf* getExponentialSingle(string prefix, int order);
     RooAbsPdf* getLaurentSeries(string prefix, int order);
     RooAbsPdf* getKeysPdf(string prefix);
-    
+    RooAbsPdf* getPdfFromFile(string &prefix);
 
   private:
    

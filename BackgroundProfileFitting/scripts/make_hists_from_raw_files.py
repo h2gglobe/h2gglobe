@@ -56,7 +56,11 @@ def makeHists(cat=0,meanB=50,meanL=-4.,meanH=4.,errB=50,errL=0.5,errH=1.5,pullB=
   for key in test_file.GetListOfKeys():
     if 'truth' not in key.GetName(): continue
     if 'hybrid' in key.GetName():
-      truth = 'hybrid'+key.GetName().split('_truth')[0].split('hybrid')[1] 
+      truth = 'hybrid'+key.GetName().split('_truth')[0].split('hybrid')[1].split('_cat')[0]
+    elif 'smooth' in key.GetName():
+      truth = 'smooth'+key.GetName().split('_truth')[0].split('smooth')[1]
+    elif 'kpdf' in key.GetName():
+      truth = 'kpdf'+key.GetName().split('_truth')[0].split('kpdf')[1]
     else:
       truth= key.GetName().split('truth')[1].split('_cat')[0][1:]
     truth_models.add(truth)
@@ -109,7 +113,11 @@ def makeHists(cat=0,meanB=50,meanL=-4.,meanH=4.,errB=50,errL=0.5,errH=1.5,pullB=
       graph = key.ReadObj()
       if 'Envelope' not in graph.GetName(): continue
       if 'hybrid' in key.GetName():
-        truth = 'hybrid'+key.GetName().split('_truth')[0].split('hybrid')[1] 
+        truth = 'hybrid'+key.GetName().split('_truth')[0].split('hybrid')[1].split('_cat')[0] 
+      elif 'smooth' in key.GetName():
+        truth = 'smooth'+key.GetName().split('_truth')[0].split('smooth')[1]
+      elif 'kpdf' in key.GetName():
+        truth = 'kpdf'+key.GetName().split('_truth')[0].split('kpdf')[1]
       else:
         truth = graph.GetName().split('truth')[1].split('_cat')[0][1:]
       type = graph.GetName().split('Envelope')[0]
