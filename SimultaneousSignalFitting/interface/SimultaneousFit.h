@@ -34,7 +34,7 @@ class SimultaneousFit {
   
   public:
     
-    SimultaneousFit(string infilename, string outfilename, int mhLow=110, int mhHigh=150, int verbose=0, int nInclusiveCats=4, int nExclusiveCats=5, bool SMasBkg=true, bool SecHiggs=true, bool NatWidth=true);
+    SimultaneousFit(string infilename, string outfilename, int mhLow=110, int mhHigh=150, int verbose=0, int nInclusiveCats=4, int nExclusiveCats=5, bool SMasBkg=true, bool SecHiggs=true, bool NatWidth=true, bool spin=false, bool splitVH=true);
     ~SimultaneousFit();
 
     void runFit(string proc="ggh", int cat=0, int nGaussians=3, int dmOrder=1, int sigmaOrder=1, int fracOrder=0, bool recursive=false, bool setToFitValues=true);
