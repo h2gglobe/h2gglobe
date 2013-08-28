@@ -25,8 +25,11 @@ if [[ -n $packs ]]; then
 fi
 
 # Regression (need to adapt get_tag for github)
-if [[ ! -d HiggsAnalysis/GBRLikelihood  ]]; then 
- git clone -b hggpaperV5 https://github.com/bendavid/GBRLikelihood.git HiggsAnalysis/GBRLikelihood
+if [[ ! -d HiggsAnalysis/GBRLikelihood  ]]; then
+ if [[ $CMSSW_VERSION == CMSSW_6_* ]]; then 
+  git clone -b hggpapertraining https://github.com/bendavid/GBRLikelihood.git HiggsAnalysis/GBRLikelihood
+  else git clone -b hggpaperV5 https://github.com/bendavid/GBRLikelihood.git HiggsAnalysis/GBRLikelihood
+ fi
 fi 
 cd HiggsAnalysis/GBRLikelihood
 scram b
