@@ -373,12 +373,8 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
     l.SetAllMVA();
     // UCSD
     l.tmvaReaderID_UCSD->BookMVA("Gradient"      ,photonLevelMvaUCSD.c_str()  );
-<<<<<<< HEAD
     //l.tmvaReader_dipho_UCSD->BookMVA("Gradient"  ,eventLevelMvaUCSD.c_str()   );
 
-=======
-    //// l.tmvaReader_dipho_UCSD->BookMVA("Gradient"  ,eventLevelMvaUCSD.c_str()   );
->>>>>>> e58622aa1d79f6bbbe9f91d58455575e6a0de219
     // New ID MVA
     if( photonLevelNewIDMVA_EB != "" && photonLevelNewIDMVA_EE != "" ) {
 	l.tmvaReaderID_Single_Barrel->BookMVA("AdaBoost",photonLevelNewIDMVA_EB.c_str());

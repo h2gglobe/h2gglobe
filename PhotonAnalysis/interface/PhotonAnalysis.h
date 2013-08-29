@@ -186,6 +186,7 @@ class PhotonAnalysis : public BaseAnalysis
     // Other options
     bool runStatAnalysis;
     TString puHist, puMap, puTarget;//name of pileup reweighting histogram
+    std::vector<TString> puTargets; 
 
     enum BkgCategory{promptprompt,promptfake,fakefake};
     bool keepPP, keepPF, keepFF;
@@ -439,8 +440,10 @@ class PhotonAnalysis : public BaseAnalysis
     // Pile-up reweighing
     void loadPuMap(const char * fname, TDirectory * dir, TH1 * target=0);
     void loadPuWeights(int typid, TDirectory * dir, TH1 * target=0);
-    float getPuWeight(int npu, int sample_type, SampleContainer* container, bool warnMe);
+    void load2DPuWeights(int typid, TDirectory* dir, std::vector<TH1*> target);
+    float getPuWeight(int npu, int sample_type, SampleContainer* container, bool warnMe, int run=0);
     TH1 * puTargetHist;
+    std::vector<TH1*> puTargetHists;
 
     std::string name_;
 
@@ -476,6 +479,7 @@ class PhotonAnalysis : public BaseAnalysis
     void switchJetIdVertex(LoopAll &l, int ivtx);
 
     std::map<int, vector<double> > weights;
+    std::map<int, std::vector<vector<double> > > rd_weights;
     int trigCounter_;
 
     // MC smearing and correction machinery

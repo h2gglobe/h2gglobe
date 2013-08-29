@@ -627,7 +627,7 @@ bool StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     nevents+=1.;
 
     //PU reweighting
-    double pileupWeight=getPuWeight( l.pu_n, cur_type, &(l.sampleContainer[l.current_sample_index]), jentry == 1);
+    double pileupWeight=getPuWeight( l.pu_n, cur_type, &(l.sampleContainer[l.current_sample_index]), jentry == 1, l.run);
     sumwei +=pileupWeight;
     weight *= pileupWeight;
     sumev  += weight;
