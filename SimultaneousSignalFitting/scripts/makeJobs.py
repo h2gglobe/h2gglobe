@@ -11,6 +11,7 @@ parser.add_option("-L","--mhLow",dest="mhLow",type="int",default=110)
 parser.add_option("-H","--mhHigh",dest="mhHigh",type="int",default=150)
 parser.add_option("--submit",action="store_true",dest="submit",default=False)
 parser.add_option("--runLocal",action="store_true",dest="runLocal",default=False)
+parser.add_option("--splitVH",action="store_true",dest="splitVH",default=False)
 parser.add_option("--linearInterp",action="store_true",dest="linearInterp",default=False)
 parser.add_option("--loadPriorConstraints",action="store_true",dest="loadPriorConstraints",default=False)
 parser.add_option("--constraintValue",dest="constraintValue",type="float",default=0.1)
@@ -18,6 +19,12 @@ parser.add_option("--dryRun",action="store_true",dest="dryRun",default=False)
 (options,args)=parser.parse_args()
 
 import os
+import sys
+
+print "This code has been updated to a new package which can be run by executing:"
+print "\t ./bin/SignalFit -i <infile> -o <outfile> -d dat/newConfig.dat [--splitVH]"
+message = raw_input("Are you sure you want to continue? [y/n]");
+if message=="n": sys.exit()
 
 os.system('mkdir -p %s'%options.outputdir)
 
@@ -51,6 +58,7 @@ for line in datfile.readlines():
   if options.loadPriorConstraints: subLine += '--loadPriorConstraints --constraintValue %1.4f '%options.constraintValue
   if options.fork: subLine += '--fork %d '%options.fork
   if options.recursive: subLine += '--recursive '
+  if options.splitVH: subLine += '--splitVH '
   
   combinefile.write('%s %s_cat%d\n'%(outfile,proc,cat))
   if not options.dryRun:

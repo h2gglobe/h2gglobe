@@ -17,6 +17,14 @@
 //#include "../../../../HiggsToGammaGamma/interface/GBRForest.h"
 //#include "HiggsAnalysis/HiggsToGammaGamma/interface/GBRForest.h"
 
+#include "RooArgList.h"
+#include "RooRealVar.h"
+#include "RooAbsPdf.h"
+//#include "HiggsAnalysis/GBRLikelihoodEGTools/interface/EGEnergyCorrectorSemiParm.h"
+#include "HiggsAnalysis/GBRLikelihood/interface/RooHybridBDTAutoPdf.h"
+#include "HiggsAnalysis/GBRLikelihood/interface/RooDoubleCBFast.h"
+#include "HiggsAnalysis/GBRLikelihood/interface/HybridGBRForest.h"
+
 class JetHandler;
 
 // ------------------------------------------------------------------------------------
@@ -46,7 +54,7 @@ class PhotonAnalysis : public BaseAnalysis
     virtual void ResetAnalysis();
 
     float zero_;
-    //void GetRegressionCorrections(LoopAll&);
+    void GetRegressionCorrections(LoopAll&);
     //  void GetRegressionCorrections(LoopAll&);
     // Public parameters to be read from config file
     VertexAlgoParameters vtxAlgoParams;
@@ -118,6 +126,7 @@ class PhotonAnalysis : public BaseAnalysis
     TH1F *ptreweighHistQQ;
 
     bool saveDatacardTrees_;
+    double datacardTreeMass;
     bool saveSpinTrees_;
     bool saveVBFTrees_;
 
@@ -446,7 +455,7 @@ class PhotonAnalysis : public BaseAnalysis
     float ComputeEventScaleError(LoopAll& l, int ipho1, int ipho2, float & scale1, float & scale1_err, float & scale2, float & scale2_err);
     float ComputeEventSmearError(LoopAll& l, int ipho1, int ipho2, float & smear1, float & smear1_err, float & smear2, float & smear2_err);
     pair<double,double> ComputeNewSigmaMs(LoopAll &l, int ipho1, int ipho2, int ivtx, float syst_shift);
-    void saveDatCardTree(LoopAll& l, int cur_type, int category, int inc_cat, float evweight, int ipho1, int ipho2, int ivtx, TLorentzVector lead_p4, TLorentzVector sublead_p4, bool isCutBased=true, double sigmaMrv=0., double sigmaMwv=0., double sigmaMeonly=0., float vtxProb=0., string trainPhi="", float lead_id_mva=0., float sublead_id_mva=0.);
+    void saveDatCardTree(LoopAll& l, int cur_type, int category, int inc_cat, float evweight, int ipho1, int ipho2, int ivtx, TLorentzVector lead_p4, TLorentzVector sublead_p4, bool isCutBased, string proc, double sigmaMrv=0., double sigmaMwv=0., double sigmaMeonly=0., float vtxProb=0., string trainPhi="", float lead_id_mva=0., float sublead_id_mva=0.);
     
     // Save spin trees
     void saveSpinTree(LoopAll &l, int category, float evweight, TLorentzVector Higgs, TLorentzVector lead_p4, TLorentzVector sublead_p4, int ipho1, int ipho2, int diphoton_id, float vtxProb, bool isCorrectVertex);
@@ -529,6 +538,29 @@ class PhotonAnalysis : public BaseAnalysis
 
 
     int VHNumberOfJets(LoopAll& l, int diphotonVHlep_id, int vertex, bool VHelevent_prov, bool VHmuevent_prov, int el_ind, int mu_ind, float* smeared_pho_energy);
+
+
+    // For semi-parametric Regression 
+    
+    std::vector<float> _vals;
+    
+    HybridGBRForest *_foresteb;
+    HybridGBRForest *_forestee;
+
+    RooRealVar *_mean;
+    RooRealVar *_tgt;
+    RooRealVar *_sigma;
+    RooRealVar *_n1;
+    RooRealVar *_n2;  
+    
+    RooAbsReal *_meanlim;
+    RooAbsReal *_sigmalim;
+    RooAbsReal *_n1lim;
+    RooAbsReal *_n2lim;        
+    
+    RooAbsPdf *_pdf;
+    
+    RooArgList _args;
 
     //TFile *fgbr;
     //GBRForest *fReadereb;

@@ -1,0 +1,46 @@
+intL=19600. histfile=/store/cmst3/user/malberti/HIGGS/VBF/zmumu_validation_jetid/LegacyPaper/%(label)s/jetidanalysis.root output=eventsList.txt
+#intL=19600. histfile=jetanalysis.root output=shifo.root
+
+##
+##Data
+##
+
+#2012A
+typ=0 ind=1 draw=1  Nam=Data   CaDir=/store/group/phys_higgs/cmshgg/processed/V15_00_08/data/DoubleMu_Run2012A-22Jan2013-v1  red=0 lum=1.0  xsec=-1.0     kfac=1.000000  scal=1.000000  json=aux/Cert_190456-208686_8TeV_22Jan2013ReReco_Collisions12_JSON.txt
+
+#2012B
+typ=0 ind=1 draw=1  Nam=Data   CaDir=/store/group/phys_higgs/cmshgg/processed/V15_00_08/data/DoubleMuParked_Run2012B-22Jan2013-v1  red=0 lum=1.0  xsec=-1.0     kfac=1.000000  scal=1.000000  json=aux/Cert_190456-208686_8TeV_22Jan2013ReReco_Collisions12_JSON.txt
+
+#2012C
+typ=0 ind=1 draw=1  Nam=Data   CaDir=/store/group/phys_higgs/cmshgg/processed/V15_00_08/data/DoubleMuParked_Run2012C-22Jan2013-v1    red=0 lum=1.0  xsec=-1.0     kfac=1.000000  scal=1.000000  json=aux/Cert_190456-208686_8TeV_22Jan2013ReReco_Collisions12_JSON.txt
+
+#2012D
+typ=0 ind=1 draw=1  Nam=Data   CaDir=/store/group/phys_higgs/cmshgg/processed/V15_00_08/data/DoubleMuParked_Run2012D-22Jan2013-v1 red=0 lum=1.0  xsec=-1.0     kfac=1.000000  scal=1.000000  json=aux/Cert_190456-208686_8TeV_22Jan2013ReReco_Collisions12_JSON.txt
+
+
+##
+##MC
+##
+
+typ=+6 ind=1 draw=1  Nam=DYJetsToLL   CaDir=/store/group/phys_higgs/cmshgg/processed/V15_00_08/mc/Summer12_DR53X-PU_RD1_START53_V7N/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_RD1_START53_V7N-v1_AODSIM_ZMuMuFilter  red=0  lum=1.0   xsec=3532.8   kfac=1.15  scal=1. pileup=root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/processed/V15_00_08/mc/Summer12_DR53X-PU_RD1_START53_V7N/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_RD1_START53_V7N-v1_AODSIM_ZMuMuFilter.pileup.root 
+
+##
+## Branches to use
+##
+inputBranches jetanalysis/jetanalysis_zmumuvalidation_input.dat
+
+plotvariables jetanalysis/plotvariables.dat
+treevariables
+runZeeValidation=0
+
+
+
+## define analyses to run
+## 	a library containing the class dictionary has loaded before parsing the 
+## 	configuration file
+## syntax:
+## 	analyzer <class_name> <config_file>
+## 
+## analyzer PhotonAnalysis photonanalysis.dat	
+analyzer JetIdAnalysis photonanalysis.dat analysis_settings.dat statanalysis.dat jetanalysis/jetanalysis.dat recomputeBetas=0 recorrectJets=0 rerunJetMva=0 recomputeJetWp=1 runZmumuValidation=1 saveAllJets=0 
+

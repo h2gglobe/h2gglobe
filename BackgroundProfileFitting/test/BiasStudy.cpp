@@ -10,6 +10,7 @@
 #include "boost/lexical_cast.hpp"
 #include "boost/algorithm/string/split.hpp"
 #include "boost/algorithm/string/classification.hpp"
+#include "boost/algorithm/string/predicate.hpp"
 
 #include "TFile.h"
 #include "TTree.h"
@@ -49,6 +50,29 @@ void readDatFile(string datFileName, int cat, vector<pair<int,pair<string,string
     string type = line.substr(0,line.find("="));
     string pdfs = line.substr(line.find("=")+1,string::npos);
     
+    if (type=="truth" && starts_with(pdfs,"Hybrid")){
+      vector<string> els;
+      split(els,pdfs,boost::is_any_of(":"));
+      string masses=els[1];
+      string funcs=els[2];
+      toysMap.push_back(pair<int,pair<string,string> >(-1,make_pair(masses,funcs)));
+      continue;
+    }
+    if (type=="truth" && starts_with(pdfs,"KeysPdf")){
+      vector<string> els;
+      split(els,pdfs,boost::is_any_of(":"));
+      string rho=els[1];
+      string name=els[2];
+      toysMap.push_back(pair<int,pair<string,string> > (-2,make_pair(rho,name)));
+      continue;
+    }
+    if (type=="truth" && starts_with(pdfs,"File")){
+      vector<string> els;
+      split(els,pdfs,boost::is_any_of(":"));
+      toysMap.push_back(pair<int,pair<string,string> > (-3,make_pair(els[2],els[0])));
+      continue;
+    }
+
     if (type=="truth" || type=="fabian" || type=="paul"){
       vector<string> els;
       split(els,pdfs,boost::is_any_of(":"));
@@ -94,6 +118,9 @@ int main(int argc, char* argv[]){
   int expectSignalMass;
   bool skipPlots=false;
   int verbosity;
+  bool throwHybridToys=false;
+  vector<float> switchMass;
+  vector<string> switchFunc;
 
   po::options_description desc("Allowed options");
   desc.add_options()
@@ -229,6 +256,26 @@ int main(int argc, char* argv[]){
   // add truth pdfs from config datfile these need to be cached
   // to throw a toy from the SB fit make sure that the cache happens at makeSBPdfs
   for (vector<pair<int,pair<string,string> > >::iterator it=toysMap.begin(); it!=toysMap.end(); it++){
+    if (it->first==-1) { // this is a hyrbid toy
+      throwHybridToys=true;
+      vector<string> temp;
+      split(temp,it->second.first,boost::is_any_of(","));
+      split(switchFunc,it->second.second,boost::is_any_of(","));
+      for (unsigned int i=0; i<temp.size(); i++){
+        switchMass.push_back(atof(temp[i].c_str()));
+      }
+      continue; 
+    }
+    if (it->first==-2) { // this is a keys pdf toy
+      double rho = lexical_cast<double>(it->second.first);
+      toysModel.setKeysPdfAttributes(data,rho);
+      toysModel.addBkgPdf("KeysPdf",0,Form("truth_%s_cat%d",it->second.second.c_str(),cat),false);
+      continue;
+    }
+    if (it->first==-3) { // this is read pdf from file
+      toysModel.addBkgPdf(it->second.second,it->first,it->second.first,false);
+      continue;
+    }
     toysModel.addBkgPdf(it->second.second,it->first,Form("truth_%s_cat%d",it->second.first.c_str(),cat),false); 
   }
   toysModel.setSignalPdfFromMC(sigMC);
@@ -320,9 +367,18 @@ int main(int argc, char* argv[]){
     muChi2ErrHigh.clear();
     muAICErrHigh.clear();
     // throw toy
-    toysModel.throwToy(Form("truth_job%d_toy%d",jobn,toy),dataBinned->sumEntries(),false,true,true,true);
-    map<string,RooAbsData*> toys = toysModel.getToyData();
-    if (!skipPlots) toysModel.plotToysWithPdfs(Form("%s/plots/toys/job%d_toy%d",outDir.c_str(),jobn,toy),80,false);
+    map<string,RooAbsData*> toys; 
+    if (throwHybridToys) {
+      toysModel.throwHybridToy(Form("truth_job%d_toy%d",jobn,toy),dataBinned->sumEntries(),switchMass,switchFunc,false,true,true,true);
+      toys = toysModel.getHybridToyData();
+      if (!skipPlots) toysModel.plotToysWithPdfs(Form("%s/plots/toys/job%d_toy%d",outDir.c_str(),jobn,toy),80,false);
+      if (!skipPlots) toysModel.plotHybridToy(Form("%s/plots/toys/job%d_toy%d",outDir.c_str(),jobn,toy),80,switchMass,switchFunc,false);
+    }
+    else {
+      toysModel.throwToy(Form("truth_job%d_toy%d",jobn,toy),dataBinned->sumEntries(),false,true,true,true);
+      toys = toysModel.getToyData();
+      if (!skipPlots) toysModel.plotToysWithPdfs(Form("%s/plots/toys/job%d_toy%d",outDir.c_str(),jobn,toy),80,false);
+    }
     for (map<string,RooAbsData*>::iterator it=toys.begin(); it!=toys.end(); it++){
       // ----- USEFUL DEBUG -----------
       //  --- this can be a useful check that the truth model values are being cached properly ---

@@ -18,8 +18,9 @@
 #include "TLine.h"
 #include "TStyle.h"
 #include "TROOT.h"
+#include "TGraph.h"
  
-#include "../interface/Optimizations.h"
+//#include "../interface/Optimizations.h"
 
 using namespace std;
 
@@ -40,6 +41,18 @@ class Optimizations {
 	TH2F *getCategoryMap(){return FinalHist;};
 	TH2F *getSignalTarget(){return targetS2d;};
 	TH2F *getBackgroundTarget(){return targetB2d;};
+	TGraph *getOptimizationGraph(){
+		if (optGr){
+		 gROOT->SetBatch(0);
+		 optGr->Draw();
+		 optGr->SetMarkerStyle(20);
+		 optGr->SetMarkerSize(1.0);
+	 	 optGr->SetName("Optimization");
+	 	 optGr->GetYaxis()->SetTitle("#sigma_{exp}");
+		 optGr->GetXaxis()->SetTitle("Number of Bins");	
+		}
+		return optGr;
+	};
 	int getFinalNumberOfBins(){return nFinalBins;};
 
 	void smoothHistograms(double bandwidths=0.01,double bandwidthb=0.01, int mode=0); // 1% of data, default linear regression
@@ -48,7 +61,7 @@ class Optimizations {
     protected: 
 
 	void maxSigScan(double *maximumSignificance,int *frozen_counters,int *chosen_counters, int N,int *counters, int movingCounterIndex);
-	std::vector<double> significanceOptimizedBinning();
+	std::vector<double> significanceOptimizedBinning(TGraph *optGr=0);
 
 	
 	double defx(double val){ return TMath::Log(1+100*val);};
@@ -76,6 +89,8 @@ class Optimizations {
 
 	TH1F *targetS;
 	TH1F *targetB;
+
+	TGraph *optGr;
 
 	int nNewBins;
 	int nFinalBins;

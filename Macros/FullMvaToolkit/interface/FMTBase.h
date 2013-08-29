@@ -14,7 +14,7 @@ using namespace std;
 class FMTBase {
 
 	public:
-		FMTBase(){};
+		FMTBase();
 		FMTBase(double,bool,int, int, double, double, double, int, double, double, int, int, int, double, double, int, bool, int, bool, int, vector<string>, bool, vector<map<int,vector<double> > >, bool verbose=false); 
 		~FMTBase(){};
 
@@ -31,6 +31,7 @@ class FMTBase {
 		double getmassMin();
 		double getmassMax();
 		int getnDataBins();
+		double getdiphotonBdtCut(){return diphotonBdtCut_;};
 		
 		double getsignalRegionWidth();
 		double getsidebandWidth();
@@ -86,6 +87,7 @@ class FMTBase {
 		void setmassMin(double);
 		void setmassMax(double);
 		void setnDataBins(int);
+		void setdiphotonBdtCut(double dipho){diphotonBdtCut_=dipho;};
 		
 		void setsignalRegionWidth(double);
 		void setsidebandWidth(double);
@@ -95,6 +97,7 @@ class FMTBase {
 		void setmassSidebandMin(double);
 		void setmassSidebandMax(double);
 
+    void setnMassFacInclusiveCateogies(int num){nMassFacInclusiveCategories_=num;};
     void setnIncCateogies(int);
 		void setincludeVBF(bool);
     void setnVBFCategories(int);
@@ -113,7 +116,9 @@ class FMTBase {
 		void setVBFBinEdges(map<int,vector<double> >);
 		void setLEPBinEdges(map<int,vector<double> >);
 		void updateBinEdges();
+		void setuseSidebandBDT(bool doit){useSidebandBDT_=doit;	};
 
+    void setisCutBased(bool cutb){ isCutBased_=cutb; };
     void setis2011(bool);
     void setintLumi(double);
 
@@ -137,6 +142,7 @@ class FMTBase {
 		double massMin_;
 		double massMax_;
 		int nDataBins_;
+		double diphotonBdtCut_;
 		
 		double signalRegionWidth_;
 		double sidebandWidth_;
@@ -147,6 +153,7 @@ class FMTBase {
 		double massSidebandMax_;
 
     int nIncCategories_;
+    int nMassFacInclusiveCategories_;
 		bool includeVBF_;
     int nVBFCategories_;
 		bool includeLEP_;
@@ -156,6 +163,8 @@ class FMTBase {
 		vector<string> systematics_;
     vector<string> processes_;
 
+    bool isCutBased_;
+    bool useSidebandBDT_;
 		bool rederiveOptimizedBinEdges_;
 		map<int, vector<double> > BinEdges_;
 		map<int, vector<double> > VBFBinEdges_;

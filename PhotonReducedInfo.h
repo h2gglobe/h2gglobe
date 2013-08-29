@@ -10,13 +10,13 @@
 class PhotonReducedInfo
 {
 public:
-  
-  PhotonReducedInfo();
+	
+	// PhotonReducedInfo();
   PhotonReducedInfo(const TVector3 & caloPosition, float energy, float corrEnergy, int iDet, float r9, bool passId, float corrEnergyErr=0);
 
   
-  PhotonReducedInfo(const PhotonReducedInfo &obj){copy_(obj);}
-  PhotonReducedInfo & operator= (const PhotonReducedInfo &obj);
+  // PhotonReducedInfo(const PhotonReducedInfo &obj){copy_(obj);}
+  // PhotonReducedInfo & operator= (const PhotonReducedInfo &obj);
 
   const TVector3 & caloPosition() const { return caloPosition_; }
   int iDet() const {return iDet_;}
@@ -71,7 +71,7 @@ protected:
 
   std::vector<int> smearingSeeds_;
   std::vector<std::pair<const BaseSmearer *, float> > cache_;
-  void copy_(const PhotonReducedInfo &);
+  /// void copy_(const PhotonReducedInfo &);
 };
 
 

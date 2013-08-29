@@ -1,0 +1,21 @@
+
+imax 1 number of bins
+jmax 4 number of processes minus 1
+kmax 1 number of nuisance parameters
+----------------------------------------------------------------------------------------------------------------------------------
+shapes VH               %(cat)s  CMS-HGG_sigfit_nonuis.root wsig_8TeV:sigpdfrel_wzh_%(cat)s
+shapes bkg              %(cat)s  %(bkg_shape)s
+shapes data_obs         %(cat)s  CMS-HGG.root cms_hgg_workspace:roohist_data_mass_%(cat)s
+shapes ggH              %(cat)s  CMS-HGG_sigfit_nonuis.root wsig_8TeV:sigpdfrel_ggh_%(cat)s
+shapes qqH              %(cat)s  CMS-HGG_sigfit_nonuis.root wsig_8TeV:sigpdfrel_vbf_%(cat)s
+shapes ttH              %(cat)s  CMS-HGG_sigfit_nonuis.root wsig_8TeV:sigpdfrel_tth_%(cat)s
+----------------------------------------------------------------------------------------------------------------------------------
+bin          %(cat)s
+observation  -1.0           
+----------------------------------------------------------------------------------------------------------------------------------
+bin          %(cat)s  %(cat)s  %(cat)s  %(cat)s  %(cat)s
+process      VH               ttH              ggH              qqH              bkg            
+process      -3               -2               -1               0                1              
+rate         1.           1.           1.           1.           1.0000         
+----------------------------------------------------------------------------------------------------------------------------------
+lumi_8TeV               lnN              1.00000000001        1.00000000001        1.00000000001        1.00000000001        -          

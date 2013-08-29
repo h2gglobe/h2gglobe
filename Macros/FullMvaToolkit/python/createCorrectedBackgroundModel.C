@@ -57,8 +57,8 @@ double global_MASSSIDEBANDMAX=180;
 // E.g if each error is scaled by 20%, set this to 0.2 and each term in the error matrix is scaled by 1.44
 #define global_SYSTEMATICBIAS 0.2
 
-const int global_nMaxBdtBins(15);
-const int global_nMaxMassBins(15);
+const int global_nMaxBdtBins(25);
+const int global_nMaxMassBins(25);
 
 const int maxPar(2*(global_nMaxBdtBins-1)+global_nMaxMassBins);
 
@@ -247,7 +247,7 @@ void fillData(double mH,TFile *in, std::string type){
 }
 
 void paulFit(TDirectory *mDir,TH1F* fMFitS,TH1F* hMFitS,TH2F* hFCovar, bool makePlots, string type){
-	std::string label[global_nMaxMassBins]={"00","01","02","03","04","05","06","07","08","09","10","11","12","13","14"};
+	std::string label[global_nMaxMassBins]={"00","01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16","17","18","19","20","21","22","23","25"};
 
 	TH1F *hMRaw[global_nMaxMassBins],*hMFit[global_nMaxMassBins];
 	TGraphErrors *hBRaw[global_nMaxBdtBins],*hBFit[global_nMaxBdtBins];
@@ -625,7 +625,7 @@ void diagonalizeMatrix(TH2F *th2f_covar,TH2F *th2f_out){
 
 }
 
-void createCorrectedBackgroundModel(std::string fileName, int nsidebands=6, double sidebandWidth_=0.02, double signalRegionWidth_=0.02, int numberOfSidebandGaps_=1, double massSidebandMin_=99., double massSidebandMax_=180., double mHLow=110, double mHHigh=150, double mHStep=0.5, bool makePlots=false, bool blind=false, std::string defaultPrepend="CMS-HGG" ){
+void createCorrectedBackgroundModel(std::string fileName, int nsidebands=6, double sidebandWidth_=0.02, double signalRegionWidth_=0.02, int numberOfSidebandGaps_=1, double massSidebandMin_=99., double massSidebandMax_=180., double mHLow=110, double mHHigh=150, double mHStep=0.5, bool makePlots=false, bool blind=false, std::string defaultPrepend=".root" ){
 
   global_BLIND=blind;
 	global_SIDEBANDWIDTH=sidebandWidth_;
@@ -655,9 +655,9 @@ void createCorrectedBackgroundModel(std::string fileName, int nsidebands=6, doub
 
 
 	// Create An output file for the TF1 Sideband Fits
-	std::string pathToFile=fileName.substr(0,fileName.find(defaultPrepend.c_str()));
-	std::string fName=fileName.substr(fileName.find(defaultPrepend.c_str()),fileName.size());
-	TFile *out = new TFile(Form("%sbdtSidebandFits_%s_%s",pathToFile.c_str(),type.c_str(),fName.c_str()),"RECREATE");
+	//std::string pathToFile=fileName.substr(0,fileName.find(defaultPrepend.c_str()));
+	std::string fName=fileName.substr(0,fileName.find(defaultPrepend.c_str()));
+	TFile *out = new TFile(Form("%sbdtSidebandFits_%s.root",fName.c_str(),type.c_str()),"RECREATE");
 	std::cout<< "STARTING LOOP OVER MH" <<std::endl;
 	for (double mH=massMin;mH<=massMax;mH+=dM){
 

@@ -19,15 +19,15 @@ void JetIdEfficiencyScaleFactors(string idType  = "cutbasedId",
   int N = 4;
 
   TFile* f[4][2]; 
-  f[0][0] = new TFile("testjetid_mc_TK_pt20to100.root"); //DATA
-  f[1][0] = new TFile("testjetid_mc_HEin_pt20to100.root"); //DATA
-  f[2][0] = new TFile("testjetid_mc_HEout_pt20to100.root"); //DATA
-  f[3][0] = new TFile("testjetid_mc_HF_pt20to100.root"); //DATA
+  f[0][0] = new TFile("jetid_legacy/testjetid_mc_TK_pt20to100.root"); //DATA
+  f[1][0] = new TFile("jetid_legacy/testjetid_mc_HEin_pt20to100.root"); //DATA
+  f[2][0] = new TFile("jetid_legacy/testjetid_mc_HEout_pt20to100.root"); //DATA
+  f[3][0] = new TFile("jetid_legacy/testjetid_mc_HF_pt20to100.root"); //DATA
 
-  f[0][1] = new TFile("testjetid_data_TK_pt20to100.root"); //DATA
-  f[1][1] = new TFile("testjetid_data_HEin_pt20to100.root"); //DATA
-  f[2][1] = new TFile("testjetid_data_HEout_pt20to100.root"); //DATA
-  f[3][1] = new TFile("testjetid_data_HF_pt20to100.root"); //DATA
+  f[0][1] = new TFile("jetid_legacy/testjetid_data_TK_pt20to100.root"); //DATA
+  f[1][1] = new TFile("jetid_legacy/testjetid_data_HEin_pt20to100.root"); //DATA
+  f[2][1] = new TFile("jetid_legacy/testjetid_data_HEout_pt20to100.root"); //DATA
+  f[3][1] = new TFile("jetid_legacy/testjetid_data_HF_pt20to100.root"); //DATA
   
   TH1F *hEff_vs_JetPt[4][2];
   TH1F *hEff_vs_JetPt_matched[4][2]; 
@@ -144,7 +144,7 @@ void JetIdEfficiencyScaleFactors(string idType  = "cutbasedId",
     hRatio_vs_JetPt[eta] ->Draw("e");
 
     
-    TFile *fileout = new TFile("JetIdScaleFactor_ZmumuJets_12fb_hcp.root","recreate");
+    TFile *fileout = new TFile("JetIdScaleFactor_ZmumuJets_legacypaper.root","recreate");
     hRatio_vs_JetPt[0]->Write("hJetIdScaleFactor_TK");
     hRatio_vs_JetPt[1]->Write("hJetIdScaleFactor_HEin");
     hRatio_vs_JetPt[2]->Write("hJetIdScaleFactor_HEout");

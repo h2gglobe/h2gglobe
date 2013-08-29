@@ -1,0 +1,14 @@
+->
+Declare Branches for flat tree which will be saved in output
+delare:
+        type=0,1,2,3 (int,unsigned int,float,double)
+        name=name
+->
+
+dir=Future_myTry
+
+type=0 name=run
+type=0 name=lumis
+type=0 name=event
+type=0 name=itype
+type=2 name=eta_pho

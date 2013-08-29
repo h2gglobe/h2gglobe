@@ -17,8 +17,8 @@ class FMTSetup : public FMTBase {
 		~FMTSetup();
 
 		void OptionParser(int argc, char *argv[]);
-		void configureOptions(boost::program_options::variables_map);
-		void ReadRunConfig();
+		void configureOptions(FMTBase *);
+		void ReadRunConfig(FMTBase *);
 
 		void CheckRunOptions();
 		void checkAllHistos(string opt="analysis");
@@ -54,6 +54,7 @@ class FMTSetup : public FMTBase {
 
 	private:
 		
+		boost::program_options::variables_map vm;
 		string filename_;
 		string outfilename_;
 
@@ -65,7 +66,6 @@ class FMTSetup : public FMTBase {
 		bool all_;
 		bool fit_;
     bool catByHand_;
-    bool useSidebandBDT_;
 		bool histosFromTrees_;
 		bool rebin_;
 		bool skipRebin_;
@@ -86,7 +86,6 @@ class FMTSetup : public FMTBase {
 		bool runSB_;
 		bool cleaned;
     double userLumi_;
-    bool isCutBased_;
     string bdtname;
     string weightsFile;
     string histFromTreeMode_;

@@ -12,7 +12,7 @@
 using namespace std;
 
 
-void makeParametricModelDatacard(string infilename, string wsfilename="0", string outfilename="cms_hgg_datacard.txt", bool massfact=false, int mass=125){
+void makeParametricModelDatacard(string infilename, string wsfilename="0", string outfilename="cms_hgg_datacard.txt", bool massfact=true, int mass=125, bool splitVH=false){
 
   TFile *inFile = TFile::Open(infilename.c_str());
   TFile *outFile = TFile::Open("DatacardTree.root","RECREATE");
@@ -113,23 +113,42 @@ void makeParametricModelDatacard(string infilename, string wsfilename="0", strin
   vector<TCut> proccuts;
   proccuts.push_back(TCut("(process_id==0)"));
   proccuts.push_back(TCut("(process_id==1)"));
-  proccuts.push_back(TCut("(process_id==2)"));
-  proccuts.push_back(TCut("(process_id==3)"));
+  if (splitVH) {
+    proccuts.push_back(TCut("(process_id==2)"));
+    proccuts.push_back(TCut("(process_id==3)"));
+  }
+  else {
+    proccuts.push_back(TCut("(process_id==5)"));
+  }
+  proccuts.push_back(TCut("(process_id==4)"));
 
   // process names
   vector<string> procnames;
   procnames.push_back("ggH");
   procnames.push_back("qqH");
-  procnames.push_back("VH");
+  if (splitVH) {
+    procnames.push_back("WH");
+    procnames.push_back("ZH");
+  }
+  else {
+    procnames.push_back("VH");
+  }
   procnames.push_back("ttH");
   procnames.push_back("bkg_mass");
-  FILE *file = fopen(outfilename.c_str(),"w");
+  //FILE *file = fopen(outfilename.c_str(),"w");
+  FILE *file = fopen("temp_datacard.txt","w");
 
   // process names in file
   vector<string> procfilenames;
   procfilenames.push_back("ggh");
   procfilenames.push_back("vbf");
-  procfilenames.push_back("wzh");
+  if (splitVH) {
+    procfilenames.push_back("wh");
+    procfilenames.push_back("zh");
+  }
+  else {
+    procfilenames.push_back("wzh");
+  }
   procfilenames.push_back("tth");
   procfilenames.push_back("bkg_mass");
   
@@ -155,10 +174,16 @@ void makeParametricModelDatacard(string infilename, string wsfilename="0", strin
   fprintf(file, "shapes bkg_mass * %s cms_hgg_workspace:pdf_data_pol_model_8TeV_$CHANNEL\n", pathToDatBkgWS.c_str());
   
   //signal pdfs
-  fprintf(file, "shapes ggH * %s wsig_8TeV:hggpdfrel_ggh_$CHANNEL\n", pathToSigWS.c_str());
-  fprintf(file, "shapes qqH * %s wsig_8TeV:hggpdfrel_vbf_$CHANNEL\n", pathToSigWS.c_str());
-  fprintf(file, "shapes VH  * %s wsig_8TeV:hggpdfrel_wzh_$CHANNEL\n", pathToSigWS.c_str());
-  fprintf(file, "shapes ttH * %s wsig_8TeV:hggpdfrel_tth_$CHANNEL", pathToSigWS.c_str());
+  fprintf(file, "shapes ggH * %s wsig_8TeV:hggpdfsmrel_ggh_$CHANNEL\n", pathToSigWS.c_str());
+  fprintf(file, "shapes qqH * %s wsig_8TeV:hggpdfsmrel_vbf_$CHANNEL\n", pathToSigWS.c_str());
+  if (splitVH) {
+    fprintf(file, "shapes WH  * %s wsig_8TeV:hggpdfsmrel_wh_$CHANNEL\n", pathToSigWS.c_str());
+    fprintf(file, "shapes ZH  * %s wsig_8TeV:hggpdfsmrel_zh_$CHANNEL\n", pathToSigWS.c_str());
+  }
+  else {
+    fprintf(file, "shapes VH  * %s wsig_8TeV:hggpdfsmrel_wzh_$CHANNEL\n", pathToSigWS.c_str());
+  }
+  fprintf(file, "shapes ttH * %s wsig_8TeV:hggpdfsmrel_tth_$CHANNEL", pathToSigWS.c_str());
 
   fprintf(file,"\n\n\n\n");
 
@@ -221,38 +246,43 @@ void makeParametricModelDatacard(string infilename, string wsfilename="0", strin
   //theory systematics (overall normalization)
   fprintf(file, "QCDscale_ggH         lnN  ");
   for (int icat=0; icat<ncats; ++icat) {
-    if (icat<(ncats-2)) fprintf(file, "0.918/1.076 - - - - ");
-    else fprintf(file, "- - - - - ");
+    if (splitVH) fprintf(file, "0.918/1.076 - - - - - ");
+    else fprintf(file, "0.918/1.076 - - - - ");
   }
   fprintf(file,"\n");      
   
   fprintf(file, "pdf_gg               lnN  ");
   for (int icat=0; icat<ncats; ++icat) {
-    fprintf(file, "0.930/1.076 - - 0.920/1.080 - ");
+    if (splitVH) fprintf(file, "0.930/1.076 - - - 0.920/1.080 - ");
+    else fprintf(file, "0.930/1.076 - - 0.920/1.080 - ");
   }
   fprintf(file,"\n");      
   
   fprintf(file, "QCDscale_qqH         lnN  ");
   for (int icat=0; icat<ncats; ++icat) {
-    fprintf(file, "- 0.992/1.003 - - - ");
+    if (splitVH) fprintf(file, "- 0.992/1.003 - - - - ");
+    else fprintf(file, "- 0.992/1.003 - - - ");
   }
   fprintf(file,"\n");      
   
   fprintf(file, "pdf_qqbar            lnN  ");
   for (int icat=0; icat<ncats; ++icat) {
-    fprintf(file, "- 0.972/1.026 0.958/1.042 - - ");
+    if (splitVH) fprintf(file, "- 0.972/1.026 0.958/1.042 0.958/1.042 - - ");
+    else fprintf(file, "- 0.972/1.026 0.958/1.042 - - ");
   }
   fprintf(file,"\n");      
 
   fprintf(file, "QCDscale_VH          lnN  ");
   for (int icat=0; icat<ncats; ++icat) {
-    fprintf(file, "- - 0.982/1.021 - - ");
+    if (splitVH) fprintf(file, "- - 0.982/1.021 0.982/1.021 - - ");
+    else fprintf(file, "- - 0.982/1.021 - - ");
   }
   fprintf(file,"\n");      
   
   fprintf(file, "QCDscale_ttH         lnN  ");
   for (int icat=0; icat<ncats; ++icat) {
-    fprintf(file, "- - - 0.906/1.041 - ");
+    if (splitVH) fprintf(file, "- - - - 0.906/1.041 - ");
+    else fprintf(file, "- - - 0.906/1.041 - ");
   }
   fprintf(file,"\n");      
   
@@ -305,8 +335,8 @@ void makeParametricModelDatacard(string infilename, string wsfilename="0", strin
     double uncert = deffsinglesr.at(ieff);
     TCut singlecut = singlecutsr.at(ieff);
     TCut doublecut = doublecutsr.at(ieff);      
-    if (ieff==0) fprintf(file, "CMS_id_eff_eb      lnN  ",ieff);
-    else if (ieff==1) fprintf(file, "CMS_id_eff_ee      lnN  ",ieff);
+    if (ieff==0) fprintf(file, "CMS_id_eff_eb      lnN  ");
+    else if (ieff==1) fprintf(file, "CMS_id_eff_ee      lnN  ");
     else cout << "wtf?" << endl;
 
     for (int icat=0; icat<ncats; ++icat) {
@@ -411,13 +441,26 @@ void makeParametricModelDatacard(string infilename, string wsfilename="0", strin
       fprintf(file, "- ");
     }
     // vbf categories
-    fprintf(file, "%3f %3f %3f %3f - ",gguncert,vbfuncert,gguncert,gguncert);
-    fprintf(file, "%3f %3f %3f %3f - ",gguncert,vbfuncert,gguncert,gguncert);
+    if (splitVH) {
+      fprintf(file, "%3f %3f %3f %3f %3f - ",gguncert,vbfuncert,gguncert,gguncert,gguncert);
+      fprintf(file, "%3f %3f %3f %3f %3f - ",gguncert,vbfuncert,gguncert,gguncert,gguncert);
+    }
+    else {
+      fprintf(file, "%3f %3f %3f %3f - ",gguncert,vbfuncert,gguncert,gguncert);
+      fprintf(file, "%3f %3f %3f %3f - ",gguncert,vbfuncert,gguncert,gguncert);
+    }
     //printf("%3f %3f - ",vbfuncert,gguncert);
     // lepton and met categories
-    fprintf(file, "- - - - - ");
-    fprintf(file, "- - - - - ");
-    fprintf(file, "- - - - - ");
+    if (splitVH) {
+      fprintf(file, "- - - - - - ");
+      fprintf(file, "- - - - - - ");
+      fprintf(file, "- - - - - - ");
+    }
+    else {
+      fprintf(file, "- - - - - ");
+      fprintf(file, "- - - - - ");
+      fprintf(file, "- - - - - ");
+    }
 
     fprintf(file, "\n");
     
@@ -455,7 +498,8 @@ void makeParametricModelDatacard(string infilename, string wsfilename="0", strin
     
     // inclusive cats
     for (int icat=0; icat<(ncats-nExclusiveCats); ++icat) {
-      fprintf(file, "- - - - - ");
+      if (splitVH) fprintf(file, "- - - - - - ");
+      else fprintf(file, "- - - - - ");
     }
 
     double vbfuncert = vbfmiguncerts.at(j);
@@ -500,7 +544,8 @@ void makeParametricModelDatacard(string infilename, string wsfilename="0", strin
     
     // lepton and met categories
     for (int cat=nInclusiveCats+nVBFCats; cat<ncats; cat++){
-      fprintf(file, "- - - - - ");
+      if (splitVH) fprintf(file, "- - - - - - ");
+      else fprintf(file, "- - - - - ");
     }
 
     fprintf(file,"\n\n");
@@ -509,22 +554,40 @@ void makeParametricModelDatacard(string infilename, string wsfilename="0", strin
   
   fprintf(file, "CMS_hgg_eff_e         lnN  ");
   for (int icat=0; icat<ncats; ++icat) {
-    if (icat==eleTag) fprintf(file, "- - 1.010 1.010 - ");
-    else fprintf(file, "- - - - - ");
+    if (splitVH) {
+      if (icat==eleTag) fprintf(file, "- - 1.010 1.010 1.010 - ");
+      else fprintf(file, "- - - - - - ");
+    }
+    else {
+      if (icat==eleTag) fprintf(file, "- - 1.010 1.010 - ");
+      else fprintf(file, "- - - - - ");
+    }
   }
   fprintf(file,"\n");      
 
   fprintf(file, "CMS_hgg_eff_m         lnN  ");
   for (int icat=0; icat<ncats; ++icat) {
-    if (icat==muTag) fprintf(file, "- - 1.010 1.010 - ");
-    else fprintf(file, "- - - - - ");
+    if (splitVH) {
+      if (icat==muTag) fprintf(file, "- - 1.010 1.010 1.010 - ");
+      else fprintf(file, "- - - - - - ");
+    }
+    else {
+      if (icat==muTag) fprintf(file, "- - 1.010 1.010 - ");
+      else fprintf(file, "- - - - - ");
+    }
   }
   fprintf(file,"\n");      
   
   fprintf(file, "CMS_hgg_eff_MET        lnN  ");
   for (int icat=0; icat<ncats; ++icat) {
-    if (icat==metTag) fprintf(file, "1.15 1.15 1.04 1.04 - ");
-    else fprintf(file, "- - - - - ");
+    if (splitVH){
+      if (icat==metTag) fprintf(file, "1.15 1.15 1.04 1.04 1.04 - ");
+      else fprintf(file, "- - - - - - ");
+    }
+    else {
+      if (icat==metTag) fprintf(file, "1.15 1.15 1.04 1.04 - ");
+      else fprintf(file, "- - - - - ");
+    }
   }
   fprintf(file,"\n");      
 
@@ -588,7 +651,7 @@ void makeParametricModelDatacard(string infilename, string wsfilename="0", strin
   hcount->Reset();
  
   if (massfact){
-  if (wsfilename=="0") {
+  if (wsfilename=="0" || wsfilename=="") {
     fprintf(file,"CMS_hgg_n_sigmae lnN ");
     for (unsigned int icat=0; icat<catcuts.size(); ++icat) {
       for (unsigned int iproc=0; iproc<(procnames.size()-1); ++iproc) {
@@ -634,6 +697,7 @@ void makeParametricModelDatacard(string infilename, string wsfilename="0", strin
     fprintf(file,"\n"); 
   }
   else {
+  if (wsfilename=="0" || wsfilename=="") {
     TFile *wsFile = TFile::Open(wsfilename.c_str());
     fprintf(file,"CMS_hgg_n_id lnN ");
     for (unsigned int icat=0; icat<catcuts.size(); ++icat) {
@@ -671,8 +735,13 @@ void makeParametricModelDatacard(string infilename, string wsfilename="0", strin
     wsFile->Close();
   }
   }
+  }
   inFile->Close();
   outFile->Close();
+
+  fclose(file);
+  if (splitVH) system(Form("python removeLeptonGGHVBFCard.py temp_datacard.txt --splitVH > %s",outfilename.c_str()));
+  else system(Form("python removeLeptonGGHVBFCard.py temp_datacard.txt > %s",outfilename.c_str()));
 
 }
 

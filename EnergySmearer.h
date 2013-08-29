@@ -22,30 +22,42 @@ public:
 	int firstrun,  lastrun;
 	
 	std::map<std::string,float> scale_offset;
+	std::map<std::string,float> scale_stocastic_offset; // used for stocastic term smearing. Can also be reused in case of energy-dependend corrections
 	std::map<std::string,float> scale_offset_error;
 	
 };
 
 class PhotonCategory {
 public:
-	enum photon_type_t { any=0, shperical=1, gap=2 };
-	PhotonCategory(float a, float b, float c, float d, photon_type_t e, std::string f ) : mineta(a) , maxeta(b), minr9(c), maxr9(d), type(e), name(f) {};
+	enum photon_type_t { any=0, nogap=1, gap=2 };
+	struct photon_coord_t
+	{
+		photon_coord_t(float et, float eta, float r9, bool isnogap) : 
+			et_(et), eta_(eta), r9_(r9), isnogap_(isnogap)
+			{};
+		
+		float et_, eta_, r9_;
+		bool isnogap_;
+	};
+		
+	PhotonCategory(float e1, float e2, float a, float b, 
+		       float c, float d, photon_type_t e, std::string f ) : minet(e1), maxet(e2), mineta(a) , maxeta(b), minr9(c), maxr9(d), type(e), name(f) {};
 	
-	bool operator == (const PhotonCategory & rh) const { return rh.mineta == mineta && rh.maxeta == maxeta && rh.minr9 == minr9 && rh.maxr9 == maxr9 && rh.name == name; }
+	bool operator == (const PhotonCategory & rh) const { 
+		return rh.mineta == mineta && rh.maxeta == maxeta && rh.minr9 == minr9 && rh.maxr9 == maxr9 
+			&& rh.minet == minet && rh.maxet == maxet && rh.name == name; 
+	}
 	bool operator == (const std::string & catname) const { return catname == name; }
-	///////// bool operator == (const std::pair<std::pair<float,float>,std::pair<float,float> > & photonRange ) const { 
-	///////// 	return photonRange.first.first == mineta && photonRange.first.second == maxeta && 
-	///////// 		photonRange.second.first == minr9 && photonRange.second.second == maxr9; 
-	///////// 
-	///////// };
-	bool operator == (const std::pair<bool,std::pair<float,float> > & photonCoordinates) const { 
-		return ( type == any || ( type == shperical && photonCoordinates.first || type == gap && ! photonCoordinates.first ) ) &&
-			photonCoordinates.second.first >= mineta && photonCoordinates.second.first <= maxeta && 
-			photonCoordinates.second.second >= minr9 && photonCoordinates.second.second <= maxr9; 
+	bool operator == (const photon_coord_t & photonCoordinates) const { 
+		return ( type == any || ( type == nogap && photonCoordinates.isnogap_ || type == gap && ! photonCoordinates.isnogap_ ) ) &&
+			photonCoordinates.eta_ >= mineta && photonCoordinates.eta_ <= maxeta && 
+			photonCoordinates.r9_ >= minr9 && photonCoordinates.r9_ <= maxr9 &&
+			photonCoordinates.et_ >= minet && photonCoordinates.et_ <= maxet
+			; 
 	};
 	
 	std::string name;
-	float mineta, maxeta, minr9, maxr9;
+	float minet, maxet, mineta, maxeta, minr9, maxr9;
 	photon_type_t type;
 };
 
@@ -80,6 +92,7 @@ public:
 	  std::map<std::string,float> scale_offset_error;
 	  
 	  std::map<std::string,float> smearing_sigma;
+	  std::map<std::string,float> smearing_stocastic_sigma;
 	  std::map<std::string,float> smearing_sigma_error;
 	  
 	  phoCatVector photon_categories;
@@ -123,7 +136,9 @@ public:
   energySmearingParameters  myParameters_;
   
   std::string photonCategory(PhotonReducedInfo &) const;
-
+  static std::string photonCategory(const energySmearingParameters &, const PhotonReducedInfo &);
+  static float getSmearingSigma(const energySmearingParameters & myParameters, const std::string & category, float energy, float syst_shift);
+  
  protected:
   bool doEnergy_, scaleOrSmear_, doEfficiencies_, doCorrections_, doRegressionSmear_;
   int baseSeed_;

@@ -161,10 +161,15 @@ def makePlot():
     muPullBand.SetPoint(len(options.expVals),155,0)
     muPullBand.SetPointError(len(options.expVals),valerr,0.14)
 
+    title=truth
+    title = title.replace('0sigma','0.10sigma')
+    title = title.replace('1sigma','0.25sigma')
+    title = title.replace('2sigma','0.50sigma')
+    title = title.replace('3sigma','1.00sigma')
     if options.runMasses:
-      dummyHist.SetTitle('Category=%d  Truth=%s  #mu_{gen}=%3.1f'%(options.cat,truth,options.injectVal))
+      dummyHist.SetTitle('Category=%d  Truth=%s  #mu_{gen}=%3.1f'%(options.cat,title,options.injectVal))
     else:
-      dummyHist.SetTitle('Category=%d  Truth=%s  m_{H}=%3.0f'%(options.cat,truth,options.injectVal))
+      dummyHist.SetTitle('Category=%d  Truth=%s  m_{H}=%3.0f'%(options.cat,title,options.injectVal))
     dummyHist.GetYaxis().SetRangeUser(0.,1.3)
     dummyHist.GetYaxis().SetTitle("Coverage");
     dummyHist.Draw()

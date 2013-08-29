@@ -119,61 +119,70 @@ PhotonAnalysis::~PhotonAnalysis()
 void PhotonAnalysis::Term(LoopAll& l)
 {}
 
+std::ostream & operator<< (std::ostream & out, const PhotonCategory & pcat) 
+{
+    out << pcat.name << ": "  
+	<< " (" << pcat.minet  << "," << pcat.maxet  << ") " 
+	<< " (" << pcat.mineta << "," << pcat.maxeta << ") "
+	<< " (" << pcat.minr9  << "," << pcat.maxr9  << ") "
+	<< " " << pcat.type
+	;
+}
+
 // ----------------------------------------------------------------------------------------------------
 void readEnergyScaleOffsets(const std::string &fname, EnergySmearer::energySmearingParameters::eScaleVector &escaleOffsets,
                             EnergySmearer::energySmearingParameters::phoCatVector &photonCategories, bool data=true
                             )
 {
     // read in energy scale corrections to be applied in run ranges
+    std::cout << "readEnergyScaleOffsets " << fname << std::endl;
     std::fstream in(fname.c_str());
     assert( in );
     char line[200];
     float EBHighR9, EBLowR9, EBm4HighR9, EBm4LowR9, EEHighR9, EELowR9;
     char catname[200];
-    float mineta, maxeta, minr9, maxr9, offset, err;
-    int type;
-    int  first, last;
     do {
+	float minet=0., maxet=1.e+9, mineta, maxeta, minr9, maxr9, offset, stocastic=0., err;
+	int type;
+	int  first, last;
+	
         in.getline( line, 200, '\n' );
-
-        if( sscanf(line,"%d %d %f %f %f %f %f %f",&first, &last, &EBHighR9, &EBLowR9, &EBm4HighR9, &EBm4LowR9, &EEHighR9, &EELowR9) == 8 ) {
-            std::cerr << "Energy scale by run " <<  first<< " " <<  last<< " " <<  EBHighR9<< " " <<  EBLowR9 << " " <<  EBm4HighR9<< " " <<  EBm4LowR9<< " " <<  EEHighR9<< " " <<  EELowR9 << std::endl;
-
-            assert( ! data );
-            escaleOffsets.push_back(EnergyScaleOffset(first,last));
-            escaleOffsets.back().scale_offset["EBHighR9"] = -1.*EBHighR9;
-            escaleOffsets.back().scale_offset["EBLowR9"]  = -1.*EBLowR9;
-            escaleOffsets.back().scale_offset["EBm4HighR9"] = -1.*EBm4HighR9;
-            escaleOffsets.back().scale_offset["EBm4LowR9"]  = -1.*EBm4LowR9;
-            escaleOffsets.back().scale_offset["EEHighR9"] = -1.*EEHighR9;
-            escaleOffsets.back().scale_offset["EELowR9"]  = -1.*EELowR9;
-            escaleOffsets.back().scale_offset_error["EBHighR9"] = 0.;
-            escaleOffsets.back().scale_offset_error["EBLowR9"]  = 0.;
-            escaleOffsets.back().scale_offset_error["EBm4HighR9"] = 0.;
-            escaleOffsets.back().scale_offset_error["EBm4LowR9"]  = 0.;
-            escaleOffsets.back().scale_offset_error["EEHighR9"] = 0.;
-            escaleOffsets.back().scale_offset_error["EELowR9"]  = 0.;
-        } else if( sscanf(line,"%s %d %f %f %f %f %d %d %f %f", &catname, &type, &mineta, &maxeta, &minr9, &maxr9, &first, &last, &offset, &err  ) == 10 ) {
-        std::cerr << "Energy scale (or smering) by run " <<  catname << " " << type << " " << mineta << " " << maxeta << " " << minr9 << " " << maxr9 << " " << first << " " << last << " " << offset << " " << err << std::endl;
-
-        assert( type>=0 && type<=2 );
-
-            EnergySmearer::energySmearingParameters::eScaleVector::reverse_iterator escaleOffset =
-                find(escaleOffsets.rbegin(),escaleOffsets.rend(),std::make_pair(first,last));
-            if( escaleOffset == escaleOffsets.rend() ) {
-                std::cerr << "  adding new range range " << first << " " << last << std::endl;
-                escaleOffsets.push_back(EnergyScaleOffset(first,last));
-                escaleOffset = escaleOffsets.rbegin();
-            }
-            // chck if the category is already defined
-            if( find(photonCategories.begin(), photonCategories.end(), std::string(catname) ) == photonCategories.end() ) {
-                std::cerr << "  defining new category" << std::endl;
-                photonCategories.push_back(PhotonCategory(mineta,maxeta,minr9,maxr9,(PhotonCategory::photon_type_t)type,catname));
-            }
-            // assign the scale offset and error for this category and this run range
-            escaleOffset->scale_offset[catname] = data ? -offset : offset;
-            escaleOffset->scale_offset_error[catname] = err;
-        }
+	
+	if( sscanf(line,"%s %d %f %f %f %f %d %d %f %f\n", &catname, &type, 
+		   &mineta, &maxeta, &minr9, &maxr9, &first, &last, &offset, &err  ) == 10 ) {
+	    std::cout << "Energy scale (or smering) by run " <<  catname << " " << type << " " << mineta << " " << maxeta << " " << minr9 << " " << maxr9 
+		      << " " << first << " " << last << " " << offset << " " << err << std::endl;
+	} else if( sscanf(line,"%s %d %f %f %f %f %d %d %f %f %f\n", &catname, &type, 
+			  &mineta, &maxeta, &minr9, &maxr9, &first, &last, &offset, &stocastic, &err  ) == 11 ) {
+	    std::cout << "Energy scale (or smering) by run " <<  catname << " " << type << " " << mineta << " " << maxeta << " " << minr9 << " " << maxr9 
+		      << " " << first << " " << last << " " << offset << " " << stocastic <<  " " << err << std::endl;
+	} else if( sscanf(line,"%s %d %f %f %f %f %f %f %d %d %f %f %f\n", &catname, &type, 
+			  &minet, &maxet, &mineta, &maxeta, &minr9, &maxr9, &first, &last, &offset, &stocastic, &err  ) == 13 ) {
+	    std::cout << "Energy scale (or smering) by run " <<  catname << " " << type 
+		      << " " << minet << " " << maxet << " " << mineta << " " << maxeta << " " << minr9 << " " << maxr9 
+		      << " " << first << " " << last << " " << offset << " " << stocastic <<  " " << err << std::endl;
+	} else { 
+	    continue; 
+	}
+	
+	assert( type>=0 && type<=2 );
+	
+	EnergySmearer::energySmearingParameters::eScaleVector::reverse_iterator escaleOffset =
+	    find(escaleOffsets.rbegin(),escaleOffsets.rend(),std::make_pair(first,last));
+	if( escaleOffset == escaleOffsets.rend() ) {
+	    std::cout << "  adding new range range " << first << " " << last << std::endl;
+	    escaleOffsets.push_back(EnergyScaleOffset(first,last));
+	    escaleOffset = escaleOffsets.rbegin();
+	}
+	// chck if the category is already defined
+	if( find(photonCategories.begin(), photonCategories.end(), std::string(catname) ) == photonCategories.end() ) {
+	    photonCategories.push_back(PhotonCategory(minet,maxet,mineta,maxeta,minr9,maxr9,(PhotonCategory::photon_type_t)type,catname));
+	    std::cout << "  defining new category " << photonCategories.back() << std::endl;
+	}
+	// assign the scale offset and error for this category and this run range
+	escaleOffset->scale_offset[catname] = data ? -offset : offset;
+	escaleOffset->scale_stocastic_offset[catname] = data ? -stocastic : stocastic;
+	escaleOffset->scale_offset_error[catname] = err;
 
     } while( in );
 
@@ -192,7 +201,7 @@ void PhotonAnalysis::loadPuMap(const char * fname, TDirectory * dir, TH1 * targe
         in.getline( line, 200, '\n' );
 
         if( sscanf(line,"%d %s",&typid,dname) != 2 ) { continue; }
-        std::cerr << "Reading PU weights for sample " << typid << " from " << dname << std::endl;
+        std::cout << "Reading PU weights for sample " << typid << " from " << dname << std::endl;
         TDirectory * subdir = (TDirectory *)dir->Get(dname);
         assert( subdir != 0 );
         cout << "loadPuMap " << typid << " from subdir " << endl;
@@ -263,7 +272,7 @@ float PhotonAnalysis::getPuWeight(int n_pu, int sample_type, SampleContainer* co
         samplePu->Close();
         hasSpecificWeight = true;
     } else if( sample_type < 0 && !hasSpecificWeight && warnMe ) {
-            std::cerr  << "WARNING no pu weights specific for sample " << sample_type << std::endl;
+            std::cout  << "WARNING no pu weights specific for sample " << sample_type << std::endl;
         }
         std::vector<double> & puweights = hasSpecificWeight ? weights[ sample_type ] : weights[0];
         if(n_pu<puweights.size()){
@@ -444,26 +453,6 @@ void PhotonAnalysis::fillDiphoton(TLorentzVector & lead_p4, TLorentzVector & sub
         ((TVector3*)l.vtx_std_xyz->At(vtx_ind))->SetZ(randVtxZ);
     }
 
-        /*
-    if (emulateBeamspot) isCorrectVertex=(*((TVector3*)l.vtx_std_xyz->At(vtx_ind)) - *((TVector3*)l.gv_pos->At(0))).Mag() < (sourcesigma/targetsigma);
-    else isCorrectVertex=(*((TVector3*)l.vtx_std_xyz->At(vtx_ind))- *((TVector3*)l.gv_pos->At(0))).Mag() < 1.;
-    if (emulateBeamspot && cur_type!=0 && !isCorrectVertex && (lastRun!=l.run || lastEvent!=l.event || lastLumi!=l.lumis)){
-	// FIXME use beam spot from event/pass parameter. Do not hardcode.
-        double beamspotZ = 0.4145;
-        double randVtxZ = -100;
-        bool tooClose=true;
-        while(tooClose){
-            randVtxZ = rand.Gaus(beamspotZ,emulatedBeamspotWidth);
-            ((TVector3*)l.vtx_std_xyz->At(vtx_ind))->SetZ(randVtxZ);
-            tooClose = (*((TVector3*)l.vtx_std_xyz->At(vtx_ind))-*((TVector3*)l.gv_pos->At(0))).Mag() < 1.;
-        }
-        double genVtxZ = ((TVector3*)l.gv_pos->At(0))->Z();
-        double myVtxZ = ((TVector3*)l.vtx_std_xyz->At(vtx_ind))->Z();
-        ((TVector3*)l.vtx_std_xyz->At(vtx_ind))->SetZ(genVtxZ+(targetsigma/sourcesigma)*(myVtxZ-genVtxZ));
-        changed=true;
-    }
-        */
-
     lead_p4 = l.get_pho_p4( leadind, vtx_ind, energy);
     sublead_p4 = l.get_pho_p4( subleadind, vtx_ind, energy);
     lead_r9    = l.pho_r9[leadind];
@@ -497,23 +486,23 @@ void PhotonAnalysis::applyDiPhotonSmearings(TLorentzVector & Higgs, TVector3 & v
     float pth = Higgs.Pt();
     for(std::vector<BaseDiPhotonSmearer *>::iterator si=diPhotonSmearers_.begin(); si!= diPhotonSmearers_.end(); ++si ) {
         float rewei=1.;
-    if( sys != 0 && *si == *sys ) {
-        (*si)->smearDiPhoton( Higgs, vtx, rewei, category, cur_type, truevtx, idmva1, idmva2, syst_shift );
-    } else {
-        (*si)->smearDiPhoton( Higgs, vtx, rewei, category, cur_type, truevtx, idmva1, idmva2, 0. );
-    }
-        if( rewei < 0. ) {
-        if( syst_shift == 0. ) {
-        std::cerr << "Negative weight from smearer " << (*si)->name() << std::endl;
-        assert(0);
-        } else {
-        if( nwarnings-- > 0 ) {
-            std::cout <<  "WARNING: negative during systematic scan in " << (*si)->name() << std::endl;
-        }
-        rewei = 0.;
-        }
-        }
-        evweight *= rewei;
+	if( sys != 0 && *si == *sys ) {
+	    (*si)->smearDiPhoton( Higgs, vtx, rewei, category, cur_type, truevtx, idmva1, idmva2, syst_shift );
+	} else {
+	    (*si)->smearDiPhoton( Higgs, vtx, rewei, category, cur_type, truevtx, idmva1, idmva2, 0. );
+	}
+	if( rewei < 0. ) {
+	    if( syst_shift == 0. ) {
+		std::cerr << "Negative weight from smearer " << (*si)->name() << std::endl;
+		assert(0);
+	    } else {
+		if( nwarnings-- > 0 ) {
+		    std::cout <<  "WARNING: negative during systematic scan in " << (*si)->name() << std::endl;
+		}
+		rewei = 0.;
+	    }
+	}
+	evweight *= rewei;
     }
 }
 
@@ -1016,20 +1005,6 @@ void PhotonAnalysis::Init(LoopAll& l)
         eSmearDataPars.categoryType = "Automagic";
         eSmearDataPars.n_categories = -1;
     }
-    // E resolution smearing NOT applied to data
-    eSmearDataPars.smearing_sigma["EBHighR9"] = 0.;
-    eSmearDataPars.smearing_sigma["EBLowR9"]  = 0.;
-    eSmearDataPars.smearing_sigma["EBm4HighR9"] = 0.;
-    eSmearDataPars.smearing_sigma["EBm4LowR9"]  = 0.;
-    eSmearDataPars.smearing_sigma["EEHighR9"] = 0.;
-    eSmearDataPars.smearing_sigma["EELowR9"]  = 0.;
-    // E resolution systematics NOT applied to data
-    eSmearDataPars.smearing_sigma_error["EBHighR9"] = 0.;
-    eSmearDataPars.smearing_sigma_error["EBLowR9"]  = 0.;
-    eSmearDataPars.smearing_sigma_error["EBm4HighR9"] = 0.;
-    eSmearDataPars.smearing_sigma_error["EBm4LowR9"]  = 0.;
-    eSmearDataPars.smearing_sigma_error["EEHighR9"] = 0.;
-    eSmearDataPars.smearing_sigma_error["EELowR9"]  = 0.;
 
     // energy scale corrections to Data
     eScaleDataSmearer = new EnergySmearer( eSmearDataPars );
@@ -1037,70 +1012,33 @@ void PhotonAnalysis::Init(LoopAll& l)
     eScaleDataSmearer->doEnergy(true);
     eScaleDataSmearer->scaleOrSmear(true);
 
-    if( scale_offset_error_file.empty() ) {
-        //eSmearPars.categoryType = "2CatR9_EBEE"; //GF
-        eSmearPars.categoryType = "2CatR9_EBEBm4EE";
-        eSmearPars.byRun = false;
-        //eSmearPars.n_categories = 4; //GF
-        eSmearPars.n_categories = 6;
-        // E scale is shifted for data, NOT for MC
-        eSmearPars.scale_offset["EBHighR9"] = 0.;
-        eSmearPars.scale_offset["EBLowR9"]  = 0.;
-        eSmearPars.scale_offset["EBm4HighR9"] = 0.;
-        eSmearPars.scale_offset["EBm4LowR9"]  = 0.;
-        eSmearPars.scale_offset["EEHighR9"] = 0.;
-        eSmearPars.scale_offset["EELowR9"]  = 0.;
-        // E scale systematics are applied to MC, NOT to data
-        eSmearPars.scale_offset_error["EBHighR9"] = scale_offset_error_EBHighR9;
-        eSmearPars.scale_offset_error["EBLowR9"]  = scale_offset_error_EBLowR9;
-        eSmearPars.scale_offset_error["EBm4HighR9"] = scale_offset_error_EBHighR9;
-        eSmearPars.scale_offset_error["EBm4LowR9"]  = scale_offset_error_EBLowR9;
-        eSmearPars.scale_offset_error["EEHighR9"] = scale_offset_error_EEHighR9;
-        eSmearPars.scale_offset_error["EELowR9"]  = scale_offset_error_EELowR9;
-        // E resolution smearing applied to MC
-        eSmearPars.smearing_sigma["EBHighR9"] = smearing_sigma_EBHighR9;
-        eSmearPars.smearing_sigma["EBLowR9"]  = smearing_sigma_EBLowR9;
-        eSmearPars.smearing_sigma["EBm4HighR9"] = smearing_sigma_EBm4HighR9;
-        eSmearPars.smearing_sigma["EBm4LowR9"]  = smearing_sigma_EBm4LowR9;
-        eSmearPars.smearing_sigma["EEHighR9"] = smearing_sigma_EEHighR9;
-        eSmearPars.smearing_sigma["EELowR9"]  = smearing_sigma_EELowR9;
-        // E resolution systematics applied to MC
-        eSmearPars.smearing_sigma_error["EBHighR9"] = smearing_sigma_error_EBHighR9;
-        eSmearPars.smearing_sigma_error["EBLowR9"]  = smearing_sigma_error_EBLowR9;
-        eSmearPars.smearing_sigma_error["EBm4HighR9"] = smearing_sigma_error_EBm4HighR9;
-        eSmearPars.smearing_sigma_error["EBm4LowR9"]  = smearing_sigma_error_EBm4LowR9;
-        eSmearPars.smearing_sigma_error["EEHighR9"] = smearing_sigma_error_EEHighR9;
-        eSmearPars.smearing_sigma_error["EELowR9"]  = smearing_sigma_error_EELowR9;
-        // error on photon corrections set to a fraction of the correction itself; number below is tentative (GF: push it to .dat)
-        eSmearPars.corrRelErr  = 0.5;
-    } else {
-        // Read energy scale errors and energy smaerings from dat files
-        assert( ! scale_offset_error_file.empty() && ! smearing_file.empty() );
-
-        // Use the same format used for the run-dependent energy corrections
-        EnergySmearer::energySmearingParameters::eScaleVector tmp_scale_offset, tmp_smearing;
-        EnergySmearer::energySmearingParameters::phoCatVector tmp_scale_cat, tmp_smearing_cat;
-        readEnergyScaleOffsets(scale_offset_error_file, tmp_scale_offset, tmp_scale_cat,false);
-        readEnergyScaleOffsets(smearing_file, tmp_smearing, tmp_smearing_cat,false);
-
-        // make sure that the scale correction and smearing info is as expected
-        assert( tmp_scale_offset.size() == 1); assert( tmp_smearing.size() == 1 );
-        assert( ! tmp_smearing_cat.empty() );
-        /// assert( tmp_smearing_cat == tmp_scale_cat );
-
-        // copy the read info to the smarer parameters
-        eSmearPars.categoryType = "Automagic";
-        eSmearPars.byRun = false;
-        eSmearPars.n_categories = tmp_smearing_cat.size();
-        eSmearPars.photon_categories = tmp_smearing_cat;
-
-        eSmearPars.scale_offset = tmp_scale_offset[0].scale_offset;
-        eSmearPars.scale_offset_error = tmp_scale_offset[0].scale_offset_error;
-
-        eSmearPars.smearing_sigma = tmp_smearing[0].scale_offset;
-        eSmearPars.smearing_sigma_error = tmp_smearing[0].scale_offset_error;
-    }
-
+    // Read energy scale errors and energy smaerings from dat files
+    assert( ! scale_offset_error_file.empty() && ! smearing_file.empty() );
+    
+    // Use the same format used for the run-dependent energy corrections
+    EnergySmearer::energySmearingParameters::eScaleVector tmp_scale_offset, tmp_smearing;
+    EnergySmearer::energySmearingParameters::phoCatVector tmp_scale_cat, tmp_smearing_cat;
+    readEnergyScaleOffsets(scale_offset_error_file, tmp_scale_offset, tmp_scale_cat,false);
+    readEnergyScaleOffsets(smearing_file, tmp_smearing, tmp_smearing_cat,false);
+    
+    // make sure that the scale correction and smearing info is as expected
+    assert( tmp_scale_offset.size() == 1); assert( tmp_smearing.size() == 1 );
+    assert( ! tmp_smearing_cat.empty() );
+    /// assert( tmp_smearing_cat == tmp_scale_cat );
+    
+    // copy the read info to the smarer parameters
+    eSmearPars.categoryType = "Automagic";
+    eSmearPars.byRun = false;
+    eSmearPars.n_categories = tmp_smearing_cat.size();
+    eSmearPars.photon_categories = tmp_smearing_cat;
+    
+    eSmearPars.scale_offset = tmp_scale_offset[0].scale_offset;
+    eSmearPars.scale_offset_error = tmp_scale_offset[0].scale_offset_error;
+    
+    eSmearPars.smearing_sigma = tmp_smearing[0].scale_offset;
+    eSmearPars.smearing_stocastic_sigma = tmp_smearing[0].scale_stocastic_offset;
+    eSmearPars.smearing_sigma_error = tmp_smearing[0].scale_offset_error;
+        
     // Energy resolution parameters used for diphotonBDT input
     massResoPars = eSmearPars;
     if( ! mass_resol_file.empty() ) {
@@ -1119,6 +1057,7 @@ void PhotonAnalysis::Init(LoopAll& l)
         massResoPars.photon_categories = tmp_smearing_cat;
 
         massResoPars.smearing_sigma = tmp_smearing[0].scale_offset;
+        massResoPars.smearing_stocastic_sigma = tmp_smearing[0].scale_stocastic_offset;
         massResoPars.smearing_sigma_error = tmp_smearing[0].scale_offset_error;
     }
 
@@ -1141,10 +1080,9 @@ void PhotonAnalysis::Init(LoopAll& l)
         eCorrSmearer->doCorrections(true);
     }
 
-    if (l.typerun == 2 || l.typerun == 1) {
-    }
     // MassResolution
     massResolutionCalculator = new MassResolution();
+
     /* -------------------------------------------------------------------------------------------
        Pileup Reweighting
        https://twiki.cern.ch/twiki/bin/viewauth/CMS/PileupReweighting
@@ -1189,8 +1127,9 @@ void PhotonAnalysis::Init(LoopAll& l)
 	puTargetFile->Close();
     }
 
+    // Jet handling
     if( recomputeBetas || recorrectJets || rerunJetMva || recomputeJetWp || applyJer || applyJecUnc || emulateJetResponse 
-	|| l.typerun != l.kFill ) {
+	|| l.typerun != l.kFill && 0) {
 	std::cout << "JetHandler: \n"
 		  << "recomputeBetas " << recomputeBetas << "\n"
 		  << "recorrectJets " << recorrectJets << "\n"
@@ -1202,6 +1141,7 @@ void PhotonAnalysis::Init(LoopAll& l)
 	jetHandler_->setJetResponseStep(jetResponseLumiStep);
     }
 
+    // Beam spot reweighting
     if( emulateBeamspot || reweighBeamspot ) {
 	assert( emulatedBeamspotWidth != 0. );
 	beamspotWidth = emulatedBeamspotWidth;
@@ -1232,6 +1172,45 @@ void PhotonAnalysis::Init(LoopAll& l)
         fgbr->Close();
     */
 
+    // ---------------------- LOAD Regression Classes ---------------------//
+    //initialize eval vector
+    _vals.resize(37);
+    
+    //load forests from file
+    TFile *fgbr = TFile::Open(regressionFile.c_str(),"READ");    
+    fgbr->GetObject("EGRegressionForest_EB", _foresteb);
+    fgbr->GetObject("EGRegressionForest_EE", _forestee);
+    fgbr->Close();
+
+    //recreate pdf with constraint transformations (can't load directly from file due to weird RooWorkspace IO features)
+    
+    _tgt = new RooRealVar("tgt","",1.);
+    _mean = new RooRealVar("mean","",1.);
+    _sigma = new RooRealVar("sigma","",1.);
+    _n1 = new RooRealVar("n1","",2.);
+    _n2 = new RooRealVar("n2","",2.);
+    
+    _sigmalim = new RooRealConstraint("sigmalim","",*_sigma,0.0002,0.5);
+    _meanlim = new RooRealConstraint("meanlim","",*_mean,0.2,2.0);
+    _n1lim = new RooRealConstraint("n1lim","",*_n1,1.01,110.);
+    _n2lim = new RooRealConstraint("n2lim","",*_n2,1.01,110.);     
+    
+    _pdf = new RooDoubleCBFast("sigpdf","",*_tgt,RooFit::RooConst(1.),
+			       *_sigmalim,RooFit::RooConst(2.0),*_n1lim,RooFit::RooConst(1.0),*_n2lim);
+    
+    //add to RooArgList for proper garbage collection
+    _args.addOwned(*_tgt);
+    _args.addOwned(*_mean);
+    _args.addOwned(*_sigma);
+    _args.addOwned(*_n1);
+    _args.addOwned(*_n2);
+    _args.addOwned(*_sigmalim);
+    _args.addOwned(*_meanlim);
+    _args.addOwned(*_n1lim);
+    _args.addOwned(*_n2lim);
+    _args.addOwned(*_pdf);    
+    
+    
     // --------------------------------------------------------------------
     if(PADEBUG)
         cout << "InitRealPhotonAnalysis END"<<endl;
@@ -1258,6 +1237,7 @@ void PhotonAnalysis::setupEscaleSmearer()
         eScaleCorrPars.scale_offset_error = tmp_scale_offset[0].scale_offset_error;
 
         eScaleCorrPars.smearing_sigma = tmp_scale_offset[0].scale_offset;
+        eScaleCorrPars.smearing_stocastic_sigma = tmp_scale_offset[0].scale_stocastic_offset;
         eScaleCorrPars.smearing_sigma_error = tmp_scale_offset[0].scale_offset_error;
 
 	EnergySmearer::energySmearingParameters::phoCatVectorIt icat = tmp_scale_cat.begin();
@@ -1320,6 +1300,7 @@ void PhotonAnalysis::setupEresolSmearer()
         eResolCorrPars.scale_offset_error = tmp_smearing[0].scale_offset_error;
 
         eResolCorrPars.smearing_sigma = tmp_smearing[0].scale_offset;
+        eResolCorrPars.smearing_stocastic_sigma = tmp_smearing[0].scale_stocastic_offset;
         eResolCorrPars.smearing_sigma_error = tmp_smearing[0].scale_offset_error;
 
 	EnergySmearer::energySmearingParameters::phoCatVectorIt icat = tmp_smearing_cat.begin();
@@ -1647,10 +1628,10 @@ void PhotonAnalysis::PreselectPhotons(LoopAll& l, int jentry)
     corrected_pho_energy.clear(); corrected_pho_energy.resize(l.pho_n,0.);
     int cur_type = l.itype[l.current];
 
+    // Re-EDIT 5 Aug 2013, replcing to recalcuate on the fly regression 
     // EDIT - 4 Dec 2011 NWardle Latest Ntuple Production uses New and Correct Regression so no need to calculate on the FLY corrections
     // TEMPORARY FIX TO CALCULATE CORRECTED ENERGIES SINCE REGRESSION WAS NOT STORED IN NTUPLES
     // The following Fills the arrays with the ON-THE-FLY calculations
-    //GetRegressionCorrections(l);  // need to pass LoopAll
     // -------------------------------------------------------------------------------------------//
 
 
@@ -1736,6 +1717,8 @@ void PhotonAnalysis::FillReductionVariables(LoopAll& l, int jentry)
     if(PADEBUG)
 	cout<<"myFillReduceVar START"<<endl;
 
+    // Run on-the-fly regression at Reduction Step
+    GetRegressionCorrections(l);  // need to pass LoopAll
     PreselectPhotons(l,jentry);
 
     if(PADEBUG)
@@ -1771,7 +1754,7 @@ void PhotonAnalysis::postProcessJets(LoopAll & l, int vtx)
     }
     for(int ivtx=minv;ivtx<maxv; ++ivtx) {
 	for(int ijet=0; ijet<l.jet_algoPF1_n; ++ijet) {
-	    if( recomputeBetas || (l.typerun != l.kFill && l.version > 14 && ivtx >= l.jet_algoPF1_nvtx) ) {
+	    if( recomputeBetas || (l.typerun != l.kFill && l.version > 14 && ivtx >= l.jet_algoPF1_nvtx) && 0 ) {
 		/// std::cout << "recomputeBetas " << ivtx << " " << l.jet_algoPF1_nvtx << std::endl;
 		jetHandler_->computeBetas(ijet, ivtx);
 	    }
@@ -1850,11 +1833,11 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
     }
     /// Jet matching
     // pfJets ak5
-    l.doJetMatching(*l.jet_algoPF1_p4,*l.genjet_algo1_p4,l.jet_algoPF1_genMatched,l.jet_algoPF1_vbfMatched,l.jet_algoPF1_genPt,l.jet_algoPF1_genDr);
+    l.doJetMatching(*l.jet_algoPF1_p4,*l.genjet_algo1_p4,l.jet_algoPF1_genMatched,l.jet_algoPF1_vbfMatched,l.jet_algoPF1_bgenMatched,l.jet_algoPF1_genPt,l.jet_algoPF1_genDr);
     // pfJets ak7
     //l.doJetMatching(*l.jet_algoPF2_p4,*l.genjet_algo2_p4,l.jet_algoPF2_genMatched,l.jet_algoPF2_vbfMatched,l.jet_algoPF2_genPt,l.jet_algoPF2_genDr);
     // CHS ak5
-    l.doJetMatching(*l.jet_algoPF3_p4,*l.genjet_algo1_p4,l.jet_algoPF3_genMatched,l.jet_algoPF3_vbfMatched,l.jet_algoPF3_genPt,l.jet_algoPF3_genDr);
+    l.doJetMatching(*l.jet_algoPF3_p4,*l.genjet_algo1_p4,l.jet_algoPF3_genMatched,l.jet_algoPF3_vbfMatched,l.jet_algoPF3_bgenMatched,l.jet_algoPF3_genPt,l.jet_algoPF3_genDr);
 
     if( pho_presel.size() < 2 ) {
         // zero or one photons, can't determine a vertex based on photon pairs
@@ -2176,6 +2159,7 @@ void PhotonAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree)
 	l.Branch_pho_regr_energyerr_otf(outputTree);
 
 	l.Branch_jet_algoPF1_genMatched(outputTree);
+	l.Branch_jet_algoPF1_bgenMatched(outputTree);
 	l.Branch_jet_algoPF1_vbfMatched(outputTree);
 	l.Branch_jet_algoPF1_genPt(outputTree);
 	l.Branch_jet_algoPF1_genDr(outputTree);
@@ -2186,6 +2170,7 @@ void PhotonAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree)
 	//l.Branch_jet_algoPF2_genDr(outputTree);
 
 	l.Branch_jet_algoPF3_genMatched(outputTree);
+	l.Branch_jet_algoPF3_bgenMatched(outputTree);
 	l.Branch_jet_algoPF3_vbfMatched(outputTree);
 	l.Branch_jet_algoPF3_genPt(outputTree);
 	l.Branch_jet_algoPF3_genDr(outputTree);
@@ -4126,33 +4111,9 @@ void PhotonAnalysis::saveBSTrees(LoopAll &l, float evweight, int category, TLore
 }
 
 float PhotonAnalysis::ComputeEventScaleError(LoopAll& l, int ipho1, int ipho2, float & scale1, float & scale1_err, float & scale2, float & scale2_err) {
-    PhotonReducedInfo pho1 (
-        *((TVector3*)     l.sc_xyz->At(l.pho_scind[ipho1])),
-        ((TLorentzVector*)l.pho_p4->At(ipho1))->Energy(),
-        energyCorrected[ipho1],
-        l.pho_isEB[ipho1], l.pho_r9[ipho1],
-        true, // WARNING  setting pass photon ID flag for all photons. This is safe as long as only selected photons are used
-        0 //only for category --> correct energy NOT needed
-    );
-
-    int ieta, iphi;
-    l.getIetaIPhi(ipho1,ieta,iphi);
-    pho1.addSmearingSeed( (unsigned int)l.sc_raw[l.pho_scind[ipho1]] + abs(ieta) + abs(iphi) + l.run + l.event + l.lumis );
-    pho1.setSphericalPhoton(l.CheckSphericalPhoton(ieta,iphi));
-
-    PhotonReducedInfo pho2 (
-        *((TVector3*)     l.sc_xyz->At(l.pho_scind[ipho2])),
-        ((TLorentzVector*)l.pho_p4->At(ipho2))->Energy(),
-        energyCorrected[ipho2],
-        l.pho_isEB[ipho2], l.pho_r9[ipho2],
-        true, // WARNING  setting pass photon ID flag for all photons. This is safe as long as only selected photons are used
-        0 //only for category --> correct energy NOT needed
-    );
-
-    l.getIetaIPhi(ipho2,ieta,iphi);
-    pho2.addSmearingSeed( (unsigned int)l.sc_raw[l.pho_scind[ipho2]] + abs(ieta) + abs(iphi) + l.run + l.event + l.lumis );
-    pho2.setSphericalPhoton(l.CheckSphericalPhoton(ieta,iphi));
-
+    PhotonReducedInfo pho1 = photonInfoCollection[ipho1];
+    PhotonReducedInfo pho2 = photonInfoCollection[ipho2];
+    
     std::string cat1=eScaleSmearer->photonCategory(pho1);
     std::string cat2=eScaleSmearer->photonCategory(pho2);
     if( PADEBUG ) std::cout<<"cat1 "<<cat1<<std::endl;
@@ -4183,45 +4144,21 @@ float PhotonAnalysis::ComputeEventScaleError(LoopAll& l, int ipho1, int ipho2, f
 }
 
 float PhotonAnalysis::ComputeEventSmearError(LoopAll& l, int ipho1, int ipho2, float & smear1, float & smear1_err, float & smear2, float & smear2_err) {
-    PhotonReducedInfo pho1 (
-        *((TVector3*)     l.sc_xyz->At(l.pho_scind[ipho1])),
-        ((TLorentzVector*)l.pho_p4->At(ipho1))->Energy(),
-        energyCorrected[ipho1],
-        l.pho_isEB[ipho1], l.pho_r9[ipho1],
-        true, // WARNING  setting pass photon ID flag for all photons. This is safe as long as only selected photons are used
-        0 //only for category --> correct energy NOT needed
-    );
-
-    int ieta, iphi;
-    l.getIetaIPhi(ipho1,ieta,iphi);
-    pho1.addSmearingSeed( (unsigned int)l.sc_raw[l.pho_scind[ipho1]] + abs(ieta) + abs(iphi) + l.run + l.event + l.lumis );
-    pho1.setSphericalPhoton(l.CheckSphericalPhoton(ieta,iphi));
-
-    PhotonReducedInfo pho2 (
-        *((TVector3*)     l.sc_xyz->At(l.pho_scind[ipho2])),
-        ((TLorentzVector*)l.pho_p4->At(ipho2))->Energy(),
-        energyCorrected[ipho2],
-        l.pho_isEB[ipho2], l.pho_r9[ipho2],
-        true, // WARNING  setting pass photon ID flag for all photons. This is safe as long as only selected photons are used
-        0 //only for category --> correct energy NOT needed
-    );
-
-    l.getIetaIPhi(ipho2,ieta,iphi);
-    pho2.addSmearingSeed( (unsigned int)l.sc_raw[l.pho_scind[ipho2]] + abs(ieta) + abs(iphi) + l.run + l.event + l.lumis );
-    pho2.setSphericalPhoton(l.CheckSphericalPhoton(ieta,iphi));
-
-    std::string cat1=eScaleSmearer->photonCategory(pho1);
-    std::string cat2=eScaleSmearer->photonCategory(pho2);
+    PhotonReducedInfo pho1 = photonInfoCollection[ipho1];
+    PhotonReducedInfo pho2 = photonInfoCollection[ipho2];
+    
+    std::string cat1=eResolSmearer->photonCategory(pho1);
+    std::string cat2=eResolSmearer->photonCategory(pho2);
     if( PADEBUG ) std::cout<<"cat1 "<<cat1<<std::endl;
     if( PADEBUG ) std::cout<<"cat2 "<<cat2<<std::endl;
 
-    smear1 = eScaleSmearer->myParameters_.smearing_sigma[cat1];
-    smear2 = eScaleSmearer->myParameters_.smearing_sigma[cat2];
+    smear1 = EnergySmearer::getSmearingSigma(eResolSmearer->myParameters_,cat1,pho1.energy(),0.);
+    smear2 = EnergySmearer::getSmearingSigma(eResolSmearer->myParameters_,cat2,pho2.energy(),0.);
     if( PADEBUG ) std::cout<<"smear1 "<<smear1<<std::endl;
     if( PADEBUG ) std::cout<<"smear2 "<<smear2<<std::endl;
 
-    smear1_err = eScaleSmearer->myParameters_.smearing_sigma_error[cat1];
-    smear2_err = eScaleSmearer->myParameters_.smearing_sigma_error[cat2];
+    smear1_err = eResolSmearer->myParameters_.smearing_sigma_error[cat1];
+    smear2_err = eResolSmearer->myParameters_.smearing_sigma_error[cat2];
     if( PADEBUG ) std::cout<<"smear_stat_err1 "<<smear1_err<<std::endl;
     if( PADEBUG ) std::cout<<"smear_stat_err2 "<<smear2_err<<std::endl;
 
@@ -4243,39 +4180,23 @@ float PhotonAnalysis::ComputeEventSmearError(LoopAll& l, int ipho1, int ipho2, f
 
 pair<double,double> PhotonAnalysis::ComputeNewSigmaMs(LoopAll &l, int ipho1, int ipho2, int ivtx, float sys_shift){
 
-    PhotonReducedInfo pho1 (
-        *((TVector3*)     l.sc_xyz->At(l.pho_scind[ipho1])),
-        ((TLorentzVector*)l.pho_p4->At(ipho1))->Energy(),
-        energyCorrected[ipho1],
-        l.pho_isEB[ipho1], l.pho_r9[ipho1],
-        true, // WARNING  setting pass photon ID flag for all photons. This is safe as long as only selected photons are used
-        energyCorrectedError[ipho1] // will be altered below, needs to be initialized
-    );
-    PhotonReducedInfo pho2 (
-        *((TVector3*)     l.sc_xyz->At(l.pho_scind[ipho2])),
-        ((TLorentzVector*)l.pho_p4->At(ipho2))->Energy(),
-        energyCorrected[ipho2],
-        l.pho_isEB[ipho2], l.pho_r9[ipho2],
-        true, // WARNING  setting pass photon ID flag for all photons. This is safe as long as only selected photons are used
-        energyCorrectedError[ipho2] // will be altered below, needs to be initialized
-    );
+    PhotonReducedInfo pho1 = photonInfoCollection[ipho1];
+    PhotonReducedInfo pho2 = photonInfoCollection[ipho2];
+
     pho1.setCorrEnergyErr(pho1.corrEnergyErr()*(1.+sys_shift*0.1));
     pho2.setCorrEnergyErr(pho2.corrEnergyErr()*(1.+sys_shift*0.1));
 
-    MassResolution *tempMassRes = new MassResolution();
+    MassResolution tempMassRes;
 
-    //cout << pho1.p4().X() << endl;
-    //cout << pho2.p4().X() << endl;
-    //cout << ((TVector3*)l.vtx_std_xyz->At(ivtx))->Z() << endl;
-    tempMassRes->Setup(l,&pho1,&pho2,ivtx,massResoPars, nR9Categories, nEtaCategories,beamspotSigma,true);
-    double sigMright = tempMassRes->massResolutionEonlyNoSmear();
-    double sigMwrong = tempMassRes->massResolutionWrongVtxNoSmear();
+    tempMassRes.Setup(l,&pho1,&pho2,ivtx,massResoPars, nR9Categories, nEtaCategories,beamspotSigma,true);
+    double sigMright = tempMassRes.massResolutionEonlyNoSmear();
+    double sigMwrong = tempMassRes.massResolutionWrongVtxNoSmear();
     pair<double,double> result(sigMright,sigMwrong);
     return result;
 }
 
 
-void PhotonAnalysis::saveDatCardTree(LoopAll &l, int cur_type, int category, int inc_cat, float evweight, int ipho1, int ipho2, int ivtx, TLorentzVector lead_p4, TLorentzVector sublead_p4, bool isCutBased, double sigmaMrv, double sigmaMwv, double sigmaMeonly, float vtxP, string trainPhil, float lead_id_mva, float sublead_id_mva){
+void PhotonAnalysis::saveDatCardTree(LoopAll &l, int cur_type, int category, int inc_cat, float evweight, int ipho1, int ipho2, int ivtx, TLorentzVector lead_p4, TLorentzVector sublead_p4, bool isCutBased, string proc, double sigmaMrv, double sigmaMwv, double sigmaMeonly, float vtxP, string trainPhil, float lead_id_mva, float sublead_id_mva){
 
    // track the scale and smear uncertainties per event
     float scale1, scale1_err, scale2, scale2_err;
@@ -4303,10 +4224,12 @@ void PhotonAnalysis::saveDatCardTree(LoopAll &l, int cur_type, int category, int
        l.FillTree("bdtout_sigE_down",bdtout_sigE_down,"datacard_trees");
     }
    int proc_id=-1;
-   if (l.signalNormalizer->GetProcess(cur_type)=="ggh") proc_id=0;
-   if (l.signalNormalizer->GetProcess(cur_type)=="vbf") proc_id=1;
-   if (l.signalNormalizer->GetProcess(cur_type)=="wzh") proc_id=2;
-   if (l.signalNormalizer->GetProcess(cur_type)=="tth") proc_id=3;
+   if (proc==Form("ggh_mass_m%3.0f",l.signalNormalizer->GetMass(cur_type))) proc_id=0;
+   if (proc==Form("vbf_mass_m%3.0f",l.signalNormalizer->GetMass(cur_type))) proc_id=1;
+   if (proc==Form("wh_mass_m%3.0f",l.signalNormalizer->GetMass(cur_type))) proc_id=2;
+   if (proc==Form("zh_mass_m%3.0f",l.signalNormalizer->GetMass(cur_type))) proc_id=3;
+   if (proc==Form("tth_mass_m%3.0f",l.signalNormalizer->GetMass(cur_type))) proc_id=4;
+   if (proc==Form("wzh_mass_m%3.0f",l.signalNormalizer->GetMass(cur_type))) proc_id=5;
 
    l.FillTree("category",category,"datacard_trees");
    l.FillTree("inc_cat",inc_cat,"datacard_trees");
@@ -4753,6 +4676,158 @@ int PhotonAnalysis::VHNumberOfJets(LoopAll& l, int diphotonVHlep_id, int vertex,
   }
 
   return Njet_lepcat;
+}
+
+void PhotonAnalysis::GetRegressionCorrections(LoopAll &l){
+
+    // On the fly energy regression values
+    for (int ipho=0;ipho<l.pho_n;ipho++){
+
+        double ecor,ecorerr,cbalpha1,cbn1,cbalpha2,cbn2,pdfpeakval;
+
+        double phoE = ((TLorentzVector*)l.pho_p4->At(ipho))->Energy();
+        double r9=l.pho_r9[ipho];
+
+        TVector3 *sc = ((TVector3*)l.pho_calopos->At(ipho)); 
+
+        int sc_index      = l.pho_scind[ipho];
+        int sc_seed_index = l.sc_bcseedind[sc_index];
+
+        TVector3 *bcpos =(TVector3*)l.bc_xyz->At(sc_seed_index);
+        double bcE = ((TLorentzVector*)l.bc_p4->At(sc_seed_index))->Energy();
+
+
+        // New semi-parametric regression 
+        bool isbarrel = (fabs(sc->Eta())<1.48); 
+
+
+        //   //basic supercluster variables
+        _vals[0]  = l.sc_raw[sc_index];
+        _vals[1]  = sc->Eta();
+        _vals[2]  = r9;
+        _vals[3] = l.sc_seta[sc_index];
+        _vals[4] = l.sc_sphi[sc_index];
+        _vals[5] = (double)l.sc_nbc[sc_index];
+        _vals[6] = l.pho_hoe[ipho];//p.hadTowOverEm();
+        _vals[7] = l.rho;
+        _vals[8] = (double)l.vtx_std_n;//double(vtxcol.size());
+
+        //seed basic cluster variables
+        double bemax = l.bc_s1[sc_seed_index];//clustertools.eMax(*b);
+        double be2nd = l.pho_e2nd[ipho];//clustertools.e2nd(*b);
+        double betop = l.pho_etop[ipho];//clustertools.eTop(*b);
+        double bebottom = l.pho_ebottom[ipho];//clustertools.eBottom(*b);
+        double beleft = l.pho_eleft[ipho];//clustertools.eLeft(*b);
+        double beright = l.pho_eright[ipho];//clustertools.eRight(*b);
+
+        double be2x5max = l.pho_e2x5max[ipho];//clustertools.e2x5Max(*b);
+        double be2x5top = l.pho_e2x5top[ipho];//clustertools.e2x5Top(*b);
+        double be2x5bottom = l.pho_e2x5bottom[ipho];//clustertools.e2x5Bottom(*b);
+        double be2x5left = l.pho_e2x5left[ipho];//clustertools.e2x5Left(*b);
+        double be2x5right = l.pho_e2x5right[ipho];//clustertools.e2x5Right(*b);
+
+        double be5x5 = l.bc_s25[sc_seed_index];//clustertools.e5x5(*b);
+        double be3x3 = l.bc_s9[sc_seed_index];//clustertools.e5x5(*b);
+
+        _vals[9] = bcpos->Eta()-sc->Eta();
+        _vals[10] = l.DeltaPhi(bcpos->Phi(),sc->Phi());
+        _vals[11] = bcE/l.sc_raw[sc_index];
+        _vals[12] = be3x3/be5x5;
+        _vals[13] = TMath::Sqrt(l.bc_sieie[sc_seed_index]); //sigietaieta (this is stored in bc collection)
+        _vals[14] = TMath::Sqrt(l.pho_sipip[ipho]); //sigiphiiphi
+        _vals[15] = l.pho_sieip[ipho];//clustertools.localCovariances(*b)[1];       //sigietaiphi
+
+        _vals[16] = bemax/be5x5;                       //crystal energy ratio gap variables   
+        _vals[17] = be2nd/be5x5;
+        _vals[18] = betop/be5x5;
+        _vals[19] = bebottom/be5x5;
+        _vals[20] = beleft/be5x5;
+        _vals[21] = beright/be5x5;
+        _vals[22] = be2x5max/be5x5;                       //crystal energy ratio gap variables   
+        _vals[23] = be2x5top/be5x5;
+        _vals[24] = be2x5bottom/be5x5;
+        _vals[25] = be2x5left/be5x5;
+        _vals[26] = be2x5right/be5x5;
+
+        if (isbarrel) {
+            //additional energy ratio (always ~1 for endcap, therefore only included for barrel)
+            _vals[27] = be5x5/bcE;
+
+            int bieta = l.pho_bieta[ipho];
+            int biphi = l.pho_biphi[ipho];     
+
+            _vals[28] = bieta; //crystal ieta
+            _vals[29] = biphi%18; //crystal iphi supermodule symmetry
+            _vals[30] = bieta%5; //submodule boundary eta symmetry
+            _vals[31] = biphi%2; //submodule boundary phi symmetry
+            _vals[32] = (TMath::Abs(bieta)<=25)*(bieta%25) + (TMath::Abs(bieta)>25)*((bieta-25*TMath::Abs(bieta)/bieta)%20);  //module boundary eta approximate symmetry
+            _vals[33] = biphi%20; //module boundary phi symmetry
+            _vals[34] = l.pho_betacry[ipho];//betacry; //local coordinates with respect to closest crystal center at nominal shower depth
+            _vals[35] = l.pho_phicry[ipho];//bphicry;
+
+        }
+        else {
+            //preshower energy ratio (endcap only)
+            _vals[27]  = l.sc_pre[sc_index]/l.sc_raw[sc_index];
+        }
+
+        double den;
+        HybridGBRForest *forest;  
+        if (isbarrel) {
+            den = l.sc_raw[sc_index];
+            forest = _foresteb;
+        }
+        else {
+            den = l.sc_raw[sc_index]+l.sc_pre[sc_index];
+            forest = _forestee;
+        }
+
+        _tgt->setVal(1.0); //evaluate pdf at peak position
+
+        //set raw response variables from GBRForest
+        _sigma->setVal(forest->GetResponse(&_vals[0],0));
+        _mean->setVal(forest->GetResponse(&_vals[0],1));
+        _n1->setVal(forest->GetResponse(&_vals[0],2));
+        _n2->setVal(forest->GetResponse(&_vals[0],3));
+
+        //retrieve final pdf parameter values from transformed forest outputs
+        // cbsigma (sigmalim->getVal()) is the sigmaE/E so in the branch we save cbsigma*ecor (ie the absolute error in GeV) 
+        ecor = den/_meanlim->getVal();
+        ecorerr = _sigmalim->getVal()*ecor;
+
+        cbalpha1 = 2.0;  //alpha hardcoded in this version of the regression
+        cbn1 = _n1lim->getVal();
+        cbalpha2 = 1.0;  //alpha hardcoded in this version of the regression
+        cbn2 = _n2lim->getVal();
+
+        // note ecor is now the corrected energy (save this directly)
+        pdfpeakval = _pdf->getVal(*_tgt);
+
+
+        // Set vectors used in reduction;
+        energyCorrected[ipho] = ecor;
+        energyCorrectedError[ipho] = ecorerr;
+
+        // Save new branches 
+        l.pho_regr_energy_otf[ipho] = ecor;
+        l.pho_regr_energyerr_otf[ipho] = ecorerr;
+
+        if (PADEBUG) {
+            std::cout << "PhotonAnalysis::GetRegressionCorrections ----/" <<std::endl;
+            std::cout << " Is barrel? .... " << isbarrel <<std::endl;
+            std::cout << " Inputs ...." << std::endl;
+            for (int vi=0;vi<36;vi++){ //36 params for Photon correction
+                std::cout << "Val " << vi << " " << _vals[vi] << std::endl;
+            }
+            std::cout << " photon Energy in ntuple / new value     " << ipho << " = " << l.pho_regr_energy[ipho] << " / " << ecor  << std::endl;
+            std::cout << " photon Resolution in ntuple / new value " << ipho << " = " << l.pho_regr_energyerr[ipho] << " / " << ecorerr << std::endl; 
+            std::cout << "---------------------------------------------/" <<std::endl;
+        }
+
+        // Overwrite old branches
+        l.pho_regr_energy[ipho] = ecor;
+        l.pho_regr_energyerr[ipho] = ecorerr;
+    }
 }
 
 // Local Variables:
