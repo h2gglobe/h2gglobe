@@ -187,6 +187,23 @@ def main(options, args):
         model_name += "_%s" % options.label
     if options.statOnly:
         model_name += "_stat"
+
+    #--------------------
+    # check the existence of the merged output file before running
+    # anything (if we run more than just the initial determination
+    # of the maximum). Unless we force overwriting it.
+    #--------------------
+
+    haddOutputFile = "higgsCombine%s_grid.MultiDimFit.mH%s.root" % (model_name,mass)
+
+    if not options.singleOnly:
+        if os.path.exists(haddOutputFile) and not options.overwrite:
+            print >> sys.stderr,"merged output file",os.path.abspath(haddOutputFile),"already exists, exiting (use --overwrite to force overwriting)"
+            sys.exit(1)
+
+
+    #--------------------
+
     model = "%s.root" % model_name
     if not os.path.isfile(model) or options.forceRedoWorkspace:
 
@@ -250,7 +267,11 @@ def main(options, args):
         # run interactively
         system( "%s -N2 --eta '%s -M MultiDimFit %s_grid_test.root -m %s -v0 -n %s_grid{1} --algo=grid --points=%d --firstPoint={1} --lastPoint={2} | tee combine_%s_grid{1}.log' ::: %s " % ( parallel, combine, model_name, mass, model_name, options.npoints, model_name, jobs ) )
 
-    hadd = "hadd higgsCombine%s_grid.MultiDimFit.mH%s.root" % (model_name,mass)
+    hadd = "hadd"
+    if options.overwrite:
+        hadd += " -f"
+    hadd += " " + haddOutputFile
+
     for f in glob.glob("higgsCombine%s_grid[0-9]*.MultiDimFit.mH%s.root" % (model_name,mass) ):
         hadd += " %s" % f
     system(hadd)
@@ -324,6 +345,14 @@ if __name__ == "__main__":
                     default = "8nh",
                     help="LSF queue to use when running with --submit (default : [%default])", 
                     ),
+
+        make_option("--overwrite",
+                    action="store_true",
+                    default = False,
+                    help="force overwriting the final combined output ROOT file", 
+                    ),
+
+
 
         ])
     
