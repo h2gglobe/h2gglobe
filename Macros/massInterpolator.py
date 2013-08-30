@@ -153,6 +153,14 @@ def main(options,args):
         print "\nPreparing output"
         print "-----------------------"
         fout = ROOT.TFile.Open(file,"recreate")
+        # transfer macros
+        for key in fin.GetListOfKeys():
+          obj = key.ReadObj()
+          if type(obj)==type(ROOT.TMacro()):
+            fout.cd()
+            print obj.GetName()
+            obj.Write()
+        
         files.append(fout)
         fout.cd()
         for o in tocopy:

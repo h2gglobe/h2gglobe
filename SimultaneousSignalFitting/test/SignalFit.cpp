@@ -3,11 +3,14 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <typeinfo>
 
 #include "TFile.h"
 #include "TStopwatch.h"
 #include "RooWorkspace.h"
 #include "RooDataSet.h"
+#include "TKey.h"
+#include "TMacro.h"
 
 #include "../interface/InitialFit.h"
 #include "../interface/LinearInterp.h"
@@ -68,6 +71,20 @@ void OptionParser(int argc, char *argv[]){
   if (vm.count("recursive"))                recursive_=true;
 }
 
+void transferMacros(TFile *inFile, TFile *outFile){
+  
+  TIter next(inFile->GetListOfKeys());
+  TKey *key;
+  while ((key = (TKey*)next())){
+    if (string(key->ReadObj()->ClassName())=="TMacro") {
+      //cout << key->ReadObj()->ClassName() << " : " << key->GetName() << endl;
+      TMacro *macro = (TMacro*)inFile->Get(key->GetName());
+      outFile->cd();
+      macro->Write();
+    }
+  }
+}
+
 int main(int argc, char *argv[]){
  
   OptionParser(argc,argv);
@@ -93,6 +110,8 @@ int main(int argc, char *argv[]){
  
   TFile *outFile = new TFile(outfilename_.c_str(),"RECREATE");
   RooWorkspace *outWS = new RooWorkspace("wsig_8TeV");
+
+  transferMacros(inFile,outFile);
 
   // run fits for each line in datfile
   ifstream datfile;
