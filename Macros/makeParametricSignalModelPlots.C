@@ -17,6 +17,10 @@
 #include "TColor.h"
 #include "TLine.h"
 #include "TPad.h"
+#include "TList.h"
+#include "TObjString.h"
+#include "TMacro.h"
+#include "TKey.h"
 
 #include "RooStats/NumberCountingUtils.h"
 #include "RooStats/RooStatsUtils.h"
@@ -1004,8 +1008,41 @@ void makeSignalCompositionPlot(int nCats, map<string,vector<double> > sigVals, m
   gDirectory->DeleteAll();
 }
 
+void getConfigFromFile(TFile *inFile, bool &is2011, bool &splitVH, bool &isMassFac){
+  
+  TIter next(inFile->GetListOfKeys());
+  TKey *key;
+  while ((key = (TKey*)next())){
+    if (string(key->ReadObj()->ClassName())=="TMacro") {
+      //cout << key->ReadObj()->ClassName() << " : " << key->GetName() << endl;
+      TMacro *macro = (TMacro*)inFile->Get(key->GetName());
+      if (macro->GetName()==TString("statanalysis") || macro->GetName()==TString("spinanalysis")) isMassFac=false;
+      if (macro->GetName()==TString("massfactorizedmvaanalysis")) isMassFac=true;
+      TList *list = (TList*)macro->GetListOfLines();
+      for (int l=0; l<list->GetSize(); l++){
+        TObjString *obStr = (TObjString*)list->At(l);
+        TString line(obStr->GetName());
+        TString varName(line(0,line.First("=")));
+        TString varVal(line(line.First("=")+1,line.Length()));
+        if (varName=="splitwzh") splitVH = varVal.Atoi();
+        if (varName=="dataIs2011") is2011 = varVal.Atoi();
+      }
+    }
+  }
+}
+
+void getNCats(RooWorkspace *ws, int mh, int &ncats){
+  ncats=0;
+  RooDataSet *data = (RooDataSet*)ws->data(Form("sig_mass_m%d_cat0",mh));
+  while (1) {
+    data = (RooDataSet*)ws->data(Form("sig_mass_m%d_cat%d",mh,ncats));
+    if (!data) break;
+    else ncats++;
+  }
+}
+
 // main function
-void makeParametricSignalModelPlots(string sigFitFileName, string outPathName, bool doTable=false, int ncats=9, bool is2011=false, int m_hyp=125, bool splitVH=false, string bkgdatFileName="0", bool isMassFac=true, bool blind=true, bool spin=false, string spinProc="", string binnedSigFileName="", bool doCrossCheck=false, bool doMIT=false, bool rejig=false){
+void makeParametricSignalModelPlots(string sigFitFileName, string outPathName, int m_hyp=125, bool blind=true, bool doTable=false, string bkgdatFileName="0", int ncats=9, bool is2011=false, bool splitVH=false, bool isMassFac=true, bool spin=false, string spinProc="", string binnedSigFileName="", bool doCrossCheck=false, bool doMIT=false, bool rejig=false){
 
   gROOT->SetBatch();
   gStyle->SetTextFont(42);
@@ -1015,6 +1052,8 @@ void makeParametricSignalModelPlots(string sigFitFileName, string outPathName, b
   else newFileName = sigFitFileName;
 
   TFile *hggFile = TFile::Open(newFileName.c_str());
+
+  getConfigFromFile(hggFile,is2011,splitVH,isMassFac);
   
   string sqrts;
   if (is2011) sqrts="7TeV";
@@ -1029,6 +1068,14 @@ void makeParametricSignalModelPlots(string sigFitFileName, string outPathName, b
     exit(1);
   }
 
+  getNCats(hggWS,m_hyp,ncats);
+
+  cout << "Configured options from file:" << endl;
+  cout << "\t is2011: " << is2011 << endl;
+  cout << "\t splitVH: " << splitVH << endl;
+  cout << "\t isMassFac: " << isMassFac << endl;
+  cout << "\t ncats: " << ncats << endl;
+  
   RooRealVar *mass= (RooRealVar*)hggWS->var("CMS_hgg_mass");
   
   RooRealVar *mh = (RooRealVar*)hggWS->var("MH");
@@ -1126,7 +1173,7 @@ void makeParametricSignalModelPlots(string sigFitFileName, string outPathName, b
   map<string,double> fwhms;
   
   system(Form("mkdir -p %s",outPathName.c_str()));
-  system(Form("rm %s/animation.gif",outPathName.c_str()));
+  system(Form("rm -f %s/animation.gif",outPathName.c_str()));
   for (map<string,RooDataSet*>::iterator dataIt=dataSets.begin(); dataIt!=dataSets.end(); dataIt++){
     pair<double,double> thisSigRange = getEffSigma(mass,pdfs[dataIt->first],m_hyp-10.,m_hyp+10.);
     //pair<double,double> thisSigRange = getEffSigBinned(mass,pdf[dataIt->first],m_hyp-10.,m_hyp+10);
@@ -1225,10 +1272,10 @@ void makeParametricSignalModelPlots(string sigFitFileName, string outPathName, b
         if (blind) fprintf(nfile,"%7s","----");
         else fprintf(nfile,"%7.1f  ",dat.second);
         // tex file
-        fprintf(file,"&  %6.1f & $\\pm$ %3.1f \\tabularnewline ",bkg.first,bkg.second);
+        fprintf(file,"&  %6.1f & $\\pm$ %3.1f ",bkg.first,bkg.second);
         fprintf(file,"&  %7.1f  ",dat.first);
-        if (blind) fprintf(file,"& %7s","----");
-        else fprintf(file,"&  %7.1f  ",dat.second);
+        if (blind) fprintf(file,"& %7s","---- \\tabularnewline ");
+        else fprintf(file,"&  %7.1f  \\tabularnewline ",dat.second);
       }
       fprintf(nfile,"\n");
       fprintf(file,"\n");
@@ -1243,5 +1290,4 @@ void makeParametricSignalModelPlots(string sigFitFileName, string outPathName, b
   }
 
   hggFile->Close();
-  cout << "At end" << endl;
 }
