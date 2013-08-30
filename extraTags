@@ -33,7 +33,13 @@ if [[ ! -d HiggsAnalysis/GBRLikelihood  ]]; then
 fi 
 cd HiggsAnalysis/GBRLikelihood
 scram b
+cd -
 
+if [[ ! -d HiggsAnalysis/CombinedLimit ]]; then
+  git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
+fi
+cd HiggsAnalysis/CombinedLimit
+scram b
 
 cd -
 touch .extraTags
