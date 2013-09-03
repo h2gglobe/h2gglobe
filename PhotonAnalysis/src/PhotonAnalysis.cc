@@ -697,28 +697,45 @@ void PhotonAnalysis::Init(LoopAll& l)
         l.SetCutVariables("cut_VBF_SubPhoPtOverM",  &myVBFSubPhoPtOverM);
     }
 
-    if( mvaVbfSelection || multiclassVbfSelection ) {
+    if( mvaVbfSelection || multiclassVbfSelection || mvaVbfSelection2013 ) {
 
 	tmvaVbfReader_ = new TMVA::Reader( "!Color:!Silent" );
 
-	tmvaVbfReader_->AddVariable("jet1pt"              , &myVBFLeadJPt);
-	tmvaVbfReader_->AddVariable("jet2pt"	          , &myVBFSubJPt);
-	tmvaVbfReader_->AddVariable("abs(jet1eta-jet2eta)", &myVBFdEta);
-	tmvaVbfReader_->AddVariable("mj1j2"		  , &myVBF_Mjj);
-	tmvaVbfReader_->AddVariable("zepp"		  , &myVBFZep);
-	tmvaVbfReader_->AddVariable("dphi"		  , &myVBFdPhi);
-	if( mvaVbfUseDiPhoPt ) {
-	    tmvaVbfReader_->AddVariable("diphopt/diphoM"      , &myVBFDiPhoPtOverM);
+	if (mvaVbfSelection2013) {
+	    tmvaVbfReader_->AddVariable("dijet_leadEta",    &myVBFLeadJEta);
+	    tmvaVbfReader_->AddVariable("dijet_subleadEta", &myVBFSubJEta);
+	    tmvaVbfReader_->AddVariable("dijet_LeadJPt",    &myVBFLeadJPt);
+	    tmvaVbfReader_->AddVariable("dijet_SubJPt",     &myVBFSubJPt);
+	    tmvaVbfReader_->AddVariable("dijet_Zep",        &myVBFZep);
+	    tmvaVbfReader_->AddVariable("dijet_dPhi",       &myVBFdPhi);
+	    tmvaVbfReader_->AddVariable("dijet_Mjj",        &myVBF_Mjj);	   
+	    tmvaVbfReader_->AddVariable("dipho_pt/mass",    &myVBFDiPhoPtOverM);
+	    
+	    tmvaVbfDiphoReader_ = new TMVA::Reader("!Color:!Silent"); 
+	    tmvaVbfDiphoReader_->AddVariable("bdt_incl",                       &myVBFDIPHObdt);
+	    tmvaVbfDiphoReader_->AddVariable("bdt_dijet_sherpa_plusdiphoptom", &myVBFDIPHOdijet);
+	    tmvaVbfDiphoReader_->AddVariable("dipho_pt/mass",                  &myVBFDiPhoPtOverM);
+	    tmvaVbfDiphoReader_->BookMVA(mvaVbfDiphoMethod, mvaVbfDiphoWeights);
+	} else {
+	    tmvaVbfReader_->AddVariable("jet1pt"              , &myVBFLeadJPt);
+	    tmvaVbfReader_->AddVariable("jet2pt"	          , &myVBFSubJPt);
+	    tmvaVbfReader_->AddVariable("abs(jet1eta-jet2eta)", &myVBFdEta);
+	    tmvaVbfReader_->AddVariable("mj1j2"		  , &myVBF_Mjj);
+	    tmvaVbfReader_->AddVariable("zepp"		  , &myVBFZep);
+	    tmvaVbfReader_->AddVariable("dphi"		  , &myVBFdPhi);
+	    if( mvaVbfUseDiPhoPt ) {
+		tmvaVbfReader_->AddVariable("diphopt/diphoM"      , &myVBFDiPhoPtOverM);
+	    }
+	    if( mvaVbfUsePhoPt   ) {
+		tmvaVbfReader_->AddVariable("pho1pt/diphoM"	  , &myVBFLeadPhoPtOverM);
+		tmvaVbfReader_->AddVariable("pho2pt/diphoM"       , &myVBFSubPhoPtOverM);
+	    }
 	}
-	if( mvaVbfUsePhoPt   ) {
-	    tmvaVbfReader_->AddVariable("pho1pt/diphoM"	  , &myVBFLeadPhoPtOverM);
-	    tmvaVbfReader_->AddVariable("pho2pt/diphoM"       , &myVBFSubPhoPtOverM);
-	}
-
+	
 	tmvaVbfReader_->BookMVA( mvaVbfMethod, mvaVbfWeights );
-
+	
     }
-
+    
     if( mvaVbfSpin && (mvaVbfSelection || multiclassVbfSelection) )
     {
       tmvaVbfSpinReader_ = new TMVA::Reader( "!Color:!Silent" );
@@ -3784,6 +3801,8 @@ bool PhotonAnalysis::VBFTag2012(int & ijet1, int & ijet2,
     if(jet1->Pt() < jet2->Pt())
       std::swap(jet1, jet2);
 
+    myVBFLeadJEta= jet1->Eta();
+    myVBFSubJEta = jet2->Eta();
     myVBFLeadJPt= jet1->Pt();
     myVBFSubJPt = jet2->Pt();
     myVBF_Mjj   = dijet.M();
