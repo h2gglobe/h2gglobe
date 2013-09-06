@@ -56,7 +56,7 @@ el_std_DZVtx
 el_std_pfiso_charged
 el_std_pfiso_neutral
 el_std_pfiso_photon
-el_std_conv_vtxProb
+##skimmed conv_vtxProb
 el_std_conv
 el_std_eopin
 el_std_pin

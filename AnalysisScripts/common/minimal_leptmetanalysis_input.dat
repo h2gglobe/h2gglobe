@@ -15,7 +15,7 @@ mu_glo_dof
 mu_glo_chi2                                                                            
 mu_glo_type                                                                            
 mu_glo_nmatches                                                                        
-mu_glo_posvtx
+##skimmed mu_glo_posvtx
 mu_glo_losthits                                                                        
 mu_glo_validhits                                                                       
 mu_glo_pixelhits                                                                       

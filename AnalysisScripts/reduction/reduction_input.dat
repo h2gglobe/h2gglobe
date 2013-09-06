@@ -53,15 +53,15 @@ pho_sieip
 ## minimal allconversions info
 conv_n
 conv_eoverp
-conv_p4
+##skimmed conv_p4
 conv_ntracks
-conv_pair_momentum
+##skimmed conv_pair_momentum
 conv_refitted_momentum
 conv_singleleg_momentum
 conv_validvtx
 conv_chi2_probability
 conv_vtx
-conv_zofprimvtxfromtrks
+##skimmed conv_zofprimvtxfromtrks
 
 ## vertex analysis
 vtx_std_tkweight
@@ -95,7 +95,7 @@ mu_glo_tkind
 ## MC truth
 gp_n:1
 gp_p4:1
-gp_vtx:1
+##skimmed gp_vtx:1
 gp_status:1
 gp_pdgid:1
 gp_mother:1
