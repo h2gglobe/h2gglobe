@@ -42,7 +42,10 @@ energyCorrectionMethod=Bendavid
 doEcorrectionSmear=1
 doEcorrectionSyst=0
 
+## energy scale adjustement and errors
 scale_offset_file=energy_scale_offsets.dat
+scale_offset_error_file=energy_scale_errors.dat
+smearing_file=smearing_sigma_and_errors.dat
 
 ## photonFixDat=aux/PhotonFixSTART42V13.dat
 regressionFile=aux/regweights_v5_forest_ph.root
