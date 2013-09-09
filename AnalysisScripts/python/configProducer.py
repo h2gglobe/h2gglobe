@@ -790,7 +790,7 @@ class configProducer:
   def read_input_files_reduce(self,line):
     values = { "CaDir" : "","DcDir" : "","EosDir":"", "Dir" : "", "typ" : -1, "Fil" : "",
                "Nam":"default","draw":-999,"ind":-999,"tot":0,"red":-999,"lum":1.0,"xsec":-1.0,"kfac":1.0,
-               "scal":1.0,"json":"","evlist":"","pileup":"","intL":1.,"addnevents":0,
+               "scal":1.0,"json":"","evlist":"","pileup":"","intL":1.,"addnevents":0, "site":"cern.ch"
                }; 
     # We have one of the file def lines
     split_line = line.split()
@@ -817,7 +817,7 @@ class configProducer:
     self.conf_.confs.append(values.copy())
       
     if cas_directory != '':
-      ca_files = makeCaFiles(cas_directory,self.njobs_,self.jobId_)
+      ca_files = makeCaFiles(cas_directory,self.njobs_,self.jobId_,site=values["site"])
       for file_s in ca_files:
 	if file_s[1]:self.conf_.files.append((file_s[0],fi_type))
 	else	    :self.conf_.files.append((None,fi_type))
