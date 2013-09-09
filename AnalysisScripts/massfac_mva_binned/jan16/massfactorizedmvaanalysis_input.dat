@@ -75,7 +75,7 @@ pho_haspixseed
 ->
 MIT Pre-selection
 ->
-pho_trksumptsolidconedr03
+##skimmed pho_trksumptsolidconedr03
 pho_trksumpthollowconedr03
 
 ->
@@ -117,7 +117,7 @@ Vertex
 ->
 vtx_std_n
 vtx_std_xyz
-vtx_std_ndof
+##skimmed vtx_std_ndof
 vtx_std_evt_mva
 
 ->
@@ -158,10 +158,10 @@ Temp inputs for vertexing
 ->
 
 conv_n
-conv_p4
+##skimmed conv_p4
 conv_ntracks
-conv_pairinvmass
-conv_paircotthetasep
+##skimmed conv_pairinvmass
+##skimmed conv_paircotthetasep
 conv_eoverp
 conv_chi2_probability
 conv_vtx

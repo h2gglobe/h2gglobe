@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from sys import argv
-from os import mkdir, system
+from os import mkdir, system, path
 
 def mk_outdir( name ):
     if name.startswith("rfio:") or name.startswith("/castor"):
@@ -16,6 +16,11 @@ def mk_outdir( name ):
 datasets="datasets.txt"
 indir=argv.pop(1)
 outdir=argv.pop(1)
+
+if indir != "-":
+    indir = "%s/" % indir
+else:
+    indir = ""
 
 if len(argv) > 1:
     datasets=argv.pop(1)
@@ -55,18 +60,19 @@ for d in ds.read().split("\n"):
         else:
             print s
             props += s
-    datname="%s/%s.dat" % (datasetsdir, dname)
+    basname = path.basename(dname)
+    datname="%s/%s.dat" % (datasetsdir, basname )
     print "Making configuration for %s (type %s)" % ( datname, dtype )
     f = open(datname ,"w+")
     print >>f, """output=%s/%s/%s.root
-        
-CaDir=%s/%s typ=%s %s
+    
+CaDir=%s%s typ=%s %s
 
 %s
 
 inputBranches reduction_input.dat
 outputBranches reduction_output.dat
-        """ % ( outdir, dname, dname, indir, iname, dtype, props, analyzer)
+        """ % ( outdir, basname, basname, indir, iname, dtype, props, analyzer)
     f.close()
 
     mk_outdir( "%s/%s" % ( outdir, dname )  )

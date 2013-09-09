@@ -18,7 +18,7 @@ weight:1
 pthat:1
 gp_n:1
 gp_p4:1
-gp_vtx:1
+##skimmed gp_vtx:1
 gp_status:1
 gp_pdgid:1
 gp_mother:1
@@ -83,7 +83,7 @@ tk_vtx_pos
 ## 
 vtx_std_n
 vtx_std_xyz
-vtx_std_ndof
+##skimmed vtx_std_ndof
 vtx_std_tkind
 
 # Muons
@@ -93,17 +93,17 @@ mu_glo_dof
 mu_glo_chi2
 mu_glo_type
 mu_glo_nmatches
-mu_glo_posvtx
-mu_glo_losthits
+##skimmed mu_glo_posvtx
+##skimmed mu_glo_losthits
 mu_glo_validhits
-mu_glo_innerhits
+##skimmed mu_glo_innerhits
 mu_glo_pixelhits
 mu_glo_validChmbhits
-mu_glo_tkpterr
+##skimmed mu_glo_tkpterr
 mu_glo_ecaliso03
 mu_glo_hcaliso03
 mu_glo_tkiso03
-mu_glo_dz
+##skimmed mu_glo_dz
 mu_glo_D0Vtx
 mu_glo_DZVtx
 mu_tkLayers

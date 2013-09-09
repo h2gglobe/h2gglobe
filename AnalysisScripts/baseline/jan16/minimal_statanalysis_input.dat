@@ -94,7 +94,7 @@ Vertex
 ->
 vtx_std_n
 vtx_std_xyz
-vtx_std_ndof
+##skimmed vtx_std_ndof
 
 ->
 PU correction
@@ -137,7 +137,7 @@ el_std_p4
 el_std_sc
 el_std_scind
 el_std_sieie
-el_std_sieiesc
+##skimmed el_std_sieiesc
 el_std_hp_expin
 el_std_detain
 el_std_dphiin
@@ -154,8 +154,8 @@ el_std_hcaliso04
 el_std_dcot
 el_std_dist
 el_std_tkind
-el_std_d0
-el_std_z0
+##skimmed el_std_d0
+##skimmed el_std_z0
 el_std_posvtx
 ->
 
@@ -170,15 +170,15 @@ mu_glo_dof
 mu_glo_chi2
 mu_glo_type
 mu_glo_nmatches
-mu_glo_posvtx
-mu_glo_losthits
+##skimmed mu_glo_posvtx
+##skimmed mu_glo_losthits
 mu_glo_validhits
-mu_glo_innerhits
+##skimmed mu_glo_innerhits
 mu_glo_pixelhits
 mu_glo_validChmbhits
-mu_glo_tkpterr
+##skimmed mu_glo_tkpterr
 mu_glo_ecaliso03
 mu_glo_hcaliso03
 mu_glo_tkiso03
-mu_glo_dz
+##skimmed mu_glo_dz
 ->

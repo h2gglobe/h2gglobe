@@ -128,15 +128,15 @@ pu_n:1
 ## 
 vtx_std_n
 vtx_std_xyz
-vtx_std_ndof
+##skimmed vtx_std_ndof
 
 ##
 ## PU correction
 ##
 ## rho
 rho_algo1
-rho_algo2
-rho_algo3
+##skimmed rho_algo2
+##skimmed rho_algo3
 
 ## 
 ## Beam spot
@@ -162,7 +162,7 @@ conv_singleleg_momentum
 conv_refitted_momentum
 conv_validvtx
 conv_chi2_probability
-conv_zofprimvtxfromtrks
+##skimmed conv_zofprimvtxfromtrks
 bs_xyz
 conv_n
 conv_vtx
@@ -175,9 +175,9 @@ conv_chi2_probability
 conv_eoverp
 pho_conv_refitted_momentum
 pho_conv_vtx
-pho_conv_ntracks
-pho_conv_validvtx
-pho_conv_chi2_probability
+##skimmed pho_conv_ntracks
+##skimmed pho_conv_validvtx
+##skimmed pho_conv_chi2_probability
 pho_conv_eoverp
 
 	
