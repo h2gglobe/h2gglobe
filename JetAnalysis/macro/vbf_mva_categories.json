@@ -26,7 +26,7 @@
  	
     "fix" : ["phoidMvaEB","phoidMvaEE","truncPho1ptOverM"],
     "selection" : "",
-    "cutoff" : 0.05,
+    "cutoff" : 0.01,
  
     "signals" : {
 	"vbf" : [ ["TestTree","classID == 0"]
@@ -50,7 +50,7 @@
      "shapes" : { "ggh" : "gaus" },
      "constrained" : { "ggh" : 0.5 },
      "weights" : { "vbf" : "Signal_wei", "bkg" : "Background_wei", "ggh" : "Background_wei"  },
-     "minevents" : { "bkg" : 40, "ggh" : 0.5 },
+     "minevents" : { "bkg" : 10, "ggh" : 0.1 },
 
      "_infile" : "tmvavbf_mva_jetonly.root",
      "_infile" : "tmvavbf_mva_full.root"
