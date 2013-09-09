@@ -261,29 +261,113 @@ void PhotonAnalysis::loadPuWeights(int typid, TDirectory * puFile, TH1 * target)
 }
 
 // ----------------------------------------------------------------------------------------------------
-float PhotonAnalysis::getPuWeight(int n_pu, int sample_type, SampleContainer* container, bool warnMe)
-{
-    if ( sample_type !=0 && puHist != "") {
-        bool hasSpecificWeight = weights.find( sample_type ) != weights.end() ;
-    if( ! hasSpecificWeight && container != 0 && container->pileup != 0 ) {
-        std::cout << "On-the fly pileup reweighing typeid " << sample_type << " " << container->pileup << std::endl;
-        TFile * samplePu = TFile::Open(container->pileup.c_str());
-        loadPuWeights(sample_type, samplePu, puTargetHist);
-        samplePu->Close();
-        hasSpecificWeight = true;
-    } else if( sample_type < 0 && !hasSpecificWeight && warnMe ) {
-            std::cout  << "WARNING no pu weights specific for sample " << sample_type << std::endl;
-        }
-        std::vector<double> & puweights = hasSpecificWeight ? weights[ sample_type ] : weights[0];
-        if(n_pu<puweights.size()){
-            return puweights[n_pu];
-        }
-        else{ //should not happen as we have a weight for all simulated n_pu multiplicities!
-            cout <<"n_pu ("<< n_pu<<") too big ("<<puweights.size()<<") ["<< sample_type <<"], event will not be reweighted for pileup"<<endl;
-        }
+void PhotonAnalysis::load2DPuWeights(int typid, TDirectory * puFile, std::vector<TH1*> targets) {
+
+    cout<<"Loading 2D pileup weights for typid " << typid << " for all run periods." << endl;
+
+    rd_weights[typid].resize(targets.size());    
+    for (unsigned int i=0; i<targets.size(); i++) {
+	std::cout<<targets[i]->GetName() << std::endl;
+	TH1* gen_pu = ((TH2F*)puFile->Get("pu_2D"))->ProjectionX("pileup", i+1, i+1);
+	assert( gen_pu != 0 );
+	TH1* hweigh =(TH1*)targets[i]->Clone();
+	hweigh->Reset("ICE");
+	hweigh->Divide(targets[i], gen_pu, 1., 1./gen_pu->Integral());
+	rd_weights[typid][i].clear();
+	for( int ii=1; ii<hweigh->GetNbinsX(); ++ii ) {
+	    rd_weights[typid][i].push_back(hweigh->GetBinContent(ii));
+	}
     }
+
+    std::cout << "pile-up 2D weights: ["<<typid<<"]";
+    //std::cout << targets.size() << std::endl;
+    for (int i=0; i<targets.size(); i++) {
+	std::copy(rd_weights[typid][i].begin(),rd_weights[typid][i].end(), std::ostream_iterator<double>(std::cout,","));
+	std::cout << std::endl;
+    }
+}
+
+// ----------------------------------------------------------------------------------------------------
+float PhotonAnalysis::getPuWeight(int n_pu, int sample_type, SampleContainer* container, bool warnMe, int run) {
+
+    if ( sample_type !=0 && puHist != "") {
+
+        bool hasSpecificWeight = weights.find( sample_type ) != weights.end();
+	bool hasSpecificWeight2D = rd_weights.find(sample_type) != rd_weights.end();
+	
+	if(!hasSpecificWeight && !hasSpecificWeight2D && container != 0 && container->pileup != 0 ) {
+	    std::cout << "On-the fly pileup reweighing typeid " << sample_type << " " << container->pileup << std::endl;
+	    TFile * samplePu = TFile::Open(container->pileup.c_str());
+	    TKey* key = samplePu->FindKey("pu_2D");
+	    if (key != 0) {
+		load2DPuWeights(sample_type, samplePu, puTargetHists);
+		hasSpecificWeight2D = true;
+	    } else {
+		loadPuWeights(sample_type, samplePu, puTargetHist);
+		hasSpecificWeight = true;
+	    }
+	    samplePu->Close();
+	} else if( sample_type < 0 && !hasSpecificWeight && !hasSpecificWeight2D && warnMe) {
+            std::cerr  << "WARNING no pu weights specific for sample " << sample_type << std::endl;
+        }
+
+	if (hasSpecificWeight2D) {
+	    Int_t index = -1;
+	    
+	    if (run <= 197495)
+		index = 0;
+	    else if (run > 197495 && run <= 203767)
+		index = 1;
+	    else if (run > 203767)
+		index = 2;
+	    else {
+		std::cout << "ERROR: it is not possible to weight this event (unrecognized run " << run << ")" << std::endl;
+		abort();
+	    }
+	    std::vector<double>& puweights = rd_weights[sample_type][index];
+	    if (n_pu < puweights.size()) {
+		return puweights[n_pu];
+	    }
+	} 
+
+	if (hasSpecificWeight) {
+	    std::vector<double> & puweights = weights[sample_type];
+	    if(n_pu<puweights.size()){
+		return puweights[n_pu];
+	    }
+	    else{ //should not happen as we have a weight for all simulated n_pu multiplicities!
+		cout <<"n_pu ("<< n_pu<<") too big ("<<puweights.size()<<") ["<< sample_type <<"], event will not be reweighted for pileup"<<endl;
+	    }
+	}
+    }
+
     return 1.;
 }
+
+// ----------------------------------------------------------------------------------------------------
+//float PhotonAnalysis::getPuWeight(int n_pu, int sample_type, SampleContainer* container, bool warnMe)
+//{
+//    if ( sample_type !=0 && puHist != "") {
+//        bool hasSpecificWeight = weights.find( sample_type ) != weights.end() ;
+//    if( ! hasSpecificWeight && container != 0 && container->pileup != 0 ) {
+//        std::cout << "On-the fly pileup reweighing typeid " << sample_type << " " << container->pileup << std::endl;
+//        TFile * samplePu = TFile::Open(container->pileup.c_str());
+//        loadPuWeights(sample_type, samplePu, puTargetHist);
+//        samplePu->Close();
+//        hasSpecificWeight = true;
+//    } else if( sample_type < 0 && !hasSpecificWeight && warnMe ) {
+//            std::cout  << "WARNING no pu weights specific for sample " << sample_type << std::endl;
+//        }
+//        std::vector<double> & puweights = hasSpecificWeight ? weights[ sample_type ] : weights[0];
+//        if(n_pu<puweights.size()){
+//            return puweights[n_pu];
+//        }
+//        else{ //should not happen as we have a weight for all simulated n_pu multiplicities!
+//            cout <<"n_pu ("<< n_pu<<") too big ("<<puweights.size()<<") ["<< sample_type <<"], event will not be reweighted for pileup"<<endl;
+//        }
+//    }
+//    return 1.;
+//}
 
 // ----------------------------------------------------------------------------------------------------
 void PhotonAnalysis::applyGenLevelSmearings(double & genLevWeight, const TLorentzVector & gP4, int npu, int sample_type, BaseGenLevelSmearer * sys, float syst_shift)
@@ -697,28 +781,45 @@ void PhotonAnalysis::Init(LoopAll& l)
         l.SetCutVariables("cut_VBF_SubPhoPtOverM",  &myVBFSubPhoPtOverM);
     }
 
-    if( mvaVbfSelection || multiclassVbfSelection ) {
+    if( mvaVbfSelection || multiclassVbfSelection || mvaVbfSelection2013 ) {
 
 	tmvaVbfReader_ = new TMVA::Reader( "!Color:!Silent" );
 
-	tmvaVbfReader_->AddVariable("jet1pt"              , &myVBFLeadJPt);
-	tmvaVbfReader_->AddVariable("jet2pt"	          , &myVBFSubJPt);
-	tmvaVbfReader_->AddVariable("abs(jet1eta-jet2eta)", &myVBFdEta);
-	tmvaVbfReader_->AddVariable("mj1j2"		  , &myVBF_Mjj);
-	tmvaVbfReader_->AddVariable("zepp"		  , &myVBFZep);
-	tmvaVbfReader_->AddVariable("dphi"		  , &myVBFdPhi);
-	if( mvaVbfUseDiPhoPt ) {
-	    tmvaVbfReader_->AddVariable("diphopt/diphoM"      , &myVBFDiPhoPtOverM);
+	if (mvaVbfSelection2013) {
+	    tmvaVbfReader_->AddVariable("dijet_leadEta",    &myVBFLeadJEta);
+	    tmvaVbfReader_->AddVariable("dijet_subleadEta", &myVBFSubJEta);
+	    tmvaVbfReader_->AddVariable("dijet_LeadJPt",    &myVBFLeadJPt);
+	    tmvaVbfReader_->AddVariable("dijet_SubJPt",     &myVBFSubJPt);
+	    tmvaVbfReader_->AddVariable("dijet_Zep",        &myVBFZep);
+	    tmvaVbfReader_->AddVariable("dijet_dPhi",       &myVBFdPhi);
+	    tmvaVbfReader_->AddVariable("dijet_Mjj",        &myVBF_Mjj);	   
+	    tmvaVbfReader_->AddVariable("dipho_pt/mass",    &myVBFDiPhoPtOverM);
+	    
+	    tmvaVbfDiphoReader_ = new TMVA::Reader("!Color:!Silent"); 
+	    tmvaVbfDiphoReader_->AddVariable("bdt_incl",                       &myVBFDIPHObdt);
+	    tmvaVbfDiphoReader_->AddVariable("bdt_dijet_sherpa_plusdiphoptom", &myVBFDIPHOdijet);
+	    tmvaVbfDiphoReader_->AddVariable("dipho_pt/mass",                  &myVBFDiPhoPtOverM);
+	    tmvaVbfDiphoReader_->BookMVA(mvaVbfDiphoMethod, mvaVbfDiphoWeights);
+	} else {
+	    tmvaVbfReader_->AddVariable("jet1pt"              , &myVBFLeadJPt);
+	    tmvaVbfReader_->AddVariable("jet2pt"	          , &myVBFSubJPt);
+	    tmvaVbfReader_->AddVariable("abs(jet1eta-jet2eta)", &myVBFdEta);
+	    tmvaVbfReader_->AddVariable("mj1j2"		  , &myVBF_Mjj);
+	    tmvaVbfReader_->AddVariable("zepp"		  , &myVBFZep);
+	    tmvaVbfReader_->AddVariable("dphi"		  , &myVBFdPhi);
+	    if( mvaVbfUseDiPhoPt ) {
+		tmvaVbfReader_->AddVariable("diphopt/diphoM"      , &myVBFDiPhoPtOverM);
+	    }
+	    if( mvaVbfUsePhoPt   ) {
+		tmvaVbfReader_->AddVariable("pho1pt/diphoM"	  , &myVBFLeadPhoPtOverM);
+		tmvaVbfReader_->AddVariable("pho2pt/diphoM"       , &myVBFSubPhoPtOverM);
+	    }
 	}
-	if( mvaVbfUsePhoPt   ) {
-	    tmvaVbfReader_->AddVariable("pho1pt/diphoM"	  , &myVBFLeadPhoPtOverM);
-	    tmvaVbfReader_->AddVariable("pho2pt/diphoM"       , &myVBFSubPhoPtOverM);
-	}
-
+	
 	tmvaVbfReader_->BookMVA( mvaVbfMethod, mvaVbfWeights );
-
+	
     }
-
+    
     if( mvaVbfSpin && (mvaVbfSelection || multiclassVbfSelection) )
     {
       tmvaVbfSpinReader_ = new TMVA::Reader( "!Color:!Silent" );
@@ -1070,6 +1171,22 @@ void PhotonAnalysis::Init(LoopAll& l)
        Pileup Reweighting
        https://twiki.cern.ch/twiki/bin/viewauth/CMS/PileupReweighting
        ----------------------------------------------------------------------------------------------  */
+        if (puTargets.size() != 0) {
+	if (puHist == "auto") {
+	    for (unsigned int i=0; i<puTargets.size(); i++) {
+		TFile* puTargetFile = TFile::Open(puTargets[i]);
+		assert(puTargetFile != 0);
+		puTargetHists.push_back((TH1*)puTargetFile->Get("pileup"));
+		puTargetHists[i]->SetDirectory(0);
+		puTargetHists[i]->Scale(1. / puTargetHists[i]->Integral());
+		puTargetFile->Close();
+	    }
+	} else {
+	    std::cout << "WARNING: no other reweighting method implemented for RD MC." << std::endl;
+	    abort();
+	}
+    }
+
     if (puHist != "" && puHist != "auto" ) {
         if(PADEBUG)
             cout << "Opening PU file"<<endl;
@@ -1764,6 +1881,7 @@ void PhotonAnalysis::switchJetIdVertex(LoopAll &l, int ivtx)
 	std::cout << "WARNING choosen vertex beyond " << l.jet_algoPF1_nvtx << " and jet ID was not computed. Falling back to vertex 0." << std::endl;
 	ivtx = 0;
     }
+    //cout << " ivtx " << ivtx << " jalgonvtx " << l.jet_algoPF1_nvtx << endl;
 
     for(int ii=0; ii<l.jet_algoPF1_n; ++ii) {
 	l.jet_algoPF1_beta[ii]              = (*l.jet_algoPF1_beta_ext)[ii][ivtx];
@@ -3784,6 +3902,8 @@ bool PhotonAnalysis::VBFTag2012(int & ijet1, int & ijet2,
     if(jet1->Pt() < jet2->Pt())
       std::swap(jet1, jet2);
 
+    myVBFLeadJEta= jet1->Eta();
+    myVBFSubJEta = jet2->Eta();
     myVBFLeadJPt= jet1->Pt();
     myVBFSubJPt = jet2->Pt();
     myVBF_Mjj   = dijet.M();
@@ -4305,7 +4425,14 @@ void PhotonAnalysis::saveSpinTree(LoopAll &l, int category, float evweight, TLor
     
    l.FillTree("rv",isCorrectVertex,"spin_trees");
    l.FillTree("higgs_mass",Higgs.M(),"spin_trees");
-   
+
+    l.FillTree("myVBF_leadEta",myVBF_leadEta,"spin_trees");
+    l.FillTree("myVBF_subleadEta",myVBF_subleadEta,"spin_trees");
+    l.FillTree("myVBFLeadJPt",myVBFLeadJPt,"spin_trees");
+    l.FillTree("myVBFSubJPt",myVBFSubJPt,"spin_trees");
+    l.FillTree("myVBF_Mjj",myVBF_Mjj,"spin_trees");
+
+    /*
     PhotonReducedInfo pho1 (
         *((TVector3*)     l.sc_xyz->At(l.pho_scind[ipho1])),
         ((TLorentzVector*)l.pho_p4->At(ipho1))->Energy(),
@@ -4349,6 +4476,7 @@ void PhotonAnalysis::saveSpinTree(LoopAll &l, int category, float evweight, TLor
    l.FillTree("leadEta",float(lead_p4.Eta()),"spin_trees");
    l.FillTree("subleadEta",float(sublead_p4.Eta()),"spin_trees");
    l.FillTree("cosDphi",float(TMath::Cos(lead_p4.Phi()-sublead_p4.Phi())),"spin_trees");
+   */
 }
 
 // for Mass-factorized
