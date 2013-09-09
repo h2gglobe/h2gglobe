@@ -299,7 +299,7 @@ float PhotonAnalysis::getPuWeight(int n_pu, int sample_type, SampleContainer* co
 	    std::cout << "On-the fly pileup reweighing typeid " << sample_type << " " << container->pileup << std::endl;
 	    TFile * samplePu = TFile::Open(container->pileup.c_str());
 	    TKey* key = samplePu->FindKey("pu_2D");
-	    if (key != 0) {
+	    if (key != 0 && !puTargets.empty()) {
 		load2DPuWeights(sample_type, samplePu, puTargetHists);
 		hasSpecificWeight2D = true;
 	    } else {
