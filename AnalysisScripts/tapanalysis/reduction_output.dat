@@ -31,7 +31,7 @@ el_std_sc
 el_std_posvtx
 el_std_eopin
 el_std_sieie
-el_std_ip_ctf
+##skimmed el_std_ip_ctf
 el_std_ip_gsf
 el_std_eseedopin
 el_std_fbrem
@@ -66,15 +66,15 @@ pho_p4
 pho_scind
 pho_ecalsumetconedr04
 pho_hcalsumetconedr04
-pho_trksumptsolidconedr04
-pho_trksumpthollowconedr04
-pho_ntrksolidconedr04
-pho_ntrkhollowconedr04
+##skimmed pho_trksumptsolidconedr04
+##skimmed pho_trksumpthollowconedr04
+##skimmed pho_ntrksolidconedr04
+##skimmed pho_ntrkhollowconedr04
 pho_ecalsumetconedr03
 pho_hcalsumetconedr03
-pho_trksumptsolidconedr03
+##skimmed pho_trksumptsolidconedr03
 pho_trksumpthollowconedr03
-pho_ntrksolidconedr03
+##skimmed pho_ntrksolidconedr03
 pho_ntrkhollowconedr03
 pho_hoe
 #pho_hoe_bc

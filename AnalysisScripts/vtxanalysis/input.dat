@@ -46,15 +46,15 @@ minimal allconversions info
 ->
 conv_n
 conv_eoverp
-conv_p4
+##skimmed conv_p4
 conv_ntracks
-conv_pair_momentum
+##skimmed conv_pair_momentum
 conv_refitted_momentum
 conv_singleleg_momentum
 conv_validvtx
 conv_chi2_probability
 conv_vtx
-conv_zofprimvtxfromtrks
+##skimmed conv_zofprimvtxfromtrks
 
 ->
 vertex analysis
@@ -91,7 +91,7 @@ MC truth
 ->
 gp_n:1
 gp_p4:1
-gp_vtx:1
+##skimmed gp_vtx:1
 gp_status:1
 gp_pdgid:1
 gp_mother:1
@@ -152,7 +152,7 @@ el_std_p4
 el_std_sc
 el_std_scind
 el_std_sieie
-el_std_sieiesc
+##skimmed el_std_sieiesc
 el_std_hp_expin
 el_std_detain
 el_std_dphiin
@@ -169,8 +169,8 @@ el_std_hcaliso04
 el_std_dcot
 el_std_dist
 el_std_tkind
-el_std_d0
-el_std_z0
+##skimmed el_std_d0
+##skimmed el_std_z0
 el_std_posvtx
 #el_std_D0Vtx
 #el_std_DZVtx
@@ -185,17 +185,17 @@ mu_glo_dof
 mu_glo_chi2
 mu_glo_type
 mu_glo_nmatches
-mu_glo_posvtx
-mu_glo_losthits
+##skimmed mu_glo_posvtx
+##skimmed mu_glo_losthits
 mu_glo_validhits
-mu_glo_innerhits
+##skimmed mu_glo_innerhits
 mu_glo_pixelhits
 mu_glo_validChmbhits
-mu_glo_tkpterr
+##skimmed mu_glo_tkpterr
 mu_glo_ecaliso03
 mu_glo_hcaliso03
 mu_glo_tkiso03
-mu_glo_dz
+##skimmed mu_glo_dz
 #mu_glo_D0Vtx
 #mu_glo_DZVtx
 
@@ -208,7 +208,7 @@ pho_crackcorr
 pho_localcorr
 pho_isEB
 pho_isEE
-pho_see
+##skimmed pho_see
 pho_sieie
 pho_sipip
 pho_sieip
@@ -220,22 +220,22 @@ pho_e3x3
 pho_e5x5
 pho_emaxxtal
 pho_hoe
-pho_r1x5
-pho_r2x5
+##skimmed pho_r1x5
+##skimmed pho_r2x5
 pho_r9
-pho_isEBGap
-pho_isEEGap
-pho_isEBEEGap
+##skimmed pho_isEBGap
+##skimmed pho_isEEGap
+##skimmed pho_isEBEEGap
 ->
-pho_h1oe
-pho_h2oe
-pho_hcal1sumetconedr04
-pho_hcal2sumetconedr04
-pho_hcal1sumetconedr03
-pho_hcal2sumetconedr03
+##skimmed pho_h1oe
+##skimmed pho_h2oe
+##skimmed pho_hcal1sumetconedr04
+##skimmed pho_hcal2sumetconedr04
+##skimmed pho_hcal1sumetconedr03
+##skimmed pho_hcal2sumetconedr03
 ->
-pho_zernike20
-pho_zernike42
+##skimmed pho_zernike20
+##skimmed pho_zernike42
 pho_e2nd
 pho_e2x5right
 pho_e2x5left
@@ -248,59 +248,59 @@ pho_ebottom
 ->
 pho_e2overe9
 ->
-pho_seed_time
+##skimmed pho_seed_time
 pho_seed_outoftimechi2
 pho_seed_chi2
 pho_seed_recoflag
 pho_seed_severity
 pho_ecalsumetconedr04
 pho_hcalsumetconedr04
-pho_trksumptsolidconedr04
-pho_trksumpthollowconedr04
-pho_ntrksolidconedr04
-pho_ntrkhollowconedr04
+##skimmed pho_trksumptsolidconedr04
+##skimmed pho_trksumpthollowconedr04
+##skimmed pho_ntrksolidconedr04
+##skimmed pho_ntrkhollowconedr04
 pho_ecalsumetconedr03
 pho_hcalsumetconedr03
-pho_trksumptsolidconedr03
+##skimmed pho_trksumptsolidconedr03
 pho_trksumpthollowconedr03
-pho_ntrksolidconedr03
+##skimmed pho_ntrksolidconedr03
 pho_ntrkhollowconedr03
-pho_barrel
+##skimmed pho_barrel
 pho_haspixseed
 pho_hasconvtks
 pho_nconv
-pho_conv_ntracks
-pho_conv_pairinvmass
-pho_conv_paircotthetasep
+##skimmed pho_conv_ntracks
+##skimmed conv_pairinvmass
+##skimmed conv_paircotthetasep
 pho_conv_eoverp
-pho_conv_zofprimvtxfromtrks
-pho_conv_distofminapproach
-pho_conv_dphitrksatvtx
-pho_conv_dphitrksatecal
-pho_conv_detatrksatecal
-pho_conv_tk1_d0
-pho_conv_tk1_pout
-pho_conv_tk1_pin
-pho_conv_tk2_d0
-pho_conv_tk2_pout
-pho_conv_tk2_pin
-pho_conv_tk1_dz
-pho_conv_tk1_dzerr
-pho_conv_tk1_nh
-pho_conv_tk2_dz
-pho_conv_tk2_dzerr
-pho_conv_tk2_nh
-pho_conv_ch1ch2
-pho_conv_chi2
-pho_conv_chi2_probability
-pho_conv_validvtx
-pho_conv_MVALikelihood
+##skimmed conv_zofprimvtxfromtrks
+##skimmed conv_distofminapproach
+##skimmed conv_dphitrksatvtx
+##skimmed conv_dphitrksatecal
+##skimmed conv_detatrksatecal
+##skimmed conv_tk1_d0
+##skimmed conv_tk1_pout
+##skimmed conv_tk1_pin
+##skimmed conv_tk2_d0
+##skimmed conv_tk2_pout
+##skimmed conv_tk2_pin
+##skimmed conv_tk1_dz
+##skimmed conv_tk1_dzerr
+##skimmed conv_tk1_nh
+##skimmed conv_tk2_dz
+##skimmed conv_tk2_dzerr
+##skimmed conv_tk2_nh
+##skimmed conv_ch1ch2
+##skimmed pho_conv_chi2
+##skimmed pho_conv_chi2_probability
+##skimmed pho_conv_validvtx
+##skimmed conv_MVALikelihood
 pho_p4
 pho_calopos
 pho_conv_vtx
-pho_conv_pair_momentum
+##skimmed conv_pair_momentum
 pho_conv_refitted_momentum
-pho_conv_vertexcorrected_p4
+##skimmed pho_conv_vertexcorrected_p4
 pho_scind
 sc_xyz
 pho_residCorrEnergy
@@ -349,54 +349,54 @@ pho_eseffsiyiy
 All Conversions
 ->
 conv_n
-conv_p4
+##skimmed conv_p4
 conv_ntracks
-conv_pairinvmass
-conv_paircotthetasep
+##skimmed conv_pairinvmass
+##skimmed conv_paircotthetasep
 conv_eoverp
-conv_distofminapproach
-conv_dphitrksatvtx
-conv_dphitrksatecal
-conv_detatrksatecal
-conv_dxy
-conv_dz
-conv_lxy
-conv_lz
-conv_zofprimvtxfromtrks
-conv_nHitsBeforeVtx
-conv_nSharedHits
+##skimmed conv_distofminapproach
+##skimmed conv_dphitrksatvtx
+##skimmed conv_dphitrksatecal
+##skimmed conv_detatrksatecal
+##skimmed conv_dxy
+##skimmed conv_dz
+##skimmed conv_lxy
+##skimmed conv_lz
+##skimmed conv_zofprimvtxfromtrks
+##skimmed conv_nHitsBeforeVtx
+##skimmed conv_nSharedHits
 conv_validvtx
-conv_MVALikelihood
+##skimmed conv_MVALikelihood
 conv_chi2
 conv_chi2_probability
-conv_vtx_xErr
-conv_vtx_yErr
-conv_vtx_zErr
-conv_tk1_dz
-conv_tk2_dz
-conv_tk1_dzerr
-conv_tk2_dzerr
-conv_tk1_nh
-conv_tk2_nh
-conv_ch1ch2
-conv_tk1_d0
-conv_tk1_pout
-conv_tk1_pin
-conv_tk2_d0
-conv_tk2_pout
-conv_tk2_pin
+##skimmed conv_vtx_xErr
+##skimmed conv_vtx_yErr
+##skimmed conv_vtx_zErr
+##skimmed conv_tk1_dz
+##skimmed conv_tk2_dz
+##skimmed conv_tk1_dzerr
+##skimmed conv_tk2_dzerr
+##skimmed conv_tk1_nh
+##skimmed conv_tk2_nh
+##skimmed conv_ch1ch2
+##skimmed conv_tk1_d0
+##skimmed conv_tk1_pout
+##skimmed conv_tk1_pin
+##skimmed conv_tk2_d0
+##skimmed conv_tk2_pout
+##skimmed conv_tk2_pin
 conv_vtx
-conv_tk1_pterr
-conv_tk2_pterr
-conv_tk1_etaerr
-conv_tk2_etaerr
-conv_tk1_thetaerr
-conv_tk2_thetaerr
-conv_tk1_phierr
-conv_tk2_phierr
-conv_tk1_lambdaerr
-conv_tk2_lambdaerr
-conv_pair_momentum
+##skimmed conv_tk1_pterr
+##skimmed conv_tk2_pterr
+##skimmed conv_tk1_etaerr
+##skimmed conv_tk2_etaerr
+##skimmed conv_tk1_thetaerr
+##skimmed conv_tk2_thetaerr
+##skimmed conv_tk1_phierr
+##skimmed conv_tk2_phierr
+##skimmed conv_tk1_lambdaerr
+##skimmed conv_tk2_lambdaerr
+##skimmed conv_pair_momentum
 conv_refitted_momentum
 conv_singleleg_momentum
 
@@ -408,7 +408,7 @@ weight:1
 pthat:1
 gp_n:1
 gp_p4:1
-gp_vtx:1
+##skimmed gp_vtx:1
 gp_status:1
 gp_pdgid:1
 gp_mother:1
@@ -429,30 +429,30 @@ vtx_std_ntks
 vtx_std_x2dof
 vtx_std_xyz
 vtx_std_dxdydz
-vtx_std_ndof
+##skimmed vtx_std_ndof
 
 ->
 PU correction
 ->
 rho_algo1
-rho_algo2
-rho_algo3
+##skimmed rho_algo2
+##skimmed rho_algo3
 
 ->
 Beam spot
 ->
 bs_xyz
 bs_sigmaZ
-bs_x0Error
-bs_y0Error
-bs_z0Error
-bs_sigmaZ0Error
+##skimmed bs_x0Error
+##skimmed bs_y0Error
+##skimmed bs_z0Error
+##skimmed bs_sigmaZ0Error
 
 ->
 MET
 ->
 met_tcmet
-met_phi_tcmet
+##skimmed met_phi_tcmet
 
 ->
 Trigger
@@ -470,8 +470,8 @@ l1emnoniso_n
 l1emnoniso_et
 l1emnoniso_eta
 l1emnoniso_phi
-l1bits_phy
-l1_labels
+##skimmed l1bits_phy
+##skimmed l1_labels
 
 ->
 Jets
