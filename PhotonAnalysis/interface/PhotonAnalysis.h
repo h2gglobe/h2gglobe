@@ -128,6 +128,7 @@ class PhotonAnalysis : public BaseAnalysis
     bool saveDatacardTrees_;
     double datacardTreeMass;
     bool saveSpinTrees_;
+    bool runJetsForSpin;
     bool saveVBFTrees_;
 
     // Preselection indexes
