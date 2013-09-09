@@ -740,7 +740,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 	
 	// Compute VBF+dipho BDT
 	float diphovbfBDT_output = -999.;
-	if (mvaVbfSelection2013) {
+	if (combinedmvaVbfSelection) {
 	    myVBFDIPHObdt = diphobdt_output;
 	    myVBFDIPHOdijet = myVBF_MVA;
 	    myVBFDiPhoPtOverM = Higgs.Pt()/Higgs.M();
@@ -765,7 +765,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
         bool isEBEB  = fabs(lead_p4.Eta() < 1.4442 ) && fabs(sublead_p4.Eta()<1.4442);
         category = GetBDTBoundaryCategory(diphobdt_output,isEBEB,VBFevent);
         if (diphobdt_output>=bdtCategoryBoundaries.back()) { 
-	    if (mvaVbfSelection2013 && vbfVsDiphoVbfSelection)
+	    if (combinedmvaVbfSelection && vbfVsDiphoVbfSelection)
 		computeExclusiveCategory(l, category, diphoton_index, Higgs.Pt(), diphovbfBDT_output); 
 	    else
 		computeExclusiveCategory(l, category, diphoton_index, Higgs.Pt(), diphobdt_output); 

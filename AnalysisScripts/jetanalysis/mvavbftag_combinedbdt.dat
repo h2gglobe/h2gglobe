@@ -1,5 +1,5 @@
 # JIM stuff
-mvaVbfSelection2013=1
+combinedmvaVbfSelection=1
 mvaVbfSelection=1
 mvaVbfWeights=aux/TMVA_dijet_sherpa_fixwt_limw2_oddb_nopt12_Gradient.weights.xml
 mvaVbfMethod=Gradient

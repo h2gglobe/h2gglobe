@@ -697,11 +697,11 @@ void PhotonAnalysis::Init(LoopAll& l)
         l.SetCutVariables("cut_VBF_SubPhoPtOverM",  &myVBFSubPhoPtOverM);
     }
 
-    if( mvaVbfSelection || multiclassVbfSelection || mvaVbfSelection2013 ) {
+    if( mvaVbfSelection || multiclassVbfSelection || combinedmvaVbfSelection ) {
 
 	tmvaVbfReader_ = new TMVA::Reader( "!Color:!Silent" );
 
-	if (mvaVbfSelection2013) {
+	if (combinedmvaVbfSelection) {
 	    tmvaVbfReader_->AddVariable("dijet_leadEta",    &myVBFLeadJEta);
 	    tmvaVbfReader_->AddVariable("dijet_subleadEta", &myVBFSubJEta);
 	    tmvaVbfReader_->AddVariable("dijet_LeadJPt",    &myVBFLeadJPt);
