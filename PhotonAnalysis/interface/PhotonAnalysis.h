@@ -347,7 +347,7 @@ class PhotonAnalysis : public BaseAnalysis
 
     bool bookDiPhoCutsInVbf;
     bool mvaVbfSelection, mvaVbfUseDiPhoPt, mvaVbfUsePhoPt;
-    bool mvaVbfSelection2013;
+    bool combinedmvaVbfSelection;
     bool mvaVbfSpin;
     bool multiclassVbfSelection, vbfVsDiphoVbfSelection;
     TString mvaVbfDiphoWeights, mvaVbfDiphoMethod;
