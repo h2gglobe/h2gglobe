@@ -21,7 +21,7 @@ subleadEtVBFCut=30
 mvaVbfCatBoundaries=1.,0.985,0.93 
 
 ## Singal mass points to book
-sigPointsToBook=105,110,115,120,125,130,135,140,145,150,124
+sigPointsToBook=105,110,115,120,125,130,135,140,145,150,124,126
 
 ## Hadronic V tag
 includeVHhad=0
@@ -56,6 +56,7 @@ puMap=
 puHist=auto
 ## puTarget=aux/HCP2012_preapproval_red_v1.json.69400.observed.pileup.root
 puTarget=aux/Moriond_pileup_190456-208686_minBiasXsec69400_corr_observed.root
+#puTargets=aux/Moriond_pileup_190456-208686_minBiasXsec69400_corr_observed.root,aux/Moriond_pileup_190456-208686_minBiasXsec69400_corr_observed.root,aux/Moriond_pileup_190456-208686_minBiasXsec69400_corr_observed.root
 
 ## energy regression
 energyCorrectionMethod=Bendavid
@@ -91,3 +92,5 @@ rematchConversions=0
 
 doInterferenceSmear=1
 
+splitwzh=1
+datacardTreeMass=125
