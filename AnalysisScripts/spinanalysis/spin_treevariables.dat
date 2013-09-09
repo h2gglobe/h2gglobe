@@ -51,21 +51,27 @@ type=2 name=sublead_r9
 type=5 name=rv
 type=3 name=higgs_mass
 
-type=3 name=sigmaMrv
-type=3 name=sigmaMwv
-type=3 name=lead_sigmaE
-type=3 name=lead_sigmaE_nosmear
-type=3 name=sublead_sigmaE
-type=3 name=sublead_sigmaE_nosmear
+type=2 name=myVBF_leadEta
+type=2 name=myVBF_subleadEta
+type=2 name=myVBFLeadJPt
+type=2 name=myVBFSubJPt
+type=2 name=myVBF_Mjj
 
-type=2 name=sigmaMoMrv
-type=2 name=sigmaMoMwv
-type=2 name=vtx_prob
-type=2 name=leadPtoM
-type=2 name=subleadPtoM
-type=2 name=leadEta
-type=2 name=subleadEta
-type=2 name=cosDphi
+#type=3 name=sigmaMrv
+#type=3 name=sigmaMwv
+#type=3 name=lead_sigmaE
+#type=3 name=lead_sigmaE_nosmear
+#type=3 name=sublead_sigmaE
+#type=3 name=sublead_sigmaE_nosmear
+
+#type=2 name=sigmaMoMrv
+#type=2 name=sigmaMoMwv
+#type=2 name=vtx_prob
+#type=2 name=leadPtoM
+#type=2 name=subleadPtoM
+#type=2 name=leadEta
+#type=2 name=subleadEta
+#type=2 name=cosDphi
 #type=2 name=lead_id_mva
 #type=2 name=sublead_id_mva
 
