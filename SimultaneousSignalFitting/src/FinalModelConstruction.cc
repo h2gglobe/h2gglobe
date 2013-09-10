@@ -1,14 +1,29 @@
+#include <fstream>
+#include <sstream>
+
 #include "TCanvas.h"
 #include "TF1.h"
 #include "RooPlot.h"
 #include "RooVoigtian.h"
+#include "RooProduct.h"
+#include "RooAddition.h"
+#include "RooConstVar.h"
+#include "RooFormulaVar.h"
+
+#include "boost/algorithm/string/split.hpp"
+#include "boost/algorithm/string/classification.hpp"
+#include "boost/algorithm/string/predicate.hpp"
+#include "boost/lexical_cast.hpp"
+#include "boost/algorithm/string/replace.hpp"
+#include "boost/algorithm/string/erase.hpp"
 
 #include "../interface/FinalModelConstruction.h"
 
 using namespace std;
 using namespace RooFit;
+using namespace boost;
 
-FinalModelConstruction::FinalModelConstruction(RooRealVar *massVar, RooRealVar *MHvar, RooRealVar *intL, int mhLow, int mhHigh, string proc, int cat, int nIncCats, bool doSecMods, bool isCB):
+FinalModelConstruction::FinalModelConstruction(RooRealVar *massVar, RooRealVar *MHvar, RooRealVar *intL, int mhLow, int mhHigh, string proc, int cat, int nIncCats, bool doSecMods, string systematicsFileName, bool isCB):
   mass(massVar),
   MH(MHvar),
   intLumi(intL),
@@ -38,15 +53,131 @@ FinalModelConstruction::FinalModelConstruction(RooRealVar *massVar, RooRealVar *
   }
 
   // const smearing terms for resolution systematic hard-coded here!!
-  constSmearVals.push_back(0.0080838); // cat0
-  constSmearVals.push_back(0.0083661); // cat1
-  constSmearVals.push_back(0.0086261); // cat2
-  constSmearVals.push_back(0.0134325); // cat3
-  constSmearVals.push_back(0.0119792); // cat4 (all exc cats)
-  // should pick up different values for the cut-based but not sure what they are!
+  //constSmearVals.push_back(0.0080838); // cat0
+  //constSmearVals.push_back(0.0083661); // cat1
+  //constSmearVals.push_back(0.0086261); // cat2
+  //constSmearVals.push_back(0.0134325); // cat3
+  //constSmearVals.push_back(0.0119792); // cat4 (all exc cats)
+  loadSignalSystematics(systematicsFileName);
+	// should pick up different values for the cut-based but not sure what they are!
 }
 
 FinalModelConstruction::~FinalModelConstruction(){}
+
+void FinalModelConstruction::loadSignalSystematics(string filename){
+	
+	int diphotonCat=-1;
+	string proc;
+	ifstream datfile;
+  datfile.open(filename.c_str());
+  if (datfile.fail()) exit(1);
+  while (datfile.good()){
+	
+		string line;
+		getline(datfile,line);
+
+		// The input file needs correct ordering
+    if (line=="\n" || line.substr(0,1)=="#" || line==" " || line.empty()) continue;
+		// First read the photon categories
+		if (starts_with(line,"photonCats")){
+			line = line.substr(line.find("=")+1,string::npos);
+			split(photonCats,line,boost::is_any_of(","));
+			if (verbosity_){
+				cout << "PhotonVec: ";
+				printVec(photonCats);
+			}
+		}
+		// Then read diphoton cat
+		else if (starts_with(line,"diphotonCat")){
+			diphotonCat = boost::lexical_cast<int>(line.substr(line.find("=")+1,string::npos));
+		}
+		// And the process
+		else if (starts_with(line,"proc")){
+			proc = line.substr(line.find('=')+1,string::npos);
+			if (verbosity_) cout << "Process:  " << proc << "  DiphoCat: " << diphotonCat << endl;
+		}
+		// Then read values
+		else {
+			stripSpace(line);
+			vector<string> els;
+			split(els,line,boost::is_any_of(" "));
+			printVec(els);
+			if (els.size()!=4) {
+				cout << "I cant read this datfile " << endl;
+				exit(1);
+			}
+			string phoSystName = els[0];
+			double meanCh = lexical_cast<double>(els[1]);
+			double sigmaCh = lexical_cast<double>(els[2]);
+			double rateCh = lexical_cast<double>(els[3]);
+	
+			addToSystMap(meanSysts,proc,diphotonCat,phoSystName,meanCh);
+			addToSystMap(sigmaSysts,proc,diphotonCat,phoSystName,sigmaCh);
+			addToSystMap(rateSysts,proc,diphotonCat,phoSystName,rateCh);
+		}
+	}
+	datfile.close();
+	for (vector<string>::iterator it=photonCats.begin(); it!=photonCats.end(); it++){
+		
+		RooRealVar *varScale = new RooRealVar(Form("%sscale",it->c_str()),Form("%sscale",it->c_str()),0.,-5.,5.);
+		RooRealVar *varSmear = new RooRealVar(Form("%ssmear",it->c_str()),Form("%ssmear",it->c_str()),0.,-5.,5.);
+		photonSystematics.insert(make_pair(varScale->GetName(),varScale));
+		photonSystematics.insert(make_pair(varSmear->GetName(),varSmear));
+	}
+}
+
+void FinalModelConstruction::stripSpace(string &line){
+	stringstream lineSt(line);
+	line="";
+	string word;
+	while (lineSt >> word) {
+		line.append(word).append(" ");
+	}
+	line = line.substr(0,line.size()-1);
+}
+
+void FinalModelConstruction::printVec(vector<string> vec){
+
+	cout << "[";
+	for (unsigned i=0; i<vec.size()-1;i++){
+		cout << vec[i] << ",";
+	}
+	cout << vec[vec.size()-1] << "]" << endl;
+}
+
+void FinalModelConstruction::printSystMap(map<string,map<int,map<string,double> > > &theMap){
+
+	for (map<string,map<int,map<string,double> > >::iterator p = theMap.begin(); p != theMap.end(); p++) {
+		for (map<int,map<string,double> >::iterator c = p->second.begin(); c != p->second.end(); c++){
+			cout << "Proc = " << p->first << "  DiphotonCat: " << c->first << endl;
+			for (map<string,double>::iterator m = c->second.begin(); m != c->second.end(); m++){
+				cout << "\t " << m->first << " : " << m->second << endl;
+			}
+		}
+	}
+}
+
+void FinalModelConstruction::addToSystMap(map<string,map<int,map<string,double> > > &theMap, string proc, int diphotonCat, string phoSystName, double var){
+	// does proc map exist?
+	if (theMap.find(proc)!=theMap.end()) {
+		// does the cat map exist?
+		if (theMap[proc].find(diphotonCat)!=theMap[proc].end()){
+			theMap[proc][diphotonCat].insert(make_pair(phoSystName,var));
+		}
+		else{
+			map<string,double> temp;
+			temp.insert(make_pair(phoSystName,var));
+			theMap[proc].insert(make_pair(diphotonCat,temp));
+		}
+	}
+	else {
+		map<string,double> temp;
+		map<int,map<string,double> > cTemp;
+		temp.insert(make_pair(phoSystName,var));
+		cTemp.insert(make_pair(diphotonCat,temp));
+		theMap.insert(make_pair(proc,cTemp));
+	}
+}
 
 vector<int> FinalModelConstruction::getAllMH(){
   vector<int> result;
@@ -94,6 +225,54 @@ void FinalModelConstruction::getRvFractionFunc(string name){
   }
   rvFracFunc = new RooSpline1D(name.c_str(),name.c_str(),*MH,mhValues.size(),&(mhValues[0]),&(rvFracValues[0]));
   rvFractionSet_=true;
+}
+
+RooAbsReal* FinalModelConstruction::getMeanWithPhotonSyst(RooAbsReal *dm, string name){
+	
+	map<string,double> meanSys = meanSysts[proc_][cat_];
+
+	string formula="@0+@1+@0*(";
+	RooArgList *dependents = new RooArgList();
+	dependents->add(*MH); // MH sits at @0
+	dependents->add(*dm); // dm sits at @1
+	dependents->add(*globalScale); // sits at @2
+
+	for (unsigned int i=0; i<photonCats.size(); i++){
+		string phoCat = photonCats[i];
+		int formPlace = 3+(i*2);
+		RooConstVar *cV = new RooConstVar(Form("const_%s_cat%d_mean%sscale",proc_.c_str(),cat_,phoCat.c_str()),"",meanSys[Form("%sscale",phoCat.c_str())]);
+		RooRealVar *nuisScale = photonSystematics[Form("%sscale",phoCat.c_str())];
+		formula += Form("@%d*(@%d+@2)",formPlace,formPlace+1);
+		dependents->add(*cV);
+		dependents->add(*nuisScale);
+		if (i<photonCats.size()-1) formula += "+";
+	}
+	formula+=")";
+	RooFormulaVar *formVar = new RooFormulaVar(name.c_str(),name.c_str(),formula.c_str(),*dependents);
+	return formVar;
+}
+
+RooAbsReal* FinalModelConstruction::getSigmaWithPhotonSyst(RooAbsReal *sig_fit, string name){
+
+	map<string,double> sigmaSys = sigmaSysts[proc_][cat_];
+
+	string formula="@0*(1.+";
+	RooArgList *dependents = new RooArgList();
+	dependents->add(*sig_fit); // sig_fit sits at @0
+	
+	for (unsigned int i=0; i<photonCats.size(); i++){
+		string phoCat = photonCats[i];
+		int formPlace = 1+(i*2);
+		RooConstVar *cV = new RooConstVar(Form("const_%s_cat%d_mean%ssmear",proc_.c_str(),cat_,phoCat.c_str()),"",sigmaSys[Form("%ssmear",phoCat.c_str())]);
+		RooRealVar *nuisSmear = photonSystematics[Form("%ssmear",phoCat.c_str())];
+		formula += Form("@%d*@%d",formPlace,formPlace+1);
+		dependents->add(*cV);
+		dependents->add(*nuisSmear);
+		if (i<photonCats.size()-1) formula += "+";
+	}
+	formula+=")";
+	RooFormulaVar *formVar = new RooFormulaVar(name.c_str(),name.c_str(),formula.c_str(),*dependents);
+	return formVar;
 }
 
 void FinalModelConstruction::setupSystematics(){
