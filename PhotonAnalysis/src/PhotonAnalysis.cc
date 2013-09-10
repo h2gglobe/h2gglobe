@@ -147,6 +147,7 @@ void readEnergyScaleOffsets(const std::string &fname, EnergySmearer::energySmear
 	int  first, last;
 	
         in.getline( line, 200, '\n' );
+        if( line[0] == '#' ) { continue; }
 	
 	if( sscanf(line,"%s %d %f %f %f %f %d %d %f %f\n", &catname, &type, 
 		   &mineta, &maxeta, &minr9, &maxr9, &first, &last, &offset, &err  ) == 10 ) {

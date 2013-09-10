@@ -1,0 +1,151 @@
+intL=19715. histfile=/store/group/phys_higgs/cmshgg/analyzed/MattLegacyTest/%(label)s/CMS-HGG.root output=eventsList.txt
+
+#
+# Data
+#
+typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/data/Photon_Run2012A_22Jan2013-v1_AOD
+typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/data/DoublePhoton_Run2012B-22Jan2013-v1_AOD
+typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/data/DoublePhoton_Run2012C-22Jan2013-v2_AOD
+typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/data/DoublePhoton_Run2012D-22Jan2013-v1_v3
+
+##
+## Signal
+##
+split typ=-49 ind=1 draw=1   Nam=ggh_m150_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/GluGluToHToGG_M-150_8TeV-powheg-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+split typ=-50 ind=2 draw=1   Nam=vbf_m150_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/VBF_HToGG_M-150_8TeV-powheg-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+split typ=-52 ind=4 draw=1   Nam=wzh_m150_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/WH_ZH_HToGG_M-150_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v2   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+split typ=-51 ind=3 draw=1   Nam=tth_m150_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/TTH_HToGG_M-150_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v2   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+
+split typ=-45 ind=1 draw=1   Nam=ggh_m145_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/GluGluToHToGG_M-145_8TeV-powheg-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+split typ=-46 ind=2 draw=1   Nam=vbf_m145_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/VBF_HToGG_M-145_8TeV-powheg-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+split typ=-48 ind=4 draw=1   Nam=wzh_m145_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/WH_ZH_HToGG_M-145_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+split typ=-47 ind=3 draw=1   Nam=tth_m145_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/TTH_HToGG_M-145_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v2   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+
+split typ=-33 ind=1 draw=1   Nam=ggh_m140_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/GluGluToHToGG_M-140_8TeV-powheg-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+split typ=-34 ind=2 draw=1   Nam=vbf_m140_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/VBF_HToGG_M-140_8TeV-powheg-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+split typ=-36 ind=4 draw=1   Nam=wzh_m140_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/WH_ZH_HToGG_M-140_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+split typ=-35 ind=3 draw=1   Nam=tth_m140_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/TTH_HToGG_M-140_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v2   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+
+split typ=-41 ind=1 draw=1   Nam=ggh_m135_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/GluGluToHToGG_M-135_8TeV-powheg-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+split typ=-42 ind=2 draw=1   Nam=vbf_m135_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/VBF_HToGG_M-135_8TeV-powheg-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+split typ=-44 ind=4 draw=1   Nam=wzh_m135_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/WH_ZH_HToGG_M-135_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+split typ=-43 ind=3 draw=1   Nam=tth_m135_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/TTH_HToGG_M-135_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+
+split typ=-29 ind=1 draw=1   Nam=ggh_m130_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/GluGluToHToGG_M-130_8TeV-powheg-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+split typ=-30 ind=2 draw=1   Nam=vbf_m130_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/VBF_HToGG_M-130_8TeV-powheg-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v2   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+split typ=-32 ind=4 draw=1   Nam=wzh_m130_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/WH_ZH_HToGG_M-130_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+split typ=-31 ind=3 draw=1   Nam=tth_m130_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/TTH_HToGG_M-130_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v2   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+
+split typ=-57 ind=1 draw=1   Nam=ggh_m123_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/GluGluToHToGG_M-123_8TeV-powheg-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+split typ=-58 ind=2 draw=1   Nam=vbf_m123_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/VBF_HToGG_M-123_8TeV-powheg-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+split typ=-60 ind=4 draw=1   Nam=wzh_m123_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/WH_ZH_HToGG_M-123_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v2   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+split typ=-59 ind=3 draw=1   Nam=tth_m123_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/TTH_HToGG_M-123_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+
+split typ=-73 ind=1 draw=1   Nam=ggh_m124_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/GluGluToHToGG_M-124_8TeV-powheg-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+split typ=-74 ind=2 draw=1   Nam=vbf_m124_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/VBF_HToGG_M-124_8TeV-powheg-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+split typ=-76 ind=4 draw=1   Nam=wzh_m124_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/WH_ZH_HToGG_M-124_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v2   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+split typ=-75 ind=3 draw=1   Nam=tth_m124_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/TTH_HToGG_M-124_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v2   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+
+split typ=-37 ind=1 draw=1   Nam=ggh_m125_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/GluGluToHToGG_M-125_8TeV-powheg-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+split typ=-38 ind=2 draw=1   Nam=vbf_m125_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/VBF_HToGG_M-125_8TeV-powheg-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+split typ=-40 ind=4 draw=1   Nam=wzh_m125_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/WH_ZH_HToGG_M-125_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v2   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+split typ=-39 ind=3 draw=1   Nam=tth_m125_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/TTH_HToGG_M-125_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+
+split typ=-77 ind=1 draw=1   Nam=ggh_m126_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/GluGluToHToGG_M-126_8TeV-powheg-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+split typ=-78 ind=2 draw=1   Nam=vbf_m126_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/VBF_HToGG_M-126_8TeV-powheg-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+split typ=-80 ind=4 draw=1   Nam=wzh_m126_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/WH_ZH_HToGG_M-126_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v2   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+split typ=-79 ind=3 draw=1   Nam=tth_m126_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/TTH_HToGG_M-126_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+
+split typ=-25 ind=1 draw=1   Nam=ggh_m120_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/GluGluToHToGG_M-120_8TeV-powheg-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+split typ=-26 ind=2 draw=1   Nam=vbf_m120_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/VBF_HToGG_M-120_8TeV-powheg-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+split typ=-28 ind=4 draw=1   Nam=wzh_m120_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/WH_ZH_HToGG_M-120_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v2   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+split typ=-27 ind=3 draw=1   Nam=tth_m120_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/TTH_HToGG_M-120_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v2   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+
+split typ=-21 ind=1 draw=1   Nam=ggh_m115_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/GluGluToHToGG_M-115_8TeV-powheg-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+split typ=-22 ind=2 draw=1   Nam=vbf_m115_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/VBF_HToGG_M-115_8TeV-powheg-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+split typ=-24 ind=4 draw=1   Nam=wzh_m115_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/WH_ZH_HToGG_M-115_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v2   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+split typ=-23 ind=3 draw=1   Nam=tth_m115_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/TTH_HToGG_M-115_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v2   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+
+split typ=-17 ind=1 draw=1   Nam=ggh_m110_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/GluGluToHToGG_M-110_8TeV-powheg-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+split typ=-18 ind=2 draw=1   Nam=vbf_m110_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/VBF_HToGG_M-110_8TeV-powheg-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+split typ=-19 ind=4 draw=1   Nam=wzh_m110_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/WH_ZH_HToGG_M-110_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v2   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+split typ=-20 ind=3 draw=1   Nam=tth_m110_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/TTH_HToGG_M-110_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+
+split typ=-13 ind=1 draw=1   Nam=ggh_m105_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/GluGluToHToGG_M-105_8TeV-powheg-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+split typ=-14 ind=2 draw=1   Nam=vbf_m105_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/VBF_HToGG_M-105_8TeV-powheg-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+split typ=-16 ind=4 draw=1   Nam=wzh_m105_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/WH_ZH_HToGG_M-105_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v2   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+split typ=-15 ind=3 draw=1   Nam=tth_m105_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/TTH_HToGG_M-105_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v2   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+
+#
+# Background
+#
+# diphoton jets sherpa should be Box+Born
+typ=+3    ind=97 draw=1  Nam=diphojet_sherpa_8TeV CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/DiPhotonJetsBox_M60_8TeV-sherpa_Summer12_DR53X-PU_RD1_START53_V7N-v1     red=0   lum=1.e10  xsec=120.354   kfac=1.12  scal=3.51
+# gjet is just prompt+fake (if this moves to sherpa then drop qcd_pf) - suspect we should also include gjet ff but not sure
+typ=+32    ind=101 draw=1  Nam=gjet_20_8TeV_pf    CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/GJet_Pt-20to40_doubleEMEnriched_TuneZ2star_8TeV-pythia6_pf  red=0 lum=1.e10 xsec=150.34 kfac=1.3  scal=1.
+typ=+42    ind=104 draw=1  Nam=gjet_40_8TeV_pf    CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/GJet_Pt40_doubleEMEnriched_TuneZ2star_8TeV_ext-pythia6_pf  red=0 lum=1.e10 xsec=478.58 kfac=1.3  scal=1.
+# qcd use pf + ff
+typ=+11   ind=92 draw=1  Nam=qcd_30_8TeV_ff CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/QCD_Pt-30to40_doubleEMEnriched_TuneZ2star_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1_ff    red=0   lum=1.e10 xsec=12208.   kfac=1.3  scal=1.
+typ=+12   ind=92 draw=1  Nam=qcd_30_8TeV_pf CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/QCD_Pt-30to40_doubleEMEnriched_TuneZ2star_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1_pf    red=0   lum=1.e10 xsec=12208.   kfac=1.3  scal=1.
+typ=+21   ind=94 draw=1  Nam=qcd_40_8TeV_ff CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/QCD_Pt-40_doubleEMEnriched_TuneZ2star_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1_2_ff    red=0   lum=1.e10 xsec=51439.   kfac=1.3  scal=1.
+typ=+22   ind=94 draw=1  Nam=qcd_40_8TeV_pf CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/QCD_Pt-40_doubleEMEnriched_TuneZ2star_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1_2_pf    red=0   lum=1.e10 xsec=51439.   kfac=1.3  scal=1.
+
+
+#typ=+11   ind=92 draw=1  Nam=qcd_30_8TeV_ff CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/QCD_Pt-30to40_doubleEMEnriched_TuneZ2star_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1_ff    red=0   lum=1.e10 xsec=12208.   kfac=1.3  scal=1.
+#typ=+21   ind=94 draw=1  Nam=qcd_40_8TeV_ff CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/QCD_Pt-40_doubleEMEnriched_TuneZ2star_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1_ff    red=0   lum=1.e10 xsec=51439.   kfac=1.3  scal=1.
+#typ=+12   ind=92 draw=1  Nam=qcd_30_8TeV_pf CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/QCD_Pt-30to40_doubleEMEnriched_TuneZ2star_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1_pf    red=0   lum=1.e10 xsec=12208.   kfac=1.3  scal=1.
+#typ=+22   ind=94 draw=1  Nam=qcd_40_8TeV_pf CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/QCD_Pt-40_doubleEMEnriched_TuneZ2star_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1_pf    red=0   lum=1.e10 xsec=51439.   kfac=1.3  scal=1.
+#typ=+21   ind=94 draw=1  Nam=qcd_40_8TeV_ff CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/QCD_Pt-40_doubleEMEnriched_TuneZ2star_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1_2_ff    red=0   lum=1.e10 xsec=51439.   kfac=1.3  scal=1.
+#typ=+22   ind=94 draw=1  Nam=qcd_40_8TeV_pf CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/QCD_Pt-40_doubleEMEnriched_TuneZ2star_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1_2_pf    red=0   lum=1.e10 xsec=51439.   kfac=1.3  scal=1.
+#typ=+32    ind=101 draw=1  Nam=gjet_20_8TeV_pf    CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/GJet_Pt-20to40_doubleEMEnriched_TuneZ2star_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1_pf  red=0 lum=1.e10 xsec=150.34 kfac=1.3  scal=1.
+#typ=+42    ind=104 draw=1  Nam=gjet_40_8TeV_pf    CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/GJet_Pt40_v2_pf  red=0 lum=1.e10 xsec=478.58 kfac=1.3  scal=1.
+#typ=+4    ind=96 draw=1  Nam=diphojet_8TeV CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/DiPhotonJets_8TeV-madgraph-tarball-v2_Summer12_DR53X-PU_RD1_START53_V7N-v1    red=0   lum=1.e10  xsec=75.39   kfac=1.15  scal=1.
+#typ=+14    ind=107 draw=1  Nam=dipho_Box_25_8TeV        CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/DiPhotonBox_Pt-25To250_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1    red=0   lum=1.e10   xsec=15.54   kfac=1.15  scal=1.
+#typ=+24    ind=108 draw=1  Nam=dipho_Box_250_8TeV        CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/DiPhotonBox_Pt-250ToInf_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1    red=0   lum=1.e10   xsec=0.0011805   kfac=1.15  scal=1.
+#typ=+34    ind=101 draw=1  Nam=gjet_20_8TeV_pp    CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/GJet_Pt-20to40_doubleEMEnriched_TuneZ2star_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1_pp  red=0 lum=1.e10 xsec=150.34 kfac=1.15  scal=1.
+#typ=+44    ind=104 draw=1  Nam=gjet_40_8TeV_pp    CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/GJet_Pt40_v2_pp  red=0 lum=1.e10 xsec=478.58 kfac=1.15  scal=1.
+
+##
+## DY MC
+##
+#typ=+5    ind=98 draw=1  Nam=DYJetsToLL   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_RD1_START53_V7N-v1    red=0   lum=1.e10  xsec=2950.0   kfac=1.15  scal=1.
+#typ=60 ind=13 draw=1 Nam=ZGToLLG                 CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/ZGToLLG_8TeV-madgraph_Summer12_DR53X-PU_RD1_START53_V7N-v1                              red=0 lum=1. xsec=132.6        kfac=1.   scal=1.
+#typ=61 ind=14 draw=1 Nam=WGToLNuG                CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/WGToLNuG_TuneZ2star_8TeV-madgraph-tauola_Summer12_DR53X-PU_RD1_START53_V7N-v1           red=0 lum=1. xsec=461.6        kfac=1.   scal=1.
+#typ=62 ind=15 draw=1 Nam=WJetsToLNu              CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/WJetsToLNu_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_RD1_START53_V7N-v1        red=0 lum=1. xsec=30400        kfac=1.   scal=1.
+#typ=70 ind=16 draw=1 Nam=WWJetsTo2L2Nu           CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/WWJetsTo2L2Nu_TuneZ2star_8TeV-madgraph-tauola_Summer12_DR53X-PU_RD1_START53_V7N-v1      red=0 lum=1. xsec=4.7          kfac=1.   scal=1.
+#typ=71 ind=17 draw=1 Nam=WZJetsTo3LNu            CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/WZJetsTo3LNu_TuneZ2_8TeV-madgraph-tauola_Summer12_DR53X-PU_RD1_START53_V7N-v1           red=0 lum=1. xsec=0.8674       kfac=1.   scal=1.
+#typ=72 ind=18 draw=1 Nam=ZZJetsTo2L2Nu           CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/ZZJetsTo2L2Nu_TuneZ2star_8TeV-madgraph-tauola_Summer12_DR53X-PU_S10_START53_V7A-v3      red=0 lum=1. xsec=0.28         kfac=1.   scal=1.
+#typ=73 ind=19 draw=1 Nam=ZZJetsTo2L2Q            CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/ZZJetsTo2L2Q_TuneZ2star_8TeV-madgraph-tauola_Summer12_DR53X-PU_RD1_START53_V7N-v1       red=0 lum=1. xsec=0.91         kfac=1.   scal=1.
+#typ=74 ind=20 draw=1 Nam=ZZJetsTo4L              CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/ZZJetsTo4L_TuneZ2star_8TeV-madgraph-tauola_Summer12_DR53X-PU_RD1_START53_V7N-v1         red=0 lum=1. xsec=0.1296       kfac=1.   scal=1.
+#typ=80 ind=21 draw=1 Nam=Wpgg_dR02               CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/Wpgg_dR02                                                                               red=0 lum=1. xsec=0.0667        kfac=1.     scal=1.
+#typ=81 ind=22 draw=1 Nam=Wmgg_dR02               CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/Wmgg_dR02                                                                               red=0 lum=1. xsec=0.0504        kfac=1.     scal=1.
+#typ=82 ind=23 draw=1 Nam=Zgg_dR02                CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/Zgg_dR02                                                                                red=0 lum=1. xsec=0.068         kfac=1.     scal=1.
+#typ=83 ind=24 draw=1 Nam=ttgg_dR02               CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/ttgg_dR02                                                                               red=0 lum=1. xsec=0.001316      kfac=1.     scal=1.
+#
+#typ=90 ind=25 draw=1 Nam=TTJets                  CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/TTJets_TuneZ2star_8TeV-madgraph-tauola_Summer12-PU_S8_START52_V9-v1                     red=0 lum=1. xsec=136.3         kfac=1.     scal=1.
+#typ=91 ind=26 draw=1 Nam=TTGJets                 CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/TTGJets_8TeV-madgraph_Summer12_DR53X-PU_RD1_START53_V7N-v1                              red=0 lum=1. xsec=1.444         kfac=1.     scal=1.
+
+#
+# Branches to use
+#
+inputBranches minimal_analysis_input.dat
+inputBranches massfactorizedmvaanalysis_input.dat
+inputBranches minimal_leptmetanalysis_input.dat
+
+treevariables massfac_mva_binned/fullmvatrees.dat common/unbinned_datacard_trees.dat
+
+#treevariables massfac_mva_binned/treevariables_optree.dat
+#runZeeValidation=1
+#treevariables treevariables_escale.dat
+
+## define analyses to run
+##   a library containing the class dictionary has loaded before parsing the
+##   configuration file
+## syntax:
+##   analyzer <class_name> <config_file>
+##
+## analyzer PhotonAnalysis photonanalysis.dat
+analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat saveDatacardTrees_=1  dumpAscii=1 dumpMcAscii=0 doFullMvaFinalTree=1 
+
+
+

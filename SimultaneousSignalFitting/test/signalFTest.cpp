@@ -185,7 +185,7 @@ int main(int argc, char *argv[]){
       //RooDataHist *dataWV = new RooDataHist(Form("roohist_%s",dataWVtemp->GetName()),Form("roohist_%s",dataWVtemp->GetName()),RooArgSet(*mass),*dataWVtemp);
       //RooDataSet *dataRV = stripWeights(dataRVweight,mass);
       //RooDataSet *dataWV = stripWeights(dataWVweight,mass);
-      RooDataSet *data = (RooDataSet*)inWS->data(Form("sig_%s_mass_m%d_cat%d",proc.c_str(),mass_,cat));
+      //RooDataSet *data = (RooDataSet*)inWS->data(Form("sig_%s_mass_m%d_cat%d",proc.c_str(),mass_,cat));
      
       int rvChoice=0;
       int wvChoice=0;

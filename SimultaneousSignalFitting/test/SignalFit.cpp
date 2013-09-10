@@ -30,6 +30,7 @@ namespace po = boost::program_options;
 string filename_;
 string outfilename_;
 string datfilename_;
+string systfilename_;
 int mhLow_=110;
 int mhHigh_=150;
 int nCats_;
@@ -45,20 +46,21 @@ int verbose_=0;
 void OptionParser(int argc, char *argv[]){
   po::options_description desc("Allowed options");
   desc.add_options()
-    ("help,h",                                                                                "Show help")
-    ("infilename,i", po::value<string>(&filename_),                                           "Input file name")
-    ("outfilename,o", po::value<string>(&outfilename_)->default_value("CMS-HGG_sigfit.root"), "Output file name")
-    ("datfilename,d", po::value<string>(&datfilename_)->default_value("dat/config.dat"),      "Configuration file")
-    ("mhLow,L", po::value<int>(&mhLow_)->default_value(110),                                  "Low mass point")
-    ("mhHigh,H", po::value<int>(&mhHigh_)->default_value(150),                                "High mass point")
-    ("nCats,n", po::value<int>(&nCats_)->default_value(9),                                    "Number of total categories")
-    ("nInclusiveCats", po::value<int>(&nInclusiveCats_)->default_value(4),                    "Number of inclusive categories")
-    ("constraintValue,C", po::value<float>(&constraintValue_)->default_value(0.1),            "Constraint value")
-    ("skipSecondaryModels",                                                                   "Turn off creation of all additional models")
-    ("splitVH",                                                                               "Split VH into WH and ZH")
-    ("recursive",                                                                             "Recursively calculate gaussian fractions")
-    ("verbose,v", po::value<int>(&verbose_)->default_value(0),                                "Verbosity level: 0 (lowest) - 3 (highest)")
-  ;
+    ("help,h",                                                                                			"Show help")
+    ("infilename,i", po::value<string>(&filename_),                                           			"Input file name")
+    ("outfilename,o", po::value<string>(&outfilename_)->default_value("CMS-HGG_sigfit.root"), 			"Output file name")
+    ("datfilename,d", po::value<string>(&datfilename_)->default_value("dat/config.dat"),      			"Configuration file")
+		("systfilename,s", po::value<string>(&systfilename_)->default_value("dat/photonCatSyst.dat"),		"Systematic model numbers")
+    ("mhLow,L", po::value<int>(&mhLow_)->default_value(110),                                  			"Low mass point")
+    ("mhHigh,H", po::value<int>(&mhHigh_)->default_value(150),                                			"High mass point")
+    ("nCats,n", po::value<int>(&nCats_)->default_value(9),                                    			"Number of total categories")
+    ("nInclusiveCats", po::value<int>(&nInclusiveCats_)->default_value(4),                    			"Number of inclusive categories")
+    ("constraintValue,C", po::value<float>(&constraintValue_)->default_value(0.1),            			"Constraint value")
+    ("skipSecondaryModels",                                                                   			"Turn off creation of all additional models")
+    ("splitVH",                                                                               			"Split VH into WH and ZH")
+    ("recursive",                                                                             			"Recursively calculate gaussian fractions")
+    ("verbose,v", po::value<int>(&verbose_)->default_value(0),                                			"Verbosity level: 0 (lowest) - 3 (highest)")
+  ;                                                                                             		
   po::variables_map vm;
   po::store(po::parse_command_line(argc,argv,desc),vm);
   po::notify(vm);
@@ -187,7 +189,7 @@ int main(int argc, char *argv[]){
     map<string,RooSpline1D*> splinesWV = linInterpWV.getSplines();
 
     // this guy constructs the final model with systematics, eff*acc etc.
-    FinalModelConstruction finalModel(mass,MH,intLumi,mhLow_,mhHigh_,proc,cat,nInclusiveCats_,doSecondaryModels_,false);
+    FinalModelConstruction finalModel(mass,MH,intLumi,mhLow_,mhHigh_,proc,cat,nInclusiveCats_,doSecondaryModels_,systfilename_,false);
     finalModel.setSecondaryModelVars(MH_SM,DeltaM,MH_2,higgsDecayWidth);
     finalModel.setRVsplines(splinesRV);
     finalModel.setWVsplines(splinesWV);
