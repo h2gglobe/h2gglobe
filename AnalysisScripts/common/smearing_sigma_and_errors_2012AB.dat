@@ -2,11 +2,11 @@
 # These numbers correspond to Moriond preapproval smearings - https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/1112.html
 
 ##  RE RECO  ##
-EBlowEtaGold	    0.0	1.0	0.94	999.00	-999999	999999 0.0096	0.0013
-EBlowEtaBad  	    0.0	1.0	-999.00	0.94	-999999	999999 0.0096	0.0013
+EBlowEtaGold	  0 0.0	1.0	0.94	999.00	-999999	999999 0.0096	0.0013
+EBlowEtaBad  	  0 0.0	1.0	-999.00	0.94	-999999	999999 0.0096	0.0013
 EBhighEtaGold	  0 1.0	1.5	0.94	999.00	-999999	999999 0.0151	0.0095
 EBhighEtaBad	  0 1.0	1.5	-999.00	0.94	-999999	999999 0.0194	0.0020
 EElowEtaGold	  0 1.5	2.0	0.94	999.00	-999999	999999 0.0253	0.0051
-EElowEtaBad	    0 1.5	2.0	-999.00	0.94	-999999	999999 0.0257	0.0025
+EElowEtaBad	  0 1.5	2.0	-999.00	0.94	-999999	999999 0.0257	0.0025
 EEhighEtaGold	  0 2.0	3.0	0.94	999.00	-999999	999999 0.0303	0.0023
 EEhighEtaBad	  0 2.0	3.0	-999.00	0.94	-999999	999999 0.0303	0.0030

@@ -142,29 +142,36 @@ void readEnergyScaleOffsets(const std::string &fname, EnergySmearer::energySmear
     float EBHighR9, EBLowR9, EBm4HighR9, EBm4LowR9, EEHighR9, EELowR9;
     char catname[200];
     do {
-	float minet=0., maxet=1.e+9, mineta, maxeta, minr9, maxr9, offset, stocastic=0., err;
+	int nread = 0;
+	float minet=0., maxet=1.e+9, mineta=0., maxeta=999., minr9=-999, maxr9=999, offset=0., stocastic=0., err=0.;
 	int type;
 	int  first, last;
 	
         in.getline( line, 200, '\n' );
         if( line[0] == '#' ) { continue; }
 	
-	if( sscanf(line,"%s %d %f %f %f %f %d %d %f %f\n", &catname, &type, 
-		   &mineta, &maxeta, &minr9, &maxr9, &first, &last, &offset, &err  ) == 10 ) {
-	    std::cout << "Energy scale (or smering) by run " <<  catname << " " << type << " " << mineta << " " << maxeta << " " << minr9 << " " << maxr9 
-		      << " " << first << " " << last << " " << offset << " " << err << std::endl;
-	} else if( sscanf(line,"%s %d %f %f %f %f %d %d %f %f %f\n", &catname, &type, 
-			  &mineta, &maxeta, &minr9, &maxr9, &first, &last, &offset, &stocastic, &err  ) == 11 ) {
-	    std::cout << "Energy scale (or smering) by run " <<  catname << " " << type << " " << mineta << " " << maxeta << " " << minr9 << " " << maxr9 
-		      << " " << first << " " << last << " " << offset << " " << stocastic <<  " " << err << std::endl;
-	} else if( sscanf(line,"%s %d %f %f %f %f %f %f %d %d %f %f %f\n", &catname, &type, 
-			  &minet, &maxet, &mineta, &maxeta, &minr9, &maxr9, &first, &last, &offset, &stocastic, &err  ) == 13 ) {
-	    std::cout << "Energy scale (or smering) by run " <<  catname << " " << type 
-		      << " " << minet << " " << maxet << " " << mineta << " " << maxeta << " " << minr9 << " " << maxr9 
-		      << " " << first << " " << last << " " << offset << " " << stocastic <<  " " << err << std::endl;
-	} else { 
+	if( (nread == 0) && 
+	    (nread = sscanf(line,"%s %d %f %f %f %f %f %f %d %d %f %f %f\n", &catname, &type, 
+			    &minet, &maxet, &mineta, &maxeta, &minr9, &maxr9, &first, &last, &offset, &stocastic, &err  ) ) != 13 ) {
+	    nread=0, minet=0., maxet=1.e+9, mineta=0., maxeta=999., minr9=-999, maxr9=999, offset=0., stocastic=0., err=0.;
+	}
+	if( (nread == 0) && 
+	    (nread = sscanf(line,"%s %d %f %f %f %f %d %d %f %f %f\n", &catname, &type, 
+			    &mineta, &maxeta, &minr9, &maxr9, &first, &last, &offset, &stocastic, &err  ) ) != 11 ) {
+	    nread=0, minet=0., maxet=1.e+9, mineta=0., maxeta=999., minr9=-999, maxr9=999, offset=0., stocastic=0., err=0.;
+	} 
+	if( (nread == 0) &&
+	    ( nread = sscanf(line,"%s %d %f %f %f %f %d %d %f %f\n", &catname, &type, 
+			     &mineta, &maxeta, &minr9, &maxr9, &first, &last, &offset, &err  ) ) != 10 ) {
+	    nread=0, minet=0., maxet=1.e+9, mineta=0., maxeta=999., minr9=-999, maxr9=999, offset=0., stocastic=0., err=0.;
+	}
+	if( nread == 0 ) { 
 	    continue; 
 	}
+	
+	std::cout << "Energy scale (or smearing) by run " << nread  << " " << catname   << " " << type 
+		  << " " << minet << " " << maxet << " " << mineta << " " << maxeta    << " " << minr9 << " " << maxr9 
+		  << " " << first << " " << last  << " " << offset << " " << stocastic <<  " " << err << std::endl;
 	
 	assert( type>=0 && type<=2 );
 	

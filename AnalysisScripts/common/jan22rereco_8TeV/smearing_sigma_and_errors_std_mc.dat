@@ -1,8 +1,8 @@
 # category      type(0=any,1=CM,2=GAP) minEta  MaxEta   mr9    Mr9      mrun    Mrun   sigma  alpha  err    
 # Jan22 smearings for std MC https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/1246.html
 
-EBlowEtaBad  	  0.0	1.0	-999.00	0.94	-999999	999999 8.80e-3 0. 2.41e-3
-EBlowEtaGold	  0.0	1.0	0.94	999.00	-999999	999999 9.70e-3 0. 2.21e-3
+EBlowEtaBad  	  0 0.0	1.0	-999.00	0.94	-999999	999999 8.80e-3 0. 2.41e-3
+EBlowEtaGold	  0 0.0	1.0	0.94	999.00	-999999	999999 9.70e-3 0. 2.21e-3
 EBhighEtaBad	  0 1.0	1.5	-999.00	0.94	-999999	999999 1.87e-2 0. 5.91e-3
 EBhighEtaGold	  0 1.0	1.5	0.94	999.00	-999999	999999 1.31e-2 0. 6.16e-3
 EElowEtaBad	  0 1.5	2.0	-999.00	0.94	-999999	999999 2.32e-2 0. 3.01e-3

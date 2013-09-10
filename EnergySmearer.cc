@@ -126,6 +126,7 @@ float EnergySmearer::getSmearingSigma(const energySmearingParameters & myParamet
   
   // Careful here, if sigma < 0 now, it will be squared and so not correct, set to 0 in this case.
   if (smearing_sigma < 0.) smearing_sigma=0.;
+  return smearing_sigma;
 }
 
 
