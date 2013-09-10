@@ -14,6 +14,7 @@ etamap = { "0_1"   : "LowEta",
     }
 
 input=open(iname,'r')
+lastcat = None
 for line in input.read().split("\n"):
     toks = [ l for l in line.split("\t") if l != "" ]
     if len(toks) == 6:
@@ -31,7 +32,11 @@ for line in input.read().split("\n"):
         r9Lab, r9Rng = r9map[r9]
         typ = 0
         etaLab = etamap[ "%s_%s" % ( etaRng[0], etaRng[1] ) ]
-        print "%s%s%s\t%d\t%s\t%s\t%1.2f\t%1.2f\t%d\t%d\t%1.3g\t%1.3g" % ( det, etaLab, r9Lab, typ, etaRng[0], etaRng[1], r9Rng[0], r9Rng[1], first, last,  corr, err )
+        cat = "%s%s%s" % ( det, etaLab, r9Lab )
+        if cat != lastcat:
+            print
+        lastcat = str(cat)
+        print "%s %d %s %s %1.2f %1.2f %d %d %1.3g %1.3g" % (cat,  typ, etaRng[0], etaRng[1], r9Rng[0], r9Rng[1], first, last,  corr, err )
         ## print det, etaRng, r9Lab, r9Rng, first,last,corr,err
-
+        
 

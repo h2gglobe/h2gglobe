@@ -1,0 +1,5 @@
+
+##
+energyCorrectionMethod=BendavidOTF
+doEcorrectionSmear=1
+doEcorrectionSyst=0

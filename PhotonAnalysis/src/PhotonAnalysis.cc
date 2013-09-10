@@ -616,8 +616,6 @@ void PhotonAnalysis::Init(LoopAll& l)
     }else if(energyCorrectionMethod=="BendavidOTF"){
         energyCorrected     = (l.pho_regr_energy_otf);
         energyCorrectedError= (l.pho_regr_energyerr_otf);
-
-        //  }else if(energyCorrectionMethod=="PFRegression"){
     }else{
         assert(doEcorrectionSmear==false);
     }
@@ -1736,13 +1734,6 @@ void PhotonAnalysis::PreselectPhotons(LoopAll& l, int jentry)
     // Nominal smearing
     corrected_pho_energy.clear(); corrected_pho_energy.resize(l.pho_n,0.);
     int cur_type = l.itype[l.current];
-
-    // Re-EDIT 5 Aug 2013, replcing to recalcuate on the fly regression 
-    // EDIT - 4 Dec 2011 NWardle Latest Ntuple Production uses New and Correct Regression so no need to calculate on the FLY corrections
-    // TEMPORARY FIX TO CALCULATE CORRECTED ENERGIES SINCE REGRESSION WAS NOT STORED IN NTUPLES
-    // The following Fills the arrays with the ON-THE-FLY calculations
-    // -------------------------------------------------------------------------------------------//
-
 
     ////// std::vector<float> smeared_pho_r9, smeared_pho_weight;
     //////
@@ -4922,9 +4913,9 @@ void PhotonAnalysis::GetRegressionCorrections(LoopAll &l){
         pdfpeakval = _pdf->getVal(*_tgt);
 
 
-        // Set vectors used in reduction;
-        energyCorrected[ipho] = ecor;
-        energyCorrectedError[ipho] = ecorerr;
+        //// // Set vectors used in reduction;
+        //// energyCorrected[ipho] = ecor;
+        //// energyCorrectedError[ipho] = ecorerr;
 
         // Save new branches 
         l.pho_regr_energy_otf[ipho] = ecor;
