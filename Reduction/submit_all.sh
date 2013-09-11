@@ -14,6 +14,7 @@
 
 ./submit_reduction.sh mc_Summer12_RD1 DiPhotonJetsBoxDiPhotonJetsBox 50
 
+##./submit_reduction.sh mc_Summer12_RD1  GJet\*sherpa\* 30
 
 #./submit_reduction.sh    data_2012             Photon_Run2012A-13Jul2012-v1                    10
 #./submit_reduction.sh    data_2012             Photon_Run2012A-recover-06Aug2012-v1            1

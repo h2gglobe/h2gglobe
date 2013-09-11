@@ -63,5 +63,14 @@ rm data2012_RERECO/*.dat
 ./AnalysisScripts/mk_reduction_dat.py /store/group/phys_higgs/cmshgg/processed/V15_00_05/data ${storedir}/data data2012_RERECO.txt
 
 
+wd=$PWD
+cd AnalysisScripts
+tar cf $wd/${version}.tar *.py $(find common reduction baseline massfac_mva_binned full_mva_binned jetanalysis photonjet -name \*.dat -or -name \*.py) aux common python 
+cd -
 
-tar zcf ${version}.tgz  AnalysisScripts/{common,reduction,aux,*.py}
+tar rf ${version}.tar JSON *.sh
+gzip ${version}.tar
+
+git tag ${version}
+
+## tar zcf ${version}.tgz  AnalysisScripts/{common,reduction,aux,*.py}
