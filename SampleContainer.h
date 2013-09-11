@@ -39,6 +39,7 @@ class SampleContainer {
   float xsec;
   float kfactor; 
   float scale;
+  int forceVersion;
   float lumireal;
   bool hasLumiSelection, hasEventList;
   std::map<int, std::vector<std::pair<int,int> > > goodLumis;

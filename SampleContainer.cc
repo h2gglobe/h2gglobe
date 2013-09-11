@@ -25,6 +25,7 @@ SampleContainer::SampleContainer(const float * extw) :
 	hasLumiSelection = false;
 	hasEventList = false;
 	pileup = "";
+	forceVersion = 0;
 }
 
 void SampleContainer::computeWeight(float intL) {
