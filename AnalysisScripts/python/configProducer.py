@@ -318,7 +318,7 @@ class configProducer:
         defineEvList(dum["evlist"], dataContainer)
 
   def eosmount(self):
-      from makeFilelist import eos
+      eos = "/afs/cern.ch/project/eos/installation/pro/bin/eos.select"
       mp = os.path.join(os.getcwd(),"eos")
       ret,out=commands.getstatusoutput("(mount | grep %s) || (%s -b fuse mount %s)" % (mp,eos,mp))
       print out
