@@ -244,9 +244,9 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
         std::sort(multiclassVbfCatBoundaries1.begin(),multiclassVbfCatBoundaries1.end(), std::greater<float>() );
         std::sort(multiclassVbfCatBoundaries2.begin(),multiclassVbfCatBoundaries2.end(), std::greater<float>() );
     }
-
+    
     nCategories_=(nInclusiveCategories_+nVBFCategories+nVHlepCategories+nVHmetCategories);
-
+    
     if (bdtTrainingPhilosophy == "UCSD") {
         l.rooContainer->SetNCategories(8);
     } else if (bdtTrainingPhilosophy == "MIT") {
@@ -734,28 +734,41 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
         //fillTrainTree(l,diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id] ,
 	/// vtxProb,lead_p4,sublead_p4 ,sigmaMrv,sigmaMwv,sigmaMeonly ,bdtTrainingPhilosophy.c_str() ,phoid_mvaout_lead,phoid_mvaout_sublead);
         float diphobdt_output = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id] ,
-                          vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMeonly,
-                          bdtTrainingPhilosophy.c_str(),
-                          phoid_mvaout_lead,phoid_mvaout_sublead);
+					      vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMeonly,
+					      bdtTrainingPhilosophy.c_str(),
+					      phoid_mvaout_lead,phoid_mvaout_sublead);
+	
+	// Compute VBF+dipho BDT
+	float diphovbfBDT_output = -999.;
+	if (combinedmvaVbfSelection) {
+	    myVBFDIPHObdt = diphobdt_output;
+	    myVBFDIPHOdijet = myVBF_MVA;
+	    myVBFDiPhoPtOverM = Higgs.Pt()/Higgs.M();
+	    diphovbfBDT_output = tmvaVbfDiphoReader_->EvaluateMVA(mvaVbfDiphoMethod);
+	}
+
         kinematic_bdtout = diphobdt_output;
 
 	float diphobdt_output_up=-1.;
 	float diphobdt_output_down=-1.;
 	if (l.runZeeValidation) {
 	    diphobdt_output_up = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id] ,
-						     vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMeonly,
-						     bdtTrainingPhilosophy.c_str(),
-						     phoid_mvaout_lead+0.01,phoid_mvaout_sublead+0.01);
+					       vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMeonly,
+					       bdtTrainingPhilosophy.c_str(),
+					       phoid_mvaout_lead+0.01,phoid_mvaout_sublead+0.01);
 	    diphobdt_output_down = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id] ,
-						       vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMeonly,
-						       bdtTrainingPhilosophy.c_str(),
-						       phoid_mvaout_lead-0.01,phoid_mvaout_sublead-0.01);
+						 vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMeonly,
+						 bdtTrainingPhilosophy.c_str(),
+						 phoid_mvaout_lead-0.01,phoid_mvaout_sublead-0.01);
 	}
 
         bool isEBEB  = fabs(lead_p4.Eta() < 1.4442 ) && fabs(sublead_p4.Eta()<1.4442);
         category = GetBDTBoundaryCategory(diphobdt_output,isEBEB,VBFevent);
         if (diphobdt_output>=bdtCategoryBoundaries.back()) { 
-            computeExclusiveCategory(l,category,diphoton_index,Higgs.Pt(),diphobdt_output); 
+	    if (combinedmvaVbfSelection && vbfVsDiphoVbfSelection)
+		computeExclusiveCategory(l, category, diphoton_index, Higgs.Pt(), diphovbfBDT_output); 
+	    else
+		computeExclusiveCategory(l, category, diphoton_index, Higgs.Pt(), diphobdt_output); 
         }
 
         if (fillOptTree) {

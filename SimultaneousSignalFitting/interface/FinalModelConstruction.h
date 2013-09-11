@@ -25,8 +25,10 @@ class FinalModelConstruction {
 
   public:
     
-    FinalModelConstruction(RooRealVar *massVar, RooRealVar *MHvar, RooRealVar *intL, int mhLow, int mhHigh, std::string proc, int cat, int nIncCats, bool doSecMods, bool isCB=false);
+    FinalModelConstruction(RooRealVar *massVar, RooRealVar *MHvar, RooRealVar *intL, int mhLow, int mhHigh, std::string proc, int cat, int nIncCats, bool doSecMods, std::string systematicsFileName, bool isCB=false);
     ~FinalModelConstruction();
+
+		void loadSignalSystematics(std::string filename);
 
     void setSecondaryModelVars(RooRealVar *mh_sm, RooRealVar *deltam, RooAddition *mh_2, RooRealVar *width);
 
@@ -37,7 +39,11 @@ class FinalModelConstruction {
     void setupSystematics();
     void getNormalization();
 
-    void setRVsplines(std::map<std::string,RooSpline1D*> splines);
+		RooAbsReal *getMeanWithPhotonSyst(RooAbsReal *dm, string name);
+		RooAbsReal *getSigmaWithPhotonSyst(RooAbsReal *sig_fit, string name);
+		//RooAbsReal *getRateWithPhotonSyst(string name);
+    
+		void setRVsplines(std::map<std::string,RooSpline1D*> splines);
     void setWVsplines(std::map<std::string,RooSpline1D*> splines);
     void setSTDsplines(std::map<std::string,RooSpline1D*> splines);
 
@@ -115,6 +121,21 @@ class FinalModelConstruction {
     RooRealVar *DeltaM;
     RooAddition *MH_2;
     RooRealVar *higgsDecayWidth;
+
+		// photon systematic stuff
+		std::vector<std::string> photonCats;
+		std::map<std::string,std::map<int,std::map<std::string,double> > > meanSysts;
+		std::map<std::string,std::map<int,std::map<std::string,double> > > sigmaSysts;
+		std::map<std::string,std::map<int,std::map<std::string,double> > > rateSysts;
+
+		std::map<string,RooRealVar*> photonSystematics;
+
+		// utility funcs
+		void stripSpace(std::string &line);
+		void printVec(std::vector<std::string> vec);
+		void printSystMap(std::map<std::string,std::map<int,std::map<std::string,double> > > &theMap);
+		void addToSystMap(std::map<std::string,std::map<int,std::map<std::string,double> > > &theMap, string proc, int diphotonCat, string phoSystName, double var);
+
 };
 
 #endif

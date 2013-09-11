@@ -32,7 +32,7 @@ split typ=-44 ind=4 draw=1   Nam=wzh_m135_8TeV   CaDir=/store/group/phys_higgs/c
 split typ=-43 ind=3 draw=1   Nam=tth_m135_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/TTH_HToGG_M-135_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
 
 split typ=-29 ind=1 draw=1   Nam=ggh_m130_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/GluGluToHToGG_M-130_8TeV-powheg-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
-split typ=-30 ind=2 draw=1   Nam=vbf_m130_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/VBF_HToGG_M-130_8TeV-powheg-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+split typ=-30 ind=2 draw=1   Nam=vbf_m130_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/VBF_HToGG_M-130_8TeV-powheg-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v2   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
 split typ=-32 ind=4 draw=1   Nam=wzh_m130_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/WH_ZH_HToGG_M-130_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
 split typ=-31 ind=3 draw=1   Nam=tth_m130_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/reduction_RDMC_June2013_v2/mc/TTH_HToGG_M-130_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v2   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
 

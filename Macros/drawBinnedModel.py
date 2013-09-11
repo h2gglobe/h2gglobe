@@ -5,7 +5,9 @@ import numpy
 files = [ ROOT.TFile.Open(f) for f in sys.argv[1:] ]
 
 
-def drawModel(mh,ncat=6,color=ROOT.kBlue,opt="hist",procs = [ "ggh", "vbf", "wzh", "tth" ]):
+def drawModel(mh,ncat=6,color=ROOT.kBlue,opt="hist",procs = [ "ggh", "vbf", "wzh", "tth" ],syst=None):
+
+    ROOT.gROOT.LoadMacro("ResultScripts/GraphToTF1.C+")
 
     for p in procs:
         c = ROOT.TCanvas("canv_%s_%1.5g" % (p,mh),"canv_%s_%1.5g" % (p,mh), 900, 400*ncat/3)
@@ -13,14 +15,27 @@ def drawModel(mh,ncat=6,color=ROOT.kBlue,opt="hist",procs = [ "ggh", "vbf", "wzh
         globals()[c.GetName().replace(".","_")] = c
         for cat in range(ncat):
             c.cd(cat+1)
-            h = ROOT.gDirectory.Get("th1f_sig_%s_mass_m%1.5g_cat%d" % ( p, mh, cat ))
-            
+            name = "th1f_sig_%s_mass_m%1.5g_cat%d" % ( p, mh, cat )
+            h = ROOT.gDirectory.Get(name)
+            if syst:
+                hup   = ROOT.gDirectory.Get("%s_%sUp01_sigma" % ( name, syst ) )
+                hdown = ROOT.gDirectory.Get("%s_%sDown01_sigma" % ( name, syst ) )
+                hup.Print()
+                hdown.Print()
+                
             h.SetLineColor(color)
             h.SetMarkerColor(color)
 
             h.Draw(opt)
-
-            print h.GetName(), h.Integral()
+            if syst:
+                hup.SetLineColor(color+10)
+                hup.SetMarkerColor(color+10)
+                hdown.SetLineColor(color+10)
+                hdown.SetMarkerColor(color+10)
+                hup.Draw("%s same"%opt)
+                hdown.Draw("%s same"%opt)
+            
+            print h.GetName(), h.Integral(), getFWHM(h), getFWHM(hup), getFWHM(hdown), h.GetRMS(), hup.GetRMS(), hdown.GetRMS()
             
 
 def getPoint(h):
@@ -37,6 +52,10 @@ def getPoint(h):
 
     return h.Integral(), h.Integral()/sqrt(h.GetEntries()), high-low, h.GetMean()
     
+
+def getFWHM(h):
+    integral, integralE, fwhm, mean = getPoint(h)
+    return fwhm
 
 def commit(obj,color):
     obj.SetLineColor(color)
