@@ -937,14 +937,19 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 
 
         // priority of analysis:  lepton tag, vbf, VH hadronic
+        // also set appropriate vertex here
         if(includeVHlep&&VHmuevent){
             diphoton_id = diphotonVHlep_id;
+            l.dipho_vtxind[diphoton_id] = 0; // use default vtx for muon tag
         } else if (includeVHlep&&VHelevent){
             diphoton_id = diphotonVHlep_id;
+            l.dipho_vtxind[diphoton_id] = elVtx; // use electron vtx for electron tag
         } else if (includeVHlepPlusMet&&VHlep1event){
             diphoton_id = diphotonVHlep_id;
+            l.dipho_vtxind[diphoton_id] = 0; // use default vtx for lepMET tag
         } else if (includeVHlepPlusMet&&VHlep2event){
             diphoton_id = diphotonVHlep_id;
+            l.dipho_vtxind[diphoton_id] = 0; // use default vtx for lepMET tag
         } else if(includeVBF&&VBFevent) {
             diphoton_id = diphotonVBF_id;
         } else if(includeVHmet&&VHmetevent) {
@@ -971,55 +976,9 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
         TLorentzVector lead_p4, sublead_p4, Higgs;
         float lead_r9, sublead_r9;
         TVector3 * vtx;
-        if(diphoton_id==diphotonVHlep_id) {
-            if (includeVHlepPlusMet || (includeVHlep && VHmuevent)) {
-                fillDiphoton(lead_p4,sublead_p4,Higgs,lead_r9,sublead_r9,vtx,&smeared_pho_energy[0],l,l.dipho_leadind[diphoton_id],l.dipho_subleadind[diphoton_id],0); 
-            }
-            if (includeVHlep && VHelevent) {
-                if (nElectronCategories==2){
-                    fillDiphoton(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, vtx, &smeared_pho_energy[0], l, leadpho_ind, subleadpho_ind, elVtx);  // use elVtx for ElectronTag2012B
-                }
-                else {
-                    fillDiphoton(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, vtx, &smeared_pho_energy[0], l, l.dipho_leadind[diphoton_id],  l.dipho_subleadind[diphoton_id], 0);  // use default vertex for old electron tag
-                }
-            }
-                /*
-            if (includeVHlep) {
-                if(VHmuevent){
-                    fillDiphoton(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, vtx, &smeared_pho_energy[0], l, l.dipho_leadind[diphoton_id],  l.dipho_subleadind[diphoton_id], 0);  // use default vertex for the muon tag
-                } else if(VHelevent){
-                    if(nElectronCategories==2){
-                        if(PADEBUG) std::cout<<"nElectronCategories "<<nElectronCategories<<std::endl;
-                        fillDiphoton(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, vtx, &smeared_pho_energy[0], l, leadpho_ind, subleadpho_ind, elVtx);  // use elVtx for ElectronTag2012B
-                        if(PADEBUG) std::cout<<"post fillDiphoton Higgs.Pt() "<<Higgs.Pt()<<std::endl;
-                    } else {
-                        fillDiphoton(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, vtx, &smeared_pho_energy[0], l, l.dipho_leadind[diphoton_id],  l.dipho_subleadind[diphoton_id], 0);  // use default vertex for old electron tag
-                    }
-                }
-            }
-            if (includeVHlepPlusMet) {
-                fillDiphoton(lead_p4,sublead_p4,Higgs,lead_r9,sublead_r9,vtx,&smeared_pho_energy[0],l,l.dipho_leadind[diphoton_id],l.dipho_subleadind[diphoton_id],0); 
-            }
-                */
-        } else {
-            fillDiphoton(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, vtx, &smeared_pho_energy[0], l, diphoton_id);
-        }
-        /*
-           else if(includeVHlepPlusMet){
-           if(( (includeVHlepPlusMet && (VHlep1event || VHlep2event))) && !(includeVBF&&VBFevent) ) {
-           if(VHlep1event){
-           fillDiphoton(lead_p4,sublead_p4,Higgs,lead_r9,sublead_r9,vtx,&smeared_pho_energy[0],l,l.dipho_leadind[diphoton_id],l.dipho_subleadind[diphoton_id],0); 
-           } else if(VHlep2event){
-           fillDiphoton(lead_p4,sublead_p4,Higgs,lead_r9,sublead_r9,vtx,&smeared_pho_energy[0],l,l.dipho_leadind[diphoton_id],l.dipho_subleadind[diphoton_id],0); 
-           }
-           } else {
-           fillDiphoton(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, vtx, &smeared_pho_energy[0], l, diphoton_id);
-           }
-           }
-           else {
-           fillDiphoton(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, vtx, &smeared_pho_energy[0], l, diphoton_id);
-           }
-         */
+        
+        // should call this guy once by setting vertex above
+        fillDiphoton(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, vtx, &smeared_pho_energy[0], l, diphoton_id);
 
         // apply beamspot reweighting if necessary
         if(reweighBeamspot && cur_type!=0) {
