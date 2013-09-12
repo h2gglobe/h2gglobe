@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # set -x
+H2GGLOBE_BASE=${PWD}
 
 packs=""
 get_tag()
@@ -33,7 +34,7 @@ if [[ ! -d HiggsAnalysis/GBRLikelihood  ]]; then
 fi 
 cd HiggsAnalysis/GBRLikelihood
 scram b
-cd -
+cd $CMSSW_BASE/src
 
 if [[ ! -d HiggsAnalysis/CombinedLimit ]]; then
   git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
@@ -41,5 +42,5 @@ fi
 cd HiggsAnalysis/CombinedLimit
 scram b
 
-cd -
+cd ${H2GGLOBE_BASE}
 touch .extraTags
