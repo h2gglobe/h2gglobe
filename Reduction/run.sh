@@ -72,14 +72,14 @@ source setup.sh
 pwd
 ls
 
-eval $job $@
+$job "$@"
+exstat=$?
 
 if [[ -n $stat ]]; then
     rm $stat.run 
-    exstat=$?
-    if [[ "$extstat" != 0 ]]; then
-	echo $extstat > $stat.fail
-	exit $extstat
+    if [[ "$exstat" != "0" ]]; then
+	echo "$exstat" > $stat.fail
+	exit $exstat
     fi
 fi
 
