@@ -1,3 +1,5 @@
+sha1=""
+errs=""
 if [ -n "${BATCH+x}" ]; then
     ls -R ${storedir}
 
@@ -16,8 +18,13 @@ if [ -n "${BATCH+x}" ]; then
 	for d in $(find -type d); do
 	    $mkdir ${storeremote}/${version}/$d;
 	    for f in $(find $d -maxdepth 1 -type f); do
-		sha1sum $f &
-		$cp -f $f ${storeremote}/${version}/$d &
+		sha1="$sha1\n$(sha1sum $f)"
+		$cp -f $f ${storeremote}/${version}/$d
+		exstat=$?
+		if [[ "$extstat" != 0 ]]; then
+		    errs="$errs $f($extstat)"
+		fi
+		
 	    done
 	done
     fi
@@ -26,3 +33,4 @@ fi
 
 wait
 
+echo $sha1

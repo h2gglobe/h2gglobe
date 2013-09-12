@@ -12,6 +12,9 @@ eval `scramv1 ru -sh`
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$mydir
 
 workdir=$batchdir
+stat=""
+tarball=""
+proxy=""
 
 while [[ $1 != "--" ]]; do
     case $1 in
@@ -19,20 +22,50 @@ while [[ $1 != "--" ]]; do
 	workdir=$2;
 	shift
 	;;
+	-stat)
+	stat=$2;
+	shift
+	;;
+	-tarball)
+	tarball=$2
+	shift
+	;;
+	-proxy)
+	proxy=$2
+	shift
+	;;
     esac
     shift
 done
 shift
+
+if [[ -n $stat ]]; then
+    for st in sub run done fail; do
+	rm ${stat}.${st}
+    done
+    touch $stat.run
+fi
 
 set -x
 job=$(which $1)
 shift
 
 cd $workdir
-cp -pv $(dirname $(which $0))/*.sh .
-cp -rpv $(dirname $(which $0))/JSON .
-cp -pv $mydir/*.dat . 
-cp -prv $(find $mydir/ -name \*.dat -or -name \*.root -or -name \*.xml | xargs -n 1 dirname  | sort -u) .
+
+if [[ -f $tarball ]]; then
+    tar zvxf $tarball
+else
+    cp -pv $(dirname $(which $0))/*.sh .
+    cp -rpv $(dirname $(which $0))/JSON .
+    cp -pv $mydir/*.dat . 
+    cp -prv $(find $mydir/ -name \*.dat -or -name \*.root -or -name \*.xml | xargs -n 1 dirname  | sort -u) .
+fi
+
+if [[ -n $proxy ]]; then
+    export X509_USER_PROXY=$(echo $proxy | awk -F: '{ print $2 }')
+    rsync -avP $proxy ${X509_USER_PROXY}
+fi
+
 source version.sh
 source setup.sh
 
@@ -41,4 +74,20 @@ ls
 
 eval $job $@
 
+if [[ -n $stat ]]; then
+    rm $stat.run 
+    exstat=$?
+    if [[ "$extstat" != 0 ]]; then
+	echo $extstat > $stat.fail
+	exit $extstat
+    fi
+fi
+
 source cleanup.sh
+
+if [[ -n "$errs" ]]; then
+    echo $sha1  > $stat.fail
+    echo $errs >> $stat.fail
+else
+    echo $sha1  > $stat.done
+fi

@@ -1,0 +1,13 @@
+# category      type(0=any,1=CM,2=GAP) minEta  MaxEta   mr9    Mr9      mrun    Mrun   sigma  alpha  err    
+# Jan22 smearings for rd MC 
+# https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/1291/1.html
+# https://twiki.cern.ch/twiki/pub/CMS/ECALELF/22Jan2012-runDepPowheg-noR9shift-step2-invMass_SC_regrCorrSemiParV5_pho-loose-Et_25-trigger-noPF-HggRunEtaR9.dat
+
+EBlowEtaBad  	  0 0.0	1.0	-999.00	0.94	-999999	999999 8.60e-3 0. 2.41e-3
+EBlowEtaGold	  0 0.0	1.0	0.94	999.00	-999999	999999 7.50e-3 0. 2.21e-3
+EBhighEtaBad	  0 1.0	1.5	-999.00	0.94	-999999	999999 1.88e-2 0. 5.91e-3
+EBhighEtaGold	  0 1.0	1.5	0.94	999.00	-999999	999999 1.22e-2 0. 6.16e-3
+EElowEtaBad	  0 1.5	2.0	-999.00	0.94	-999999	999999 1.98e-2 0. 3.01e-3
+EElowEtaGold	  0 1.5	2.0	0.94	999.00	-999999	999999 1.63e-2 0. 9.03e-3
+EEhighEtaBad	  0 2.0	3.0	-999.00	0.94	-999999	999999 1.92e-2 0. 5.22e-3
+EEhighEtaGold	  0 2.0	3.0	0.94	999.00	-999999	999999 1.86e-2 0. 3.41e-3

@@ -1,16 +1,20 @@
 #!/bin/bash
 
-#./submit_reduction.sh data2012_RERECO DoubleElectron_Run2012A-22Jan2013-v1_AOD 10
-./submit_reduction.sh data2012_RERECO DoubleElectron_Run2012C-22Jan2013-v1_AOD 80
 ./submit_reduction.sh data2012_RERECO DoublePhoton_Run2012B-22Jan2013-v1_AOD 80
 ./submit_reduction.sh data2012_RERECO DoublePhoton_Run2012D-22Jan2013-v1_v3 80 
-./submit_reduction.sh data2012_RERECO DoubleElectron_Run2012B-22Jan2013-v1_AOD 80
-./submit_reduction.sh data2012_RERECO DoubleElectron_Run2012D-22Jan2013-v1_v2 80
 ./submit_reduction.sh data2012_RERECO DoublePhoton_Run2012C-22Jan2013-v2_AOD 80
 ./submit_reduction.sh data2012_RERECO Photon_Run2012A_22Jan2013-v1_AOD 20
 
+./submit_reduction.sh mc_Summer12_RD1 \*HToGG\* 5
 
+./submit_reduction.sh mc_Summer12_RD1  GJet\* 30
 
+./submit_reduction.sh mc_Summer12_RD1  QCD\* 20
+./submit_reduction.sh mc_Summer12_RD1  QCD\* 20
+
+./submit_reduction.sh mc_Summer12_RD1 DiPhotonJetsBoxDiPhotonJetsBox 50
+
+##./submit_reduction.sh mc_Summer12_RD1  GJet\*sherpa\* 30
 
 #./submit_reduction.sh    data_2012             Photon_Run2012A-13Jul2012-v1                    10
 #./submit_reduction.sh    data_2012             Photon_Run2012A-recover-06Aug2012-v1            1
