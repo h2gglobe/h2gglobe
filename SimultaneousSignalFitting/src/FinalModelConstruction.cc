@@ -23,7 +23,7 @@ using namespace std;
 using namespace RooFit;
 using namespace boost;
 
-FinalModelConstruction::FinalModelConstruction(RooRealVar *massVar, RooRealVar *MHvar, RooRealVar *intL, int mhLow, int mhHigh, string proc, int cat, int nIncCats, bool doSecMods, string systematicsFileName, bool isCB):
+FinalModelConstruction::FinalModelConstruction(RooRealVar *massVar, RooRealVar *MHvar, RooRealVar *intL, int mhLow, int mhHigh, string proc, int cat, int nIncCats, bool doSecMods, string systematicsFileName, int verbosity, bool isCB):
   mass(massVar),
   MH(MHvar),
   intLumi(intL),
@@ -34,7 +34,7 @@ FinalModelConstruction::FinalModelConstruction(RooRealVar *massVar, RooRealVar *
   nIncCats_(nIncCats),
   doSecondaryModels(doSecMods),
   isCutBased(isCB),
-  verbosity_(0),
+  verbosity_(verbosity),
   systematicsSet_(false),
   rvFractionSet_(false)
 {
@@ -59,10 +59,25 @@ FinalModelConstruction::FinalModelConstruction(RooRealVar *massVar, RooRealVar *
   //constSmearVals.push_back(0.0134325); // cat3
   //constSmearVals.push_back(0.0119792); // cat4 (all exc cats)
   loadSignalSystematics(systematicsFileName);
+	if (verbosity_) printSignalSystematics();
 	// should pick up different values for the cut-based but not sure what they are!
 }
 
 FinalModelConstruction::~FinalModelConstruction(){}
+
+void FinalModelConstruction::printSignalSystematics(){
+	
+	// nuisance parameters
+	cout << "Implementing the following floating nuisance parameters" << endl;
+	for (map<string,RooRealVar*>::iterator sys=photonSystematics.begin(); sys!=photonSystematics.end(); sys++){
+		cout << "\t " << sys->first << " -- "; sys->second->Print();
+	}
+	// const parameters
+	cout << "Implementing the following constant parameters" << endl;
+	for (map<string,RooRealVar*>::iterator sys=photonSystematicConsts.begin(); sys!=photonSystematicConsts.end(); sys++){
+		cout << "\t " << sys->first << " -- "; sys->second->Print();
+	}
+}
 
 void FinalModelConstruction::loadSignalSystematics(string filename){
 	
@@ -84,7 +99,7 @@ void FinalModelConstruction::loadSignalSystematics(string filename){
 			split(photonCats,line,boost::is_any_of(","));
 			if (verbosity_){
 				cout << "PhotonVec: ";
-				printVec(photonCats);
+				if (verbosity_) printVec(photonCats);
 			}
 		}
 		// Then read diphoton cat
@@ -101,7 +116,7 @@ void FinalModelConstruction::loadSignalSystematics(string filename){
 			stripSpace(line);
 			vector<string> els;
 			split(els,line,boost::is_any_of(" "));
-			printVec(els);
+			if (verbosity_) {cout << "\t"; printVec(els);}
 			if (els.size()!=4) {
 				cout << "I cant read this datfile " << endl;
 				exit(1);
@@ -114,13 +129,22 @@ void FinalModelConstruction::loadSignalSystematics(string filename){
 			addToSystMap(meanSysts,proc,diphotonCat,phoSystName,meanCh);
 			addToSystMap(sigmaSysts,proc,diphotonCat,phoSystName,sigmaCh);
 			addToSystMap(rateSysts,proc,diphotonCat,phoSystName,rateCh);
+
+			RooRealVar *meanChVar = new RooRealVar(Form("const_%s_cat%d_mean_%s",proc.c_str(),diphotonCat,phoSystName.c_str()),Form("const_%s_cat%d_mean_%s",proc.c_str(),diphotonCat,phoSystName.c_str()),meanCh);
+			RooRealVar *sigmaChVar = new RooRealVar(Form("const_%s_cat%d_sigma_%s",proc.c_str(),diphotonCat,phoSystName.c_str()),Form("const_%s_cat%d_sigma_%s",proc.c_str(),diphotonCat,phoSystName.c_str()),sigmaCh);
+			RooRealVar *rateChVar = new RooRealVar(Form("const_%s_cat%d_rate_%s",proc.c_str(),diphotonCat,phoSystName.c_str()),Form("const_%s_cat%d_rate_%s",proc.c_str(),diphotonCat,phoSystName.c_str()),rateCh);
+			meanChVar->setConstant(true);
+			sigmaChVar->setConstant(true);
+			rateChVar->setConstant(true);
+			photonSystematicConsts.insert(make_pair(meanChVar->GetName(),meanChVar));
+			photonSystematicConsts.insert(make_pair(sigmaChVar->GetName(),sigmaChVar));
+			photonSystematicConsts.insert(make_pair(rateChVar->GetName(),rateChVar));
 		}
 	}
 	datfile.close();
 	for (vector<string>::iterator it=photonCats.begin(); it!=photonCats.end(); it++){
-		
-		RooRealVar *varScale = new RooRealVar(Form("%sscale",it->c_str()),Form("%sscale",it->c_str()),0.,-5.,5.);
-		RooRealVar *varSmear = new RooRealVar(Form("%ssmear",it->c_str()),Form("%ssmear",it->c_str()),0.,-5.,5.);
+		RooRealVar *varScale = new RooRealVar(Form("CMS_hgg_nuisance%sscale",it->c_str()),Form("CMS_hgg_nuisance%sscale",it->c_str()),0.,-5.,5.);
+		RooRealVar *varSmear = new RooRealVar(Form("CMS_hgg_nuisance%ssmear",it->c_str()),Form("CMS_hgg_nuisance%ssmear",it->c_str()),0.,-5.,5.);
 		photonSystematics.insert(make_pair(varScale->GetName(),varScale));
 		photonSystematics.insert(make_pair(varSmear->GetName(),varSmear));
 	}
@@ -229,8 +253,6 @@ void FinalModelConstruction::getRvFractionFunc(string name){
 
 RooAbsReal* FinalModelConstruction::getMeanWithPhotonSyst(RooAbsReal *dm, string name){
 	
-	map<string,double> meanSys = meanSysts[proc_][cat_];
-
 	string formula="@0+@1+@0*(";
 	RooArgList *dependents = new RooArgList();
 	dependents->add(*MH); // MH sits at @0
@@ -239,12 +261,19 @@ RooAbsReal* FinalModelConstruction::getMeanWithPhotonSyst(RooAbsReal *dm, string
 
 	for (unsigned int i=0; i<photonCats.size(); i++){
 		string phoCat = photonCats[i];
-		int formPlace = 3+(i*2);
-		RooConstVar *cV = new RooConstVar(Form("const_%s_cat%d_mean%sscale",proc_.c_str(),cat_,phoCat.c_str()),"",meanSys[Form("%sscale",phoCat.c_str())]);
-		RooRealVar *nuisScale = photonSystematics[Form("%sscale",phoCat.c_str())];
-		formula += Form("@%d*(@%d+@2)",formPlace,formPlace+1);
-		dependents->add(*cV);
+		int formPlace = 3+(i*4);
+		// want scale effect on mean
+		RooRealVar *cvScale = photonSystematicConsts[Form("const_%s_cat%d_mean_%sscale",proc_.c_str(),cat_,phoCat.c_str())]; 
+		RooRealVar *nuisScale = photonSystematics[Form("CMS_hgg_nuisance%sscale",phoCat.c_str())];
+		// and res effect on mean
+		RooRealVar *cvSmear = photonSystematicConsts[Form("const_%s_cat%d_mean_%ssmear",proc_.c_str(),cat_,phoCat.c_str())];
+		RooRealVar *nuisSmear = photonSystematics[Form("CMS_hgg_nuisance%ssmear",phoCat.c_str())];
+		// add them all in
+		formula += Form("@%d*(@%d+@2)+@%d*(@%d)",formPlace,formPlace+1,formPlace+2,formPlace+3);
+		dependents->add(*cvScale);
 		dependents->add(*nuisScale);
+		dependents->add(*cvSmear);
+		dependents->add(*nuisSmear);
 		if (i<photonCats.size()-1) formula += "+";
 	}
 	formula+=")";
@@ -254,19 +283,50 @@ RooAbsReal* FinalModelConstruction::getMeanWithPhotonSyst(RooAbsReal *dm, string
 
 RooAbsReal* FinalModelConstruction::getSigmaWithPhotonSyst(RooAbsReal *sig_fit, string name){
 
-	map<string,double> sigmaSys = sigmaSysts[proc_][cat_];
-
 	string formula="@0*(1.+";
 	RooArgList *dependents = new RooArgList();
 	dependents->add(*sig_fit); // sig_fit sits at @0
 	
 	for (unsigned int i=0; i<photonCats.size(); i++){
 		string phoCat = photonCats[i];
-		int formPlace = 1+(i*2);
-		RooConstVar *cV = new RooConstVar(Form("const_%s_cat%d_mean%ssmear",proc_.c_str(),cat_,phoCat.c_str()),"",sigmaSys[Form("%ssmear",phoCat.c_str())]);
-		RooRealVar *nuisSmear = photonSystematics[Form("%ssmear",phoCat.c_str())];
-		formula += Form("@%d*@%d",formPlace,formPlace+1);
-		dependents->add(*cV);
+		int formPlace = 1+(i*4);
+		// want scale effect on sigma
+		RooRealVar *cvScale = photonSystematicConsts[Form("const_%s_cat%d_sigma_%sscale",proc_.c_str(),cat_,phoCat.c_str())]; 
+		RooRealVar *nuisScale = photonSystematics[Form("CMS_hgg_nuisance%sscale",phoCat.c_str())];
+		// and res effect on sigma
+		RooRealVar *cvSmear = photonSystematicConsts[Form("const_%s_cat%d_sigma_%ssmear",proc_.c_str(),cat_,phoCat.c_str())];
+		RooRealVar *nuisSmear = photonSystematics[Form("CMS_hgg_nuisance%ssmear",phoCat.c_str())];
+
+		formula += Form("@%d*@%d+@%d*@%d",formPlace,formPlace+1,formPlace+2,formPlace+3);
+		dependents->add(*cvScale);
+		dependents->add(*nuisScale);
+		dependents->add(*cvSmear);
+		dependents->add(*nuisSmear);
+		if (i<photonCats.size()-1) formula += "+";
+	}
+	formula+=")";
+	RooFormulaVar *formVar = new RooFormulaVar(name.c_str(),name.c_str(),formula.c_str(),*dependents);
+	return formVar;
+}
+
+RooAbsReal* FinalModelConstruction::getRateWithPhotonSyst(string name){
+	
+	string formula="(1.+";
+	RooArgList *dependents = new RooArgList();
+
+	for (unsigned int i=0; i<photonCats.size(); i++){
+		string phoCat = photonCats[i];
+		int formPlace = i*4;
+		// want scale effect on rate
+		RooRealVar *cvScale = photonSystematicConsts[Form("const_%s_cat%d_rate_%sscale",proc_.c_str(),cat_,phoCat.c_str())]; 
+		RooRealVar *nuisScale = photonSystematics[Form("CMS_hgg_nuisance%sscale",phoCat.c_str())];
+		// and res effect on rate
+		RooRealVar *cvSmear = photonSystematicConsts[Form("const_%s_cat%d_rate_%ssmear",proc_.c_str(),cat_,phoCat.c_str())];
+		RooRealVar *nuisSmear = photonSystematics[Form("CMS_hgg_nuisance%ssmear",phoCat.c_str())];
+		formula += Form("@%d*@%d+@%d*@%d",formPlace,formPlace+1,formPlace+2,formPlace+3);
+		dependents->add(*cvScale);
+		dependents->add(*nuisScale);
+		dependents->add(*cvSmear);
 		dependents->add(*nuisSmear);
 		if (i<photonCats.size()-1) formula += "+";
 	}
@@ -277,19 +337,19 @@ RooAbsReal* FinalModelConstruction::getSigmaWithPhotonSyst(RooAbsReal *sig_fit, 
 
 void FinalModelConstruction::setupSystematics(){
   
-  int nuisCat = cat_;
+  //int nuisCat = cat_;
   // this is a hack for correlation with previous 2011 ws
   // for legacy paper - this MUST BE UPDATED
-  if (cat_>=nIncCats_) nuisCat = nIncCats_;
+  //if (cat_>=nIncCats_) nuisCat = nIncCats_;
   
   vertexNuisance = new RooRealVar("CMS_hgg_nuissancedeltafracright","CMS_hgg_nuissancedeltafracright",1.,0.1,10.);
   vertexNuisance->setConstant(true);
   globalScale = new RooRealVar("CMS_hgg_globalscale","CMS_hgg_globalscale",0.,-5.,5.);
   globalScale->setConstant(true);
-  categoryScale = new RooRealVar(Form("CMS_hgg_nuissancedeltamcat%d",nuisCat),Form("CMS_hgg_nuissancedeltamcat%d",nuisCat),0.,-5.,5.);
-  categoryScale->setConstant(true);
-  categorySmear = new RooConstVar(Form("CMS_hgg_constsmearcat%d",nuisCat),Form("CMS_hgg_constsmearcat%d",nuisCat),constSmearVals[nuisCat]);
-  categoryResolution = new RooRealVar(Form("CMS_hgg_nuissancedeltasmearcat%d",nuisCat),Form("CMS_hgg_nuissancedeltasmearcat%d",nuisCat),0.0,-0.2,0.2);
+  //categoryScale = new RooRealVar(Form("CMS_hgg_nuissancedeltamcat%d",nuisCat),Form("CMS_hgg_nuissancedeltamcat%d",nuisCat),0.,-5.,5.);
+  //categoryScale->setConstant(true);
+  //categorySmear = new RooConstVar(Form("CMS_hgg_constsmearcat%d",nuisCat),Form("CMS_hgg_constsmearcat%d",nuisCat),constSmearVals[nuisCat]);
+  //categoryResolution = new RooRealVar(Form("CMS_hgg_nuissancedeltasmearcat%d",nuisCat),Form("CMS_hgg_nuissancedeltasmearcat%d",nuisCat),0.0,-0.2,0.2);
   systematicsSet_=true;
 }
 
@@ -346,11 +406,13 @@ vector<RooAddPdf*> FinalModelConstruction::buildPdf(string name, int nGaussians,
   for (int g=0; g<nGaussians; g++){
     RooAbsReal *dm = splines[Form("dm_g%d",g)];
     dm->SetName(Form("dm_g%d_%s",g,ext.c_str()));
-    RooAbsReal *mean = new RooFormulaVar(Form("mean_g%d_%s",g,ext.c_str()),Form("mean_g%d_%s",g,ext.c_str()),"@0+@1+@0*(@2+@3)",RooArgList(*MH,*dm,*globalScale,*categoryScale));
+    RooAbsReal *mean = getMeanWithPhotonSyst(dm,Form("mean_g%d_%s",g,ext.c_str()));
+		//RooAbsReal *mean = new RooFormulaVar(Form("mean_g%d_%s",g,ext.c_str()),Form("mean_g%d_%s",g,ext.c_str()),"@0+@1+@0*(@2+@3)",RooArgList(*MH,*dm,*globalScale,*categoryScale));
     RooAbsReal *sig_fit = splines[Form("sigma_g%d",g)];
     sig_fit->SetName(Form("sigma_g%d_%s",g,ext.c_str()));
-    RooAbsReal *sigma = new RooFormulaVar(Form("sig_g%d_%s",g,ext.c_str()),Form("sig_g%d_%s",g,ext.c_str()),"(TMath::Power(@0,2)-TMath::Power(@1*@2,2)+TMath::Power(@1*(@2+@3),2))>0. ? TMath::Sqrt(TMath::Power(@0,2)-TMath::Power(@1*@2,2)+TMath::Power(@1*(@2+@3),2)) : 0.",RooArgList(*sig_fit,*MH,*categorySmear,*categoryResolution));
-    RooGaussian *gaus = new RooGaussian(Form("gaus_g%d_%s",g,ext.c_str()),Form("gaus_g%d_%s",g,ext.c_str()),*mass,*mean,*sigma);
+    RooAbsReal *sigma = getSigmaWithPhotonSyst(sig_fit,Form("sig_g%d_%s",g,ext.c_str()));
+    //RooAbsReal *sigma = new RooFormulaVar(Form("sig_g%d_%s",g,ext.c_str()),Form("sig_g%d_%s",g,ext.c_str()),"(TMath::Power(@0,2)-TMath::Power(@1*@2,2)+TMath::Power(@1*(@2+@3),2))>0. ? TMath::Sqrt(TMath::Power(@0,2)-TMath::Power(@1*@2,2)+TMath::Power(@1*(@2+@3),2)) : 0.",RooArgList(*sig_fit,*MH,*categorySmear,*categoryResolution));
+		RooGaussian *gaus = new RooGaussian(Form("gaus_g%d_%s",g,ext.c_str()),Form("gaus_g%d_%s",g,ext.c_str()),*mass,*mean,*sigma);
     gaussians->add(*gaus);
     // add secondary models as well
     if (doSecondaryModels){
@@ -358,19 +420,23 @@ vector<RooAddPdf*> FinalModelConstruction::buildPdf(string name, int nGaussians,
       // sm higgs as background
       RooAbsReal *dmSM = splines[Form("dm_g%d_SM",g)];
       dmSM->SetName(Form("dm_g%d_%s_SM",g,ext.c_str()));
-      RooAbsReal *meanSM = new RooFormulaVar(Form("mean_g%d_%s_SM",g,ext.c_str()),Form("mean_g%d_%s_SM",g,ext.c_str()),"@0+@1+@0*(@2+@3)",RooArgList(*MH_SM,*dmSM,*globalScale,*categoryScale));
+			RooAbsReal *meanSM = getMeanWithPhotonSyst(dmSM,Form("mean_g%d_%s_SM",g,ext.c_str()));
+      //RooAbsReal *meanSM = new RooFormulaVar(Form("mean_g%d_%s_SM",g,ext.c_str()),Form("mean_g%d_%s_SM",g,ext.c_str()),"@0+@1+@0*(@2+@3)",RooArgList(*MH_SM,*dmSM,*globalScale,*categoryScale));
       RooAbsReal *sig_fitSM = splines[Form("sigma_g%d_SM",g)];
       sig_fitSM->SetName(Form("sigma_g%d_%s_SM",g,ext.c_str()));
-      RooAbsReal *sigmaSM = new RooFormulaVar(Form("sig_g%d_%s_SM",g,ext.c_str()),Form("sig_g%d_%s_SM",g,ext.c_str()),"(TMath::Power(@0,2)-TMath::Power(@1*@2,2)+TMath::Power(@1*(@2+@3),2))>0. ? TMath::Sqrt(TMath::Power(@0,2)-TMath::Power(@1*@2,2)+TMath::Power(@1*(@2+@3),2)) : 0.",RooArgList(*sig_fitSM,*MH_SM,*categorySmear,*categoryResolution));
+			RooAbsReal *sigmaSM = getSigmaWithPhotonSyst(sig_fitSM,Form("sig_g%d_%s_SM",g,ext.c_str()));
+      //RooAbsReal *sigmaSM = new RooFormulaVar(Form("sig_g%d_%s_SM",g,ext.c_str()),Form("sig_g%d_%s_SM",g,ext.c_str()),"(TMath::Power(@0,2)-TMath::Power(@1*@2,2)+TMath::Power(@1*(@2+@3),2))>0. ? TMath::Sqrt(TMath::Power(@0,2)-TMath::Power(@1*@2,2)+TMath::Power(@1*(@2+@3),2)) : 0.",RooArgList(*sig_fitSM,*MH_SM,*categorySmear,*categoryResolution));
       RooGaussian *gausSM = new RooGaussian(Form("gaus_g%d_%s_SM",g,ext.c_str()),Form("gaus_g%d_%s_SM",g,ext.c_str()),*mass,*meanSM,*sigmaSM);
       gaussians_SM->add(*gausSM);
       // second degen higgs
       RooAbsReal *dm2 = splines[Form("dm_g%d_2",g)];
       dm2->SetName(Form("dm_g%d_%s_2",g,ext.c_str()));
-      RooAbsReal *mean2 = new RooFormulaVar(Form("mean_g%d_%s_2",g,ext.c_str()),Form("mean_g%d_%s_2",g,ext.c_str()),"@0+@1+@0*(@2+@3)",RooArgList(*MH_2,*dm2,*globalScale,*categoryScale));
+			RooAbsReal *mean2 = getMeanWithPhotonSyst(dm2,Form("mean_g%d_%s_2",g,ext.c_str()));
+      //RooAbsReal *mean2 = new RooFormulaVar(Form("mean_g%d_%s_2",g,ext.c_str()),Form("mean_g%d_%s_2",g,ext.c_str()),"@0+@1+@0*(@2+@3)",RooArgList(*MH_2,*dm2,*globalScale,*categoryScale));
       RooAbsReal *sig_fit2 = splines[Form("sigma_g%d_2",g)];
       sig_fit2->SetName(Form("sigma_g%d_%s_2",g,ext.c_str()));
-      RooAbsReal *sigma2 = new RooFormulaVar(Form("sig_g%d_%s_2",g,ext.c_str()),Form("sig_g%d_%s_2",g,ext.c_str()),"(TMath::Power(@0,2)-TMath::Power(@1*@2,2)+TMath::Power(@1*(@2+@3),2))>0. ? TMath::Sqrt(TMath::Power(@0,2)-TMath::Power(@1*@2,2)+TMath::Power(@1*(@2+@3),2)) : 0.",RooArgList(*sig_fit2,*MH_2,*categorySmear,*categoryResolution));
+			RooAbsReal *sigma2 = getSigmaWithPhotonSyst(sig_fit2,Form("sig_g%d_%s_2",g,ext.c_str()));
+      //RooAbsReal *sigma2 = new RooFormulaVar(Form("sig_g%d_%s_2",g,ext.c_str()),Form("sig_g%d_%s_2",g,ext.c_str()),"(TMath::Power(@0,2)-TMath::Power(@1*@2,2)+TMath::Power(@1*(@2+@3),2))>0. ? TMath::Sqrt(TMath::Power(@0,2)-TMath::Power(@1*@2,2)+TMath::Power(@1*(@2+@3),2)) : 0.",RooArgList(*sig_fit2,*MH_2,*categorySmear,*categoryResolution));
       RooGaussian *gaus2 = new RooGaussian(Form("gaus_g%d_%s_2",g,ext.c_str()),Form("gaus_g%d_%s_2",g,ext.c_str()),*mass,*mean2,*sigma2);
       gaussians_2->add(*gaus2);
       // natural width
@@ -507,10 +573,13 @@ void FinalModelConstruction::getNormalization(){
   TGraph *eaGraph = new TGraph(pol2);
   RooSpline1D *eaSpline = graphToSpline(Form("fea_%s_cat%d",proc_.c_str(),cat_),eaGraph);
   RooSpline1D *xs = xsSplines[proc_];
-  finalNorm = new RooFormulaVar(Form("%s_norm",finalPdf->GetName()),Form("%s_norm",finalPdf->GetName()),"@0*@1*@2",RooArgList(*xs,*brSpline,*eaSpline));
+	RooAbsReal *rateNuisTerm = getRateWithPhotonSyst(Form("rate_%s_cat%d",proc_.c_str(),cat_));
+  
+	finalNorm = new RooFormulaVar(Form("%s_norm",finalPdf->GetName()),Form("%s_norm",finalPdf->GetName()),"@0*@1*@2*@3",RooArgList(*xs,*brSpline,*eaSpline,*rateNuisTerm));
   // these are for plotting
-  finalNormThisLum = new RooFormulaVar(Form("%s_normThisLumi",finalPdf->GetName()),Form("%s_normThisLumi",finalPdf->GetName()),"@0*@1*@2*@3",RooArgList(*xs,*brSpline,*eaSpline,*intLumi));
-  extendPdfRel = new RooExtendPdf(Form("extend%s",finalPdf->GetName()),Form("extend%s",finalPdf->GetName()),*finalPdf,*finalNorm);
+  finalNormThisLum = new RooFormulaVar(Form("%s_normThisLumi",finalPdf->GetName()),Form("%s_normThisLumi",finalPdf->GetName()),"@0*@1*@2*@3*@4",RooArgList(*xs,*brSpline,*eaSpline,*rateNuisTerm,*intLumi));
+  
+	extendPdfRel = new RooExtendPdf(Form("extend%s",finalPdf->GetName()),Form("extend%s",finalPdf->GetName()),*finalPdf,*finalNorm);
   extendPdf = new RooExtendPdf(Form("extend%sThisLumi",finalPdf->GetName()),Form("extend%sThisLumi",finalPdf->GetName()),*finalPdf,*finalNormThisLum);
   // do secondary models
   if (doSecondaryModels){
@@ -518,15 +587,15 @@ void FinalModelConstruction::getNormalization(){
     // sm higgs as bkg
     RooSpline1D *eaSpline_SM = graphToSpline(Form("fea_%s_cat%d_SM",proc_.c_str(),cat_),eaGraph,MH_SM);
     RooSpline1D *xs_SM = xsSplines_SM[proc_];
-    finalNorm_SM = new RooFormulaVar(Form("%s_norm",finalPdf_SM->GetName()),Form("%s_norm",finalPdf_SM->GetName()),"@0*@1*@2",RooArgList(*xs_SM,*brSpline_SM,*eaSpline_SM));
+    finalNorm_SM = new RooFormulaVar(Form("%s_norm",finalPdf_SM->GetName()),Form("%s_norm",finalPdf_SM->GetName()),"@0*@1*@2*@3",RooArgList(*xs_SM,*brSpline_SM,*eaSpline_SM,*rateNuisTerm));
     // second degen higgs
     RooSpline1D *eaSpline_2 = graphToSpline(Form("fea_%s_cat%d_2",proc_.c_str(),cat_),eaGraph,MH_2);
     RooSpline1D *xs_2 = xsSplines_2[proc_];
-    finalNorm_2 = new RooFormulaVar(Form("%s_norm",finalPdf_2->GetName()),Form("%s_norm",finalPdf_2->GetName()),"@0*@1*@2",RooArgList(*xs_2,*brSpline_2,*eaSpline_2));
+    finalNorm_2 = new RooFormulaVar(Form("%s_norm",finalPdf_2->GetName()),Form("%s_norm",finalPdf_2->GetName()),"@0*@1*@2*@3",RooArgList(*xs_2,*brSpline_2,*eaSpline_2,*rateNuisTerm));
     // natural width
     RooSpline1D *eaSpline_NW = graphToSpline(Form("fea_%s_cat%d_NW",proc_.c_str(),cat_),eaGraph,MH);
     RooSpline1D *xs_NW = xsSplines_NW[proc_];
-    finalNorm_NW = new RooFormulaVar(Form("%s_norm",finalPdf_NW->GetName()),Form("%s_norm",finalPdf_NW->GetName()),"@0*@1*@2",RooArgList(*xs_NW,*brSpline_NW,*eaSpline_NW));
+    finalNorm_NW = new RooFormulaVar(Form("%s_norm",finalPdf_NW->GetName()),Form("%s_norm",finalPdf_NW->GetName()),"@0*@1*@2*@3",RooArgList(*xs_NW,*brSpline_NW,*eaSpline_NW,*rateNuisTerm));
   }
 
 }
@@ -542,10 +611,12 @@ void FinalModelConstruction::save(RooWorkspace *work){
   }
 
   // do secondary models
-  work->import(*finalPdf_SM,RecycleConflictNodes());
-  work->import(*finalPdf_2,RecycleConflictNodes());
-  work->import(*finalPdf_NW,RecycleConflictNodes());
-  work->import(*finalNorm_SM,RecycleConflictNodes());
-  work->import(*finalNorm_2,RecycleConflictNodes());
-  work->import(*finalNorm_NW,RecycleConflictNodes());
+	if (doSecondaryModels){
+		work->import(*finalPdf_SM,RecycleConflictNodes());
+		work->import(*finalPdf_2,RecycleConflictNodes());
+		work->import(*finalPdf_NW,RecycleConflictNodes());
+		work->import(*finalNorm_SM,RecycleConflictNodes());
+		work->import(*finalNorm_2,RecycleConflictNodes());
+		work->import(*finalNorm_NW,RecycleConflictNodes());
+	}
 }
