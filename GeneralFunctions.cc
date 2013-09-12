@@ -4462,9 +4462,11 @@ void LoopAll::doJetMatching(TClonesArray & reco, TClonesArray & gen,
 
     std::vector<TLorentzVector*> bs;
     for(int ipart=0; ipart<gp_n; ++ipart) {
-	    if( abs(gp_pdgid[ipart]) == 5 && gp_status[ipart] == 3  ) {
+	    if( abs(gp_pdgid[ipart]) == 5 && gp_status[ipart] == 3 ) {
 		    TLorentzVector * gp4 = (TLorentzVector*)gp_p4->At(ipart);
-		    bs.push_back(gp4);
+		    if( gp4->Pt() > 0. ) {
+			    bs.push_back(gp4);
+		    }
 	    }
     }
     for(int ipart=0; ipart<gp_n; ++ipart) {

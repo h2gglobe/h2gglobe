@@ -35,8 +35,42 @@
 #DoublePhoton_Run2012C-22Jan2013-v2_AOD
 #Photon_Run2012A_22Jan2013-v1_AOD
 
+### rm data2012_RERECO/*.dat
+### #./AnalysisScripts/mk_reduction_dat.py /store/group/phys_higgs/cmshgg/processed/V15_00_05/data /store/group/phys_higgs/cmshgg/reduced/rereco_june2013/data data2012_RERECO.txt
+### ./AnalysisScripts/mk_reduction_dat.py /store/group/phys_higgs/cmshgg/processed/V15_00_05/data ${storedir}/data data2012_RERECO.txt
+
+## rm data2011_RERECO/*.dat
+## ./AnalysisScripts/mk_reduction_dat.py - ${storedir}/data data2011_RERECO.txt
+
+##rm data2012_RERECO/*.dat
+##./AnalysisScripts/mk_reduction_dat.py /store/group/phys_higgs/cmshgg/processed/V15_00_05/data /store/group/phys_higgs/cmshgg/reduced/rereco_june2013/data data2012_RERECO.txt
+##
+##
+##rm mc2012RD_v2_1/*.dat
+##./AnalysisScripts/mk_reduction_dat.py /store/group/phys_higgs/cmshgg/processed/V15_00_08/mc ${storedir}/mc mc2012RD_v2_1.txt
+##
+##rm mc2012RD_v2_2/*.dat
+##./AnalysisScripts/mk_reduction_dat.py /store/group/phys_higgs/cmshgg/processed/V15_00_08/mc/Summer12_RD1 ${storedir}/mc mc2012RD_v2_2.txt
+##
+##rm mc2012RD_v2_3/*.dat
+##./AnalysisScripts/mk_reduction_dat.py /store/group/phys_higgs/cmshgg/processed/V15_00_08/mc/Summer12_DR53X-PU_RD1_START53_V7N ${storedir}/mc mc2012RD_v2_3.txt
+
+
+rm mc_Summer12_RD1/*.dat
+./AnalysisScripts/mk_reduction_dat.py - ${storedir}/mc/Summer12_RD1 mc_Summer12_RD1.txt
+
 rm data2012_RERECO/*.dat
-#./AnalysisScripts/mk_reduction_dat.py /store/group/phys_higgs/cmshgg/processed/V15_00_05/data /store/group/phys_higgs/cmshgg/reduced/rereco_june2013/data data2012_RERECO.txt
 ./AnalysisScripts/mk_reduction_dat.py /store/group/phys_higgs/cmshgg/processed/V15_00_05/data ${storedir}/data data2012_RERECO.txt
 
-tar zcf ${version}.tgz  AnalysisScripts/{common,reduction,aux,*.py}
+
+wd=$PWD
+cd AnalysisScripts
+tar cf $wd/${version}.tar *.py $(find common reduction baseline massfac_mva_binned full_mva_binned jetanalysis photonjet -name \*.dat -or -name \*.py) aux common python 
+cd -
+
+tar rf ${version}.tar JSON *.sh
+gzip ${version}.tar
+
+git tag ${version}
+
+## tar zcf ${version}.tgz  AnalysisScripts/{common,reduction,aux,*.py}

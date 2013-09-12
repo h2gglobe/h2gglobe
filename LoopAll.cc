@@ -137,6 +137,7 @@ SampleContainer & LoopAll::DefineSamples(const char *filesshortnam,
 					 float xsec,
 					 float kfactor,
 					 float scale,
+					 int forceVersion,
 					 bool addnevents,
 					 TString pileup
 					 ) {
@@ -171,10 +172,12 @@ SampleContainer & LoopAll::DefineSamples(const char *filesshortnam,
   sampleContainer.back().xsec = xsec;
   sampleContainer.back().kfactor = kfactor;
   sampleContainer.back().scale = scale;
+  sampleContainer.back().forceVersion = forceVersion;
   sampleContainer.back().computeWeight(intlumi);
   if( pileup != "" ) { 
 	  sampleContainer.back().pileup = pileup;
   }
+  
   
   return sampleContainer.back();
 }
@@ -656,6 +659,10 @@ void LoopAll::Loop(Int_t a) {
     assert( globalCountersNames.size() == globalCounters.size() && globalCounters.size() == fileGlobalCounters.size() );
   }
   TreesPar[a]->GetEntry(0);
+
+  if( sampleContainer[a].forceVersion > 0 ) { 
+	  version = sampleContainer[a].forceVersion;
+  }
 
   // Loop over events
   if(checkBench > 0) {
