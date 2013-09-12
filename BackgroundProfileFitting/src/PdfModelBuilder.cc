@@ -23,6 +23,9 @@
 
 #include "../interface/PdfModelBuilder.h"
 
+#include "../../../HiggsAnalysis/CombinedLimit/interface/HGGRooPdfs.h"
+#include "../../../HiggsAnalysis/CombinedLimit/interface/RooBernsteinFast.h"
+
 using namespace std;
 using namespace RooFit;
 using namespace boost;
@@ -89,18 +92,41 @@ RooAbsPdf* PdfModelBuilder::getChebychev(string prefix, int order){
 RooAbsPdf* PdfModelBuilder::getBernstein(string prefix, int order){
   
   RooArgList *coeffList = new RooArgList();
-  coeffList->add(RooConst(1.0));
+  //coeffList->add(RooConst(1.0)); // no need for cnstant in this interface
   for (int i=0; i<order; i++){
     string name = Form("%s_p%d",prefix.c_str(),i);
     //params.insert(pair<string,RooRealVar*>(name, new RooRealVar(name.c_str(),name.c_str(),1.0,0.,5.)));
-    RooRealVar *param = new RooRealVar(name.c_str(),name.c_str(),0.01,-1.,1.);
+    RooRealVar *param = new RooRealVar(name.c_str(),name.c_str(),0.01,-5.,5.);
     RooFormulaVar *form = new RooFormulaVar(Form("%s_sq",name.c_str()),Form("%s_sq",name.c_str()),"@0*@0",RooArgList(*param));
     params.insert(pair<string,RooRealVar*>(name,param));
     prods.insert(pair<string,RooFormulaVar*>(name,form));
     coeffList->add(*prods[name]);
   }
-  RooBernstein *bern = new RooBernstein(prefix.c_str(),prefix.c_str(),*obs_var,*coeffList);
-  return bern;
+  //RooBernsteinFast<(const int) order > *bern = new RooBernsteinFast<(const int) order >(prefix.c_str(),prefix.c_str(),*obs_var,*coeffList);
+  if (order==1) {
+	RooBernsteinFast<1> *bern = new RooBernsteinFast<1>(prefix.c_str(),prefix.c_str(),*obs_var,*coeffList);
+  	return bern;
+  } else if (order==2) {
+	RooBernsteinFast<2> *bern = new RooBernsteinFast<2>(prefix.c_str(),prefix.c_str(),*obs_var,*coeffList);
+  	return bern;
+  } else if (order==3) {
+	RooBernsteinFast<3> *bern = new RooBernsteinFast<3>(prefix.c_str(),prefix.c_str(),*obs_var,*coeffList);
+  	return bern;
+  } else if (order==4) {
+	RooBernsteinFast<4> *bern = new RooBernsteinFast<4>(prefix.c_str(),prefix.c_str(),*obs_var,*coeffList);
+  	return bern;
+  } else if (order==5) {
+	RooBernsteinFast<5> *bern = new RooBernsteinFast<5>(prefix.c_str(),prefix.c_str(),*obs_var,*coeffList);
+  	return bern;
+  } else if (order==6) {
+	RooBernsteinFast<6> *bern = new RooBernsteinFast<6>(prefix.c_str(),prefix.c_str(),*obs_var,*coeffList);
+  	return bern;
+  } else if (order==7) {
+	RooBernsteinFast<7> *bern = new RooBernsteinFast<7>(prefix.c_str(),prefix.c_str(),*obs_var,*coeffList);
+  	return bern;
+  } else {
+	return NULL;
+  }
   //bkgPdfs.insert(pair<string,RooAbsPdf*>(bern->GetName(),bern));
 
 }
@@ -208,14 +234,14 @@ RooAbsPdf* PdfModelBuilder::getPowerLawSingle(string prefix, int order){
     RooArgList *pows = new RooArgList();
     for (int i=1; i<=nfracs; i++){
       string name =  Form("%s_f%d",prefix.c_str(),i);
-      params.insert(pair<string,RooRealVar*>(name, new RooRealVar(name.c_str(),name.c_str(),0.9,1./(nfracs+1),1.)));
+      params.insert(pair<string,RooRealVar*>(name, new RooRealVar(name.c_str(),name.c_str(),0.9,0.000001,0.999999)));
       fracs->add(*params[name]);
     }
     for (int i=1; i<=npows; i++){
       string name =  Form("%s_p%d",prefix.c_str(),i);
       string ename =  Form("%s_e%d",prefix.c_str(),i);
       params.insert(pair<string,RooRealVar*>(name, new RooRealVar(name.c_str(),name.c_str(),-8.7,-20.,0.1)));
-      utilities.insert(pair<string,RooAbsPdf*>(ename, new RooPowerLaw(ename.c_str(),ename.c_str(),*obs_var,*params[name])));
+      utilities.insert(pair<string,RooAbsPdf*>(ename, new RooPower(ename.c_str(),ename.c_str(),*obs_var,*params[name])));
       pows->add(*utilities[ename]);
     }
     //cout << "RooArgLists..." << endl;
@@ -237,25 +263,25 @@ RooAbsPdf* PdfModelBuilder::getLaurentSeries(string prefix, int order){
   RooArgList *pows = new RooArgList();
   RooArgList *plist = new RooArgList();
   string pname =  Form("%s_pow0",prefix.c_str());
-  utilities.insert(pair<string,RooAbsPdf*>(pname, new RooPowerLaw(pname.c_str(),pname.c_str(),*obs_var,RooConst(-4.))));
+  utilities.insert(pair<string,RooAbsPdf*>(pname, new RooPower(pname.c_str(),pname.c_str(),*obs_var,RooConst(-4.))));
   pows->add(*utilities[pname]);
 
   // even terms
   for (int i=1; i<=nlower; i++){
     string name = Form("%s_l%d",prefix.c_str(),i);
-    params.insert(pair<string,RooRealVar*>(name, new RooRealVar(name.c_str(),name.c_str(),0.25/order,0.001,0.999)));
+    params.insert(pair<string,RooRealVar*>(name, new RooRealVar(name.c_str(),name.c_str(),0.25/order,0.000001,0.999999)));
     plist->add(*params[name]);
     string pname =  Form("%s_powl%d",prefix.c_str(),i);
-    utilities.insert(pair<string,RooAbsPdf*>(pname, new RooPowerLaw(pname.c_str(),pname.c_str(),*obs_var,RooConst(-4.-i))));
+    utilities.insert(pair<string,RooAbsPdf*>(pname, new RooPower(pname.c_str(),pname.c_str(),*obs_var,RooConst(-4.-i))));
     pows->add(*utilities[pname]);
   }
   // odd terms
   for (int i=1; i<=nhigher; i++){
     string name = Form("%s_h%d",prefix.c_str(),i);
-    params.insert(pair<string,RooRealVar*>(name, new RooRealVar(name.c_str(),name.c_str(),0.25/order,0.001,0.999)));
+    params.insert(pair<string,RooRealVar*>(name, new RooRealVar(name.c_str(),name.c_str(),0.25/order,0.000001,0.999999)));
     plist->add(*params[name]);
     string pname =  Form("%s_powh%d",prefix.c_str(),i);
-    utilities.insert(pair<string,RooAbsPdf*>(pname, new RooPowerLaw(pname.c_str(),pname.c_str(),*obs_var,RooConst(-4.+i))));
+    utilities.insert(pair<string,RooAbsPdf*>(pname, new RooPower(pname.c_str(),pname.c_str(),*obs_var,RooConst(-4.+i))));
     pows->add(*utilities[pname]);
   }
   RooAddPdf *pdf = new RooAddPdf(prefix.c_str(),prefix.c_str(),*pows,*plist);
@@ -315,13 +341,13 @@ RooAbsPdf* PdfModelBuilder::getExponentialSingle(string prefix, int order){
     RooArgList *exps = new RooArgList();
     for (int i=1; i<=nfracs; i++){
       string name =  Form("%s_f%d",prefix.c_str(),i);
-      params.insert(pair<string,RooRealVar*>(name, new RooRealVar(name.c_str(),name.c_str(),0.5/nfracs,0.1,0.999)));
+      params.insert(pair<string,RooRealVar*>(name, new RooRealVar(name.c_str(),name.c_str(),0.5/nfracs,0.000001,0.999999)));
       fracs->add(*params[name]);
     }
     for (int i=1; i<=nexps; i++){
       string name =  Form("%s_p%d",prefix.c_str(),i);
       string ename =  Form("%s_e%d",prefix.c_str(),i);
-      params.insert(pair<string,RooRealVar*>(name, new RooRealVar(name.c_str(),name.c_str(),-0.02,-10.,-0.00001)));
+      params.insert(pair<string,RooRealVar*>(name, new RooRealVar(name.c_str(),name.c_str(),-0.02,-25.,-0.00001)));
       utilities.insert(pair<string,RooAbsPdf*>(ename, new RooExponential(ename.c_str(),ename.c_str(),*obs_var,*params[name])));
       exps->add(*utilities[ename]);
     }

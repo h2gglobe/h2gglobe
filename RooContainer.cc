@@ -1568,11 +1568,11 @@ void RooContainer::addGenericPdf(std::string name,std::string formula,std::strin
 	  return;
 	}
 
-     } else if (form>70) { // RooBernstein - x, p1....pform-1
-
+     } else if (form>70) { // RooBernstein (FAST) - x, p1....pform-1
+	int norders = form-70;
 	if ((int)var.size() == form-70){
       	  RooArgList roo_args;
-	  roo_args.add(RooConst(1.0));
+	  //roo_args.add(RooConst(1.0)); // no need with RooBernsteinFast!
 	  if (!form_vars){
 	   for (std::vector<std::string>::iterator it_var = var.begin()
 	      ;it_var != var.end()
@@ -1607,7 +1607,15 @@ void RooContainer::addGenericPdf(std::string name,std::string formula,std::strin
       	   std::cout << "RooContainer::AddGenericPdf -- Added all variables" 
 	        	  << std::endl;
 
-      	   temp_1 = new RooBernstein(Form("pdf_%s",name.c_str()),name.c_str(),(*obs_real_var).second,roo_args);
+      	   if 	   (norders==1)	temp_1 = new RooBernsteinFast<1>(Form("pdf_%s",name.c_str()),name.c_str(),(*obs_real_var).second,roo_args);
+      	   else if (norders==2) temp_1 = new RooBernsteinFast<2>(Form("pdf_%s",name.c_str()),name.c_str(),(*obs_real_var).second,roo_args);
+      	   else if (norders==3) temp_1 = new RooBernsteinFast<3>(Form("pdf_%s",name.c_str()),name.c_str(),(*obs_real_var).second,roo_args);
+      	   else if (norders==4) temp_1 = new RooBernsteinFast<4>(Form("pdf_%s",name.c_str()),name.c_str(),(*obs_real_var).second,roo_args);
+           else if (norders==5)	temp_1 = new RooBernsteinFast<5>(Form("pdf_%s",name.c_str()),name.c_str(),(*obs_real_var).second,roo_args);
+      	   else if (norders==6) temp_1 = new RooBernsteinFast<6>(Form("pdf_%s",name.c_str()),name.c_str(),(*obs_real_var).second,roo_args);
+      	   else if (norders==7) temp_1 = new RooBernsteinFast<7>(Form("pdf_%s",name.c_str()),name.c_str(),(*obs_real_var).second,roo_args);
+	   else temp_1 = new RooBernstein(Form("pdf_%s",name.c_str()),name.c_str(),(*obs_real_var).second,roo_args); // switch back to Usual RooBernstein
+	   
 	} else {
 		
           std::cerr << "WARNING -- RooContainer::AddGenericPdf -- Need "<<form-70 << " arguments for RooBernstein of order " << form-70 <<", was given: "
