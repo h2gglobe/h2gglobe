@@ -937,19 +937,15 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 
 
         // priority of analysis:  lepton tag, vbf, VH hadronic
-        // also set appropriate vertex here
+        // also set appropriate vertex here if required
         if(includeVHlep&&VHmuevent){
             diphoton_id = diphotonVHlep_id;
-            l.dipho_vtxind[diphoton_id] = 0; // use default vtx for muon tag
         } else if (includeVHlep&&VHelevent){
             diphoton_id = diphotonVHlep_id;
-            l.dipho_vtxind[diphoton_id] = elVtx; // use electron vtx for electron tag
         } else if (includeVHlepPlusMet&&VHlep1event){
             diphoton_id = diphotonVHlep_id;
-            l.dipho_vtxind[diphoton_id] = 0; // use default vtx for lepMET tag
         } else if (includeVHlepPlusMet&&VHlep2event){
             diphoton_id = diphotonVHlep_id;
-            l.dipho_vtxind[diphoton_id] = 0; // use default vtx for lepMET tag
         } else if(includeVBF&&VBFevent) {
             diphoton_id = diphotonVBF_id;
         } else if(includeVHmet&&VHmetevent) {
