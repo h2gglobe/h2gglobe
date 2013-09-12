@@ -25,10 +25,11 @@ class FinalModelConstruction {
 
   public:
     
-    FinalModelConstruction(RooRealVar *massVar, RooRealVar *MHvar, RooRealVar *intL, int mhLow, int mhHigh, std::string proc, int cat, int nIncCats, bool doSecMods, std::string systematicsFileName, bool isCB=false);
+    FinalModelConstruction(RooRealVar *massVar, RooRealVar *MHvar, RooRealVar *intL, int mhLow, int mhHigh, std::string proc, int cat, int nIncCats, bool doSecMods, std::string systematicsFileName, int verbosity, bool isCB=false);
     ~FinalModelConstruction();
 
 		void loadSignalSystematics(std::string filename);
+		void printSignalSystematics();
 
     void setSecondaryModelVars(RooRealVar *mh_sm, RooRealVar *deltam, RooAddition *mh_2, RooRealVar *width);
 
@@ -41,7 +42,7 @@ class FinalModelConstruction {
 
 		RooAbsReal *getMeanWithPhotonSyst(RooAbsReal *dm, string name);
 		RooAbsReal *getSigmaWithPhotonSyst(RooAbsReal *sig_fit, string name);
-		//RooAbsReal *getRateWithPhotonSyst(string name);
+		RooAbsReal *getRateWithPhotonSyst(string name);
     
 		void setRVsplines(std::map<std::string,RooSpline1D*> splines);
     void setWVsplines(std::map<std::string,RooSpline1D*> splines);
@@ -129,6 +130,7 @@ class FinalModelConstruction {
 		std::map<std::string,std::map<int,std::map<std::string,double> > > rateSysts;
 
 		std::map<string,RooRealVar*> photonSystematics;
+		std::map<string,RooRealVar*> photonSystematicConsts;
 
 		// utility funcs
 		void stripSpace(std::string &line);

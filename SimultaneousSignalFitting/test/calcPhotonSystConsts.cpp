@@ -230,7 +230,7 @@ int main(int argc, char *argv[]){
 				
 				outfile << *phoCat+"scale";
 				for (unsigned int i=0; i<(15-phoCat->size()); i++) outfile << " ";
-				outfile << Form("%4.2f     %4.2f     %4.2f    ",getMeanVar(nominal,scaleUp,scaleDown),getSigmaVar(nominal,scaleUp,scaleDown),getRateVar(nominal,scaleUp,scaleDown)) << endl;
+				outfile << Form("%4.4f     %4.4f     %4.4f    ",getMeanVar(nominal,scaleUp,scaleDown),getSigmaVar(nominal,scaleUp,scaleDown),getRateVar(nominal,scaleUp,scaleDown)) << endl;
 
 				TH1F *smearUp = (TH1F*)inFile->Get(Form("th1f_sig_%s_mass_m%d_cat%d_E_res_%sUp01_sigma",proc->c_str(),mh_,cat,phoCat->c_str()));
 				TH1F *smearDown = (TH1F*)inFile->Get(Form("th1f_sig_%s_mass_m%d_cat%d_E_res_%sDown01_sigma",proc->c_str(),mh_,cat,phoCat->c_str()));
@@ -239,7 +239,7 @@ int main(int argc, char *argv[]){
 			
 				outfile << *phoCat+"smear";
 				for (unsigned int i=0; i<(15-phoCat->size()); i++) outfile << " ";
-				outfile << Form("%4.2f     %4.2f     %4.2f    ",getMeanVar(nominal,smearUp,smearDown),getSigmaVar(nominal,smearUp,smearDown),getRateVar(nominal,smearUp,smearDown)) << endl;
+				outfile << Form("%4.4f     %4.4f     %4.4f    ",getMeanVar(nominal,smearUp,smearDown),getSigmaVar(nominal,smearUp,smearDown),getRateVar(nominal,smearUp,smearDown)) << endl;
 
 			}
 			outfile << endl;

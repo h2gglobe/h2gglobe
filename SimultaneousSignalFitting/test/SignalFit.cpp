@@ -189,7 +189,7 @@ int main(int argc, char *argv[]){
     map<string,RooSpline1D*> splinesWV = linInterpWV.getSplines();
 
     // this guy constructs the final model with systematics, eff*acc etc.
-    FinalModelConstruction finalModel(mass,MH,intLumi,mhLow_,mhHigh_,proc,cat,nInclusiveCats_,doSecondaryModels_,systfilename_,false);
+    FinalModelConstruction finalModel(mass,MH,intLumi,mhLow_,mhHigh_,proc,cat,nInclusiveCats_,doSecondaryModels_,systfilename_,verbose_,false);
     finalModel.setSecondaryModelVars(MH_SM,DeltaM,MH_2,higgsDecayWidth);
     finalModel.setRVsplines(splinesRV);
     finalModel.setWVsplines(splinesWV);
