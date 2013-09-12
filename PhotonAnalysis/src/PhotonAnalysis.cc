@@ -107,6 +107,9 @@ PhotonAnalysis::PhotonAnalysis()  :
     bookDiPhoCutsInVbf=false;
     multiclassVbfSelection=false;
     vbfVsDiphoVbfSelection=false;
+    
+    combinedmvaVbfSelection=false;
+    reweighPt=false;
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -764,196 +767,194 @@ void PhotonAnalysis::Init(LoopAll& l)
 	triggerSelections.back().addpath("HLT_Photon36_R9Id85_Photon22_R9Id85_v");
     }
 
-    // n-1 plots for VBF tag 2011
-    l.SetCutVariables("cut_VBFLeadJPt",         &myVBFLeadJPt);
-    l.SetCutVariables("cut_VBFSubJPt",          &myVBFSubJPt);
-    l.SetCutVariables("cut_VBF_Mjj",            &myVBF_Mjj);
-    l.SetCutVariables("cut_VBF_dEta",           &myVBFdEta);
-    l.SetCutVariables("cut_VBF_Zep",            &myVBFZep);
-    l.SetCutVariables("cut_VBF_dPhi",           &myVBFdPhi);
-    l.SetCutVariables("cut_VBF_Mgg0",           &myVBF_Mgg);
-    l.SetCutVariables("cut_VBF_Mgg2",           &myVBF_Mgg);
-    l.SetCutVariables("cut_VBF_Mgg4",           &myVBF_Mgg);
-    l.SetCutVariables("cut_VBF_Mgg10",          &myVBF_Mgg);
-    l.SetCutVariables("cut_VBF_Mgg4_100_180",   &myVBF_Mgg);
-    l.SetCutVariables("cut_VBF_Mgg2_100_180",   &myVBF_Mgg);
-
-    if( vbfVsDiphoVbfSelection ) {
-	multiclassVbfSelection = true;
-	assert(mvaVbfCatBoundaries.empty() );
-	mvaVbfCatBoundaries = multiclassVbfCatBoundaries0;
-    }
-    if( mvaVbfSelection || multiclassVbfSelection || bookDiPhoCutsInVbf  ) {
-        l.SetCutVariables("cut_VBF_DiPhoPtOverM",   &myVBFDiPhoPtOverM);
-        l.SetCutVariables("cut_VBF_LeadPhoPtOverM", &myVBFLeadPhoPtOverM);
-        l.SetCutVariables("cut_VBF_SubPhoPtOverM",  &myVBFSubPhoPtOverM);
-    }
-
-    if( mvaVbfSelection || multiclassVbfSelection || combinedmvaVbfSelection ) {
-
-	tmvaVbfReader_ = new TMVA::Reader( "!Color:!Silent" );
-
-	if (combinedmvaVbfSelection) {
-	    tmvaVbfReader_->AddVariable("dijet_leadEta",    &myVBFLeadJEta);
-	    tmvaVbfReader_->AddVariable("dijet_subleadEta", &myVBFSubJEta);
-	    tmvaVbfReader_->AddVariable("dijet_LeadJPt",    &myVBFLeadJPt);
-	    tmvaVbfReader_->AddVariable("dijet_SubJPt",     &myVBFSubJPt);
-	    tmvaVbfReader_->AddVariable("dijet_Zep",        &myVBFZep);
-	    tmvaVbfReader_->AddVariable("dijet_dPhi",       &myVBFdPhi);
-	    tmvaVbfReader_->AddVariable("dijet_Mjj",        &myVBF_Mjj);	   
-	    tmvaVbfReader_->AddVariable("dipho_pt/mass",    &myVBFDiPhoPtOverM);
-	    
-	    tmvaVbfDiphoReader_ = new TMVA::Reader("!Color:!Silent"); 
-	    tmvaVbfDiphoReader_->AddVariable("bdt_incl",                       &myVBFDIPHObdt);
-	    tmvaVbfDiphoReader_->AddVariable("bdt_dijet_sherpa_plusdiphoptom", &myVBFDIPHOdijet);
-	    tmvaVbfDiphoReader_->AddVariable("dipho_pt/mass",                  &myVBFDiPhoPtOverM);
-	    tmvaVbfDiphoReader_->BookMVA(mvaVbfDiphoMethod, mvaVbfDiphoWeights);
-	} else {
-	    tmvaVbfReader_->AddVariable("jet1pt"              , &myVBFLeadJPt);
-	    tmvaVbfReader_->AddVariable("jet2pt"	          , &myVBFSubJPt);
-	    tmvaVbfReader_->AddVariable("abs(jet1eta-jet2eta)", &myVBFdEta);
-	    tmvaVbfReader_->AddVariable("mj1j2"		  , &myVBF_Mjj);
-	    tmvaVbfReader_->AddVariable("zepp"		  , &myVBFZep);
-	    tmvaVbfReader_->AddVariable("dphi"		  , &myVBFdPhi);
-	    if( mvaVbfUseDiPhoPt ) {
-		tmvaVbfReader_->AddVariable("diphopt/diphoM"      , &myVBFDiPhoPtOverM);
-	    }
-	    if( mvaVbfUsePhoPt   ) {
-		tmvaVbfReader_->AddVariable("pho1pt/diphoM"	  , &myVBFLeadPhoPtOverM);
-		tmvaVbfReader_->AddVariable("pho2pt/diphoM"       , &myVBFSubPhoPtOverM);
-	    }
+    if( l.typerun != l.kReduce ) {
+	// n-1 plots for VBF tag 2011
+	l.SetCutVariables("cut_VBFLeadJPt",         &myVBFLeadJPt);
+	l.SetCutVariables("cut_VBFSubJPt",          &myVBFSubJPt);
+	l.SetCutVariables("cut_VBF_Mjj",            &myVBF_Mjj);
+	l.SetCutVariables("cut_VBF_dEta",           &myVBFdEta);
+	l.SetCutVariables("cut_VBF_Zep",            &myVBFZep);
+	l.SetCutVariables("cut_VBF_dPhi",           &myVBFdPhi);
+	l.SetCutVariables("cut_VBF_Mgg0",           &myVBF_Mgg);
+	l.SetCutVariables("cut_VBF_Mgg2",           &myVBF_Mgg);
+	l.SetCutVariables("cut_VBF_Mgg4",           &myVBF_Mgg);
+	l.SetCutVariables("cut_VBF_Mgg10",          &myVBF_Mgg);
+	l.SetCutVariables("cut_VBF_Mgg4_100_180",   &myVBF_Mgg);
+	l.SetCutVariables("cut_VBF_Mgg2_100_180",   &myVBF_Mgg);
+    
+	if( vbfVsDiphoVbfSelection ) {
+	    multiclassVbfSelection = true;
+	    assert(mvaVbfCatBoundaries.empty() );
+	    mvaVbfCatBoundaries = multiclassVbfCatBoundaries0;
+	}
+	if( mvaVbfSelection || multiclassVbfSelection || bookDiPhoCutsInVbf  ) {
+	    l.SetCutVariables("cut_VBF_DiPhoPtOverM",   &myVBFDiPhoPtOverM);
+	    l.SetCutVariables("cut_VBF_LeadPhoPtOverM", &myVBFLeadPhoPtOverM);
+	    l.SetCutVariables("cut_VBF_SubPhoPtOverM",  &myVBFSubPhoPtOverM);
 	}
 	
-	tmvaVbfReader_->BookMVA( mvaVbfMethod, mvaVbfWeights );
+	if( mvaVbfSelection || multiclassVbfSelection || combinedmvaVbfSelection ) {
+	    
+	    tmvaVbfReader_ = new TMVA::Reader( "!Color:!Silent" );
+	    
+	    if (combinedmvaVbfSelection) {
+		tmvaVbfReader_->AddVariable("dijet_leadEta",    &myVBFLeadJEta);
+		tmvaVbfReader_->AddVariable("dijet_subleadEta", &myVBFSubJEta);
+		tmvaVbfReader_->AddVariable("dijet_LeadJPt",    &myVBFLeadJPt);
+		tmvaVbfReader_->AddVariable("dijet_SubJPt",     &myVBFSubJPt);
+		tmvaVbfReader_->AddVariable("dijet_Zep",        &myVBFZep);
+		tmvaVbfReader_->AddVariable("dijet_dPhi",       &myVBFdPhi);
+		tmvaVbfReader_->AddVariable("dijet_Mjj",        &myVBF_Mjj);	   
+		tmvaVbfReader_->AddVariable("dipho_pt/mass",    &myVBFDiPhoPtOverM);
+		
+		tmvaVbfDiphoReader_ = new TMVA::Reader("!Color:!Silent"); 
+		tmvaVbfDiphoReader_->AddVariable("bdt_incl",                       &myVBFDIPHObdt);
+		tmvaVbfDiphoReader_->AddVariable("bdt_dijet_sherpa_plusdiphoptom", &myVBFDIPHOdijet);
+		tmvaVbfDiphoReader_->AddVariable("dipho_pt/mass",                  &myVBFDiPhoPtOverM);
+		tmvaVbfDiphoReader_->BookMVA(mvaVbfDiphoMethod, mvaVbfDiphoWeights);
+	    } else {
+		tmvaVbfReader_->AddVariable("jet1pt"              , &myVBFLeadJPt);
+		tmvaVbfReader_->AddVariable("jet2pt"	          , &myVBFSubJPt);
+		tmvaVbfReader_->AddVariable("abs(jet1eta-jet2eta)", &myVBFdEta);
+		tmvaVbfReader_->AddVariable("mj1j2"		  , &myVBF_Mjj);
+		tmvaVbfReader_->AddVariable("zepp"		  , &myVBFZep);
+		tmvaVbfReader_->AddVariable("dphi"		  , &myVBFdPhi);
+		if( mvaVbfUseDiPhoPt ) {
+		    tmvaVbfReader_->AddVariable("diphopt/diphoM"      , &myVBFDiPhoPtOverM);
+		}
+		if( mvaVbfUsePhoPt   ) {
+		    tmvaVbfReader_->AddVariable("pho1pt/diphoM"	  , &myVBFLeadPhoPtOverM);
+		    tmvaVbfReader_->AddVariable("pho2pt/diphoM"       , &myVBFSubPhoPtOverM);
+		}
+	    }
 	
+	    tmvaVbfReader_->BookMVA( mvaVbfMethod, mvaVbfWeights );
+	    
+	}
+	
+	if( mvaVbfSpin && (mvaVbfSelection || multiclassVbfSelection) )
+	{
+	    tmvaVbfSpinReader_ = new TMVA::Reader( "!Color:!Silent" );
+	    
+	    tmvaVbfSpinReader_->AddVariable("absDeltaPhiJJ := abs(deltaPhiJJ)", &myVBFSpin_absDeltaPhiJJ);
+	    tmvaVbfSpinReader_->AddVariable("absCosThetaJ1 := abs(cosThetaJ1)", &myVBFSpin_absCosThetaJ1);
+	    tmvaVbfSpinReader_->AddVariable("absCosThetaJ2 := abs(cosThetaJ2)", &myVBFSpin_absCosThetaJ2);
+	    
+	    //tmvaVbfSpinReader_->AddVariable("absDeltaPhiJJS := abs(deltaPhiJJS)", &myVBFSpin_absDeltaPhiJJS);
+	    tmvaVbfSpinReader_->AddVariable("absCosThetaS := abs(cosThetaS)", &myVBFSpin_absCosThetaS);
+	    tmvaVbfSpinReader_->AddVariable("absDeltaPhiJJL := abs(deltaPhiJJL)", &myVBFSpin_absDeltaPhiJJL);
+	    tmvaVbfSpinReader_->AddVariable("absCosThetaL := abs(cosThetaL)", &myVBFSpin_absCosThetaL);
+	    
+	    tmvaVbfSpinReader_->BookMVA( mvaVbfSpinMethod, mvaVbfSpinWeights );
+	}
+
+	// n-1 plots for VH hadronic tag 2011
+	l.SetCutVariables("cut_VHhadLeadJPt",      &myVHhadLeadJPt);
+	l.SetCutVariables("cut_VHhadSubJPt",       &myVHhadSubJPt);
+	l.SetCutVariables("cut_VHhad_Mjj",         &myVHhad_Mjj);
+	l.SetCutVariables("cut_VHhad_dEta",        &myVHhaddEta);
+	l.SetCutVariables("cut_VHhad_Zep",         &myVHhadZep);
+	l.SetCutVariables("cut_VHhad_dPhi",        &myVHhaddPhi);
+	l.SetCutVariables("cut_VHhad_Mgg0",        &myVHhad_Mgg);
+	l.SetCutVariables("cut_VHhad_Mgg2",        &myVHhad_Mgg);
+	l.SetCutVariables("cut_VHhad_Mgg4",        &myVHhad_Mgg);
+	l.SetCutVariables("cut_VHhad_Mgg10",        &myVHhad_Mgg);
+	l.SetCutVariables("cut_VHhad_Mgg2_100_160",        &myVHhad_Mgg);
+	l.SetCutVariables("cut_VHhad_Mgg4_100_160",        &myVHhad_Mgg);
+	
+	// n-1 plot for ClassicCats
+	l.SetCutVariables("cutnm1hir9EB_r9",             &sublead_r9);
+	l.SetCutVariables("cutnm1hir9EB_isoOverEt",      &sublead_isoOverEt);
+	l.SetCutVariables("cutnm1hir9EB_badisoOverEt",   &sublead_badisoOverEt);
+	l.SetCutVariables("cutnm1hir9EB_trkisooet",      &sublead_trkisooet);
+	l.SetCutVariables("cutnm1hir9EB_sieie",          &sublead_sieie);
+	l.SetCutVariables("cutnm1hir9EB_drtotk",         &sublead_drtotk);
+	l.SetCutVariables("cutnm1hir9EB_hovere",         &sublead_hovere);
+	l.SetCutVariables("cutnm1hir9EB_Mgg",            &sublead_mgg);
+	
+	l.SetCutVariables("cutnm1lor9EB_r9",             &sublead_r9);
+	l.SetCutVariables("cutnm1lor9EB_isoOverEt",      &sublead_isoOverEt);
+	l.SetCutVariables("cutnm1lor9EB_badisoOverEt",   &sublead_badisoOverEt);
+	l.SetCutVariables("cutnm1lor9EB_trkisooet",      &sublead_trkisooet);
+	l.SetCutVariables("cutnm1lor9EB_sieie",          &sublead_sieie);
+	l.SetCutVariables("cutnm1lor9EB_drtotk",         &sublead_drtotk);
+	l.SetCutVariables("cutnm1lor9EB_hovere",         &sublead_hovere);
+	l.SetCutVariables("cutnm1lor9EB_Mgg",            &sublead_mgg);
+	
+	l.SetCutVariables("cutnm1hir9EE_r9",             &sublead_r9);
+	l.SetCutVariables("cutnm1hir9EE_isoOverEt",      &sublead_isoOverEt);
+	l.SetCutVariables("cutnm1hir9EE_badisoOverEt",   &sublead_badisoOverEt);
+	l.SetCutVariables("cutnm1hir9EE_trkisooet",      &sublead_trkisooet);
+	l.SetCutVariables("cutnm1hir9EE_sieie",          &sublead_sieie);
+	l.SetCutVariables("cutnm1hir9EE_drtotk",         &sublead_drtotk);
+	l.SetCutVariables("cutnm1hir9EE_hovere",         &sublead_hovere);
+	l.SetCutVariables("cutnm1hir9EE_Mgg",            &sublead_mgg);
+	
+	l.SetCutVariables("cutnm1lor9EE_r9",             &sublead_r9);
+	l.SetCutVariables("cutnm1lor9EE_isoOverEt",      &sublead_isoOverEt);
+	l.SetCutVariables("cutnm1lor9EE_badisoOverEt",   &sublead_badisoOverEt);
+	l.SetCutVariables("cutnm1lor9EE_trkisooet",      &sublead_trkisooet);
+	l.SetCutVariables("cutnm1lor9EE_sieie",          &sublead_sieie);
+	l.SetCutVariables("cutnm1lor9EE_drtotk",         &sublead_drtotk);
+	l.SetCutVariables("cutnm1lor9EE_hovere",         &sublead_hovere);
+	l.SetCutVariables("cutnm1lor9EE_Mgg",            &sublead_mgg);
+	
+	if(includeVHlep) {
+	    l.SetCutVariables("cutEl_leptonSig",    &myEl_leptonSig);
+	    l.SetCutVariables("cutEl_elpt",         &myEl_elpt);
+	    l.SetCutVariables("cutEl_oEsuboP",      &myEl_oEsuboP);
+	    l.SetCutVariables("cutEl_D0",           &myEl_D0     );
+	    l.SetCutVariables("cutEl_DZ",           &myEl_DZ     );
+	    l.SetCutVariables("cutEl_mishit",       &myEl_mishit );
+	    l.SetCutVariables("cutEl_conv",         &myEl_conv   );
+	    l.SetCutVariables("cutEl_detain",       &myEl_detain );
+	    l.SetCutVariables("cutEl_dphiin",       &myEl_dphiin );
+	    l.SetCutVariables("cutEl_sieie",        &myEl_sieie  );
+	    l.SetCutVariables("cutEl_sieie2",       &myEl_sieie  );
+	    l.SetCutVariables("cutEl_hoe",          &myEl_hoe    );
+	    l.SetCutVariables("cutEl_drlead",       &myEl_drlead );
+	    l.SetCutVariables("cutEl_drsub",        &myEl_drsub  );
+	    l.SetCutVariables("cutEl_melead",       &myEl_melead );
+	    l.SetCutVariables("cutEl_meleadveto10", &myEl_meleadveto10 );
+	    l.SetCutVariables("cutEl_meleadveto15", &myEl_meleadveto15 );
+	    l.SetCutVariables("cutEl_mesub",        &myEl_mesub  );
+	    l.SetCutVariables("cutEl_mesubveto5",   &myEl_mesubveto5  );
+	    l.SetCutVariables("cutEl_mesubveto10",  &myEl_mesubveto10  );
+	    l.SetCutVariables("cutEl_reliso",       &myEl_reliso );
+	    l.SetCutVariables("cutEl_iso",          &myEl_iso    );
+	    l.SetCutVariables("cutEl_mvaNonTrig",   &myEl_mvaNonTrig);
+	    l.SetCutVariables("cutEl_dZ_ee",        &myEl_dZ_ee);
+	    l.SetCutVariables("cutEl_mass_ee",      &myEl_mass_ee);
+	    l.SetCutVariables("cutEl_inwindow_ee",  &myEl_inwindow_ee);
+	    l.SetCutVariables("cutEl_ptlead",       &myEl_ptlead    );
+	    l.SetCutVariables("cutEl_ptsub",        &myEl_ptsub     );
+	    l.SetCutVariables("cutEl_ptleadom",       &myEl_ptleadom    );
+	    l.SetCutVariables("cutEl_ptsubom",        &myEl_ptsubom     );
+	    l.SetCutVariables("cutEl_elvetolead",   &myEl_elvetolead);
+	    l.SetCutVariables("cutEl_elvetosub",    &myEl_elvetosub );
+	    l.SetCutVariables("cutEl_ptgg",         &myEl_ptgg      );
+	    l.SetCutVariables("cutEl_phomaxeta",    &myEl_phomaxeta );
+	    l.SetCutVariables("cutEl_sumpt3",       &myEl_sumpt3    );
+	    l.SetCutVariables("cutEl_sumpt4",       &myEl_sumpt4    );
+	    l.SetCutVariables("cutEl_dRtklead",     &myEl_dRtklead  );
+	    l.SetCutVariables("cutEl_dRtksub",      &myEl_dRtksub   );
+	    l.SetCutVariables("cutEl_MVAlead",      &myEl_MVAlead   );
+	    l.SetCutVariables("cutEl_MVAsub",       &myEl_MVAsub    );
+	    l.SetCutVariables("cutEl_diphomva",     &myEl_diphomva  );
+	    l.SetCutVariables("cutEl_CiClead",      &myEl_CiClead   );
+	    l.SetCutVariables("cutEl_CiCsub",       &myEl_CiCsub    );
+	    l.SetCutVariables("cutEl_mgg",          &myEl_mgg       );
+	    l.SetCutVariables("cutEl_MET",          &myEl_MET       );
+	    l.SetCutVariables("cutEl_METphi",       &myEl_METphi    );
+	    l.SetCutVariables("cutEl_presellead",   &myEl_presellead );
+	    l.SetCutVariables("cutEl_matchellead",  &myEl_matchellead);
+	    l.SetCutVariables("cutEl_preselsub",    &myEl_preselsub  );
+	    l.SetCutVariables("cutEl_matchelsub",   &myEl_matchelsub );
+	    l.SetCutVariables("cutEl_category",     &myEl_category );
+	    l.SetCutVariables("cutEl_ElePho",       &myEl_ElePho );
+	    l.SetCutVariables("cutEl_passelcuts",   &myEl_passelcuts );
+	}
     }
-    
-    if( mvaVbfSpin && (mvaVbfSelection || multiclassVbfSelection) )
-    {
-      tmvaVbfSpinReader_ = new TMVA::Reader( "!Color:!Silent" );
-
-      tmvaVbfSpinReader_->AddVariable("absDeltaPhiJJ := abs(deltaPhiJJ)", &myVBFSpin_absDeltaPhiJJ);
-      tmvaVbfSpinReader_->AddVariable("absCosThetaJ1 := abs(cosThetaJ1)", &myVBFSpin_absCosThetaJ1);
-      tmvaVbfSpinReader_->AddVariable("absCosThetaJ2 := abs(cosThetaJ2)", &myVBFSpin_absCosThetaJ2);
-
-      //tmvaVbfSpinReader_->AddVariable("absDeltaPhiJJS := abs(deltaPhiJJS)", &myVBFSpin_absDeltaPhiJJS);
-      tmvaVbfSpinReader_->AddVariable("absCosThetaS := abs(cosThetaS)", &myVBFSpin_absCosThetaS);
-      tmvaVbfSpinReader_->AddVariable("absDeltaPhiJJL := abs(deltaPhiJJL)", &myVBFSpin_absDeltaPhiJJL);
-      tmvaVbfSpinReader_->AddVariable("absCosThetaL := abs(cosThetaL)", &myVBFSpin_absCosThetaL);
-
-      tmvaVbfSpinReader_->BookMVA( mvaVbfSpinMethod, mvaVbfSpinWeights );
-    }
-
-
-
-
-    // n-1 plots for VH hadronic tag 2011
-    l.SetCutVariables("cut_VHhadLeadJPt",      &myVHhadLeadJPt);
-    l.SetCutVariables("cut_VHhadSubJPt",       &myVHhadSubJPt);
-    l.SetCutVariables("cut_VHhad_Mjj",         &myVHhad_Mjj);
-    l.SetCutVariables("cut_VHhad_dEta",        &myVHhaddEta);
-    l.SetCutVariables("cut_VHhad_Zep",         &myVHhadZep);
-    l.SetCutVariables("cut_VHhad_dPhi",        &myVHhaddPhi);
-    l.SetCutVariables("cut_VHhad_Mgg0",        &myVHhad_Mgg);
-    l.SetCutVariables("cut_VHhad_Mgg2",        &myVHhad_Mgg);
-    l.SetCutVariables("cut_VHhad_Mgg4",        &myVHhad_Mgg);
-    l.SetCutVariables("cut_VHhad_Mgg10",        &myVHhad_Mgg);
-    l.SetCutVariables("cut_VHhad_Mgg2_100_160",        &myVHhad_Mgg);
-    l.SetCutVariables("cut_VHhad_Mgg4_100_160",        &myVHhad_Mgg);
-
-    // n-1 plot for ClassicCats
-    l.SetCutVariables("cutnm1hir9EB_r9",             &sublead_r9);
-    l.SetCutVariables("cutnm1hir9EB_isoOverEt",      &sublead_isoOverEt);
-    l.SetCutVariables("cutnm1hir9EB_badisoOverEt",   &sublead_badisoOverEt);
-    l.SetCutVariables("cutnm1hir9EB_trkisooet",      &sublead_trkisooet);
-    l.SetCutVariables("cutnm1hir9EB_sieie",          &sublead_sieie);
-    l.SetCutVariables("cutnm1hir9EB_drtotk",         &sublead_drtotk);
-    l.SetCutVariables("cutnm1hir9EB_hovere",         &sublead_hovere);
-    l.SetCutVariables("cutnm1hir9EB_Mgg",            &sublead_mgg);
-
-    l.SetCutVariables("cutnm1lor9EB_r9",             &sublead_r9);
-    l.SetCutVariables("cutnm1lor9EB_isoOverEt",      &sublead_isoOverEt);
-    l.SetCutVariables("cutnm1lor9EB_badisoOverEt",   &sublead_badisoOverEt);
-    l.SetCutVariables("cutnm1lor9EB_trkisooet",      &sublead_trkisooet);
-    l.SetCutVariables("cutnm1lor9EB_sieie",          &sublead_sieie);
-    l.SetCutVariables("cutnm1lor9EB_drtotk",         &sublead_drtotk);
-    l.SetCutVariables("cutnm1lor9EB_hovere",         &sublead_hovere);
-    l.SetCutVariables("cutnm1lor9EB_Mgg",            &sublead_mgg);
-
-    l.SetCutVariables("cutnm1hir9EE_r9",             &sublead_r9);
-    l.SetCutVariables("cutnm1hir9EE_isoOverEt",      &sublead_isoOverEt);
-    l.SetCutVariables("cutnm1hir9EE_badisoOverEt",   &sublead_badisoOverEt);
-    l.SetCutVariables("cutnm1hir9EE_trkisooet",      &sublead_trkisooet);
-    l.SetCutVariables("cutnm1hir9EE_sieie",          &sublead_sieie);
-    l.SetCutVariables("cutnm1hir9EE_drtotk",         &sublead_drtotk);
-    l.SetCutVariables("cutnm1hir9EE_hovere",         &sublead_hovere);
-    l.SetCutVariables("cutnm1hir9EE_Mgg",            &sublead_mgg);
-
-    l.SetCutVariables("cutnm1lor9EE_r9",             &sublead_r9);
-    l.SetCutVariables("cutnm1lor9EE_isoOverEt",      &sublead_isoOverEt);
-    l.SetCutVariables("cutnm1lor9EE_badisoOverEt",   &sublead_badisoOverEt);
-    l.SetCutVariables("cutnm1lor9EE_trkisooet",      &sublead_trkisooet);
-    l.SetCutVariables("cutnm1lor9EE_sieie",          &sublead_sieie);
-    l.SetCutVariables("cutnm1lor9EE_drtotk",         &sublead_drtotk);
-    l.SetCutVariables("cutnm1lor9EE_hovere",         &sublead_hovere);
-    l.SetCutVariables("cutnm1lor9EE_Mgg",            &sublead_mgg);
-
-    if(includeVHlep) {
-        l.SetCutVariables("cutEl_leptonSig",    &myEl_leptonSig);
-        l.SetCutVariables("cutEl_elpt",         &myEl_elpt);
-        l.SetCutVariables("cutEl_oEsuboP",      &myEl_oEsuboP);
-        l.SetCutVariables("cutEl_D0",           &myEl_D0     );
-        l.SetCutVariables("cutEl_DZ",           &myEl_DZ     );
-        l.SetCutVariables("cutEl_mishit",       &myEl_mishit );
-        l.SetCutVariables("cutEl_conv",         &myEl_conv   );
-        l.SetCutVariables("cutEl_detain",       &myEl_detain );
-        l.SetCutVariables("cutEl_dphiin",       &myEl_dphiin );
-        l.SetCutVariables("cutEl_sieie",        &myEl_sieie  );
-        l.SetCutVariables("cutEl_sieie2",       &myEl_sieie  );
-        l.SetCutVariables("cutEl_hoe",          &myEl_hoe    );
-        l.SetCutVariables("cutEl_drlead",       &myEl_drlead );
-        l.SetCutVariables("cutEl_drsub",        &myEl_drsub  );
-        l.SetCutVariables("cutEl_melead",       &myEl_melead );
-        l.SetCutVariables("cutEl_meleadveto10", &myEl_meleadveto10 );
-        l.SetCutVariables("cutEl_meleadveto15", &myEl_meleadveto15 );
-        l.SetCutVariables("cutEl_mesub",        &myEl_mesub  );
-        l.SetCutVariables("cutEl_mesubveto5",   &myEl_mesubveto5  );
-        l.SetCutVariables("cutEl_mesubveto10",  &myEl_mesubveto10  );
-        l.SetCutVariables("cutEl_reliso",       &myEl_reliso );
-        l.SetCutVariables("cutEl_iso",          &myEl_iso    );
-        l.SetCutVariables("cutEl_mvaNonTrig",   &myEl_mvaNonTrig);
-        l.SetCutVariables("cutEl_dZ_ee",        &myEl_dZ_ee);
-        l.SetCutVariables("cutEl_mass_ee",      &myEl_mass_ee);
-        l.SetCutVariables("cutEl_inwindow_ee",  &myEl_inwindow_ee);
-        l.SetCutVariables("cutEl_ptlead",       &myEl_ptlead    );
-        l.SetCutVariables("cutEl_ptsub",        &myEl_ptsub     );
-        l.SetCutVariables("cutEl_ptleadom",       &myEl_ptleadom    );
-        l.SetCutVariables("cutEl_ptsubom",        &myEl_ptsubom     );
-        l.SetCutVariables("cutEl_elvetolead",   &myEl_elvetolead);
-        l.SetCutVariables("cutEl_elvetosub",    &myEl_elvetosub );
-        l.SetCutVariables("cutEl_ptgg",         &myEl_ptgg      );
-        l.SetCutVariables("cutEl_phomaxeta",    &myEl_phomaxeta );
-        l.SetCutVariables("cutEl_sumpt3",       &myEl_sumpt3    );
-        l.SetCutVariables("cutEl_sumpt4",       &myEl_sumpt4    );
-        l.SetCutVariables("cutEl_dRtklead",     &myEl_dRtklead  );
-        l.SetCutVariables("cutEl_dRtksub",      &myEl_dRtksub   );
-        l.SetCutVariables("cutEl_MVAlead",      &myEl_MVAlead   );
-        l.SetCutVariables("cutEl_MVAsub",       &myEl_MVAsub    );
-        l.SetCutVariables("cutEl_diphomva",     &myEl_diphomva  );
-        l.SetCutVariables("cutEl_CiClead",      &myEl_CiClead   );
-        l.SetCutVariables("cutEl_CiCsub",       &myEl_CiCsub    );
-        l.SetCutVariables("cutEl_mgg",          &myEl_mgg       );
-        l.SetCutVariables("cutEl_MET",          &myEl_MET       );
-        l.SetCutVariables("cutEl_METphi",       &myEl_METphi    );
-        l.SetCutVariables("cutEl_presellead",   &myEl_presellead );
-        l.SetCutVariables("cutEl_matchellead",  &myEl_matchellead);
-        l.SetCutVariables("cutEl_preselsub",    &myEl_preselsub  );
-        l.SetCutVariables("cutEl_matchelsub",   &myEl_matchelsub );
-        l.SetCutVariables("cutEl_category",     &myEl_category );
-        l.SetCutVariables("cutEl_ElePho",       &myEl_ElePho );
-        l.SetCutVariables("cutEl_passelcuts",   &myEl_passelcuts );
-    }
-
 
     // CiC initialization
     // FIXME should move this to GeneralFunctions
