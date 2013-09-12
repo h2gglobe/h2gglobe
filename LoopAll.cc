@@ -660,10 +660,10 @@ void LoopAll::Loop(Int_t a) {
   }
   TreesPar[a]->GetEntry(0);
 
-  if( sampleContainer[a].forceVersion > 0 ) { 
-	  version = sampleContainer[a].forceVersion;
+  if( sampleContainer[current_sample_index].forceVersion > 0 ) { 
+	  version = sampleContainer[current_sample_index].forceVersion;
   }
-
+  
   // Loop over events
   if(checkBench > 0) {
 	  stopWatch.Start();

@@ -46,7 +46,7 @@ for d in ds.read().split("\n"):
     if ":" in dname:
         iname,dname = dname.rsplit(":",1)
     else:
-        iname = dname
+        iname = dname.replace("_AODSIM","").replace("_AOD","")
     analyzer = "analyzer PhotonAnalysis photonanalysis.dat"
     getanalyzer = False
     for s in sl:
@@ -59,7 +59,7 @@ for d in ds.read().split("\n"):
             analyzer += " %s" % s
         else:
             print s
-            props += s
+            props += " %s" % s
     basname = path.basename(dname)
     datname="%s/%s.dat" % (datasetsdir, basname )
     print "Making configuration for %s (type %s)" % ( datname, dtype )

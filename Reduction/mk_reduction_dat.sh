@@ -69,7 +69,7 @@ tar cf $wd/${version}.tar *.py $(find common reduction baseline massfac_mva_binn
 cd -
 
 tar rf ${version}.tar JSON *.sh
-gzip ${version}.tar
+gzip -f ${version}.tar
 
 git tag ${version}
 

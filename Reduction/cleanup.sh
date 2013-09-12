@@ -21,8 +21,8 @@ if [ -n "${BATCH+x}" ]; then
 		sha1="$sha1\n$(sha1sum $f)"
 		$cp -f $f ${storeremote}/${version}/$d
 		exstat=$?
-		if [[ "$extstat" != 0 ]]; then
-		    errs="$errs $f($extstat)"
+		if [[ "$exstat" != 0 ]]; then
+		    errs="$errs $f($exstat)"
 		fi
 		
 	    done

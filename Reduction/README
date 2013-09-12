@@ -41,7 +41,9 @@ version="h2gglobe_V10_00_reduction_07_25"
 
 The output of the jobs will appear in $storeremote/$version.
 
+If the variable group is defined in version.sh, the output will go to:
 
+The output of the jobs will appear in $storeremote/$group/$version.
 
 Utility scripts
 ---------------
