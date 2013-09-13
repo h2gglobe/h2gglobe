@@ -33,4 +33,4 @@ fi
 
 wait
 
-echo $sha1
+echo -e $sha1

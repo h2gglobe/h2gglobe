@@ -19,6 +19,11 @@
 /store/group/phys_higgs/cmshgg/processed/V15_00_08/mc/Summer12_DR53X-PU_RD1_START53_V7N/Spin2PHGluGluToHToGG_M-126_8TeV-jhu-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1 -1  analyzer PhotonAnalysis photonanalysis.dat common/reduction_settings_jan22rereco_rd_mc.dat
 /store/group/phys_higgs/cmshgg/processed/V15_00_08/mc/Summer12_DR53X-PU_RD1_START53_V7N/Spin2PHqqbarToHToGG_M-126_8TeV-jhu-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v2 -1  analyzer PhotonAnalysis photonanalysis.dat common/reduction_settings_jan22rereco_rd_mc.dat
 
+/store/group/phys_higgs/cmshgg/processed/V15_00_08/mc/Summer12_DR53X-PU_RD1_START53_V7N/Graviton2PMGluGluToHToGG_M-125_8TeV-jhu-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1 -1  analyzer PhotonAnalysis photonanalysis.dat common/reduction_settings_jan22rereco_rd_mc.dat 
+/store/group/phys_higgs/cmshgg/processed/V15_00_08/mc/Summer12_DR53X-PU_RD1_START53_V7N/Graviton2PMGluGluToHToGG_M-126_8TeV-jhu-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1 -1  analyzer PhotonAnalysis photonanalysis.dat common/reduction_settings_jan22rereco_rd_mc.dat
+/store/group/phys_higgs/cmshgg/processed/V15_00_08/mc/Summer12_DR53X-PU_RD1_START53_V7N/Graviton2PMqqbarToHToGG_M-125_8TeV-jhu-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1 -1  analyzer PhotonAnalysis photonanalysis.dat common/reduction_settings_jan22rereco_rd_mc.dat
+/store/group/phys_higgs/cmshgg/processed/V15_00_08/mc/Summer12_DR53X-PU_RD1_START53_V7N/Graviton2PMqqbarToHToGG_M-126_8TeV-jhu-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v2 -1  analyzer PhotonAnalysis photonanalysis.dat common/reduction_settings_jan22rereco_rd_mc.dat
+
 
 /store/group/phys_higgs/cmshgg/processed/V15_00_08/mc/Summer12_RD1/GluGluHToGG_M-130_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1:GluGluToHToGG_M-130_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1 -1  analyzer PhotonAnalysis photonanalysis.dat common/reduction_settings_jan22rereco_rd_mc.dat
 /store/group/phys_higgs/cmshgg/processed/V15_00_08/mc/Summer12_RD1/GluGluToHToGG_M-100_8TeV-powheg-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1 -1  analyzer PhotonAnalysis photonanalysis.dat common/reduction_settings_jan22rereco_rd_mc.dat
