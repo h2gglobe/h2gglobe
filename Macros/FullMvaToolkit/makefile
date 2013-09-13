@@ -19,26 +19,20 @@ UNAME := $(shell uname)
 BASEDIR = $(shell pwd)
 
 USERINCLUDES += -I$(ROOTSYS)/include
-BOOST_PATH=$(CMSSW_DATA_PATH)/../external/boost/1.47.0
+BOOST_PATH=$(shell scram tool info boost | awk -F= '/BOOST_BASE/ {  print $$2  }')
 USERINCLUDES += -I$(BOOST_PATH)/include/
 USERINCLUDES += -I $(CMSSW_BASE)/src/ -I $(CMSSW_RELEASE_BASE)/src/
 USERLIBS += -L$(BOOST_PATH)/lib/ -lboost_regex -lboost_program_options
 USERINCLUDES += -I$(ROOFITSYS)/include
 USERLIBS += -L$(ROOFITSYS)/lib -lRooFit -lRooFitCore
+USERLIBS += -L$(CMSSW_BASE)/lib/ -L $(CMSSW_RELEASE_BASE)/lib/
 
 USERLIBS += $(shell root-config --glibs) -lTMVA -lMinuit -lFoam -lRooFit -lRooFitCore 
 CXXFLAGS = -Wall -g -O2 -Wl,-rpath=$(BASEDIR)/lib 
 LDFLAGS = -shared -W 
 
-CXX=clang++
-LD=clang++
-CLANGPATH := $(shell type -p clang++)
-
-ifeq ($(CLANGPATH),)
-#$(warning clang++ not found, reverting to g++!)
 CXX=g++
 LD=g++
-endif
 
 INCLUDE +=  -I $(BASEDIR)/interface
 INCLUDE += $(USERINCLUDES)
