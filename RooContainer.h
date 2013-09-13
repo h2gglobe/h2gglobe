@@ -40,8 +40,6 @@
 #include "RooGlobalFunc.h"
 #include "RooCmdArg.h"
 
-// CombinedLimit includes
-#include "HiggsAnalysis/CombinedLimit/interface/RooBernsteinFast.h"
 
 // RooStats includes
 #include "RooWorkspace.h"

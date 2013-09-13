@@ -6,6 +6,9 @@
 #include "RooContainer.h"
 #include "RooMsgService.h"
 
+// CombinedLimit includes
+#include "HiggsAnalysis/CombinedLimit/interface/RooBernsteinFast.h"
+
 using namespace RooFit;
 
 RooContainer::RooContainer(int n, int s):ncat(n),nsigmas(s),make_systematics(false),save_systematics_data(false),verbosity_(false),fit_systematics(false),save_roodatahists(true){
