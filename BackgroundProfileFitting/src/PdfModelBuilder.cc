@@ -23,8 +23,8 @@
 
 #include "../interface/PdfModelBuilder.h"
 
-#include "../../../HiggsAnalysis/CombinedLimit/interface/HGGRooPdfs.h"
-#include "../../../HiggsAnalysis/CombinedLimit/interface/RooBernsteinFast.h"
+#include "HiggsAnalysis/CombinedLimit/interface/HGGRooPdfs.h"
+#include "HiggsAnalysis/CombinedLimit/interface/RooBernsteinFast.h"
 
 using namespace std;
 using namespace RooFit;

@@ -23,7 +23,7 @@
 #include "TLatex.h"
 
 #include "RooCategory.h"
-#include "../../../HiggsAnalysis/CombinedLimit/interface/RooMultiPdf.h"
+#include "HiggsAnalysis/CombinedLimit/interface/RooMultiPdf.h"
 
 #include "../interface/PdfModelBuilder.h"
 
@@ -360,13 +360,15 @@ int main(int argc, char* argv[]){
 	  std::cout << "// ------------------------------------------------------------------------- //" <<std::endl;
 
 	  mass->setBins(320);
-	  RooDataHist dataBinned(Form("binned_data_obs_cat%d",cat),"data",*mass,*data);
+	  //RooDataHist dataBinned(Form("binned_data_obs_cat%d",cat),"data",*mass,*data);
+	  RooDataHist dataBinned(Form("roohist_data_mass_cat%d",cat),"data",*mass,*data);
 
 	  // Save it (also a binned version of the dataset
 	  outputws->import(*pdf);
 	  outputws->import(nBackground);
 	  outputws->import(catIndex);
 	  outputws->import(dataBinned);
+		outputws->import(*data);
     }
     
   }
