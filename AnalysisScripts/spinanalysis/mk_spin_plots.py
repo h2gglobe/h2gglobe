@@ -33,7 +33,7 @@ pt = r.TPaveText(0.1,0.91,0.45,0.99,"NDC");
 pt.SetTextAlign(12);
 pt.SetTextSize(0.04);
 pt.SetFillColor(0);
-pt.AddText("CMS Expected");
+pt.AddText("CMS Preliminary");
 pt.SetBorderSize(0);
 pt2 = r.TPaveText(0.55,0.91,0.9,0.99,"NDC");
 pt2.SetTextAlign(32);
@@ -58,30 +58,36 @@ def doChannelCompatiblity():
   graphSM = r.TGraph()
   graphGravGG = r.TGraph()
   graphGravQQ = r.TGraph()
+  graphGrav50GG50QQ = r.TGraph()
   graphData = r.TGraph()
   graphSME = r.TGraphAsymmErrors()
   graphGravGGE = r.TGraphAsymmErrors()
   graphGravQQE = r.TGraphAsymmErrors()
+  graphGrav50GG50QQE = r.TGraphAsymmErrors()
   graphDataE = r.TGraphAsymmErrors()
 
   histSM = r.TH1F('histSM','',len(cosThetaBoundaries)-1,cosThetaBoundaries)
   histGravGG = r.TH1F('histGravGG','',len(cosThetaBoundaries)-1,cosThetaBoundaries)
   histGravQQ = r.TH1F('histGravQQ','',len(cosThetaBoundaries)-1,cosThetaBoundaries)
+  histGrav50GG50QQ = r.TH1F('histGrav50GG50QQ','',len(cosThetaBoundaries)-1,cosThetaBoundaries)
   histData = r.TH1F('histData','',len(cosThetaBoundaries)-1,cosThetaBoundaries)
   histSME = r.TH1F('histSME','',len(cosThetaBoundaries)-1,cosThetaBoundaries)
   histGravGGE = r.TH1F('histGravGGE','',len(cosThetaBoundaries)-1,cosThetaBoundaries)
   histGravQQE = r.TH1F('histGravQQE','',len(cosThetaBoundaries)-1,cosThetaBoundaries)
+  histGrav50GG50QQE = r.TH1F('histGrav50GG50QQE','',len(cosThetaBoundaries)-1,cosThetaBoundaries)
   histDataE = r.TH1F('histDataE','',len(cosThetaBoundaries)-1,cosThetaBoundaries)
 
 
   for f in options.inputfiles:
-    if 'GravGG' in f or 'GRAVGG' in f:
+    if 'GravGG.' in f or 'GRAVGG.' in f:
       gravGGFile = r.TFile(f)
-    elif 'GravQQ' in f or 'GRAVQQ' in f:
-      gravQQFile = r.TFile(f) 
-    elif 'SM' in f:
+    elif 'GravQQ.' in f or 'GRAVQQ.' in f:
+      gravQQFile = r.TFile(f)
+    elif 'Grav50GG50QQ.' in f or 'GRAV50GG50QQ.' in f:
+      grav50GG50QQFile = r.TFile(f)
+    elif 'SM.' in f:
       smFile = r.TFile(f)
-    elif 'Data' in f:
+    elif 'Data.' in f:
       dataFile = r.TFile(f)
 
   sm_fit_nominal = smFile.Get('fit_nominal')
@@ -90,6 +96,8 @@ def doChannelCompatiblity():
   grav_gg_fit_alternate = gravGGFile.Get('fit_alternate')
   grav_qq_fit_nominal = gravQQFile.Get('fit_nominal')
   grav_qq_fit_alternate = gravQQFile.Get('fit_alternate')
+  grav_ggqq_fit_nominal = grav50GG50QQFile.Get('fit_nominal')
+  grav_ggqq_fit_alternate = grav50GG50QQFile.Get('fit_alternate')
   data_fit_nominal = dataFile.Get('fit_nominal')
   data_fit_alternate = dataFile.Get('fit_alternate')
 
@@ -97,6 +105,7 @@ def doChannelCompatiblity():
   pointsSM=[]
   pointsGRAVGG=[]
   pointsGRAVQQ=[]
+  pointsGRAV50GG50QQ=[]
 
   print 'Spin0:'
   p=0
@@ -140,6 +149,20 @@ def doChannelCompatiblity():
       pointsGRAVQQ.append([chFit.getVal(),(abs(chFit.getErrorLo())+abs(chFit.getErrorHi()))/2.])
       print '\t Cat%d  %1.3f  %1.3f'%(p,dummyHist.GetBinCenter(p+1),chFit.getVal())
       p+=1
+  print 'Spin2 (0.5gg+0.5qq):'
+  p=0
+  for i in range(grav_ggqq_fit_alternate.floatParsFinal().getSize()):
+    chFit = grav_ggqq_fit_alternate.floatParsFinal().at(i)
+    if 'ChannelCompatibilityCheck' in chFit.GetName():
+      graphGrav50GG50QQ.SetPoint(p,dummyHist.GetBinCenter(p+1),chFit.getVal())
+      graphGrav50GG50QQE.SetPoint(p,dummyHist.GetBinCenter(p+1),chFit.getVal())
+      graphGrav50GG50QQE.SetPointError(p,0.,0.,abs(chFit.getErrorLo()),abs(chFit.getErrorHi()))
+      histGrav50GG50QQ.SetBinContent(p+1,chFit.getVal())
+      histGrav50GG50QQE.SetBinContent(p+1,chFit.getVal())
+      histGrav50GG50QQE.SetBinError(p+1,(abs(chFit.getErrorLo())+abs(chFit.getErrorHi()))/2.)
+      pointsGRAV50GG50QQ.append([chFit.getVal(),(abs(chFit.getErrorLo())+abs(chFit.getErrorHi()))/2.])
+      print '\t Cat%d  %1.3f  %1.3f'%(p,dummyHist.GetBinCenter(p+1),chFit.getVal())
+      p+=1
   if options.unblind:
     print 'Data:'
     p=0
@@ -159,15 +182,18 @@ def doChannelCompatiblity():
   chi2SM=0.
   chi2GRAVGG=0.
   chi2GRAVQQ=0.
+  chi2GRAV50GG50QQ=0.
   for p,val in enumerate(pointsData):
     chi2SM += ((val[0]-pointsSM[p][0])**2)/val[1]**2
     chi2GRAVGG += ((val[0]-pointsGRAVGG[p][0])**2)/val[1]**2
     chi2GRAVQQ += ((val[0]-pointsGRAVQQ[p][0])**2)/val[1]**2
+    chi2GRAV50GG50QQ += ((val[0]-pointsGRAV50GG50QQ[p][0])**2)/val[1]**2
 
   if options.unblind:
-    print 'Chi2 Comp DATA->SM:     ', chi2SM, ' pval = ', r.TMath.Prob(chi2SM,len(pointsData))
-    print 'Chi2 Comp DATA->GRAVGG: ', chi2GRAVGG, ' pval = ', r.TMath.Prob(chi2GRAVGG,len(pointsData))
-    print 'Chi2 Comp DATA->GRAVQQ: ', chi2GRAVQQ, ' pval = ', r.TMath.Prob(chi2GRAVQQ,len(pointsData))
+    print 'Chi2 Comp DATA->SM:            ', chi2SM, ' pval = ', r.TMath.Prob(chi2SM,len(pointsData))
+    print 'Chi2 Comp DATA->GRAVGG:        ', chi2GRAVGG, ' pval = ', r.TMath.Prob(chi2GRAVGG,len(pointsData))
+    print 'Chi2 Comp DATA->GRAVQQ:        ', chi2GRAVQQ, ' pval = ', r.TMath.Prob(chi2GRAVQQ,len(pointsData))
+    print 'Chi2 Comp DATA->GRAV50GG50QQ:  ', chi2GRAV50GG50QQ, ' pval = ', r.TMath.Prob(chi2GRAV50GG50QQ,len(pointsData))
 
   
   graphData.SetMarkerStyle(r.kFullCircle)
@@ -203,6 +229,11 @@ def doChannelCompatiblity():
   graphGravQQ.SetMarkerStyle(r.kFullTriangleDown)
   graphGravQQ.SetLineColor(r.kGreen+1)
   graphGravQQ.SetLineWidth(2)
+  graphGrav50GG50QQ.SetMarkerColor(r.kMagenta+1)
+  graphGrav50GG50QQ.SetMarkerStyle(r.kFullDiamond)
+  graphGrav50GG50QQ.SetMarkerSize(1.2)
+  graphGrav50GG50QQ.SetLineColor(r.kMagenta+1)
+  graphGrav50GG50QQ.SetLineWidth(2)
 
   histSM.SetMarkerStyle(r.kFullSquare)
   histSM.SetMarkerColor(r.kRed)
@@ -220,26 +251,38 @@ def doChannelCompatiblity():
   histGravQQ.SetMarkerStyle(r.kFullTriangleDown)
   histGravQQ.SetLineColor(r.kGreen+1)
   histGravQQ.SetLineWidth(2)
+  histGrav50GG50QQ.SetMarkerColor(r.kMagenta+1)
+  histGrav50GG50QQ.SetMarkerStyle(r.kFullDiamond)
+  histGrav50GG50QQ.SetMarkerSize(1.2)
+  histGrav50GG50QQ.SetLineColor(r.kMagenta+1)
+  histGrav50GG50QQ.SetLineWidth(2)
 
-  leg = r.TLegend(0.11,0.7,0.4,0.89)
+  leg = r.TLegend(0.11,0.65,0.4,0.89)
   leg.SetFillColor(0)
   leg.SetLineColor(0)
   leg.AddEntry(graphSM,"X#rightarrow#gamma#gamma 0^{+}","LPF");
-  leg.AddEntry(graphGravGG,"X#rightarrow#gamma#gamma 2^{+}_{m}(gg)","LP");
-  leg.AddEntry(graphGravQQ,"X#rightarrow#gamma#gamma 2^{+}_{m}(qq)","LP");
+  leg.AddEntry(graphGravGG,"X#rightarrow#gamma#gamma 2^{+}_{m}(100%gg)","LP");
+  leg.AddEntry(graphGravQQ,"X#rightarrow#gamma#gamma 2^{+}_{m}(100%qq)","LP");
+  leg.AddEntry(graphGrav50GG50QQ,"X#rightarrow#gamma#gamma 2^{+}_{m}(50%gg,50%qq)","LP");
   if options.unblind: leg.AddEntry(graphData,"Observed","EP")
   th2 = r.TH2F('h','',1,0,1.,1,ymin,ymax)
   th2.SetStats(0)
   th2.SetLineColor(0)
   th2.GetXaxis().SetTitle("|cos(#theta*)|")
-  th2.GetXaxis().SetTitleOffset(1.2)
   #th2.GetYaxis().SetTitle("#sigma(X#rightarrow#gamma#gamma 2^{+}_{m})/#sigma(X#rightarrow#gamma#gamma 0^{+})")
   th2.GetYaxis().SetTitle("#sigma/#sigma_{SM}")
+  th2.GetXaxis().SetLabelSize(0.05);
+  th2.GetXaxis().SetTitleSize(0.05);
+  th2.GetYaxis().SetLabelSize(0.05);
+  th2.GetYaxis().SetTitleSize(0.05);
+  th2.GetXaxis().SetTitleOffset(1.0);
+  th2.GetYaxis().SetTitleOffset(1.0);
   th2.Draw("AXIS")
   #graphSME.Draw("E3same")
   graphSM.Draw("LPsame")
   graphGravGG.Draw("LPsame")
   graphGravQQ.Draw("LPsame")
+  graphGrav50GG50QQ.Draw("LPsame")
   if options.unblind: graphDataE.Draw("PEsame")
   leg.Draw("same")
   f = r.TF1('f','0.',0.,1.)
@@ -263,6 +306,7 @@ def doChannelCompatiblity():
   #histSM.Draw("Psame")
   histGravGG.Draw("LPsame")
   histGravQQ.Draw("LPsame")
+  histGrav50GG50QQ.Draw("LPsame")
   #histGrav.Draw("Psame")
   if options.unblind: 
     histData.Draw("HISTsame")
@@ -286,16 +330,19 @@ def doChannelCompatiblity():
   graphSME.SetName('ChannelCompSMerr')
   graphGravGG.SetName('ChannelCompGravGG')
   graphGravQQ.SetName('ChannelCompGravQQ')
+  graphGrav50GG50QQ.SetName('ChannelCompGrav50GG50QQ')
   graphData.SetName('ChannelCompData')
   outf.cd()
   graphSM.Write()
   graphSME.Write()
   graphGravGG.Write()
   graphGravQQ.Write()
+  graphGrav50GG50QQ.Write()
   histSM.Write()
   histSME.Write()
   histGravGG.Write()
   histGravQQ.Write()
+  histGrav50GG50QQ.Write()
   if options.unblind: 
     graphData.Write()
     histData.Write()
@@ -304,7 +351,9 @@ def doChannelCompatiblity():
 
 def doSeparation():
   
+  print '---------------------------'
   print 'Plotting Separation ...'
+  print '---------------------------'
 
   testStatSM = r.TH1F('testStatSMsep','testStatSM',600,-10,10)
   testStatGRAV = r.TH1F('testStatGRAVsep','testStatGRAV',600,-10,10)
@@ -408,7 +457,9 @@ def getInterval(h,clevel):
 
 def doqqbar():
   
+  print '---------------------------'
   print 'Plotting fqqbar ...'
+  print '---------------------------'
   
   qqbarPoints = array.array('f',[])
   for b in options.qqbarPoints.split(','):
@@ -459,10 +510,10 @@ def doqqbar():
   grSM.SetLineWidth(2)
   grSM.SetLineColor(r.kRed)
 
-  grSM68.SetLineColor(r.kYellow)
-  grSM68.SetFillColor(r.kYellow)
-  grSM95.SetLineColor(r.kGreen)
-  grSM95.SetFillColor(r.kGreen)
+  grSM68.SetLineColor(r.kGreen)
+  grSM68.SetFillColor(r.kGreen)
+  grSM95.SetLineColor(r.kYellow)
+  grSM95.SetFillColor(r.kYellow)
 
   grGRAV.SetMarkerStyle(r.kFullTriangleUp)
   grGRAV.SetMarkerColor(r.kBlue)
@@ -475,6 +526,12 @@ def doqqbar():
   dummyHist.SetMinimum(ymin)
   dummyHist.SetMaximum(ymax)
   dummyHist.SetStats(0)
+  dummyHist.GetXaxis().SetLabelSize(0.05);
+  dummyHist.GetXaxis().SetTitleSize(0.05);
+  dummyHist.GetYaxis().SetLabelSize(0.05);
+  dummyHist.GetYaxis().SetTitleSize(0.05);
+  dummyHist.GetXaxis().SetTitleOffset(0.9);
+  dummyHist.GetYaxis().SetTitleOffset(0.9);
   dummyHist.Draw("AXIS")
 
   leg = r.TLegend(0.6,0.65,0.89,0.89);
@@ -520,15 +577,26 @@ def doqqbar():
   canv.SetName('fqq')
   canv.Write()
 
-def makeCombineStyleSeparationPlot(ifile,leg,ofile,xlow,xhigh):
+def makeStandardChannelCompatibilityPlot(file,xlow,xhigh,outextension):
+  
+  if not os.path.isfile('plotSingleMassSignalStrength.py'):
+    sys.exit('Can\'t find fine plotSingleMassSignalStrength.py')
+  os.system('./plotSingleMassSignalStrength.py -i %s -l %.1f -u %.1f -o %s -O %s'%(file,xlow,xhigh,outextension,options.outDir))
+
+def doChannelCompatiblityStandard():
+
+  assert(len(options.inputfiles)==2)
+  makeStandardChannelCompatibilityPlot(options.inputfiles[0],ymin,ymax,options.inputfiles[1])
+
+def makeCombineStyleSeparationPlot(ifile,leg,ofile,rebin,xlow,xhigh):
 
   print 'Plotting combine style separartion'
   setTDRStyle()
-  extractSignificanceStats(options.unblind,leg,options.outDir+'/'+ofile,ifile,xlow,xhigh)
+  extractSignificanceStats(options.unblind,leg,options.outDir+'/'+ofile,ifile,rebin,xlow,xhigh)
   if not options.isBatch: raw_input('Looks ok?')
 
 def doSeparationComb():
-  makeCombineStyleSeparationPlot(options.inputfiles[0],"2_{m}^{+} (gg)","sep_2mpgg",-10.,10)
+  makeCombineStyleSeparationPlot(options.inputfiles[0],"2_{m}^{+} (gg)","sep_2mpgg",640,-10.,10)
 
 def doqqbarComb():
   qqbarPoints = array.array('f',[])
@@ -537,11 +605,20 @@ def doqqbarComb():
 
   for p, filename in enumerate(options.inputfiles):
     fqq = qqbarPoints[p]
-    makeCombineStyleSeparationPlot(filename,'2_{m}^{+} (%1.0f%% qq)'%(fqq*100.),'sep_fqq%3.2f'%(fqq),-10.,10)
+    print '----------------------'
+    print 'Plotting separation for fqq = ',fqq
+    print '----------------------'
+    fname = filename.split('{')[0]
+    info = filename.split('{')[1].split('}')[0]
+    rebin = int(info.split(';')[0])
+    low = float(info.split(';')[1])
+    high = float(info.split(';')[2])
+    makeCombineStyleSeparationPlot(fname,'2_{m}^{+} (%1.0f%% qq)'%(fqq*100.),'sep_fqq%3.2f'%(fqq),rebin,low,high)
     
 if options.datfile:
   df = open(options.datfile)
   for line in df.readlines():
+    if line.startswith('#'): continue
     opts = line.split(':')
     print opts
     meth = opts[0]
@@ -556,6 +633,7 @@ if options.datfile:
     if meth=='qqbar': doqqbar()
     if meth=='SeparationComb': doSeparationComb()
     if meth=='qqbarComb': doqqbarComb()
+    if meth=='ChannelCompatibilityStandard': doChannelCompatiblityStandard()
 
 else:
   if len(options.methods)==0: options.methods=['ChannelCompatibility','Separation','qqbar','SeparationComb','qqbarComb']
