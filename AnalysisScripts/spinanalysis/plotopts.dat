@@ -1,0 +1,7 @@
+ChannelCompatibility:post_fit_m125/higgsCombineSMtoSM.ChannelCompatibilityCheck.mH125.root,post_fit_m125/higgsCombineSMtoGravGG.ChannelCompatibilityCheck.mH125.root,post_fit_m125/higgsCombineSMtoGravQQ.ChannelCompatibilityCheck.mH125.root,post_fit_m125/higgsCombineSMtoGrav50GG50QQ.ChannelCompatibilityCheck.mH125.root,post_fit_m125/higgsCombineSMtoData.ChannelCompatibilityCheck.mH125.root::0.0,0.2,0.375,0.55,0.75,1.0:-1.:3.5
+ChannelCompatibilityStandard:post_fit_m125/higgsCombineSMtoData.ChannelCompatibilityCheck.mH125.root,SMtoData:::-1.:4.
+ChannelCompatibilityStandard:post_fit_m125/higgsCombineGravGGtoData.ChannelCompatibilityCheck.mH125.root,GravGGtoData:::-1.:4.
+ChannelCompatibilityStandard:post_fit_m125/higgsCombineGravQQtoData.ChannelCompatibilityCheck.mH125.root,GravQQtoData:::-1.:4.
+ChannelCompatibilityStandard:post_fit_m125/higgsCombineGrav50GG50QQtoData.ChannelCompatibilityCheck.mH125.root,Grav50GG50QQtoData:::-1.:4.
+qqbar:post_fit_m125_morestats/qmu_qqbar0.00.root,post_fit_m125_morestats/qmu_qqbar0.25.root,post_fit_m125_morestats/qmu_qqbar0.50.root,post_fit_m125_morestats/qmu_qqbar0.75.root,post_fit_m125_morestats/qmu_qqbar1.00.root:0.0,0.25,0.5,0.75,1.0::-3:6
+#qqbarComb:post_fit_m125_morestats/qmu_qqbar0.00.root{500;-10;10},post_fit_m125_morestats/qmu_qqbar0.25.root{500;-6;6},post_fit_m125_morestats/qmu_qqbar0.50.root{500;-4;4},post_fit_m125_morestats/qmu_qqbar0.75.root{500;-4;4},post_fit_m125_morestats/qmu_qqbar1.00.root{500;-6;6}:0.0,0.25,0.5,0.75,1.0::-3:6
