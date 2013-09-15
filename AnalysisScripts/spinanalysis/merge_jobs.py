@@ -12,8 +12,10 @@ parser.add_option("-d","--dir",dest="dir")
 parser.add_option("-m","--mass",dest="mass",type="float")
 parser.add_option("-l","--lowJob",type="int",default=0)
 parser.add_option("-u","--highJob",type="int",default=100000)
+parser.add_option("-s","--skipJobs")
 parser.add_option("--splitJobs",default=False,action="store_true")
 (options,args) = parser.parse_args()
+options.skipJobs = [int(x) for x in options.skipJobs.split(',')]
 
 def doqqbar():
   
@@ -51,6 +53,7 @@ def doqqbar():
     for i,point in enumerate(options.qqbarPoints):
       p = float(point)
       for job in range(njobs):
+        if job in options.skipJobs: continue
         if job<options.lowJob or job>options.highJob: continue
         if options.mass==125 or options.mass==126: filename = "higgsCombinejob%dfqq%1.2f.HybridNew.mH%3.1f.root"%(job,p,options.mass)
         else: filename = "higgsCombinejob%dfqq%1.2f.HybridNew.mH%3.1f.0.root"%(job,p,options.mass)
@@ -83,6 +86,7 @@ def doSeparation():
     from ROOT import hypoTestResultTree
     
     for job in range(njobs):
+      if job in options.skipJobs: continue
       if options.mass==125 or options.mass==126: filename = "higgsCombinejob%dsep.HybridNew.mH%3.1f.root"%(job,options.mass)
       else: filename = "higgsCombinejob%dsep.HybridNew.mH%3.1f.0.root"%(job,options.mass)
       print filename
