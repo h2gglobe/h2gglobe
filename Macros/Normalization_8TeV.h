@@ -11,6 +11,8 @@
 #include "TString.h"
 #include "TROOT.h"
 #include "TLegend.h"
+#include "TPython.h"
+#include "HiggsAnalysis/CombinedLimit/interface/RooSpline1D.h"
 
 using namespace std;
 
@@ -20,8 +22,9 @@ class Normalization_8TeV {
 	Normalization_8TeV();
 	Normalization_8TeV(bool is2011);
 
-	void Init8TeV();
-	void Init7TeV();
+//	void Init8TeV();
+//	void Init7TeV();
+	void Init(bool is2011);
 	
 	double GetBR(double);
 	double GetBR(int);
