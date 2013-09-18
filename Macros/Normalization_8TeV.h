@@ -38,6 +38,8 @@ class Normalization_8TeV {
 	void CheckNorm(double,double,double,TString);
 	void FillSignalTypes();
 	void PlotExpected(double ,double);	
+	void PlotBR(double ,double);	
+	void PlotXS(double ,double);	
 
 	TGraph * GetSigmaGraph(TString process);
 	TGraph * GetBrGraph();
@@ -52,9 +54,11 @@ class Normalization_8TeV {
 	std::map<double,double> XSectionMap_zh;
 	std::map<double,double> XSectionMap_wzh;
 	std::map<double,double> XSectionMap_tth;
-  std::map<double,double> XSectionMap_sm;
+  	std::map<double,double> XSectionMap_sm;
 
 	std::map<int,std::pair<TString,double > > SignalTypeMap;
+	
+	bool is2011_;
 
 };
 #endif

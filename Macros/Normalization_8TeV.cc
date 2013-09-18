@@ -1,10 +1,12 @@
 #include "Normalization_8TeV.h"
 
 Normalization_8TeV::Normalization_8TeV(){
+	is2011_ = false;
 	Init(false);
 }
 
 Normalization_8TeV::Normalization_8TeV(bool is2011){
+	is2011_=is2011;
 	Init(is2011);
 }
 
@@ -29,6 +31,7 @@ void Normalization_8TeV::Init(bool is2011){
         XSectionMap_tth[mH]	= valXSttH; 	
         XSectionMap_wh[mH]	= valXSWH; 	
         XSectionMap_zh[mH]	= valXSZH;	
+        XSectionMap_wzh[mH]	= valXSWH+valXSZH;	
 	
     }
 
@@ -333,6 +336,79 @@ void Normalization_8TeV::CheckNorm(double Min, double Max, double Step, TString 
   delete c1;
 
 }
+void Normalization_8TeV::PlotXS(double Min, double Max){
+
+	gROOT->SetBatch(1);
+	TLegend *leg = new TLegend(0.65,0.7,0.89,0.89);
+	leg->SetFillColor(0);
+	leg->SetBorderSize(0);
+
+	TCanvas *can = new TCanvas("c","",800,800);
+	TGraph *ggh = new TGraph();
+	TGraph *vbf = new TGraph();
+	TGraph *wh = new TGraph();
+	TGraph *zh = new TGraph();
+	TGraph *tth = new TGraph();
+
+	ggh->SetLineColor(kBlue);
+	vbf->SetLineColor(kRed);
+	wh->SetLineColor(kGreen+3);
+	zh->SetLineColor(kBlack);
+	tth->SetLineColor(kViolet);
+
+	leg->AddEntry(ggh,"gg fusion","L");
+	leg->AddEntry(vbf,"Vector boson fusion","L");
+	leg->AddEntry(wh,"W assoc","L");
+	leg->AddEntry(zh,"Z assoc","L");
+	leg->AddEntry(tth,"t#bar{t} assoc","L");
+
+	ggh->SetLineWidth(3);vbf->SetLineWidth(3);wh->SetLineWidth(3);zh->SetLineWidth(3);tth->SetLineWidth(3);
+	int i=0;
+	for(double mH = Min;mH<=Max;mH+=0.5){
+		ggh->SetPoint(i,mH,GetXsection(mH,"ggh"));
+		vbf->SetPoint(i,mH,GetXsection(mH,"vbf"));
+		wh->SetPoint(i,mH,GetXsection(mH,"wh"));
+		zh->SetPoint(i,mH,GetXsection(mH,"zh"));
+		tth->SetPoint(i,mH,GetXsection(mH,"tth"));	
+		i++;
+	}
+	can->SetLogy();
+	ggh->Draw("AL");vbf->Draw("L");wh->Draw("L");zh->Draw("L");tth->Draw("L");
+	ggh->SetTitle(""); ggh->GetYaxis()->SetRangeUser(10E-4,100);
+	ggh->GetXaxis()->SetTitle("m_{H} (GeV)");
+	ggh->GetYaxis()->SetTitle("#sigma(pp#rightarrow H) ");
+	leg->Draw();
+	if (is2011_) can->SaveAs("xsections_7TeV.pdf");
+	else	     can->SaveAs("xsections_8TeV.pdf");
+}
+void Normalization_8TeV::PlotBR(double Min, double Max){
+
+	gROOT->SetBatch(1);
+	TLegend *leg = new TLegend(0.65,0.7,0.89,0.89);
+	leg->SetFillColor(0);
+	leg->SetBorderSize(0);
+
+	TCanvas *can = new TCanvas("c","",800,800);
+	TGraph *ggh = new TGraph();
+
+	ggh->SetLineColor(kBlue);
+
+	leg->AddEntry(ggh,"SM H# rightarrow #gamma#gamma","L");
+
+	ggh->SetLineWidth(3);
+	int i=0;
+	for(double mH = Min;mH<=Max;mH+=0.5){
+		ggh->SetPoint(i,mH,GetBR(mH));	
+		i++;
+	}
+	can->SetLogy();
+	ggh->Draw("AL");
+	ggh->SetTitle(""); ggh->GetYaxis()->SetRangeUser(10E-6,0.1);
+	ggh->GetXaxis()->SetTitle("m_{H} (GeV)");
+	ggh->GetYaxis()->SetTitle(" BR(H#rightarrow#gamma#gamma) ");
+	leg->Draw();
+	can->SaveAs("branchingratio.pdf");
+}
 
 void Normalization_8TeV::PlotExpected(double Min, double Max){
 
@@ -369,11 +445,12 @@ void Normalization_8TeV::PlotExpected(double Min, double Max){
 	}
 	can->SetLogy();
 	ggh->Draw("AL");vbf->Draw("L");wzh->Draw("L");tth->Draw("L");
-	ggh->SetTitle(""); ggh->GetYaxis()->SetRangeUser(10E-3,10);
+	ggh->SetTitle(""); ggh->GetYaxis()->SetRangeUser(10E-10,1);
 	ggh->GetXaxis()->SetTitle("m_{H} (GeV)");
 	ggh->GetYaxis()->SetTitle("#sigma(pp#rightarrow H) #times BR(#rightarrow#gamma#gamma) ");
 	leg->Draw();
-	can->SaveAs("signalnormalization.pdf");
+	if (is2011_)	can->SaveAs("signalnormalization_7TeV.pdf");
+	else		can->SaveAs("signalnormalization_8TeV.pdf");
 }
 
 
