@@ -1,0 +1,36 @@
+### File format:
+### 	<branc_name>[:<branch_type>] 
+### where:
+### 	<branch_type> = 0 for branches to be always read
+### 	<branch_type> = 1 for branches to be read only for MC
+
+## 
+## CiC inputs
+## 
+pho_tkiso_badvtx_040_002_0000_10_01
+pho_tkiso_recvtx_030_002_0000_10_01
+pho_ecalsumetconedr03
+pho_ecalsumetconedr04
+pho_hcalsumetconedr04
+pho_sieie
+pho_hoe
+pho_r9
+pho_drtotk_25_99
+pho_haspixseed
+pho_tkiso_badvtx_id
+
+## 
+## CiC
+## 
+pho_cic4cutlevel_lead
+pho_cic4passcuts_lead
+pho_cic4cutlevel_sublead
+pho_cic4passcuts_sublead
+
+##
+## CiC PF
+##
+pho_cic4pfcutlevel_lead
+pho_cic4pfpasscuts_lead
+pho_cic4pfcutlevel_sublead
+pho_cic4pfpasscuts_sublead

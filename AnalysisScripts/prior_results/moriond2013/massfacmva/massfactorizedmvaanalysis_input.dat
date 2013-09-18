@@ -1,0 +1,42 @@
+->
+File format:
+	<branc_name>[:<branch_type>] 
+where:
+	<branch_type> = 0 for branches to be always read
+	<branch_type> = 1 for branches to be read only for MC
+->
+
+->
+Photon MVA ID inputs
+->
+pho_pfiso_mycharged04
+pho_pfiso_myphoton04
+pho_pfiso_mycharged03
+pho_pfiso_myphoton03
+pho_pfiso_myneutral03
+pho_sieie
+pho_sieip
+pho_sipip
+pho_etawidth
+sc_sphi
+pho_r9
+pho_lambdaratio
+pho_e2x2
+pho_e5x5
+rho_algo1
+sc_xyz
+pho_eseffsixix
+pho_eseffsiyiy
+
+->
+Mva preselection
+->
+pho_hoe
+pho_sieie
+pho_ecalsumetconedr03
+pho_hcalsumetconedr03
+pho_trksumpthollowconedr03
+pho_isconv
+pho_pfiso_mycharged02
+
+# everything else picked up from minimal_analysis_input.dat 

@@ -1,0 +1,103 @@
+## File format:
+## 	<branc_name>[:<branch_type>] 
+## where:
+## 	<branch_type> = 0 for branches to be always read
+## 	<branch_type> = 1 for branches to be read only for MC
+
+pho_drtotk_25_99
+
+## 
+## Muons
+## 
+mu_glo_n
+mu_glo_p4
+mu_glo_dof                                                                             
+mu_glo_chi2                                                                            
+mu_glo_type                                                                            
+mu_glo_nmatches                                                                        
+##skimmed mu_glo_posvtx
+mu_glo_losthits                                                                        
+mu_glo_validhits                                                                       
+mu_glo_pixelhits                                                                       
+mu_glo_validChmbhits                                                                   
+mu_glo_tkpterr    
+mu_glo_ecaliso03                                                                       
+mu_glo_hcaliso03                                                                       
+mu_glo_tkiso03                                                                         
+mu_glo_dz                                                                              
+mu_glo_D0Vtx                                                                      
+mu_glo_DZVtx                                                                      
+mu_tkLayers                                                                            
+mu_glo_chhadiso04                                                                      
+mu_glo_nehadiso04                                                                      
+mu_glo_photiso04                                                                       
+mu_dbCorr        
+
+##
+## Electrons
+##
+el_std_n
+el_std_p4
+el_std_sc
+el_std_scind                                                                             
+el_std_sieie                                                                             
+el_std_sieiesc                                                                           
+el_std_hp_expin                                                                          
+el_std_detain                                                                            
+el_std_dphiin                                                                            
+el_std_eopin                                                                             
+el_std_fbrem                                                                             
+el_std_ip_gsf                                                                            
+el_std_hoe    
+el_std_eseedopin                                                                         
+el_std_tkiso03                                                                           
+el_std_ecaliso03                                                                         
+el_std_ecaliso04                                                                         
+el_std_hcaliso03                                                                         
+el_std_hcaliso04                                                                         
+el_std_dcot                                                                              
+el_std_dist                                                                              
+el_std_tkind                                                                             
+el_std_d0                                                                                
+el_std_z0                                                                                
+el_std_posvtx
+el_std_D0Vtx                                                                        
+el_std_DZVtx                                                                        
+el_std_ip_ctf                                                                            
+el_std_tkdrv    
+el_std_ecaldrv                                                                           
+el_std_pfiso_charged                                                                     
+el_std_pfiso_neutral                                                                     
+el_std_pfiso_photon                                                                      
+el_std_conv_vtxProb                                                                      
+el_std_conv                                                                              
+el_std_pin                                                                               
+el_std_mva_nontrig                                                                       
+el_std_mva_trig         
+
+# MET
+met_pfmet 
+met_phi_pfmet 
+met_sumet_pfmet 
+met_mEtSig_pfmet 
+met_significance_pfmet 
+# met_pfmetType1 
+# met_phi_pfmetType1 
+# met_sumet_pfmetType1 
+# met_mEtSig_pfmetType1 
+# met_significance_pfmetType1 
+
+# Corrected met
+# shiftMET_pt                                                                             
+# shiftMET_phi                                                                            
+# smearMET_pt                                                                             
+# smearMET_phi                                                                            
+# shiftsmearMET_pt                                                                        
+# shiftsmearMET_phi                                                                       
+# shiftscaleMET_pt                                                                        
+# shiftscaleMET_phi                                                                       
+# shiftMET_eta                                                                            
+# shiftMET_e                                                                              
+# shiftscaleMET_eta                                                                       
+# shiftscaleMET_e         
+

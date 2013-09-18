@@ -1,0 +1,196 @@
+## File format:
+## 	<branc_name>[:<branch_type>] 
+## where:
+## 	<branch_type> = 0 for branches to be always read
+## 	<branch_type> = 1 for branches to be read only for MC
+
+## 
+## Counters
+## 
+event
+lumis
+run
+bx
+
+
+## 
+## Jets for VBF
+## 
+jet_algoPF1_n
+jet_algoPF1_erescale
+jet_algoPF1_p4
+jet_algoPF1_beta
+jet_algoPF1_betaStar
+jet_algoPF1_betaStarClassic
+jet_algoPF1_dR2Mean
+jet_algoPF1_dRMean
+jet_algoPF1_dZ
+jet_algoPF1_frac01
+jet_algoPF1_frac02
+jet_algoPF1_frac03
+jet_algoPF1_frac04
+jet_algoPF1_frac05
+jet_algoPF1_full_mva
+jet_algoPF1_simple_mva
+jet_algoPF1_nCharged
+jet_algoPF1_nNeutrals
+jet_algoPF1_pfloose
+jet_algoPF1_vbfMatched
+jet_algoPF1_genMatched
+jet_algoPF1_genPt
+jet_algoPF1_genDr
+jet_algoPF1_full_mva_ext
+jet_algoPF1_simple_mva_ext
+jet_algoPF1_full_wp_level_ext
+jet_algoPF1_simple_wp_level_ext
+jet_algoPF1_cutbased_wp_level_ext
+jet_algoPF1_beta_ext
+jet_algoPF1_betaStar_ext
+jet_algoPF1_betaStarClassic_ext
+jet_algoPF1_area
+jet_algoPF1_nvtx
+
+
+##
+## SuperClusters
+##
+pho_scind
+sc_xyz
+sc_raw
+## bc_seed
+bc_p4
+bc_s25
+sc_bcseedind
+ecalhit_n
+ecalhit_detid
+sc_bcseedind
+pho_scind
+ecalhit_p4
+ecalhit_n
+
+##
+## Photons 
+##
+pho_n
+pho_isEB
+pho_isEE
+pho_isconv
+pho_hasconvtks
+pho_p4
+pho_calopos
+pho_residCorrEnergy
+pho_residCorrResn
+pho_regr_energy
+pho_regr_energyerr
+pho_regr_energy_otf
+pho_regr_energyerr_otf
+pho_tkiso_recvtx_030_002_0000_10_01
+pho_tkiso_badvtx_040_002_0000_10_01
+pho_ecalsumetconedr03
+pho_hcalsumetconedr03
+pho_trksumpthollowconedr03
+
+##
+## PF photon ID
+##
+pho_pfiso_mycharged04
+pho_pfiso_myphoton04
+pho_pfiso_mycharged02
+pho_pfiso_mycharged03
+pho_pfiso_myphoton03
+pho_pfiso_mycharged02
+pho_sieie
+pho_sipip
+pho_sieip
+pho_e5x5
+pho_hoe
+pho_r9
+pho_isconv
+
+
+## 
+## MC truth
+gh_higgs_p4:1
+gh_pho1_p4:1
+gh_pho2_p4:1
+### gp_n:1
+### gp_p4:1
+### gp_status:1
+### gp_pdgid:1
+### gp_mother:1
+process_id:1
+weight:1
+pthat:1
+gv_n:1
+gv_pos:1
+pu_n:1
+
+## 
+## Vertex
+## 
+vtx_std_n
+vtx_std_xyz
+##skimmed vtx_std_ndof
+
+##
+## PU correction
+##
+## rho
+rho_algo1
+##skimmed rho_algo2
+##skimmed rho_algo3
+
+## 
+## Beam spot
+## 
+bs_xyz
+
+## 
+## Trigger
+## 
+hlt_bit:2
+hlt_n:2
+hlt_path_names_HLT:2
+
+## 
+## Vertex selection
+## 
+vtx_std_sel
+vtx_std_ranked_list
+vtx_std_evt_mva
+sc_xyz
+conv_ntracks
+conv_singleleg_momentum
+conv_refitted_momentum
+conv_validvtx
+conv_chi2_probability
+##skimmed conv_zofprimvtxfromtrks
+bs_xyz
+conv_n
+conv_vtx
+conv_ntracks
+conv_singleleg_momentum
+conv_refitted_momentum
+conv_ntracks
+conv_validvtx
+conv_chi2_probability
+conv_eoverp
+pho_conv_refitted_momentum
+pho_conv_vtx
+##skimmed pho_conv_ntracks
+##skimmed pho_conv_validvtx
+##skimmed pho_conv_chi2_probability
+pho_conv_eoverp
+
+	
+##
+## di-photons
+##
+dipho_n
+dipho_leadind
+dipho_subleadind
+dipho_vtxind
+
+# MET
+#shiftscaleMET_pt
+

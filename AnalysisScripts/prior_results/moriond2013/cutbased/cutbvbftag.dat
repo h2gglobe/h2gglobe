@@ -1,0 +1,12 @@
+## 2-categories cut-based
+nVBFEtaCategories=1
+nVBFDijetJetCategories=2
+leadEtVBFCut=60
+subleadEtVBFCut=25
+
+mvaVbfSelection=0
+
+
+#bkgPolOrderByCat=4,5,5,5,3,3,4,-1,-1
+
+#includeVHmet=1
