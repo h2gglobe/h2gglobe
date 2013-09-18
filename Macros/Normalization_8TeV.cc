@@ -10,11 +10,13 @@ Normalization_8TeV::Normalization_8TeV(bool is2011){
 
 void Normalization_8TeV::Init(bool is2011){
 
-    TPython::Exec("import buildSMHiggsSignalXSBR");
+    //TPython::Exec("import $(CMSSW_BASE).src.h2gglobe.AnalysisScripts.AnalysisScripts.python.buildSMHiggsSignalXSBR");
+    TPython::Exec("import os,imp");
+    TPython::Exec("buildSMHiggsSignalXSBR = imp.load_source('*', '%s/src/h2gglobe/AnalysisScripts/python/buildSMHiggsSignalXSBR.py'%(os.environ['CMSSW_BASE']))");
     if (is2011) TPython::Eval("buildSMHiggsSignalXSBR.Init7TeV()");
     else        TPython::Eval("buildSMHiggsSignalXSBR.Init8TeV()");
     
-    for (double mH=90.0;mH<=250.0;mH+=0.5){ //250
+    for (double mH=90.0;mH<=250.0;mH+=0.1){ // Do we need this up to 250 ?
 	double valBR    =  (double)TPython::Eval(Form("buildSMHiggsSignalXSBR.getBR(%f)",mH));
 	double valXSggH =  (double)TPython::Eval(Form("buildSMHiggsSignalXSBR.getXS(%f,'%s')",mH,"ggH"));
 	double valXSqqH =  (double)TPython::Eval(Form("buildSMHiggsSignalXSBR.getXS(%f,'%s')",mH,"qqH"));
@@ -367,7 +369,7 @@ void Normalization_8TeV::PlotExpected(double Min, double Max){
 	}
 	can->SetLogy();
 	ggh->Draw("AL");vbf->Draw("L");wzh->Draw("L");tth->Draw("L");
-	ggh->SetTitle(""); ggh->GetYaxis()->SetRangeUser(10E-6,1);
+	ggh->SetTitle(""); ggh->GetYaxis()->SetRangeUser(10E-3,10);
 	ggh->GetXaxis()->SetTitle("m_{H} (GeV)");
 	ggh->GetYaxis()->SetTitle("#sigma(pp#rightarrow H) #times BR(#rightarrow#gamma#gamma) ");
 	leg->Draw();

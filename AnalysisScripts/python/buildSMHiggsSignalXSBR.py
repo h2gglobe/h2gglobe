@@ -55,7 +55,6 @@ def getBR(mh):
 def getXS(mh,prod):
  
  mhVar.setVal(mh)
- print options.funcXSext
  funcXS = SM.modelBuilder.out.function("SM_XS_%s_%s"%(prod,options.funcXSext))
  return funcXS.getVal()
 
