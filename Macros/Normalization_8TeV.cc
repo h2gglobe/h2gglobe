@@ -250,11 +250,25 @@ double Normalization_8TeV::GetVBFCorrection(double mass) {
 
 // Simple accessors
 TString Normalization_8TeV::GetProcess(int ty){
-  return SignalTypeMap[ty].first;
+  if (ty < -7999){  // We dont go below 80 GeV and Spin samples in the 100 range 
+    int process = ty - 1000*((int)ty/1000);
+    if (process == 0 ) return "ggh";
+    else if (process == 100) return "vbf";
+    else if (process == 200) return "wh";
+    else if (process == 300) return "zh";
+    else if (process == 400) return "tth";
+    else if (process == 500) return "wzh";
+
+  } else {
+    return SignalTypeMap[ty].first;
+  }
 }
 
 double Normalization_8TeV::GetMass(int ty){
-  return SignalTypeMap[ty].second;
+  if (ty < -7999){  // We dont go below 80 GeV and Spin samples in the 100 range
+    return (double) ty/1000;
+  }	 
+  else return SignalTypeMap[ty].second;
 }
 double Normalization_8TeV::GetXsection(int ty){
   std::pair<TString,double> proc_mass = SignalTypeMap[ty];
