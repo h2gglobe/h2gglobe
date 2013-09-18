@@ -15,6 +15,7 @@ if (int(options.nJobs) > 0) and (int(options.jobId) >= int(options.nJobs)):
 ROOT.gSystem.Load("libRooFit.so")
 ROOT.gSystem.Load("libPhysics.so");
 ROOT.gSystem.Load("libCore.so");
+ROOT.gSystem.Load("$CMSSW_BASE/lib/slc5_amd64_gcc472/libHiggsAnalysisCombinedLimit.so")
 ROOT.gSystem.Load("../libLoopAll.so");
 
 ROOT.gROOT.SetBatch(1)

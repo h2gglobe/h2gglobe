@@ -879,7 +879,8 @@ class configProducer:
     # First check if its a signal sample we are defining, in which case calculate the x-section and BR
     ## print map_c["typ"], map_c["xsec"]
     if (map_c["typ"] == -1) : 
-	  hmass = int(sample_name[sample_name.find("m")+1:sample_name.find("m")+sample_name.find("_")])
+	  sample_name = map_c["Nam"]
+	  hmass = int(sample_name[sample_name.find("m")+1:sample_name.find("m")+1+sample_name.find("_")])
 	  newtype = 1000*hmass
 	  proc = ""
 	  if "ggh" in sample_name: 
@@ -904,7 +905,7 @@ class configProducer:
             map_c["xsec"] = self.ut_.signalNormalizer.GetXsection(float(hmass),proc) * self.ut_.signalNormalizer.GetBR(float(hmass))
     elif map_c["xsec"] < 0:
      	    map_c["xsec"] = self.ut_.signalNormalizer.GetXsection(map_c["typ"]) * self.ut_.signalNormalizer.GetBR(map_c["typ"])
-    ## print map_c["typ"], map_c["xsec"]
+    #print map_c["Nam"],map_c["typ"], map_c["xsec"]
       
     if fi_name != '':
       temp_dir = "/".join(fi_name.split("/")[:-1])

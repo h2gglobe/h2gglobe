@@ -11,6 +11,7 @@ from python.runOptions import *
 if (int(options.nJobs) > 0) and (int(options.jobId) >= int(options.nJobs)):
   sys.exit("Job id's must run from 0 -> %d when splitting into %d jobs"%(int(options.nJobs)-1,int(options.nJobs)))
     
+ROOT.gSystem.Load("$CMSSW_BASE/lib/slc5_amd64_gcc472/libHiggsAnalysisCombinedLimit.so")
 ROOT.gSystem.Load("../libLoopAll.so");
 
 ROOT.gROOT.SetBatch(1)
