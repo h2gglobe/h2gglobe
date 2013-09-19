@@ -23,7 +23,7 @@ using namespace std;
 using namespace RooFit;
 using namespace boost;
 
-FinalModelConstruction::FinalModelConstruction(RooRealVar *massVar, RooRealVar *MHvar, RooRealVar *intL, int mhLow, int mhHigh, string proc, int cat, int nIncCats, bool doSecMods, string systematicsFileName, int verbosity, bool isCB):
+FinalModelConstruction::FinalModelConstruction(RooRealVar *massVar, RooRealVar *MHvar, RooRealVar *intL, int mhLow, int mhHigh, string proc, int cat, bool doSecMods, string systematicsFileName, int verbosity, bool isCB):
   mass(massVar),
   MH(MHvar),
   intLumi(intL),
@@ -31,7 +31,6 @@ FinalModelConstruction::FinalModelConstruction(RooRealVar *massVar, RooRealVar *
   mhHigh_(mhHigh),
   proc_(proc),
   cat_(cat),
-  nIncCats_(nIncCats),
   doSecondaryModels(doSecMods),
   isCutBased(isCB),
   verbosity_(verbosity),
