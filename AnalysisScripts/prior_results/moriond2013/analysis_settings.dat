@@ -1,0 +1,92 @@
+## Trigger selection
+doTriggerSelection=1
+
+## Di-jet tag
+includeVBF=1
+usePUjetveto=1
+
+## 2-categories cut-based
+### nVBFEtaCategories=1
+### nVBFDijetJetCategories=2
+### leadEtVBFCut=60
+### subleadEtVBFCut=25
+
+## MVA tag
+mvaVbfSelection=1
+multiclassVbfSelection=0
+mvaVbfWeights=aux/TMVA_vbf_6var_mjj100_diphopt_phopt_BDTG.weights.xml
+mvaVbfMethod=BDTG
+leadEtVBFCut=40
+subleadEtVBFCut=30
+mvaVbfCatBoundaries=1.,0.985,0.93 
+
+## Singal mass points to book
+sigPointsToBook=105,110,115,120,123,124,125,130,135,140,145,150
+
+## Hadronic V tag
+includeVHhad=0
+nVHhadEtaCategories=1
+leadEtVHhadCut=60
+subleadEtVHhadCut=25
+
+## Lepton tag
+includeVHlep=1
+leadEtVHlepCut=45
+#subleadEtVHlepCut=30
+nElectronCategories=1 
+nMuonCategories=1 
+
+## MET tag
+includeVHmet=1
+leadEtVHmetCut=45
+#subleadEtVHmetCut=30
+nMetCategories=1 
+
+doKFactorSmear=0
+doKFactorSyst=0
+
+## Inputs for reweighing
+kfacHist=
+# ggh scale uncertainties
+pdfWeightHist=aux/GF_mvasys.root
+## For 7TeV samples
+## kfacHist=aux/KFactors_AllScales_interpolated.root
+puMap=
+puHist=auto
+## puTarget=aux/HCP2012_preapproval_red_v1.json.69400.observed.pileup.root
+puTarget=aux/Moriond_pileup_190456-208686_minBiasXsec69400_corr_observed.root
+
+## energy regression
+energyCorrectionMethod=Bendavid
+doEcorrectionSmear=1
+doEcorrectionSyst=0
+
+## energy scale adjustement and errors
+scale_offset_file=prior_results/moriond2013/energy_scale_offsets.dat
+scale_offset_error_file=prior_results/moriond2013/energy_scale_errors.dat
+
+## uncorrelated part of the uncertainties
+splitEscaleSyst=0
+scale_offset_corr_error_file=prior_results/moriond2013/energy_scale_corr_errors.dat
+
+## additional MC smearing
+smearing_file=prior_results/moriond2013/smearing_sigma_and_errors.dat
+## smearing correction for BDT input
+mass_resol_file=prior_results/moriond2013/smearing_sigma_and_errors_hcp2012.dat
+
+## uncorrelated part of the uncertainties
+splitEresolSyst=0
+corr_smearing_file=prior_results/moriond2013/smearing_sigma_corr_errors.dat
+
+## jets
+recomputeBetas=0
+recorrectJets=1
+rerunJetMva=0
+recomputeJetWp=1
+
+## revertex
+reRunVtx=0
+rematchConversions=0
+
+doInterferenceSmear=1
+
