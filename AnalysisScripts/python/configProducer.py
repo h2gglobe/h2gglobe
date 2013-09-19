@@ -42,8 +42,9 @@ class configProducer:
   def __init__(self,Ut,conf_filename,Type,njobs=-1,jobId=0,makehistos=True,
                search_path="common:reduction:baseline:massfac_mva_binned:full_mva_binned:jetanalysis:photonjet:spinanalysis",
                label="",mountEos=False,
-               files=[],histfile=""):
+               files=[],histfile="",debug=False):
 
+    PYDEBUG=debug 
     print "h2gglobe: step %d, with Config %s. Number of jobs %d. Running job %d" %(Type,conf_filename,njobs,jobId)
 
     self.ut_   = Ut;
@@ -878,9 +879,34 @@ class configProducer:
 
     # First check if its a signal sample we are defining, in which case calculate the x-section and BR
     ## print map_c["typ"], map_c["xsec"]
-    if map_c["typ"] < 0 and map_c["xsec"] < 0: 
-      map_c["xsec"] = self.ut_.signalNormalizer.GetXsection(map_c["typ"]) * self.ut_.signalNormalizer.GetBR(map_c["typ"])
-    ## print map_c["typ"], map_c["xsec"]
+    if (map_c["typ"] == -1) : 
+	  sample_name = map_c["Nam"]
+	  hmass = int(sample_name[sample_name.find("m")+1:sample_name.find("m")+1+sample_name.find("_")])
+	  newtype = 1000*hmass
+	  proc = ""
+	  if "ggh" in sample_name: 
+		proc="ggh"
+	  elif "vbf" in sample_name: 
+		newtype+=100
+		proc="vbf"
+	  elif "wzh" in sample_name: 
+		newtype+=500
+		proc="wzh"
+	  elif "tth" in sample_name: 
+		newtype+=400
+		proc="tth"
+	  elif "wh" in sample_name:
+		newtype+=200
+		proc="wh"
+	  elif "zh" in sample_name: 
+		newtype+=300
+		proc="zh"
+	  map_c["typ"]=-1*newtype
+          if map_c["xsec"] < 0: # not provided so figure it out ourselves
+            map_c["xsec"] = self.ut_.signalNormalizer.GetXsection(float(hmass),proc) * self.ut_.signalNormalizer.GetBR(float(hmass))
+    elif map_c["xsec"] < 0:
+     	    map_c["xsec"] = self.ut_.signalNormalizer.GetXsection(map_c["typ"]) * self.ut_.signalNormalizer.GetBR(map_c["typ"])
+    if PYDEBUG: print "Calculated signal X-section*BR = ", map_c["Nam"],map_c["typ"], map_c["xsec"]
       
     if fi_name != '':
       temp_dir = "/".join(fi_name.split("/")[:-1])

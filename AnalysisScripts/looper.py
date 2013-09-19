@@ -12,6 +12,7 @@ ROOT.gSystem.Load("libTMVA.so");
 ## ROOT.gSystem.Load("libPhysics.so");
 ## ROOT.gSystem.Load("libCore.so");
 ## ROOT.gSystem.Load("libRooFit.so");
+ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
 ROOT.gSystem.Load("../libLoopAll.so");
 
 ROOT.gBenchmark.Start("Analysis");
@@ -20,7 +21,7 @@ ut = ROOT.LoopAll();
 config_file="inputfiles.dat"
 if options.inputDat:
     config_file = options.inputDat
-cfg = configProducer(ut,config_file,0,int(options.nJobs),int(options.jobId))
+cfg = configProducer(ut,config_file,0,int(options.nJobs),int(options.jobId),debug=options.verbose)
   
 if not options.dryRun:
  ut.LoopAndFillHistos();

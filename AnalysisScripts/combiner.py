@@ -15,6 +15,8 @@ if (int(options.nJobs) > 0) and (int(options.jobId) >= int(options.nJobs)):
 ROOT.gSystem.Load("libRooFit.so")
 ROOT.gSystem.Load("libPhysics.so");
 ROOT.gSystem.Load("libCore.so");
+#ROOT.gSystem.Load("$CMSSW_BASE/lib/slc5_amd64_gcc472/libHiggsAnalysisCombinedLimit.so")
+ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
 ROOT.gSystem.Load("../libLoopAll.so");
 
 ROOT.gROOT.SetBatch(1)
@@ -29,7 +31,7 @@ if options.files != "":
   fnames=[f.lstrip(" ").rstrip(" ") for f in options.files.split(',') if f != ""]
 
 ut = ROOT.LoopAll();
-cfg = configProducer(ut,config_file,0,int(options.nJobs),int(options.jobId),files=fnames,histfile=options.output,mountEos=options.mountEos)
+cfg = configProducer(ut,config_file,0,int(options.nJobs),int(options.jobId),files=fnames,histfile=options.output,mountEos=options.mountEos,debug=options.verbose)
 #cfg = configProducer(ut,config_file,0,-1,0)
 
 if not options.dryRun:

@@ -21,7 +21,7 @@ if options.inputDat:
     config_file = options.inputDat
 
 ut = ROOT.LoopAll();
-cfg = configProducer(ut,config_file,1,int(options.nJobs),int(options.jobId))
+cfg = configProducer(ut,config_file,1,int(options.nJobs),int(options.jobId),debug=options.verbose)
 
 if not options.dryRun:
   ut.LoopAndFillHistos()

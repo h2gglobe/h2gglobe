@@ -11,6 +11,8 @@
 #include "TString.h"
 #include "TROOT.h"
 #include "TLegend.h"
+#include "TPython.h"
+#include "HiggsAnalysis/CombinedLimit/interface/RooSpline1D.h"
 
 using namespace std;
 
@@ -20,8 +22,9 @@ class Normalization_8TeV {
 	Normalization_8TeV();
 	Normalization_8TeV(bool is2011);
 
-	void Init8TeV();
-	void Init7TeV();
+//	void Init8TeV();
+//	void Init7TeV();
+	void Init(bool is2011);
 	
 	double GetBR(double);
 	double GetBR(int);
@@ -35,6 +38,8 @@ class Normalization_8TeV {
 	void CheckNorm(double,double,double,TString);
 	void FillSignalTypes();
 	void PlotExpected(double ,double);	
+	void PlotBR(double ,double);	
+	void PlotXS(double ,double);	
 
 	TGraph * GetSigmaGraph(TString process);
 	TGraph * GetBrGraph();
@@ -49,9 +54,11 @@ class Normalization_8TeV {
 	std::map<double,double> XSectionMap_zh;
 	std::map<double,double> XSectionMap_wzh;
 	std::map<double,double> XSectionMap_tth;
-  std::map<double,double> XSectionMap_sm;
+  	std::map<double,double> XSectionMap_sm;
 
 	std::map<int,std::pair<TString,double > > SignalTypeMap;
+	
+	bool is2011_;
 
 };
 #endif
