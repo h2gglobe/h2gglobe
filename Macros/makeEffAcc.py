@@ -49,7 +49,8 @@ adHocFactors={
 ### from ROOT import GetXsection
 ### GetProcXsection = GetXsection
 
-ROOT.gSystem.Load("$CMSSW_BASE/lib/slc5_amd64_gcc472/libHiggsAnalysisCombinedLimit.so")
+#ROOT.gSystem.Load("$CMSSW_BASE/lib/slc5_amd64_gcc472/libHiggsAnalysisCombinedLimit.so")
+ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
 ROOT.gSystem.Load("../libLoopAll")
 from ROOT import Normalization_8TeV
 norm = Normalization_8TeV()  # Should be checking if 7TeV or 8TeV signal, default is 8TeV here

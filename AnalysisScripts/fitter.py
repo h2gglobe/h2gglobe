@@ -11,7 +11,8 @@ from python.runOptions import *
 if (int(options.nJobs) > 0) and (int(options.jobId) >= int(options.nJobs)):
   sys.exit("Job id's must run from 0 -> %d when splitting into %d jobs"%(int(options.nJobs)-1,int(options.nJobs)))
     
-ROOT.gSystem.Load("$CMSSW_BASE/lib/slc5_amd64_gcc472/libHiggsAnalysisCombinedLimit.so")
+#ROOT.gSystem.Load("$CMSSW_BASE/lib/slc5_amd64_gcc472/libHiggsAnalysisCombinedLimit.so")
+ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
 ROOT.gSystem.Load("../libLoopAll.so");
 
 ROOT.gROOT.SetBatch(1)
@@ -30,7 +31,7 @@ if options.typeRun != -1:
 options.preSearchPath.reverse()
 seach_path=options.preSearchPath+options.searchPath.split(":")+options.postSearchPath
 cfg = configProducer(ut,config_file,type_run,int(options.nJobs),int(options.jobId),seach_path,label=options.label,
-                     mountEos=options.mountEos)
+                     mountEos=options.mountEos,debug=options.verbose)
 
 ROOT.gROOT.cd()
 if not options.dryRun:
