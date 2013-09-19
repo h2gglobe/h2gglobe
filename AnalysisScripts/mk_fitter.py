@@ -255,6 +255,7 @@ if __name__  == "__main__":
 		f.write("tar zxfCv %s/%s.tgz scratch\n" % (mydir,options.outputScript) )
 		
 		f.write("cd scratch\n")
+		f.write("export H2GGLOBE_RUNTIME=$PWD")
 		
 		f.write("cat > %s.dat << EOF\n" % jobbasename)
 		f.write(datfile.replace("$input_files",files[i]).replace("$histdir",""))

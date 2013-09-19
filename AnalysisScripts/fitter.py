@@ -13,7 +13,7 @@ if (int(options.nJobs) > 0) and (int(options.jobId) >= int(options.nJobs)):
     
 #ROOT.gSystem.Load("$CMSSW_BASE/lib/slc5_amd64_gcc472/libHiggsAnalysisCombinedLimit.so")
 ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
-ROOT.gSystem.Load("../libLoopAll.so");
+ROOT.gSystem.Load("../libLoopAll");
 
 ROOT.gROOT.SetBatch(1)
 

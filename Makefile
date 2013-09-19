@@ -53,6 +53,7 @@ SubPkgsFullDicts=CategoryOptimizer/interface/*.$(HeadSuf)
 ##
 ## Flags and external dependecies
 ## 
+CXXFLAGS+=-DH2GGLOBE_BASE=\"$(CURDIR)\"
 ROOFIT_BASE=$(ROOFITSYS)
 LDFLAGS+=-L$(ROOFIT_BASE)/lib $(ROOTLIBS) -lRooFitCore -lRooFit -lTMVA -lPyROOT
 LDFLAGS+= $(patsubst %, -L%, $(shell echo ${LD_LIBRARY_PATH} | tr ':' '\n')) -lFWCorePythonParameterSet -lFWCoreParameterSet -lCMGToolsExternal -lCondFormatsJetMETObjects -lHiggsAnalysisGBRLikelihood -lHiggsAnalysisCombinedLimit
