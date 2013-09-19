@@ -110,6 +110,9 @@ PhotonAnalysis::PhotonAnalysis()  :
     
     combinedmvaVbfSelection=false;
     reweighPt=false;
+
+    _foresteb=0;  
+    _forestee=0; 
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -1282,12 +1285,14 @@ void PhotonAnalysis::Init(LoopAll& l)
     // ---------------------- LOAD Regression Classes ---------------------//
     //initialize eval vector
     _vals.resize(37);
-    
-    //load forests from file
-    TFile *fgbr = TFile::Open(regressionFile.c_str(),"READ");    
-    fgbr->GetObject("EGRegressionForest_EB", _foresteb);
-    fgbr->GetObject("EGRegressionForest_EE", _forestee);
-    fgbr->Close();
+   
+    if( l.typerun == LoopAll::kReduce ) {
+        //load forests from file
+        TFile *fgbr = TFile::Open(regressionFile.c_str(),"READ");    
+        fgbr->GetObject("EGRegressionForest_EB", _foresteb);
+        fgbr->GetObject("EGRegressionForest_EE", _forestee);
+        fgbr->Close();
+    }
 
     //recreate pdf with constraint transformations (can't load directly from file due to weird RooWorkspace IO features)
     
@@ -1818,7 +1823,9 @@ void PhotonAnalysis::FillReductionVariables(LoopAll& l, int jentry)
 	cout<<"myFillReduceVar START"<<endl;
 
     // Run on-the-fly regression at Reduction Step
-    GetRegressionCorrections(l);  // need to pass LoopAll
+    if( l.typerun == LoopAll::kReduce ) {
+        GetRegressionCorrections(l);  // need to pass LoopAll
+    }
     PreselectPhotons(l,jentry);
 
     if(PADEBUG)
