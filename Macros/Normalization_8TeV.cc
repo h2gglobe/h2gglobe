@@ -1,5 +1,7 @@
 #include "Normalization_8TeV.h"
 
+#include "TSystem.h"
+
 Normalization_8TeV::Normalization_8TeV(){
 	is2011_ = false;
 	Init(false);
@@ -14,7 +16,9 @@ void Normalization_8TeV::Init(bool is2011){
 
     //TPython::Exec("import $(CMSSW_BASE).src.h2gglobe.AnalysisScripts.AnalysisScripts.python.buildSMHiggsSignalXSBR");
     TPython::Exec("import os,imp");
-    TPython::Exec("buildSMHiggsSignalXSBR = imp.load_source('*', '%s/src/h2gglobe/AnalysisScripts/python/buildSMHiggsSignalXSBR.py'%(os.environ['CMSSW_BASE']))");
+    const char * env = gSystem->Getenv("H2GGLOBE_RUNTIME");
+    std::string globeRt = ( env != 0 ? env : H2GGLOBE_BASE "/AnalysisScripts");
+    TPython::Exec(Form("buildSMHiggsSignalXSBR = imp.load_source('*', '%s/python/buildSMHiggsSignalXSBR.py')",globeRt.c_str()));
     if (is2011) TPython::Eval("buildSMHiggsSignalXSBR.Init7TeV()");
     else        TPython::Eval("buildSMHiggsSignalXSBR.Init8TeV()");
     
