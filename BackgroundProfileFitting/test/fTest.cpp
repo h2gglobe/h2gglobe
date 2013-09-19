@@ -21,6 +21,8 @@
 #include "RooMsgService.h"
 #include "RooDataHist.h"
 #include "TLatex.h"
+#include "TMacro.h"
+#include "TKey.h"
 
 #include "RooCategory.h"
 #include "HiggsAnalysis/CombinedLimit/interface/RooMultiPdf.h"
@@ -117,6 +119,20 @@ void plot(RooRealVar *mass, map<string,RooAbsPdf*> pdfs, RooAbsData *data, strin
   delete canv;
 }
 
+void transferMacros(TFile *inFile, TFile *outFile){
+  
+  TIter next(inFile->GetListOfKeys());
+  TKey *key;
+  while ((key = (TKey*)next())){
+    if (string(key->ReadObj()->ClassName())=="TMacro") {
+      //cout << key->ReadObj()->ClassName() << " : " << key->GetName() << endl;
+      TMacro *macro = (TMacro*)inFile->Get(key->GetName());
+      outFile->cd();
+      macro->Write();
+    }
+  }
+}
+
 int main(int argc, char* argv[]){
  
   string fileName;
@@ -168,6 +184,10 @@ int main(int argc, char* argv[]){
   system(Form("mkdir -p %s",outDir.c_str()));
   TFile *inFile = TFile::Open(fileName.c_str());
   RooWorkspace *inWS = (RooWorkspace*)inFile->Get("cms_hgg_workspace");
+
+	transferMacros(inFile,outputfile);
+	RooRealVar *intL = (RooRealVar*)inWS->var("IntLumi");
+	outputws->import(*intL);
   
   vector<string> functionClasses;
   //functionClasses.push_back("Chebychev");
