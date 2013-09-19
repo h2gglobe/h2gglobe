@@ -26,15 +26,14 @@ ecalhit_n
 ecalhit_detid
 ecalhit_p4
 bc_n
-### bc_seed
 bc_p4
 
 # Tracks 
 tk_n
 tk_p4
 tk_vtx_pos
-##skimmed tk_nhits
-##skimmed tk_nlosthit
+tk_nhits
+tk_nlosthit
 tk_quality
 
 # met
@@ -76,15 +75,14 @@ el_std_tkind
 ##skimmed el_std_d0
 ##skimmed el_std_z0
 el_std_posvtx
-el_std_D0Vtx
-el_std_DZVtx
+##skimmed el_std_D0Vtx
+##skimmed el_std_DZVtx
 ##skimmed el_std_ip_ctf
 el_std_tkdrv
 el_std_ecaldrv
 el_std_pfiso_charged
 el_std_pfiso_neutral
 el_std_pfiso_photon
-##skimmed conv_vtxProb
 el_std_conv
 el_std_pin
 el_std_mva_nontrig
@@ -99,19 +97,19 @@ mu_glo_dof
 mu_glo_chi2
 mu_glo_type
 mu_glo_nmatches
-##skimmed mu_glo_posvtx
-##skimmed mu_glo_losthits
+mu_glo_posvtx
+mu_glo_losthits
 mu_glo_validhits
-##skimmed mu_glo_innerhits
+mu_glo_innerhits
 mu_glo_pixelhits
 mu_glo_validChmbhits
-##skimmed mu_glo_tkpterr
+mu_glo_tkpterr
 mu_glo_ecaliso03
 mu_glo_hcaliso03
 mu_glo_tkiso03
-##skimmed mu_glo_dz
-mu_glo_D0Vtx
-mu_glo_DZVtx
+mu_glo_dz
+# mu_glo_D0Vtx
+# mu_glo_DZVtx
 mu_tkLayers
 mu_glo_chhadiso04
 mu_glo_nehadiso04
@@ -120,12 +118,12 @@ mu_dbCorr
 
 # Photons 
 pho_n
-pho_feta
+#pho_feta
 pho_crackcorr
 pho_localcorr
 pho_isEB
 pho_isEE
-##skimmed pho_see
+pho_see
 pho_sieie
 pho_sipip
 pho_sieip
@@ -138,17 +136,17 @@ pho_hoe
 ##skimmed pho_r1x5
 ##skimmed pho_r2x5
 pho_r9
-##skimmed pho_isEBGap
-##skimmed pho_isEEGap
-##skimmed pho_isEBEEGap
+pho_isEBGap
+pho_isEEGap
+pho_isEBEEGap
 # pho_h1oe
 # pho_h2oe
 # pho_hcal1sumetconedr04
 # pho_hcal2sumetconedr04
 # pho_hcal1sumetconedr03
 # pho_hcal2sumetconedr03
-##skimmed pho_zernike20
-##skimmed pho_zernike42
+pho_zernike20
+pho_zernike42
 pho_e2nd
 pho_e2x5max
 pho_e2x5right
@@ -176,54 +174,48 @@ pho_seed_recoflag
 pho_seed_severity
 pho_ecalsumetconedr04
 pho_hcalsumetconedr04
-##skimmed pho_trksumptsolidconedr04
-##skimmed pho_trksumpthollowconedr04
-##skimmed pho_ntrksolidconedr04
-##skimmed pho_ntrkhollowconedr04
+pho_trksumptsolidconedr04
+pho_trksumpthollowconedr04
+pho_ntrksolidconedr04
+pho_ntrkhollowconedr04
 pho_ecalsumetconedr03
 pho_hcalsumetconedr03
-##skimmed pho_trksumptsolidconedr03
+pho_trksumptsolidconedr03
 pho_trksumpthollowconedr03
-##skimmed pho_ntrksolidconedr03
+pho_ntrksolidconedr03
 pho_ntrkhollowconedr03
 #pho_barrel
 pho_haspixseed
 pho_hasconvtks
 pho_nconv
-##skimmed pho_conv_ntracks
-##skimmed conv_pairinvmass
-##skimmed conv_paircotthetasep
-pho_conv_eoverp
-##skimmed conv_zofprimvtxfromtrks
-##skimmed conv_distofminapproach
-##skimmed conv_dphitrksatvtx
-##skimmed conv_dphitrksatecal
-##skimmed conv_detatrksatecal
-##skimmed conv_tk1_d0
-##skimmed conv_tk1_pout
-##skimmed conv_tk1_pin
-##skimmed conv_tk2_d0
-##skimmed conv_tk2_pout
-##skimmed conv_tk2_pin
-##skimmed conv_tk1_dz
-##skimmed conv_tk1_dzerr
-##skimmed conv_tk1_nh
-##skimmed conv_tk2_dz
-##skimmed conv_tk2_dzerr
-##skimmed conv_tk2_nh
-##skimmed conv_ch1ch2
-##skimmed pho_conv_chi2
-##skimmed pho_conv_chi2_probability
-##skimmed pho_conv_validvtx
-##skimmed conv_MVALikelihood
+conv_pairinvmass
+conv_paircotthetasep
+conv_zofprimvtxfromtrks
+conv_distofminapproach
+conv_dphitrksatvtx
+conv_dphitrksatecal
+conv_detatrksatecal
+conv_tk1_d0
+conv_tk1_pout
+conv_tk1_pin
+conv_tk2_d0
+conv_tk2_pout
+conv_tk2_pin
+conv_tk1_dz
+conv_tk1_dzerr
+conv_tk1_nh
+conv_tk2_dz
+conv_tk2_dzerr
+conv_tk2_nh
+conv_ch1ch2
+conv_MVALikelihood
 pho_p4
 pho_calopos
 pho_conv_vtx
-##skimmed conv_pair_momentum
+conv_pair_momentum
 pho_conv_refitted_momentum
-##skimmed pho_conv_vertexcorrected_p4
+pho_conv_vertexcorrected_p4
 pho_scind
-#sc_xyz
 pho_residCorrEnergy
 pho_residCorrResn
 pho_regr_energy
@@ -275,54 +267,48 @@ pho_phicry
 
 # All Conversions
 conv_n
-##skimmed conv_p4
+conv_p4
 conv_ntracks
-##skimmed conv_pairinvmass
-##skimmed conv_paircotthetasep
 conv_eoverp
-##skimmed conv_distofminapproach
-##skimmed conv_dphitrksatvtx
-##skimmed conv_dphitrksatecal
-##skimmed conv_detatrksatecal
-##skimmed conv_dxy
-##skimmed conv_dz
-##skimmed conv_lxy
-##skimmed conv_lz
-##skimmed conv_zofprimvtxfromtrks
-##skimmed conv_nHitsBeforeVtx
-##skimmed conv_nSharedHits
+conv_dxy
+conv_dz
+conv_lxy
+conv_lz
+conv_zofprimvtxfromtrks
+conv_nHitsBeforeVtx
+conv_nSharedHits
 conv_validvtx
-##skimmed conv_MVALikelihood
+conv_MVALikelihood
 conv_chi2
 conv_chi2_probability
-##skimmed conv_vtx_xErr
-##skimmed conv_vtx_yErr
-##skimmed conv_vtx_zErr
-##skimmed conv_tk1_dz
-##skimmed conv_tk2_dz
-##skimmed conv_tk1_dzerr
-##skimmed conv_tk2_dzerr
-##skimmed conv_tk1_nh
-##skimmed conv_tk2_nh
-##skimmed conv_ch1ch2
-##skimmed conv_tk1_d0
-##skimmed conv_tk1_pout
-##skimmed conv_tk1_pin
-##skimmed conv_tk2_d0
-##skimmed conv_tk2_pout
-##skimmed conv_tk2_pin
+conv_vtx_xErr
+conv_vtx_yErr
+conv_vtx_zErr
+conv_tk1_dz
+conv_tk2_dz
+conv_tk1_dzerr
+conv_tk2_dzerr
+conv_tk1_nh
+conv_tk2_nh
+conv_ch1ch2
+conv_tk1_d0
+conv_tk1_pout
+conv_tk1_pin
+conv_tk2_d0
+conv_tk2_pout
+conv_tk2_pin
 conv_vtx
-##skimmed conv_tk1_pterr
-##skimmed conv_tk2_pterr
-##skimmed conv_tk1_etaerr
-##skimmed conv_tk2_etaerr
-##skimmed conv_tk1_thetaerr
-##skimmed conv_tk2_thetaerr
-##skimmed conv_tk1_phierr
-##skimmed conv_tk2_phierr
-##skimmed conv_tk1_lambdaerr
-##skimmed conv_tk2_lambdaerr
-##skimmed conv_pair_momentum
+conv_tk1_pterr
+conv_tk2_pterr
+conv_tk1_etaerr
+conv_tk2_etaerr
+conv_tk1_thetaerr
+conv_tk2_thetaerr
+conv_tk1_phierr
+conv_tk2_phierr
+conv_tk1_lambdaerr
+conv_tk2_lambdaerr
+conv_pair_momentum
 conv_refitted_momentum
 conv_singleleg_momentum
 
@@ -461,40 +447,40 @@ jet_algoPF1_simple_mva_ext
 # jet_algoPF2_full_mva_ext
 # jet_algoPF2_simple_mva_ext
 
-jet_algoPF3_n
-jet_algoPF3_erescale
-jet_algoPF3_p4
-jet_algoPF3_beta
-jet_algoPF3_betaStar
-jet_algoPF3_betaStarClassic
-jet_algoPF3_dR2Mean
-jet_algoPF3_dRMean
-jet_algoPF3_dZ
-jet_algoPF3_frac01
-jet_algoPF3_frac02
-jet_algoPF3_frac03
-jet_algoPF3_frac04
-jet_algoPF3_frac05
-jet_algoPF3_full_mva
-jet_algoPF3_simple_mva
-jet_algoPF3_nCharged
-jet_algoPF3_nNeutrals
-jet_algoPF3_full_wp_level
-jet_algoPF3_simple_wp_level
-jet_algoPF3_cutbased_wp_level
-jet_algoPF3_pfloose
-jet_algoPF3_ntk
-jet_algoPF3_tkind
-jet_algoPF3_area
+# jet_algoPF3_n
+# jet_algoPF3_erescale
+# jet_algoPF3_p4
+# jet_algoPF3_beta
+# jet_algoPF3_betaStar
+# jet_algoPF3_betaStarClassic
+# jet_algoPF3_dR2Mean
+# jet_algoPF3_dRMean
+# jet_algoPF3_dZ
+# jet_algoPF3_frac01
+# jet_algoPF3_frac02
+# jet_algoPF3_frac03
+# jet_algoPF3_frac04
+# jet_algoPF3_frac05
+# jet_algoPF3_full_mva
+# jet_algoPF3_simple_mva
+# jet_algoPF3_nCharged
+# jet_algoPF3_nNeutrals
+# jet_algoPF3_full_wp_level
+# jet_algoPF3_simple_wp_level
+# jet_algoPF3_cutbased_wp_level
+# jet_algoPF3_pfloose
+# jet_algoPF3_ntk
+# jet_algoPF3_tkind
+# jet_algoPF3_area
 
-jet_algoPF3_beta_ext
-jet_algoPF3_betaStar_ext
-jet_algoPF3_betaStarClassic_ext
-jet_algoPF3_full_wp_level_ext
-jet_algoPF3_simple_wp_level_ext
-jet_algoPF3_cutbased_wp_level_ext
-jet_algoPF3_full_mva_ext
-jet_algoPF3_simple_mva_ext
+# jet_algoPF3_beta_ext
+# jet_algoPF3_betaStar_ext
+# jet_algoPF3_betaStarClassic_ext
+# jet_algoPF3_full_wp_level_ext
+# jet_algoPF3_simple_wp_level_ext
+# jet_algoPF3_cutbased_wp_level_ext
+# jet_algoPF3_full_mva_ext
+# jet_algoPF3_simple_mva_ext
 
 # New photon variables 
 pho_pfRawEnergy

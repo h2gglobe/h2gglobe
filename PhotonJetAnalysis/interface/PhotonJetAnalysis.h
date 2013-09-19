@@ -10,7 +10,6 @@ class PhotonJetAnalysis : public PhotonAnalysis
 
     bool SkimEvents(LoopAll&, int);
     bool SelectEventsReduction(LoopAll&, int);
-    void ReducedOutputTree(LoopAll &l, TTree *);
 
     PhotonJetAnalysis();
     virtual ~PhotonJetAnalysis();
