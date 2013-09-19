@@ -188,7 +188,7 @@ double MassResolution::getPhotonResolution(double photonEnergy, double photonRes
   // Get the photon-category sigma
   std::string myCategory = EnergySmearer::photonCategory(_eSmearPars, info);
 
-  double categoryResolution = EnergySmearer::getSmearingSigma(_eSmearPars, myCategory, photonEnergy, 0.);
+  double categoryResolution = EnergySmearer::getSmearingSigma(_eSmearPars, myCategory, photonEnergy, 0.)*photonEnergy;
   return TMath::Sqrt(categoryResolution*categoryResolution + photonResolution*photonResolution);
 
 }
