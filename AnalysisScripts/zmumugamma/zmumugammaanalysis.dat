@@ -43,18 +43,21 @@ doEcorrectionSmear=1
 doEcorrectionSyst=0
 
 scale_offset_file=energy_scale_offsets.dat
+scale_offset_error_file=energy_scale_errors.dat
+smearing_file=smearing_sigma_and_errors.dat
 
 ## photonFixDat=aux/PhotonFixSTART42V13.dat
-## regressionFile=aux/gbrph.root
+regressionFile=aux/regweights_v5_forest_ph.root
 
 recomputeBetas=0
 recorrectJets=0
 rerunJetMva=0
 recomputeJetWp=0
-jetHandlerCfg=jetHandler_cfg.py
+## jetHandlerCfg=jetHandler_HCP_cfg.py
+jetHandlerCfg=jetHandler_Legacy8TeV.py
 
 reComputeCiCPF=0
 
 #Photon ID MVA weights
-photonLevelNewIDMVA_EB=aux/2012ICHEP_PhotonID_Barrel_BDT.weights.xml
-photonLevelNewIDMVA_EE=aux/2012ICHEP_PhotonID_Endcap_BDT.weights_PSCorr.xml
+photonLevelNewIDMVA_EB=aux/2013FinalPaper_PhotonID_Barrel_BDT_TrainRangePT15.weights.xml
+photonLevelNewIDMVA_EE=aux/2013FinalPaper_PhotonID_Endcap_BDT_TrainRangePT15.weights.xml
