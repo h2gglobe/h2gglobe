@@ -22,7 +22,7 @@ r.TH1.SetDefaultSumw2()
 os.system('mkdir -p %s'%options.outDir)
 
 if not os.path.isfile('extractSignificanceStats.C'):
-  sys.exit('Can\'t fine file - extractSignificanceStats.C')
+  sys.exit('Can\'t find file - extractSignificanceStats.C')
 r.gROOT.ProcessLine('.L extractSignificanceStats.C+')
 from ROOT import extractSignificanceStats
 from ROOT import setTDRStyle
