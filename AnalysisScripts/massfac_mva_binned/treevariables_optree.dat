@@ -19,6 +19,8 @@ type=2 name=full_weight
 type=2 name=MET
 type=2 name=MET_phi
 
+#type=2 name=diphoptWeight
+
 type=2 name=sigmaMrvoM
 type=2 name=sigmaMwvoM
 type=2 name=sigmaEoE1
@@ -26,6 +28,14 @@ type=2 name=sigmaEoE2
 type=2 name=ptoM1
 type=2 name=ptoM2
 type=2 name=vtxprob
+type=2 name=ptbal
+type=2 name=ptasym
+type=2 name=logspt2
+type=2 name=p2conv
+type=2 name=nconv
+type=2 name=vtxmva
+type=2 name=vtxdz
+
 type=2 name=mass
 type=2 name=vbfcat
 type=2 name=dipho_pt
@@ -64,6 +74,8 @@ type=2 name=chisow1
 type=2 name=chisow2
 type=2 name=phoiso1
 type=2 name=phoiso2
+type=2 name=phoiso041
+type=2 name=phoiso042
     
 type=2 name=isorv1
 type=2 name=isowv1
@@ -145,3 +157,15 @@ type=2 name=bieta2
 type=2 name=biphi2
 type=2 name=betacry2
 type=2 name=bphicry2
+    
+type=2 name=dijet_leadEta
+type=2 name=dijet_subleadEta
+type=2 name=dijet_LeadJPt
+type=2 name=dijet_SubJPt
+type=2 name=dijet_dEta
+type=2 name=dijet_Zep
+type=2 name=dijet_dPhi
+type=2 name=dijet_Mjj
+type=2 name=dijet_MVA
+type=2 name=dRphojet1
+type=2 name=dRphojet2

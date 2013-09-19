@@ -683,7 +683,7 @@ class configProducer:
           self.addToPrintList(struct,name)
           ## print val, str(type(struct.__getattribute__(name)))
           try:
-	    if ".root" in val and not "/castor" in val and not os.path.isfile(val): 
+	    if name != "puTargets" and ".root" in val and not "/castor" in val and not os.path.isfile(val): 
 	    	if ',' in val:
 					ele = val.split(",")
 					for v in ele:
