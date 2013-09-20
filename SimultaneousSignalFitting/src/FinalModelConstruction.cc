@@ -341,7 +341,7 @@ void FinalModelConstruction::setupSystematics(){
   // for legacy paper - this MUST BE UPDATED
   //if (cat_>=nIncCats_) nuisCat = nIncCats_;
   
-  vertexNuisance = new RooRealVar("CMS_hgg_nuissancedeltafracright","CMS_hgg_nuissancedeltafracright",1.,0.1,10.);
+  vertexNuisance = new RooRealVar("CMS_hgg_nuisancedeltafracright","CMS_hgg_nuisancedeltafracright",1.,0.1,10.);
   vertexNuisance->setConstant(true);
   globalScale = new RooRealVar("CMS_hgg_globalscale","CMS_hgg_globalscale",0.,-5.,5.);
   globalScale->setConstant(true);
