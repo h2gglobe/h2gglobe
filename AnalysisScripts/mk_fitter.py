@@ -197,7 +197,7 @@ if __name__  == "__main__":
 	if not options.notgz:
 		filedir = os.path.dirname(options.inputDat)
 		searchpath = "common reduction baseline massfac_mva_binned full_mva_binned jetanalysis photonjet"
-		os.system("tar zcf %s.tgz *.py $(find %s -name \*.dat -or -name \*.py) aux common python %s" %
+		os.system("tar zcf %s.tgz *.py $(find %s -name \*.dat -or -name \*.py) aux common python prior_results %s" %
 			  (options.outputScript, searchpath, filedir ) )
 		os.system("%s %s.tgz %s" % ( cp,  options.outputScript, cfg.histdir) )
 	
@@ -255,7 +255,7 @@ if __name__  == "__main__":
 		f.write("tar zxfCv %s/%s.tgz scratch\n" % (mydir,options.outputScript) )
 		
 		f.write("cd scratch\n")
-		f.write("export H2GGLOBE_RUNTIME=$PWD")
+		f.write("export H2GGLOBE_RUNTIME=$PWD\n")
 		
 		f.write("cat > %s.dat << EOF\n" % jobbasename)
 		f.write(datfile.replace("$input_files",files[i]).replace("$histdir",""))
