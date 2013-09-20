@@ -2849,7 +2849,6 @@ bool PhotonAnalysis::ElectronTag2012B(LoopAll& l, int& diphotonVHlep_id, int& el
     bool localdebug=false;
 
     el_ind=l.ElectronSelectionMVA2012(elptcut);
-    l.el_ind=-1;
 
     if(el_ind!=-1) {
         if(localdebug) cout<<"in ElectronTag2012B and selected "<<el_ind<<endl;
@@ -2906,7 +2905,6 @@ bool PhotonAnalysis::ElectronTag2012B(LoopAll& l, int& diphotonVHlep_id, int& el
             }
 
             if(tag){
-		l.el_ind=el_ind;
                 lep_sync<<"run="<<l.run<<"\t";
                 lep_sync<<"lumis"<<l.lumis<<"\t";
                 lep_sync<<"event="<<(unsigned int) l.event<<"\t";
@@ -3821,10 +3819,7 @@ bool PhotonAnalysis::MuonTag2012B(LoopAll& l, int& diphotonVHlep_id, int& mu_ind
     float muptcut=20.;
 
     mu_ind=l.MuonSelection2012B(muptcut);
-    l.mu_ind=-1;
-    if(doLooseLep){
-        l.mu_ind=mu_ind;
-    }
+
     if(mu_ind!=-1) {
         TLorentzVector* mymu = (TLorentzVector*) l.mu_glo_p4->At(mu_ind);
         muVtx=l.FindMuonVertex(mu_ind);
@@ -3860,7 +3855,6 @@ bool PhotonAnalysis::MuonTag2012B(LoopAll& l, int& diphotonVHlep_id, int& mu_ind
             if(!tag) diphotonVHlep_id=-1;
             mu_cat=(int)(abs(lead_p4.Eta())>1.5 || abs(sublead_p4.Eta())>1.5);
             if(tag){
-                l.mu_ind=mu_ind;
                 lep_sync<<"run="<<l.run<<"\t";
                 lep_sync<<"lumis"<<l.lumis<<"\t";
                 lep_sync<<"event="<<(unsigned int) l.event<<"\t";
@@ -4476,11 +4470,11 @@ bool PhotonAnalysis::TTHleptonicTag2012(LoopAll& l, int diphotonTTHlep_id, float
     //francesco 
     bool tag = false;
 
-    l.isLep_mu=0;
-    l.isLep_ele=0;
-    l.el_ind=-1;
-    l.mu_ind=-1;
-    l.diphoton_id_lep=-1;
+    int isLep_mu=0;
+    int isLep_ele=0;
+    int el_ind=-1;
+    int mu_ind=-1;
+    float diphoton_id_lep=-1;
 
     if(diphotonTTHlep_id==-1) return tag;
     if(PADEBUG)
@@ -4580,16 +4574,16 @@ bool PhotonAnalysis::TTHleptonicTag2012(LoopAll& l, int diphotonTTHlep_id, float
 
     if(muonInd != -1 && elInd==-1){
 	if(passMuPhotonCuts){
-	    l.isLep_mu=1;
-	    l.mu_ind=muonInd;
-	    l.el_ind=-1;
+	    isLep_mu=1;
+	    mu_ind=muonInd;
+	    el_ind=-1;
 	}
     }
     if(elInd !=- 1 && muonInd ==-1){
 	if(passElePhotonCuts){
-	    l.isLep_ele=1;
-	    l.el_ind=elInd;
-	    l.mu_ind=-1;
+	    isLep_ele=1;
+	    el_ind=elInd;
+	    mu_ind=-1;
 	}
     }
 
@@ -4598,28 +4592,28 @@ bool PhotonAnalysis::TTHleptonicTag2012(LoopAll& l, int diphotonTTHlep_id, float
 	if(passMuPhotonCuts && passElePhotonCuts){
 	    if(el_tag->Pt()<mu_tag->Pt()){
 		diphotonTTHlep_id=diphoton_id;
-		l.isLep_mu=1;
-		l.mu_ind=muonInd;
-		l.el_ind=-1;
+		isLep_mu=1;
+		mu_ind=muonInd;
+		el_ind=-1;
 	    }else{
-		l.isLep_ele=1;
-		l.el_ind=elInd;
-		l.mu_ind=-1;
+		isLep_ele=1;
+		el_ind=elInd;
+		mu_ind=-1;
 	    }
 	}else if(passMuPhotonCuts && !passElePhotonCuts){
 	    diphotonTTHlep_id=diphoton_id;
-	    l.isLep_mu=1;
-	    l.mu_ind=muonInd;
-	    l.el_ind=-1;
+	    isLep_mu=1;
+	    mu_ind=muonInd;
+	    el_ind=-1;
 	}else if(passElePhotonCuts && !passMuPhotonCuts){
-	    l.isLep_ele=1;
-	    l.el_ind=elInd;
-	    l.mu_ind=-1;
+	    isLep_ele=1;
+	    el_ind=elInd;
+	    mu_ind=-1;
 	}
     }
 
-    if(l.isLep_ele!=1 && l.isLep_mu !=1) return false;
-    l.diphoton_id_lep=diphotonTTHlep_id;
+    if(isLep_ele!=1 && isLep_mu !=1) return false;
+   
 
     static std::vector<unsigned char> id_flags;
     if( jetid_flags == 0 ) {
@@ -4683,9 +4677,9 @@ bool PhotonAnalysis::TTHleptonicTag2012(LoopAll& l, int diphotonTTHlep_id, float
     ptJets_thresh=ptJets_ttH_thresh;
 
     TLorentzVector* lep;
-    if(l.isLep_ele){
+    if(isLep_ele){
 	lep= (TLorentzVector*) l.el_std_p4->At(elInd);
-    }else if(l.isLep_mu){
+    }else if(isLep_mu){
 	lep= (TLorentzVector*)l.mu_glo_p4->At(muonInd);
     }
 
@@ -4790,8 +4784,9 @@ void PhotonAnalysis::computeBtagEff(LoopAll &l){
 float PhotonAnalysis::ElectronSFReweight(LoopAll &l){
 
     float scale_factor=-10;
+    float el_ind=0;
 
-    TLorentzVector* thissc = (TLorentzVector*) l.el_std_sc->At(l.el_ind);
+    TLorentzVector* thissc = (TLorentzVector*) l.el_std_sc->At(el_ind);
     float thiseta = fabs(thissc->Eta());
 
     // central value                                                                                                                                                        
@@ -4817,8 +4812,9 @@ float PhotonAnalysis::ElectronSFReweight(LoopAll &l){
 float PhotonAnalysis::MuonSFReweight(LoopAll &l){
 
    float scale_factor=-10;
+   int mu_ind=0;
 
-    TLorentzVector* mymu = (TLorentzVector*) l.mu_glo_p4->At(l.mu_ind);
+    TLorentzVector* mymu = (TLorentzVector*) l.mu_glo_p4->At(mu_ind);
     float etaMu = mymu->Eta();
     // values for full dataset of moriond https://indico.cern.ch/getFile.py/access?contribId=2&resId=0&materialId=slides&confId=233592
     if ( fabs(etaMu)<0.9 )                     scale_factor = 0.9938;                                                                                                     

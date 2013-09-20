@@ -1035,13 +1035,6 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 	            if(eventweight*sampleweight!=0) myweight=eventweight/sampleweight;
 
 	            TTHlepevent = TTHleptonicTag2012(l, diphotonTTHlep_id, &smeared_pho_energy[0], true, eventweight, myweight);
-
-		    if(TTHlepevent){
-			//			std::cout<<diphotonTTHlep_id<<" "<<l.diphoton_id_lep<<"||";
-			if(l.diphoton_id_lep != -1)diphotonTTHlep_id=l.diphoton_id_lep;
-		    }
-
-
 	        }
 	    }
 

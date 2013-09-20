@@ -576,8 +576,6 @@ void LoopAll::Init(Int_t typerunpass, TTree *tree) {
   }
   SetBranchAddresses(inputBranchNames);
   
-  el_ind=-1;
-  mu_ind=-1;
 
   Notify();
 }

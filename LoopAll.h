@@ -142,16 +142,6 @@ class LoopAll {
 
   TH1D  * pileup;
 
-  int isLep_mu;
-  int isLep_ele;
-
-  int el_ind;
-  int mu_ind;
-
-  float drLepPho;
-  float drGsf;
-
-  int diphoton_id_lep;
 
   TFile * outputFile;
   TString outputFileName;
@@ -1233,7 +1223,6 @@ bool ElectronLooseEGammaID(int electronindex, int vertexindex=-1);
 bool ElectronTightEGammaID(int electronindex, int vertexindex=-1);
 //HCP2012
 int ElectronSelectionMVA2012(float elptcut=20.);
-std::vector<int> GetIndexesElectronsPassingSelectionMVA2012(float elptcut=20.);
 bool ElectronMVACuts(int el_ind, int vtx_ind=-1);
 bool ElectronPhotonCuts2012B(TLorentzVector& pho1, TLorentzVector& pho2, TLorentzVector& ele, bool includeVHlepPlusMet=false,float deltaRcut=1.0);
 int FindElectronVertex(int el_ind);

@@ -593,9 +593,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 		if(eventweight*sampleweight!=0) myweight=eventweight/sampleweight;
 		
 		TTHlepevent = TTHleptonicTag2012(l, diphotonTTHlep_id, &smeared_pho_energy[0], true, eventweight, myweight,phoidMvaCut,0,true);
-		if(TTHlepevent){
-		    if(l.diphoton_id_lep != -1)diphotonTTHlep_id=l.diphoton_id_lep;
-		}
+
 	    }
 	}
 
