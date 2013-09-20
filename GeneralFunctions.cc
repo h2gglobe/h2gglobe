@@ -1179,6 +1179,9 @@ TLorentzVector LoopAll::correctMet_Simple( TLorentzVector & pho_lead, TLorentzVe
     return correctedMet;
 }
 
+
+
+
 TLorentzVector LoopAll::METCorrection2012B(TLorentzVector lead_p4, TLorentzVector sublead_p4){
   
   // corrected met
@@ -2946,6 +2949,10 @@ int LoopAll::DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL, phoCiCIDLevel SUB
     float leadpt = lead_p4.Pt() > sublead_p4.Pt() ? lead_p4.Pt() : sublead_p4.Pt();
     float subleadpt = lead_p4.Pt() < sublead_p4.Pt() ? lead_p4.Pt() : sublead_p4.Pt();       
     // Exclusive modes cut smoothly on lead pt/M but on straight pt on sublead to save sig eff and avoid HLT turn-on  
+    if(createCS_){//for control sample only cut at 33 and 25                                                                                                                    
+      if(!(leadpt>=33 && subleadpt>=25)) continue;
+    }else{
+
     if(split){   
             if ( leadpt/m_gamgam < leadPtMin/120. || subleadpt< subleadPtMin ) { continue; }  
     }else{
@@ -2956,6 +2963,7 @@ int LoopAll::DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL, phoCiCIDLevel SUB
 		    if ( leadpt < leadPtMin || subleadpt < subleadPtMin ) { continue; }
             }
     }
+    }
 
     std::vector<std::vector<bool> > ph_passcut;
     if( ! cutsbycat.empty() ) {
@@ -2964,8 +2972,16 @@ int LoopAll::DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL, phoCiCIDLevel SUB
             LEADCUTLEVEL    = (phoCiCIDLevel)cutsbycat[leadCat];
             SUBLEADCUTLEVEL = (phoCiCIDLevel)cutsbycat[subleadCat];
     }
+
+    if(createCS_){
+      if( (PhotonCiCSelectionLevel(lead, ivtx, ph_passcut, ncategories, 0, pho_energy_array ) > LEADCUTLEVEL && PhotonCiCSelectionLevel(sublead, ivtx, ph_passcut, ncategories, 1, pho_energy_array ) > SUBLEADCUTLEVEL) ||(PhotonCiCSelectionLevel(lead, ivtx, ph_passcut, ncategories, 0, pho_energy_array ) < LEADCUTLEVEL && PhotonCiCSelectionLevel(sublead, ivtx, ph_passcut, ncategories, 1, pho_energy_array ) < SUBLEADCUTLEVEL) ) { continue; }
+  
+    }else{
+
     if( PhotonCiCSelectionLevel(lead, ivtx, ph_passcut, ncategories, 0, pho_energy_array ) < LEADCUTLEVEL ) { continue; }
     if( PhotonCiCSelectionLevel(sublead, ivtx, ph_passcut, ncategories, 1, pho_energy_array ) < SUBLEADCUTLEVEL ) { continue; }
+
+    }
     
     passing_dipho.push_back(idipho);
     passing_sumpt.push_back(leadpt+subleadpt);
@@ -2985,6 +3001,9 @@ int LoopAll::DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL, phoCiCIDLevel SUB
   return passing_dipho[passing_dipho_places[0]];
 
 }
+
+
+
 
 int LoopAll::DiphotonMITPreSelection(Float_t leadPtMin, Float_t subleadPtMin, Float_t phoidMvaCut, bool applyPtoverM, float *pho_energy_array, int fixedvtx, bool split, bool kinonly, std::vector<bool> veto_indices) {
 
@@ -3175,6 +3194,9 @@ bool LoopAll::PhotonMITPreSelection( int photon_index, int vertex_index, float *
    
     return true;
 }
+
+
+
 
 // Define newfunction to calculate MIT (Pre-)Selection                                                      
 bool LoopAll::PhotonMITPreSelection2011( int photon_index, int vertex_index, float *pho_energy_array ) 
@@ -3857,7 +3879,9 @@ int  LoopAll::RescaleJetEnergy(bool force) {
     return 1;
 }
    
-void LoopAll::PhotonsToVeto(TLorentzVector* veto_p4, float drtoveto, std::vector<bool>& vetos, bool drtotkveto){
+
+
+void LoopAll::PhotonsToVeto(TLorentzVector* veto_p4, float drtoveto, std::vector<bool>& vetos, bool drtotkveto,float drgsftoveto){
     vetos.clear();
 
     for(int ipho=0; ipho<pho_n; ipho++){
@@ -3868,10 +3892,12 @@ void LoopAll::PhotonsToVeto(TLorentzVector* veto_p4, float drtoveto, std::vector
         if(GFDEBUG) std::cout<<"drtotk "<<pho_drtotk_25_99[ipho]<<std::endl;
         if(photon->DeltaR(*veto_p4)<drtoveto) {
             vetos.push_back(true);
-        } else if (drtotkveto  &&  pho_drtotk_25_99[ipho]<1.0) {
+        } else if (drtotkveto  &&  pho_drtotk_25_99[ipho]<drgsftoveto) {
             vetos.push_back(true);
         } else {
             vetos.push_back(false);
+	    float drLepPho=photon->DeltaR(*veto_p4);
+	    float drGsf=pho_drtotk_25_99[ipho];
         }
     }
 
@@ -3923,6 +3949,13 @@ std::pair<int, int> LoopAll::Select2HighestPtJets(TLorentzVector& leadpho, TLore
 
     return myJets;
 }
+
+
+
+
+
+
+
 
 int LoopAll::MuonSelection(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind){
   int mymu = -1;
@@ -4157,13 +4190,16 @@ int LoopAll::MuonSelection2012B(float muptcut){
     return mymu;
 }
 
-bool LoopAll::MuonPhotonCuts2012B(TLorentzVector& pho1, TLorentzVector& pho2, TLorentzVector* thismu){
-   
-    if(pho1.DeltaR(*thismu)<1.0) return false;
-    if(pho2.DeltaR(*thismu)<1.0) return false;   
+
+
+bool LoopAll::MuonPhotonCuts2012B(TLorentzVector& pho1, TLorentzVector& pho2, TLorentzVector* thismu,float deltaRcut){
+  //  cout<<"mu:"<<pho1.DeltaR(*thismu)<<" "<<pho2.DeltaR(*thismu)<<endl;
+    if(pho1.DeltaR(*thismu)<deltaRcut) return false;
+    if(pho2.DeltaR(*thismu)<deltaRcut) return false;   
 
     return true;
 }
+
 
 int LoopAll::FindMuonVertex(int mu_ind){
     int vtx_ind=-1;
@@ -4369,6 +4405,13 @@ int LoopAll::ElectronSelectionMVA2012(float elptcut){
     return el_ind;
 }
 
+    
+
+
+
+
+
+
 bool LoopAll::ElectronMVACuts(int el_ind, int vtx_ind){
     bool pass=false;
 
@@ -4422,21 +4465,23 @@ bool LoopAll::ElectronMVACuts(int el_ind, int vtx_ind){
 }
 
 
-bool LoopAll::ElectronPhotonCuts2012B(TLorentzVector& pho1, TLorentzVector& pho2, TLorentzVector& ele, bool includeVHlepPlusMet){
+
+bool LoopAll::ElectronPhotonCuts2012B(TLorentzVector& pho1, TLorentzVector& pho2, TLorentzVector& ele, bool includeVHlepPlusMet, float deltaRcut){
     bool pass=false;
-    if(GFDEBUG) std::cout<<"dreg1 dreg2 "<<pho1.DeltaR(ele)<<" "<<pho2.DeltaR(ele)<<std::endl;
-    if( pho1.DeltaR(ele) <= 1.0) return pass;
-    if( pho2.DeltaR(ele) <= 1.0) return pass;
+    if(GFDEBUG)     std::cout<<"dreg1 dreg2 "<<pho1.DeltaR(ele)<<" "<<pho2.DeltaR(ele)<<std::endl;
+    if( pho1.DeltaR(ele) <= deltaRcut) return pass;
+    if( pho2.DeltaR(ele) <= deltaRcut) return pass;
     TLorentzVector elpho1=ele + pho1;
     TLorentzVector elpho2=ele + pho2;
     if(GFDEBUG) std::cout<<"dMeg1 dMeg2 "<<fabs(elpho1.M() - 91.19)<<" "<<fabs(elpho2.M() - 91.19)<<std::endl;
     if(!includeVHlepPlusMet){
-      if( fabs(elpho1.M() - 91.19) <= 10) return pass;
-      if( fabs(elpho2.M() - 91.19) <= 10) return pass;
+    if( fabs(elpho1.M() - 91.19) <= 10) return pass;
+    if( fabs(elpho2.M() - 91.19) <= 10) return pass;
     }
     pass=true;
     return pass;
 }
+
 
 int LoopAll::FindElectronVertex(int el_ind){
     int vtx_ind=-1;

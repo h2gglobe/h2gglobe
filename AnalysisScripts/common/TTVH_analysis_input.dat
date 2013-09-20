@@ -1,0 +1,21 @@
+##
+##variables for VHhad and TTH
+##
+jet_algoPF1_csvBtag
+el_std_p4
+mu_glo_p4
+#not used, but useful for test
+#gsf_tk_n
+#gsf_tk_p4
+#mu_glo_charge
+#el_std_charge
+
+
+## 
+## MC truth for some tests
+#gp_n:1
+#gp_p4:1
+#gp_status:1
+#gp_pdgid:1
+#gp_mother:1
+
