@@ -20,13 +20,21 @@ ZMuMuGammaAnalysis::~ZMuMuGammaAnalysis(){}
 // ----------------------------------------------------------------------------------------------------
 void ZMuMuGammaAnalysis::Init(LoopAll& l)
 {
-	PhotonAnalysis::Init(l);
+    PhotonAnalysis::Init(l);
+
+    l.SetAllMVA();
+    cout << "Weights file is: " << photonLevelNewIDMVA_EB.c_str() << endl;
+    l.tmvaReaderID_2013_Barrel->BookMVA("AdaBoost",photonLevelNewIDMVA_EB.c_str());
+    l.tmvaReaderID_2013_Endcap->BookMVA("AdaBoost",photonLevelNewIDMVA_EE.c_str());
+    
 }
 
 //----------------------------------------------------------------------------------------------------
 bool ZMuMuGammaAnalysis::SkimEvents(LoopAll& l, int jentry)
 {
     if( dataIs2011 ) { l.version=12; }
+    else { l.version=13; }
+
     return true;
 }
 
@@ -70,22 +78,29 @@ bool ZMuMuGammaAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
         l.pho_ESEffSigmaRR[ipho] = sqrt(rr2);
       }
     }
-    
+
     for (int ipho=0; ipho<l.pho_n; ipho++) {
       vector<float> MVAValues;
       for(int ivtx=0; ivtx<l.vtx_std_n; ++ivtx) {
         TLorentzVector pho_p4 = l.get_pho_p4(ipho, ivtx);
-        MVAValues.push_back(l.photonIDMVANew(ipho, ivtx, pho_p4, "MIT"));
+        MVAValues.push_back(l.photonIDMVA2013(ipho, ivtx, pho_p4, "MIT"));
       }
       l.pho_mitmva->push_back(MVAValues);
     }
-    
+        
     if(l.itype[l.current]<0) {
         bool foundHiggs=FindHiggsObjects(l);
         if(PADEBUG)  cout << " foundHiggs? "<<foundHiggs<<std::endl;
     } else {
         SetNullHiggs(l);
     }
+    /// Jet matching
+    // pfJets ak5
+    l.doJetMatching(*l.jet_algoPF1_p4,*l.genjet_algo1_p4,l.jet_algoPF1_genMatched,l.jet_algoPF1_vbfMatched,l.jet_algoPF1_bgenMatched,l.jet_algoPF1_genPt,l.jet_algoPF1_genDr);
+    // pfJets ak7
+    //l.doJetMatching(*l.jet_algoPF2_p4,*l.genjet_algo2_p4,l.jet_algoPF2_genMatched,l.jet_algoPF2_vbfMatched,l.jet_algoPF2_genPt,l.jet_algoPF2_genDr);
+    // CHS ak5
+    l.doJetMatching(*l.jet_algoPF3_p4,*l.genjet_algo1_p4,l.jet_algoPF3_genMatched,l.jet_algoPF3_vbfMatched,l.jet_algoPF3_bgenMatched,l.jet_algoPF3_genPt,l.jet_algoPF3_genDr);
 
     if( pho_presel.size() < 2 ) {
         // zero or one photons, can't determine a vertex based on photon pairs
@@ -208,7 +223,6 @@ void ZMuMuGammaAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree)
     l.dipho_vtx_std_sel =  new std::vector<int>();
 
     if( outputTree ) {
-	//l.Branch_pho_ncrys(outputTree);
 
 	l.Branch_vtx_std_evt_mva(outputTree);
 	l.Branch_vtx_std_ranked_list(outputTree);
@@ -248,6 +262,7 @@ void ZMuMuGammaAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree)
 	l.Branch_pho_regr_energyerr_otf(outputTree);
 
 	l.Branch_jet_algoPF1_genMatched(outputTree);
+	l.Branch_jet_algoPF1_bgenMatched(outputTree);
 	l.Branch_jet_algoPF1_vbfMatched(outputTree);
 	l.Branch_jet_algoPF1_genPt(outputTree);
 	l.Branch_jet_algoPF1_genDr(outputTree);
@@ -258,6 +273,7 @@ void ZMuMuGammaAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree)
 	//l.Branch_jet_algoPF2_genDr(outputTree);
 
 	l.Branch_jet_algoPF3_genMatched(outputTree);
+	l.Branch_jet_algoPF3_bgenMatched(outputTree);
 	l.Branch_jet_algoPF3_vbfMatched(outputTree);
 	l.Branch_jet_algoPF3_genPt(outputTree);
 	l.Branch_jet_algoPF3_genDr(outputTree);

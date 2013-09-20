@@ -2,6 +2,7 @@
 
 # set -x
 H2GGLOBE_BASE=${PWD}
+THREADS=`grep processor /proc/cpuinfo | wc -l`
 
 packs=""
 get_tag()
@@ -22,7 +23,7 @@ get_tag()
 cd $CMSSW_BASE/src
 get_tag V00-02-10 UserCode/CMG/CMGTools/External CMGTools/External 
 if [[ -n $packs ]]; then 
-    scram b $packs
+    scram b $packs -j $THREADS
 fi
 
 # Regression (need to adapt get_tag for github)
@@ -33,14 +34,14 @@ if [[ ! -d HiggsAnalysis/GBRLikelihood  ]]; then
  fi
 fi 
 cd HiggsAnalysis/GBRLikelihood
-scram b
+scram b -j $THREADS
 cd $CMSSW_BASE/src
 
 if [[ ! -d HiggsAnalysis/CombinedLimit ]]; then
   git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 fi
 cd HiggsAnalysis/CombinedLimit
-scram b
+scram b -j $THREADS
 
 cd ${H2GGLOBE_BASE}
 touch .extraTags
