@@ -220,8 +220,21 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
         nVHlepCategories = 2;
     }
     if(includeVHmet){
-    nVHmetCategories = nMetCategories;
+        nVHmetCategories = nMetCategories;
     }
+    if(includeTTHlep){
+        nTTHlepCategories =((int)includeTTHlep);
+    }
+    if(includeTTHhad){    
+        nTTHhadCategories =((int)includeTTHhad);
+    }
+    if(includeVHhad){
+        nVHhadCategories=((int)includeVHhad)*nVHhadEtaCategories;
+    }
+    if(includeVHhadBtag){
+        nVHhadBtagCategories =((int)includeVHhadBtag);
+    }
+    
     
     std::sort(mvaVbfCatBoundaries.begin(),mvaVbfCatBoundaries.end(), std::greater<float>() );
     if (multiclassVbfSelection) {
@@ -245,7 +258,8 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
         std::sort(multiclassVbfCatBoundaries2.begin(),multiclassVbfCatBoundaries2.end(), std::greater<float>() );
     }
     
-    nCategories_=(nInclusiveCategories_+nVBFCategories+nVHlepCategories+nVHmetCategories);
+    nCategories_=(nInclusiveCategories_+nVBFCategories+nVHlepCategories+nVHmetCategories+nVHhadCategories+nVHhadBtagCategories+nTTHhadCategories+nTTHlepCategories); 
+    //    nCategories_=(nInclusiveCategories_+nVBFCategories+nVHlepCategories+nVHmetCategories);
     
     if (bdtTrainingPhilosophy == "UCSD") {
         l.rooContainer->SetNCategories(8);
@@ -358,6 +372,8 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
 	    } else if(i<nInclusiveCategories_+nVBFCategories+nVHlepCategories){
 		bkgPolOrderByCat.push_back(-1);
 	    } else if(i<nInclusiveCategories_+nVBFCategories+nVHlepCategories+nVHmetCategories){
+		bkgPolOrderByCat.push_back(3);
+	    } else if(i<nInclusiveCategories_+nVBFCategories+nVHhadCategories+nVHhadBtagCategories+nVHlepCategories+nTTHhadCategories+nTTHlepCategories){
 		bkgPolOrderByCat.push_back(3);
 	    }
 	}
@@ -495,9 +511,17 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
         VHmetevent = false; 
         VHmetevent_cat=0; 
 
-        int diphotonVHhad_id = -1;
-        VHhadevent = false;
+	int diphotonTTHlep_id = -1;
+	TTHlepevent = false;
+
+	int diphotonTTHhad_id = -1;
+	TTHhadevent = false;
+	
+	int diphotonVHhad_id = -1;
+	VHhadevent = false;
        
+	int diphotonVHhadBtag_id=-1;
+	VHhadBtagevent=false;
 
         if(includeVHlep){
             float eventweight = weight * genLevWeight;
@@ -545,7 +569,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
         }
 
         // VBF
-        if((includeVBF || includeVHhad)&&l.jet_algoPF1_n>1 && !isSyst /*avoid rescale > once*/) {
+        if((includeVBF || includeVHhad || includeVHhadBtag || includeTTHhad || includeTTHlep)&&l.jet_algoPF1_n>1 && !isSyst /*avoid rescale > once*/) {
             l.RescaleJetEnergy();
         }
 
@@ -560,8 +584,69 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
                 VBFTag2012(vbfIjet1, vbfIjet2, l, diphotonVBF_id, &smeared_pho_energy[0], true, eventweight, myweight) );
 
         }
+
+	if(includeTTHlep){
+	    diphotonTTHlep_id=l.DiphotonMITPreSelection(leadEtTTHlepCut,subleadEtTTHlepCut,phoidMvaCut,applyPtoverM, &smeared_pho_energy[0] );
+            if(diphotonTTHlep_id!=-1){
+		float eventweight = weight * smeared_pho_weight[l.dipho_leadind[diphotonTTHlep_id]] * smeared_pho_weight[l.dipho_subleadind[diphotonTTHlep_id]] * genLevWeight;
+		float myweight=1.;
+		if(eventweight*sampleweight!=0) myweight=eventweight/sampleweight;
+		
+		TTHlepevent = TTHleptonicTag2012(l, diphotonTTHlep_id, &smeared_pho_energy[0], true, eventweight, myweight,phoidMvaCut,0,true);
+		if(TTHlepevent){
+		    if(l.diphoton_id_lep != -1)diphotonTTHlep_id=l.diphoton_id_lep;
+		}
+	    }
+	}
+
+        if(includeTTHhad) {
+	    diphotonTTHhad_id=l.DiphotonMITPreSelection(leadEtTTHhadCut,subleadEtTTHhadCut,phoidMvaCut,applyPtoverM, &smeared_pho_energy[0] );
+	    
+	    
+            if(diphotonTTHhad_id!=-1){
+		float eventweight = weight * smeared_pho_weight[l.dipho_leadind[diphotonTTHhad_id]] * smeared_pho_weight[l.dipho_subleadind[diphotonTTHhad_id]] * genLevWeight;
+		float myweight=1.;
+		if(eventweight*sampleweight!=0) myweight=eventweight/sampleweight;
+		TTHhadevent = TTHhadronicTag2012(l, diphotonTTHhad_id, &smeared_pho_energy[0], true, eventweight, myweight);
+
+		
+	    }
+	}
+
+
+        if(includeVHhadBtag) {
+	        diphotonVHhadBtag_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVHhadBtagCut, subleadEtVHhadBtagCut, 4,false, &smeared_pho_energy[0], true);
+
+            if(diphotonVHhadBtag_id!=-1){
+	            float eventweight = weight * smeared_pho_weight[l.dipho_leadind[diphotonVHhadBtag_id]] * smeared_pho_weight[l.dipho_subleadind[diphotonVHhadBtag_id]] * genLevWeight;
+	            float myweight=1.;
+	            if(eventweight*sampleweight!=0) myweight=eventweight/sampleweight;
+
+	            VHhadBtagevent = VHhadronicBtag2012(l, diphotonVHhadBtag_id, &smeared_pho_energy[0], true, eventweight, myweight);
+
+	        }
+	    }
+
+        if(includeVHhad) {
+	        diphotonVHhad_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVHhadCut, subleadEtVHhadCut, 4,false, &smeared_pho_energy[0], true);
+
+            if(diphotonVHhad_id!=-1){
+	            float eventweight = weight * smeared_pho_weight[l.dipho_leadind[diphotonVHhad_id]] * smeared_pho_weight[l.dipho_subleadind[diphotonVHhad_id]] * genLevWeight;
+	            float myweight=1.;
+	            if(eventweight*sampleweight!=0) myweight=eventweight/sampleweight;
+
+	            VHhadevent = VHhadronicTag2011(l, diphotonVHhad_id, &smeared_pho_energy[0], true, eventweight, myweight);
+
+	        }
+	    }
+
+
     
-        if(includeVHlep&&VHmuevent){
+	if(includeTTHlep&&TTHlepevent) {
+            diphoton_id = diphotonTTHlep_id;
+        } else if(includeTTHhad&&TTHhadevent) {
+	    diphoton_id = diphotonTTHhad_id;
+	} else if(includeVHlep&&VHmuevent){
             diphoton_id = diphotonVHlep_id;
         } else if (includeVHlep&&VHelevent){
             diphoton_id = diphotonVHlep_id;
@@ -573,7 +658,11 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
             diphoton_id = diphotonVBF_id;
         } else if(includeVHmet&&VHmetevent) {
             diphoton_id = diphotonVHmet_id;
-        }
+        }else if(includeVHhadBtag&&VHhadBtagevent) {
+	    diphoton_id = diphotonVHhadBtag_id;
+	} else if(includeVHhad&&VHhadevent) {
+	    diphoton_id = diphotonVHhad_id;
+	} 
     }
     // if we selected any di-photon, compute the Higgs candidate kinematics
     // and compute the event category
@@ -749,6 +838,12 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 
         kinematic_bdtout = diphobdt_output;
 
+	//if we want to cut on diphobdt_output for exclusive categories
+	if(includeTTHlep && diphobdt_output<diphobdt_output_Cut_TTHlep) TTHlepevent=false;
+	if(includeTTHhad && diphobdt_output<diphobdt_output_Cut_TTHhad) TTHhadevent=false;
+	if(includeVHhadBtag && diphobdt_output<diphobdt_output_Cut_VHhadBtag) VHhadBtagevent=false;
+	if(includeVHhad && diphobdt_output<diphobdt_output_Cut_VHhad) VHhadevent=false;
+
 	float diphobdt_output_up=-1.;
 	float diphobdt_output_down=-1.;
 	if (l.runZeeValidation) {
@@ -818,7 +913,6 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 
         // fill control plots and counters
         if( ! isSyst ) {
-            
             l.FillCounter( "Accepted", weight );
             l.FillCounter( "Smeared", evweight );
             sumaccept += weight;
@@ -1955,3 +2049,5 @@ void MassFactorizedMvaAnalysis::ResetAnalysis(){
 // c-basic-offset: 4
 // End:
 // vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4
+
+//  LocalWords:  nMetCategories

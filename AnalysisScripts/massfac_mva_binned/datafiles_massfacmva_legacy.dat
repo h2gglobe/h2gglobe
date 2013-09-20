@@ -1,4 +1,4 @@
-intL=19715. histfile=/store/group/phys_higgs/cmshgg/analyzed/MattLegacyTest/%(label)s/CMS-HGG.root output=eventsList.txt
+intL=19715. histfile=/store/group/phys_higgs/cmshgg/analyzed/micheli_legacy/%(label)s/CMS-HGG.root output=eventsList.txt
 
 #
 # Data
@@ -131,6 +131,7 @@ typ=+22   ind=94 draw=1  Nam=qcd_40_8TeV_pf CaDir=/store/group/phys_higgs/cmshgg
 inputBranches minimal_analysis_input.dat
 inputBranches massfactorizedmvaanalysis_input.dat
 inputBranches minimal_leptmetanalysis_input.dat
+inputBranches TTVH_analysis_input.dat
 
 treevariables massfac_mva_binned/fullmvatrees.dat common/unbinned_datacard_trees.dat
 
@@ -145,7 +146,7 @@ treevariables massfac_mva_binned/fullmvatrees.dat common/unbinned_datacard_trees
 ##   analyzer <class_name> <config_file>
 ##
 ## analyzer PhotonAnalysis photonanalysis.dat
-analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat saveDatacardTrees_=1  dumpAscii=1 dumpMcAscii=0 doFullMvaFinalTree=1 
+analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat  saveDatacardTrees_=1  dumpAscii=1 dumpMcAscii=0 doFullMvaFinalTree=1 
 
 
 
