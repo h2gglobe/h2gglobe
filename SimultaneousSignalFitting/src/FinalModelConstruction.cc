@@ -23,7 +23,7 @@ using namespace std;
 using namespace RooFit;
 using namespace boost;
 
-FinalModelConstruction::FinalModelConstruction(RooRealVar *massVar, RooRealVar *MHvar, RooRealVar *intL, int mhLow, int mhHigh, string proc, int cat, int nIncCats, bool doSecMods, string systematicsFileName, int verbosity, bool isCB):
+FinalModelConstruction::FinalModelConstruction(RooRealVar *massVar, RooRealVar *MHvar, RooRealVar *intL, int mhLow, int mhHigh, string proc, int cat, bool doSecMods, string systematicsFileName, int verbosity, bool isCB):
   mass(massVar),
   MH(MHvar),
   intLumi(intL),
@@ -31,7 +31,6 @@ FinalModelConstruction::FinalModelConstruction(RooRealVar *massVar, RooRealVar *
   mhHigh_(mhHigh),
   proc_(proc),
   cat_(cat),
-  nIncCats_(nIncCats),
   doSecondaryModels(doSecMods),
   isCutBased(isCB),
   verbosity_(verbosity),
@@ -342,7 +341,7 @@ void FinalModelConstruction::setupSystematics(){
   // for legacy paper - this MUST BE UPDATED
   //if (cat_>=nIncCats_) nuisCat = nIncCats_;
   
-  vertexNuisance = new RooRealVar("CMS_hgg_nuissancedeltafracright","CMS_hgg_nuissancedeltafracright",1.,0.1,10.);
+  vertexNuisance = new RooRealVar("CMS_hgg_nuisancedeltafracright","CMS_hgg_nuisancedeltafracright",1.,0.1,10.);
   vertexNuisance->setConstant(true);
   globalScale = new RooRealVar("CMS_hgg_globalscale","CMS_hgg_globalscale",0.,-5.,5.);
   globalScale->setConstant(true);
