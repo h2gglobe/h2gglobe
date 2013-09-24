@@ -89,6 +89,7 @@ el_std_mva_nontrig
 el_std_mva_trig
 el_std_regr_energy
 el_std_regr_energyerr
+el_std_charge
 
 # Muons
 mu_glo_n

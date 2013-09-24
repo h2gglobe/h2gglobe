@@ -9,6 +9,6 @@ for f in $1/*.dat; do
     echo
     echo $f;  
     echo "---------------------------------------"
-    grep CaDir $f
+    egrep '(CaDir|^analyzer)' $f
     . count_events.sh $f*.log; 
 done

@@ -342,6 +342,6 @@ black_list = ["root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/processed/V1
                        "root://cms01.lcg.cscs.ch//store/user/amarini/cmshgg/V15_00_11_v2/Diphoton2Jets_EW4_TuneZ2star_8TeV-madgraph-tauola_Summer12_DR53X-PU_RD1_START53_V7N-v1_AODSIM/Diphoton2Jets_EW4_TuneZ2star_8TeV-madgraph-tauola_Summer12_DR53X-PU_RD1_START53_V7N-v1_AODSIM_99_1_xGu.root",
                        "root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/processed/V15_00_08/mc/Summer12_DR53X-PU_RD1_START53_V7N/Graviton2PMGluGluToHToGG_M-125_8TeV-jhu-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1/Graviton2PMGluGluToHToGG_M-125_8TeV-jhu-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1_62_1_gkO.root",
                        "root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/processed/V15_00_08/mc/Summer12_RD1/GluGluToHToGG_M-123_8TeV-powheg-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1/GluGluToHToGG_M-123_8TeV-powheg-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1_5_1_9v7.root",
-                       "root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/processed/V15_00_05/data/DoublePhoton_Run2012B-22Jan2013-v1_AOD/DoublePhoton_Run2012B-22Jan2013-v1_AOD_89_2_Is6.root",
+                       ## "root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/processed/V15_00_05/data/DoublePhoton_Run2012B-22Jan2013-v1_AOD/DoublePhoton_Run2012B-22Jan2013-v1_AOD_89_2_Is6.root",
                        ]
 
