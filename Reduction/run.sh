@@ -86,8 +86,8 @@ fi
 source cleanup.sh
 
 if [[ -n "$errs" ]]; then
-    echo $sha1  > $stat.fail
+    echo -e $sha1  > $stat.fail
     echo $errs >> $stat.fail
 else
-    echo $sha1  > $stat.done
+    echo -e $sha1  > $stat.done
 fi

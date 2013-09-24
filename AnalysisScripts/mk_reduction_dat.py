@@ -46,7 +46,8 @@ for d in ds.read().split("\n"):
     if ":" in dname:
         iname,dname = dname.rsplit(":",1)
     else:
-        iname = dname.replace("_AODSIM","").replace("_AOD","")
+        iname = dname
+        dname = dname.replace("_AODSIM","").replace("_AOD","")
     analyzer = "analyzer PhotonAnalysis photonanalysis.dat"
     getanalyzer = False
     for s in sl:
