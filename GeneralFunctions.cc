@@ -3647,14 +3647,18 @@ Float_t LoopAll::SumTrackPtInCone(TLorentzVector *photon_p4, Int_t vtxind, Float
 
         TLorentzVector * tkp4= (TLorentzVector *) tk_p4->At(itk);
         if(tkp4->Pt() < PtMin)continue;
-    
-        TVector3 * tkpos= (TVector3 *) tk_vtx_pos->At(itk);
-        /// double deltaz = fabs(vtxpos->Z() - tkpos->Z()); 
-        double deltaz = fabs( (tkpos->Z()-vtxpos->Z()) - ( (tkpos->X()-vtxpos->X())*tkp4->Px() + (tkpos->Y()-vtxpos->Y())*tkp4->Py() )/tkp4->Pt() * tkp4->Pz()/tkp4->Pt() );
-        if(deltaz > dzmax)continue;
-    
-        double dxy = ( -(tkpos->X() - vtxpos->X())*tkp4->Py() + (tkpos->Y() - vtxpos->Y())*tkp4->Px()) / tkp4->Pt();
-        if(fabs(dxy) > dxymax)continue;
+	
+	if( itk >= tk_vtx_pos->GetEntries() ) {
+		std::cout << "WARNING: track position at vertex not available " << vtxind << " " << itk << " " << tkp4->Pt() << std::endl;
+	} else {
+		TVector3 * tkpos= (TVector3 *) tk_vtx_pos->At(itk);
+		/// double deltaz = fabs(vtxpos->Z() - tkpos->Z()); 
+		double deltaz = fabs( (tkpos->Z()-vtxpos->Z()) - ( (tkpos->X()-vtxpos->X())*tkp4->Px() + (tkpos->Y()-vtxpos->Y())*tkp4->Py() )/tkp4->Pt() * tkp4->Pz()/tkp4->Pt() );
+		if(deltaz > dzmax)continue;
+		
+		double dxy = ( -(tkpos->X() - vtxpos->X())*tkp4->Py() + (tkpos->Y() - vtxpos->Y())*tkp4->Px()) / tkp4->Pt();
+		if(fabs(dxy) > dxymax)continue;
+	}
         double tk_eta = tkp4->Eta();
         double tk_phi = tkp4->Phi();
         double deta = fabs(photon_p4->Eta() - tk_eta);
