@@ -1,0 +1,29 @@
+intL=19715. histfile=localCMS-HGG.root output=eventsList_inputvariables_wzh120.txt
+
+typ=-28 ind=4 draw=1   Nam=wzh_m120_8TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_8TeV_v2/mc/Summer12_RD1/WH_ZH_HToGG_M-120_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v2   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+
+#
+# Branches to use
+#
+inputBranches minimal_analysis_input.dat
+inputBranches massfactorizedmvaanalysis_input.dat
+inputBranches minimal_leptmetanalysis_input.dat
+inputBranches TTVH_analysis_input.dat
+
+treevariables massfac_mva_binned/fullmvatrees.dat common/unbinned_datacard_trees.dat
+
+#treevariables massfac_mva_binned/treevariables_optree.dat
+#runZeeValidation=1
+#treevariables treevariables_escale.dat
+
+## define analyses to run
+##   a library containing the class dictionary has loaded before parsing the
+##   configuration file
+## syntax:
+##   analyzer <class_name> <config_file>
+##
+## analyzer PhotonAnalysis photonanalysis.dat
+analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat  saveDatacardTrees_=0  dumpAscii=1 dumpMcAscii=0 massfac_sync_settings.dat
+
+
+
