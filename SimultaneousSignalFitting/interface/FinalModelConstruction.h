@@ -51,6 +51,7 @@ class FinalModelConstruction {
     void setRVdatasets(std::map<int,RooDataSet*> data);
     void setWVdatasets(std::map<int,RooDataSet*> data);
     void setSTDdatasets(std::map<int,RooDataSet*> data);
+		void makeSTDdatasets();
 
     void plotPdf(std::string outDir);
 

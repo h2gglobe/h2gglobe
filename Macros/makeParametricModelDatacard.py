@@ -14,6 +14,8 @@ parser.add_option("--isCutBased",default=False,action="store_true")
 import ROOT as r
 r.gROOT.ProcessLine(".L quadInterpolate.C+g")
 from ROOT import quadInterpolate
+r.gROOT.ProcessLine(".L $CMSSW_BASE/lib/$SCRAM_ARCH/libHiggsAnalysisCombinedLimit.so")
+r.gROOT.ProcessLine(".L ../libLoopAll.so")
 
 # convert globe style to combine style process
 combProc = {'ggh':'ggH','vbf':'qqH','wzh':'VH','wh':'WH','zh':'ZH','tth':'ttH','bkg_mass':'bkg_mass'}
@@ -21,6 +23,10 @@ globeProc = {'ggH':'ggh','qqH':'vbf','VH':'wzh','WH':'wh','ZH':'zh','ttH':'tth',
 procId = {'ggH':0,'qqH':-1,'VH':-2,'WH':-2,'ZH':-3,'ttH':-4,'bkg_mass':1}
 
 # setup
+if 'wzh'in options.procs.split(','):
+	splitVH=False
+if 'wh' in options.procs.split(',') and 'zh' in options.procs.split(','):
+	splitVH=True
 inFile = r.TFile.Open(options.infilename)
 outFile = open(options.outfilename,'w')
 bkgProcs = ['bkg_mass']
@@ -42,31 +48,39 @@ dataFile = 'hgg.inputbkgdata_8TeV_MVA.root'
 dataWS = 'cms_hgg_workspace'
 bkgFile = 'hgg.inputbkgdata_8TeV_MVA.root'
 bkgWS = 'cms_hgg_workspace'
-sigFile = 'hgg.inputsig_8TeV_MVA.root'
+#sigFile = 'hgg.inputsig_8TeV_MVA.root'
+sigFile = 'CMS-HGG_sigfit_moriond13.root'
 sigWS = 'wsig_8TeV'
 fileDetails = {}
 fileDetails['data_obs'] = [dataFile,dataWS,'roohist_data_mass_$CHANNEL']
 fileDetails['bkg_mass']	= [bkgFile,bkgWS,'pdf_data_pol_model_8TeV_$CHANNEL']
-fileDetails['ggH'] 			= [sigFile,sigWS,'hggpdfrel_ggh_$CHANNEL']
-fileDetails['qqH'] 			= [sigFile,sigWS,'hggpdfrel_vbf_$CHANNEL']
-fileDetails['WH'] 			=	[sigFile,sigWS,'hggpdfrel_wh_$CHANNEL']
-fileDetails['ZH'] 			=	[sigFile,sigWS,'hggpdfrel_zh_$CHANNEL']
-fileDetails['ttH'] 			= [sigFile,sigWS,'hggpdfrel_tth_$CHANNEL']
+fileDetails['ggH'] 			= [sigFile,sigWS,'hggpdfsmrel_ggh_$CHANNEL']
+fileDetails['qqH'] 			= [sigFile,sigWS,'hggpdfsmrel_vbf_$CHANNEL']
+if splitVH:
+	fileDetails['WH'] 			=	[sigFile,sigWS,'hggpdfsmrel_wh_$CHANNEL']
+	fileDetails['ZH'] 			=	[sigFile,sigWS,'hggpdfsmrel_zh_$CHANNEL']
+else:
+	fileDetails['VH'] 			=	[sigFile,sigWS,'hggpdfsmrel_wzh_$CHANNEL']
+fileDetails['ttH'] 			= [sigFile,sigWS,'hggpdfsmrel_tth_$CHANNEL']
 
 # theory systematics arr=[up,down]
 pdfSyst = {}
 pdfSyst['ggH'] = [0.076,-0.070]
 pdfSyst['qqH'] = [0.026,-0.028]
-#pdfSyst['VH'] =  [0.042,-0.042]
-pdfSyst['WH'] =  [0.042,-0.042]
-pdfSyst['ZH'] =  [0.042,-0.042]
+if splitVH:
+	pdfSyst['WH'] =  [0.042,-0.042]
+	pdfSyst['ZH'] =  [0.042,-0.042]
+else:
+	pdfSyst['VH'] =  [0.042,-0.042]
 pdfSyst['ttH'] = [0.080,-0.080]
 scaleSyst = {}
 scaleSyst['ggH'] = [0.076,-0.082]
 scaleSyst['qqH'] = [0.003,-0.008]
-#scaleSyst['VH'] =  [0.021,-0.018]
-scaleSyst['WH'] =  [0.021,-0.018]
-scaleSyst['ZH'] =  [0.021,-0.018]
+if splitVH:
+	scaleSyst['WH'] =  [0.021,-0.018]
+	scaleSyst['ZH'] =  [0.021,-0.018]
+else:
+	scaleSyst['VH'] =  [0.021,-0.018]
 scaleSyst['ttH'] = [0.041,-0.094]
 
 # lumi syst
@@ -240,6 +254,7 @@ def printLumiSyst():
 def printGlobeSysts():
 	print 'Efficiencies...'
 	for globeSyst, paramSyst in globeSysts.items():
+		#print globeSyst, paramSyst
 		outFile.write('%-25s   lnN   '%('CMS_hgg_%s'%paramSyst))
 		for c in range(options.ncats):
 			for p in options.procs:

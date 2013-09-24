@@ -195,7 +195,8 @@ int main(int argc, char *argv[]){
     finalModel.setWVsplines(splinesWV);
     finalModel.setRVdatasets(datasetsRV);
     finalModel.setWVdatasets(datasetsWV);
-    finalModel.setSTDdatasets(datasets);
+    //finalModel.setSTDdatasets(datasets);
+		finalModel.makeSTDdatasets();
     finalModel.buildRvWvPdf("hggpdfsmrel",nGaussiansRV,nGaussiansWV,recursive_);
     finalModel.getNormalization();
     finalModel.plotPdf("plots");

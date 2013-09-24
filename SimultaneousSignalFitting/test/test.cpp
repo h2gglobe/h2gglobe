@@ -57,7 +57,7 @@ int main(){
   linInterpWV.interpolate(1);
   map<string,RooSpline1D*> splinesWV = linInterpWV.getSplines();
 
-  FinalModelConstruction finalModel(mass,MH,intLumi,110,150,"ggh",0,4,false,"dat/photonCatSyst.dat",1,false);
+  FinalModelConstruction finalModel(mass,MH,intLumi,110,150,"ggh",0,false,"dat/photonCatSyst.dat",1,false);
   finalModel.setRVsplines(splinesRV);
   finalModel.setWVsplines(splinesWV);
   map<int,RooDataSet*> datasetsRV;

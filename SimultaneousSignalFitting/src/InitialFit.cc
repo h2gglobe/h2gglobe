@@ -158,6 +158,11 @@ void InitialFit::runFits(int ncpu){
     assert(datasets.find(mh)!=datasets.end());
     RooAddPdf *fitModel = sumOfGaussians[mh];
     RooDataSet *data = datasets[mh];
+		// help when dataset has no entries
+		if (data->sumEntries()<1.e-6) {
+			mass->setVal(mh);
+			data->add(RooArgSet(*mass),0.0001);
+		}
     fitModel->Print();
     data->Print();
     RooFitResult *fitRes;

@@ -69,13 +69,16 @@ By default models are also made for:
 	- Second Higgs searches
 These can be turned off with --skipSecondaryModels
 
-The code should take about 20mins to run locally and should provide with you a
+The code should take about 30mins to run locally and should provide with you a
 parametric model in the file specified under --outfilename.
 You should check that the plots in the top level of the
 SimultaneousSignalFitting/plots directory show good fits and a smooth
 interpolation. You can also check (using scripts/checkYield.py) that the yields
 and eff*acc agrees with the binned model calculation from
 Macros/makeEffAcc.py.
+
+If you want you can run with the option --skipPlots. This should speeds things
+up as plotting the model takes sometime for RooFit to compute.
 
 -------------------------------------
 Setting up the datfiles
