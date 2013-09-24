@@ -273,9 +273,9 @@ def optimizeMultiDim(options,args):
         os.mkdir(options.outdir)
     os.chdir(options.outdir)
 
-    if not os.path.exists("/tmp/%s" % os.getusername()):
-        os.mkdir("/tmp/%s" % os.getusername())
-    tmp = ROOT.TFile.Open("/tmp/%s/categoryOptimizationMultiDim.root" % os.getusername() ,"recreate")
+    if not os.path.exists("/tmp/%s" % os.getlogin()):
+        os.mkdir("/tmp/%s" % os.getlogin())
+    tmp = ROOT.TFile.Open("/tmp/%s/categoryOptimizationMultiDim_%s.root" % (os.getlogin(),options.label) ,"recreate")
     tmp.cd()
 
     ### ##########################################################################################################
@@ -313,7 +313,9 @@ def optimizeMultiDim(options,args):
         tree.Write()
         
     fin.Close()
-
+    if options.onlytrees:
+        sys.exit(0)
+    
     print "---------------------------------------------"
     print "Booking model buildes"
     print
@@ -657,7 +659,12 @@ if __name__ == "__main__":
             make_option("-x", "--show-plots",
                         action="store_true", dest="showplots",
                         default=sys.flags.interactive,
-                        help="json file containing settings"
+                        help=""
+                        ),
+            make_option("--only-trees",
+                        action="store_true", dest="onlytrees",
+                        default=False,
+                        help=""
                         ),
             ])
 
