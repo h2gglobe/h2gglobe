@@ -1286,7 +1286,7 @@ void PhotonAnalysis::Init(LoopAll& l)
 
     // Jet handling
     if( recomputeBetas || recorrectJets || rerunJetMva || recomputeJetWp || applyJer || applyJecUnc || emulateJetResponse 
-	|| l.typerun != l.kFill && 0) {
+	|| l.typerun != l.kFill ) {
 	std::cout << "JetHandler: \n"
 		  << "recomputeBetas " << recomputeBetas << "\n"
 		  << "recorrectJets " << recorrectJets << "\n"
@@ -1931,7 +1931,7 @@ void PhotonAnalysis::postProcessJets(LoopAll & l, int vtx)
     }
     for(int ivtx=minv;ivtx<maxv; ++ivtx) {
 	for(int ijet=0; ijet<l.jet_algoPF1_n; ++ijet) {
-	    if( recomputeBetas || (l.typerun != l.kFill && l.version > 14 && ivtx >= l.jet_algoPF1_nvtx) && 0 ) {
+	    if( recomputeBetas || (l.typerun != l.kFill && l.version > 14 && ivtx >= l.jet_algoPF1_nvtx) ) {
 		/// std::cout << "recomputeBetas " << ivtx << " " << l.jet_algoPF1_nvtx << std::endl;
 		jetHandler_->computeBetas(ijet, ivtx);
 	    }
