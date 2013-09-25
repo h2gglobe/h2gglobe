@@ -25,7 +25,7 @@ class FinalModelConstruction {
 
   public:
     
-    FinalModelConstruction(RooRealVar *massVar, RooRealVar *MHvar, RooRealVar *intL, int mhLow, int mhHigh, std::string proc, int cat, int nIncCats, bool doSecMods, std::string systematicsFileName, int verbosity, bool isCB=false);
+    FinalModelConstruction(RooRealVar *massVar, RooRealVar *MHvar, RooRealVar *intL, int mhLow, int mhHigh, std::string proc, int cat, bool doSecMods, std::string systematicsFileName, int verbosity, bool isCB=false);
     ~FinalModelConstruction();
 
 		void loadSignalSystematics(std::string filename);
@@ -51,6 +51,7 @@ class FinalModelConstruction {
     void setRVdatasets(std::map<int,RooDataSet*> data);
     void setWVdatasets(std::map<int,RooDataSet*> data);
     void setSTDdatasets(std::map<int,RooDataSet*> data);
+		void makeSTDdatasets();
 
     void plotPdf(std::string outDir);
 

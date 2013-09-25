@@ -34,8 +34,8 @@ string systfilename_;
 int mhLow_=110;
 int mhHigh_=150;
 int nCats_;
-int nInclusiveCats_;
 float constraintValue_;
+int constraintValueMass_;
 bool spin_=false;
 bool splitVH_=false;
 bool splitRVWV_=true;
@@ -54,8 +54,8 @@ void OptionParser(int argc, char *argv[]){
     ("mhLow,L", po::value<int>(&mhLow_)->default_value(110),                                  			"Low mass point")
     ("mhHigh,H", po::value<int>(&mhHigh_)->default_value(150),                                			"High mass point")
     ("nCats,n", po::value<int>(&nCats_)->default_value(9),                                    			"Number of total categories")
-    ("nInclusiveCats", po::value<int>(&nInclusiveCats_)->default_value(4),                    			"Number of inclusive categories")
     ("constraintValue,C", po::value<float>(&constraintValue_)->default_value(0.1),            			"Constraint value")
+    ("constraintValueMass,M", po::value<int>(&constraintValueMass_)->default_value(125),            "Constraint value mass")
     ("skipSecondaryModels",                                                                   			"Turn off creation of all additional models")
     ("splitVH",                                                                               			"Split VH into WH and ZH")
     ("recursive",                                                                             			"Recursively calculate gaussian fractions")
@@ -155,7 +155,7 @@ int main(int argc, char *argv[]){
     initFitRV.buildSumOfGaussians(Form("%s_cat%d",proc.c_str(),cat),nGaussiansRV);
     initFitRV.setDatasets(datasetsRV);
     initFitRV.runFits(1);
-    initFitRV.saveParamsToFileAtMH(Form("dat/in/%s_cat%d_rv.dat",proc.c_str(),cat),125);
+    initFitRV.saveParamsToFileAtMH(Form("dat/in/%s_cat%d_rv.dat",proc.c_str(),cat),constraintValueMass_);
     initFitRV.loadPriorConstraints(Form("dat/in/%s_cat%d_rv.dat",proc.c_str(),cat),constraintValue_);
     initFitRV.runFits(1);
     initFitRV.plotFits(Form("plots/%s_cat%d/rv",proc.c_str(),cat));
@@ -167,7 +167,7 @@ int main(int argc, char *argv[]){
     initFitWV.buildSumOfGaussians(Form("%s_cat%d",proc.c_str(),cat),nGaussiansWV,recursive_);
     initFitWV.setDatasets(datasetsWV);
     initFitWV.runFits(1);
-    initFitWV.saveParamsToFileAtMH(Form("dat/in/%s_cat%d_wv.dat",proc.c_str(),cat),125);
+    initFitWV.saveParamsToFileAtMH(Form("dat/in/%s_cat%d_wv.dat",proc.c_str(),cat),constraintValueMass_);
     initFitWV.loadPriorConstraints(Form("dat/in/%s_cat%d_wv.dat",proc.c_str(),cat),constraintValue_);
     initFitWV.runFits(1);
     initFitRV.plotFits(Form("plots/%s_cat%d/wv",proc.c_str(),cat));
@@ -189,13 +189,14 @@ int main(int argc, char *argv[]){
     map<string,RooSpline1D*> splinesWV = linInterpWV.getSplines();
 
     // this guy constructs the final model with systematics, eff*acc etc.
-    FinalModelConstruction finalModel(mass,MH,intLumi,mhLow_,mhHigh_,proc,cat,nInclusiveCats_,doSecondaryModels_,systfilename_,verbose_,false);
+    FinalModelConstruction finalModel(mass,MH,intLumi,mhLow_,mhHigh_,proc,cat,doSecondaryModels_,systfilename_,verbose_,false);
     finalModel.setSecondaryModelVars(MH_SM,DeltaM,MH_2,higgsDecayWidth);
     finalModel.setRVsplines(splinesRV);
     finalModel.setWVsplines(splinesWV);
     finalModel.setRVdatasets(datasetsRV);
     finalModel.setWVdatasets(datasetsWV);
-    finalModel.setSTDdatasets(datasets);
+    //finalModel.setSTDdatasets(datasets);
+		finalModel.makeSTDdatasets();
     finalModel.buildRvWvPdf("hggpdfsmrel",nGaussiansRV,nGaussiansWV,recursive_);
     finalModel.getNormalization();
     finalModel.plotPdf("plots");

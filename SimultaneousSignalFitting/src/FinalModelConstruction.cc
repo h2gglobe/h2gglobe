@@ -23,7 +23,7 @@ using namespace std;
 using namespace RooFit;
 using namespace boost;
 
-FinalModelConstruction::FinalModelConstruction(RooRealVar *massVar, RooRealVar *MHvar, RooRealVar *intL, int mhLow, int mhHigh, string proc, int cat, int nIncCats, bool doSecMods, string systematicsFileName, int verbosity, bool isCB):
+FinalModelConstruction::FinalModelConstruction(RooRealVar *massVar, RooRealVar *MHvar, RooRealVar *intL, int mhLow, int mhHigh, string proc, int cat, bool doSecMods, string systematicsFileName, int verbosity, bool isCB):
   mass(massVar),
   MH(MHvar),
   intLumi(intL),
@@ -31,7 +31,6 @@ FinalModelConstruction::FinalModelConstruction(RooRealVar *massVar, RooRealVar *
   mhHigh_(mhHigh),
   proc_(proc),
   cat_(cat),
-  nIncCats_(nIncCats),
   doSecondaryModels(doSecMods),
   isCutBased(isCB),
   verbosity_(verbosity),
@@ -245,7 +244,9 @@ void FinalModelConstruction::getRvFractionFunc(string name){
     mhValues.push_back(mh);
     double rvN = rvDatasets[mh]->sumEntries();
     double wvN = wvDatasets[mh]->sumEntries();
-    rvFracValues.push_back(rvN/(rvN+wvN));
+		double rvF = rvN/(rvN+wvN);
+		if (rvF != rvF) rvF=1.; // incase nan when no entries
+    rvFracValues.push_back(rvF);
   }
   rvFracFunc = new RooSpline1D(name.c_str(),name.c_str(),*MH,mhValues.size(),&(mhValues[0]),&(rvFracValues[0]));
   rvFractionSet_=true;
@@ -305,6 +306,7 @@ RooAbsReal* FinalModelConstruction::getSigmaWithPhotonSyst(RooAbsReal *sig_fit, 
 		if (i<photonCats.size()-1) formula += "+";
 	}
 	formula+=")";
+	formula = Form("TMath::Max(%s,0.)",formula.c_str());
 	RooFormulaVar *formVar = new RooFormulaVar(name.c_str(),name.c_str(),formula.c_str(),*dependents);
 	return formVar;
 }
@@ -342,7 +344,7 @@ void FinalModelConstruction::setupSystematics(){
   // for legacy paper - this MUST BE UPDATED
   //if (cat_>=nIncCats_) nuisCat = nIncCats_;
   
-  vertexNuisance = new RooRealVar("CMS_hgg_nuissancedeltafracright","CMS_hgg_nuissancedeltafracright",1.,0.1,10.);
+  vertexNuisance = new RooRealVar("CMS_hgg_nuisancedeltafracright","CMS_hgg_nuisancedeltafracright",1.,0.1,1.);
   vertexNuisance->setConstant(true);
   globalScale = new RooRealVar("CMS_hgg_globalscale","CMS_hgg_globalscale",0.,-5.,5.);
   globalScale->setConstant(true);
@@ -506,6 +508,15 @@ void FinalModelConstruction::setWVdatasets(map<int,RooDataSet*> data){
 
 void FinalModelConstruction::setSTDdatasets(map<int,RooDataSet*> data){
   stdDatasets = data;
+}
+
+void FinalModelConstruction::makeSTDdatasets(){
+  for (unsigned int i=0; i<allMH_.size(); i++){
+    int mh=allMH_[i];
+		RooDataSet *data = (RooDataSet*)rvDatasets[mh]->Clone(Form("sig_%s_mass_m%d_cat%d",proc_.c_str(),mh,cat_));
+		data->append(*wvDatasets[mh]);
+		stdDatasets.insert(pair<int,RooDataSet*>(mh,data));
+	}	
 }
 
 void FinalModelConstruction::plotPdf(string outDir){
