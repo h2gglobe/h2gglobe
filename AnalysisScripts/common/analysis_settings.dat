@@ -99,7 +99,7 @@ puTarget=aux/Moriond_pileup_190456-208686_minBiasXsec69400_corr_observed.root
 #puTargets=aux/Moriond_pileup_190456-208686_minBiasXsec69400_corr_observed.root,aux/Moriond_pileup_190456-208686_minBiasXsec69400_corr_observed.root,aux/Moriond_pileup_190456-208686_minBiasXsec69400_corr_observed.root
 
 ## energy regression
-energyCorrectionMethod=Bendavid
+energyCorrectionMethod=Bendavid_otf
 doEcorrectionSmear=1
 doEcorrectionSyst=0
 

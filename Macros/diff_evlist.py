@@ -1,57 +1,200 @@
 #!/usr/bin/env python
 
+# ############################################################################
+#
+# The script is developed for purposes of synchronizing H->gammagamma analysis
+# performed in different frameworks. It takes as input two txt files
+# containing event information in format <field_name>:<field_value>, 
+# and outputs the following information: 
+#
+# 1) event counts and printouts of common and unique events
+# 2) same as 1) per event category
+# 3) level of synchrnoization per <field_name>
+# 4) plots of differences per <field_name>
+# 
+#
+# Original version: P.Musella
+# Improved version: V.Rekovic  Jan/2013 
+# (added synchronization per category)
+#
+#
+# #############################################################################
+
 from sys import argv
 import json 
 from pprint import pprint 
 from math import fabs
 import operator
+import array
 
 import ROOT
 
-minrun=999999
+minrun=99999
 maxrun=0
 
-def getlist(input,minmass=0,maxmass=1000.):
-    lst = {}
-    global minrun, maxrun
-    print minmass, maxmass
-    for line in input.split("\n"):
-        l = [ i for i in line.replace("="," ").split(" ")  if i != "" ]
-        try:
-            if len(l) < 9 and not line.startswith("Passing"):
-                continue
-            if line.startswith("Passing"):
-                run, ls, ev, vtx, cat, mass, pt = int(l[1]), int(l[2]), int(l[3]), 0, 0, float(l[5]), float(l[7])
-            elif "VBF" in line:
-                ## Run = 177449  LS = 402  Event = 606455702  SelVtx = 0  CAT4 = 0  ggM = 149.3 ggPt =  189.6  jetEta1 = 1.218  jetEta2 = -2.775  jetPhi1 = 0.7197  jetPhi2 = -0.5363  jetEt1 = 138.6  jetEt2 = 33.11 Mjj 496 dEtajj 3.993 Zeppenfeld 1.785 dPhijjgg 2.973 VBF itype 0
-                run, ls, ev, vtx, cat, mass, pt = int(l[1]), int(l[3]), int(l[5]), int(l[7]), 4, float(l[11]), float(l[13])
-            elif len(l)==14:
-                type, run, ls, ev, mass, cat, vtx, pt = int(l[1]), int(l[3]), int(l[5]), int(l[7]), float(l[9]), int(l[11]), int(l[13]), 0.
-            elif len(l)>13:
-                type, run, ls, ev, vtx, cat, mass, pt = int(l[1]), int(l[3]), int(l[5]), int(l[7]), int(l[9]), int(l[11]), float(l[13]), float(l[15])
-                if type != 0:
-                    continue
-            elif len(l)==12:
-                type, run, ls, ev, vtx, cat, mass, pt = int(l[1]), int(l[3]), int(l[5]), int(l[7]), int(l[9]), 0, float(l[11]), 0.
-            elif len(l)==10:
-                type, run, ls, ev, vtx, cat, mass, pt = int(l[1]), int(l[3]), int(l[5]), int(l[7]), 0, 0, float(l[9]), 0.
-            else:
-                run, ls, ev, vtx, cat, mass, pt = int(l[1]), int(l[3]), int(l[5]), int(l[7]), int(l[9]), float(l[11]), float(l[13])
-        except Exception, e:
-            print line
-            print e
-        
+Commoncat = [0] * 10
+CommonOnly1cat = [0] * 10
+CommonOnly2cat = [0] * 10
+Only1cat = [0] * 10
+Only2cat = [0] * 10
 
-        if mass >= minmass and mass <= maxmass and run>1:
+lastrun=9999999999999
+
+def getlist(input):
+    lst = {}
+    lstDuplEvents = {}
+    lstRuns = {}
+
+    global minrun, maxrun
+
+    for line in input.split("\n"):
+        vars = {}
+        try:
+            for i in line.replace(": ",":").replace("="," ").replace("\t"," ").split(" "):
+                if i != "":
+                    j = i.split(":")
+                    #if j[0] == "event":
+                        #globals()[j[0]] = (int(j[1])) & 0xFFFFFFFF
+												#continue
+                    if j[0] == "run" or j[0] == "lumi" or j[0] == "event" or j[0] == "type":
+                        globals()[j[0]] = abs(int(j[1]))
+                    else:
+                         vars[j[0]] = float(j[1])
+                    
+            #if run > lastrun :
+            #if run > lastrun or run == 200961 or run == 200976 or run == 201191 :
+            #if run > lastrun or run == 201191 :
+            if run > lastrun :
+                continue
+            
             if run<minrun:
                 minrun=run
             if run>maxrun:
                 maxrun=run
-            ## cat = cat % 4
-            ### if pt < 40:
-            ###     cat = cat + 4
-            lst[ (run, ls, ev) ] = ( vtx, cat, mass, pt )
+                
+            if(lst.has_key((run, lumi, event))):
+                #print run, lumi, event
+                #print "newVars = ", "mgg:", vars["mgg"]
+                #print "oldVars = ", "mgg:", lst[(run,lumi,event)]["mgg"]
+                lstDuplEvents[ (run, lumi, event) ] = vars
+                continue
+
+            lst[  (run, lumi, event) ] = vars
+            lstRuns[  (run) ] = vars
+            
+        except Exception, e:
+            #print line
+            print e
+            
+    evts = lst.keys()
+    duplEvts = lstDuplEvents.keys()
+    runs = lstRuns.keys()
+
+    print " Number of unique evts    : %d" % ( len(evts) )
+    print " Number of duplicated evts: %d" % ( len(duplEvts)-1 )
+    print " Number of unique runs: %d" % ( len(runs) )
     return lst
+
+def bookHisto(name,nbins,min,max,relative=False):
+    ymin = -max*0.2
+    ymax = max*0.2
+    nybins = 2*nbins
+    den = ""
+    if relative:
+        ymin = -0.01
+        ymax = 0.01
+        nybins = 100
+        den = "/ %s" % name
+    h = ROOT.TH2F(name, "%s;%s; (%s_{A} - %s_{B}) %s" % ( name, name, name, name, den ),nbins,min,max,nybins,ymin,ymax)
+    h.relative = relative
+    return h
+
+def fillHisto(h, varA, varB, relative=False):
+    y=(varA-varB)
+    if relative and varA != 0.:
+        y /= varA
+    h.Fill(varA, y )
+
+    
+histos = {
+    "mgg"                     : bookHisto("mgg",                          1000,   100,   180,  True),
+    #"run"                     : bookHisto("run",                          1000,   000,   000,  True),
+    #"event"                   : bookHisto("event",                        1000,   000,   000,  True),
+    "rho"                     : bookHisto("rho",                          1000,   0.0,   0.6,  True),
+    "pho1_ind"                : bookHisto("pho1_ind",                      100,     0,   100,  True),
+    "pho1_scInd"              : bookHisto("pho1_scInd",                    100,     0,   100,  True),
+    "pho1_r9"                 : bookHisto("pho1_r9",                      1000,     0,   1.0,  True),
+    "pho1_scEta"              : bookHisto("pho1_scEta",                   1000,   -3.,   3.0,  True),
+    "pho1_pt"                 : bookHisto("pho1_pt",                      1000,     0,   300,  True),
+    "pho1_eta"                : bookHisto("pho1_eta",                     1000,   -3.,   3.0,  True),
+    "pho1_phi"                : bookHisto("pho1_phi",                     1000, -3.15,  3.15,  True),
+    "pho1_e"                  : bookHisto("pho1_e",                       1000,     0,  2000,  True),
+    "pho1_eErr"               : bookHisto("pho1_eErr",                    1000,     0,   300,  True),
+    "pho1_isConv"             : bookHisto("pho1_isConv",                     2,     0,     2,  True),
+    "pho1_HoE"                : bookHisto("pho1_HoE",                      100,     0,   0.3,  True),
+    "pho1_hcalIso03"          : bookHisto("pho1_hcalIso03",               1000,     0,    40,  True),
+    "pho1_trkIso03"           : bookHisto("pho1_trkIso03",                1000,     0,    40,  True),
+    "pho1_pfChargedIsoGood02" : bookHisto("pho1_pfChargedIsoGood02",      1000,     0,    40,  True),
+    "pho1_pfChargedIsoGood03" : bookHisto("pho1_pfChargedIsoGood03",      1000,     0,    40,  True),
+    "pho1_pfChargedIsoBad03"  : bookHisto("pho1_pfChargedIsoBad03",       1000,     0,    40,  True),
+    "pho1_pfPhotonIso03"      : bookHisto("pho1_pfPhotonIso03",           1000,     0,    40,  True),
+    "pho1_pfNeutralIso03"     : bookHisto("pho1_pfNeutralIso03",          1000,     0,    40,  True),
+    "pho1_sieie"              : bookHisto("pho1_sieie",                   1000,     0,   0.5,  True),
+    "pho1_sieip"              : bookHisto("pho1_sieip",                   1000,     0,   0.5,  True),
+    "pho1_etaWidth"           : bookHisto("pho1_etaWidth",                1000,     0,   0.5,  True),
+    "pho1_phiWidth"           : bookHisto("pho1_phiWidth",                1000,     0,   0.5,  True),
+    "pho1_lambdaRatio"        : bookHisto("pho1_lambdaRatio",             1000,    -1,     1,  True),
+    "pho1_s4Ratio"            : bookHisto("pho1_s4Ratio",                 1000,    -1,     1,  True),
+    "pho1_ESEffSigmaRR"       : bookHisto("pho1_ESEffSigmaRR",            1000,     0,   1.0,  True),
+    "pho2_ind"                : bookHisto("pho2_ind",                      100,     0,   100,  True),
+    "pho2_scInd"              : bookHisto("pho2_scInd",                    100,     0,   100,  True),
+    "pho2_r9"                 : bookHisto("pho2_r9",                      1000,     0,   1.0,  True),
+    "pho2_scEta"              : bookHisto("pho2_scEta",                   1000,   -3.,   3.0,  True),
+    "pho2_pt"                 : bookHisto("pho2_pt",                      1000,     0,   300,  True),
+    "pho2_eta"                : bookHisto("pho2_eta",                     1000,   -3.,   3.0,  True),
+    "pho2_phi"                : bookHisto("pho2_phi",                     1000, -3.15,  3.15,  True),
+    "pho2_e"                  : bookHisto("pho2_e",                       1000,     0,  2000,  True),
+    "pho2_eErr"               : bookHisto("pho2_eErr",                    1000,     0,   300,  True),
+    "pho2_isConv"             : bookHisto("pho2_isConv",                     2,     0,     2,  True),
+    "pho2_HoE"                : bookHisto("pho2_HoE",                      100,     0,   0.3,  True),
+    "pho2_hcalIso03"          : bookHisto("pho2_hcalIso03",               1000,     0,    40,  True),
+    "pho2_trkIso03"           : bookHisto("pho2_trkIso03",                1000,     0,    40,  True),
+    "pho2_pfChargedIsoGood02" : bookHisto("pho2_pfChargedIsoGood02",      1000,     0,    40,  True),
+    "pho2_pfChargedIsoGood03" : bookHisto("pho2_pfChargedIsoGood03",      1000,     0,    40,  True),
+    "pho2_pfChargedIsoBad03"  : bookHisto("pho2_pfChargedIsoBad03",       1000,     0,    40,  True),
+    "pho2_pfPhotonIso03"      : bookHisto("pho2_pfPhotonIso03",           1000,     0,    40,  True),
+    "pho2_pfNeutralIso03"     : bookHisto("pho2_pfNeutralIso03",          1000,     0,    40,  True),
+    "pho2_sieie"              : bookHisto("pho2_sieie",                   1000,     0,   0.5,  True),
+    "pho2_sieip"              : bookHisto("pho2_sieip",                   1000,     0,   0.5,  True),
+    "pho2_etaWidth"           : bookHisto("pho2_etaWidth",                1000,     0,   0.5,  True),
+    "pho2_phiWidth"           : bookHisto("pho2_phiWidth",                1000,     0,   0.5,  True),
+    "pho2_lambdaRatio"        : bookHisto("pho2_lambdaRatio",             1000,    -1,     1,  True),
+    "pho2_s4Ratio"            : bookHisto("pho2_s4Ratio",                 1000,    -1,     1,  True),
+    "pho2_ESEffSigmaRR"       : bookHisto("pho2_ESEffSigmaRR",            1000,     0,   1.0,  True),
+    "mass"                    : bookHisto("mass",                         1800,   100,   180,  True),
+    "rVtxSigmaMoM"            : bookHisto("rVtxSigmaMoM",                 1000,     0,   0.5,  True),
+    "wVtxSigmaMoM"            : bookHisto("wVtxSigmaMoM",                 1000,     0,   0.5,  True),
+    "pho1_ptOverM"            : bookHisto("pho1_ptOverM",                 1000,     0,   1.0,  True),
+    "pho2_ptOverM"            : bookHisto("pho2_ptOverM",                 1000,     0,   1.0,  True),
+    "vtxIndex"                : bookHisto("vtxIndex",                      100,     0,   100,  True),
+    "vtxProb"                 : bookHisto("vtxProb",                      1000,     0,   1.0,  True),
+    "cosDPhi"                 : bookHisto("cosDPhi",                      1000,   -1.,   1.0,  True),
+    "ptBal"                   : bookHisto("ptBal",                        1000,   -31,    31,  True),
+    "ptAsym"                  : bookHisto("ptAsym",                       1000,   -31,    31,  True),
+    "logSPt2"                 : bookHisto("logSPt2",                      1000,    -3,     3,  True),
+    "p2Conv"                  : bookHisto("p2Conv",                       1000,   -31,    31,  True),
+    "nConv"                   : bookHisto("nConv",                          50,     0,    50,  True),
+    "jet1_ind"                : bookHisto("jet1_ind",                      500,     0,   500,  True),
+    "jet1_eta"                : bookHisto("jet1_eta",                     1000,   -6.,     6,  True),
+    "jet1_pt"                 : bookHisto("jet1_pt",                      1000,     0,  2000,  True),
+    "jet2_ind"                : bookHisto("jet2_ind",                      500,     0,   500,  True),
+    "jet2_eta"                : bookHisto("jet2_eta",                     1000,    -6,     6,  True),
+    "jet2_pt"                 : bookHisto("jet2_pt",                      1000,     0,  2000,  True),
+    "dijet_dEta"              : bookHisto("dijet_dEta",                   1000,     0,    15,  True),
+    "dijet_Zep"               : bookHisto("dijet_Zep",                    1000,     0,    10,  True),
+    "dijet_dPhi"              : bookHisto("dijet_dPhi",                   1000,     0,  3.15,  True),
+    "dijet_Mjj"               : bookHisto("dijet_Mjj",                    1000,     0,  3000,  True)
+}
 
 ROOT.gROOT.SetStyle("Plain")
 ROOT.gStyle.SetPalette(1)
@@ -63,28 +206,18 @@ fn2 = argv.pop(1)
 file1 = open(fn1)
 file2 = open(fn2)
 
-## list1 = getlist( file1.read(),100,180 )
+print "\n"
+print "list1: %s" % fn1
+print "=========================="
 list1 = getlist( file1.read() )
-## print list1
-
-## list2 = getlist( file2.read(),100,180 )
+print "\n"
+print "list2: %s" % fn2
+print "=========================="
 list2 = getlist( file2.read() )
-## print list2
-
-def cmp(x,y):
-    if x[0] < y[0] : return True
-    elif x[0] == y[0]:
-        if x[1] < y[1] : return True
-        elif x[1] == y[1]:
-            if x[2] < y[2] : return True
-                
-    return False
+print "\n"
 
 events1 = list1.keys()
 events2 = list2.keys()
-
-events1.sort( cmp )
-events2.sort( cmp )
 
 common = set(events1).intersection(  set(events2) )
 
@@ -94,118 +227,164 @@ only2 = list(set(events2) -  set(events1))
 only1.sort()
 only2.sort()
 
-## only1.sort(cmp) 
-## only2.sort(cmp) 
-
-diffvtx  = []
-diffmass = []
-diffpt   = []
-diffcat  = []
-
-diffmassplots = []
-diffmassrel = []
-diffmassprofiles = []
-diffmassprofiles_mass = []
-diffmass_scatter = []
 nruns = (maxrun - minrun) / 100
-## ncat = 8
-ncat = 5
-print nruns, maxrun, minrun
-for cat in range(0,ncat):
-    diffmassplots.append( ROOT.TH1F("diffmass_cat%d" % cat ,"diffmass_cat%d; #Delta m_{#gamma #gamma} (GeV/c^{2}); Events / bin" %cat , 100, -10., 10. ) )
-    diffmassrel.append( ROOT.TH1F("diffrel_cat%d" % cat ,"diffrel_cat%d; #Delta m_{#gamma #gamma} / m; Events / bin" %cat , 100, -0.2, 0.2 ) )
-    diffmassprofiles.append( ROOT.TProfile("diffrel_run_cat%d" % cat ,"diffmass_run_cat%d; run number; #Delta m_{#gamma #gamma} / m; Events / bin" %cat,
-                                           nruns, minrun, maxrun) ) 
-    diffmassprofiles_mass.append( ROOT.TProfile("diffrel_mass_cat%d" % cat ,"diffmass_mass_cat%d; m_{#gamma #gamma} (GeV/c^{2}); #Delta m_{#gamma #gamma} / m; Events / bin" %cat,
-                                           80, 100., 180.) ) 
-    diffmass_scatter.append( ROOT.TH2F("scatter_mass_cat%d" % cat ,"scatter_mass_cat%d; m^{1}_{#gamma #gamma} (GeV/c^{2}); m^{2}_{#gamma #gamma} (GeV/c^{2}); Events / bin" %cat,
-                                           80, 100., 180., 80, 100., 180.) ) 
-
-diffmassplots.append( ROOT.TH1F("diffmass_other","diffmass_other; #Delta m_{#gamma #gamma} (GeV/c^{2}); Events / bin", 100, -10., 10. ) )
-diffmassrel.append( ROOT.TH1F("diffrel_other","diffrel_other; #Delta m_{#gamma #gamma} / m; Events / bin", 100, -0.2, 0.2 ) )
-diffmassprofiles.append( ROOT.TProfile("diffrel_run_other","diffmass_run_other; run number; #Delta m_{#gamma #gamma} / m",
-                                           nruns, minrun, maxrun) )
-diffmassprofiles_mass.append( ROOT.TProfile("diffrel_mass_other", "diffmass_mass_other; m_{#gamma #gamma} (GeV/c^{2}); #Delta m_{#gamma #gamma} / m; Events / bin",
-                                           80, 100., 180.) )
-diffmass_scatter.append( ROOT.TH2F("scatter_mass_other","scatter_mass_other; m^{1}_{#gamma #gamma} (GeV/c^{2}); m^{2}_{#gamma #gamma} (GeV/c^{2}); Events / bin",
-                                           80, 100., 180., 80, 100., 180.) ) 
-
 
 for ev in common:
-    vtx1, cat1, mass1, pt1 = list1[ ev ]
-    vtx2, cat2, mass2, pt2 = list2[ ev ]
 
-    if vtx1 != vtx2:
-        diffvtx.append( (ev, list1[ ev ], list2[ ev ])  )
-    if fabs(1. - mass1/mass2) > 0.003:
-        diffmass.append( (ev, list1[ ev ], list2[ ev ]) )
-    ## if fabs(1. - pt1/pt2) > 0.05:
-    ##     diffpt.append( (ev, list1[ ev ], list2[ ev ])  )
-    if cat1 != cat2:
-        diffcat.append( (ev, list1[ ev ], list2[ ev ]) )
+    setA = list1[ev]
+    setB = list2[ev]
 
-    delta_mass = mass1 - mass2
-    diffmassplots[ cat1 ].Fill( delta_mass )
-    diffmassrel[ cat1 ].Fill( delta_mass/mass1 )
-    diffmassprofiles[ cat1 ].Fill( ev[0], delta_mass/mass1 )
-    diffmassprofiles_mass[ cat1 ].Fill( mass1, delta_mass/mass1 )
-    diffmass_scatter[ cat1 ].Fill( mass1, mass2 )
-    ## if cat1 == cat2:
-    ##     diffmassplots[ cat1 ].Fill( delta_mass )
-    ##     diffmassrel[ cat1 ].Fill( delta_mass/mass1 )
-    ##     diffmassprofiles[ cat1 ].Fill( ev[0], delta_mass/mass1 )
-    ##     diffmassprofiles_mass[ cat1 ].Fill( mass1, delta_mass/mass1 )
-    ## else:
-    ##     diffmassplots[ ncat ].Fill( delta_mass )
-    ##     diffmassrel[ ncat ].Fill( delta_mass/mass1 )
-    ##     diffmassprofiles[ ncat ].Fill( ev[0], delta_mass/mass1 )
-    ##     diffmassprofiles_mass[ ncat ].Fill( mass1, delta_mass/mass1 )
-    
-print "Only in %s %d" % ( fn1, len(only1) )
-## for run,lumi,event in only1:
-##     print "%d %d %d" % ( run,lumi,event )
-print "Only in %s %d" % ( fn2, len(only2) )
-## for run,lumi,event in only2:
-##     print "%d %d %d" % ( run,lumi,event )
-## pprint(only2)
+    if len(setA) == 0 or len(setB) == 0:
+        continue
 
-fonly1 = open( "only_%s" % fn1.rsplit("/",1)[1], "w+"  )
-fonly2 = open( "only_%s" % fn2.rsplit("/",1)[1], "w+"  )
-## print >> fonly1, json.dumps( list(only1) )
-## print >> fonly2, json.dumps( list(only2) )
+    if abs( 1. - setA["pho1_scEta"] / setB["pho1_scEta"] ) > 1.e-3 or abs( 1. - setA["pho2_scEta"] / setB["pho2_scEta"] ) > 1.e-3:
+            fillHisto( histos["pho1_scEta"], setA["pho1_scEta"], setB["pho1_scEta"], True )
+            fillHisto( histos["pho2_scEta"], setA["pho2_scEta"], setB["pho2_scEta"], True )
+    else:
+        for name,hist in histos.iteritems():
+            try:
+                fillHisto( hist, setB[name], setA[name], hist.relative )
+            except Exception, e:
+                pass
+        
+    #if setA["evcat"] != setB["evcat"]:
+		#	#print "setA = ", setA
+		#	#print "setB = ", setB
+		#	#print "\n"
+		#	print "(event, lumi, run)", ev
+		#	print "setA[evcat] =", setA["evcat"]," setB[evcat] =", setB["evcat"]
+		#	print "setA[diphoBDT] =", setA["diphoBDT"]," setB[diphoBDT] =", setB["diphoBDT"]
+		#	for name in setB:
+		#		if name == "evcat":
+		#			continue
+		#		try:
+		#			delta=setA[name]-setB[name]
+		#			if(delta != 0):
+		#				print "delta(",name,") =", delta
+		#		except Exception, e:
+		#			pass
 
-for ev in only1:
-    print >> fonly1, "%d %d %d %1.3f" % (ev[0], ev[1], ev[2], list1[ev][2] )
+    #for i in range(0,9): 
+    #    
+		#	if setA["evcat"] == i and setB["evcat"] == i:
+		#		Commoncat[i] = Commoncat[i] + 1
+		#	if setA["evcat"] == i and setB["evcat"] != i:
+		#		CommonOnly1cat[i] = CommonOnly1cat[i] + 1
+		#	if setA["evcat"] != i and setB["evcat"] == i:
+		#		CommonOnly2cat[i] = CommonOnly2cat[i] + 1
 
-for ev in only2:
-    print >> fonly2, "%d %d %d %1.3f" % (ev[0], ev[1], ev[2], list2[ev][2] )
 
-fonly1.close()
-fonly2.close()
+#for ev in only1:
+#
+#  setA = list1[ev]
+#  print "Only1 " , ev , " diphoBTD:" , setA["diphoBDT"], "  mgg:" , setA["mgg"] 
+#  for i in range(0,9):
+#    if setA["evcat"] == i:
+#      Only1cat[i] = Only1cat[i] + 1
+#
+#for ev in only2:
+#
+#  setB = list2[ev]
+#  print "Only2 " , ev , " diphoBTD:" , setB["diphoBDT"], "  mgg:" , setB["mgg"] 
+#  for i in range(0,9):
+#    if setB["evcat"] == i:
+#      Only2cat[i] = Only2cat[i] + 1
 
+
+
+#print "\n"
+#print "%s %d" % ( fn1, len(events1) )
+#print "%s %d" % ( fn2, len(events2) )
+print "\n"
 print "Common %d" % len(common)
+#print common
+print "============================"
+print "Only1 %d" % len(only1)
+print "============================"
+#print only1
 
-print "Different vertex %d" % len(diffvtx)
-## pprint(diffvtx)
+#print "============================"
+print "Only2 %d" % len(only2)
+print "============================"
+#print only2
 
-print "Different mass %d" % len(diffmass)
-## pprint(diffmass)
+### pprint(events2)
 
-print "Different pt %d" % len(diffpt)
-## pprint(diffpt)
+print "\n"
+#print "------------------------------------------------------------------"
+print "CAT      ", repr("ANY").rjust(5),
+for i in range(0,9):
+   #print " ", i,
+   print repr(i).rjust(5),
+print "   "
+print "============================================================================"
+print "Common   ",
+print repr(len(common)).rjust(5),
+for i in range(0,9):
+   #print " ", Commoncat[i],
+   print repr(Commoncat[i]).rjust(5),
+print "   "
+#print "Common1  ",
+print "Common1  ", 
+print repr(len(common)).rjust(5),
+for i in range(0,9):
+   print repr(CommonOnly1cat[i]).rjust(5),
+print "   "
+#print "Common2  ",
+print "Common2  ", 
+print repr(len(common)).rjust(5),
+for i in range(0,9):
+   #print " ", CommonOnly2cat[i],
+   print repr(CommonOnly2cat[i]).rjust(5),
+print "   "
+print "============================================================================"
+print "Only1    ",
+print repr(len(only1)).rjust(5),
+for i in range(0,9):
+   #print " ", Only1cat[i],
+   print repr(Only1cat[i]).rjust(5),
+print "   "
+print "Only2    ",
+print repr(len(only2)).rjust(5),
+for i in range(0,9):
+   #print " ", Only2cat[i],
+   print repr(Only2cat[i]).rjust(5),
+print "   "
+print "============================================================================"
 
-print "Different category %d" % len(diffcat)
-## pprint(diffpt)
+print "\n"
+print "Synchronization w/in .3% of the value"
+print "============================================================================"
 
-for p in diffmass_scatter+diffmassrel+diffmassplots+diffmassprofiles+diffmassprofiles_mass:
-## for p in diffmass_scatter:
-    c = ROOT.TCanvas ( p.GetName() )
+names=histos.keys()
+names.sort()
+for name in names:
+    h = histos[name]
+    c = ROOT.TCanvas ( name )
+    d = None
     c.SetGridx()
     c.SetGridy()
+    c.SetLogz()
     c.cd()
-    if p.IsA().InheritsFrom(ROOT.TH2.Class()):
-        p.Draw("colz")
-    else:
-        p.Draw()
-    c.SaveAs( "%s.png" % p.GetName() )
-    
+    if h.IsA().InheritsFrom(ROOT.TH2.Class()):
+        #h.Draw("colz")
+        d = ROOT.TCanvas ( "%s_proj" % name )
+        #if not "vertex" in name:
+            #d.SetLogy()
+        prj = h.ProjectionY()
+        #prj.DrawNormalized()
+        sync = prj.Integral( prj.FindBin(-3.e-3), prj.FindBin(3.e-3 ) )
+        all = prj.GetEntries()
+        if all > 0:
+            print "%s synch : %d / %d = %1.4f RMS = %1.4f" % ( name, sync, all, sync/all, prj.GetRMS() )
+            if sync/all < 0.98:
+                print name,"needs to be synced!!!!!!!!!!!"
+        #h.Draw()
+        #c.SaveAs( "plots/%s.pdf" % name )
+    #else:
+        #h.Draw()
+        #c.SaveAs( "plots/%s.pdf" % name )
+    #if d:
+        #d.Draw()
+        #d.SaveAs( "plots/%s_proj.pdf" % name )
+        

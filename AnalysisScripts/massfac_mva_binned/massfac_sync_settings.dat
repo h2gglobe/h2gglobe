@@ -1,0 +1,16 @@
+includeVBF=1
+mvaVbfSelection=1
+includeTTHhad=0
+includeTTHlep=0
+includeVHhad=0
+includeVHhadBtag=0
+includeVHlep=0
+includeVHlepPlusMet=0
+nElectronCategories=0 
+nMuonCategories=0 
+includeVHmet=0
+
+bkgPolOrderByCat=3,3,3
+phoidMvaCut=-10
+bdtCategoryBoundaries=1,-1
+doSystematics=0
