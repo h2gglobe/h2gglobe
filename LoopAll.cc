@@ -557,6 +557,9 @@ void LoopAll::TermReal(Int_t typerunpass) {
     outputTreePar->Write(0,TObject::kWriteDelete);
     outputTreeLumi->Write(0,TObject::kWriteDelete);
     pileup->Write(0,TObject::kWriteDelete);
+    for(int ii=0; ii<globalHistos.size(); ++ii) {
+	    globalHistos[ii]->Write(0,TObject::kWriteDelete);
+    }
   }
 }
 
