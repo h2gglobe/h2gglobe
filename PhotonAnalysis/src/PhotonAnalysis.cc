@@ -1995,9 +1995,10 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
     // fill ID variables
     if( forcedRho >= 0. ) {
         l.rho = forcedRho;
-    } else if ( l.rho == 0. ) {
-        l.rho = l.rho_algo1;
+    } else {
+	l.rho = l.rho_algo1;
     }
+    
     l.FillCICInputs();
     if(reComputeCiCPF) { l.FillCICPFInputs(); }
     l.FillCIC();
@@ -2250,11 +2251,17 @@ bool PhotonAnalysis::SkimEvents(LoopAll& l, int jentry)
                     continue;
                 }
                 TLorentzVector * p4 = (TLorentzVector*) l.gp_p4->At(ip);
-                if( p4->Pt() < 20. || fabs(p4->Eta()) > 3. ) { continue; }
+                if( l.gp_mother[ip] < 0 || p4->Pt() < 20. || fabs(p4->Eta()) > 3. ) { continue; }
                 int mother_id = abs( l.gp_pdgid[ l.gp_mother[ip] ] );
-                if( mother_id <= 25 ) { ++np; }
+                if( mother_id <= 25 ) { 
+		    ++np; 
+		    /// std::cout << "Prompt photon mother " << l.gp_status[ l.gp_mother[ip] ] << " " << mother_id 
+		    /// 	      << std::endl;
+		    /// p4->Print();
+		}
                 if( np >= 2 ) { break; }
             }
+	    /// std::cout << "N prompt photons: " << np << std::endl;
             if( np >= 2 && ! keepPP ) { return false; }
             if( np == 1 && ! keepPF ) { return false; }
             if( np == 0 && ! keepFF ) { return false; }
@@ -5810,7 +5817,7 @@ void PhotonAnalysis::GetRegressionCorrections(LoopAll &l){
         _vals[10] = l.DeltaPhi(bcpos->Phi(),sc->Phi());
         _vals[11] = bcE/l.sc_raw[sc_index];
         _vals[12] = be3x3/be5x5;
-        _vals[13] = TMath::Sqrt(l.bc_sieie[sc_seed_index]); //sigietaieta (this is stored in bc collection)
+        _vals[13] = l.bc_sieie[sc_seed_index]; //sigietaieta (this is stored in bc collection)
         _vals[14] = TMath::Sqrt(l.pho_sipip[ipho]); //sigiphiiphi
         _vals[15] = l.pho_sieip[ipho];//clustertools.localCovariances(*b)[1];       //sigietaiphi
 
@@ -5901,9 +5908,9 @@ void PhotonAnalysis::GetRegressionCorrections(LoopAll &l){
             std::cout << "---------------------------------------------/" <<std::endl;
         }
 
-        // Overwrite old branches
-        l.pho_regr_energy[ipho] = ecor;
-        l.pho_regr_energyerr[ipho] = ecorerr;
+        //// // Overwrite old branches
+        //// l.pho_regr_energy[ipho] = ecor;
+        //// l.pho_regr_energyerr[ipho] = ecorerr;
     }
 }
 

@@ -3775,8 +3775,6 @@ void LoopAll::DefineUserBranches()
     BRANCH_DICT(pu_ntrks_lowpt);
     BRANCH_DICT(pu_ntrks_highpt);
   
-    BRANCH_DICT(rho);
-  
     BRANCH_DICT(vtx_std_sel);
     BRANCH_DICT(vtx_std_ranked_list);
     BRANCH_DICT(vtx_std_evt_mva);
