@@ -6,6 +6,16 @@ import re
 
 procOrder=('ggh', 'vbf', 'wzh', 'wh', 'zh', 'tth')
 
+adHocFactors={
+	'ggh': 0.975,
+	'vbf': 1.0,
+	'wzh': 1.0,
+	'wh': 1.0,
+	'zh': 1.0,
+	'tth': 1.0,
+}
+
+
 def preFlight(f):
 	foundSplit = foundMerged = False
 	procs = set()
@@ -30,16 +40,9 @@ def preFlight(f):
 	
 	
 def getSigHistos(f, procs, suffix):
-	return { name : f.Get('th1f_sig_'+name+suffix) for name in procs}
-
-adHocFactors={
-	'ggh': 0.975,
-	'vbf': 1.0,
-	'wzh': 1.0,
-	'wh': 1.0,
-	'zh': 1.0,
-	'tth': 1.0,
-}
+    slurpDic = { name : f.Get('th1f_sig_'+name+suffix) for name in procs}
+    # filter out histos that are null pointers
+    return { k : v for k, v in slurpDic.iteritems() if v }
 
 
 
