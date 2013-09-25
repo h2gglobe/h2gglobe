@@ -5,7 +5,7 @@
 ./submit_reduction.sh data2012_RERECO DoublePhoton_Run2012C-22Jan2013-v2 250
 ./submit_reduction.sh data2012_RERECO Photon_Run2012A_22Jan2013-v1 100
 
-./submit_reduction.sh mc_Summer12_RD1 \*HToGG\*145\*minlo\* 5
+./submit_reduction.sh mc_Summer12_RD1 \*HToGG\* 5
 
 ./submit_reduction.sh mc_Summer12_RD1  GJet\*pythia6\* 100
 

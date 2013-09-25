@@ -13,6 +13,7 @@ samples = glob.glob( "%s/*.dat" % taskdir )
 
 for sample in samples:
     status = {}
+    tot = 0
     jobs = glob.glob( "%s_[0-9]*.[a-z]*" % sample )
     for j in jobs:
         toks = j.split("_")
@@ -21,8 +22,9 @@ for sample in samples:
             status[id] = stat
 
     groups = { "sub" : [], "run" : [], "fail" : [], "done" : [] } 
-    for i,s in status.iteritems():
+    for i,s in status.iteritems():        
         groups[s].append(i)
+        tot += 1
 
     print sample
     name = os.path.basename(sample).rsplit(".",1)[0]
@@ -39,6 +41,9 @@ for sample in samples:
                 for j in jo[1:]:
                     print "-or -name %s_%s.root" % (name,j) ,
                 print " -exec rm -v \\{\\} \\; ;"
-
+                print "./submit_reduction.sh %s %s %d" % ( taskdir, name, tot ),
+                for j in jo:
+                    print j,
+                print
     print
     
