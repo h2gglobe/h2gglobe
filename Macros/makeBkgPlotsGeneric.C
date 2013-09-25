@@ -95,7 +95,14 @@ void doBandsFit(TGraphAsymmErrors *onesigma, TGraphAsymmErrors *twosigma,
 
 }
 
-void makeBkgPlotsGeneric(std::string filebkg, std::string filesig="", const int ncats=8, bool blind=true, bool doBands=true, bool baseline=false, bool spin=false, bool useBinnedData=false){
+void makeBkgPlotsGeneric(std::string filebkg, std::string filesig="", const int ncats=8, bool blind=true, bool doBands=true, bool baseline=false, bool spin=false, bool useBinnedData=false, bool reallyUseThisObsoleteScript=false){
+
+  if(!reallyUseThisObsoleteScript){
+    std::cerr << "You should probably be using makeBkgPlotsGeneric.py as makeBkgPlotsGeneric.C does not know how to treat WH and ZH separately." << std::endl;
+    std::cerr << "If you *really* need to run this macro, pass it true as the last argument." << std::endl;
+    std::cerr << "No output has been produced." << std::endl;
+    return;
+  }
 
 	// Globals
 	gROOT->SetStyle("Plain");
