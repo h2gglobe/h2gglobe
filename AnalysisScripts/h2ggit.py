@@ -163,7 +163,7 @@ class GitHelper:
         tagmes = self.gettagmes()
         for t in tagmes:
             if t.head == head or t.tagme == tagname:
-                self.list()
+                self.ls_issues()
                 exit(1,"Error: tagme request for %s alerady exists.\nNothing done." % tagname)
                 
         print
@@ -178,7 +178,7 @@ class GitHelper:
                                             body="head: %s\nbase: master\ntagme: %s"
                                             % (head, tagname)
                                             )
-        self.list()
+        self.ls_issues()
 
     def gettagmes(self):
         issues = self._upstream.iter_issues(state='open')
