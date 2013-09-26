@@ -139,7 +139,9 @@ class LoopAll {
   TTree * outputTreePar;
   TTree * plotvartree;
   TTree * inputfiletree;
-
+  
+  std::vector<TH1*> globalHistos;
+  void AddGlobalHisto(TH1 * x ) { x->SetDirectory(0); globalHistos.push_back(x); }
   TH1D  * pileup;
 
 

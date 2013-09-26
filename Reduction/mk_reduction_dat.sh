@@ -71,6 +71,6 @@ cd -
 tar rf ${version}.tar JSON *.sh
 gzip -f ${version}.tar
 
-git tag -a ${version} -m "Tag used for reduction ${storedir}"
+git tag -a ${version} -m "Tag used for reduction ${group}/${version}"
 
 ## tar zcf ${version}.tgz  AnalysisScripts/{common,reduction,aux,*.py}
