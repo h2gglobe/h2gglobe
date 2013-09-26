@@ -554,12 +554,86 @@ TGraph* ProfileMultiplePdfs::getCrossingPointLow(TGraph *graph, float crossing){
   }
 }
 
+pair<double,pair<double,double> > ProfileMultiplePdfs::getMinAndErrorLinear(TGraph *graph, float sigma, bool safemode){
+  pair<double,pair<double,double> > failedResult(999.,make_pair(-9999.,+9999.));
+  if (graph->GetN()==0) {
+    if (safemode) return failedResult;
+    else {
+			cout << "This graph has no points" << endl;
+			exit(1);
+		}
+  }
+  float nll_crossing=sigma*sigma;
+
+	// min
+	double miny=1.e8;
+	double x,y,minx;
+	for (int p=0; p<graph->GetN(); p++){
+		graph->GetPoint(p,x,y);
+		if (y<miny){
+			miny=y;
+			minx=x;
+		}
+	}
+
+  TGraph *lowPoints = getCrossingPointLow(graph,nll_crossing);
+  TGraph *highPoints = getCrossingPointHigh(graph,nll_crossing);
+
+  if (!lowPoints || !highPoints) {
+    if (safemode) return failedResult;
+    else {	
+			cout << "There aren't enough points" << endl;
+			exit(1);
+		}
+  }
+
+	// low err
+	for (int p=0; p<lowPoints->GetN(); p++){
+		lowPoints->GetPoint(p,x,y);
+		lowPoints->SetPoint(p,y,x);
+	}
+	double eLow = lowPoints->Eval(nll_crossing);
+
+	// high err
+	for (int p=0; p<highPoints->GetN(); p++){
+		highPoints->GetPoint(p,x,y);
+		highPoints->SetPoint(p,y,x);
+	}
+	double eHigh = highPoints->Eval(nll_crossing);
+
+	return make_pair(minx,make_pair(eLow,eHigh));
+}
+
+pair<double,pair<double,double> > ProfileMultiplePdfs::getMinAndErrorNoScale(TGraph *graph, float sigma, float stepsize, bool safemode){
+	
+	double min=1.e5;
+	for (int p=0; p<graph->GetN(); p++){
+		double x,y;
+		graph->GetPoint(p,x,y);
+		if (y<min) min=y;
+	}
+	
+	TGraph *g = new TGraph();
+	for (int p=0; p<graph->GetN(); p++){
+		double x,y;
+		graph->GetPoint(p,x,y);
+		y=y-min;
+		g->SetPoint(p,x,y);
+	}
+	pair<double,pair<double,double> > res = getMinAndError(g,sigma,stepsize,safemode);
+	delete g;
+	return res;
+}
+
 pair<double,pair<double,double> > ProfileMultiplePdfs::getMinAndError(TGraph *graph, float sigma, float stepsize, bool safemode){
   
   pair<double,pair<double,double> > failedResult(999.,make_pair(-9999.,+9999.));
   if (graph->GetN()==0) {
     if (safemode) return failedResult;
-    else exit(1);
+    else {
+			cout << "This graph has no points" << endl;
+			exit(1);
+		}
   }
   float nll_crossing=sigma*sigma;
 
@@ -569,7 +643,10 @@ pair<double,pair<double,double> > ProfileMultiplePdfs::getMinAndError(TGraph *gr
 
   if (!minPoints || !lowPoints || !highPoints) {
     if (safemode) return failedResult;
-    else exit(1);
+    else {	
+			cout << "There aren't enough points" << endl;
+			exit(1);
+		}
   }
 
   pair<double,double> minP = quadInterpMin(minPoints,stepsize);
