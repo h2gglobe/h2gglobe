@@ -2281,7 +2281,7 @@ bool PhotonAnalysis::SkimEvents(LoopAll& l, int jentry)
                 int mother_id = abs( l.gp_pdgid[ l.gp_mother[ip] ] );
                 if( mother_id <= 25 ) { 
                     ++np; 
-                    promptMotherStatus->Fill(float)l.gp_status[l.gp_mother[ip]],l.weight);
+                    promptMotherStatus->Fill((float)l.gp_status[l.gp_mother[ip]],l.weight);
                 } else {
                     fakeMotherStatus->Fill((float)l.gp_status[l.gp_mother[ip]],l.weight);
                 }
