@@ -14,6 +14,7 @@ parser.add_option("--makeCrossCheckProfPlots",default=False,action="store_true",
 parser.add_option("--massStep",type="float",default=0.5,help="Mass step for calculating bands. Use a large number like 5 for quick running")
 parser.add_option("--nllTolerance",type="float",default=0.05,help="Tolerance for nll calc in %")
 parser.add_option("--blind",default=False,action="store_true",help="Blind the mass spectrum in the range [110,150]")
+parser.add_option("--runLocal",default=False,action="store_true",help="Run locally")
 parser.add_option("--dryRun",default=False,action="store_true",help="Dont submit jobs")
 (options,args) = parser.parse_args()
 
@@ -49,6 +50,8 @@ for cat in range(options.cats):
 	os.system('chmod +x %s'%f.name)
 	if options.dryRun:
 		print 'bsub -q 8nh -o %s.log %s'%(os.path.abspath(f.name),os.path.abspath(f.name))
+	elif options.runLocal:
+		os.system('./%s'%f.name)
 	else:
 		os.system('bsub -q 8nh -o %s.log %s'%(os.path.abspath(f.name),os.path.abspath(f.name)))
 	
