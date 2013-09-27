@@ -14,12 +14,13 @@
 using namespace std;
 using namespace RooFit;
 
-Packager::Packager(RooWorkspace *ws, bool splitVH, int nCats, int mhLow, int mhHigh):
+Packager::Packager(RooWorkspace *ws, bool splitVH, int nCats, int mhLow, int mhHigh, bool is2011):
   outWS(ws),
   splitVH_(splitVH),
   nCats_(nCats),
   mhLow_(mhLow),
-  mhHigh_(mhHigh)
+  mhHigh_(mhHigh),
+	is2011_(is2011)
 {
   procs.push_back("ggh"); 
   procs.push_back("vbf"); 
@@ -31,7 +32,9 @@ Packager::Packager(RooWorkspace *ws, bool splitVH, int nCats, int mhLow, int mhH
     procs.push_back("wzh");
   }
   procs.push_back("tth");
-  normalization = new Normalization_8TeV();
+	if (is2011) sqrts_=7;
+	else sqrts_=8;
+  normalization = new Normalization_8TeV(is2011);
 }
 
 Packager::~Packager(){}
@@ -78,19 +81,19 @@ void Packager::packageOutput(){
     for (vector<string>::iterator proc=procs.begin(); proc!=procs.end(); proc++){
       
       // sum eA
-      RooSpline1D *norm = (RooSpline1D*)outWS->function(Form("hggpdfsmrel_%s_cat%d_norm",proc->c_str(),cat));
+      RooSpline1D *norm = (RooSpline1D*)outWS->function(Form("hggpdfsmrel_%dTeV_%s_cat%d_norm",sqrts_,proc->c_str(),cat));
       if (!norm) {
-        cerr << "WARNING -- ea: " << Form("hggpdfsmrel_%s_cat%d_norm",proc->c_str(),cat) << "not found. It will be skipped" << endl;
+        cerr << "WARNING -- ea: " << Form("hggpdfsmrel_%dTeV_%s_cat%d_norm",sqrts_,proc->c_str(),cat) << "not found. It will be skipped" << endl;
       }
       else {
         runningNormSum->add(*norm);
       }
       
       // sum pdf
-      RooExtendPdf *tempPdf = (RooExtendPdf*)outWS->pdf(Form("extendhggpdfsmrel_%s_cat%dThisLumi",proc->c_str(),cat));
+      RooExtendPdf *tempPdf = (RooExtendPdf*)outWS->pdf(Form("extendhggpdfsmrel_%dTeV_%s_cat%dThisLumi",sqrts_,proc->c_str(),cat));
       if (!tempPdf) {
-        cerr << "WARNING -- pdf: " << Form("sigpdfrel_%s_cat%d",proc->c_str(),cat) << " not found. It will be skipped" << endl;
-        expectedObjectsNotFound.push_back(Form("sigpdfrel_%s_cat%d",proc->c_str(),cat));
+        cerr << "WARNING -- pdf: " << Form("extendhggpdfsmrel_%dTeV_%s_cat%d",sqrts_,proc->c_str(),cat) << " not found. It will be skipped" << endl;
+        expectedObjectsNotFound.push_back(Form("extendhggpdfsmrel_%dTeV_%s_cat%d",sqrts_,proc->c_str(),cat));
         continue;
       }
       sumPdfsThisCat->add(*tempPdf);
@@ -100,6 +103,7 @@ void Packager::packageOutput(){
       cerr << "WARNING -- sumPdfs for cat " << cat << " is EMPTY. Probably because the relevant pdfs couldn't be found. Skipping.. " << endl;
       continue;
     }
+		// Dont put sqrts here as combine never uses this (but our plotting scripts do)
     RooAddPdf *sumPdfsPerCat = new RooAddPdf(Form("sigpdfrelcat%d_allProcs",cat),Form("sigpdfrelcat%d_allProcs",cat),*sumPdfsThisCat);
     outWS->import(*sumPdfsPerCat,RecycleConflictNodes());
   }
@@ -107,6 +111,7 @@ void Packager::packageOutput(){
     cerr << "WARNING -- sumAllPdfs is EMPTY. Probably because the relevant pdfs couldn't be found. Skipping.. " << endl;
   }
   else {
+		// Dont put sqrts here as combine never uses this (but our plotting scripts do)
     RooAddPdf *sumPdfsAllCats = new RooAddPdf("sigpdfrelAllCats_allProcs","sigpdfrelAllCats_allProcs",*sumPdfs);
     outWS->import(*sumPdfsAllCats,RecycleConflictNodes());
   }
