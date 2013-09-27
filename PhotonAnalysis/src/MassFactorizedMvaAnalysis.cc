@@ -692,15 +692,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
         }
 
         if(includeTTHlep){
-            diphotonTTHlep_id=l.DiphotonMITPreSelection(leadEtTTHlepCut,subleadEtTTHlepCut,phoidMvaCut,applyPtoverM, 
-                                                        &smeared_pho_energy[0], vetodipho, kinonly );
-            if(diphotonTTHlep_id!=-1){
-                float eventweight = weight * smeared_pho_weight[l.dipho_leadind[diphotonTTHlep_id]] * smeared_pho_weight[l.dipho_subleadind[diphotonTTHlep_id]] * genLevWeight;
-                float myweight=1.;
-                if(eventweight*sampleweight!=0) myweight=eventweight/sampleweight;
-                TTHlepevent = TTHleptonicTag2012(l, diphotonTTHlep_id, &smeared_pho_energy[0], true, eventweight, myweight,
-                                                    phoidMvaCut,0,true);
-            }
+            TTHlepevent = TTHleptonicTag2012(l, diphotonTTHlep_id, &smeared_pho_energy[0],0,true,vetodipho,kinonly);
         }
 
         if(includeTTHhad) {
@@ -742,11 +734,9 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
         }
 
 
-    
-        if(includeTTHlep&&TTHlepevent) {
+        // priority of analysis: TTH leptonic, TTH hadronic, lepton tag, vbf,vh met, vhhad btag, vh had 0tag, 
+        if (includeTTHlep&&TTHlepevent) {
             diphoton_id = diphotonTTHlep_id;
-        } else if(includeTTHhad&&TTHhadevent) {
-            diphoton_id = diphotonTTHhad_id;
         } else if(includeVHlep&&VHmuevent){
             diphoton_id = diphotonVHlep_id;
         } else if (includeVHlep&&VHelevent){
@@ -759,11 +749,14 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
             diphoton_id = diphotonVBF_id;
         } else if(includeVHmet&&VHmetevent) {
             diphoton_id = diphotonVHmet_id;
-        }else if(includeVHhadBtag&&VHhadBtagevent) {
+        } else if(includeTTHhad&&TTHhadevent) {
+            diphoton_id = diphotonTTHhad_id;
+        } else if(includeVHhadBtag&&VHhadBtagevent) {
             diphoton_id = diphotonVHhadBtag_id;
         } else if(includeVHhad&&VHhadevent) {
             diphoton_id = diphotonVHhad_id;
         } 
+        // End exclusive mode selection    
     }
     // if we selected any di-photon, compute the Higgs candidate kinematics
     // and compute the event category

@@ -81,7 +81,7 @@ class StatAnalysis : public PhotonAnalysis
     int nDataBins;  
     bool scaleClusterShapes, scaleR9Only;
     bool dumpAscii, dumpMcAscii;
-    float phoidMvaCut;
+
     std::vector<double> zeePtBinLowEdge, zeePtWeight;
     std::vector<int> sigPointsToBook;
     
