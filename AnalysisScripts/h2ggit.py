@@ -146,7 +146,7 @@ class GitHelper:
             print "Warning: tag %s already in forked repository." % tagname            
         if not tagname in self._localtags:
             print "Tag not found. Creating it."
-            run("git tag -a %s -m" % (tagname, title), "Unable to tag local repository" )
+            run("git tag -a %s -m '%s'" % (tagname, title), "Unable to tag local repository" )
         else:
             print
             print " * Tag already exists. Checking differences."
@@ -233,6 +233,11 @@ class GitHelper:
 
     @wrapcommand
     def tagit(self,tagname):
+        """
+        Accept a tagme request.
+
+        Usage: tagit <tagname>
+        """
         self.gettags()
         issues = self._upstream.iter_issues(state='open')
 
@@ -379,11 +384,29 @@ if __name__ == "__main__":
     cmds = GitHelper.commands()
     parser = OptionParser(
         usage="""%%prog [options] <command> [command args]
-        
+
+The main purpose of this script is to handle `tagme` requests, i.e. requests to
+propagate tags created in a personal fork to the upstream repository.
+
+The workflow is the following:
+* Request creation:
+  * Issued by the tag author with the `tagme` command.
+  * A tag is created locally and committed to a dedicated branch on the presonal
+  fork.
+  * A `tagme` issue is opened on github with the information needed to propagate
+  the tag an possible other changes.
+  
+* Request acceptance:
+  * Issued by a librarian with the `tagit` command.
+  * The tagme issue is retrieved from github and import the tag is imported
+  'as is' from the personal fork to the upstream repository.
+  * If the tag contains extra commits not present in the upstrem repository, the
+  issue is then turned into a pull request.
+  
 Commands:
 %s
 
-See %%prog <command> --help for more information on specific commands
+See %%prog <command> --help for the syntax of specific commands
         """ % cmds,
         option_list=[
             make_option("-o", "--organization",
@@ -394,7 +417,7 @@ See %%prog <command> --help for more information on specific commands
             make_option("-r", "--repository",
                         action="store", type="string", dest="repo",
                         default="h2gglobe",
-                        help="repository naame",
+                        help="repository name",
                         ),
             ])
     parser.disable_interspersed_args()
