@@ -39,8 +39,10 @@ class ProfileMultiplePdfs {
     static double quadInterpCrossing(TGraph *g, double crossing, float stepsize=0.001);
     static pair<double,pair<double,double> > getMinAndError(TGraph *graph, float sigma, float stepsize=0.001, bool safemode=true);
     static pair<double,pair<double,double> > getMinAndErrorAsymm(TGraph *graph, float sigma, float stepsize=0.001, bool safemode=true);
+		static pair<double,pair<double,double> > getMinAndErrorNoScale(TGraph *graph, float sigma, float stepsize=0.001, bool safemode=true); // this is for nll graphs that dont have their min at 0.
     static vector<double> getMinAndErrorAsymmVec(TGraph *graph, float sigma, float stepsize=0.001, bool safemode=true);
     static pair<double,double> getMinAndErrorSymm(TGraph *graph, float sigma, float stepsize=0.001,bool safemode=true);
+		static pair<double,pair<double,double> > getMinAndErrorLinear(TGraph *graph, float sigma, bool safemode);
     // -----------
 
     static double quadInterpMinimum(TGraph *nll, float stepsize=0.001);
