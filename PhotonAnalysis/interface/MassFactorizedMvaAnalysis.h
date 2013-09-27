@@ -50,6 +50,10 @@ class MassFactorizedMvaAnalysis : public StatAnalysis
 
     void fillTrainTree(LoopAll&, Int_t, Int_t, Int_t, float, TLorentzVector &, TLorentzVector &, float,float,float,const char*,float photonID_1=-50.,float photonID_2=-50.);
 
+    bool PreselDiphoFillDiphoMVA(LoopAll &l, float *pho_energy_array=0, bool smear=false, float syst_shift=0);
+    float GetDiphoMva(LoopAll & l, int diphotonId, bool smear=false, float syst_shift=0);
+    void ComputeDiphoMvaInputs(LoopAll &l, float &phoid_mvaout_lead, float &phoid_mvaout_sublead, float &vtxProb, int diphoton_id);
+
     bool doPhotonMvaIdSyst;
     bool doPhotonMvaIdSmear;
     bool doRegressionSmear, doRegressionSyst;
@@ -57,6 +61,7 @@ class MassFactorizedMvaAnalysis : public StatAnalysis
     bool fillEscaleTrees;
     bool fillOptree;
     bool forceStdPlotsOnZee;
+    bool doDiphoMvaUpFront;
 
     bool applyIdmvaCorrection;
     bool applySigmaECorrection;
