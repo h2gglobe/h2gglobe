@@ -410,7 +410,7 @@ bool CategoryAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLor
     mass = 0.;
 
     // Kinematic preselection (pt and eta cuts only)
-    int diphoton_id_kinonly = l.DiphotonMITPreSelection(leadEtCut,subleadEtCut,phoidMvaCut,applyPtoverM, &smeared_pho_energy[0], -1, false, true);
+    int diphoton_id_kinonly = l.DiphotonMITPreSelection(leadEtCut,subleadEtCut,phoidMvaCut,applyPtoverM, &smeared_pho_energy[0], false, true, -1, false);
     if (diphoton_id_kinonly > -1 ) {
       passKin = true;
       diphoton_index_kinonly = std::make_pair( l.dipho_leadind[diphoton_id_kinonly],  l.dipho_subleadind[diphoton_id_kinonly] );
