@@ -1846,7 +1846,7 @@ void StatAnalysis::fillSignalEfficiencyPlots(float weight, LoopAll & l)
 {
     //Fill histograms to use as denominator (kinematic pre-selection only) and numerator (selection applied)
     //for single photon ID efficiency calculation.
-    int diphoton_id_kinpresel = l.DiphotonMITPreSelection(leadEtCut,subleadEtCut,-1.,applyPtoverM, &smeared_pho_energy[0],false,false,-1,true );
+    int diphoton_id_kinpresel = l.DiphotonMITPreSelection(leadEtCut,subleadEtCut,-1.,applyPtoverM, &smeared_pho_energy[0],false,true,-1,false );
     if (diphoton_id_kinpresel>-1) {
 
         TLorentzVector lead_p4, sublead_p4, Higgs;
