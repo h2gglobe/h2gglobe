@@ -4392,11 +4392,19 @@ bool PhotonAnalysis::VHhadronicBtag2012(LoopAll& l, int diphotonVHhadBtag_id, fl
 }
 
 
-bool PhotonAnalysis::TTHhadronicTag2012(LoopAll& l, int diphotonTTHhad_id, float* smeared_pho_energy, bool nm1, float eventweight, float myweight,bool *jetid_flags){
+bool PhotonAnalysis::TTHhadronicTag2012(LoopAll& l, int& diphotonTTHhad_id, float* smeared_pho_energy, bool *jetid_flags, bool mvaselection,bool vetodipho,bool kinonly){
     //francesco 
     bool tag = false;
 
     if(diphotonTTHhad_id==-1) return tag;
+
+    if(!mvaselection){
+        diphotonTTHhad_id = l.DiphotonCiCSelection( l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtTTHhadCut,subleadEtTTHhadCut, 4,
+                                                    applyPtoverM, &smeared_pho_energy[0], true);
+    }else{
+        diphotonTTHhad_id=l.DiphotonMITPreSelection(leadEtTTHhadCut,subleadEtTTHhadCut,phoidMvaCut,applyPtoverM, &smeared_pho_energy[0],vetodipho,kinonly,
+                                                    diphobdt_output_Cut_TTHhad);
+    }
 
     static std::vector<unsigned char> id_flags;
     if( jetid_flags == 0 ) {

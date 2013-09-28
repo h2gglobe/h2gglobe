@@ -1020,16 +1020,8 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 
 
         if(includeTTHhad) {
-	        diphotonTTHhad_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtTTHhadCut, subleadEtTTHhadCut, 4,false, &smeared_pho_energy[0], true);
-
-            if(diphotonTTHhad_id!=-1){
-	            float eventweight = weight * smeared_pho_weight[l.dipho_leadind[diphotonTTHhad_id]] * smeared_pho_weight[l.dipho_subleadind[diphotonTTHhad_id]] * genLevWeight;
-	            float myweight=1.;
-	            if(eventweight*sampleweight!=0) myweight=eventweight/sampleweight;
-
-	            TTHhadevent = TTHhadronicTag2012(l, diphotonTTHhad_id, &smeared_pho_energy[0], true, eventweight, myweight);
-	        }
-	    }
+	    TTHhadevent = TTHhadronicTag2012(l, diphotonTTHhad_id, &smeared_pho_energy[0]);
+	}
 
 
         if(includeTTHlep) {

@@ -451,7 +451,7 @@ class PhotonAnalysis : public BaseAnalysis
     //TTH leptonic category
     bool TTHleptonicTag2012(LoopAll& l, int& diphoton_id, float* smeared_pho_energy=0, bool *jetid_flags=0,bool mvaselection=false,bool vetodipho=false, bool kinonly=false);
     //TTH leptonic category
-    bool TTHhadronicTag2012(LoopAll& l, int diphoton_id, float* smeared_pho_energy=0, bool nm1=false, float eventweight=1, float myweight=1,bool *jetid_flags=0);
+    bool TTHhadronicTag2012(LoopAll& l, int& diphoton_id, float* smeared_pho_energy=0, bool *jetid_flags=0, bool mvaselection=false,bool vetodipho=false, bool kinonly=false);
 
     //btag syst
     float BtagReweight(LoopAll& l, bool shiftBtagEffUp_bc, bool shiftBtagEffDown_bc, bool shiftBtagEffUp_l, bool shiftBtagEffDown_l,int WP);
