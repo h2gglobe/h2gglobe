@@ -3002,7 +3002,7 @@ int LoopAll::DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL, phoCiCIDLevel SUB
 
 
 
-int LoopAll::DiphotonMITPreSelection(Float_t leadPtMin, Float_t subleadPtMin, Float_t phoidMvaCut, bool applyPtoverM, float *pho_energy_array, bool vetodipho, bool kinonly, int fixedvtx, bool split, std::vector<bool> veto_indices) {
+int LoopAll::DiphotonMITPreSelection(Float_t leadPtMin, Float_t subleadPtMin, Float_t phoidMvaCut, bool applyPtoverM, float *pho_energy_array, bool vetodipho, bool kinonly, float dipho_BDT_Cut,int fixedvtx, bool split, std::vector<bool> veto_indices) {
 
     //rho=0;// CAUTION SETTING RHO TO 0 FOR 2010 DATA FILES (RHO ISN'T IN THESE FILES)
     int selected_lead_index = -1;
@@ -3020,6 +3020,7 @@ int LoopAll::DiphotonMITPreSelection(Float_t leadPtMin, Float_t subleadPtMin, Fl
         }
         
         if(vetodipho && dipho_sel[idipho]!=true) continue;
+        if(dipho_BDT[idipho]<dipho_BDT_Cut) continue;
 
         float sumpt = DiphotonMITPreSelectionPerDipho(idipho, leadPtMin, subleadPtMin, phoidMvaCut, applyPtoverM, pho_energy_array, fixedvtx, split, kinonly, veto_indices);
 
