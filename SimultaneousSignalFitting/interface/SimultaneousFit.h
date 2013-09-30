@@ -25,7 +25,7 @@
 #include "RooWorkspace.h"
 #include "RooAddition.h"
 
-#include "Normalization_8TeV.h"
+#include "../../Macros/Normalization_8TeV.h"
 
 using namespace std;
 using namespace RooFit;

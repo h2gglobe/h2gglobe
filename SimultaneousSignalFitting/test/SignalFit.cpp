@@ -38,6 +38,8 @@ float constraintValue_;
 int constraintValueMass_;
 bool spin_=false;
 bool splitVH_=false;
+bool isCutBased_=false;
+bool is2011_=false;
 bool splitRVWV_=true;
 bool doSecondaryModels_=true;
 bool recursive_=false;
@@ -58,6 +60,8 @@ void OptionParser(int argc, char *argv[]){
     ("constraintValueMass,M", po::value<int>(&constraintValueMass_)->default_value(125),            "Constraint value mass")
     ("skipSecondaryModels",                                                                   			"Turn off creation of all additional models")
     ("splitVH",                                                                               			"Split VH into WH and ZH")
+    ("isCutBased",                                                                               		"Is this the cut based analysis")
+    ("is2011",                                                                               				"Is this the 7TeV analysis")
     ("recursive",                                                                             			"Recursively calculate gaussian fractions")
     ("verbose,v", po::value<int>(&verbose_)->default_value(0),                                			"Verbosity level: 0 (lowest) - 3 (highest)")
   ;                                                                                             		
@@ -67,9 +71,10 @@ void OptionParser(int argc, char *argv[]){
   if (vm.count("help")){ cout << desc << endl; exit(1);}
   if (vm.count("spin"))                     spin_=true;
   if (vm.count("splitVH"))                  splitVH_=true;
+  if (vm.count("isCutBased"))               isCutBased_=true;
+  if (vm.count("is2011"))               		is2011_=true;
   if (vm.count("nosplitRVWV"))              splitRVWV_=false;
   if (vm.count("skipSecondaryModels"))      doSecondaryModels_=false;
-  if (vm.count("splitVH"))                  splitVH_=true;
   if (vm.count("recursive"))                recursive_=true;
 }
 
@@ -111,7 +116,9 @@ int main(int argc, char *argv[]){
   RooRealVar *higgsDecayWidth = new RooRealVar("HiggsDecayWidth","#Gamma m_{H}",0.,0.,10.);
  
   TFile *outFile = new TFile(outfilename_.c_str(),"RECREATE");
-  RooWorkspace *outWS = new RooWorkspace("wsig_8TeV");
+  RooWorkspace *outWS;
+	if (is2011_) outWS = new RooWorkspace("wsig_7TeV");
+	else outWS = new RooWorkspace("wsig_8TeV");
 
   transferMacros(inFile,outFile);
 
@@ -189,7 +196,7 @@ int main(int argc, char *argv[]){
     map<string,RooSpline1D*> splinesWV = linInterpWV.getSplines();
 
     // this guy constructs the final model with systematics, eff*acc etc.
-    FinalModelConstruction finalModel(mass,MH,intLumi,mhLow_,mhHigh_,proc,cat,doSecondaryModels_,systfilename_,verbose_,false);
+    FinalModelConstruction finalModel(mass,MH,intLumi,mhLow_,mhHigh_,proc,cat,doSecondaryModels_,systfilename_,verbose_,isCutBased_,is2011_);
     finalModel.setSecondaryModelVars(MH_SM,DeltaM,MH_2,higgsDecayWidth);
     finalModel.setRVsplines(splinesRV);
     finalModel.setWVsplines(splinesWV);
@@ -197,7 +204,11 @@ int main(int argc, char *argv[]){
     finalModel.setWVdatasets(datasetsWV);
     //finalModel.setSTDdatasets(datasets);
 		finalModel.makeSTDdatasets();
-    finalModel.buildRvWvPdf("hggpdfsmrel",nGaussiansRV,nGaussiansWV,recursive_);
+		if (is2011_) {
+			finalModel.buildRvWvPdf("hggpdfsmrel_7TeV",nGaussiansRV,nGaussiansWV,recursive_);
+		} else {
+			finalModel.buildRvWvPdf("hggpdfsmrel_8TeV",nGaussiansRV,nGaussiansWV,recursive_);
+		}
     finalModel.getNormalization();
     finalModel.plotPdf("plots");
     finalModel.save(outWS);

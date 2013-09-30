@@ -7,12 +7,12 @@ SHELL=bash
 $(shell mkdir -p bin)
 $(shell mkdir -p obj)
 $(shell mkdir -p lib)
-ifeq ($(shell ls interface | grep Normalization_8TeV.h),)
-$(shell cp ../Macros/Normalization_8TeV.h interface/)
-endif
-ifeq ($(shell ls src | grep Normalization_8TeV.cc),)
-$(shell cp ../Macros/Normalization_8TeV.cc src/)
-endif
+#ifeq ($(shell ls interface | grep Normalization_8TeV.h),)
+#$(shell cp ../Macros/Normalization_8TeV.h interface/)
+#endif
+#ifeq ($(shell ls src | grep Normalization_8TeV.cc),)
+#$(shell cp ../Macros/Normalization_8TeV.cc src/)
+#endif
 
 # figure out os
 UNAME := $(shell uname)
@@ -24,6 +24,7 @@ $(error Must be inside a CMSSSW release)
 endif
 
 COMBINELIB = $(CMSSW_BASE)/lib/$(SCRAM_ARCH)/libHiggsAnalysisCombinedLimit.so
+H2GGLOBELIBE = ../libLoopAll.so
 
 USERINCLUDES += -I$(ROOTSYS)/include
 ifeq ($(UNAME),Darwin)
@@ -40,7 +41,8 @@ USERINCLUDES += -I $(CMSSW_BASE)/src/ -I $(CMSSW_RELEASE_BASE)/src/
 USERLIBS += -L$(BOOST_PATH)/lib/ -lboost_regex -lboost_program_options
 USERINCLUDES += -I$(ROOFITSYS)/include
 USERLIBS += -L$(ROOFITSYS)/lib -lRooFit -lRooFitCore
-USERLIBS += -L$(CMSSW_BASE)/lib/$(SCRAM_ARCH)/ -lHiggsAnalysisCombinedLimit 
+USERLIBS += -L$(CMSSW_BASE)/lib/$(SCRAM_ARCH)/ -lHiggsAnalysisCombinedLimit
+USERLIBS += -L../ -lLoopAll
 endif
 
 USERLIBS += $(shell root-config --glibs) -lTMVA -lMinuit -lFoam -lRooFit -lRooFitCore 

@@ -23,7 +23,7 @@ using namespace std;
 using namespace RooFit;
 using namespace boost;
 
-FinalModelConstruction::FinalModelConstruction(RooRealVar *massVar, RooRealVar *MHvar, RooRealVar *intL, int mhLow, int mhHigh, string proc, int cat, bool doSecMods, string systematicsFileName, int verbosity, bool isCB):
+FinalModelConstruction::FinalModelConstruction(RooRealVar *massVar, RooRealVar *MHvar, RooRealVar *intL, int mhLow, int mhHigh, string proc, int cat, bool doSecMods, string systematicsFileName, int verbosity, bool isCB, bool is2011):
   mass(massVar),
   MH(MHvar),
   intLumi(intL),
@@ -32,22 +32,24 @@ FinalModelConstruction::FinalModelConstruction(RooRealVar *massVar, RooRealVar *
   proc_(proc),
   cat_(cat),
   doSecondaryModels(doSecMods),
-  isCutBased(isCB),
+  isCutBased_(isCB),
+	is2011_(is2011),
   verbosity_(verbosity),
   systematicsSet_(false),
   rvFractionSet_(false)
 {
   allMH_ = getAllMH();
-
+	if (is2011_) sqrts_ = 7;
+	else sqrts_ = 8;
   // load xs and br info from Normalization_8TeV
-  norm = new Normalization_8TeV();
+  norm = new Normalization_8TeV(is2011);
   TGraph *brGraph = norm->GetBrGraph();
-  brSpline = graphToSpline("fbr",brGraph);
+	brSpline = graphToSpline(Form("fbr_%dTeV",sqrts_),brGraph);
   
   string procs[8] = {"ggh","vbf","wzh","wh","zh","tth","gg_grav","qq_grav"};
   for (int i=0; i<8; i++){
     TGraph *xsGraph = norm->GetSigmaGraph(procs[i].c_str());
-    RooSpline1D *xsSpline = graphToSpline(Form("fxs_%s",procs[i].c_str()),xsGraph);
+    RooSpline1D *xsSpline = graphToSpline(Form("fxs_%s_%dTeV",procs[i].c_str(),sqrts_),xsGraph);
     xsSplines.insert(pair<string,RooSpline1D*>(procs[i],xsSpline));
   }
 
@@ -218,15 +220,16 @@ void FinalModelConstruction::setSecondaryModelVars(RooRealVar *mh_sm, RooRealVar
   higgsDecayWidth = width;
   
   TGraph *brGraph = norm->GetBrGraph();
-  brSpline_SM = graphToSpline("fbr_SM",brGraph,MH_SM);
-  brSpline_2 = graphToSpline("fbr_2",brGraph,MH_2);
-  brSpline_NW = graphToSpline("fbr_NW",brGraph,MH);
-  string procs[8] = {"ggh","vbf","wzh","wh","zh","tth","gg_grav","qq_grav"};
+	brSpline_SM = graphToSpline(Form("fbr_%dTeV_SM",sqrts_),brGraph,MH_SM);
+	brSpline_2 = graphToSpline(Form("fbr_%dTeV_2",sqrts_),brGraph,MH_2);
+	brSpline_NW = graphToSpline(Form("fbr_%dTeV_NW",sqrts_),brGraph,MH);
+  
+	string procs[8] = {"ggh","vbf","wzh","wh","zh","tth","gg_grav","qq_grav"};
   for (int i=0; i<8; i++){
     TGraph *xsGraph = norm->GetSigmaGraph(procs[i].c_str());
-    RooSpline1D *xsSpline_SM = graphToSpline(Form("fxs_%s_SM",procs[i].c_str()),xsGraph,MH_SM);
-    RooSpline1D *xsSpline_2 = graphToSpline(Form("fxs_%s_2",procs[i].c_str()),xsGraph,MH_2);
-    RooSpline1D *xsSpline_NW = graphToSpline(Form("fxs_%s_NW",procs[i].c_str()),xsGraph,MH);
+    RooSpline1D *xsSpline_SM = graphToSpline(Form("fxs_%s_%dTeV_SM",procs[i].c_str(),sqrts_),xsGraph,MH_SM);
+    RooSpline1D *xsSpline_2 = graphToSpline(Form("fxs_%s_%dTeV_2",procs[i].c_str(),sqrts_),xsGraph,MH_2); 
+    RooSpline1D *xsSpline_NW = graphToSpline(Form("fxs_%s_%dTeV_NW",procs[i].c_str(),sqrts_),xsGraph,MH);
     xsSplines_SM.insert(pair<string,RooSpline1D*>(procs[i],xsSpline_SM));
     xsSplines_2.insert(pair<string,RooSpline1D*>(procs[i],xsSpline_2));
     xsSplines_NW.insert(pair<string,RooSpline1D*>(procs[i],xsSpline_NW));
@@ -333,6 +336,17 @@ RooAbsReal* FinalModelConstruction::getRateWithPhotonSyst(string name){
 		if (i<photonCats.size()-1) formula += "+";
 	}
 	formula+=")";
+	if (isCutBased_){
+		// category hard code should be tidied up
+		if (cat_==0 || cat_==1) {
+			formula += Form("*@%d",dependents->getSize());
+			dependents->add(*r9barrelNuisance);
+		}
+		if (cat_==2 || cat_==3) {
+			formula += Form("*@%d",dependents->getSize());
+			dependents->add(*r9mixedNuisance);
+		}
+	}
 	RooFormulaVar *formVar = new RooFormulaVar(name.c_str(),name.c_str(),formula.c_str(),*dependents);
 	return formVar;
 }
@@ -343,15 +357,21 @@ void FinalModelConstruction::setupSystematics(){
   // this is a hack for correlation with previous 2011 ws
   // for legacy paper - this MUST BE UPDATED
   //if (cat_>=nIncCats_) nuisCat = nIncCats_;
-  
-  vertexNuisance = new RooRealVar("CMS_hgg_nuisancedeltafracright","CMS_hgg_nuisancedeltafracright",1.,0.1,1.);
-  vertexNuisance->setConstant(true);
-  globalScale = new RooRealVar("CMS_hgg_globalscale","CMS_hgg_globalscale",0.,-5.,5.);
-  globalScale->setConstant(true);
   //categoryScale = new RooRealVar(Form("CMS_hgg_nuissancedeltamcat%d",nuisCat),Form("CMS_hgg_nuissancedeltamcat%d",nuisCat),0.,-5.,5.);
   //categoryScale->setConstant(true);
   //categorySmear = new RooConstVar(Form("CMS_hgg_constsmearcat%d",nuisCat),Form("CMS_hgg_constsmearcat%d",nuisCat),constSmearVals[nuisCat]);
   //categoryResolution = new RooRealVar(Form("CMS_hgg_nuissancedeltasmearcat%d",nuisCat),Form("CMS_hgg_nuissancedeltasmearcat%d",nuisCat),0.0,-0.2,0.2);
+ 
+	vertexNuisance = new RooRealVar(Form("CMS_hgg_nuisancedeltafracright_%dTeV",sqrts_),Form("CMS_hgg_nuisancedeltafracright_%dTeV",sqrts_),1.,0.,1.);
+	vertexNuisance->setConstant(true);
+  globalScale = new RooRealVar("CMS_hgg_globalscale","CMS_hgg_globalscale",0.,-5.,5.);
+  globalScale->setConstant(true);
+	if (isCutBased_) {
+		r9barrelNuisance = new RooRealVar(Form("CMS_hgg_nuisancedeltar9barrel_%dTeV",sqrts_),Form("CMS_hgg_nuisancedeltar9barrel_%dTeV",sqrts_),1.,0.,1.);
+		r9mixedNuisance = new RooRealVar(Form("CMS_hgg_nuisancedeltar9mixed_%dTeV",sqrts_),Form("CMS_hgg_nuisancedeltar9mixed_%dTeV",sqrts_),1.,0.,1.);
+		r9barrelNuisance->setConstant(true);
+		r9mixedNuisance->setConstant(true);
+	}
   systematicsSet_=true;
 }
 
@@ -374,8 +394,8 @@ void FinalModelConstruction::buildRvWvPdf(string name, int nGrv, int nGwv, bool 
   if (!rvFractionSet_) getRvFractionFunc(Form("%s_rvFracFunc",name.c_str()));
   if (!systematicsSet_) setupSystematics();
   RooFormulaVar *rvFraction = new RooFormulaVar(Form("%s_rvFrac",name.c_str()),Form("%s_rvFrac",name.c_str()),"TMath::Min(@0*@1,1.0)",RooArgList(*vertexNuisance,*rvFracFunc));
-  vector<RooAddPdf*> rvPdfs = buildPdf(name,nGrv,recursive,rvSplines,"_rv");
-  vector<RooAddPdf*> wvPdfs = buildPdf(name,nGwv,recursive,wvSplines,"_wv");
+  vector<RooAddPdf*> rvPdfs = buildPdf(name,nGrv,recursive,rvSplines,Form("_rv_%dTeV",sqrts_)); 
+  vector<RooAddPdf*> wvPdfs = buildPdf(name,nGwv,recursive,wvSplines,Form("_wv_%dTeV",sqrts_)); 
   finalPdf = new RooAddPdf(Form("%s_%s_cat%d",name.c_str(),proc_.c_str(),cat_),Form("%s_%s_cat%d",name.c_str(),proc_.c_str(),cat_),RooArgList(*rvPdfs[0],*wvPdfs[0]),RooArgList(*rvFraction));
   if (doSecondaryModels){
     assert(secondaryModelVarsSet);
@@ -582,9 +602,9 @@ void FinalModelConstruction::getNormalization(){
     temp->Fit(pol2,"QEMFEX0")
   ;
   TGraph *eaGraph = new TGraph(pol2);
-  RooSpline1D *eaSpline = graphToSpline(Form("fea_%s_cat%d",proc_.c_str(),cat_),eaGraph);
+  RooSpline1D *eaSpline = graphToSpline(Form("fea_%s_cat%d_%dTeV",proc_.c_str(),cat_,sqrts_),eaGraph);
   RooSpline1D *xs = xsSplines[proc_];
-	RooAbsReal *rateNuisTerm = getRateWithPhotonSyst(Form("rate_%s_cat%d",proc_.c_str(),cat_));
+	RooAbsReal *rateNuisTerm = getRateWithPhotonSyst(Form("rate_%s_cat%d_%dTeV",proc_.c_str(),cat_,sqrts_));
   
 	finalNorm = new RooFormulaVar(Form("%s_norm",finalPdf->GetName()),Form("%s_norm",finalPdf->GetName()),"@0*@1*@2*@3",RooArgList(*xs,*brSpline,*eaSpline,*rateNuisTerm));
   // these are for plotting
@@ -596,15 +616,15 @@ void FinalModelConstruction::getNormalization(){
   if (doSecondaryModels){
     assert(secondaryModelVarsSet);
     // sm higgs as bkg
-    RooSpline1D *eaSpline_SM = graphToSpline(Form("fea_%s_cat%d_SM",proc_.c_str(),cat_),eaGraph,MH_SM);
+    RooSpline1D *eaSpline_SM = graphToSpline(Form("fea_%s_cat%d_%dTeV_SM",proc_.c_str(),cat_,sqrts_),eaGraph,MH_SM);
     RooSpline1D *xs_SM = xsSplines_SM[proc_];
     finalNorm_SM = new RooFormulaVar(Form("%s_norm",finalPdf_SM->GetName()),Form("%s_norm",finalPdf_SM->GetName()),"@0*@1*@2*@3",RooArgList(*xs_SM,*brSpline_SM,*eaSpline_SM,*rateNuisTerm));
     // second degen higgs
-    RooSpline1D *eaSpline_2 = graphToSpline(Form("fea_%s_cat%d_2",proc_.c_str(),cat_),eaGraph,MH_2);
+    RooSpline1D *eaSpline_2 = graphToSpline(Form("fea_%s_cat%d_%dTeV_2",proc_.c_str(),cat_,sqrts_),eaGraph,MH_2);
     RooSpline1D *xs_2 = xsSplines_2[proc_];
     finalNorm_2 = new RooFormulaVar(Form("%s_norm",finalPdf_2->GetName()),Form("%s_norm",finalPdf_2->GetName()),"@0*@1*@2*@3",RooArgList(*xs_2,*brSpline_2,*eaSpline_2,*rateNuisTerm));
     // natural width
-    RooSpline1D *eaSpline_NW = graphToSpline(Form("fea_%s_cat%d_NW",proc_.c_str(),cat_),eaGraph,MH);
+    RooSpline1D *eaSpline_NW = graphToSpline(Form("fea_%s_cat%d_%dTeV_NW",proc_.c_str(),cat_,sqrts_),eaGraph,MH);
     RooSpline1D *xs_NW = xsSplines_NW[proc_];
     finalNorm_NW = new RooFormulaVar(Form("%s_norm",finalPdf_NW->GetName()),Form("%s_norm",finalPdf_NW->GetName()),"@0*@1*@2*@3",RooArgList(*xs_NW,*brSpline_NW,*eaSpline_NW,*rateNuisTerm));
   }

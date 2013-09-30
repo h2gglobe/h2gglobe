@@ -19,13 +19,13 @@
 #include "RooConstVar.h"
 #include "RooWorkspace.h"
 #include "HiggsAnalysis/CombinedLimit/interface/RooSpline1D.h"
-#include "../interface/Normalization_8TeV.h"
+#include "../../Macros/Normalization_8TeV.h"
 
 class FinalModelConstruction {
 
   public:
     
-    FinalModelConstruction(RooRealVar *massVar, RooRealVar *MHvar, RooRealVar *intL, int mhLow, int mhHigh, std::string proc, int cat, bool doSecMods, std::string systematicsFileName, int verbosity, bool isCB=false);
+    FinalModelConstruction(RooRealVar *massVar, RooRealVar *MHvar, RooRealVar *intL, int mhLow, int mhHigh, std::string proc, int cat, bool doSecMods, std::string systematicsFileName, int verbosity, bool isCB=false, bool is2011=false);
     ~FinalModelConstruction();
 
 		void loadSignalSystematics(std::string filename);
@@ -69,7 +69,9 @@ class FinalModelConstruction {
     int nIncCats_;
     bool doSecondaryModels;
     bool secondaryModelVarsSet;
-    bool isCutBased;
+    bool isCutBased_;
+		bool is2011_;
+		int sqrts_;
     std::vector<int> allMH_;
     std::vector<int> getAllMH();
     int verbosity_;
@@ -85,10 +87,13 @@ class FinalModelConstruction {
     RooRealVar *vertexNuisance;
     RooSpline1D *rvFracFunc;
     RooRealVar *globalScale;
-    RooRealVar *categoryScale;
-    RooConstVar *categorySmear;
-    RooRealVar *categoryResolution;
-    vector<double> constSmearVals;
+		RooRealVar *r9barrelNuisance;
+		RooRealVar *r9mixedNuisance;
+		// these are for the old fashioned way
+    //RooRealVar *categoryScale;
+    //RooConstVar *categorySmear;
+    //RooRealVar *categoryResolution;
+    //vector<double> constSmearVals;
 
     RooAddPdf *finalPdf;
     RooAbsReal *finalNorm;
