@@ -796,7 +796,6 @@ class configProducer:
     dcs_directory = ''
     eos_directory = ''
     fi_name   = ''
-    fi_type   = 99999
     # We have one of the file def lines
     split_line = [ s for s in line.replace("split","").split() if s != "" ]
     for sp in split_line:
@@ -812,7 +811,6 @@ class configProducer:
       elif val[0]== "EosDir":
         eos_directory=str(val[1])
       elif val[0] == "typ":
-        fi_type = int(val[1])
         map_c["typ"] = int(val[1])
       elif val[0] in map_c:
         map_c[val[0]] = type(map_c[val[0]])(val[1])
@@ -823,10 +821,23 @@ class configProducer:
 
     # First check if its a signal sample we are defining, in which case calculate the x-section and BR
     ## print map_c["typ"], map_c["xsec"]
+    print map_c
     if (map_c["typ"] == -1) : 
 	  sample_name = map_c["Nam"]
-	  hmass = int(sample_name[sample_name.find("m")+1:sample_name.find("m")+1+sample_name.find("_")])
-	  newtype = 1000*hmass
+	  ## hmass = int(sample_name[sample_name.find("m")+1:sample_name.find("m")+1+sample_name.find("_")])
+          hmass = None
+          toks = sample_name.split("_")
+          print toks
+          for tok in toks:
+              if tok.startswith("m") and tok[1:].isdigit():
+                  hmass=int(tok[1:])
+                  break
+          if not hmass:
+              print "The type id for the sample name %s is -1 so I tried to assign the type id automatically." % sample_name 
+              print "   ... however I only recognize the format Nam=<process>_m<mass>_<sqrtS>."
+              print "Please fix your configuration file and run again. "
+              sys.exit(1)
+          newtype = 1000*hmass
 	  proc = ""
 	  if "ggh" in sample_name: 
 		proc="ggh"
@@ -846,12 +857,16 @@ class configProducer:
 		newtype+=300
 		proc="zh"
 	  map_c["typ"]=-1*newtype
+          print "Automatic sample type name:%s mass:%d proc:%s type:%d " % (sample_name, hmass, proc, -newtype)
           if map_c["xsec"] < 0: # not provided so figure it out ourselves
             map_c["xsec"] = self.ut_.signalNormalizer.GetXsection(float(hmass),proc) * self.ut_.signalNormalizer.GetBR(float(hmass))
     elif map_c["xsec"] < 0:
-     	    map_c["xsec"] = self.ut_.signalNormalizer.GetXsection(map_c["typ"]) * self.ut_.signalNormalizer.GetBR(map_c["typ"])
+          mass = ut_.signalNormalizer.GetMass(map_c["typ"])
+          proc = ut_.signalNormalizer.GetProcess(map_c["typ"])
+          map_c["xsec"] = self.ut_.signalNormalizer.GetXsection(proc,mass) * self.ut_.signalNormalizer.GetBR(mass)
     if PYDEBUG: print "Calculated signal X-section*BR = ", map_c["Nam"],map_c["typ"], map_c["xsec"]
-      
+    fi_type = map_c["typ"]
+    
     if fi_name != '':
       temp_dir = "/".join(fi_name.split("/")[:-1])
       if map_c["pileup"] == "":

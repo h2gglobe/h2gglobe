@@ -3,7 +3,9 @@
 #include "TRandom3.h"
 #include <assert.h>
 
-PtSpinSmearer::PtSpinSmearer(const  std::string & theFile) : efficiency_file(theFile) 
+#include "Macros/Normalization_8TeV.h"
+
+PtSpinSmearer::PtSpinSmearer(const  std::string & theFile, Normalization_8TeV * norm) : efficiency_file(theFile), norm_(norm)
 {
   name_="PtSpinSmearer";
 }
@@ -72,33 +74,19 @@ bool PtSpinSmearer::smearEvent( float & weight, const TLorentzVector & p4, const
 {
   int genMassPoint;
   string genType;
-
-  if (sample_type==-37 || sample_type==-38 || sample_type==-39 || sample_type==-40){
-    genMassPoint=125;
-    genType="sm";
+  
+  if( sample_type >= 0 ) { return true; }
+  genMassPoint = std::round(norm_->GetMass(sample_type));
+  TString type = norm_->GetProcess(sample_type);
+  if( type == "ggh" ) { 
+	  genType = "sm";
+  } else if ( type == "qq_grav" ) {
+	  genType="qq";	  
+  } else if ( type == "gg_grav" ) {
+	  genType="gg";
+  } else {
+	  return true;                     // this is the case of backgrounds
   }
-  else if (sample_type==-77 || sample_type==-78 || sample_type==-79 || sample_type==-80){
-    genMassPoint=126;
-    genType="sm";
-  }
-  else if (sample_type==-137){
-    genMassPoint=125;
-    genType="gg";
-  }
-  else if (sample_type==-138){
-    genMassPoint=125;
-    genType="qq";
-  }
-  else if (sample_type==-177){
-    genMassPoint=126;
-    genType="gg";
-  }
-  else if (sample_type==-178){
-    genMassPoint=126;
-    genType="qq";
-  }
-  else    return true;                     // this is the case of backgrounds
-
   double kWeight = getWeight( p4, nPu, genMassPoint, genType, syst_shift );
   weight = (kWeight > 0) ? kWeight : 0;
 
