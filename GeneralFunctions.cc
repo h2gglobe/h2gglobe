@@ -4793,8 +4793,8 @@ void LoopAll::VHTwoMuonsEvents(bool & VHlep1event, bool & VHlep2event, int & dip
     int diphotonVHlep_id_1 = DiphotonCiCSelection( phoSUPERTIGHT, phoSUPERTIGHT, leadEtVHlepCut,subleadEtVHlepCut, 4,
 						     applyPtoverM, &smeared_pho_energy[0], true, -1, veto_indices);
     if(diphotonVHlep_id_1!=-1){
-      TLorentzVector lead_p4_1    = get_pho_p4( dipho_leadind[diphotonVHlep_id_1],    muVtx_1, &smeared_pho_energy[0]);
-      TLorentzVector sublead_p4_1 = get_pho_p4( dipho_subleadind[diphotonVHlep_id_1], muVtx_1, &smeared_pho_energy[0]);
+      TLorentzVector lead_p4_1    = get_pho_p4( dipho_leadind[diphotonVHlep_id_1],    dipho_vtxind[diphotonVHlep_id_1], &smeared_pho_energy[0]);
+      TLorentzVector sublead_p4_1 = get_pho_p4( dipho_subleadind[diphotonVHlep_id_1], dipho_vtxind[diphotonVHlep_id_1], &smeared_pho_energy[0]);
       TLorentzVector* thismu;
       int mu_ind_2 = -1; float bestpt = -2.0;
       for( int indmu=0; indmu<mu_glo_n; indmu++){
@@ -4833,8 +4833,8 @@ void LoopAll::VHTwoElectronsEvents(bool & VHlep1event, bool & VHlep2event, int &
     int diphotonVHlep_id_1 = DiphotonCiCSelection( phoSUPERTIGHT, phoSUPERTIGHT, leadEtVHlepCut,subleadEtVHlepCut, 4,
 						     applyPtoverM, &smeared_pho_energy[0], true, -1, veto_indices);
     if(diphotonVHlep_id_1!=-1 && (ElectronMVACuts(el_ind_1, elVtx_1))==true){
-      TLorentzVector lead_p4_1 = get_pho_p4( dipho_leadind[diphotonVHlep_id_1], elVtx_1, &smeared_pho_energy[0]);
-      TLorentzVector sublead_p4_1 = get_pho_p4( dipho_subleadind[diphotonVHlep_id_1], elVtx_1, &smeared_pho_energy[0]);
+      TLorentzVector lead_p4_1 = get_pho_p4( dipho_leadind[diphotonVHlep_id_1], dipho_vtxind[diphotonVHlep_id_1], &smeared_pho_energy[0]);
+      TLorentzVector sublead_p4_1 = get_pho_p4( dipho_subleadind[diphotonVHlep_id_1], dipho_vtxind[diphotonVHlep_id_1], &smeared_pho_energy[0]);
       int el_ind_2=-1; float bestmvaval=-2;
       for(int iel=0; iel<el_std_n; iel++){
 	TLorentzVector* thiselp4 = (TLorentzVector*) el_std_p4->At(iel);

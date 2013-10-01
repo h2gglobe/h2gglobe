@@ -551,10 +551,6 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 
     int muVtx=-1;
     int elVtx=-1;
-
-    bool VHmuevent_prov=false;
-    bool VHelevent_prov=false;
-    int Njet_lepcat = 0;
     
     if (!skipSelection){
         // first apply corrections and smearing on the single photons 
@@ -633,39 +629,14 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
                 diphotonVHlep_id=diphotonVH_ele_id;
             }
         }
-        
-        if(includeVHlepPlusMet){
-            float eventweight = weight * genLevWeight;
-            float myweight=1.;
-            if(eventweight*sampleweight!=0) myweight=eventweight/sampleweight;
-            VHmuevent_prov=MuonTag2012B(l, diphotonVHlep_id, mu_ind, muVtx, VHmuevent_cat, &smeared_pho_energy[0], 
-                                        lep_sync, true, phoidMvaCut, eventweight,  smeared_pho_weight, !isSyst);
-            
-            int diphotonVH_ele_id=-1;
-            VHelevent_prov=ElectronTag2012B(l, diphotonVH_ele_id, el_ind, elVtx, VHelevent_cat, &smeared_pho_energy[0], 
-                                            lep_sync, true, phoidMvaCut, eventweight,  smeared_pho_weight, !isSyst);
-            int vertex = -1;
-            if(VHmuevent_prov) vertex=muVtx;
-            
-            if(!VHmuevent_prov && VHelevent_prov){
-                vertex =elVtx;
-                diphotonVHlep_id=diphotonVH_ele_id;
-            } 
-            
-            if(VHmuevent_prov || VHelevent_prov){
-                Njet_lepcat = VHNumberOfJets(l, diphotonVHlep_id, vertex, VHelevent_prov, VHmuevent_prov, 
-                                            el_ind, mu_ind, &smeared_pho_energy[0]);
-                if(Njet_lepcat<3) {
-                    l.VHNewLeptonCategorization(VHlep1event, VHlep2event, diphotonVHlep_id, vertex, 
-                        VHelevent_prov, VHmuevent_prov, el_ind, mu_ind, &smeared_pho_energy[0], 45.0);
-                }
-            }
-            l.VHTwoMuonsEvents(VHlep1event, VHlep2event, diphotonVHlep_id, muVtx, &smeared_pho_energy[0], 
-                                leadEtVHlepCut, subleadEtVHlepCut, applyPtoverM);
-            l.VHTwoElectronsEvents(VHlep1event, VHlep2event, diphotonVHlep_id, elVtx, &smeared_pho_energy[0],   
-                                    leadEtVHlepCut, subleadEtVHlepCut, applyPtoverM);
-        }
-        
+	
+	      if(includeVHlepPlusMet){
+	          float eventweight = weight * genLevWeight;
+	          float myweight=1.;
+	          if(eventweight*sampleweight!=0) myweight=eventweight/sampleweight;
+	          VHLepTag2013(l, diphotonVHlep_id, VHlep1event, VHlep2event, true, mu_ind, muVtx, VHmuevent_cat, el_ind, elVtx, VHelevent_cat, &smeared_pho_energy[0], phoidMvaCut, eventweight, smeared_pho_weight, isSyst, vetodipho, kinonly);
+	      }
+
         if(includeVHmet && !dataIs2011) {
             //	    std::cout << "+++PFMET UNCORR " << l.met_pfmet << std::endl;
             if(!isSyst) VHmetevent=METTag2012B(l, diphotonVHmet_id, VHmetevent_cat, &smeared_pho_energy[0], met_sync, true, phoidMvaCut, false); 
