@@ -1332,75 +1332,128 @@ void PhotonAnalysis::Init(LoopAll& l)
     */
 
     // ---------------------- LOAD Regression Classes ---------------------//
-    //initialize eval vector
-    _vals.resize(37);
-   
-    if( l.typerun == LoopAll::kReduce ) {
-        //load forests from file
-        TFile *fgbr = TFile::Open(regressionFile.c_str(),"READ");    
-        fgbr->GetObject("EGRegressionForest_EB", _foresteb);
-        fgbr->GetObject("EGRegressionForest_EE", _forestee);
-        fgbr->Close();
-    }
+    // Implementation copied over from ... 
+    // https://github.com/bendavid/GBRLikelihoodEGTools/commit/7aff712aa93c69e5e04664d7556a6bd646af479c#diff-57e3515cb45eaf6857c6bf3a0481aca0
+    sqrtS = 8;
+    //if (l.regressionVersion_>=4 && l.regressionVerstion <=5){ // This is for 8 TeV (we would use V5)
+    if (sqrtS==8){
+            //initialize eval vector
+        _vals.resize(37);
+       
+        if( l.typerun == LoopAll::kReduce ) {
+            //load forests from file
+            TFile *fgbr = TFile::Open(regressionFile.c_str(),"READ");    
+            fgbr->GetObject("EGRegressionForest_EB", _foresteb);
+            fgbr->GetObject("EGRegressionForest_EE", _forestee);
+            fgbr->Close();
+        }
 
-    //recreate pdf with constraint transformations (can't load directly from file due to weird RooWorkspace IO features)
-    
-    _tgt = new RooRealVar("tgt","",1.);
-    _mean = new RooRealVar("mean","",1.);
-    _sigma = new RooRealVar("sigma","",1.);
-    _n1 = new RooRealVar("n1","",2.);
-    _n2 = new RooRealVar("n2","",2.);
-    
-    _sigmalim = new RooRealConstraint("sigmalim","",*_sigma,0.0002,0.5);
-    _meanlim = new RooRealConstraint("meanlim","",*_mean,0.2,2.0);
-    _n1lim = new RooRealConstraint("n1lim","",*_n1,1.01,110.);
-    _n2lim = new RooRealConstraint("n2lim","",*_n2,1.01,110.);     
-    
-    _pdf = new RooDoubleCBFast("sigpdf","",*_tgt,RooFit::RooConst(1.),
-			       *_sigmalim,RooFit::RooConst(2.0),*_n1lim,RooFit::RooConst(1.0),*_n2lim);
-    
-    //add to RooArgList for proper garbage collection
-    _args.addOwned(*_tgt);
-    _args.addOwned(*_mean);
-    _args.addOwned(*_sigma);
-    _args.addOwned(*_n1);
-    _args.addOwned(*_n2);
-    _args.addOwned(*_sigmalim);
-    _args.addOwned(*_meanlim);
-    _args.addOwned(*_n1lim);
-    _args.addOwned(*_n2lim);
-    _args.addOwned(*_pdf);    
-    
+        //recreate pdf with constraint transformations (can't load directly from file due to weird RooWorkspace IO features)
+        
+        _tgt = new RooRealVar("tgt","",1.);
+        _mean = new RooRealVar("mean","",1.);
+        _sigma = new RooRealVar("sigma","",1.);
+        _n1 = new RooRealVar("n1","",2.);
+        _n2 = new RooRealVar("n2","",2.);
+        
+        _sigmalim = new RooRealConstraint("sigmalim","",*_sigma,0.0002,0.5);
+        _meanlim = new RooRealConstraint("meanlim","",*_mean,0.2,2.0);
+        _n1lim = new RooRealConstraint("n1lim","",*_n1,1.01,110.);
+        _n2lim = new RooRealConstraint("n2lim","",*_n2,1.01,110.);     
+        
+        _pdf = new RooDoubleCBFast("sigpdf","",*_tgt,RooFit::RooConst(1.),
+                       *_sigmalim,RooFit::RooConst(2.0),*_n1lim,RooFit::RooConst(1.0),*_n2lim);
+        
+        //add to RooArgList for proper garbage collection
+        _args.addOwned(*_tgt);
+        _args.addOwned(*_mean);
+        _args.addOwned(*_sigma);
+        _args.addOwned(*_n1);
+        _args.addOwned(*_n2);
+        _args.addOwned(*_sigmalim);
+        _args.addOwned(*_meanlim);
+        _args.addOwned(*_n1lim);
+        _args.addOwned(*_n2lim);
+        _args.addOwned(*_pdf);    
+   } 
+   //else if (l.regressionVersion_>=6 && l.regressionVerstion <=8){ // This is for 7 TeV (we would use V8)
+   else if (sqrtS==7){
+      //initialize eval vector
+      _vals.resize(37);
+      
+      //load forests from file
+      if( l.typerun == LoopAll::kReduce ) {
+            //load forests from file
+            TFile *fgbr = TFile::Open(regressionFile.c_str(),"READ");    
+            fgbr->GetObject("EGRegressionForest_EB", _forestDeb);
+            fgbr->GetObject("EGRegressionForest_EE", _forestDee);
+            fgbr->Close();      
+      }
+      
+      //recreate pdf with constraint transformations (can't load directly from file due to weird RooWorkspace IO features)
+      
+      _tgt = new RooRealVar("tgt","",1.);
+      _mean = new RooRealVar("mean","",1.);
+      _sigma = new RooRealVar("sigma","",0.01);
+      _n1 = new RooRealVar("n1","",2.);
+      _n2 = new RooRealVar("n2","",2.);
+      
+      _sigmalim = new RooRealConstraint("sigmalim","",*_sigma,0.0002,0.5);
+      _meanlim = new RooRealConstraint("meanlim","",*_mean,0.2,2.0);
+      _n1lim = new RooRealConstraint("n1lim","",*_n1,1.01,5000.);
+      _n2lim = new RooRealConstraint("n2lim","",*_n2,1.01,5000.);
+      
+      RooConstVar *alpha1 = new RooConstVar("alpha1","",2.0);
+      RooConstVar *alpha2 = new RooConstVar("alpha2","",1.0);
+      
+      _pdf = new RooDoubleCBFast("sigpdf","",*_tgt,*_meanlim,*_sigmalim,*alpha1,*_n1lim,*alpha2,*_n2lim);
+      
+      //add to RooArgList for proper garbage collection
+      _args.addOwned(*_tgt);
+      _args.addOwned(*_mean);
+      _args.addOwned(*_sigma);
+      _args.addOwned(*_n1);
+      _args.addOwned(*_n2);
+      _args.addOwned(*alpha1);
+      _args.addOwned(*alpha2);
+      _args.addOwned(*_sigmalim);
+      _args.addOwned(*_meanlim);
+      _args.addOwned(*_n1lim);
+      _args.addOwned(*_n2lim);
+      _args.addOwned(*_pdf);        
+
+   }
+   else (assert(0)); 
     
     // --------------------------------------------------------------------
-    if(PADEBUG)
-        cout << "InitRealPhotonAnalysis END"<<endl;
+   if(PADEBUG)
+       cout << "InitRealPhotonAnalysis END"<<endl;
 
-    // FIXME book of additional variables
+   // FIXME book of additional variables
 
-    if(optimizeMVA){
-    // Initialize all MVA ---------------------------------------------------//
-    l.SetAllMVA();
-    // UCSD 
-    l.tmvaReaderID_UCSD->BookMVA("Gradient"      ,photonLevelMvaUCSD.c_str()  );
-    l.tmvaReader_dipho_UCSD->BookMVA("Gradient"  ,eventLevelMvaUCSD.c_str()   );
-    // New ID MVA 
-    if( photonLevelNewIDMVA_EB != "" && photonLevelNewIDMVA_EE != "" ) {
-	l.tmvaReaderID_Single_Barrel->BookMVA("AdaBoost",photonLevelNewIDMVA_EB.c_str());
-	l.tmvaReaderID_Single_Endcap->BookMVA("AdaBoost",photonLevelNewIDMVA_EE.c_str());
-    } else {
-	assert( dataIs2011 );
-    }
-    // MIT 
-    if( photonLevelMvaMIT_EB != "" && photonLevelMvaMIT_EE != "" ) {
-	l.tmvaReaderID_MIT_Barrel->BookMVA("AdaBoost",photonLevelMvaMIT_EB.c_str());
-	l.tmvaReaderID_MIT_Endcap->BookMVA("AdaBoost",photonLevelMvaMIT_EE.c_str());
-    } else {
-	assert( ! dataIs2011 );
-    }
-    l.tmvaReader_dipho_MIT->BookMVA("Gradient"   ,eventLevelMvaMIT.c_str()    );
-    // ----------------------------------------------------------------------//    
-    }
+   if(optimizeMVA){
+   // Initialize all MVA ---------------------------------------------------//
+   l.SetAllMVA();
+   // UCSD 
+   l.tmvaReaderID_UCSD->BookMVA("Gradient"      ,photonLevelMvaUCSD.c_str()  );
+   l.tmvaReader_dipho_UCSD->BookMVA("Gradient"  ,eventLevelMvaUCSD.c_str()   );
+   // New ID MVA 
+   if( photonLevelNewIDMVA_EB != "" && photonLevelNewIDMVA_EE != "" ) {
+   l.tmvaReaderID_Single_Barrel->BookMVA("AdaBoost",photonLevelNewIDMVA_EB.c_str());
+   l.tmvaReaderID_Single_Endcap->BookMVA("AdaBoost",photonLevelNewIDMVA_EE.c_str());
+   } else {
+   assert( dataIs2011 );
+   }
+   // MIT 
+   if( photonLevelMvaMIT_EB != "" && photonLevelMvaMIT_EE != "" ) {
+   l.tmvaReaderID_MIT_Barrel->BookMVA("AdaBoost",photonLevelMvaMIT_EB.c_str());
+   l.tmvaReaderID_MIT_Endcap->BookMVA("AdaBoost",photonLevelMvaMIT_EE.c_str());
+   } else {
+   assert( ! dataIs2011 );
+   }
+   l.tmvaReader_dipho_MIT->BookMVA("Gradient"   ,eventLevelMvaMIT.c_str()    );
+   // ----------------------------------------------------------------------//    
+   }
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -5815,6 +5868,247 @@ int PhotonAnalysis::VHNumberOfJets(LoopAll& l, int diphotonVHlep_id, int vertex,
 
 void PhotonAnalysis::GetRegressionCorrections(LoopAll &l){
 
+    if (sqrtS==8){
+        GetRegressionCorrectionsV5(l);
+    } else if (sqrtS==7) {
+        // v6/v7 used for 7 TeV regression (v6 Barrel, v7 Endcap)
+        // handled in V8
+        GetRegressionCorrectionsV8(l);      
+    }
+}
+void PhotonAnalysis::GetRegressionCorrectionsV8(LoopAll &l){
+    // V7 7TeV Endcap use
+    for (int ipho=0;ipho<l.pho_n;ipho++){
+        double ecor,ecorerr;
+        TVector3 *sc = ((TVector3*)l.pho_calopos->At(ipho)); 
+        bool isbarrel = (fabs(sc->Eta())<1.48);
+     
+        if (isbarrel){
+          GetSinglePhotonRegressionCorrectionV6(l,ipho,&ecor,&ecorerr);      
+        } else {
+          GetSinglePhotonRegressionCorrectionV7(l,ipho,&ecor,&ecorerr);      
+        }
+        // Save new branches 
+        l.pho_regr_energy_otf[ipho] = ecor;
+        l.pho_regr_energyerr_otf[ipho] = ecorerr;
+    }
+}
+void PhotonAnalysis::GetSinglePhotonRegressionCorrectionV7(LoopAll &l, int ipho, double *ecor, double *ecorerr){
+    // V7 7TeV Endcap use
+
+    double cbalpha1,cbn1,cbalpha2,cbn2,pdfpeakval,cbmean,cbsigma;
+
+    double phoE = ((TLorentzVector*)l.pho_p4->At(ipho))->Energy();
+    double r9=l.pho_r9[ipho];
+
+    TVector3 *sc = ((TVector3*)l.pho_calopos->At(ipho)); 
+
+    int sc_index      = l.pho_scind[ipho];
+    int sc_seed_index = l.sc_bcseedind[sc_index];
+
+    TVector3 *bcpos =(TVector3*)l.bc_xyz->At(sc_seed_index);
+    double bcE = ((TLorentzVector*)l.bc_p4->At(sc_seed_index))->Energy();
+
+    //   //basic supercluster variables
+    _vals[0]  = l.sc_raw[sc_index];
+    _vals[1]  = sc->Eta();
+    _vals[2]  = r9;
+    _vals[3] = l.sc_seta[sc_index];
+    _vals[4] = l.sc_sphi[sc_index];
+    _vals[5] = (double)l.sc_nbc[sc_index];
+    _vals[6] = l.pho_hoe[ipho];//p.hadTowOverEm();
+    _vals[7] = l.rho;
+    _vals[8] = (double)l.vtx_std_n;//double(vtxcol.size());
+
+    //seed basic cluster variables
+    double bemax = l.bc_s1[sc_seed_index];//clustertools.eMax(*b);
+    double be2nd = l.pho_e2nd[ipho];//clustertools.e2nd(*b);
+    double betop = l.pho_etop[ipho];//clustertools.eTop(*b);
+    double bebottom = l.pho_ebottom[ipho];//clustertools.eBottom(*b);
+    double beleft = l.pho_eleft[ipho];//clustertools.eLeft(*b);
+    double beright = l.pho_eright[ipho];//clustertools.eRight(*b);
+
+    double be2x5max = l.pho_e2x5max[ipho];//clustertools.e2x5Max(*b);
+    double be2x5top = l.pho_e2x5top[ipho];//clustertools.e2x5Top(*b);
+    double be2x5bottom = l.pho_e2x5bottom[ipho];//clustertools.e2x5Bottom(*b);
+    double be2x5left = l.pho_e2x5left[ipho];//clustertools.e2x5Left(*b);
+    double be2x5right = l.pho_e2x5right[ipho];//clustertools.e2x5Right(*b);
+
+    double be5x5 = l.bc_s25[sc_seed_index];//clustertools.e5x5(*b);
+    double be3x3 = l.bc_s9[sc_seed_index];//clustertools.e5x5(*b);
+
+    _vals[9] = bcpos->Eta()-sc->Eta();
+    _vals[10] = l.DeltaPhi(bcpos->Phi(),sc->Phi());
+    _vals[11] = bcE/l.sc_raw[sc_index];
+    _vals[12] = be3x3/be5x5;
+    _vals[13] = l.bc_sieie[sc_seed_index]; //sigietaieta (this is stored in bc collection)
+    _vals[14] = TMath::Sqrt(l.pho_sipip[ipho]); //sigiphiiphi
+    _vals[15] = l.pho_sieip[ipho];//clustertools.localCovariances(*b)[1];       //sigietaiphi
+
+    _vals[16] = bemax/be5x5;                       //crystal energy ratio gap variables   
+    _vals[17] = be2nd/be5x5;
+    _vals[18] = betop/be5x5;
+    _vals[19] = bebottom/be5x5;
+    _vals[20] = beleft/be5x5;
+    _vals[21] = beright/be5x5;
+    _vals[22] = be2x5max/be5x5;                       //crystal energy ratio gap variables   
+    _vals[23] = be2x5top/be5x5;
+    _vals[24] = be2x5bottom/be5x5;
+    _vals[25] = be2x5left/be5x5;
+    _vals[26] = be2x5right/be5x5;
+
+    // Always assume endcap for V7
+    //preshower energy ratio (endcap only)
+    _vals[27]  = l.sc_pre[sc_index]/l.sc_raw[sc_index];
+
+    double den =  l.sc_pre[sc_index]+l.sc_raw[sc_index];
+      
+    //set raw response variables from GBRForest
+    _sigma->setVal(_forestDee->GetResponse(&_vals[0],0));
+    _mean->setVal(_forestDee->GetResponse(&_vals[0],1));
+    _n1->setVal(_forestDee->GetResponse(&_vals[0],2));
+    _n2->setVal(_forestDee->GetResponse(&_vals[0],3));
+    
+    //retrieve final pdf parameter values from transformed forest outputs
+    cbmean = _meanlim->getVal();
+    cbsigma = _sigmalim->getVal();
+    cbalpha1 = 2.0;  //alpha hardcoded in this version of the regression
+    cbn1 = _n1lim->getVal();
+    cbalpha2 = 1.0;  //alpha hardcoded in this version of the regression
+    cbn2 = _n2lim->getVal();
+    
+    _tgt->setVal(cbmean); //evaluate pdf at peak position  
+    pdfpeakval = _pdf->getVal(*_tgt);
+      
+    //set final energy and relative energy resolution
+    *ecor = den*cbmean;
+    double sigEoverE = cbsigma/cbmean;
+    *ecorerr = sigEoverE*(*ecor);
+
+
+    //// // Set vectors used in reduction;
+    //// energyCorrected[ipho] = ecor;
+    //// energyCorrectedError[ipho] = ecorerr;
+
+
+
+    //// // Overwrite old branches
+    //// l.pho_regr_energy[ipho] = ecor;
+    //// l.pho_regr_energyerr[ipho] = ecorerr;
+    
+}
+
+void PhotonAnalysis::GetSinglePhotonRegressionCorrectionV6(LoopAll &l, int ipho, double *ecor, double *ecorerr){
+   
+    // V6 7TeV Barrel use  
+
+    double cbalpha1,cbn1,cbalpha2,cbn2,pdfpeakval,cbmean,cbsigma;
+
+    double phoE = ((TLorentzVector*)l.pho_p4->At(ipho))->Energy();
+    double r9=l.pho_r9[ipho];
+
+    TVector3 *sc = ((TVector3*)l.pho_calopos->At(ipho)); 
+
+    int sc_index      = l.pho_scind[ipho];
+    int sc_seed_index = l.sc_bcseedind[sc_index];
+
+    TVector3 *bcpos =(TVector3*)l.bc_xyz->At(sc_seed_index);
+    double bcE = ((TLorentzVector*)l.bc_p4->At(sc_seed_index))->Energy();
+
+    //   //basic supercluster variables
+    _vals[0]  = l.sc_raw[sc_index];
+    _vals[1]  = sc->Eta();
+    _vals[2]  = sc->Phi();
+    _vals[3]  = r9;
+    _vals[4] = l.sc_seta[sc_index];
+    _vals[5] = l.sc_sphi[sc_index];
+    _vals[6] = (double)l.sc_nbc[sc_index];
+    _vals[7] = l.pho_hoe[ipho];//p.hadTowOverEm();
+    _vals[8] = l.rho;
+    _vals[9] = (double)l.vtx_std_n;//double(vtxcol.size());
+
+    //seed basic cluster variables
+    double bemax = l.bc_s1[sc_seed_index];//clustertools.eMax(*b);
+    double be2nd = l.pho_e2nd[ipho];//clustertools.e2nd(*b);
+    double betop = l.pho_etop[ipho];//clustertools.eTop(*b);
+    double bebottom = l.pho_ebottom[ipho];//clustertools.eBottom(*b);
+    double beleft = l.pho_eleft[ipho];//clustertools.eLeft(*b);
+    double beright = l.pho_eright[ipho];//clustertools.eRight(*b);
+
+    double be2x5max = l.pho_e2x5max[ipho];//clustertools.e2x5Max(*b);
+    double be2x5top = l.pho_e2x5top[ipho];//clustertools.e2x5Top(*b);
+    double be2x5bottom = l.pho_e2x5bottom[ipho];//clustertools.e2x5Bottom(*b);
+    double be2x5left = l.pho_e2x5left[ipho];//clustertools.e2x5Left(*b);
+    double be2x5right = l.pho_e2x5right[ipho];//clustertools.e2x5Right(*b);
+
+    double be5x5 = l.bc_s25[sc_seed_index];//clustertools.e5x5(*b);
+    double be3x3 = l.bc_s9[sc_seed_index];//clustertools.e5x5(*b);
+
+    _vals[10] = bcpos->Eta()-sc->Eta();
+    _vals[11] = l.DeltaPhi(bcpos->Phi(),sc->Phi());
+    _vals[12] = bcE/l.sc_raw[sc_index];
+    _vals[13] = be3x3/be5x5;
+    _vals[14] = l.bc_sieie[sc_seed_index]; //sigietaieta (this is stored in bc collection)
+    _vals[15] = TMath::Sqrt(l.pho_sipip[ipho]); //sigiphiiphi
+    _vals[16] = l.pho_sieip[ipho];//clustertools.localCovariances(*b)[1];       //sigietaiphi
+
+    _vals[17] = bemax/be5x5;                       //crystal energy ratio gap variables   
+    _vals[18] = be2nd/be5x5;
+    _vals[19] = betop/be5x5;
+    _vals[20] = bebottom/be5x5;
+    _vals[21] = beleft/be5x5;
+    _vals[22] = beright/be5x5;
+    _vals[23] = be2x5max/be5x5;                       //crystal energy ratio gap variables   
+    _vals[24] = be2x5top/be5x5;
+    _vals[25] = be2x5bottom/be5x5;
+    _vals[26] = be2x5left/be5x5;
+    _vals[27] = be2x5right/be5x5;
+
+    // V6 Is always Barrel so use that implementation !
+        //additional energy ratio (always ~1 for endcap, therefore only included for barrel)
+    _vals[28] = be5x5/bcE;
+
+    int bieta = l.pho_bieta[ipho];
+    int biphi = l.pho_biphi[ipho];     
+
+    _vals[29] = bieta; //crystal ieta
+    _vals[30] = biphi; //crystal iphi
+    _vals[31] = (bieta-1*std::abs(bieta)/bieta)%5;; //submodule boundary eta symmetry
+    _vals[32] = (biphi-1)%2; //submodule boundary phi symmetry
+    _vals[33] = (TMath::Abs(bieta)<=25)*((bieta-1*TMath::Abs(bieta)/bieta)%25) + (TMath::Abs(bieta)>25)*((bieta-26*TMath::Abs(bieta)/bieta)%20);  //module boundary eta approximate symmetry
+    _vals[34] = biphi%20; //module boundary phi symmetry
+    _vals[35] = l.pho_betacry[ipho];//betacry; //local coordinates with respect to closest crystal center at nominal shower depth
+    _vals[36] = l.pho_phicry[ipho];//bphicry;
+
+
+    double den = l.sc_raw[sc_index];
+    //set raw response variables from GBRForest
+    _sigma->setVal(_forestDeb->GetResponse(&_vals[0],0));
+    _mean->setVal(_forestDeb->GetResponse(&_vals[0],1));
+    _n1->setVal(_forestDeb->GetResponse(&_vals[0],2));
+    _n2->setVal(_forestDeb->GetResponse(&_vals[0],3));
+  
+    //retrieve final pdf parameter values from transformed forest outputs
+    cbmean = _meanlim->getVal();
+    cbsigma = _sigmalim->getVal();
+    cbalpha1 = 2.0;  //alpha hardcoded in this version of the regression
+    cbn1 = _n1lim->getVal();
+    cbalpha2 = 1.0;  //alpha hardcoded in this version of the regression
+    cbn2 = _n2lim->getVal();
+  
+    _tgt->setVal(cbmean); //evaluate pdf at peak position  
+    pdfpeakval = _pdf->getVal(*_tgt);
+    
+    //set final energy and relative energy resolution
+    *ecor = den*cbmean;
+    double sigEoverE = cbsigma/cbmean;
+    *ecorerr  = sigEoverE*(*ecor); // note difference from V5 convention
+    
+}
+
+void PhotonAnalysis::GetRegressionCorrectionsV5(LoopAll &l){
+
+    // v5 used for 8 TeV Energy Regression 
     // On the fly energy regression values
     for (int ipho=0;ipho<l.pho_n;ipho++){
 
@@ -5834,7 +6128,6 @@ void PhotonAnalysis::GetRegressionCorrections(LoopAll &l){
 
         // New semi-parametric regression 
         bool isbarrel = (fabs(sc->Eta())<1.48); 
-
 
         //   //basic supercluster variables
         _vals[0]  = l.sc_raw[sc_index];
