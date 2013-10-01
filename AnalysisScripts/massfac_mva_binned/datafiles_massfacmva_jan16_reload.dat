@@ -1,4 +1,4 @@
-intL=5089. histfile=/store/group/phys_higgs/cmshgg/analyzed/jan16reload/%(label)s/CMS-HGG.root output=eventList.txt
+sqrtS=7 intL=5089. histfile=/store/group/phys_higgs/cmshgg/analyzed/jan16reload/%(label)s/CMS-HGG.root output=eventList.txt
 
 #
 # Data

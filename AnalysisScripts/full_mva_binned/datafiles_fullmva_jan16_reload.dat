@@ -1,4 +1,4 @@
-intL=5089. histfile=/castor/cern.ch/user/n/nckw/HGG/%(label)s/CMS-HGG.root output=eventsList.txt
+sqrtS=7 intL=5089. histfile=/castor/cern.ch/user/n/nckw/HGG/%(label)s/CMS-HGG.root output=eventsList.txt
 
 #
 # Data
