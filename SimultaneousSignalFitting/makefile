@@ -24,7 +24,7 @@ $(error Must be inside a CMSSSW release)
 endif
 
 COMBINELIB = $(CMSSW_BASE)/lib/$(SCRAM_ARCH)/libHiggsAnalysisCombinedLimit.so
-H2GGLOBELIBE = ../libLoopAll.so
+H2GGLOBELIB = ../libLoopAll.so
 
 USERINCLUDES += -I$(ROOTSYS)/include
 ifeq ($(UNAME),Darwin)
@@ -42,11 +42,11 @@ USERLIBS += -L$(BOOST_PATH)/lib/ -lboost_regex -lboost_program_options
 USERINCLUDES += -I$(ROOFITSYS)/include
 USERLIBS += -L$(ROOFITSYS)/lib -lRooFit -lRooFitCore
 USERLIBS += -L$(CMSSW_BASE)/lib/$(SCRAM_ARCH)/ -lHiggsAnalysisCombinedLimit
-USERLIBS += -L../ -lLoopAll
+USERLIBS += -L$(PWD)/../ -lLoopAll
 endif
 
 USERLIBS += $(shell root-config --glibs) -lTMVA -lMinuit -lFoam -lRooFit -lRooFitCore 
-CXXFLAGS = -Wall -g -Wl,-rpath=$(BASEDIR)/lib 
+CXXFLAGS = -Wall -g -Wl,-rpath=$(BASEDIR)/lib:$(BASEDIR)/../ 
 LDFLAGS = -shared -W 
 
 CXX=g++
