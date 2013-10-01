@@ -58,9 +58,10 @@ class LoopAll {
   std::vector<Cut> cutContainer;
   //std::vector<TreeContainer> treeContainer;	 
   std::map<std::string, std::vector<TreeContainer> > treeContainer;	 
-
+  
   RooContainer *rooContainer;
-  Normalization_8TeV *signalNormalizer;
+  int sqrtS;
+  Normalization_8TeV * normalizer();
   
   LoopAll(TTree *tree=0);
   virtual ~LoopAll();
@@ -1269,6 +1270,8 @@ void VHNewLeptonCategorization(bool & VHlep1event, bool & VHlep2event, int dipho
 void VHTwoMuonsEvents(bool & VHlep1event, bool & VHlep2event, int & diphotonVHlep_id, int & muVtx, float* smeared_pho_energy, float leadEtVHlepCut, float subleadEtVHlepCut, bool applyPtoverM);
 void VHTwoElectronsEvents(bool & VHlep1event, bool & VHlep2event, int & diphotonVHlep_id, int & elVtx, float* smeared_pho_energy, float leadEtVHlepCut, float subleadEtVHlepCut, bool applyPtoverM);
  
+private:
+  Normalization_8TeV *signalNormalizer;
 
 #ifdef NewFeatures
 #include "Marco/plotInteractive_h.h"

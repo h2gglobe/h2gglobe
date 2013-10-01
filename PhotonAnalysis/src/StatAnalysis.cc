@@ -62,7 +62,7 @@ void StatAnalysis::Term(LoopAll& l)
 
     std::string outputfilename = (std::string) l.histFileName;
     // Make Fits to the data-sets and systematic sets
-    std::string postfix=(dataIs2011?"":"_8TeV");
+    std::string postfix=Form("_%dTeV",l.sqrtS);
     l.rooContainer->FitToData("data_pol_model"+postfix,"data_mass");  // Fit to full range of dataset
 
     //    l.rooContainer->WriteSpecificCategoryDataCards(outputfilename,"data_mass","sig_mass","data_pol_model");
@@ -350,13 +350,13 @@ void StatAnalysis::Init(LoopAll& l)
     // SM Model
     for(size_t isig=0; isig<sigPointsToBook.size(); ++isig) {
         int sig = sigPointsToBook[isig];
-        l.rooContainer->AddConstant(Form("XSBR_ggh_%d",sig),l.signalNormalizer->GetXsection(double(sig),"ggh")*l.signalNormalizer->GetBR(double(sig)));
+        l.rooContainer->AddConstant(Form("XSBR_ggh_%d",sig),l.normalizer()->GetXsection(double(sig),"ggh")*l.normalizer()->GetBR(double(sig)));
     }
 
     // -----------------------------------------------------
     // Configurable background model
     // if no configuration was given, set some defaults
-    std::string postfix=(dataIs2011?"":"_8TeV");
+    std::string postfix=Form("_%dTeV",l.sqrtS);
 
     if( bkgPolOrderByCat.empty() ) {
         for(int i=0; i<nCategories_; i++){
@@ -1089,7 +1089,7 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 
         // save trees for unbinned datacards
         int inc_cat = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,R9CatBoundary,nPtCategories,nVtxCategories,l.vtx_std_n);
-        if (!isSyst && cur_type<0 && saveDatacardTrees_ && TMath::Abs(datacardTreeMass-l.signalNormalizer->GetMass(cur_type))<0.001) saveDatCardTree(l,cur_type,category, inc_cat, evweight, diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],lead_p4,sublead_p4,true,GetSignalLabel(cur_type,l));
+        if (!isSyst && cur_type<0 && saveDatacardTrees_ && TMath::Abs(datacardTreeMass-l.normalizer()->GetMass(cur_type))<0.001) saveDatCardTree(l,cur_type,category, inc_cat, evweight, diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],lead_p4,sublead_p4,true,GetSignalLabel(cur_type,l));
 
         float vtx_mva  = l.vtx_std_evt_mva->at(diphoton_id);
         float vtxProb   = 1.-0.49*(vtx_mva+1.0); /// should better use this: vtxAna_.setPairID(diphoton_id); vtxAna_.vertexProbability(vtx_mva); PM
@@ -1587,10 +1587,10 @@ void StatAnalysis::computeSpinCategory(LoopAll &l, int &category, TLorentzVector
     double cosTheta;
     int cosThetaCategory=-1;
     if (cosThetaDef=="CS"){
-        cosTheta = getCosThetaCS(lead_p4,sublead_p4);
+        cosTheta = getCosThetaCS(lead_p4,sublead_p4,l.sqrtS);
     }
     else if (cosThetaDef=="HX"){
-        cosTheta = getCosThetaHX(lead_p4,sublead_p4);
+        cosTheta = getCosThetaHX(lead_p4,sublead_p4,l.sqrtS);
     }
     else {
         cout << "ERROR -- cosThetaDef - " << cosThetaDef << " not recognised" << endl;
@@ -1858,7 +1858,7 @@ double StatAnalysis::GetDifferentialKfactor(double gPT, int Mass)
 
 void StatAnalysis::FillSignalLabelMap(LoopAll & l)
 {
-    std::map<int,std::pair<TString,double > > & signalMap = l.signalNormalizer->SignalType();
+    std::map<int,std::pair<TString,double > > & signalMap = l.normalizer()->SignalType();
 
     for( std::map<int,std::pair<TString,double > >::iterator it=signalMap.begin();
             it!=signalMap.end(); ++it ) {

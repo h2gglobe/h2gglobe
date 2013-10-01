@@ -3,16 +3,9 @@
 #include "TSystem.h"
 
 Normalization_8TeV::Normalization_8TeV(){
-	is2011_ = false;
-	Init(false);
 }
 
-Normalization_8TeV::Normalization_8TeV(bool is2011){
-	is2011_=is2011;
-	Init(is2011);
-}
-
-void Normalization_8TeV::Init(bool is2011){
+void Normalization_8TeV::Init(int sqrtS){
 
     //TPython::Exec("import $(CMSSW_BASE).src.h2gglobe.AnalysisScripts.AnalysisScripts.python.buildSMHiggsSignalXSBR");
     TPython::Exec("import os,imp");
@@ -21,8 +14,7 @@ void Normalization_8TeV::Init(bool is2011){
     if( ! TPython::Exec(Form("buildSMHiggsSignalXSBR = imp.load_source('*', '%s/python/buildSMHiggsSignalXSBR.py')",globeRt.c_str())) ) {
 	    return;
     }
-    if (is2011) TPython::Eval("buildSMHiggsSignalXSBR.Init7TeV()");
-    else        TPython::Eval("buildSMHiggsSignalXSBR.Init8TeV()");
+    TPython::Eval(Form("buildSMHiggsSignalXSBR.Init%dTeV()", sqrtS));
     
     for (double mH=90.0;mH<=250.0;mH+=0.1){ // Do we need this up to 250 ?
 	double valBR    =  (double)TPython::Eval(Form("buildSMHiggsSignalXSBR.getBR(%f)",mH));
