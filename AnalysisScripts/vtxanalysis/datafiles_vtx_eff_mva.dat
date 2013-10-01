@@ -1,9 +1,9 @@
 intL=5346. histfile=vtxeff_evt2012_53x_mva.root output=output.root
 
-typ=-37 ind=1 draw=1  Nam=ggh_m125_8TeV  CaDir=/store/group/phys_higgs/cmshgg/reduced/HCP2012_freezing_v2/mc/Summer12_S10_8TeV/GluGluToHToGG_M-125_8TeV-powheg-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
-typ=-38 ind=2 draw=1  Nam=vbf_m125_8TeV     CaDir=/store/group/phys_higgs/cmshgg/reduced/HCP2012_freezing_v2/mc/Summer12_S10_8TeV/VBF_HToGG_M-125_8TeV-powheg-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
-### typ=-40 ind=4 draw=1  Nam=wzh_m125_8TeV      CaDir=/store/group/phys_higgs/cmshgg/reduced/HCP2012_freezing_v2/mc/Summer12_S10_8TeV/WH_ZH_HToGG_M-125_8TeV-pythia6_Summer12-PU_S7_START52_V9-v2    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
-### typ=-39 ind=3 draw=1  Nam=tth_m125_8TeV      CaDir=/store/group/phys_higgs/cmshgg/reduced/HCP2012_freezing_v2/mc/Summer12_S10_8TeV/TTH_HToGG_M-125_8TeV-pythia6_Summer12-PU_S7_START52_V9-v2    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000 maxfiles=2
+typ=-1 ind=1 draw=1  Nam=ggh_m125_8TeV  CaDir=/store/group/phys_higgs/cmshgg/reduced/HCP2012_freezing_v2/mc/Summer12_S10_8TeV/GluGluToHToGG_M-125_8TeV-powheg-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-1 ind=2 draw=1  Nam=vbf_m125_8TeV     CaDir=/store/group/phys_higgs/cmshgg/reduced/HCP2012_freezing_v2/mc/Summer12_S10_8TeV/VBF_HToGG_M-125_8TeV-powheg-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+### typ=-1 ind=4 draw=1  Nam=wzh_m125_8TeV      CaDir=/store/group/phys_higgs/cmshgg/reduced/HCP2012_freezing_v2/mc/Summer12_S10_8TeV/WH_ZH_HToGG_M-125_8TeV-pythia6_Summer12-PU_S7_START52_V9-v2    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+### typ=-1 ind=3 draw=1  Nam=tth_m125_8TeV      CaDir=/store/group/phys_higgs/cmshgg/reduced/HCP2012_freezing_v2/mc/Summer12_S10_8TeV/TTH_HToGG_M-125_8TeV-pythia6_Summer12-PU_S7_START52_V9-v2    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000 maxfiles=2
 
 # 
 # Branches to use

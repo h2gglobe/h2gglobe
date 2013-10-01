@@ -25,7 +25,7 @@ typ=0    ind=0 draw=1  Nam=Data    CaDir=/store/group/phys_higgs/cmshgg/reduced/
 #
 # DY MC
 #
-typ=-38    ind=98 draw=1  Nam=DYJetsToLL   CaDir=/store/group/phys_higgs/cmshgg/reduced/V14_00_02_v2/Summer12_S10_8TeV/DYJetsToLL_M-50    red=0   lum=1.e10  xsec=2950.0   kfac=1.15  scal=1.
+typ=-1    ind=98 draw=1  Nam=DYJetsToLL   CaDir=/store/group/phys_higgs/cmshgg/reduced/V14_00_02_v2/Summer12_S10_8TeV/DYJetsToLL_M-50    red=0   lum=1.e10  xsec=2950.0   kfac=1.15  scal=1.
 
 ##
 ## Branches to use

@@ -24,10 +24,10 @@ typ=0    ind=0 draw=1  Nam=Data    CaDir=/store/group/phys_higgs/cmshgg/reduced/
 typ=0    ind=0 draw=1  Nam=Data    CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/data/DoublePhotonPromptReco2012B_sub2  tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=aux/Cert_ICHEP_TopUp_535fb.json
 typ=0    ind=0 draw=1  Nam=Data    CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/data/DoublePhotonPromptReco2012B_sub3  tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=aux/Cert_ICHEP_TopUp_535fb.json
 
-typ=-37 ind=1 draw=1  Nam=ggh_m125_8TeV  CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/GluGluToHToGG_M-125_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
-typ=-38 ind=2 draw=1  Nam=vbf_m125_8TeV     CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/VBF_HToGG_M-125_8TeV        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
-typ=-40 ind=4 draw=1  Nam=wzh_m125_8TeV      CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/WH_ZH_HToGG_M-125_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
-typ=-39 ind=3 draw=1  Nam=tth_m125_8TeV      CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/TTH_HToGG_M-125_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000 maxfiles=2
+typ=-1 ind=1 draw=1  Nam=ggh_m125_8TeV  CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/GluGluToHToGG_M-125_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-1 ind=2 draw=1  Nam=vbf_m125_8TeV     CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/VBF_HToGG_M-125_8TeV        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-1 ind=4 draw=1  Nam=wzh_m125_8TeV      CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/WH_ZH_HToGG_M-125_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-1 ind=3 draw=1  Nam=tth_m125_8TeV      CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/TTH_HToGG_M-125_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000 maxfiles=2
 
 # 
 # Branches to use

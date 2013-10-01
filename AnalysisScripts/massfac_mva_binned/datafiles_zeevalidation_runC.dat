@@ -12,7 +12,7 @@ typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal
 #
 # DY MC
 #
-typ=-38    ind=98 draw=1  Nam=DYJetsToLL   CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v1/mc/Summer12_S10_8TeV/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1    red=0   lum=1.e10  xsec=3532.8 kfac=1.0  scal=1.
+typ=-1    ind=98 draw=1  Nam=DYJetsToLL   CaDir=/store/group/phys_higgs/cmshgg/reduced/moriond2013_reduction_v1/mc/Summer12_S10_8TeV/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1    red=0   lum=1.e10  xsec=3532.8 kfac=1.0  scal=1.
 
 ##
 ## Branches to use

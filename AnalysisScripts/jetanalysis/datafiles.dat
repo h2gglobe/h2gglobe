@@ -2,8 +2,8 @@
 ## intL=1. histfile=jetid_nowei_true_vtx0.root output=shifo.root
 intL=1. histfile=jetanalysis.root output=shifo.root
 
-typ=-26 ind=10 draw=1  Nam=vbf_H_gg_120_8TeV    CaDir=/store/cmst3/user/musella/globe_tuples/18_05_2012_fixJEC_reduction/VBF_HToGG_M-120  red=0 lum=1000000.0  xsec=1.61 kfac=2.04e-03   scal=1.
-typ=-26 ind=10 draw=1  Nam=dyjets_8TeV    CaDir=/store/cmst3/user/musella/globe_tuples/18_05_2012_fixJEC_reduction/DYJetsToLL_M-50  red=0 lum=1000000.0  xsec=1.61 kfac=2.04e-03   scal=1.
+typ=-1 ind=10 draw=1  Nam=vbf_m120_8TeV    CaDir=/store/cmst3/user/musella/globe_tuples/18_05_2012_fixJEC_reduction/VBF_HToGG_M-120  red=0 lum=1000000.0  xsec=1.61 kfac=2.04e-03   scal=1.
+typ=-1 ind=10 draw=1  Nam=dyjets_8TeV    CaDir=/store/cmst3/user/musella/globe_tuples/18_05_2012_fixJEC_reduction/DYJetsToLL_M-50  red=0 lum=1000000.0  xsec=1.61 kfac=2.04e-03   scal=1.
 
 ##
 ## Branches to use

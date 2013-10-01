@@ -3,7 +3,7 @@ intL=19620. histfile=/afs/cern.ch/user/s/swmukher/work/FutureHiggsStudy/New/CMSS
 #
 # Signal
 #
-split typ=-33 ind=1 draw=1   Nam=ggh_8TeV  CaDir=/store/group/phys_higgs/cmshgg/processed/V15_00_08/mc/Summer12_RD1/GluGluToHToGG_M-125_8TeV-powheg-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1  lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
+split typ=-33 ind=1 draw=1   Nam=ggh_m125_8TeV  CaDir=/store/group/phys_higgs/cmshgg/processed/V15_00_08/mc/Summer12_RD1/GluGluToHToGG_M-125_8TeV-powheg-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1  lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000
 
 split typ=-34 ind=1 draw=1   Nam=ggh_14TeV_PU50  CaDir=/store/group/phys_higgs/cmshgg/processed/V16_00_02/mc/Summer12_POSTLS1_14TeV/GluGluToHToGG_M-125_14TeV-powheg-pythia6_PU50  lum=1000000.0   xsec=49.85   kfac=1.000000   scal=1.000000
 
