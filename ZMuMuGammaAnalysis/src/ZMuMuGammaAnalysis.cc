@@ -32,7 +32,7 @@ void ZMuMuGammaAnalysis::Init(LoopAll& l)
 //----------------------------------------------------------------------------------------------------
 bool ZMuMuGammaAnalysis::SkimEvents(LoopAll& l, int jentry)
 {
-    if( dataIs2011 ) { l.version=12; }
+    if( run7TeV4Xanalysis ) { l.version=12; }
     else { l.version=13; }
 
     return true;

@@ -286,12 +286,12 @@ bool VbfAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentzV
         // easy to calculate vertex probability from vtx mva output
         float vtxProb   = 1.-0.49*(vtx_mva+1.0); 
 
-        float phoid_mvaout_lead = ( dataIs2011 ? 
+        float phoid_mvaout_lead = ( run7TeV4Xanalysis ? 
 				    l.photonIDMVA(diphoton_index.first,l.dipho_vtxind[diphoton_id],
 						  lead_p4,bdtTrainingPhilosophy.c_str()) :
 				    l.photonIDMVANew(diphoton_index.first,l.dipho_vtxind[diphoton_id],
 						     lead_p4,bdtTrainingPhilosophy.c_str()) );
-        float phoid_mvaout_sublead = ( dataIs2011 ? 
+        float phoid_mvaout_sublead = ( run7TeV4Xanalysis ? 
 				       l.photonIDMVA(diphoton_index.second,l.dipho_vtxind[diphoton_id],
 						     sublead_p4,bdtTrainingPhilosophy.c_str()) : 
 				       l.photonIDMVANew(diphoton_index.second,l.dipho_vtxind[diphoton_id],

@@ -634,7 +634,7 @@ bool StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     if (l.runZeeValidation) l.runCiC=true;
 
     // make sure that rho is properly set
-    if( dataIs2011 ) {
+    if( run7TeV4Xanalysis ) {
         l.version = 12;
     }
     if( l.version >= 13 && forcedRho < 0. ) {
@@ -923,7 +923,7 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
         // lepton tag
         if(includeVHlep){
             //Add tighter cut on dr to tk
-            if(dataIs2011){
+            if(run7TeV4Xanalysis){
                 diphotonVHlep_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVHlepCut, subleadEtVHlepCut, 4, false, &smeared_pho_energy[0], true, true );
                 if(l.pho_drtotk_25_99[l.dipho_leadind[diphotonVHlep_id]] < 1 || l.pho_drtotk_25_99[l.dipho_subleadind[diphotonVHlep_id]] < 1) diphotonVHlep_id = -1;
                 VHmuevent=MuonTag2011(l, diphotonVHlep_id, &smeared_pho_energy[0]);
@@ -966,7 +966,7 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
                 float myweight=1.;
                 if(eventweight*sampleweight!=0) myweight=eventweight/sampleweight;
 
-                VBFevent= ( dataIs2011 ?
+                VBFevent= ( run7TeV4Xanalysis ?
                         VBFTag2011(l, diphotonVBF_id, &smeared_pho_energy[0], true, eventweight, myweight) :
                         VBFTag2012(vbfIjet1, vbfIjet2, l, diphotonVBF_id, &smeared_pho_energy[0], true, eventweight, myweight) )
                     ;
@@ -1959,7 +1959,7 @@ void StatAnalysis::rescaleClusterVariables(LoopAll &l){
     // Data-driven MC scalings
     for (int ipho=0;ipho<l.pho_n;ipho++){
 
-        if (dataIs2011) {
+        if (run7TeV4Xanalysis) {
 
             if( scaleR9Only ) {
                 double R9_rescale = (l.pho_isEB[ipho]) ? 1.0048 : 1.00492 ;

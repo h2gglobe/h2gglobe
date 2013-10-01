@@ -81,7 +81,7 @@ class PhotonAnalysis : public BaseAnalysis
 
     // Options
     float phoidMvaCut;
-    bool dataIs2011;
+    bool run7TeV4Xanalysis;
     bool includeVBF;
     bool includeVHhad;
     bool includeVHhadBtag;

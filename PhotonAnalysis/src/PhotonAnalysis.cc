@@ -132,7 +132,7 @@ PhotonAnalysis::PhotonAnalysis()  :
     corr_smearing_file = "";
     mass_resol_file = "";
 
-    dataIs2011 = false;
+    run7TeV4Xanalysis = false;
 
     emulateBeamspot = false;
     reweighBeamspot = false;
@@ -1306,7 +1306,7 @@ void PhotonAnalysis::Init(LoopAll& l)
 	beamspotWidth = emulatedBeamspotWidth;
     }
     if( beamspotWidth == 0. ) {
-        beamspotWidth = (dataIs2011 ? 5.8 : 4.8);
+        beamspotWidth = (run7TeV4Xanalysis ? 5.8 : 4.8);
     }
     if (reweighPt) {
         ptreweighfile = TFile::Open(ptreweighfilename.c_str());
@@ -1389,14 +1389,14 @@ void PhotonAnalysis::Init(LoopAll& l)
         l.tmvaReaderID_Single_Barrel->BookMVA("AdaBoost",photonLevelNewIDMVA_EB.c_str());
         l.tmvaReaderID_Single_Endcap->BookMVA("AdaBoost",photonLevelNewIDMVA_EE.c_str());
     } else {
-        assert( dataIs2011 );
+        assert( run7TeV4Xanalysis );
     }
     // MIT 
     if( photonLevelMvaMIT_EB != "" && photonLevelMvaMIT_EE != "" ) {
         l.tmvaReaderID_MIT_Barrel->BookMVA("AdaBoost",photonLevelMvaMIT_EB.c_str());
         l.tmvaReaderID_MIT_Endcap->BookMVA("AdaBoost",photonLevelMvaMIT_EE.c_str());
     } else {
-        assert( ! dataIs2011 );
+        assert( ! run7TeV4Xanalysis );
     }
     l.tmvaReader_dipho_MIT->BookMVA("Gradient"   ,eventLevelMvaMIT.c_str()    );
     // ----------------------------------------------------------------------//    
@@ -2185,7 +2185,7 @@ bool PhotonAnalysis::SkimEvents(LoopAll& l, int jentry)
     static TH1F * promptFakeFractions = 0;
     static TH1F * promptMotherStatus = 0;
     static TH1F * fakeMotherStatus = 0;
-    if( dataIs2011 ) { l.version=12; }
+    if( run7TeV4Xanalysis ) { l.version=12; }
     
     
     l.b_pho_n->GetEntry(jentry);
@@ -3287,12 +3287,12 @@ bool PhotonAnalysis::ElectronStudies2012B(LoopAll& l, float* smeared_pho_energy,
         }
     }
 
-    myEl_MVAlead    = ( dataIs2011 ?
+    myEl_MVAlead    = ( run7TeV4Xanalysis ?
                     l.photonIDMVA(l.dipho_leadind[diphotonVHlep_id], elVtx,
                         lead_p4,bdtTrainingPhilosophy.c_str()) :
                     l.photonIDMVANew(l.dipho_leadind[diphotonVHlep_id], elVtx,
                         lead_p4,bdtTrainingPhilosophy.c_str()) ); //photonIDMVAShift_EB );
-    myEl_MVAsub     = ( dataIs2011 ?
+    myEl_MVAsub     = ( run7TeV4Xanalysis ?
                     l.photonIDMVA(l.dipho_subleadind[diphotonVHlep_id], elVtx,
                         sublead_p4,bdtTrainingPhilosophy.c_str()) :
                     l.photonIDMVANew(l.dipho_subleadind[diphotonVHlep_id], elVtx,
@@ -3531,12 +3531,12 @@ bool PhotonAnalysis::ElectronTagStudies2012(LoopAll& l, int diphotonVHlep_id, fl
         }
     }
 
-    myEl_MVAlead    = ( dataIs2011 ?
+    myEl_MVAlead    = ( run7TeV4Xanalysis ?
                     l.photonIDMVA(leadpho_ind, elVtx,
                         lead_p4,bdtTrainingPhilosophy.c_str()) :
                     l.photonIDMVANew(leadpho_ind, elVtx,
                         lead_p4,bdtTrainingPhilosophy.c_str()) ); //photonIDMVAShift_EB );
-    myEl_MVAsub     = ( dataIs2011 ?
+    myEl_MVAsub     = ( run7TeV4Xanalysis ?
                     l.photonIDMVA(subleadpho_ind, elVtx,
                         sublead_p4,bdtTrainingPhilosophy.c_str()) :
                     l.photonIDMVANew(subleadpho_ind, elVtx,
@@ -5705,12 +5705,12 @@ float PhotonAnalysis::getDiphoBDTOutput(LoopAll &l,int diphoton_id, TLorentzVect
 
     
     
-    phoid_mvaout_lead = ( dataIs2011 ?
+    phoid_mvaout_lead = ( run7TeV4Xanalysis ?
 			  l.photonIDMVA(l.dipho_leadind[diphoton_id],0,lead_p4,
 					bdtTrainingPhilosophy.c_str()) :
 			  l.photonIDMVANew(l.dipho_leadind[diphoton_id],0,
 					   lead_p4,bdtTrainingPhilosophy.c_str()) );
-    phoid_mvaout_sublead =( dataIs2011 ?
+    phoid_mvaout_sublead =( run7TeV4Xanalysis ?
 			    l.photonIDMVA(l.dipho_subleadind[diphoton_id],0,lead_p4,
 					  bdtTrainingPhilosophy.c_str()) :
 			    l.photonIDMVANew(l.dipho_subleadind[diphoton_id],0,
