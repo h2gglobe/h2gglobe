@@ -264,6 +264,10 @@ TString Normalization_8TeV::GetProcess(int ty){
     else if (process == 300) return "zh";
     else if (process == 400) return "tth";
     else if (process == 500) return "wzh";
+    else if (process == 500) return "wzh";
+    else if (process == 600) return "gg_grav";
+    else if (process == 610) return "gg_spin0";
+    else if (process == 650) return "qq_grav";
 
   } else {
     return SignalTypeMap[ty].first;
@@ -292,7 +296,7 @@ double Normalization_8TeV::GetMass(int ty){
 //// }
 
 double Normalization_8TeV::GetXsection(double mass) {
-  return GetXsection(mass,"ggh") + GetXsection(mass,"vbf") + GetXsection(mass,"wzh") + GetXsection(mass,"tth");//GetXsection(mass,"wh") + GetXsection(mass,"zh") + GetXsection(mass,"tth");
+  return GetXsection(mass,"ggh") + GetXsection(mass,"vbf") + GetXsection(mass,"wzh") + GetXsection(mass,"tth");
 }
 
 double Normalization_8TeV::GetNorm(double mass1, TH1F* hist1, double mass2, TH1F* hist2, double mass) {

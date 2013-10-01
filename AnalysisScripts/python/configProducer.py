@@ -856,6 +856,15 @@ class configProducer:
 	  elif "zh" in sample_name: 
 		newtype+=300
 		proc="zh"
+          elif "gg_grav" in sample_name or "grav2pm" in sample_name:
+                newtype+=600
+                proc="gg_grav"
+          elif "spin0plus" in sample_name:
+                newtype+=610
+                proc="gg_spin0"
+          elif "qq_grav" in sample_name:
+                newtype+=650
+                proc="qq_grav"
 	  map_c["typ"]=-1*newtype
           print "Automatic sample type name:%s mass:%d proc:%s type:%d " % (sample_name, hmass, proc, -newtype)
           if map_c["xsec"] < 0: # not provided so figure it out ourselves
