@@ -16,6 +16,7 @@ parser.add_option("--nllTolerance",type="float",default=0.05,help="Tolerance for
 parser.add_option("--blind",default=False,action="store_true",help="Blind the mass spectrum in the range [110,150]")
 parser.add_option("--runLocal",default=False,action="store_true",help="Run locally")
 parser.add_option("--dryRun",default=False,action="store_true",help="Dont submit jobs")
+parser.add_option("-v","--verbose",default=False,action="store_true",help="Print more output")
 (options,args) = parser.parse_args()
 
 import os
@@ -44,6 +45,8 @@ for cat in range(options.cats):
 		execLine += ' --useBinnedData'
 	if options.makeCrossCheckProfPlots:
 		execLine += ' --makeCrossCheckProfPlots'
+	if options.verbose:
+		execLine += ' --verbose'
 	f.write('%s\n'%execLine);
 	f.close()
 	
