@@ -250,7 +250,7 @@ void StatAnalysis::Init(LoopAll& l)
     if(doKFactorSmear) {
         // kFactor efficiency
         std::cerr << __LINE__ << std::endl;
-        kFactorSmearer = new KFactorSmearer( kfacHist, l.signalNormalizer );
+        kFactorSmearer = new KFactorSmearer( kfacHist, l.normalizer() );
         kFactorSmearer->name("kFactor");
         kFactorSmearer->init();
         genLevelSmearers_.push_back(kFactorSmearer);
@@ -258,7 +258,7 @@ void StatAnalysis::Init(LoopAll& l)
     if(doPtSpinSmear) {
         // ptSpin efficiency
         std::cerr << __LINE__ << std::endl;
-        ptSpinSmearer = new PtSpinSmearer( ptspinHist, l.signalNormalizer );
+        ptSpinSmearer = new PtSpinSmearer( ptspinHist, l.normalizer() );
         ptSpinSmearer->name("ptSpin");
         ptSpinSmearer->init();
         genLevelSmearers_.push_back(ptSpinSmearer);
@@ -266,7 +266,7 @@ void StatAnalysis::Init(LoopAll& l)
     if(doInterferenceSmear) {
         // interference efficiency
         std::cerr << __LINE__ << std::endl;
-        interferenceSmearer = new InterferenceSmearer( l.signalNormalizer, 2.5e-2,0.);
+        interferenceSmearer = new InterferenceSmearer( l.normalizer(), 2.5e-2,0.);
         genLevelSmearers_.push_back(interferenceSmearer);
     }
 
@@ -1871,7 +1871,7 @@ std::string StatAnalysis::GetSignalLabel(int id, LoopAll &l){
     // For the lazy man, can return a memeber of the map rather than doing it yourself
     std::map<int,std::string>::iterator it = signalLabels.find(id);
     if( it == signalLabels.end() ) {
-	std::string lab = Form("%s_mass_m%1.0f",l.signalNormalizer->GetProcess(id).Data(),l.signalNormalizer->GetMass(id));
+	std::string lab = Form("%s_mass_m%1.0f",l.normalizer()->GetProcess(id).Data(),l.normalizer()->GetMass(id));
 	it = signalLabels.insert( std::make_pair(id,lab) ).first;
     }
     

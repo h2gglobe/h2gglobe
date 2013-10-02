@@ -153,7 +153,7 @@ void CategoryAnalysis::Init(LoopAll& l)
     if(doKFactorSmear) {
         // kFactor efficiency
         std::cerr << __LINE__ << std::endl; 
-        kFactorSmearer = new KFactorSmearer( kfacHist, l.signalNormalizer );
+        kFactorSmearer = new KFactorSmearer( kfacHist, l.normalizer() );
         kFactorSmearer->name("kFactor");
         kFactorSmearer->init();
         genLevelSmearers_.push_back(kFactorSmearer);
@@ -161,7 +161,7 @@ void CategoryAnalysis::Init(LoopAll& l)
     if(doPdfWeightSmear) {
         // PdfWeights efficiency (For now only consider QCD Scale Uncertainty 
         std::cerr << __LINE__ << std::endl; 
-        pdfWeightSmearer = new PdfWeightSmearer( pdfWeightHist,l.signalNormalizer,"up","down");
+        pdfWeightSmearer = new PdfWeightSmearer( pdfWeightHist,l.normalizer(),"up","down");
         pdfWeightSmearer->name("pdfWeight");
         pdfWeightSmearer->init();
         genLevelSmearers_.push_back(pdfWeightSmearer);
@@ -169,7 +169,7 @@ void CategoryAnalysis::Init(LoopAll& l)
     if(doInterferenceSmear) {
         // interference efficiency
         std::cerr << __LINE__ << std::endl; 
-        interferenceSmearer = new InterferenceSmearer(l.signalNormalizer,2.5e-2,0.);
+        interferenceSmearer = new InterferenceSmearer(l.normalizer(),2.5e-2,0.);
         genLevelSmearers_.push_back(interferenceSmearer);
     }
 
