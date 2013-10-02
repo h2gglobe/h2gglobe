@@ -372,7 +372,7 @@ void MvaAnalysis::Init(LoopAll& l)
     l.tmvaReaderID_UCSD->BookMVA("Gradient"      ,photonLevelMvaUCSD.c_str()  );
     l.tmvaReader_dipho_UCSD->BookMVA("Gradient"  ,eventLevelMvaUCSD.c_str()   );
     cout << "Booking MVA..." << endl;
-    if (dataIs2011){
+    if (run7TeV4Xanalysis){
         // MIT ID MVA
         l.tmvaReaderID_MIT_Barrel->BookMVA("AdaBoost",photonLevelMvaMIT_EB.c_str());
         l.tmvaReaderID_MIT_Endcap->BookMVA("AdaBoost",photonLevelMvaMIT_EE.c_str());

@@ -412,7 +412,7 @@ void LoopAll::Term(){
 
 // ------------------------------------------------------------------------------------
 LoopAll::LoopAll(TTree *tree) :
-	counters(4,0.), countersred(4,0.), checkBench(0)
+    counters(4,0.), countersred(4,0.), checkBench(0), sqrtS(8)
 {  
 #include "branchdef/newclonesarray.h"
 
@@ -422,12 +422,13 @@ LoopAll::LoopAll(TTree *tree) :
 #endif
 
   rooContainer       = new RooContainer();
-  signalNormalizer   = new Normalization_8TeV();
+  signalNormalizer   = 0;
+  /// signalNormalizer   = new Normalization_8TeV();
 
   rooContainer->BlindData();	// 2012 requires that we Blind our data
   // Best Set Global parameters accesible via python to defauls
-
-  signalNormalizer->FillSignalTypes();
+  
+  /// signalNormalizer->FillSignalTypes();
 
   runZeeValidation = false;
   makeDummyTrees = false;
@@ -1507,7 +1508,18 @@ bool LoopAll::CheckEventList( int run, int lumi, int event  )
 }
 
 
+// ----------------------------------------------------------------------------------------------------------------------
+Normalization_8TeV * LoopAll::normalizer()
+{
+    if( signalNormalizer == 0 ) { 
+	signalNormalizer = new Normalization_8TeV();
+	signalNormalizer->Init(sqrtS);
+	signalNormalizer->FillSignalTypes();
+    }
+    return signalNormalizer;
+}
 
+// ----------------------------------------------------------------------------------------------------------------------
 float LoopAll::GetCutValue(TString cutname, int icat, int highcut) {
   for (unsigned int i=0; i<cutContainer.size(); i++) {
     if(cutContainer[i].name == cutname) {

@@ -225,17 +225,17 @@ void CategoryAnalysis::Init(LoopAll& l)
     l.tmvaReader_dipho_UCSD->BookMVA("Gradient"  ,eventLevelMvaUCSD.c_str()   );
     // New ID MVA
     if( photonLevelNewIDMVA_EB != "" && photonLevelNewIDMVA_EE != "" ) {
-    l.tmvaReaderID_Single_Barrel->BookMVA("AdaBoost",photonLevelNewIDMVA_EB.c_str());
-    l.tmvaReaderID_Single_Endcap->BookMVA("AdaBoost",photonLevelNewIDMVA_EE.c_str());
+	l.tmvaReaderID_Single_Barrel->BookMVA("AdaBoost",photonLevelNewIDMVA_EB.c_str());
+	l.tmvaReaderID_Single_Endcap->BookMVA("AdaBoost",photonLevelNewIDMVA_EE.c_str());
     } else { 
-    assert( dataIs2011 );
+	assert( run7TeV4Xanalysis );
     }
     // MIT 
     if( photonLevelMvaMIT_EB != "" && photonLevelMvaMIT_EE != "" ) {
-    l.tmvaReaderID_MIT_Barrel->BookMVA("AdaBoost",photonLevelMvaMIT_EB.c_str());
-    l.tmvaReaderID_MIT_Endcap->BookMVA("AdaBoost",photonLevelMvaMIT_EE.c_str());
+	l.tmvaReaderID_MIT_Barrel->BookMVA("AdaBoost",photonLevelMvaMIT_EB.c_str());
+	l.tmvaReaderID_MIT_Endcap->BookMVA("AdaBoost",photonLevelMvaMIT_EE.c_str());
     } else {
-    assert( ! dataIs2011 );
+	assert( ! run7TeV4Xanalysis );
     }
     l.tmvaReader_dipho_MIT->BookMVA("Gradient"   ,eventLevelMvaMIT.c_str()    );
     // ----------------------------------------------------------------------//
@@ -317,7 +317,7 @@ bool CategoryAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLor
 	}
     }
 
-    if(includeVHmet && !dataIs2011) {
+    if(includeVHmet && !run7TeV4Xanalysis) {
 	//	    std::cout << "+++PFMET UNCORR " << l.met_pfmet << std::endl;
 	if(!isSyst) VHmetevent=METTag2012B(l, diphotonVHmet_id, VHmetevent_cat, &smeared_pho_energy[0], met_sync, true, phoidMvaCut, false); 
 	if(isSyst)  VHmetevent=METTag2012B(l, diphotonVHmet_id, VHmetevent_cat, &smeared_pho_energy[0], met_sync, true, phoidMvaCut, true); 

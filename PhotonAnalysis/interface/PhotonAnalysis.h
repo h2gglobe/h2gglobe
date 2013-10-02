@@ -81,7 +81,7 @@ class PhotonAnalysis : public BaseAnalysis
 
     // Options
     float phoidMvaCut;
-    bool dataIs2011;
+    bool run7TeV4Xanalysis;
     bool includeVBF;
     bool includeVHhad;
     bool includeVHhadBtag;
@@ -568,12 +568,12 @@ class PhotonAnalysis : public BaseAnalysis
 				float & evweight, float & idmva1, float & idmva2,
 				BaseDiPhotonSmearer * sys=0, float syst_shift=0.);
 
-		std::pair<TLorentzVector, TLorentzVector> GetVBF_IntermediateBoson(TLorentzVector& Pho1, TLorentzVector& Pho2, TLorentzVector& Jet1, TLorentzVector& Jet2);
-		Double_t GetPerpendicularAngle(TLorentzVector& ref, TLorentzVector& v1, TLorentzVector& v2);
-		void VBFAngles(TLorentzVector& gamma1, TLorentzVector& gamma2, TLorentzVector& J1, TLorentzVector& J2);
-
-        double getCosThetaCS(TLorentzVector, TLorentzVector);
-        double getCosThetaHX(TLorentzVector, TLorentzVector);
+    std::pair<TLorentzVector, TLorentzVector> GetVBF_IntermediateBoson(TLorentzVector& Pho1, TLorentzVector& Pho2, TLorentzVector& Jet1, TLorentzVector& Jet2);
+    Double_t GetPerpendicularAngle(TLorentzVector& ref, TLorentzVector& v1, TLorentzVector& v2);
+    void VBFAngles(TLorentzVector& gamma1, TLorentzVector& gamma2, TLorentzVector& J1, TLorentzVector& J2);
+    
+    double getCosThetaCS(TLorentzVector, TLorentzVector,int);
+    double getCosThetaHX(TLorentzVector, TLorentzVector,int);
 
     std::vector<BaseSmearer *> photonSmearers_;
     std::vector<BaseSmearer *> systPhotonSmearers_;

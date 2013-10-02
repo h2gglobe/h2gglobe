@@ -37,8 +37,8 @@ void MassFactorizedMvaAnalysis::Term(LoopAll& l)
 
     if (! l.is_subjob){ // no need to waste time when running a subjob
         std::string outputfilename = (std::string) l.histFileName;
-        // if (dataIs2011) l.rooContainer->FitToData("data_pol_model_7TeV","data_mass");
-        if (dataIs2011) l.rooContainer->FitToData("data_pol_model","data_mass");
+        // if (run7TeV4Xanalysis) l.rooContainer->FitToData("data_pol_model_7TeV","data_mass");
+        if (run7TeV4Xanalysis) l.rooContainer->FitToData("data_pol_model","data_mass");
         else l.rooContainer->FitToData("data_pol_model_8TeV","data_mass");  // Fit to full range of dataset
     }
 
@@ -354,13 +354,13 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
     // SM Model
     for(size_t isig=0; isig<sigPointsToBook.size(); ++isig) {
         int sig = sigPointsToBook[isig];
-        l.rooContainer->AddConstant(Form("XSBR_ggh_%d",sig),l.signalNormalizer->GetXsection(double(sig),"ggh")*l.signalNormalizer->GetBR(double(sig)));
+        l.rooContainer->AddConstant(Form("XSBR_ggh_%d",sig),l.normalizer()->GetXsection(double(sig),"ggh")*l.normalizer()->GetBR(double(sig)));
     }
 
     // -----------------------------------------------------
     // Configurable background model
     // if no configuration was given, set some defaults
-    std::string postfix=(dataIs2011?"":"_8TeV");
+    std::string postfix=(run7TeV4Xanalysis?"":"_8TeV");
     if( bkgPolOrderByCat.empty() ) {
 	for(int i=0; i<nCategories_; i++){
 	    if(i<1) {
@@ -395,14 +395,14 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
 	l.tmvaReaderID_Single_Barrel->BookMVA("AdaBoost",photonLevelNewIDMVA_EB.c_str());
 	l.tmvaReaderID_Single_Endcap->BookMVA("AdaBoost",photonLevelNewIDMVA_EE.c_str());
     } else { 
-	assert( dataIs2011 );
+	assert( run7TeV4Xanalysis );
     }
     // MIT 
     if( photonLevelMvaMIT_EB != "" && photonLevelMvaMIT_EE != "" ) {
 	l.tmvaReaderID_MIT_Barrel->BookMVA("AdaBoost",photonLevelMvaMIT_EB.c_str());
 	l.tmvaReaderID_MIT_Endcap->BookMVA("AdaBoost",photonLevelMvaMIT_EE.c_str());
     } else {
-	assert( ! dataIs2011 );
+	assert( ! run7TeV4Xanalysis );
     }
     l.tmvaReader_dipho_MIT->BookMVA("Gradient"   ,eventLevelMvaMIT.c_str()    );
     // ----------------------------------------------------------------------//
@@ -637,7 +637,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 	          VHLepTag2013(l, diphotonVHlep_id, VHlep1event, VHlep2event, true, mu_ind, muVtx, VHmuevent_cat, el_ind, elVtx, VHelevent_cat, &smeared_pho_energy[0], phoidMvaCut, eventweight, smeared_pho_weight, isSyst, vetodipho, kinonly);
 	      }
 
-        if(includeVHmet && !dataIs2011) {
+        if(includeVHmet && !run7TeV4Xanalysis) {
             //	    std::cout << "+++PFMET UNCORR " << l.met_pfmet << std::endl;
             if(!isSyst) VHmetevent=METTag2012B(l, diphotonVHmet_id, VHmetevent_cat, &smeared_pho_energy[0], met_sync, true, phoidMvaCut, false); 
             if(isSyst)  VHmetevent=METTag2012B(l, diphotonVHmet_id, VHmetevent_cat, &smeared_pho_energy[0], met_sync, true, phoidMvaCut, true); 
@@ -656,7 +656,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
             float myweight=1.;
             if(eventweight*sampleweight!=0) myweight=eventweight/sampleweight;
             
-            VBFevent= ( dataIs2011 ? 
+            VBFevent= ( run7TeV4Xanalysis ? 
                 VBFTag2011(l, diphotonVBF_id, &smeared_pho_energy[0], true, eventweight, myweight) :
                 VBFTag2012(vbfIjet1, vbfIjet2, l, diphotonVBF_id, &smeared_pho_energy[0], true, eventweight, myweight) );
 
@@ -844,7 +844,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 
         // save trees for unbinned datacards
         int inc_cat = GetBDTBoundaryCategory(diphobdt_output,isEBEB,VBFevent);
-        if (!isSyst && cur_type<0 && saveDatacardTrees_ && TMath::Abs(datacardTreeMass-l.signalNormalizer->GetMass(cur_type))<0.001) {
+        if (!isSyst && cur_type<0 && saveDatacardTrees_ && TMath::Abs(datacardTreeMass-l.normalizer()->GetMass(cur_type))<0.001) {
             saveDatCardTree(l,cur_type,category, inc_cat, evweight, diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],lead_p4,sublead_p4,false,GetSignalLabel(cur_type,l),sigmaMrv,sigmaMwv,sigmaMrv,vtxProb,bdtTrainingPhilosophy.c_str(),phoid_mvaout_lead,phoid_mvaout_sublead);
         }
 
@@ -2053,12 +2053,12 @@ void MassFactorizedMvaAnalysis::ComputeDiphoMvaInputs(LoopAll &l, float &phoid_m
     // easy to calculate vertex probability from vtx mva output
     vtxProb   = 1.-0.49*(vtx_mva+1.0); /// should better use this: vtxAna_.setPairID(diphoton_id); vtxAna_.vertexProbability(vtx_mva); PM
 
-    phoid_mvaout_lead = ( dataIs2011 ? 
+    phoid_mvaout_lead = ( run7TeV4Xanalysis ? 
               l.photonIDMVA(l.dipho_leadind[diphoton_id],l.dipho_vtxind[diphoton_id],
                   lead_p4,bdtTrainingPhilosophy.c_str()) :
               l.photonIDMVANew(l.dipho_leadind[diphoton_id],l.dipho_vtxind[diphoton_id],
                   lead_p4,bdtTrainingPhilosophy.c_str()) );
-    phoid_mvaout_sublead = ( dataIs2011 ? 
+    phoid_mvaout_sublead = ( run7TeV4Xanalysis ? 
               l.photonIDMVA(l.dipho_subleadind[diphoton_id],l.dipho_vtxind[diphoton_id],
                   sublead_p4,bdtTrainingPhilosophy.c_str()) : 
               l.photonIDMVANew(l.dipho_subleadind[diphoton_id],l.dipho_vtxind[diphoton_id],

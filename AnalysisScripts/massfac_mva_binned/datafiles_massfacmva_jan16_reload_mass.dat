@@ -1,4 +1,4 @@
-intL=5089. histfile=/store/group/phys_higgs/cmshgg/analyzed/ichep2012topup/%(label)s/CMS-HGG_mH.root output=shifo.root
+sqrtS=7 intL=5089. histfile=/store/group/phys_higgs/cmshgg/analyzed/ichep2012topup/%(label)s/CMS-HGG_mH.root output=shifo.root
 
 split typ=-29 ind=5 draw=1  Nam=gluglu_H_gg_130_pu2011  CaDir=/store/group/phys_higgs/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/GluGluToHToGG_M-130_7TeV    red=0 lum=1000000.0  xsec=0.0319112 kfac=1.000000  scal=1.000000
 split typ=-30 ind=6 draw=1  Nam=vbf_H_gg_130_pu2011     CaDir=/store/group/phys_higgs/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/VBF_HToGG_M-130_7TeV    red=0 lum=1000000.0  xsec=0.00260804 kfac=1.000000  scal=1.000000

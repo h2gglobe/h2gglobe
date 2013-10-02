@@ -667,6 +667,7 @@ class configProducer:
   def read_histfile(self,line):
     # We have the definition line           
     split_line = line.split()
+    sqrtS = None
     for sp in split_line:
       val = sp.split("=")
       
@@ -687,11 +688,24 @@ class configProducer:
         
       elif val[0] == 'intL':
         self.intL = float(val[1])
+        
+      elif val[0] == 'sqrtS':
+        self.ut_.sqrtS = int(val[1])
+        sqrtS = self.ut_.sqrtS
       else: sys.exit("Unrecognised Argument:\n ' %s ' in line:\n ' %s '" %(val[0],line))
 
       if self.conf_.histfile.startswith("/store"):
           self.conf_.histfile = "root://eoscms//eos/cms%s" % self.conf_.histfile
-      
+
+    if not sqrtS:
+        print ""
+        print ""
+        print "WARNING"
+        print "  This dat files does not specify the centre of mass energy."
+        print "  The default value %d will be assumed to assign the sginal cross sections" % self.ut_.sqrtS 
+        print ""
+        print ""
+
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def read_analyzer(self,line):
     ## a, name, config = line.split()
@@ -847,9 +861,9 @@ class configProducer:
 		proc="zh"
 	  map_c["typ"]=-1*newtype
           if map_c["xsec"] < 0: # not provided so figure it out ourselves
-            map_c["xsec"] = self.ut_.signalNormalizer.GetXsection(float(hmass),proc) * self.ut_.signalNormalizer.GetBR(float(hmass))
+            map_c["xsec"] = self.ut_.normalizer().GetXsection(float(hmass),proc) * self.ut_.normalizer().GetBR(float(hmass))
     elif map_c["xsec"] < 0:
-     	    map_c["xsec"] = self.ut_.signalNormalizer.GetXsection(map_c["typ"]) * self.ut_.signalNormalizer.GetBR(map_c["typ"])
+     	    map_c["xsec"] = self.ut_.normalizer().GetXsection(map_c["typ"]) * self.ut_.normalizer().GetBR(map_c["typ"])
     if PYDEBUG: print "Calculated signal X-section*BR = ", map_c["Nam"],map_c["typ"], map_c["xsec"]
       
     if fi_name != '':

@@ -1,4 +1,4 @@
-intL=5089. histfile=CMS-HGG_escaleTrees_signal_7TeV.root output=eventList.txt
+sqrtS=7 intL=5089. histfile=CMS-HGG_escaleTrees_signal_7TeV.root output=eventList.txt
 
 #
 # Signal

@@ -1,4 +1,4 @@
-intL=5089. histfile=/castor/cern.ch/user/c/cmshgg/StatAnalysis/jan16reload_SM4/%(label)s_nospher_SM4/CMS-HGG.root output=shifo.root
+sqrtS=7 intL=5089. histfile=/castor/cern.ch/user/c/cmshgg/StatAnalysis/jan16reload_SM4/%(label)s_nospher_SM4/CMS-HGG.root output=shifo.root
 
 ->
 Data
