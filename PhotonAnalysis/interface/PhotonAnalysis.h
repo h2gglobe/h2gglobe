@@ -26,6 +26,7 @@
 #include "HiggsAnalysis/GBRLikelihood/interface/RooHybridBDTAutoPdf.h"
 #include "HiggsAnalysis/GBRLikelihood/interface/RooDoubleCBFast.h"
 #include "HiggsAnalysis/GBRLikelihood/interface/HybridGBRForest.h"
+#include "HiggsAnalysis/GBRLikelihood/interface/HybridGBRForestD.h"
 
 class JetHandler;
 
@@ -58,6 +59,11 @@ class PhotonAnalysis : public BaseAnalysis
 
     float zero_;
     void GetRegressionCorrections(LoopAll&);
+    void GetRegressionCorrectionsV5(LoopAll&); // 8 TeV
+    void GetRegressionCorrectionsV8(LoopAll&); // 7 TeV (V6-Barrel / V7-Endcap)
+    void GetSinglePhotonRegressionCorrectionV6(LoopAll&,int,double *,double *);
+    void GetSinglePhotonRegressionCorrectionV7(LoopAll&,int,double *,double *);
+
     //  void GetRegressionCorrections(LoopAll&);
     // Public parameters to be read from config file
     VertexAlgoParameters vtxAlgoParams;
@@ -619,6 +625,9 @@ class PhotonAnalysis : public BaseAnalysis
     HybridGBRForest *_foresteb;
     HybridGBRForest *_forestee;
 
+    HybridGBRForestD *_forestDeb;
+    HybridGBRForestD *_forestDee;
+
     RooRealVar *_mean;
     RooRealVar *_tgt;
     RooRealVar *_sigma;
@@ -629,10 +638,14 @@ class PhotonAnalysis : public BaseAnalysis
     RooAbsReal *_sigmalim;
     RooAbsReal *_n1lim;
     RooAbsReal *_n2lim;        
+    RooAbsReal *alpha1;
+    RooAbsReal *alpha2;        
     
     RooAbsPdf *_pdf;
     
     RooArgList _args;
+    
+    int sqrtS;
 
     //TFile *fgbr;
     //GBRForest *fReadereb;
