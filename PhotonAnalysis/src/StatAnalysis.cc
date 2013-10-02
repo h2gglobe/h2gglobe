@@ -709,7 +709,7 @@ bool StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     
     // Analyse the event assuming nominal values of corrections and smearings
     float mass, evweight, diphotonMVA;
-    int diphoton_id, category;
+    int diphoton_id=-1, category;
     bool isCorrectVertex;
     bool storeEvent = false;
     if( AnalyseEvent(l,jentry, weight, gP4, mass,  evweight, category, diphoton_id, isCorrectVertex,diphotonMVA) ) {
