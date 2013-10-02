@@ -42,7 +42,8 @@ FinalModelConstruction::FinalModelConstruction(RooRealVar *massVar, RooRealVar *
 	if (is2011_) sqrts_ = 7;
 	else sqrts_ = 8;
   // load xs and br info from Normalization_8TeV
-  norm = new Normalization_8TeV(is2011);
+  norm = new Normalization_8TeV();
+  norm->Init(sqrts_);
   TGraph *brGraph = norm->GetBrGraph();
 	brSpline = graphToSpline(Form("fbr_%dTeV",sqrts_),brGraph);
   

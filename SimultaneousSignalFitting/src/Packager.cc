@@ -34,7 +34,9 @@ Packager::Packager(RooWorkspace *ws, bool splitVH, int nCats, int mhLow, int mhH
   procs.push_back("tth");
 	if (is2011) sqrts_=7;
 	else sqrts_=8;
-  normalization = new Normalization_8TeV(is2011);
+	normalization = new Normalization_8TeV();
+	normalization->Init(sqrts_);
+
 }
 
 Packager::~Packager(){}
