@@ -251,6 +251,7 @@ class PhotonAnalysis : public BaseAnalysis
     // PhotonFix
     std::string photonFixDat;
     std::string regressionFile;
+    int regressionVersion;
 
     int   nEtaCategories, nR9Categories, nPtCategories, nVtxCategories;
     float R9CatBoundary;
@@ -645,7 +646,6 @@ class PhotonAnalysis : public BaseAnalysis
     
     RooArgList _args;
     
-    int sqrtS;
 
     //TFile *fgbr;
     //GBRForest *fReadereb;

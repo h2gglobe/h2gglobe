@@ -1334,9 +1334,8 @@ void PhotonAnalysis::Init(LoopAll& l)
     // ---------------------- LOAD Regression Classes ---------------------//
     // Implementation copied over from ... 
     // https://github.com/bendavid/GBRLikelihoodEGTools/commit/7aff712aa93c69e5e04664d7556a6bd646af479c#diff-57e3515cb45eaf6857c6bf3a0481aca0
-    sqrtS = 8;
-    //if (l.regressionVersion_>=4 && l.regressionVerstion <=5){ // This is for 8 TeV (we would use V5)
-    if (sqrtS==8){
+    if (regressionVersion==5){
+    //if (sqrtS==8){
             //initialize eval vector
         _vals.resize(37);
        
@@ -1376,8 +1375,8 @@ void PhotonAnalysis::Init(LoopAll& l)
         _args.addOwned(*_n2lim);
         _args.addOwned(*_pdf);    
    } 
-   //else if (l.regressionVersion_>=6 && l.regressionVerstion <=8){ // This is for 7 TeV (we would use V8)
-   else if (sqrtS==7){
+   else if (regressionVersion==8){ // This is for 7 TeV (we would use V8)
+   //else if (sqrtS==7){
       //initialize eval vector
       _vals.resize(37);
       
@@ -1423,7 +1422,10 @@ void PhotonAnalysis::Init(LoopAll& l)
       _args.addOwned(*_pdf);        
 
    }
-   else (assert(0)); 
+   else {  
+    std::cout << "PhotonAnalysis -- Regression versions 5 and 8 are implemented only!" << std::endl;
+    (assert(0)); 
+   }
     
     // --------------------------------------------------------------------
    if(PADEBUG)
@@ -5890,9 +5892,9 @@ int PhotonAnalysis::VHNumberOfJets(LoopAll& l, int diphotonVHlep_id, int vertex,
 
 void PhotonAnalysis::GetRegressionCorrections(LoopAll &l){
 
-    if (sqrtS==8){
+    if (regressionVersion==5){
         GetRegressionCorrectionsV5(l);
-    } else if (sqrtS==7) {
+    } else if (regressionVersion==8) {
         // v6/v7 used for 7 TeV regression (v6 Barrel, v7 Endcap)
         // handled in V8
         GetRegressionCorrectionsV8(l);      
