@@ -249,13 +249,17 @@ double Normalization_8TeV::GetVBFCorrection(double mass) {
 // Simple accessors
 TString Normalization_8TeV::GetProcess(int ty){
   if (ty < -7999){  // We dont go below 80 GeV and Spin samples in the 100 range 
-    int process = ty - 1000*((int)ty/1000);
+    int process = -ty % 1000;
     if (process == 0 ) return "ggh";
     else if (process == 100) return "vbf";
     else if (process == 200) return "wh";
     else if (process == 300) return "zh";
     else if (process == 400) return "tth";
     else if (process == 500) return "wzh";
+    else if (process == 500) return "wzh";
+    else if (process == 600) return "gg_grav";
+    else if (process == 610) return "gg_spin0";
+    else if (process == 650) return "qq_grav";
 
   } else {
     return SignalTypeMap[ty].first;
@@ -264,27 +268,27 @@ TString Normalization_8TeV::GetProcess(int ty){
 
 double Normalization_8TeV::GetMass(int ty){
   if (ty < -7999){  // We dont go below 80 GeV and Spin samples in the 100 range
-    return (double) ty/1000;
+    return (double) -ty/1000;
   }	 
   else return SignalTypeMap[ty].second;
 }
-double Normalization_8TeV::GetXsection(int ty){
-  std::pair<TString,double> proc_mass = SignalTypeMap[ty];
-  // if "grav" in name then return all processes xs*br
-  if (proc_mass.first.Contains("grav")) {
-    return GetXsection(proc_mass.second);
-  }
-  else {
-    return GetXsection(proc_mass.second,proc_mass.first);
-  }
-}
-double Normalization_8TeV::GetBR(int ty){
-  std::pair<TString,double> proc_mass = SignalTypeMap[ty];
-  return GetBR(proc_mass.second);
-}
+//// double Normalization_8TeV::GetXsection(int ty){
+////   std::pair<TString,double> proc_mass = SignalTypeMap[ty];
+////   // if "grav" in name then return all processes xs*br
+////   if (proc_mass.first.Contains("grav")) {
+////     return GetXsection(proc_mass.second);
+////   }
+////   else {
+////     return GetXsection(proc_mass.second,proc_mass.first);
+////   }
+//// }
+//// double Normalization_8TeV::GetBR(int ty){
+////   std::pair<TString,double> proc_mass = SignalTypeMap[ty];
+////   return GetBR(proc_mass.second);
+//// }
 
 double Normalization_8TeV::GetXsection(double mass) {
-  return GetXsection(mass,"ggh") + GetXsection(mass,"vbf") + GetXsection(mass,"wzh") + GetXsection(mass,"tth");//GetXsection(mass,"wh") + GetXsection(mass,"zh") + GetXsection(mass,"tth");
+  return GetXsection(mass,"ggh") + GetXsection(mass,"vbf") + GetXsection(mass,"wzh") + GetXsection(mass,"tth");
 }
 
 double Normalization_8TeV::GetNorm(double mass1, TH1F* hist1, double mass2, TH1F* hist2, double mass) {

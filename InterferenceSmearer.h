@@ -7,12 +7,14 @@
 #include "TFile.h"
 #include "TGraphAsymmErrors.h"
 
+class Normalization_8TeV;
+
 // ------------------------------------------------------------------------------------
 class InterferenceSmearer : public BaseGenLevelSmearer
 {
 public:
 
-  InterferenceSmearer(float correction=2.5e-2, float error=0.);
+  InterferenceSmearer(Normalization_8TeV * norm, float correction=2.5e-2, float error=0.);
   virtual ~InterferenceSmearer();
   
   virtual const std::string & name() const { return name_; };
@@ -21,6 +23,7 @@ public:
   
 private:
   std::string name_;
+  Normalization_8TeV * norm_;
   float correction_, error_;
   
 };

@@ -1,8 +1,8 @@
 intL=11854. histfile=/store/cmst3/user/musella/hgg/vbf_optimization/jetSystematics_118fb_v3/CMS-HGG_mva_%(label)s.root output=eventsList.txt
 
 ## Signal
-typ=-37 ind=1 draw=1  Nam=ggh_m125_8TeV red=0 lum=1 xsec=-1 kfac=1 scal=1           CaDir=/store/group/phys_higgs/cmshgg/reduced/HCP2012_freezing_v2/mc/Summer12_S10_8TeV/GluGluToHToGG_M-125_8TeV-powheg-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1
-typ=-38 ind=2 draw=1  Nam=vbf_m125_8TeV red=0 lum=1 xsec=-1 kfac=1 scal=1           CaDir=/store/group/phys_higgs/cmshgg/reduced/HCP2012_freezing_v2/mc/Summer12_S10_8TeV/VBF_HToGG_M-125_8TeV-powheg-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1
+typ=-1 ind=1 draw=1  Nam=ggh_m125_8TeV red=0 lum=1 xsec=-1 kfac=1 scal=1           CaDir=/store/group/phys_higgs/cmshgg/reduced/HCP2012_freezing_v2/mc/Summer12_S10_8TeV/GluGluToHToGG_M-125_8TeV-powheg-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1
+typ=-1 ind=2 draw=1  Nam=vbf_m125_8TeV red=0 lum=1 xsec=-1 kfac=1 scal=1           CaDir=/store/group/phys_higgs/cmshgg/reduced/HCP2012_freezing_v2/mc/Summer12_S10_8TeV/VBF_HToGG_M-125_8TeV-powheg-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1
 
 # 
 # Branches to use

@@ -8,6 +8,8 @@
 #include "TGraphAsymmErrors.h"
 #include "TH2F.h"
 
+class Normalization_8TeV;
+
 // ------------------------------------------------------------------------------------
 class PdfWeightSmearer : public BaseGenLevelSmearer
 {
@@ -16,7 +18,7 @@ public:
   std::string efficiency_file;
   
   //   downId and upId set according to prescription of Jun 3, 2011  
-  PdfWeightSmearer(const std::string &efficiency_file, std::string downId, std::string upId) ;
+  PdfWeightSmearer(const std::string &efficiency_file, Normalization_8TeV *norm, std::string downId, std::string upId) ;
   virtual ~PdfWeightSmearer();
   
   virtual const std::string & name() const { return name_; };
@@ -35,6 +37,7 @@ public:
   
   std::string   name_;
   std::string   KFName_;
+  Normalization_8TeV * norm_;
   TFile        *thePdfWeightFile_; 
   std::vector<TH2F*> kFactorSmearers_;
   void   readFile(std::string uId, std::string dId );

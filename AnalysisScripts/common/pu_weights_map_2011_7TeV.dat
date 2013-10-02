@@ -1,7 +1,7 @@
 ## Format: <type_id> <TDirectory name>
 
 ## 0 is the default set
-0 gluglu_H_gg_115_pu2011_0 
+0 gluglu_m115_pu2011_0 
 
 11 qcd_pp_pu2011_30
 12 qcd_pf_pu2011_30
@@ -18,62 +18,62 @@
 7 di_photon_box_pu2011_10
 8 di_photon_box_pu2011_250
 
--57 gluglu_H_gg_123_pu2011_0
--58 vbf_H_gg_123_pu2011_0    
--60 wz_H_gg_123_pu2011_0     
--59 tt_H_gg_123_pu2011_0     
+-57 gluglu_m123_pu2011_0
+-58 vbf_m123_pu2011_0    
+-60 wz_m123_pu2011_0     
+-59 tt_m123_pu2011_0     
 
--53 gluglu_H_gg_121_pu2011_0 
--54 vbf_H_gg_121_pu2011_0    
--56 wz_H_gg_121_pu2011_0    
--55 tt_H_gg_121_pu2011_0    
+-53 gluglu_m121_pu2011_0 
+-54 vbf_m121_pu2011_0    
+-56 wz_m121_pu2011_0    
+-55 tt_m121_pu2011_0    
 
--49 gluglu_H_gg_150_pu2011_0 
--50 vbf_H_gg_150_pu2011_0    
--52 wz_H_gg_150_pu2011_0     
--51 tt_H_gg_150_pu2011_0     
+-49 gluglu_m150_pu2011_0 
+-50 vbf_m150_pu2011_0    
+-52 wz_m150_pu2011_0     
+-51 tt_m150_pu2011_0     
 
--45 gluglu_H_gg_145_pu2011_0 
--46 vbf_H_gg_145_pu2011_0    
--48 wz_H_gg_145_pu2011_0     
--47 tt_H_gg_145_pu2011_0     
+-45 gluglu_m145_pu2011_0 
+-46 vbf_m145_pu2011_0    
+-48 wz_m145_pu2011_0     
+-47 tt_m145_pu2011_0     
 
--33 gluglu_H_gg_140_pu2011_0 
--34 vbf_H_gg_140_pu2011_0 
--36 wz_H_gg_140_pu2011_0 
--35 tt_H_gg_140_pu2011_0 
+-33 gluglu_m140_pu2011_0 
+-34 vbf_m140_pu2011_0 
+-36 wz_m140_pu2011_0 
+-35 tt_m140_pu2011_0 
 
--41 gluglu_H_gg_135_pu2011_0
--42 vbf_H_gg_135_pu2011_0   
--44 wz_H_gg_135_pu2011_0    
--43 tt_H_gg_135_pu2011_0    
+-41 gluglu_m135_pu2011_0
+-42 vbf_m135_pu2011_0   
+-44 wz_m135_pu2011_0    
+-43 tt_m135_pu2011_0    
 
--29 gluglu_H_gg_130_pu2011_0 
--30 vbf_H_gg_130_pu2011_0 
--32 wz_H_gg_130_pu2011_0 
--31 tt_H_gg_130_pu2011_0 
+-29 gluglu_m130_pu2011_0 
+-30 vbf_m130_pu2011_0 
+-32 wz_m130_pu2011_0 
+-31 tt_m130_pu2011_0 
 
--37 gluglu_H_gg_125_pu2011_0
--38 vbf_H_gg_125_pu2011_0    
--40 wz_H_gg_125_pu2011_0     
--39 tt_H_gg_125_pu2011_0     
+-37 gluglu_m125_pu2011_0
+-38 vbf_m125_pu2011_0    
+-40 wz_m125_pu2011_0     
+-39 tt_m125_pu2011_0     
 
--25 gluglu_H_gg_120_pu2011_0 
--26 vbf_H_gg_120_pu2011_0 
--28 wz_H_gg_120_pu2011_0 
--27 tt_H_gg_120_pu2011_0
+-25 gluglu_m120_pu2011_0 
+-26 vbf_m120_pu2011_0 
+-28 wz_m120_pu2011_0 
+-27 tt_m120_pu2011_0
 
--21 gluglu_H_gg_115_pu2011_0 
--22 vbf_H_gg_115_pu2011_0 
--24 wz_H_gg_115_pu2011_0 
--23 tt_H_gg_115_pu2011_0 
+-21 gluglu_m115_pu2011_0 
+-22 vbf_m115_pu2011_0 
+-24 wz_m115_pu2011_0 
+-23 tt_m115_pu2011_0 
 
--17 gluglu_H_gg_110_pu2011_0 
--18 vbf_H_gg_110_pu2011_0 
--19 wz_H_gg_110_pu2011_0 
--20 tt_H_gg_110_pu2011_0
+-17 gluglu_m110_pu2011_0 
+-18 vbf_m110_pu2011_0 
+-19 wz_m110_pu2011_0 
+-20 tt_m110_pu2011_0
 
-#-13 gluglu_H_gg_105_pu2011_0
-#-14 vbf_H_gg_105_pu2011_0 	 
-#-16 wz_H_gg_105_pu2011_0    
-#-15 tt_H_gg_105_pu2011_0    
+#-13 gluglu_m105_pu2011_0
+#-14 vbf_m105_pu2011_0 	 
+#-16 wz_m105_pu2011_0    
+#-15 tt_m105_pu2011_0    

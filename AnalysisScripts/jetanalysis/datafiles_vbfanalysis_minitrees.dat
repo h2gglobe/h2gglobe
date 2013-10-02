@@ -12,13 +12,13 @@ intL=19620. histfile=/store/cmst3/user/musella/hgg/vbf_optimization/%(label)s/vb
 ##
 ## Signal 125
 ## 
-typ=-37 ind=1 draw=1   Nam=ggh_m125_8TeV   		CaDir=%(moriond_mc)s/GluGluToHToGG_M-125_8TeV-powheg-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1
-typ=-38 ind=2 draw=1   Nam=vbf_m125_8TeV   		CaDir=%(moriond_mc)s/VBF_HToGG_M-125_8TeV-powheg-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1
-typ=-40 ind=4 draw=1   Nam=wzh_m125_8TeV   		CaDir=%(moriond_mc)s/WH_ZH_HToGG_M-125_8TeV-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1
+typ=-1 ind=1 draw=1   Nam=ggh_m125_8TeV   		CaDir=%(moriond_mc)s/GluGluToHToGG_M-125_8TeV-powheg-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1
+typ=-1 ind=2 draw=1   Nam=vbf_m125_8TeV   		CaDir=%(moriond_mc)s/VBF_HToGG_M-125_8TeV-powheg-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1
+typ=-1 ind=4 draw=1   Nam=wzh_m125_8TeV   		CaDir=%(moriond_mc)s/WH_ZH_HToGG_M-125_8TeV-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1
 
-typ=-57 ind=1 draw=1   Nam=ggh_m124_8TeV   		CaDir=%(vbfopt)s/GluGluToH2JetsHToGG_M-125_8TeV-powheg-minlo-pythia6-START53_V7C-v2-musella-USER
-typ=-58 ind=2 draw=1   Nam=vbf_m124_8TeV   		CaDir=%(moriond_mc)s/VBF_HToGG_M-124_8TeV-powheg-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1
-typ=-60 ind=4 draw=1   Nam=wzh_m124_8TeV   		CaDir=%(moriond_mc)s/WH_ZH_HToGG_M-124_8TeV-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1
+typ=-1 ind=1 draw=1   Nam=ggh_m124_8TeV   		CaDir=%(vbfopt)s/GluGluToH2JetsHToGG_M-125_8TeV-powheg-minlo-pythia6-START53_V7C-v2-musella-USER
+typ=-1 ind=2 draw=1   Nam=vbf_m124_8TeV   		CaDir=%(moriond_mc)s/VBF_HToGG_M-124_8TeV-powheg-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1
+typ=-1 ind=4 draw=1   Nam=wzh_m124_8TeV   		CaDir=%(moriond_mc)s/WH_ZH_HToGG_M-124_8TeV-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1
 
 
 

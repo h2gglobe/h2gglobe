@@ -10,50 +10,50 @@ typ=0    ind=0 draw=1  Nam=Data    CaDir=/store/group/phys_higgs/cmshgg/reduced/
 #
 # Signal
 #
-typ=-49 ind=1 draw=1  Nam=gluglu_H_gg_150_pu2012  CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/GluGluToHToGG_M-150_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
-typ=-50 ind=2 draw=1  Nam=vbf_H_gg_150_pu2012     CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/VBF_HToGG_M-150_8TeV        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
-typ=-52 ind=4 draw=1  Nam=wz_H_gg_150_pu2012      CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/GluGluToHToGG_M-150_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
-typ=-51 ind=3 draw=1  Nam=tt_H_gg_150_pu2012      CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/GluGluToHToGG_M-150_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-1 ind=1 draw=1  Nam=gluglu_m150_pu2012  CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/GluGluToHToGG_M-150_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-1 ind=2 draw=1  Nam=vbf_m150_pu2012     CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/VBF_HToGG_M-150_8TeV        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-1 ind=4 draw=1  Nam=wz_m150_pu2012      CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/GluGluToHToGG_M-150_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-1 ind=3 draw=1  Nam=tt_m150_pu2012      CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/GluGluToHToGG_M-150_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
 
-#typ=-45 ind=1 draw=1  Nam=gluglu_H_gg_145_pu2012  CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/GluGluToHToGG_M-145_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
-#typ=-46 ind=2 draw=1  Nam=vbf_H_gg_145_pu2012     CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/GluGluToHToGG_M-145_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
-#typ=-48 ind=4 draw=1  Nam=wz_H_gg_145_pu2012      CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/WH_ZH_HToGG_M-145_8TeV      red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
-#typ=-47 ind=3 draw=1  Nam=tt_H_gg_145_pu2012      CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/GluGluToHToGG_M-145_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+#typ=-1 ind=1 draw=1  Nam=gluglu_m145_pu2012  CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/GluGluToHToGG_M-145_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+#typ=-1 ind=2 draw=1  Nam=vbf_m145_pu2012     CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/GluGluToHToGG_M-145_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+#typ=-1 ind=4 draw=1  Nam=wz_m145_pu2012      CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/WH_ZH_HToGG_M-145_8TeV      red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+#typ=-1 ind=3 draw=1  Nam=tt_m145_pu2012      CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/GluGluToHToGG_M-145_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
 
-typ=-33 ind=1 draw=1  Nam=gluglu_H_gg_140_pu2012  CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/GluGluToHToGG_M-140_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
-typ=-34 ind=2 draw=1  Nam=vbf_H_gg_140_pu2012     CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/VBF_HToGG_M-140_8TeV        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
-typ=-36 ind=4 draw=1  Nam=wz_H_gg_140_pu2012      CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/GluGluToHToGG_M-140_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
-typ=-35 ind=3 draw=1  Nam=tt_H_gg_140_pu2012      CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/GluGluToHToGG_M-140_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-1 ind=1 draw=1  Nam=gluglu_m140_pu2012  CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/GluGluToHToGG_M-140_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-1 ind=2 draw=1  Nam=vbf_m140_pu2012     CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/VBF_HToGG_M-140_8TeV        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-1 ind=4 draw=1  Nam=wz_m140_pu2012      CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/GluGluToHToGG_M-140_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-1 ind=3 draw=1  Nam=tt_m140_pu2012      CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/GluGluToHToGG_M-140_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
 
-typ=-41 ind=1 draw=1  Nam=gluglu_H_gg_135_pu2012  CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/GluGluToHToGG_M-135_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
-typ=-42 ind=2 draw=1  Nam=vbf_H_gg_135_pu2012     CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/VBF_HToGG_M-135_8TeV        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
-typ=-44 ind=4 draw=1  Nam=wz_H_gg_135_pu2012      CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/GluGluToHToGG_M-135_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
-typ=-43 ind=3 draw=1  Nam=tt_H_gg_135_pu2012      CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/TTH_HToGG_M-135_8TeV        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-1 ind=1 draw=1  Nam=gluglu_m135_pu2012  CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/GluGluToHToGG_M-135_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-1 ind=2 draw=1  Nam=vbf_m135_pu2012     CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/VBF_HToGG_M-135_8TeV        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-1 ind=4 draw=1  Nam=wz_m135_pu2012      CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/GluGluToHToGG_M-135_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-1 ind=3 draw=1  Nam=tt_m135_pu2012      CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/TTH_HToGG_M-135_8TeV        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
 
-typ=-29 ind=1 draw=1  Nam=gluglu_H_gg_130_pu2012  CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/GluGluToHToGG_M-130_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
-typ=-30 ind=2 draw=1  Nam=vbf_H_gg_130_pu2012     CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/VBF_HToGG_M-130_8TeV        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
-typ=-32 ind=4 draw=1  Nam=wz_H_gg_130_pu2012      CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/GluGluToHToGG_M-130_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
-typ=-31 ind=3 draw=1  Nam=tt_H_gg_130_pu2012      CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/GluGluToHToGG_M-130_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-1 ind=1 draw=1  Nam=gluglu_m130_pu2012  CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/GluGluToHToGG_M-130_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-1 ind=2 draw=1  Nam=vbf_m130_pu2012     CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/VBF_HToGG_M-130_8TeV        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-1 ind=4 draw=1  Nam=wz_m130_pu2012      CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/GluGluToHToGG_M-130_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-1 ind=3 draw=1  Nam=tt_m130_pu2012      CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/GluGluToHToGG_M-130_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
 
-typ=-37 ind=1 draw=1  Nam=gluglu_H_gg_125_pu2012  CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/GluGluToHToGG_M-125_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
-typ=-38 ind=2 draw=1  Nam=vbf_H_gg_125_pu2012     CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/VBF_HToGG_M-125_8TeV        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
-typ=-40 ind=4 draw=1  Nam=wz_H_gg_125_pu2012      CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/GluGluToHToGG_M-125_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
-typ=-39 ind=3 draw=1  Nam=tt_H_gg_125_pu2012      CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/GluGluToHToGG_M-125_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-1 ind=1 draw=1  Nam=gluglu_m125_pu2012  CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/GluGluToHToGG_M-125_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-1 ind=2 draw=1  Nam=vbf_m125_pu2012     CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/VBF_HToGG_M-125_8TeV        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-1 ind=4 draw=1  Nam=wz_m125_pu2012      CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/GluGluToHToGG_M-125_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-1 ind=3 draw=1  Nam=tt_m125_pu2012      CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/GluGluToHToGG_M-125_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
 
-typ=-25 ind=1 draw=1  Nam=gluglu_H_gg_120_pu2012  CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/GluGluToHToGG_M-120_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
-typ=-26 ind=2 draw=1  Nam=vbf_H_gg_120_pu2012     CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/VBF_HToGG_M-120_8TeV        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
-typ=-28 ind=4 draw=1  Nam=wz_H_gg_120_pu2012      CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/GluGluToHToGG_M-120_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
-typ=-27 ind=3 draw=1  Nam=tt_H_gg_120_pu2012      CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/TTH_HToGG_M-120_8TeV        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-1 ind=1 draw=1  Nam=gluglu_m120_pu2012  CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/GluGluToHToGG_M-120_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-1 ind=2 draw=1  Nam=vbf_m120_pu2012     CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/VBF_HToGG_M-120_8TeV        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-1 ind=4 draw=1  Nam=wz_m120_pu2012      CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/GluGluToHToGG_M-120_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-1 ind=3 draw=1  Nam=tt_m120_pu2012      CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/TTH_HToGG_M-120_8TeV        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
 
-typ=-21 ind=1 draw=1  Nam=gluglu_H_gg_115_pu2012  CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/GluGluToHToGG_M-115_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
-typ=-22 ind=2 draw=1  Nam=vbf_H_gg_115_pu2012     CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/VBF_HToGG_M-115_8TeV        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
-typ=-24 ind=4 draw=1  Nam=wz_H_gg_115_pu2012      CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/WH_ZH_HToGG_M-115_8TeV      red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
-typ=-23 ind=3 draw=1  Nam=tt_H_gg_115_pu2012      CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/TTH_HToGG_M-115_8TeV        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-1 ind=1 draw=1  Nam=gluglu_m115_pu2012  CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/GluGluToHToGG_M-115_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-1 ind=2 draw=1  Nam=vbf_m115_pu2012     CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/VBF_HToGG_M-115_8TeV        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-1 ind=4 draw=1  Nam=wz_m115_pu2012      CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/WH_ZH_HToGG_M-115_8TeV      red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-1 ind=3 draw=1  Nam=tt_m115_pu2012      CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/TTH_HToGG_M-115_8TeV        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
 
-typ=-17 ind=1 draw=1  Nam=gluglu_H_gg_110_pu2012  CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/GluGluToHToGG_M-110_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
-typ=-18 ind=2 draw=1  Nam=vbf_H_gg_110_pu2012     CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/VBF_HToGG_M-110_8TeV        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
-typ=-19 ind=4 draw=1  Nam=wz_H_gg_110_pu2012      CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/WH_ZH_HToGG_M-110_8TeV      red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
-typ=-20 ind=3 draw=1  Nam=tt_H_gg_110_pu2012      CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/GluGluToHToGG_M-110_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-1 ind=1 draw=1  Nam=gluglu_m110_pu2012  CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/GluGluToHToGG_M-110_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-1 ind=2 draw=1  Nam=vbf_m110_pu2012     CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/VBF_HToGG_M-110_8TeV        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-1 ind=4 draw=1  Nam=wz_m110_pu2012      CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/WH_ZH_HToGG_M-110_8TeV      red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-1 ind=3 draw=1  Nam=tt_m110_pu2012      CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v1/Summer12_S7_8TeV/GluGluToHToGG_M-110_8TeV    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
 # 
 # Branches to use
 #

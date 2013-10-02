@@ -24,10 +24,10 @@ class Normalization_8TeV {
 	void Init(int sqrtS);
 	
 	double GetBR(double);
-	double GetBR(int);
+	// double GetBR(int);
 	double GetXsection(double,TString);
 	double GetXsection(double);
-	double GetXsection(int);
+	// double GetXsection(int);
 	double GetNorm(double,TH1F*,double, TH1F*,double);
 	double GetMass(int);
 	double GetVBFCorrection(double);

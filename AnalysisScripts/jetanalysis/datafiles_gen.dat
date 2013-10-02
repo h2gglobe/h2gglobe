@@ -1,9 +1,9 @@
 intL=5346. histfile=CMS-HGG_test.root output=eventsList.txt
 
 ## Signal
-#typ=-38 ind=2 draw=1  Nam=vbf_m125_8TeV     CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/VBF_HToGG_M-125_8TeV        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000 
+#typ=-1 ind=2 draw=1  Nam=vbf_m125_8TeV     CaDir=/store/group/phys_higgs/cmshgg/reduced/ichep2012_reduction_v2/Summer12_S7_8TeV/VBF_HToGG_M-125_8TeV        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000 
 
-typ=-38 ind=2 draw=1  Nam=ggHj_m125_8TeV     Fil=/afs/cern.ch/user/m/malberti/scratch0/HGG/CMSSW_5_2_3_patch4/src/HiggsAnalysis/HiggsTo2photons/h2gglobe/JetAnalysis/macro/h_ggHj_YY_125_GEN_globe.root      red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000 tot=100
+typ=-1 ind=2 draw=1  Nam=ggHj_m125_8TeV     Fil=/afs/cern.ch/user/m/malberti/scratch0/HGG/CMSSW_5_2_3_patch4/src/HiggsAnalysis/HiggsTo2photons/h2gglobe/JetAnalysis/macro/h_ggHj_YY_125_GEN_globe.root      red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000 tot=100
 
 # 
 # Branches to use
