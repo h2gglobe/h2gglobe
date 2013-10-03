@@ -212,8 +212,43 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
 
     std::sort(bdtCategoryBoundaries.begin(),bdtCategoryBoundaries.end(), std::greater<float>() );
     nInclusiveCategories_ = bdtCategoryBoundaries.size()-1;
+    
+    if (multiclassVbfSelection || combinedmvaVbfSelection) { 
+        std::vector<int> vsize;
+        vsize.push_back((int)multiclassVbfCatBoundaries0.size());
+        vsize.push_back((int)multiclassVbfCatBoundaries1.size());
+        vsize.push_back((int)multiclassVbfCatBoundaries2.size());
+        std::sort(vsize.begin(),vsize.end(), std::greater<int>());
+        // sanity check: there sould be at least 2 vectors with size==2
+        if (vsize[0]<2 || vsize[1]<2 ){
+            std::cout << "Not enough category boundaries:" << std::endl;
+            std::cout << "multiclassVbfCatBoundaries0 size = " << multiclassVbfCatBoundaries0.size() << endl;
+            std::cout << "multiclassVbfCatBoundaries1 size = " << multiclassVbfCatBoundaries1.size() << endl;
+            std::cout << "multiclassVbfCatBoundaries2 size = " << multiclassVbfCatBoundaries2.size() << endl;
+            assert( 0 );
+        }
+        std::sort(multiclassVbfCatBoundaries0.begin(),multiclassVbfCatBoundaries0.end(), std::greater<float>() );
+        std::sort(multiclassVbfCatBoundaries1.begin(),multiclassVbfCatBoundaries1.end(), std::greater<float>() );
+        std::sort(multiclassVbfCatBoundaries2.begin(),multiclassVbfCatBoundaries2.end(), std::greater<float>() );
+    }
 
-    nVBFCategories   = ((int)includeVBF)*( (mvaVbfSelection && !multiclassVbfSelection) ? mvaVbfCatBoundaries.size()-1 : nVBFEtaCategories*nVBFDijetJetCategories );
+    if(includeVBF){
+        if(combinedmvaVbfSelection) {
+            if(multiclassVbfCatBoundaries0.size() != multiclassVbfCatBoundaries1.size()){
+                std::cout << "Number of combined boundaries must be the same as dijet mva boundaries."<<std::endl;
+                assert( 0 );
+            }
+            nVBFCategories = multiclassVbfCatBoundaries0.size()-1;
+        } else if(mvaVbfSelection && !multiclassVbfSelection) {
+            nVBFCategories = mvaVbfCatBoundaries.size()-1;
+        } else if(multiclassVbfSelection) {
+            nVBFCategories = multiclassVbfCatBoundaries0.size()-1;
+        } else {
+            nVBFCategories = nVBFEtaCategories*nVBFDijetJetCategories;
+        }
+        cout << "@@@@@@@@@@@@@@@@@ 	nVBFCategories = " << 	nVBFCategories << endl;
+    }
+    
     if(includeVHlep){
         nVHlepCategories = nElectronCategories + nMuonCategories;
     }
@@ -238,26 +273,6 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
     
     
     std::sort(mvaVbfCatBoundaries.begin(),mvaVbfCatBoundaries.end(), std::greater<float>() );
-    if (multiclassVbfSelection) {
-        std::vector<int> vsize;
-        vsize.push_back((int)multiclassVbfCatBoundaries0.size());
-        vsize.push_back((int)multiclassVbfCatBoundaries1.size());
-        vsize.push_back((int)multiclassVbfCatBoundaries2.size());
-        std::sort(vsize.begin(),vsize.end(), std::greater<int>());
-        // sanity check: there sould be at least 2 vectors with size==2
-        if (vsize[0]<2 || vsize[1]<2 ){
-            std::cout << "Not enough category boundaries:" << std::endl;
-            std::cout << "multiclassVbfCatBoundaries0 size = " << multiclassVbfCatBoundaries0.size() << endl;
-            std::cout << "multiclassVbfCatBoundaries1 size = " << multiclassVbfCatBoundaries1.size() << endl;
-            std::cout << "multiclassVbfCatBoundaries2 size = " << multiclassVbfCatBoundaries2.size() << endl;
-            assert( 0 );
-        }
-        nVBFCategories   = vsize[0]-1;
-        cout << "@@@@@@@@@@@@@@@@@ 	nVBFCategories = " << 	nVBFCategories << endl;
-        std::sort(multiclassVbfCatBoundaries0.begin(),multiclassVbfCatBoundaries0.end(), std::greater<float>() );
-        std::sort(multiclassVbfCatBoundaries1.begin(),multiclassVbfCatBoundaries1.end(), std::greater<float>() );
-        std::sort(multiclassVbfCatBoundaries2.begin(),multiclassVbfCatBoundaries2.end(), std::greater<float>() );
-    }
     
     nCategories_=(nInclusiveCategories_+nVBFCategories+nVHlepCategories+nVHmetCategories+nVHhadCategories+nVHhadBtagCategories+nTTHhadCategories+nTTHlepCategories);
     
@@ -650,16 +665,19 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
         }
 
         if(includeVBF) {   
-            diphotonVBF_id = l.DiphotonMITPreSelection(leadEtVBFCut,subleadEtVBFCut,phoidMvaCut,applyPtoverM, 
-                                                        &smeared_pho_energy[0], vetodipho, kinonly );
-            float eventweight = weight * smeared_pho_weight[l.dipho_leadind[diphotonVBF_id]] * smeared_pho_weight[l.dipho_subleadind[diphotonVBF_id]] * genLevWeight;
-            float myweight=1.;
-            if(eventweight*sampleweight!=0) myweight=eventweight/sampleweight;
-            
-            VBFevent= ( run7TeV4Xanalysis ? 
-                VBFTag2011(l, diphotonVBF_id, &smeared_pho_energy[0], true, eventweight, myweight) :
-                VBFTag2012(vbfIjet1, vbfIjet2, l, diphotonVBF_id, &smeared_pho_energy[0], true, eventweight, myweight) );
-
+            if (combinedmvaVbfSelection) {
+                VBFevent = VBFTag2013(vbfIjet1, vbfIjet2, l, diphotonVBF_id, &smeared_pho_energy[0], vetodipho, kinonly, true);
+            } else {
+                diphotonVBF_id = l.DiphotonMITPreSelection(leadEtVBFCut,subleadEtVBFCut,phoidMvaCut,applyPtoverM, 
+                                                            &smeared_pho_energy[0], vetodipho, kinonly );
+                float eventweight = weight * smeared_pho_weight[l.dipho_leadind[diphotonVBF_id]] * smeared_pho_weight[l.dipho_subleadind[diphotonVBF_id]] * genLevWeight;
+                float myweight=1.;
+                if(eventweight*sampleweight!=0) myweight=eventweight/sampleweight;
+                
+                VBFevent= ( run7TeV4Xanalysis ? 
+                    VBFTag2011(l, diphotonVBF_id, &smeared_pho_energy[0], true, eventweight, myweight) :
+                    VBFTag2012(vbfIjet1, vbfIjet2, l, diphotonVBF_id, &smeared_pho_energy[0], true, eventweight, myweight) );
+            }
         }
 
         if(includeTTHlep){
@@ -766,23 +784,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
             diphobdt_output = GetDiphoMva(l, diphoton_id, doMCSmearing, syst_shift);
         }
         
-        // Compute VBF+dipho BDT
-        float diphovbfBDT_output = -999.;
-        if (combinedmvaVbfSelection) {
-            myVBFDIPHObdt = diphobdt_output;
-            myVBFDIPHOdijet = myVBF_MVA;
-            myVBFDiPhoPtOverM = Higgs.Pt()/Higgs.M();
-            diphovbfBDT_output = tmvaVbfDiphoReader_->EvaluateMVA(mvaVbfDiphoMethod);
-        }
-
         kinematic_bdtout = diphobdt_output;
-
-        //if we want to cut on diphobdt_output for exclusive categories
-        if(includeTTHlep && diphobdt_output<diphobdt_output_Cut_TTHlep) TTHlepevent=false;
-        if(includeTTHhad && diphobdt_output<diphobdt_output_Cut_TTHhad) TTHhadevent=false;
-        if(includeVHhadBtag && diphobdt_output<diphobdt_output_Cut_VHhadBtag) VHhadBtagevent=false;
-        if(includeVHhad && diphobdt_output<diphobdt_output_Cut_VHhad) VHhadevent=false;
-
 
         // apply di-photon level smearings and corrections
         if( cur_type != 0 && doMCSmearing ) {
@@ -807,10 +809,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
         bool isEBEB  = fabs(lead_p4.Eta() < 1.4442 ) && fabs(sublead_p4.Eta()<1.4442);
         category = GetBDTBoundaryCategory(diphobdt_output,isEBEB,VBFevent);
         if (diphobdt_output>=bdtCategoryBoundaries.back()) { 
-            if (combinedmvaVbfSelection && vbfVsDiphoVbfSelection)
-                computeExclusiveCategory(l, category, diphoton_index, Higgs.Pt(), diphovbfBDT_output); 
-            else
-                computeExclusiveCategory(l, category, diphoton_index, Higgs.Pt(), diphobdt_output); 
+            computeExclusiveCategory(l, category, diphoton_index, Higgs.Pt(), diphobdt_output, true); 
         }
 
         if (fillOptTree) {

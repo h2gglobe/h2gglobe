@@ -41,7 +41,8 @@ eventLevelMvaMIT=aux/HggBambu_SMDipho_Jul07_BDTG.weights.xml
 #bkgPolOrderByCat=4,5,5,5,3,4,3,3,3 HCP
 #bkgPolOrderByCat=5,5,5,5,4,4,3,3,3 MORIOND13
 #tth and vhhad categories added
-bkgPolOrderByCat=5,5,5,5,4,4,3,3,3,-10,2,3,3
+#bkgPolOrderByCat=5,5,5,5,4,4,3,3,3,-10,2,3,3
+bkgPolOrderByCat=5,5,5,5,3,4,4,3,3,3,-10,2,3,3
 
 # photon ID preselection
 phoidMvaCut=-0.2

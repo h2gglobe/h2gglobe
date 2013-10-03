@@ -130,10 +130,8 @@ class StatAnalysis : public PhotonAnalysis
     std::vector<float> smeared_pho_r9;
     std::vector<float> smeared_pho_weight;
 
-    void  computeExclusiveCategory(LoopAll & l, int & category, std::pair<int,int> diphoton_index, float pt, float diphoBDT=1. );
+    void  computeExclusiveCategory(LoopAll & l, int & category, std::pair<int,int> diphoton_index, float pt, float diphoBDT=1., bool mvaselection=false);
     void computeSpinCategory(LoopAll &l, int &category, TLorentzVector lead_p4, TLorentzVector sublead_p4);
-    int  categoryFromBoundaries(std::vector<float> & v, float val);
-    int  categoryFromBoundaries2D(std::vector<float> & v1, std::vector<float> & v2, std::vector<float> & v3, float val1, float val2, float val3);
 
     void fillControlPlots(const TLorentzVector & lead_p4, const  TLorentzVector & sublead_p4, const TLorentzVector & Higgs, 
 			  float lead_r9, float sublead_r9, int diphoton_index, 

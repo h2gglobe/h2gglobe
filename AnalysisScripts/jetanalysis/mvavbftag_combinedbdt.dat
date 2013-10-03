@@ -7,9 +7,11 @@ leadEtVBFCut=40
 subleadEtVBFCut=30
 mvaVbfDiphoWeights=aux/TMVA_vbf_dijet_dipho_BDT_oddb_sherpa_fixwt_plusdiphoptom_Gradient.weights.xml
 mvaVbfDiphoMethod=Gradient
-vbfVsDiphoVbfSelection=1
+vbfVsDiphoVbfSelection=0
 multiclassVbfSelection=0
 mvaVbfCatBoundaries=
-multiclassVbfCatBoundaries0=1.,0.58
-multiclassVbfCatBoundaries1=1.,0.973,0.869,0.595
+#dijet BDT
+multiclassVbfCatBoundaries0=1,0.615,0.615,0.59
+#combined BDT
+multiclassVbfCatBoundaries1=1,0.972,0.87,0.59
 multiclassVbfCatBoundaries2=10.,-10.
