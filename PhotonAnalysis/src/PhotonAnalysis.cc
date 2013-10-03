@@ -1331,100 +1331,99 @@ void PhotonAnalysis::Init(LoopAll& l)
         fgbr->Close();
     */
 
-    // ---------------------- LOAD Regression Classes ---------------------//
-    // Implementation copied over from ... 
-    // https://github.com/bendavid/GBRLikelihoodEGTools/commit/7aff712aa93c69e5e04664d7556a6bd646af479c#diff-57e3515cb45eaf6857c6bf3a0481aca0
-    if (regressionVersion==5){
-            //initialize eval vector
-        _vals.resize(37);
-       
-        if( l.typerun == LoopAll::kReduce ) {
-            //load forests from file
-            TFile *fgbr = TFile::Open(regressionFile.c_str(),"READ");    
-            fgbr->GetObject("EGRegressionForest_EB", _foresteb);
-            fgbr->GetObject("EGRegressionForest_EE", _forestee);
-            fgbr->Close();
-        }
+    if( l.typerun == LoopAll::kReduce ) {
+        // ---------------------- LOAD Regression Classes ---------------------//
+        // Implementation copied over from ... 
+        // https://github.com/bendavid/GBRLikelihoodEGTools/commit/7aff712aa93c69e5e04664d7556a6bd646af479c#diff-57e3515cb45eaf6857c6bf3a0481aca0
+        if (regressionVersion==5){
+                //initialize eval vector
+            _vals.resize(37);
+           
+                //load forests from file
+                TFile *fgbr = TFile::Open(regressionFile.c_str(),"READ");    
+                fgbr->GetObject("EGRegressionForest_EB", _foresteb);
+                fgbr->GetObject("EGRegressionForest_EE", _forestee);
+                fgbr->Close();
 
-        //recreate pdf with constraint transformations (can't load directly from file due to weird RooWorkspace IO features)
-        
-        _tgt = new RooRealVar("tgt","",1.);
-        _mean = new RooRealVar("mean","",1.);
-        _sigma = new RooRealVar("sigma","",1.);
-        _n1 = new RooRealVar("n1","",2.);
-        _n2 = new RooRealVar("n2","",2.);
-        
-        _sigmalim = new RooRealConstraint("sigmalim","",*_sigma,0.0002,0.5);
-        _meanlim = new RooRealConstraint("meanlim","",*_mean,0.2,2.0);
-        _n1lim = new RooRealConstraint("n1lim","",*_n1,1.01,110.);
-        _n2lim = new RooRealConstraint("n2lim","",*_n2,1.01,110.);     
-        
-        _pdf = new RooDoubleCBFast("sigpdf","",*_tgt,RooFit::RooConst(1.),
-                       *_sigmalim,RooFit::RooConst(2.0),*_n1lim,RooFit::RooConst(1.0),*_n2lim);
-        
-        //add to RooArgList for proper garbage collection
-        _args.addOwned(*_tgt);
-        _args.addOwned(*_mean);
-        _args.addOwned(*_sigma);
-        _args.addOwned(*_n1);
-        _args.addOwned(*_n2);
-        _args.addOwned(*_sigmalim);
-        _args.addOwned(*_meanlim);
-        _args.addOwned(*_n1lim);
-        _args.addOwned(*_n2lim);
-        _args.addOwned(*_pdf);    
-   } 
-   else if (regressionVersion==8){ // This is for 7 TeV (we would use V8)
-      //initialize eval vector
-      _vals.resize(37);
-      
-      //load forests from file
-      if( l.typerun == LoopAll::kReduce ) {
-            //load forests from file
-            TFile *fgbr = TFile::Open(regressionFile.c_str(),"READ");    
-            fgbr->GetObject("EGRegressionForest_EB", _forestDeb);
-            fgbr->GetObject("EGRegressionForest_EE", _forestDee);
-            fgbr->Close();      
-      }
-      
-      //recreate pdf with constraint transformations (can't load directly from file due to weird RooWorkspace IO features)
-      
-      _tgt = new RooRealVar("tgt","",1.);
-      _mean = new RooRealVar("mean","",1.);
-      _sigma = new RooRealVar("sigma","",0.01);
-      _n1 = new RooRealVar("n1","",2.);
-      _n2 = new RooRealVar("n2","",2.);
-      
-      _sigmalim = new RooRealConstraint("sigmalim","",*_sigma,0.0002,0.5);
-      _meanlim = new RooRealConstraint("meanlim","",*_mean,0.2,2.0);
-      _n1lim = new RooRealConstraint("n1lim","",*_n1,1.01,5000.);
-      _n2lim = new RooRealConstraint("n2lim","",*_n2,1.01,5000.);
-      
-      RooConstVar *alpha1 = new RooConstVar("alpha1","",2.0);
-      RooConstVar *alpha2 = new RooConstVar("alpha2","",1.0);
-      
-      _pdf = new RooDoubleCBFast("sigpdf","",*_tgt,*_meanlim,*_sigmalim,*alpha1,*_n1lim,*alpha2,*_n2lim);
-      
-      //add to RooArgList for proper garbage collection
-      _args.addOwned(*_tgt);
-      _args.addOwned(*_mean);
-      _args.addOwned(*_sigma);
-      _args.addOwned(*_n1);
-      _args.addOwned(*_n2);
-      _args.addOwned(*alpha1);
-      _args.addOwned(*alpha2);
-      _args.addOwned(*_sigmalim);
-      _args.addOwned(*_meanlim);
-      _args.addOwned(*_n1lim);
-      _args.addOwned(*_n2lim);
-      _args.addOwned(*_pdf);        
+            //recreate pdf with constraint transformations (can't load directly from file due to weird RooWorkspace IO features)
+            
+            _tgt = new RooRealVar("tgt","",1.);
+            _mean = new RooRealVar("mean","",1.);
+            _sigma = new RooRealVar("sigma","",1.);
+            _n1 = new RooRealVar("n1","",2.);
+            _n2 = new RooRealVar("n2","",2.);
+            
+            _sigmalim = new RooRealConstraint("sigmalim","",*_sigma,0.0002,0.5);
+            _meanlim = new RooRealConstraint("meanlim","",*_mean,0.2,2.0);
+            _n1lim = new RooRealConstraint("n1lim","",*_n1,1.01,110.);
+            _n2lim = new RooRealConstraint("n2lim","",*_n2,1.01,110.);     
+            
+            _pdf = new RooDoubleCBFast("sigpdf","",*_tgt,RooFit::RooConst(1.),
+                           *_sigmalim,RooFit::RooConst(2.0),*_n1lim,RooFit::RooConst(1.0),*_n2lim);
+            
+            //add to RooArgList for proper garbage collection
+            _args.addOwned(*_tgt);
+            _args.addOwned(*_mean);
+            _args.addOwned(*_sigma);
+            _args.addOwned(*_n1);
+            _args.addOwned(*_n2);
+            _args.addOwned(*_sigmalim);
+            _args.addOwned(*_meanlim);
+            _args.addOwned(*_n1lim);
+            _args.addOwned(*_n2lim);
+            _args.addOwned(*_pdf);    
+       } 
+       else if (regressionVersion==8){ // This is for 7 TeV (we would use V8)
+          //initialize eval vector
+          _vals.resize(37);
+          
+          //load forests from file
+          if( l.typerun == LoopAll::kReduce ) {
+                //load forests from file
+                TFile *fgbr = TFile::Open(regressionFile.c_str(),"READ");    
+                fgbr->GetObject("EGRegressionForest_EB", _forestDeb);
+                fgbr->GetObject("EGRegressionForest_EE", _forestDee);
+                fgbr->Close();      
+          }
+          
+          //recreate pdf with constraint transformations (can't load directly from file due to weird RooWorkspace IO features)
+          
+          _tgt = new RooRealVar("tgt","",1.);
+          _mean = new RooRealVar("mean","",1.);
+          _sigma = new RooRealVar("sigma","",0.01);
+          _n1 = new RooRealVar("n1","",2.);
+          _n2 = new RooRealVar("n2","",2.);
+          
+          _sigmalim = new RooRealConstraint("sigmalim","",*_sigma,0.0002,0.5);
+          _meanlim = new RooRealConstraint("meanlim","",*_mean,0.2,2.0);
+          _n1lim = new RooRealConstraint("n1lim","",*_n1,1.01,5000.);
+          _n2lim = new RooRealConstraint("n2lim","",*_n2,1.01,5000.);
+          
+          RooConstVar *alpha1 = new RooConstVar("alpha1","",2.0);
+          RooConstVar *alpha2 = new RooConstVar("alpha2","",1.0);
+          
+          _pdf = new RooDoubleCBFast("sigpdf","",*_tgt,*_meanlim,*_sigmalim,*alpha1,*_n1lim,*alpha2,*_n2lim);
+          
+          //add to RooArgList for proper garbage collection
+          _args.addOwned(*_tgt);
+          _args.addOwned(*_mean);
+          _args.addOwned(*_sigma);
+          _args.addOwned(*_n1);
+          _args.addOwned(*_n2);
+          _args.addOwned(*alpha1);
+          _args.addOwned(*alpha2);
+          _args.addOwned(*_sigmalim);
+          _args.addOwned(*_meanlim);
+          _args.addOwned(*_n1lim);
+          _args.addOwned(*_n2lim);
+          _args.addOwned(*_pdf);        
 
+       }
+       else {  
+        std::cout << "PhotonAnalysis -- Regression versions 5 and 8 are implemented only!" << std::endl;
+        (assert(0)); 
+       } 
    }
-   else {  
-    std::cout << "PhotonAnalysis -- Regression versions 5 and 8 are implemented only!" << std::endl;
-    (assert(0)); 
-   }
-    
     // --------------------------------------------------------------------
    if(PADEBUG)
        cout << "InitRealPhotonAnalysis END"<<endl;
