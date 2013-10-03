@@ -24,6 +24,8 @@ elif [[ -n $1 ]]; then
     njobs=$1 && shift
 fi
 
+## make sure that we'll be able to ssh from the batch machine to copy files
+( ssh-keygen -F $(hostname) | grep $(hostname) >&/dev/null ) || ( ssh-keyscan -t rsa $(hostname) >> ~/.ssh/known_hosts )
 
 proxy=""
 if [[ -f ${X509_USER_PROXY} ]]; then
