@@ -709,7 +709,7 @@ bool StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     
     // Analyse the event assuming nominal values of corrections and smearings
     float mass, evweight, diphotonMVA;
-    int diphoton_id=-1, category;
+    int diphoton_id=-1, category=-1;
     bool isCorrectVertex;
     bool storeEvent = false;
     if( AnalyseEvent(l,jentry, weight, gP4, mass,  evweight, category, diphoton_id, isCorrectVertex,diphotonMVA) ) {
@@ -717,7 +717,7 @@ bool StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
         FillRooContainer(l, cur_type, mass, diphotonMVA, category, evweight, isCorrectVertex, diphoton_id);
         storeEvent = true;
     }
-
+    
     // Systematics uncertaities for the binned model
     // We re-analyse the event several times for different values of corrections and smearings
     if( cur_type < 0 && doMCSmearing && doSystematics ) {
@@ -744,8 +744,8 @@ bool StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
                     // re-analyse the event without redoing the event selection as we use nominal values for the single photon
                     // corrections and smearings
-                    AnalyseEvent(l, jentry, weight, gP4, syst_mass,  syst_weight, syst_category, diphoton_id, isCorrectVertex,syst_diphotonMVA,
-                            true, syst_shift, true, *si, 0, 0 );
+                    AnalyseEvent(l, jentry, weight, gP4, syst_mass,  syst_weight, syst_category, diphoton_id, isCorrectVertex,
+				 syst_diphotonMVA, true, syst_shift, true, *si, 0, 0 );
 
                     AccumulateSyst( cur_type, syst_mass, syst_diphotonMVA, syst_category, syst_weight,
                             mass_errors, mva_errors, categories, weights);
@@ -764,8 +764,8 @@ bool StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
                     // re-analyse the event without redoing the event selection as we use nominal values for the single photon
                     // corrections and smearings
-                    AnalyseEvent(l,jentry, weight, gP4, syst_mass,  syst_weight, syst_category, diphoton_id, isCorrectVertex,syst_diphotonMVA,
-                            true, syst_shift, true,  0, 0, *si );
+                    AnalyseEvent(l,jentry, weight, gP4, syst_mass,  syst_weight, syst_category, diphoton_id, isCorrectVertex,
+				 syst_diphotonMVA, true, syst_shift, true,  0, 0, *si );
 
                     AccumulateSyst( cur_type, syst_mass, syst_diphotonMVA, syst_category, syst_weight,
                             mass_errors, mva_errors, categories, weights);
@@ -774,8 +774,9 @@ bool StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
                 FillRooContainerSyst(l, (*si)->name(), cur_type, mass_errors, mva_errors, categories, weights, diphoton_id);
             }
         }
-
-        int diphoton_id_syst;
+	
+        int diphoton_id_syst=-1;
+	category=-1;
         // single photon level systematics: several
         for(std::vector<BaseSmearer *>::iterator  si=systPhotonSmearers_.begin(); si!= systPhotonSmearers_.end(); ++si ) {
             mass_errors.clear(), weights.clear(), categories.clear(), mva_errors.clear();
@@ -785,14 +786,14 @@ bool StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
                 syst_mass     =  0., syst_category = -1, syst_weight   =  0.;
 
                 // re-analyse the event redoing the event selection this time
-                AnalyseEvent(l,jentry, weight, gP4, syst_mass,  syst_weight, syst_category, diphoton_id_syst, isCorrectVertex,syst_diphotonMVA,
-                        true, syst_shift, false,  0, *si, 0 );
-
+                AnalyseEvent(l,jentry, weight, gP4, syst_mass,  syst_weight, syst_category, diphoton_id_syst, isCorrectVertex,
+			     syst_diphotonMVA, true, syst_shift, false,  0, *si, 0 );
+		
                 AccumulateSyst( cur_type, syst_mass, syst_diphotonMVA, syst_category, syst_weight,
                         mass_errors, mva_errors, categories, weights);
             }
-
-            FillRooContainerSyst(l, (*si)->name(), cur_type, mass_errors, mva_errors, categories, weights, diphoton_id);
+	    
+            FillRooContainerSyst(l, (*si)->name(), cur_type, mass_errors, mva_errors, categories, weights, diphoton_id_syst);
         }
     }
 
