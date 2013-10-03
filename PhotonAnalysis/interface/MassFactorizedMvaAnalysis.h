@@ -77,8 +77,10 @@ class MassFactorizedMvaAnalysis : public StatAnalysis
     std::string eventLevelMvaMIT    ;
     std::string photonLevelNewIDMVA_EB;
     std::string photonLevelNewIDMVA_EE;
+    std::string photonLevel2013IDMVA_EB;
+    std::string photonLevel2013IDMVA_EE;
 
-    std::vector<float> bdtCategoryBoundaries;
+     std::vector<float> bdtCategoryBoundaries;
     
  protected:
 

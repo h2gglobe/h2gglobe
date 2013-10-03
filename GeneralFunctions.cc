@@ -168,7 +168,6 @@ void LoopAll::SetAllMVA() {
   tmvaReader_dipho_MIT->AddVariable("ph1.idmva",                   &tmva_dipho_MIT_ph1mva);
   tmvaReader_dipho_MIT->AddVariable("ph2.idmva",                   &tmva_dipho_MIT_ph2mva);
 
- 
   tmvaReaderID_Single_Barrel = new TMVA::Reader("!Color:Silent");
   tmvaReaderID_Single_Barrel->AddVariable("ph.r9",   &tmva_photonid_r9 );
   tmvaReaderID_Single_Barrel->AddVariable("ph.sigietaieta",   &tmva_photonid_sieie );
@@ -212,7 +211,7 @@ void LoopAll::SetAllMVA() {
   tmvaReaderID_2013_Barrel->AddVariable("rho",   &tmva_photonid_eventrho );
   
   tmvaReaderID_2013_Endcap = new TMVA::Reader("!Color:Silent");
-  tmvaReaderID_2013_Barrel->AddVariable("ph.scrawe",   &tmva_photonid_scrawe );
+  tmvaReaderID_2013_Endcap->AddVariable("ph.scrawe",   &tmva_photonid_scrawe );
   tmvaReaderID_2013_Endcap->AddVariable("ph.r9",   &tmva_photonid_r9 );
   tmvaReaderID_2013_Endcap->AddVariable("ph.sigietaieta",   &tmva_photonid_sieie );
   tmvaReaderID_2013_Endcap->AddVariable("ph.scetawidth",   &tmva_photonid_etawidth );
@@ -256,7 +255,7 @@ Float_t LoopAll::photonIDMVA2013(Int_t iPhoton, Int_t vtx, TLorentzVector &p4, c
   tmva_photonid_eventrho = rho_algo1;
   tmva_photonid_sceta    = ((TVector3*)sc_xyz->At(pho_scind[iPhoton]))->Eta(); 
   tmva_photonid_ESEffSigmaRR = pho_ESEffSigmaRR[iPhoton];
-  
+
   if (pho_isEB[iPhoton]) {
     mva = tmvaReaderID_2013_Barrel->EvaluateMVA("AdaBoost");
   } else {
@@ -293,7 +292,7 @@ Float_t LoopAll::photonIDMVANew(Int_t iPhoton, Int_t vtx, TLorentzVector &p4, co
   tmva_photonid_eventrho = rho_algo1;
   tmva_photonid_sceta    = ((TVector3*)sc_xyz->At(pho_scind[iPhoton]))->Eta(); 
   tmva_photonid_ESEffSigmaRR = pho_ESEffSigmaRR[iPhoton];
-  
+
   if (pho_isEB[iPhoton]) {
     mva = tmvaReaderID_Single_Barrel->EvaluateMVA("AdaBoost");
   }
@@ -386,7 +385,6 @@ Float_t LoopAll::photonIDMVA(Int_t iPhoton, Int_t vtx, TLorentzVector &p4, const
   cout << tmva_id_mit_preshower << endl;
   cout << "--------------------" <<endl;
 */
-
         if (pho_isEB[iPhoton]) 
             mva = tmvaReaderID_MIT_Barrel->EvaluateMVA("AdaBoost");
         else
@@ -436,19 +434,19 @@ Float_t LoopAll::diphotonMVA(Int_t leadingPho, Int_t subleadingPho, Int_t vtx, f
 //    tmva_dipho_MIT_dphi = TMath::Cos(((TLorentzVector*)pho_p4->At(leadingPho))->Phi() - ((TLorentzVector*)pho_p4->At(subleadingPho))->Phi());
         tmva_dipho_MIT_dphi = TMath::Cos(leadP4.Phi() - subleadP4.Phi());
       
-        if (photonID_1 < -1. && photonID_2 < -1.){
-	    tmva_dipho_MIT_ph1mva = ( version >= 13 ? photonIDMVANew(leadingPho,vtx, leadP4, "MIT") : 
-				      photonIDMVA(leadingPho,vtx, leadP4, "MIT") );
-            tmva_dipho_MIT_ph2mva = ( version >= 13 ? photonIDMVANew(subleadingPho,vtx, subleadP4, "MIT") :
-				      photonIDMVANew(subleadingPho,vtx, subleadP4, "MIT") );
+        if (photonID_1 < -1. && photonID_2 < -1.) {
+	  tmva_dipho_MIT_ph1mva = ( version >= 13 ? photonIDMVA2013(leadingPho,vtx, leadP4, "MIT") : 
+				    photonIDMVA(leadingPho,vtx, leadP4, "MIT") );
+	  tmva_dipho_MIT_ph2mva = ( version >= 13 ? photonIDMVANew(subleadingPho,vtx, subleadP4, "MIT") :
+				    photonIDMVA2013(subleadingPho,vtx, subleadP4, "MIT") );
         } else {
-            tmva_dipho_MIT_ph1mva = photonID_1;//photonIDMVANew(leadingPho,vtx, leadP4, "MIT");
-            tmva_dipho_MIT_ph2mva = photonID_2;//photonIDMVANew(subleadingPho,vtx, subleadP4, "MIT");
-
+	  tmva_dipho_MIT_ph1mva = photonID_1;
+	  tmva_dipho_MIT_ph2mva = photonID_2;
         }
-        mva = tmvaReader_dipho_MIT->EvaluateMVA("Gradient");
+	
+	mva = tmvaReader_dipho_MIT->EvaluateMVA("Gradient");
     }
-  
+
     return mva;
 }
 
@@ -2956,7 +2954,7 @@ int LoopAll::DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL, phoCiCIDLevel SUB
     }else{
             if( applyPtoverM ) {
 		    if ( leadpt/m_gamgam < leadPtMin/120. || subleadpt/m_gamgam < subleadPtMin/120. ||
-			 leadpt < 100./3. || subleadpt < 100./4.) { continue; }
+			 leadpt < 100./3. || subleadpt < 100./4.) { continue; } 
             } else {
 		    if ( leadpt < leadPtMin || subleadpt < subleadPtMin ) { continue; }
             }
@@ -3101,10 +3099,10 @@ float LoopAll::DiphotonMITPreSelectionPerDipho(int idipho, Float_t leadPtMin, Fl
     
     if( split ) {
         if ( leadpt/m_gamgam < leadPtMin/120. || subleadpt < 25. ||
-             leadpt < 100./3. ) { return -99; }
+             leadpt < 100./3. ) { return -99; } 
     } else if( applyPtoverM ) {
         if ( leadpt/m_gamgam < leadPtMin/120. || subleadpt/m_gamgam < subleadPtMin/120. ||
-             leadpt < 100./3. || subleadpt < 100./4.) { return -99; }
+             leadpt < 100./3. || subleadpt < 100./4.) { return -99; } 
     } else {
         if ( leadpt < leadPtMin || subleadpt < subleadPtMin ) { return -99; }
     }
@@ -3121,15 +3119,15 @@ float LoopAll::DiphotonMITPreSelectionPerDipho(int idipho, Float_t leadPtMin, Fl
     }
 
     if (!kinonly) {
-        if( version >= 13 ) {
-            if ( photonIDMVANew(lead,ivtx,lead_p4,"MIT") <= phoidMvaCut
-                || photonIDMVANew(sublead,ivtx,sublead_p4,"MIT")  <= phoidMvaCut
-	              ) {return -99;}
-        } else {
-	          if ( photonIDMVA(lead,ivtx,lead_p4,"MIT") <= phoidMvaCut
-	              || photonIDMVA(sublead,ivtx,sublead_p4,"MIT") <= phoidMvaCut
-	              ) {return -99;}
-        }
+      if( version >= 13 ) {
+	if ( photonIDMVA2013(lead,ivtx,lead_p4,"MIT") <= phoidMvaCut
+	     || photonIDMVA2013(sublead,ivtx,sublead_p4,"MIT")  <= phoidMvaCut
+	     ) {return -99;}
+      } else {
+	if ( photonIDMVA(lead,ivtx,lead_p4,"MIT") <= phoidMvaCut
+	     || photonIDMVA(sublead,ivtx,sublead_p4,"MIT") <= phoidMvaCut
+	     ) {return -99;}
+      }
     }
     
     return (leadpt+subleadpt);

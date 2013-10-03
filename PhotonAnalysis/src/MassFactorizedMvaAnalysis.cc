@@ -405,27 +405,34 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
     // UCSD
     l.tmvaReaderID_UCSD->BookMVA("Gradient"      ,photonLevelMvaUCSD.c_str()  );
     //// l.tmvaReader_dipho_UCSD->BookMVA("Gradient"  ,eventLevelMvaUCSD.c_str()   );
-    // New ID MVA
-    if( photonLevelNewIDMVA_EB != "" && photonLevelNewIDMVA_EE != "" ) {
-	l.tmvaReaderID_Single_Barrel->BookMVA("AdaBoost",photonLevelNewIDMVA_EB.c_str());
-	l.tmvaReaderID_Single_Endcap->BookMVA("AdaBoost",photonLevelNewIDMVA_EE.c_str());
+
+    // 2013 ID MVA
+    if( photonLevel2013IDMVA_EB != "" && photonLevel2013IDMVA_EE != "" ) {
+	l.tmvaReaderID_2013_Barrel->BookMVA("AdaBoost",photonLevel2013IDMVA_EB.c_str());
+	l.tmvaReaderID_2013_Endcap->BookMVA("AdaBoost",photonLevel2013IDMVA_EE.c_str());
     } else { 
 	assert( run7TeV4Xanalysis );
     }
+    // New ID MVA
+    if( photonLevelNewIDMVA_EB != "" && photonLevelNewIDMVA_EE != "" ) {
+    	l.tmvaReaderID_Single_Barrel->BookMVA("AdaBoost",photonLevelNewIDMVA_EB.c_str());
+    	l.tmvaReaderID_Single_Endcap->BookMVA("AdaBoost",photonLevelNewIDMVA_EE.c_str());
+    } else { 
+    	assert( run7TeV4Xanalysis );
+    }
     // MIT 
     if( photonLevelMvaMIT_EB != "" && photonLevelMvaMIT_EE != "" ) {
-	l.tmvaReaderID_MIT_Barrel->BookMVA("AdaBoost",photonLevelMvaMIT_EB.c_str());
-	l.tmvaReaderID_MIT_Endcap->BookMVA("AdaBoost",photonLevelMvaMIT_EE.c_str());
+    	l.tmvaReaderID_MIT_Barrel->BookMVA("AdaBoost",photonLevelMvaMIT_EB.c_str());
+    	l.tmvaReaderID_MIT_Endcap->BookMVA("AdaBoost",photonLevelMvaMIT_EE.c_str());
     } else {
-	assert( ! run7TeV4Xanalysis );
+    	assert( ! run7TeV4Xanalysis );
     }
-    l.tmvaReader_dipho_MIT->BookMVA("Gradient"   ,eventLevelMvaMIT.c_str()    );
+
+    l.tmvaReader_dipho_MIT->BookMVA("Gradient"   ,eventLevelMvaMIT.c_str());
     // ----------------------------------------------------------------------//
     
     if(PADEBUG) 
         cout << "InitRealMassFactorizedMvaAnalysis END"<<endl;
-
-    // FIXME book of additional variables
 }
 
 
@@ -2054,16 +2061,16 @@ void MassFactorizedMvaAnalysis::ComputeDiphoMvaInputs(LoopAll &l, float &phoid_m
     vtxProb = vtxAna_.vertexProbability(vtx_mva);
     
     phoid_mvaout_lead = ( run7TeV4Xanalysis ? 
-              l.photonIDMVA(l.dipho_leadind[diphoton_id],l.dipho_vtxind[diphoton_id],
-                  lead_p4,bdtTrainingPhilosophy.c_str()) :
-              l.photonIDMVANew(l.dipho_leadind[diphoton_id],l.dipho_vtxind[diphoton_id],
-                  lead_p4,bdtTrainingPhilosophy.c_str()) );
+			  l.photonIDMVA(l.dipho_leadind[diphoton_id],l.dipho_vtxind[diphoton_id],
+					lead_p4,bdtTrainingPhilosophy.c_str()) :
+			  l.photonIDMVA2013(l.dipho_leadind[diphoton_id],l.dipho_vtxind[diphoton_id],
+					    lead_p4,bdtTrainingPhilosophy.c_str()) );
     phoid_mvaout_sublead = ( run7TeV4Xanalysis ? 
-              l.photonIDMVA(l.dipho_subleadind[diphoton_id],l.dipho_vtxind[diphoton_id],
-                  sublead_p4,bdtTrainingPhilosophy.c_str()) : 
-              l.photonIDMVANew(l.dipho_subleadind[diphoton_id],l.dipho_vtxind[diphoton_id],
-                  sublead_p4,bdtTrainingPhilosophy.c_str()));
-
+			     l.photonIDMVA(l.dipho_subleadind[diphoton_id],l.dipho_vtxind[diphoton_id],
+					   sublead_p4,bdtTrainingPhilosophy.c_str()) : 
+			     l.photonIDMVA2013(l.dipho_subleadind[diphoton_id],l.dipho_vtxind[diphoton_id],
+					       sublead_p4,bdtTrainingPhilosophy.c_str()));
+    
     return;
 }
 

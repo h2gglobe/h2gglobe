@@ -2003,6 +2003,23 @@ void StatAnalysis::fillOpTree(LoopAll& l, const TLorentzVector & lead_p4, const 
         vbfcat=l.DijetSubCategory(myVBF_Mjj,myVBFLeadJPt,myVBFSubJPt,nVBFDijetJetCategories);
     }
 
+    Float_t njets10=0., njets15=0., njets20=0.;
+    for (Int_t i=0; i<l.jet_algoPF1_n; i++) {
+	Float_t et = ((TLorentzVector*)l.jet_algoPF1_p4->At(i))->Et();
+        
+	if (et > 10.)
+	    njets10 += 1.;
+	if (et > 15.)
+	    njets15 += 1.;
+	if (et > 20.)
+	    njets20 += 1.;
+    }
+
+    l.FillTree("njets10", njets10);
+    l.FillTree("njets15", njets15);
+    l.FillTree("njets20", njets20);
+
+
     if (vbfIjet1 != -1 && vbfIjet2 !=-1) {
         TLorentzVector* jet1 = (TLorentzVector*)l.jet_algoPF1_p4->At(vbfIjet1);
         TLorentzVector* jet2 = (TLorentzVector*)l.jet_algoPF1_p4->At(vbfIjet2);
