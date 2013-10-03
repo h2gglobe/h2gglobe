@@ -912,14 +912,13 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
               << "\tpho1_pfChargedIsoGood03:"   <<  (*l.pho_pfiso_mycharged03)[diphoton_index.first][l.dipho_vtxind[diphoton_id]] 
               << "\tpho1_pfChargedIsoBad03:"    <<  pfchargedisobad03_1
               << "\tpho1_pfPhotonIso03:"        <<  l.pho_pfiso_myphoton03[diphoton_index.first]
-              << "\tpho1_pfNeutralIso03:"       <<  l.pho_pfiso_myneutral03[diphoton_index.first]
               << "\tpho1_sieie:"                <<  l.pho_sieie[diphoton_index.first]
-              << "\tpho1_sieip:"                <<  l.pho_sieip[diphoton_index.first]
+              << "\tpho1_cieip:"                <<  l.pho_sieip[diphoton_index.first]
               << "\tpho1_etaWidth:"             <<  l.pho_etawidth[diphoton_index.first]
               << "\tpho1_phiWidth:"             <<  l.sc_sphi[diphoton_index.first]
-              << "\tpho1_lambdaRatio:"          <<  l.pho_lambdaratio[diphoton_index.first]
               << "\tpho1_s4Ratio:"              <<  l.pho_s4ratio[diphoton_index.first]
               << "\tpho1_ESEffSigmaRR:"         <<  l.pho_ESEffSigmaRR[diphoton_index.first]
+              << "\tpho1_scRawE:"               <<  l.sc_raw[l.pho_scind[diphoton_index.first]]
 
               << "\tpho2_ind:"                  <<  diphoton_index.second
               << "\tpho2_scInd:"                <<  l.pho_scind[diphoton_index.second]
@@ -938,14 +937,13 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
               << "\tpho2_pfChargedIsoGood03:"   <<  (*l.pho_pfiso_mycharged03)[diphoton_index.second][l.dipho_vtxind[diphoton_id]] 
               << "\tpho2_pfChargedIsoBad03:"    <<  pfchargedisobad03_2
               << "\tpho2_pfPhotonIso03:"        <<  l.pho_pfiso_myphoton03[diphoton_index.second]
-              << "\tpho2_pfNeutralIso03:"       <<  l.pho_pfiso_myneutral03[diphoton_index.second]
               << "\tpho2_sieie:"                <<  l.pho_sieie[diphoton_index.second]
-              << "\tpho2_sieip:"                <<  l.pho_sieip[diphoton_index.second]
+              << "\tpho2_cieip:"                <<  l.pho_sieip[diphoton_index.second]
               << "\tpho2_etaWidth:"             <<  l.pho_etawidth[diphoton_index.second]
               << "\tpho2_phiWidth:"             <<  l.sc_sphi[diphoton_index.second]
-              << "\tpho2_lambdaRatio:"          <<  l.pho_lambdaratio[diphoton_index.second]
               << "\tpho2_s4Ratio:"              <<  l.pho_s4ratio[diphoton_index.second]
               << "\tpho2_ESEffSigmaRR:"         <<  l.pho_ESEffSigmaRR[diphoton_index.second]
+              << "\tpho2_scRawE:"               <<  l.sc_raw[l.pho_scind[diphoton_index.second]]
 
               << "\tmass:"                      <<  mass 
               << "\trVtxSigmaMoM:"              <<  sigmaMrv/mass 
@@ -992,7 +990,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
                     << "\tdijet_dEta:"          <<  myVBFdEta
                     << "\tdijet_Zep:"           <<  myVBFZep
                     << "\tdijet_dPhi:"          <<  myVBFdPhi
-                    << "\tdijet_Mjj:"           <<  myVBF_Mjj;
+                    << "\tdijet_mass:"          <<  myVBF_Mjj;
             } else {
                 eventListText 
                     << "\tjet1_ind:"            <<  -999
