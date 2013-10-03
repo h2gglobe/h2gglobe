@@ -1,3 +1,21 @@
+# JIM stuff
+combinedmvaVbfSelection=1
+mvaVbfSelection=1
+mvaVbfWeights=aux/TMVA_dijet_sherpa_fixwt_limw2_oddb_nopt12_Gradient.weights.xml
+mvaVbfMethod=Gradient
+leadEtVBFCut=40
+subleadEtVBFCut=30
+mvaVbfDiphoWeights=aux/TMVA_vbf_dijet_dipho_BDT_oddb_sherpa_fixwt_plusdiphoptom_Gradient.weights.xml
+mvaVbfDiphoMethod=Gradient
+vbfVsDiphoVbfSelection=0
+multiclassVbfSelection=0
+mvaVbfCatBoundaries=
+#dijet BDT
+multiclassVbfCatBoundaries0=1,0.615,0.615,0.59
+#combined BDT
+multiclassVbfCatBoundaries1=1,0.972,0.87,0.59
+multiclassVbfCatBoundaries2=10.,-10.
+
 leadEtCut=40.0
 subleadEtCut=30.0
 
@@ -65,7 +83,6 @@ doEscaleSyst=1
 doEresolSmear=1
 doEresolSyst=1
 
-energyCorrectionMethod=Bendavid
 doEcorrectionSmear=1
 doEcorrectionSyst=0
 
