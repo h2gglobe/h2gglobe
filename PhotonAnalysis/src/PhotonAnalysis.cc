@@ -859,7 +859,7 @@ void PhotonAnalysis::Init(LoopAll& l)
 		
 		tmvaVbfDiphoReader_ = new TMVA::Reader("!Color:!Silent"); 
 		tmvaVbfDiphoReader_->AddVariable("bdt_incl",                       &myVBFDIPHObdt);
-		tmvaVbfDiphoReader_->AddVariable("bdt_dijet_sherpa_plusdiphoptom", &myVBFDIPHOdijet);
+		tmvaVbfDiphoReader_->AddVariable("bdt_dijet_sherpa_plusdiphoptom", &myVBF_MVA);
 		tmvaVbfDiphoReader_->AddVariable("dipho_pt/mass",                  &myVBFDiPhoPtOverM);
 		tmvaVbfDiphoReader_->BookMVA(mvaVbfDiphoMethod, mvaVbfDiphoWeights);
 	    } else {
@@ -4024,14 +4024,122 @@ bool PhotonAnalysis::VBFTag2012(int & ijet1, int & ijet2,
                 LoopAll& l, int diphoton_id, float* smeared_pho_energy, bool nm1, float eventweight,
                 float myweight, bool * jetid_flags)
 {
-    static std::vector<unsigned char> id_flags;
     bool tag = false;
-    bool localdebug = false;
+    bool getAngles = true;
+    
+    bool jetsPreselected=FillDijetVariables(ijet1, ijet2, l, diphoton_id, &smeared_pho_energy[0], jetid_flags, getAngles);
+    
+    if(jetsPreselected==false) return tag;
+    
+    if( mvaVbfSelection ) {
+        if( myVBFLeadJPt>30. && myVBFSubJPt>20. && myVBF_Mjj > 250. ) { // FIXME hardcoded pre-selection thresholds
+            if(nm1 && myVBF_Mgg>massMin && myVBF_Mgg<massMax) {
+                l.FillCutPlots(0,1,"_nminus1",eventweight,myweight);
+            }
+            if (!multiclassVbfSelection || vbfVsDiphoVbfSelection ){
+                myVBF_MVA = tmvaVbfReader_->EvaluateMVA(mvaVbfMethod);
+                tag       = (myVBF_MVA > mvaVbfCatBoundaries.back());
+            }
+            else {
+                myVBF_MVA0 = tmvaVbfReader_->EvaluateMulticlass(mvaVbfMethod)[0]; // signal vbf
+                myVBF_MVA1 = tmvaVbfReader_->EvaluateMulticlass(mvaVbfMethod)[1]; // dipho
+                myVBF_MVA2 = tmvaVbfReader_->EvaluateMulticlass(mvaVbfMethod)[2]; // gluglu
+                //do transformation for bkg mvas
+                myVBF_MVA1 = -myVBF_MVA1+1;
+                myVBF_MVA2 = -myVBF_MVA2+1;
+                tag        = (myVBF_MVA0 > multiclassVbfCatBoundaries0.back() && myVBF_MVA1 > multiclassVbfCatBoundaries1.back() && myVBF_MVA2 > multiclassVbfCatBoundaries2.back());
+            }
+            
+            // this is moved to StatAnalysis::fillControlPlots
+            // 	    if(nm1 && tag && myVBF_Mgg>massMin && myVBF_Mgg<massMax ) {
+            // 		l.FillCutPlots(0,1,"_sequential",eventweight,myweight);
+            // 	    }
+        }
+    } else {
+        if(nm1){
+            tag = l.ApplyCutsFill(0,1, eventweight, myweight);
+        } else {
+            tag = l.ApplyCuts(0,1);
+        }
+    }
+    
+    if( mvaVbfSpin && (mvaVbfSelection || multiclassVbfSelection) )
+    {
+        myVBFSpin_Discriminant = tmvaVbfSpinReader_->EvaluateMVA(mvaVbfSpinMethod);
+    }
+    
+    return tag;
+}
 
-    if(diphoton_id==-1) return tag;
+bool PhotonAnalysis::VBFTag2013(int & ijet1, int & ijet2, LoopAll& l, int& diphotonVBF_id, float* smeared_pho_energy, 
+                                 bool vetodipho, bool kinonly, bool mvaselection){
+    bool tag = false;
+    bool getAngles = false;
+    
+    diphotonVBF_id = l.DiphotonMITPreSelection(leadEtVBFCut,subleadEtVBFCut,phoidMvaCut,applyPtoverM, 
+                                                &smeared_pho_energy[0], vetodipho, kinonly );
+    if(diphotonVBF_id==-1){
+        return false;
+    } 
+    
+    bool jetsPreselected=FillDijetVariables(ijet1, ijet2, l, diphotonVBF_id, &smeared_pho_energy[0]);
+    
+    if(jetsPreselected==false) return tag;
+    
+    if(mvaselection){
+        int vbfcat=-1;
+        myVBFDIPHObdt   = l.dipho_BDT[diphotonVBF_id];
+        myVBF_MVA       = tmvaVbfReader_->EvaluateMVA(mvaVbfMethod);
+        myVBFcombined   = tmvaVbfDiphoReader_->EvaluateMVA(mvaVbfDiphoMethod);
+
+        if(PADEBUG) std::cout<<"dipho dijet pt/m combined "<<myVBFDIPHObdt<<" "<<myVBF_MVA<<" "<<myVBFDiPhoPtOverM<<" "<<myVBFcombined<<std::endl;
+
+        vbfcat=categoryFromBoundaries2D(multiclassVbfCatBoundaries0,multiclassVbfCatBoundaries1,multiclassVbfCatBoundaries2,
+                                        myVBF_MVA,                  myVBFcombined,              1000);
+        
+        if(PADEBUG) std::cout<<"vbfcat dijet combinedmva "<<vbfcat<<" "<<myVBF_MVA<<" "<<myVBFcombined<<std::endl;
+        if( vbfcat!=-1 ) tag = true;
+    }
+    return tag;
+}
+
+
+int PhotonAnalysis::categoryFromBoundaries(std::vector<float> & v, float val)
+{
+    int cat=-1;
+    // val == v[0] would be -1; needs special condition
+    if( val == v[0] ) { cat=0; }
+    else {
+        // bound is pointer to the ith boundary in v such that val>v[i]
+        std::vector<float>::iterator bound =  lower_bound( v.begin(), v.end(), val, std::greater<float>  ());
+        int cat = ( val >= *bound ? bound - v.begin() - 1 : bound - v.begin() );
+        if( cat >= v.size() - 1 ) { cat = -1; }
+    }
+    return cat;
+}
+
+int PhotonAnalysis::categoryFromBoundaries2D(std::vector<float> & v1, std::vector<float> & v2, std::vector<float> & v3, float val1, float val2, float val3 )
+{
+    int cat1temp =  categoryFromBoundaries(v1,val1);
+    int cat2temp =  categoryFromBoundaries(v2,val2);
+    int cat3temp =  categoryFromBoundaries(v3,val3);
+    std::vector<int> vcat;
+    vcat.push_back(cat1temp);
+    vcat.push_back(cat2temp);
+    vcat.push_back(cat3temp);
+    int cat =  *min_element(vcat.begin(), vcat.end())==-1 ? -1 : *max_element(vcat.begin(), vcat.end());
+    return cat;
+}
+bool PhotonAnalysis::FillDijetVariables(int & ijet1, int & ijet2, LoopAll& l, int diphoton_id, float* smeared_pho_energy,
+                                        bool * jetid_flags, bool getAngles){
+    bool filled=false;
+
+    if(diphoton_id==-1) return filled;
+    
+    static std::vector<unsigned char> id_flags;
 
     if( jetid_flags == 0 ) {
-        if(localdebug) std::cout<<"VBFTag2012 -- no id flags, re-making"<<std::endl;
+        if(PADEBUG) std::cout<<"FillDijetVariable -- no id flags, re-making"<<std::endl;
         switchJetIdVertex( l, l.dipho_vtxind[diphoton_id] );
         id_flags.resize(l.jet_algoPF1_n);
         for(int ijet=0; ijet<l.jet_algoPF1_n; ++ijet ) {
@@ -4042,9 +4150,11 @@ bool PhotonAnalysis::VBFTag2012(int & ijet1, int & ijet2,
 
     TLorentzVector lead_p4    = l.get_pho_p4( l.dipho_leadind[diphoton_id], l.dipho_vtxind[diphoton_id], &smeared_pho_energy[0]);
     TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphoton_id], l.dipho_vtxind[diphoton_id], &smeared_pho_energy[0]);
+    if(PADEBUG) std::cout<<"FillDijetVariable -- photon ind "<<l.dipho_leadind[diphoton_id]<<"\t"<<l.dipho_subleadind[diphoton_id]<<std::endl;
+    if(PADEBUG) std::cout<<"FillDijetVariable -- photon pt  "<<lead_p4.Pt()<<" "<<sublead_p4.Pt()<<std::endl;
 
     std::pair<int, int> jets;
-    if(localdebug) std::cout<<"VBFTag2012 -- getting highest pt jets -- with PU jetveto?"<<usePUjetveto<<std::endl;
+    if(PADEBUG) std::cout<<"FillDijetVariable -- getting highest pt jets -- with PU jetveto?"<<usePUjetveto<<std::endl;
     if(usePUjetveto){
         jets = l.Select2HighestPtJets(lead_p4, sublead_p4, jetid_flags );
     } else {
@@ -4052,21 +4162,21 @@ bool PhotonAnalysis::VBFTag2012(int & ijet1, int & ijet2,
     }
 
     if(jets.first==-1 || jets.second==-1) {
-        if(localdebug) std::cout<<"VBFTag2012 -- no jets"<<std::endl;
-        return tag;
+        if(PADEBUG) std::cout<<"FillDijetVariable -- no jets"<<std::endl;
+        return filled;
     }
 
     TLorentzVector diphoton = lead_p4+sublead_p4;
 
     ijet1 = jets.first; ijet2 = jets.second;
+    if(PADEBUG) std::cout<<"FillDijetVariable -- ijet1 ijet2 "<<ijet1<<" "<<ijet2<<std::endl;
     TLorentzVector* jet1 = (TLorentzVector*)l.jet_algoPF1_p4->At(jets.first);
     TLorentzVector* jet2 = (TLorentzVector*)l.jet_algoPF1_p4->At(jets.second);
     TLorentzVector dijet = (*jet1) + (*jet2);
     if(jet1->Pt() < jet2->Pt())
       std::swap(jet1, jet2);
 
-    myVBFLeadJEta= jet1->Eta();
-    myVBFSubJEta = jet2->Eta();
+
     myVBFLeadJPt= jet1->Pt();
     myVBFSubJPt = jet2->Pt();
     myVBF_Mjj   = dijet.M();
@@ -4086,47 +4196,10 @@ bool PhotonAnalysis::VBFTag2012(int & ijet1, int & ijet2,
     myVBF_etaJJ = (jet1->Eta() + jet2->Eta())/2;
     myVBF_leadEta = jet1->Eta();
     myVBF_subleadEta = jet2->Eta();
+    if(getAngles) VBFAngles(lead_p4, sublead_p4, *jet1, *jet2);
 
-    VBFAngles(lead_p4, sublead_p4, *jet1, *jet2);
-
-    if( mvaVbfSelection ) {
-	if( myVBFLeadJPt>30. && myVBFSubJPt>20. && myVBF_Mjj > 250. ) { // FIXME hardcoded pre-selection thresholds
-	    if(nm1 && myVBF_Mgg>massMin && myVBF_Mgg<massMax) {
-		l.FillCutPlots(0,1,"_nminus1",eventweight,myweight);
-	    }
-	    if (!multiclassVbfSelection || vbfVsDiphoVbfSelection ){
-		myVBF_MVA = tmvaVbfReader_->EvaluateMVA(mvaVbfMethod);
-		tag       = (myVBF_MVA > mvaVbfCatBoundaries.back());
-	    }
-	    else {
-		myVBF_MVA0 = tmvaVbfReader_->EvaluateMulticlass(mvaVbfMethod)[0]; // signal vbf
-		myVBF_MVA1 = tmvaVbfReader_->EvaluateMulticlass(mvaVbfMethod)[1]; // dipho
-		myVBF_MVA2 = tmvaVbfReader_->EvaluateMulticlass(mvaVbfMethod)[2]; // gluglu
-		//do transformation for bkg mvas
-		myVBF_MVA1 = -myVBF_MVA1+1;
-		myVBF_MVA2 = -myVBF_MVA2+1;
-		tag        = (myVBF_MVA0 > multiclassVbfCatBoundaries0.back() && myVBF_MVA1 > multiclassVbfCatBoundaries1.back() && myVBF_MVA2 > multiclassVbfCatBoundaries2.back());
-	    }
-
-	    // this is moved to StatAnalysis::fillControlPlots
-	    // 	    if(nm1 && tag && myVBF_Mgg>massMin && myVBF_Mgg<massMax ) {
-	    // 		l.FillCutPlots(0,1,"_sequential",eventweight,myweight);
-	    // 	    }
-	}
-    } else {
-	if(nm1){
-	    tag = l.ApplyCutsFill(0,1, eventweight, myweight);
-	} else {
-	    tag = l.ApplyCuts(0,1);
-	}
-    }
-
-    if( mvaVbfSpin && (mvaVbfSelection || multiclassVbfSelection) )
-    {
-      myVBFSpin_Discriminant = tmvaVbfSpinReader_->EvaluateMVA(mvaVbfSpinMethod);
-    }
-
-    return tag;
+    filled=true;
+    return filled;
 }
 
 bool PhotonAnalysis::VHhadronicTag2011(LoopAll& l, int& diphotonVHhad_id, float* smeared_pho_energy, bool *jetid_flags, bool mvaselection,bool vetodipho,bool kinonly){

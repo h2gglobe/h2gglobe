@@ -1,10 +1,19 @@
-import commands,sys,os
+import commands,sys,os,subprocess
 
 siteHandling = {
-   "cern.ch"    : { "ls"      :  "xrd eoscms.cern.ch ls %s | awk '{ print $5 }' | sort",
-                    "prepend" :  "root://eoscms//eos/cms" },
-   "T2_CH_CSCS" : { "ls"      : "xrd cms01.lcg.cscs.ch ls %s | awk '{ print $5 }' | sort ",
-                    "prepend" : "root://cms01.lcg.cscs.ch/"  }
+   "cern.ch"    : { "ls"      :  "xrd eoscms.cern.ch ls %s",
+                    "prepend" :  "root://eoscms//eos/cms",
+                    "field"   : 4
+                    },
+   ### "cern.ch"    : { "connect" : "xrd eoscms.cern.ch",
+   ###                  "ls"      :  "ls %s",
+   ###                  "prepend" :  "root://eoscms//eos/cms",
+   ###                  "field"   : 5
+   ###                  },
+   "T2_CH_CSCS" : { "ls"      : "xrd cms01.lcg.cscs.ch ls %s",
+                    "prepend" : "root://cms01.lcg.cscs.ch/",
+                    "field"   : 4
+                    }
    }
 
 
@@ -26,11 +35,23 @@ def makeCaFiles(dir,njobs=-1,jobid=0,nf=[0],maxfiles=-1,site="cern.ch"):
       ls = sh["ls"]
       prepend = sh.get("prepend",None)
       replace = sh.get("replace",None)
-      
+      connect = sh.get("connect",None)
+      field   = sh.get("field",None)
+
    sc,flist = commands.getstatusoutput(ls%dir)
-   
+      
+   files = flist.split('\n')
+   if field:
+      tmp = []
+      for f in files:
+         toks = [ t for t in f.split(" ") if t != "" ]
+         print toks
+         if len(toks) > field:
+            tmp.append( toks[field] )
+      files = tmp
+   files.sort()
+      
    if not sc:
-      files = flist.split('\n')
       ifile = 0
       for f in files:
          if '.root' in f:

@@ -1544,42 +1544,45 @@ void StatAnalysis::FillRooContainerSyst(LoopAll& l, const std::string &name, int
 }
 
 // ----------------------------------------------------------------------------------------------------
-void StatAnalysis::computeExclusiveCategory(LoopAll & l, int & category, std::pair<int,int> diphoton_index, float pt, float diphobdt_output)
+void StatAnalysis::computeExclusiveCategory(LoopAll & l, int & category, std::pair<int,int> diphoton_index, float pt, float diphobdt_output, bool mvaselection)
 {
     if(TTHlepevent) {
-	category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories +  nVHlepCategories +  nVHmetCategories;
+        category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories +  nVHlepCategories +  nVHmetCategories;
     } else if(VHmuevent || VHlep1event) {
-	category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories;
+        category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories;
         if(nMuonCategories>1) category+=VHmuevent_cat;
     } else if(VHelevent || VHlep2event) {
-	    category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories + nMuonCategories;
+        category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories + nMuonCategories;
         if(nElectronCategories>1) category+=VHelevent_cat;
     } else if(VBFevent) {
-	category=nInclusiveCategories_;
-	if( mvaVbfSelection ) {
-	    if (!multiclassVbfSelection) {
-		category += categoryFromBoundaries(mvaVbfCatBoundaries, myVBF_MVA);
-	    } else if ( vbfVsDiphoVbfSelection ) {
-		    category += categoryFromBoundaries2D(multiclassVbfCatBoundaries0, multiclassVbfCatBoundaries1, multiclassVbfCatBoundaries2, myVBF_MVA, diphobdt_output, 1.);
-	    } else {
-		    category += categoryFromBoundaries2D(multiclassVbfCatBoundaries0, multiclassVbfCatBoundaries1, multiclassVbfCatBoundaries2, myVBF_MVA0, myVBF_MVA1, myVBF_MVA2);
-	    }
-	    }
- 	    else {
-	    category += l.DiphotonCategory(diphoton_index.first,diphoton_index.second,pt,nVBFEtaCategories,1,1)
-		+ nVBFEtaCategories*l.DijetSubCategory(myVBF_Mjj,myVBFLeadJPt,myVBFSubJPt,nVBFDijetJetCategories);
-	}
+        category=nInclusiveCategories_;
+        if(combinedmvaVbfSelection) {
+            int vbfcat=-1;
+            vbfcat=categoryFromBoundaries2D(multiclassVbfCatBoundaries0,multiclassVbfCatBoundaries1,multiclassVbfCatBoundaries2,
+                                            myVBF_MVA,                  myVBFcombined,              1);
+            category += vbfcat;
+        } else if( mvaVbfSelection ) {
+            if (!multiclassVbfSelection) {
+                category += categoryFromBoundaries(mvaVbfCatBoundaries, myVBF_MVA);
+            } else if ( vbfVsDiphoVbfSelection ) {
+                category += categoryFromBoundaries2D(multiclassVbfCatBoundaries0, multiclassVbfCatBoundaries1, multiclassVbfCatBoundaries2, myVBF_MVA, diphobdt_output, 1.);
+            } else {
+                category += categoryFromBoundaries2D(multiclassVbfCatBoundaries0, multiclassVbfCatBoundaries1, multiclassVbfCatBoundaries2, myVBF_MVA0, myVBF_MVA1, myVBF_MVA2);
+            }
+        } else {
+            category += l.DiphotonCategory(diphoton_index.first,diphoton_index.second,pt,nVBFEtaCategories,1,1)
+                + nVBFEtaCategories*l.DijetSubCategory(myVBF_Mjj,myVBFLeadJPt,myVBFSubJPt,nVBFDijetJetCategories);
+        }
     } else if(VHmetevent) {
-	category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories +  nVHlepCategories;
+        category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories +  nVHlepCategories;
         if(nVHmetCategories>1) category+=VHmetevent_cat;
     } else if(TTHhadevent) {
-	category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories +  nVHlepCategories + nVHmetCategories+nTTHlepCategories;
-	if(PADEBUG)
-	cout<<"TTHhad: "<<category<<endl;
+        category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories +  nVHlepCategories + nVHmetCategories+nTTHlepCategories;
+        if(PADEBUG) cout<<"TTHhad: "<<category<<endl;
     }else if(VHhadBtagevent) {
-	category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories +  nVHlepCategories + nVHmetCategories + nTTHlepCategories + nTTHhadCategories;
+        category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories +  nVHlepCategories + nVHmetCategories + nTTHlepCategories + nTTHhadCategories;
     } else if(VHhadevent) {
-	category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories +  nVHlepCategories + nVHmetCategories + nTTHlepCategories + nTTHhadCategories+nVHhadBtagCategories;
+        category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories +  nVHlepCategories + nVHmetCategories + nTTHlepCategories + nTTHhadCategories+nVHhadBtagCategories;
     }
 }
 
@@ -1609,28 +1612,6 @@ void StatAnalysis::computeSpinCategory(LoopAll &l, int &category, TLorentzVector
 
     if (cosThetaCategory==-1) category=-1;
     else category = (category*nCosThetaCategories)+cosThetaCategory;
-}
-
-int StatAnalysis::categoryFromBoundaries(std::vector<float> & v, float val)
-{
-    if( val == v[0] ) { return 0; }
-    std::vector<float>::iterator bound =  lower_bound( v.begin(), v.end(), val, std::greater<float>  ());
-    int cat = ( val >= *bound ? bound - v.begin() - 1 : bound - v.begin() );
-    if( cat >= v.size() - 1 ) { cat = -1; }
-    return cat;
-}
-
-int StatAnalysis::categoryFromBoundaries2D(std::vector<float> & v1, std::vector<float> & v2, std::vector<float> & v3, float val1, float val2, float val3 )
-{
-    int cat1temp =  categoryFromBoundaries(v1,val1);
-    int cat2temp =  categoryFromBoundaries(v2,val2);
-    int cat3temp =  categoryFromBoundaries(v3,val3);
-    std::vector<int> vcat;
-    vcat.push_back(cat1temp);
-    vcat.push_back(cat2temp);
-    vcat.push_back(cat3temp);
-    int cat = *max_element(vcat.begin(), vcat.end());
-    return cat;
 }
 
 // ----------------------------------------------------------------------------------------------------

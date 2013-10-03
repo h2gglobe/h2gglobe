@@ -146,7 +146,5 @@ treevariables massfac_mva_binned/fullmvatrees.dat common/unbinned_datacard_trees
 ##   analyzer <class_name> <config_file>
 ##
 ## analyzer PhotonAnalysis photonanalysis.dat
-analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat  saveDatacardTrees_=1  dumpAscii=1 dumpMcAscii=0 doFullMvaFinalTree=1 
-
-
+analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat  saveDatacardTrees_=1  dumpAscii=1 dumpMcAscii=0 doFullMvaFinalTree=1
 

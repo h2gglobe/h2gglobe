@@ -1317,6 +1317,7 @@ TLorentzVector LoopAll::get_pho_p4(int ipho, int ivtx, const float * energy) con
 TLorentzVector LoopAll::get_pho_p4(int ipho, TVector3 * vtx, const float * energy) const
 {
     /// PhotonInfo p(ipho, *((TVector3*)sc_xyz->At(pho_scind[ipho])),
+    if(GFDEBUG) std::cout<<"General Functions::get p4 -- ipho energy p4energy"<<ipho<<" "<<energy[ipho]<<" "<<((TLorentzVector*)pho_p4->At(ipho))->Energy()<<std::endl;
     PhotonInfo p(ipho, *((TVector3*)sc_xyz->At(pho_scind[ipho])),
                  energy != 0 ? energy[ipho] : ((TLorentzVector*)pho_p4->At(ipho))->Energy() );
     return p.p4( vtx->X(), vtx->Y(), vtx->Z() );

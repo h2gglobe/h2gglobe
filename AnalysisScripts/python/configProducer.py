@@ -883,9 +883,9 @@ class configProducer:
           if map_c["xsec"] < 0: # not provided so figure it out ourselves
             map_c["xsec"] = self.ut_.normalizer().GetXsection(float(hmass),proc) * self.ut_.normalizer().GetBR(float(hmass))
     elif map_c["xsec"] < 0:
-          mass = ut_.normalizer().GetMass(map_c["typ"])
-          proc = ut_.normalizer().GetProcess(map_c["typ"])
-          map_c["xsec"] = self.ut_.normalizer().GetXsection(proc,mass) * self.ut_.normalizer().GetBR(mass)
+          mass = self.ut_.normalizer().GetMass(map_c["typ"])
+          proc = self.ut_.normalizer().GetProcess(map_c["typ"])
+          map_c["xsec"] = self.ut_.normalizer().GetXsection(mass,proc) * self.ut_.normalizer().GetBR(mass)
     if PYDEBUG: print "Calculated signal X-section*BR = ", map_c["Nam"],map_c["typ"], map_c["xsec"]
     fi_type = map_c["typ"]
     
