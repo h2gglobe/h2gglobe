@@ -2986,17 +2986,17 @@ int LoopAll::DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL, phoCiCIDLevel SUB
   
   if( passing_dipho.empty() ) { return -1; }
   
-  std::vector<int> passing_dipho_places;
-  for (int counting=0;counting<passing_dipho.size();counting++){
-	  passing_dipho_places.push_back(counting); // This is very weird, but needed for later  
-  }
-  std::sort(passing_dipho_places.begin(),passing_dipho_places.end(),
-	    SimpleSorter<float,std::greater<float> >(&passing_sumpt[0]));
-  //std::sort(passing_dipho.begin(),passing_dipho.end(),
-  //    SimpleSorter<float,std::greater<double> >(&passing_sumpt[0]));
+  //// std::vector<int> passing_dipho_places;
+  //// for (int counting=0;counting<passing_dipho.size();counting++){
+  //// 	  passing_dipho_places.push_back(counting); // This is very weird, but needed for later  
+  //// }
+  //// std::sort(passing_dipho_places.begin(),passing_dipho_places.end(),
+  //// 	    SimpleSorter<float,std::greater<float> >(&passing_sumpt[0]));
+  //// return passing_dipho[passing_dipho_places[0]];
+  std::sort(passing_dipho.begin(),passing_dipho.end(),
+	    SimpleSorter<float,std::greater<double> >(&passing_sumpt[0]));
   
-  return passing_dipho[passing_dipho_places[0]];
-
+  return passing_dipho[0];
 }
 
 

@@ -2027,7 +2027,10 @@ bool MassFactorizedMvaAnalysis::PreselDiphoFillDiphoMVA(LoopAll &l, float *pho_e
             l.dipho_sel[id]=true;
             anypassing=true;
             l.dipho_BDT[id]=GetDiphoMva(l, id, smear, syst_shift);
-        }
+        } else {
+	    l.dipho_sel[id]=false;
+	    l.dipho_BDT[id]=-999.;
+	}
     }
 
     return anypassing;
@@ -2050,9 +2053,9 @@ void MassFactorizedMvaAnalysis::ComputeDiphoMvaInputs(LoopAll &l, float &phoid_m
     sigmaMrv = massResolutionCalculator->massResolutionEonly();
     sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
     
-    // easy to calculate vertex probability from vtx mva output
-    vtxProb   = 1.-0.49*(vtx_mva+1.0); /// should better use this: vtxAna_.setPairID(diphoton_id); vtxAna_.vertexProbability(vtx_mva); PM
-
+    vtxAna_.setPairID(diphoton_id); 
+    vtxProb = vtxAna_.vertexProbability(vtx_mva);
+    
     phoid_mvaout_lead = ( run7TeV4Xanalysis ? 
               l.photonIDMVA(l.dipho_leadind[diphoton_id],l.dipho_vtxind[diphoton_id],
                   lead_p4,bdtTrainingPhilosophy.c_str()) :
