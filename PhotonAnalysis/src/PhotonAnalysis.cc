@@ -4027,7 +4027,7 @@ bool PhotonAnalysis::VBFTag2012(int & ijet1, int & ijet2,
     bool tag = false;
     bool getAngles = true;
     
-    bool jetsPreselected=FillDijetVariables(ijet1, ijet2, l, diphoton_id, &smeared_pho_energy[1], jetid_flags, getAngles);
+    bool jetsPreselected=FillDijetVariables(ijet1, ijet2, l, diphoton_id, &smeared_pho_energy[0], jetid_flags, getAngles);
     
     if(jetsPreselected==false) return tag;
     
@@ -4082,7 +4082,7 @@ bool PhotonAnalysis::VBFTag2013(int & ijet1, int & ijet2, LoopAll& l, int& dipho
         return false;
     } 
     
-    bool jetsPreselected=FillDijetVariables(ijet1, ijet2, l, diphotonVBF_id, &smeared_pho_energy[1]);
+    bool jetsPreselected=FillDijetVariables(ijet1, ijet2, l, diphotonVBF_id, &smeared_pho_energy[0]);
     
     if(jetsPreselected==false) return tag;
     
@@ -4150,6 +4150,8 @@ bool PhotonAnalysis::FillDijetVariables(int & ijet1, int & ijet2, LoopAll& l, in
 
     TLorentzVector lead_p4    = l.get_pho_p4( l.dipho_leadind[diphoton_id], l.dipho_vtxind[diphoton_id], &smeared_pho_energy[0]);
     TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphoton_id], l.dipho_vtxind[diphoton_id], &smeared_pho_energy[0]);
+    if(PADEBUG) std::cout<<"FillDijetVariable -- photon ind "<<l.dipho_leadind[diphoton_id]<<"\t"<<l.dipho_subleadind[diphoton_id]<<std::endl;
+    if(PADEBUG) std::cout<<"FillDijetVariable -- photon pt  "<<lead_p4.Pt()<<" "<<sublead_p4.Pt()<<std::endl;
 
     std::pair<int, int> jets;
     if(PADEBUG) std::cout<<"FillDijetVariable -- getting highest pt jets -- with PU jetveto?"<<usePUjetveto<<std::endl;
@@ -4167,6 +4169,7 @@ bool PhotonAnalysis::FillDijetVariables(int & ijet1, int & ijet2, LoopAll& l, in
     TLorentzVector diphoton = lead_p4+sublead_p4;
 
     ijet1 = jets.first; ijet2 = jets.second;
+    if(PADEBUG) std::cout<<"FillDijetVariable -- ijet1 ijet2 "<<ijet1<<" "<<ijet2<<std::endl;
     TLorentzVector* jet1 = (TLorentzVector*)l.jet_algoPF1_p4->At(jets.first);
     TLorentzVector* jet2 = (TLorentzVector*)l.jet_algoPF1_p4->At(jets.second);
     TLorentzVector dijet = (*jet1) + (*jet2);
