@@ -38,7 +38,8 @@ inputBranches minimal_leptmetanalysis_input.dat
 ##   analyzer <class_name> <config_file>
 ##
 ## analyzer PhotonAnalysis photonanalysis.dat
-analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat splitEscaleSyst=1 splitEresolSyst=1 
+analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat splitEscaleSyst=1 splitEresolSyst=1 doPdfWeightSmear=1 doPdfWeightSyst=1
+
 
 
 

@@ -109,8 +109,8 @@ doR9Syst=0
 doKFactorSmear=0
 doKFactorSyst=0
 
-doPdfWeightSmear=1
-doPdfWeightSyst=1
+doPdfWeightSmear=0
+doPdfWeightSyst=0
 
 doInterferenceSmear=1
 
