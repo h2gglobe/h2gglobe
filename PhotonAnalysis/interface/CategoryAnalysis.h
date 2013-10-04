@@ -41,13 +41,14 @@ class CategoryAnalysis : public StatAnalysis
     bool doPdfWeightSmear, doPdfWeightSyst;
 
     std::string bdtTrainingPhilosophy;
+    std::string bdtTrainingType;
     std::string photonLevelMvaUCSD  ;
     std::string eventLevelMvaUCSD   ;                    
-    std::string photonLevelMvaMIT_EB;
-    std::string photonLevelMvaMIT_EE;
+    std::string photonLevel2011IDMVA_EB;
+    std::string photonLevel2011IDMVA_EE;
     std::string eventLevelMvaMIT    ;
-    std::string photonLevelNewIDMVA_EB;
-    std::string photonLevelNewIDMVA_EE;
+    std::string photonLevel2012IDMVA_EB;
+    std::string photonLevel2012IDMVA_EE;
 
     std::vector<float> bdtCategoryBoundaries;
 

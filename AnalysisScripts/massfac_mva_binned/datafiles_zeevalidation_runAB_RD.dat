@@ -1,4 +1,4 @@
-intL=5320. histfile=CMS-HGG_zeevalidation.root output=eventsList.txt
+intL=5320. histfile=CMS-HGG_zeevalidation.root output=eventsList.txt sqrtS=8
 
 #
 # Data
@@ -34,4 +34,4 @@ treevariables massfac_mva_binned/treevariables_optree.dat
 ## 
 ## analyzer PhotonAnalysis photonanalysis.dat
 
-analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat zeevalidation.dat fillOptTree=0 fillEscaleTrees=0 common/escale_and_smearing_jan22rereco_8TeV_std_mc.dat useRunDTriggersForZee=1 applyIdmvaCorrection=0 applySigmaECorrection=0 scaleClusterShapes=0 puTargets=aux/AB.json.69400.observed.pileup.root,aux/C.json.69400.observed.pileup.root,aux/D.json.69400.observed.pileup.root  fillOptTree=0
+analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat zeevalidation.dat fillOptTree=0 fillEscaleTrees=0 common/escale_and_smearing_jan22rereco_8TeV_rd_mc.dat useRunDTriggersForZee=1 applyIdmvaCorrection=0 applySigmaECorrection=0 scaleClusterShapes=0 puTargets=aux/AB.json.69400.observed.pileup.root,aux/C.json.69400.observed.pileup.root,aux/D.json.69400.observed.pileup.root  fillOptTree=0

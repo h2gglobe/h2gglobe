@@ -864,7 +864,7 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 	    float leadptcut=33.;
 	    float subleadptcut=25.;
 	    //	    cout<<"[DEBUG]:before"<<diphoton_id<<endl;
-	    diphoton_id=l.DiphotonMITPreSelection(leadptcut,subleadptcut,-0.2,0, &smeared_pho_energy[0],false,false,-100,0,false);
+	    diphoton_id=l.DiphotonMITPreSelection(bdtTrainingType.c_str(),leadptcut,subleadptcut,-0.2,0, &smeared_pho_energy[0],false,false,-100,0,false);
 	    //	    cout<<"[DEBUG]:after"<<diphoton_id<<endl;
 
 	    string bdtTrainingPhilosophy="MIT";
@@ -1774,7 +1774,7 @@ void StatAnalysis::fillSignalEfficiencyPlots(float weight, LoopAll & l)
 {
     //Fill histograms to use as denominator (kinematic pre-selection only) and numerator (selection applied)
     //for single photon ID efficiency calculation.
-    int diphoton_id_kinpresel = l.DiphotonMITPreSelection(leadEtCut,subleadEtCut,-1.,applyPtoverM, &smeared_pho_energy[0],false,true,-100,-1,false );
+    int diphoton_id_kinpresel = l.DiphotonMITPreSelection(bdtTrainingType.c_str(),leadEtCut,subleadEtCut,-1.,applyPtoverM, &smeared_pho_energy[0],false,true,-100,-1,false );
     if (diphoton_id_kinpresel>-1) {
 
         TLorentzVector lead_p4, sublead_p4, Higgs;
