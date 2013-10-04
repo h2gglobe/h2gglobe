@@ -3901,7 +3901,7 @@ int PhotonAnalysis::categoryFromBoundaries(std::vector<float> & v, float val)
     else {
         // bound is pointer to the ith boundary in v such that val>v[i]
         std::vector<float>::iterator bound =  lower_bound( v.begin(), v.end(), val, std::greater<float>  ());
-        int cat = ( val >= *bound ? bound - v.begin() - 1 : bound - v.begin() );
+        cat = ( val >= *bound ? bound - v.begin() - 1 : bound - v.begin() );
         if( cat >= v.size() - 1 ) { cat = -1; }
     }
     return cat;
