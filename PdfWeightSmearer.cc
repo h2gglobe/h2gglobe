@@ -85,6 +85,6 @@ double PdfWeightSmearer::getWeight( const TLorentzVector & p4, const int nPu, fl
   double nominal   = getPdfWeight( 0, 0, gPT, gY );
   double variation = getPdfWeight( 0, varId, gPT, gY );
 
-  return ( max( 1. + syst_shift * (1.-variation/nominal), 0.) ) ;
+  return ( max( 1. + fabs(syst_shift) * ((variation/nominal)-1), 0.) ) ;
 
 }
