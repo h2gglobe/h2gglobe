@@ -66,7 +66,7 @@ def wrapcommand(method):
   
 class GitHelper:
 
-    _commands = ["ls-issues","ls-raw-pulls","tagme","tagit"]
+    _commands = ["ls-issues","ls-raw-pulls","tagme","tagit","whoami"]
     
     @staticmethod
     def commands():
@@ -116,6 +116,10 @@ class GitHelper:
         for l in out.split("\n"):
             self._localtags.add(l)
 
+    @wrapcommand
+    def whoami(self):
+        print self._options["user"]
+        
     @wrapcommand
     def tagme(self,tagname,title):
         """
@@ -364,6 +368,7 @@ def setupssett(settings):
     settings = { "token" : auth.token, "id" : auth.id, "user" : user }
     fout.write( json.dumps(settings)  )
     fout.close()
+    run("chmod 600 %s " % fout,name,"")
     
     return login(token=auth.token), settings
 
@@ -374,8 +379,10 @@ def main(options,args):
     except Exception, e:
         setuplib()
         sys.exit("All dependencies installed. Please run again the script")
-        
+
+    
     if os.path.exists(settings):
+        run("chmod 600 %s " % settings,"")
         pin = open(settings)
         settings = json.loads( pin.read() )
         pin.close()
