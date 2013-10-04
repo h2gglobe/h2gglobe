@@ -146,6 +146,7 @@ class StatAnalysis : public PhotonAnalysis
     DiPhoEfficiencySmearer *vtxEffSmearer, *triggerEffSmearer;
     KFactorSmearer * kFactorSmearer;
     PdfWeightSmearer * pdfWeightSmearer;
+    std::vector<PdfWeightSmearer*> pdfWeightSmearer_sets;
     InterferenceSmearer * interferenceSmearer;
     PtSpinSmearer * ptSpinSmearer;
     
