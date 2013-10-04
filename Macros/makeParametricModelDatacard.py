@@ -114,6 +114,11 @@ if not options.isCutBased:
   globeSysts['phoIdMva'] = 'n_id_mva'
   globeSysts['regSig'] = 'n_sigmae'
 
+  # QCD scale and PDF variations on PT-Y (replaced k-Factor PT variation) 
+  globeSysts['pdfWeight_QCDscale'] = 'n_sc_gf'
+  for pdfi in range(1,27):
+    globeSysts['pdfWeight_pdfset%d'%pdfi] = 'n_pdf_%d'%pdfi
+
 # vbf uncertainties (different for 7 TeV?)
 vbfSysts={}
 if options.isCutBased:

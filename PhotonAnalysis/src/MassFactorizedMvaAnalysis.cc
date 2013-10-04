@@ -190,12 +190,23 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
         genLevelSmearers_.push_back(kFactorSmearer);
     }
     if(doPdfWeightSmear) {
-        // PdfWeights efficiency (For now only consider QCD Scale Uncertainty 
+        // PdfWeights efficiency
+        // The first is up/down (which is QCD scale) 
         std::cerr << __LINE__ << std::endl; 
         pdfWeightSmearer = new PdfWeightSmearer( pdfWeightHist,l.normalizer(),"up","down");
-        pdfWeightSmearer->name("pdfWeight");
+        pdfWeightSmearer->name("pdfWeight_QCDscale");
         pdfWeightSmearer->init();
         genLevelSmearers_.push_back(pdfWeightSmearer);
+
+        // The rest are pdf set variations, 26 of them numbered up,down, up,down ....
+        std::cerr << __LINE__ << std::endl; 
+        for (int pdf_i=1;pdf_i<=26;pdf_i++){
+          int uid = 2*pdf_i-1; int did = 2*pdf_i;
+          pdfWeightSmearer_sets.push_back(new PdfWeightSmearer( pdfWeightHist,l.normalizer(),Form("PDF_%d",uid),Form("PDF_%d",did)));
+          (pdfWeightSmearer_sets.back())->name(Form("pdfWeight_pdfset%d",pdf_i));
+          (pdfWeightSmearer_sets.back())->init();
+          genLevelSmearers_.push_back((pdfWeightSmearer_sets.back()));
+        }
     }
     if(doInterferenceSmear) {
         // interference efficiency
@@ -355,6 +366,14 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
         std::vector<std::string> sys(1,pdfWeightSmearer->name());
         std::vector<int> sys_t(1,-1);  // -1 for signal, 1 for background 0 for both
         l.rooContainer->MakeSystematicStudy(sys,sys_t);
+
+        for (int pdf_i=1;pdf_i<=26;pdf_i++){
+          systGenLevelSmearers_.push_back(pdfWeightSmearer_sets[pdf_i-1]);
+          std::vector<std::string> sys(1,pdfWeightSmearer_sets[pdf_i-1]->name());
+          std::vector<int> sys_t(1,-1);  // -1 for signal, 1 for background 0 for both
+          l.rooContainer->MakeSystematicStudy(sys,sys_t);
+        }
+
     }
 
     // Global systematics - Lumi
