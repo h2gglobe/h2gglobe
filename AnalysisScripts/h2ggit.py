@@ -66,7 +66,7 @@ def wrapcommand(method):
   
 class GitHelper:
 
-    _commands = ["ls-issues","tagme","tagit"]
+    _commands = ["ls-issues","ls-raw-pulls","tagme","tagit"]
     
     @staticmethod
     def commands():
@@ -223,13 +223,25 @@ class GitHelper:
                     i.tagme = True
             print "]"
             if i.number in pullsdic:
-                print "      %s" % str(pullsdic[i.number].html_url)
+                pu = pullsdic[i.number]
+                print "      %s" % str(pu.html_url)
+                print "      %d %s %s" % (i.number, pu.head.label, pu.base.label)
             else:
                 print "      %s" % str(i.html_url)
             if i.tagme:
                 for l in i.body.split("\n"):
                     print "      %s" % l
             print
+
+    @wrapcommand
+    def ls_raw_pulls(self):
+        """List all open issues.
+        """
+        pulls  = self._upstream.iter_pulls(state='open')
+
+        for p in pulls:
+            print "%d %s %s" % (p.number, p.head.label, p.base.label)
+            
 
     @wrapcommand
     def tagit(self,tagname):
@@ -253,7 +265,7 @@ class GitHelper:
 
         user,branch = issue.head.split(":")
         remote = self._gh.repository(user,self._options['repo'])
-
+        
         print
         print "Adding remotes"
         run("(git remote | grep fork_%s) || (git remote add fork_%s %s)" % (user,user,remote.ssh_url), "" )
