@@ -326,17 +326,14 @@ class PhotonAnalysis : public BaseAnalysis
 
     // Chris' extras
     std::string bdtTrainingPhilosophy;
+    std::string bdtTrainingType;
     std::string photonLevelMvaUCSD  ;
     std::string eventLevelMvaUCSD   ;
-    std::string photonLevelMvaMIT_EB;
-    std::string photonLevelMvaMIT_EE;
+    std::string photonLevel2011IDMVA_EB;
+    std::string photonLevel2011IDMVA_EE;
     std::string eventLevelMvaMIT    ;
-    std::string photonLevelNewIDMVA_EB;
-    std::string photonLevelNewIDMVA_EE;
-
-
-
-
+    std::string photonLevel2012IDMVA_EB;
+    std::string photonLevel2012IDMVA_EE;
 
     // n-1 plots for VH hadronic tag 2011
     float  myVHhadLeadJPt;
@@ -434,7 +431,6 @@ class PhotonAnalysis : public BaseAnalysis
 
  protected:
     void PreselectPhotons(LoopAll& l, int jentry);
-    float GetSmearSigma(float eta, float r9, int epoch=0);
 
     void SetNullHiggs(LoopAll& l);
     bool FindHiggsObjects(LoopAll& l);
@@ -538,7 +534,7 @@ class PhotonAnalysis : public BaseAnalysis
     float ComputeEventScaleError(LoopAll& l, int ipho1, int ipho2, float & scale1, float & scale1_err, float & scale2, float & scale2_err);
     float ComputeEventSmearError(LoopAll& l, int ipho1, int ipho2, float & smear1, float & smear1_err, float & smear2, float & smear2_err);
     pair<double,double> ComputeNewSigmaMs(LoopAll &l, int ipho1, int ipho2, int ivtx, float syst_shift);
-    void saveDatCardTree(LoopAll& l, int cur_type, int category, int inc_cat, float evweight, int ipho1, int ipho2, int ivtx, TLorentzVector lead_p4, TLorentzVector sublead_p4, bool isCutBased, string proc, double sigmaMrv=0., double sigmaMwv=0., double sigmaMeonly=0., float vtxProb=0., string trainPhi="", float lead_id_mva=0., float sublead_id_mva=0.);
+    void saveDatCardTree(LoopAll& l, int cur_type, int category, int inc_cat, float evweight, int ipho1, int ipho2, int ivtx, TLorentzVector lead_p4, TLorentzVector sublead_p4, bool isCutBased, string proc, double sigmaMrv=0., double sigmaMwv=0., double sigmaMeonly=0., float vtxProb=0., string trainPhi="", string bdtType="", float lead_id_mva=0., float sublead_id_mva=0.);
     
     // Save spin trees
     void saveSpinTree(LoopAll &l, int category, float evweight, TLorentzVector Higgs, TLorentzVector lead_p4, TLorentzVector sublead_p4, int ipho1, int ipho2, int diphoton_id, float vtxProb, bool isCorrectVertex);
@@ -613,12 +609,6 @@ class PhotonAnalysis : public BaseAnalysis
     TMVA::Reader *tmvaPerEvtReader_;
 
     MassResolution *massResolutionCalculator;
-
-    int DiphotonMVASelection(LoopAll &l, HggVertexAnalyzer & vtxAna, Float_t & diphoMVA,
-                             Float_t minLeadingMVA=-0.3, Float_t minSubleadingMVA=-0.3, Float_t leadPtMin=30,
-                             Float_t subleadPtMin=20, std::string type="UCSD", int ncategories=7,
-                             bool applyPtoverM=true, float *pho_energy_array=0, bool split=false);
-    int DiphotonMVAEventClass(LoopAll &l, float diphoMVA, int nCat, std::string type, int EBEB=1);
 
     void VHLepTag2013(LoopAll& l, int & diphotonVHlep_id, bool & VHlep1event, bool & VHlep2event, bool mvaselection, int & mu_ind, int & muVtx, int VHmuevent_cat, int & el_ind, int & elVtx, int VHelevent_cat, float* smeared_pho_energy, float phoidMvaCut, float eventweight, std::vector<float> smeared_pho_weight, bool isSyst, bool vetodipho = false, bool kinonly = false);
     int VHNumberOfJets(LoopAll& l, int diphotonVHlep_id, int vertex, bool VHelevent_prov, bool VHmuevent_prov, int el_ind, int mu_ind, float* smeared_pho_energy);
