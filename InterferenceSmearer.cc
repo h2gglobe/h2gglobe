@@ -27,8 +27,6 @@ bool InterferenceSmearer::smearEvent( float & weight, const TLorentzVector & p4,
   if( genMassPoint > 150 ) { genMassPoint=150; } // Warning: missing k-factor
   if( genMassPoint == 100 ) { genMassPoint=105; }  // Warning: missing k-factor
   
-  assert( genMassPoint % 5 == 0 );
-  
   weight = 1.-(correction_+syst_shift*error_);
 
   return true;

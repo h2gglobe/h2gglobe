@@ -386,11 +386,16 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
     l.rooContainer->AddObservable("CMS_hgg_mass" ,massMin,massMax);
 
     l.rooContainer->AddConstant("IntLumi",l.intlumi_);
+    l.rooContainer->AddConstant("Sqrts",(double)l.sqrtS);
 
     // SM Model
     for(size_t isig=0; isig<sigPointsToBook.size(); ++isig) {
         int sig = sigPointsToBook[isig];
         l.rooContainer->AddConstant(Form("XSBR_ggh_%d",sig),l.normalizer()->GetXsection(double(sig),"ggh")*l.normalizer()->GetBR(double(sig)));
+        l.rooContainer->AddConstant(Form("XSBR_vbf_%d",sig),l.normalizer()->GetXsection(double(sig),"vbf")*l.normalizer()->GetBR(double(sig)));
+        l.rooContainer->AddConstant(Form("XSBR_wh_%d",sig),l.normalizer()->GetXsection(double(sig),"wh")*l.normalizer()->GetBR(double(sig)));
+        l.rooContainer->AddConstant(Form("XSBR_zh_%d",sig),l.normalizer()->GetXsection(double(sig),"zh")*l.normalizer()->GetBR(double(sig)));
+        l.rooContainer->AddConstant(Form("XSBR_tth_%d",sig),l.normalizer()->GetXsection(double(sig),"tth")*l.normalizer()->GetBR(double(sig)));
     }
 
     // -----------------------------------------------------
