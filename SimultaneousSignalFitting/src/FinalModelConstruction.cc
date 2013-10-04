@@ -553,6 +553,7 @@ void FinalModelConstruction::plotPdf(string outDir){
   }
   dataPlot->Draw();
   canv->Print(Form("%s/%s_cat%d_fits.pdf",outDir.c_str(),proc_.c_str(),cat_));
+  canv->Print(Form("%s/%s_cat%d_fits.png",outDir.c_str(),proc_.c_str(),cat_));
   
   RooPlot *pdfPlot = mass->frame(Range(100,160));
   for (int mh=mhLow_; mh<=mhHigh_; mh++){
@@ -561,6 +562,7 @@ void FinalModelConstruction::plotPdf(string outDir){
   }
   pdfPlot->Draw();
   canv->Print(Form("%s/%s_cat%d_interp.pdf",outDir.c_str(),proc_.c_str(),cat_));
+  canv->Print(Form("%s/%s_cat%d_interp.png",outDir.c_str(),proc_.c_str(),cat_));
   delete canv;
 
 }

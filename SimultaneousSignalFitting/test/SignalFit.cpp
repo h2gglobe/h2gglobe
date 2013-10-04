@@ -122,6 +122,8 @@ int main(int argc, char *argv[]){
 
   transferMacros(inFile,outFile);
 
+	system("mkdir -p plots/initialFits");
+
   // run fits for each line in datfile
   ifstream datfile;
   datfile.open(datfilename_.c_str());
@@ -165,7 +167,7 @@ int main(int argc, char *argv[]){
     initFitRV.saveParamsToFileAtMH(Form("dat/in/%s_cat%d_rv.dat",proc.c_str(),cat),constraintValueMass_);
     initFitRV.loadPriorConstraints(Form("dat/in/%s_cat%d_rv.dat",proc.c_str(),cat),constraintValue_);
     initFitRV.runFits(1);
-    initFitRV.plotFits(Form("plots/%s_cat%d/rv",proc.c_str(),cat));
+    initFitRV.plotFits(Form("plots/initialFits/%s_cat%d_rv",proc.c_str(),cat));
     map<int,map<string,RooRealVar*> > fitParamsRV = initFitRV.getFitParams();
     
     // wrong vertex
@@ -177,7 +179,7 @@ int main(int argc, char *argv[]){
     initFitWV.saveParamsToFileAtMH(Form("dat/in/%s_cat%d_wv.dat",proc.c_str(),cat),constraintValueMass_);
     initFitWV.loadPriorConstraints(Form("dat/in/%s_cat%d_wv.dat",proc.c_str(),cat),constraintValue_);
     initFitWV.runFits(1);
-    initFitRV.plotFits(Form("plots/%s_cat%d/wv",proc.c_str(),cat));
+    initFitWV.plotFits(Form("plots/initialFits/%s_cat%d_wv",proc.c_str(),cat));
     map<int,map<string,RooRealVar*> > fitParamsWV = initFitWV.getFitParams();
 
     //these guys do the interpolation
@@ -225,7 +227,7 @@ int main(int argc, char *argv[]){
   
   cout << "Starting to combine fits..." << endl;
   // this guy packages everything up
-  Packager packager(outWS,splitVH_,nCats_,mhLow_,mhHigh_);
+  Packager packager(outWS,splitVH_,nCats_,mhLow_,mhHigh_,is2011_,"plots");
   packager.packageOutput();
   sw.Stop();
   cout << "Combination complete." << endl;

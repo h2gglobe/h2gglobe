@@ -37,6 +37,8 @@ string datfilename_;
 int mass_;
 string procString_;
 int ncats_;
+bool recursive_=false;
+bool forceFracUnity_=false;
 
 void OptionParser(int argc, char *argv[]){
   po::options_description desc("Allowed options");
@@ -47,14 +49,18 @@ void OptionParser(int argc, char *argv[]){
     ("mass,m", po::value<int>(&mass_)->default_value(125),                                    "Mass to run at")
     ("procs,p", po::value<string>(&procString_)->default_value("ggh,vbf,wh,zh,tth"),          "Processes")
     ("ncats,n", po::value<int>(&ncats_)->default_value(9),                                    "Number of cats")
+		("recursive",																																							"Recursive fraction")
+		("forceFracUnity",																																				"Force fraction unity")
   ;
   po::variables_map vm;
   po::store(po::parse_command_line(argc,argv,desc),vm);
   po::notify(vm);
   if (vm.count("help")){ cout << desc << endl; exit(1);}
+	if (vm.count("recursive")) recursive_=true;
+	if (vm.count("forceFracUnity")) forceFracUnity_=true;
 }
 
-RooAddPdf *buildSumOfGaussians(string name, RooRealVar *mass, RooRealVar *MH, int nGaussians, bool recursive=false, bool forceFracUnity=false){
+RooAddPdf *buildSumOfGaussians(string name, RooRealVar *mass, RooRealVar *MH, int nGaussians){
     
   RooArgList *gaussians = new RooArgList();
   RooArgList *coeffs = new RooArgList();
@@ -73,7 +79,7 @@ RooAddPdf *buildSumOfGaussians(string name, RooRealVar *mass, RooRealVar *MH, in
       //tempFitParams.insert(pair<string,RooRealVar*>(string(frac->GetName()),frac));
       coeffs->add(*frac);
     }
-    if (g==nGaussians-1 && forceFracUnity){
+    if (g==nGaussians-1 && forceFracUnity_){
       string formula="1.";
       for (int i=0; i<nGaussians-1; i++) formula += Form("-@%d",i);
       RooAbsReal *recFrac = new RooFormulaVar(Form("frac_g%d",g),Form("frac_g%d",g),formula.c_str(),*coeffs);
@@ -81,7 +87,7 @@ RooAddPdf *buildSumOfGaussians(string name, RooRealVar *mass, RooRealVar *MH, in
       coeffs->add(*recFrac);
     }
   }
-  RooAddPdf *tempSumOfGaussians = new RooAddPdf(name.c_str(),name.c_str(),*gaussians,*coeffs,recursive);
+  RooAddPdf *tempSumOfGaussians = new RooAddPdf(name.c_str(),name.c_str(),*gaussians,*coeffs,recursive_);
   return tempSumOfGaussians;
 }
 
@@ -201,7 +207,7 @@ int main(int argc, char *argv[]){
 
       dataRV->plotOn(plotsRV[proc][cat]);
       //while (prob<0.8) {
-      while (order<4) {
+      while (order<5) {
         RooAddPdf *pdf = buildSumOfGaussians(Form("cat%d_g%d",cat,order),mass,MH,order);
         RooFitResult *fitRes = pdf->fitTo(*dataRV,Save(true),SumW2Error(true));//,Range(mass_-10,mass_+10));
         double myNll=0.;
@@ -236,7 +242,7 @@ int main(int argc, char *argv[]){
       prob=0.;
 
       dataWV->plotOn(plotsWV[proc][cat]);
-      while (order<3) {
+      while (order<4) {
       //while (prob<0.8) {
         RooAddPdf *pdf = buildSumOfGaussians(Form("cat%d_g%d",cat,order),mass,MH,order);
         RooFitResult *fitRes = pdf->fitTo(*dataWV,Save(true),SumW2Error(true));//,Range(mass_-10,mass_+10));

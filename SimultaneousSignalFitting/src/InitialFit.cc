@@ -176,9 +176,8 @@ void InitialFit::runFits(int ncpu){
   }
 }
 
-void InitialFit::plotFits(string outDir){
+void InitialFit::plotFits(string name){
   
-  system(Form("mkdir -p %s",outDir.c_str()));
   TCanvas *canv = new TCanvas();
   RooPlot *plot = mass->frame(Range(mhLow_-10,mhHigh_+10));
   for (unsigned int i=0; i<allMH_.size(); i++){
@@ -194,6 +193,7 @@ void InitialFit::plotFits(string outDir){
     fitModel->plotOn(plot);
   }
   plot->Draw();
-  canv->Print(Form("%s/initialFits.pdf",outDir.c_str()));
+  canv->Print(Form("%s.pdf",name.c_str()));
+  canv->Print(Form("%s.png",name.c_str()));
   delete canv;
 }

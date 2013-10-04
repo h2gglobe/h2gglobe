@@ -7,6 +7,7 @@
 #include "RooExtendPdf.h"
 #include "RooArgList.h"
 #include "RooRealVar.h"
+#include "RooPlot.h"
 #include "HiggsAnalysis/CombinedLimit/interface/RooSpline1D.h"
 
 #include "../interface/Packager.h"
@@ -14,13 +15,14 @@
 using namespace std;
 using namespace RooFit;
 
-Packager::Packager(RooWorkspace *ws, bool splitVH, int nCats, int mhLow, int mhHigh, bool is2011):
+Packager::Packager(RooWorkspace *ws, bool splitVH, int nCats, int mhLow, int mhHigh, bool is2011, string outDir):
   outWS(ws),
   splitVH_(splitVH),
   nCats_(nCats),
   mhLow_(mhLow),
   mhHigh_(mhHigh),
-	is2011_(is2011)
+	is2011_(is2011),
+	outDir_(outDir)
 {
   procs.push_back("ggh"); 
   procs.push_back("vbf"); 
@@ -150,6 +152,54 @@ void Packager::packageOutput(){
     expEventsGraph->Draw("AL");
     canv->Print("plots/expEventsCheck.pdf");
     canv->Print("plots/expEventsCheck.png");
-
+		makePlots();
   }
+}
+
+void Packager::makePlots(){
+	RooRealVar *mass = (RooRealVar*)outWS->var("CMS_hgg_mass");
+	RooRealVar *MH = (RooRealVar*)outWS->var("MH");
+	RooAddPdf *sumPdfsAllCats = (RooAddPdf*)outWS->pdf("sigpdfrelAllCats_allProcs");
+	map<int,RooDataSet*> dataSets;
+	for (int m=mhLow_; m<=mhHigh_; m+=5){
+		RooDataSet *data = (RooDataSet*)outWS->data(Form("sig_mass_m%d_AllCats",m));
+		dataSets.insert(make_pair(m,data));
+	}
+	makePlot(mass,MH,sumPdfsAllCats,dataSets,"all");
+
+	for (int cat=0; cat<nCats_; cat++){
+		RooAddPdf *sumPdfsCat = (RooAddPdf*)outWS->pdf(Form("sigpdfrelcat%d_allProcs",cat));
+		map<int,RooDataSet*> dataSetsCat;
+		for (int m=mhLow_; m<=mhHigh_; m+=5){
+			RooDataSet *data = (RooDataSet*)outWS->data(Form("sig_mass_m%d_cat%d",m,cat));
+			dataSetsCat.insert(make_pair(m,data));
+		}
+		makePlot(mass,MH,sumPdfsCat,dataSetsCat,Form("cat%d",cat));
+	}
+}
+
+void Packager::makePlot(RooRealVar *mass, RooRealVar *MH, RooAddPdf *pdf, map<int,RooDataSet*> data, string name){
+	
+  TCanvas *canv = new TCanvas();
+	RooPlot *dataPlot = mass->frame(Range(100,160));
+	for (map<int,RooDataSet*>::iterator it=data.begin(); it!=data.end(); it++){
+		int mh = it->first;
+		RooDataSet *dset = it->second;
+		dset->plotOn(dataPlot,Binning(80));
+		MH->setVal(mh);
+		pdf->plotOn(dataPlot);
+	}
+	dataPlot->Draw();
+	canv->Print(Form("%s/%s_fits.pdf",outDir_.c_str(),name.c_str()));
+	canv->Print(Form("%s/%s_fits.png",outDir_.c_str(),name.c_str()));
+  
+	RooPlot *pdfPlot = mass->frame(Range(100,160));
+  for (int mh=mhLow_; mh<=mhHigh_; mh++){
+    MH->setVal(mh);
+    pdf->plotOn(pdfPlot,Normalization(1.0,RooAbsReal::RelativeExpected));
+  }
+  pdfPlot->Draw();
+	canv->Print(Form("%s/%s_interp.pdf",outDir_.c_str(),name.c_str()));
+	canv->Print(Form("%s/%s_interp.png",outDir_.c_str(),name.c_str()));
+	delete canv;
 }
