@@ -65,9 +65,9 @@ RooAddPdf *buildSumOfGaussians(string name, RooRealVar *mass, RooRealVar *MH, in
   RooArgList *gaussians = new RooArgList();
   RooArgList *coeffs = new RooArgList();
   for (int g=0; g<nGaussians; g++){
-    RooRealVar *dm = new RooRealVar(Form("dm_g%d",g),Form("dm_g%d",g),0.1,-10.,10.);
+    RooRealVar *dm = new RooRealVar(Form("dm_g%d",g),Form("dm_g%d",g),0.1,-5.*(1.+0.5*g),5.*(1.+0.5*g));
     RooAbsReal *mean = new RooFormulaVar(Form("mean_g%d",g),Form("mean_g%d",g),"@0+@1",RooArgList(*MH,*dm));
-    RooRealVar *sigma = new RooRealVar(Form("sigma_g%d",g),Form("sigma_g%d",g),2.,0.7,10.);
+    RooRealVar *sigma = new RooRealVar(Form("sigma_g%d",g),Form("sigma_g%d",g),2.,0.7,5.*(1.+0.5*g));
     RooGaussian *gaus = new RooGaussian(Form("gaus_g%d",g),Form("gaus_g%d",g),*mass,*mean,*sigma);
     //tempFitParams.insert(pair<string,RooRealVar*>(string(dm->GetName()),dm));
     //tempFitParams.insert(pair<string,RooRealVar*>(string(sigma->GetName()),sigma));
@@ -75,7 +75,7 @@ RooAddPdf *buildSumOfGaussians(string name, RooRealVar *mass, RooRealVar *MH, in
     //tempGaussians.insert(pair<string,RooGaussian*>(string(gaus->GetName()),gaus));
     gaussians->add(*gaus);
     if (g<nGaussians-1) {
-      RooRealVar *frac = new RooRealVar(Form("frac_g%d",g),Form("frac_g%d",g),0.1,0.01,1.);
+      RooRealVar *frac = new RooRealVar(Form("frac_g%d",g),Form("frac_g%d",g),0.1,0.01,0.99);
       //tempFitParams.insert(pair<string,RooRealVar*>(string(frac->GetName()),frac));
       coeffs->add(*frac);
     }

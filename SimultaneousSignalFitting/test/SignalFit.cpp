@@ -42,6 +42,7 @@ bool isCutBased_=false;
 bool is2011_=false;
 bool splitRVWV_=true;
 bool doSecondaryModels_=true;
+bool runInitialFitsOnly_=false;
 bool recursive_=false;
 int verbose_=0;
 
@@ -62,6 +63,7 @@ void OptionParser(int argc, char *argv[]){
     ("splitVH",                                                                               			"Split VH into WH and ZH")
     ("isCutBased",                                                                               		"Is this the cut based analysis")
     ("is2011",                                                                               				"Is this the 7TeV analysis")
+		("runInitialFitsOnly",																																					"Just fit gaussians - no interpolation, no systematics - useful for testing nGaussians")
     ("recursive",                                                                             			"Recursively calculate gaussian fractions")
     ("verbose,v", po::value<int>(&verbose_)->default_value(0),                                			"Verbosity level: 0 (lowest) - 3 (highest)")
   ;                                                                                             		
@@ -73,6 +75,7 @@ void OptionParser(int argc, char *argv[]){
   if (vm.count("splitVH"))                  splitVH_=true;
   if (vm.count("isCutBased"))               isCutBased_=true;
   if (vm.count("is2011"))               		is2011_=true;
+  if (vm.count("runInitialFitsOnly"))       runInitialFitsOnly_=true;
   if (vm.count("nosplitRVWV"))              splitRVWV_=false;
   if (vm.count("skipSecondaryModels"))      doSecondaryModels_=false;
   if (vm.count("recursive"))                recursive_=true;
@@ -161,12 +164,14 @@ int main(int argc, char *argv[]){
     // right vertex
     InitialFit initFitRV(mass,MH,mhLow_,mhHigh_);
     initFitRV.setVerbosity(verbose_);
-    initFitRV.buildSumOfGaussians(Form("%s_cat%d",proc.c_str(),cat),nGaussiansRV);
+    initFitRV.buildSumOfGaussians(Form("%s_cat%d",proc.c_str(),cat),nGaussiansRV,recursive_);
     initFitRV.setDatasets(datasetsRV);
     initFitRV.runFits(1);
-    initFitRV.saveParamsToFileAtMH(Form("dat/in/%s_cat%d_rv.dat",proc.c_str(),cat),constraintValueMass_);
-    initFitRV.loadPriorConstraints(Form("dat/in/%s_cat%d_rv.dat",proc.c_str(),cat),constraintValue_);
-    initFitRV.runFits(1);
+		if (!runInitialFitsOnly_) {
+			initFitRV.saveParamsToFileAtMH(Form("dat/in/%s_cat%d_rv.dat",proc.c_str(),cat),constraintValueMass_);
+			initFitRV.loadPriorConstraints(Form("dat/in/%s_cat%d_rv.dat",proc.c_str(),cat),constraintValue_);
+			initFitRV.runFits(1);
+		}
     initFitRV.plotFits(Form("plots/initialFits/%s_cat%d_rv",proc.c_str(),cat));
     map<int,map<string,RooRealVar*> > fitParamsRV = initFitRV.getFitParams();
     
@@ -176,44 +181,48 @@ int main(int argc, char *argv[]){
     initFitWV.buildSumOfGaussians(Form("%s_cat%d",proc.c_str(),cat),nGaussiansWV,recursive_);
     initFitWV.setDatasets(datasetsWV);
     initFitWV.runFits(1);
-    initFitWV.saveParamsToFileAtMH(Form("dat/in/%s_cat%d_wv.dat",proc.c_str(),cat),constraintValueMass_);
-    initFitWV.loadPriorConstraints(Form("dat/in/%s_cat%d_wv.dat",proc.c_str(),cat),constraintValue_);
-    initFitWV.runFits(1);
+		if (!runInitialFitsOnly_) {
+			initFitWV.saveParamsToFileAtMH(Form("dat/in/%s_cat%d_wv.dat",proc.c_str(),cat),constraintValueMass_);
+			initFitWV.loadPriorConstraints(Form("dat/in/%s_cat%d_wv.dat",proc.c_str(),cat),constraintValue_);
+			initFitWV.runFits(1);
+		}
     initFitWV.plotFits(Form("plots/initialFits/%s_cat%d_wv",proc.c_str(),cat));
     map<int,map<string,RooRealVar*> > fitParamsWV = initFitWV.getFitParams();
 
-    //these guys do the interpolation
-    // right vertex
-    LinearInterp linInterpRV(MH,mhLow_,mhHigh_,fitParamsRV,doSecondaryModels_);
-    linInterpRV.setVerbosity(verbose_);
-    linInterpRV.setSecondaryModelVars(MH_SM,DeltaM,MH_2,higgsDecayWidth);
-    linInterpRV.interpolate(nGaussiansRV);
-    map<string,RooSpline1D*> splinesRV = linInterpRV.getSplines();
+		if (!runInitialFitsOnly_) {
+			//these guys do the interpolation
+			// right vertex
+			LinearInterp linInterpRV(MH,mhLow_,mhHigh_,fitParamsRV,doSecondaryModels_);
+			linInterpRV.setVerbosity(verbose_);
+			linInterpRV.setSecondaryModelVars(MH_SM,DeltaM,MH_2,higgsDecayWidth);
+			linInterpRV.interpolate(nGaussiansRV);
+			map<string,RooSpline1D*> splinesRV = linInterpRV.getSplines();
 
-    // wrong vertex
-    LinearInterp linInterpWV(MH,mhLow_,mhHigh_,fitParamsWV,doSecondaryModels_);
-    linInterpWV.setVerbosity(verbose_);
-    linInterpWV.setSecondaryModelVars(MH_SM,DeltaM,MH_2,higgsDecayWidth);
-    linInterpWV.interpolate(nGaussiansWV);
-    map<string,RooSpline1D*> splinesWV = linInterpWV.getSplines();
+			// wrong vertex
+			LinearInterp linInterpWV(MH,mhLow_,mhHigh_,fitParamsWV,doSecondaryModels_);
+			linInterpWV.setVerbosity(verbose_);
+			linInterpWV.setSecondaryModelVars(MH_SM,DeltaM,MH_2,higgsDecayWidth);
+			linInterpWV.interpolate(nGaussiansWV);
+			map<string,RooSpline1D*> splinesWV = linInterpWV.getSplines();
 
-    // this guy constructs the final model with systematics, eff*acc etc.
-    FinalModelConstruction finalModel(mass,MH,intLumi,mhLow_,mhHigh_,proc,cat,doSecondaryModels_,systfilename_,verbose_,isCutBased_,is2011_);
-    finalModel.setSecondaryModelVars(MH_SM,DeltaM,MH_2,higgsDecayWidth);
-    finalModel.setRVsplines(splinesRV);
-    finalModel.setWVsplines(splinesWV);
-    finalModel.setRVdatasets(datasetsRV);
-    finalModel.setWVdatasets(datasetsWV);
-    //finalModel.setSTDdatasets(datasets);
-		finalModel.makeSTDdatasets();
-		if (is2011_) {
-			finalModel.buildRvWvPdf("hggpdfsmrel_7TeV",nGaussiansRV,nGaussiansWV,recursive_);
-		} else {
-			finalModel.buildRvWvPdf("hggpdfsmrel_8TeV",nGaussiansRV,nGaussiansWV,recursive_);
+			// this guy constructs the final model with systematics, eff*acc etc.
+			FinalModelConstruction finalModel(mass,MH,intLumi,mhLow_,mhHigh_,proc,cat,doSecondaryModels_,systfilename_,verbose_,isCutBased_,is2011_);
+			finalModel.setSecondaryModelVars(MH_SM,DeltaM,MH_2,higgsDecayWidth);
+			finalModel.setRVsplines(splinesRV);
+			finalModel.setWVsplines(splinesWV);
+			finalModel.setRVdatasets(datasetsRV);
+			finalModel.setWVdatasets(datasetsWV);
+			//finalModel.setSTDdatasets(datasets);
+			finalModel.makeSTDdatasets();
+			if (is2011_) {
+				finalModel.buildRvWvPdf("hggpdfsmrel_7TeV",nGaussiansRV,nGaussiansWV,recursive_);
+			} else {
+				finalModel.buildRvWvPdf("hggpdfsmrel_8TeV",nGaussiansRV,nGaussiansWV,recursive_);
+			}
+			finalModel.getNormalization();
+			finalModel.plotPdf("plots");
+			finalModel.save(outWS);
 		}
-    finalModel.getNormalization();
-    finalModel.plotPdf("plots");
-    finalModel.save(outWS);
   }
   
   datfile.close();
@@ -223,17 +232,18 @@ int main(int argc, char *argv[]){
   cout << "\t";
   sw.Print();
 
-  sw.Start();
-  
-  cout << "Starting to combine fits..." << endl;
-  // this guy packages everything up
-  Packager packager(outWS,splitVH_,nCats_,mhLow_,mhHigh_,is2011_,"plots");
-  packager.packageOutput();
-  sw.Stop();
-  cout << "Combination complete." << endl;
-  cout << "Whole process took..." << endl;
-  cout << "\t";
-  sw.Print();
+ 	if (!runInitialFitsOnly_) { 
+		sw.Start();
+		cout << "Starting to combine fits..." << endl;
+		// this guy packages everything up
+		Packager packager(outWS,splitVH_,nCats_,mhLow_,mhHigh_,is2011_,"plots");
+		packager.packageOutput();
+		sw.Stop();
+		cout << "Combination complete." << endl;
+		cout << "Whole process took..." << endl;
+		cout << "\t";
+		sw.Print();
+	}
 
   cout << "Writing to file..." << endl;
   outFile->cd();

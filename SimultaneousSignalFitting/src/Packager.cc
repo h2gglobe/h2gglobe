@@ -59,9 +59,9 @@ void Packager::packageOutput(){
           expectedObjectsNotFound.push_back(Form("sig_%s_mass_m%d_cat%d",proc->c_str(),mh,cat));
           continue;
         }
-        if (cat==0) allDataThisMass = (RooDataSet*)tempData->Clone(Form("sig_mass_m%d_AllCats",mh));
+        if (cat==0 && proc==procs.begin()) allDataThisMass = (RooDataSet*)tempData->Clone(Form("sig_mass_m%d_AllCats",mh));
         else allDataThisMass->append(*tempData);
-        if (*proc=="ggh") allDataThisCat = (RooDataSet*)tempData->Clone(Form("sig_mass_m%d_cat%d",mh,cat));
+        if (proc==procs.begin()) allDataThisCat = (RooDataSet*)tempData->Clone(Form("sig_mass_m%d_cat%d",mh,cat));
         else allDataThisCat->append(*tempData);
       }
       if (!allDataThisCat) {
@@ -181,11 +181,11 @@ void Packager::makePlots(){
 void Packager::makePlot(RooRealVar *mass, RooRealVar *MH, RooAddPdf *pdf, map<int,RooDataSet*> data, string name){
 	
   TCanvas *canv = new TCanvas();
-	RooPlot *dataPlot = mass->frame(Range(100,160));
+	RooPlot *dataPlot = mass->frame(Title(name.c_str()),Range(100,160));
 	for (map<int,RooDataSet*>::iterator it=data.begin(); it!=data.end(); it++){
 		int mh = it->first;
 		RooDataSet *dset = it->second;
-		dset->plotOn(dataPlot,Binning(80));
+		dset->plotOn(dataPlot,Binning(160));
 		MH->setVal(mh);
 		pdf->plotOn(dataPlot);
 	}
@@ -193,10 +193,12 @@ void Packager::makePlot(RooRealVar *mass, RooRealVar *MH, RooAddPdf *pdf, map<in
 	canv->Print(Form("%s/%s_fits.pdf",outDir_.c_str(),name.c_str()));
 	canv->Print(Form("%s/%s_fits.png",outDir_.c_str(),name.c_str()));
   
-	RooPlot *pdfPlot = mass->frame(Range(100,160));
+	RooPlot *pdfPlot = mass->frame(Title(name.c_str()),Range(100,160));
+	pdfPlot->GetYaxis()->SetTitle(Form("Pdf projection / %2.1f GeV",(mass->getMax()-mass->getMin())/160.));
   for (int mh=mhLow_; mh<=mhHigh_; mh++){
     MH->setVal(mh);
-    pdf->plotOn(pdfPlot,Normalization(1.0,RooAbsReal::RelativeExpected));
+		// to get correct normlization need to manipulate with bins and range
+    pdf->plotOn(pdfPlot,Normalization(mass->getBins()/160.*(mass->getMax()-mass->getMin())/60.,RooAbsReal::RelativeExpected));
   }
   pdfPlot->Draw();
 	canv->Print(Form("%s/%s_interp.pdf",outDir_.c_str(),name.c_str()));
