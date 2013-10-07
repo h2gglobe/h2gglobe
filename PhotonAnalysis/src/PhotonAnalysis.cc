@@ -5799,11 +5799,11 @@ void PhotonAnalysis::GetRegressionCorrections(LoopAll &l){
         double phoE = ((TLorentzVector*)l.pho_p4->At(ipho))->Energy();
         double r9=l.pho_r9[ipho];
 
-        TVector3 *sc = ((TVector3*)l.pho_calopos->At(ipho)); 
-
         int sc_index      = l.pho_scind[ipho];
         int sc_seed_index = l.sc_bcseedind[sc_index];
 
+        TVector3 *sc = ((TVector3*)l.sc_xyz->At(sc_index)); 
+        
         TVector3 *bcpos =(TVector3*)l.bc_xyz->At(sc_seed_index);
         double bcE = ((TLorentzVector*)l.bc_p4->At(sc_seed_index))->Energy();
 
