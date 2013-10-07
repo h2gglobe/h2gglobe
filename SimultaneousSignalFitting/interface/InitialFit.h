@@ -28,7 +28,7 @@ class InitialFit {
     void setDatasets(std::map<int,RooDataSet*> data);
     void addDataset(int mh, RooDataSet *data);
     void runFits(int ncpu);
-    void plotFits(std::string outDir);
+    void plotFits(std::string name);
     void setVerbosity(int v);
 
   private:
