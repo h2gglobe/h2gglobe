@@ -1998,7 +1998,7 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
     if( forcedRho >= 0. ) {
         l.rho = forcedRho;
     } else {
-	l.rho = l.rho_algo1;
+        l.rho = l.rho_algo1;
     }
     
     l.FillCICInputs();
@@ -5819,8 +5819,8 @@ void PhotonAnalysis::GetRegressionCorrections(LoopAll &l){
         _vals[3] = l.sc_seta[sc_index];
         _vals[4] = l.sc_sphi[sc_index];
         _vals[5] = (double)l.sc_nbc[sc_index];
-        _vals[6] = l.pho_hoe[ipho];//p.hadTowOverEm();
-        _vals[7] = l.rho;
+        _vals[6] = l.pho_hoe_bc[ipho];//p.hadTowOverEm();
+        _vals[7] = l.rho_algo1;
         _vals[8] = (double)l.vtx_std_n;//double(vtxcol.size());
 
         //seed basic cluster variables
@@ -5841,7 +5841,7 @@ void PhotonAnalysis::GetRegressionCorrections(LoopAll &l){
         double be3x3 = l.bc_s9[sc_seed_index];//clustertools.e5x5(*b);
 
         _vals[9] = bcpos->Eta()-sc->Eta();
-        _vals[10] = l.DeltaPhi(bcpos->Phi(),sc->Phi());
+        _vals[10] = bcpos->DeltaPhi(*sc);
         _vals[11] = bcE/l.sc_raw[sc_index];
         _vals[12] = be3x3/be5x5;
         _vals[13] = l.bc_sieie[sc_seed_index]; //sigietaieta (this is stored in bc collection)
@@ -5875,11 +5875,12 @@ void PhotonAnalysis::GetRegressionCorrections(LoopAll &l){
             _vals[33] = biphi%20; //module boundary phi symmetry
             _vals[34] = l.pho_betacry[ipho];//betacry; //local coordinates with respect to closest crystal center at nominal shower depth
             _vals[35] = l.pho_phicry[ipho];//bphicry;
-
+            
         }
         else {
             //preshower energy ratio (endcap only)
             _vals[27]  = l.sc_pre[sc_index]/l.sc_raw[sc_index];
+            
         }
 
         double den;
