@@ -5947,6 +5947,8 @@ void PhotonAnalysis::GetRegressionCorrectionsV5(LoopAll &l){
 
         int sc_seed_index = l.sc_bcseedind[sc_index];
 
+        TVector3 *sc = ((TVector3*)l.sc_xyz->At(sc_index)); 
+        
         TVector3 *bcpos =(TVector3*)l.bc_xyz->At(sc_seed_index);
         double bcE = ((TLorentzVector*)l.bc_p4->At(sc_seed_index))->Energy();
 
