@@ -5702,7 +5702,10 @@ void PhotonAnalysis::GetRegressionCorrectionsV8(LoopAll &l){
     // V7 7TeV Endcap use
     for (int ipho=0;ipho<l.pho_n;ipho++){
         double ecor,ecorerr;
-        TVector3 *sc = ((TVector3*)l.pho_calopos->At(ipho)); 
+    
+        int sc_index = l.pho_scind[ipho];
+
+        TVector3 *sc = ((TVector3*)l.sc_xyz->At(sc_index)); 
         bool isbarrel = (fabs(sc->Eta())<1.48);
      
         if (isbarrel){
@@ -5723,9 +5726,9 @@ void PhotonAnalysis::GetSinglePhotonRegressionCorrectionV7(LoopAll &l, int ipho,
     double phoE = ((TLorentzVector*)l.pho_p4->At(ipho))->Energy();
     double r9=l.pho_r9[ipho];
 
-    TVector3 *sc = ((TVector3*)l.pho_calopos->At(ipho)); 
-
     int sc_index      = l.pho_scind[ipho];
+    TVector3 *sc = ((TVector3*)l.sc_xyz->At(sc_index)); 
+
     int sc_seed_index = l.sc_bcseedind[sc_index];
 
     TVector3 *bcpos =(TVector3*)l.bc_xyz->At(sc_seed_index);
@@ -5829,9 +5832,9 @@ void PhotonAnalysis::GetSinglePhotonRegressionCorrectionV6(LoopAll &l, int ipho,
     double phoE = ((TLorentzVector*)l.pho_p4->At(ipho))->Energy();
     double r9=l.pho_r9[ipho];
 
-    TVector3 *sc = ((TVector3*)l.pho_calopos->At(ipho)); 
-
     int sc_index      = l.pho_scind[ipho];
+    TVector3 *sc = ((TVector3*)l.sc_xyz->At(sc_index)); 
+
     int sc_seed_index = l.sc_bcseedind[sc_index];
 
     TVector3 *bcpos =(TVector3*)l.bc_xyz->At(sc_seed_index);
@@ -5939,9 +5942,9 @@ void PhotonAnalysis::GetRegressionCorrectionsV5(LoopAll &l){
         double phoE = ((TLorentzVector*)l.pho_p4->At(ipho))->Energy();
         double r9=l.pho_r9[ipho];
 
-        TVector3 *sc = ((TVector3*)l.pho_calopos->At(ipho)); 
-
         int sc_index      = l.pho_scind[ipho];
+        TVector3 *sc = ((TVector3*)l.sc_xyz->At(sc_index)); 
+
         int sc_seed_index = l.sc_bcseedind[sc_index];
 
         TVector3 *bcpos =(TVector3*)l.bc_xyz->At(sc_seed_index);
