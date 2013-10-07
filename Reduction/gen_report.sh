@@ -13,5 +13,6 @@ find data2012_RERECO mc_Summer12_RD1 -name \*.done  | xargs cat | sed 's%^\\n%%'
 ###./count_all_events.sh mc_bkg_summer12_s7_b >> ${version}_summary.txt
 
 source setup.sh
-./wrap.sh cp -p ${version}.tar.gz ${version}_summary.txt sha1.txt ${storedir}
-source cleanup.sh
+cp -p ${version}.tar.gz ${version}_summary.txt sha1.txt ${storedir}
+./mkLumi.py data2012_RERECO/*.dat
+./wrap.sh ls -R ${storedir}

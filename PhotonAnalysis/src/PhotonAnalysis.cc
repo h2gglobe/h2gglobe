@@ -5980,7 +5980,7 @@ void PhotonAnalysis::GetRegressionCorrectionsV5(LoopAll &l){
         double be3x3 = l.bc_s9[sc_seed_index];//clustertools.e5x5(*b);
 
         _vals[9] = bcpos->Eta()-sc->Eta();
-        _vals[10] = l.DeltaPhi(bcpos->Phi(),sc->Phi());
+        _vals[10] = bcpos->DeltaPhi(*sc);
         _vals[11] = bcE/l.sc_raw[sc_index];
         _vals[12] = be3x3/be5x5;
         _vals[13] = l.bc_sieie[sc_seed_index]; //sigietaieta (this is stored in bc collection)
@@ -6014,11 +6014,12 @@ void PhotonAnalysis::GetRegressionCorrectionsV5(LoopAll &l){
             _vals[33] = biphi%20; //module boundary phi symmetry
             _vals[34] = l.pho_betacry[ipho];//betacry; //local coordinates with respect to closest crystal center at nominal shower depth
             _vals[35] = l.pho_phicry[ipho];//bphicry;
-
+            
         }
         else {
             //preshower energy ratio (endcap only)
             _vals[27]  = l.sc_pre[sc_index]/l.sc_raw[sc_index];
+            
         }
 
         double den;
