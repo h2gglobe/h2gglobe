@@ -5,43 +5,68 @@ H2GGLOBE_BASE=${PWD}
 THREADS=`grep processor /proc/cpuinfo | wc -l`
 
 packs=""
-get_tag()
+get_cvs()
 {
 	tag=$1 && shift
 	src=$1 && shift
 	dst=$src
 	[[ -n $1 ]] && dst=$1 && shift
+
+	echo
+	echo "Checking out $tag $src into $dst"
 	
 	if [[ -d $dst ]]; then
 		cvs up -r $tag $dst
 	else
 		cvs co -r $tag -d $dst $src
 	fi
+	echo "done"
+	echo
+	packs="$packs $dst"
+}
+
+get_git()
+{
+    	tag=$1 && shift
+	src=$1 && shift
+	dst=$1 && shift
+	wd=$(pwd)
+
+	echo 
+	echo "Checking out $tag $src into $dst"
+
+	if [[ ! -d $dst ]]; then
+	    git clone $src $dst
+	fi
+	cd $dst
+	git fetch origin
+	git checkout $tag
+	
+	cd $wd
+	echo "done"
+	echo
+	
 	packs="$packs $dst"
 }
 
 cd $CMSSW_BASE/src
-get_tag V00-02-10 UserCode/CMG/CMGTools/External CMGTools/External 
+
+## Jet ID
+get_git V00-02-10 https://github.com/h2gglobe/External.git CMGTools/External 
+
+## Combine
+get_git de9986485  https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
+
+# Energy regression
+if [[ $CMSSW_VERSION == CMSSW_6_* ]]; then 
+    get_git hggpapertraining_regV6_7_8_tag0 https://github.com/bendavid/GBRLikelihood.git HiggsAnalysis/GBRLikelihood
+else 
+    get_git hggpaperV5 https://github.com/bendavid/GBRLikelihood.git HiggsAnalysis/GBRLikelihood
+fi
+
 if [[ -n $packs ]]; then 
     scram b $packs -j $THREADS
 fi
-
-# Regression (need to adapt get_tag for github)
-if [[ ! -d HiggsAnalysis/GBRLikelihood  ]]; then
- if [[ $CMSSW_VERSION == CMSSW_6_* ]]; then 
-  git clone -b hggpapertraining_regV6_7_8_tag0 https://github.com/bendavid/GBRLikelihood.git HiggsAnalysis/GBRLikelihood
-  else git clone -b hggpaperV5 https://github.com/bendavid/GBRLikelihood.git HiggsAnalysis/GBRLikelihood
- fi
-fi 
-cd HiggsAnalysis/GBRLikelihood
-scram b -j $THREADS
-cd $CMSSW_BASE/src
-
-if [[ ! -d HiggsAnalysis/CombinedLimit ]]; then
-  git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
-fi
-cd HiggsAnalysis/CombinedLimit
-scram b -j $THREADS
 
 cd ${H2GGLOBE_BASE}
 touch .extraTags
