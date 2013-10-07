@@ -172,7 +172,7 @@ pair<double,double> getNormTermNllAndRes(RooRealVar *mgg, RooAbsData *data, RooM
 		if (normVal>-1.) normVar->setConstant(false);
 	}
 	//cout << "CACHE: " << bestFitNorm << " -- " << bestFitNll << endl;
-	return make_pair(bestFitNll,bestFitNorm);
+	return make_pair(2*bestFitNll,bestFitNorm);
 }
 
 double getNormTermNll(RooRealVar *mgg, RooAbsData *data, RooMultiPdf *mpdf, RooCategory *mcat, double normVal=-1., double massRangeLow=-1., double massRangeHigh=-1.){
@@ -809,12 +809,19 @@ int main(int argc, char* argv[]){
 	TGraphAsymmErrors *twoSigmaBand = new TGraphAsymmErrors();
 	twoSigmaBand->SetName(Form("twosigma_cat%d",cat));
 
+	cout << "Plot has " << plot->GetXaxis()->GetNbins() << " bins" << endl;
 	if (doBands) {
 		int p=0;
-		for (double mass=double(mhLow); mass<double(mhHigh)+massStep; mass+=massStep) {	
+		for (double mass=double(mhLow); mass<double(mhHigh)+massStep; mass+=massStep) {
+		//for (int i=1; i<(plot->GetXaxis()->GetNbins()+1); i++){
 			double lowedge = mass-0.5;
 			double upedge = mass+0.5;
 			double center = mass;
+			/*
+			double lowedge = plot->GetXaxis()->GetBinLowEdge(i);
+			double upedge = plot->GetXaxis()->GetBinUpEdge(i);
+			double center = plot->GetXaxis()->GetBinCenter(i);
+			*/
 			double nomBkg = nomBkgCurve->interpolate(center);
 			double nllBest = getNormTermNll(mgg,data,mpdf,mcat,nomBkg,lowedge,upedge);
 
@@ -822,7 +829,7 @@ int main(int argc, char* argv[]){
       double lowRange = TMath::Max(0.,nomBkg - 3*TMath::Sqrt(nomBkg));
       double highRange = nomBkg + 3*TMath::Sqrt(nomBkg);
 
-			if (verbose_) cout << "mgg: " << mass << " nomBkg: " << nomBkg << " lR: " << lowRange << " hR: " << highRange << endl;
+			if (verbose_) cout << "mgg: " << center << " nomBkg: " << nomBkg << " lR: " << lowRange << " hR: " << highRange << endl;
 
 			double errLow1Value,errHigh1Value,errLow2Value,errHigh2Value;
 			// cant handle having 0 events
@@ -882,7 +889,7 @@ int main(int argc, char* argv[]){
 				line.DrawLine(nomBkg-errLow2,0.,nomBkg-errLow2,4.);
 				line.DrawLine(nomBkg+errHigh2,0.,nomBkg+errHigh2,4.);
 				line.DrawLine(0.9*errLow2Value,4.,1.1*errHigh2Value,4.);
-				temp->Print(Form("%s/normProfs/cat%d_mass%6.2f.pdf",outDir.c_str(),cat,mass));
+				temp->Print(Form("%s/normProfs/cat%d_mass%6.2f.pdf",outDir.c_str(),cat,center));
 				delete profCurve;
         delete temp;
 			}
@@ -935,12 +942,12 @@ int main(int argc, char* argv[]){
 		}
 		if (w_sig->GetName()==TString("cms_hgg_workspace")) {
 			TH1F::SetDefaultSumw2();
-			TH1F *gghHist = (TH1F*)inFile->Get(Form("th1f_sig_ggh_mass_m125_cat%d",cat));
-			TH1F *vbfHist = (TH1F*)inFile->Get(Form("th1f_sig_vbf_mass_m125_cat%d",cat));
-			TH1F *wzhHist = (TH1F*)inFile->Get(Form("th1f_sig_wzh_mass_m125_cat%d",cat));
-			TH1F *tthHist = (TH1F*)inFile->Get(Form("th1f_sig_tth_mass_m125_cat%d",cat));
-			TH1F *whHist = (TH1F*)inFile->Get(Form("th1f_sig_wh_mass_m125_cat%d",cat));
-			TH1F *zhHist = (TH1F*)inFile->Get(Form("th1f_sig_zh_mass_m125_cat%d",cat));
+			TH1F *gghHist = (TH1F*)sigFile->Get(Form("th1f_sig_ggh_mass_m125_cat%d",cat));
+			TH1F *vbfHist = (TH1F*)sigFile->Get(Form("th1f_sig_vbf_mass_m125_cat%d",cat));
+			TH1F *wzhHist = (TH1F*)sigFile->Get(Form("th1f_sig_wzh_mass_m125_cat%d",cat));
+			TH1F *tthHist = (TH1F*)sigFile->Get(Form("th1f_sig_tth_mass_m125_cat%d",cat));
+			TH1F *whHist = (TH1F*)sigFile->Get(Form("th1f_sig_wh_mass_m125_cat%d",cat));
+			TH1F *zhHist = (TH1F*)sigFile->Get(Form("th1f_sig_zh_mass_m125_cat%d",cat));
 			TH1F *sigHist = (TH1F*)gghHist->Clone(Form("th1f_sig_mass_m125_cat%d",cat));
 			sigHist->Add(gghHist);
 			sigHist->Add(vbfHist);
