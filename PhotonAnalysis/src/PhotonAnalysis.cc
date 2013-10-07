@@ -2057,7 +2057,7 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
     if( forcedRho >= 0. ) {
         l.rho = forcedRho;
     } else {
-	l.rho = l.rho_algo1;
+        l.rho = l.rho_algo1;
     }
     
     l.FillCICInputs();
@@ -5738,8 +5738,8 @@ void PhotonAnalysis::GetSinglePhotonRegressionCorrectionV7(LoopAll &l, int ipho,
     _vals[3] = l.sc_seta[sc_index];
     _vals[4] = l.sc_sphi[sc_index];
     _vals[5] = (double)l.sc_nbc[sc_index];
-    _vals[6] = l.pho_hoe[ipho];//p.hadTowOverEm();
-    _vals[7] = l.rho;
+    _vals[6] = l.pho_hoe_bc[ipho];//p.hadTowOverEm();
+    _vals[7] = l.rho_algo1;
     _vals[8] = (double)l.vtx_std_n;//double(vtxcol.size());
 
     //seed basic cluster variables
@@ -5845,8 +5845,8 @@ void PhotonAnalysis::GetSinglePhotonRegressionCorrectionV6(LoopAll &l, int ipho,
     _vals[4] = l.sc_seta[sc_index];
     _vals[5] = l.sc_sphi[sc_index];
     _vals[6] = (double)l.sc_nbc[sc_index];
-    _vals[7] = l.pho_hoe[ipho];//p.hadTowOverEm();
-    _vals[8] = l.rho;
+    _vals[7] = l.pho_hoe_bc[ipho];//p.hadTowOverEm();
+    _vals[8] = l.rho_algo1;
     _vals[9] = (double)l.vtx_std_n;//double(vtxcol.size());
 
     //seed basic cluster variables
@@ -5958,8 +5958,8 @@ void PhotonAnalysis::GetRegressionCorrectionsV5(LoopAll &l){
         _vals[3] = l.sc_seta[sc_index];
         _vals[4] = l.sc_sphi[sc_index];
         _vals[5] = (double)l.sc_nbc[sc_index];
-        _vals[6] = l.pho_hoe[ipho];//p.hadTowOverEm();
-        _vals[7] = l.rho;
+        _vals[6] = l.pho_hoe_bc[ipho];//p.hadTowOverEm();
+        _vals[7] = l.rho_algo1;
         _vals[8] = (double)l.vtx_std_n;//double(vtxcol.size());
 
         //seed basic cluster variables
