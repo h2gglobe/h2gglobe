@@ -24,7 +24,12 @@ for taskdir in sys.argv[1:]:
             groups[s].append(i)
             tot += 1
 
-        print sample
+        if os.path.exists("%s.njobs" % sample):
+            nj = open("%s.njobs" % sample)
+            tot = int(nj.read())
+            nj.close()
+
+        print sample, tot
         name = os.path.basename(sample).rsplit(".",1)[0]
         for g,jo in groups.iteritems():
             if len(jo) > 0:

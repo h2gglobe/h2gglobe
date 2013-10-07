@@ -42,6 +42,7 @@ for f in ${dir}/${wildcard}.dat; do
 	    bsub -q $queue -o ${f}_${i}.log run.sh -stat $(readlink -e ${f})_${i} -tarball $PWD/${version}.tar.gz $proxy -- ./reduce.py --inputDat $PWD/$f --nJobs $njobs --jobId $i
 	done
     elif [[ -n $njobs ]]; then
+	echo $njobs > ${f}.njobs
 	for i in $(seq 0 $(($njobs-1))); do
 	    rm -f ${f}_${i}.log
 	    rm -f ${f}_${i}.{run,fail,done}
