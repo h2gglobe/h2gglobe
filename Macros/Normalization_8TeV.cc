@@ -216,7 +216,7 @@ double Normalization_8TeV::GetXsection(double mass, TString HistName) {
   } else if (HistName.Contains("grav")) {
     XSectionMap = &XSectionMap_sm;
   } else {
-    std::cout << "Warning ggh, vbf, wh, zh, wzh, tth or grav not found in histname!!!!" << std::endl;
+    std::cout << "Warning ggh, vbf, wh, zh, wzh, tth or grav not found in " << HistName << std::endl;
     //exit(1);
   }
 
@@ -251,6 +251,7 @@ TString Normalization_8TeV::GetProcess(int ty){
   if (ty < -7999){  // We dont go below 80 GeV and Spin samples in the 100 range 
     int process = -ty % 1000;
     if (process == 0 ) return "ggh";
+    else if (process == 10 ) return "ggh_minlo";
     else if (process == 100) return "vbf";
     else if (process == 200) return "wh";
     else if (process == 300) return "zh";
