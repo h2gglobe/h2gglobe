@@ -269,6 +269,12 @@ void StatAnalysis::Init(LoopAll& l)
         interferenceSmearer = new InterferenceSmearer( l.normalizer(), 2.5e-2,0.);
         genLevelSmearers_.push_back(interferenceSmearer);
     }
+    if(doCosThetaDependentInterferenceSmear) {
+        // cos theta dependent interference efficiency
+        std::cerr << __LINE__ << std::endl;
+        cosThetaDependentInterferenceSmearer = new CosThetaDependentInterferenceSmearer( l.normalizer(), genCosTheta, interferenceHist);
+        genLevelSmearers_.push_back(cosThetaDependentInterferenceSmearer);
+    }
 
     // Define the number of categories for the statistical analysis and
     // the systematic sets to be formed
@@ -830,6 +836,9 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
     // do gen-level dependent first (e.g. k-factor); only for signal
     genLevWeight=1.;
     if(cur_type!=0 ) {
+        if (doCosThetaDependentInterferenceSmear) {
+            genCosTheta = getCosThetaCS(*((TLorentzVector*)l.gh_pho1_p4->At(0)),*((TLorentzVector*)l.gh_pho2_p4->At(0)),l.sqrtS);
+        }
         applyGenLevelSmearings(genLevWeight,gP4,l.pu_n,cur_type,genSys,syst_shift);
     }
 
@@ -1593,7 +1602,7 @@ void StatAnalysis::computeExclusiveCategory(LoopAll & l, int & category, std::pa
 
 void StatAnalysis::computeSpinCategory(LoopAll &l, int &category, TLorentzVector lead_p4, TLorentzVector sublead_p4){
 
-    double cosTheta;
+    //double cosTheta;
     int cosThetaCategory=-1;
     if (cosThetaDef=="CS"){
         cosTheta = getCosThetaCS(lead_p4,sublead_p4,l.sqrtS);
