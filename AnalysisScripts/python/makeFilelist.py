@@ -1,15 +1,14 @@
 import commands,sys,os,subprocess
 
 siteHandling = {
-   "cern.ch"    : { "ls"      :  "xrd eoscms.cern.ch ls %s",
-                    "prepend" :  "root://eoscms//eos/cms",
-                    "field"   : 4
-                    },
-   ### "cern.ch"    : { "connect" : "xrd eoscms.cern.ch",
-   ###                  "ls"      :  "ls %s",
+   ### "cern.ch"    : { "ls"      :  "xrd eoscms.cern.ch ls %s",
    ###                  "prepend" :  "root://eoscms//eos/cms",
-   ###                  "field"   : 5
+   ###                  "field"   : 4
    ###                  },
+   "cern.ch"    : { "ls"      :  "/afs/cern.ch/project/eos/installation/cms/bin/eos.select find %s",
+                    "prepend" :  "root://eoscms/",
+                    "field"   : 0
+                    },
    "T2_CH_CSCS" : { "ls"      : "xrd cms01.lcg.cscs.ch ls %s",
                     "prepend" : "root://cms01.lcg.cscs.ch/",
                     "field"   : 4
@@ -35,7 +34,6 @@ def makeCaFiles(dir,njobs=-1,jobid=0,nf=[0],maxfiles=-1,site="cern.ch"):
       ls = sh["ls"]
       prepend = sh.get("prepend",None)
       replace = sh.get("replace",None)
-      connect = sh.get("connect",None)
       field   = sh.get("field",None)
 
    sc,flist = commands.getstatusoutput(ls%dir)

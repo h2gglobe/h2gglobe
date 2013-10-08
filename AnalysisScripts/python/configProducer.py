@@ -852,8 +852,12 @@ class configProducer:
               sys.exit(1)
           newtype = 1000*hmass
 	  proc = ""
-	  if "ggh" in sample_name: 
-		proc="ggh"
+	  if "ggh" in sample_name:
+                if "minlo" in sample_name:
+                    proc="ggh_minlo"
+                    newtype+=10
+                else:
+                    proc="ggh"
 	  elif "vbf" in sample_name: 
 		newtype+=100
 		proc="vbf"
@@ -882,7 +886,7 @@ class configProducer:
           print "Automatic sample type name:%s mass:%d proc:%s type:%d " % (sample_name, hmass, proc, -newtype)
           if map_c["xsec"] < 0: # not provided so figure it out ourselves
             map_c["xsec"] = self.ut_.normalizer().GetXsection(float(hmass),proc) * self.ut_.normalizer().GetBR(float(hmass))
-    elif map_c["xsec"] < 0:
+    elif map_c["typ"] < 0 and map_c["xsec"] < 0:
           mass = self.ut_.normalizer().GetMass(map_c["typ"])
           proc = self.ut_.normalizer().GetProcess(map_c["typ"])
           map_c["xsec"] = self.ut_.normalizer().GetXsection(mass,proc) * self.ut_.normalizer().GetBR(mass)

@@ -84,6 +84,7 @@ class StatAnalysis : public PhotonAnalysis
 
     std::vector<double> zeePtBinLowEdge, zeePtWeight;
     std::vector<int> sigPointsToBook;
+    std::vector<std::string> sigProcessesToBook;
     
     std::string kfacHist;
     std::string pdfWeightHist;
