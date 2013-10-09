@@ -28,7 +28,9 @@ nElectronCategories=0
 nMuonCategories=0 
 includeVHmet=0
 
-bkgPolOrderByCat=5,5,5,5,3,3,3
+bkgPolOrderByCat=5,3,3,3
+phoidMvaCut=-10
+bdtCategoryBoundaries=1,-1
 doSystematics=0
 doEscaleSmear=0 
 doEresolSmear=0 
