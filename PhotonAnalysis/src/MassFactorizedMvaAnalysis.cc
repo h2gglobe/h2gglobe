@@ -957,7 +957,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
               << "\tpho2_eta:"                  <<  sublead_p4.Eta()
               << "\tpho2_phi:"                  <<  sublead_p4.Phi()
               << "\tpho2_e:"                    <<  sublead_p4.E()
-              << "\tpho2_eErr:"                 <<  massResolutionCalculator->leadPhotonResolutionNoSmear()
+              << "\tpho2_eErr:"                 <<  massResolutionCalculator->subleadPhotonResolutionNoSmear()
               << "\tpho2_isConv:"               <<  l.pho_isconv[diphoton_index.second]
               << "\tpho2_HoE:"                  <<  l.pho_hoe[diphoton_index.second]
               << "\tpho2_hcalIso03:"            <<  l.pho_hcalsumetconedr03[diphoton_index.second] - 0.005*sublead_p4.Et() 
