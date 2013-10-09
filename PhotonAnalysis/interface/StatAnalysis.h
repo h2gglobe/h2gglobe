@@ -55,7 +55,7 @@ class StatAnalysis : public PhotonAnalysis
     
     bool  doEscaleSyst, doEresolSyst, doPhotonIdEffSyst, doVtxEffSyst, doR9Syst, doTriggerEffSyst, doKFactorSyst, doPtSpinSyst;
     bool  doEscaleSmear, doEresolSmear, doPhotonIdEffSmear, doVtxEffSmear, doR9Smear, doTriggerEffSmear, 
-	doKFactorSmear, doPtSpinSmear, doInterferenceSmear;
+	doKFactorSmear, doPtSpinSmear, doInterferenceSmear, doCosThetaDependentInterferenceSmear;
     float systRange;
     int   nSystSteps;   
     //int   nEtaCategories, nR9Categories, nPtCategories;
@@ -69,6 +69,8 @@ class StatAnalysis : public PhotonAnalysis
     int nCosThetaCategories;
     std::string cosThetaDef;
     std::vector<float> cosThetaCatBoundaries;
+    double genCosTheta;
+    double cosTheta;
 
     bool splitwzh;
 
@@ -89,6 +91,7 @@ class StatAnalysis : public PhotonAnalysis
     std::string kfacHist;
     std::string pdfWeightHist;
     std::string ptspinHist;
+    std::string interferenceHist;
 
     TH1D *thm110,*thm120,*thm130,*thm140;
 
