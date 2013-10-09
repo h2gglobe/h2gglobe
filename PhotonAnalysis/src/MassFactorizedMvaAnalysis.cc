@@ -948,6 +948,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
               << "\tpho1_s4Ratio:"              <<  l.pho_s4ratio[diphoton_index.first]
               << "\tpho1_ESEffSigmaRR:"         <<  l.pho_ESEffSigmaRR[diphoton_index.first]
               << "\tpho1_scRawE:"               <<  l.sc_raw[l.pho_scind[diphoton_index.first]]
+              << "\tpho1_idMVA:"                <<  phoid_mvaout_lead
 
               << "\tpho2_ind:"                  <<  diphoton_index.second
               << "\tpho2_scInd:"                <<  l.pho_scind[diphoton_index.second]
@@ -973,6 +974,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
               << "\tpho2_s4Ratio:"              <<  l.pho_s4ratio[diphoton_index.second]
               << "\tpho2_ESEffSigmaRR:"         <<  l.pho_ESEffSigmaRR[diphoton_index.second]
               << "\tpho2_scRawE:"               <<  l.sc_raw[l.pho_scind[diphoton_index.second]]
+              << "\tpho2_idMVA:"                <<  phoid_mvaout_sublead
 
               << "\tmass:"                      <<  mass 
               << "\trVtxSigmaMoM:"              <<  sigmaMrv/mass 
@@ -981,7 +983,8 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
               << "\tpho2_ptOverM:"              <<  sublead_p4.Pt()/mass
               << "\tvtxIndex:"                  <<  l.dipho_vtxind[diphoton_id]
               << "\tvtxProb:"                   <<  vtxProb 
-              << "\tcosDPhi:"                   <<  TMath::Cos(lead_p4.Phi() - sublead_p4.Phi());
+              << "\tcosDPhi:"                   <<  TMath::Cos(lead_p4.Phi() - sublead_p4.Phi())
+              << "\tdiphoMVA:"                  <<  diphobdt_output;
 
         // Vertex MVA
             vtxAna_.setPairID(diphoton_id);
