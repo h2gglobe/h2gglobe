@@ -24,8 +24,8 @@ includeTTHlep=0
 doPtSpinSmear=1
 doPtSpinSyst=1
 ptspinHist=spinanalysis/ptweights.root
-interferenceHist=spinanalysis/interferenceHists.root
 runJetsForSpin=0
 
 doInterferenceSmear=0
 doCosThetaDependentInterferenceSmear=1
+interferenceHist=spinanalysis/interferenceHists.root

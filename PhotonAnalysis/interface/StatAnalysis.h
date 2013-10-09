@@ -14,7 +14,6 @@
 #include "PtSpinSmearer.h"
 #include "PdfWeightSmearer.h"
 #include "InterferenceSmearer.h"
-#include "CosThetaDependentInterferenceSmearer.h"
 #include <iostream>
 #include <fstream>
 #include "math.h"
@@ -152,7 +151,6 @@ class StatAnalysis : public PhotonAnalysis
     PdfWeightSmearer * pdfWeightSmearer;
     std::vector<PdfWeightSmearer*> pdfWeightSmearer_sets;
     InterferenceSmearer * interferenceSmearer;
-    CosThetaDependentInterferenceSmearer * cosThetaDependentInterferenceSmearer;
     PtSpinSmearer * ptSpinSmearer;
     
     std::string name_;

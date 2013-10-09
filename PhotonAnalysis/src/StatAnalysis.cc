@@ -49,6 +49,9 @@ StatAnalysis::StatAnalysis()  :
     splitwzh=false;
     sigmaMrv=0.;
     sigmaMwv=0.;
+
+    doInterferenceSmear=false;
+    doCosThetaDependentInterferenceSmear=false;
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -263,17 +266,11 @@ void StatAnalysis::Init(LoopAll& l)
         ptSpinSmearer->init();
         genLevelSmearers_.push_back(ptSpinSmearer);
     }
-    if(doInterferenceSmear) {
+    if(doInterferenceSmear || doCosThetaDependentInterferenceSmear) {
         // interference efficiency
         std::cerr << __LINE__ << std::endl;
-        interferenceSmearer = new InterferenceSmearer( l.normalizer(), 2.5e-2,0.);
+        interferenceSmearer = new InterferenceSmearer( l.normalizer(), &genCosTheta, !doCosThetaDependentInterferenceSmear, 2.5e-2,0., interferenceHist); 
         genLevelSmearers_.push_back(interferenceSmearer);
-    }
-    if(doCosThetaDependentInterferenceSmear) {
-        // cos theta dependent interference efficiency
-        std::cerr << __LINE__ << std::endl;
-        cosThetaDependentInterferenceSmearer = new CosThetaDependentInterferenceSmearer( l.normalizer(), genCosTheta, interferenceHist);
-        genLevelSmearers_.push_back(cosThetaDependentInterferenceSmearer);
     }
 
     // Define the number of categories for the statistical analysis and
