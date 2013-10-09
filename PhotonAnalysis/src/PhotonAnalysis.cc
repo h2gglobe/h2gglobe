@@ -3818,6 +3818,7 @@ bool PhotonAnalysis::VBFTag2012(int & ijet1, int & ijet2,
     
     bool jetsPreselected=FillDijetVariables(ijet1, ijet2, l, diphoton_id, &smeared_pho_energy[0], jetid_flags, getAngles);
     
+    if(PADEBUG) std::cout<<"VBFTag2013 jetsPreselected "<<jetsPreselected<<std::endl;
     if(jetsPreselected==false) return tag;
     
     if( mvaVbfSelection ) {
@@ -3867,12 +3868,14 @@ bool PhotonAnalysis::VBFTag2013(int & ijet1, int & ijet2, LoopAll& l, int& dipho
     
     diphotonVBF_id = l.DiphotonMITPreSelection(bdtTrainingType.c_str(),leadEtVBFCut,subleadEtVBFCut,phoidMvaCut,applyPtoverM, 
                                                 &smeared_pho_energy[0], vetodipho, kinonly );
+    if(PADEBUG) std::cout<<"VBFTag2013 diphotonVBF_id "<<diphotonVBF_id<<std::endl;
     if(diphotonVBF_id==-1){
-        return false;
+        return tag;
     } 
     
     bool jetsPreselected=FillDijetVariables(ijet1, ijet2, l, diphotonVBF_id, &smeared_pho_energy[0]);
     
+    if(PADEBUG) std::cout<<"VBFTag2013 jetsPreselected "<<jetsPreselected<<std::endl;
     if(jetsPreselected==false) return tag;
     
     if(mvaselection){
@@ -3884,7 +3887,7 @@ bool PhotonAnalysis::VBFTag2013(int & ijet1, int & ijet2, LoopAll& l, int& dipho
         if(PADEBUG) std::cout<<"dipho dijet pt/m combined "<<myVBFDIPHObdt<<" "<<myVBF_MVA<<" "<<myVBFDiPhoPtOverM<<" "<<myVBFcombined<<std::endl;
 
         vbfcat=categoryFromBoundaries2D(multiclassVbfCatBoundaries0,multiclassVbfCatBoundaries1,multiclassVbfCatBoundaries2,
-                                        myVBF_MVA,                  myVBFcombined,              1000);
+                                        myVBF_MVA,                  myVBFcombined,              -2);
         
         if(PADEBUG) std::cout<<"vbfcat dijet combinedmva "<<vbfcat<<" "<<myVBF_MVA<<" "<<myVBFcombined<<std::endl;
         if( vbfcat!=-1 ) tag = true;
