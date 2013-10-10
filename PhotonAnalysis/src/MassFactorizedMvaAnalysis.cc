@@ -19,6 +19,8 @@ MassFactorizedMvaAnalysis::MassFactorizedMvaAnalysis()  :
     nSystSteps = 1;
     forceStdPlotsOnZee = false;
     doDiphoMvaUpFront = false;
+    doInterferenceSmear=false;
+    doCosThetaDependentInterferenceSmear=false;
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -206,10 +208,10 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
           genLevelSmearers_.push_back((pdfWeightSmearer_sets.back()));
         }
     }
-    if(doInterferenceSmear) {
+    if(doInterferenceSmear || doCosThetaDependentInterferenceSmear) {
         // interference efficiency
         std::cerr << __LINE__ << std::endl; 
-        interferenceSmearer = new InterferenceSmearer(l.normalizer(), 2.5e-2,0.);
+        interferenceSmearer = new InterferenceSmearer( l.normalizer(), &genCosTheta, !doCosThetaDependentInterferenceSmear, 2.5e-2,0., interferenceHist); 
         genLevelSmearers_.push_back(interferenceSmearer);
     }
 
@@ -588,6 +590,9 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
     // do gen-level dependent first (e.g. k-factor); only for signal
     genLevWeight=1.;
     if(cur_type!=0 ) {
+        if (doCosThetaDependentInterferenceSmear) {
+            genCosTheta = getCosThetaCS(*((TLorentzVector*)l.gh_pho1_p4->At(0)),*((TLorentzVector*)l.gh_pho2_p4->At(0)),l.sqrtS);
+        }
 	applyGenLevelSmearings(genLevWeight,gP4,l.pu_n,cur_type,genSys,syst_shift);
     }
         
