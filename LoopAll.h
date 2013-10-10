@@ -102,7 +102,8 @@ class LoopAll {
 				  int type, int histtoindfromfiles, int histoplotit,
 				  int nred, long long ntot, float intlumi,
 				  float lumi, float xsec, float kfactor,
-				  float scale, int forceVersion=0, 
+				  float scale, bool ignoreEvWeight=false,
+				  int forceVersion=0, 
 				  bool addnevents=false, TString pileup="");
 
   void Term(); 
