@@ -5,8 +5,9 @@ siteHandling = {
    ###                  "prepend" :  "root://eoscms//eos/cms",
    ###                  "field"   : 4
    ###                  },
-   "cern.ch"    : { "ls"      :  "/afs/cern.ch/project/eos/installation/cms/bin/eos.select find %s",
-                    "prepend" :  "root://eoscms/",
+   "cern.ch"    : { "ls"      :  "/afs/cern.ch/project/eos/installation/cms/bin/eos.select ls %s",
+                    "prepend" :  "root://eoscms//eos/cms",
+                    "prepend_dir" :  True,
                     "field"   : 0
                     },
    "T2_CH_CSCS" : { "ls"      : "xrd cms01.lcg.cscs.ch ls %s",
@@ -21,6 +22,14 @@ def makeCaFiles(dir,njobs=-1,jobid=0,nf=[0],maxfiles=-1,site="cern.ch"):
    dir = str(dir)
    return_files = []
 
+   try:
+      ld_path = os.getenv("LD_LIBRARY_PATH")
+   except:
+      ld_path = ""
+      
+   if not "/afs/cern.ch/project/eos/installation/pro/lib64/" in ld_path:
+      os.putenv("LD_LIBRARY_PATH", "%s:%s" % ( ld_path, "/afs/cern.ch/project/eos/installation/pro/lib64/" ) )
+
    replace = None
    ls = None
    prepend = None
@@ -33,10 +42,15 @@ def makeCaFiles(dir,njobs=-1,jobid=0,nf=[0],maxfiles=-1,site="cern.ch"):
          sh = siteHandling[sh]         
       ls = sh["ls"]
       prepend = sh.get("prepend",None)
+      prepend_dir = sh.get("prepend_dir",None)
       replace = sh.get("replace",None)
       field   = sh.get("field",None)
 
-   sc,flist = commands.getstatusoutput(ls%dir)
+   sc=None
+   for i in range(3):
+      sc,flist = commands.getstatusoutput(ls%dir)
+      if sc:
+         break
       
    files = flist.split('\n')
    if field:
@@ -61,13 +75,16 @@ def makeCaFiles(dir,njobs=-1,jobid=0,nf=[0],maxfiles=-1,site="cern.ch"):
             if replace:
                fname = fname.replace( *replace )
             if prepend:
-               fname = "%s%s" % ( prepend, fname)
+               if prepend_dir:
+                  fname = "%s%s/%s" % ( prepend, dir, fname)
+               else:
+                  fname = "%s%s" % ( prepend, fname)
             if (njobs > 0) and (nf[0] % njobs != jobid):
                return_files.append((fname,False))
 	    else:
                return_files.append((fname,True))
    else:
-      sys.exit("No Such Directory: %s"%(dir))
+      sys.exit("No Such Directory: %s\n%s\n%s"%(dir,flist,str(files)))
 
    if nf[0]==0:
       sys.exit("No .root Files found in directory - %s:\n%s"%(dir,flist))

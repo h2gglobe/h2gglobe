@@ -137,6 +137,7 @@ SampleContainer & LoopAll::DefineSamples(const char *filesshortnam,
 					 float xsec,
 					 float kfactor,
 					 float scale,
+					 bool ignoreEvWeight,
 					 int forceVersion,
 					 bool addnevents,
 					 TString pileup
@@ -162,7 +163,7 @@ SampleContainer & LoopAll::DefineSamples(const char *filesshortnam,
     return sampleContainer[sample_is_defined];
   }
 
-  sampleContainer.push_back(SampleContainer(&weight));
+  sampleContainer.push_back(SampleContainer((ignoreEvWeight?0:&weight)));
   sampleContainer.back().itype = type;
   sampleContainer.back().ntot = ntot;
   sampleContainer.back().nred = nred;

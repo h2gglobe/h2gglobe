@@ -48,9 +48,10 @@ if __name__  == "__main__":
 	parser.add_option("--onlyData",dest="onlyData",action="store_true",default=False,help="default: %default")
 	parser.add_option("--onlySig",dest="onlySig",action="store_true",default=False,help="default: %default")
 	parser.add_option("--onlyBkg",dest="onlyBkg",action="store_true",default=False,help="default: %default")
-	parser.add_option("-w","--watchDutyCycle",dest="watchDutyCycle",action="store_true",default=False,help="default: %default")
+	parser.add_option("-w","--watchDutyCycle",dest="watchDutyCycle",action="store_true",default=True,help="default: %default")
+	parser.add_option("-W","--doNotWatchDutyCycle",dest="watchDutyCycle",action="store_false",help="default: %default")
 	parser.add_option("-m","--mountEos",dest="mountEos",action="store_true",default=False,help="default: %default")
-
+	
 	(options,args)=parser.parse_args()
 
 	if options.onlyData:
