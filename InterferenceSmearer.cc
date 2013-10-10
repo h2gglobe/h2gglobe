@@ -30,7 +30,7 @@ InterferenceSmearer::InterferenceSmearer(Normalization_8TeV* norm, float correct
 
 InterferenceSmearer::~InterferenceSmearer()
 {
-	if (histFile_) {
+	if (!isConst_) {
 		histFile_->Close();
 		delete histFile_;
 	}
@@ -49,7 +49,7 @@ bool InterferenceSmearer::smearEvent( float & weight, const TLorentzVector & p4,
   if( genMassPoint > 150 ) { genMassPoint=150; } // Warning: missing k-factor
   if( genMassPoint == 100 ) { genMassPoint=105; }  // Warning: missing k-factor
 
-	cout << "IntSmear: " << isConst_ << " ";
+	//cout << "IntSmear: " << isConst_ << " ";
 	// const interenference
 	if (isConst_) {
 		weight = 1.-(correction_+syst_shift*error_);
@@ -63,9 +63,9 @@ bool InterferenceSmearer::smearEvent( float & weight, const TLorentzVector & p4,
 		assert(reweightHist);
 		assert(genCosTheta_);
 		weight = 1.+(reweightHist->GetBinContent(reweightHist->FindBin(TMath::Abs(*genCosTheta_)))/100.);
-		cout << "genCosTheta: " << *genCosTheta_ << " ";
+		//cout << "genCosTheta: " << *genCosTheta_ << " ";
 	}
-	cout << "wt: " << weight << endl;
+	//cout << "wt: " << weight << endl;
 
 	
 
