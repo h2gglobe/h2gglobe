@@ -66,7 +66,8 @@ TreeVariables::TreeVariables() :
     jet2(-1),
     jet3(-1),
     pho1Matched(false), pho2Matched(false),corrVeretx(false),
-    pho1CiC(-1),pho2CiC(-1), diphoMVA(-999.)
+    pho1CiC(-1),pho2CiC(-1), diphoMVA(-999.), vbfMVA(-999.), 
+    combinedMVA(-999.)
 {}
 
 // ----------------------------------------------------------------------------------------------------
@@ -188,6 +189,8 @@ void VbfAnalysis::Init(LoopAll& l)
 	l.BookExternalTreeBranch( "pho1CiC",  &tree_.pho1CiC, "vbfAnalysis" );  
 	l.BookExternalTreeBranch( "pho2CiC",  &tree_.pho2CiC, "vbfAnalysis" );  
 	l.BookExternalTreeBranch( "diphoMVA",  &tree_.diphoMVA, "vbfAnalysis" );  
+	l.BookExternalTreeBranch( "vbfMVA",  &tree_.vbfMVA, "vbfAnalysis" );  
+	l.BookExternalTreeBranch( "combinedMVA",  &tree_.combinedMVA, "vbfAnalysis" );  
    }
 }
 
@@ -245,6 +248,7 @@ bool VbfAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentzV
 
 	// inclusive category di-photon selection
 	// FIXME pass smeared R9
+	l.tmva_dipho_MIT_cache.clear();
 	diphoton_id = l.DiphotonMITPreSelection(bdtTrainingType.c_str(),leadEtCut,subleadEtCut,phoidMvaCut,applyPtoverM, &smeared_pho_energy[0] ); ///??? serve ???
     	
 	// Exclusive Modes
@@ -434,6 +438,11 @@ bool VbfAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentzV
 	    tree_.mctype    = cur_type;
 	    tree_.diphoMVA  = diphobdt_output;
 	    tree_.corrVeretx = isCorrectVertex;
+
+	    if( FillDijetVariables(vbfIjet1,vbfIjet2,l,diphoton_id,&smeared_pho_energy[0]) ) {
+		tree_.vbfMVA = (useGbrVbfMva ? gbrVbfReader_->eval()      : tmvaVbfReader_->EvaluateMVA(mvaVbfMethod));
+		tree_.combinedMVA = (useGbrVbfMva ? gbrVbfDiphoReader_->eval() : tmvaVbfDiphoReader_->EvaluateMVA(mvaVbfDiphoMethod));
+	    }
 
 	    l.FillTreeContainer();
 

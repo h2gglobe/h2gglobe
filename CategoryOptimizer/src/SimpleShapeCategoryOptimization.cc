@@ -563,6 +563,9 @@ double SimpleShapeFomProvider::operator() ( std::vector<AbsModel *> sig, std::ve
 	
 	/// WARNING: assuming that signal and background pdfs objects don't change for a given category
 	for(int icat=0.; icat<ncat; ++icat) {
+		if( debug_ ) {
+			std::cout << "cat " << icat << " ";
+		}
 		if( nSubcats_*icat >= asimovs.size() ) {
 			for(int iSubcat = 0; iSubcat < nSubcats_; iSubcat++){
 				asimovs.push_back(RooDataHist(Form("asimovhist_%d_%d",icat,iSubcat),"",*(sig[0]->getX())) );
@@ -577,6 +580,12 @@ double SimpleShapeFomProvider::operator() ( std::vector<AbsModel *> sig, std::ve
 		for(size_t iSig = 0; iSig < sig.size(); iSig++){
 			size_t iSubcat = iSig % nSubcats_;
 			ntot[iSubcat] += sig[iSig]->getCategoryYield(icat);
+			if( sig[iSig]->getCategoryPdf(icat)->expectedEvents(0) <= 0 ) { 
+				return 1e+5;
+			}
+			if( debug_ ) {
+				std::cout << sig[iSig]->name() << ": " << sig[iSig]->getCategoryYield(icat) << " ";
+			}
 			/// std::cout << sig[iSig]->getCategoryPdf(icat)->expectedEvents(0) 
 			/// 	  << " " << sig[iSig]->getCategoryYield(icat) << std::endl;
 			if( buildPdf ) {
@@ -586,11 +595,17 @@ double SimpleShapeFomProvider::operator() ( std::vector<AbsModel *> sig, std::ve
 		for(size_t iBkg = 0; iBkg < bkg.size(); iBkg++){
 			size_t iSubcat = iBkg % nSubcats_;
 			ntot[iSubcat] += bkg[iBkg]->getCategoryYield(icat);
+			if( debug_ ) {
+				std::cout << bkg[iBkg]->name() << " " << bkg[iBkg]->getCategoryYield(icat) << " ";
+			}
 			/// std::cout << bkg[iBkg]->getCategoryPdf(icat)->expectedEvents(0) 
 			/// 	  << " " << bkg[iBkg]->getCategoryYield(icat) << std::endl;
 			if( buildPdf ) {
 				lpdfs[iSubcat].add( *(bkg[iBkg]->getCategoryPdf(icat)) ); 
 			}
+		}
+		if( debug_ ) {
+			std::cout << std::endl;
 		}
 		
 		if( buildPdf ) {

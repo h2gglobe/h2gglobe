@@ -1,0 +1,18 @@
+{ 
+    "refit" : 1,
+    "dry" : 1,
+    "cont" : "step1_%(label)s",
+    "mincat" : 4,
+    "maxcat" : 6,
+
+   "%(opttreeoff)sweights" : { "sigRv" : "full_weight", "sigWv" : "full_weight", 
+	"bkg" : "2.*(full_weight*( (itype!=3) + 0.89*(itype==3)))" 
+   },
+
+   "%(vbftreeoff)sweights" : { "sigRv" : "weight", "sigWv" : "weight", 
+	"bkg" : "2.*(weight*( (mctype!=3) + 0.85*(mctype==3)))" 
+   },
+ 
+   "makeWorkspace" : 1
+
+}

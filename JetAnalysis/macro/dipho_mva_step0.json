@@ -1,0 +1,6 @@
+{ 
+    "range" : [20],
+    "reduce" : 1,
+    "refit" : 1,
+    "splitreduce" : 1	
+}

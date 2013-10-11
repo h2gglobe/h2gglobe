@@ -1,64 +1,52 @@
-intL=19620. histfile=/store/cmst3/user/musella/hgg/vbf_optimization/%(label)s/vbfanalysis.root output=eventsList.txt
-## intL=19620. histfile=CMS-HGG.root output=eventsList.txt
-#intL=5346. histfile=/store/cmst3/user/malberti/HIGGS/VBF/%(label)s/vbfanalysis.root output=eventsList.txt
-#intL=5346. histfile=/tmp/malberti/vbfanalysis.root output=eventsList.txt
-#intL=5346. histfile=vbfanalysis.root output=eventsList.txt
+intL=19706. histfile=/store/cmst3/user/musella/hgg/vbf_optimization_nov2/%(label)s/vbfanalysis.root output=eventsList.txt
 
 #setmacro reduced:/store/group/phys_higgs/cmshgg/reduced
-#setmacro moriond_mc:%(reduced)s/moriond2013_reduction_v1/mc/Summer12_S10_8TeV
-#setmacro moriond_data:%(reduced)s/moriond2013_reduction_v2/data
-#setmacro vbfopt:%(reduced)s/reduction_vbf_optimization_v1/mc/Summer12_RD_DR53X-PU_S10_START53_V7C
+#setmacro mc:%(reduced)s/legacy_paper/legacy_paper_reduction_8TeV_v5/mc/Summer12_RD1
+#setmacro data:%(reduced)s/legacy_paper/legacy_paper_reduction_8TeV_v5/data
 
 ##
 ## Signal 125
 ## 
-typ=-1 ind=1 draw=1   Nam=ggh_m125_8TeV   		CaDir=%(moriond_mc)s/GluGluToHToGG_M-125_8TeV-powheg-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1
-typ=-1 ind=2 draw=1   Nam=vbf_m125_8TeV   		CaDir=%(moriond_mc)s/VBF_HToGG_M-125_8TeV-powheg-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1
-typ=-1 ind=4 draw=1   Nam=wzh_m125_8TeV   		CaDir=%(moriond_mc)s/WH_ZH_HToGG_M-125_8TeV-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1
+typ=-1 ind=1 draw=1   Nam=ggh_m125_8TeV   		CaDir=%(mc)s/GluGluToHToGG_M-125_8TeV-powheg-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1   
+typ=-1 ind=1 draw=1   Nam=ggh_minlo_m125_8TeV  		CaDir=%(mc)s/GluGluToHToGG_M-125_8TeV-minloHJJ-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1  xsec=17.6e+3 noevwei=1
+typ=-1 ind=2 draw=1   Nam=vbf_m125_8TeV   		CaDir=%(mc)s/VBF_HToGG_M-125_8TeV-powheg-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1       
+typ=-1 ind=4 draw=1   Nam=wzh_m125_8TeV   		CaDir=%(mc)s/WH_ZH_HToGG_M-125_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v2            
 
-typ=-1 ind=1 draw=1   Nam=ggh_m124_8TeV   		CaDir=%(vbfopt)s/GluGluToH2JetsHToGG_M-125_8TeV-powheg-minlo-pythia6-START53_V7C-v2-musella-USER
-typ=-1 ind=2 draw=1   Nam=vbf_m124_8TeV   		CaDir=%(moriond_mc)s/VBF_HToGG_M-124_8TeV-powheg-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1
-typ=-1 ind=4 draw=1   Nam=wzh_m124_8TeV   		CaDir=%(moriond_mc)s/WH_ZH_HToGG_M-124_8TeV-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1
+typ=-1 ind=1 draw=1   Nam=ggh_m124_8TeV   		CaDir=%(mc)s/GluGluToHToGG_M-124_8TeV-powheg-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1   
+typ=-1 ind=2 draw=1   Nam=vbf_m124_8TeV   		CaDir=%(mc)s/VBF_HToGG_M-124_8TeV-powheg-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1       
+typ=-1 ind=4 draw=1   Nam=wzh_m124_8TeV   		CaDir=%(mc)s/WH_ZH_HToGG_M-124_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v2            
 
+typ=-1 ind=1 draw=1   Nam=ggh_m126_8TeV   		CaDir=%(mc)s/GluGluToHToGG_M-126_8TeV-powheg-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1   
+typ=-1 ind=2 draw=1   Nam=vbf_m126_8TeV   		CaDir=%(mc)s/VBF_HToGG_M-126_8TeV-powheg-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1       
+typ=-1 ind=4 draw=1   Nam=wzh_m126_8TeV   		CaDir=%(mc)s/WH_ZH_HToGG_M-126_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v2            
 
 
 ##
-## Moriond 2013
+## Data
 ##
-typ=0   ind=0 draw=1   Nam=Data 			CaDir=%(moriond_data)s/Photon_Run2012A-13Jul2012-v1
-typ=0   ind=0 draw=1   Nam=Data 			CaDir=%(moriond_data)s/Photon_Run2012A-recover-06Aug2012-v1
-typ=0   ind=0 draw=1   Nam=Data 			CaDir=%(moriond_data)s/DoublePhoton_Run2012B-13Jul2012-v1
-typ=0   ind=0 draw=1   Nam=Data 			CaDir=%(moriond_data)s/DoublePhoton_Run2012C-24Aug2012-v2
-typ=0   ind=0 draw=1   Nam=Data 			CaDir=%(moriond_data)s/DoublePhoton_Run2012C-EcalRecover_11Dec2012-v1
-typ=0   ind=0 draw=1   Nam=Data 			CaDir=%(moriond_data)s/DoublePhoton_Run2012C-PromptReco-v2
-typ=0   ind=0 draw=1   Nam=Data 			CaDir=%(moriond_data)s/DoublePhoton_Run2012C-PromptReco-v2_sub2
-typ=0   ind=0 draw=1   Nam=Data 			CaDir=%(moriond_data)s/DoublePhoton_Run2012D-PromptReco-v1
-typ=0   ind=0 draw=1   Nam=Data 			CaDir=%(moriond_data)s/DoublePhoton_Run2012D-PromptReco-v1_sub2
+typ=0   ind=0 draw=1   Nam=Data 			CaDir=%(data)s/DoublePhoton_Run2012B-22Jan2013-v1   
+typ=0   ind=0 draw=1   Nam=Data 			CaDir=%(data)s/DoublePhoton_Run2012C-22Jan2013-v2
+typ=0   ind=0 draw=1   Nam=Data 			CaDir=%(data)s/DoublePhoton_Run2012D-22Jan2013-v1_v3
+typ=0   ind=0 draw=1   Nam=Data 			CaDir=%(data)s/Photon_Run2012A_22Jan2013-v1         
 
 #
 # Background
 #
-typ=+11   ind=92 draw=1  Nam=qcd_30_8TeV_ff 		CaDir=%(moriond_mc)s/QCD_Pt-30to40_doubleEMEnriched_TuneZ2star_8TeV-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1_ff xsec=12208.   kfac=1.3  scal=1.
-typ=+21   ind=94 draw=1  Nam=qcd_40_8TeV_ff 		CaDir=%(moriond_mc)s/QCD_Pt-40_doubleEMEnriched_TuneZ2star_8TeV-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1_ff xsec=51439.   kfac=1.3  scal=1.
+typ=+11   ind=92 draw=1  Nam=qcd_30_8TeV_ff 		CaDir=%(mc)s/QCD_Pt-30to40_doubleEMEnriched_TuneZ2star_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1_ff xsec=12208.   kfac=1.3  scal=1.
+typ=+21   ind=94 draw=1  Nam=qcd_40_8TeV_ff 		CaDir=%(mc)s/QCD_Pt-40_doubleEMEnriched_TuneZ2star_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1_ff xsec=51439.   kfac=1.3  scal=1.
 
-typ=+12   ind=92 draw=1  Nam=qcd_30_8TeV_pf 		CaDir=%(moriond_mc)s/QCD_Pt-30to40_doubleEMEnriched_TuneZ2star_8TeV-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1_pf xsec=12208.   kfac=1.3  scal=1.
-typ=+22   ind=94 draw=1  Nam=qcd_40_8TeV_pf 		CaDir=%(moriond_mc)s/QCD_Pt-40_doubleEMEnriched_TuneZ2star_8TeV-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1_pf xsec=51439.   kfac=1.3  scal=1.
+typ=+12   ind=92 draw=1  Nam=qcd_30_8TeV_pf 		CaDir=%(mc)s/QCD_Pt-30to40_doubleEMEnriched_TuneZ2star_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1_pf xsec=12208.   kfac=1.3  scal=1.
+typ=+22   ind=94 draw=1  Nam=qcd_40_8TeV_pf 		CaDir=%(mc)s/QCD_Pt-40_doubleEMEnriched_TuneZ2star_8TeV-pythia6_Summer12_DR53X-PU_RD1_START53_V7N-v1_pf xsec=51439.   kfac=1.3  scal=1.
 
-typ=+32    ind=101 draw=1  Nam=gjet_20_8TeV_pf    	CaDir=%(moriond_mc)s/GJet_Pt-20to40_doubleEMEnriched_TuneZ2star_8TeV-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1_pf xsec=150.34 kfac=1.3  scal=1.
-typ=+42    ind=104 draw=1  Nam=gjet_40_8TeV_pf    	CaDir=%(moriond_mc)s/GJet_Pt40_v2_pf xsec=478.58 kfac=1.3  scal=1.
+typ=+32    ind=101 draw=1  Nam=gjet_20_8TeV_pf    	CaDir=%(mc)s/GJet_Pt-20to40_doubleEMEnriched_TuneZ2star_8TeV-pythia6_pf xsec=150.34 kfac=1.3  scal=1.
+typ=+42    ind=104 draw=1  Nam=gjet_40_8TeV_pf    	CaDir=%(mc)s/GJet_Pt40_doubleEMEnriched_TuneZ2star_8TeV_ext-pythia6_pf xsec=478.58 kfac=1.3  scal=1.
 
-typ=+4     ind=96 draw=1  Nam=diphojet_8TeV 		CaDir=%(moriond_mc)s/DiPhotonJets_8TeV-madgraph-tarball-v2_Summer12_DR53X-PU_S10_START53_V7A-v1 xsec=75.39   kfac=1.15  scal=1.
-typ=+14    ind=107 draw=1  Nam=dipho_Box_25_8TeV        CaDir=%(moriond_mc)s/DiPhotonBox_Pt-25To250_8TeV-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1 xsec=15.54   kfac=1.15  scal=1.
-typ=+24    ind=108 draw=1  Nam=dipho_Box_250_8TeV       CaDir=%(moriond_mc)s/DiPhotonBox_Pt-250ToInf_8TeV-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1 xsec=0.0011805   kfac=1.15  scal=1.
-typ=+34    ind=101 draw=1  Nam=gjet_20_8TeV_pp    	CaDir=%(moriond_mc)s/GJet_Pt-20to40_doubleEMEnriched_TuneZ2star_8TeV-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1_pp xsec=150.34 kfac=1.15  scal=1.
-typ=+44    ind=104 draw=1  Nam=gjet_40_8TeV_pp    	CaDir=%(moriond_mc)s/GJet_Pt40_v2_pp xsec=478.58 kfac=1.15  scal=1.
-
-typ=+5    ind=96 draw=1  Nam=diphojet_Box_8TeV 		CaDir=%(vbfopt)s/DiPhotonJetsBox_M60_8TeV-sherpa_Summer12_DR53X-PU_S10_START53_V7C-v1_v3 xsec=75.39   kfac=1.15  scal=1.
+typ=+5    ind=96 draw=1  Nam=diphojet_Box_8TeV 		CaDir=%(mc)s/DiPhotonJetsBox_M60_8TeV-sherpa_Summer12_DR53X-PU_RD1_START53_V7N-v1 xsec=120.354 kfac=1.  scal=3.71
 
 #
 # DY MC
 #
-typ=+5    ind=98 draw=1  Nam=DYJetsToLL   		CaDir=%(moriond_mc)s/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1 xsec=2950.0   kfac=1.15  scal=1.
+typ=+5    ind=98 draw=1  Nam=DYJetsToLL   		CaDir=%(mc)s/DYJetsToLL_M-50_TuneZ2Star_8TeV xsec=2950.0   kfac=1.15  scal=1.
 
 
 ##
@@ -66,6 +54,7 @@ typ=+5    ind=98 draw=1  Nam=DYJetsToLL   		CaDir=%(moriond_mc)s/DYJetsToLL_M-50
 ##
 inputBranches minimal_analysis_input.dat
 inputBranches massfac_mva_binned/massfactorizedmvaanalysis_input.dat 
+inputBranches baseline/minimal_statanalysis_input.dat
 
 #plotvariables jetanalysis/plotvariables.dat
 runZeeValidation=0
@@ -77,4 +66,5 @@ runZeeValidation=0
 ## 	analyzer <class_name> <config_file>
 ## 
 ## analyzer PhotonAnalysis photonanalysis.dat	
-analyzer VbfAnalysis photonanalysis.dat analysis_settings.dat  massfac_mva_binned/massfactorizedmvaanalysis.dat  jetanalysis/vbfanalysis.dat requireTwoJets=1
+analyzer VbfAnalysis photonanalysis.dat analysis_settings.dat  massfac_mva_binned/massfactorizedmvaanalysis.dat  jetanalysis/vbfanalysis.dat requireTwoJets=0 sigProcessesToBook=ggh,ggh_minlo,vbf,wzh  
+##useGbrVbfMva=1

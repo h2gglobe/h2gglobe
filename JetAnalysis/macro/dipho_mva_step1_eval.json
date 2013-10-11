@@ -1,0 +1,7 @@
+{ 
+    "refit" : 1,
+    "dry" : 1,
+    "cont" : "step0_%(label)s",
+    "mincat" : 4,
+    "maxcat" : 6
+}

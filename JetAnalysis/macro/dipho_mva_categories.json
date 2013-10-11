@@ -1,0 +1,42 @@
+{ 
+    "_variables"  : [ 
+		    ["diphoMVA := bdt_incl%(label)s",  [-20,0,0.025]]
+                   ],
+
+    "variables"  : [ 
+		    ["diphoMVA := %(dipho_mva)s",  [%(bounds)s]]
+                   ],
+
+    "observable"  : ["mass",[100,180,0.25],125],
+    "range" : [],
+		
+    "settings" : [],
+
+    "selectioncuts" : [],
+		
+    "selection" : "idmva1>-0.2 && idmva2>-0.2 && et1/mass > 1./3. && et2/mass > 0.25",
+    "cutoff" : 0.001,
+ 
+    "signals" : {
+	"sigRv" : [ ["opttree","(abs(gv_z-vtx_z)<1. &&  itype > -125000 && itype <=-124000 )"]
+		   ],
+	"sigWv" : [ ["opttree","(abs(gv_z-vtx_z)>=1. && itype > -125000 && itype <=-124000 )"]
+		   ]
+	    },
+    
+    "backgrounds" : { 
+	"bkg" : [["opttree","(itype < 50 && itype > 0 && ! TMath::Even(event) )"]
+		 ]
+	    },
+
+   "weights" : { "sigRv" : "full_weight", "sigWv" : "full_weight", 
+	"bkg" : "2.*(TMath::Min(full_weight,40)*(full_weight>=40 && itype!=11 && itype!=21) + full_weight*(1.38*(itype!=3 && full_weight<40 && itype!=11 && itype!=21) + 0.89*(itype==3) + (itype==11 || itype==21)))" 
+   },
+
+    "_backgrounds" : { 
+	"bkg" : [["opttree","itype == 0"]
+		 ]
+	    },
+
+    "_weights" : { "sigRv" : "full_weight", "sigWv" : "full_weight", "bkg" : "1" }
+}

@@ -1,6 +1,7 @@
 #!/bin/env python
 
 import sys, types, os
+import commands
 import numpy
 from math import sqrt, log
 import json
@@ -12,13 +13,13 @@ from  pprint import pprint
 objs = []
 
 # -----------------------------------------------------------------------------------------------------------
-def loadSettings(cfgs,dest):
+def loadSettings(cfgs,dest,macros):
     for cfg in cfgs.split(","):
         cf = open(cfg)
-        settings = json.load(cf)
+        settings = json.loads(cf.read() % macros)
         for k,v in settings.iteritems():
             attr  = getattr(dest,k,None)
-            if attr and type(attr) == list:
+            if attr and type(attr) == list:                
                 attr.extend(v)
                 v = attr
             setattr(dest,k,v)
@@ -50,6 +51,13 @@ def optmizeCats(optimizer,ws,ndim,rng,args,readBack=False,reduce=False,refit=0):
             sin = open("%s/cat_opt.json" % options.cont,"r")
             summary = json.loads(sin.read())
             sin.close()
+            if options.maxcat or options.mincat:
+                tmp = {}
+                for ncat,val in summary.iteritems():
+                    if options.maxcat and int(ncat) > options.maxcat or options.mincat and int(ncat) < options.mincat:
+                        continue
+                    tmp[ncat] = val
+                summary = tmp
         except:
             summary = {}
             
@@ -188,6 +196,7 @@ def modelBuilders(trees, type, obs, varlist, sellist, weights, shapes, minevents
         weight = "weight"
         if name in weights:
             weight = weights[name]
+        tree.SetAlias("_weight",weight)
         modelBuilder = ROOT.SecondOrderModelBuilder(type, modelName, obs, tree, varlist, sellist, weight)
         if name in shapes:
             modelBuilder.getModel().setShape( getattr(ROOT.SecondOrderModel,shapes[name]) )
@@ -264,6 +273,8 @@ def optimizeMultiDim(options,args):
         options.infile = args[0]
     fin = ROOT.TFile.Open(options.infile)
 
+    wd = os.getcwd()
+    print wd
     if options.cont:
         if os.path.exists(os.path.abspath(options.cont)):
             options.cont = os.path.abspath(options.cont)
@@ -309,7 +320,13 @@ def optimizeMultiDim(options,args):
     sigTrees = [ mergeTrees(fin,selection,name,trees,aliases) for name,trees in signals.iteritems() ]
     bkgTrees = [ mergeTrees(fin,selection,name,trees,aliases) for name,trees in backgrounds.iteritems() ]
 
+    weights = getattr(options,"weights",{})
     for tree in sigTrees+bkgTrees:
+        name = tree.GetName()
+        weight = "weight"
+        if name in weights:
+            weight = weights[name]
+        tree.SetAlias("_weight",weight)
         tree.Write()
         
     fin.Close()
@@ -438,9 +455,11 @@ def optimizeMultiDim(options,args):
     grS = ROOT.TGraph()
     grS.SetName("zVsNcat")
     grS.SetTitle(";n_{cat};f.o.m [A.U.]")
+    ncats = []
     for ncat,val in summary.iteritems():
         if( val["fom"] < 0. ) :
             grS.SetPoint( grS.GetN(), float(ncat), -val["fom"] )
+            ncats.append(ncat)
     grS.Sort()
     mincat = grS.GetX()[0]
     maxcat = grS.GetX()[grS.GetN()-1]
@@ -468,7 +487,7 @@ def optimizeMultiDim(options,args):
         hbound_pj = hbound.Clone()
         ### hbound_pj = hbound.ProjectionY()
         ### hbound_pj.Draw()
-        hbound_pj.Draw("box")
+        ## hbound_pj.Draw("box")
         hbound_pj.SetFillColor(ROOT.kBlack)
         hbound_pj.SetLineColor(ROOT.kBlack)
         objs.append(hbound)
@@ -497,10 +516,15 @@ def optimizeMultiDim(options,args):
         ### cbound_pj.RedrawAxis()
         ### cbound_pj.Update()
         for pdf in pdfs:
-            pdf.Scale( (ncat+3.)/maxy )
-            pdf.Draw("hist same")
-        hbound_pj.GetYaxis().SetNdivisions(500+ncat+3)
+            pdf.Scale( float(maxcat)/maxy )
+        hframe_pj = pdfs[0]
+        hframe_pj.GetYaxis().SetRangeUser(0,float(maxcat)+2)
+        hframe_pj.GetYaxis().SetNdivisions(500+int(maxcat)+2)
         cbound_pj.SetGridy()
+        hframe_pj.Draw("hist")
+        for pdf in pdfs[1:]:
+            pdf.Draw("hist same")
+        ## hbound_pj.GetYaxis().SetNdivisions(500+ncat+3)
         hbound_pj.Draw("box same")
         
         for fmt in "png", "C":
@@ -573,8 +597,15 @@ def optimizeMultiDim(options,args):
     
     canv9.SaveAs("cat_opt_fom.png")
     canv9.SaveAs("cat_opt_fom.C")
-    
-    ## tmp.Close()
+
+    tmpname = tmp.GetName()
+    tmp.Close()
+    if options.makeWorkspace:
+        if not os.path.exists("%s/workspaces" % options.outdir):
+            os.mkdir("%s/workspaces" % options.outdir)
+        for ncat in ncats:
+            print commands.getoutput("%s/makeWorkspace.py -d %s/cat_opt.json -n %d -i %s -o %s/workspaces/ws_ncat%d.root" % ( wd, options.outdir, int(ncat), tmpname, options.outdir, int(ncat) ))
+            
     return ws
 
 # -----------------------------------------------------------------------------------------------------------
@@ -606,9 +637,9 @@ if __name__ == "__main__":
                         help="output file",
                         ),
             make_option("-l", "--load",
-                        action="store", dest="settings", type="string",
-                        default="",
-                        help="json file containing settings"
+                        action="append", dest="jsons", type="string",
+                        default=[],
+                        help="load json file containing settings"
                         ),
             make_option("--label",
                         action="store", dest="label", type="string",
@@ -620,12 +651,22 @@ if __name__ == "__main__":
                         default=False,
                         help="read-back the previous optimization step",
                         ),
+            make_option("--maxcat",
+                        action="store", dest="maxcat", type="int",
+                        default=False,
+                        help="max number of categories to read-back",
+                        ),
+            make_option("--mincat",
+                        action="store", dest="mincat", type="int",
+                        default=False,
+                        help="min number of categories to read-back",
+                        ),
             make_option("-r", "--reduce",
                         action="store_true", dest="reduce",
                         default=False,
                         help="collapse higher category orders to lower ones",
                         ),
-            make_option("-s", "--settings",
+            make_option("--settings",
                         action="store", dest="settings",
                         default=[],
                         help="append string to optimizer setting",
@@ -666,10 +707,26 @@ if __name__ == "__main__":
                         default=False,
                         help=""
                         ),
+            make_option("--set",
+                        action="append", dest="set",
+                        default=[],
+                        help=""
+                        ),
+            make_option("--makeWorkspace",
+                        action="store_true", dest="makeWorkspace",
+                        default=False,
+                        help=""
+                        )
             ])
-
+    
     (options, args) = parser.parse_args()
-    loadSettings(options.settings, options)
+    macros = { "label" : options.label }
+    for var in options.set:
+        toks = var.split("=")
+        print toks
+        macros[toks[0]] = toks[1]
+    for sets in options.jsons:
+        loadSettings(sets, options, macros)
 
     if options.infile == "":
         options.infile = "tmva%s.root" % options.label

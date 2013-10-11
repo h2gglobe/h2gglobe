@@ -368,20 +368,22 @@ double CategoryOptimizer::optimizeNCat(int ncat, const double * cutoffs, bool dr
 	/// std::vector<double> x(scan_), y(+1);
 	double x[100], y[100];
 	if( scan_>0 ) { 
-		std::cout << "Scanning parameters " << std::endl;
-		minimizer_->PrintResults();
-		unsigned int nstep = scan_;
-		for(int ii=paramsToScan.size()-1; ii>=0; --ii) {
-			int ipar = paramsToScan[ii].first;
-			std::pair<double,double> rng = paramsToScan[ii].second;
-			std::cout << ipar << " " << rng.first << " " << rng.second << std::endl;
-			minimizer_->Scan(ipar,nstep,&x[0],&y[0],rng.first,rng.second);
-			/// minimizer_->SetVariableValue(ipar, x[ std::min_element(y.begin(),y.end()) - y.begin()]);
-			std::copy( &x[0], &x[nstep-1], std::ostream_iterator<double>(std::cout, ",") );
-			std::cout << std::endl;
-			std::copy( &y[0], &y[nstep-1], std::ostream_iterator<double>(std::cout, ",") );
-			std::cout << std::endl;		       
+		for( int irep=0; irep<repeat_; ++irep ) {
+			std::cout << "Scanning parameters " << std::endl;
 			minimizer_->PrintResults();
+			unsigned int nstep = scan_;
+			for(int ii=paramsToScan.size()-1; ii>=0; --ii) {
+				int ipar = paramsToScan[ii].first;
+				std::pair<double,double> rng = paramsToScan[ii].second;
+				std::cout << ipar << " " << rng.first << " " << rng.second << std::endl;
+				minimizer_->Scan(ipar,nstep,&x[0],&y[0],rng.first,rng.second);
+				/// minimizer_->SetVariableValue(ipar, x[ std::min_element(y.begin(),y.end()) - y.begin()]);
+				std::copy( &x[0], &x[nstep-1], std::ostream_iterator<double>(std::cout, ",") );
+				std::cout << std::endl;
+				std::copy( &y[0], &y[nstep-1], std::ostream_iterator<double>(std::cout, ",") );
+				std::cout << std::endl;		       
+				minimizer_->PrintResults();
+			}
 		}
 	}
 	std::cout << "here" << std::endl;

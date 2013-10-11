@@ -2,8 +2,13 @@ includeVBF=1
 includeVHhad=0
 includeVHlep=0
 includeVHmet=0
+includeVHhadBtag=0
+includeVHhad=0
+includeTTHlep=0
+includeTTHhad=0
+includeVHlepPlusMet=0
 
-bkgPolOrderByCat=5,5,5,5,4,4
+bkgPolOrderByCat=5,5,5,5,5,4,4,4
 
 
 nVBFEtaCategories=1
@@ -21,11 +26,6 @@ reRunCiCForData=0
 # Turn on-off all smearings 
 doMCSmearing=1 
 
-# Individual smearing flags
-energyCorrectionMethod=Bendavid
-doEcorrectionSmear=1
-doEcorrectionSyst=0
-
 doPhotonIdEffSmear=0
 doVtxEffSmear=0
 doR9Smear=0
@@ -35,8 +35,9 @@ doInterferenceSmear=0
 doSystematics=0
 
 dumpFlatTree=1
-
-#no pile-up reweighting
-puMap=
-puHist=
-puTarget=
+### 
+### #no pile-up reweighting
+### puMap=
+### puHist=
+### puTarget=
+### puTargets=

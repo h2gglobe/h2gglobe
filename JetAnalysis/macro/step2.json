@@ -3,7 +3,7 @@
     "refit" : 1,
     "dry" : 1,
     "cont" : "step0",
-    "selectioncuts" : [["diphoMva := diphoMVA",[-0.1,1,0.05]]],
+    "selectioncuts" : [["diphoMva := diphoMVA",[%(bound)s,1,0.05]]],
     "backgrounds" : { 
 	"data" : [ ["TestTree","classID == 1 && mctype == 0"]
 		 ],
