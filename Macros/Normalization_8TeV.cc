@@ -269,7 +269,7 @@ TString Normalization_8TeV::GetProcess(int ty){
 
 double Normalization_8TeV::GetMass(int ty){
   if (ty < -7999){  // We dont go below 80 GeV and Spin samples in the 100 range
-    return (double) -ty/1000;
+    return double(-ty/1000);
   }	 
   else return SignalTypeMap[ty].second;
 }
