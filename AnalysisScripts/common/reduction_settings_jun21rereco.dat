@@ -1,0 +1,14 @@
+recomputeBetas=0
+recorrectJets=1
+rerunJetMva=0
+recomputeJetWp=1
+jetHandlerCfg=jetHandler_Legacy8TeV.py
+
+scale_offset_file=jun21rereco_7TeV/energy_scale_offsets_rd_mc.dat
+smearing_file=jun21rereco_7TeV/smearing_sigma_and_errors_rd_mc.dat
+
+regressionFile=aux/regweights_v8_forest_ph.root
+regressionVersion=8
+energyCorrectionMethod=BendavidOTF
+doEcorrectionSmear=1
+doEcorrectionSyst=0
