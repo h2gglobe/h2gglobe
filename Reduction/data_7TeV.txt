@@ -1,0 +1,2 @@
+Photon_Run2011A_21Jun2013_v1_AOD 0 version=150011 json=aux/Cert_160404-180252_7TeV_All2011_Jan16Reload_v1.txt analyzer PhotonAnalysis photonanalysis.dat common/reduction_settings_jun21rereco.dat
+Photon_Run2011B_21Jun2013_v1_AOD 0 version=150011 json=aux/Cert_160404-180252_7TeV_All2011_Jan16Reload_v1.txt analyzer PhotonAnalysis photonanalysis.dat common/reduction_settings_jun21rereco.dat
