@@ -1175,7 +1175,7 @@ TLorentzVector LoopAll::correctMet_Simple( TLorentzVector & pho_lead, TLorentzVe
     return correctedMet;
 }
 
-TLorentzVector LoopAll::METCorrection2012B(TLorentzVector lead_p4, TLorentzVector sublead_p4){
+TLorentzVector LoopAll::METCorrection2012B(TLorentzVector lead_p4, TLorentzVector sublead_p4, bool moriond2013MetCorrection){
   
   // corrected met
   static TLorentzVector finalCorrMET;
@@ -1200,14 +1200,22 @@ TLorentzVector LoopAll::METCorrection2012B(TLorentzVector lead_p4, TLorentzVecto
     // smear raw met
     TLorentzVector smearMET_corr = correctMet_Simple( lead_p4, sublead_p4 , &unpfMET, true, false);
     // then shift smeared met
-    float px  = smearMET_corr.Pt()*cos(smearMET_corr.Phi())+0.00135*met_sumet_pfmet-0.021;
-    float py  = smearMET_corr.Pt()*sin(smearMET_corr.Phi())+0.00371*met_sumet_pfmet-0.826;
+    float px  = smearMET_corr.Pt()*cos(smearMET_corr.Phi())-0.000685*met_sumet_pfmet+0.084403;
+    float py  = smearMET_corr.Pt()*sin(smearMET_corr.Phi())+0.003950*met_sumet_pfmet-0.415907;
+    if(moriond2013MetCorrection){
+      px  = smearMET_corr.Pt()*cos(smearMET_corr.Phi())+0.00135*met_sumet_pfmet-0.021;
+      py  = smearMET_corr.Pt()*sin(smearMET_corr.Phi())+0.00371*met_sumet_pfmet-0.826;
+    }
     float ene = sqrt(px*px+py*py);
     finalCorrMET.SetPxPyPzE(px,py,0,ene);
   } else {
     // shifted met for data
-    float px  = unpfMET.Pt()*cos(unpfMET.Phi())-0.006239*met_sumet_pfmet+0.662;
-    float py  = unpfMET.Pt()*sin(unpfMET.Phi())+0.004613*met_sumet_pfmet-0.673;
+    float px  = unpfMET.Pt()*cos(unpfMET.Phi())-0.005117*met_sumet_pfmet+0.830150;
+    float py  = unpfMET.Pt()*sin(unpfMET.Phi())+0.002813*met_sumet_pfmet-0.384595;
+    if(moriond2013MetCorrection){
+      float px  = unpfMET.Pt()*cos(unpfMET.Phi())-0.006239*met_sumet_pfmet+0.662;
+      float py  = unpfMET.Pt()*sin(unpfMET.Phi())+0.004613*met_sumet_pfmet-0.673;
+    }
     float ene = sqrt(px*px+py*py);
     TLorentzVector shiftedMET;
     shiftedMET.SetPxPyPzE(px,py,0,ene);
@@ -1226,7 +1234,7 @@ TLorentzVector LoopAll::METCorrection2012B(TLorentzVector lead_p4, TLorentzVecto
   return finalCorrMET;
 }
 
-bool LoopAll::METAnalysis2012B(TLorentzVector lead_p4, TLorentzVector sublead_p4, bool useUncorr, bool doMETCleaning){
+bool LoopAll::METAnalysis2012B(TLorentzVector lead_p4, TLorentzVector sublead_p4, bool useUncorr, bool doMETCleaning, bool moriond2013MetCorrection){
 
   bool tag=false;
 
@@ -1234,7 +1242,7 @@ bool LoopAll::METAnalysis2012B(TLorentzVector lead_p4, TLorentzVector sublead_p4
   if (useUncorr) {
     myMet.SetPxPyPzE (met_pfmet*cos(met_phi_pfmet),met_pfmet*sin(met_phi_pfmet),0, sqrt(met_pfmet*cos(met_phi_pfmet) * met_pfmet*cos(met_phi_pfmet) + met_pfmet*sin(met_phi_pfmet) * met_pfmet*sin(met_phi_pfmet))); 
   } else {
-    myMet = METCorrection2012B(lead_p4, sublead_p4);
+    myMet = METCorrection2012B(lead_p4, sublead_p4, moriond2013MetCorrection);
   }		   
 
   // TLorentzVector TwoPhoton_p4 = lead_p4 + sublead_p4;
@@ -4755,11 +4763,11 @@ void LoopAll::FillMuonGsfTracks() {
   }
 }
 
-void LoopAll::VHNewLeptonCategorization(bool & VHlep1event, bool & VHlep2event, int diphotonVHlep_id, int vertex, bool VHelevent_prov, bool VHmuevent_prov, int el_ind, int mu_ind, float* smeared_pho_energy, float METcut){
+void LoopAll::VHNewLeptonCategorization(bool & VHlep1event, bool & VHlep2event, int diphotonVHlep_id, int vertex, bool VHelevent_prov, bool VHmuevent_prov, int el_ind, int mu_ind, float* smeared_pho_energy, float METcut, bool moriond2013MetCorrection){
   TLorentzVector lead_p4 = get_pho_p4( dipho_leadind[diphotonVHlep_id], vertex, &smeared_pho_energy[0]);
   TLorentzVector sublead_p4 = get_pho_p4( dipho_subleadind[diphotonVHlep_id], vertex, &smeared_pho_energy[0]); 
   TLorentzVector MET;
-  MET = METCorrection2012B(lead_p4, sublead_p4);
+  MET = METCorrection2012B(lead_p4, sublead_p4, moriond2013MetCorrection);
   if(MET.Pt()>=METcut) VHlep1event=true;
   else{
     if(VHelevent_prov){

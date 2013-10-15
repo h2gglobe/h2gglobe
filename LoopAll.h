@@ -1232,9 +1232,9 @@ void PhotonsToVeto(TLorentzVector* veto_p4, float drtoveto, std::vector<bool>& v
 int ElectronSelectionMVA2012_nocutOnMVA(float elptcut);
 bool ElectronMVACuts_nocutOnMVA(int el_ind, int vtx_ind);
 //HCP2012
-TLorentzVector METCorrection2012B(TLorentzVector lead_p4, TLorentzVector sublead_p4);
+TLorentzVector METCorrection2012B(TLorentzVector lead_p4, TLorentzVector sublead_p4, bool moriond2013MetCorrection);
 //bool METAnalysis2012B(float MET);
-bool METAnalysis2012B(TLorentzVector lead_p4, TLorentzVector sublead_p4, bool useUncor, bool doMETCleaning=true );
+bool METAnalysis2012B(TLorentzVector lead_p4, TLorentzVector sublead_p4, bool useUncor, bool doMETCleaning=true, bool moriond2013MetCorrection=false);
 bool METCleaning2012B(TLorentzVector& lead_p4, TLorentzVector& sublead_p4, TLorentzVector& myMet);
 
 //~ICHEP2012
@@ -1265,7 +1265,7 @@ void getIetaIPhi(int phoid, int & ieta, int & iphi ) const ;
 bool CheckSphericalPhoton(int ieta, int iphi) const;
 bool CheckSphericalPhoton(int phoind) const;
 
-void VHNewLeptonCategorization(bool & VHlep1event, bool & VHlep2event, int diphotonVHlep_id, int vertex, bool VHelevent_prov, bool VHmuevent_prov, int el_ind, int mu_ind, float* smeared_pho_energy, float METcut);
+void VHNewLeptonCategorization(bool & VHlep1event, bool & VHlep2event, int diphotonVHlep_id, int vertex, bool VHelevent_prov, bool VHmuevent_prov, int el_ind, int mu_ind, float* smeared_pho_energy, float METcut, bool moriond2013MetCorrection);
 void VHTwoMuonsEvents(bool & VHlep1event, bool & VHlep2event, int & diphotonVHlep_id, int & muVtx, float* smeared_pho_energy, float leadEtVHlepCut, float subleadEtVHlepCut, bool applyPtoverM);
 void VHTwoElectronsEvents(bool & VHlep1event, bool & VHlep2event, int & diphotonVHlep_id, int & elVtx, float* smeared_pho_energy, float leadEtVHlepCut, float subleadEtVHlepCut, bool applyPtoverM);
  
