@@ -41,6 +41,7 @@ includeVHmet=1
 leadEtVHmetCut=45
 #subleadEtVHmetCut=30
 nMetCategories=1 
+moriond2013MetCorrection=1
 
 doKFactorSmear=0
 doKFactorSyst=0

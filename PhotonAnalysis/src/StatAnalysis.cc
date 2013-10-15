@@ -1335,7 +1335,7 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
             }
 
             if(VHmetevent){
-                TLorentzVector myMet = l.METCorrection2012B(lead_p4, sublead_p4); 
+                TLorentzVector myMet = l.METCorrection2012B(lead_p4, sublead_p4, moriond2013MetCorrection); 
                 float corrMet    = myMet.Pt();
                 float corrMetPhi = myMet.Phi();
 
@@ -1702,7 +1702,7 @@ void StatAnalysis::fillControlPlots(const TLorentzVector & lead_p4, const  TLore
             l.FillHist("pho_rawe",category+1,l.sc_raw[l.pho_scind[l.dipho_leadind[diphoton_id]]], evweight);
             l.FillHist("pho_rawe",category+1,l.sc_raw[l.pho_scind[l.dipho_subleadind[diphoton_id]]], evweight);
 
-            TLorentzVector myMet = l.METCorrection2012B(lead_p4, sublead_p4);
+            TLorentzVector myMet = l.METCorrection2012B(lead_p4, sublead_p4, moriond2013MetCorrection);
             float corrMet    = myMet.Pt();
             float corrMetPhi = myMet.Phi();
 

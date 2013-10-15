@@ -99,6 +99,7 @@ class PhotonAnalysis : public BaseAnalysis
     int nMuonCategories;
     bool includeVHmet;  //met at analysis step
     int nMetCategories;
+    bool moriond2013MetCorrection;
 
     bool reRunCiCForData;
     bool reComputeCiCPF;

@@ -2853,7 +2853,7 @@ void PhotonAnalysis::ControlPlotsElectronTag2012B(LoopAll& l, TLorentzVector lea
 }
 
 void PhotonAnalysis::ControlPlotsMetTag2012B(LoopAll& l, TLorentzVector lead_p4, TLorentzVector sublead_p4, float bdtoutput, float evweight, std::string label){
-    TLorentzVector myMet = l.METCorrection2012B(lead_p4, sublead_p4);
+    TLorentzVector myMet = l.METCorrection2012B(lead_p4, sublead_p4, moriond2013MetCorrection);
     float corrMet    = myMet.Pt();
     float corrMetPhi = myMet.Phi();
 
@@ -4928,7 +4928,7 @@ bool PhotonAnalysis::METTag2012B(LoopAll& l, int& diphotonVHmet_id, int& met_cat
         float mass = dipho_p4.M();
         met_cat=(int)(abs(lead_p4.Eta())>1.5 || abs(sublead_p4.Eta())>1.5);
 
-        tag = l.METAnalysis2012B(lead_p4, sublead_p4, useUncorrMet);
+        tag = l.METAnalysis2012B(lead_p4, sublead_p4, useUncorrMet, true, moriond2013MetCorrection);
         if (tag) {
             if(met_cat!=0) tag=false;
         }
@@ -5642,7 +5642,7 @@ void PhotonAnalysis::VHLepTag2013(LoopAll& l, int & diphotonVHlep_id, bool & VHl
     int vertex = l.dipho_vtxind[diphotonVHlep_id];
     if(VHmuevent_prov || VHelevent_prov){
         int Njet_lepcat = VHNumberOfJets(l, diphotonVHlep_id, vertex, VHelevent_prov, VHmuevent_prov, el_ind, mu_ind, &smeared_pho_energy[0]);
-        if(Njet_lepcat<3) l.VHNewLeptonCategorization(VHlep1event, VHlep2event, diphotonVHlep_id, vertex, VHelevent_prov, VHmuevent_prov, el_ind, mu_ind, &smeared_pho_energy[0], 45.0);
+        if(Njet_lepcat<3) l.VHNewLeptonCategorization(VHlep1event, VHlep2event, diphotonVHlep_id, vertex, VHelevent_prov, VHmuevent_prov, el_ind, mu_ind, &smeared_pho_energy[0], 45.0, moriond2013MetCorrection);
     }
     l.VHTwoMuonsEvents(VHlep1event, VHlep2event, diphotonVHlep_id, muVtx, &smeared_pho_energy[0], leadEtVHlepCut, subleadEtVHlepCut, applyPtoverM);
     l.VHTwoElectronsEvents(VHlep1event, VHlep2event, diphotonVHlep_id, elVtx, &smeared_pho_energy[0], leadEtVHlepCut, subleadEtVHlepCut, applyPtoverM);
