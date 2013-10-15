@@ -27,7 +27,7 @@ sigPointsToBook=105,110,115,120,125,130,135,140,145,150,124,126
 includeTTHhad=1
 leadEtTTHhadCut=60
 subleadEtTTHhadCut=25
-diphobdt_output_Cut_TTHhad=-100
+diphobdt_output_Cut_TTHhad=-0.3
 njets_tthHad_thresh=5
 ptJets_ttH_thresh=25.
 removeBtagtth=0
@@ -39,7 +39,7 @@ applyBtagSF=1
 includeTTHlep=1
 leadEtTTHlepCut=60
 subleadEtTTHlepCut=25
-diphobdt_output_Cut_TTHlep=-100
+diphobdt_output_Cut_TTHlep=-0.6
 deltaRPholep_cut=0
 doMinvCut=0
 doDrGsfTrackCut=1
@@ -53,20 +53,20 @@ includeVHhad=1
 nVHhadEtaCategories=1
 leadEtVHhadCut=60
 subleadEtVHhadCut=25
-diphobdt_output_Cut_VHhad=-100
+diphobdt_output_Cut_VHhad=0.1
 ptgg_0tag_cut=130.
 costhetastar_0tag_cut=0.50
 ptjet_0tag_cut=40.
 
 ## Hadronic V tag + btag
 includeVHhadBtag=1
-leadEtVHhadCut=60
-subleadEtVHhadCut=25
+leadEtVHhadBtagCut=60
+subleadEtVHhadBtagCut=25
 ptjet_loosecut=25
-diphobdt_output_Cut_VHhadBtag=-100
-ptgg_btag_cut=117.
-costhetastar_btag_cut=0.56
-ptjet_btag_cut=27.
+diphobdt_output_Cut_VHhadBtag=0.1
+ptgg_btag_cut=120.
+costhetastar_btag_cut=0.55
+ptjet_btag_cut=25.
 
 
 ## Lepton tag
@@ -76,6 +76,7 @@ leadEtVHlepCut=45
 #subleadEtVHlepCut=30
 nElectronCategories=1 
 nMuonCategories=1 
+diphobdt_output_Cut_VHLep=-0.6
 
 ## MET tag
 includeVHmet=1
@@ -83,6 +84,7 @@ leadEtVHmetCut=45
 #subleadEtVHmetCut=30
 nMetCategories=1 
 moriond2013MetCorrection=0
+diphobdt_output_Cut_VHMet=0.
 
 doKFactorSmear=0
 doKFactorSyst=0

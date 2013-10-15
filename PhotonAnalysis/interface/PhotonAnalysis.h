@@ -178,6 +178,8 @@ class PhotonAnalysis : public BaseAnalysis
     float diphobdt_output_Cut_TTHhad;
     float diphobdt_output_Cut_VHhadBtag;
     float diphobdt_output_Cut_VHhad;
+    float diphobdt_output_Cut_VHLep;
+    float diphobdt_output_Cut_VHMet;
 
     bool optimizeMVA;
 
