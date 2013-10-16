@@ -2,7 +2,7 @@
 
 source version.sh
 
-queue=8nh
+queue=1nd
 
 if [[ -z $1 ]]; then
     echo "usage:  $0 <directory> [wildcard] [n_jobs]"
@@ -39,7 +39,7 @@ for f in ${dir}/${wildcard}.dat; do
 	    rm -f ${f}_${i}.log
 	    rm -f ${f}_${i}.{run,fail,done}
 	    touch ${f}_${i}.sub
-	    bsub -q $queue -o ${f}_${i}.log run.sh -stat $(readlink -e ${f})_${i} -tarball $PWD/${version}.tar.gz $proxy -- ./reduce.py --inputDat $PWD/$f --nJobs $njobs --jobId $i
+	    bsub -q $queue -o ${f}_${i}.log run.sh -stat $(readlink -e ${f})_${i} -tarball $PWD/${version}.tar.gz $proxy -- ./reduce.py -w --inputDat $PWD/$f --nJobs $njobs --jobId $i
 	done
     elif [[ -n $njobs ]]; then
 	echo $njobs > ${f}.njobs
@@ -47,12 +47,12 @@ for f in ${dir}/${wildcard}.dat; do
 	    rm -f ${f}_${i}.log
 	    rm -f ${f}_${i}.{run,fail,done}
 	    touch ${f}_${i}.sub
-	    bsub -q $queue -o ${f}_${i}.log run.sh -stat $(readlink -e ${f})_${i} -tarball $PWD/${version}.tar.gz $proxy -- ./reduce.py --inputDat $PWD/$f --nJobs $njobs --jobId $i
+	    bsub -q $queue -o ${f}_${i}.log run.sh -stat $(readlink -e ${f})_${i} -tarball $PWD/${version}.tar.gz $proxy -- ./reduce.py -w --inputDat $PWD/$f --nJobs $njobs --jobId $i
 	done
     else
 	rm -f $f.log
 	rm -f ${f}_${i}.{run,fail,done}
 	touch ${f}.sub
-	bsub -q $queue -o $f.log run.sh -stat $(readlink -e ${f}) -tarball $PWD/${version}.tar.gz $proxy -- ./reduce.py --inputDat $PWD/$f
+	bsub -q $queue -o $f.log run.sh -stat $(readlink -e ${f}) -tarball $PWD/${version}.tar.gz $proxy -- ./reduce.py -w --inputDat $PWD/$f
     fi
 done
