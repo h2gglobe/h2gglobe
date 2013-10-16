@@ -1,19 +1,21 @@
 # JIM stuff
 combinedmvaVbfSelection=1
 mvaVbfSelection=1
-mvaVbfWeights=aux/TMVA_dijet_sherpa_fixwt_limw2_oddb_nopt12_Gradient.weights.xml
+#mvaVbfWeights=aux/TMVA_dijet_sherpa_fixwt_limw2_oddb_nopt12_Gradient.weights.xml
+mvaVbfWeights=aux/TMVA_dijet_sherpa_scalewt50_evenb_nogfrj_oct9_Gradient.weights.xml
 mvaVbfMethod=Gradient
 leadEtVBFCut=40
 subleadEtVBFCut=30
-mvaVbfDiphoWeights=aux/TMVA_vbf_dijet_dipho_BDT_oddb_sherpa_fixwt_plusdiphoptom_Gradient.weights.xml
+#mvaVbfDiphoWeights=aux/TMVA_vbf_dijet_dipho_BDT_oddb_sherpa_fixwt_plusdiphoptom_Gradient.weights.xml
+mvaVbfDiphoWeights=aux/TMVA_vbf_dijet_diphosherpa_BDT_evenb_retrain_Gradient.weights.xml
 mvaVbfDiphoMethod=Gradient
 vbfVsDiphoVbfSelection=0
 multiclassVbfSelection=0
 mvaVbfCatBoundaries=
 #dijet BDT
-multiclassVbfCatBoundaries0=1,0.615,0.615,0.59
+multiclassVbfCatBoundaries0=1,0.565,0.89,0.90 
 #combined BDT
-multiclassVbfCatBoundaries1=1,0.972,0.87,0.59
+multiclassVbfCatBoundaries1=1,0.69,0.84,0.946 
 multiclassVbfCatBoundaries2=10.,-10.
 
 leadEtCut=40.0
@@ -58,20 +60,23 @@ photonLevel2012IDMVA_EB=aux/2012ICHEP_PhotonID_Barrel_BDT.weights.xml
 photonLevel2012IDMVA_EE=aux/2012ICHEP_PhotonID_Endcap_BDT.weights_PSCorr.xml
 photonLevel2011IDMVA_EB=aux/TMVAClassificationPhotonID_Barrel_PassPreSel_Variable_10_BDTnCuts2000_BDT.weights.xml
 photonLevel2011IDMVA_EE=aux/TMVAClassificationPhotonID_Endcap_PassPreSel_Variable_10_BDTnCuts2000_BDT.weights.xml
-eventLevelMvaMIT=aux/HggBambu_SMDipho_Oct01_redqcdweightallsigevenbkg_BDTG.weights.xml
+#eventLevelMvaMIT=aux/HggBambu_SMDipho_Oct01_redqcdweightallsigevenbkg_BDTG.weights.xml
+eventLevelMvaMIT=aux/TMVA_incl_dipho_evenb_limw50_mh123_oct9_Gradient.weights.xml
 
 #bkgPolOrderByCat=4,5,5,5,3,4
 #bkgPolOrderByCat=4,5,5,5,3,4,3,3,3 HCP
 #bkgPolOrderByCat=5,5,5,5,4,4,3,3,3 MORIOND13
 #tth and vhhad categories added
 #bkgPolOrderByCat=5,5,5,5,4,4,3,3,3,-10,2,3,3
-bkgPolOrderByCat=5,5,5,5,3,4,4,3,3,3,-10,2,3,3
+#bkgPolOrderByCat=5,5,5,5,3,4,4,3,3,3,-10,2,3,3
+bkgPolOrderByCat=5,5,5,5,5,3,4,4,3,3,3,-10,2,3,3
 
 # photon ID preselection
 phoidMvaCut=-0.2
 
 # BDT categories
-bdtCategoryBoundaries=1,0.91,0.79,0.49,-0.05
+#bdtCategoryBoundaries=1,0.91,0.79,0.49,-0.05
+bdtCategoryBoundaries=1,0.89,0.76,0.40,0,-0.6
 ## photonIDMVAShift_EB=0.
 ## photonIDMVAShift_EE=0.
 
