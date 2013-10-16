@@ -1,6 +1,8 @@
 # name of the library
 LIBNAME = FullMvaToolkit
 
+H2GGLOBE_BASE=../../
+H2GGLOBE_BASE=../../
 #Necessary to use shell built-in commands
 SHELL=bash
 
@@ -24,11 +26,13 @@ USERINCLUDES += -I$(BOOST_PATH)/include/
 USERINCLUDES += -I $(CMSSW_BASE)/src/ -I $(CMSSW_RELEASE_BASE)/src/
 USERLIBS += -L$(BOOST_PATH)/lib/ -lboost_regex -lboost_program_options
 USERINCLUDES += -I$(ROOFITSYS)/include
-USERLIBS += -L$(ROOFITSYS)/lib -lRooFit -lRooFitCore
+USERLIBS += -L$(ROOFITSYS)/lib -lRooFit -lRooFitCore -lPyROOT
 USERLIBS += -L$(CMSSW_BASE)/lib/ -L $(CMSSW_RELEASE_BASE)/lib/
 
 USERLIBS += $(shell root-config --glibs) -lTMVA -lMinuit -lFoam -lRooFit -lRooFitCore 
-CXXFLAGS = -Wall -g -O2 -Wl,-rpath=$(BASEDIR)/lib 
+CXXFLAGS = -Wall -g -O2 -Wl,-rpath=$(BASEDIR)/lib
+ 
+CXXFLAGS+=-DH2GGLOBE_BASE=\"$(CURDIR)\"
 LDFLAGS = -shared -W 
 
 CXX=g++

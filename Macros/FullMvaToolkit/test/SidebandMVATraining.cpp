@@ -285,8 +285,8 @@ void run2DOptimization(TFile *outFile_,TTree *signalTree_, TTree *backgroundTree
  // Step 2, create an optimization class
 
  Optimizations *optimizer = new Optimizations(hsig,hbkg);
- optimizer->setMaxBins(6);
- optimizer->smoothHistograms(0.01,0.01,0);
+ optimizer->setMaxBins(10);
+ optimizer->smoothHistograms(0.002,0.005,1);
  optimizer->runOptimization();
   
  // Thats it so nw get the outputs
