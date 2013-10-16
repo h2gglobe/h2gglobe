@@ -43,7 +43,10 @@ subleadEtVBFCut=30
 ##  sliding pt/m > 1/4 in mass fac to match event bdt training
 subleadEtVHlepCut=30
 subleadEtVHmetCut=30
-
+subleadEtTTHhadCut=30
+subleadEtTTHlepCut=30
+subleadEtVHhadCut=30
+subleadEtVHhadBtagCut=30
 
 # choose between UCSD and MIT trainings
 bdtTrainingPhilosophy=MIT
