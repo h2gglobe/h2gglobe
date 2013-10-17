@@ -329,8 +329,8 @@ void JetHandler::applyJerUncertainty(int ijet, float shift)
     double ptCor = p4->Pt();
     double genPt = l_.jet_algoPF1_genPt[ijet];
 
-    std::vector<double>::iterator bound =  std::lower_bound( jerEtaBins_.begin(), jerEtaBins_.end(), eta );
-    int bin = bound - jerEtaBins_.begin();
+    std::vector<double>::iterator bound =  std::lower_bound( jerEtaBins_.begin(), jerEtaBins_.end(), fabs(eta) );
+    int bin = ( bound == jerEtaBins_.begin() ) ? 0 : (bound - jerEtaBins_.begin() - 1);
     double resSf = jerResSf_[bin] + shift*jerResSfErr_[bin]; 
 
     double jetSf=max(0.,(genPt+resSf*(ptCor-genPt)))/ptCor;
