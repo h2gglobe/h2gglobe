@@ -999,7 +999,7 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
         }
 
         if(includeVHhad) {
-            VHhadevent = VHhadronicTag2011(l, diphotonVHhad_id, &smeared_pho_energy[0]);
+            VHhadevent = VHhadronicTag2012(l, diphotonVHhad_id, &smeared_pho_energy[0]);
         }
 
         if(includeVHhadBtag) {
