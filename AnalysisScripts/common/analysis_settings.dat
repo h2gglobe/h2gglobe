@@ -53,13 +53,13 @@ includeVHhad=1
 nVHhadEtaCategories=1
 leadEtVHhadCut=60
 subleadEtVHhadCut=25
-diphobdt_output_Cut_VHhad=0.1
+diphobdt_output_Cut_VHhad=0.2
 ptgg_0tag_cut=130.
 costhetastar_0tag_cut=0.50
 ptjet_0tag_cut=40.
 
 ## Hadronic V tag + btag
-includeVHhadBtag=1
+includeVHhadBtag=0
 leadEtVHhadBtagCut=60
 subleadEtVHhadBtagCut=25
 ptjet_loosecut=25
