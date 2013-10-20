@@ -4622,6 +4622,7 @@ bool PhotonAnalysis::TTHleptonicTag2012(LoopAll& l, int& diphotonTTHlep_id, floa
 
 	// need to check again for d0 and dZ (couldn't before because we didn't have the vertex)                                        
     if(!(l.ElectronMVACuts(elInd, elVtx)))elInd=-1;
+    if(elInd>-1)passElePhotonCuts=true;
     }
 
 
@@ -4642,7 +4643,7 @@ bool PhotonAnalysis::TTHleptonicTag2012(LoopAll& l, int& diphotonTTHlep_id, floa
 
     if(muonInd != -1 && diphotonTTHlep_id !=1){
 	mu_tag= (TLorentzVector*) l.mu_glo_p4->At(muonInd);
-	passMuPhotonCuts=l.MuonPhotonCuts2012B(lead_p4, sublead_p4, mu_tag,deltaRPholep_cut);
+	passMuPhotonCuts=l.MuonPhotonCuts2012B(lead_p4, sublead_p4, mu_tag,drSC_lep);
     }
 
     if((elInd==-1) && (muonInd==-1))return tag;
