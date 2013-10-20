@@ -57,6 +57,7 @@ ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
 ROOT.gSystem.Load("../libLoopAll")
 from ROOT import Normalization_8TeV
 norm = Normalization_8TeV()  # Should be checking if 7TeV or 8TeV signal, default is 8TeV here
+#norm.Init(8)
 GetBR = lambda x : norm.GetBR(float(x))
 GetXsection = lambda x : norm.GetXsection(float(x))
 GetProcXsection = lambda x,y : norm.GetXsection(x,y)
@@ -83,6 +84,9 @@ f = ROOT.TFile(sys.argv[1])
 ws = f.Get("cms_hgg_workspace")
 lRRV = ws.var("IntLumi")
 lumi = lRRV.getVal()
+sqrts = (ws.var("Sqrts")).getVal()
+print sqrts
+norm.Init(int(sqrts))
 
 # Some helpful output
 print "File - ", sys.argv[1]
