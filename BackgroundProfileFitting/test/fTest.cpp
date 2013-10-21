@@ -218,6 +218,16 @@ int main(int argc, char* argv[]){
     fabChoice.push_back(pair<string,int>("Bernstein",3));
     fabChoice.push_back(pair<string,int>("Bernstein",3));
     fabChoice.push_back(pair<string,int>("Bernstein",3));
+		// now need more randoms as have 15 cats
+    fabChoice.push_back(pair<string,int>("Bernstein",5));
+    fabChoice.push_back(pair<string,int>("Bernstein",5));
+    fabChoice.push_back(pair<string,int>("Bernstein",5));
+    fabChoice.push_back(pair<string,int>("Bernstein",5));
+    fabChoice.push_back(pair<string,int>("Bernstein",4));
+    fabChoice.push_back(pair<string,int>("Bernstein",4));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
   }
 
   // store results here
@@ -393,6 +403,12 @@ int main(int argc, char* argv[]){
     
   }
 
+  if (saveMultiPdf){
+	outputfile->cd();
+	outputws->Write();
+	outputfile->Close();	
+  }
+
   FILE *dfile = fopen(datfile.c_str(),"w");
   cout << "Recommended options" << endl;
   for (int cat=0; cat<ncats; cat++){
@@ -424,10 +440,5 @@ int main(int argc, char* argv[]){
 
   inFile->Close();
 
-  if (saveMultiPdf){
-	outputfile->cd();
-	outputws->Write();
-	outputfile->Close();	
-  }
   return 0;
 }
