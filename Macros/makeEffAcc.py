@@ -83,6 +83,9 @@ f = ROOT.TFile(sys.argv[1])
 ws = f.Get("cms_hgg_workspace")
 lRRV = ws.var("IntLumi")
 lumi = lRRV.getVal()
+sqrts = (ws.var("Sqrts")).getVal()
+#print sqrts
+norm.Init(int(sqrts))
 
 # Some helpful output
 print "File - ", sys.argv[1]
