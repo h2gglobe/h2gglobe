@@ -4161,6 +4161,138 @@ bool PhotonAnalysis::VHhadronicTag2011(LoopAll& l, int& diphotonVHhad_id, float*
     return tag;
 }
 
+bool PhotonAnalysis::VHhadronicTag2012(LoopAll& l, int& diphotonVHhad_id, float* smeared_pho_energy, bool *jetid_flags, bool mvaselection,bool vetodipho,bool kinonly){
+    //one single category without btag requirements
+
+    bool tag = false;
+
+
+    if(!mvaselection){
+        diphotonVHhad_id = l.DiphotonCiCSelection( l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVHhadCut,subleadEtVHhadCut, 4,
+                                                   false, &smeared_pho_energy[0], true);
+    }else{
+        diphotonVHhad_id=l.DiphotonMITPreSelection(bdtTrainingType.c_str(),leadEtVHhadCut,subleadEtVHhadCut,phoidMvaCut,
+                                                   applyPtoverM, &smeared_pho_energy[0],vetodipho,kinonly,diphobdt_output_Cut_VHhad);
+    }
+
+    if(diphotonVHhad_id==-1) return tag;
+
+    static std::vector<unsigned char> id_flags;
+    if( jetid_flags == 0 ) {
+        switchJetIdVertex( l, l.dipho_vtxind[diphotonVHhad_id] );
+        id_flags.resize(l.jet_algoPF1_n);
+        for(int ijet=0; ijet<l.jet_algoPF1_n; ++ijet ) {
+            id_flags[ijet] = PileupJetIdentifier::passJetId(l.jet_algoPF1_cutbased_wp_level[ijet], PileupJetIdentifier::kLoose);
+        }
+        jetid_flags = (bool*)&id_flags[0];
+    }
+    
+
+
+    //////////////////Defining VH selection///////////////
+    float ptDiphot_thresh;
+    int nJets_thresh;
+    float ptJets_thresh,mjjLower_thresh,mjjUpper_thresh,absCosThetaStar_thresh;
+
+    //defining VH variables
+    TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphotonVHhad_id], l.dipho_vtxind[diphotonVHhad_id], &smeared_pho_energy[0]);
+    TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphotonVHhad_id], l.dipho_vtxind[diphotonVHhad_id], &smeared_pho_energy[0]);
+
+    std::pair<int, int> jets;
+    if(usePUjetveto){
+        jets = l.Select2HighestPtJets(lead_p4, sublead_p4, jetid_flags );
+    } else {
+        jets = l.Select2HighestPtJets(lead_p4, sublead_p4);
+    }
+
+    if(jets.first==-1 || jets.second==-1) return tag;
+
+
+    TLorentzVector* jet1 = (TLorentzVector*)l.jet_algoPF1_p4->At(jets.first);
+    TLorentzVector* jet2 = (TLorentzVector*)l.jet_algoPF1_p4->At(jets.second);
+
+    TLorentzVector dijet = (*jet1) + (*jet2);
+    TLorentzVector diphoton = lead_p4+sublead_p4;
+
+    int njets=0;
+    int njets_looseptcut=0;
+    int njets_btagloose=0;
+    int njets_btagmedium=0;
+
+
+    //Vh had selection
+    //photon cuts
+    ptDiphot_thresh=ptgg_0tag_cut*diphoton.M()/120.;//0 tag values
+    absCosThetaStar_thresh=costhetastar_0tag_cut;
+
+
+
+    //jet cuts
+    nJets_thresh=2;
+    ptJets_thresh=ptjet_0tag_cut;
+    mjjLower_thresh=60.;
+    mjjUpper_thresh=120.;
+
+    //jet selection
+    for(int ii=0; ii<l.jet_algoPF1_n; ++ii) {
+        TLorentzVector * p4_jet = (TLorentzVector *) l.jet_algoPF1_p4->At(ii);
+        if(jetid_flags != 0 && !jetid_flags[ii]) continue; 
+        if(fabs(p4_jet->Eta()) > 2.4) continue;
+        
+        bool isJet_LeadPho = false;
+        bool isJet_SubLeadPho = false;
+        
+        double dR_jet_PhoLead = p4_jet->DeltaR(lead_p4);
+        if( dR_jet_PhoLead<0.5 ) isJet_LeadPho = true;
+        
+        double dR_jet_PhoSubLead = p4_jet->DeltaR(sublead_p4);
+        if( dR_jet_PhoSubLead<0.5 ) isJet_SubLeadPho = true;
+        
+        if( isJet_LeadPho || isJet_SubLeadPho ) continue;
+        
+        if(p4_jet->Pt()<ptJets_thresh) continue;
+        njets++;
+                
+        if(PADEBUG)std::cout<<"pt: "<<p4_jet->Pt()<<" btag_loose "<<njets_btagloose<<" btag_medium "<<njets_btagmedium<<std::endl;
+    }
+
+
+    //costhetaStar 
+
+    TLorentzVector Vstar = dijet + diphoton;
+
+    TLorentzVector H_Vstar(diphoton);
+    H_Vstar.Boost(-Vstar.BoostVector());
+
+    float cosThetaStar = -H_Vstar.CosTheta();
+    float abs_cosThetaStar = fabs(cosThetaStar);
+
+
+
+    if(PADEBUG) std::cout<<" njets: "<<njets<<" abs_cosThetaStar: "<<abs_cosThetaStar<<std::endl;
+
+    //doing the selection
+    bool hasPassedCosThetaSelection=(abs_cosThetaStar<absCosThetaStar_thresh);
+    bool hasPassedJetSelection= (njets>=nJets_thresh && dijet.M()>mjjLower_thresh && dijet.M()<mjjUpper_thresh);
+    bool hasPassedPhotonSelection=  diphoton.Pt()>ptDiphot_thresh;
+
+
+
+    if(hasPassedJetSelection && hasPassedPhotonSelection && hasPassedCosThetaSelection)tag=true;
+
+    if (PADEBUG &&tag==true)  cout<<"tagged VH had, event"<<l.event<<"run "<<l.run<<" lumi "<<l.lumis<<endl;
+
+    myVHhadLeadJPt = jet1->Pt();
+    myVHhadSubJPt = jet2->Pt();
+    myVHhad_Mjj = dijet.M();
+    myVHhaddEta = fabs(jet1->Eta() - jet2->Eta());
+    myVHhadZep  = fabs(diphoton.Eta() - 0.5*(jet1->Eta() + jet2->Eta()));
+    myVHhaddPhi = fabs(diphoton.DeltaPhi(dijet));
+    myVHhad_Mgg =diphoton.M();
+
+    return tag;
+}
+
 
 
 bool PhotonAnalysis::VHhadronicBtag2012(LoopAll& l, int& diphotonVHhadBtag_id, float* smeared_pho_energy, bool *jetid_flags, bool mvaselection,bool vetodipho,bool kinonly){
@@ -4490,6 +4622,7 @@ bool PhotonAnalysis::TTHleptonicTag2012(LoopAll& l, int& diphotonTTHlep_id, floa
 
 	// need to check again for d0 and dZ (couldn't before because we didn't have the vertex)                                        
     if(!(l.ElectronMVACuts(elInd, elVtx)))elInd=-1;
+    if(elInd>-1)passElePhotonCuts=true;
     }
 
 
@@ -4510,7 +4643,7 @@ bool PhotonAnalysis::TTHleptonicTag2012(LoopAll& l, int& diphotonTTHlep_id, floa
 
     if(muonInd != -1 && diphotonTTHlep_id !=1){
 	mu_tag= (TLorentzVector*) l.mu_glo_p4->At(muonInd);
-	passMuPhotonCuts=l.MuonPhotonCuts2012B(lead_p4, sublead_p4, mu_tag,deltaRPholep_cut);
+	passMuPhotonCuts=l.MuonPhotonCuts2012B(lead_p4, sublead_p4, mu_tag,drSC_lep);
     }
 
     if((elInd==-1) && (muonInd==-1))return tag;
@@ -5644,8 +5777,8 @@ void PhotonAnalysis::VHLepTag2013(LoopAll& l, int & diphotonVHlep_id, bool & VHl
         int Njet_lepcat = VHNumberOfJets(l, diphotonVHlep_id, vertex, VHelevent_prov, VHmuevent_prov, el_ind, mu_ind, &smeared_pho_energy[0]);
         if(Njet_lepcat<3) l.VHNewLeptonCategorization(VHlep1event, VHlep2event, diphotonVHlep_id, vertex, VHelevent_prov, VHmuevent_prov, el_ind, mu_ind, &smeared_pho_energy[0], 45.0, moriond2013MetCorrection);
     }
-    l.VHTwoMuonsEvents(VHlep1event, VHlep2event, diphotonVHlep_id, muVtx, &smeared_pho_energy[0], leadEtVHlepCut, subleadEtVHlepCut, applyPtoverM);
-    l.VHTwoElectronsEvents(VHlep1event, VHlep2event, diphotonVHlep_id, elVtx, &smeared_pho_energy[0], leadEtVHlepCut, subleadEtVHlepCut, applyPtoverM);
+    l.VHTwoMuonsEvents(VHlep1event, VHlep2event, diphotonVHlep_id, muVtx, &smeared_pho_energy[0], leadEtVHlepCut, subleadEtVHlepCut, applyPtoverM, mvaselection, diphobdt_output_Cut_VHLep, phoidMvaCut, vetodipho, kinonly, bdtTrainingType.c_str());
+    l.VHTwoElectronsEvents(VHlep1event, VHlep2event, diphotonVHlep_id, elVtx, &smeared_pho_energy[0], leadEtVHlepCut, subleadEtVHlepCut, applyPtoverM, mvaselection, diphobdt_output_Cut_VHLep, phoidMvaCut, vetodipho, kinonly, bdtTrainingType.c_str());
 }
 
 int PhotonAnalysis::VHNumberOfJets(LoopAll& l, int diphotonVHlep_id, int vertex, bool VHelevent_prov, bool VHmuevent_prov, int el_ind, int mu_ind, float* smeared_pho_energy){

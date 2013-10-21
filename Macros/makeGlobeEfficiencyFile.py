@@ -5,8 +5,8 @@ parser = OptionParser()
 parser.add_option("-e","--efficiencyDatFile",default="globeEfficiencies.dat",help="Datfile containing efficiency numbers. \nDefault: %default")
 parser.add_option("-v","--vertexFile",default="vertex_reweighing.root",help="Root file containing vertex efficiency. \nDefault: %default")
 parser.add_option("-o","--outFile",default="../AnalysisScripts/aux/sig_reweighing.root",help="Output file to be read in by globe. \nDefault: %default")
-parser.add_option("--nPhoCats",default=6,help="Number of photon categories for globe smearing. \nDefault: %default")
-parser.add_option("--nDiphoCats",default=8,help="Number of diphoton categories for globe smearing. \nDefault: %default")
+parser.add_option("--nPhoCats",default=6,help="Number of photon categories for globe smearing. \nDefault: %default", type=int)
+parser.add_option("--nDiphoCats",default=8,help="Number of diphoton categories for globe smearing. \nDefault: %default", type=int)
 parser.add_option("--isCutBased",default=False,action="store_true")
 parser.add_option("-d","--draw",default=False,action="store_true")
 (options,arg) = parser.parse_args()
@@ -23,6 +23,7 @@ relevantLines=[]
 catLabels=[]
 effTypes=[]
 
+print options.nPhoCats
 if options.nPhoCats!=4 and options.nPhoCats!=6:
 	sys.exit('nPhoCats has to be 4 or 6 - sorry')
 else:
