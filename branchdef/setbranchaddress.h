@@ -851,3 +851,11 @@ void SetBranchAddress_jet_algoPF1_bgenMatched(TTree* tree) { tree->SetBranchAddr
 void SetBranchAddress_jet_algoPF2_bgenMatched(TTree* tree) { tree->SetBranchAddress("jet_algoPF2_bgenMatched", &jet_algoPF2_bgenMatched, &b_jet_algoPF2_bgenMatched); };
 void SetBranchAddress_jet_algoPF3_bgenMatched(TTree* tree) { tree->SetBranchAddress("jet_algoPF3_bgenMatched", &jet_algoPF3_bgenMatched, &b_jet_algoPF3_bgenMatched); };
 
+void SetBranchAddress_jet_algoPF1_cgenMatched(TTree* tree) { tree->SetBranchAddress("jet_algoPF1_cgenMatched", &jet_algoPF1_cgenMatched, &b_jet_algoPF1_cgenMatched); };
+void SetBranchAddress_jet_algoPF2_cgenMatched(TTree* tree) { tree->SetBranchAddress("jet_algoPF2_cgenMatched", &jet_algoPF2_cgenMatched, &b_jet_algoPF2_cgenMatched); };
+void SetBranchAddress_jet_algoPF3_cgenMatched(TTree* tree) { tree->SetBranchAddress("jet_algoPF3_cgenMatched", &jet_algoPF3_cgenMatched, &b_jet_algoPF3_cgenMatched); };
+
+void SetBranchAddress_jet_algoPF1_lgenMatched(TTree* tree) { tree->SetBranchAddress("jet_algoPF1_lgenMatched", &jet_algoPF1_lgenMatched, &b_jet_algoPF1_lgenMatched); };
+void SetBranchAddress_jet_algoPF2_lgenMatched(TTree* tree) { tree->SetBranchAddress("jet_algoPF2_lgenMatched", &jet_algoPF2_lgenMatched, &b_jet_algoPF2_lgenMatched); };
+void SetBranchAddress_jet_algoPF3_lgenMatched(TTree* tree) { tree->SetBranchAddress("jet_algoPF3_lgenMatched", &jet_algoPF3_lgenMatched, &b_jet_algoPF3_lgenMatched); };
+

@@ -852,3 +852,10 @@ TBranch* b_jet_algoPF1_bgenMatched;
 TBranch* b_jet_algoPF2_bgenMatched;
 TBranch* b_jet_algoPF3_bgenMatched;
 
+TBranch* b_jet_algoPF1_cgenMatched;
+TBranch* b_jet_algoPF2_cgenMatched;
+TBranch* b_jet_algoPF3_cgenMatched;
+
+TBranch* b_jet_algoPF1_lgenMatched;
+TBranch* b_jet_algoPF2_lgenMatched;
+TBranch* b_jet_algoPF3_lgenMatched;
