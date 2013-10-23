@@ -49,7 +49,9 @@ FMTPlots::~FMTPlots(){
 }
 
 void FMTPlots::Setup(){
-  normalizer = new Normalization_8TeV(is2011_);
+  normalizer = new Normalization_8TeV();
+  if ( is2011_ ) normalizer->Init(7);
+  else  normalizer->Init(8);
 }
 
 TH1F* FMTPlots::linearBin(TH1F* hist){

@@ -261,6 +261,10 @@ TString Normalization_8TeV::GetProcess(int ty){
     else if (process == 600) return "gg_grav";
     else if (process == 610) return "gg_spin0";
     else if (process == 650) return "qq_grav";
+    else {
+	std::cout << "Error -- No signal process known " << process << std::endl;
+	assert(0);
+    }
 
   } else {
     return SignalTypeMap[ty].first;

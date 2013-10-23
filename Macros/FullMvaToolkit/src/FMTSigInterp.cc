@@ -102,7 +102,9 @@ void FMTSigInterp::makeEfficiencyGraphs(){
 
 void FMTSigInterp::runInterpolation(){
   
-  normalizer = new Normalization_8TeV(is2011_);
+  normalizer = new Normalization_8TeV();
+  if ( is2011_ ) normalizer->Init(7);
+  else  normalizer->Init(8);
 
   gROOT->SetBatch();
   gStyle->SetOptStat(0);
