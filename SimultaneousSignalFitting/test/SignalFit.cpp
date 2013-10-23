@@ -126,6 +126,7 @@ int main(int argc, char *argv[]){
   transferMacros(inFile,outFile);
 
 	system("mkdir -p plots/initialFits");
+	system("mkdir -p dat/in");
 
   // run fits for each line in datfile
   ifstream datfile;
