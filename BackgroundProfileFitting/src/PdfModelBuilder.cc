@@ -96,7 +96,7 @@ RooAbsPdf* PdfModelBuilder::getBernstein(string prefix, int order){
   for (int i=0; i<order; i++){
     string name = Form("%s_p%d",prefix.c_str(),i);
     //params.insert(pair<string,RooRealVar*>(name, new RooRealVar(name.c_str(),name.c_str(),1.0,0.,5.)));
-    RooRealVar *param = new RooRealVar(name.c_str(),name.c_str(),0.01,-5.,5.);
+    RooRealVar *param = new RooRealVar(name.c_str(),name.c_str(),0.01*(i+1),-5.,5.);
     RooFormulaVar *form = new RooFormulaVar(Form("%s_sq",name.c_str()),Form("%s_sq",name.c_str()),"@0*@0",RooArgList(*param));
     params.insert(pair<string,RooRealVar*>(name,param));
     prods.insert(pair<string,RooFormulaVar*>(name,form));
@@ -158,7 +158,7 @@ RooAbsPdf* PdfModelBuilder::getPowerLawGeneric(string prefix, int order){
     for (int i=1; i<=npows; i++){
       string pname =  Form("%s_p%d",prefix.c_str(),i);
       string fname =  Form("%s_f%d",prefix.c_str(),i-1);
-      params.insert(pair<string,RooRealVar*>(pname, new RooRealVar(pname.c_str(),pname.c_str(),-2.,-10.,0.)));
+      params.insert(pair<string,RooRealVar*>(pname, new RooRealVar(pname.c_str(),pname.c_str(),TMath::Max(-10.,-2.*(i+1)),-10.,0.)));
       if (i==1) {
         formula += Form("TMath::Power(@0,@%d)",nfracs+i);
         dependents->add(*params[pname]);
@@ -203,8 +203,8 @@ RooAbsPdf* PdfModelBuilder::getExponential(string prefix, int order){
   
   RooArgList coefList;
   for (int i=0; i<order; i++){
-    double start=-2.;
-    double low=-10.;
+    double start=-1.;
+    double low=-2.;
     double high=0.;
     if (order>0){
       start=-0.001/double(i);
@@ -240,7 +240,7 @@ RooAbsPdf* PdfModelBuilder::getPowerLawSingle(string prefix, int order){
     for (int i=1; i<=npows; i++){
       string name =  Form("%s_p%d",prefix.c_str(),i);
       string ename =  Form("%s_e%d",prefix.c_str(),i);
-      params.insert(pair<string,RooRealVar*>(name, new RooRealVar(name.c_str(),name.c_str(),-8.7,-20.,0.1)));
+      params.insert(pair<string,RooRealVar*>(name, new RooRealVar(name.c_str(),name.c_str(),TMath::Max(-10.,-1.*(i+1)),-10.,0.1)));
       utilities.insert(pair<string,RooAbsPdf*>(ename, new RooPower(ename.c_str(),ename.c_str(),*obs_var,*params[name])));
       pows->add(*utilities[ename]);
     }
@@ -347,7 +347,7 @@ RooAbsPdf* PdfModelBuilder::getExponentialSingle(string prefix, int order){
     for (int i=1; i<=nexps; i++){
       string name =  Form("%s_p%d",prefix.c_str(),i);
       string ename =  Form("%s_e%d",prefix.c_str(),i);
-      params.insert(pair<string,RooRealVar*>(name, new RooRealVar(name.c_str(),name.c_str(),-0.02,-25.,-0.00001)));
+      params.insert(pair<string,RooRealVar*>(name, new RooRealVar(name.c_str(),name.c_str(),TMath::Max(-2.,-0.02*(i+1)),-2.,-0.00001)));
       utilities.insert(pair<string,RooAbsPdf*>(ename, new RooExponential(ename.c_str(),ename.c_str(),*obs_var,*params[name])));
       exps->add(*utilities[ename]);
     }
