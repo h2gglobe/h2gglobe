@@ -57,6 +57,7 @@ ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
 ROOT.gSystem.Load("../libLoopAll")
 from ROOT import Normalization_8TeV
 norm = Normalization_8TeV()  # Should be checking if 7TeV or 8TeV signal, default is 8TeV here
+#norm.Init(8)
 GetBR = lambda x : norm.GetBR(float(x))
 GetXsection = lambda x : norm.GetXsection(float(x))
 GetProcXsection = lambda x,y : norm.GetXsection(x,y)
