@@ -3822,7 +3822,7 @@ bool PhotonAnalysis::VBFTag2012(int & ijet1, int & ijet2,
     
     bool jetsPreselected=FillDijetVariables(ijet1, ijet2, l, diphoton_id, &smeared_pho_energy[0], jetid_flags, getAngles);
     
-    if(PADEBUG) std::cout<<"VBFTag2013 jetsPreselected "<<jetsPreselected<<std::endl;
+    if(PADEBUG) std::cout<<"VBFTag2012 jetsPreselected "<<jetsPreselected<<std::endl;
     if(jetsPreselected==false) return tag;
     
     if( mvaVbfSelection ) {
@@ -3882,7 +3882,12 @@ bool PhotonAnalysis::VBFTag2013(int & ijet1, int & ijet2, LoopAll& l, int& dipho
     if(PADEBUG) std::cout<<"VBFTag2013 jetsPreselected "<<jetsPreselected<<std::endl;
     if(jetsPreselected==false) return tag;
     
+
     if(mvaselection){
+        if(PADEBUG) std::cout<<"myVBFLeadJPt myVBFSubJPt myVBF_Mjj "<<myVBFLeadJPt<<" "<<myVBFSubJPt<<" "<<myVBF_Mjj<<std::endl;
+        if( !(myVBFLeadJPt>30. && myVBFSubJPt>20. && myVBF_Mjj > 250.) ) { // FIXME hardcoded pre-selection thresholds
+            return tag;
+        }
         int vbfcat=-1;
         myVBFDIPHObdt   = l.dipho_BDT[diphotonVBF_id];
         myVBF_MVA       = tmvaVbfReader_->EvaluateMVA(mvaVbfMethod);
