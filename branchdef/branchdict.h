@@ -843,3 +843,10 @@ BRANCH_DICT(jet_algoPF1_bgenMatched);
 BRANCH_DICT(jet_algoPF2_bgenMatched);
 BRANCH_DICT(jet_algoPF3_bgenMatched);
 
+BRANCH_DICT(jet_algoPF1_cgenMatched);
+BRANCH_DICT(jet_algoPF2_cgenMatched);
+BRANCH_DICT(jet_algoPF3_cgenMatched);
+
+BRANCH_DICT(jet_algoPF1_lgenMatched);
+BRANCH_DICT(jet_algoPF2_lgenMatched);
+BRANCH_DICT(jet_algoPF3_lgenMatched);

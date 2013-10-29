@@ -876,3 +876,10 @@ Bool_t jet_algoPF1_bgenMatched[MAX_JETS];
 Bool_t jet_algoPF2_bgenMatched[MAX_JETS];
 Bool_t jet_algoPF3_bgenMatched[MAX_JETS];
 
+Bool_t jet_algoPF1_cgenMatched[MAX_JETS];
+Bool_t jet_algoPF2_cgenMatched[MAX_JETS];
+Bool_t jet_algoPF3_cgenMatched[MAX_JETS];
+
+Bool_t jet_algoPF1_lgenMatched[MAX_JETS];
+Bool_t jet_algoPF2_lgenMatched[MAX_JETS];
+Bool_t jet_algoPF3_lgenMatched[MAX_JETS];
