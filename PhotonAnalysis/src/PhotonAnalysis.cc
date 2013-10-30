@@ -853,13 +853,19 @@ void PhotonAnalysis::Init(LoopAll& l)
 		tmvaVbfReader_->AddVariable("dijet_LeadJPt",    &myVBFLeadJPt);
 		tmvaVbfReader_->AddVariable("dijet_SubJPt",     &myVBFSubJPt);
 		tmvaVbfReader_->AddVariable("dijet_Zep",        &myVBFZep);
-		tmvaVbfReader_->AddVariable("dijet_dPhi",       &myVBFdPhi);
+		if (!combinedmvaVbfSelection) 
+            tmvaVbfReader_->AddVariable("dijet_dPhi",       &myVBFdPhi);
+        else
+            tmvaVbfReader_->AddVariable("min(dijet_dPhi,2.916)", &myVBFdPhiTrunc);
 		tmvaVbfReader_->AddVariable("dijet_Mjj",        &myVBF_Mjj);	   
 		tmvaVbfReader_->AddVariable("dipho_pt/mass",    &myVBFDiPhoPtOverM);
 		
 		tmvaVbfDiphoReader_ = new TMVA::Reader("!Color:!Silent"); 
-		tmvaVbfDiphoReader_->AddVariable("bdt_incl",                       &myVBFDIPHObdt);
-		tmvaVbfDiphoReader_->AddVariable("bdt_dijet_sherpa_plusdiphoptom", &myVBF_MVA);
+		//tmvaVbfDiphoReader_->AddVariable("bdt_incl",                       &myVBFDIPHObdt);
+		//tmvaVbfDiphoReader_->AddVariable("bdt_dijet_sherpa_plusdiphoptom", &myVBF_MVA);
+		//tmvaVbfDiphoReader_->AddVariable("dipho_pt/mass",                  &myVBFDiPhoPtOverM);
+        tmvaVbfDiphoReader_->AddVariable("dipho_mva",                       &myVBFDIPHObdt);
+		tmvaVbfDiphoReader_->AddVariable("bdt_dijet_maxdPhi",               &myVBF_MVA);
 		tmvaVbfDiphoReader_->AddVariable("dipho_pt/mass",                  &myVBFDiPhoPtOverM);
 		tmvaVbfDiphoReader_->BookMVA(mvaVbfDiphoMethod, mvaVbfDiphoWeights);
 	    } else {
@@ -3866,7 +3872,7 @@ bool PhotonAnalysis::VBFTag2012(int & ijet1, int & ijet2,
 }
 
 bool PhotonAnalysis::VBFTag2013(int & ijet1, int & ijet2, LoopAll& l, int& diphotonVBF_id, float* smeared_pho_energy, 
-                                 bool vetodipho, bool kinonly, bool mvaselection){
+                                bool vetodipho, bool kinonly, bool mvaselection, float eventweight, float myweight){
     bool tag = false;
     bool getAngles = false;
     
@@ -3888,6 +3894,11 @@ bool PhotonAnalysis::VBFTag2013(int & ijet1, int & ijet2, LoopAll& l, int& dipho
         if( !(myVBFLeadJPt>30. && myVBFSubJPt>20. && myVBF_Mjj > 250.) ) { // FIXME hardcoded pre-selection thresholds
             return tag;
         }
+
+        if( myVBF_Mgg>massMin && myVBF_Mgg<massMax) {
+            l.FillCutPlots(0,1,"_nminus1",eventweight,myweight);
+        }
+
         int vbfcat=-1;
         myVBFDIPHObdt   = l.dipho_BDT[diphotonVBF_id];
         myVBF_MVA       = tmvaVbfReader_->EvaluateMVA(mvaVbfMethod);
@@ -3984,6 +3995,8 @@ bool PhotonAnalysis::FillDijetVariables(int & ijet1, int & ijet2, LoopAll& l, in
     myVBFdEta   = fabs(jet1->Eta() - jet2->Eta());
     myVBFZep    = fabs(diphoton.Eta() - 0.5*(jet1->Eta() + jet2->Eta()));
     myVBFdPhi   = fabs(diphoton.DeltaPhi(dijet));
+    //    myVBFdPhiTrunc   = TMath::Min( (double)myVBFdPhi, TMath::Pi() - 0.2 );
+    myVBFdPhiTrunc   = TMath::Min( (double)myVBFdPhi, 2.916);
     myVBF_Mgg   = diphoton.M();
     myVBFDiPhoPtOverM   = diphoton.Pt()   / myVBF_Mgg;
     myVBFLeadPhoPtOverM = lead_p4.Pt()    / myVBF_Mgg;

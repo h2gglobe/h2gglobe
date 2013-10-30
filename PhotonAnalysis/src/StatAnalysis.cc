@@ -1712,12 +1712,13 @@ void StatAnalysis::fillControlPlots(const TLorentzVector & lead_p4, const  TLore
             l.FillHist("corrmetPhi",    category+1, corrMetPhi, evweight);
 
             if( mvaVbfSelection ) {
-                if (!multiclassVbfSelection) {
+                if (!multiclassVbfSelection && !combinedmvaVbfSelection) {
                     l.FillHist("vbf_mva",category+1,myVBF_MVA,evweight);
                 } else {
-                    if( vbfVsDiphoVbfSelection ) { 
+                    if( combinedmvaVbfSelection ) { 
                         l.FillHist("vbf_mva0",category+1,myVBF_MVA,evweight);
                         l.FillHist("vbf_mva1",category+1,diphobdt_output,evweight);
+			l.FillHist("vbf_mva2",category+1,myVBFcombined,evweight);
                     } else { 
                         l.FillHist("vbf_mva0",category+1,myVBF_MVA0,evweight);
                         l.FillHist("vbf_mva1",category+1,myVBF_MVA1,evweight);
