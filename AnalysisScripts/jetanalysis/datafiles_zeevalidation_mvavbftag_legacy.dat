@@ -1,0 +1,46 @@
+intL=19715. histfile=/store/group/phys_higgs/cmshgg/analyzed/martina_legacy/vbf/%(label)s/CMS-HGG_zee.root output=eventsList.txt
+#intL=19715. histfile=CMS-HGG_testzee.root output=eventsList.txt
+
+#
+# Data
+#
+
+typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_8TeV_v5/data/Photon_Run2012A_22Jan2013-v1
+typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_8TeV_v5/data/DoublePhoton_Run2012B-22Jan2013-v1
+typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_8TeV_v5/data/DoublePhoton_Run2012C-22Jan2013-v2
+typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_8TeV_v5/data/DoublePhoton_Run2012D-22Jan2013-v1_v3
+
+
+
+#
+# DY MC
+#
+typ=+6   ind=98 draw=1  Nam=DYJetsToLL   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_8TeV_v5/mc/Summer12_RD1/DYJetsToLL_M-50_TuneZ2Star_8TeV xsec=3532.8 kfac=2.089  scal=1.
+
+
+#typ=+6    ind=98 draw=1  Nam=DYJetsToLL   Fil=root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_8TeV_v5/mc/Summer12_RD1/DYJetsToLL_M-50_TuneZ2Star_8TeV/DYJetsToLL_M-50_TuneZ2Star_8TeV_99.root red=0   lum=1.e10  xsec=3532.8 kfac=2.089   scal=1. pileup=root://eoscms//eos/cms/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_8TeV_v5/mc/Summer12_RD1/DYJetsToLL_M-50_TuneZ2Star_8TeV.pileup.root
+
+
+#
+# Branches to use
+#
+inputBranches jetanalysis/zeevalidation_input.dat
+inputBranches minimal_analysis_input.dat
+inputBranches massfactorizedmvaanalysis_input.dat
+inputBranches minimal_leptmetanalysis_input.dat
+inputBranches TTVH_analysis_input.dat
+
+
+treevariables massfac_mva_binned/fullmvatrees.dat treevariables_optree.dat
+runZeeValidation=1
+cuts jetanalysis/cuts_zee_vbfmva.dat
+
+## define analyses to run
+##   a library containing the class dictionary has loaded before parsing the
+##   configuration file
+## syntax:
+##   analyzer <class_name> <config_file>
+##
+## analyzer PhotonAnalysis photonanalysis.dat
+analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat zeevalidation.dat  doSystematics=0 massMin=60 massMax=180 forceStdPlotsOnZee=1 fillOptTree=0 
+
