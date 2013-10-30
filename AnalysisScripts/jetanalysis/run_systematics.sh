@@ -30,3 +30,14 @@ for syst in $jecUncs; do
     ./mk_fitter.py -i jetanalysis/datafiles_cutbasedvbftag_jec.dat -n 5 -l ${syst} -o ${dir}/cutbtag_${syst}/sub && \
 	./submit_fitter.py -q 8nh -d ${dir}/cutbtag_${syst}
 done
+
+btagEff=" noBtagSF"
+#btagEff=" noBtagSF nominalBtagSF shiftBtagEffUp_bc shiftBtagEffDown_bc shiftBtagEffUp_l shiftBtagEffDown_l"
+
+
+for systb in $btagEff; do
+    ./mk_fitter.py -i jetanalysis/datafiles_mva_btag.dat -n 5 -l ${systb} -o ${dir}/mvabtag_${systb}/sub && \                                               
+        ./submit_fitter.py -q 8nh -d ${dir}/btag_${systb}
+    ./mk_fitter.py -i jetanalysis/datafiles_cutbased_btag.dat -n 15 -l ${systb} -o ${dir}/cutbtag_${systb}/sub && \
+	./submit_fitter.py -q 8nh -d ${dir}/btag_${systb}
+done
