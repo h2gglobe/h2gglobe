@@ -868,6 +868,16 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
         }
 
         if (PADEBUG) std::cout << " Diphoton Category " <<category <<std::endl;
+	if(includeTTHlep || includeTTHhad){
+	    bool isMC = l.itype[l.current]!=0;
+	    if(isMC && applyBtagSF ){
+		if (category==nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories +  nVHlepCategories +  nVHmetCategories ||
+		    category==nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories +  nVHlepCategories + nVHmetCategories+nTTHlepCategories){//tth categories
+		    evweight*=BtagReweight(l,shiftBtagEffUp_bc,shiftBtagEffDown_bc,shiftBtagEffUp_l,shiftBtagEffDown_l,1);
+		}
+	    }
+	}
+	
         // sanity check
         assert( evweight >= 0. ); 
 

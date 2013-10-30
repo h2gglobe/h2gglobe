@@ -18,4 +18,6 @@ mu_glo_p4
 #gp_status:1
 #gp_pdgid:1
 #gp_mother:1
-
+#jet_algoPF1_bgenMatched:1
+#jet_algoPF1_cgenMatched:1
+#jet_algoPF1_lgenMatched:1

@@ -468,6 +468,7 @@ class PhotonAnalysis : public BaseAnalysis
 
     //btag syst
     float BtagReweight(LoopAll& l, bool shiftBtagEffUp_bc, bool shiftBtagEffDown_bc, bool shiftBtagEffUp_l, bool shiftBtagEffDown_l,int WP);
+    float BtagReweight2013(LoopAll& l, bool shiftBtagEffUp_bc, bool shiftBtagEffDown_bc, bool shiftBtagEffUp_l, bool shiftBtagEffDown_l,int WP);
 
     //electrons-muons SF
     float ElectronSFReweight(LoopAll& l);

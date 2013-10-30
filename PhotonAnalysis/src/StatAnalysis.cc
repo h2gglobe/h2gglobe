@@ -1373,13 +1373,12 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 	//	computeBtagEff(l);
 
 
-	if(includeTTHlep || includeVHhad){
+	if(includeTTHlep || includeTTHhad){
 	    bool isMC = l.itype[l.current]!=0;
 	    if(isMC && applyBtagSF ){
-		if (category==9 ||category ==10){//tth categories
+		if (category==nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories +  nVHlepCategories +  nVHmetCategories ||
+		    category==nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories +  nVHlepCategories + nVHmetCategories+nTTHlepCategories){//tth categories
 		    evweight*=BtagReweight(l,shiftBtagEffUp_bc,shiftBtagEffDown_bc,shiftBtagEffUp_l,shiftBtagEffDown_l,1);
-		}else if (category == 11){//vh categories. loose wp for btag
-		    evweight*=BtagReweight(l,shiftBtagEffUp_bc,shiftBtagEffDown_bc,shiftBtagEffUp_l,shiftBtagEffDown_l,0);
 		}
 	    }
 	}

@@ -32,7 +32,7 @@ njets_tthHad_thresh=5
 ptJets_ttH_thresh=25.
 removeBtagtth=0
 applyLeptonSF=0
-applyBtagSF=1
+applyBtagSF=0
 
 
 ## Leptonic TTH tag
