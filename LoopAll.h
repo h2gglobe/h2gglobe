@@ -127,6 +127,7 @@ class LoopAll {
   bool runZeeValidation;
   bool applyEcalIsoPresel;
   bool makeDummyTrees;
+  Float_t * pho_r9_cic;
   std::string cicVersion;
   bool usePFCiC;
   
@@ -625,7 +626,7 @@ Int_t PhotonR9Category(int photonindex, int n_r9cat=3, float r9boundary=0.94) {
   if(photonindex < 0) return -1;
   if(n_r9cat<2)return 0;
   int r9cat=0;
-  float r9 = pho_r9[photonindex];
+  float r9 = pho_r9_cic[photonindex];
   if(n_r9cat==3) {
     r9cat = (Int_t)(r9<0.94) + (r9<0.9);// 0, 1, or 2 (high r9 --> low r9)
   } else if(n_r9cat==2) {
