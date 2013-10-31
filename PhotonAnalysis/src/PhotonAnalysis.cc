@@ -5021,6 +5021,71 @@ float PhotonAnalysis::BtagReweight(LoopAll &l, bool shiftBtagEffUp_bc, bool shif
 	    }
 }
 
+float PhotonAnalysis::BtagReweight2013(LoopAll &l, bool shiftBtagEffUp_bc, bool shiftBtagEffDown_bc, bool shiftBtagEffUp_l, bool shiftBtagEffDown_l, int WP){//same procedure as BtagReweighting but with different mc variables to save space
+	    int nBjets=0,nCjets=0,nLjets=0; 
+	    float eff_b,eff_c,eff_l;
+	    float SFb,SFc,SFl;	   
+
+	    //loose WP
+	    if(WP==0){
+		eff_b=0.80,eff_c=0.39,eff_l=0.13;
+		SFb=1.008,SFc=1.008,SFl=1.09;
+	    } else if(WP ==1) {
+	    //medium WP
+		eff_b=0.675,eff_c=0.08,eff_l=0.016;
+		SFb=0.963,SFc=0.963,SFl=1.16;
+	    }
+
+	    if(WP == 0){
+		if(shiftBtagEffUp_bc){
+		    SFb=1.031,SFc=1.054,SFl=1.09;
+		}else if(shiftBtagEffDown_bc){
+		    SFb=0.985,SFc=0.962,SFl=1.09;
+		}else if(shiftBtagEffUp_l){
+		    SFb=1.008,SFc=1.008,SFl=1.11;
+		}else if(shiftBtagEffDown_l){
+		    SFb=1.008,SFc=1.008,SFl=1.07;
+		}
+	    }else if(WP ==1){
+		if(shiftBtagEffUp_bc){
+		    SFb=0.983,SFc=1.003,SFl=1.16;
+		}else if(shiftBtagEffDown_bc){
+		    SFb=0.943,SFc=0.923,SFl=1.16;
+		}else if(shiftBtagEffUp_l){
+		    SFb=0.963,SFc=0.963,SFl=1.20;
+		}else if(shiftBtagEffDown_l){
+		    SFb=0.963,SFc=0.963,SFl=1.12;
+		}
+	    }
+
+	    float w=-1;
+	    //	    	    std::cout<<"jet_algoPF1_cgenMatched:"<<l.gp_n<<endl;//decomment on analysis input!
+		for(int ijet=0; ijet<l.jet_algoPF1_n; ++ijet) {
+		    TLorentzVector* jet1 = (TLorentzVector*)l.jet_algoPF1_p4->At(ijet);
+		    if(fabs(jet1->Eta()) > 2.4) continue;
+		    if(fabs(jet1->Pt()) < 25.) continue;
+            if(l.jet_algoPF1_bgenMatched[ijet]){
+			nBjets++;
+		    }else if(l.jet_algoPF1_cgenMatched[ijet]){
+			nCjets++;
+		    }else if(l.jet_algoPF1_lgenMatched[ijet]){
+			nLjets++;
+		    }
+		}
+
+	    //	    cout<<"nnnn"<<nBjets<<" "<<nCjets<<" "<<nLjets<<endl;
+	
+	    BTagWeight b(1,6,eff_b,eff_c,eff_l);//b(nbtagmin,nbtagmax,beff,ceff,leff)
+
+	    w= b.weight(nBjets,nCjets,nLjets,SFb,SFc,SFl,1);
+
+	    if(w>0){
+		return w;
+	    }else{
+		return 1;
+	    }
+}
+
 
 // ----------------------------------------------------------------------------------------------------
 
