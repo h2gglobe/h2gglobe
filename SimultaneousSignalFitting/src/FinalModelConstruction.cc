@@ -86,15 +86,15 @@ void FinalModelConstruction::loadSignalSystematics(string filename){
 	int diphotonCat=-1;
 	string proc;
 	ifstream datfile;
-  datfile.open(filename.c_str());
-  if (datfile.fail()) exit(1);
-  while (datfile.good()){
-	
+	datfile.open(filename.c_str());
+	if (datfile.fail()) exit(1);
+	while (datfile.good()){
+		
 		string line;
 		getline(datfile,line);
-
+		
 		// The input file needs correct ordering
-    if (line=="\n" || line.substr(0,1)=="#" || line==" " || line.empty()) continue;
+		if (line=="\n" || line.substr(0,1)=="#" || line==" " || line.empty()) continue;
 		// First read the photon categories
 		if (starts_with(line,"photonCats")){
 			line = line.substr(line.find("=")+1,string::npos);
@@ -125,22 +125,26 @@ void FinalModelConstruction::loadSignalSystematics(string filename){
 			}
 			string phoSystName = els[0];
 			double meanCh = lexical_cast<double>(els[1]);
+			if( meanCh != 0. ) { 
+				addToSystMap(meanSysts,proc,diphotonCat,phoSystName,meanCh);
+				RooRealVar *meanChVar = new RooRealVar(Form("const_%s_cat%d_mean_%s",proc.c_str(),diphotonCat,phoSystName.c_str()),Form("const_%s_cat%d_mean_%s",proc.c_str(),diphotonCat,phoSystName.c_str()),meanCh);
+				meanChVar->setConstant(true);
+				photonSystematicConsts.insert(make_pair(meanChVar->GetName(),meanChVar));
+			}
 			double sigmaCh = lexical_cast<double>(els[2]);
+			if( sigmaCh != 0. ) {
+				addToSystMap(sigmaSysts,proc,diphotonCat,phoSystName,sigmaCh);
+				RooRealVar *sigmaChVar = new RooRealVar(Form("const_%s_cat%d_sigma_%s",proc.c_str(),diphotonCat,phoSystName.c_str()),Form("const_%s_cat%d_sigma_%s",proc.c_str(),diphotonCat,phoSystName.c_str()),sigmaCh);
+				sigmaChVar->setConstant(true);
+				photonSystematicConsts.insert(make_pair(sigmaChVar->GetName(),sigmaChVar));
+			}
 			double rateCh = lexical_cast<double>(els[3]);
-	
-			addToSystMap(meanSysts,proc,diphotonCat,phoSystName,meanCh);
-			addToSystMap(sigmaSysts,proc,diphotonCat,phoSystName,sigmaCh);
-			addToSystMap(rateSysts,proc,diphotonCat,phoSystName,rateCh);
-
-			RooRealVar *meanChVar = new RooRealVar(Form("const_%s_cat%d_mean_%s",proc.c_str(),diphotonCat,phoSystName.c_str()),Form("const_%s_cat%d_mean_%s",proc.c_str(),diphotonCat,phoSystName.c_str()),meanCh);
-			RooRealVar *sigmaChVar = new RooRealVar(Form("const_%s_cat%d_sigma_%s",proc.c_str(),diphotonCat,phoSystName.c_str()),Form("const_%s_cat%d_sigma_%s",proc.c_str(),diphotonCat,phoSystName.c_str()),sigmaCh);
-			RooRealVar *rateChVar = new RooRealVar(Form("const_%s_cat%d_rate_%s",proc.c_str(),diphotonCat,phoSystName.c_str()),Form("const_%s_cat%d_rate_%s",proc.c_str(),diphotonCat,phoSystName.c_str()),rateCh);
-			meanChVar->setConstant(true);
-			sigmaChVar->setConstant(true);
-			rateChVar->setConstant(true);
-			photonSystematicConsts.insert(make_pair(meanChVar->GetName(),meanChVar));
-			photonSystematicConsts.insert(make_pair(sigmaChVar->GetName(),sigmaChVar));
-			photonSystematicConsts.insert(make_pair(rateChVar->GetName(),rateChVar));
+			if( rateCh != 0. ) {
+				addToSystMap(rateSysts,proc,diphotonCat,phoSystName,rateCh);
+				RooRealVar *rateChVar = new RooRealVar(Form("const_%s_cat%d_rate_%s",proc.c_str(),diphotonCat,phoSystName.c_str()),Form("const_%s_cat%d_rate_%s",proc.c_str(),diphotonCat,phoSystName.c_str()),rateCh);
+				rateChVar->setConstant(true);
+				photonSystematicConsts.insert(make_pair(rateChVar->GetName(),rateChVar));
+			}
 		}
 	}
 	datfile.close();
@@ -258,7 +262,7 @@ void FinalModelConstruction::getRvFractionFunc(string name){
 
 RooAbsReal* FinalModelConstruction::getMeanWithPhotonSyst(RooAbsReal *dm, string name){
 	
-	string formula="@0+@1+@0*(";
+	string formula="@0+@1+(1.+@2";
 	RooArgList *dependents = new RooArgList();
 	dependents->add(*MH); // MH sits at @0
 	dependents->add(*dm); // dm sits at @1
@@ -266,20 +270,37 @@ RooAbsReal* FinalModelConstruction::getMeanWithPhotonSyst(RooAbsReal *dm, string
 
 	for (unsigned int i=0; i<photonCats.size(); i++){
 		string phoCat = photonCats[i];
-		int formPlace = 3+(i*4);
+		int formPlace = dependents->getSize();		
+		bool hasEffect = false;
 		// want scale effect on mean
-		RooRealVar *cvScale = photonSystematicConsts[Form("const_%s_cat%d_mean_%sscale",proc_.c_str(),cat_,phoCat.c_str())]; 
-		RooRealVar *nuisScale = photonSystematics[Form("CMS_hgg_nuisance%sscale",phoCat.c_str())];
-		// and res effect on mean
-		RooRealVar *cvSmear = photonSystematicConsts[Form("const_%s_cat%d_mean_%ssmear",proc_.c_str(),cat_,phoCat.c_str())];
-		RooRealVar *nuisSmear = photonSystematics[Form("CMS_hgg_nuisance%ssmear",phoCat.c_str())];
-		// add them all in
-		formula += Form("@%d*(@%d+@2)+@%d*(@%d)",formPlace,formPlace+1,formPlace+2,formPlace+3);
-		dependents->add(*cvScale);
-		dependents->add(*nuisScale);
-		dependents->add(*cvSmear);
-		dependents->add(*nuisSmear);
-		if (i<photonCats.size()-1) formula += "+";
+		if( photonSystematicConsts.find(Form("const_%s_cat%d_mean_%sscale",proc_.c_str(),cat_,phoCat.c_str())) 
+		    != photonSystematicConsts.end() ) {
+			RooRealVar *cvScale = photonSystematicConsts[
+				Form("const_%s_cat%d_mean_%sscale",proc_.c_str(),cat_,phoCat.c_str())]; 
+			RooRealVar *nuisScale = photonSystematics[Form("CMS_hgg_nuisance%sscale",phoCat.c_str())];
+			
+			// and res effect on mean
+			formula += Form("+@%d*@%d",formPlace,formPlace+1);
+			dependents->add(*cvScale);
+			dependents->add(*nuisScale);
+			formPlace += 2;
+			hasEffect = true;
+		}
+		// check if smearing affects mean
+		if( photonSystematicConsts.find(Form("const_%s_cat%d_mean_%ssmear",proc_.c_str(),cat_,phoCat.c_str())) 
+		    != photonSystematicConsts.end() ) {
+			RooRealVar *cvSmear = photonSystematicConsts[
+				Form("const_%s_cat%d_mean_%ssmear",proc_.c_str(),cat_,phoCat.c_str())];
+			RooRealVar *nuisSmear = photonSystematics[Form("CMS_hgg_nuisance%ssmear",phoCat.c_str())];
+			formula += Form("+@%d*@%d",formPlace,formPlace+1);
+			dependents->add(*cvSmear);
+			dependents->add(*nuisSmear);
+			hasEffect = true;
+		}
+		if( ! hasEffect ) {
+			std::cerr << "WARNING: Photon category energy scale and " << phoCat 
+				  << " don't affect the signal model scale." << std::endl; 
+		}
 	}
 	formula+=")";
 	RooFormulaVar *formVar = new RooFormulaVar(name.c_str(),name.c_str(),formula.c_str(),*dependents);
@@ -288,29 +309,45 @@ RooAbsReal* FinalModelConstruction::getMeanWithPhotonSyst(RooAbsReal *dm, string
 
 RooAbsReal* FinalModelConstruction::getSigmaWithPhotonSyst(RooAbsReal *sig_fit, string name){
 
-	string formula="@0*(1.+";
+	string formula="@0*(1.";
 	RooArgList *dependents = new RooArgList();
 	dependents->add(*sig_fit); // sig_fit sits at @0
 	
 	for (unsigned int i=0; i<photonCats.size(); i++){
 		string phoCat = photonCats[i];
-		int formPlace = 1+(i*4);
+		int formPlace = dependents->getSize();
+		bool hasEffect = false;
 		// want scale effect on sigma
-		RooRealVar *cvScale = photonSystematicConsts[Form("const_%s_cat%d_sigma_%sscale",proc_.c_str(),cat_,phoCat.c_str())]; 
-		RooRealVar *nuisScale = photonSystematics[Form("CMS_hgg_nuisance%sscale",phoCat.c_str())];
+		if( photonSystematicConsts.find(Form("const_%s_cat%d_sigma_%sscale",proc_.c_str(),cat_,phoCat.c_str()))
+		    != photonSystematicConsts.end() ) {
+			RooRealVar *cvScale = photonSystematicConsts[
+				Form("const_%s_cat%d_sigma_%sscale",proc_.c_str(),cat_,phoCat.c_str())]; 
+			RooRealVar *nuisScale = photonSystematics[Form("CMS_hgg_nuisance%sscale",phoCat.c_str())];
+			dependents->add(*cvScale);
+			dependents->add(*nuisScale);
+			formula += Form("+@%d*@%d",formPlace,formPlace+1);
+			formPlace += 2;
+			hasEffect = true;
+		}
+		
 		// and res effect on sigma
-		RooRealVar *cvSmear = photonSystematicConsts[Form("const_%s_cat%d_sigma_%ssmear",proc_.c_str(),cat_,phoCat.c_str())];
-		RooRealVar *nuisSmear = photonSystematics[Form("CMS_hgg_nuisance%ssmear",phoCat.c_str())];
-
-		formula += Form("@%d*@%d+@%d*@%d",formPlace,formPlace+1,formPlace+2,formPlace+3);
-		dependents->add(*cvScale);
-		dependents->add(*nuisScale);
-		dependents->add(*cvSmear);
-		dependents->add(*nuisSmear);
-		if (i<photonCats.size()-1) formula += "+";
+		if( photonSystematicConsts.find(Form("const_%s_cat%d_sigma_%ssmear",proc_.c_str(),cat_,phoCat.c_str()))
+		    != photonSystematicConsts.end() ) {
+			RooRealVar *cvSmear = photonSystematicConsts[
+				Form("const_%s_cat%d_sigma_%ssmear",proc_.c_str(),cat_,phoCat.c_str())];
+			RooRealVar *nuisSmear = photonSystematics[Form("CMS_hgg_nuisance%ssmear",phoCat.c_str())];
+			formula += Form("+@%d*@%d",formPlace,formPlace+1);
+			dependents->add(*cvSmear);
+			dependents->add(*nuisSmear);
+			hasEffect = true;
+		}
+		if( ! hasEffect ) {
+			std::cerr << "WARNING: Photon category energy scale and " << 
+				phoCat << " don't affect the signal model width." << std::endl; 
+		}
 	}
 	formula+=")";
-	formula = Form("TMath::Max(%s,0.)",formula.c_str());
+	formula = Form("TMath::Max(%s,0.)",formula.c_str()); // consider smooth cutoff ? 
 	RooFormulaVar *formVar = new RooFormulaVar(name.c_str(),name.c_str(),formula.c_str(),*dependents);
 	return formVar;
 }
@@ -322,23 +359,39 @@ RooAbsReal* FinalModelConstruction::getRateWithPhotonSyst(string name){
 
 	for (unsigned int i=0; i<photonCats.size(); i++){
 		string phoCat = photonCats[i];
-		int formPlace = i*4;
+		int formPlace = dependents->getSize();
+		bool hasEffect = false;
 		// want scale effect on rate
-		RooRealVar *cvScale = photonSystematicConsts[Form("const_%s_cat%d_rate_%sscale",proc_.c_str(),cat_,phoCat.c_str())]; 
-		RooRealVar *nuisScale = photonSystematics[Form("CMS_hgg_nuisance%sscale",phoCat.c_str())];
+		if( photonSystematicConsts.find(Form("const_%s_cat%d_rate_%sscale",proc_.c_str(),cat_,phoCat.c_str()))
+		    != photonSystematicConsts.end() ) {
+			RooRealVar *cvScale = photonSystematicConsts[Form("const_%s_cat%d_rate_%sscale",proc_.c_str(),cat_,phoCat.c_str())]; 
+			RooRealVar *nuisScale = photonSystematics[Form("CMS_hgg_nuisance%sscale",phoCat.c_str())];
+			dependents->add(*cvScale);
+			dependents->add(*nuisScale);
+			formula += Form("+@%d*@%d",formPlace,formPlace+1);
+			formPlace += 2;
+			hasEffect = true;
+		}
 		// and res effect on rate
-		RooRealVar *cvSmear = photonSystematicConsts[Form("const_%s_cat%d_rate_%ssmear",proc_.c_str(),cat_,phoCat.c_str())];
-		RooRealVar *nuisSmear = photonSystematics[Form("CMS_hgg_nuisance%ssmear",phoCat.c_str())];
-		formula += Form("@%d*@%d+@%d*@%d",formPlace,formPlace+1,formPlace+2,formPlace+3);
-		dependents->add(*cvScale);
-		dependents->add(*nuisScale);
-		dependents->add(*cvSmear);
-		dependents->add(*nuisSmear);
-		if (i<photonCats.size()-1) formula += "+";
+		if( photonSystematicConsts.find(Form("const_%s_cat%d_rate_%ssmear",proc_.c_str(),cat_,phoCat.c_str()))
+		    != photonSystematicConsts.end() ) {
+			RooRealVar *cvSmear = photonSystematicConsts[Form("const_%s_cat%d_rate_%ssmear",proc_.c_str(),cat_,phoCat.c_str())];
+			RooRealVar *nuisSmear = photonSystematics[Form("CMS_hgg_nuisance%ssmear",phoCat.c_str())];
+			formula += Form("@%d*@%d+@%d*@%d",formPlace,formPlace+1,formPlace+2,formPlace+3);
+			dependents->add(*cvSmear);
+			dependents->add(*nuisSmear);
+			formula += Form("+@%d*@%d",formPlace,formPlace+1);
+			hasEffect = true;
+		}
+		if( ! hasEffect ) {
+			std::cerr << "WARNING: Photon category energy scale and " << 
+				phoCat << " don't affect the signal normalization." << std::endl; 
+		}
 	}
-	formula+=")";
+	formula+=")";	
 	if (isCutBased_){
 		// category hard code should be tidied up
+		// should be actually taken out and be put in the datacard
 		if (cat_==0 || cat_==1) {
 			formula += Form("*@%d",dependents->getSize());
 			dependents->add(*r9barrelNuisance);
@@ -362,11 +415,11 @@ void FinalModelConstruction::setupSystematics(){
   //categoryScale->setConstant(true);
   //categorySmear = new RooConstVar(Form("CMS_hgg_constsmearcat%d",nuisCat),Form("CMS_hgg_constsmearcat%d",nuisCat),constSmearVals[nuisCat]);
   //categoryResolution = new RooRealVar(Form("CMS_hgg_nuissancedeltasmearcat%d",nuisCat),Form("CMS_hgg_nuissancedeltasmearcat%d",nuisCat),0.0,-0.2,0.2);
- 
+	
 	vertexNuisance = new RooRealVar(Form("CMS_hgg_nuisancedeltafracright_%dTeV",sqrts_),Form("CMS_hgg_nuisancedeltafracright_%dTeV",sqrts_),1.,0.,1.);
 	vertexNuisance->setConstant(true);
-  globalScale = new RooRealVar("CMS_hgg_globalscale","CMS_hgg_globalscale",0.,-5.,5.);
-  globalScale->setConstant(true);
+	globalScale = new RooRealVar("CMS_hgg_globalscale","CMS_hgg_globalscale",0.,-5.,5.);
+	globalScale->setConstant(true);
 	if (isCutBased_) {
 		r9barrelNuisance = new RooRealVar(Form("CMS_hgg_nuisancedeltar9barrel_%dTeV",sqrts_),Form("CMS_hgg_nuisancedeltar9barrel_%dTeV",sqrts_),1.,0.,1.);
 		r9mixedNuisance = new RooRealVar(Form("CMS_hgg_nuisancedeltar9mixed_%dTeV",sqrts_),Form("CMS_hgg_nuisancedeltar9mixed_%dTeV",sqrts_),1.,0.,1.);
