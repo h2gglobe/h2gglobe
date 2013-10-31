@@ -1011,7 +1011,11 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 	}
 
         if(includeTTHlep) {
-	    TTHlepevent = TTHleptonicTag2012(l, diphotonTTHlep_id, &smeared_pho_energy[0]);
+	    if(!l.sqrtS==7){
+		TTHlepevent = TTHleptonicTag2012(l, diphotonTTHlep_id, &smeared_pho_energy[0]);
+	    }else{
+		TTHlepevent = TTHTag7TeV(l, diphotonTTHlep_id,  &smeared_pho_energy[0]);
+	    }
 	}
 
 	// priority of analysis: TTH leptonic, TTH hadronic, lepton tag, vbf,vh met, vhhad btag, vh had 0tag, 

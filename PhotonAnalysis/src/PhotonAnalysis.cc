@@ -4582,7 +4582,15 @@ std::cout<<"pt: "<<p4_jet->Pt()<<" btag_loose "<<njets_btagloose<<" btag_medium 
     return tag;
 }
 
-
+bool PhotonAnalysis::TTHTag7TeV(LoopAll& l, int& diphotonTTHlep_id, float* smeared_pho_energy, bool *jetid_flags, bool mvaselection,bool vetodipho,bool kinonly){
+    bool tag=false;
+    bool leptag=false;
+    bool hadtag=false;
+    leptag=TTHleptonicTag2012(l, diphotonTTHlep_id, &smeared_pho_energy[0]);
+    if(!leptag) hadtag=TTHhadronicTag2012(l, diphotonTTHlep_id, &smeared_pho_energy[0]);
+    if(leptag || hadtag)tag=true;
+    return tag;
+}
 
 bool PhotonAnalysis::TTHleptonicTag2012(LoopAll& l, int& diphotonTTHlep_id, float* smeared_pho_energy, bool *jetid_flags, bool mvaselection,bool vetodipho,bool kinonly){
     //francesco 
