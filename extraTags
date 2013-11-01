@@ -59,7 +59,7 @@ get_git de9986485  https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.g
 
 # Energy regression
 if [[ $CMSSW_VERSION == CMSSW_6_* ]]; then 
-    get_git hggpapertraining_regV6_7_8_tag0 https://github.com/bendavid/GBRLikelihood.git HiggsAnalysis/GBRLikelihood
+    get_git hggpaperV7 https://github.com/bendavid/GBRLikelihood.git HiggsAnalysis/GBRLikelihood
 else 
     get_git hggpaperV5 https://github.com/bendavid/GBRLikelihood.git HiggsAnalysis/GBRLikelihood
 fi

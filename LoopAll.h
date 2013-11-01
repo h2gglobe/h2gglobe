@@ -38,6 +38,7 @@ class BaseAnalysis;
 #include "VertexAnalysis/interface/PhotonInfo.h"
 #include "VertexAnalysis/interface/VertexAlgoParameters.h"
 #include "Macros/Normalization_8TeV.h"
+#include "RooFuncReader.h"
 
 #define BRANCH_DICT(NAME) branchDict[# NAME] = branch_info_t(& b ## _ ## NAME, & LoopAll::SetBranchAddress ## _ ## NAME, & LoopAll::Branch ## _ ## NAME )
 
@@ -328,6 +329,7 @@ class LoopAll {
   float pfEcalIso(int phoindex, float dRmax, float dRVetoBarrel, float dRVetoEndcap, float etaStripBarrel, float etaStripEndcap, 
 		  float thrBarrel, float thrEndcaps, int pfToUse=4);
 
+  RooFuncReader *funcReader_dipho_MIT;
   TMVA::Reader *tmvaReaderID_UCSD, * tmvaReader_dipho_UCSD;
   TMVA::Reader *tmvaReaderID_MIT_Barrel, *tmvaReaderID_MIT_Endcap;
   TMVA::Reader *tmvaReader_dipho_MIT;

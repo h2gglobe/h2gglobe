@@ -1,4 +1,4 @@
-# JIM stuff
+# VBF
 combinedmvaVbfSelection=1
 mvaVbfSelection=1
 #mvaVbfWeights=aux/TMVA_dijet_sherpa_fixwt_limw2_oddb_nopt12_Gradient.weights.xml
@@ -12,6 +12,11 @@ mvaVbfDiphoMethod=Gradient
 vbfVsDiphoVbfSelection=0
 multiclassVbfSelection=0
 mvaVbfCatBoundaries=
+
+useGbrVbfMva=0
+gbrVbfFile=aux/gbrMultiClassoct31_dijet.root
+gbrVbfDiPhoFile=aux/gbrMultiClassoct31_dijet.root
+
 #dijet BDT
 #multiclassVbfCatBoundaries0=1,0.615,0.615,0.59
 multiclassVbfCatBoundaries0=1.0,0.69,0.69,0.48
@@ -62,6 +67,9 @@ photonLevel2012IDMVA_EE=aux/2012ICHEP_PhotonID_Endcap_BDT.weights_PSCorr.xml
 photonLevel2011IDMVA_EB=aux/TMVAClassificationPhotonID_Barrel_PassPreSel_Variable_10_BDTnCuts2000_BDT.weights.xml
 photonLevel2011IDMVA_EE=aux/TMVAClassificationPhotonID_Endcap_PassPreSel_Variable_10_BDTnCuts2000_BDT.weights.xml
 eventLevelMvaMIT=aux/HggBambu_SMDipho_Oct01_redqcdweightallsigevenbkg_BDTG.weights.xml
+
+useGbrDiphotonMva=0
+gbrDiphotonFile=aux/gbrMultiClassoct31_dijet.root
 
 #bkgPolOrderByCat=4,5,5,5,3,4
 #bkgPolOrderByCat=4,5,5,5,3,4,3,3,3 HCP

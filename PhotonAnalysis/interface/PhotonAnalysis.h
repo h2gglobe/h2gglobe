@@ -327,16 +327,23 @@ class PhotonAnalysis : public BaseAnalysis
     float myEl_ElePho   ;
     float myEl_passelcuts ;
 
-    // Chris' extras
+    // Di-pho MVA
+    bool doDiphoMvaUpFront;
+    bool useGbrDiphotonMva;
+    std::string gbrDiphotonFile;
     std::string bdtTrainingPhilosophy;
     std::string bdtTrainingType;
     std::string photonLevelMvaUCSD  ;
-    std::string eventLevelMvaUCSD   ;
+    std::string eventLevelMvaUCSD   ;                    
     std::string photonLevel2011IDMVA_EB;
     std::string photonLevel2011IDMVA_EE;
     std::string eventLevelMvaMIT    ;
     std::string photonLevel2012IDMVA_EB;
     std::string photonLevel2012IDMVA_EE;
+    std::string photonLevel2013IDMVA_EB;
+    std::string photonLevel2013IDMVA_EE;
+    
+    std::vector<float> bdtCategoryBoundaries;
 
     // n-1 plots for VH hadronic tag 2011
     float  myVHhadLeadJPt;
@@ -396,6 +403,9 @@ class PhotonAnalysis : public BaseAnalysis
     float myVBFSpin_DeltaPhiJJL;
     float myVBFSpin_absDeltaPhiJJL;
 
+    bool useGbrVbfMva;
+    std::string gbrVbfFile, gbrVbfDiphoFile;
+    
     bool bookDiPhoCutsInVbf;
     bool mvaVbfSelection, mvaVbfUseDiPhoPt, mvaVbfUsePhoPt;
     bool combinedmvaVbfSelection;
@@ -442,6 +452,8 @@ class PhotonAnalysis : public BaseAnalysis
 
     bool ClassicCatsNm1Plots(LoopAll& l, int diphoton_nm1_id, float* smeared_pho_energy, float eventweight, float myweight);
 
+    RooFuncReader *gbrVbfReader_, *gbrVbfDiphoReader_;
+    
     // Exclusive tags
     TMVA::Reader *tmvaVbfDiphoReader_;
 

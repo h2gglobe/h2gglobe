@@ -148,7 +148,11 @@ PhotonAnalysis::PhotonAnalysis()  :
     saveDatacardTrees_=false;
     saveSpinTrees_=false;
     saveVBFTrees_=false;
-
+    
+    doDiphoMvaUpFront=false;
+    useGbrVbfMva=false;
+    useGbrDiphotonMva=false;
+    
     mvaVbfSelection=false;
     mvaVbfUseDiPhoPt=true;
     mvaVbfUsePhoPt=true;
@@ -818,198 +822,241 @@ void PhotonAnalysis::Init(LoopAll& l)
     }
 
     if( l.typerun != l.kReduce ) {
-	// n-1 plots for VBF tag 2011
-	l.SetCutVariables("cut_VBFLeadJPt",         &myVBFLeadJPt);
-	l.SetCutVariables("cut_VBFSubJPt",          &myVBFSubJPt);
-	l.SetCutVariables("cut_VBF_Mjj",            &myVBF_Mjj);
-	l.SetCutVariables("cut_VBF_dEta",           &myVBFdEta);
-	l.SetCutVariables("cut_VBF_Zep",            &myVBFZep);
-	l.SetCutVariables("cut_VBF_dPhi",           &myVBFdPhi);
-	l.SetCutVariables("cut_VBF_Mgg0",           &myVBF_Mgg);
-	l.SetCutVariables("cut_VBF_Mgg2",           &myVBF_Mgg);
-	l.SetCutVariables("cut_VBF_Mgg4",           &myVBF_Mgg);
-	l.SetCutVariables("cut_VBF_Mgg10",          &myVBF_Mgg);
-	l.SetCutVariables("cut_VBF_Mgg4_100_180",   &myVBF_Mgg);
-	l.SetCutVariables("cut_VBF_Mgg2_100_180",   &myVBF_Mgg);
-    
-	if( vbfVsDiphoVbfSelection ) {
-	    multiclassVbfSelection = true;
-	    assert(mvaVbfCatBoundaries.empty() );
-	    mvaVbfCatBoundaries = multiclassVbfCatBoundaries0;
-	}
-	if( mvaVbfSelection || multiclassVbfSelection || bookDiPhoCutsInVbf  ) {
-	    l.SetCutVariables("cut_VBF_DiPhoPtOverM",   &myVBFDiPhoPtOverM);
-	    l.SetCutVariables("cut_VBF_LeadPhoPtOverM", &myVBFLeadPhoPtOverM);
-	    l.SetCutVariables("cut_VBF_SubPhoPtOverM",  &myVBFSubPhoPtOverM);
-	}
-	
-	if( mvaVbfSelection || multiclassVbfSelection || combinedmvaVbfSelection ) {
-	    
-	    tmvaVbfReader_ = new TMVA::Reader( "!Color:!Silent" );
-	    
-	    if (combinedmvaVbfSelection) {
-		tmvaVbfReader_->AddVariable("dijet_leadEta",    &myVBFLeadJEta);
-		tmvaVbfReader_->AddVariable("dijet_subleadEta", &myVBFSubJEta);
-		tmvaVbfReader_->AddVariable("dijet_LeadJPt",    &myVBFLeadJPt);
-		tmvaVbfReader_->AddVariable("dijet_SubJPt",     &myVBFSubJPt);
-		tmvaVbfReader_->AddVariable("dijet_Zep",        &myVBFZep);
-		if (!combinedmvaVbfSelection) 
-            tmvaVbfReader_->AddVariable("dijet_dPhi",       &myVBFdPhi);
-        else
-            tmvaVbfReader_->AddVariable("min(dijet_dPhi,2.916)", &myVBFdPhiTrunc);
-		tmvaVbfReader_->AddVariable("dijet_Mjj",        &myVBF_Mjj);	   
-		tmvaVbfReader_->AddVariable("dipho_pt/mass",    &myVBFDiPhoPtOverM);
-		
-		tmvaVbfDiphoReader_ = new TMVA::Reader("!Color:!Silent"); 
-		//tmvaVbfDiphoReader_->AddVariable("bdt_incl",                       &myVBFDIPHObdt);
-		//tmvaVbfDiphoReader_->AddVariable("bdt_dijet_sherpa_plusdiphoptom", &myVBF_MVA);
-		//tmvaVbfDiphoReader_->AddVariable("dipho_pt/mass",                  &myVBFDiPhoPtOverM);
-        tmvaVbfDiphoReader_->AddVariable("dipho_mva",                       &myVBFDIPHObdt);
-		tmvaVbfDiphoReader_->AddVariable("bdt_dijet_maxdPhi",               &myVBF_MVA);
-		tmvaVbfDiphoReader_->AddVariable("dipho_pt/mass",                  &myVBFDiPhoPtOverM);
-		tmvaVbfDiphoReader_->BookMVA(mvaVbfDiphoMethod, mvaVbfDiphoWeights);
-	    } else {
-		tmvaVbfReader_->AddVariable("jet1pt"              , &myVBFLeadJPt);
-		tmvaVbfReader_->AddVariable("jet2pt"	          , &myVBFSubJPt);
-		tmvaVbfReader_->AddVariable("abs(jet1eta-jet2eta)", &myVBFdEta);
-		tmvaVbfReader_->AddVariable("mj1j2"		  , &myVBF_Mjj);
-		tmvaVbfReader_->AddVariable("zepp"		  , &myVBFZep);
-		tmvaVbfReader_->AddVariable("dphi"		  , &myVBFdPhi);
-		if( mvaVbfUseDiPhoPt ) {
-		    tmvaVbfReader_->AddVariable("diphopt/diphoM"      , &myVBFDiPhoPtOverM);
-		}
-		if( mvaVbfUsePhoPt   ) {
-		    tmvaVbfReader_->AddVariable("pho1pt/diphoM"	  , &myVBFLeadPhoPtOverM);
-		    tmvaVbfReader_->AddVariable("pho2pt/diphoM"       , &myVBFSubPhoPtOverM);
-		}
-	    }
-	
-	    tmvaVbfReader_->BookMVA( mvaVbfMethod, mvaVbfWeights );
-	    
-	}
-	
-	if( mvaVbfSpin && (mvaVbfSelection || multiclassVbfSelection) )
-	{
-	    tmvaVbfSpinReader_ = new TMVA::Reader( "!Color:!Silent" );
-	    
-	    tmvaVbfSpinReader_->AddVariable("absDeltaPhiJJ := abs(deltaPhiJJ)", &myVBFSpin_absDeltaPhiJJ);
-	    tmvaVbfSpinReader_->AddVariable("absCosThetaJ1 := abs(cosThetaJ1)", &myVBFSpin_absCosThetaJ1);
-	    tmvaVbfSpinReader_->AddVariable("absCosThetaJ2 := abs(cosThetaJ2)", &myVBFSpin_absCosThetaJ2);
-	    
-	    //tmvaVbfSpinReader_->AddVariable("absDeltaPhiJJS := abs(deltaPhiJJS)", &myVBFSpin_absDeltaPhiJJS);
-	    tmvaVbfSpinReader_->AddVariable("absCosThetaS := abs(cosThetaS)", &myVBFSpin_absCosThetaS);
-	    tmvaVbfSpinReader_->AddVariable("absDeltaPhiJJL := abs(deltaPhiJJL)", &myVBFSpin_absDeltaPhiJJL);
-	    tmvaVbfSpinReader_->AddVariable("absCosThetaL := abs(cosThetaL)", &myVBFSpin_absCosThetaL);
-	    
-	    tmvaVbfSpinReader_->BookMVA( mvaVbfSpinMethod, mvaVbfSpinWeights );
-	}
+        // n-1 plots for VBF tag 2011
+        l.SetCutVariables("cut_VBFLeadJPt",         &myVBFLeadJPt);
+        l.SetCutVariables("cut_VBFSubJPt",          &myVBFSubJPt);
+        l.SetCutVariables("cut_VBF_Mjj",            &myVBF_Mjj);
+        l.SetCutVariables("cut_VBF_dEta",           &myVBFdEta);
+        l.SetCutVariables("cut_VBF_Zep",            &myVBFZep);
+        l.SetCutVariables("cut_VBF_dPhi",           &myVBFdPhi);
+        l.SetCutVariables("cut_VBF_Mgg0",           &myVBF_Mgg);
+        l.SetCutVariables("cut_VBF_Mgg2",           &myVBF_Mgg);
+        l.SetCutVariables("cut_VBF_Mgg4",           &myVBF_Mgg);
+        l.SetCutVariables("cut_VBF_Mgg10",          &myVBF_Mgg);
+        l.SetCutVariables("cut_VBF_Mgg4_100_180",   &myVBF_Mgg);
+        l.SetCutVariables("cut_VBF_Mgg2_100_180",   &myVBF_Mgg);
+        
+        if( vbfVsDiphoVbfSelection ) {
+            multiclassVbfSelection = true;
+            assert(mvaVbfCatBoundaries.empty() );
+            mvaVbfCatBoundaries = multiclassVbfCatBoundaries0;
+        }
+        if( mvaVbfSelection || multiclassVbfSelection || bookDiPhoCutsInVbf  ) {
+            l.SetCutVariables("cut_VBF_DiPhoPtOverM",   &myVBFDiPhoPtOverM);
+            l.SetCutVariables("cut_VBF_LeadPhoPtOverM", &myVBFLeadPhoPtOverM);
+            l.SetCutVariables("cut_VBF_SubPhoPtOverM",  &myVBFSubPhoPtOverM);
+        }
+        
+        if( mvaVbfSelection || multiclassVbfSelection || combinedmvaVbfSelection ) {
+          
+          if( useGbrVbfMva ) {
+              /// jeteta1,jeteta2,jetpt1,jetpt2,zeppenfeld,dphidijetgg,dijetmass,ptgg
+              TFile * fin = TFile::Open(gbrVbfFile.c_str());
+              RooWorkspace * ws = (RooWorkspace*) (fin->Get("wsfitmc")->Clone());
+              
+              gbrVbfReader_ = new RooFuncReader(ws,"sigVBFxxb","trainingvars");
+              gbrVbfReader_->bookVariable("jeteta1",    &myVBFLeadJEta);
+              gbrVbfReader_->bookVariable("jeteta2",    &myVBFSubJEta);
+              gbrVbfReader_->bookVariable("jetpt1",     &myVBFLeadJPt);
+              gbrVbfReader_->bookVariable("jetpt2",     &myVBFSubJPt);
+              gbrVbfReader_->bookVariable("zeppenfeld", &myVBFZep);
+              gbrVbfReader_->bookVariable("dphidijetgg",&myVBFdPhiTrunc);
+              gbrVbfReader_->bookVariable("dijetmass",  &myVBF_Mjj);	   
+              gbrVbfReader_->bookVariable("ptgg",       &myVBFDiPhoPtOverM);
+              fin->Close();
 
-	// n-1 plots for VH hadronic tag 2011
-	l.SetCutVariables("cut_VHhadLeadJPt",      &myVHhadLeadJPt);
-	l.SetCutVariables("cut_VHhadSubJPt",       &myVHhadSubJPt);
-	l.SetCutVariables("cut_VHhad_Mjj",         &myVHhad_Mjj);
-	l.SetCutVariables("cut_VHhad_dEta",        &myVHhaddEta);
-	l.SetCutVariables("cut_VHhad_Zep",         &myVHhadZep);
-	l.SetCutVariables("cut_VHhad_dPhi",        &myVHhaddPhi);
-	l.SetCutVariables("cut_VHhad_Mgg0",        &myVHhad_Mgg);
-	l.SetCutVariables("cut_VHhad_Mgg2",        &myVHhad_Mgg);
-	l.SetCutVariables("cut_VHhad_Mgg4",        &myVHhad_Mgg);
-	l.SetCutVariables("cut_VHhad_Mgg10",        &myVHhad_Mgg);
-	l.SetCutVariables("cut_VHhad_Mgg2_100_160",        &myVHhad_Mgg);
-	l.SetCutVariables("cut_VHhad_Mgg4_100_160",        &myVHhad_Mgg);
-	
-	// n-1 plot for ClassicCats
-	l.SetCutVariables("cutnm1hir9EB_r9",             &sublead_r9);
-	l.SetCutVariables("cutnm1hir9EB_isoOverEt",      &sublead_isoOverEt);
-	l.SetCutVariables("cutnm1hir9EB_badisoOverEt",   &sublead_badisoOverEt);
-	l.SetCutVariables("cutnm1hir9EB_trkisooet",      &sublead_trkisooet);
-	l.SetCutVariables("cutnm1hir9EB_sieie",          &sublead_sieie);
-	l.SetCutVariables("cutnm1hir9EB_drtotk",         &sublead_drtotk);
-	l.SetCutVariables("cutnm1hir9EB_hovere",         &sublead_hovere);
-	l.SetCutVariables("cutnm1hir9EB_Mgg",            &sublead_mgg);
-	
-	l.SetCutVariables("cutnm1lor9EB_r9",             &sublead_r9);
-	l.SetCutVariables("cutnm1lor9EB_isoOverEt",      &sublead_isoOverEt);
-	l.SetCutVariables("cutnm1lor9EB_badisoOverEt",   &sublead_badisoOverEt);
-	l.SetCutVariables("cutnm1lor9EB_trkisooet",      &sublead_trkisooet);
-	l.SetCutVariables("cutnm1lor9EB_sieie",          &sublead_sieie);
-	l.SetCutVariables("cutnm1lor9EB_drtotk",         &sublead_drtotk);
-	l.SetCutVariables("cutnm1lor9EB_hovere",         &sublead_hovere);
-	l.SetCutVariables("cutnm1lor9EB_Mgg",            &sublead_mgg);
-	
-	l.SetCutVariables("cutnm1hir9EE_r9",             &sublead_r9);
-	l.SetCutVariables("cutnm1hir9EE_isoOverEt",      &sublead_isoOverEt);
-	l.SetCutVariables("cutnm1hir9EE_badisoOverEt",   &sublead_badisoOverEt);
-	l.SetCutVariables("cutnm1hir9EE_trkisooet",      &sublead_trkisooet);
-	l.SetCutVariables("cutnm1hir9EE_sieie",          &sublead_sieie);
-	l.SetCutVariables("cutnm1hir9EE_drtotk",         &sublead_drtotk);
-	l.SetCutVariables("cutnm1hir9EE_hovere",         &sublead_hovere);
-	l.SetCutVariables("cutnm1hir9EE_Mgg",            &sublead_mgg);
-	
-	l.SetCutVariables("cutnm1lor9EE_r9",             &sublead_r9);
-	l.SetCutVariables("cutnm1lor9EE_isoOverEt",      &sublead_isoOverEt);
-	l.SetCutVariables("cutnm1lor9EE_badisoOverEt",   &sublead_badisoOverEt);
-	l.SetCutVariables("cutnm1lor9EE_trkisooet",      &sublead_trkisooet);
-	l.SetCutVariables("cutnm1lor9EE_sieie",          &sublead_sieie);
-	l.SetCutVariables("cutnm1lor9EE_drtotk",         &sublead_drtotk);
-	l.SetCutVariables("cutnm1lor9EE_hovere",         &sublead_hovere);
-	l.SetCutVariables("cutnm1lor9EE_Mgg",            &sublead_mgg);
-	
-	if(includeVHlep) {
-	    l.SetCutVariables("cutEl_leptonSig",    &myEl_leptonSig);
-	    l.SetCutVariables("cutEl_elpt",         &myEl_elpt);
-	    l.SetCutVariables("cutEl_oEsuboP",      &myEl_oEsuboP);
-	    l.SetCutVariables("cutEl_D0",           &myEl_D0     );
-	    l.SetCutVariables("cutEl_DZ",           &myEl_DZ     );
-	    l.SetCutVariables("cutEl_mishit",       &myEl_mishit );
-	    l.SetCutVariables("cutEl_conv",         &myEl_conv   );
-	    l.SetCutVariables("cutEl_detain",       &myEl_detain );
-	    l.SetCutVariables("cutEl_dphiin",       &myEl_dphiin );
-	    l.SetCutVariables("cutEl_sieie",        &myEl_sieie  );
-	    l.SetCutVariables("cutEl_sieie2",       &myEl_sieie  );
-	    l.SetCutVariables("cutEl_hoe",          &myEl_hoe    );
-	    l.SetCutVariables("cutEl_drlead",       &myEl_drlead );
-	    l.SetCutVariables("cutEl_drsub",        &myEl_drsub  );
-	    l.SetCutVariables("cutEl_melead",       &myEl_melead );
-	    l.SetCutVariables("cutEl_meleadveto10", &myEl_meleadveto10 );
-	    l.SetCutVariables("cutEl_meleadveto15", &myEl_meleadveto15 );
-	    l.SetCutVariables("cutEl_mesub",        &myEl_mesub  );
-	    l.SetCutVariables("cutEl_mesubveto5",   &myEl_mesubveto5  );
-	    l.SetCutVariables("cutEl_mesubveto10",  &myEl_mesubveto10  );
-	    l.SetCutVariables("cutEl_reliso",       &myEl_reliso );
-	    l.SetCutVariables("cutEl_iso",          &myEl_iso    );
-	    l.SetCutVariables("cutEl_mvaNonTrig",   &myEl_mvaNonTrig);
-	    l.SetCutVariables("cutEl_dZ_ee",        &myEl_dZ_ee);
-	    l.SetCutVariables("cutEl_mass_ee",      &myEl_mass_ee);
-	    l.SetCutVariables("cutEl_inwindow_ee",  &myEl_inwindow_ee);
-	    l.SetCutVariables("cutEl_ptlead",       &myEl_ptlead    );
-	    l.SetCutVariables("cutEl_ptsub",        &myEl_ptsub     );
-	    l.SetCutVariables("cutEl_ptleadom",       &myEl_ptleadom    );
-	    l.SetCutVariables("cutEl_ptsubom",        &myEl_ptsubom     );
-	    l.SetCutVariables("cutEl_elvetolead",   &myEl_elvetolead);
-	    l.SetCutVariables("cutEl_elvetosub",    &myEl_elvetosub );
-	    l.SetCutVariables("cutEl_ptgg",         &myEl_ptgg      );
-	    l.SetCutVariables("cutEl_phomaxeta",    &myEl_phomaxeta );
-	    l.SetCutVariables("cutEl_sumpt3",       &myEl_sumpt3    );
-	    l.SetCutVariables("cutEl_sumpt4",       &myEl_sumpt4    );
-	    l.SetCutVariables("cutEl_dRtklead",     &myEl_dRtklead  );
-	    l.SetCutVariables("cutEl_dRtksub",      &myEl_dRtksub   );
-	    l.SetCutVariables("cutEl_MVAlead",      &myEl_MVAlead   );
-	    l.SetCutVariables("cutEl_MVAsub",       &myEl_MVAsub    );
-	    l.SetCutVariables("cutEl_diphomva",     &myEl_diphomva  );
-	    l.SetCutVariables("cutEl_CiClead",      &myEl_CiClead   );
-	    l.SetCutVariables("cutEl_CiCsub",       &myEl_CiCsub    );
-	    l.SetCutVariables("cutEl_mgg",          &myEl_mgg       );
-	    l.SetCutVariables("cutEl_MET",          &myEl_MET       );
-	    l.SetCutVariables("cutEl_METphi",       &myEl_METphi    );
-	    l.SetCutVariables("cutEl_presellead",   &myEl_presellead );
-	    l.SetCutVariables("cutEl_matchellead",  &myEl_matchellead);
-	    l.SetCutVariables("cutEl_preselsub",    &myEl_preselsub  );
-	    l.SetCutVariables("cutEl_matchelsub",   &myEl_matchelsub );
-	    l.SetCutVariables("cutEl_category",     &myEl_category );
-	    l.SetCutVariables("cutEl_ElePho",       &myEl_ElePho );
-	    l.SetCutVariables("cutEl_passelcuts",   &myEl_passelcuts );
-	}
+            if( combinedmvaVbfSelection ) {
+                fin = TFile::Open(gbrVbfDiPhoFile.c_str());
+                ws = (RooWorkspace*) (fin->Get("wsfitmc")->Clone());
+                gbrVbfDiphoReader_ = new RooFuncReader(ws,"sigVBFxxb","trainingvars");
+                gbrVbfDiphoReader_->bookVariable("masserr",         &l.tmva_dipho_MIT_dmom);
+                gbrVbfDiphoReader_->bookVariable("masserrwrongvtx", &l.tmva_dipho_MIT_dmom_wrong_vtx);
+                gbrVbfDiphoReader_->bookVariable("vtxprob",         &l.tmva_dipho_MIT_vtxprob);
+                gbrVbfDiphoReader_->bookVariable("pt1",             &l.tmva_dipho_MIT_ptom1);
+                gbrVbfDiphoReader_->bookVariable("pt2",             &l.tmva_dipho_MIT_ptom2);
+                gbrVbfDiphoReader_->bookVariable("eta1",            &l.tmva_dipho_MIT_eta1);
+                gbrVbfDiphoReader_->bookVariable("eta2",            &l.tmva_dipho_MIT_eta2);
+                gbrVbfDiphoReader_->bookVariable("dphi",            &l.tmva_dipho_MIT_dphi);
+                gbrVbfDiphoReader_->bookVariable("idmva1",          &l.tmva_dipho_MIT_ph1mva);
+                gbrVbfDiphoReader_->bookVariable("idmva2",          &l.tmva_dipho_MIT_ph2mva);
+                gbrVbfDiphoReader_->bookVariable("jeteta1",         &myVBFLeadJEta);
+                gbrVbfDiphoReader_->bookVariable("jeteta2",         &myVBFSubJEta);
+                gbrVbfDiphoReader_->bookVariable("jetpt1",          &myVBFLeadJPt);
+                gbrVbfDiphoReader_->bookVariable("jetpt2",          &myVBFSubJPt);
+                gbrVbfDiphoReader_->bookVariable("zeppenfeld",      &myVBFZep);
+                gbrVbfDiphoReader_->bookVariable("dphidijetgg",     &myVBFdPhiTrunc);
+                gbrVbfDiphoReader_->bookVariable("dijetmass",       &myVBF_Mjj);	   
+                gbrVbfDiphoReader_->bookVariable("ptgg",            &myVBFDiPhoPtOverM);
+                fin->Close();
+            }
+            
+          } else {
+            tmvaVbfReader_ = new TMVA::Reader( "!Color:!Silent" );
+            
+            if (combinedmvaVbfSelection) {
+              tmvaVbfReader_->AddVariable("dijet_leadEta",    &myVBFLeadJEta);
+              tmvaVbfReader_->AddVariable("dijet_subleadEta", &myVBFSubJEta);
+              tmvaVbfReader_->AddVariable("dijet_LeadJPt",    &myVBFLeadJPt);
+              tmvaVbfReader_->AddVariable("dijet_SubJPt",     &myVBFSubJPt);
+              tmvaVbfReader_->AddVariable("dijet_Zep",        &myVBFZep);
+              if (!combinedmvaVbfSelection) {
+                tmvaVbfReader_->AddVariable("dijet_dPhi",       &myVBFdPhi);
+              } else {
+                tmvaVbfReader_->AddVariable("min(dijet_dPhi,2.916)", &myVBFdPhiTrunc);
+              }
+              tmvaVbfReader_->AddVariable("dijet_Mjj",        &myVBF_Mjj);	   
+              tmvaVbfReader_->AddVariable("dipho_pt/mass",    &myVBFDiPhoPtOverM);
+              
+              tmvaVbfDiphoReader_ = new TMVA::Reader("!Color:!Silent"); 
+              //tmvaVbfDiphoReader_->AddVariable("bdt_incl",                       &myVBFDIPHObdt);
+              //tmvaVbfDiphoReader_->AddVariable("bdt_dijet_sherpa_plusdiphoptom", &myVBF_MVA);
+              //tmvaVbfDiphoReader_->AddVariable("dipho_pt/mass",                  &myVBFDiPhoPtOverM);
+              tmvaVbfDiphoReader_->AddVariable("dipho_mva",                       &myVBFDIPHObdt);
+              tmvaVbfDiphoReader_->AddVariable("bdt_dijet_maxdPhi",               &myVBF_MVA);
+              tmvaVbfDiphoReader_->AddVariable("dipho_pt/mass",                  &myVBFDiPhoPtOverM);
+              tmvaVbfDiphoReader_->BookMVA(mvaVbfDiphoMethod, mvaVbfDiphoWeights);
+            } else {
+              tmvaVbfReader_->AddVariable("jet1pt"              , &myVBFLeadJPt);
+              tmvaVbfReader_->AddVariable("jet2pt"	          , &myVBFSubJPt);
+              tmvaVbfReader_->AddVariable("abs(jet1eta-jet2eta)", &myVBFdEta);
+              tmvaVbfReader_->AddVariable("mj1j2"		  , &myVBF_Mjj);
+              tmvaVbfReader_->AddVariable("zepp"		  , &myVBFZep);
+              tmvaVbfReader_->AddVariable("dphi"		  , &myVBFdPhi);
+              if( mvaVbfUseDiPhoPt ) {
+                tmvaVbfReader_->AddVariable("diphopt/diphoM"      , &myVBFDiPhoPtOverM);
+              }
+              if( mvaVbfUsePhoPt   ) {
+                tmvaVbfReader_->AddVariable("pho1pt/diphoM"	  , &myVBFLeadPhoPtOverM);
+                tmvaVbfReader_->AddVariable("pho2pt/diphoM"       , &myVBFSubPhoPtOverM);
+              }
+            }
+            
+            tmvaVbfReader_->BookMVA( mvaVbfMethod, mvaVbfWeights );
+          }
+        }
+        
+        if( mvaVbfSpin && (mvaVbfSelection || multiclassVbfSelection) )
+        {
+            tmvaVbfSpinReader_ = new TMVA::Reader( "!Color:!Silent" );
+            
+            tmvaVbfSpinReader_->AddVariable("absDeltaPhiJJ := abs(deltaPhiJJ)", &myVBFSpin_absDeltaPhiJJ);
+            tmvaVbfSpinReader_->AddVariable("absCosThetaJ1 := abs(cosThetaJ1)", &myVBFSpin_absCosThetaJ1);
+            tmvaVbfSpinReader_->AddVariable("absCosThetaJ2 := abs(cosThetaJ2)", &myVBFSpin_absCosThetaJ2);
+            
+            //tmvaVbfSpinReader_->AddVariable("absDeltaPhiJJS := abs(deltaPhiJJS)", &myVBFSpin_absDeltaPhiJJS);
+            tmvaVbfSpinReader_->AddVariable("absCosThetaS := abs(cosThetaS)", &myVBFSpin_absCosThetaS);
+            tmvaVbfSpinReader_->AddVariable("absDeltaPhiJJL := abs(deltaPhiJJL)", &myVBFSpin_absDeltaPhiJJL);
+            tmvaVbfSpinReader_->AddVariable("absCosThetaL := abs(cosThetaL)", &myVBFSpin_absCosThetaL);
+            
+            tmvaVbfSpinReader_->BookMVA( mvaVbfSpinMethod, mvaVbfSpinWeights );
+        }
+        
+        // n-1 plots for VH hadronic tag 2011
+        l.SetCutVariables("cut_VHhadLeadJPt",      &myVHhadLeadJPt);
+        l.SetCutVariables("cut_VHhadSubJPt",       &myVHhadSubJPt);
+        l.SetCutVariables("cut_VHhad_Mjj",         &myVHhad_Mjj);
+        l.SetCutVariables("cut_VHhad_dEta",        &myVHhaddEta);
+        l.SetCutVariables("cut_VHhad_Zep",         &myVHhadZep);
+        l.SetCutVariables("cut_VHhad_dPhi",        &myVHhaddPhi);
+        l.SetCutVariables("cut_VHhad_Mgg0",        &myVHhad_Mgg);
+        l.SetCutVariables("cut_VHhad_Mgg2",        &myVHhad_Mgg);
+        l.SetCutVariables("cut_VHhad_Mgg4",        &myVHhad_Mgg);
+        l.SetCutVariables("cut_VHhad_Mgg10",        &myVHhad_Mgg);
+        l.SetCutVariables("cut_VHhad_Mgg2_100_160",        &myVHhad_Mgg);
+        l.SetCutVariables("cut_VHhad_Mgg4_100_160",        &myVHhad_Mgg);
+        
+        // n-1 plot for ClassicCats
+        l.SetCutVariables("cutnm1hir9EB_r9",             &sublead_r9);
+        l.SetCutVariables("cutnm1hir9EB_isoOverEt",      &sublead_isoOverEt);
+        l.SetCutVariables("cutnm1hir9EB_badisoOverEt",   &sublead_badisoOverEt);
+        l.SetCutVariables("cutnm1hir9EB_trkisooet",      &sublead_trkisooet);
+        l.SetCutVariables("cutnm1hir9EB_sieie",          &sublead_sieie);
+        l.SetCutVariables("cutnm1hir9EB_drtotk",         &sublead_drtotk);
+        l.SetCutVariables("cutnm1hir9EB_hovere",         &sublead_hovere);
+        l.SetCutVariables("cutnm1hir9EB_Mgg",            &sublead_mgg);
+        
+        l.SetCutVariables("cutnm1lor9EB_r9",             &sublead_r9);
+        l.SetCutVariables("cutnm1lor9EB_isoOverEt",      &sublead_isoOverEt);
+        l.SetCutVariables("cutnm1lor9EB_badisoOverEt",   &sublead_badisoOverEt);
+        l.SetCutVariables("cutnm1lor9EB_trkisooet",      &sublead_trkisooet);
+        l.SetCutVariables("cutnm1lor9EB_sieie",          &sublead_sieie);
+        l.SetCutVariables("cutnm1lor9EB_drtotk",         &sublead_drtotk);
+        l.SetCutVariables("cutnm1lor9EB_hovere",         &sublead_hovere);
+        l.SetCutVariables("cutnm1lor9EB_Mgg",            &sublead_mgg);
+        
+        l.SetCutVariables("cutnm1hir9EE_r9",             &sublead_r9);
+        l.SetCutVariables("cutnm1hir9EE_isoOverEt",      &sublead_isoOverEt);
+        l.SetCutVariables("cutnm1hir9EE_badisoOverEt",   &sublead_badisoOverEt);
+        l.SetCutVariables("cutnm1hir9EE_trkisooet",      &sublead_trkisooet);
+        l.SetCutVariables("cutnm1hir9EE_sieie",          &sublead_sieie);
+        l.SetCutVariables("cutnm1hir9EE_drtotk",         &sublead_drtotk);
+        l.SetCutVariables("cutnm1hir9EE_hovere",         &sublead_hovere);
+        l.SetCutVariables("cutnm1hir9EE_Mgg",            &sublead_mgg);
+        
+        l.SetCutVariables("cutnm1lor9EE_r9",             &sublead_r9);
+        l.SetCutVariables("cutnm1lor9EE_isoOverEt",      &sublead_isoOverEt);
+        l.SetCutVariables("cutnm1lor9EE_badisoOverEt",   &sublead_badisoOverEt);
+        l.SetCutVariables("cutnm1lor9EE_trkisooet",      &sublead_trkisooet);
+        l.SetCutVariables("cutnm1lor9EE_sieie",          &sublead_sieie);
+        l.SetCutVariables("cutnm1lor9EE_drtotk",         &sublead_drtotk);
+        l.SetCutVariables("cutnm1lor9EE_hovere",         &sublead_hovere);
+        l.SetCutVariables("cutnm1lor9EE_Mgg",            &sublead_mgg);
+        
+        if(includeVHlep) {
+            l.SetCutVariables("cutEl_leptonSig",    &myEl_leptonSig);
+            l.SetCutVariables("cutEl_elpt",         &myEl_elpt);
+            l.SetCutVariables("cutEl_oEsuboP",      &myEl_oEsuboP);
+            l.SetCutVariables("cutEl_D0",           &myEl_D0     );
+            l.SetCutVariables("cutEl_DZ",           &myEl_DZ     );
+            l.SetCutVariables("cutEl_mishit",       &myEl_mishit );
+            l.SetCutVariables("cutEl_conv",         &myEl_conv   );
+            l.SetCutVariables("cutEl_detain",       &myEl_detain );
+            l.SetCutVariables("cutEl_dphiin",       &myEl_dphiin );
+            l.SetCutVariables("cutEl_sieie",        &myEl_sieie  );
+            l.SetCutVariables("cutEl_sieie2",       &myEl_sieie  );
+            l.SetCutVariables("cutEl_hoe",          &myEl_hoe    );
+            l.SetCutVariables("cutEl_drlead",       &myEl_drlead );
+            l.SetCutVariables("cutEl_drsub",        &myEl_drsub  );
+            l.SetCutVariables("cutEl_melead",       &myEl_melead );
+            l.SetCutVariables("cutEl_meleadveto10", &myEl_meleadveto10 );
+            l.SetCutVariables("cutEl_meleadveto15", &myEl_meleadveto15 );
+            l.SetCutVariables("cutEl_mesub",        &myEl_mesub  );
+            l.SetCutVariables("cutEl_mesubveto5",   &myEl_mesubveto5  );
+            l.SetCutVariables("cutEl_mesubveto10",  &myEl_mesubveto10  );
+            l.SetCutVariables("cutEl_reliso",       &myEl_reliso );
+            l.SetCutVariables("cutEl_iso",          &myEl_iso    );
+            l.SetCutVariables("cutEl_mvaNonTrig",   &myEl_mvaNonTrig);
+            l.SetCutVariables("cutEl_dZ_ee",        &myEl_dZ_ee);
+            l.SetCutVariables("cutEl_mass_ee",      &myEl_mass_ee);
+            l.SetCutVariables("cutEl_inwindow_ee",  &myEl_inwindow_ee);
+            l.SetCutVariables("cutEl_ptlead",       &myEl_ptlead    );
+            l.SetCutVariables("cutEl_ptsub",        &myEl_ptsub     );
+            l.SetCutVariables("cutEl_ptleadom",       &myEl_ptleadom    );
+            l.SetCutVariables("cutEl_ptsubom",        &myEl_ptsubom     );
+            l.SetCutVariables("cutEl_elvetolead",   &myEl_elvetolead);
+            l.SetCutVariables("cutEl_elvetosub",    &myEl_elvetosub );
+            l.SetCutVariables("cutEl_ptgg",         &myEl_ptgg      );
+            l.SetCutVariables("cutEl_phomaxeta",    &myEl_phomaxeta );
+            l.SetCutVariables("cutEl_sumpt3",       &myEl_sumpt3    );
+            l.SetCutVariables("cutEl_sumpt4",       &myEl_sumpt4    );
+            l.SetCutVariables("cutEl_dRtklead",     &myEl_dRtklead  );
+            l.SetCutVariables("cutEl_dRtksub",      &myEl_dRtksub   );
+            l.SetCutVariables("cutEl_MVAlead",      &myEl_MVAlead   );
+            l.SetCutVariables("cutEl_MVAsub",       &myEl_MVAsub    );
+            l.SetCutVariables("cutEl_diphomva",     &myEl_diphomva  );
+            l.SetCutVariables("cutEl_CiClead",      &myEl_CiClead   );
+            l.SetCutVariables("cutEl_CiCsub",       &myEl_CiCsub    );
+            l.SetCutVariables("cutEl_mgg",          &myEl_mgg       );
+            l.SetCutVariables("cutEl_MET",          &myEl_MET       );
+            l.SetCutVariables("cutEl_METphi",       &myEl_METphi    );
+            l.SetCutVariables("cutEl_presellead",   &myEl_presellead );
+            l.SetCutVariables("cutEl_matchellead",  &myEl_matchellead);
+            l.SetCutVariables("cutEl_preselsub",    &myEl_preselsub  );
+            l.SetCutVariables("cutEl_matchelsub",   &myEl_matchelsub );
+            l.SetCutVariables("cutEl_category",     &myEl_category );
+            l.SetCutVariables("cutEl_ElePho",       &myEl_ElePho );
+            l.SetCutVariables("cutEl_passelcuts",   &myEl_passelcuts );
+        }
     }
 
     // CiC initialization
@@ -1325,18 +1372,6 @@ void PhotonAnalysis::Init(LoopAll& l)
         ptreweighfile->Close();
     }
 
-    // Load up instances of PhotonFix for local coordinate calculations
-    /*
-        PhotonFix::initialise("4_2",photonFixDat);
-        std::cout << "Regression corrections from -> " << regressionFile.c_str() << std::endl;
-        fgbr = new TFile(regressionFile.c_str(),"READ");
-        fReadereb = (GBRForest*)fgbr->Get("EBCorrection");
-        fReaderebvariance = (GBRForest*)fgbr->Get("EBUncertainty");
-        fReaderee = (GBRForest*)fgbr->Get("EECorrection");
-        fReadereevariance = (GBRForest*)fgbr->Get("EEUncertainty");
-        fgbr->Close();
-    */
-
     if( l.typerun == LoopAll::kReduce ) {
         // ---------------------- LOAD Regression Classes ---------------------//
         // Implementation copied over from ... 
@@ -1437,27 +1472,27 @@ void PhotonAnalysis::Init(LoopAll& l)
    // FIXME book of additional variables
 
     if(optimizeMVA){
-    // Initialize all MVA ---------------------------------------------------//
-    l.SetAllMVA();
-    // UCSD 
-    l.tmvaReaderID_UCSD->BookMVA("Gradient"      ,photonLevelMvaUCSD.c_str()  );
-    l.tmvaReader_dipho_UCSD->BookMVA("Gradient"  ,eventLevelMvaUCSD.c_str()   );
-    // New ID MVA 
-    if( photonLevel2012IDMVA_EB != "" && photonLevel2012IDMVA_EE != "" ) {
-        l.tmvaReaderID_Single_Barrel->BookMVA("AdaBoost",photonLevel2012IDMVA_EB.c_str());
-        l.tmvaReaderID_Single_Endcap->BookMVA("AdaBoost",photonLevel2012IDMVA_EE.c_str());
-    } else {
-        assert( run7TeV4Xanalysis );
-    }
-    // MIT 
-    if( photonLevel2011IDMVA_EB != "" && photonLevel2011IDMVA_EE != "" ) {
-        l.tmvaReaderID_MIT_Barrel->BookMVA("AdaBoost",photonLevel2011IDMVA_EB.c_str());
-        l.tmvaReaderID_MIT_Endcap->BookMVA("AdaBoost",photonLevel2011IDMVA_EE.c_str());
-    } else {
-        assert( ! run7TeV4Xanalysis );
-    }
-    l.tmvaReader_dipho_MIT->BookMVA("Gradient"   ,eventLevelMvaMIT.c_str()    );
-    // ----------------------------------------------------------------------//    
+        // Initialize all MVA ---------------------------------------------------//
+        l.SetAllMVA();
+        // UCSD 
+        l.tmvaReaderID_UCSD->BookMVA("Gradient"      ,photonLevelMvaUCSD.c_str()  );
+        l.tmvaReader_dipho_UCSD->BookMVA("Gradient"  ,eventLevelMvaUCSD.c_str()   );
+        // New ID MVA 
+        if( photonLevel2012IDMVA_EB != "" && photonLevel2012IDMVA_EE != "" ) {
+            l.tmvaReaderID_Single_Barrel->BookMVA("AdaBoost",photonLevel2012IDMVA_EB.c_str());
+            l.tmvaReaderID_Single_Endcap->BookMVA("AdaBoost",photonLevel2012IDMVA_EE.c_str());
+        } else {
+            assert( run7TeV4Xanalysis );
+        }
+        // MIT 
+        if( photonLevel2011IDMVA_EB != "" && photonLevel2011IDMVA_EE != "" ) {
+            l.tmvaReaderID_MIT_Barrel->BookMVA("AdaBoost",photonLevel2011IDMVA_EB.c_str());
+            l.tmvaReaderID_MIT_Endcap->BookMVA("AdaBoost",photonLevel2011IDMVA_EE.c_str());
+        } else {
+            assert( ! run7TeV4Xanalysis );
+        }
+        l.tmvaReader_dipho_MIT->BookMVA("Gradient"   ,eventLevelMvaMIT.c_str()    );
+        // ----------------------------------------------------------------------//    
     }
     
     if (bdtTrainingType == "") {
@@ -1473,45 +1508,45 @@ void PhotonAnalysis::setupEscaleSmearer()
 {
     if( splitEscaleSyst ) {
         EnergySmearer::energySmearingParameters::eScaleVector tmp_scale_offset;
-	EnergySmearer::energySmearingParameters::phoCatVector tmp_scale_cat;
-	readEnergyScaleOffsets(scale_offset_corr_error_file, tmp_scale_offset, tmp_scale_cat,false);
-	assert( tmp_scale_offset.size() == 1); assert( ! tmp_scale_cat.empty() );
-
-	eScaleCorrPars.categoryType = "Automagic";
-	eScaleCorrPars.byRun = false;
+        EnergySmearer::energySmearingParameters::phoCatVector tmp_scale_cat;
+        readEnergyScaleOffsets(scale_offset_corr_error_file, tmp_scale_offset, tmp_scale_cat,false);
+        assert( tmp_scale_offset.size() == 1); assert( ! tmp_scale_cat.empty() );
+        
+        eScaleCorrPars.categoryType = "Automagic";
+        eScaleCorrPars.byRun = false;
         eScaleCorrPars.n_categories = tmp_scale_cat.size();
         eScaleCorrPars.photon_categories = tmp_scale_cat;
-
-	eScaleCorrPars.scale_offset = tmp_scale_offset[0].scale_offset;
+        
+        eScaleCorrPars.scale_offset = tmp_scale_offset[0].scale_offset;
         eScaleCorrPars.scale_offset_error = tmp_scale_offset[0].scale_offset_error;
-
+        
         eScaleCorrPars.smearing_sigma = tmp_scale_offset[0].scale_offset;
         eScaleCorrPars.smearing_stocastic_sigma = tmp_scale_offset[0].scale_stocastic_offset;
         eScaleCorrPars.smearing_sigma_error = tmp_scale_offset[0].scale_offset_error;
-
-	EnergySmearer::energySmearingParameters::phoCatVectorIt icat = tmp_scale_cat.begin();
-	for( ; icat != tmp_scale_cat.end(); ++icat ) {
-	    EnergySmearer * theSmear = new EnergySmearer( eScaleSmearer, EnergySmearer::energySmearingParameters::phoCatVector(1,*icat) );
-	    theSmear->name( eScaleSmearer->name()+"_"+icat->name );
-	    theSmear->syst_only(true);
-	    std::cout << "Uncorrelated single photon category smearer " << theSmear->name() << std::endl;
-	    photonSmearers_.push_back(theSmear);
-	    eScaleSmearers_.push_back(theSmear);
-	}
-
-	eScaleCorrSmearer = new EnergySmearer( eScaleCorrPars );
-	eScaleCorrSmearer->name("E_scaleCorr");
-	eScaleCorrSmearer->doEnergy(true);
-	eScaleCorrSmearer->scaleOrSmear(true);
-	eScaleCorrSmearer->syst_only(true);
-	photonSmearers_.push_back(eScaleCorrSmearer);
-	eScaleSmearers_.push_back(eScaleCorrSmearer);
-
-	std::cout << "Uncorrelated single photon category smearer " << eScaleCorrSmearer->name() << std::endl;
-
+        
+        EnergySmearer::energySmearingParameters::phoCatVectorIt icat = tmp_scale_cat.begin();
+        for( ; icat != tmp_scale_cat.end(); ++icat ) {
+            EnergySmearer * theSmear = new EnergySmearer( eScaleSmearer, EnergySmearer::energySmearingParameters::phoCatVector(1,*icat) );
+            theSmear->name( eScaleSmearer->name()+"_"+icat->name );
+            theSmear->syst_only(true);
+            std::cout << "Uncorrelated single photon category smearer " << theSmear->name() << std::endl;
+            photonSmearers_.push_back(theSmear);
+            eScaleSmearers_.push_back(theSmear);
+        }
+        
+        eScaleCorrSmearer = new EnergySmearer( eScaleCorrPars );
+        eScaleCorrSmearer->name("E_scaleCorr");
+        eScaleCorrSmearer->doEnergy(true);
+        eScaleCorrSmearer->scaleOrSmear(true);
+        eScaleCorrSmearer->syst_only(true);
+        photonSmearers_.push_back(eScaleCorrSmearer);
+        eScaleSmearers_.push_back(eScaleCorrSmearer);
+        
+        std::cout << "Uncorrelated single photon category smearer " << eScaleCorrSmearer->name() << std::endl;
+        
     } else {
-	photonSmearers_.push_back(eScaleSmearer);
-	eScaleSmearers_.push_back(eScaleSmearer);
+        photonSmearers_.push_back(eScaleSmearer);
+        eScaleSmearers_.push_back(eScaleSmearer);
     }
 }
 
@@ -1534,11 +1569,11 @@ void PhotonAnalysis::setupEresolSmearer()
         EnergySmearer::energySmearingParameters::eScaleVector tmp_smearing;
         EnergySmearer::energySmearingParameters::phoCatVector tmp_smearing_cat;
         readEnergyScaleOffsets(corr_smearing_file, tmp_smearing, tmp_smearing_cat,false);
-
+        
         // make sure that the scale correction and smearing info is as expected
         assert( tmp_smearing.size() == 1 );
         assert( ! tmp_smearing_cat.empty() );
-
+        
         // copy the read info to the smarer parameters
         eResolCorrPars.categoryType = "Automagic";
         eResolCorrPars.byRun = false;
@@ -1551,28 +1586,28 @@ void PhotonAnalysis::setupEresolSmearer()
         eResolCorrPars.smearing_sigma = tmp_smearing[0].scale_offset;
         eResolCorrPars.smearing_stocastic_sigma = tmp_smearing[0].scale_stocastic_offset;
         eResolCorrPars.smearing_sigma_error = tmp_smearing[0].scale_offset_error;
-
-	EnergySmearer::energySmearingParameters::phoCatVectorIt icat = tmp_smearing_cat.begin();
-	for( ; icat != tmp_smearing_cat.end(); ++icat ) {
-	    EnergySmearer * theSmear = new EnergySmearer( eResolSmearer, EnergySmearer::energySmearingParameters::phoCatVector(1,*icat) );
-	    theSmear->name( eResolSmearer->name()+"_"+icat->name );
-	    std::cout << "Uncorrelated single photon category smearer " << theSmear->name() << std::endl;
-	    photonSmearers_.push_back(theSmear);
-	    eResolSmearers_.push_back(theSmear);
-	}
-
-	eResolCorrSmearer = new EnergySmearer( eResolCorrPars );
-	eResolCorrSmearer->name("E_resCorr");
-	eResolCorrSmearer->doEnergy(true);
-	eResolCorrSmearer->scaleOrSmear(true);
-	eResolCorrSmearer->syst_only(true);
-	photonSmearers_.push_back(eResolCorrSmearer);
-	eResolSmearers_.push_back(eResolCorrSmearer);
-	std::cout << "Uncorrelated single photon category smearer " << eResolCorrSmearer->name() << std::endl;
-
+        
+        EnergySmearer::energySmearingParameters::phoCatVectorIt icat = tmp_smearing_cat.begin();
+        for( ; icat != tmp_smearing_cat.end(); ++icat ) {
+            EnergySmearer * theSmear = new EnergySmearer( eResolSmearer, EnergySmearer::energySmearingParameters::phoCatVector(1,*icat) );
+            theSmear->name( eResolSmearer->name()+"_"+icat->name );
+            std::cout << "Uncorrelated single photon category smearer " << theSmear->name() << std::endl;
+            photonSmearers_.push_back(theSmear);
+            eResolSmearers_.push_back(theSmear);
+        }
+        
+        eResolCorrSmearer = new EnergySmearer( eResolCorrPars );
+        eResolCorrSmearer->name("E_resCorr");
+        eResolCorrSmearer->doEnergy(true);
+        eResolCorrSmearer->scaleOrSmear(true);
+        eResolCorrSmearer->syst_only(true);
+        photonSmearers_.push_back(eResolCorrSmearer);
+        eResolSmearers_.push_back(eResolCorrSmearer);
+        std::cout << "Uncorrelated single photon category smearer " << eResolCorrSmearer->name() << std::endl;
+        
     } else {
-	photonSmearers_.push_back(eResolSmearer);
-	eResolSmearers_.push_back(eResolSmearer);
+        photonSmearers_.push_back(eResolSmearer);
+        eResolSmearers_.push_back(eResolSmearer);
     }
 }
 
@@ -1580,10 +1615,10 @@ void PhotonAnalysis::setupEresolSmearer()
 void PhotonAnalysis::setupEresolSyst(LoopAll &l)
 {
     for(std::vector<EnergySmearer*>::iterator ei=eResolSmearers_.begin(); ei!=eResolSmearers_.end(); ++ei){
-	systPhotonSmearers_.push_back( *ei );
-	std::vector<std::string> sys(1,(*ei)->name());
-	std::vector<int> sys_t(1,-1);   // -1 for signal, 1 for background 0 for both
-	l.rooContainer->MakeSystematicStudy(sys,sys_t);
+        systPhotonSmearers_.push_back( *ei );
+        std::vector<std::string> sys(1,(*ei)->name());
+        std::vector<int> sys_t(1,-1);   // -1 for signal, 1 for background 0 for both
+        l.rooContainer->MakeSystematicStudy(sys,sys_t);
     }
 }
 
@@ -3854,6 +3889,13 @@ bool PhotonAnalysis::VBFTag2012(int & ijet1, int & ijet2,
             // 	    if(nm1 && tag && myVBF_Mgg>massMin && myVBF_Mgg<massMax ) {
             // 		l.FillCutPlots(0,1,"_sequential",eventweight,myweight);
             // 	    }
+            if( doDiphoMvaUpFront ) {
+              if( vbfVsDiphoVbfSelection ) {
+                tag = tag && ( l.dipho_BDT[diphoton_id] > multiclassVbfCatBoundaries1.back() );
+              } else {
+                tag = tag && ( l.dipho_BDT[diphoton_id] > bdtCategoryBoundaries.back() );
+              }
+            }
         }
     } else {
         if(nm1){
@@ -3901,8 +3943,8 @@ bool PhotonAnalysis::VBFTag2013(int & ijet1, int & ijet2, LoopAll& l, int& dipho
 
         int vbfcat=-1;
         myVBFDIPHObdt   = l.dipho_BDT[diphotonVBF_id];
-        myVBF_MVA       = tmvaVbfReader_->EvaluateMVA(mvaVbfMethod);
-        myVBFcombined   = tmvaVbfDiphoReader_->EvaluateMVA(mvaVbfDiphoMethod);
+        myVBF_MVA       = (useGbrVbfMva ? gbrVbfReader_->eval()      : tmvaVbfReader_->EvaluateMVA(mvaVbfMethod)           );
+        myVBFcombined   = (useGbrVbfMva ? gbrVbfDiphoReader_->eval() : tmvaVbfDiphoReader_->EvaluateMVA(mvaVbfDiphoMethod) );
 
         if(PADEBUG) std::cout<<"dipho dijet pt/m combined "<<myVBFDIPHObdt<<" "<<myVBF_MVA<<" "<<myVBFDiPhoPtOverM<<" "<<myVBFcombined<<std::endl;
 
