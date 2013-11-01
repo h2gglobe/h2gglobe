@@ -3304,7 +3304,7 @@ int LoopAll::PhotonCiCPFSelectionLevel( int photon_index, int vertex_index, std:
     float val_ecalisobad   = pho_pfiso_myphoton04[photon_index];
     float val_sieie        = pho_sieie[photon_index];
     float val_hoe          = pho_hoe[photon_index];
-    float val_r9           = pho_r9[photon_index];
+    float val_r9           = pho_r9_cic[photon_index];
     float val_conv         = pho_isconv[photon_index];
 
     float rhofacbad=0.23, rhofac=0.09;

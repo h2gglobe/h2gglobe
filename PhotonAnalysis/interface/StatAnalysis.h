@@ -18,6 +18,8 @@
 #include <fstream>
 #include "math.h"
 
+#include "branchdef/Limits.h"
+
 // ------------------------------------------------------------------------------------
 class StatAnalysis : public PhotonAnalysis 
 {
@@ -81,7 +83,7 @@ class StatAnalysis : public PhotonAnalysis
 		     Float_t myVBFSubJPt, Int_t nVBFDijetJetCategories, bool isSyst, std::string name1);
 
     int nDataBins;  
-    bool scaleClusterShapes, scaleR9Only;
+    bool scaleClusterShapes, scaleR9Only, scaleR9ForCicOnly;
     bool dumpAscii, dumpMcAscii;
 
     std::vector<double> zeePtBinLowEdge, zeePtWeight;
@@ -133,6 +135,8 @@ class StatAnalysis : public PhotonAnalysis
     std::vector<float> smeared_pho_energy;
     std::vector<float> smeared_pho_r9;
     std::vector<float> smeared_pho_weight;
+    
+    Float_t corrected_pho_r9[MAX_PHOTONS];
 
     void  computeExclusiveCategory(LoopAll & l, int & category, std::pair<int,int> diphoton_index, float pt, float diphoBDT=1., bool mvaselection=false);
     void computeSpinCategory(LoopAll &l, int &category, TLorentzVector lead_p4, TLorentzVector sublead_p4);
