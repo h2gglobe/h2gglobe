@@ -2304,7 +2304,7 @@ void StatAnalysis::fillOpTree(LoopAll& l, const TLorentzVector & lead_p4, const 
         
         l.FillTree("dipho_mva", (float)diphobdt_output);
         l.FillTree("dipho_mva_cat", (float)category);
-        if (diphobdt_output>=-0.05) computeExclusiveCategory(l,category,diphoton_index,Higgs.Pt(),diphobdt_output); 
+        if (diphobdt_output>=bdtCategoryBoundaries.back()) computeExclusiveCategory(l,category,diphoton_index,Higgs.Pt(),diphobdt_output); 
     }
 };
 
