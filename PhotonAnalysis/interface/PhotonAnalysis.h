@@ -404,7 +404,7 @@ class PhotonAnalysis : public BaseAnalysis
     float myVBFSpin_absDeltaPhiJJL;
 
     bool useGbrVbfMva;
-    std::string gbrVbfFile, gbrVbfDiphoFile;
+    std::string gbrVbfFile, gbrVbfDiPhoFile;
     
     bool bookDiPhoCutsInVbf;
     bool mvaVbfSelection, mvaVbfUseDiPhoPt, mvaVbfUsePhoPt;
