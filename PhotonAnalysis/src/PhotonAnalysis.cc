@@ -869,16 +869,16 @@ void PhotonAnalysis::Init(LoopAll& l)
                 fin = TFile::Open(gbrVbfDiPhoFile.c_str());
                 ws = (RooWorkspace*) (fin->Get("wsfitmc")->Clone());
                 gbrVbfDiphoReader_ = new RooFuncReader(ws,"sigVBFxxb","trainingvars");
-                gbrVbfDiphoReader_->bookVariable("masserr",         &l.tmva_dipho_MIT_dmom);
-                gbrVbfDiphoReader_->bookVariable("masserrwrongvtx", &l.tmva_dipho_MIT_dmom_wrong_vtx);
-                gbrVbfDiphoReader_->bookVariable("vtxprob",         &l.tmva_dipho_MIT_vtxprob);
-                gbrVbfDiphoReader_->bookVariable("pt1",             &l.tmva_dipho_MIT_ptom1);
-                gbrVbfDiphoReader_->bookVariable("pt2",             &l.tmva_dipho_MIT_ptom2);
-                gbrVbfDiphoReader_->bookVariable("eta1",            &l.tmva_dipho_MIT_eta1);
-                gbrVbfDiphoReader_->bookVariable("eta2",            &l.tmva_dipho_MIT_eta2);
-                gbrVbfDiphoReader_->bookVariable("dphi",            &l.tmva_dipho_MIT_dphi);
-                gbrVbfDiphoReader_->bookVariable("idmva1",          &l.tmva_dipho_MIT_ph1mva);
-                gbrVbfDiphoReader_->bookVariable("idmva2",          &l.tmva_dipho_MIT_ph2mva);
+                gbrVbfDiphoReader_->bookVariable("masserr",         l.tmva_dipho_MIT_dmom);
+                gbrVbfDiphoReader_->bookVariable("masserrwrong",    l.tmva_dipho_MIT_dmom_wrong_vtx);
+                gbrVbfDiphoReader_->bookVariable("vtxprob",         l.tmva_dipho_MIT_vtxprob);
+                gbrVbfDiphoReader_->bookVariable("pt1",             l.tmva_dipho_MIT_ptom1);
+                gbrVbfDiphoReader_->bookVariable("pt2",             l.tmva_dipho_MIT_ptom2);
+                gbrVbfDiphoReader_->bookVariable("eta1",            l.tmva_dipho_MIT_eta1);
+                gbrVbfDiphoReader_->bookVariable("eta2",            l.tmva_dipho_MIT_eta2);
+                gbrVbfDiphoReader_->bookVariable("dphi",            l.tmva_dipho_MIT_dphi);
+                gbrVbfDiphoReader_->bookVariable("idmva1",          l.tmva_dipho_MIT_ph1mva);
+                gbrVbfDiphoReader_->bookVariable("idmva2",          l.tmva_dipho_MIT_ph2mva);
                 gbrVbfDiphoReader_->bookVariable("jeteta1",         &myVBFLeadJEta);
                 gbrVbfDiphoReader_->bookVariable("jeteta2",         &myVBFSubJEta);
                 gbrVbfDiphoReader_->bookVariable("jetpt1",          &myVBFLeadJPt);
@@ -886,7 +886,6 @@ void PhotonAnalysis::Init(LoopAll& l)
                 gbrVbfDiphoReader_->bookVariable("zeppenfeld",      &myVBFZep);
                 gbrVbfDiphoReader_->bookVariable("dphidijetgg",     &myVBFdPhiTrunc);
                 gbrVbfDiphoReader_->bookVariable("dijetmass",       &myVBF_Mjj);	   
-                gbrVbfDiphoReader_->bookVariable("ptgg",            &myVBFDiPhoPtOverM);
                 fin->Close();
             }
             
@@ -3214,7 +3213,7 @@ bool PhotonAnalysis::ElectronStudies2012B(LoopAll& l, float* smeared_pho_energy,
     float vtxProb   = 1.-0.49*(vtx_mva+1.0); /// should better use this: vtxAna_.setPairID(diphoton_id); vtxAna_.vertexProbability(vtx_mva); PM
     if( debuglocal ) std::cout<<"test02"<<std::endl;
 
-	float diphobdt_output = l.diphotonMVA(l.dipho_leadind[diphotonVHlep_id], l.dipho_subleadind[diphotonVHlep_id], elVtx,
+	float diphobdt_output = l.diphotonMVA(-1,l.dipho_leadind[diphotonVHlep_id], l.dipho_subleadind[diphotonVHlep_id], elVtx,
                                           vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMeonly,
                                           bdtTrainingPhilosophy.c_str(), bdtTrainingType.c_str(),
                                           myEl_MVAlead,myEl_MVAsub);
@@ -3452,7 +3451,7 @@ bool PhotonAnalysis::ElectronTagStudies2012(LoopAll& l, int diphotonVHlep_id, fl
     float vtxProb   = 1.-0.49*(vtx_mva+1.0); /// should better use this: vtxAna_.setPairID(diphoton_id); vtxAna_.vertexProbability(vtx_mva); PM
     if( debuglocal ) std::cout<<"test02"<<std::endl;
 
-	float diphobdt_output = l.diphotonMVA(leadpho_ind, subleadpho_ind, elVtx,
+	float diphobdt_output = l.diphotonMVA(-1,leadpho_ind, subleadpho_ind, elVtx,
                                           vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMeonly,
                                           bdtTrainingPhilosophy.c_str(), bdtTrainingType.c_str(),
                                           myEl_MVAlead,myEl_MVAsub);
@@ -3932,6 +3931,13 @@ bool PhotonAnalysis::VBFTag2013(int & ijet1, int & ijet2, LoopAll& l, int& dipho
     
 
     if(mvaselection){
+        if( useGbrVbfMva ) {
+            assert( doDiphoMvaUpFront );
+            // Load di-photon MVA inputs for this di-photon so that we can calculate the 
+            // combined BDT
+            l.tmva_dipho_MIT_buf = l.tmva_dipho_MIT_cache.find(diphotonVBF_id)->second;
+        }
+        
         if(PADEBUG) std::cout<<"myVBFLeadJPt myVBFSubJPt myVBF_Mjj "<<myVBFLeadJPt<<" "<<myVBFSubJPt<<" "<<myVBF_Mjj<<std::endl;
         if( !(myVBFLeadJPt>30. && myVBFSubJPt>20. && myVBF_Mjj > 250.) ) { // FIXME hardcoded pre-selection thresholds
             return tag;
@@ -3940,7 +3946,7 @@ bool PhotonAnalysis::VBFTag2013(int & ijet1, int & ijet2, LoopAll& l, int& dipho
         if( myVBF_Mgg>massMin && myVBF_Mgg<massMax) {
             l.FillCutPlots(0,1,"_nminus1",eventweight,myweight);
         }
-
+        
         int vbfcat=-1;
         myVBFDIPHObdt   = l.dipho_BDT[diphotonVBF_id];
         myVBF_MVA       = (useGbrVbfMva ? gbrVbfReader_->eval()      : tmvaVbfReader_->EvaluateMVA(mvaVbfMethod)           );
@@ -5449,17 +5455,17 @@ void PhotonAnalysis::saveDatCardTree(LoopAll &l, int cur_type, int category, int
     float smear_err = ComputeEventSmearError(l,ipho1,ipho2,smear1,smear1_err,smear1,smear1_err);
 
     if (!isCutBased){ 
-        float bdtout = l.diphotonMVA(ipho1,ipho2,ivtx,vtxP,lead_p4,sublead_p4,sigmaMrv, sigmaMwv, sigmaMeonly, trainPhil.c_str(), bdtType.c_str(), lead_id_mva, sublead_id_mva);
+        float bdtout = l.diphotonMVA(-1,ipho1,ipho2,ivtx,vtxP,lead_p4,sublead_p4,sigmaMrv, sigmaMwv, sigmaMeonly, trainPhil.c_str(), bdtType.c_str(), lead_id_mva, sublead_id_mva);
         
         // calculate diphobdt given shift in idMVA
-        float bdtout_id_up   = l.diphotonMVA(ipho1,ipho2,ivtx,vtxP,lead_p4,sublead_p4,sigmaMrv, sigmaMwv, sigmaMeonly, trainPhil.c_str(), bdtType.c_str(), lead_id_mva+0.01, sublead_id_mva+0.01);
-        float bdtout_id_down = l.diphotonMVA(ipho1,ipho2,ivtx,vtxP,lead_p4,sublead_p4,sigmaMrv, sigmaMwv, sigmaMeonly, trainPhil.c_str(), bdtType.c_str(), lead_id_mva-0.01, sublead_id_mva-0.01);
+        float bdtout_id_up   = l.diphotonMVA(-1,ipho1,ipho2,ivtx,vtxP,lead_p4,sublead_p4,sigmaMrv, sigmaMwv, sigmaMeonly, trainPhil.c_str(), bdtType.c_str(), lead_id_mva+0.01, sublead_id_mva+0.01);
+        float bdtout_id_down = l.diphotonMVA(-1,ipho1,ipho2,ivtx,vtxP,lead_p4,sublead_p4,sigmaMrv, sigmaMwv, sigmaMeonly, trainPhil.c_str(), bdtType.c_str(), lead_id_mva-0.01, sublead_id_mva-0.01);
         
         // calculate diphobdt given shift in sigmaE from regression
         pair<double,double> newSigmaMsUp = ComputeNewSigmaMs(l,ipho1,ipho2,ivtx,1.);
         pair<double,double> newSigmaMsDown = ComputeNewSigmaMs(l,ipho1,ipho2,ivtx,-1.);
-        float bdtout_sigE_up =   l.diphotonMVA(ipho1,ipho2,ivtx,vtxP,lead_p4,sublead_p4,newSigmaMsUp.first, newSigmaMsUp.second, newSigmaMsUp.first, trainPhil.c_str(), bdtType.c_str(), lead_id_mva, sublead_id_mva);
-        float bdtout_sigE_down = l.diphotonMVA(ipho1,ipho2,ivtx,vtxP,lead_p4,sublead_p4,newSigmaMsDown.first, newSigmaMsDown.second, newSigmaMsDown.first, trainPhil.c_str(), bdtType.c_str(), lead_id_mva, sublead_id_mva);
+        float bdtout_sigE_up =   l.diphotonMVA(-1,ipho1,ipho2,ivtx,vtxP,lead_p4,sublead_p4,newSigmaMsUp.first, newSigmaMsUp.second, newSigmaMsUp.first, trainPhil.c_str(), bdtType.c_str(), lead_id_mva, sublead_id_mva);
+        float bdtout_sigE_down = l.diphotonMVA(-1,ipho1,ipho2,ivtx,vtxP,lead_p4,sublead_p4,newSigmaMsDown.first, newSigmaMsDown.second, newSigmaMsDown.first, trainPhil.c_str(), bdtType.c_str(), lead_id_mva, sublead_id_mva);
         
         l.FillTree("bdtout",bdtout,"datacard_trees");
         l.FillTree("bdtout_id_up",bdtout_id_up,"datacard_trees");
@@ -5869,7 +5875,7 @@ float PhotonAnalysis::getDiphoBDTOutput(LoopAll &l,int diphoton_id, TLorentzVect
     float sigmaMeonly = massResolutionCalculator->massResolutionEonly();
     
     //diphoton mva                                                                                                                                                     
-    float diphobdt_output = l.diphotonMVA(l.dipho_leadind[diphoton_id],l.dipho_subleadind[diphoton_id],0 ,//vertex 0 probability 1                             
+    float diphobdt_output = l.diphotonMVA(-1,l.dipho_leadind[diphoton_id],l.dipho_subleadind[diphoton_id],0 ,//vertex 0 probability 1                             
                                           1,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMeonly,
                                           bdtTrainingPhilosophy.c_str(), bdtTrainingType.c_str(),
                                           -1.,-1.);

@@ -573,7 +573,7 @@ float MassFactorizedMvaAnalysis::GetDiphoMva(LoopAll & l, int diphotonId, bool d
         phoid_mvaout_sublead = idmvascale->Eval(phoid_mvaout_sublead);
     }
     
-    return l.diphotonMVA(l.dipho_leadind[diphotonId],l.dipho_subleadind[diphotonId],l.dipho_vtxind[diphotonId] ,
+    return l.diphotonMVA(diphotonId,l.dipho_leadind[diphotonId],l.dipho_subleadind[diphotonId],l.dipho_vtxind[diphotonId] ,
 			 vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMrv,bdtTrainingPhilosophy.c_str(),bdtTrainingType.c_str(),
 			 phoid_mvaout_lead,phoid_mvaout_sublead);
 }
@@ -619,7 +619,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 
         bool vetodipho=true;
         bool kinonly=true;
-        
+	
         if(doDiphoMvaUpFront){
             bool anyViableDipho = PreselDiphoFillDiphoMVA(l, &smeared_pho_energy[0], doMCSmearing, syst_shift);
             if(!anyViableDipho) return false;
@@ -848,11 +848,11 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
         float diphobdt_output_up=-1.;
         float diphobdt_output_down=-1.;
         if (l.runZeeValidation) {
-            diphobdt_output_up = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id] ,
+            diphobdt_output_up = l.diphotonMVA(-1,diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id] ,
 					       vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMrv,
 					       bdtTrainingPhilosophy.c_str(),bdtTrainingType.c_str(),
 					       phoid_mvaout_lead+0.01,phoid_mvaout_sublead+0.01);
-            diphobdt_output_down = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id] ,
+            diphobdt_output_down = l.diphotonMVA(-1,diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id] ,
 						 vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMrv,
 						 bdtTrainingPhilosophy.c_str(),bdtTrainingType.c_str(),
 						 phoid_mvaout_lead-0.01,phoid_mvaout_sublead-0.01);
@@ -2083,6 +2083,7 @@ bool MassFactorizedMvaAnalysis::PreselDiphoFillDiphoMVA(LoopAll &l, float *pho_e
     if(includeVHlepPlusMet) { minleadpt=std::min(minleadpt,leadEtVHlepCut);     minsubleadpt=std::min(minsubleadpt,subleadEtVHlepCut);      }
     if(includeVHlep)        { minleadpt=std::min(minleadpt,leadEtVHlepCut);     minsubleadpt=std::min(minsubleadpt,subleadEtVHlepCut);      }
 
+    l.tmva_dipho_MIT_cache.clear();
     for(int id=0; id<l.dipho_n; ++id ) {
         float sumpt = l.DiphotonMITPreSelectionPerDipho(bdtTrainingType.c_str(), id, minleadpt, minsubleadpt, phoidMvaCut, applyPtoverM, &pho_energy_array[0], -1, 0, 0);
         if(sumpt!=-99) {
