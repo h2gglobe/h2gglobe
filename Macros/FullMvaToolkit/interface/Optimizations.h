@@ -40,6 +40,9 @@ class Optimizations {
 	void setMinBackground(double val){predefMin=val;};
 	TH2F *getCategoryMap(){return FinalHist;};
 	TH2F *getSignalTarget(){return targetS2d;};
+	TH1F *getTargetS1D(){return targetS;};
+	TH1F *getTargetB1D(){return targetB;};
+	TGraph *getRocCurve(){return roc_curve;};
 	TH2F *getBackgroundTarget(){return targetB2d;};
 	TGraph *getOptimizationGraph(){
 		if (optGr){
@@ -64,12 +67,13 @@ class Optimizations {
 	std::vector<double> significanceOptimizedBinning(TGraph *optGr=0);
 
 	
-	double defx(double val){ return TMath::Log(1+100*val);};
+	double defx(double val){ return TMath::Log2(1+val);};
 	//double defx(double val){ return val;};
 	double findMaximum(TH2F *);
+	double findRMS(TH2F *,double *);
 	bool checkMinBkg(double);
 	void getIntegralBetweenRanges(double *s,double *b,int l, int h);
-	double calculateSigMulti(double *s1, double *b1, int nchannel);
+	double calculateSigMulti(double *s1, double *b1, int nchannel, bool verb=false);
 	
 	int maxNumberOfBins;
 
@@ -89,6 +93,9 @@ class Optimizations {
 
 	TH1F *targetS;
 	TH1F *targetB;
+	
+	TH1F *SBhist;
+	TGraph *roc_curve;
 
 	TGraph *optGr;
 

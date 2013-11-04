@@ -20,12 +20,27 @@ g_toydatalist		= []
 g_toysiglist = []
 g_tmva			= 0
 g_SIDEBANDWIDTH		= 0.02
-g_expdijet		= 0.00495
+g_expdijet		= 0.00495 # means nothing now 
 #--------------------------
 
-# Some "Global" Variables
-nBins_vbf=2
-nBins_vh=3
+# Some "Global" Variables, for exclusive tags
+# Map out the EXCL bins -- (start from 1), these are for systematics
+Bins_vbf  = [1,2,3]
+Bins_vh   = [4,5,6,7,8,9,10]
+nBins_vbf = len(Bins_vbf)
+nBins_vh  = len(Bins_vh)
+
+# Now the bins which are for the plots, assume 1 is the first non-incl bin 
+pl_VBF_bins = [1,2,3]
+pl_VH_bins  = [4,5,6,9,10]
+pl_ttH_bins = [7,8,9]
+
+
+# Now decide which bins (starting from lowest vh bin) 
+# are the muon, electron and met tags
+Muon_tags 	= [4]
+Elec_tags       = [5]
+MET_tags 	= [7,8]
 
 # PLOT OPS ----------------
 sigscale   = 1.
@@ -148,25 +163,25 @@ def fillAsimovBDT(data,histogram):
 	for b in range(1,histNew.GetNbinsX()+1):listret.append(histNew.GetBinContent(b))
 	return listret
 	
-def plainBin(hist):
+def plainBin(hist,label=False):
 	nb = hist.GetNbinsX()
 	h2 = ROOT.TH1F(hist.GetName()+"new","",nb,0,nb)
+	numInclBins = 0
+	for i in range (1,nb+1):
+		if hist.GetBinLowEdge(i+1)<=1. :numInclBins+=1
 	for i in range (1,nb+1):
 		h2.SetBinContent(i,hist.GetBinContent(i))
 		h2.SetBinError(i,hist.GetBinError(i))
-		if (options.includeVBF):
-			if hist.GetBinLowEdge(i+1) <= 1.:
-			  h2.GetXaxis().SetBinLabel(i,"BDT Bin %d "%(i))
-			elif hist.GetBinLowEdge(i+1) <= 1.04:
-			  h2.GetXaxis().SetBinLabel(i," Loose di-jet ")
-			elif hist.GetBinLowEdge(i+1) <=1.08:
-			  h2.GetXaxis().SetBinLabel(i," Tight di-jet ")
-			elif hist.GetBinLowEdge(i+1) <=1.12:
-			  h2.GetXaxis().SetBinLabel(i," Muon tag ")
-			elif hist.GetBinLowEdge(i+1) <=1.16:
-			  h2.GetXaxis().SetBinLabel(i," Electron tag ")
-			else:
-			  h2.GetXaxis().SetBinLabel(i," MET tag ")
+		if hist.GetBinLowEdge(i+1) <= 1.:
+		  h2.GetXaxis().SetBinLabel(i,"Inc. Bin %d "%(i))
+		elif i-numInclBins in pl_VBF_bins: 
+		  h2.GetXaxis().SetBinLabel(i,"Di-jet ")
+		elif i-numInclBins in pl_VH_bins: 
+		  h2.GetXaxis().SetBinLabel(i,"VH tag ")
+		elif i-numInclBins in pl_ttH_bins: 
+		  h2.GetXaxis().SetBinLabel(i,"ttH tag ")
+		else : 
+		  if label: sys.exit("No Idea what to label bin %d"%i)
 	h2.GetXaxis().SetNdivisions(nb)
 	return h2
 
@@ -182,9 +197,9 @@ def plotDistributions(mass,data,signals,bkg,errors):
 
 	nbins = data.GetNbinsX()
 
-	flatdata    = plainBin(data)
-	flatsignal  = plainBin(signals[0])
-	flatsignal1 = plainBin(signals[-1])
+	flatdata    = plainBin(data,1)
+	flatsignal  = plainBin(signals[0],1)
+	flatsignal1 = plainBin(signals[-1],1)
 
 	flatbkg  = plainBin(bkg);flatbkg.SetLineColor(4);flatbkg.SetLineWidth(2)
 	for b in range(1,nbins+1): flatbkg.GetXaxis().SetBinLabel(b,flatdata.GetXaxis().GetBinLabel(b))
@@ -235,7 +250,8 @@ def plotDistributions(mass,data,signals,bkg,errors):
 	leg.Draw()
 	mytext = ROOT.TLatex();mytext.SetTextSize(0.03);mytext.SetNDC();#mytext.DrawLatex(0.1,0.92,"CMS preliminary,  #sqrt{s} = 8 TeV ");
 	mytext.SetTextSize(0.04)
-	mytext.DrawLatex(0.25,0.8,"#splitline{CMS preliminary}{L = %s #sqrt{s} = 8 TeV}"%(lumistring))
+	mytext.SetTextFont(42)
+	mytext.DrawLatex(0.1,0.92,"CMS preliminary, L = %s #sqrt{s} = 8 TeV"%(lumistring))
 	leg.Draw()
 	c.SaveAs(plotOutDir+"/pdf/model_m%3.1f.pdf"%mass);c.SaveAs(plotOutDir+"/macro/model_m%3.1f.C"%mass);c.SaveAs(plotOutDir+"/png/model_m%3.1f.png"%mass)
 	
@@ -278,7 +294,7 @@ def plotDistributions(mass,data,signals,bkg,errors):
 	leg2.Draw()
 	mytext = ROOT.TLatex();mytext.SetTextSize(0.03);mytext.SetNDC();#mytext.DrawLatex(0.1,0.92,"CMS preliminary,  #sqrt{s} = 7 TeV ");
 	mytext.SetTextSize(0.04)
-	mytext.DrawLatex(0.25,0.8,"#splitline{CMS preliminary}{L = %s #sqrt{s} = 8 TeV}"%(lumistring))
+	mytext.DrawLatex(0.1,0.92,"CMS preliminary, L = %s #sqrt{s} = 8 TeV"%(lumistring))
 	d.SaveAs(plotOutDir+"/pdf/diff_model_m%3.1f.pdf"%mass);d.SaveAs(plotOutDir+"/macro/diff_model_m%3.1f.C"%mass);d.SaveAs(plotOutDir+"/png/diff_model_m%3.1f.png"%mass)
 	
 
@@ -493,6 +509,7 @@ def writeCard(tfile,mass,scaleErr):
 		     1.-(numberOfVBF_dijet/numberOfVBF_incl),1.+(numberOfVBF_dijet/numberOfVBF_incl),\
 		     1.-(numberOfWZH_dijet/numberOfWZH_incl),1.+(numberOfWZH_dijet/numberOfWZH_incl),\
 		     1.-(numberOfTTH_dijet/numberOfTTH_incl),1.+(numberOfTTH_dijet/numberOfTTH_incl)))
+
     # exclusive bins - vbf
     for b in range(binH-nBins_exclusive,binH-nBins_vh): outPut.write(" %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   -  "%\
       (1+UEPS_ggH,1-UEPS_ggH,1+UEPS_qqH,1-UEPS_qqH,1+UEPS_VH,1-UEPS_VH,1+UEPS_ttH,1-UEPS_ttH))
@@ -565,13 +582,18 @@ def writeCard(tfile,mass,scaleErr):
     if abs(numberOfTTH_loose/numberOfTTH_tight)>1.: numberOfTTH_loose=0.
 
     for b in range(binL,nBins_inclusive+binL): outPut.write(" -   -   -   -   -")
-    if nBins_vbf>0 : outPut.write(" %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   -   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   -  "%\
-        (1+UEPS_Migration_ggH,1-UEPS_Migration_ggH,1+UEPS_Migration_qqH,1-UEPS_Migration_qqH,1+UEPS_Migration_VH,1-UEPS_Migration_VH,1+UEPS_Migration_ttH,1-UEPS_Migration_ttH,\
-		     1.-(numberOfGGH_loose/numberOfGGH_tight),1.+(numberOfGGH_loose/numberOfGGH_tight),\
+    if nBins_vbf>1:
+     outPut.write(" %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   - "%\
+	(1+UEPS_Migration_ggH,1-UEPS_Migration_ggH,1+UEPS_Migration_qqH,1-UEPS_Migration_qqH
+        ,1+UEPS_Migration_VH,1-UEPS_Migration_VH,1+UEPS_Migration_ttH,1-UEPS_Migration_ttH))
+     for b in Bins_vbf[1:nBins_vbf]:
+       outPut.write(" %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f  -  "%\
+		     (1.-(numberOfGGH_loose/numberOfGGH_tight),1.+(numberOfGGH_loose/numberOfGGH_tight),\
 		     1.-(numberOfVBF_loose/numberOfVBF_tight),1.+(numberOfVBF_loose/numberOfVBF_tight),\
 		     1.-(numberOfWZH_loose/numberOfWZH_tight),1.+(numberOfWZH_loose/numberOfWZH_tight),\
 		     1.-(numberOfTTH_loose/numberOfTTH_tight),1.+(numberOfTTH_loose/numberOfTTH_tight)))
-    if nBins_vh: outPut.write(" -   -   -   -   - -   -   -   -   - -   -   -   -   - \n")
+    for b in Bins_vh : outPut.write(" -   -   -   -   -  ")
+    outPut.write("\n")
   
     # Now do JECMigration    
     outPut.write("\nJECMigration  lnN")
@@ -590,29 +612,38 @@ def writeCard(tfile,mass,scaleErr):
     if abs(numberOfTTH_loose/numberOfTTH_tight)>1.: numberOfTTH_loose=0.
 
     for b in range(binL,nBins_inclusive+binL): outPut.write(" -   -   -   -   -")
-    if nBins_vbf>0 :outPut.write(" %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   -   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   -  "%\
-        (1+JEC_Migration_ggH,1-JEC_Migration_ggH,1+JEC_Migration_qqH,1-JEC_Migration_qqH,1+JEC_Migration_VH,1-JEC_Migration_VH,1+JEC_Migration_ttH,1-JEC_Migration_ttH,\
-		     1.-(numberOfGGH_loose/numberOfGGH_tight),1.+(numberOfGGH_loose/numberOfGGH_tight),\
+    if nBins_vbf>1:
+     outPut.write(" %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   - "%\
+	(1+JEC_Migration_ggH,1-JEC_Migration_ggH,1+JEC_Migration_qqH,1-JEC_Migration_qqH
+        ,1+JEC_Migration_VH,1-JEC_Migration_VH,1+JEC_Migration_ttH,1-JEC_Migration_ttH))
+     for b in Bins_vbf[1:nBins_vbf]:
+       outPut.write(" %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f  -  "%\
+		     (1.-(numberOfGGH_loose/numberOfGGH_tight),1.+(numberOfGGH_loose/numberOfGGH_tight),\
 		     1.-(numberOfVBF_loose/numberOfVBF_tight),1.+(numberOfVBF_loose/numberOfVBF_tight),\
 		     1.-(numberOfWZH_loose/numberOfWZH_tight),1.+(numberOfWZH_loose/numberOfWZH_tight),\
 		     1.-(numberOfTTH_loose/numberOfTTH_tight),1.+(numberOfTTH_loose/numberOfTTH_tight)))
-    if nBins_vh>0 :outPut.write(" -   -   -   -   - -   -   -   -   - -   -   -   -   - \n")
+    for b in Bins_vh : outPut.write(" -   -   -   -   -  ")
+    outPut.write("\n")
   
   # Now do other exclusive tag systematics
   # muon tag
   outPut.write("\nCMS_eff_m   lnN    ")
   for b in range(binL,nBins_inclusive+nBins_vbf+binL): outPut.write(" -   -   -   -   -")
-  if nBins_vh>0: outPut.write(" %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   -  "%(1.-muon_tag_eff_ggH,1.+muon_tag_eff_ggH,1.-muon_tag_eff_qqH,1.+muon_tag_eff_qqH,1.-muon_tag_eff_VH,1.+muon_tag_eff_VH,1.-muon_tag_eff_ttH,1.+muon_tag_eff_ttH))
-  for b in range(nBins_vbf+binL+2,binH): outPut.write(" -   -   -   -   -")
+  for b in Bins_vh : 
+	if b in Muon_tags : outPut.write(" %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   -  "%(1.-muon_tag_eff_ggH,1.+muon_tag_eff_ggH,1.-muon_tag_eff_qqH,1.+muon_tag_eff_qqH,1.-muon_tag_eff_VH,1.+muon_tag_eff_VH,1.-muon_tag_eff_ttH,1.+muon_tag_eff_ttH))
+  	else: outPut.write(" -   -   -   -   -")
   # electron tag
   outPut.write("\nCMS_eff_e   lnN    ")
   for b in range(binL,nBins_inclusive+nBins_vbf+binL+1): outPut.write(" -   -   -   -   -")
-  if nBins_vh>0: outPut.write(" %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   -  "%(1.-elec_tag_eff_ggH,1.+elec_tag_eff_ggH,1.-elec_tag_eff_qqH,1.+elec_tag_eff_qqH,1.-elec_tag_eff_VH,1.+elec_tag_eff_VH,1.-elec_tag_eff_ttH,1.+elec_tag_eff_ttH))
-  for b in range(nBins_vbf+binL+3,binH): outPut.write(" -   -   -   -   -")
+  for b in Bins_vh : 
+ 	if b in Elec_tags : outPut.write(" %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   -  "%(1.-elec_tag_eff_ggH,1.+elec_tag_eff_ggH,1.-elec_tag_eff_qqH,1.+elec_tag_eff_qqH,1.-elec_tag_eff_VH,1.+elec_tag_eff_VH,1.-elec_tag_eff_ttH,1.+elec_tag_eff_ttH))
+  	else: outPut.write(" -   -   -   -   -")
   # MET tag
   outPut.write("\nCMS_eff_met   lnN    ")
   for b in range(binL,nBins_inclusive+nBins_vbf+binL+2): outPut.write(" -   -   -   -   -")
-  if nBins_vh>0: outPut.write(" %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   -  "%(1.-met_tag_eff_ggH,1.+met_tag_eff_ggH,1.-met_tag_eff_qqH,1.+met_tag_eff_qqH,1.-met_tag_eff_VH,1.+met_tag_eff_VH,1.-met_tag_eff_ttH,1.+met_tag_eff_ttH))
+  for b in Bins_vh : 
+ 	if b in MET_tags :  outPut.write(" %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   %.3f/%.3f   -  "%(1.-met_tag_eff_ggH,1.+met_tag_eff_ggH,1.-met_tag_eff_qqH,1.+met_tag_eff_qqH,1.-met_tag_eff_VH,1.+met_tag_eff_VH,1.-met_tag_eff_ttH,1.+met_tag_eff_ttH))
+  	else: outPut.write(" -   -   -   -   -")
   
   outPut.write("\n")
 
@@ -749,6 +780,7 @@ parser.add_option("-u","--mhHigh",dest="mhHigh",type="float",default=150.)
 parser.add_option("-s","--mhStep",dest="mhStep",type="float",default=0.5)
 (options,args)=parser.parse_args()
 
+if options.throwGlobalToy: sys.exit("Global toy NOT implemented in current version")
 if options.throwAsimov : options.throwGlobalToy = True
 
 print "Creating Binned Datacards from workspace -> ", options.tfileName
@@ -785,26 +817,13 @@ if options.makePlot:
 #	biasROOTFile = ROOT.TFile(options.biasFile)
 
 genMasses     = [110,115,120,125,130,135,140,145,150]
-#scalingErrors = [1.008,1.008,1.008,1.008,1.008,1.009,1.01,1.011] # Takes from P.Dauncey studies -> 7% window
-#scalingErrors =  [1.007,1.007,1.006,1.008,1.007,1.008,1.009,1.01] # Takes from P.Dauncey studies -> 2% window
-#scalingErrors = [1.013,1.013,1.012,1.012,1.014,1.015,1.016,1.016] # Takes from P.Dauncey studies -> 7% window (100-180)
-#scalingErrors = [1.011,1.01,1.009,1.011,1.011,1.013,1.014,1.014] 	  # Takes from P.Dauncey studies -> 2% window (100-180)
-#scalingErrors = [1.00815,1.01024,1.01076,1.01197,1.0099,1.009,1.00928,1.01054 ] 	  # Takes from P.Dauncey studies -> 2% window (100-180) / MIT Preselection
-#scalingErrors = [ 1.008,1.008,1.008,1.008,1.01,1.010,1.011,1.012,1.012] # P.Dauncey 100-180 2% window /MIT preselction +BDT>-0.5
-#scalingErrors = [1.0136,1.0152,1.01425,1.01102,1.01283,1.01568,1.02157,1.02467,1.02466] # P.Dauncey 100-180, 2% window, MIT presel + BDT > 0.05 (Pow2 Fit)
-#scalingErrors = [1.0119,1.01277,1.01203,1.00998,1.01213,1.0141,1.01822,1.02004,1.01954] # P.Dauncey 100-180, 2% window, MIT presel + BDT > 0.05 , after synch(Pow2 Fit)
-#scalingErrors = [1.025,1.025,1.025,1.025,1.025,1.025,1.025,1.025,1.025] # FLAT 25%
-#scalingErrors = [ 1.01185,1.01292,1.01378,1.01378,1.01594,1.01539,1.01814,1.02052,1.02257] # P.Dauncey 100-180, 2% window, MIT presel + BDT > 0.05 (Pol5 Fit)
-#scalingErrors=[1+((s-1)*0.95) for s in scalingErrors]
-#scalingErrors = [1.01153,1.01197,1.01102,1.00966,1.01205,1.01457,1.01814,1.01903,1.01768] # P.Dauncey 100-180, 2% window, MIT presel + BDT > 0.05 , after synch, 19Feb (Pow2 Fit)
-#scalingErrors = [1.01072,1.01097,1.01061,1.01019,1.01234,1.01306,1.01519,1.01554,1.01412] # P.Dauncey 100-180, 2% window, MIT presel + BDT > 0.05 , Jan16 ReReco 15Apr (Pow2 Fit)
 # PAUL NUMBERS - MASS FAC - HCP2012 - 73575 events with 12.2fb-1 - [1.00578,1.00586,1.0056,1.00544,1.00554,1.00542,1.00589,1.00728,1.00884]
 # PAUL NUMBERS - MASS FAC - MOR2013 - [1.00444,1.00405,1.00341,1.00342,1.0041,1.00444,1.00447,1.00455,1.00501]
+# Paul NUMBERS - Legacy pass v1  - [1.00412,1.00380,1.00377,1.00399,1.00437,1.00442,1.00443,1.00472,1.00503]
 
 # CUT-BASED at 19.6fb has 141981 events - [1.00957,1.00916,1.00903,1.01011,1.01236,1.01224,1.01257,1.01251,1.01334]
 
-scalingErrors = [1.00444,1.00405,1.00341,1.00342,1.0041,1.00444,1.00447,1.00455,1.00501]
-#scalingErrors = [1.005,1.005,1.005,1.005,1.005,1.005,1.005,1.005,1.005]
+scalingErrors = [1.00412,1.00380,1.00377,1.00399,1.00437,1.00442,1.00443,1.00472,1.00503]
 
 
 #evalMasses    = numpy.arange(110,150.5,0.5)
@@ -821,8 +840,8 @@ normG.SetMarkerStyle(20)
 normG.GetXaxis().SetTitle("mH")
 normG.GetYaxis().SetTitle("(N+dN)/N")
 normG.Draw("ALP")
-print "Check the Errors Look Sensible -> plot saved to %s/normErrors_%s"%(os.path.dirname(options.tfileName),os.path.basename(options.tfileName))
-can.SaveAs(("%s/normErrors_%s.pdf"%(os.path.dirname(options.tfileName),os.path.basename(options.tfileName))).replace('.root',''))
+print "Check the Errors Look Sensible -> plot saved to ./%s/normErrors_%s"%(os.path.dirname(options.tfileName),os.path.basename(options.tfileName))
+can.SaveAs(("./%s/normErrors_%s.pdf"%(os.path.dirname(options.tfileName),os.path.basename(options.tfileName))).replace('.root',''))
 
 if not options.includeVBF: nBind_vbf=0
 if not options.includeVH:  nBind_vh=0
