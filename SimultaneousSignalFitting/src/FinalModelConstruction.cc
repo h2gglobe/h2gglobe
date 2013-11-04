@@ -262,7 +262,7 @@ void FinalModelConstruction::getRvFractionFunc(string name){
 
 RooAbsReal* FinalModelConstruction::getMeanWithPhotonSyst(RooAbsReal *dm, string name){
 	
-	string formula="@0+@1+(1.+@2";
+	string formula="(@0+@1)*(1.+@2";
 	RooArgList *dependents = new RooArgList();
 	dependents->add(*MH); // MH sits at @0
 	dependents->add(*dm); // dm sits at @1
