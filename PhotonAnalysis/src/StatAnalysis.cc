@@ -1011,7 +1011,7 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 	}
 
         if(includeTTHlep) {
-	    if(!l.sqrtS==7){
+	    if(!(l.sqrtS==7)){
 		TTHlepevent = TTHleptonicTag2012(l, diphotonTTHlep_id, &smeared_pho_energy[0]);
 	    }else{
 		TTHlepevent = TTHTag7TeV(l, diphotonTTHlep_id,  &smeared_pho_energy[0]);
@@ -1604,7 +1604,7 @@ void StatAnalysis::computeExclusiveCategory(LoopAll & l, int & category, std::pa
         if(nVHmetCategories>1) category+=VHmetevent_cat;
     } else if(TTHhadevent) {
         category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories +  nVHlepCategories + nVHmetCategories+nTTHlepCategories;
-        if(PADEBUG) cout<<"TTHhad: "<<category<<endl;
+	 if(PADEBUG) cout<<"TTHhad: "<<category<<endl;
     }else if(VHhadBtagevent) {
         category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories +  nVHlepCategories + nVHmetCategories + nTTHlepCategories + nTTHhadCategories;
     } else if(VHhadevent) {
