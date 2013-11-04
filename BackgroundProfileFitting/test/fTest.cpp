@@ -207,6 +207,12 @@ int main(int argc, char* argv[]){
     fabChoice.push_back(pair<string,int>("Bernstein",5));
     fabChoice.push_back(pair<string,int>("Bernstein",5));
     fabChoice.push_back(pair<string,int>("Bernstein",3));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
   }
   else {
     fabChoice.push_back(pair<string,int>("Bernstein",5));
@@ -215,6 +221,21 @@ int main(int argc, char* argv[]){
     fabChoice.push_back(pair<string,int>("Bernstein",5));
     fabChoice.push_back(pair<string,int>("Bernstein",4));
     fabChoice.push_back(pair<string,int>("Bernstein",4));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
     fabChoice.push_back(pair<string,int>("Bernstein",3));
     fabChoice.push_back(pair<string,int>("Bernstein",3));
     fabChoice.push_back(pair<string,int>("Bernstein",3));
@@ -392,6 +413,11 @@ int main(int argc, char* argv[]){
     }
     
   }
+  if (saveMultiPdf){
+	outputfile->cd();
+	outputws->Write();
+	outputfile->Close();	
+  }
 
   FILE *dfile = fopen(datfile.c_str(),"w");
   cout << "Recommended options" << endl;
@@ -424,10 +450,5 @@ int main(int argc, char* argv[]){
 
   inFile->Close();
 
-  if (saveMultiPdf){
-	outputfile->cd();
-	outputws->Write();
-	outputfile->Close();	
-  }
   return 0;
 }
