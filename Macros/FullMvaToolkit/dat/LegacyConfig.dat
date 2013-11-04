@@ -16,7 +16,7 @@ mHStep=1
 massMin=100
 massMax=180
 nDataBins=160
-diphotonBdtCut=-0.6
+diphotonBdtCut=-0.44
 
 # Options for the sidebands
 signalRegionWidth=0.02

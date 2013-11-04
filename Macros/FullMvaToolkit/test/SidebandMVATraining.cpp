@@ -40,7 +40,7 @@ bool skipTesting_=false;
 bool skipEvaluation_=false;
 bool isCutBased_=false;
 int trainingMass_=124;
-float bdtCut_=-0.6;
+float bdtCut_=-0.44;
 float mggMin_=100.;
 float mggMax_=180.;
 
