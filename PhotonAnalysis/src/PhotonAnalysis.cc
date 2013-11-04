@@ -4641,8 +4641,13 @@ bool PhotonAnalysis::TTHTag7TeV(LoopAll& l, int& diphotonTTHlep_id, float* smear
     bool tag=false;
     bool leptag=false;
     bool hadtag=false;
-    leptag=TTHleptonicTag2012(l, diphotonTTHlep_id, &smeared_pho_energy[0]);
-    if(!leptag) hadtag=TTHhadronicTag2012(l, diphotonTTHlep_id, &smeared_pho_energy[0]);
+    if(!mvaselection){
+        leptag=TTHleptonicTag2012(l, diphotonTTHlep_id, &smeared_pho_energy[0]);
+        if(!leptag) hadtag=TTHhadronicTag2012(l, diphotonTTHlep_id, &smeared_pho_energy[0]);
+    }else{
+        leptag=TTHleptonicTag2012(l, diphotonTTHlep_id, &smeared_pho_energy[0], 0, true, vetodipho, kinonly);
+        if(!leptag) hadtag=TTHhadronicTag2012(l, diphotonTTHlep_id, &smeared_pho_energy[0], 0, true, vetodipho, kinonly); 
+    }
     if(leptag || hadtag)tag=true;
     return tag;
 }
