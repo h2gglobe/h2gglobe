@@ -394,16 +394,18 @@ class LoopAll {
   Float_t tmva_id_mit_sceta;
   Float_t tmva_id_mit_preshower;
  
-  Float_t tmva_dipho_MIT_dmom;
-  Float_t tmva_dipho_MIT_dmom_wrong_vtx;
-  Float_t tmva_dipho_MIT_vtxprob;
-  Float_t tmva_dipho_MIT_ptom1;
-  Float_t tmva_dipho_MIT_ptom2;
-  Float_t tmva_dipho_MIT_eta1;
-  Float_t tmva_dipho_MIT_eta2;
-  Float_t tmva_dipho_MIT_dphi;
-  Float_t tmva_dipho_MIT_ph1mva;
-  Float_t tmva_dipho_MIT_ph2mva;
+  std::vector<Float_t> tmva_dipho_MIT_buf;
+  std::map<int,std::vector<Float_t> > tmva_dipho_MIT_cache;
+  Float_t *tmva_dipho_MIT_dmom;
+  Float_t *tmva_dipho_MIT_dmom_wrong_vtx;
+  Float_t *tmva_dipho_MIT_vtxprob;
+  Float_t *tmva_dipho_MIT_ptom1;
+  Float_t *tmva_dipho_MIT_ptom2;
+  Float_t *tmva_dipho_MIT_eta1;
+  Float_t *tmva_dipho_MIT_eta2;
+  Float_t *tmva_dipho_MIT_dphi;
+  Float_t *tmva_dipho_MIT_ph1mva;
+  Float_t *tmva_dipho_MIT_ph2mva;
 
 void GlobeCtIsol(int, TLorentzVector*, float, float, float, Int_t&, Float_t&, Float_t&, Float_t&, Float_t&);
 int GlobeMatchIsl(TLorentzVector*, Float_t&);
@@ -1249,7 +1251,7 @@ TLorentzVector correctMet_Simple(TLorentzVector& pho_lead, TLorentzVector& pho_s
 
 void SetAllMVA();
 void FillMuonGsfTracks();
-Float_t diphotonMVA(Int_t, Int_t, Int_t, float, TLorentzVector &, TLorentzVector &, float,float,float,const char*,const char*,float photonID_1=-50.,float photonID_2=-50.);
+Float_t diphotonMVA(Int_t,Int_t, Int_t, Int_t, float, TLorentzVector &, TLorentzVector &, float,float,float,const char*,const char*,float photonID_1=-50.,float photonID_2=-50.);
 float getDmOverDz(Int_t, Int_t, Float_t*);
 Float_t deltaMassVtx(Int_t, Int_t, Float_t);
 

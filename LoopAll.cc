@@ -413,7 +413,7 @@ void LoopAll::Term(){
 
 // ------------------------------------------------------------------------------------
 LoopAll::LoopAll(TTree *tree) :
-    counters(4,0.), countersred(4,0.), checkBench(0), sqrtS(8)
+	counters(4,0.), countersred(4,0.), checkBench(0), sqrtS(8)
 {  
 #include "branchdef/newclonesarray.h"
 

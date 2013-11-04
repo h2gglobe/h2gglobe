@@ -473,7 +473,7 @@ bool CategoryAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLor
       }
                            
       // Must be calculated after photon id has potentially been smeared
-      diphobdt_output = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id] ,vtxProb,lead_p4,sublead_p4 ,sigmaMrv,sigmaMwv,sigmaMeonly ,bdtTrainingPhilosophy.c_str() , bdtTrainingType.c_str(),phoid_mvaout_lead,phoid_mvaout_sublead);
+      diphobdt_output = l.diphotonMVA(diphoton_id,diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id] ,vtxProb,lead_p4,sublead_p4 ,sigmaMrv,sigmaMwv,sigmaMeonly ,bdtTrainingPhilosophy.c_str() , bdtTrainingType.c_str(),phoid_mvaout_lead,phoid_mvaout_sublead);
       kinematic_bdtout = diphobdt_output;
 
       mass = Higgs.M();
