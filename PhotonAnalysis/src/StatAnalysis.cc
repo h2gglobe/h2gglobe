@@ -709,7 +709,10 @@ bool StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     // Data driven MC corrections to cluster shape variables and energy resolution estimate
     if (cur_type !=0 && scaleClusterShapes ){
         rescaleClusterVariables(l);
-    }
+    } else { 
+	l.pho_r9_cic = &l.pho_r9[0]; 
+    } 
+    
     if( useDefaultVertex ) {
         for(int id=0; id<l.dipho_n; ++id ) {
             l.dipho_vtxind[id] = 0;
