@@ -7,7 +7,14 @@ jetHandlerCfg=jetHandler_Legacy8TeV.py
 scale_offset_file=jan22rereco_8TeV/energy_scale_offsets_rd_mc.dat
 smearing_file=jan22rereco_8TeV/smearing_sigma_and_errors_rd_mc.dat
 
+# 7TeV Regression
+#regressionVersion=8
+#regressionFile=aux/regweights_v8_7TeV_forest_ph.root
+
+# 8TeV Regression
+regressionVersion=5
 regressionFile=aux/regweights_v5_forest_ph.root
+
 energyCorrectionMethod=BendavidOTF
 doEcorrectionSmear=1
 doEcorrectionSyst=0

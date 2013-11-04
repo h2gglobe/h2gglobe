@@ -64,9 +64,9 @@ void InitialFit::buildSumOfGaussians(string name, int nGaussians, bool recursive
     map<string,RooGaussian*> tempGaussians;
     
     for (int g=0; g<nGaussians; g++){
-      RooRealVar *dm = new RooRealVar(Form("dm_mh%d_g%d",mh,g),Form("dm_mh%d_g%d",mh,g),0.1,-10.,10.);
+      RooRealVar *dm = new RooRealVar(Form("dm_mh%d_g%d",mh,g),Form("dm_mh%d_g%d",mh,g),0.1,-2.5*(1.+0.5*g),2.5*(1.+0.5*g));
       RooAbsReal *mean = new RooFormulaVar(Form("mean_mh%d_g%d",mh,g),Form("mean_mh%d_g%d",mh,g),"@0+@1",RooArgList(*MH,*dm));
-      RooRealVar *sigma = new RooRealVar(Form("sigma_mh%d_g%d",mh,g),Form("sigma_mh%d_g%d",mh,g),2.,0.7,10.);
+      RooRealVar *sigma = new RooRealVar(Form("sigma_mh%d_g%d",mh,g),Form("sigma_mh%d_g%d",mh,g),2.,0.7,5.*(1.+0.5*g));
       RooGaussian *gaus = new RooGaussian(Form("gaus_mh%d_g%d",mh,g),Form("gaus_mh%d_g%d",mh,g),*mass,*mean,*sigma);
       tempFitParams.insert(pair<string,RooRealVar*>(string(dm->GetName()),dm));
       tempFitParams.insert(pair<string,RooRealVar*>(string(sigma->GetName()),sigma));
@@ -74,7 +74,7 @@ void InitialFit::buildSumOfGaussians(string name, int nGaussians, bool recursive
       tempGaussians.insert(pair<string,RooGaussian*>(string(gaus->GetName()),gaus));
       gaussians->add(*gaus);
       if (g<nGaussians-1) {
-        RooRealVar *frac = new RooRealVar(Form("frac_mh%d_g%d",mh,g),Form("frac_mh%d_g%d",mh,g),0.1,0.01,1.);
+        RooRealVar *frac = new RooRealVar(Form("frac_mh%d_g%d",mh,g),Form("frac_mh%d_g%d",mh,g),0.1,0.05,0.95);
         tempFitParams.insert(pair<string,RooRealVar*>(string(frac->GetName()),frac));
         coeffs->add(*frac);
       }
@@ -176,9 +176,8 @@ void InitialFit::runFits(int ncpu){
   }
 }
 
-void InitialFit::plotFits(string outDir){
+void InitialFit::plotFits(string name){
   
-  system(Form("mkdir -p %s",outDir.c_str()));
   TCanvas *canv = new TCanvas();
   RooPlot *plot = mass->frame(Range(mhLow_-10,mhHigh_+10));
   for (unsigned int i=0; i<allMH_.size(); i++){
@@ -190,10 +189,11 @@ void InitialFit::plotFits(string outDir){
     assert(datasets.find(mh)!=datasets.end());
     RooAddPdf *fitModel = sumOfGaussians[mh];
     RooDataSet *data = datasets[mh];
-    data->plotOn(plot,Binning(80));
+    data->plotOn(plot,Binning(160));
     fitModel->plotOn(plot);
   }
   plot->Draw();
-  canv->Print(Form("%s/initialFits.pdf",outDir.c_str()));
+  canv->Print(Form("%s.pdf",name.c_str()));
+  canv->Print(Form("%s.png",name.c_str()));
   delete canv;
 }

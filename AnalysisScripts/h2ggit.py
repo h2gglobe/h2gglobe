@@ -66,7 +66,7 @@ def wrapcommand(method):
   
 class GitHelper:
 
-    _commands = ["ls-issues","tagme","tagit"]
+    _commands = ["ls-issues","ls-raw-pulls","tagme","tagit","whoami"]
     
     @staticmethod
     def commands():
@@ -116,6 +116,10 @@ class GitHelper:
         for l in out.split("\n"):
             self._localtags.add(l)
 
+    @wrapcommand
+    def whoami(self):
+        print self._options["user"]
+        
     @wrapcommand
     def tagme(self,tagname,title):
         """
@@ -223,13 +227,25 @@ class GitHelper:
                     i.tagme = True
             print "]"
             if i.number in pullsdic:
-                print "      %s" % str(pullsdic[i.number].html_url)
+                pu = pullsdic[i.number]
+                print "      %s" % str(pu.html_url)
+                print "      %d %s %s" % (i.number, pu.head.label, pu.base.label)
             else:
                 print "      %s" % str(i.html_url)
             if i.tagme:
                 for l in i.body.split("\n"):
                     print "      %s" % l
             print
+
+    @wrapcommand
+    def ls_raw_pulls(self):
+        """List all open issues.
+        """
+        pulls  = self._upstream.iter_pulls(state='open')
+
+        for p in pulls:
+            print "%d %s %s" % (p.number, p.head.label, p.base.label)
+            
 
     @wrapcommand
     def tagit(self,tagname):
@@ -253,7 +269,7 @@ class GitHelper:
 
         user,branch = issue.head.split(":")
         remote = self._gh.repository(user,self._options['repo'])
-
+        
         print
         print "Adding remotes"
         run("(git remote | grep fork_%s) || (git remote add fork_%s %s)" % (user,user,remote.ssh_url), "" )
@@ -352,6 +368,7 @@ def setupssett(settings):
     settings = { "token" : auth.token, "id" : auth.id, "user" : user }
     fout.write( json.dumps(settings)  )
     fout.close()
+    run("chmod 600 %s " % fout,name,"")
     
     return login(token=auth.token), settings
 
@@ -362,8 +379,10 @@ def main(options,args):
     except Exception, e:
         setuplib()
         sys.exit("All dependencies installed. Please run again the script")
-        
+
+    
     if os.path.exists(settings):
+        run("chmod 600 %s " % settings,"")
         pin = open(settings)
         settings = json.loads( pin.read() )
         pin.close()

@@ -7,6 +7,8 @@
 #include "TFile.h"
 #include "TGraphAsymmErrors.h"
 
+class Normalization_8TeV;
+
 // ------------------------------------------------------------------------------------
 class PtSpinSmearer : public BaseGenLevelSmearer
 {
@@ -15,7 +17,7 @@ public:
   std::string efficiency_file;
   
   //   downId and upId set according to prescription of Jun 3, 2011  
-  PtSpinSmearer(const std::string &efficiency_file) ;
+  PtSpinSmearer(const std::string &efficiency_file,Normalization_8TeV * norm) ;
   virtual ~PtSpinSmearer();
   
   virtual const std::string & name() const { return name_; };
@@ -34,6 +36,7 @@ public:
   
   std::string   name_;
   std::string   PTSpinName_;
+  Normalization_8TeV * norm_;
   TFile        *thePtSpinFile_; 
   std::map< int,std::vector<TH1*> > ptSpinSmearersSM_;
   std::map< int,std::vector<TH1*> > ptSpinSmearersGGGRAV_;

@@ -1,4 +1,4 @@
-intL=5089. histfile=/castor/cern.ch/user/c/cmshgg/StatAnalysis/jan16reload_SM4/%(label)s_nospher_SM4/CMS-HGG.root output=shifo.root
+sqrtS=7 intL=5089. histfile=/castor/cern.ch/user/c/cmshgg/StatAnalysis/jan16reload_SM4/%(label)s_nospher_SM4/CMS-HGG.root output=shifo.root
 
 ->
 Data
@@ -12,55 +12,55 @@ typ=0    ind=0 draw=1  Nam=Data    CaDir=/castor/cern.ch/user/c/cmshgg/reduced/h
 Signal samples
 ->
 
-split typ=-57 ind=1 draw=1  Nam=gluglu_H_gg_123_pu2011  CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/GluGluToHToGG_M-123_7TeV    red=0 lum=1000000.0   xsec=5.416e-3     kfac=1.000000  scal=1.000000
-split typ=-58 ind=2 draw=1  Nam=vbf_H_gg_123_pu2011     CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/VBF_HToGG_M-123_7TeV        red=0 lum=1000000.0   xsec=4.260e-5     kfac=1.000000  scal=1.000000
-split typ=-60 ind=4 draw=1  Nam=wz_H_gg_123_pu2011      CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/WH_ZH_HToGG_M-123_7TeV      red=0 lum=1000000.0   xsec=3.235e-5     kfac=1.000000  scal=1.000000
-split typ=-59 ind=3 draw=1  Nam=tt_H_gg_123_pu2011      CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/TTH_HToGG_M-123_7TeV        red=0 lum=1000000.0   xsec=3.129e-6     kfac=1.000000  scal=1.000000
+split typ=-1 ind=1 draw=1  Nam=gluglu_m123_pu2011  CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/GluGluToHToGG_M-123_7TeV    red=0 lum=1000000.0   xsec=5.416e-3     kfac=1.000000  scal=1.000000
+split typ=-1 ind=2 draw=1  Nam=vbf_m123_pu2011     CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/VBF_HToGG_M-123_7TeV        red=0 lum=1000000.0   xsec=4.260e-5     kfac=1.000000  scal=1.000000
+split typ=-1 ind=4 draw=1  Nam=wz_m123_pu2011      CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/WH_ZH_HToGG_M-123_7TeV      red=0 lum=1000000.0   xsec=3.235e-5     kfac=1.000000  scal=1.000000
+split typ=-1 ind=3 draw=1  Nam=tt_m123_pu2011      CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/TTH_HToGG_M-123_7TeV        red=0 lum=1000000.0   xsec=3.129e-6     kfac=1.000000  scal=1.000000
 
-split typ=-53 ind=1 draw=1  Nam=gluglu_H_gg_121_pu2011  CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/GluGluToHToGG_M-121_7TeV    red=0 lum=1000000.0   xsec=5.947e-3     kfac=1.000000  scal=1.000000
-split typ=-54 ind=2 draw=1  Nam=vbf_H_gg_121_pu2011     CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/VBF_HToGG_M-121_7TeV        red=0 lum=1000000.0   xsec=4.606e-5     kfac=1.000000  scal=1.000000
-split typ=-56 ind=4 draw=1  Nam=wz_H_gg_121_pu2011      CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/WH_ZH_HToGG_M-121_7TeV      red=0 lum=1000000.0   xsec=3.623e-5     kfac=1.000000  scal=1.000000
-split typ=-55 ind=3 draw=1  Nam=tt_H_gg_121_pu2011      CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/TTH_HToGG_M-121_7TeV        red=0 lum=1000000.0   xsec=3.487e-6     kfac=1.000000  scal=1.000000
+split typ=-1 ind=1 draw=1  Nam=gluglu_m121_pu2011  CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/GluGluToHToGG_M-121_7TeV    red=0 lum=1000000.0   xsec=5.947e-3     kfac=1.000000  scal=1.000000
+split typ=-1 ind=2 draw=1  Nam=vbf_m121_pu2011     CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/VBF_HToGG_M-121_7TeV        red=0 lum=1000000.0   xsec=4.606e-5     kfac=1.000000  scal=1.000000
+split typ=-1 ind=4 draw=1  Nam=wz_m121_pu2011      CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/WH_ZH_HToGG_M-121_7TeV      red=0 lum=1000000.0   xsec=3.623e-5     kfac=1.000000  scal=1.000000
+split typ=-1 ind=3 draw=1  Nam=tt_m121_pu2011      CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/TTH_HToGG_M-121_7TeV        red=0 lum=1000000.0   xsec=3.487e-6     kfac=1.000000  scal=1.000000
 
-split typ=-49 ind=1 draw=1  Nam=gluglu_H_gg_150_pu2011  CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/GluGluToHToGG_M-150_7TeV    red=0 lum=1000000.0   xsec=1.409e-4     kfac=1.000000  scal=1.000000
-split typ=-50 ind=2 draw=1  Nam=vbf_H_gg_150_pu2011     CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/VBF_HToGG_M-150_7TeV        red=0 lum=1000000.0   xsec=1.366e-6     kfac=1.000000  scal=1.000000
-split typ=-52 ind=4 draw=1  Nam=wz_H_gg_150_pu2011      CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/WH_ZH_HToGG_M-150_7TeV      red=0 lum=1000000.0   xsec=6.694e-7     kfac=1.000000  scal=1.000000
-split typ=-51 ind=3 draw=1  Nam=tt_H_gg_150_pu2011      CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/TTH_HToGG_M-150_7TeV_Backup red=0 lum=1000000.0   xsec=6.914e-8     kfac=1.000000  scal=1.000000
+split typ=-1 ind=1 draw=1  Nam=gluglu_m150_pu2011  CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/GluGluToHToGG_M-150_7TeV    red=0 lum=1000000.0   xsec=1.409e-4     kfac=1.000000  scal=1.000000
+split typ=-1 ind=2 draw=1  Nam=vbf_m150_pu2011     CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/VBF_HToGG_M-150_7TeV        red=0 lum=1000000.0   xsec=1.366e-6     kfac=1.000000  scal=1.000000
+split typ=-1 ind=4 draw=1  Nam=wz_m150_pu2011      CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/WH_ZH_HToGG_M-150_7TeV      red=0 lum=1000000.0   xsec=6.694e-7     kfac=1.000000  scal=1.000000
+split typ=-1 ind=3 draw=1  Nam=tt_m150_pu2011      CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/TTH_HToGG_M-150_7TeV_Backup red=0 lum=1000000.0   xsec=6.914e-8     kfac=1.000000  scal=1.000000
 
-split typ=-33 ind=1 draw=1  Nam=gluglu_H_gg_140_pu2011  CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/GluGluToHToGG_M-140_7TeV    red=0 lum=1000000.0   xsec=1.521e-3     kfac=1.000000  scal=1.000000
-split typ=-34 ind=2 draw=1  Nam=vbf_H_gg_140_pu2011     CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/VBF_HToGG_M-140_7TeV        red=0 lum=1000000.0   xsec=1.368e-5     kfac=1.000000  scal=1.000000
-split typ=-36 ind=4 draw=1  Nam=wz_H_gg_140_pu2011      CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/WH_ZH_HToGG_M-140_7TeV      red=0 lum=1000000.0   xsec=7.838e-6     kfac=1.000000  scal=1.000000
-split typ=-35 ind=3 draw=1  Nam=tt_H_gg_140_pu2011      CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/TTH_HToGG_M-140_7TeV        red=0 lum=1000000.0   xsec=7.894e-7     kfac=1.000000  scal=1.000000
+split typ=-1 ind=1 draw=1  Nam=gluglu_m140_pu2011  CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/GluGluToHToGG_M-140_7TeV    red=0 lum=1000000.0   xsec=1.521e-3     kfac=1.000000  scal=1.000000
+split typ=-1 ind=2 draw=1  Nam=vbf_m140_pu2011     CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/VBF_HToGG_M-140_7TeV        red=0 lum=1000000.0   xsec=1.368e-5     kfac=1.000000  scal=1.000000
+split typ=-1 ind=4 draw=1  Nam=wz_m140_pu2011      CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/WH_ZH_HToGG_M-140_7TeV      red=0 lum=1000000.0   xsec=7.838e-6     kfac=1.000000  scal=1.000000
+split typ=-1 ind=3 draw=1  Nam=tt_m140_pu2011      CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/TTH_HToGG_M-140_7TeV        red=0 lum=1000000.0   xsec=7.894e-7     kfac=1.000000  scal=1.000000
 
-split typ=-41 ind=28 draw=1  Nam=gluglu_H_gg_135_pu2011  CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/GluGluToHToGG_M-135_7TeV   red=0 lum=1000000.0   xsec=2.556e-3     kfac=1.000000  scal=1.000000
-split typ=-42 ind=30 draw=1  Nam=vbf_H_gg_135_pu2011     CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/VBF_HToGG_M-135_7TeV       red=0 lum=1000000.0   xsec=2.206e-5     kfac=1.000000  scal=1.000000
-split typ=-44 ind=31 draw=1  Nam=wz_H_gg_135_pu2011      CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/WH_ZH_HToGG_M-135_7TeV     red=0 lum=1000000.0   xsec=1.372e-5     kfac=1.000000  scal=1.000000
-split typ=-43 ind=32 draw=1  Nam=tt_H_gg_135_pu2011      CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/TTH_HToGG_M-135_7TeV       red=0 lum=1000000.0   xsec=1.365e-6     kfac=1.000000  scal=1.000000
+split typ=-1 ind=28 draw=1  Nam=gluglu_m135_pu2011  CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/GluGluToHToGG_M-135_7TeV   red=0 lum=1000000.0   xsec=2.556e-3     kfac=1.000000  scal=1.000000
+split typ=-1 ind=30 draw=1  Nam=vbf_m135_pu2011     CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/VBF_HToGG_M-135_7TeV       red=0 lum=1000000.0   xsec=2.206e-5     kfac=1.000000  scal=1.000000
+split typ=-1 ind=31 draw=1  Nam=wz_m135_pu2011      CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/WH_ZH_HToGG_M-135_7TeV     red=0 lum=1000000.0   xsec=1.372e-5     kfac=1.000000  scal=1.000000
+split typ=-1 ind=32 draw=1  Nam=tt_m135_pu2011      CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/TTH_HToGG_M-135_7TeV       red=0 lum=1000000.0   xsec=1.365e-6     kfac=1.000000  scal=1.000000
 
-split typ=-29 ind=5 draw=1  Nam=gluglu_H_gg_130_pu2011  CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/GluGluToHToGG_M-130_7TeV    red=0 lum=1000000.0   xsec=3.740e-3     kfac=1.000000  scal=1.000000
-split typ=-30 ind=6 draw=1  Nam=vbf_H_gg_130_pu2011     CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/VBF_HToGG_M-130_7TeV        red=0 lum=1000000.0   xsec=3.127e-5     kfac=1.000000  scal=1.000000
-split typ=-32 ind=7 draw=1  Nam=wz_H_gg_130_pu2011      CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/WH_ZH_HToGG_M-130_7TeV      red=0 lum=1000000.0   xsec=2.110e-5     kfac=1.000000  scal=1.000000
-split typ=-31 ind=8 draw=1  Nam=tt_H_gg_130_pu2011      CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/TTH_HToGG_M-130_7TeV        red=0 lum=1000000.0   xsec=2.075e-6     kfac=1.000000  scal=1.000000
+split typ=-1 ind=5 draw=1  Nam=gluglu_m130_pu2011  CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/GluGluToHToGG_M-130_7TeV    red=0 lum=1000000.0   xsec=3.740e-3     kfac=1.000000  scal=1.000000
+split typ=-1 ind=6 draw=1  Nam=vbf_m130_pu2011     CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/VBF_HToGG_M-130_7TeV        red=0 lum=1000000.0   xsec=3.127e-5     kfac=1.000000  scal=1.000000
+split typ=-1 ind=7 draw=1  Nam=wz_m130_pu2011      CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/WH_ZH_HToGG_M-130_7TeV      red=0 lum=1000000.0   xsec=2.110e-5     kfac=1.000000  scal=1.000000
+split typ=-1 ind=8 draw=1  Nam=tt_m130_pu2011      CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/TTH_HToGG_M-130_7TeV        red=0 lum=1000000.0   xsec=2.075e-6     kfac=1.000000  scal=1.000000
 
-split typ=-37 ind=25 draw=1  Nam=gluglu_H_gg_125_pu2011 CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/GluGluToHToGG_M-125_7TeV    red=0 lum=1000000.0   xsec=4.909e-3     kfac=1.000000  scal=1.000000
-split typ=-38 ind=26 draw=1  Nam=vbf_H_gg_125_pu2011    CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/VBF_HToGG_M-125_7TeV        red=0 lum=1000000.0   xsec=3.924e-5     kfac=1.000000  scal=1.000000
-split typ=-40 ind=27 draw=1  Nam=wz_H_gg_125_pu2011     CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/WH_ZH_HToGG_M-125_7TeV      red=0 lum=1000000.0   xsec=2.879e-5     kfac=1.000000  scal=1.000000
-split typ=-39 ind=28 draw=1  Nam=tt_H_gg_125_pu2011     CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/TTH_HToGG_M-125_7TeV        red=0 lum=1000000.0   xsec=2.797e-6     kfac=1.000000  scal=1.000000
+split typ=-1 ind=25 draw=1  Nam=gluglu_m125_pu2011 CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/GluGluToHToGG_M-125_7TeV    red=0 lum=1000000.0   xsec=4.909e-3     kfac=1.000000  scal=1.000000
+split typ=-1 ind=26 draw=1  Nam=vbf_m125_pu2011    CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/VBF_HToGG_M-125_7TeV        red=0 lum=1000000.0   xsec=3.924e-5     kfac=1.000000  scal=1.000000
+split typ=-1 ind=27 draw=1  Nam=wz_m125_pu2011     CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/WH_ZH_HToGG_M-125_7TeV      red=0 lum=1000000.0   xsec=2.879e-5     kfac=1.000000  scal=1.000000
+split typ=-1 ind=28 draw=1  Nam=tt_m125_pu2011     CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/TTH_HToGG_M-125_7TeV        red=0 lum=1000000.0   xsec=2.797e-6     kfac=1.000000  scal=1.000000
 
-split typ=-25 ind=9 draw=1   Nam=gluglu_H_gg_120_pu2011 CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/GluGluToHToGG_M-120_7TeV    red=0 lum=1000000.0   xsec=6.221e-3     kfac=1.000000  scal=1.000000
-split typ=-26 ind=10 draw=1  Nam=vbf_H_gg_120_pu2011    CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/VBF_HToGG_M-120_7TeV        red=0 lum=1000000.0   xsec=4.784e-5     kfac=1.000000  scal=1.000000
-split typ=-28 ind=11 draw=1  Nam=wz_H_gg_120_pu2011     CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/WH_ZH_HToGG_M-120_7TeV      red=0 lum=1000000.0   xsec=3.830e-5     kfac=1.000000  scal=1.000000
-split typ=-27 ind=12 draw=1  Nam=tt_H_gg_120_pu2011     CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/TTH_HToGG_M-120_7TeV        red=0 lum=1000000.0   xsec=3.678e-6     kfac=1.000000  scal=1.000000
+split typ=-1 ind=9 draw=1   Nam=gluglu_m120_pu2011 CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/GluGluToHToGG_M-120_7TeV    red=0 lum=1000000.0   xsec=6.221e-3     kfac=1.000000  scal=1.000000
+split typ=-1 ind=10 draw=1  Nam=vbf_m120_pu2011    CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/VBF_HToGG_M-120_7TeV        red=0 lum=1000000.0   xsec=4.784e-5     kfac=1.000000  scal=1.000000
+split typ=-1 ind=11 draw=1  Nam=wz_m120_pu2011     CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/WH_ZH_HToGG_M-120_7TeV      red=0 lum=1000000.0   xsec=3.830e-5     kfac=1.000000  scal=1.000000
+split typ=-1 ind=12 draw=1  Nam=tt_m120_pu2011     CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/TTH_HToGG_M-120_7TeV        red=0 lum=1000000.0   xsec=3.678e-6     kfac=1.000000  scal=1.000000
 
-split typ=-21 ind=13 draw=1  Nam=gluglu_H_gg_115_pu2011 CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/GluGluToHToGG_M-115_7TeV    red=0 lum=1000000.0   xsec=7.435e-3     kfac=1.000000  scal=1.000000
-split typ=-22 ind=14 draw=1  Nam=vbf_H_gg_115_pu2011    CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/VBF_HToGG_M-115_7TeV        red=0 lum=1000000.0   xsec=5.441e-5     kfac=1.000000  scal=1.000000
-split typ=-24 ind=15 draw=1  Nam=wz_H_gg_115_pu2011     CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/WH_ZH_HToGG_M-115_7TeV      red=0 lum=1000000.0   xsec=4.760e-5     kfac=1.000000  scal=1.000000
-split typ=-23 ind=16 draw=1  Nam=tt_H_gg_115_pu2011     CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/TTH_HToGG_M-115_7TeV        red=0 lum=1000000.0   xsec=4.518e-6     kfac=1.000000  scal=1.000000
+split typ=-1 ind=13 draw=1  Nam=gluglu_m115_pu2011 CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/GluGluToHToGG_M-115_7TeV    red=0 lum=1000000.0   xsec=7.435e-3     kfac=1.000000  scal=1.000000
+split typ=-1 ind=14 draw=1  Nam=vbf_m115_pu2011    CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/VBF_HToGG_M-115_7TeV        red=0 lum=1000000.0   xsec=5.441e-5     kfac=1.000000  scal=1.000000
+split typ=-1 ind=15 draw=1  Nam=wz_m115_pu2011     CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/WH_ZH_HToGG_M-115_7TeV      red=0 lum=1000000.0   xsec=4.760e-5     kfac=1.000000  scal=1.000000
+split typ=-1 ind=16 draw=1  Nam=tt_m115_pu2011     CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/TTH_HToGG_M-115_7TeV        red=0 lum=1000000.0   xsec=4.518e-6     kfac=1.000000  scal=1.000000
 
-split typ=-17 ind=17 draw=1  Nam=gluglu_H_gg_110_pu2011 CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/GluGluToHToGG_M-110_7TeV    red=0 lum=1000000.0   xsec=8.756e-3     kfac=1.000000  scal=1.000000
-split typ=-18 ind=18 draw=1  Nam=vbf_H_gg_110_pu2011    CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/VBF_HToGG_M-110_7TeV        red=0 lum=1000000.0   xsec=6.151e-5     kfac=1.000000  scal=1.000000
-split typ=-19 ind=19 draw=1  Nam=wz_H_gg_110_pu2011     CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/WH_ZH_HToGG_M-110_7TeV      red=0 lum=1000000.0   xsec=5.929e-5     kfac=1.000000  scal=1.000000
-split typ=-20 ind=20 draw=1  Nam=tt_H_gg_110_pu2011     CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/TTH_HToGG_M-110_7TeV        red=0 lum=1000000.0   xsec=5.531e-6     kfac=1.000000  scal=1.000000
+split typ=-1 ind=17 draw=1  Nam=gluglu_m110_pu2011 CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/GluGluToHToGG_M-110_7TeV    red=0 lum=1000000.0   xsec=8.756e-3     kfac=1.000000  scal=1.000000
+split typ=-1 ind=18 draw=1  Nam=vbf_m110_pu2011    CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/VBF_HToGG_M-110_7TeV        red=0 lum=1000000.0   xsec=6.151e-5     kfac=1.000000  scal=1.000000
+split typ=-1 ind=19 draw=1  Nam=wz_m110_pu2011     CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/WH_ZH_HToGG_M-110_7TeV      red=0 lum=1000000.0   xsec=5.929e-5     kfac=1.000000  scal=1.000000
+split typ=-1 ind=20 draw=1  Nam=tt_m110_pu2011     CaDir=/castor/cern.ch/user/c/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/TTH_HToGG_M-110_7TeV        red=0 lum=1000000.0   xsec=5.531e-6     kfac=1.000000  scal=1.000000
 
 
 

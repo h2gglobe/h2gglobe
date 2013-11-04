@@ -3,18 +3,18 @@ intL=5346. histfile=CMS-HGG_test.root output=eventsList.txt
 ### ## POWHEG
 
 ### POWHEG ggH+1jet
-#typ=-38 ind=2 draw=1  Nam=powheg_ggH1jet_m125_8TeV      Fil=root://eoscms//eos/cms/store/cmst3/user/malberti/HIGGS/VBF/vbf_spin_studies/powheg_ggHj_125_globe.root
+#typ=-1 ind=2 draw=1  Nam=powheg_ggH1jet_m125_8TeV      Fil=root://eoscms//eos/cms/store/cmst3/user/malberti/HIGGS/VBF/vbf_spin_studies/powheg_ggHj_125_globe.root
 
-###typ=-38 ind=2 draw=1  Nam=powheg_vbf_m125_8TeV     Fil=root://eoscms//eos/cms/store/cmst3/user/musella/hgg/vbf_spin_studies/powheg_vbf_spin0/hgg_POWEG_VBF_globe.root        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000 tot=100000
+###typ=-1 ind=2 draw=1  Nam=powheg_vbf_m125_8TeV     Fil=root://eoscms//eos/cms/store/cmst3/user/musella/hgg/vbf_spin_studies/powheg_vbf_spin0/hgg_POWEG_VBF_globe.root        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000 tot=100000
 
 ## VBFNLO spin0: using typid for VBF 124
-typ=-74 ind=2 draw=1  Nam=vbfnlo_vbf_m125_8TeV     Fil=root://eoscms//eos/cms/store/cmst3/user/musella/hgg/vbf_spin_studies/vbfnlo_vbf_spin0/hgg_spin0_VBF_globe.root        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000 tot=100000
+typ=-1 ind=2 draw=1  Nam=vbfnlo_vbf_m125_8TeV     Fil=root://eoscms//eos/cms/store/cmst3/user/musella/hgg/vbf_spin_studies/vbfnlo_vbf_spin0/hgg_spin0_VBF_globe.root        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000 tot=100000
 
 ## VBFNLO spin2: using typid for VBF 126
-typ=-78 ind=2 draw=1  Nam=vbfnlo_spin2_vbf_m125_8TeV     Fil=root://eoscms//eos/cms/store/cmst3/user/musella/hgg/vbf_spin_studies/vbfnlo_vbf_spin2/hgg_spin2_VBF_globe.root        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000 tot=100000
+typ=-1 ind=2 draw=1  Nam=vbfnlo_spin2_vbf_m125_8TeV     Fil=root://eoscms//eos/cms/store/cmst3/user/musella/hgg/vbf_spin_studies/vbfnlo_vbf_spin2/hgg_spin2_VBF_globe.root        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000 tot=100000
 
 ## VBFNLO cpeven: using typid for VBF 123
-typ=-58 ind=2 draw=1  Nam=vbfnlo_cpeven_vbf_m125_8TeV     Fil=root://eoscms//eos/cms/store/cmst3/user/musella/hgg/vbf_spin_studies/vbfnlo_vbf_cpeven/hgg_cpeven_VBF_globe.root        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000 tot=100000
+typ=-1 ind=2 draw=1  Nam=vbfnlo_cpeven_vbf_m125_8TeV     Fil=root://eoscms//eos/cms/store/cmst3/user/musella/hgg/vbf_spin_studies/vbfnlo_vbf_cpeven/hgg_cpeven_VBF_globe.root        red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000 tot=100000
 
 # 
 # Branches to use

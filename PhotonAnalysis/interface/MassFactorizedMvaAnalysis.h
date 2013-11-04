@@ -61,24 +61,12 @@ class MassFactorizedMvaAnalysis : public StatAnalysis
     bool fillEscaleTrees;
     bool fillOptree;
     bool forceStdPlotsOnZee;
-    bool doDiphoMvaUpFront;
 
     bool applyIdmvaCorrection;
     bool applySigmaECorrection;
 
     TFile* idmvascaleFile;
     TFile* sigmaescaleFile;
-
-    std::string bdtTrainingPhilosophy;
-    std::string photonLevelMvaUCSD  ;
-    std::string eventLevelMvaUCSD   ;                    
-    std::string photonLevelMvaMIT_EB;
-    std::string photonLevelMvaMIT_EE;
-    std::string eventLevelMvaMIT    ;
-    std::string photonLevelNewIDMVA_EB;
-    std::string photonLevelNewIDMVA_EE;
-
-    std::vector<float> bdtCategoryBoundaries;
     
  protected:
 

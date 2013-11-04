@@ -14,13 +14,18 @@ sigPointsToBook=125,126
 
 includeVBF=0
 includeVHhad=0
+includeVHhadBtag=0
 includeVHlep=0
 includeVHmet=0
 includeVHlepPlusMet=0
+includeTTHhad=0
+includeTTHlep=0
 
 doPtSpinSmear=1
 doPtSpinSyst=1
 ptspinHist=spinanalysis/ptweights.root
-runJetsForSpin=1
+runJetsForSpin=0
 
 doInterferenceSmear=0
+doCosThetaDependentInterferenceSmear=1
+interferenceHist=spinanalysis/interferenceHists.root

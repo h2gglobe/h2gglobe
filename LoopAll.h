@@ -38,6 +38,7 @@ class BaseAnalysis;
 #include "VertexAnalysis/interface/PhotonInfo.h"
 #include "VertexAnalysis/interface/VertexAlgoParameters.h"
 #include "Macros/Normalization_8TeV.h"
+#include "RooFuncReader.h"
 
 #define BRANCH_DICT(NAME) branchDict[# NAME] = branch_info_t(& b ## _ ## NAME, & LoopAll::SetBranchAddress ## _ ## NAME, & LoopAll::Branch ## _ ## NAME )
 
@@ -58,9 +59,10 @@ class LoopAll {
   std::vector<Cut> cutContainer;
   //std::vector<TreeContainer> treeContainer;	 
   std::map<std::string, std::vector<TreeContainer> > treeContainer;	 
-
+  
   RooContainer *rooContainer;
-  Normalization_8TeV *signalNormalizer;
+  int sqrtS;
+  Normalization_8TeV * normalizer();
   
   LoopAll(TTree *tree=0);
   virtual ~LoopAll();
@@ -101,7 +103,8 @@ class LoopAll {
 				  int type, int histtoindfromfiles, int histoplotit,
 				  int nred, long long ntot, float intlumi,
 				  float lumi, float xsec, float kfactor,
-				  float scale, int forceVersion=0, 
+				  float scale, bool ignoreEvWeight=false,
+				  int forceVersion=0, 
 				  bool addnevents=false, TString pileup="");
 
   void Term(); 
@@ -125,6 +128,7 @@ class LoopAll {
   bool runZeeValidation;
   bool applyEcalIsoPresel;
   bool makeDummyTrees;
+  Float_t * pho_r9_cic;
   std::string cicVersion;
   bool usePFCiC;
   
@@ -325,14 +329,14 @@ class LoopAll {
   float pfEcalIso(int phoindex, float dRmax, float dRVetoBarrel, float dRVetoEndcap, float etaStripBarrel, float etaStripEndcap, 
 		  float thrBarrel, float thrEndcaps, int pfToUse=4);
 
+  RooFuncReader *funcReader_dipho_MIT;
   TMVA::Reader *tmvaReaderID_UCSD, * tmvaReader_dipho_UCSD;
   TMVA::Reader *tmvaReaderID_MIT_Barrel, *tmvaReaderID_MIT_Endcap;
   TMVA::Reader *tmvaReader_dipho_MIT;
   TMVA::Reader *tmvaReaderID_Single_Barrel, *tmvaReaderID_Single_Endcap;
   TMVA::Reader *tmvaReaderID_2013_Barrel, *tmvaReaderID_2013_Endcap;
 
-  Float_t photonIDMVANew(Int_t, Int_t, TLorentzVector &, const char*);
-  Float_t photonIDMVA2013(Int_t, Int_t, TLorentzVector &, const char*);
+  Float_t photonIDMVA(Int_t, Int_t, TLorentzVector &, const char*);
 
   Float_t tmva_photonid_pfchargedisogood03;
   Float_t tmva_photonid_pfchargedisobad03;
@@ -571,8 +575,8 @@ int DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL = phoLOOSE,
                           std::vector<int> cutsbycat=std::vector<int>(0));
 
 
-int DiphotonMITPreSelection(Float_t leadPtMin, Float_t subleadPtMin, Float_t phoidMvaCut, bool applyPtoverM, float *pho_energy_array=0, bool vetodipho=false, bool kinonly=false, float dipho_BDT_Cut=-100,int fixedvtx=-1, bool split=false, std::vector<bool> veto_indices=std::vector<bool>(false));
-float DiphotonMITPreSelectionPerDipho(int idipho, Float_t leadPtMin, Float_t subleadPtMin, Float_t phoidMvaCut, bool applyPtoverM, float *pho_energy_array=0, int fixedvtx=-1, bool split=false, bool kinonly=false, std::vector<bool> veto_indices=std::vector<bool>(false));
+int DiphotonMITPreSelection(const char * type, Float_t leadPtMin, Float_t subleadPtMin, Float_t phoidMvaCut, bool applyPtoverM, float *pho_energy_array=0, bool vetodipho=false, bool kinonly=false, float dipho_BDT_Cut=-100,int fixedvtx=-1, bool split=false, std::vector<bool> veto_indices=std::vector<bool>(false));
+float DiphotonMITPreSelectionPerDipho(const char * type, int idipho, Float_t leadPtMin, Float_t subleadPtMin, Float_t phoidMvaCut, bool applyPtoverM, float *pho_energy_array=0, int fixedvtx=-1, bool split=false, bool kinonly=false, std::vector<bool> veto_indices=std::vector<bool>(false));
 int DiphotonMITPreSelection2011(Float_t leadPtMin, Float_t subleadPtMin, Float_t phoidMvaCut, bool applyPtoverM, float *pho_energy_array=0, bool kinonly=false);
 
 /** for a photon index, applies all levels of cuts and returns the
@@ -624,7 +628,7 @@ Int_t PhotonR9Category(int photonindex, int n_r9cat=3, float r9boundary=0.94) {
   if(photonindex < 0) return -1;
   if(n_r9cat<2)return 0;
   int r9cat=0;
-  float r9 = pho_r9[photonindex];
+  float r9 = pho_r9_cic[photonindex];
   if(n_r9cat==3) {
     r9cat = (Int_t)(r9<0.94) + (r9<0.9);// 0, 1, or 2 (high r9 --> low r9)
   } else if(n_r9cat==2) {
@@ -1195,8 +1199,8 @@ void SetBranchAddress_pho_passcuts_lead(TTree * tree) { tree->SetBranchAddress("
 void SetBranchAddress_pho_cutlevel_sublead(TTree * tree) { tree->SetBranchAddress("pho_cutlevel_sublead", &pho_cutlevel_sublead, &b_pho_cutlevel_sublead ); };
 void SetBranchAddress_pho_passcuts_sublead(TTree * tree) { tree->SetBranchAddress("pho_passcuts_sublead", &pho_passcuts_sublead, &b_pho_passcuts_sublead ); };
 
-void doJetMatching(TClonesArray & reco, TClonesArray & gen, Bool_t * match_flag, Bool_t * match_vbf_flag, Bool_t * match_b_flag, 
-		   Float_t * match_pt, Float_t * match_dr, Float_t maxDr=0.4 );
+void doJetMatching(TClonesArray & reco, TClonesArray & gen, Bool_t * match_flag, Bool_t * match_vbf_flag, Bool_t * match_b_flag, Bool_t * match_c_flag,
+		   Bool_t * match_l_flag, Float_t * match_pt, Float_t * match_dr, Float_t maxDr=0.4 );		 
 
 std::pair<int, int> Select2HighestPtJets(TLorentzVector& leadpho, TLorentzVector& subleadpho, Bool_t * jetid_flags=0);
 int RescaleJetEnergy(bool force=false);
@@ -1231,9 +1235,9 @@ void PhotonsToVeto(TLorentzVector* veto_p4, float drtoveto, std::vector<bool>& v
 int ElectronSelectionMVA2012_nocutOnMVA(float elptcut);
 bool ElectronMVACuts_nocutOnMVA(int el_ind, int vtx_ind);
 //HCP2012
-TLorentzVector METCorrection2012B(TLorentzVector lead_p4, TLorentzVector sublead_p4);
+TLorentzVector METCorrection2012B(TLorentzVector lead_p4, TLorentzVector sublead_p4, bool moriond2013MetCorrection);
 //bool METAnalysis2012B(float MET);
-bool METAnalysis2012B(TLorentzVector lead_p4, TLorentzVector sublead_p4, bool useUncor, bool doMETCleaning=true );
+bool METAnalysis2012B(TLorentzVector lead_p4, TLorentzVector sublead_p4, bool useUncor, bool doMETCleaning=true, bool moriond2013MetCorrection=false);
 bool METCleaning2012B(TLorentzVector& lead_p4, TLorentzVector& sublead_p4, TLorentzVector& myMet);
 
 //~ICHEP2012
@@ -1245,8 +1249,7 @@ TLorentzVector correctMet_Simple(TLorentzVector& pho_lead, TLorentzVector& pho_s
 
 void SetAllMVA();
 void FillMuonGsfTracks();
-Float_t photonIDMVA(Int_t, Int_t, TLorentzVector &, const char*);
-Float_t diphotonMVA(Int_t, Int_t, Int_t, float, TLorentzVector &, TLorentzVector &, float,float,float,const char*,float photonID_1=-50.,float photonID_2=-50.);
+Float_t diphotonMVA(Int_t, Int_t, Int_t, float, TLorentzVector &, TLorentzVector &, float,float,float,const char*,const char*,float photonID_1=-50.,float photonID_2=-50.);
 float getDmOverDz(Int_t, Int_t, Float_t*);
 Float_t deltaMassVtx(Int_t, Int_t, Float_t);
 
@@ -1265,10 +1268,16 @@ void getIetaIPhi(int phoid, int & ieta, int & iphi ) const ;
 bool CheckSphericalPhoton(int ieta, int iphi) const;
 bool CheckSphericalPhoton(int phoind) const;
 
-void VHNewLeptonCategorization(bool & VHlep1event, bool & VHlep2event, int diphotonVHlep_id, int vertex, bool VHelevent_prov, bool VHmuevent_prov, int el_ind, int mu_ind, float* smeared_pho_energy, float METcut);
-void VHTwoMuonsEvents(bool & VHlep1event, bool & VHlep2event, int & diphotonVHlep_id, int & muVtx, float* smeared_pho_energy, float leadEtVHlepCut, float subleadEtVHlepCut, bool applyPtoverM);
-void VHTwoElectronsEvents(bool & VHlep1event, bool & VHlep2event, int & diphotonVHlep_id, int & elVtx, float* smeared_pho_energy, float leadEtVHlepCut, float subleadEtVHlepCut, bool applyPtoverM);
+void VHNewLeptonCategorization(bool & VHlep1event, bool & VHlep2event, int diphotonVHlep_id, int vertex, bool VHelevent_prov, bool VHmuevent_prov, int el_ind, int mu_ind, float* smeared_pho_energy, float METcut, bool moriond2013MetCorrection);
+void VHTwoMuonsEvents(bool & VHlep1event, bool & VHlep2event, int & diphotonVHlep_id, int & muVtx, float* smeared_pho_energy, float leadEtVHlepCut, float subleadEtVHlepCut, bool applyPtoverM, bool mvaselection, float diphobdt_output_Cut_VHLep, float phoidMvaCut, bool vetodipho, bool kinonly, const char * type);
+void VHTwoElectronsEvents(bool & VHlep1event, bool & VHlep2event, int & diphotonVHlep_id, int & elVtx, float* smeared_pho_energy, float leadEtVHlepCut, float subleadEtVHlepCut, bool applyPtoverM, bool mvaselection, float diphobdt_output_Cut_VHLep, float phoidMvaCut, bool vetodipho, bool kinonly, const char * type);
  
+private:
+  Float_t photonIDMVA2012(Int_t, Int_t, TLorentzVector &, const char*);
+  Float_t photonIDMVA2013(Int_t, Int_t, TLorentzVector &, const char*);
+  Float_t photonIDMVA2011(Int_t, Int_t, TLorentzVector &, const char*);
+
+  Normalization_8TeV *signalNormalizer;
 
 #ifdef NewFeatures
 #include "Marco/plotInteractive_h.h"

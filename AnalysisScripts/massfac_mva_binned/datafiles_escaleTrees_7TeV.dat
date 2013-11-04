@@ -1,4 +1,4 @@
-intL=5089. histfile=CMS-HGG_escaleTrees_7TeV.root output=eventList.txt
+sqrtS=7 intL=5089. histfile=CMS-HGG_escaleTrees_7TeV.root output=eventList.txt
 
 #
 # Data
@@ -6,7 +6,7 @@ intL=5089. histfile=CMS-HGG_escaleTrees_7TeV.root output=eventList.txt
 typ=0    ind=0 draw=1  Nam=Data    CaDir=/store/group/phys_higgs/cmshgg/reduced/h2gglobe_V11_04_05_reduction_jan16reload_4Apr/Data/PhotonRun2011A_Jan16ReReco_Redo tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=aux/Cert_160404-180252_7TeV_All2011_Jan16Reload_v1.txt
 typ=0    ind=0 draw=1  Nam=Data    CaDir=/store/group/phys_higgs/cmshgg/reduced/h2gglobe_V11_04_05_reduction_jan16reload_4Apr/Data/PhotonRun2011B_Jan16ReReco tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=aux/Cert_160404-180252_7TeV_All2011_Jan16Reload_v1.txt
 
-typ=-38    ind=98 draw=1  Nam=DYJetsToLL   CaDir=/castor/cern.ch/user/c/cmshgg/reduced/h2gglobe_V11_04_05_reduction_jan16reload_4Apr/MC_Bkg_Fall11_S6/DYJetsToLL_M50    red=0   lum=1.e10  xsec=2475.0   kfac=1.15  scal=1.
+typ=-1    ind=98 draw=1  Nam=DYJetsToLL   CaDir=/castor/cern.ch/user/c/cmshgg/reduced/h2gglobe_V11_04_05_reduction_jan16reload_4Apr/MC_Bkg_Fall11_S6/DYJetsToLL_M50    red=0   lum=1.e10  xsec=2475.0   kfac=1.15  scal=1.
 
 ##
 ## Branches to use

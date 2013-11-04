@@ -20,5 +20,7 @@ ut = ROOT.LoopAll();
 cfg = configProducer(ut,config_file,1,int(options.nJobs),int(options.jobId),debug=options.verbose)
 
 if not options.dryRun:
-  ut.LoopAndFillHistos()
+    if options.watchDutyCycle:
+        ut.checkDuty(1000,options.minDutyCycle,options.watchDutyCycleAfter)
+    ut.LoopAndFillHistos()
 ROOT.gBenchmark.Show("Reduction")

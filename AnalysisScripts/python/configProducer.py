@@ -243,8 +243,8 @@ class configProducer:
     self.ut_.SetTypeRun(self.type_,self.conf_.outfile)
     for dum in self.conf_.confs:
       dataContainer = self.ut_.DefineSamples(dum['Nam'],dum['typ'],dum['ind'],dum['draw'],dum['red'],dum['tot'],dum['intL'],
-                                             dum['lum'],dum['xsec'],dum['kfac'],dum['scal'],dum['version'],dum['addnevents'],
-                                             dum["pileup"])
+                                             dum['lum'],dum['xsec'],dum['kfac'],dum['scal'],dum['noevwei'],
+                                             dum['version'],dum['addnevents'],dum["pileup"])
       if("json" in dum and dum["json"] != ""):
         print "Using json %s " % dum["json"]
         defineJsonFilter(dum["json"], dataContainer)
@@ -259,8 +259,8 @@ class configProducer:
     self.ut_.SetTypeRun(self.type_,self.conf_.histfile)
     for dum in self.conf_.confs:
       dataContainer = self.ut_.DefineSamples(dum['Nam'],dum['typ'],dum['ind'],dum['draw'],dum['red'],dum['tot'],dum['intL'],
-                                             dum['lum'],dum['xsec'],dum['kfac'],dum['scal'],dum['version'],dum['addnevents'],
-                                             dum["pileup"])
+                                             dum['lum'],dum['xsec'],dum['kfac'],dum['scal'],dum['noevwei'],
+                                             dum['version'],dum['addnevents'],dum["pileup"])
       if("json" in dum and dum["json"] != ""):
         defineJsonFilter(dum["json"], dataContainer)
       if("evlist" in dum and dum["evlist"] != ""):
@@ -667,6 +667,7 @@ class configProducer:
   def read_histfile(self,line):
     # We have the definition line           
     split_line = line.split()
+    sqrtS = None
     for sp in split_line:
       val = sp.split("=")
       
@@ -687,11 +688,24 @@ class configProducer:
         
       elif val[0] == 'intL':
         self.intL = float(val[1])
+        
+      elif val[0] == 'sqrtS':
+        self.ut_.sqrtS = int(val[1])
+        sqrtS = self.ut_.sqrtS
       else: sys.exit("Unrecognised Argument:\n ' %s ' in line:\n ' %s '" %(val[0],line))
 
       if self.conf_.histfile.startswith("/store"):
           self.conf_.histfile = "root://eoscms//eos/cms%s" % self.conf_.histfile
-      
+
+    if not sqrtS:
+        print ""
+        print ""
+        print "WARNING"
+        print "  This dat files does not specify the centre of mass energy."
+        print "  The default value %d will be assumed to assign the sginal cross sections" % self.ut_.sqrtS 
+        print ""
+        print ""
+
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def read_analyzer(self,line):
     ## a, name, config = line.split()
@@ -740,7 +754,7 @@ class configProducer:
     values = { "CaDir" : "","DcDir" : "","EosDir":"", "Dir" : "", "typ" : -1, "Fil" : "",
                "Nam":"default","draw":-999,"ind":-999,"tot":0,"red":-999,"lum":1.0,"xsec":-1.0,"kfac":1.0,
                "scal":1.0,"json":"","evlist":"","pileup":"","intL":1.,"addnevents":0, "site":"cern.ch",
-               "version":0
+               "version":0,'noevwei':False
                }; 
     # We have one of the file def lines
     split_line = line.split()
@@ -787,7 +801,7 @@ class configProducer:
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def read_input_files_loop(self,line):
     print "read_input_files_loop"
-    map_c = {"typ":99999,"Nam":"default","draw":-999,"ind":-999,"tot":0,"red":-999,"lum":1.0,"xsec":-1.0,"kfac":1.0,"scal":1.0,"json":"","evlist":"","pileup":"","version":0,
+    map_c = {"typ":99999,"Nam":"default","draw":-999,"ind":-999,"tot":0,"red":-999,"lum":1.0,"xsec":-1.0,"kfac":1.0,"scal":1.0,"json":"","evlist":"","pileup":"","version":0,'noevwei':False,
              "maxfiles":-1}
     #map_c["tot"]=-1
     map_c["addnevents"]=0
@@ -796,7 +810,6 @@ class configProducer:
     dcs_directory = ''
     eos_directory = ''
     fi_name   = ''
-    fi_type   = 99999
     # We have one of the file def lines
     split_line = [ s for s in line.replace("split","").split() if s != "" ]
     for sp in split_line:
@@ -812,7 +825,6 @@ class configProducer:
       elif val[0]== "EosDir":
         eos_directory=str(val[1])
       elif val[0] == "typ":
-        fi_type = int(val[1])
         map_c["typ"] = int(val[1])
       elif val[0] in map_c:
         map_c[val[0]] = type(map_c[val[0]])(val[1])
@@ -825,11 +837,27 @@ class configProducer:
     ## print map_c["typ"], map_c["xsec"]
     if (map_c["typ"] == -1) : 
 	  sample_name = map_c["Nam"]
-	  hmass = int(sample_name[sample_name.find("m")+1:sample_name.find("m")+1+sample_name.find("_")])
-	  newtype = 1000*hmass
+	  ## hmass = int(sample_name[sample_name.find("m")+1:sample_name.find("m")+1+sample_name.find("_")])
+          hmass = None
+          toks = sample_name.split("_")
+          print toks
+          for tok in toks:
+              if tok.startswith("m") and tok[1:].isdigit():
+                  hmass=int(tok[1:])
+                  break
+          if not hmass:
+              print "The type id for the sample name %s is -1 so I tried to assign the type id automatically." % sample_name 
+              print "   ... however I only recognize the format Nam=<process>_m<mass>_<sqrtS>."
+              print "Please fix your configuration file and run again. "
+              sys.exit(1)
+          newtype = 1000*hmass
 	  proc = ""
-	  if "ggh" in sample_name: 
-		proc="ggh"
+	  if "ggh" in sample_name:
+                if "minlo" in sample_name:
+                    proc="ggh_minlo"
+                    newtype+=10
+                else:
+                    proc="ggh"
 	  elif "vbf" in sample_name: 
 		newtype+=100
 		proc="vbf"
@@ -845,13 +873,26 @@ class configProducer:
 	  elif "zh" in sample_name: 
 		newtype+=300
 		proc="zh"
+          elif "gg_grav" in sample_name or "grav2pm" in sample_name:
+                newtype+=600
+                proc="gg_grav"
+          elif "spin0plus" in sample_name:
+                newtype+=610
+                proc="gg_spin0"
+          elif "qq_grav" in sample_name:
+                newtype+=650
+                proc="qq_grav"
 	  map_c["typ"]=-1*newtype
+          print "Automatic sample type name:%s mass:%d proc:%s type:%d " % (sample_name, hmass, proc, -newtype)
           if map_c["xsec"] < 0: # not provided so figure it out ourselves
-            map_c["xsec"] = self.ut_.signalNormalizer.GetXsection(float(hmass),proc) * self.ut_.signalNormalizer.GetBR(float(hmass))
-    elif map_c["xsec"] < 0:
-     	    map_c["xsec"] = self.ut_.signalNormalizer.GetXsection(map_c["typ"]) * self.ut_.signalNormalizer.GetBR(map_c["typ"])
+            map_c["xsec"] = self.ut_.normalizer().GetXsection(float(hmass),proc) * self.ut_.normalizer().GetBR(float(hmass))
+    elif map_c["typ"] < 0 and map_c["xsec"] < 0:
+          mass = self.ut_.normalizer().GetMass(map_c["typ"])
+          proc = self.ut_.normalizer().GetProcess(map_c["typ"])
+          map_c["xsec"] = self.ut_.normalizer().GetXsection(mass,proc) * self.ut_.normalizer().GetBR(mass)
     if PYDEBUG: print "Calculated signal X-section*BR = ", map_c["Nam"],map_c["typ"], map_c["xsec"]
-      
+    fi_type = map_c["typ"]
+    
     if fi_name != '':
       temp_dir = "/".join(fi_name.split("/")[:-1])
       if map_c["pileup"] == "":

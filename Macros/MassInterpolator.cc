@@ -129,7 +129,8 @@ ChannelModel* MassInterpolator::findContainer(const char * process, const char *
 // ------------------------------------------------------------------------------------------------
 void MassInterpolator::runInterpolation(bool is7TeV)
 {
-	Normalization_8TeV normalizer(is7TeV);
+	Normalization_8TeV normalizer;
+	normalizer.Init(is7TeV?7:8);
 	AbsInterpolator * br = new LinInterpolator("br",normalizer.GetBrGraph());
 	for(processList_t::iterator iprocess = channelContainers_.begin(); iprocess != channelContainers_.end(); ++iprocess ) {
 		AbsInterpolator * sigma = new LinInterpolator("sigma_"+iprocess->first,normalizer.GetSigmaGraph(iprocess->first));

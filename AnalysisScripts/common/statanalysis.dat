@@ -29,7 +29,6 @@ scaleR9Only=0
 doMCSmearing=1 
 
 ## Individual smearing flags
-energyCorrectionMethod=Bendavid
 doEcorrectionSmear=1
 doEcorrectionSyst=0
 
@@ -60,4 +59,4 @@ efficiencyFile=aux/sig_reweighing_moriond2013_run2012ABCD_cutbased_v1.root
 
 #bkgPolOrderByCat=5,5,5,5,4,4,3,3,3
 #tth and vh added -10,2,3,3
-bkgPolOrderByCat=5,5,5,5,4,4,3,3,3,-10,2,3,3
+bkgPolOrderByCat=5,5,5,5,4,4,3,3,3,-10,2,3

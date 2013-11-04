@@ -16,15 +16,12 @@ mu_glo_chi2
 mu_glo_type                                                                            
 mu_glo_nmatches                                                                        
 ##skimmed mu_glo_posvtx
-mu_glo_losthits                                                                        
 mu_glo_validhits                                                                       
 mu_glo_pixelhits                                                                       
 mu_glo_validChmbhits                                                                   
-mu_glo_tkpterr    
 mu_glo_ecaliso03                                                                       
 mu_glo_hcaliso03                                                                       
 mu_glo_tkiso03                                                                         
-mu_glo_dz                                                                              
 mu_glo_D0Vtx                                                                      
 mu_glo_DZVtx                                                                      
 mu_tkLayers                                                                            
@@ -41,7 +38,6 @@ el_std_p4
 el_std_sc
 el_std_scind                                                                             
 el_std_sieie                                                                             
-el_std_sieiesc                                                                           
 el_std_hp_expin                                                                          
 el_std_detain                                                                            
 el_std_dphiin                                                                            
@@ -58,18 +54,14 @@ el_std_hcaliso04
 el_std_dcot                                                                              
 el_std_dist                                                                              
 el_std_tkind                                                                             
-el_std_d0                                                                                
-el_std_z0                                                                                
 el_std_posvtx
 el_std_D0Vtx                                                                        
 el_std_DZVtx                                                                        
-el_std_ip_ctf                                                                            
 el_std_tkdrv    
 el_std_ecaldrv                                                                           
 el_std_pfiso_charged                                                                     
 el_std_pfiso_neutral                                                                     
 el_std_pfiso_photon                                                                      
-el_std_conv_vtxProb                                                                      
 el_std_conv                                                                              
 el_std_pin                                                                               
 el_std_mva_nontrig                                                                       

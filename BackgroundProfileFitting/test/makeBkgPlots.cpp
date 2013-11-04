@@ -172,7 +172,7 @@ pair<double,double> getNormTermNllAndRes(RooRealVar *mgg, RooAbsData *data, RooM
 		if (normVal>-1.) normVar->setConstant(false);
 	}
 	//cout << "CACHE: " << bestFitNorm << " -- " << bestFitNll << endl;
-	return make_pair(bestFitNll,bestFitNorm);
+	return make_pair(2*bestFitNll,bestFitNorm);
 }
 
 double getNormTermNll(RooRealVar *mgg, RooAbsData *data, RooMultiPdf *mpdf, RooCategory *mcat, double normVal=-1., double massRangeLow=-1., double massRangeHigh=-1.){
@@ -270,10 +270,12 @@ double guessNew(RooRealVar *mgg, RooMultiPdf *mpdf, RooCategory *mcat, RooAbsDat
 		lowPoint = boundary;
 		highPoint = bestPoint;
 	}
+	//double prevDistanceFromTruth = 1.e6;
 	double distanceFromTruth = 1.e6;
 	int nIts=0;
 	while (TMath::Abs(distanceFromTruth/crossing)>tolerance) {
 		
+		//prevDistanceFromTruth=distanceFromTruth;
 		guess = lowPoint+(highPoint-lowPoint)/2.;
 		guessNll = getNormTermNll(mgg,data,mpdf,mcat,guess,massRangeLow,massRangeHigh)-nllBest;
     distanceFromTruth = crossing - guessNll;
@@ -282,6 +284,9 @@ double guessNew(RooRealVar *mgg, RooMultiPdf *mpdf, RooCategory *mcat, RooAbsDat
 			cout << Form("\t lP: %7.3f hP: %7.3f xg: %7.3f yg: %7.3f",lowPoint,highPoint,guess,guessNll) << endl;;
 			cout << "\t ----------- " << distanceFromTruth/crossing << " -------------" << endl;
 		}
+		
+		// for low side. if nll val is lower than target move right point left. if nll val is higher than target move left point right
+		// vice versa for high side
 		if (isLowSide){
 			if (guessNll>crossing) lowPoint = guess;
 			else highPoint=guess;
@@ -291,11 +296,15 @@ double guessNew(RooRealVar *mgg, RooMultiPdf *mpdf, RooCategory *mcat, RooAbsDat
 			else lowPoint=guess;
 		}
 		nIts++;
+		// because these are envelope nll curves this algorithm can get stuck in local minima
+		// hacked get out is just to start trying again
 		if (nIts>20) {
-			lowPoint = TMath::Min(0.,lowPoint-20);
+			lowPoint = TMath::Max(0.,lowPoint-20);
 			highPoint += 20;
 			nIts=0;
 			if (verbose_) cout << "RESET:" << endl;
+			// if it's a ridicolous value it wont converge so return value of bestGuess
+			if (TMath::Abs(guessNll)>2e4) return 0.; 
 		}
 	}
 	return guess;
@@ -615,12 +624,19 @@ void profileExtendTerm(RooRealVar *mgg, RooAbsData *data, RooMultiPdf *mpdf, Roo
 	}
 }
 
-void plotAllPdfs(RooRealVar *mgg, RooAbsData *data, RooMultiPdf *mpdf, RooCategory *mcat, string name, int cat){
+void plotAllPdfs(RooRealVar *mgg, RooAbsData *data, RooMultiPdf *mpdf, RooCategory *mcat, string name, int cat, bool blind){
 	
 	RooPlot *plot = mgg->frame();
 	plot->SetTitle(Form("Background functions profiled for category %d",cat));
 	plot->GetXaxis()->SetTitle("m_{#gamma#gamma} (GeV)");
-	data->plotOn(plot,Binning(80));
+	if (blind) {
+		mgg->setRange("unblind_up",150,180);
+		mgg->setRange("unblind_down",100,110);
+		data->plotOn(plot,Binning(80),CutRange("unblind_down,unblind_up"));
+	}
+	else {
+		data->plotOn(plot,Binning(80));
+	}
 	
 	TLegend *leg = new TLegend(0.6,0.5,0.89,0.89);
 	leg->SetFillColor(0);
@@ -636,7 +652,10 @@ void plotAllPdfs(RooRealVar *mgg, RooAbsData *data, RooMultiPdf *mpdf, RooCatego
 
 	TCanvas *canv = new TCanvas();
 	plot->Draw();
+	if (blind) plot->SetMinimum(0.0001);
 	leg->Draw();
+	canv->Modified();
+	canv->Update();
 	canv->Print(Form("%s.pdf",name.c_str()));
 	canv->Print(Form("%s.png",name.c_str()));
 	delete canv;
@@ -728,7 +747,7 @@ int main(int argc, char* argv[]){
 		}
 	}
 	else {
-		bpdf = (RooAbsPdf*)inWS->pdf(Form("data_pol_model_%dTeV_cat%d",sqrts,cat));
+		bpdf = (RooAbsPdf*)inWS->pdf(Form("pdf_data_pol_model_%dTeV_cat%d",sqrts,cat));
 		if (!bpdf){
 			cout << "Cant't find background pdf" << endl;
 			exit(0);
@@ -744,13 +763,21 @@ int main(int argc, char* argv[]){
 	cout << "\t"; data->Print();
 
 	// plot all the pdfs for reference
-	plotAllPdfs(mgg,data,mpdf,mcat,Form("%s/allPdfs_cat%d",outDir.c_str(),cat),cat);
+	if (isMultiPdf || verbose_) plotAllPdfs(mgg,data,mpdf,mcat,Form("%s/allPdfs_cat%d",outDir.c_str(),cat),cat,blind);
 
 	// include normalization hack RooBernsteinFast;
+	/*
 	for (int pInd=0; pInd<mpdf->getNumPdfs(); pInd++){
 		mcat->setIndex(pInd);
-		if (TString(mpdf->getCurrentPdf()->GetName()).Contains("bern")) mpdf->getCurrentPdf()->forceNumInt();
+		if (mpdf->getCurrentPdf()->IsA()->InheritsFrom(RooBernsteinFast<1>::Class())) mpdf->getCurrentPdf()->forceNumInt();	
+		if (mpdf->getCurrentPdf()->IsA()->InheritsFrom(RooBernsteinFast<2>::Class())) mpdf->getCurrentPdf()->forceNumInt();	
+		if (mpdf->getCurrentPdf()->IsA()->InheritsFrom(RooBernsteinFast<3>::Class())) mpdf->getCurrentPdf()->forceNumInt();	
+		if (mpdf->getCurrentPdf()->IsA()->InheritsFrom(RooBernsteinFast<4>::Class())) mpdf->getCurrentPdf()->forceNumInt();	
+		if (mpdf->getCurrentPdf()->IsA()->InheritsFrom(RooBernsteinFast<5>::Class())) mpdf->getCurrentPdf()->forceNumInt();	
+		if (mpdf->getCurrentPdf()->IsA()->InheritsFrom(RooBernsteinFast<6>::Class())) mpdf->getCurrentPdf()->forceNumInt();	
+		if (mpdf->getCurrentPdf()->IsA()->InheritsFrom(RooBernsteinFast<7>::Class())) mpdf->getCurrentPdf()->forceNumInt();	
 	}
+	*/
 	
 	// reset to best fit
 	int bf = getBestFitFunction(mpdf,data,mcat,!verbose_);
@@ -782,24 +809,50 @@ int main(int argc, char* argv[]){
 	TGraphAsymmErrors *twoSigmaBand = new TGraphAsymmErrors();
 	twoSigmaBand->SetName(Form("twosigma_cat%d",cat));
 
+	cout << "Plot has " << plot->GetXaxis()->GetNbins() << " bins" << endl;
 	if (doBands) {
 		int p=0;
-		for (double mass=double(mhLow); mass<double(mhHigh)+massStep; mass+=massStep) {	
+		for (double mass=double(mhLow); mass<double(mhHigh)+massStep; mass+=massStep) {
+		//for (int i=1; i<(plot->GetXaxis()->GetNbins()+1); i++){
 			double lowedge = mass-0.5;
 			double upedge = mass+0.5;
 			double center = mass;
+			/*
+			double lowedge = plot->GetXaxis()->GetBinLowEdge(i);
+			double upedge = plot->GetXaxis()->GetBinUpEdge(i);
+			double center = plot->GetXaxis()->GetBinCenter(i);
+			*/
 			double nomBkg = nomBkgCurve->interpolate(center);
 			double nllBest = getNormTermNll(mgg,data,mpdf,mcat,nomBkg,lowedge,upedge);
-		 
+
 		 	// sensible range
-      double lowRange = nomBkg - 3*TMath::Sqrt(nomBkg);
+      double lowRange = TMath::Max(0.,nomBkg - 3*TMath::Sqrt(nomBkg));
       double highRange = nomBkg + 3*TMath::Sqrt(nomBkg);
 
-      // error calc algo
-      double errLow1Value = guessNew(mgg,mpdf,mcat,data,nomBkg,nllBest,lowRange,lowedge,upedge,1.,nllTolerance);
-      double errHigh1Value = guessNew(mgg,mpdf,mcat,data,nomBkg,nllBest,highRange,lowedge,upedge,1.,nllTolerance);
-      double errLow2Value = guessNew(mgg,mpdf,mcat,data,nomBkg,nllBest,lowRange,lowedge,upedge,4.,nllTolerance);
-      double errHigh2Value = guessNew(mgg,mpdf,mcat,data,nomBkg,nllBest,highRange,lowedge,upedge,4.,nllTolerance);
+			if (verbose_) cout << "mgg: " << center << " nomBkg: " << nomBkg << " lR: " << lowRange << " hR: " << highRange << endl;
+
+			double errLow1Value,errHigh1Value,errLow2Value,errHigh2Value;
+			// cant handle having 0 events
+			if (nomBkg<1.e-5) {
+				errLow1Value = 0.;
+				errLow2Value = 0.;
+				if (verbose_) cout << "errHigh1" << endl;
+				errHigh1Value = guessNew(mgg,mpdf,mcat,data,nomBkg,nllBest,highRange,lowedge,upedge,1.,nllTolerance);
+				if (verbose_) cout << "errHigh2" << endl;
+				errHigh2Value = guessNew(mgg,mpdf,mcat,data,nomBkg,nllBest,highRange,lowedge,upedge,4.,nllTolerance);
+			}
+			else {
+				// error calc algo
+				if (verbose_) cout << "errLow1" << endl;
+				errLow1Value = guessNew(mgg,mpdf,mcat,data,nomBkg,nllBest,lowRange,lowedge,upedge,1.,nllTolerance);
+				if (verbose_) cout << "errLow2" << endl;
+				errLow2Value = guessNew(mgg,mpdf,mcat,data,nomBkg,nllBest,lowRange,lowedge,upedge,4.,nllTolerance);
+				if (verbose_) cout << "errHigh1" << endl;
+				errHigh1Value = guessNew(mgg,mpdf,mcat,data,nomBkg,nllBest,highRange,lowedge,upedge,1.,nllTolerance);
+				if (verbose_) cout << "errHigh2" << endl;
+				errHigh2Value = guessNew(mgg,mpdf,mcat,data,nomBkg,nllBest,highRange,lowedge,upedge,4.,nllTolerance);
+			}
+		 
       double errLow1 = nomBkg - errLow1Value;
       double errHigh1 = errHigh1Value - nomBkg;
       double errLow2 = nomBkg - errLow2Value;
@@ -836,7 +889,7 @@ int main(int argc, char* argv[]){
 				line.DrawLine(nomBkg-errLow2,0.,nomBkg-errLow2,4.);
 				line.DrawLine(nomBkg+errHigh2,0.,nomBkg+errHigh2,4.);
 				line.DrawLine(0.9*errLow2Value,4.,1.1*errHigh2Value,4.);
-				temp->Print(Form("%s/normProfs/cat%d_mass%6.2f.pdf",outDir.c_str(),cat,mass));
+				temp->Print(Form("%s/normProfs/cat%d_mass%6.2f.pdf",outDir.c_str(),cat,center));
 				delete profCurve;
         delete temp;
 			}
@@ -889,12 +942,12 @@ int main(int argc, char* argv[]){
 		}
 		if (w_sig->GetName()==TString("cms_hgg_workspace")) {
 			TH1F::SetDefaultSumw2();
-			TH1F *gghHist = (TH1F*)inFile->Get(Form("th1f_sig_ggh_mass_m125_cat%d",cat));
-			TH1F *vbfHist = (TH1F*)inFile->Get(Form("th1f_sig_vbf_mass_m125_cat%d",cat));
-			TH1F *wzhHist = (TH1F*)inFile->Get(Form("th1f_sig_wzh_mass_m125_cat%d",cat));
-			TH1F *tthHist = (TH1F*)inFile->Get(Form("th1f_sig_tth_mass_m125_cat%d",cat));
-			TH1F *whHist = (TH1F*)inFile->Get(Form("th1f_sig_wh_mass_m125_cat%d",cat));
-			TH1F *zhHist = (TH1F*)inFile->Get(Form("th1f_sig_zh_mass_m125_cat%d",cat));
+			TH1F *gghHist = (TH1F*)sigFile->Get(Form("th1f_sig_ggh_mass_m125_cat%d",cat));
+			TH1F *vbfHist = (TH1F*)sigFile->Get(Form("th1f_sig_vbf_mass_m125_cat%d",cat));
+			TH1F *wzhHist = (TH1F*)sigFile->Get(Form("th1f_sig_wzh_mass_m125_cat%d",cat));
+			TH1F *tthHist = (TH1F*)sigFile->Get(Form("th1f_sig_tth_mass_m125_cat%d",cat));
+			TH1F *whHist = (TH1F*)sigFile->Get(Form("th1f_sig_wh_mass_m125_cat%d",cat));
+			TH1F *zhHist = (TH1F*)sigFile->Get(Form("th1f_sig_zh_mass_m125_cat%d",cat));
 			TH1F *sigHist = (TH1F*)gghHist->Clone(Form("th1f_sig_mass_m125_cat%d",cat));
 			sigHist->Add(gghHist);
 			sigHist->Add(vbfHist);
@@ -906,10 +959,11 @@ int main(int argc, char* argv[]){
 			sigHist->SetLineWidth(3);
 			sigHist->SetFillColor(38);
 			sigHist->SetFillStyle(3001);
-			sigHist->Draw("LFsame");
-			leg->AddEntry(sigHist,"Sig model m_{H}=125GeV","L");
+			sigHist->Draw("HISTsame");
+			leg->AddEntry(sigHist,"Sig model m_{H}=125GeV","LF");
 			outFile->cd();
 			sigHist->Write();
+			if (verbose_) cout << "Plotted binned signal with " << sigHist->Integral() << " entries" << endl;
 		}
 		else {
 			RooRealVar *MH = (RooRealVar*)w_sig->var("MH");

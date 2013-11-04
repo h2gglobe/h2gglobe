@@ -102,13 +102,6 @@ def doBandsFit(hmass, cpdf, nomcurve, datanorm, plot, catname, everyN):
     
     nlim = ROOT.RooRealVar('nlim'+catname,'',0.0,0.0,1e+5)
 
-    hmass.setRange('errRange',hmass.getMin(),hmass.getMax())
-    epdf = ROOT.RooExtendPdf('epdf','',cpdf,nlim,'errRange')
-    nll = epdf.createNLL(datanorm, ROOT.RooFit.Extended(), ROOT.RooFit.NumCPU(4))
-    minim = ROOT.RooMinimizer(nll)
-    minim.setStrategy(0)
-    minim.setPrintLevel(-1)
-
     clOne = 1.0 - 2.0*ROOT.RooStats.SignificanceToPValue(1.0)
     errLevelOne = 0.5*pow(ROOT.Math.normal_quantile(1-0.5*(1-clOne),1.0), 2)
     # the 0.5 is because qmu is -2*NLL
@@ -126,6 +119,13 @@ def doBandsFit(hmass, cpdf, nomcurve, datanorm, plot, catname, everyN):
 
         nlim.setVal(nombkg)
         hmass.setRange('errRange',lowedge, upedge)
+
+        epdf = ROOT.RooExtendPdf('epdf','',cpdf,nlim,'errRange')
+        nll = epdf.createNLL(datanorm, ROOT.RooFit.Extended())
+        minim = ROOT.RooMinimizer(nll)
+        minim.setStrategy(0)
+        minim.setPrintLevel(-1)
+
 
         minim.setErrorLevel( errLevelOne )
         minim.migrad()

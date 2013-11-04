@@ -18,6 +18,8 @@
 #include <fstream>
 #include "math.h"
 
+#include "branchdef/Limits.h"
+
 // ------------------------------------------------------------------------------------
 class StatAnalysis : public PhotonAnalysis 
 {
@@ -55,7 +57,7 @@ class StatAnalysis : public PhotonAnalysis
     
     bool  doEscaleSyst, doEresolSyst, doPhotonIdEffSyst, doVtxEffSyst, doR9Syst, doTriggerEffSyst, doKFactorSyst, doPtSpinSyst;
     bool  doEscaleSmear, doEresolSmear, doPhotonIdEffSmear, doVtxEffSmear, doR9Smear, doTriggerEffSmear, 
-	doKFactorSmear, doPtSpinSmear, doInterferenceSmear;
+	doKFactorSmear, doPtSpinSmear, doInterferenceSmear, doCosThetaDependentInterferenceSmear;
     float systRange;
     int   nSystSteps;   
     //int   nEtaCategories, nR9Categories, nPtCategories;
@@ -69,6 +71,8 @@ class StatAnalysis : public PhotonAnalysis
     int nCosThetaCategories;
     std::string cosThetaDef;
     std::vector<float> cosThetaCatBoundaries;
+    double genCosTheta;
+    double cosTheta;
 
     bool splitwzh;
 
@@ -79,15 +83,17 @@ class StatAnalysis : public PhotonAnalysis
 		     Float_t myVBFSubJPt, Int_t nVBFDijetJetCategories, bool isSyst, std::string name1);
 
     int nDataBins;  
-    bool scaleClusterShapes, scaleR9Only;
+    bool scaleClusterShapes, scaleR9Only, scaleR9ForCicOnly;
     bool dumpAscii, dumpMcAscii;
 
     std::vector<double> zeePtBinLowEdge, zeePtWeight;
     std::vector<int> sigPointsToBook;
+    std::vector<std::string> sigProcessesToBook;
     
     std::string kfacHist;
     std::string pdfWeightHist;
     std::string ptspinHist;
+    std::string interferenceHist;
 
     TH1D *thm110,*thm120,*thm130,*thm140;
 
@@ -129,11 +135,11 @@ class StatAnalysis : public PhotonAnalysis
     std::vector<float> smeared_pho_energy;
     std::vector<float> smeared_pho_r9;
     std::vector<float> smeared_pho_weight;
+    
+    Float_t corrected_pho_r9[MAX_PHOTONS];
 
-    void  computeExclusiveCategory(LoopAll & l, int & category, std::pair<int,int> diphoton_index, float pt, float diphoBDT=1. );
+    void  computeExclusiveCategory(LoopAll & l, int & category, std::pair<int,int> diphoton_index, float pt, float diphoBDT=1., bool mvaselection=false);
     void computeSpinCategory(LoopAll &l, int &category, TLorentzVector lead_p4, TLorentzVector sublead_p4);
-    int  categoryFromBoundaries(std::vector<float> & v, float val);
-    int  categoryFromBoundaries2D(std::vector<float> & v1, std::vector<float> & v2, std::vector<float> & v3, float val1, float val2, float val3);
 
     void fillControlPlots(const TLorentzVector & lead_p4, const  TLorentzVector & sublead_p4, const TLorentzVector & Higgs, 
 			  float lead_r9, float sublead_r9, int diphoton_index, 
@@ -148,6 +154,7 @@ class StatAnalysis : public PhotonAnalysis
     DiPhoEfficiencySmearer *vtxEffSmearer, *triggerEffSmearer;
     KFactorSmearer * kFactorSmearer;
     PdfWeightSmearer * pdfWeightSmearer;
+    std::vector<PdfWeightSmearer*> pdfWeightSmearer_sets;
     InterferenceSmearer * interferenceSmearer;
     PtSpinSmearer * ptSpinSmearer;
     

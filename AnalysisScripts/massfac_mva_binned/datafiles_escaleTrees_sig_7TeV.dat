@@ -1,12 +1,12 @@
-intL=5089. histfile=CMS-HGG_escaleTrees_signal_7TeV.root output=eventList.txt
+sqrtS=7 intL=5089. histfile=CMS-HGG_escaleTrees_signal_7TeV.root output=eventList.txt
 
 #
 # Signal
 #
-typ=-37 ind=25 draw=1  Nam=gluglu_H_gg_125_pu2011 CaDir=/store/group/phys_higgs/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/GluGluToHToGG_M-125_7TeV    red=0 lum=1000000.0 xsec=0.0350599 kfac=1.000000  scal=1.000000
-typ=-38 ind=26 draw=1  Nam=vbf_H_gg_125_pu2011    CaDir=/store/group/phys_higgs/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/VBF_HToGG_M-125_7TeV    red=0 lum=1000000.0  xsec=0.00277319 kfac=1.000000  scal=1.000000
-typ=-40 ind=27 draw=1  Nam=wz_H_gg_125_pu2011     CaDir=/store/group/phys_higgs/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/WH_ZH_HToGG_M-125_7TeV    red=0 lum=1000000.0  xsec=0.002035123 kfac=1.000000  scal=1.000000
-typ=-39 ind=28 draw=1  Nam=tt_H_gg_125_pu2011     CaDir=/store/group/phys_higgs/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/TTH_HToGG_M-125_7TeV    red=0 lum=1000000.0  xsec=0.0001977186 kfac=1.000000  scal=1.000000
+typ=-1 ind=25 draw=1  Nam=gluglu_m125_pu2011 CaDir=/store/group/phys_higgs/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/GluGluToHToGG_M-125_7TeV    red=0 lum=1000000.0 xsec=0.0350599 kfac=1.000000  scal=1.000000
+typ=-1 ind=26 draw=1  Nam=vbf_m125_pu2011    CaDir=/store/group/phys_higgs/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/VBF_HToGG_M-125_7TeV    red=0 lum=1000000.0  xsec=0.00277319 kfac=1.000000  scal=1.000000
+typ=-1 ind=27 draw=1  Nam=wz_m125_pu2011     CaDir=/store/group/phys_higgs/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/WH_ZH_HToGG_M-125_7TeV    red=0 lum=1000000.0  xsec=0.002035123 kfac=1.000000  scal=1.000000
+typ=-1 ind=28 draw=1  Nam=tt_m125_pu2011     CaDir=/store/group/phys_higgs/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/TTH_HToGG_M-125_7TeV    red=0 lum=1000000.0  xsec=0.0001977186 kfac=1.000000  scal=1.000000
 
 ##
 ## Branches to use

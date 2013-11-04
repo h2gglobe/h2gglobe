@@ -1,7 +1,7 @@
 intL=10000. histfile=/store/group/phys_higgs/cmshgg/analyzed/beamspot/%(label)s/CMS-HGG.root output=eventsList.txt
 #intL=10000. histfile=CMS-HGG_local.root output=eventsList.txt
 
-typ=-37 ind=1 draw=1  Nam=ggh_m125_8TeV_newBS  CaDir=/store/group/phys_higgs/cmshgg/reduced/V13_04_00_v1/mc/Summer12_S7_8TeV/GluGluToHToGG_M-125_8TeV-powheg-pythia6_Summer12-newBS_PU_S7_START52_V9A-v2    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-1 ind=1 draw=1  Nam=ggh_m125_8TeV_newBS  CaDir=/store/group/phys_higgs/cmshgg/reduced/V13_04_00_v1/mc/Summer12_S7_8TeV/GluGluToHToGG_M-125_8TeV-powheg-pythia6_Summer12-newBS_PU_S7_START52_V9A-v2    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
 
 
 # 

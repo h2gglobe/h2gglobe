@@ -5,7 +5,10 @@
 #include <assert.h>
 #include <algorithm>
 
-PdfWeightSmearer::PdfWeightSmearer(const  std::string & theFile,  std::string dId , std::string uId ) : efficiency_file(theFile) , downId(dId), upId(uId)
+#include "Macros/Normalization_8TeV.h"
+
+PdfWeightSmearer::PdfWeightSmearer(const  std::string & theFile,  Normalization_8TeV * norm, std::string dId , std::string uId ) : 
+	efficiency_file(theFile), norm_(norm), downId(dId), upId(uId)
 {
   name_="PdfWeightSmearer";
 }
@@ -23,49 +26,31 @@ void PdfWeightSmearer::readFile(std::string uId, std::string dId ){
 
   temp = (TH2F*) thePdfWeightFile_->Get( Form("GF_%s",uId.c_str()) );
   assert(temp!=0);    kFactorSmearers_[1]=(TH2F*) temp->Clone(("Hmass_up")); kFactorSmearers_[1]->SetDirectory(0);
-  if (uId=="up"){
-	// up seems to be a factor of 10 larger than it should!
-	kFactorSmearers_[1]->Scale(0.1);
-//	kFactorSmearers_[1]->Scale(kFactorSmearers_[0]->Integral()/kFactorSmearers_[1]->Integral());
-  }
 
   temp = (TH2F*) thePdfWeightFile_->Get( Form("GF_%s",dId.c_str()) );
   assert(temp!=0);    kFactorSmearers_[2]=(TH2F*) temp->Clone(("Hmass_down")); kFactorSmearers_[2]->SetDirectory(0);
-  if (dId=="up"){
-	kFactorSmearers_[2]->Scale(0.1);
-//	kFactorSmearers_[2]->Scale(kFactorSmearers_[0]->Integral()/kFactorSmearers_[2]->Integral());
-  }
+
+  // Need to normalize to central integral!
+  double C_integral = kFactorSmearers_[0]->Integral();
+  kFactorSmearers_[2]->Scale(C_integral/kFactorSmearers_[2]->Integral());
+  kFactorSmearers_[1]->Scale(C_integral/kFactorSmearers_[1]->Integral());
 
 }
 
 bool PdfWeightSmearer::smearEvent( float & weight, const TLorentzVector & p4, const int nPu, const int sample_type, float syst_shift ) const 
 {
-  // Check for GGH sample type
-  if (  (sample_type == -1 )
-   ||  (sample_type == -5 )
-   ||  (sample_type == -9 )
-   ||  (sample_type == -13)
-   ||  (sample_type == -17)
-   ||  (sample_type == -21)
-   ||  (sample_type == -25)
-   ||  (sample_type == -29)
-   ||  (sample_type == -33)
-   ||  (sample_type == -37)
-   ||  (sample_type == -41)
-   ||  (sample_type == -45)
-   ||  (sample_type == -49)
-   ||  (sample_type == -53)  
-   ||  (sample_type == -57)  
-   ||  (sample_type == -61)
-   ||  (sample_type == -65)
-   ||  (sample_type == -69) )
-  {
- 	double kWeight = getWeight( p4, nPu, syst_shift );
-  	weight = (kWeight > 0) ? kWeight : 0;
-	return true;
+  if( sample_type >= 0 ) { return true; }
+  int genMassPoint = std::round(norm_->GetMass(sample_type));
+  
+  if( norm_->GetProcess(sample_type) != "ggh" ) {
+    return true;
   }
-
-  else return true; // Not a GGH type we use so  forget it
+  if( genMassPoint > 150 ) { genMassPoint=150; } // Warning: missing k-factor
+  if( genMassPoint == 100 ) { genMassPoint=105; }  // Warning: missing k-factor
+  
+  double kWeight = getWeight( p4, nPu, syst_shift );
+  weight = (kWeight > 0) ? kWeight : 0;
+  return true;
 }
 
 
@@ -81,8 +66,8 @@ bool PdfWeightSmearer::init()
   return true;
 }
 
-double PdfWeightSmearer::getPdfWeight(int genMassPoint, int id, double gPT , double gY ) const {
-
+double PdfWeightSmearer::getPdfWeight(int genMassPoint, int id, double gPT , double gY ) const 
+{
     const TH2F* tmp = kFactorSmearers_[id]; 
     return tmp->GetBinContent(tmp->FindFixBin(gY,gPT));
     assert(0); return 0.;
@@ -98,6 +83,6 @@ double PdfWeightSmearer::getWeight( const TLorentzVector & p4, const int nPu, fl
   double nominal   = getPdfWeight( 0, 0, gPT, gY );
   double variation = getPdfWeight( 0, varId, gPT, gY );
 
-  return ( max( 1. + syst_shift * (1.-variation/nominal), 0.) ) ;
+  return ( max( 1. + fabs(syst_shift) * ((variation/nominal)-1), 0.) ) ;
 
 }

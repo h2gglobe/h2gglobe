@@ -34,7 +34,7 @@ using namespace RooFit;
 using namespace boost;
 namespace po = program_options;
 
-bool BLIND = false;
+bool BLIND = true;
 
 RooAbsPdf* getPdf(PdfModelBuilder &pdfsModel, string type, int order, const char* ext=""){
   
@@ -153,6 +153,7 @@ int main(int argc, char* argv[]){
     ("outDir,D", po::value<string>(&outDir)->default_value("plots/fTest"),                      "Out directory for plots")
     ("saveMultiPdf", po::value<string>(&outfilename)->default_value("multipdfws.root"),         "Save a MultiPdf model with the appropriate pdfs")
     ("is2011",                                                                                  "Run 2011 config")
+		("unblind", 																																								"Dont blind plots")
     ("verbose,v",                                                                               "Run with more output")
   ;
   po::variables_map vm;
@@ -160,6 +161,7 @@ int main(int argc, char* argv[]){
   po::notify(vm);
   if (vm.count("help")) { cout << desc << endl; exit(1); }
   if (vm.count("is2011")) is2011=true;
+	if (vm.count("unblind")) BLIND=false;
   if (vm.count("saveMultiPdf")) {
 	saveMultiPdf=true;
   } else {
@@ -224,18 +226,13 @@ int main(int argc, char* argv[]){
     fabChoice.push_back(pair<string,int>("Bernstein",3));
     fabChoice.push_back(pair<string,int>("Bernstein",3));
     fabChoice.push_back(pair<string,int>("Bernstein",3));
-    fabChoice.push_back(pair<string,int>("Bernstein",3));
-    fabChoice.push_back(pair<string,int>("Bernstein",3));
-    fabChoice.push_back(pair<string,int>("Bernstein",3));
-    fabChoice.push_back(pair<string,int>("Bernstein",3));
-    fabChoice.push_back(pair<string,int>("Bernstein",3));
-    fabChoice.push_back(pair<string,int>("Bernstein",3));
-    fabChoice.push_back(pair<string,int>("Bernstein",3));
-    fabChoice.push_back(pair<string,int>("Bernstein",3));
-    fabChoice.push_back(pair<string,int>("Bernstein",3));
-    fabChoice.push_back(pair<string,int>("Bernstein",3));
-    fabChoice.push_back(pair<string,int>("Bernstein",3));
-    fabChoice.push_back(pair<string,int>("Bernstein",3));
+		// now need more randoms as have 15 cats
+    fabChoice.push_back(pair<string,int>("Bernstein",5));
+    fabChoice.push_back(pair<string,int>("Bernstein",5));
+    fabChoice.push_back(pair<string,int>("Bernstein",5));
+    fabChoice.push_back(pair<string,int>("Bernstein",5));
+    fabChoice.push_back(pair<string,int>("Bernstein",4));
+    fabChoice.push_back(pair<string,int>("Bernstein",4));
     fabChoice.push_back(pair<string,int>("Bernstein",3));
     fabChoice.push_back(pair<string,int>("Bernstein",3));
     fabChoice.push_back(pair<string,int>("Bernstein",3));

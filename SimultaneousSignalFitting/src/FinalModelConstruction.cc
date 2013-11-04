@@ -42,7 +42,8 @@ FinalModelConstruction::FinalModelConstruction(RooRealVar *massVar, RooRealVar *
 	if (is2011_) sqrts_ = 7;
 	else sqrts_ = 8;
   // load xs and br info from Normalization_8TeV
-  norm = new Normalization_8TeV(is2011);
+  norm = new Normalization_8TeV();
+  norm->Init(sqrts_);
   TGraph *brGraph = norm->GetBrGraph();
 	brSpline = graphToSpline(Form("fbr_%dTeV",sqrts_),brGraph);
   
@@ -391,9 +392,9 @@ void FinalModelConstruction::buildStdPdf(string name, int nGaussians, bool recur
 
 void FinalModelConstruction::buildRvWvPdf(string name, int nGrv, int nGwv, bool recursive){
 
-  if (!rvFractionSet_) getRvFractionFunc(Form("%s_rvFracFunc",name.c_str()));
+  if (!rvFractionSet_) getRvFractionFunc(Form("%s_%s_cat%d_rvFracFunc",name.c_str(),proc_.c_str(),cat_));
   if (!systematicsSet_) setupSystematics();
-  RooFormulaVar *rvFraction = new RooFormulaVar(Form("%s_rvFrac",name.c_str()),Form("%s_rvFrac",name.c_str()),"TMath::Min(@0*@1,1.0)",RooArgList(*vertexNuisance,*rvFracFunc));
+  RooFormulaVar *rvFraction = new RooFormulaVar(Form("%s_%s_cat%d_rvFrac",name.c_str(),proc_.c_str(),cat_),Form("%s_%s_cat%d_rvFrac",name.c_str(),proc_.c_str(),cat_),"TMath::Min(@0*@1,1.0)",RooArgList(*vertexNuisance,*rvFracFunc));
   vector<RooAddPdf*> rvPdfs = buildPdf(name,nGrv,recursive,rvSplines,Form("_rv_%dTeV",sqrts_)); 
   vector<RooAddPdf*> wvPdfs = buildPdf(name,nGwv,recursive,wvSplines,Form("_wv_%dTeV",sqrts_)); 
   finalPdf = new RooAddPdf(Form("%s_%s_cat%d",name.c_str(),proc_.c_str(),cat_),Form("%s_%s_cat%d",name.c_str(),proc_.c_str(),cat_),RooArgList(*rvPdfs[0],*wvPdfs[0]),RooArgList(*rvFraction));
@@ -543,23 +544,27 @@ void FinalModelConstruction::plotPdf(string outDir){
   system(Form("mkdir -p %s",outDir.c_str()));
   
   TCanvas *canv = new TCanvas();
-  RooPlot *dataPlot = mass->frame(Range(100,160));
+  RooPlot *dataPlot = mass->frame(Title(Form("%s_cat%d",proc_.c_str(),cat_)),Range(100,160));
   for (unsigned int i=0; i<allMH_.size(); i++){
     int mh=allMH_[i];
-    stdDatasets[mh]->plotOn(dataPlot,Binning(80));
+    stdDatasets[mh]->plotOn(dataPlot,Binning(160));
     MH->setVal(mh);
     extendPdf->plotOn(dataPlot);
   }
   dataPlot->Draw();
   canv->Print(Form("%s/%s_cat%d_fits.pdf",outDir.c_str(),proc_.c_str(),cat_));
+  canv->Print(Form("%s/%s_cat%d_fits.png",outDir.c_str(),proc_.c_str(),cat_));
   
-  RooPlot *pdfPlot = mass->frame(Range(100,160));
+  RooPlot *pdfPlot = mass->frame(Title(Form("%s_cat%d",proc_.c_str(),cat_)),Range(100,160));
+	pdfPlot->GetYaxis()->SetTitle(Form("Pdf projection / %2.1f GeV",(mass->getMax()-mass->getMin())/160.));
   for (int mh=mhLow_; mh<=mhHigh_; mh++){
     MH->setVal(mh);
-    extendPdf->plotOn(pdfPlot,Normalization(1.0,RooAbsReal::RelativeExpected));
+		// to get correct normlization need to manipulate with bins and range
+    extendPdf->plotOn(pdfPlot,Normalization(mass->getBins()/160.*(mass->getMax()-mass->getMin())/60.,RooAbsReal::RelativeExpected));
   }
   pdfPlot->Draw();
   canv->Print(Form("%s/%s_cat%d_interp.pdf",outDir.c_str(),proc_.c_str(),cat_));
+  canv->Print(Form("%s/%s_cat%d_interp.png",outDir.c_str(),proc_.c_str(),cat_));
   delete canv;
 
 }

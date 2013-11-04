@@ -855,3 +855,12 @@ void Branch_jet_algoPF1_bgenMatched(TTree* tree) { tree->Branch("jet_algoPF1_bge
 void Branch_jet_algoPF2_bgenMatched(TTree* tree) { tree->Branch("jet_algoPF2_bgenMatched", &jet_algoPF2_bgenMatched, "jet_algoPF2_bgenMatched[jet_algoPF2_n]/O"); };
 void Branch_jet_algoPF3_bgenMatched(TTree* tree) { tree->Branch("jet_algoPF3_bgenMatched", &jet_algoPF3_bgenMatched, "jet_algoPF3_bgenMatched[jet_algoPF3_n]/O"); };
 
+void Branch_jet_algoPF1_cgenMatched(TTree* tree) { tree->Branch("jet_algoPF1_cgenMatched", &jet_algoPF1_cgenMatched, "jet_algoPF1_cgenMatched[jet_algoPF1_n]/O"); };
+void Branch_jet_algoPF2_cgenMatched(TTree* tree) { tree->Branch("jet_algoPF2_cgenMatched", &jet_algoPF2_cgenMatched, "jet_algoPF2_cgenMatched[jet_algoPF2_n]/O"); };
+void Branch_jet_algoPF3_cgenMatched(TTree* tree) { tree->Branch("jet_algoPF3_cgenMatched", &jet_algoPF3_cgenMatched, "jet_algoPF3_cgenMatched[jet_algoPF3_n]/O"); };
+
+void Branch_jet_algoPF1_lgenMatched(TTree* tree) { tree->Branch("jet_algoPF1_lgenMatched", &jet_algoPF1_lgenMatched, "jet_algoPF1_lgenMatched[jet_algoPF1_n]/O"); };
+void Branch_jet_algoPF2_lgenMatched(TTree* tree) { tree->Branch("jet_algoPF2_lgenMatched", &jet_algoPF2_lgenMatched, "jet_algoPF2_lgenMatched[jet_algoPF2_n]/O"); };
+void Branch_jet_algoPF3_lgenMatched(TTree* tree) { tree->Branch("jet_algoPF3_lgenMatched", &jet_algoPF3_lgenMatched, "jet_algoPF3_lgenMatched[jet_algoPF3_n]/O"); };
+
+

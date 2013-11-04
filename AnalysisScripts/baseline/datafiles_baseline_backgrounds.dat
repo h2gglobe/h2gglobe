@@ -28,10 +28,10 @@ typ=14 ind=12 draw=1 Nam=gjet_pp_20        CaDir=/store/group/phys_higgs/cmshgg/
 #
 # Signal
 #
-typ=-73 ind=1 draw=1  Nam=gluglu_H_gg_124_pu2012  CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v3/Summer12_S7_8TeV/GluGluToHToGG_M-124_8TeV    red=0 lum=1.  xsec=-1.0     kfac=1.  scal=1.
-typ=-74 ind=2 draw=1  Nam=vbf_H_gg_124_pu2012     CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v3/Summer12_S7_8TeV/VBF_HToGG_M-124_8TeV        red=0 lum=1.  xsec=-1.0     kfac=1.  scal=1.
-typ=-76 ind=4 draw=1  Nam=wz_H_gg_124_pu2012      CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v3/Summer12_S7_8TeV/WH_ZH_HToGG_M-124_8TeV    red=0 lum=1.  xsec=-1.0     kfac=1.  scal=1.
-typ=-75 ind=3 draw=1  Nam=tt_H_gg_124_pu2012      CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v3/Summer12_S7_8TeV/TTH_HToGG_M-124_8TeV        red=0 lum=1.  xsec=-1.0     kfac=1.  scal=1.
+typ=-1 ind=1 draw=1  Nam=gluglu_m124_pu2012  CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v3/Summer12_S7_8TeV/GluGluToHToGG_M-124_8TeV    red=0 lum=1.  xsec=-1.0     kfac=1.  scal=1.
+typ=-1 ind=2 draw=1  Nam=vbf_m124_pu2012     CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v3/Summer12_S7_8TeV/VBF_HToGG_M-124_8TeV        red=0 lum=1.  xsec=-1.0     kfac=1.  scal=1.
+typ=-1 ind=4 draw=1  Nam=wz_m124_pu2012      CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v3/Summer12_S7_8TeV/WH_ZH_HToGG_M-124_8TeV    red=0 lum=1.  xsec=-1.0     kfac=1.  scal=1.
+typ=-1 ind=3 draw=1  Nam=tt_m124_pu2012      CaDir=/store/group/phys_higgs/cmshgg/reduced/may31freezing_reduction_v3/Summer12_S7_8TeV/TTH_HToGG_M-124_8TeV        red=0 lum=1.  xsec=-1.0     kfac=1.  scal=1.
 
 #
 # Branches to use

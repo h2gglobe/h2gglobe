@@ -7,6 +7,8 @@
 #include "TFile.h"
 #include "TGraphAsymmErrors.h"
 
+class Normalization_8TeV;
+
 // ------------------------------------------------------------------------------------
 class KFactorSmearer : public BaseGenLevelSmearer
 {
@@ -15,7 +17,7 @@ public:
   std::string efficiency_file;
   
   //   downId and upId set according to prescription of Jun 3, 2011  
-  KFactorSmearer(const std::string &efficiency_file, unsigned int downId =1, unsigned int upId=6 ) ;
+  KFactorSmearer(const std::string &efficiency_file, Normalization_8TeV * norm, unsigned int downId =1, unsigned int upId=6 ) ;
   virtual ~KFactorSmearer();
   
   virtual const std::string & name() const { return name_; };
@@ -34,6 +36,7 @@ public:
   
   std::string   name_;
   std::string   KFName_;
+  Normalization_8TeV * norm_;
   TFile        *theKFactorFile_; 
   std::map< int,std::vector<TH1*> > kFactorSmearers_;
   void   readMassPoint(int mass, int uId, int dId );

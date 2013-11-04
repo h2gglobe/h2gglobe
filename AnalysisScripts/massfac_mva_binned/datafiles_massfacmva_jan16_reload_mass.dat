@@ -1,19 +1,19 @@
-intL=5089. histfile=/store/group/phys_higgs/cmshgg/analyzed/ichep2012topup/%(label)s/CMS-HGG_mH.root output=shifo.root
+sqrtS=7 intL=5089. histfile=/store/group/phys_higgs/cmshgg/analyzed/ichep2012topup/%(label)s/CMS-HGG_mH.root output=shifo.root
 
-split typ=-29 ind=5 draw=1  Nam=gluglu_H_gg_130_pu2011  CaDir=/store/group/phys_higgs/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/GluGluToHToGG_M-130_7TeV    red=0 lum=1000000.0  xsec=0.0319112 kfac=1.000000  scal=1.000000
-split typ=-30 ind=6 draw=1  Nam=vbf_H_gg_130_pu2011     CaDir=/store/group/phys_higgs/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/VBF_HToGG_M-130_7TeV    red=0 lum=1000000.0  xsec=0.00260804 kfac=1.000000  scal=1.000000
-split typ=-32 ind=7 draw=1  Nam=wz_H_gg_130_pu2011      CaDir=/store/group/phys_higgs/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/WH_ZH_HToGG_M-130_7TeV    red=0 lum=1000000.0  xsec=0.001759636 kfac=1.000000  scal=1.000000
-split typ=-31 ind=8 draw=1  Nam=tt_H_gg_130_pu2011      CaDir=/store/group/phys_higgs/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/TTH_HToGG_M-130_7TeV    red=0 lum=1000000.0  xsec=0.0001730708 kfac=1.000000  scal=1.000000
+split typ=-1 ind=5 draw=1  Nam=gluglu_m130_pu2011  CaDir=/store/group/phys_higgs/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/GluGluToHToGG_M-130_7TeV    red=0 lum=1000000.0  xsec=0.0319112 kfac=1.000000  scal=1.000000
+split typ=-1 ind=6 draw=1  Nam=vbf_m130_pu2011     CaDir=/store/group/phys_higgs/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/VBF_HToGG_M-130_7TeV    red=0 lum=1000000.0  xsec=0.00260804 kfac=1.000000  scal=1.000000
+split typ=-1 ind=7 draw=1  Nam=wz_m130_pu2011      CaDir=/store/group/phys_higgs/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/WH_ZH_HToGG_M-130_7TeV    red=0 lum=1000000.0  xsec=0.001759636 kfac=1.000000  scal=1.000000
+split typ=-1 ind=8 draw=1  Nam=tt_m130_pu2011      CaDir=/store/group/phys_higgs/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/TTH_HToGG_M-130_7TeV    red=0 lum=1000000.0  xsec=0.0001730708 kfac=1.000000  scal=1.000000
                                                                    
-split typ=-37 ind=25 draw=1  Nam=gluglu_H_gg_125_pu2011 CaDir=/store/group/phys_higgs/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/GluGluToHToGG_M-125_7TeV    red=0 lum=1000000.0 xsec=0.0350599 kfac=1.000000  scal=1.000000
-split typ=-38 ind=26 draw=1  Nam=vbf_H_gg_125_pu2011    CaDir=/store/group/phys_higgs/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/VBF_HToGG_M-125_7TeV    red=0 lum=1000000.0  xsec=0.00277319 kfac=1.000000  scal=1.000000
-split typ=-40 ind=27 draw=1  Nam=wz_H_gg_125_pu2011     CaDir=/store/group/phys_higgs/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/WH_ZH_HToGG_M-125_7TeV    red=0 lum=1000000.0  xsec=0.002035123 kfac=1.000000  scal=1.000000
-split typ=-39 ind=28 draw=1  Nam=tt_H_gg_125_pu2011     CaDir=/store/group/phys_higgs/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/TTH_HToGG_M-125_7TeV    red=0 lum=1000000.0  xsec=0.0001977186 kfac=1.000000  scal=1.000000
+split typ=-1 ind=25 draw=1  Nam=gluglu_m125_pu2011 CaDir=/store/group/phys_higgs/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/GluGluToHToGG_M-125_7TeV    red=0 lum=1000000.0 xsec=0.0350599 kfac=1.000000  scal=1.000000
+split typ=-1 ind=26 draw=1  Nam=vbf_m125_pu2011    CaDir=/store/group/phys_higgs/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/VBF_HToGG_M-125_7TeV    red=0 lum=1000000.0  xsec=0.00277319 kfac=1.000000  scal=1.000000
+split typ=-1 ind=27 draw=1  Nam=wz_m125_pu2011     CaDir=/store/group/phys_higgs/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/WH_ZH_HToGG_M-125_7TeV    red=0 lum=1000000.0  xsec=0.002035123 kfac=1.000000  scal=1.000000
+split typ=-1 ind=28 draw=1  Nam=tt_m125_pu2011     CaDir=/store/group/phys_higgs/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/TTH_HToGG_M-125_7TeV    red=0 lum=1000000.0  xsec=0.0001977186 kfac=1.000000  scal=1.000000
 
-split typ=-25 ind=9 draw=1   Nam=gluglu_H_gg_120_pu2011 CaDir=/store/group/phys_higgs/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/GluGluToHToGG_M-120_7TeV    red=0 lum=1000000.0  xsec=0.0374175 kfac=1.000000  scal=1.000000
-split typ=-26 ind=10 draw=1  Nam=vbf_H_gg_120_pu2011    CaDir=/store/group/phys_higgs/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/VBF_HToGG_M-120_7TeV    red=0 lum=1000000.0  xsec=0.00285525 kfac=1.000000  scal=1.000000
-split typ=-28 ind=11 draw=1  Nam=wz_H_gg_120_pu2011     CaDir=/store/group/phys_higgs/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/WH_ZH_HToGG_M-120_7TeV    red=0 lum=1000000.0  xsec=0.002285775 kfac=1.000000  scal=1.000000
-split typ=-27 ind=12 draw=1  Nam=tt_H_gg_120_pu2011     CaDir=/store/group/phys_higgs/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/TTH_HToGG_M-120_7TeV    red=0 lum=1000000.0  xsec=0.00021951 kfac=1.000000  scal=1.000000
+split typ=-1 ind=9 draw=1   Nam=gluglu_m120_pu2011 CaDir=/store/group/phys_higgs/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/GluGluToHToGG_M-120_7TeV    red=0 lum=1000000.0  xsec=0.0374175 kfac=1.000000  scal=1.000000
+split typ=-1 ind=10 draw=1  Nam=vbf_m120_pu2011    CaDir=/store/group/phys_higgs/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/VBF_HToGG_M-120_7TeV    red=0 lum=1000000.0  xsec=0.00285525 kfac=1.000000  scal=1.000000
+split typ=-1 ind=11 draw=1  Nam=wz_m120_pu2011     CaDir=/store/group/phys_higgs/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/WH_ZH_HToGG_M-120_7TeV    red=0 lum=1000000.0  xsec=0.002285775 kfac=1.000000  scal=1.000000
+split typ=-1 ind=12 draw=1  Nam=tt_m120_pu2011     CaDir=/store/group/phys_higgs/cmshgg/reduced/jan16reload_reduction_v2/MC_Sig_Fall11_S6/TTH_HToGG_M-120_7TeV    red=0 lum=1000000.0  xsec=0.00021951 kfac=1.000000  scal=1.000000
 
 ##
 ## Branches to use

@@ -9,12 +9,12 @@ intL=300.e+3 histfile=vertexOptimization.root output=shifo.root
 #
 
 ## 8TeV
-typ=-37 ind=1 draw=1   Nam=ggh_m125_8TeV   		CaDir=%(moriond_mc)s/GluGluToHToGG_M-125_8TeV-powheg-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1
-typ=-38 ind=2 draw=1   Nam=vbf_m125_8TeV   		CaDir=%(moriond_mc)s/VBF_HToGG_M-125_8TeV-powheg-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1
+typ=-1 ind=1 draw=1   Nam=ggh_m125_8TeV   		CaDir=%(moriond_mc)s/GluGluToHToGG_M-125_8TeV-powheg-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1
+typ=-1 ind=2 draw=1   Nam=vbf_m125_8TeV   		CaDir=%(moriond_mc)s/VBF_HToGG_M-125_8TeV-powheg-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1
 
 ## 14TeV
-typ=-57 ind=1 draw=1   Nam=ggh_m125_14TeV   		CaDir=%(post_ls1_mc)s/GluGluToHToGG_M-125_14TeV-powheg-pythia6_PU35 xsec=50.35 scal=2.28e-3
-typ=-58 ind=2 draw=1   Nam=vbf_m125_14TeV   		CaDir=%(post_ls1_mc)s/VBF_HToGG_M-125_14TeV-powheg-pythia6_PU35  xsec=4.40 scal=2.28e-3
+typ=-1 ind=1 draw=1   Nam=ggh_m125_14TeV   		CaDir=%(post_ls1_mc)s/GluGluToHToGG_M-125_14TeV-powheg-pythia6_PU35 xsec=50.35 scal=2.28e-3
+typ=-1 ind=2 draw=1   Nam=vbf_m125_14TeV   		CaDir=%(post_ls1_mc)s/VBF_HToGG_M-125_14TeV-powheg-pythia6_PU35  xsec=4.40 scal=2.28e-3
 
 
 ##

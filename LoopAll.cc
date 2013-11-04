@@ -137,6 +137,7 @@ SampleContainer & LoopAll::DefineSamples(const char *filesshortnam,
 					 float xsec,
 					 float kfactor,
 					 float scale,
+					 bool ignoreEvWeight,
 					 int forceVersion,
 					 bool addnevents,
 					 TString pileup
@@ -162,7 +163,7 @@ SampleContainer & LoopAll::DefineSamples(const char *filesshortnam,
     return sampleContainer[sample_is_defined];
   }
 
-  sampleContainer.push_back(SampleContainer(&weight));
+  sampleContainer.push_back(SampleContainer((ignoreEvWeight?0:&weight)));
   sampleContainer.back().itype = type;
   sampleContainer.back().ntot = ntot;
   sampleContainer.back().nred = nred;
@@ -412,7 +413,7 @@ void LoopAll::Term(){
 
 // ------------------------------------------------------------------------------------
 LoopAll::LoopAll(TTree *tree) :
-	counters(4,0.), countersred(4,0.), checkBench(0)
+    counters(4,0.), countersred(4,0.), checkBench(0), sqrtS(8)
 {  
 #include "branchdef/newclonesarray.h"
 
@@ -422,12 +423,14 @@ LoopAll::LoopAll(TTree *tree) :
 #endif
 
   rooContainer       = new RooContainer();
-  signalNormalizer   = new Normalization_8TeV();
+  signalNormalizer   = 0;
+  /// signalNormalizer   = new Normalization_8TeV();
 
   rooContainer->BlindData();	// 2012 requires that we Blind our data
   // Best Set Global parameters accesible via python to defauls
-
-  signalNormalizer->FillSignalTypes();
+  
+  funcReader_dipho_MIT = 0;
+  /// signalNormalizer->FillSignalTypes();
 
   runZeeValidation = false;
   makeDummyTrees = false;
@@ -435,6 +438,7 @@ LoopAll::LoopAll(TTree *tree) :
   applyEcalIsoPresel = false;
   pfisoOffset=2.5;
   cicVersion="7TeV";
+  pho_r9_cic = &pho_r9[0];
 }
 
 // ------------------------------------------------------------------------------------
@@ -1507,7 +1511,18 @@ bool LoopAll::CheckEventList( int run, int lumi, int event  )
 }
 
 
+// ----------------------------------------------------------------------------------------------------------------------
+Normalization_8TeV * LoopAll::normalizer()
+{
+    if( signalNormalizer == 0 ) { 
+	signalNormalizer = new Normalization_8TeV();
+	signalNormalizer->Init(sqrtS);
+	signalNormalizer->FillSignalTypes();
+    }
+    return signalNormalizer;
+}
 
+// ----------------------------------------------------------------------------------------------------------------------
 float LoopAll::GetCutValue(TString cutname, int icat, int highcut) {
   for (unsigned int i=0; i<cutContainer.size(); i++) {
     if(cutContainer[i].name == cutname) {

@@ -8,9 +8,9 @@ typ=0    ind=0 draw=1  Nam=Data    CaDir=/store/group/phys_higgs/cmshgg/reduced/
 typ=0    ind=0 draw=1  Nam=Data    CaDir=/store/group/phys_higgs/cmshgg/reduced/V13_04_00/data/DoublePhoton_Run2012B-29Jun2012-v1  tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1. json=aux/Cert_ICHEP_TopUp_535fb.json
 
 
-typ=-73 ind=1 draw=1  Nam=ggh_m124_8TeV  CaDir=/store/group/phys_higgs/cmshgg/reduced/V13_04_00_v1/mc/Summer12_S7_8TeV/GluGluToHToGG_M-124_8TeV-powheg-pythia6_Summer12-PU_S7_START52_V9-v1    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
-typ=-37 ind=1 draw=1  Nam=ggh_m125_8TeV  CaDir=/store/group/phys_higgs/cmshgg/reduced/V13_04_00_v1/mc/Summer12_S7_8TeV/GluGluToHToGG_M-125_8TeV-powheg-pythia6_Summer12-PU_S7_START52_V9-v1    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
-typ=-77 ind=1 draw=1  Nam=ggh_m123_8TeV  CaDir=/store/group/phys_higgs/cmshgg/reduced/V13_04_00_v1/mc/Summer12_S7_8TeV/GluGluToHToGG_M-123_8TeV-powheg-pythia6_Summer12-PU_S7_START52_V9-v1    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-1 ind=1 draw=1  Nam=ggh_m124_8TeV  CaDir=/store/group/phys_higgs/cmshgg/reduced/V13_04_00_v1/mc/Summer12_S7_8TeV/GluGluToHToGG_M-124_8TeV-powheg-pythia6_Summer12-PU_S7_START52_V9-v1    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-1 ind=1 draw=1  Nam=ggh_m125_8TeV  CaDir=/store/group/phys_higgs/cmshgg/reduced/V13_04_00_v1/mc/Summer12_S7_8TeV/GluGluToHToGG_M-125_8TeV-powheg-pythia6_Summer12-PU_S7_START52_V9-v1    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
+typ=-1 ind=1 draw=1  Nam=ggh_m123_8TeV  CaDir=/store/group/phys_higgs/cmshgg/reduced/V13_04_00_v1/mc/Summer12_S7_8TeV/GluGluToHToGG_M-123_8TeV-powheg-pythia6_Summer12-PU_S7_START52_V9-v1    red=0 lum=1000000.0  xsec=-1.0     kfac=1.000000  scal=1.000000
 
 
 

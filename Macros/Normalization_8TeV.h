@@ -20,20 +20,17 @@ class Normalization_8TeV {
 
   public:
 	Normalization_8TeV();
-	Normalization_8TeV(bool is2011);
 
-//	void Init8TeV();
-//	void Init7TeV();
-	void Init(bool is2011);
+	void Init(int sqrtS);
 	
 	double GetBR(double);
-	double GetBR(int);
+	// double GetBR(int);
 	double GetXsection(double,TString);
 	double GetXsection(double);
-	double GetXsection(int);
+	// double GetXsection(int);
 	double GetNorm(double,TH1F*,double, TH1F*,double);
 	double GetMass(int);
-    double GetVBFCorrection(double);
+	double GetVBFCorrection(double);
 	TString GetProcess(int);
 	void CheckNorm(double,double,double,TString);
 	void FillSignalTypes();

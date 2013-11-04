@@ -169,3 +169,6 @@ type=2 name=dijet_Mjj
 type=2 name=dijet_MVA
 type=2 name=dRphojet1
 type=2 name=dRphojet2
+type=2 name=njets10
+type=2 name=njets15
+type=2 name=njets20
