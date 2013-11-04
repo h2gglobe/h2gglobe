@@ -9,6 +9,7 @@ EnergySmearer::EnergySmearer(const energySmearingParameters& par, const std::vec
   syst_only_ = false;
   rgen_ = new TRandom3(12345);
   baseSeed_ = 0;
+  forceShift_ = false;
   name_="EnergySmearer_"+ par.categoryType + "_" + par.parameterSetName;
   //Checking consistency of input parameters
   std::cerr << myParameters_.categoryType << " " <<  myParameters_.n_categories << std::endl;
@@ -114,15 +115,28 @@ std::string EnergySmearer::photonCategory(const energySmearingParameters & myPar
   return myCategory;
 }
 
-float EnergySmearer::getSmearingSigma(const energySmearingParameters & myParameters, const std::string & category, float energy, float syst_shift)
+float EnergySmearer::getSmearingSigma(const energySmearingParameters & myParameters, const std::string & category, 
+				      float energy, float eta, float syst_shift)
 {
   float smearing_sigma = myParameters.smearing_sigma.find(category)->second;
   float smearing_stocastic_sigma = myParameters.smearing_stocastic_sigma.find(category)->second;
+  float smearing_stocastic_sigma_error = myParameters.smearing_stocastic_sigma_error.find(category)->second;
   float err_sigma= myParameters.smearing_sigma_error.find(category)->second;
+  energySmearingParameters::parameterMapConstIt ipivot = myParameters.smearing_stocastic_pivot.find(category);
   
+  if( myParameters.etStocastic ) {
+	  energy /= cosh(eta);
+  }
+  smearing_sigma           += syst_shift * err_sigma;
+  smearing_stocastic_sigma += syst_shift * smearing_stocastic_sigma_error;
+  if( ipivot != myParameters.smearing_stocastic_pivot.end() ) {
+	  float phi = std::max((float)0.,std::min((float)(TMath::Pi()*0.5),smearing_stocastic_sigma));
+	  float rho = smearing_sigma;
+	  smearing_stocastic_sigma = rho*sqrt(ipivot->second)*sin(phi);
+	  smearing_sigma = rho * cos(phi);
+  }
   smearing_stocastic_sigma = (smearing_stocastic_sigma * smearing_stocastic_sigma) / energy;
   smearing_sigma           = sqrt( smearing_sigma*smearing_sigma + smearing_stocastic_sigma );
-  smearing_sigma += syst_shift * err_sigma;
   
   // Careful here, if sigma < 0 now, it will be squared and so not correct, set to 0 in this case.
   if (smearing_sigma < 0.) smearing_sigma=0.;
@@ -158,7 +172,7 @@ float EnergySmearer::getScaleOffset(int run, const std::string & category) const
 bool EnergySmearer::smearPhoton(PhotonReducedInfo & aPho, float & weight, int run, float syst_shift) const
 {
     if( syst_only_ && syst_shift == 0. ) { return true; }
-    if( ! doEfficiencies_ && ! doCorrections_ && ! doRegressionSmear_ && syst_shift == 0. ) {
+    if( ! forceShift_ && ! doEfficiencies_ && ! doCorrections_ && ! doRegressionSmear_ && syst_shift == 0. ) {
 	    int myId = smearerId();
 	    if( aPho.hasCachedVal(myId) ) {
 		    const std::pair<const BaseSmearer *, float> & cachedVal = aPho.cachedVal(myId);
@@ -167,6 +181,7 @@ bool EnergySmearer::smearPhoton(PhotonReducedInfo & aPho, float & weight, int ru
 		    return true;
 	    }
     }
+    if( forceShift_ ) { forceShift_ = false; }
     if( ! preselCategories_.empty() ) {
 	    if( find(preselCategories_.begin(), preselCategories_.end(),
 		     PhotonCategory::photon_coord_t(
@@ -212,7 +227,8 @@ bool EnergySmearer::smearPhoton(PhotonReducedInfo & aPho, float & weight, int ru
 		    aPho.cacheVal( smearerId(), this, scale_offset );
 	    }
 	} else {
-	  float smearing_sigma = getSmearingSigma( myParameters_, category, aPho.energy(), syst_shift );
+	  float smearing_sigma = getSmearingSigma( myParameters_, category, aPho.energy(), 
+						   aPho.caloPosition().Eta(), syst_shift );
 	  
 	  float smear = 1.;
 	  if( smearing_sigma > 0. ) {
@@ -345,4 +361,48 @@ double EnergySmearer::getWeight(double pt, std::string theCategory, float syst_s
     return 1.;
   }
   
+}
+
+EnergySmearerExtrapolation::EnergySmearerExtrapolation(EnergySmearer * smearer) : 
+	target_(smearer),
+	name_(smearer->name()+"_extra"),
+	myParameters_(smearer->myParameters_),
+	needed_(false)
+{
+	for(EnergySmearer::energySmearingParameters::parameterMapConstIt ipivot = myParameters_.smearing_stocastic_pivot.begin(); 
+	    ipivot != myParameters_.smearing_stocastic_pivot.end(); ++ipivot ) {
+		if( ! target_->preselCategories_.empty() ) {
+			bool presel = false;
+			EnergySmearer::energySmearingParameters::phoCatVectorIt icat = find(myParameters_.photon_categories.begin(),
+											    myParameters_.photon_categories.end(),
+											    ipivot->first);
+			assert( icat != myParameters_.photon_categories.end() );
+			for( EnergySmearer::energySmearingParameters::phoCatVectorIt pcat=target_->preselCategories_.begin(); 
+			     pcat!=target_->preselCategories_.end(); ++pcat) {
+				if( *pcat > *icat ) {
+					presel = true;
+					break;
+				}
+			}
+			if( ! presel ) { continue; }
+		}
+		std::cout << ipivot->first << " " << ipivot->second << std::endl;
+		if( ipivot->second != 0.) { 			
+			needed_ = true;
+			break;
+		}
+	}
+}
+
+
+bool EnergySmearerExtrapolation::smearPhoton(PhotonReducedInfo &info, float & weight, int run, float syst_shift) const
+{
+	// modify the target smearer parameters such that the stocastic smearing correspond to syst_shift variations 
+	//    from the nominal value
+	std::string category = EnergySmearer::photonCategory(myParameters_,info);
+	target_->myParameters_.smearing_stocastic_sigma_error[category] = 0.;
+	target_->myParameters_.smearing_stocastic_sigma[category] = myParameters_.smearing_stocastic_sigma.find(category)->second 
+		+ syst_shift*myParameters_.smearing_stocastic_sigma_error.find(category)->second;
+	target_->forceShift_ = true;
+	return true;
 }

@@ -290,17 +290,9 @@ void StatAnalysis::Init(LoopAll& l)
     }
     if( doEscaleSmear && doEscaleSyst ) {
         setupEscaleSyst(l);
-        //// systPhotonSmearers_.push_back( eScaleSmearer );
-        //// std::vector<std::string> sys(1,eScaleSmearer->name());
-        //// std::vector<int> sys_t(1,-1);   // -1 for signal, 1 for background 0 for both
-        //// l.rooContainer->MakeSystematicStudy(sys,sys_t);
     }
     if( doEresolSmear && doEresolSyst ) {
         setupEresolSyst(l);
-        //// systPhotonSmearers_.push_back( eResolSmearer );
-        //// std::vector<std::string> sys(1,eResolSmearer->name());
-        //// std::vector<int> sys_t(1,-1);   // -1 for signal, 1 for background 0 for both
-        //// l.rooContainer->MakeSystematicStudy(sys,sys_t);
     }
     if( doPhotonIdEffSmear && doPhotonIdEffSyst ) {
         systPhotonSmearers_.push_back( idEffSmearer );

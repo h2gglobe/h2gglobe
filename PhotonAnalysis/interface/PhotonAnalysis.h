@@ -204,7 +204,7 @@ class PhotonAnalysis : public BaseAnalysis
     float scale_offset_error_EEHighR9   ;
     float scale_offset_error_EELowR9    ;
 
-    bool splitEscaleSyst;
+    bool splitEscaleSyst, doStocasticSmearingSyst;
     std::string scale_offset_error_file, scale_offset_corr_error_file;
     EnergySmearer::energySmearingParameters eScaleCorrPars;
     void setupEscaleSmearer();
@@ -612,11 +612,12 @@ class PhotonAnalysis : public BaseAnalysis
     std::vector<BaseGenLevelSmearer *> systGenLevelSmearers_;
 
     // common smearers
+    void addResolSmearer(EnergySmearer * theSmear);
     EnergySmearer *eScaleDataSmearer ; // corrections for energy scale data
     EnergySmearer *eScaleSmearer, *eScaleCorrSmearer;      // corrections for energy scale  MC
     std::vector<EnergySmearer *> eScaleSmearers_;
     EnergySmearer *eResolSmearer, *eResolCorrSmearer;
-    std::vector<EnergySmearer *> eResolSmearers_;
+    std::vector<std::pair<EnergySmearer*,EnergySmearerExtrapolation *> > eResolSmearers_;
     EnergySmearer *eCorrSmearer;      // corrections for energy scale  MC
     std::vector<float> corrected_pho_energy;
     std::vector<PhotonReducedInfo> photonInfoCollection;
