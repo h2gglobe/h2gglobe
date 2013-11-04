@@ -6,6 +6,7 @@
 #include "TCanvas.h"
 #include "TStyle.h"
 #include "TROOT.h"
+#include "TLegend.h"
 #include "../interface/FMTTree.h"
 
 using namespace std;
@@ -222,9 +223,9 @@ map<string,TTree*> FMTTree::getBackgroundTrees(){
 	addTreeToMap(result,Form("%s/gjet_20_8TeV_pf",dirname_.c_str()));//,"bkg");
 	addTreeToMap(result,Form("%s/gjet_40_8TeV_pf",dirname_.c_str()));//,"bkg");
 	// prompt-prompt
-  addTreeToMap(result,Form("%s/diphojet_8TeV",dirname_.c_str()));//,"bkg");
-	addTreeToMap(result,Form("%s/dipho_Box_25_8TeV",dirname_.c_str()));//,"bkg");
-	addTreeToMap(result,Form("%s/dipho_Box_250_8TeV",dirname_.c_str()));//,"bkg");
+  addTreeToMap(result,Form("%s/diphojet_sherpa_8TeV",dirname_.c_str()));//,"bkg");
+//	addTreeToMap(result,Form("%s/dipho_Box_25_8TeV",dirname_.c_str()));//,"bkg");
+//	addTreeToMap(result,Form("%s/dipho_Box_250_8TeV",dirname_.c_str()));//,"bkg");
   return result;
 }
 
@@ -310,6 +311,7 @@ int FMTTree::icCat(int cat){
 
 void FMTTree::FillHist(string type, int sideband, double mh){
   int cat = icCat(category_);
+  //std::cout << "Category " <<category_ << " -> " << cat <<std::endl;
   float val;
   if (cat<0) return;
   if (sideband==0) {
@@ -455,7 +457,10 @@ void FMTTree::doCrossCheck(vector<pair<int,map<string,TTree*> > > allTrees, int 
 	canv->Print("plots/pdf/crossCheck.pdf");
 	canv->Print("plots/png/crossCheck.png");
 	for (unsigned int s=0; s<systematics_.size(); s++){
+		TLegend *leg = new TLegend(0.6,0.8,0.91,0.91);
+		leg->SetFillColor(0);
 		sig->SetLineColor(kBlack);
+		sig->SetFillColor(0);
 		sig->SetLineWidth(2);
 		syst[s].first->SetLineColor(kRed);
 		syst[s].second->SetLineColor(kBlue);
@@ -463,6 +468,10 @@ void FMTTree::doCrossCheck(vector<pair<int,map<string,TTree*> > > allTrees, int 
 		sig->Draw();
 		syst[s].first->Draw("same");
 		syst[s].second->Draw("same");
+		leg->AddEntry(sig,"Nominal","L");
+		leg->AddEntry(syst[s].second,"up","L");
+		leg->AddEntry(syst[s].first,"down","L");
+		leg->Draw();
 		canv->Print(Form("plots/pdf/ccheck_%s.pdf",systematics_[s].c_str()));
 		canv->Print(Form("plots/png/ccheck_%s.pdf",systematics_[s].c_str()));
 	}

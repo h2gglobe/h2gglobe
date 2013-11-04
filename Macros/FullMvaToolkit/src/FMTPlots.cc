@@ -265,14 +265,14 @@ void FMTPlots::plotSidebands(TH1F *bkg, vector<TH1F*> dataSideLow, vector<TH1F*>
     dataSideHigh[h]->SetLineColor(color[h]);
     //dataSideHigh[h]->SetMarkerStyle(20);
     dataSideHigh[h]->SetMarkerColor(color[h]);
-    dataSideHigh[h]->Scale(bkg->Integral()/dataSideHigh[h]->Integral());
+    dataSideHigh[h]->Scale(bkg->Integral()/bkgSideHigh[h]->Integral());
     leg1->AddEntry(dataSideHigh[h],Form("High sideband %d",h+1),"lep");
     if (!blind_) dataSideHigh[h]->Draw("same lep");
     c2->cd();
     bkgSideHigh[h]->SetLineColor(color[h]);
     //bkgSideHigh[h]->SetMarkerStyle(20);
     bkgSideHigh[h]->SetMarkerColor(color[h]);
-    bkgSideHigh[h]->Scale(bkgmc->Integral()/dataSideHigh[h]->Integral());
+    bkgSideHigh[h]->Scale(bkgmc->Integral()/bkgSideHigh[h]->Integral());
     leg2->AddEntry(bkgSideHigh[h],Form("High sideband %d",h+1),"lep");
     bkgSideHigh[h]->Draw("same lep");
   }
@@ -280,15 +280,15 @@ void FMTPlots::plotSidebands(TH1F *bkg, vector<TH1F*> dataSideLow, vector<TH1F*>
     c1->cd();
     dataSideLow[l]->SetLineColor(color[l+dataSideHigh.size()]);
     //dataSideLow[l]->SetMarkerStyle(20);
-    dataSideLow[l]->SetMarkerColor(color[l+dataSideHigh.size()]);
-    dataSideLow[l]->Scale(bkg->Integral()/dataSideLow[l]->Integral());
+    dataSideLow[l]->SetMarkerColor(color[l+bkgSideHigh.size()]);
+    dataSideLow[l]->Scale(bkg->Integral()/bkgSideLow[l]->Integral());
     leg1->AddEntry(dataSideLow[l],Form("Low sideband %d",l+1),"lep");
     if (!blind_) dataSideLow[l]->Draw("same lep");
     c2->cd();
-    bkgSideLow[l]->SetLineColor(color[l+dataSideHigh.size()]);
+    bkgSideLow[l]->SetLineColor(color[l+bkgSideHigh.size()]);
     //bkgSideLow[l]->SetMarkerStyle(20);
     bkgSideLow[l]->SetMarkerColor(color[l+dataSideHigh.size()]);
-    bkgSideLow[l]->Scale(bkgmc->Integral()/dataSideLow[l]->Integral());
+    bkgSideLow[l]->Scale(bkgmc->Integral()/bkgSideLow[l]->Integral());
     leg2->AddEntry(bkgSideLow[l],Form("Low sideband %d",l+1),"lep");
     bkgSideLow[l]->Draw("same lep");
   }
@@ -317,7 +317,8 @@ void FMTPlots::plotSidebands(TH1F *bkg, vector<TH1F*> dataSideLow, vector<TH1F*>
 }
 
 void FMTPlots::plotOutput(TH1F* data, TH1F* bkg, TH1F* sig, TH1F* sig3, TH1F* sig5, double mh){
-
+  // Outdated 
+  return ;
   bkg->SetLineColor(kBlue);
   bkg->SetFillColor(kBlue-9);
   sig->SetLineColor(kRed);
@@ -378,12 +379,17 @@ void FMTPlots::plotOutput(TH1F* data, TH1F* bkg, TH1F* sig, TH1F* sig3, TH1F* si
 
 
 void FMTPlots::plotAll(double mh){
- 
+
+  // This all breaks now!!!
   //if (!(mh==110||mh==120||mh==130||mh==140||mh==150) ) {
 	//return;
   //}
   std::cout << "Plotting MC/Data for mass "<<mh<<std::endl;
   TH1F *bkg = (TH1F*)tFile->Get(Form("th1f_bkg_grad_%3.1f_fitsb_biascorr",mh));
+  if (bkg==0)  {
+	std::cout << " Cannot find corrected background model, Skipping. Rerun after sideband fit step!" << std::endl;
+	return;
+  }
   TH1F *bkgmc = (TH1F*)tFile->Get(Form("th1f_bkg_mc_grad_%3.1f",mh));
   TH1F *data = (TH1F*)tFile->Get(Form("th1f_data_grad_%3.1f",mh));
   //TH1F *bkgmc = (TH1F*) data->Clone();

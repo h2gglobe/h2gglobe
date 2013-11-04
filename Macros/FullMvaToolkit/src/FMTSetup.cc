@@ -150,7 +150,7 @@ void FMTSetup::OptionParser(int argc, char *argv[]){
 		rebinner->setintLumi(intLumi_);
                 rebinner->setVerbosity(verbose_);
                 rebinner->fitter->setblind(blinding_);
-		rebinner->fitter->setplot(diagnose_);
+		rebinner->fitter->setplot(!noPlot_);
 		rebinner->setcatByHand(catByHand_);
 		rebinner->setjustRebin(justRebin_);
 		
@@ -360,6 +360,7 @@ void FMTSetup::ReadRunConfig(FMTBase *base){
     if (sline.find("doPdfWeightSyst=")!=string::npos)             if (getOptFromConfig<bool>(sline)) base->setsystematic("pdfWeight");
 
     if (sline.find("rederiveOptimizedBinEdges=")!=string::npos)   base->setrederiveOptimizedBinEdges(getOptFromConfig<bool>(sline));
+    
     for (int m=110; m<=150; m+=5){
       if (is2011_ && m==145) continue;
       if (sline.find(Form("GradBinEdges_%3d=",m))!=string::npos)  base->setBinEdges(m,getBinEdgesFromString(getOptFromConfig<string>(sline)));
@@ -367,6 +368,13 @@ void FMTSetup::ReadRunConfig(FMTBase *base){
       if (sline.find(Form("LepBinEdges_%3d=",m))!=string::npos)   base->setLEPBinEdges(m,getBinEdgesFromString(getOptFromConfig<string>(sline)));
     }
   }
+  // if using the cat map, then overwrite the egdes for inclusives
+  if (!useSidebandBDT_){
+  	for (int m=110; m<=150; m+=5){
+        if (is2011_ && m==145) continue;
+	base->setBinEdges(m,getBinEdgesFromCatMap());
+      }
+  }	
 	base->updateBinEdges();
 	MHMasses_ = getAllMH();
 	MCMasses_ = getMCMasses();
@@ -375,13 +383,26 @@ void FMTSetup::ReadRunConfig(FMTBase *base){
     userLumi_ = getLumiFromWorkspace();
     base->setintLumi(userLumi_);
   }
+  /*
   if (!histosFromTrees_ && !checkHistos_) {
     //saveLumiToWorkspace();
     outFile_->cd();
     mva->Write();
   }
+  */
 	printRunOptions();
 	std::cout << " Configured Options From .dat File " << std::endl;
+}
+
+vector<double> FMTSetup::getBinEdgesFromCatMap(){
+  TFile *fic = TFile::Open(weightsFile.c_str());
+  TH1F *binedgeMap  = (TH1F*)(fic->Get("Bin_Edges"));
+	
+  vector<double> categoryBinEdges;
+  for (int b=1;b<=binedgeMap->GetNbinsX()+1;b++){
+	categoryBinEdges.push_back(binedgeMap->GetBinLowEdge(b));
+  }
+  return categoryBinEdges;
 }
 
 void FMTSetup::saveLumiToWorkspace(){
@@ -547,7 +568,7 @@ void FMTSetup::createCorrBkgModel(){
 	if (bkgModel_){
 		cout << "Running createCorrectedBackgroundModel...." << endl;
 		cout << "Attempt on " << outfilename_ << endl;
-		createCorrectedBackgroundModel(outfilename_,numberOfSidebands_,sidebandWidth_,signalRegionWidth_,numberOfSidebandGaps_,massSidebandMin_,massSidebandMax_,boost::lexical_cast<double>(mHMinimum_),boost::lexical_cast<double>(mHMaximum_),mHStep_,diagnose_, blinding_);
+		createCorrectedBackgroundModel(outfilename_,numberOfSidebands_,sidebandWidth_,signalRegionWidth_,numberOfSidebandGaps_,massSidebandMin_,massSidebandMax_,boost::lexical_cast<double>(mHMinimum_),boost::lexical_cast<double>(mHMaximum_),mHStep_,!noPlot_, blinding_);
 		cout << "Finished correcting background model" << endl;
 	}
 }
@@ -588,7 +609,7 @@ void FMTSetup::writeDataCards(){
 
 void FMTSetup::makePlots(){
   if (!cleaned) cleanUp();
-  if (diagnose_ && !noPlot_){
+  if (!noPlot_){
 		if (runSB_) {
 			cout << "Running S/B stuff...." << endl;
 			system(Form("python python/GetFakeShapeDatacards.py -i mva-datacards-grad -o fake-shape-cards -D -C -N --mhLow %3d.0 --mhHigh %3d.0 --mhStep %1.1f",getmHMinimum(),getmHMaximum(),getmHStep()));
@@ -603,7 +624,7 @@ void FMTSetup::makePlots(){
       plotter->plotAll(*mh);
     }
     plotter->makeNormPlot();
-    plotter->makeSignalNormPlot();
+    //plotter->makeSignalNormPlot(); // This also breaks now ??!?!?!
     delete plotter;
   }
 }

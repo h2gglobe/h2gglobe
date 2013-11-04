@@ -16,22 +16,24 @@ Result from Globe called "histograms_CMS-HGG.root"
 This result uses the 2D category mapping rather than TMVA training, to use
 TMVA 2D simply remove "--use2DcatMap" everywhere and put bin edges in .dat
 after training at Rebin step
+Add --unblind once we are ready 
 
 # Train from trees!
 ./bin/SidebandMVATraining -i histograms_CMS-HGG.root -m 2DOpt
 
 # Make the histos
-./bin/RunFullMvaAnalysis -i histograms_CMS-HGG.root -o fmt_hists.root -N -T -U dat/LegacyConfig.dat -v --unblind --use2DcatMap
+./bin/RunFullMvaAnalysis -i histograms_CMS-HGG.root -o fmt_hists.root -N -T -U dat/LegacyConfig.dat -v --use2DcatMap  
 
 # Run fit and Rebin
-./bin/RunFullMvaAnalysis -i fmt_hists.root -o fmt_workspace.root  -U dat/LegacyConfig.dat -v --unblind --use2DcatMap
+./bin/RunFullMvaAnalysis -i fmt_hists.root -o fmt_workspace.root  -U dat/LegacyConfig.dat -v  --use2DcatMap  -P 
 
 # Backup!
 cp fmt_workspace.root fmt_workspace_safe.root
 
 # Interpolate and make background model
-./bin/RunFullMvaAnalysis -i fmt_hists.root -o fmt_workspace.root  -U dat/LegacyConfig.dat -v --unblind --use2DcatMap -N -I -b
+./bin/RunFullMvaAnalysis -i fmt_hists.root -o fmt_workspace.root  -U dat/LegacyConfig.dat -v  --use2DcatMap -N -I -b -P 
 
 # Datacards
-./bin/RunFullMvaAnalysis -i fmt_hists.root -o fmt_workspace.root  -U dat/LegacyConfig.dat -v --unblind --use2DcatMap -N -d
+./bin/RunFullMvaAnalysis -i fmt_hists.root -o fmt_workspace.root  -U dat/LegacyConfig.dat -v  --use2DcatMap -N -d  -P 
+
  
