@@ -50,20 +50,18 @@ intL = inWS.var('IntLumi').getVal()
 
 # info = [file,workspace,name]
 #dataFile = 'hgg.inputbkgdata_%dTeV_MVA.root'%sqrts
-#dataWS = 'cms_hgg_workspace'
 #bkgFile = 'hgg.inputbkgdata_%dTeV_MVA.root'%sqrts
-#bkgWS = 'cms_hgg_workspace'
-dataFile = 'CMS-HGG_massfacmva_legacy_2013_11_1_multipdf.root'
-dataWS = 'multipdf'
-bkgFile = 'CMS-HGG_massfacmva_legacy_2013_11_1_multipdf.root'
-bkgWS = 'multipdf'
+dataFile = 'CMS-HGG_massfacmva_legacy_2013_11_1_data.root'
+bkgFile = 'CMS-HGG_massfacmva_legacy_2013_11_1_data.root'
+dataWS = 'cms_hgg_workspace'
+bkgWS = 'cms_hgg_workspace'
 #sigFile = 'hgg.inputsig_%dTeV_MVA.root'%sqrts
 sigFile = 'CMS-HGG_massfacmva_legacy_2013_11_1_sigfit.root'
 sigWS = 'wsig_%dTeV'%sqrts
 fileDetails = {}
 fileDetails['data_obs'] = [dataFile,dataWS,'roohist_data_mass_$CHANNEL']
-#fileDetails['bkg_mass']	= [bkgFile,bkgWS,'pdf_data_pol_model_%dTeV_$CHANNEL'%sqrts]
-fileDetails['bkg_mass']	= [bkgFile,bkgWS,'CMS_hgg_$CHANNEL_%dTeV_bkgshape'%sqrts]
+fileDetails['bkg_mass']	= [bkgFile,bkgWS,'pdf_data_pol_model_%dTeV_$CHANNEL'%sqrts]
+#fileDetails['bkg_mass']	= [bkgFile,bkgWS,'CMS_hgg_$CHANNEL_%dTeV_bkgshape'%sqrts]
 fileDetails['ggH'] 			= [sigFile,sigWS,'hggpdfsmrel_%dTeV_ggh_$CHANNEL'%sqrts]
 fileDetails['qqH'] 			= [sigFile,sigWS,'hggpdfsmrel_%dTeV_vbf_$CHANNEL'%sqrts]
 if splitVH:
@@ -170,11 +168,14 @@ metSyst['ttH'] = 0.04
 
 def interp1Sigma(th1f_nom,th1f_down,th1f_up):
 	nomE = th1f_nom.Integral()
-	downE = th1f_down.Integral()
-	upE = th1f_up.Integral()
+	if nomE==0: nomE=float('NaN')
+	downE = th1f_down.Integral()/nomE
+	upE = th1f_up.Integral()/nomE
 	if options.quadInterpolate!=0:
 		downE = quadInterpolate(-1.,-1.*options.quadInterpolate,0.,1.*options.quadInterpolate,th1f_down.Integral(),th1f_nom.Integral(),th1f_up.Integral())
 		upE = quadInterpolate(1.,-1.*options.quadInterpolate,0.,1.*options.quadInterpolate,th1f_down.Integral(),th1f_nom.Integral(),th1f_up.Integral())
+		if upE != upE: upE=1.000
+		if downE != downE: downE=1.000
 	return [downE,upE]
 
 def printPreamble():
@@ -245,7 +246,7 @@ def printObsProcBinLines():
 def printNuisParams():
 	print 'Nuisances...'
 	outFile.write('%-35s param 1.0 %5.4f\n'%('CMS_hgg_nuisancedeltafracright_%dTeV'%sqrts,vtxSyst))
-	outFile.write('%-35s param 0.0 %5.4f\n'%('CMS_hgg_globalscale',%globalScale))
+	outFile.write('%-35s param 0.0 %5.4f\n'%('CMS_hgg_globalscale',globalScale))
 	if options.isCutBased:
 		outFile.write('%-35s param 1.0 %5.4f\n'%('CMS_hgg_nuisancedeltar9barrel_%dTeV'%sqrts,r9barrelSyst))
 		outFile.write('%-35s param 1.0 %5.4f\n'%('CMS_hgg_nuisancedeltar9mixed_%dTeV'%sqrts,r9mixedSyst))
