@@ -640,6 +640,7 @@ bool StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     // Set reRunCiC Only if this is an MC event since scaling of R9 and Energy isn't done at reduction
     if (cur_type==0) {
         l.runCiC=reRunCiCForData;
+	l.pho_idmva_cached = false;
     } else {
         l.runCiC = true;
     }

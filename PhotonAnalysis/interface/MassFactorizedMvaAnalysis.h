@@ -5,6 +5,7 @@
 #include "BaseSmearer.h"
 #include "PhotonAnalysis.h"
 #include "StatAnalysis.h"
+#include "PhotonIdMVASmearer.h"
 #include "RooContainer.h"
 #include "VertexAnalysis/interface/HggVertexAnalyzer.h"
 
@@ -55,6 +56,7 @@ class MassFactorizedMvaAnalysis : public StatAnalysis
     void ComputeDiphoMvaInputs(LoopAll &l, float &phoid_mvaout_lead, float &phoid_mvaout_sublead, float &vtxProb, int diphoton_id);
 
     bool doPhotonMvaIdSyst;
+    float idMVASystSize;
     bool doPhotonMvaIdSmear;
     bool doRegressionSmear, doRegressionSyst;
     bool doPdfWeightSmear, doPdfWeightSyst;
@@ -77,8 +79,9 @@ class MassFactorizedMvaAnalysis : public StatAnalysis
 		      BaseGenLevelSmearer *genSys=0, BaseSmearer *phoSys=0, BaseDiPhotonSmearer * diPhoSys=0); 
 
     EnergySmearer  *eRegressionSmearer ; 
-    DiPhoEfficiencySmearer *photonMvaIdSmearer ;
-    
+    DiPhoEfficiencySmearer *diPhotonIdMvaSmearer ;
+    PhotonIdMVASmearer *photonIdMvaSmearer ;
+
     std::string name_;
     std::map<int,std::string> signalLabels;
     

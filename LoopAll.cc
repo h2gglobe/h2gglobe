@@ -439,6 +439,7 @@ LoopAll::LoopAll(TTree *tree) :
   pfisoOffset=2.5;
   cicVersion="7TeV";
   pho_r9_cic = &pho_r9[0];
+  pho_idmva_cached = false;
 }
 
 // ------------------------------------------------------------------------------------
