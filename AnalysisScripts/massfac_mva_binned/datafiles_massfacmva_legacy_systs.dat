@@ -1,5 +1,4 @@
-intL=19715. histfile=test_CMS-HGG.root output=eventsList.txt
-## L=19715. histfile=/store/group/phys_higgs/cmshgg/analyzed/MattLegacyTest/%(label)s/CMS-HGG.root output=eventsList.txt
+intL=19715. histfile=/store/group/phys_higgs/cmshgg/analyzed/legacy_paper/systematics/%(label)s/CMS-HGG.root output=eventsList.txt
 
 ##
 ## Signal
@@ -30,7 +29,7 @@ inputBranches TTVH_analysis_input.dat
 ##   analyzer <class_name> <config_file>
 ##
 ## analyzer PhotonAnalysis photonanalysis.dat
-analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat splitEscaleSyst=1 splitEresolSyst=1 doPdfWeightSmear=0 doPdfWeightSyst=0 doStocasticSmearingSyst=1 sigPointsToBook=125 smearing_file=jan22rereco_8TeV/smearing_sigma_and_errors_stocastic_rd_mc.dat
+analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat systs_setting.dat
 
 
 
