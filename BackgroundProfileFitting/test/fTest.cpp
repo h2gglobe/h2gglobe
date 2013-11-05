@@ -209,6 +209,12 @@ int main(int argc, char* argv[]){
     fabChoice.push_back(pair<string,int>("Bernstein",5));
     fabChoice.push_back(pair<string,int>("Bernstein",5));
     fabChoice.push_back(pair<string,int>("Bernstein",3));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
   }
   else {
     fabChoice.push_back(pair<string,int>("Bernstein",5));
@@ -404,7 +410,6 @@ int main(int argc, char* argv[]){
     }
     
   }
-
   if (saveMultiPdf){
 	outputfile->cd();
 	outputws->Write();

@@ -27,6 +27,7 @@ class FMTSetup : public FMTBase {
 		vector<T> getVecFromString(string);
 
 		vector<double> getBinEdgesFromString(string);
+		vector<double> getBinEdgesFromCatMap();
     
     void saveLumiToWorkspace();
     double getLumiFromWorkspace();
