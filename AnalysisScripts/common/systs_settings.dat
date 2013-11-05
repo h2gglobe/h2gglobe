@@ -1,0 +1,16 @@
+
+# do 1-sigma shifts and book only mH=125
+systRange=1
+sigPointsToBook=125
+
+# split energy scale and resolution uncertainties by photon categories
+splitEscaleSyst=1
+splitEresolSyst=1
+
+# evaluate pdfs uncertainties
+doPdfWeightSmear=1
+doPdfWeightSyst=1
+
+## # stocastic smearing and uncertainties
+## doStocasticSmearingSyst=1
+## smearing_file=jan22rereco_8TeV/smearing_sigma_and_errors_stocastic_rd_mc.dat
