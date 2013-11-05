@@ -1928,12 +1928,22 @@ void StatAnalysis::rescaleClusterVariables(LoopAll &l){
             }
 
         } else {
-	    if( scaleR9ForCicOnly ) { 
-		if (l.pho_isEB[ipho]) {
-		    corrected_pho_r9[ipho] = 1.00793*l.pho_r9[ipho] - 0.00532538;
-		} else {
-		    corrected_pho_r9[ipho] = 1.00017*l.pho_r9[ipho] - 0.0016474;
+	    if( scaleR9ForCicOnly ) {
+		if (l.sqrtS == 8) {
+		    if (l.pho_isEB[ipho]) {
+			corrected_pho_r9[ipho] = 1.00793*l.pho_r9[ipho] - 0.00532538;
+		    } else {
+			corrected_pho_r9[ipho] = 1.00017*l.pho_r9[ipho] - 0.0016474;
+		    }
 		}
+		else{
+		    if (l.pho_isEB[ipho]) {
+			corrected_pho_r9[ipho] = 1.00153*l.pho_r9[ipho] + 0.0008543;
+		    } else {
+			corrected_pho_r9[ipho] = 1.0005*l.pho_r9[ipho] + 0.001231;
+		    }
+		}
+		
 	    } else { 
 		//2012 rescaling from here https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/752/1/1/2/1/3.html
 		if (l.pho_isEB[ipho]) {
