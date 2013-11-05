@@ -31,6 +31,7 @@ string filename_;
 string outfilename_;
 string datfilename_;
 string systfilename_;
+string plotDir_;
 int mhLow_=110;
 int mhHigh_=150;
 int nCats_;
@@ -54,7 +55,8 @@ void OptionParser(int argc, char *argv[]){
     ("outfilename,o", po::value<string>(&outfilename_)->default_value("CMS-HGG_sigfit.root"), 			"Output file name")
     ("datfilename,d", po::value<string>(&datfilename_)->default_value("dat/config.dat"),      			"Configuration file")
 		("systfilename,s", po::value<string>(&systfilename_)->default_value("dat/photonCatSyst.dat"),		"Systematic model numbers")
-    ("mhLow,L", po::value<int>(&mhLow_)->default_value(110),                                  			"Low mass point")
+    ("plotDir,p",	po::value<string>(&plotDir_)->default_value("plots"),															"Put plots in this directory")
+		("mhLow,L", po::value<int>(&mhLow_)->default_value(110),                                  			"Low mass point")
     ("mhHigh,H", po::value<int>(&mhHigh_)->default_value(150),                                			"High mass point")
     ("nCats,n", po::value<int>(&nCats_)->default_value(9),                                    			"Number of total categories")
     ("constraintValue,C", po::value<float>(&constraintValue_)->default_value(0.1),            			"Constraint value")
@@ -125,7 +127,7 @@ int main(int argc, char *argv[]){
 
   transferMacros(inFile,outFile);
 
-	system("mkdir -p plots/initialFits");
+	system(Form("mkdir -p %s/initialFits",plotDir_.c_str()));
 	system("mkdir -p dat/in");
 
   // run fits for each line in datfile
@@ -173,7 +175,7 @@ int main(int argc, char *argv[]){
 			initFitRV.loadPriorConstraints(Form("dat/in/%s_cat%d_rv.dat",proc.c_str(),cat),constraintValue_);
 			initFitRV.runFits(1);
 		}
-    initFitRV.plotFits(Form("plots/initialFits/%s_cat%d_rv",proc.c_str(),cat));
+    initFitRV.plotFits(Form("%s/initialFits/%s_cat%d_rv",plotDir_.c_str(),proc.c_str(),cat));
     map<int,map<string,RooRealVar*> > fitParamsRV = initFitRV.getFitParams();
     
     // wrong vertex
@@ -187,7 +189,7 @@ int main(int argc, char *argv[]){
 			initFitWV.loadPriorConstraints(Form("dat/in/%s_cat%d_wv.dat",proc.c_str(),cat),constraintValue_);
 			initFitWV.runFits(1);
 		}
-    initFitWV.plotFits(Form("plots/initialFits/%s_cat%d_wv",proc.c_str(),cat));
+    initFitWV.plotFits(Form("%s/initialFits/%s_cat%d_wv",plotDir_.c_str(),proc.c_str(),cat));
     map<int,map<string,RooRealVar*> > fitParamsWV = initFitWV.getFitParams();
 
 		if (!runInitialFitsOnly_) {
@@ -221,7 +223,7 @@ int main(int argc, char *argv[]){
 				finalModel.buildRvWvPdf("hggpdfsmrel_8TeV",nGaussiansRV,nGaussiansWV,recursive_);
 			}
 			finalModel.getNormalization();
-			finalModel.plotPdf("plots");
+			finalModel.plotPdf(plotDir_);
 			finalModel.save(outWS);
 		}
   }
@@ -237,7 +239,7 @@ int main(int argc, char *argv[]){
 		sw.Start();
 		cout << "Starting to combine fits..." << endl;
 		// this guy packages everything up
-		Packager packager(outWS,splitVH_,nCats_,mhLow_,mhHigh_,is2011_,"plots");
+		Packager packager(outWS,splitVH_,nCats_,mhLow_,mhHigh_,is2011_,plotDir_);
 		packager.packageOutput();
 		sw.Stop();
 		cout << "Combination complete." << endl;

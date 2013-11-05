@@ -1,3 +1,11 @@
+/// READ HERE ----
+/// to run this script you need to load some things in root first:
+/// gSystem->SetIncludePath("-I$ROOTSYS/include -I$ROOFITSYS/include -I$CMSSW_BASE/src");
+/// .L $CMSSW_BASE/lib/$SCRAM_ARCH/libHiggsAnalysisCombinedLimit.so
+/// .L ../libLoopAll.so
+/// .L makeParametricSignalModelPlots.C+g
+
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -21,6 +29,7 @@
 #include "TObjString.h"
 #include "TMacro.h"
 #include "TKey.h"
+#include "TString.h"
 
 #include "RooStats/NumberCountingUtils.h"
 #include "RooStats/RooStatsUtils.h"
@@ -36,6 +45,10 @@
 #include "RooGaussian.h"
 #include "RooMinimizer.h"
 #include "RooExtendPdf.h"
+#include "RooCategory.h"
+
+#include "HiggsAnalysis/CombinedLimit/interface/RooMultiPdf.h"
+#include "HiggsAnalysis/CombinedLimit/interface/RooBernsteinFast.h"
 
 using namespace std;
 using namespace RooFit;
@@ -428,13 +441,274 @@ map<string,RooAddPdf*> getMITPdfs(RooWorkspace *work, int ncats, bool is2011){
 
 }
 
+int getBestFitFunction(RooMultiPdf *bkg, RooAbsData *data, RooCategory *cat, bool silent=false){
+
+	double global_minNll = 1E10;
+	int best_index = 0;
+	int number_of_indeces = cat->numTypes();
+	
+	RooArgSet snap,clean;
+	RooArgSet *params = bkg->getParameters(*data);
+	params->snapshot(snap);
+	params->snapshot(clean);
+	if (!silent) {
+		std::cout << "CLEAN SET OF PARAMETERS" << std::endl;
+		params->Print("V");
+		std::cout << "-----------------------" << std::endl;
+	}
+	
+	//bkg->setDirtyInhibit(1);
+	RooAbsReal *nllm = bkg->createNLL(*data);
+	RooMinimizer minim(*nllm);
+	minim.setStrategy(2);
+	
+	for (int id=0;id<number_of_indeces;id++){		
+		params->assignValueOnly(clean);
+		cat->setIndex(id);
+
+		//RooAbsReal *nllm = bkg->getCurrentPdf()->createNLL(*data);
+
+		if (!silent) {
+			std::cout << "BEFORE FITTING" << std::endl;
+			params->Print("V");
+			std::cout << "-----------------------" << std::endl;
+		}
+		
+		minim.minimize("Minuit2","simplex");
+		double minNll = nllm->getVal()+bkg->getCorrection();
+		if (!silent) {
+			std::cout << "After Minimization ------------------  " <<std::endl;
+			std::cout << bkg->getCurrentPdf()->GetName() << " " << minNll <<std::endl;
+			bkg->Print("v");
+			bkg->getCurrentPdf()->getParameters(*data)->Print("V");
+			std::cout << " ------------------------------------  " << std::endl;
+	
+			std::cout << "AFTER FITTING" << std::endl;
+			params->Print("V");
+			std::cout << "-----------------------" << std::endl;
+		}
+			
+		if (minNll < global_minNll){
+        		global_minNll = minNll;
+			snap.assignValueOnly(*params);
+        		best_index=id;
+		}
+	}
+	params->assignValueOnly(snap);
+    	cat->setIndex(best_index);
+	
+	if (!silent) {
+		std::cout << "Best fit Function -- " << bkg->getCurrentPdf()->GetName() << " " << cat->getIndex() <<std::endl;
+		bkg->getCurrentPdf()->getParameters(*data)->Print("v");
+	}
+	return best_index;
+}
+
+pair<double,double> getNormTermNllAndRes(RooRealVar *mgg, RooAbsData *data, RooMultiPdf *mpdf, RooCategory *mcat, double normVal=-1., double massRangeLow=-1., double massRangeHigh=-1.){
+	
+	double bestFitNll=1.e8;
+	double bestFitNorm;
+
+	for (int pInd=0; pInd<mpdf->getNumPdfs(); pInd++){
+		mcat->setIndex(pInd);
+		RooRealVar *normVar = new RooRealVar(Form("%snorm",mpdf->getCurrentPdf()->GetName()),"",0.,1.e6);
+		RooExtendPdf *extPdf;
+		RooAbsReal *nll;
+		if (massRangeLow>-1. && massRangeHigh>-1.){
+			mgg->setRange("errRange",massRangeLow,massRangeHigh);
+			extPdf = new RooExtendPdf(Form("%sext",mpdf->getCurrentPdf()->GetName()),"",*(mpdf->getCurrentPdf()),*normVar,"errRange");
+			nll = extPdf->createNLL(*data,Extended()); //,Range(massRangeLow,massRangeHigh));//,Range("errRange"));
+		}
+		else {
+			extPdf = new RooExtendPdf(Form("%sext",mpdf->getCurrentPdf()->GetName()),"",*(mpdf->getCurrentPdf()),*normVar);
+			nll = extPdf->createNLL(*data,Extended());
+		}
+		
+		if (normVal>-1.){
+			normVar->setConstant(false);
+			normVar->setVal(normVal);
+			normVar->setConstant(true);
+		}
+
+		RooMinimizer minim(*nll);
+		minim.setStrategy(0);
+		//minim.minimize("Minuit2","simplex");
+		minim.migrad();
+		double corrNll = nll->getVal()+mpdf->getCorrection();
+
+		//cout << "Found fit: " << mpdf->getCurrentPdf()->GetName() << " " << mpdf->getCorrection() << " " << normVar->getVal() << " " << corrNll << endl;
+
+		if (corrNll<bestFitNll){
+			bestFitNll=corrNll;
+			bestFitNorm=normVar->getVal();
+		}
+		if (normVal>-1.) normVar->setConstant(false);
+	}
+	//cout << "CACHE: " << bestFitNorm << " -- " << bestFitNll << endl;
+	return make_pair(2*bestFitNll,bestFitNorm);
+}
+
+double getNormTermNll(RooRealVar *mgg, RooAbsData *data, RooMultiPdf *mpdf, RooCategory *mcat, double normVal=-1., double massRangeLow=-1., double massRangeHigh=-1.){
+	pair<double,double> temp = getNormTermNllAndRes(mgg,data,mpdf,mcat,normVal,massRangeLow,massRangeHigh);
+	return temp.first;
+}
+
+double guessNew(RooRealVar *mgg, RooMultiPdf *mpdf, RooCategory *mcat, RooAbsData *data, double bestPoint, double nllBest, double boundary, double massRangeLow, double massRangeHigh, double crossing, double tolerance){
+	
+	bool isLowSide;
+	double guess, guessNll, lowPoint,highPoint;
+	if (boundary>bestPoint) {
+		isLowSide=false;
+		lowPoint = bestPoint;
+		highPoint = boundary;
+	}
+	else {
+		isLowSide=true;
+		lowPoint = boundary;
+		highPoint = bestPoint;
+	}
+	//double prevDistanceFromTruth = 1.e6;
+	double distanceFromTruth = 1.e6;
+	int nIts=0;
+	while (TMath::Abs(distanceFromTruth/crossing)>tolerance) {
+		
+		//prevDistanceFromTruth=distanceFromTruth;
+		guess = lowPoint+(highPoint-lowPoint)/2.;
+		guessNll = getNormTermNll(mgg,data,mpdf,mcat,guess,massRangeLow,massRangeHigh)-nllBest;
+    distanceFromTruth = crossing - guessNll;
+	
+		// for low side. if nll val is lower than target move right point left. if nll val is higher than target move left point right
+		// vice versa for high side
+		if (isLowSide){
+			if (guessNll>crossing) lowPoint = guess;
+			else highPoint=guess;
+		}
+		else {
+			if (guessNll>crossing) highPoint = guess;
+			else lowPoint=guess;
+		}
+		nIts++;
+		// because these are envelope nll curves this algorithm can get stuck in local minima
+		// hacked get out is just to start trying again
+		if (nIts>20) {
+			lowPoint = TMath::Max(0.,lowPoint-20);
+			highPoint += 20;
+			nIts=0;
+			// if it's a ridicolous value it wont converge so return value of bestGuess
+			if (TMath::Abs(guessNll)>2e4) return 0.; 
+		}
+	}
+	return guess;
+}
+
+pair<double,double> bkgEvPerGeV(RooWorkspace *work, int m_hyp, int cat, pair<double,double> &bkgTotal){
+  
+	if (work->GetName()==TString("cms_hgg_workspace")) {
+		RooRealVar *mass = (RooRealVar*)work->var("CMS_hgg_mass");
+		mass->setRange(100,180);
+		RooAbsPdf *pdf = (RooAbsPdf*)work->pdf(Form("pdf_data_pol_model_8TeV_cat%d",cat));
+		RooAbsData *data = (RooDataSet*)work->data(Form("data_mass_cat%d",cat));
+		RooPlot *tempFrame = mass->frame();
+		data->plotOn(tempFrame,Binning(80));
+		pdf->plotOn(tempFrame);
+		RooCurve *curve = (RooCurve*)tempFrame->getObject(tempFrame->numItems()-1);
+		double nombkg = curve->Eval(double(m_hyp));
+	 
+		RooRealVar *nlim = new RooRealVar(Form("nlim%d",cat),"",0.,0.,1.e5);
+		//double lowedge = tempFrame->GetXaxis()->GetBinLowEdge(FindBin(double(m_hyp)));
+		//double upedge  = tempFrame->GetXaxis()->GetBinUpEdge(FindBin(double(m_hyp)));
+		//double center  = tempFrame->GetXaxis()->GetBinUpCenter(FindBin(double(m_hyp)));
+
+		nlim->setVal(nombkg);
+		mass->setRange("errRange",m_hyp-0.5,m_hyp+0.5);
+		RooAbsPdf *epdf = 0;
+		epdf = new RooExtendPdf("epdf","",*pdf,*nlim,"errRange");
+			
+		RooAbsReal *nll = epdf->createNLL(*data,Extended(),NumCPU(4));
+		RooMinimizer minim(*nll);
+		minim.setStrategy(0);
+		minim.setPrintLevel(-1);
+		minim.migrad();
+		minim.minos(*nlim);
+		
+		double error = (nlim->getErrorLo(),nlim->getErrorHi())/2.;
+		data->Print();
+		bkgTotal.first += nombkg;
+		bkgTotal.second += error*error;
+		return pair<double,double>(nombkg,error); 
+	}
+	else if (work->GetName()==TString("multipdf")) {
+		RooRealVar *mass = (RooRealVar*)work->var("CMS_hgg_mass");
+		mass->setRange(100,180);
+		RooMultiPdf *mpdf = (RooMultiPdf*)work->pdf(Form("CMS_hgg_cat%d_8TeV_bkgshape",cat));
+		RooCategory *mcat = (RooCategory*)work->cat(Form("pdfindex_%d",cat));
+		RooAbsData *data = (RooDataSet*)work->data(Form("roohist_data_mass_cat%d",cat));
+		
+		// reset to best fit
+		int bf = getBestFitFunction(mpdf,data,mcat,true);
+		mcat->setIndex(bf);
+		cout << "Best fit PDF and data:" << endl;
+		cout << "\t"; mpdf->getCurrentPdf()->Print();
+		cout << "\t"; data->Print();
+
+		RooPlot *tempFrame = mass->frame();
+		data->plotOn(tempFrame,Binning(80));
+		mpdf->getCurrentPdf()->plotOn(tempFrame);
+		RooCurve *nomBkgCurve = (RooCurve*)tempFrame->getObject(tempFrame->numItems()-1);
+		
+		double nomBkg = nomBkgCurve->interpolate(m_hyp);
+		double nllBest = getNormTermNll(mass,data,mpdf,mcat,nomBkg,m_hyp-0.5,m_hyp+0.5);
+		double lowRange = TMath::Max(0.,nomBkg - 3*TMath::Sqrt(nomBkg));
+		double highRange = nomBkg + 3*TMath::Sqrt(nomBkg);
+
+		double errLow1Value = guessNew(mass,mpdf,mcat,data,nomBkg,nllBest,lowRange,m_hyp-0.5,m_hyp+0.5,1.,0.05);
+		double errHigh1Value = guessNew(mass,mpdf,mcat,data,nomBkg,nllBest,highRange,m_hyp-0.5,m_hyp+0.5,1.,0.05);
+		double errLow1 = nomBkg - errLow1Value;
+		double errHigh1 = errHigh1Value - nomBkg;
+		
+		double error = (errLow1+errHigh1)/2.; 
+		data->Print();
+		bkgTotal.first += nomBkg;
+		bkgTotal.second += error*error;
+		return pair<double,double>(nomBkg,error); 
+	}
+	else {
+		cout << "Background workspace name " << work->GetName() << " not recognised. Bailing!" << endl;
+		exit(1);
+		return pair<double,double>(0.,0.);
+	}
+	return pair<double,double>(0.,0.);
+}
+
 double sobInFWHM(RooWorkspace *sigWS, RooWorkspace *bkgWS, int m_hyp, int cat, double fwhm, pair<double,double> &sobInFWHMTotal, bool splitVH){
 
   RooRealVar *mass = (RooRealVar*)bkgWS->var("CMS_hgg_mass");
   mass->setRange(100,180);
   mass->setRange(Form("fwhm_cat%d",cat),m_hyp-fwhm,m_hyp+fwhm);
-  RooAbsPdf *pdf = (RooAbsPdf*)bkgWS->pdf(Form("data_pol_model_8TeV_cat%d",cat));
-  RooAbsData *data = (RooDataSet*)bkgWS->data(Form("data_mass_cat%d",cat));
+  RooAbsPdf *pdf=NULL;
+	RooAbsData *data=NULL;
+	
+	if (bkgWS->GetName()==TString("cms_hgg_workspace")) {
+		pdf = (RooAbsPdf*)bkgWS->pdf(Form("data_pol_model_8TeV_cat%d",cat));
+		data = (RooDataSet*)bkgWS->data(Form("data_mass_cat%d",cat));
+	}
+	else if (bkgWS->GetName()==TString("multipdf")) {
+		RooMultiPdf *mpdf = (RooMultiPdf*)bkgWS->pdf(Form("CMS_hgg_cat%d_8TeV_bkgshape",cat));
+		RooCategory *mcat = (RooCategory*)bkgWS->cat(Form("pdfindex_%d",cat));
+		data = (RooDataSet*)bkgWS->data(Form("roohist_data_mass_cat%d",cat));
+		// reset to best fit
+		int bf = getBestFitFunction(mpdf,data,mcat,true);
+		mcat->setIndex(bf);
+		pdf = mpdf->getCurrentPdf();
+	}
+	else {
+		cout << "Background workspace name " << bkgWS->GetName() << " not recognised. Bailing!" << endl;
+		exit(1);
+	}
+
+	assert(pdf);
+	assert(data);
+
   RooAbsReal *integral = pdf->createIntegral(RooArgSet(*mass),NormSet(*mass),Range(Form("fwhm_cat%d",cat)));
   double bkgInFWHM = integral->getVal()*data->sumEntries();
   
@@ -457,44 +731,8 @@ double sobInFWHM(RooWorkspace *sigWS, RooWorkspace *bkgWS, int m_hyp, int cat, d
   sobInFWHMTotal.first += sigInFWHM;
   sobInFWHMTotal.second += bkgInFWHM;
 
-  return sigInFWHM/bkgInFWHM;
+  return sigInFWHM/(sigInFWHM+bkgInFWHM);
 
-}
-
-pair<double,double> bkgEvPerGeV(RooWorkspace *work, int m_hyp, int cat, pair<double,double> &bkgTotal){
-  
-  RooRealVar *mass = (RooRealVar*)work->var("CMS_hgg_mass");
-  mass->setRange(100,180);
-  RooAbsPdf *pdf = (RooAbsPdf*)work->pdf(Form("pdf_data_pol_model_8TeV_cat%d",cat));
-  RooAbsData *data = (RooDataSet*)work->data(Form("data_mass_cat%d",cat));
-  RooPlot *tempFrame = mass->frame();
-  data->plotOn(tempFrame,Binning(80));
-  pdf->plotOn(tempFrame);
-  RooCurve *curve = (RooCurve*)tempFrame->getObject(tempFrame->numItems()-1);
-  double nombkg = curve->Eval(double(m_hyp));
- 
-  RooRealVar *nlim = new RooRealVar(Form("nlim%d",cat),"",0.,0.,1.e5);
-  //double lowedge = tempFrame->GetXaxis()->GetBinLowEdge(FindBin(double(m_hyp)));
-  //double upedge  = tempFrame->GetXaxis()->GetBinUpEdge(FindBin(double(m_hyp)));
-  //double center  = tempFrame->GetXaxis()->GetBinUpCenter(FindBin(double(m_hyp)));
-
-  nlim->setVal(nombkg);
-  mass->setRange("errRange",m_hyp-0.5,m_hyp+0.5);
-  RooAbsPdf *epdf = 0;
-  epdf = new RooExtendPdf("epdf","",*pdf,*nlim,"errRange");
-		
-  RooAbsReal *nll = epdf->createNLL(*data,Extended(),NumCPU(4));
-  RooMinimizer minim(*nll);
-  minim.setStrategy(0);
-  minim.setPrintLevel(-1);
-  minim.migrad();
-  minim.minos(*nlim);
-  
-  double error = (nlim->getErrorLo(),nlim->getErrorHi())/2.;
-  data->Print();
-  bkgTotal.first += nombkg;
-  bkgTotal.second += error*error;
-  return pair<double,double>(nombkg,error); 
 }
 
 vector<double> sigEvents(RooWorkspace *work, int m_hyp, int cat, string binnedSigFileName, vector<double> &sigTotal, bool splitVH, string spinProc=""){
@@ -600,19 +838,11 @@ pair<double,double> datEvents(RooWorkspace *work, int m_hyp, int cat, pair<doubl
 }
 
 // from p. meridiani with addition from m. kenzie
-void makeSignalCompositionPlot(int nCats, map<string,vector<double> > sigVals, map<string,double> sigEffs, map<string,double> fwhms, map<string,double> sobVals, string outfname, int mh, bool doBkgAndData, bool splitVH){
+void makeSignalCompositionPlot(int nCats, map<string,string> labels, map<string,vector<double> > sigVals, map<string,double> sigEffs, map<string,double> fwhms, map<string,double> sobVals, string outfname, int mh, bool doBkgAndData, bool splitVH){
 
   TString catName[nCats+1];
-  catName[0] = "Untagged 0";
-  catName[1] = "Untagged 1";
-  catName[2] = "Untagged 2";
-  catName[3] = "Untagged 3";
-  catName[4] = "Tight Dijet Tag";
-  catName[5] = "Loose Dijet Tag";
-  catName[6] = "Muon Tag";
-  catName[7] = "Electron Tag";
-  catName[8] = "MET Tag";
-  catName[9] = "Combined";
+	for (int cat=0; cat<nCats; cat++) catName[cat] = labels[Form("cat%d",cat)];
+	catName[nCats] = labels["all"];
 
   const int nprocs = splitVH ? 5 : 4;
 
@@ -625,15 +855,14 @@ void makeSignalCompositionPlot(int nCats, map<string,vector<double> > sigVals, m
   if (splitVH) {
     processName.push_back("WH");
     processName.push_back("ZH");
-    colors.push_back(kOrange+7);
     colors.push_back(kCyan+2);
     colors.push_back(kAzure-6);
   }
   else {
     processName.push_back("VH");
-    colors.push_back(kCyan+2);
     colors.push_back(kAzure-6);
   }
+	colors.push_back(kOrange+7);
   processName.push_back("ttH");
 
   for (int i=0;i<nprocs;++i)
@@ -653,13 +882,13 @@ void makeSignalCompositionPlot(int nCats, map<string,vector<double> > sigVals, m
   TPad *Width;
   TPad *SOB;
   if (doBkgAndData) {
-    canv = new TCanvas("canv","canv",1,1,3200,1552);
+    canv = new TCanvas("canv","canv",1,1,7000,4800);
     Plots = new TPad("Plots","Plots",0.,0.,0.5,1.);
     Width = new TPad("Width","Width",0.5,0.,0.75,1.);
     SOB = new TPad("SOB","SOB",0.75,0.,1.,1.);
   }
   else {
-    canv = new TCanvas("canv","canv",1,1,2400,1552);
+    canv = new TCanvas("canv","canv",1,1,4800,4800);
     Plots = new TPad("Plots","Plots",0.,0.,0.667,1.);
     Width = new TPad("Width","Width",0.667,0.,1.,1.);
   }
@@ -672,7 +901,7 @@ void makeSignalCompositionPlot(int nCats, map<string,vector<double> > sigVals, m
   Plots->SetBorderMode(0);
   Plots->SetBorderSize(2);
   Plots->SetTopMargin(0.16);
-  Plots->SetLeftMargin(0.18);
+  Plots->SetLeftMargin(0.25);
   Plots->SetRightMargin(0.05);
   Plots->SetFrameBorderMode(0);
   Plots->SetFrameBorderMode(0);
@@ -686,6 +915,7 @@ void makeSignalCompositionPlot(int nCats, map<string,vector<double> > sigVals, m
   dummy->SetFillColor(ci);
 
   for (int i=0;i<nCats+1;++i) dummy->GetYaxis()->SetBinLabel(nCats+1-i,catName[i]);
+  dummy->GetXaxis()->SetTickLength(0.01);
   dummy->GetYaxis()->SetTickLength(0);
   dummy->GetXaxis()->SetTitle("Signal Fraction (%)");
   dummy->GetXaxis()->SetNdivisions(510);
@@ -710,12 +940,22 @@ void makeSignalCompositionPlot(int nCats, map<string,vector<double> > sigVals, m
   float width = 0.34;
 
   TPave *pave;
+	TPaveText *pavetext;
   for (int cat=0; cat<nCats+1; cat++) {
     float ybin = nCats-cat;
     float ybinmin = ybin-width;
     float ybinmax = ybin+width;
     float xbinmin = ymin;
     float xbinmax = ymin;
+		// text yield
+		pavetext = new TPaveText(xbinmin+0.5,ybinmin,xbinmin+30.5,ybinmax);
+		if (cat==nCats) pavetext->AddText(Form("%.1f total expected signal",sigVals["all"][0])); 
+		else pavetext->AddText(Form("%.1f total expected signal",sigVals[Form("cat%d",cat)][0]));
+		pavetext->SetTextColor(0);
+		pavetext->SetFillStyle(0);
+		pavetext->SetFillColor(0);
+		pavetext->SetLineColor(0);
+		pavetext->SetBorderSize(0);
     //Stacked fractions
     for (int j=0; j<nprocs; j++){
       if (cat==nCats) xbinmax += 100.*sigVals["all"][j+1]/sigVals["all"][0];
@@ -727,6 +967,7 @@ void makeSignalCompositionPlot(int nCats, map<string,vector<double> > sigVals, m
       if (cat==nCats) xbinmin += 100.*sigVals["all"][j+1]/sigVals["all"][0];
       else xbinmin += 100.*sigVals[Form("cat%d",cat)][j+1]/sigVals[Form("cat%d",cat)][0];
     }
+		pavetext->Draw();
   }
 
   TLatex *   tex_m=new TLatex();
@@ -736,30 +977,30 @@ void makeSignalCompositionPlot(int nCats, map<string,vector<double> > sigVals, m
   tex_m->SetLineWidth(2);
 
   if (splitVH) {
-    pave=new TPave(0.20,0.85,0.23,0.85+0.03,0,"NDC");
+    pave=new TPave(0.25,0.85,0.3,0.85+0.03,0,"NDC");
     pave->SetFillColor(colors[0]);
     pave->Draw();
-    tex_m->DrawLatex(0.24,0.84+0.025,"ggH");
+    tex_m->DrawLatex(0.32,0.84+0.025,"ggH");
 
-    pave=new TPave(0.35,0.85,0.38,0.85+0.03,0,"NDC");
+    pave=new TPave(0.4,0.85,0.45,0.85+0.03,0,"NDC");
     pave->SetFillColor(colors[1]);
     pave->Draw();
-    tex_m->DrawLatex(0.39,0.84+0.025,"qqH");
+    tex_m->DrawLatex(0.47,0.84+0.025,"qqH");
 
-    pave=new TPave(0.50,0.85,0.53,0.85+0.03,0,"NDC");
+    pave=new TPave(0.55,0.85,0.6,0.85+0.03,0,"NDC");
     pave->SetFillColor(colors[2]);
     pave->Draw();
-    tex_m->DrawLatex(0.54,0.84+0.025,"WH");
+    tex_m->DrawLatex(0.62,0.84+0.025,"WH");
 
-    pave=new TPave(0.65,0.85,0.68,0.85+0.03,0,"NDC");
+    pave=new TPave(0.7,0.85,0.75,0.85+0.03,0,"NDC");
     pave->SetFillColor(colors[3]);
     pave->Draw();
-    tex_m->DrawLatex(0.69,0.84+0.025,"ZH");
+    tex_m->DrawLatex(0.77,0.84+0.025,"ZH");
     
-    pave=new TPave(0.80,0.85,0.83,0.85+0.03,0,"NDC");
+    pave=new TPave(0.85,0.85,0.9,0.85+0.03,0,"NDC");
     pave->SetFillColor(colors[4]);
     pave->Draw();
-    tex_m->DrawLatex(0.84,0.84+0.025,"ttH");
+    tex_m->DrawLatex(0.92,0.84+0.025,"ttH");
   }
   else {
     pave=new TPave(0.20,0.85,0.23,0.85+0.03,0,"NDC");
@@ -783,25 +1024,25 @@ void makeSignalCompositionPlot(int nCats, map<string,vector<double> > sigVals, m
     tex_m->DrawLatex(0.78,0.84+0.025,"ttH");
   }
 
-  TLine *line = new TLine(0,nCats-3.5,100,nCats-3.5);
+  TLine *line = new TLine(0,nCats-4.5,100,nCats-4.5);
   line->SetLineColor(kBlack);
   line->SetLineWidth(2);
   line->SetLineStyle(2);
   line->Draw();
 
-  TLine *line2 = new TLine(0,nCats-5.5,100,nCats-5.5);
+  TLine *line2 = new TLine(0,nCats-7.5,100,nCats-7.5);
   line2->SetLineColor(kBlack);
   line2->SetLineWidth(2);
   line2->SetLineStyle(2);
   line2->Draw();
 
-  TLine *line3 = new TLine(0,nCats-8.5,100,nCats-8.5);
+  TLine *line3 = new TLine(0,0.5,100,0.5);
   line3->SetLineColor(kBlack);
-  line3->SetLineWidth(4);
+  line3->SetLineWidth(2);
   line3->SetLineStyle(9);
   line3->Draw();
 
-  Plots->RedrawAxis();
+  //Plots->RedrawAxis();
 
   Width->cd();
   Width->Range(-14.67532,-1.75,11.2987,15.75);
@@ -816,6 +1057,7 @@ void makeSignalCompositionPlot(int nCats, map<string,vector<double> > sigVals, m
   TH2F *dummy2 = new TH2F("dummy2","",1,-3.,3.,nCats+1,-0.5,nCats+0.5);
   for (int i=1; i<=dummy2->GetNbinsX(); i++) dummy2->GetYaxis()->SetBinLabel(i,"");
   dummy2->SetStats(0);
+  dummy2->GetXaxis()->SetTickLength(0.01);
   dummy2->GetYaxis()->SetTickLength(0);
   dummy2->GetXaxis()->SetTitle("Width (GeV)");
   dummy2->GetXaxis()->SetNdivisions(505);
@@ -856,7 +1098,7 @@ void makeSignalCompositionPlot(int nCats, map<string,vector<double> > sigVals, m
     spave = new TPave(-1.*sEff,ybinmin,sEff,ybinmax);
     spave->SetFillColor(kBlue-7);
     spave->SetLineColor(kBlue);
-    spave->SetLineWidth(2);
+    spave->SetLineWidth(1);
     spave->SetBorderSize(1);
     spave->Draw();
 
@@ -864,51 +1106,51 @@ void makeSignalCompositionPlot(int nCats, map<string,vector<double> > sigVals, m
     fpave->SetFillColor(kRed);
     fpave->SetFillStyle(3004);
     fpave->SetLineColor(kRed);
-    fpave->SetLineWidth(2);
+    fpave->SetLineWidth(1);
     fpave->SetBorderSize(1);
     fpave->Draw();
   }
   
-  pave=new TPave(0.15,0.85,0.21,0.85+0.03,0,"NDC");
+  pave=new TPave(0.15,0.85,0.23,0.85+0.03,0,"NDC");
   pave->SetFillColor(kBlue-7);
   pave->SetLineColor(kBlue);
-  pave->SetLineWidth(2);
+  pave->SetLineWidth(1);
   pave->SetBorderSize(1);
   pave->Draw();
-  tex_m->SetTextSize(0.045);
-  tex_m->DrawLatex(0.22,0.855,"#sigma_{eff}");
+  tex_m->SetTextSize(0.055);
+  tex_m->DrawLatex(0.25,0.865,"#sigma_{eff}");
 
-  pave=new TPave(0.60,0.85,0.66,0.85+0.03,0,"NDC");
+  pave=new TPave(0.60,0.85,0.68,0.85+0.03,0,"NDC");
   pave->SetFillColor(kRed);
   pave->SetFillStyle(3004);
   pave->SetLineColor(kRed);
-  pave->SetLineWidth(2);
+  pave->SetLineWidth(1);
   pave->SetBorderSize(1);
   pave->Draw();
   tex_m->SetTextSize(0.045);
-  tex_m->DrawLatex(0.67,0.865,"FWHM/2.35");
+  tex_m->DrawLatex(0.7,0.865,"FWHM/2.35");
   
-  TLine *sline = new TLine(-3.,nCats-3.5,3.,nCats-3.5);
+  TLine *sline = new TLine(-3.,nCats-4.5,3.,nCats-4.5);
   sline->SetLineColor(kBlack);
   sline->SetLineWidth(2);
   sline->SetLineStyle(2);
   sline->Draw();
 
-  TLine *sline2 = new TLine(-3.,nCats-5.5,3.,nCats-5.5);
+  TLine *sline2 = new TLine(-3.,nCats-7.5,3.,nCats-7.5);
   sline2->SetLineColor(kBlack);
   sline2->SetLineWidth(2);
   sline2->SetLineStyle(2);
   sline2->Draw();
 
-  TLine *sline3 = new TLine(-3.,nCats-8.5,3.,nCats-8.5);
+  TLine *sline3 = new TLine(-3.,0.5,3.,0.5);
   sline3->SetLineColor(kBlack);
-  sline3->SetLineWidth(4);
+  sline3->SetLineWidth(2);
   sline3->SetLineStyle(9);
   sline3->Draw();
 
   TLine *sline4 = new TLine(0.,-0.5,0.,nCats+0.5);
   sline4->SetLineColor(kBlack);
-  sline4->SetLineWidth(3);
+  sline4->SetLineWidth(2);
   sline4->Draw();
 
   Width->RedrawAxis();
@@ -924,11 +1166,18 @@ void makeSignalCompositionPlot(int nCats, map<string,vector<double> > sigVals, m
     SOB->SetRightMargin(0.05);
     SOB->SetFrameBorderMode(0);
     SOB->SetFrameBorderMode(0);
-    TH2F *dummy3 = new TH2F("dummy3","",1,0.,0.4,nCats+1,-0.5,nCats+0.5);
+		double sobMax=0.;
+    for (int cat=0; cat<nCats; cat++) {
+			if (sobVals[Form("cat%d",cat)]>sobMax) sobMax = sobVals[Form("cat%d",cat)];
+		}
+		if (sobVals["all"]>sobMax) sobMax = sobVals["all"];
+		sobMax = ceil(sobMax*5.)/5.;
+    TH2F *dummy3 = new TH2F("dummy3","",1,0.,sobMax,nCats+1,-0.5,nCats+0.5);
     for (int i=1; i<=dummy3->GetNbinsX(); i++) dummy3->GetYaxis()->SetBinLabel(i,"");
     dummy3->SetStats(0);
+		dummy3->GetXaxis()->SetTickLength(0.01);
     dummy3->GetYaxis()->SetTickLength(0);
-    dummy3->GetXaxis()->SetTitle("S/B in FWHM");
+    dummy3->GetXaxis()->SetTitle("S/(S+B) in FWHM");
     dummy3->GetXaxis()->SetNdivisions(505);
     dummy3->GetXaxis()->SetLabelFont(42);
     dummy3->GetXaxis()->SetLabelSize(0.07);
@@ -967,30 +1216,30 @@ void makeSignalCompositionPlot(int nCats, map<string,vector<double> > sigVals, m
       sobpave->Draw();
     }
     
-    pave=new TPave(0.15,0.85,0.21,0.85+0.03,0,"NDC");
+    pave=new TPave(0.15,0.85,0.23,0.85+0.03,0,"NDC");
     pave->SetFillColor(kRed-3);
     pave->SetLineColor(kRed-3);
     pave->SetLineWidth(2);
     pave->SetBorderSize(0);
     pave->Draw();
-    tex_m->SetTextSize(0.045);
-    tex_m->DrawLatex(0.22,0.865,"S/B in FWHM");
+    tex_m->SetTextSize(0.05);
+    tex_m->DrawLatex(0.25,0.865,"S/(S+B) in FWHM");
 
-    TLine *sbline = new TLine(0.,nCats-3.5,0.4,nCats-3.5);
+    TLine *sbline = new TLine(0.,nCats-4.5,sobMax,nCats-4.5);
     sbline->SetLineColor(kBlack);
     sbline->SetLineWidth(2);
     sbline->SetLineStyle(2);
     sbline->Draw();
 
-    TLine *sbline2 = new TLine(0.,nCats-5.5,0.4,nCats-5.5);
+    TLine *sbline2 = new TLine(0.,nCats-7.5,sobMax,nCats-7.5);
     sbline2->SetLineColor(kBlack);
     sbline2->SetLineWidth(2);
     sbline2->SetLineStyle(2);
     sbline2->Draw();
 
-    TLine *sbline3 = new TLine(0.,nCats-8.5,0.4,nCats-8.5);
+    TLine *sbline3 = new TLine(0.,0.5,sobMax,0.5);
     sbline3->SetLineColor(kBlack);
-    sbline3->SetLineWidth(4);
+    sbline3->SetLineWidth(2);
     sbline3->SetLineStyle(9);
     sbline3->Draw();
 
@@ -1083,6 +1332,7 @@ void makeParametricSignalModelPlots(string sigFitFileName, string outPathName, i
   mass->setRange("higgsRange",m_hyp-20.,m_hyp+15.);
 
   map<string,string> labels;
+	/*
   if (is2011) {
     if (isMassFac){
       labels.insert(pair<string,string>("cat0","BDT >= 0.89"));
@@ -1119,6 +1369,45 @@ void makeParametricSignalModelPlots(string sigFitFileName, string outPathName, i
     labels.insert(pair<string,string>("cat8","BDT_{#gamma#gamma} >= -0.05 MET Tag")); 
     labels.insert(pair<string,string>("all","All Categories Combined"));
   }
+	*/
+	if (isMassFac) {
+		labels.insert(pair<string,string>("cat0","Untagged 0"));
+		labels.insert(pair<string,string>("cat1","Untagged 1"));
+		labels.insert(pair<string,string>("cat2","Untagged 2"));
+		labels.insert(pair<string,string>("cat3","Untagged 3"));
+		labels.insert(pair<string,string>("cat4","Untagged 4"));
+		labels.insert(pair<string,string>("cat5","Dijet Tag 0"));
+		labels.insert(pair<string,string>("cat6","Dijet Tag 1"));
+		labels.insert(pair<string,string>("cat7","Dijet Tag 2"));
+		labels.insert(pair<string,string>("cat8","VH Lepton Tight"));
+		labels.insert(pair<string,string>("cat9","VH Lepton Loose"));
+		labels.insert(pair<string,string>("cat10","VH MET Tag"));     
+		labels.insert(pair<string,string>("cat11","ttH Leptonic Tag"));
+		labels.insert(pair<string,string>("cat12","ttH Hadronic Tag"));
+		labels.insert(pair<string,string>("cat13","VH Hadronic Tag"));
+		labels.insert(pair<string,string>("all","Combined"));
+	}
+	else {
+		labels.insert(pair<string,string>("cat0","Untagged 0"));
+		labels.insert(pair<string,string>("cat1","Untagged 1"));
+		labels.insert(pair<string,string>("cat2","Untagged 2"));
+		labels.insert(pair<string,string>("cat3","Untagged 3"));
+		labels.insert(pair<string,string>("cat4","Dijet Tag Tight"));
+		labels.insert(pair<string,string>("cat5","Dijet Tag Loose"));
+		labels.insert(pair<string,string>("cat6","VH Lepton Tight"));
+		labels.insert(pair<string,string>("cat7","VH Lepton Loose"));
+		labels.insert(pair<string,string>("cat8","VH MET Tag"));
+		if (is2011) {
+			labels.insert(pair<string,string>("cat9","ttH Lep+Had Tag"));
+			labels.insert(pair<string,string>("cat10","VH Hadronic Tag"));
+		}
+		else {
+			labels.insert(pair<string,string>("cat9","ttH Leptonic Tag"));
+			labels.insert(pair<string,string>("cat10","ttH Hadronic Tag"));
+			labels.insert(pair<string,string>("cat11","VH Hadronic Tag"));
+		}
+		labels.insert(pair<string,string>("all","Combined"));
+	}
   if (spin){
     labels.clear();
     labels.insert(pair<string,string>("cat0","#splitline{|#eta|_{max} < 1.44, R_{9min} > 0.94}{|cos(#theta*)| < 0.2}"));
@@ -1197,6 +1486,13 @@ void makeParametricSignalModelPlots(string sigFitFileName, string outPathName, i
     if (bkgdatFileName!="0"){
       bkgFile = TFile::Open(bkgdatFileName.c_str());
       bkgWS = (RooWorkspace*)bkgFile->Get("cms_hgg_workspace");
+			if (!bkgWS) {
+				bkgWS = (RooWorkspace*)bkgFile->Get("multipdf");
+			}
+			if (!bkgWS) {
+				cout << "Background workspace is neither normal hgg or multipdf. Bailing!" << endl;
+				exit(1);
+			}
       doBkgAndData=true;
     }
     // keep track of sums
@@ -1219,7 +1515,7 @@ void makeParametricSignalModelPlots(string sigFitFileName, string outPathName, i
     bkgVals.insert(pair<string,pair<double,double> >("all",bkgTotal));
     sigVals.insert(pair<string,vector<double> > ("all",sigTotal));
     datVals.insert(pair<string,pair<double,double> >("all",datTotal));
-    sobVals.insert(pair<string,double>("all",sobTotal.first/sobTotal.second));
+    sobVals.insert(pair<string,double>("all",sobTotal.first/(sobTotal.first+sobTotal.second)));
     if (doBkgAndData) bkgFile->Close();
     
     FILE *file = fopen(Form("%s/table.tex",outPathName.c_str()),"w");
@@ -1282,7 +1578,7 @@ void makeParametricSignalModelPlots(string sigFitFileName, string outPathName, i
     }
     fclose(nfile);
     fclose(file);
-    makeSignalCompositionPlot(ncats,sigVals,sigEffs,fwhms,sobVals,Form("%s/signalComposition",outPathName.c_str()),m_hyp,doBkgAndData,splitVH);
+    makeSignalCompositionPlot(ncats,labels,sigVals,sigEffs,fwhms,sobVals,Form("%s/signalComposition",outPathName.c_str()),m_hyp,doBkgAndData,splitVH);
     system(Form("cat %s/table.txt",outPathName.c_str()));
     cout << "-->" << endl;
     cout << Form("--> LaTeX version of this table has been written to %s/table.tex",outPathName.c_str()) << endl;
