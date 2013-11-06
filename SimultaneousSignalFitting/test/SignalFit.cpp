@@ -44,7 +44,7 @@ bool is2011_=false;
 bool splitRVWV_=true;
 bool doSecondaryModels_=true;
 bool runInitialFitsOnly_=false;
-bool recursive_=false;
+bool recursive_=true;
 int verbose_=0;
 
 void OptionParser(int argc, char *argv[]){
@@ -66,7 +66,7 @@ void OptionParser(int argc, char *argv[]){
     ("isCutBased",                                                                               		"Is this the cut based analysis")
     ("is2011",                                                                               				"Is this the 7TeV analysis")
 		("runInitialFitsOnly",																																					"Just fit gaussians - no interpolation, no systematics - useful for testing nGaussians")
-    ("recursive",                                                                             			"Recursively calculate gaussian fractions")
+    ("nonRecursive",                                                                             		"Do not recursively calculate gaussian fractions")
     ("verbose,v", po::value<int>(&verbose_)->default_value(0),                                			"Verbosity level: 0 (lowest) - 3 (highest)")
   ;                                                                                             		
   po::variables_map vm;
@@ -80,7 +80,7 @@ void OptionParser(int argc, char *argv[]){
   if (vm.count("runInitialFitsOnly"))       runInitialFitsOnly_=true;
   if (vm.count("nosplitRVWV"))              splitRVWV_=false;
   if (vm.count("skipSecondaryModels"))      doSecondaryModels_=false;
-  if (vm.count("recursive"))                recursive_=true;
+  if (vm.count("recursive"))                recursive_=false;
 }
 
 void transferMacros(TFile *inFile, TFile *outFile){
