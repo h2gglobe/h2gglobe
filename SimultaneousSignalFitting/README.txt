@@ -103,6 +103,21 @@ photon systematics separately. Make sure the options you pass to this script
 (in terms of number of photon categories and their names) match what you have
 in the h2gglobe config.
 
+-------------------------------------
+Making the plots
+-------------------------------------
+
+To make the plots you can use the script Macros/makeParametricSignalModelPlots.C
+You need to open root and load some things before compiling it:
+root
+[0] gSystem->SetIncludePath("-I$ROOTSYS/include -I$ROOFITSYS/include -I$CMSSW_BASE/src");
+[1] .L $CMSSW_BASE/lib/$SCRAM_ARCH/libHiggsAnalysisCombinedLimit.so
+[2] .L ../libLoopAll.so
+[3] .L makeParametricSignalModelPlots.C+g
+
+Then you will be able to run the function.
+
+
 GOOD LUCK!
 
 
