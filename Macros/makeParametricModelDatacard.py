@@ -36,11 +36,19 @@ inFile = r.TFile.Open(options.infilename)
 outFile = open(options.outfilename,'w')
 bkgProcs = ['bkg_mass']
 vbfProcs = ['qqH']
+# FOR MVA:
 incCats = [0,1,2,3,4]
 dijetCats = [5,6,7]
 muonCat = [8,9]
 eleCat = [8,9]
 metCat = [10]
+# FOR CIC:
+if options.isCutBased:
+	incCats = [0,1,2,3]
+	dijetCats = [4,5]
+	muonCat = [6,7]
+	eleCat = [6,7]
+	metCat = [8]
 options.procs += ',bkg_mass'
 options.procs = [combProc[p] for p in options.procs.split(',')]
 options.toSkip = options.toSkip.split(',')
@@ -49,19 +57,39 @@ inWS = inFile.Get('cms_hgg_workspace')
 intL = inWS.var('IntLumi').getVal()
 
 # info = [file,workspace,name]
-#dataFile = 'hgg.inputbkgdata_%dTeV_MVA.root'%sqrts
-#bkgFile = 'hgg.inputbkgdata_%dTeV_MVA.root'%sqrts
-dataFile = 'CMS-HGG_massfacmva_legacy_2013_11_1_data.root'
-bkgFile = 'CMS-HGG_massfacmva_legacy_2013_11_1_data.root'
-dataWS = 'cms_hgg_workspace'
-bkgWS = 'cms_hgg_workspace'
-#sigFile = 'hgg.inputsig_%dTeV_MVA.root'%sqrts
-sigFile = 'CMS-HGG_massfacmva_legacy_2013_11_1_sigfit.root'
-sigWS = 'wsig_%dTeV'%sqrts
+if options.isCutBased:
+	if options.isMultiPdf:
+		dataFile = 'CMS-HGG_cutbased_legacy_multipdf_%dTeV.root'%sqrts
+		bkgFile = 'CMS-HGG_cutbased_legacy_multipdf_%dTeV.root'%sqrts
+		dataWS = 'multipdf'
+		bkgWS = 'multipdf'
+	else:
+		dataFile = 'CMS-HGG_cutbased_legacy_data_%dTeV.root'%sqrts
+		bkgFile = 'CMS-HGG_cutbased_legacy_data_%dTeV.root'%sqrts
+		dataWS = 'cms_hgg_workspace'
+		bkgWS = 'cms_hgg_workspace'
+	sigFile = 'CMS-HGG_cutbased_legacy_sigfit_%dTeV.root'%sqrts
+	sigWS = 'wsig_%dTeV'%sqrts
+else:
+	if options.isMultiPdf:
+		dataFile = 'CMS-HGG_massfac_legacy_multipdf_%dTeV.root'%sqrts
+		bkgFile = 'CMS-HGG_massfac_legacy_multipdf_%dTeV.root'%sqrts
+		dataWS = 'multipdf'
+		bkgWS = 'multipdf'
+	else:
+		dataFile = 'CMS-HGG_massfac_legacy_data_%dTeV.root'%sqrts
+		bkgFile = 'CMS-HGG_massfac_legacy_data_%dTeV.root'%sqrts
+		dataWS = 'cms_hgg_workspace'
+		bkgWS = 'cms_hgg_workspace'
+	sigFile = 'CMS-HGG_massfac_legacy_sigfit_%dTeV.root'%sqrts
+	sigWS = 'wsig_%dTeV'%sqrts
+
 fileDetails = {}
 fileDetails['data_obs'] = [dataFile,dataWS,'roohist_data_mass_$CHANNEL']
-fileDetails['bkg_mass']	= [bkgFile,bkgWS,'pdf_data_pol_model_%dTeV_$CHANNEL'%sqrts]
-#fileDetails['bkg_mass']	= [bkgFile,bkgWS,'CMS_hgg_$CHANNEL_%dTeV_bkgshape'%sqrts]
+if options.isMultiPdf:
+	fileDetails['bkg_mass']	= [bkgFile,bkgWS,'CMS_hgg_$CHANNEL_%dTeV_bkgshape'%sqrts]
+else:
+	fileDetails['bkg_mass']	= [bkgFile,bkgWS,'pdf_data_pol_model_%dTeV_$CHANNEL'%sqrts]
 fileDetails['ggH'] 			= [sigFile,sigWS,'hggpdfsmrel_%dTeV_ggh_$CHANNEL'%sqrts]
 fileDetails['qqH'] 			= [sigFile,sigWS,'hggpdfsmrel_%dTeV_vbf_$CHANNEL'%sqrts]
 if splitVH:
@@ -196,14 +224,18 @@ def printPreamble():
 def printFileOptions():
 	print 'File opts...'
 	for typ, info in fileDetails.items():
-		outFile.write('shapes %-8s * %-30s %s:%s\n'%(typ,info[0],info[1],info[2]))
+		for c in range(options.ncats):
+			file = info[0]
+			wsname = info[1]
+			pdfname = info[2].replace('$CHANNEL','cat%d'%c)
+			outFile.write('shapes %-8s cat%d_%dTeV %-30s %s:%s\n'%(typ,c,sqrts,file,wsname,pdfname))
 	outFile.write('\n')
 
 def printObsProcBinLines():
 	print 'Rates...'
 	outFile.write('%-15s '%'bin')
 	for c in range(options.ncats):
-		outFile.write('cat%d '%c)
+		outFile.write('cat%d_%dTeV '%(c,sqrts))
 	outFile.write('\n')
 	
 	outFile.write('%-15s '%'observation')
@@ -215,7 +247,7 @@ def printObsProcBinLines():
 	for c in range(options.ncats):
 		for p in options.procs:
 			if '%s:%d'%(p,c) in options.toSkip: continue
-			outFile.write('cat%d '%c)
+			outFile.write('cat%d_%dTeV '%(c,sqrts))
 	outFile.write('\n')
 	
 	outFile.write('%-15s '%'process')
@@ -245,11 +277,11 @@ def printObsProcBinLines():
 
 def printNuisParams():
 	print 'Nuisances...'
-	outFile.write('%-35s param 1.0 %5.4f\n'%('CMS_hgg_nuisancedeltafracright_%dTeV'%sqrts,vtxSyst))
+	outFile.write('%-35s param 0.0 %5.4f\n'%('CMS_hgg_nuisancedeltafracright_%dTeV'%sqrts,vtxSyst))
 	outFile.write('%-35s param 0.0 %5.4f\n'%('CMS_hgg_globalscale',globalScale))
 	if options.isCutBased:
-		outFile.write('%-35s param 1.0 %5.4f\n'%('CMS_hgg_nuisancedeltar9barrel_%dTeV'%sqrts,r9barrelSyst))
-		outFile.write('%-35s param 1.0 %5.4f\n'%('CMS_hgg_nuisancedeltar9mixed_%dTeV'%sqrts,r9mixedSyst))
+		outFile.write('%-35s param 0.0 %5.4f\n'%('CMS_hgg_nuisancedeltar9barrel_%dTeV'%sqrts,r9barrelSyst))
+		outFile.write('%-35s param 0.0 %5.4f\n'%('CMS_hgg_nuisancedeltar9mixed_%dTeV'%sqrts,r9mixedSyst))
 	for phoSyst in options.photonSystCats:
 		outFile.write('%-35s param 0.0 1.0\n'%('CMS_hgg_nuisance%sscale'%phoSyst))
 	for phoSyst in options.photonSystCats:

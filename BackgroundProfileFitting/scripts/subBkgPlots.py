@@ -7,6 +7,7 @@ parser.add_option("-s","--sigfilename",help="Signal file (can be binned or param
 parser.add_option("-d","--outDir",default="BkgPlots",help="Out directory for plots default: %default")
 parser.add_option("-c","--cats",type="int",help="Number of categories to run")
 parser.add_option("-l","--catLabels",default="mk_default",help="Category labels (comma separated) default will use Category %cat")
+parser.add_option("-S","--sqrts",type='int',default=8,help="Sqrt(S) COM energy for finding strings etc")
 parser.add_option("--isMultiPdf",default=False,action="store_true",help="Use for multipdf workspaces")
 parser.add_option("--doBands",default=False,action="store_true",help="Use to draw bands")
 parser.add_option("--useBinnedData",default=False,action="store_true",help="Use binned data")
@@ -16,17 +17,20 @@ parser.add_option("--nllTolerance",type="float",default=0.05,help="Tolerance for
 parser.add_option("--blind",default=False,action="store_true",help="Blind the mass spectrum in the range [110,150]")
 parser.add_option("--runLocal",default=False,action="store_true",help="Run locally")
 parser.add_option("--dryRun",default=False,action="store_true",help="Dont submit jobs")
+parser.add_option("-q","--queue",default="8nh")
 parser.add_option("-v","--verbose",default=False,action="store_true",help="Print more output")
 (options,args) = parser.parse_args()
 
 import os
 
+os.system('mkdir -p %s'%options.outDir)
+
 if options.catLabels=='mk_default':
 	options.catLabels=[]
 	for cat in range(options.cats):
 		options.catLabels.append('Category %d'%cat)
-else: 
-	catLabels = options.catLabels.split(',')
+else:
+	options.catLabels = options.catLabels.split(',')
 
 for cat in range(options.cats):
 	
@@ -35,6 +39,7 @@ for cat in range(options.cats):
 	f.write('cd %s\n'%os.getcwd())
 	f.write('eval `scramv1 runtime -sh`\n')
 	execLine = './bin/makeBkgPlots -b %s -s %s -o %s/BkgPlots_cat%d.root -d %s -c %d -l \"%s\"'%(options.bkgfilename,options.sigfilename,options.outDir,cat,options.outDir,cat,options.catLabels[cat])
+	execLine += " --sqrts %d "%options.sqrts
 	if options.doBands:
 		execLine += ' --doBands --massStep %5.3f --nllTolerance %5.3f'%(options.massStep,options.nllTolerance)
 	if options.blind:
@@ -52,10 +57,10 @@ for cat in range(options.cats):
 	
 	os.system('chmod +x %s'%f.name)
 	if options.dryRun:
-		print 'bsub -q 8nh -o %s.log %s'%(os.path.abspath(f.name),os.path.abspath(f.name))
+		print 'bsub -q %s -o %s.log %s'%(options.queue,os.path.abspath(f.name),os.path.abspath(f.name))
 	elif options.runLocal:
 		os.system('./%s'%f.name)
 	else:
-		os.system('bsub -q 8nh -o %s.log %s'%(os.path.abspath(f.name),os.path.abspath(f.name)))
+		os.system('bsub -q %s -o %s.log %s'%(options.queue,os.path.abspath(f.name),os.path.abspath(f.name)))
 	
 	

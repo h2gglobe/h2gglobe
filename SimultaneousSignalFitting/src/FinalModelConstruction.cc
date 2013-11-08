@@ -387,13 +387,13 @@ RooAbsReal* FinalModelConstruction::getRateWithPhotonSyst(string name){
 	formula+=")";	
 	if (isCutBased_){
 		// category hard code should be tidied up
-		// should be actually taken out and be put in the datacard
+		// should be actually taken out and be put in the datfile
 		if (cat_==0 || cat_==1) {
-			formula += Form("*@%d",dependents->getSize());
+			formula += Form("*(1.+@%d)",dependents->getSize());
 			dependents->add(*r9barrelNuisance);
 		}
 		if (cat_==2 || cat_==3) {
-			formula += Form("*@%d",dependents->getSize());
+			formula += Form("*(1.+@%d)",dependents->getSize());
 			dependents->add(*r9mixedNuisance);
 		}
 	}
@@ -412,13 +412,13 @@ void FinalModelConstruction::setupSystematics(){
   //categorySmear = new RooConstVar(Form("CMS_hgg_constsmearcat%d",nuisCat),Form("CMS_hgg_constsmearcat%d",nuisCat),constSmearVals[nuisCat]);
   //categoryResolution = new RooRealVar(Form("CMS_hgg_nuissancedeltasmearcat%d",nuisCat),Form("CMS_hgg_nuissancedeltasmearcat%d",nuisCat),0.0,-0.2,0.2);
 	
-	vertexNuisance = new RooRealVar(Form("CMS_hgg_nuisancedeltafracright_%dTeV",sqrts_),Form("CMS_hgg_nuisancedeltafracright_%dTeV",sqrts_),1.,0.,1.);
+	vertexNuisance = new RooRealVar(Form("CMS_hgg_nuisancedeltafracright_%dTeV",sqrts_),Form("CMS_hgg_nuisancedeltafracright_%dTeV",sqrts_),0.,-1.,1.);
 	vertexNuisance->setConstant(true);
 	globalScale = new RooRealVar("CMS_hgg_globalscale","CMS_hgg_globalscale",0.,-5.,5.);
 	globalScale->setConstant(true);
 	if (isCutBased_) {
-		r9barrelNuisance = new RooRealVar(Form("CMS_hgg_nuisancedeltar9barrel_%dTeV",sqrts_),Form("CMS_hgg_nuisancedeltar9barrel_%dTeV",sqrts_),1.,0.,1.);
-		r9mixedNuisance = new RooRealVar(Form("CMS_hgg_nuisancedeltar9mixed_%dTeV",sqrts_),Form("CMS_hgg_nuisancedeltar9mixed_%dTeV",sqrts_),1.,0.,1.);
+		r9barrelNuisance = new RooRealVar(Form("CMS_hgg_nuisancedeltar9barrel_%dTeV",sqrts_),Form("CMS_hgg_nuisancedeltar9barrel_%dTeV",sqrts_),0.,-1.,1.);
+		r9mixedNuisance = new RooRealVar(Form("CMS_hgg_nuisancedeltar9mixed_%dTeV",sqrts_),Form("CMS_hgg_nuisancedeltar9mixed_%dTeV",sqrts_),0.,-1.,1.);
 		r9barrelNuisance->setConstant(true);
 		r9mixedNuisance->setConstant(true);
 	}
@@ -443,7 +443,7 @@ void FinalModelConstruction::buildRvWvPdf(string name, int nGrv, int nGwv, bool 
 
   if (!rvFractionSet_) getRvFractionFunc(Form("%s_%s_cat%d_rvFracFunc",name.c_str(),proc_.c_str(),cat_));
   if (!systematicsSet_) setupSystematics();
-  RooFormulaVar *rvFraction = new RooFormulaVar(Form("%s_%s_cat%d_rvFrac",name.c_str(),proc_.c_str(),cat_),Form("%s_%s_cat%d_rvFrac",name.c_str(),proc_.c_str(),cat_),"TMath::Min(@0*@1,1.0)",RooArgList(*vertexNuisance,*rvFracFunc));
+  RooFormulaVar *rvFraction = new RooFormulaVar(Form("%s_%s_cat%d_rvFrac",name.c_str(),proc_.c_str(),cat_),Form("%s_%s_cat%d_rvFrac",name.c_str(),proc_.c_str(),cat_),"TMath::Min(@0+@1,1.0)",RooArgList(*vertexNuisance,*rvFracFunc));
   vector<RooAddPdf*> rvPdfs = buildPdf(name,nGrv,recursive,rvSplines,Form("_rv_%dTeV",sqrts_)); 
   vector<RooAddPdf*> wvPdfs = buildPdf(name,nGwv,recursive,wvSplines,Form("_wv_%dTeV",sqrts_)); 
   finalPdf = new RooAddPdf(Form("%s_%s_cat%d",name.c_str(),proc_.c_str(),cat_),Form("%s_%s_cat%d",name.c_str(),proc_.c_str(),cat_),RooArgList(*rvPdfs[0],*wvPdfs[0]),RooArgList(*rvFraction));

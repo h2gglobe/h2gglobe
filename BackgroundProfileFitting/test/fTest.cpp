@@ -215,6 +215,18 @@ int main(int argc, char* argv[]){
     fabChoice.push_back(pair<string,int>("Bernstein",3));
     fabChoice.push_back(pair<string,int>("Bernstein",3));
     fabChoice.push_back(pair<string,int>("Bernstein",3));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
   }
   else {
     fabChoice.push_back(pair<string,int>("Bernstein",5));
@@ -233,6 +245,18 @@ int main(int argc, char* argv[]){
     fabChoice.push_back(pair<string,int>("Bernstein",5));
     fabChoice.push_back(pair<string,int>("Bernstein",4));
     fabChoice.push_back(pair<string,int>("Bernstein",4));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
+    fabChoice.push_back(pair<string,int>("Bernstein",3));
     fabChoice.push_back(pair<string,int>("Bernstein",3));
     fabChoice.push_back(pair<string,int>("Bernstein",3));
     fabChoice.push_back(pair<string,int>("Bernstein",3));
@@ -324,7 +348,7 @@ int main(int argc, char* argv[]){
 	std::cout << "Upper end Threshold for highest order function " << upperEnvThreshold <<std::endl;
         while (prob<upperEnvThreshold){
          RooAbsPdf *bkgPdf = getPdf(pdfsModel,*funcType,order,Form("pdf_%d",cat));
-          if (!bkgPdf){
+          if (!bkgPdf ){
           // assume this order is not allowed
           order++;
           }
@@ -349,7 +373,7 @@ int main(int argc, char* argv[]){
            cache_order=prev_order;
            cache_pdf=prev_pdf;
 
-	   if (gofProb > 0.01 && prob < upperEnvThreshold) { // Looser requirements for the envelope
+	   if (gofProb > 0.01 && prob < upperEnvThreshold ) { // Looser requirements for the envelope
 		std::cout << "Adding to Envelope " << bkgPdf->GetName() << " "<< gofProb 
 			  << " 2xNLL + c is " << myNll + bkgPdf->getVariables()->getSize() <<  std::endl;
       		allPdfs.insert(pair<string,RooAbsPdf*>(Form("%s%d",funcType->c_str(),order),bkgPdf));
@@ -387,10 +411,11 @@ int main(int argc, char* argv[]){
     if (saveMultiPdf){
 	  // Put selectedModels into a MultiPdf
 	  RooCategory catIndex(Form("pdfindex_%d",cat),"c");
-	  RooMultiPdf *pdf = new RooMultiPdf(Form("CMS_hgg_cat%d_8TeV_bkgshape",cat),"all pdfs",catIndex,storedPdfs);
+	  std::string ext = is2011 ? "7TeV" : "8TeV";
+	  RooMultiPdf *pdf = new RooMultiPdf(Form("CMS_hgg_cat%d_%s_bkgshape",cat,ext.c_str()),"all pdfs",catIndex,storedPdfs);
 	  catIndex.setIndex(bestFitPdfIndex);
 	
-	  RooRealVar nBackground(Form("CMS_hgg_cat%d_8TeV_bkgshape_norm",cat),"nbkg",data->sumEntries(),0,10E8);
+	  RooRealVar nBackground(Form("CMS_hgg_cat%d_%s_bkgshape_norm",cat,ext.c_str()),"nbkg",data->sumEntries(),0,10E8);
 	  std::cout << "// ------------------------------------------------------------------------- //" <<std::endl; 
 	  std::cout << "Created MultiPdf " << pdf->GetName() << ", in Category " << cat << " with a total of " << catIndex.numTypes() << " pdfs"<< std::endl;
 	  storedPdfs.Print();
