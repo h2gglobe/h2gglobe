@@ -248,7 +248,7 @@ RooAbsPdf* PdfModelBuilder::getPowerLawSingle(string prefix, int order){
     //fracs->Print("v");
     //pows->Print("v");
     //cout << "Function..." << endl;
-    RooAbsPdf *pow = new RooAddPdf(prefix.c_str(),prefix.c_str(),*pows,*fracs); 
+    RooAbsPdf *pow = new RooAddPdf(prefix.c_str(),prefix.c_str(),*pows,*fracs,true); 
     //pow->Print("v");
     return pow;
     //bkgPdfs.insert(pair<string,RooAbsPdf*>(pow->GetName(),pow));
@@ -347,13 +347,13 @@ RooAbsPdf* PdfModelBuilder::getExponentialSingle(string prefix, int order){
     for (int i=1; i<=nexps; i++){
       string name =  Form("%s_p%d",prefix.c_str(),i);
       string ename =  Form("%s_e%d",prefix.c_str(),i);
-      params.insert(pair<string,RooRealVar*>(name, new RooRealVar(name.c_str(),name.c_str(),TMath::Max(-2.,-0.02*(i+1)),-2.,-0.00001)));
+      params.insert(pair<string,RooRealVar*>(name, new RooRealVar(name.c_str(),name.c_str(),TMath::Max(-2.,-0.04*(i+1)),-2.,-0.001)));
       utilities.insert(pair<string,RooAbsPdf*>(ename, new RooExponential(ename.c_str(),ename.c_str(),*obs_var,*params[name])));
       exps->add(*utilities[ename]);
     }
     //fracs->Print("v");
     //exps->Print("v");
-    RooAddPdf *exp = new RooAddPdf(prefix.c_str(),prefix.c_str(),*exps,*fracs);
+    RooAddPdf *exp = new RooAddPdf(prefix.c_str(),prefix.c_str(),*exps,*fracs,true);
     //exp->Print("v");
     cout << "--------------------------" << endl;
     return exp;
