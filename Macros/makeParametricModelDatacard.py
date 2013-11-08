@@ -462,7 +462,7 @@ def printLepMetSysts():
 def printMultiPdf():
 	if options.isMultiPdf:
 		for c in range(options.ncats):
-			outFile.write('pdfindex_%d  discrete\n'%c)
+			outFile.write('pdfindex_%d_%dTeV  discrete\n'%(c,sqrts))
 
 # __main__ here
 printPreamble()
