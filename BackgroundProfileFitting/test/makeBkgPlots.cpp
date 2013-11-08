@@ -740,7 +740,7 @@ int main(int argc, char* argv[]){
 	RooCategory *mcat = 0;
 	if (isMultiPdf) {
 		mpdf = (RooMultiPdf*)inWS->pdf(Form("CMS_hgg_cat%d_%dTeV_bkgshape",cat,sqrts));
-		mcat = (RooCategory*)inWS->cat(Form("pdfindex_%d",cat));
+		mcat = (RooCategory*)inWS->cat(Form("pdfindex_%d_%dTeV",cat,sqrts));
 		if (!mpdf || !mcat){
 			cout << "Can't find multipdfs or multicat" << endl;
 			exit(0);
@@ -752,7 +752,7 @@ int main(int argc, char* argv[]){
 			cout << "Cant't find background pdf" << endl;
 			exit(0);
 		}
-		mcat = new RooCategory(Form("pdfindex_%d",cat),"c");
+		mcat = new RooCategory(Form("pdfindex_%d_%dTeV",cat,sqrts),"c");
 		RooArgList temp;
 		temp.add(*bpdf);
 		mpdf = new RooMultiPdf(Form("tempmpdf_cat%d",cat),"",*mcat,temp);
