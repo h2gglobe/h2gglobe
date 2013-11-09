@@ -601,12 +601,14 @@ double guessNew(RooRealVar *mgg, RooMultiPdf *mpdf, RooCategory *mcat, RooAbsDat
 	return guess;
 }
 
-pair<double,double> bkgEvPerGeV(RooWorkspace *work, int m_hyp, int cat, pair<double,double> &bkgTotal){
+pair<double,double> bkgEvPerGeV(RooWorkspace *work, int m_hyp, int cat, pair<double,double> &bkgTotal, bool is2011){
   
 	if (work->GetName()==TString("cms_hgg_workspace")) {
 		RooRealVar *mass = (RooRealVar*)work->var("CMS_hgg_mass");
 		mass->setRange(100,180);
-		RooAbsPdf *pdf = (RooAbsPdf*)work->pdf(Form("pdf_data_pol_model_8TeV_cat%d",cat));
+		RooAbsPdf *pdf;
+		if (is2011) pdf = (RooAbsPdf*)work->pdf(Form("pdf_data_pol_model_7TeV_cat%d",cat));
+		else pdf = (RooAbsPdf*)work->pdf(Form("pdf_data_pol_model_8TeV_cat%d",cat));
 		RooAbsData *data = (RooDataSet*)work->data(Form("data_mass_cat%d",cat));
 		RooPlot *tempFrame = mass->frame();
 		data->plotOn(tempFrame,Binning(80));
@@ -640,7 +642,9 @@ pair<double,double> bkgEvPerGeV(RooWorkspace *work, int m_hyp, int cat, pair<dou
 	else if (work->GetName()==TString("multipdf")) {
 		RooRealVar *mass = (RooRealVar*)work->var("CMS_hgg_mass");
 		mass->setRange(100,180);
-		RooMultiPdf *mpdf = (RooMultiPdf*)work->pdf(Form("CMS_hgg_cat%d_8TeV_bkgshape",cat));
+		RooMultiPdf *mpdf;
+		if (is2011) mpdf = (RooMultiPdf*)work->pdf(Form("CMS_hgg_cat%d_7TeV_bkgshape",cat));
+		else mpdf = (RooMultiPdf*)work->pdf(Form("CMS_hgg_cat%d_8TeV_bkgshape",cat));
 		RooCategory *mcat = (RooCategory*)work->cat(Form("pdfindex_%d",cat));
 		RooAbsData *data = (RooDataSet*)work->data(Form("roohist_data_mass_cat%d",cat));
 		
@@ -680,7 +684,7 @@ pair<double,double> bkgEvPerGeV(RooWorkspace *work, int m_hyp, int cat, pair<dou
 	return pair<double,double>(0.,0.);
 }
 
-double sobInFWHM(RooWorkspace *sigWS, RooWorkspace *bkgWS, int m_hyp, int cat, double fwhm, pair<double,double> &sobInFWHMTotal, bool splitVH){
+double sobInFWHM(RooWorkspace *sigWS, RooWorkspace *bkgWS, int m_hyp, int cat, double fwhm, pair<double,double> &sobInFWHMTotal, bool splitVH, bool is2011){
 
   RooRealVar *mass = (RooRealVar*)bkgWS->var("CMS_hgg_mass");
   mass->setRange(100,180);
@@ -689,11 +693,14 @@ double sobInFWHM(RooWorkspace *sigWS, RooWorkspace *bkgWS, int m_hyp, int cat, d
 	RooAbsData *data=NULL;
 	
 	if (bkgWS->GetName()==TString("cms_hgg_workspace")) {
-		pdf = (RooAbsPdf*)bkgWS->pdf(Form("data_pol_model_8TeV_cat%d",cat));
+		if (is2011) pdf = (RooAbsPdf*)bkgWS->pdf(Form("data_pol_model_7TeV_cat%d",cat)); 
+		else pdf = (RooAbsPdf*)bkgWS->pdf(Form("data_pol_model_8TeV_cat%d",cat));
 		data = (RooDataSet*)bkgWS->data(Form("data_mass_cat%d",cat));
 	}
 	else if (bkgWS->GetName()==TString("multipdf")) {
-		RooMultiPdf *mpdf = (RooMultiPdf*)bkgWS->pdf(Form("CMS_hgg_cat%d_8TeV_bkgshape",cat));
+		RooMultiPdf *mpdf;
+		if (is2011) mpdf = (RooMultiPdf*)bkgWS->pdf(Form("CMS_hgg_cat%d_7TeV_bkgshape",cat));
+		else mpdf = (RooMultiPdf*)bkgWS->pdf(Form("CMS_hgg_cat%d_8TeV_bkgshape",cat));
 		RooCategory *mcat = (RooCategory*)bkgWS->cat(Form("pdfindex_%d",cat));
 		data = (RooDataSet*)bkgWS->data(Form("roohist_data_mass_cat%d",cat));
 		// reset to best fit
@@ -838,7 +845,7 @@ pair<double,double> datEvents(RooWorkspace *work, int m_hyp, int cat, pair<doubl
 }
 
 // from p. meridiani with addition from m. kenzie
-void makeSignalCompositionPlot(int nCats, map<string,string> labels, map<string,vector<double> > sigVals, map<string,double> sigEffs, map<string,double> fwhms, map<string,double> sobVals, string outfname, int mh, bool doBkgAndData, bool splitVH){
+void makeSignalCompositionPlot(int nCats, map<string,string> labels, map<string,vector<double> > sigVals, map<string,double> sigEffs, map<string,double> fwhms, map<string,double> sobVals, string outfname, int mh, bool doBkgAndData, bool splitVH, bool isMassFac){
 
   TString catName[nCats+1];
 	for (int cat=0; cat<nCats; cat++) catName[cat] = labels[Form("cat%d",cat)];
@@ -1024,13 +1031,19 @@ void makeSignalCompositionPlot(int nCats, map<string,string> labels, map<string,
     tex_m->DrawLatex(0.78,0.84+0.025,"ttH");
   }
 
-  TLine *line = new TLine(0,nCats-4.5,100,nCats-4.5);
+	int nIncCats=4;
+	int nVBFCats=2;
+	if (isMassFac){
+		nIncCats=5;
+		nVBFCats=3;
+	}
+  TLine *line = new TLine(0,nCats-nIncCats+0.5,100,nCats-nIncCats+0.5);
   line->SetLineColor(kBlack);
   line->SetLineWidth(2);
   line->SetLineStyle(2);
   line->Draw();
 
-  TLine *line2 = new TLine(0,nCats-7.5,100,nCats-7.5);
+  TLine *line2 = new TLine(0,nCats-nIncCats-nVBFCats+0.5,100,nCats-nIncCats-nVBFCats+0.5);
   line2->SetLineColor(kBlack);
   line2->SetLineWidth(2);
   line2->SetLineStyle(2);
@@ -1130,13 +1143,13 @@ void makeSignalCompositionPlot(int nCats, map<string,string> labels, map<string,
   tex_m->SetTextSize(0.045);
   tex_m->DrawLatex(0.7,0.865,"FWHM/2.35");
   
-  TLine *sline = new TLine(-3.,nCats-4.5,3.,nCats-4.5);
+  TLine *sline = new TLine(-3.,nCats-nIncCats+0.5,3.,nCats-nIncCats+0.5);
   sline->SetLineColor(kBlack);
   sline->SetLineWidth(2);
   sline->SetLineStyle(2);
   sline->Draw();
 
-  TLine *sline2 = new TLine(-3.,nCats-7.5,3.,nCats-7.5);
+  TLine *sline2 = new TLine(-3.,nCats-nIncCats-nVBFCats+0.5,3.,nCats-nIncCats-nVBFCats+0.5);
   sline2->SetLineColor(kBlack);
   sline2->SetLineWidth(2);
   sline2->SetLineStyle(2);
@@ -1225,13 +1238,13 @@ void makeSignalCompositionPlot(int nCats, map<string,string> labels, map<string,
     tex_m->SetTextSize(0.05);
     tex_m->DrawLatex(0.25,0.865,"S/(S+B) in FWHM");
 
-    TLine *sbline = new TLine(0.,nCats-4.5,sobMax,nCats-4.5);
+		TLine *sbline = new TLine(0,nCats-nIncCats+0.5,sobMax,nCats-nIncCats+0.5);
     sbline->SetLineColor(kBlack);
     sbline->SetLineWidth(2);
     sbline->SetLineStyle(2);
     sbline->Draw();
 
-    TLine *sbline2 = new TLine(0.,nCats-7.5,sobMax,nCats-7.5);
+		TLine *sbline2 = new TLine(0,nCats-nIncCats-nVBFCats+0.5,sobMax,nCats-nIncCats-nVBFCats+0.5);
     sbline2->SetLineColor(kBlack);
     sbline2->SetLineWidth(2);
     sbline2->SetLineStyle(2);
@@ -1505,9 +1518,9 @@ void makeParametricSignalModelPlots(string sigFitFileName, string outPathName, i
     for (int i=0; i<6; i++) sigTotal.push_back(0.);
     for (int cat=0; cat<ncats; cat++){
       if (doBkgAndData) {
-        bkgVals.insert(pair<string,pair<double,double> >(Form("cat%d",cat),bkgEvPerGeV(bkgWS,m_hyp,cat,bkgTotal)));
+        bkgVals.insert(pair<string,pair<double,double> >(Form("cat%d",cat),bkgEvPerGeV(bkgWS,m_hyp,cat,bkgTotal,is2011)));
         datVals.insert(pair<string,pair<double,double> >(Form("cat%d",cat),datEvents(bkgWS,m_hyp,cat,datTotal)));
-        sobVals.insert(pair<string,double>(Form("cat%d",cat),sobInFWHM(hggWS,bkgWS,m_hyp,cat,fwhms[Form("cat%d",cat)],sobTotal,splitVH)));
+        sobVals.insert(pair<string,double>(Form("cat%d",cat),sobInFWHM(hggWS,bkgWS,m_hyp,cat,fwhms[Form("cat%d",cat)],sobTotal,splitVH,is2011)));
       }
       sigVals.insert(pair<string,vector<double> >(Form("cat%d",cat),sigEvents(hggWS,m_hyp,cat,binnedSigFileName,sigTotal,splitVH,spinProc)));
     }
@@ -1578,7 +1591,7 @@ void makeParametricSignalModelPlots(string sigFitFileName, string outPathName, i
     }
     fclose(nfile);
     fclose(file);
-    makeSignalCompositionPlot(ncats,labels,sigVals,sigEffs,fwhms,sobVals,Form("%s/signalComposition",outPathName.c_str()),m_hyp,doBkgAndData,splitVH);
+    makeSignalCompositionPlot(ncats,labels,sigVals,sigEffs,fwhms,sobVals,Form("%s/signalComposition",outPathName.c_str()),m_hyp,doBkgAndData,splitVH,isMassFac);
     system(Form("cat %s/table.txt",outPathName.c_str()));
     cout << "-->" << endl;
     cout << Form("--> LaTeX version of this table has been written to %s/table.tex",outPathName.c_str()) << endl;

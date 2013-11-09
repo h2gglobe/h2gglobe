@@ -17,17 +17,20 @@ parser.add_option("--nllTolerance",type="float",default=0.05,help="Tolerance for
 parser.add_option("--blind",default=False,action="store_true",help="Blind the mass spectrum in the range [110,150]")
 parser.add_option("--runLocal",default=False,action="store_true",help="Run locally")
 parser.add_option("--dryRun",default=False,action="store_true",help="Dont submit jobs")
+parser.add_option("-q","--queue",default="8nh")
 parser.add_option("-v","--verbose",default=False,action="store_true",help="Print more output")
 (options,args) = parser.parse_args()
 
 import os
 
+os.system('mkdir -p %s'%options.outDir)
+
 if options.catLabels=='mk_default':
 	options.catLabels=[]
 	for cat in range(options.cats):
 		options.catLabels.append('Category %d'%cat)
-else: 
-	catLabels = options.catLabels.split(',')
+else:
+	options.catLabels = options.catLabels.split(',')
 
 for cat in range(options.cats):
 	
@@ -54,10 +57,10 @@ for cat in range(options.cats):
 	
 	os.system('chmod +x %s'%f.name)
 	if options.dryRun:
-		print 'bsub -q 8nh -o %s.log %s'%(os.path.abspath(f.name),os.path.abspath(f.name))
+		print 'bsub -q %s -o %s.log %s'%(options.queue,os.path.abspath(f.name),os.path.abspath(f.name))
 	elif options.runLocal:
 		os.system('./%s'%f.name)
 	else:
-		os.system('bsub -q 8nh -o %s.log %s'%(os.path.abspath(f.name),os.path.abspath(f.name)))
+		os.system('bsub -q %s -o %s.log %s'%(options.queue,os.path.abspath(f.name),os.path.abspath(f.name)))
 	
 	

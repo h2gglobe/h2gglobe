@@ -74,7 +74,7 @@ void InitialFit::buildSumOfGaussians(string name, int nGaussians, bool recursive
       tempGaussians.insert(pair<string,RooGaussian*>(string(gaus->GetName()),gaus));
       gaussians->add(*gaus);
       if (g<nGaussians-1) {
-        RooRealVar *frac = new RooRealVar(Form("frac_mh%d_g%d",mh,g),Form("frac_mh%d_g%d",mh,g),0.1,0.05,0.95);
+        RooRealVar *frac = new RooRealVar(Form("frac_mh%d_g%d",mh,g),Form("frac_mh%d_g%d",mh,g),0.01,0.01,0.99);
         tempFitParams.insert(pair<string,RooRealVar*>(string(frac->GetName()),frac));
         coeffs->add(*frac);
       }
@@ -161,7 +161,7 @@ void InitialFit::runFits(int ncpu){
 		// help when dataset has no entries
 		if (data->sumEntries()<1.e-6) {
 			mass->setVal(mh);
-			data->add(RooArgSet(*mass),0.0001);
+			data->add(RooArgSet(*mass),1.e-6);
 		}
     fitModel->Print();
     data->Print();
