@@ -17,9 +17,9 @@ parser.add_option("-n","--name",dest="names",default=[],action="append",help="Se
 parser.add_option("-t","--text",dest="text",type="string",default="",help="Add Text")
 parser.add_option("-e","--expected",dest="expected",default=False,action="store_true",help="Expected only")
 parser.add_option("-m","--method",dest="method",type="string",help="Method to run")
-parser.add_option("-l","--legend",dest="legend",type="string",help="Legend position - x1;y1;x2;y2")
-parser.add_option("-x","--xaxis",dest="xaxis",type="string",help="x-axis range - x1;x2")
-parser.add_option("-y","--yaxis",dest="yaxis",type="string",help="y-axis range - y1;y2")
+parser.add_option("-l","--legend",dest="legend",type="string",help="Legend position - x1,y1,x2,y2")
+parser.add_option("-x","--xaxis",dest="xaxis",type="string",help="x-axis range - x1,x2")
+parser.add_option("-y","--yaxis",dest="yaxis",type="string",help="y-axis range - y1,y2")
 parser.add_option("","--limit",dest="limit",default=False,action="store_true",help="Do limit plot")
 parser.add_option("","--pval",dest="pval",default=False,action="store_true",help="Do p-value plot")
 parser.add_option("","--maxlh",dest="maxlh",default=False,action="store_true",help="Do best fit mu plot")
@@ -73,7 +73,7 @@ def pvalPlot(allVals):
   canv.SetLogy(True)
   mg = r.TMultiGraph()
   if not options.legend: leg = r.TLegend(0.6,0.12,0.89,0.4)
-  else: leg = r.TLegend(float(options.legend.split(';')[0]),float(options.legend.split(';')[1]),float(options.legend.split(';')[2]),float(options.legend.split(';')[3]))
+  else: leg = r.TLegend(float(options.legend.split(',')[0]),float(options.legend.split(',')[1]),float(options.legend.split(',')[2]),float(options.legend.split(',')[3]))
   leg.SetFillColor(0)
 
   # make graphs from values
@@ -95,8 +95,8 @@ def pvalPlot(allVals):
     dummyHist.SetMinimum(mg.GetYaxis().GetXmin())
     dummyHist.SetMaximum(mg.GetYaxis().GetXmax())
   else:
-    dummyHist.SetMinimum(float(options.yaxis.split(';')[0]))
-    dummyHist.SetMaximum(float(options.yaxis.split(';')[1]))
+    dummyHist.SetMinimum(float(options.yaxis.split(',')[0]))
+    dummyHist.SetMaximum(float(options.yaxis.split(',')[1]))
     
   dummyHist.SetLineColor(0)
   dummyHist.SetStats(0)
@@ -117,9 +117,14 @@ def pvalPlot(allVals):
     lines[i].SetLineColor(r.kRed)
     labels.append(r.TLatex(110 + 2, y * 1.1, "%d #sigma" % (i+1)))
     labels[i].SetTextAlign(11);
-    if y<=mg.GetYaxis().GetXmax() and y>=mg.GetYaxis().GetXmin():
-      lines[i].Draw('SAME')
-      labels[i].Draw('SAME')
+    if not options.yaxis:
+      if y<=mg.GetYaxis().GetXmax() and y>=mg.GetYaxis().GetXmin():
+        lines[i].Draw('SAME')
+        labels[i].Draw('SAME')
+    else:
+      if y<=float(options.yaxis.split(',')[1]) and y>=float(options.yaxis.split(',')[0]):
+        lines[i].Draw('SAME')
+        labels[i].Draw('SAME')
 
   # draw text
   lat.DrawLatex(0.12,0.92,"CMS Preliminary")
@@ -146,7 +151,7 @@ def maxlhPlot(allVals):
   if options.verbose: print 'Plotting maxlh...'
   mg = r.TMultiGraph()
   if not options.legend: leg = r.TLegend(0.6,0.8,0.89,0.89)
-  else: leg = r.TLegend(float(options.legend.split(';')[0]),float(options.legend.split(';')[1]),float(options.legend.split(';')[2]),float(options.legend.split(';')[3]))
+  else: leg = r.TLegend(float(options.legend.split(',')[0]),float(options.legend.split(',')[1]),float(options.legend.split(',')[2]),float(options.legend.split(',')[3]))
   leg.SetFillColor(0)
  
   # make graph from values
@@ -179,8 +184,8 @@ def maxlhPlot(allVals):
     dummyHist.SetMinimum(mg.GetYaxis().GetXmin())
     dummyHist.SetMaximum(mg.GetYaxis().GetXmax())
   else:
-    dummyHist.SetMinimum(float(options.yaxis.split(';')[0]))
-    dummyHist.SetMaximum(float(options.yaxis.split(';')[1]))
+    dummyHist.SetMinimum(float(options.yaxis.split(',')[0]))
+    dummyHist.SetMaximum(float(options.yaxis.split(',')[1]))
   dummyHist.SetLineColor(0)
   dummyHist.SetStats(0)
   dummyHist.Draw("AXIS")
@@ -232,7 +237,7 @@ def limitPlot(allVals):
   if options.verbose: print 'Plotting limit...'
   mg = r.TMultiGraph()
   if not options.legend: leg = r.TLegend(0.6,0.7,0.89,0.89)
-  else: leg = r.TLegend(float(options.legend.split(';')[0]),float(options.legend.split(';')[1]),float(options.legend.split(';')[2]),float(options.legend.split(';')[3]))
+  else: leg = r.TLegend(float(options.legend.split(',')[0]),float(options.legend.split(',')[1]),float(options.legend.split(',')[2]),float(options.legend.split(',')[3]))
   leg.SetFillColor(0)
 
   # make graph from values
@@ -302,8 +307,8 @@ def limitPlot(allVals):
     dummyHist.SetMinimum(mg.GetYaxis().GetXmin())
     dummyHist.SetMaximum(mg.GetYaxis().GetXmax())
   else:
-    dummyHist.SetMinimum(float(options.yaxis.split(';')[0]))
-    dummyHist.SetMaximum(float(options.yaxis.split(';')[1]))
+    dummyHist.SetMinimum(float(options.yaxis.split(',')[0]))
+    dummyHist.SetMaximum(float(options.yaxis.split(',')[1]))
   dummyHist.SetLineColor(0)
   dummyHist.SetStats(0)
   dummyHist.Draw("AXIS")
@@ -378,7 +383,7 @@ def plot1DNLL():
 
   canv = r.TCanvas(x,x,500,500)
   if not options.legend: leg  = r.TLegend(0.35,0.65,0.6,0.79)
-  else: leg = r.TLegend(float(options.legend.split(';')[0]),float(options.legend.split(';')[1]),float(options.legend.split(';')[2]),float(options.legend.split(';')[3]))
+  else: leg = r.TLegend(float(options.legend.split(',')[0]),float(options.legend.split(',')[1]),float(options.legend.split(',')[2]),float(options.legend.split(',')[3]))
   leg.SetLineColor(0)
   leg.SetFillColor(0)
 
@@ -438,7 +443,7 @@ def plot1DNLL():
   if options.method=='mh': dH.GetXaxis().SetNdivisions(505)
   dH.GetYaxis().SetTitle('-2 #Delta LL')
   if not options.yaxis: dH.GetYaxis().SetRangeUser(0.,rng)
-  else: dH.GetYaxis().SetRangeUser(float(options.yaxis.split(';')[0]),float(options.yaxis.split(';')[1]))
+  else: dH.GetYaxis().SetRangeUser(float(options.yaxis.split(',')[0]),float(options.yaxis.split(',')[1]))
   dH.SetLineColor(0)
   dH.SetStats(0)
   dH.Draw("AXIS")
@@ -447,7 +452,7 @@ def plot1DNLL():
     gr.GetXaxis().SetRangeUser(axmin,axmax)
     gr.GetXaxis().SetNdivisions(505)
     if not options.yaxis: gr.GetYaxis().SetRangeUser(0.,rng)
-    else: gr.GetYaxis().SetRangeUser(float(options.yaxis.split(';')[0]),float(options.yaxis.split(';')[1]))
+    else: gr.GetYaxis().SetRangeUser(float(options.yaxis.split(',')[0]),float(options.yaxis.split(',')[1]))
     gr.Draw("L")
 
   # draw legend
@@ -510,7 +515,7 @@ def plot2DNLL(xvar="RF",yvar="RV",xtitle="#mu_{ggH+ttH}",ytitle="#mu_{qqH+VH}"):
       gBF.SetPoint(0,getattr(tree,xvar),getattr(tree,yvar))
 
   if not options.legend: leg = r.TLegend(0.7,0.7,0.88,0.88)
-  else: leg = r.TLegend(float(options.legend.split(';')[0]),float(options.legend.split(';')[1]),float(options.legend.split(';')[2]),float(options.legend.split(';')[3]))
+  else: leg = r.TLegend(float(options.legend.split(',')[0]),float(options.legend.split(',')[1]),float(options.legend.split(',')[2]),float(options.legend.split(',')[3]))
   leg.SetFillColor(0)
 
   th2.SetTitle("")
@@ -521,8 +526,8 @@ def plot2DNLL(xvar="RF",yvar="RV",xtitle="#mu_{ggH+ttH}",ytitle="#mu_{qqH+VH}"):
   th2.GetYaxis().SetTitleSize(0.04)
   th2.GetXaxis().SetTitleSize(0.04)
   th2.GetYaxis().SetTitleOffset(1.2)
-  if options.xaxis: th2.GetXaxis().SetRangeUser(float(options.xaxis.split(';')[0]),float(options.xaxis.split(';')[1]))
-  if options.yaxis: th2.GetYaxis().SetRangeUser(float(options.yaxis.split(';')[0]),float(options.yaxis.split(';')[1]))
+  if options.xaxis: th2.GetXaxis().SetRangeUser(float(options.xaxis.split(',')[0]),float(options.xaxis.split(',')[1]))
+  if options.yaxis: th2.GetYaxis().SetRangeUser(float(options.yaxis.split(',')[0]),float(options.yaxis.split(',')[1]))
 
   cont_1sig = th2.Clone('cont_1_sig')
   cont_1sig.SetContour(2)

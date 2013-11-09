@@ -137,7 +137,7 @@ def writeAsymptotic():
 		writePreamble(file)
 		exec_line = ''
 		for mass in mass_set:
-			exec_line +=	'combine %s -M Asymptotic -m %6.2f'%(opts.datacard,mass)
+			exec_line +=	'combine %s -M Asymptotic -m %6.2f --cminDefaultMinimizerType=Minuit2'%(opts.datacard,mass)
 			if opts.expected: exec_line += ' --run=expected'
 			if mass!=mass_set[-1]: exec_line += ' && '
 		writePostamble(file,exec_line)
@@ -157,7 +157,7 @@ def writeProfileLikelhood():
 		writePreamble(file)
 		exec_line = ''
 		for mass in mass_set:
-			exec_line +=	'combine %s -M ProfileLikelihood -m %6.2f --signif --pval'%(opts.datacard,mass)
+			exec_line +=	'combine %s -M ProfileLikelihood -m %6.2f --signif --pval --cminDefaultMinimizerType=Minuit2'%(opts.datacard,mass)
 			if opts.expected: exec_line += ' -t -1'
 			if opts.expectSignal: exec_line += ' --expectSignal=%3.1f'%opts.expectSignal
 			if opts.expectSignalMass: exec_line += ' --expectSignalMass=%6.2f'%opts.expectSignalMass
@@ -176,7 +176,7 @@ def writeChannelCompatibility():
 
 	file = open('%s/sub_m%6.2f.sh'%(opts.outDir,opts.mh),'w')
 	writePreamble(file)
-	exec_line = 'combine %s -M ChannelCompatibilityCheck -m %6.2f --rMin=-25. --saveFitResult'%(opts.datacard,opts.mh)
+	exec_line = 'combine %s -M ChannelCompatibilityCheck -m %6.2f --rMin=-25. --saveFitResult --cminDefaultMinimizerType=Minuit2'%(opts.datacard,opts.mh)
 	writePostamble(file,exec_line)
 
 def writeMultiDimFit():
@@ -248,6 +248,7 @@ def writeMultiDimFit():
 
 def run():
 	os.system('mkdir -p %s'%opts.outDir)
+	if opts.verbose: print 'Made directory', opts.outDir
 	checkValidMethod()
 	if opts.method=='Asymptotic' or opts.method=='ProfileLikelihood':
 		configureMassFromNJobs()
