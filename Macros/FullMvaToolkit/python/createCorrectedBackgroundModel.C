@@ -533,13 +533,13 @@ void paulFit(TDirectory *mDir,TH1F* fMFitS,TH1F* hMFitS,TH2F* hFCovar, bool make
 		fBFit[j]->SetLineWidth(3);
 		fBRaw[j]->SetMarkerStyle(20);
 		fBRaw[j]->SetMarkerSize(1.0);
-		fBRaw[j]->GetXaxis()->SetTitle("m_{H} (GeV)");
-		fBRaw[j]->GetXaxis()->SetTitleSize(0.055);
-		fBRaw[j]->GetXaxis()->SetLabelSize(0.045);
-		fBRaw[j]->GetYaxis()->SetTitle(Form("Fraction in bin %d",j+1));
-		fBRaw[j]->GetYaxis()->SetTitleSize(0.05);
-		fBRaw[j]->GetYaxis()->SetLabelSize(0.045);
-		fBRaw[j]->GetYaxis()->SetNdivisions(508); 
+		fBFit[j]->GetXaxis()->SetTitle("m_{H}^{sideband} (GeV)");
+		fBFit[j]->GetXaxis()->SetTitleSize(0.055);
+		fBFit[j]->GetXaxis()->SetLabelSize(0.045);
+		fBFit[j]->GetYaxis()->SetTitle(Form("Fraction in Bin %d",j+1));
+		fBFit[j]->GetYaxis()->SetTitleSize(0.05);
+		fBFit[j]->GetYaxis()->SetLabelSize(0.045);
+		fBFit[j]->GetYaxis()->SetNdivisions(508); 
 		//fBRaw[j]->SetTitle(Form("Fit BDT Mass %3.1f Bin %d",global_mH,j));
 		double FVal = fBFit[j]->Eval(global_mH);
 		//fBRaw[j]->GetYaxis()->SetRangeUser(floor(FVal*0.75*100)/100,floor(FVal*1.25*100)/100);
@@ -556,13 +556,29 @@ void paulFit(TDirectory *mDir,TH1F* fMFitS,TH1F* hMFitS,TH2F* hFCovar, bool make
 		fBFit[j]->SetTitle("");
 		fBFit[j]->Draw("AL");
 		if (!global_BLIND) fBRaw[j]->Draw("sameP");
+		else {
+			int tgcount = 0;
+			TGraphErrors *blind = new TGraphErrors();
+			blind->SetMarkerStyle(20);
+			blind->SetMarkerSize(1.0);
+			for (int pp = 0 ; pp< fBRaw[j]->GetN() ; pp++) {
+				double mht,vt;
+				fBRaw[j]->GetPoint(pp,mht,vt);
+				if (mht*(1+global_SIDEBANDWIDTH) < 110 || mht*(1-global_SIDEBANDWIDTH) > 150){
+					blind->SetPoint(tgcount,mht,vt);
+					blind->SetPointError(tgcount,mht*(global_SIDEBANDWIDTH),fBRaw[j]->GetErrorY(pp));
+					tgcount++;
+				}
+			}
+			blind->Draw("sameP");
+		}
 		l.Draw();
 
 		TText *text = new TText(0.6,0.8,"CMS Preliminary");
 		text->SetNDC();
 		text->Draw();
 		text->SetTextSize(0.05); 
-    TText *btext = new TText(0.6,0.7,Form("Bin %d",j));
+    TText *btext = new TText(0.6,0.7,Form("mH = %.1f GeV",global_mH));
     btext->SetNDC();
     btext->Draw();
     btext->SetTextSize(0.05);

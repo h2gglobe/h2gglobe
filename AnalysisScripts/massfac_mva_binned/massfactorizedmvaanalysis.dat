@@ -15,7 +15,11 @@ mvaVbfCatBoundaries=
 
 useGbrVbfMva=0
 gbrVbfFile=aux/gbrMultiClassoct31_dijet.root
+<<<<<<< HEAD
 gbrVbfDiPhoFile=aux/gbrMultiClassoct31_dijet.root
+=======
+gbrVbfDiPhoFile=aux/gbrMultiClassoct31_dijetfull_jetcuts.root
+>>>>>>> h2gglobe/master
 
 #dijet BDT
 #multiclassVbfCatBoundaries0=1,0.615,0.615,0.59
@@ -69,7 +73,11 @@ photonLevel2011IDMVA_EE=aux/TMVAClassificationPhotonID_Endcap_PassPreSel_Variabl
 eventLevelMvaMIT=aux/HggBambu_SMDipho_Oct01_redqcdweightallsigevenbkg_BDTG.weights.xml
 
 useGbrDiphotonMva=0
+<<<<<<< HEAD
 gbrDiphotonFile=aux/gbrMultiClassoct31_dijet.root
+=======
+gbrDiphotonFile=aux/gbrMultiClassoct31_dipho.root
+>>>>>>> h2gglobe/master
 
 #bkgPolOrderByCat=4,5,5,5,3,4
 #bkgPolOrderByCat=4,5,5,5,3,4,3,3,3 HCP

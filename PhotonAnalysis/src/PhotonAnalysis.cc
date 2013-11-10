@@ -126,6 +126,7 @@ PhotonAnalysis::PhotonAnalysis()  :
     reComputeCiCPF = false;
     skimOnDiphoN = true;
 
+    doStocasticSmearingSyst = false;
     splitEscaleSyst = false;
     scale_offset_corr_error_file = "";
     splitEresolSyst = false;
@@ -201,58 +202,67 @@ void readEnergyScaleOffsets(const std::string &fname, EnergySmearer::energySmear
     float EBHighR9, EBLowR9, EBm4HighR9, EBm4LowR9, EEHighR9, EELowR9;
     char catname[200];
     do {
-	int nread = 0;
-	float minet=0., maxet=1.e+9, mineta=0., maxeta=999., minr9=-999, maxr9=999, offset=0., stocastic=0., err=0.;
-	int type;
-	int  first, last;
-	
+        int nread = 0;
+        float minet=0., maxet=1.e+9, mineta=0., maxeta=999., minr9=-999, maxr9=999, offset=0., stocastic=0., err=0., stocastic_err=0., 
+            pivot=0.;
+        int type;
+        int  first, last;
+        
         in.getline( line, 200, '\n' );
         if( line[0] == '#' ) { continue; }
+        
+        if( (nread == 0) && 
+            (nread = sscanf(line,"%s %d %f %f %f %f %f %f %d %d %f %f %f %f %f\n", &catname, &type, 
+                            &minet, &maxet, &mineta, &maxeta, &minr9, &maxr9, &first, &last, &pivot, &offset, &err, 
+                            &stocastic, &stocastic_err ) ) != 15 ) {
+            nread=0, minet=0., maxet=1.e+9, mineta=0., maxeta=999., minr9=-999, maxr9=999, offset=0., stocastic=0., stocastic_err=0.,
+                err=0., pivot=0;
+        }
+        if( (nread == 0) && 
+            (nread = sscanf(line,"%s %d %f %f %f %f %d %d %f %f %f %f %f\n", &catname, &type, 
+                            &mineta, &maxeta, &minr9, &maxr9, &first, &last, &pivot, &offset, &err, 
+                            &stocastic, &stocastic_err ) ) != 13 ) {
+            nread=0, minet=0., maxet=1.e+9, mineta=0., maxeta=999., minr9=-999, maxr9=999, offset=0., stocastic=0., stocastic_err=0.,
+                err=0., pivot=0;
+        }
+        if( (nread == 0) &&
+            ( nread = sscanf(line,"%s %d %f %f %f %f %d %d %f %f\n", &catname, &type, 
+                             &mineta, &maxeta, &minr9, &maxr9, &first, &last, &offset, &err  ) ) != 10 ) {
+            nread=0, minet=0., maxet=1.e+9, mineta=0., maxeta=999., minr9=-999, maxr9=999, offset=0., stocastic=0., stocastic_err=0.,
+                err=0., pivot=0;
+        }
+        if( nread == 0 ) { 
+            continue; 
+        }
 	
-	if( (nread == 0) && 
-	    (nread = sscanf(line,"%s %d %f %f %f %f %f %f %d %d %f %f %f\n", &catname, &type, 
-			    &minet, &maxet, &mineta, &maxeta, &minr9, &maxr9, &first, &last, &offset, &stocastic, &err  ) ) != 13 ) {
-	    nread=0, minet=0., maxet=1.e+9, mineta=0., maxeta=999., minr9=-999, maxr9=999, offset=0., stocastic=0., err=0.;
-	}
-	if( (nread == 0) && 
-	    (nread = sscanf(line,"%s %d %f %f %f %f %d %d %f %f %f\n", &catname, &type, 
-			    &mineta, &maxeta, &minr9, &maxr9, &first, &last, &offset, &stocastic, &err  ) ) != 11 ) {
-	    nread=0, minet=0., maxet=1.e+9, mineta=0., maxeta=999., minr9=-999, maxr9=999, offset=0., stocastic=0., err=0.;
-	} 
-	if( (nread == 0) &&
-	    ( nread = sscanf(line,"%s %d %f %f %f %f %d %d %f %f\n", &catname, &type, 
-			     &mineta, &maxeta, &minr9, &maxr9, &first, &last, &offset, &err  ) ) != 10 ) {
-	    nread=0, minet=0., maxet=1.e+9, mineta=0., maxeta=999., minr9=-999, maxr9=999, offset=0., stocastic=0., err=0.;
-	}
-	if( nread == 0 ) { 
-	    continue; 
-	}
-	
-	std::cout << "Energy scale (or smearing) by run " << nread  << " " << catname   << " " << type 
-		  << " " << minet << " " << maxet << " " << mineta << " " << maxeta    << " " << minr9 << " " << maxr9 
-		  << " " << first << " " << last  << " " << offset << " " << stocastic <<  " " << err << std::endl;
-	
-	assert( type>=0 && type<=2 );
-	
-	EnergySmearer::energySmearingParameters::eScaleVector::reverse_iterator escaleOffset =
-	    find(escaleOffsets.rbegin(),escaleOffsets.rend(),std::make_pair(first,last));
-	if( escaleOffset == escaleOffsets.rend() ) {
-	    std::cout << "  adding new range range " << first << " " << last << std::endl;
-	    escaleOffsets.push_back(EnergyScaleOffset(first,last));
-	    escaleOffset = escaleOffsets.rbegin();
-	}
-	// chck if the category is already defined
-	if( find(photonCategories.begin(), photonCategories.end(), std::string(catname) ) == photonCategories.end() ) {
-	    photonCategories.push_back(PhotonCategory(minet,maxet,mineta,maxeta,minr9,maxr9,(PhotonCategory::photon_type_t)type,catname));
-	    std::cout << "  defining new category " << photonCategories.back() << std::endl;
-	}
-	// assign the scale offset and error for this category and this run range
-	escaleOffset->scale_offset[catname] = data ? -offset : offset;
-	escaleOffset->scale_stocastic_offset[catname] = data ? -stocastic : stocastic;
-	escaleOffset->scale_offset_error[catname] = err;
-
+        std::cout << "Energy scale (or smearing) by run " << nread  << " " << catname   << " " << type 
+                  << " " << minet << "<E_T<" << maxet << " " << mineta << "<eta<" << maxeta    << " " << minr9 << "<r9<" << maxr9 
+                  << " " << first << "<run<" << last  << " " << pivot << " " << offset << "+-" << err 
+                  << " " << stocastic << "+-" << stocastic_err << std::endl;
+        
+        assert( type>=0 && type<=2 );
+        
+        EnergySmearer::energySmearingParameters::eScaleVector::reverse_iterator escaleOffset =
+            find(escaleOffsets.rbegin(),escaleOffsets.rend(),std::make_pair(first,last));
+        if( escaleOffset == escaleOffsets.rend() ) {
+            std::cout << "  adding new range range " << first << " " << last << std::endl;
+            escaleOffsets.push_back(EnergyScaleOffset(first,last));
+            escaleOffset = escaleOffsets.rbegin();
+        }
+        // chck if the category is already defined
+        if( find(photonCategories.begin(), photonCategories.end(), std::string(catname) ) == photonCategories.end() ) {
+            photonCategories.push_back(PhotonCategory(minet,maxet,mineta,maxeta,minr9,maxr9,(PhotonCategory::photon_type_t)type,catname));
+            std::cout << "  defining new category " << photonCategories.back() << std::endl;
+        }
+        // assign the scale offset and error for this category and this run range
+        escaleOffset->scale_offset[catname] = data ? -offset : offset;
+        escaleOffset->scale_stocastic_offset[catname] = data ? -stocastic : stocastic;
+        escaleOffset->scale_offset_error[catname] = err;
+        escaleOffset->scale_stocastic_offset_error[catname] = stocastic_err;
+        escaleOffset->scale_stocastic_pivot[catname] = pivot;
+        
     } while( in );
-
+    
     in.close();
 }
 
@@ -869,6 +879,7 @@ void PhotonAnalysis::Init(LoopAll& l)
                 fin = TFile::Open(gbrVbfDiPhoFile.c_str());
                 ws = (RooWorkspace*) (fin->Get("wsfitmc")->Clone());
                 gbrVbfDiphoReader_ = new RooFuncReader(ws,"sigVBFxxb","trainingvars");
+<<<<<<< HEAD
                 gbrVbfDiphoReader_->bookVariable("masserr",         &l.tmva_dipho_MIT_dmom);
                 gbrVbfDiphoReader_->bookVariable("masserrwrongvtx", &l.tmva_dipho_MIT_dmom_wrong_vtx);
                 gbrVbfDiphoReader_->bookVariable("vtxprob",         &l.tmva_dipho_MIT_vtxprob);
@@ -879,6 +890,18 @@ void PhotonAnalysis::Init(LoopAll& l)
                 gbrVbfDiphoReader_->bookVariable("dphi",            &l.tmva_dipho_MIT_dphi);
                 gbrVbfDiphoReader_->bookVariable("idmva1",          &l.tmva_dipho_MIT_ph1mva);
                 gbrVbfDiphoReader_->bookVariable("idmva2",          &l.tmva_dipho_MIT_ph2mva);
+=======
+                gbrVbfDiphoReader_->bookVariable("masserr",         l.tmva_dipho_MIT_dmom);
+                gbrVbfDiphoReader_->bookVariable("masserrwrong",    l.tmva_dipho_MIT_dmom_wrong_vtx);
+                gbrVbfDiphoReader_->bookVariable("vtxprob",         l.tmva_dipho_MIT_vtxprob);
+                gbrVbfDiphoReader_->bookVariable("pt1",             l.tmva_dipho_MIT_ptom1);
+                gbrVbfDiphoReader_->bookVariable("pt2",             l.tmva_dipho_MIT_ptom2);
+                gbrVbfDiphoReader_->bookVariable("eta1",            l.tmva_dipho_MIT_eta1);
+                gbrVbfDiphoReader_->bookVariable("eta2",            l.tmva_dipho_MIT_eta2);
+                gbrVbfDiphoReader_->bookVariable("dphi",            l.tmva_dipho_MIT_dphi);
+                gbrVbfDiphoReader_->bookVariable("idmva1",          l.tmva_dipho_MIT_ph1mva);
+                gbrVbfDiphoReader_->bookVariable("idmva2",          l.tmva_dipho_MIT_ph2mva);
+>>>>>>> h2gglobe/master
                 gbrVbfDiphoReader_->bookVariable("jeteta1",         &myVBFLeadJEta);
                 gbrVbfDiphoReader_->bookVariable("jeteta2",         &myVBFSubJEta);
                 gbrVbfDiphoReader_->bookVariable("jetpt1",          &myVBFLeadJPt);
@@ -886,7 +909,10 @@ void PhotonAnalysis::Init(LoopAll& l)
                 gbrVbfDiphoReader_->bookVariable("zeppenfeld",      &myVBFZep);
                 gbrVbfDiphoReader_->bookVariable("dphidijetgg",     &myVBFdPhiTrunc);
                 gbrVbfDiphoReader_->bookVariable("dijetmass",       &myVBF_Mjj);	   
+<<<<<<< HEAD
                 gbrVbfDiphoReader_->bookVariable("ptgg",            &myVBFDiPhoPtOverM);
+=======
+>>>>>>> h2gglobe/master
                 fin->Close();
             }
             
@@ -1230,11 +1256,16 @@ void PhotonAnalysis::Init(LoopAll& l)
     
     eSmearPars.scale_offset = tmp_scale_offset[0].scale_offset;
     eSmearPars.scale_offset_error = tmp_scale_offset[0].scale_offset_error;
+    eSmearPars.scale_stocastic_offset = tmp_scale_offset[0].scale_stocastic_offset;
+    eSmearPars.scale_stocastic_offset_error = tmp_scale_offset[0].scale_stocastic_offset_error;
+    eSmearPars.scale_stocastic_pivot = tmp_scale_offset[0].scale_stocastic_pivot;
     
     eSmearPars.smearing_sigma = tmp_smearing[0].scale_offset;
-    eSmearPars.smearing_stocastic_sigma = tmp_smearing[0].scale_stocastic_offset;
     eSmearPars.smearing_sigma_error = tmp_smearing[0].scale_offset_error;
-        
+    eSmearPars.smearing_stocastic_sigma = tmp_smearing[0].scale_stocastic_offset;
+    eSmearPars.smearing_stocastic_sigma_error = tmp_smearing[0].scale_stocastic_offset_error;
+    eSmearPars.smearing_stocastic_pivot = tmp_smearing[0].scale_stocastic_pivot;
+
     // Energy resolution parameters used for diphotonBDT input
     massResoPars = eSmearPars;
     if( ! mass_resol_file.empty() ) {
@@ -1554,11 +1585,30 @@ void PhotonAnalysis::setupEscaleSmearer()
 void PhotonAnalysis::setupEscaleSyst(LoopAll &l)
 {
     for(std::vector<EnergySmearer*>::iterator ei=eScaleSmearers_.begin(); ei!=eScaleSmearers_.end(); ++ei){
-	systPhotonSmearers_.push_back( *ei );
-	std::vector<std::string> sys(1,(*ei)->name());
-	std::vector<int> sys_t(1,-1);   // -1 for signal, 1 for background 0 for both
-	l.rooContainer->MakeSystematicStudy(sys,sys_t);
+        systPhotonSmearers_.push_back( *ei );
+        std::vector<std::string> sys(1,(*ei)->name());
+        std::vector<int> sys_t(1,-1);   // -1 for signal, 1 for background 0 for both
+        l.rooContainer->MakeSystematicStudy(sys,sys_t);
     }
+}
+
+// ----------------------------------------------------------------------------------------------------
+void PhotonAnalysis::addResolSmearer(EnergySmearer * theSmear)
+{
+    std::cout << "Adding enegy resolution smearer " << theSmear->name() << std::endl;
+    EnergySmearerExtrapolation * theExtra = 0;
+    if( doStocasticSmearingSyst ) {
+        theExtra = new EnergySmearerExtrapolation(theSmear);
+        if( ! theExtra->needed() ) { 
+            delete theExtra;
+            theExtra = 0;
+        } else {
+            std::cout << "Adding corresponding extrapolation uncertainty term " << theExtra->name() << std::endl;
+            photonSmearers_.push_back(theExtra);
+        }
+    }
+    photonSmearers_.push_back(theSmear);
+    eResolSmearers_.push_back(std::make_pair(theSmear,theExtra));
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -1582,18 +1632,27 @@ void PhotonAnalysis::setupEresolSmearer()
 
         eResolCorrPars.scale_offset = tmp_smearing[0].scale_offset;
         eResolCorrPars.scale_offset_error = tmp_smearing[0].scale_offset_error;
-
+        
         eResolCorrPars.smearing_sigma = tmp_smearing[0].scale_offset;
-        eResolCorrPars.smearing_stocastic_sigma = tmp_smearing[0].scale_stocastic_offset;
         eResolCorrPars.smearing_sigma_error = tmp_smearing[0].scale_offset_error;
+<<<<<<< HEAD
+=======
+        eResolCorrPars.smearing_stocastic_sigma = tmp_smearing[0].scale_stocastic_offset;
+        eResolCorrPars.smearing_stocastic_sigma_error = tmp_smearing[0].scale_stocastic_offset_error;
+        eResolCorrPars.smearing_stocastic_pivot = tmp_smearing[0].scale_stocastic_pivot;
+>>>>>>> h2gglobe/master
         
         EnergySmearer::energySmearingParameters::phoCatVectorIt icat = tmp_smearing_cat.begin();
         for( ; icat != tmp_smearing_cat.end(); ++icat ) {
             EnergySmearer * theSmear = new EnergySmearer( eResolSmearer, EnergySmearer::energySmearingParameters::phoCatVector(1,*icat) );
             theSmear->name( eResolSmearer->name()+"_"+icat->name );
+<<<<<<< HEAD
             std::cout << "Uncorrelated single photon category smearer " << theSmear->name() << std::endl;
             photonSmearers_.push_back(theSmear);
             eResolSmearers_.push_back(theSmear);
+=======
+            addResolSmearer(theSmear);
+>>>>>>> h2gglobe/master
         }
         
         eResolCorrSmearer = new EnergySmearer( eResolCorrPars );
@@ -1601,6 +1660,7 @@ void PhotonAnalysis::setupEresolSmearer()
         eResolCorrSmearer->doEnergy(true);
         eResolCorrSmearer->scaleOrSmear(true);
         eResolCorrSmearer->syst_only(true);
+<<<<<<< HEAD
         photonSmearers_.push_back(eResolCorrSmearer);
         eResolSmearers_.push_back(eResolCorrSmearer);
         std::cout << "Uncorrelated single photon category smearer " << eResolCorrSmearer->name() << std::endl;
@@ -1608,15 +1668,35 @@ void PhotonAnalysis::setupEresolSmearer()
     } else {
         photonSmearers_.push_back(eResolSmearer);
         eResolSmearers_.push_back(eResolSmearer);
+=======
+        addResolSmearer(eResolCorrSmearer);
+    } else {
+        addResolSmearer(eResolSmearer);
+>>>>>>> h2gglobe/master
     }
 }
 
 // ----------------------------------------------------------------------------------------------------
 void PhotonAnalysis::setupEresolSyst(LoopAll &l)
 {
+<<<<<<< HEAD
     for(std::vector<EnergySmearer*>::iterator ei=eResolSmearers_.begin(); ei!=eResolSmearers_.end(); ++ei){
         systPhotonSmearers_.push_back( *ei );
         std::vector<std::string> sys(1,(*ei)->name());
+=======
+    for(std::vector<std::pair<EnergySmearer*,EnergySmearerExtrapolation*> >::iterator ei=eResolSmearers_.begin(); 
+        ei!=eResolSmearers_.end(); ++ei){
+        EnergySmearerExtrapolation * extra = ei->second;
+        if( extra ) { 
+            systPhotonSmearers_.push_back( extra );
+            std::vector<std::string> sys(1,extra->name());
+            std::vector<int> sys_t(1,-1);   // -1 for signal, 1 for background 0 for both
+            l.rooContainer->MakeSystematicStudy(sys,sys_t);
+        }
+        EnergySmearer * sme = ei->first;
+        systPhotonSmearers_.push_back( sme );
+        std::vector<std::string> sys(1,sme->name());
+>>>>>>> h2gglobe/master
         std::vector<int> sys_t(1,-1);   // -1 for signal, 1 for background 0 for both
         l.rooContainer->MakeSystematicStudy(sys,sys_t);
     }
@@ -3214,7 +3294,7 @@ bool PhotonAnalysis::ElectronStudies2012B(LoopAll& l, float* smeared_pho_energy,
     float vtxProb   = 1.-0.49*(vtx_mva+1.0); /// should better use this: vtxAna_.setPairID(diphoton_id); vtxAna_.vertexProbability(vtx_mva); PM
     if( debuglocal ) std::cout<<"test02"<<std::endl;
 
-	float diphobdt_output = l.diphotonMVA(l.dipho_leadind[diphotonVHlep_id], l.dipho_subleadind[diphotonVHlep_id], elVtx,
+	float diphobdt_output = l.diphotonMVA(-1,l.dipho_leadind[diphotonVHlep_id], l.dipho_subleadind[diphotonVHlep_id], elVtx,
                                           vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMeonly,
                                           bdtTrainingPhilosophy.c_str(), bdtTrainingType.c_str(),
                                           myEl_MVAlead,myEl_MVAsub);
@@ -3452,7 +3532,7 @@ bool PhotonAnalysis::ElectronTagStudies2012(LoopAll& l, int diphotonVHlep_id, fl
     float vtxProb   = 1.-0.49*(vtx_mva+1.0); /// should better use this: vtxAna_.setPairID(diphoton_id); vtxAna_.vertexProbability(vtx_mva); PM
     if( debuglocal ) std::cout<<"test02"<<std::endl;
 
-	float diphobdt_output = l.diphotonMVA(leadpho_ind, subleadpho_ind, elVtx,
+	float diphobdt_output = l.diphotonMVA(-1,leadpho_ind, subleadpho_ind, elVtx,
                                           vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMeonly,
                                           bdtTrainingPhilosophy.c_str(), bdtTrainingType.c_str(),
                                           myEl_MVAlead,myEl_MVAsub);
@@ -3932,6 +4012,16 @@ bool PhotonAnalysis::VBFTag2013(int & ijet1, int & ijet2, LoopAll& l, int& dipho
     
 
     if(mvaselection){
+<<<<<<< HEAD
+=======
+        if( useGbrVbfMva ) {
+            assert( doDiphoMvaUpFront );
+            // Load di-photon MVA inputs for this di-photon so that we can calculate the 
+            // combined BDT
+            l.tmva_dipho_MIT_buf = l.tmva_dipho_MIT_cache.find(diphotonVBF_id)->second;
+        }
+        
+>>>>>>> h2gglobe/master
         if(PADEBUG) std::cout<<"myVBFLeadJPt myVBFSubJPt myVBF_Mjj "<<myVBFLeadJPt<<" "<<myVBFSubJPt<<" "<<myVBF_Mjj<<std::endl;
         if( !(myVBFLeadJPt>30. && myVBFSubJPt>20. && myVBF_Mjj > 250.) ) { // FIXME hardcoded pre-selection thresholds
             return tag;
@@ -3940,7 +4030,11 @@ bool PhotonAnalysis::VBFTag2013(int & ijet1, int & ijet2, LoopAll& l, int& dipho
         if( myVBF_Mgg>massMin && myVBF_Mgg<massMax) {
             l.FillCutPlots(0,1,"_nminus1",eventweight,myweight);
         }
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> h2gglobe/master
         int vbfcat=-1;
         myVBFDIPHObdt   = l.dipho_BDT[diphotonVBF_id];
         myVBF_MVA       = (useGbrVbfMva ? gbrVbfReader_->eval()      : tmvaVbfReader_->EvaluateMVA(mvaVbfMethod)           );
@@ -4641,8 +4735,18 @@ bool PhotonAnalysis::TTHTag7TeV(LoopAll& l, int& diphotonTTHlep_id, float* smear
     bool tag=false;
     bool leptag=false;
     bool hadtag=false;
+<<<<<<< HEAD
     leptag=TTHleptonicTag2012(l, diphotonTTHlep_id, &smeared_pho_energy[0]);
     if(!leptag) hadtag=TTHhadronicTag2012(l, diphotonTTHlep_id, &smeared_pho_energy[0]);
+=======
+    if(!mvaselection){
+        leptag=TTHleptonicTag2012(l, diphotonTTHlep_id, &smeared_pho_energy[0]);
+        if(!leptag) hadtag=TTHhadronicTag2012(l, diphotonTTHlep_id, &smeared_pho_energy[0]);
+    }else{
+        leptag=TTHleptonicTag2012(l, diphotonTTHlep_id, &smeared_pho_energy[0], 0, true, vetodipho, kinonly);
+        if(!leptag) hadtag=TTHhadronicTag2012(l, diphotonTTHlep_id, &smeared_pho_energy[0], 0, true, vetodipho, kinonly); 
+    }
+>>>>>>> h2gglobe/master
     if(leptag || hadtag)tag=true;
     return tag;
 }
@@ -5391,8 +5495,8 @@ float PhotonAnalysis::ComputeEventSmearError(LoopAll& l, int ipho1, int ipho2, f
     if( PADEBUG ) std::cout<<"cat1 "<<cat1<<std::endl;
     if( PADEBUG ) std::cout<<"cat2 "<<cat2<<std::endl;
 
-    smear1 = EnergySmearer::getSmearingSigma(eResolSmearer->myParameters_,cat1,pho1.energy(),0.);
-    smear2 = EnergySmearer::getSmearingSigma(eResolSmearer->myParameters_,cat2,pho2.energy(),0.);
+    smear1 = EnergySmearer::getSmearingSigma(eResolSmearer->myParameters_,cat1,pho1.energy(),pho1.caloPosition().Eta(),0.);
+    smear2 = EnergySmearer::getSmearingSigma(eResolSmearer->myParameters_,cat2,pho2.energy(),pho2.caloPosition().Eta(),0.);
     if( PADEBUG ) std::cout<<"smear1 "<<smear1<<std::endl;
     if( PADEBUG ) std::cout<<"smear2 "<<smear2<<std::endl;
 
@@ -5444,17 +5548,17 @@ void PhotonAnalysis::saveDatCardTree(LoopAll &l, int cur_type, int category, int
     float smear_err = ComputeEventSmearError(l,ipho1,ipho2,smear1,smear1_err,smear1,smear1_err);
 
     if (!isCutBased){ 
-        float bdtout = l.diphotonMVA(ipho1,ipho2,ivtx,vtxP,lead_p4,sublead_p4,sigmaMrv, sigmaMwv, sigmaMeonly, trainPhil.c_str(), bdtType.c_str(), lead_id_mva, sublead_id_mva);
+        float bdtout = l.diphotonMVA(-1,ipho1,ipho2,ivtx,vtxP,lead_p4,sublead_p4,sigmaMrv, sigmaMwv, sigmaMeonly, trainPhil.c_str(), bdtType.c_str(), lead_id_mva, sublead_id_mva);
         
         // calculate diphobdt given shift in idMVA
-        float bdtout_id_up   = l.diphotonMVA(ipho1,ipho2,ivtx,vtxP,lead_p4,sublead_p4,sigmaMrv, sigmaMwv, sigmaMeonly, trainPhil.c_str(), bdtType.c_str(), lead_id_mva+0.01, sublead_id_mva+0.01);
-        float bdtout_id_down = l.diphotonMVA(ipho1,ipho2,ivtx,vtxP,lead_p4,sublead_p4,sigmaMrv, sigmaMwv, sigmaMeonly, trainPhil.c_str(), bdtType.c_str(), lead_id_mva-0.01, sublead_id_mva-0.01);
+        float bdtout_id_up   = l.diphotonMVA(-1,ipho1,ipho2,ivtx,vtxP,lead_p4,sublead_p4,sigmaMrv, sigmaMwv, sigmaMeonly, trainPhil.c_str(), bdtType.c_str(), lead_id_mva+0.01, sublead_id_mva+0.01);
+        float bdtout_id_down = l.diphotonMVA(-1,ipho1,ipho2,ivtx,vtxP,lead_p4,sublead_p4,sigmaMrv, sigmaMwv, sigmaMeonly, trainPhil.c_str(), bdtType.c_str(), lead_id_mva-0.01, sublead_id_mva-0.01);
         
         // calculate diphobdt given shift in sigmaE from regression
         pair<double,double> newSigmaMsUp = ComputeNewSigmaMs(l,ipho1,ipho2,ivtx,1.);
         pair<double,double> newSigmaMsDown = ComputeNewSigmaMs(l,ipho1,ipho2,ivtx,-1.);
-        float bdtout_sigE_up =   l.diphotonMVA(ipho1,ipho2,ivtx,vtxP,lead_p4,sublead_p4,newSigmaMsUp.first, newSigmaMsUp.second, newSigmaMsUp.first, trainPhil.c_str(), bdtType.c_str(), lead_id_mva, sublead_id_mva);
-        float bdtout_sigE_down = l.diphotonMVA(ipho1,ipho2,ivtx,vtxP,lead_p4,sublead_p4,newSigmaMsDown.first, newSigmaMsDown.second, newSigmaMsDown.first, trainPhil.c_str(), bdtType.c_str(), lead_id_mva, sublead_id_mva);
+        float bdtout_sigE_up =   l.diphotonMVA(-1,ipho1,ipho2,ivtx,vtxP,lead_p4,sublead_p4,newSigmaMsUp.first, newSigmaMsUp.second, newSigmaMsUp.first, trainPhil.c_str(), bdtType.c_str(), lead_id_mva, sublead_id_mva);
+        float bdtout_sigE_down = l.diphotonMVA(-1,ipho1,ipho2,ivtx,vtxP,lead_p4,sublead_p4,newSigmaMsDown.first, newSigmaMsDown.second, newSigmaMsDown.first, trainPhil.c_str(), bdtType.c_str(), lead_id_mva, sublead_id_mva);
         
         l.FillTree("bdtout",bdtout,"datacard_trees");
         l.FillTree("bdtout_id_up",bdtout_id_up,"datacard_trees");
@@ -5864,7 +5968,7 @@ float PhotonAnalysis::getDiphoBDTOutput(LoopAll &l,int diphoton_id, TLorentzVect
     float sigmaMeonly = massResolutionCalculator->massResolutionEonly();
     
     //diphoton mva                                                                                                                                                     
-    float diphobdt_output = l.diphotonMVA(l.dipho_leadind[diphoton_id],l.dipho_subleadind[diphoton_id],0 ,//vertex 0 probability 1                             
+    float diphobdt_output = l.diphotonMVA(-1,l.dipho_leadind[diphoton_id],l.dipho_subleadind[diphoton_id],0 ,//vertex 0 probability 1                             
                                           1,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMeonly,
                                           bdtTrainingPhilosophy.c_str(), bdtTrainingType.c_str(),
                                           -1.,-1.);

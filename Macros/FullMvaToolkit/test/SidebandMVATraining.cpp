@@ -40,10 +40,11 @@ bool skipTesting_=false;
 bool skipEvaluation_=false;
 bool isCutBased_=false;
 int trainingMass_=124;
-float bdtCut_=-0.05;
+float bdtCut_=-0.44;
 float mggMin_=100.;
 float mggMax_=180.;
 
+double totalBackgroundInSignal=0;
 TFile *input_;
 TFile *outFile_;
 
@@ -105,9 +106,9 @@ void OptionParser(int argc, char *argv[]){
     ("skipEvaluation,e",                                                                        "Skip evaluation")
     ("isCutBased",                                                                              "Train cut based style")
     ("trainingMass", po::value<int>(&trainingMass_)->default_value(124),                        "Training Mass")
-    ("bdtMin", po::value<float>(&bdtCut_)->default_value(-0.05),                        "diphton BDT Cut")
-    ("mggMin", po::value<float>(&mggMin_)->default_value(100),                        "Minimum for Mgg")
-    ("mggMax", po::value<float>(&mggMax_)->default_value(180),                        "Maximum for Mgg")
+    ("bdtMin", po::value<float>(&bdtCut_)->default_value(bdtCut_),                        "diphton BDT Cut")
+    ("mggMin", po::value<float>(&mggMin_)->default_value(mggMin_),                        "Minimum for Mgg")
+    ("mggMax", po::value<float>(&mggMax_)->default_value(mggMax_),                        "Maximum for Mgg")
     ;
 
   po::positional_options_description p;
@@ -158,12 +159,21 @@ vector<pair<string,string> > getBackgroundTreeNames(){
   // prompt-fake
   //treeNames.push_back(pair<string,string>("full_mva_trees/qcd_30_8TeV_pf","background"));
   //treeNames.push_back(pair<string,string>("full_mva_trees/qcd_40_8TeV_pf","background"));
-  treeNames.push_back(pair<string,string>("full_mva_trees/gjet_20_8TeV_pf","background"));
+  //treeNames.push_back(pair<string,string>("full_mva_trees/gjet_20_8TeV_pf","background"));
   //treeNames.push_back(pair<string,string>("full_mva_trees/gjet_40_8TeV_pf","background"));
   // prompt-prompt
-  treeNames.push_back(pair<string,string>("full_mva_trees/diphojet_8TeV","background"));
-  treeNames.push_back(pair<string,string>("full_mva_trees/dipho_Box_25_8TeV","background"));
+  //treeNames.push_back(pair<string,string>("full_mva_trees/diphojet_8TeV","background"));
+  //treeNames.push_back(pair<string,string>("full_mva_trees/dipho_Box_25_8TeV","background"));
   //treeNames.push_back(pair<string,string>("full_mva_trees/dipho_Box_250_8TeV","background"));
+  treeNames.push_back(pair<string,string>("full_mva_trees/diphojet_sherpa_8TeV","background"));
+  treeNames.push_back(pair<string,string>("full_mva_trees/gjet_20_8TeV_pf","background"));
+  treeNames.push_back(pair<string,string>("full_mva_trees/gjet_40_8TeV_pf","background"));
+/*
+  treeNames.push_back(pair<string,string>("full_mva_trees/qcd_30_8TeV_pf","background"));
+  treeNames.push_back(pair<string,string>("full_mva_trees/qcd_30_8TeV_ff","background"));
+  treeNames.push_back(pair<string,string>("full_mva_trees/qcd_40_8TeV_pf","background"));
+  treeNames.push_back(pair<string,string>("full_mva_trees/qcd_40_8TeV_ff","background"));
+*/
 
   return treeNames;
 }
@@ -218,6 +228,7 @@ void makeTrainingTree(TTree *tree, vector<pair<string,string> > treeNames, bool 
       else {
         // if in signal region add and move on
         deltaMoverM = (mass-trainingMass_)/trainingMass_;
+        if (bdtoutput>bdtCut_ and TMath::Abs(deltaMoverM) < sidebandWidth_) totalBackgroundInSignal+=(double)weight;
         if (TMath::Abs(deltaMoverM)>sidebandWidth_){
           // else loop sidebands
           for (int i=1; i<=nSidebands_; i++){
@@ -258,13 +269,18 @@ void run2DOptimization(TFile *outFile_,TTree *signalTree_, TTree *backgroundTree
 
  signalTree_->Print("v");
  gROOT->SetBatch(0);
- int nBins_dmom = 100;
- int nBins_bdt  = 50;
+ int nBins_dmom = 50;
+ int nBins_bdt  = 100;
  // Step 1, make Signal and Background 2D histograms
  TH2F *hsig =new TH2F("hsig","hsig",nBins_bdt,bdtCut_,1,nBins_dmom,-1*sidebandWidth_,sidebandWidth_);
  TH2F *hbkg =new TH2F("hbkg","hbkg",nBins_bdt,bdtCut_,1,nBins_dmom,-1*sidebandWidth_,sidebandWidth_);
  fillTwoDHists(signalTree_,hsig) ;
  fillTwoDHists(backgroundTree_,hbkg) ;
+
+ // Make sure bkg is normalized to bkg yield in signal
+ std::cout << "BKG Integral from all sidebands " << hbkg->Integral() <<std::endl; 
+ std::cout << "BKG Integral in Signal Window " << totalBackgroundInSignal <<std::endl; 
+ hbkg->Scale(totalBackgroundInSignal/hbkg->Integral());
 
 // std::cout << "Producing 2D Histogram " << Form("deltaMoverM:bdtoutput>>hsig(%d,%f,1,%d,%.3f,%.3f)",nBins_bdt,bdtCut_,nBins_dmom,-1*sidebandWidth_,sidebandWidth_) << std::endl; 
 // signalTree_->Draw("deltaMoverM:bdtoutput>>hsig","weight","");
@@ -285,8 +301,8 @@ void run2DOptimization(TFile *outFile_,TTree *signalTree_, TTree *backgroundTree
  // Step 2, create an optimization class
 
  Optimizations *optimizer = new Optimizations(hsig,hbkg);
- optimizer->setMaxBins(10);
- optimizer->smoothHistograms(0.002,0.005,1);
+ optimizer->setMaxBins(12);
+ optimizer->smoothHistograms(0.005,0.005,1);
  optimizer->runOptimization();
   
  // Thats it so nw get the outputs
@@ -294,32 +310,56 @@ void run2DOptimization(TFile *outFile_,TTree *signalTree_, TTree *backgroundTree
  TH2F *bkg = (TH2F*) optimizer->getBackgroundTarget();
  TH2F *signal = (TH2F*) optimizer->getSignalTarget();
  TGraph *optGraph = (TGraph*)optimizer->getOptimizationGraph();
+ TH1F *starget_hist = (TH1F*)optimizer->getTargetS1D();
+ TH1F *btarget_hist = (TH1F*)optimizer->getTargetB1D();
  int nFinalBins = optimizer->getFinalNumberOfBins();
 
  // Step 3, save output and print ranges also S/B
- TH1F *binedgesMap = new TH1F("Bin_Edges","Bin Boundaries",nFinalBins,-1,1);
+ double *boundaries = new double[nFinalBins+1] ;
+ boundaries[0] = -1.;
+ for (int b = 1 ; b < nFinalBins ; b++){
+  boundaries[b] = (double)b/nFinalBins;
+ }
+ boundaries[nFinalBins]=1.;
+
+ TH1F *binedgesMap = new TH1F("Bin_Edges","Bin Boundaries",nFinalBins,boundaries);
  for (int b = 1 ; b <= nFinalBins ; b++){
 	binedgesMap->SetBinContent(b,b);
  }
+ delete boundaries;
  
- 
- std::cout << "Final Number Of Bins -- (Copy these into .dat file)" << nFinalBins << std::endl;
- std::cout << "-1";
- for (int b = 1 ; b < nFinalBins ; b++){
+ std::cout << "Final Number Of Bins -- " << nFinalBins << std::endl;
+ //std::cout << "-1";
+ //for (int b = 1 ; b < nFinalBins ; b++){
 	
-	std::cout << "," << (double)b/nFinalBins;
- }
- std::cout << ",1" <<std::endl;
+//	std::cout << "," << (double)b/nFinalBins;
+// }
+// std::cout << ",1" <<std::endl;
 	
  outFile_->cd();
- categoryMap->Write();	 
+ categoryMap->Write();	
+ starget_hist->SetLineColor(2);
+ starget_hist->Scale(1./starget_hist->Integral());
+ btarget_hist->Scale(1./btarget_hist->Integral());
+ starget_hist->Write(); 
+ btarget_hist->Write(); 
  signal->Write();
  bkg->Write();
- hsig_o->Write();
- hbkg_o->Write();
+ hsig_o->SetLineColor(2);hsig_o->Write();
+ hbkg_o->SetLineColor(2);hbkg_o->Write();
+ // create ratio hists too
+ TH1F* hsig_rat = (TH1F*)hsig->Clone();
+ TH1F* hbkg_rat = (TH1F*)hbkg->Clone();
+ TGraph *roc = (TGraph*)optimizer->getRocCurve();
+ hsig_rat->SetName("hsig_ratio");
+ hbkg_rat->SetName("hbkg_ratio");
+ hsig_rat->Divide(hsig_o);
+ hbkg_rat->Divide(hbkg_o);
+ hsig_rat->Write();
+ hbkg_rat->Write();
  binedgesMap->Write();
  optGraph->Write();
- 
+ roc->Write(); 
 
 }
 

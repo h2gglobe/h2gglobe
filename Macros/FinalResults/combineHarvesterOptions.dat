@@ -1,0 +1,32 @@
+datacard=hgg_card_massfacmva_legacy_v1_globe.txt
+files=CMS-HGG_massfacmva_legacy_v1_sigfit.root,CMS-HGG_massfacmva_legacy_v1_multipdfws.root,CMS-HGG_massfacmva_legacy_v1.root
+
+#outDir=combineJobs/Asymptotic										method=Asymptotic expected=True mhLow=110. mhHigh=150. mhStep=1. jobs=41
+
+#outDir=combineJobs/ExpProfileLikelihood 					method=ProfileLikelihood expected=True expectSignal=1 mhLow=110. mhHigh=150. mhStep=1. jobs=41 
+
+#outDir=combineJobs/MuScan												method=MuScan	expected=True expectSignal=1 expectSignalMass=125 mh=125 muLow=-4. muHigh=6. jobs=21
+outDir=combineJobs/RVScan													method=RVScan expected=True expectSignal=1 expectSignalMass=125 mh=125 rvLow=-0.5 rvHigh=3. jobs=10 opts=--squareDistPoi
+outDir=combineJobs/RVRFScan												method=RVRFScan expected=True expectSignal=1 expectSignalMass=125 mh=125 rvLow=-0.5 rvHigh=3. rfLow=-0.5 rfHigh=3. jobs=100
+
+#outDir=combineJobs/ExpProfileLikelihood/inc 			method=ProfileLikelihood expected=True expectSignal=1 mhLow=110. mhHigh=150. mhStep=1. jobs=41 splitChannels=ch1_cat0_7TeV,ch1_cat1_7TeV,ch1_cat2_7TeV,ch1_cat3_7TeV,ch2_cat0_8TeV,ch2_cat1_8TeV,ch2_cat2_8TeV,ch2_cat3_8TeV
+#outDir=combineJobs/ExpProfileLikelihood/vbf				method=ProfileLikelihood expected=True expectSignal=1 mhLow=110. mhHigh=150. mhStep=1. jobs=41 splitChannels=ch1_cat4_7TeV,ch2_cat4_8TeV,ch2_cat5_8TeV
+
+#outDir=combineJobs/ExpProfileLikelihood_m125 			method=ProfileLikelihood expected=True expectSignal=1 expectSignalMass=125 mhLow=110. mhHigh=150. mhStep=1. jobs=41 
+#outDir=combineJobs/ExpProfileLikelihood_m125/inc 	method=ProfileLikelihood expected=True expectSignal=1 expectSignalMass=125 mhLow=110. mhHigh=150. mhStep=1. jobs=41  splitChannels=ch1_cat0_7TeV,ch1_cat1_7TeV,ch1_cat2_7TeV,ch1_cat3_7TeV,ch2_cat0_8TeV,ch2_cat1_8TeV,ch2_cat2_8TeV,ch2_cat3_8TeV
+#outDir=combineJobs/ExpProfileLikelihood/vbf				method=ProfileLikelihood expected=True expectSignal=1 mhLow=110. mhHigh=150. mhStep=1. jobs=41 splitChannels=ch1_cat4_7TeV,ch2_cat4_8TeV,ch2_cat5_8TeV
+
+#outDir=combineJobs/ExpProfileLikelihood_m125/vbf	method=ProfileLikelihood expected=True expectSignal=1 expectSignalMass=125 mhLow=110. mhHigh=150. mhStep=1. jobs=41 
+
+#outDir=combineJobs/ProfileLikelihood 							method=ProfileLikelihood expected=False mhLow=110. mhHigh=150. mhStep=1. jobs=41 
+#outDir=combineJobs/ProfileLikelihood/inc 					method=ProfileLikelihood expected=False mhLow=110. mhHigh=150. mhStep=1. jobs=41 splitChannels=ch1_cat0_7TeV,ch1_cat1_7TeV,ch1_cat2_7TeV,ch1_cat3_7TeV,ch2_cat0_8TeV,ch2_cat1_8TeV,ch2_cat2_8TeV,ch2_cat3_8TeV
+#outDir=combineJobs/ExpProfileLikelihood/vbf				method=ProfileLikelihood expected=False mhLow=110. mhHigh=150. mhStep=1. jobs=41 splitChannels=ch1_cat4_7TeV,ch2_cat4_8TeV,ch2_cat5_8TeV
+
+#outDir=combineJobs/ProfileLikelihood/vbf					method=ProfileLikelihood expected=False mhLow=110. mhHigh=150. mhStep=1. jobs=41
+
+#outDir=combineJobs/ChannelCompatibility						method=ChannelCompatibilityCheck mh=125
+
+#outDir=combineJobs/MuScan													method=MuScan	expected=False mh=125 muLow=-4. muHigh=6. jobs=21
+#outDir=combineJobs/MHScan													method=MHScan expected=False mhLow=122 mhHigh=128 jobs=9 
+#outDir=combineJobs/RVRFScan												method=RVRFScan expected=False rvLow=-5. rvHigh=5. rfLow=-5. rfHigh=5. jobs=100
+#outDir=combineJobs/MuMHScan												method=MuMHScan	expected=False muLow=-4. muHigh=6. mhLow=122 mhHigh=128 jobs=100

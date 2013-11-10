@@ -22,9 +22,10 @@ public:
 	int firstrun,  lastrun;
 	
 	std::map<std::string,float> scale_offset;
-	std::map<std::string,float> scale_stocastic_offset; // used for stocastic term smearing. Can also be reused in case of energy-dependend corrections
 	std::map<std::string,float> scale_offset_error;
-	
+	std::map<std::string,float> scale_stocastic_offset; // used for stocastic term smearing. Can also be reused in case of energy-dependend corrections
+	std::map<std::string,float> scale_stocastic_offset_error;
+	std::map<std::string,float> scale_stocastic_pivot;
 };
 
 class PhotonCategory {
@@ -44,8 +45,14 @@ public:
 		       float c, float d, photon_type_t e, std::string f ) : minet(e1), maxet(e2), mineta(a) , maxeta(b), minr9(c), maxr9(d), type(e), name(f) {};
 	
 	bool operator == (const PhotonCategory & rh) const { 
-		return rh.mineta == mineta && rh.maxeta == maxeta && rh.minr9 == minr9 && rh.maxr9 == maxr9 
+		return rh.type == type && 
+			rh.mineta == mineta && rh.maxeta == maxeta && rh.minr9 == minr9 && rh.maxr9 == maxr9 
 			&& rh.minet == minet && rh.maxet == maxet && rh.name == name; 
+	}
+	bool operator > (const PhotonCategory & rh) const { 
+		return ( type == any || rh.type == type ) 
+			&& rh.mineta >= mineta && rh.maxeta <= maxeta && rh.minr9 >= minr9 && rh.maxr9 <= maxr9 
+			&& rh.minet >= minet && rh.maxet <= maxet;
 	}
 	bool operator == (const std::string & catname) const { return catname == name; }
 	bool operator == (const photon_coord_t & photonCoordinates) const { 
@@ -61,15 +68,20 @@ public:
 	photon_type_t type;
 };
 
+class EnergySmearerExtrapolation;
+
 // ------------------------------------------------------------------------------------
 class EnergySmearer : public BaseSmearer
 {
 public:
-
+  friend class EnergySmearerExtrapolation;
   struct energySmearingParameters
   {
+	  energySmearingParameters() : etStocastic(true) {};
+	  
 	  int n_categories;
 	  bool byRun;
+	  bool etStocastic;
 	  std::string categoryType;
 	  std::string parameterSetName;
 
@@ -90,10 +102,19 @@ public:
 	  
 	  std::map<std::string,float> scale_offset;
 	  std::map<std::string,float> scale_offset_error;
-	  
+	  std::map<std::string,float> scale_stocastic_offset;
+	  std::map<std::string,float> scale_stocastic_offset_error;
+	  std::map<std::string,float> scale_stocastic_pivot;
+
 	  std::map<std::string,float> smearing_sigma;
 	  std::map<std::string,float> smearing_stocastic_sigma;
 	  std::map<std::string,float> smearing_sigma_error;
+	  std::map<std::string,float> smearing_stocastic_sigma_error;
+	  // reference point for stocastic term extrapolation
+	  //   \sigma(E) = \Delta S / E \oplus \Delta C = \rho * ( sin\phi * pivot \oplus cos\phi )
+	  // if pivot != 0, then smearing_sigma and smearing_stocastic_sigma are interpreted as rho and phi
+	  //    respectively
+	  std::map<std::string,float> smearing_stocastic_pivot;
 	  
 	  phoCatVector photon_categories;
 	  eScaleVector scale_offset_byrun;
@@ -137,10 +158,12 @@ public:
   
   std::string photonCategory(PhotonReducedInfo &) const;
   static std::string photonCategory(const energySmearingParameters &, const PhotonReducedInfo &);
-  static float getSmearingSigma(const energySmearingParameters & myParameters, const std::string & category, float energy, float syst_shift);
+  static float getSmearingSigma(const energySmearingParameters & myParameters, const std::string & category, float energy, 
+				float eta, float syst_shift);
   
  protected:
   bool doEnergy_, scaleOrSmear_, doEfficiencies_, doCorrections_, doRegressionSmear_;
+  mutable bool forceShift_;
   int baseSeed_;
 
   std::vector<PhotonCategory> preselCategories_;
@@ -154,5 +177,25 @@ public:
   bool syst_only_;
   std::map<std::string,TGraphAsymmErrors*> smearing_eff_graph_;
 };
+
+
+
+class EnergySmearerExtrapolation : public BaseSmearer
+{
+public:
+	EnergySmearerExtrapolation(EnergySmearer * smearer);
+	
+	virtual bool smearPhoton(PhotonReducedInfo &, float & weight, int run, float syst_shift) const;
+	virtual const std::string & name() const { return name_; };
+
+	bool needed() { return needed_; };
+private:
+	EnergySmearer * target_;
+	std::string name_;
+	bool needed_;
+	EnergySmearer::energySmearingParameters  myParameters_;
+
+};
+
 
 #endif

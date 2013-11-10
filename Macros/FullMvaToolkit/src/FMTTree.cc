@@ -6,6 +6,7 @@
 #include "TCanvas.h"
 #include "TStyle.h"
 #include "TROOT.h"
+#include "TLegend.h"
 #include "../interface/FMTTree.h"
 
 using namespace std;
@@ -222,9 +223,9 @@ map<string,TTree*> FMTTree::getBackgroundTrees(){
 	addTreeToMap(result,Form("%s/gjet_20_8TeV_pf",dirname_.c_str()));//,"bkg");
 	addTreeToMap(result,Form("%s/gjet_40_8TeV_pf",dirname_.c_str()));//,"bkg");
 	// prompt-prompt
-  addTreeToMap(result,Form("%s/diphojet_8TeV",dirname_.c_str()));//,"bkg");
-	addTreeToMap(result,Form("%s/dipho_Box_25_8TeV",dirname_.c_str()));//,"bkg");
-	addTreeToMap(result,Form("%s/dipho_Box_250_8TeV",dirname_.c_str()));//,"bkg");
+  addTreeToMap(result,Form("%s/diphojet_sherpa_8TeV",dirname_.c_str()));//,"bkg");
+//	addTreeToMap(result,Form("%s/dipho_Box_25_8TeV",dirname_.c_str()));//,"bkg");
+//	addTreeToMap(result,Form("%s/dipho_Box_250_8TeV",dirname_.c_str()));//,"bkg");
   return result;
 }
 
@@ -310,6 +311,7 @@ int FMTTree::icCat(int cat){
 
 void FMTTree::FillHist(string type, int sideband, double mh){
   int cat = icCat(category_);
+  //std::cout << "Category " <<category_ << " -> " << cat <<std::endl;
   float val;
   if (cat<0) return;
   if (sideband==0) {
@@ -317,6 +319,7 @@ void FMTTree::FillHist(string type, int sideband, double mh){
     else val = tmvaGetVal((mass_-mh)/mh,bdtoutput_);
     th1fs_[Form("th1f_%s_BDT_grad_%5.1f_cat%d",type.c_str(),mh,cat)]->Fill(val,weight_);
   }
+  if (cat==0 && bdtoutput_<=diphotonBdtCut_) return;
   else if (sideband<0) {
     double hypothesisModifier = (1.-sidebandWidth_)/(1.+sidebandWidth_);
     double evalMH = (mh*(1.-signalRegionWidth_)/(1+sidebandWidth_))*(TMath::Power(hypothesisModifier,(-1*sideband)-1));
@@ -337,7 +340,8 @@ void FMTTree::FillSigHist(string proc, double mh){
   int cat = icCat(category_);
   float val;
   if (cat<0) return;
-	if (mass_>=(1.-sidebandWidth_)*mh && mass_<=(1.+sidebandWidth_)*mh && bdtoutput_>diphotonBdtCut_){
+	if (mass_>=(1.-sidebandWidth_)*mh && mass_<=(1.+sidebandWidth_)*mh ){
+	        if (cat==0 && bdtoutput_<=diphotonBdtCut_) return;
 		if (isCutBased_) val = tmvaGetValCutBased((mass_-mh)/mh);
     else val = tmvaGetVal((mass_-mh)/mh,bdtoutput_);
 		th1fs_[Form("th1f_sig_BDT_grad_%s_%5.1f_cat%d",proc.c_str(),mh,cat)]->Fill(val,weight_);
@@ -368,8 +372,9 @@ void FMTTree::FillSystHist(string proc, double mh){
 				weight = weightSyst_[s].second;
 			}
       if (cat<0) return;
-			if (mass>=cutLow && mass<=cutHigh && bdtoutput_>diphotonBdtCut_) {
-				th1fs_[Form("th1f_sig_BDT_grad_%s_%5.1f_cat%d_%s%s01_sigma",proc.c_str(),mh,cat,systematics_[s].c_str(),shift[t].c_str())]->Fill(val,weight);
+			if (mass>=cutLow && mass<=cutHigh ) 
+			  	if (cat==0 && bdtoutput_>diphotonBdtCut_){
+				th1fs_[Form("th1f_sig_BDT_grad_%s_%5.1f_cat%d_%s%s01_sigma",proc.c_str(),mh,cat,systematics_[s].c_str(),shift[t].c_str())]->Fill(val,weight);}
 			}
 		}
 	}
@@ -455,7 +460,10 @@ void FMTTree::doCrossCheck(vector<pair<int,map<string,TTree*> > > allTrees, int 
 	canv->Print("plots/pdf/crossCheck.pdf");
 	canv->Print("plots/png/crossCheck.png");
 	for (unsigned int s=0; s<systematics_.size(); s++){
+		TLegend *leg = new TLegend(0.6,0.8,0.91,0.91);
+		leg->SetFillColor(0);
 		sig->SetLineColor(kBlack);
+		sig->SetFillColor(0);
 		sig->SetLineWidth(2);
 		syst[s].first->SetLineColor(kRed);
 		syst[s].second->SetLineColor(kBlue);
@@ -463,6 +471,10 @@ void FMTTree::doCrossCheck(vector<pair<int,map<string,TTree*> > > allTrees, int 
 		sig->Draw();
 		syst[s].first->Draw("same");
 		syst[s].second->Draw("same");
+		leg->AddEntry(sig,"Nominal","L");
+		leg->AddEntry(syst[s].second,"up","L");
+		leg->AddEntry(syst[s].first,"down","L");
+		leg->Draw();
 		canv->Print(Form("plots/pdf/ccheck_%s.pdf",systematics_[s].c_str()));
 		canv->Print(Form("plots/png/ccheck_%s.pdf",systematics_[s].c_str()));
 	}
@@ -528,12 +540,14 @@ void FMTTree::run(string option){
 				if (type==0){
 					FillMassDatasets();
 				}
+	// Note hat diphoton BDT cut is applied only to inclusive categories (other cuts already should be applied in the trees now) 
         if (type>=0){
           for (vector<double>::iterator mIt=masses.begin(); mIt!=masses.end(); mIt++){
             //cout << "MH: " << *mIt << endl;
             // in signal region
             //cout << "si: " << (1.-sidebandWidth_)*(*mIt) << "  " << (1.+sidebandWidth_)*(*mIt) << endl;
-            if (mass_>=(1.-sidebandWidth_)*(*mIt) && mass_<=(1.+sidebandWidth_)*(*mIt) && bdtoutput_>diphotonBdtCut_){
+            if (mass_>=(1.-sidebandWidth_)*(*mIt) && mass_<=(1.+sidebandWidth_)*(*mIt) ){
+
               if (type==0) FillHist("data",0,*mIt);
               if (type>0) FillHist("bkg",0,*mIt);
               //cout << " \t in signal region " << *mIt << endl;
@@ -546,7 +560,7 @@ void FMTTree::run(string option){
             
             for (int l=0; l<nL; l++){
               //cout << "l"  << l << ": " << lEdge[l+1] << "  " << lEdge[l] << endl;
-              if (mass_>=lEdge[l+1] && mass_<=lEdge[l] && bdtoutput_>diphotonBdtCut_){
+              if (mass_>=lEdge[l+1] && mass_<=lEdge[l] ){
                 if (type==0) FillHist("data",-1*(l+1+getnumberOfSidebandGaps()),*mIt);
                 if (type>0) FillHist("bkg",-1*(l+1+getnumberOfSidebandGaps()),*mIt);
                 //cout << " \t in sideband " << -1*(l+1+getnumberOfSidebandGaps()) << " " << *mIt << endl;
@@ -554,7 +568,7 @@ void FMTTree::run(string option){
             }
             for (int h=0; h<nH; h++){
               //cout << "h" << h << ": " << hEdge[h] << "  " << hEdge[h+1] << endl;
-              if (mass_>=hEdge[h] && mass_<=hEdge[h+1] && bdtoutput_>diphotonBdtCut_){
+              if (mass_>=hEdge[h] && mass_<=hEdge[h+1]){
                 if (type==0) FillHist("data",(h+1+getnumberOfSidebandGaps()),*mIt);
                 if (type>0) FillHist("bkg",(h+1+getnumberOfSidebandGaps()),*mIt);
                 //cout << " \t in sideband " << h+1+getnumberOfSidebandGaps() << " " << *mIt << endl;

@@ -7,9 +7,11 @@ parser.add_option("-o","--outfilename",default="cms_hgg_datacard.txt",help="Name
 parser.add_option("-p","--procs",default="ggh,vbf,wh,zh,tth",help="String list of procs (default: %default)")
 parser.add_option("-c","--ncats",default=9,type="int",help="Number of cats (default: %default)")
 parser.add_option("--photonSystCats",default="EBlowR9,EBhighR9,EElowR9,EEhighR9",help="String list of photon syst name (default: %default)")
-parser.add_option("--toSkip",default="ggH:6,ggH:7,qqH:6,qqH:7",help="proc:cat which are to skipped (default: %default)")
+parser.add_option("--toSkip",default="",help="proc:cat which are to skipped e.g ggH:11,qqH:12 etc. (default: %default)")
 parser.add_option("--isCutBased",default=False,action="store_true")
+parser.add_option("--isMultiPdf",default=False,action="store_true")
 parser.add_option("--is2011",default=False,action="store_true")
+parser.add_option("--quadInterpolate",type="int",default=0,help="Do a quadratic interpolation of globe templates back to 1 sigma from this sigma. 0 means off (default: %default)")
 (options,args)=parser.parse_args()
 
 import ROOT as r
@@ -34,11 +36,19 @@ inFile = r.TFile.Open(options.infilename)
 outFile = open(options.outfilename,'w')
 bkgProcs = ['bkg_mass']
 vbfProcs = ['qqH']
-incCats = [0,1,2,3]
-dijetCats = [4,5]
-muonCat = [6]
-eleCat = [7]
-metCat = [8]
+# FOR MVA:
+incCats = [0,1,2,3,4]
+dijetCats = [5,6,7]
+muonCat = [8,9]
+eleCat = [8,9]
+metCat = [10]
+# FOR CIC:
+if options.isCutBased:
+	incCats = [0,1,2,3]
+	dijetCats = [4,5]
+	muonCat = [6,7]
+	eleCat = [6,7]
+	metCat = [8]
 options.procs += ',bkg_mass'
 options.procs = [combProc[p] for p in options.procs.split(',')]
 options.toSkip = options.toSkip.split(',')
@@ -47,15 +57,39 @@ inWS = inFile.Get('cms_hgg_workspace')
 intL = inWS.var('IntLumi').getVal()
 
 # info = [file,workspace,name]
-dataFile = 'hgg.inputbkgdata_%dTeV_MVA.root'%sqrts
-dataWS = 'cms_hgg_workspace'
-bkgFile = 'hgg.inputbkgdata_%dTeV_MVA.root'%sqrts
-bkgWS = 'cms_hgg_workspace'
-sigFile = 'hgg.inputsig_%dTeV_MVA.root'%sqrts
-sigWS = 'wsig_%dTeV'%sqrts
+if options.isCutBased:
+	if options.isMultiPdf:
+		dataFile = 'CMS-HGG_cutbased_legacy_multipdf_%dTeV.root'%sqrts
+		bkgFile = 'CMS-HGG_cutbased_legacy_multipdf_%dTeV.root'%sqrts
+		dataWS = 'multipdf'
+		bkgWS = 'multipdf'
+	else:
+		dataFile = 'CMS-HGG_cutbased_legacy_data_%dTeV.root'%sqrts
+		bkgFile = 'CMS-HGG_cutbased_legacy_data_%dTeV.root'%sqrts
+		dataWS = 'cms_hgg_workspace'
+		bkgWS = 'cms_hgg_workspace'
+	sigFile = 'CMS-HGG_cutbased_legacy_sigfit_%dTeV.root'%sqrts
+	sigWS = 'wsig_%dTeV'%sqrts
+else:
+	if options.isMultiPdf:
+		dataFile = 'CMS-HGG_massfac_legacy_multipdf_%dTeV.root'%sqrts
+		bkgFile = 'CMS-HGG_massfac_legacy_multipdf_%dTeV.root'%sqrts
+		dataWS = 'multipdf'
+		bkgWS = 'multipdf'
+	else:
+		dataFile = 'CMS-HGG_massfac_legacy_data_%dTeV.root'%sqrts
+		bkgFile = 'CMS-HGG_massfac_legacy_data_%dTeV.root'%sqrts
+		dataWS = 'cms_hgg_workspace'
+		bkgWS = 'cms_hgg_workspace'
+	sigFile = 'CMS-HGG_massfac_legacy_sigfit_%dTeV.root'%sqrts
+	sigWS = 'wsig_%dTeV'%sqrts
+
 fileDetails = {}
 fileDetails['data_obs'] = [dataFile,dataWS,'roohist_data_mass_$CHANNEL']
-fileDetails['bkg_mass']	= [bkgFile,bkgWS,'pdf_data_pol_model_%dTeV_$CHANNEL'%sqrts]
+if options.isMultiPdf:
+	fileDetails['bkg_mass']	= [bkgFile,bkgWS,'CMS_hgg_$CHANNEL_%dTeV_bkgshape'%sqrts]
+else:
+	fileDetails['bkg_mass']	= [bkgFile,bkgWS,'pdf_data_pol_model_%dTeV_$CHANNEL'%sqrts]
 fileDetails['ggH'] 			= [sigFile,sigWS,'hggpdfsmrel_%dTeV_ggh_$CHANNEL'%sqrts]
 fileDetails['qqH'] 			= [sigFile,sigWS,'hggpdfsmrel_%dTeV_vbf_$CHANNEL'%sqrts]
 if splitVH:
@@ -84,6 +118,9 @@ if splitVH:
 else:
 	scaleSyst['VH'] =  [0.021,-0.018]
 scaleSyst['ttH'] = [0.041,-0.094]
+
+# global scale
+globalScale = 0.047
 
 # lumi syst
 if options.is2011:
@@ -114,10 +151,10 @@ if not options.isCutBased:
   globeSysts['phoIdMva'] = 'n_id_mva'
   globeSysts['regSig'] = 'n_sigmae'
 
-  # QCD scale and PDF variations on PT-Y (replaced k-Factor PT variation) 
-  globeSysts['pdfWeight_QCDscale'] = 'n_sc_gf'
-  for pdfi in range(1,27):
-    globeSysts['pdfWeight_pdfset%d'%pdfi] = 'n_pdf_%d'%pdfi
+# QCD scale and PDF variations on PT-Y (replaced k-Factor PT variation) 
+#globeSysts['pdfWeight_QCDscale'] = 'n_sc_gf'
+#for pdfi in range(1,27):
+	#globeSysts['pdfWeight_pdfset%d'%pdfi] = 'n_pdf_%d'%pdfi
 
 # vbf uncertainties (different for 7 TeV?)
 vbfSysts={}
@@ -157,9 +194,16 @@ metSyst['WH'] = 0.04
 metSyst['ZH'] = 0.04
 metSyst['ttH'] = 0.04
 
-def interp1SigmaFrom3Sigma(th1f_nom,th1f_down,th1f_up):
-	downE = quadInterpolate(-1.,-3.,0.,3.,th1f_down.Integral(),th1f_nom.Integral(),th1f_up.Integral())
-	upE = quadInterpolate(1.,-3.,0.,3.,th1f_down.Integral(),th1f_nom.Integral(),th1f_up.Integral())
+def interp1Sigma(th1f_nom,th1f_down,th1f_up):
+	nomE = th1f_nom.Integral()
+	if nomE==0: nomE=float('NaN')
+	downE = th1f_down.Integral()/nomE
+	upE = th1f_up.Integral()/nomE
+	if options.quadInterpolate!=0:
+		downE = quadInterpolate(-1.,-1.*options.quadInterpolate,0.,1.*options.quadInterpolate,th1f_down.Integral(),th1f_nom.Integral(),th1f_up.Integral())
+		upE = quadInterpolate(1.,-1.*options.quadInterpolate,0.,1.*options.quadInterpolate,th1f_down.Integral(),th1f_nom.Integral(),th1f_up.Integral())
+		if upE != upE: upE=1.000
+		if downE != downE: downE=1.000
 	return [downE,upE]
 
 def printPreamble():
@@ -180,14 +224,18 @@ def printPreamble():
 def printFileOptions():
 	print 'File opts...'
 	for typ, info in fileDetails.items():
-		outFile.write('shapes %-8s * %-30s %s:%s\n'%(typ,info[0],info[1],info[2]))
+		for c in range(options.ncats):
+			file = info[0]
+			wsname = info[1]
+			pdfname = info[2].replace('$CHANNEL','cat%d'%c)
+			outFile.write('shapes %-8s cat%d_%dTeV %-30s %s:%s\n'%(typ,c,sqrts,file,wsname,pdfname))
 	outFile.write('\n')
 
 def printObsProcBinLines():
 	print 'Rates...'
 	outFile.write('%-15s '%'bin')
 	for c in range(options.ncats):
-		outFile.write('cat%d '%c)
+		outFile.write('cat%d_%dTeV '%(c,sqrts))
 	outFile.write('\n')
 	
 	outFile.write('%-15s '%'observation')
@@ -199,7 +247,7 @@ def printObsProcBinLines():
 	for c in range(options.ncats):
 		for p in options.procs:
 			if '%s:%d'%(p,c) in options.toSkip: continue
-			outFile.write('cat%d '%c)
+			outFile.write('cat%d_%dTeV '%(c,sqrts))
 	outFile.write('\n')
 	
 	outFile.write('%-15s '%'process')
@@ -229,15 +277,15 @@ def printObsProcBinLines():
 
 def printNuisParams():
 	print 'Nuisances...'
-	outFile.write('%-35s param 1.0 %5.4f\n'%('CMS_hgg_nuisancedeltafracright_%dTeV'%sqrts,vtxSyst))
-	outFile.write('%-35s param 0.0 0.3333\n'%('CMS_hgg_globalscale'))
+	outFile.write('%-35s param 0.0 %5.4f\n'%('CMS_hgg_nuisancedeltafracright_%dTeV'%sqrts,vtxSyst))
+	outFile.write('%-35s param 0.0 %5.4f\n'%('CMS_hgg_globalscale',globalScale))
 	if options.isCutBased:
-		outFile.write('%-35s param 1.0 %5.4f\n'%('CMS_hgg_nuisancedeltar9barrel_%dTeV'%sqrts,r9barrelSyst))
-		outFile.write('%-35s param 1.0 %5.4f\n'%('CMS_hgg_nuisancedeltar9mixed_%dTeV'%sqrts,r9mixedSyst))
+		outFile.write('%-35s param 0.0 %5.4f\n'%('CMS_hgg_nuisancedeltar9barrel_%dTeV'%sqrts,r9barrelSyst))
+		outFile.write('%-35s param 0.0 %5.4f\n'%('CMS_hgg_nuisancedeltar9mixed_%dTeV'%sqrts,r9mixedSyst))
 	for phoSyst in options.photonSystCats:
-		outFile.write('%-35s param 0.0 0.3333\n'%('CMS_hgg_nuisance%sscale'%phoSyst))
+		outFile.write('%-35s param 0.0 1.0\n'%('CMS_hgg_nuisance%sscale'%phoSyst))
 	for phoSyst in options.photonSystCats:
-		outFile.write('%-35s param 0.0 0.3333\n'%('CMS_hgg_nuisance%ssmear'%phoSyst))
+		outFile.write('%-35s param 0.0 1.0\n'%('CMS_hgg_nuisance%ssmear'%phoSyst))
 	outFile.write('\n')
 
 def printTheorySysts():
@@ -295,7 +343,7 @@ def printGlobeSysts():
 					th1f_nom = inFile.Get('th1f_sig_%s_mass_m125_cat%d'%(globeProc[p],c))
 					th1f_up  = inFile.Get('th1f_sig_%s_mass_m125_cat%d_%sUp01_sigma'%(globeProc[p],c,globeSyst))
 					th1f_dn  = inFile.Get('th1f_sig_%s_mass_m125_cat%d_%sDown01_sigma'%(globeProc[p],c,globeSyst))
-					systVals = interp1SigmaFrom3Sigma(th1f_nom,th1f_dn,th1f_up) 
+					systVals = interp1Sigma(th1f_nom,th1f_dn,th1f_up) 
 					outFile.write('%5.3f/%5.3f '%(systVals[0],systVals[1]))
 		outFile.write('\n')
 	outFile.write('\n')
@@ -411,6 +459,11 @@ def printLepMetSysts():
 				outFile.write('- ')
 	outFile.write('\n')
 
+def printMultiPdf():
+	if options.isMultiPdf:
+		for c in range(options.ncats):
+			outFile.write('pdfindex_%d_%dTeV  discrete\n'%(c,sqrts))
+
 # __main__ here
 printPreamble()
 printFileOptions()
@@ -421,3 +474,4 @@ printLumiSyst()
 printGlobeSysts()
 printVbfSysts()
 printLepMetSysts()
+printMultiPdf()

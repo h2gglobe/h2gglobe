@@ -388,10 +388,13 @@ TH1F* FMTRebin::rebinBinnedDataset(std::string new_name, TH1F *hb,std::vector<do
 
   double *arrBins = new double[binEdges.size()];
   int j=0;
+  std::cout << "Rebin Binned Data (new edges) " << cat << " "; 
   for (std::vector<double>::iterator it=binEdges.begin();it!=binEdges.end();it++){
     arrBins[j]=*it;
+    std::cout << *it << ", ";
     j++;
   }
+  std::cout << std::endl;
   //const char *h_name = (const char *) hb->GetName;
   //const char *title  = (const char *) hb->GetTitle;
   // this hard code should be removed
@@ -412,22 +415,26 @@ TH1F* FMTRebin::rebinBinnedDataset(std::string new_name, TH1F *hb,std::vector<do
     int vbfIt = cat-getnIncCategories();
     double lowEdge=arrBins[vbfIt];
     double highEdge=arrBins[vbfIt+1];
+    std::cout << "VBF Category " << cat << " in bin egdes " << lowEdge << ", "<< highEdge <<std::endl;
     double center=lowEdge+((highEdge-lowEdge)/2.);
     hbnew = new TH1F("hV","hV",1,lowEdge,highEdge);
     for (int i=0; i<hb->GetEntries(); i++) hbnew->Fill(center);
     hbnew->Sumw2();
     if (hb->GetEntries()!=0) hbnew->Scale(hb->Integral()/hbnew->Integral());
+    std::cout << " ..... Nevents -- " << hb->Integral() <<std::endl;
   }
   else if (isLEPCat(cat)){
     // do LEP
     int lepIt = cat-getnVBFCategories()-getnIncCategories();
     double lowEdge=arrBins[lepIt];
     double highEdge=arrBins[lepIt+1];
+    std::cout << "LEP Category " << cat << " in bin egdes " << lowEdge << ", "<< highEdge <<std::endl;
     double center=lowEdge+((highEdge-lowEdge)/2.);
     hbnew = new TH1F("hL","hL",1,lowEdge,highEdge);
     for (int i=0; i<hb->GetEntries(); i++) hbnew->Fill(center);
     hbnew->Sumw2();
     if (hb->GetEntries()!=0) hbnew->Scale(hb->Integral()/hbnew->Integral());
+    std::cout << " ..... Nevents -- " << hb->Integral() <<std::endl;
   }
   else if (isIncCat(cat)){
     /*
