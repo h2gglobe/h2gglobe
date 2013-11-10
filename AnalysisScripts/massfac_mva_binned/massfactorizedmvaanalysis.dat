@@ -15,7 +15,7 @@ mvaVbfCatBoundaries=
 
 useGbrVbfMva=0
 gbrVbfFile=aux/gbrMultiClassoct31_dijet.root
-gbrVbfDiPhoFile=aux/gbrMultiClassoct31_dijet.root
+gbrVbfDiPhoFile=aux/gbrMultiClassoct31_dijetfull_jetcuts.root
 
 #dijet BDT
 #multiclassVbfCatBoundaries0=1,0.615,0.615,0.59
