@@ -879,18 +879,6 @@ void PhotonAnalysis::Init(LoopAll& l)
                 fin = TFile::Open(gbrVbfDiPhoFile.c_str());
                 ws = (RooWorkspace*) (fin->Get("wsfitmc")->Clone());
                 gbrVbfDiphoReader_ = new RooFuncReader(ws,"sigVBFxxb","trainingvars");
-<<<<<<< HEAD
-                gbrVbfDiphoReader_->bookVariable("masserr",         &l.tmva_dipho_MIT_dmom);
-                gbrVbfDiphoReader_->bookVariable("masserrwrongvtx", &l.tmva_dipho_MIT_dmom_wrong_vtx);
-                gbrVbfDiphoReader_->bookVariable("vtxprob",         &l.tmva_dipho_MIT_vtxprob);
-                gbrVbfDiphoReader_->bookVariable("pt1",             &l.tmva_dipho_MIT_ptom1);
-                gbrVbfDiphoReader_->bookVariable("pt2",             &l.tmva_dipho_MIT_ptom2);
-                gbrVbfDiphoReader_->bookVariable("eta1",            &l.tmva_dipho_MIT_eta1);
-                gbrVbfDiphoReader_->bookVariable("eta2",            &l.tmva_dipho_MIT_eta2);
-                gbrVbfDiphoReader_->bookVariable("dphi",            &l.tmva_dipho_MIT_dphi);
-                gbrVbfDiphoReader_->bookVariable("idmva1",          &l.tmva_dipho_MIT_ph1mva);
-                gbrVbfDiphoReader_->bookVariable("idmva2",          &l.tmva_dipho_MIT_ph2mva);
-=======
                 gbrVbfDiphoReader_->bookVariable("masserr",         l.tmva_dipho_MIT_dmom);
                 gbrVbfDiphoReader_->bookVariable("masserrwrong",    l.tmva_dipho_MIT_dmom_wrong_vtx);
                 gbrVbfDiphoReader_->bookVariable("vtxprob",         l.tmva_dipho_MIT_vtxprob);
@@ -901,7 +889,6 @@ void PhotonAnalysis::Init(LoopAll& l)
                 gbrVbfDiphoReader_->bookVariable("dphi",            l.tmva_dipho_MIT_dphi);
                 gbrVbfDiphoReader_->bookVariable("idmva1",          l.tmva_dipho_MIT_ph1mva);
                 gbrVbfDiphoReader_->bookVariable("idmva2",          l.tmva_dipho_MIT_ph2mva);
->>>>>>> h2gglobe/master
                 gbrVbfDiphoReader_->bookVariable("jeteta1",         &myVBFLeadJEta);
                 gbrVbfDiphoReader_->bookVariable("jeteta2",         &myVBFSubJEta);
                 gbrVbfDiphoReader_->bookVariable("jetpt1",          &myVBFLeadJPt);
@@ -909,10 +896,6 @@ void PhotonAnalysis::Init(LoopAll& l)
                 gbrVbfDiphoReader_->bookVariable("zeppenfeld",      &myVBFZep);
                 gbrVbfDiphoReader_->bookVariable("dphidijetgg",     &myVBFdPhiTrunc);
                 gbrVbfDiphoReader_->bookVariable("dijetmass",       &myVBF_Mjj);	   
-<<<<<<< HEAD
-                gbrVbfDiphoReader_->bookVariable("ptgg",            &myVBFDiPhoPtOverM);
-=======
->>>>>>> h2gglobe/master
                 fin->Close();
             }
             
@@ -1635,24 +1618,15 @@ void PhotonAnalysis::setupEresolSmearer()
         
         eResolCorrPars.smearing_sigma = tmp_smearing[0].scale_offset;
         eResolCorrPars.smearing_sigma_error = tmp_smearing[0].scale_offset_error;
-<<<<<<< HEAD
-=======
         eResolCorrPars.smearing_stocastic_sigma = tmp_smearing[0].scale_stocastic_offset;
         eResolCorrPars.smearing_stocastic_sigma_error = tmp_smearing[0].scale_stocastic_offset_error;
         eResolCorrPars.smearing_stocastic_pivot = tmp_smearing[0].scale_stocastic_pivot;
->>>>>>> h2gglobe/master
         
         EnergySmearer::energySmearingParameters::phoCatVectorIt icat = tmp_smearing_cat.begin();
         for( ; icat != tmp_smearing_cat.end(); ++icat ) {
             EnergySmearer * theSmear = new EnergySmearer( eResolSmearer, EnergySmearer::energySmearingParameters::phoCatVector(1,*icat) );
             theSmear->name( eResolSmearer->name()+"_"+icat->name );
-<<<<<<< HEAD
-            std::cout << "Uncorrelated single photon category smearer " << theSmear->name() << std::endl;
-            photonSmearers_.push_back(theSmear);
-            eResolSmearers_.push_back(theSmear);
-=======
             addResolSmearer(theSmear);
->>>>>>> h2gglobe/master
         }
         
         eResolCorrSmearer = new EnergySmearer( eResolCorrPars );
@@ -1660,30 +1634,15 @@ void PhotonAnalysis::setupEresolSmearer()
         eResolCorrSmearer->doEnergy(true);
         eResolCorrSmearer->scaleOrSmear(true);
         eResolCorrSmearer->syst_only(true);
-<<<<<<< HEAD
-        photonSmearers_.push_back(eResolCorrSmearer);
-        eResolSmearers_.push_back(eResolCorrSmearer);
-        std::cout << "Uncorrelated single photon category smearer " << eResolCorrSmearer->name() << std::endl;
-        
-    } else {
-        photonSmearers_.push_back(eResolSmearer);
-        eResolSmearers_.push_back(eResolSmearer);
-=======
         addResolSmearer(eResolCorrSmearer);
     } else {
         addResolSmearer(eResolSmearer);
->>>>>>> h2gglobe/master
     }
 }
 
 // ----------------------------------------------------------------------------------------------------
 void PhotonAnalysis::setupEresolSyst(LoopAll &l)
 {
-<<<<<<< HEAD
-    for(std::vector<EnergySmearer*>::iterator ei=eResolSmearers_.begin(); ei!=eResolSmearers_.end(); ++ei){
-        systPhotonSmearers_.push_back( *ei );
-        std::vector<std::string> sys(1,(*ei)->name());
-=======
     for(std::vector<std::pair<EnergySmearer*,EnergySmearerExtrapolation*> >::iterator ei=eResolSmearers_.begin(); 
         ei!=eResolSmearers_.end(); ++ei){
         EnergySmearerExtrapolation * extra = ei->second;
@@ -1696,7 +1655,6 @@ void PhotonAnalysis::setupEresolSyst(LoopAll &l)
         EnergySmearer * sme = ei->first;
         systPhotonSmearers_.push_back( sme );
         std::vector<std::string> sys(1,sme->name());
->>>>>>> h2gglobe/master
         std::vector<int> sys_t(1,-1);   // -1 for signal, 1 for background 0 for both
         l.rooContainer->MakeSystematicStudy(sys,sys_t);
     }
@@ -4012,8 +3970,6 @@ bool PhotonAnalysis::VBFTag2013(int & ijet1, int & ijet2, LoopAll& l, int& dipho
     
 
     if(mvaselection){
-<<<<<<< HEAD
-=======
         if( useGbrVbfMva ) {
             assert( doDiphoMvaUpFront );
             // Load di-photon MVA inputs for this di-photon so that we can calculate the 
@@ -4021,7 +3977,6 @@ bool PhotonAnalysis::VBFTag2013(int & ijet1, int & ijet2, LoopAll& l, int& dipho
             l.tmva_dipho_MIT_buf = l.tmva_dipho_MIT_cache.find(diphotonVBF_id)->second;
         }
         
->>>>>>> h2gglobe/master
         if(PADEBUG) std::cout<<"myVBFLeadJPt myVBFSubJPt myVBF_Mjj "<<myVBFLeadJPt<<" "<<myVBFSubJPt<<" "<<myVBF_Mjj<<std::endl;
         if( !(myVBFLeadJPt>30. && myVBFSubJPt>20. && myVBF_Mjj > 250.) ) { // FIXME hardcoded pre-selection thresholds
             return tag;
@@ -4030,11 +3985,7 @@ bool PhotonAnalysis::VBFTag2013(int & ijet1, int & ijet2, LoopAll& l, int& dipho
         if( myVBF_Mgg>massMin && myVBF_Mgg<massMax) {
             l.FillCutPlots(0,1,"_nminus1",eventweight,myweight);
         }
-<<<<<<< HEAD
-
-=======
         
->>>>>>> h2gglobe/master
         int vbfcat=-1;
         myVBFDIPHObdt   = l.dipho_BDT[diphotonVBF_id];
         myVBF_MVA       = (useGbrVbfMva ? gbrVbfReader_->eval()      : tmvaVbfReader_->EvaluateMVA(mvaVbfMethod)           );
@@ -4735,10 +4686,6 @@ bool PhotonAnalysis::TTHTag7TeV(LoopAll& l, int& diphotonTTHlep_id, float* smear
     bool tag=false;
     bool leptag=false;
     bool hadtag=false;
-<<<<<<< HEAD
-    leptag=TTHleptonicTag2012(l, diphotonTTHlep_id, &smeared_pho_energy[0]);
-    if(!leptag) hadtag=TTHhadronicTag2012(l, diphotonTTHlep_id, &smeared_pho_energy[0]);
-=======
     if(!mvaselection){
         leptag=TTHleptonicTag2012(l, diphotonTTHlep_id, &smeared_pho_energy[0]);
         if(!leptag) hadtag=TTHhadronicTag2012(l, diphotonTTHlep_id, &smeared_pho_energy[0]);
@@ -4746,7 +4693,6 @@ bool PhotonAnalysis::TTHTag7TeV(LoopAll& l, int& diphotonTTHlep_id, float* smear
         leptag=TTHleptonicTag2012(l, diphotonTTHlep_id, &smeared_pho_energy[0], 0, true, vetodipho, kinonly);
         if(!leptag) hadtag=TTHhadronicTag2012(l, diphotonTTHlep_id, &smeared_pho_energy[0], 0, true, vetodipho, kinonly); 
     }
->>>>>>> h2gglobe/master
     if(leptag || hadtag)tag=true;
     return tag;
 }

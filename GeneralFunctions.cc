@@ -155,34 +155,6 @@ void LoopAll::SetAllMVA() {
   tmvaReaderID_MIT_Endcap->AddVariable("ScEta",        &tmva_id_mit_sceta);
   tmvaReaderID_MIT_Endcap->AddVariable("EtaWidth",    &tmva_id_mit_etawidth);
   tmvaReaderID_MIT_Endcap->AddVariable("PhiWidth",    &tmva_id_mit_phiwidth);
-<<<<<<< HEAD
-
-  if( funcReader_dipho_MIT != 0 ) {
-	  tmvaReader_dipho_MIT = 0;
-	  //// masserr,masserrwrong,vtxprob,pt1,pt2,eta1,eta2,dphi,idmva1,idmva2
-	  funcReader_dipho_MIT->bookVariable("masserr",         &tmva_dipho_MIT_dmom);
-	  funcReader_dipho_MIT->bookVariable("masserrwrongvtx", &tmva_dipho_MIT_dmom_wrong_vtx);
-	  funcReader_dipho_MIT->bookVariable("vtxprob",         &tmva_dipho_MIT_vtxprob);
-	  funcReader_dipho_MIT->bookVariable("pt1",             &tmva_dipho_MIT_ptom1);
-	  funcReader_dipho_MIT->bookVariable("pt2",             &tmva_dipho_MIT_ptom2);
-	  funcReader_dipho_MIT->bookVariable("eta1",            &tmva_dipho_MIT_eta1);
-	  funcReader_dipho_MIT->bookVariable("eta2",            &tmva_dipho_MIT_eta2);
-	  funcReader_dipho_MIT->bookVariable("dphi",            &tmva_dipho_MIT_dphi);
-	  funcReader_dipho_MIT->bookVariable("idmva1",          &tmva_dipho_MIT_ph1mva);
-	  funcReader_dipho_MIT->bookVariable("idmva2",          &tmva_dipho_MIT_ph2mva);
-  } else { 
-	  tmvaReader_dipho_MIT = new TMVA::Reader("!Color:Silent"); 
-	  tmvaReader_dipho_MIT->AddVariable("masserrsmeared/mass",         &tmva_dipho_MIT_dmom);
-	  tmvaReader_dipho_MIT->AddVariable("masserrsmearedwrongvtx/mass", &tmva_dipho_MIT_dmom_wrong_vtx);
-	  tmvaReader_dipho_MIT->AddVariable("vtxprob",                     &tmva_dipho_MIT_vtxprob);
-	  tmvaReader_dipho_MIT->AddVariable("ph1.pt/mass",                 &tmva_dipho_MIT_ptom1);
-	  tmvaReader_dipho_MIT->AddVariable("ph2.pt/mass",                 &tmva_dipho_MIT_ptom2);
-	  tmvaReader_dipho_MIT->AddVariable("ph1.eta",                     &tmva_dipho_MIT_eta1);
-	  tmvaReader_dipho_MIT->AddVariable("ph2.eta",                     &tmva_dipho_MIT_eta2);
-	  tmvaReader_dipho_MIT->AddVariable("TMath::Cos(ph1.phi-ph2.phi)", &tmva_dipho_MIT_dphi);
-	  tmvaReader_dipho_MIT->AddVariable("ph1.idmva",                   &tmva_dipho_MIT_ph1mva);
-	  tmvaReader_dipho_MIT->AddVariable("ph2.idmva",                   &tmva_dipho_MIT_ph2mva);
-=======
   
   tmva_dipho_MIT_buf.resize(10,0.);
   tmva_dipho_MIT_dmom = &tmva_dipho_MIT_buf[0];
@@ -220,7 +192,6 @@ void LoopAll::SetAllMVA() {
 	  tmvaReader_dipho_MIT->AddVariable("TMath::Cos(ph1.phi-ph2.phi)", tmva_dipho_MIT_dphi);
 	  tmvaReader_dipho_MIT->AddVariable("ph1.idmva",                   tmva_dipho_MIT_ph1mva);
 	  tmvaReader_dipho_MIT->AddVariable("ph2.idmva",                   tmva_dipho_MIT_ph2mva);
->>>>>>> h2gglobe/master
   }
 
   tmvaReaderID_Single_Barrel = new TMVA::Reader("!Color:Silent");
@@ -496,11 +467,8 @@ Float_t LoopAll::diphotonMVA(Int_t diphoton_id, Int_t leadingPho, Int_t subleadi
 	  *tmva_dipho_MIT_ph1mva = photonID_1;
 	  *tmva_dipho_MIT_ph2mva = photonID_2;
         }
-	
-<<<<<<< HEAD
-=======
+
 	tmva_dipho_MIT_cache[diphoton_id] = tmva_dipho_MIT_buf;
->>>>>>> h2gglobe/master
 	mva = ( funcReader_dipho_MIT != 0 ? funcReader_dipho_MIT->eval() : tmvaReader_dipho_MIT->EvaluateMVA("Gradient") );
     }
 
@@ -1320,10 +1288,8 @@ bool LoopAll::METAnalysis2012B(TLorentzVector lead_p4, TLorentzVector sublead_p4
   // EBEB only
   float leadEta    = lead_p4.Eta();
   float subleadEta = sublead_p4.Eta();
-  if(moriond2013MetCorrection){
-    if (fabs(leadEta)>1.5)    return tag;
-    if (fabs(subleadEta)>1.5) return tag;
-  }
+  if (fabs(leadEta)>1.5)    return tag;
+  if (fabs(subleadEta)>1.5) return tag;
 
   if(doMETCleaning){
     bool passcleaning = METCleaning2012B(lead_p4, sublead_p4, myMet);
