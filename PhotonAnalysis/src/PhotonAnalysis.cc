@@ -1770,7 +1770,7 @@ bool PhotonAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
         //Fill histograms according to diphoton or single photon category, as appropriate
 
-        int dipho_category = l.DiphotonCategory(diphoton_index.first, diphoton_index.second, Higgs.Pt(), 2, 2, 2);
+        int dipho_category = l.DiphotonCategory(diphoton_index.first, diphoton_index.second, Higgs.Pt(), Higgs.Pt()/Higgs.M(), 2, 2, 2);
         int leadpho_category = l.PhotonCategory(diphoton_index.first, 2, 2);
         int subleadpho_category = l.PhotonCategory(diphoton_index.second, 2, 2);
 

@@ -460,7 +460,7 @@ Float_t LoopAll::diphotonMVA(Int_t diphoton_id, Int_t leadingPho, Int_t subleadi
 	  *tmva_dipho_MIT_ph1mva = photonID_1;
 	  *tmva_dipho_MIT_ph2mva = photonID_2;
         }
-	
+  
 	tmva_dipho_MIT_cache[diphoton_id] = tmva_dipho_MIT_buf;
 	mva = ( funcReader_dipho_MIT != 0 ? funcReader_dipho_MIT->eval() : tmvaReader_dipho_MIT->EvaluateMVA("Gradient") );
     }

@@ -658,12 +658,13 @@ int PhotonEtaCategory(int photonindex, int n_etacat=4) {
 
 //----------------------------------------------------------------------
 //diphoton category functions ( r9, eta, and diphoton pt)
-int DiphotonCategory(Int_t leadind, Int_t subleadind, float pTh,  int n_etacat=4,int n_r9cat=3, float r9boundary=0.94, int n_pThcat=0, int nVtxCategories=0, int nvtx=0, float vtxMva=-1.) {
+int DiphotonCategory(Int_t leadind, Int_t subleadind, float pTh, float pToMh,  int n_etacat=4,int n_r9cat=3, float r9boundary=0.94, int n_pThcat=0, int n_pToMhcat=0, int nVtxCategories=0, int nvtx=0, float vtxMva=-1.) {
   Int_t r9cat  =  TMath::Max(PhotonR9Category(leadind,n_r9cat,r9boundary),PhotonR9Category(subleadind,n_r9cat,r9boundary));
   Int_t etacat =  TMath::Max(PhotonEtaCategory(leadind,n_etacat),PhotonEtaCategory(subleadind,n_etacat));
   Int_t pThcat =  DiphotonPtCategory(pTh,n_pThcat);
+  Int_t pToMhcat =  DiphotonPtOverMCategory(pToMh,n_pToMhcat);
   Int_t vtxCat =  DiphotonVtxCategory(nVtxCategories,nvtx);
-  return  (r9cat + n_r9cat*etacat + (n_r9cat*n_etacat)*pThcat) + (n_r9cat*n_etacat*(n_pThcat>0?n_pThcat:1))*vtxCat;  // (n_r9cat*c_etacat*n_pThcat) categories
+  return  (r9cat + n_r9cat*etacat + (n_r9cat*n_etacat)*pThcat) + (n_r9cat*n_etacat*(n_pThcat>0?n_pThcat:1))*pToMhcat + (n_r9cat*n_etacat*(n_pThcat>0?n_pThcat:1)*(n_pToMhcat>0?n_pToMhcat:1))*vtxCat;  // (n_r9cat*c_etacat*n_pThcat) categories
 }
 
 //----------------------------------------------------------------------
@@ -709,6 +710,17 @@ int DiphotonPtCategory(double pTh, int n_pThcat=0) {
     pThcat = (Int_t)((pTh < 70.) + (pTh < 40.));
   }
   return pThcat;
+}
+
+int DiphotonPtOverMCategory(double pToMh, int n_pToMhcat=0) {
+  if(n_pToMhcat<2) return 0;
+  int pToMhcat=0;
+  if(n_pToMhcat == 2) {
+    pToMhcat = (Int_t)(pToMh < 40./125.);
+  } else if (n_pToMhcat == 3) {
+    pToMhcat = (Int_t)((pToMh < 70./125.) + (pToMh < 40./125.));
+  }
+  return pToMhcat;
 }
 // CiC SELECTION CODE END - SSIMON
 

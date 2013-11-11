@@ -548,7 +548,7 @@ float MassFactorizedMvaAnalysis::GetDiphoMva(LoopAll & l, int diphotonId, bool d
 
     ComputeDiphoMvaInputs(l, phoid_mvaout_lead, phoid_mvaout_sublead, vtxProb, diphotonId);
             
-    int selectioncategory = l.DiphotonCategory(l.dipho_leadind[diphotonId],l.dipho_subleadind[diphotonId],Higgs.Pt(),
+    int selectioncategory = l.DiphotonCategory(l.dipho_leadind[diphotonId],l.dipho_subleadind[diphotonId],Higgs.Pt(),Higgs.Pt()/Higgs.M(),
                                                 nEtaCategories,nR9Categories);
    
     // Apply photonID rescaling a la F. Stocklie
@@ -847,7 +847,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
         ComputeDiphoMvaInputs(l, phoid_mvaout_lead, phoid_mvaout_sublead, vtxProb, diphoton_id);
         
         int selectioncategory = l.DiphotonCategory(l.dipho_leadind[diphoton_id], l.dipho_subleadind[diphoton_id],
-                                                    Higgs.Pt(), nEtaCategories, nR9Categories);
+                                                    Higgs.Pt(),Higgs.Pt()/Higgs.M(), nEtaCategories, nR9Categories);
             
         float diphobdt_output = -2;
         if(doDiphoMvaUpFront){
@@ -881,7 +881,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
         bool isEBEB  = fabs(lead_p4.Eta() < 1.4442 ) && fabs(sublead_p4.Eta()<1.4442);
         category = GetBDTBoundaryCategory(diphobdt_output,isEBEB,VBFevent);
         if (doDiphoMvaUpFront || diphobdt_output>=bdtCategoryBoundaries.back()) { 
-            computeExclusiveCategory(l, category, diphoton_index, Higgs.Pt(), diphobdt_output, true); 
+            computeExclusiveCategory(l, category, diphoton_index, Higgs.Pt(), Higgs.M(), diphobdt_output, true); 
         }
 
         if (fillOptTree) {
