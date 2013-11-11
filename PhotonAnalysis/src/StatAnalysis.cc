@@ -118,6 +118,7 @@ void StatAnalysis::Init(LoopAll& l)
         << "nEtaCategories "<< nEtaCategories << "\n"
         << "nR9Categories "<< nR9Categories << "\n"
         << "nPtCategories "<< nPtCategories << "\n"
+	<< "nPtOverMCategories "<< nPtOverMCategories << "\n"
         << "doEscaleSyst "<< doEscaleSyst << "\n"
         << "doEresolSyst "<< doEresolSyst << "\n"
         << "doEcorrectionSyst "<< doEcorrectionSyst << "\n"
@@ -146,6 +147,7 @@ void StatAnalysis::Init(LoopAll& l)
     nInclusiveCategories_ = nEtaCategories;
     if( nR9Categories != 0 ) nInclusiveCategories_ *= nR9Categories;
     if( nPtCategories != 0 ) nInclusiveCategories_ *= nPtCategories;
+    if( nPtOverMCategories != 0 ) nInclusiveCategories_ *= nPtOverMCategories;
 
     // scale R9 for CiC only?
     if( scaleR9ForCicOnly ) {
@@ -1071,11 +1073,11 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
 
 
         // FIXME pass smeared R9
-        category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,R9CatBoundary,nPtCategories,nVtxCategories,l.vtx_std_n);
+        category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),Higgs.Pt()/Higgs.M(),nEtaCategories,nR9Categories,R9CatBoundary,nPtCategories,nPtOverMCategories,nVtxCategories,l.vtx_std_n);
         mass     = Higgs.M();
 
         // apply di-photon level smearings and corrections
-        int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,R9CatBoundary,0,nVtxCategories,l.vtx_std_n);
+        int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),Higgs.Pt()/Higgs.M(),nEtaCategories,nR9Categories,R9CatBoundary,0,0,nVtxCategories,l.vtx_std_n);
         if( cur_type != 0 && doMCSmearing ) {
             applyDiPhotonSmearings(Higgs, *vtx, selectioncategory, cur_type, *((TVector3*)l.gv_pos->At(0)), evweight, zero_, zero_,
                     diPhoSys, syst_shift);
@@ -1088,7 +1090,7 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
         assert( evweight >= 0. );
 
         // see if the event falls into an exclusive category
-        computeExclusiveCategory(l, category, diphoton_index, Higgs.Pt() );
+        computeExclusiveCategory(l, category, diphoton_index, Higgs.Pt(), Higgs.M() );
 
         // if doing the spin analysis calculate new category
         if (doSpinAnalysis) computeSpinCategory(l, category, lead_p4, sublead_p4);
@@ -1112,7 +1114,7 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
         if (!isSyst && cur_type!=0 && saveBSTrees_) saveBSTrees(l, evweight,category,Higgs, vtx, (TVector3*)l.gv_pos->At(0));
 
         // save trees for unbinned datacards
-        int inc_cat = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,R9CatBoundary,nPtCategories,nVtxCategories,l.vtx_std_n);
+        int inc_cat = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),Higgs.Pt()/Higgs.M(),nEtaCategories,nR9Categories,R9CatBoundary,nPtCategories,nPtOverMCategories,nVtxCategories,l.vtx_std_n);
         if (!isSyst && cur_type<0 && saveDatacardTrees_ && TMath::Abs(datacardTreeMass-l.normalizer()->GetMass(cur_type))<0.001) saveDatCardTree(l,cur_type,category, inc_cat, evweight, diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],lead_p4,sublead_p4,true,GetSignalLabel(cur_type,l));
 
         float vtx_mva  = l.vtx_std_evt_mva->at(diphoton_id);
@@ -1566,7 +1568,7 @@ void StatAnalysis::FillRooContainerSyst(LoopAll& l, const std::string &name, int
 }
 
 // ----------------------------------------------------------------------------------------------------
-void StatAnalysis::computeExclusiveCategory(LoopAll & l, int & category, std::pair<int,int> diphoton_index, float pt, float diphobdt_output, bool mvaselection)
+void StatAnalysis::computeExclusiveCategory(LoopAll & l, int & category, std::pair<int,int> diphoton_index, float pt, float mass, float diphobdt_output, bool mvaselection)
 {
     if(TTHlepevent) {
         category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories +  nVHlepCategories +  nVHmetCategories;
@@ -1592,7 +1594,7 @@ void StatAnalysis::computeExclusiveCategory(LoopAll & l, int & category, std::pa
                 category += categoryFromBoundaries2D(multiclassVbfCatBoundaries0, multiclassVbfCatBoundaries1, multiclassVbfCatBoundaries2, myVBF_MVA0, myVBF_MVA1, myVBF_MVA2);
             }
         } else {
-            category += l.DiphotonCategory(diphoton_index.first,diphoton_index.second,pt,nVBFEtaCategories,1,1)
+            category += l.DiphotonCategory(diphoton_index.first,diphoton_index.second,pt,pt/mass,nVBFEtaCategories,1,1)
                 + nVBFEtaCategories*l.DijetSubCategory(myVBF_Mjj,myVBFLeadJPt,myVBFSubJPt,nVBFDijetJetCategories);
         }
     } else if(VHmetevent) {
@@ -2321,7 +2323,7 @@ void StatAnalysis::fillOpTree(LoopAll& l, const TLorentzVector & lead_p4, const 
         
         l.FillTree("dipho_mva", (float)diphobdt_output);
         l.FillTree("dipho_mva_cat", (float)category);
-        if (diphobdt_output>=bdtCategoryBoundaries.back()) computeExclusiveCategory(l,category,diphoton_index,Higgs.Pt(),diphobdt_output); 
+        if (diphobdt_output>=bdtCategoryBoundaries.back()) computeExclusiveCategory(l,category,diphoton_index,Higgs.Pt(),Higgs.M(),diphobdt_output); 
     }
 };
 
