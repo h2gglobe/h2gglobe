@@ -55,7 +55,7 @@ doInterferenceSmear=1
 ## 
 effPhotonCategoryType=3CatR9_EBEE
 effPhotonNCat=6
-efficiencyFile=aux/sig_reweighing_moriond2013_run2012ABCD_cutbased_v1.root
+efficiencyFile=aux/sig_reweighing_legacy_run2012ABCD_cutbased_v3.root
 
 #bkgPolOrderByCat=5,5,5,5,4,4,3,3,3
 #tth and vh added -10,2,3,3
