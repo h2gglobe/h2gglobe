@@ -328,6 +328,9 @@ Float_t LoopAll::photonIDMVA2012(Int_t iPhoton, Int_t vtx, TLorentzVector &p4, c
 }
 
 Float_t LoopAll::photonIDMVA(Int_t iPhoton, Int_t vtx, TLorentzVector &p4, const char* type)  {
+	if( pho_idmva_cached && pho_idmva[iPhoton][vtx] > -2 ) {
+		return pho_idmva[iPhoton][vtx];
+	}
 	TString t(type);
 	if( t == "MIT" ) {
 		return photonIDMVA2013(iPhoton,vtx,p4,"MIT");
@@ -451,18 +454,8 @@ Float_t LoopAll::diphotonMVA(Int_t diphoton_id, Int_t leadingPho, Int_t subleadi
 	*tmva_dipho_MIT_dphi = TMath::Cos(leadP4.Phi() - subleadP4.Phi());
       
         if (photonID_1 < -1. && photonID_2 < -1.) {
-	  if (bdtType == "MIT") {
-		  *tmva_dipho_MIT_ph1mva = photonIDMVA2013(leadingPho,vtx, leadP4, "MIT");
-		  *tmva_dipho_MIT_ph2mva = photonIDMVA2013(subleadingPho,vtx, subleadP4, "MIT");
-	  } else if (bdtType == "Old7TeV") {
-		  *tmva_dipho_MIT_ph1mva = photonIDMVA2011(leadingPho,vtx, leadP4, "MIT");
-		  *tmva_dipho_MIT_ph2mva = photonIDMVA2011(subleadingPho,vtx, subleadP4, "MIT");
-	  } else if (bdtType == "Moriond2013") {
-		  *tmva_dipho_MIT_ph1mva = photonIDMVA2012(leadingPho,vtx, leadP4, "MIT");
-		  *tmva_dipho_MIT_ph2mva = photonIDMVA2012(subleadingPho,vtx, subleadP4, "MIT");
-	  } else {
-		  std::cerr << "No valid BDT type..." << std::endl;
-	  }
+	  *tmva_dipho_MIT_ph1mva = photonIDMVA(leadingPho,vtx, leadP4, bdtType);
+	  *tmva_dipho_MIT_ph1mva = photonIDMVA(subleadingPho,vtx, subleadP4, bdtType);
         } else {
 	  *tmva_dipho_MIT_ph1mva = photonID_1;
 	  *tmva_dipho_MIT_ph2mva = photonID_2;
@@ -3150,6 +3143,8 @@ float LoopAll::DiphotonMITPreSelectionPerDipho(const char * type, int idipho, Fl
     }
 
     if (!kinonly) {
+	    /// std::cout << "Diphoton preselection " << dipho_leadind[idipho] << " " << dipho_subleadind[idipho] << " " 
+	    /// 	      << photonIDMVA(lead,ivtx,lead_p4,type) << " " << photonIDMVA(sublead,ivtx,sublead_p4,type) << std::endl;
 	if ( photonIDMVA(lead,ivtx,lead_p4,type) <= phoidMvaCut
 	     || photonIDMVA(sublead,ivtx,sublead_p4,type)  <= phoidMvaCut
 	    ) {return -99;}

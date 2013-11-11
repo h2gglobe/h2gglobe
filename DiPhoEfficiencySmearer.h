@@ -22,18 +22,7 @@ public:
 	  std::string categoryType;
 	  std::string parameterSetName;
 	  
-	  typedef std::map<std::string,float> parameterMap;
-	  typedef std::map<std::string,float>::iterator parameterMapIt;
-	  typedef std::map<std::string,float>::const_iterator parameterMapConstIt;
-	  
-	  // Scale offset and smearing error should be espressed as a relative value
-	  // Example: scale_offset["EB"]=1.002 , smearing_sigma["EB"]=0.01  
-	  
-	  std::map<std::string,float> scale_offset;
-	  std::map<std::string,float> scale_offset_error;
-	  
-	  std::map<std::string,float> smearing_sigma;
-	  std::map<std::string,float> smearing_sigma_error;
+	  float idMVASystSize;
 
           std::string efficiency_file;
   };
@@ -62,6 +51,7 @@ public:
   double getWeight(double pt, std::string theCategory, float syst_shift) const;
 
   bool passFailWeights_, doVtxEff_, doMvaIdEff_;
+  float idMVASystSize_;
   
   std::string   name_;
   TRandom3     *rgen_;

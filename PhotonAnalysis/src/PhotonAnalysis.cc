@@ -477,8 +477,8 @@ void PhotonAnalysis::applyGenLevelSmearings(double & genLevWeight, const TLorent
 
 // ----------------------------------------------------------------------------------------------------
 void PhotonAnalysis::applySinglePhotonSmearings(std::vector<float> & smeared_pho_energy, std::vector<float> & smeared_pho_r9, std::vector<float> & smeared_pho_weight,
-                        int cur_type, const LoopAll & l, const float * energyCorrected, const float * energyCorrectedError,
-                        BaseSmearer * sys, float syst_shift
+                                                int cur_type, const LoopAll & l, const float * energyCorrected, const float * energyCorrectedError,
+                                                BaseSmearer * sys, float syst_shift
 
     )
 {
@@ -486,76 +486,71 @@ void PhotonAnalysis::applySinglePhotonSmearings(std::vector<float> & smeared_pho
     static int cache_run = -1, cache_lumis = -1, cache_event = -1;
     bool fillInfo = false;
     if( l.run != cache_run || l.lumis != cache_lumis || l.event != cache_event ) {
-	fillInfo = true;
-	cache_run   = l.run  ;
-	cache_lumis = l.lumis;
-	cache_event = l.event;
+        fillInfo = true;
+        cache_run   = l.run  ;
+        cache_lumis = l.lumis;
+        cache_event = l.event;
     }
 
     /// if( sys ) std::cout << "applySinglePhotonSmearings " << fillInfo << " " << syst_shift << " " << ( sys != 0 ? sys->name() : " " ) <<std::endl;
 
     if( fillInfo ) {
-	photonInfoCollection.clear();
+        photonInfoCollection.clear();
     }
     smeared_pho_energy.resize(l.pho_n,0.);
     smeared_pho_r9.resize(l.pho_n,0.);
     smeared_pho_weight.resize(l.pho_n,0.);
     for(int ipho=0; ipho<l.pho_n; ++ipho ) {
-
+        
         std::vector<std::vector<bool> > p;
-	if( fillInfo ) {
-	    PhotonReducedInfo info (
-		*((TVector3*)     l.sc_xyz->At(l.pho_scind[ipho])),
-		((TLorentzVector*)l.pho_p4->At(ipho))->Energy(),
-		energyCorrected[ipho],
-		l.pho_isEB[ipho], l.pho_r9[ipho],
-		true, // WARNING  setting pass photon ID flag for all photons. This is safe as long as only selected photons are used
-		(energyCorrectedError!=0?energyCorrectedError[ipho]:0)
-		);
-	    photonInfoCollection.push_back(info);
-	} else {
-	    photonInfoCollection[ipho].reset();
-	}
-	PhotonReducedInfo & phoInfo = photonInfoCollection[ipho];
-	//// if( sys ) phoInfo.dump();
-
-	int ieta, iphi;
-	l.getIetaIPhi(ipho,ieta,iphi);
-	phoInfo.addSmearingSeed( (unsigned int)l.sc_raw[l.pho_scind[ipho]] + abs(ieta) + abs(iphi) + l.run + l.event + l.lumis );
-	phoInfo.setSphericalPhoton(l.CheckSphericalPhoton(ieta,iphi));
-
-	// FIXME add seed to syst smearings
-
+        if( fillInfo ) {
+            PhotonReducedInfo info (
+                *((TVector3*)     l.sc_xyz->At(l.pho_scind[ipho])),
+                ((TLorentzVector*)l.pho_p4->At(ipho))->Energy(),
+                energyCorrected[ipho],
+                l.pho_isEB[ipho], l.pho_r9[ipho],                
+                ipho,
+                true, // WARNING  setting pass photon ID flag for all photons. This is safe as long as only selected photons are used
+                (energyCorrectedError!=0?energyCorrectedError[ipho]:0)
+                );
+            photonInfoCollection.push_back(info);
+        } else {
+            photonInfoCollection[ipho].reset();
+        }
+        PhotonReducedInfo & phoInfo = photonInfoCollection[ipho];
+        //// if( sys ) phoInfo.dump();
+        
+        int ieta, iphi;
+        l.getIetaIPhi(ipho,ieta,iphi);
+        phoInfo.addSmearingSeed( (unsigned int)l.sc_raw[l.pho_scind[ipho]] + abs(ieta) + abs(iphi) + l.run + l.event + l.lumis );
+        phoInfo.setSphericalPhoton(l.CheckSphericalPhoton(ieta,iphi));
+        
+        // FIXME add seed to syst smearings
+        
         float pweight = 1.;
         // smear MC. But apply energy corrections and scale adjustement to data
         if( cur_type != 0 && doMCSmearing ) {
             for(std::vector<BaseSmearer *>::iterator si=photonSmearers_.begin(); si!= photonSmearers_.end(); ++si ) {
                 float sweight = 1.;
-		if( sys != 0 && *si == *sys ) {
-		    // move the smearer under study by syst_shift
-		    (*si)->smearPhoton(phoInfo,sweight,l.run,syst_shift);
-		    /// if( sys ) {
-		    /// 	std::cout << "Syst " << (*si)->name() <<  std::endl;
-		    /// }
-		} else {
-		    // for the other use the nominal points
-		    (*si)->smearPhoton(phoInfo,sweight,l.run,0.);
-		    /// if( sys ) {
-		    /// 	std::cout << "Nominal " << (*si)->name() <<  std::endl;
-		    /// }
-		}
-		if( sweight < 0. ) {
-		    if( syst_shift == 0. ) {
-			std::cerr << "Negative weight from smearer " << (*si)->name() << std::endl;
-			assert(0);
-		    } else {
-			if( nwarnings-- > 0 ) {
-			    std::cout <<  "WARNING: negative during systematic scan in " << (*si)->name() << std::endl;
-			}
-			sweight = 0.;
-		    }
-		}
-		pweight *= sweight;
+                if( sys != 0 && *si == *sys ) {
+                    // move the smearer under study by syst_shift
+                    (*si)->smearPhoton(phoInfo,sweight,l.run,syst_shift);
+                } else {
+                    // for the other use the nominal points
+                    (*si)->smearPhoton(phoInfo,sweight,l.run,0.);
+                }
+                if( sweight < 0. ) {
+                    if( syst_shift == 0. ) {
+                        std::cerr << "Negative weight from smearer " << (*si)->name() << std::endl;
+                        assert(0);
+                    } else {
+                        if( nwarnings-- > 0 ) {
+                            std::cout <<  "WARNING: negative during systematic scan in " << (*si)->name() << std::endl;
+                        }
+                        sweight = 0.;
+                    }
+                }
+                pweight *= sweight;
             }
         } else if( cur_type == 0 ) {
             float sweight = 1.;
@@ -565,7 +560,7 @@ void PhotonAnalysis::applySinglePhotonSmearings(std::vector<float> & smeared_pho
             eScaleDataSmearer->smearPhoton(phoInfo,sweight,l.run,0.);
             pweight *= sweight;
         }
-	//// phoInfo.dump();
+        //// phoInfo.dump();
         smeared_pho_energy[ipho] = phoInfo.energy();
         smeared_pho_r9[ipho]     = phoInfo.r9();
         smeared_pho_weight[ipho] = pweight;
@@ -1950,11 +1945,6 @@ void PhotonAnalysis::PreselectPhotons(LoopAll& l, int jentry)
     corrected_pho_energy.clear(); corrected_pho_energy.resize(l.pho_n,0.);
     int cur_type = l.itype[l.current];
 
-    ////// std::vector<float> smeared_pho_r9, smeared_pho_weight;
-    //////
-    ////// applySinglePhotonSmearings(smeared_pho_energy, smeared_pho_r9, smeared_pho_weight,
-    //////                    cur_type, l, energyCorrected, energyCorrectedError);
-
     for(int ipho=0; ipho<l.pho_n; ++ipho ) {
         std::vector<std::vector<bool> > p;
         PhotonReducedInfo phoInfo (
@@ -1963,6 +1953,7 @@ void PhotonAnalysis::PreselectPhotons(LoopAll& l, int jentry)
                                    energyCorrected[ipho],
                                    l.pho_isEB[ipho],
                                    l.pho_r9[ipho],
+                                   ipho,
                                    false,
                                    (energyCorrectedError!=0?energyCorrectedError[ipho]:0)
                                    );

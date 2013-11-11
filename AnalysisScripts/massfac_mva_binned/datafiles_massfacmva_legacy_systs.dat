@@ -29,7 +29,7 @@ inputBranches TTVH_analysis_input.dat
 ##   analyzer <class_name> <config_file>
 ##
 ## analyzer PhotonAnalysis photonanalysis.dat
-analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat systs_setting.dat
+analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat systs_settings.dat
 
 
 
