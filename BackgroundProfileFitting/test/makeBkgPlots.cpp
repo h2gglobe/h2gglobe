@@ -645,6 +645,8 @@ void plotAllPdfs(RooRealVar *mgg, RooAbsData *data, RooMultiPdf *mpdf, RooCatego
 	int color[10] = {kBlue,kOrange,kGreen,kRed,kMagenta,kPink,kViolet,kCyan,kYellow,kBlack};
 	for (int pInd=0; pInd<mpdf->getNumPdfs(); pInd++){
 		mcat->setIndex(pInd);
+		// Always refit since we cannot be sure the best fit pdf is being fitted
+		mpdf->getCurrentPdf()->fitTo(*data);
 		mpdf->getCurrentPdf()->plotOn(plot,LineColor(color[pInd]),LineWidth(2));
 		TObject *legObj = plot->getObject(plot->numItems()-1);
 		leg->AddEntry(legObj,mpdf->getCurrentPdf()->GetName(),"L");

@@ -11,8 +11,8 @@ class PhotonReducedInfo
 {
 public:
 	
-	// PhotonReducedInfo();
-  PhotonReducedInfo(const TVector3 & caloPosition, float energy, float corrEnergy, int iDet, float r9, bool passId, float corrEnergyErr=0);
+  // PhotonReducedInfo();
+  PhotonReducedInfo(const TVector3 & caloPosition, float energy, float corrEnergy, int iDet, float r9, int ipho, bool passId, float corrEnergyErr=0);
 
   
   // PhotonReducedInfo(const PhotonReducedInfo &obj){copy_(obj);}
@@ -20,6 +20,7 @@ public:
 
   const TVector3 & caloPosition() const { return caloPosition_; }
   int iDet() const {return iDet_;}
+  int iPho() const {return iPho_;}
   float energy()       const { return energy_; }
   float corrEnergy()       const { return corrEnergy_; }
   float corrEnergyErr()       const { return corrEnergyErr_; }
@@ -63,7 +64,7 @@ protected:
   float energy_;
   float corrEnergy_;
   float corrEnergyErr_;
-  int iDet_;
+  int iDet_, iPho_;
   float r9_;
   bool passId_;
   bool sphericalPhoton_;
@@ -71,7 +72,6 @@ protected:
 
   std::vector<int> smearingSeeds_;
   std::vector<std::pair<const BaseSmearer *, float> > cache_;
-  /// void copy_(const PhotonReducedInfo &);
 };
 
 

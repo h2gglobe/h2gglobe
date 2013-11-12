@@ -10,6 +10,7 @@ DiPhoEfficiencySmearer::DiPhoEfficiencySmearer(const diPhoEfficiencySmearingPara
   passFailWeights_=false;
   doVtxEff_       =false;
   doMvaIdEff_	  =false;
+  idMVASystSize_  =par.idMVASystSize;
 }
 
 DiPhoEfficiencySmearer::~DiPhoEfficiencySmearer()
@@ -21,11 +22,8 @@ bool DiPhoEfficiencySmearer::smearDiPhoton( TLorentzVector & p4, TVector3 & selV
 					    const int & genMassPoint, const TVector3 & trueVtx, float & idMVA1, float & idMVA2, float syst_shift) const
 {
   if (doMvaIdEff_){
-    
-      float frac_idvary = 0.025;
-      idMVA1 += syst_shift*frac_idvary; 
-      idMVA2 += syst_shift*frac_idvary;
- 
+      idMVA1 += syst_shift*idMVASystSize_; 
+      idMVA2 += syst_shift*idMVASystSize_;
   } else {
     std::string cat=Form("cat%d", category);
   
