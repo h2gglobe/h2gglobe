@@ -1,4 +1,5 @@
-intL=19715. histfile=/store/group/phys_higgs/cmshgg/analyzed/legacy_paper/systematics/%(label)s/CMS-HGG.root output=eventsList.txt
+intL=19715. histfile=/store/group/phys_higgs/cmshgg/analyzed/amarini_legacy/systematics/%(label)s/CMS-HGG.root output=eventsList.txt
+#intL=19715. histfile=/store/group/phys_higgs/cmshgg/analyzed/legacy_paper/systematics/%(label)s/CMS-HGG.root output=eventsList.txt
 
 ##
 ## Signal
