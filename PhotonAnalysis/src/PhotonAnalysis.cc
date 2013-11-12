@@ -3986,7 +3986,9 @@ bool PhotonAnalysis::VBFTag2013(int & ijet1, int & ijet2, LoopAll& l, int& dipho
 
         vbfcat=categoryFromBoundaries2D(multiclassVbfCatBoundaries0,multiclassVbfCatBoundaries1,multiclassVbfCatBoundaries2,
                                         myVBF_MVA,                  myVBFcombined,              -2);
-        
+       
+        ///// std::cout << "VBFTag2013 " << l.run << " " << l.event << " " << myVBFLeadJEta << " " <<  myVBFSubJEta << " " << myVBFLeadJPt << " " << myVBFSubJPt << " " << myVBFZep << " " << myVBFdPhiTrunc << " " << myVBF_Mjj << " " << myVBFDiPhoPtOverM << " " << myVBFDIPHObdt << " " << myVBF_MVA << " " << myVBFcombined<<std::endl; 
+ 
         if(PADEBUG) std::cout<<"vbfcat dijet combinedmva "<<vbfcat<<" "<<myVBF_MVA<<" "<<myVBFcombined<<std::endl;
         if( vbfcat!=-1 ) tag = true;
     }
@@ -4083,11 +4085,12 @@ bool PhotonAnalysis::FillDijetVariables(int & ijet1, int & ijet2, LoopAll& l, in
     myVBF_MVA0 = -2.;
     myVBF_MVA1 = -2.;
     myVBF_MVA2 = -2.;
+    myVBFcombined = -2.;
     myVBFSpin_Discriminant = -2.;
     myVBF_deltaPhiGamGam = lead_p4.DeltaPhi(sublead_p4);
     myVBF_etaJJ = (jet1->Eta() + jet2->Eta())/2;
-    myVBF_leadEta = jet1->Eta();
-    myVBF_subleadEta = jet2->Eta();
+    myVBFLeadJEta = jet1->Eta();
+    myVBFSubJEta = jet2->Eta();
     if(getAngles) VBFAngles(lead_p4, sublead_p4, *jet1, *jet2);
 
     filled=true;
@@ -5605,8 +5608,8 @@ void PhotonAnalysis::saveSpinTree(LoopAll &l, int category, float evweight, TLor
    l.FillTree("rv",isCorrectVertex,"spin_trees");
    l.FillTree("higgs_mass",Higgs.M(),"spin_trees");
 
-    l.FillTree("myVBF_leadEta",myVBF_leadEta,"spin_trees");
-    l.FillTree("myVBF_subleadEta",myVBF_subleadEta,"spin_trees");
+    l.FillTree("myVBF_leadEta",myVBFLeadJEta,"spin_trees");
+    l.FillTree("myVBF_subleadEta",myVBFSubJEta,"spin_trees");
     l.FillTree("myVBFLeadJPt",myVBFLeadJPt,"spin_trees");
     l.FillTree("myVBFSubJPt",myVBFSubJPt,"spin_trees");
     l.FillTree("myVBF_Mjj",myVBF_Mjj,"spin_trees");
@@ -5723,8 +5726,8 @@ void PhotonAnalysis::saveVBFTree(LoopAll &l, int category, float evweight, float
   l.FillTree("vbfmva",myVBF_MVA,"vbf_trees");
   l.FillTree("leadJPt",myVBFLeadJPt,"vbf_trees");
   l.FillTree("subleadJPt",myVBFSubJPt,"vbf_trees");
-  l.FillTree("leadJEta",myVBF_leadEta,"vbf_trees");
-  l.FillTree("subleadJEta",myVBF_subleadEta,"vbf_trees");
+  l.FillTree("leadJEta",myVBFLeadJEta,"vbf_trees");
+  l.FillTree("subleadJEta",myVBFSubJEta,"vbf_trees");
   l.FillTree("MJJ",myVBF_Mjj,"vbf_trees");
   l.FillTree("dEtaJJ",myVBFdEta,"vbf_trees");
   l.FillTree("zepp",myVBFZep,"vbf_trees");

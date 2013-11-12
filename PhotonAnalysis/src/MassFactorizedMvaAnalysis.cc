@@ -1066,10 +1066,10 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
             if( myVBF_Mjj>100 && myVBFLeadJPt>30 && myVBFSubJPt>20 ){
                 eventListText 
                     << "\tjet1_ind:"            <<  vbfIjet1 
-                    << "\tjet1_eta:"            <<  myVBF_leadEta
+                    << "\tjet1_eta:"            <<  myVBFLeadJEta
                     << "\tjet1_pt:"             <<  myVBFLeadJPt
                     << "\tjet2_ind:"            <<  vbfIjet2
-                    << "\tjet2_eta:"            <<  myVBF_subleadEta
+                    << "\tjet2_eta:"            <<  myVBFSubJEta
                     << "\tjet2_pt:"             <<  myVBFSubJPt
                     << "\tdijet_dEta:"          <<  myVBFdEta
                     << "\tdijet_Zep:"           <<  myVBFZep

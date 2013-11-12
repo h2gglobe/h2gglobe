@@ -2278,8 +2278,8 @@ void StatAnalysis::fillOpTree(LoopAll& l, const TLorentzVector & lead_p4, const 
         l.FillTree("gv_z", (float)9999.);
     }
     
-    l.FillTree("dijet_leadEta",     myVBF_leadEta);
-    l.FillTree("dijet_subleadEta",  myVBF_subleadEta);
+    l.FillTree("dijet_leadEta",     myVBFLeadJEta);
+    l.FillTree("dijet_subleadEta",  myVBFSubJEta);
     l.FillTree("dijet_LeadJPt",     myVBFLeadJPt);
     l.FillTree("dijet_SubJPt",      myVBFSubJPt);
     l.FillTree("dijet_dEta",        myVBFdEta);
