@@ -20,6 +20,8 @@ MassFactorizedMvaAnalysis::MassFactorizedMvaAnalysis()  :
     forceStdPlotsOnZee = false;
     doInterferenceSmear=false;
     doCosThetaDependentInterferenceSmear=false;
+    idMVASystSize = 0.01;
+    photonIdMvaSmearer = 0;
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -109,6 +111,10 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
 
     diPhoEffSmearPars.n_categories = 8;
     diPhoEffSmearPars.efficiency_file = efficiencyFileMVA;
+    diPhoEffSmearPars.idMVASystSize = idMVASystSize;
+    
+    if (bdtTrainingType == "") 
+	bdtTrainingType = bdtTrainingPhilosophy;
 
     if( doEcorrectionSmear ) {
         // instance of this smearer done in PhotonAnalysis
@@ -171,14 +177,22 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
     }
     if( doPhotonMvaIdSmear ) {
         // trigger efficiency
-        std::cerr << __LINE__ << std::endl; 
-        photonMvaIdSmearer = new DiPhoEfficiencySmearer( diPhoEffSmearPars );
-        photonMvaIdSmearer->name("phoIdMva");
-        photonMvaIdSmearer->setEffName("effL1HLT");
-        photonMvaIdSmearer->doVtxEff(false);
-        photonMvaIdSmearer->doMvaIdEff(true);
-        photonMvaIdSmearer->init();
-        diPhotonSmearers_.push_back(photonMvaIdSmearer);
+	photonIdMvaSmearer = 0;
+	diPhotonIdMvaSmearer = 0;
+	if( doDiphoMvaUpFront ) { 
+	    photonIdMvaSmearer = new PhotonIdMVASmearer(&l,idMVASystSize,bdtTrainingType);
+	    photonIdMvaSmearer->name("phoIdMva");
+	    photonSmearers_.push_back(photonIdMvaSmearer);
+	} else {
+	    std::cerr << __LINE__ << std::endl; 
+	    diPhotonIdMvaSmearer = new DiPhoEfficiencySmearer( diPhoEffSmearPars );
+	    diPhotonIdMvaSmearer->name("phoIdMva");
+	    diPhotonIdMvaSmearer->setEffName("phoIdMva");
+	    diPhotonIdMvaSmearer->doVtxEff(false);
+	    diPhotonIdMvaSmearer->doMvaIdEff(true);
+	    diPhotonIdMvaSmearer->init();
+	    diPhotonSmearers_.push_back(diPhotonIdMvaSmearer);
+	}
     }
     if(doKFactorSmear) {
         // kFactor efficiency
@@ -293,9 +307,6 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
     }
 
 
-    if (bdtTrainingType == "") 
-	bdtTrainingType = bdtTrainingPhilosophy;
-
     l.rooContainer->nsigmas = nSystSteps;
     l.rooContainer->sigmaRange = systRange;
     l.rooContainer->SaveRooDataHists(true);
@@ -353,8 +364,15 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
         l.rooContainer->MakeSystematicStudy(sys,sys_t);
     }
     if( doPhotonMvaIdSmear && doPhotonMvaIdSyst ) {
-        systDiPhotonSmearers_.push_back( photonMvaIdSmearer );
-        std::vector<std::string> sys(1,photonMvaIdSmearer->name());
+	std::string name;
+	if( doDiphoMvaUpFront ) {
+	    systPhotonSmearers_.push_back( photonIdMvaSmearer );
+	    name = photonIdMvaSmearer->name();
+	} else {
+	    systDiPhotonSmearers_.push_back( diPhotonIdMvaSmearer );
+	    name = diPhotonIdMvaSmearer->name();
+	}
+        std::vector<std::string> sys(1,name);
         std::vector<int> sys_t(1,-1);  // -1 for signal, 1 for background 0 for both
         l.rooContainer->MakeSystematicStudy(sys,sys_t);
     }
@@ -530,12 +548,14 @@ float MassFactorizedMvaAnalysis::GetDiphoMva(LoopAll & l, int diphotonId, bool d
 
     ComputeDiphoMvaInputs(l, phoid_mvaout_lead, phoid_mvaout_sublead, vtxProb, diphotonId);
             
-    int selectioncategory = l.DiphotonCategory(l.dipho_leadind[diphotonId],l.dipho_subleadind[diphotonId],Higgs.Pt(),
+    int selectioncategory = l.DiphotonCategory(l.dipho_leadind[diphotonId],l.dipho_subleadind[diphotonId],Higgs.Pt(),Higgs.Pt()/Higgs.M(),
                                                 nEtaCategories,nR9Categories);
    
     // Apply photonID rescaling a la F. Stocklie
     // This is OK here.
     if(cur_type!=0 && applyIdmvaCorrection) {
+	// FIXME: Move into PhotonIdMVASmearer since the photon ID MVA is already shifted
+	assert( photonIdMvaSmearer == 0 );
         //Apply corrections to ID MVA output
         TGraph* idmvascale;
         TString histname;
@@ -827,7 +847,7 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
         ComputeDiphoMvaInputs(l, phoid_mvaout_lead, phoid_mvaout_sublead, vtxProb, diphoton_id);
         
         int selectioncategory = l.DiphotonCategory(l.dipho_leadind[diphoton_id], l.dipho_subleadind[diphoton_id],
-                                                    Higgs.Pt(), nEtaCategories, nR9Categories);
+                                                    Higgs.Pt(),Higgs.Pt()/Higgs.M(), nEtaCategories, nR9Categories);
             
         float diphobdt_output = -2;
         if(doDiphoMvaUpFront){
@@ -851,17 +871,17 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
             diphobdt_output_up = l.diphotonMVA(-1,diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id] ,
 					       vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMrv,
 					       bdtTrainingPhilosophy.c_str(),bdtTrainingType.c_str(),
-					       phoid_mvaout_lead+0.01,phoid_mvaout_sublead+0.01);
+					       phoid_mvaout_lead+idMVASystSize,phoid_mvaout_sublead+idMVASystSize);
             diphobdt_output_down = l.diphotonMVA(-1,diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id] ,
 						 vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMrv,
 						 bdtTrainingPhilosophy.c_str(),bdtTrainingType.c_str(),
-						 phoid_mvaout_lead-0.01,phoid_mvaout_sublead-0.01);
+						 phoid_mvaout_lead-idMVASystSize,phoid_mvaout_sublead-idMVASystSize);
         }
 
         bool isEBEB  = fabs(lead_p4.Eta() < 1.4442 ) && fabs(sublead_p4.Eta()<1.4442);
         category = GetBDTBoundaryCategory(diphobdt_output,isEBEB,VBFevent);
         if (doDiphoMvaUpFront || diphobdt_output>=bdtCategoryBoundaries.back()) { 
-            computeExclusiveCategory(l, category, diphoton_index, Higgs.Pt(), diphobdt_output, true); 
+            computeExclusiveCategory(l, category, diphoton_index, Higgs.Pt(), Higgs.M(), diphobdt_output, true); 
         }
 
         if (fillOptTree) {
@@ -1046,10 +1066,10 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
             if( myVBF_Mjj>100 && myVBFLeadJPt>30 && myVBFSubJPt>20 ){
                 eventListText 
                     << "\tjet1_ind:"            <<  vbfIjet1 
-                    << "\tjet1_eta:"            <<  myVBF_leadEta
+                    << "\tjet1_eta:"            <<  myVBFLeadJEta
                     << "\tjet1_pt:"             <<  myVBFLeadJPt
                     << "\tjet2_ind:"            <<  vbfIjet2
-                    << "\tjet2_eta:"            <<  myVBF_subleadEta
+                    << "\tjet2_eta:"            <<  myVBFSubJEta
                     << "\tjet2_pt:"             <<  myVBFSubJPt
                     << "\tdijet_dEta:"          <<  myVBFdEta
                     << "\tdijet_Zep:"           <<  myVBFZep

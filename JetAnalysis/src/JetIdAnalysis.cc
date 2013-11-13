@@ -352,11 +352,11 @@ bool JetIdAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorent
 	fillDiphoton(lead_p4, sublead_p4, Higgs, lead_r9, sublead_r9, vtx, &smeared_pho_energy[0], l, diphoton_id);  
       
         // FIXME pass smeared R9
-	category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,nPtCategories);
+	category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),Higgs.Pt()/Higgs.M(),nEtaCategories,nR9Categories,nPtCategories,nPtOverMCategories);
 	mass     = Higgs.M();
 
 	// apply di-photon level smearings and corrections
-        int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,0);
+        int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),Higgs.Pt()/Higgs.M(),nEtaCategories,nR9Categories,0,0);
         if( cur_type != 0 && doMCSmearing ) {
 	    applyDiPhotonSmearings(Higgs, *vtx, selectioncategory, cur_type, *((TVector3*)l.gv_pos->At(0)), evweight, zero_, zero_,
 				   diPhoSys, syst_shift);
@@ -378,7 +378,7 @@ bool JetIdAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorent
 	}
 
 	// see if the event falls into an exclusive category
-	computeExclusiveCategory(l, category, diphoton_index, Higgs.Pt() );
+	computeExclusiveCategory(l, category, diphoton_index, Higgs.Pt(), Higgs.M() );
   
 	return true;
     }

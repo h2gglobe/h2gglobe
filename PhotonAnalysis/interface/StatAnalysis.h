@@ -138,7 +138,7 @@ class StatAnalysis : public PhotonAnalysis
     
     Float_t corrected_pho_r9[MAX_PHOTONS];
 
-    void  computeExclusiveCategory(LoopAll & l, int & category, std::pair<int,int> diphoton_index, float pt, float diphoBDT=1., bool mvaselection=false);
+    void  computeExclusiveCategory(LoopAll & l, int & category, std::pair<int,int> diphoton_index, float pt, float mass, float diphoBDT=1., bool mvaselection=false);
     void computeSpinCategory(LoopAll &l, int &category, TLorentzVector lead_p4, TLorentzVector sublead_p4);
 
     void fillControlPlots(const TLorentzVector & lead_p4, const  TLorentzVector & sublead_p4, const TLorentzVector & Higgs, 

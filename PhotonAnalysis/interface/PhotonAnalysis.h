@@ -256,7 +256,7 @@ class PhotonAnalysis : public BaseAnalysis
     std::string regressionFile;
     int regressionVersion;
 
-    int   nEtaCategories, nR9Categories, nPtCategories, nVtxCategories;
+    int   nEtaCategories, nR9Categories, nPtCategories, nPtOverMCategories, nVtxCategories;
     float R9CatBoundary;
     bool  usePUjetveto;
     //std::string photonFixDat;
@@ -358,8 +358,6 @@ class PhotonAnalysis : public BaseAnalysis
     float myVBFcombined;
     
     // n-1 plots for VBF tag 2011
-    float  myVBF_leadEta;
-    float  myVBF_subleadEta;
     float  myVBFLeadJPt;
     float  myVBFSubJPt;
     float  myVBFLeadJEta;

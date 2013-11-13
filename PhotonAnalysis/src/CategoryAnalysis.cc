@@ -374,7 +374,7 @@ bool CategoryAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLor
       float lead_r9_cic, sublead_r9_cic;
       TVector3 * vtx_cic;
       fillDiphoton(lead_p4_cic, sublead_p4_cic, Higgs_cic, lead_r9_cic, sublead_r9_cic, vtx_cic, &smeared_pho_energy[0], l, diphoton_id_cic);
-      int selectioncategory_cic = l.DiphotonCategory(diphoton_index_cic.first,diphoton_index_cic.second,Higgs_cic.Pt(),nEtaCategories,nR9Categories,0);
+      int selectioncategory_cic = l.DiphotonCategory(diphoton_index_cic.first,diphoton_index_cic.second,Higgs_cic.Pt(),Higgs_cic.Pt()/Higgs_cic.M(),nEtaCategories,nR9Categories,0,0);
 
       if( cur_type != 0 && doMCSmearing ) {
 	  applyDiPhotonSmearings(Higgs_cic, *vtx_cic, selectioncategory_cic, cur_type, *((TVector3*)l.gv_pos->At(0)), evweight_cic, zero_, zero_,diPhoSys, syst_shift);
@@ -421,7 +421,7 @@ bool CategoryAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLor
       TLorentzVector lead_p4_kinonly = l.get_pho_p4( l.dipho_leadind[diphoton_id_kinonly], l.dipho_vtxind[diphoton_id_kinonly], &smeared_pho_energy[0]);
       TLorentzVector sublead_p4_kinonly = l.get_pho_p4( l.dipho_subleadind[diphoton_id_kinonly], l.dipho_vtxind[diphoton_id_kinonly], &smeared_pho_energy[0]);
       TLorentzVector Higgs_kinonly = lead_p4_kinonly + sublead_p4_kinonly;   
-      selectioncategory_kinonly = l.DiphotonCategory(diphoton_index_kinonly.first,diphoton_index_kinonly.second,Higgs_kinonly.Pt(),nEtaCategories,nR9Categories,0);
+      selectioncategory_kinonly = l.DiphotonCategory(diphoton_index_kinonly.first,diphoton_index_kinonly.second,Higgs_kinonly.Pt(),Higgs_kinonly.Pt()/Higgs_kinonly.M(),nEtaCategories,nR9Categories,0,0);
     }
 
     // Preselection
@@ -466,7 +466,7 @@ bool CategoryAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLor
       float phoid_mvaout_sublead = l.photonIDMVA(diphoton_index.second,l.dipho_vtxind[diphoton_id],sublead_p4,bdtTrainingType.c_str());
 
       // apply di-photon level smearings and corrections
-      selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,0);
+      selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),Higgs.Pt()/Higgs.M(),nEtaCategories,nR9Categories,0,0);
 
       if( cur_type != 0 && doMCSmearing ) {
 	applyDiPhotonSmearings(Higgs, *vtx, selectioncategory, cur_type, *((TVector3*)l.gv_pos->At(0)), evweight, phoid_mvaout_lead,phoid_mvaout_sublead,diPhoSys, syst_shift);

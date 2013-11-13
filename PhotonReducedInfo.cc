@@ -4,8 +4,9 @@
 using namespace std;
 
 
-PhotonReducedInfo::PhotonReducedInfo(const TVector3 & caloPosition, float energy, float corrEnergy, int iDet, float r9, bool passId, float corrEnergyErr) :
-	caloPosition_(caloPosition), rawCaloPosition_(caloPosition), energy_(energy), corrEnergy_(corrEnergy), iDet_(iDet), r9_(r9), passId_(passId), corrEnergyErr_(corrEnergyErr),sphericalPhoton_(false),
+PhotonReducedInfo::PhotonReducedInfo(const TVector3 & caloPosition, float energy, float corrEnergy, int iDet, float r9, int ipho, bool passId, float corrEnergyErr) :
+	caloPosition_(caloPosition), rawCaloPosition_(caloPosition), energy_(energy),
+	corrEnergy_(corrEnergy), iDet_(iDet), iPho_(ipho), r9_(r9), passId_(passId), corrEnergyErr_(corrEnergyErr),sphericalPhoton_(false),
 	rawEnergy_(energy), rawCorrEnergy_(corrEnergy), rawR9_(r9),rawCorrEnergyErr_(corrEnergyErr)
 {
 }
