@@ -10,6 +10,19 @@
 using namespace std;
 
 // ----------------------------------------------------------------------------------------------------
+void bookFinalMvaTreeSyst(LoopAll & l, const std::string & name)
+{
+    l.BookTreeBranch(Form("mass_%s_Down",name.c_str()),3,"full_mva_trees");
+    l.BookTreeBranch(Form("mass_%s_Up",name.c_str()),3,"full_mva_trees");
+    l.BookTreeBranch(Form("bdtoutput_%s_Down",name.c_str()),3,"full_mva_trees");
+    l.BookTreeBranch(Form("bdtoutput_%s_Up",name.c_str()),3,"full_mva_trees");
+    l.BookTreeBranch(Form("weight_%s_Down",name.c_str()),3,"full_mva_trees");
+    l.BookTreeBranch(Form("weight_%s_Up",name.c_str()),3,"full_mva_trees");
+    l.BookTreeBranch(Form("category_%s_Down",name.c_str()),0,"full_mva_trees");
+    l.BookTreeBranch(Form("category_%s_Up",name.c_str()),0,"full_mva_trees");
+}
+
+// ----------------------------------------------------------------------------------------------------
 MassFactorizedMvaAnalysis::MassFactorizedMvaAnalysis()  : 
     name_("MassFactorizedMvaAnalysis")
                             //vtxAna_(vtxAlgoParams), vtxConv_(vtxAlgoParams)
@@ -125,7 +138,7 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
     }
     if( doEresolSmear ) {
         // energy resolution smearing
-    setupEresolSmearer();
+	setupEresolSmearer();
     }
     if( doRegressionSmear ) {
         // energy regression. smearing
@@ -396,6 +409,19 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
         }
 
     }
+
+    if( doFullMvaFinalTree ) {
+	for(std::vector<BaseSmearer *>::iterator si=photonSmearers_.begin(); si!= photonSmearers_.end(); ++si ) {
+	    bookFinalMvaTreeSyst(l,(*si)->name());
+	}
+	for(std::vector<BaseDiPhotonSmearer *>::iterator si=diPhotonSmearers_.begin(); si!= diPhotonSmearers_.end(); ++si ) {
+	    bookFinalMvaTreeSyst(l,(*si)->name());
+	}
+	for(std::vector<BaseGenLevelSmearer*>::iterator si=genLevelSmearers_.begin(); si!=genLevelSmearers_.end(); si++){
+	    bookFinalMvaTreeSyst(l,(*si)->name());
+	}
+    }
+    
 
     // Global systematics - Lumi
     l.rooContainer->AddGlobalSystematic("lumi",1.045,1.00);
@@ -715,10 +741,11 @@ bool MassFactorizedMvaAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float wei
 	      }
 
         if(includeVHmet && !run7TeV4Xanalysis) {
-            //	    std::cout << "+++PFMET UNCORR " << l.met_pfmet << std::endl;
-            if(!isSyst) VHmetevent=METTag2012B(l, diphotonVHmet_id, VHmetevent_cat, &smeared_pho_energy[0], met_sync, true, phoidMvaCut, false); 
-            if(isSyst)  VHmetevent=METTag2012B(l, diphotonVHmet_id, VHmetevent_cat, &smeared_pho_energy[0], met_sync, true, phoidMvaCut, true); 
-            // FIXME  need to un-flag events failing the diphoton mva cut.
+	    // FIXME: the isSyst switch is used to evaluate all the systematic uncertainties.
+	    //        Need a dedicated smearer to evaluated MET systematics.
+            /// if(!isSyst) 
+	    VHmetevent=METTag2012B(l, diphotonVHmet_id, VHmetevent_cat, &smeared_pho_energy[0], met_sync, true, phoidMvaCut, false); 
+            //// else  VHmetevent=METTag2012B(l, diphotonVHmet_id, VHmetevent_cat, &smeared_pho_energy[0], met_sync, true, phoidMvaCut, true); 
         }
 
         // VBF
