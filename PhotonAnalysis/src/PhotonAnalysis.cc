@@ -560,7 +560,8 @@ void PhotonAnalysis::applySinglePhotonSmearings(std::vector<float> & smeared_pho
             eScaleDataSmearer->smearPhoton(phoInfo,sweight,l.run,0.);
             pweight *= sweight;
         }
-        //// phoInfo.dump();
+        
+        //// if( ipho == 0 ) { phoInfo.dump(); }
         smeared_pho_energy[ipho] = phoInfo.energy();
         smeared_pho_r9[ipho]     = phoInfo.r9();
         smeared_pho_weight[ipho] = pweight;

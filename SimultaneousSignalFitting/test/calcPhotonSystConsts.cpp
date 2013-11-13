@@ -155,7 +155,9 @@ Double_t effSigma(TH1 * hist)
   }
   if(ismin == nrms || ismin == -nrms) ierr=3;
   if(ierr != 0) cout << "effsigma: Error of type " << ierr << endl;
- 
+
+  std::cout << hist->GetName() << " " << widmin << std::endl;
+
   return widmin;
  
 }
@@ -174,9 +176,10 @@ void plotVariation(TH1F *nom, TH1F *up, TH1F *down, string phoCat, string name){
 	down->SetLineColor(kRed);
 
 	double max=0.;
-	max = TMath::Max(max,nom->GetMaximum());
-	max = TMath::Max(max,up->GetMaximum());
-	max = TMath::Max(max,down->GetMaximum());
+	max = nom->Integral()/(sqrt(2*TMath::Pi())*0.7)*nom->GetBinWidth(1);
+	/// max = TMath::Max(max,nom->GetMaximum());
+	/// max = TMath::Max(max,up->GetMaximum());
+	/// max = TMath::Max(max,down->GetMaximum());
 
 	nom->GetYaxis()->SetRangeUser(0,max*1.1);
 	up->GetYaxis()->SetRangeUser(0,max*1.1);
@@ -201,8 +204,9 @@ void plotVariation(TH1F *nom, TH1F *up, TH1F *down, string phoCat, string name){
 	leg->AddEntry(up,"+3#sigma","L");
 	leg->AddEntry(down,"-3#sigma","L");
 
-	down->Draw("HIST");
+	nom->Draw("HIST");
 	up->Draw("HISTsame");
+	down->Draw("HISTsame");
 	nom->Draw("HISTsame");
 	leg->Draw();
 	
@@ -282,24 +286,35 @@ int main(int argc, char *argv[]){
 
 			TH1F *nominal = (TH1F*)inFile->Get(Form("th1f_sig_%s_mass_m%d_cat%d",proc->c_str(),mh_,cat));
 			for (vector<string>::iterator phoCat=photonCats_.begin(); phoCat!=photonCats_.end(); phoCat++){
-
+\
 				TH1F *scaleUp = (TH1F*)inFile->Get(Form("th1f_sig_%s_mass_m%d_cat%d_E_scale_%sUp01_sigma",proc->c_str(),mh_,cat,phoCat->c_str()));
 				TH1F *scaleDown = (TH1F*)inFile->Get(Form("th1f_sig_%s_mass_m%d_cat%d_E_scale_%sDown01_sigma",proc->c_str(),mh_,cat,phoCat->c_str()));
 			
-				plotVariation(nominal,scaleUp,scaleDown,*phoCat,Form("%s_cat%d_scale",proc->c_str(),cat));
-				
-				outfile << *phoCat+"scale";
-				for (unsigned int i=0; i<(15-phoCat->size()); i++) outfile << " ";
-				outfile << Form("%4.4f     %4.4f     %4.4f    ",getMeanVar(nominal,scaleUp,scaleDown),getSigmaVar(nominal,scaleUp,scaleDown),getRateVar(nominal,scaleUp,scaleDown)) << endl;
-
+				if( scaleUp != 0 && scaleDown != 0 ) {
+					plotVariation(nominal,scaleUp,scaleDown,*phoCat,Form("%s_cat%d_scale",proc->c_str(),cat));
+					
+					outfile << *phoCat+"scale";
+					for (unsigned int i=0; i<(15-phoCat->size()); i++) outfile << " ";
+					outfile << Form("%4.4f     %4.4f     %4.4f    ",getMeanVar(nominal,scaleUp,scaleDown),getSigmaVar(nominal,scaleUp,scaleDown),getRateVar(nominal,scaleUp,scaleDown)) << endl;
+				} else {
+					for (unsigned int i=0; i<(15-phoCat->size()); i++) outfile << " ";
+					outfile << Form("%4.4f     %4.4f     %4.4f    ",0.,0.,0.);
+				}
+								
 				TH1F *smearUp = (TH1F*)inFile->Get(Form("th1f_sig_%s_mass_m%d_cat%d_E_res_%sUp01_sigma",proc->c_str(),mh_,cat,phoCat->c_str()));
 				TH1F *smearDown = (TH1F*)inFile->Get(Form("th1f_sig_%s_mass_m%d_cat%d_E_res_%sDown01_sigma",proc->c_str(),mh_,cat,phoCat->c_str()));
 				
-				plotVariation(nominal,smearUp,smearDown,*phoCat,Form("%s_cat%d_smear",proc->c_str(),cat));
-			
-				outfile << *phoCat+"smear";
-				for (unsigned int i=0; i<(15-phoCat->size()); i++) outfile << " ";
-				outfile << Form("%4.4f     %4.4f     %4.4f    ",getMeanVar(nominal,smearUp,smearDown),getSigmaVar(nominal,smearUp,smearDown),getRateVar(nominal,smearUp,smearDown)) << endl;
+				if( smearUp != 0 && smearDown != 0 ) {
+					plotVariation(nominal,smearUp,smearDown,*phoCat,Form("%s_cat%d_smear",proc->c_str(),cat));
+					
+					outfile << *phoCat+"smear";
+					for (unsigned int i=0; i<(15-phoCat->size()); i++) outfile << " ";
+					outfile << Form("%4.4f     %4.4f     %4.4f    ",getMeanVar(nominal,smearUp,smearDown),getSigmaVar(nominal,smearUp,smearDown),getRateVar(nominal,smearUp,smearDown)) << endl;
+				} else {
+					outfile << *phoCat+"smear";
+					for (unsigned int i=0; i<(15-phoCat->size()); i++) outfile << " ";
+					outfile << Form("%4.4f     %4.4f     %4.4f    ",0.,0.,0.);
+				}
 
 			}
 			outfile << endl;

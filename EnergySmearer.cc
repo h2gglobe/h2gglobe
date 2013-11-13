@@ -172,12 +172,14 @@ float EnergySmearer::getScaleOffset(int run, const std::string & category) const
 bool EnergySmearer::smearPhoton(PhotonReducedInfo & aPho, float & weight, int run, float syst_shift) const
 {
     if( syst_only_ && syst_shift == 0. ) { return true; }
+    //// std::cout << "EnergySmearer::smearPhoton " << name() << " " << aPho.iPho() << " " << aPho.iDet() << " " << aPho.r9() << std::endl;
     if( ! forceShift_ && ! doEfficiencies_ && ! doCorrections_ && ! doRegressionSmear_ && syst_shift == 0. ) {
 	    int myId = smearerId();
 	    if( aPho.hasCachedVal(myId) ) {
 		    const std::pair<const BaseSmearer *, float> & cachedVal = aPho.cachedVal(myId);
 		    assert( cachedVal.first == this );
 		    aPho.setEnergy(aPho.energy() * cachedVal.second );
+		    //// std::cout << "Using cached value " << cachedVal.second << std::endl;
 		    return true;
 	    }
     }
@@ -189,6 +191,7 @@ bool EnergySmearer::smearPhoton(PhotonReducedInfo & aPho, float & weight, int ru
 			     fabs((float)aPho.caloPosition().PseudoRapidity()),(float)aPho.r9(),
 			     aPho.isSphericalPhoton())
 		    ) ==  preselCategories_.end() ) { 
+		    //// std::cout << "Outside of this domain " << std::endl;
 		    return true; 
 	    }
     }
@@ -210,11 +213,11 @@ bool EnergySmearer::smearPhoton(PhotonReducedInfo & aPho, float & weight, int ru
 	newEnergy = aPho.corrEnergy() + syst_shift * myParameters_.corrRelErr * (aPho.corrEnergy() - aPho.energy());
     } else if ( doRegressionSmear_){
 	// leave energy alone, bus change resolution (10% uncertainty on sigmaE/E scaling)
-	float newSigma;
+        float newSigma;
 	if (fabs(aPho.caloPosition().Eta())<1.5){
-	    newSigma = aPho.corrEnergyErr()*(1.+syst_shift*0.1);
+	    newSigma = aPho.rawCorrEnergyErr()*(1.+syst_shift*0.1);
 	} else {
-	    newSigma = aPho.corrEnergyErr()*(1.+syst_shift*0.1);
+	    newSigma = aPho.rawCorrEnergyErr()*(1.+syst_shift*0.1);
 	}
 	aPho.setCorrEnergyErr(newSigma);
     } else {
