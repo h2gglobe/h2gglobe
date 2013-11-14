@@ -19,6 +19,7 @@ int main(){
   RooRealVar *intLumi = (RooRealVar*)inWS->var("IntLumi");
   RooRealVar *MH = new RooRealVar("MH","MH",110,150);
 
+	/*
   InitialFit initFitRV(mass,MH,110,150);
   initFitRV.setVerbosity(0);
   initFitRV.buildSumOfGaussians("ggh_cat0",3);
@@ -56,9 +57,12 @@ int main(){
   linInterpWV.setVerbosity(0);
   linInterpWV.interpolate(1);
   map<string,RooSpline1D*> splinesWV = linInterpWV.getSplines();
+	*/
 
-  FinalModelConstruction finalModel(mass,MH,intLumi,110,150,"ggh",0,false,"dat/photonCatSyst.dat",1,false);
-  finalModel.setRVsplines(splinesRV);
+  FinalModelConstruction finalModel(mass,MH,intLumi,110,150,"ggh",0,false,"dat/photon_systs_massfac_legacy_8TeV_v2.dat",1,false);
+	finalModel.printSignalSystematics();
+  /*
+	finalModel.setRVsplines(splinesRV);
   finalModel.setWVsplines(splinesWV);
   map<int,RooDataSet*> datasetsRV;
   map<int,RooDataSet*> datasetsWV;
@@ -85,5 +89,6 @@ int main(){
   outWS->Write();
   outFile->Close();
   inFile->Close();
+	*/
   return 0;
 }
