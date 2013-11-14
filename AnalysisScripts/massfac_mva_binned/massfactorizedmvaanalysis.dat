@@ -21,10 +21,10 @@ gbrVbfDiPhoFile=aux/gbrMultiClassoct31_dijetfull_jetcuts.root
 #multiclassVbfCatBoundaries0=1,0.615,0.615,0.59
 #multiclassVbfCatBoundaries0=1.0,0.69,0.69,0.48
 #JIM
-multiclassVbfCatBoundaries0=1.0,0.64,0.64,0.48
+multiclassVbfCatBoundaries0=1.0,0.64,0.64,0.47
 
 #combined BDT
-multiclassVbfCatBoundaries1=1.0,0.915,0.85,0.52
+multiclassVbfCatBoundaries1=1.0,0.906,0.74,0.5
 multiclassVbfCatBoundaries2=10.,-10.
 
 leadEtCut=40.0
@@ -90,7 +90,7 @@ phoidMvaCut=-0.2
 #legacy_v2
 #bdtCategoryBoundaries=1,0.915,0.75,0.52,0.1,-0.44 
 #JIM
-bdtCategoryBoundaries=1,0.915,0.75,0.52,0.1,-0.39
+bdtCategoryBoundaries=1,0.915,0.75,0.52,0.13,-0.4
 ## photonIDMVAShift_EB=0.
 ## photonIDMVAShift_EE=0.
 
