@@ -24,6 +24,7 @@ public:
   float energy()       const { return energy_; }
   float corrEnergy()       const { return corrEnergy_; }
   float corrEnergyErr()       const { return corrEnergyErr_; }
+  float rawCorrEnergyErr()       const { return rawCorrEnergyErr_; }
   float r9()       const { return r9_; }
   bool passId() const { return passId_; }
   bool isSphericalPhoton() const { return sphericalPhoton_; }

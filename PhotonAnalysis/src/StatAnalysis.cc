@@ -793,11 +793,13 @@ bool StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
             }
         }
 	
-        int diphoton_id_syst=-1;
-	category=-1;
         // single photon level systematics: several
         for(std::vector<BaseSmearer *>::iterator  si=systPhotonSmearers_.begin(); si!= systPhotonSmearers_.end(); ++si ) {
             mass_errors.clear(), weights.clear(), categories.clear(), mva_errors.clear();
+	    int diphoton_id_syst=-1;
+	    category=-1;
+	    
+	    //// std::cout << "Systematics loop " << (*si)->name() << std::endl;
 
             for(float syst_shift=-systRange; syst_shift<=systRange; syst_shift+=systStep ) {
                 if( syst_shift == 0. ) { continue; } // skip the central value
@@ -971,8 +973,11 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
         //Met tag //met at analysis step
         if(includeVHmet){
             int met_cat=-1;
-            if( isSyst) VHmetevent=METTag2012B(l, diphotonVHmet_id, met_cat, &smeared_pho_energy[0], met_sync, false, -0.2, true);
-            else        VHmetevent=METTag2012B(l, diphotonVHmet_id, met_cat, &smeared_pho_energy[0], met_sync, false, -0.2, false);
+	    // FIXME: the isSyst switch is used to evaluate all the systematic uncertainties.
+	    //        Need a dedicated smearer to evaluated MET systematics.
+            /// if( isSyst) VHmetevent=METTag2012B(l, diphotonVHmet_id, met_cat, &smeared_pho_energy[0], met_sync, false, -0.2, true);
+	    /// else 
+	    VHmetevent=METTag2012B(l, diphotonVHmet_id, met_cat, &smeared_pho_energy[0], met_sync, false, -0.2, false);
         }
 
         // VBF+hadronic VH

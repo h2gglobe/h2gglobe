@@ -1,5 +1,4 @@
-intL=19715. histfile=/store/group/phys_higgs/cmshgg/analyzed/amarini_legacy/systematics/%(label)s/CMS-HGG.root output=eventsList.txt
-#intL=19715. histfile=/store/group/phys_higgs/cmshgg/analyzed/legacy_paper/systematics/%(label)s/CMS-HGG.root output=eventsList.txt
+intL=19715. histfile=/store/group/phys_higgs/cmshgg/analyzed/legacy_paper/systematics/%(label)s/CMS-HGG.root output=eventsList.txt
 
 ##
 ## Signal
@@ -30,9 +29,5 @@ inputBranches TTVH_analysis_input.dat
 ##   analyzer <class_name> <config_file>
 ##
 ## analyzer PhotonAnalysis photonanalysis.dat
-analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat systs_settings.dat
-
-
-
-
-
+analyzer MassFactorizedMvaAnalysis photonanalysis.dat analysis_settings.dat massfactorizedmvaanalysis.dat systs_settings.dat 
+## doFullMvaFinalTree=1
