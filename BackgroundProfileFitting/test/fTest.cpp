@@ -492,6 +492,7 @@ int main(int argc, char* argv[]){
       choices.insert(pair<string,int>(*funcType,cache_order));
       pdfs.insert(pair<string,RooAbsPdf*>(Form("%s%d",funcType->c_str(),cache_order),cache_pdf));
 
+      int truthOrder = cache_order;
       // Now run loop to determine functions inside envelope
       if (true/*saveMultiPdf*/){
         chi2=0.;
@@ -530,7 +531,7 @@ int main(int argc, char* argv[]){
            cache_order=prev_order;
            cache_pdf=prev_pdf;
 
-	   if (gofProb > 0.001 && prob < upperEnvThreshold ) { // Looser requirements for the envelope
+	   if ((gofProb > 0.01 && prob < upperEnvThreshold) || order == truthOrder ) { // Looser requirements for the envelope
 		std::cout << "Adding to Envelope " << bkgPdf->GetName() << " "<< gofProb 
 			  << " 2xNLL + c is " << myNll + bkgPdf->getVariables()->getSize() <<  std::endl;
       		allPdfs.insert(pair<string,RooAbsPdf*>(Form("%s%d",funcType->c_str(),order),bkgPdf));
