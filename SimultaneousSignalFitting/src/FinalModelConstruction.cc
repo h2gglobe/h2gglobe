@@ -296,8 +296,8 @@ RooAbsReal* FinalModelConstruction::getMeanWithPhotonSyst(RooAbsReal *dm, string
 			hasEffect = true;
 		}
 		if( ! hasEffect ) {
-			std::cerr << "WARNING: Photon category energy scale and " << phoCat 
-				  << " don't affect the signal model scale." << std::endl; 
+			std::cerr << "WARNING: Photon category systematic " << phoCat 
+				  << " doesn't affect the signal model scale." << std::endl; 
 		}
 	}
 	formula+=")";
@@ -338,8 +338,8 @@ RooAbsReal* FinalModelConstruction::getSigmaWithPhotonSyst(RooAbsReal *sig_fit, 
 			hasEffect = true;
 		}
 		if( ! hasEffect ) {
-			std::cerr << "WARNING: Photon category energy scale and " << 
-				phoCat << " don't affect the signal model width." << std::endl; 
+			std::cerr << "WARNING: Photon category systematic " << 
+				phoCat << " doesn't affect the signal model width." << std::endl; 
 		}
 	}
 	formula+=")";
@@ -380,7 +380,7 @@ RooAbsReal* FinalModelConstruction::getRateWithPhotonSyst(string name){
 			hasEffect = true;
 		}
 		if( ! hasEffect ) {
-			std::cerr << "WARNING: Photon category energy scale and " << 
+			std::cerr << "WARNING: Photon category systematic " << 
 				phoCat << " don't affect the signal normalization." << std::endl; 
 		}
 	}
