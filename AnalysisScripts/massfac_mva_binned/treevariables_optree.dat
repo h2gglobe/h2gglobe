@@ -167,6 +167,7 @@ type=2 name=dijet_Zep
 type=2 name=dijet_dPhi
 type=2 name=dijet_Mjj
 type=2 name=dijet_MVA
+type=2 name=bdt_combined
 type=2 name=dRphojet1
 type=2 name=dRphojet2
 type=2 name=njets10

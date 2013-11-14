@@ -694,19 +694,19 @@ void LoopAll::Loop(Int_t a) {
     }
     if(makeDummyTrees) continue;
     
-    if(checkBench > 0 && jentry%checkBench == 0 ) {
-	    stopWatch.Stop();
-	    float cputime  = stopWatch.CpuTime();
-	    float realtime = stopWatch.RealTime();
-	    stopWatch.Start(false);
-	    if( realtime > benchStart*60. && cputime / realtime < benchThr ) {
-		    std::cout << 
-			    "\n\n\n\nAbourting exection.\n"
-			    "Sorry: too inefficient to continue (cputime " << cputime << " realtime " << realtime << ")" 
-			      << std::endl;
-		    exit(H2GG_ERR_DUTYC);
-	    }
-    }
+    //if(checkBench > 0 && jentry%checkBench == 0 ) {
+    //  stopWatch.Stop();
+    //  float cputime  = stopWatch.CpuTime();
+    //  float realtime = stopWatch.RealTime();
+    //  stopWatch.Start(false);
+    //  if( realtime > benchStart*100. && cputime / realtime < benchThr ) {
+    //	std::cout << 
+    //	  "\n\n\n\nAbourting exection.\n"
+    //	  "Sorry: too inefficient to continue (cputime " << cputime << " realtime " << realtime << ")" 
+    //		  << std::endl;
+    //	exit(H2GG_ERR_DUTYC);
+    //  }
+    //}
 
     if(LDEBUG) 
       cout<<"call LoadTree"<<endl;
@@ -1634,11 +1634,10 @@ int LoopAll::ApplyCutsFill(int icat, int cutset, int & ncutsapplied, int & ncuts
   int passcuts=1;
   for (unsigned int i=0; i<cutContainer.size(); i++) {
     if(cutContainer[i].finalcut==cutset) {
-      //MARCO if(cutContainer[i].useit) 
       {
-
-	//cout<<"ApplyCutsFill "<<cutContainer[i].finalcut<<" "<<cutContainer[i].useit<<" "<<endl;
-
+	
+	//cout<<"ApplyCutsFill "<<cutContainer[i].finalcut<<" "<<cutContainer[i].useit<<" "<<cutContainer[i].name<<endl;
+	
 	if(cutContainer[i].ncat>1) {
 	  if(ncats==0) ncats=cutContainer[i].ncat;
 	  if(cutContainer[i].ncat!=ncats) {
@@ -1653,6 +1652,8 @@ int LoopAll::ApplyCutsFill(int icat, int cutset, int & ncutsapplied, int & ncuts
 	if(cutContainer[i].ncat<=1) {
 	  icatuse=0;
 	}
+	//std::cout << i << " " << icatuse << std::endl;
+	//std::cout << cutContainer[i].name << std::endl;
 	if(ApplyCut(i,icatuse)) {
 	  ncutspassed++;
 	  tmppasscut[ntmpcuts]=1;

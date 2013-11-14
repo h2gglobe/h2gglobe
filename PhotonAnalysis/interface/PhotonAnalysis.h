@@ -342,7 +342,8 @@ class PhotonAnalysis : public BaseAnalysis
     std::string photonLevel2012IDMVA_EE;
     std::string photonLevel2013IDMVA_EB;
     std::string photonLevel2013IDMVA_EE;
-    
+    std::string photonLevel2013_7TeV_IDMVA_EE;
+    std::string photonLevel2013_7TeV_IDMVA_EB;
     std::vector<float> bdtCategoryBoundaries;
 
     // n-1 plots for VH hadronic tag 2011

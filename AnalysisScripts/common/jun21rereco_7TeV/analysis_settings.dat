@@ -1,0 +1,117 @@
+run7TeV4Xanalysis=0
+
+usePUjetveto=0
+
+# beamspot emulation off in 2011 (correct already in MC)
+emulateBeamspot=0
+emulatedBeamspotWidth=5.8
+beamspotSigma=5.8
+reweighBeamspot=0
+rescaleDZforVtxMVA=0
+targetsigma=5.8
+sourcesigma=5.8
+
+
+## Singal mass points to book
+sigPointsToBook=105,110,115,120,121,123,125,130,135,140,150
+
+## Hadronic TTH tag
+includeTTHhad=0
+leadEtTTHhadCut=60
+subleadEtTTHhadCut=25
+diphobdt_output_Cut_TTHhad=-0.3
+njets_tthHad_thresh=5
+ptJets_ttH_thresh=25.
+removeBtagtth=0
+applyLeptonSF=0
+applyBtagSF=0
+
+## Hadronic V tag
+includeVHhad=1
+nVHhadEtaCategories=1
+leadEtVHhadCut=60
+subleadEtVHhadCut=25
+diphobdt_output_Cut_VHhad=0.2
+ptgg_0tag_cut=130.
+costhetastar_0tag_cut=0.50
+ptjet_0tag_cut=40.
+
+## Hadronic V tag + btag
+includeVHhadBtag=0
+leadEtVHhadBtagCut=60
+subleadEtVHhadBtagCut=25
+ptjet_loosecut=25
+diphobdt_output_Cut_VHhadBtag=0.1
+ptgg_btag_cut=120.
+costhetastar_btag_cut=0.55
+ptjet_btag_cut=25.
+
+
+## Lepton tag
+includeVHlep=0
+includeVHlepPlusMet=1
+leadEtVHlepCut=45
+nElectronCategories=1 
+nMuonCategories=1 
+diphobdt_output_Cut_VHLep=-0.6
+
+## MET tag
+includeVHmet=1
+leadEtVHmetCut=45
+nMetCategories=1 
+moriond2013MetCorrection=0
+diphobdt_output_Cut_VHMet=0.
+
+## Inputs for reweighing
+doKFactorSmear=1
+doKFactorSyst=1
+
+## For 7TeV samples
+kfacHist=aux/KFactors_AllScales_interpolated.root
+puMap=
+puHist=auto
+puTarget=aux/nov08_rereco.json.68000.pileup.root
+
+# ggh scale uncertainties (mva analyses)
+pdfWeightHist=aux/GF_mvasys.root
+
+## energy regression
+energyCorrectionMethod=BendavidOTF
+doEcorrectionSmear=1
+doEcorrectionSyst=0
+
+## energy scale adjustement and errors
+scale_offset_file=jun21rereco_7TeV/energy_scale_offsets.dat
+scale_offset_error_file=common/energy_scale_errors.dat
+
+## uncorrelated part of the uncertainties
+splitEscaleSyst=0
+scale_offset_corr_error_file=energy_scale_corr_errors.dat
+
+## additional MC smearing
+smearing_file=jun21rereco_7TeV/smearing_sigma_and_errors.dat
+
+## uncorrelated part of the uncertainties
+splitEresolSyst=0
+corr_smearing_file=jun21rereco_7TeV/smearing_sigma_corr_errors.dat
+
+## jets
+recomputeBetas=0
+recorrectJets=0
+rerunJetMva=0
+recomputeJetWp=0
+
+reRunVtx=1
+rematchConversions=0
+
+## vertex
+vtxAlgoParams jan16reload/vertex_selection.dat
+mvaVertexSelection=1
+addConversionToMva=1
+tmvaPerVtxWeights=aux/TMVAClassification_BDTCat_conversions_tmva_407.weights.xml
+tmvaPerVtxMethod=BDTCat
+tmvaPerEvtWeights=aux/TMVAClassification_evtBDTG_conversions_tmva_407.weights.xml
+tmvaPerEvtMethod=evtBDTG
+
+doInterferenceSmear=1
+

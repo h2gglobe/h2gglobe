@@ -335,6 +335,7 @@ class LoopAll {
   TMVA::Reader *tmvaReader_dipho_MIT;
   TMVA::Reader *tmvaReaderID_Single_Barrel, *tmvaReaderID_Single_Endcap;
   TMVA::Reader *tmvaReaderID_2013_Barrel, *tmvaReaderID_2013_Endcap;
+  TMVA::Reader *tmvaReaderID_2013_7TeV_MIT_Barrel, *tmvaReaderID_2013_7TeV_MIT_Endcap;
 
   Float_t photonIDMVA(Int_t, Int_t, TLorentzVector &, const char*);
 
@@ -1266,7 +1267,7 @@ TLorentzVector correctMet_Simple(TLorentzVector& pho_lead, TLorentzVector& pho_s
 
 void SetAllMVA();
 void FillMuonGsfTracks();
-Float_t diphotonMVA(Int_t,Int_t, Int_t, Int_t, float, TLorentzVector &, TLorentzVector &, float,float,float,const char*,const char*,float photonID_1=-50.,float photonID_2=-50.);
+Float_t diphotonMVA(Int_t diphoton_id, Int_t leadingPho, Int_t subleadingPho, Int_t vtx, float vtxProb, TLorentzVector &leadP4, TLorentzVector &subleadP4, float sigmaMrv, float sigmaMwv, float sigmaMeonly, const char* idType, const char* bdtType, float photonID_1,float photonID_2);
 float getDmOverDz(Int_t, Int_t, Float_t*);
 Float_t deltaMassVtx(Int_t, Int_t, Float_t);
 
@@ -1292,6 +1293,7 @@ void VHTwoElectronsEvents(bool & VHlep1event, bool & VHlep2event, int & diphoton
 private:
   Float_t photonIDMVA2012(Int_t, Int_t, TLorentzVector &, const char*);
   Float_t photonIDMVA2013(Int_t, Int_t, TLorentzVector &, const char*);
+  Float_t photonIDMVA2013_7TeV(Int_t, Int_t, TLorentzVector &, const char*);
   Float_t photonIDMVA2011(Int_t, Int_t, TLorentzVector &, const char*);
 
   Normalization_8TeV *signalNormalizer;

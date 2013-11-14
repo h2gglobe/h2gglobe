@@ -690,143 +690,144 @@ void PhotonAnalysis::Init(LoopAll& l)
 
     /// // trigger
 
-    if (l.runZeeValidation) {
-
-	triggerSelections.push_back(TriggerSelection(1,-1));
-	if (useRunDTriggersForZee) {
-	    //use this if the validation includes runD
-	    triggerSelections.back().addpath("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass70_v");
-	} else {
-	    //use this if the validation does not include runD
-	    triggerSelections.back().addpath("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass60_v");
-	}
-	triggerSelections.back().addpath("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_R9Id85_OR_CaloId10_Iso50_v");
-
+    if (l.runZeeValidation && l.sqrtS != 7) {
+        
+        triggerSelections.push_back(TriggerSelection(1,-1));
+        if (useRunDTriggersForZee) {
+            //use this if the validation includes runD
+            triggerSelections.back().addpath("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass70_v");
+        } else {
+            //use this if the validation does not include runD
+            triggerSelections.back().addpath("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass60_v");
+        }
+        
+        triggerSelections.back().addpath("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_R9Id85_OR_CaloId10_Iso50_v");
+        
     } else {
-
-	// /cdaq/physics/Run2011/5e32/v4.2/HLT/V2
-	triggerSelections.push_back(TriggerSelection(160404,161176));
-	triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v");
-
-	// /cdaq/physics/Run2011/5e32/v6.1/HLT/V1
-	triggerSelections.push_back(TriggerSelection(161216,165633));
-	triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v");
-	triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_R9Id_v");
-	triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_CaloIdL_IsoVL_v");
-	triggerSelections.back().addpath("HLT_Photon20_R9Id_Photon18_R9Id_v");
-
-	// /cdaq/physics/Run2011/1e33/v2.3/HLT/V1
-	triggerSelections.push_back(TriggerSelection(165970,166967));
-	triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v");
-	triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_R9Id_v");
-	triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_CaloIdL_IsoVL_v");
-	triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_R9Id_v");
-	triggerSelections.back().addpath("HLT_Photon36_CaloIdL_IsoVL_Photon22_CaloIdL_IsoVL_v");
-	triggerSelections.back().addpath("HLT_Photon36_CaloId_IsoVL_Photon22_R9Id_v");
-	triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_CaloIdL_IsoVL_v");
-	triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_R9Id_v");
-
-	// /cdaq/physics/Run2011/1e33/v2.3/HLT/V1
-	triggerSelections.push_back(TriggerSelection(167039,173198));
-	triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v");
-	triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_R9Id_v");
-	triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_CaloIdL_IsoVL_v");
-	triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_R9Id_v");
-	triggerSelections.back().addpath("HLT_Photon36_CaloIdL_IsoVL_Photon22_CaloIdL_IsoVL_v");
-	triggerSelections.back().addpath("HLT_Photon36_CaloIdL_IsoVL_Photon22_R9Id_v");
-	triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_CaloIdL_IsoVL_v");
-	triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_R9Id_v");
-
-	// /cdaq/physics/Run2011/1e33/v2.3/HLT/V1
-	triggerSelections.push_back(TriggerSelection(165970,166967));
-	triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v");
-	triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_R9Id_v");
-	triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_CaloIdL_IsoVL_v");
-	triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_R9Id_v");
-	triggerSelections.back().addpath("HLT_Photon36_CaloIdL_IsoVL_Photon22_CaloIdL_IsoVL_v");
-	triggerSelections.back().addpath("HLT_Photon36_CaloId_IsoVL_Photon22_R9Id_v");
-	triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_CaloIdL_IsoVL_v");
-	triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_R9Id_v");
-
-	// /cdaq/physics/Run2011/1e33/v2.3/HLT/V3
-	triggerSelections.push_back(TriggerSelection(167039,173198));
-	triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v");
-	triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_R9Id_v");
-	triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_CaloIdL_IsoVL_v");
-	triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_R9Id_v");
-	triggerSelections.back().addpath("HLT_Photon36_CaloIdL_IsoVL_Photon22_CaloIdL_IsoVL_v");
-	triggerSelections.back().addpath("HLT_Photon36_CaloIdL_IsoVL_Photon22_R9Id_v");
-	triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_CaloIdL_IsoVL_v");
-	triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_R9Id_v");
-
-	// /cdaq/physics/Run2011/3e33/v1.1/HLT/V1
-	triggerSelections.push_back(TriggerSelection(173236,178380));
-	triggerSelections.back().addpath("HLT_Photon26_CaloIdXL_IsoXL_Photon18_CaloIdXL_IsoXL_v");
-	triggerSelections.back().addpath("HLT_Photon26_CaloIdXL_IsoXL_Photon18_R9Id_v");
-	triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_CaloIdXL_IsoXL_v");
-	triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_R9Id_v");
-	triggerSelections.back().addpath("HLT_Photon36_CaloIdL_IsoVL_Photon22_CaloIdL_IsoVL_v");
-	triggerSelections.back().addpath("HLT_Photon36_CaloIdL_IsoVL_Photon22_R9Id_v");
-	triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_CaloIdL_IsoVL_v");
-	triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_R9Id_v");
-
-	// /cdaq/physics/Run2011/5e33/v1.4/HLT/V3
-	triggerSelections.push_back(TriggerSelection(178420,190455));
-	triggerSelections.back().addpath("HLT_Photon26_CaloIdXL_IsoXL_Photon18_CaloIdXL_IsoXL_Mass60_v");
-	triggerSelections.back().addpath("HLT_Photon26_CaloIdXL_IsoXL_Photon18_R9IdT_Mass60_v");
-	triggerSelections.back().addpath("HLT_Photon26_R9IdT_Photon18_CaloIdXL_IsoXL_Mass60_v");
-	triggerSelections.back().addpath("HLT_Photon26_R9IdT_Photon18_R9IdT_Mass60_v");
-	triggerSelections.back().addpath("HLT_Photon36_CaloIdL_IsoVL_Photon22_CaloIdL_IsoVL_v");
-	triggerSelections.back().addpath("HLT_Photon36_CaloIdL_IsoVL_Photon22_R9Id_v");
-	triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_CaloIdL_IsoVL_v");
-	triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_R9Id_v");
-
-	triggerSelections.push_back(TriggerSelection(190456,194269));
-	triggerSelections.back().addpath("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass60_v");
-	triggerSelections.back().addpath("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_R9Id85_OR_CaloId10_Iso50_v");
-
-	triggerSelections.back().addpath("HLT_Photon26_CaloId10_Iso50_Photon18_CaloId10_Iso50_Mass60_v");
-	triggerSelections.back().addpath("HLT_Photon26_CaloId10_Iso50_Photon18_R9Id85_Mass60_v");
-	triggerSelections.back().addpath("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_v");
-	triggerSelections.back().addpath("HLT_Photon26_R9Id85_Photon18_CaloId10_Iso50_Mass60_v");
-	triggerSelections.back().addpath("HLT_Photon26_R9Id85_Photon18_R9Id85_Mass60_v");
-
-	triggerSelections.back().addpath("HLT_Photon36_CaloId10_Iso50_Photon22_CaloId10_Iso50_v");
-	triggerSelections.back().addpath("HLT_Photon36_CaloId10_Iso50_Photon22_R9Id85_v");
-	triggerSelections.back().addpath("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_R9Id85_OR_CaloId10_Iso50_v");
-	triggerSelections.back().addpath("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_v");
-	triggerSelections.back().addpath("HLT_Photon36_R9Id85_Photon22_CaloId10_Iso50_v");
-	triggerSelections.back().addpath("HLT_Photon36_R9Id85_Photon22_R9Id85_v");
-
-	triggerSelections.push_back(TriggerSelection(194270,203767));
-	triggerSelections.back().addpath("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass60_v");
-	triggerSelections.back().addpath("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass70_v");
-	triggerSelections.back().addpath("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_R9Id85_OR_CaloId10_Iso50_v");
-
-	triggerSelections.back().addpath("HLT_Photon26_CaloId10_Iso50_Photon18_CaloId10_Iso50_Mass60_v");
-	triggerSelections.back().addpath("HLT_Photon26_CaloId10_Iso50_Photon18_R9Id85_Mass60_v");
-	triggerSelections.back().addpath("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_v");
-	triggerSelections.back().addpath("HLT_Photon26_R9Id85_Photon18_CaloId10_Iso50_Mass60_v");
-	triggerSelections.back().addpath("HLT_Photon26_R9Id85_Photon18_R9Id85_Mass60_v");
-
-	triggerSelections.back().addpath("HLT_Photon36_CaloId10_Iso50_Photon22_CaloId10_Iso50_v");
-	triggerSelections.back().addpath("HLT_Photon36_CaloId10_Iso50_Photon22_R9Id85_v");
-	triggerSelections.back().addpath("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_R9Id85_OR_CaloId10_Iso50_v");
-	triggerSelections.back().addpath("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_v");
-	triggerSelections.back().addpath("HLT_Photon36_R9Id85_Photon22_CaloId10_Iso50_v");
-	triggerSelections.back().addpath("HLT_Photon36_R9Id85_Photon22_R9Id85_v");
-
-	triggerSelections.push_back(TriggerSelection(203768,-1));
-	triggerSelections.back().addpath("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass70_v");
-	triggerSelections.back().addpath("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_v");
-	triggerSelections.back().addpath("HLT_Photon36_CaloId10_Iso50_Photon22_CaloId10_Iso50_v");
-	triggerSelections.back().addpath("HLT_Photon36_CaloId10_Iso50_Photon22_R9Id85_v");
-	triggerSelections.back().addpath("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_R9Id85_OR_CaloId10_Iso50_v");
-	triggerSelections.back().addpath("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_v");
-	triggerSelections.back().addpath("HLT_Photon36_R9Id85_Photon22_CaloId10_Iso50_v");
-	triggerSelections.back().addpath("HLT_Photon36_R9Id85_Photon22_R9Id85_v");
+        
+        // /cdaq/physics/Run2011/5e32/v4.2/HLT/V2
+        triggerSelections.push_back(TriggerSelection(160404,161176));
+        triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v");
+        
+        // /cdaq/physics/Run2011/5e32/v6.1/HLT/V1
+        triggerSelections.push_back(TriggerSelection(161216,165633));
+        triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v");
+        triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_R9Id_v");
+        triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_CaloIdL_IsoVL_v");
+        triggerSelections.back().addpath("HLT_Photon20_R9Id_Photon18_R9Id_v");
+        
+        // /cdaq/physics/Run2011/1e33/v2.3/HLT/V1
+        triggerSelections.push_back(TriggerSelection(165970,166967));
+        triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v");
+        triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_R9Id_v");
+        triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_CaloIdL_IsoVL_v");
+        triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_R9Id_v");
+        triggerSelections.back().addpath("HLT_Photon36_CaloIdL_IsoVL_Photon22_CaloIdL_IsoVL_v");
+        triggerSelections.back().addpath("HLT_Photon36_CaloId_IsoVL_Photon22_R9Id_v");
+        triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_CaloIdL_IsoVL_v");
+        triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_R9Id_v");
+        
+        // /cdaq/physics/Run2011/1e33/v2.3/HLT/V1
+        triggerSelections.push_back(TriggerSelection(167039,173198));
+        triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v");
+        triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_R9Id_v");
+        triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_CaloIdL_IsoVL_v");
+        triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_R9Id_v");
+        triggerSelections.back().addpath("HLT_Photon36_CaloIdL_IsoVL_Photon22_CaloIdL_IsoVL_v");
+        triggerSelections.back().addpath("HLT_Photon36_CaloIdL_IsoVL_Photon22_R9Id_v");
+        triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_CaloIdL_IsoVL_v");
+        triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_R9Id_v");
+        
+        // /cdaq/physics/Run2011/1e33/v2.3/HLT/V1
+        triggerSelections.push_back(TriggerSelection(165970,166967));
+        triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v");
+        triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_R9Id_v");
+        triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_CaloIdL_IsoVL_v");
+        triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_R9Id_v");
+        triggerSelections.back().addpath("HLT_Photon36_CaloIdL_IsoVL_Photon22_CaloIdL_IsoVL_v");
+        triggerSelections.back().addpath("HLT_Photon36_CaloId_IsoVL_Photon22_R9Id_v");
+        triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_CaloIdL_IsoVL_v");
+        triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_R9Id_v");
+        
+        // /cdaq/physics/Run2011/1e33/v2.3/HLT/V3
+        triggerSelections.push_back(TriggerSelection(167039,173198));
+        triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v");
+        triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_R9Id_v");
+        triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_CaloIdL_IsoVL_v");
+        triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_R9Id_v");
+        triggerSelections.back().addpath("HLT_Photon36_CaloIdL_IsoVL_Photon22_CaloIdL_IsoVL_v");
+        triggerSelections.back().addpath("HLT_Photon36_CaloIdL_IsoVL_Photon22_R9Id_v");
+        triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_CaloIdL_IsoVL_v");
+        triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_R9Id_v");
+        
+        // /cdaq/physics/Run2011/3e33/v1.1/HLT/V1
+        triggerSelections.push_back(TriggerSelection(173236,178380));
+        triggerSelections.back().addpath("HLT_Photon26_CaloIdXL_IsoXL_Photon18_CaloIdXL_IsoXL_v");
+        triggerSelections.back().addpath("HLT_Photon26_CaloIdXL_IsoXL_Photon18_R9Id_v");
+        triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_CaloIdXL_IsoXL_v");
+        triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_R9Id_v");
+        triggerSelections.back().addpath("HLT_Photon36_CaloIdL_IsoVL_Photon22_CaloIdL_IsoVL_v");
+        triggerSelections.back().addpath("HLT_Photon36_CaloIdL_IsoVL_Photon22_R9Id_v");
+        triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_CaloIdL_IsoVL_v");
+        triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_R9Id_v");
+        
+        // /cdaq/physics/Run2011/5e33/v1.4/HLT/V3
+        triggerSelections.push_back(TriggerSelection(178420,190455));
+        triggerSelections.back().addpath("HLT_Photon26_CaloIdXL_IsoXL_Photon18_CaloIdXL_IsoXL_Mass60_v");
+        triggerSelections.back().addpath("HLT_Photon26_CaloIdXL_IsoXL_Photon18_R9IdT_Mass60_v");
+        triggerSelections.back().addpath("HLT_Photon26_R9IdT_Photon18_CaloIdXL_IsoXL_Mass60_v");
+        triggerSelections.back().addpath("HLT_Photon26_R9IdT_Photon18_R9IdT_Mass60_v");
+        triggerSelections.back().addpath("HLT_Photon36_CaloIdL_IsoVL_Photon22_CaloIdL_IsoVL_v");
+        triggerSelections.back().addpath("HLT_Photon36_CaloIdL_IsoVL_Photon22_R9Id_v");
+        triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_CaloIdL_IsoVL_v");
+        triggerSelections.back().addpath("HLT_Photon36_R9Id_Photon22_R9Id_v");
+        
+        triggerSelections.push_back(TriggerSelection(190456,194269));
+        triggerSelections.back().addpath("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass60_v");
+        triggerSelections.back().addpath("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_R9Id85_OR_CaloId10_Iso50_v");
+        
+        triggerSelections.back().addpath("HLT_Photon26_CaloId10_Iso50_Photon18_CaloId10_Iso50_Mass60_v");
+        triggerSelections.back().addpath("HLT_Photon26_CaloId10_Iso50_Photon18_R9Id85_Mass60_v");
+        triggerSelections.back().addpath("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_v");
+        triggerSelections.back().addpath("HLT_Photon26_R9Id85_Photon18_CaloId10_Iso50_Mass60_v");
+        triggerSelections.back().addpath("HLT_Photon26_R9Id85_Photon18_R9Id85_Mass60_v");
+        
+        triggerSelections.back().addpath("HLT_Photon36_CaloId10_Iso50_Photon22_CaloId10_Iso50_v");
+        triggerSelections.back().addpath("HLT_Photon36_CaloId10_Iso50_Photon22_R9Id85_v");
+        triggerSelections.back().addpath("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_R9Id85_OR_CaloId10_Iso50_v");
+        triggerSelections.back().addpath("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_v");
+        triggerSelections.back().addpath("HLT_Photon36_R9Id85_Photon22_CaloId10_Iso50_v");
+        triggerSelections.back().addpath("HLT_Photon36_R9Id85_Photon22_R9Id85_v");
+        
+        triggerSelections.push_back(TriggerSelection(194270,203767));
+        triggerSelections.back().addpath("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass60_v");
+        triggerSelections.back().addpath("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass70_v");
+        triggerSelections.back().addpath("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_R9Id85_OR_CaloId10_Iso50_v");
+        
+        triggerSelections.back().addpath("HLT_Photon26_CaloId10_Iso50_Photon18_CaloId10_Iso50_Mass60_v");
+        triggerSelections.back().addpath("HLT_Photon26_CaloId10_Iso50_Photon18_R9Id85_Mass60_v");
+        triggerSelections.back().addpath("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_v");
+        triggerSelections.back().addpath("HLT_Photon26_R9Id85_Photon18_CaloId10_Iso50_Mass60_v");
+        triggerSelections.back().addpath("HLT_Photon26_R9Id85_Photon18_R9Id85_Mass60_v");
+        
+        triggerSelections.back().addpath("HLT_Photon36_CaloId10_Iso50_Photon22_CaloId10_Iso50_v");
+        triggerSelections.back().addpath("HLT_Photon36_CaloId10_Iso50_Photon22_R9Id85_v");
+        triggerSelections.back().addpath("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_R9Id85_OR_CaloId10_Iso50_v");
+        triggerSelections.back().addpath("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_v");
+        triggerSelections.back().addpath("HLT_Photon36_R9Id85_Photon22_CaloId10_Iso50_v");
+        triggerSelections.back().addpath("HLT_Photon36_R9Id85_Photon22_R9Id85_v");
+        
+        triggerSelections.push_back(TriggerSelection(203768,-1));
+        triggerSelections.back().addpath("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass70_v");
+        triggerSelections.back().addpath("HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_v");
+        triggerSelections.back().addpath("HLT_Photon36_CaloId10_Iso50_Photon22_CaloId10_Iso50_v");
+        triggerSelections.back().addpath("HLT_Photon36_CaloId10_Iso50_Photon22_R9Id85_v");
+        triggerSelections.back().addpath("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_R9Id85_OR_CaloId10_Iso50_v");
+        triggerSelections.back().addpath("HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_v");
+        triggerSelections.back().addpath("HLT_Photon36_R9Id85_Photon22_CaloId10_Iso50_v");
+        triggerSelections.back().addpath("HLT_Photon36_R9Id85_Photon22_R9Id85_v");
     }
-
+    
     if( l.typerun != l.kReduce ) {
         // n-1 plots for VBF tag 2011
         l.SetCutVariables("cut_VBFLeadJPt",         &myVBFLeadJPt);
@@ -907,7 +908,13 @@ void PhotonAnalysis::Init(LoopAll& l)
               if (!combinedmvaVbfSelection) {
                 tmvaVbfReader_->AddVariable("dijet_dPhi",       &myVBFdPhi);
               } else {
-                tmvaVbfReader_->AddVariable("min(dijet_dPhi,2.916)", &myVBFdPhiTrunc);
+                if(l.sqrtS==7){
+                  tmvaVbfReader_->AddVariable("min(dijet_dPhi,2.9416)", &myVBFdPhiTrunc);
+                } else if(l.sqrtS==8){
+                  tmvaVbfReader_->AddVariable("min(dijet_dPhi,2.916)", &myVBFdPhiTrunc);
+                } else {
+                  std::cout<<"sqrtS is not 7 or 8 but is "<<l.sqrtS<<std::endl;
+                }
               }
               tmvaVbfReader_->AddVariable("dijet_Mjj",        &myVBF_Mjj);	   
               tmvaVbfReader_->AddVariable("dipho_pt/mass",    &myVBFDiPhoPtOverM);
@@ -917,7 +924,13 @@ void PhotonAnalysis::Init(LoopAll& l)
               //tmvaVbfDiphoReader_->AddVariable("bdt_dijet_sherpa_plusdiphoptom", &myVBF_MVA);
               //tmvaVbfDiphoReader_->AddVariable("dipho_pt/mass",                  &myVBFDiPhoPtOverM);
               tmvaVbfDiphoReader_->AddVariable("dipho_mva",                       &myVBFDIPHObdt);
-              tmvaVbfDiphoReader_->AddVariable("bdt_dijet_maxdPhi",               &myVBF_MVA);
+              if(l.sqrtS==7){
+                tmvaVbfDiphoReader_->AddVariable("bdt_dijet_7TeV_ptrewght",         &myVBF_MVA);
+              } else if(l.sqrtS==8){
+                tmvaVbfDiphoReader_->AddVariable("bdt_dijet_maxdPhi",               &myVBF_MVA);
+              } else {
+                std::cout<<"sqrtS is not 7 or 8 but is "<<l.sqrtS<<std::endl;
+              }
               tmvaVbfDiphoReader_->AddVariable("dipho_pt/mass",                  &myVBFDiPhoPtOverM);
               tmvaVbfDiphoReader_->BookMVA(mvaVbfDiphoMethod, mvaVbfDiphoWeights);
             } else {
@@ -2332,8 +2345,8 @@ bool PhotonAnalysis::SkimEvents(LoopAll& l, int jentry)
 
     // do not run trigger selection on MC
     int filetype = l.itype[l.current];
-    bool skipTrigger = !doTriggerSelection || ( filetype != 0 && !l.runZeeValidation ) || triggerSelections.empty();
-
+    bool skipTrigger = !doTriggerSelection || ( filetype != 0 && !l.runZeeValidation ) || triggerSelections.empty() || (l.sqrtS == 7 && filetype != 0);
+    
     if( ! skipTrigger ) {
         // get the trigger selection for this run
         l.b_run->GetEntry(jentry);
@@ -2344,20 +2357,20 @@ bool PhotonAnalysis::SkimEvents(LoopAll& l, int jentry)
         }
 
 	// get the trigger data
-	if( l.version < 13 ) {
-	    l.b_hlt1_bit->GetEntry(jentry);
-	    l.b_hlt_path_names_HLT1->GetEntry(jentry);
-	    if( !  isel->pass( *(l.hlt_path_names_HLT1), *(l.hlt1_bit) ) ) {
-		return false;
-	    }
-	} else {
-	    l.b_hlt_bit->GetEntry(jentry);
-	    l.b_hlt_path_names_HLT->GetEntry(jentry);
-	    if( !  isel->pass( *(l.hlt_path_names_HLT), *(l.hlt_bit) ) ) {
-		return false;
-	    }
-	}
-	//l.countersred[trigCounter_]++;
+        if( l.version < 13 ) {
+            l.b_hlt1_bit->GetEntry(jentry);
+            l.b_hlt_path_names_HLT1->GetEntry(jentry);
+            if( !  isel->pass( *(l.hlt_path_names_HLT1), *(l.hlt1_bit) ) ) {
+                return false;
+            }
+        } else {
+            l.b_hlt_bit->GetEntry(jentry);
+            l.b_hlt_path_names_HLT->GetEntry(jentry);
+            if( !  isel->pass( *(l.hlt_path_names_HLT), *(l.hlt_bit) ) ) {
+                return false;
+            }
+        }
+        //l.countersred[trigCounter_]++;
     }
 
     if( l.typerun == l.kReduce || l.typerun == l.kFillReduce ) {
@@ -3876,9 +3889,9 @@ bool PhotonAnalysis::VBFTag2011(LoopAll& l, int diphoton_id, float* smeared_pho_
     myVBF_Mgg   = diphoton.M();
 
     if(nm1){
-        tag = l.ApplyCutsFill(0,1, eventweight, myweight);
+        tag = l.ApplyCutsFill(0, 1, eventweight, myweight);
     } else {
-        tag = l.ApplyCuts(0,1);
+        tag = l.ApplyCuts(0, 1);
     }
 
     return tag;
@@ -4077,7 +4090,11 @@ bool PhotonAnalysis::FillDijetVariables(int & ijet1, int & ijet2, LoopAll& l, in
     myVBFZep    = fabs(diphoton.Eta() - 0.5*(jet1->Eta() + jet2->Eta()));
     myVBFdPhi   = fabs(diphoton.DeltaPhi(dijet));
     //    myVBFdPhiTrunc   = TMath::Min( (double)myVBFdPhi, TMath::Pi() - 0.2 );
-    myVBFdPhiTrunc   = TMath::Min( (double)myVBFdPhi, 2.916);
+    if(l.sqrtS==7){
+        myVBFdPhiTrunc   = TMath::Min( (double)myVBFdPhi, 2.9416);
+    } else if(l.sqrtS==8){
+        myVBFdPhiTrunc   = TMath::Min( (double)myVBFdPhi, 2.916);
+    }
     myVBF_Mgg   = diphoton.M();
     myVBFDiPhoPtOverM   = diphoton.Pt()   / myVBF_Mgg;
     myVBFLeadPhoPtOverM = lead_p4.Pt()    / myVBF_Mgg;

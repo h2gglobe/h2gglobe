@@ -1,0 +1,141 @@
+cutname=number_Event_Trigger_HLT               ncat=1  dir=0 fin=0   val=1
+cutname=value_Event_Trigger_HLT                ncat=1  dir=0 fin=0   val=0
+cutname=def_ECAL_Barrel                        ncat=1  dir=2 fin=0   minval=0.0   maxval=1.4442
+cutname=cut_Mgg				       ncat=4  dir=2 fin=42   minval=90 minval=90 minval=90 minval=90 maxval=190 maxval=190 maxval=190 maxval=190 iread=1 plot=2 bins=50 xmin=90 xmax=190 xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=pluto
+
+## used for control plots for MVA VBF tag
+cutname=cut_VBF_Mgg0     ncat=18  dir=2  fin=1  minval=90 maxval=190  iread=1 plot=2 bins=50 xmin=90 xmax=190   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(2@GeV/c^{2})
+cutname=cut_VBFLeadJPt   ncat=18  dir=0  fin=1  val=20                iread=1 plot=2 bins=48 xmin=10 xmax=200   xaxis=Leading@Jet@P_{T}@(GeV/c)    yaxis=Events/(5@GeV/c)
+cutname=cut_VBFSubJPt    ncat=18  dir=0  fin=1  val=20                iread=1 plot=2 bins=48 xmin=10 xmax=200   xaxis=Trailing@Jet@P_{T}@(GeV/c)    yaxis=Events/(5@GeV/c)
+cutname=cut_VBF_dEta     ncat=18  dir=0  fin=1  val=-1                iread=1 plot=2 bins=14 xmin=0 xmax=7      xaxis=#Delta#eta(Jet1,Jet2)        yaxis=Events/0.5
+cutname=cut_VBF_Zep      ncat=18  dir=1  fin=1  val=9999              iread=1 plot=2 bins=16 xmin=0 xmax=8      xaxis=Zeppenfeld                   yaxis=Events/0.5
+cutname=cut_VBF_Mjj      ncat=18  dir=0  fin=1  val=-1                iread=1 plot=2 bins=40 xmin=0 xmax=1000   xaxis=M_{JetJet}@(GeV/c^{2})        yaxis=Events/(50@GeV/c)
+cutname=cut_VBF_dPhi     ncat=18  dir=0  fin=1  val=-1                iread=1 plot=2 bins=16 xmin=0 xmax=3.142  xaxis=#Delta#phi(#gamma#gamma,jj)  yaxis=Events/(#pi/16)
+cutname=cut_VBF_Mgg2     ncat=18  dir=2  fin=1  minval=90 maxval=190  iread=1 plot=2 bins=50 xmin=90 xmax=190   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(2@GeV/c^{2})
+cutname=cut_VBF_Mgg4     ncat=18  dir=2  fin=1  minval=90 maxval=190  iread=1 plot=2 bins=25 xmin=90 xmax=190   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(4@GeV/c^{2})
+cutname=cut_VBF_Mgg10    ncat=18  dir=2  fin=1  minval=90 maxval=190  iread=1 plot=2 bins=10 xmin=90 xmax=190   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(10@GeV/c^{2})
+cutname=cut_VBF_Mgg2_100_180     ncat=18  dir=2  fin=1  minval=100 maxval=180  iread=1 plot=2 bins=40 xmin=100 xmax=180   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(2@GeV/c^{2})
+cutname=cut_VBF_Mgg4_100_180     ncat=18  dir=2  fin=1  minval=100 maxval=180  iread=1 plot=2 bins=20 xmin=100 xmax=180   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(4@GeV/c^{2})
+#cutname=cut_VBF_DiPhoPtOverM     ncat=18  dir=0  fin=1  val=0.        iread=1 plot=2 bins=40 xmin=0    xmax=2   xaxis=p_{T}(#gamma@#gamma)@(GeV/c)    yaxis=Events/(0.05)
+#cutname=cut_VBF_LeadPhoPtOverM   ncat=18  dir=0  fin=1  val=0.        iread=1 plot=2 bins=40 xmin=0    xmax=2   xaxis=p^{1}_{T}@(GeV/c)    yaxis=Events/(0.05)
+#cutname=cut_VBF_SubPhoPtOverM    ncat=18  dir=0  fin=1  val=0.        iread=1 plot=2 bins=40 xmin=0    xmax=2   xaxis=p^{2}_{T}@(GeV/c)    yaxis=Events/(0.05)
+
+## cut-based VBF tag
+### cutname=cut_VBF_Mgg0     ncat=1  dir=2  fin=1  minval=90 maxval=190  iread=1 plot=2 bins=50 xmin=90 xmax=190   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(2@GeV/c^{2})
+### cutname=cut_VBFLeadJPt   ncat=1  dir=0  fin=1  val=30                iread=1 plot=2 bins=48 xmin=10 xmax=200   xaxis=Leading@Jet@P_{T}@(GeV/c)    yaxis=Events/(5@GeV/c)
+### cutname=cut_VBFSubJPt    ncat=1  dir=0  fin=1  val=20                iread=1 plot=2 bins=48 xmin=10 xmax=200   xaxis=Trailing@Jet@P_{T}@(GeV/c)    yaxis=Events/(5@GeV/c)
+### cutname=cut_VBF_dEta     ncat=1  dir=0  fin=1  val=3.0               iread=1 plot=2 bins=14 xmin=0 xmax=7      xaxis=#Delta#eta(Jet1,Jet2)        yaxis=Events/0.5
+### cutname=cut_VBF_Zep      ncat=1  dir=1  fin=1  val=2.5               iread=1 plot=2 bins=16 xmin=0 xmax=8      xaxis=Zeppenfeld                   yaxis=Events/0.5
+### cutname=cut_VBF_Mjj      ncat=1  dir=0  fin=1  val=250               iread=1 plot=2 bins=40 xmin=0 xmax=1000   xaxis=M_{JetJet}@(GeV/c^{2})        yaxis=Events/(50@GeV/c)
+### cutname=cut_VBF_dPhi     ncat=1  dir=0  fin=1  val=2.6               iread=1 plot=2 bins=16 xmin=0 xmax=3.142  xaxis=#Delta#phi(#gamma#gamma,jj)  yaxis=Events/(#pi/16)
+### cutname=cut_VBF_Mgg2     ncat=1  dir=2  fin=1  minval=90 maxval=190  iread=1 plot=2 bins=50 xmin=90 xmax=190   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(2@GeV/c^{2})
+### cutname=cut_VBF_Mgg4     ncat=1  dir=2  fin=1  minval=90 maxval=190  iread=1 plot=2 bins=25 xmin=90 xmax=190   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(4@GeV/c^{2})
+### cutname=cut_VBF_Mgg10    ncat=1  dir=2  fin=1  minval=90 maxval=190  iread=1 plot=2 bins=10 xmin=90 xmax=190   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(10@GeV/c^{2})
+### cutname=cut_VBF_Mgg2_100_180    ncat=1  dir=2  fin=1  minval=100 maxval=180  iread=1 plot=2 bins=40 xmin=100 xmax=180   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(2@GeV/c^{2})
+### cutname=cut_VBF_Mgg4_100_180    ncat=1  dir=2  fin=1  minval=100 maxval=180  iread=1 plot=2 bins=20 xmin=100 xmax=180   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(4@GeV/c^{2})
+### cutname=cut_VBF_LeadPhoPtOverM   ncat=1  dir=0  fin=1  val=0.        iread=1 plot=2 bins=40 xmin=0    xmax=2   xaxis=p^{1}_{T}@(GeV/c)    yaxis=Events/(0.05)
+### cutname=cut_VBF_SubPhoPtOverM    ncat=1  dir=0  fin=1  val=0.        iread=1 plot=2 bins=40 xmin=0    xmax=2   xaxis=p^{2}_{T}@(GeV/c)    yaxis=Events/(0.05)
+
+
+cutname=cut_VHhad_Mgg0    ncat=1  dir=2  fin=2  minval=90 maxval=190  iread=1 plot=2 bins=50 xmin=90 xmax=190   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(2@GeV/c^{2})
+cutname=cut_VHhadLeadJPt  ncat=1  dir=0  fin=2  val=30                iread=1 plot=2 bins=48 xmin=10 xmax=200   xaxis=Leading@Jet@P_{T}@(GeV/c)    yaxis=Events/(5@GeV/c)
+cutname=cut_VHhadSubJPt   ncat=1  dir=0  fin=2  val=20                iread=1 plot=2 bins=48 xmin=10 xmax=200   xaxis=Trailing@Jet@P_{T}@(GeV/c)    yaxis=Events/(5@GeV/c)
+cutname=cut_VHhad_dEta    ncat=1  dir=1  fin=2  val=2.5               iread=1 plot=2 bins=14 xmin=0 xmax=7      xaxis=#Delta#eta(Jet1,Jet2)        yaxis=Events/0.5
+cutname=cut_VHhad_Zep     ncat=1  dir=1  fin=2  val=1.5               iread=1 plot=2 bins=16 xmin=0 xmax=8      xaxis=Zeppenfeld                   yaxis=Events/0.5
+cutname=cut_VHhad_Mjj     ncat=1  dir=2  fin=2  minval=55 maxval=115  iread=1 plot=2 bins=20 xmin=40 xmax=140   xaxis=M_{JetJet}@(GeV/c^{2})        yaxis=Events/(5@GeV/c)
+cutname=cut_VHhad_dPhi    ncat=1  dir=0  fin=2  val=0.0               iread=1 plot=2 bins=16 xmin=0 xmax=3.142  xaxis=#Delta#phi(#gamma#gamma,jj)  yaxis=Events/(#pi/16)
+cutname=cut_VHhad_Mgg2    ncat=1  dir=2  fin=2  minval=90 maxval=190  iread=1 plot=2 bins=50 xmin=90 xmax=190   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(2@GeV/c^{2})
+cutname=cut_VHhad_Mgg4    ncat=1  dir=2  fin=2  minval=90 maxval=190  iread=1 plot=2 bins=25 xmin=90 xmax=190   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(4@GeV/c^{2})
+cutname=cut_VHhad_Mgg10   ncat=1  dir=2  fin=2  minval=90 maxval=190  iread=1 plot=2 bins=10 xmin=90 xmax=190   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(10@GeV/c^{2})
+cutname=cut_VHhad_Mgg2_100_160    ncat=1  dir=2  fin=2  minval=100 maxval=180  iread=1 plot=2 bins=40 xmin=100 xmax=180   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(2@GeV/c^{2})
+cutname=cut_VHhad_Mgg4_100_160    ncat=1  dir=2  fin=2  minval=100 maxval=180  iread=1 plot=2 bins=20 xmin=100 xmax=180   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(4@GeV/c^{2})
+
+cutname=cut_All_Mgg0   ncat=1  dir=2  fin=3  minval=90 maxval=190    iread=1 plot=2 bins=50 xmin=90 xmax=190   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(2@GeV/c^{2})
+cutname=cut_AllPtHiggs ncat=1  dir=0  fin=3  val=-15                 iread=1 plot=2 bins=20 xmin=0 xmax=200    xaxis=P_{T#gamma#gamma}@(GeV/c)    yaxis=Events/(10@GeV/c)
+cutname=cut_AllLeadJPt ncat=1  dir=0  fin=3  val=15                  iread=1 plot=2 bins=48 xmin=10 xmax=200   xaxis=Leading@Jet@P_{T}@(GeV/c)    yaxis=Events/(5@GeV/c)
+cutname=cut_AllSubJPt  ncat=1  dir=0  fin=3  val=15                  iread=1 plot=2 bins=48 xmin=10 xmax=200   xaxis=Trailing@Jet@P_{T}@(GeV/c)    yaxis=Events/(5@GeV/c)
+cutname=cut_AllLeadJEta ncat=1  dir=0  fin=3  val=-10000                  iread=1 plot=2 bins=55 xmin=-5.5 xmax=5.5   xaxis=Leading@Jet@P_{T}@(GeV/c)    yaxis=Events/(5@GeV/c)
+cutname=cut_AllSubJEta  ncat=1  dir=0  fin=3  val=-10000                  iread=1 plot=2 bins=55 xmin=-5.5 xmax=5.5   xaxis=Trailing@Jet@P_{T}@(GeV/c)    yaxis=Events/(5@GeV/c)
+cutname=cut_All_Mjj    ncat=1  dir=2  fin=3  minval=-1 maxval=99999  iread=1 plot=2 bins=20 xmin=40 xmax=140   xaxis=M_{JetJet}@(GeV/c^{2})        yaxis=Events/(5@GeV/c)
+cutname=cut_All_Mjj2    ncat=1  dir=2  fin=3  minval=-1 maxval=99999  iread=1 plot=2 bins=20 xmin=0 xmax=1000   xaxis=M_{JetJet}@(GeV/c^{2})        yaxis=Events/(50@GeV/c)
+cutname=cut_All_dEta   ncat=1  dir=1  fin=3  val=1002.5              iread=1 plot=2 bins=14 xmin=0 xmax=7      xaxis=#Delta#eta(Jet1,Jet2)        yaxis=Events/0.5
+cutname=cut_All_Zep    ncat=1  dir=1  fin=3  val=1001.5              iread=1 plot=2 bins=16 xmin=0 xmax=8      xaxis=Zeppenfeld                   yaxis=Events/0.5
+cutname=cut_All_dPhi   ncat=1  dir=0  fin=3  val=-10.0               iread=1 plot=2 bins=16 xmin=0 xmax=3.142  xaxis=#Delta#phi(#gamma#gamma,jj)  yaxis=Events/(#pi/16)
+cutname=cut_All_Mgg2   ncat=1  dir=2  fin=3  minval=90 maxval=190    iread=1 plot=2 bins=50 xmin=90 xmax=190   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(2@GeV/c^{2})
+cutname=cut_All_Mgg_100_160   ncat=1  dir=2  fin=3  minval=100 maxval=160    iread=1 plot=2 bins=50 xmin=90 xmax=190   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(2@GeV/c^{2})
+cutname=cut_All_Mgg2_100_160   ncat=1  dir=2  fin=3  minval=100 maxval=160    iread=1 plot=2 bins=50 xmin=90 xmax=190   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(2@GeV/c^{2})
+
+cutname=cut_Incl_Mgg0   ncat=1  dir=2  fin=4  minval=90 maxval=190  iread=1 plot=2 bins=50 xmin=90 xmax=190   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(2@GeV/c^{2}
+cutname=cut_InclPtHiggs ncat=1  dir=0  fin=4  val=-15               iread=1 plot=2 bins=20 xmin=0 xmax=200    xaxis=P_{T#gamma#gamma}@(GeV/c)    yaxis=Events/(10@GeV/c)
+cutname=cut_Incl_Mgg2   ncat=1  dir=2  fin=4  minval=90 maxval=190  iread=1 plot=2 bins=50 xmin=90 xmax=190   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(2@GeV/c^{2}
+cutname=cut_Incl_Mgg4   ncat=1  dir=2  fin=4  minval=90 maxval=190  iread=1 plot=2 bins=25 xmin=90 xmax=190   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(2@GeV/c^{2}
+cutname=cut_Incl_Mgg10  ncat=1  dir=2  fin=4  minval=90 maxval=190  iread=1 plot=2 bins=10 xmin=90 xmax=190   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(10@GeV/c^{2}
+
+
+cutname=cut_VBFR_Mgg0     ncat=18  dir=2  fin=5  minval=90 maxval=190  iread=1 plot=2 bins=50 xmin=90 xmax=190   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(2@GeV/c^{2})
+cutname=cut_VBFRLeadJPt   ncat=18  dir=0  fin=5  val=30                iread=1 plot=2 bins=48 xmin=10 xmax=200   xaxis=Leading@Jet@P_{T}@(GeV/c)    yaxis=Events/(5@GeV/c)
+cutname=cut_VBFRSubJPt    ncat=18  dir=0  fin=5  val=20                iread=1 plot=2 bins=48 xmin=10 xmax=200   xaxis=Trailing@Jet@P_{T}@(GeV/c)    yaxis=Events/(5@GeV/c)
+cutname=cut_VBFR_dEta     ncat=18  dir=0  fin=5  val=3.5               iread=1 plot=2 bins=14 xmin=0 xmax=7      xaxis=#Delta#eta(Jet1,Jet2)        yaxis=Events/0.5
+cutname=cut_VBFR_Zep      ncat=18  dir=1  fin=5  val=2.5               iread=1 plot=2 bins=16 xmin=0 xmax=8      xaxis=Zeppenfeld                   yaxis=Events/0.5
+cutname=cut_VBFR_Mjj      ncat=18  dir=0  fin=5  val=350               iread=1 plot=2 bins=40 xmin=0 xmax=1000   xaxis=M_{JetJet}@(GeV/c^{2})        yaxis=Events/(50@GeV/c)
+cutname=cut_VBFR_dPhi     ncat=18  dir=0  fin=5  val=2.6               iread=1 plot=2 bins=16 xmin=0 xmax=3.142  xaxis=#Delta#phi(#gamma#gamma,jj)  yaxis=Events/(#pi/16)
+cutname=cut_VBFR_Mgg2     ncat=18  dir=2  fin=5  minval=90 maxval=190  iread=1 plot=2 bins=50 xmin=90 xmax=190   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(2@GeV/c^{2})
+cutname=cut_VBFR_Mgg4     ncat=18  dir=2  fin=5  minval=90 maxval=190  iread=1 plot=2 bins=25 xmin=90 xmax=190   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(4@GeV/c^{2})
+cutname=cut_VBFR_Mgg10    ncat=18  dir=2  fin=5  minval=90 maxval=190  iread=1 plot=2 bins=10 xmin=90 xmax=190   xaxis=M_{#gamma#gamma}@(GeV/c^{2}) yaxis=Events/(10@GeV/c^{2})
+cutname=cut_VBFR_LeadPhoPtOverM   ncat=18  dir=0  fin=5  val=0.        iread=1 plot=2 bins=40 xmin=0    xmax=2   xaxis=p^{1}_{T}@(GeV/c)    yaxis=Events/(0.05)
+cutname=cut_VBFR_SubPhoPtOverM    ncat=18  dir=0  fin=5  val=0.        iread=1 plot=2 bins=40 xmin=0    xmax=2   xaxis=p^{2}_{T}@(GeV/c)    yaxis=Events/(0.05)
+
+cutname=cutEl_leptonSig ncat=2  dir=2  fin=10  minval=0.5   maxval=2.0   minval=0.5  maxval=2.0  iread=1 plot=2 bins=2  xmin=0     xmax=2.0   xaxis=Signal@Decay@Is@Leptonic     yaxis=Events
+cutname=cutEl_mgg       ncat=2  dir=2  fin=10  minval=100  maxval=180    minval=100  maxval=180    iread=1 plot=2 bins=1  xmin=100 xmax=180   xaxis=M_{#gamma#gamma}             yaxis=Events
+cutname=cutEl_presellead  ncat=2 dir=2 fin=10  minval=-0.5  maxval=2.5   minval=-0.5 maxval=2.5    iread=1 plot=2 bins=2  xmin=0.  xmax=2.    xaxis=HLT@PreSelection_{Lead}      yaxis=Events
+cutname=cutEl_matchellead ncat=2 dir=2 fin=10  minval=-0.5  maxval=2.5   minval=-0.5 maxval=2.5    iread=1 plot=2 bins=2  xmin=0.  xmax=2.    xaxis=Pho@Is@Electron_{Lead}       yaxis=Events
+cutname=cutEl_preselsub   ncat=2 dir=2 fin=10  minval=-0.5  maxval=2.5   minval=-0.5 maxval=2.5    iread=1 plot=2 bins=2  xmin=0.  xmax=2.    xaxis=HLT@PreSelection_{Sub}       yaxis=Events
+cutname=cutEl_matchelsub  ncat=2 dir=2 fin=10  minval=-0.5  maxval=2.5   minval=-0.5 maxval=2.5    iread=1 plot=2 bins=2  xmin=0.  xmax=2.    xaxis=Pho@Is@Electron_{Sub}        yaxis=Events
+cutname=cutEl_CiClead   ncat=2  dir=2  fin=10  minval=0.5  maxval=100000 minval=0.5  maxval=100000 iread=1 plot=2 bins=15 xmin=-1  xmax=14    xaxis=CiC_{Lead}                   yaxis=Events
+cutname=cutEl_CiCsub    ncat=2  dir=2  fin=10  minval=0.5  maxval=100000 minval=0.5  maxval=100000 iread=1 plot=2 bins=15 xmin=-1  xmax=14    xaxis=CiC_{Sub}                    yaxis=Events
+cutname=cutEl_ElePho    ncat=2  dir=2  fin=10  minval=-9999 maxval=9999 minval=-9999 maxval=9999   iread=1 plot=2 bins=2  xmin=0   xmax=1.    xaxis=Passing@Electron/Photon@Cuts yaxis=Events
+cutname=cutEl_category  ncat=2  dir=2  fin=10  minval=-9999 maxval=9999 minval=-9999 maxval=9999 iread=1 plot=2 bins=8  xmin=0.0   xmax=8.0   xaxis=EB_{Lead}*2EB_{Sub}*4EB_{El} yaxis=Events
+cutname=cutEl_reliso    ncat=2  dir=2  fin=10  minval=-9999 maxval=9999 minval=-9999 maxval=9999 iread=1 plot=2 bins=25 xmin=0.0   xmax=0.15  xaxis=Iso/P_{T}                    yaxis=Events
+cutname=cutEl_iso       ncat=2  dir=2  fin=10  minval=-9999 maxval=9999 minval=-9999 maxval=9999 iread=1 plot=2 bins=25 xmin=0.0   xmax=10    xaxis=Isolation                    yaxis=Events
+cutname=cutEl_detain    ncat=2  dir=2  fin=10  minval=-9999 maxval=9999 minval=-9999 maxval=9999 iread=1 plot=2 bins=25 xmin=-0.01 xmax=0.01  xaxis=#Delta#eta_{In}              yaxis=Events
+cutname=cutEl_dphiin    ncat=2  dir=2  fin=10  minval=-9999 maxval=9999 minval=-9999 maxval=9999 iread=1 plot=2 bins=25 xmin=-0.1  xmax=0.1   xaxis=#Delta#phi_{In}              yaxis=Events
+cutname=cutEl_sieie     ncat=2  dir=2  fin=10  minval=-9999 maxval=9999 minval=-9999 maxval=9999 iread=1 plot=2 bins=25 xmin=0.    xmax=0.015  xaxis=#sigma_{i#etai#eta}         yaxis=Events
+cutname=cutEl_sieie2    ncat=2  dir=2  fin=10  minval=-9999 maxval=9999 minval=-9999 maxval=9999 iread=1 plot=2 bins=25 xmin=0.02  xmax=0.035  xaxis=#sigma_{i#etai#eta}         yaxis=Events
+cutname=cutEl_oEsuboP   ncat=2  dir=2  fin=10  minval=-9999 maxval=9999 minval=-9999 maxval=9999 iread=1 plot=2 bins=25 xmin=0     xmax=0.05  xaxis=1/E_{In}@-@1/P_{In}          yaxis=Events*(GeV/c^{2})
+cutname=cutEl_hoe       ncat=2  dir=2  fin=10  minval=-9999 maxval=9999 minval=-9999 maxval=9999 iread=1 plot=2 bins=25 xmin=0.    xmax=0.3   xaxis=h/e                          yaxis=Events
+cutname=cutEl_mishit    ncat=2  dir=2  fin=10  minval=-9999 maxval=9999 minval=-9999 maxval=9999 iread=1 plot=2 bins=6  xmin=-1    xmax=5     xaxis=Missing@Hits                 yaxis=Events
+cutname=cutEl_D0        ncat=2  dir=2  fin=10  minval=-9999 maxval=9999 minval=-9999 maxval=9999 iread=1 plot=2 bins=25 xmin=-0.08 xmax=0.08  xaxis=D_{0}                        yaxis=Events
+cutname=cutEl_DZ        ncat=2  dir=2  fin=10  minval=-9999 maxval=9999 minval=-9999 maxval=9999 iread=1 plot=2 bins=25 xmin=-0.05 xmax=0.05  xaxis=D_{Z}                        yaxis=Events
+cutname=cutEl_conv      ncat=2  dir=2  fin=10  minval=-1    maxval=2.0  minval=-1    maxval=2.0  iread=1 plot=2 bins=3  xmin=-1    xmax=2     xaxis=Pass@Conversion@Veto         yaxis=Events
+cutname=cutEl_elvetolead ncat=2 dir=2  fin=10  minval=-1.  maxval=100000 minval=-1.  maxval=100000 iread=1 plot=2 bins=3  xmin=-1. xmax=2     xaxis=Electron@Veto_{Lead}         yaxis=Events
+cutname=cutEl_elvetosub ncat=2  dir=2  fin=10  minval=-1.  maxval=100000 minval=-1.  maxval=100000 iread=1 plot=2 bins=3  xmin=-1. xmax=2     xaxis=Electron@Veto_{Sublead}      yaxis=Events
+cutname=cutEl_ptlead    ncat=2  dir=2  fin=10  minval=0    maxval=100000 minval=0    maxval=100000 iread=1 plot=2 bins=25 xmin=20. xmax=150   xaxis=P_{T,Lead}                   yaxis=Events
+cutname=cutEl_ptsub     ncat=2  dir=2  fin=10  minval=25.  maxval=100000 minval=25.  maxval=100000 iread=1 plot=2 bins=25 xmin=20. xmax=150   xaxis=P_{T,Sub}                    yaxis=Events
+cutname=cutEl_ptleadom  ncat=2  dir=2  fin=10  minval=0.375 maxval=10000 minval=0.375 maxval=10000 iread=1 plot=2 bins=25 xmin=0.0 xmax=1.5   xaxis=P_{T,Lead}/M_{#gamma#gamma}  yaxis=Events
+cutname=cutEl_ptsubom   ncat=2  dir=2  fin=10  minval=0    maxval=100000 minval=0    maxval=100000 iread=1 plot=2 bins=25 xmin=0.0 xmax=1.2   xaxis=P_{T,Sub}/M_{#gamma#gamma}   yaxis=Events
+cutname=cutEl_dRtklead  ncat=2  dir=2  fin=10  minval=0.02 maxval=100000 minval=0.02 maxval=100000 iread=1 plot=2 bins=25 xmin=0.0 xmax=1.1   xaxis=#DeltaR_{Tk,Lead}            yaxis=Events
+cutname=cutEl_dRtksub   ncat=2  dir=2  fin=10  minval=0.02 maxval=100000 minval=0.02 maxval=100000 iread=1 plot=2 bins=25 xmin=0.0 xmax=1.1   xaxis=#DeltaR_{Tk,Sub}             yaxis=Events
+cutname=cutEl_MVAlead   ncat=2  dir=2  fin=10  minval=-9999 maxval=9999 minval=0     maxval=9999 iread=1 plot=2 bins=25 xmin=-0.2  xmax=0.5   xaxis=MVA_{ID,Lead}                yaxis=Events
+cutname=cutEl_MVAsub    ncat=2  dir=2  fin=10  minval=-9999 maxval=9999 minval=0     maxval=9999 iread=1 plot=2 bins=25 xmin=-0.2  xmax=0.5   xaxis=MVA_{ID,Sub}                 yaxis=Events
+cutname=cutEl_diphomva  ncat=2  dir=2  fin=10  minval=-1   maxval=1      minval=-1   maxval=1      iread=1 plot=2 bins=25 xmin=-0.5 xmax=1    xaxis=MVA_{#gamma#gamma}           yaxis=Events
+cutname=cutEl_elpt      ncat=2  dir=2  fin=10  minval=20.   maxval=9999 minval=20.   maxval=9999 iread=1 plot=2 bins=25 xmin=0.0   xmax=100.  xaxis=P_{T,Electron}               yaxis=Events
+cutname=cutEl_mvaNonTrig ncat=2 dir=2  fin=10  minval=-9999 maxval=9999 minval=-9999 maxval=9999 iread=1 plot=2 bins=25 xmin=0.8   xmax=1.0   xaxis=MVA_{Non-Triggering}         yaxis=Events
+cutname=cutEl_drsub     ncat=2  dir=2  fin=10  minval=0.8   maxval=9999 minval=0.8   maxval=9999 iread=1 plot=2 bins=25 xmin=0.    xmax=5.    xaxis=#DeltaR(electron,#gamma_{sub})   yaxis=Events
+cutname=cutEl_drlead    ncat=2  dir=2  fin=10  minval=0.8   maxval=9999 minval=0.8   maxval=9999 iread=1 plot=2 bins=25 xmin=0.    xmax=5.    xaxis=#DeltaR(electron,#gamma_{lead})  yaxis=Events
+cutname=cutEl_melead    ncat=2  dir=2  fin=10  minval=0     maxval=9999 minval=0     maxval=9999 iread=1 plot=2 bins=30 xmin=60    xmax=120   xaxis=M_{e,#gamma_{lead}}    yaxis=Events
+cutname=cutEl_meleadveto10 ncat=2 dir=2 fin=10 minval=0     maxval=0.5  minval=0.    maxval=0.5  iread=1 plot=2 bins=2  xmin=0     xmax=2     xaxis=|M_{e,#gamma_{lead}}-M_{Z}|<10   yaxis=Events
+cutname=cutEl_meleadveto15 ncat=2 dir=2 fin=10 minval=0     maxval=1.5  minval=0.    maxval=0.5  iread=1 plot=2 bins=2  xmin=0     xmax=2     xaxis=|M_{e,#gamma_{lead}}-M_{Z}|<15   yaxis=Events
+cutname=cutEl_mesub    ncat=2  dir=2  fin=10   minval=0     maxval=9999 minval=0     maxval=9999 iread=1 plot=2 bins=30 xmin=0     xmax=120   xaxis=M_{e,#gamma_{sub}}     yaxis=Events
+cutname=cutEl_mesubveto5 ncat=2 dir=2  fin=10  minval=0     maxval=0.5  minval=0     maxval=0.5  iread=1 plot=2 bins=2  xmin=0     xmax=2     xaxis=|M_{e,#gamma_{sub}}-M_{Z}|<5      yaxis=Events
+cutname=cutEl_mesubveto10 ncat=2 dir=2 fin=10  minval=0     maxval=1.5  minval=0     maxval=0.5  iread=1 plot=2 bins=2  xmin=0     xmax=2     xaxis=|M_{e,#gamma_{sub}}-M_{Z}|<10     yaxis=Events
+
+#cutname=cutEl_mvaTrig   ncat=2  dir=2  fin=10  minval=-1.0  maxval=1.0  minval=-1.0  maxval=1.0  iread=1 plot=2 bins=25 xmin=0.7   xmax=1.0   xaxis=MVA_{Triggering}             yaxis=Events
+cutname=cutEl_dZ_ee     ncat=2  dir=2  fin=10  minval=-9999 maxval=9999 minval=-9999 maxval=9999 iread=1 plot=2 bins=25 xmin=-0.05 xmax=0.05  xaxis=#DeltaZ(e_{1},e_{2})         yaxis=Events
+cutname=cutEl_mass_ee   ncat=2  dir=2  fin=10  minval=-100 maxval=100000 minval=-100 maxval=100000 iread=1 plot=2 bins=25 xmin=60. xmax=120   xaxis=M_{ee}                       yaxis=Events
+cutname=cutEl_inwindow_ee ncat=2 dir=2 fin=10  minval=-100 maxval=100000 minval=-100 maxval=100000 iread=1 plot=2 bins=4  xmin=-2  xmax=2     xaxis=|M_{ee}-M_{Z}|>10            yaxis=Events
+cutname=cutEl_ptgg      ncat=2  dir=2  fin=10  minval=-9999 maxval=9999 minval=-9999 maxval=9999 iread=1 plot=2 bins=25 xmin=20. xmax=250   xaxis=P_{T,#gamma#gamma}          yaxis=Events
+cutname=cutEl_phomaxeta ncat=2  dir=2  fin=10  minval=-9999 maxval=9999 minval=-9999 maxval=9999 iread=1 plot=2 bins=25 xmin=-2.8 xmax=2.8  xaxis=#eta_{Max}                   yaxis=Events
+cutname=cutEl_sumpt3    ncat=2  dir=2  fin=10  minval=0.0  maxval=9999   minval=0.0  maxval=9999   iread=1 plot=2 bins=25 xmin=50. xmax=500   xaxis=#SigmaP_{T,3}                yaxis=Events
+cutname=cutEl_sumpt4    ncat=2  dir=2  fin=10  minval=-9999 maxval=9999 minval=-9999 maxval=9999   iread=1 plot=2 bins=25 xmin=50. xmax=500   xaxis=#SigmaP_{T,4}                yaxis=Events
+cutname=cutEl_MET       ncat=2  dir=2  fin=10  minval=-9999 maxval=9999 minval=-9999 maxval=9999   iread=1 plot=2 bins=25 xmin=0   xmax=200   xaxis=MET                          yaxis=Events
+cutname=cutEl_METphi    ncat=2  dir=2  fin=10  minval=-9999 maxval=9999 minval=-9999 maxval=9999   iread=1 plot=2 bins=25 xmin=-3.2 xmax=3.2  xaxis=#phi_{MET}                   yaxis=Events
