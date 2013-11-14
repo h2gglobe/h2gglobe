@@ -56,10 +56,13 @@ doKFactorSyst=1
 
 # BDTs
 bdtTrainingPhilosophy=MIT
+bdtTrainingType=2013_7TeV
 photonLevelMvaUCSD=aux/ID_UCSD.weights.xml
 eventLevelMvaUCSD=aux/diphoton_UCSD.weights.xml
-photonLevelMvaMIT_EB=aux/TMVAClassificationPhotonID_Barrel_PassPreSel_Variable_10_BDTnCuts2000_BDT.weights.xml
-photonLevelMvaMIT_EE=aux/TMVAClassificationPhotonID_Endcap_PassPreSel_Variable_10_BDTnCuts2000_BDT.weights.xml
+photonLevel2011IDMVA_EB=
+photonLevel2011IDMVA_EE=
+photonLevel2013_7TeV_IDMVA_EB=aux/2013FinalPaper_PhotonID_Barrel_BDT_TrainRangePT15_7TeV.weights.xml
+photonLevel2013_7TeV_IDMVA_EE=aux/2013FinalPaper_PhotonID_Endcap_BDT_TrainRangePT15_7TeV.weights.xml
 eventLevelMvaMIT=aux/HggBambu_SMDipho_Jan16_BDTG.weights.xml
 
 bkgPolOrderByCat=4,5,5,5,3
@@ -70,8 +73,9 @@ phoidMvaCut=-0.3
 # BDT categories
 bdtCategoryBoundaries=1,0.89,0.74,0.545,0.05
 
-efficiencyFile=aux/sig_reweighing_jan16rereco_mva_v2.root
-
+effPhotonCategoryType=3CatR9_EBEE
+effPhotonNCat=6
+efficiencyFileMVA=aux/sig_reweighing_moriond2013_run2012ABCD_mva_v2.root
 
 ## FIXME 
 ## change bkg model to run on data

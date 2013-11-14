@@ -635,6 +635,17 @@ bool StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     if(PADEBUG)
         cout << "Analysis START; cur_type is: " << l.itype[l.current] <<endl;
 
+    //Calculate cluster shape variables prior to shape rescaling
+    for (int ipho=0;ipho<l.pho_n;ipho++){
+        //// l.pho_s4ratio[ipho]  = l.pho_e2x2[ipho]/l.pho_e5x5[ipho];
+        l.pho_s4ratio[ipho] = l.pho_e2x2[ipho]/l.bc_s25[l.sc_bcseedind[l.pho_scind[ipho]]];
+        float rr2=l.pho_eseffsixix[ipho]*l.pho_eseffsixix[ipho]+l.pho_eseffsiyiy[ipho]*l.pho_eseffsiyiy[ipho];
+        l.pho_ESEffSigmaRR[ipho] = 0.0;
+        if(rr2>0. && rr2<999999.) {
+            l.pho_ESEffSigmaRR[ipho] = sqrt(rr2);
+        }
+    }
+
     int cur_type = l.itype[l.current];
     float weight = l.sampleContainer[l.current_sample_index].weight();
     float sampleweight = l.sampleContainer[l.current_sample_index].weight();
@@ -650,7 +661,7 @@ bool StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
     // make sure that rho is properly set
     if( run7TeV4Xanalysis ) {
-        l.version = 12;
+        l.version = 13;
     }
     if( l.version >= 13 && forcedRho < 0. ) {
         l.rho = l.rho_algo1;
@@ -1607,12 +1618,13 @@ void StatAnalysis::computeExclusiveCategory(LoopAll & l, int & category, std::pa
         if(nVHmetCategories>1) category+=VHmetevent_cat;
     } else if(TTHhadevent) {
         category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories +  nVHlepCategories + nVHmetCategories+nTTHlepCategories;
-	 if(PADEBUG) cout<<"TTHhad: "<<category<<endl;
+        if(PADEBUG) cout<<"TTHhad: "<<category<<endl;
     }else if(VHhadBtagevent) {
         category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories +  nVHlepCategories + nVHmetCategories + nTTHlepCategories + nTTHhadCategories;
     } else if(VHhadevent) {
         category=nInclusiveCategories_ + ( (int)includeVBF )*nVBFCategories +  nVHlepCategories + nVHmetCategories + nTTHlepCategories + nTTHhadCategories+nVHhadBtagCategories;
     }
+    if(PADEBUG) cout<<"Exclusive cat: "<<category<<endl;
 }
 
 void StatAnalysis::computeSpinCategory(LoopAll &l, int &category, TLorentzVector lead_p4, TLorentzVector sublead_p4){
@@ -2122,6 +2134,8 @@ void StatAnalysis::fillOpTree(LoopAll& l, const TLorentzVector & lead_p4, const 
     l.FillTree("isEB2", (int)l.pho_isEB[diphoton_index.second]);
     l.FillTree("chiso1", (float)((*l.pho_pfiso_mycharged03)[diphoton_index.first][l.dipho_vtxind[diphoton_id]]));
     l.FillTree("chiso2", (float)((*l.pho_pfiso_mycharged03)[diphoton_index.second][l.dipho_vtxind[diphoton_id]]));
+    
+
     l.FillTree("chisow1", l.pho_pfiso_charged_badvtx_04[diphoton_index.first]);
     l.FillTree("chisow2", l.pho_pfiso_charged_badvtx_04[diphoton_index.second]);
     l.FillTree("phoiso1", l.pho_pfiso_myphoton03[diphoton_index.first]);
@@ -2292,6 +2306,7 @@ void StatAnalysis::fillOpTree(LoopAll& l, const TLorentzVector & lead_p4, const 
     l.FillTree("dijet_dPhi",        myVBFdPhi);
     l.FillTree("dijet_Mjj",         myVBF_Mjj);
     l.FillTree("dijet_MVA",         myVBF_MVA);
+    l.FillTree("bdt_combined",      myVBFcombined);
 
     l.FillTree("issyst", (int)isSyst);
     l.FillTree("name1", name1);

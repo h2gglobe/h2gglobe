@@ -100,11 +100,11 @@ pho_e5x5
 ->
 MC truth
 ->
-gp_n:1
-gp_p4:1
-gp_status:1
-gp_pdgid:1
-gp_mother:1
+#gp_n:1
+#gp_p4:1
+#gp_status:1
+#gp_pdgid:1
+#gp_mother:1
 process_id:1
 weight:1
 pthat:1
@@ -120,10 +120,10 @@ vtx_std_xyz
 ##skimmed vtx_std_ndof
 vtx_std_evt_mva
 
-->
-PU correction
-->
-rho
+#->
+#PU correction
+#->
+#rho_algo1
 
 ->
 Beam spot
@@ -134,9 +134,9 @@ bs_xyz
 ->
 Trigger
 ->
-hlt1_bit
+hlt_bit
 hlt_n
-hlt_path_names_HLT1
+hlt_path_names_HLT
 
 ->
 Vertex selection

@@ -1,0 +1,117 @@
+intL=5089. histfile=CMS-HGG.root output=MFeventsList.txt sqrtS=7
+
+#
+# Data
+#
+#typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/data/Photon_Run2011A_21Jun2013_v1
+#typ=0   ind=0 draw=1   Nam=Data tot=1 red=1 lum=1.0e10   xsec=1. kfac=1.0   scal=1.   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/data/Photon_Run2011B_21Jun2013_v1
+
+
+#####
+##### Signal
+#####
+
+#split typ=-1 ind=1 draw=1   Nam=ggh_m121_7TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/GluGluToHToGG_M-121_7TeV-powheg-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1  red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000 
+#split typ=-1 ind=2 draw=1   Nam=vbf_m121_7TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/VBF_HToGG_M-121_7TeV-powheg-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000 
+#split typ=-1 ind=4 draw=1   Nam=wzh_m121_7TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/WH_ZH_HToGG_M-121_7TeV-powheg-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000 
+#split typ=-1 ind=3 draw=1   Nam=tth_m121_7TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/TTH_HToGG_M-121_7TeV-powheg-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1  red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000 
+#
+#split typ=-1 ind=1 draw=1   Nam=ggh_m150_7TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/GluGluToHToGG_M-150_7TeV-powheg-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1  red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000 
+#split typ=-1 ind=2 draw=1   Nam=vbf_m150_7TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/VBF_HToGG_M-150_7TeV-powheg-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000 
+#split typ=-1 ind=4 draw=1   Nam=wzh_m150_7TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/WH_ZH_HToGG_M-150_7TeV-powheg-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000 
+#split typ=-1 ind=3 draw=1   Nam=tth_m150_7TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/TTH_HToGG_M-150_7TeV-powheg-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1  red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000 
+#	   
+#split typ=-1 ind=1 draw=1   Nam=ggh_m145_7TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/GluGluToHToGG_M-145_7TeV-powheg-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000 
+#split typ=-1 ind=2 draw=1   Nam=vbf_m145_7TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/VBF_HToGG_M-145_7TeV-powheg-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000 
+#split typ=-1 ind=4 draw=1   Nam=wzh_m145_7TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/WH_ZH_HToGG_M-145_7TeV-powheg-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000 
+#split typ=-1 ind=3 draw=1   Nam=tth_m145_7TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/TTH_HToGG_M-145_7TeV-powheg-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1  red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000 
+#	   
+#split typ=-1 ind=1 draw=1   Nam=ggh_m140_7TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/GluGluToHToGG_M-140_7TeV-powheg-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1  red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000 
+#split typ=-1 ind=2 draw=1   Nam=vbf_m140_7TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/VBF_HToGG_M-140_7TeV-powheg-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1  red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000 
+#split typ=-1 ind=4 draw=1   Nam=wzh_m140_7TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/WH_ZH_HToGG_M-140_7TeV-powheg-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1  red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000 
+#split typ=-1 ind=3 draw=1   Nam=tth_m140_7TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/TTH_HToGG_M-140_7TeV-powheg-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1 red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000 
+#	   
+#split typ=-1 ind=1 draw=1   Nam=ggh_m135_7TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/GluGluToHToGG_M-135_7TeV-powheg-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000 
+#split typ=-1 ind=2 draw=1   Nam=vbf_m135_7TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/VBF_HToGG_M-135_7TeV-powheg-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000 
+#split typ=-1 ind=4 draw=1   Nam=wzh_m135_7TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/WH_ZH_HToGG_M-135_7TeV-powheg-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1  red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000 
+#split typ=-1 ind=3 draw=1   Nam=tth_m135_7TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/TTH_HToGG_M-135_7TeV-powheg-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000 
+#	   
+#split typ=-1 ind=1 draw=1   Nam=ggh_m130_7TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/GluGluToHToGG_M-130_7TeV-powheg-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1  red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000 
+#split typ=-1 ind=2 draw=1   Nam=vbf_m130_7TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/VBF_HToGG_M-130_7TeV-powheg-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1  red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000 
+#split typ=-1 ind=4 draw=1   Nam=wzh_m130_7TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/WH_ZH_HToGG_M-130_7TeV-powheg-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1  red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000 
+#split typ=-1 ind=3 draw=1   Nam=tth_m130_7TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/TTH_HToGG_M-130_7TeV-powheg-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1  red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000 
+	   
+#split typ=-1 ind=1 draw=1   Nam=ggh_m123_7TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/GluGluToHToGG_M-123_7TeV-powheg-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1  red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000 
+split typ=-1 ind=2 draw=1   Nam=vbf_m123_7TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/VBF_HToGG_M-123_7TeV-powheg-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000 
+#split typ=-1 ind=4 draw=1   Nam=wzh_m123_7TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/WH_ZH_HToGG_M-123_7TeV-powheg-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1 red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000 
+#split typ=-1 ind=3 draw=1   Nam=tth_m123_7TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/TTH_HToGG_M-123_7TeV-powheg-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000 
+	   
+#split typ=-1 ind=1 draw=1   Nam=ggh_m125_7TeV  CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/GluGluToHToGG_M-125_7TeV-powheg-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000 
+#split typ=-1 ind=2 draw=1   Nam=vbf_m125_7TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/VBF_HToGG_M-125_7TeV-powheg-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000 
+#split typ=-1 ind=4 draw=1   Nam=wzh_m125_7TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/WH_ZH_HToGG_M-125_7TeV-powheg-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1  red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000 
+#split typ=-1 ind=3 draw=1   Nam=tth_m125_7TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/TTH_HToGG_M-125_7TeV-powheg-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000 
+#	   
+#split typ=-1 ind=1 draw=1   Nam=ggh_m120_7TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/GluGluToHToGG_M-120_7TeV-powheg-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1 red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000 
+#split typ=-1 ind=2 draw=1   Nam=vbf_m120_7TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/VBF_HToGG_M-120_7TeV-powheg-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1 red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000 
+#split typ=-1 ind=4 draw=1   Nam=wzh_m120_7TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/WH_ZH_HToGG_M-120_7TeV-powheg-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1  red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000 
+#split typ=-1 ind=3 draw=1   Nam=tth_m120_7TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/TTH_HToGG_M-120_7TeV-powheg-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1  red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000 
+#	   
+#split typ=-1 ind=1 draw=1   Nam=ggh_m115_7TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/GluGluToHToGG_M-115_7TeV-powheg-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1  red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000 
+#split typ=-1 ind=2 draw=1   Nam=vbf_m115_7TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/VBF_HToGG_M-115_7TeV-powheg-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1  red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000 
+#split typ=-1 ind=4 draw=1   Nam=wzh_m115_7TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/WH_ZH_HToGG_M-115_7TeV-powheg-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1  red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000 
+#split typ=-1 ind=3 draw=1   Nam=tth_m115_7TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/TTH_HToGG_M-115_7TeV-powheg-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1 red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000 
+#	   
+#split typ=-1 ind=1 draw=1   Nam=ggh_m110_7TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/GluGluToHToGG_M-110_7TeV-powheg-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1  red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000 
+#split typ=-1 ind=2 draw=1   Nam=vbf_m110_7TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/VBF_HToGG_M-110_7TeV-powheg-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1  red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000 
+#split typ=-1 ind=4 draw=1   Nam=wzh_m110_7TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/WH_ZH_HToGG_M-110_7TeV-powheg-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1  red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000 
+#split typ=-1 ind=3 draw=1   Nam=tth_m110_7TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/TTH_HToGG_M-110_7TeV-powheg-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1  red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000 
+#	   
+#split typ=-1 ind=1 draw=1   Nam=ggh_m105_7TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/GluGluToHToGG_M-105_7TeV-powheg-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1  red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000 
+#split typ=-1 ind=2 draw=1   Nam=vbf_m105_7TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/VBF_HToGG_M-105_7TeV-powheg-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000 
+#split typ=-1 ind=4 draw=1   Nam=wzh_m105_7TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/WH_ZH_HToGG_M-105_7TeV-powheg-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1  red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000 
+#split typ=-1 ind=3 draw=1   Nam=tth_m105_7TeV   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/TTH_HToGG_M-105_7TeV-powheg-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1  red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000 
+#
+#
+######
+###### Background
+######
+#typ=+11   ind=92 draw=1  Nam=qcd_30_7TeV_ff CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/QCD_Pt-30to40_doubleEMEnriched_TuneZ2_7TeV-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1_ff    red=0   lum=1.e10 xsec=10870.   kfac=1.  scal=1. 
+#typ=+12   ind=92 draw=1  Nam=qcd_30_7TeV_pf CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/QCD_Pt-30to40_doubleEMEnriched_TuneZ2_7TeV-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1_pf    red=0   lum=1.e10 xsec=10870.   kfac=1.3  scal=1. 
+#
+#typ=+21   ind=94 draw=1  Nam=qcd_40_7TeV_ff CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/QCD_Pt-40_doubleEMEnriched_TuneZ2_7TeV-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1_ff        red=0   lum=1.e10 xsec=43571.   kfac=1.  scal=1. 
+#typ=+22   ind=94 draw=1  Nam=qcd_40_7TeV_pf CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/QCD_Pt-40_doubleEMEnriched_TuneZ2_7TeV-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1_pf        red=0   lum=1.e10 xsec=43571.   kfac=1.3  scal=1. 
+#
+#typ=+32    ind=101 draw=1  Nam=gjet_20_7TeV_pf    CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/GJet_Pt-20_doubleEMEnriched_TuneZ2_7TeV-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1_pf red=0 lum=1.e10 xsec=493.44 kfac=1.3  scal=1. 
+#
+#typ=+4    ind=96 draw=1  Nam=diphojet_7TeV CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/DiPhotonJets_7TeV-madgraph_Summer11dr53X-PU_S13_START53_LV3-v1    red=0   lum=1.e10  xsec=154.7   kfac=1.15  scal=1. 
+#typ=+14    ind=107 draw=1  Nam=dipho_Box_25_7TeV        CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/DiPhotonBox_Pt-25To250_7TeV-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1    red=0   lum=1.e10   xsec=12.37   kfac=1.15  scal=1. 
+#typ=+24    ind=108 draw=1  Nam=dipho_Box_250_7TeV        CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/DiPhotonBox_Pt-250_7TeV-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1       red=0   lum=1.e10   xsec=0.000208   kfac=1.15  scal=1. 
+#
+##typ=+34    ind=101 draw=1  Nam=gjet_20_7TeV_pp    CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/GJet_Pt-20_doubleEMEnriched_TuneZ2_7TeV-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1_pp red=0 lum=1.e10 xsec=493.44 kfac=1.15  scal=1. 
+##
+########
+######## DY MC
+########
+#typ=+5 ind=98 draw=1  Nam=DYJetsToLL   CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/DYJetsToLL_TuneZ2_M-50_7TeV-powheg-pythia_Summer11dr53X-PU_S13_START53_LV3-v1 red=0   lum=1.e10  xsec=2475.0  kfac=1.15  scal=1. 
+#
+
+#
+# Branches to use
+#
+inputBranches minimal_analysis_input.dat
+inputBranches jun21rereco_7TeV/massfactorizedmvaanalysis_input.dat
+inputBranches minimal_leptmetanalysis_input.dat
+cuts jun21rereco_7TeV/cuts.dat
+treevariables massfac_mva_binned/treevariables_optree.dat
+
+## define analyses to run
+##   a library containing the class dictionary has loaded before parsing the
+##   configuration file
+## syntax:
+##   analyzer <class_name> <config_file>
+##
+## analyzer PhotonAnalysis photonanalysis.dat
+analyzer MassFactorizedMvaAnalysis photonanalysis.dat jun21rereco_7TeV/analysis_settings.dat jun21rereco_7TeV/massfactorizedmvaanalysis.dat saveDatacardTrees_=0  dumpAscii=0 dumpMcAscii=0  fillOptTree=1 doSystematics=0
+
+# bkgPolOrderByCat=6,6,6,6  bdtCategoryBoundaries=1,-1  subleadEtVBFCut=25 leadEtVBFCut=25 doSystematics=0 includeVBF=1 includeVHlep=0 includeVHmet=0 includeTTHhad=0 includeTTHlep=0 includeVHhad=0 includeVHhadBtag=0 subleadEtCut=25 leadEtCut=25 phoidMvaCut=-1000. includeVHlepPlusMet=1 
+

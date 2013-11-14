@@ -46,7 +46,7 @@ puTarget=aux/nov08_rereco.json.68000.pileup.root
 pdfWeightHist=aux/GF_mvasys.root
 
 ## energy regression
-energyCorrectionMethod=Bendavid
+energyCorrectionMethod=BendavidOTF
 doEcorrectionSmear=1
 doEcorrectionSyst=0
 

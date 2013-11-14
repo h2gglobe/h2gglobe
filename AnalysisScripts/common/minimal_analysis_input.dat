@@ -1,4 +1,4 @@
-## File format:
+## File format
 ## 	<branc_name>[:<branch_type>] 
 ## where:
 ## 	<branch_type> = 0 for branches to be always read
@@ -148,9 +148,9 @@ bs_xyz
 ## 
 ## Trigger
 ## 
-hlt_bit:2
-hlt_n:2
-hlt_path_names_HLT:2
+hlt_bit
+hlt_n
+hlt_path_names_HLT
 
 ## 
 ## Vertex selection

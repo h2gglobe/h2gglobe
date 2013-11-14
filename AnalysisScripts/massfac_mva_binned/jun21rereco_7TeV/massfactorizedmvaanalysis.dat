@@ -1,0 +1,40 @@
+usePUjetveto=0
+
+doVtxEffSyst=1
+doVtxEffSmear=1
+
+# BDTs
+bdtTrainingPhilosophy=MIT
+bdtTrainingType=2013_7TeV
+photonLevel2013IDMVA_EB=
+photonLevel2013IDMVA_EE=
+photonLevel2012IDMVA_EB=
+photonLevel2012IDMVA_EE= 
+photonLevel2011IDMVA_EB=
+photonLevel2011IDMVA_EE=
+photonLevel2013_7TeV_IDMVA_EB=aux/2013FinalPaper_PhotonID_Barrel_BDT_TrainRangePT15_7TeV.weights.xml
+photonLevel2013_7TeV_IDMVA_EE=aux/2013FinalPaper_PhotonID_Endcap_BDT_TrainRangePT15_7TeV.weights.xml
+eventLevelMvaMIT=aux/HggBambu_SMDipho_Oct29_rwgtptallsigevenbkg7TeV_BDTG.weights.xml
+
+mvaVbfWeights=aux/TMVA_dijet_7TeV_evenb_v1_ptrwght_Gradient.weights.xml
+mvaVbfMethod=Gradient
+mvaVbfDiphoWeights=aux/TMVA_vbf_dijet_dipho_2evenb_maxdPhi_7TeV_v1_Gradient.weights.xml
+mvaVbfDiphoMethod=Gradient
+mvaVbfCatBoundaries=
+#dijet BDT
+multiclassVbfCatBoundaries0=1.0,0.78,0.5
+#combined BDT
+multiclassVbfCatBoundaries1=1.0,0.934,0.62
+multiclassVbfCatBoundaries2=10.,-10.
+
+bkgPolOrderByCat=5,5,5,5,3,4,3,3,3,-10,3
+bdtCategoryBoundaries=1,0.97,0.92,0.78,0.42
+
+# FIXME
+efficiencyFileMVA=aux/sig_reweighing_legacy_run2011_cutbased_v3.root
+
+smearing_file=jun21rereco_7TeV/smearing_sigma_and_errors.dat
+
+mass_resol_file=
+puTargets=
+
