@@ -165,7 +165,9 @@ def writeAsymptoticGrid():
 	for j, mass_set in enumerate(opts.masses_per_job):
 		for mass in mass_set:
 			os.system('python $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/makeAsymptoticGrid.py -w %s -m %6.2f -n 10 -r %3.1f %3.1f --runLimit --nCPU=3 -d %s'%(opts.datacard,mass,opts.muLow,opts.muHigh,os.path.abspath(opts.outDir)))
-			sub_file_name = os.path.abspath(opts.outDir+'/limitgrid_%5.2f.sh'%(mass)) 
+			sub_file_name = os.path.abspath(opts.outDir+'/limitgrid_%5.1f.sh'%(mass))
+			if opts.verbose:
+				print 'bsub -q %s -n 3 -R "span[hosts=1]" -o %s.log %s'%(opts.queue,os.path.abspath(sub_file_name),os.path.abspath(sub_file_name))
 			if not opts.dryRun and opts.queue:
 				os.system('rm -f %s.log'%os.path.abspath(sub_file_name))
 				os.system('bsub -q %s -n 3 -R "span[hosts=1]" -o %s.log %s'%(opts.queue,os.path.abspath(sub_file_name),os.path.abspath(sub_file_name)))
