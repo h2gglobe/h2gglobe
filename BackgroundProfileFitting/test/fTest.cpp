@@ -16,6 +16,7 @@
 #include "RooDataSet.h"
 #include "RooAbsData.h"
 #include "RooAbsPdf.h"
+#include "RooArgSet.h"
 #include "RooFitResult.h"
 #include "RooMinuit.h"
 #include "RooMinimizer.h"
@@ -24,6 +25,8 @@
 #include "RooExtendPdf.h"
 #include "TLatex.h"
 #include "TMacro.h"
+#include "TH1F.h"
+#include "TArrow.h"
 #include "TKey.h"
 
 #include "RooCategory.h"
@@ -51,16 +54,79 @@ RooAbsPdf* getPdf(PdfModelBuilder &pdfsModel, string type, int order, const char
   }
 }
 
+double getGoodnessOfFit(RooRealVar *mass, RooAbsPdf *mpdf, RooAbsData *datao, std::string name){
+
+  // make data a binned histo
+  mass->setBins(80);
+  RooDataHist *data = new RooDataHist("data_hist","data",*mass,*datao);
+  double prob;
+  int ntoys = 1000;
+  // Routine to calculate the goodness of fit. 
+  name+="_gofTest.pdf";
+  RooRealVar norm("norm","norm",data->sumEntries(),0,10E6);
+  RooExtendPdf *pdf = new RooExtendPdf("ext","ext",*mpdf,norm);
+  // get The Chi2 value from the data
+  RooPlot *plot_chi2 = mass->frame();
+  mass->setBins(80);
+  data->plotOn(plot_chi2,Binning(80),Name("data"));
+  pdf->plotOn(plot_chi2,Name("pdf"));
+  int np = pdf->getParameters(*data)->getSize(); // add the normalisation term
+  double chi2 = plot_chi2->chiSquare("pdf","data",np);
+  std::cout << "Calculating GOF for pdf " << pdf->GetName() << ", using 80 bins and " <<np << " fitted parameters" <<std::endl;
+  // The first thing is to check if the number of entries in any bin is < 10 
+  // if so, we don't rely on asymptotic approximations 
+  if ((double)data->sumEntries()/80 < 10){
+    std::cout << "Running toys for GOF test " << std::endl;
+    TCanvas *can = new TCanvas();
+    TH1F toyhist(Form("gofTest_%s.pdf",pdf->GetName()),";Chi2;",60,0,120);
+    // store pre-fit params 
+    RooArgSet *params = pdf->getParameters(*data);
+    RooArgSet preParams;
+    params->snapshot(preParams);
+
+    int npass =0;
+    for (int itoy = 0 ; itoy < ntoys ; itoy++){
+      params->assignValueOnly(preParams);
+      RooDataHist *data_t = pdf->generateBinned(RooArgSet(*mass),-1,0,1);
+      pdf->fitTo(*data_t);
+      RooPlot *plot_t = mass->frame();
+      data_t->plotOn(plot_t,Binning(80));
+      pdf->plotOn(plot_t);
+      double chi2_t = plot_t->chiSquare(np);
+      if( chi2_t>=chi2) npass++;
+      toyhist.Fill(chi2_t*(80-np));
+    }
+    prob = (double)npass / ntoys;
+    toyhist.Draw();
+    TArrow lData(chi2*(80-np),toyhist.GetMaximum(),chi2*(80-np),0);
+    lData.SetLineWidth(2);
+    lData.Draw();
+    can->SaveAs(name.c_str());
+    // back to best fit 	
+    params->assignValueOnly(preParams);
+    //pdf->fitTo(*data);
+  } else {
+    prob = TMath::Prob(chi2*(80-np),80-np);
+  }
+  std::cout << "Chi2 in Observed =  " << chi2*(80-np) << std::endl;
+  std::cout << "p-value  =  " << prob << std::endl;
+  delete pdf;
+  delete data;
+  mass->setBins(320);
+  return prob;
+
+}
+
 void plot(RooRealVar *mass, RooAbsPdf *pdf, RooAbsData *data, string name, double *prob){
   
-  TCanvas *canv = new TCanvas();
   RooPlot *plot_chi2 = mass->frame();
   data->plotOn(plot_chi2,Binning(80));
   pdf->plotOn(plot_chi2);
   int np = pdf->getParameters(*data)->getSize();
   double chi2 = plot_chi2->chiSquare(np);
-  *prob = TMath::Prob(chi2*(80-np),80-np);
-  
+//  *prob = TMath::Prob(chi2*(80-np),80-np);
+ 
+  *prob = getGoodnessOfFit(mass,pdf,data,name);
   RooPlot *plot = mass->frame();
   mass->setRange("unblindReg_1",100,110);
   mass->setRange("unblindReg_2",150,180);
@@ -72,22 +138,24 @@ void plot(RooRealVar *mass, RooAbsPdf *pdf, RooAbsData *data, string name, doubl
   else data->plotOn(plot,Binning(80));
 
  // data->plotOn(plot,Binning(80));
+  TCanvas *canv = new TCanvas();
   pdf->plotOn(plot);
   pdf->paramOn(plot);
+  if (BLIND) plot->SetMinimum(0.0001);
   plot->SetTitle("");
   plot->Draw();
 
   TLatex *lat = new TLatex();
   lat->SetNDC();
   lat->SetTextFont(42);
-  lat->DrawLatex(0.1,0.91,Form("#chi^{2} = %.2f, Prob = %.2f ",chi2*(80-np),*prob));
+  lat->DrawLatex(0.1,0.91,Form("#chi^{2} = %.3f, Prob = %.2f ",chi2*(80-np),*prob));
   canv->SaveAs(name.c_str());
   
   delete canv;
   delete lat;
 }
 
-void plot(RooRealVar *mass, map<string,RooAbsPdf*> pdfs, RooAbsData *data, string name, int cat){
+void plot(RooRealVar *mass, map<string,RooAbsPdf*> pdfs, RooAbsData *data, string name, int cat, int bestFitPdf=-1){
   
   int color[7] = {kBlue,kRed,kMagenta,kGreen+1,kOrange+7,kAzure+10,kBlack};
   TCanvas *canv = new TCanvas();
@@ -115,10 +183,13 @@ void plot(RooRealVar *mass, map<string,RooAbsPdf*> pdfs, RooAbsData *data, strin
     else {col=kBlack; style++;}
     it->second->plotOn(plot,LineColor(col),LineStyle(style));
     TObject *pdfLeg = plot->getObject(int(plot->numItems()-1));
-    leg->AddEntry(pdfLeg,it->first.c_str(),"L");
+    std::string ext = "";
+    if (bestFitPdf==i) ext=" (Best Fit Pdf) ";
+    leg->AddEntry(pdfLeg,Form("%s%s",it->first.c_str(),ext.c_str()),"L");
     i++;
   }
   plot->SetTitle(Form("Category %d",cat));
+  if (BLIND) plot->SetMinimum(0.0001);
   plot->Draw();
   leg->Draw("same");
   canv->SaveAs(name.c_str());
@@ -212,6 +283,7 @@ int main(int argc, char* argv[]){
  
   string fileName;
   int ncats;
+  int singleCategory;
   string datfile;
   string outDir;
   string outfilename;
@@ -224,6 +296,7 @@ int main(int argc, char* argv[]){
     ("help,h",                                                                                  "Show help")
     ("infilename,i", po::value<string>(&fileName),                                              "In file name")
     ("ncats,c", po::value<int>(&ncats)->default_value(5),                                       "Number of categories")
+    ("singleCat", po::value<int>(&singleCategory)->default_value(-1),                           "Run A single Category")
     ("datfile,d", po::value<string>(&datfile)->default_value("dat/fTest.dat"),                  "Right results to datfile for BiasStudy")
     ("outDir,D", po::value<string>(&outDir)->default_value("plots/fTest"),                      "Out directory for plots")
     ("saveMultiPdf", po::value<string>(&outfilename)->default_value("multipdfws.root"),         "Save a MultiPdf model with the appropriate pdfs")
@@ -247,6 +320,11 @@ int main(int argc, char* argv[]){
   if (!verbose) {
     RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
     RooMsgService::instance().setSilentMode(true);
+  }
+  int startingCategory=0;
+  if (singleCategory >-1){
+	ncats=singleCategory+1;	
+	startingCategory=singleCategory;
   }
 
   std::cout << "SaveMultiPdf? " << saveMultiPdf << std::endl;
@@ -350,7 +428,7 @@ int main(int argc, char* argv[]){
   
   fprintf(resFile,"Truth Model & d.o.f & $\\Delta NLL_{N+1}$ & $p(\\chi^{2}>\\chi^{2}_{(N\\rightarrow N+1)})$ \\\\\n");
   fprintf(resFile,"\\hline\n");
-  for (int cat=0; cat<ncats; cat++){
+  for (int cat=startingCategory; cat<ncats; cat++){
     
     map<string,int> choices;
     map<string,std::vector<int> > choices_envelope;
@@ -395,8 +473,8 @@ int main(int argc, char* argv[]){
           //RooMinuit m(*nll);
           //m.migrad();
           //thisNll = nll->getVal();
-	  double fail=0;
-          plot(mass,bkgPdf,data,Form("%s/%s%d_cat%d.pdf",outDir.c_str(),funcType->c_str(),order,cat),&fail);
+	  //double fail=0;
+          //plot(mass,bkgPdf,data,Form("%s/%s%d_cat%d.pdf",outDir.c_str(),funcType->c_str(),order,cat),&fail);
           chi2 = 2.*(prevNll-thisNll);
           if (chi2<0. && order>1) chi2=0.;
           prob = TMath::Prob(chi2,order-prev_order);
@@ -414,6 +492,7 @@ int main(int argc, char* argv[]){
       choices.insert(pair<string,int>(*funcType,cache_order));
       pdfs.insert(pair<string,RooAbsPdf*>(Form("%s%d",funcType->c_str(),cache_order),cache_pdf));
 
+      int truthOrder = cache_order;
       // Now run loop to determine functions inside envelope
       if (true/*saveMultiPdf*/){
         chi2=0.;
@@ -452,7 +531,7 @@ int main(int argc, char* argv[]){
            cache_order=prev_order;
            cache_pdf=prev_pdf;
 
-	   if (gofProb > 0.01 && prob < upperEnvThreshold ) { // Looser requirements for the envelope
+	   if ((gofProb > 0.01 && prob < upperEnvThreshold) || order == truthOrder ) { // Looser requirements for the envelope
 		std::cout << "Adding to Envelope " << bkgPdf->GetName() << " "<< gofProb 
 			  << " 2xNLL + c is " << myNll + bkgPdf->getVariables()->getSize() <<  std::endl;
       		allPdfs.insert(pair<string,RooAbsPdf*>(Form("%s%d",funcType->c_str(),order),bkgPdf));
@@ -484,8 +563,8 @@ int main(int argc, char* argv[]){
     pdfs_vec.push_back(pdfs);
     plot(mass,pdfs,data,Form("%s/truths_cat%d.pdf",outDir.c_str(),cat),cat);
     plot(mass,pdfs,data,Form("%s/truths_cat%d.png",outDir.c_str(),cat),cat);
-    plot(mass,allPdfs,data,Form("%s/multipdf_cat%d.pdf",outDir.c_str(),cat),cat);
-    plot(mass,allPdfs,data,Form("%s/multipdf_cat%d.png",outDir.c_str(),cat),cat);
+    plot(mass,allPdfs,data,Form("%s/multipdf_cat%d.pdf",outDir.c_str(),cat),cat,simplebestFitPdfIndex);
+    plot(mass,allPdfs,data,Form("%s/multipdf_cat%d.png",outDir.c_str(),cat),cat,simplebestFitPdfIndex);
 
     if (saveMultiPdf){
 	  // Put selectedModels into a MultiPdf
@@ -523,18 +602,18 @@ int main(int argc, char* argv[]){
 	outputfile->Close();	
   }
 
-  //FILE *dfile = fopen(datfile.c_str(),"w");
+  FILE *dfile = fopen(datfile.c_str(),"w");
   cout << "Recommended options" << endl;
-  /*
-  for (int cat=0; cat<ncats; cat++){
+  
+  for (int cat=startingCategory; cat<ncats; cat++){
     cout << "Cat " << cat << endl;
     fprintf(dfile,"cat=%d\n",cat); 
-    for (map<string,int>::iterator it=choices_vec[cat].begin(); it!=choices_vec[cat].end(); it++){
+    for (map<string,int>::iterator it=choices_vec[cat-startingCategory].begin(); it!=choices_vec[cat-startingCategory].end(); it++){
       cout << "\t" << it->first << " - " << it->second << endl;
       fprintf(dfile,"truth=%s:%d:%s%d\n",it->first.c_str(),it->second,namingMap[it->first].c_str(),it->second);
     }
-    fprintf(dfile,"fabian=%s:%d:%s%d\n",fabChoice[cat].first.c_str(),fabChoice[cat].second,namingMap[fabChoice[cat].first].c_str(),fabChoice[cat].second);
-    for (map<string,std::vector<int> >::iterator it=choices_envelope_vec[cat].begin(); it!=choices_envelope_vec[cat].end(); it++){
+    fprintf(dfile,"fabian=%s:%d:%s%d\n",fabChoice[cat-startingCategory].first.c_str(),fabChoice[cat-startingCategory].second,namingMap[fabChoice[cat-startingCategory].first].c_str(),fabChoice[cat-startingCategory].second);
+    for (map<string,std::vector<int> >::iterator it=choices_envelope_vec[cat-startingCategory].begin(); it!=choices_envelope_vec[cat-startingCategory].end(); it++){
 	std::vector<int> ords = it->second;
         for (std::vector<int>::iterator ordit=ords.begin(); ordit!=ords.end(); ordit++){
          // if ((it->first=="Exponential" || it->first=="PowerLaw") && ord%2==0) continue;
@@ -544,7 +623,7 @@ int main(int argc, char* argv[]){
     }
     fprintf(dfile,"\n");
   }
-  */
+ 
 
   inFile->Close();
 
