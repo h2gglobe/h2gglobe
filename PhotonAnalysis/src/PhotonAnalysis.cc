@@ -5599,6 +5599,13 @@ void PhotonAnalysis::saveSpinTree(LoopAll &l, int category, float evweight, TLor
    l.FillTree("sublead_pz",sublead_p4.Pz(),"spin_trees");
    l.FillTree("sublead_E",sublead_p4.E(),"spin_trees");
 
+    std::vector<std::vector<bool> > ph_passcut;
+    int levelLead = l.PhotonCiCPFSelectionLevel(l.dipho_leadind[diphoton_id], l.dipho_vtxind[diphoton_id], ph_passcut, 4, 0, 0);
+    int levelSublead = l.PhotonCiCPFSelectionLevel(l.dipho_subleadind[diphoton_id], l.dipho_vtxind[diphoton_id], ph_passcut, 4, 0, 0);
+   
+   l.FillTree("lead_cicLevel",levelLead,"spin_trees");
+   l.FillTree("sublead_cicLevel",levelSublead,"spin_trees");
+
    l.FillTree("gp_lead_px",genpho1.Px(),"spin_trees");
    l.FillTree("gp_lead_py",genpho1.Py(),"spin_trees");
    l.FillTree("gp_lead_pz",genpho1.Pz(),"spin_trees");

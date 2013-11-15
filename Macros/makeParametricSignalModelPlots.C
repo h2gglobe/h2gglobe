@@ -445,6 +445,7 @@ int getBestFitFunction(RooMultiPdf *bkg, RooAbsData *data, RooCategory *cat, boo
 
 	double global_minNll = 1E10;
 	int best_index = 0;
+	cat->Print("v");
 	int number_of_indeces = cat->numTypes();
 	
 	RooArgSet snap,clean;
@@ -645,8 +646,18 @@ pair<double,double> bkgEvPerGeV(RooWorkspace *work, int m_hyp, int cat, pair<dou
 		RooMultiPdf *mpdf;
 		if (is2011) mpdf = (RooMultiPdf*)work->pdf(Form("CMS_hgg_cat%d_7TeV_bkgshape",cat));
 		else mpdf = (RooMultiPdf*)work->pdf(Form("CMS_hgg_cat%d_8TeV_bkgshape",cat));
-		RooCategory *mcat = (RooCategory*)work->cat(Form("pdfindex_%d",cat));
+		RooCategory *mcat;
+		if (is2011) mcat = (RooCategory*)work->cat(Form("pdfindex_%d_7TeV",cat));
+		else mcat = (RooCategory*)work->cat(Form("pdfindex_%d_8TeV",cat));
 		RooAbsData *data = (RooDataSet*)work->data(Form("roohist_data_mass_cat%d",cat));
+		if (!mcat) {
+			cout << "Category is NULL" << endl;
+			exit(1);
+		}
+		if (!data){
+			cout << "Data is NULL" << endl;
+			exit(1);
+		}
 		
 		// reset to best fit
 		int bf = getBestFitFunction(mpdf,data,mcat,true);
@@ -701,7 +712,9 @@ double sobInFWHM(RooWorkspace *sigWS, RooWorkspace *bkgWS, int m_hyp, int cat, d
 		RooMultiPdf *mpdf;
 		if (is2011) mpdf = (RooMultiPdf*)bkgWS->pdf(Form("CMS_hgg_cat%d_7TeV_bkgshape",cat));
 		else mpdf = (RooMultiPdf*)bkgWS->pdf(Form("CMS_hgg_cat%d_8TeV_bkgshape",cat));
-		RooCategory *mcat = (RooCategory*)bkgWS->cat(Form("pdfindex_%d",cat));
+		RooCategory *mcat;
+		if (is2011) mcat = (RooCategory*)bkgWS->cat(Form("pdfindex_%d_7TeV",cat));
+		else mcat = (RooCategory*)bkgWS->cat(Form("pdfindex_%d_8TeV",cat));
 		data = (RooDataSet*)bkgWS->data(Form("roohist_data_mass_cat%d",cat));
 		// reset to best fit
 		int bf = getBestFitFunction(mpdf,data,mcat,true);
@@ -835,7 +848,7 @@ vector<double> sigEvents(RooWorkspace *work, int m_hyp, int cat, string binnedSi
 pair<double,double> datEvents(RooWorkspace *work, int m_hyp, int cat, pair<double,double> &runningTotal){
   
   vector<double> result;
-  RooDataSet *data = (RooDataSet*)work->data(Form("data_mass_cat%d",cat));
+  RooDataSet *data = (RooDataSet*)work->data(Form("roohist_data_mass_cat%d",cat));
   double evs = data->numEntries();
   double evsPerGev;
   evsPerGev = data->sumEntries(Form("CMS_hgg_mass>=%4.1f && CMS_hgg_mass<%4.1f",double(m_hyp)-0.5,double(m_hyp)+0.5));
@@ -1405,6 +1418,10 @@ void makeParametricSignalModelPlots(string sigFitFileName, string outPathName, i
 		labels.insert(pair<string,string>("cat1","Untagged 1"));
 		labels.insert(pair<string,string>("cat2","Untagged 2"));
 		labels.insert(pair<string,string>("cat3","Untagged 3"));
+		labels.insert(pair<string,string>("cat0","Untagged 4"));
+		labels.insert(pair<string,string>("cat1","Untagged 5"));
+		labels.insert(pair<string,string>("cat2","Untagged 6"));
+		labels.insert(pair<string,string>("cat3","Untagged 7"));
 		labels.insert(pair<string,string>("cat4","Dijet Tag Tight"));
 		labels.insert(pair<string,string>("cat5","Dijet Tag Loose"));
 		labels.insert(pair<string,string>("cat6","VH Lepton Tight"));

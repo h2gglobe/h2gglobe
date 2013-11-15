@@ -56,7 +56,7 @@ if not os.path.exists(os.path.expandvars('$CMSSW_BASE/bin/$SCRAM_ARCH/combineCar
 	sys.exit('ERROR - CombinedLimit package must be installed')
 
 cwd = os.getcwd()
-allowedMethods = ['Asymptotic','ProfileLikelihood','ChannelCompatibilityCheck','MHScan','MuScan','RVScan','RFScan','RVRFScan','MuMHScan']
+allowedMethods = ['Asymptotic','AsymptoticGrid','ProfileLikelihood','ChannelCompatibilityCheck','MHScan','MuScan','RVScan','RFScan','RVRFScan','MuMHScan']
 
 def checkValidMethod():
 	if opts.method not in allowedMethods: sys.exit('%s is not a valid method'%opts.method)
@@ -142,6 +142,39 @@ def writeAsymptotic():
 			if mass!=mass_set[-1]: exec_line += ' && '
 		writePostamble(file,exec_line)
 
+def writeAsymptoticGrid():
+	print 'Writing AsymptoticGrid'
+	
+	if not os.path.exists(os.path.expandvars('$CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/makeAsymptoticGrid.py')):
+		sys.exit('ERROR - CombinedLimit package must be installed')
+	
+	try:
+		assert(opts.masses_per_job)
+	except AssertionError:
+		sys.exit('No masses have been defined')
+	
+	# create specialised limit grid workspace
+	if not opts.skipWorkspace:
+		print 'Creating workspace for %s...'%opts.method
+		ws_exec_line = 'text2workspace.py %s -o %s'%(os.path.abspath(opts.datacard),os.path.abspath(opts.datacard).replace('.txt','.root')) 
+		if opts.verbose: print '\t', ws_exec_line 
+		os.system(ws_exec_line)
+	opts.datacard = opts.datacard.replace('.txt','.root')
+
+	# sub jobs through combine
+	for j, mass_set in enumerate(opts.masses_per_job):
+		for mass in mass_set:
+			os.system('python $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit/test/makeAsymptoticGrid.py -w %s -m %6.2f -n 10 -r %3.1f %3.1f --runLimit --nCPU=3 -d %s'%(opts.datacard,mass,opts.muLow,opts.muHigh,os.path.abspath(opts.outDir)))
+			sub_file_name = os.path.abspath(opts.outDir+'/limitgrid_%5.2f.sh'%(mass)) 
+			if not opts.dryRun and opts.queue:
+				os.system('rm -f %s.log'%os.path.abspath(sub_file_name))
+				os.system('bsub -q %s -n 3 -R "span[hosts=1]" -o %s.log %s'%(opts.queue,os.path.abspath(sub_file_name),os.path.abspath(sub_file_name)))
+			if opts.runLocal:
+				os.system('bash %s'%os.path.abspath(sub_file_name))
+
+	# switch back
+	opts.datacard = opts.datacard.replace('.root','.txt')
+
 def writeProfileLikelhood():
 
 	print 'Writing ProfileLikelihood'
@@ -184,9 +217,9 @@ def writeMultiDimFit():
 	print 'Writing MultiDim Scan'
 	ws_args = { "RVRFScan" 	 : "-P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs" ,
 							"RVScan"	 	 : "-P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs" ,
-							"RVpRFScan"	 : "-P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs" ,
+							"RVnpRFScan" : "-P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs" ,
 							"RFScan"	 	 : "-P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs" ,
-							"RFpRVScan"	 : "-P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs" ,
+							"RFnpRVScan" : "-P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs" ,
 							"MuScan"		 : "",
 							"CVCFScan"	 : "-P HiggsAnalysis.CombinedLimit.HiggsCouplingsLOSM:cVcF",
 							"MHScan"		 : "-P HiggsAnalysis.CombinedLimit.PhysicsModel:rVrFXSHiggs --PO higgsMassRange=120,130",
@@ -194,13 +227,13 @@ def writeMultiDimFit():
 						}
 	
 	combine_args = { "RVRFScan" 	 : "-P RV -P RF" ,
-                   "RVScan"	 	 	 : "--floatOtherPOIs=0 -P RV" ,
-                   "RVpRFScan"	 : "--floatOtherPOIs=1 -P RV" ,
-                   "RFScan"	 	 	 : "--floatOtherPOIs=0 -P RF" ,
-                   "RFpRVScan"	 : "--floatOtherPOIs=1 -P RF" ,
+                   "RVScan"	 	 	 : "--floatOtherPOIs=1 -P RV" ,
+                   "RVnpRFScan"	 : "--floatOtherPOIs=0 -P RV" ,
+                   "RFScan"	 	 	 : "--floatOtherPOIs=1 -P RF" ,
+                   "RFnpRVScan"	 : "--floatOtherPOIs=0 -P RF" ,
                    "MuScan"		 	 : "-P r",
                    "CVCFScan"	 	 : "-P CV -P CF",
-                   "MHScan"		 	 : "-P MH",
+                   "MHScan"		 	 : "--floatOtherPOIs=1 -P MH",
                    "MuMHScan"	 	 : "-P r -P MH"
 								 }
 	par_ranges = {}
@@ -209,11 +242,11 @@ def writeMultiDimFit():
 	if opts.rvLow!=None and opts.rvHigh!=None:
 		par_ranges["RVScan"]			= "RV=%4.2f,%4.2f"%(opts.rvLow,opts.rvHigh) 
 	if opts.rvLow!=None and opts.rvHigh!=None:
-		par_ranges["RVpRFScan"]		= "RV=%4.2f,%4.2f"%(opts.rvLow,opts.rvHigh)
+		par_ranges["RVnpRFScan"]	= "RV=%4.2f,%4.2f"%(opts.rvLow,opts.rvHigh)
 	if opts.rfLow!=None and opts.rfHigh!=None:
 		par_ranges["RFScan"]			= "RF=%4.2f,%4.2f"%(opts.rfLow,opts.rfHigh)
 	if opts.rfLow!=None and opts.rfHigh!=None:
-		par_ranges["RFpRVScan"]		= "RF=%4.2f,%4.2f"%(opts.rfLow,opts.rfHigh)
+		par_ranges["RFnpRVScan"]	= "RF=%4.2f,%4.2f"%(opts.rfLow,opts.rfHigh)
 	if opts.muLow!=None and opts.muHigh!=None:
 		par_ranges["MuScan"]			= "r=%4.2f,%4.2f"%(opts.muLow,opts.muHigh) 
 	if opts.cvLow!=None and opts.cvHigh!=None and opts.cfLow!=None and opts.cfHigh!=None:
@@ -250,10 +283,12 @@ def run():
 	os.system('mkdir -p %s'%opts.outDir)
 	if opts.verbose: print 'Made directory', opts.outDir
 	checkValidMethod()
-	if opts.method=='Asymptotic' or opts.method=='ProfileLikelihood':
+	if opts.method=='Asymptotic' or opts.method=='AsymptoticGrid' or opts.method=='ProfileLikelihood':
 		configureMassFromNJobs()
 	if opts.method=='Asymptotic':
 		writeAsymptotic()
+	elif opts.method=='AsymptoticGrid':
+		writeAsymptoticGrid()
 	elif opts.method=='ProfileLikelihood':
 		writeProfileLikelhood()
 	elif opts.method=='ChannelCompatibilityCheck':

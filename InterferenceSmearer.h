@@ -30,8 +30,8 @@ private:
 	float correction_;
 	float error_;
  	TFile *histFile_;
-	TH1F *reweightHist_ggh_;
-	TH1F *reweightHist_gg_grav_;
+	TH1 *reweightHist_ggh_;
+	TH1 *reweightHist_gg_grav_;
 };
 
 #endif
