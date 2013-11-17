@@ -17,7 +17,7 @@ class InitialFit {
 
   public:
 
-    InitialFit(RooRealVar *massVar, RooRealVar *MHvar, int mhLow, int mhHigh);
+    InitialFit(RooRealVar *massVar, RooRealVar *MHvar, int mhLow, int mhHigh, std::vector<int> skipMasses);
     ~InitialFit();
 
     void buildSumOfGaussians(std::string name, int nGaussians, bool recursive=false, bool forceFracUnity=false);
@@ -43,8 +43,10 @@ class InitialFit {
     std::map<int,RooFitResult*> fitResults;
     int mhLow_;
     int mhHigh_;
+		std::vector<int> skipMasses_;
     std::vector<int> allMH_;
     std::vector<int> getAllMH();
+		bool skipMass(int mh);
     int verbosity_;
 
 };

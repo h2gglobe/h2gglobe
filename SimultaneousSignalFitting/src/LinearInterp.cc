@@ -5,13 +5,14 @@
 using namespace std;
 using namespace RooFit;
 
-LinearInterp::LinearInterp(RooRealVar *MHvar, int mhLow, int mhHigh, map<int,map<string,RooRealVar*> > fitParamVals, bool doSecMods):
+LinearInterp::LinearInterp(RooRealVar *MHvar, int mhLow, int mhHigh, map<int,map<string,RooRealVar*> > fitParamVals, bool doSecMods, vector<int> skipMasses):
   MH(MHvar),
   mhLow_(mhLow),
   mhHigh_(mhHigh),
   fitParams(fitParamVals),
   doSecondaryModels(doSecMods),
   secondaryModelVarsSet(false),
+	skipMasses_(skipMasses),
   verbosity_(0)
 {
   allMH_ = getAllMH();
@@ -19,9 +20,17 @@ LinearInterp::LinearInterp(RooRealVar *MHvar, int mhLow, int mhHigh, map<int,map
 
 LinearInterp::~LinearInterp(){}
 
+bool LinearInterp::skipMass(int mh){
+	for (vector<int>::iterator it=skipMasses_.begin(); it!=skipMasses_.end(); it++) {
+		if (*it==mh) return true;
+	}
+	return false;
+}
+
 vector<int> LinearInterp::getAllMH(){
   vector<int> result;
   for (int m=mhLow_; m<=mhHigh_; m+=5){
+		if (skipMass(m)) continue;
     if (verbosity_>=1) cout << "LinearInterp - Adding mass: " << m << endl;
     result.push_back(m);
   }

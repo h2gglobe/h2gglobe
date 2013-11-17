@@ -15,7 +15,7 @@ class LinearInterp {
 
   public:
     
-    LinearInterp(RooRealVar *MHvar, int mhLow, int mhHigh, std::map<int,std::map<std::string,RooRealVar*> > fitParamVals, bool doSecMods);
+    LinearInterp(RooRealVar *MHvar, int mhLow, int mhHigh, std::map<int,std::map<std::string,RooRealVar*> > fitParamVals, bool doSecMods, std::vector<int> skipMasses);
     ~LinearInterp();
 
     void setSecondaryModelVars(RooRealVar *mh_sm, RooRealVar *deltam, RooAddition *mh_2, RooRealVar *width);
@@ -30,9 +30,11 @@ class LinearInterp {
     std::map<int,std::map<std::string,RooRealVar*> > fitParams;
     bool doSecondaryModels;
     bool secondaryModelVarsSet;
+		std::vector<int> skipMasses_;
     int verbosity_;
     std::vector<int> allMH_;
     std::vector<int> getAllMH();
+		bool skipMass(int mh);
     std::map<std::string,RooSpline1D*> splines;
     
     RooRealVar *MH_SM;

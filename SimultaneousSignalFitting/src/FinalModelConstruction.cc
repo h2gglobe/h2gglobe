@@ -23,7 +23,7 @@ using namespace std;
 using namespace RooFit;
 using namespace boost;
 
-FinalModelConstruction::FinalModelConstruction(RooRealVar *massVar, RooRealVar *MHvar, RooRealVar *intL, int mhLow, int mhHigh, string proc, int cat, bool doSecMods, string systematicsFileName, int verbosity, bool isCB, bool is2011):
+FinalModelConstruction::FinalModelConstruction(RooRealVar *massVar, RooRealVar *MHvar, RooRealVar *intL, int mhLow, int mhHigh, string proc, int cat, bool doSecMods, string systematicsFileName, vector<int> skipMasses, int verbosity, bool isCB, bool is2011):
   mass(massVar),
   MH(MHvar),
   intLumi(intL),
@@ -34,6 +34,7 @@ FinalModelConstruction::FinalModelConstruction(RooRealVar *massVar, RooRealVar *
   doSecondaryModels(doSecMods),
   isCutBased_(isCB),
 	is2011_(is2011),
+	skipMasses_(skipMasses),
   verbosity_(verbosity),
   systematicsSet_(false),
   rvFractionSet_(false)
@@ -209,9 +210,17 @@ void FinalModelConstruction::addToSystMap(map<string,map<int,map<string,double> 
 	}
 }
 
+bool FinalModelConstruction::skipMass(int mh){
+	for (vector<int>::iterator it=skipMasses_.begin(); it!=skipMasses_.end(); it++) {
+		if (*it==mh) return true;
+	}
+	return false;
+}
+
 vector<int> FinalModelConstruction::getAllMH(){
   vector<int> result;
   for (int m=mhLow_; m<=mhHigh_; m+=5){
+		if (skipMass(m)) continue;
     if (verbosity_>=1) cout << "FinalModelConstruction - Adding mass: " << m << endl;
     result.push_back(m);
   }

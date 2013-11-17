@@ -59,7 +59,8 @@ int main(){
   map<string,RooSpline1D*> splinesWV = linInterpWV.getSplines();
 	*/
 
-  FinalModelConstruction finalModel(mass,MH,intLumi,110,150,"ggh",0,false,"dat/photon_systs_massfac_legacy_8TeV_v2.dat",1,false);
+	vector<int> skipMasses;
+  FinalModelConstruction finalModel(mass,MH,intLumi,110,150,"ggh",0,false,"dat/photon_systs_massfac_legacy_8TeV_v2.dat",skipMasses,1,false);
 	finalModel.printSignalSystematics();
   /*
 	finalModel.setRVsplines(splinesRV);
