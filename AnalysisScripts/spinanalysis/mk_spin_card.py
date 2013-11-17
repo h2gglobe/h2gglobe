@@ -12,21 +12,30 @@ parser.add_option("-C","--nKinCats",dest="kCats",type="int",default=4)
 parser.add_option("-n","--nameOfCard",dest="cardname")
 parser.add_option("-S","--sigfile",default="CMS-HGG_interpolated.root")
 parser.add_option("-B","--bkgfile",default="CMS-HGG.root")
+parser.add_option("--isMultiPdf",default=False,action="store_true")
+parser.add_option("--sqrtS",type="int",default=8)
 (options,args)=parser.parse_args()
 
 ncats=options.cTcats*options.kCats
 card = open(options.cardname,'w')
 
+bkgWS = 'cms_hgg_workspace'
+dataWS = 'cms_hgg_workspace'
+if options.isMultiPdf: 
+	bkgWS = 'multipdf'
+	dataWS = 'multipdf'
+
 card.write('CMS-HGG spin card for for use with combine. RooDataHist+Parametrised Background\n')
 if options.qqbarCard: card.write('For qqbar scan\n')
 else: card.write('For separation and model dependence plots\n')
 card.write('\n------------------------------\nimax *\njmax *\nkmax *\n------------------------------\n')
-card.write('shapes data_obs    *        %s cms_hgg_workspace:roohist_data_mass_$CHANNEL\n'%options.bkgfile)
+card.write('shapes data_obs    *        %s %s:roohist_data_mass_$CHANNEL\n'%(options.bkgfile,bkgWS))
 
 if not options.justGravGG and not options.justGravQQ:
   card.write('shapes ggH         *      %s cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_$CHANNEL      cms_hgg_workspace:roohist_sig_ggh_mass_m$MASS_$CHANNEL_$SYSTEMATIC01_sigma\n'%options.sigfile)
   card.write('shapes qqH         *      %s cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_$CHANNEL      cms_hgg_workspace:roohist_sig_vbf_mass_m$MASS_$CHANNEL_$SYSTEMATIC01_sigma\n'%options.sigfile)
-  card.write('shapes  VH         *      %s cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_$CHANNEL      cms_hgg_workspace:roohist_sig_wzh_mass_m$MASS_$CHANNEL_$SYSTEMATIC01_sigma\n'%options.sigfile)
+  card.write('shapes  WH         *      %s cms_hgg_workspace:roohist_sig_wh_mass_m$MASS_$CHANNEL      cms_hgg_workspace:roohist_sig_wh_mass_m$MASS_$CHANNEL_$SYSTEMATIC01_sigma\n'%options.sigfile)
+  card.write('shapes  ZH         *      %s cms_hgg_workspace:roohist_sig_zh_mass_m$MASS_$CHANNEL      cms_hgg_workspace:roohist_sig_zh_mass_m$MASS_$CHANNEL_$SYSTEMATIC01_sigma\n'%options.sigfile)
   card.write('shapes ttH         *      %s cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_$CHANNEL      cms_hgg_workspace:roohist_sig_tth_mass_m$MASS_$CHANNEL_$SYSTEMATIC01_sigma\n'%options.sigfile)
 
 if not options.justSM and not options.justGravQQ:
@@ -35,7 +44,10 @@ if not options.justSM and not options.justGravQQ:
 if options.qqbarCard or options.justGravQQ: 
   card.write('shapes qqbarH_ALT  *      %s cms_hgg_workspace:roohist_sig_qq_grav_mass_m$MASS_$CHANNEL cms_hgg_workspace:roohist_sig_qq_grav_mass_m$MASS_$CHANNEL_$SYSTEMATIC01_sigma\n'%options.sigfile)
 
-card.write('shapes bkg         *        %s cms_hgg_workspace:pdf_data_pol_model_8TeV_$CHANNEL\n'%options.bkgfile) 
+if options.isMultiPdf:
+	card.write('shapes bkg         *        %s multipdf:CMS_hgg_$CHANNEL_%dTeV_bkgshape\n'%(options.bkgfile,options.sqrtS))
+else:
+	card.write('shapes bkg         *        %s cms_hgg_workspace:pdf_data_pol_model_%dTeV_$CHANNEL\n'%(options.bkgfile,options.sqrtS)) 
 card.write('------------------------------\n')
 
 procs=[]
@@ -44,9 +56,10 @@ rates=[]
 
 # normal signals
 if not options.justGravGG and not options.justGravQQ:
-  procs += ['ggH','qqH','VH','ttH']
-  iprocs += ['0','-1','-2','-3']
-  rates += ['-1','-1','-1','-1']
+  #procs += ['ggH','qqH','VH','ttH']
+  procs += ['ggH','qqH','WH','ZH','ttH']
+  iprocs += ['0','-1','-2','-3','-4']
+  rates += ['-1','-1','-1','-1','-1']
 # ggh grav signal
 if not options.justSM and not options.justGravQQ:
   procs.append('ggH_ALT')
@@ -62,14 +75,18 @@ procs.append('bkg')
 iprocs.append('1')
 rates.append('1')
 
-lumi_err = '1.044'
+lumi_err = '1.044' if options.sqrtS==8 else '1.045'
 scale_ggH = '0.930/1.076'
 scale_qqH = '0.972/1.026'
-scale_VH  = '0.958/1.042'
+#scale_VH  = '0.958/1.042'
+scale_WH  = '0.958/1.042'
+scale_ZH  = '0.958/1.042'
 scale_ttH = '0.920/1.080'
 pdf_ggH   = '0.918/1.076'
 pdf_qqH   = '0.992/1.003'
-pdf_VH    = '0.982/1.021'
+#pdf_VH    = '0.982/1.021'
+pdf_WH    = '0.982/1.021'
+pdf_ZH    = '0.982/1.021'
 pdf_ttH   = '0.906/1.041'
 
 binned_systs = ['E_res','E_scale','idEff','triggerEff','vtxEff','r9Eff','ptSpin']
@@ -120,10 +137,16 @@ for cat in range(ncats):
     if 'qqH' in proc: card.write(' %s'%scale_qqH)
     else: card.write(' -')
    
-card.write('\nQCDscale_VH     lnN  ')
+card.write('\nQCDscale_WH     lnN  ')
 for cat in range(ncats):
   for i,proc in enumerate(procs):
-    if 'VH' in proc: card.write(' %s'%scale_VH)
+    if 'WH' in proc: card.write(' %s'%scale_WH)
+    else: card.write(' -')
+   
+card.write('\nQCDscale_ZH     lnN  ')
+for cat in range(ncats):
+  for i,proc in enumerate(procs):
+    if 'ZH' in proc: card.write(' %s'%scale_ZH)
     else: card.write(' -')
    
 card.write('\nQCDscale_ttH    lnN  ')
@@ -144,10 +167,16 @@ for cat in range(ncats):
     if 'qqH' in proc: card.write(' %s'%pdf_qqH)
     else: card.write(' -')
 
-card.write('\nPDF_VH     lnN  ')
+card.write('\nPDF_WH     lnN  ')
 for cat in range(ncats):
   for i,proc in enumerate(procs):
-    if 'VH' in proc: card.write(' %s'%pdf_VH)
+    if 'WH' in proc: card.write(' %s'%pdf_WH)
+    else: card.write(' -')
+   
+card.write('\nPDF_ZH     lnN  ')
+for cat in range(ncats):
+  for i,proc in enumerate(procs):
+    if 'ZH' in proc: card.write(' %s'%pdf_ZH)
     else: card.write(' -')
    
 card.write('\nPDF_ttH    lnN  ')
@@ -162,7 +191,12 @@ for syst in binned_systs:
     for i,proc in enumerate(procs):
       if proc=='bkg': card.write(' 0')
       else: card.write(' 0.333333')
-     
+
+if options.isMultiPdf:
+	card.write('\n')
+	for cat in range(ncats):
+		card.write('pdfindex_%d_%dTeV discrete\n'%(cat,options.sqrtS))
+
 card.close()
 
 catMap = {}
@@ -176,7 +210,7 @@ if options.justSM or options.justGravGG or options.justGravQQ or options.qqbarCa
   new_card = open('%s'%options.cardname,'w')
   for line in old_card.readlines():
     for cat in range(ncats-1,-1,-1):
-        line = line.replace('ch1_cat%d'%cat,'ch1_kinCat%d_spinCat%d'%(catMap[cat][0],catMap[cat][1]))
+        line = line.replace('ch1_cat%d'%cat,'kinCat%d_spinCat%d_%dTeV'%(catMap[cat][0],catMap[cat][1],options.sqrtS))
     new_card.write(line)
   new_card.close()
   os.system('rm -f %s'%old_card.name)

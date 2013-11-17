@@ -445,6 +445,7 @@ int getBestFitFunction(RooMultiPdf *bkg, RooAbsData *data, RooCategory *cat, boo
 
 	double global_minNll = 1E10;
 	int best_index = 0;
+	cat->Print("v");
 	int number_of_indeces = cat->numTypes();
 	
 	RooArgSet snap,clean;
@@ -607,7 +608,7 @@ pair<double,double> bkgEvPerGeV(RooWorkspace *work, int m_hyp, int cat, pair<dou
 		RooRealVar *mass = (RooRealVar*)work->var("CMS_hgg_mass");
 		mass->setRange(100,180);
 		RooAbsPdf *pdf;
-		if (is2011) pdf = (RooAbsPdf*)work->pdf(Form("pdf_data_pol_model_8TeV_cat%d",cat));
+		if (is2011) pdf = (RooAbsPdf*)work->pdf(Form("pdf_data_pol_model_7TeV_cat%d",cat));
 		else pdf = (RooAbsPdf*)work->pdf(Form("pdf_data_pol_model_8TeV_cat%d",cat));
 		RooAbsData *data = (RooDataSet*)work->data(Form("data_mass_cat%d",cat));
 		RooPlot *tempFrame = mass->frame();
@@ -649,6 +650,14 @@ pair<double,double> bkgEvPerGeV(RooWorkspace *work, int m_hyp, int cat, pair<dou
 		if (is2011)  mcat = (RooCategory*)work->cat(Form("pdfindex_%d_7TeV",cat));
 		else mcat = (RooCategory*)work->cat(Form("pdfindex_%d_8TeV",cat));
 		RooAbsData *data = (RooDataSet*)work->data(Form("roohist_data_mass_cat%d",cat));
+		if (!mcat) {
+			cout << "Category is NULL" << endl;
+			exit(1);
+		}
+		if (!data){
+			cout << "Data is NULL" << endl;
+			exit(1);
+		}
 		
 		// reset to best fit
 		int bf = getBestFitFunction(mpdf,data,mcat,true);
@@ -695,7 +704,7 @@ double sobInFWHM(RooWorkspace *sigWS, RooWorkspace *bkgWS, int m_hyp, int cat, d
 	RooAbsData *data=NULL;
 	
 	if (bkgWS->GetName()==TString("cms_hgg_workspace")) {
-		if (is2011) pdf = (RooAbsPdf*)bkgWS->pdf(Form("data_pol_model_8TeV_cat%d",cat)); 
+		if (is2011) pdf = (RooAbsPdf*)bkgWS->pdf(Form("data_pol_model_7TeV_cat%d",cat)); 
 		else pdf = (RooAbsPdf*)bkgWS->pdf(Form("data_pol_model_8TeV_cat%d",cat));
 		data = (RooDataSet*)bkgWS->data(Form("data_mass_cat%d",cat));
 	}
@@ -1422,6 +1431,7 @@ void makeParametricSignalModelPlots(string sigFitFileName, string outPathName, i
 		labels.insert(pair<string,string>("all","Combined"));
 	}
 	else {
+<<<<<<< HEAD
 		labels.insert(pair<string,string>("cat0","Untagged 0 (High p_{t})"));
 		labels.insert(pair<string,string>("cat1","Untagged 1 (High p_{t})"));
 		labels.insert(pair<string,string>("cat2","Untagged 2 (High p_{t})"));
@@ -1435,6 +1445,21 @@ void makeParametricSignalModelPlots(string sigFitFileName, string outPathName, i
 		labels.insert(pair<string,string>("cat10","VH Lepton Tight"));
 		labels.insert(pair<string,string>("cat11","VH Lepton Loose"));
 		labels.insert(pair<string,string>("cat12","VH MET Tag"));
+=======
+		labels.insert(pair<string,string>("cat0","Untagged 0"));
+		labels.insert(pair<string,string>("cat1","Untagged 1"));
+		labels.insert(pair<string,string>("cat2","Untagged 2"));
+		labels.insert(pair<string,string>("cat3","Untagged 3"));
+		labels.insert(pair<string,string>("cat0","Untagged 4"));
+		labels.insert(pair<string,string>("cat1","Untagged 5"));
+		labels.insert(pair<string,string>("cat2","Untagged 6"));
+		labels.insert(pair<string,string>("cat3","Untagged 7"));
+		labels.insert(pair<string,string>("cat4","Dijet Tag Tight"));
+		labels.insert(pair<string,string>("cat5","Dijet Tag Loose"));
+		labels.insert(pair<string,string>("cat6","VH Lepton Tight"));
+		labels.insert(pair<string,string>("cat7","VH Lepton Loose"));
+		labels.insert(pair<string,string>("cat8","VH MET Tag"));
+>>>>>>> b8dc30396c0c813a1528778cf54e7bb1b5f00d0e
 		if (is2011) {
 			labels.insert(pair<string,string>("cat13","ttH Lep+Had Tag"));
 			labels.insert(pair<string,string>("cat14","VH Hadronic Tag"));

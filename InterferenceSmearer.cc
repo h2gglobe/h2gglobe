@@ -13,8 +13,16 @@ InterferenceSmearer::InterferenceSmearer(Normalization_8TeV* norm, double *genCo
 	if (histFile != ""){
 		histFile_ = TFile::Open(histFile.c_str());
 		assert(histFile_);
-		reweightHist_ggh_ = (TH1F*)histFile_->Get("cosTheta_interference_ggh_m125");
-		reweightHist_gg_grav_ = (TH1F*)histFile_->Get("cosTheta_interference_gg_grav_m125");
+		TH1 *temp = (TH1F*)histFile_->Get("cosTheta_interference_ggh_m125");
+		assert(temp!=0);
+		reweightHist_ggh_ = (TH1F*) temp->Clone("cTinterf_ggh_m125");
+		reweightHist_ggh_->SetDirectory(0);
+		temp = (TH1F*)histFile_->Get("cosTheta_interference_gg_grav_m125");
+		assert(temp!=0);
+		reweightHist_gg_grav_ = (TH1F*) temp->Clone("cTinterf_gg_grav_m125");
+		reweightHist_gg_grav_->SetDirectory(0);
+		histFile_->Close();
+		delete histFile_;
 	}
 	else {
 		reweightHist_ggh_ = 0;
@@ -30,10 +38,12 @@ InterferenceSmearer::InterferenceSmearer(Normalization_8TeV* norm, float correct
 
 InterferenceSmearer::~InterferenceSmearer()
 {
+	/*
 	if (!isConst_) {
 		histFile_->Close();
 		delete histFile_;
 	}
+	*/
 }
 
 bool InterferenceSmearer::smearEvent( float & weight, const TLorentzVector & p4, const int nPu, const int sample_type, float syst_shift ) const 
@@ -56,14 +66,14 @@ bool InterferenceSmearer::smearEvent( float & weight, const TLorentzVector & p4,
 	}
 	// cos theta dependent interference
 	else {
-		TH1F *reweightHist = 0;
+		TH1 *reweightHist = 0;
 		if (norm_->GetProcess(sample_type) == "ggh") reweightHist = reweightHist_ggh_;
 		else if (norm_->GetProcess(sample_type) == "gg_grav") reweightHist = reweightHist_gg_grav_;
 		else assert(0);
 		assert(reweightHist);
 		assert(genCosTheta_);
-		weight = 1.+(reweightHist->GetBinContent(reweightHist->FindBin(TMath::Abs(*genCosTheta_)))/100.);
 		//cout << "genCosTheta: " << *genCosTheta_ << " ";
+		weight = 1.+(reweightHist->GetBinContent(reweightHist->FindBin(TMath::Abs(*genCosTheta_)))/100.);
 	}
 	//cout << "wt: " << weight << endl;
 

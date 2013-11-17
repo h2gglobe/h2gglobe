@@ -1,0 +1,51 @@
+run7TeV4Xanalysis=0
+applyPtoverM=1
+
+# beamspot emulation off in 2011 
+emulateBeamspot=0
+reweighBeamspot=0
+
+# merge tthHad and tthLept
+includeTTHhad=0
+
+## Inputs for reweighing
+doKFactorSmear=1
+doKFactorSyst=1
+
+## For 7TeV samples
+kfacHist=aux/KFactors_AllScales_interpolated.root
+puHist=auto
+puTarget=aux/nov08_rereco.json.68000.pileup.root
+
+## energy scale adjustement and errors
+scale_offset_file=jun21rereco_7TeV/energy_scale_offsets.dat
+scale_offset_error_file=common/energy_scale_errors.dat
+
+## uncorrelated part of the uncertainties
+splitEscaleSyst=0
+scale_offset_corr_error_file=energy_scale_corr_errors.dat
+
+## additional MC smearing
+smearing_file=jun21rereco_7TeV/smearing_sigma_and_errors.dat
+
+## uncorrelated part of the uncertainties
+splitEresolSyst=0
+corr_smearing_file=smearing_sigma_corr_errors.dat
+
+# vertex 
+reRunVtx=1
+rematchConversions=0
+
+vtxAlgoParams jan16reload/vertex_selection.dat
+mvaVertexSelection=1
+addConversionToMva=1
+tmvaPerVtxWeights=aux/TMVAClassification_BDTCat_conversions_tmva_407.weights.xml
+tmvaPerVtxMethod=BDTCat
+tmvaPerEvtWeights=aux/TMVAClassification_evtBDTG_conversions_tmva_407.weights.xml
+tmvaPerEvtMethod=evtBDTG
+
+# efficiecny scale factors
+efficiencyFile=aux/sig_reweighing_legacy_run2011_cutbased_v3.root
+
+# bkg pol orders 
+bkgPolOrderByCat=5,5,5,5,4,4,3,3,3,2,3

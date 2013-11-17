@@ -51,6 +51,11 @@ else:
 	metCat = [10]
 # FOR CIC:
 if options.isCutBased:
+	#incCats = [0,1,2,3]
+	#dijetCats = [4,5]
+	#muonCat = [6,7]
+	#eleCat = [6,7]
+	#metCat = [8]
 	incCats = [0,1,2,3,4,5,6,7]
 	dijetCats = [8,9]
 	muonCat = [10,11]
@@ -340,7 +345,6 @@ def printLumiSyst():
 def printGlobeSysts():
 	print 'Efficiencies...'
 	for globeSyst, paramSyst in globeSysts.items():
-		#print globeSyst, paramSyst
 		outFile.write('%-25s   lnN   '%('CMS_hgg_%s'%paramSyst))
 		for c in range(options.ncats):
 			for p in options.procs:
@@ -351,8 +355,14 @@ def printGlobeSysts():
 					th1f_nom = inFile.Get('th1f_sig_%s_mass_m125_cat%d'%(globeProc[p],c))
 					th1f_up  = inFile.Get('th1f_sig_%s_mass_m125_cat%d_%sUp01_sigma'%(globeProc[p],c,globeSyst))
 					th1f_dn  = inFile.Get('th1f_sig_%s_mass_m125_cat%d_%sDown01_sigma'%(globeProc[p],c,globeSyst))
-					systVals = interp1Sigma(th1f_nom,th1f_dn,th1f_up) 
-					outFile.write('%5.3f/%5.3f '%(systVals[0],systVals[1]))
+					systVals = interp1Sigma(th1f_nom,th1f_dn,th1f_up)
+					if 'pdfWeight' in globeSyst:
+						if p=='ggH':
+							outFile.write('%5.3f/%5.3f '%(systVals[0],systVals[1]))
+						else:
+							outFile.write('- ')
+					else:
+						outFile.write('%5.3f/%5.3f '%(systVals[0],systVals[1]))
 		outFile.write('\n')
 	outFile.write('\n')
 
