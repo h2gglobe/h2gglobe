@@ -16,7 +16,7 @@ class Packager {
 
   public:
 
-    Packager(RooWorkspace *ws, bool splitVH, int nCats, int mhLow, int mhHigh, bool is2011=false, string outDir="plots");
+    Packager(RooWorkspace *ws, bool splitVH, int nCats, int mhLow, int mhHigh, std::vector<int> skipMasses, bool is2011=false, string outDir="plots");
     ~Packager();
 
     void packageOutput();
@@ -32,6 +32,8 @@ class Packager {
 		bool is2011_;
 		string outDir_;
 		int sqrts_;
+		std::vector<int> skipMasses_;
+		bool skipMass(int mh);
     std::vector<std::string> procs;
     Normalization_8TeV *normalization;
 

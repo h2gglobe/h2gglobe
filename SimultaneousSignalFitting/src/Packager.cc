@@ -15,14 +15,15 @@
 using namespace std;
 using namespace RooFit;
 
-Packager::Packager(RooWorkspace *ws, bool splitVH, int nCats, int mhLow, int mhHigh, bool is2011, string outDir):
+Packager::Packager(RooWorkspace *ws, bool splitVH, int nCats, int mhLow, int mhHigh, vector<int> skipMasses, bool is2011, string outDir):
   outWS(ws),
   splitVH_(splitVH),
   nCats_(nCats),
   mhLow_(mhLow),
   mhHigh_(mhHigh),
 	is2011_(is2011),
-	outDir_(outDir)
+	outDir_(outDir),
+	skipMasses_(skipMasses)
 {
   procs.push_back("ggh"); 
   procs.push_back("vbf"); 
@@ -43,12 +44,20 @@ Packager::Packager(RooWorkspace *ws, bool splitVH, int nCats, int mhLow, int mhH
 
 Packager::~Packager(){}
 
+bool Packager::skipMass(int mh){
+	for (vector<int>::iterator it=skipMasses_.begin(); it!=skipMasses_.end(); it++) {
+		if (*it==mh) return true;
+	}
+	return false;
+}
+
 void Packager::packageOutput(){
 
   vector<string> expectedObjectsNotFound;
 
   // sum datasets first
   for (int mh=mhLow_; mh<=mhHigh_; mh+=5){
+		if (skipMass(mh)) continue;
     RooDataSet *allDataThisMass = 0;
     for (int cat=0; cat<nCats_; cat++) {
       RooDataSet *allDataThisCat = NULL;
@@ -162,6 +171,7 @@ void Packager::makePlots(){
 	RooAddPdf *sumPdfsAllCats = (RooAddPdf*)outWS->pdf("sigpdfrelAllCats_allProcs");
 	map<int,RooDataSet*> dataSets;
 	for (int m=mhLow_; m<=mhHigh_; m+=5){
+		if (skipMass(m)) continue;
 		RooDataSet *data = (RooDataSet*)outWS->data(Form("sig_mass_m%d_AllCats",m));
 		dataSets.insert(make_pair(m,data));
 	}
@@ -171,6 +181,7 @@ void Packager::makePlots(){
 		RooAddPdf *sumPdfsCat = (RooAddPdf*)outWS->pdf(Form("sigpdfrelcat%d_allProcs",cat));
 		map<int,RooDataSet*> dataSetsCat;
 		for (int m=mhLow_; m<=mhHigh_; m+=5){
+			if (skipMass(m)) continue;
 			RooDataSet *data = (RooDataSet*)outWS->data(Form("sig_mass_m%d_cat%d",m,cat));
 			dataSetsCat.insert(make_pair(m,data));
 		}

@@ -37,11 +37,18 @@ outFile = open(options.outfilename,'w')
 bkgProcs = ['bkg_mass']
 vbfProcs = ['qqH']
 # FOR MVA:
-incCats = [0,1,2,3,4]
-dijetCats = [5,6,7]
-muonCat = [8,9]
-eleCat = [8,9]
-metCat = [10]
+if options.is2011:
+	incCats = [0,1,2,3]
+	dijetCats = [4,5]
+	muonCat = [6,7]
+	eleCat = [6,7]
+	metCat = [8]
+else:
+	incCats = [0,1,2,3,4]
+	dijetCats = [5,6,7]
+	muonCat = [8,9]
+	eleCat = [8,9]
+	metCat = [10]
 # FOR CIC:
 if options.isCutBased:
 	#incCats = [0,1,2,3]
@@ -156,10 +163,11 @@ if not options.isCutBased:
   globeSysts['phoIdMva'] = 'n_id_mva'
   globeSysts['regSig'] = 'n_sigmae'
 
-	# QCD scale and PDF variations on PT-Y (replaced k-Factor PT variation) 
-  globeSysts['pdfWeight_QCDscale'] = 'n_sc_gf'
-  for pdfi in range(1,27):
-  	globeSysts['pdfWeight_pdfset%d'%pdfi] = 'n_pdf_%d'%pdfi
+  # QCD scale and PDF variations on PT-Y (replaced k-Factor PT variation) 
+  if not options.is2011:
+    globeSysts['pdfWeight_QCDscale'] = 'n_sc_gf'
+    for pdfi in range(1,27):
+      globeSysts['pdfWeight_pdfset%d'%pdfi] = 'n_pdf_%d'%pdfi
 
 # vbf uncertainties (different for 7 TeV?)
 vbfSysts={}
@@ -341,7 +349,7 @@ def printGlobeSysts():
 		for c in range(options.ncats):
 			for p in options.procs:
 				if '%s:%d'%(p,c) in options.toSkip: continue
-				if p in bkgProcs:
+				if p in bkgProcs or ('pdfWeight' in globeSyst and p!='ggH'):
 					outFile.write('- ')
 				else:
 					th1f_nom = inFile.Get('th1f_sig_%s_mass_m125_cat%d'%(globeProc[p],c))

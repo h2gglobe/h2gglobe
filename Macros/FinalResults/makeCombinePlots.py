@@ -20,6 +20,8 @@ parser.add_option("-m","--method",dest="method",type="string",help="Method to ru
 parser.add_option("-l","--legend",dest="legend",type="string",help="Legend position - x1,y1,x2,y2")
 parser.add_option("-x","--xaxis",dest="xaxis",type="string",help="x-axis range - x1,x2")
 parser.add_option("-y","--yaxis",dest="yaxis",type="string",help="y-axis range - y1,y2")
+parser.add_option("--xbinning",dest="xbinning",type="string",help="force x binning (b,l,h)")
+parser.add_option("--ybinning",dest="ybinning",type="string",help="force y binning (b,l,h)")
 parser.add_option("","--limit",dest="limit",default=False,action="store_true",help="Do limit plot")
 parser.add_option("","--pval",dest="pval",default=False,action="store_true",help="Do p-value plot")
 parser.add_option("","--maxlh",dest="maxlh",default=False,action="store_true",help="Do best fit mu plot")
@@ -512,12 +514,33 @@ def plot2DNLL(xvar="RF",yvar="RV",xtitle="#mu_{ggH+ttH}",ytitle="#mu_{qqH+VH}"):
   tempX = r.gROOT.FindObject('h%s'%xvar)
   tree.Draw("%s>>h%s(10000,%1.4f,%1.4f)"%(yvar,yvar,ymin,ymax),"deltaNLL>0.","goff")
   tempY = r.gROOT.FindObject('h%s'%yvar)
-  xbins=0
-  ybins=0
-  for bin in range(1,tempX.GetNbinsX()+1):
-    if tempX.GetBinContent(bin)!=0: xbins+=1
-  for bin in range(1,tempY.GetNbinsX()+1):
-    if tempY.GetBinContent(bin)!=0: ybins+=1
+  
+  # x binning
+  if options.xbinning: 
+    xbins = int(options.xbinning.split(',')[0])
+    xmin = float(options.xbinning.split(',')[1])
+    xmax = float(options.xbinning.split(',')[2])
+  else:
+    xmin = tree.GetMinimum(xvar)
+    xmax = tree.GetMaximum(xvar)
+    tree.Draw("%s>>h%s(10000,%1.4f,%1.4f)"%(xvar,xvar,xmin,xmax),"deltaNLL>0.","goff")
+    tempX = r.gROOT.FindObject('h%s'%xvar)
+    for bin in range(1,tempX.GetNbinsX()+1):
+      if tempX.GetBinContent(bin)!=0: xbins+=1
+  
+  # y binning
+  if options.ybinning: 
+    ybins = int(options.ybinning.split(',')[0])
+    ymin = float(options.ybinning.split(',')[1])
+    ymax = float(options.ybinning.split(',')[2])
+  else:
+    ymin = tree.GetMinimum(yvar)
+    ymax = tree.GetMaximum(yvar)
+    tree.Draw("%s>>h%s(10000,%1.4f,%1.4f)"%(yvar,yvar,ymin,ymax),"deltaNLL>0.","goff")
+    tempY = r.gROOT.FindObject('h%s'%yvar)
+    for bin in range(1,tempY.GetNbinsX()+1):
+      if tempY.GetBinContent(bin)!=0: ybins+=1
+
   tree.Draw("2.*deltaNLL:%s:%s>>h%s%s(%d,%1.4f,%1.4f,%d,%1.4f,%1.4f)"%(yvar,xvar,yvar,xvar,xbins,xmin,xmax,ybins,ymin,ymax),"deltaNLL>0.","prof")
   th2 = r.gROOT.FindObject('h%s%s'%(yvar,xvar))
   gBF = r.TGraph()

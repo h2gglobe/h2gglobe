@@ -41,6 +41,8 @@ bool spin_=false;
 bool splitVH_=false;
 bool isCutBased_=false;
 bool is2011_=false;
+string massesToSkip_;
+vector<int> skipMasses_;
 bool splitRVWV_=true;
 bool doSecondaryModels_=true;
 bool runInitialFitsOnly_=false;
@@ -65,6 +67,7 @@ void OptionParser(int argc, char *argv[]){
     ("splitVH",                                                                               			"Split VH into WH and ZH")
     ("isCutBased",                                                                               		"Is this the cut based analysis")
     ("is2011",                                                                               				"Is this the 7TeV analysis")
+		("skipMasses", po::value<string>(&massesToSkip_)->default_value(""),														"Skip these mass points - used eg for the 7TeV where there's no mc at 145")
 		("runInitialFitsOnly",																																					"Just fit gaussians - no interpolation, no systematics - useful for testing nGaussians")
     ("nonRecursive",                                                                             		"Do not recursively calculate gaussian fractions")
     ("verbose,v", po::value<int>(&verbose_)->default_value(0),                                			"Verbosity level: 0 (lowest) - 3 (highest)")
@@ -81,6 +84,19 @@ void OptionParser(int argc, char *argv[]){
   if (vm.count("nosplitRVWV"))              splitRVWV_=false;
   if (vm.count("skipSecondaryModels"))      doSecondaryModels_=false;
   if (vm.count("recursive"))                recursive_=false;
+	if (vm.count("skipMasses")) {
+		cout << "Masses to skip... " << endl;
+		vector<string> els;
+		split(els,massesToSkip_,boost::is_any_of(","));
+		if (els.size()>0 && massesToSkip_!="") {
+			for (vector<string>::iterator it=els.begin(); it!=els.end(); it++) {
+				skipMasses_.push_back(boost::lexical_cast<int>(*it));
+			}
+		}
+		cout << "\t";
+		for (vector<int>::iterator it=skipMasses_.begin(); it!=skipMasses_.end(); it++) cout << *it << " ";
+		cout << endl;
+	}
 }
 
 void transferMacros(TFile *inFile, TFile *outFile){
@@ -95,6 +111,13 @@ void transferMacros(TFile *inFile, TFile *outFile){
       macro->Write();
     }
   }
+}
+
+bool skipMass(int mh){
+	for (vector<int>::iterator it=skipMasses_.begin(); it!=skipMasses_.end(); it++) {
+		if (*it==mh) return true;
+	}
+	return false;
 }
 
 int main(int argc, char *argv[]){
@@ -155,6 +178,7 @@ int main(int argc, char *argv[]){
     map<int,RooDataSet*> datasets;
 
     for (int mh=mhLow_; mh<=mhHigh_; mh+=5){
+			if (skipMass(mh)) continue;
       RooDataSet *dataRV = (RooDataSet*)inWS->data(Form("sig_%s_mass_m%d_rv_cat%d",proc.c_str(),mh,cat));
       RooDataSet *dataWV = (RooDataSet*)inWS->data(Form("sig_%s_mass_m%d_wv_cat%d",proc.c_str(),mh,cat));
       RooDataSet *data = (RooDataSet*)inWS->data(Form("sig_%s_mass_m%d_cat%d",proc.c_str(),mh,cat));
@@ -165,7 +189,7 @@ int main(int argc, char *argv[]){
 
     // these guys do the fitting
     // right vertex
-    InitialFit initFitRV(mass,MH,mhLow_,mhHigh_);
+    InitialFit initFitRV(mass,MH,mhLow_,mhHigh_,skipMasses_);
     initFitRV.setVerbosity(verbose_);
     initFitRV.buildSumOfGaussians(Form("%s_cat%d",proc.c_str(),cat),nGaussiansRV,recursive_);
     initFitRV.setDatasets(datasetsRV);
@@ -179,7 +203,7 @@ int main(int argc, char *argv[]){
     map<int,map<string,RooRealVar*> > fitParamsRV = initFitRV.getFitParams();
     
     // wrong vertex
-    InitialFit initFitWV(mass,MH,mhLow_,mhHigh_);
+    InitialFit initFitWV(mass,MH,mhLow_,mhHigh_,skipMasses_);
     initFitWV.setVerbosity(verbose_);
     initFitWV.buildSumOfGaussians(Form("%s_cat%d",proc.c_str(),cat),nGaussiansWV,recursive_);
     initFitWV.setDatasets(datasetsWV);
@@ -195,21 +219,21 @@ int main(int argc, char *argv[]){
 		if (!runInitialFitsOnly_) {
 			//these guys do the interpolation
 			// right vertex
-			LinearInterp linInterpRV(MH,mhLow_,mhHigh_,fitParamsRV,doSecondaryModels_);
+			LinearInterp linInterpRV(MH,mhLow_,mhHigh_,fitParamsRV,doSecondaryModels_,skipMasses_);
 			linInterpRV.setVerbosity(verbose_);
 			linInterpRV.setSecondaryModelVars(MH_SM,DeltaM,MH_2,higgsDecayWidth);
 			linInterpRV.interpolate(nGaussiansRV);
 			map<string,RooSpline1D*> splinesRV = linInterpRV.getSplines();
 
 			// wrong vertex
-			LinearInterp linInterpWV(MH,mhLow_,mhHigh_,fitParamsWV,doSecondaryModels_);
+			LinearInterp linInterpWV(MH,mhLow_,mhHigh_,fitParamsWV,doSecondaryModels_,skipMasses_);
 			linInterpWV.setVerbosity(verbose_);
 			linInterpWV.setSecondaryModelVars(MH_SM,DeltaM,MH_2,higgsDecayWidth);
 			linInterpWV.interpolate(nGaussiansWV);
 			map<string,RooSpline1D*> splinesWV = linInterpWV.getSplines();
 
 			// this guy constructs the final model with systematics, eff*acc etc.
-			FinalModelConstruction finalModel(mass,MH,intLumi,mhLow_,mhHigh_,proc,cat,doSecondaryModels_,systfilename_,verbose_,isCutBased_,is2011_);
+			FinalModelConstruction finalModel(mass,MH,intLumi,mhLow_,mhHigh_,proc,cat,doSecondaryModels_,systfilename_,skipMasses_,verbose_,isCutBased_,is2011_);
 			finalModel.setSecondaryModelVars(MH_SM,DeltaM,MH_2,higgsDecayWidth);
 			finalModel.setRVsplines(splinesRV);
 			finalModel.setWVsplines(splinesWV);
@@ -239,7 +263,7 @@ int main(int argc, char *argv[]){
 		sw.Start();
 		cout << "Starting to combine fits..." << endl;
 		// this guy packages everything up
-		Packager packager(outWS,splitVH_,nCats_,mhLow_,mhHigh_,is2011_,plotDir_);
+		Packager packager(outWS,splitVH_,nCats_,mhLow_,mhHigh_,skipMasses_,is2011_,plotDir_);
 		packager.packageOutput();
 		sw.Stop();
 		cout << "Combination complete." << endl;
