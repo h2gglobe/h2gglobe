@@ -18,6 +18,11 @@ short int gp_status_[10000];
 short int gp_pdgid_[10000];
 short int gp_mother_[10000];
 TClonesArray *gp_p4_ = new TClonesArray("TLorentzVector",10000);
+int pho_n_;
+TClonesArray *pho_p4_ = new TClonesArray("TLorentzVector",10000);
+TClonesArray *gh_pho1 = new TClonesArray("TLorentzVector",10000);
+TClonesArray *gh_pho2 = new TClonesArray("TLorentzVector",10000);
+
 
 double getCosTheta(TLorentzVector b1, TLorentzVector b2, TLorentzVector g1, TLorentzVector g2){
     
@@ -65,12 +70,15 @@ map<string,vector<string> > getListOfFiles(string datfile){
 
 }
 
-void makePlot(string datfile){
+void makePlot(string datfile, string outfile, double sqrtS=8.){
  
-  TLorentzVector b1(0.,0.,4000.,4000.);
-  TLorentzVector b2(0.,0.,-4000.,4000.);
+ 	double beamE = 500.*sqrtS;
+  TLorentzVector b1(0.,0.,beamE,beamE);
+  TLorentzVector b2(0.,0.,-beamE,beamE);
+	
+	cout << "Using beam energy " << beamE << endl;
 
-  TFile *outf = new TFile("plots.root","RECREATE");
+  TFile *outf = new TFile(outfile.c_str(),"RECREATE");
   int type=-1;
   int category=-1;
   float cosTheta=-999.;
@@ -105,11 +113,51 @@ void makePlot(string datfile){
       tree->SetBranchAddress("gp_pdgid",&gp_pdgid_);
       tree->SetBranchAddress("gp_mother",&gp_mother_);
       tree->SetBranchAddress("gp_p4",&gp_p4_);
+
+			//tree->SetBranchAddress("gh_pho1_p4",&gh_pho1);
+			//tree->SetBranchAddress("gh_pho2_p4",&gh_pho2);
+			tree->SetBranchAddress("pho_n",&pho_n_);
+			tree->SetBranchAddress("pho_p4",&pho_p4_);
      
       for (int ev=0; ev<tree->GetEntries(); ev++){
         if (ev%100==0) cout << ev << "/" << tree->GetEntries() << "\r" << flush;
         tree->GetEntry(ev);
-        
+
+				/*
+				//cout << "pho_n " << pho_n_ << endl;
+				if (pho_n_<2) continue;
+
+				int lead_ind=-1;
+				int sublead_ind=-1;
+				double maxpt=0.;
+				double submaxpt=0.;
+				for (int pi=0; pi<pho_n_; pi++){
+					TLorentzVector *pho_p4 = (TLorentzVector*)(*pho_p4_)[pi];
+					//cout << "\t pi: " << pi << " pt: " << pho_p4->Pt() << endl;
+					if (pho_p4->Pt()>=maxpt) {
+						// switch lead to sublead
+						sublead_ind = lead_ind;
+						lead_ind = pi;
+						submaxpt = maxpt;
+						maxpt = pho_p4->Pt();
+					}
+					else {
+						if (pho_p4->Pt()>submaxpt && pho_p4->Pt()<maxpt){
+							sublead_ind=pi;
+							submaxpt = pho_p4->Pt();
+						}
+					}
+				}
+				assert(lead_ind!=-1);
+				assert(sublead_ind!=-1);
+				assert(lead_ind!=sublead_ind);
+				//cout << "Chosen: " << lead_ind << " " << sublead_ind << endl;
+				TLorentzVector *lead_p4 = (TLorentzVector*)(*pho_p4_)[lead_ind];
+				TLorentzVector *sublead_p4 = (TLorentzVector*)(*pho_p4_)[sublead_ind];
+       
+        cosThetaCS = getCosTheta(b1,b2,*lead_p4,*sublead_p4);
+				//cout << cosThetaCS << endl;
+				*/
         vector<int> protonInd;
         vector<int> partonInd;
         vector<int> photonInd;
@@ -137,9 +185,11 @@ void makePlot(string datfile){
         TLorentzVector *gen_pho1 = (TLorentzVector*)(*gp_p4_)[photonInd[0]];
         TLorentzVector *gen_pho2 = (TLorentzVector*)(*gp_p4_)[photonInd[1]];
         //cout << gen_higgs->Px() << " " << gen_higgs->Py() << " " << gen_higgs->Pz() << " " << gen_higgs->E() << endl;
-        category = getCategory(lead_eta,sublead_eta,lead_r9,sublead_r9);
+        //category = getCategory(lead_eta,sublead_eta,lead_r9,sublead_r9);
+
         cosThetaCS = getCosTheta(b1,b2,*gen_pho1,*gen_pho2);
-        cosTheta   = getCosTheta(*gen_part1,*gen_part2,*gen_pho1,*gen_pho2);
+				//cout << cosThetaCS << endl;
+        //cosTheta   = getCosTheta(*gen_part1,*gen_part2,*gen_pho1,*gen_pho2);
         
         outTree->Fill();
       } // loop events

@@ -311,8 +311,8 @@ int extractSignificanceStats(
   pt->SetTextFont(42);
   pt->SetTextSize(0.03);
   pt->AddText(0.01,0.5,"CMS preliminary");
-  //text = pt->AddText(0.3,0.6,"#sqrt{s} = 7 TeV, L = 5.1 fb^{-1}  #sqrt{s} = 8 TeV, L = 19.6 fb^{-1}");
-  pt->AddText(0.6,0.6,"#sqrt{s} = 8 TeV, L = 19.6 fb^{-1}");
+  pt->AddText(0.3,0.6,"#sqrt{s} = 7 TeV, L = 5.1 fb^{-1}  #sqrt{s} = 8 TeV, L = 19.6 fb^{-1}");
+  //pt->AddText(0.6,0.6,"#sqrt{s} = 8 TeV, L = 19.6 fb^{-1}");
   pt->Draw();   
   
   

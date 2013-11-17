@@ -12,10 +12,12 @@ parser.add_option("-d","--dir",dest="dir")
 parser.add_option("-m","--mass",dest="mass",type="float")
 parser.add_option("-l","--lowJob",type="int",default=0)
 parser.add_option("-u","--highJob",type="int",default=100000)
-parser.add_option("-s","--skipJobs")
+parser.add_option("-s","--skipJobs",default='')
 parser.add_option("--splitJobs",default=False,action="store_true")
 (options,args) = parser.parse_args()
-options.skipJobs = [int(x) for x in options.skipJobs.split(',')]
+
+if options.skipJobs=='': options.skipJobs=[]
+else: options.skipJobs = [int(x) for x in options.skipJobs.split(',')]
 
 def doqqbar():
   
