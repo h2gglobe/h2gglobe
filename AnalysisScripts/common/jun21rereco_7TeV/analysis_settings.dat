@@ -93,7 +93,7 @@ smearing_file=jun21rereco_7TeV/smearing_sigma_and_errors.dat
 
 ## uncorrelated part of the uncertainties
 splitEresolSyst=0
-corr_smearing_file=jun21rereco_7TeV/smearing_sigma_corr_errors.dat
+corr_smearing_file=smearing_sigma_corr_errors.dat
 
 ## jets
 recomputeBetas=0
