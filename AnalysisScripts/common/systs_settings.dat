@@ -8,8 +8,8 @@ splitEscaleSyst=1
 splitEresolSyst=1
 
 # evaluate pdfs uncertainties
-doPdfWeightSmear=1
-doPdfWeightSyst=1
+#doPdfWeightSmear=1
+#doPdfWeightSyst=1
 
 # stocastic smearing and uncertainties
 doStocasticSmearingSyst=1

@@ -1130,7 +1130,6 @@ bool StatAnalysis::AnalyseEvent(LoopAll& l, Int_t jentry, float weight, TLorentz
         //save vbf trees
         if (!isSyst && cur_type<0 && saveVBFTrees_) saveVBFTree(l,category, evweight, -99.);
 
-
         if (dumpAscii && !isSyst && (cur_type==0||dumpMcAscii) && mass>=massMin && mass<=massMax ) {
             // New ascii event list for syncrhonizing MVA Preselection + Diphoton MVA
             eventListText <<"type:"<< cur_type 
@@ -2331,6 +2330,8 @@ void StatAnalysis::fillOpTree(LoopAll& l, const TLorentzVector & lead_p4, const 
         if (diphobdt_output>=bdtCategoryBoundaries.back()) computeExclusiveCategory(l,category,diphoton_index,Higgs.Pt(),Higgs.M(),diphobdt_output); 
     }
 };
+
+	
 
 
 // Local Variables:

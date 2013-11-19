@@ -514,7 +514,6 @@ class PhotonAnalysis : public BaseAnalysis
     bool MuonTag2012B(LoopAll& l, int& diphotonVHlep_id, int& mu_ind, int& muVtx, int& mu_cat, float* smeared_pho_energy, ofstream& lep_sync, bool mvaselection=true, float phoidMvaCut=-0.2, float eventweight=1.0, std::vector<float>  smeared_pho_weight=std::vector<float>(), bool fillHist=false, bool vetodipho=false, bool kinonly=false);
     void ControlPlotsMuonTag2012B(LoopAll& l, TLorentzVector lead_p4, TLorentzVector sublead_p4, int mu_ind, float bdtoutput, float evweight, std::string label);
 
-
     // ~ ICHEP2012
     bool METTag2012(LoopAll& l, int& diphotonVHmet_id , float* smeared_pho_energy);  //met at analysis step
     void MetCorrections2012(LoopAll& l);
