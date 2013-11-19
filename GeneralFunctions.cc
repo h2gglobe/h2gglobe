@@ -1,8 +1,6 @@
 #include "LoopAll.h"
 #include "Sorters.h"
 #include "TRandom3.h"
-#include "CMGTools/External/interface/PileupJetIdentifier.h"
-#include "PhotonAnalysis/interface/PhotonAnalysis.h"
 #define GFDEBUG 0
 
 float LoopAll::pfTkIsoWithVertex(int phoindex, int vtxInd, float dRmax, float dRvetoBarrel, float dRvetoEndcap, 
