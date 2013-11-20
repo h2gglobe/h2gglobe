@@ -92,16 +92,16 @@ double getProbabilityFtest(double chi2, int ndof,RooAbsPdf *pdfNull, RooAbsPdf *
   }
   
   int npass =0;
+  mass->setBins(nBinsForMass);
   for (int itoy = 0 ; itoy < ntoys ; itoy++){
 
         params_null->assignValueOnly(preParams_null);
         params_test->assignValueOnly(preParams_test);
-  	RooDataSet *data_t = pdfNull->generate(RooArgSet(*mass),ndata);
-  	RooDataHist binnedtoy("data_toy","data",*mass,*data_t); 		
+  	RooDataHist *binnedtoy = pdfNull->generateBinned(RooArgSet(*mass),ndata,0,1);
 	
-	RooFitResult *fitNull = pdfNull->fitTo(*data_t,RooFit::Save(1));
+	RooFitResult *fitNull = pdfNull->fitTo(*binnedtoy,RooFit::Save(1),RooFit::Strategy(2),RooFit::Minimizer("Minuit2","minimize"));
 	double nllNull = fitNull->minNll();
-	RooFitResult *fitTest = pdfTest->fitTo(*data_t,RooFit::Save(1));
+	RooFitResult *fitTest = pdfTest->fitTo(*binnedtoy,RooFit::Save(1),RooFit::Strategy(2),RooFit::Minimizer("Minuit2","minimize"));
 	double nllTest = fitTest->minNll();
 	
 	double chi2_t = 2*(nllNull-nllTest);
@@ -176,12 +176,11 @@ double getGoodnessOfFit(RooRealVar *mass, RooAbsPdf *mpdf, RooAbsData *data, std
     for (int itoy = 0 ; itoy < ntoys ; itoy++){
       params->assignValueOnly(preParams);
       int nToyEvents = RandomGen->Poisson(ndata);
-      RooDataSet *data_t = pdf->generate(RooArgSet(*mass),nToyEvents);
-      RooDataHist binnedtoy("data_toy","data",*mass,*data_t); 		
-      pdf->fitTo(binnedtoy);
+      RooDataHist *binnedtoy = pdf->generateBinned(RooArgSet(*mass),nToyEvents,0,1);
+      pdf->fitTo(*binnedtoy,RooFit::Minimizer("Minuit2","minimize"));
 
       RooPlot *plot_t = mass->frame();
-      binnedtoy.plotOn(plot_t);
+      binnedtoy->plotOn(plot_t);
       pdf->plotOn(plot_t);//,RooFit::NormRange("fitdata_1,fitdata_2"));
 
       double chi2_t = plot_t->chiSquare(np);
@@ -204,7 +203,6 @@ double getGoodnessOfFit(RooRealVar *mass, RooAbsPdf *mpdf, RooAbsData *data, std
   std::cout << "Chi2 in Observed =  " << chi2*(nBinsForMass-np) << std::endl;
   std::cout << "p-value  =  " << prob << std::endl;
   delete pdf;
-  delete data;
   return prob;
 
 }
@@ -393,7 +391,7 @@ int main(int argc, char* argv[]){
     ("datfile,d", po::value<string>(&datfile)->default_value("dat/fTest.dat"),                  "Right results to datfile for BiasStudy")
     ("outDir,D", po::value<string>(&outDir)->default_value("plots/fTest"),                      "Out directory for plots")
     ("saveMultiPdf", po::value<string>(&outfilename)->default_value("multipdfws.root"),         "Save a MultiPdf model with the appropriate pdfs")
-    ("runFtestCheckWithToys", po::value<bool>(&runFtestCheckWithToys)->default_value(false),  "When running the F-test, use toys to calculate pvals (and make plots) ")
+    ("runFtestCheckWithToys", 									"When running the F-test, use toys to calculate pvals (and make plots) ")
     ("is2011",                                                                                  "Run 2011 config")
     ("unblind",  									        "Dont blind plots")
     ("verbose,v",                                                                               "Run with more output")
@@ -410,6 +408,7 @@ int main(int argc, char* argv[]){
 	saveMultiPdf=false;
   }
   if (vm.count("verbose")) verbose=true;
+  if (vm.count("runFtestCheckWithToys")) runFtestCheckWithToys=true;
 
   if (!verbose) {
     RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
@@ -560,7 +559,7 @@ int main(int argc, char* argv[]){
         }
         else {
 	
-          RooFitResult *fitRes = bkgPdf->fitTo(*data,Save(true));
+          RooFitResult *fitRes = bkgPdf->fitTo(*data,Save(true),RooFit::Minimizer("Minuit2","minimize"));
           thisNll = fitRes->minNll();
           chi2 = 2.*(prevNll-thisNll);
           if (chi2<0. && order>1) chi2=0.;
@@ -609,7 +608,7 @@ int main(int argc, char* argv[]){
           }
 
           else {
-           RooFitResult *fitRes = bkgPdf->fitTo(*data,Save(true));
+           RooFitResult *fitRes = bkgPdf->fitTo(*data,Save(true),RooFit::Minimizer("Minuit2","minimize"));
            thisNll = fitRes->minNll();
 	   double myNll = 2.*thisNll;
            chi2 = 2.*(prevNll-thisNll);
@@ -661,10 +660,11 @@ int main(int argc, char* argv[]){
 
     plot(mass,pdfs,data,Form("%s/truths_cat%d.pdf",outDir.c_str(),cat),cat);
     plot(mass,pdfs,data,Form("%s/truths_cat%d.png",outDir.c_str(),cat),cat);
-    plot(mass,allPdfs,data,Form("%s/multipdf_cat%d.pdf",outDir.c_str(),cat),cat,simplebestFitPdfIndex);
-    plot(mass,allPdfs,data,Form("%s/multipdf_cat%d.png",outDir.c_str(),cat),cat,simplebestFitPdfIndex);
 
     if (saveMultiPdf){
+
+    	  plot(mass,allPdfs,data,Form("%s/multipdf_cat%d.pdf",outDir.c_str(),cat),cat,simplebestFitPdfIndex);
+          plot(mass,allPdfs,data,Form("%s/multipdf_cat%d.png",outDir.c_str(),cat),cat,simplebestFitPdfIndex);
 
 	  // Put selectedModels into a MultiPdf
 	  std::string ext = is2011 ? "7TeV" : "8TeV";
