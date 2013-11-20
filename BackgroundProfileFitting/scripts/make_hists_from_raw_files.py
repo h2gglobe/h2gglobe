@@ -52,7 +52,18 @@ def makeHists(cat=0,meanB=50,meanL=-4.,meanH=4.,errB=50,errL=0.5,errH=1.5,pullB=
 
   truth_models = set()
 
-  test_file = r.TFile.Open(dir+'/'+list_of_files[0])
+  TestFileFound = False
+  test_file=0
+  TFi = 0
+  while not TestFileFound:
+    test_file = r.TFile.Open(dir+'/'+list_of_files[TFi])
+    try :
+	test_file.GetName()
+	TestFileFound=True
+    except:
+	TFi+=1
+	TestFileFound=False
+  
   for key in test_file.GetListOfKeys():
     if 'truth' not in key.GetName(): continue
     if 'hybrid' in key.GetName():
@@ -109,6 +120,10 @@ def makeHists(cat=0,meanB=50,meanL=-4.,meanH=4.,errB=50,errL=0.5,errH=1.5,pullB=
     print '\tJob', i+1,'/',len(list_of_files), '\r',
     sys.stdout.flush()
     file = r.TFile.Open(dir+'/'+f)
+    try :
+	file.GetName()
+    except:
+	continue
     for key in file.GetListOfKeys():
       graph = key.ReadObj()
       if 'Envelope' not in graph.GetName(): continue
