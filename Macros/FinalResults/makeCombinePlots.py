@@ -31,6 +31,7 @@ parser.add_option("","--rv",dest="rv",default=False,action="store_true",help="Do
 parser.add_option("","--rf",dest="rf",default=False,action="store_true",help="Do NLL rf scan plot")
 parser.add_option("","--mumh",dest="mumh",default=False,action="store_true",help="Do NLL mu vs mh scan plot")
 parser.add_option("","--rvrf",dest="rvrf",default=False,action="store_true",help="Do NLL rv vs rf scan plot")
+parser.add_option("","--mpdfchcomp",dest="mpdfchcomp",default=False,action="store_true",help="Do MultiPdf channel compatbility plot")
 parser.add_option("-v","--verbose",dest="verbose",default=False,action="store_true")
 parser.add_option("-b","--batch",dest="batch",default=False,action="store_true")
 (options,args)=parser.parse_args()
@@ -45,9 +46,10 @@ if options.rv: options.method='rv'
 if options.rf: options.method='rf'
 if options.mumh: options.method='mumh'
 if options.rvrf: options.method='rvrf'
+if options.mpdfchcomp: options.method='mpdfchcomp'
 if not options.outname: options.outname=options.method
 
-allowed_methods=['pval','limit','maxlh','mh','mu','mumh','rv','rf','rvrf']
+allowed_methods=['pval','limit','maxlh','mh','mu','mumh','rv','rf','rvrf','mpdfchcomp']
 if not options.datfile and options.method not in allowed_methods:
   print 'Invalid method. Must set one of: ', allowed_methods
   sys.exit()
@@ -56,6 +58,12 @@ import ROOT as r
 outf = r.TFile('CombinePlotCanvases.root','RECREATE')
 
 if options.batch: r.gROOT.SetBatch()
+
+# set defaults for colors etc.
+while len(options.files)>len(options.colors): options.colors.append(1)
+while len(options.files)>len(options.styles): options.styles.append(1)
+while len(options.files)>len(options.widths): options.widths.append(1)
+while len(options.files)>len(options.names): options.names.append('')
 
 # make canvas and dummy hist
 canv = r.TCanvas()
@@ -87,6 +95,7 @@ def pvalPlot(allVals):
     graph = r.TGraph()
     for j in range(len(values)):
       graph.SetPoint(j,values[j][0],values[j][1])
+      if options.verbose: print '\t', j, values[j][0], values[j][1], r.RooStats.PValueToSignificance(values[j][1])
     
     graph.SetLineColor(int(options.colors[k]))
     graph.SetLineStyle(int(options.styles[k]))
@@ -378,7 +387,7 @@ def read1D(file,x,i,xtitle):
     last = gr.GetX()[i-1]
   return gr
 
-def plot1DNLL():
+def plot1DNLL(returnErrors=False):
  
   if options.method=='mh':
     x = 'MH'
@@ -432,6 +441,9 @@ def plot1DNLL():
     eminus2 = xmin - func.GetX(4.,func.GetXmin(),xmin)
     eplus2  = func.GetX(4.,xmin,func.GetXmax()) - xmin
     print "%s : %1.4f +%1.3g -%1.3g" % ( graph.GetName(), xmin, eplus , eminus )
+
+    if returnErrors:
+      return [xmin,eplus,eminus,eplus2,eminus2]
 
     # for the first passed file only get the intersection lines
     if k==0:
@@ -488,8 +500,10 @@ def plot1DNLL():
   lat2.SetNDC()
   lat2.SetTextSize(0.04)
   lat2.SetTextAlign(22)
-  if options.method=='mh': lat2.DrawLatex(0.5,0.85,"m_{H} = %5.1f #pm %3.1f"%(fit,err))
-  elif options.method=='mu': lat2.DrawLatex(0.5,0.85,"#sigma/#sigma_{SM} = %3.1f #pm %3.1f"%(fit,err))
+  if options.method=='mh': lat2.DrawLatex(0.5,0.85,"m_{H} = %6.2f #pm %4.2f"%(fit,err))
+  elif options.method=='mu': lat2.DrawLatex(0.5,0.85,"#sigma/#sigma_{SM} = %4.2f #pm %4.2f"%(fit,err))
+  elif options.method=='rv': lat2.DrawLatex(0.5,0.85,"#mu_{qqH+VH} = %4.2f #pm %4.2f"%(fit,err))
+  elif options.method=='rf': lat2.DrawLatex(0.5,0.85,"#mu_{ggH+ttH} = %4.2f #pm %4.2f"%(fit,err))
 
   canv.Update()
   if not options.batch: raw_input("Looks ok?")
@@ -626,6 +640,29 @@ def plot2DNLL(xvar="RF",yvar="RV",xtitle="#mu_{ggH+ttH}",ytitle="#mu_{qqH+VH}"):
   outf.cd()
   canv.Write()
 
+def plotMPdfChComp():
+
+  print 'plotting mpdf ChannelComp'
+  print '\t will assume first file is the global best fit'
+  
+  points = []
+  loffiles = options.files
+
+  k=0
+  while len(loffiles)>0:
+    options.files = [loffiles[0]]
+    options.method = 'mu'
+    r.gROOT.SetBatch()
+    ps = plot1DNLL(True)
+    ps.insert(0,options.names[k])
+    points.append(ps)
+    k+=1
+    loffiles.pop(0)
+
+  r.gROOT.SetBatch(options.batch)
+  for point in points:
+    print point[0], ':', point[1:]
+
 def run():
   if options.verbose:
     print options.method
@@ -637,10 +674,19 @@ def run():
 
   if options.method=='pval' or options.method=='limit' or options.method=='maxlh':
     runStandard()
-  elif options.method=='mh' or options.method=='mu' or options.method=='rv' or options.method=='rf':
-    r.gROOT.ProcessLine(".x FinalResults/rootPalette.C")
-    r.gROOT.LoadMacro('ResultScripts/GraphToTF1.C+')
-    plot1DNLL()
+  elif options.method=='mh' or options.method=='mu' or options.method=='rv' or options.method=='rf' or options.method=='mpdfchcomp':
+    path = os.path.expandvars('$CMSSW_BASE/src/HiggsAnalysis/HiggsTo2photons/h2gglobe/Macros/FinalResults/rootPalette.C')
+    if not os.path.exists(path):
+      sys.exit('ERROR - Can\'t find path: '+path) 
+    r.gROOT.ProcessLine(".x "+path)
+    path = os.path.expandvars('$CMSSW_BASE/src/HiggsAnalysis/HiggsTo2photons/h2gglobe/Macros/ResultScripts/GraphToTF1.C')
+    if not os.path.exists(path):
+      sys.exit('ERROR - Can\'t find path: '+path) 
+    r.gROOT.LoadMacro(path)
+    if options.method=='mpdfchcomp':
+      plotMPdfChComp()
+    else:
+      plot1DNLL()
   elif options.method=='mumh':
     plot2DNLL("MH","r","m_{H} (GeV)","#sigma/#sigma_{SM}")
   elif options.method=='rvrf':
