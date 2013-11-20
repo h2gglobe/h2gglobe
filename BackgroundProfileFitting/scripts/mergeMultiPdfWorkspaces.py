@@ -2,7 +2,7 @@
 from optparse import OptionParser
 parser = OptionParser()
 parser.add_option("-o","--outfile",help="Outputfile")
-parser.add_option("-S","--sqrts",type='int',default=8,help="Sqrt(S) COM energy for finding strings etc")
+parser.add_option("-S","--sqrts",type='int',default=-1,help="Sqrt(S) COM energy for finding strings etc (default picked up from workspace)")
 
 (options,args) = parser.parse_args()
 
@@ -13,13 +13,19 @@ import ROOT
 
 ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
 ROOT.gROOT.LoadMacro("scripts/roofit_iterate.h+")
-workspace = ROOT.RooWorkspace("multipdf","multipdf")
-
-for fi in files:
+workspace = ROOT.RooWorkspace("multipdf","multipdf") 
+  
+for i,fi in enumerate(files):
 
   f   = ROOT.TFile.Open(fi)
   win = f.Get("multipdf")
-  ext = "%dTeV"%options.sqrts
+  sQr  = win.var("Sqrts")
+  intL = win.var("IntLumi")
+
+  if options.sqrts>0: sqrts=options.sqrts
+  else:  sqrts = int(sQr.getVal())
+
+  ext = "%dTeV"%sqrts
 
   cat = None
   cNum = -1;
@@ -40,6 +46,9 @@ for fi in files:
   getattr(workspace,'import')(norm)
   getattr(workspace,'import')(data)
 
+  if i==0:
+	getattr(workspace,'import')(sQr)
+	getattr(workspace,'import')(intL)
 
 outfile   = ROOT.TFile(options.outfile,"RECREATE")
 workspace.Write()
