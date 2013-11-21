@@ -53,7 +53,7 @@ void MassFactorizedMvaAnalysis::Term(LoopAll& l)
         std::string outputfilename = (std::string) l.histFileName;
         // if (run7TeV4Xanalysis) l.rooContainer->FitToData("data_pol_model_7TeV","data_mass");
         if (run7TeV4Xanalysis) l.rooContainer->FitToData("data_pol_model","data_mass");
-        else l.rooContainer->FitToData("data_pol_model_8TeV","data_mass");  // Fit to full range of dataset
+        else l.rooContainer->FitToData(Form("data_pol_model_%dTeV",l.sqrtS),"data_mass");  // Fit to full range of dataset
     }
 
     eventListText.close();
@@ -446,7 +446,7 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
     // -----------------------------------------------------
     // Configurable background model
     // if no configuration was given, set some defaults
-    std::string postfix=(run7TeV4Xanalysis?"":"_8TeV");
+    std::string postfix=(run7TeV4Xanalysis?"":Form("_%dTeV",l.sqrtS));
     if( bkgPolOrderByCat.empty() ) {
 	for(int i=0; i<nCategories_; i++){
 	    if(i<1) {
