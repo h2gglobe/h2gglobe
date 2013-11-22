@@ -1,4 +1,4 @@
-intL=19715. histfile=/store/group/phys_higgs/cmshgg/analyzed/legacy_paper/systematics/%(label)s/CMS-HGG.root output=eventsList.txt
+intL=19715. histfile=/store/group/phys_higgs/cmshgg/analyzed/legacy/massfac/8TeV/systematcs/%(label)s/CMS-HGG.root output=eventsList.txt sqrtS=8
 
 ##
 ## Signal

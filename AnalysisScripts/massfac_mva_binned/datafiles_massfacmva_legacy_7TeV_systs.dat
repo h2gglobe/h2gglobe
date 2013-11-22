@@ -1,4 +1,4 @@
-intL=5089.0 histfile=/store/group/phys_higgs/cmshgg/analyzed/legacy/massfac/7TeV/%(label)s/CMS-HGG.root output=eventsList.txt sqrtS=7
+intL=5089.0 histfile=/store/group/phys_higgs/cmshgg/analyzed/legacy/massfac/7TeV/systematics/%(label)s/CMS-HGG.root output=eventsList.txt sqrtS=7
 #intL=5089.0 histfile=CMS-HGG_123vbf.root output=eventsList.txt sqrtS=7
 
 typ=-1 ind=1 draw=1   Nam=ggh_m125_7TeV  CaDir=/store/group/phys_higgs/cmshgg/reduced/legacy_paper/legacy_paper_reduction_7TeV_v2/mc/GluGluToHToGG_M-125_7TeV-powheg-pythia6_Summer11dr53X-PU_S13_START53_LV3-v1   red=0 lum=1000000.0   xsec=-1.0   kfac=1.000000   scal=1.000000 

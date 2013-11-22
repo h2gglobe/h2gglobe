@@ -173,3 +173,5 @@ type=2 name=dRphojet2
 type=2 name=njets10
 type=2 name=njets15
 type=2 name=njets20
+
+type=2 name=bdt_combined

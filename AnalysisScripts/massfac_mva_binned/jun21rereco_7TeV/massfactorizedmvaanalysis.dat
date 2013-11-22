@@ -22,13 +22,22 @@ mvaVbfDiphoWeights=aux/TMVA_vbf_dijet_dipho_2evenb_maxdPhi_7TeV_v1_Gradient.weig
 mvaVbfDiphoMethod=Gradient
 mvaVbfCatBoundaries=
 #dijet BDT
-multiclassVbfCatBoundaries0=1.0,0.78,0.5
+#JIM
+#multiclassVbfCatBoundaries0=1.0,0.78,0.5
+#JOSH
+multiclassVbfCatBoundaries0=1,-10,-10
 #combined BDT
-multiclassVbfCatBoundaries1=1.0,0.934,0.62
+#multiclassVbfCatBoundaries1=1.0,0.934,0.62
+#JOSH
+multiclassVbfCatBoundaries1=1.0,0.992,0.911
 multiclassVbfCatBoundaries2=10.,-10.
 
-bkgPolOrderByCat=5,5,5,5,3,4,3,3,3,-10,3
-bdtCategoryBoundaries=1,0.97,0.92,0.78,0.42
+#bkgPolOrderByCat=5,5,5,5,3,4,3,3,3,-10,3
+bkgPolOrderByCat=4,4,4,4,3,3,3,3,3,-10,3
+#JIM
+#bdtCategoryBoundaries=1,0.97,0.92,0.78,0.42
+#JOSH
+bdtCategoryBoundaries=1,0.93,0.85,0.70,0.19
 
 # FIXME
 efficiencyFileMVA=aux/sig_reweighing_legacy_run2011_cutbased_v3.root
