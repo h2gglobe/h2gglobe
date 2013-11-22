@@ -27,6 +27,7 @@
 #include "TLatex.h"
 #include "TMacro.h"
 #include "TH1F.h"
+#include "TH1I.h"
 #include "TArrow.h"
 #include "TKey.h"
 
@@ -77,58 +78,103 @@ double getProbabilityFtest(double chi2, int ndof,RooAbsPdf *pdfNull, RooAbsPdf *
   RooArgSet preParams_test;
   params_test->snapshot(preParams_test);
  
-  int ntoys =1000;
+  int ntoys =5000;
   TCanvas *can = new TCanvas();
   can->SetLogy();
-  TH1F toyhist(Form("toys_fTest_%s.pdf",pdfNull->GetName()),";Chi2;",60,0,10);
+  TH1F toyhist(Form("toys_fTest_%s.pdf",pdfNull->GetName()),";Chi2;",60,-2,10);
+  TH1I toyhistStatN(Form("Status_%s.pdf",pdfNull->GetName()),";FitStatus;",8,-4,4);
+  TH1I toyhistStatT(Form("Status_%s.pdf",pdfTest->GetName()),";FitStatus;",8,-4,4);
 
   TGraph *gChi2 = new TGraph();
   gChi2->SetLineColor(kGreen+2);
   double w = toyhist.GetBinWidth(1);
 
+  int ipoint=0;
   for (int b=0;b<toyhist.GetNbinsX();b++){
 	double x = toyhist.GetBinCenter(b+1);
-	gChi2->SetPoint(b,x,(ROOT::Math::chisquared_pdf(x,ndof)));
+	if (x>0){
+	  gChi2->SetPoint(ipoint,x,(ROOT::Math::chisquared_pdf(x,ndof)));
+	  ipoint++;
+	}
   }
-  
-  int npass =0;
+  int npass =0; int nsuccesst =0;
   mass->setBins(nBinsForMass);
   for (int itoy = 0 ; itoy < ntoys ; itoy++){
 
         params_null->assignValueOnly(preParams_null);
         params_test->assignValueOnly(preParams_test);
   	RooDataHist *binnedtoy = pdfNull->generateBinned(RooArgSet(*mass),ndata,0,1);
+
+	int stat_n=1;
+        int stat_t=1;
+	int ntries = 0;
+	double nllNull,nllTest;
+	// Iterate on the fit 
+	while (stat_n!=0){
+	  if (ntries>=3) break;
+	  RooFitResult *fitNull = pdfNull->fitTo(*binnedtoy,RooFit::Save(1),RooFit::Strategy(1)
+		,RooFit::Minimizer("Minuit2","minimize"),RooFit::Minos(0),RooFit::Hesse(0),RooFit::PrintLevel(-1));
+		//,RooFit::Optimize(0));
+
+	  nllNull = fitNull->minNll();
+          stat_n = fitNull->status();
+	  if (stat_n!=0)params_null->assignValueOnly(fitNull->randomizePars());
+	}
 	
-	RooFitResult *fitNull = pdfNull->fitTo(*binnedtoy,RooFit::Save(1),RooFit::Strategy(2),RooFit::Minimizer("Minuit2","minimize"));
-	double nllNull = fitNull->minNll();
-	RooFitResult *fitTest = pdfTest->fitTo(*binnedtoy,RooFit::Save(1),RooFit::Strategy(2),RooFit::Minimizer("Minuit2","minimize"));
-	double nllTest = fitTest->minNll();
-	
+	ntries = 0;
+	while (stat_t!=0){
+	  if (ntries>=3) break;
+	  RooFitResult *fitTest = pdfTest->fitTo(*binnedtoy,RooFit::Save(1),RooFit::Strategy(1)
+		,RooFit::Minimizer("Minuit2","minimize"),RooFit::Minos(0),RooFit::Hesse(0),RooFit::PrintLevel(-1));
+	  nllTest = fitTest->minNll();
+          stat_t = fitTest->status();
+	  if (stat_t!=0)params_test->assignValueOnly(fitTest->randomizePars());
+	}
+		//,RooFit::Optimize(0));
+	// Usually the higher order one is bussy
+       
+	toyhistStatN.Fill(stat_n);
+	toyhistStatT.Fill(stat_t);
+
+        if (stat_t !=0 || stat_n !=0) continue;
+	nsuccesst++;
 	double chi2_t = 2*(nllNull-nllTest);
-	if (chi2_t > chi2) npass++;
+	if (chi2_t >= chi2) npass++;
         toyhist.Fill(chi2_t);
   }
 
-  double prob = (double)npass / ntoys;
+  double prob=0;
+  if (nsuccesst!=0)  prob = (double)npass / nsuccesst;
   toyhist.Scale(1./(w*toyhist.Integral()));
   toyhist.Draw();
   TArrow lData(chi2,toyhist.GetMaximum(),chi2,0);
   lData.SetLineWidth(2);
   lData.Draw();
   gChi2->Draw("L");
-
   TLatex *lat = new TLatex();
   lat->SetNDC();
   lat->SetTextFont(42);
   lat->DrawLatex(0.1,0.91,Form("Prob (asymptotic) = %.4f (%.4f)",prob,prob_asym));
   can->SaveAs(name.c_str());
 
+  TCanvas *stas =new TCanvas();
+  toyhistStatN.SetLineColor(2);
+  toyhistStatT.SetLineColor(1); 
+  TLegend *leg = new TLegend(0.2,0.6,0.4,0.89); leg->SetFillColor(0);
+  leg->SetTextFont(42);
+  leg->AddEntry(&toyhistStatN,"Null Hyp","L");
+  leg->AddEntry(&toyhistStatT,"Test Hyp","L");
+  toyhistStatN.Draw();
+  toyhistStatT.Draw("same");
+  leg->Draw();
+  stas->SaveAs(Form("%s_fitstatus.pdf",name.c_str()));
   //reassign params
   params_null->assignValueOnly(preParams_null);
   params_test->assignValueOnly(preParams_test);
 
-  delete can;
+  delete can; delete stas;
   delete gChi2;
+  delete leg;
   delete lat;
 
   // Still return the asymptotic prob (usually its close to the toys one)
@@ -177,7 +223,7 @@ double getGoodnessOfFit(RooRealVar *mass, RooAbsPdf *mpdf, RooAbsData *data, std
       params->assignValueOnly(preParams);
       int nToyEvents = RandomGen->Poisson(ndata);
       RooDataHist *binnedtoy = pdf->generateBinned(RooArgSet(*mass),nToyEvents,0,1);
-      pdf->fitTo(*binnedtoy,RooFit::Minimizer("Minuit2","minimize"));
+      pdf->fitTo(*binnedtoy,RooFit::Minimizer("Minuit2","minimize"),RooFit::Minos(0),RooFit::Hesse(0),RooFit::PrintLevel(-1));
 
       RooPlot *plot_t = mass->frame();
       binnedtoy->plotOn(plot_t);
@@ -207,7 +253,7 @@ double getGoodnessOfFit(RooRealVar *mass, RooAbsPdf *mpdf, RooAbsData *data, std
 
 }
 
-void plot(RooRealVar *mass, RooAbsPdf *pdf, RooAbsData *data, string name, double *prob){
+void plot(RooRealVar *mass, RooAbsPdf *pdf, RooAbsData *data, string name, int status, double *prob){
   
   // Chi2 taken from full range fit
   RooPlot *plot_chi2 = mass->frame();
@@ -240,6 +286,7 @@ void plot(RooRealVar *mass, RooAbsPdf *pdf, RooAbsData *data, string name, doubl
   lat->SetNDC();
   lat->SetTextFont(42);
   lat->DrawLatex(0.1,0.91,Form("#chi^{2} = %.3f, Prob = %.2f ",chi2*(nBinsForMass-np),*prob));
+  lat->DrawLatex(0.15,0.85,Form("Fit Status = %d",status));
   canv->SaveAs(name.c_str());
   
   delete canv;
@@ -390,7 +437,7 @@ int main(int argc, char* argv[]){
     ("singleCat", po::value<int>(&singleCategory)->default_value(-1),                           "Run A single Category")
     ("datfile,d", po::value<string>(&datfile)->default_value("dat/fTest.dat"),                  "Right results to datfile for BiasStudy")
     ("outDir,D", po::value<string>(&outDir)->default_value("plots/fTest"),                      "Out directory for plots")
-    ("saveMultiPdf", po::value<string>(&outfilename)->default_value("multipdfws.root"),         "Save a MultiPdf model with the appropriate pdfs")
+    ("saveMultiPdf", po::value<string>(&outfilename),         					"Save a MultiPdf model with the appropriate pdfs")
     ("runFtestCheckWithToys", 									"When running the F-test, use toys to calculate pvals (and make plots) ")
     ("is2011",                                                                                  "Run 2011 config")
     ("unblind",  									        "Dont blind plots")
@@ -402,17 +449,15 @@ int main(int argc, char* argv[]){
   if (vm.count("help")) { cout << desc << endl; exit(1); }
   if (vm.count("is2011")) is2011=true;
 	if (vm.count("unblind")) BLIND=false;
-  if (vm.count("saveMultiPdf")) {
-	saveMultiPdf=true;
-  } else {
-	saveMultiPdf=false;
-  }
+  saveMultiPdf = vm.count("saveMultiPdf");
+
   if (vm.count("verbose")) verbose=true;
   if (vm.count("runFtestCheckWithToys")) runFtestCheckWithToys=true;
 
   if (!verbose) {
     RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
     RooMsgService::instance().setSilentMode(true);
+    gErrorIgnoreLevel=kWarning;
   }
   int startingCategory=0;
   if (singleCategory >-1){
@@ -442,9 +487,9 @@ int main(int argc, char* argv[]){
   }
   
   vector<string> functionClasses;
+  functionClasses.push_back("PowerLaw");
   functionClasses.push_back("Bernstein");
   functionClasses.push_back("Exponential");
-  functionClasses.push_back("PowerLaw");
   functionClasses.push_back("Laurent");
   map<string,string> namingMap;
   namingMap.insert(pair<string,string>("Bernstein","pol"));
@@ -531,6 +576,7 @@ int main(int argc, char* argv[]){
     mass->setBins(nBinsForMass);
     RooDataHist thisdataBinned(Form("roohist_data_mass_cat%d",cat),"data",*mass,*dataFull);
     RooDataSet *data = (RooDataSet*)&thisdataBinned;
+    //RooDataSet *data = (RooDataSet*)dataFull;
 
     RooArgList storedPdfs("store");
 
@@ -560,6 +606,7 @@ int main(int argc, char* argv[]){
         else {
 	
           RooFitResult *fitRes = bkgPdf->fitTo(*data,Save(true),RooFit::Minimizer("Minuit2","minimize"));
+	  int fitStatus = fitRes->status();
           thisNll = fitRes->minNll();
           chi2 = 2.*(prevNll-thisNll);
           if (chi2<0. && order>1) chi2=0.;
@@ -571,6 +618,9 @@ int main(int argc, char* argv[]){
 	  } else {
 	    prob = 0;
 	  }
+	  double gofProb=0;
+	  // otherwise we get it later ...
+          if (!saveMultiPdf) plot(mass,bkgPdf,data,Form("%s/%s%d_cat%d.pdf",outDir.c_str(),funcType->c_str(),order,cat),fitStatus,&gofProb);
           cout << "\t " << *funcType << " " << order << " " << prevNll << " " << thisNll << " " << chi2 << " " << prob << endl;
           //fprintf(resFile,"%15s && %d && %10.2f && %10.2f && %10.2f \\\\\n",funcType->c_str(),order,thisNll,chi2,prob);
           prevNll=thisNll;
@@ -610,6 +660,7 @@ int main(int argc, char* argv[]){
           else {
            RooFitResult *fitRes = bkgPdf->fitTo(*data,Save(true),RooFit::Minimizer("Minuit2","minimize"));
            thisNll = fitRes->minNll();
+	   int fitStatus=fitRes->status();
 	   double myNll = 2.*thisNll;
            chi2 = 2.*(prevNll-thisNll);
            if (chi2<0. && order>1) chi2=0.;
@@ -624,7 +675,7 @@ int main(int argc, char* argv[]){
 		
 	     // Calculate goodness of fit for the thing to be included (will use toys for lowstats)!
 	     double gofProb =0; 
-             plot(mass,bkgPdf,data,Form("%s/%s%d_cat%d.pdf",outDir.c_str(),funcType->c_str(),order,cat),&gofProb);
+             plot(mass,bkgPdf,data,Form("%s/%s%d_cat%d.pdf",outDir.c_str(),funcType->c_str(),order,cat),fitStatus,&gofProb);
 
 	     if (gofProb > 0.01 || order == truthOrder ) {  // Good looking fit or one of our regular truth functions
 
