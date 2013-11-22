@@ -64,10 +64,18 @@ RooAbsPdf* getPdf(PdfModelBuilder &pdfsModel, string type, int order, const char
   }
 }
 
-double getProbabilityFtest(double chi2, int ndof,RooAbsPdf *pdfNull, RooAbsPdf *pdfTest, RooRealVar *mass, int ndata, std::string name){
+double getProbabilityFtest(double chi2, int ndof,RooAbsPdf *pdfNull, RooAbsPdf *pdfTest, RooRealVar *mass, RooDataSet *data, std::string name){
  
   double prob_asym = TMath::Prob(chi2,ndof);
   if (!runFtestCheckWithToys) return prob_asym;
+
+  int ndata = data->sumEntries();
+  
+  // fit the pdfs to the data and keep this fit Result (for randomizing)
+  RooFitResult *fitNullData = pdfNull->fitTo(*data,RooFit::Save(1),RooFit::Strategy(1)
+		,RooFit::Minimizer("Minuit2","minimize"),RooFit::PrintLevel(-1));
+  RooFitResult *fitTestData = pdfTest->fitTo(*data,RooFit::Save(1),RooFit::Strategy(1)
+		,RooFit::Minimizer("Minuit2","minimize"),RooFit::PrintLevel(-1));
 
   // Ok we want to check the distribution in toys then 
   // Step 1, cache the parameters of each pdf so as not to upset anything 
@@ -90,6 +98,7 @@ double getProbabilityFtest(double chi2, int ndof,RooAbsPdf *pdfNull, RooAbsPdf *
   double w = toyhist.GetBinWidth(1);
 
   int ipoint=0;
+
   for (int b=0;b<toyhist.GetNbinsX();b++){
 	double x = toyhist.GetBinCenter(b+1);
 	if (x>0){
@@ -110,30 +119,27 @@ double getProbabilityFtest(double chi2, int ndof,RooAbsPdf *pdfNull, RooAbsPdf *
 	int ntries = 0;
 	double nllNull,nllTest;
 	// Iterate on the fit 
+	int MaxTries = 2;
 	while (stat_n!=0){
-	  if (ntries>=3) break;
+	  if (ntries>=MaxTries) break;
 	  RooFitResult *fitNull = pdfNull->fitTo(*binnedtoy,RooFit::Save(1),RooFit::Strategy(1)
-		,RooFit::Minimizer("Minuit2","minimize"),RooFit::Minos(1),RooFit::Hesse(0),RooFit::PrintLevel(-1));
+		,RooFit::Minimizer("Minuit2","minimize"),RooFit::Minos(0),RooFit::Hesse(0),RooFit::PrintLevel(-1));
 		//,RooFit::Optimize(0));
 
 	  nllNull = fitNull->minNll();
           stat_n = fitNull->status();
-	  if (stat_n!=0) params_null->assignValueOnly(fitNull->randomizePars());
-	  
-	 
+	  if (stat_n!=0) params_null->assignValueOnly(fitNullData->randomizePars()); 
 	}
 	
 	ntries = 0;
 	while (stat_t!=0){
-	  if (ntries>=3) break;
+	  if (ntries>=MaxTries) break;
 	  RooFitResult *fitTest = pdfTest->fitTo(*binnedtoy,RooFit::Save(1),RooFit::Strategy(1)
-		,RooFit::Minimizer("Minuit2","minimize"),RooFit::Minos(1),RooFit::Hesse(0),RooFit::PrintLevel(-1));
+		,RooFit::Minimizer("Minuit2","minimize"),RooFit::Minos(0),RooFit::Hesse(0),RooFit::PrintLevel(-1));
 	  nllTest = fitTest->minNll();
           stat_t = fitTest->status();
-	  if (stat_t!=0)params_test->assignValueOnly(fitTest->randomizePars());
+	  if (stat_t!=0) params_test->assignValueOnly(fitTestData->randomizePars()); 
 	}
-		//,RooFit::Optimize(0));
-	// Usually the higher order one is bussy
        
 	toyhistStatN.Fill(stat_n);
 	toyhistStatT.Fill(stat_t);
@@ -212,15 +218,14 @@ double getGoodnessOfFit(RooRealVar *mass, RooAbsPdf *mpdf, RooAbsData *data, std
   if ((double)data->sumEntries()/nBinsForMass < 10 ){
 
     std::cout << "Running toys for GOF test " << std::endl;
-    TCanvas *can = new TCanvas();
-    TH1F toyhist(Form("gofTest_%s.pdf",pdf->GetName()),";Chi2;",60,0,120);
     // store pre-fit params 
     RooArgSet *params = pdf->getParameters(*data);
     RooArgSet preParams;
     params->snapshot(preParams);
     int ndata = data->sumEntries();
-
+ 
     int npass =0;
+    std::vector<double> toy_chi2;
     for (int itoy = 0 ; itoy < ntoys ; itoy++){
       params->assignValueOnly(preParams);
       int nToyEvents = RandomGen->Poisson(ndata);
@@ -233,11 +238,21 @@ double getGoodnessOfFit(RooRealVar *mass, RooAbsPdf *mpdf, RooAbsData *data, std
 
       double chi2_t = plot_t->chiSquare(np);
       if( chi2_t>=chi2) npass++;
-      toyhist.Fill(chi2_t*(nBinsForMass-np));
+      toy_chi2.push_back(chi2_t*(nBinsForMass-np));
     }
 
     prob = (double)npass / ntoys;
+
+    TCanvas *can = new TCanvas();
+    double medianChi2 = toy_chi2[(int)(((float)ntoys)/2)];
+    double rms = TMath::Sqrt(medianChi2);
+
+    TH1F toyhist(Form("gofTest_%s.pdf",pdf->GetName()),";Chi2;",50,medianChi2-5*rms,medianChi2+5*rms);
+    for (std::vector<double>::iterator itx = toy_chi2.begin();itx!=toy_chi2.end();itx++){
+      toyhist.Fill((*itx));
+    }
     toyhist.Draw();
+
     TArrow lData(chi2*(nBinsForMass-np),toyhist.GetMaximum(),chi2*(nBinsForMass-np),0);
     lData.SetLineWidth(2);
     lData.Draw();
@@ -294,6 +309,49 @@ void plot(RooRealVar *mass, RooAbsPdf *pdf, RooAbsData *data, string name, int s
   delete canv;
   delete lat;
 }
+void plot(RooRealVar *mass, RooMultiPdf *pdfs, RooCategory *catIndex, RooAbsData *data, string name, int cat, int bestFitPdf=-1){
+  
+  int color[7] = {kBlue,kRed,kMagenta,kGreen+1,kOrange+7,kAzure+10,kBlack};
+  TCanvas *canv = new TCanvas();
+  TLegend *leg = new TLegend(0.6,0.65,0.89,0.89);
+  leg->SetFillColor(0);
+  leg->SetLineColor(0);
+  RooPlot *plot = mass->frame();
+
+  mass->setRange("unblindReg_1",100,110);
+  mass->setRange("unblindReg_2",150,180);
+  if (BLIND) {
+    data->plotOn(plot,Binning(80),CutRange("unblindReg_1"));
+    data->plotOn(plot,Binning(80),CutRange("unblindReg_2"));
+    data->plotOn(plot,Binning(80),Invisible());
+  }
+  else data->plotOn(plot,Binning(80)); 
+
+  int currentIndex = catIndex->getIndex();
+  TObject *datLeg = plot->getObject(int(plot->numItems()-1));
+  leg->AddEntry(datLeg,Form("Data - cat%d",cat),"LEP");
+  int style=1;
+  for (int icat=0;icat<catIndex->numTypes();icat++){
+    int col;
+    if (icat<=6) col=color[icat];
+    else {col=kBlack; style++;}
+    catIndex->setIndex(icat);
+    pdfs->getCurrentPdf()->fitTo(*data,RooFit::Minos(0),RooFit::Minimizer("Minuit2","minimize"));	
+    pdfs->getCurrentPdf()->plotOn(plot,LineColor(col),LineStyle(style));//,RooFit::NormRange("fitdata_1,fitdata_2"));
+    TObject *pdfLeg = plot->getObject(int(plot->numItems()-1));
+    std::string ext = "";
+    if (bestFitPdf==icat) ext=" (Best Fit Pdf) ";
+    leg->AddEntry(pdfLeg,Form("%s%s",pdfs->getCurrentPdf()->GetName(),ext.c_str()),"L");
+  }
+  plot->SetTitle(Form("Category %d",cat));
+  if (BLIND) plot->SetMinimum(0.0001);
+  plot->Draw();
+  leg->Draw("same");
+  canv->SaveAs(Form("%s.pdf",name.c_str()));
+  canv->SaveAs(Form("%s.png",name.c_str()));
+  catIndex->setIndex(currentIndex);
+  delete canv;
+}
 
 void plot(RooRealVar *mass, map<string,RooAbsPdf*> pdfs, RooAbsData *data, string name, int cat, int bestFitPdf=-1){
   
@@ -332,7 +390,8 @@ void plot(RooRealVar *mass, map<string,RooAbsPdf*> pdfs, RooAbsData *data, strin
   if (BLIND) plot->SetMinimum(0.0001);
   plot->Draw();
   leg->Draw("same");
-  canv->SaveAs(name.c_str());
+  canv->SaveAs(Form("%s.pdf",name.c_str()));
+  canv->SaveAs(Form("%s.png",name.c_str()));
   delete canv;
 }
 
@@ -359,7 +418,7 @@ int getBestFitFunction(RooMultiPdf *bkg, RooAbsData *data, RooCategory *cat, boo
 	int number_of_indeces = cat->numTypes();
 		
 	RooArgSet snap,clean;
-	RooArgSet *params = bkg->getParameters(*data);
+	RooArgSet *params = bkg->getParameters((const RooArgSet*)0);
 	params->remove(*cat);
 	params->snapshot(snap);
 	params->snapshot(clean);
@@ -370,7 +429,7 @@ int getBestFitFunction(RooMultiPdf *bkg, RooAbsData *data, RooCategory *cat, boo
 	}
 	
 	//bkg->setDirtyInhibit(1);
-	RooAbsReal *nllm = extPdf.createNLL(*data,RooFit::Extended());
+	RooAbsReal *nllm = bkg->createNLL(*data);
 	RooMinimizer minim(*nllm);
 	minim.setStrategy(1);
 	
@@ -409,8 +468,8 @@ int getBestFitFunction(RooMultiPdf *bkg, RooAbsData *data, RooCategory *cat, boo
         		best_index=id;
 		}
 	}
-	params->assignValueOnly(snap);
     	cat->setIndex(best_index);
+	params->assignValueOnly(snap);
 	
 	if (!silent) {
 		std::cout << "Best fit Function -- " << bkg->getCurrentPdf()->GetName() << " " << cat->getIndex() <<std::endl;
@@ -489,9 +548,9 @@ int main(int argc, char* argv[]){
   }
   
   vector<string> functionClasses;
-  functionClasses.push_back("PowerLaw");
   functionClasses.push_back("Bernstein");
   functionClasses.push_back("Exponential");
+  functionClasses.push_back("PowerLaw");
   functionClasses.push_back("Laurent");
   map<string,string> namingMap;
   namingMap.insert(pair<string,string>("Bernstein","pol"));
@@ -554,7 +613,10 @@ int main(int argc, char* argv[]){
   }
 
   // store results here
-  FILE *resFile = fopen("fTestResults.txt","w");
+  
+  FILE *resFile ;
+  if  (singleCategory >-1) resFile = fopen(Form("%s/fTestResults_cat%d.txt",outDir.c_str(),singleCategory),"w");
+  else resFile = fopen(Form("%s/fTestResults.txt",outDir.c_str()),"w");
   vector<map<string,int> > choices_vec;
   vector<map<string,std::vector<int> > > choices_envelope_vec;
   vector<map<string,RooAbsPdf*> > pdfs_vec;
@@ -614,7 +676,7 @@ int main(int argc, char* argv[]){
           if (chi2<0. && order>1) chi2=0.;
 	  if (prev_pdf!=NULL){
 	    std::cout << " Running toys for f-test " << std::endl;
-	    prob = getProbabilityFtest(chi2,order-prev_order,prev_pdf,bkgPdf,mass,data->sumEntries()
+	    prob = getProbabilityFtest(chi2,order-prev_order,prev_pdf,bkgPdf,mass,data
 		   ,Form("%s/Ftest_from_%s%d_cat%d.pdf",outDir.c_str(),funcType->c_str(),order,cat));
 	    std::cout << " Toys Prob == " << prob << std::endl;
 	  } else {
@@ -711,13 +773,10 @@ int main(int argc, char* argv[]){
     choices_envelope_vec.push_back(choices_envelope);
     pdfs_vec.push_back(pdfs);
 
-    plot(mass,pdfs,data,Form("%s/truths_cat%d.pdf",outDir.c_str(),cat),cat);
-    plot(mass,pdfs,data,Form("%s/truths_cat%d.png",outDir.c_str(),cat),cat);
+    plot(mass,pdfs,data,Form("%s/truths_cat%d",outDir.c_str(),cat),cat);
 
     if (saveMultiPdf){
 
-    	  plot(mass,allPdfs,data,Form("%s/multipdf_cat%d.pdf",outDir.c_str(),cat),cat,simplebestFitPdfIndex);
-          plot(mass,allPdfs,data,Form("%s/multipdf_cat%d.png",outDir.c_str(),cat),cat,simplebestFitPdfIndex);
 
 	  // Put selectedModels into a MultiPdf
 	  std::string ext = is2011 ? "7TeV" : "8TeV";
@@ -744,6 +803,8 @@ int main(int argc, char* argv[]){
 	  outputws->import(catIndex);
 	  outputws->import(dataBinned);
 	  outputws->import(*data);
+    	  plot(mass,pdf,&catIndex,data,Form("%s/multipdf_cat%d",outDir.c_str(),cat),cat,bestFitPdfIndex);
+
     }
     
   }
