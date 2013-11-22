@@ -20,8 +20,11 @@ parser.add_option("-m","--method",dest="method",type="string",help="Method to ru
 parser.add_option("-l","--legend",dest="legend",type="string",help="Legend position - x1,y1,x2,y2")
 parser.add_option("-x","--xaxis",dest="xaxis",type="string",help="x-axis range - x1,x2")
 parser.add_option("-y","--yaxis",dest="yaxis",type="string",help="y-axis range - y1,y2")
-parser.add_option("--xbinning",dest="xbinning",type="string",help="force x binning (b,l,h)")
-parser.add_option("--ybinning",dest="ybinning",type="string",help="force y binning (b,l,h)")
+parser.add_option("","--xbinning",dest="xbinning",type="string",help="force x binning (b,l,h)")
+parser.add_option("","--ybinning",dest="ybinning",type="string",help="force y binning (b,l,h)")
+parser.add_option("","--canv",dest="canv",type="string",default="700,700",help="Canvas size x,y")
+parser.add_option("","--chcompLine",dest="chcompLine",type="int",help="For ChannelComp plot put line here splitting two year")
+parser.add_option("","--chcompShift",dest="chcompShift",type="float",help="For ChannelComp Asimov - shift to this value")
 parser.add_option("","--limit",dest="limit",default=False,action="store_true",help="Do limit plot")
 parser.add_option("","--pval",dest="pval",default=False,action="store_true",help="Do p-value plot")
 parser.add_option("","--maxlh",dest="maxlh",default=False,action="store_true",help="Do best fit mu plot")
@@ -31,6 +34,7 @@ parser.add_option("","--rv",dest="rv",default=False,action="store_true",help="Do
 parser.add_option("","--rf",dest="rf",default=False,action="store_true",help="Do NLL rf scan plot")
 parser.add_option("","--mumh",dest="mumh",default=False,action="store_true",help="Do NLL mu vs mh scan plot")
 parser.add_option("","--rvrf",dest="rvrf",default=False,action="store_true",help="Do NLL rv vs rf scan plot")
+parser.add_option("","--mpdfchcomp",dest="mpdfchcomp",default=False,action="store_true",help="Do MultiPdf channel compatbility plot")
 parser.add_option("-v","--verbose",dest="verbose",default=False,action="store_true")
 parser.add_option("-b","--batch",dest="batch",default=False,action="store_true")
 (options,args)=parser.parse_args()
@@ -45,9 +49,10 @@ if options.rv: options.method='rv'
 if options.rf: options.method='rf'
 if options.mumh: options.method='mumh'
 if options.rvrf: options.method='rvrf'
+if options.mpdfchcomp: options.method='mpdfchcomp'
 if not options.outname: options.outname=options.method
 
-allowed_methods=['pval','limit','maxlh','mh','mu','mumh','rv','rf','rvrf']
+allowed_methods=['pval','limit','maxlh','mh','mu','mumh','rv','rf','rvrf','mpdfchcomp']
 if not options.datfile and options.method not in allowed_methods:
   print 'Invalid method. Must set one of: ', allowed_methods
   sys.exit()
@@ -57,8 +62,14 @@ outf = r.TFile('CombinePlotCanvases.root','RECREATE')
 
 if options.batch: r.gROOT.SetBatch()
 
+# set defaults for colors etc.
+while len(options.files)>len(options.colors): options.colors.append(1)
+while len(options.files)>len(options.styles): options.styles.append(1)
+while len(options.files)>len(options.widths): options.widths.append(1)
+while len(options.files)>len(options.names): options.names.append('')
+
 # make canvas and dummy hist
-canv = r.TCanvas()
+canv = r.TCanvas("c","c",int(options.canv.split(',')[0]),int(options.canv.split(',')[1]))
 canv.SetGrid(True)
 dummyHist = r.TH1D("dummy","",1,110,150)
 dummyHist.GetXaxis().SetTitle('m_{H} (GeV)')
@@ -87,6 +98,7 @@ def pvalPlot(allVals):
     graph = r.TGraph()
     for j in range(len(values)):
       graph.SetPoint(j,values[j][0],values[j][1])
+      if options.verbose: print '\t', j, values[j][0], values[j][1], r.RooStats.PValueToSignificance(values[j][1])
     
     graph.SetLineColor(int(options.colors[k]))
     graph.SetLineStyle(int(options.styles[k]))
@@ -378,7 +390,172 @@ def read1D(file,x,i,xtitle):
     last = gr.GetX()[i-1]
   return gr
 
-def plot1DNLL():
+def findQuantile(pts,cl):
+
+	#gr is a list of r,nll
+	# start by walking along the variable and check if crosses a CL point
+	crossbound = [ pt[1]<=cl for pt in pts ]
+	rcrossbound = crossbound[:]
+	rcrossbound.reverse()
+
+	minci = 0
+	maxci = len(crossbound)-1
+	min = pts[0][0]
+	max = pts[maxci][0]
+
+	for c_i,c in enumerate(crossbound): 
+		if c : 
+			minci=c_i
+			break
+	
+	for c_i,c in enumerate(rcrossbound): 
+		if c : 
+			maxci=len(rcrossbound)-c_i-1
+			break
+
+	if minci>0: 
+		y0,x0 = pts[minci-1][0],pts[minci-1][1]
+		y1,x1 = pts[minci][0],pts[minci][1]
+		min = y0+((cl-x0)*y1 - (cl-x0)*y0)/(x1-x0)
+		
+	if maxci<len(crossbound)-1: 
+		y0,x0 = pts[maxci][0],pts[maxci][1]
+		y1,x1 = pts[maxci+1][0],pts[maxci+1][1]
+		max = y0+((cl-x0)*y1 - (cl-x0)*y0)/(x1-x0)
+
+	return min,max
+	
+def plot1DNLL(returnErrors=False):
+
+  if options.method=='mh':
+    x = 'MH'
+    xtitle = 'm_{H} (GeV)'
+  elif options.method=='mu':
+    x = 'r'
+    xtitle = '#sigma / #sigma_{SM}'
+  elif options.method=='rv':
+    x = 'RV'
+    xtitle = '#mu_{qqH+VH}'
+  elif options.method=='rf':
+    x = 'RF'
+    xtitle = '#mu_{ggH+ttH}'
+  else:
+    sys.exit('Method not recognised for 1D scan %s'%options.method)
+
+  if not options.legend: leg  = r.TLegend(0.35,0.65,0.65,0.79)
+  else: leg = r.TLegend(float(options.legend.split(',')[0]),float(options.legend.split(',')[1]),float(options.legend.split(',')[2]),float(options.legend.split(',')[3]))
+  leg.SetLineColor(0)
+  leg.SetFillColor(0)
+
+  clean_graphs=[]
+
+  for k, f in enumerate(options.files):
+    tf = r.TFile(f)
+    tree = tf.Get('limit')
+    gr = r.TGraph()
+    gr.SetName('gr_%d_%s'%(k,x))
+    gr.SetLineColor(int(options.colors[k]))
+    gr.SetLineStyle(int(options.styles[k]))
+    gr.SetLineWidth(int(options.widths[k]))
+    leg.AddEntry(gr,options.names[k],'L')
+    
+    res=[]
+    for i in range(tree.GetEntries()):
+      tree.GetEntry(i)
+      xv = getattr(tree,x)
+      res.append([xv,2.*tree.deltaNLL])
+    res.sort()
+    minNLL = min([re[1] for re in res])
+    #for re in res: re[1]-=minNLL
+    
+    p=0
+    for re, nll in res: 
+      gr.SetPoint(p,re,nll)
+      if options.verbose: print '\t', p, re, nll
+      p+=1
+
+    clean_graphs.append(gr)
+
+    m,m1 = findQuantile(res,0);
+    l,h  = findQuantile(res,1);
+    l2,h2  = findQuantile(res,4);
+
+    xmin = m
+    eplus = h-m
+    eminus = m-l
+    eplus2 = h2-m
+    eminus2 = m-l2
+
+    print "%s : %1.4f +%1.3g -%1.3g" % ( gr.GetName(), xmin, eplus , eminus )
+
+    if returnErrors:
+      return [xmin,eplus,eminus,eplus2,eminus2]
+    
+    if k==0:
+      fit = xmin
+      err = (abs(eplus)+abs(eminus))/2.
+
+      axmin,axmax = findQuantile(res,6)
+      lines = [ r.TLine(axmin, 0, axmax, 0),
+                r.TLine(axmin, 1, axmax, 1), r.TLine(xmin-eminus,  0, xmin-eminus,  1), r.TLine(xmin+eplus,  0, xmin+eplus,  1), 
+                r.TLine(axmin, 4, axmax, 4), r.TLine(xmin-eminus2, 0, xmin-eminus2, 4), r.TLine(xmin+eplus2, 0, xmin+eplus2, 4) ]
+    
+  dH = r.TH1D("dH","",1,axmin,axmax)
+  dH.GetXaxis().SetTitle(xtitle)
+  dH.SetTitleSize(.04,"X")
+  dH.SetTitleOffset(0.95,"X")
+  dH.SetTitleSize(.04,"Y")
+  dH.SetTitleOffset(0.85,"Y")
+  if options.method=='mh': dH.GetXaxis().SetNdivisions(505)
+  dH.GetYaxis().SetTitle('-2 #Delta LL')
+  if not options.yaxis: dH.GetYaxis().SetRangeUser(0.,6)
+  else: dH.GetYaxis().SetRangeUser(float(options.yaxis.split(',')[0]),float(options.yaxis.split(',')[1]))
+  dH.SetLineColor(0)
+  dH.SetStats(0)
+  dH.Draw("AXIS")
+    
+  for gr in clean_graphs:
+    gr.GetXaxis().SetRangeUser(axmin,axmax)
+    gr.GetXaxis().SetNdivisions(505)
+    if not options.yaxis: gr.GetYaxis().SetRangeUser(0.,6)
+    else: gr.GetYaxis().SetRangeUser(float(options.yaxis.split(',')[0]),float(options.yaxis.split(',')[1]))
+    gr.Draw("L")
+
+  # draw legend
+  if len(options.files)>1:
+    leg.Draw('same')
+        
+  # draw intersection lines
+  for l in lines:
+    l.SetLineWidth(2)
+    l.SetLineColor(r.kRed)
+    l.Draw('same')
+  
+  # draw text
+  lat.DrawLatex(0.12,0.92,"CMS Preliminary")
+  lat.DrawLatex(0.7,0.94,options.text)
+
+  # draw fit value
+  lat2 = r.TLatex()
+  lat2.SetNDC()
+  lat2.SetTextSize(0.04)
+  lat2.SetTextAlign(22)
+  if options.method=='mh': lat2.DrawLatex(0.5,0.85,"m_{H} = %6.2f #pm %4.2f"%(fit,err))
+  elif options.method=='mu': lat2.DrawLatex(0.5,0.85,"#sigma/#sigma_{SM} = %4.2f #pm %4.2f"%(fit,err))
+  elif options.method=='rv': lat2.DrawLatex(0.5,0.85,"#mu_{qqH+VH} = %4.2f #pm %4.2f"%(fit,err))
+  elif options.method=='rf': lat2.DrawLatex(0.5,0.85,"#mu_{ggH+ttH} = %4.2f #pm %4.2f"%(fit,err))
+
+  canv.Update()
+  if not options.batch: raw_input("Looks ok?")
+  canv.Print('%s.pdf'%options.outname)
+  canv.Print('%s.png'%options.outname)
+  canv.Print('%s.C'%options.outname)
+  canv.SetName(options.outname)
+  outf.cd()
+  canv.Write()
+
+
+def OBSOLETEplot1DNLLOld(returnErrors=False):
  
   if options.method=='mh':
     x = 'MH'
@@ -407,6 +584,7 @@ def plot1DNLL():
   clean_graphs = []
   for k, f in enumerate(options.files):
     tf = r.TFile(f)
+    
     graph = read1D(tf,x,k,xtitle)
     graph.SetLineColor(int(options.colors[k]))
     graph.SetLineStyle(int(options.styles[k]))
@@ -418,7 +596,7 @@ def plot1DNLL():
     # convert graph into function
     sp = r.GraphToTF1('mygraph%d'%k,graph)
     func = r.TF1("myfunc%d" %k,sp,graph.GetX()[0],graph.GetX()[graph.GetN()-1],1,"GraphToTF1")
-    func.SetParameter(0,0.)
+    #func.SetParameter(0,0.)
     func.SetLineColor(0)
     func.SetLineStyle(0)
     graphs.append(graph)
@@ -432,6 +610,9 @@ def plot1DNLL():
     eminus2 = xmin - func.GetX(4.,func.GetXmin(),xmin)
     eplus2  = func.GetX(4.,xmin,func.GetXmax()) - xmin
     print "%s : %1.4f +%1.3g -%1.3g" % ( graph.GetName(), xmin, eplus , eminus )
+
+    if returnErrors:
+      return [xmin,eplus,eminus,eplus2,eminus2]
 
     # for the first passed file only get the intersection lines
     if k==0:
@@ -488,8 +669,10 @@ def plot1DNLL():
   lat2.SetNDC()
   lat2.SetTextSize(0.04)
   lat2.SetTextAlign(22)
-  if options.method=='mh': lat2.DrawLatex(0.5,0.85,"m_{H} = %5.1f #pm %3.1f"%(fit,err))
-  elif options.method=='mu': lat2.DrawLatex(0.5,0.85,"#sigma/#sigma_{SM} = %3.1f #pm %3.1f"%(fit,err))
+  if options.method=='mh': lat2.DrawLatex(0.5,0.85,"m_{H} = %6.2f #pm %4.2f"%(fit,err))
+  elif options.method=='mu': lat2.DrawLatex(0.5,0.85,"#sigma/#sigma_{SM} = %4.2f #pm %4.2f"%(fit,err))
+  elif options.method=='rv': lat2.DrawLatex(0.5,0.85,"#mu_{qqH+VH} = %4.2f #pm %4.2f"%(fit,err))
+  elif options.method=='rf': lat2.DrawLatex(0.5,0.85,"#mu_{ggH+ttH} = %4.2f #pm %4.2f"%(fit,err))
 
   canv.Update()
   if not options.batch: raw_input("Looks ok?")
@@ -626,6 +809,163 @@ def plot2DNLL(xvar="RF",yvar="RV",xtitle="#mu_{ggH+ttH}",ytitle="#mu_{qqH+VH}"):
   outf.cd()
   canv.Write()
 
+def plotMPdfChComp():
+
+  print 'plotting mpdf ChannelComp'
+  print '\t will assume first file is the global best fit'
+  
+  points = []
+  loffiles = options.files
+
+  k=0
+  while len(loffiles)>0:
+    options.files = [loffiles[0]]
+    options.method = 'mu'
+    r.gROOT.SetBatch()
+    ps = plot1DNLL(True)
+    ps.insert(0,options.names[k])
+    points.append(ps)
+    k+=1
+    loffiles.pop(0)
+  
+  rMin=1000.
+  rMax=-1000.
+  r.gROOT.SetBatch(options.batch)
+  for point in points:
+    if point[1]+point[4]>rMax: rMax=point[1]+point[4]
+    if point[1]-point[5]<rMin: rMin=point[1]-point[5]
+    if options.verbose:
+      print point[0], ':', point[1:]
+  
+  rMin = rMin - 0.7*r.TMath.Abs(rMin)
+  rMax = rMax + 0.5*r.TMath.Abs(rMax)
+  if options.verbose:
+    print 'ChComp PlotRange: ', rMin, '-', rMax
+
+  bestFit = points[0]
+  catFits = points[1:]
+
+  if options.verbose:
+    print bestFit
+    print catFits
+
+  dummyHist = r.TH2F("dummy",";#sigma/#sigma_{SM};",1,rMin,rMax,len(catFits),0,len(catFits))
+  dummyHist.GetYaxis().SetLabelFont(62)
+  dummyHist.GetYaxis().SetLabelSize(0.038)
+  catGraph1sig = r.TGraphAsymmErrors()
+  catGraph2sig = r.TGraphAsymmErrors()
+  for p, point in enumerate(catFits):
+    if options.chcompShift:
+      catGraph1sig.SetPoint(p,options.chcompShift,p+0.5)
+      catGraph2sig.SetPoint(p,options.chcompShift,p+0.5)
+    else:
+      catGraph1sig.SetPoint(p,point[1],p+0.5)
+      catGraph2sig.SetPoint(p,point[1],p+0.5)
+    catGraph1sig.SetPointError(p,point[3],point[2],0.,0.)
+    catGraph2sig.SetPointError(p,point[5],point[4],0.,0.)
+    
+    if point[0]=='': binlabel = 'cat%d'%p
+    else: binlabel = point[0]
+    dummyHist.GetYaxis().SetBinLabel(p+1,binlabel)
+
+  catGraph1sig.SetLineColor(r.kRed)
+  catGraph1sig.SetLineWidth(2)
+  catGraph1sig.SetMarkerStyle(21)
+  catGraph1sig.SetMarkerColor(r.kBlack)
+  catGraph1sig.SetMarkerSize(1.5)
+  
+  catGraph2sig.SetLineColor(r.kBlue)
+  catGraph2sig.SetLineWidth(2)
+  catGraph2sig.SetMarkerStyle(21)
+  catGraph2sig.SetMarkerColor(r.kBlack)
+  catGraph2sig.SetMarkerSize(1.5)
+
+  dummyHist.SetLineColor(r.kBlack)
+  dummyHist.SetFillColor(r.kGreen+2)
+
+  dummyHist2 = dummyHist.Clone('%s2'%dummyHist.GetName())
+  dummyHist2.SetFillColor(r.kGreen)
+
+  if not options.legend: leg = r.TLegend(0.68,0.7,0.94,0.88)
+  else: leg = r.TLegend(float(options.legend.split(',')[0]),float(options.legend.split(',')[1]),float(options.legend.split(',')[2]),float(options.legend.split(',')[3]))
+  leg.SetFillColor(0)
+  leg.AddEntry(dummyHist,"Combined #pm 1#sigma","LF")
+  leg.AddEntry(dummyHist2,"Combined #pm 2#sigma","LF")
+  leg.AddEntry(catGraph1sig,"Per category #pm 1#sigma","LEP");
+  leg.AddEntry(catGraph2sig,"Per category #pm 2#sigma","LEP");
+
+  bestFitBand1 = r.TBox(bestFit[1]-bestFit[3],0.,bestFit[1]+bestFit[2],len(catFits))
+  bestFitBand1.SetFillColor(r.kGreen+2)
+  bestFitBand1.SetLineStyle(0)
+
+  bestFitBand2 = r.TBox(bestFit[1]-bestFit[5],0.,bestFit[1]+bestFit[4],len(catFits))
+  bestFitBand2.SetFillColor(r.kGreen)
+  bestFitBand2.SetLineStyle(0)
+
+  bestFitLine = r.TLine(bestFit[1],0.,bestFit[1],len(catFits))
+  bestFitLine.SetLineWidth(2)
+  bestFitLine.SetLineColor(r.kBlack)
+
+  r.gStyle.SetOptStat(0)
+  cacheErrSize = r.gStyle.GetEndErrorSize()
+  cachePadLeft = canv.GetLeftMargin()
+  cachePadRight = canv.GetRightMargin()
+  r.gStyle.SetEndErrorSize(8.)
+  canv.SetLeftMargin(0.18);
+  canv.SetRightMargin(0.05);
+  canv.SetGridx(False)
+  canv.SetGridy(False)
+
+  dummyHist.Draw()
+  bestFitBand2.Draw()
+  bestFitBand1.Draw()
+  bestFitLine.Draw()
+
+  catGraph2sig.Draw("EPsame")
+  catGraph1sig.Draw("EPsame")
+
+  if options.chcompLine:
+    line = r.TLine(rMin,options.chcompLine,rMax,options.chcompLine)
+    line.SetLineWidth(3)
+    line.SetLineStyle(r.kDashed)
+    line.Draw("same")
+    label1=r.TText()
+    label1.SetNDC()
+    label1.SetText(0.26,0.23,"7TeV")
+    label1.SetTextFont(62)
+    label1.SetTextSize(.07)
+    label1.SetTextAngle(90)
+    label2=r.TText()
+    label2.SetNDC()
+    label2.SetText(0.26,0.65,"8TeV")
+    label2.SetTextFont(62)
+    label2.SetTextSize(.07)
+    label2.SetTextAngle(90)
+    label1.Draw("same")
+    label2.Draw("same")
+
+  leg.Draw("same")
+
+  # draw text
+  if options.text:
+    lat.DrawLatex(0.12,0.92,"CMS Preliminary")
+    lat.DrawLatex(0.7,0.94,options.text)
+
+  canv.Modified()
+  canv.Update()
+
+  if not options.batch: raw_input("Looks ok?")
+  canv.Print('%s.pdf'%options.outname)
+  canv.Print('%s.png'%options.outname)
+  canv.Print('%s.C'%options.outname)
+  canv.SetName(options.outname)
+  outf.cd()
+  canv.Write()
+  
+  r.gStyle.SetEndErrorSize(cacheErrSize)
+  canv.SetLeftMargin(cachePadLeft);
+  canv.SetRightMargin(cachePadRight);
+
 def run():
   if options.verbose:
     print options.method
@@ -637,10 +977,19 @@ def run():
 
   if options.method=='pval' or options.method=='limit' or options.method=='maxlh':
     runStandard()
-  elif options.method=='mh' or options.method=='mu' or options.method=='rv' or options.method=='rf':
-    r.gROOT.ProcessLine(".x FinalResults/rootPalette.C")
-    r.gROOT.LoadMacro('ResultScripts/GraphToTF1.C+')
-    plot1DNLL()
+  elif options.method=='mh' or options.method=='mu' or options.method=='rv' or options.method=='rf' or options.method=='mpdfchcomp':
+    path = os.path.expandvars('$CMSSW_BASE/src/HiggsAnalysis/HiggsTo2photons/h2gglobe/Macros/FinalResults/rootPalette.C')
+    if not os.path.exists(path):
+      sys.exit('ERROR - Can\'t find path: '+path) 
+    r.gROOT.ProcessLine(".x "+path)
+    path = os.path.expandvars('$CMSSW_BASE/src/HiggsAnalysis/HiggsTo2photons/h2gglobe/Macros/ResultScripts/GraphToTF1.C')
+    if not os.path.exists(path):
+      sys.exit('ERROR - Can\'t find path: '+path) 
+    r.gROOT.LoadMacro(path)
+    if options.method=='mpdfchcomp':
+      plotMPdfChComp()
+    else:
+      plot1DNLL()
   elif options.method=='mumh':
     plot2DNLL("MH","r","m_{H} (GeV)","#sigma/#sigma_{SM}")
   elif options.method=='rvrf':

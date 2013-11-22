@@ -56,7 +56,7 @@ if not os.path.exists(os.path.expandvars('$CMSSW_BASE/bin/$SCRAM_ARCH/combineCar
 	sys.exit('ERROR - CombinedLimit package must be installed')
 
 cwd = os.getcwd()
-allowedMethods = ['Asymptotic','AsymptoticGrid','ProfileLikelihood','ChannelCompatibilityCheck','MHScan','MuScan','RVScan','RFScan','RVRFScan','MuMHScan']
+allowedMethods = ['Asymptotic','AsymptoticGrid','ProfileLikelihood','ChannelCompatibilityCheck','MultiPdfChannelCompatibility','MHScan','MuScan','RVScan','RFScan','RVRFScan','MuMHScan']
 
 def checkValidMethod():
 	if opts.method not in allowedMethods: sys.exit('%s is not a valid method'%opts.method)
@@ -73,6 +73,33 @@ def configureMassFromNJobs():
 					opts.masses_per_job[j].append(masses[0])
 					masses = numpy.delete(masses,0)
 		if len(opts.masses_per_job)!=opts.jobs: sys.exit('ERROR - len job config (%d) not equal to njobs (%d)'%(len(opts.masses_per_job),opts.jobs))
+
+def getSortedCats():
+	cats = set()
+	f = open(opts.datacard)
+	for l in f.readlines():
+		if l.startswith('bin'):
+			els = l.split()[1:]
+			for el in els: 
+				cats.add(el)
+			break
+	
+	myarr = sorted(cats, key=lambda x: (x[:3],int(x.split('cat')[1].split('_')[0])), reverse=True)
+	if opts.verbose: print myarr
+	return myarr
+
+def removeRelevantDiscreteNuisances():
+	newCard = open('tempcard.txt','w')
+	card = open(opts.datacard)
+	for line in card.readlines():
+		if 'discrete' in line:
+			for cat in opts.splitChannels:
+				catString = '_'+cat.split('cat')[1]
+				if catString in line: newCard.write(line)
+		else: newCard.write(line)
+	card.close()
+	newCard.close()
+	os.system('mv %s %s'%(newCard.name,card.name))
 
 def splitCard():
 	if not opts.splitChannels: sys.exit('Channel splitting options not specified')
@@ -91,8 +118,10 @@ def splitCard():
 	splitCardName = opts.datacard.replace('.txt','')
 	for cat in opts.splitChannels: splitCardName += '_'+cat
 	splitCardName += '.txt'
+	if opts.verbose: print 'combineCards.py --xc="%s" %s > %s'%(veto,opts.datacard,splitCardName)
 	os.system('combineCards.py --xc="%s" %s > %s'%(veto,opts.datacard,splitCardName))
 	opts.datacard = splitCardName
+	removeRelevantDiscreteNuisances()
 
 def writePreamble(sub_file):
 	sub_file.write('#!/bin/bash\n')
@@ -214,6 +243,23 @@ def writeChannelCompatibility():
 	exec_line = 'combine %s -M ChannelCompatibilityCheck -m %6.2f --rMin=-25. --saveFitResult --cminDefaultMinimizerType=Minuit2'%(opts.datacard,opts.mh)
 	writePostamble(file,exec_line)
 
+def writeMultiPdfChannelCompatibility():
+	
+	print 'Writing MultiPdfChannelCompatibility'
+	backupcard = opts.datacard
+	backupdir = opts.outDir
+	cats = getSortedCats()
+	for cat in cats:
+		if opts.verbose: print cat
+		opts.splitChannels = [cat]
+		splitCard()
+		opts.outDir += '/'+cat
+		os.system('mkdir -p %s'%opts.outDir)
+		opts.method = 'MuScan'
+		writeMultiDimFit()
+		opts.datacard = backupcard
+		opts.outDir = backupdir
+	
 def writeMultiDimFit():
 
 	print 'Writing MultiDim Scan'
@@ -295,6 +341,8 @@ def run():
 		writeProfileLikelhood()
 	elif opts.method=='ChannelCompatibilityCheck':
 		writeChannelCompatibility()
+	elif opts.method=='MultiPdfChannelCompatibility':
+		writeMultiPdfChannelCompatibility()
 	else:
 		writeMultiDimFit()
 
